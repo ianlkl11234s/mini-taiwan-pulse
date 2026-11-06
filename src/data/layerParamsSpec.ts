@@ -2321,6 +2321,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   gbPollutionInventory: [opacitySlider("gbPollutionInventoryOpacity", densePointOpacity(1_450)), scaleSlider("gbPollutionInventoryScale", 1)],
+  gbPollutionInventoryEngland: [opacitySlider("gbPollutionInventoryEnglandOpacity", densePointOpacity(2_536)), scaleSlider("gbPollutionInventoryEnglandScale", 1)],
   // 英國第 12 波：公司登記／製造業（district 聚合點，大小滑桿）、殯葬（點）、養殖（點＋狀態選單，預設現役）、土壤母質（分級面）
   gbCompanies: [opacitySlider("gbCompaniesOpacity", densePointOpacity(2_835)), scaleSlider("gbCompaniesScale", 1)],
   gbManufacturing: [opacitySlider("gbManufacturingOpacity", densePointOpacity(2_698)), scaleSlider("gbManufacturingScale", 1)],

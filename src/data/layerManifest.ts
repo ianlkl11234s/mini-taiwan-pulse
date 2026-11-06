@@ -6569,6 +6569,33 @@ export const LAYER_MANIFEST = {
     description: "蘇格蘭環保署（SEPA）污染物排放申報場址 1,450 處（2017 年），有申報空氣或水體排放實心、申報皆無空心；英格蘭授權待確認暫未顯示，威爾斯、北愛未涵蓋",
     topics: ["英國", "蘇格蘭", "污染", "排放", "工廠", "環境"],
   },
+  // 英格蘭 EA（站主限定）：EA Conditional Licence 限 internal or personal purposes，使用者 2026-11-06 拍板；
+  // 資料只在 Supabase reference.world_gb_ea_pollution_inventory，經 owner-only RPC get_gb_ea_pollution_inventory（gis-platform mig 499）讀取。
+  gbPollutionInventoryEngland: {
+    key: "gbPollutionInventoryEngland",
+    country: "GB", section: { theme: "環境氣候", group: "環境污染" },
+    ...layerName({ zh: "污染排放申報場址", alt: "Pollution Release Sites", qualifier: "EA 英格蘭" }),
+    expandable: true,
+    color: GB_POLLUTION_COLOR,
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_pollution_inventory", confidence: "HIGH" }],
+      processing: "analytics 成品 gb_pollution_inventory 取 authority==Environment Agency 2,540 列（依許可證號 site_ref）→ gis-platform scripts/load_gb_ea_pollution_inventory.py 匯入 Supabase；RPC 只回座標在英格蘭的 2,536 點（另 4 筆 postcode 在英格蘭、座標落在蘇格蘭／威爾斯，疑似錯誤不回）；released＝routes 非空",
+      note: "England：EA Conditional Licence 特別條件限「internal or personal purposes」、一年期（2026-10-29 起）→ 站主限定，不進 public/、S3 deploy-assets、R2、分析倉庫或任何公開網址；Scotland 另見 gbPollutionInventory（OGL）",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "gb-ea-pollution-inventory",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gbPollutionInventoryEngland",
+    popup: "gbPollutionInventoryEngland",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "站主限定。英格蘭環境署（EA）Pollution Inventory 2024 年申報場址 2,536 處；有申報排放量實心、該年無申報空心。授權限個人檢視，不公開",
+    topics: ["英國", "英格蘭", "污染", "排放", "工廠", "環境", "OWNER_ONLY"],
+  },
   gbNoise: {
     key: "gbNoise",
     country: "GB", section: { theme: "環境氣候", group: "噪音／聲響 Noise" },

@@ -101,7 +101,7 @@ import {
 import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbMajorRoadsHost, GbTrafficCountsAadfHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
 import { GbSurplusLandHost, GbTerrainHost } from "./hosts/ukHosts";
 import { GbAquacultureHost, GbCompaniesHost, GbFuneralHost, GbManufacturingHost, GbSoilParentMaterialHost } from "./hosts/ukHosts";
-import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
+import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbPollutionInventoryEnglandHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
 import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
 import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrTerritorialSeaHost, KrUrbanParksHost, KrSportsFacilitiesHost, KrCemeteriesOsmHost, KrPopulationH3Host, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
@@ -398,6 +398,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbRecyclingCentresLayer", keys: ["gbRecyclingCentres"], Host: GbRecyclingCentresHost },
   { id: "useGbWastePermitsLayer", keys: ["gbWastePermits"], Host: GbWastePermitsHost },
   { id: "useGbPollutionInventoryLayer", keys: ["gbPollutionInventory"], Host: GbPollutionInventoryHost },
+  { id: "useGbEaPollutionInventoryLayer", keys: ["gbPollutionInventoryEngland"], Host: GbPollutionInventoryEnglandHost },
   { id: "useGbNoiseLayer", keys: ["gbNoise"], Host: GbNoiseHost },
   // 英國第 10 波（主要路網、AADF 交通計數點）
   { id: "useGbMajorRoadsLayer", keys: ["gbMajorRoads"], Host: GbMajorRoadsHost },

@@ -357,6 +357,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-soil-parent-material-fill", "gb-soil-parent-material-na"], type: "gbSoilParentMaterial" },
   // 英國第 11 波：點（污染 → 廢棄物許可 → 回收中心 → 回收桶 → 棕地）先於面（規劃限制區、噪音）
   { layers: ["gb-pollution-inventory-circle"], type: "gbPollutionInventory" },
+  { layers: ["gb-ea-pollution-inventory-circle"], type: "gbPollutionInventoryEngland" },
   { layers: ["gb-waste-permits-circle"], type: "gbWastePermits" },
   { layers: ["gb-recycling-centre-circle", "gb-recycling-container-circle"], type: "gbRecyclingCentres" },
   { layers: ["gb-brownfield-circle"], type: "gbBrownfield" },

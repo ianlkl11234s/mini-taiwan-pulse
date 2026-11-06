@@ -447,7 +447,7 @@ export type ExpandableLayerKey =
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbMajorRoads" | "gbTrafficCountsAadf"
-  | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
+  | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
   | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
   | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
@@ -1010,7 +1010,7 @@ export interface FeatureInfo {
     // 英國第 10 波：主要路網、AADF 交通計數點
     | "gbMajorRoads" | "gbTrafficCountsAadf"
     // 英國第 11 波：規劃限制區、棕地、回收點、廢棄物許可、污染排放（蘇格蘭）、噪音
-    | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
+    | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
     // 英國第 12 波：公司登記、製造業、殯葬、養殖、土壤母質
     | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
     // 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護
@@ -1937,6 +1937,7 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   gbRecyclingCentres: boolean;  // 英國回收點（OSM，12,959 點）
   gbWastePermits: boolean;      // 英國廢棄物處理許可（EA／SEPA／NIEA，8,711 點）
   gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭暫未顯示）
+  gbPollutionInventoryEngland: boolean; // 英格蘭污染排放申報（EA Pollution Inventory 2024，2,536 點；站主限定 owner-only RPC get_gb_ea_pollution_inventory）
   gbNoise: boolean;             // 英國策略噪音地圖（Lden，141,566 面）
   gbCompanies: boolean;         // 英國公司登記（Companies House，郵遞區號 district 聚合 2,835 點）
   gbManufacturing: boolean;     // 英國製造業公司（同檔 c_C，2,698 點）

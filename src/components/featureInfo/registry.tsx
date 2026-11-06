@@ -67,7 +67,7 @@ import {
 } from "./japanPanels";
 import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbMajorRoadsPanel, GbSurplusLandPanel, GbTrafficCountsAadfPanel, GbVisitorExperiencePanel } from "./ukPanels";
 import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPanel, GbSoilParentMaterialPanel } from "./ukPanels";
-import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
+import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbPollutionInventoryEnglandPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
 import { KR_DATA_SPECS } from "../../data/krDataLayers";
@@ -517,6 +517,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbRecyclingCentres: GbRecyclingCentresPanel,
   gbWastePermits: GbWastePermitsPanel,
   gbPollutionInventory: GbPollutionInventoryPanel,
+  gbPollutionInventoryEngland: GbPollutionInventoryEnglandPanel,
   gbNoise: GbNoisePanel,
   gbTrafficCountsAadf: GbTrafficCountsAadfPanel,
   gbProtectedAreas: GbProtectedAreasPanel,
@@ -1185,6 +1186,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbRecyclingCentres: "回收點 Recycling Points",
   gbWastePermits: "廢棄物處理許可 Waste Permits",
   gbPollutionInventory: "污染排放申報 Pollution Releases",
+  gbPollutionInventoryEngland: "污染排放申報（英格蘭）Pollution Releases",
   gbNoise: "策略噪音地圖 Strategic Noise Map",
   gbTrafficCountsAadf: "年平均日交通量 AADF",
   gbProtectedAreas: "保護區 Protected Areas",

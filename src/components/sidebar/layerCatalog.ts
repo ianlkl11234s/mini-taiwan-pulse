@@ -3058,7 +3058,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "都市樹木 Urban Trees", layers: [fromManifest("gbTreeProtection")] },
       // 第 9 波 C072：加馬劑量率比照台灣 nuscGammaRadiation（環境輻射）的「環境氣候 › 環境污染」
       // 第 11 波 C092：污染排放申報比照台灣 pollutionFacility（申報工廠）；C090 噪音比照台灣「噪音／聲響 Noise」
-      { title: "環境污染", layers: [fromManifest("gbRadiation"), fromManifest("gbPollutionInventory")] },
+      { title: "環境污染", layers: [fromManifest("gbRadiation"), fromManifest("gbPollutionInventory"), fromManifest("gbPollutionInventoryEngland")] },
       { title: "噪音／聲響 Noise", layers: [fromManifest("gbNoise")] },
     ],
   },
@@ -3705,6 +3705,9 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   // 古地圖（中研院臺灣百年歷史地圖）：圖磚是公開外部來源，但再利用授權（CC BY-NC）待中研院確認，先站主限定；
   // 不需私人 Range API，只擋介面與網址還原。
   "historicalMapSinica",
+  // 英格蘭污染排放申報（EA Pollution Inventory 2024）：EA Conditional Licence 限 internal or personal purposes，
+  // 使用者 2026-11-06 拍板站主限定；資料只在 Supabase，經 owner-only RPC get_gb_ea_pollution_inventory（gis-platform mig 499 登記 gated_layers）。
+  "gbPollutionInventoryEngland",
 ]);
 
 /** 站主限定、且對非站主連主題標題都不顯示的主題（主題內圖層全部上鎖時才隱藏）。 */
