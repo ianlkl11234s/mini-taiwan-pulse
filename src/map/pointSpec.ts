@@ -51,6 +51,12 @@ export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
 };
 
 /**
+ * 淺色底圖保留圖層自訂的描邊色（P-2 例外，只動描邊色，半徑／寬度／透明度仍依點規格）：
+ * 2024 投開票所的「中性」模式是白點，淺色底圖的接縫色也是白 → 白點白邊看不到，淺色改深灰描邊。
+ */
+export const POINT_STROKE_COLOR_KEEP_LIGHT: ReadonlySet<string> = new Set(["pollingStations2024"]);
+
+/**
  * 特例：全台 8–18 萬點的 allzoom 點層（2026-09-30，效能）。
  * factoryLocations 約 8 萬、manufacturingCompanyPoints／regulatedFacilities 各約 18 萬，全台視角合計約 35 萬點；
  * 1d1b6938（2026-09-28）統一成固定 M 4.5px＋1px 描邊後，低 zoom 填充率暴增、風扇狂轉。
@@ -168,7 +174,7 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
         return {
           ...base,
           ...(tier === "B" ? {} : { "circle-radius": dense ? denseRadius(pointRadius(tier), sliderFactor(sizeSpec, params)) : pointRadius(tier, sliderFactor(sizeSpec, params)) }),
-          "circle-stroke-color": stroke("circle-stroke-color", mapSeamColor(isDark)),
+          "circle-stroke-color": !isDark && POINT_STROKE_COLOR_KEEP_LIGHT.has(config.id) ? base["circle-stroke-color"] : stroke("circle-stroke-color", mapSeamColor(isDark)),
           "circle-stroke-width": stroke("circle-stroke-width", dense ? denseStrokeWidth : POINT_STROKE.width),
           "circle-stroke-opacity": stroke("circle-stroke-opacity", strokeOpacity),
         };
