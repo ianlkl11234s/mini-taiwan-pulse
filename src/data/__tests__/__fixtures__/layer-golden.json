@@ -101974,7 +101974,19 @@
                 10000,
                 "#fde725"
               ],
-              "fill-opacity": 0.55
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8800000000000001,
+                8,
+                0.55
+              ]
             },
             "light": {
               "fill-color": [
@@ -102010,7 +102022,19 @@
                 10000,
                 "#46085c"
               ],
-              "fill-opacity": 0.55
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8800000000000001,
+                8,
+                0.55
+              ]
             }
           },
           "suffix": "fill",
@@ -102019,7 +102043,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 8,
           "paint": {
             "dark": {
               "line-color": "#0a0a14",
