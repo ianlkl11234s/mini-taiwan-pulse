@@ -144,7 +144,7 @@ export function GbPollutionInventoryEnglandLegend() {
     <LegendRow swatch={<SwatchDot color="transparent" stroke={GB_POLLUTION_COLOR} strokeWidth={GB_ENV_HOLLOW_STROKE} />}>{i18n.t("legend.environment.gbEaNone", { n: n(GB_EA_POLLUTION_COUNTS.none) })}</LegendRow>
     <LegendNote>{i18n.t("legend.environment.gbEaEngland", { n: n(GB_EA_POLLUTION_COUNTS.total) })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbEaLicence", { year: GB_EA_POLLUTION_YEAR })}</LegendNote>
-    <LegendNote>{i18n.t("legend.environment.gbEaExcluded", { n: n(GB_EA_POLLUTION_COUNTS.excluded) })}</LegendNote>
+    <LegendNote>{i18n.t("legend.environment.gbEaPostcodeCentroid", { n: n(GB_EA_POLLUTION_COUNTS.postcodeCentroid) })}</LegendNote>
     <LegendNote>{GB_EA_POLLUTION_ATTRIBUTION}</LegendNote>
   </div>;
 }

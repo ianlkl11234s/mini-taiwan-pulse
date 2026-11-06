@@ -107,7 +107,7 @@ const listeners = new Set<() => void>();
 
 function publish(next: LocaleSnapshot) {
   snapshot = next;
-  if (typeof document !== "undefined") { document.documentElement.lang = LOCALES[next.active].htmlLang; syncCanonicalLink(); }
+  if (typeof document !== "undefined") { document.documentElement.lang = LOCALES[next.active].htmlLang; syncCanonicalLink(document, `?lang=${next.locale}`); } // 用目標語系推 canonical：此時 location.search 還是舊 lang（App 之後才改網址）
   for (const listener of listeners) listener();
 }
 

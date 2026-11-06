@@ -88,16 +88,28 @@ async function fromR2(req, path, cc) {
   return new Response(r.body, { status: r.status, headers: out });
 }
 
-// 轉回現行正式站（Zeabur）。測試站網址與正式站不同，不會迴圈。
-async function fromOrigin(req, env, url, tag = 'origin') {
+// 新主機（Cloudflare Tunnel 後的 Caddy）的入口驗證 header：值一律來自 Worker secret
+// （wrangler secret put，不寫進 wrangler.jsonc）。瀏覽器送來的同名 header 一律先刪，回應也不帶出。
+const ORIGIN_AUTH_HEADERS = [
+  ['CF-Access-Client-Id', 'CF_ACCESS_CLIENT_ID'],
+  ['CF-Access-Client-Secret', 'CF_ACCESS_CLIENT_SECRET'],
+  ['X-Pulse-Origin-Auth', 'PULSE_ORIGIN_SECRET'],
+];
+const ORIGIN_AUTH_NAMES = ORIGIN_AUTH_HEADERS.map(([name]) => name);
+
+// 轉回 ORIGIN（目前是 Zeabur 正式站，切換後是新主機）。測試站網址與正式站不同，不會迴圈。
+export async function fromOrigin(req, env, url, tag = 'origin') {
   const target = new URL(url.pathname + url.search, env.ORIGIN);
   const h = new Headers(req.headers);
   h.delete('host'); h.delete('cookie');
+  for (const name of ORIGIN_AUTH_NAMES) h.delete(name);
+  for (const [name, key] of ORIGIN_AUTH_HEADERS) if (env[key]) h.set(name, env[key]);
+  h.delete('x-real-ip'); h.delete('x-forwarded-for'); // 新主機只信 Worker 設的值
   const ip = req.headers.get('cf-connecting-ip'); if (ip) { h.set('X-Forwarded-For', ip); h.set('X-Real-IP', ip); }
   const init = { method: req.method, headers: h, redirect: 'manual' };
   if (!['GET', 'HEAD'].includes(req.method)) { init.body = req.body; init.duplex = 'half'; }
   const r = await fetch(target, init);
-  return withHeaders(r, { 'X-Pulse-Src': tag });
+  return withHeaders(r, { 'X-Pulse-Src': tag }, { drop: ORIGIN_AUTH_NAMES });
 }
 
 export default {

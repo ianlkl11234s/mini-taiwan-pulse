@@ -34,10 +34,11 @@ function fixture(end = '2026-09-13') {
 
 function fakes(srcFiles, dstFiles = new Map()) {
   const puts = [];
+  const dstMeta = new Map();
   const etag = b => md5(b);
   const list = (m) => async (prefix) => new Map([...m].filter(([k]) => k.startsWith(prefix)).map(([k, b]) => [k, { size: b.length, etag: etag(b), lastModified: 0 }]));
   return {
-    puts, dstFiles,
+    puts, dstFiles, dstMeta,
     src: {
       list: list(srcFiles),
       get: async k => srcFiles.get(k) ?? null,
@@ -50,8 +51,8 @@ function fakes(srcFiles, dstFiles = new Map()) {
     dst: {
       list: list(dstFiles),
       get: async k => dstFiles.get(k) ?? null,
-      head: async k => dstFiles.has(k) ? { size: dstFiles.get(k).length, etag: etag(dstFiles.get(k)), metadata: {} } : null,
-      async put(k, { file, body }) { puts.push(k); dstFiles.set(k, body ?? (await import('node:fs')).readFileSync(file)); },
+      head: async k => dstFiles.has(k) ? { size: dstFiles.get(k).length, etag: etag(dstFiles.get(k)), metadata: dstMeta.get(k) ?? {} } : null,
+      async put(k, { file, body, metadata }) { puts.push(k); dstMeta.set(k, metadata ?? {}); dstFiles.set(k, body ?? (await import('node:fs')).readFileSync(file)); },
       async del(keys) { for (const k of keys) dstFiles.delete(k); },
     },
   };
@@ -113,6 +114,44 @@ test('happy path uploads assets then root last; second run is a no-op', async ()
     const older = fixture('2026-09-12');
     const g = fakes(srcOf(older), f.dstFiles);
     await assert.rejects(syncGfwNamespace({ ns: '', ...g, execute: true, work }), /regression/);
+  } finally { rmSync(work, { recursive: true, force: true }); }
+});
+
+test('equal ETags are not trusted: R2 object without matching sha256 metadata is re-uploaded (F079)', async () => {
+  const fx = fixture();
+  const f = fakes(srcOf(fx));
+  const work = mkdtempSync(join(tmpdir(), 'sr-'));
+  try {
+    await syncGfwNamespace({ ns: '', ...f, execute: true, work });
+    // 模擬兩邊同壞但 ETag 相等：R2 metadata 的 sha256 與 manifest 不符
+    const victim = `${D}/${fx.manifest.assets[3].path}`;
+    f.dstMeta.set(victim, { sha256: 'deadbeef' });
+    f.dstFiles.delete(`${D}/manifest.json`);
+    f.puts.length = 0;
+    await syncGfwNamespace({ ns: '', ...f, execute: true, work });
+    assert.deepEqual(f.puts.filter(k => k !== `${D}/manifest.json`), [victim]);
+  } finally { rmSync(work, { recursive: true, force: true }); }
+});
+
+test('v4 root: release manifest verified, artifacts synced, root switched last (F078/F082)', async () => {
+  const id = '2026-11-01__r1';
+  const art = Buffer.from('v4-artifact');
+  const artifact = { path: `releases/${id}/a.json.gz`, bytes: art.length, sha256: hash(art) };
+  const release = Buffer.from(JSON.stringify({ schema_version: 4, release_id: id, production_cutover: true, immutable: true, release_truth: { tier1_status: 'passed', tier2_status: 'passed', readback_status: 'passed' }, artifacts: [artifact] }));
+  const root = { schema_version: 4, release_id: id, selected_utc_date: '2026-11-01', production_cutover: true, release_manifest: { path: `releases/${id}/manifest.json`, bytes: release.length, sha256: hash(release) } };
+  const S4 = `${S}/v4`, D4 = `${D}/v4`;
+  const src = new Map([[`${S4}/manifest.json`, Buffer.from(JSON.stringify(root))], [`${S4}/${artifact.path}`, art], [`${S4}/${root.release_manifest.path}`, release]]);
+  const f = fakes(src);
+  const work = mkdtempSync(join(tmpdir(), 'sr-'));
+  try {
+    const st = await syncGfwNamespace({ ns: 'v4', ...f, execute: true, work });
+    assert.equal(st.status, 'installed');
+    assert.equal(f.puts.at(-1), `${D4}/manifest.json`);
+    assert.deepEqual(new Set(f.puts), new Set([`${D4}/${artifact.path}`, `${D4}/${root.release_manifest.path}`, `${D4}/manifest.json`]));
+    // release manifest 被竄改 → 拒絕、不動 root
+    const bad = fakes(new Map(src).set(`${S4}/${root.release_manifest.path}`, Buffer.from('{}')));
+    await assert.rejects(syncGfwNamespace({ ns: 'v4', ...bad, execute: true, work }), /v4 release manifest verification failed/);
+    assert.equal(bad.puts.length, 0);
   } finally { rmSync(work, { recursive: true, force: true }); }
 });
 

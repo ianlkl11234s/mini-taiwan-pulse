@@ -48,3 +48,7 @@ jobs:
 
       - name: Private coral backend tests
         run: npm run check:coral
+
+      # Cloudflare Worker 轉送新主機的入口驗證 header（deploy/cloudflare/src/worker.js fromOrigin）
+      - name: Cloudflare Worker tests
+        run: npm run check:worker

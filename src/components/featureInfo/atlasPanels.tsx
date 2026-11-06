@@ -1034,6 +1034,7 @@ function OccupationalAccidentPanel({ props }: Props) {
     <Row field="county" value={placeName(str(props.city), i18n)} />
     <Row field="place" value={str(props.place)} />
     <Row field="address" value={str(props.address)} />
+    <Precision props={props} flagged={props.precision === "parcel_centroid" || props.precision === "interpolated"} />
     <DataDate props={props} />
     <Row field="caution" value={t("popup.atlas.occCaution")} />
   </>;

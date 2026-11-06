@@ -319,6 +319,19 @@
 | N3-3 | P3 | blocked | 加拿大即時地震（NRCan FDSN）條款不清，現只上 1985–2019 封存檔。 | Blocked on 條款查證。First action: 查 NRCan earthquakescanada FDSN 使用條款；可用就做 collector 類即時層。 | 條款確認並記錄；可用則上線即時層。 |
 | N3-4 | P3 | ready | 日本舊研究層 jpWildlifeProtection 與新層 jpWildlifeProtectionMoe 同源；舊 jpNaturalParks（2010，有公園名）與新 2015 版。 | 使用者 2026-11-06 決定兩組都並存。First action: 無；若之後要合併，先讓新層帶公園名。 | — |
 
+## 大眾運輸可及性 transit_access：三市與雲端運算（2026-11-06）
+
+雙北版程式 #810 已在 v2.22.0（Zeabur 正式站卡在 v2.21.0，新版在 Cloudflare 測試站）。臺中／臺南／高雄（含國道客運上下車限制）與雲端工具 `tools/cloud_run/`、skill `cloud-run` 都只在 analytics 本機分支 `feat/transit-access-cities`（worktree `.worktrees/transit-access-cities`，未 push）。各市結果與方法：analytics `docs/topic-research/transit_access/`（taichung／tainan／kaohsiung.md、methodology.md §6、_status.md）。
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| TA-1 | P1 | blocked | analytics `feat/transit-access-cities` push 並開 PR（三市結果、r5py 輸入檔名加 hash、國道客運上下車限制、雲端工具與 skill）。 | Blocked on 使用者核准 push。First action：rebase 到最新 analytics 主分支、跑既有測試，開 PR 等 CI。 | PR 合併；分支與 worktree 清掉。 |
+| TA-2 | P1 | blocked | 雙北重算：已發布的雙北結果用到 r5py 快取裡的舊輸入，也沒套國道客運上下車限制。P1＋比對已做（output/transit_access/ntpe_rerun_20261104/），P2、P3 未完。 | Blocked on 使用者說要跑（2026-11-06「先不跑」）。First action：報價（約 2–3 小時、2–3 美元）後用 `cloud/launch.sh` 上 AWS 跑 P2＋P3，從根目錄複製 fallback_cells.json；寫 ntpe_rerun.md 與是否換掉網站版本的建議。 | 新舊對照報告完成，使用者決定換或不換 R2 `sim/v1/transit_access/`。 |
+| TA-3 | P2 | blocked | 三市怎麼上網站：一市一個 slug 還是合成一個；高雄「只有 GPS 版、沒有時刻表版」怎麼標示。 | Blocked on 使用者決定（TA-1 合併後）。First action：做設計稿（多版）給使用者選。 | 拍板後 publish_sim_bundle 上 R2、mini 接線 PR 進 develop。 |
+| TA-4 | P3 | ready | 雲端工具未測項：Spot（約半價）中途被收回後的接續流程。 | Trigger：下次要跑長任務且想用 Spot。First action：用 smoke.job.env 開 Spot 跑一次，手動中斷後驗證接續。 | 中斷後能從斷點接續，結果與 On-Demand 一致。 |
+| TA-5 | P3 | blocked | S3 `migu-private-research-ap-southeast-2/cloud_run/cloud_run_smoke/`（幾 KB 測試檔）要不要刪。 | Blocked on 使用者決定刪除。First action：`cloud_run.sh cleanup tools/cloud_run/smoke.job.env --yes`（只刪該前綴）。 | 前綴已清空或使用者決定保留。 |
+| TA-6 | P3 | ready | 雙北重算 P1 未解疑點：兩個「禁止行人」樣本格反而變慢（原因未查）；Google 夜間能到土城／泰山／林口／五股、新模型判定到不了（Google 步行 1.35–1.9 km）。 | First action：併入 TA-2 報告逐格查路網與步行上限。 | 原因寫進 ntpe_rerun.md，或確認為模型假設差異。 |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.
