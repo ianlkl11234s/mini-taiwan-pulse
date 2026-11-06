@@ -265,7 +265,7 @@
   "popup.environmentLayer.gbPolNo": "申報無排放",
   "popup.environmentLayer.gbPolNotReported": "未申報",
   "popup.environmentLayer.gbPolReturn": "申報書",
-  "popup.environmentLayer.gbPolNote": "蘇格蘭 SEPA SPRI 2017 年申報；英格蘭授權待確認，暫未顯示",
+  "popup.environmentLayer.gbPolNote": "蘇格蘭 SEPA SPRI 2017 年申報；英格蘭 EA 資料另見站主限定圖層",
   "popup.environmentLayer.gbEaRoutes": "申報途徑",
   "popup.environmentLayer.gbEaRoutesNone": "該年無申報排放量",
   "popup.environmentLayer.gbEaSubstances": "申報物質數",

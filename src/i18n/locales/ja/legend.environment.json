@@ -194,7 +194,7 @@
   "legend.environment.gbPolReleased": "大気または水域への排出を報告（{n}）",
   "legend.environment.gbPolNone": "報告された経路すべてで排出なし（{n}、中空）",
   "legend.environment.gbPolScotland": "スコットランド：SEPA 汚染物質排出目録（SPRI）{year} 年報告、{n} 施設",
-  "legend.environment.gbPolEngland": "イングランド：ライセンス確認中のため当面非表示",
+  "legend.environment.gbPolEngland": "イングランド：EA データは管理者限定の別レイヤー",
   "legend.environment.gbPolUncovered": "ウェールズ・北アイルランド：対象外",
   "legend.environment.gbEaReleased": "排出量の報告あり（いずれかの経路、{n}）",
   "legend.environment.gbEaNone": "当該年の排出量報告なし（{n}、白抜き）",

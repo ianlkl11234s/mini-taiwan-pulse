@@ -194,7 +194,7 @@
   "legend.environment.gbPolReleased": "有申報排放（空氣或水體，{n}）",
   "legend.environment.gbPolNone": "已申報途徑皆無排放（{n}，空心）",
   "legend.environment.gbPolScotland": "蘇格蘭 SEPA 污染物排放清冊（SPRI）{year} 年申報，{n} 處場址",
-  "legend.environment.gbPolEngland": "英格蘭：授權待確認，暫未顯示",
+  "legend.environment.gbPolEngland": "英格蘭：EA 資料另見站主限定圖層",
   "legend.environment.gbPolUncovered": "威爾斯、北愛：未涵蓋",
   "legend.environment.gbEaReleased": "有申報排放量（任一途徑，{n}）",
   "legend.environment.gbEaNone": "該年無申報排放量（{n}，空心）",

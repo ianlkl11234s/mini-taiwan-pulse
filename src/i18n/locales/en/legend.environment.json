@@ -194,7 +194,7 @@
   "legend.environment.gbPolReleased": "Reported releases to air or water ({n})",
   "legend.environment.gbPolNone": "No release on any reported route ({n}, hollow)",
   "legend.environment.gbPolScotland": "Scotland: SEPA Scottish Pollutant Release Inventory (SPRI), {year} returns, {n} sites",
-  "legend.environment.gbPolEngland": "England: licence under review, not shown for now",
+  "legend.environment.gbPolEngland": "England: EA data is in a separate owner-only layer",
   "legend.environment.gbPolUncovered": "Wales, Northern Ireland: not covered",
   "legend.environment.gbEaReleased": "Releases reported (any route, {n})",
   "legend.environment.gbEaNone": "No releases reported that year ({n}, hollow)",

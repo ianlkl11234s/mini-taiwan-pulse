@@ -265,7 +265,7 @@
   "popup.environmentLayer.gbPolNo": "排出なし（報告）",
   "popup.environmentLayer.gbPolNotReported": "報告なし",
   "popup.environmentLayer.gbPolReturn": "報告書",
-  "popup.environmentLayer.gbPolNote": "スコットランド SEPA SPRI 2017 年報告。イングランドはライセンス確認中のため非表示",
+  "popup.environmentLayer.gbPolNote": "スコットランド SEPA SPRI 2017 年報告。イングランドの EA データは管理者限定の別レイヤー",
   "popup.environmentLayer.gbEaRoutes": "報告経路",
   "popup.environmentLayer.gbEaRoutesNone": "当該年の排出量報告なし",
   "popup.environmentLayer.gbEaSubstances": "報告物質数",

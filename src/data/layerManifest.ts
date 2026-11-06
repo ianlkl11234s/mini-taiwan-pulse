@@ -6555,7 +6555,7 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "gb_pollution_inventory", confidence: "HIGH" }],
       processing: "只上蘇格蘭：analytics 成品 gb_pollution_inventory（3,990 點）篩 authority==SEPA → SEPA SPRI 2017 申報 1,450 場址，前端另產 gb_pollution_inventory_sepa.pmtiles（z5–13，同 layer 名）；英格蘭 EA Pollution Inventory 2024 不進前端任何檔案",
-      note: "Scotland：OGL（SEPA SPRI Atom <rights>）；England：EA Conditional Licence 特別條件限「internal or personal purposes」，授權待使用者拍板，暫未顯示；Wales、Northern Ireland 未涵蓋；1/4 顯示",
+      note: "Scotland：OGL（SEPA SPRI Atom <rights>）；England：EA Conditional Licence 特別條件限「internal or personal purposes」，不在本層，另見站主限定圖層 gbPollutionInventoryEngland；Wales、Northern Ireland 未涵蓋；1/4 顯示",
     },
     dataClass: "D",
     source: {
@@ -6566,7 +6566,7 @@ export const LAYER_MANIFEST = {
     legend: "gbPollutionInventory",
     popup: "gbPollutionInventory",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "蘇格蘭環保署（SEPA）污染物排放申報場址 1,450 處（2017 年），有申報空氣或水體排放實心、申報皆無空心；英格蘭授權待確認暫未顯示，威爾斯、北愛未涵蓋",
+    description: "蘇格蘭環保署（SEPA）污染物排放申報場址 1,450 處（2017 年），有申報空氣或水體排放實心、申報皆無空心；英格蘭 EA 資料另見站主限定圖層，威爾斯、北愛未涵蓋",
     topics: ["英國", "蘇格蘭", "污染", "排放", "工廠", "環境"],
   },
   // 英格蘭 EA（站主限定）：EA Conditional Licence 限 internal or personal purposes，使用者 2026-11-06 拍板；

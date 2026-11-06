@@ -1936,7 +1936,7 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   gbBrownfield: boolean;        // 英格蘭棕地登記冊（Planning Data，30,303 點）
   gbRecyclingCentres: boolean;  // 英國回收點（OSM，12,959 點）
   gbWastePermits: boolean;      // 英國廢棄物處理許可（EA／SEPA／NIEA，8,711 點）
-  gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭暫未顯示）
+  gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭另見 gbPollutionInventoryEngland）
   gbPollutionInventoryEngland: boolean; // 英格蘭污染排放申報（EA Pollution Inventory 2024，2,536 點；站主限定 owner-only RPC get_gb_ea_pollution_inventory）
   gbNoise: boolean;             // 英國策略噪音地圖（Lden，141,566 面）
   gbCompanies: boolean;         // 英國公司登記（Companies House，郵遞區號 district 聚合 2,835 點）
