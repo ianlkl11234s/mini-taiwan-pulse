@@ -477,5 +477,5 @@
   "enum.atlasWater1944Status.still": "Still a river today",
   "enum.atlasWater1944Status.gone": "No longer a river",
   "enum.atlasOrg.sinicaGis": "Center for GIS, RCHSS, Academia Sinica",
-  "enum.atlasNote.water1944Taipei": "Waterbodies extracted by colour from the 1944 US Army topographic map (AM25K_1944A), Taipei Basin only; narrow channels are not captured and positions may be off by 5–15 m. Polygons overlapping today's river polygons (buffered by 50 m) by at least half are \"still a river today\"; the rest are \"no longer a river\" (old channels, ponds, flooded paddies and so on, not checked one by one). Source map CC BY-NC; this layer is derived data."
+  "enum.atlasNote.water1944Taipei": "Waterbodies extracted by colour from the 1944 US Army topographic map (AM25K_1944A), Taipei Basin only; narrow channels are not captured and positions may be off by 5–15 m. Polygons overlapping today's river polygons (buffered by 50 m) by at least half are \"still a river today\"; the rest are \"no longer a river\" (old channels, ponds, flooded paddies and so on, not checked one by one)."
 }

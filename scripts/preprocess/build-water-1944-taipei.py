@@ -10,6 +10,7 @@ GIS/_worktree-backups/2026-11-06/water1944/scripts/）。本腳本只做比對�
   - status：overlap ≥ 50 → still（今日仍是河道）；< 50 → gone（今日已非河道）。
   - town：與面交集面積最大的鄉鎮市區（public/statistics/township-reference.geojson）；
     沒有交集的面為 null（不猜）。
+  - 每筆補 popup 來源 footer 欄位（SOURCE_PROPS）。
   - area_m2：原值四捨五入成整數；座標取 6 位小數；perimeter_m、lon、lat 前端用不到，不輸出。
 
 用法：
@@ -34,6 +35,13 @@ from shapely.strtree import STRtree
 warnings.filterwarnings("ignore")
 
 BUFFER_M = 50
+# popup 來源 footer（SourceFooter 讀 source_org／source_url／license／fetched_at）
+SOURCE_PROPS = {
+    "source_org": "中研院人社中心 GIS 專題中心 臺灣百年歷史地圖 1944 美軍地形圖（AM25K_1944A）衍生",
+    "source_url": "https://gis.sinica.edu.tw/tileserver/wmts",
+    "license": "原圖 CC BY-NC，本層為衍生資料",
+    "fetched_at": "2026-11-06",
+}
 STILL_THRESHOLD = 50
 
 TO_TWD97 = pyproj.Transformer.from_crs(4326, 3826, always_xy=True).transform
@@ -98,6 +106,7 @@ def main() -> None:
                 "modern_overlap_pct": pct,
                 "town": best,
                 "area_m2": round(float(f["properties"]["area_m2"])),
+                **SOURCE_PROPS,
             },
         })
 

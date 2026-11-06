@@ -30,5 +30,5 @@
   "legend.atlas.postFxCounter": "Post office exchanging foreign cash (not a licensed currency exchange shop)",
   "legend.atlas.toxicSite": "Toxic chemical operating site (address point)",
   "legend.atlas.otherAccidentType": "Other types",
-  "legend.atlas.licenseSinicaCcByNc": "source map CC BY-NC (Center for GIS, RCHSS, Academia Sinica); this layer is derived data"
+  "legend.atlas.licenseSinicaCcByNc": "source map CC BY-NC; this layer is derived data"
 }
