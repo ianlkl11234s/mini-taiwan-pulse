@@ -151,6 +151,10 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // 愛爾蘭第 3b 波：受保護海域（保護區類，預設點；點檔另含自然保留區、避難所、拉姆薩這些原本就只有點的站點）
   { key: "ieProtectedMarineSites", family: "krData", file: "ie_protected_marine_sites_points.pmtiles", sourceLayer: "ie_protected_marine_sites_points", count: 290, def: "point", maxzoom: 14 },
   { key: "ieStateAssets", family: "krData", file: "ie_state_assets_points.pmtiles", sourceLayer: "ie_state_assets_points", count: 75443, def: "point", maxzoom: 14, thinned: 1, heatIntensity: 1.5 },
+  // 愛爾蘭第 5 波：國家公園（大範圍，預設面）、指定保護區與崩塌範圍（小而零散，預設點）
+  { key: "ieNationalParks", family: "krData", file: "ie_national_parks_points.pmtiles", sourceLayer: "ie_national_parks_points", count: 6, def: "polygon", maxzoom: 14 },
+  { key: "ieProtectedSites", family: "krData", file: "ie_protected_sites_points.pmtiles", sourceLayer: "ie_protected_sites_points", count: 806, def: "point", maxzoom: 14 },
+  { key: "ieLandslideExtents", family: "krData", file: "ie_landslide_extents_points.pmtiles", sourceLayer: "ie_landslide_extents_points", count: 2274, def: "point", maxzoom: 14 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));

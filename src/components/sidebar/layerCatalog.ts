@@ -372,6 +372,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "海洋",
     // 第 4 波：交通（場站、路網、樞紐節點；比照南韓、加拿大）
     "交通",
+    // 第 5 波：觀光（國家公園、Wild Atlantic Way）、環境氣候（保護區、樹木、輻射站）、林業（步道），比照台灣與英國第 5 波
+    "觀光",
+    "環境氣候",
+    "林業",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -3124,6 +3128,10 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "淹水", layers: [fromManifest("ieRiverFloodExtents")] },
       { title: "海岸侵蝕", layers: [fromManifest("ieCoastalErosion")] },
+      // 第 5 波 C070：比照台灣 landslideAnnual、英國 gbLandslide 的「災害 › 崩塌 Landslide」
+      { title: "崩塌 Landslide", layers: [fromManifest("ieLandslideEvents"), fromManifest("ieLandslideExtents")] },
+      // 第 5 波 C073：氡氣比照英國 gbRadon 的「災害 › 地質災害」
+      { title: "地質災害", layers: [fromManifest("ieRadonRisk")] },
     ],
   },
   {
@@ -3148,6 +3156,31 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "路網", layers: [fromManifest("ieRoadRailNetwork"), fromManifest("ieRoadMarkers"), fromManifest("ieTrafficCounters")] },
       { title: "樞紐節點", layers: [fromManifest("ieAirportsPorts")] },
     ],
+  },
+  {
+    // 第 5 波 C054：比照台灣 nationalParks（觀光 › 玩・自然 Nature）；Wild Atlantic Way 同群
+    title: "觀光",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "玩・自然 Nature", layers: [fromManifest("ieNationalParks"), fromManifest("ieWildAtlanticWay")] }],
+  },
+  {
+    // 第 5 波：比照英國「環境氣候」——保護區、都市樹木 Urban Trees；輻射站比照台灣 nuscGammaRadiation、英國 gbRadiation 的「環境污染」
+    title: "環境氣候",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "保護區", layers: [fromManifest("ieProtectedSites")] },
+      { title: "都市樹木 Urban Trees", layers: [fromManifest("ieStreetTrees")] },
+      { title: "環境污染", layers: [fromManifest("ieRadiationStations")] },
+    ],
+  },
+  {
+    // 第 5 波 C116：比照台灣 hikingTrails、英國 gbTrails 的「林業 › 線」
+    title: "林業",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "線", layers: [fromManifest("ieNationalTrails")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3509,6 +3542,9 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "災害": "safety",
     "海洋": "environment",
     "交通": "city",
+    "觀光": "publicLife",
+    "環境氣候": "environment",
+    "林業": "environment",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3726,6 +3762,9 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "災害": { zh: "災害", sub: "Hazard" },
     "海洋": { zh: "海洋", sub: "Marine" },
     "交通": { zh: "交通", sub: "Transport" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "林業": { zh: "林業", sub: "Forestry" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

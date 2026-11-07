@@ -813,6 +813,25 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭國道交通量計數站 308 站位置（TII 2018 名冊，無流量）", processing: "TII tmu-traffic-counters.geojson（field_1…field_5 依內容判讀）；PMTiles z4–14", note: "CC BY 4.0；STALE：2018 名冊，每日計數 2021 後無法取得" },
   ieAirportsPorts: { theme: "交通", group: "樞紐節點", zh: "機場、港口與渡輪碼頭", alt: "Airports, Harbours & Ferry Ports", icon: Plane, dataset: "ie_airports_ports", topics: ["愛爾蘭", "交通", "機場", "港口", "渡輪"],
     description: "愛爾蘭機場 9、小型機場 21、主要港口 6、其他港口 30、渡輪碼頭 38（共 104）", processing: "Tailte 250k Airfield Area（面中心，OurAirports 補名）、Airports、Main／Other Harbours＋NMPF Ferry Port；剔北愛 2；PMTiles z4–14", note: "CC BY 4.0（機場名 OurAirports public domain）；無運量與等級" },
+  // 第 5 波（2026-11-08）：自然保護、林業、地質輻射（主題比照台灣：國家公園在觀光、保護區與樹木在環境氣候、步道在林業）
+  ieNationalParks: { theme: "觀光", group: "玩・自然 Nature", zh: "國家公園", alt: "National Parks", icon: Trees, dataset: "ie_national_parks", topics: ["愛爾蘭", "國家公園", "自然", "NPWS", "觀光"],
+    description: "愛爾蘭 6 座國家公園（Killarney、Glenveagh、Connemara、Burren、Wild Nephin、Wicklow Mountains，693 km²）", processing: "NPWS NationalParkBoundaries FeatureServer → 4326；面 PMTiles z4–13＋代表點（點／面切換，預設面）", note: "CC BY 4.0" },
+  ieWildAtlanticWay: { theme: "觀光", group: "玩・自然 Nature", zh: "Wild Atlantic Way 觀光路線", alt: "Wild Atlantic Way", icon: Route, dataset: "ie_wild_atlantic_way", topics: ["愛爾蘭", "觀光", "觀光路線", "海岸", "Fáilte Ireland"],
+    description: "愛爾蘭西岸觀光路線 Wild Atlantic Way 406 段、約 2,500 km（Donegal–Cork）", processing: "NMPF_7_3_Heritage_Assets FeatureServer/4 → 4326；PMTiles z4–12", note: "CC BY 4.0；資料年 2020；無路名、Discovery Points 未收" },
+  ieProtectedSites: { theme: "環境氣候", group: "保護區", zh: "指定保護區（SAC／SPA／NHA）", alt: "Designated Sites (SAC / SPA / NHA)", icon: Shield, dataset: "ie_protected_sites", topics: ["愛爾蘭", "保護區", "Natura 2000", "SAC", "SPA", "NHA", "生態", "NPWS"],
+    description: "愛爾蘭 NPWS 法定指定保護區 806 面：SAC 433、SPA 202、NHA 171（含海域部分）", processing: "NPWSDesignatedAreas FeatureServer layer 3／0／2 → 4326；面 PMTiles z4–13＋代表點（預設點）", note: "CC BY 4.0；pNHA 1,180 未收" },
+  ieNationalTrails: { theme: "林業", group: "線", zh: "國家步道登錄", alt: "National Trails Register", icon: Footprints, dataset: "ie_national_trails", topics: ["愛爾蘭", "步道", "綠道", "健行", "單車", "Sport Ireland"],
+    description: "愛爾蘭 Sport Ireland 國家步道登錄 1,340 條、約 18,500 km（步行 1,038、單車 133、綠道 49、長距離 44、划槳等）", processing: "NTR_ITM_view FeatureServer → 4326；剔北愛 3；PMTiles z4–13", note: "CC BY 4.0；Coillte 林道另在站主限定層" },
+  ieStreetTrees: { theme: "環境氣候", group: "都市樹木 Urban Trees", zh: "都柏林樹木", alt: "Dublin Trees", icon: TreeDeciduous, dataset: "ie_street_trees", topics: ["愛爾蘭", "行道樹", "都市樹木", "樹種", "都柏林"],
+    description: "都柏林三議會樹木 67,962 株（Fingal 35,978、DLR 16,235、Dublin City 15,749）", processing: "Fingal FeatureServer＋DLR 2019 GeoJSON＋DCC shapefile（ITM）→ 共用欄位；剔伐除、倒伏、殘株；PMTiles z4–14，z12 起點、之下熱區", note: "CC BY 4.0；只有都柏林 3/31 LA；不收調查人員姓名" },
+  ieRadiationStations: { theme: "環境氣候", group: "環境污染", zh: "輻射監測站", alt: "Radiation Monitoring Stations", icon: Radiation, dataset: "ie_radiation_stations", topics: ["愛爾蘭", "輻射", "伽瑪劑量率", "環境輻射", "EPA"],
+    description: "愛爾蘭 EPA 環境輻射監測站 41 站（陸地 26、其中即時 15；海域 15）", processing: "EPA WFS RAD_MONITORINGSTATION（MultiPoint 單點）→ PMTiles z4–14", note: "CC BY 4.0；只有站點與採樣項目、無量測值" },
+  ieLandslideEvents: { theme: "災害", group: "崩塌 Landslide", zh: "崩塌事件（GSI）", alt: "Landslide Events (GSI)", icon: Mountain, dataset: "ie_landslide_events", topics: ["愛爾蘭", "崩塌", "山崩", "泥炭滑動", "GSI", "地質災害"],
+    description: "愛爾蘭 GSI 國家崩塌資料庫事件點 2,779 筆（剔北愛 32；有日期 226）", processing: "GSI SHP zip（MapServer 不回幾何，Range 只取點檔）ITM → 4326；材料依原值合併 5 組；PMTiles z4–14", note: "CC BY 4.0（GSI 指定署名句）；材料分組為推定" },
+  ieLandslideExtents: { theme: "災害", group: "崩塌 Landslide", zh: "崩塌範圍（GSI）", alt: "Landslide Extents (GSI)", icon: Mountain, dataset: "ie_landslide_extents", topics: ["愛爾蘭", "崩塌", "山崩", "GSI", "地質災害"],
+    description: "愛爾蘭 GSI 判釋崩塌範圍 2,274 面（剔北愛 1）", processing: "GSI SHP zip ITM → 4326；面 PMTiles z8–14＋代表點（預設點）", note: "CC BY 4.0；與事件點無共用 ID" },
+  ieRadonRisk: { theme: "災害", group: "地質災害", zh: "氡氣風險圖", alt: "Radon Risk Map", icon: Atom, dataset: "ie_radon_risk", topics: ["愛爾蘭", "氡氣", "輻射", "地質災害", "EPA", "住宅"],
+    description: "愛爾蘭 EPA 氡氣風險圖三級：約 1／5（26,553 km²）、1／10（27,118 km²）、1／20（14,616 km²）住宅氡氣偏高", processing: "EPA WFS RadonRiskMapofIreland 68,007 面 → 依級 dissolve 51,861 面；PMTiles z4–11", note: "CC BY 4.0；模型預測；偏高門檻推定 200 Bq/m³" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];
