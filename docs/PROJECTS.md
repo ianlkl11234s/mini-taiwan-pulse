@@ -16,7 +16,7 @@
 
 1. **正式站已切到 Cloudflare（v2.25.1）**：2026-11-06 主站改由 Cloudflare Worker（網頁＋R2 圖層）＋新主機 pulse-host（`/api`、gateway）提供，v2.22.0～v2.25.1 一次上線。下列標「正式站待驗收」的專案，現在可以到正式站目視驗收。
 2. **Zeabur 全平台 12/31 停止營運，以 11 月底前搬完為準**：靜態站、主站、research-gateway、Valhalla 已搬完，OSRM 不搬；**只剩 collector**（correctional_daily_snapshot 改放 HiCloud VM），之後停 Zeabur 舊服務並做 SEC-6 換金鑰。見「平台與維運」。
-3. **v2.22.0 已發布的批次**：#810（雙北大眾運輸可及性）、#811（2026 議員選區、投開票所熱區）、#812／#813（加拿大圖層與統計）、#814（國道逐車模擬）。gis-platform mig 496／497 是否已套用：**未確認**（CHANGELOG 沒寫）；mig 499、500 於 2026-11-06 已套用。
+3. **v2.22.0 已發布的批次**：#810（雙北大眾運輸可及性）、#811（2026 議員選區、投開票所熱區）、#812／#813（加拿大圖層與統計）、#814（國道逐車模擬）。gis-platform mig 497 依 analytics 加拿大 PLAN §4 紀錄 11-04 已套用（未另查 DB）；mig 496 是否已套用：**未確認**（CHANGELOG 沒寫）；mig 499、500 於 2026-11-06 已套用。
 4. **2026-11-06 review 修正輪進行中**：mini、gis-platform #202、collectors #172 的修正 PR 開發中，正本 `../.gis-agent-system/reports/code-review/`。見「平台與維運」。
 5. **選舉投票日 11-28 前**活動地圖要持續每日更新（electionEvents2026）。見「選舉」。
 6. **主站遷移（MC-4）**：已隨 Zeabur 搬家完成（R2＋Workers，2026-11-06）；剩 Worker routes 寫進 wrangler.jsonc、觀察 Worker 請求量。
@@ -80,15 +80,15 @@
 
 | 專案 | 狀態 | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|
-| 日本後續 | 🔵 | P1 第 1–4 波隨 v2.15.0 上線，10-28 正式站已驗；第二輪（自然公園、国立公園、鳥獣保護区、DID）隨 v2.24.0 發布（#831，2026-11-06 隨 v2.25.1 上正式站） | JPRD-2 收費道路樣式（等決定）；JPW4-1 等填 WAM NET 表單；JPRD-1 等搬家完成；N3-2 剩 C083 交通事故 | BACKLOG JPRD-1／JPRD-2／JPW4-1／N3-2 | 2026-11-06 |
-| 英國後續 | 🔵 | 第 0–12 波隨 v2.18.0 上線（#765）；英格蘭污染排放申報場址（站主限定）隨 v2.24.0 發布（#834，gp mig 499 已套用） | UKD-1 待拍板項；UKOSM-1 OSM 五層卡 Overpass 封鎖（換網路重跑 07_export.py）；UKLZ-1 等決定，UKLZ-2／3 可直接做 | BACKLOG UKD-1／UKOSM-1／UKLZ-1~3；`../taipei-gis-analytics/…/united_kingdom_opendata/waves/PLAN.md` §3 | 2026-11-01 |
-| 愛爾蘭第一輪 | 🔵 | 系統盤點完成（analytics #256），還沒上圖層 | 等使用者回 §6 五題；補登 IE pii | `../taipei-gis-analytics/docs/topic-research/ireland_opendata/` | 2026-10-31 |
+| 日本後續 | 🔵 | P1 第 1–4 波隨 v2.15.0 上線（10-28 正式站已驗）；第二輪自然公園、国立公園、鳥獣保護区、DID 隨 v2.24.0（#831）；交通事故 2025（287,020 點，#843）、DID z5 改善（#842）隨 v2.25.0；正式站 2026-11-07 實測 v2.25.1，第二輪與交通事故瀏覽器驗收未做 | JPRD-2 收費道路樣式（等決定）；JPW4-1 等填 WAM NET 表單；JPRD-1 原等搬家，主站已於 11-06 改走 R2（等使用者決定）；交通事故未入倉、2019–2024 未做；N3-4 新舊層並存（已決） | BACKLOG JPRD-1／JPRD-2／JPW4-1／N3-2／N3-4；`../taipei-gis-analytics/docs/topic-research/japan_opendata/_status.md` | 2026-11-06 |
+| 英國後續 | 🔵 | 第 0–12 波隨 v2.18.0 上線（#765）；英格蘭污染排放申報場址（站主限定）隨 v2.24.0（#834，gp mig 499），座標修正 2,544 處隨 v2.25.0（#839，gp mig 501 已套用）；正式站 v2.25.1 | UKD-1 待拍板項；UKOSM-1 OSM 五層卡 Overpass 封鎖（換網路重跑 07_export.py）；UKLZ-1 等決定，UKLZ-2／3 可直接做；EA-1 授權 2027-10-29 到期 | BACKLOG UKD-1／UKOSM-1／UKLZ-1~3／EA-1；`../taipei-gis-analytics/…/united_kingdom_opendata/waves/PLAN.md` §3 | 2026-11-06 |
+| 愛爾蘭第一輪 | 🔵 | 系統盤點完成（analytics #256），還沒上圖層；2026-10-31 後兩 repo 無相關 commit（11-07 查） | 等使用者回 §6 五題；補登 IE pii | `../taipei-gis-analytics/docs/topic-research/ireland_opendata/` | 2026-10-31 |
 | 多國化議題 3（主站遷移） | 🟢 | 2026-11-06 隨 Zeabur 搬家完成：網頁 Workers、圖層 R2、`/api` 經 Tunnel 到新主機 | MC-4 可結案；收尾見「Zeabur 停止營運搬遷」 | BACKLOG MC-4；`../.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0 | 2026-11-07 |
-| 加拿大第 0–3 波＋統計 | 🟢 | 第 0–2 波＋統計隨 v2.22.0（#812、#813）、第 3 波 7 層（氣象站、AQHI、輻射、NPRI、污水、地震、人口網格）隨 v2.24.0（#832）發布；gp mig 497 是否套用：未確認 | 確認 mig 497；第 2 波建物、C002 HOLD；N3-3 即時地震條款；正式站待驗收 | CHANGELOG v2.22.0／v2.24.0；gp #198；analytics #279–#285 | 2026-11-06 |
-| 南韓後續 | 🟡 | 第 0–5 波＋統計隨 v2.19.0 上線；第 6 波 5 層（領海線、都市公園、體育設施、OSM 墓地、人口網格）隨 v2.24.0 發布（#830） | KRW-6 第 6–10 波可開；第 11 波等註冊 data.go.kr key；KRH-1 兩層 HOLD；KRI18N-1 逐層驗 en/ja | BACKLOG KRW-6／KRH-1／KRI18N-1 | 2026-11-06 |
+| 加拿大第 0–3 波＋統計 | 🟢 | 第 0–2 波＋統計隨 v2.22.0（#812、#813）、第 3 波 7 層（氣象站、AQHI、輻射、NPRI、污水、地震、人口網格）隨 v2.24.0（#832）、即時地震 `caEarthquakesLive`（#847）隨 v2.25.0；地震四類分色（#864）在 develop 未發版；gp mig 497 依 analytics PLAN §4 步驟 2 紀錄 11-04 已套用（未另查 DB）；正式站 v2.25.1，瀏覽器驗收（PLAN §4 步驟 7）未做 | 正式站驗收；第 2 波建物、C002 海域 HOLD；LODE 補座標前端未接；RV-F068、RV-CA-DERIVED | CHANGELOG v2.22.0／v2.24.0／v2.25.0；analytics `canada_opendata/waves/PLAN.md` §4–5 | 2026-11-07 |
+| 南韓後續 | 🟡 | 第 0–5 波＋統計隨 v2.19.0 上線；第 6 波 5 層（領海線、都市公園、體育設施、OSM 墓地、人口網格）隨 v2.24.0（#830，analytics #294）；正式站 v2.25.1，第 6 波正式站驗收未做；墓地維持 OSM（N3-1 已決） | KRW-6 第 7–10 波可開；第 11 波等註冊 data.go.kr key；KRH-1 兩層 HOLD；KRI18N-1 逐層驗 en/ja | BACKLOG KRW-6／KRH-1／KRI18N-1 | 2026-11-06 |
 | 多國化議題 1 收尾 | 🟢 | 國家主體化隨 v2.16.0 上線 | MC-3 補目視；MC-1 主題識別名與顯示名拆開（有同名主題時再做） | BACKLOG MC-1／MC-3 | 2026-10-28 |
 | 多國化議題 2 收尾（MCP 跨國） | 🟢 | P0–P5 於 2026-10-29 全部上線 | MC-6 補 name_en；MC-7 拆 airspace／coral 表；MC-8 觀察 eval 不穩點 | BACKLOG MC-6~8；`../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic2-mcp.md` §5 | 2026-10-29 |
-| 法國 | ⚪ | 國家選單已有 FR（v2.16.0）；MCP 缺邊界與人口，回「未涵蓋」 | 最低門檻：countries 一筆＋admin1 邊界＋人口分母；有無波次計畫未查證 | `../pulse-data/docs/new-country-onboarding.md` §4 | 未查證 |
+| 法國 | ⚪ | 國家選單已有 FR（v2.16.0）；MCP 缺邊界與人口，回「未涵蓋」；analytics 沒有 `france_opendata`，無波次計畫（2026-11-07 查） | 最低門檻：countries 一筆＋admin1 邊界＋人口分母 | `../pulse-data/docs/new-country-onboarding.md` §4 | 2026-11-07 查 |
 
 ## 台灣圖層（roadmap 群組）
 
@@ -195,5 +195,5 @@
 - 這輪沒讀 analytics 的 topic-research `_status.md` 與 `waves/PLAN.md` 原文，愛爾蘭、南韓細節取自記憶與 BACKLOG。
 - `release-queue.md`、`branches.md` 未讀，分支層級的遺漏可能存在。
 - 「最後進展」多半取記憶或 BACKLOG 日期，沒逐一對照 git log。
-- gis-platform mig 496／497 是否已套用：CHANGELOG 與本 repo 都查不到（2026-11-06 未確認）；mig 499、500 CHANGELOG 明載已套用。
+- gis-platform mig 497：analytics `canada_opendata/waves/PLAN.md` §4 步驟 2 記載 2026-11-04 16:25 已套用（area_sets +2、area_members +306，未另查 DB）；mig 496 是否已套用：未確認；mig 499、500 CHANGELOG 明載已套用。
 - 2026-11-06 review 修正輪各 PR 的編號與狀態：以 `.gis-agent-system/reports/code-review/` 為準，本表只列已知的 gp #202、collectors #172。
