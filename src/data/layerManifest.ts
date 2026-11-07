@@ -34,7 +34,7 @@ import { statisticsManifestParams } from "./statisticsParamsSpec";
 import { KR_DATA_SPECS } from "./krDataLayers";
 import { repPointDense, repPointLayer } from "./repPointLayers";
 import type { KrDataKey } from "./krDataKeys";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRICS, ieNoiseMetricFile } from "./ieDataLayers";
 import type { IeDataKey } from "./ieDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
@@ -883,6 +883,19 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭泥炭土壤圖 2024：5 類共約 163.6 萬 ha（其他泥炭 56.4 萬、低地毯狀沼 40.1 萬、山地毯狀沼 35.8 萬、高位沼 30.8 萬、低位沼 0.4 萬 ha）", processing: "OSF IPSM_soiltype.shp（TM65 改指定 EPSG:29902）；拆單面、去 <1 ha 碎塊；PMTiles z4–12", note: "CC BY 4.0（data.gov.ie 標示）；模型推定，100 m 網格" },
   ieAquaculture: { theme: "農業", group: "養殖漁業 Aquaculture", zh: "持照養殖場與法定漁港中心", alt: "Licensed Aquaculture Sites & Fishery Harbour Centres", icon: Fish, dataset: "ie_aquaculture", topics: ["愛爾蘭", "養殖", "牡蠣", "貽貝", "鮭魚", "漁港", "Aquamis"],
     description: "愛爾蘭 Aquamis 持照養殖場 1,061 處（貝類 929、魚類 90、藻類 16、棘皮 2、混養 24）＋法定漁港中心 6 處", processing: "Aquamis_Production_View_Public FeatureServer（outSR=4326）＋atlas.marine.ie Fishery_Harbours_Centres（WKT）；個人持照人姓名不輸出；面 PMTiles z6–14＋代表點 z4–14", note: "CC BY 4.0；一般漁港未涵蓋" },
+  // 第 9 波（2026-11-08）：規劃與環境（分區、規劃申請比照台灣「底圖 › 土地使用分區 Zoning」；噪音、PRTR 比照英國 gbNoise／gbPollutionInventory；廢棄物比照英國 gbRecyclingCentres／gbWastePermits）
+  ieZoning: { theme: "底圖", group: "土地使用分區 Zoning", zh: "土地使用分區", alt: "Land-use Zoning", icon: LayoutGrid, dataset: "ie_zoning", topics: ["愛爾蘭", "土地使用分區", "分區", "都市計畫", "MyPlan", "zoning"],
+    description: "愛爾蘭 MyPlan 一般化分區 86,678 面（30/31 個地方政府、336 份現行計畫；住宅 37,377、綠地 26,901、混合 7,864、社區 4,990、商業 4,650、初級產業 2,266、網絡 1,695、其他 935）", processing: "GZT_Current_Plan FeatureServer（伺服器端 maxAllowableOffset 約 0.5 m、outSR 4326）；make_valid 修 375 面、刪空幾何 8；GZT 首字母歸 8 大類；面 z9–14、代表點 z4–14", note: "CC BY 4.0；一般化分類、非法定定義；Donegal 未涵蓋" },
+  iePlanningApplications: { theme: "底圖", group: "土地使用分區 Zoning", zh: "規劃申請案", alt: "Planning Applications", icon: Hammer, dataset: "ie_planning_applications", topics: ["愛爾蘭", "規劃申請", "建築許可", "planning permission", "開發"],
+    description: "愛爾蘭全國規劃申請案 511,576 件（核准 346,416、不受理 70,411、駁回 50,487、撤回 25,622、其他 17,395、部分核准 1,245；31 個規劃機關）", processing: "IrishPlanningApplications FeatureServer 依 OBJECTID 分頁（outSR 4326）；申請人、開發地址、開發說明不收；決定 150+ 種寫法依關鍵字歸 6 類；低縮放 z4–11 只帶類別、z12–14 全欄", note: "CC BY 4.0；各議會收錄年份不同；個人資料欄不收" },
+  ieNoiseMaps: { theme: "環境氣候", group: "噪音／聲響 Noise", zh: "策略噪音地圖", alt: "Strategic Noise Maps", icon: Volume2, dataset: "ie_noise_maps", topics: ["愛爾蘭", "噪音", "Lden", "Lnight", "道路噪音", "機場噪音", "EPA"],
+    description: "愛爾蘭 EPA 策略噪音地圖第 4 輪（2022）：道路、鐵路、機場、工業 × 全日 Lden／夜間 Lnight；全日 353 面、夜間 403 面（依地方政府 × 5 dB 帶）", processing: "EPA GeoServer WFS 14 層依地方政府分批下載（EPSG:29902）、2 m 容差簡化後轉 WGS84；Dublin 機場在都會區層與全國層重複，只留全國層；Lden、Lnight 各一支 PMTiles z5–12", note: "CC BY 4.0；只涵蓋都會區與主要道路、鐵路、機場周邊；模擬值" },
+  ieRecyclingPoints: { theme: "廢棄物", group: "投放點", zh: "回收點", alt: "Recycling Points", icon: Recycle, dataset: "ie_recycling_points", topics: ["愛爾蘭", "回收", "回收桶", "bring bank", "回收中心", "WEEE"],
+    description: "愛爾蘭回收點 2,026 處（回收桶站 1,751、回收中心 212、廢電器回收點 63；議會名冊 528＋OSM 1,498）", processing: "10 個議會名冊（shp／kml／csv／geojson）＋Geofabrik PBF 2026-11-05 amenity=recycling（同類官方點 150 m 內不收、private 不收）；電話、電子郵件、Eircode 不收；PMTiles z4–14", note: "CC BY 4.0＋ODbL 1.0；官方只涵蓋 10/31 地方政府" },
+  ieWasteFacilities: { theme: "廢棄物", group: "處理設施", zh: "廢棄物許可設施", alt: "Licensed Waste Facilities", icon: Trash2, dataset: "ie_waste_facilities", topics: ["愛爾蘭", "廢棄物", "掩埋場", "轉運站", "EPA", "waste licence"],
+    description: "愛爾蘭 EPA 廢棄物許可設施邊界 292 處（掩埋場 76、轉運站 63、資源回收分選 19、堆肥 19、綜合 15、土石 24、有害 20、其他 6、未分類 50）", processing: "EPA WFS WASTE_Boundary；50 處無屬性者以 LEMA_Facilities_Waste 補名 28；聯絡人、電話、稽查員不收，個人營運者不顯示；面＋代表點 z4–14", note: "CC BY 4.0；地方政府核發的許可與登記證未涵蓋" },
+  iePrtrFacilities: { theme: "環境氣候", group: "環境污染", zh: "PRTR 申報設施", alt: "PRTR Facilities", icon: Factory, dataset: "ie_prtr_facilities", topics: ["愛爾蘭", "PRTR", "污染排放", "工業排放", "EPA", "IED"],
+    description: "愛爾蘭 EPA PRTR 全部門設施 656 處（廢棄物與污水 165、畜牧 134、食品 96、化學 92、礦物 53、能源 43、金屬 31、其他 26、紙木 16）", processing: "EPA WFS All_PRTR_Sectors；重複登記號去 2；集約畜牧個人姓名 49 處不顯示；PMTiles z4–14", note: "CC BY 4.0；不含排放量" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];
@@ -896,12 +909,12 @@ const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => 
     icon: m.icon,
     upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
     dataClass: "D",
-    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: spec.key === "ieRiverFloodExtents" ? IE_FLOOD_SCENARIOS.map((x) => `./world/${ieFloodScenarioFile(x.value)}`) : [`./world/${spec.file}`] },
+    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: spec.key === "ieRiverFloodExtents" ? IE_FLOOD_SCENARIOS.map((x) => `./world/${ieFloodScenarioFile(x.value)}`) : spec.key === "ieNoiseMaps" ? IE_NOISE_METRICS.map((x) => `./world/${ieNoiseMetricFile(x.value)}`) : [`./world/${spec.file}`] },
     legend: spec.key,
     popup: spec.key,
     params: (() => {
       const rep = repPointLayer(spec.key);
-      const kinds = [...(rep || spec.key === "ieRiverFloodExtents" ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
+      const kinds = [...(rep || spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
         ...(rep && repPointDense(rep) ? ["palette"] : []), ...(rep ? ["slider"] : [])] as ("select" | "multiSelect" | "palette" | "slider")[];
       return { count: kinds.length, kinds };
     })(),

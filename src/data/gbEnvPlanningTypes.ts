@@ -212,7 +212,7 @@ const NOISE_RAMP = (NOISE_CAPTURE_COLOR_EXPR.slice(3) as unknown[]).filter((_, i
 const NOISE_RAMP_MIN_DB = Number(NOISE_CAPTURE_COLOR_EXPR[3]);
 const NOISE_RAMP_STEP = 2.5;
 const NOISE_FINE = resampleRamp(NOISE_RAMP, (NOISE_RAMP.length - 1) * (10 / NOISE_RAMP_STEP) + 1);
-const noiseColorAt = (db: number) => NOISE_FINE[Math.round((db - NOISE_RAMP_MIN_DB) / NOISE_RAMP_STEP)]!;
+export const noiseColorAt = (db: number) => NOISE_FINE[Math.round((db - NOISE_RAMP_MIN_DB) / NOISE_RAMP_STEP)]!;
 /** band_min_db 五帶（Lden dB(A)）：label 為圖例文字。 */
 export const GB_NOISE_BANDS: readonly { min: number; label: string; color: string }[] = [
   { min: 55, label: "55–59.9", color: noiseColorAt(57.5) },

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1763,
+    "keyCount": 1769,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2458,6 +2458,24 @@
     },
     {
       "layers": [
+        "ie-planning-applications-circle"
+      ],
+      "type": "iePlanningApplications"
+    },
+    {
+      "layers": [
+        "ie-recycling-points-circle"
+      ],
+      "type": "ieRecyclingPoints"
+    },
+    {
+      "layers": [
+        "ie-prtr-facilities-circle"
+      ],
+      "type": "iePrtrFacilities"
+    },
+    {
+      "layers": [
         "ie-road-rail-network-line"
       ],
       "type": "ieRoadRailNetwork"
@@ -2648,6 +2666,26 @@
         "ie-school-planning-areas-fill"
       ],
       "type": "ieSchoolPlanningAreas"
+    },
+    {
+      "layers": [
+        "ie-waste-facilities-fill",
+        "ie-waste-facilities-point-circle"
+      ],
+      "type": "ieWasteFacilities"
+    },
+    {
+      "layers": [
+        "ie-zoning-fill",
+        "ie-zoning-point-circle"
+      ],
+      "type": "ieZoning"
+    },
+    {
+      "layers": [
+        "ie-noise-maps-fill"
+      ],
+      "type": "ieNoiseMaps"
     },
     {
       "layers": [
@@ -122859,6 +122897,80 @@
         "valueText": "0.85"
       }
     ],
+    "ieNoiseMaps": [
+      {
+        "label": "噪音指標",
+        "options": [
+          {
+            "label": "全日（Lden）",
+            "value": "lden"
+          },
+          {
+            "label": "夜間（Lnight）",
+            "value": "lnight"
+          }
+        ],
+        "type": "select",
+        "value": "lden"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "40–44 dB（只有夜間）",
+            "value": "b40"
+          },
+          {
+            "label": "45–49 dB",
+            "value": "b45"
+          },
+          {
+            "label": "50–54 dB",
+            "value": "b50"
+          },
+          {
+            "label": "55–59 dB",
+            "value": "b55"
+          },
+          {
+            "label": "60–64 dB",
+            "value": "b60"
+          },
+          {
+            "label": "65–69 dB",
+            "value": "b65"
+          },
+          {
+            "label": "70–74 dB（夜間為 70 以上）",
+            "value": "b70"
+          },
+          {
+            "label": "75 dB 以上（只有全日）",
+            "value": "b75"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "b40",
+          "b45",
+          "b50",
+          "b55",
+          "b60",
+          "b65",
+          "b70",
+          "b75"
+        ]
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "ieOffshoreRenewables": [
       {
         "label": "類別",
@@ -123037,6 +123149,141 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "iePlanningApplications": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "核准（含附條件、延長期限）",
+            "value": "granted"
+          },
+          {
+            "label": "駁回",
+            "value": "refused"
+          },
+          {
+            "label": "部分核准、部分駁回",
+            "value": "split"
+          },
+          {
+            "label": "撤回",
+            "value": "withdrawn"
+          },
+          {
+            "label": "不受理（申請無效、文件不全）",
+            "value": "invalid"
+          },
+          {
+            "label": "其他（審查中、補件、豁免宣告、未記錄）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "granted",
+          "refused",
+          "split",
+          "withdrawn",
+          "invalid",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",
@@ -123286,6 +123533,79 @@
         "value": "point"
       }
     ],
+    "iePrtrFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "能源業",
+            "value": "energy"
+          },
+          {
+            "label": "金屬生產與加工",
+            "value": "metals"
+          },
+          {
+            "label": "礦物業",
+            "value": "mineral"
+          },
+          {
+            "label": "化學工業",
+            "value": "chemical"
+          },
+          {
+            "label": "廢棄物與污水管理",
+            "value": "waste"
+          },
+          {
+            "label": "紙與木材生產加工",
+            "value": "paper_wood"
+          },
+          {
+            "label": "集約畜牧與水產養殖",
+            "value": "livestock"
+          },
+          {
+            "label": "動植物食品與飲料",
+            "value": "food"
+          },
+          {
+            "label": "其他活動",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "energy",
+          "metals",
+          "mineral",
+          "chemical",
+          "waste",
+          "paper_wood",
+          "livestock",
+          "food",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "iePublicFacilities": [
       {
         "label": "類別",
@@ -123404,6 +123724,49 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "ieRecyclingPoints": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "回收桶站（玻璃、鋁罐、舊衣）",
+            "value": "bring_bank"
+          },
+          {
+            "label": "回收中心（Civic amenity site）",
+            "value": "recycling_centre"
+          },
+          {
+            "label": "廢電器回收點（WEEE）",
+            "value": "weee"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bring_bank",
+          "recycling_centre",
+          "weee"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "ieReligiousSites": [
@@ -124327,6 +124690,94 @@
         "valueText": "1.0"
       }
     ],
+    "ieWasteFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "掩埋場",
+            "value": "landfill"
+          },
+          {
+            "label": "轉運站",
+            "value": "transfer"
+          },
+          {
+            "label": "資源回收分選（MRF）",
+            "value": "materials_recovery"
+          },
+          {
+            "label": "綜合廢棄物管理設施",
+            "value": "integrated"
+          },
+          {
+            "label": "堆肥、厭氧消化",
+            "value": "composting"
+          },
+          {
+            "label": "土石回填、土壤回收",
+            "value": "soil_recovery"
+          },
+          {
+            "label": "有害廢棄物",
+            "value": "hazardous"
+          },
+          {
+            "label": "其他（資源回收站、疏浚、污泥處理、待評估）",
+            "value": "other"
+          },
+          {
+            "label": "未分類（來源無屬性）",
+            "value": "unclassified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "landfill",
+          "transfer",
+          "materials_recovery",
+          "integrated",
+          "composting",
+          "soil_recovery",
+          "hazardous",
+          "other",
+          "unclassified"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "ieWaterMonitoring": [
       {
         "label": "類別",
@@ -124519,6 +124970,166 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieZoning": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "住宅（R）",
+            "value": "residential"
+          },
+          {
+            "label": "混合使用、市鎮中心（M）",
+            "value": "mixed"
+          },
+          {
+            "label": "商業、產業、就業（C）",
+            "value": "commerce"
+          },
+          {
+            "label": "社區服務與設施（S）",
+            "value": "community"
+          },
+          {
+            "label": "綠地、休憩、保育（G）",
+            "value": "green"
+          },
+          {
+            "label": "交通與公用設施網絡（N）",
+            "value": "network"
+          },
+          {
+            "label": "農業與初級產業（P）",
+            "value": "primary"
+          },
+          {
+            "label": "其他（策略保留地、一般）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "residential",
+          "mixed",
+          "commerce",
+          "community",
+          "green",
+          "network",
+          "primary",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "BuPu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "BuPu"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "immigrationOffice": [

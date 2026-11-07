@@ -100,7 +100,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, asKrSpec } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -2168,11 +2168,17 @@ export const LAYER_PARAMS_SPEC = {
       options: IE_FLOOD_SCENARIOS.map((x) => ({ label: x.label.zh, value: x.value })),
       out: "ieRiverFloodExtentsScenarioIdx", encode: IE_FLOOD_SCENARIOS.map((x) => x.value),
     }] : []),
+    // 第 9 波策略噪音地圖：Lden／Lnight 各一支 PMTiles，host 依 ieNoiseMapsMetricIdx 換檔
+    ...(spec.key === "ieNoiseMaps" ? [{
+      kind: "select" as const, category: "data" as const, name: "ieNoiseMapsMetric", label: "噪音指標", default: IE_NOISE_METRIC_DEFAULT,
+      options: IE_NOISE_METRICS.map((x) => ({ label: x.label.zh, value: x.value })),
+      out: "ieNoiseMapsMetricIdx", encode: IE_NOISE_METRICS.map((x) => x.value),
+    }] : []),
     ...krCatFilterSpecs(asKrSpec(spec)),
     ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
   ]])),
   ieBathymetry: [{ kind: "slider", name: "ieBathymetryOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   // 加拿大第 0＋1 波（2026-11-04）：多選選項 id／順序必須同 `data/caInfraTypes.ts` 的類別陣列（caLayers 測試守）
