@@ -7,6 +7,6 @@ export const KR_DATA_KEYS = [
   // 第 6 波（2026-11-06）：領海線、都市公園、綜合體育設施、墓地（OSM）＋人口網格（GHSL H3）
   "krTerritorialSea", "krUrbanParks", "krSportsFacilities", "krCemeteriesOsm", "krPopulationH3",
   // 第 7 波（2026-11-07）：學校、學區、醫院藥局、消防署
-  "krSchools", "krSchoolDistricts", "krHospitalsPharmacies", "krFireStations", "krCivilDefenseShelters",
+  "krSchools", "krSchoolDistricts", "krHospitalsPharmacies", "krFireStations", "krCivilDefenseShelters", "krPoliceBoxes",
 ] as const;
 export type KrDataKey = (typeof KR_DATA_KEYS)[number];

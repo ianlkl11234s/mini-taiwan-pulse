@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1652,
+    "keyCount": 1653,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1961,6 +1961,12 @@
         "kr-civil-defense-shelters-circle"
       ],
       "type": "krCivilDefenseShelters"
+    },
+    {
+      "layers": [
+        "kr-police-boxes-circle"
+      ],
+      "type": "krPoliceBoxes"
     },
     {
       "layers": [
@@ -128723,6 +128729,44 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krPoliceBoxes": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地區隊（지구대）",
+            "value": "district"
+          },
+          {
+            "label": "派出所（파출소）",
+            "value": "box"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "district",
+          "box"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",

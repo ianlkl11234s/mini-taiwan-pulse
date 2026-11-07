@@ -340,6 +340,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "教育",
     "醫療",
     "消防",
+    "執法治安",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2924,6 +2925,13 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [{ title: "點位", layers: [fromManifest("krFireStations")] }],
   },
   {
+    title: "執法治安",
+    country: "KR",
+    defaultCollapsed: true,
+    // 第 7 波 C075：比照日本 jpPoliceFacilities 的「執法治安 › 警政」
+    groups: [{ title: "警政", layers: [fromManifest("krPoliceBoxes")] }],
+  },
+  {
     title: "林業",
     country: "KR",
     defaultCollapsed: true,
@@ -3352,6 +3360,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "教育": "publicLife",
     "醫療": "safety",
     "消防": "safety",
+    "執法治安": "safety",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3549,6 +3558,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "教育": { zh: "教育", sub: "교육" },
     "醫療": { zh: "醫療", sub: "의료" },
     "消防": { zh: "消防", sub: "소방" },
+    "執法治安": { zh: "執法治安", sub: "치안" },
     // 南韓統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },

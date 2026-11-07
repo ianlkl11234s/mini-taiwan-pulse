@@ -723,6 +723,8 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "南韓消防署 215 處＋119 安全中心 998 處（消防廳 2025-09 版）", processing: "X좌표／Y좌표 欄名顛倒，對調後轉點；座標與地址 시·도 不符 3 筆剔除；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；名冊早於 2026-07 改制" },
   krCivilDefenseShelters: { theme: "災害", group: "避難設施", zh: "民防避難設施", alt: "Civil Defence Shelters", icon: ShieldAlert, dataset: "kr_civil_defense_shelters", topics: ["南韓", "避難", "民防", "防空", "避難設施"],
     description: "南韓民防避難設施 17,247 處（行政安全部 LOCALDATA，使用中 17,231＋暫停 16）", processing: "LOCALDATA CSV CP949；只留使用中與暫停，剔除已停止使用 1,591、無座標 8；WGS84 위도／경도 欄；地址 시·도 與座標比對 0 筆不符；PMTiles z0–14", note: "平台標籤；16/16 시·도；比照日本併入「災害 › 避難設施」" },
+  krPoliceBoxes: { theme: "執法治安", group: "警政", zh: "派出所與地區隊", alt: "Police Boxes", icon: ShieldCheck, dataset: "kr_police_boxes", topics: ["南韓", "警察", "派出所", "지구대", "파출소", "治安"],
+    description: "南韓地區隊與派出所 1,544 處（警察廳 2025-12-31 名冊 2,047 處，Nominatim 補座標）", processing: "名冊只有地址；Nominatim 先查「名稱＋시군구」的 amenity=police，再查地址全文；只留設施點與門牌精度，座標與地址 시군구 不符者剔除；PMTiles z0–14", note: "平台標籤＋座標 ODbL（© OpenStreetMap contributors）；未定位 503 處不上圖" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];

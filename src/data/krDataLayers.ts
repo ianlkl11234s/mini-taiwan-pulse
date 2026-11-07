@@ -582,6 +582,26 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     sourceOrg: "행정안전부 민방위대피시설 (LOCALDATA, 공공데이터포털)", sourceUrl: DG("15044951"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
     loading: l3("南韓民防避難設施載入中", "Loading South Korea civil defence shelters", "韓国の民防避難施設を読み込み中"),
   },
+  {
+    key: "krPoliceBoxes", file: "kr_police_boxes.pmtiles", sourceLayer: "kr_police_boxes", geom: "point", layerId: "kr-police-boxes-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#3b82f6", tier: "M", count: 1544,
+    catProp: "kind",
+    cats: [
+      { id: "district", values: ["지구대"], color: "#3b82f6", label: l3("地區隊（지구대）", "Police district unit (jigudae)", "地区隊（지구대）") },
+      { id: "box", values: ["파출소"], color: "#a78bfa", label: l3("派出所（파출소）", "Police box (pachulso)", "派出所（파출소）") },
+    ],
+    title: { props: ["name"], fallback: l3("派出所", "Police box", "派出所") },
+    fields: [{ prop: "kind", label: l3("類型", "Type", "種別"), map: { "지구대": l3("地區隊", "District unit", "地区隊"), "파출소": l3("派出所", "Police box", "派出所") } },
+             { prop: "station", label: l3("所屬警察署", "Police station", "所属警察署") }, { prop: "agency", label: l3("地方警察廳", "Provincial agency", "地方警察庁") },
+             { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "precision", label: l3("定位精度", "Geocode precision", "位置精度"), map: { "시설": l3("OSM 設施點", "OSM facility", "OSM施設"), "門牌": l3("門牌", "House number", "番地") } }],
+    legendNotes: [l3("名冊 2,047 處只有地址；以 Nominatim 補座標，只上設施點與門牌精度 1,544 處（75%），其餘 503 處未定位、未上圖", "The list of 2,047 has addresses only; geocoded with Nominatim and only facility- or house-level matches are shown (1,544, 75%); 503 unlocated", "名簿2,047件は住所のみ。Nominatimで位置付けし、施設・番地精度の1,544件（75%）のみ表示、503件は未表示"),
+                  l3("廣域市定位率偏低（大田 19%、釜山 23%、蔚山 31%、大邱 32%、光州 38%、首爾 44%、仁川 44%；道級 81–98%），都市點少是未定位，不代表派出所少", "Match rates are low in metropolitan cities (Daejeon 19%, Busan 23%, Ulsan 31%, Daegu 32%, Gwangju 38%, Seoul 44%, Incheon 44%; provinces 81–98%) — sparse city points mean unlocated, not fewer police boxes", "広域市は位置付け率が低い（大田19%・釜山23%・蔚山31%・大邱32%・光州38%・ソウル44%・仁川44%、道は81–98%）。都市部の点が少ないのは未表示分で、派出所が少ないわけではない"),
+                  l3("座標：Nominatim／© OpenStreetMap contributors（ODbL）", "Coordinates: Nominatim / © OpenStreetMap contributors (ODbL)", "座標：Nominatim／© OpenStreetMap contributors（ODbL）")],
+    popupNotes: [l3("位置由地址比對 OpenStreetMap 推得，可能有數十公尺偏差", "Location derived by matching the address to OpenStreetMap; may be off by tens of metres", "位置は住所とOpenStreetMapの照合による推定で、数十m程度ずれる場合あり")],
+    sourceOrg: "경찰청 전국 지구대 파출소 주소 현황 (공공데이터포털)；座標 Nominatim／© OpenStreetMap contributors", sourceUrl: DG("15077036"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
+    loading: l3("南韓派出所載入中", "Loading South Korea police boxes", "韓国の派出所を読み込み中"),
+  },
 ];
 
 export const KR_SPEC_BY_KEY: Readonly<Record<KrDataKey, KrLayerSpec>> = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, s])) as Record<KrDataKey, KrLayerSpec>;
