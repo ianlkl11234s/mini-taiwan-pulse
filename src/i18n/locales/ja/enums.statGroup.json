@@ -81,5 +81,11 @@
   "enum.statGroup.交通事故件數": "交通事故件数",
   "enum.statGroup.交通事故死亡人數": "交通事故死者数",
   "enum.statGroup.交通事故重傷人數": "交通事故重傷者数",
-  "enum.statGroup.交通事故受傷人數": "交通事故負傷者数"
+  "enum.statGroup.交通事故受傷人數": "交通事故負傷者数",
+  "enum.statGroup.都市人口比": "都市人口比率",
+  "enum.statGroup.自有住宅比例": "持ち家世帯比率",
+  "enum.statGroup.私人租屋比例": "民間賃貸世帯比率",
+  "enum.statGroup.社會住宅租戶比例": "公営住宅等賃借世帯比率",
+  "enum.statGroup.平均月租": "平均月額家賃",
+  "enum.statGroup.學士以上學歷比例": "学士以上の学歴の比率"
 }

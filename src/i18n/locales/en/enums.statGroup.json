@@ -81,5 +81,11 @@
   "enum.statGroup.交通事故件數": "Road traffic accidents",
   "enum.statGroup.交通事故死亡人數": "Road traffic deaths",
   "enum.statGroup.交通事故重傷人數": "Road traffic serious injuries",
-  "enum.statGroup.交通事故受傷人數": "Road traffic injuries"
+  "enum.statGroup.交通事故受傷人數": "Road traffic injuries",
+  "enum.statGroup.都市人口比": "Urban population share",
+  "enum.statGroup.自有住宅比例": "Owner-occupied share",
+  "enum.statGroup.私人租屋比例": "Private rented share",
+  "enum.statGroup.社會住宅租戶比例": "Social housing tenant share",
+  "enum.statGroup.平均月租": "Average monthly rent",
+  "enum.statGroup.學士以上學歷比例": "Bachelor's degree or higher share"
 }
