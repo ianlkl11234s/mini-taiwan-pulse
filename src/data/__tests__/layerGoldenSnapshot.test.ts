@@ -255,7 +255,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-07: +2 愛爾蘭第 2 波（商業房產估值、國有登記土地）。
     // 2026-11-08: +7 愛爾蘭第 3a 波（水文站、水質監測站與污水廠、WFD 河川／湖泊水體、主幹排水、河川淹水 NIFM、海岸侵蝕 ICPSS）。
     // 2026-11-08: +5 愛爾蘭第 3b 波（浴場、漁業調查站位、海床調查範圍、受保護海域、離岸再生能源海域）。
-    expect(keys.length).toBe(1725);
+    // 2026-11-08: +6 愛爾蘭第 4 波（交通：站牌、Dublinbikes、道路鐵路、里程標、計數站、機場港口）。
+    expect(keys.length).toBe(1731);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

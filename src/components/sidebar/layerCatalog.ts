@@ -370,6 +370,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "災害",
     // 第 3b 波：海洋（浴場、調查站網、受保護海域、離岸能源），比照英國「海洋」
     "海洋",
+    // 第 4 波：交通（場站、路網、樞紐節點；比照南韓、加拿大）
+    "交通",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -3136,6 +3138,17 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "再生能源", layers: [fromManifest("ieOffshoreRenewables")] },
     ],
   },
+  {
+    // 第 4 波：群組比照台灣「交通 Move」與南韓、加拿大——場站、路網、樞紐節點
+    title: "交通",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("ieTransitStops"), fromManifest("ieDublinbikesStations")] },
+      { title: "路網", layers: [fromManifest("ieRoadRailNetwork"), fromManifest("ieRoadMarkers"), fromManifest("ieTrafficCounters")] },
+      { title: "樞紐節點", layers: [fromManifest("ieAirportsPorts")] },
+    ],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
@@ -3495,6 +3508,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "水資源": "environment",
     "災害": "safety",
     "海洋": "environment",
+    "交通": "city",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3711,6 +3725,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "水資源": { zh: "水資源", sub: "Water" },
     "災害": { zh: "災害", sub: "Hazard" },
     "海洋": { zh: "海洋", sub: "Marine" },
+    "交通": { zh: "交通", sub: "Transport" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

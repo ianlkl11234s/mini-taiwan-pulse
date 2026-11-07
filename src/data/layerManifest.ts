@@ -800,6 +800,19 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭國家海洋規劃架構（NMPF）受保護海域：只收有海域部分的 SAC、SPA、NHA、生物圈分區與海岸自然保留區、避難所、拉姆薩濕地", processing: "NMPF FeatureServer 7 圖層（伺服器端去點約 2 m）→ 面在第 0 波陸地面外 ≥ 10 ha、點在陸地外或離岸線 ≤ 1 km 才收；幾何不裁切；面 PMTiles z4–13＋代表點 z4–14", note: "CC BY 4.0；陸域保護區在第 5 波；法定 MPA 尚未立法" },
   ieOffshoreRenewables: { theme: "海洋", group: "再生能源", zh: "離岸再生能源海域", alt: "Offshore Renewable Energy Areas", icon: Wind, dataset: "ie_offshore_renewables", topics: ["愛爾蘭", "離岸風電", "風場", "海域許可", "MAC", "AMETS", "NMPF", "再生能源"],
     description: "愛爾蘭 NMPF 離岸風場與試驗場 30 面：2022 第一批海域許可 MAC 8、前灘程序風場 19（已運轉 1、過渡案 6、場址調查 12）、AMETS 3", processing: "NMPF FeatureServer layers 1–3 → 4326；名稱去重複換行；PMTiles z4–12", note: "CC BY 4.0；2020–2022 狀態、非現況；浮標與試驗場點 15 未收" },
+  // 第 4 波（2026-11-08）：交通（群組比照南韓、加拿大：場站、路網、樞紐節點）
+  ieTransitStops: { theme: "交通", group: "場站", zh: "大眾運輸站牌", alt: "Public Transport Stops", icon: Bus, dataset: "ie_transit_stops", topics: ["愛爾蘭", "交通", "公車", "鐵路", "Luas", "GTFS", "TFI"],
+    description: "愛爾蘭大眾運輸站牌 14,149 站（公車 13,874、鐵路 147、Luas 128；TFI 全國整合 GTFS）", processing: "Mobility Database 鏡像 mdb-2364 latest.zip（NTA feed 2026-11-06～2027-11-06）stop_times→trips→routes 推每站運具與路線；剔北愛 37 站；PMTiles z4–14，z12 起點、之下熱區", note: "CC BY 4.0（data.gov.ie nta-gtfs）；NTA 原站對台灣 403 改走鏡像；無班次頻率與即時" },
+  ieDublinbikesStations: { theme: "交通", group: "場站", zh: "Dublinbikes 站點", alt: "Dublinbikes Stations", icon: Bike, dataset: "ie_dublinbikes_stations", topics: ["愛爾蘭", "交通", "公共自行車", "都柏林", "dublinbikes"],
+    description: "都柏林公共自行車 Dublinbikes 113 站（車柱 3,617）", processing: "Smart Dublin stations.geojson 只取站名、地址、車柱數；PMTiles z4–14", note: "CC BY 4.0；只有都柏林市；即時空位在第 12 波" },
+  ieRoadRailNetwork: { theme: "交通", group: "路網", zh: "主要道路與鐵路", alt: "Main Roads & Railways", icon: Route, dataset: "ie_road_rail_network", topics: ["愛爾蘭", "交通", "道路", "高速公路", "鐵路", "Tailte"],
+    description: "愛爾蘭 1:250,000 路網：道路 5,188 段（高速 915 km、主要 4,506 km、次要 12,523 km、地方 318 km）＋鐵路 479 段（1,852 km）", processing: "Tailte 250k Roads、Rail Network FeatureServer；RTT 依 ERM 代碼表分級（-32768 空值 40 段為來源未分類）；PMTiles z4–12", note: "CC BY 4.0；等級為推定（Tailte 未附代碼說明）；無路線編號與路名" },
+  ieRoadMarkers: { theme: "交通", group: "路網", zh: "國道里程標與交流道", alt: "Road Marker Plates & Interchanges", icon: Milestone, dataset: "ie_road_markers", topics: ["愛爾蘭", "交通", "國道", "里程", "TII", "交流道"],
+    description: "愛爾蘭國道里程標 4,163 面（M 3,517、N 646，每 0.5 km）＋交流道 43 處", processing: "TII TIIMarkerPlates.csv（RdPrefix＋RoadNum、mVal）＋Tailte 250k Road Interchanges；PMTiles z4–14", note: "CC BY 4.0；TII 2018 條目；R 路無來源；DirCode 推定為行車方向" },
+  ieTrafficCounters: { theme: "交通", group: "路網", zh: "交通量計數站", alt: "Traffic Counters", icon: Gauge, dataset: "ie_traffic_counters", topics: ["愛爾蘭", "交通", "交通量", "TII", "計數站"],
+    description: "愛爾蘭國道交通量計數站 308 站位置（TII 2018 名冊，無流量）", processing: "TII tmu-traffic-counters.geojson（field_1…field_5 依內容判讀）；PMTiles z4–14", note: "CC BY 4.0；STALE：2018 名冊，每日計數 2021 後無法取得" },
+  ieAirportsPorts: { theme: "交通", group: "樞紐節點", zh: "機場、港口與渡輪碼頭", alt: "Airports, Harbours & Ferry Ports", icon: Plane, dataset: "ie_airports_ports", topics: ["愛爾蘭", "交通", "機場", "港口", "渡輪"],
+    description: "愛爾蘭機場 9、小型機場 21、主要港口 6、其他港口 30、渡輪碼頭 38（共 104）", processing: "Tailte 250k Airfield Area（面中心，OurAirports 補名）、Airports、Main／Other Harbours＋NMPF Ferry Port；剔北愛 2；PMTiles z4–14", note: "CC BY 4.0（機場名 OurAirports public domain）；無運量與等級" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];
