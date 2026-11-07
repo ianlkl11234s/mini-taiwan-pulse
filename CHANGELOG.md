@@ -87,6 +87,7 @@
 - Agent 上圖後可讀回結果佔畫面比例、只畫外框的結果與圖例份數，用來自我檢查框選與上色（#881）
 - 愛爾蘭第 2 波 2 層，新增「房地產」主題：商業房產估值 156,089 筆（Valuation Office 應繳商業地方稅房產；29 個地方政府為淨年值 NAV、Cork 市郡為舊制估值不可比，依 9 類多選篩選，拉遠熱區、z12 起點）；國有登記土地 75,443 個 folio（LDA 2023 Q3，依所有人 9 組篩選，點／面切換，非標售清單，folio 邊界受 PRA 版權註記）；Tailte Éireann、LDA（CC BY 4.0）（⚠️ 發版前要上傳 `ie_commercial_valuations.pmtiles`、`ie_state_assets.pmtiles` 到 S3 deploy-assets/world/）
 - 愛爾蘭第 4 波 6 層，新增「交通」主題：大眾運輸站牌 14,149 站（TFI 全國 GTFS，依鐵路／Luas／公車多選篩選，拉遠熱區、z12 起點）、Dublinbikes 站點 113 站（只有站點與車柱數）、主要道路與鐵路 5,667 段（Tailte 1:250,000，道路等級依 ERM 代碼表推定、無路線編號）、國道里程標 4,163 面與交流道 43 處（TII 2018 條目）、交通量計數站 308 站（TII 2018 名冊，只有位置沒有流量）、機場港口與渡輪碼頭 104 處（大機場名稱以 OurAirports 補上）；NTA、Dublin City Council／JCDecaux、Tailte Éireann、TII、DHLGH（CC BY 4.0）
+- 愛爾蘭第 6 波 6 層，新增「能源」主題：電廠與能源業設施 44 處（Tailte 主要電廠 15＋EPA PRTR 能源業設施，依電廠、資料中心自備機組、煉油與天然氣、工業鍋爐多選篩選；無燃料別與容量）、輸電線 2,383 段與變電站 1,177 處（OSM，依 400／220／110／38 kV 多選篩選；官方無開放 GIS，跨境聯絡線未涵蓋）、陸域風場 313 座（SEAI 2022-06，MEC 合計 4,304 MW，點位是接入變電站不是風機）、ESB ecars 公共充電站 440 處（2024-12 快照，依功率多選篩選）、加油站 1,687 站（OSM，依 7 大品牌多選篩選）；Tailte Éireann、EPA、SEAI、ESB（CC BY 4.0）、© OpenStreetMap contributors（ODbL）
 
 ## v2.26.1 — 2026-11-07 — 影像改走 R2 網域
 

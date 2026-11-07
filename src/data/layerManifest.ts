@@ -813,6 +813,19 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭國道交通量計數站 308 站位置（TII 2018 名冊，無流量）", processing: "TII tmu-traffic-counters.geojson（field_1…field_5 依內容判讀）；PMTiles z4–14", note: "CC BY 4.0；STALE：2018 名冊，每日計數 2021 後無法取得" },
   ieAirportsPorts: { theme: "交通", group: "樞紐節點", zh: "機場、港口與渡輪碼頭", alt: "Airports, Harbours & Ferry Ports", icon: Plane, dataset: "ie_airports_ports", topics: ["愛爾蘭", "交通", "機場", "港口", "渡輪"],
     description: "愛爾蘭機場 9、小型機場 21、主要港口 6、其他港口 30、渡輪碼頭 38（共 104）", processing: "Tailte 250k Airfield Area（面中心，OurAirports 補名）、Airports、Main／Other Harbours＋NMPF Ferry Port；剔北愛 2；PMTiles z4–14", note: "CC BY 4.0（機場名 OurAirports public domain）；無運量與等級" },
+  // 第 6 波（2026-11-08）：能源（群組比照台灣、南韓、英國：電力 · 廠／電力 · 電網／再生能源／石化 · 加油站）
+  iePowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠與能源業設施", alt: "Power Plants & Energy Facilities", icon: Factory, dataset: "ie_power_plants", topics: ["愛爾蘭", "能源", "電廠", "發電", "PRTR", "EPA", "Tailte", "資料中心"],
+    description: "愛爾蘭主要電廠 15 座（Tailte 250k）＋EPA PRTR 能源業設施另成點 29（發電 9、資料中心自備燃燒機組 15、煉油與天然氣處理 2、工業鍋爐 3）", processing: "Tailte Power Plant 250K FeatureServer＋EPA GeoServer WFS PRTR_Energy_sector；PRTR 依名稱分類，同站 14 筆（1.5 km 內）併入 Tailte 電廠；PMTiles z4–14", note: "CC BY 4.0；無燃料別與裝置容量；最近申報年早於 2020 者可能已停運" },
+  iePowerLines: { theme: "能源", group: "電力 · 電網", zh: "輸電線", alt: "Power Lines", icon: Cable, dataset: "ie_power_lines", topics: ["愛爾蘭", "能源", "電網", "輸電線", "高壓電", "EirGrid", "OSM"],
+    description: "愛爾蘭輸電線 2,383 段（400 kV 約 470 km、220 kV 1,841 km、110 kV 5,140 km；OSM）", processing: "Geofabrik PBF 2026-11-05 本地抽取 power=line 全部＋110 kV 以上 power=cable；中點剔北愛；PMTiles z4–13", note: "ODbL 1.0（© OpenStreetMap contributors）；EirGrid／ESB 無開放 GIS；跨境聯絡線與海纜未涵蓋" },
+  ieSubstations: { theme: "能源", group: "電力 · 電網", zh: "變電站", alt: "Substations", icon: Zap, dataset: "ie_substations", topics: ["愛爾蘭", "能源", "電網", "變電站", "OSM"],
+    description: "愛爾蘭變電站 1,177 處（400 kV 5、220 kV 54、110 kV 267、38 kV 573；OSM）", processing: "Geofabrik PBF 2026-11-05 本地抽取 power=substation 點、封閉 way、multipolygon（面取代表點）；剔北愛 551；PMTiles z4–14", note: "ODbL 1.0（© OpenStreetMap contributors）；無容量與承載" },
+  ieWindFarms: { theme: "能源", group: "再生能源", zh: "陸域風場", alt: "Wind Farms", icon: Wind, dataset: "ie_wind_farms", topics: ["愛爾蘭", "能源", "再生能源", "風電", "風場", "SEAI"],
+    description: "愛爾蘭風場 313 座（MEC 合計 4,304 MW；SEAI 2022-06）", processing: "SEAI WindFarmsJune2022_ITM.zip（ITM）→ 4326；依 MEC 分 4 級；PMTiles z4–14", note: "CC BY 4.0；點位是接入變電站不是風機；2022-06 後的風場未收（STALE）" },
+  ieEvCharging: { theme: "能源", group: "再生能源", zh: "電動車充電站（ESB ecars）", alt: "EV Charging (ESB ecars)", icon: PlugZap, dataset: "ie_ev_charging", topics: ["愛爾蘭", "能源", "電動車", "充電站", "ESB"],
+    description: "愛爾蘭 ESB ecars 公共充電站 440 處（充電樁 520；≥150 kW 43、43–149 kW 98、≤22 kW 299）", processing: "ESB its-data-ecars-sites-roi-ni.csv 只取 Territory=RoI（剔北愛 151）；功率欄取最大值分級；PMTiles z4–14", note: "CC BY 4.0；2024-12 快照；只有 ESB 網路" },
+  ieFuelStations: { theme: "能源", group: "石化 · 加油站", zh: "加油站", alt: "Fuel Stations", icon: Fuel, dataset: "ie_fuel_stations", topics: ["愛爾蘭", "能源", "加油站", "OSM", "Circle K", "Applegreen"],
+    description: "愛爾蘭加油站 1,687 站（Circle K 319、Top 202、Applegreen 162、Texaco 151、Maxol 134；OSM）", processing: "Geofabrik PBF 2026-11-05 本地抽取 amenity=fuel 點與面（面內重複點合併 25）；剔北愛 535；PMTiles z4–14", note: "ODbL 1.0（© OpenStreetMap contributors）；無官方名冊；品牌照 OSM 原文" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];
