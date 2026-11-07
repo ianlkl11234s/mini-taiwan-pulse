@@ -3,7 +3,7 @@ import type { AnyLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { CA_QUAKE_COLOR, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_LIVE_TYPES } from "../data/caEnvTypes";
+import { CA_QUAKE_COLOR, CA_QUAKE_LIVE_TYPE_COLORS, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_LIVE_TYPES } from "../data/caEnvTypes";
 import { fetchCaQuakesLive } from "../data/caLiveQuakesLoader";
 import { caCatFilter } from "./useCaTransportLayers";
 import { caQuakeRadius } from "./useCaEnvLayers";
@@ -37,7 +37,9 @@ export function useCaLiveEarthquakesLayer(
   const filter = caQuakeLiveTypeFilter(typeMask);
   const op = clamp01(opacity);
   const paint = {
-    "circle-radius": caQuakeRadius(s), "circle-color": CA_QUAKE_COLOR, "circle-opacity": op,
+    "circle-radius": caQuakeRadius(s), "circle-color": ["match", ["get", "event_type"],
+      "industry", CA_QUAKE_LIVE_TYPE_COLORS.industry, "mining", CA_QUAKE_LIVE_TYPE_COLORS.mining, "blast", CA_QUAKE_LIVE_TYPE_COLORS.blast,
+      CA_QUAKE_LIVE_TYPE_COLORS.earthquake], "circle-opacity": op,
     ...pointStrokePaint(isDark, op / def),
   };
   const sig = JSON.stringify([paint, filter]);
