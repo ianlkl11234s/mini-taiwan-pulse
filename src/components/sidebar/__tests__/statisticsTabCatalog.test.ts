@@ -203,6 +203,7 @@ describe("Layers 與 Statistics 分頁", () => {
     expect(kr.themes.map((theme) => ({ country: theme.country, title: theme.title, groups: theme.groups.map((group) => group.title) }))).toEqual([
       { country: "KR", title: "人口", groups: ["住民登錄人口（2026-09）", "人口密度與高齡化（2024）", "首爾生活人口（2026-07）"] },
       { country: "KR", title: "社經", groups: ["家戶與住宅（2024）", "事業體（2024）"] },
+      { country: "KR", title: "公共安全", groups: ["火災（2021–2023）", "交通事故（2025）"] },
     ]);
     expect(getThemeLayerKeys(kr.themes).sort()).toEqual([...KR_ENABLED_STATISTICS_KEYS].sort());
     // 南韓統計面不出現在南韓圖層頁

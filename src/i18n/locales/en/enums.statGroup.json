@@ -73,5 +73,13 @@
   "enum.statGroup.立委選舉（政黨票）": "Legislative election (party-list vote)",
   "enum.statGroup.縣市長選舉": "Mayoral and magistrate election",
   "enum.statGroup.縣市議員選舉（政黨合計）": "City and county council election (party totals)",
-  "enum.statGroup.全國性公民投票": "National referendum"
+  "enum.statGroup.全國性公民投票": "National referendum",
+  "enum.statGroup.火災件數": "Fire incidents",
+  "enum.statGroup.火災死亡人數": "Fire deaths",
+  "enum.statGroup.火災受傷人數": "Fire injuries",
+  "enum.statGroup.火災財產損失": "Fire property damage",
+  "enum.statGroup.交通事故件數": "Road traffic accidents",
+  "enum.statGroup.交通事故死亡人數": "Road traffic deaths",
+  "enum.statGroup.交通事故重傷人數": "Road traffic serious injuries",
+  "enum.statGroup.交通事故受傷人數": "Road traffic injuries"
 }

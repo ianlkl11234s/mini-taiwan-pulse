@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1661,
+    "keyCount": 1677,
     "sections": [
       "gisLayers",
       "overlays",
@@ -4778,6 +4778,22 @@
         "statsKrEstablishmentsSgg-fill",
         "statsKrEmployeesSido-fill",
         "statsKrEmployeesSgg-fill",
+        "statsKrFireIncidentsSido-fill",
+        "statsKrFireIncidentsSgg-fill",
+        "statsKrFireDeathsSido-fill",
+        "statsKrFireDeathsSgg-fill",
+        "statsKrFireInjuriesSido-fill",
+        "statsKrFireInjuriesSgg-fill",
+        "statsKrFireDamageSido-fill",
+        "statsKrFireDamageSgg-fill",
+        "statsKrTrafficAccidentsSido-fill",
+        "statsKrTrafficAccidentsSgg-fill",
+        "statsKrTrafficDeathsSido-fill",
+        "statsKrTrafficDeathsSgg-fill",
+        "statsKrTrafficSeriousInjuriesSido-fill",
+        "statsKrTrafficSeriousInjuriesSgg-fill",
+        "statsKrTrafficInjuriesSido-fill",
+        "statsKrTrafficInjuriesSgg-fill",
         "statsCaPopulationPr-fill",
         "statsCaPopulationCd-fill",
         "statsCaPopulationDensityPr-fill",
@@ -173888,6 +173904,286 @@
         "valueText": "0.55"
       }
     ],
+    "statsKrFireDamageSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireDamageSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireDamageSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireDamageSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireDamageSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireDamageSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireDamageSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireDamageSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireDeathsSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireDeathsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireDeathsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireDeathsSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireDeathsSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireDeathsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireDeathsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireDeathsSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireIncidentsSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireIncidentsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireIncidentsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireIncidentsSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireIncidentsSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireIncidentsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireIncidentsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireIncidentsSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireInjuriesSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireInjuriesSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireInjuriesSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireInjuriesSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireInjuriesSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireInjuriesSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireInjuriesSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireInjuriesSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsKrHouseholdSizeSgg": [
       {
         "label": "資料期別",
@@ -174454,6 +174750,286 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsKrSexRatioSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficAccidentsSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficAccidentsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficAccidentsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficAccidentsSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficAccidentsSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficAccidentsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficAccidentsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficAccidentsSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficDeathsSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficDeathsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficDeathsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficDeathsSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficDeathsSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficDeathsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficDeathsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficDeathsSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficInjuriesSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficInjuriesSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficInjuriesSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficInjuriesSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficInjuriesSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficInjuriesSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficInjuriesSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficInjuriesSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficSeriousInjuriesSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficSeriousInjuriesSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficSeriousInjuriesSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficSeriousInjuriesSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficSeriousInjuriesSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficSeriousInjuriesSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficSeriousInjuriesSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficSeriousInjuriesSido"
       },
       {
         "label": "資料期別",
