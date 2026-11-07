@@ -51,6 +51,17 @@
 
 建議順序：A（完成）→ B（已合併）→ G1、G2、G3（撰寫中）→ F1～F5 → C2 → I／J（分析）→ E／K（製作）→ H → D。
 
+## 30 天地圖挑戰（2026）
+
+總覽頁 `/blog/30daymapchallenge/`；流程看 blog-writing skill §10。題目表在 `src/blog/mapChallenge.ts`。
+
+| Day | 題目 | 文章 slug | 主題 | 狀態 | Threads | 備註 |
+|---|---|---|---|---|---|---|
+| 3 | Polygons | mapchallenge-2026-day03-power-plants | layers | 已開 PR | 2026-11-03 | 貼文是三國電廠點位，沒點題 Polygons |
+| 4 | Clusters | mapchallenge-2026-day04-clusters | analysis | 已開 PR | 2026-11-04 | 圖層已隨 v2.23.0 上線 |
+| 5 | Senses: Sight | mapchallenge-2026-day05-sea-view | analysis | 已開 PR | 2026-11-05 | 網站群組名寫「視野 Perspectives」與官方題目不一致 |
+| 6 | Vintage | mapchallenge-2026-day06-vintage | layers | 待發版 | 2026-11-06 | 圖層（#856）還在 develop，發版後才能拍正式站截圖；研究成果在 GIS/_worktree-backups/2026-11-06/thcts/ |
+
 ## 新文章要決定的事
 
 - 主題只有 layers／analysis／making 三類；三類都放不下時才問使用者，不要為單一資料種類開新主題。
@@ -62,3 +73,4 @@
 - 2026-10-23：建立本表；A 篇隨 #670 合併進 develop，入口隨 #673。
 - 2026-10-24：主題由六類收斂成 layers／analysis／making，文章網址拿掉主題（舊 /blog/rail/… 由 nginx 301）；C1 不寫；B 開寫；新增候選 I、J、K；G 拆成地形、建物、行道樹三篇，F 拆成每個主題一篇（F1～F5）；G1 不寫；C2 可寫；D 改從 Pulse 衛星圖層角度寫。
 - 2026-10-24：B 隨 #683 合併進 develop；G1 改為要寫（從 Pulse 地形圖層角度），G1～G3 開寫。
+- 2026-11-07：新增 30 天地圖挑戰總覽頁與「30 天地圖挑戰」表；Day 3、4、5 開寫，Day 6 等發版。
