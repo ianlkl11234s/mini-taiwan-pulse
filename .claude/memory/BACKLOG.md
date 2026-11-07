@@ -321,7 +321,7 @@
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
-| GP-502 | P1 | blocked | 套用 gis-platform mig 502（PR #202 合併時為 501，因與 #203 撞號經 #204 改名；已合 main、未套用）：收回 `cloud_agent_ro` 對英國 EA 污染名錄（`reference.world_gb_ea_pollution_inventory`、`get_gb_ea_pollution_inventory()`）的讀取與執行權。資安：目前雲端唯讀帳號讀得到授權受限資料。 | Blocked on 使用者拍板套用（正式 DB 不由 agent 套）。First action: 套用前唯讀查現有權限，套用後跑 `migrations/502_revoke_cloud_agent_ro_gb_ea_pollution_inventory.test.psql`。 | `cloud_agent_ro` 讀表、執行函式皆被拒；站主 RPC 仍可讀。 |
+| GP-502 | P1 | done | 套用 gis-platform mig 502（#202／#204）：收回 `cloud_agent_ro` 對英國 EA 污染名錄表與 `get_gb_ea_pollution_inventory()` 的讀取與執行權。 | 2026-11-07 已套用正式 DB：套用前唯讀查證 cloud_agent_ro 可讀表（2,544 筆）、可執行函式；套用後 `502_…test.psql` 回 `502 OK`。回滾指令在 migration 檔頭。 | `cloud_agent_ro` 讀表、執行函式皆被拒；service_role 仍可讀；anon／authenticated 仍無表權限。 |
 | GP-296 | P3 | blocked | mig 296 的 default privileges 讓 `reference` schema 新表自動授 SELECT 給 `cloud_agent_ro`，授權限定的物件（如 EA 污染名錄）每次都要另外收權。 | Blocked on 使用者決定是否改 default privileges。First action: 唯讀列 `reference` schema 現有表的 `cloud_agent_ro` 權限與 default ACL，列出改法與影響（會不會讓既有 MCP 查詢失效）給使用者選。 | 使用者選定：維持（每次收權寫進 onboarding 清單）或改 default（新 migration 並驗 MCP 倉庫查詢不壞）。 |
 | COL-F010 | P2 | ready | `supabase_writer` 舊的 partial 寫入會蓋掉較新的 ok（`live.weather_raster_frames` 缺 revision 欄，無法判斷新舊）。 | First action: gis-platform 先加 revision 欄 migration（須使用者套用），collectors 再改 upsert 的 WHERE 條件只允許較新 revision 覆寫；上游先動、下游後動。 | 舊 partial 重送不會覆蓋較新的 ok 列；有回歸測試。 |
 | RV-F039 | P3 | ready | 消防局／港口 3D 柱不跟圖例類別篩選（review F039，2026-11-06 修正輪暫緩：跨多檔）。 | First action: 讓 3D 柱的資料來源吃同一個 category filter（參考 2D 點層的 filter 寫法）。 | 圖例取消某類別後 3D 柱同步消失；有測試。 |
