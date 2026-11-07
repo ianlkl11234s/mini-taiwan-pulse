@@ -1273,7 +1273,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
                   l3("上圖 535 家（命中 OSM 同名設施 200、門牌 45、街道 127、城鎮 163）；另 12 家查無結果、未上圖（無只到郡級者）", "535 mapped (matched OSM facility 200, house number 45, street 127, town 163); 12 more could not be located and are not mapped (none resolved only to county level)", "地図化535か所（OSM 同名施設 200、番地 45、通り 127、町 163）。ほか12か所は位置が特定できず未表示（県レベルのみのものはなし）"),
                   l3("負責人姓名、電話等個資欄位不收；身障機構 1,821 家只有郡別，未上圖", "Person-in-charge names, phone numbers and other personal fields are excluded; 1,821 disability centres have only a county and are not mapped", "管理者の氏名・電話などの個人情報は収録しない。障害者施設1,821か所は県のみで地図化していない")],
     popupNotes: [GEOCODE_POPUP, l3("授權待確認", "Licence to be confirmed", "ライセンス確認中")],
-    sourceOrg: `Health Information and Quality Authority (HIQA), Register of Designated Centres — Older Persons; ${NOMINATIM_ORG}`, sourceUrl: "https://www.hiqa.ie/areas-we-work/older-persons-services", license: "授權待確認（HIQA 未標示）", fetchedAt: IE_W7B_FETCHED_AT,
+    sourceOrg: `Health Information and Quality Authority (HIQA), Register of Designated Centres — Older Persons (licence not stated); ${NOMINATIM_ORG}`, sourceUrl: "https://www.hiqa.ie/areas-we-work/older-persons-services", license: `${LICENSE_PENDING}＋ODbL 1.0`, fetchedAt: IE_W7B_FETCHED_AT,
     loading: l3("愛爾蘭老人照護機構載入中", "Loading Ireland care homes", "アイルランドの高齢者介護施設を読み込み中"),
   },
   {
