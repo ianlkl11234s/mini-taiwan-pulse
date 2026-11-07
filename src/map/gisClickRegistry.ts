@@ -468,9 +468,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-place-names-circle"], type: "iePlaceNames" },
   { layers: ["ie-activity-locations-circle"], type: "ieActivityLocations" },
   { layers: ["ie-graveyards-circle"], type: "ieGraveyards" },
+  { layers: ["ie-commercial-valuations-circle"], type: "ieCommercialValuations" },
   { layers: ["ie-maritime-boundaries-line"], type: "ieMaritimeBoundaries" },
   { layers: ["ie-parks-fill"], type: "ieParks" },
   { layers: ["ie-gaeltacht-fill"], type: "ieGaeltacht" },
+  // 第 2 波：國有登記土地面（代表點 circle 由 repPointClickLayerIds 補）
+  { layers: ["ie-state-assets-fill"], type: "ieStateAssets" },
   { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },

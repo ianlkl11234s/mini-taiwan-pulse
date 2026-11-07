@@ -36,6 +36,9 @@ export const IeGaeltachtHost = makeIeDataHost("ieGaeltacht", 0.6);
 export const IeActivityLocationsHost = makeIeDataHost("ieActivityLocations", 0.8);
 export const IeParksHost = makeIeDataHost("ieParks", 0.7);
 export const IeGraveyardsHost = makeIeDataHost("ieGraveyards", 0.8);
+// 第 2 波：房地產
+export const IeCommercialValuationsHost = makeIeDataHost("ieCommercialValuations", 0.8);
+export const IeStateAssetsHost = makeIeDataHost("ieStateAssets", 0.7);
 
 /** 海床地形（raster，只有透明度）。 */
 export const IeBathymetryHost: LayerHostComponent = ({ deps }) => {

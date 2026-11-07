@@ -769,6 +769,11 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭公園 3,221 面（Dublin City、South Dublin 官方 650；其餘 29 個地方政府用 OSM 公園 2,390、公共花園 181）", processing: "DCC Parks 2016＋SDCC Parks FeatureServer；其餘 LA 取 Geofabrik 2026-11-05 PBF leisure=park／garden（排除私人、無名花園只留開放者）；面 PMTiles z6–13＋代表點 z4–14", note: "CC BY 4.0＋ODbL；31/31 LA；29 個 LA 為 OSM、完整度未驗" },
   ieGraveyards: { theme: "殯葬", group: "點位", zh: "墓地", alt: "Graveyards", icon: Flower, dataset: "ie_graveyards", topics: ["愛爾蘭", "墓地", "殯葬", "考古", "SMR"],
     description: "愛爾蘭墓地點位 6,449 處（SMR 考古登錄墓地 3,352、埋葬地 1,326、兒童埋葬地 1,439；Galway、Fingal 議會名冊 332）", processing: "SMR FeatureServer 依 MONUMENT_CLASS 篩三類＋Galway、Fingal 名冊；排除網頁備註與照片欄；PMTiles z4–14", note: "CC BY 4.0；現行公墓只有 Fingal" },
+  // 第 2 波（2026-11-07）：房地產（比照台灣「房地產」主題；國有地不是標售清單，群組名不用「標售」）
+  ieCommercialValuations: { theme: "房地產", group: "商業房產估值", zh: "商業房產估值", alt: "Commercial Property Valuations", icon: Building2, dataset: "ie_commercial_valuations", topics: ["愛爾蘭", "房地產", "商業房產", "估值", "commercial rates", "Valuation Office"],
+    description: "愛爾蘭商業房產估值 156,089 筆（29 個地方政府為淨年值 NAV 129,614 筆；Cork 市、郡為舊制 RV 26,475 筆、不可比）", processing: "Tailte Valuation API 31 個 rating authority 逐一抓 156,660 筆 → 剔座標空 546、26 郡外 25；Category 合併 8 類＋Cork；地址行濾掉疑似商號或人名；PMTiles z4–11 只帶類別、z12–14 全欄位", note: "CC BY 4.0（data.gov.ie 條目）；不含住宅、非市價；Cork 為舊制 RV" },
+  ieStateAssets: { theme: "房地產", group: "國有登記土地", zh: "國有登記土地", alt: "State-owned Registered Land", icon: Landmark, dataset: "ie_state_assets", topics: ["愛爾蘭", "房地產", "國有土地", "公有地", "LDA", "folio"],
+    description: "愛爾蘭國有登記土地 75,443 個 folio 面（地方政府 34,309、Coillte 17,090、Bord na Móna 8,813…；2023 Q3）", processing: "LDA PRA State Assets FeatureServer → 4326；所有人依 GovAgency／REG_OWNER 分 9 組；以第 0 波地方政府面指派 LA；面 PMTiles z8–14＋代表點 z4–14", note: "CC BY 4.0；folio 邊界受 PRA 版權註記（授權待確認）；2023 Q3 後未更新、非標售清單" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];

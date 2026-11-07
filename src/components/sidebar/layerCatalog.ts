@@ -363,6 +363,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "原民與農村",
     "運動休閒",
     "殯葬",
+    // 第 2 波：商業房產估值、國有登記土地（比照台灣「房地產 Real Estate」）
+    "房地產",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -3080,6 +3082,16 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "點位", layers: [fromManifest("ieGraveyards")] }],
   },
+  {
+    // 第 2 波：比照台灣「房地產」；國有登記土地不是標售清單（與英國「公有財產標售」不同），群組名不用「標售」
+    title: "房地產",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "商業房產估值", layers: [fromManifest("ieCommercialValuations")] },
+      { title: "國有登記土地", layers: [fromManifest("ieStateAssets")] },
+    ],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
@@ -3435,6 +3447,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "原民與農村": "city",
     "運動休閒": "publicLife",
     "殯葬": "publicLife",
+    "房地產": "city",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3647,6 +3660,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "原民與農村": { zh: "原民與農村", sub: "Indigenous & Rural" },
     "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
     "殯葬": { zh: "殯葬", sub: "Funeral" },
+    "房地產": { zh: "房地產", sub: "Real Estate" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

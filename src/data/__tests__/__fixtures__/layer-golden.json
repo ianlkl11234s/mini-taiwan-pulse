@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1706,
+    "keyCount": 1708,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2314,6 +2314,12 @@
     },
     {
       "layers": [
+        "ie-commercial-valuations-circle"
+      ],
+      "type": "ieCommercialValuations"
+    },
+    {
+      "layers": [
         "ie-maritime-boundaries-line"
       ],
       "type": "ieMaritimeBoundaries"
@@ -2330,6 +2336,13 @@
         "ie-gaeltacht-fill"
       ],
       "type": "ieGaeltacht"
+    },
+    {
+      "layers": [
+        "ie-state-assets-fill",
+        "ie-state-assets-point-circle"
+      ],
+      "type": "ieStateAssets"
     },
     {
       "layers": [
@@ -120555,6 +120568,156 @@
         "valueText": "0.70"
       }
     ],
+    "ieCommercialValuations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "零售（商店、量販倉儲）",
+            "value": "retail"
+          },
+          {
+            "label": "辦公",
+            "value": "office"
+          },
+          {
+            "label": "工業",
+            "value": "industrial"
+          },
+          {
+            "label": "餐旅",
+            "value": "hospitality"
+          },
+          {
+            "label": "休閒",
+            "value": "leisure"
+          },
+          {
+            "label": "醫療",
+            "value": "health"
+          },
+          {
+            "label": "加油站與油庫",
+            "value": "fuel_depot"
+          },
+          {
+            "label": "其他（雜項、礦產、公用事業等）",
+            "value": "other"
+          },
+          {
+            "label": "Cork 市、郡（舊制估值，未分類）",
+            "value": "cork_rv"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "retail",
+          "office",
+          "industrial",
+          "hospitality",
+          "leisure",
+          "health",
+          "fuel_depot",
+          "other",
+          "cork_rv"
+        ]
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieGaeltacht": [
       {
         "label": "透明度 0.60",
@@ -120752,6 +120915,171 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieStateAssets": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "local_authority"
+          },
+          {
+            "label": "Coillte（國營林業）",
+            "value": "coillte"
+          },
+          {
+            "label": "Bord na Móna（國營泥炭、能源）",
+            "value": "bord_na_mona"
+          },
+          {
+            "label": "ESB（國營電力）",
+            "value": "esb"
+          },
+          {
+            "label": "農業食品海洋部",
+            "value": "agriculture"
+          },
+          {
+            "label": "住房地方政府遺產部轄下（含 Irish Water）",
+            "value": "housing"
+          },
+          {
+            "label": "公共工程局（OPW）",
+            "value": "opw"
+          },
+          {
+            "label": "其他中央部會",
+            "value": "central_government"
+          },
+          {
+            "label": "其他國營事業與機構",
+            "value": "other_state_body"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "local_authority",
+          "coillte",
+          "bord_na_mona",
+          "esb",
+          "agriculture",
+          "housing",
+          "opw",
+          "central_government",
+          "other_state_body"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "immigrationOffice": [

@@ -2160,9 +2160,10 @@ export const LAYER_PARAMS_SPEC = {
       out: "ieAdminBoundariesLevelIdx", encode: ["la", "ed", "sa"],
     },
   ],
-  // 愛爾蘭第 1 波（2026-11-07）：規格驅動 6 層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選）；公園的點／面切換由 repPointLayers 補
+  // 愛爾蘭第 1 波起（2026-11-07）：規格驅動層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選、有熱區者加熱區顏色）；公園、國有登記土地的點／面切換由 repPointLayers 補
   ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
     ...krCatFilterSpecs(asKrSpec(spec)),
+    ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
       : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.geom === "polygon" ? 0.7 : 0.85)]),

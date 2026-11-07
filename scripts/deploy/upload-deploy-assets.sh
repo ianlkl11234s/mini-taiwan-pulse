@@ -613,6 +613,8 @@ for f in \
   public/world/ca_population_grid.pmtiles \
   public/world/ie_admin_boundaries.pmtiles \
   public/world/ie_bathymetry.pmtiles \
+  public/world/ie_commercial_valuations.pmtiles \
+  public/world/ie_state_assets.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \
