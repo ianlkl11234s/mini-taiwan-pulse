@@ -8,7 +8,7 @@ import {
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
-import { IE_COILLTE_ATTRIBUTION, IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION, ieCoillteColorExpr, ieCoillteKindFilter } from "../data/ieCoillteTypes";
+import { IE_COILLTE_ATTRIBUTION, IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteColorExpr, ieCoillteKindFilter } from "../data/ieCoillteTypes";
 import { GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_SOURCE_ID, GB_ENV_HOLLOW_STROKE, GB_POLLUTION_COLOR } from "../data/gbEnvPlanningTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
@@ -3806,7 +3806,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
-  // 林道 15,877（細）＋遊憩步道 1,199（標準寬、畫在上層）：GeoJSON 整包，z4 起畫（全國視角看得到林地分布）。
+  // 林道 15,877（細）＋遊憩步道 1,199（標準寬、畫在上層）：useIeCoillteForestRoadsLayer 依畫面 bbox 分批 setData，
+  // z10 起畫（整包約 7.9MB 超過 2MB 門檻；低縮放由視野提示卡提示放大）。
   {
     id: "ieCoillteForestRoads",
     sourceUrl: "./geo/_empty.geojson",
@@ -3818,7 +3819,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line",
         type: "line",
-        minzoom: 4,
+        minzoom: IE_COILLTE_ROADS_MIN_ZOOM,
         filter: (p) => ieCoillteKindFilter(IE_COILLTE_FOREST_ROADS, p?.ieCoillteForestRoadsCategoryMask),
         layout: { "line-cap": "round", "line-join": "round", "line-sort-key": ["match", ["get", "kind"], "recreation_trail", 1, 0] },
         paint: (_isDark, p) => ({

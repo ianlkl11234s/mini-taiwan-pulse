@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useIeAdminLayers } from "../../hooks/useIeAdminLayers";
 import { useIeBathymetryLayer } from "../../hooks/useIeBathymetryLayer";
 import { useKrDataLayer } from "../../hooks/useKrDataLayers";
-import { useIeCoillteLayer } from "../../hooks/useIeCoillteLayers";
+import { useIeCoillteForestRoadsLayer, useIeCoillteLayer } from "../../hooks/useIeCoillteLayers";
 import { IE_SPEC_BY_KEY, asKrSpec, ieFloodScenarioFileAt, ieNoiseMetricFileAt } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
@@ -144,6 +144,6 @@ export const IeCoillteRecreationHost: LayerHostComponent = ({ deps }) => {
 };
 export const IeCoillteForestRoadsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useIeCoillteForestRoadsLayer");
-  useIeCoillteLayer(deps.mapRef, "ieCoillteForestRoads", deps.layerVisibility.ieCoillteForestRoads);
+  useIeCoillteForestRoadsLayer(deps.mapRef, deps.layerVisibility.ieCoillteForestRoads);
   return null;
 };

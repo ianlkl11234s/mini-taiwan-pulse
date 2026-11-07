@@ -30,6 +30,12 @@ export type IeCoillteSpec = Pick<IeLayerSpec, "geom" | "color" | "count" | "catP
 };
 
 export const IE_COILLTE_FETCHED_AT = "2026-11-08";
+/**
+ * 林道依畫面分批讀的起點縮放。整包 RPC 約 7.9MB（超過使用者訂的 2MB 門檻）；實測（2026-11-08，站主身分）
+ * z10 視窗約 1,300 條／0.75MB／0.15 s、z9 約 3,400 條／1.7MB、z8 約 12,000 條／5.7MB → 取 z10。
+ * 低於此縮放不查也不畫，由視野提示卡（spec §5.42.1）提示「放大到 z10」。
+ */
+export const IE_COILLTE_ROADS_MIN_ZOOM = 10;
 const SOURCE_URL = "https://data.gov.ie/organization/coillte";
 const LICENSE = "Coillte 使用條款：僅限研究或私人學習、不得轉供他人或用於其他網站（站主限定）";
 const LICENSE_NOTE = l3(
@@ -98,6 +104,9 @@ export const IE_COILLTE_FOREST_ROADS: IeCoillteSpec = {
     l3("只有 Coillte 國有林地；私有林林道未涵蓋。線形約以 5 m 簡化，長度為來源值",
       "Coillte estate only; roads in private forests are not covered. Lines simplified to about 5 m; lengths are source values",
       "Coillte の国有林のみで、私有林の林道は未収録。線形は約5 m で簡略化、長さは出典の値"),
+    l3("放大到 z10 才依畫面範圍載入並顯示",
+      "Zoom in to z10 or closer to load and show the visible area",
+      "z10 以上に拡大すると表示範囲を読み込んで表示"),
     LICENSE_NOTE,
   ],
   popupNotes: [],

@@ -7,14 +7,15 @@ vi.mock("react", async () => (await import("./hookHarness")).reactMock);
 const rpc = vi.fn();
 vi.mock("../../lib/supabase", () => ({ supabase: { rpc: (...args: unknown[]) => rpc(...args) } }));
 
-const { harness } = await import("./hookHarness");
-const { useIeCoillteLayer, resetIeCoillteCacheForTest } = await import("../useIeCoillteLayers");
+const { harness, createFakeMap } = await import("./hookHarness");
+const { useIeCoillteLayer, useIeCoillteForestRoadsLayer, resetIeCoillteCacheForTest, snapIeCoillteBounds } = await import("../useIeCoillteLayers");
 const { GATED_LAYERS, RELEASE_HOLD_LAYERS } = await import("../../components/sidebar/layerCatalog");
 const { EMBED_ALLOWED } = await import("../../embed/embedWhitelist");
 const { parseUrlState, URL_STATE_VERSION } = await import("../../lib/urlState");
 const { isLayerLocked } = await import("../../lib/layerGates");
 const { LAYER_MANIFEST } = await import("../../data/layerManifest");
-const { IE_COILLTE_KEYS, IE_COILLTE_SPEC_BY_KEY, ieCoillteKindFilter, normalizeIeCoillte } = await import("../../data/ieCoillteTypes");
+const { IE_COILLTE_KEYS, IE_COILLTE_SPEC_BY_KEY, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteKindFilter, normalizeIeCoillte } = await import("../../data/ieCoillteTypes");
+const { OVERLAY_REGISTRY } = await import("../../map/overlayRegistry");
 
 const mapRef = { current: null };
 
@@ -45,17 +46,60 @@ describe("愛爾蘭 Coillte 國有林：站主限定", () => {
     expect(JSON.stringify(entry)).not.toMatch(/\.pmtiles|\/world\//);
   });
 
-  it.each(IE_COILLTE_KEYS)("%s：visible=false 不呼叫 RPC；visible=true 才呼叫自己的 RPC 一次", async (key) => {
+  it("遊憩點：visible=false 不呼叫 RPC；visible=true 才整包呼叫一次", async () => {
     harness.begin();
-    useIeCoillteLayer(mapRef, key, false);
+    useIeCoillteLayer(mapRef, "ieCoillteRecreation", false);
     await Promise.resolve();
     expect(rpc).not.toHaveBeenCalled();
 
     harness.begin();
-    useIeCoillteLayer(mapRef, key, true);
+    useIeCoillteLayer(mapRef, "ieCoillteRecreation", true);
     await Promise.resolve();
     expect(rpc).toHaveBeenCalledTimes(1);
-    expect(rpc).toHaveBeenCalledWith(IE_COILLTE_SPEC_BY_KEY[key].rpc);
+    expect(rpc).toHaveBeenCalledWith("get_ie_coillte_recreation");
+  });
+
+  it("林道：依畫面 p_bbox 分批，低於 z10 不查；圖層 minzoom 同值", async () => {
+    expect(IE_COILLTE_ROADS_MIN_ZOOM).toBe(10);
+    const line = OVERLAY_REGISTRY.find((c) => c.id === "ieCoillteForestRoads")?.layers[0];
+    expect(line?.minzoom).toBe(IE_COILLTE_ROADS_MIN_ZOOM);
+
+    const rpcSpy = rpc;
+    rpcSpy.mockReturnValue(Object.assign(
+      Promise.resolve({ data: { type: "FeatureCollection", features: [] }, error: null, status: 200 }),
+      { abortSignal() { return this; } },
+    ));
+    const fake = createFakeMap();
+    let zoom = 8;
+    Object.assign(fake.raw, {
+      getZoom: () => zoom,
+      getBounds: () => ({ getWest: () => -6.62, getSouth: () => 52.86, getEast: () => -6.11, getNorth: () => 53.14 }),
+    });
+    const ref = { current: fake.map };
+
+    harness.begin();
+    useIeCoillteForestRoadsLayer(ref, false);
+    await Promise.resolve();
+    expect(rpc).not.toHaveBeenCalled();
+
+    harness.begin();
+    useIeCoillteForestRoadsLayer(ref, true);
+    await Promise.resolve();
+    expect(rpc).not.toHaveBeenCalled(); // z8 < z10
+
+    zoom = 11;
+    vi.useFakeTimers();
+    fake.emit("moveend");
+    vi.advanceTimersByTime(400);
+    vi.useRealTimers();
+    await Promise.resolve();
+    expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("get_ie_coillte_forest_roads", { p_bbox: [-6.65, 52.85, -6.1, 53.15] });
+  });
+
+  it("bbox 向外對齊 0.05° 格網", () => {
+    expect(snapIeCoillteBounds({ west: -6.62, south: 52.86, east: -6.11, north: 53.14 }))
+      .toEqual({ west: -6.65, south: 52.85, east: -6.1, north: 53.15 });
   });
 
   it("RPC 回應只留該層幾何；類別多選 filter（全選不篩、全不選擋光）", () => {

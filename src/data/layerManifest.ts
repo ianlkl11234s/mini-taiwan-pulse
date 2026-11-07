@@ -4819,7 +4819,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "ie_coillte_forest_roads", confidence: "HIGH" }],
-      processing: "analytics pipelines/forestry/ie/coillte/07_export.py：Coillte_Forest_Road_Dataset/1 15,890（13 條無幾何剔除）＋Recreation Information/3 步道 1,199，約 5 m 簡化 → Supabase；RPC get_ie_coillte_forest_roads 整包回 17,076 條（p_bbox 預留依畫面分批）",
+      processing: "analytics pipelines/forestry/ie/coillte/07_export.py：Coillte_Forest_Road_Dataset/1 15,890（13 條無幾何剔除）＋Recreation Information/3 步道 1,199，約 5 m 簡化 → Supabase；RPC get_ie_coillte_forest_roads 依畫面 p_bbox 分批（z10 起；全 17,076 條整包約 7.9MB）",
       note: "Coillte item 條款同遊憩點 → 站主限定，不進任何公開檔；私有林林道未涵蓋",
     },
     dataClass: "C",

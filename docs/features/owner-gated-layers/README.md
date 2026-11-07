@@ -21,7 +21,7 @@
 - 釘死清單測試 `src/data/__tests__/ownerOnlyRegistry.test.ts`：manifest 標記與 `GATED_LAYERS` 都必須等於表內 58 個 key（2026-11-06 古地圖改公開，59→58）；
   少一個標記（＝私人圖層對外開放）或多一個都會紅。新增站主限定圖層時三處一起改：manifest topics、該測試、gis-platform `public.gated_layers`。
   **改回公開**同樣三處反向：拿掉 `OWNER_ONLY`、測試移除 key、gated_layers 刪列（只改前端的話，`get_layer_gates()` 回來的 full 列仍會把非站主鎖住）；hook 若 `registerOwnerGateReset` 一併拿掉。前例：古地圖（見下表）。
-- DB `public.gated_layers`：mig 276（34 列）＋494（electionEvents2026）＋499（gbPollutionInventoryEngland）＋512（ieCoillteRecreation、ieCoillteForestRoads，愛爾蘭 Coillte 條款不得轉供；2026-11-08 撰寫、待套用）＋**500**（補前端獨有的 22 個 key 與 allenCoralAtlas，共 23 列，`rpc_name` NULL、`required_tier='owner'`、`lock_type='full'`）。
+- DB `public.gated_layers`：mig 276（34 列）＋494（electionEvents2026）＋499（gbPollutionInventoryEngland）＋512（ieCoillteRecreation、ieCoillteForestRoads，愛爾蘭 Coillte 條款不得轉供；2026-11-08 已套用＋匯入）＋**500**（補前端獨有的 22 個 key 與 allenCoralAtlas，共 23 列，`rpc_name` NULL、`required_tier='owner'`、`lock_type='full'`）。
   DB 另有 `info_medical_ltc`（member tier，mig 281）不屬站主限定，不在前端名單。
 - 舊的 manifest 第三套名單（`OWNER_ONLY` 標記執行時沒人讀）與 `OWNER_ONLY_THEME_TITLES` 已併入／移除。
 

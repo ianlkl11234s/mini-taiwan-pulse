@@ -15917,7 +15917,7 @@
               0
             ]
           },
-          "minzoom": 4,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "line-color": [
