@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1726,
+    "keyCount": 1731,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2332,6 +2332,18 @@
     },
     {
       "layers": [
+        "ie-bathing-waters-circle"
+      ],
+      "type": "ieBathingWaters"
+    },
+    {
+      "layers": [
+        "ie-marine-survey-stations-circle"
+      ],
+      "type": "ieMarineSurveyStations"
+    },
+    {
+      "layers": [
         "ie-maritime-boundaries-line"
       ],
       "type": "ieMaritimeBoundaries"
@@ -2421,6 +2433,25 @@
         "ie-river-flood-extents-fill"
       ],
       "type": "ieRiverFloodExtents"
+    },
+    {
+      "layers": [
+        "ie-protected-marine-sites-fill",
+        "ie-protected-marine-sites-point-circle"
+      ],
+      "type": "ieProtectedMarineSites"
+    },
+    {
+      "layers": [
+        "ie-offshore-renewables-fill"
+      ],
+      "type": "ieOffshoreRenewables"
+    },
+    {
+      "layers": [
+        "ie-seabed-survey-coverage-fill"
+      ],
+      "type": "ieSeabedSurveyCoverage"
     },
     {
       "layers": [
@@ -121123,6 +121154,64 @@
         "valueText": "0.85"
       }
     ],
+    "ieBathingWaters": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "極佳 Excellent",
+            "value": "excellent"
+          },
+          {
+            "label": "良好 Good",
+            "value": "good"
+          },
+          {
+            "label": "合格 Sufficient",
+            "value": "sufficient"
+          },
+          {
+            "label": "不良 Poor",
+            "value": "poor"
+          },
+          {
+            "label": "法定浴場・本年未分級",
+            "value": "not_classified"
+          },
+          {
+            "label": "非法定監測點（無年度分級）",
+            "value": "non_identified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "excellent",
+          "good",
+          "sufficient",
+          "poor",
+          "not_classified",
+          "non_identified"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieBathymetry": [
       {
         "label": "透明度 0.70",
@@ -121466,6 +121555,69 @@
         "valueText": "0.70"
       }
     ],
+    "ieMarineSurveyStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "愛爾蘭底拖網漁業調查 IGFS（2003–2015）",
+            "value": "groundfish"
+          },
+          {
+            "label": "挪威海螯蝦水下攝影調查（2000–2016）",
+            "value": "nephrops_uwtv"
+          },
+          {
+            "label": "鯖魚卵調查（2007–2016）",
+            "value": "mackerel_egg"
+          },
+          {
+            "label": "聲學資源調查（1999–2009）",
+            "value": "acoustic"
+          },
+          {
+            "label": "生物採樣調查（2004–2009）",
+            "value": "biological_sampling"
+          },
+          {
+            "label": "深水調查（2006–2009）",
+            "value": "deepwater"
+          },
+          {
+            "label": "野豬魚調查（2014）",
+            "value": "boarfish"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "groundfish",
+          "nephrops_uwtv",
+          "mackerel_egg",
+          "acoustic",
+          "biological_sampling",
+          "deepwater",
+          "boarfish"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieMaritimeBoundaries": [
       {
         "label": "類別",
@@ -121498,6 +121650,50 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "ieOffshoreRenewables": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "海域許可 MAC（2022 第一批）",
+            "value": "mac"
+          },
+          {
+            "label": "已運轉（前灘程序）",
+            "value": "foreshore_commissioned"
+          },
+          {
+            "label": "過渡案 Relevant Projects（前灘程序）",
+            "value": "foreshore_relevant"
+          },
+          {
+            "label": "場址調查許可（前灘程序）",
+            "value": "foreshore_site_investigation"
+          },
+          {
+            "label": "大西洋海洋能試驗場 AMETS",
+            "value": "amets"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "mac",
+          "foreshore_commissioned",
+          "foreshore_relevant",
+          "foreshore_site_investigation",
+          "amets"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "ieParks": [
@@ -121599,6 +121795,84 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieProtectedMarineSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "特別保育區 SAC（Natura 2000）",
+            "value": "sac"
+          },
+          {
+            "label": "鳥類特別保護區 SPA（Natura 2000）",
+            "value": "spa"
+          },
+          {
+            "label": "國家自然遺產區 NHA",
+            "value": "nha"
+          },
+          {
+            "label": "都柏林灣生物圈（海域分區）",
+            "value": "biosphere"
+          },
+          {
+            "label": "自然保留區（只有點位）",
+            "value": "nature_reserve"
+          },
+          {
+            "label": "地方動物避難所（只有點位）",
+            "value": "refuge"
+          },
+          {
+            "label": "拉姆薩濕地（只有點位）",
+            "value": "ramsar"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "sac",
+          "spa",
+          "nha",
+          "biosphere",
+          "nature_reserve",
+          "refuge",
+          "ramsar"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "ieRiverFloodExtents": [
@@ -121794,6 +122068,40 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "ieSeabedSurveyCoverage": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "INFOMAR（2006–2026）",
+            "value": "infomar"
+          },
+          {
+            "label": "國家海床調查 INSS（1999–2005）",
+            "value": "inss"
+          },
+          {
+            "label": "其他合作航次（海洋能、棲地、漁業等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "infomar",
+          "inss",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "ieStateAssets": [

@@ -148,6 +148,8 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // 愛爾蘭第 1 波：公園（同一支 useKrDataLayer；Dublin City／South Dublin 官方＋其餘 OSM）
   { key: "ieParks", family: "krData", file: "ie_parks_points.pmtiles", sourceLayer: "ie_parks_points", count: 3221, def: "point", maxzoom: 14 },
   // 愛爾蘭第 2 波：國有登記土地 folio（小而零散，預設點；7.5 萬點 → 拉遠熱區；代表點檔 z4–9 未抽稀、只帶 owner_group）
+  // 愛爾蘭第 3b 波：受保護海域（保護區類，預設點；點檔另含自然保留區、避難所、拉姆薩這些原本就只有點的站點）
+  { key: "ieProtectedMarineSites", family: "krData", file: "ie_protected_marine_sites_points.pmtiles", sourceLayer: "ie_protected_marine_sites_points", count: 290, def: "point", maxzoom: 14 },
   { key: "ieStateAssets", family: "krData", file: "ie_state_assets_points.pmtiles", sourceLayer: "ie_state_assets_points", count: 75443, def: "point", maxzoom: 14, thinned: 1, heatIntensity: 1.5 },
 ];
 

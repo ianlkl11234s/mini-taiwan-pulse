@@ -5,6 +5,8 @@ export const IE_DATA_KEYS = [
   "ieCommercialValuations", "ieStateAssets",
   // 第 3a 波（2026-11-08）：水系統與洪水
   "ieHydrometricStations", "ieWaterMonitoring", "ieRiverWaterBodies", "ieLakeWaterBodies", "ieArterialDrainage", "ieRiverFloodExtents", "ieCoastalErosion",
+  // 第 3b 波（2026-11-08）：海洋
+  "ieBathingWaters", "ieMarineSurveyStations", "ieSeabedSurveyCoverage", "ieProtectedMarineSites", "ieOffshoreRenewables",
   // 第 4 波（2026-11-08）：交通
   "ieTransitStops", "ieDublinbikesStations", "ieRoadRailNetwork", "ieRoadMarkers", "ieTrafficCounters", "ieAirportsPorts",
 ] as const;

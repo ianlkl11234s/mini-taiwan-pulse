@@ -162,6 +162,49 @@ const NC_ND_NOTE = (org: string) => l3(`CC BY-NC-ND 4.0・非商業使用；© $
   `CC BY-NC-ND 4.0 · non-commercial use; © ${org}. Shown unaltered (not merged, clipped or re-classified)`,
   `CC BY-NC-ND 4.0・非商用；© ${org}。改変せず原データのまま表示（統合・切り抜き・属性変更なし）`);
 
+// ───────────── 第 3b 波：海洋 ─────────────
+export const IE_W3B_FETCHED_AT = "2026-11-08";
+/** EPA 年度浴場水質分級（Bathing Water Quality Regulations 2008，前 4 季採樣）：沿用歐盟浴場分級慣例的藍、綠、黃、紅。 */
+const BATHING_CATS: readonly KrCat[] = [
+  { id: "excellent", values: ["excellent"], color: "#38bdf8", label: l3("極佳 Excellent", "Excellent", "極めて良好（Excellent）") },
+  { id: "good", values: ["good"], color: "#4ade80", label: l3("良好 Good", "Good", "良好（Good）") },
+  { id: "sufficient", values: ["sufficient"], color: "#facc15", label: l3("合格 Sufficient", "Sufficient", "可（Sufficient）") },
+  { id: "poor", values: ["poor"], color: "#ef4444", label: l3("不良 Poor", "Poor", "不良（Poor）") },
+  { id: "not_classified", values: ["not_classified"], color: "#94a3b8", label: l3("法定浴場・本年未分級", "Identified bathing water, not classified", "指定水浴場・今年は未分類") },
+  { id: "non_identified", values: ["non_identified"], color: "#a78bfa", label: l3("非法定監測點（無年度分級）", "Non-identified (monitored, no annual classification)", "指定外の監視地点（年次分類なし）") },
+];
+const SURVEY_SERIES_CATS: readonly KrCat[] = [
+  { id: "groundfish", values: ["groundfish"], color: "#38bdf8", label: l3("愛爾蘭底拖網漁業調查 IGFS（2003–2015）", "Irish Groundfish Survey (2003–2015)", "アイルランド底魚調査 IGFS（2003–2015）") },
+  { id: "nephrops_uwtv", values: ["nephrops_uwtv"], color: "#f472b6", label: l3("挪威海螯蝦水下攝影調查（2000–2016）", "Nephrops underwater TV survey (2000–2016)", "ヨーロッパアカザエビ水中TV調査（2000–2016）") },
+  { id: "mackerel_egg", values: ["mackerel_egg"], color: "#facc15", label: l3("鯖魚卵調查（2007–2016）", "Mackerel egg survey (2007–2016)", "サバ卵調査（2007–2016）") },
+  { id: "acoustic", values: ["acoustic"], color: "#a78bfa", label: l3("聲學資源調查（1999–2009）", "Acoustic survey (1999–2009)", "音響資源調査（1999–2009）") },
+  { id: "biological_sampling", values: ["biological_sampling"], color: "#4ade80", label: l3("生物採樣調查（2004–2009）", "Biological sampling survey (2004–2009)", "生物サンプリング調査（2004–2009）") },
+  { id: "deepwater", values: ["deepwater"], color: "#2dd4bf", label: l3("深水調查（2006–2009）", "Deepwater survey (2006–2009)", "深海調査（2006–2009）") },
+  { id: "boarfish", values: ["boarfish"], color: "#f59e0b", label: l3("野豬魚調查（2014）", "Boarfish survey (2014)", "ヒシダイ類（boarfish）調査（2014）") },
+];
+const SEABED_PROGRAMME_CATS: readonly KrCat[] = [
+  { id: "infomar", values: ["infomar"], color: "#38bdf8", label: l3("INFOMAR（2006–2026）", "INFOMAR (2006–2026)", "INFOMAR（2006–2026）") },
+  { id: "inss", values: ["inss"], color: "#a78bfa", label: l3("國家海床調查 INSS（1999–2005）", "Irish National Seabed Survey (1999–2005)", "国家海底調査 INSS（1999–2005）") },
+  { id: "other", values: ["other"], color: "#2dd4bf", label: l3("其他合作航次（海洋能、棲地、漁業等）", "Other surveys (ocean energy, habitat, fisheries…)", "その他の調査（海洋エネルギー・生息地・漁業など）") },
+];
+const OFFSHORE_CATS: readonly KrCat[] = [
+  { id: "mac", values: ["mac"], color: "#f59e0b", label: l3("海域許可 MAC（2022 第一批）", "Maritime Area Consent (first batch, 2022)", "海域利用同意 MAC（2022年第1陣）") },
+  { id: "foreshore_commissioned", values: ["foreshore_commissioned"], color: "#4ade80", label: l3("已運轉（前灘程序）", "Fully commissioned (foreshore process)", "運転中（フォアショア手続）") },
+  { id: "foreshore_relevant", values: ["foreshore_relevant"], color: "#38bdf8", label: l3("過渡案 Relevant Projects（前灘程序）", "Relevant Projects (foreshore process)", "移行案件 Relevant Projects（フォアショア手続）") },
+  { id: "foreshore_site_investigation", values: ["foreshore_site_investigation"], color: "#a78bfa", label: l3("場址調查許可（前灘程序）", "Site investigation licence (foreshore process)", "サイト調査許可（フォアショア手続）") },
+  { id: "amets", values: ["amets"], color: "#f472b6", label: l3("大西洋海洋能試驗場 AMETS", "Atlantic Marine Energy Test Site (AMETS)", "大西洋海洋エネルギー試験場 AMETS") },
+];
+const MARINE_SITE_CATS: readonly KrCat[] = [
+  { id: "sac", values: ["sac"], color: "#38bdf8", label: l3("特別保育區 SAC（Natura 2000）", "Special Area of Conservation (Natura 2000)", "特別保護区 SAC（Natura 2000）") },
+  { id: "spa", values: ["spa"], color: "#a78bfa", label: l3("鳥類特別保護區 SPA（Natura 2000）", "Special Protection Area (Natura 2000)", "鳥類特別保護区 SPA（Natura 2000）") },
+  { id: "nha", values: ["nha"], color: "#4ade80", label: l3("國家自然遺產區 NHA", "Natural Heritage Area", "国家自然遺産地域 NHA") },
+  { id: "biosphere", values: ["biosphere"], color: "#2dd4bf", label: l3("都柏林灣生物圈（海域分區）", "Dublin Bay Biosphere (marine zones)", "ダブリン湾生物圏（海域区分）") },
+  { id: "nature_reserve", values: ["nature_reserve"], color: "#f59e0b", label: l3("自然保留區（只有點位）", "Nature reserve (point only)", "自然保護区（点のみ）") },
+  { id: "refuge", values: ["refuge"], color: "#f472b6", label: l3("地方動物避難所（只有點位）", "Refuge for fauna (point only)", "動物避難地（点のみ）") },
+  { id: "ramsar", values: ["ramsar"], color: "#facc15", label: l3("拉姆薩濕地（只有點位）", "Ramsar wetland (point only)", "ラムサール湿地（点のみ）") },
+];
+const FOUNDATION: Record<string, L3> = { "Fixed-Bottom": l3("固定式", "Fixed-bottom", "着床式"), Floating: l3("浮動式", "Floating", "浮体式") };
+
 export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   // ───────────── 底圖：海域界線、地名 ─────────────
   {
@@ -519,6 +562,107 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "Tailte Éireann, National 250k (Airfield Area, Airports, Harbours); National Marine Planning Framework Ferry Port (DHLGH); names: OurAirports", sourceUrl: DGI("airports-national-250k-map-of-ireland"), license: CC_BY, fetchedAt: IE_W4_FETCHED_AT,
     loading: l3("愛爾蘭機場與港口載入中", "Loading Ireland airports and ports", "アイルランドの空港と港を読み込み中"),
+  },
+  // ───────────── 第 3b 波：海洋 ─────────────
+  {
+    key: "ieBathingWaters", file: "ie_bathing_waters.pmtiles", sourceLayer: "ie_bathing_waters", geom: "point", layerId: "ie-bathing-waters-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "M", count: 243,
+    catProp: "category", cats: BATHING_CATS,
+    title: { props: ["name"], fallback: l3("浴場", "Bathing water", "水浴場") },
+    fields: [{ prop: "category", label: l3("水質分級", "Water quality class", "水質区分"), map: Object.fromEntries(BATHING_CATS.map((c) => [c.id, c.label])) },
+             { prop: "class_year", label: l3("分級年度", "Classification year", "区分年度"), kind: "year" },
+             { prop: "class_history", label: l3("前 3 年分級", "Previous 3 years", "過去3年の区分") },
+             { prop: "restriction", label: l3("全季禁止游泳", "All-season bathing restriction", "通年遊泳禁止"), map: YES_NO },
+             { prop: "restriction_reason", label: l3("禁止原因", "Restriction reason", "禁止理由") },
+             { prop: "blue_flag", label: l3("藍旗海灘", "Blue Flag", "ブルーフラッグ"), map: YES_NO },
+             { prop: "green_coast", label: l3("Green Coast 獎", "Green Coast award", "Green Coast 賞"), map: YES_NO },
+             { prop: "lifeguard", label: l3("救生員", "Lifeguard", "ライフガード"), map: YES_NO },
+             { prop: "toilets", label: l3("廁所", "Toilets", "トイレ"), map: YES_NO },
+             { prop: "accessible", label: l3("無障礙", "Disability access", "バリアフリー"), map: YES_NO },
+             { prop: "authority", label: l3("管理地方政府", "Local authority", "管理自治体") },
+             { prop: "beach_id", label: l3("浴場代碼", "Bathing water ID", "水浴場コード"), kind: "code" }],
+    legendNotes: [l3("EPA 浴場名冊 243 處（法定 154、非法定監測點 89；17 個郡，含湖泊與河口）", "EPA register of 243 bathing waters (154 identified, 89 non-identified; 17 counties, incl. lakes and estuaries)", "EPA 水浴場名簿243か所（指定154・指定外89、17県、湖沼・河口を含む）"),
+                  l3("分級為 2025 年度，依 2022–2025 四季採樣（Bathing Water Quality Regulations 2008）；法定浴場的點是監測點，非法定的是海灘大致位置", "Classes are for 2025, based on the 2022–2025 seasons (Bathing Water Quality Regulations 2008); identified sites are monitoring points, non-identified are approximate beach locations", "区分は2025年度（2022–2025年の4シーズン、Bathing Water Quality Regulations 2008）。指定水浴場は監視地点、指定外は海浜の概略位置"),
+                  l3("即時警示與逐次採樣結果未收（第 12 波）；最新狀況請看 beaches.ie", "Live alerts and individual sample results not included (wave 12); see beaches.ie for current status", "リアルタイム警報と個別の採水結果は未収録（第12波）。最新状況は beaches.ie")],
+    popupNotes: [l3("分級反映前 4 季，不代表今天能否游泳；請看 beaches.ie", "Class reflects the previous four seasons, not today's conditions; check beaches.ie", "区分は過去4シーズンの評価で当日の可否ではない。beaches.ie を参照")],
+    sourceOrg: "Environmental Protection Agency (EPA), Bathing Water Open Data (data from local authorities)", sourceUrl: "https://data.epa.ie/api-list/bathing-water-open-data/", license: CC_BY, fetchedAt: IE_W3B_FETCHED_AT,
+    loading: l3("愛爾蘭浴場水質載入中", "Loading Ireland bathing waters", "アイルランドの水浴場を読み込み中"),
+  },
+  {
+    key: "ieMarineSurveyStations", file: "ie_marine_survey_stations.pmtiles", sourceLayer: "ie_marine_survey_stations", geom: "point", layerId: "ie-marine-survey-stations-circle",
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#38bdf8", tier: "S", count: 7548,
+    catProp: "series", cats: SURVEY_SERIES_CATS,
+    title: { props: ["cruise"], fallback: l3("漁業調查站位", "Fisheries survey station", "漁業調査地点") },
+    fields: [{ prop: "series", label: l3("調查系列", "Survey series", "調査シリーズ"), map: Object.fromEntries(SURVEY_SERIES_CATS.map((c) => [c.id, c.label])) },
+             { prop: "date", label: l3("採樣日", "Date", "採取日") }, { prop: "station", label: l3("站號／網次", "Station / haul", "地点・曳網番号"), kind: "code" },
+             { prop: "stratum", label: l3("分層", "Stratum", "層") }, { prop: "description", label: l3("航次說明", "Survey description", "航海の説明") }],
+    legendNotes: [l3("Marine Institute 漁業資源調查 7 個系列的歷史站位 7,548 點（1999–2016），不是現行站網", "7,548 historical stations from 7 Marine Institute fisheries survey series (1999–2016); not a current network", "Marine Institute の漁業資源調査7シリーズの過去の調査地点7,548点（1999–2016）。現行の観測網ではない"),
+                  l3("站位延伸到愛爾蘭周邊的 ICES 調查海域，部分在愛爾蘭專屬經濟區外；只有位置，不含漁獲量", "Stations extend across ICES survey areas around Ireland, some outside the Irish EEZ; locations only, no catch data", "地点はアイルランド周辺の ICES 調査海域に及び、一部は EEZ 外。位置のみで漁獲量は含まない")],
+    popupNotes: [l3("歷史調查站位（只有位置）", "Historical survey station (location only)", "過去の調査地点（位置のみ）")],
+    sourceOrg: "Marine Institute, Fisheries survey stations (7 series)", sourceUrl: DGI("irish-groundfish-survey-stations"), license: CC_BY, fetchedAt: IE_W3B_FETCHED_AT,
+    loading: l3("愛爾蘭漁業調查站位載入中", "Loading Ireland fisheries survey stations", "アイルランドの漁業調査地点を読み込み中"),
+  },
+  {
+    key: "ieSeabedSurveyCoverage", file: "ie_seabed_survey_coverage.pmtiles", sourceLayer: "ie_seabed_survey_coverage", geom: "polygon",
+    layerId: "ie-seabed-survey-coverage-fill", outlineId: "ie-seabed-survey-coverage-line",
+    srcMinzoom: 4, srcMaxzoom: 11, minzoom: 4, color: "#38bdf8", count: 376,
+    catProp: "programme", cats: SEABED_PROGRAMME_CATS,
+    title: { props: ["survey_id", "project"], fallback: l3("海床測深調查", "Seabed survey", "海底測深調査") },
+    fields: [{ prop: "project", label: l3("計畫", "Project", "プロジェクト") }, { prop: "year", label: l3("年度", "Year", "年度"), kind: "year" },
+             { prop: "vessel", label: l3("船舶／載具", "Vessel / platform", "船舶・機材") }, { prop: "system", label: l3("測深系統", "Survey system", "測深システム") },
+             { prop: "methods", label: l3("觀測項目", "Methods", "観測項目") }, { prop: "collector", label: l3("執行單位", "Collected by", "実施機関") },
+             { prop: "place", label: l3("地點", "Location", "場所") }, { prop: "sea_area", label: l3("海域", "Sea area", "海域") },
+             { prop: "start", label: l3("開始", "Start", "開始") }, { prop: "end", label: l3("結束", "End", "終了") },
+             { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 },
+             { prop: "bathy_res_m", label: l3("測深網格", "Bathymetry resolution", "測深グリッド"), kind: "num", unit: "m" },
+             { prop: "survey_id", label: l3("航次代碼", "Survey ID", "航海コード"), kind: "code" }],
+    legendNotes: [l3("GSI 與 Marine Institute 的海床測深航次足跡 376 個（1996–2026；INFOMAR 291、前身 INSS 22、其他 63）", "376 seabed survey footprints by GSI and the Marine Institute (1996–2026; INFOMAR 291, predecessor INSS 22, others 63)", "GSI と Marine Institute の海底測深調査範囲376（1996–2026。INFOMAR 291・前身 INSS 22・その他63）"),
+                  l3("面是測過的範圍、不是測深值（水深看「海床地形」）；航次會重疊，部分延伸到英國水域", "Footprints show where was surveyed, not depths (see Bathymetry); surveys overlap and some extend into UK waters", "範囲は測深済みの区域で水深値ではない（水深は「海底地形」）。航海は重なり、一部は英国水域に及ぶ"),
+                  l3("顯示用每面各自簡化約 20 m", "Each footprint simplified by about 20 m for display", "表示用に各範囲を約20m簡略化")],
+    popupNotes: [],
+    sourceOrg: "Geological Survey Ireland & Marine Institute, INFOMAR Seabed Survey Coverage", sourceUrl: DGI("infomar-seabed-survey-coverage"), license: CC_BY, fetchedAt: IE_W3B_FETCHED_AT,
+    loading: l3("愛爾蘭海床調查範圍載入中", "Loading Ireland seabed survey coverage", "アイルランドの海底調査範囲を読み込み中"),
+  },
+  {
+    // V-5：面（SAC／SPA／NHA／生物圈）＋代表點檔（另含只有點位的自然保留區、避難所、拉姆薩；repPointLayers 預設點）
+    key: "ieProtectedMarineSites", file: "ie_protected_marine_sites.pmtiles", sourceLayer: "ie_protected_marine_sites", geom: "polygon",
+    layerId: "ie-protected-marine-sites-fill", outlineId: "ie-protected-marine-sites-line",
+    srcMinzoom: 4, srcMaxzoom: 13, minzoom: 4, color: "#38bdf8", count: 290,
+    catProp: "category", cats: MARINE_SITE_CATS,
+    title: { props: ["name"], fallback: l3("受保護海域", "Protected marine site", "海域の保護区") },
+    fields: [{ prop: "category", label: l3("類型", "Designation", "指定種別"), map: Object.fromEntries(MARINE_SITE_CATS.map((c) => [c.id, c.label])) },
+             { prop: "code", label: l3("站點代碼", "Site code", "サイトコード"), kind: "code" },
+             { prop: "sea_ha", label: l3("海域部分面積", "Area outside land", "陸域外の面積"), kind: "num", unit: "ha", digits: 0 },
+             { prop: "area_ha", label: l3("總面積", "Total area", "総面積"), kind: "num", unit: "ha", digits: 0 },
+             { prop: "location", label: l3("位置", "Location", "位置") }, { prop: "ownership", label: l3("所有權", "Ownership", "所有") },
+             { prop: "instrument", label: l3("設立依據", "Statutory instrument", "設立根拠") },
+             { prop: "data_year", label: l3("資料年份", "Data year", "データ年"), kind: "year" }],
+    legendNotes: [l3("國家海洋規劃架構（NMPF）受保護海域，只收有海域部分的站點：SAC 137、SPA 95、NHA 7、生物圈 3 面，自然保留區 20、避難所 6、拉姆薩 22 點", "National Marine Planning Framework protected sites, only those with a marine part: 137 SAC, 95 SPA, 7 NHA, 3 biosphere zones (areas); 20 nature reserves, 6 refuges, 22 Ramsar sites (points)", "国家海洋計画枠組み（NMPF）の保護区のうち海域部分があるもの：SAC 137・SPA 95・NHA 7・生物圏3（面）、自然保護区20・避難地6・ラムサール22（点）"),
+                  l3("收錄規則（本站自訂）：面在陸地以外 ≥ 10 ha、點在海上或離岸 1 km 內；保護區範圍不裁切。陸域保護區見之後的自然保護圖層", "Inclusion rule (set by this site): areas with ≥ 10 ha outside land, points at sea or within 1 km of the coast; site boundaries are not clipped. Land-based sites come in a later nature-protection layer", "収録基準（本サイト設定）：陸域外が10ha以上の面、海上または海岸1km以内の点。範囲は切り抜かない。陸域の保護区は今後の自然保護レイヤーで"),
+                  l3("面模式只畫 SAC、SPA、NHA、生物圈；自然保留區、避難所、拉姆薩只有點位，請切換點模式", "Area mode shows SAC, SPA, NHA and biosphere zones only; nature reserves, refuges and Ramsar sites are points only (use point mode)", "面表示は SAC・SPA・NHA・生物圏のみ。自然保護区・避難地・ラムサールは点のみ（点表示で確認）"),
+                  l3("愛爾蘭法定海洋保護區（MPA）尚未立法（2026 起草中）", "Ireland has no statutory Marine Protected Areas yet (bill being drafted in 2026)", "アイルランドの法定海洋保護区（MPA）は未制定（2026年に法案起草中）")],
+    popupNotes: [],
+    sourceOrg: "Department of Housing, Local Government and Heritage, National Marine Planning Framework – Protected Marine Sites (data: NPWS, EPA, Dublin Bay Biosphere Partnership)", sourceUrl: DGI("protected-marine-sites1"), license: CC_BY, fetchedAt: IE_W3B_FETCHED_AT,
+    loading: l3("愛爾蘭受保護海域載入中", "Loading Ireland protected marine sites", "アイルランドの海域保護区を読み込み中"),
+  },
+  {
+    key: "ieOffshoreRenewables", file: "ie_offshore_renewables.pmtiles", sourceLayer: "ie_offshore_renewables", geom: "polygon",
+    layerId: "ie-offshore-renewables-fill", outlineId: "ie-offshore-renewables-line",
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#f59e0b", count: 30,
+    catProp: "category", cats: OFFSHORE_CATS,
+    title: { props: ["name"], fallback: l3("離岸再生能源海域", "Offshore renewable energy area", "洋上再生可能エネルギー海域") },
+    fields: [{ prop: "category", label: l3("類型", "Type", "種別"), map: Object.fromEntries(OFFSHORE_CATS.map((c) => [c.id, c.label])) },
+             { prop: "consent_id", label: l3("MAC 編號", "MAC reference", "MAC 番号"), kind: "code" }, { prop: "developer", label: l3("開發商", "Developer", "開発事業者") },
+             { prop: "foundation", label: l3("基礎型式", "Foundation", "基礎形式"), map: FOUNDATION },
+             { prop: "location", label: l3("位置", "Location", "位置") }, { prop: "sea_area", label: l3("海域", "Sea area", "海域") },
+             { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 },
+             { prop: "data_owner", label: l3("資料提供", "Data owner", "データ提供者") }, { prop: "data_year", label: l3("資料年份", "Data year", "データ年"), kind: "year" }],
+    legendNotes: [l3("國家海洋規劃架構（NMPF）的離岸風場與試驗場 30 面：2022 第一批海域許可 8、前灘程序風場 19、AMETS 3", "30 offshore wind and test-site areas from the National Marine Planning Framework: 8 Maritime Area Consents (2022), 19 foreshore-process wind farms, 3 AMETS", "国家海洋計画枠組み（NMPF）の洋上風力・試験場30区域：海域利用同意8（2022）・フォアショア手続の風力19・AMETS 3"),
+                  l3("資料是 2020–2022 狀態，不代表現況；同一風場的不同許可階段會重疊", "Reflects 2020–2022 status, not current; different consent stages of the same wind farm overlap", "2020–2022年時点の状態で現況ではない。同一風力の許可段階が重なる"),
+                  l3("氣象浮標與試驗場標記 15 點未收（浮標即時資料在第 12 波）", "15 weather-buoy and test-site markers not included (live buoy data in wave 12)", "気象ブイ・試験場マーカー15点は未収録（ブイのリアルタイムは第12波）")],
+    popupNotes: [l3("2020–2022 資料，非現況", "2020–2022 data, not current status", "2020–2022年のデータで現況ではない")],
+    sourceOrg: "Department of Housing, Local Government and Heritage, National Marine Planning Framework – Offshore Renewable Energy", sourceUrl: DGI("marine-area-consent-wind2"), license: CC_BY, fetchedAt: IE_W3B_FETCHED_AT,
+    loading: l3("愛爾蘭離岸再生能源海域載入中", "Loading Ireland offshore renewable energy areas", "アイルランドの洋上再生可能エネルギー海域を読み込み中"),
   },
 ];
 

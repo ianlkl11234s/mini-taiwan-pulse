@@ -47,6 +47,12 @@ export const IeRiverWaterBodiesHost = makeIeDataHost("ieRiverWaterBodies", 0.85)
 export const IeLakeWaterBodiesHost = makeIeDataHost("ieLakeWaterBodies", 0.7);
 export const IeArterialDrainageHost = makeIeDataHost("ieArterialDrainage", 0.85);
 export const IeCoastalErosionHost = makeIeDataHost("ieCoastalErosion", 0.85);
+// 第 3b 波：海洋
+export const IeBathingWatersHost = makeIeDataHost("ieBathingWaters", 0.9);
+export const IeMarineSurveyStationsHost = makeIeDataHost("ieMarineSurveyStations", 0.8);
+export const IeSeabedSurveyCoverageHost = makeIeDataHost("ieSeabedSurveyCoverage", 0.7);
+export const IeProtectedMarineSitesHost = makeIeDataHost("ieProtectedMarineSites", 0.7);
+export const IeOffshoreRenewablesHost = makeIeDataHost("ieOffshoreRenewables", 0.7);
 // 第 4 波：交通
 export const IeTransitStopsHost = makeIeDataHost("ieTransitStops", 0.8);
 export const IeDublinbikesStationsHost = makeIeDataHost("ieDublinbikesStations", 0.8);

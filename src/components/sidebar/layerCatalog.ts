@@ -368,6 +368,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 第 3a 波：水資源（測站、水體、排水）、災害（河川淹水、海岸侵蝕），比照英國第 3 波
     "水資源",
     "災害",
+    // 第 3b 波：海洋（浴場、調查站網、受保護海域、離岸能源），比照英國「海洋」
+    "海洋",
     // 第 4 波：交通（場站、路網、樞紐節點；比照南韓、加拿大）
     "交通",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
@@ -3125,6 +3127,18 @@ const THEME_CATALOG: ThemeDef[] = [
     ],
   },
   {
+    // 第 3b 波：比照台灣「海洋 Marine」與英國「海洋」的子群組（海域環境、調查站網、海域保護與漁業）；離岸風場比照台灣「再生能源」
+    title: "海洋",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "海域環境", layers: [fromManifest("ieBathingWaters")] },
+      { title: "調查站網 Survey Sites", layers: [fromManifest("ieMarineSurveyStations"), fromManifest("ieSeabedSurveyCoverage")] },
+      { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [fromManifest("ieProtectedMarineSites")] },
+      { title: "再生能源", layers: [fromManifest("ieOffshoreRenewables")] },
+    ],
+  },
+  {
     // 第 4 波：群組比照台灣「交通 Move」與南韓、加拿大——場站、路網、樞紐節點
     title: "交通",
     country: "IE",
@@ -3493,6 +3507,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "房地產": "city",
     "水資源": "environment",
     "災害": "safety",
+    "海洋": "environment",
     "交通": "city",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
@@ -3709,6 +3724,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "房地產": { zh: "房地產", sub: "Real Estate" },
     "水資源": { zh: "水資源", sub: "Water" },
     "災害": { zh: "災害", sub: "Hazard" },
+    "海洋": { zh: "海洋", sub: "Marine" },
     "交通": { zh: "交通", sub: "Transport" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
