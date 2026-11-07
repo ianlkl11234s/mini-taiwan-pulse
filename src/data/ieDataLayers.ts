@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層、第 8 波 5 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層、第 7b 波 5 層、第 8 波 5 層、第 9 波 6 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -8,6 +8,7 @@
  */
 import type { IeDataKey } from "./ieDataKeys";
 import type { KrCat, KrFieldKind, KrLayerSpec, L3 } from "./krDataLayers";
+import { noiseColorAt } from "./gbEnvPlanningTypes";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 
@@ -398,6 +399,100 @@ const COURT_REGION_CATS: readonly KrCat[] = [
   { id: "north_midlands", values: ["north_midlands"], color: "#4ade80", label: l3("中北部區", "North Midlands region", "中北部地域") },
   { id: "southern", values: ["southern"], color: "#f59e0b", label: l3("南部區", "Southern region", "南部地域") },
   { id: "western", values: ["western"], color: "#f472b6", label: l3("西部區", "Western region", "西部地域") },
+];
+
+// ───────────── 第 9 波：規劃與環境 ─────────────
+export const IE_W9_FETCHED_AT = "2026-11-08";
+/** MyPlan 一般化分區（GZT）首字母 8 大類：類名照官方代碼表（viewer.myplan.ie/gztcoderef.htm）的大類，N/A 歸其他。 */
+const ZONING_CATS: readonly KrCat[] = [
+  { id: "residential", values: ["residential"], color: "#facc15", label: l3("住宅（R）", "Residential (R)", "住宅（R）") },
+  { id: "mixed", values: ["mixed"], color: "#fb923c", label: l3("混合使用、市鎮中心（M）", "Mixed use & town centre (M)", "複合用途・中心市街地（M）") },
+  { id: "commerce", values: ["commerce"], color: "#ef4444", label: l3("商業、產業、就業（C）", "Commerce, industry & enterprise (C)", "商業・産業・業務（C）") },
+  { id: "community", values: ["community"], color: "#38bdf8", label: l3("社區服務與設施（S）", "Community services & facilities (S)", "地域サービス・施設（S）") },
+  { id: "green", values: ["green"], color: "#4ade80", label: l3("綠地、休憩、保育（G）", "Green, recreation & conservation (G)", "緑地・レクリエーション・保全（G）") },
+  { id: "network", values: ["network"], color: "#a78bfa", label: l3("交通與公用設施網絡（N）", "Transport & utility networks (N)", "交通・供給処理ネットワーク（N）") },
+  { id: "primary", values: ["primary"], color: "#bef264", label: l3("農業與初級產業（P）", "Agriculture & primary sector (P)", "農業・第一次産業（P）") },
+  { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他（策略保留地、一般）", "Other (strategic reserve, general)", "その他（戦略的留保地・一般）") },
+];
+const ZONING_PLAN_LEVEL: Record<string, L3> = {
+  DP: l3("發展計畫（Development Plan）", "Development Plan", "開発計画（Development Plan）"),
+  LAP: l3("地方區域計畫（Local Area Plan）", "Local Area Plan", "地区計画（Local Area Plan）"),
+};
+/** 規劃申請「決定」150+ 種寫法依關鍵字歸 6 類（本站分類，非官方）。 */
+const PLANNING_CATS: readonly KrCat[] = [
+  { id: "granted", values: ["granted"], color: "#4ade80", label: l3("核准（含附條件、延長期限）", "Granted (incl. conditional, extension)", "許可（条件付き・期限延長を含む）") },
+  { id: "refused", values: ["refused"], color: "#ef4444", label: l3("駁回", "Refused", "却下") },
+  { id: "split", values: ["split"], color: "#f59e0b", label: l3("部分核准、部分駁回", "Split decision", "一部許可・一部却下") },
+  { id: "withdrawn", values: ["withdrawn"], color: "#94a3b8", label: l3("撤回", "Withdrawn", "取下げ") },
+  { id: "invalid", values: ["invalid"], color: "#a78bfa", label: l3("不受理（申請無效、文件不全）", "Invalid / incomplete", "不受理（申請無効・書類不備）") },
+  { id: "other", values: ["other"], color: "#38bdf8", label: l3("其他（審查中、補件、豁免宣告、未記錄）", "Other (pending, further info, exemption, not recorded)", "その他（審査中・補正・適用除外・未記録）") },
+];
+/** 策略噪音地圖第 4 輪（2022 年資料）：一帶 5 dB；Lnight 最高帶為 ≥70，Lden 為 70–74 與 ≥75。色取台灣 NoiseCapture 色階的帶中點（同英國 gbNoise），40–44 低於色階起點另給淺藍。 */
+export const IE_NOISE_METRICS = [
+  { value: "lden", label: l3("全日（Lden）", "Day-evening-night (Lden)", "昼夕夜（Lden）") },
+  { value: "lnight", label: l3("夜間（Lnight）", "Night (Lnight)", "夜間（Lnight）") },
+] as const;
+export const IE_NOISE_METRIC_DEFAULT = "lden";
+export const ieNoiseMetricFile = (value: string) => `ie_noise_maps_${value}.pmtiles`;
+export function ieNoiseMetricFileAt(idx: number | undefined): string {
+  const s = IE_NOISE_METRICS[idx ?? -1] ?? IE_NOISE_METRICS[0];
+  return ieNoiseMetricFile(s.value);
+}
+const NOISE_BAND_CATS: readonly KrCat[] = [
+  { id: "b40", values: ["b40"], color: "#93c5fd", label: l3("40–44 dB（只有夜間）", "40–44 dB (Lnight only)", "40–44 dB（夜間のみ）") },
+  { id: "b45", values: ["b45"], color: noiseColorAt(47.5), label: l3("45–49 dB", "45–49 dB", "45–49 dB") },
+  { id: "b50", values: ["b50"], color: noiseColorAt(52.5), label: l3("50–54 dB", "50–54 dB", "50–54 dB") },
+  { id: "b55", values: ["b55"], color: noiseColorAt(57.5), label: l3("55–59 dB", "55–59 dB", "55–59 dB") },
+  { id: "b60", values: ["b60"], color: noiseColorAt(62.5), label: l3("60–64 dB", "60–64 dB", "60–64 dB") },
+  { id: "b65", values: ["b65"], color: noiseColorAt(67.5), label: l3("65–69 dB", "65–69 dB", "65–69 dB") },
+  { id: "b70", values: ["b70"], color: noiseColorAt(72.5), label: l3("70–74 dB（夜間為 70 以上）", "70–74 dB (Lnight: 70 and above)", "70–74 dB（夜間は70以上）") },
+  { id: "b75", values: ["b75"], color: noiseColorAt(77.5), label: l3("75 dB 以上（只有全日）", "75 dB and above (Lden only)", "75 dB 以上（昼夕夜のみ）") },
+];
+const NOISE_SOURCE: Record<string, L3> = {
+  road: l3("道路", "Road", "道路"), rail: l3("鐵路", "Rail", "鉄道"), airport: l3("機場", "Airport", "空港"), industry: l3("工業（只在都會區）", "Industry (agglomerations only)", "工業（都市圏のみ）"),
+};
+const NOISE_SCOPE: Record<string, L3> = {
+  agglomeration: l3("都會區（Dublin、Cork、Limerick）", "Agglomeration (Dublin, Cork, Limerick)", "都市圏（Dublin・Cork・Limerick）"),
+  major: l3("主要道路、鐵路與機場（都會區外）", "Major road, rail & airport (outside agglomerations)", "主要道路・鉄道・空港（都市圏外）"),
+};
+/** EPA PRTR 設施：照來源 Main_PRTR_Sector（E-PRTR 9 大部門）。 */
+const PRTR_CATS: readonly KrCat[] = [
+  { id: "energy", values: ["energy"], color: "#ef4444", label: l3("能源業", "Energy sector", "エネルギー部門") },
+  { id: "metals", values: ["metals"], color: "#f472b6", label: l3("金屬生產與加工", "Metals production & processing", "金属の生産・加工") },
+  { id: "mineral", values: ["mineral"], color: "#f59e0b", label: l3("礦物業", "Mineral industry", "鉱物産業") },
+  { id: "chemical", values: ["chemical"], color: "#a78bfa", label: l3("化學工業", "Chemical industry", "化学産業") },
+  { id: "waste", values: ["waste"], color: "#2dd4bf", label: l3("廢棄物與污水管理", "Waste & wastewater management", "廃棄物・下水管理") },
+  { id: "paper_wood", values: ["paper_wood"], color: "#bef264", label: l3("紙與木材生產加工", "Paper & wood production and processing", "紙・木材の生産加工") },
+  { id: "livestock", values: ["livestock"], color: "#facc15", label: l3("集約畜牧與水產養殖", "Intensive livestock & aquaculture", "集約畜産・養殖") },
+  { id: "food", values: ["food"], color: "#38bdf8", label: l3("動植物食品與飲料", "Animal & vegetable products (food & drink)", "動植物性食品・飲料") },
+  { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他活動", "Other activities", "その他の活動") },
+];
+const PRTR_LICENCE: Record<string, L3> = {
+  IEL: l3("工業排放許可（IEL）", "Industrial Emissions Licence (IEL)", "産業排出許可（IEL）"), IPC: l3("IPC 許可（舊制）", "IPC licence (legacy)", "IPC 許可（旧制度）"),
+  IPPC: l3("IPPC 許可（舊制）", "IPPC licence (legacy)", "IPPC 許可（旧制度）"), Waste: l3("廢棄物許可", "Waste licence", "廃棄物許可"),
+  WWDA: l3("污水排放許可（WWDA）", "Waste Water Discharge Authorisation (WWDA)", "排水許可（WWDA）"), Reporter: l3("申報者（無 EPA 許可）", "Reporter (no EPA licence)", "報告者（EPA 許可なし）"),
+};
+const RECYCLING_CATS: readonly KrCat[] = [
+  { id: "bring_bank", values: ["bring_bank"], color: "#4ade80", label: l3("回收桶站（玻璃、鋁罐、舊衣）", "Bring bank (glass, cans, textiles)", "回収ボックス（ガラス・缶・古着）") },
+  { id: "recycling_centre", values: ["recycling_centre"], color: "#38bdf8", label: l3("回收中心（Civic amenity site）", "Recycling centre (civic amenity site)", "リサイクルセンター（Civic amenity site）") },
+  { id: "weee", values: ["weee"], color: "#f59e0b", label: l3("廢電器回收點（WEEE）", "WEEE drop-off point", "廃電気電子機器の回収拠点（WEEE）") },
+];
+const RECYCLING_COUNCIL: Record<string, L3> = {
+  cork_city: l3("Cork City", "Cork City", "Cork City"), dcc: l3("Dublin City", "Dublin City", "Dublin City"), dlr: l3("Dún Laoghaire-Rathdown", "Dún Laoghaire-Rathdown", "Dún Laoghaire-Rathdown"),
+  fingal: l3("Fingal", "Fingal", "Fingal"), galway_city: l3("Galway City", "Galway City", "Galway City"), monaghan: l3("Monaghan", "Monaghan", "Monaghan"),
+  roscommon: l3("Roscommon", "Roscommon", "Roscommon"), sdcc: l3("South Dublin", "South Dublin", "South Dublin"), westmeath: l3("Westmeath", "Westmeath", "Westmeath"), wicklow: l3("Wicklow", "Wicklow", "Wicklow"),
+};
+const SOURCE_KIND: Record<string, L3> = { official: l3("地方議會名冊", "Council register", "議会の名簿"), osm: l3("OpenStreetMap", "OpenStreetMap", "OpenStreetMap") };
+const WASTE_FACILITY_CATS: readonly KrCat[] = [
+  { id: "landfill", values: ["landfill"], color: "#ef4444", label: l3("掩埋場", "Landfill", "埋立地") },
+  { id: "transfer", values: ["transfer"], color: "#f59e0b", label: l3("轉運站", "Transfer station", "中継施設") },
+  { id: "materials_recovery", values: ["materials_recovery"], color: "#38bdf8", label: l3("資源回收分選（MRF）", "Materials recovery (MRF)", "資源回収・選別（MRF）") },
+  { id: "integrated", values: ["integrated"], color: "#a78bfa", label: l3("綜合廢棄物管理設施", "Integrated waste management facility", "総合廃棄物管理施設") },
+  { id: "composting", values: ["composting"], color: "#4ade80", label: l3("堆肥、厭氧消化", "Composting & anaerobic digestion", "堆肥化・嫌気性消化") },
+  { id: "soil_recovery", values: ["soil_recovery"], color: "#facc15", label: l3("土石回填、土壤回收", "Soil & stone recovery", "土砂の埋戻し・再生") },
+  { id: "hazardous", values: ["hazardous"], color: "#f472b6", label: l3("有害廢棄物", "Hazardous waste", "有害廃棄物") },
+  { id: "other", values: ["other"], color: "#2dd4bf", label: l3("其他（資源回收站、疏浚、污泥處理、待評估）", "Other (civic amenity, dredging, sludge, to be assessed)", "その他（資源回収所・浚渫・汚泥処理・評価待ち）") },
+  { id: "unclassified", values: ["unclassified"], color: "#94a3b8", label: l3("未分類（來源無屬性）", "Unclassified (no attributes in source)", "未分類（出典に属性なし）") },
 ];
 
 export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
@@ -1318,6 +1413,114 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "Courts Service of Ireland, List of Courts Service Courthouses", sourceUrl: DGI("list-of-courts-service-courthouses"), license: CC_BY, fetchedAt: IE_W7B_FETCHED_AT,
     loading: l3("愛爾蘭法院載入中", "Loading Ireland courthouses", "アイルランドの裁判所を読み込み中"),
+  },
+  // ───────────── 第 9 波：規劃與環境 ─────────────
+  {
+    // 分區面鋪滿城鎮：面在 z9 起（圖磚 z9–14），拉遠改代表點熱區（repPointLayers 預設面）
+    key: "ieZoning", file: "ie_zoning.pmtiles", sourceLayer: "ie_zoning", geom: "polygon", layerId: "ie-zoning-fill", outlineId: "ie-zoning-line",
+    srcMinzoom: 9, srcMaxzoom: 14, minzoom: 9, color: "#facc15", count: 86678,
+    catProp: "category", cats: ZONING_CATS,
+    title: { props: ["zone_orig", "gzt_desc"], fallback: l3("土地使用分區", "Land-use zone", "用途地域") },
+    fields: [{ prop: "category", label: l3("大類", "Group", "大分類"), map: catMap(ZONING_CATS) },
+             { prop: "gzt", label: l3("一般化分區代碼（GZT）", "Generalised zoning type (GZT)", "一般化区分コード（GZT）"), kind: "code" },
+             { prop: "gzt_desc", label: l3("一般化分區說明", "GZT description", "一般化区分の説明") },
+             { prop: "plan_name", label: l3("計畫名稱", "Plan", "計画名") }, { prop: "plan_level", label: l3("計畫層級", "Plan level", "計画の階層"), map: ZONING_PLAN_LEVEL },
+             { prop: "plan_from", label: l3("計畫生效", "Plan in force from", "計画の施行日"), kind: "code" }, { prop: "plan_to", label: l3("計畫到期", "Plan expires", "計画の期限"), kind: "code" }, LA],
+    legendNotes: [l3("住房與地方政府部 MyPlan 一般化分區（現行計畫）：各地方政府發展計畫與地方區域計畫的分區，依全國一致的 GZT 代碼歸 8 大類；30/31 個地方政府，Donegal 未涵蓋", "DHLGH MyPlan generalised zoning (current plans): zones from each council's development plan and local area plans, mapped to the national GZT codes in 8 groups; 30 of 31 councils, Donegal not covered", "住宅・地方自治省 MyPlan 一般化用途地域（現行計画）：各自治体の開発計画・地区計画の区分を全国共通の GZT コードで8大分類に整理。31 自治体のうち30、Donegal は未収録"),
+                  l3("一般化分類、不是法定定義；個別地塊以各地方政府法定計畫為準。分區只畫城鎮與計畫範圍，鄉間多為空白（不是未分區）", "Generalised, not statutory definitions; check the council's statutory plan for any site. Zoning covers towns and plan areas only; most rural land is blank (not 'unzoned')", "一般化した分類で法定定義ではない。個別地点は各自治体の法定計画を参照。区分は市街地と計画区域のみで、農村部の多くは空白（未指定という意味ではない）"),
+                  l3("拉遠為代表點熱區，面在 z9 起出現", "Heatmap of representative points when zoomed out; polygons from z9", "縮小時は代表点のヒートマップ、面は z9 から")],
+    popupNotes: [l3("一般化分類，以地方政府法定計畫為準", "Generalised; the council's statutory plan prevails", "一般化した分類。自治体の法定計画が優先")],
+    sourceOrg: "Department of Housing, Local Government and Heritage, MyPlan — Generalised Zoning Types (Current Plan)", sourceUrl: DGI("generalised-zoning-plans1"), license: CC_BY, fetchedAt: IE_W9_FETCHED_AT,
+    loading: l3("愛爾蘭土地使用分區載入中", "Loading Ireland land-use zoning", "アイルランドの用途地域を読み込み中"),
+  },
+  {
+    key: "iePlanningApplications", file: "ie_planning_applications.pmtiles", sourceLayer: "ie_planning_applications", geom: "point", layerId: "ie-planning-applications-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, heat: { intensity: 0.3 }, color: "#4ade80", tier: "S", count: 511576,
+    catProp: "category", cats: PLANNING_CATS,
+    title: { props: [], fallback: l3("規劃申請案", "Planning application", "計画許可申請") },
+    fields: [{ prop: "category", label: l3("結果（本站分類）", "Outcome (site grouping)", "結果（本サイトの分類）"), map: catMap(PLANNING_CATS) },
+             { prop: "decision", label: l3("決定（議會原文）", "Decision (as recorded)", "決定（議会の原文）"), kind: "code" },
+             { prop: "status", label: l3("案件狀態（議會原文）", "Status (as recorded)", "案件の状態（議会の原文）"), kind: "code" },
+             { prop: "app_type", label: l3("申請類型", "Application type", "申請種別"), kind: "code" }, { prop: "app_no", label: l3("案號", "Reference", "案件番号"), kind: "code" },
+             { prop: "authority", label: l3("規劃機關", "Planning authority", "計画当局") },
+             { prop: "received", label: l3("收件日", "Received", "受付日"), kind: "code" }, { prop: "decided", label: l3("決定日", "Decided", "決定日"), kind: "code" },
+             { prop: "units", label: l3("住宅單位數", "Residential units", "住戸数"), kind: "num" },
+             { prop: "appeal", label: l3("上訴結果（原文）", "Appeal decision (as recorded)", "不服申立ての結果（原文）"), kind: "code" },
+             { prop: "link", label: l3("議會案件頁", "Council case page", "議会の案件ページ"), kind: "code" }],
+    legendNotes: [l3("全國規劃申請案 511,576 件（住房與地方政府部彙整 31 個規劃機關）；點位是開發基地中心，不是申請人住址", "511,576 national planning applications (compiled by DHLGH from 31 planning authorities); points are site centroids, not applicants' addresses", "全国の計画許可申請511,576件（住宅・地方自治省が31の計画当局から集約）。点は開発用地の中心で申請者の住所ではない"),
+                  l3("申請人姓名、開發地址、開發說明不收；決定 150 多種寫法依關鍵字歸 6 類（本站分類、非官方），原文在 popup", "Applicant names, development addresses and descriptions are excluded; the 150+ decision wordings are grouped into 6 outcomes by keyword (site grouping, not official), original text in the popup", "申請者氏名・開発地住所・開発内容は収録しない。150種以上の決定表記をキーワードで6分類（本サイトの分類で公式ではない）。原文はポップアップ"),
+                  l3("各議會上傳的年份範圍不同（Cork County 約 12.8 萬件、Dublin City 約 2.5 萬件），件數多寡反映收錄而不只是開發量；拉遠熱區、z12 起點", "Year coverage differs by council (Cork County about 128k, Dublin City about 25k), so counts reflect what was uploaded, not just development activity; heatmap when zoomed out, points from z12", "議会ごとに収録年の範囲が異なり（Cork County 約12.8万件、Dublin City 約2.5万件）、件数は収録状況も反映する。縮小時はヒートマップ、z12 から点")],
+    popupNotes: [l3("點位為開發基地中心；結果分類為本站依原文歸類", "Point is the site centroid; outcome grouped by this site from the original wording", "点は開発用地の中心。結果は原文から本サイトが分類")],
+    sourceOrg: "Department of Housing, Local Government and Heritage, National Planning Applications (31 planning authorities)", sourceUrl: DGI("national-planning-applications"), license: CC_BY, fetchedAt: IE_W9_FETCHED_AT,
+    loading: l3("愛爾蘭規劃申請案載入中", "Loading Ireland planning applications", "アイルランドの計画許可申請を読み込み中"),
+  },
+  {
+    // Lden／Lnight 各一支 PMTiles，host 依 ieNoiseMapsMetricIdx 換檔（同河川淹水情境）
+    key: "ieNoiseMaps", file: ieNoiseMetricFile(IE_NOISE_METRIC_DEFAULT), sourceLayer: "ie_noise_maps", geom: "polygon", layerId: "ie-noise-maps-fill",
+    srcMinzoom: 5, srcMaxzoom: 12, minzoom: 5, color: noiseColorAt(67.5), count: 353,
+    catProp: "band", cats: NOISE_BAND_CATS,
+    title: { props: [], fallback: l3("策略噪音地圖", "Strategic noise map", "戦略的騒音マップ") },
+    fields: [{ prop: "band", label: l3("噪音等級", "Noise band", "騒音レベル"), map: catMap(NOISE_BAND_CATS) },
+             { prop: "metric", label: l3("指標", "Indicator", "指標"), map: { lden: IE_NOISE_METRICS[0].label, lnight: IE_NOISE_METRICS[1].label } },
+             { prop: "source", label: l3("噪音來源", "Noise source", "騒音源"), map: NOISE_SOURCE },
+             { prop: "scope", label: l3("製圖範圍", "Mapping scope", "作成範囲"), map: NOISE_SCOPE },
+             { prop: "agglomeration", label: l3("都會區", "Agglomeration", "都市圏") }, { prop: "authority", label: l3("製圖地方政府", "Mapping authority", "作成自治体") }],
+    legendNotes: [l3("環境保護署（EPA）策略噪音地圖第 4 輪（2022 年）：道路、鐵路、機場與工業噪音，在圖層設定切換全日 Lden／夜間 Lnight（預設全日）", "EPA Strategic Noise Maps Round 4 (2022): road, rail, airport and industry noise; switch between Lden and Lnight in layer settings (default Lden)", "環境保護庁（EPA）戦略的騒音マップ第4回（2022年）：道路・鉄道・空港・工業の騒音。レイヤー設定で Lden／Lnight を切替（既定 Lden）"),
+                  l3("只有都會區（Dublin、Cork、Limerick）與主要道路、鐵路、Dublin 機場周邊有製圖，其餘地區空白＝未製圖，不是安靜", "Only agglomerations (Dublin, Cork, Limerick) and the surroundings of major roads, railways and Dublin Airport are mapped; blank areas are unmapped, not quiet", "都市圏（Dublin・Cork・Limerick）と主要道路・鉄道・Dublin 空港の周辺のみ作成。空白は未作成で静かという意味ではない"),
+                  l3("不同噪音來源分開模擬、互相疊加，不是合成噪音；為縮小檔案，面以 2 m 容差簡化", "Each source is modelled separately and overlaid, not combined; polygons simplified at 2 m tolerance to reduce size", "騒音源ごとに別々にモデル化して重ねたもので合成値ではない。容量削減のため面を 2 m の許容誤差で簡略化")],
+    popupNotes: [l3("模擬值，不是實測；各來源分開計算", "Modelled, not measured; each source computed separately", "シミュレーション値で実測ではない。騒音源ごとに別計算")],
+    sourceOrg: "Environmental Protection Agency (EPA), Strategic Noise Maps Round 4", sourceUrl: "https://gis.epa.ie/GetData/Download", license: CC_BY, fetchedAt: IE_W9_FETCHED_AT,
+    loading: l3("愛爾蘭策略噪音地圖載入中", "Loading Ireland strategic noise maps", "アイルランドの戦略的騒音マップを読み込み中"),
+  },
+  {
+    key: "ieRecyclingPoints", file: "ie_recycling_points.pmtiles", sourceLayer: "ie_recycling_points", geom: "point", layerId: "ie-recycling-points-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#4ade80", tier: "M", count: 2026,
+    catProp: "category", cats: RECYCLING_CATS,
+    title: { props: ["name"], fallback: l3("回收點", "Recycling point", "回収拠点") },
+    fields: [{ prop: "category", label: l3("類型", "Type", "種別"), map: catMap(RECYCLING_CATS) },
+             { prop: "glass", label: l3("玻璃", "Glass", "ガラス"), map: YES_ONLY }, { prop: "cans", label: l3("鋁罐", "Cans", "缶"), map: YES_ONLY },
+             { prop: "textiles", label: l3("舊衣", "Textiles", "古着"), map: YES_ONLY },
+             { prop: "weee_kind", label: l3("WEEE 回收點類型（原文）", "WEEE point type (as recorded)", "WEEE 回収拠点の種別（原文）"), kind: "code" },
+             { prop: "source", label: l3("資料來源", "Source", "出典"), map: SOURCE_KIND }, { prop: "council", label: l3("議會名冊", "Council register", "議会の名簿"), map: RECYCLING_COUNCIL },
+             OSM_ID_FIELD, LA],
+    legendNotes: [l3("議會官方名冊 528 處：Cork City、Dublin City、Dún Laoghaire-Rathdown、Fingal、Galway City、Monaghan、Roscommon、South Dublin、Westmeath、Wicklow（10/31 個地方政府）", "528 from council registers: Cork City, Dublin City, Dún Laoghaire-Rathdown, Fingal, Galway City, Monaghan, Roscommon, South Dublin, Westmeath, Wicklow (10 of 31 councils)", "議会の公式名簿528か所：Cork City・Dublin City・Dún Laoghaire-Rathdown・Fingal・Galway City・Monaghan・Roscommon・South Dublin・Westmeath・Wicklow（31 自治体のうち10）"),
+                  l3("其餘 1,498 處由 OpenStreetMap amenity=recycling 補（同類官方點 150 m 內不收、非公開者不收），完整度依志工貢獻；北愛已剔除", "The other 1,498 are gap-filled from OpenStreetMap amenity=recycling (dropped within 150 m of an official point of the same type; private ones excluded); completeness depends on contributors; Northern Ireland removed", "残り1,498か所は OpenStreetMap amenity=recycling で補完（同種の公式点から150 m 以内と非公開は除外）。網羅性はボランティア次第。北アイルランドは除外"),
+                  l3("電話、電子郵件、Eircode 不收；Roscommon 的 1／2 代碼推定為有／無、未經官方確認", "Phone, email and Eircode excluded; Roscommon's 1/2 codes are assumed to mean yes/no (unconfirmed)", "電話・メール・Eircode は収録しない。Roscommon の 1／2 コードは有／無と推定（未確認）")],
+    popupNotes: [],
+    sourceOrg: `Cork City, Dublin City, Dún Laoghaire-Rathdown, Fingal, Galway City, Monaghan, Roscommon, South Dublin, Westmeath, Wicklow County Councils; ${OSM_ATTR_IE}`, sourceUrl: DGI("bring-banks-locations-fcc1"), license: "CC BY 4.0／ODbL 1.0", fetchedAt: IE_W9_FETCHED_AT,
+    loading: l3("愛爾蘭回收點載入中", "Loading Ireland recycling points", "アイルランドの回収拠点を読み込み中"),
+  },
+  {
+    key: "ieWasteFacilities", file: "ie_waste_facilities.pmtiles", sourceLayer: "ie_waste_facilities", geom: "polygon", layerId: "ie-waste-facilities-fill", outlineId: "ie-waste-facilities-line",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f59e0b", count: 292,
+    catProp: "category", cats: WASTE_FACILITY_CATS,
+    title: { props: ["name"], fallback: l3("廢棄物許可設施", "Licensed waste facility", "廃棄物許可施設") },
+    fields: [{ prop: "facility_type", label: l3("設施類型（原文）", "Facility type (as recorded)", "施設種別（原文）"), kind: "code" },
+             { prop: "operator", label: l3("營運者", "Operator", "運営者") }, { prop: "reg_no", label: l3("EPA 許可號", "EPA licence no.", "EPA 許可番号"), kind: "code" },
+             { prop: "licence_status", label: l3("許可狀態", "Licence status", "許可の状態"), kind: "code" }, { prop: "facility_status", label: l3("設施狀態", "Facility status", "施設の状態"), kind: "code" },
+             { prop: "start_date", label: l3("許可起日", "Licence start", "許可開始日"), kind: "code" }, { prop: "end_date", label: l3("許可迄日", "Licence end", "許可終了日"), kind: "code" }, LA],
+    legendNotes: [l3("環境保護署（EPA）廢棄物許可設施邊界 292 處（許可範圍，不是建物）", "292 EPA-licensed waste facility boundaries (licensed site extent, not buildings)", "環境保護庁（EPA）の廃棄物許可施設の境界292か所（許可区域で建物ではない）"),
+                  l3("聯絡人姓名、電話、稽查員不收；營運者為個人姓名者不顯示。50 處來源無屬性，其中 28 處以 EPA 設施點補上名稱", "Contact names, phone numbers and inspectors excluded; operators who are private individuals are not shown. 50 sites have no attributes in the source; names for 28 were filled from the EPA facility points", "担当者氏名・電話・監査官は収録しない。個人名の運営者は表示しない。出典で属性のない50か所のうち28か所は EPA 施設点から名称を補完"),
+                  l3("小而零散，預設為點，可在圖層設定切換成面", "Small and scattered, shown as points by default; switch to areas in layer settings", "小さく点在するため既定は点。レイヤー設定で面に切替可")],
+    popupNotes: [],
+    sourceOrg: "Environmental Protection Agency (EPA), Waste Facility Boundaries", sourceUrl: DGI("waste-facility-boundaries"), license: CC_BY, fetchedAt: IE_W9_FETCHED_AT,
+    loading: l3("愛爾蘭廢棄物許可設施載入中", "Loading Ireland waste facilities", "アイルランドの廃棄物許可施設を読み込み中"),
+  },
+  {
+    key: "iePrtrFacilities", file: "ie_prtr_facilities.pmtiles", sourceLayer: "ie_prtr_facilities", geom: "point", layerId: "ie-prtr-facilities-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#a78bfa", tier: "M", count: 656,
+    catProp: "category", cats: PRTR_CATS,
+    title: { props: ["name"], fallback: l3("PRTR 申報設施", "PRTR facility", "PRTR 報告施設") },
+    fields: [{ prop: "category", label: l3("PRTR 部門", "PRTR sector", "PRTR 部門"), map: catMap(PRTR_CATS) },
+             { prop: "reg_no", label: l3("EPA 登記號", "EPA registration no.", "EPA 登録番号"), kind: "code" }, { prop: "licence_type", label: l3("許可類型", "Licence type", "許可種別"), map: PRTR_LICENCE },
+             { prop: "activity", label: l3("主要 PRTR 活動代碼", "Main PRTR activity code", "主要 PRTR 活動コード"), kind: "code" },
+             { prop: "latest_year", label: l3("最近申報年", "Latest reporting year", "直近の報告年"), kind: "year" }, { prop: "county", label: l3("郡", "County", "県") }, LA],
+    legendNotes: [l3("環境保護署（EPA）污染物排放與轉移登記（PRTR）全部門設施 656 處；排放量不在本層", "656 facilities across all sectors of the EPA Pollutant Release and Transfer Register (PRTR); emission quantities not included", "環境保護庁（EPA）汚染物質排出・移動登録（PRTR）全部門の施設656か所。排出量は含まない"),
+                  l3("集約畜牧業者為個人姓名者 49 處不顯示名稱；能源業設施與「能源」主題電廠圖層部分重疊", "Names withheld for 49 intensive-livestock operators that are private individuals; energy-sector sites partly overlap the Energy power plants layer", "個人名の集約畜産事業者49か所は名称を表示しない。エネルギー部門は「エネルギー」の発電所レイヤーと一部重複"),
+                  l3("最近申報年為 2024 者 498 處；其餘 158 處最近一次申報在 2009–2023 年", "Latest reporting year is 2024 for 498 sites; the other 158 last reported in 2009–2023", "直近の報告年が2024年の施設は498か所。残り158か所の最終報告は2009–2023年")],
+    popupNotes: [],
+    sourceOrg: "Environmental Protection Agency (EPA), PRTR facilities (all sectors)", sourceUrl: DGI("prtr-facilities"), license: CC_BY, fetchedAt: IE_W9_FETCHED_AT,
+    loading: l3("愛爾蘭 PRTR 申報設施載入中", "Loading Ireland PRTR facilities", "アイルランドの PRTR 報告施設を読み込み中"),
   },
 ];
 

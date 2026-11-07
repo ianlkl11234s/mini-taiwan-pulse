@@ -155,6 +155,9 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "ieNationalParks", family: "krData", file: "ie_national_parks_points.pmtiles", sourceLayer: "ie_national_parks_points", count: 6, def: "polygon", maxzoom: 14 },
   { key: "ieProtectedSites", family: "krData", file: "ie_protected_sites_points.pmtiles", sourceLayer: "ie_protected_sites_points", count: 806, def: "point", maxzoom: 14 },
   { key: "ieLandslideExtents", family: "krData", file: "ie_landslide_extents_points.pmtiles", sourceLayer: "ie_landslide_extents_points", count: 2274, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 9 波：土地使用分區鋪滿城鎮（預設面；8.7 萬點 → 拉遠熱區，代表點檔 z4–9 未抽稀、只帶 category）、廢棄物許可設施（小而零散，預設點）
+  { key: "ieZoning", family: "krData", file: "ie_zoning_points.pmtiles", sourceLayer: "ie_zoning_points", count: 86678, def: "polygon", maxzoom: 14, thinned: 1, heatIntensity: 1 },
+  { key: "ieWasteFacilities", family: "krData", file: "ie_waste_facilities_points.pmtiles", sourceLayer: "ie_waste_facilities_points", count: 292, def: "point", maxzoom: 14 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));

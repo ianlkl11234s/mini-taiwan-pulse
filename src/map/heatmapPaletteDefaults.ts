@@ -116,6 +116,8 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   krCivilDefenseShelters: "speed",
   // 愛爾蘭 房地產（第 2 波）：商業房產估值拿主題色 YlOrBr，國有登記土地（代表點熱區）錯開成綠（林地、泥炭地多）
   ieStateAssets: "viridis",
+  // 愛爾蘭 底圖 › 土地使用分區（第 9 波）：規劃申請案拿主題色 viridis，分區代表點熱區比照台灣 urbanZoningTaipei 錯開成 BuPu
+  ieZoning: "BuPu",
   // 日本 宗教（三個來源）、觀光、社福
   jpReligionOsm: "acton",
   jpReligionWikidata: "turku",

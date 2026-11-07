@@ -495,6 +495,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-fire-stations-circle"], type: "ieFireStations" },
   { layers: ["ie-garda-stations-circle"], type: "ieGardaStations" },
   { layers: ["ie-courts-circle"], type: "ieCourts" },
+  // 第 9 波：規劃申請、回收點、PRTR（點）；分區、廢棄物設施、噪音（面）在面段
+  { layers: ["ie-planning-applications-circle"], type: "iePlanningApplications" },
+  { layers: ["ie-recycling-points-circle"], type: "ieRecyclingPoints" },
+  { layers: ["ie-prtr-facilities-circle"], type: "iePrtrFacilities" },
   { layers: ["ie-road-rail-network-line"], type: "ieRoadRailNetwork" },
   // 第 5 波：點（輻射站、樹木、崩塌事件）→ 線（步道、Wild Atlantic Way）；面在後（代表點 circle 由 repPointClickLayerIds 補）
   { layers: ["ie-radiation-stations-circle"], type: "ieRadiationStations" },
@@ -531,6 +535,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-radon-risk-fill"], type: "ieRadonRisk" },
   // 第 7a 波：學校規劃區（鋪滿國土，在行政界之前）
   { layers: ["ie-school-planning-areas-fill"], type: "ieSchoolPlanningAreas" },
+  { layers: ["ie-waste-facilities-fill"], type: "ieWasteFacilities" },
+  { layers: ["ie-zoning-fill"], type: "ieZoning" },
+  { layers: ["ie-noise-maps-fill"], type: "ieNoiseMaps" },
   { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },

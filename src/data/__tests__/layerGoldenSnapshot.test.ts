@@ -261,7 +261,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-08: +3 愛爾蘭第 7a 波（學校、學校規劃區、早期教保服務）。
     // 2026-11-08: +5 愛爾蘭第 8 波（文化資產、博物館、藝文場館、公共設施、宗教場所）。
     // 2026-11-08: +5 愛爾蘭第 7b 波（醫療院所、HIQA 老人照護、消防站、Garda 站、法院）。
-    expect(keys.length).toBe(1759);
+    // 2026-11-08: +6 愛爾蘭第 9 波（土地使用分區、規劃申請、策略噪音、回收點、廢棄物許可設施、PRTR）。
+    expect(keys.length).toBe(1765);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

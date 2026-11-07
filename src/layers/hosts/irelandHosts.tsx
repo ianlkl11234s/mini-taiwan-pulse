@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useIeAdminLayers } from "../../hooks/useIeAdminLayers";
 import { useIeBathymetryLayer } from "../../hooks/useIeBathymetryLayer";
 import { useKrDataLayer } from "../../hooks/useKrDataLayers";
-import { IE_SPEC_BY_KEY, asKrSpec, ieFloodScenarioFileAt } from "../../data/ieDataLayers";
+import { IE_SPEC_BY_KEY, asKrSpec, ieFloodScenarioFileAt, ieNoiseMetricFileAt } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -93,6 +93,23 @@ export const IeCareHomesHost = makeIeDataHost("ieCareHomes", 0.85);
 export const IeFireStationsHost = makeIeDataHost("ieFireStations", 0.9);
 export const IeGardaStationsHost = makeIeDataHost("ieGardaStations", 0.85);
 export const IeCourtsHost = makeIeDataHost("ieCourts", 0.9);
+// 第 9 波：規劃與環境
+export const IeZoningHost = makeIeDataHost("ieZoning", 0.7);
+export const IePlanningApplicationsHost = makeIeDataHost("iePlanningApplications", 0.85);
+export const IeRecyclingPointsHost = makeIeDataHost("ieRecyclingPoints", 0.85);
+export const IeWasteFacilitiesHost = makeIeDataHost("ieWasteFacilities", 0.7);
+export const IePrtrFacilitiesHost = makeIeDataHost("iePrtrFacilities", 0.85);
+
+/** 策略噪音地圖：Lden／Lnight 各一支 PMTiles，依 `ieNoiseMapsMetricIdx` 換 `file`（同河川淹水）；噪音等級多選照常傳 CatMask。 */
+const NOISE_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieNoiseMaps);
+export const IeNoiseMapsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useIeNoiseMapsLayer");
+  const p = useKeyOverlayParams("ieNoiseMaps");
+  const file = ieNoiseMetricFileAt(p.ieNoiseMapsMetricIdx);
+  const spec = useMemo(() => ({ ...NOISE_SPEC, file }), [file]);
+  useKrDataLayer(deps.mapRef, spec, deps.layerVisibility.ieNoiseMaps, p.ieNoiseMapsOpacity ?? 0.55, 1, deps.isDarkTheme, p.ieNoiseMapsCatMask, undefined);
+  return null;
+};
 
 /** 河川淹水範圍（NIFM）：情境 × 重現期一組一支 PMTiles，依 `ieRiverFloodExtentsScenarioIdx` 換 `file`（hook 偵測檔名改變就重建 source）。 */
 const FLOOD_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieRiverFloodExtents);

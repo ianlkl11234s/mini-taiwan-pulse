@@ -874,6 +874,19 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭 Garda 警察站 536 站（CSO 名冊 564；官方座標 56、Nominatim 推估 480；28 站查無未上圖）", processing: "CSO CJA11 Garda Station 維度 564 站；DCC／Fingal／DLR／Cork City 官方座標依同郡站名對應；其餘以 OSM Nominatim（≤1 次／秒，快取）查站名＋郡；失敗與郡級不上圖；PMTiles z4–14", note: "CC BY 4.0（CSO、議會）＋ODbL（Nominatim 推估座標）" },
   ieCourts: { theme: "執法治安", group: "司法矯正", zh: "法院", alt: "Courthouses", icon: Gavel, dataset: "ie_courts", topics: ["愛爾蘭", "法院", "司法", "Courts Service"],
     description: "愛爾蘭 Courts Service 法院辦公處 94 處（26 郡；Dublin 16、Western 29、Southern 26、North Midlands 12、Eastern 11）", processing: "Courts Service court-offices.json（自帶 WGS84）；只收 active；PMTiles z4–14", note: "CC BY 4.0；不含監獄與管轄區邊界" },
+  // 第 9 波（2026-11-08）：規劃與環境（分區、規劃申請比照台灣「底圖 › 土地使用分區 Zoning」；噪音、PRTR 比照英國 gbNoise／gbPollutionInventory；廢棄物比照英國 gbRecyclingCentres／gbWastePermits）
+  ieZoning: { theme: "底圖", group: "土地使用分區 Zoning", zh: "土地使用分區", alt: "Land-use Zoning", icon: LayoutGrid, dataset: "ie_zoning", topics: ["愛爾蘭", "土地使用分區", "分區", "都市計畫", "MyPlan", "zoning"],
+    description: "愛爾蘭 MyPlan 一般化分區 86,678 面（30/31 個地方政府、336 份現行計畫；住宅 37,377、綠地 26,901、混合 7,864、社區 4,990、商業 4,650、初級產業 2,266、網絡 1,695、其他 935）", processing: "GZT_Current_Plan FeatureServer（伺服器端 maxAllowableOffset 約 0.5 m、outSR 4326）；make_valid 修 375 面、刪空幾何 8；GZT 首字母歸 8 大類；面 z9–14、代表點 z4–14", note: "CC BY 4.0；一般化分類、非法定定義；Donegal 未涵蓋" },
+  iePlanningApplications: { theme: "底圖", group: "土地使用分區 Zoning", zh: "規劃申請案", alt: "Planning Applications", icon: Hammer, dataset: "ie_planning_applications", topics: ["愛爾蘭", "規劃申請", "建築許可", "planning permission", "開發"],
+    description: "愛爾蘭全國規劃申請案 511,576 件（核准 346,416、不受理 70,411、駁回 50,487、撤回 25,622、其他 17,395、部分核准 1,245；31 個規劃機關）", processing: "IrishPlanningApplications FeatureServer 依 OBJECTID 分頁（outSR 4326）；申請人、開發地址、開發說明不收；決定 150+ 種寫法依關鍵字歸 6 類；低縮放 z4–11 只帶類別、z12–14 全欄", note: "CC BY 4.0；各議會收錄年份不同；個人資料欄不收" },
+  ieNoiseMaps: { theme: "環境氣候", group: "噪音／聲響 Noise", zh: "策略噪音地圖", alt: "Strategic Noise Maps", icon: Volume2, dataset: "ie_noise_maps", topics: ["愛爾蘭", "噪音", "Lden", "Lnight", "道路噪音", "機場噪音", "EPA"],
+    description: "愛爾蘭 EPA 策略噪音地圖第 4 輪（2022）：道路、鐵路、機場、工業 × 全日 Lden／夜間 Lnight；全日 353 面、夜間 403 面（依地方政府 × 5 dB 帶）", processing: "EPA GeoServer WFS 14 層依地方政府分批下載（EPSG:29902）、2 m 容差簡化後轉 WGS84；Dublin 機場在都會區層與全國層重複，只留全國層；Lden、Lnight 各一支 PMTiles z5–12", note: "CC BY 4.0；只涵蓋都會區與主要道路、鐵路、機場周邊；模擬值" },
+  ieRecyclingPoints: { theme: "廢棄物", group: "投放點", zh: "回收點", alt: "Recycling Points", icon: Recycle, dataset: "ie_recycling_points", topics: ["愛爾蘭", "回收", "回收桶", "bring bank", "回收中心", "WEEE"],
+    description: "愛爾蘭回收點 2,026 處（回收桶站 1,751、回收中心 212、廢電器回收點 63；議會名冊 528＋OSM 1,498）", processing: "10 個議會名冊（shp／kml／csv／geojson）＋Geofabrik PBF 2026-11-05 amenity=recycling（同類官方點 150 m 內不收、private 不收）；電話、電子郵件、Eircode 不收；PMTiles z4–14", note: "CC BY 4.0＋ODbL 1.0；官方只涵蓋 10/31 地方政府" },
+  ieWasteFacilities: { theme: "廢棄物", group: "處理設施", zh: "廢棄物許可設施", alt: "Licensed Waste Facilities", icon: Trash2, dataset: "ie_waste_facilities", topics: ["愛爾蘭", "廢棄物", "掩埋場", "轉運站", "EPA", "waste licence"],
+    description: "愛爾蘭 EPA 廢棄物許可設施邊界 292 處（掩埋場 76、轉運站 63、資源回收分選 19、堆肥 19、綜合 15、土石 24、有害 20、其他 6、未分類 50）", processing: "EPA WFS WASTE_Boundary；50 處無屬性者以 LEMA_Facilities_Waste 補名 28；聯絡人、電話、稽查員不收，個人營運者不顯示；面＋代表點 z4–14", note: "CC BY 4.0；地方政府核發的許可與登記證未涵蓋" },
+  iePrtrFacilities: { theme: "環境氣候", group: "環境污染", zh: "PRTR 申報設施", alt: "PRTR Facilities", icon: Factory, dataset: "ie_prtr_facilities", topics: ["愛爾蘭", "PRTR", "污染排放", "工業排放", "EPA", "IED"],
+    description: "愛爾蘭 EPA PRTR 全部門設施 656 處（廢棄物與污水 165、畜牧 134、食品 96、化學 92、礦物 53、能源 43、金屬 31、其他 26、紙木 16）", processing: "EPA WFS All_PRTR_Sectors；重複登記號去 2；集約畜牧個人姓名 49 處不顯示；PMTiles z4–14", note: "CC BY 4.0；不含排放量" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];

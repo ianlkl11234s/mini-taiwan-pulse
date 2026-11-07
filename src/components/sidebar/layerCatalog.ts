@@ -389,6 +389,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "醫療",
     "消防",
     "執法治安",
+    // 第 9 波：廢棄物（回收點、許可設施；比照台灣、英國）
+    "廢棄物",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -3086,6 +3088,8 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "海域界線", layers: [fromManifest("ieMaritimeBoundaries")] },
       { title: "地形", layers: [fromManifest("ieBathymetry")] },
       { title: "地名 Gazetteer", layers: [fromManifest("iePlaceNames")] },
+      // 第 9 波 C005／X002：比照台灣 urbanZoning*、英國 gbPlanningConstraints 的「底圖 › 土地使用分區 Zoning」
+      { title: "土地使用分區 Zoning", layers: [fromManifest("ieZoning"), fromManifest("iePlanningApplications")] },
     ],
   },
   {
@@ -3189,7 +3193,9 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "保護區", layers: [fromManifest("ieProtectedSites")] },
       { title: "都市樹木 Urban Trees", layers: [fromManifest("ieStreetTrees")] },
-      { title: "環境污染", layers: [fromManifest("ieRadiationStations")] },
+      // 第 9 波 C093：PRTR 比照台灣 pollutionFacility、英國 gbPollutionInventory；C091 噪音比照台灣與英國 gbNoise「噪音／聲響 Noise」
+      { title: "環境污染", layers: [fromManifest("ieRadiationStations"), fromManifest("iePrtrFacilities")] },
+      { title: "噪音／聲響 Noise", layers: [fromManifest("ieNoiseMaps")] },
     ],
   },
   {
@@ -3271,6 +3277,16 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "警政", layers: [fromManifest("ieGardaStations")] },
       { title: "司法矯正", layers: [fromManifest("ieCourts")] },
+    ],
+  },
+  {
+    // 第 9 波 C087／C088：比照台灣、英國「廢棄物 Waste」——回收點（投放點）、EPA 許可設施（處理設施）
+    title: "廢棄物",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "投放點", layers: [fromManifest("ieRecyclingPoints")] },
+      { title: "處理設施", layers: [fromManifest("ieWasteFacilities")] },
     ],
   },
 
@@ -3645,6 +3661,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "醫療": "safety",
     "消防": "safety",
     "執法治安": "safety",
+    "廢棄物": "environment",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3874,6 +3891,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "醫療": { zh: "醫療", sub: "Medical" },
     "消防": { zh: "消防", sub: "Fire & Rescue" },
     "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "廢棄物": { zh: "廢棄物", sub: "Waste" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
