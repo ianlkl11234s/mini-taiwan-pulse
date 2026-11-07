@@ -3,7 +3,7 @@ import type { AnyLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { CA_QUAKE_COLOR, CA_QUAKE_LIVE_TYPE_COLORS, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_LIVE_TYPES } from "../data/caEnvTypes";
+import { CA_QUAKE_LIVE_TYPE_COLORS, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_LIVE_TYPES } from "../data/caEnvTypes";
 import { fetchCaQuakesLive } from "../data/caLiveQuakesLoader";
 import { caCatFilter } from "./useCaTransportLayers";
 import { caQuakeRadius } from "./useCaEnvLayers";
