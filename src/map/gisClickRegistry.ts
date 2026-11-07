@@ -503,6 +503,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-national-trails-line"], type: "ieNationalTrails" },
   { layers: ["ie-wild-atlantic-way-line"], type: "ieWildAtlanticWay" },
   { layers: ["ie-power-lines-line"], type: "iePowerLines" },
+  // 第 7a 波：學校、托育點（點優先）
+  { layers: ["ie-schools-circle"], type: "ieSchools" },
+  { layers: ["ie-childcare-services-circle"], type: "ieChildcareServices" },
   { layers: ["ie-river-water-bodies-line"], type: "ieRiverWaterBodies" },
   { layers: ["ie-parks-fill"], type: "ieParks" },
   { layers: ["ie-gaeltacht-fill"], type: "ieGaeltacht" },
@@ -520,6 +523,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-protected-sites-fill"], type: "ieProtectedSites" },
   { layers: ["ie-national-parks-fill"], type: "ieNationalParks" },
   { layers: ["ie-radon-risk-fill"], type: "ieRadonRisk" },
+  // 第 7a 波：學校規劃區（鋪滿國土，在行政界之前）
+  { layers: ["ie-school-planning-areas-fill"], type: "ieSchoolPlanningAreas" },
   { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },

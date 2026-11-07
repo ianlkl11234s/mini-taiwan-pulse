@@ -378,6 +378,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "林業",
     // 第 6 波：能源（電廠、電網、再生能源、加油站；比照台灣、南韓、英國）
     "能源",
+    // 第 7a 波：教育（學校、學校規劃區、早期教保服務），比照台灣、英國、南韓「教育」
+    "教育",
     // 第 7b 波：社福長照、醫療、消防、執法治安（比照英國、南韓）
     "社福長照",
     "醫療",
@@ -3201,6 +3203,17 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "石化 · 加油站", layers: [fromManifest("ieFuelStations")] },
     ],
   },
+  {
+    // 第 7a 波：比照台灣「教育 › 學校 Schools」「幼托補習 Childcare & Cram」；學校規劃區不是學區（使用者 2026-11-07），另開群組、不放「學區 District」
+    title: "教育",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校 Schools", layers: [fromManifest("ieSchools")] },
+      { title: "學校規劃區", layers: [fromManifest("ieSchoolPlanningAreas")] },
+      { title: "幼托補習 Childcare & Cram", layers: [fromManifest("ieChildcareServices")] },
+    ],
+  },
   // 第 7b 波：醫療照護、消防警政、司法（主題與群組比照英國 gbCareHomes／gbHealthFacilities／gbFireStations／gbCourts、南韓 krPoliceBoxes）
   {
     title: "社福長照",
@@ -3593,6 +3606,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "環境氣候": "environment",
     "林業": "environment",
     "能源": "environment",
+    "教育": "publicLife",
     "社福長照": "publicLife",
     "醫療": "safety",
     "消防": "safety",
@@ -3818,6 +3832,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "林業": { zh: "林業", sub: "Forestry" },
     "能源": { zh: "能源", sub: "Energy" },
+    "教育": { zh: "教育", sub: "Education" },
     "社福長照": { zh: "社福長照", sub: "Welfare" },
     "醫療": { zh: "醫療", sub: "Medical" },
     "消防": { zh: "消防", sub: "Fire & Rescue" },

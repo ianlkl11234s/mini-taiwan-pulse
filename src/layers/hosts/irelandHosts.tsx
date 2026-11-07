@@ -77,6 +77,10 @@ export const IeSubstationsHost = makeIeDataHost("ieSubstations", 0.85);
 export const IeWindFarmsHost = makeIeDataHost("ieWindFarms", 0.85);
 export const IeEvChargingHost = makeIeDataHost("ieEvCharging", 0.85);
 export const IeFuelStationsHost = makeIeDataHost("ieFuelStations", 0.8);
+// 第 7a 波：教育
+export const IeSchoolsHost = makeIeDataHost("ieSchools", 0.85);
+export const IeSchoolPlanningAreasHost = makeIeDataHost("ieSchoolPlanningAreas", 0.35);
+export const IeChildcareServicesHost = makeIeDataHost("ieChildcareServices", 0.85);
 // 第 7b 波：醫療照護、消防警政、司法
 export const IeHealthFacilitiesHost = makeIeDataHost("ieHealthFacilities", 0.85);
 export const IeCareHomesHost = makeIeDataHost("ieCareHomes", 0.85);

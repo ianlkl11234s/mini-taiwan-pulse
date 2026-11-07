@@ -845,6 +845,13 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭 ESB ecars 公共充電站 440 處（充電樁 520；≥150 kW 43、43–149 kW 98、≤22 kW 299）", processing: "ESB its-data-ecars-sites-roi-ni.csv 只取 Territory=RoI（剔北愛 151）；功率欄取最大值分級；PMTiles z4–14", note: "CC BY 4.0；2024-12 快照；只有 ESB 網路" },
   ieFuelStations: { theme: "能源", group: "石化 · 加油站", zh: "加油站", alt: "Fuel Stations", icon: Fuel, dataset: "ie_fuel_stations", topics: ["愛爾蘭", "能源", "加油站", "OSM", "Circle K", "Applegreen"],
     description: "愛爾蘭加油站 1,687 站（Circle K 319、Top 202、Applegreen 162、Texaco 151、Maxol 134；OSM）", processing: "Geofabrik PBF 2026-11-05 本地抽取 amenity=fuel 點與面（面內重複點合併 25）；剔北愛 535；PMTiles z4–14", note: "ODbL 1.0（© OpenStreetMap contributors）；無官方名冊；品牌照 OSM 原文" },
+  // 第 7a 波（2026-11-08）：教育（主題比照台灣：學校、幼托在「教育」；規劃區另開群組、不叫學區）
+  ieSchools: { theme: "教育", group: "學校 Schools", zh: "學校", alt: "Schools", icon: School, dataset: "ie_schools", topics: ["愛爾蘭", "學校", "教育", "國小", "中學", "特殊學校", "大學", "DEIS"],
+    description: "愛爾蘭學校 4,150 點：教育部 2026 名冊 3,927 校（國小 3,062、中學 720、特殊 145）＋OSM 大專 223（大學與校區 85、學院／繼續教育 138）", processing: "DoE Schools_Map_WFL1 FeatureServer（剔缺座標 11；不收校長、Email、電話、地址）＋OSM amenity=university／college（面取代表點、同名合併、與教育部同名或 150 m 內不收）；PMTiles z4–14", note: "教育部名冊授權未標示（授權待確認）；大專點 ODbL" },
+  ieSchoolPlanningAreas: { theme: "教育", group: "學校規劃區", zh: "學校規劃區", alt: "School Planning Areas", icon: Map, dataset: "ie_school_planning_areas", topics: ["愛爾蘭", "學校規劃區", "教育", "規劃", "學校"],
+    description: "愛爾蘭教育部學校規劃區 314 區（2011 年版、不分學段；不是入學學區），附 2026 區內校數與在學人數", processing: "DoE School_Planning_Areas_2011_Map_Viewer FeatureServer → 4326；以學校名冊規劃區欄彙總校數；PMTiles z4–13，z9 起填色", note: "CC BY 4.0；家長偏好調查欄未收" },
+  ieChildcareServices: { theme: "教育", group: "幼托補習 Childcare & Cram", zh: "早期教保服務（托育）", alt: "Early Learning & Care Services", icon: Baby, dataset: "ie_childcare_services", topics: ["愛爾蘭", "托育", "托兒所", "學前教育", "課後照顧", "Pobal", "ECCE"],
+    description: "愛爾蘭 Pobal 早期教保服務點 5,071（私人 3,895、社區 1,176；含課後照顧）", processing: "Pobal Childcare_Facilities_NEW FeatureServer/2（剔缺座標 4；不收 email、電話；個人姓名的服務名稱與 Eircode 不收）；PMTiles z4–14", note: "授權未標示（授權待確認）；補助旗標語意推定" },
   // 第 7b 波（2026-11-08）：醫療照護、消防警政、司法（主題與群組比照英國、南韓：社福長照 › 住宿照顧、醫療 › 點位、消防 › 點位、執法治安 › 警政／司法矯正）
   ieHealthFacilities: { theme: "醫療", group: "點位", zh: "醫療院所", alt: "Health Facilities", icon: Hospital, dataset: "ie_health_facilities", topics: ["愛爾蘭", "醫療", "醫院", "診所", "GP", "牙醫", "藥局", "OSM"],
     description: "愛爾蘭醫療院所 3,482 處（藥局 1,493、GP 649、診所 565、牙醫 564、醫院 211；OSM）", processing: "Geofabrik PBF 2026-11-05 本地抽取 amenity=hospital／clinic／doctors／dentist／pharmacy 點與面（面內重複點合併 59）；剔北愛 568；PMTiles z4–14", note: "ODbL 1.0（© OpenStreetMap contributors）；HSE 官方名冊已下架；完整度依 OSM 貢獻" },
