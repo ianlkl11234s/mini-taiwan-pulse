@@ -26,7 +26,7 @@ import { URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID
 import { URBAN_ZONING_CATEGORIES } from "../../data/urbanZoningTypes";
 import { NON_URBAN_ZONING_CODES } from "../../data/nonUrbanZoningTypes";
 import { DenseHeatmapLegendRow, FireCatRows, UrbanDotRow } from "./legendShared";
-import { HISTORICAL_MAP_ERAS } from "../../data/historicalMapSinica";
+import { historicalMapEraByIdx, historicalMapEraTitle, historicalMapGroup, type HistoricalMapGroupKey } from "../../data/historicalMapSinica";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { placeName } from "../../i18n/placeText";
@@ -680,15 +680,13 @@ export function JpGsiReliefLegend() {
   </div>;
 }
 
-/** 古地圖（中研院臺灣百年歷史地圖，外部 raster）：目前年代＋來源＋授權＋位置偏移提醒。 */
-export function HistoricalMapSinicaLegend({ eraIdx }: { eraIdx?: number }) {
+/** 歷史地圖六層（中研院臺灣百年歷史地圖，外部 raster）：目前年代（含局部涵蓋）＋來源＋授權＋位置偏移提醒。 */
+export function HistoricalMapLegend({ groupKey, eraIdx }: { groupKey: HistoricalMapGroupKey; eraIdx?: number }) {
   const i18n = useLocale();
-  const idx = HISTORICAL_MAP_ERAS[eraIdx ?? 0] ? (eraIdx ?? 0) : 0;
+  const group = historicalMapGroup(groupKey);
+  const era = historicalMapEraByIdx(group, eraIdx);
   return <div>
-    <LegendTitle zh={[
-      i18n.t("legend.urban.historicalMapEra0"), i18n.t("legend.urban.historicalMapEra1"), i18n.t("legend.urban.historicalMapEra2"),
-      i18n.t("legend.urban.historicalMapEra1944Topo"), i18n.t("legend.urban.historicalMapEra3"), i18n.t("legend.urban.historicalMapEra4"),
-    ][idx] ?? ""} />
+    <LegendTitle zh={historicalMapEraTitle(era, i18n.active)} />
     <LegendNote>{i18n.t("legend.urban.historicalMapSource")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.historicalMapLicense")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.historicalMapOffset")}</LegendNote>
