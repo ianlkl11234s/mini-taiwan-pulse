@@ -615,7 +615,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("krAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("CA")].sort()).toEqual(["caAdminBoundaries", "caAirportsPorts", "caAqhiStations", "caClimateStations", "caDeprivation", "caEarthquakes", "caEarthquakesLive", "caFederalDistricts", "caHillshade", "caIndigenousLands", "caMajorRoads", "caNpriFacilities", "caOilGas", "caPlaceNames", "caPopulationCentres", "caPopulationGrid", "caPostalFsa", "caPowerGrid", "caPowerPlants", "caRadiationStations", "caRailways", "caRents", "caTransitStops", "caWastewaterSystems", "caWindTurbines"]);
     expect(tw.has("caAdminBoundaries")).toBe(false);
-    expect([...countryLayerKeys("IE")].sort()).toEqual(["ieActivityLocations", "ieAdminBoundaries", "ieArterialDrainage", "ieBathymetry", "ieCoastalErosion", "ieCommercialValuations", "ieGaeltacht", "ieGraveyards", "ieHydrometricStations", "ieLakeWaterBodies", "ieMaritimeBoundaries", "ieParks", "iePlaceNames", "ieRiverFloodExtents", "ieRiverWaterBodies", "ieStateAssets", "ieWaterMonitoring"]);
+    expect([...countryLayerKeys("IE")].sort()).toEqual(["ieActivityLocations", "ieAdminBoundaries", "ieAirportsPorts", "ieArterialDrainage", "ieBathymetry", "ieCoastalErosion", "ieCommercialValuations", "ieDublinbikesStations", "ieGaeltacht", "ieGraveyards", "ieHydrometricStations", "ieLakeWaterBodies", "ieMaritimeBoundaries", "ieParks", "iePlaceNames", "ieRiverFloodExtents", "ieRiverWaterBodies", "ieRoadMarkers", "ieRoadRailNetwork", "ieStateAssets", "ieTrafficCounters", "ieTransitStops", "ieWaterMonitoring"]);
     expect(tw.has("ieAdminBoundaries")).toBe(false);
   });
 

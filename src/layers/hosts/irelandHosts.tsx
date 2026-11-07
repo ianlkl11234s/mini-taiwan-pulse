@@ -47,6 +47,13 @@ export const IeRiverWaterBodiesHost = makeIeDataHost("ieRiverWaterBodies", 0.85)
 export const IeLakeWaterBodiesHost = makeIeDataHost("ieLakeWaterBodies", 0.7);
 export const IeArterialDrainageHost = makeIeDataHost("ieArterialDrainage", 0.85);
 export const IeCoastalErosionHost = makeIeDataHost("ieCoastalErosion", 0.85);
+// 第 4 波：交通
+export const IeTransitStopsHost = makeIeDataHost("ieTransitStops", 0.8);
+export const IeDublinbikesStationsHost = makeIeDataHost("ieDublinbikesStations", 0.8);
+export const IeRoadRailNetworkHost = makeIeDataHost("ieRoadRailNetwork", 0.85);
+export const IeRoadMarkersHost = makeIeDataHost("ieRoadMarkers", 0.8);
+export const IeTrafficCountersHost = makeIeDataHost("ieTrafficCounters", 0.8);
+export const IeAirportsPortsHost = makeIeDataHost("ieAirportsPorts", 0.85);
 
 /** 河川淹水範圍（NIFM）：情境 × 重現期一組一支 PMTiles，依 `ieRiverFloodExtentsScenarioIdx` 換 `file`（hook 偵測檔名改變就重建 source）。 */
 const FLOOD_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieRiverFloodExtents);
