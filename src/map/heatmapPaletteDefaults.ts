@@ -114,6 +114,8 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   krChildProtectionZones: "acton",
   // 南韓 災害：海岸侵蝕拿主題色 rocket，第 7 波民防避難設施錯開成綠
   krCivilDefenseShelters: "speed",
+  // 愛爾蘭 房地產（第 2 波）：商業房產估值拿主題色 YlOrBr，國有登記土地（代表點熱區）錯開成綠（林地、泥炭地多）
+  ieStateAssets: "viridis",
   // 日本 宗教（三個來源）、觀光、社福
   jpReligionOsm: "acton",
   jpReligionWikidata: "turku",

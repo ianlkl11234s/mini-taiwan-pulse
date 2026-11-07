@@ -1520,6 +1520,8 @@
   "layer.ieActivityLocations": "Activity Locations (Ireland)",
   "layer.ieParks": "Parks (Ireland)",
   "layer.ieGraveyards": "Graveyards (Ireland)",
+  "layer.ieCommercialValuations": "Commercial Property Valuations (Ireland)",
+  "layer.ieStateAssets": "State-owned Registered Land (Ireland)",
   "layer.caTransitStops": "Public Transit Stops (Canada)",
   "layer.caAirportsPorts": "Airports & Ports (Canada)",
   "layer.caMajorRoads": "Major Roads (Canada)",

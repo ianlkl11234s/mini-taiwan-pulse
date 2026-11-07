@@ -252,7 +252,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-07: +6 南韓第 7 波（學校、小學通學區、醫院與藥局、消防署、民防避難設施、派出所）。
     // 2026-11-07: +16 南韓統計公共安全（火災、交通事故 × 道級／市郡區）。
     // 2026-11-07: +29 愛爾蘭統計（ie 家族 statsIe*，地方政府 31／選舉分區 3,420）。
-    expect(keys.length).toBe(1711);
+    // 2026-11-07: +2 愛爾蘭第 2 波（商業房產估值、國有登記土地）。
+    expect(keys.length).toBe(1713);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波規格驅動資料層（6 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -16,6 +16,7 @@ export interface IeField { prop: string; label: L3; kind?: KrFieldKind | "pct"; 
 export type IeLayerSpec = Omit<KrLayerSpec, "key" | "fields"> & { key: IeDataKey; fields: readonly IeField[] };
 
 export const IE_W1_FETCHED_AT = "2026-11-07";
+export const IE_W2_FETCHED_AT = "2026-11-07";
 const CC_BY = "CC BY 4.0";
 const AGOL_TAILTE = "https://services-eu1.arcgis.com/FH5XCsx8rYXqnjF5/arcgis/rest/services";
 
@@ -38,6 +39,31 @@ const GRAVE_CATS: readonly KrCat[] = [
   { id: "smr_childrens_burial_ground", values: ["smr_childrens_burial_ground"], color: "#f472b6", label: l3("兒童埋葬地（SMR 考古登錄）", "Children's burial ground (SMR)", "子どもの埋葬地（SMR 遺跡登録）") },
   { id: "council_historic_graveyard", values: ["council_historic_graveyard"], color: "#4ade80", label: l3("歷史墓地（Galway、Fingal 議會名冊）", "Historic graveyard (Galway, Fingal councils)", "歴史的墓地（Galway・Fingal 議会の名簿）") },
   { id: "council_burial_ground", values: ["council_burial_ground"], color: "#38bdf8", label: l3("現行公墓（Fingal 議會）", "Burial ground in use (Fingal council)", "現行の墓地（Fingal 議会）") },
+];
+
+// 第 2 波：商業房產估值類別（Valuation Office Category 合併；Cork 兩區是舊制 RV、無類別，獨立一類）
+const VALUATION_CATS: readonly KrCat[] = [
+  { id: "retail", values: ["retail"], color: "#f472b6", label: l3("零售（商店、量販倉儲）", "Retail (shops, warehouses)", "小売（店舗・倉庫型）") },
+  { id: "office", values: ["office"], color: "#38bdf8", label: l3("辦公", "Office", "オフィス") },
+  { id: "industrial", values: ["industrial"], color: "#a78bfa", label: l3("工業", "Industrial", "工業") },
+  { id: "hospitality", values: ["hospitality"], color: "#f59e0b", label: l3("餐旅", "Hospitality", "宿泊・飲食") },
+  { id: "leisure", values: ["leisure"], color: "#4ade80", label: l3("休閒", "Leisure", "レジャー") },
+  { id: "health", values: ["health"], color: "#ef4444", label: l3("醫療", "Health", "医療") },
+  { id: "fuel_depot", values: ["fuel_depot"], color: "#facc15", label: l3("加油站與油庫", "Fuel / depot", "燃料・デポ") },
+  { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他（雜項、礦產、公用事業等）", "Other (miscellaneous, minerals, utilities…)", "その他（雑種・鉱物・公益事業など）") },
+  { id: "cork_rv", values: ["cork_rv"], color: "#2dd4bf", label: l3("Cork 市、郡（舊制估值，未分類）", "Cork City & County (old-basis valuation, uncategorised)", "Cork 市・県（旧制評価、区分なし）") },
+];
+// 第 2 波：國有登記土地所有人分組（GovAgency 空值依登記所有人補）
+const STATE_OWNER_CATS: readonly KrCat[] = [
+  { id: "local_authority", values: ["local_authority"], color: "#38bdf8", label: l3("地方政府", "Local authorities", "地方自治体") },
+  { id: "coillte", values: ["coillte"], color: "#4ade80", label: l3("Coillte（國營林業）", "Coillte (state forestry)", "Coillte（国営林業）") },
+  { id: "bord_na_mona", values: ["bord_na_mona"], color: "#f59e0b", label: l3("Bord na Móna（國營泥炭、能源）", "Bord na Móna (state peat & energy)", "Bord na Móna（国営泥炭・エネルギー）") },
+  { id: "esb", values: ["esb"], color: "#facc15", label: l3("ESB（國營電力）", "ESB (state electricity)", "ESB（国営電力）") },
+  { id: "agriculture", values: ["agriculture"], color: "#2dd4bf", label: l3("農業食品海洋部", "Dept. of Agriculture, Food and the Marine", "農業・食料・海洋省") },
+  { id: "housing", values: ["housing"], color: "#f472b6", label: l3("住房地方政府遺產部轄下（含 Irish Water）", "Dept. of Housing, Local Government and Heritage bodies (incl. Irish Water)", "住宅・地方自治・遺産省所管（Irish Water を含む）") },
+  { id: "opw", values: ["opw"], color: "#a78bfa", label: l3("公共工程局（OPW）", "Office of Public Works", "公共事業局（OPW）") },
+  { id: "central_government", values: ["central_government"], color: "#ef4444", label: l3("其他中央部會", "Other government departments", "その他の中央省庁") },
+  { id: "other_state_body", values: ["other_state_body"], color: "#94a3b8", label: l3("其他國營事業與機構", "Other state bodies & companies", "その他の国営企業・機関") },
 ];
 
 export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
@@ -162,6 +188,47 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "National Monuments Service (DHLGH) Sites and Monuments Record; Galway County Council; Fingal County Council", sourceUrl: "https://services-eu1.arcgis.com/HyjXgkV6KGMSF3jt/arcgis/rest/services/SMROpenData/FeatureServer/0", license: CC_BY, fetchedAt: IE_W1_FETCHED_AT,
     loading: l3("愛爾蘭墓地載入中", "Loading Ireland graveyards", "アイルランドの墓地を読み込み中"),
+  },
+  // ───────────── 房地產（第 2 波）：商業房產估值、國有登記土地 ─────────────
+  {
+    // 15.6 萬點：z12 以下畫熱區（低縮放圖磚只帶 category），z12 起畫點
+    key: "ieCommercialValuations", file: "ie_commercial_valuations.pmtiles", sourceLayer: "ie_commercial_valuations", geom: "point", layerId: "ie-commercial-valuations-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, heat: { intensity: 0.6 }, color: "#f472b6", tier: "S", count: 156089,
+    catProp: "category", cats: VALUATION_CATS,
+    title: { props: ["uses", "address"], fallback: l3("商業房產", "Commercial property", "商業用不動産") },
+    fields: [{ prop: "valuation_category", label: l3("估值類別", "Valuation category", "評価区分") }, { prop: "uses", label: l3("用途", "Uses", "用途") },
+             { prop: "nav_eur", label: l3("淨年值 NAV（€／年）", "Net annual value (NAV, €/yr)", "純年間価値 NAV（€／年）"), kind: "num" },
+             { prop: "rv_cork", label: l3("舊制應課稅估值 RV（Cork，非 NAV、不可比）", "Rateable valuation, old basis (Cork; not NAV, not comparable)", "旧制の課税評価額 RV（Cork、NAV と比較不可）"), kind: "num" },
+             { prop: "floor_area_m2", label: l3("樓地板面積", "Floor area", "床面積"), kind: "num", unit: "m²", digits: 1 },
+             { prop: "main_floor_use", label: l3("主要樓層用途", "Main floor use", "主な床用途") },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "eircode", label: l3("Eircode", "Eircode", "Eircode"), kind: "code" },
+             { prop: "valuation_date", label: l3("估值基準日", "Valuation date", "評価基準日") }, { prop: "publication_date", label: l3("公布日", "Publication date", "公表日") },
+             LA, { prop: "property_number", label: l3("房產編號", "Property number", "物件番号"), kind: "code" }],
+    legendNotes: [l3("Valuation Office 對應繳商業地方稅（commercial rates）房產的估值，不含住宅，也不是市價", "Valuation Office valuations of property liable for commercial rates; excludes homes and is not market value", "商業用固定資産税（commercial rates）の課税対象物件の評価。住宅を含まず、市場価格ではない"),
+                  l3("29 個地方政府為淨年值 NAV（各區重估基準日不同）；Cork 市、郡尚未重估，數字是舊制 RV，不能和 NAV 比較，也沒有類別", "29 local authorities show net annual value (revaluation dates differ by area); Cork City and County are not yet revalued, so figures are old-basis RV, not comparable with NAV and uncategorised", "29自治体は純年間価値 NAV（再評価基準日は地域ごとに異なる）。Cork 市・県は未再評価で旧制 RV のため NAV と比較できず区分もない"),
+                  l3("官方說明不保證完整；旅館、酒吧、加油站等因保密可能缺細項。拉遠為熱區，放大到 z12 才出現點", "Not guaranteed complete; hotels, pubs, filling stations etc. may lack details for confidentiality. Heatmap when zoomed out; points from z12", "完全性は保証されない。ホテル・パブ・給油所などは守秘のため詳細が欠ける場合あり。縮小時はヒートマップ、z12 から点"),
+                  l3("地址只留街道、單位與地名行；可能是商號或人名的行不顯示", "Address shows street, unit and place-name lines only; lines that may be trading or personal names are omitted", "住所は通り・区画・地名の行のみ。屋号や個人名の可能性がある行は表示しない")],
+    popupNotes: [l3("金額為 Valuation Office 估值，不是市價", "Values are Valuation Office valuations, not market prices", "金額は Valuation Office の評価額で市場価格ではない")],
+    sourceOrg: "Tailte Éireann (Valuation Office), Valuation API", sourceUrl: "https://tailte.ie/home/api/", license: CC_BY, fetchedAt: IE_W2_FETCHED_AT,
+    loading: l3("愛爾蘭商業房產估值載入中", "Loading Ireland commercial valuations", "アイルランドの商業用不動産評価を読み込み中"),
+  },
+  {
+    // V-5：面（z8 起）＋代表點（`ie_state_assets_points.pmtiles`，登記在 repPointLayers，預設點、拉遠熱區）
+    key: "ieStateAssets", file: "ie_state_assets.pmtiles", sourceLayer: "ie_state_assets", geom: "polygon", layerId: "ie-state-assets-fill", outlineId: "ie-state-assets-line",
+    srcMinzoom: 8, srcMaxzoom: 14, minzoom: 8, color: "#38bdf8", count: 75443,
+    catProp: "owner_group", cats: STATE_OWNER_CATS,
+    title: { props: ["reg_owner"], fallback: l3("國有登記土地", "State-owned registered land", "国有登記地") },
+    fields: [{ prop: "reg_owner", label: l3("登記所有人", "Registered owner", "登記所有者") }, { prop: "gov_agency", label: l3("主管部會", "Government agency", "所管省庁") },
+             { prop: "folio", label: l3("Folio 編號", "Folio", "フォリオ番号"), kind: "code" },
+             { prop: "area_ha", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 2 },
+             // BUILDING_USE 只有 C／U／R／B 代碼、來源未附定義，不放 popup
+             { prop: "county", label: l3("郡", "County", "県") }, LA],
+    legendNotes: [l3("土地開發署（LDA）國有資產資料庫：在不動產登記署（PRA）登記為國家機關、地方政府或國營事業所有的 folio；不是待標售名單", "Land Development Agency State Assets Database: folios registered with the Property Registration Authority to state bodies, local authorities or state companies; not a list of land for sale", "土地開発庁（LDA）国有資産データベース：不動産登記庁（PRA）に国・自治体・国営企業の所有として登記された筆。売却予定地の一覧ではない"),
+                  l3("2023 年第 3 季版，之後未更新；folio 為當時登記查詢結果、不保證現況。未在 PRA 登記的國有地未涵蓋", "Q3 2023 edition, not updated since; folios reflect the registry search at that time. State land not registered with the PRA is not covered", "2023年第3四半期版で以後未更新。筆は当時の登記照会の結果で現況は保証されない。PRA 未登記の国有地は未収録"),
+                  l3("folio 邊界源自 PRA 資料、另受 PRA 版權註記（授權待確認）。拉遠為代表點熱區，面在 z8 起出現", "Folio boundaries derive from PRA data and carry a PRA copyright notice (licence to be confirmed). Heatmap of representative points when zoomed out; polygons from z8", "筆界は PRA データ由来で PRA の著作権表示あり（ライセンス確認中）。縮小時は代表点のヒートマップ、面は z8 から")],
+    popupNotes: [l3("2023 Q3 登記狀態，不保證現況", "Registry status as of Q3 2023; may have changed", "2023年第3四半期時点の登記状況で現況は保証されない")],
+    sourceOrg: "Land Development Agency, State Assets Database (PRA State Assets, Q3 2023); folio boundaries © Property Registration Authority", sourceUrl: "https://opendata-lda-ie.hub.arcgis.com/datasets/lda-ie::pra-state-assets", license: "CC BY 4.0 (folio boundaries © PRA; licence to be confirmed)", fetchedAt: IE_W2_FETCHED_AT,
+    loading: l3("愛爾蘭國有登記土地載入中", "Loading Ireland state-owned land", "アイルランドの国有登記地を読み込み中"),
   },
 ];
 
