@@ -471,6 +471,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-commercial-valuations-circle"], type: "ieCommercialValuations" },
   { layers: ["ie-hydrometric-stations-circle"], type: "ieHydrometricStations" },
   { layers: ["ie-water-monitoring-circle"], type: "ieWaterMonitoring" },
+  // 第 3b 波：浴場、漁業調查站位（點）
+  { layers: ["ie-bathing-waters-circle"], type: "ieBathingWaters" },
+  { layers: ["ie-marine-survey-stations-circle"], type: "ieMarineSurveyStations" },
   { layers: ["ie-maritime-boundaries-line"], type: "ieMaritimeBoundaries" },
   { layers: ["ie-arterial-drainage-line"], type: "ieArterialDrainage" },
   { layers: ["ie-coastal-erosion-line"], type: "ieCoastalErosion" },
@@ -482,6 +485,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 第 3a 波：淹水、湖泊面
   { layers: ["ie-lake-water-bodies-fill"], type: "ieLakeWaterBodies" },
   { layers: ["ie-river-flood-extents-fill"], type: "ieRiverFloodExtents" },
+  // 第 3b 波：受保護海域（代表點 circle 由 repPointClickLayerIds 補）、離岸能源、海床調查範圍（大面最後命中）
+  { layers: ["ie-protected-marine-sites-fill"], type: "ieProtectedMarineSites" },
+  { layers: ["ie-offshore-renewables-fill"], type: "ieOffshoreRenewables" },
+  { layers: ["ie-seabed-survey-coverage-fill"], type: "ieSeabedSurveyCoverage" },
   { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },

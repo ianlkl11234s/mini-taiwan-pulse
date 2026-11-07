@@ -47,6 +47,12 @@ export const IeRiverWaterBodiesHost = makeIeDataHost("ieRiverWaterBodies", 0.85)
 export const IeLakeWaterBodiesHost = makeIeDataHost("ieLakeWaterBodies", 0.7);
 export const IeArterialDrainageHost = makeIeDataHost("ieArterialDrainage", 0.85);
 export const IeCoastalErosionHost = makeIeDataHost("ieCoastalErosion", 0.85);
+// 第 3b 波：海洋
+export const IeBathingWatersHost = makeIeDataHost("ieBathingWaters", 0.9);
+export const IeMarineSurveyStationsHost = makeIeDataHost("ieMarineSurveyStations", 0.8);
+export const IeSeabedSurveyCoverageHost = makeIeDataHost("ieSeabedSurveyCoverage", 0.7);
+export const IeProtectedMarineSitesHost = makeIeDataHost("ieProtectedMarineSites", 0.7);
+export const IeOffshoreRenewablesHost = makeIeDataHost("ieOffshoreRenewables", 0.7);
 
 /** 河川淹水範圍（NIFM）：情境 × 重現期一組一支 PMTiles，依 `ieRiverFloodExtentsScenarioIdx` 換 `file`（hook 偵測檔名改變就重建 source）。 */
 const FLOOD_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieRiverFloodExtents);

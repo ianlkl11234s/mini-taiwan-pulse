@@ -789,6 +789,17 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭 OPW 全國指示性河川淹水範圍：現況、中端未來、高端未來 × 20／100／1000 年一遇，共 9 組（現況 100 年一遇 4,116 面）", processing: "OPW NIFM shapefile（ITM）→ 4326，原樣不改屬性；一情境一支 PMTiles z5–13（同一 source-layer），圖層設定切換情境換檔", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；指示性模擬，非地塊判定" },
   ieCoastalErosion: { theme: "災害", group: "海岸侵蝕", zh: "海岸侵蝕線（ICPSS）", alt: "Coastal Erosion Lines (ICPSS)", icon: Waves, dataset: "ie_coastal_erosion", topics: ["愛爾蘭", "海岸侵蝕", "海岸", "氣候變遷", "OPW", "ICPSS"],
     description: "愛爾蘭 OPW ICPSS 2050 侵蝕線 1,220 段＋2010–2014 侵蝕速率線 73,036 段", processing: "OPW floodinfo shapefile（Irish Grid TM75）→ 4326，兩份原樣疊同一支圖磚、以原有 typecode 區分；PMTiles z5–13", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；評估未排除既有海岸防護結構" },
+  // 第 3b 波（2026-11-08）：海洋（主題比照台灣、英國「海洋」）
+  ieBathingWaters: { theme: "海洋", group: "海域環境", zh: "浴場水質", alt: "Bathing Waters", icon: Waves, dataset: "ie_bathing_waters", topics: ["愛爾蘭", "浴場", "海灘", "海水浴場", "水質", "藍旗", "EPA"],
+    description: "愛爾蘭 EPA 浴場名冊 243 處（法定 154、非法定監測點 89），法定浴場依 2025 年度水質分級（極佳 120、良好 23、合格 7、不良 1、未分級 3）", processing: "EPA Bathing Water API locations（Irish Grid 推定 EPSG:29903）→ 4326；第 0 波 LA 面指派；PMTiles z4–14", note: "CC BY 4.0；分級為前 4 季評估，不含即時警示與逐次採樣" },
+  ieMarineSurveyStations: { theme: "海洋", group: "調查站網 Survey Sites", zh: "漁業資源調查站位", alt: "Fisheries Survey Stations", icon: Fish, dataset: "ie_marine_survey_stations", topics: ["愛爾蘭", "漁業", "調查站", "海洋調查", "Marine Institute", "ICES"],
+    description: "愛爾蘭 Marine Institute 漁業資源調查 7 個系列歷史站位 7,548 點（底拖網 2,280、海螯蝦水下攝影 3,677、鯖魚卵 784、聲學 465、生物採樣 248、深水 78、野豬魚 16；1999–2016）", processing: "atlas.marine.ie midata/Fisheries 7 份 CSV，欄位統一為系列、站號、航次、日期、分層；不剔海上點；PMTiles z4–12", note: "CC BY 4.0；歷史站位、只有位置，部分在愛爾蘭 EEZ 外" },
+  ieSeabedSurveyCoverage: { theme: "海洋", group: "調查站網 Survey Sites", zh: "海床測深調查範圍", alt: "Seabed Survey Coverage (INFOMAR)", icon: Ship, dataset: "ie_seabed_survey_coverage", topics: ["愛爾蘭", "INFOMAR", "海床", "測深", "海洋調查", "GSI", "Marine Institute"],
+    description: "愛爾蘭 GSI／Marine Institute 海床測深航次足跡 376 個（1996–2026；INFOMAR 291、INSS 22、其他 63）", processing: "GSI Seabed Survey Coverage shapefile（WGS84，109MB）→ 每面各自簡化 20 m；依計畫分類；PMTiles z4–11", note: "CC BY 4.0；範圍不是水深值" },
+  ieProtectedMarineSites: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries", zh: "受保護海域", alt: "Protected Marine Sites", icon: ShieldCheck, dataset: "ie_protected_marine_sites", topics: ["愛爾蘭", "海洋保護區", "SAC", "SPA", "NHA", "Natura 2000", "自然保留區", "拉姆薩", "NMPF"],
+    description: "愛爾蘭國家海洋規劃架構（NMPF）受保護海域：只收有海域部分的 SAC、SPA、NHA、生物圈分區與海岸自然保留區、避難所、拉姆薩濕地", processing: "NMPF FeatureServer 7 圖層（伺服器端去點約 2 m）→ 面在第 0 波陸地面外 ≥ 10 ha、點在陸地外或離岸線 ≤ 1 km 才收；幾何不裁切；面 PMTiles z4–13＋代表點 z4–14", note: "CC BY 4.0；陸域保護區在第 5 波；法定 MPA 尚未立法" },
+  ieOffshoreRenewables: { theme: "海洋", group: "再生能源", zh: "離岸再生能源海域", alt: "Offshore Renewable Energy Areas", icon: Wind, dataset: "ie_offshore_renewables", topics: ["愛爾蘭", "離岸風電", "風場", "海域許可", "MAC", "AMETS", "NMPF", "再生能源"],
+    description: "愛爾蘭 NMPF 離岸風場與試驗場 30 面：2022 第一批海域許可 MAC 8、前灘程序風場 19（已運轉 1、過渡案 6、場址調查 12）、AMETS 3", processing: "NMPF FeatureServer layers 1–3 → 4326；名稱去重複換行；PMTiles z4–12", note: "CC BY 4.0；2020–2022 狀態、非現況；浮標與試驗場點 15 未收" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];
