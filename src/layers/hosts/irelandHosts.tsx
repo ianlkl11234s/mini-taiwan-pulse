@@ -60,6 +60,16 @@ export const IeRoadRailNetworkHost = makeIeDataHost("ieRoadRailNetwork", 0.85);
 export const IeRoadMarkersHost = makeIeDataHost("ieRoadMarkers", 0.8);
 export const IeTrafficCountersHost = makeIeDataHost("ieTrafficCounters", 0.8);
 export const IeAirportsPortsHost = makeIeDataHost("ieAirportsPorts", 0.85);
+// 第 5 波：自然保護、林業、地質輻射
+export const IeNationalParksHost = makeIeDataHost("ieNationalParks", 0.6);
+export const IeWildAtlanticWayHost = makeIeDataHost("ieWildAtlanticWay", 0.85);
+export const IeProtectedSitesHost = makeIeDataHost("ieProtectedSites", 0.6);
+export const IeNationalTrailsHost = makeIeDataHost("ieNationalTrails", 0.85);
+export const IeStreetTreesHost = makeIeDataHost("ieStreetTrees", 0.8);
+export const IeRadiationStationsHost = makeIeDataHost("ieRadiationStations", 0.85);
+export const IeLandslideEventsHost = makeIeDataHost("ieLandslideEvents", 0.8);
+export const IeLandslideExtentsHost = makeIeDataHost("ieLandslideExtents", 0.7);
+export const IeRadonRiskHost = makeIeDataHost("ieRadonRisk", 0.45);
 // 第 6 波：能源
 export const IePowerPlantsHost = makeIeDataHost("iePowerPlants", 0.9);
 export const IePowerLinesHost = makeIeDataHost("iePowerLines", 0.85);

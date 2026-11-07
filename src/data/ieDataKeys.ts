@@ -9,6 +9,8 @@ export const IE_DATA_KEYS = [
   "ieBathingWaters", "ieMarineSurveyStations", "ieSeabedSurveyCoverage", "ieProtectedMarineSites", "ieOffshoreRenewables",
   // 第 4 波（2026-11-08）：交通
   "ieTransitStops", "ieDublinbikesStations", "ieRoadRailNetwork", "ieRoadMarkers", "ieTrafficCounters", "ieAirportsPorts",
+  // 第 5 波（2026-11-08）：自然保護、林業、地質輻射
+  "ieNationalParks", "ieWildAtlanticWay", "ieProtectedSites", "ieNationalTrails", "ieStreetTrees", "ieRadiationStations", "ieLandslideEvents", "ieLandslideExtents", "ieRadonRisk",
   // 第 6 波（2026-11-08）：能源
   "iePowerPlants", "iePowerLines", "ieSubstations", "ieWindFarms", "ieEvCharging", "ieFuelStations",
 ] as const;

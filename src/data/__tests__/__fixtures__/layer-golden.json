@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1737,
+    "keyCount": 1746,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2428,6 +2428,36 @@
     },
     {
       "layers": [
+        "ie-radiation-stations-circle"
+      ],
+      "type": "ieRadiationStations"
+    },
+    {
+      "layers": [
+        "ie-landslide-events-circle"
+      ],
+      "type": "ieLandslideEvents"
+    },
+    {
+      "layers": [
+        "ie-street-trees-circle"
+      ],
+      "type": "ieStreetTrees"
+    },
+    {
+      "layers": [
+        "ie-national-trails-line"
+      ],
+      "type": "ieNationalTrails"
+    },
+    {
+      "layers": [
+        "ie-wild-atlantic-way-line"
+      ],
+      "type": "ieWildAtlanticWay"
+    },
+    {
+      "layers": [
         "ie-power-lines-line"
       ],
       "type": "iePowerLines"
@@ -2488,6 +2518,33 @@
         "ie-seabed-survey-coverage-fill"
       ],
       "type": "ieSeabedSurveyCoverage"
+    },
+    {
+      "layers": [
+        "ie-landslide-extents-fill",
+        "ie-landslide-extents-point-circle"
+      ],
+      "type": "ieLandslideExtents"
+    },
+    {
+      "layers": [
+        "ie-protected-sites-fill",
+        "ie-protected-sites-point-circle"
+      ],
+      "type": "ieProtectedSites"
+    },
+    {
+      "layers": [
+        "ie-national-parks-fill",
+        "ie-national-parks-point-circle"
+      ],
+      "type": "ieNationalParks"
+    },
+    {
+      "layers": [
+        "ie-radon-risk-fill"
+      ],
+      "type": "ieRadonRisk"
     },
     {
       "layers": [
@@ -121707,6 +121764,127 @@
         "valueText": "0.70"
       }
     ],
+    "ieLandslideEvents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "泥炭（含泥炭質土）",
+            "value": "peat"
+          },
+          {
+            "label": "土、泥、冰磧",
+            "value": "earth"
+          },
+          {
+            "label": "岩石、岩屑坡",
+            "value": "rock"
+          },
+          {
+            "label": "岩屑",
+            "value": "debris"
+          },
+          {
+            "label": "未分類",
+            "value": "undifferentiated"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "peat",
+          "earth",
+          "rock",
+          "debris",
+          "undifferentiated"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieLandslideExtents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "泥炭（含泥炭質土）",
+            "value": "peat"
+          },
+          {
+            "label": "土、泥、冰磧",
+            "value": "earth"
+          },
+          {
+            "label": "岩石、岩屑坡",
+            "value": "rock"
+          },
+          {
+            "label": "岩屑",
+            "value": "debris"
+          },
+          {
+            "label": "未分類",
+            "value": "undifferentiated"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "peat",
+          "earth",
+          "rock",
+          "debris",
+          "undifferentiated"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "ieMarineSurveyStations": [
       {
         "label": "類別",
@@ -121792,6 +121970,90 @@
           "territorial_sea",
           "contiguous_zone",
           "eez"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieNationalParks": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "ieNationalTrails": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "步行步道",
+            "value": "walking"
+          },
+          {
+            "label": "長距離標示步道、朝聖路",
+            "value": "long_distance"
+          },
+          {
+            "label": "綠道（Greenway）",
+            "value": "greenway"
+          },
+          {
+            "label": "單車（公路、越野、登山車）",
+            "value": "cycling"
+          },
+          {
+            "label": "水上（划槳、浮潛）",
+            "value": "water"
+          },
+          {
+            "label": "其他、未分類（登山通道、騎馬等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "walking",
+          "long_distance",
+          "greenway",
+          "cycling",
+          "water",
+          "other"
         ]
       },
       {
@@ -122127,6 +122389,141 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "ieProtectedSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "特別保育區 SAC（Natura 2000）",
+            "value": "sac"
+          },
+          {
+            "label": "鳥類特別保護區 SPA（Natura 2000）",
+            "value": "spa"
+          },
+          {
+            "label": "國家自然遺產區 NHA",
+            "value": "nha"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "sac",
+          "spa",
+          "nha"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "ieRadiationStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "陸地（即時上線）",
+            "value": "land_live"
+          },
+          {
+            "label": "陸地（非即時）",
+            "value": "land"
+          },
+          {
+            "label": "海域",
+            "value": "marine"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "land_live",
+          "land",
+          "marine"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieRadonRisk": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "約每 5 戶有 1 戶偏高（High Radon Area）",
+            "value": "1_in_5"
+          },
+          {
+            "label": "約每 10 戶有 1 戶偏高",
+            "value": "1_in_10"
+          },
+          {
+            "label": "約每 20 戶有 1 戶偏高",
+            "value": "1_in_20"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1_in_5",
+          "1_in_10",
+          "1_in_20"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "ieRiverFloodExtents": [
@@ -122523,6 +122920,126 @@
         "value": "point"
       }
     ],
+    "ieStreetTrees": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Fingal 議會",
+            "value": "fingal"
+          },
+          {
+            "label": "Dún Laoghaire-Rathdown 議會（2019）",
+            "value": "dlr"
+          },
+          {
+            "label": "Dublin City 議會",
+            "value": "dcc"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "fingal",
+          "dlr",
+          "dcc"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieSubstations": [
       {
         "label": "類別",
@@ -122877,6 +123394,17 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieWildAtlanticWay": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "ieWindFarms": [
