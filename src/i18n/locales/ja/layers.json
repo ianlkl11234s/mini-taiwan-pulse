@@ -1651,5 +1651,21 @@
   "layer.mapchallengeDay06Coast": "台南の海岸線 三時代",
   "layer.mapchallengeDay06Taipei1932": "1932 年 台北市の町界",
   "layer.mapchallengeDay06Temples1921": "廟は動かない：1921 年の祠廟",
-  "layer.mapchallengeDay06Lighthouses": "灯台と測候所 今昔"
+  "layer.mapchallengeDay06Lighthouses": "灯台と測候所 今昔",
+  "layer.statsKrFireIncidentsSido": "火災件数（広域）",
+  "layer.statsKrFireIncidentsSgg": "火災件数（基礎自治体）",
+  "layer.statsKrFireDeathsSido": "火災死者数（広域）",
+  "layer.statsKrFireDeathsSgg": "火災死者数（基礎自治体）",
+  "layer.statsKrFireInjuriesSido": "火災負傷者数（広域）",
+  "layer.statsKrFireInjuriesSgg": "火災負傷者数（基礎自治体）",
+  "layer.statsKrFireDamageSido": "火災財産損害額（広域）",
+  "layer.statsKrFireDamageSgg": "火災財産損害額（基礎自治体）",
+  "layer.statsKrTrafficAccidentsSido": "交通事故件数（広域）",
+  "layer.statsKrTrafficAccidentsSgg": "交通事故件数（基礎自治体）",
+  "layer.statsKrTrafficDeathsSido": "交通事故死者数（広域）",
+  "layer.statsKrTrafficDeathsSgg": "交通事故死者数（基礎自治体）",
+  "layer.statsKrTrafficSeriousInjuriesSido": "交通事故重傷者数（広域）",
+  "layer.statsKrTrafficSeriousInjuriesSgg": "交通事故重傷者数（基礎自治体）",
+  "layer.statsKrTrafficInjuriesSido": "交通事故負傷者数（広域）",
+  "layer.statsKrTrafficInjuriesSgg": "交通事故負傷者数（基礎自治体）"
 }

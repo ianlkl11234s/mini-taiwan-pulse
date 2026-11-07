@@ -22,7 +22,7 @@
   },
   "observation_policy": {
     "not_applicable": "來源不涵蓋此地區（未涵蓋，例：首爾生活人口只涵蓋首爾）；不是 0、不是缺值",
-    "missing": "來源有涵蓋但此區無值（例：2025-07 後新設、沒有 2024 年值的 8 區）"
+    "missing": "來源有涵蓋但此區無值（例：2025-07 後新設、沒有 2024 年值的 8 區；來源只給市合計的一般區）"
   },
   "recipes": [
     {
@@ -2239,6 +2239,1188 @@
       "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003681593&fileDetailSn=1&dataType=FILE",
       "source_title": "South Korea SGIS administrative-area statistics (2024)",
       "attribution": "국가데이터처 SGIS, 행정구역 통계 및 경계（2024년 통계, 2025년 2분기 경계）, 공공데이터포털 15129688"
+    },
+    {
+      "layer_key": "statsKrFireIncidentsSido",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "火災件數",
+      "group": "krFireIncidents",
+      "group_label": "火災件數",
+      "option_label": "道級",
+      "subgroup": "火災（2021–2023）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_fire_incidents_nfds",
+      "indicator_id": "fire_incidents",
+      "level": "kr_sido",
+      "boundary_version": "KR_SIDO_ADMDONGKOR_20261001",
+      "unit": "件",
+      "aggregation": "sum",
+      "default_release_id": "2023-fire_incidents-kr_sido-v1-67d713fad6c1",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2023-fire_incidents-kr_sido-v1-67d713fad6c1",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-fire_incidents-kr_sido-v1-647aebdd9159",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-fire_incidents-kr_sido-v1-75adca56dcbd",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1000,
+          1500,
+          2200,
+          3300
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。",
+          "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "火災發生地所在行政區（2026-10 界）",
+      "disclosure": "소방청「화재현황」2021–2023 年逐件火災紀錄（國家火災情報系統），依接報日年度與發生地 시군구 加總到 시·도／시군구。無事件座標。",
+      "publisher": "소방청（National Fire Agency；국가화재정보시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15155635 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15155635.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15155635/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003616523&fileDetailSn=1",
+      "source_title": "South Korea fire incidents and casualties (National Fire Agency)",
+      "attribution": "소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+    },
+    {
+      "layer_key": "statsKrFireIncidentsSgg",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "火災件數",
+      "group": "krFireIncidents",
+      "group_label": "火災件數",
+      "option_label": "市郡區",
+      "subgroup": "火災（2021–2023）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_fire_incidents_nfds",
+      "indicator_id": "fire_incidents",
+      "level": "kr_sigungu",
+      "boundary_version": "KR_SGG_ADMDONGKOR_20261001",
+      "unit": "件",
+      "aggregation": "sum",
+      "default_release_id": "2023-fire_incidents-kr_sigungu-v1-ff8108ba1bca",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2023-fire_incidents-kr_sigungu-v1-ff8108ba1bca",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-fire_incidents-kr_sigungu-v1-5c95b32e78a6",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-fire_incidents-kr_sigungu-v1-bcb77f2750c2",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          84,
+          120,
+          160,
+          210
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。",
+          "富川市、華城市只有市合計，各一般區無資料；仁川 2026 年改制的濟物浦、永宗、西海、黔丹 4 區無資料（不是 0）。這些件數仍計入道級。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "火災發生地所在行政區（2026-10 界）",
+      "disclosure": "소방청「화재현황」2021–2023 年逐件火災紀錄（國家火災情報系統），依接報日年度與發生地 시군구 加總到 시·도／시군구。無事件座標。",
+      "publisher": "소방청（National Fire Agency；국가화재정보시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15155635 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15155635.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15155635/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003616523&fileDetailSn=1",
+      "source_title": "South Korea fire incidents and casualties (National Fire Agency)",
+      "attribution": "소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+    },
+    {
+      "layer_key": "statsKrFireDeathsSido",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "火災死亡人數",
+      "group": "krFireDeaths",
+      "group_label": "火災死亡人數",
+      "option_label": "道級",
+      "subgroup": "火災（2021–2023）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_fire_incidents_nfds",
+      "indicator_id": "fire_deaths",
+      "level": "kr_sido",
+      "boundary_version": "KR_SIDO_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2023-fire_deaths-kr_sido-v1-986be2652514",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2023-fire_deaths-kr_sido-v1-986be2652514",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-fire_deaths-kr_sido-v1-75cae0cc4af1",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-fire_deaths-kr_sido-v1-a07f03918858",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          11,
+          14,
+          16,
+          24
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0 人（該區該年為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。",
+          "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "火災發生地所在行政區（2026-10 界）",
+      "disclosure": "소방청「화재현황」2021–2023 年逐件火災紀錄（國家火災情報系統），依接報日年度與發生地 시군구 加總到 시·도／시군구。無事件座標。",
+      "publisher": "소방청（National Fire Agency；국가화재정보시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15155635 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15155635.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15155635/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003616523&fileDetailSn=1",
+      "source_title": "South Korea fire incidents and casualties (National Fire Agency)",
+      "attribution": "소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+    },
+    {
+      "layer_key": "statsKrFireDeathsSgg",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "火災死亡人數",
+      "group": "krFireDeaths",
+      "group_label": "火災死亡人數",
+      "option_label": "市郡區",
+      "subgroup": "火災（2021–2023）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_fire_incidents_nfds",
+      "indicator_id": "fire_deaths",
+      "level": "kr_sigungu",
+      "boundary_version": "KR_SGG_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2023-fire_deaths-kr_sigungu-v1-46a9aff48893",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2023-fire_deaths-kr_sigungu-v1-46a9aff48893",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-fire_deaths-kr_sigungu-v1-27986e1aa7e7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-fire_deaths-kr_sigungu-v1-975ab2bbe858",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          3,
+          5
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 人自成最淺一級（該區該年無火災死亡，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。",
+          "富川市、華城市只有市合計，各一般區無資料；仁川 2026 年改制的濟物浦、永宗、西海、黔丹 4 區無資料（不是 0）。這些件數仍計入道級。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "火災發生地所在行政區（2026-10 界）",
+      "disclosure": "소방청「화재현황」2021–2023 年逐件火災紀錄（國家火災情報系統），依接報日年度與發生地 시군구 加總到 시·도／시군구。無事件座標。",
+      "publisher": "소방청（National Fire Agency；국가화재정보시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15155635 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15155635.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15155635/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003616523&fileDetailSn=1",
+      "source_title": "South Korea fire incidents and casualties (National Fire Agency)",
+      "attribution": "소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+    },
+    {
+      "layer_key": "statsKrFireInjuriesSido",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "火災受傷人數",
+      "group": "krFireInjuries",
+      "group_label": "火災受傷人數",
+      "option_label": "道級",
+      "subgroup": "火災（2021–2023）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_fire_incidents_nfds",
+      "indicator_id": "fire_injuries",
+      "level": "kr_sido",
+      "boundary_version": "KR_SIDO_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2023-fire_injuries-kr_sido-v1-da11d9990773",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2023-fire_injuries-kr_sido-v1-da11d9990773",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-fire_injuries-kr_sido-v1-00edf3f5a7ad",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-fire_injuries-kr_sido-v1-77bc56d50203",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          69,
+          91,
+          130,
+          180
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。",
+          "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "火災發生地所在行政區（2026-10 界）",
+      "disclosure": "소방청「화재현황」2021–2023 年逐件火災紀錄（國家火災情報系統），依接報日年度與發生地 시군구 加總到 시·도／시군구。無事件座標。",
+      "publisher": "소방청（National Fire Agency；국가화재정보시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15155635 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15155635.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15155635/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003616523&fileDetailSn=1",
+      "source_title": "South Korea fire incidents and casualties (National Fire Agency)",
+      "attribution": "소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+    },
+    {
+      "layer_key": "statsKrFireInjuriesSgg",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "火災受傷人數",
+      "group": "krFireInjuries",
+      "group_label": "火災受傷人數",
+      "option_label": "市郡區",
+      "subgroup": "火災（2021–2023）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_fire_incidents_nfds",
+      "indicator_id": "fire_injuries",
+      "level": "kr_sigungu",
+      "boundary_version": "KR_SGG_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2023-fire_injuries-kr_sigungu-v1-d64ddcdef605",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2023-fire_injuries-kr_sigungu-v1-d64ddcdef605",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-fire_injuries-kr_sigungu-v1-13fb9a67642f",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-fire_injuries-kr_sigungu-v1-5e70806e1b7a",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          3,
+          5,
+          8,
+          13
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0 人（該區該年為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。",
+          "富川市、華城市只有市合計，各一般區無資料；仁川 2026 年改制的濟物浦、永宗、西海、黔丹 4 區無資料（不是 0）。這些件數仍計入道級。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "火災發生地所在行政區（2026-10 界）",
+      "disclosure": "소방청「화재현황」2021–2023 年逐件火災紀錄（國家火災情報系統），依接報日年度與發生地 시군구 加總到 시·도／시군구。無事件座標。",
+      "publisher": "소방청（National Fire Agency；국가화재정보시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15155635 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15155635.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15155635/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003616523&fileDetailSn=1",
+      "source_title": "South Korea fire incidents and casualties (National Fire Agency)",
+      "attribution": "소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+    },
+    {
+      "layer_key": "statsKrFireDamageSido",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "火災財產損失",
+      "group": "krFireDamage",
+      "group_label": "火災財產損失",
+      "option_label": "道級",
+      "subgroup": "火災（2021–2023）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_fire_incidents_nfds",
+      "indicator_id": "fire_property_damage",
+      "level": "kr_sido",
+      "boundary_version": "KR_SIDO_ADMDONGKOR_20261001",
+      "unit": "千韓元",
+      "aggregation": "sum",
+      "default_release_id": "2023-fire_property_damage-kr_sido-v1-112f09b1eaf4",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2023-fire_property_damage-kr_sido-v1-112f09b1eaf4",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-fire_property_damage-kr_sido-v1-80c0cab34116",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-fire_property_damage-kr_sido-v1-edc968d87377",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          17000000,
+          26000000,
+          39000000,
+          70000000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。",
+          "財產損失為名目千韓元，未調整物價。",
+          "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "火災發生地所在行政區（2026-10 界）",
+      "disclosure": "소방청「화재현황」2021–2023 年逐件火災紀錄（國家火災情報系統），依接報日年度與發生地 시군구 加總到 시·도／시군구。無事件座標。",
+      "publisher": "소방청（National Fire Agency；국가화재정보시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15155635 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15155635.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15155635/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003616523&fileDetailSn=1",
+      "source_title": "South Korea fire incidents and casualties (National Fire Agency)",
+      "attribution": "소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+    },
+    {
+      "layer_key": "statsKrFireDamageSgg",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "火災財產損失",
+      "group": "krFireDamage",
+      "group_label": "火災財產損失",
+      "option_label": "市郡區",
+      "subgroup": "火災（2021–2023）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_fire_incidents_nfds",
+      "indicator_id": "fire_property_damage",
+      "level": "kr_sigungu",
+      "boundary_version": "KR_SGG_ADMDONGKOR_20261001",
+      "unit": "千韓元",
+      "aggregation": "sum",
+      "default_release_id": "2023-fire_property_damage-kr_sigungu-v1-0dab069dfb79",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2023-fire_property_damage-kr_sigungu-v1-0dab069dfb79",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-fire_property_damage-kr_sigungu-v1-8d7242d8c145",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-fire_property_damage-kr_sigungu-v1-25429b6a7665",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          460000,
+          890000,
+          1700000,
+          3700000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。",
+          "財產損失為名目千韓元，未調整物價。",
+          "富川市、華城市只有市合計，各一般區無資料；仁川 2026 年改制的濟物浦、永宗、西海、黔丹 4 區無資料（不是 0）。這些件數仍計入道級。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "火災發生地所在行政區（2026-10 界）",
+      "disclosure": "소방청「화재현황」2021–2023 年逐件火災紀錄（國家火災情報系統），依接報日年度與發生地 시군구 加總到 시·도／시군구。無事件座標。",
+      "publisher": "소방청（National Fire Agency；국가화재정보시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15155635 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15155635.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15155635/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003616523&fileDetailSn=1",
+      "source_title": "South Korea fire incidents and casualties (National Fire Agency)",
+      "attribution": "소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635"
+    },
+    {
+      "layer_key": "statsKrTrafficAccidentsSido",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "交通事故件數",
+      "group": "krTrafficAccidents",
+      "group_label": "交通事故件數",
+      "option_label": "道級",
+      "subgroup": "交通事故（2025）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_traffic_accidents_koroad",
+      "indicator_id": "traffic_accidents",
+      "level": "kr_sido",
+      "boundary_version": "KR_SIDO_ADMDONGKOR_20261001",
+      "unit": "件",
+      "aggregation": "sum",
+      "default_release_id": "2025-traffic_accidents-kr_sido-v1-f567ca92a253",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-traffic_accidents-kr_sido-v1-f567ca92a253",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5600,
+          7700,
+          9500,
+          11000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "事故發生地所在行政區（2026-10 界）",
+      "disclosure": "한국도로교통공단「시도 시군구별 교통사고 통계」2025 年：警察調查處理、有人員傷亡的交通事故件數、死亡、重傷與受傷人數，依發生地 시군구 統計。",
+      "publisher": "한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15070297 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15070297.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15070297/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003692669&fileDetailSn=1",
+      "source_title": "South Korea road traffic accidents and casualties (KoROAD TAAS)",
+      "attribution": "한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+    },
+    {
+      "layer_key": "statsKrTrafficAccidentsSgg",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "交通事故件數",
+      "group": "krTrafficAccidents",
+      "group_label": "交通事故件數",
+      "option_label": "市郡區",
+      "subgroup": "交通事故（2025）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_traffic_accidents_koroad",
+      "indicator_id": "traffic_accidents",
+      "level": "kr_sigungu",
+      "boundary_version": "KR_SGG_ADMDONGKOR_20261001",
+      "unit": "件",
+      "aggregation": "sum",
+      "default_release_id": "2025-traffic_accidents-kr_sigungu-v1-c987afa41472",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-traffic_accidents-kr_sigungu-v1-c987afa41472",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          160,
+          330,
+          730,
+          1200
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "水原、城南、安養、富川、安山、華城、高陽、龍仁、清州、天安、全州、浦項、昌原 13 市只有市合計，其 39 個一般區無資料；仁川 2026 年改制的 4 區無資料（不是 0）。這些件數仍計入道級。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "事故發生地所在行政區（2026-10 界）",
+      "disclosure": "한국도로교통공단「시도 시군구별 교통사고 통계」2025 年：警察調查處理、有人員傷亡的交通事故件數、死亡、重傷與受傷人數，依發生地 시군구 統計。",
+      "publisher": "한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15070297 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15070297.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15070297/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003692669&fileDetailSn=1",
+      "source_title": "South Korea road traffic accidents and casualties (KoROAD TAAS)",
+      "attribution": "한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+    },
+    {
+      "layer_key": "statsKrTrafficDeathsSido",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "交通事故死亡人數",
+      "group": "krTrafficDeaths",
+      "group_label": "交通事故死亡人數",
+      "option_label": "道級",
+      "subgroup": "交通事故（2025）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_traffic_accidents_koroad",
+      "indicator_id": "traffic_deaths",
+      "level": "kr_sido",
+      "boundary_version": "KR_SIDO_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2025-traffic_deaths-kr_sido-v1-80618da6dc1c",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-traffic_deaths-kr_sido-v1-80618da6dc1c",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          65,
+          110,
+          150,
+          240
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "事故發生地所在行政區（2026-10 界）",
+      "disclosure": "한국도로교통공단「시도 시군구별 교통사고 통계」2025 年：警察調查處理、有人員傷亡的交通事故件數、死亡、重傷與受傷人數，依發生地 시군구 統計。",
+      "publisher": "한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15070297 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15070297.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15070297/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003692669&fileDetailSn=1",
+      "source_title": "South Korea road traffic accidents and casualties (KoROAD TAAS)",
+      "attribution": "한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+    },
+    {
+      "layer_key": "statsKrTrafficDeathsSgg",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "交通事故死亡人數",
+      "group": "krTrafficDeaths",
+      "group_label": "交通事故死亡人數",
+      "option_label": "市郡區",
+      "subgroup": "交通事故（2025）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_traffic_accidents_koroad",
+      "indicator_id": "traffic_deaths",
+      "level": "kr_sigungu",
+      "boundary_version": "KR_SGG_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2025-traffic_deaths-kr_sigungu-v1-9fc083966ff7",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-traffic_deaths-kr_sigungu-v1-9fc083966ff7",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5,
+          8,
+          10,
+          13
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0 人（該區該年為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "水原、城南、安養、富川、安山、華城、高陽、龍仁、清州、天安、全州、浦項、昌原 13 市只有市合計，其 39 個一般區無資料；仁川 2026 年改制的 4 區無資料（不是 0）。這些件數仍計入道級。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "事故發生地所在行政區（2026-10 界）",
+      "disclosure": "한국도로교통공단「시도 시군구별 교통사고 통계」2025 年：警察調查處理、有人員傷亡的交通事故件數、死亡、重傷與受傷人數，依發生地 시군구 統計。",
+      "publisher": "한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15070297 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15070297.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15070297/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003692669&fileDetailSn=1",
+      "source_title": "South Korea road traffic accidents and casualties (KoROAD TAAS)",
+      "attribution": "한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+    },
+    {
+      "layer_key": "statsKrTrafficSeriousInjuriesSido",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "交通事故重傷人數",
+      "group": "krTrafficSeriousInjuries",
+      "group_label": "交通事故重傷人數",
+      "option_label": "道級",
+      "subgroup": "交通事故（2025）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_traffic_accidents_koroad",
+      "indicator_id": "traffic_serious_injuries",
+      "level": "kr_sido",
+      "boundary_version": "KR_SIDO_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2025-traffic_serious_injuries-kr_sido-v1-68d6fb629a7f",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-traffic_serious_injuries-kr_sido-v1-68d6fb629a7f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1500,
+          1900,
+          2800,
+          3500
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "事故發生地所在行政區（2026-10 界）",
+      "disclosure": "한국도로교통공단「시도 시군구별 교통사고 통계」2025 年：警察調查處理、有人員傷亡的交通事故件數、死亡、重傷與受傷人數，依發生地 시군구 統計。",
+      "publisher": "한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15070297 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15070297.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15070297/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003692669&fileDetailSn=1",
+      "source_title": "South Korea road traffic accidents and casualties (KoROAD TAAS)",
+      "attribution": "한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+    },
+    {
+      "layer_key": "statsKrTrafficSeriousInjuriesSgg",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "交通事故重傷人數",
+      "group": "krTrafficSeriousInjuries",
+      "group_label": "交通事故重傷人數",
+      "option_label": "市郡區",
+      "subgroup": "交通事故（2025）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_traffic_accidents_koroad",
+      "indicator_id": "traffic_serious_injuries",
+      "level": "kr_sigungu",
+      "boundary_version": "KR_SGG_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2025-traffic_serious_injuries-kr_sigungu-v1-5c7df7061c9a",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-traffic_serious_injuries-kr_sigungu-v1-5c7df7061c9a",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          67,
+          120,
+          200,
+          290
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "水原、城南、安養、富川、安山、華城、高陽、龍仁、清州、天安、全州、浦項、昌原 13 市只有市合計，其 39 個一般區無資料；仁川 2026 年改制的 4 區無資料（不是 0）。這些件數仍計入道級。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "事故發生地所在行政區（2026-10 界）",
+      "disclosure": "한국도로교통공단「시도 시군구별 교통사고 통계」2025 年：警察調查處理、有人員傷亡的交通事故件數、死亡、重傷與受傷人數，依發生地 시군구 統計。",
+      "publisher": "한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15070297 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15070297.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15070297/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003692669&fileDetailSn=1",
+      "source_title": "South Korea road traffic accidents and casualties (KoROAD TAAS)",
+      "attribution": "한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+    },
+    {
+      "layer_key": "statsKrTrafficInjuriesSido",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "交通事故受傷人數",
+      "group": "krTrafficInjuries",
+      "group_label": "交通事故受傷人數",
+      "option_label": "道級",
+      "subgroup": "交通事故（2025）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_traffic_accidents_koroad",
+      "indicator_id": "traffic_injuries",
+      "level": "kr_sido",
+      "boundary_version": "KR_SIDO_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2025-traffic_injuries-kr_sido-v1-de136b0622bb",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-traffic_injuries-kr_sido-v1-de136b0622bb",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          7900,
+          11000,
+          13000,
+          15000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "受傷人數＝重傷（治療 3 週以上）＋輕傷（5 日至 3 週）＋傷害申報（未滿 5 日）。",
+          "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": true,
+      "derived_method": "重傷＋輕傷＋傷害申報人數（중상＋경상＋부상신고）",
+      "location_semantics": "事故發生地所在行政區（2026-10 界）",
+      "disclosure": "한국도로교통공단「시도 시군구별 교통사고 통계」2025 年：警察調查處理、有人員傷亡的交通事故件數、死亡、重傷與受傷人數，依發生地 시군구 統計。",
+      "publisher": "한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15070297 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15070297.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15070297/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003692669&fileDetailSn=1",
+      "source_title": "South Korea road traffic accidents and casualties (KoROAD TAAS)",
+      "attribution": "한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+    },
+    {
+      "layer_key": "statsKrTrafficInjuriesSgg",
+      "enabled": true,
+      "family": "kr",
+      "country": "KR",
+      "label": "交通事故受傷人數",
+      "group": "krTrafficInjuries",
+      "group_label": "交通事故受傷人數",
+      "option_label": "市郡區",
+      "subgroup": "交通事故（2025）",
+      "data_theme": "公共安全統計",
+      "tab_theme": "公共安全",
+      "visual_theme": "security",
+      "dataset_id": "kr_traffic_accidents_koroad",
+      "indicator_id": "traffic_injuries",
+      "level": "kr_sigungu",
+      "boundary_version": "KR_SGG_ADMDONGKOR_20261001",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2025-traffic_injuries-kr_sigungu-v1-442ea5dbf1f4",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-traffic_injuries-kr_sigungu-v1-442ea5dbf1f4",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          230,
+          480,
+          1000,
+          1700
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。",
+          "件數與人數未除以人口，人口多的地區自然較高。",
+          "受傷人數＝重傷（治療 3 週以上）＋輕傷（5 日至 3 週）＋傷害申報（未滿 5 日）。",
+          "水原、城南、安養、富川、安山、華城、高陽、龍仁、清州、天安、全州、浦項、昌原 13 市只有市合計，其 39 個一般區無資料；仁川 2026 年改制的 4 區無資料（不是 0）。這些件數仍計入道級。",
+          "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。",
+          "署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": true,
+      "derived_method": "重傷＋輕傷＋傷害申報人數（중상＋경상＋부상신고）",
+      "location_semantics": "事故發生地所在行政區（2026-10 界）",
+      "disclosure": "한국도로교통공단「시도 시군구별 교통사고 통계」2025 年：警察調查處理、有人員傷亡的交通事故件數、死亡、重傷與受傷人數，依發生地 시군구 統計。",
+      "publisher": "한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）",
+      "license": "이용허락범위 제한 없음（data.go.kr；非 KOGL 類型，commercial_ok=null）（原文：data.go.kr 15070297 頁面 license.name 與 DCAT dct:rights：「이용허락범위 제한 없음」（2026-11-07 下載時讀取，存 _page_15070297.json）；https://www.data.go.kr/ugs/selectPortalPolicyView.do）",
+      "source_landing_url": "https://www.data.go.kr/data/15070297/fileData.do",
+      "source_download_url": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003692669&fileDetailSn=1",
+      "source_title": "South Korea road traffic accidents and casualties (KoROAD TAAS)",
+      "attribution": "한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
     }
   ],
   "catalog_generated_from": "krStatisticsRecipes.json",

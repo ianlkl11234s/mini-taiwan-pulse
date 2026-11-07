@@ -122,5 +122,6 @@
   "enum.statUnit.加幣/年": "カナダドル/年",
   "enum.statUnit.百分點": "ポイント",
   "enum.statUnit.票": "票",
-  "enum.statUnit.類別碼": "カテゴリコード"
+  "enum.statUnit.類別碼": "カテゴリコード",
+  "enum.statUnit.千韓元": "千ウォン"
 }
