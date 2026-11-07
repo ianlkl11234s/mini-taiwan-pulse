@@ -100,6 +100,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
+import { IE_DATA_SPECS, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -2159,6 +2160,14 @@ export const LAYER_PARAMS_SPEC = {
       out: "ieAdminBoundariesLevelIdx", encode: ["la", "ed", "sa"],
     },
   ],
+  // 愛爾蘭第 1 波（2026-11-07）：規格驅動 6 層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選）；公園的點／面切換由 repPointLayers 補
+  ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
+    ...krCatFilterSpecs(asKrSpec(spec)),
+    ...(spec.geom === "point"
+      ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
+      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.geom === "polygon" ? 0.7 : 0.85)]),
+  ]])),
+  ieBathymetry: [{ kind: "slider", name: "ieBathymetryOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   // 加拿大第 0＋1 波（2026-11-04）：多選選項 id／順序必須同 `data/caInfraTypes.ts` 的類別陣列（caLayers 測試守）
   caAdminBoundaries: [
     opacitySlider("caAdminBoundariesOpacity", 0.85),

@@ -248,6 +248,8 @@ const NO_POPUP_LEDGER = new Set([
   "gbTerrainHillshade", "gbTerrainRelief",
   // 加拿大第 2 波：NRCan MRDEM-30 山體陰影 raster（PNG，無 feature 屬性）
   "caHillshade",
+  // 愛爾蘭第 1 波：INFOMAR 海床地形 raster（已著色 PNG，無 feature 屬性）
+  "ieBathymetry",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -613,7 +615,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("krAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("CA")].sort()).toEqual(["caAdminBoundaries", "caAirportsPorts", "caAqhiStations", "caClimateStations", "caDeprivation", "caEarthquakes", "caEarthquakesLive", "caFederalDistricts", "caHillshade", "caIndigenousLands", "caMajorRoads", "caNpriFacilities", "caOilGas", "caPlaceNames", "caPopulationCentres", "caPopulationGrid", "caPostalFsa", "caPowerGrid", "caPowerPlants", "caRadiationStations", "caRailways", "caRents", "caTransitStops", "caWastewaterSystems", "caWindTurbines"]);
     expect(tw.has("caAdminBoundaries")).toBe(false);
-    expect(countryLayerKeys("IE")).toEqual(["ieAdminBoundaries"]);
+    expect([...countryLayerKeys("IE")].sort()).toEqual(["ieActivityLocations", "ieAdminBoundaries", "ieBathymetry", "ieGaeltacht", "ieGraveyards", "ieMaritimeBoundaries", "ieParks", "iePlaceNames"]);
     expect(tw.has("ieAdminBoundaries")).toBe(false);
   });
 

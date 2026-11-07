@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1654,
+    "keyCount": 1661,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2293,6 +2293,43 @@
         "ca-admin-pr-fill"
       ],
       "type": "caAdminBoundaries"
+    },
+    {
+      "layers": [
+        "ie-place-names-circle"
+      ],
+      "type": "iePlaceNames"
+    },
+    {
+      "layers": [
+        "ie-activity-locations-circle"
+      ],
+      "type": "ieActivityLocations"
+    },
+    {
+      "layers": [
+        "ie-graveyards-circle"
+      ],
+      "type": "ieGraveyards"
+    },
+    {
+      "layers": [
+        "ie-maritime-boundaries-line"
+      ],
+      "type": "ieMaritimeBoundaries"
+    },
+    {
+      "layers": [
+        "ie-parks-fill",
+        "ie-parks-point-circle"
+      ],
+      "type": "ieParks"
+    },
+    {
+      "layers": [
+        "ie-gaeltacht-fill"
+      ],
+      "type": "ieGaeltacht"
     },
     {
       "layers": [
@@ -120369,6 +120406,69 @@
         "valueText": "1.0"
       }
     ],
+    "ieActivityLocations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "戶外場地",
+            "value": "outdoor"
+          },
+          {
+            "label": "室內場館",
+            "value": "indoor"
+          },
+          {
+            "label": "室內外兼具",
+            "value": "both"
+          },
+          {
+            "label": "海灘、海岸",
+            "value": "beach"
+          },
+          {
+            "label": "內陸水域",
+            "value": "inland_water"
+          },
+          {
+            "label": "公園、綠地",
+            "value": "park"
+          },
+          {
+            "label": "森林、國家公園與自然保留區",
+            "value": "nature"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "outdoor",
+          "indoor",
+          "both",
+          "beach",
+          "inland_water",
+          "park",
+          "nature"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieAdminBoundaries": [
       {
         "label": "行政層級",
@@ -120397,6 +120497,216 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "ieBathymetry": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "ieGaeltacht": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
+    "ieGraveyards": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "墓地（SMR 考古登錄）",
+            "value": "smr_graveyard"
+          },
+          {
+            "label": "埋葬地（SMR 考古登錄）",
+            "value": "smr_burial_ground"
+          },
+          {
+            "label": "兒童埋葬地（SMR 考古登錄）",
+            "value": "smr_childrens_burial_ground"
+          },
+          {
+            "label": "歷史墓地（Galway、Fingal 議會名冊）",
+            "value": "council_historic_graveyard"
+          },
+          {
+            "label": "現行公墓（Fingal 議會）",
+            "value": "council_burial_ground"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "smr_graveyard",
+          "smr_burial_ground",
+          "smr_childrens_burial_ground",
+          "council_historic_graveyard",
+          "council_burial_ground"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieMaritimeBoundaries": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "領海外界（12 浬）",
+            "value": "territorial_sea"
+          },
+          {
+            "label": "鄰接區外界（24 浬）",
+            "value": "contiguous_zone"
+          },
+          {
+            "label": "專屬經濟區外界",
+            "value": "eez"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "territorial_sea",
+          "contiguous_zone",
+          "eez"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieParks": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "議會公園（Dublin City、South Dublin 官方）",
+            "value": "council_park"
+          },
+          {
+            "label": "公園（OSM leisure=park）",
+            "value": "osm_park"
+          },
+          {
+            "label": "公共花園（OSM leisure=garden）",
+            "value": "osm_garden"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "council_park",
+          "osm_park",
+          "osm_garden"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "iePlaceNames": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "人口中心（城鎮、村落）2,022",
+            "value": "centre"
+          },
+          {
+            "label": "Townland 50,046（z9 起）",
+            "value": "townland"
+          },
+          {
+            "label": "島嶼 334（z9 起）",
+            "value": "island"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "centre",
+          "townland",
+          "island"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "immigrationOffice": [

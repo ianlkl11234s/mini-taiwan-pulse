@@ -464,6 +464,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ca-fsa-fill"], type: "caPostalFsa" },
   { layers: ["ca-fed-fill"], type: "caFederalDistricts" },
   { layers: ["ca-admin-csd-fill", "ca-admin-cd-fill", "ca-admin-pr-fill"], type: "caAdminBoundaries" },
+  // 愛爾蘭第 1 波（規格驅動，layer id 見 data/ieDataLayers.ts；公園代表點 circle 由 repPointClickLayerIds 補）。點層在前，面層（Gaeltacht、公園）最後才命中
+  { layers: ["ie-place-names-circle"], type: "iePlaceNames" },
+  { layers: ["ie-activity-locations-circle"], type: "ieActivityLocations" },
+  { layers: ["ie-graveyards-circle"], type: "ieGraveyards" },
+  { layers: ["ie-maritime-boundaries-line"], type: "ieMaritimeBoundaries" },
+  { layers: ["ie-parks-fill"], type: "ieParks" },
+  { layers: ["ie-gaeltacht-fill"], type: "ieGaeltacht" },
   { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },

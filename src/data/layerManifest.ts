@@ -34,6 +34,8 @@ import { statisticsManifestParams } from "./statisticsParamsSpec";
 import { KR_DATA_SPECS } from "./krDataLayers";
 import { repPointDense, repPointLayer } from "./repPointLayers";
 import type { KrDataKey } from "./krDataKeys";
+import { IE_DATA_SPECS } from "./ieDataLayers";
+import type { IeDataKey } from "./ieDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -753,8 +755,50 @@ const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => 
   }];
 })) as Record<KrDataKey, LayerManifestEntry>;
 
+/** 愛爾蘭第 1 波規格驅動 6 層（規格 SSOT 在 ieDataLayers.ts；畫法共用 useKrDataLayer；位置比照台灣同類主題與群組）。 */
+const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  ieMaritimeBoundaries: { theme: "底圖", group: "海域界線", zh: "海域界線", alt: "Maritime Boundaries", icon: Waves, dataset: "ie_maritime_boundaries", topics: ["愛爾蘭", "領海", "鄰接區", "專屬經濟區", "海域界線", "底圖"],
+    description: "愛爾蘭海域界線 17 段（領海 12 浬 13、鄰接區 24 浬 1、專屬經濟區 3）", processing: "Marine Institute 三份 shapefile（2016 版）→ 4326；依界線種類合併；PMTiles z0–10", note: "CC BY 4.0；非航海用" },
+  iePlaceNames: { theme: "底圖", group: "地名 Gazetteer", zh: "地名", alt: "Place Names", icon: MapPin, dataset: "ie_place_names", topics: ["愛爾蘭", "地名", "townland", "愛爾蘭語", "底圖"],
+    description: "愛爾蘭官方地名 52,402 筆（人口中心 2,022、townland 50,046、島嶼 334；英文＋愛爾蘭語名）", processing: "Tailte National Placenames Gazetteer FeatureServer → 4326；以第 0 波地方政府面指派 LA；英文名轉字首大寫；PMTiles z4–12（townland、島嶼 z9 起）", note: "CC BY 4.0；26/26 郡；只畫點、名稱放 popup" },
+  ieGaeltacht: { theme: "原民與農村", group: "愛爾蘭語區 Gaeltacht", zh: "Gaeltacht 語言規劃區", alt: "Gaeltacht Language Planning Areas", icon: Languages, dataset: "ie_gaeltacht_lpa", topics: ["愛爾蘭", "Gaeltacht", "愛爾蘭語", "語言", "普查"],
+    description: "愛爾蘭 Gaeltacht 語言規劃區 26 區＋2022 普查愛爾蘭語使用（每天在教育體系外說的比例 2.4%–68.9%）", processing: "Tailte LPA 2026（192 碎片依 BDY_ID dissolve 成 26）＋CSO SAP2022T3T1LPT／T3T2LPT 依愛爾蘭語名對應 26/26；PMTiles z4–12", note: "CC BY 4.0；法定 Gaeltacht 範圍與 LPA 聯集只差 3.72 km²，不另畫" },
+  ieActivityLocations: { theme: "運動休閒", group: "運動場館", zh: "運動活動地點", alt: "Activity Locations", icon: Activity, dataset: "ie_activity_locations", topics: ["愛爾蘭", "運動", "運動場館", "Get Ireland Active"],
+    description: "愛爾蘭 Get Ireland Active 運動活動地點 5,318 處（戶外 3,016、室內 859、海灘 461…）", processing: "Sport Ireland FeatureServer 5,507 筆 → 以地方政府面剔除北愛 186 與境外 3；排除描述與擁有者名稱欄；PMTiles z4–14", note: "CC BY 4.0；31/31 LA；非完整場館普查" },
+  ieParks: { theme: "運動休閒", group: "公園 Parks", zh: "公園", alt: "Parks", icon: Trees, dataset: "ie_parks", topics: ["愛爾蘭", "公園", "綠地", "OSM"],
+    description: "愛爾蘭公園 3,221 面（Dublin City、South Dublin 官方 650；其餘 29 個地方政府用 OSM 公園 2,390、公共花園 181）", processing: "DCC Parks 2016＋SDCC Parks FeatureServer；其餘 LA 取 Geofabrik 2026-11-05 PBF leisure=park／garden（排除私人、無名花園只留開放者）；面 PMTiles z6–13＋代表點 z4–14", note: "CC BY 4.0＋ODbL；31/31 LA；29 個 LA 為 OSM、完整度未驗" },
+  ieGraveyards: { theme: "殯葬", group: "點位", zh: "墓地", alt: "Graveyards", icon: Flower, dataset: "ie_graveyards", topics: ["愛爾蘭", "墓地", "殯葬", "考古", "SMR"],
+    description: "愛爾蘭墓地點位 6,449 處（SMR 考古登錄墓地 3,352、埋葬地 1,326、兒童埋葬地 1,439；Galway、Fingal 議會名冊 332）", processing: "SMR FeatureServer 依 MONUMENT_CLASS 篩三類＋Galway、Fingal 名冊；排除網頁備註與照片欄；PMTiles z4–14", note: "CC BY 4.0；現行公墓只有 Fingal" },
+};
+const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
+  const m = IE_DATA_ENTRY_META[spec.key];
+  const isPoint = spec.geom === "point";
+  return [spec.key, {
+    key: spec.key,
+    country: "IE", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: (() => {
+      const rep = repPointLayer(spec.key);
+      const kinds = [...(rep ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
+        ...(rep && repPointDense(rep) ? ["palette"] : []), ...(rep ? ["slider"] : [])] as ("select" | "multiSelect" | "palette" | "slider")[];
+      return { count: kinds.length, kinds };
+    })(),
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<IeDataKey, LayerManifestEntry>;
+
 export const LAYER_MANIFEST = {
   ...KR_DATA_MANIFEST_ENTRIES,
+  ...IE_DATA_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
@@ -4583,6 +4627,32 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "愛爾蘭行政區界（地方政府 31、CSO 選舉分區 3,420、統計小區 18,919；Tailte Éireann 2026／CSO Census 2022）",
     topics: ["愛爾蘭", "行政區", "邊界", "普查"],
+  },
+  // 🇮🇪 愛爾蘭第 1 波（2026-11-07）：海床地形 raster；其餘 6 層由 IE_DATA_MANIFEST_ENTRIES 派生
+  ieBathymetry: {
+    key: "ieBathymetry",
+    country: "IE", section: { theme: "底圖", group: "地形" },
+    ...layerName({ zh: "海床地形", alt: "Bathymetry", qualifier: "INFOMAR" }),
+    expandable: true,
+    color: "#2c7ab8",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ie_bathymetry", confidence: "HIGH" }],
+      processing: "GSI／Marine Institute INFOMAR 25 m 測深 ImageServer exportImage 取 0.003°（約 300 m）→ 10 段深度色階×山體陰影 → PNG raster PMTiles z4–10；陸地與無資料透明",
+      note: "CC BY 4.0；只涵蓋愛爾蘭指定水域（英國水域來源即無資料）；沒有 feature 屬性與 popup；預設關閉",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useIeBathymetryLayer 自建 mapbox-pmtiles raster source（pmtilesRasterCustomSource）；minzoom=4 maxzoom=10，插在底圖第一個 symbol 下；26.5MB 走 S3 deploy-assets（gitignore）",
+      staticAssets: ["./world/ie_bathymetry.pmtiles"],
+    },
+    legend: "ieBathymetry",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "愛爾蘭海床地形（INFOMAR 測深，約 300 m；0–4,832 m 深度色階＋陰影）",
+    topics: ["愛爾蘭", "底圖", "地形", "海床", "測深", "INFOMAR"],
   },
 
   // ══════════════════════════════════════════════════════════════
