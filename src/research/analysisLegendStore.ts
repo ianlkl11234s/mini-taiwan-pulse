@@ -38,7 +38,18 @@ export function analysisLegendEntries(
   // datasetId; the radius-ring part carries no `_wh_source` rows, so it borrows its sibling's line.
   const sourceByDataset = new Map<string, string>();
   for (const result of [...presented, ...siblings]) if (result.sourceLabel && !sourceByDataset.has(result.datasetId)) sourceByDataset.set(result.datasetId, result.sourceLabel);
-  return presented.filter(result => result.styleLegend || result.numericLegend || result.countLegend || result.scopeRing || result.categoryLegend).map(result => {
+  // Parts of one source result that carry the same style legend (e.g. a choropleth split by geometry
+  // type) are listed once; a differing legend or a different legend kind from the same dataset stays.
+  const seenStyleLegend = new Set<string>();
+  const dedupeStyleLegend = (result: AnalysisResultPresentation): boolean => {
+    if (!result.styleLegend) return true;
+    const base = result.resultId.replace(/:(?:point|linestring|multilinestring|polygon|multipolygon)$/, "");
+    const key = `${result.datasetId}\u0000${base}\u0000${JSON.stringify(result.styleLegend)}`;
+    if (seenStyleLegend.has(key)) return false;
+    seenStyleLegend.add(key);
+    return true;
+  };
+  return presented.filter(result => result.styleLegend || result.numericLegend || result.countLegend || result.scopeRing || result.categoryLegend).filter(dedupeStyleLegend).map(result => {
     const playback = playbackFor && result.resultStyle && isTimedChoropleth(result.resultStyle) ? playbackFor(result.resultId) : undefined;
     return {
       resultId: result.resultId,
