@@ -788,7 +788,19 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
   ieRiverFloodExtents: { theme: "災害", group: "淹水", zh: "河川淹水範圍（NIFM）", alt: "River Flood Extents (NIFM)", icon: CloudRain, dataset: "ie_river_flood_extents", topics: ["愛爾蘭", "淹水", "洪水", "河川", "氣候變遷", "OPW", "NIFM"],
     description: "愛爾蘭 OPW 全國指示性河川淹水範圍：現況、中端未來、高端未來 × 20／100／1000 年一遇，共 9 組（現況 100 年一遇 4,116 面）", processing: "OPW NIFM shapefile（ITM）→ 4326，原樣不改屬性；一情境一支 PMTiles z5–13（同一 source-layer），圖層設定切換情境換檔", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；指示性模擬，非地塊判定" },
   ieCoastalErosion: { theme: "災害", group: "海岸侵蝕", zh: "海岸侵蝕線（ICPSS）", alt: "Coastal Erosion Lines (ICPSS)", icon: Waves, dataset: "ie_coastal_erosion", topics: ["愛爾蘭", "海岸侵蝕", "海岸", "氣候變遷", "OPW", "ICPSS"],
-    description: "愛爾蘭 OPW ICPSS 2050 侵蝕線 1,220 段＋2010–2014 侵蝕速率線 73,036 段", processing: "OPW floodinfo shapefile（Irish Grid TM75）→ 4326，兩份原樣疊同一支圖磚、以原有 typecode 區分；PMTiles z5–13", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；評估未排除既有海岸防護結構" },
+    description: "愛爾蘭 OPW ICPSS 2050 侵蝕線 1,220 段＋2010–2014 侵蝕速率線 73,036 段", processing: "OPW floodinfo shapefile（Irish Grid TM75）→ 4326，兩份原樣疊同一支圖磚、以原有 typecode 區分；PMTiles z5–13", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；評估未排除既有海岸防護結構" },  // 第 4 波（2026-11-08）：交通（群組比照南韓、加拿大：場站、路網、樞紐節點）
+  ieTransitStops: { theme: "交通", group: "場站", zh: "大眾運輸站牌", alt: "Public Transport Stops", icon: Bus, dataset: "ie_transit_stops", topics: ["愛爾蘭", "交通", "公車", "鐵路", "Luas", "GTFS", "TFI"],
+    description: "愛爾蘭大眾運輸站牌 14,149 站（公車 13,874、鐵路 147、Luas 128；TFI 全國整合 GTFS）", processing: "Mobility Database 鏡像 mdb-2364 latest.zip（NTA feed 2026-11-06～2027-11-06）stop_times→trips→routes 推每站運具與路線；剔北愛 37 站；PMTiles z4–14，z12 起點、之下熱區", note: "CC BY 4.0（data.gov.ie nta-gtfs）；NTA 原站對台灣 403 改走鏡像；無班次頻率與即時" },
+  ieDublinbikesStations: { theme: "交通", group: "場站", zh: "Dublinbikes 站點", alt: "Dublinbikes Stations", icon: Bike, dataset: "ie_dublinbikes_stations", topics: ["愛爾蘭", "交通", "公共自行車", "都柏林", "dublinbikes"],
+    description: "都柏林公共自行車 Dublinbikes 113 站（車柱 3,617）", processing: "Smart Dublin stations.geojson 只取站名、地址、車柱數；PMTiles z4–14", note: "CC BY 4.0；只有都柏林市；即時空位在第 12 波" },
+  ieRoadRailNetwork: { theme: "交通", group: "路網", zh: "主要道路與鐵路", alt: "Main Roads & Railways", icon: Route, dataset: "ie_road_rail_network", topics: ["愛爾蘭", "交通", "道路", "高速公路", "鐵路", "Tailte"],
+    description: "愛爾蘭 1:250,000 路網：道路 5,188 段（高速 915 km、主要 4,506 km、次要 12,523 km、地方 318 km）＋鐵路 479 段（1,852 km）", processing: "Tailte 250k Roads、Rail Network FeatureServer；RTT 依 ERM 代碼表分級（-32768 空值 40 段為來源未分類）；PMTiles z4–12", note: "CC BY 4.0；等級為推定（Tailte 未附代碼說明）；無路線編號與路名" },
+  ieRoadMarkers: { theme: "交通", group: "路網", zh: "國道里程標與交流道", alt: "Road Marker Plates & Interchanges", icon: Milestone, dataset: "ie_road_markers", topics: ["愛爾蘭", "交通", "國道", "里程", "TII", "交流道"],
+    description: "愛爾蘭國道里程標 4,163 面（M 3,517、N 646，每 0.5 km）＋交流道 43 處", processing: "TII TIIMarkerPlates.csv（RdPrefix＋RoadNum、mVal）＋Tailte 250k Road Interchanges；PMTiles z4–14", note: "CC BY 4.0；TII 2018 條目；R 路無來源；DirCode 推定為行車方向" },
+  ieTrafficCounters: { theme: "交通", group: "路網", zh: "交通量計數站", alt: "Traffic Counters", icon: Gauge, dataset: "ie_traffic_counters", topics: ["愛爾蘭", "交通", "交通量", "TII", "計數站"],
+    description: "愛爾蘭國道交通量計數站 308 站位置（TII 2018 名冊，無流量）", processing: "TII tmu-traffic-counters.geojson（field_1…field_5 依內容判讀）；PMTiles z4–14", note: "CC BY 4.0；STALE：2018 名冊，每日計數 2021 後無法取得" },
+  ieAirportsPorts: { theme: "交通", group: "樞紐節點", zh: "機場、港口與渡輪碼頭", alt: "Airports, Harbours & Ferry Ports", icon: Plane, dataset: "ie_airports_ports", topics: ["愛爾蘭", "交通", "機場", "港口", "渡輪"],
+    description: "愛爾蘭機場 9、小型機場 21、主要港口 6、其他港口 30、渡輪碼頭 38（共 104）", processing: "Tailte 250k Airfield Area（面中心，OurAirports 補名）、Airports、Main／Other Harbours＋NMPF Ferry Port；剔北愛 2；PMTiles z4–14", note: "CC BY 4.0（機場名 OurAirports public domain）；無運量與等級" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];

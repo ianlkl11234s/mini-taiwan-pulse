@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1720,
+    "keyCount": 1726,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2347,6 +2347,42 @@
         "ie-coastal-erosion-line"
       ],
       "type": "ieCoastalErosion"
+    },
+    {
+      "layers": [
+        "ie-transit-stops-circle"
+      ],
+      "type": "ieTransitStops"
+    },
+    {
+      "layers": [
+        "ie-dublinbikes-stations-circle"
+      ],
+      "type": "ieDublinbikesStations"
+    },
+    {
+      "layers": [
+        "ie-road-markers-circle"
+      ],
+      "type": "ieRoadMarkers"
+    },
+    {
+      "layers": [
+        "ie-traffic-counters-circle"
+      ],
+      "type": "ieTrafficCounters"
+    },
+    {
+      "layers": [
+        "ie-airports-ports-circle"
+      ],
+      "type": "ieAirportsPorts"
+    },
+    {
+      "layers": [
+        "ie-road-rail-network-line"
+      ],
+      "type": "ieRoadRailNetwork"
     },
     {
       "layers": [
@@ -121005,6 +121041,59 @@
         "valueText": "0.85"
       }
     ],
+    "ieAirportsPorts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "機場（≥0.4 km²）",
+            "value": "airport"
+          },
+          {
+            "label": "小型機場、跑道場（<0.4 km²）",
+            "value": "airfield"
+          },
+          {
+            "label": "主要港口",
+            "value": "main_harbour"
+          },
+          {
+            "label": "其他港口",
+            "value": "other_harbour"
+          },
+          {
+            "label": "渡輪碼頭",
+            "value": "ferry_port"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "airport",
+          "airfield",
+          "main_harbour",
+          "other_harbour",
+          "ferry_port"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieArterialDrainage": [
       {
         "label": "類別",
@@ -121213,6 +121302,26 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieDublinbikesStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",
@@ -121595,6 +121704,98 @@
         "valueText": "0.85"
       }
     ],
+    "ieRoadMarkers": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（M）里程標",
+            "value": "motorway_marker"
+          },
+          {
+            "label": "國道（N）里程標",
+            "value": "national_marker"
+          },
+          {
+            "label": "交流道",
+            "value": "interchange"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway_marker",
+          "national_marker",
+          "interchange"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieRoadRailNetwork": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路",
+            "value": "motorway"
+          },
+          {
+            "label": "主要道路",
+            "value": "primary"
+          },
+          {
+            "label": "次要道路",
+            "value": "secondary"
+          },
+          {
+            "label": "地方道路",
+            "value": "local"
+          },
+          {
+            "label": "來源未分類",
+            "value": "unknown"
+          },
+          {
+            "label": "鐵路",
+            "value": "railway"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "primary",
+          "secondary",
+          "local",
+          "unknown",
+          "railway"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "ieStateAssets": [
       {
         "label": "類別",
@@ -121758,6 +121959,169 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "ieTrafficCounters": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（M）",
+            "value": "motorway"
+          },
+          {
+            "label": "國道（N）",
+            "value": "national"
+          },
+          {
+            "label": "標籤無路線碼",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "national",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieTransitStops": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "鐵路（Irish Rail、DART）",
+            "value": "rail"
+          },
+          {
+            "label": "輕軌（Luas）",
+            "value": "tram"
+          },
+          {
+            "label": "公車、客運",
+            "value": "bus"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rail",
+          "tram",
+          "bus"
+        ]
+      },
+      {
+        "defaultValue": "BuPu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "BuPu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "ieWaterMonitoring": [

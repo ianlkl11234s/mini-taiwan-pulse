@@ -474,6 +474,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-maritime-boundaries-line"], type: "ieMaritimeBoundaries" },
   { layers: ["ie-arterial-drainage-line"], type: "ieArterialDrainage" },
   { layers: ["ie-coastal-erosion-line"], type: "ieCoastalErosion" },
+  // 第 4 波：交通（點在線之前，點擊點優先）
+  { layers: ["ie-transit-stops-circle"], type: "ieTransitStops" },
+  { layers: ["ie-dublinbikes-stations-circle"], type: "ieDublinbikesStations" },
+  { layers: ["ie-road-markers-circle"], type: "ieRoadMarkers" },
+  { layers: ["ie-traffic-counters-circle"], type: "ieTrafficCounters" },
+  { layers: ["ie-airports-ports-circle"], type: "ieAirportsPorts" },
+  { layers: ["ie-road-rail-network-line"], type: "ieRoadRailNetwork" },
   { layers: ["ie-river-water-bodies-line"], type: "ieRiverWaterBodies" },
   { layers: ["ie-parks-fill"], type: "ieParks" },
   { layers: ["ie-gaeltacht-fill"], type: "ieGaeltacht" },

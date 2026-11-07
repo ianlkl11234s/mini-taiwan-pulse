@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 4 波 6 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -18,6 +18,7 @@ export type IeLayerSpec = Omit<KrLayerSpec, "key" | "fields"> & { key: IeDataKey
 export const IE_W1_FETCHED_AT = "2026-11-07";
 export const IE_W2_FETCHED_AT = "2026-11-07";
 export const IE_W3A_FETCHED_AT = "2026-11-08";
+export const IE_W4_FETCHED_AT = "2026-11-08";
 const CC_BY_NC_ND = "CC BY-NC-ND 4.0（非商業使用・原樣未改作）";
 const DGI = (id: string) => `https://data.gov.ie/dataset/${id}`;
 const CC_BY = "CC BY 4.0";
@@ -87,6 +88,40 @@ const WATER_MONITORING_CATS: readonly KrCat[] = [
   { id: "groundwater", values: ["groundwater"], color: "#f59e0b", label: l3("地下水測站", "Groundwater station", "地下水観測点") },
   { id: "uww_plant", values: ["uww_plant"], color: "#ef4444", label: l3("都市污水處理廠", "Urban waste water treatment plant", "都市下水処理場") },
 ];
+// 第 4 波：交通類別
+const TRANSIT_MODE_CATS: readonly KrCat[] = [
+  { id: "rail", values: ["rail"], color: "#f59e0b", label: l3("鐵路（Irish Rail、DART）", "Rail (Irish Rail, DART)", "鉄道（Irish Rail・DART）") },
+  { id: "tram", values: ["tram"], color: "#a78bfa", label: l3("輕軌（Luas）", "Tram (Luas)", "路面電車（Luas）") },
+  { id: "bus", values: ["bus"], color: "#38bdf8", label: l3("公車、客運", "Bus & coach", "バス・長距離バス") },
+];
+const PORT_KIND_CATS: readonly KrCat[] = [
+  { id: "airport", values: ["airport"], color: "#f472b6", label: l3("機場（≥0.4 km²）", "Airport (≥0.4 km²)", "空港（0.4 km² 以上）") },
+  { id: "airfield", values: ["airfield"], color: "#a78bfa", label: l3("小型機場、跑道場（<0.4 km²）", "Small airfield (<0.4 km²)", "小規模飛行場（0.4 km² 未満）") },
+  { id: "main_harbour", values: ["main_harbour"], color: "#38bdf8", label: l3("主要港口", "Main harbour", "主要港") },
+  { id: "other_harbour", values: ["other_harbour"], color: "#2dd4bf", label: l3("其他港口", "Other harbour", "その他の港") },
+  { id: "ferry_port", values: ["ferry_port"], color: "#f59e0b", label: l3("渡輪碼頭", "Ferry port", "フェリー乗り場") },
+];
+const ROAD_CLASS_CATS: readonly KrCat[] = [
+  { id: "motorway", values: ["motorway"], color: "#ef4444", label: l3("高速公路", "Motorway", "高速道路") },
+  { id: "primary", values: ["primary"], color: "#f59e0b", label: l3("主要道路", "Primary route", "主要道路") },
+  { id: "secondary", values: ["secondary"], color: "#facc15", label: l3("次要道路", "Secondary route", "準主要道路") },
+  { id: "local", values: ["local"], color: "#94a3b8", label: l3("地方道路", "Local road", "地方道路") },
+  { id: "unknown", values: ["unknown"], color: "#64748b", label: l3("來源未分類", "Unclassified in source", "出典で未分類") },
+  { id: "railway", values: ["railway"], color: "#a78bfa", label: l3("鐵路", "Railway", "鉄道") },
+];
+const MARKER_KIND_CATS: readonly KrCat[] = [
+  { id: "motorway_marker", values: ["motorway_marker"], color: "#38bdf8", label: l3("高速公路（M）里程標", "Motorway (M) marker plate", "高速道路（M）キロポスト") },
+  { id: "national_marker", values: ["national_marker"], color: "#4ade80", label: l3("國道（N）里程標", "National road (N) marker plate", "国道（N）キロポスト") },
+  { id: "interchange", values: ["interchange"], color: "#facc15", label: l3("交流道", "Interchange", "インターチェンジ") },
+];
+const COUNTER_ROAD_CATS: readonly KrCat[] = [
+  // 與里程標（藍、綠）錯開，兩層同開時分得出來
+  { id: "motorway", values: ["motorway"], color: "#f472b6", label: l3("高速公路（M）", "Motorway (M)", "高速道路（M）") },
+  { id: "national", values: ["national"], color: "#f59e0b", label: l3("國道（N）", "National road (N)", "国道（N）") },
+  { id: "unknown", values: ["unknown"], color: "#94a3b8", label: l3("標籤無路線碼", "No route in label", "ラベルに路線なし") },
+];
+const MODE_MAP = Object.fromEntries(TRANSIT_MODE_CATS.map((c) => [c.id, c.label]));
+const IE_GTFS_NOTE = l3("TFI 全國整合 GTFS（NTA，2026-11-06 起一年期時刻表；Mobility Database 鏡像）", "TFI national GTFS (NTA, timetable valid from 2026-11-06 for one year; via Mobility Database mirror)", "TFI 全国統合 GTFS（NTA、2026-11-06 から1年間の時刻表。Mobility Database のミラー）");
 const DRAINAGE_CATS: readonly KrCat[] = [
   { id: "channel", values: ["channel"], color: "#38bdf8", label: l3("主幹排水渠（OPW 維護）", "Arterial drainage channel (OPW-maintained)", "幹線排水路（OPW 管理）") },
   { id: "embankment", values: ["embankment"], color: "#f59e0b", label: l3("堤防", "Embankment", "堤防") },
@@ -396,6 +431,94 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [l3("CC BY-NC-ND・非商業使用；ICPSS 2010–2014 推估", "CC BY-NC-ND · non-commercial; ICPSS 2010–2014 estimate", "CC BY-NC-ND・非商用。ICPSS 2010–2014 の推計")],
     sourceOrg: "Office of Public Works (OPW), Irish Coastal Protection Strategy Study (ICPSS 2010–2014)", sourceUrl: DGI("icpss-2010-2014-erosion-rate-line"), license: CC_BY_NC_ND, fetchedAt: IE_W3A_FETCHED_AT,
     loading: l3("愛爾蘭海岸侵蝕載入中", "Loading Ireland coastal erosion", "アイルランドの海岸侵食を読み込み中"),
+  },  // ───────────── 第 4 波：交通（場站、路網、樞紐節點） ─────────────
+  {
+    // 1.4 萬站：拉遠畫熱區（V-1），z12 起點
+    key: "ieTransitStops", file: "ie_transit_stops.pmtiles", sourceLayer: "ie_transit_stops", geom: "point", layerId: "ie-transit-stops-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, heat: { intensity: 2 }, color: "#38bdf8", tier: "S", count: 14149,
+    catProp: "mode", cats: TRANSIT_MODE_CATS,
+    title: { props: ["stop_name"], fallback: l3("大眾運輸站牌", "Public transport stop", "公共交通の停留所") },
+    fields: [{ prop: "mode", label: l3("主要運具", "Main mode", "主な交通機関"), map: MODE_MAP },
+             { prop: "route_count", label: l3("經過路線數", "Routes serving", "経由路線数"), kind: "num" },
+             { prop: "routes", label: l3("路線", "Routes", "路線") }, { prop: "operators", label: l3("營運者", "Operators", "運行事業者") },
+             { prop: "wheelchair", label: l3("輪椅可上下車", "Wheelchair boarding", "車いす乗降"), map: { yes: l3("是", "Yes", "はい"), no: l3("否", "No", "いいえ") } },
+             { prop: "stop_code", label: l3("站牌號碼", "Stop number", "停留所番号"), kind: "code" }, LA],
+    legendNotes: [IE_GTFS_NOTE,
+                  l3("運具依經過路線的 GTFS route_type 判定；一站有多種運具時依鐵路＞輕軌＞公車取一類。GTFS 沒有渡輪路線", "Mode from the GTFS route_type of routes serving the stop; stops with several modes take rail > tram > bus. The GTFS has no ferry routes", "交通機関は経由路線の GTFS route_type で判定。複数ある停留所は鉄道＞路面電車＞バスの順で1つ。GTFS にフェリー路線はない"),
+                  l3("北愛的站（跨境路線）已剔除。只有站位與路線，沒有班次頻率與即時到站。拉遠為熱區，放大到 z12 才出現點", "Northern Ireland stops (cross-border routes) removed. Locations and routes only; no frequency or real-time arrivals. Heatmap when zoomed out; points from z12", "北アイルランドの停留所（越境路線）は除外。位置と路線のみで、運行頻度やリアルタイム到着はない。縮小時はヒートマップ、z12 から点")],
+    popupNotes: [],
+    sourceOrg: "National Transport Authority (Transport for Ireland), GTFS — all operators (via Mobility Database mirror mdb-2364)", sourceUrl: DGI("nta-gtfs"), license: CC_BY, fetchedAt: IE_W4_FETCHED_AT,
+    loading: l3("愛爾蘭大眾運輸站牌載入中", "Loading Ireland public transport stops", "アイルランドの公共交通停留所を読み込み中"),
+  },
+  {
+    key: "ieDublinbikesStations", file: "ie_dublinbikes_stations.pmtiles", sourceLayer: "ie_dublinbikes_stations", geom: "point", layerId: "ie-dublinbikes-stations-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#4ade80", tier: "S", count: 113,
+    title: { props: ["name"], fallback: l3("Dublinbikes 站", "Dublinbikes station", "Dublinbikes ステーション") },
+    fields: [{ prop: "address", label: l3("地址", "Address", "住所") }, { prop: "capacity", label: l3("車柱數", "Docks", "ドック数"), kind: "num" },
+             { prop: "station_id", label: l3("站號", "Station ID", "ステーション番号"), kind: "code" }],
+    legendNotes: [l3("都柏林市公共自行車 Dublinbikes 113 站（車柱合計 3,617），只有都柏林市", "Dublinbikes public bike scheme: 113 stations (3,617 docks), Dublin City only", "都市型シェアサイクル Dublinbikes の113ステーション（ドック計3,617）、ダブリン市のみ"),
+                  l3("靜態站點；即時可借車數未收", "Static station list; live availability not included", "静的なステーション一覧で、リアルタイムの貸出可能台数は含まない")],
+    popupNotes: [],
+    sourceOrg: "Dublin City Council / JCDecaux, dublinbikes (Smart Dublin)", sourceUrl: DGI("dublinbikes-api"), license: CC_BY, fetchedAt: IE_W4_FETCHED_AT,
+    loading: l3("Dublinbikes 站點載入中", "Loading Dublinbikes stations", "Dublinbikes ステーションを読み込み中"),
+  },
+  {
+    key: "ieRoadRailNetwork", file: "ie_road_rail_network.pmtiles", sourceLayer: "ie_road_rail_network", geom: "line", layerId: "ie-road-rail-network-line",
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#f59e0b", count: 5667,
+    catProp: "road_class", cats: ROAD_CLASS_CATS,
+    title: { props: [], fallback: l3("主要道路與鐵路", "Main roads & railways", "主要道路と鉄道") },
+    fields: [{ prop: "road_class", label: l3("等級", "Class", "等級"), map: Object.fromEntries(ROAD_CLASS_CATS.map((c) => [c.id, c.label])) },
+             { prop: "length_km", label: l3("路段長", "Segment length", "区間長"), kind: "num", unit: "km", digits: 2 }, LA],
+    legendNotes: [l3("Tailte Éireann 1:250,000 一般化路網：道路 5,188 段、鐵路 479 段；城市內只畫穿越主幹道，不含 Luas", "Tailte Éireann 1:250,000 generalised network: 5,188 road and 479 railway segments; only through routes inside towns, no Luas", "Tailte Éireann 1:250,000 の一般化網：道路5,188区間・鉄道479区間。市街地は通過幹線のみで Luas は含まない"),
+                  l3("道路等級依 EuroRegionalMap 代碼表（RTT）推定，Tailte 未附說明；沒有路線編號（M／N／R）與路名", "Road classes follow the EuroRegionalMap RTT code list (inferred; Tailte publishes no code description); no route numbers (M/N/R) or names", "道路等級は EuroRegionalMap の RTT コード表による推定（Tailte の説明なし）。路線番号（M／N／R）や名称はない")],
+    popupNotes: [],
+    sourceOrg: "Tailte Éireann, National 250k Map of Ireland: Roads, Rail Network", sourceUrl: DGI("roads-national-250k-map-of-ireland"), license: CC_BY, fetchedAt: IE_W4_FETCHED_AT,
+    loading: l3("愛爾蘭道路與鐵路載入中", "Loading Ireland roads and railways", "アイルランドの道路と鉄道を読み込み中"),
+  },
+  {
+    key: "ieRoadMarkers", file: "ie_road_markers.pmtiles", sourceLayer: "ie_road_markers", geom: "point", layerId: "ie-road-markers-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "S", count: 4206,
+    catProp: "kind", cats: MARKER_KIND_CATS,
+    title: { props: ["road"], fallback: l3("交流道", "Interchange", "インターチェンジ") },
+    fields: [{ prop: "kind", label: l3("類型", "Type", "種別"), map: Object.fromEntries(MARKER_KIND_CATS.map((c) => [c.id, c.label])) },
+             { prop: "km", label: l3("里程", "Chainage", "キロ程"), kind: "num", unit: "km", digits: 1 },
+             { prop: "direction", label: l3("方向（推定為行車方向）", "Direction (inferred: carriageway)", "方向（進行方向と推定）"), kind: "code" },
+             { prop: "townland", label: l3("Townland", "Townland", "タウンランド") }, { prop: "county", label: l3("郡", "County", "県") },
+             { prop: "route_id", label: l3("TII 路線代碼", "TII route ID", "TII 路線コード"), kind: "code" }],
+    legendNotes: [l3("TII 國道（M、N 路）每 0.5 km 的里程牌 4,163 面，加 Tailte 250k 交流道 43 處（無名稱）", "TII marker plates every 0.5 km on national roads (M and N): 4,163, plus 43 Tailte 250k interchanges (unnamed)", "TII 国道（M・N）0.5 km ごとのキロポスト4,163枚と、Tailte 250k のインターチェンジ43か所（名称なし）"),
+                  l3("TII 條目停在 2018-03-05，之後新闢路段未涵蓋；地方道路（R 路）沒有來源", "TII listing dated 2018-03-05; later road sections are not covered; no source for regional (R) roads", "TII の登録は2018-03-05で以後の新設区間は未収録。地方道路（R）の出典はない")],
+    popupNotes: [],
+    sourceOrg: "Transport Infrastructure Ireland, Marker Plates; Tailte Éireann, National 250k Road Interchanges", sourceUrl: DGI("marker-plates"), license: CC_BY, fetchedAt: IE_W4_FETCHED_AT,
+    loading: l3("愛爾蘭國道里程標載入中", "Loading Ireland road marker plates", "アイルランドのキロポストを読み込み中"),
+  },
+  {
+    key: "ieTrafficCounters", file: "ie_traffic_counters.pmtiles", sourceLayer: "ie_traffic_counters", geom: "point", layerId: "ie-traffic-counters-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f472b6", tier: "S", count: 308,
+    catProp: "road_type", cats: COUNTER_ROAD_CATS,
+    title: { props: ["label"], fallback: l3("交通量計數站", "Traffic counter", "交通量計測所") },
+    fields: [{ prop: "description", label: l3("路段", "Section", "区間") }, { prop: "road", label: l3("路線", "Road", "路線") },
+             { prop: "site_id", label: l3("站號", "Site ID", "計測所番号"), kind: "code" }],
+    legendNotes: [l3("TII（前身 NRA）國道自動交通量計數站 308 站的位置；名冊停在 2018-03-05", "Locations of 308 TII (formerly NRA) automatic traffic counters on national roads; register dated 2018-03-05", "TII（旧 NRA）国道自動交通量計測所308か所の位置。名簿は2018-03-05時点"),
+                  l3("只有位置、沒有流量：TII 每日計數檔 2021 年後無法取得", "Locations only, no counts: TII daily count files are unavailable after 2021", "位置のみで交通量はない。TII の日次計測ファイルは2021年以降取得できない")],
+    popupNotes: [l3("2018 名冊，站點現況未確認", "2018 register; current status unverified", "2018年名簿で現況は未確認")],
+    sourceOrg: "Transport Infrastructure Ireland, Traffic Counter Locations", sourceUrl: DGI("traffic-counter-locations"), license: CC_BY, fetchedAt: IE_W4_FETCHED_AT,
+    loading: l3("愛爾蘭交通量計數站載入中", "Loading Ireland traffic counters", "アイルランドの交通量計測所を読み込み中"),
+  },
+  {
+    key: "ieAirportsPorts", file: "ie_airports_ports.pmtiles", sourceLayer: "ie_airports_ports", geom: "point", layerId: "ie-airports-ports-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "M", count: 104,
+    catProp: "kind", cats: PORT_KIND_CATS,
+    title: { props: ["name"], fallback: l3("機場、港口", "Airport / port", "空港・港") },
+    fields: [{ prop: "kind", label: l3("類型", "Type", "種別"), map: Object.fromEntries(PORT_KIND_CATS.map((c) => [c.id, c.label])) },
+             { prop: "icao", label: l3("ICAO", "ICAO", "ICAO"), kind: "code" },
+             { prop: "status", label: l3("狀態", "Status", "状態"), map: { closed: l3("已停用（OurAirports）", "Closed (OurAirports)", "閉鎖（OurAirports）") } },
+             { prop: "area_km2", label: l3("機場面積", "Airfield area", "空港面積"), kind: "num", unit: "km²", digits: 2 },
+             { prop: "route", label: l3("渡輪航線", "Ferry route", "フェリー航路") }, LA],
+    legendNotes: [l3("Tailte 250k：機場 9（≥0.4 km² 機場面，取中心）、小型機場 21、主要港口 6、其他港口 30；國家海洋規劃架構渡輪碼頭 38（2021）", "Tailte 250k: 9 airports (≥0.4 km² airfield areas, centre point), 21 small airfields, 6 main and 30 other harbours; 38 National Marine Planning Framework ferry ports (2021)", "Tailte 250k：空港9（0.4 km² 以上の空港面の中心）、小規模飛行場21、主要港6、その他の港30。国家海洋計画枠組みのフェリー乗り場38（2021）"),
+                  l3("大機場名稱以 OurAirports（public domain）3 km 內最近機場補上；沒有運量與等級", "Airport names matched from OurAirports (public domain) within 3 km; no traffic or ranking", "空港名は OurAirports（パブリックドメイン）の3 km 以内の空港で補完。取扱量や等級はない")],
+    popupNotes: [],
+    sourceOrg: "Tailte Éireann, National 250k (Airfield Area, Airports, Harbours); National Marine Planning Framework Ferry Port (DHLGH); names: OurAirports", sourceUrl: DGI("airports-national-250k-map-of-ireland"), license: CC_BY, fetchedAt: IE_W4_FETCHED_AT,
+    loading: l3("愛爾蘭機場與港口載入中", "Loading Ireland airports and ports", "アイルランドの空港と港を読み込み中"),
   },
 ];
 
