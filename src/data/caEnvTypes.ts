@@ -190,11 +190,13 @@ export const CA_QUAKE_LIVE_DAYS = 30;
 export const CA_QUAKE_LIVE_QUERY_URL = "https://earthquakescanada.nrcan.gc.ca/fdsnws/event/1/query";
 export const CA_QUAKE_LIVE_PAGE_URL = "https://earthquakescanada.nrcan.gc.ca/stndon/NEDB-BNDS/bulletin-en.php";
 /** 事件類型：依 NRCan 事件地名英文段的前綴關鍵字分（爆破／礦場／疑似產業活動），其餘視為天然地震。 */
+/** 即時地震四類事件色（亮色、CIE76 ΔE 兩兩 ≥70；地震沿用 CA_QUAKE_COLOR，其餘取自站上既有色值）。 */
+export const CA_QUAKE_LIVE_TYPE_COLORS = { earthquake: CA_QUAKE_COLOR, industry: "#fbbf24", mining: "#22d3ee", blast: "#e879f9" } as const;
 export const CA_QUAKE_LIVE_TYPES: readonly CaCat[] = [
-  { id: "earthquake", values: ["earthquake"], color: CA_QUAKE_COLOR, label: l3("地震", "Earthquake", "地震") },
-  { id: "industry", values: ["industry"], color: CA_QUAKE_COLOR, label: l3("疑似產業活動誘發", "(Suspected) industry-related", "産業活動由来（疑い含む）") },
-  { id: "mining", values: ["mining"], color: CA_QUAKE_COLOR, label: l3("礦場事件", "Mining event", "鉱山イベント") },
-  { id: "blast", values: ["blast"], color: CA_QUAKE_COLOR, label: l3("爆破（含採石）", "Blast (incl. quarry)", "発破（採石含む）") },
+  { id: "earthquake", values: ["earthquake"], color: CA_QUAKE_LIVE_TYPE_COLORS.earthquake, label: l3("地震", "Earthquake", "地震") },
+  { id: "industry", values: ["industry"], color: CA_QUAKE_LIVE_TYPE_COLORS.industry, label: l3("疑似產業活動誘發", "(Suspected) industry-related", "産業活動由来（疑い含む）") },
+  { id: "mining", values: ["mining"], color: CA_QUAKE_LIVE_TYPE_COLORS.mining, label: l3("礦場事件", "Mining event", "鉱山イベント") },
+  { id: "blast", values: ["blast"], color: CA_QUAKE_LIVE_TYPE_COLORS.blast, label: l3("爆破（含採石）", "Blast (incl. quarry)", "発破（採石含む）") },
 ];
 export const CA_QUAKE_LIVE_SOURCE: CaSource = {
   org: "Natural Resources Canada（加拿大自然資源部）, Earthquakes Canada — Search the Earthquake Database（FDSN event web service）",
