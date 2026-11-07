@@ -24,6 +24,8 @@ export interface KrLayerSpec {
   /** 主 layer id（literal；gisClickRegistry 以此比對）。polygon 另有 `${id}` fill 與 outline。 */
   layerId: string;
   outlineId?: string;
+  /** 鋪滿國土的面（如通學區）：此縮放以下只畫細外框、不填色（全國視角不糊成一片），此縮放起才加填色。 */
+  fillFromZoom?: number;
   srcMinzoom: number;
   srcMaxzoom: number;
   minzoom: number;
@@ -509,8 +511,8 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     // V-5：面＋代表點（`kr_school_districts_points.pmtiles`，登記在 repPointLayers；通學區鋪滿國土，預設面）
-    key: "krSchoolDistricts", file: "kr_school_districts.pmtiles", sourceLayer: "kr_school_districts", geom: "polygon", layerId: "kr-school-districts-fill", outlineId: "kr-school-districts-line",
-    srcMinzoom: 6, srcMaxzoom: 13, minzoom: 6, color: "#38bdf8", count: 7132,
+    key: "krSchoolDistricts", file: "kr_school_districts.pmtiles", sourceLayer: "kr_school_districts", geom: "polygon", layerId: "kr-school-districts-fill", outlineId: "kr-school-districts-line", fillFromZoom: 9,
+    srcMinzoom: 5, srcMaxzoom: 13, minzoom: 5, color: "#38bdf8", count: 7132,
     title: { props: ["name"], fallback: l3("小學通學區", "Elementary school zone", "小学校通学区域") },
     fields: [{ prop: "office", label: l3("教育支援廳", "Education office", "教育支援庁") }, { prop: "area_m2", label: l3("面積", "Area", "面積"), kind: "num", unit: "m²", digits: 0 },
              { prop: "updated", label: l3("最後修改", "Last updated", "最終更新") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") },
