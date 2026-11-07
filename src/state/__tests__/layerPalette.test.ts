@@ -99,7 +99,8 @@ describe("R7 顏色解析器", () => {
     // 2026-11-08 +1 愛爾蘭第 3a 波：水質監測站與污水廠熱區
     // 2026-11-08 +1 愛爾蘭第 4 波：大眾運輸站牌熱區
     // 2026-11-08 +1 愛爾蘭第 5 波：都柏林樹木熱區
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(113);
+    // 2026-11-08 +1 愛爾蘭第 8 波：文化資產（SMR＋NIAH）熱區
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(114);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

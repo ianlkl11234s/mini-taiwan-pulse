@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層、第 8 波 5 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -253,6 +253,62 @@ const CHILDCARE_CATS: readonly KrCat[] = [
 const YES_ONLY: Record<string, L3> = { yes: l3("是", "Yes", "はい"), no: l3("否", "No", "いいえ") };
 const SCHEME: Record<string, L3> = { yes: l3("參加", "Participating", "参加"), no: l3("未參加", "Not participating", "不参加") };
 const FOUNDATION: Record<string, L3> = { "Fixed-Bottom": l3("固定式", "Fixed-bottom", "着床式"), Floating: l3("浮動式", "Floating", "浮体式") };
+
+// ───────────── 第 8 波：文化遺產與生活據點 ─────────────
+export const IE_W8_FETCHED_AT = "2026-11-08";
+/** SMR 依原類別前綴歸 7 組（本站分組）＋NIAH＋開放參觀古蹟。 */
+const HERITAGE_CATS: readonly KrCat[] = [
+  { id: "smr_ringfort", values: ["smr_ringfort"], color: "#4ade80", label: l3("環形堡與圍場（SMR）", "Ringforts & enclosures (SMR)", "環状砦・囲い地（SMR）") },
+  { id: "smr_prehistoric", values: ["smr_prehistoric"], color: "#a78bfa", label: l3("史前墓葬、巨石與燒石堆（SMR）", "Prehistoric burials, megaliths & fulachtaí fia (SMR)", "先史時代の墓・巨石・焼石遺構（SMR）") },
+  { id: "smr_ecclesiastical", values: ["smr_ecclesiastical"], color: "#f472b6", label: l3("教會遺址、十字碑與石刻（SMR）", "Ecclesiastical sites, crosses & slabs (SMR)", "教会遺跡・十字架・石板（SMR）") },
+  { id: "smr_castle", values: ["smr_castle"], color: "#ef4444", label: l3("城堡與防禦工事（SMR）", "Castles & fortifications (SMR)", "城・防御施設（SMR）") },
+  { id: "smr_settlement", values: ["smr_settlement"], color: "#f59e0b", label: l3("聚落、房屋與地窖（SMR）", "Settlements, houses & souterrains (SMR)", "集落・住居・地下室（SMR）") },
+  { id: "smr_economy", values: ["smr_economy"], color: "#2dd4bf", label: l3("道路、產業與地景（SMR）", "Roads, industry & landscape (SMR)", "道路・産業・景観（SMR）") },
+  { id: "smr_other", values: ["smr_other"], color: "#94a3b8", label: l3("其他考古遺址（SMR）", "Other monuments (SMR)", "その他の遺跡（SMR）") },
+  { id: "niah", values: ["niah"], color: "#38bdf8", label: l3("建築遺產（NIAH，1700 年後）", "Architectural heritage (NIAH, post-1700)", "建築遺産（NIAH、1700年以降）") },
+  { id: "visit", values: ["visit"], color: "#facc15", label: l3("開放參觀的國家古蹟", "National monuments to visit", "公開されている国指定記念物") },
+];
+const NIAH_RATING: Record<string, L3> = {
+  International: l3("國際級", "International", "国際的"), National: l3("國家級", "National", "国家的"), Regional: l3("區域級", "Regional", "地域的"),
+  Local: l3("地方級", "Local", "地方的"), "Record Only": l3("僅登錄", "Record only", "記録のみ"),
+};
+const MUSEUM_CATS: readonly KrCat[] = [
+  { id: "lamn", values: ["lamn"], color: "#facc15", label: l3("地方政府博物館（LAMN）", "Local authority museum (LAMN)", "地方自治体の博物館（LAMN）") },
+  { id: "museum", values: ["museum"], color: "#38bdf8", label: l3("博物館", "Museum", "博物館") },
+  { id: "heritage_centre", values: ["heritage_centre"], color: "#f59e0b", label: l3("文化遺產中心、遊客中心", "Heritage & visitor centre", "ヘリテージ／ビジターセンター") },
+  { id: "historic_site", values: ["historic_site"], color: "#a78bfa", label: l3("歷史建築、宅邸與園林", "Historic building, house & garden", "歴史的建造物・邸宅・庭園") },
+  { id: "gallery", values: ["gallery"], color: "#f472b6", label: l3("美術館、藝廊", "Gallery", "美術館・ギャラリー") },
+  { id: "archive_library", values: ["archive_library"], color: "#2dd4bf", label: l3("檔案館、地方文史室", "Archive & local studies", "アーカイブ・郷土資料室") },
+  { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他（自然、科學、體驗）", "Other (nature, science, attractions)", "その他（自然・科学・体験）") },
+];
+const ARTS_CATS: readonly KrCat[] = [
+  { id: "theatre", values: ["theatre"], color: "#f472b6", label: l3("劇場", "Theatre", "劇場") },
+  { id: "arts_centre", values: ["arts_centre"], color: "#f59e0b", label: l3("藝術中心、文化中心", "Arts & cultural centre", "アートセンター・文化センター") },
+  { id: "visual", values: ["visual"], color: "#38bdf8", label: l3("視覺藝術、展覽空間", "Visual arts & exhibition space", "視覚芸術・展示スペース") },
+  { id: "music", values: ["music"], color: "#a78bfa", label: l3("音樂廳、演出場地", "Concert & music venue", "コンサート・音楽会場") },
+  { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他", "Other", "その他") },
+];
+const ARTS_COUNCIL: Record<string, L3> = {
+  dcc: l3("Dublin City", "Dublin City", "Dublin City"), dlr: l3("Dún Laoghaire-Rathdown", "Dún Laoghaire-Rathdown", "Dún Laoghaire-Rathdown"),
+  fingal: l3("Fingal", "Fingal", "Fingal"), sdcc: l3("South Dublin", "South Dublin", "South Dublin"),
+  galway_city: l3("Galway City", "Galway City", "Galway City"), roscommon: l3("Roscommon", "Roscommon", "Roscommon"),
+};
+const PUBLIC_FACILITY_CATS: readonly KrCat[] = [
+  { id: "library", values: ["library"], color: "#38bdf8", label: l3("圖書館", "Library", "図書館") },
+  { id: "community_centre", values: ["community_centre"], color: "#f59e0b", label: l3("社區中心", "Community centre", "コミュニティセンター") },
+  { id: "toilet", values: ["toilet"], color: "#2dd4bf", label: l3("公廁", "Public toilet", "公衆トイレ") },
+];
+const RELIGION_CATS: readonly KrCat[] = [
+  { id: "church", values: ["church"], color: "#a78bfa", label: l3("教堂、禮拜堂（NIAH）", "Church / chapel (NIAH)", "教会・礼拝堂（NIAH）") },
+  { id: "cathedral", values: ["cathedral"], color: "#f472b6", label: l3("主教座堂（NIAH）", "Cathedral (NIAH)", "大聖堂（NIAH）") },
+  { id: "other_worship", values: ["other_worship"], color: "#f59e0b", label: l3("會堂、猶太會堂、小祈禱所（NIAH）", "Meeting house, synagogue, oratory (NIAH)", "集会所・シナゴーグ・祈祷所（NIAH）") },
+  { id: "holy_well", values: ["holy_well"], color: "#38bdf8", label: l3("聖井（SMR）", "Holy well (SMR)", "聖なる泉（SMR）") },
+];
+const DENOMINATION: Record<string, L3> = {
+  catholic: l3("天主教", "Catholic", "カトリック"), church_of_ireland: l3("愛爾蘭聖公會", "Church of Ireland", "アイルランド聖公会"),
+  presbyterian: l3("長老會", "Presbyterian", "長老派"), methodist: l3("循道會", "Methodist", "メソジスト"), quaker: l3("貴格會", "Quaker", "クエーカー"),
+  other: l3("其他教派", "Other", "その他の宗派"),
+};
 
 // ───────────── 第 6 波：能源 ─────────────
 export const IE_W6_FETCHED_AT = "2026-11-08";
@@ -1052,6 +1108,92 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "Pobal — Childcare Facilities (early learning and care services), PobalMaps (licence not stated)", sourceUrl: "https://www.arcgis.com/home/item.html?id=15b1106eb7594289824617f838215442", license: LICENSE_PENDING, fetchedAt: IE_W7A_FETCHED_AT,
     loading: l3("愛爾蘭早期教保服務點載入中", "Loading Ireland early learning and care services", "アイルランドの幼児教育・保育サービスを読み込み中"),
+  },
+  // ───────────── 第 8 波：文化遺產與生活據點（文化資產、博物館、藝文場館、公共設施、宗教場所） ─────────────
+  {
+    // 約 18 萬 點：z12 以下熱區（低縮放圖磚只帶 category），z12 起畫點（同第 2 波商業房產估值）
+    key: "ieHeritageSites", file: "ie_heritage_sites.pmtiles", sourceLayer: "ie_heritage_sites", geom: "point", layerId: "ie-heritage-sites-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, heat: { intensity: 0.6 }, color: "#a78bfa", tier: "S", count: 179916,
+    catProp: "category", cats: HERITAGE_CATS,
+    title: { props: ["name", "class"], fallback: l3("文化資產", "Heritage site", "文化財") },
+    fields: [{ prop: "category", label: l3("分組", "Group", "区分"), map: Object.fromEntries(HERITAGE_CATS.map((c) => [c.id, c.label])) },
+             { prop: "class", label: l3("類別（原文）", "Class (original)", "種別（原文）") }, { prop: "in_use", label: l3("現在用途（NIAH）", "Current use (NIAH)", "現在の用途（NIAH）") },
+             { prop: "rating", label: l3("NIAH 評級", "NIAH rating", "NIAH 評価"), map: NIAH_RATING },
+             { prop: "date_from", label: l3("建造年代（起）", "Date from", "建造年代（から）"), kind: "year" }, { prop: "date_to", label: l3("建造年代（迄）", "Date to", "建造年代（まで）"), kind: "year" },
+             { prop: "town", label: l3("鎮", "Town", "町") }, { prop: "townland", label: l3("Townland", "Townland", "タウンランド") },
+             { prop: "county", label: l3("郡", "County", "県") }, LA, { prop: "ref", label: l3("登錄編號（SMR／NIAH）", "Record no. (SMR / NIAH)", "登録番号（SMR／NIAH）"), kind: "code" }],
+    legendNotes: [l3("國家考古登錄 SMR 131,492 處＋建築遺產 NIAH 48,324 棟＋開放參觀的國家古蹟 100 處（SMR 佔位座標 10,879 筆剔除）", "Sites and Monuments Record (SMR) 131,492 + National Inventory of Architectural Heritage (NIAH) 48,324 buildings + 100 national monuments open to visit (10,879 SMR records with placeholder coordinates removed)", "国の遺跡登録 SMR 131,492件＋建築遺産目録 NIAH 48,324棟＋公開されている国指定記念物100か所（座標が仮置きの SMR 10,879件は除外）"),
+                  l3("SMR 分組依原類別名稱歸併（本站分組，非官方分類），popup 保留原類別；點位是遺址中心點，不代表範圍", "SMR groups merge the original class names (this site's grouping, not an official classification); popups keep the original class. Points are site centroids, not extents", "SMR の区分は原分類名を本サイトでまとめたもの（公式分類ではない）。ポップアップに原分類を表示。点は遺跡の中心点で範囲ではない"),
+                  l3("SMR 墓地三類在「殯葬 › 墓地」、聖井在「宗教 › 點位」，本層不重畫；NIAH 只收 1700 年後且已登錄的建築，各郡調查完成度不均（Cork、Dublin 多，Carlow 少）", "SMR graveyards are in Funeral › Graveyards and holy wells in Religion, not repeated here. NIAH covers registered buildings from 1700 on; survey completeness varies by county", "SMR の墓地3種は「葬祭 › 墓地」、聖なる泉は「宗教」にあり本レイヤーでは重複表示しない。NIAH は1700年以降の登録建築のみで、県ごとに調査の進み具合が異なる"),
+                  l3("拉遠為熱區，放大到 z12 才出現點", "Heatmap when zoomed out; points from z12", "縮小時はヒートマップ、z12 から点")],
+    popupNotes: [],
+    sourceOrg: "National Monuments Service — Sites and Monuments Record, Monuments to Visit; National Inventory of Architectural Heritage (DHLGH)", sourceUrl: DGI("national-monuments-service-archaeological-survey-of-ireland"), license: CC_BY, fetchedAt: IE_W8_FETCHED_AT,
+    loading: l3("愛爾蘭文化資產載入中", "Loading Ireland heritage sites", "アイルランドの文化財を読み込み中"),
+  },
+  {
+    key: "ieMuseums", file: "ie_museums.pmtiles", sourceLayer: "ie_museums", geom: "point", layerId: "ie-museums-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "M", count: 523,
+    catProp: "category", cats: MUSEUM_CATS,
+    title: { props: ["name"], fallback: l3("博物館", "Museum", "博物館") },
+    fields: [{ prop: "category", label: l3("類型（推定）", "Type (assumed)", "種別（推定）"), map: Object.fromEntries(MUSEUM_CATS.map((c) => [c.id, c.label])) },
+             { prop: "lamn", label: l3("地方政府博物館網絡（LAMN）", "Local Authority Museums Network", "地方自治体博物館ネットワーク（LAMN）"), map: { yes: l3("是", "Yes", "はい") } },
+             { prop: "town", label: l3("鎮", "Town", "町") }, { prop: "county", label: l3("郡", "County", "県") }, LA],
+    legendNotes: [l3("Heritage Council 博物館、典藏與檔案館名冊 523 處（2015 年版，之後新開或關閉的館未反映；剔北愛 64 處）", "Heritage Council list of museums, collections and archives: 523 (2015 edition — later openings and closures not reflected; 64 in Northern Ireland removed)", "Heritage Council の博物館・収蔵施設・アーカイブ名簿523か所（2015年版。その後の開館・閉館は未反映。北アイルランドの64か所は除外）"),
+                  l3("名冊沒有類型欄：類型依名稱關鍵字推定、未經官方確認；名冊含對外開放的歷史宅邸、花園、遊客中心等，範圍比博物館寬", "The list has no type field: types are assumed from name keywords (unconfirmed). It includes historic houses, gardens and visitor centres open to the public, so it is broader than museums", "名簿に種別欄はなく、種別は名称のキーワードから推定（未確認）。公開されている歴史的邸宅・庭園・ビジターセンターなども含み、博物館より範囲が広い")],
+    popupNotes: [],
+    sourceOrg: "The Heritage Council — Museums, Collections and Archives (2015); Local Authority Museums Network", sourceUrl: DGI("museums-collections-archives"), license: CC_BY, fetchedAt: IE_W8_FETCHED_AT,
+    loading: l3("愛爾蘭博物館載入中", "Loading Ireland museums", "アイルランドの博物館を読み込み中"),
+  },
+  {
+    key: "ieArtsVenues", file: "ie_arts_venues.pmtiles", sourceLayer: "ie_arts_venues", geom: "point", layerId: "ie-arts-venues-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f472b6", tier: "M", count: 84,
+    catProp: "category", cats: ARTS_CATS,
+    title: { props: ["name"], fallback: l3("藝文場館", "Arts venue", "芸術文化施設") },
+    fields: [{ prop: "category", label: l3("類型（推定）", "Type (assumed)", "種別（推定）"), map: Object.fromEntries(ARTS_CATS.map((c) => [c.id, c.label])) },
+             { prop: "venue_type", label: l3("議會原類型", "Council's venue type", "議会の施設種別") },
+             { prop: "council", label: l3("資料來源議會", "Source council", "出典の議会"), map: ARTS_COUNCIL }, LA],
+    legendNotes: [l3("愛爾蘭沒有全國藝文場館名冊：只有 6 個地方政府有開放名冊（Dublin City、Dún Laoghaire-Rathdown、Fingal、South Dublin、Galway City、Roscommon），共 84 處；其餘 25 個地方政府未涵蓋", "Ireland has no national arts venue register: only 6 local authorities publish one (Dublin City, Dún Laoghaire-Rathdown, Fingal, South Dublin, Galway City, Roscommon), 84 venues in total; the other 25 are not covered", "アイルランドに全国の芸術文化施設名簿はなく、名簿を公開しているのは6自治体（Dublin City・Dún Laoghaire-Rathdown・Fingal・South Dublin・Galway City・Roscommon）の計84か所のみ。残る25自治体は未収録"),
+                  l3("類型依議會類型欄與名稱關鍵字推定、未經官方確認；名冊年份不一（DLR 2016、Dublin City 2024）", "Types are assumed from the councils' type fields and names (unconfirmed); list vintages differ (DLR 2016, Dublin City 2024)", "種別は議会の種別欄と名称から推定（未確認）。名簿の年次はまちまち（DLR 2016年、Dublin City 2024年）")],
+    popupNotes: [],
+    sourceOrg: "Dublin City Council; Dún Laoghaire-Rathdown, Fingal, South Dublin, Galway City and Roscommon councils (data.gov.ie)", sourceUrl: DGI("theatres-arts-centres-performance-spaces-dcc"), license: CC_BY, fetchedAt: IE_W8_FETCHED_AT,
+    loading: l3("愛爾蘭藝文場館載入中", "Loading Ireland arts venues", "アイルランドの芸術文化施設を読み込み中"),
+  },
+  {
+    key: "iePublicFacilities", file: "ie_public_facilities.pmtiles", sourceLayer: "ie_public_facilities", geom: "point", layerId: "ie-public-facilities-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#2dd4bf", tier: "S", count: 3080,
+    catProp: "category", cats: PUBLIC_FACILITY_CATS,
+    title: { props: ["name"], fallback: l3("公共設施", "Public facility", "公共施設") },
+    fields: [{ prop: "category", label: l3("類型", "Type", "種別"), map: Object.fromEntries(PUBLIC_FACILITY_CATS.map((c) => [c.id, c.label])) },
+             { prop: "source", label: l3("來源", "Source", "出典"), map: { official: l3("議會名冊", "Council list", "議会の名簿"), osm: l3("OpenStreetMap", "OpenStreetMap", "OpenStreetMap") } },
+             { prop: "town", label: l3("鎮", "Town", "町") }, { prop: "opening_hours", label: l3("開放時間", "Opening hours", "開館・利用時間") },
+             { prop: "wheelchair", label: l3("輪椅可用", "Wheelchair accessible", "車いす利用可"), map: { yes: l3("是", "Yes", "はい"), no: l3("否", "No", "いいえ"), limited: l3("部分", "Limited", "一部") } },
+             { prop: "fee", label: l3("收費", "Fee", "有料"), map: { yes: l3("是", "Yes", "はい"), no: l3("否", "No", "いいえ") } },
+             { prop: "osm_id", label: l3("OSM 編號", "OSM ID", "OSM ID"), kind: "code" }, LA],
+    legendNotes: [l3("議會名冊 428 處：圖書館 11 個地方政府、社區中心 5 個、公廁 3 個（都柏林三議會）；其餘以 OpenStreetMap 補 2,652 處（同類議會點 150 m 內不重收），OSM 完整度未驗", "428 from council lists: libraries from 11 local authorities, community centres from 5, public toilets from 3 (Dublin councils); 2,652 more from OpenStreetMap (skipped within 150 m of a council point of the same type), completeness unverified", "議会名簿の428か所：図書館は11自治体、コミュニティセンターは5自治体、公衆トイレは3自治体（ダブリンの議会）。ほかに OpenStreetMap から2,652か所（同種の議会の点から150 m 以内は除外）、網羅性は未検証"),
+                  l3("非公開公廁（OSM access=private／customers）不收；Wexford 圖書館名冊下載失效未收；郵局、超商、飲水點無官方開放來源", "Private toilets (OSM access=private / customers) excluded; Wexford's library list link is dead; post offices, shops and drinking fountains have no official open source", "非公開のトイレ（OSM access=private／customers）は除外。Wexford の図書館名簿はリンク切れで未収録。郵便局・コンビニ・水飲み場は公式の公開データなし"),
+                  l3("議會名冊 CC BY 4.0（South Dublin 社區中心 CC0）；OSM 點 © OpenStreetMap contributors（ODbL）", "Council lists CC BY 4.0 (South Dublin community centres CC0); OSM points © OpenStreetMap contributors (ODbL)", "議会名簿は CC BY 4.0（South Dublin のコミュニティセンターは CC0）。OSM の点は © OpenStreetMap contributors（ODbL）")],
+    popupNotes: [],
+    sourceOrg: "11 Irish local authorities (libraries, community centres, public toilets; data.gov.ie); © OpenStreetMap contributors (ODbL 1.0)", sourceUrl: DGI("dublin-city-libraries"), license: `${CC_BY}＋ODbL 1.0`, fetchedAt: IE_W8_FETCHED_AT,
+    loading: l3("愛爾蘭公共設施載入中", "Loading Ireland public facilities", "アイルランドの公共施設を読み込み中"),
+  },
+  {
+    key: "ieReligiousSites", file: "ie_religious_sites.pmtiles", sourceLayer: "ie_religious_sites", geom: "point", layerId: "ie-religious-sites-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#a78bfa", tier: "S", count: 5950,
+    catProp: "category", cats: RELIGION_CATS,
+    title: { props: ["name", "townland"], fallback: l3("宗教場所", "Religious site", "宗教施設") },
+    fields: [{ prop: "category", label: l3("類型", "Type", "種別"), map: Object.fromEntries(RELIGION_CATS.map((c) => [c.id, c.label])) },
+             { prop: "original_type", label: l3("原始用途（NIAH）", "Original use (NIAH)", "当初の用途（NIAH）") }, { prop: "in_use", label: l3("現在用途（NIAH）", "Current use (NIAH)", "現在の用途（NIAH）") },
+             { prop: "denomination", label: l3("教派（依名稱推定）", "Denomination (from name)", "宗派（名称から推定）"), map: DENOMINATION },
+             { prop: "rating", label: l3("NIAH 評級", "NIAH rating", "NIAH 評価"), map: NIAH_RATING },
+             { prop: "date_from", label: l3("建造年代（起）", "Date from", "建造年代（から）"), kind: "year" }, { prop: "date_to", label: l3("建造年代（迄）", "Date to", "建造年代（まで）"), kind: "year" },
+             { prop: "town", label: l3("鎮", "Town", "町") }, { prop: "townland", label: l3("Townland", "Townland", "タウンランド") }, { prop: "county", label: l3("郡", "County", "県") }, LA,
+             { prop: "ref", label: l3("登錄編號（NIAH／SMR）", "Record no. (NIAH / SMR)", "登録番号（NIAH／SMR）"), kind: "code" }],
+    legendNotes: [l3("NIAH 原始用途為禮拜建築者 3,224 棟（教堂 3,140、主教座堂 43、會堂、猶太會堂與小祈禱所 41；現在仍作教堂 2,412）＋SMR 聖井 2,726 處", "3,224 NIAH buildings originally built for worship (3,140 churches/chapels, 43 cathedrals, 41 meeting houses, synagogues and oratories; 2,412 still in use as churches) + 2,726 holy wells from the SMR", "NIAH で当初の用途が礼拝建築の3,224棟（教会3,140・大聖堂43・集会所／シナゴーグ／祈祷所41。現在も教会として使用2,412）＋SMR の聖なる泉2,726か所"),
+                  l3("沒有全國現用禮拜場所名冊：NIAH 是建築遺產登錄，只收 1700 年後且已登錄的建築（也收在「觀光 › 文化資產」）；中世紀教堂遺址在文化資產層", "There is no national register of places of worship in use: NIAH is a heritage inventory of registered buildings from 1700 on (also in Tourism › Heritage); medieval church sites are in the heritage layer", "現用の礼拝施設の全国名簿はない。NIAH は1700年以降の登録建築の遺産目録（「観光 › 文化財」にも収録）。中世の教会跡は文化財レイヤーにある"),
+                  l3("教派依名稱關鍵字推定、未經官方確認，推不出的留空", "Denomination is assumed from name keywords (unconfirmed); left blank when unclear", "宗派は名称のキーワードから推定（未確認）。判別できないものは空欄")],
+    popupNotes: [],
+    sourceOrg: "National Inventory of Architectural Heritage; National Monuments Service — Sites and Monuments Record (DHLGH)", sourceUrl: DGI("national-inventory-of-architectural-heritage-niah-national-dataset"), license: CC_BY, fetchedAt: IE_W8_FETCHED_AT,
+    loading: l3("愛爾蘭宗教場所載入中", "Loading Ireland religious sites", "アイルランドの宗教施設を読み込み中"),
   },
 ];
 
