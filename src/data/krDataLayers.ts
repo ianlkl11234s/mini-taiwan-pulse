@@ -1,5 +1,5 @@
 /**
- * 南韓第 3–6 波資料層（23 層）規格 SSOT：hook paint、圖例、popup 三邊共用。
+ * 南韓第 3–7 波資料層規格 SSOT：hook paint、圖例、popup 三邊共用。
  * 資料與授權原句見 taipei-gis-analytics `docs/data-catalog/{water_resources,marine,transportation,forestry}/kr_*.md`
  * 與 `docs/topic-research/south_korea_opendata/waves/w{3,4,5}/layer-plan.md`（2026-10-31 逐一重開授權頁）。
  * 介面字串（類別名、備註）以三語 `L3` 寫在本檔，顯示時依目前語系挑；圖層名／主題名走 layers.json／themes.json。
@@ -63,6 +63,8 @@ const DGS = (pk: string) => `https://www.data.go.kr/data/${pk}/standard.do`;
 
 /** 第 6 波（2026-11-06 重開授權頁）。 */
 export const KR_W6_FETCHED_AT = "2026-11-06";
+/** 第 7 波（2026-11-07 重開授權頁）。 */
+export const KR_W7_FETCHED_AT = "2026-11-07";
 
 export const KR_UNMEASURED = l3("未測", "Not measured", "未測定");
 const UNNAMED = l3("(未命名)", "(unnamed)", "(名称なし)");
@@ -482,6 +484,82 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     popupNotes: [l3("GHSL 2020 模型推估，非戶籍人口", "GHSL 2020 model estimate, not registered population", "GHSL 2020年のモデル推計（住民登録人口ではない）")],
     sourceOrg: "European Commission JRC, GHSL GHS-POP R2023A (2020)", sourceUrl: "https://ghsl.jrc.ec.europa.eu/ghs_pop2023.php", license: "CC BY 4.0", fetchedAt: KR_W6_FETCHED_AT,
     loading: l3("南韓人口網格載入中", "Loading South Korea population grid", "韓国の人口グリッドを読み込み中"),
+  },
+  // ───────────── 第 7 波：教育、醫療、消防 ─────────────
+  {
+    key: "krSchools", file: "kr_schools.pmtiles", sourceLayer: "kr_schools", geom: "point", layerId: "kr-schools-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 1.5 }, color: "#f59e0b", tier: "M", count: 12004,
+    catProp: "level",
+    cats: [
+      { id: "elementary", values: ["초등학교"], color: "#f59e0b", label: l3("小學（초등학교）", "Elementary school", "小学校") },
+      { id: "middle", values: ["중학교"], color: "#38bdf8", label: l3("國中（중학교）", "Middle school", "中学校") },
+      { id: "high", values: ["고등학교"], color: "#a78bfa", label: l3("高中（고등학교）", "High school", "高等学校") },
+    ],
+    title: { props: ["name"], fallback: l3("學校", "School", "学校") },
+    fields: [{ prop: "level", label: l3("學校級別", "Level", "学校種別"), map: { "초등학교": l3("小學", "Elementary", "小学校"), "중학교": l3("國中", "Middle", "中学校"), "고등학교": l3("高中", "High", "高等学校") } },
+             { prop: "found", label: l3("設立別", "Founded by", "設立区分"), map: { "공립": l3("公立", "Public", "公立"), "사립": l3("私立", "Private", "私立"), "국립": l3("國立", "National", "国立") } },
+             { prop: "branch", label: l3("本校／分校", "Main / branch", "本校／分校"), map: { "본교": l3("本校", "Main campus", "本校"), "분교": l3("分校", "Branch", "分校") } },
+             { prop: "opened", label: l3("設立日", "Founded", "設立日") }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "office", label: l3("教育支援廳", "Education office", "教育支援庁") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") },
+             { prop: "school_id", label: l3("學校 ID", "School ID", "学校ID"), kind: "code" }],
+    legendNotes: [l3("只含運作中的小學、國中、高中 12,004 校；特殊學校、各種學校、大學、幼稚園未涵蓋", "Operating elementary, middle and high schools only (12,004); special schools, miscellaneous schools, universities and kindergartens are not covered", "運営中の小・中・高12,004校のみ。特別支援学校・各種学校・大学・幼稚園は未収録")],
+    popupNotes: [],
+    sourceOrg: "한국교육시설안전원 초중등학교위치 (공공데이터포털)", sourceUrl: DG("15159184"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
+    loading: l3("南韓學校載入中", "Loading South Korea schools", "韓国の学校を読み込み中"),
+  },
+  {
+    // V-5：面＋代表點（`kr_school_districts_points.pmtiles`，登記在 repPointLayers；通學區鋪滿國土，預設面）
+    key: "krSchoolDistricts", file: "kr_school_districts.pmtiles", sourceLayer: "kr_school_districts", geom: "polygon", layerId: "kr-school-districts-fill", outlineId: "kr-school-districts-line",
+    srcMinzoom: 6, srcMaxzoom: 13, minzoom: 6, color: "#38bdf8", count: 7132,
+    title: { props: ["name"], fallback: l3("小學通學區", "Elementary school zone", "小学校通学区域") },
+    fields: [{ prop: "office", label: l3("教育支援廳", "Education office", "教育支援庁") }, { prop: "area_m2", label: l3("面積", "Area", "面積"), kind: "num", unit: "m²", digits: 0 },
+             { prop: "updated", label: l3("最後修改", "Last updated", "最終更新") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") },
+             { prop: "district_id", label: l3("學區 ID", "Zone ID", "学区ID"), kind: "code" }],
+    legendNotes: [l3("只含小學通學區（7,132 區）；國中學校群、高中學群未涵蓋", "Elementary school attendance zones only (7,132); middle-school and high-school groupings are not covered", "小学校の通学区域のみ（7,132区域）。中学校群・高校学群は未収録"),
+                  l3("通學區是依住址分派入學的範圍，不是學校位置；跨區、共同學區以官方公告為準", "Zones assign enrolment by home address; they are not school locations. Official notices prevail for shared or cross-zone areas", "通学区域は住所による就学先の割当範囲で学校の位置ではない。共同学区などは公式告示が優先")],
+    popupNotes: [],
+    sourceOrg: "한국교육시설안전원 초등학교통학구역 (공공데이터포털)", sourceUrl: DG("15159265"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
+    loading: l3("南韓小學通學區載入中", "Loading South Korea elementary school zones", "韓国の小学校通学区域を読み込み中"),
+  },
+  {
+    key: "krHospitalsPharmacies", file: "kr_hospitals_pharmacies.pmtiles", sourceLayer: "kr_hospitals_pharmacies", geom: "point", layerId: "kr-hospitals-pharmacies-circle",
+    srcMinzoom: 12, srcMaxzoom: 14, minzoom: 12,
+    heat: { intensity: 1.2, density: { file: "kr_hospitals_pharmacies_density.pmtiles", sourceLayer: "kr_hospitals_pharmacies_density", srcMinzoom: 4, srcMaxzoom: 11, attribution: "건강보험심사평가원 (공공데이터포털)" } },
+    color: "#38bdf8", tier: "S", count: 105739,
+    catProp: "cat", otherColor: "#94a3b8", otherLabel: l3("其他（助產所）", "Other (midwifery clinics)", "その他（助産所）"),
+    cats: [
+      { id: "general", values: ["general"], color: "#ef4444", label: l3("綜合醫院（含上級綜合）", "General hospital (incl. tertiary)", "総合病院（上級総合を含む）") },
+      { id: "hospital", values: ["hospital"], color: "#f59e0b", label: l3("醫院（含療養、精神、韓方、牙科醫院）", "Hospital (incl. long-term care, psychiatric, Korean medicine, dental)", "病院（療養・精神・韓方・歯科病院を含む）") },
+      { id: "clinic", values: ["clinic"], color: "#38bdf8", label: l3("診所（의원）", "Clinic", "医院（診療所）") },
+      { id: "dental_oriental", values: ["dental_oriental"], color: "#a78bfa", label: l3("牙醫、韓醫診所", "Dental / Korean-medicine clinic", "歯科医院・韓医院") },
+      { id: "public_health", values: ["public_health"], color: "#22c55e", label: l3("保健所、保健支所、保健診療所", "Public health centre / branch / post", "保健所・保健支所・保健診療所") },
+      { id: "pharmacy", values: ["pharmacy"], color: "#f472b6", label: l3("藥局", "Pharmacy", "薬局") },
+    ],
+    title: { props: ["name"], fallback: l3("醫療院所", "Medical facility", "医療機関") },
+    fields: [{ prop: "kind", label: l3("種別", "Type", "種別") }, { prop: "doctors", label: l3("醫師數", "Doctors", "医師数"), kind: "num", digits: 0 },
+             { prop: "opened", label: l3("開設日", "Opened", "開設日") }, { prop: "address", label: l3("地址", "Address", "住所") }],
+    legendNotes: [l3("健保審查評價院 2026 年 9 月季報：醫院、診所 79,891＋藥局 25,848（無座標 10 筆未上圖）；只含健保簽約機構", "HIRA quarterly list, Sept 2026: 79,891 hospitals and clinics + 25,848 pharmacies (10 without coordinates not shown); National Health Insurance providers only", "健康保険審査評価院2026年9月四半期：病院・診療所79,891＋薬局25,848（座標なし10件は非表示）。健康保険の療養機関のみ"),
+                  l3("zoom 12 起顯示單點，之下為密度熱區（格網計數；類別篩選只作用於單點）", "Individual facilities from zoom 12, a density heatmap (grid counts) below it; the type filter applies to individual points only", "ズーム12から1件ずつ表示、それ以下は密度ヒートマップ（格子集計。種別フィルタは個別表示のみ）")],
+    popupNotes: [],
+    sourceOrg: "건강보험심사평가원 전국 병의원 및 약국 현황 (공공데이터포털)", sourceUrl: DG("15051059"), license: "공공누리 제1유형（출처표시）", fetchedAt: KR_W7_FETCHED_AT,
+    loading: l3("南韓醫院與藥局載入中", "Loading South Korea hospitals and pharmacies", "韓国の病院・薬局を読み込み中"),
+  },
+  {
+    key: "krFireStations", file: "kr_fire_stations.pmtiles", sourceLayer: "kr_fire_stations", geom: "point", layerId: "kr-fire-stations-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#ef4444", tier: "M", count: 1213,
+    catProp: "kind",
+    cats: [
+      { id: "station", values: ["소방서"], color: "#ef4444", label: l3("消防署（소방서）", "Fire station (HQ)", "消防署") },
+      { id: "center", values: ["119안전센터"], color: "#f59e0b", label: l3("119 安全中心", "119 safety centre", "119安全センター") },
+    ],
+    title: { props: ["name"], fallback: l3("消防機關", "Fire service", "消防機関") },
+    fields: [{ prop: "kind", label: l3("類型", "Type", "種別"), map: { "소방서": l3("消防署", "Fire station", "消防署"), "119안전센터": l3("119 安全中心", "119 safety centre", "119安全センター") } },
+             { prop: "hq", label: l3("所屬本部", "Headquarters", "所属本部") }, { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "registered", label: l3("登錄日", "Registered", "登録日") }],
+    legendNotes: [l3("消防署 215＋119 安全中心 998；救助隊、救急隊與消防栓未涵蓋", "215 fire stations + 998 safety centres; rescue and ambulance units and hydrants are not covered", "消防署215＋119安全センター998。救助隊・救急隊・消火栓は未収録"),
+                  l3("名冊為 2025 年 9 月版，早於 2026 年 7 月光州、全南合併與仁川改區；座標與地址所在道（시·도）不符的 3 筆未上圖", "List dated Sept 2025, before the July 2026 Gwangju–Jeonnam merger and Incheon district reform; 3 entries whose coordinates fall outside their address's province are not shown", "名簿は2025年9月版（2026年7月の光州・全南統合と仁川の区再編前）。座標が住所の道と合わない3件は非表示")],
+    popupNotes: [],
+    sourceOrg: "소방청 전국소방서 좌표현황 (공공데이터포털)", sourceUrl: DG("15138232"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
+    loading: l3("南韓消防機關載入中", "Loading South Korea fire services", "韓国の消防機関を読み込み中"),
   },
 ];
 

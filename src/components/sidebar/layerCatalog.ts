@@ -336,6 +336,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "人口社經",
     "運動休閒",
     "殯葬",
+    // 第 7 波：教育（學校、小學通學區）、醫療、消防、執法治安（派出所）；民防避難設施比照日本併入「災害 › 避難設施」
+    "教育",
+    "醫療",
+    "消防",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2893,6 +2897,28 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "墓區範圍", layers: [fromManifest("krCemeteriesOsm")] }],
   },
+  // 第 7 波：比照台灣「教育 › 學校 Schools／學區 District」「醫療 › 點位」「消防 › 點位」（英國同）
+  {
+    title: "教育",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校 Schools", layers: [fromManifest("krSchools")] },
+      { title: "學區 District", layers: [fromManifest("krSchoolDistricts")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("krHospitalsPharmacies")] }],
+  },
+  {
+    title: "消防",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("krFireStations")] }],
+  },
   {
     title: "林業",
     country: "KR",
@@ -3318,6 +3344,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口社經": "city",
     "運動休閒": "publicLife",
     "殯葬": "publicLife",
+    // 第 7 波（同英國）
+    "教育": "publicLife",
+    "醫療": "safety",
+    "消防": "safety",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3512,6 +3542,9 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口社經": { zh: "人口社經", sub: "인구·사회경제" },
     "運動休閒": { zh: "運動休閒", sub: "체육·여가" },
     "殯葬": { zh: "殯葬", sub: "장사" },
+    "教育": { zh: "教育", sub: "교육" },
+    "醫療": { zh: "醫療", sub: "의료" },
+    "消防": { zh: "消防", sub: "소방" },
     // 南韓統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
