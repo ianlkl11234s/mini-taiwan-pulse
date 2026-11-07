@@ -4,7 +4,7 @@
  * 契約：taipei-gis-analytics docs/topic-research/japan_opendata/jma-frontend-contract.md
  *   - RPC public.get_weather_imagery_manifest(p_source, p_products, p_since, p_until, p_step_minutes)
  *     只回 image_key 非 NULL 或 status='missing' 的列；單次區間上限 8 天。
- *   - frame URL = `${VITE_IMAGERY_CDN_BASE}/${image_key}`（與 CWA 影像同一個 CDN base）。
+ *   - frame URL = `${IMAGERY_CDN_BASE}/${image_key}`（與 CWA 影像同一個 CDN base；預設 data.itsmigu.com，VITE_IMAGERY_CDN_BASE 可覆寫）。
  *
  * 「未涵蓋」規則（不可當 0 畫）：此刻沒有 ≤ t 的幀、最近一幀過舊（缺幀）、該幀 status=missing
  * 或 image_key 為空、encoding 與色票不符 → 圖層隱藏、圖例顯示「未涵蓋」。
@@ -13,8 +13,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import type { JmaImageryProduct } from "./jmaTypes";
-
-const IMAGERY_CDN_BASE = (import.meta.env.VITE_IMAGERY_CDN_BASE ?? "").replace(/\/+$/, "");
+import { IMAGERY_CDN_BASE } from "./imageryManifestLoader";
 
 /** RPC 單次區間上限（契約 §2）；超過由 jmaImageryWindowChunks 分塊 */
 export const JMA_IMAGERY_MAX_WINDOW_DAYS = 8;
