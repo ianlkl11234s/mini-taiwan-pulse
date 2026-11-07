@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1759,
+    "keyCount": 1763,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2452,6 +2452,12 @@
     },
     {
       "layers": [
+        "ie-industrial-facilities-circle"
+      ],
+      "type": "ieIndustrialFacilities"
+    },
+    {
+      "layers": [
         "ie-road-rail-network-line"
       ],
       "type": "ieRoadRailNetwork"
@@ -2617,6 +2623,25 @@
         "ie-radon-risk-fill"
       ],
       "type": "ieRadonRisk"
+    },
+    {
+      "layers": [
+        "ie-aquaculture-fill",
+        "ie-aquaculture-point-circle"
+      ],
+      "type": "ieAquaculture"
+    },
+    {
+      "layers": [
+        "ie-peat-soils-fill"
+      ],
+      "type": "iePeatSoils"
+    },
+    {
+      "layers": [
+        "ie-soils-fill"
+      ],
+      "type": "ieSoils"
     },
     {
       "layers": [
@@ -121296,6 +121321,79 @@
         "valueText": "1.0"
       }
     ],
+    "ieAquaculture": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "貝類（牡蠣、貽貝等）",
+            "value": "shellfish"
+          },
+          {
+            "label": "魚類（鮭、鱒等）",
+            "value": "finfish"
+          },
+          {
+            "label": "藻類",
+            "value": "seaweed"
+          },
+          {
+            "label": "棘皮動物（海膽）",
+            "value": "echinoderm"
+          },
+          {
+            "label": "多類混養、未標",
+            "value": "mixed"
+          },
+          {
+            "label": "法定漁港中心（6 處）",
+            "value": "harbour_centre"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "shellfish",
+          "finfish",
+          "seaweed",
+          "echinoderm",
+          "mixed",
+          "harbour_centre"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "ieArterialDrainage": [
       {
         "label": "類別",
@@ -122279,6 +122377,74 @@
         "valueText": "1.0"
       }
     ],
+    "ieIndustrialFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "集約畜牧（豬、家禽，第 6 類）",
+            "value": "intensive_agriculture"
+          },
+          {
+            "label": "食品飲料（第 7 類）",
+            "value": "food_drink"
+          },
+          {
+            "label": "化學、製藥（第 5 類）",
+            "value": "chemicals"
+          },
+          {
+            "label": "能源、化石燃料（第 2、9 類）",
+            "value": "energy"
+          },
+          {
+            "label": "廢棄物處理（第 11 類）",
+            "value": "waste"
+          },
+          {
+            "label": "礦物、金屬、玻璃、水泥（第 1、3、4、10 類）",
+            "value": "minerals_metals"
+          },
+          {
+            "label": "木材紙業紡織、表面塗裝（第 8、12 類）",
+            "value": "other_manufacturing"
+          },
+          {
+            "label": "其他、未標類別（多為舊制 IPPC 執照）",
+            "value": "unclassified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "intensive_agriculture",
+          "food_drink",
+          "chemicals",
+          "energy",
+          "waste",
+          "minerals_metals",
+          "other_manufacturing",
+          "unclassified"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieLakeWaterBodies": [
       {
         "label": "類別",
@@ -122793,6 +122959,50 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "iePeatSoils": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高位泥炭沼 Raised bog",
+            "value": "raised_bog"
+          },
+          {
+            "label": "低地大西洋毯狀泥炭沼",
+            "value": "lowland_blanket_bog"
+          },
+          {
+            "label": "山地毯狀泥炭沼",
+            "value": "mountain_blanket_bog"
+          },
+          {
+            "label": "低位泥炭沼 Fen",
+            "value": "fen"
+          },
+          {
+            "label": "其他泥炭土（多為淺層泥炭，或荒原、石南灌叢、天然草地）",
+            "value": "other_peat"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "raised_bog",
+          "lowland_blanket_bog",
+          "mountain_blanket_bog",
+          "fen",
+          "other_peat"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "iePlaceNames": [
@@ -123525,6 +123735,80 @@
           "infomar",
           "inss",
           "other"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "ieSoils": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "棕壤 Brown Earth（排水良好）",
+            "value": "brown_earth"
+          },
+          {
+            "label": "淋溶土 Luvisol（排水良好）",
+            "value": "luvisol"
+          },
+          {
+            "label": "灰化土 Podzol、棕色灰化土（酸性）",
+            "value": "podzol"
+          },
+          {
+            "label": "潛育土 Gley（排水不良）",
+            "value": "gley"
+          },
+          {
+            "label": "石質土、黑色石灰土（淺層）",
+            "value": "lithosol_rendzina"
+          },
+          {
+            "label": "泥炭土",
+            "value": "peat"
+          },
+          {
+            "label": "沖積土（河、湖、海）",
+            "value": "alluvium"
+          },
+          {
+            "label": "潮間沼澤、鹽沼、沙丘",
+            "value": "coastal"
+          },
+          {
+            "label": "裸岩",
+            "value": "rock"
+          },
+          {
+            "label": "都市（土壤已覆蓋）",
+            "value": "urban"
+          },
+          {
+            "label": "水體下、離島（未分類）",
+            "value": "water_island"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "brown_earth",
+          "luvisol",
+          "podzol",
+          "gley",
+          "lithosol_rendzina",
+          "peat",
+          "alluvium",
+          "coastal",
+          "rock",
+          "urban",
+          "water_island"
         ]
       },
       {

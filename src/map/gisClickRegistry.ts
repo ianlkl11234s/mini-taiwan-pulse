@@ -495,6 +495,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-fire-stations-circle"], type: "ieFireStations" },
   { layers: ["ie-garda-stations-circle"], type: "ieGardaStations" },
   { layers: ["ie-courts-circle"], type: "ieCourts" },
+  // 第 10 波：工商（點）
+  { layers: ["ie-industrial-facilities-circle"], type: "ieIndustrialFacilities" },
   { layers: ["ie-road-rail-network-line"], type: "ieRoadRailNetwork" },
   // 第 5 波：點（輻射站、樹木、崩塌事件）→ 線（步道、Wild Atlantic Way）；面在後（代表點 circle 由 repPointClickLayerIds 補）
   { layers: ["ie-radiation-stations-circle"], type: "ieRadiationStations" },
@@ -529,6 +531,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-protected-sites-fill"], type: "ieProtectedSites" },
   { layers: ["ie-national-parks-fill"], type: "ieNationalParks" },
   { layers: ["ie-radon-risk-fill"], type: "ieRadonRisk" },
+  // 第 10 波面：養殖場（小，代表點 circle 由 repPointClickLayerIds 補）→ 泥炭土壤 → 土壤圖（鋪滿國土）
+  { layers: ["ie-aquaculture-fill"], type: "ieAquaculture" },
+  { layers: ["ie-peat-soils-fill"], type: "iePeatSoils" },
+  { layers: ["ie-soils-fill"], type: "ieSoils" },
   // 第 7a 波：學校規劃區（鋪滿國土，在行政界之前）
   { layers: ["ie-school-planning-areas-fill"], type: "ieSchoolPlanningAreas" },
   { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },

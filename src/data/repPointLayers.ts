@@ -155,6 +155,8 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "ieNationalParks", family: "krData", file: "ie_national_parks_points.pmtiles", sourceLayer: "ie_national_parks_points", count: 6, def: "polygon", maxzoom: 14 },
   { key: "ieProtectedSites", family: "krData", file: "ie_protected_sites_points.pmtiles", sourceLayer: "ie_protected_sites_points", count: 806, def: "point", maxzoom: 14 },
   { key: "ieLandslideExtents", family: "krData", file: "ie_landslide_extents_points.pmtiles", sourceLayer: "ie_landslide_extents_points", count: 2274, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 10 波：持照養殖場（多為數公頃的小面，預設點）
+  { key: "ieAquaculture", family: "krData", file: "ie_aquaculture_points.pmtiles", sourceLayer: "ie_aquaculture_points", count: 1067, def: "point", maxzoom: 14 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));

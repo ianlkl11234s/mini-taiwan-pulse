@@ -625,6 +625,7 @@ for f in \
   public/world/ie_river_flood_extents_h_0100.pmtiles \
   public/world/ie_river_flood_extents_h_1000.pmtiles \
   public/world/ie_heritage_sites.pmtiles \
+  public/world/ie_soils.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \
