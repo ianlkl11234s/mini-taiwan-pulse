@@ -2831,7 +2831,11 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "災害",
     country: "KR",
     defaultCollapsed: true,
-    groups: [{ title: "海岸侵蝕", layers: [fromManifest("krCoastalErosionFacilities")] }],
+    groups: [
+      { title: "海岸侵蝕", layers: [fromManifest("krCoastalErosionFacilities")] },
+      // 第 7 波 C074：比照日本 jpEvacuationSites 的「災害 › 避難設施」
+      { title: "避難設施", layers: [fromManifest("krCivilDefenseShelters")] },
+    ],
   },
   {
     title: "海洋",

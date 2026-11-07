@@ -411,6 +411,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-schools-circle"], type: "krSchools" },
   { layers: ["kr-hospitals-pharmacies-circle"], type: "krHospitalsPharmacies" },
   { layers: ["kr-fire-stations-circle"], type: "krFireStations" },
+  { layers: ["kr-civil-defense-shelters-circle"], type: "krCivilDefenseShelters" },
   { layers: ["kr-np-trails-line"], type: "krNpTrails" },
   { layers: ["kr-territorial-sea-line"], type: "krTerritorialSea" },
   { layers: ["kr-rivers-osm-line", "kr-rivers-osm-major-line"], type: "krRiversOsm" },

@@ -157,3 +157,4 @@ export const KrSchoolsHost = makeKrDataHost("krSchools", 0.85);
 export const KrSchoolDistrictsHost = makeKrDataHost("krSchoolDistricts", 0.35);
 export const KrHospitalsPharmaciesHost = makeKrDataHost("krHospitalsPharmacies", 0.85);
 export const KrFireStationsHost = makeKrDataHost("krFireStations", 0.85);
+export const KrCivilDefenseSheltersHost = makeKrDataHost("krCivilDefenseShelters", 0.85);

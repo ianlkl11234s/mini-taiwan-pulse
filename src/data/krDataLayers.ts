@@ -488,7 +488,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   // ───────────── 第 7 波：教育、醫療、消防 ─────────────
   {
     key: "krSchools", file: "kr_schools.pmtiles", sourceLayer: "kr_schools", geom: "point", layerId: "kr-schools-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 1.5 }, color: "#f59e0b", tier: "M", count: 12004,
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 3 }, color: "#f59e0b", tier: "M", count: 12004,
     catProp: "level",
     cats: [
       { id: "elementary", values: ["초등학교"], color: "#f59e0b", label: l3("小學（초등학교）", "Elementary school", "小学校") },
@@ -524,7 +524,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   {
     key: "krHospitalsPharmacies", file: "kr_hospitals_pharmacies.pmtiles", sourceLayer: "kr_hospitals_pharmacies", geom: "point", layerId: "kr-hospitals-pharmacies-circle",
     srcMinzoom: 12, srcMaxzoom: 14, minzoom: 12,
-    heat: { intensity: 1.2, density: { file: "kr_hospitals_pharmacies_density.pmtiles", sourceLayer: "kr_hospitals_pharmacies_density", srcMinzoom: 4, srcMaxzoom: 11, attribution: "건강보험심사평가원 (공공데이터포털)" } },
+    heat: { intensity: 150, density: { file: "kr_hospitals_pharmacies_density.pmtiles", sourceLayer: "kr_hospitals_pharmacies_density", srcMinzoom: 4, srcMaxzoom: 11, attribution: "건강보험심사평가원 (공공데이터포털)" } },
     color: "#38bdf8", tier: "S", count: 105739,
     catProp: "cat", otherColor: "#94a3b8", otherLabel: l3("其他（助產所）", "Other (midwifery clinics)", "その他（助産所）"),
     cats: [
@@ -560,6 +560,27 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "소방청 전국소방서 좌표현황 (공공데이터포털)", sourceUrl: DG("15138232"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
     loading: l3("南韓消防機關載入中", "Loading South Korea fire services", "韓国の消防機関を読み込み中"),
+  },
+  {
+    key: "krCivilDefenseShelters", file: "kr_civil_defense_shelters.pmtiles", sourceLayer: "kr_civil_defense_shelters", geom: "point", layerId: "kr-civil-defense-shelters-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 3 }, color: "#22c55e", tier: "M", count: 17247,
+    catProp: "kind",
+    cats: [
+      { id: "public", values: ["공공용시설"], color: "#22c55e", label: l3("公共用設施（공공용시설）", "Public-use facility", "公共用施設") },
+      { id: "gov", values: ["정부지원시설"], color: "#f59e0b", label: l3("政府支援設施（정부지원시설）", "Government-funded shelter", "政府支援施設") },
+    ],
+    title: { props: ["name"], fallback: l3("民防避難設施", "Civil defence shelter", "民防避難施設") },
+    fields: [{ prop: "kind", label: l3("設施類別", "Type", "施設区分"), map: { "공공용시설": l3("公共用設施", "Public-use facility", "公共用施設"), "정부지원시설": l3("政府支援設施", "Government-funded", "政府支援施設") } },
+             { prop: "level", label: l3("地上／地下", "Above / below ground", "地上／地下"), map: { "지하": l3("地下", "Underground", "地下"), "지상": l3("地上", "Above ground", "地上") } },
+             { prop: "capacity", label: l3("最大收容人數", "Max capacity", "最大収容人数") }, { prop: "area_m2", label: l3("面積（㎡）", "Area (m²)", "面積（㎡）") },
+             { prop: "status", label: l3("營運狀態", "Status", "運営状態"), map: { "사용중": l3("使用中", "In use", "使用中"), "일시중지": l3("暫停", "Suspended", "一時中止") } },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "designated", label: l3("指定日", "Designated", "指定日") },
+             { prop: "updated", label: l3("最後修改", "Last modified", "最終更新") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("使用中＋暫停 17,247 處（多為公寓、大樓地下停車場等法定指定設施）；已停止使用 1,591 處、無座標 8 處未上圖", "17,247 shelters in use or suspended (mostly designated basements and underground car parks); 1,591 decommissioned and 8 without coordinates are not shown", "使用中・一時中止の17,247か所（多くはマンション等の地下駐車場の指定施設）。使用中止1,591・座標なし8は非表示"),
+                  l3("酷暑／寒流庇護所未涵蓋", "Heat- and cold-wave shelters are not covered", "暑さ・寒さ避難所は未収録")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 민방위대피시설 (LOCALDATA, 공공데이터포털)", sourceUrl: DG("15044951"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
+    loading: l3("南韓民防避難設施載入中", "Loading South Korea civil defence shelters", "韓国の民防避難施設を読み込み中"),
   },
 ];
 
