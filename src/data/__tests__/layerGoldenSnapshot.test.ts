@@ -238,6 +238,7 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-04: +4 30 天地圖挑戰 Day 4 群聚 mapchallengeDay04*（模擬面板）。
     // 2026-11-05: +2 30 天地圖挑戰 Day 5 視野 mapchallengeDay05*（模擬面板）。
     // 2026-11-05: +1 古地圖 historicalMapSinica（外部 XYZ raster，7 個年代）。
+    // 2026-11-07: +5 臺灣百年歷史地圖拆六層（historicalMapPostwar／historicalImagery／historicalBoundaries／historicalLandUse／historicalThematic，外部 XYZ raster）。
     // 2026-11-06: +5 南韓第 6 波（領海線、都市公園、綜合體育設施、OSM 墓地、人口 H3 網格）。
     // 2026-11-06: +4 日本第二輪（自然公園地域 jpNaturalParkAreas2015、国立公園 jpNationalParksMoe、国指定鳥獣保護区 jpWildlifeProtectionMoe、人口集中地区 jpDid）。
     // 2026-11-06: +7 加拿大第 3 波（氣象站、AQHI、輻射監測站、NPRI、污水系統、地震、人口網格）。
@@ -252,7 +253,7 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-07: +16 南韓統計公共安全（火災、交通事故 × 道級／市郡區）。
     // 2026-11-07: +29 愛爾蘭統計（ie 家族 statsIe*，地方政府 31／選舉分區 3,420）。
     // 2026-11-07: +2 愛爾蘭第 2 波（商業房產估值、國有登記土地）。
-    expect(keys.length).toBe(1708);
+    expect(keys.length).toBe(1713);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

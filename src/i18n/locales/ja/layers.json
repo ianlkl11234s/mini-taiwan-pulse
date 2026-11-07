@@ -1635,7 +1635,6 @@
   "layer.mapchallengeDay04ScaleTcCh": "台中・彰化 工場細密グリッド",
   "layer.mapchallengeDay05SeaView": "海の見える区間",
   "layer.mapchallengeDay05SeaViewRuns": "海が見える最長連続区間",
-  "layer.historicalMapSinica": "古地図（台湾百年歴史地図）",
   "layer.caClimateStations": "気象観測所（カナダ）",
   "layer.caAqhiStations": "AQHI 発表地点（カナダ）",
   "layer.caRadiationStations": "放射線監視局（カナダ）",
@@ -1698,5 +1697,11 @@
   "layer.statsIeParticipationRateLa": "労働力率（地方自治体）",
   "layer.statsIeParticipationRateEd": "労働力率（選挙区）",
   "layer.statsIeEmploymentRateLa": "就業率（地方自治体）",
-  "layer.statsIeEmploymentRateEd": "就業率（選挙区）"
+  "layer.statsIeEmploymentRateEd": "就業率（選挙区）",
+  "layer.historicalMapSinica": "古地図（清末〜日本統治期）",
+  "layer.historicalMapPostwar": "戦後地形図（1950〜2003）",
+  "layer.historicalImagery": "歴史的空中写真・衛星画像",
+  "layer.historicalBoundaries": "歴史的境界・路線網",
+  "layer.historicalLandUse": "歴史的土地利用",
+  "layer.historicalThematic": "歴史的主題図（水利・地質・林野・測量）"
 }

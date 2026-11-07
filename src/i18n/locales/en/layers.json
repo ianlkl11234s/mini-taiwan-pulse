@@ -1635,7 +1635,6 @@
   "layer.mapchallengeDay04ScaleTcCh": "Taichung vs Changhua Factory Fine Grid",
   "layer.mapchallengeDay05SeaView": "Sea View Segments",
   "layer.mapchallengeDay05SeaViewRuns": "Longest Sea View Runs",
-  "layer.historicalMapSinica": "Historical Maps (Taiwan)",
   "layer.caClimateStations": "Climate Stations (Canada)",
   "layer.caAqhiStations": "AQHI Locations (Canada)",
   "layer.caRadiationStations": "Radiation Monitoring Stations (Canada)",
@@ -1698,5 +1697,11 @@
   "layer.statsIeParticipationRateLa": "Participation rate (local authority)",
   "layer.statsIeParticipationRateEd": "Participation rate (electoral division)",
   "layer.statsIeEmploymentRateLa": "Employment rate (local authority)",
-  "layer.statsIeEmploymentRateEd": "Employment rate (electoral division)"
+  "layer.statsIeEmploymentRateEd": "Employment rate (electoral division)",
+  "layer.historicalMapSinica": "Historical Maps (Qing to Japanese Era)",
+  "layer.historicalMapPostwar": "Postwar Topographic Maps (1950–2003)",
+  "layer.historicalImagery": "Historical Aerial and Satellite Imagery",
+  "layer.historicalBoundaries": "Historical Boundaries and Rail Network",
+  "layer.historicalLandUse": "Historical Land Use",
+  "layer.historicalThematic": "Historical Thematic Maps (Water, Geology, Forestry, Survey)"
 }

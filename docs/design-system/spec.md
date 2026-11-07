@@ -1013,7 +1013,7 @@
 
 #### 5.42.2 「現代地名可以關」段（2026-11-05，古地圖）
 
-同一張視野提示卡的第三段（置於「圖層看不到」之上）：**古地圖（`historicalMapSinica`）開著、底圖地名還開著時**提示現代地名會疊在古地圖上、可以關。外觀沿用本卡（lucide `Type` 13px＋標題 12px 600＋說明 11px `textMuted`）；按鈕＝C2 主要「關閉地名」（與工具列底圖選單「顯示地名」同一個 `showBasemapLabels`）＋C2 一般「知道了」。按鈕或「知道了」後本次不再顯示，古地圖關掉再開才重新提示。條件同 §5.42（手機、拍攝模式、AI 對話框或 Agent 活動卡開著時不顯示）。不另做元件。文案 `layerHint.labels*`。
+同一張視野提示卡的第三段（置於「圖層看不到」之上）：**古地圖系列五個不透明圖層（`historicalMapSinica`／`historicalMapPostwar`／`historicalImagery`／`historicalLandUse`／`historicalThematic`，界線路網疊加層不算）任一開著、底圖地名還開著時**提示現代地名會疊在古地圖上、可以關。外觀沿用本卡（lucide `Type` 13px＋標題 12px 600＋說明 11px `textMuted`）；按鈕＝C2 主要「關閉地名」（與工具列底圖選單「顯示地名」同一個 `showBasemapLabels`）＋C2 一般「知道了」。按鈕或「知道了」後本次不再顯示，古地圖關掉再開才重新提示。條件同 §5.42（手機、拍攝模式、AI 對話框或 Agent 活動卡開著時不顯示）。不另做元件。文案 `layerHint.labels*`。
 
 #### 5.42.1 「圖層看不到」段（2026-10-31，map-layers V-3）
 

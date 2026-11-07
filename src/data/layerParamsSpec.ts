@@ -1,4 +1,4 @@
-import { HISTORICAL_MAP_DEFAULT_ERA, HISTORICAL_MAP_ERAS } from './historicalMapSinica';
+import { HISTORICAL_MAP_GROUPS, historicalMapEraOptionZh } from './historicalMapSinica';
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
@@ -2732,15 +2732,16 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // 1944 水域（臺北盆地）：面 0.35（規範 F-1 覆蓋面）；點／面切換、今日狀態多選由 repPointLayers／categoryFilters 補
   water1944Taipei: [opacitySlider("water1944TaipeiOpacity", 0.35)],
-  historicalMapSinica: [
-    opacitySlider("historicalMapSinicaOpacity", 0.85),
+  // 臺灣百年歷史地圖六層（古地圖／戰後地形圖／航照衛星／界線路網／土地利用／主題圖）：透明度＋年代 select，共用一支 hook
+  ...Object.fromEntries(HISTORICAL_MAP_GROUPS.map((g) => [g.key, [
+    opacitySlider(`${g.key}Opacity`, g.defaultOpacity),
     {
-      // 年代：一個年代一個 WMTS 層，hook 依 historicalMapSinicaEraIdx 換 source
-      kind: "select", name: "historicalMapSinicaEra", label: "年代", default: HISTORICAL_MAP_DEFAULT_ERA, category: "data",
-      options: HISTORICAL_MAP_ERAS.map((e) => ({ label: e.label, value: e.value })),
-      out: "historicalMapSinicaEraIdx", encode: HISTORICAL_MAP_ERAS.map((e) => e.value),
+      // 年代：一個年代一個 WMTS 層，hook 依 <key>EraIdx 換 source
+      kind: "select", name: `${g.key}Era`, label: "年代", default: g.defaultValue, category: "data",
+      options: g.eras.map((e) => ({ label: historicalMapEraOptionZh(e), value: e.value })),
+      out: `${g.key}EraIdx`, encode: g.eras.map((e) => e.value),
     },
-  ],
+  ]])),
   jpGsiHillshade: [{ kind: "slider", name: "jpGsiHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   jpGsiRelief: [{ kind: "slider", name: "jpGsiReliefOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   jpInlandFloodAreas: [
