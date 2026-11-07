@@ -711,9 +711,22 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
   krSportsFacilities: { theme: "運動休閒", group: "運動場館", zh: "綜合體育設施", alt: "Sports Complexes", icon: Activity, dataset: "kr_sports_facilities", topics: ["南韓", "體育", "運動場館", "LOCALDATA"],
     description: "南韓民營綜合體育設施業 346 處（營業中 334、休業 12；LOCALDATA）", processing: "EPSG:5174 → 4326；排除歇業 214、取消 43、無座標 18；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；公營體育中心與學校設施未涵蓋" },
   krCemeteriesOsm: { theme: "殯葬", group: "墓區範圍", zh: "墓地（OSM）", alt: "Cemeteries (OSM)", icon: Flower, dataset: "kr_cemeteries_osm", topics: ["南韓", "墓地", "殯葬", "OSM"],
-    description: "南韓 OSM 墓地 16,565 面（landuse=cemetery／amenity=grave_yard；代表點 16,842）", processing: "Geofabrik 2026-10-31 PBF，GDAL OSM driver 抽取；buffer(0) 修環；面 PMTiles z6–13＋代表點 z0–14", note: "ODbL；16/16 시·도但密度極不均；官方都計墓地境外不可取" },
+    description: "南韓 OSM 墓地 16,565 面（landuse=cemetery／amenity=grave_yard；代表點 16,842）", processing: "Geofabrik 2026-10-31 PBF，GDAL OSM driver 抽取；buffer(0) 修環；面 PMTiles z5–13（z9 以下只畫細外框）＋代表點 z0–14", note: "ODbL；16/16 시·도但密度極不均；官方都計墓地境外不可取" },
   krPopulationH3: { theme: "人口社經", group: "人口分布", zh: "人口網格（GHSL）", alt: "Population Grid (GHSL)", icon: Grid3x3, dataset: "ghsl_pop_h3_kr", topics: ["南韓", "人口", "網格", "H3", "GHSL"],
     description: "南韓 2020 人口 H3 網格（GHSL 模型推估，第 7 級 28,436 格／第 8 級 160,048 格，合計 51,850,602 人）", processing: "GHS-POP R2023A 3 弧秒 → H3 r8（r7 為父格加總）；逐格面積算密度；PMTiles r7 z4–8、r8 z9–12", note: "CC BY 4.0；模型推估、非戶籍（住民登錄 2026-09 為 51,082,431）" },
+  // 第 7 波（2026-11-07）
+  krSchools: { theme: "教育", group: "學校 Schools", zh: "學校", alt: "Schools", icon: School, dataset: "kr_schools", topics: ["南韓", "學校", "教育", "小學", "國中", "高中"],
+    description: "南韓運作中小學、國中、高中 12,004 校（초 6,286／중 3,316／고 2,402）", processing: "UTF-8 BOM、WGS84 위도／경도；地址 시·도 與座標比對 0 筆不符；PMTiles z0–14", note: "平台標籤；16/16 시·도；特殊學校、大學、幼稚園未涵蓋" },
+  krSchoolDistricts: { theme: "教育", group: "學區 District", zh: "小學通學區", alt: "Elementary School Zones", icon: Map, dataset: "kr_school_districts", topics: ["南韓", "學區", "通學區", "小學", "教育"],
+    description: "南韓小學通學區 7,132 區（한국교육시설안전원 2026-09-20 版，面＋代表點）", processing: "SHP EUC-KR、Korea 2000 Central Belt 2010（EPSG:5186）→ 4326，makevalid；面 PMTiles z6–13＋代表點 z0–14", note: "平台標籤；16/16 시·도；國中學校群、高中學群未涵蓋" },
+  krHospitalsPharmacies: { theme: "醫療", group: "點位", zh: "醫院與藥局", alt: "Hospitals & Pharmacies", icon: Hospital, dataset: "kr_hospitals_pharmacies", topics: ["南韓", "醫院", "診所", "藥局", "醫療", "HIRA"],
+    description: "南韓健保療養機構 105,739 處（醫院、診所、保健機關 79,891＋藥局 25,848；2026 年 9 月季報）", processing: "季報 zip 只用 병원정보서비스、약국정보서비스 兩檔；WGS84；剔無座標 10 筆；電話與網站欄排除；點 PMTiles z12–14＋格網計數熱區 z4–11", note: "KOGL 第 1 類（出處標示）；16/16 시·도" },
+  krFireStations: { theme: "消防", group: "點位", zh: "消防署與 119 安全中心", alt: "Fire Stations", icon: Siren, dataset: "kr_fire_stations", topics: ["南韓", "消防", "消防署", "119"],
+    description: "南韓消防署 215 處＋119 安全中心 998 處（消防廳 2025-09 版）", processing: "X좌표／Y좌표 欄名顛倒，對調後轉點；座標與地址 시·도 不符 3 筆剔除；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；名冊早於 2026-07 改制" },
+  krCivilDefenseShelters: { theme: "災害", group: "避難設施", zh: "民防避難設施", alt: "Civil Defence Shelters", icon: ShieldAlert, dataset: "kr_civil_defense_shelters", topics: ["南韓", "避難", "民防", "防空", "避難設施"],
+    description: "南韓民防避難設施 17,247 處（行政安全部 LOCALDATA，使用中 17,231＋暫停 16）", processing: "LOCALDATA CSV CP949；只留使用中與暫停，剔除已停止使用 1,591、無座標 8；WGS84 위도／경도 欄；地址 시·도 與座標比對 0 筆不符；PMTiles z0–14", note: "平台標籤；16/16 시·도；比照日本併入「災害 › 避難設施」" },
+  krPoliceBoxes: { theme: "執法治安", group: "警政", zh: "派出所與地區隊", alt: "Police Boxes", icon: ShieldCheck, dataset: "kr_police_boxes", topics: ["南韓", "警察", "派出所", "지구대", "파출소", "治安"],
+    description: "南韓地區隊與派出所 1,544 處（警察廳 2025-12-31 名冊 2,047 處，Nominatim 補座標）", processing: "名冊只有地址；Nominatim 先查「名稱＋시군구」的 amenity=police，再查地址全文；只留設施點與門牌精度，座標與地址 시군구 不符者剔除；PMTiles z0–14", note: "平台標籤＋座標 ODbL（© OpenStreetMap contributors）；未定位 503 處不上圖" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];

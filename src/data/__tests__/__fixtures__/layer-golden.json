@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1655,
+    "keyCount": 1661,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1937,6 +1937,36 @@
         "kr-sports-facilities-circle"
       ],
       "type": "krSportsFacilities"
+    },
+    {
+      "layers": [
+        "kr-schools-circle"
+      ],
+      "type": "krSchools"
+    },
+    {
+      "layers": [
+        "kr-hospitals-pharmacies-circle"
+      ],
+      "type": "krHospitalsPharmacies"
+    },
+    {
+      "layers": [
+        "kr-fire-stations-circle"
+      ],
+      "type": "krFireStations"
+    },
+    {
+      "layers": [
+        "kr-civil-defense-shelters-circle"
+      ],
+      "type": "krCivilDefenseShelters"
+    },
+    {
+      "layers": [
+        "kr-police-boxes-circle"
+      ],
+      "type": "krPoliceBoxes"
     },
     {
       "layers": [
@@ -5542,6 +5572,13 @@
         "kr-population-h3-fill"
       ],
       "type": "krPopulationH3"
+    },
+    {
+      "layers": [
+        "kr-school-districts-fill",
+        "kr-school-districts-point-circle"
+      ],
+      "type": "krSchoolDistricts"
     },
     {
       "layers": [
@@ -128095,6 +128132,121 @@
         "valueText": "1.0"
       }
     ],
+    "krCivilDefenseShelters": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公共用設施（공공용시설）",
+            "value": "public"
+          },
+          {
+            "label": "政府支援設施（정부지원시설）",
+            "value": "gov"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "public",
+          "gov"
+        ]
+      },
+      {
+        "defaultValue": "speed",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "speed"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krCoastalErosionFacilities": [
       {
         "label": "類別",
@@ -128230,6 +128382,44 @@
         "valueText": "1.0"
       }
     ],
+    "krFireStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "消防署（소방서）",
+            "value": "station"
+          },
+          {
+            "label": "119 安全中心",
+            "value": "center"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "station",
+          "center"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krFuelStations": [
       {
         "label": "燃料別",
@@ -128344,6 +128534,146 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krHospitalsPharmacies": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "綜合醫院（含上級綜合）",
+            "value": "general"
+          },
+          {
+            "label": "醫院（含療養、精神、韓方、牙科醫院）",
+            "value": "hospital"
+          },
+          {
+            "label": "診所（의원）",
+            "value": "clinic"
+          },
+          {
+            "label": "牙醫、韓醫診所",
+            "value": "dental_oriental"
+          },
+          {
+            "label": "保健所、保健支所、保健診療所",
+            "value": "public_health"
+          },
+          {
+            "label": "藥局",
+            "value": "pharmacy"
+          },
+          {
+            "label": "其他（助產所）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "general",
+          "hospital",
+          "clinic",
+          "dental_oriental",
+          "public_health",
+          "pharmacy",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "PuBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBu"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",
@@ -128747,6 +129077,44 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krPoliceBoxes": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地區隊（지구대）",
+            "value": "district"
+          },
+          {
+            "label": "派出所（파출소）",
+            "value": "box"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "district",
+          "box"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -129224,6 +129592,161 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "krSchoolDistricts": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "krSchools": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "小學（초등학교）",
+            "value": "elementary"
+          },
+          {
+            "label": "國中（중학교）",
+            "value": "middle"
+          },
+          {
+            "label": "高中（고등학교）",
+            "value": "high"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "elementary",
+          "middle",
+          "high"
+        ]
+      },
+      {
+        "defaultValue": "cividis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "cividis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "krSeoulSubwayCongestion": [
