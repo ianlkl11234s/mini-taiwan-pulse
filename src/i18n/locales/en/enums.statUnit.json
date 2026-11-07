@@ -123,5 +123,6 @@
   "enum.statUnit.百分點": "percentage points",
   "enum.statUnit.票": "votes",
   "enum.statUnit.類別碼": "category code",
+  "enum.statUnit.千韓元": "KRW thousand",
   "enum.statUnit.歐元/月": "EUR/month"
 }

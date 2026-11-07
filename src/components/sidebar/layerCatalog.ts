@@ -341,7 +341,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "醫療",
     "消防",
     "執法治安",
-    // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
+    // 南韓統計（完整目錄；統計分頁另有「人口／社經／公共安全」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
   CA: [
@@ -3426,6 +3426,8 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
+    // 火災、交通事故統計：同台灣「治安統計」歸安全與治理。
+    "公共安全統計": "safety",
   },
   IE: {
     // 愛爾蘭主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照加拿大）。
@@ -3631,11 +3633,13 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "醫療": { zh: "醫療", sub: "의료" },
     "消防": { zh: "消防", sub: "소방" },
     "執法治安": { zh: "執法治安", sub: "치안" },
-    // 南韓統計：完整目錄兩個、統計分頁兩個
+    // 南韓統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
     "人口": { zh: "人口", sub: "인구" },
     "社經": { zh: "社經", sub: "사회경제" },
+    "公共安全統計": { zh: "公共安全統計", sub: "공공안전 통계" },
+    "公共安全": { zh: "公共安全", sub: "공공안전" },
   },
   IE: {
     // 愛爾蘭主題副標用英文（比照英國、加拿大）

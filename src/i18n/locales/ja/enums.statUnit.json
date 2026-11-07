@@ -123,5 +123,6 @@
   "enum.statUnit.百分點": "ポイント",
   "enum.statUnit.票": "票",
   "enum.statUnit.類別碼": "カテゴリコード",
+  "enum.statUnit.千韓元": "千ウォン",
   "enum.statUnit.歐元/月": "ユーロ/月"
 }

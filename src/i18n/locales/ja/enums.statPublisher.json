@@ -22,6 +22,8 @@
   "enum.statPublisher.서울특별시（서울 열린데이터광장；KT 통신 데이터 기반 추계）": "ソウル特別市（ソウル開かれたデータ広場、KT通信データに基づく推計）",
   "enum.statPublisher.Statistics Canada（加拿大統計局）": "カナダ統計局（Statistics Canada）",
   "enum.statPublisher.中央選舉委員會": "中央選挙委員会",
+  "enum.statPublisher.소방청（National Fire Agency；국가화재정보시스템）": "消防庁（韓国・国家火災情報システム）",
+  "enum.statPublisher.한국도로교통공단（Korea Road Traffic Authority；TAAS 교통사고분석시스템）": "韓国道路交通公団（TAAS 交通事故分析システム）",
   "enum.statPublisher.Central Statistics Office, Ireland（愛爾蘭中央統計局，CSO）": "アイルランド中央統計局（Central Statistics Office, CSO）",
   "enum.statPublisher.Residential Tenancies Board（愛爾蘭住宅租賃委員會，RTB）；CSO PxStat 發布": "アイルランド住宅賃貸借委員会（Residential Tenancies Board, RTB）；CSO PxStat で公表"
 }
