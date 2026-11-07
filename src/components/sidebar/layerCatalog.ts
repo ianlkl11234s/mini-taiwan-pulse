@@ -353,8 +353,11 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     ...CA_STATISTICS_DATA_THEME_TITLES,
   ],
   IE: [
-    // 愛爾蘭（2026-11-07 第 0 波：底圖／行政邊界；title 沿用台灣主題中文短名，比照加拿大、南韓）
+    // 愛爾蘭（2026-11-07 第 0 波：底圖／行政邊界；第 1 波：地名、海床、Gaeltacht、運動綠地、墓地；title 沿用台灣主題中文短名，比照加拿大、南韓）
     "底圖",
+    "原民與農村",
+    "運動休閒",
+    "殯葬",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -2992,7 +2995,36 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "底圖",
     country: "IE",
     defaultCollapsed: true,
-    groups: [{ title: "行政邊界", layers: [fromManifest("ieAdminBoundaries")] }],
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("ieAdminBoundaries")] },
+      // 第 1 波：比照台灣「底圖 › 海域界線／地形／地名 Gazetteer」
+      { title: "海域界線", layers: [fromManifest("ieMaritimeBoundaries")] },
+      { title: "地形", layers: [fromManifest("ieBathymetry")] },
+      { title: "地名 Gazetteer", layers: [fromManifest("iePlaceNames")] },
+    ],
+  },
+  {
+    // 第 1 波：愛爾蘭語區比照台灣「原民與農村 › 客家 Hakka」（法定語言社群地區）
+    title: "原民與農村",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "愛爾蘭語區 Gaeltacht", layers: [fromManifest("ieGaeltacht")] }],
+  },
+  {
+    // 第 1 波：比照台灣「運動休閒 › 運動場館／公園 Parks」與「殯葬 › 點位」（南韓第 6 波同）
+    title: "運動休閒",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "運動場館", layers: [fromManifest("ieActivityLocations")] },
+      { title: "公園 Parks", layers: [fromManifest("ieParks")] },
+    ],
+  },
+  {
+    title: "殯葬",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("ieGraveyards")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3339,6 +3371,9 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
   IE: {
     // 愛爾蘭主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照加拿大）。
     "底圖": "baseline",
+    "原民與農村": "city",
+    "運動休閒": "publicLife",
+    "殯葬": "publicLife",
   },
   CA: {
     // 加拿大主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照南韓、英國）。
@@ -3539,6 +3574,9 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
   IE: {
     // 愛爾蘭主題副標用英文（比照英國、加拿大）
     "底圖": { zh: "底圖", sub: "Base Map" },
+    "原民與農村": { zh: "原民與農村", sub: "Indigenous & Rural" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "殯葬": { zh: "殯葬", sub: "Funeral" },
   },
   CA: {
     // 加拿大主題副標用英文（官方雙語英法，介面先用英文；比照英國）
