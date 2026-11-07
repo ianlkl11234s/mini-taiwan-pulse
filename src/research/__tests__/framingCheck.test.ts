@@ -12,9 +12,9 @@ describe("safeCoverageOf", () => {
   it("fully off screen is 0", () => expect(safeCoverageOf(project, safe, [10, 10, 12, 12])).toBe(0));
   it("hidden behind a rail (inside viewport, outside safe) is 0", () => expect(safeCoverageOf(project, safe, [0, 0, 0.5, 4])).toBe(0));
   it("no results is null", () => expect(safeCoverageOf(project, safe, null)).toBeNull());
-  it("tiny bbox inside is a small non-error number", () => {
+  it("tiny bbox inside stays distinguishable from off screen (0.01)", () => {
     const v = safeCoverageOf(project, safe, [3, 2, 3, 2]);
-    expect(v).toBe(0);
+    expect(v).toBe(0.01);
     expect(v).not.toBeNull();
   });
   it("non-finite projection counts as off screen", () => expect(safeCoverageOf(() => ({ x: NaN, y: 0 }), safe, [0, 0, 1, 1])).toBe(0));

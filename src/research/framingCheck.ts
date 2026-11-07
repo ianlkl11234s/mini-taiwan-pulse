@@ -49,7 +49,8 @@ export function safeCoverageOf(project: ProjectFn, safe: ViewportRect, bounds: L
   const ix = Math.min(maxX, safe.right) - Math.max(minX, safe.left);
   const iy = Math.min(maxY, safe.bottom) - Math.max(minY, safe.top);
   if (ix <= 0 || iy <= 0) return 0;
-  return Math.round(Math.min(1, (ix * iy) / safeArea) * 100) / 100;
+  // 在畫面內的結果至少回 0.01，0 只代表完全不在畫面上（單點結果四捨五入後不會變成 0）
+  return Math.max(0.01, Math.round(Math.min(1, (ix * iy) / safeArea) * 100) / 100);
 }
 
 export function buildFramingCheck(input: { project: ProjectFn; safe: ViewportRect; bounds: LngLatBounds | null; outlineOnlyResultIds: readonly string[]; legendCount: number }): FramingCheck {
