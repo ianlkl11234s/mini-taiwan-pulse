@@ -15,5 +15,7 @@ export const IE_DATA_KEYS = [
   "iePowerPlants", "iePowerLines", "ieSubstations", "ieWindFarms", "ieEvCharging", "ieFuelStations",
   // 第 7a 波（2026-11-08）：教育
   "ieSchools", "ieSchoolPlanningAreas", "ieChildcareServices",
+  // 第 8 波（2026-11-08）：文化遺產與生活據點
+  "ieHeritageSites", "ieMuseums", "ieArtsVenues", "iePublicFacilities", "ieReligiousSites",
 ] as const;
 export type IeDataKey = (typeof IE_DATA_KEYS)[number];
