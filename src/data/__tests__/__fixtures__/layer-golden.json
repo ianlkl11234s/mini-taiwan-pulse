@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1746,
+    "keyCount": 1749,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2464,6 +2464,18 @@
     },
     {
       "layers": [
+        "ie-schools-circle"
+      ],
+      "type": "ieSchools"
+    },
+    {
+      "layers": [
+        "ie-childcare-services-circle"
+      ],
+      "type": "ieChildcareServices"
+    },
+    {
+      "layers": [
         "ie-river-water-bodies-line"
       ],
       "type": "ieRiverWaterBodies"
@@ -2545,6 +2557,12 @@
         "ie-radon-risk-fill"
       ],
       "type": "ieRadonRisk"
+    },
+    {
+      "layers": [
+        "ie-school-planning-areas-fill"
+      ],
+      "type": "ieSchoolPlanningAreas"
     },
     {
       "layers": [
@@ -121316,6 +121334,44 @@
         "valueText": "0.70"
       }
     ],
+    "ieChildcareServices": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "私人經營",
+            "value": "private"
+          },
+          {
+            "label": "社區（非營利）",
+            "value": "community"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "private",
+          "community"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieCoastalErosion": [
       {
         "label": "類別",
@@ -122719,6 +122775,70 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "ieSchoolPlanningAreas": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "ieSchools": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國小（Primary）",
+            "value": "primary"
+          },
+          {
+            "label": "中學（Post-primary）",
+            "value": "post_primary"
+          },
+          {
+            "label": "特殊學校",
+            "value": "special"
+          },
+          {
+            "label": "大學與校區（OSM university）",
+            "value": "higher"
+          },
+          {
+            "label": "學院、繼續教育與職訓（OSM college）",
+            "value": "college"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "primary",
+          "post_primary",
+          "special",
+          "higher",
+          "college"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "ieSeabedSurveyCoverage": [

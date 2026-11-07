@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -165,6 +165,9 @@ const NC_ND_NOTE = (org: string) => l3(`CC BY-NC-ND 4.0・非商業使用；© $
 // ───────────── 第 3b 波：海洋 ─────────────
 export const IE_W3B_FETCHED_AT = "2026-11-08";
 export const IE_W5_FETCHED_AT = "2026-11-08";
+export const IE_W7A_FETCHED_AT = "2026-11-08";
+/** 來源頁未標示授權：依 2026-10-09 政策照常上線，圖例標「授權待確認」。 */
+const LICENSE_PENDING = "未標示（授權待確認）";
 /** EPA 年度浴場水質分級（Bathing Water Quality Regulations 2008，前 4 季採樣）：沿用歐盟浴場分級慣例的藍、綠、黃、紅。 */
 const BATHING_CATS: readonly KrCat[] = [
   { id: "excellent", values: ["excellent"], color: "#38bdf8", label: l3("極佳 Excellent", "Excellent", "極めて良好（Excellent）") },
@@ -235,6 +238,20 @@ const RADON_CATS: readonly KrCat[] = [
   { id: "1_in_10", values: ["1_in_10"], color: "#f59e0b", label: l3("約每 10 戶有 1 戶偏高", "About 1 in 10 homes high", "約10戸に1戸が高い") },
   { id: "1_in_20", values: ["1_in_20"], color: "#facc15", label: l3("約每 20 戶有 1 戶偏高", "About 1 in 20 homes high", "約20戸に1戸が高い") },
 ];
+// 第 7a 波：教育類別
+const SCHOOL_CATS: readonly KrCat[] = [
+  { id: "primary", values: ["primary"], color: "#38bdf8", label: l3("國小（Primary）", "Primary school", "小学校（Primary）") },
+  { id: "post_primary", values: ["post_primary"], color: "#a78bfa", label: l3("中學（Post-primary）", "Post-primary school", "中等学校（Post-primary）") },
+  { id: "special", values: ["special"], color: "#f472b6", label: l3("特殊學校", "Special school", "特別支援学校") },
+  { id: "higher", values: ["higher"], color: "#f59e0b", label: l3("大學與校區（OSM university）", "University & campus (OSM university)", "大学・キャンパス（OSM university）") },
+  { id: "college", values: ["college"], color: "#facc15", label: l3("學院、繼續教育與職訓（OSM college）", "College, further education & training (OSM college)", "カレッジ・継続教育・職業訓練（OSM college）") },
+];
+const CHILDCARE_CATS: readonly KrCat[] = [
+  { id: "private", values: ["private"], color: "#2dd4bf", label: l3("私人經營", "Private", "民間") },
+  { id: "community", values: ["community"], color: "#f59e0b", label: l3("社區（非營利）", "Community (not-for-profit)", "コミュニティ（非営利）") },
+];
+const YES_ONLY: Record<string, L3> = { yes: l3("是", "Yes", "はい"), no: l3("否", "No", "いいえ") };
+const SCHEME: Record<string, L3> = { yes: l3("參加", "Participating", "参加"), no: l3("未參加", "Not participating", "不参加") };
 const FOUNDATION: Record<string, L3> = { "Fixed-Bottom": l3("固定式", "Fixed-bottom", "着床式"), Floating: l3("浮動式", "Floating", "浮体式") };
 
 // ───────────── 第 6 波：能源 ─────────────
@@ -973,6 +990,68 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [],
     sourceOrg: OSM_ATTR_IE, sourceUrl: "https://www.openstreetmap.org/copyright", license: "ODbL 1.0", fetchedAt: IE_W6_FETCHED_AT,
     loading: l3("愛爾蘭加油站載入中", "Loading Ireland fuel stations", "アイルランドのガソリンスタンドを読み込み中"),
+  },
+  // ───────────── 第 7a 波：教育（學校、學校規劃區、早期教保服務） ─────────────
+  {
+    key: "ieSchools", file: "ie_schools.pmtiles", sourceLayer: "ie_schools", geom: "point", layerId: "ie-schools-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "M", count: 4150,
+    catProp: "category", cats: SCHOOL_CATS,
+    title: { props: ["name"], fallback: l3("學校", "School", "学校") },
+    fields: [{ prop: "category", label: l3("類型", "Type", "種別"), map: Object.fromEntries(SCHOOL_CATS.map((c) => [c.id, c.label])) },
+             { prop: "enrolments", label: l3("在學人數（2026）", "Enrolments (2026)", "在籍者数（2026）"), kind: "num", unit: "人" },
+             { prop: "female", label: l3("女", "Female", "女子"), kind: "num" }, { prop: "male", label: l3("男", "Male", "男子"), kind: "num" },
+             { prop: "gender", label: l3("男女校", "Gender", "男女別") }, { prop: "post_primary_type", label: l3("中學類型", "Post-primary type", "中等学校の種類") },
+             { prop: "primary_type", label: l3("國小類型", "Primary type", "小学校の種類") }, { prop: "deis", label: l3("DEIS（弱勢扶助學校）", "DEIS school", "DEIS（不利地域支援校）"), map: YES_ONLY },
+             { prop: "language", label: l3("教學語言", "Language of instruction", "授業言語") }, { prop: "ethos", label: l3("辦學宗教背景", "Ethos", "宗教的背景") },
+             { prop: "patron", label: l3("辦學者（Patron）", "Patron", "設置者（Patron）") }, { prop: "fee_paying", label: l3("收學費", "Fee-paying", "授業料あり"), map: YES_ONLY },
+             { prop: "gaeltacht", label: l3("位於 Gaeltacht", "In Gaeltacht", "ゲールタハト内"), map: YES_ONLY }, { prop: "island", label: l3("離島學校", "Island school", "離島の学校"), map: YES_ONLY },
+             { prop: "planning_area", label: l3("學校規劃區", "School planning area", "学校計画区") },
+             { prop: "roll_number", label: l3("學校代碼（Roll No.）", "Roll number", "学校番号（Roll No.）"), kind: "code" },
+             { prop: "osm_type", label: l3("OSM 類型", "OSM type", "OSM 種別"), kind: "code" }, { prop: "osm_id", label: l3("OSM 編號", "OSM ID", "OSM ID"), kind: "code" },
+             { prop: "county", label: l3("郡", "County", "県") }, LA],
+    legendNotes: [l3("教育部 2026 名冊 3,927 校：國小 3,062、中學 720、特殊學校 145（缺座標 11 校未畫）；在學人數合計 972,874", "Department of Education 2026 list: 3,927 schools — 3,062 primary, 720 post-primary, 145 special (11 without coordinates not shown); 972,874 pupils enrolled", "教育省2026年名簿の3,927校（小学校3,062・中等学校720・特別支援学校145。座標のない11校は未表示）、在籍者計972,874人"),
+                  l3("大專 223 點來自 OpenStreetMap（教育部名冊沒有大專）：大學與校區 85、學院／繼續教育／職訓 138，非官方名冊、完整度未驗", "223 higher/further education points from OpenStreetMap (the Department's list has no third level): 85 universities & campuses, 138 colleges / further education / training centres — not an official list, completeness unverified", "高等教育223地点は OpenStreetMap 由来（教育省名簿に高等教育なし）：大学・キャンパス85、カレッジ・継続教育・職業訓練138。公式名簿ではなく網羅性は未検証"),
+                  l3("教育部名冊來源頁未標示授權（授權待確認）；大專點 © OpenStreetMap contributors（ODbL）", "Licence not stated on the Department's source page (to be confirmed); higher-education points © OpenStreetMap contributors (ODbL)", "教育省名簿の出典ページにライセンス表示なし（確認中）。高等教育の点は © OpenStreetMap contributors（ODbL）")],
+    popupNotes: [],
+    sourceOrg: "Department of Education, Statistics Unit — Schools Map 2026 (licence not stated); © OpenStreetMap contributors (ODbL 1.0)", sourceUrl: "https://www.arcgis.com/home/item.html?id=e71d0ca28fc54513b9a169dac2ebc28d", license: `${LICENSE_PENDING}＋ODbL 1.0`, fetchedAt: IE_W7A_FETCHED_AT,
+    loading: l3("愛爾蘭學校載入中", "Loading Ireland schools", "アイルランドの学校を読み込み中"),
+  },
+  {
+    // 鋪滿國土的規劃單位（比照行政界，V-3 豁免、不做點／面切換）；全國視角只畫外框，z9 起填色
+    key: "ieSchoolPlanningAreas", file: "ie_school_planning_areas.pmtiles", sourceLayer: "ie_school_planning_areas", geom: "polygon", layerId: "ie-school-planning-areas-fill", outlineId: "ie-school-planning-areas-line", fillFromZoom: 9,
+    srcMinzoom: 4, srcMaxzoom: 13, minzoom: 4, color: "#a78bfa", count: 314,
+    title: { props: ["name"], fallback: l3("學校規劃區", "School planning area", "学校計画区") },
+    fields: [{ prop: "spa_id", label: l3("規劃區代碼", "Planning area ID", "計画区コード"), kind: "code" },
+             { prop: "schools", label: l3("區內學校（2026）", "Schools in area (2026)", "区内の学校（2026）"), kind: "num", unit: "校" },
+             { prop: "primary", label: l3("國小", "Primary", "小学校"), kind: "num" }, { prop: "post_primary", label: l3("中學", "Post-primary", "中等学校"), kind: "num" },
+             { prop: "special", label: l3("特殊學校", "Special", "特別支援学校"), kind: "num" },
+             { prop: "enrolments", label: l3("區內在學人數（2026）", "Enrolments in area (2026)", "区内の在籍者数（2026）"), kind: "num", unit: "人" },
+             { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 }, LA],
+    legendNotes: [l3("教育部規劃學校供給用的 314 個學校規劃區（2011 年版，對齊 Census Small Area），不分學段", "The Department of Education's 314 school planning areas used to plan school provision (2011 version, aligned to Census Small Areas); not split by school level", "教育省が学校整備の計画に使う314の学校計画区（2011年版、国勢調査 Small Area に整合）。学校段階で分けていない"),
+                  l3("不是入學學區：家長可申請任何學校，跨區就讀很常見", "Not a catchment area: parents may apply to any school, and cross-area enrolment is common", "通学区域ではない。保護者はどの学校にも出願でき、区をまたぐ通学は多い"),
+                  l3("區內校數與在學人數依教育部 2026 名冊的規劃區欄彙總", "School counts and enrolments are summed from the planning-area field of the Department's 2026 school list", "区内の学校数と在籍者数は教育省2026年名簿の計画区欄から集計")],
+    popupNotes: [l3("規劃區不是學區", "A planning area is not a catchment", "計画区は通学区域ではない")],
+    sourceOrg: "Department of Education, GIS Division — School Planning Areas 2011", sourceUrl: "https://www.arcgis.com/home/item.html?id=bbdf93d83276489dbdcc0be2ee77aec0", license: CC_BY, fetchedAt: IE_W7A_FETCHED_AT,
+    loading: l3("愛爾蘭學校規劃區載入中", "Loading Ireland school planning areas", "アイルランドの学校計画区を読み込み中"),
+  },
+  {
+    key: "ieChildcareServices", file: "ie_childcare_services.pmtiles", sourceLayer: "ie_childcare_services", geom: "point", layerId: "ie-childcare-services-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#2dd4bf", tier: "S", count: 5071,
+    catProp: "category", cats: CHILDCARE_CATS,
+    title: { props: ["name"], fallback: l3("早期教保服務", "Early learning & care service", "幼児教育・保育サービス") },
+    fields: [{ prop: "category", label: l3("經營型態", "Operator type", "運営形態"), map: Object.fromEntries(CHILDCARE_CATS.map((c) => [c.id, c.label])) },
+             { prop: "name_hidden", label: l3("名稱", "Name", "名称"), map: { yes: l3("個人經營，名稱不顯示", "Sole operator, name withheld", "個人経営のため非表示") } },
+             { prop: "afterschool", label: l3("課後照顧（依名稱判斷）", "After-school care (by name)", "放課後ケア（名称から判断）"), map: YES_ONLY },
+             { prop: "ecce", label: l3("ECCE 免費學前教育（推定）", "ECCE free pre-school (assumed)", "ECCE 無償就学前教育（推定）"), map: SCHEME },
+             { prop: "ncs", label: l3("NCS 國家托育補助（推定）", "National Childcare Scheme (assumed)", "NCS 全国保育補助（推定）"), map: SCHEME },
+             { prop: "ccsp", label: l3("CCSP 社區托育補貼（推定）", "CCSP community childcare subvention (assumed)", "CCSP 地域保育補助（推定）"), map: SCHEME },
+             { prop: "service_ref", label: l3("服務編號", "Service reference", "サービス番号"), kind: "code" }, LA],
+    legendNotes: [l3("Pobal 早期教保（ELC）服務點 5,071（私人 3,895、社區 1,176；缺座標 4 未畫），含托兒所、學前班與課後照顧", "Pobal early learning and care (ELC) services: 5,071 (3,895 private, 1,176 community; 4 without coordinates not shown), incl. crèches, pre-schools and after-school care", "Pobal の幼児教育・保育（ELC）サービス5,071か所（民間3,895・コミュニティ1,176。座標のない4件は未表示）。託児所・就学前・放課後ケアを含む"),
+                  l3("約三分之一是個人經營（名稱為個人姓名），名稱不顯示；ECCE／NCS／CCSP 旗標 Pobal 未附說明，語意為推定、未經官方確認", "About a third are sole operators whose service name is a personal name; those names are withheld. The ECCE / NCS / CCSP flags have no published definition (meaning assumed, unconfirmed)", "約3分の1は個人経営（名称が個人名）のため名称を表示しない。ECCE・NCS・CCSP の旗は Pobal に説明がなく、意味は推定（未確認）"),
+                  l3("來源頁未標示授權（授權待確認）；補習班沒有官方名冊，未收", "Licence not stated on the source page (to be confirmed); grind schools have no official register and are not included", "出典ページにライセンス表示なし（確認中）。学習塾は公式名簿がなく未収録")],
+    popupNotes: [],
+    sourceOrg: "Pobal — Childcare Facilities (early learning and care services), PobalMaps (licence not stated)", sourceUrl: "https://www.arcgis.com/home/item.html?id=15b1106eb7594289824617f838215442", license: LICENSE_PENDING, fetchedAt: IE_W7A_FETCHED_AT,
+    loading: l3("愛爾蘭早期教保服務點載入中", "Loading Ireland early learning and care services", "アイルランドの幼児教育・保育サービスを読み込み中"),
   },
 ];
 

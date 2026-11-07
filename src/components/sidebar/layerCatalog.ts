@@ -378,6 +378,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "林業",
     // 第 6 波：能源（電廠、電網、再生能源、加油站；比照台灣、南韓、英國）
     "能源",
+    // 第 7a 波：教育（學校、學校規劃區、早期教保服務），比照台灣、英國、南韓「教育」
+    "教育",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -3196,6 +3198,17 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "石化 · 加油站", layers: [fromManifest("ieFuelStations")] },
     ],
   },
+  {
+    // 第 7a 波：比照台灣「教育 › 學校 Schools」「幼托補習 Childcare & Cram」；學校規劃區不是學區（使用者 2026-11-07），另開群組、不放「學區 District」
+    title: "教育",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校 Schools", layers: [fromManifest("ieSchools")] },
+      { title: "學校規劃區", layers: [fromManifest("ieSchoolPlanningAreas")] },
+      { title: "幼托補習 Childcare & Cram", layers: [fromManifest("ieChildcareServices")] },
+    ],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
@@ -3560,6 +3573,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "環境氣候": "environment",
     "林業": "environment",
     "能源": "environment",
+    "教育": "publicLife",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3781,6 +3795,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "林業": { zh: "林業", sub: "Forestry" },
     "能源": { zh: "能源", sub: "Energy" },
+    "教育": { zh: "教育", sub: "Education" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
