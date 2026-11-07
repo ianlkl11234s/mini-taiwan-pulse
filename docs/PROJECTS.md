@@ -117,7 +117,7 @@
 |---|---|---|---|---|---|
 | 國道逐車模擬（G39） | 🟡 | mini #814 隨 v2.22.0 發布（2026-11-06 隨 v2.25.1 上正式站）；MCP #95 已於 2026-11-04 部署；資料 R2 `sim/v1/freeway_tdcs/20261103-1` | 跟車減速 wip 5f692772（在 taipei-gis-analytics，已隨 #286 合進 master）暫停中；正式站待驗收 | `../taipei-gis-analytics/docs/topic-research/freeway_tdcs/_status.md`；[`features/freeway-tdcs-sim/handoff.md`](./features/freeway-tdcs-sim/handoff.md)；roadmap G39 | 2026-11-04 |
 | 情境推演／數位雙生（G28） | 🟡 | P1 靜態鏈已合 analytics #225，主站沒接 | P2 八仙回測：先補雙北以外醫院、校正座標 | candidates/G28；`../taipei-gis-analytics/docs/topic-research/digital_twin/REPORT.md` | 2026-10-26 |
-| 雙北大眾運輸可及性 | 🟢 | mini #810 隨 v2.22.0 發布（2026-11-06 隨 v2.25.1 上正式站） | 正式站待驗收；下一步 P5 全台縣市 | roadmap G28 表 transit_access | 2026-11-04 |
+| 雙北大眾運輸可及性（含臺中、臺南、高雄） | 🟡 | 雙北 mini #810 隨 v2.25.1 上正式站；臺中／臺南／高雄（含國道客運上下車限制）11-04 算完，只在 analytics 本機分支 `feat/transit-access-cities`；雙北重算 P1 完成、P2／P3 未跑 | 正式站待驗收；TA-1 push＋PR（待核准）→ TA-3 三市上網站形式；TA-2 雙北雲端重算（待使用者說跑） | `../taipei-gis-analytics/docs/topic-research/transit_access/_status.md`；BACKLOG TA-1～TA-6 | 2026-11-06 |
 | 全台交通可及性 | 🟢 | v2.20.0 上線（#801），使用者確認效果 OK | 兩層同開時點擊只跳網格 popup（已知問題）；色階細分、雙北尺度方向未選 | `../taipei-gis-analytics/docs/topic-research/transit_reach/_status.md` | 2026-11-02 |
 | 公車擁擠模擬 | 🟢 | #701 隨 v2.14.0 上線（站主限定） | 站主帳號目視驗收 | `../taipei-gis-analytics/docs/topic-research/bus_crowding/` | 2026-10-25 |
 
@@ -147,6 +147,7 @@
 | Zeabur 停止營運搬遷 | 🟡 | 靜態站 10-29、主站與 research-gateway、Valhalla 11-06 搬完（主站 v2.25.1 在 Cloudflare Worker＋Linode pulse-host）；OSRM 不搬 | **期限 11 月底**：collector 搬到 pulse-host（等 collectors #170／#171、env 轉換、清晨切換），correctional_daily_snapshot 移 HiCloud VM；停 Zeabur 舊服務；SEC-6 換金鑰；flight-arc-sharing 網址待決 | `../.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0；`SETUP-INVENTORY.md` | 2026-11-07 |
 | Supabase Disk IO 複量 | 🟡 | 第三輪 mig 451–460 於 10-16 套用 | 原定約 10-23 用 pg_stat_io 取差值，未查證有沒有做；中間若重啟，基準作廢 | `../gis-platform/docs/research/2026-10-16-disk-io-round3.md` | 2026-10-16 |
 | 地圖圖層改版 R6 | 🟢 | 段 1–3 隨 v2.8.0 上線 | R6-V 正式站目視；段 4（船、公車、垃圾車、漁船）R6-4 暫不碰 | [`features/map-layer-restyle/R6-PROPOSAL.md`](./features/map-layer-restyle/R6-PROPOSAL.md)；BACKLOG R6-V／R6-4 | 2026-10-15 |
+| AWS 雲端運算工具 cloud_run | 🟡 | analytics `tools/cloud_run/`＋skill `cloud-run`（個人 AWS 帳號 ap-southeast-2，報價→開機→取回→自動刪機）；11-06 實機 smoke 兩項通過、合計約 US$0.19；只在本機分支未 push | 隨 TA-1 一起 PR；TA-4 測 Spot 中斷接續；TA-5 S3 測試檔去留 | analytics `tools/cloud_run/README.md`；BACKLOG TA-1／TA-4／TA-5 | 2026-11-06 |
 | 地圖基礎 GIS 元件（指北針、量測、右鍵） | 🟢 | #803／#804 隨 v2.21.0；#808 隨 v2.22.0 發布（2026-11-06 隨 v2.25.1 上正式站） | GUI-2：手機實機觸控、真實定位、實體雙擊 | BACKLOG GUI-2 | 2026-11-04 |
 | 地圖可見性整修 | 🟢 | v2.19.0 上線；#795 隨 v2.20.0 | VIS-3 剩餘目視項目 | BACKLOG VIS-3；[`design-system/map-layers.md`](./design-system/map-layers.md) §3.8 | 2026-11-01 |
 | 多語系 i18n | 🟢 | P0–P5 隨 v2.9.0 上線 | P4-C（Agent 依網頁語言回答）、I18N-1（統計「資料限制」段仍中文）、KRI18N-1 | [`features/i18n/ROADMAP.md`](./features/i18n/ROADMAP.md) | 2026-10-31 |

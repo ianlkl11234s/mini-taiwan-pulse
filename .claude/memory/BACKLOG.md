@@ -331,7 +331,7 @@
 
 ## 大眾運輸可及性 transit_access：三市與雲端運算（2026-11-06）
 
-雙北版程式 #810 已在 v2.22.0（Zeabur 正式站卡在 v2.21.0，新版在 Cloudflare 測試站）。臺中／臺南／高雄（含國道客運上下車限制）與雲端工具 `tools/cloud_run/`、skill `cloud-run` 都只在 analytics 本機分支 `feat/transit-access-cities`（worktree `.worktrees/transit-access-cities`，未 push）。各市結果與方法：analytics `docs/topic-research/transit_access/`（taichung／tainan／kaohsiung.md、methodology.md §6、_status.md）。
+雙北版 #810 隨 v2.22.0 發布，2026-11-07 實測正式站已是 v2.25.1（`main-BdTubvoM.js`），雙北網站版已上線（正式站畫面驗收見 PROJECTS.md 該列）。臺中／臺南／高雄（含國道客運上下車限制）與雲端工具 `tools/cloud_run/`、skill `cloud-run` 都只在 analytics 本機分支 `feat/transit-access-cities`（worktree `.worktrees/transit-access-cities`，未 push）。各市結果與方法：analytics `docs/topic-research/transit_access/`（taichung／tainan／kaohsiung.md、methodology.md §6、_status.md）。
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
