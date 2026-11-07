@@ -18,19 +18,19 @@
   ]
  },
  "summary": {
-  "layerKeys": 1769,
-  "overlayConfigs": 503,
-  "runtimeSublayers": 956,
+  "layerKeys": 1771,
+  "overlayConfigs": 505,
+  "runtimeSublayers": 960,
   "byResolution": {
-   "runtime": 422,
+   "runtime": 424,
    "static-scan": 307,
    "unresolved": 133,
    "shared-renderer": 907
   },
   "byGeometry": {
-   "point": 593,
-   "heatmap": 214,
-   "line": 366,
+   "point": 594,
+   "heatmap": 215,
+   "line": 367,
    "polygon": 1232,
    "raster": 63,
    "label": 63,
@@ -43,12 +43,12 @@
    "Three.js／WebGL CustomLayer": 11,
    "無 hook／factory（App 掛載或尚無實作）": 103
   },
-  "legendEntries": 1517,
+  "legendEntries": 1519,
   "legendTypes": {
    "square-swatch": 118,
-   "svg-icon": 49,
+   "svg-icon": 50,
    "dot-swatch": 240,
-   "gradient+dot-swatch": 72,
+   "gradient+dot-swatch": 73,
    "square-swatch+hatch(missing)": 912,
    "gradient+size+dot-swatch": 4,
    "hatch(missing)": 3,
@@ -75,10 +75,10 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 570,
+   "ssr": 572,
    "static": 947
   },
-  "legendsWithIssues": 55,
+  "legendsWithIssues": 56,
   "ironRules": {
    "missingOpacity": [
     "activeFaults",
@@ -108,14 +108,14 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 355,
+    "n": 357,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
     "p75": 5.143,
     "max": 15.3,
     "mostCommon": [
-     "4.5×192",
+     "4.5×194",
      "3×42",
      "5.143×36",
      "6.5×16",
@@ -130,14 +130,14 @@
     "decorationExcluded": 150
    },
    "circle-radius@z14": {
-    "n": 355,
+    "n": 357,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
     "p75": 6,
     "max": 24.48,
     "mostCommon": [
-     "4.5×194",
+     "4.5×196",
      "3×42",
      "6×39",
      "6.5×17",
@@ -152,14 +152,14 @@
     "decorationExcluded": 150
    },
    "circle-stroke-width@z14": {
-    "n": 360,
+    "n": 362,
     "min": 0.6,
     "p25": 1,
     "median": 1,
     "p75": 1.05,
     "max": 2.2,
     "mostCommon": [
-     "1×264",
+     "1×266",
      "1.2×60",
      "1.4×10",
      "1.5×5",
@@ -174,7 +174,7 @@
     "decorationExcluded": 150
    },
    "circle-opacity": {
-    "n": 356,
+    "n": 358,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
@@ -184,7 +184,7 @@
      "0.85×108",
      "0.8×78",
      "0.9×44",
-     "0.75×41",
+     "0.75×43",
      "0.45×15",
      "0.6×12",
      "0.54×7",
@@ -196,7 +196,7 @@
     "decorationExcluded": 150
    },
    "line-width@z10": {
-    "n": 148,
+    "n": 149,
     "min": 0.15,
     "p25": 0.5,
     "median": 1,
@@ -210,15 +210,15 @@
      "0.35×4",
      "0.15×3",
      "3×2",
-     "0.9×2"
+     "0.75×2"
     ],
-    "dataDrivenCounted": 8,
+    "dataDrivenCounted": 9,
     "notSet": 0,
     "unresolved": 0,
     "decorationExcluded": 28
    },
    "line-width@z14": {
-    "n": 148,
+    "n": 149,
     "min": 0.15,
     "p25": 1,
     "median": 1,
@@ -234,22 +234,22 @@
      "0.7×4",
      "0.15×3"
     ],
-    "dataDrivenCounted": 8,
+    "dataDrivenCounted": 9,
     "notSet": 0,
     "unresolved": 0,
     "decorationExcluded": 28
    },
    "line-opacity": {
-    "n": 148,
+    "n": 149,
     "min": 0.04,
     "p25": 0.6,
     "median": 0.8,
-    "p75": 0.8,
+    "p75": 0.85,
     "max": 1,
     "mostCommon": [
      "0.6×51",
      "0.8×37",
-     "0.85×32",
+     "0.85×33",
      "0.75×9",
      "0.65×8",
      "0.04×3",
@@ -299,14 +299,14 @@
     "decorationExcluded": 0
    },
    "heatmap-radius@z14": {
-    "n": 70,
+    "n": 71,
     "min": 20,
     "p25": 20,
     "median": 20,
     "p75": 20,
     "max": 20,
     "mostCommon": [
-     "20×70"
+     "20×71"
     ],
     "dataDrivenCounted": 0,
     "notSet": 0,
@@ -501,12 +501,12 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 358,
+   "隨底圖切換": 360,
    "固定 #c2410c": 1,
    "資料驅動": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #0a0a14 → 淡 #ffffff": 266,
+   "暗 #0a0a14 → 淡 #ffffff": 268,
    "暗 #0f172a → 淡 #ffffff": 59,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
@@ -537,17 +537,17 @@
   ],
   "lineCapJoin": {
    "cap=(預設 butt) join=(預設 miter)": 105,
-   "cap=round join=round": 37,
+   "cap=round join=round": 38,
    "cap=butt join=miter": 6
   },
   "themeDiff": {
-   "sublayersWithDiff": 646,
-   "of": 956,
+   "sublayersWithDiff": 649,
+   "of": 960,
    "byProperty": {
-    "circle-stroke-color": 358,
-    "circle-stroke-opacity": 299,
+    "circle-stroke-color": 360,
+    "circle-stroke-opacity": 301,
     "line-color": 96,
-    "heatmap-color": 66,
+    "heatmap-color": 67,
     "text-color": 64,
     "text-halo-color": 64,
     "circle-color": 47,
@@ -560,13 +560,13 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 261,
+   "circle:categorical": 263,
    "circle:constant": 227,
    "line:constant": 116,
-   "heatmap:sequential": 70,
+   "heatmap:sequential": 71,
    "symbol:constant": 64,
    "fill:categorical": 58,
-   "line:categorical": 57,
+   "line:categorical": 58,
    "fill:constant": 36,
    "fill:sequential-step": 17,
    "fill:sequential": 13,
@@ -870,6 +870,8 @@
   {"id":"ieCareHomes","members":["ieCareHomes"],"components":["IeDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":false},
   {"id":"ieChildcareServices","members":["ieChildcareServices"],"components":["IeDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":2,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":2,"paintComparable":false},
   {"id":"ieCoastalErosion","members":["ieCoastalErosion"],"components":["IeDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"svg-icon","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":2,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":2,"paintComparable":false},
+  {"id":"ieCoillteForestRoads","members":["ieCoillteForestRoads"],"components":["IeSpecLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"svg-icon","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":2,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":2,"paintComparable":true},
+  {"id":"ieCoillteRecreation","members":["ieCoillteRecreation"],"components":["IeSpecLegend","DenseHeatmapLegendRow"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":2,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":9,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"ieCommercialValuations","members":["ieCommercialValuations"],"components":["IeDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":9,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":9,"paintComparable":false},
   {"id":"ieCourts","members":["ieCourts"],"components":["IeDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"ieDublinbikesStations","members":["ieDublinbikesStations"],"components":["IeDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":false},
@@ -2480,6 +2482,8 @@
   "ieCareHomes": {"label":"HIQA 老人照護機構 Care Homes (HIQA)","theme":"社福長照","dataClass":"D","color":"#f59f00","legend":"ieCareHomes","legendType":"dot-swatch","popup":"ieCareHomes","params":{"opacity":{"name":"ieCareHomesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"ieCareHomesScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useIeCareHomesLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "ieChildcareServices": {"label":"早期教保服務（托育） Early Learning & Care Services","theme":"教育","dataClass":"D","color":"#2dd4bf","legend":"ieChildcareServices","legendType":"dot-swatch","popup":"ieChildcareServices","params":{"opacity":{"name":"ieChildcareServicesOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"ieChildcareServicesScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useIeChildcareServicesLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "ieCoastalErosion": {"label":"海岸侵蝕線（ICPSS） Coastal Erosion Lines (ICPSS)","theme":"災害","dataClass":"D","color":"#ef4444","legend":"ieCoastalErosion","legendType":"svg-icon","popup":"ieCoastalErosion","params":{"opacity":{"name":"ieCoastalErosionOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"hooks":["useIeCoastalErosionLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "ieCoillteForestRoads": {"label":"國有林林道與遊憩步道 Coillte Forest Roads & Recreation Trails（Coillte）","theme":"林業","dataClass":"C","color":"#f59e0b","legend":"ieCoillteForestRoads","legendType":"svg-icon","popup":"ieCoillteForestRoads","params":{"opacity":{"name":"ieCoillteForestRoadsOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":10,"values":{"line-width":{"z10":{"min":0.5,"max":1},"z14":{"min":1,"max":2}},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":2,"dark":["#f59e0b","#4ade80"]}}}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "ieCoillteRecreation": {"label":"國有林遊憩點與森林入口 Coillte Recreation Sites & Forest Entrances（Coillte）","theme":"林業","dataClass":"C","color":"#4ade80","legend":"ieCoillteRecreation","legendType":"gradient+dot-swatch","popup":"ieCoillteRecreation","params":{"opacity":{"name":"ieCoillteRecreationOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"ieCoillteRecreationScale","default":1,"min":0.3,"max":3},"controls":4},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":1,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"entrance-circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#4ade80","#a78bfa"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]},{"suffix":"site-circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":4,"values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#4ade80","#a78bfa"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "ieCommercialValuations": {"label":"商業房產估值 Commercial Property Valuations","theme":"房地產","dataClass":"D","color":"#f472b6","legend":"ieCommercialValuations","legendType":"dot-swatch","popup":"ieCommercialValuations","params":{"opacity":{"name":"ieCommercialValuationsOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"ieCommercialValuationsScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useIeCommercialValuationsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "ieCourts": {"label":"法院 Courthouses","theme":"執法治安","dataClass":"D","color":"#a78bfa","legend":"ieCourts","legendType":"dot-swatch","popup":"ieCourts","params":{"opacity":{"name":"ieCourtsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"ieCourtsScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useIeCourtsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "ieDublinbikesStations": {"label":"Dublinbikes 站點 Dublinbikes Stations","theme":"交通","dataClass":"D","color":"#4ade80","legend":"ieDublinbikesStations","legendType":"dot-swatch","popup":"ieDublinbikesStations","params":{"opacity":{"name":"ieDublinbikesStationsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"ieDublinbikesStationsScale","default":1,"min":0.3,"max":3},"controls":2},"hooks":["useIeDublinbikesStationsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

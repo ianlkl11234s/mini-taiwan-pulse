@@ -506,7 +506,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-radiation-stations-circle"], type: "ieRadiationStations" },
   { layers: ["ie-landslide-events-circle"], type: "ieLandslideEvents" },
   { layers: ["ie-street-trees-circle"], type: "ieStreetTrees" },
+  { layers: ["ie-coillte-recreation-site-circle", "ie-coillte-recreation-entrance-circle"], type: "ieCoillteRecreation" },
   { layers: ["ie-national-trails-line"], type: "ieNationalTrails" },
+  { layers: ["ie-coillte-forest-roads-line"], type: "ieCoillteForestRoads" },
   { layers: ["ie-wild-atlantic-way-line"], type: "ieWildAtlanticWay" },
   { layers: ["ie-power-lines-line"], type: "iePowerLines" },
   // 第 7a 波：學校、托育點（點優先）

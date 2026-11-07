@@ -77,7 +77,8 @@ import type { KrDataKey } from "../../data/krDataKeys";
 const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
-import { IE_DATA_PANELS, IeAdminBoundariesPanel } from "./iePanels";
+import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
+import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../../data/ieCoillteTypes";
 import { IE_DATA_SPECS } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 const IE_HEADER_LABELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IeDataKey, string>;
@@ -472,6 +473,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   caAdminBoundaries: CaAdminBoundariesPanel,
   ieAdminBoundaries: IeAdminBoundariesPanel,
   ...IE_DATA_PANELS,
+  ieCoillteRecreation: makeIePanel(IE_COILLTE_RECREATION),
+  ieCoillteForestRoads: makeIePanel(IE_COILLTE_FOREST_ROADS),
   caTransitStops: CaTransitStopsPanel,
   caAirportsPorts: CaAirportsPortsPanel,
   caMajorRoads: CaMajorRoadsPanel,
@@ -1149,6 +1152,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   caAdminBoundaries: "行政邊界 Administrative Boundaries",
   ieAdminBoundaries: "行政邊界 Administrative Boundaries",
   ...IE_HEADER_LABELS,
+  ieCoillteRecreation: "Coillte 國有林遊憩點 Coillte Recreation",
+  ieCoillteForestRoads: "Coillte 林道與步道 Coillte Forest Roads",
   caTransitStops: "公共運輸站點 Transit Stops",
   caAirportsPorts: "機場與港口 Airports & Ports",
   caMajorRoads: "主要道路 Major Roads",

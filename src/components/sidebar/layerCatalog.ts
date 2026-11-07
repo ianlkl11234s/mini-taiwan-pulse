@@ -3206,7 +3206,11 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "林業",
     country: "IE",
     defaultCollapsed: true,
-    groups: [{ title: "線", layers: [fromManifest("ieNationalTrails")] }],
+    // 第 5c 波 C115／C116：Coillte 國有林（站主限定）比照英國 gbForestRecreation「林業 › 點位」、gbTrails「林業 › 線」
+    groups: [
+      { title: "點位", layers: [fromManifest("ieCoillteRecreation")] },
+      { title: "線", layers: [fromManifest("ieNationalTrails"), fromManifest("ieCoillteForestRoads")] },
+    ],
   },
   {
     // 第 6 波：群組比照台灣「能源 Energy」與南韓、英國——電力 · 廠、電力 · 電網、再生能源（台灣把充電站放這組）、石化 · 加油站
