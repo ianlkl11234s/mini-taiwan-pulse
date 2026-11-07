@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1653,
+    "keyCount": 1654,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2293,6 +2293,14 @@
         "ca-admin-pr-fill"
       ],
       "type": "caAdminBoundaries"
+    },
+    {
+      "layers": [
+        "ie-admin-sa-fill",
+        "ie-admin-ed-fill",
+        "ie-admin-la-fill"
+      ],
+      "type": "ieAdminBoundaries"
     },
     {
       "layers": [
@@ -120359,6 +120367,36 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieAdminBoundaries": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "地方政府（Local authority）",
+            "value": "la"
+          },
+          {
+            "label": "選舉分區（Electoral division）",
+            "value": "ed"
+          },
+          {
+            "label": "統計小區（Small area）",
+            "value": "sa"
+          }
+        ],
+        "type": "select",
+        "value": "la"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "immigrationOffice": [

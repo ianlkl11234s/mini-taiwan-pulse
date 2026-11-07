@@ -189,6 +189,7 @@ export type GeneratedStaticKey =
   | "country.CA"
   | "country.FR"
   | "country.GB"
+  | "country.IE"
   | "country.JP"
   | "country.KR"
   | "country.TW"

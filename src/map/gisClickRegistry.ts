@@ -464,6 +464,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ca-fsa-fill"], type: "caPostalFsa" },
   { layers: ["ca-fed-fill"], type: "caFederalDistricts" },
   { layers: ["ca-admin-csd-fill", "ca-admin-cd-fill", "ca-admin-pr-fill"], type: "caAdminBoundaries" },
+  { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },

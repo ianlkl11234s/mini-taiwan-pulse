@@ -81,6 +81,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "krPowerTowers",
   "krOilGas",
   "caAdminBoundaries",
+  "ieAdminBoundaries",
   "caTransitStops",
   "caAirportsPorts",
   "caMajorRoads",
