@@ -336,6 +336,11 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "人口社經",
     "運動休閒",
     "殯葬",
+    // 第 7 波：教育（學校、小學通學區）、醫療、消防、執法治安（派出所）；民防避難設施比照日本併入「災害 › 避難設施」
+    "教育",
+    "醫療",
+    "消防",
+    "執法治安",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -351,6 +356,13 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "災害",
     // 加拿大統計（完整目錄；統計分頁另有「人口／社經」，見 CA_STATISTICS_TAB_THEMES）
     ...CA_STATISTICS_DATA_THEME_TITLES,
+  ],
+  IE: [
+    // 愛爾蘭（2026-11-07 第 0 波：底圖／行政邊界；第 1 波：地名、海床、Gaeltacht、運動綠地、墓地；title 沿用台灣主題中文短名，比照加拿大、南韓）
+    "底圖",
+    "原民與農村",
+    "運動休閒",
+    "殯葬",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -2827,7 +2839,11 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "災害",
     country: "KR",
     defaultCollapsed: true,
-    groups: [{ title: "海岸侵蝕", layers: [fromManifest("krCoastalErosionFacilities")] }],
+    groups: [
+      { title: "海岸侵蝕", layers: [fromManifest("krCoastalErosionFacilities")] },
+      // 第 7 波 C074：比照日本 jpEvacuationSites 的「災害 › 避難設施」
+      { title: "避難設施", layers: [fromManifest("krCivilDefenseShelters")] },
+    ],
   },
   {
     title: "海洋",
@@ -2892,6 +2908,35 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     groups: [{ title: "墓區範圍", layers: [fromManifest("krCemeteriesOsm")] }],
+  },
+  // 第 7 波：比照台灣「教育 › 學校 Schools／學區 District」「醫療 › 點位」「消防 › 點位」（英國同）
+  {
+    title: "教育",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校 Schools", layers: [fromManifest("krSchools")] },
+      { title: "學區 District", layers: [fromManifest("krSchoolDistricts")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("krHospitalsPharmacies")] }],
+  },
+  {
+    title: "消防",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("krFireStations")] }],
+  },
+  {
+    title: "執法治安",
+    country: "KR",
+    defaultCollapsed: true,
+    // 第 7 波 C075：比照日本 jpPoliceFacilities 的「執法治安 › 警政」
+    groups: [{ title: "警政", layers: [fromManifest("krPoliceBoxes")] }],
   },
   {
     title: "林業",
@@ -2979,6 +3024,45 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "CA",
     defaultCollapsed: true,
     groups: [{ title: "地震 / 斷層", layers: [fromManifest("caEarthquakesLive"), fromManifest("caEarthquakes")] }],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🇮🇪 愛爾蘭（2026-11-07 第 0 波：行政邊界；群組比照加拿大同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("ieAdminBoundaries")] },
+      // 第 1 波：比照台灣「底圖 › 海域界線／地形／地名 Gazetteer」
+      { title: "海域界線", layers: [fromManifest("ieMaritimeBoundaries")] },
+      { title: "地形", layers: [fromManifest("ieBathymetry")] },
+      { title: "地名 Gazetteer", layers: [fromManifest("iePlaceNames")] },
+    ],
+  },
+  {
+    // 第 1 波：愛爾蘭語區比照台灣「原民與農村 › 客家 Hakka」（法定語言社群地區）
+    title: "原民與農村",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "愛爾蘭語區 Gaeltacht", layers: [fromManifest("ieGaeltacht")] }],
+  },
+  {
+    // 第 1 波：比照台灣「運動休閒 › 運動場館／公園 Parks」與「殯葬 › 點位」（南韓第 6 波同）
+    title: "運動休閒",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "運動場館", layers: [fromManifest("ieActivityLocations")] },
+      { title: "公園 Parks", layers: [fromManifest("ieParks")] },
+    ],
+  },
+  {
+    title: "殯葬",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("ieGraveyards")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3318,9 +3402,21 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口社經": "city",
     "運動休閒": "publicLife",
     "殯葬": "publicLife",
+    // 第 7 波（同英國）
+    "教育": "publicLife",
+    "醫療": "safety",
+    "消防": "safety",
+    "執法治安": "safety",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
+  },
+  IE: {
+    // 愛爾蘭主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照加拿大）。
+    "底圖": "baseline",
+    "原民與農村": "city",
+    "運動休閒": "publicLife",
+    "殯葬": "publicLife",
   },
   CA: {
     // 加拿大主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照南韓、英國）。
@@ -3512,11 +3608,22 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口社經": { zh: "人口社經", sub: "인구·사회경제" },
     "運動休閒": { zh: "運動休閒", sub: "체육·여가" },
     "殯葬": { zh: "殯葬", sub: "장사" },
+    "教育": { zh: "教育", sub: "교육" },
+    "醫療": { zh: "醫療", sub: "의료" },
+    "消防": { zh: "消防", sub: "소방" },
+    "執法治安": { zh: "執法治安", sub: "치안" },
     // 南韓統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
     "人口": { zh: "人口", sub: "인구" },
     "社經": { zh: "社經", sub: "사회경제" },
+  },
+  IE: {
+    // 愛爾蘭主題副標用英文（比照英國、加拿大）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "原民與農村": { zh: "原民與農村", sub: "Indigenous & Rural" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "殯葬": { zh: "殯葬", sub: "Funeral" },
   },
   CA: {
     // 加拿大主題副標用英文（官方雙語英法，介面先用英文；比照英國）

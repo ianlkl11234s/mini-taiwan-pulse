@@ -152,3 +152,10 @@ export const KrUrbanParksHost = makeKrDataHost("krUrbanParks", 0.8);
 export const KrSportsFacilitiesHost = makeKrDataHost("krSportsFacilities", 0.85);
 export const KrCemeteriesOsmHost = makeKrDataHost("krCemeteriesOsm", 0.7);
 export const KrPopulationH3Host = makeKrDataHost("krPopulationH3", 0.6);
+// 第 7 波（2026-11-07）
+export const KrSchoolsHost = makeKrDataHost("krSchools", 0.85);
+export const KrSchoolDistrictsHost = makeKrDataHost("krSchoolDistricts", 0.35);
+export const KrHospitalsPharmaciesHost = makeKrDataHost("krHospitalsPharmacies", 0.85);
+export const KrFireStationsHost = makeKrDataHost("krFireStations", 0.85);
+export const KrCivilDefenseSheltersHost = makeKrDataHost("krCivilDefenseShelters", 0.85);
+export const KrPoliceBoxesHost = makeKrDataHost("krPoliceBoxes", 0.85);

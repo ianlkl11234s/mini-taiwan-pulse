@@ -104,8 +104,9 @@ import { GbAquacultureHost, GbCompaniesHost, GbFuneralHost, GbManufacturingHost,
 import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbPollutionInventoryEnglandHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
 import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
-import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrTerritorialSeaHost, KrUrbanParksHost, KrSportsFacilitiesHost, KrCemeteriesOsmHost, KrPopulationH3Host, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
+import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrTerritorialSeaHost, KrUrbanParksHost, KrSportsFacilitiesHost, KrCemeteriesOsmHost, KrPopulationH3Host, KrSchoolsHost, KrSchoolDistrictsHost, KrHospitalsPharmaciesHost, KrFireStationsHost, KrCivilDefenseSheltersHost, KrPoliceBoxesHost, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
 import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost, CaClimateStationsHost, CaAqhiStationsHost, CaRadiationStationsHost, CaNpriFacilitiesHost, CaWastewaterSystemsHost, CaEarthquakesHost, CaEarthquakesLiveHost, CaPopulationGridHost } from "./hosts/canadaHosts";
+import { IeAdminHost, IeMaritimeBoundariesHost, IePlaceNamesHost, IeGaeltachtHost, IeActivityLocationsHost, IeParksHost, IeGraveyardsHost, IeBathymetryHost } from "./hosts/irelandHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
@@ -332,6 +333,13 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useKrSportsFacilitiesLayer", keys: ["krSportsFacilities"], Host: KrSportsFacilitiesHost },
   { id: "useKrCemeteriesOsmLayer", keys: ["krCemeteriesOsm"], Host: KrCemeteriesOsmHost },
   { id: "useKrPopulationH3Layer", keys: ["krPopulationH3"], Host: KrPopulationH3Host },
+  // 南韓第 7 波
+  { id: "useKrSchoolsLayer", keys: ["krSchools"], Host: KrSchoolsHost },
+  { id: "useKrSchoolDistrictsLayer", keys: ["krSchoolDistricts"], Host: KrSchoolDistrictsHost },
+  { id: "useKrHospitalsPharmaciesLayer", keys: ["krHospitalsPharmacies"], Host: KrHospitalsPharmaciesHost },
+  { id: "useKrFireStationsLayer", keys: ["krFireStations"], Host: KrFireStationsHost },
+  { id: "useKrCivilDefenseSheltersLayer", keys: ["krCivilDefenseShelters"], Host: KrCivilDefenseSheltersHost },
+  { id: "useKrPoliceBoxesLayer", keys: ["krPoliceBoxes"], Host: KrPoliceBoxesHost },
   // 南韓第 1 波（國土基礎：交通＋能源）
   { id: "useKrBusStopsLayer", keys: ["krBusStops"], Host: KrBusStopsHost },
   { id: "useKrRailStationsLayer", keys: ["krRailStations"], Host: KrRailStationsHost },
@@ -348,6 +356,15 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useKrOilGasLayer", keys: ["krOilGas"], Host: KrOilGasHost },
   // 加拿大（2026-11-04 第 0＋1 波：行政邊界、交通 4 層、能源 4 層、人口中心）
   { id: "useCaAdminLayers", keys: ["caAdminBoundaries"], Host: CaAdminHost },
+  // 愛爾蘭（2026-11-07 第 0 波：行政邊界）
+  { id: "useIeAdminLayers", keys: ["ieAdminBoundaries"], Host: IeAdminHost },
+  { id: "useIeMaritimeBoundariesLayer", keys: ["ieMaritimeBoundaries"], Host: IeMaritimeBoundariesHost },
+  { id: "useIeBathymetryLayer", keys: ["ieBathymetry"], Host: IeBathymetryHost },
+  { id: "useIePlaceNamesLayer", keys: ["iePlaceNames"], Host: IePlaceNamesHost },
+  { id: "useIeGaeltachtLayer", keys: ["ieGaeltacht"], Host: IeGaeltachtHost },
+  { id: "useIeActivityLocationsLayer", keys: ["ieActivityLocations"], Host: IeActivityLocationsHost },
+  { id: "useIeParksLayer", keys: ["ieParks"], Host: IeParksHost },
+  { id: "useIeGraveyardsLayer", keys: ["ieGraveyards"], Host: IeGraveyardsHost },
   { id: "useCaTransitStopsLayer", keys: ["caTransitStops"], Host: CaTransitStopsHost },
   { id: "useCaAirportsPortsLayer", keys: ["caAirportsPorts"], Host: CaAirportsPortsHost },
   { id: "useCaMajorRoadsLayer", keys: ["caMajorRoads"], Host: CaMajorRoadsHost },

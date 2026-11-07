@@ -248,6 +248,8 @@ const NO_POPUP_LEDGER = new Set([
   "gbTerrainHillshade", "gbTerrainRelief",
   // 加拿大第 2 波：NRCan MRDEM-30 山體陰影 raster（PNG，無 feature 屬性）
   "caHillshade",
+  // 愛爾蘭第 1 波：INFOMAR 海床地形 raster（已著色 PNG，無 feature 屬性）
+  "ieBathymetry",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -609,10 +611,12 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(countryLayerKeys("FR")).toEqual(["anfrWirelessSites"]);
     expect(countryLayerKeys("GB")).toEqual(["gbAdminBoundaries", "gbSmallAreaBoundaries", "gbMaritimeLimits", "gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbGolfCourses", "gbCemeteries", "gbTerrainHillshade", "gbTerrainRelief", "gbPlanningConstraints", "gbBrownfield", "gbLondonStations", "gbStationUsage", "gbLondonBikePoints", "gbMajorRoads", "gbTrafficCountsAadf", "gbLondonRailLines", "gbLondonJamCams", "gbTransportHubs", "gbLondonChargingZones", "gbSurplusLand", "gbCompanies", "gbManufacturing", "gbSchools", "gbCareHomes", "gbCareServices", "gbCulturalFacilities", "gbArtsVenues", "gbVisitorExperience", "gbFuneral", "gbEarthquakes", "gbGroundStability", "gbRadon", "gbLandslide", "gbCoastalErosionRisk", "gbHealthFacilities", "gbFireStations", "gbCourts", "gbBathingWaters", "gbMarineProtectedAreas", "gbHydroStations", "gbRivers", "gbFloodDefenceAssets", "gbProtectedAreas", "gbTreeProtection", "gbRadiation", "gbPollutionInventory", "gbPollutionInventoryEngland", "gbNoise", "gbWoodland", "gbOpenAccessLand", "gbForestRecreation", "gbTrails", "gbPowerPlants", "gbPowerLines", "gbSubstations", "gbRenewables", "gbFuelStations", "gbOilGasFields", "gbRecyclingCentres", "gbWastePermits", "gbAquaculture", "gbSoilParentMaterial"]);
     expect(tw.has("gbAdminBoundaries")).toBe(false);
-    expect([...countryLayerKeys("KR")].sort()).toEqual(["krAdminBoundaries", "krAirports", "krBridges", "krBusStops", "krCemeteriesOsm", "krChildProtectionZones", "krCoastalErosionFacilities", "krFuelStations", "krMarineEnvSites", "krMarinePollutionIncidents", "krMarineProtectedAreas", "krNationalParks", "krNationalRoads", "krNpLocationSigns", "krNpTrails", "krOilGas", "krParkingLots", "krPopulationH3", "krPorts", "krPowerLines", "krPowerPlants", "krPowerTowers", "krPublicBicycleStations", "krRailLines", "krRailStations", "krRenewables", "krRiversOsm", "krSeoulSubwayCongestion", "krSluiceGates", "krSpeedCameras", "krSportsFacilities", "krStreetTrees", "krSubstations", "krTerritorialSea", "krUrbanParks", "krWaterLevelStations", "krWaterQualityStations"]);
+    expect([...countryLayerKeys("KR")].sort()).toEqual(["krAdminBoundaries", "krAirports", "krBridges", "krBusStops", "krCemeteriesOsm", "krChildProtectionZones", "krCivilDefenseShelters", "krCoastalErosionFacilities", "krFireStations", "krFuelStations", "krHospitalsPharmacies", "krMarineEnvSites", "krMarinePollutionIncidents", "krMarineProtectedAreas", "krNationalParks", "krNationalRoads", "krNpLocationSigns", "krNpTrails", "krOilGas", "krParkingLots", "krPoliceBoxes", "krPopulationH3", "krPorts", "krPowerLines", "krPowerPlants", "krPowerTowers", "krPublicBicycleStations", "krRailLines", "krRailStations", "krRenewables", "krRiversOsm", "krSchoolDistricts", "krSchools", "krSeoulSubwayCongestion", "krSluiceGates", "krSpeedCameras", "krSportsFacilities", "krStreetTrees", "krSubstations", "krTerritorialSea", "krUrbanParks", "krWaterLevelStations", "krWaterQualityStations"]);
     expect(tw.has("krAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("CA")].sort()).toEqual(["caAdminBoundaries", "caAirportsPorts", "caAqhiStations", "caClimateStations", "caDeprivation", "caEarthquakes", "caEarthquakesLive", "caFederalDistricts", "caHillshade", "caIndigenousLands", "caMajorRoads", "caNpriFacilities", "caOilGas", "caPlaceNames", "caPopulationCentres", "caPopulationGrid", "caPostalFsa", "caPowerGrid", "caPowerPlants", "caRadiationStations", "caRailways", "caRents", "caTransitStops", "caWastewaterSystems", "caWindTurbines"]);
     expect(tw.has("caAdminBoundaries")).toBe(false);
+    expect([...countryLayerKeys("IE")].sort()).toEqual(["ieActivityLocations", "ieAdminBoundaries", "ieBathymetry", "ieGaeltacht", "ieGraveyards", "ieMaritimeBoundaries", "ieParks", "iePlaceNames"]);
+    expect(tw.has("ieAdminBoundaries")).toBe(false);
   });
 
   it("日本大分類沿用台灣共用的 5 類（2026-10-26 使用者決定），且與 THEME_MACRO_GROUPS 一致", () => {

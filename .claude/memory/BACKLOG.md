@@ -112,7 +112,7 @@
 |---|---|---|---|---|---|
 | MC-5 | P3 | ready | Refresh static LST after the 2026 warm season. | Gate passed (not_before 2026-10-01); as of 2026-10-05 the latest product is still `urban_heat_lst_*_20260729` and production serves that build. Rerun the median pipeline for the full 2026 warm season, review color ranges, then publish a dated replacement. | Replaced asset has date/provenance and expected P2–P98 ranges. [Urban Heat backlog](../../docs/features/urban-heat-lst/backlog.md) |
 | EM-30 | P2 | conditional | Remove rail-geometry fallback only after an observation window. | Not before 2026-11-01 (observation date set 2026-10-16; the fallback in `src/embed/railReplayData.ts` is still present). Owner: 使用者 (approval to delete the old S3 object). First action: check fallback fetch counts, then remove code and old S3 object together with approval. | Production has used the hashed asset through the window and no fallback fetch occurred. [Embeddable map backlog](../../docs/features/embeddable-map/backlog.md) |
-| JPRD-1 | P3 | conditional | 日本主要道路補上市町村道（2026-10-28 使用者決定先不做）。 | Trigger: Zeabur 搬遷完成（Zeabur 已不再自動部署，正式站停在 v2.21.0）、靜態大檔改放 Cloudflare R2 之後（使用者：「先完整搬家完再說」）。Owner: 使用者。現況：`jpMajorRoads` 只收 N13-2024 的国道、都道府県道、高速（N13_003=1／2／4），PMTiles 141.9MB。這三類只佔全部線段約 8%（抽樣 mesh 5136），全收粗估 PMTiles 超過 1GB（推估，未實際產出）。當初的 150MB 是派工自訂目標，理由是 Zeabur 主機磁碟已用 96%、主站 /data 會整包同步 S3 deploy-assets，不是平台硬限制。First action: 搬完後在 analytics `pipelines/world/jp_major_roads/` 另產一份市町村道 PMTiles，前端另開一層（例如 z12 以上才顯示），不併進現有主要道路層。 | 市町村道圖層上線，四鐵則齊全，檔案放 R2，不佔主機磁碟。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
+| JPRD-1 | P3 | conditional | 日本主要道路補上市町村道（2026-10-28 使用者決定先不做）。 | Trigger: Zeabur 搬遷完成、靜態大檔改放 Cloudflare R2 之後（2026-11-07 註：主站已於 11-06 改走 Workers＋R2、正式站 v2.25.1，條件已到，等使用者決定是否開工）（使用者：「先完整搬家完再說」）。Owner: 使用者。現況：`jpMajorRoads` 只收 N13-2024 的国道、都道府県道、高速（N13_003=1／2／4），PMTiles 141.9MB。這三類只佔全部線段約 8%（抽樣 mesh 5136），全收粗估 PMTiles 超過 1GB（推估，未實際產出）。當初的 150MB 是派工自訂目標，理由是 Zeabur 主機磁碟已用 96%、主站 /data 會整包同步 S3 deploy-assets，不是平台硬限制。First action: 搬完後在 analytics `pipelines/world/jp_major_roads/` 另產一份市町村道 PMTiles，前端另開一層（例如 z12 以上才顯示），不併進現有主要道路層。 | 市町村道圖層上線，四鐵則齊全，檔案放 R2，不佔主機磁碟。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
 
 ## Verification/cleanup queue
 
@@ -277,7 +277,7 @@
 | KRREL-1 | P2 | done | 南韓＋圖層可見性整修（#769／#773–#775、#779–#788）整批發版到正式站。 | 2026-11-01 v2.19.0 上線（#790、#792 merge `3110ba9c`，tag＋Release；範圍外 #766／#770／#771／#772／#777／#791 經使用者同意一起發）。S3 deploy-assets 256 檔已上傳。 | 已驗：`main-*.js` 含 2.19.0；8 支大檔 206；四國全國視角截圖；提示卡、點面切換、類別篩選、消防栓彈窗實測通過；console 無新錯誤。 |
 | KRH-1 | P3 | blocked | HOLD 兩層：C101 廣域淨水場、C117 생태자연도。 | 淨水場：地址名冊用 Nominatim 補座標，點位級命中只有 1/42，需另找座標來源。生態自然圖：KOGL 3（可商用、禁改作），全國 0.8–2.7GB、江原道單檔 614MB，等 Zeabur 主機搬遷後處理。First action: 搬遷完成後在 analytics 重評體積與切圖方式。 | 兩層各有可用座標／PMTiles，或在 analytics PLAN §3 註明放棄原因。 |
 | KRI18N-1 | P3 | ready | 南韓 50 層＋統計的英文、日文介面只抽查，沒有逐層驗。 | First action: 本機 dev 用 `?lang=en`／`?lang=ja` 逐層開圖、看圖例與彈窗，記錄缺漏。 | 每層 en／ja 圖例與彈窗無缺字、無中文殘留。 |
-| KRW-6 | P3 | ready | （第 6 波 2026-11-06 已做，#830）南韓第 7–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 6 波。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
+| KRW-6 | P3 | ready | （第 6 波 2026-11-06 已做，#830）南韓第 7–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 7 波（第 6 波已隨 v2.24.0 發布）。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
 
 ## 圖層可見性整修（2026-10-31，map-layers §3.8 V-1～V-7，#779–#788 已合 develop）
 
@@ -313,8 +313,8 @@
 | EA-2 | P3 | done | EA 座標錯誤修正。 | 2026-11-06 完成（analytics #299、gis-platform #203 mig 501 已套用、mini #839）：實際 8 筆（原 4 筆＋4 筆落海被舊 pipeline 靜默丟掉），錯在來源 xlsx，改放 ONSPD 郵遞區號中心並以 `coord_source` 標記；DB 2,544 筆全在英格蘭。pipeline 不再把含 EA 的 PMTiles 複製到 mini `public/world/`。 | DB 2,544、圖例同步。 |
 | LIC-1 | P3 | done | 自己托管的 CC BY-NC（非商用）檔案規則。 | 2026-11-06 使用者拍板：公開上線＋圖例／popup 標示「CC BY-NC・非商業使用」與署名（網站不營利）；外部圖磚照個案，古地圖維持站主限定。規則寫進 analytics skill `pulse-layer-release/references/license-and-deploy.md`。 | 規則已寫入 skill。 |
 | N3-1 | P3 | done | 夜間批次資料限制。 | 2026-11-06（#842、analytics #300）：日本 DID z5 已改清楚（填色不透明度隨縮放）。加拿大「398 格在美國」複核為 Natural Earth 1:10M 國界誤差，實際只有 16 格（約 380 人）在原始省界外、多在界河湖岸；2026-11-06 使用者決定加拿大網格不裁切（16 格約 380 人在省界外），維持現檔。南韓墓地：data.go.kr 查無有座標的全國墓地官方資料（추모공원 15114135 只收追悼公園），維持 OSM。 | 全部已結。 |
-| N3-2 | P3 | done | 日本 C083 交通事故。 | 2026-11-06 上 develop（mini #843、analytics #301、pulse-data #61）：`jpTrafficAccidents2025` 警察庁 2025 本票 287,020 點（死亡 2,495），`jp_traffic_accidents_2025.pmtiles` 28.9MB 已上 S3。未做：warehouse 入倉、2019–2024 年度。 | 已合 develop、未發版。 |
-| N3-3 | P3 | done | 加拿大即時地震 FDSN。 | 2026-11-06 使用者選照 NRCan 站條款（非商業、需署名）上線：`caEarthquakesLive` 瀏覽器直連 FDSN 近 30 天、每 5 分鐘更新（mini #847、pulse-data #62 `ca_earthquakes_fdsn`），圖例／popup／右下來源三處署名與非背書聲明。 | 已合 develop、未發版。 |
+| N3-2 | P3 | done | 日本 C083 交通事故。 | 2026-11-06 上 develop（mini #843、analytics #301、pulse-data #61）：`jpTrafficAccidents2025` 警察庁 2025 本票 287,020 點（死亡 2,495），`jp_traffic_accidents_2025.pmtiles` 28.9MB 已上 S3。未做：warehouse 入倉、2019–2024 年度。 | 隨 v2.25.0 發布（`git tag --contains` 181c3cb6，2026-11-07 查）。 |
+| N3-3 | P3 | done | 加拿大即時地震 FDSN。 | 2026-11-06 使用者選照 NRCan 站條款（非商業、需署名）上線：`caEarthquakesLive` 瀏覽器直連 FDSN 近 30 天、每 5 分鐘更新（mini #847、pulse-data #62 `ca_earthquakes_fdsn`），圖例／popup／右下來源三處署名與非背書聲明。 | 隨 v2.25.0 發布（71007555）；四類分色 #864 在 develop 未發版（2026-11-07 查）。 |
 | N3-4 | P3 | ready | 日本舊研究層 jpWildlifeProtection 與新層 jpWildlifeProtectionMoe 同源；舊 jpNaturalParks（2010，有公園名）與新 2015 版。 | 使用者 2026-11-06 決定兩組都並存。First action: 無；若之後要合併，先讓新層帶公園名。 | — |
 
 ## 2026-11-06 review 修正輪後續

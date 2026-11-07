@@ -151,7 +151,9 @@ export function useKrDataLayer(mapRef: React.RefObject<MapboxMap | null>, spec: 
       };
       return [major, main] satisfies LayerBuild[];
     }
-    const fillPaint = (op: number) => hookFillPaint(spec.key, spec.layerId, { "fill-color": krColorExpr(spec, isDark), "fill-opacity": clamp01(op) },
+    // fillFromZoom：拉遠只留外框（填色 0，仍可點選），放大到該縮放才填色
+    const fillOp = (op: number): Expr | number => spec.fillFromZoom ? ["step", ["zoom"], 0, spec.fillFromZoom, clamp01(op)] : clamp01(op);
+    const fillPaint = (op: number) => hookFillPaint(spec.key, spec.layerId, { "fill-color": krColorExpr(spec, isDark), "fill-opacity": fillOp(op) },
       { "fill-color": krColorExpr(spec, isDark), "fill-opacity": opacityDefault(spec.key, 0.7) }, isDark);
     const fill: LayerBuild = {
       id: spec.layerId,
@@ -166,7 +168,8 @@ export function useKrDataLayer(mapRef: React.RefObject<MapboxMap | null>, spec: 
     if (!spec.outlineId) return [fill] satisfies LayerBuild[];
     const outlineId = spec.outlineId;
     const outlinePaint = (op: number) => hookLinePaint(spec.key, outlineId,
-      { "line-color": krColorExpr(spec), "line-width": 1, "line-opacity": clamp01(op) + 0 },
+      { "line-color": krColorExpr(spec), "line-width": spec.fillFromZoom ? ["interpolate", ["linear"], ["zoom"], 6, 0.3, spec.fillFromZoom, 1] : 1,
+        "line-opacity": spec.fillFromZoom ? ["step", ["zoom"], clamp01(op) * 0.5, spec.fillFromZoom, clamp01(op)] : clamp01(op) + 0 },
       { "line-color": krColorExpr(spec), "line-width": 1, "line-opacity": opacityDefault(spec.key, 0.7) }, isDark);
     return [
       fill,
