@@ -507,5 +507,9 @@
   "enum.statDimValue.case.18": "第 18 案（ラクトパミン豚肉の輸入反対）",
   "enum.statDimValue.case.19": "第 19 案（国民投票を総選挙と同日に）",
   "enum.statDimValue.case.20": "第 20 案（藻礁の保護）",
-  "enum.statDimValue.case.cr1": "2022 年 憲法改正国民投票（18 歳選挙権）"
+  "enum.statDimValue.case.cr1": "2022 年 憲法改正国民投票（18 歳選挙権）",
+  "enum.statLevel.ie_la": "地方自治体",
+  "enum.statLevel.ie_ed": "選挙区（ED）",
+  "enum.statBoundary.IE_LA_TAILTE2026": "アイルランド地方自治体境界（Tailte Éireann 2026）",
+  "enum.statBoundary.IE_ED_CSO2022": "アイルランド選挙区境界（2022 年国勢調査）"
 }
