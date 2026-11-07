@@ -283,6 +283,50 @@ const catMap = (cats: readonly KrCat[]) => Object.fromEntries(cats.map((c) => [c
 const VOLTAGE_FIELD: IeField = { prop: "voltage_class", label: l3("電壓等級", "Voltage class", "電圧区分"), map: catMap(VOLTAGE_CATS) };
 const OSM_ID_FIELD: IeField = { prop: "osm_id", label: l3("OSM 編號", "OSM ID", "OSM ID"), kind: "code" };
 
+// ───────────── 第 7b 波：醫療照護、消防警政、司法 ─────────────
+export const IE_W7B_FETCHED_AT = "2026-11-08";
+const NOMINATIM_ORG = "© OpenStreetMap contributors (ODbL 1.0), geocoded with OSM Nominatim";
+const GEOCODE_NOTE = l3("座標由 OpenStreetMap Nominatim 依地址推定，精度不一（© OpenStreetMap contributors）", "Coordinates estimated from addresses with OpenStreetMap Nominatim; precision varies (© OpenStreetMap contributors)", "座標は OpenStreetMap Nominatim で住所から推定したもので精度にばらつきがある（© OpenStreetMap contributors）");
+const GEOCODE_POPUP = l3("位置為地址推估", "Location estimated from address", "位置は住所からの推定");
+/** 地理編碼精度（由 Nominatim 回應判定，不由查詢層級判定）；官方座標另列一類。顏色由準到粗：藍、綠、青、黃、橙。 */
+const PRECISION_CATS: readonly KrCat[] = [
+  { id: "official", values: ["official"], color: "#38bdf8", label: l3("官方座標（地方議會）", "Official coordinates (councils)", "公式座標（地方議会）") },
+  { id: "facility", values: ["facility"], color: "#4ade80", label: l3("推估：命中 OSM 同名設施", "Estimated: matched OSM facility", "推定：OSM の同名施設に一致") },
+  { id: "address", values: ["address"], color: "#2dd4bf", label: l3("推估：門牌、建物", "Estimated: house number / building", "推定：番地・建物") },
+  { id: "street", values: ["street"], color: "#facc15", label: l3("推估：街道（路段代表點）", "Estimated: street (road midpoint)", "推定：通り（区間の代表点）") },
+  { id: "town", values: ["town"], color: "#f59e0b", label: l3("推估：城鎮、聚落中心", "Estimated: town / village centre", "推定：町・集落の中心") },
+];
+const CARE_PRECISION_CATS = PRECISION_CATS.filter((c) => c.id !== "official");
+const PRECISION_FIELD: IeField = { prop: "geocode_precision", label: l3("定位精度", "Location precision", "位置の精度"), map: catMap(PRECISION_CATS) };
+const HEALTH_KIND_CATS: readonly KrCat[] = [
+  { id: "hospital", values: ["hospital"], color: "#e53935", label: l3("醫院", "Hospital", "病院") },
+  { id: "clinic", values: ["clinic"], color: "#42a5f5", label: l3("診所、醫療中心", "Clinic / health centre", "診療所・医療センター") },
+  { id: "doctors", values: ["doctors"], color: "#a78bfa", label: l3("家庭醫師（GP）", "GP / doctors", "かかりつけ医（GP）") },
+  { id: "dentist", values: ["dentist"], color: "#f59e0b", label: l3("牙醫", "Dentist", "歯科") },
+  { id: "pharmacy", values: ["pharmacy"], color: "#66bb6a", label: l3("藥局", "Pharmacy", "薬局") },
+];
+const FIRE_SOURCE_CATS: readonly KrCat[] = [
+  { id: "official", values: ["official"], color: "#e53935", label: l3("地方議會官方點位", "Council official locations", "地方議会の公式位置") },
+  { id: "osm", values: ["osm"], color: "#ff7043", label: l3("OSM 補缺", "OpenStreetMap (gap-fill)", "OSM で補完") },
+];
+const FIRE_SOURCE_ORG: Record<string, L3> = {
+  dfb: l3("Dublin Fire Brigade（Dublin City Council）", "Dublin Fire Brigade (Dublin City Council)", "Dublin Fire Brigade（Dublin City Council）"),
+  fingal: l3("Fingal County Council", "Fingal County Council", "Fingal County Council"),
+  dlr: l3("Dún Laoghaire-Rathdown County Council", "Dún Laoghaire-Rathdown County Council", "Dún Laoghaire-Rathdown County Council"),
+  cork_city: l3("Cork City Council", "Cork City Council", "Cork City Council"),
+  kildare: l3("Kildare County Council", "Kildare County Council", "Kildare County Council"),
+  wicklow: l3("Wicklow County Council", "Wicklow County Council", "Wicklow County Council"),
+  roscommon: l3("Roscommon County Council", "Roscommon County Council", "Roscommon County Council"),
+  osm: l3("OpenStreetMap", "OpenStreetMap", "OpenStreetMap"),
+};
+const COURT_REGION_CATS: readonly KrCat[] = [
+  { id: "dublin", values: ["dublin"], color: "#a78bfa", label: l3("Dublin 區", "Dublin region", "Dublin 地域") },
+  { id: "eastern", values: ["eastern"], color: "#38bdf8", label: l3("東部區", "Eastern region", "東部地域") },
+  { id: "north_midlands", values: ["north_midlands"], color: "#4ade80", label: l3("中北部區", "North Midlands region", "中北部地域") },
+  { id: "southern", values: ["southern"], color: "#f59e0b", label: l3("南部區", "Southern region", "南部地域") },
+  { id: "western", values: ["western"], color: "#f472b6", label: l3("西部區", "Western region", "西部地域") },
+];
+
 export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   // ───────────── 底圖：海域界線、地名 ─────────────
   {
@@ -973,6 +1017,86 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [],
     sourceOrg: OSM_ATTR_IE, sourceUrl: "https://www.openstreetmap.org/copyright", license: "ODbL 1.0", fetchedAt: IE_W6_FETCHED_AT,
     loading: l3("愛爾蘭加油站載入中", "Loading Ireland fuel stations", "アイルランドのガソリンスタンドを読み込み中"),
+  },
+  // ───────────── 第 7b 波：醫療照護、消防警政、司法 ─────────────
+  {
+    key: "ieHealthFacilities", file: "ie_health_facilities.pmtiles", sourceLayer: "ie_health_facilities", geom: "point", layerId: "ie-health-facilities-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#e53935", tier: "S", count: 3482,
+    catProp: "kind", cats: HEALTH_KIND_CATS,
+    title: { props: ["name"], fallback: l3("醫療院所", "Health facility", "医療機関") },
+    fields: [{ prop: "kind", label: l3("類型", "Type", "種別"), map: catMap(HEALTH_KIND_CATS) },
+             { prop: "operator", label: l3("營運者", "Operator", "運営者") }, { prop: "operator_type", label: l3("營運類型（OSM 原文）", "Operator type (OSM tag)", "運営形態（OSM 原文）"), kind: "code" },
+             { prop: "emergency", label: l3("急診（OSM 標註）", "Emergency department (OSM tag)", "救急（OSM 記載）"), map: YES_NO },
+             { prop: "speciality", label: l3("專科（OSM 原文）", "Speciality (OSM tag)", "専門（OSM 原文）"), kind: "code" }, OSM_ID_FIELD, LA],
+    legendNotes: [l3("來源 OpenStreetMap（HSE 醫院、診所、GP、藥局名冊在 data.gov.ie 已下架），完整度依志工貢獻；2026-11-05 Geofabrik 快照", "Source: OpenStreetMap (the HSE hospital, clinic, GP and pharmacy registers were withdrawn from data.gov.ie); completeness depends on contributors; Geofabrik snapshot 2026-11-05", "出典 OpenStreetMap（HSE の病院・診療所・GP・薬局名簿は data.gov.ie から削除済み）。網羅性はボランティア次第。Geofabrik 2026-11-05 時点"),
+                  l3("amenity=hospital／clinic／doctors／dentist／pharmacy 的點與面（面取代表點，面內重複點已合併），共 3,482 處；北愛已剔除", "amenity=hospital/clinic/doctors/dentist/pharmacy nodes and areas (areas at a representative point, duplicate nodes merged), 3,482 in total; Northern Ireland removed", "amenity=hospital／clinic／doctors／dentist／pharmacy の点と面（面は代表点、重複点は統合）、計3,482か所。北アイルランドは除外"),
+                  l3("護理之家等照護機構另見「HIQA 老人照護機構」；AED 不收（NAS 登記不公開）", "Nursing homes are in the separate HIQA care homes layer; defibrillators not included (NAS register not public)", "介護施設は「HIQA 高齢者介護施設」レイヤーを参照。AED は含まない（NAS の登録は非公開）")],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR_IE, sourceUrl: "https://www.openstreetmap.org/copyright", license: "ODbL 1.0", fetchedAt: IE_W7B_FETCHED_AT,
+    loading: l3("愛爾蘭醫療院所載入中", "Loading Ireland health facilities", "アイルランドの医療機関を読み込み中"),
+  },
+  {
+    key: "ieCareHomes", file: "ie_care_homes.pmtiles", sourceLayer: "ie_care_homes", geom: "point", layerId: "ie-care-homes-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f59f00", tier: "M", count: __CARE_N__,
+    catProp: "geocode_precision", cats: CARE_PRECISION_CATS,
+    title: { props: ["name"], fallback: l3("老人照護機構", "Care home", "高齢者介護施設") },
+    fields: [{ prop: "address", label: l3("地址（HIQA）", "Address (HIQA)", "住所（HIQA）") }, { prop: "eircode", label: l3("Eircode", "Eircode", "Eircode"), kind: "code" },
+             { prop: "max_occupancy", label: l3("核定床位上限", "Maximum occupancy", "定員上限"), kind: "num" },
+             { prop: "operator_type", label: l3("營運者類型", "Provider type", "事業者の種別"), map: { hse: l3("HSE（公立）", "HSE (public)", "HSE（公立）"), other: l3("其他登記業者（私營、志願或宗教團體）", "Other registered provider (private, voluntary or religious)", "その他の登録事業者（民間・ボランタリー・宗教団体）") } },
+             { prop: "provider", label: l3("登記業者", "Registered provider", "登録事業者") },
+             { prop: "registration_no", label: l3("HIQA 登記號", "HIQA registration no.", "HIQA 登録番号"), kind: "code" },
+             { prop: "registered", label: l3("登記日", "Registered", "登録日"), kind: "code" }, { prop: "expires", label: l3("登記到期", "Registration expires", "登録期限"), kind: "code" },
+             PRECISION_FIELD, LA],
+    legendNotes: [l3("HIQA 老人照護指定機構名冊 547 家（2026-11-08 下載）；授權待確認（HIQA 頁面未標示授權）", "HIQA register of designated centres for older persons, 547 centres (downloaded 2026-11-08); licence to be confirmed (not stated on the HIQA page)", "HIQA 高齢者向け指定施設名簿547か所（2026-11-08 取得）。ライセンス確認中（HIQA のページに記載なし）"),
+                  GEOCODE_NOTE,
+                  l3("__CARE_DROP_ZH__", "__CARE_DROP_EN__", "__CARE_DROP_JA__"),
+                  l3("負責人姓名、電話等個資欄位不收；身障機構 1,821 家只有郡別，未上圖", "Person-in-charge names, phone numbers and other personal fields are excluded; 1,821 disability centres have only a county and are not mapped", "管理者の氏名・電話などの個人情報は収録しない。障害者施設1,821か所は県のみで地図化していない")],
+    popupNotes: [GEOCODE_POPUP, l3("授權待確認", "Licence to be confirmed", "ライセンス確認中")],
+    sourceOrg: `Health Information and Quality Authority (HIQA), Register of Designated Centres — Older Persons; ${NOMINATIM_ORG}`, sourceUrl: "https://www.hiqa.ie/areas-we-work/older-persons-services", license: "授權待確認（HIQA 未標示）", fetchedAt: IE_W7B_FETCHED_AT,
+    loading: l3("愛爾蘭老人照護機構載入中", "Loading Ireland care homes", "アイルランドの高齢者介護施設を読み込み中"),
+  },
+  {
+    key: "ieFireStations", file: "ie_fire_stations.pmtiles", sourceLayer: "ie_fire_stations", geom: "point", layerId: "ie-fire-stations-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#e53935", tier: "M", count: 226,
+    catProp: "source_kind", cats: FIRE_SOURCE_CATS,
+    title: { props: ["name"], fallback: l3("消防站", "Fire station", "消防署") },
+    fields: [{ prop: "source", label: l3("資料來源", "Source", "出典"), map: FIRE_SOURCE_ORG }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "duty", label: l3("編制（來源原文）", "Crewing (as in source)", "勤務体制（出典の原文）"), kind: "code" },
+             { prop: "operator", label: l3("營運者（OSM 原文）", "Operator (OSM tag)", "運営者（OSM 原文）") }, OSM_ID_FIELD, LA],
+    legendNotes: [l3("官方點位 42 站：Dublin Fire Brigade（都柏林四區）、Fingal、Cork City、Kildare、Wicklow、Roscommon 議會（官方彼此 300 m 內視為同站）；只涵蓋約 8/31 個地方政府，Wexford 官方來源已失效", "42 official stations from Dublin Fire Brigade (four Dublin councils), Fingal, Cork City, Kildare, Wicklow and Roscommon councils (official points within 300 m treated as one); covers about 8 of 31 councils, and the Wexford source is dead", "公式42か所：Dublin Fire Brigade（Dublin 4 区）、Fingal・Cork City・Kildare・Wicklow・Roscommon の各議会（300 m 以内は同一とみなす）。31 自治体のうち約8のみで、Wexford の出典は失効"),
+                  l3("其餘 184 站由 OpenStreetMap amenity=fire_station 補缺（距官方點 300 m 內者視為同站捨去），完整度依志工貢獻；北愛已剔除", "The other 184 stations are gap-filled from OpenStreetMap amenity=fire_station (OSM points within 300 m of an official one dropped); completeness depends on contributors; Northern Ireland removed", "残り184か所は OpenStreetMap amenity=fire_station で補完（公式点から 300 m 以内は同一として除外）。網羅性はボランティア次第。北アイルランドは除外")],
+    popupNotes: [],
+    sourceOrg: `Dublin City Council (Dublin Fire Brigade), Fingal, Cork City, Kildare, Wicklow, Roscommon County Councils; ${OSM_ATTR_IE}`, sourceUrl: DGI("dublin-fire-brigade-stations-dublin-region"), license: "CC BY 4.0／ODbL 1.0", fetchedAt: IE_W7B_FETCHED_AT,
+    loading: l3("愛爾蘭消防站載入中", "Loading Ireland fire stations", "アイルランドの消防署を読み込み中"),
+  },
+  {
+    key: "ieGardaStations", file: "ie_garda_stations.pmtiles", sourceLayer: "ie_garda_stations", geom: "point", layerId: "ie-garda-stations-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "M", count: __GARDA_N__,
+    catProp: "geocode_precision", cats: PRECISION_CATS,
+    title: { props: ["name"], fallback: l3("Garda 警察站", "Garda station", "Garda 警察署") },
+    fields: [{ prop: "division", label: l3("Garda 分局（Division）", "Garda division", "Garda 管区（Division）") }, { prop: "station_code", label: l3("CSO 站碼", "CSO station code", "CSO 署コード"), kind: "code" },
+             PRECISION_FIELD, { prop: "matched_name", label: l3("對到的名稱", "Matched name", "一致した名称") }, LA],
+    legendNotes: [l3("站名冊取自 CSO 犯罪統計 CJA11（Garda 新營運模式，564 站）；不含犯罪件數", "Station list from CSO crime table CJA11 (new Garda operating model, 564 stations); crime counts not included", "署の名簿は CSO 犯罪統計 CJA11（Garda 新運営モデル、564署）。犯罪件数は含まない"),
+                  l3("__GARDA_OFF_ZH__", "__GARDA_OFF_EN__", "__GARDA_OFF_JA__"),
+                  GEOCODE_NOTE,
+                  l3("__GARDA_DROP_ZH__", "__GARDA_DROP_EN__", "__GARDA_DROP_JA__")],
+    popupNotes: [],
+    sourceOrg: `Central Statistics Office (CJA11); Dublin City, Fingal, Dún Laoghaire-Rathdown, Cork City Councils; ${NOMINATIM_ORG}`, sourceUrl: DGI("cja11-recorded-crime-incidents-new-garda-operating-model"), license: "CC BY 4.0／ODbL 1.0", fetchedAt: IE_W7B_FETCHED_AT,
+    loading: l3("愛爾蘭 Garda 警察站載入中", "Loading Ireland Garda stations", "アイルランドの Garda 警察署を読み込み中"),
+  },
+  {
+    key: "ieCourts", file: "ie_courts.pmtiles", sourceLayer: "ie_courts", geom: "point", layerId: "ie-courts-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#a78bfa", tier: "M", count: 94,
+    catProp: "region", cats: COURT_REGION_CATS,
+    title: { props: ["name"], fallback: l3("法院", "Courthouse", "裁判所") },
+    fields: [{ prop: "region", label: l3("Courts Service 管理區", "Courts Service region", "Courts Service 地域"), map: catMap(COURT_REGION_CATS) },
+             { prop: "circuit", label: l3("巡迴法院區", "Circuit", "巡回裁判区") }, { prop: "district_number", label: l3("地方法院區號", "District Court district no.", "地方裁判所の区番号"), kind: "code" },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "eircode", label: l3("Eircode", "Eircode", "Eircode"), kind: "code" }, { prop: "county", label: l3("郡", "County", "県") }],
+    legendNotes: [l3("Courts Service 法院辦公處 94 處（26 郡），座標由來源提供；依 Courts Service 5 個管理區篩選", "94 Courts Service court offices (26 counties), coordinates from the source; filter by the 5 Courts Service regions", "Courts Service の裁判所事務所94か所（26県）、座標は出典のもの。Courts Service の5地域で絞り込み"),
+                  l3("只有設辦公處的法院；監獄、法院管轄區邊界未涵蓋", "Court offices only; prisons and court district boundaries not covered", "事務所のある裁判所のみ。刑務所と管轄区域の境界は未収録")],
+    popupNotes: [],
+    sourceOrg: "Courts Service of Ireland, List of Courts Service Courthouses", sourceUrl: DGI("list-of-courts-service-courthouses"), license: CC_BY, fetchedAt: IE_W7B_FETCHED_AT,
+    loading: l3("愛爾蘭法院載入中", "Loading Ireland courthouses", "アイルランドの裁判所を読み込み中"),
   },
 ];
 
