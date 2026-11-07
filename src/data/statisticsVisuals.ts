@@ -344,6 +344,18 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsCaHouseholds/, 'housing', UsersRound],
   [/^statsCaHouseholdIncome/, 'labor', Wallet],
   [/^statsCa(?:UnemploymentRate|ParticipationRate|EmploymentRate)/, 'labor', Briefcase],
+  // 愛爾蘭統計（2026-11-07，地方政府、選舉分區）：不新增色票。人口、密度、都市人口比、年齡＝人口 RdPu；
+  // 家戶、住宅權屬、RTB 租金＝住宅 Oranges；學歷＝教育；勞動力＝工作與所得（同加拿大）。
+  [/^statsIePopulation(?:Density)?(?:La|Ed)$/, 'population', Users],
+  [/^statsIeUrbanShare/, 'population', Building2],
+  [/^statsIeAgeYoungShare/, 'population', Baby],
+  [/^statsIeAgeWorkingShare/, 'population', PersonStanding],
+  [/^statsIeAgeOldShare/, 'population', Hourglass],
+  [/^statsIeHouseholds/, 'housing', UsersRound],
+  [/^statsIe(?:OwnerOccupied|PrivateRented|SocialRented)/, 'housing', House],
+  [/^statsIeAverageRent/, 'housing', Receipt],
+  [/^statsIeDegreeShare/, 'education', GraduationCap],
+  [/^statsIe(?:UnemploymentRate|ParticipationRate|EmploymentRate)/, 'labor', Briefcase],
   // 選舉統計（2026-11-04，村里／鄉鎮／縣市）：政治主題「選舉」群組。
   [/^statsElection/, 'politics', Vote],
 ];

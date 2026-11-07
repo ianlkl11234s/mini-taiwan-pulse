@@ -430,5 +430,10 @@
   "theme.歷史地圖": "歴史地図",
   "theme.歷史底圖 Historical Basemaps": "歴史地図",
   "theme.自然公園 Natural Parks": "自然公園",
-  "theme.Day 6 復古 Vintage": "Day 6 ヴィンテージ"
+  "theme.Day 6 復古 Vintage": "Day 6 ヴィンテージ",
+  "theme.人口（2022 普查）": "人口（2022 年国勢調査）",
+  "theme.年齡結構（2022 普查）": "年齢構成（2022 年国勢調査）",
+  "theme.家戶與住宅（2022 普查）": "世帯と住宅（2022 年国勢調査）",
+  "theme.租金（RTB）": "家賃（RTB）",
+  "theme.教育與勞動（2022 普查）": "教育と労働（2022 年国勢調査）"
 }

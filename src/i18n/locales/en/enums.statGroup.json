@@ -73,5 +73,11 @@
   "enum.statGroup.立委選舉（政黨票）": "Legislative election (party-list vote)",
   "enum.statGroup.縣市長選舉": "Mayoral and magistrate election",
   "enum.statGroup.縣市議員選舉（政黨合計）": "City and county council election (party totals)",
-  "enum.statGroup.全國性公民投票": "National referendum"
+  "enum.statGroup.全國性公民投票": "National referendum",
+  "enum.statGroup.都市人口比": "Urban population share",
+  "enum.statGroup.自有住宅比例": "Owner-occupied share",
+  "enum.statGroup.私人租屋比例": "Private rented share",
+  "enum.statGroup.社會住宅租戶比例": "Social housing tenant share",
+  "enum.statGroup.平均月租": "Average monthly rent",
+  "enum.statGroup.學士以上學歷比例": "Bachelor's degree or higher share"
 }

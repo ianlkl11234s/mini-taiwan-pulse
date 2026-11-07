@@ -220,5 +220,18 @@
   "enum.statLegendNote.時代力量": "NPP",
   "enum.statLegendNote.無黨籍": "Independent",
   "enum.statLegendNote.其他政黨": "Other parties",
-  "enum.statLegendNote.得票並列最高（無單一最高黨）": "Tied for most votes (no single leading party)"
+  "enum.statLegendNote.得票並列最高（無單一最高黨）": "Tied for most votes (no single leading party)",
+  "enum.statLegendNote.2022 年人口普查（普查日 2022-04-03），各表口徑不同，不可相除或混算。": "2022 Census of Population (Census Day 3 April 2022); tables use different definitions and must not be divided or combined.",
+  "enum.statLegendNote.行政區界：地方政府為 Tailte Éireann 2026 法定界、選舉分區為 CSO 2022 統計界（CC BY 4.0），簡化 100–200 公尺。": "Boundaries: local authorities from Tailte Éireann 2026 statutory boundaries, electoral divisions from CSO 2022 statistical boundaries (CC BY 4.0), simplified by 100–200 m.",
+  "enum.statLegendNote.署名：Central Statistics Office, Ireland. Census 2022 Small Area Population Statistics (SAPS). Licensed under CC BY 4.0.": "Attribution: Central Statistics Office, Ireland. Census 2022 Small Area Population Statistics (SAPS). Licensed under CC BY 4.0.",
+  "enum.statLegendNote.人口密度＝人口 ÷ 面積（含湖泊等內陸水域），自行計算到小數 3 位。": "Population density = population ÷ area (including lakes and other inland water), computed here to 3 decimals.",
+  "enum.statLegendNote.都市人口比依 CSO 城鄉分類 2022 第 1–3 類小區（城市、衛星都市鎮、獨立都市鎮），不是行政上的市或鎮；選舉分區多為 0% 或 100%。": "Urban share uses small areas in CSO Urban–Rural Classification 2022 classes 1–3 (cities, satellite urban towns, independent urban towns), not administrative cities or towns; most electoral divisions are 0% or 100%.",
+  "enum.statLegendNote.選舉分區平均約 1,500 人，人口少的分區比例波動大。": "Electoral divisions average about 1,500 people; shares fluctuate widely in small ones.",
+  "enum.statLegendNote.私人家戶，不含集體住所（療養院、宿舍等）。": "Private households; communal establishments (nursing homes, hostels, etc.) excluded.",
+  "enum.statLegendNote.權屬比例的分母排除未填權屬的家戶（全國 4.37%），只算永久私人住宅。": "Tenure shares exclude households with tenure not stated (4.37% nationally); permanent private dwellings only.",
+  "enum.statLegendNote.RTB 登記租約的平均月租（所有房數、房型），不含未登記租約與社會住宅。": "Average monthly rent of RTB-registered tenancies (all bedrooms, all property types); unregistered tenancies and social housing excluded.",
+  "enum.statLegendNote.只涵蓋 23 個地方政府：都柏林 4 區與 Cork、Galway 的市／郡對不上 RTB 地點，標未涵蓋。": "Covers 23 local authorities only: the 4 Dublin authorities and the Cork and Galway city/county authorities do not match RTB locations and are marked not covered.",
+  "enum.statLegendNote.署名：Residential Tenancies Board (RTB). RIA02 RTB Average Monthly Rent Report, published by the Central Statistics Office, Ireland. Licensed under CC BY 4.0.": "Attribution: Residential Tenancies Board (RTB). RIA02 RTB Average Monthly Rent Report, published by the Central Statistics Office, Ireland. Licensed under CC BY 4.0.",
+  "enum.statLegendNote.學歷分母含仍在學的 15 歲以上人口，學生多的分區比例偏低。": "The education denominator includes people aged 15+ still in education, so areas with many students show lower shares.",
+  "enum.statLegendNote.普查「主要經濟狀態」自填口徑（15 歲以上），與勞動力調查（LFS）不可直接比較。": "Based on the self-reported Census \"principal economic status\" (aged 15+); not directly comparable with the Labour Force Survey (LFS)."
 }

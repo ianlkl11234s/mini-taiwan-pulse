@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1655,
+    "keyCount": 1684,
     "sections": [
       "gisLayers",
       "overlays",
@@ -4772,6 +4772,35 @@
         "statsCaParticipationRateCd-fill",
         "statsCaEmploymentRatePr-fill",
         "statsCaEmploymentRateCd-fill",
+        "statsIePopulationLa-fill",
+        "statsIePopulationEd-fill",
+        "statsIePopulationDensityLa-fill",
+        "statsIePopulationDensityEd-fill",
+        "statsIeUrbanShareLa-fill",
+        "statsIeUrbanShareEd-fill",
+        "statsIeAgeYoungShareLa-fill",
+        "statsIeAgeYoungShareEd-fill",
+        "statsIeAgeWorkingShareLa-fill",
+        "statsIeAgeWorkingShareEd-fill",
+        "statsIeAgeOldShareLa-fill",
+        "statsIeAgeOldShareEd-fill",
+        "statsIeHouseholdsLa-fill",
+        "statsIeHouseholdsEd-fill",
+        "statsIeOwnerOccupiedLa-fill",
+        "statsIeOwnerOccupiedEd-fill",
+        "statsIePrivateRentedLa-fill",
+        "statsIePrivateRentedEd-fill",
+        "statsIeSocialRentedLa-fill",
+        "statsIeSocialRentedEd-fill",
+        "statsIeAverageRentLa-fill",
+        "statsIeDegreeShareLa-fill",
+        "statsIeDegreeShareEd-fill",
+        "statsIeUnemploymentRateLa-fill",
+        "statsIeUnemploymentRateEd-fill",
+        "statsIeParticipationRateLa-fill",
+        "statsIeParticipationRateEd-fill",
+        "statsIeEmploymentRateLa-fill",
+        "statsIeEmploymentRateEd-fill",
         "statsElectionPresidentTopPartyCounty-fill",
         "statsElectionPresidentTopPartyTownship-fill",
         "statsElectionPresidentTopPartyVillage-fill",
@@ -172410,6 +172439,1005 @@
         "options": [],
         "status": "loading",
         "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeAgeOldShareEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeAgeOldShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeAgeOldShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeAgeOldShareEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeAgeOldShareLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeAgeOldShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeAgeOldShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeAgeOldShareLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeAgeWorkingShareEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeAgeWorkingShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeAgeWorkingShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeAgeWorkingShareEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeAgeWorkingShareLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeAgeWorkingShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeAgeWorkingShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeAgeWorkingShareLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeAgeYoungShareEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeAgeYoungShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeAgeYoungShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeAgeYoungShareEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeAgeYoungShareLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeAgeYoungShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeAgeYoungShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeAgeYoungShareLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeAverageRentLa": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeDegreeShareEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeDegreeShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeDegreeShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeDegreeShareEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeDegreeShareLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeDegreeShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeDegreeShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeDegreeShareLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeEmploymentRateEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeEmploymentRateLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeEmploymentRateEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeEmploymentRateEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeEmploymentRateLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeEmploymentRateLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeEmploymentRateEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeEmploymentRateLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeHouseholdsEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeHouseholdsLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeHouseholdsEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeHouseholdsEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeHouseholdsLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeHouseholdsLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeHouseholdsEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeHouseholdsLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeOwnerOccupiedEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeOwnerOccupiedLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeOwnerOccupiedEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeOwnerOccupiedEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeOwnerOccupiedLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeOwnerOccupiedLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeOwnerOccupiedEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeOwnerOccupiedLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeParticipationRateEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeParticipationRateLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeParticipationRateEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeParticipationRateEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeParticipationRateLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeParticipationRateLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeParticipationRateEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeParticipationRateLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIePopulationDensityEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIePopulationDensityLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIePopulationDensityEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIePopulationDensityEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIePopulationDensityLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIePopulationDensityLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIePopulationDensityEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIePopulationDensityLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIePopulationEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIePopulationLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIePopulationEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIePopulationEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIePopulationLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIePopulationLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIePopulationEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIePopulationLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIePrivateRentedEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIePrivateRentedLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIePrivateRentedEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIePrivateRentedEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIePrivateRentedLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIePrivateRentedLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIePrivateRentedEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIePrivateRentedLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeSocialRentedEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeSocialRentedLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeSocialRentedEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeSocialRentedEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeSocialRentedLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeSocialRentedLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeSocialRentedEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeSocialRentedLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeUnemploymentRateEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeUnemploymentRateLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeUnemploymentRateEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeUnemploymentRateEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeUnemploymentRateLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeUnemploymentRateLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeUnemploymentRateEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeUnemploymentRateLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeUrbanShareEd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeUrbanShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeUrbanShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeUrbanShareEd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIeUrbanShareLa": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "statsIeUrbanShareLa"
+          },
+          {
+            "label": "選舉分區",
+            "value": "statsIeUrbanShareEd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIeUrbanShareLa"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
       },

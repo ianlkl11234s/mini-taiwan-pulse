@@ -34,5 +34,8 @@
   "enum.statLocationBasis.在地人數所在的首爾自治區（電信推估）": "Seoul autonomous district where people are present (telecom estimate)",
   "enum.statLocationBasis.常住地所在的省／普查區（2021 年普查界）": "Province / census division of usual residence (2021 Census boundaries)",
   "enum.statLocationBasis.家戶常住地所在的省／普查區（2021 年普查界）": "Province / census division where the household usually resides (2021 Census boundaries)",
-  "enum.statLocationBasis.投開票所所在村里（依中選會投開票所對到現行村里界彙總）；鄉鎮、縣市為全部投開票所加總": "Village where the polling station is located (CEC polling stations matched to current village boundaries); townships and counties sum all polling stations"
+  "enum.statLocationBasis.投開票所所在村里（依中選會投開票所對到現行村里界彙總）；鄉鎮、縣市為全部投開票所加總": "Village where the polling station is located (CEC polling stations matched to current village boundaries); townships and counties sum all polling stations",
+  "enum.statLocationBasis.常住地所在的地方政府／選舉分區（2022 年普查）": "Local authority / electoral division of usual residence (2022 Census)",
+  "enum.statLocationBasis.家戶常住地所在的地方政府／選舉分區（2022 年普查）": "Local authority / electoral division where the household usually resides (2022 Census)",
+  "enum.statLocationBasis.出租住宅所在的郡（RTB 地點，對照到地方政府）": "County where the rented dwelling is located (RTB location, matched to local authorities)"
 }

@@ -507,5 +507,9 @@
   "enum.statDimValue.case.18": "Case 18 (ban ractopamine pork imports)",
   "enum.statDimValue.case.19": "Case 19 (hold referendums with general elections)",
   "enum.statDimValue.case.20": "Case 20 (protect algal reefs)",
-  "enum.statDimValue.case.cr1": "2022 constitutional amendment (voting age 18)"
+  "enum.statDimValue.case.cr1": "2022 constitutional amendment (voting age 18)",
+  "enum.statLevel.ie_la": "Local authority",
+  "enum.statLevel.ie_ed": "Electoral division",
+  "enum.statBoundary.IE_LA_TAILTE2026": "Ireland local authority boundaries (Tailte Éireann 2026)",
+  "enum.statBoundary.IE_ED_CSO2022": "Ireland electoral division boundaries (2022 Census)"
 }
