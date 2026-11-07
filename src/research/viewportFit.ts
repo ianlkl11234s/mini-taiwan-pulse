@@ -112,7 +112,7 @@ function dominantEdge(viewport: ViewportRect, rect: ViewportRect): Edge | null {
     bottom: viewport.bottom - rect.bottom,
   };
   if (rectHeight >= height - EDGE_ATTACH_PX * 2 && (distances.left <= EDGE_ATTACH_PX || distances.right <= EDGE_ATTACH_PX)) return distances.left <= distances.right ? "left" : "right";
-  if (rectWidth >= width - EDGE_ATTACH_PX * 2 && (distances.top <= EDGE_ATTACH_PX || distances.bottom <= EDGE_ATTACH_PX)) return distances.top <= distances.bottom ? "top" : "bottom";
+  if (rectWidth >= width - EDGE_ATTACH_PX * 2 && (distances.top <= height * 0.25 || distances.bottom <= height * 0.25)) return distances.top <= distances.bottom ? "top" : "bottom";
   const edge = (Object.entries(distances) as Array<[Edge, number]>).sort(([, a], [, b]) => a - b)[0];
   return edge && edge[1] <= EDGE_ATTACH_PX ? edge[0] : null;
 }
@@ -138,34 +138,14 @@ function applyOverlay(viewport: ViewportRect, insets: Insets, rect: ViewportRect
   return next;
 }
 
-function insetArea(viewport: ViewportRect, insets: Insets): number {
-  return Math.max(0, viewport.right - insets.right - insets.left) * Math.max(0, viewport.bottom - insets.bottom - insets.top);
-}
-
 function insetForOverlays(viewport: ViewportRect, overlays: readonly ViewportRect[]): ViewportRect {
   let insets: Insets = { left: MIN_EDGE_SPACE_PX, top: MIN_EDGE_SPACE_PX, right: MIN_EDGE_SPACE_PX, bottom: MIN_EDGE_SPACE_PX };
-  const corners: ViewportRect[] = [];
   for (const rect of overlays) {
     const edge = dominantEdge(viewport, rect);
-    if (isCornerCard(viewport, rect, edge)) corners.push(rect); else insets = applyOverlay(viewport, insets, rect, edge);
+    if (!isCornerCard(viewport, rect, edge)) insets = applyOverlay(viewport, insets, rect, edge);
   }
-  // A corner card may reserve either the side it sits on or the strip above/below it; keep whichever
-  // leaves the larger open rectangle (e.g. a top-right card must not eat the whole right side).
-  const cornerCards = corners.slice(0, 4);
-  for (const rect of corners.slice(4)) insets = applyOverlay(viewport, insets, rect, dominantEdge(viewport, rect));
-  let best = insets;
-  let bestArea = -1;
-  for (let mask = 0; mask < 1 << cornerCards.length; mask++) {
-    let candidate = insets;
-    cornerCards.forEach((rect, index) => {
-      const side = dominantEdge(viewport, rect);
-      const vertical: Edge = rect.top - viewport.top <= viewport.bottom - rect.bottom ? "top" : "bottom";
-      candidate = applyOverlay(viewport, candidate, rect, mask & (1 << index) ? vertical : side);
-    });
-    const area = insetArea(viewport, candidate);
-    if (area > bestArea) { best = candidate; bestArea = area; }
-  }
-  const { left, top, right, bottom } = best;
+  // Corner cards are small and may cover a corner of the fitted result: they never inset the safe area.
+  const { left, top, right, bottom } = insets;
   const safeRight = viewport.right - right;
   const safeBottom = viewport.bottom - bottom;
   // Prefer the simple edge-strip inset -- reserving space along each occluded edge, e.g. a left
