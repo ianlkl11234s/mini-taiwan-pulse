@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1740,
+    "keyCount": 1746,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2392,6 +2392,36 @@
     },
     {
       "layers": [
+        "ie-power-plants-circle"
+      ],
+      "type": "iePowerPlants"
+    },
+    {
+      "layers": [
+        "ie-substations-circle"
+      ],
+      "type": "ieSubstations"
+    },
+    {
+      "layers": [
+        "ie-wind-farms-circle"
+      ],
+      "type": "ieWindFarms"
+    },
+    {
+      "layers": [
+        "ie-ev-charging-circle"
+      ],
+      "type": "ieEvCharging"
+    },
+    {
+      "layers": [
+        "ie-fuel-stations-circle"
+      ],
+      "type": "ieFuelStations"
+    },
+    {
+      "layers": [
         "ie-road-rail-network-line"
       ],
       "type": "ieRoadRailNetwork"
@@ -2425,6 +2455,12 @@
         "ie-wild-atlantic-way-line"
       ],
       "type": "ieWildAtlanticWay"
+    },
+    {
+      "layers": [
+        "ie-power-lines-line"
+      ],
+      "type": "iePowerLines"
     },
     {
       "layers": [
@@ -121479,6 +121515,122 @@
         "valueText": "1.0"
       }
     ],
+    "ieEvCharging": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高功率（≥150 kW）",
+            "value": "hpc"
+          },
+          {
+            "label": "快充（43–149 kW）",
+            "value": "fast"
+          },
+          {
+            "label": "交流慢充（≤22 kW）",
+            "value": "ac"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hpc",
+          "fast",
+          "ac"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieFuelStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Circle K",
+            "value": "circle_k"
+          },
+          {
+            "label": "Applegreen",
+            "value": "applegreen"
+          },
+          {
+            "label": "Top Oil",
+            "value": "top"
+          },
+          {
+            "label": "Texaco",
+            "value": "texaco"
+          },
+          {
+            "label": "Maxol",
+            "value": "maxol"
+          },
+          {
+            "label": "Inver",
+            "value": "inver"
+          },
+          {
+            "label": "Emo",
+            "value": "emo"
+          },
+          {
+            "label": "其他品牌（Certa、Amber、Esso…）",
+            "value": "other_brand"
+          },
+          {
+            "label": "未標品牌",
+            "value": "unbranded"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "circle_k",
+          "applegreen",
+          "top",
+          "texaco",
+          "maxol",
+          "inver",
+          "emo",
+          "other_brand",
+          "unbranded"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieGaeltacht": [
       {
         "label": "透明度 0.60",
@@ -122048,6 +122200,108 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "iePowerLines": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "400 kV",
+            "value": "kv400"
+          },
+          {
+            "label": "220 kV（含跨境 275 kV）",
+            "value": "kv220_275"
+          },
+          {
+            "label": "110 kV",
+            "value": "kv110"
+          },
+          {
+            "label": "38 kV（配電）",
+            "value": "kv38"
+          },
+          {
+            "label": "38 kV 以下（10／20 kV 配電）",
+            "value": "lt38"
+          },
+          {
+            "label": "電壓未標",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv400",
+          "kv220_275",
+          "kv110",
+          "kv38",
+          "lt38",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "iePowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "主要電廠（Tailte 250k）",
+            "value": "tailte_major"
+          },
+          {
+            "label": "其他發電廠（PRTR 燃燒設施）",
+            "value": "prtr_power"
+          },
+          {
+            "label": "資料中心自備燃燒機組（PRTR）",
+            "value": "prtr_datacentre"
+          },
+          {
+            "label": "煉油廠、天然氣處理廠（PRTR）",
+            "value": "prtr_refinery_gas"
+          },
+          {
+            "label": "其他工業鍋爐（PRTR）",
+            "value": "prtr_industrial"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "tailte_major",
+          "prtr_power",
+          "prtr_datacentre",
+          "prtr_refinery_gas",
+          "prtr_industrial"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",
@@ -122786,6 +123040,64 @@
         "valueText": "1.0"
       }
     ],
+    "ieSubstations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "400 kV",
+            "value": "kv400"
+          },
+          {
+            "label": "220 kV（含跨境 275 kV）",
+            "value": "kv220_275"
+          },
+          {
+            "label": "110 kV",
+            "value": "kv110"
+          },
+          {
+            "label": "38 kV（配電）",
+            "value": "kv38"
+          },
+          {
+            "label": "38 kV 以下（10／20 kV 配電）",
+            "value": "lt38"
+          },
+          {
+            "label": "電壓未標",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv400",
+          "kv220_275",
+          "kv110",
+          "kv38",
+          "lt38",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieTrafficCounters": [
       {
         "label": "類別",
@@ -123093,6 +123405,54 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "ieWindFarms": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "< 5 MW",
+            "value": "lt5"
+          },
+          {
+            "label": "5–20 MW",
+            "value": "5_20"
+          },
+          {
+            "label": "20–50 MW",
+            "value": "20_50"
+          },
+          {
+            "label": "≥ 50 MW",
+            "value": "ge50"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lt5",
+          "5_20",
+          "20_50",
+          "ge50"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "immigrationOffice": [

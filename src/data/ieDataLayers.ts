@@ -237,6 +237,52 @@ const RADON_CATS: readonly KrCat[] = [
 ];
 const FOUNDATION: Record<string, L3> = { "Fixed-Bottom": l3("固定式", "Fixed-bottom", "着床式"), Floating: l3("浮動式", "Floating", "浮体式") };
 
+// ───────────── 第 6 波：能源 ─────────────
+export const IE_W6_FETCHED_AT = "2026-11-08";
+const OSM_ATTR_IE = "© OpenStreetMap contributors (ODbL 1.0)";
+const OSM_NOTE = l3("來源 OpenStreetMap（官方無開放 GIS），完整度依志工貢獻；2026-11-05 Geofabrik 快照", "Source: OpenStreetMap (no open official GIS); completeness depends on contributors; Geofabrik snapshot 2026-11-05", "出典 OpenStreetMap（公式の公開 GIS なし）。網羅性はボランティア次第。Geofabrik 2026-11-05 時点");
+const PLANT_CATS: readonly KrCat[] = [
+  { id: "tailte_major", values: ["tailte_major"], color: "#ef4444", label: l3("主要電廠（Tailte 250k）", "Major power station (Tailte 250k)", "主要発電所（Tailte 250k）") },
+  { id: "prtr_power", values: ["prtr_power"], color: "#f59e0b", label: l3("其他發電廠（PRTR 燃燒設施）", "Other power plant (PRTR combustion)", "その他の発電所（PRTR 燃焼施設）") },
+  { id: "prtr_datacentre", values: ["prtr_datacentre"], color: "#a78bfa", label: l3("資料中心自備燃燒機組（PRTR）", "Data-centre on-site combustion units (PRTR)", "データセンターの自家燃焼設備（PRTR）") },
+  { id: "prtr_refinery_gas", values: ["prtr_refinery_gas"], color: "#f472b6", label: l3("煉油廠、天然氣處理廠（PRTR）", "Refinery / gas terminal (PRTR)", "製油所・ガス処理施設（PRTR）") },
+  { id: "prtr_industrial", values: ["prtr_industrial"], color: "#2dd4bf", label: l3("其他工業鍋爐（PRTR）", "Other industrial boilers (PRTR)", "その他の産業用ボイラー（PRTR）") },
+];
+/** 電壓分級（EirGrid 輸電 400／220／110 kV、ESB 配電 38 kV 以下；275 kV 只在北愛與跨境線）：線與變電站共用 */
+const VOLTAGE_CATS: readonly KrCat[] = [
+  { id: "kv400", values: ["kv400"], color: "#ef4444", label: l3("400 kV", "400 kV", "400 kV") },
+  { id: "kv220_275", values: ["kv220_275"], color: "#f59e0b", label: l3("220 kV（含跨境 275 kV）", "220 kV (incl. cross-border 275 kV)", "220 kV（越境の 275 kV を含む）") },
+  { id: "kv110", values: ["kv110"], color: "#facc15", label: l3("110 kV", "110 kV", "110 kV") },
+  { id: "kv38", values: ["kv38"], color: "#38bdf8", label: l3("38 kV（配電）", "38 kV (distribution)", "38 kV（配電）") },
+  { id: "lt38", values: ["lt38"], color: "#a78bfa", label: l3("38 kV 以下（10／20 kV 配電）", "Below 38 kV (10/20 kV distribution)", "38 kV 未満（10／20 kV 配電）") },
+  { id: "unknown", values: ["unknown"], color: "#94a3b8", label: l3("電壓未標", "Voltage not tagged", "電圧未記載") },
+];
+const WIND_SIZE_CATS: readonly KrCat[] = [
+  { id: "lt5", values: ["lt5"], color: "#38bdf8", label: l3("< 5 MW", "< 5 MW", "5 MW 未満") },
+  { id: "5_20", values: ["5_20"], color: "#4ade80", label: l3("5–20 MW", "5–20 MW", "5–20 MW") },
+  { id: "20_50", values: ["20_50"], color: "#facc15", label: l3("20–50 MW", "20–50 MW", "20–50 MW") },
+  { id: "ge50", values: ["ge50"], color: "#f59e0b", label: l3("≥ 50 MW", "≥ 50 MW", "50 MW 以上") },
+];
+const EV_POWER_CATS: readonly KrCat[] = [
+  { id: "hpc", values: ["hpc"], color: "#f472b6", label: l3("高功率（≥150 kW）", "High power (≥150 kW)", "高出力（150 kW 以上）") },
+  { id: "fast", values: ["fast"], color: "#a78bfa", label: l3("快充（43–149 kW）", "Fast (43–149 kW)", "急速（43–149 kW）") },
+  { id: "ac", values: ["ac"], color: "#4ade80", label: l3("交流慢充（≤22 kW）", "AC (≤22 kW)", "普通充電（22 kW 以下）") },
+];
+const FUEL_BRAND_CATS: readonly KrCat[] = [
+  { id: "circle_k", values: ["circle_k"], color: "#ef4444", label: l3("Circle K", "Circle K", "Circle K") },
+  { id: "applegreen", values: ["applegreen"], color: "#4ade80", label: l3("Applegreen", "Applegreen", "Applegreen") },
+  { id: "top", values: ["top"], color: "#38bdf8", label: l3("Top Oil", "Top Oil", "Top Oil") },
+  { id: "texaco", values: ["texaco"], color: "#f59e0b", label: l3("Texaco", "Texaco", "Texaco") },
+  { id: "maxol", values: ["maxol"], color: "#a78bfa", label: l3("Maxol", "Maxol", "Maxol") },
+  { id: "inver", values: ["inver"], color: "#2dd4bf", label: l3("Inver", "Inver", "Inver") },
+  { id: "emo", values: ["emo"], color: "#facc15", label: l3("Emo", "Emo", "Emo") },
+  { id: "other_brand", values: ["other_brand"], color: "#f472b6", label: l3("其他品牌（Certa、Amber、Esso…）", "Other brands (Certa, Amber, Esso…)", "その他のブランド（Certa・Amber・Esso…）") },
+  { id: "unbranded", values: ["unbranded"], color: "#94a3b8", label: l3("未標品牌", "Brand not tagged", "ブランド未記載") },
+];
+const catMap = (cats: readonly KrCat[]) => Object.fromEntries(cats.map((c) => [c.id, c.label]));
+const VOLTAGE_FIELD: IeField = { prop: "voltage_class", label: l3("電壓等級", "Voltage class", "電圧区分"), map: catMap(VOLTAGE_CATS) };
+const OSM_ID_FIELD: IeField = { prop: "osm_id", label: l3("OSM 編號", "OSM ID", "OSM ID"), kind: "code" };
+
 export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   // ───────────── 底圖：海域界線、地名 ─────────────
   {
@@ -827,6 +873,106 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [l3("區域預測，單一住宅請實測", "Area prediction; test individual homes", "地域予測。個々の住宅は測定が必要")],
     sourceOrg: "Environmental Protection Agency (EPA), Radon Risk Map of Ireland", sourceUrl: DGI("radon-risk-map-of-ireland"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
     loading: l3("愛爾蘭氡氣風險圖載入中", "Loading Ireland radon risk map", "アイルランドのラドンリスク図を読み込み中"),
+  },
+  // ───────────── 第 6 波：能源 ─────────────
+  {
+    key: "iePowerPlants", file: "ie_power_plants.pmtiles", sourceLayer: "ie_power_plants", geom: "point", layerId: "ie-power-plants-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#ef4444", tier: "M", count: 44,
+    catProp: "category", cats: PLANT_CATS,
+    title: { props: ["name"], fallback: l3("電廠與能源設施", "Power plant / energy facility", "発電所・エネルギー施設") },
+    fields: [{ prop: "category", label: l3("類型", "Type", "種別"), map: catMap(PLANT_CATS) },
+             { prop: "prtr_records", label: l3("同站 PRTR 申報", "PRTR filings here", "同地点の PRTR 届出") },
+             { prop: "reg_no", label: l3("EPA 執照編號", "EPA licence no.", "EPA 許可番号"), kind: "code" },
+             { prop: "licence_type", label: l3("執照類型", "Licence type", "許可種別"), kind: "code" },
+             { prop: "activity", label: l3("PRTR 活動代碼", "PRTR activity", "PRTR 活動コード"), map: { "1.(c)": l3("1.(c) 燃燒設施（熱輸入 >50 MW）", "1.(c) Combustion (>50 MW thermal input)", "1.(c) 燃焼施設（熱入力 50 MW 超）"), "1.(a)": l3("1.(a) 礦物油與天然氣煉製", "1.(a) Mineral oil and gas refineries", "1.(a) 鉱油・ガス精製") } },
+             { prop: "latest_year", label: l3("最近申報年", "Latest filing", "最新届出年"), kind: "year" }, LA],
+    legendNotes: [l3("Tailte Éireann 1:250,000 主要電廠 15 座，加 EPA PRTR 能源業設施 43 筆：同站 14 筆（1.5 km 內）併入 Tailte 電廠，其餘 29 筆另成點", "15 major power stations from Tailte Éireann 1:250,000, plus 43 EPA PRTR energy-sector facilities: 14 at the same sites (within 1.5 km) are merged into the Tailte stations, the other 29 shown separately", "Tailte Éireann 1:250,000 の主要発電所15か所と EPA PRTR エネルギー部門43件。同じ地点（1.5 km 以内）の14件は Tailte の発電所に統合し、残り29件は別の点"),
+                  l3("PRTR 類別依設施名稱判定；資料中心是熱輸入 >50 MW 的自備燃燒機組，不是電廠", "PRTR types assigned from facility names; data centres are on-site combustion units above 50 MW thermal input, not power stations", "PRTR の種別は施設名で判定。データセンターは熱入力 50 MW 超の自家燃焼設備で発電所ではない"),
+                  l3("兩個來源都沒有燃料別與裝置容量；最近申報年早於 2020 的可能已停運；風場另見「陸域風場」", "Neither source gives fuel type or capacity; sites whose latest filing predates 2020 may have closed; wind farms are a separate layer", "どちらの出典にも燃料種別と設備容量はない。最新届出が2020年より前の施設は廃止の可能性。風力は別レイヤー")],
+    popupNotes: [],
+    sourceOrg: "Tailte Éireann, National 250k Map of Ireland: Power Plant; Environmental Protection Agency, PRTR Energy sector", sourceUrl: DGI("prtr-energy-sector"), license: CC_BY, fetchedAt: IE_W6_FETCHED_AT,
+    loading: l3("愛爾蘭電廠載入中", "Loading Ireland power plants", "アイルランドの発電所を読み込み中"),
+  },
+  {
+    key: "iePowerLines", file: "ie_power_lines.pmtiles", sourceLayer: "ie_power_lines", geom: "line", layerId: "ie-power-lines-line",
+    srcMinzoom: 4, srcMaxzoom: 13, minzoom: 4, color: "#f59e0b", count: 2383,
+    catProp: "voltage_class", cats: VOLTAGE_CATS,
+    title: { props: ["name", "ref"], fallback: l3("輸電線", "Power line", "送電線") },
+    fields: [VOLTAGE_FIELD, { prop: "voltage", label: l3("電壓（V）", "Voltage (V)", "電圧（V）"), kind: "code" },
+             { prop: "kind", label: l3("型式", "Type", "形式"), map: { line: l3("架空線", "Overhead line", "架空線"), cable: l3("地下／海底電纜", "Underground / submarine cable", "地中・海底ケーブル") } },
+             { prop: "operator", label: l3("營運者", "Operator", "事業者") }, { prop: "circuits", label: l3("迴路數", "Circuits", "回線数"), kind: "code" },
+             { prop: "length_km", label: l3("路段長", "Segment length", "区間長"), kind: "num", unit: "km", digits: 2 }, OSM_ID_FIELD, LA],
+    legendNotes: [OSM_NOTE,
+                  l3("收 power=line 全部架空線，加 110 kV 以上地下／海底電纜；低壓配電線（minor_line）與 110 kV 以下電纜不收", "All power=line overhead lines plus underground/submarine cables of 110 kV and above; low-voltage minor lines and cables below 110 kV excluded", "power=line の架空線すべてと 110 kV 以上の地中・海底ケーブル。低圧配電線（minor_line）と 110 kV 未満のケーブルは含まない"),
+                  l3("電壓分級依 EirGrid 輸電網（400／220／110 kV）；北愛已剔除，跨境聯絡線與海纜（EWIC、Greenlink）未涵蓋", "Voltage classes follow the EirGrid grid (400/220/110 kV); Northern Ireland removed; cross-border interconnectors and submarine links (EWIC, Greenlink) not covered", "電圧区分は EirGrid 送電網（400／220／110 kV）に準拠。北アイルランドは除外し、越境連系線・海底連系線（EWIC・Greenlink）は未収録")],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR_IE, sourceUrl: "https://www.openstreetmap.org/copyright", license: "ODbL 1.0", fetchedAt: IE_W6_FETCHED_AT,
+    loading: l3("愛爾蘭輸電線載入中", "Loading Ireland power lines", "アイルランドの送電線を読み込み中"),
+  },
+  {
+    key: "ieSubstations", file: "ie_substations.pmtiles", sourceLayer: "ie_substations", geom: "point", layerId: "ie-substations-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#facc15", tier: "S", count: 1177,
+    catProp: "voltage_class", cats: VOLTAGE_CATS,
+    title: { props: ["name"], fallback: l3("變電站", "Substation", "変電所") },
+    fields: [VOLTAGE_FIELD, { prop: "voltage", label: l3("電壓（V）", "Voltage (V)", "電圧（V）"), kind: "code" },
+             { prop: "substation", label: l3("用途（OSM 原文）", "Role (OSM tag)", "用途（OSM 原文）"), kind: "code" },
+             { prop: "operator", label: l3("營運者", "Operator", "事業者") }, OSM_ID_FIELD, LA],
+    legendNotes: [OSM_NOTE,
+                  l3("power=substation 的點與面（面取代表點），共 1,177 處；電壓取標籤最大值，未標的歸「電壓未標」", "power=substation nodes and areas (areas shown at a representative point), 1,177 in total; voltage is the highest tagged value, untagged shown as “voltage not tagged”", "power=substation の点と面（面は代表点）、計1,177か所。電圧はタグの最大値、未記載は「電圧未記載」"),
+                  l3("北愛已剔除；沒有容量與承載資料", "Northern Ireland removed; no capacity or headroom data", "北アイルランドは除外。容量・空き容量のデータはない")],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR_IE, sourceUrl: "https://www.openstreetmap.org/copyright", license: "ODbL 1.0", fetchedAt: IE_W6_FETCHED_AT,
+    loading: l3("愛爾蘭變電站載入中", "Loading Ireland substations", "アイルランドの変電所を読み込み中"),
+  },
+  {
+    key: "ieWindFarms", file: "ie_wind_farms.pmtiles", sourceLayer: "ie_wind_farms", geom: "point", layerId: "ie-wind-farms-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#4ade80", tier: "M", count: 313,
+    catProp: "size_class", cats: WIND_SIZE_CATS,
+    title: { props: ["name"], fallback: l3("風場", "Wind farm", "風力発電所") },
+    fields: [{ prop: "mec_mw", label: l3("最大輸出容量 MEC", "Maximum export capacity (MEC)", "最大送電容量（MEC）"), kind: "num", unit: "MW", digits: 1 },
+             { prop: "status", label: l3("狀態（SEAI 原文）", "Status (SEAI)", "状態（SEAI 原文）"), kind: "code" },
+             { prop: "year_connected", label: l3("併網年", "Year connected", "系統連系年"), kind: "year" },
+             { prop: "node", label: l3("接入節點", "Connection node", "接続ノード") },
+             { prop: "operator_level", label: l3("接入電網", "Connected to", "接続先"), map: { DSO: l3("配電網（ESB Networks）", "Distribution (ESB Networks)", "配電網（ESB Networks）"), TSO: l3("輸電網（EirGrid）", "Transmission (EirGrid)", "送電網（EirGrid）") } },
+             { prop: "connection_ref", label: l3("接入編號", "Connection ref.", "接続番号"), kind: "code" }, { prop: "county", label: l3("郡", "County", "県") }],
+    legendNotes: [l3("SEAI 陸域風場 313 座（另含 Arklow Bank 離岸 1 座），MEC 合計 4,304 MW；2022-06 版，之後併網的風場未收", "313 SEAI wind farms (including 1 offshore, Arklow Bank), MEC 4,304 MW in total; June 2022 edition, later connections not included", "SEAI の風力発電所313か所（洋上の Arklow Bank 1 を含む）、MEC 計4,304 MW。2022年6月版で以後の連系は未収録"),
+                  l3("點位是風場接入的變電站，不是風機位置；共用同一變電站的風場會疊在同一點", "Points are the connecting substations, not turbine locations; farms sharing a substation overlap", "点は接続先の変電所で風車の位置ではない。同じ変電所に接続する発電所は重なる")],
+    popupNotes: [l3("位置為接入變電站", "Location is the connecting substation", "位置は接続先の変電所")],
+    sourceOrg: "Sustainable Energy Authority of Ireland (SEAI), Wind Farms in Ireland", sourceUrl: DGI("wind-farms-in-ireland"), license: CC_BY, fetchedAt: IE_W6_FETCHED_AT,
+    loading: l3("愛爾蘭風場載入中", "Loading Ireland wind farms", "アイルランドの風力発電所を読み込み中"),
+  },
+  {
+    key: "ieEvCharging", file: "ie_ev_charging.pmtiles", sourceLayer: "ie_ev_charging", geom: "point", layerId: "ie-ev-charging-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#a78bfa", tier: "S", count: 440,
+    catProp: "power_class", cats: EV_POWER_CATS,
+    title: { props: ["address"], fallback: l3("充電站", "Charging site", "充電スポット") },
+    fields: [{ prop: "power_class", label: l3("最大功率等級", "Max power class", "最大出力区分"), map: catMap(EV_POWER_CATS) },
+             { prop: "max_kw", label: l3("最大功率", "Max power", "最大出力"), kind: "num", unit: "kW" },
+             { prop: "chargers", label: l3("充電樁數", "Chargers", "充電器数"), kind: "num" },
+             { prop: "ccs_kw", label: l3("CCS（kW）", "CCS (kW)", "CCS（kW）"), kind: "code" },
+             { prop: "chademo_kw", label: l3("CHAdeMO（kW）", "CHAdeMO (kW)", "CHAdeMO（kW）"), kind: "code" },
+             { prop: "ac_fast_kw", label: l3("交流快充（kW）", "AC fast (kW)", "交流急速（kW）"), kind: "code" },
+             { prop: "ac_socket_kw", label: l3("交流插座（kW）", "AC socket (kW)", "交流コンセント（kW）"), kind: "code" },
+             { prop: "open_hours", label: l3("開放時間", "Open hours", "利用時間") }, { prop: "county", label: l3("郡", "County", "県") }],
+    legendNotes: [l3("ESB ecars 公共充電站 440 處（充電樁 520），2024-12 快照；北愛 151 處已剔除", "440 ESB ecars public charging sites (520 chargers), December 2024 snapshot; 151 Northern Ireland sites removed", "ESB ecars の公共充電スポット440か所（充電器520）、2024年12月時点。北アイルランドの151か所は除外"),
+                  l3("只有 ESB 網路；Tesla、Ionity、Circle K 等其他營運商未涵蓋；不含即時可用狀態與價格。功率欄「150(2), 50」＝150 kW 2 支＋50 kW 1 支", "ESB network only; Tesla, Ionity, Circle K and other operators not covered; no live availability or prices. Power fields like “150(2), 50” mean two 150 kW plus one 50 kW", "ESB のネットワークのみ。Tesla・Ionity・Circle K などは未収録。リアルタイムの空き状況と料金は含まない。出力欄「150(2), 50」は 150 kW 2本＋50 kW 1本")],
+    popupNotes: [l3("2024-12 快照", "December 2024 snapshot", "2024年12月時点")],
+    sourceOrg: "ESB ecars, EV Public Charging Network", sourceUrl: DGI("esb-ev-public-charging-network"), license: CC_BY, fetchedAt: IE_W6_FETCHED_AT,
+    loading: l3("愛爾蘭充電站載入中", "Loading Ireland EV charging sites", "アイルランドの充電スポットを読み込み中"),
+  },
+  {
+    key: "ieFuelStations", file: "ie_fuel_stations.pmtiles", sourceLayer: "ie_fuel_stations", geom: "point", layerId: "ie-fuel-stations-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f59e0b", tier: "S", count: 1687,
+    catProp: "brand_group", cats: FUEL_BRAND_CATS,
+    title: { props: ["name", "brand"], fallback: l3("加油站", "Fuel station", "ガソリンスタンド") },
+    fields: [{ prop: "brand", label: l3("品牌（OSM 原文）", "Brand (OSM tag)", "ブランド（OSM 原文）") }, { prop: "operator", label: l3("營運者", "Operator", "事業者") },
+             { prop: "opening_hours", label: l3("營業時間（OSM 原文）", "Opening hours (OSM tag)", "営業時間（OSM 原文）"), kind: "code" }, OSM_ID_FIELD, LA],
+    legendNotes: [OSM_NOTE,
+                  l3("amenity=fuel 的點與面（面取代表點，面內重複的點已合併），共 1,687 站；愛爾蘭沒有官方全國加油站名冊", "amenity=fuel nodes and areas (areas at a representative point, duplicate nodes inside areas merged), 1,687 in total; Ireland has no official national register", "amenity=fuel の点と面（面は代表点、面内の重複点は統合）、計1,687か所。アイルランドに公式の全国名簿はない"),
+                  l3("品牌依 OSM brand 標籤原文分組，未標的歸「未標品牌」（不從店名猜）；Topaz 已改掛 Circle K，但 OSM 仍標 Topaz 的照原文歸其他品牌", "Brands grouped from the OSM brand tag as written; untagged shown as “brand not tagged” (not guessed from names); Topaz (now Circle K) stays under other brands where OSM still says Topaz", "ブランドは OSM の brand タグの原文で分類し、未記載は「ブランド未記載」（店名から推測しない）。Topaz（現 Circle K）は OSM の表記どおり「その他」")],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR_IE, sourceUrl: "https://www.openstreetmap.org/copyright", license: "ODbL 1.0", fetchedAt: IE_W6_FETCHED_AT,
+    loading: l3("愛爾蘭加油站載入中", "Loading Ireland fuel stations", "アイルランドのガソリンスタンドを読み込み中"),
   },
 ];
 

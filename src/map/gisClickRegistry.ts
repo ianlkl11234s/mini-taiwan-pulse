@@ -483,6 +483,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-road-markers-circle"], type: "ieRoadMarkers" },
   { layers: ["ie-traffic-counters-circle"], type: "ieTrafficCounters" },
   { layers: ["ie-airports-ports-circle"], type: "ieAirportsPorts" },
+  // 第 6 波：能源（點在線之前，點擊點優先）
+  { layers: ["ie-power-plants-circle"], type: "iePowerPlants" },
+  { layers: ["ie-substations-circle"], type: "ieSubstations" },
+  { layers: ["ie-wind-farms-circle"], type: "ieWindFarms" },
+  { layers: ["ie-ev-charging-circle"], type: "ieEvCharging" },
+  { layers: ["ie-fuel-stations-circle"], type: "ieFuelStations" },
   { layers: ["ie-road-rail-network-line"], type: "ieRoadRailNetwork" },
   // 第 5 波：點（輻射站、樹木、崩塌事件）→ 線（步道、Wild Atlantic Way）；面在後（代表點 circle 由 repPointClickLayerIds 補）
   { layers: ["ie-radiation-stations-circle"], type: "ieRadiationStations" },
@@ -490,6 +496,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-street-trees-circle"], type: "ieStreetTrees" },
   { layers: ["ie-national-trails-line"], type: "ieNationalTrails" },
   { layers: ["ie-wild-atlantic-way-line"], type: "ieWildAtlanticWay" },
+  { layers: ["ie-power-lines-line"], type: "iePowerLines" },
   { layers: ["ie-river-water-bodies-line"], type: "ieRiverWaterBodies" },
   { layers: ["ie-parks-fill"], type: "ieParks" },
   { layers: ["ie-gaeltacht-fill"], type: "ieGaeltacht" },
