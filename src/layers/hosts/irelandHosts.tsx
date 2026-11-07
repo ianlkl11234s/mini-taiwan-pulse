@@ -77,6 +77,10 @@ export const IeSubstationsHost = makeIeDataHost("ieSubstations", 0.85);
 export const IeWindFarmsHost = makeIeDataHost("ieWindFarms", 0.85);
 export const IeEvChargingHost = makeIeDataHost("ieEvCharging", 0.85);
 export const IeFuelStationsHost = makeIeDataHost("ieFuelStations", 0.8);
+// 第 7a 波：教育
+export const IeSchoolsHost = makeIeDataHost("ieSchools", 0.85);
+export const IeSchoolPlanningAreasHost = makeIeDataHost("ieSchoolPlanningAreas", 0.35);
+export const IeChildcareServicesHost = makeIeDataHost("ieChildcareServices", 0.85);
 
 /** 河川淹水範圍（NIFM）：情境 × 重現期一組一支 PMTiles，依 `ieRiverFloodExtentsScenarioIdx` 換 `file`（hook 偵測檔名改變就重建 source）。 */
 const FLOOD_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieRiverFloodExtents);
