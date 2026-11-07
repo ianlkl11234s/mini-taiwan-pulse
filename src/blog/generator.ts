@@ -12,11 +12,12 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { join, resolve } from "node:path";
 import { Marked, type Tokens } from "marked";
 import { BLOG_TOPICS, topicById, type BlogTopic } from "./topics";
+import { MAP_CHALLENGE_DAYS, MAP_CHALLENGE_PATH, MAP_CHALLENGE_SERIES, MAP_CHALLENGE_SITE, MAP_CHALLENGE_YEAR, challengeDayInfo } from "./mapChallenge";
 
 export const BLOG_ORIGIN = "https://mini-taiwan-pulse.itsmigu.com";
 export const BLOG_NAME = "Pulse 筆記";
 /** /blog/ 底下非文章的固定路徑；文章 slug 不可使用 */
-const RESERVED_SLUGS = new Set(["about", "feed", "blog"]);
+const RESERVED_SLUGS = new Set(["about", "feed", "blog", "30daymapchallenge"]);
 export const BLOG_DESCRIPTION = "Mini Taiwan Pulse 的開發筆記：台灣軌道、航班、船舶與開放資料怎麼變成一張即時地圖。";
 export const BLOG_AUTHOR = {
   name: "Migu",
@@ -39,6 +40,8 @@ export interface BlogPost {
   coverAlt: string;
   mapLink?: string;
   threads: string[];
+  /** #30DayMapChallenge 的第幾天（1–30）；有填＝挑戰文章，出現在 /blog/30daymapchallenge/ */
+  challengeDay?: number;
   /** Markdown 內文（不含 front matter） */
   body: string;
 }
@@ -107,6 +110,11 @@ export function toPost(source: string): BlogPost {
     threads: list("threads"),
     body,
   };
+  const day = str(data, "challengeDay", false);
+  if (day) {
+    if (!/^\d+$/.test(day) || Number(day) < 1 || Number(day) > 30) throw new Error(`challengeDay 應為 1–30 的整數：${day}`);
+    post.challengeDay = Number(day);
+  }
   if (!/^[a-z0-9-]+$/.test(post.slug)) throw new Error(`slug 只能用小寫英數與連字號：${post.slug}`);
   if (!topicById(post.topic)) throw new Error(`未知主題 ${post.topic}（請先登記在 src/blog/topics.ts）`);
   // 文章與主題頁、關於頁共用 /blog/<x>/ 這一層，名稱不能撞
@@ -273,13 +281,17 @@ ${jsonLd(opts.jsonLd)}
   </head>`;
 }
 
-function topNav(): string {
+/** 有挑戰文章才產生總覽頁，頂部列的「30 天挑戰」連結也同條件 */
+const hasChallenge = (posts: BlogPost[]) => posts.some((p) => p.challengeDay !== undefined);
+
+function topNav(posts: BlogPost[] = []): string {
+  const challenge = hasChallenge(posts) ? `<a href="${MAP_CHALLENGE_PATH}">30 天挑戰</a>` : "";
   return `
     <header class="blog-nav">
       <div class="blog-nav__inner">
         <a class="blog-nav__back" href="/?v=1&style=dark" data-map-link>← 回到地圖</a>
         <a class="blog-nav__brand" href="/blog/">${BLOG_NAME}<span>Mini Taiwan Pulse</span></a>
-        <nav class="blog-nav__links" aria-label="部落格"><a href="/blog/">文章</a><a href="/blog/about/">關於</a></nav>
+        <nav class="blog-nav__links" aria-label="部落格"><a href="/blog/">文章</a>${challenge}<a href="/blog/about/">關於</a></nav>
         <button class="blog-nav__theme" type="button" data-theme-toggle aria-label="切換淺色／深色">淺色</button>
       </div>
     </header>`;
@@ -415,6 +427,14 @@ export function renderPostPage(post: BlogPost, posts: BlogPost[], publicDir: str
             <ol class="blog-series">${seriesPosts.map((p) => (p.slug === post.slug ? `<li aria-current="page">${escapeHtml(p.title)}</li>` : `<li><a href="${postPath(p)}">${escapeHtml(p.title)}</a></li>`)).join("")}</ol>
           </div>`
     : "";
+  const dayInfo = post.challengeDay ? challengeDayInfo(post.challengeDay) : undefined;
+  const challengeBlock = dayInfo
+    ? `
+          <div class="blog-side__block">
+            <p class="blog-side__title">${MAP_CHALLENGE_SERIES} · Day ${dayInfo.day}</p>
+            <a class="blog-challenge-back" href="${MAP_CHALLENGE_PATH}">← 回到 30 天挑戰總覽</a>
+          </div>`
+    : "";
   const threads = post.threads.length
     ? `
         <section class="blog-source">
@@ -439,13 +459,13 @@ export function renderPostPage(post: BlogPost, posts: BlogPost[], publicDir: str
         </section>`
     : "";
   return `${head({ title: `${post.title}｜${BLOG_NAME}`, description: post.description, canonical: url, ogType: "article", image, jsonLd: { "@context": "https://schema.org", "@graph": graph } })}
-  <body class="blog">${topNav()}
+  <body class="blog">${topNav(posts)}
     <main class="blog-main blog-main--post">
       <aside class="blog-side" aria-label="本文目錄">
         <details class="blog-side__toc" open>
           <summary>本文目錄</summary>
           <ol data-toc>${tocList}</ol>
-        </details>${series}
+        </details>${series}${challengeBlock}
         <div class="blog-side__block blog-side__share">
           <p class="blog-side__title">分享</p>
           ${shareLinks(post)}
@@ -457,7 +477,8 @@ export function renderPostPage(post: BlogPost, posts: BlogPost[], publicDir: str
         <p class="blog-byline">
           <a class="blog-byline__name" href="/blog/about/">${BLOG_AUTHOR.name}</a>
           <time datetime="${post.date}">${formatDate(post.date)}</time>${post.updated !== post.date ? `<span>更新於 <time datetime="${post.updated}">${formatDate(post.updated)}</time></span>` : ""}
-          <span>約 ${minutes} 分鐘</span>
+          <span>約 ${minutes} 分鐘</span>${dayInfo ? `
+          <a class="blog-byline__challenge" href="${MAP_CHALLENGE_PATH}">Day ${dayInfo.day} · ${escapeHtml(dayInfo.theme)}</a>` : ""}
         </p>${coverFigure(post)}
         <div class="blog-prose">
 ${body}
@@ -511,6 +532,7 @@ export function renderIndexPage(posts: BlogPost[]): string {
         </section>`;
     })
     .join("");
+  const challenge = challengeShelf(posts);
   const ld = {
     "@context": "https://schema.org",
     "@graph": [
@@ -528,12 +550,12 @@ export function renderIndexPage(posts: BlogPost[]): string {
     ],
   };
   return `${head({ title: `${BLOG_NAME}｜Mini Taiwan Pulse`, description: BLOG_DESCRIPTION, canonical: url, ogType: "website", image: featured?.cover ? assetPath(featured, featured.cover) : undefined, jsonLd: ld })}
-  <body class="blog">${topNav()}
+  <body class="blog">${topNav(posts)}
     <main class="blog-main blog-main--wide">
       <div class="blog-listing">
         <h1>${BLOG_NAME}</h1>
         <p class="blog-listing__lead">${BLOG_DESCRIPTION}</p>
-        ${topicTabs(null, topics)}${hero}${sections}
+        ${topicTabs(null, topics)}${hero}${challenge}${sections}
       </div>
     </main>${footer()}
   </body>
@@ -566,7 +588,7 @@ export function renderTopicPage(topic: BlogTopic, posts: BlogPost[]): string {
     ],
   };
   return `${head({ title: `${topic.name}｜${BLOG_NAME}`, description: topic.description, canonical: url, ogType: "website", image: list[0]?.cover ? assetPath(list[0], list[0].cover) : undefined, jsonLd: ld })}
-  <body class="blog">${topNav()}
+  <body class="blog">${topNav(posts)}
     <main class="blog-main blog-main--wide">
       <div class="blog-listing">
         <nav class="blog-crumb" aria-label="麵包屑"><a href="/blog/">${BLOG_NAME}</a><span aria-hidden="true">/</span><span>${escapeHtml(topic.name)}</span></nav>
@@ -582,7 +604,117 @@ export function renderTopicPage(topic: BlogTopic, posts: BlogPost[]): string {
 `;
 }
 
-export function renderAboutPage(): string {
+/** 挑戰文章，依 Day 由小到大 */
+export function challengePosts(posts: BlogPost[]): BlogPost[] {
+  return posts.filter((p) => p.challengeDay !== undefined).sort((a, b) => a.challengeDay! - b.challengeDay!);
+}
+
+/** 同一天不可有兩篇（總覽頁一格一篇）；build 時丟錯 */
+export function assertUniqueChallengeDays(posts: BlogPost[]): void {
+  const seen = new Map<number, string>();
+  for (const p of posts) {
+    if (p.challengeDay === undefined) continue;
+    const other = seen.get(p.challengeDay);
+    if (other) throw new Error(`challengeDay ${p.challengeDay} 重複：${other}、${p.slug}`);
+    seen.set(p.challengeDay, p.slug);
+  }
+}
+
+function challengeCard(p: BlogPost): string {
+  const info = challengeDayInfo(p.challengeDay!)!;
+  return `
+            <li class="blog-card">
+              <a href="${postPath(p)}">
+                <div class="blog-card__media">${coverImgs(p)}</div>
+                <p class="blog-card__meta"><span>Day ${info.day}</span><span>${escapeHtml(info.theme)}</span></p>
+                <h3>${escapeHtml(p.title)}</h3>
+              </a>
+            </li>`;
+}
+
+/** 列表頁的挑戰區塊：最新幾天（Day 由大到小）＋看全部 30 天 */
+function challengeShelf(posts: BlogPost[], limit = 3): string {
+  const list = challengePosts(posts);
+  if (!list.length) return "";
+  return `
+        <section class="blog-shelf blog-shelf--challenge">
+          <div class="blog-shelf__head"><h2><a href="${MAP_CHALLENGE_PATH}">${MAP_CHALLENGE_SERIES} ${MAP_CHALLENGE_YEAR}</a></h2><a href="${MAP_CHALLENGE_PATH}">看全部 30 天（已完成 ${list.length}／30）→</a></div>
+          <ul class="blog-cards blog-cards--grid">${[...list].reverse().slice(0, limit).map(challengeCard).join("")}
+          </ul>
+        </section>`;
+}
+
+/** /blog/30daymapchallenge/：30 格，已發布的連到文章，未發布的只標「尚未發布」（不依 build 日期判斷，靜態頁不會過期） */
+export function renderChallengePage(posts: BlogPost[]): string {
+  const url = `${BLOG_ORIGIN}${MAP_CHALLENGE_PATH}`;
+  const list = challengePosts(posts);
+  const byDay = new Map(list.map((p) => [p.challengeDay!, p]));
+  const title = `${MAP_CHALLENGE_SERIES} ${MAP_CHALLENGE_YEAR}`;
+  const description = `#30DayMapChallenge ${MAP_CHALLENGE_YEAR}：每年 11 月每天一個製圖題目，這裡是我用 Mini Taiwan Pulse 的資料做的每一天（已完成 ${list.length}／30）。`;
+  const cells = MAP_CHALLENGE_DAYS.map((d) => {
+    const p = byDay.get(d.day);
+    const head = `<p class="blog-challenge__day"><span>Day ${d.day}</span><span>${escapeHtml(d.theme)}</span></p>`;
+    const prompt = `<p class="blog-challenge__prompt">${escapeHtml(d.description)}</p>`;
+    if (!p) {
+      return `
+          <li class="blog-challenge__cell blog-challenge__cell--pending">
+            ${head}
+            ${prompt}
+            <p class="blog-challenge__status">尚未發布</p>
+          </li>`;
+    }
+    return `
+          <li class="blog-challenge__cell">
+            <a href="${postPath(p)}">
+              <div class="blog-card__media">${coverImgs(p)}</div>
+              ${head}
+              ${prompt}
+              <h3>${escapeHtml(p.title)}</h3>
+              <p class="blog-challenge__desc">${escapeHtml(p.description)}</p>
+            </a>
+          </li>`;
+  }).join("");
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        name: `${title}｜${BLOG_NAME}`,
+        description,
+        url,
+        inLanguage: "zh-Hant-TW",
+        isPartOf: { "@id": `${BLOG_ORIGIN}/blog/#blog` },
+        about: { "@type": "Event", name: `#30DayMapChallenge ${MAP_CHALLENGE_YEAR}`, url: MAP_CHALLENGE_SITE },
+        hasPart: list.map((p) => ({ "@type": "BlogPosting", headline: p.title, url: postUrl(p), datePublished: p.date })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: BLOG_NAME, item: `${BLOG_ORIGIN}/blog/` },
+          { "@type": "ListItem", position: 2, name: title, item: url },
+        ],
+      },
+    ],
+  };
+  const latest = list[list.length - 1];
+  return `${head({ title: `${title}｜${BLOG_NAME}`, description, canonical: url, ogType: "website", image: latest?.cover ? assetPath(latest, latest.cover) : undefined, jsonLd: ld })}
+  <body class="blog">${topNav(posts)}
+    <main class="blog-main blog-main--wide">
+      <div class="blog-listing">
+        <nav class="blog-crumb" aria-label="麵包屑"><a href="/blog/">${BLOG_NAME}</a><span aria-hidden="true">/</span><span>${MAP_CHALLENGE_SERIES}</span></nav>
+        <h1>${title}</h1>
+        <p class="blog-listing__lead"><a href="${MAP_CHALLENGE_SITE}" rel="noopener" target="_blank">#30DayMapChallenge</a> 每年 11 月舉辦，每天一個製圖題目。這裡是我用 Mini Taiwan Pulse 的資料做的每一天。</p>
+        <p class="blog-challenge__progress">已完成 <strong>${list.length}</strong>／30</p>
+        <ol class="blog-challenge">${cells}
+        </ol>
+      </div>
+    </main>${footer()}
+  </body>
+</html>
+`;
+}
+
+export function renderAboutPage(posts: BlogPost[] = []): string {
   const url = `${BLOG_ORIGIN}/blog/about/`;
   const projects = [
     { name: "Mini Taiwan Pulse", desc: "台灣多運具即時脈動地圖（本站）", site: `${BLOG_ORIGIN}/`, github: "https://github.com/ianlkl11234s/mini-taiwan-pulse" },
@@ -596,7 +728,7 @@ export function renderAboutPage(): string {
     "@graph": [{ "@type": "ProfilePage", url, name: `關於 ${BLOG_AUTHOR.name}`, mainEntity: { "@id": `${BLOG_ORIGIN}/#author` } }, personLd],
   };
   return `${head({ title: `關於 ${BLOG_AUTHOR.name}｜${BLOG_NAME}`, description: `${BLOG_AUTHOR.name}，${BLOG_AUTHOR.jobTitle}，Mini Taiwan Pulse 作者。`, canonical: url, ogType: "profile", jsonLd: ld })}
-  <body class="blog">${topNav()}
+  <body class="blog">${topNav(posts)}
     <main class="blog-main">
       <article class="blog-article blog-article--solo">
         <h1>關於 ${BLOG_AUTHOR.name}</h1>
@@ -653,6 +785,7 @@ export function loadPosts(contentDir: string): BlogPost[] {
     if (slugs.has(p.slug)) throw new Error(`slug 重複：${p.slug}`);
     slugs.add(p.slug);
   }
+  assertUniqueChallengeDays(posts);
   return posts.sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug));
 }
 
@@ -675,7 +808,8 @@ export function generateBlog(root: string, warn: (msg: string) => void = console
   };
   for (const post of posts) write(`blog-${post.slug}`, post.slug, renderPostPage(post, posts, publicDir, warn));
   for (const topic of activeTopics(posts)) write(`blog-topic-${topic.id}`, topic.id, renderTopicPage(topic, posts));
-  write("blog-about", "about", renderAboutPage());
+  if (hasChallenge(posts)) write("blog-challenge", "30daymapchallenge", renderChallengePage(posts));
+  write("blog-about", "about", renderAboutPage(posts));
   write("blog-index", "", renderIndexPage(posts));
   mkdirSync(join(publicDir, "blog"), { recursive: true });
   writeFileSync(join(publicDir, "blog", "feed.xml"), renderFeed(posts));

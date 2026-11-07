@@ -220,5 +220,18 @@
   "enum.statLegendNote.時代力量": "NPP",
   "enum.statLegendNote.無黨籍": "Independent",
   "enum.statLegendNote.其他政黨": "Other parties",
-  "enum.statLegendNote.得票並列最高（無單一最高黨）": "Tied for most votes (no single leading party)"
+  "enum.statLegendNote.得票並列最高（無單一最高黨）": "Tied for most votes (no single leading party)",
+  "enum.statLegendNote.消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。": "Fires attended and investigated by fire services (incident records of the National Fire Data System), counted by year of report and area of occurrence.",
+  "enum.statLegendNote.件數與人數未除以人口，人口多的地區自然較高。": "Counts are not divided by population; more populous areas naturally score higher.",
+  "enum.statLegendNote.軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。": "Gunwi County joined Daegu in July 2023; its 2021–2022 figures are also counted under Daegu.",
+  "enum.statLegendNote.財產損失為名目千韓元，未調整物價。": "Property damage in nominal KRW thousand, not adjusted for inflation.",
+  "enum.statLegendNote.富川市、華城市只有市合計，各一般區無資料；仁川 2026 年改制的濟物浦、永宗、西海、黔丹 4 區無資料（不是 0）。這些件數仍計入道級。": "Bucheon and Hwaseong are reported only as city totals, so their districts have no data; the four Incheon districts created in 2026 (Jemulpo, Yeongjong, Seohae, Geomdan) have no data (not zero). These counts are still included at province level.",
+  "enum.statLegendNote.只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。": "Only police-handled road traffic accidents with casualties; deaths are those within 30 days of the accident.",
+  "enum.statLegendNote.受傷人數＝重傷（治療 3 週以上）＋輕傷（5 日至 3 週）＋傷害申報（未滿 5 日）。": "Injuries = serious (3+ weeks of treatment) + minor (5 days to 3 weeks) + reported injuries (under 5 days).",
+  "enum.statLegendNote.水原、城南、安養、富川、安山、華城、高陽、龍仁、清州、天安、全州、浦項、昌原 13 市只有市合計，其 39 個一般區無資料；仁川 2026 年改制的 4 區無資料（不是 0）。這些件數仍計入道級。": "13 cities (Suwon, Seongnam, Anyang, Bucheon, Ansan, Hwaseong, Goyang, Yongin, Cheongju, Cheonan, Jeonju, Pohang, Changwon) are reported only as city totals, so their 39 districts have no data; the four Incheon districts created in 2026 have no data (not zero). These counts are still included at province level.",
+  "enum.statLegendNote.全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。": "The Jeonnam-Gwangju province-level value is Gwangju Metropolitan City plus South Jeolla Province (the data predate the July 2026 merger).",
+  "enum.statLegendNote.最淺色含 0 人（該區該年為 0，不是無資料）。": "The lightest class includes 0 (zero that year, not missing data).",
+  "enum.statLegendNote.0 人自成最淺一級（該區該年無火災死亡，不是無資料）。": "0 forms its own lightest class (no fire deaths that year, not missing data).",
+  "enum.statLegendNote.署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635": "Attribution: 소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635",
+  "enum.statLegendNote.署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297": "Attribution: 한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
 }

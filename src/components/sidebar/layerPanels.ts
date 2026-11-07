@@ -106,9 +106,9 @@ export const GB_STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
   { zh: "土地與環境", en: "Land & Environment", themes: ["農業"] },
 ];
 
-/** 南韓統計：沿用統計入口的大分類名（人口與社會／經濟與住宅）。 */
+/** 南韓統計：沿用統計入口的大分類名（人口與社會／經濟與住宅）；公共安全（火災、交通事故）比照台灣「犯罪與治安」放人口與社會。 */
 export const KR_STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
-  { zh: "人口與社會", en: "Population & Society", themes: ["人口"] },
+  { zh: "人口與社會", en: "Population & Society", themes: ["人口", "公共安全"] },
   { zh: "經濟與住宅", en: "Economy & Housing", themes: ["社經"] },
 ];
 

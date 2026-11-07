@@ -335,6 +335,12 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsKrDwellings/, 'housing', House],
   [/^statsKrEstablishments/, 'labor', Building2],
   [/^statsKrEmployees/, 'labor', Briefcase],
+  // 南韓公共安全（2026-11-07，火災 2021–2023、交通事故 2025）：件數與人數，沿用治安 Reds（同台灣治安統計），不新增色票。
+  [/^statsKrFireIncidents/, 'security', Flame],
+  [/^statsKrFireDamage/, 'security', Receipt],
+  [/^statsKrTrafficAccidents/, 'security', Car],
+  [/^statsKr(?:Fire|Traffic)Deaths/, 'security', TriangleAlert],
+  [/^statsKr(?:FireInjuries|TrafficSeriousInjuries|TrafficInjuries)/, 'security', Hospital],
   // 加拿大統計（2026-11-04，省／地區、普查區）：不新增色票。人口、密度、年齡＝人口 RdPu；私人家戶＝住宅 Oranges；
   // 家戶所得與勞動力＝工作與所得（同台灣綜合所得稅 statsIncomeTax）。
   [/^statsCaPopulation(?:Density)?(?:Pr|Cd)$/, 'population', Users],
