@@ -1,8 +1,11 @@
 // 愛爾蘭圖層 popup（第 0 波：行政邊界）。字串與署名 SSOT 在 data/ieAdminTypes.ts；
 // 來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
+import type { FC } from "react";
 import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/caInfraTypes";
+import { IE_DATA_SPECS, type IeField, type IeLayerSpec } from "../../data/ieDataLayers";
+import type { IeDataKey } from "../../data/ieDataKeys";
 import { IE_ADMIN_COLOR, IE_ADMIN_LEVEL_LABELS, IE_ADMIN_SOURCE, IE_FETCHED_AT, IE_NO_DATA, pickL3, type L3 } from "../../data/ieAdminTypes";
 
 type P = { props: Record<string, unknown> };
@@ -35,3 +38,40 @@ export function IeAdminBoundariesPanel({ props }: P) {
     <SourceFooter props={{ source_org: IE_ADMIN_SOURCE.org, source_url: IE_ADMIN_SOURCE.url, license: IE_ADMIN_SOURCE.license, fetched_at: IE_FETCHED_AT }} />
   </>;
 }
+
+// ───────── 第 1 波規格驅動 6 層的共用 popup（比照南韓 krPanels makePanel；規格見 data/ieDataLayers.ts）─────────
+function catColor(spec: IeLayerSpec, props: Record<string, unknown>): string {
+  if (!spec.cats || !spec.catProp) return spec.color;
+  const v = caText(props[spec.catProp]);
+  return spec.cats.find((c) => c.values.includes(v))?.color ?? spec.otherColor ?? spec.color;
+}
+
+function formatField(f: IeField, props: Record<string, unknown>, locale: string, fmt: (n: number, digits?: number) => string): string {
+  const raw = props[f.prop];
+  if (f.kind === "num" || f.kind === "pct") {
+    const v = Number(raw);
+    if (raw == null || raw === "" || !Number.isFinite(v)) return "";
+    if (f.kind === "pct") return `${fmt(v * 100, f.digits ?? 1)}%`;
+    return `${fmt(v, f.digits ?? 0)}${f.unit ? ` ${f.unit}` : ""}`;
+  }
+  const s = caText(raw);
+  if (!s) return "";
+  if (f.map?.[s]) return pickL3(f.map[s]!, locale);
+  return s;
+}
+
+function makeIePanel(spec: IeLayerSpec): FC<P> {
+  return function IeDataPanel({ props }) {
+    const { locale } = useLocale();
+    const fmt = (n: number, digits = 0) => n.toLocaleString(undefined, { maximumFractionDigits: digits });
+    const title = spec.title.props.map((p) => caText(props[p])).find(Boolean) || pickL3(spec.title.fallback, locale);
+    return <>
+      <Title color={catColor(spec, props)}>{title}</Title>
+      {spec.fields.map((f) => <Row key={f.prop} label={pickL3(f.label, locale)} value={formatField(f, props, locale, fmt)} mono={f.kind === "code"} />)}
+      {spec.popupNotes.map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n, locale)} />)}
+      <SourceFooter props={{ source_org: spec.sourceOrg, source_url: spec.sourceUrl, license: spec.license, fetched_at: spec.fetchedAt }} />
+    </>;
+  };
+}
+
+export const IE_DATA_PANELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, makeIePanel(s)])) as Record<IeDataKey, FC<P>>;
