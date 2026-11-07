@@ -9,6 +9,27 @@ function mapStub() {
   return { map: { cameraForBounds } as unknown as MapboxMap, cameraForBounds };
 }
 
+describe("research viewport fit: corner cards", () => {
+  it("lets a top-right corner card leave the space below it usable instead of reserving the whole right side", () => {
+    // Left Layers panel (full height) plus a small top-right card on a 1200x800 map.
+    const context = viewportContextFromRects(1200, 800, [
+      { left: 0, top: 0, right: 520, bottom: 800 },
+      { left: 860, top: 70, right: 1184, bottom: 250 },
+    ]);
+    // Reserving the card's side would leave only 536-wide strip (536..1184 minus 340 = 308 wide); the strip below the card is far wider.
+    expect(context.safe.right - context.safe.left).toBeGreaterThan(600);
+    expect(context.safe.left).toBe(536);
+    expect(context.safe.top).toBeGreaterThanOrEqual(250);
+  });
+
+  it("caps the extra framing padding at 24px", () => {
+    const state = mapStub();
+    const context = viewportContextFromRects(1200, 800, []);
+    resolveViewportCameraFromContext(state.map, context, { bounds: [121.4, 24.9, 121.7, 25.2], padding: 60, maxZoom: 14 });
+    expect(state.cameraForBounds.mock.calls[0]![1].padding).toEqual({ left: 40, top: 40, right: 40, bottom: 40 });
+  });
+});
+
 describe("research viewport fit", () => {
   it("uses the live wide container and shifts the bounds fit away from left, right, and bottom UI", () => {
     const state = mapStub();
@@ -86,7 +107,8 @@ describe("research viewport fit", () => {
     const fit: ResearchFraming = { bounds: [121.54, 25.02, 121.6, 25.06], padding: 60, maxZoom: 14 };
     const project = vi.fn(([lng, lat]: [number, number]) => ({ x: 376 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
     expect(framingFitsViewportFromContext({ project } as unknown as MapboxMap, context, fit)).toBe(true);
-    project.mockImplementation(([lng, lat]: [number, number]) => ({ x: 360 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
+    // Framing padding is capped at 24px: the visible left edge is 316 + 24 = 340.
+    project.mockImplementation(([lng, lat]: [number, number]) => ({ x: 330 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
     expect(framingFitsViewportFromContext({ project } as unknown as MapboxMap, context, fit)).toBe(false);
   });
 

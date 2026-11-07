@@ -28,6 +28,9 @@ const MIN_STRIP_PX = 240;
 // surrounding context once the safe rectangle is small.
 const CAMERA_MAX_ZOOM_CEILING = 16;
 const REFINEMENT_INSET_PX = 2;
+// The gateway asks for ~60px; the safe rectangle already keeps clear of every overlay, so extra
+// inset only shrinks the fitted result (a city ended up three zoom levels too far out).
+const MAX_FRAMING_PADDING_PX = 24;
 const EXCLUDED_OVERLAY_CLASSES = ["mapboxgl-canvas-container", "mapboxgl-canvas", "mapboxgl-map"];
 
 function finite(value: number): boolean { return Number.isFinite(value); }
@@ -43,7 +46,7 @@ function validFraming(framing: ResearchFraming): boolean {
 function effectivePadding(safe: ViewportRect, requested: number): number {
   const width = safe.right - safe.left;
   const height = safe.bottom - safe.top;
-  return Math.min(requested, Math.max(0, (Math.min(width, height) - MIN_CONTENT_PX) / 2));
+  return Math.min(requested, MAX_FRAMING_PADDING_PX, Math.max(0, (Math.min(width, height) - MIN_CONTENT_PX) / 2));
 }
 
 function visible(element: Element): boolean {
@@ -114,19 +117,55 @@ function dominantEdge(viewport: ViewportRect, rect: ViewportRect): Edge | null {
   return edge && edge[1] <= EDGE_ATTACH_PX ? edge[0] : null;
 }
 
-function insetForOverlays(viewport: ViewportRect, overlays: readonly ViewportRect[]): ViewportRect {
-  let left = MIN_EDGE_SPACE_PX;
-  let top = MIN_EDGE_SPACE_PX;
-  let right = MIN_EDGE_SPACE_PX;
-  let bottom = MIN_EDGE_SPACE_PX;
-  for (const rect of overlays) {
-    switch (dominantEdge(viewport, rect)) {
-      case "left": left = Math.max(left, rect.right + OVERLAY_GAP_PX); break;
-      case "right": right = Math.max(right, viewport.right - rect.left + OVERLAY_GAP_PX); break;
-      case "top": top = Math.max(top, rect.bottom + OVERLAY_GAP_PX); break;
-      case "bottom": bottom = Math.max(bottom, viewport.bottom - rect.top + OVERLAY_GAP_PX); break;
-    }
+/** A small card parked in a corner: it blocks a corner, not the whole side it is nearest to. */
+function isCornerCard(viewport: ViewportRect, rect: ViewportRect, edge: Edge | null): boolean {
+  if (edge !== "left" && edge !== "right") return false;
+  const height = viewport.bottom - viewport.top;
+  if (rect.bottom - rect.top > height * 0.5) return false;
+  return rect.top - viewport.top < height * 0.25 || viewport.bottom - rect.bottom < height * 0.25;
+}
+
+type Insets = { left: number; top: number; right: number; bottom: number };
+
+function applyOverlay(viewport: ViewportRect, insets: Insets, rect: ViewportRect, edge: Edge | null): Insets {
+  const next = { ...insets };
+  switch (edge) {
+    case "left": next.left = Math.max(next.left, rect.right + OVERLAY_GAP_PX); break;
+    case "right": next.right = Math.max(next.right, viewport.right - rect.left + OVERLAY_GAP_PX); break;
+    case "top": next.top = Math.max(next.top, rect.bottom + OVERLAY_GAP_PX); break;
+    case "bottom": next.bottom = Math.max(next.bottom, viewport.bottom - rect.top + OVERLAY_GAP_PX); break;
   }
+  return next;
+}
+
+function insetArea(viewport: ViewportRect, insets: Insets): number {
+  return Math.max(0, viewport.right - insets.right - insets.left) * Math.max(0, viewport.bottom - insets.bottom - insets.top);
+}
+
+function insetForOverlays(viewport: ViewportRect, overlays: readonly ViewportRect[]): ViewportRect {
+  let insets: Insets = { left: MIN_EDGE_SPACE_PX, top: MIN_EDGE_SPACE_PX, right: MIN_EDGE_SPACE_PX, bottom: MIN_EDGE_SPACE_PX };
+  const corners: ViewportRect[] = [];
+  for (const rect of overlays) {
+    const edge = dominantEdge(viewport, rect);
+    if (isCornerCard(viewport, rect, edge)) corners.push(rect); else insets = applyOverlay(viewport, insets, rect, edge);
+  }
+  // A corner card may reserve either the side it sits on or the strip above/below it; keep whichever
+  // leaves the larger open rectangle (e.g. a top-right card must not eat the whole right side).
+  const cornerCards = corners.slice(0, 4);
+  for (const rect of corners.slice(4)) insets = applyOverlay(viewport, insets, rect, dominantEdge(viewport, rect));
+  let best = insets;
+  let bestArea = -1;
+  for (let mask = 0; mask < 1 << cornerCards.length; mask++) {
+    let candidate = insets;
+    cornerCards.forEach((rect, index) => {
+      const side = dominantEdge(viewport, rect);
+      const vertical: Edge = rect.top - viewport.top <= viewport.bottom - rect.bottom ? "top" : "bottom";
+      candidate = applyOverlay(viewport, candidate, rect, mask & (1 << index) ? vertical : side);
+    });
+    const area = insetArea(viewport, candidate);
+    if (area > bestArea) { best = candidate; bestArea = area; }
+  }
+  const { left, top, right, bottom } = best;
   const safeRight = viewport.right - right;
   const safeBottom = viewport.bottom - bottom;
   // Prefer the simple edge-strip inset -- reserving space along each occluded edge, e.g. a left
