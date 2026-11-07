@@ -263,7 +263,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-08: +5 愛爾蘭第 7b 波（醫療院所、HIQA 老人照護、消防站、Garda 站、法院）。
     // 2026-11-08: +4 愛爾蘭第 10 波（EPA 持照工業設施、土壤圖、泥炭土壤、養殖場）。
     // 2026-11-08: +6 愛爾蘭第 9 波（土地使用分區、規劃申請、策略噪音、回收點、廢棄物許可設施、PRTR）。
-    expect(keys.length).toBe(1769);
+    // 2026-11-08: +2 愛爾蘭第 5c 波（Coillte 國有林遊憩點與森林入口、林道與遊憩步道；站主限定 owner-only RPC）。
+    expect(keys.length).toBe(1771);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

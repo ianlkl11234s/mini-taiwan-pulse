@@ -60,7 +60,9 @@ import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserv
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
 import { KrDataLegend, KrAirportsLegend, KrBusStopsLegend, KrFuelStationsLegend, KrNationalRoadsLegend, KrOilGasLegend, KrPortsLegend, KrPowerLinesLegend, KrPowerPlantsLegend, KrPowerTowersLegend, KrRailLinesLegend, KrRailStationsLegend, KrRenewablesLegend, KrSubstationsLegend } from "./legend/krLegends";
 import { CaAdminBoundariesLegend, CaTransitStopsLegend, CaAirportsPortsLegend, CaMajorRoadsLegend, CaRailwaysLegend, CaPowerPlantsLegend, CaWindTurbinesLegend, CaPowerGridLegend, CaOilGasLegend, CaPopulationCentresLegend, CaFederalDistrictsLegend, CaPostalFsaLegend, CaIndigenousLandsLegend, CaDeprivationLegend, CaRentsLegend, CaPlaceNamesLegend, CaHillshadeLegend } from "./legend/caLegends";
-import { IeAdminBoundariesLegend, IeBathymetryLegend, IeDataLegend } from "./legend/ieLegends";
+import { IeAdminBoundariesLegend, IeBathymetryLegend, IeDataLegend, IeSpecLegend } from "./legend/ieLegends";
+import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../data/ieCoillteTypes";
+import { DenseHeatmapLegendRow } from "./legend/legendShared";
 import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
 import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
@@ -332,6 +334,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "ieAdminBoundaries", render: () => <IeAdminBoundariesLegend /> },
   // 愛爾蘭第 1 波：規格驅動 6 層＋海床地形
   ...IE_DATA_KEYS.map((key) => ({ id: key, render: () => <IeDataLegend layerKey={key} /> })),
+  { id: "ieCoillteRecreation", render: () => <IeSpecLegend layerKey="ieCoillteRecreation" spec={IE_COILLTE_RECREATION}><DenseHeatmapLegendRow layers={["ieCoillteRecreation"]} /></IeSpecLegend> },
+  { id: "ieCoillteForestRoads", render: () => <IeSpecLegend layerKey="ieCoillteForestRoads" spec={IE_COILLTE_FOREST_ROADS} /> },
   { id: "ieBathymetry", render: () => <IeBathymetryLegend /> },
   { id: "caTransitStops", render: () => <CaTransitStopsLegend /> },
   { id: "caAirportsPorts", render: () => <CaAirportsPortsLegend /> },

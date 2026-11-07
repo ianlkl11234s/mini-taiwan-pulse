@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useIeAdminLayers } from "../../hooks/useIeAdminLayers";
 import { useIeBathymetryLayer } from "../../hooks/useIeBathymetryLayer";
 import { useKrDataLayer } from "../../hooks/useKrDataLayers";
+import { useIeCoillteLayer } from "../../hooks/useIeCoillteLayers";
 import { IE_SPEC_BY_KEY, asKrSpec, ieFloodScenarioFileAt, ieNoiseMetricFileAt } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
@@ -132,5 +133,17 @@ export const IeBathymetryHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useIeBathymetryLayer");
   const p = useKeyOverlayParams("ieBathymetry");
   useIeBathymetryLayer(deps.mapRef, deps.layerVisibility.ieBathymetry, p.ieBathymetryOpacity ?? 0.7);
+  return null;
+};
+
+/** 第 5c 波 Coillte 國有林（站主限定 owner-only RPC）：只供資料，樣式在 overlayRegistry。 */
+export const IeCoillteRecreationHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useIeCoillteRecreationLayer");
+  useIeCoillteLayer(deps.mapRef, "ieCoillteRecreation", deps.layerVisibility.ieCoillteRecreation);
+  return null;
+};
+export const IeCoillteForestRoadsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useIeCoillteForestRoadsLayer");
+  useIeCoillteLayer(deps.mapRef, "ieCoillteForestRoads", deps.layerVisibility.ieCoillteForestRoads);
   return null;
 };

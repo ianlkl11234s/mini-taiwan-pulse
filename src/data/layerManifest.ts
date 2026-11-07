@@ -34,6 +34,7 @@ import { statisticsManifestParams } from "./statisticsParamsSpec";
 import { KR_DATA_SPECS } from "./krDataLayers";
 import { repPointDense, repPointLayer } from "./repPointLayers";
 import type { KrDataKey } from "./krDataKeys";
+import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRICS, ieNoiseMetricFile } from "./ieDataLayers";
 import type { IeDataKey } from "./ieDataKeys";
 // ══════════════════════════════════════════════════════════════════
@@ -4780,6 +4781,58 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "愛爾蘭海床地形（INFOMAR 測深，約 300 m；0–4,832 m 深度色階＋陰影）",
     topics: ["愛爾蘭", "底圖", "地形", "海床", "測深", "INFOMAR"],
+  },
+  // 🇮🇪 愛爾蘭第 5c 波（2026-11-08，站主限定）：Coillte 條款「僅限研究或私人學習、不得轉供他人、不得用於其他網站」，使用者 2026-11-07 拍板；
+  // 資料只在 Supabase reference.world_ie_coillte_{recreation,forest_roads}，經 owner-only RPC 讀取（gis-platform mig 512）。規格 SSOT：data/ieCoillteTypes.ts
+  ieCoillteRecreation: {
+    key: "ieCoillteRecreation",
+    country: "IE", section: { theme: "林業", group: "點位" },
+    ...layerName({ zh: "國有林遊憩點與森林入口", alt: "Coillte Recreation Sites & Forest Entrances", qualifier: "Coillte" }),
+    expandable: true,
+    color: IE_COILLTE_RECREATION.color,
+    icon: TreePine,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ie_coillte_recreation", confidence: "HIGH" }],
+      processing: "analytics pipelines/forestry/ie/coillte/07_export.py：Coillte Recreation Information/0（multipoint 取第一點）153＋Access_App_Forest_Entrances/0 12,888 → gis-platform scripts/load_ie_coillte.py 匯入 Supabase；RPC get_ie_coillte_recreation 回 13,041 點",
+      note: "Coillte item licenseInfo「not to copy, publish or use the data on another website」「research or private study」→ 站主限定，不進 public/、S3、R2、PMTiles、分析倉庫或任何公開網址；停車場、MTB 柱、森林公園未收",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: IE_COILLTE_RECREATION.sourceId,
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "ieCoillteRecreation",
+    popup: "ieCoillteRecreation",
+    params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
+    description: "站主限定。愛爾蘭國營林業公司 Coillte 遊憩點 153 處與森林入口 12,888 處；授權限私人研究，不公開",
+    topics: ["愛爾蘭", "林業", "國有林", "森林遊憩", "Coillte", "OWNER_ONLY"],
+  },
+  ieCoillteForestRoads: {
+    key: "ieCoillteForestRoads",
+    country: "IE", section: { theme: "林業", group: "線" },
+    ...layerName({ zh: "國有林林道與遊憩步道", alt: "Coillte Forest Roads & Recreation Trails", qualifier: "Coillte" }),
+    expandable: true,
+    color: IE_COILLTE_FOREST_ROADS.color,
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ie_coillte_forest_roads", confidence: "HIGH" }],
+      processing: "analytics pipelines/forestry/ie/coillte/07_export.py：Coillte_Forest_Road_Dataset/1 15,890（13 條無幾何剔除）＋Recreation Information/3 步道 1,199，約 5 m 簡化 → Supabase；RPC get_ie_coillte_forest_roads 整包回 17,076 條（p_bbox 預留依畫面分批）",
+      note: "Coillte item 條款同遊憩點 → 站主限定，不進任何公開檔；私有林林道未涵蓋",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: IE_COILLTE_FOREST_ROADS.sourceId,
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "ieCoillteForestRoads",
+    popup: "ieCoillteForestRoads",
+    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    description: "站主限定。愛爾蘭 Coillte 國有林林道 15,877 條與遊憩步道 1,199 條；授權限私人研究，不公開",
+    topics: ["愛爾蘭", "林業", "林道", "步道", "Coillte", "OWNER_ONLY"],
   },
 
   // ══════════════════════════════════════════════════════════════

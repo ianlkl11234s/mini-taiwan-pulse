@@ -1544,6 +1544,8 @@
   "layer.ieWildAtlanticWay": "ワイルド・アトランティック・ウェイ（アイルランド）",
   "layer.ieProtectedSites": "指定保護区 SAC・SPA・NHA（アイルランド）",
   "layer.ieNationalTrails": "全国トレイル登録（アイルランド）",
+  "layer.ieCoillteRecreation": "Coillte 国有林のレクリエーション地点・森林の入口（アイルランド）",
+  "layer.ieCoillteForestRoads": "Coillte 国有林の林道・トレイル（アイルランド）",
   "layer.ieStreetTrees": "ダブリンの樹木（アイルランド）",
   "layer.ieRadiationStations": "放射線モニタリング局（アイルランド）",
   "layer.ieLandslideEvents": "地すべり事例 GSI（アイルランド）",

@@ -29,6 +29,8 @@ const PINNED = [
   "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
   "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
   "water1944Taipei", "gbPollutionInventoryEngland", "allenCoralAtlas",
+  // 愛爾蘭 Coillte 國有林（第 5c 波，條款限私人研究、不得轉供；gis-platform mig 512）
+  "ieCoillteRecreation", "ieCoillteForestRoads",
 ].sort();
 
 describe("站主限定名單（manifest OWNER_ONLY ⇔ GATED_LAYERS）", () => {

@@ -8,6 +8,7 @@ import {
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
+import { IE_COILLTE_ATTRIBUTION, IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION, ieCoillteColorExpr, ieCoillteKindFilter } from "../data/ieCoillteTypes";
 import { GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_SOURCE_ID, GB_ENV_HOLLOW_STROKE, GB_POLLUTION_COLOR } from "../data/gbEnvPlanningTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
@@ -41,10 +42,24 @@ import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALL
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
 import { withRepPoints } from "./repPointOverlays";
-import { BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, pointRadius, LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
 /** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(211_530, 12);
+
+/** 愛爾蘭 Coillte 森林入口 12,888 點：P-4 出點縮放（之下熱區）。 */
+const IE_COILLTE_ENTRANCE_POINTS_FROM = densePointsFromZoom(12_888, 4);
+/** Coillte 遊憩點／入口共用點樣式（P-1 分階、P-2 描邊；顏色依 kind）。 */
+function ieCoillteCirclePaint(isDark: boolean, p: Record<string, number> | undefined, tier: "S" | "M") {
+  const def = densePointOpacity(IE_COILLTE_RECREATION.count);
+  const op = p?.ieCoillteRecreationOpacity ?? def;
+  return {
+    "circle-radius": pointRadius(tier, p?.ieCoillteRecreationScale ?? 1),
+    "circle-color": ieCoillteColorExpr(IE_COILLTE_RECREATION) as unknown as string,
+    "circle-opacity": op,
+    ...pointStrokePaint(isDark, op / def),
+  };
+}
 const FIRE_HYDRANTS_OPACITY_DEFAULT = densePointOpacity(211_530);
 
 /**
@@ -3756,6 +3771,63 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-opacity": ["case", released, seam["circle-stroke-opacity"], unreleased, op, op] as unknown as number,
           };
         },
+      },
+    ],
+  },
+  // ── 🇮🇪 愛爾蘭 Coillte 國有林（第 5c 波，站主限定）──
+  // dynamicData：useIeCoillteLayer 從 owner-only RPC（gis-platform mig 512）拉一次後 setData；Coillte 條款不得轉供 → 不走任何公開檔。
+  // 遊憩點 153 z4 起直接畫（M）；森林入口 12,888 拉遠畫熱區（V-1／P-4，z10 起 S 點）。V-4：kind 類別多選，熱區與點共用 filter。
+  {
+    id: "ieCoillteRecreation",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: IE_COILLTE_RECREATION.sourceId,
+    dynamicData: true,
+    attribution: IE_COILLTE_ATTRIBUTION,
+    rebuildOnParamChange: ["heatmap", "entrance-circle", "site-circle"],
+    layers: [
+      denseHeatmapLayer({
+        pointsFromZoom: IE_COILLTE_ENTRANCE_POINTS_FROM, intensity: 1,
+        opacity: { layer: "ieCoillteRecreation", param: "ieCoillteRecreationOpacity" },
+        filter: (p) => ["all", ["==", ["get", "kind"], "entrance"], ieCoillteKindFilter(IE_COILLTE_RECREATION, p?.ieCoillteRecreationCategoryMask)],
+      }),
+      {
+        suffix: "entrance-circle",
+        type: "circle",
+        minzoom: IE_COILLTE_ENTRANCE_POINTS_FROM,
+        filter: (p) => ["all", ["==", ["get", "kind"], "entrance"], ieCoillteKindFilter(IE_COILLTE_RECREATION, p?.ieCoillteRecreationCategoryMask)],
+        paint: (isDark, p) => ieCoillteCirclePaint(isDark, p, "S"),
+      },
+      {
+        suffix: "site-circle",
+        type: "circle",
+        minzoom: 4,
+        filter: (p) => ["all", ["==", ["get", "kind"], "site"], ieCoillteKindFilter(IE_COILLTE_RECREATION, p?.ieCoillteRecreationCategoryMask)],
+        paint: (isDark, p) => ieCoillteCirclePaint(isDark, p, "M"),
+      },
+    ],
+  },
+  // 林道 15,877（細）＋遊憩步道 1,199（標準寬、畫在上層）：GeoJSON 整包，z4 起畫（全國視角看得到林地分布）。
+  {
+    id: "ieCoillteForestRoads",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: IE_COILLTE_FOREST_ROADS.sourceId,
+    dynamicData: true,
+    attribution: IE_COILLTE_ATTRIBUTION,
+    rebuildOnParamChange: ["line"],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 4,
+        filter: (p) => ieCoillteKindFilter(IE_COILLTE_FOREST_ROADS, p?.ieCoillteForestRoadsCategoryMask),
+        layout: { "line-cap": "round", "line-join": "round", "line-sort-key": ["match", ["get", "kind"], "recreation_trail", 1, 0] },
+        paint: (_isDark, p) => ({
+          "line-color": ieCoillteColorExpr(IE_COILLTE_FOREST_ROADS) as unknown as string,
+          "line-width": ["interpolate", ["linear"], ["zoom"],
+            10, ["match", ["get", "kind"], "recreation_trail", LINE_WIDTH.standard[0], LINE_WIDTH.thin[0]],
+            14, ["match", ["get", "kind"], "recreation_trail", LINE_WIDTH.standard[1], LINE_WIDTH.thin[1]]] as unknown as number,
+          "line-opacity": p?.ieCoillteForestRoadsOpacity ?? 0.85,
+        }),
       },
     ],
   },

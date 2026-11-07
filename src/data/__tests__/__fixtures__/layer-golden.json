@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1769,
+    "keyCount": 1771,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2500,9 +2500,22 @@
     },
     {
       "layers": [
+        "ie-coillte-recreation-site-circle",
+        "ie-coillte-recreation-entrance-circle"
+      ],
+      "type": "ieCoillteRecreation"
+    },
+    {
+      "layers": [
         "ie-national-trails-line"
       ],
       "type": "ieNationalTrails"
+    },
+    {
+      "layers": [
+        "ie-coillte-forest-roads-line"
+      ],
+      "type": "ieCoillteForestRoads"
     },
     {
       "layers": [
@@ -15573,6 +15586,457 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "gb-ea-pollution-inventory",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "ieCoillteRecreation",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "entrance"
+            ],
+            [
+              "all"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(17,109,42,0.00)",
+                0.05,
+                "rgba(17,109,42,0.11)",
+                0.15,
+                "rgba(62,133,26,0.33)",
+                0.3,
+                "rgba(115,152,6,0.66)",
+                0.45,
+                "rgba(165,170,27,0.99)",
+                0.6,
+                "rgba(205,189,75,1.00)",
+                0.8,
+                "rgba(231,213,131,1.00)",
+                1,
+                "rgba(248,241,184,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(170,172,33,0.00)",
+                0.05,
+                "rgba(170,172,33,0.11)",
+                0.15,
+                "rgba(128,157,6,0.33)",
+                0.3,
+                "rgba(82,141,18,0.66)",
+                0.45,
+                "rgba(37,122,36,0.99)",
+                0.6,
+                "rgba(11,99,44,1.00)",
+                0.8,
+                "rgba(20,76,42,1.00)",
+                1,
+                "rgba(25,53,32,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "entrance"
+            ],
+            [
+              "all"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "site"
+                ],
+                "#4ade80",
+                [
+                  "entrance"
+                ],
+                "#a78bfa",
+                "#4ade80"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "site"
+                ],
+                "#4ade80",
+                [
+                  "entrance"
+                ],
+                "#a78bfa",
+                "#4ade80"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "entrance-circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "site"
+            ],
+            [
+              "all"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "site"
+                ],
+                "#4ade80",
+                [
+                  "entrance"
+                ],
+                "#a78bfa",
+                "#4ade80"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "site"
+                ],
+                "#4ade80",
+                [
+                  "entrance"
+                ],
+                "#a78bfa",
+                "#4ade80"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "site-circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "heatmap",
+        "entrance-circle",
+        "site-circle"
+      ],
+      "sourceId": "ie-coillte-recreation",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "ieCoillteForestRoads",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "match",
+              [
+                "get",
+                "kind"
+              ],
+              "recreation_trail",
+              1,
+              0
+            ]
+          },
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "forest_road"
+                ],
+                "#f59e0b",
+                [
+                  "recreation_trail"
+                ],
+                "#4ade80",
+                "#f59e0b"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "match",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "recreation_trail",
+                  1,
+                  0.5
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "recreation_trail",
+                  2,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "forest_road"
+                ],
+                "#f59e0b",
+                [
+                  "recreation_trail"
+                ],
+                "#4ade80",
+                "#f59e0b"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "match",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "recreation_trail",
+                  1,
+                  0.5
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "recreation_trail",
+                  2,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "ie-coillte-forest-roads",
       "sourceUrl": "./geo/_empty.geojson"
     },
     {
@@ -121696,6 +122160,150 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "ieCoillteForestRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "林道",
+            "value": "forest_road"
+          },
+          {
+            "label": "遊憩步道",
+            "value": "recreation_trail"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "forest_road",
+          "recreation_trail"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieCoillteRecreation": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "遊憩點（森林公園、步道起點等）",
+            "value": "site"
+          },
+          {
+            "label": "森林入口",
+            "value": "entrance"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "site",
+          "entrance"
+        ]
+      },
+      {
+        "defaultValue": "speed",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "speed"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "ieCommercialValuations": [

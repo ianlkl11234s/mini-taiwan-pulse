@@ -100,6 +100,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
+import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
@@ -2180,6 +2181,16 @@ export const LAYER_PARAMS_SPEC = {
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
       : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
   ]])),
+  // 愛爾蘭第 5c 波（站主限定 Coillte）：類別多選（順序＝ieCoillteTypes cats＝bitmask）；遊憩點另有入口熱區色盤與點大小
+  ieCoillteRecreation: [
+    categoryMultiSelect("ieCoillteRecreation", IE_COILLTE_RECREATION.cats.map((c) => ({ label: c.label.zh, value: c.id }))),
+    heatmapPalette("ieCoillteRecreation"),
+    opacitySlider("ieCoillteRecreationOpacity", densePointOpacity(IE_COILLTE_RECREATION.count)), scaleSlider("ieCoillteRecreationScale", 1),
+  ],
+  ieCoillteForestRoads: [
+    categoryMultiSelect("ieCoillteForestRoads", IE_COILLTE_FOREST_ROADS.cats.map((c) => ({ label: c.label.zh, value: c.id }))),
+    opacitySlider("ieCoillteForestRoadsOpacity", 0.85),
+  ],
   ieBathymetry: [{ kind: "slider", name: "ieBathymetryOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   // 加拿大第 0＋1 波（2026-11-04）：多選選項 id／順序必須同 `data/caInfraTypes.ts` 的類別陣列（caLayers 測試守）
   caAdminBoundaries: [
