@@ -93,6 +93,11 @@ export const IeCareHomesHost = makeIeDataHost("ieCareHomes", 0.85);
 export const IeFireStationsHost = makeIeDataHost("ieFireStations", 0.9);
 export const IeGardaStationsHost = makeIeDataHost("ieGardaStations", 0.85);
 export const IeCourtsHost = makeIeDataHost("ieCourts", 0.9);
+// 第 10 波：工商與農業
+export const IeIndustrialFacilitiesHost = makeIeDataHost("ieIndustrialFacilities", 0.85);
+export const IeSoilsHost = makeIeDataHost("ieSoils", 0.45);
+export const IePeatSoilsHost = makeIeDataHost("iePeatSoils", 0.5);
+export const IeAquacultureHost = makeIeDataHost("ieAquaculture", 0.6);
 // 第 9 波：規劃與環境
 export const IeZoningHost = makeIeDataHost("ieZoning", 0.7);
 export const IePlanningApplicationsHost = makeIeDataHost("iePlanningApplications", 0.85);

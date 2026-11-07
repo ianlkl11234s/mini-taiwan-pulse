@@ -495,6 +495,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-fire-stations-circle"], type: "ieFireStations" },
   { layers: ["ie-garda-stations-circle"], type: "ieGardaStations" },
   { layers: ["ie-courts-circle"], type: "ieCourts" },
+  // 第 10 波：工商（點）
+  { layers: ["ie-industrial-facilities-circle"], type: "ieIndustrialFacilities" },
   // 第 9 波：規劃申請、回收點、PRTR（點）；分區、廢棄物設施、噪音（面）在面段
   { layers: ["ie-planning-applications-circle"], type: "iePlanningApplications" },
   { layers: ["ie-recycling-points-circle"], type: "ieRecyclingPoints" },
@@ -533,6 +535,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-protected-sites-fill"], type: "ieProtectedSites" },
   { layers: ["ie-national-parks-fill"], type: "ieNationalParks" },
   { layers: ["ie-radon-risk-fill"], type: "ieRadonRisk" },
+  // 第 10 波面：養殖場（小，代表點 circle 由 repPointClickLayerIds 補）→ 泥炭土壤 → 土壤圖（鋪滿國土）
+  { layers: ["ie-aquaculture-fill"], type: "ieAquaculture" },
+  { layers: ["ie-peat-soils-fill"], type: "iePeatSoils" },
+  { layers: ["ie-soils-fill"], type: "ieSoils" },
   // 第 7a 波：學校規劃區（鋪滿國土，在行政界之前）
   { layers: ["ie-school-planning-areas-fill"], type: "ieSchoolPlanningAreas" },
   { layers: ["ie-waste-facilities-fill"], type: "ieWasteFacilities" },

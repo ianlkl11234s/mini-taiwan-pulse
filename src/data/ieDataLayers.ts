@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層、第 7b 波 5 層、第 8 波 5 層、第 9 波 6 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層、第 8 波 5 層、第 7b 波 5 層、第 9 波 6 層、第 10 波 4 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -401,6 +401,64 @@ const COURT_REGION_CATS: readonly KrCat[] = [
   { id: "western", values: ["western"], color: "#f472b6", label: l3("西部區", "Western region", "西部地域") },
 ];
 
+// ───────────── 第 10 波：工商與農業 ─────────────
+export const IE_W10_FETCHED_AT = "2026-11-08";
+/** EPA Act 1992 First Schedule 大類（活動代碼整數部分；revisedacts.lawreform.ie 2026-11-08 查）；量少的類合併顯示。 */
+const INDUSTRY_CATS: readonly KrCat[] = [
+  { id: "intensive_agriculture", values: ["intensive_agriculture"], color: "#4ade80", label: l3("集約畜牧（豬、家禽，第 6 類）", "Intensive agriculture (pigs, poultry; class 6)", "集約畜産（豚・家禽、第6類）") },
+  { id: "food_drink", values: ["food_drink"], color: "#f59e0b", label: l3("食品飲料（第 7 類）", "Food and drink (class 7)", "食品・飲料（第7類）") },
+  { id: "chemicals", values: ["chemicals"], color: "#a78bfa", label: l3("化學、製藥（第 5 類）", "Chemicals & pharmaceuticals (class 5)", "化学・医薬（第5類）") },
+  { id: "energy", values: ["energy", "fossil_fuels"], color: "#facc15", label: l3("能源、化石燃料（第 2、9 類）", "Energy & fossil fuels (classes 2, 9)", "エネルギー・化石燃料（第2・9類）") },
+  { id: "waste", values: ["waste"], color: "#ef4444", label: l3("廢棄物處理（第 11 類）", "Waste (class 11)", "廃棄物処理（第11類）") },
+  { id: "minerals_metals", values: ["minerals", "metals", "mineral_fibres_glass", "cement_lime"], color: "#38bdf8", label: l3("礦物、金屬、玻璃、水泥（第 1、3、4、10 類）", "Minerals, metals, glass, cement (classes 1, 3, 4, 10)", "鉱物・金属・ガラス・セメント（第1・3・4・10類）") },
+  { id: "other_manufacturing", values: ["wood_paper_textiles", "surface_coatings"], color: "#f472b6", label: l3("木材紙業紡織、表面塗裝（第 8、12 類）", "Wood, paper, textiles; surface coatings (classes 8, 12)", "木材・紙・繊維、表面塗装（第8・12類）") },
+  { id: "unclassified", values: ["unclassified", "other"], color: "#94a3b8", label: l3("其他、未標類別（多為舊制 IPPC 執照）", "Other / not classified (mostly old IPPC licences)", "その他・区分なし（多くは旧 IPPC 許可）") },
+];
+const INDUSTRY_CLASS_LABEL: Record<string, L3> = {
+  minerals: l3("1 礦物與其他材料", "1 Minerals and other materials", "1 鉱物その他"), energy: l3("2 能源", "2 Energy", "2 エネルギー"),
+  metals: l3("3 金屬", "3 Metals", "3 金属"), mineral_fibres_glass: l3("4 礦物纖維與玻璃", "4 Mineral fibres and glass", "4 鉱物繊維・ガラス"),
+  chemicals: l3("5 化學", "5 Chemicals", "5 化学"), intensive_agriculture: l3("6 集約畜牧", "6 Intensive agriculture", "6 集約畜産"),
+  food_drink: l3("7 食品飲料", "7 Food and drink", "7 食品・飲料"), wood_paper_textiles: l3("8 木材、紙、紡織、皮革", "8 Wood, paper, textiles and leather", "8 木材・紙・繊維・皮革"),
+  fossil_fuels: l3("9 化石燃料", "9 Fossil fuels", "9 化石燃料"), cement_lime: l3("10 水泥、石灰、氧化鎂", "10 Cement, lime and magnesium oxide", "10 セメント・石灰・酸化マグネシウム"),
+  waste: l3("11 廢棄物", "11 Waste", "11 廃棄物"), surface_coatings: l3("12 表面塗裝", "12 Surface coatings", "12 表面塗装"),
+  other: l3("13 其他", "13 Other activities", "13 その他"), unclassified: l3("未標類別", "Not classified", "区分なし"),
+};
+/** SIS PlainEnglish 19 類依土壤大類合併（本站自訂分組；原文在 popup）。 */
+const SOIL_CATS: readonly KrCat[] = [
+  { id: "brown_earth", values: ["brown_earth"], color: "#d97706", label: l3("棕壤 Brown Earth（排水良好）", "Brown earths (well drained)", "褐色土（排水良好）") },
+  { id: "luvisol", values: ["luvisol"], color: "#facc15", label: l3("淋溶土 Luvisol（排水良好）", "Luvisols (well drained)", "ルビソル（排水良好）") },
+  { id: "podzol", values: ["podzol"], color: "#f472b6", label: l3("灰化土 Podzol、棕色灰化土（酸性）", "Podzols & brown podzolics (acid)", "ポドゾル・褐色ポドゾル性土（酸性）") },
+  { id: "gley", values: ["gley"], color: "#38bdf8", label: l3("潛育土 Gley（排水不良）", "Gleys (poorly drained)", "グライ土（排水不良）") },
+  { id: "lithosol_rendzina", values: ["lithosol_rendzina"], color: "#4ade80", label: l3("石質土、黑色石灰土（淺層）", "Lithosols & rendzinas (shallow)", "岩屑土・レンジナ（浅い）") },
+  { id: "peat", values: ["peat"], color: "#a78bfa", label: l3("泥炭土", "Peat soils", "泥炭土") },
+  { id: "alluvium", values: ["alluvium"], color: "#2dd4bf", label: l3("沖積土（河、湖、海）", "Alluvium (river, lake, marine)", "沖積土（河川・湖・海）") },
+  { id: "coastal", values: ["coastal"], color: "#ef4444", label: l3("潮間沼澤、鹽沼、沙丘", "Tidal & salt marsh, dunes", "干潟湿地・塩性湿地・砂丘") },
+  { id: "rock", values: ["rock"], color: "#94a3b8", label: l3("裸岩", "Rock", "岩石") },
+  { id: "urban", values: ["urban"], color: "#e5e7eb", label: l3("都市（土壤已覆蓋）", "Urban (soil sealed)", "市街地（土壌被覆）") },
+  { id: "water_island", values: ["water", "island"], color: "#475569", label: l3("水體下、離島（未分類）", "Under water bodies; islands (not classified)", "水域下・離島（未分類）") },
+];
+const PEAT_CATS: readonly KrCat[] = [
+  { id: "raised_bog", values: ["raised_bog"], color: "#f59e0b", label: l3("高位泥炭沼 Raised bog", "Raised bogs", "高層湿原（Raised bog）") },
+  { id: "lowland_blanket_bog", values: ["lowland_blanket_bog"], color: "#a78bfa", label: l3("低地大西洋毯狀泥炭沼", "Lowland Atlantic blanket bogs", "低地大西洋ブランケット湿原") },
+  { id: "mountain_blanket_bog", values: ["mountain_blanket_bog"], color: "#f472b6", label: l3("山地毯狀泥炭沼", "Mountain blanket bogs", "山地ブランケット湿原") },
+  { id: "fen", values: ["fen"], color: "#2dd4bf", label: l3("低位泥炭沼 Fen", "Fens", "低層湿原（Fen）") },
+  { id: "other_peat", values: ["other_peat"], color: "#38bdf8", label: l3("其他泥炭土（多為淺層泥炭，或荒原、石南灌叢、天然草地）", "Other peat soils (mostly shallow peat, or moors, heathland, natural grassland)", "その他の泥炭土（主に浅い泥炭、または荒地・ヒース・自然草地）") },
+];
+const AQUA_CATS: readonly KrCat[] = [
+  { id: "shellfish", values: ["shellfish"], color: "#38bdf8", label: l3("貝類（牡蠣、貽貝等）", "Shellfish (oysters, mussels…)", "貝類（カキ・ムール貝など）") },
+  { id: "finfish", values: ["finfish"], color: "#f472b6", label: l3("魚類（鮭、鱒等）", "Finfish (salmon, trout…)", "魚類（サケ・マスなど）") },
+  { id: "seaweed", values: ["seaweed"], color: "#4ade80", label: l3("藻類", "Seaweed", "海藻") },
+  { id: "echinoderm", values: ["echinoderm"], color: "#a78bfa", label: l3("棘皮動物（海膽）", "Echinoderms (sea urchins)", "棘皮動物（ウニ）") },
+  { id: "mixed", values: ["mixed"], color: "#facc15", label: l3("多類混養、未標", "Mixed / not stated", "複数種・記載なし") },
+  { id: "harbour_centre", values: ["harbour_centre"], color: "#f59e0b", label: l3("法定漁港中心（6 處）", "Fishery harbour centres (6)", "法定漁港センター（6か所）") },
+];
+const AQUA_LICENCE: Record<string, L3> = {
+  aq: l3("養殖執照（AQ）", "Aquaculture licence (AQ)", "養殖許可（AQ）"),
+  alab: l3("ALAB（養殖執照上訴委員會）核發（推定，未經官方確認）", "ALAB — Aquaculture Licences Appeals Board (inferred, unconfirmed)", "ALAB（養殖許可不服審査会）による許可（推定・未確認）"),
+  fo: l3("漁業命令（Fishery Order）", "Fishery Order (FO)", "漁業命令（Fishery Order）"),
+  fcl: l3("魚類養殖執照（FCL）", "Fish culture licence (FCL)", "魚類養殖許可（FCL）"),
+};
+const PRIVATE_PERSON_NOTE = l3("個人經營（姓名與地址不顯示）", "Individual operator (name and address not shown)", "個人経営（氏名・住所は非表示）");
 // ───────────── 第 9 波：規劃與環境 ─────────────
 export const IE_W9_FETCHED_AT = "2026-11-08";
 /** MyPlan 一般化分區（GZT）首字母 8 大類：類名照官方代碼表（viewer.myplan.ie/gztcoderef.htm）的大類，N/A 歸其他。 */
@@ -1413,6 +1471,78 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "Courts Service of Ireland, List of Courts Service Courthouses", sourceUrl: DGI("list-of-courts-service-courthouses"), license: CC_BY, fetchedAt: IE_W7B_FETCHED_AT,
     loading: l3("愛爾蘭法院載入中", "Loading Ireland courthouses", "アイルランドの裁判所を読み込み中"),
+  },
+  // ───────────── 第 10 波：工商與農業 ─────────────
+  {
+    key: "ieIndustrialFacilities", file: "ie_industrial_facilities.pmtiles", sourceLayer: "ie_industrial_facilities", geom: "point", layerId: "ie-industrial-facilities-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#a78bfa", tier: "M", count: 1005,
+    catProp: "category", cats: INDUSTRY_CATS,
+    title: { props: ["name"], fallback: l3("EPA 持照設施", "EPA-licensed facility", "EPA 許可施設") },
+    fields: [{ prop: "category", label: l3("活動大類", "Activity class", "活動区分"), map: INDUSTRY_CLASS_LABEL },
+             { prop: "activity", label: l3("活動代碼（First Schedule）", "Activity code (First Schedule)", "活動コード（First Schedule）"), kind: "code" },
+             { prop: "private_person", label: l3("經營者", "Operator", "事業者"), map: { true: PRIVATE_PERSON_NOTE } },
+             { prop: "regime", label: l3("執照制度", "Licence regime", "許可制度"), map: { iel: l3("工業排放（IE）執照", "Industrial Emissions (IE) licence", "産業排出（IE）許可"), ippc: l3("舊制 IPPC 執照（仍有效）", "IPPC licence (old regime, still in force)", "旧 IPPC 許可（有効）") } },
+             { prop: "status", label: l3("執照狀態", "Licence status", "許可状況"), map: { licensed: l3("持照", "Licensed", "許可済み"), applied: l3("申請中", "Applied", "申請中"), other: l3("其他（來源標 Other）", "Other (as in source)", "その他（出典の Other）") } },
+             { prop: "licence_no", label: l3("執照編號", "Licence no.", "許可番号"), kind: "code" }, { prop: "address", label: l3("地址", "Address", "住所") }, LA],
+    legendNotes: [l3("EPA 工業排放（IE）執照 842 處＋舊制 IPPC 執照 163 處（同編號以 IE 為準；已繳回執照不收），共 1,005 處；只有需要 EPA 執照的活動，不是全部工廠（愛爾蘭沒有全國工廠登記）", "842 EPA Industrial Emissions (IE) licences plus 163 old-regime IPPC licences (IE wins on the same number; surrendered licences excluded), 1,005 in total; only activities that need an EPA licence, not all factories (Ireland has no national factory register)", "EPA 産業排出（IE）許可842か所＋旧 IPPC 許可163か所（同番号は IE を優先、返上済みは除外）計1,005か所。EPA 許可が必要な活動のみで、全工場ではない（アイルランドに全国工場登録はない）"),
+                  l3("活動大類依 EPA Act 1992 First Schedule 代碼整數部分歸類；舊制 IPPC 多數沒有活動代碼，歸「未標類別」", "Activity classes follow the integer part of the EPA Act 1992 First Schedule code; most old IPPC licences have no code and are 'not classified'", "活動区分は EPA Act 1992 First Schedule のコード整数部で分類。旧 IPPC の多くはコードがなく「区分なし」"),
+                  l3("集約畜牧多為個人農戶：名稱是個人姓名者不顯示名稱與地址（200 處）；廢棄物執照（W 系列）與 PRTR 另見其他圖層", "Intensive farms are often run by individuals: names and addresses that are personal names are not shown (200 sites); waste licences (W series) and PRTR are in other layers", "集約畜産は個人農家が多く、氏名にあたる名称と住所は表示しない（200か所）。廃棄物許可（W 系列）と PRTR は別レイヤー")],
+    popupNotes: [],
+    sourceOrg: "Environmental Protection Agency (EPA), Industrial Emissions (IE) Licensed Facilities; Licensed IPPC Facilities", sourceUrl: DGI("industrial-emissions-ie-facilities"), license: CC_BY, fetchedAt: IE_W10_FETCHED_AT,
+    loading: l3("愛爾蘭 EPA 持照工業設施載入中", "Loading Ireland EPA-licensed industrial facilities", "アイルランドの EPA 許可産業施設を読み込み中"),
+  },
+  {
+    // 全國鋪滿的土壤分類圖（同氡氣風險圖，V-3 鋪滿豁免，不做點／面切換）；27MB 走 S3
+    key: "ieSoils", file: "ie_soils.pmtiles", sourceLayer: "ie_soils", geom: "polygon", layerId: "ie-soils-fill", outlineId: "ie-soils-line",
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#d97706", count: 25143,
+    catProp: "soil_group", cats: SOIL_CATS,
+    title: { props: ["association", "plain"], fallback: l3("土壤", "Soil", "土壌") },
+    fields: [{ prop: "plain", label: l3("土壤類型（原文）", "Soil type (source wording)", "土壌タイプ（原文）") },
+             { prop: "association", label: l3("土壤組合", "Soil association", "土壌統群") }, { prop: "unit", label: l3("圖例單元", "Map unit", "凡例単位"), kind: "code" },
+             { prop: "substrate", label: l3("母質", "Parent material", "母材") }, { prop: "drainage", label: l3("排水", "Drainage", "排水") },
+             { prop: "texture", label: l3("質地", "Texture", "土性") }, { prop: "depth", label: l3("土層深度（cm）", "Depth (cm)", "土層深（cm）") },
+             { prop: "soc", label: l3("土壤有機碳 SOC（來源未附單位）", "Soil organic carbon, SOC (unit not stated)", "土壌有機炭素 SOC（単位記載なし）"), kind: "num", digits: 1 },
+             { prop: "area_ha", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 0 }],
+    legendNotes: [l3("Teagasc 愛爾蘭土壤資訊系統（SIS）1:250,000 全國土壤圖，25,143 面，2014 完成、不再更新；大類為本站依原文 19 類合併", "Teagasc Irish Soil Information System (SIS) national soil map at 1:250,000, 25,143 polygons, completed 2014 and not updated; the groups merge the 19 source classes (set by this site)", "Teagasc アイルランド土壌情報システム（SIS）1:250,000 全国土壌図、25,143面。2014年完成で更新なし。大分類は原文19区分を本サイトでまとめたもの"),
+                  l3("只有土壤分類、排水、質地與有機碳；沒有肥力或作物適栽資訊。北愛未涵蓋", "Soil type, drainage, texture and organic carbon only; no fertility or crop suitability. Northern Ireland not covered", "土壌分類・排水・土性・有機炭素のみで、肥沃度や作物適性はない。北アイルランドは対象外")],
+    popupNotes: [],
+    sourceOrg: "Teagasc／Environmental Protection Agency (EPA), Irish Soil Information System National Soils Map", sourceUrl: DGI("irish-soil-information-system-national-soils-map"), license: CC_BY, fetchedAt: IE_W10_FETCHED_AT,
+    loading: l3("愛爾蘭土壤圖載入中", "Loading Ireland soil map", "アイルランドの土壌図を読み込み中"),
+  },
+  {
+    // 100 m 網格向量化的全國分布圖（鋪滿類，不做點／面切換）
+    key: "iePeatSoils", file: "ie_peat_soils.pmtiles", sourceLayer: "ie_peat_soils", geom: "polygon", layerId: "ie-peat-soils-fill", outlineId: "ie-peat-soils-line",
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#a78bfa", count: 31828,
+    catProp: "peat_type", cats: PEAT_CATS,
+    title: { props: [], fallback: l3("泥炭土壤", "Peat soil", "泥炭土") },
+    fields: [{ prop: "peat_type", label: l3("泥炭類型", "Peat type", "泥炭タイプ"), map: Object.fromEntries(PEAT_CATS.map((c) => [c.id, c.label])) },
+             { prop: "area_ha", label: l3("此塊面積", "Patch area", "この区画の面積"), kind: "num", unit: "ha", digits: 0 }],
+    legendNotes: [l3("Trinity College Dublin 愛爾蘭泥炭土壤圖 2024（Gilet et al. 2024）：以決策樹模型整合土壤、地質、土地覆蓋等資料推定，100 m 網格，共約 163.6 萬公頃（約國土 23%）", "Trinity College Dublin Irish Peat Soils Map 2024 (Gilet et al. 2024): a decision-tree model combining soil, geology, land cover and other data, 100 m grid, about 1.636 million ha (about 23% of the land)", "Trinity College Dublin アイルランド泥炭土壌図 2024（Gilet ほか 2024）：土壌・地質・土地被覆などを決定木モデルで統合した推定、100 m 格子、約163.6万 ha（国土の約23%）"),
+                  l3("是泥炭「土壤」分布，不是現況濕地植被或開採範圍；小於 1 公頃的碎塊未收。北愛未涵蓋", "Shows peat soils, not current bog vegetation or extraction areas; patches under 1 ha omitted. Northern Ireland not covered", "泥炭「土壌」の分布で、現在の湿原植生や採掘範囲ではない。1 ha 未満の断片は省略。北アイルランドは対象外")],
+    popupNotes: [l3("模型推定", "Model estimate", "モデル推定")],
+    sourceOrg: "Gilet, L., Morley, T.R., Flynn, R., Connolly, J. (2024), Irish Peat Soils Map, Trinity College Dublin", sourceUrl: DGI("irish-peat-soil-map"), license: CC_BY, fetchedAt: IE_W10_FETCHED_AT,
+    loading: l3("愛爾蘭泥炭土壤圖載入中", "Loading Ireland peat soils map", "アイルランドの泥炭土壌図を読み込み中"),
+  },
+  {
+    // V-5：養殖場多為數公頃的小面，預設代表點（`ie_aquaculture_points.pmtiles`，repPointLayers）；面 z6 起
+    key: "ieAquaculture", file: "ie_aquaculture.pmtiles", sourceLayer: "ie_aquaculture", geom: "polygon", layerId: "ie-aquaculture-fill", outlineId: "ie-aquaculture-line",
+    srcMinzoom: 6, srcMaxzoom: 14, minzoom: 6, color: "#38bdf8", count: 1067,
+    catProp: "category", cats: AQUA_CATS,
+    title: { props: ["name", "species", "bay"], fallback: l3("養殖場", "Aquaculture site", "養殖場") },
+    fields: [{ prop: "category", label: l3("類型", "Type", "種別"), map: Object.fromEntries(AQUA_CATS.map((c) => [c.id, c.label])) },
+             { prop: "species", label: l3("養殖物種", "Species", "養殖種") }, { prop: "bay", label: l3("海灣", "Bay", "湾") }, { prop: "harbour", label: l3("港灣", "Harbour", "港") },
+             { prop: "licence_type", label: l3("執照類型", "Licence type", "許可種別"), map: AQUA_LICENCE },
+             { prop: "licensee", label: l3("持照業者", "Licensee", "許可事業者") },
+             { prop: "private_person", label: l3("持照人", "Licensee", "許可者"), map: { true: l3("個人（姓名不顯示）", "Individual (name not shown)", "個人（氏名は非表示）") } },
+             { prop: "site_id", label: l3("場址編號", "Site ID", "サイト番号"), kind: "code" },
+             { prop: "designated", label: l3("法定日期", "Designated", "指定日"), kind: "code" },
+             { prop: "area_ha", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 1 }, { prop: "county", label: l3("郡", "County", "県") }],
+    legendNotes: [l3("農業食品海洋部 Aquamis 持照養殖場 1,061 處（全部為 Licensed；貝類 929、魚類 90、藻類 16），加 6 個國營法定漁港中心（Castletownbere、Dingle、Dunmore East、Howth、Killybegs、Rossaveal）", "1,061 licensed aquaculture sites from the Department of Agriculture's Aquamis (all Licensed; shellfish 929, finfish 90, seaweed 16), plus the 6 state fishery harbour centres (Castletownbere, Dingle, Dunmore East, Howth, Killybegs, Rossaveal)", "農業・食料・海洋省 Aquamis の許可養殖場1,061か所（すべて Licensed、貝類929・魚類90・海藻16）と国営の法定漁港センター6か所"),
+                  l3("持照人是個人者不顯示姓名（399 處）；一般漁港沒有開放名冊，未涵蓋", "Licensees who are individuals are not named (399 sites); ordinary fishing harbours have no open register and are not covered", "許可者が個人の場合は氏名を表示しない（399か所）。一般の漁港は公開名簿がなく対象外"),
+                  l3("場址多只有數公頃，預設畫代表點，可切換面", "Most sites are only a few hectares, so representative points are shown by default (switch to areas)", "多くは数 ha のため既定は代表点（面に切替可）")],
+    popupNotes: [],
+    sourceOrg: "Department of Climate, Energy and the Environment / Department of Agriculture, Food and the Marine, Aquaculture (Aquamis); DAFM / Marine Institute, Fishery Harbour Centres", sourceUrl: DGI("aquaculture1"), license: CC_BY, fetchedAt: IE_W10_FETCHED_AT,
+    loading: l3("愛爾蘭養殖場載入中", "Loading Ireland aquaculture sites", "アイルランドの養殖場を読み込み中"),
   },
   // ───────────── 第 9 波：規劃與環境 ─────────────
   {

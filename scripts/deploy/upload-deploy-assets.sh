@@ -625,6 +625,7 @@ for f in \
   public/world/ie_river_flood_extents_h_0100.pmtiles \
   public/world/ie_river_flood_extents_h_1000.pmtiles \
   public/world/ie_heritage_sites.pmtiles \
+  public/world/ie_soils.pmtiles \
   public/world/ie_zoning.pmtiles \
   public/world/ie_planning_applications.pmtiles \
   public/world/ie_noise_maps_lden.pmtiles \
