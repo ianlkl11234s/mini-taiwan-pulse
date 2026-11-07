@@ -25,6 +25,7 @@
 | `/blog/` | 產生器 | 列表頁：主題分頁＋最新精選＋依主題分區 |
 | `/blog/<topic>/` | 產生器 | 主題頁（只有已有文章的主題才產生） |
 | `/blog/<slug>/` | `content/blog/<slug>.md` | 文章頁（網址不含主題；slug 不可與主題 id、`about` 等保留名撞） |
+| `/blog/30daymapchallenge/` | 產生器 | 30 天地圖挑戰總覽（有 `challengeDay` 文章才產生；題目表在 `src/blog/mapChallenge.ts`） |
 | `/blog/about/` | 產生器 | 關於作者（ProfilePage） |
 | `/blog/feed.xml` | 產生器 | RSS（寫到 gitignored 的 `public/blog/feed.xml`） |
 | `/blog/<slug>/*.jpg` | `public/blog/<slug>/` | 文章圖片，原樣複製 |
@@ -56,6 +57,7 @@ description: 120 字內摘要（搜尋結果與分享卡）
 slug: taiwan-rail-realtime-map      # 小寫英數與連字號，檔名必須是 <slug>.md
 topic: layers                       # layers｜analysis｜making（src/blog/topics.ts）
 series: 軌道地圖                     # 選填；同系列 ≥2 篇才顯示系列導覽
+challengeDay: 5                     # 選填；#30DayMapChallenge 第幾天（1–30 整數、不可與他篇重複），series 填「30 天地圖挑戰」
 date: 2026-02-02                    # 發布日（多半是 Threads 正式分享那天）
 updated: 2026-10-23                 # 最後實質修改日
 tags: [開發日記, 時刻表]             # 不要重複主題名

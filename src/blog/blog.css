@@ -481,6 +481,55 @@ body.blog {
 .blog-shelf__head h2 a { color: var(--blog-text-strong); text-decoration: none; }
 .blog-shelf__head > a { font-size: var(--prose-small); text-decoration: none; white-space: nowrap; }
 
+/* ── 30 天地圖挑戰：列表頁區塊、總覽頁 30 格、文章頁連結 ── */
+.blog-byline__challenge { text-decoration: none; }
+.blog-challenge-back { text-decoration: none; }
+.blog-challenge__progress { margin: 0 0 var(--space-xl); font-size: var(--prose-small); color: var(--blog-text-muted); }
+.blog-challenge__progress strong { color: var(--blog-text-strong); }
+.blog-challenge {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: var(--space-xl);
+}
+.blog-challenge__cell {
+  min-width: 0;
+  padding: var(--space-lg);
+  border: 1px solid var(--blog-border);
+  border-radius: var(--radius-xl);
+  font-size: var(--prose-small);
+  line-height: 1.6;
+}
+.blog-challenge__cell a { display: flex; flex-direction: column; gap: var(--space-sm); text-decoration: none; color: inherit; }
+.blog-challenge__cell:has(a:hover) { border-color: var(--blog-accent); }
+.blog-challenge__cell p { margin: 0; }
+.blog-challenge__day {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  color: var(--blog-text-strong);
+  font-weight: var(--font-weight-semibold);
+}
+.blog-challenge__day span:first-child { color: var(--blog-accent); }
+.blog-challenge__prompt,
+.blog-challenge__desc { color: var(--blog-text-muted); }
+.blog-challenge__desc { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-challenge__cell h3 {
+  margin: 0;
+  font-size: var(--prose-body);
+  line-height: 1.5;
+  color: var(--blog-text-strong);
+}
+.blog-challenge__cell a:hover h3 { color: var(--blog-link); }
+/* 未發布：虛線外框、文字降一階，不連結 */
+.blog-challenge__cell--pending { border-style: dashed; border-color: var(--blog-border-soft); }
+.blog-challenge__cell--pending .blog-challenge__day,
+.blog-challenge__cell--pending .blog-challenge__day span:first-child { color: var(--blog-text-muted); }
+.blog-challenge__cell--pending .blog-challenge__prompt { margin-top: var(--space-sm); }
+.blog-challenge__cell .blog-challenge__status { margin-top: var(--space-sm); color: var(--blog-text-muted); }
+
 /* ── 頁尾 ── */
 .blog-footer { margin-top: 64px; border-top: 1px solid var(--blog-border-soft); }
 .blog-footer__inner {
