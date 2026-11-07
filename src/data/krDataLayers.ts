@@ -578,7 +578,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
              { prop: "updated", label: l3("最後修改", "Last modified", "最終更新") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
     legendNotes: [l3("使用中＋暫停 17,247 處（多為公寓、大樓地下停車場等法定指定設施）；已停止使用 1,591 處、無座標 8 處未上圖", "17,247 shelters in use or suspended (mostly designated basements and underground car parks); 1,591 decommissioned and 8 without coordinates are not shown", "使用中・一時中止の17,247か所（多くはマンション等の地下駐車場の指定施設）。使用中止1,591・座標なし8は非表示"),
                   l3("酷暑／寒流庇護所未涵蓋", "Heat- and cold-wave shelters are not covered", "暑さ・寒さ避難所は未収録")],
-    popupNotes: [],
+    popupNotes: [l3("來源的「最大收容人數」有 17,000 筆與面積（㎡）數值相同，可能是以面積代填，不宜直接當人數", "In 17,000 records the source's max capacity equals the floor area (m²) and may be a placeholder; do not read it as a head count", "出典の最大収容人数は17,000件で面積（㎡）と同値で、面積の代入の可能性あり。人数としての利用は不適")],
     sourceOrg: "행정안전부 민방위대피시설 (LOCALDATA, 공공데이터포털)", sourceUrl: DG("15044951"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
     loading: l3("南韓民防避難設施載入中", "Loading South Korea civil defence shelters", "韓国の民防避難施設を読み込み中"),
   },

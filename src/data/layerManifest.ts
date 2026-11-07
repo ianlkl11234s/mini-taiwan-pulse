@@ -718,7 +718,7 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
   krSchoolDistricts: { theme: "教育", group: "學區 District", zh: "小學通學區", alt: "Elementary School Zones", icon: Map, dataset: "kr_school_districts", topics: ["南韓", "學區", "通學區", "小學", "教育"],
     description: "南韓小學通學區 7,132 區（한국교육시설안전원 2026-09-20 版，面＋代表點）", processing: "SHP EUC-KR、Korea 2000 Central Belt 2010（EPSG:5186）→ 4326，makevalid；面 PMTiles z6–13＋代表點 z0–14", note: "平台標籤；16/16 시·도；國中學校群、高中學群未涵蓋" },
   krHospitalsPharmacies: { theme: "醫療", group: "點位", zh: "醫院與藥局", alt: "Hospitals & Pharmacies", icon: Hospital, dataset: "kr_hospitals_pharmacies", topics: ["南韓", "醫院", "診所", "藥局", "醫療", "HIRA"],
-    description: "南韓健保要養機構 105,739 處（醫院、診所、保健機關 79,891＋藥局 25,848；2026 年 9 月季報）", processing: "季報 zip 只用 병원정보서비스、약국정보서비스 兩檔；WGS84；剔無座標 10 筆；電話與網站欄排除；點 PMTiles z12–14＋格網計數熱區 z4–11", note: "KOGL 第 1 類（出處標示）；16/16 시·도" },
+    description: "南韓健保療養機構 105,739 處（醫院、診所、保健機關 79,891＋藥局 25,848；2026 年 9 月季報）", processing: "季報 zip 只用 병원정보서비스、약국정보서비스 兩檔；WGS84；剔無座標 10 筆；電話與網站欄排除；點 PMTiles z12–14＋格網計數熱區 z4–11", note: "KOGL 第 1 類（出處標示）；16/16 시·도" },
   krFireStations: { theme: "消防", group: "點位", zh: "消防署與 119 安全中心", alt: "Fire Stations", icon: Siren, dataset: "kr_fire_stations", topics: ["南韓", "消防", "消防署", "119"],
     description: "南韓消防署 215 處＋119 安全中心 998 處（消防廳 2025-09 版）", processing: "X좌표／Y좌표 欄名顛倒，對調後轉點；座標與地址 시·도 不符 3 筆剔除；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；名冊早於 2026-07 改制" },
   krCivilDefenseShelters: { theme: "災害", group: "避難設施", zh: "民防避難設施", alt: "Civil Defence Shelters", icon: ShieldAlert, dataset: "kr_civil_defense_shelters", topics: ["南韓", "避難", "民防", "防空", "避難設施"],
