@@ -246,7 +246,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-06: +1 加拿大即時地震 caEarthquakesLive（NRCan FDSN 上游直連）。
     // 2026-11-06: +4 30 天地圖挑戰 Day 6 復古 mapchallengeDay06*（模擬面板）。
     // 2026-11-06: +1 1944 水域（臺北盆地）water1944Taipei（站主限定，靜態 GeoJSON 面）。
-    expect(keys.length).toBe(1647);
+    // 2026-11-07: +1 愛爾蘭第 0 波（行政區界 ieAdminBoundaries）。
+    expect(keys.length).toBe(1648);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

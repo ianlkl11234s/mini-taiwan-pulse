@@ -2150,6 +2150,15 @@ export const LAYER_PARAMS_SPEC = {
   krSubstations: [krMulti("krSubstationsCatMask", "電壓等級", KR_OPT_VOLTAGE), opacitySlider("krSubstationsOpacity", densePointOpacity(1_199)), scaleSlider("krSubstationsScale", 1)],
   krPowerTowers: [opacitySlider("krPowerTowersOpacity", densePointOpacity(42_252)), scaleSlider("krPowerTowersScale", 1)],
   krOilGas: [krMulti("krOilGasCatMask", "設施類別", KR_OPT_OIL_GAS), krMulti("krOilGasPipeMask", "管線物質", KR_OPT_PIPELINE), opacitySlider("krOilGasOpacity", 0.6)],
+  // 愛爾蘭第 0 波（2026-11-07）：選項順序＝`data/ieAdminTypes.ts` IE_ADMIN_LEVELS
+  ieAdminBoundaries: [
+    opacitySlider("ieAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "ieAdminBoundariesLevel", label: "行政層級", default: "la",
+      options: [{ label: "地方政府（Local authority）", value: "la" }, { label: "選舉分區（Electoral division）", value: "ed" }, { label: "統計小區（Small area）", value: "sa" }],
+      out: "ieAdminBoundariesLevelIdx", encode: ["la", "ed", "sa"],
+    },
+  ],
   // 加拿大第 0＋1 波（2026-11-04）：多選選項 id／順序必須同 `data/caInfraTypes.ts` 的類別陣列（caLayers 測試守）
   caAdminBoundaries: [
     opacitySlider("caAdminBoundariesOpacity", 0.85),
