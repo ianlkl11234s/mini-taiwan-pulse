@@ -4,7 +4,15 @@
 >
 > 契約細節看上游，本檔只放前端接線簡表。
 
-## 上游摘要
+## 2026-11-07 起：R2 每日 manifest（契約正本 data-collectors `docs/IMAGERY_R2_MANIFEST.md`）
+
+- 讀法：`src/data/imageryManifestLoader.ts` 讀 `https://data.itsmigu.com/imagery/<cwa|aqi|precip>/manifest-<UTC 日>.json`，影像 URL＝`<base>/<key>`；
+  `cwaImageryLoader`／`aqiImageryLoader`／`precipRasterLoader` 先走這條，時間窗內一份 manifest 都讀不到才退回下方 RPC。
+- product：cwa＝dataset id（`O-A0058-005`、`O-C0042-004`）；aqi＝`AQI`／`PM25`／`PM10`／`O3`／`NO2`；precip＝`ch1`／`ch3`／`ch6`／`ch24`。
+- `IMAGERY_CDN_BASE` 預設 `https://data.itsmigu.com`，`VITE_IMAGERY_CDN_BASE` 只當覆寫（JMA 幀圖層共用）。
+- DB 影像表退役時：拿掉三個 loader 的 RPC 退路（前置條件見上游契約 §5）。
+
+## 上游摘要（RPC 舊路徑，退役前保留為退路）
 
 - 產物：Supabase RPC（gis-platform migration 160 抽稀簽名）
 - 資料源：
