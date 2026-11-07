@@ -9,6 +9,27 @@ function mapStub() {
   return { map: { cameraForBounds } as unknown as MapboxMap, cameraForBounds };
 }
 
+describe("research viewport fit: corner cards", () => {
+  it("ignores a small top-right corner card; only side panels and the bottom timeline inset", () => {
+    const context = viewportContextFromRects(1203.33, 903.33, [
+      [0, 0, 55.99, 621.8], [63.99, 80, 351.98, 712.33], [72, 803.14, 342, 839.34],
+      [885.35, 100, 1185.35, 334.5], [0, 198.39, 350.87, 711.22], [0, 643.23, 1144.24, 796.25],
+    ].map(([left, top, right, bottom]) => ({ left: left!, top: top!, right: right!, bottom: bottom! })));
+    expect(context.safe.left).toBeCloseTo(367.98, 1);
+    expect(context.safe.top).toBe(16);
+    expect(context.safe.bottom).toBeCloseTo(627.23, 1);
+    expect(context.safe.right).toBeCloseTo(1187.33, 1);
+    expect(context.safe.right - context.safe.left).toBeGreaterThan(780);
+  });
+
+  it("caps the extra framing padding at 24px", () => {
+    const state = mapStub();
+    const context = viewportContextFromRects(1200, 800, []);
+    resolveViewportCameraFromContext(state.map, context, { bounds: [121.4, 24.9, 121.7, 25.2], padding: 60, maxZoom: 14 });
+    expect(state.cameraForBounds.mock.calls[0]![1].padding).toEqual({ left: 40, top: 40, right: 40, bottom: 40 });
+  });
+});
+
 describe("research viewport fit", () => {
   it("uses the live wide container and shifts the bounds fit away from left, right, and bottom UI", () => {
     const state = mapStub();
@@ -18,17 +39,17 @@ describe("research viewport fit", () => {
       { left: 782, top: 88, right: 1200, bottom: 400 },
       { left: 72, top: 610, right: 452, bottom: 800 },
     ]);
-    // A readable edge-strip inset (between the left rail and the top-right activity card, above
+    // The top-right activity card is a corner card and no longer insets; only the left rail and the bottom timeline do (above
     // the bottom timeline) is preferred over the corner-maximizing search: users expect a result
     // framed in the open middle, not shoved into whichever corner measures a larger raw area.
-    expect(context.safe).toEqual({ left: 368, top: 16, right: 766, bottom: 594 });
+    expect(context.safe).toEqual({ left: 368, top: 16, right: 1184, bottom: 594 });
     const resolved = resolveViewportCameraFromContext(state.map, context, framing);
     expect(resolved).toMatchObject({ zoom: 7.25, bearing: 0, pitch: 0, padding: 0 });
     // The safe strip's centroid sits left/above the full-viewport centre: compensate east/south.
-    expect(resolved.center[0]).toBeGreaterThan(120.5);
+    expect(resolved.center[0]).toBeLessThan(120.5); // safe centre (776) is now right of the viewport centre (600): only the left rail insets
     expect(resolved.center[1]).toBeLessThan(23.5);
     expect(state.cameraForBounds).toHaveBeenCalledWith([[118, 21.5], [123, 26.5]], {
-      padding: { left: 392, top: 40, right: 458, bottom: 230 }, maxZoom: 9, bearing: 0, pitch: 0,
+      padding: { left: 392, top: 40, right: 40, bottom: 230 }, maxZoom: 9, bearing: 0, pitch: 0,
     });
   });
 
@@ -86,7 +107,8 @@ describe("research viewport fit", () => {
     const fit: ResearchFraming = { bounds: [121.54, 25.02, 121.6, 25.06], padding: 60, maxZoom: 14 };
     const project = vi.fn(([lng, lat]: [number, number]) => ({ x: 376 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
     expect(framingFitsViewportFromContext({ project } as unknown as MapboxMap, context, fit)).toBe(true);
-    project.mockImplementation(([lng, lat]: [number, number]) => ({ x: 360 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
+    // Framing padding is capped at 24px: the visible left edge is 316 + 24 = 340.
+    project.mockImplementation(([lng, lat]: [number, number]) => ({ x: 330 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
     expect(framingFitsViewportFromContext({ project } as unknown as MapboxMap, context, fit)).toBe(false);
   });
 
@@ -138,12 +160,13 @@ describe("research viewport fit", () => {
   });
 });
 
-it("uses space below corner panels when edge strips overlap", () => {
+it("does not inset for small corner panels even when their edge strips would overlap", () => {
   const context = viewportContextFromRects(800, 800, [
     { left: 0, top: 100, right: 420, bottom: 350 },
     { left: 400, top: 100, right: 800, bottom: 350 },
   ]);
   expect(context.fitAvailable).toBe(true);
-  expect(context.safe.top).toBeGreaterThanOrEqual(366);
+  // Corner cards may cover part of the fitted result; they no longer shrink the safe rectangle.
+  expect(context.safe.top).toBe(16);
   expect(context.safe.right - context.safe.left).toBeGreaterThan(700);
 });
