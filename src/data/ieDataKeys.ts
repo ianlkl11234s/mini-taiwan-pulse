@@ -3,5 +3,7 @@ export const IE_DATA_KEYS = [
   "ieMaritimeBoundaries", "iePlaceNames", "ieGaeltacht", "ieActivityLocations", "ieParks", "ieGraveyards",
   // 第 2 波（2026-11-07）：房地產
   "ieCommercialValuations", "ieStateAssets",
+  // 第 3a 波（2026-11-08）：水系統與洪水
+  "ieHydrometricStations", "ieWaterMonitoring", "ieRiverWaterBodies", "ieLakeWaterBodies", "ieArterialDrainage", "ieRiverFloodExtents", "ieCoastalErosion",
 ] as const;
 export type IeDataKey = (typeof IE_DATA_KEYS)[number];

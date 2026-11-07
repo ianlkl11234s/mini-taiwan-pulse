@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1713,
+    "keyCount": 1720,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2320,9 +2320,39 @@
     },
     {
       "layers": [
+        "ie-hydrometric-stations-circle"
+      ],
+      "type": "ieHydrometricStations"
+    },
+    {
+      "layers": [
+        "ie-water-monitoring-circle"
+      ],
+      "type": "ieWaterMonitoring"
+    },
+    {
+      "layers": [
         "ie-maritime-boundaries-line"
       ],
       "type": "ieMaritimeBoundaries"
+    },
+    {
+      "layers": [
+        "ie-arterial-drainage-line"
+      ],
+      "type": "ieArterialDrainage"
+    },
+    {
+      "layers": [
+        "ie-coastal-erosion-line"
+      ],
+      "type": "ieCoastalErosion"
+    },
+    {
+      "layers": [
+        "ie-river-water-bodies-line"
+      ],
+      "type": "ieRiverWaterBodies"
     },
     {
       "layers": [
@@ -2343,6 +2373,18 @@
         "ie-state-assets-point-circle"
       ],
       "type": "ieStateAssets"
+    },
+    {
+      "layers": [
+        "ie-lake-water-bodies-fill"
+      ],
+      "type": "ieLakeWaterBodies"
+    },
+    {
+      "layers": [
+        "ie-river-flood-extents-fill"
+      ],
+      "type": "ieRiverFloodExtents"
     },
     {
       "layers": [
@@ -120963,6 +121005,35 @@
         "valueText": "0.85"
       }
     ],
+    "ieArterialDrainage": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "主幹排水渠（OPW 維護）",
+            "value": "channel"
+          },
+          {
+            "label": "堤防",
+            "value": "embankment"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "channel",
+          "embankment"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "ieBathymetry": [
       {
         "label": "透明度 0.70",
@@ -120972,6 +121043,35 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "ieCoastalErosion": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "2050 侵蝕線（現況情境推估）",
+            "value": "2050"
+          },
+          {
+            "label": "侵蝕速率線（2010–2014）",
+            "value": "RL"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2050",
+          "RL"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "ieCommercialValuations": [
@@ -121188,6 +121288,75 @@
         "valueText": "1.0"
       }
     ],
+    "ieHydrometricStations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieLakeWaterBodies": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "極佳 High",
+            "value": "High"
+          },
+          {
+            "label": "良好 Good",
+            "value": "Good"
+          },
+          {
+            "label": "普通 Moderate",
+            "value": "Moderate"
+          },
+          {
+            "label": "不佳 Poor",
+            "value": "Poor"
+          },
+          {
+            "label": "極差 Bad",
+            "value": "Bad"
+          },
+          {
+            "label": "未評定 Unassigned",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "High",
+          "Good",
+          "Moderate",
+          "Poor",
+          "Bad",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "ieMaritimeBoundaries": [
       {
         "label": "類別",
@@ -121321,6 +121490,109 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieRiverFloodExtents": [
+      {
+        "label": "淹水情境",
+        "options": [
+          {
+            "label": "現況・20 年一遇",
+            "value": "c_0020"
+          },
+          {
+            "label": "現況・100 年一遇",
+            "value": "c_0100"
+          },
+          {
+            "label": "現況・1000 年一遇",
+            "value": "c_1000"
+          },
+          {
+            "label": "中端未來・20 年一遇",
+            "value": "m_0020"
+          },
+          {
+            "label": "中端未來・100 年一遇",
+            "value": "m_0100"
+          },
+          {
+            "label": "中端未來・1000 年一遇",
+            "value": "m_1000"
+          },
+          {
+            "label": "高端未來・20 年一遇",
+            "value": "h_0020"
+          },
+          {
+            "label": "高端未來・100 年一遇",
+            "value": "h_0100"
+          },
+          {
+            "label": "高端未來・1000 年一遇",
+            "value": "h_1000"
+          }
+        ],
+        "type": "select",
+        "value": "c_0100"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "ieRiverWaterBodies": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "極佳 High",
+            "value": "High"
+          },
+          {
+            "label": "良好 Good",
+            "value": "Good"
+          },
+          {
+            "label": "普通 Moderate",
+            "value": "Moderate"
+          },
+          {
+            "label": "不佳 Poor",
+            "value": "Poor"
+          },
+          {
+            "label": "極差 Bad",
+            "value": "Bad"
+          },
+          {
+            "label": "未評定 Unassigned",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "High",
+          "Good",
+          "Moderate",
+          "Poor",
+          "Bad",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "ieStateAssets": [
@@ -121486,6 +121758,141 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "ieWaterMonitoring": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "河川測站",
+            "value": "river"
+          },
+          {
+            "label": "湖泊測站",
+            "value": "lake"
+          },
+          {
+            "label": "河口（感潮）測站",
+            "value": "transitional"
+          },
+          {
+            "label": "沿海測站",
+            "value": "coastal"
+          },
+          {
+            "label": "地下水測站",
+            "value": "groundwater"
+          },
+          {
+            "label": "都市污水處理廠",
+            "value": "uww_plant"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "river",
+          "lake",
+          "transitional",
+          "coastal",
+          "groundwater",
+          "uww_plant"
+        ]
+      },
+      {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "immigrationOffice": [

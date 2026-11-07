@@ -106,7 +106,7 @@ import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationH
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
 import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrTerritorialSeaHost, KrUrbanParksHost, KrSportsFacilitiesHost, KrCemeteriesOsmHost, KrPopulationH3Host, KrSchoolsHost, KrSchoolDistrictsHost, KrHospitalsPharmaciesHost, KrFireStationsHost, KrCivilDefenseSheltersHost, KrPoliceBoxesHost, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
 import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost, CaClimateStationsHost, CaAqhiStationsHost, CaRadiationStationsHost, CaNpriFacilitiesHost, CaWastewaterSystemsHost, CaEarthquakesHost, CaEarthquakesLiveHost, CaPopulationGridHost } from "./hosts/canadaHosts";
-import { IeAdminHost, IeMaritimeBoundariesHost, IePlaceNamesHost, IeGaeltachtHost, IeActivityLocationsHost, IeParksHost, IeGraveyardsHost, IeBathymetryHost, IeCommercialValuationsHost, IeStateAssetsHost } from "./hosts/irelandHosts";
+import { IeAdminHost, IeMaritimeBoundariesHost, IePlaceNamesHost, IeGaeltachtHost, IeActivityLocationsHost, IeParksHost, IeGraveyardsHost, IeBathymetryHost, IeCommercialValuationsHost, IeStateAssetsHost, IeHydrometricStationsHost, IeWaterMonitoringHost, IeRiverWaterBodiesHost, IeLakeWaterBodiesHost, IeArterialDrainageHost, IeRiverFloodExtentsHost, IeCoastalErosionHost } from "./hosts/irelandHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
@@ -367,6 +367,13 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useIeGraveyardsLayer", keys: ["ieGraveyards"], Host: IeGraveyardsHost },
   { id: "useIeCommercialValuationsLayer", keys: ["ieCommercialValuations"], Host: IeCommercialValuationsHost },
   { id: "useIeStateAssetsLayer", keys: ["ieStateAssets"], Host: IeStateAssetsHost },
+  { id: "useIeHydrometricStationsLayer", keys: ["ieHydrometricStations"], Host: IeHydrometricStationsHost },
+  { id: "useIeWaterMonitoringLayer", keys: ["ieWaterMonitoring"], Host: IeWaterMonitoringHost },
+  { id: "useIeRiverWaterBodiesLayer", keys: ["ieRiverWaterBodies"], Host: IeRiverWaterBodiesHost },
+  { id: "useIeLakeWaterBodiesLayer", keys: ["ieLakeWaterBodies"], Host: IeLakeWaterBodiesHost },
+  { id: "useIeArterialDrainageLayer", keys: ["ieArterialDrainage"], Host: IeArterialDrainageHost },
+  { id: "useIeRiverFloodExtentsLayer", keys: ["ieRiverFloodExtents"], Host: IeRiverFloodExtentsHost },
+  { id: "useIeCoastalErosionLayer", keys: ["ieCoastalErosion"], Host: IeCoastalErosionHost },
   { id: "useCaTransitStopsLayer", keys: ["caTransitStops"], Host: CaTransitStopsHost },
   { id: "useCaAirportsPortsLayer", keys: ["caAirportsPorts"], Host: CaAirportsPortsHost },
   { id: "useCaMajorRoadsLayer", keys: ["caMajorRoads"], Host: CaMajorRoadsHost },

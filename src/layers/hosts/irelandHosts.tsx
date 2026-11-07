@@ -1,9 +1,10 @@
 // 愛爾蘭 Layer Host（2026-11-07 第 0 波起）。比照 hosts/canadaHosts.tsx：一個 key 一個 Host。
 
+import { useMemo } from "react";
 import { useIeAdminLayers } from "../../hooks/useIeAdminLayers";
 import { useIeBathymetryLayer } from "../../hooks/useIeBathymetryLayer";
 import { useKrDataLayer } from "../../hooks/useKrDataLayers";
-import { IE_SPEC_BY_KEY, asKrSpec } from "../../data/ieDataLayers";
+import { IE_SPEC_BY_KEY, asKrSpec, ieFloodScenarioFileAt } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -39,6 +40,24 @@ export const IeGraveyardsHost = makeIeDataHost("ieGraveyards", 0.8);
 // 第 2 波：房地產
 export const IeCommercialValuationsHost = makeIeDataHost("ieCommercialValuations", 0.8);
 export const IeStateAssetsHost = makeIeDataHost("ieStateAssets", 0.7);
+// 第 3a 波：水資源、災害
+export const IeHydrometricStationsHost = makeIeDataHost("ieHydrometricStations", 0.8);
+export const IeWaterMonitoringHost = makeIeDataHost("ieWaterMonitoring", 0.8);
+export const IeRiverWaterBodiesHost = makeIeDataHost("ieRiverWaterBodies", 0.85);
+export const IeLakeWaterBodiesHost = makeIeDataHost("ieLakeWaterBodies", 0.7);
+export const IeArterialDrainageHost = makeIeDataHost("ieArterialDrainage", 0.85);
+export const IeCoastalErosionHost = makeIeDataHost("ieCoastalErosion", 0.85);
+
+/** 河川淹水範圍（NIFM）：情境 × 重現期一組一支 PMTiles，依 `ieRiverFloodExtentsScenarioIdx` 換 `file`（hook 偵測檔名改變就重建 source）。 */
+const FLOOD_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieRiverFloodExtents);
+export const IeRiverFloodExtentsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useIeRiverFloodExtentsLayer");
+  const p = useKeyOverlayParams("ieRiverFloodExtents");
+  const file = ieFloodScenarioFileAt(p.ieRiverFloodExtentsScenarioIdx);
+  const spec = useMemo(() => ({ ...FLOOD_SPEC, file }), [file]);
+  useKrDataLayer(deps.mapRef, spec, deps.layerVisibility.ieRiverFloodExtents, p.ieRiverFloodExtentsOpacity ?? 0.55, 1, deps.isDarkTheme, undefined, undefined);
+  return null;
+};
 
 /** 海床地形（raster，只有透明度）。 */
 export const IeBathymetryHost: LayerHostComponent = ({ deps }) => {

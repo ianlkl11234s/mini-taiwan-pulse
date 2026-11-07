@@ -615,6 +615,15 @@ for f in \
   public/world/ie_bathymetry.pmtiles \
   public/world/ie_commercial_valuations.pmtiles \
   public/world/ie_state_assets.pmtiles \
+  public/world/ie_river_flood_extents_c_0020.pmtiles \
+  public/world/ie_river_flood_extents_c_0100.pmtiles \
+  public/world/ie_river_flood_extents_c_1000.pmtiles \
+  public/world/ie_river_flood_extents_m_0020.pmtiles \
+  public/world/ie_river_flood_extents_m_0100.pmtiles \
+  public/world/ie_river_flood_extents_m_1000.pmtiles \
+  public/world/ie_river_flood_extents_h_0020.pmtiles \
+  public/world/ie_river_flood_extents_h_0100.pmtiles \
+  public/world/ie_river_flood_extents_h_1000.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -17,6 +17,9 @@ export type IeLayerSpec = Omit<KrLayerSpec, "key" | "fields"> & { key: IeDataKey
 
 export const IE_W1_FETCHED_AT = "2026-11-07";
 export const IE_W2_FETCHED_AT = "2026-11-07";
+export const IE_W3A_FETCHED_AT = "2026-11-08";
+const CC_BY_NC_ND = "CC BY-NC-ND 4.0（非商業使用・原樣未改作）";
+const DGI = (id: string) => `https://data.gov.ie/dataset/${id}`;
 const CC_BY = "CC BY 4.0";
 const AGOL_TAILTE = "https://services-eu1.arcgis.com/FH5XCsx8rYXqnjF5/arcgis/rest/services";
 
@@ -65,6 +68,64 @@ const STATE_OWNER_CATS: readonly KrCat[] = [
   { id: "central_government", values: ["central_government"], color: "#ef4444", label: l3("其他中央部會", "Other government departments", "その他の中央省庁") },
   { id: "other_state_body", values: ["other_state_body"], color: "#94a3b8", label: l3("其他國營事業與機構", "Other state bodies & companies", "その他の国営企業・機関") },
 ];
+
+// ───────────── 第 3a 波：水系統與洪水 ─────────────
+/** WFD 生態狀態五級（EPA 2019–2024）：沿用歐盟 WFD 慣例的藍、綠、黃、橙、紅語意。 */
+const WFD_STATUS_CATS: readonly KrCat[] = [
+  { id: "High", values: ["High"], color: "#38bdf8", label: l3("極佳 High", "High", "高い（High）") },
+  { id: "Good", values: ["Good"], color: "#4ade80", label: l3("良好 Good", "Good", "良好（Good）") },
+  { id: "Moderate", values: ["Moderate"], color: "#facc15", label: l3("普通 Moderate", "Moderate", "中程度（Moderate）") },
+  { id: "Poor", values: ["Poor"], color: "#f59e0b", label: l3("不佳 Poor", "Poor", "不良（Poor）") },
+  { id: "Bad", values: ["Bad"], color: "#ef4444", label: l3("極差 Bad", "Bad", "悪い（Bad）") },
+];
+const WFD_UNASSIGNED = l3("未評定 Unassigned", "Unassigned", "未評価（Unassigned）");
+const WATER_MONITORING_CATS: readonly KrCat[] = [
+  { id: "river", values: ["river"], color: "#38bdf8", label: l3("河川測站", "River station", "河川観測点") },
+  { id: "lake", values: ["lake"], color: "#2dd4bf", label: l3("湖泊測站", "Lake station", "湖沼観測点") },
+  { id: "transitional", values: ["transitional"], color: "#a78bfa", label: l3("河口（感潮）測站", "Transitional (estuary) station", "汽水域（河口）観測点") },
+  { id: "coastal", values: ["coastal"], color: "#f472b6", label: l3("沿海測站", "Coastal station", "沿岸観測点") },
+  { id: "groundwater", values: ["groundwater"], color: "#f59e0b", label: l3("地下水測站", "Groundwater station", "地下水観測点") },
+  { id: "uww_plant", values: ["uww_plant"], color: "#ef4444", label: l3("都市污水處理廠", "Urban waste water treatment plant", "都市下水処理場") },
+];
+const DRAINAGE_CATS: readonly KrCat[] = [
+  { id: "channel", values: ["channel"], color: "#38bdf8", label: l3("主幹排水渠（OPW 維護）", "Arterial drainage channel (OPW-maintained)", "幹線排水路（OPW 管理）") },
+  { id: "embankment", values: ["embankment"], color: "#f59e0b", label: l3("堤防", "Embankment", "堤防") },
+];
+const EROSION_CATS: readonly KrCat[] = [
+  { id: "2050", values: ["2050"], color: "#ef4444", label: l3("2050 侵蝕線（現況情境推估）", "2050 erosion line (current scenario)", "2050年侵食線（現況シナリオ）") },
+  { id: "RL", values: ["RL"], color: "#f59e0b", label: l3("侵蝕速率線（2010–2014）", "Erosion rate line (2010–2014)", "侵食速度線（2010–2014）") },
+];
+const WFD_STATUS_FIELD: IeField = { prop: "status", label: l3("生態狀態（2019–2024）", "Ecological status (2019–2024)", "生態学的状態（2019–2024）"),
+  map: Object.fromEntries([...WFD_STATUS_CATS.map((c) => [c.id, c.label]), ["Unassigned", WFD_UNASSIGNED]]) };
+
+/** NIFM 河川淹水範圍：3 情境 × 3 重現期，一組一支 PMTiles（同一個 source-layer），依 `ieRiverFloodExtentsScenarioIdx` 換檔。順序即 select encode。 */
+export const IE_FLOOD_SCENARIOS = [
+  { value: "c_0020", label: l3("現況・20 年一遇", "Current · 1-in-20 year", "現況・20年確率") },
+  { value: "c_0100", label: l3("現況・100 年一遇", "Current · 1-in-100 year", "現況・100年確率") },
+  { value: "c_1000", label: l3("現況・1000 年一遇", "Current · 1-in-1000 year", "現況・1000年確率") },
+  { value: "m_0020", label: l3("中端未來・20 年一遇", "Mid-range future · 1-in-20 year", "中位将来・20年確率") },
+  { value: "m_0100", label: l3("中端未來・100 年一遇", "Mid-range future · 1-in-100 year", "中位将来・100年確率") },
+  { value: "m_1000", label: l3("中端未來・1000 年一遇", "Mid-range future · 1-in-1000 year", "中位将来・1000年確率") },
+  { value: "h_0020", label: l3("高端未來・20 年一遇", "High-end future · 1-in-20 year", "高位将来・20年確率") },
+  { value: "h_0100", label: l3("高端未來・100 年一遇", "High-end future · 1-in-100 year", "高位将来・100年確率") },
+  { value: "h_1000", label: l3("高端未來・1000 年一遇", "High-end future · 1-in-1000 year", "高位将来・1000年確率") },
+] as const;
+export const IE_FLOOD_SCENARIO_DEFAULT = "c_0100";
+export const ieFloodScenarioFile = (value: string) => `ie_river_flood_extents_${value}.pmtiles`;
+/** overlayParams 的情境序號 → 檔名；越界退回預設 */
+export function ieFloodScenarioFileAt(idx: number | undefined): string {
+  const s = IE_FLOOD_SCENARIOS[idx ?? -1] ?? IE_FLOOD_SCENARIOS.find((x) => x.value === IE_FLOOD_SCENARIO_DEFAULT)!;
+  return ieFloodScenarioFile(s.value);
+}
+const FLOOD_SCENARIO_CODE: Record<string, L3> = {
+  c: l3("現況", "Current", "現況"), m: l3("中端未來（MRFS）", "Mid-range future (MRFS)", "中位将来（MRFS）"), h: l3("高端未來（HEFS）", "High-end future (HEFS)", "高位将来（HEFS）"),
+};
+const FLOOD_PERIOD_CODE: Record<string, L3> = {
+  "0020": l3("20 年一遇", "1-in-20 year", "20年確率"), "0100": l3("100 年一遇", "1-in-100 year", "100年確率"), "1000": l3("1000 年一遇", "1-in-1000 year", "1000年確率"),
+};
+const NC_ND_NOTE = (org: string) => l3(`CC BY-NC-ND 4.0・非商業使用；© ${org}。原樣上圖、未改作（不合併、不裁切、不改屬性）`,
+  `CC BY-NC-ND 4.0 · non-commercial use; © ${org}. Shown unaltered (not merged, clipped or re-classified)`,
+  `CC BY-NC-ND 4.0・非商用；© ${org}。改変せず原データのまま表示（統合・切り抜き・属性変更なし）`);
 
 export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   // ───────────── 底圖：海域界線、地名 ─────────────
@@ -229,6 +290,112 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [l3("2023 Q3 登記狀態，不保證現況", "Registry status as of Q3 2023; may have changed", "2023年第3四半期時点の登記状況で現況は保証されない")],
     sourceOrg: "Land Development Agency, State Assets Database (PRA State Assets, Q3 2023); folio boundaries © Property Registration Authority", sourceUrl: "https://opendata-lda-ie.hub.arcgis.com/datasets/lda-ie::pra-state-assets", license: "CC BY 4.0 (folio boundaries © PRA; licence to be confirmed)", fetchedAt: IE_W2_FETCHED_AT,
     loading: l3("愛爾蘭國有登記土地載入中", "Loading Ireland state-owned land", "アイルランドの国有登記地を読み込み中"),
+  },
+  // ───────────── 第 3a 波：水資源（測站、水體、排水）、災害（淹水、海岸侵蝕） ─────────────
+  {
+    key: "ieHydrometricStations", file: "ie_hydrometric_stations.pmtiles", sourceLayer: "ie_hydrometric_stations", geom: "point", layerId: "ie-hydrometric-stations-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#2dd4bf", tier: "S", count: 2322,
+    title: { props: ["station_name"], fallback: l3("水文站", "Hydrometric station", "水文観測所") },
+    fields: [{ prop: "station_number", label: l3("站號", "Station number", "観測所番号"), kind: "code" }, LA],
+    legendNotes: [l3("EPA 水文站名冊：OPW、地方政府與 EPA 的水位、流量站；名冊只有站名與站號，沒有讀數與啟用狀態", "EPA register of hydrometric gauges run by the OPW, local authorities and the EPA; the register has names and numbers only, no readings or operating status", "EPA の水文観測所名簿（OPW・自治体・EPA の水位・流量観測所）。名称と番号のみで、観測値や稼働状況はない"),
+                  l3("北愛的站已剔除（2,591 筆中空座標 17、北愛 252）", "Northern Ireland stations removed (of 2,591: 17 without coordinates, 252 in Northern Ireland)", "北アイルランドの観測所は除外（2,591件中、座標なし17・北アイルランド252）")],
+    popupNotes: [l3("即時水位請看 waterlevel.ie（OPW）", "For live levels see waterlevel.ie (OPW)", "リアルタイム水位は waterlevel.ie（OPW）を参照")],
+    sourceOrg: "Environmental Protection Agency (EPA), Monitoring – Hydrometric Gauges", sourceUrl: DGI("monitoring-hydrometric-gauges"), license: CC_BY, fetchedAt: IE_W3A_FETCHED_AT,
+    loading: l3("愛爾蘭水文站載入中", "Loading Ireland hydrometric stations", "アイルランドの水文観測所を読み込み中"),
+  },
+  {
+    // 1.5 萬點：拉遠畫熱區（V-1）
+    key: "ieWaterMonitoring", file: "ie_water_monitoring.pmtiles", sourceLayer: "ie_water_monitoring", geom: "point", layerId: "ie-water-monitoring-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, heat: { intensity: 3 }, color: "#38bdf8", tier: "S", count: 14766,
+    catProp: "category", cats: WATER_MONITORING_CATS,
+    title: { props: ["name"], fallback: l3("水質監測站", "Water monitoring station", "水質観測点") },
+    fields: [{ prop: "station_id", label: l3("站碼", "Station ID", "観測点コード"), kind: "code" }, { prop: "water_body", label: l3("水體", "Water body", "水域") },
+             { prop: "monitoring_purpose", label: l3("WFD 監測類型", "WFD monitoring type", "WFD 監視区分") },
+             { prop: "river_basin_district", label: l3("流域區", "River basin district", "流域区") }, { prop: "created_by", label: l3("建站單位", "Created by", "設置機関") },
+             { prop: "operator", label: l3("營運單位", "Operator", "運営者") }, { prop: "pe_band", label: l3("集污區人口當量級距", "Agglomeration PE band", "集水区の人口当量区分") },
+             { prop: "agglomeration_pe", label: l3("集污區人口當量", "Agglomeration PE", "集水区の人口当量"), kind: "num" },
+             { prop: "plant_design_pe", label: l3("設計處理人口當量", "Plant design PE", "設計処理人口当量"), kind: "num" },
+             { prop: "treatment_type", label: l3("處理等級", "Treatment type", "処理方式") }, { prop: "licence_status", label: l3("排放許可狀態", "Licence status", "排出許可の状態") },
+             { prop: "licence_number", label: l3("許可證號", "Licence number", "許可番号"), kind: "code" }, LA],
+    legendNotes: [l3("EPA 水框架指令（WFD）監測站 14,220（河川、湖泊、河口、沿海、地下水；北愛 41 站已剔除）＋都市污水處理廠 546（集污區人口當量 ≥500）", "EPA Water Framework Directive monitoring stations 14,220 (river, lake, transitional, coastal, groundwater; 41 Northern Ireland stations removed) plus 546 urban waste water treatment plants (agglomerations ≥500 PE)", "EPA 水枠組み指令（WFD）観測点 14,220（河川・湖沼・汽水域・沿岸・地下水。北アイルランド41点を除外）＋都市下水処理場546（集水区の人口当量500以上）"),
+                  l3("只有站點與屬性，沒有水質數值；河川、湖泊的水質評等請看「WFD 河川／湖泊水體」", "Locations and attributes only, no measurements; for water quality status see the WFD river / lake waterbody layers", "位置と属性のみで測定値はない。水質評価は「WFD 河川／湖沼水域」を参照"),
+                  l3("拉遠為熱區，放大後出現點", "Heatmap when zoomed out; points appear when zoomed in", "縮小時はヒートマップ、拡大すると点")],
+    popupNotes: [],
+    sourceOrg: "Environmental Protection Agency (EPA), WFD monitoring stations; urban waste water treatment plant locations", sourceUrl: DGI("water-monitoring-stations"), license: CC_BY, fetchedAt: IE_W3A_FETCHED_AT,
+    loading: l3("愛爾蘭水質監測站載入中", "Loading Ireland water monitoring stations", "アイルランドの水質観測点を読み込み中"),
+  },
+  {
+    key: "ieRiverWaterBodies", file: "ie_river_water_bodies.pmtiles", sourceLayer: "ie_river_water_bodies", geom: "line", layerId: "ie-river-water-bodies-line",
+    srcMinzoom: 5, srcMaxzoom: 12, minzoom: 5, color: "#38bdf8", count: 3208,
+    catProp: "status", cats: WFD_STATUS_CATS, otherColor: "#94a3b8", otherLabel: WFD_UNASSIGNED,
+    title: { props: ["name"], fallback: l3("河川水體", "River waterbody", "河川水域") },
+    fields: [WFD_STATUS_FIELD, { prop: "code", label: l3("水體代碼", "Waterbody code", "水域コード"), kind: "code" },
+             { prop: "period", label: l3("評定期間", "Assessment period", "評価期間") }],
+    legendNotes: [l3("EPA 依歐盟水框架指令（WFD）劃設的河川水體 3,208 段，顏色為 2019–2024 生態狀態", "3,208 river waterbodies delineated by the EPA under the EU Water Framework Directive, coloured by 2019–2024 ecological status", "EU 水枠組み指令（WFD）に基づき EPA が区分した河川水域3,208区間。色は2019–2024年の生態学的状態"),
+                  l3("一個水體是一段河川（含支流），不是全部河網", "Each waterbody is a river stretch (with tributaries), not the full river network", "1水域は河川の一区間（支流を含む）で、全河川網ではない")],
+    popupNotes: [],
+    sourceOrg: "Environmental Protection Agency (EPA), WFD River Waterbody Status 2019–2024", sourceUrl: DGI("wfd-river-waterbody-status-2019-2024"), license: CC_BY, fetchedAt: IE_W3A_FETCHED_AT,
+    loading: l3("愛爾蘭河川水體載入中", "Loading Ireland river waterbodies", "アイルランドの河川水域を読み込み中"),
+  },
+  {
+    key: "ieLakeWaterBodies", file: "ie_lake_water_bodies.pmtiles", sourceLayer: "ie_lake_water_bodies", geom: "polygon", layerId: "ie-lake-water-bodies-fill", outlineId: "ie-lake-water-bodies-line",
+    srcMinzoom: 5, srcMaxzoom: 12, minzoom: 5, color: "#38bdf8", count: 812,
+    catProp: "status", cats: WFD_STATUS_CATS, otherColor: "#94a3b8", otherLabel: WFD_UNASSIGNED,
+    title: { props: ["name"], fallback: l3("湖泊水體", "Lake waterbody", "湖沼水域") },
+    fields: [WFD_STATUS_FIELD, { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 2 },
+             { prop: "local_authority", label: l3("地方政府", "Local authority", "地方自治体") }, { prop: "hydrometric_area", label: l3("水文區", "Hydrometric area", "水文区") },
+             { prop: "code", label: l3("水體代碼", "Waterbody code", "水域コード"), kind: "code" }, { prop: "period", label: l3("評定期間", "Assessment period", "評価期間") }],
+    legendNotes: [l3("EPA 依 WFD 劃設的湖泊水體 812 個，顏色為 2019–2024 生態狀態", "812 lake waterbodies delineated by the EPA under the WFD, coloured by 2019–2024 ecological status", "WFD に基づき EPA が区分した湖沼水域812。色は2019–2024年の生態学的状態")],
+    popupNotes: [],
+    sourceOrg: "Environmental Protection Agency (EPA), WFD Lake Waterbody Status 2019–2024", sourceUrl: DGI("wfd-lake-waterbody-status-2019-2024"), license: CC_BY, fetchedAt: IE_W3A_FETCHED_AT,
+    loading: l3("愛爾蘭湖泊水體載入中", "Loading Ireland lake waterbodies", "アイルランドの湖沼水域を読み込み中"),
+  },
+  {
+    key: "ieArterialDrainage", file: "ie_arterial_drainage.pmtiles", sourceLayer: "ie_arterial_drainage", geom: "line", layerId: "ie-arterial-drainage-line",
+    srcMinzoom: 5, srcMaxzoom: 13, minzoom: 5, color: "#38bdf8", count: 6693,
+    catProp: "feature_type", cats: DRAINAGE_CATS,
+    title: { props: ["scheme"], fallback: l3("主幹排水工程", "Arterial drainage scheme", "幹線排水事業") },
+    fields: [{ prop: "feature_type", label: l3("類型", "Type", "種別"), map: Object.fromEntries(DRAINAGE_CATS.map((c) => [c.id, c.label])) },
+             { prop: "scheme", label: l3("排水工程", "Scheme", "排水事業") }, { prop: "ref", label: l3("渠道／堤防編號", "Reference", "番号"), kind: "code" },
+             { prop: "region", label: l3("OPW 分區", "OPW region", "OPW 管区") }],
+    legendNotes: [l3("依 1945、1995 年 Arterial Drainage Acts 興建、OPW 有法定維護義務的排水渠 6,094 段與堤防 599 段（65 個工程）", "6,094 channel and 599 embankment segments (65 schemes) built under the Arterial Drainage Acts 1945 & 1995 that the OPW is legally obliged to maintain", "1945・1995年 Arterial Drainage Acts に基づき建設され OPW に法定維持義務がある排水路6,094区間と堤防599区間（65事業）"),
+                  l3("不含地方政府維護的 Drainage District 渠道與堤防、防洪工程", "Excludes Drainage District channels and embankments (local authority) and flood relief schemes", "自治体管理の Drainage District の水路・堤防と洪水対策事業は含まない")],
+    popupNotes: [],
+    sourceOrg: "Office of Public Works (OPW), Arterial Drainage Scheme channels and embankments", sourceUrl: DGI("arterial-drainage-scheme-channels"), license: CC_BY, fetchedAt: IE_W3A_FETCHED_AT,
+    loading: l3("愛爾蘭主幹排水渠載入中", "Loading Ireland arterial drainage", "アイルランドの幹線排水路を読み込み中"),
+  },
+  {
+    // ND：原樣上圖、單獨成層。一情境一支 PMTiles（`IE_FLOOD_SCENARIOS`），host 依參數換 `file`
+    key: "ieRiverFloodExtents", file: ieFloodScenarioFile(IE_FLOOD_SCENARIO_DEFAULT), sourceLayer: "ie_river_flood_extents", geom: "polygon",
+    layerId: "ie-river-flood-extents-fill", outlineId: "ie-river-flood-extents-line",
+    srcMinzoom: 5, srcMaxzoom: 13, minzoom: 5, color: "#3b82f6", count: 4116,
+    title: { props: [], fallback: l3("河川淹水範圍（模擬）", "River flood extent (modelled)", "河川浸水範囲（シミュレーション）") },
+    fields: [{ prop: "c", label: l3("情境", "Scenario", "シナリオ"), map: FLOOD_SCENARIO_CODE },
+             { prop: "pppp", label: l3("重現期", "Return period", "再現期間"), map: FLOOD_PERIOD_CODE },
+             { prop: "ext_id", label: l3("範圍編號", "Extent ID", "範囲 ID"), kind: "code" }],
+    legendNotes: [NC_ND_NOTE("OPW"),
+                  l3("OPW 全國指示性河川淹水模擬（NIFM）：現況與兩種未來氣候情境（中端 MRFS、高端 HEFS）× 20／100／1000 年一遇，共 9 組，在圖層設定切換（預設現況・100 年一遇）", "OPW National Indicative Fluvial Mapping: current and two future scenarios (mid-range MRFS, high-end HEFS) × 1-in-20/100/1000 year, 9 sets switchable in layer settings (default: current, 1-in-100)", "OPW 全国指示的河川浸水図（NIFM）：現況と将来2シナリオ（中位 MRFS・高位 HEFS）× 20／100／1000年確率の9組をレイヤー設定で切替（既定：現況・100年確率）"),
+                  l3("指示性模擬，不是個別地塊的淹水判定；只含河川淹水，不含海岸、地下水與地表逕流淹水", "Indicative modelling, not a property-level flood assessment; fluvial only (excludes coastal, groundwater and pluvial flooding)", "指示的なシミュレーションで個別地点の判定ではない。河川氾濫のみ（沿岸・地下水・内水は含まない）"),
+                  l3("拉遠時圖磚會省略最小的淹水面（只影響顯示）", "Smallest flood polygons are omitted in zoomed-out tiles (display only)", "縮小時のタイルでは最小の浸水面を省略（表示のみ）")],
+    popupNotes: [l3("CC BY-NC-ND・非商業使用；OPW 指示性模擬，非地塊判定", "CC BY-NC-ND · non-commercial; OPW indicative modelling, not property-level", "CC BY-NC-ND・非商用。OPW の指示的シミュレーションで地点判定ではない")],
+    sourceOrg: "Office of Public Works (OPW), National Indicative Fluvial Mapping (NIFM)", sourceUrl: DGI("nifm-river-flood-extents-current-scenario"), license: CC_BY_NC_ND, fetchedAt: IE_W3A_FETCHED_AT,
+    loading: l3("愛爾蘭河川淹水範圍載入中", "Loading Ireland river flood extents", "アイルランドの河川浸水範囲を読み込み中"),
+  },
+  {
+    // ND：兩份 ICPSS 原樣疊在同一支圖磚，以原有 typecode 區分（不新增欄位）
+    key: "ieCoastalErosion", file: "ie_coastal_erosion.pmtiles", sourceLayer: "ie_coastal_erosion", geom: "line", layerId: "ie-coastal-erosion-line",
+    srcMinzoom: 5, srcMaxzoom: 13, minzoom: 5, color: "#ef4444", count: 74256,
+    catProp: "typecode", cats: EROSION_CATS,
+    title: { props: [], fallback: l3("海岸侵蝕", "Coastal erosion", "海岸侵食") },
+    fields: [{ prop: "typecode", label: l3("線別", "Line", "線種"), map: Object.fromEntries(EROSION_CATS.map((c) => [c.id, c.label])) },
+             { prop: "eros_rate", label: l3("侵蝕速率", "Erosion rate", "侵食速度"), kind: "num", unit: "m／年", digits: 3 },
+             { prop: "region", label: l3("ICPSS 分區", "ICPSS region", "ICPSS 区域") }, { prop: "pub_date", label: l3("發布", "Published", "公表") }],
+    legendNotes: [NC_ND_NOTE("OPW"),
+                  l3("OPW 愛爾蘭海岸防護策略研究（ICPSS 2010–2014）：2050 侵蝕線 1,220 段（現況情境推估）、侵蝕速率線 73,036 段（約 72% 為 0）", "OPW Irish Coastal Protection Strategy Study (ICPSS 2010–2014): 2050 erosion line 1,220 segments (current scenario) and erosion rate line 73,036 segments (about 72% are 0)", "OPW アイルランド海岸防護戦略調査（ICPSS 2010–2014）：2050年侵食線1,220区間（現況シナリオ）・侵食速度線73,036区間（約72%が0）"),
+                  l3("官方說明：評估未排除既有海岸防護結構的影響", "Per the OPW: the assessment does not exclude the effect of existing coastal defences", "OPW の説明：既存の海岸防護施設の影響は除外されていない")],
+    popupNotes: [l3("CC BY-NC-ND・非商業使用；ICPSS 2010–2014 推估", "CC BY-NC-ND · non-commercial; ICPSS 2010–2014 estimate", "CC BY-NC-ND・非商用。ICPSS 2010–2014 の推計")],
+    sourceOrg: "Office of Public Works (OPW), Irish Coastal Protection Strategy Study (ICPSS 2010–2014)", sourceUrl: DGI("icpss-2010-2014-erosion-rate-line"), license: CC_BY_NC_ND, fetchedAt: IE_W3A_FETCHED_AT,
+    loading: l3("愛爾蘭海岸侵蝕載入中", "Loading Ireland coastal erosion", "アイルランドの海岸侵食を読み込み中"),
   },
 ];
 
