@@ -2036,8 +2036,11 @@ export default function App() {
   // 同一張卡的第二段（§5.42.1）：開著的圖層要放大或前往資料範圍才看得到；停用條件同上
   // 古地圖開著且底圖地名還開著：同一張卡的第三段，提醒現代地名可關（按鈕與底圖選單「顯示地名」同一個開關）
   const [historicalLabelTipDismissed, setHistoricalLabelTipDismissed] = useState(false);
-  useEffect(() => { if (!layerVisibility.historicalMapSinica) setHistoricalLabelTipDismissed(false); }, [layerVisibility.historicalMapSinica]);
-  const historicalLabelTip = layerVisibility.historicalMapSinica && !lockedKeys.has("historicalMapSinica") && showBasemapLabels && !historicalLabelTipDismissed
+  // 歷史底圖五個不透明圖層任一開著就提醒（界線路網是透明疊加層，不蓋住現代底圖，不算）
+  const historicalBaseOn = (["historicalMapSinica", "historicalMapPostwar", "historicalImagery", "historicalLandUse", "historicalThematic"] as const)
+    .some((k) => layerVisibility[k] && !lockedKeys.has(k));
+  useEffect(() => { if (!historicalBaseOn) setHistoricalLabelTipDismissed(false); }, [historicalBaseOn]);
+  const historicalLabelTip = historicalBaseOn && showBasemapLabels && !historicalLabelTipDismissed
     && !isMobile && !captureMode && !chatOpen && !agentActivityVisible
     ? {
       onHide: () => { setShowBasemapLabels(false); setHistoricalLabelTipDismissed(true); },

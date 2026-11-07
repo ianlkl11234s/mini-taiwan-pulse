@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1706,
+    "keyCount": 1711,
     "sections": [
       "gisLayers",
       "overlays",
@@ -120318,6 +120318,56 @@
         "valueText": "0.50"
       }
     ],
+    "historicalBoundaries": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1901 日治行政區：廳",
+            "value": "admin-1901a"
+          },
+          {
+            "label": "1901 日治行政區：堡里",
+            "value": "admin-1901b"
+          },
+          {
+            "label": "1901 日治行政區：街庄",
+            "value": "admin-1901c"
+          },
+          {
+            "label": "1930 日治行政區：州廳",
+            "value": "admin-1930a"
+          },
+          {
+            "label": "1930 日治行政區：郡市",
+            "value": "admin-1930b"
+          },
+          {
+            "label": "1930 日治行政區：街庄",
+            "value": "admin-1930c"
+          },
+          {
+            "label": "乾隆臺灣番界",
+            "value": "abm"
+          },
+          {
+            "label": "1953 臺糖鐵道網",
+            "value": "tm150k-1953"
+          }
+        ],
+        "type": "select",
+        "value": "admin-1901a"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
     "historicalFlightTrails": [
       {
         "label": "方向 全部",
@@ -120389,37 +120439,393 @@
         "valueText": "0.75"
       }
     ],
+    "historicalImagery": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1944 美軍航照",
+            "value": "am25k-1944"
+          },
+          {
+            "label": "1966 Corona 衛星影像",
+            "value": "corona-1966"
+          },
+          {
+            "label": "1969 Corona 衛星影像（中北部）",
+            "value": "taiwan-corona-1969"
+          },
+          {
+            "label": "2000 衛星影像地圖（A）（921 災區）",
+            "value": "tm50k-2000a"
+          },
+          {
+            "label": "2000 衛星影像地形圖（B）（921 災區）",
+            "value": "tm50k-2000b"
+          }
+        ],
+        "type": "select",
+        "value": "am25k-1944"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "historicalLandUse": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1956 土地利用及林型圖",
+            "value": "1956-landuse"
+          },
+          {
+            "label": "1956 土地利用及林型分類圖（25 萬分一）",
+            "value": "1956-landuse-250k-1"
+          },
+          {
+            "label": "1956 材積級與保育問題等級圖（25 萬分一）",
+            "value": "1956-landuse-250k-2"
+          },
+          {
+            "label": "1959 海岸及耕地防風林狀況圖",
+            "value": "1959-landuse-windbreak-25k"
+          },
+          {
+            "label": "1974 山坡地土地利用現況圖",
+            "value": "1974-landuse-250k"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（彰化縣）",
+            "value": "1979-landuse-25k-changhua"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（新竹縣）",
+            "value": "1979-landuse-25k-hsinchu"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（花蓮縣）",
+            "value": "1979-landuse-25k-hualien"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（苗栗縣）",
+            "value": "1979-landuse-25k-miaoli"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（南投縣）",
+            "value": "1979-landuse-25k-nantou"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（屏東縣）",
+            "value": "1979-landuse-25k-pingtung"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（臺中縣市）",
+            "value": "1979-landuse-25k-taichung"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（臺北縣市）",
+            "value": "1979-landuse-25k-taipei"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（臺東縣）",
+            "value": "1979-landuse-25k-taitung"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（桃園縣）",
+            "value": "1979-landuse-25k-taoyuan"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（宜蘭縣）",
+            "value": "1979-landuse-25k-yilan"
+          }
+        ],
+        "type": "select",
+        "value": "1956-landuse"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "historicalMapPostwar": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1950 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1950"
+          },
+          {
+            "label": "1953 十萬分一臺灣地形圖",
+            "value": "tm100k-1953"
+          },
+          {
+            "label": "1954 五萬分一臺灣地形圖",
+            "value": "tm50k-1954"
+          },
+          {
+            "label": "1955 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1955"
+          },
+          {
+            "label": "1956 五萬分一臺灣地形圖",
+            "value": "tm50k-1956"
+          },
+          {
+            "label": "1959 三十萬分一臺灣地圖",
+            "value": "tm300k-1959"
+          },
+          {
+            "label": "1962 五千分一臺灣地形圖（西海岸海埔地）",
+            "value": "tm5k-1962"
+          },
+          {
+            "label": "1963 二十五萬分一臺灣地圖",
+            "value": "tm250k-1963"
+          },
+          {
+            "label": "1957–1969 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1966"
+          },
+          {
+            "label": "1966 五十萬分一臺灣地圖",
+            "value": "tm500k-1966"
+          },
+          {
+            "label": "1970 一萬分一臺灣地形圖（北部）",
+            "value": "tm10k-1970"
+          },
+          {
+            "label": "1973 二十五萬分一臺灣地圖",
+            "value": "tm250k-1973"
+          },
+          {
+            "label": "1974 一萬分一臺灣地形圖（北部）",
+            "value": "tm10k-1974"
+          },
+          {
+            "label": "1978 五十萬分一臺灣地圖",
+            "value": "tm500k-1978"
+          },
+          {
+            "label": "1984 十萬分一臺灣地形圖",
+            "value": "tm100k-1984"
+          },
+          {
+            "label": "1987 十萬分一臺灣地形圖",
+            "value": "tm100k-1987"
+          },
+          {
+            "label": "1988 二十五萬分一臺灣地圖",
+            "value": "tm250k-1988"
+          },
+          {
+            "label": "1989 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1989"
+          },
+          {
+            "label": "1990 五萬分一臺灣地形圖",
+            "value": "tm50k-1990"
+          },
+          {
+            "label": "1993 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1993"
+          },
+          {
+            "label": "1996 五萬分一臺灣地形圖",
+            "value": "tm50k-1996"
+          },
+          {
+            "label": "2001 二萬五千分一臺灣地形圖",
+            "value": "tm25k-2001"
+          },
+          {
+            "label": "2003 二萬五千分一臺灣地形圖（北部）",
+            "value": "tm25k-2003"
+          },
+          {
+            "label": "2003 五萬分一臺灣地形圖（北部）",
+            "value": "tm50k-2003"
+          }
+        ],
+        "type": "select",
+        "value": "tm25k-1950"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "historicalMapSinica": [
       {
         "label": "年代",
         "options": [
           {
+            "label": "1895 日軍攻台戰鬥地圖（北部）",
+            "value": "jmwar-1895"
+          },
+          {
+            "label": "1897 二十萬分一臺灣地圖",
+            "value": "jm200k-1897"
+          },
+          {
+            "label": "1897 二十萬分一臺灣地圖（修正版）",
+            "value": "jm200k-1897-new"
+          },
+          {
+            "label": "1899 四十萬分一臺灣地圖",
+            "value": "jm400k-1899"
+          },
+          {
             "label": "1904 臺灣堡圖（明治版）",
             "value": "jm20k-1904"
+          },
+          {
+            "label": "1905 十萬分一臺灣地形圖",
+            "value": "jm100k-1905"
+          },
+          {
+            "label": "1916 五萬分一臺灣地形圖（山區）",
+            "value": "jm50k-1916"
+          },
+          {
+            "label": "1920 五萬分一臺灣地形圖",
+            "value": "jm50k-1920"
           },
           {
             "label": "1921 臺灣堡圖（大正版）",
             "value": "jm20k-1921"
           },
           {
-            "label": "1944 美軍航照",
-            "value": "am25k-1944"
+            "label": "1921 二萬五千分一臺灣地形圖",
+            "value": "jm25k-1921"
+          },
+          {
+            "label": "1924 三十萬分一臺灣地圖",
+            "value": "jm300k-1924"
+          },
+          {
+            "label": "1924 五萬分一臺灣地形圖",
+            "value": "jm50k-1924"
+          },
+          {
+            "label": "1924 五萬分一臺灣地形圖（修正版）",
+            "value": "jm50k-1924-new"
+          },
+          {
+            "label": "1932 二十萬分一臺灣地圖",
+            "value": "jm200k-1932"
+          },
+          {
+            "label": "1933 新高登山地圖 五萬分一（玉山）",
+            "value": "yushan-50k-1933"
+          },
+          {
+            "label": "1934 三十萬分一臺灣地圖",
+            "value": "jm300k-1934"
+          },
+          {
+            "label": "1936 五十萬分一臺灣地圖",
+            "value": "jm500k-1936"
+          },
+          {
+            "label": "1939 三十萬分一臺灣地圖",
+            "value": "jm300k-1939"
+          },
+          {
+            "label": "1942 二萬五千分一地形圖（昭和修正版）（高雄周邊）",
+            "value": "jm25k-1942"
+          },
+          {
+            "label": "1944 二萬五千分一臺灣地形圖",
+            "value": "jm25k-1944"
+          },
+          {
+            "label": "1944 二十萬分一臺灣地圖",
+            "value": "jm200k-1944"
           },
           {
             "label": "1944 美軍地形圖",
             "value": "am25k-1944a"
           },
           {
-            "label": "1945 美軍城市地圖",
-            "value": "amcity-1945"
+            "label": "1944 美軍五萬分一地形圖",
+            "value": "am50k-1944"
           },
           {
-            "label": "1966 Corona 衛星影像",
-            "value": "corona-1966"
+            "label": "1944 美軍二十五萬分一地形圖",
+            "value": "ams250k-1944"
+          },
+          {
+            "label": "1945 美軍城市地圖",
+            "value": "amcity-1945"
           }
         ],
         "type": "select",
         "value": "jm20k-1904"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "historicalThematic": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1931 公共埤圳與水利組合灌溉排水區域圖",
+            "value": "jm1m-1931"
+          },
+          {
+            "label": "1966 水利工程、水文站及基準點位置圖",
+            "value": "tm50k-1966"
+          },
+          {
+            "label": "1930 日治時期地質圖",
+            "value": "jmgeo-1930s"
+          },
+          {
+            "label": "1904 三角測量點及水準點配置圖",
+            "value": "jm20k-1904-triangulation"
+          },
+          {
+            "label": "1980 林務局林區轄區圖",
+            "value": "tm1m-1980"
+          },
+          {
+            "label": "日治官有林野圖（花蓮）",
+            "value": "map-lsb1-hualien"
+          },
+          {
+            "label": "1914 日治官有林野圖（臺東）",
+            "value": "map-lsb1-taitung"
+          }
+        ],
+        "type": "select",
+        "value": "jm1m-1931"
       },
       {
         "label": "透明度 0.85",
