@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1749,
+    "keyCount": 1754,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2473,6 +2473,36 @@
         "ie-childcare-services-circle"
       ],
       "type": "ieChildcareServices"
+    },
+    {
+      "layers": [
+        "ie-museums-circle"
+      ],
+      "type": "ieMuseums"
+    },
+    {
+      "layers": [
+        "ie-arts-venues-circle"
+      ],
+      "type": "ieArtsVenues"
+    },
+    {
+      "layers": [
+        "ie-public-facilities-circle"
+      ],
+      "type": "iePublicFacilities"
+    },
+    {
+      "layers": [
+        "ie-religious-sites-circle"
+      ],
+      "type": "ieReligiousSites"
+    },
+    {
+      "layers": [
+        "ie-heritage-sites-circle"
+      ],
+      "type": "ieHeritageSites"
     },
     {
       "layers": [
@@ -121265,6 +121295,59 @@
         "valueText": "0.85"
       }
     ],
+    "ieArtsVenues": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "劇場",
+            "value": "theatre"
+          },
+          {
+            "label": "藝術中心、文化中心",
+            "value": "arts_centre"
+          },
+          {
+            "label": "視覺藝術、展覽空間",
+            "value": "visual"
+          },
+          {
+            "label": "音樂廳、演出場地",
+            "value": "music"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "theatre",
+          "arts_centre",
+          "visual",
+          "music",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieBathingWaters": [
       {
         "label": "類別",
@@ -121751,6 +121834,156 @@
         "valueText": "1.0"
       }
     ],
+    "ieHeritageSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "環形堡與圍場（SMR）",
+            "value": "smr_ringfort"
+          },
+          {
+            "label": "史前墓葬、巨石與燒石堆（SMR）",
+            "value": "smr_prehistoric"
+          },
+          {
+            "label": "教會遺址、十字碑與石刻（SMR）",
+            "value": "smr_ecclesiastical"
+          },
+          {
+            "label": "城堡與防禦工事（SMR）",
+            "value": "smr_castle"
+          },
+          {
+            "label": "聚落、房屋與地窖（SMR）",
+            "value": "smr_settlement"
+          },
+          {
+            "label": "道路、產業與地景（SMR）",
+            "value": "smr_economy"
+          },
+          {
+            "label": "其他考古遺址（SMR）",
+            "value": "smr_other"
+          },
+          {
+            "label": "建築遺產（NIAH，1700 年後）",
+            "value": "niah"
+          },
+          {
+            "label": "開放參觀的國家古蹟",
+            "value": "visit"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "smr_ringfort",
+          "smr_prehistoric",
+          "smr_ecclesiastical",
+          "smr_castle",
+          "smr_settlement",
+          "smr_economy",
+          "smr_other",
+          "niah",
+          "visit"
+        ]
+      },
+      {
+        "defaultValue": "Burg",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "Burg"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieHydrometricStations": [
       {
         "label": "透明度 0.80",
@@ -122036,6 +122269,69 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "ieMuseums": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地方政府博物館（LAMN）",
+            "value": "lamn"
+          },
+          {
+            "label": "博物館",
+            "value": "museum"
+          },
+          {
+            "label": "文化遺產中心、遊客中心",
+            "value": "heritage_centre"
+          },
+          {
+            "label": "歷史建築、宅邸與園林",
+            "value": "historic_site"
+          },
+          {
+            "label": "美術館、藝廊",
+            "value": "gallery"
+          },
+          {
+            "label": "檔案館、地方文史室",
+            "value": "archive_library"
+          },
+          {
+            "label": "其他（自然、科學、體驗）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lamn",
+          "museum",
+          "heritage_centre",
+          "historic_site",
+          "gallery",
+          "archive_library",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "ieNationalParks": [
@@ -122505,6 +122801,49 @@
         "value": "point"
       }
     ],
+    "iePublicFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "圖書館",
+            "value": "library"
+          },
+          {
+            "label": "社區中心",
+            "value": "community_centre"
+          },
+          {
+            "label": "公廁",
+            "value": "toilet"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "library",
+          "community_centre",
+          "toilet"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieRadiationStations": [
       {
         "label": "類別",
@@ -122580,6 +122919,54 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "ieReligiousSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "教堂、禮拜堂（NIAH）",
+            "value": "church"
+          },
+          {
+            "label": "主教座堂（NIAH）",
+            "value": "cathedral"
+          },
+          {
+            "label": "會堂、猶太會堂、小祈禱所（NIAH）",
+            "value": "other_worship"
+          },
+          {
+            "label": "聖井（SMR）",
+            "value": "holy_well"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "church",
+          "cathedral",
+          "other_worship",
+          "holy_well"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "ieRiverFloodExtents": [

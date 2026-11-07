@@ -380,6 +380,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "能源",
     // 第 7a 波：教育（學校、學校規劃區、早期教保服務），比照台灣、英國、南韓「教育」
     "教育",
+    // 第 8 波：文化（博物館、藝文場館）、宗教（禮拜建築、聖井）、基礎建設（圖書館、社區中心、公廁），比照台灣與英國第 8 波
+    "文化",
+    "宗教",
+    "基礎建設",
     // 第 7b 波：社福長照、醫療、消防、執法治安（比照英國、南韓）
     "社福長照",
     "醫療",
@@ -3171,7 +3175,11 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "觀光",
     country: "IE",
     defaultCollapsed: true,
-    groups: [{ title: "玩・自然 Nature", layers: [fromManifest("ieNationalParks"), fromManifest("ieWildAtlanticWay")] }],
+    groups: [
+      { title: "玩・自然 Nature", layers: [fromManifest("ieNationalParks"), fromManifest("ieWildAtlanticWay")] },
+      // 第 8 波 C055：比照台灣 tourHeritage（觀光 › 玩・人文 Heritage）
+      { title: "玩・人文 Heritage", layers: [fromManifest("ieHeritageSites")] },
+    ],
   },
   {
     // 第 5 波：比照英國「環境氣候」——保護區、都市樹木 Urban Trees；輻射站比照台灣 nuscGammaRadiation、英國 gbRadiation 的「環境污染」
@@ -3213,6 +3221,29 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "學校規劃區", layers: [fromManifest("ieSchoolPlanningAreas")] },
       { title: "幼托補習 Childcare & Cram", layers: [fromManifest("ieChildcareServices")] },
     ],
+  },
+  // 第 8 波：比照台灣 culturalMuseums（文化 › 設施 Facilities）、performingVenues（文化 › 藝文活動 Arts & Events）、
+  // religionChurches（宗教 › 點位）、publicLibraries／communityCenters／publicToilets（基礎建設 › 公共設施）
+  {
+    title: "文化",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "設施 Facilities", layers: [fromManifest("ieMuseums")] },
+      { title: "藝文活動 Arts & Events", layers: [fromManifest("ieArtsVenues")] },
+    ],
+  },
+  {
+    title: "宗教",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("ieReligiousSites")] }],
+  },
+  {
+    title: "基礎建設",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "公共設施", layers: [fromManifest("iePublicFacilities")] }],
   },
   // 第 7b 波：醫療照護、消防警政、司法（主題與群組比照英國 gbCareHomes／gbHealthFacilities／gbFireStations／gbCourts、南韓 krPoliceBoxes）
   {
@@ -3607,6 +3638,9 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "林業": "environment",
     "能源": "environment",
     "教育": "publicLife",
+    "文化": "publicLife",
+    "宗教": "publicLife",
+    "基礎建設": "publicLife",
     "社福長照": "publicLife",
     "醫療": "safety",
     "消防": "safety",
@@ -3833,6 +3867,9 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "林業": { zh: "林業", sub: "Forestry" },
     "能源": { zh: "能源", sub: "Energy" },
     "教育": { zh: "教育", sub: "Education" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "宗教": { zh: "宗教", sub: "Religion" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
     "社福長照": { zh: "社福長照", sub: "Welfare" },
     "醫療": { zh: "醫療", sub: "Medical" },
     "消防": { zh: "消防", sub: "Fire & Rescue" },

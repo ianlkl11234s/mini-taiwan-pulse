@@ -506,6 +506,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 第 7a 波：學校、托育點（點優先）
   { layers: ["ie-schools-circle"], type: "ieSchools" },
   { layers: ["ie-childcare-services-circle"], type: "ieChildcareServices" },
+  // 第 8 波：文化遺產與生活據點（點優先）
+  { layers: ["ie-museums-circle"], type: "ieMuseums" },
+  { layers: ["ie-arts-venues-circle"], type: "ieArtsVenues" },
+  { layers: ["ie-public-facilities-circle"], type: "iePublicFacilities" },
+  { layers: ["ie-religious-sites-circle"], type: "ieReligiousSites" },
+  { layers: ["ie-heritage-sites-circle"], type: "ieHeritageSites" },
   { layers: ["ie-river-water-bodies-line"], type: "ieRiverWaterBodies" },
   { layers: ["ie-parks-fill"], type: "ieParks" },
   { layers: ["ie-gaeltacht-fill"], type: "ieGaeltacht" },

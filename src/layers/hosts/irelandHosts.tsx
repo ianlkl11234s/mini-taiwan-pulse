@@ -81,6 +81,12 @@ export const IeFuelStationsHost = makeIeDataHost("ieFuelStations", 0.8);
 export const IeSchoolsHost = makeIeDataHost("ieSchools", 0.85);
 export const IeSchoolPlanningAreasHost = makeIeDataHost("ieSchoolPlanningAreas", 0.35);
 export const IeChildcareServicesHost = makeIeDataHost("ieChildcareServices", 0.85);
+// 第 8 波：文化遺產與生活據點
+export const IeHeritageSitesHost = makeIeDataHost("ieHeritageSites", 0.8);
+export const IeMuseumsHost = makeIeDataHost("ieMuseums", 0.85);
+export const IeArtsVenuesHost = makeIeDataHost("ieArtsVenues", 0.85);
+export const IePublicFacilitiesHost = makeIeDataHost("iePublicFacilities", 0.85);
+export const IeReligiousSitesHost = makeIeDataHost("ieReligiousSites", 0.85);
 // 第 7b 波：醫療照護、消防警政、司法
 export const IeHealthFacilitiesHost = makeIeDataHost("ieHealthFacilities", 0.85);
 export const IeCareHomesHost = makeIeDataHost("ieCareHomes", 0.85);
