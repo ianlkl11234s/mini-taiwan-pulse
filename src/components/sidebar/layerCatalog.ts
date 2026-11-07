@@ -365,6 +365,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "殯葬",
     // 第 2 波：商業房產估值、國有登記土地（比照台灣「房地產 Real Estate」）
     "房地產",
+    // 第 3a 波：水資源（測站、水體、排水）、災害（河川淹水、海岸侵蝕），比照英國第 3 波
+    "水資源",
+    "災害",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -3097,6 +3100,28 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "國有登記土地", layers: [fromManifest("ieStateAssets")] },
     ],
   },
+  {
+    // 第 3a 波：比照台灣「水資源 Water」——riverLevel（點位）、waterRivers／waterLevees（面 / 線）；
+    // 水質站＋污水廠比照台灣 waterQualityStations／sewageTreatmentPlants 的「水質與污水 Water Quality」
+    title: "水資源",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("ieHydrometricStations")] },
+      { title: "水質與污水 Water Quality", layers: [fromManifest("ieWaterMonitoring")] },
+      { title: "面 / 線", layers: [fromManifest("ieRiverWaterBodies"), fromManifest("ieLakeWaterBodies"), fromManifest("ieArterialDrainage")] },
+    ],
+  },
+  {
+    // 第 3a 波：NIFM、ICPSS 皆 CC BY-NC-ND，各自單獨成層（比照英國「災害 › 海岸侵蝕」、台灣 waterFloodExtreme）
+    title: "災害",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "淹水", layers: [fromManifest("ieRiverFloodExtents")] },
+      { title: "海岸侵蝕", layers: [fromManifest("ieCoastalErosion")] },
+    ],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
@@ -3453,6 +3478,8 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "運動休閒": "publicLife",
     "殯葬": "publicLife",
     "房地產": "city",
+    "水資源": "environment",
+    "災害": "safety",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3666,6 +3693,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
     "殯葬": { zh: "殯葬", sub: "Funeral" },
     "房地產": { zh: "房地產", sub: "Real Estate" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "災害": { zh: "災害", sub: "Hazard" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

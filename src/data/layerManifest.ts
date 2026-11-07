@@ -34,7 +34,7 @@ import { statisticsManifestParams } from "./statisticsParamsSpec";
 import { KR_DATA_SPECS } from "./krDataLayers";
 import { repPointDense, repPointLayer } from "./repPointLayers";
 import type { KrDataKey } from "./krDataKeys";
-import { IE_DATA_SPECS } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile } from "./ieDataLayers";
 import type { IeDataKey } from "./ieDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
@@ -774,6 +774,21 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭商業房產估值 156,089 筆（29 個地方政府為淨年值 NAV 129,614 筆；Cork 市、郡為舊制 RV 26,475 筆、不可比）", processing: "Tailte Valuation API 31 個 rating authority 逐一抓 156,660 筆 → 剔座標空 546、26 郡外 25；Category 合併 8 類＋Cork；地址行濾掉疑似商號或人名；PMTiles z4–11 只帶類別、z12–14 全欄位", note: "CC BY 4.0（data.gov.ie 條目）；不含住宅、非市價；Cork 為舊制 RV" },
   ieStateAssets: { theme: "房地產", group: "國有登記土地", zh: "國有登記土地", alt: "State-owned Registered Land", icon: Landmark, dataset: "ie_state_assets", topics: ["愛爾蘭", "房地產", "國有土地", "公有地", "LDA", "folio"],
     description: "愛爾蘭國有登記土地 75,443 個 folio 面（地方政府 34,309、Coillte 17,090、Bord na Móna 8,813…；2023 Q3）", processing: "LDA PRA State Assets FeatureServer → 4326；所有人依 GovAgency／REG_OWNER 分 9 組；以第 0 波地方政府面指派 LA；面 PMTiles z8–14＋代表點 z4–14", note: "CC BY 4.0；folio 邊界受 PRA 版權註記（授權待確認）；2023 Q3 後未更新、非標售清單" },
+  // 第 3a 波（2026-11-08）：水系統與洪水（主題比照英國第 3 波：測站、河川、排水在「水資源」，淹水、海岸侵蝕在「災害」）
+  ieHydrometricStations: { theme: "水資源", group: "點位", zh: "水文站", alt: "Hydrometric Stations", icon: Gauge, dataset: "ie_hydrometric_stations", topics: ["愛爾蘭", "水文站", "水位", "流量", "水資源", "EPA"],
+    description: "愛爾蘭水文站名冊 2,322 站（EPA 名冊 2,591，剔空座標 17、北愛 252；OPW、地方政府、EPA 的水位與流量站）", processing: "EPA GeoServer WFS MON_Hydrometricgauges → 4326；以第 0 波 31 LA 面剔北愛；PMTiles z4–14", note: "CC BY 4.0；只有名冊、沒有讀數（即時水位在第 12 波）" },
+  ieWaterMonitoring: { theme: "水資源", group: "水質與污水 Water Quality", zh: "水質監測站與污水處理廠", alt: "Water Monitoring Stations & Waste Water Plants", icon: Droplets, dataset: "ie_water_monitoring", topics: ["愛爾蘭", "水質", "監測站", "地下水", "污水處理廠", "WFD", "EPA"],
+    description: "愛爾蘭 EPA 水框架指令監測站 14,220（河川 9,954、湖泊 2,876、河口 608、沿海 492、地下水 290）＋都市污水處理廠 546", processing: "EPA GeoServer WFS MON_WaterStations、LEMA_Facilities_UWW → 4326；剔北愛 41 站；沿海、河口站 LA 面外 15 km 內保留；不收稽查員姓名與地址欄；PMTiles z4–14（拉遠熱區）", note: "CC BY 4.0；只有站點、沒有水質數值" },
+  ieRiverWaterBodies: { theme: "水資源", group: "面 / 線", zh: "WFD 河川水體", alt: "WFD River Waterbodies", icon: GitBranch, dataset: "ie_river_water_bodies", topics: ["愛爾蘭", "河川", "水體", "水質", "生態狀態", "WFD", "EPA"],
+    description: "愛爾蘭 WFD 河川水體 3,208 段，依 2019–2024 生態狀態著色（良好 1,315、普通 1,090、不佳 572、極佳 222、極差 6）", processing: "EPA GeoServer WFS RWB_WFD_LatestStatus → 4326；PMTiles z5–12", note: "CC BY 4.0；不是全部河網（River Network Routes 11.7 萬段未收）" },
+  ieLakeWaterBodies: { theme: "水資源", group: "面 / 線", zh: "WFD 湖泊水體", alt: "WFD Lake Waterbodies", icon: Droplet, dataset: "ie_lake_water_bodies", topics: ["愛爾蘭", "湖泊", "水體", "水質", "生態狀態", "WFD", "EPA"],
+    description: "愛爾蘭 WFD 湖泊水體 812 個，依 2019–2024 生態狀態著色（良好 298、極佳 255、普通 180、不佳 66、極差 13）", processing: "EPA GeoServer WFS LWB_WFD_LatestStatus＋WFD_LakeWaterBodiesActive（面積、地方政府）→ 4326；PMTiles z5–12", note: "CC BY 4.0" },
+  ieArterialDrainage: { theme: "水資源", group: "面 / 線", zh: "主幹排水渠與堤防", alt: "Arterial Drainage Channels & Embankments", icon: Dam, dataset: "ie_arterial_drainage", topics: ["愛爾蘭", "排水", "堤防", "OPW", "水資源", "防洪"],
+    description: "愛爾蘭 OPW 主幹排水渠 6,094 段＋堤防 599 段（Arterial Drainage Acts 1945／1995，65 個工程）", processing: "OPW floodinfo shapefile（Irish Grid TM75，EPSG:29903）→ 4326；依渠道／堤防分類；PMTiles z5–13", note: "CC BY 4.0；不含 Drainage District 與防洪工程" },
+  ieRiverFloodExtents: { theme: "災害", group: "淹水", zh: "河川淹水範圍（NIFM）", alt: "River Flood Extents (NIFM)", icon: CloudRain, dataset: "ie_river_flood_extents", topics: ["愛爾蘭", "淹水", "洪水", "河川", "氣候變遷", "OPW", "NIFM"],
+    description: "愛爾蘭 OPW 全國指示性河川淹水範圍：現況、中端未來、高端未來 × 20／100／1000 年一遇，共 9 組（現況 100 年一遇 4,116 面）", processing: "OPW NIFM shapefile（ITM）→ 4326，原樣不改屬性；一情境一支 PMTiles z5–13（同一 source-layer），圖層設定切換情境換檔", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；指示性模擬，非地塊判定" },
+  ieCoastalErosion: { theme: "災害", group: "海岸侵蝕", zh: "海岸侵蝕線（ICPSS）", alt: "Coastal Erosion Lines (ICPSS)", icon: Waves, dataset: "ie_coastal_erosion", topics: ["愛爾蘭", "海岸侵蝕", "海岸", "氣候變遷", "OPW", "ICPSS"],
+    description: "愛爾蘭 OPW ICPSS 2050 侵蝕線 1,220 段＋2010–2014 侵蝕速率線 73,036 段", processing: "OPW floodinfo shapefile（Irish Grid TM75）→ 4326，兩份原樣疊同一支圖磚、以原有 typecode 區分；PMTiles z5–13", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；評估未排除既有海岸防護結構" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];
@@ -787,12 +802,12 @@ const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => 
     icon: m.icon,
     upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
     dataClass: "D",
-    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`./world/${spec.file}`] },
+    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: spec.key === "ieRiverFloodExtents" ? IE_FLOOD_SCENARIOS.map((x) => `./world/${ieFloodScenarioFile(x.value)}`) : [`./world/${spec.file}`] },
     legend: spec.key,
     popup: spec.key,
     params: (() => {
       const rep = repPointLayer(spec.key);
-      const kinds = [...(rep ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
+      const kinds = [...(rep || spec.key === "ieRiverFloodExtents" ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
         ...(rep && repPointDense(rep) ? ["palette"] : []), ...(rep ? ["slider"] : [])] as ("select" | "multiSelect" | "palette" | "slider")[];
       return { count: kinds.length, kinds };
     })(),

@@ -100,7 +100,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
-import { IE_DATA_SPECS, asKrSpec } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -2162,11 +2162,17 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // 愛爾蘭第 1 波起（2026-11-07）：規格驅動層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選、有熱區者加熱區顏色）；公園、國有登記土地的點／面切換由 repPointLayers 補
   ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
+    // 第 3a 波河川淹水（NIFM）：情境 × 重現期一組一支 PMTiles，host 依 ieRiverFloodExtentsScenarioIdx 換檔（同台灣淹水情境）
+    ...(spec.key === "ieRiverFloodExtents" ? [{
+      kind: "select" as const, category: "data" as const, name: "ieRiverFloodExtentsScenario", label: "淹水情境", default: IE_FLOOD_SCENARIO_DEFAULT,
+      options: IE_FLOOD_SCENARIOS.map((x) => ({ label: x.label.zh, value: x.value })),
+      out: "ieRiverFloodExtentsScenarioIdx", encode: IE_FLOOD_SCENARIOS.map((x) => x.value),
+    }] : []),
     ...krCatFilterSpecs(asKrSpec(spec)),
     ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.geom === "polygon" ? 0.7 : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
   ]])),
   ieBathymetry: [{ kind: "slider", name: "ieBathymetryOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   // 加拿大第 0＋1 波（2026-11-04）：多選選項 id／順序必須同 `data/caInfraTypes.ts` 的類別陣列（caLayers 測試守）
