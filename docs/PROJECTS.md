@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > 用途：做到一半的專案放這裡，有空時從這裡撿回來。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-06（依 CHANGELOG 與正式站 main-*.js 版號核對；最新 tag v2.25.1，正式站實測仍是 v2.21.0）。
+> 最後盤點：2026-11-07（依 CHANGELOG 與正式站 main-*.js 版號核對；最新 tag v2.25.1，正式站 2026-11-06 切到 Cloudflare 後實測 `main-BdTubvoM.js`＝2.25.1）。
 
 與其他文件的分工：
 
@@ -14,12 +14,12 @@
 
 ## 現在最該注意
 
-1. **正式站停在 v2.21.0**：v2.22.0（2026-11-04）、v2.22.1、v2.23.0、v2.24.0（2026-11-06）都已 tag，但 Zeabur 自 v2.22.0 起不再自動部署，2026-11-06 實測 `main-CX09PLB2.js` 仍是 2.21.0；最新版目前只在 Cloudflare 測試站。使用者決定不再修 Zeabur、優先搬家；搬到新環境前不可部署 v2.22.0（舊 fire 同步會把 32G 海事小時檔灌滿磁碟，v2.22.1 已修同步規則）。
-2. **Zeabur 全平台 12/31 停止營運，以 11 月底前搬完為準**：第 2 階段（開 Akamai、主站方案 §5a）待拍板；collector／OSRM／Valhalla／research-gateway 未搬；秘密輪換（SEC-6）要一併做。見「平台與維運」。
+1. **正式站已切到 Cloudflare（v2.25.1）**：2026-11-06 主站改由 Cloudflare Worker（網頁＋R2 圖層）＋新主機 pulse-host（`/api`、gateway）提供，v2.22.0～v2.25.1 一次上線。下列標「正式站待驗收」的專案，現在可以到正式站目視驗收。
+2. **Zeabur 全平台 12/31 停止營運，以 11 月底前搬完為準**：靜態站、主站、research-gateway、Valhalla 已搬完，OSRM 不搬；**只剩 collector**（correctional_daily_snapshot 改放 HiCloud VM），之後停 Zeabur 舊服務並做 SEC-6 換金鑰。見「平台與維運」。
 3. **v2.22.0 已發布的批次**：#810（雙北大眾運輸可及性）、#811（2026 議員選區、投開票所熱區）、#812／#813（加拿大圖層與統計）、#814（國道逐車模擬）。gis-platform mig 496／497 是否已套用：**未確認**（CHANGELOG 沒寫）；mig 499、500 於 2026-11-06 已套用。
 4. **2026-11-06 review 修正輪進行中**：mini、gis-platform #202、collectors #172 的修正 PR 開發中，正本 `../.gis-agent-system/reports/code-review/`。見「平台與維運」。
 5. **選舉投票日 11-28 前**活動地圖要持續每日更新（electionEvents2026）。見「選舉」。
-6. **主站遷移（MC-4）與 Zeabur §5a 要合併決定**：先唯讀量 S3 deploy-assets 各資料夾組成。
+6. **主站遷移（MC-4）**：已隨 Zeabur 搬家完成（R2＋Workers，2026-11-06）；剩 Worker routes 寫進 wrangler.jsonc、觀察 Worker 請求量。
 7. **資料新鮮度**：確認 11/2 VM 首次自動產更新清單是否成功（`update_list.py --pull`）；結果未確認。
 8. **有遺失風險的本機成果**：Monitor 可拖曳版面的兩個本機分支無 upstream（G015）；新聞／GDELT POC 的 draft PR 去留（CL-3）。
 9. **等使用者回覆**：愛爾蘭 §6 五題；Google OAuth 品牌驗證審查結果。
@@ -44,7 +44,7 @@
 
 | 專案 | 狀態 | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|
-| 選舉圖層第二批（投開票所中性著色＋熱區、2026 議員選區、歷屆選舉統計） | 🟢 | mini #807／#811／#816 隨 v2.22.0 發布（2026-11-04）；gp #197 mig 496 是否套用：未確認 | 確認 mig 496 已套用（歷屆統計與村里得票依賴）；正式站要等搬家後才看得到 | CHANGELOG v2.22.0；gp PR #197；analytics `pulse-layers-contract.md` | 2026-11-04 |
+| 選舉圖層第二批（投開票所中性著色＋熱區、2026 議員選區、歷屆選舉統計） | 🟢 | mini #807／#811／#816 隨 v2.22.0 發布（2026-11-04）；gp #197 mig 496 是否套用：未確認 | 確認 mig 496 已套用（歷屆統計與村里得票依賴）；正式站已上線（v2.25.1），待驗收 | CHANGELOG v2.22.0；gp PR #197；analytics `pulse-layers-contract.md` | 2026-11-04 |
 | 2026 地方選舉活動地圖（electionEvents2026） | 🟢 | 站主限定圖層隨 v2.21.0 上線（mini #802、analytics #274、gp #194 mig 493/494）；每日資料由使用者叫跑 run_daily.sh；站主限定名單 2026-11-06 起統一呈現（#836，mig 500） | 投票日 11-28 前每日更新；GUI-2 站主登入目視；要開放只改 gated_layers 一列（待決定） | `../taipei-gis-analytics/docs/topic-research/election_events_2026/`；BACKLOG GUI-2 | 2026-11-06 |
 
 ## 會員與權限
@@ -80,11 +80,11 @@
 
 | 專案 | 狀態 | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|
-| 日本後續 | 🔵 | P1 第 1–4 波隨 v2.15.0 上線，10-28 正式站已驗；第二輪（自然公園、国立公園、鳥獣保護区、DID）隨 v2.24.0 發布（#831，正式站尚未部署） | JPRD-2 收費道路樣式（等決定）；JPW4-1 等填 WAM NET 表單；JPRD-1 等搬家完成；N3-2 剩 C083 交通事故 | BACKLOG JPRD-1／JPRD-2／JPW4-1／N3-2 | 2026-11-06 |
+| 日本後續 | 🔵 | P1 第 1–4 波隨 v2.15.0 上線，10-28 正式站已驗；第二輪（自然公園、国立公園、鳥獣保護区、DID）隨 v2.24.0 發布（#831，2026-11-06 隨 v2.25.1 上正式站） | JPRD-2 收費道路樣式（等決定）；JPW4-1 等填 WAM NET 表單；JPRD-1 等搬家完成；N3-2 剩 C083 交通事故 | BACKLOG JPRD-1／JPRD-2／JPW4-1／N3-2 | 2026-11-06 |
 | 英國後續 | 🔵 | 第 0–12 波隨 v2.18.0 上線（#765）；英格蘭污染排放申報場址（站主限定）隨 v2.24.0 發布（#834，gp mig 499 已套用） | UKD-1 待拍板項；UKOSM-1 OSM 五層卡 Overpass 封鎖（換網路重跑 07_export.py）；UKLZ-1 等決定，UKLZ-2／3 可直接做 | BACKLOG UKD-1／UKOSM-1／UKLZ-1~3；`../taipei-gis-analytics/…/united_kingdom_opendata/waves/PLAN.md` §3 | 2026-11-01 |
 | 愛爾蘭第一輪 | 🔵 | 系統盤點完成（analytics #256），還沒上圖層 | 等使用者回 §6 五題；補登 IE pii | `../taipei-gis-analytics/docs/topic-research/ireland_opendata/` | 2026-10-31 |
-| 多國化議題 3（主站遷移） | 🔵 | 未開工 | MC-4：與 Zeabur §5a 合併決定 | BACKLOG MC-4 | 2026-10-29 |
-| 加拿大第 0–3 波＋統計 | 🟢 | 第 0–2 波＋統計隨 v2.22.0（#812、#813）、第 3 波 7 層（氣象站、AQHI、輻射、NPRI、污水、地震、人口網格）隨 v2.24.0（#832）發布；gp mig 497 是否套用：未確認 | 確認 mig 497；第 2 波建物、C002 HOLD；N3-3 即時地震條款；正式站待搬家後驗收 | CHANGELOG v2.22.0／v2.24.0；gp #198；analytics #279–#285 | 2026-11-06 |
+| 多國化議題 3（主站遷移） | 🟢 | 2026-11-06 隨 Zeabur 搬家完成：網頁 Workers、圖層 R2、`/api` 經 Tunnel 到新主機 | MC-4 可結案；收尾見「Zeabur 停止營運搬遷」 | BACKLOG MC-4；`../.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0 | 2026-11-07 |
+| 加拿大第 0–3 波＋統計 | 🟢 | 第 0–2 波＋統計隨 v2.22.0（#812、#813）、第 3 波 7 層（氣象站、AQHI、輻射、NPRI、污水、地震、人口網格）隨 v2.24.0（#832）發布；gp mig 497 是否套用：未確認 | 確認 mig 497；第 2 波建物、C002 HOLD；N3-3 即時地震條款；正式站待驗收 | CHANGELOG v2.22.0／v2.24.0；gp #198；analytics #279–#285 | 2026-11-06 |
 | 南韓後續 | 🟡 | 第 0–5 波＋統計隨 v2.19.0 上線；第 6 波 5 層（領海線、都市公園、體育設施、OSM 墓地、人口網格）隨 v2.24.0 發布（#830） | KRW-6 第 6–10 波可開；第 11 波等註冊 data.go.kr key；KRH-1 兩層 HOLD；KRI18N-1 逐層驗 en/ja | BACKLOG KRW-6／KRH-1／KRI18N-1 | 2026-11-06 |
 | 多國化議題 1 收尾 | 🟢 | 國家主體化隨 v2.16.0 上線 | MC-3 補目視；MC-1 主題識別名與顯示名拆開（有同名主題時再做） | BACKLOG MC-1／MC-3 | 2026-10-28 |
 | 多國化議題 2 收尾（MCP 跨國） | 🟢 | P0–P5 於 2026-10-29 全部上線 | MC-6 補 name_en；MC-7 拆 airspace／coral 表；MC-8 觀察 eval 不穩點 | BACKLOG MC-6~8；`../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic2-mcp.md` §5 | 2026-10-29 |
@@ -105,7 +105,7 @@
 | G35–G37 第二輪補強 | 🟢 | TWL-8／9／10 隨 v2.19.0 上線 | TWL-15 接續（正式站消防栓 PMTiles 仍舊版等）；frontmatter 改 live | BACKLOG TWL-15 | 2026-11-01 |
 | 土壤液化（站主限定） | 🟢 | #407、#408 上線（09-29） | 正式站目視；MCP 題庫 PR #27 還開著 | [`features/soil-liquefaction/handoff.md`](./features/soil-liquefaction/handoff.md)；mini-pulse-gis-mcp #27 | 2026-09-29 |
 | 古地圖（臺灣百年歷史地圖） | 🟡 | 隨 v2.23.0 站主限定發布（#823）；2026-11-06 使用者決定改公開（前端已改，待 gis-platform 刪 gated_layers 列）；5 個年代、來源中研院 GIS 專題中心 CC BY-NC | 正式對外開放前先寫信向中研院確認授權；主站 CSP enforcing 時補 gis.sinica.edu.tw；LIC-1 規則待決 | BACKLOG LIC-1；CHANGELOG v2.23.0 | 2026-11-06 |
-| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | Day 4 群聚四層（#821）、Day 5 海景兩層隨 v2.23.0 發布 | 後續挑戰日放同主題；正式站待搬家後驗收 | CHANGELOG v2.23.0 | 2026-11-06 |
+| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | Day 4 群聚四層（#821）、Day 5 海景兩層隨 v2.23.0 發布 | 後續挑戰日放同主題；正式站待驗收 | CHANGELOG v2.23.0 | 2026-11-06 |
 | G30 災情、避難與民防 | ⏸️ | 研究完成；避難容量衍生層排在 TWL-5 | B 部分需 collector，卡 Zeabur 搬遷（TWL-6） | candidates/G30 | 2026-10-31 |
 | G38 全國都市計畫區邊界 | ⏸️ | 授權不明 | TWL-13：寄信問國土署／國土測繪中心 | BACKLOG TWL-13 | 2026-10-31 |
 | G31 飲用水源與污染 | ⚪ | queued | 照 G31「下一步」 | candidates/G31 | 未查證 |
@@ -115,9 +115,9 @@
 
 | 專案 | 狀態 | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|
-| 國道逐車模擬（G39） | 🟡 | mini #814 隨 v2.22.0 發布（正式站尚未部署）；MCP #95 已於 2026-11-04 部署；資料 R2 `sim/v1/freeway_tdcs/20261103-1` | 跟車減速 wip 5f692772（在 taipei-gis-analytics，已隨 #286 合進 master）暫停中；等搬家後正式站驗收 | `../taipei-gis-analytics/docs/topic-research/freeway_tdcs/_status.md`；[`features/freeway-tdcs-sim/handoff.md`](./features/freeway-tdcs-sim/handoff.md)；roadmap G39 | 2026-11-04 |
+| 國道逐車模擬（G39） | 🟡 | mini #814 隨 v2.22.0 發布（2026-11-06 隨 v2.25.1 上正式站）；MCP #95 已於 2026-11-04 部署；資料 R2 `sim/v1/freeway_tdcs/20261103-1` | 跟車減速 wip 5f692772（在 taipei-gis-analytics，已隨 #286 合進 master）暫停中；正式站待驗收 | `../taipei-gis-analytics/docs/topic-research/freeway_tdcs/_status.md`；[`features/freeway-tdcs-sim/handoff.md`](./features/freeway-tdcs-sim/handoff.md)；roadmap G39 | 2026-11-04 |
 | 情境推演／數位雙生（G28） | 🟡 | P1 靜態鏈已合 analytics #225，主站沒接 | P2 八仙回測：先補雙北以外醫院、校正座標 | candidates/G28；`../taipei-gis-analytics/docs/topic-research/digital_twin/REPORT.md` | 2026-10-26 |
-| 雙北大眾運輸可及性 | 🟢 | mini #810 隨 v2.22.0 發布（正式站尚未部署） | 搬家後正式站驗收；下一步 P5 全台縣市 | roadmap G28 表 transit_access | 2026-11-04 |
+| 雙北大眾運輸可及性 | 🟢 | mini #810 隨 v2.22.0 發布（2026-11-06 隨 v2.25.1 上正式站） | 正式站待驗收；下一步 P5 全台縣市 | roadmap G28 表 transit_access | 2026-11-04 |
 | 全台交通可及性 | 🟢 | v2.20.0 上線（#801），使用者確認效果 OK | 兩層同開時點擊只跳網格 popup（已知問題）；色階細分、雙北尺度方向未選 | `../taipei-gis-analytics/docs/topic-research/transit_reach/_status.md` | 2026-11-02 |
 | 公車擁擠模擬 | 🟢 | #701 隨 v2.14.0 上線（站主限定） | 站主帳號目視驗收 | `../taipei-gis-analytics/docs/topic-research/bus_crowding/` | 2026-10-25 |
 
@@ -144,10 +144,10 @@
 | 專案 | 狀態 | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|
 | 2026-11-06 review 修正輪 | 🟡 | mini #844／#845 已合 develop；gis-platform #202／#204、collectors #172 已合 main；F088 進行中 | mig 502 須使用者套用（BACKLOG GP-502）；暫緩項 RV-F039／F045／F068 | `../.gis-agent-system/reports/code-review/`；BACKLOG GP-502／GP-296／COL-F010 | 2026-11-06 |
-| Zeabur 停止營運搬遷 | 🟡 | 第 1 階段 11 個靜態站 10-29 切 Cloudflare；主站自 v2.22.0 起不再自動部署（正式站停在 v2.21.0），最新版先由 Cloudflare 測試站提供 | **期限 11 月底**：第 2 階段開 Akamai、主站方案 §5a（R2＋Workers 重構）待拍板；flight-arc-sharing 網址待決；collector／OSRM／Valhalla／research-gateway 未搬；搬時換金鑰；搬到新環境後不可部署 v2.22.0 | `../.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §5a §7 | 2026-11-06 |
+| Zeabur 停止營運搬遷 | 🟡 | 靜態站 10-29、主站與 research-gateway、Valhalla 11-06 搬完（主站 v2.25.1 在 Cloudflare Worker＋Linode pulse-host）；OSRM 不搬 | **期限 11 月底**：collector 搬到 pulse-host（等 collectors #170／#171、env 轉換、清晨切換），correctional_daily_snapshot 移 HiCloud VM；停 Zeabur 舊服務；SEC-6 換金鑰；flight-arc-sharing 網址待決 | `../.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0；`SETUP-INVENTORY.md` | 2026-11-07 |
 | Supabase Disk IO 複量 | 🟡 | 第三輪 mig 451–460 於 10-16 套用 | 原定約 10-23 用 pg_stat_io 取差值，未查證有沒有做；中間若重啟，基準作廢 | `../gis-platform/docs/research/2026-10-16-disk-io-round3.md` | 2026-10-16 |
 | 地圖圖層改版 R6 | 🟢 | 段 1–3 隨 v2.8.0 上線 | R6-V 正式站目視；段 4（船、公車、垃圾車、漁船）R6-4 暫不碰 | [`features/map-layer-restyle/R6-PROPOSAL.md`](./features/map-layer-restyle/R6-PROPOSAL.md)；BACKLOG R6-V／R6-4 | 2026-10-15 |
-| 地圖基礎 GIS 元件（指北針、量測、右鍵） | 🟢 | #803／#804 隨 v2.21.0；#808 隨 v2.22.0 發布（正式站尚未部署） | GUI-2：手機實機觸控、真實定位、實體雙擊 | BACKLOG GUI-2 | 2026-11-04 |
+| 地圖基礎 GIS 元件（指北針、量測、右鍵） | 🟢 | #803／#804 隨 v2.21.0；#808 隨 v2.22.0 發布（2026-11-06 隨 v2.25.1 上正式站） | GUI-2：手機實機觸控、真實定位、實體雙擊 | BACKLOG GUI-2 | 2026-11-04 |
 | 地圖可見性整修 | 🟢 | v2.19.0 上線；#795 隨 v2.20.0 | VIS-3 剩餘目視項目 | BACKLOG VIS-3；[`design-system/map-layers.md`](./design-system/map-layers.md) §3.8 | 2026-11-01 |
 | 多語系 i18n | 🟢 | P0–P5 隨 v2.9.0 上線 | P4-C（Agent 依網頁語言回答）、I18N-1（統計「資料限制」段仍中文）、KRI18N-1 | [`features/i18n/ROADMAP.md`](./features/i18n/ROADMAP.md) | 2026-10-31 |
 | 資安稽核後續 | ⏸️ | 10-17 稽核、多項 migration 已套 | SEC-6 秘密輪換暫緩（建議併入搬遷）；SEC-7 待設 `PULSE_RESEARCH_TRUSTED_PROXY_IPS` 後合 gp #170；SEC-3／4／5／8、SEC-9 見 BACKLOG | `../gis-platform/docs/research/2026-10-17-security-audit.md`；BACKLOG SEC-3~9 | 2026-10-17 |
