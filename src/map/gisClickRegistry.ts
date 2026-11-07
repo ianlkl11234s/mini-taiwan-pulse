@@ -489,6 +489,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-wind-farms-circle"], type: "ieWindFarms" },
   { layers: ["ie-ev-charging-circle"], type: "ieEvCharging" },
   { layers: ["ie-fuel-stations-circle"], type: "ieFuelStations" },
+  // 第 7b 波：醫療照護、消防警政、司法
+  { layers: ["ie-health-facilities-circle"], type: "ieHealthFacilities" },
+  { layers: ["ie-care-homes-circle"], type: "ieCareHomes" },
+  { layers: ["ie-fire-stations-circle"], type: "ieFireStations" },
+  { layers: ["ie-garda-stations-circle"], type: "ieGardaStations" },
+  { layers: ["ie-courts-circle"], type: "ieCourts" },
   { layers: ["ie-road-rail-network-line"], type: "ieRoadRailNetwork" },
   // 第 5 波：點（輻射站、樹木、崩塌事件）→ 線（步道、Wild Atlantic Way）；面在後（代表點 circle 由 repPointClickLayerIds 補）
   { layers: ["ie-radiation-stations-circle"], type: "ieRadiationStations" },

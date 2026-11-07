@@ -863,6 +863,17 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭圖書館 381、社區中心 1,447、公廁 1,252（議會名冊 428＋OSM 2,652）", processing: "11 個議會圖書館、5 個議會社區中心、3 個議會公廁名冊（修正經緯度互換與 3857 幾何）＋Geofabrik PBF 2026-11-05 amenity=library／community_centre／toilets（同類議會點 150 m 內不收、非公開公廁不收）；PMTiles z4–14", note: "CC BY 4.0（South Dublin 社區中心 CC0）＋ODbL；議會名冊只涵蓋部分地方政府" },
   ieReligiousSites: { theme: "宗教", group: "點位", zh: "禮拜建築與聖井", alt: "Places of Worship & Holy Wells", icon: Church, dataset: "ie_religious_sites", topics: ["愛爾蘭", "宗教", "教堂", "主教座堂", "聖井", "NIAH", "SMR"],
     description: "愛爾蘭 NIAH 禮拜建築 3,224 棟（教堂 3,140、主教座堂 43、會堂與祈禱所 41）＋SMR 聖井 2,726", processing: "NIAHBuildingsOpenData 原始用途為禮拜建築者（本地篩選）＋SMROpenData Ritual site - holy well（ITM_E>0）；教派依名稱推定；PMTiles z4–14", note: "CC BY 4.0；不是現用禮拜場所全貌" },
+  // 第 7b 波（2026-11-08）：醫療照護、消防警政、司法（主題與群組比照英國、南韓：社福長照 › 住宿照顧、醫療 › 點位、消防 › 點位、執法治安 › 警政／司法矯正）
+  ieHealthFacilities: { theme: "醫療", group: "點位", zh: "醫療院所", alt: "Health Facilities", icon: Hospital, dataset: "ie_health_facilities", topics: ["愛爾蘭", "醫療", "醫院", "診所", "GP", "牙醫", "藥局", "OSM"],
+    description: "愛爾蘭醫療院所 3,482 處（藥局 1,493、GP 649、診所 565、牙醫 564、醫院 211；OSM）", processing: "Geofabrik PBF 2026-11-05 本地抽取 amenity=hospital／clinic／doctors／dentist／pharmacy 點與面（面內重複點合併 59）；剔北愛 568；PMTiles z4–14", note: "ODbL 1.0（© OpenStreetMap contributors）；HSE 官方名冊已下架；完整度依 OSM 貢獻" },
+  ieCareHomes: { theme: "社福長照", group: "住宿照顧", zh: "HIQA 老人照護機構", alt: "Care Homes (HIQA)", icon: BedDouble, dataset: "ie_care_homes", topics: ["愛爾蘭", "長照", "護理之家", "老人照護", "HIQA", "nursing home"],
+    description: "愛爾蘭 HIQA 老人照護指定機構 535 家（名冊 547；核定床位 31,980；HSE 111、其他 424；地址經 Nominatim 推估，12 家查無未上圖）", processing: "HIQA older_persons_register.csv 地址（去 Eircode）→ OSM Nominatim（≤1 次／秒，快取）；精度依回應判定；失敗與郡級不上圖；個資欄不收；PMTiles z4–14", note: "授權待確認（HIQA 未標示）；座標為 Nominatim 推估（ODbL）" },
+  ieFireStations: { theme: "消防", group: "點位", zh: "消防站", alt: "Fire Stations", icon: Siren, dataset: "ie_fire_stations", topics: ["愛爾蘭", "消防", "消防站", "Dublin Fire Brigade", "OSM"],
+    description: "愛爾蘭消防站 226 站（地方議會官方 42、OSM 補缺 184）", processing: "DFB 2025＋Fingal＋DLR＋Cork City＋Kildare＋Wicklow＋Roscommon 官方點位（300 m 內同站去重）＋Geofabrik OSM amenity=fire_station（距官方 300 m 內捨去）；剔北愛；PMTiles z4–14", note: "CC BY 4.0（官方）＋ODbL 1.0（OSM）；官方只涵蓋約 8/31 地方政府" },
+  ieGardaStations: { theme: "執法治安", group: "警政", zh: "Garda 警察站", alt: "Garda Stations", icon: ShieldCheck, dataset: "ie_garda_stations", topics: ["愛爾蘭", "警察", "Garda", "警察局", "治安"],
+    description: "愛爾蘭 Garda 警察站 536 站（CSO 名冊 564；官方座標 56、Nominatim 推估 480；28 站查無未上圖）", processing: "CSO CJA11 Garda Station 維度 564 站；DCC／Fingal／DLR／Cork City 官方座標依同郡站名對應；其餘以 OSM Nominatim（≤1 次／秒，快取）查站名＋郡；失敗與郡級不上圖；PMTiles z4–14", note: "CC BY 4.0（CSO、議會）＋ODbL（Nominatim 推估座標）" },
+  ieCourts: { theme: "執法治安", group: "司法矯正", zh: "法院", alt: "Courthouses", icon: Gavel, dataset: "ie_courts", topics: ["愛爾蘭", "法院", "司法", "Courts Service"],
+    description: "愛爾蘭 Courts Service 法院辦公處 94 處（26 郡；Dublin 16、Western 29、Southern 26、North Midlands 12、Eastern 11）", processing: "Courts Service court-offices.json（自帶 WGS84）；只收 active；PMTiles z4–14", note: "CC BY 4.0；不含監獄與管轄區邊界" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];

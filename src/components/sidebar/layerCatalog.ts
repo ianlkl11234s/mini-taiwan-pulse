@@ -384,6 +384,11 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "文化",
     "宗教",
     "基礎建設",
+    // 第 7b 波：社福長照、醫療、消防、執法治安（比照英國、南韓）
+    "社福長照",
+    "醫療",
+    "消防",
+    "執法治安",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -3240,6 +3245,34 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "公共設施", layers: [fromManifest("iePublicFacilities")] }],
   },
+  // 第 7b 波：醫療照護、消防警政、司法（主題與群組比照英國 gbCareHomes／gbHealthFacilities／gbFireStations／gbCourts、南韓 krPoliceBoxes）
+  {
+    title: "社福長照",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "住宿照顧", layers: [fromManifest("ieCareHomes")] }],
+  },
+  {
+    title: "醫療",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("ieHealthFacilities")] }],
+  },
+  {
+    title: "消防",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("ieFireStations")] }],
+  },
+  {
+    title: "執法治安",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "警政", layers: [fromManifest("ieGardaStations")] },
+      { title: "司法矯正", layers: [fromManifest("ieCourts")] },
+    ],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
@@ -3608,6 +3641,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "文化": "publicLife",
     "宗教": "publicLife",
     "基礎建設": "publicLife",
+    "社福長照": "publicLife",
+    "醫療": "safety",
+    "消防": "safety",
+    "執法治安": "safety",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3833,6 +3870,10 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "文化": { zh: "文化", sub: "Culture" },
     "宗教": { zh: "宗教", sub: "Religion" },
     "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "社福長照": { zh: "社福長照", sub: "Welfare" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "消防": { zh: "消防", sub: "Fire & Rescue" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

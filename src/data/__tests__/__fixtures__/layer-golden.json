@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1754,
+    "keyCount": 1759,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2419,6 +2419,36 @@
         "ie-fuel-stations-circle"
       ],
       "type": "ieFuelStations"
+    },
+    {
+      "layers": [
+        "ie-health-facilities-circle"
+      ],
+      "type": "ieHealthFacilities"
+    },
+    {
+      "layers": [
+        "ie-care-homes-circle"
+      ],
+      "type": "ieCareHomes"
+    },
+    {
+      "layers": [
+        "ie-fire-stations-circle"
+      ],
+      "type": "ieFireStations"
+    },
+    {
+      "layers": [
+        "ie-garda-stations-circle"
+      ],
+      "type": "ieGardaStations"
+    },
+    {
+      "layers": [
+        "ie-courts-circle"
+      ],
+      "type": "ieCourts"
     },
     {
       "layers": [
@@ -121417,6 +121447,54 @@
         "valueText": "0.70"
       }
     ],
+    "ieCareHomes": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "推估：命中 OSM 同名設施",
+            "value": "facility"
+          },
+          {
+            "label": "推估：門牌、建物",
+            "value": "address"
+          },
+          {
+            "label": "推估：街道（路段代表點）",
+            "value": "street"
+          },
+          {
+            "label": "推估：城鎮、聚落中心",
+            "value": "town"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "facility",
+          "address",
+          "street",
+          "town"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieChildcareServices": [
       {
         "label": "類別",
@@ -121634,6 +121712,59 @@
         "valueText": "1.0"
       }
     ],
+    "ieCourts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Dublin 區",
+            "value": "dublin"
+          },
+          {
+            "label": "東部區",
+            "value": "eastern"
+          },
+          {
+            "label": "中北部區",
+            "value": "north_midlands"
+          },
+          {
+            "label": "南部區",
+            "value": "southern"
+          },
+          {
+            "label": "西部區",
+            "value": "western"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "dublin",
+          "eastern",
+          "north_midlands",
+          "southern",
+          "western"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieDublinbikesStations": [
       {
         "label": "透明度 0.85",
@@ -121676,6 +121807,44 @@
           "hpc",
           "fast",
           "ac"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieFireStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地方議會官方點位",
+            "value": "official"
+          },
+          {
+            "label": "OSM 補缺",
+            "value": "osm"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "official",
+          "osm"
         ]
       },
       {
@@ -121781,6 +121950,59 @@
         "valueText": "0.60"
       }
     ],
+    "ieGardaStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "官方座標（地方議會）",
+            "value": "official"
+          },
+          {
+            "label": "推估：命中 OSM 同名設施",
+            "value": "facility"
+          },
+          {
+            "label": "推估：門牌、建物",
+            "value": "address"
+          },
+          {
+            "label": "推估：街道（路段代表點）",
+            "value": "street"
+          },
+          {
+            "label": "推估：城鎮、聚落中心",
+            "value": "town"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "official",
+          "facility",
+          "address",
+          "street",
+          "town"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieGraveyards": [
       {
         "label": "類別",
@@ -121813,6 +122035,59 @@
           "smr_childrens_burial_ground",
           "council_historic_graveyard",
           "council_burial_ground"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieHealthFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "醫院",
+            "value": "hospital"
+          },
+          {
+            "label": "診所、醫療中心",
+            "value": "clinic"
+          },
+          {
+            "label": "家庭醫師（GP）",
+            "value": "doctors"
+          },
+          {
+            "label": "牙醫",
+            "value": "dentist"
+          },
+          {
+            "label": "藥局",
+            "value": "pharmacy"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hospital",
+          "clinic",
+          "doctors",
+          "dentist",
+          "pharmacy"
         ]
       },
       {
