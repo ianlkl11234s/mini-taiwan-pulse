@@ -2,14 +2,14 @@
 """Build the South Korea (KR) regional statistics family from the analytics handoff recipes.
 
 Input (taipei-gis-analytics, read-only):
-  --handoff  docs/handoff/kr-statistics-recipes.json（33 recipes, levels kr_sido 16／kr_sigungu 256, 33 releases）
+  --handoff  docs/handoff/kr-statistics-recipes.json（49 recipes, levels kr_sido 16／kr_sigungu 256, 65 releases）
   --root     analytics checkout whose data/processed/<theme>/<dataset_id>/releases/<release_id>.json holds the bundles.
 
 Output: src/data/krStatisticsRecipes.json（atlas recipe schema, src/data/atlasStatisticsTypes.ts; family "kr", country "KR"）.
 
 The handoff carries the data contract (dataset／indicator／boundary／release selector／source／licence／attribution) and
 draft breaks. This script owns the presentation: one sidebar row per indicator with 道級／市郡區 as options, the KR
-statistics themes (人口／社經), curated legend notes (user-facing, no internal tokens; translated in
+statistics themes (人口／社經／公共安全), curated legend notes (user-facing, no internal tokens; translated in
 enums.statLegendNote), status legend labels pruned to the statuses that actually occur, and the fixed breaks.
 Every option is cross-checked against its bundle (dataset／indicator／unit／id／period／boundary／level and the
 expected number of unique area rows).
@@ -32,18 +32,22 @@ LEVEL_OPTION = {"kr_sido": "道級", "kr_sigungu": "市郡區"}
 LEVEL_ORDER = ["kr_sido", "kr_sigungu"]
 
 # Statistics 分頁（tab）＝人口／社經；完整目錄（data）另一組名稱，避免與 tab 主題同身分（比照英國）。
-TAB = {"population": "人口", "socioeconomic": "社經"}
-DATA = {"population": "人口統計", "socioeconomic": "社經統計"}
+TAB = {"population": "人口", "socioeconomic": "社經", "safety": "公共安全"}
+DATA = {"population": "人口統計", "socioeconomic": "社經統計", "safety": "公共安全統計"}
 
 SUB_MOIS = "住民登錄人口（2026-09）"
 SUB_SGIS_POP = "人口密度與高齡化（2024）"
 SUB_SEOUL = "首爾生活人口（2026-07）"
 SUB_HOUSING = "家戶與住宅（2024）"
 SUB_BUSINESS = "事業體（2024）"
+SUB_FIRE = "火災（2021–2023）"
+SUB_TRAFFIC = "交通事故（2025）"
 
 LOC_MOIS = "住民登錄地所在行政區（2026-10 界）"
 LOC_SGIS = "統計對象所在行政區（2024 年統計廳界對應到 2026-10 界）"
 LOC_SEOUL = "在地人數所在的首爾自治區（電信推估）"
+LOC_FIRE = "火災發生地所在行政區（2026-10 界）"
+LOC_TRAFFIC = "事故發生地所在行政區（2026-10 界）"
 
 # 圖例說明（使用者看得到；en／ja 譯文在 enums.statLegendNote，以中文原文為 key）
 MOIS_SCOPE = "住民登錄人口（2026-09-30），不含未登錄外國人；與台灣戶籍人口同類口徑。"
@@ -60,10 +64,25 @@ SEOUL_METHOD = "電信推估的在地人數（內國人），不是住民登錄�
 SEOUL_MONTH = "只取 2026 年 7 月一個月的月平均，不代表全年。"
 SEOUL_HOURS = "全日＝24 小時平均；日間＝09–18 時平均；夜間＝00–06 時平均。"
 SEOUL_RATIO = "日夜生活人口比＝日間（09–18 時平均）÷夜間（00–06 時平均）×100；大於 100 表示白天流入。"
+FIRE_SCOPE = "消防機關出動並調查的火災（國家火災情報系統逐件紀錄），依接報日歸年度、依發生地歸區。"
+FIRE_GUNWI = "軍威郡 2023 年 7 月劃入大邱，2021–2022 年也算在大邱。"
+FIRE_DAMAGE = "財產損失為名目千韓元，未調整物價。"
+FIRE_GAP = "富川市、華城市只有市合計，各一般區無資料；仁川 2026 年改制的濟物浦、永宗、西海、黔丹 4 區無資料（不是 0）。這些件數仍計入道級。"
+TRAFFIC_SCOPE = "只含警察處理、有人員傷亡的交通事故；死亡指事故後 30 日內死亡。"
+TRAFFIC_INJURY = "受傷人數＝重傷（治療 3 週以上）＋輕傷（5 日至 3 週）＋傷害申報（未滿 5 日）。"
+TRAFFIC_GAP = "水原、城南、安養、富川、安山、華城、高陽、龍仁、清州、天安、全州、浦項、昌原 13 市只有市合計，其 39 個一般區無資料；仁川 2026 年改制的 4 區無資料（不是 0）。這些件數仍計入道級。"
+COUNT_NOTE = "件數與人數未除以人口，人口多的地區自然較高。"
+MERGED_SUM = "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。"
+ZERO_IN_LOWEST = "最淺色含 0 人（該區該年為 0，不是無資料）。"
+ZERO_OWN_CLASS = "0 人自成最淺一級（該區該年無火災死亡，不是無資料）。"
 BOUNDARY = "行政區界：vuski/admdongkor 2026-10-01 版（CC BY 4.0）。"
 
 MOIS_NOTES = [MOIS_SCOPE, MOIS_BRANCH, MOIS_SEJONG]
 SGIS_NOTES = [SGIS_YEAR, SGIS_BOUNDARY]
+FIRE_NOTES = [FIRE_SCOPE, COUNT_NOTE, FIRE_GUNWI]
+TRAFFIC_NOTES = [TRAFFIC_SCOPE, COUNT_NOTE]
+# 市郡區層才有「無資料」區；道級是全部列加總，另加全南光州合併說明
+GAP_NOTES = {"kr_fire_incidents_nfds": FIRE_GAP, "kr_traffic_accidents_koroad": TRAFFIC_GAP}
 
 # 一列一個指標（group），列內用 道級／市郡區 切換（option）；visual 對應 statisticsVisuals 的主題色。
 INDICATORS = [
@@ -90,10 +109,23 @@ INDICATORS = [
     dict(base="statsKrDwellings", tab="socioeconomic", sub=SUB_HOUSING, label="住宅數", digits=0, loc=LOC_SGIS, notes=SGIS_NOTES),
     dict(base="statsKrEstablishments", tab="socioeconomic", sub=SUB_BUSINESS, label="事業體數", digits=0, loc=LOC_SGIS, notes=SGIS_NOTES + [SGIS_BUSINESS]),
     dict(base="statsKrEmployees", tab="socioeconomic", sub=SUB_BUSINESS, label="從業人員數", digits=0, loc=LOC_SGIS, notes=SGIS_NOTES + [SGIS_BUSINESS]),
+    # ── 公共安全：火災（2021–2023，件數類；visual 用治安紅色系，數量越多越深）──
+    dict(base="statsKrFireIncidents", tab="safety", sub=SUB_FIRE, label="火災件數", digits=0, loc=LOC_FIRE, notes=FIRE_NOTES, visual="security"),
+    dict(base="statsKrFireDeaths", tab="safety", sub=SUB_FIRE, label="火災死亡人數", digits=0, loc=LOC_FIRE, notes=FIRE_NOTES, visual="security",
+         zero_note={"kr_sido": ZERO_IN_LOWEST, "kr_sigungu": ZERO_OWN_CLASS}, breaks={"kr_sigungu": [1, 2, 3, 5]}),
+    dict(base="statsKrFireInjuries", tab="safety", sub=SUB_FIRE, label="火災受傷人數", digits=0, loc=LOC_FIRE, notes=FIRE_NOTES, visual="security",
+         zero_note={"kr_sigungu": ZERO_IN_LOWEST}),
+    dict(base="statsKrFireDamage", tab="safety", sub=SUB_FIRE, label="火災財產損失", digits=0, loc=LOC_FIRE, notes=FIRE_NOTES + [FIRE_DAMAGE], visual="security"),
+    # ── 公共安全：交通事故（2025）──
+    dict(base="statsKrTrafficAccidents", tab="safety", sub=SUB_TRAFFIC, label="交通事故件數", digits=0, loc=LOC_TRAFFIC, notes=TRAFFIC_NOTES, visual="security"),
+    dict(base="statsKrTrafficDeaths", tab="safety", sub=SUB_TRAFFIC, label="交通事故死亡人數", digits=0, loc=LOC_TRAFFIC, notes=TRAFFIC_NOTES, visual="security",
+         zero_note={"kr_sigungu": ZERO_IN_LOWEST}),
+    dict(base="statsKrTrafficSeriousInjuries", tab="safety", sub=SUB_TRAFFIC, label="交通事故重傷人數", digits=0, loc=LOC_TRAFFIC, notes=TRAFFIC_NOTES, visual="security"),
+    dict(base="statsKrTrafficInjuries", tab="safety", sub=SUB_TRAFFIC, label="交通事故受傷人數", digits=0, loc=LOC_TRAFFIC, notes=TRAFFIC_NOTES + [TRAFFIC_INJURY], visual="security"),
 ]
 # 本專案（或上游 pipeline）由來源欄位自行計算的指標：derived=True，並以 handoff 的 definition 當 derived_method。
 # 來源直接公布的值（人口、SGIS 平均年齡、戶數…）維持 False。
-DERIVED_BASES = ['statsKrSexRatio', 'statsKrAgeYoungShare', 'statsKrAgeWorkingShare', 'statsKrAgeOldShare', 'statsKrAgingIndex', 'statsKrSeoulLivingPop', 'statsKrSeoulLivingPopDay', 'statsKrSeoulLivingPopNight', 'statsKrSeoulDayNightRatio']
+DERIVED_BASES = ['statsKrSexRatio', 'statsKrAgeYoungShare', 'statsKrAgeWorkingShare', 'statsKrAgeOldShare', 'statsKrAgingIndex', 'statsKrSeoulLivingPop', 'statsKrSeoulLivingPopDay', 'statsKrSeoulLivingPopNight', 'statsKrSeoulDayNightRatio', 'statsKrTrafficInjuries']
 LEVEL_SUFFIX = {"kr_sido": "Sido", "kr_sigungu": "Sgg"}
 SGIS_DATASET = "kr_sgis_admin_stats"
 
@@ -154,11 +186,14 @@ def main() -> None:
         unexpected = set(statuses) - {"observed"} - set(layer["status_labels"])
         if unexpected:
             raise SystemExit(f"{key}: statuses {sorted(unexpected)} have no legend label")
-        breaks = layer["legend"]["breaks"]
+        breaks = spec.get("breaks", {}).get(level, layer["legend"]["breaks"])
         if sorted(set(breaks)) != breaks or breaks[0] <= 0:
             raise SystemExit(f"{key}: bad breaks {breaks}")
-        if zero:
+        zero_note = spec.get("zero_note", {}).get(level)
+        if zero and not zero_note:
             raise SystemExit(f"{key}: observed zero needs a zero_note")
+        if zero_note and not zero:
+            raise SystemExit(f"{key}: zero_note without observed zero")
         release = latest["release"]
         attribution = layer["source"]["attribution"]
         if release["provenance"]["processing"]["parameters"].get("attribution") != attribution:
@@ -166,6 +201,8 @@ def main() -> None:
         notes = list(spec["notes"])
         if layer["dataset_id"] == SGIS_DATASET and level == "kr_sido":
             notes.append(SGIS_MERGED)
+        if layer["dataset_id"] in GAP_NOTES:
+            notes.append(MERGED_SUM if level == "kr_sido" else GAP_NOTES[layer["dataset_id"]])
         notes += [BOUNDARY, f"署名：{attribution}"]
         default_option = max(options, key=lambda o: (o["period_end"], o["period_start"]))
         recipes.append({
@@ -173,7 +210,7 @@ def main() -> None:
             "label": spec["label"], "group": spec["base"][len("stats"):][0].lower() + spec["base"][len("stats") + 1:],
             "group_label": spec["label"], "option_label": LEVEL_OPTION[level], "subgroup": spec["sub"],
             "data_theme": DATA[spec["tab"]], "tab_theme": TAB[spec["tab"]],
-            "visual_theme": "population",
+            "visual_theme": spec.get("visual", "population"),
             "dataset_id": layer["dataset_id"], "indicator_id": layer["indicator_id"], "level": level,
             "boundary_version": layer["boundary_version"], "unit": layer["unit"], "aggregation": latest["indicator"]["aggregation"],
             "default_release_id": default_option["release_id"],
@@ -181,7 +218,7 @@ def main() -> None:
             "release_options": sorted(options, key=lambda o: o["period_end"], reverse=True),
             "legend": {
                 "method": "fixed_breaks", "breaks": breaks, "direction": "ascending",
-                "scale_note": None, "zero_note": None, "display_note": None,
+                "scale_note": None, "zero_note": zero_note, "display_note": None,
                 "notes": notes, "by_dimension": None, "dimension_notes": None,
             },
             "status_labels": {kind: label for kind, label in layer["status_labels"].items() if statuses.get(kind)},
@@ -211,7 +248,7 @@ def main() -> None:
         "country": "KR",
         "generated_from": {"recipes": args.handoff.name, "bundles": "taipei-gis-analytics data/processed/<theme>/<dataset_id>/releases/<release_id>.json"},
         "release_selector": {"type": "exact_whitelist", "identity_fields": ["dataset_id", "indicator_id", "release_id", "period_start", "period_end", "boundary_version", "dimensions"], "unknown_release": "reject"},
-        "observation_policy": {"not_applicable": "來源不涵蓋此地區（未涵蓋，例：首爾生活人口只涵蓋首爾）；不是 0、不是缺值", "missing": "來源有涵蓋但此區無值（例：2025-07 後新設、沒有 2024 年值的 8 區）"},
+        "observation_policy": {"not_applicable": "來源不涵蓋此地區（未涵蓋，例：首爾生活人口只涵蓋首爾）；不是 0、不是缺值", "missing": "來源有涵蓋但此區無值（例：2025-07 後新設、沒有 2024 年值的 8 區；來源只給市合計的一般區）"},
         "recipes": recipes,
     }
     OUT.write_text(json.dumps(document, ensure_ascii=False, separators=(",", ":")) + "\n")

@@ -7719,6 +7719,8 @@ export type GeneratedStaticKey =
   | "statistics.level.ca_pr"
   | "statistics.level.county"
   | "statistics.level.gb_lad"
+  | "statistics.level.ie_ed"
+  | "statistics.level.ie_la"
   | "statistics.level.kr_sido"
   | "statistics.level.kr_sigungu"
   | "statistics.level.prosecutor_district"

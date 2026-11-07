@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   activeTopics,
+  assertUniqueChallengeDays,
+  challengePosts,
   extractFaq,
   loadPosts,
   mainMapLink,
@@ -17,10 +19,12 @@ import {
   relatedPosts,
   renderFeed,
   renderIndexPage,
+  renderChallengePage,
   renderPostPage,
   renderTopicPage,
   toPost,
 } from "../generator";
+import { MAP_CHALLENGE_DAYS, MAP_CHALLENGE_PATH } from "../mapChallenge";
 
 const root = fileURLToPath(new URL("../../..", import.meta.url));
 const read = (p: string) => readFileSync(join(root, p), "utf8");
@@ -192,5 +196,69 @@ describe("封面與圖片", () => {
     expect(html).toContain('<img src="/blog/taipei-street-trees-map/cover-dark.jpg" alt="x"');
     const missing = toPost(`---\nslug: one\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![x](${ORIGIN}/blog/nope/none.jpg)\n`);
     expect(renderPostPage(missing, [missing], join(root, "public"))).not.toContain("/blog/nope/none.jpg");
+  });
+});
+
+describe("30 天地圖挑戰", () => {
+  const mk = (slug: string, extra = "", date = "2026-11-05") =>
+    toPost(`---\nslug: ${slug}\ntopic: layers\ntitle: 標題${slug}\ndescription: 說明${slug}\ndate: ${date}\nseries: 30 天地圖挑戰\n${extra}---\n內文\n`);
+
+  it("題目表 30 天、Day 1–30 連續", () => {
+    expect(MAP_CHALLENGE_DAYS.map((d) => d.day)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
+    for (const d of MAP_CHALLENGE_DAYS) expect(d.theme && d.description).toBeTruthy();
+  });
+
+  it("challengeDay 解析為整數；非 1–30 整數丟錯；同一天重複丟錯", () => {
+    expect(mk("a", "challengeDay: 5\n").challengeDay).toBe(5);
+    expect(mk("a").challengeDay).toBeUndefined();
+    for (const bad of ["0", "31", "5.5", "abc", "-1"]) expect(() => mk("a", `challengeDay: ${bad}\n`)).toThrow(/challengeDay/);
+    expect(() => assertUniqueChallengeDays([mk("a", "challengeDay: 5\n"), mk("b", "challengeDay: 5\n")])).toThrow(/重複/);
+    expect(() => assertUniqueChallengeDays([mk("a", "challengeDay: 5\n"), mk("b", "challengeDay: 6\n"), mk("c")])).not.toThrow();
+  });
+
+  it("slug 不可佔用總覽頁路徑", () => {
+    expect(() => mk("30daymapchallenge")).toThrow(/保留路徑/);
+  });
+
+  const list = [mk("d6", "challengeDay: 6\n", "2026-11-06"), mk("d5", "challengeDay: 5\n"), mk("plain", "", "2026-11-01")];
+
+  it("總覽頁：30 格，已發布的連到文章，未發布的不連結、標「尚未發布」", () => {
+    expect(challengePosts(list).map((p) => p.slug)).toEqual(["d5", "d6"]);
+    const html = renderChallengePage(list);
+    const cells = html.match(/<li class="blog-challenge__cell[^"]*">[\s\S]*?<\/li>/g) ?? [];
+    expect(cells.length).toBe(30);
+    const pending = cells.filter((c) => c.includes("blog-challenge__cell--pending"));
+    expect(pending.length).toBe(28);
+    for (const c of pending) {
+      expect(c).not.toContain("<a ");
+      expect(c).toContain("尚未發布");
+    }
+    expect(cells[4]).toContain('href="/blog/d5/"');
+    expect(cells[4]).toContain("Senses: Sight");
+    expect(cells[5]).toContain('href="/blog/d6/"');
+    expect(html).toContain("已完成 <strong>2</strong>／30");
+    expect(html).not.toContain('href="/blog/plain/"');
+    expect(html).toContain(`<link rel="canonical" href="${ORIGIN}${MAP_CHALLENGE_PATH}" />`);
+    expect(html).toContain(`<meta property="og:url" content="${ORIGIN}${MAP_CHALLENGE_PATH}" />`);
+    const page = ldGraph(html).find((n) => n["@type"] === "CollectionPage");
+    expect((page?.hasPart as unknown[]).length).toBe(2);
+  });
+
+  it("入口：列表頁挑戰區塊、頂部列連結；挑戰文章有 Day 標示與回總覽連結；沒挑戰文章時都不出現", () => {
+    const index = renderIndexPage(list);
+    expect(index).toContain("blog-shelf--challenge");
+    expect(index).toContain(`<a href="${MAP_CHALLENGE_PATH}">30 天挑戰</a>`);
+    const post = renderPostPage(list[1]!, list, join(root, "public"));
+    expect(post).toContain("Day 5 · Senses: Sight");
+    expect(post).toContain("回到 30 天挑戰總覽");
+    expect(renderPostPage(list[2]!, list, join(root, "public"))).not.toContain("回到 30 天挑戰總覽");
+    const none = [mk("x")];
+    expect(renderIndexPage(none)).not.toContain(MAP_CHALLENGE_PATH);
+  });
+
+  it("總覽頁登記在 sitemap.xml 與 llms.txt，且至少有一篇挑戰文章（否則總覽頁不會產生）", () => {
+    expect(challengePosts(posts).length).toBeGreaterThan(0);
+    expect(read("public/sitemap.xml")).toContain(`<loc>${ORIGIN}${MAP_CHALLENGE_PATH}</loc>`);
+    expect(read("public/llms.txt")).toContain(`${ORIGIN}${MAP_CHALLENGE_PATH}`);
   });
 });
