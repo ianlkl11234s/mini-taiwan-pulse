@@ -233,5 +233,18 @@
   "enum.statLegendNote.最淺色含 0 人（該區該年為 0，不是無資料）。": "最も淡い色に0人を含む（その年は0で、データなしではない）。",
   "enum.statLegendNote.0 人自成最淺一級（該區該年無火災死亡，不是無資料）。": "0人は最も淡い独立した階級（その年は火災死者なしで、データなしではない）。",
   "enum.statLegendNote.署名：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635": "出典表示：소방청, 소방청_화재현황（2021～2023년 화재 개별 건）, 공공데이터포털 15155635",
-  "enum.statLegendNote.署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297": "出典表示：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297"
+  "enum.statLegendNote.署名：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297": "出典表示：한국도로교통공단, 시도 시군구별 교통사고 통계（2025）, 공공데이터포털 15070297",
+  "enum.statLegendNote.2022 年人口普查（普查日 2022-04-03），各表口徑不同，不可相除或混算。": "2022 年国勢調査（調査日 2022-04-03）。表ごとに定義が異なるため、割り算や合算はできません。",
+  "enum.statLegendNote.行政區界：地方政府為 Tailte Éireann 2026 法定界、選舉分區為 CSO 2022 統計界（CC BY 4.0），簡化 100–200 公尺。": "境界：地方自治体は Tailte Éireann 2026 法定境界、選挙区は CSO 2022 統計境界（CC BY 4.0）、100–200 m で簡略化。",
+  "enum.statLegendNote.署名：Central Statistics Office, Ireland. Census 2022 Small Area Population Statistics (SAPS). Licensed under CC BY 4.0.": "出典表示：Central Statistics Office, Ireland. Census 2022 Small Area Population Statistics (SAPS). Licensed under CC BY 4.0.",
+  "enum.statLegendNote.人口密度＝人口 ÷ 面積（含湖泊等內陸水域），自行計算到小數 3 位。": "人口密度＝人口 ÷ 面積（湖沼など内水面を含む）。小数第 3 位まで独自に算出。",
+  "enum.statLegendNote.都市人口比依 CSO 城鄉分類 2022 第 1–3 類小區（城市、衛星都市鎮、獨立都市鎮），不是行政上的市或鎮；選舉分區多為 0% 或 100%。": "都市人口比率は CSO 都市・農村分類 2022 の第 1–3 類（都市、衛星都市町、独立都市町）の小地域による。行政上の市町ではありません。選挙区は多くが 0% か 100%。",
+  "enum.statLegendNote.選舉分區平均約 1,500 人，人口少的分區比例波動大。": "選挙区の平均人口は約 1,500 人。人口の少ない選挙区では比率の変動が大きくなります。",
+  "enum.statLegendNote.私人家戶，不含集體住所（療養院、宿舍等）。": "一般世帯。施設等（介護施設、寮など）は含みません。",
+  "enum.statLegendNote.權屬比例的分母排除未填權屬的家戶（全國 4.37%），只算永久私人住宅。": "所有形態の比率は、所有形態不詳の世帯（全国 4.37%）を分母から除き、恒久的な一般住宅のみで算出。",
+  "enum.statLegendNote.RTB 登記租約的平均月租（所有房數、房型），不含未登記租約與社會住宅。": "RTB に登録された賃貸借の平均月額家賃（全寝室数・全住宅種別）。未登録の賃貸借と公営住宅は含みません。",
+  "enum.statLegendNote.只涵蓋 23 個地方政府：都柏林 4 區與 Cork、Galway 的市／郡對不上 RTB 地點，標未涵蓋。": "対象は 23 の地方自治体のみ。ダブリンの 4 自治体と Cork、Galway の市・県は RTB の地域区分と一致しないため対象外と表示。",
+  "enum.statLegendNote.署名：Residential Tenancies Board (RTB). RIA02 RTB Average Monthly Rent Report, published by the Central Statistics Office, Ireland. Licensed under CC BY 4.0.": "出典表示：Residential Tenancies Board (RTB). RIA02 RTB Average Monthly Rent Report, published by the Central Statistics Office, Ireland. Licensed under CC BY 4.0.",
+  "enum.statLegendNote.學歷分母含仍在學的 15 歲以上人口，學生多的分區比例偏低。": "学歴の分母には在学中の 15 歳以上人口を含むため、学生の多い地域では比率が低めになります。",
+  "enum.statLegendNote.普查「主要經濟狀態」自填口徑（15 歲以上），與勞動力調查（LFS）不可直接比較。": "国勢調査の自己申告「主な経済活動状態」（15 歳以上）による。労働力調査（LFS）とは直接比較できません。"
 }

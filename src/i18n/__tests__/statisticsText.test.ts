@@ -12,6 +12,7 @@ import { FINANCE_ACCESS_STATISTICS_DOCUMENT } from '../../data/financeAccessStat
 import { FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT } from '../../data/financeAccessExtStatisticsRecipes';
 import { KR_STATISTICS_DOCUMENT } from '../../data/krStatisticsRecipes';
 import { CA_STATISTICS_DOCUMENT } from '../../data/caStatisticsRecipes';
+import { IE_STATISTICS_DOCUMENT } from '../../data/ieStatisticsRecipes';
 import { statisticsDimensionLabel, statisticsDimensionValueLabel, statisticsLocationBasis } from '../../data/statisticsLabels';
 import { statisticsLicense, statisticsPublisher } from '../agencyText';
 
@@ -222,6 +223,35 @@ describe('加拿大統計外文介面不混中文', () => {
     const recipes = CA_STATISTICS_DOCUMENT.recipes;
     it(`${locale}：${recipes.length} 層的圖層名、群組、選項、位置口徑、發布機關、授權、圖例說明與缺值圖例都有譯文`, () => {
       // 判準同南韓：日文不等於中文原文即可，英文另外要求完全不含中日漢字
+      const pairs = recipes.flatMap((r) => [
+        [r.label, statisticsTitle(r.layer_key, r.label, ctx)],
+        [r.group_label, messages[`enum.statGroup.${r.group_label}`] ?? r.group_label],
+        [r.option_label, messages[`enum.statVariant.${r.option_label}`] ?? r.option_label],
+        [r.subgroup, messages[`theme.${r.subgroup}`] ?? r.subgroup],
+        [r.location_semantics, statisticsLocationBasis(r.location_semantics, ctx)],
+        [r.publisher, statisticsPublisher(r.publisher, ctx)],
+        [r.license, statisticsLicense(r.license, ctx)],
+        ...(r.legend.notes ?? []).map((note) => [note, messages[`enum.statLegendNote.${note}`] ?? note]),
+        ...Object.values(r.status_labels).map((label) => [label, messages[`enum.statLegendNote.${label}`] ?? label]),
+      ].map(([zh, text]) => [r.layer_key, zh!, text!] as const));
+      // 日文與中文同形的詞本來就相同
+      const sameInJa = new Set(['人口密度', '失業率', '就業率']);
+      const leaks = pairs.filter(([, zh, text]) => (text === zh && CJK.test(zh) && !(locale === 'ja' && sameInJa.has(zh))) || (locale === 'en' && CJK.test(text))).map(([key, , text]) => `${key}: ${text}`);
+      expect([...new Set(leaks)]).toEqual([]);
+    });
+  }
+});
+
+describe('愛爾蘭統計外文介面不混中文', () => {
+  for (const locale of ['en', 'ja'] as const) {
+    const messages: Record<string, string> = {};
+    for (const file of ['layers.json', 'enums.statLocationBasis.json', 'enums.statLicense.json', 'enums.statPublisher.json', 'enums.statGroup.json', 'enums.statVariant.json', 'enums.statLegendNote.json', 'themes.json']) {
+      Object.assign(messages, read(locale, file));
+    }
+    const ctx = { active: locale, lookup: (key: string) => messages[key] ?? null } as never;
+    const recipes = IE_STATISTICS_DOCUMENT.recipes;
+    it(`${locale}：${recipes.length} 層的圖層名、群組、選項、位置口徑、發布機關、授權、圖例說明與缺值圖例都有譯文`, () => {
+      // 判準同南韓、加拿大：日文不等於中文原文即可，英文另外要求完全不含中日漢字
       const pairs = recipes.flatMap((r) => [
         [r.label, statisticsTitle(r.layer_key, r.label, ctx)],
         [r.group_label, messages[`enum.statGroup.${r.group_label}`] ?? r.group_label],

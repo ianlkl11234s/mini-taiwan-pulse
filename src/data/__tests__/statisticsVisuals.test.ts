@@ -181,8 +181,9 @@ describe('getStatisticsVisual', () => {
     // 2026-11-04: +24 加拿大統計（省／地區、普查區：2021 普查人口 6、年齡 8、所得 4、勞動力 6）。
     // 2026-11-04: +66 選舉統計（總統、立委政黨票、縣市長、議員政黨合計、公投 × 村里／鄉鎮／縣市）。
     // 2026-11-07: +16 南韓公共安全（火災 2021–2023、交通事故 2025 × 道級／市郡區）。
-    expect(STATISTICS_KEYS).toHaveLength(866);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(878);
+    // 2026-11-07: +29 愛爾蘭統計（地方政府、選舉分區：2022 普查人口 6、年齡 6、家戶與住宅 8、教育與勞動 8；RTB 租金 1）。
+    expect(STATISTICS_KEYS).toHaveLength(895);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(907);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

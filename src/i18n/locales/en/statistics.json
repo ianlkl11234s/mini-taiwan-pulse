@@ -95,5 +95,7 @@
   "statistics.level.kr_sido": "Province level (si/do)",
   "statistics.level.kr_sigungu": "Municipal level (si/gun/gu)",
   "statistics.level.ca_pr": "Province / territory",
-  "statistics.level.ca_cd": "Census division"
+  "statistics.level.ca_cd": "Census division",
+  "statistics.level.ie_la": "Local authority",
+  "statistics.level.ie_ed": "Electoral division"
 }
