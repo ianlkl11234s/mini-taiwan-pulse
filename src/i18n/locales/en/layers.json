@@ -1506,6 +1506,7 @@
   "layer.transitAccessGrid": "Grid Transit Access",
   "layer.transitAccessPlayback": "Transit Reach from One Origin",
   "layer.caAdminBoundaries": "Administrative Boundaries (Canada)",
+  "layer.ieAdminBoundaries": "Administrative Boundaries (Ireland)",
   "layer.caTransitStops": "Public Transit Stops (Canada)",
   "layer.caAirportsPorts": "Airports & Ports (Canada)",
   "layer.caMajorRoads": "Major Roads (Canada)",

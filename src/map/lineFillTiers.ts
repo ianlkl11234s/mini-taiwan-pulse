@@ -204,6 +204,9 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "caAdminBoundaries/ca-admin-pr-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：省／地區比照縣市 · src/hooks/useCaAdminLayers.ts
   "caAdminBoundaries/ca-admin-cd-line": {"width": "standard", "opacity": "standard"}, // L-5：普查區比照鄉鎮市區 · src/hooks/useCaAdminLayers.ts
   "caAdminBoundaries/ca-admin-csd-line": {"width": "thin", "opacity": "standard"}, // L-5：普查分區比照村里 · src/hooks/useCaAdminLayers.ts
+  "ieAdminBoundaries/ie-admin-la-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：地方政府比照縣市 · src/hooks/useIeAdminLayers.ts
+  "ieAdminBoundaries/ie-admin-ed-line": {"width": "standard", "opacity": "standard"}, // L-5：選舉分區比照鄉鎮市區 · src/hooks/useIeAdminLayers.ts
+  "ieAdminBoundaries/ie-admin-sa-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useIeAdminLayers.ts
   "caMajorRoads/ca-major-roads-line": {"width": "keep", "opacity": "keep"}, // 寬依道路等級（L-1 三階 match）· src/hooks/useCaTransportLayers.ts
   "caRailways/ca-rail-tracks-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 track_class · src/hooks/useCaTransportLayers.ts
   "caRailways/ca-rail-tracks-minor-line": {"width": "keep", "opacity": "keep"}, // 支線、側線 z10 起 · src/hooks/useCaTransportLayers.ts

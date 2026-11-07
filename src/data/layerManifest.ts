@@ -4544,6 +4544,35 @@ export const LAYER_MANIFEST = {
   },
 
   // ══════════════════════════════════════════════════════════════
+  // 🇮🇪 愛爾蘭 Ireland（2026-11-07 第 0 波：C001 行政邊界）
+  // ══════════════════════════════════════════════════════════════
+  ieAdminBoundaries: {
+    key: "ieAdminBoundaries",
+    country: "IE", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ie_admin_boundaries", confidence: "HIGH" }],
+      processing: "Tailte Éireann Local Authorities 2026（9,161 碎片依 BDY_ID dissolve 成 31）＋CSO 2022 統計邊界 Electoral Division 3,420、Small Area 18,919；FeatureServer outSR 4326；人口 join Census 2022 SAPS（LA／ED／SA）；PMTiles tile layer la z3–10／ed z5–12／sa z6–13",
+      note: "CC BY 4.0（© Tailte Éireann、© CSO）；26/26 郡、31/31 地方政府；北愛不在本層（屬英國）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useIeAdminLayers 自建 mapbox-pmtiles source；source-layer=la／ed／sa（select 擇一）",
+      staticAssets: ["./world/ie_admin_boundaries.pmtiles"],
+    },
+    legend: "ieAdminBoundaries",
+    popup: "ieAdminBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "愛爾蘭行政區界（地方政府 31、CSO 選舉分區 3,420、統計小區 18,919；Tailte Éireann 2026／CSO Census 2022）",
+    topics: ["愛爾蘭", "行政區", "邊界", "普查"],
+  },
+
+  // ══════════════════════════════════════════════════════════════
   // 🇨🇦 加拿大 Canada（2026-11-04 第 0＋1 波：C001 行政邊界、C009／C012／C013 交通、C086–C088／C090 能源、C022 人口中心）
   // ══════════════════════════════════════════════════════════════
   caAdminBoundaries: {

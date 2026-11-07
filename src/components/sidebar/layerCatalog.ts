@@ -352,6 +352,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 加拿大統計（完整目錄；統計分頁另有「人口／社經」，見 CA_STATISTICS_TAB_THEMES）
     ...CA_STATISTICS_DATA_THEME_TITLES,
   ],
+  IE: [
+    // 愛爾蘭（2026-11-07 第 0 波：底圖／行政邊界；title 沿用台灣主題中文短名，比照加拿大、南韓）
+    "底圖",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -2982,6 +2986,16 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇮🇪 愛爾蘭（2026-11-07 第 0 波：行政邊界；群組比照加拿大同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "行政邊界", layers: [fromManifest("ieAdminBoundaries")] }],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
   // ───────────────────────────────────────────────────────────────
   {
@@ -3322,6 +3336,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
+  IE: {
+    // 愛爾蘭主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照加拿大）。
+    "底圖": "baseline",
+  },
   CA: {
     // 加拿大主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照南韓、英國）。
     "底圖": "baseline",
@@ -3517,6 +3535,10 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
     "人口": { zh: "人口", sub: "인구" },
     "社經": { zh: "社經", sub: "사회경제" },
+  },
+  IE: {
+    // 愛爾蘭主題副標用英文（比照英國、加拿大）
+    "底圖": { zh: "底圖", sub: "Base Map" },
   },
   CA: {
     // 加拿大主題副標用英文（官方雙語英法，介面先用英文；比照英國）

@@ -105,8 +105,41 @@ describe("countries", () => {
     ["聖約翰斯（紐芬蘭）", -52.71, 47.56, "CA"],
     ["伊魁特", -68.52, 63.75, "CA"],
     ["耶洛奈夫", -114.37, 62.45, "CA"],
+    ["都柏林", -6.26, 53.35, "IE"],
+    ["Cork", -8.47, 51.9, "IE"],
+    ["Galway", -9.05, 53.27, "IE"],
+    ["Limerick", -8.63, 52.66, "IE"],
+    ["Waterford", -7.11, 52.26, "IE"],
+    ["Sligo", -8.47, 54.27, "IE"],
+    ["Dundalk", -6.4, 54.0, "IE"],
+    ["Carlingford", -6.19, 54.04, "IE"],
+    ["Castleblayney", -6.74, 54.12, "IE"],
+    ["Monaghan", -6.97, 54.25, "IE"],
+    ["Clones", -7.23, 54.18, "IE"],
+    ["Ballyshannon", -8.19, 54.5, "IE"],
+    ["Donegal", -8.11, 54.65, "IE"],
+    ["Letterkenny", -7.73, 54.95, "IE"],
+    ["Lifford", -7.48, 54.83, "IE"],
+    ["Buncrana", -7.45, 55.13, "IE"],
+    ["Moville", -7.04, 55.19, "IE"],
+    ["Malin Head", -7.37, 55.38, "IE"],
+    ["Tory 島", -8.23, 55.26, "IE"],
+    ["Achill 島", -10.0, 53.96, "IE"],
+    ["Inis Mór（Aran）", -9.71, 53.12, "IE"],
+    ["Mizen Head", -9.82, 51.45, "IE"],
   ] as const)("%s → %s", (_name, lng, lat, code) => {
     expect(countryForPoint(lng, lat)).toBe(code);
+  });
+
+  it("愛爾蘭矩形與英國（北愛）矩形互不重疊（只可共用邊）", () => {
+    const ie = COUNTRIES.find((c) => c.code === "IE")!.bboxes;
+    const gb = COUNTRIES.find((c) => c.code === "GB")!.bboxes;
+    for (const [w1, s1, e1, n1] of ie) {
+      for (const [w2, s2, e2, n2] of gb) {
+        const overlap = w1 < e2 && w2 < e1 && s1 < n2 && s2 < n1;
+        expect(overlap, `IE ${[w1, s1, e1, n1]} × GB ${[w2, s2, e2, n2]}`).toBe(false);
+      }
+    }
   });
 
   it.each([
@@ -151,14 +184,6 @@ describe("countries", () => {
     ["弗萊堡", 7.85, 47.99],
     ["卡爾斯魯厄", 8.4, 49.0],
     ["薩丁尼亞北端", 9.4, 41.2],
-    ["都柏林", -6.26, 53.35],
-    ["Dundalk", -6.4, 54.0],
-    ["Letterkenny", -7.73, 54.95],
-    ["Lifford", -7.48, 54.83],
-    ["Buncrana", -7.45, 55.13],
-    ["Monaghan", -6.97, 54.25],
-    ["Clones", -7.23, 54.18],
-    ["Ballyshannon", -8.19, 54.5],
     ["Douglas（曼島）", -4.48, 54.15],
     ["St Helier（澤西）", -2.1, 49.19],
     ["St Peter Port（根西）", -2.54, 49.46],
