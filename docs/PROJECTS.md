@@ -88,7 +88,7 @@
 | 南韓後續 | 🟡 | 第 0–5 波＋統計隨 v2.19.0 上線；第 6 波 5 層（領海線、都市公園、體育設施、OSM 墓地、人口網格）隨 v2.24.0（#830，analytics #294）；正式站 v2.25.1，第 6 波正式站驗收未做；墓地維持 OSM（N3-1 已決） | KRW-6 第 7–10 波可開；第 11 波等註冊 data.go.kr key；KRH-1 兩層 HOLD；KRI18N-1 逐層驗 en/ja | BACKLOG KRW-6／KRH-1／KRI18N-1 | 2026-11-06 |
 | 多國化議題 1 收尾 | 🟢 | 國家主體化隨 v2.16.0 上線 | MC-3 補目視；MC-1 主題識別名與顯示名拆開（有同名主題時再做） | BACKLOG MC-1／MC-3 | 2026-10-28 |
 | 多國化議題 2 收尾（MCP 跨國） | 🟢 | P0–P5 於 2026-10-29 全部上線 | MC-6 補 name_en；MC-7 拆 airspace／coral 表；MC-8 觀察 eval 不穩點 | BACKLOG MC-6~8；`../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic2-mcp.md` §5 | 2026-10-29 |
-| 法國 | ⚪ | 國家選單已有 FR（v2.16.0）；MCP 缺邊界與人口，回「未涵蓋」；analytics 沒有 `france_opendata`，無波次計畫（2026-11-07 查） | 最低門檻：countries 一筆＋admin1 邊界＋人口分母 | `../pulse-data/docs/new-country-onboarding.md` §4 | 2026-11-07 查 |
+| 法國 | ⚪ | 國家選單已有 FR（v2.16.0），圖層只有「通訊」主題的 ANFR 無線站點（`anfrWirelessSites`）；MCP 缺邊界與人口，回「未涵蓋」；analytics 沒有 `france_opendata`，無波次計畫（2026-11-07 查） | 最低門檻：countries 一筆＋admin1 邊界＋人口分母 | `../pulse-data/docs/new-country-onboarding.md` §4 | 2026-11-07 查 |
 
 ## 台灣圖層（roadmap 群組）
 
