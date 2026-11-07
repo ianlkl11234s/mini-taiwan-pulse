@@ -251,7 +251,8 @@ body.blog {
 
 .blog-cover { margin: var(--space-xxl) 0; }
 .blog-cover img,
-.blog-figure img {
+.blog-figure img,
+.blog-figure video {
   display: block;
   width: 100%;
   height: auto;

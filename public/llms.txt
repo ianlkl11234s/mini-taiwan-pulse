@@ -39,6 +39,8 @@
 - [30 天地圖挑戰 Day 3：英國、南韓、台灣的發電廠地圖](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day03-power-plants/)：30 天地圖挑戰 Day 3（Polygons）文章。
 - [30 天地圖挑戰 Day 4：台灣人口與設施群聚地圖](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day04-clusters/)：30 天地圖挑戰 Day 4（Clusters）文章。
 - [30 天地圖挑戰 Day 5：台灣哪些鐵公路看得到海](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day05-sea-view/)：30 天地圖挑戰 Day 5（Senses: Sight）文章。
+- [30 天地圖挑戰 Day 6：古地圖疊上今天](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day06-vintage/)：30 天地圖挑戰 Day 6（Vintage）文章。
+- [30 天地圖挑戰 Day 7：用 AI 十分鐘做房價與捷運地圖](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day07-ten-minute-map/)：30 天地圖挑戰 Day 7（10 minute map）文章。
 
 ## 程式碼與文件
 
