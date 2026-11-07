@@ -10,6 +10,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { base64ToObjectUrl } from "./cwaImageryLoader";
+import { loadImageryManifestFrames } from "./imageryManifestLoader";
 import type { AqiProduct } from "../types";
 
 export interface AqiImageryFrame {
@@ -43,6 +44,7 @@ interface RawRow {
 
 /**
  * 載入指定產品過去 sinceHours 小時的 frames。
+ * 先讀 R2 每日 manifest（url 為 CDN http URL，revoke 無害）；一份都沒有才退回 RPC base64。
  * 回傳的 urls 由 caller 負責 revokeObjectURL。
  */
 export async function loadAqiImageryBatch(
@@ -52,6 +54,33 @@ export async function loadAqiImageryBatch(
   const since = new Date(Date.now() - sinceHours * 3600 * 1000).toISOString();
   const key = `aqi-imagery-batch:${product}`;
   const label = `空氣品質色階 ${product}`;
+
+  const fromR2 = await loadImageryManifestFrames({
+    source: "aqi",
+    products: [product],
+    sinceIso: since,
+    // RPC 版不設上限；給 1 小時餘裕涵蓋時鐘誤差
+    untilIso: new Date(Date.now() + 3600 * 1000).toISOString(),
+    loadingKey: key,
+    loadingLabel: label,
+  });
+  if (fromR2) {
+    return {
+      product,
+      frames: fromR2.map((f) => ({
+        product,
+        observedAtIso: f.observedAtIso,
+        observedAtMs: f.observedAtMs,
+        mimeType: f.mimeType,
+        lonMin: f.lonMin,
+        lonMax: f.lonMax,
+        latMin: f.latMin,
+        latMax: f.latMax,
+        imageSize: f.imageSize,
+      })),
+      urls: new Map(fromR2.map((f) => [f.observedAtIso, f.url])),
+    };
+  }
 
   const { data, error } = await withLoading(
     key,
