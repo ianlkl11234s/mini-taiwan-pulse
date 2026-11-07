@@ -342,6 +342,18 @@
 | TA-5 | P3 | blocked | S3 `migu-private-research-ap-southeast-2/cloud_run/cloud_run_smoke/`（幾 KB 測試檔）要不要刪。 | Blocked on 使用者決定刪除。First action：`cloud_run.sh cleanup tools/cloud_run/smoke.job.env --yes`（只刪該前綴）。 | 前綴已清空或使用者決定保留。 |
 | TA-6 | P3 | ready | 雙北重算 P1 未解疑點：兩個「禁止行人」樣本格反而變慢（原因未查）；Google 夜間能到土城／泰山／林口／五股、新模型判定到不了（Google 步行 1.35–1.9 km）。 | First action：併入 TA-2 報告逐格查路網與步行上限。 | 原因寫進 ntpe_rerun.md，或確認為模型假設差異。 |
 
+## 歷史圖層（2026-11-06 #30DayMapChallenge Day 6 Vintage 起頭）
+
+已合 develop、未發版：mini #856（Day 6 四層：臺南海岸線三代、1932 臺北町界、1921 祠廟、燈塔與測候所；古地圖 historicalMapSinica 改公開並加 1944 美軍地形圖年代）、#860（站主限定 water1944Taipei）。gis-platform mig 503（古地圖解鎖）、504（gated_layers 補 water1944Taipei）已套用。資料與探索成果：`GIS/_worktree-backups/2026-11-06/`（thcts/ 盤點 CSV、授權摘要、raw 62 圖層、explore/1..10 FINDINGS.md；water1944/ 抽取腳本）。
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| HIST-1 | P2 | blocked | 確認兩個中研院來源的授權能用在個人網站：THCTS（CC BY-NC-SA 3.0 TW，條文開頭寫「國內研究、教學等非商業使用者」）與臺灣百年歷史地圖 WMTS（CC BY-NC，簡報寫免申請）。 | Blocked on 使用者寄信（owner decision）。First action：寄 gis@gate.sinica.edu.tw，說明非營利個人網站、圖層用途與署名方式。 | 收到回覆並記在 thcts_inventory_summary.md；若不允許，下架或改站主限定 Day 6 與古地圖。 |
+| HIST-2 | P2 | blocked | 把歷史資料整理成正式的「歷史底圖」主題圖層（使用者 2026-11-07：之後要整理歷史圖層放進來）。 | Blocked on 使用者選題與設計稿。First action：從 `thcts/thcts_layers_inventory.csv`（129 主題／267 圖層）與 explore/ 結論挑候選（強：Q8 1953 番界、Q4 1921 鐵路與糖鐵、Q2 1904 陂塘；弱：Q3 圳道、Q9 人口不建議），每層寫來源年代、TWD67→WGS84 七參數轉換（中位誤差 49 m）、Big5／UTF-8 編碼、授權；pipeline 放 analytics、registry 進 pulse-data，地圖畫面先出設計稿。 | 使用者選定的圖層上 develop，圖例含年代、來源、CC BY-NC-SA 署名與「位置可能偏移」。 |
+| HIST-3 | P3 | ready | 研究成果搬進 git：`_worktree-backups/2026-11-06/thcts/` 與 `water1944/` 不在任何 repo。 | First action：搬（不複製）到 analytics `docs/topic-research/historical-thcts/`，raw zip 依大小決定放 data/raw 或只留下載清單。 | 研究文件在 analytics 有正本，備份資料夾留指標。 |
+| HIST-4 | P2 | conditional | Day 6 發版與發文收尾。 | Trigger：下次整批發版（develop→master 須使用者拍板）。First action：發版後在正式站用拍攝模式重拍 6 張，補 Threads 草稿（`day06-vintage-threads-draft.md`）的網站連結，確認草稿〔待確認〕項（錦町／柳町／綠町部分比對）。 | 正式站可見 Day 6 四層與古地圖（非站主），貼文發出。 |
+| HIST-5 | P3 | ready | water1944Taipei 後續：細水路只抽到約一半未上圖；只有臺北盆地；pulse-data registry／warehouse 是否已登記未確認。 | First action：查 pulse-data registry 有無 water1944Taipei 與 Day 6 四層的條目，缺的補登（DISPLAY_ONLY 或可分析需標明）。 | registry 覆蓋檢查 0 缺口；是否擴大範圍由使用者決定。 |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.
