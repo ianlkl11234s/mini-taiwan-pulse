@@ -4,6 +4,9 @@ import { EXPLORATION_OPERATIONS } from "../MainMapConnection";
 import { ResearchAnalysisSession } from "../researchAnalysisSession";
 import { loadWarehouseResult, validateWarehouseImportArgs, warehouseGeometryFor } from "../warehouseResultImport";
 import type { WarehouseResultStyle } from "../warehouseResultStyle";
+import { analysisResultStackKind, describeAnalysisResults } from "../analysisResultOverlay";
+import { analysisLegendEntries } from "../analysisLegendStore";
+import { planAnalysisStack } from "../analysisResultStack";
 
 const collection = {
   type: "FeatureCollection",
@@ -38,7 +41,7 @@ describe("warehouse result import", () => {
     const session = new ResearchAnalysisSession();
     const receipt = await session.importWarehouseResult({ resultId: "wh-9", sha256: zSha, label: "淹水潛勢範圍", featureCount: 3 }, okFetch(zText));
     const resultIds = (receipt.resultIds as string[]).slice().sort();
-    expect(resultIds).toEqual(["wh-9:multipolygon", "wh-9:point", "wh-9:polygon"]);
+    expect(resultIds).toEqual(["wh-9:point", "wh-9:polygon"]);
     const presented = session.presentable(resultIds);
     const flat = (value: unknown): unknown[] => Array.isArray(value) && typeof value[0] === "number" ? [value] : (value as unknown[]).flatMap(flat);
     for (const result of presented) for (const row of result.rows) {
@@ -160,5 +163,48 @@ describe("warehouse series import (T1=L1, no map geometry)", () => {
 
   it("rejects a series style paired with actual features", async () => {
     await expect(loadWarehouseResult({ resultId: "wh-9", sha256: sha, label: "x", featureCount: 3, style: seriesStyle }, okFetch())).rejects.toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+
+  describe("mixed Polygon + MultiPolygon choropleth", () => {
+    const ring = (x: number) => [[x, 25], [x + 0.01, 25], [x + 0.01, 25.01], [x, 25.01], [x, 25]];
+    const style = { kind: "choropleth", field: "n", valueProperty: "_style_value", method: "quantile", scheme: "sequential", label: "人口", breaks: [5], colors: ["#eff3ff", "#08519c"], labels: ["< 5", "≥ 5"], min: 1, max: 9, nullColor: "#bdbdbd", nullCount: 0 } as const satisfies WarehouseResultStyle;
+    const mixed = JSON.stringify({ type: "FeatureCollection", features: [
+      { type: "Feature", geometry: { type: "Polygon", coordinates: [ring(121.5)] }, properties: { name: "A", _style_value: 2 } },
+      { type: "Feature", geometry: { type: "MultiPolygon", coordinates: [[ring(121.6)], [ring(121.7)]] }, properties: { name: "B", _style_value: 8 } },
+      { type: "Feature", geometry: { type: "Polygon", coordinates: [ring(121.8)] }, properties: { name: "C", _style_value: 6 } },
+    ] });
+    const mixedSha = createHash("sha256").update(mixed).digest("hex");
+
+    it("groups both polygon types into one area result: one fill group, one legend entry", async () => {
+      const results = await loadWarehouseResult({ resultId: "wh-20", sha256: mixedSha, label: "人口", featureCount: 3, style }, okFetch(mixed));
+      expect(results).toHaveLength(1);
+      expect(results[0]!.resultId).toBe("wh-20");
+      expect(results[0]!.rows).toHaveLength(3);
+      expect(results[0]!.geometry).toMatchObject({ type: "MultiPolygon", role: "derived", spatialAnalysisEligible: false });
+
+      const presentable = results.map(result => ({ ...result, rows: result.rows }));
+      const presented = describeAnalysisResults(presentable as never);
+      expect(presented.every(p => analysisResultStackKind(presentable[0] as never) === "area" && p.styleLegend)).toBe(true);
+      const ids = presented.map(p => p.resultId);
+      const plan = planAnalysisStack({ groups: [], items: ids.map(resultId => ({ resultId, visible: true })) } as never, new Map(ids.map((id, i) => [id, i + 1])), () => "area");
+      expect(plan.outlineOnly).toEqual([]);
+      expect(analysisLegendEntries(presented, () => null).filter(entry => entry.styleLegend)).toHaveLength(1);
+    });
+
+    it("dedupes identical style legends of split parts of one source result", () => {
+      const legend = { kind: "choropleth", title: "人口", method: "分位數", entries: [{ label: "< 5", color: "#eff3ff" }], breaks: [5], nullEntry: null } as const;
+      const part = (resultId: string) => ({ resultId, datasetId: "warehouse:wh-21", displayLabel: "人口", geometryType: "Polygon", featureCount: 1, styleLegend: legend }) as never;
+      expect(analysisLegendEntries([part("wh-21:polygon"), part("wh-21:multipolygon")], () => null)).toHaveLength(1);
+    });
+
+    it("merges LineString + MultiLineString into one line group", async () => {
+      const lines = JSON.stringify({ type: "FeatureCollection", features: [
+        { type: "Feature", geometry: { type: "LineString", coordinates: [[121.5, 25], [121.6, 25.1]] }, properties: { name: "L1" } },
+        { type: "Feature", geometry: { type: "MultiLineString", coordinates: [[[121.5, 25], [121.6, 25.1]], [[121.7, 25], [121.8, 25.1]]] }, properties: { name: "L2" } },
+      ] });
+      const results = await loadWarehouseResult({ resultId: "wh-22", sha256: createHash("sha256").update(lines).digest("hex"), label: "路線", featureCount: 2 }, okFetch(lines));
+      expect(results).toHaveLength(1);
+      expect(results[0]!.geometry.type).toBe("MultiLineString");
+    });
   });
 });

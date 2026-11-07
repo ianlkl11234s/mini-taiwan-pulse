@@ -27,6 +27,8 @@ export const COVERAGE_AREAS = {
   seoul: { label: { zh: "首爾", en: "Seoul", ja: "ソウル" }, bbox: [126.76, 37.41, 127.19, 37.72] },
   taipei: { label: { zh: "臺北市", en: "Taipei City", ja: "台北市" }, bbox: [121.44, 24.94, 121.69, 25.23] },
   newTaipei: { label: { zh: "新北市", en: "New Taipei City", ja: "新北市" }, bbox: [121.28, 24.67, 122.01, 25.30] },
+  // 1944 水域：public/geo/historical_water_1944_taipei.geojson 外框（121.399–121.652, 24.946–25.155）取整，含板橋、新莊、汐止
+  taipeiBasin: { label: { zh: "臺北盆地", en: "Taipei Basin", ja: "台北盆地" }, bbox: [121.39, 24.94, 121.66, 25.16] },
   // 新北外框已包住臺北市
   twinCity: { label: { zh: "雙北", en: "Taipei & New Taipei", ja: "台北・新北" }, bbox: [121.28, 24.67, 122.01, 25.30] },
   taoyuan: { label: { zh: "桃園市", en: "Taoyuan City", ja: "桃園市" }, bbox: [120.98, 24.59, 121.48, 25.13] },
@@ -36,6 +38,8 @@ export const COVERAGE_AREAS = {
   // 30 天地圖挑戰 Day 4 r8 細格：臺中市＋彰化縣（兩框聯集）
   taichungChanghua: { label: { zh: "臺中與彰化", en: "Taichung & Changhua", ja: "台中・彰化" }, bbox: [120.22, 23.78, 121.46, 24.45] },
   tainan: { label: { zh: "臺南市", en: "Tainan City", ja: "台南市" }, bbox: [120.03, 22.88, 120.66, 23.42] },
+  // 30 天地圖挑戰 Day 6 西南海岸線三代：高雄北端到雲林口湖（資料 22.77–23.66°N）
+  swCoast: { label: { zh: "臺灣西南沿海", en: "Southwest coast of Taiwan", ja: "台湾南西部沿岸" }, bbox: [119.95, 22.74, 120.42, 23.70] },
 } as const satisfies Record<string, CoverageArea>;
 
 export type CoverageAreaId = keyof typeof COVERAGE_AREAS;
@@ -83,6 +87,7 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   statsTaipeiUsagePermitCountByBuildTypeTownship: "taipei",
   statsTaipeiUsagePermitCountTownship: "taipei",
   statsTaipeiUsagePermitHouseholdCountTownship: "taipei",
+  water1944Taipei: "taipeiBasin",
   // 新北市、雙北
   bridgeComparisonNewTaipei: "newTaipei",
   officialBridgesNewTaipei: "newTaipei",
@@ -100,6 +105,8 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   statsTaichungRoadNoiseMonitoringStations: "taichung",
   tainanBridgeInspections: "tainan",
   mapchallengeDay04ScaleTcCh: "taichungChanghua",
+  mapchallengeDay06Coast: "swCoast",
+  mapchallengeDay06Taipei1932: "taipei",
   tainanRoadTunnels: "tainan",
 };
 

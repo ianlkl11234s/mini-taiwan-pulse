@@ -100,6 +100,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
+import { IE_DATA_SPECS, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -176,6 +177,10 @@ import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE } from "./pollingStatio
 import {
   MAPCHALLENGE_DAY05_DEFAULT_SCOPE, MAPCHALLENGE_DAY05_DEFAULT_TIERS, MAPCHALLENGE_DAY05_KIND_ENCODE, MAPCHALLENGE_DAY05_KIND_OPTIONS, MAPCHALLENGE_DAY05_SCOPE_ENCODE, MAPCHALLENGE_DAY05_SCOPES, MAPCHALLENGE_DAY05_TIERS,
 } from "./mapchallengeDay05Types";
+import {
+  MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_PLACES_ENCODE, MAPCHALLENGE_DAY06_PLACES_OPTIONS, MAPCHALLENGE_DAY06_STATUSES,
+  MAPCHALLENGE_DAY06_SURVIVE, MAPCHALLENGE_DAY06_TEMPLE_CLASSES, MAPCHALLENGE_DAY06_TYPE_ENCODE, MAPCHALLENGE_DAY06_TYPE_OPTIONS,
+} from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY04_DEFAULT_FACILITY, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_FACILITY_KEYS, MAPCHALLENGE_DAY04_HOTSPOT_CLASSES } from "./mapchallengeDay04Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
@@ -1618,6 +1623,33 @@ export const LAYER_PARAMS_SPEC = {
     },
     mapchallengeDay05KindSelect("mapchallengeDay05SeaViewRuns"),
   ],
+  // 30 天地圖挑戰 Day 6 復古（模擬面板，公開）：類別多選（V-4）與 select 都由 overlayRegistry 的 filter 自己組。
+  mapchallengeDay06Coast: [
+    opacitySlider("mapchallengeDay06CoastOpacity", 0.85), scaleSlider("mapchallengeDay06CoastScale", 1),
+    categoryMultiSelect("mapchallengeDay06Coast", MAPCHALLENGE_DAY06_ERAS.map((e) => ({ label: e.zh, value: String(e.value) }))),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay06CoastPlaces", label: "今日地名（鯤鯓、塭、汕）", default: "show",
+      options: MAPCHALLENGE_DAY06_PLACES_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay06CoastPlacesIdx", encode: [...MAPCHALLENGE_DAY06_PLACES_ENCODE],
+    },
+  ],
+  mapchallengeDay06Taipei1932: [
+    opacitySlider("mapchallengeDay06Taipei1932Opacity", 0.85),
+    categoryMultiSelect("mapchallengeDay06Taipei1932", MAPCHALLENGE_DAY06_SURVIVE.map((c) => ({ label: c.zh, value: String(c.value) }))),
+  ],
+  mapchallengeDay06Temples1921: [
+    opacitySlider("mapchallengeDay06Temples1921Opacity", 0.85), scaleSlider("mapchallengeDay06Temples1921Scale", 1),
+    categoryMultiSelect("mapchallengeDay06Temples1921", MAPCHALLENGE_DAY06_TEMPLE_CLASSES.map((c) => ({ label: c.zh, value: String(c.value) }))),
+  ],
+  mapchallengeDay06Lighthouses: [
+    opacitySlider("mapchallengeDay06LighthousesOpacity", 0.85), scaleSlider("mapchallengeDay06LighthousesScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay06LighthousesType", label: "類型", default: "all",
+      options: MAPCHALLENGE_DAY06_TYPE_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay06LighthousesTypeIdx", encode: [...MAPCHALLENGE_DAY06_TYPE_ENCODE],
+    },
+    categoryMultiSelect("mapchallengeDay06Lighthouses", MAPCHALLENGE_DAY06_STATUSES.map((c) => ({ label: c.zh, value: c.value }))),
+  ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {
@@ -2095,7 +2127,7 @@ export const LAYER_PARAMS_SPEC = {
     ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : spec.key === "krPopulationH3" ? 0.6 : 0.7) : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : spec.key === "krPopulationH3" ? 0.6 : spec.key === "krSchoolDistricts" ? 0.35 : 0.7) : 0.85)]),
   ]])),
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
@@ -2119,6 +2151,23 @@ export const LAYER_PARAMS_SPEC = {
   krSubstations: [krMulti("krSubstationsCatMask", "電壓等級", KR_OPT_VOLTAGE), opacitySlider("krSubstationsOpacity", densePointOpacity(1_199)), scaleSlider("krSubstationsScale", 1)],
   krPowerTowers: [opacitySlider("krPowerTowersOpacity", densePointOpacity(42_252)), scaleSlider("krPowerTowersScale", 1)],
   krOilGas: [krMulti("krOilGasCatMask", "設施類別", KR_OPT_OIL_GAS), krMulti("krOilGasPipeMask", "管線物質", KR_OPT_PIPELINE), opacitySlider("krOilGasOpacity", 0.6)],
+  // 愛爾蘭第 0 波（2026-11-07）：選項順序＝`data/ieAdminTypes.ts` IE_ADMIN_LEVELS
+  ieAdminBoundaries: [
+    opacitySlider("ieAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "ieAdminBoundariesLevel", label: "行政層級", default: "la",
+      options: [{ label: "地方政府（Local authority）", value: "la" }, { label: "選舉分區（Electoral division）", value: "ed" }, { label: "統計小區（Small area）", value: "sa" }],
+      out: "ieAdminBoundariesLevelIdx", encode: ["la", "ed", "sa"],
+    },
+  ],
+  // 愛爾蘭第 1 波（2026-11-07）：規格驅動 6 層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選）；公園的點／面切換由 repPointLayers 補
+  ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
+    ...krCatFilterSpecs(asKrSpec(spec)),
+    ...(spec.geom === "point"
+      ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
+      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.geom === "polygon" ? 0.7 : 0.85)]),
+  ]])),
+  ieBathymetry: [{ kind: "slider", name: "ieBathymetryOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   // 加拿大第 0＋1 波（2026-11-04）：多選選項 id／順序必須同 `data/caInfraTypes.ts` 的類別陣列（caLayers 測試守）
   caAdminBoundaries: [
     opacitySlider("caAdminBoundariesOpacity", 0.85),
@@ -2680,6 +2729,8 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ value: "all", label: "全部" }, ...JP_EXPRESSWAY_CATEGORIES.map(c => ({ value: c.value, label: c.label }))],
       out: "jpExpresswaysCategoryIdx", encode: ["all", ...JP_EXPRESSWAY_CATEGORIES.map(c => c.value)] },
   ],
+  // 1944 水域（臺北盆地）：面 0.35（規範 F-1 覆蓋面）；點／面切換、今日狀態多選由 repPointLayers／categoryFilters 補
+  water1944Taipei: [opacitySlider("water1944TaipeiOpacity", 0.35)],
   historicalMapSinica: [
     opacitySlider("historicalMapSinicaOpacity", 0.85),
     {

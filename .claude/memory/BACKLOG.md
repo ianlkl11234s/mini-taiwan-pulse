@@ -88,7 +88,7 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
-| MC-4 | P2 | blocked | 多國化議題 3（主站遷移、43GB 同步）定方向；議題 2 已於 2026-10-29 P0–P5 全部上線（MC-2 一併結案：server.ts 與 pulse-conductor `references/multi-country.md` 已說明 `map_context.country`）。 | Blocked: 等使用者討論。前提（2026-11-06）：Zeabur 自 v2.22.0 起不再自動部署，正式站停在 v2.21.0，最新版只在 Cloudflare 測試站。研究結論在 `.gis-agent-system/projects/2026-10-multi-country/README.md`。First action: 唯讀量 S3 deploy-assets 依資料夾的組成。 | 議題 3 有拍板紀錄（寫進專案 README 或 ADR）。 |
+| MC-4 | P2 | done | 多國化議題 3（主站遷移、43GB 同步）定方向；議題 2 已於 2026-10-29 P0–P5 全部上線（MC-2 一併結案：server.ts 與 pulse-conductor `references/multi-country.md` 已說明 `map_context.country`）。 **2026-11-07 結案**：主站已於 2026-11-06 隨 Zeabur 搬家改走 R2＋Workers（v2.25.1，Worker Route＋新主機 pulse-host 處理 `/api`）；收尾項目見 `.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0。 | Blocked: 等使用者討論。前提（2026-11-06）：Zeabur 自 v2.22.0 起不再自動部署，正式站停在 v2.21.0，最新版只在 Cloudflare 測試站。研究結論在 `.gis-agent-system/projects/2026-10-multi-country/README.md`。First action: 唯讀量 S3 deploy-assets 依資料夾的組成。 | 議題 3 有拍板紀錄（寫進專案 README 或 ADR）。 |
 | MC-6 | P3 | ready | 跨國行政區表補英文名（`boundaries_admin.name_en` 台灣、日本目前全空）。 | Owner: mini-pulse-gis-mcp `warehouse/admin_tables.py`。First action: 台灣接內政部羅馬拼音 CSV（analytics `place_name_romanization_moi`），日本接國土數值情報或 geoBoundaries 英文名。 | 兩國 name_en 非空率 >99%，重組倉庫後台灣既有工具輸出不變。 |
 | MC-7 | P3 | conditional | 拆開混有多國資料的兩張表（airspace、allen_coral_atlas 暫標 TW）。 | Trigger: 要對日本或全球做空域、珊瑚礁分析時。First action: 依 country 欄拆成 TW 與 WORLD 兩份 registry，照 Ookla 拆表做法（pulse-data #48）。 | check_registry 0 ERROR，台灣表 geom_3826 不變，nearby 回歸一致。 |
 | MC-8 | P3 | verifying | 觀察多國 eval 兩個不穩點：N10 有一次沒畫日本 1,898 區分級圖；N08 有 2 次沒載入 pulse-conductor、沒移鏡頭。 | 下次跑 agent-regression 時各加跑 3 次記錄；連續出現再定位是 show_result 負載還是 skill 觸發。 | 各 3 次中上圖與載入 skill 都 ≥2 次，或開修正 PR。紀錄在 mini-pulse-gis-mcp `eval/agent-regression/README.md`。 |
@@ -112,7 +112,7 @@
 |---|---|---|---|---|---|
 | MC-5 | P3 | ready | Refresh static LST after the 2026 warm season. | Gate passed (not_before 2026-10-01); as of 2026-10-05 the latest product is still `urban_heat_lst_*_20260729` and production serves that build. Rerun the median pipeline for the full 2026 warm season, review color ranges, then publish a dated replacement. | Replaced asset has date/provenance and expected P2–P98 ranges. [Urban Heat backlog](../../docs/features/urban-heat-lst/backlog.md) |
 | EM-30 | P2 | conditional | Remove rail-geometry fallback only after an observation window. | Not before 2026-11-01 (observation date set 2026-10-16; the fallback in `src/embed/railReplayData.ts` is still present). Owner: 使用者 (approval to delete the old S3 object). First action: check fallback fetch counts, then remove code and old S3 object together with approval. | Production has used the hashed asset through the window and no fallback fetch occurred. [Embeddable map backlog](../../docs/features/embeddable-map/backlog.md) |
-| JPRD-1 | P3 | conditional | 日本主要道路補上市町村道（2026-10-28 使用者決定先不做）。 | Trigger: Zeabur 搬遷完成（Zeabur 已不再自動部署，正式站停在 v2.21.0）、靜態大檔改放 Cloudflare R2 之後（使用者：「先完整搬家完再說」）。Owner: 使用者。現況：`jpMajorRoads` 只收 N13-2024 的国道、都道府県道、高速（N13_003=1／2／4），PMTiles 141.9MB。這三類只佔全部線段約 8%（抽樣 mesh 5136），全收粗估 PMTiles 超過 1GB（推估，未實際產出）。當初的 150MB 是派工自訂目標，理由是 Zeabur 主機磁碟已用 96%、主站 /data 會整包同步 S3 deploy-assets，不是平台硬限制。First action: 搬完後在 analytics `pipelines/world/jp_major_roads/` 另產一份市町村道 PMTiles，前端另開一層（例如 z12 以上才顯示），不併進現有主要道路層。 | 市町村道圖層上線，四鐵則齊全，檔案放 R2，不佔主機磁碟。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
+| JPRD-1 | P3 | conditional | 日本主要道路補上市町村道（2026-10-28 使用者決定先不做）。 | Trigger: Zeabur 搬遷完成、靜態大檔改放 Cloudflare R2 之後（2026-11-07 註：主站已於 11-06 改走 Workers＋R2、正式站 v2.25.1，條件已到，等使用者決定是否開工）（使用者：「先完整搬家完再說」）。Owner: 使用者。現況：`jpMajorRoads` 只收 N13-2024 的国道、都道府県道、高速（N13_003=1／2／4），PMTiles 141.9MB。這三類只佔全部線段約 8%（抽樣 mesh 5136），全收粗估 PMTiles 超過 1GB（推估，未實際產出）。當初的 150MB 是派工自訂目標，理由是 Zeabur 主機磁碟已用 96%、主站 /data 會整包同步 S3 deploy-assets，不是平台硬限制。First action: 搬完後在 analytics `pipelines/world/jp_major_roads/` 另產一份市町村道 PMTiles，前端另開一層（例如 z12 以上才顯示），不併進現有主要道路層。 | 市町村道圖層上線，四鐵則齊全，檔案放 R2，不佔主機磁碟。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
 
 ## Verification/cleanup queue
 
@@ -277,7 +277,7 @@
 | KRREL-1 | P2 | done | 南韓＋圖層可見性整修（#769／#773–#775、#779–#788）整批發版到正式站。 | 2026-11-01 v2.19.0 上線（#790、#792 merge `3110ba9c`，tag＋Release；範圍外 #766／#770／#771／#772／#777／#791 經使用者同意一起發）。S3 deploy-assets 256 檔已上傳。 | 已驗：`main-*.js` 含 2.19.0；8 支大檔 206；四國全國視角截圖；提示卡、點面切換、類別篩選、消防栓彈窗實測通過；console 無新錯誤。 |
 | KRH-1 | P3 | blocked | HOLD 兩層：C101 廣域淨水場、C117 생태자연도。 | 淨水場：地址名冊用 Nominatim 補座標，點位級命中只有 1/42，需另找座標來源。生態自然圖：KOGL 3（可商用、禁改作），全國 0.8–2.7GB、江原道單檔 614MB，等 Zeabur 主機搬遷後處理。First action: 搬遷完成後在 analytics 重評體積與切圖方式。 | 兩層各有可用座標／PMTiles，或在 analytics PLAN §3 註明放棄原因。 |
 | KRI18N-1 | P3 | ready | 南韓 50 層＋統計的英文、日文介面只抽查，沒有逐層驗。 | First action: 本機 dev 用 `?lang=en`／`?lang=ja` 逐層開圖、看圖例與彈窗，記錄缺漏。 | 每層 en／ja 圖例與彈窗無缺字、無中文殘留。 |
-| KRW-6 | P3 | ready | （第 6 波 2026-11-06 已做，#830）南韓第 7–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 6 波。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
+| KRW-6 | P3 | ready | （第 6 波 2026-11-06 已做，#830）南韓第 7–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 7 波（第 6 波已隨 v2.24.0 發布）。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
 
 ## 圖層可見性整修（2026-10-31，map-layers §3.8 V-1～V-7，#779–#788 已合 develop）
 
@@ -313,15 +313,15 @@
 | EA-2 | P3 | done | EA 座標錯誤修正。 | 2026-11-06 完成（analytics #299、gis-platform #203 mig 501 已套用、mini #839）：實際 8 筆（原 4 筆＋4 筆落海被舊 pipeline 靜默丟掉），錯在來源 xlsx，改放 ONSPD 郵遞區號中心並以 `coord_source` 標記；DB 2,544 筆全在英格蘭。pipeline 不再把含 EA 的 PMTiles 複製到 mini `public/world/`。 | DB 2,544、圖例同步。 |
 | LIC-1 | P3 | done | 自己托管的 CC BY-NC（非商用）檔案規則。 | 2026-11-06 使用者拍板：公開上線＋圖例／popup 標示「CC BY-NC・非商業使用」與署名（網站不營利）；外部圖磚照個案，古地圖維持站主限定。規則寫進 analytics skill `pulse-layer-release/references/license-and-deploy.md`。 | 規則已寫入 skill。 |
 | N3-1 | P3 | done | 夜間批次資料限制。 | 2026-11-06（#842、analytics #300）：日本 DID z5 已改清楚（填色不透明度隨縮放）。加拿大「398 格在美國」複核為 Natural Earth 1:10M 國界誤差，實際只有 16 格（約 380 人）在原始省界外、多在界河湖岸；2026-11-06 使用者決定加拿大網格不裁切（16 格約 380 人在省界外），維持現檔。南韓墓地：data.go.kr 查無有座標的全國墓地官方資料（추모공원 15114135 只收追悼公園），維持 OSM。 | 全部已結。 |
-| N3-2 | P3 | done | 日本 C083 交通事故。 | 2026-11-06 上 develop（mini #843、analytics #301、pulse-data #61）：`jpTrafficAccidents2025` 警察庁 2025 本票 287,020 點（死亡 2,495），`jp_traffic_accidents_2025.pmtiles` 28.9MB 已上 S3。未做：warehouse 入倉、2019–2024 年度。 | 已合 develop、未發版。 |
-| N3-3 | P3 | done | 加拿大即時地震 FDSN。 | 2026-11-06 使用者選照 NRCan 站條款（非商業、需署名）上線：`caEarthquakesLive` 瀏覽器直連 FDSN 近 30 天、每 5 分鐘更新（mini #847、pulse-data #62 `ca_earthquakes_fdsn`），圖例／popup／右下來源三處署名與非背書聲明。 | 已合 develop、未發版。 |
+| N3-2 | P3 | done | 日本 C083 交通事故。 | 2026-11-06 上 develop（mini #843、analytics #301、pulse-data #61）：`jpTrafficAccidents2025` 警察庁 2025 本票 287,020 點（死亡 2,495），`jp_traffic_accidents_2025.pmtiles` 28.9MB 已上 S3。未做：warehouse 入倉、2019–2024 年度。 | 隨 v2.25.0 發布（`git tag --contains` 181c3cb6，2026-11-07 查）。 |
+| N3-3 | P3 | done | 加拿大即時地震 FDSN。 | 2026-11-06 使用者選照 NRCan 站條款（非商業、需署名）上線：`caEarthquakesLive` 瀏覽器直連 FDSN 近 30 天、每 5 分鐘更新（mini #847、pulse-data #62 `ca_earthquakes_fdsn`），圖例／popup／右下來源三處署名與非背書聲明。 | 隨 v2.25.0 發布（71007555）；四類分色 #864 在 develop 未發版（2026-11-07 查）。 |
 | N3-4 | P3 | ready | 日本舊研究層 jpWildlifeProtection 與新層 jpWildlifeProtectionMoe 同源；舊 jpNaturalParks（2010，有公園名）與新 2015 版。 | 使用者 2026-11-06 決定兩組都並存。First action: 無；若之後要合併，先讓新層帶公園名。 | — |
 
 ## 2026-11-06 review 修正輪後續
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
-| GP-502 | P1 | blocked | 套用 gis-platform mig 502（PR #202 合併時為 501，因與 #203 撞號經 #204 改名；已合 main、未套用）：收回 `cloud_agent_ro` 對英國 EA 污染名錄（`reference.world_gb_ea_pollution_inventory`、`get_gb_ea_pollution_inventory()`）的讀取與執行權。資安：目前雲端唯讀帳號讀得到授權受限資料。 | Blocked on 使用者拍板套用（正式 DB 不由 agent 套）。First action: 套用前唯讀查現有權限，套用後跑 `migrations/502_revoke_cloud_agent_ro_gb_ea_pollution_inventory.test.psql`。 | `cloud_agent_ro` 讀表、執行函式皆被拒；站主 RPC 仍可讀。 |
+| GP-502 | P1 | done | 套用 gis-platform mig 502（#202／#204）：收回 `cloud_agent_ro` 對英國 EA 污染名錄表與 `get_gb_ea_pollution_inventory()` 的讀取與執行權。 | 2026-11-07 已套用正式 DB：套用前唯讀查證 cloud_agent_ro 可讀表（2,544 筆）、可執行函式；套用後 `502_…test.psql` 回 `502 OK`。回滾指令在 migration 檔頭。 | `cloud_agent_ro` 讀表、執行函式皆被拒；service_role 仍可讀；anon／authenticated 仍無表權限。 |
 | GP-296 | P3 | blocked | mig 296 的 default privileges 讓 `reference` schema 新表自動授 SELECT 給 `cloud_agent_ro`，授權限定的物件（如 EA 污染名錄）每次都要另外收權。 | Blocked on 使用者決定是否改 default privileges。First action: 唯讀列 `reference` schema 現有表的 `cloud_agent_ro` 權限與 default ACL，列出改法與影響（會不會讓既有 MCP 查詢失效）給使用者選。 | 使用者選定：維持（每次收權寫進 onboarding 清單）或改 default（新 migration 並驗 MCP 倉庫查詢不壞）。 |
 | COL-F010 | P2 | ready | `supabase_writer` 舊的 partial 寫入會蓋掉較新的 ok（`live.weather_raster_frames` 缺 revision 欄，無法判斷新舊）。 | First action: gis-platform 先加 revision 欄 migration（須使用者套用），collectors 再改 upsert 的 WHERE 條件只允許較新 revision 覆寫；上游先動、下游後動。 | 舊 partial 重送不會覆蓋較新的 ok 列；有回歸測試。 |
 | RV-F039 | P3 | ready | 消防局／港口 3D 柱不跟圖例類別篩選（review F039，2026-11-06 修正輪暫緩：跨多檔）。 | First action: 讓 3D 柱的資料來源吃同一個 category filter（參考 2D 點層的 filter 寫法）。 | 圖例取消某類別後 3D 柱同步消失；有測試。 |
@@ -331,7 +331,7 @@
 
 ## 大眾運輸可及性 transit_access：三市與雲端運算（2026-11-06）
 
-雙北版程式 #810 已在 v2.22.0（Zeabur 正式站卡在 v2.21.0，新版在 Cloudflare 測試站）。臺中／臺南／高雄（含國道客運上下車限制）與雲端工具 `tools/cloud_run/`、skill `cloud-run` 都只在 analytics 本機分支 `feat/transit-access-cities`（worktree `.worktrees/transit-access-cities`，未 push）。各市結果與方法：analytics `docs/topic-research/transit_access/`（taichung／tainan／kaohsiung.md、methodology.md §6、_status.md）。
+雙北版 #810 隨 v2.22.0 發布，2026-11-07 實測正式站已是 v2.25.1（`main-BdTubvoM.js`），雙北網站版已上線（正式站畫面驗收見 PROJECTS.md 該列）。臺中／臺南／高雄（含國道客運上下車限制）與雲端工具 `tools/cloud_run/`、skill `cloud-run` 都只在 analytics 本機分支 `feat/transit-access-cities`（worktree `.worktrees/transit-access-cities`，未 push）。各市結果與方法：analytics `docs/topic-research/transit_access/`（taichung／tainan／kaohsiung.md、methodology.md §6、_status.md）。
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
@@ -341,6 +341,18 @@
 | TA-4 | P3 | ready | 雲端工具未測項：Spot（約半價）中途被收回後的接續流程。 | Trigger：下次要跑長任務且想用 Spot。First action：用 smoke.job.env 開 Spot 跑一次，手動中斷後驗證接續。 | 中斷後能從斷點接續，結果與 On-Demand 一致。 |
 | TA-5 | P3 | blocked | S3 `migu-private-research-ap-southeast-2/cloud_run/cloud_run_smoke/`（幾 KB 測試檔）要不要刪。 | Blocked on 使用者決定刪除。First action：`cloud_run.sh cleanup tools/cloud_run/smoke.job.env --yes`（只刪該前綴）。 | 前綴已清空或使用者決定保留。 |
 | TA-6 | P3 | ready | 雙北重算 P1 未解疑點：兩個「禁止行人」樣本格反而變慢（原因未查）；Google 夜間能到土城／泰山／林口／五股、新模型判定到不了（Google 步行 1.35–1.9 km）。 | First action：併入 TA-2 報告逐格查路網與步行上限。 | 原因寫進 ntpe_rerun.md，或確認為模型假設差異。 |
+
+## 歷史圖層（2026-11-06 #30DayMapChallenge Day 6 Vintage 起頭）
+
+已合 develop、未發版：mini #856（Day 6 四層：臺南海岸線三代、1932 臺北町界、1921 祠廟、燈塔與測候所；古地圖 historicalMapSinica 改公開並加 1944 美軍地形圖年代）、#860（站主限定 water1944Taipei）。gis-platform mig 503（古地圖解鎖）、504（gated_layers 補 water1944Taipei）已套用。資料與探索成果：`GIS/_worktree-backups/2026-11-06/`（thcts/ 盤點 CSV、授權摘要、raw 62 圖層、explore/1..10 FINDINGS.md；water1944/ 抽取腳本）。
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| HIST-1 | P2 | blocked | 確認兩個中研院來源的授權能用在個人網站：THCTS（CC BY-NC-SA 3.0 TW，條文開頭寫「國內研究、教學等非商業使用者」）與臺灣百年歷史地圖 WMTS（CC BY-NC，簡報寫免申請）。 | Blocked on 使用者寄信（owner decision）。First action：寄 gis@gate.sinica.edu.tw，說明非營利個人網站、圖層用途與署名方式。 | 收到回覆並記在 thcts_inventory_summary.md；若不允許，下架或改站主限定 Day 6 與古地圖。 |
+| HIST-2 | P2 | blocked | 把歷史資料整理成正式的「歷史底圖」主題圖層（使用者 2026-11-07：之後要整理歷史圖層放進來）。 | Blocked on 使用者選題與設計稿。First action：從 `thcts/thcts_layers_inventory.csv`（129 主題／267 圖層）與 explore/ 結論挑候選（強：Q8 1953 番界、Q4 1921 鐵路與糖鐵、Q2 1904 陂塘；弱：Q3 圳道、Q9 人口不建議），每層寫來源年代、TWD67→WGS84 七參數轉換（中位誤差 49 m）、Big5／UTF-8 編碼、授權；pipeline 放 analytics、registry 進 pulse-data，地圖畫面先出設計稿。 | 使用者選定的圖層上 develop，圖例含年代、來源、CC BY-NC-SA 署名與「位置可能偏移」。 |
+| HIST-3 | P3 | ready | 研究成果搬進 git：`_worktree-backups/2026-11-06/thcts/` 與 `water1944/` 不在任何 repo。 | First action：搬（不複製）到 analytics `docs/topic-research/historical-thcts/`，raw zip 依大小決定放 data/raw 或只留下載清單。 | 研究文件在 analytics 有正本，備份資料夾留指標。 |
+| HIST-4 | P2 | conditional | Day 6 發版與發文收尾。 | Trigger：下次整批發版（develop→master 須使用者拍板）。First action：發版後在正式站用拍攝模式重拍 6 張，補 Threads 草稿（`day06-vintage-threads-draft.md`）的網站連結，確認草稿〔待確認〕項（錦町／柳町／綠町部分比對）。 | 正式站可見 Day 6 四層與古地圖（非站主），貼文發出。 |
+| HIST-5 | P3 | ready | water1944Taipei 後續：細水路只抽到約一半未上圖；只有臺北盆地；pulse-data registry／warehouse 是否已登記未確認。 | First action：查 pulse-data registry 有無 water1944Taipei 與 Day 6 四層的條目，缺的補登（DISPLAY_ONLY 或可分析需標明）。 | registry 覆蓋檢查 0 缺口；是否擴大範圍由使用者決定。 |
 
 ## Feature backlog index
 

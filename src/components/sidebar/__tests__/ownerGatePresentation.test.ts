@@ -37,10 +37,22 @@ const panel = (extra: object) => renderToStaticMarkup(createElement(LayersPanel,
 } as never));
 const lockIcons = (html: string) => (html.match(/lucide-lock/g) ?? []).length;
 
+// 全鎖主題：古地圖 2026-11-06 改公開後，現有主題沒有整個上鎖的，從「災害」主題只留站主限定層組一個
+const LOCKED_KEY = "soilLiquefactionPotential";
+const LOCKED_TITLE = "測試全鎖主題";
+const lockedTheme = (() => {
+  const base = THEMES.find((t) => t.groups.some((g) => g.layers.some((l) => l.key === LOCKED_KEY)))!;
+  const groups = base.groups
+    .map((g) => ({ ...g, layers: g.layers.filter((l) => locked.has(l.key)) }))
+    .filter((g) => g.layers.length > 0);
+  return { ...base, title: LOCKED_TITLE, groups, defaultCollapsed: false };
+})();
+
 describe("站主限定圖層：非站主一律鎖頭列，不隱藏", () => {
-  it("歷史底圖主題對非站主照常顯示", () => {
-    const html = panel({ themes: THEMES.filter((t) => t.title === "歷史底圖 Historical Basemaps") });
-    expect(html).toContain("歷史底圖");
+  it("整個上鎖的主題對非站主照常顯示（列帶鎖頭）", () => {
+    const html = panel({ themes: [lockedTheme] });
+    expect(html).toContain("土壤液化潛勢");
+    expect(lockIcons(html)).toBeGreaterThan(0);
   });
 
   it("模擬面板：站主限定實驗以鎖頭列呈現（未展開也看得到列）", () => {
@@ -50,11 +62,11 @@ describe("站主限定圖層：非站主一律鎖頭列，不隱藏", () => {
   });
 
   it("面板搜尋：上鎖圖層照常列出並帶鎖頭；Agent 預設路徑仍 fail-closed", () => {
-    const html = panel({ themes: THEMES, search: "古地圖" });
-    expect(html).toContain("古地圖");
+    const html = panel({ themes: THEMES, search: "土壤液化潛勢" });
+    expect(html).toContain("土壤液化潛勢");
     expect(lockIcons(html)).toBeGreaterThan(0);
-    expect(searchLayers("古地圖").some((r) => r.key === "historicalMapSinica")).toBe(false);
-    expect(searchLayers("古地圖", { excludeLocked: false }).some((r) => r.key === "historicalMapSinica")).toBe(true);
+    expect(searchLayers("土壤液化潛勢").some((r) => r.key === LOCKED_KEY)).toBe(false);
+    expect(searchLayers("土壤液化潛勢", { excludeLocked: false }).some((r) => r.key === LOCKED_KEY)).toBe(true);
   });
 
   it("全鎖主題的「全部開關」走鎖定列同一條權限提示（onToggleVisibility），不走 bulk", () => {
@@ -62,12 +74,13 @@ describe("站主限定圖層：非站主一律鎖頭列，不隱藏", () => {
     const bulk: string[][] = [];
     bulkToggles.clear();
     panel({
-      themes: THEMES.filter((t) => t.title === "歷史底圖 Historical Basemaps"),
+      themes: [lockedTheme],
       onToggleVisibility: (key: string) => toggled.push(key),
       onBulkSetVisibility: (keys: string[]) => bulk.push(keys),
     });
-    bulkToggles.get("歷史底圖 Historical Basemaps")!();
-    expect(toggled).toEqual(["historicalMapSinica"]);
+    bulkToggles.get(LOCKED_TITLE)!();
+    expect(toggled.length).toBeGreaterThan(0);
+    expect(toggled.every((k) => locked.has(k as keyof LayerVisibility))).toBe(true);
     expect(bulk).toEqual([]);
   });
 });

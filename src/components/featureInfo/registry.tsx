@@ -77,13 +77,17 @@ import type { KrDataKey } from "../../data/krDataKeys";
 const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
+import { IE_DATA_PANELS, IeAdminBoundariesPanel } from "./iePanels";
+import { IE_DATA_SPECS } from "../../data/ieDataLayers";
+import type { IeDataKey } from "../../data/ieDataKeys";
+const IE_HEADER_LABELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IeDataKey, string>;
 import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
-import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel } from "./mapchallengePanels";
+import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
@@ -466,6 +470,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   krPowerTowers: KrPowerTowersPanel,
   krOilGas: KrOilGasPanel,
   caAdminBoundaries: CaAdminBoundariesPanel,
+  ieAdminBoundaries: IeAdminBoundariesPanel,
+  ...IE_DATA_PANELS,
   caTransitStops: CaTransitStopsPanel,
   caAirportsPorts: CaAirportsPortsPanel,
   caMajorRoads: CaMajorRoadsPanel,
@@ -638,6 +644,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   mapchallengeDay04ScaleTcCh: MapchallengeDay04ScaleTcChPanel,
   mapchallengeDay05SeaView: MapchallengeDay05SeaViewPanel,
   mapchallengeDay05SeaViewRuns: MapchallengeDay05SeaViewRunsPanel,
+  mapchallengeDay06Coast: MapchallengeDay06CoastPanel,
+  mapchallengeDay06Taipei1932: MapchallengeDay06Taipei1932Panel,
+  mapchallengeDay06Temples1921: MapchallengeDay06Temples1921Panel,
+  mapchallengeDay06Lighthouses: MapchallengeDay06LighthousesPanel,
   transitAccessGrid: TransitAccessGridPanel,
   transitAccessPlayback: TransitAccessPlaybackPanel,
   // Base map
@@ -1137,6 +1147,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   krPowerTowers: "高壓鐵塔 송전철탑",
   krOilGas: "油氣設施 석유·가스 시설",
   caAdminBoundaries: "行政邊界 Administrative Boundaries",
+  ieAdminBoundaries: "行政邊界 Administrative Boundaries",
+  ...IE_HEADER_LABELS,
   caTransitStops: "公共運輸站點 Transit Stops",
   caAirportsPorts: "機場與港口 Airports & Ports",
   caMajorRoads: "主要道路 Major Roads",
@@ -1295,6 +1307,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   mapchallengeDay04ScaleTcCh: "臺中與彰化工廠細格",
   mapchallengeDay05SeaView: "海景路段",
   mapchallengeDay05SeaViewRuns: "最長連續海景",
+  mapchallengeDay06Coast: "臺南海岸線三代",
+  mapchallengeDay06Taipei1932: "1932 臺北市町界",
+  mapchallengeDay06Temples1921: "廟不搬家：1921 祠廟",
+  mapchallengeDay06Lighthouses: "燈塔與測候所今昔",
   transitAccessGrid: "網格大眾運輸可及性（情境推演）",
   transitAccessPlayback: "單一起點大眾運輸擴張（情境推演）",
   // Base map

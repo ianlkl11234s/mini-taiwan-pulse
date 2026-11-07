@@ -296,5 +296,8 @@
   "popup.atlas.swLessee": "賃借人",
   "popup.atlas.swContract": "契約期間",
   "popup.atlas.swUse": "賃貸用途",
-  "popup.atlas.swTaipowerCaution": "台湾電力が電池交換ステーションまたは充電ステーション用に賃貸している土地で、営業中の交換ステーションとは限りません"
+  "popup.atlas.swTaipowerCaution": "台湾電力が電池交換ステーションまたは充電ステーション用に賃貸している土地で、営業中の交換ステーションとは限りません",
+  "popup.atlas.w1944Town": "郷鎮市区",
+  "popup.atlas.w1944Source": "元の面番号",
+  "popup.atlas.w1944Caution": "1944 年米軍地形図から色で抽出。位置は 5–15 m ずれる可能性があります。1944 年の各面を現在の河川面（50 m 拡張）で、現在も河道の部分と河道でない部分に分けています"
 }

@@ -408,6 +408,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-np-location-signs-circle"], type: "krNpLocationSigns" },
   { layers: ["kr-urban-parks-circle"], type: "krUrbanParks" },
   { layers: ["kr-sports-facilities-circle"], type: "krSportsFacilities" },
+  { layers: ["kr-schools-circle"], type: "krSchools" },
+  { layers: ["kr-hospitals-pharmacies-circle"], type: "krHospitalsPharmacies" },
+  { layers: ["kr-fire-stations-circle"], type: "krFireStations" },
+  { layers: ["kr-civil-defense-shelters-circle"], type: "krCivilDefenseShelters" },
+  { layers: ["kr-police-boxes-circle"], type: "krPoliceBoxes" },
   { layers: ["kr-np-trails-line"], type: "krNpTrails" },
   { layers: ["kr-territorial-sea-line"], type: "krTerritorialSea" },
   { layers: ["kr-rivers-osm-line", "kr-rivers-osm-major-line"], type: "krRiversOsm" },
@@ -459,6 +464,14 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ca-fsa-fill"], type: "caPostalFsa" },
   { layers: ["ca-fed-fill"], type: "caFederalDistricts" },
   { layers: ["ca-admin-csd-fill", "ca-admin-cd-fill", "ca-admin-pr-fill"], type: "caAdminBoundaries" },
+  // 愛爾蘭第 1 波（規格驅動，layer id 見 data/ieDataLayers.ts；公園代表點 circle 由 repPointClickLayerIds 補）。點層在前，面層（Gaeltacht、公園）最後才命中
+  { layers: ["ie-place-names-circle"], type: "iePlaceNames" },
+  { layers: ["ie-activity-locations-circle"], type: "ieActivityLocations" },
+  { layers: ["ie-graveyards-circle"], type: "ieGraveyards" },
+  { layers: ["ie-maritime-boundaries-line"], type: "ieMaritimeBoundaries" },
+  { layers: ["ie-parks-fill"], type: "ieParks" },
+  { layers: ["ie-gaeltacht-fill"], type: "ieGaeltacht" },
+  { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },
@@ -857,6 +870,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 功能分區在重要濕地範圍內 → 排在範圍前面，點到分區時優先顯示分區
   { layers: ["important-wetland-zones-fill", "important-wetland-zones-outline"], type: "importantWetlandZones" },
   { layers: ["important-wetlands-fill", "important-wetlands-outline"], type: "importantWetlands" },
+  { layers: ["water-1944-taipei-fill", "water-1944-taipei-outline"], type: "water1944Taipei" },
   { layers: ["water-recreation-restricted-areas-fill", "water-recreation-restricted-areas-outline"], type: "waterRecreationRestrictedAreas" },
   { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
   { layers: ["major-occupational-accidents-circle", "major-occupational-accidents-glow"], type: "majorOccupationalAccidents" },
@@ -937,11 +951,17 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌊 30 天地圖挑戰 Day 5 視野（模擬面板，線；±5px bbox 命中）：最長連續海景在上、路段在下
   { layers: ["mapchallenge-day05-sea-view-runs-line"], type: "mapchallengeDay05SeaViewRuns" },
   { layers: ["mapchallenge-day05-sea-view-line"], type: "mapchallengeDay05SeaView" },
+  // 🏯 30 天地圖挑戰 Day 6 復古：點與線在上（燈塔歷史／今日點、祠廟、今日地名、海岸線），町界面放最後（面會吞點擊）
+  { layers: ["mapchallenge-day06-lighthouses-circle", "mapchallenge-day06-lighthouses-today-circle"], type: "mapchallengeDay06Lighthouses" },
+  { layers: ["mapchallenge-day06-temples-1921-circle"], type: "mapchallengeDay06Temples1921" },
+  { layers: ["mapchallenge-day06-coast-circle", "mapchallenge-day06-coast-line"], type: "mapchallengeDay06Coast" },
+  { layers: ["mapchallenge-day06-taipei-1932-fill"], type: "mapchallengeDay06Taipei1932" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
   // 南韓人口 H3 格：覆蓋全國的面，排在南韓點線 entry 之前會搶走設施點擊 → 放面層段
   { layers: ["kr-population-h3-fill"], type: "krPopulationH3" },
+  { layers: ["kr-school-districts-fill"], type: "krSchoolDistricts" },
   // 🏞️ 國家公園：大面積面層，排在道路、站點與 POI 之前會讓園區內的點擊先命中公園 → 放大面積面層段。
   { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
   // 原民／族語方言／客家文化重點發展區：鄉鎮級大面積面，排在點層之前會吞掉鄉鎮內所有點擊 → 放面層段

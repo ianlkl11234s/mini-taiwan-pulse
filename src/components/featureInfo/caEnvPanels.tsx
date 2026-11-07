@@ -7,7 +7,7 @@ import { caText, type CaCat } from "../../data/caInfraTypes";
 import { caQuakeLiveStatus } from "../../data/caLiveQuakesLoader";
 import {
   CA_AQHI_COLOR, CA_AQHI_POPUP, CA_AQHI_SOURCE, CA_CLIMATE_POPUP, CA_CLIMATE_SOURCE, CA_CLIMATE_STATUSES, CA_ENV_FETCHED_AT, CA_NPRI_GROUPS,
-  CA_NPRI_POPUP, CA_NPRI_SOURCE, CA_POP_GRID_BREAKS, CA_POP_GRID_POPUP, CA_POP_GRID_SOURCE, CA_QUAKE_COLOR, CA_QUAKE_LIVE_POPUP, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_POPUP, CA_QUAKE_SOURCE,
+  CA_NPRI_POPUP, CA_NPRI_SOURCE, CA_POP_GRID_BREAKS, CA_POP_GRID_POPUP, CA_POP_GRID_SOURCE, CA_QUAKE_COLOR, CA_QUAKE_LIVE_TYPE_COLORS, CA_QUAKE_LIVE_POPUP, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_POPUP, CA_QUAKE_SOURCE,
   CA_RADIATION_COLOR, CA_RADIATION_POPUP, CA_RADIATION_SOURCE, CA_WSER_POPUP, CA_WSER_SOURCE, CA_WSER_STATUSES,
 } from "../../data/caEnvTypes";
 
@@ -41,7 +41,7 @@ export function CaEarthquakesPanel({ props }: P) {
 /** 即時地震：資料日期＝這份快照的抓取日（UTC）。 */
 export function CaEarthquakesLivePanel({ props }: P) {
   const fetchedAt = caQuakeLiveStatus.get().fetchedAt?.slice(0, 10) ?? CA_ENV_FETCHED_AT;
-  return <SpecPanel props={props} spec={CA_QUAKE_LIVE_POPUP} source={CA_QUAKE_LIVE_SOURCE} color={CA_QUAKE_COLOR} fetchedAt={fetchedAt} />;
+  return <SpecPanel props={props} spec={CA_QUAKE_LIVE_POPUP} source={CA_QUAKE_LIVE_SOURCE} color={CA_QUAKE_LIVE_TYPE_COLORS[props.event_type as keyof typeof CA_QUAKE_LIVE_TYPE_COLORS] ?? CA_QUAKE_COLOR} fetchedAt={fetchedAt} />;
 }
 
 /** 人口網格：標題色＝該格密度級距色（跟圖面同一組色盤）。 */

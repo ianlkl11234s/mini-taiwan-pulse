@@ -266,6 +266,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - **即時光暈上限**（`LIVE_DECORATION_CAP`）：不透明度 ≤ 0.35、`circle-blur` ≥ 0.6、半徑 ≤ 主體 ×2。⚠️ 目前半徑上限**只對固定階（S／M／L）生效**；泡泡（B）即時層（`newsEvents`、`a1AccidentRealtime`）只限透明度與 blur，不限半徑（`pointSpec.ts` 只在有固定階半徑時才限）。要補需拍板怎麼定 B 的主體半徑。
 - **即時層名單**：registry 集中在 `LIVE_DECORATION_LAYERS`：`newsEvents`、`lightning`、`lightningCwa`、`nuclearRadiation`、`a1AccidentRealtime`。hook **沒有集中名單**，各 hook 自己限制：引用 `LIVE_DECORATION_CAP` 的有淹水感測、地下水、IoT 河川、IoT 水工結構、河川水位；另有 AQI 測站、海洋觀測（CWA／ISOHE）、雨量、北市抽水站、災害示警 pulse、颱風目前位置 halo、衛星變軌 ring 自帶光暈（各層數值未逐一核對，待確認）。靜態 hook 層（待認領養動物、動物服務據點、清潔隊）光暈透明度 0（待確認）。
 - **例外**：捷運站「實際範圍（光暈示意）」模式的 `metro-pt-*` 光暈是範圍表示法，不套 P-6（`POINT_SPEC_EXEMPT`，2026-09-28 使用者）。
+- **例外**：30 天地圖挑戰 Day 6「廟不搬家」（`mapchallengeDay06Temples1921`）的 `same-mark` 外圈：只畫在 14 處「今天仍有同名寺廟」的 1921 祠廟上，中空圓圈、描邊 1.5px、中性對比色（暗 `#f8fafc`／淡 `#0f172a`，同今日位置點），半徑 z7 6／z10 7.5／z14 10（乘大小滑桿）。是資料編碼（同名原址）、不是選取或光暈；圖例有對應列（`POINT_SPEC_EXEMPT`，2026-11-06 使用者同意）。
 - **例外**：30 天地圖挑戰 Day 5「海景路段」（`mapchallengeDay05SeaView`）的 `glow-outer`／`glow-inner` 兩層靜態線光暈（開闊海景、看得到海才畫；寬為主體 ×8／×3、blur ×6／×2、透明度 0.35／0.7×圖層透明度，淡底圖再減半），暗底圖線芯往白混 40%（偏離 YlGnBu）；類別預設只勾這兩類。圖層本身就是「哪裡看得到海」，光暈是資料編碼的強調，不是裝飾（`POINT_SPEC_EXEMPT`，2026-11-05 使用者在設計稿選 G5）。同層另有兩項線寬例外：z7 開闊／看得到海加粗到道路 2、鐵路 2.5（V-1），「最長連續海景」前 3 名 3／5（`mapchallengeDay05Style.ts`）。
 
 **P-7 車站（#393，2026-09-28）**：高鐵、台鐵、捷運的光柱預設**關**（`layerParamsSpec.ts` `thsrPillarVisible`／`traPillarVisible`／`metroPillarVisible` `default: false`）。捷運有兩種顯示模式（預設「Mapbox 點位」）：「Mapbox 點位」所有縮放都顯示點；「實際範圍（光暈示意）」z ≥ 10 用光暈示意站點範圍（捷運沒有站體面資料）、z < 10 顯示點。選項名稱「Mapbox 點位」含英文品牌名，與中文優先不一致，待決。
@@ -364,6 +365,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - **T-1 字型**：`text-font` 維持 `["DIN Pro Medium","Arial Unicode MS Regular"]`（英數），強調用 Bold。中文：明確設定 `localIdeographFontFamily: "PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif`（與 `--font-cjk` 同 stack）。mapbox-gl 預設已是 `'sans-serif'`（中文本來就在前端用系統字繪製），這次只是把字型名稱指定成與 UI 相同，**不增加下載或運算負擔**。已實作（R1）：`src/map/MapView.tsx`（主站）與 `src/bbox/BboxSelectorApp.tsx`（bbox 工具）以 `MAP_LOCAL_IDEOGRAPH_FONT`（= `FONT_CJK`）設定。embed（`src/embed/EmbedApp.tsx`，MapLibre）與分析卡片頁（`src/card/`，MapLibre）未設定——是否需要未驗證。
 - **T-2 字級與 halo**：POI 名稱 z10 10／z14 12；計數徽章 11／13 Bold；halo 1.25px、底圖色（暗 `rgba(15,23,42,0.92)`、淡 `rgba(255,255,255,0.94)`，現況已如此）。viz-library N2（分析標籤 10px 粗體＋3px halo）只用於分析結果。（常數 `LABEL`；R3b 已接線，GFW 計數字級保留 vessel_count step。分析卡片頁的地圖標籤另用 11／12px、halo 1.2／1.4，見 `spec.md` §5.34。）
 - **T-3 密度**：POI 名稱 minzoom = max(現值, 13)、`text-allow-overlap: false`；計數徽章保留原出現縮放並可 overlap。廁所 16、垃圾桶 15、回收與遊戲場 14 維持；旅客中心 10 → 13。
+  - **例外**：30 天地圖挑戰 Day 6「1932 臺北市町界」（`mapchallengeDay06Taipei1932`）町名 z12 起（`MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM`）。町名不是一般 POI，而是本層主體（面＋町名才看得出哪些町名留下）；z12 正好一眼看完整個舊城 74 町，z13 只看得到一半。仍 `text-allow-overlap: false`。2026-11-06 使用者同意；`r3bStyleContract.test.ts` 釘住。
 
 ### 3.6 暗／淡底圖差異規則（K-4）
 
@@ -383,7 +385,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 使用者要求「拉遠後要知道東西在哪裡」。四國共用；盤點與分批計畫見 PR 描述（南韓 32、英國 62、台灣＋日本 257 列）。
 
-- **V-1 全國視角一定看得到**：開著的圖層在「國家全覽縮放」（台灣 z7、日本 z5、英國 z5.5、南韓 z6、加拿大 z3.5）必須畫出東西。< 1 萬點直接畫點；≥ 1 萬點畫熱區（P-4）；交通、能源等骨幹點線優先直接畫，太多時低縮放只畫主要類別（例：電廠低縮放只畫大型、太陽光電從 z8 起）。做不到的登記例外並附提示（V-3）。
+- **V-1 全國視角一定看得到**：開著的圖層在「國家全覽縮放」（台灣 z7、日本 z5、英國 z5.5、南韓 z6、加拿大 z3.5、愛爾蘭 z6）必須畫出東西。< 1 萬點直接畫點；≥ 1 萬點畫熱區（P-4）；交通、能源等骨幹點線優先直接畫，太多時低縮放只畫主要類別（例：電廠低縮放只畫大型、太陽光電從 z8 起）。做不到的登記例外並附提示（V-3）。
 - **V-2 縮放連續**：同一層各子圖層的顯示區間要接續，layer 最早出現縮放不得比圖磚 minzoom 晚超過 1 級（低縮放熱區＋高縮放點算接續）；有理由（例：行政界、z4 起的密度網格）要登記。契約測試 `src/map/__tests__/visibilityContract.test.ts`（ratchet：既有違規列基準、只准減少）。
 - **V-3 看不到時要說明**：圖層開著、但目前縮放不畫或視野內沒資料時，擴充既有視野提示卡（spec §5.42，不另做元件）顯示「放大到 zN 顯示」；資料只在局部（例：倫敦）時給「前往有資料處」。規格見 [spec §5.42.1](./spec.md)（2026-10-31 使用者選示意「甲」）；局部資料層登記在 `src/data/layerCoverage.ts`，名稱含城市卻沒登記會被 `layerCoverage.test.ts` 擋下。
 - **V-4 分類圖例＝可篩選**：圖例有 ≥ 2 個名目類別，就要有類別篩選（多選，spec §5.12）；序位分級不算。類別差異大、各自量大時（例：運動場地 vs 高爾夫、學校各級）拆成子圖層。契約測試同 V-2（判斷：registry paint 以字串 `match` 分 ≥ 2 色、或南韓 `cats` ≥ 2，且規格沒有「資料篩選」類控件）。

@@ -4,7 +4,7 @@ import { LAYER_MANIFEST } from "../../../data/layerManifest";
 import { GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, CA_STATISTICS_TAB_THEMES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
-import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, KOREA_THEMES, CANADA_THEMES, WORLD_THEMES, resolveLayerPanel, STATISTICS_MACRO_GROUPS, GB_STATISTICS_MACRO_GROUPS, KR_STATISTICS_MACRO_GROUPS, CA_STATISTICS_MACRO_GROUPS } from "../layerPanels";
+import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, KOREA_THEMES, CANADA_THEMES, IRELAND_THEMES, WORLD_THEMES, resolveLayerPanel, STATISTICS_MACRO_GROUPS, GB_STATISTICS_MACRO_GROUPS, KR_STATISTICS_MACRO_GROUPS, CA_STATISTICS_MACRO_GROUPS } from "../layerPanels";
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
@@ -171,7 +171,7 @@ describe("Layers 與 Statistics 分頁", () => {
     // 加拿大統計的完整目錄主題（人口統計／社經統計）同樣只有統計面。
     const caStatisticsDataTitles = new Set(THEMES.filter(theme => theme.country === "CA" && theme.groups.every(group => group.layers.every(layer => CA_KEYS.has(layer.key)))).map(theme => theme.title));
     const nonStatisticsTitles = THEMES.filter(theme => !(theme.country === "TW" ? statisticsDataTitles : theme.country === "KR" ? krStatisticsDataTitles : theme.country === "CA" ? caStatisticsDataTitles : gbStatisticsDataTitles).has(theme.title)).map(theme => theme.title).sort();
-    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...UK_THEMES, ...KOREA_THEMES, ...CANADA_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
+    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...UK_THEMES, ...KOREA_THEMES, ...CANADA_THEMES, ...IRELAND_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
     expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...getThemeLayerKeys(GB_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(KR_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(CA_STATISTICS_TAB_THEMES)]));
   });
 

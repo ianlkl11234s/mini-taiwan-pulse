@@ -2253,3 +2253,22 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `STATUS.md`：加 10-30 v2.18.0 段。
 - `BACKLOG.md`：更新 UKLZ-1／UKLZ-2，新增 UKLZ-3、UKD-1、UKOSM-1、UKREL-1。
 
+## 2026-11-04～11-06 transit_access 三市、雲端運算工具
+
+### What worked
+
+- 臺中做完先回頭檢查雙北，抓到兩個會影響已發布版本的問題：r5py 依檔名重用 `~/.cache/r5py/` 的連結，同名輸入會拿到舊檔（改成檔名前加內容 hash）；國道客運的上下車限制沒套（TDX 限制下臺中 876 班只有 5 班市內可搭）。
+- 雲端先用臺中驗證：約 12 分鐘（本機 21 分鐘以上），GPS 與開車結果逐位元相同，表定版只有隨機抽樣差異，才做成通用工具。
+- 雲端金鑰只經 SSH stdin 進環境變數、機器設「關機即刪除」加 watchdog、安全群組只開目前 IP；故意失敗 23 秒內自動刪機。
+
+### Friction / limits
+
+- DetailedItineraries 不看上下車限制、TravelTimeMatrix 會看，查證路線時兩者對不上要先想到這點。
+- 一開始把短期金鑰寫進主機 `~/.aws/credentials`，改成只放環境變數；權限更窄的 federation token 被拒，主機上的短期金鑰仍有完整 EC2＋S3 權限（已告知使用者）。
+- 收尾時才發現自己寫進 BACKLOG 的「正式站卡在 v2.21.0」已過時（實測 v2.25.1）：寫上線狀態前要先查正式站版號。
+
+### Memory output
+
+- `BACKLOG.md`：新增 TA-1～TA-6（#841），本輪更正正式站版號。
+- `docs/PROJECTS.md`：更新可及性列、新增 cloud_run 列。
+

@@ -85,6 +85,7 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──
   G({ key: "importantWetlands", sourceId: "important-wetlands", count: 89, def: "point" }),
   G({ key: "importantWetlandZones", sourceId: "important-wetland-zones", count: 578, def: "polygon" }),
+  G({ key: "water1944Taipei", sourceId: "water-1944-taipei", count: 830, def: "polygon" }),
   G({ key: "cemeteryZoning", sourceId: "cemetery-zoning", count: 114, def: "point" }),
   G({ key: "waterRecreationRestrictedAreas", sourceId: "water-recreation-restricted-areas", count: 33, def: "point" }),
   G({ key: "tourHotSpringZones", sourceId: "tour-hot-spring-zones", count: 16, def: "point" }),
@@ -142,6 +143,10 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "jpMarineEbsaCoastal", family: "jpTourism", file: "jp_marine_ebsa_moe_coastal_20150101_points.pmtiles", sourceLayer: "jp_marine_ebsa_coastal_points", count: 270, def: "point" },
   // ── 南韓：useKrDataLayers 規格驅動層（circle id＝`${kebab(key)}-point-circle`，面＝規格 layerId） ──
   { key: "krCemeteriesOsm", family: "krData", file: "kr_cemeteries_osm_points.pmtiles", sourceLayer: "kr_cemeteries_osm_points", count: 16_842, def: "point", maxzoom: 14, heatIntensity: 0.05 },
+  // 第 7 波：小學通學區鋪滿國土（大範圍面）→ 預設面
+  { key: "krSchoolDistricts", family: "krData", file: "kr_school_districts_points.pmtiles", sourceLayer: "kr_school_districts_points", count: 7_132, def: "polygon", maxzoom: 14 },
+  // 愛爾蘭第 1 波：公園（同一支 useKrDataLayer；Dublin City／South Dublin 官方＋其餘 OSM）
+  { key: "ieParks", family: "krData", file: "ie_parks_points.pmtiles", sourceLayer: "ie_parks_points", count: 3221, def: "point", maxzoom: 14 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));

@@ -4,6 +4,7 @@
 // layerType → 元件對應在 featureInfo/registry.tsx。新增 layer popup 只要：
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
 import { KR_DATA_KEYS } from "../data/krDataKeys";
+import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
 import { COLORS, SURFACE, LIGHT, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -30,6 +31,7 @@ import "./featureInfo/featureInfo.css";
 const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 南韓第 3–5 波 18 層：panel 自掛 SourceFooter
   ...KR_DATA_KEYS,
+  ...IE_DATA_KEYS,
   // 2024 投開票所：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
   "pollingStations2024",
   // 2026 議員選區：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
@@ -81,6 +83,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "krPowerTowers",
   "krOilGas",
   "caAdminBoundaries",
+  "ieAdminBoundaries",
   "caTransitStops",
   "caAirportsPorts",
   "caMajorRoads",
@@ -192,6 +195,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh",
   // 30 天地圖挑戰 Day 5 視野：panel 自掛路線線形／視線推估出處。
   "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns",
+  // 30 天地圖挑戰 Day 6 復古：panel 自掛 THCTS 出處與授權。
+  "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

@@ -178,6 +178,10 @@ public/world/ca_place_names.pmtiles
 public/world/ca_terrain_hillshade.pmtiles
 public/world/ca_earthquakes.pmtiles
 public/world/ca_population_grid.pmtiles
+# 愛爾蘭第 0 波（行政邊界 38.9MB：LA 31／ED 3,420／SA 18,919，走 S3 deploy-assets/world/）
+public/world/ie_admin_boundaries.pmtiles
+# 愛爾蘭第 1 波海床地形（INFOMAR raster 26.5MB，走 S3 deploy-assets/world/；其餘第 1 波 7 檔 < 8MB 進 git）
+public/world/ie_bathymetry.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

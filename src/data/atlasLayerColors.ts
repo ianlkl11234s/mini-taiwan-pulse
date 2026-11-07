@@ -51,6 +51,8 @@ export const ATLAS_LAYER_COLORS = {
   renewablePermitsNational: "#eab308",
   importantWetlands: "#059669",
   importantWetlandZones: "#15803d",
+  // 1944 水域（臺北盆地，站主限定，2026-11-06）：識別色＝今日仍是河道的水域藍
+  water1944Taipei: "#38bdf8",
   waterRecreationRestrictedAreas: "#be123c",
   batterySwapStations: "#0d9488",
   // 地層下陷＋海堤 G19（2026-10-17）

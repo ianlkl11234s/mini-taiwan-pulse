@@ -338,6 +338,7 @@
   "theme.原民與農村 Indigenous & Rural": "先住民族・農村",
   "theme.原住民族 Indigenous Peoples": "先住民族",
   "theme.客家 Hakka": "客家",
+  "theme.愛爾蘭語區 Gaeltacht": "アイルランド語圏（ゲールタハト）",
   "theme.農村 Rural": "農村",
   "theme.疾病與健康統計 Disease & Health Statistics": "疾病・健康統計",
   "theme.體育統計 Sports Statistics": "スポーツ統計",
@@ -428,5 +429,6 @@
   "theme.Day 5 視野 Perspectives": "Day 5 視点",
   "theme.歷史地圖": "歴史地図",
   "theme.歷史底圖 Historical Basemaps": "歴史地図",
-  "theme.自然公園 Natural Parks": "自然公園"
+  "theme.自然公園 Natural Parks": "自然公園",
+  "theme.Day 6 復古 Vintage": "Day 6 ヴィンテージ"
 }

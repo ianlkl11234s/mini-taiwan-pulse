@@ -18,8 +18,9 @@
 
 - **唯一來源＝manifest `topics` 的 `"OWNER_ONLY"` 標記**（`src/data/layerManifest.ts`）。
   `layerCatalog.ts` 的 `GATED_LAYERS` 由它派生（名稱、型別不變，urlState／embedWhitelist／layerGates／搜尋等消費端照舊）。
-- 釘死清單測試 `src/data/__tests__/ownerOnlyRegistry.test.ts`：manifest 標記與 `GATED_LAYERS` 都必須等於表內 59 個 key；
+- 釘死清單測試 `src/data/__tests__/ownerOnlyRegistry.test.ts`：manifest 標記與 `GATED_LAYERS` 都必須等於表內 58 個 key（2026-11-06 古地圖改公開，59→58）；
   少一個標記（＝私人圖層對外開放）或多一個都會紅。新增站主限定圖層時三處一起改：manifest topics、該測試、gis-platform `public.gated_layers`。
+  **改回公開**同樣三處反向：拿掉 `OWNER_ONLY`、測試移除 key、gated_layers 刪列（只改前端的話，`get_layer_gates()` 回來的 full 列仍會把非站主鎖住）；hook 若 `registerOwnerGateReset` 一併拿掉。前例：古地圖（見下表）。
 - DB `public.gated_layers`：mig 276（34 列）＋494（electionEvents2026）＋499（gbPollutionInventoryEngland）＋**500**（補前端獨有的 22 個 key 與 allenCoralAtlas，共 23 列，`rpc_name` NULL、`required_tier='owner'`、`lock_type='full'`）。
   DB 另有 `info_medical_ltc`（member tier，mig 281）不屬站主限定，不在前端名單。
 - 舊的 manifest 第三套名單（`OWNER_ONLY` 標記執行時沒人讀）與 `OWNER_ONLY_THEME_TITLES` 已併入／移除。
@@ -31,7 +32,7 @@
 | 位置 | 2026-11-06 前 | 現在 |
 |---|---|---|
 | 圖層面板列（含 jpWater、土壤液化、BSS、allenCoralAtlas 等私人 Range API 層） | 鎖頭 | 鎖頭（不變） |
-| 主題「歷史底圖」（古地圖） | 非站主整個主題隱藏 | 主題照常顯示，列帶鎖頭；右上地名提示卡仍只在解鎖時出現 |
+| 主題「歷史底圖」（古地圖） | 非站主整個主題隱藏 | **2026-11-06 改為公開**：不在名單、所有人可開、地名提示卡所有人都會出現；DB 列待 gis-platform migration 刪除（mig 500 補進的那一列），刪之前正式站仍依 DB 對非站主上鎖 |
 | 模擬面板（busCrowdingSim、bridgeResilienceTwinCity） | 非站主濾掉 | 列出鎖頭列（`resolveLayerPanel` 不再分站主） |
 | 面板搜尋（圖層、資料來源） | 上鎖層不出結果 | 照常列出並帶鎖頭（`searchLayers(…, { excludeLocked: false })`）；Agent 工具 `catalogTools` 仍用預設 fail-closed |
 | facOffshore／osmPowerPlantsStatic／powerPlants | 無介面 | 不變：沒有 LayerDef，只擋程式化開啟 |
@@ -51,7 +52,6 @@
    module cache 都帶 generation：撤權前發出、撤權後才回來的請求不寫回。
 3. **清 Mapbox**：`MapView` 註冊的清除把 registry 中被撤權的 GeoJSON overlay source `setData(空)`；
    source／layer 殼保留（`addAllOverlays` 建立、feed 靠 `getSource` 找它，直接移除會讓重新授權後開層空白或破壞 z-order），layer 由 visible=false 隱藏。
-   古地圖（自建 raster）則真的移除 layer 與所有年代 source，再開時重建。
    私人 Range API 六組（Allen、日本水資源、土壤液化、BSS、橋梁韌性、公車擁擠）原本就由各自 host 在 `!access.allowed` 時 `removeSource` 並清快取，沿用不重做。
 
 新增站主限定圖層若有 module cache 或自建 source，記得 `registerOwnerGateReset`。
@@ -77,8 +77,8 @@
 owner 判定：`src/lib/auth.ts` 的 `useMemberGate()` 登入後 `select tier from profiles where id = auth.uid()`；
 tier 載入為非同步，載入完成前 `isOwner=false`（先顯示鎖），完成後才解鎖。
 
-Phase 1 的 key 分組（電力、石化、畜牧與 3 個無介面層）與後來加入的日本水資源、BSS、橋梁韌性、公車擁擠、選舉活動、土壤液化、古地圖、
-英格蘭污染排放、allenCoralAtlas，完整清單看 `ownerOnlyRegistry.test.ts`。
+Phase 1 的 key 分組（電力、石化、畜牧與 3 個無介面層）與後來加入的日本水資源、BSS、橋梁韌性、公車擁擠、選舉活動、土壤液化、
+英格蘭污染排放、allenCoralAtlas（古地圖 2026-11-05 加入、2026-11-06 改公開移出），完整清單看 `ownerOnlyRegistry.test.ts`。
 
 **明確排除（保持公開，不鎖）**：`waterCanals`（灌排渠道）、`powerPoles`（電桿 2.96M）、
 加油站 5 層（gasStationCpc/Fpcc/Taisugar/Other/Canonical）與加油站覆蓋分析。
