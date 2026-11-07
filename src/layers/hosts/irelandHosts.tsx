@@ -93,6 +93,11 @@ export const IeCareHomesHost = makeIeDataHost("ieCareHomes", 0.85);
 export const IeFireStationsHost = makeIeDataHost("ieFireStations", 0.9);
 export const IeGardaStationsHost = makeIeDataHost("ieGardaStations", 0.85);
 export const IeCourtsHost = makeIeDataHost("ieCourts", 0.9);
+// 第 10 波：工商與農業
+export const IeIndustrialFacilitiesHost = makeIeDataHost("ieIndustrialFacilities", 0.85);
+export const IeSoilsHost = makeIeDataHost("ieSoils", 0.45);
+export const IePeatSoilsHost = makeIeDataHost("iePeatSoils", 0.5);
+export const IeAquacultureHost = makeIeDataHost("ieAquaculture", 0.6);
 
 /** 河川淹水範圍（NIFM）：情境 × 重現期一組一支 PMTiles，依 `ieRiverFloodExtentsScenarioIdx` 換 `file`（hook 偵測檔名改變就重建 source）。 */
 const FLOOD_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieRiverFloodExtents);
