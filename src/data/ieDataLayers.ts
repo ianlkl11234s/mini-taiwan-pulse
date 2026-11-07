@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 4 波 6 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -164,6 +164,7 @@ const NC_ND_NOTE = (org: string) => l3(`CC BY-NC-ND 4.0・非商業使用；© $
 
 // ───────────── 第 3b 波：海洋 ─────────────
 export const IE_W3B_FETCHED_AT = "2026-11-08";
+export const IE_W5_FETCHED_AT = "2026-11-08";
 /** EPA 年度浴場水質分級（Bathing Water Quality Regulations 2008，前 4 季採樣）：沿用歐盟浴場分級慣例的藍、綠、黃、紅。 */
 const BATHING_CATS: readonly KrCat[] = [
   { id: "excellent", values: ["excellent"], color: "#38bdf8", label: l3("極佳 Excellent", "Excellent", "極めて良好（Excellent）") },
@@ -202,6 +203,37 @@ const MARINE_SITE_CATS: readonly KrCat[] = [
   { id: "nature_reserve", values: ["nature_reserve"], color: "#f59e0b", label: l3("自然保留區（只有點位）", "Nature reserve (point only)", "自然保護区（点のみ）") },
   { id: "refuge", values: ["refuge"], color: "#f472b6", label: l3("地方動物避難所（只有點位）", "Refuge for fauna (point only)", "動物避難地（点のみ）") },
   { id: "ramsar", values: ["ramsar"], color: "#facc15", label: l3("拉姆薩濕地（只有點位）", "Ramsar wetland (point only)", "ラムサール湿地（点のみ）") },
+];
+// 第 5 波：自然保護與地質類別
+const PROTECTED_SITE_CATS: readonly KrCat[] = MARINE_SITE_CATS.filter((c) => c.id === "sac" || c.id === "spa" || c.id === "nha");
+const TRAIL_CATS: readonly KrCat[] = [
+  { id: "walking", values: ["Walking Trail"], color: "#4ade80", label: l3("步行步道", "Walking trail", "ウォーキングトレイル") },
+  { id: "long_distance", values: ["Long Distance Waymarked Way", "Pilgrim Path"], color: "#f59e0b", label: l3("長距離標示步道、朝聖路", "Long-distance waymarked way, pilgrim path", "長距離ウェイマーク・巡礼路") },
+  { id: "greenway", values: ["Greenway"], color: "#2dd4bf", label: l3("綠道（Greenway）", "Greenway", "グリーンウェイ") },
+  { id: "cycling", values: ["Road Cycling Trail", "Off Road Cycling Trail", "Mountain Biking Trail"], color: "#f472b6", label: l3("單車（公路、越野、登山車）", "Cycling (road, off-road, mountain bike)", "自転車（ロード・オフロード・MTB）") },
+  { id: "water", values: ["Paddling Trail", "Snorkelling Trail"], color: "#38bdf8", label: l3("水上（划槳、浮潛）", "Water (paddling, snorkelling)", "水上（パドリング・シュノーケリング）") },
+];
+const TREE_COUNCIL_CATS: readonly KrCat[] = [
+  { id: "fingal", values: ["fingal"], color: "#4ade80", label: l3("Fingal 議會", "Fingal County Council", "Fingal 議会") },
+  { id: "dlr", values: ["dlr"], color: "#facc15", label: l3("Dún Laoghaire-Rathdown 議會（2019）", "Dún Laoghaire-Rathdown County Council (2019)", "Dún Laoghaire-Rathdown 議会（2019）") },
+  { id: "dcc", values: ["dcc"], color: "#38bdf8", label: l3("Dublin City 議會", "Dublin City Council", "Dublin City 議会") },
+];
+const RADIATION_CATS: readonly KrCat[] = [
+  { id: "land_live", values: ["land_live"], color: "#4ade80", label: l3("陸地（即時上線）", "Land (live)", "陸上（リアルタイム）") },
+  { id: "land", values: ["land"], color: "#facc15", label: l3("陸地（非即時）", "Land (not live)", "陸上（非リアルタイム）") },
+  { id: "marine", values: ["marine"], color: "#38bdf8", label: l3("海域", "Marine", "海域") },
+];
+const LANDSLIDE_MATERIAL_CATS: readonly KrCat[] = [
+  { id: "peat", values: ["peat"], color: "#f59e0b", label: l3("泥炭（含泥炭質土）", "Peat (incl. peaty soil)", "泥炭（泥炭質土を含む）") },
+  { id: "earth", values: ["earth"], color: "#a78bfa", label: l3("土、泥、冰磧", "Earth, mud, till", "土・泥・氷礫土") },
+  { id: "rock", values: ["rock"], color: "#38bdf8", label: l3("岩石、岩屑坡", "Rock, scree", "岩・崖錐") },
+  { id: "debris", values: ["debris"], color: "#f472b6", label: l3("岩屑", "Debris", "岩屑") },
+  { id: "undifferentiated", values: ["undifferentiated"], color: "#94a3b8", label: l3("未分類", "Undifferentiated", "未区分") },
+];
+const RADON_CATS: readonly KrCat[] = [
+  { id: "1_in_5", values: ["1_in_5"], color: "#ef4444", label: l3("約每 5 戶有 1 戶偏高（High Radon Area）", "About 1 in 5 homes high (High Radon Area)", "約5戸に1戸が高い（High Radon Area）") },
+  { id: "1_in_10", values: ["1_in_10"], color: "#f59e0b", label: l3("約每 10 戶有 1 戶偏高", "About 1 in 10 homes high", "約10戸に1戸が高い") },
+  { id: "1_in_20", values: ["1_in_20"], color: "#facc15", label: l3("約每 20 戶有 1 戶偏高", "About 1 in 20 homes high", "約20戸に1戸が高い") },
 ];
 const FOUNDATION: Record<string, L3> = { "Fixed-Bottom": l3("固定式", "Fixed-bottom", "着床式"), Floating: l3("浮動式", "Floating", "浮体式") };
 
@@ -663,6 +695,138 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [l3("2020–2022 資料，非現況", "2020–2022 data, not current status", "2020–2022年のデータで現況ではない")],
     sourceOrg: "Department of Housing, Local Government and Heritage, National Marine Planning Framework – Offshore Renewable Energy", sourceUrl: DGI("marine-area-consent-wind2"), license: CC_BY, fetchedAt: IE_W3B_FETCHED_AT,
     loading: l3("愛爾蘭離岸再生能源海域載入中", "Loading Ireland offshore renewable energy areas", "アイルランドの洋上再生可能エネルギー海域を読み込み中"),
+  },
+  // ───────────── 第 5 波：觀光（國家公園、Wild Atlantic Way）、環境氣候（保護區、樹木、輻射站）、林業（步道）、災害（崩塌、氡氣） ─────────────
+  {
+    // V-3：大範圍面，預設面；代表點檔 `ie_national_parks_points.pmtiles`（repPointLayers）
+    key: "ieNationalParks", file: "ie_national_parks.pmtiles", sourceLayer: "ie_national_parks", geom: "polygon", layerId: "ie-national-parks-fill", outlineId: "ie-national-parks-line",
+    srcMinzoom: 4, srcMaxzoom: 13, minzoom: 4, color: "#4ade80", count: 6,
+    title: { props: ["name"], fallback: l3("國家公園", "National park", "国立公園") },
+    fields: [{ prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 },
+             { prop: "version", label: l3("邊界版本", "Boundary version", "境界の版"), kind: "code" }, LA],
+    legendNotes: [l3("NPWS 管理的 6 座國家公園：Killarney、Glenveagh、Connemara、Burren、Wild Nephin、Wicklow Mountains，合計 693 km²", "The 6 national parks managed by NPWS: Killarney, Glenveagh, Connemara, Burren, Wild Nephin and Wicklow Mountains (693 km² in total)", "NPWS が管理する国立公園6か所（Killarney・Glenveagh・Connemara・Burren・Wild Nephin・Wicklow Mountains、計693 km²）")],
+    popupNotes: [],
+    sourceOrg: "National Parks and Wildlife Service (NPWS), DHLGH — National Park Boundaries", sourceUrl: DGI("killarney-national-park-boundary-map"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("愛爾蘭國家公園載入中", "Loading Ireland national parks", "アイルランドの国立公園を読み込み中"),
+  },
+  {
+    key: "ieWildAtlanticWay", file: "ie_wild_atlantic_way.pmtiles", sourceLayer: "ie_wild_atlantic_way", geom: "line", layerId: "ie-wild-atlantic-way-line",
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#f59e0b", count: 406,
+    title: { props: [], fallback: l3("Wild Atlantic Way", "Wild Atlantic Way", "ワイルド・アトランティック・ウェイ") },
+    fields: [{ prop: "length_km", label: l3("此段長度", "Segment length", "区間長"), kind: "num", unit: "km", digits: 2 }, LA],
+    legendNotes: [l3("Fáilte Ireland 的西岸觀光路線 Wild Atlantic Way，Donegal 到 Cork 共 406 段、約 2,500 km（資料年 2020）", "Fáilte Ireland's Wild Atlantic Way touring route along the west coast, Donegal to Cork: 406 segments, about 2,500 km (data year 2020)", "Fáilte Ireland の西海岸観光ルート Wild Atlantic Way（Donegal〜Cork、406区間・約2,500 km、2020年データ）"),
+                  l3("來源沒有路名與分段名稱；沿線 Discovery Points 未收", "The source has no road or section names; Discovery Points along the route are not included", "出典に道路名・区間名はない。沿線の Discovery Points は未収録")],
+    popupNotes: [],
+    sourceOrg: "Fáilte Ireland — Wild Atlantic Way Route, via National Marine Planning Framework (DHLGH)", sourceUrl: DGI("wild-atlantic-way-route1"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("Wild Atlantic Way 載入中", "Loading Wild Atlantic Way", "ワイルド・アトランティック・ウェイを読み込み中"),
+  },
+  {
+    // V-3：保護區小而零散，預設點；代表點檔 `ie_protected_sites_points.pmtiles`
+    key: "ieProtectedSites", file: "ie_protected_sites.pmtiles", sourceLayer: "ie_protected_sites", geom: "polygon", layerId: "ie-protected-sites-fill", outlineId: "ie-protected-sites-line",
+    srcMinzoom: 4, srcMaxzoom: 13, minzoom: 4, color: "#38bdf8", count: 806,
+    catProp: "designation", cats: PROTECTED_SITE_CATS,
+    title: { props: ["name"], fallback: l3("指定保護區", "Designated site", "指定保護区") },
+    fields: [{ prop: "designation", label: l3("類型", "Designation", "指定種別"), map: Object.fromEntries(PROTECTED_SITE_CATS.map((c) => [c.id, c.label])) },
+             { prop: "site_code", label: l3("站點代碼", "Site code", "サイトコード"), kind: "code" },
+             { prop: "area_ha", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 0 },
+             { prop: "version", label: l3("邊界版本", "Boundary version", "境界の版"), kind: "code" }, LA],
+    legendNotes: [l3("NPWS 法定指定保護區：SAC 433、SPA 202、NHA 171（含海域部分）；同一地可同時是 SAC 與 SPA，兩面重疊", "NPWS statutory designated sites: 433 SAC, 202 SPA and 171 NHA (including marine parts); a site can be both SAC and SPA, so areas overlap", "NPWS の法定指定保護区：SAC 433・SPA 202・NHA 171（海域部分を含む）。SAC と SPA が重なる場所がある"),
+                  l3("提議中的 pNHA（1,180 處）未收；海域部分與「受保護海域」圖層重疊", "Proposed NHAs (pNHA, 1,180 sites) not included; marine parts overlap the Protected Marine Sites layer", "提案中の pNHA（1,180か所）は未収録。海域部分は「海域の保護区」レイヤーと重なる")],
+    popupNotes: [],
+    sourceOrg: "National Parks and Wildlife Service (NPWS), DHLGH — SAC, SPA and NHA boundaries", sourceUrl: DGI("special-protection-areas"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("愛爾蘭指定保護區載入中", "Loading Ireland designated sites", "アイルランドの指定保護区を読み込み中"),
+  },
+  {
+    key: "ieNationalTrails", file: "ie_national_trails.pmtiles", sourceLayer: "ie_national_trails", geom: "line", layerId: "ie-national-trails-line",
+    srcMinzoom: 4, srcMaxzoom: 13, minzoom: 4, color: "#4ade80", count: 1340,
+    catProp: "trail_type", cats: TRAIL_CATS, otherColor: "#94a3b8", otherLabel: l3("其他、未分類（登山通道、騎馬等）", "Other / unspecified (mountain access, horse riding…)", "その他・未分類（登山アクセス・乗馬など）"),
+    title: { props: ["name"], fallback: l3("步道", "Trail", "トレイル") },
+    fields: [{ prop: "trail_type", label: l3("類型（原文）", "Type", "種別（原文）") },
+             { prop: "length_km", label: l3("長度", "Length", "長さ"), kind: "num", unit: "km", digits: 1 },
+             { prop: "registered", label: l3("已登錄", "Registered", "登録済み"), map: YES_NO }, LA],
+    legendNotes: [l3("Sport Ireland 國家步道登錄（National Trails Register）1,340 條、約 18,500 km：步行、長距離標示步道、綠道、單車、划槳等", "Sport Ireland National Trails Register: 1,340 trails, about 18,500 km — walking, long-distance waymarked ways, greenways, cycling, paddling and more", "Sport Ireland の全国トレイル登録1,340本・約18,500 km（徒歩・長距離ウェイマーク・グリーンウェイ・自転車・パドリングなど）"),
+                  l3("北愛 3 條已剔除；Coillte 林道與遊憩步道未收", "3 Northern Ireland trails removed; Coillte forest roads and recreation trails not included", "北アイルランドの3本は除外。Coillte の林道・レクリエーション路は未収録")],
+    popupNotes: [],
+    sourceOrg: "Sport Ireland — National Trails Register", sourceUrl: DGI("national-trails-register"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("愛爾蘭國家步道載入中", "Loading Ireland national trails", "アイルランドの全国トレイルを読み込み中"),
+  },
+  {
+    // 6.8 萬株：拉遠熱區（V-1），z12 起點
+    key: "ieStreetTrees", file: "ie_street_trees.pmtiles", sourceLayer: "ie_street_trees", geom: "point", layerId: "ie-street-trees-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, heat: { intensity: 1 }, color: "#4ade80", tier: "S", count: 67962,
+    catProp: "council", cats: TREE_COUNCIL_CATS,
+    title: { props: ["common_name", "species"], fallback: l3("樹木", "Tree", "樹木") },
+    fields: [{ prop: "species", label: l3("學名", "Species", "学名") }, { prop: "common_name", label: l3("俗名", "Common name", "一般名") },
+             { prop: "height", label: l3("樹高", "Height", "樹高") }, { prop: "age", label: l3("樹齡階段", "Age class", "樹齢区分") },
+             { prop: "condition", label: l3("狀況", "Condition", "状態") }, { prop: "trunk", label: l3("幹徑", "Trunk / stem diameter", "幹径") },
+             { prop: "location", label: l3("位置", "Location", "位置") },
+             { prop: "council", label: l3("調查議會", "Surveying council", "調査した議会"), map: Object.fromEntries(TREE_COUNCIL_CATS.map((c) => [c.id, c.label])) },
+             { prop: "tree_id", label: l3("樹木編號", "Tree ID", "樹木番号"), kind: "code" }],
+    legendNotes: [l3("只有都柏林三個議會：Fingal 35,978、Dún Laoghaire-Rathdown 16,235（2019）、Dublin City 15,749 株；其餘 28 個地方政府（含 South Dublin）未涵蓋", "Dublin's three councils only: Fingal 35,978, Dún Laoghaire-Rathdown 16,235 (2019) and Dublin City 15,749 trees; the other 28 local authorities (incl. South Dublin) are not covered", "ダブリンの3議会のみ（Fingal 35,978・Dún Laoghaire-Rathdown 16,235〔2019〕・Dublin City 15,749本）。South Dublin を含む他28自治体は未収録"),
+                  l3("各議會調查範圍與欄位不同，不是全市普查；DLR 樹高為實測值（推定單位公尺、未經官方確認）。拉遠為熱區，放大到 z12 才出現點", "Survey scope and fields differ by council; not a complete census. DLR heights are measured values (assumed metres, unconfirmed). Heatmap when zoomed out; points from z12", "調査範囲と項目は議会ごとに異なり全数調査ではない。DLR の樹高は実測値（単位はメートルと推定、未確認）。縮小時はヒートマップ、z12 から点")],
+    popupNotes: [],
+    sourceOrg: "Fingal County Council; Dún Laoghaire-Rathdown County Council; Dublin City Council — tree surveys", sourceUrl: DGI("trees-fcc2"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("都柏林樹木載入中", "Loading Dublin trees", "ダブリンの樹木を読み込み中"),
+  },
+  {
+    key: "ieRadiationStations", file: "ie_radiation_stations.pmtiles", sourceLayer: "ie_radiation_stations", geom: "point", layerId: "ie-radiation-stations-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#4ade80", tier: "M", count: 41,
+    catProp: "category", cats: RADIATION_CATS,
+    title: { props: ["name"], fallback: l3("輻射監測站", "Radiation monitoring station", "放射線モニタリング局") },
+    fields: [{ prop: "category", label: l3("類型", "Type", "種別"), map: Object.fromEntries(RADIATION_CATS.map((c) => [c.id, c.label])) },
+             { prop: "media", label: l3("採樣項目", "Sampled media", "採取対象") },
+             { prop: "gamma", label: l3("伽瑪劑量率", "Gamma dose rate", "ガンマ線量率"), map: { yes: l3("有", "Yes", "あり"), no: l3("無", "No", "なし") } }, LA],
+    legendNotes: [l3("EPA 環境輻射監測站 41 站：陸地 26（15 站即時上線）、海域 15（含愛爾蘭海 6 個採樣點）", "41 EPA environmental radiation monitoring locations: 26 on land (15 live) and 15 marine (incl. 6 Irish Sea sampling points)", "EPA 環境放射線モニタリング地点41か所：陸上26（うち15局はリアルタイム）・海域15（アイリッシュ海の採取点6を含む）"),
+                  l3("只有站點與採樣項目，沒有量測值；即時伽瑪劑量率請看 EPA 網站", "Locations and sampled media only, no measurements; for live gamma dose rates see the EPA website", "地点と採取対象のみで測定値はない。リアルタイムのガンマ線量率は EPA サイトを参照")],
+    popupNotes: [],
+    sourceOrg: "Environmental Protection Agency (EPA), Radiation Monitoring Locations", sourceUrl: DGI("radiation-monitoring-locations"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("愛爾蘭輻射監測站載入中", "Loading Ireland radiation monitoring stations", "アイルランドの放射線モニタリング局を読み込み中"),
+  },
+  {
+    key: "ieLandslideEvents", file: "ie_landslide_events.pmtiles", sourceLayer: "ie_landslide_events", geom: "point", layerId: "ie-landslide-events-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f59e0b", tier: "S", count: 2779,
+    catProp: "material", cats: LANDSLIDE_MATERIAL_CATS,
+    title: { props: ["name", "event_id"], fallback: l3("崩塌事件", "Landslide event", "地すべり事例") },
+    fields: [{ prop: "material_raw", label: l3("材料（原文）", "Material", "物質（原文）") }, { prop: "mechanism", label: l3("型態", "Mechanism", "形態") },
+             { prop: "trigger", label: l3("誘因", "Trigger", "誘因") }, { prop: "impact", label: l3("影響", "Impact", "影響") },
+             { prop: "event_date", label: l3("事件日期", "Event date", "発生日") }, { prop: "date_accuracy", label: l3("日期精度", "Date accuracy", "日付の精度") },
+             { prop: "county", label: l3("郡", "County", "県") }, { prop: "event_id", label: l3("事件編號", "Event ID", "事例番号"), kind: "code" }, LA],
+    legendNotes: [l3("GSI 國家崩塌資料庫事件點 2,779 筆（剔除北愛 32）；有事件日期的只有 226 筆，多數為判釋或文獻紀錄", "2,779 events from the GSI National Landslide Database (32 in Northern Ireland removed); only 226 have an event date, most are mapped or literature records", "GSI 全国地すべりデータベースの事例2,779件（北アイルランド32件を除外）。発生日があるのは226件のみで、多くは判読・文献記録"),
+                  l3("材料五類是依原值合併（推定分組，GSI 未附代碼表）", "The five material groups merge the source values (inferred grouping; GSI publishes no code list)", "物質5区分は原値をまとめた推定区分（GSI のコード表なし）")],
+    popupNotes: [],
+    sourceOrg: "Contains Irish Public Sector Data (Geological Survey Ireland) licensed under CC BY 4.0 — Landslide Locations", sourceUrl: DGI("landslide-locations-and-extents-ireland-roini-itm"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("愛爾蘭崩塌事件載入中", "Loading Ireland landslide events", "アイルランドの地すべり事例を読み込み中"),
+  },
+  {
+    // V-3：崩塌範圍小而零散，預設點；面 z8 起
+    key: "ieLandslideExtents", file: "ie_landslide_extents.pmtiles", sourceLayer: "ie_landslide_extents", geom: "polygon", layerId: "ie-landslide-extents-fill", outlineId: "ie-landslide-extents-line",
+    srcMinzoom: 8, srcMaxzoom: 14, minzoom: 8, color: "#f59e0b", count: 2274,
+    catProp: "material", cats: LANDSLIDE_MATERIAL_CATS,
+    title: { props: ["type", "ref"], fallback: l3("崩塌範圍", "Landslide extent", "地すべり範囲") },
+    fields: [{ prop: "type", label: l3("型態", "Type", "形態") }, { prop: "material_raw", label: l3("材料（原文）", "Material", "物質（原文）") },
+             { prop: "year", label: l3("判釋年", "Year", "判読年") },
+             { prop: "length_m", label: l3("長", "Length", "長さ"), kind: "num", unit: "m" }, { prop: "width_m", label: l3("寬", "Width", "幅"), kind: "num", unit: "m" },
+             { prop: "area_m2", label: l3("面積", "Area", "面積"), kind: "num", unit: "m²" },
+             { prop: "mapping_source", label: l3("判釋來源", "Mapping source", "判読の出典") }, { prop: "county", label: l3("郡", "County", "県") },
+             { prop: "ref", label: l3("參考編號", "Reference", "参照番号"), kind: "code" }, LA],
+    legendNotes: [l3("GSI 判釋的崩塌範圍 2,274 面（剔除北愛 1）；與「崩塌事件」點沒有共用編號，無法一對一配對", "2,274 landslide extents mapped by GSI (1 in Northern Ireland removed); they share no ID with the landslide event points and cannot be matched one-to-one", "GSI が判読した地すべり範囲2,274面（北アイルランド1面を除外）。「地すべり事例」の点と共通の番号がなく1対1で対応しない"),
+                  l3("多數範圍只有數千平方公尺，預設畫代表點；面在 z8 起出現", "Most extents are a few thousand m², so representative points are shown by default; polygons from z8", "多くは数千 m² のため既定は代表点。面は z8 から")],
+    popupNotes: [],
+    sourceOrg: "Contains Irish Public Sector Data (Geological Survey Ireland) licensed under CC BY 4.0 — Landslide Extents", sourceUrl: DGI("landslide-locations-and-extents-ireland-roini-itm"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("愛爾蘭崩塌範圍載入中", "Loading Ireland landslide extents", "アイルランドの地すべり範囲を読み込み中"),
+  },
+  {
+    // 模型網格鋪滿國土（V-3 網格豁免，不做點／面切換）
+    key: "ieRadonRisk", file: "ie_radon_risk.pmtiles", sourceLayer: "ie_radon_risk", geom: "polygon", layerId: "ie-radon-risk-fill", outlineId: "ie-radon-risk-line",
+    srcMinzoom: 4, srcMaxzoom: 11, minzoom: 4, color: "#ef4444", count: 51861,
+    catProp: "risk", cats: RADON_CATS,
+    title: { props: [], fallback: l3("氡氣風險", "Radon risk", "ラドンリスク") },
+    fields: [{ prop: "risk", label: l3("預測", "Prediction", "予測"), map: Object.fromEntries(RADON_CATS.map((c) => [c.id, c.label])) }],
+    legendNotes: [l3("EPA 氡氣風險圖：依室內量測與地質（岩盤、表層地質、土壤透水、含水層）以模型預測各地住宅氡氣偏高的比例；紅色稱 High Radon Area", "EPA radon risk map: model prediction of the share of homes likely to have high radon, from indoor measurements and geology (bedrock, Quaternary geology, soil permeability, aquifers); red areas are High Radon Areas", "EPA ラドンリスク図：室内測定と地質（岩盤・表層地質・土壌透水性・帯水層）からモデルで予測した、ラドン濃度が高い住宅の割合。赤は High Radon Area"),
+                  l3("「偏高」門檻資料頁未定義（推定為住宅參考水準 200 Bq/m³，未經官方確認）；是區域機率，不代表單一住宅", "The 'high' threshold is not defined on the data page (assumed to be the 200 Bq/m³ home reference level, unconfirmed); an area-level probability, not a verdict on any single home", "「高い」の基準はデータページで未定義（住宅参考レベル200 Bq/m³ と推定、未確認）。地域の確率で個々の住宅を示すものではない")],
+    popupNotes: [l3("區域預測，單一住宅請實測", "Area prediction; test individual homes", "地域予測。個々の住宅は測定が必要")],
+    sourceOrg: "Environmental Protection Agency (EPA), Radon Risk Map of Ireland", sourceUrl: DGI("radon-risk-map-of-ireland"), license: CC_BY, fetchedAt: IE_W5_FETCHED_AT,
+    loading: l3("愛爾蘭氡氣風險圖載入中", "Loading Ireland radon risk map", "アイルランドのラドンリスク図を読み込み中"),
   },
 ];
 

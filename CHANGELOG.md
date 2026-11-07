@@ -87,6 +87,7 @@
 - Agent 上圖後可讀回結果佔畫面比例、只畫外框的結果與圖例份數，用來自我檢查框選與上色（#881）
 - 愛爾蘭第 2 波 2 層，新增「房地產」主題：商業房產估值 156,089 筆（Valuation Office 應繳商業地方稅房產；29 個地方政府為淨年值 NAV、Cork 市郡為舊制估值不可比，依 9 類多選篩選，拉遠熱區、z12 起點）；國有登記土地 75,443 個 folio（LDA 2023 Q3，依所有人 9 組篩選，點／面切換，非標售清單，folio 邊界受 PRA 版權註記）；Tailte Éireann、LDA（CC BY 4.0）（⚠️ 發版前要上傳 `ie_commercial_valuations.pmtiles`、`ie_state_assets.pmtiles` 到 S3 deploy-assets/world/）
 - 愛爾蘭第 4 波 6 層，新增「交通」主題：大眾運輸站牌 14,149 站（TFI 全國 GTFS，依鐵路／Luas／公車多選篩選，拉遠熱區、z12 起點）、Dublinbikes 站點 113 站（只有站點與車柱數）、主要道路與鐵路 5,667 段（Tailte 1:250,000，道路等級依 ERM 代碼表推定、無路線編號）、國道里程標 4,163 面與交流道 43 處（TII 2018 條目）、交通量計數站 308 站（TII 2018 名冊，只有位置沒有流量）、機場港口與渡輪碼頭 104 處（大機場名稱以 OurAirports 補上）；NTA、Dublin City Council／JCDecaux、Tailte Éireann、TII、DHLGH（CC BY 4.0）
+- 愛爾蘭第 5 波 9 層，新增「觀光」「環境氣候」「林業」主題：國家公園 6 座（點／面切換）、Wild Atlantic Way 西岸觀光路線 406 段約 2,500 km、NPWS 指定保護區 806 面（SAC 433、SPA 202、NHA 171，依類型多選篩選，預設點）、Sport Ireland 國家步道 1,340 條（依步道類型篩選）、都柏林三議會樹木 67,962 株（只有 Fingal、DLR、Dublin City，拉遠熱區）、EPA 輻射監測站 41 站（只有站點）、GSI 崩塌事件 2,779 點與判釋範圍 2,274 面（依材料篩選）、EPA 氡氣風險圖三級（約 1／5、1／10、1／20 住宅偏高，模型預測）；NPWS、Fáilte Ireland、Sport Ireland、Fingal／DLR／Dublin City 議會、GSI、EPA（CC BY 4.0）
 
 ## v2.26.1 — 2026-11-07 — 影像改走 R2 網域
 
