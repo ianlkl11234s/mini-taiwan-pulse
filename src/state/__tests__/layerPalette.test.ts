@@ -94,7 +94,8 @@ describe("R7 顏色解析器", () => {
     // 2026-11-06 +2 南韓第 6 波：都市公園熱區、墓地代表點熱區
     // 2026-11-06 +2 加拿大第 3 波：NPRI 設施、地震熱區
     // 2026-11-06 +2 日本第二輪：自然公園地域、国立公園（代表點熱區）
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(105);
+    // 2026-11-07 +2 南韓第 7 波：學校、醫院與藥局（格網熱區）
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(108);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

@@ -27,7 +27,8 @@ describe("layerSearch", () => {
 
   it("ranks exact key and label matches before descriptive matches", () => {
     expect(searchLayers("medHospital")[0]?.key).toBe("medHospital");
-    expect(searchLayers("醫院").slice(0, 2).map(result => result.key)).toEqual(["jpMedicalHospitals", "medHospital"]);
+    // 三者標籤都以「醫院」開頭、同分，依 key 字母序（2026-11-07 南韓第 7 波加入 krHospitalsPharmacies「醫院與藥局」）
+    expect(searchLayers("醫院").slice(0, 3).map(result => result.key)).toEqual(["jpMedicalHospitals", "krHospitalsPharmacies", "medHospital"]);
   });
 
   it("matches aliases and exposes World and Japan layers from the same index", () => {
