@@ -83,6 +83,8 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 | 2026-11-07 | 單一 job（舊） | 4–7 分 | checkout 40–63s、build 80s、vitest 135–156s、lint 15s、盤點 21s |
 | 2026-11-08 | 三 job 平行＋threads（PR #899 第一輪） | 3 分 57 秒 | quick 55s（checkout 7s）、build 159s（checkout 63s）、test 224s（checkout 67s、vitest 145s）|
 | 2026-11-08 | 三 job 平行＋test 分 2 片、forks（PR #899 第三輪） | 3 分 06 秒 | quick 52s、build 159s、test 166s／173s（各片 checkout 約 65s、vitest 85s／94s，288＋285 檔，合計與單片相同）|
+| 2026-11-08 | CI-4 資料檔移出 git 後（PR #943） | 2 分 06 秒 | build 103s、test 102s／114s、quick 69s、assets 49s |
+| 2026-11-08 | test 分 4 片＋tsc 增量快取（PR #944 第 4 輪，快取命中） | 1 分 25 秒 | test 66–72s、quick 65s、build 59s（tsc 9s，未命中時 33s）、assets 40s |
 
 ## 8. 部署（deploy-workers.yml）
 
