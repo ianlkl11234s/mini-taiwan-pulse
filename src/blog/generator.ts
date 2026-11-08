@@ -724,9 +724,9 @@ export function renderAboutPage(posts: BlogPost[] = []): string {
   const url = `${BLOG_ORIGIN}/blog/about/`;
   const projects = [
     { name: "Mini Taiwan Pulse", desc: "台灣多運具即時脈動地圖（本站）", site: `${BLOG_ORIGIN}/`, github: "https://github.com/ianlkl11234s/mini-taiwan-pulse" },
-    { name: "Mini-Taiwan 軌道運輸模擬", desc: "台灣軌道運輸即時模擬視覺化", site: "https://mini-taiwan-learning-project.zeabur.app/", github: "https://github.com/ianlkl11234s/mini-taiwan-learning-project" },
-    { name: "Taiwan Flight Arc", desc: "台灣航班弧線 3D 視覺化", site: "https://flight-arc.zeabur.app/", github: "https://github.com/ianlkl11234s/flight-arc-graph" },
-    { name: "Taiwan Weather Timelapse", desc: "台灣氣象時序動畫視覺化", site: "https://taiwan-weather-timelapse.zeabur.app/", github: "https://github.com/ianlkl11234s/taiwan-weather-timelapse" },
+    { name: "Mini-Taiwan 軌道運輸模擬", desc: "台灣軌道運輸即時模擬視覺化", site: "https://mini-taiwan-learning-project.itsmigu.com/", github: "https://github.com/ianlkl11234s/mini-taiwan-learning-project" },
+    { name: "Taiwan Flight Arc", desc: "台灣航班弧線 3D 視覺化", site: "https://flight-arc.itsmigu.com/", github: "https://github.com/ianlkl11234s/flight-arc-graph" },
+    { name: "Taiwan Weather Timelapse", desc: "台灣氣象時序動畫視覺化", github: "https://github.com/ianlkl11234s/taiwan-weather-timelapse" },
     { name: "Ship GIS", desc: "台灣海域船舶動態視覺化平台", github: "https://github.com/ianlkl11234s/tw-ship-viz" },
   ];
   const ld = {
