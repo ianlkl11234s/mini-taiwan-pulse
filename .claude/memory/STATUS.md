@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-11-08 愛爾蘭第 0–10 波＋統計＋Coillte、南韓第 7 波與統計合 develop（#874 起未發版）；正式站實測 v2.26.1。前一次：2026-11-07 正式站搬到 Cloudflare（v2.25.1）
+**最後更新**：2026-11-08 現況盤點（PROJECTS／BACKLOG 對齊：Zeabur 搬遷含 collector 全部完成、收尾見 BACKLOG ZB-1）；同日愛爾蘭第 0–10 波＋統計＋Coillte、南韓第 7 波與統計、歷史底圖 6 層（#882）、framingCheck（#881）合 develop 未發版；正式站實測 v2.26.1。前一次：2026-11-07 正式站搬到 Cloudflare（v2.25.1）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
