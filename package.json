@@ -21,7 +21,7 @@
     "check": "npm run check:lint && npm run check:inventory && npm run check:coral && npm run check:worker && npm run check:build && npm run check:test",
     "check:lint": "npm run lint",
     "check:build": "npm run build",
-    "check:test": "npm test",
+    "check:test": "vitest run",
     "check:inventory": "node scripts/design/check-layer-inventory.mjs",
     "check:coral": "npm ci --prefix server/coral-private && npm test --prefix server/coral-private",
     "check:worker": "node --test deploy/cloudflare/worker.test.mjs",
