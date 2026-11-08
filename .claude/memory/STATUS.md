@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-11-08 Agent 分析上色／框選修正隨 v2.26.0 上線、framingCheck 數字讀回已合 develop 待發版。前一次：2026-11-07 正式站已搬到 Cloudflare，實測 v2.25.1；2026-11-06 review 修正輪全部合併、mig 502 已套用。前一次：2026-11-06 v2.22.0～v2.24.0 發版（Zeabur 停擺期間）
+**最後更新**：2026-11-08 歷史底圖 6 層（#882）合 develop 待發版；Agent 分析上色／框選修正隨 v2.26.0 上線、framingCheck 數字讀回已合 develop 待發版。前一次：2026-11-07 正式站已搬到 Cloudflare，實測 v2.25.1；2026-11-06 review 修正輪全部合併、mig 502 已套用。前一次：2026-11-06 v2.22.0～v2.24.0 發版（Zeabur 停擺期間）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
@@ -20,6 +20,19 @@
 
 - 下一步：下次發版帶上 #881 後，用 Agent 問一題面狀結果（例：臺北各區房價），確認回傳含 `framingCheck`、覆蓋率 <0.15 時會重框且最多 2 輪。截圖自檢第二批見 BACKLOG **AG-12**（blocked：使用者排 gateway 部署）。
 - 接手：從 origin/develop 開分支；MCP 改動在 mini-pulse-gis-mcp 開 PR 到 main，合併後在 `analysis-prod/mcp` 切 origin/main 重 build。
+
+## 2026-11-07：歷史底圖擴充（中研院 WMTS 85 張、6 層）
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #882 合 develop（merge `12061385`，CI 綠，未發版）：historicalMapSinica 古地圖 25、historicalMapPostwar 24、historicalImagery 5、historicalBoundaries 8（透明疊加）、historicalLandUse 16、historicalThematic 7；清單 SSOT `src/data/historicalMapSinica.ts`。 |
+
+| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| 歷史底圖 6 層（#882） | done：PR 與 develop CI 綠 | done：golden／inventory 重產 | done：develop `12061385` | N/A | N/A | N/A | not run：未發版 | not run | done：合併前本機 `4699a08e`（疊加順序、select、圖例、四層出圖）；合併後 develop 未再開 |
+
+- 下一步：發版前寄信給中研院確認授權（HIST-1）；發版後正式站驗收六層，並做 HIST-4（Day 6 重拍、貼文）。
+- 接手：從 origin/develop 開分支。
 
 ## 2026-11-06～11-07：review 修正輪收尾；正式站搬到 Cloudflare（v2.25.1）
 

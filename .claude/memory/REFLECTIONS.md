@@ -2291,3 +2291,21 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `STATUS.md`：加 11-07～11-08 段。
 - `BACKLOG.md`：AG-12 已隨 #881 合入。
 
+
+
+## 2026-11-07 歷史底圖：中研院 WMTS 85 張拆成 6 層（#882）
+
+### What worked
+
+- 先逐層打 tile 實測，不信 GetCapabilities：很多層的範圍是預設值，沒資料的地方回 935／798／1246／190 bytes 占位圖；2017 上河地圖在任何位置都回同一張圖，因此排除。實測 CSV 直接給 worker 當測試 fixture。
+- 使用者要「原始資料」而不是自己加工的研究成果；沿用既有元件，不出設計稿，直接實作。合併前自己用 agent-browser 驗疊加順序、年代切換、圖例、各層出圖，再合進 develop。
+
+### Friction / limits
+
+- worker 在 worktree 用 symlink 的 node_modules，`capabilityAudit` 測試裡的 vite-node 子程序載不到套件；CI 正常。
+- worker 順手把地名提示卡擴到五個不透明層（範圍外），回報時有標出來，已告知使用者。
+
+### Memory output
+
+- `BACKLOG.md`：HIST-1 補充、HIST-2 降為 P3 並記使用者決定、HIST-4 改 ready。
+- `docs/PROJECTS.md`：古地圖列更新。
