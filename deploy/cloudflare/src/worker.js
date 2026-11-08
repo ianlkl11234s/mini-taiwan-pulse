@@ -36,7 +36,7 @@ const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urb
   // CI-4（2026-11-08）：原本只在 dist 的 git 大檔目錄，改成先 R2 再 dist，之後可移出 git
   'finance', 'energy', 'mapchallenge', 'statistics', 'state_assets', 'statistics-accessibility'];
 // CI-4：移出 git 的資料檔裡，落在特殊路由的少數檔（.png 副檔名規則、根目錄）也先讀 R2 再退 dist
-const LOCKED_DATA_FILES = ['/base_map/hillshade.png', '/station_pillars.json'];
+const LOCKED_DATA_FILES = ['/base_map/hillshade.png', '/station_pillars.json', '/mapchallenge/day08_plan1955.jpg'];
 // 純 /data（非 ^~），值為固定 Cache-Control，null = map
 const DATA_ONLY = { water_resources: null, agriculture: null, business_registry: CC_1Y, industrial_zone: CC_1Y, sports: null, education: null, 'static-rpc': null, medical: null, base_map: null, fire: null, police_justice: null, road: null, rail: null, 'embed-snapshots': CC_1Y, 'embed-rail': CC_1Y };
 // ^~ 前綴：不受 L893 副檔名正則影響

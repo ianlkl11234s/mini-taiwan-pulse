@@ -35,6 +35,7 @@ KEEP_PATTERNS = [
     "public/screenshots/*",
     "public/showcase/*",
     "public/llms.txt",
+    "public/public_life/README.md",  # 資料夾說明文件
     "public/robots.txt",
     "public/sitemap.xml",
     "public/*.html",  # 只限根目錄（is_keep 另外檢查沒有子目錄）

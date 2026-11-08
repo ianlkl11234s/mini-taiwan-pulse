@@ -676,7 +676,7 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(ASSETS.size, "manifest 靜態資產枚舉為空 → 收集器壞了").toBeGreaterThan(150);
     expect(NGINX_LOCS.length, "nginx location 解析為空").toBeGreaterThan(20);
     expect(UPLOAD.globs.length, "upload 清單解析為空").toBeGreaterThan(50);
-    expect(TRACKED.size, "git ls-files public 為空").toBeGreaterThan(100);
+    expect(TRACKED.size, "git ls-files public 為空").toBeGreaterThan(50);
     // 解析器至少要認得出這幾種形狀，否則後面的斷言是空轉
     expect(uploadCovers("agriculture/ftw_fields_2025.pmtiles"), "逐檔陣列沒解析到").toBe(true);
     expect(uploadCovers("urban/street_trees_national.pmtiles"), "for-loop glob 沒解析到").toBe(true);
@@ -873,6 +873,8 @@ describe("public 資料檔 lock（CI-4）", () => {
       expect(e.sha256).toMatch(/^[0-9a-f]{64}$/);
       const rel = e.path.slice("public/".length);
       const seg = rel.split("/")[0] as string;
+      // worker.js 的靜態副檔名規則（.png／.jpg…）在目錄路由之前、一律走 dist：這類資料檔要列進 LOCKED_DATA_FILES
+      if (/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/i.test(rel) && !R2_FILES.has(`/${rel}`)) broken.push(`${rel}：靜態副檔名會被 worker.js 截走走 dist，要列進 LOCKED_DATA_FILES`);
       if (!R2_FIRST.has(seg) && !R2_ONLY.has(seg) && !R2_FILES.has(`/${rel}`)) broken.push(`${rel}：worker.js 不會從 R2 讀 /${seg}/`);
       if (e.s3_key === "deploy-assets/rail.tar.gz") continue;
       const mirror = `deploy-assets/${rel}`;

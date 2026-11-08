@@ -4,6 +4,19 @@
 > 逐檔清單與進度：[`inventory.tsv`](./inventory.tsv)（每檔一列：批次、處理方式、狀態；做完一批就把該批 status 改成「完成 YYYY-MM-DD」）。
 > 第一步（#909，v2.28.0 上線）：上傳缺的大檔、Worker 對相關目錄改先讀 R2、建立 `deploy/public-assets.lock.json`。
 
+## 進度（2026-11-08）
+
+| 批 | PR | 結果 |
+|---|---|---|
+| 第一步 | #909（v2.28.0） | 大檔補上 S3、Worker 對相關目錄先讀 R2、建立 lock |
+| B0 | #935 | lock 收全部資料檔、測試三桶分流、check:assets、防回流基準 |
+| B1 | #936（v2.31.2） | 237 個大檔移出 git（R2 整檔核對 237/237） |
+| B2 | #937（v2.31.2） | 同步改依 lock（site_manifest 第 4 步）、Worker 補路由、刪 10 個無引用舊檔、S3 補傳 242 檔 |
+| B3＋B4 | 本批 PR | 其餘 297 個資料檔移出 git（R2 整檔核對 529/530 一致），/climate/ 舊快照 6 檔一併移出並退出 lock；day08_plan1955.jpg 加進 LOCKED_DATA_FILES |
+| 收尾 | 待下一次同步 | `h3/h3_population_res7.json`：src 直接引用但 h3 同步規則只收 res8，第 4 步原本會跳過（已修），下次同步上 R2 後移出 git |
+
+完成後 git 的 public/ 只剩網站素材（部落格、截圖、showcase、robots／sitemap／llms.txt、展示頁 html、public_life/README.md）與 res7 一檔。
+
 ## 為什麼
 
 - CI 每個 job 約 65 秒花在 checkout 1.7GB 的 public/；移出後預計每個 job 剩 10 秒內，PR 牆鐘從約 3 分降到約 2 分。
