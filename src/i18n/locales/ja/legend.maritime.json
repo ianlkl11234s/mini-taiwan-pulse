@@ -33,7 +33,7 @@
   "legend.maritime.aisRow": "直近30分間のAIS報告",
   "legend.maritime.aisNote": "リアルタイム位置。個別船舶の航跡（trail）は未接続です",
   "legend.maritime.presTitle": "GFW 旧版の日次船舶",
-  "legend.maritime.presRow": "過去のスナップショット。最新リリースではありません",
+  "legend.maritime.presRow": "船舶プレゼンス点（現在データなし）",
   "legend.maritime.presNote": "旧版の日次収集はライセンス確認待ちで未稼働のため、現在データはありません。最新の船舶は時間別の Grid／Tracks／SAR を参照してください。リアルタイムAISではありません。",
   "legend.maritime.gridTitle": "GFW 時間別船舶グリッド",
   "legend.maritime.gridNote1": "色の階調＝0.1°グリッドごとの船舶数。不透明度は船舶数に応じて連続的に変化します",

@@ -33,7 +33,7 @@
   "legend.maritime.aisRow": "AIS reports in the last 30 minutes",
   "legend.maritime.aisNote": "Live positions; per-vessel trails are not connected yet",
   "legend.maritime.presTitle": "GFW daily vessels (legacy)",
-  "legend.maritime.presRow": "Historical snapshot; does not represent the latest release",
+  "legend.maritime.presRow": "Vessel presence point (no data yet)",
   "legend.maritime.presNote": "The legacy daily collector is awaiting license approval and has not run, so this layer has no data yet; use the hourly Grid / Tracks / SAR layers for current vessels. Not live AIS.",
   "legend.maritime.gridTitle": "GFW hourly vessel grid",
   "legend.maritime.gridNote1": "Color scale = vessels per 0.1° grid cell; opacity varies continuously with vessel count",
