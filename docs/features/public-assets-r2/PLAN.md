@@ -13,9 +13,11 @@
 | B1 | #936（v2.31.2） | 237 個大檔移出 git（R2 整檔核對 237/237） |
 | B2 | #937（v2.31.2） | 同步改依 lock（site_manifest 第 4 步）、Worker 補路由、刪 10 個無引用舊檔、S3 補傳 242 檔 |
 | B3＋B4 | 本批 PR | 其餘 297 個資料檔移出 git（R2 整檔核對 529/530 一致），/climate/ 舊快照 6 檔一併移出並退出 lock；day08_plan1955.jpg 加進 LOCKED_DATA_FILES |
-| 收尾 | 待下一次同步 | `h3/h3_population_res7.json`：src 直接引用但 h3 同步規則只收 res8，第 4 步原本會跳過（已修），下次同步上 R2 後移出 git |
+| 收尾 | #940 修正隨 v2.31.3 同步後 | `h3/h3_population_res7.json` 移出 git；v2.31.3 後 R2 整檔核對 529/529 一致，正式站 43 個資料夾抽查都回 206、`X-Pulse-Src: r2` |
 
-完成後 git 的 public/ 只剩網站素材（部落格、截圖、showcase、robots／sitemap／llms.txt、展示頁 html、public_life/README.md）與 res7 一檔。
+完成後 git 的 public/ 只剩網站素材（部落格、截圖、showcase、robots／sitemap／llms.txt、展示頁 html、public_life/README.md）。
+
+**CI-4 完成（2026-11-08）**：git 追蹤的 public/ 從 611 檔 1.75GB 降到 69 檔約 24MB（全是網站素材）；資料檔 529 個由 lock 管理、S3 正本、R2 供應。
 
 ## 為什麼
 
