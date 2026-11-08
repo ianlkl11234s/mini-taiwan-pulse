@@ -139,7 +139,7 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(group("人口與教育 Population & Education", "原住民保留地")).toEqual(["statsIndigenousReservedLandParcels", "statsIndigenousReservedLandArea"]);
     expect(group("農林漁牧 Agriculture, Forestry & Fisheries", "農村再生")).toEqual(["statsRuralRegenTraining"]);
     expect(group("災害風險 Disaster Risk", "社會脆弱度")[0]).toBe("statsSocialVulnerabilityCompositeCounty");
-    expect(group("海洋 Marine", "海洋動物擱淺")).toEqual(["statsCetaceanStrandedCounty", "statsCetaceanStrandedAliveCounty", "statsCetaceanStrandedDeadCounty", "statsSeaTurtleStrandedCounty", "statsSeaTurtleStrandedAliveCounty", "statsSeaTurtleStrandedDeadCounty"]);
+    expect(group(MARINE_STATISTICS_THEME_TITLE, "海洋動物擱淺")).toEqual(["statsCetaceanStrandedCounty", "statsCetaceanStrandedAliveCounty", "statsCetaceanStrandedDeadCounty", "statsSeaTurtleStrandedCounty", "statsSeaTurtleStrandedAliveCounty", "statsSeaTurtleStrandedDeadCounty"]);
     // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
     const pollution = group("環境與資源 Environment & Resources", "污染與公害");
     expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));
