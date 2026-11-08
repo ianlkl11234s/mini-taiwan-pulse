@@ -4,9 +4,10 @@ import type { LayerVisibility } from "../types";
 import { fetchLivestockFarms, fetchLivestockSlaughterhouses } from "../data/livestockLoader";
 import { isAccessDenied } from "../lib/layerGates";
 import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
+import { ownerDataStatus } from "../lib/ownerData";
 
 /**
- * 畜牧 owner-only 動態圖層資料供應 hook（見 docs/features/owner-gated-layers）。
+ * 畜牧 owner-only 動態圖層資料供應 hook（見 docs/features/owner-gated-layers；資料走 owner-data 私人檔）。
  *
  * overlayRegistry 已把 7 個飼養場 layer（共用 sourceId "livestock-farms"）+ 屠宰場
  * （"livestock-slaughter"）改為 dynamicData（空 FC 起手）；本 hook 只負責 fetch + setData。
@@ -102,6 +103,8 @@ export function useLivestockLayers({ mapRef, visibility }: UseLivestockLayersOpt
 
   useEffect(() => registerOwnerGateReset([...FARM_KEYS, "livestockSlaughter"], () => {
     clearLivestockCache();
+    ownerDataStatus.reset("livestock-farms");
+    ownerDataStatus.reset("livestock-slaughterhouses");
     farmsDataRef.current = null;
     slaughterDataRef.current = null;
   }), []);

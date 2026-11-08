@@ -34,6 +34,7 @@ import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimAssets";
+import { OWNER_DATA_ASSETS } from "../../data/ownerDataAssets";
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
@@ -418,6 +419,27 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(pullScript).not.toContain("private-research/bus-crowding");
     expect(uploadScript).not.toContain("bus-crowding");
     expect(dockerIgnore).toMatch(/^\*\.local$/m);
+  });
+
+  it("站主私人檔 owner-data 只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const match = nginxConf.match(/location ~ (\^\/api\/private-research\/owner-data\/[^ ]+\$) \{([\s\S]*?)\n    \}/);
+    const location = match?.[2] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    // 正規式只放行 key 形狀；每個白名單 key 都要中，路徑／檔名／大寫都不中（未知 key 由 sidecar 回 404）
+    const allow = new RegExp(match?.[1] ?? "^$");
+    for (const key of Object.keys(OWNER_DATA_ASSETS)) expect(allow.test(`/api/private-research/owner-data/${key}`), key).toBe(true);
+    for (const bad of ["livestock_farms.geojson", "livestock-farms/x", "../x", "LIVESTOCK", ""]) expect(allow.test(`/api/private-research/owner-data/${bad}`), bad).toBe(false);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/owner-data \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/owner-data"');
+    expect(privateResearchServer).toContain('const OWNER_DATA_S3_PREFIX = "private-research/owner-data"');
+    expect(pullScript).not.toContain("private-research/owner-data");
+    expect(uploadScript).not.toContain("owner-data");
+    for (const { filename } of Object.values(OWNER_DATA_ASSETS)) expect(uploadScript, filename).not.toMatch(new RegExp(`^[^#]*${filename.replace(".", "\\.")}`, "m"));
   });
 
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {

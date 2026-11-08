@@ -472,6 +472,7 @@ export type GeneratedStaticKey =
   | "legend.agri.missingValue"
   | "legend.agri.observedZero"
   | "legend.agri.overviewNote"
+  | "legend.agri.ownerDataLoadFailed"
   | "legend.agri.parkComparisonNote"
   | "legend.agri.parkComparisonTitle"
   | "legend.agri.parkNote"
