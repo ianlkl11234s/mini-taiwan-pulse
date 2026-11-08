@@ -242,6 +242,14 @@ function Day08Footer() {
   </>;
 }
 
+function Day08ParksFooter() {
+  const { t } = useLocale();
+  return <>
+    <Row label={t("popup.mapchallenge.day08.caveatLabel")} value={t("legend.mapchallenge.day08.caveat")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day08.parksSource") }} />
+  </>;
+}
+
 /** 缺值回 null（不顯示為 0） */
 const numOrNull = (v: unknown): number | null => (v === null || v === undefined || v === "" ? null : Number.isFinite(num(v)) ? num(v) : null);
 
@@ -283,7 +291,7 @@ export function MapchallengeDay08ParksPanel({ props }: Props) {
       {str(props.way_name) && <Row label={t("popup.mapchallenge.day08.wayName")} value={str(props.way_name)} />}
       {str(props.park_name) && <Row label={t("popup.mapchallenge.day08.belongsPark")} value={str(props.park_name)} />}
       <Row label={t("popup.mapchallenge.day08.entranceNote")} value={t("legend.mapchallenge.day08.entranceRule")} />
-      <Day08Footer />
+      <Day08ParksFooter />
     </div>;
   }
   const riverside = props.cls === "riverside";
@@ -295,7 +303,7 @@ export function MapchallengeDay08ParksPanel({ props }: Props) {
     {area !== null && <Row label={t("popup.mapchallenge.day08.area")} value={t("popup.mapchallenge.day08.ha", { n: formatNumber(area) })} mono />}
     <Row label={t("popup.mapchallenge.day08.isRiverside")} value={t(riverside ? "popup.mapchallenge.day08.riversideYes" : "popup.mapchallenge.day08.riversideNo")} />
     {riverside && <Row label={t("popup.mapchallenge.day08.entranceNote")} value={t("legend.mapchallenge.day08.entranceRule")} />}
-    <Day08Footer />
+    <Day08ParksFooter />
   </div>;
 }
 
