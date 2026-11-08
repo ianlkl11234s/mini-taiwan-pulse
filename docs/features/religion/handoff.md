@@ -49,3 +49,4 @@
 2. 上游 catalog 寫 temples 19,201 筆；PMTiles **點數全保留**（`-r1`），
    若日後有人用 `--drop-densest-as-needed` 重切會靜默掉點（實測 z9 只剩 49 點）。
 3. `reference.religion_temples` **沒有** `deity_family` 欄（上游附記已標註為未做項）。
+   （2026-11-07 該表已由 gis-platform mig 510 刪除，冷存 S3 `supabase-export/reference.religion_temples/full-20261107.csv.gz`；圖層只讀 PMTiles，不受影響。）

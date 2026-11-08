@@ -1,0 +1,106 @@
+# CI 原則
+
+> 範圍：`.github/workflows/ci.yml`（PR 與 push 到 develop／master 的檢查）。部署流程看 `deploy-workers.yml` 與 [`RELEASING.md`](./RELEASING.md)；各檢查的內容看 [`development-rules.md`](./development-rules.md) §6。
+> 2026-11-08 建立。改 CI 前先讀本檔；改完把實測耗時補進 §6。
+
+## 1. CI 是為了什麼
+
+CI 只回答一個問題：**這次合併會不會讓 develop 壞掉**。由此推出：
+
+1. **每項檢查都要能說出它擋的是哪一種真實錯誤**。說不出來的檢查，不加。
+2. **等待時間是成本**。repo 是公開的，Actions 不收費，所以優化目標是牆鐘時間，不是分鐘數。
+3. **CI 不能靜默變弱**。加速時不能讓原本會紅的檢查變成「略過也算過」。
+4. **CI 是全套檢查的最後一道**。本機跑快速、和改動相關的檢查；完整套件以 CI 為準（見 §5）。
+
+## 2. 結構
+
+```
+changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse-checkout 跳過 public/）
+          ├─ build（tsc -b ＋ vite build）
+          ├─ test ×4 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
+          └─ assets（資產測試：依 lock 從 R2 下載、比對 sha256 後驗內容）
+                └─ ci-ok（彙總；永遠會出現）
+```
+
+- **四個 job 平行跑**，牆鐘時間等於最慢的那一個。每個 job 自己付 checkout 與 `npm ci` 的成本，`npm ci` 有 setup-node 的 npm 快取，約 5 秒。
+- **檢查的順序以 package.json 的 `check` 為準**：lint → inventory → coral → worker → build → test → assets，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
+- **`ci-ok`** 用 `if: always()` 接住所有 job，只要有任何一個不是 success 或 skipped 就紅。之後如果要設 required status check，只設這一個。
+- **每個 job 都有 `timeout-minutes`**。沒設的話，卡住會跑滿 6 小時。
+
+## 3. 什麼時候跳過
+
+- **只有 PR 會跳過**：push 到 develop／master 一律完整跑。原因是兩個各自綠燈的 PR 交會後仍可能紅，例如 layer-golden 快照。
+- PR 只動到 `.claude/**`（memory、pitfalls、skills、hooks）時，quick、build、test 三個 job 會顯示 skipped，`ci-ok` 仍是綠的。
+- **跳過名單只放「確定沒有任何檢查會讀」的路徑**。`docs/` 與 `CHANGELOG.md` 不能加：`CHANGELOG.md` 會被 `src/data/changelog.ts` 打包進網站；`docsFreshness.test.ts`、`deployContract.test.ts`、樣式盤點、ESLint 規則都會讀 docs。要新增路徑前，先在 `src/`、`eslint-rules/`、`scripts/design/` 搜尋有沒有程式讀它。
+- **不用 workflow 層級的 `paths-ignore`**：被過濾掉的 workflow 不會產生任何 check。這會讓 required check 一直停在 pending，也會讓「等 CI 出現再合併」的流程永遠等不到。改用 `dorny/paths-filter` 在 job 層判斷，job 用 `if:` 跳過時會顯示 skipped，check 照樣存在。
+- **同一個 PR 連推多次時，舊的那輪會被取消**（`concurrency` 搭配 `cancel-in-progress`，只對 pull_request 生效）。
+
+## 4. 加速手段與它們的代價
+
+| 手段 | 狀態 | 代價／風險 |
+|---|---|---|
+| job 平行化 | 採用 | 多 2 台 runner；公開 repo 不收費 |
+| tsc 增量快取（tsconfig.app `incremental: true`＋actions/cache 存 tsbuildinfo） | 採用（2026-11-08） | 原本 noEmit＋`tsc -b` 的 tsbuildinfo 只記檔案清單、每次全量約 25–33s；開 incremental 後沒改的檔不重查。快取以 commit SHA 存、取最近一份，不符時 tsc 自己重算 |
+| vitest `--shard` 分 4 片（2026-11-08 由 2 片改 4 片） | 採用（`check:test` 必須直接呼叫 `vitest run`，若再包一層 `npm test`，`--shard` 會被 npm 吃掉、每片都跑全部） | 每片各付一次 checkout（約 65s）。分片依測試檔數切，不看耗時，兩片可能不平均。用 matrix，`npm run check:test` 在 ci.yml 只出現一次（parity 測試要求）。不合併報告：任一片紅即紅，看該片 log 即可 |
+| quick job 跳過 `public/` | 採用 | 只用在不讀 public/ 的檢查（lint、盤點、coral、worker 已確認） |
+| test／build 跳過 public 大檔 | **不採用** | 有 11 個契約測試會讀 public 大檔，例如 PMTiles sha256、staticDataContract；另外不少測試缺檔時會靜默略過，等於 CI 偷偷變弱 |
+| vitest `pool: "threads"` | 不採用 | 2026-11-08 PR #899 第一輪實測：CI 上 vitest 145s，和 forks 的 135–156s 沒有差別（runner 4 核，瓶頸在 CPU）。本機 161s→82s 是在高負載下量的，不可靠。沒有收益就不承擔 threads 的相容性風險 |
+| `isolate: false` | 不採用 | 測試檔之間會共用模組狀態，結果可能互相污染 |
+
+**結構性的慢**：現在三個 job 都約 2.5–3 分，其中約 65 秒是 checkout。git 追蹤了約 1.75GB 的 `public/`（pmtiles 約 1.39GB），完整 checkout 每次要 40–60 秒。根本解法是把大檔移出 git，改用 LFS 或 R2，但這會牽動部署契約，另案處理。
+
+## 5. 本機與 CI 的分工
+
+**2026-11-08 使用者決定**：本機只跑快速、和改動相關的檢查，全套交給 CI，不再兩邊各跑一次。
+
+- **commit 前**：`npm run verify`，依序跑 `tsc -b`、lint、樣式盤點，再用 `vitest run --changed origin/develop` 只跑和改動相關的測試。
+- **改到 manifest 時**：PostToolUse hook（`.claude/hooks/manifest-guard.sh`）會立刻跑三道 manifest 守門測試。
+- **合併前**：等 PR 的 CI 綠。
+- **CI 紅燈時**：在本機單跑紅燈的檔，或用 `npm run check` 重現，不要盲目重推。
+- **限制**：
+  - `--changed` 只追得到靜態 import。動態 import、讀檔型的契約測試（例如 public/ 資產、docs）不會被選到，要靠 CI 補上。
+  - 本機分支要先 `git fetch`，否則比對的是舊的 `origin/develop`。
+- **出處**：Vitest CLI 文件的 lint-staged 範例用 `vitest related --run`，`--changed` 也是 CLI 選項。「全套交給 CI」是常見做法，不是官方規範。
+
+## 6. 測試要測行為，不要掃原始碼
+
+- **本專案的決定**（development-rules §6「自訂 ESLint 規則」）：「讀原始碼再用 regex 比對」的禁用型檢查，一律寫成 ESLint 規則，不再新增這類測試。這是專案自己的取捨，不是業界共識；可參考 Google Testing Blog 對 change-detector test 的批評。
+- 2026-11-08 盤點到約 19 個測試檔還有讀 `src/` 原始碼的斷言，分類與後續處理記在 BACKLOG（CI-2）。其中讀 JSON、nginx.conf、tokens.css、產出物的屬於資料契約，不在此列。
+
+## 6a. public/ 資料檔與測試（CI-4）
+
+- public/ 的資料檔（GeoJSON、PMTiles、資料用 JSON／PNG）正本在 S3、由 R2 供應，清單是 `deploy/public-assets.lock.json`（路徑、bytes、sha256、供應方式）；git 只留網站素材。計畫與進度：[`docs/features/public-assets-r2/PLAN.md`](features/public-assets-r2/PLAN.md)。
+- **主套件不讀資料檔**：只檢查存在／大小／sha256 的測試查 lock（`src/test/publicAssets.ts`）。
+- **讀資料內容的測試**列在 `vitest.shared.ts` 的 `ASSET_TESTS`，由 `npm run check:assets` 跑：先依 `deploy/asset-test-files.txt` 準備檔案（本機有且 sha256 相符就沿用，否則從 R2 下載到 `.asset-cache/`），再跑 `vitest.assets.config.ts`。新測試要讀資料內容 → 加進 `ASSET_TESTS` 與 `deploy/asset-test-files.txt`。
+- **不可靜默略過**：資產測試用 `assetAvailable()` 守門，lock 的 r2 檔缺了直接失敗。
+- **防回流**：新資料檔不准 commit 到 public/（deployContract 的 ratchet，基準 `deploy/public-git-baseline.txt` 只減不增）；改用 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>`，再由 `upload-deploy-assets.sh` 上傳 S3。
+- **R2 整檔核對**：`npm run check:assets -- --verify-only [--paths <清單>]`，移檔前的關卡。
+
+## 7. 實測耗時
+
+| 日期 | 版本 | PR 牆鐘 | 細項 |
+|---|---|---|---|
+| 2026-11-07 | 單一 job（舊） | 4–7 分 | checkout 40–63s、build 80s、vitest 135–156s、lint 15s、盤點 21s |
+| 2026-11-08 | 三 job 平行＋threads（PR #899 第一輪） | 3 分 57 秒 | quick 55s（checkout 7s）、build 159s（checkout 63s）、test 224s（checkout 67s、vitest 145s）|
+| 2026-11-08 | 三 job 平行＋test 分 2 片、forks（PR #899 第三輪） | 3 分 06 秒 | quick 52s、build 159s、test 166s／173s（各片 checkout 約 65s、vitest 85s／94s，288＋285 檔，合計與單片相同）|
+| 2026-11-08 | CI-4 資料檔移出 git 後（PR #943） | 2 分 06 秒 | build 103s、test 102s／114s、quick 69s、assets 49s |
+| 2026-11-08 | test 分 4 片＋tsc 增量快取（PR #944 第 4 輪，快取命中） | 1 分 25 秒 | test 66–72s、quick 65s、build 59s（tsc 9s，未命中時 33s）、assets 40s |
+
+## 8. 部署（deploy-workers.yml）
+
+- master 有新 commit 時，`sync-assets`（S3 deploy-assets → R2 site/，約 4.5–5.5 分）和 `build-deploy`（build＋wrangler，約 2 分）**平行跑**。2026-11-08 使用者同意（BACKLOG CI-3）。
+- 代價：
+  - 本次發版新增的 S3 資產，在同步完成前的幾分鐘內會 404。
+  - sync 失敗不會擋住部署。看到 sync-assets 紅燈時，用 workflow_dispatch 選 `sync_only` 補跑。
+- 要讓新圖層一上線就有資料：先手動觸發 `sync_only`，等它跑完再發版。
+
+## 出處
+
+- GitHub Actions：workflow 被 paths 跳過時 required check 會停在 pending — https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks
+- concurrency 與 cancel-in-progress — https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency
+- job 層級路徑判斷 — https://github.com/dorny/paths-filter
+- Vitest 效能（pool、isolate、shard）— https://vitest.dev/guide/improving-performance
+- Vitest CLI（`related`、`--changed`）— https://vitest.dev/guide/cli.html
+- setup-node 快取只存 npm cache，不存 node_modules — https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md
+- 大 repo 的 checkout（第三方實測）— https://depot.dev/blog/why-organizations-have-slow-actions-checkout
+- change-detector test — https://testing.googleblog.com/2015/01/testing-on-toilet-change-detector-tests.html

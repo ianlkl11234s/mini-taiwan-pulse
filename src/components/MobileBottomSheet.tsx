@@ -36,6 +36,12 @@ export function MobileBottomSheet({ isLandscape, isDarkTheme = true, forceCollap
   const onExpandedChangeRef = useRef(onExpandedChange);
   useEffect(() => { onExpandedChangeRef.current = onExpandedChange; });
 
+  // sheet 重掛（拍攝模式／桌機切換）時初始是收合；卸載時也回報收合，避免 App 殘留 expanded=true 誤藏比例尺
+  useEffect(() => {
+    onExpandedChangeRef.current?.(false);
+    return () => onExpandedChangeRef.current?.(false);
+  }, []);
+
   useEffect(() => {
     if (!forceCollapsed) return;
     setLevel("collapsed");

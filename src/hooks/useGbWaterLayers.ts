@@ -80,6 +80,14 @@ export function gbHeatmapBuild(o: {
   };
 }
 
+/** 各 map 上本 hook 建立的 source id → 檔名（換檔偵測用；style 重載後 source 消失會重記）。 */
+const SOURCE_FILES = new WeakMap<MapboxMap, Map<string, string>>();
+function sourceFiles(map: MapboxMap): Map<string, string> {
+  let m = SOURCE_FILES.get(map);
+  if (!m) SOURCE_FILES.set(map, (m = new Map()));
+  return m;
+}
+
 /** 共用掛載流程：加 source → 逐一加 layer（初始隱藏）→ 顯示並更新 paint／filter；換底圖（style.load）重掛。
  *  第 4 波交通層也用（同一 source 可被多個 key 各自呼叫；隱藏只關自己的 layer，不移除 source）。 */
 export function useGbPmtilesLayers(
@@ -102,7 +110,14 @@ export function useGbPmtilesLayers(
     const mount = () => {
       registerPmtilesSourceTypeOnce();
       let sourceAdded = false;
+      // 同一個 source id 換檔（愛爾蘭淹水情境等依參數換 PMTiles）：先拆掉本 hook 的 layer 與舊 source，再用新檔重建
+      const files = sourceFiles(map);
+      if (map.getSource(source.id) && files.get(source.id) !== undefined && files.get(source.id) !== source.file) {
+        for (const l of layers) if (map.getLayer(l.id)) map.removeLayer(l.id);
+        map.removeSource(source.id);
+      }
       if (!map.getSource(source.id)) {
+        files.set(source.id, source.file);
         sourceAdded = true;
         map.addSource(source.id, (source.raster
           ? pmtilesRasterCustomSource({
@@ -125,7 +140,7 @@ export function useGbPmtilesLayers(
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef, visible, mapTick, ...deps]);
+  }, [mapRef, visible, mapTick, source.file, ...deps]);
 }
 
 // ─────────────────── §3.8 共用：類別多選篩選（V-4）、點／面切換代表點（V-5） ───────────────────
@@ -262,7 +277,7 @@ export function useGbRepPointLayers(
   });
   // < 1 萬點的層沒有熱區：「面」模式在面出現前改畫代表點（V-2 全英視角看得到），面出現後交給面
   const circleVisible = o.mode === "point" || !dense;
-  const circleMax = o.mode === "point" ? 24 : spec.polygonMinzoom;
+  const circleMax = o.mode === "point" ? 24 : heatmapMaxzoom(spec.polygonMinzoom); // +0.01：z9.5–10 的 tile 仍建 bucket，標記不提早消失
   useGbPmtilesLayers(mapRef, spec.source, o.visible, () => [
     ...(dense ? [{
       ...heat,

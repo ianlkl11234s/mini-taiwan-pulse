@@ -17,12 +17,18 @@ import { KR_DATA_SPECS } from "../data/krDataLayers";
 import { COVERAGE_AREAS, layerCoverage, type CoverageAreaId, type CoverageBbox } from "../data/layerCoverage";
 import { GIS_LAYERS } from "./gisClickRegistry";
 import { registryStyleLayerIds } from "../research/visibleSummary";
+import { OVERLAY_REGISTRY } from "./overlayRegistry";
 
 export const LAYER_HINT_MAX_LAYERS = 4;
 
 // ── key → style layer 種子 ─────────────────────────────────────────
 
-export interface HintSeeds { ids: ReadonlySet<string>; sources: ReadonlySet<string> }
+export interface HintSeeds {
+  ids: ReadonlySet<string>;
+  sources: ReadonlySet<string>;
+  /** 同 source 的兄弟 key（例：sportsSchool／sportsPublicOther）精確擁有的 style layer id；不可被這個 key 以 source 擴張吃進來 */
+  excludeIds?: ReadonlySet<string>;
+}
 
 type ManifestLike = { source?: LayerSource | LayerSource[]; popup?: string | string[] | null };
 
@@ -48,7 +54,13 @@ export function layerHintSeeds(key: string): HintSeeds {
   const sources = new Set<string>();
   const srcList = entry?.source ? (Array.isArray(entry.source) ? entry.source : [entry.source]) : [];
   for (const src of srcList) if ("sourceId" in src && src.sourceId) sources.add(src.sourceId);
-  const seeds = { ids, sources };
+  // 兄弟 key 共用 source 但各有自己的 registry 子圖層（含熱區）：用 registry 精確擁有權排除，避免互相吃進可見起點
+  const excludeIds = new Set<string>();
+  for (const config of OVERLAY_REGISTRY) {
+    if (config.id === key || !sources.has(config.sourceId)) continue;
+    for (const spec of config.layers) excludeIds.add(`${config.sourceId}-${spec.suffix}`);
+  }
+  const seeds = { ids, sources, excludeIds };
   seedCache.set(key, seeds);
   return seeds;
 }
@@ -78,12 +90,14 @@ export function styleIdBase(id: string): string | null {
  */
 export function matchStyleLayers(seeds: HintSeeds, styleLayers: readonly HintStyleLayer[]): HintStyleLayer[] {
   const bases = [...seeds.ids].map(styleIdBase).filter((b): b is string => !!b);
+  const excluded = seeds.excludeIds;
   const direct = styleLayers.filter((l) =>
     seeds.ids.has(l.id)
-    || (typeof l.source === "string" && seeds.sources.has(l.source))
-    || bases.some((b) => l.id.startsWith(`${b}-`)));
+    || (!excluded?.has(l.id) && (
+      (typeof l.source === "string" && seeds.sources.has(l.source))
+      || bases.some((b) => l.id.startsWith(`${b}-`)))));
   const directSources = new Set(direct.map((l) => l.source).filter((s): s is string => typeof s === "string"));
-  const heat = styleLayers.filter((l) => l.type === "heatmap" && typeof l.source === "string" && directSources.has(l.source) && !direct.includes(l));
+  const heat = styleLayers.filter((l) => l.type === "heatmap" && typeof l.source === "string" && directSources.has(l.source) && !direct.includes(l) && !excluded?.has(l.id));
   return [...direct, ...heat];
 }
 

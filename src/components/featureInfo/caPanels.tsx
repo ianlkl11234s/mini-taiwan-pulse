@@ -23,12 +23,12 @@ function fmtNum(v: unknown, digits = 0): string {
   return Number.isFinite(n) && caText(v) !== "" ? n.toLocaleString(undefined, { maximumFractionDigits: digits }) : "";
 }
 
-function Footer({ source }: { source: CaSource }) {
-  return <SourceFooter props={{ source_org: source.org, source_url: source.url, license: source.license, fetched_at: CA_FETCHED_AT }} />;
+function Footer({ source, fetchedAt = CA_FETCHED_AT }: { source: CaSource; fetchedAt?: string }) {
+  return <SourceFooter props={{ source_org: source.org, source_url: source.url, license: source.license, fetched_at: fetchedAt }} />;
 }
 
-/** 依 CaPopupSpec 畫標題與欄位；空值整列省略。 */
-function SpecPanel({ props, spec, source, color, extra, hideFooter }: P & { spec: CaPopupSpec; source: CaSource; color: string; extra?: string; hideFooter?: boolean }) {
+/** 依 CaPopupSpec 畫標題與欄位；空值整列省略。第 3 波（caEnvPanels）共用，傳自己的 fetchedAt。 */
+export function SpecPanel({ props, spec, source, color, extra, hideFooter, fetchedAt }: P & { spec: CaPopupSpec; source: CaSource; color: string; extra?: string; hideFooter?: boolean; fetchedAt?: string }) {
   const { locale } = useLocale();
   const pick = (t: L3) => pickL3(t, locale);
   const title = spec.title.props.map((p) => caText(props[p])).find(Boolean) || pick(spec.title.fallback);
@@ -45,12 +45,12 @@ function SpecPanel({ props, spec, source, color, extra, hideFooter }: P & { spec
         const n = fmtNum(props[f.prop], f.digits ?? 0);
         if (!n) return null;
         value = f.unit ? `${n} ${f.unit}` : n;
-      } else if (f.kind === "bool") value = /^(true|1|yes)$/i.test(raw) ? pick({ zh: "是", en: "Yes", ja: "はい" }) : pick({ zh: "否", en: "No", ja: "いいえ" });
+      } else if (f.kind === "bool") value = /^(true|1|yes|y)$/i.test(raw) ? pick({ zh: "是", en: "Yes", ja: "はい" }) : pick({ zh: "否", en: "No", ja: "いいえ" });
       return <Row key={f.prop} label={pick(f.label)} value={value} mono={f.kind === "code"} />;
     })}
     {extra ? <Row label={pick({ zh: "備註", en: "Note", ja: "備考" })} value={extra} /> : null}
     {(spec.notes ?? []).map((n, i) => <Row key={`n${i}`} label={i === 0 ? pick({ zh: "說明", en: "About", ja: "説明" }) : ""} value={pick(n)} />)}
-    {hideFooter ? null : <Footer source={source} />}
+    {hideFooter ? null : <Footer source={source} fetchedAt={fetchedAt} />}
   </>;
 }
 

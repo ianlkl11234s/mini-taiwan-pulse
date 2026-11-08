@@ -1,16 +1,57 @@
 name: CI
 
+# 原則與取捨見 docs/ci.md。結構：
+#   changes（判斷這次 PR 是否只動到不影響程式的路徑）
+#   → quick／build／test／assets 四個 job 平行跑（牆鐘＝最慢那個，而不是全部相加）
+#   → ci-ok 彙總（永遠會出現；要設 required check 只設這一個）
 on:
   pull_request:
     branches: [master, develop]
   push:
     branches: [master, develop]
 
+permissions:
+  contents: read
+  pull-requests: read
+
+# 同一個 PR 連推多次時，取消舊的那輪；push 到 develop／master 每輪都跑完（group 帶 run_id，不會互相取消）
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  test:
+  changes:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      # push 一律 true（合併後一定完整跑一次）；PR 只有動到 skip 清單以外的檔案才 true
+      code: ${{ github.event_name != 'pull_request' || steps.filter.outputs.code == 'true' }}
+    steps:
+      # PR 事件由 GitHub API 取變更清單，不需要 checkout
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        if: github.event_name == 'pull_request'
+        with:
+          predicate-quantifier: every
+          # 只放「確定沒有任何檢查會讀」的路徑；docs/、CHANGELOG.md 會被測試或 build 讀，不可加（docs/ci.md §3）
+          filters: |
+            code:
+              - '**'
+              - '!.claude/**'
+
+  # 不需要 public/ 大檔的檢查集中在這裡，用 sparse-checkout 跳過 public/（約 1.75GB）
+  quick:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/public/
 
       - uses: actions/setup-node@v4
         with:
@@ -29,18 +70,12 @@ jobs:
 
       - run: npm ci
 
-      # 以下每個 step 都是 package.json 的 check:*；本機 `npm run check` 依序跑同一組。
+      # 以下每個 step 都是 package.json 的 check:*；本機 `npm run check` 依序跑同一組（本檔由上而下的順序＝check 的順序）。
       # 新增檢查：在 package.json 加 check:<name> 並串進 check，再在這裡加對應 step
       # （src/test/ciCheckParity.test.ts 會擋兩邊不一致）。
       # 自訂 ESLint 規則（取代原本讀原始碼＋regex 的守門測試；docs/development-rules.md「自訂 ESLint 規則」）
       - name: Lint (ESLint guard rules)
         run: npm run check:lint
-
-      - name: TypeScript build (tsc -b + vite build)
-        run: npm run check:build
-
-      - name: Tests (vitest)
-        run: npm run check:test
 
       # 圖層樣式盤點必須與程式同步（docs/design-system/map-layers.md §6）
       - name: Design layer inventory up to date
@@ -48,3 +83,104 @@ jobs:
 
       - name: Private coral backend tests
         run: npm run check:coral
+
+      # Cloudflare Worker 轉送新主機的入口驗證 header（deploy/cloudflare/src/worker.js fromOrigin）
+      - name: Cloudflare Worker tests
+        run: npm run check:worker
+
+  build:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      # tsc -b 的增量資訊（tsconfig.app.tsbuildinfo）存快取：沒改的檔不重做型別檢查。
+      # 每次以 commit SHA 存新的一份，還原時取最近一份；快取不符時 tsc 會自己重算，不影響結果。
+      - uses: actions/cache@v4
+        with:
+          path: tsconfig.app.tsbuildinfo
+          key: tsc-${{ github.sha }}
+          restore-keys: tsc-
+      - run: npm ci
+      - name: TypeScript build (tsc -b + vite build)
+        run: npm run check:build
+
+  # 主套件不讀 public/ 資料檔（CI-4）：只檢查存在／大小／sha256 的測試改查 deploy/public-assets.lock.json，
+  # 讀內容的資產測試另由 assets job 跑（vitest.shared.ts）。所以 checkout 跳過 public/ 資料，只留網站素材
+  # （清單＝scripts/deploy/build-public-assets-lock.py 的 KEEP_PATTERNS，兩邊要同步）。
+  # 分 4 片平行（vitest 依測試檔切分）；2026-11-08 實測單片時 checkout 67s＋vitest 145s，2 片時慢的那片約 110s
+  test:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    name: test (${{ matrix.shard }}/4)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/public/*
+            /public/blog/
+            /public/screenshots/
+            /public/showcase/
+            /public/llms.txt
+            /public/robots.txt
+            /public/sitemap.xml
+            /public/*.html
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Tests (vitest)
+        run: npm run check:test -- --shard=${{ matrix.shard }}/4
+
+  # 資產測試（讀 public/ 資料檔內容，vitest.shared.ts 的 ASSET_TESTS）：依 deploy/asset-test-files.txt 準備檔案，
+  # git 裡沒有的從 R2 下載並比對 lock 的 sha256（.asset-cache 以 actions/cache 保留，lock 不變就不重抓）。
+  # 每個程式 PR 都跑：這些測試也守 overlayRegistry、分類表等程式端改動，只在資料變動時跑會漏。
+  # CI-4 移檔期間仍完整 checkout（資料檔還在 git 的部分直接用）；全部移出後 checkout 只剩網站素材。
+  assets:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - uses: actions/cache@v4
+        with:
+          path: .asset-cache
+          key: asset-cache-${{ hashFiles('deploy/asset-test-files.txt', 'deploy/public-assets.lock.json') }}
+          restore-keys: asset-cache-
+      - run: npm ci
+      - name: Asset tests (R2 sha256 + content contracts)
+        run: npm run check:assets
+
+  ci-ok:
+    if: always()
+    needs: [changes, quick, build, test, assets]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: All checks passed (or skipped for non-code PR)
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "job results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in success|skipped) ;; *) echo "::error::有 job 未通過（$r）"; exit 1 ;; esac
+          done

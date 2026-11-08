@@ -32,7 +32,8 @@ import { applyLayerControl, describeLayerControls, validateLayerControl } from "
 import { resolveOfflineLocation } from "./addressLookup";
 import { describeDataset, ensureDataset, ensureStatisticsResearchDatasets, searchDatasets } from "./researchDatasets";
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
-import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
+import { ResearchAnalysisSession, presentationMetrics, type AnalysisQueryOperation } from "./researchAnalysisSession";
+import { boundsOfPositions, buildFramingCheck } from "./framingCheck";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender, waitForValue } from "./sceneReadiness";
 import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, warehouseDatasetsSourceLabel, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
@@ -40,7 +41,7 @@ import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, researchResultPopupTitle, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties, type AnalysisResultPanelTrend } from "./researchResultPopup";
 import { analysisHoverLabel, createAnalysisHoverTip, supportsAnalysisHover } from "./analysisResultHover";
 import { nextAnalysisActivations, planAnalysisStack } from "./analysisResultStack";
-import { analysisLegendEntries, publishAnalysisLegend, type AnalysisLegendPlayback } from "./analysisLegendStore";
+import { analysisLegendEntries, getAnalysisLegendSnapshot, publishAnalysisLegend, type AnalysisLegendPlayback } from "./analysisLegendStore";
 import {
   clearAnalysisPlayback, getAnalysisPlaybackState, getAnalysisPlaybackVersion, scrubAnalysisPlayback,
   subscribeAnalysisPlayback, syncAnalysisPlaybackRegistry, toggleAnalysisPlayback,
@@ -175,6 +176,22 @@ export function MainMapConnection(props: Props) {
    *  mid-command would cancel that command's report), so the server keeps re-sending the uncapped
    *  collection; activations must diff against that, or the hidden slot rotates on every command. */
   const requestedResultsRef = useRef<ResultCollection | null>(null);
+  /** map_context.framingCheck: lets the Agent notice "too far out / outline only / duplicate legend" without a screenshot. */
+  const readFramingCheck = (map: MapboxMap) => {
+    const presentedIds = new Set(presentedAnalysisRef.current.map(result => result.resultId));
+    const positions: [number, number][] = [];
+    for (const result of availableResultRowsRef.current) {
+      if (!presentedIds.has(result.resultId)) continue;
+      try { positions.push(...presentationMetrics(result.rows, result.geometry.type as Parameters<typeof presentationMetrics>[1]).positions as [number, number][]); } catch { /* unsupported geometry: skip */ }
+    }
+    return buildFramingCheck({
+      project: lngLat => map.project(lngLat),
+      safe: resolveViewportContext(map).safe,
+      bounds: presentedIds.size ? boundsOfPositions(positions) : null,
+      outlineOnlyResultIds: analysisOutlineOnlyRef.current,
+      legendCount: getAnalysisLegendSnapshot().entries.length,
+    });
+  };
   const planAnalysisResults = useCallback((previousResults: ResultCollection | null, results: ResultCollection | null | undefined, presentable: readonly PresentableResult[]): ResultCollection | null => {
     analysisActivationsRef.current = nextAnalysisActivations(previousResults, results, analysisActivationsRef.current);
     const kinds = new globalThis.Map(presentable.map(result => [result.resultId, analysisResultStackKind(result)]));
@@ -474,6 +491,7 @@ export function MainMapConnection(props: Props) {
           // tilesSettled=false: sources/tiles still loading (or an animated layer keeps reloading); camera/layers below are still authoritative.
           // country: the panel's current country subject ("TW"/"JP"/"FR"), not derived from the camera centre.
           result = { observedAt: new Date().toISOString(), country: countryStore.getSnapshot(), tilesSettled: liveMap.isStyleLoaded(), camera: live.bridge.getCamera(), viewport: resolveViewportContext(liveMap), time: live.timeline?.getContext() ?? null, following: followingRef.current, selection: live.selection ?? null, selectionSource: live.selection ? "feature" : null, visibleLayerKeys: liveVisible.slice(0, 100), totalVisible: liveVisible.length, truncated: liveVisible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(liveMap, presentedAnalysisRef.current, resultCollectionRef.current),
+            framingCheck: readFramingCheck(liveMap),
             // AG-1: rendered-viewport digest; counts drawn features only (SPEC-prod-connect §2.7).
             bounds: viewportBounds(liveMap), visibleSummary };
           break;

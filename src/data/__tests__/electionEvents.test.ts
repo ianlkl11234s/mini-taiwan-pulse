@@ -10,7 +10,7 @@ import {
   formatCrowdNumber,
   inElectionRange,
 } from "../electionEventsTypes";
-import { buildElectionDisplay } from "../../hooks/useElectionEventsLayer";
+import { buildElectionDisplay, electionCampPredicate } from "../../hooks/useElectionEventsLayer";
 import { isAccessDenied } from "../../lib/layerGates";
 
 const RAW = {
@@ -128,5 +128,105 @@ describe("2026 選舉活動：popup 格式", () => {
     expect(out).toHaveLength(5);
     expect(out[0]).toEqual({ source: "a", url: "https://a" });
     expect(out.every((s) => s.url.startsWith("https://"))).toBe(true);
+  });
+});
+
+describe("2026 選舉活動：位置精度（代表點分組）", () => {
+  const t = sec("2026-11-10T12:00:00+08:00");
+  const TAMSUI = [121.44, 25.17];
+  const ev = (id: string, camp: string, precision: string, coords: number[], date: string) => ({
+    type: "Feature",
+    geometry: { type: "Point", coordinates: coords },
+    properties: { event_id: id, event_name: id, event_date: date, camp, scale_tier: "M", location_precision: precision, city: "新北市", town: "淡水區" },
+  });
+  const { fc } = normalizeElectionEvents({
+    features: [
+      ev("v1", "民主進步黨", "address", TAMSUI, "2026-11-15"),
+      ev("v2", "中國國民黨", "landmark", TAMSUI, "2026-11-15"),
+      ev("t1", "中國國民黨", "town_centroid", TAMSUI, "2026-11-15"),
+      ev("t2", "民主進步黨", "town_centroid", TAMSUI, "2026-11-12"),
+      ev("t3", "中國國民黨", "town_centroid", TAMSUI, "2026-11-03"),
+      ev("c1", "台灣民眾黨", "city_centroid", TAMSUI, "2026-11-20"),
+      ev("s1", "民主進步黨", "settlement", [120.3, 23.3], "2026-11-09"),
+    ],
+  });
+  const grp = (f: GeoJSON.Feature) => f.properties?._grp === 1;
+
+  it("場館點永遠個別；同精度同座標 2 場以上合成一個 _grp，1 場維持單點", () => {
+    const out = buildElectionDisplay(fc, t, "all");
+    const singles = out.fc.features.filter((f) => !grp(f)).map((f) => f.properties?.event_id).sort();
+    expect(singles).toEqual(["c1", "s1", "v1", "v2"]);
+    const groups = out.fc.features.filter(grp);
+    expect(groups).toHaveLength(1);
+    const g = groups[0]!.properties!;
+    expect(g.n).toBe(3);
+    expect(g._past).toBe(0);
+    // 清單依日期新到舊
+    expect(JSON.parse(g.events as string).map((e: { event_id: string }) => e.event_id)).toEqual(["t1", "t2", "t3"]);
+    expect(out.icons.get(g._img as string)).toEqual({ counts: { kmt: 2, dpp: 1 }, precision: "town_centroid", allPast: false });
+  });
+
+  it("全部已舉辦的代表點：_past=1、圖示 key 不同", () => {
+    const late = buildElectionDisplay(fc, sec("2026-11-30T00:00:00+08:00"), "all");
+    const g = late.fc.features.find(grp)!.properties!;
+    expect(g._past).toBe(1);
+    expect(String(g._img)).toContain("town_centroid-1-");
+  });
+
+  it("位置篩選：只看確切地點／只看代表點", () => {
+    const ids = (location: "exact" | "approx") => buildElectionDisplay(fc, t, "all", { location }).fc.features
+      .map((f) => (grp(f) ? `grp${f.properties?.n}` : f.properties?.event_id)).sort();
+    expect(ids("exact")).toEqual(["v1", "v2"]);
+    expect(ids("approx")).toEqual(["c1", "grp3", "s1"]);
+  });
+
+  it("分組在篩選之後：陣營或時間篩到只剩 1 場就回到單點", () => {
+    const onlyDpp = electionCampPredicate(0b00001);
+    const out = buildElectionDisplay(fc, t, "all", { camp: onlyDpp });
+    expect(out.fc.features.some(grp)).toBe(false);
+    expect(out.fc.features.map((f) => f.properties?.event_id).sort()).toEqual(["s1", "t2", "v1"]);
+    const held = buildElectionDisplay(fc, t, "held");
+    expect(held.fc.features.map((f) => f.properties?.event_id).sort()).toEqual(["s1", "t3"]);
+  });
+
+  it("陣營遮罩：全選回 null；「其他」位元管 other", () => {
+    expect(electionCampPredicate(undefined)).toBeNull();
+    expect(electionCampPredicate(0b11111)).toBeNull();
+    const otherOnly = electionCampPredicate(0b10000)!;
+    expect(otherOnly("other")).toBe(true);
+    expect(otherOnly("dpp")).toBe(false);
+  });
+});
+
+describe("2026 選舉活動：聚落名稱（mig 515 settlement_name）", () => {
+  it("只有聚落代表點採用 settlement_name；空值與其他精度回 null", async () => {
+    const { electionSettlementName } = await import("../electionEventsTypes");
+    expect(electionSettlementName({ location_precision: "settlement", settlement_name: " 菁寮 " })).toBe("菁寮");
+    expect(electionSettlementName({ location_precision: "settlement", settlement_name: null })).toBeNull();
+    expect(electionSettlementName({ location_precision: "town_centroid", settlement_name: "菁寮" })).toBeNull();
+  });
+
+  it("定位說明：有聚落名寫聚落名，沒有時寫縣市區", async () => {
+    const { electionPrecisionNote } = await import("../../components/featureInfo/politicsPanels");
+    const { localeStore } = await import("../../state/localeStore");
+    const i18n = localeStore.getSnapshot();
+    const base = { location_precision: "settlement", city: "臺南市", town: "後壁區" };
+    expect(electionPrecisionNote("settlement", { ...base, settlement_name: "菁寮" }, i18n, "single")).toBe("在菁寮聚落內，點位不是場地本身");
+    expect(electionPrecisionNote("settlement", { ...base, settlement_name: "菁寮" }, i18n, "group")).toBe("以下活動都在菁寮聚落內，點位不是場地本身");
+    expect(electionPrecisionNote("settlement", { ...base, settlement_name: null }, i18n, "single")).toBe("在臺南市後壁區的聚落內，點位是聚落代表點，不是集合場地本身");
+    expect(electionPrecisionNote("town_centroid", { ...base, location_precision: "town_centroid", settlement_name: "菁寮" }, i18n, "single")).toBe("只知道在臺南市後壁區，點位不是活動地點");
+  });
+
+  it("多場分組帶上聚落名", () => {
+    const { fc } = normalizeElectionEvents({
+      features: ["a", "b"].map((id) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [120.35, 23.36] },
+        properties: { event_id: id, event_date: "2026-11-20", camp: "民主進步黨", location_precision: "settlement", settlement_name: "菁寮", city: "臺南市", town: "後壁區" },
+      })),
+    });
+    const g = buildElectionDisplay(fc, sec("2026-11-10T00:00:00+08:00"), "all").fc.features[0]!.properties!;
+    expect(g._grp).toBe(1);
+    expect(g.settlement_name).toBe("菁寮");
   });
 });

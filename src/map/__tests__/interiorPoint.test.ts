@@ -38,4 +38,14 @@ describe("面的代表點", () => {
     expect(fc.features[0]!.geometry.coordinates[0]).toBeCloseTo(15);
     expect(fc.features[0]!.properties).toEqual({ a: 1 });
   });
+
+  it("LineString／MultiLineString 取沿線中點（review F049）", () => {
+    expect(geometryInteriorPoint({ type: "LineString", coordinates: [[0, 0], [2, 0], [2, 2]] })).toEqual([2, 0]);
+    expect(geometryInteriorPoint({ type: "MultiLineString", coordinates: [[[0, 0], [1, 0]], [[0, 0], [4, 0]]] })).toEqual([2, 0]);
+    const fc = polygonFeaturesToInteriorPoints({
+      type: "FeatureCollection",
+      features: [{ type: "Feature", properties: { k: 1 }, geometry: { type: "LineString", coordinates: [[0, 0], [4, 0]] } }],
+    });
+    expect(fc.features).toHaveLength(1);
+  });
 });

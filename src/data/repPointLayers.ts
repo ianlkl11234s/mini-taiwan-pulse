@@ -6,13 +6,13 @@
  *   - `layerParamsSpec`：每層加「樣式（點位／面）」選單、≥ 1 萬點加「熱區顏色」、加「大小」滑桿；
  *   - `map/repPointOverlays`：registry 圖層（`family: "registry"`）自動產生第二個 config（同 id、代表點 source）；
  *   - `gisClickRegistry`：代表點 circle 的點擊彈窗沿用面層的 FeatureInfo 類型；
- *   - 日本／農業的 hook 與 factory（`family: "jpHook" | "jpTourism" | "agri"`）讀這張表取檔案與預設。
+ *   - 日本／農業的 hook 與 factory（`family: "jpHook" | "jpTourism" | "agri"`）、南韓 `useKrDataLayers`（`krData`）讀這張表取檔案與預設。
  *
  * 切換語意（與 `jpAirports`、英國 `gbDisplayModeFromIdx` 一致）：select 的 encode 順序 `[point, polygon]`，
  * 0＝點、1＝面。預設：小而零散的面（墓區、湖泊埤塘、樹穴、保護區類、產業園區…）點，大範圍面（分區、淹水、土壤、作物…）面。
  */
 export type RepPointDisplayMode = "point" | "polygon";
-export type RepPointFamily = "registry" | "agri" | "jpHook" | "jpTourism" | "jpGeojson";
+export type RepPointFamily = "registry" | "agri" | "jpHook" | "jpTourism" | "jpGeojson" | "krData";
 
 export interface RepPointLayer {
   /** 圖層 key（LayerVisibility） */
@@ -78,13 +78,14 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // 第三輪（I 軌）：崩塌地、魚塭小而零散預設點；河川面、橋梁輪廓預設面（拉遠時代表點／熱區補位）
   R({ key: "landslideAnnual", sourceId: "landslide-annual", file: "hazards/landslide_annual_swcb_20261006_points.pmtiles", sourceLayer: "landslide_annual_points", count: 143_511, def: "point", thinned: 2, heatIntensity: 0.2 }),
   R({ key: "aquaculturePonds", sourceId: "aquaculture-ponds", file: "fishery/aquaculture_ponds_osm_points.pmtiles", sourceLayer: "aquaculture_ponds_osm_points", count: 15_241, def: "point", heatIntensity: 0.3 }),
-  R({ key: "waterRivers", sourceId: "water-river-polygons", file: "geo/water_river_polygons_points.pmtiles", sourceLayer: "river_polygons_points", count: 13_262, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "waterRivers", sourceId: "water-river-polygons", file: "geo/water_river_polygons_points.pmtiles", sourceLayer: "river_polygons_points", count: 13_262, def: "polygon", heatIntensity: 0.3, opacityParam: "waterRiverOpacity" }),
   R({ key: "osmBridgeFootprints", sourceId: "osm-bridge-footprints", file: "network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles", sourceLayer: "osm_bridge_footprints_points", count: 1_505, def: "polygon" }),
   // 淹水：10 情境一個情境一支（切情境換 source，同 `sourceUrlByParam`），tile layer 統一 flood_scenario_points
   R({ key: "waterFloodExtreme", sourceId: "water-flood-extreme", file: "geo/water_flood_650mm_24hr_points.pmtiles", sourceLayer: "flood_scenario_points", count: 2356, def: "polygon", opacityParam: "waterFloodOpacity" }),
   // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──
   G({ key: "importantWetlands", sourceId: "important-wetlands", count: 89, def: "point" }),
   G({ key: "importantWetlandZones", sourceId: "important-wetland-zones", count: 578, def: "polygon" }),
+  G({ key: "water1944Taipei", sourceId: "water-1944-taipei", count: 830, def: "polygon" }),
   G({ key: "cemeteryZoning", sourceId: "cemetery-zoning", count: 114, def: "point" }),
   G({ key: "waterRecreationRestrictedAreas", sourceId: "water-recreation-restricted-areas", count: 33, def: "point" }),
   G({ key: "tourHotSpringZones", sourceId: "tour-hot-spring-zones", count: 16, def: "point" }),
@@ -135,7 +136,30 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "jpWildlifeProtectionNational", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
   { key: "jpWildlifeSpecialProtectionDesignatedArea", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
   { key: "jpWildlifeSpecialProtectionDistrict", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
+  // 日本第二輪（2026-11-06）registry 面層：自然公園／国立公園預設面（大範圍），鳥獣保護区小而零散預設點
+  R({ key: "jpNaturalParkAreas2015", sourceId: "jp-natural-park-areas-2015", file: "world/jp_natural_park_areas_ksj_2015_points.pmtiles", sourceLayer: "jp_natural_park_areas_ksj_2015_points", count: 19_193, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "jpNationalParksMoe", sourceId: "jp-national-parks-moe", file: "world/jp_national_parks_moe_r7_points.pmtiles", sourceLayer: "jp_national_parks_moe_r7_points", count: 15_293, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "jpWildlifeProtectionMoe", sourceId: "jp-wildlife-protection-moe", file: "world/jp_wildlife_protection_areas_moe_r7_points.pmtiles", sourceLayer: "jp_wildlife_protection_areas_moe_r7_points", count: 347, def: "point" }),
   { key: "jpMarineEbsaCoastal", family: "jpTourism", file: "jp_marine_ebsa_moe_coastal_20150101_points.pmtiles", sourceLayer: "jp_marine_ebsa_coastal_points", count: 270, def: "point" },
+  // ── 南韓：useKrDataLayers 規格驅動層（circle id＝`${kebab(key)}-point-circle`，面＝規格 layerId） ──
+  { key: "krCemeteriesOsm", family: "krData", file: "kr_cemeteries_osm_points.pmtiles", sourceLayer: "kr_cemeteries_osm_points", count: 16_842, def: "point", maxzoom: 14, heatIntensity: 0.05 },
+  // 第 7 波：小學通學區鋪滿國土（大範圍面）→ 預設面
+  { key: "krSchoolDistricts", family: "krData", file: "kr_school_districts_points.pmtiles", sourceLayer: "kr_school_districts_points", count: 7_132, def: "polygon", maxzoom: 14 },
+  // 愛爾蘭第 1 波：公園（同一支 useKrDataLayer；Dublin City／South Dublin 官方＋其餘 OSM）
+  { key: "ieParks", family: "krData", file: "ie_parks_points.pmtiles", sourceLayer: "ie_parks_points", count: 3221, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 2 波：國有登記土地 folio（小而零散，預設點；7.5 萬點 → 拉遠熱區；代表點檔 z4–9 未抽稀、只帶 owner_group）
+  // 愛爾蘭第 3b 波：受保護海域（保護區類，預設點；點檔另含自然保留區、避難所、拉姆薩這些原本就只有點的站點）
+  { key: "ieProtectedMarineSites", family: "krData", file: "ie_protected_marine_sites_points.pmtiles", sourceLayer: "ie_protected_marine_sites_points", count: 290, def: "point", maxzoom: 14 },
+  { key: "ieStateAssets", family: "krData", file: "ie_state_assets_points.pmtiles", sourceLayer: "ie_state_assets_points", count: 75443, def: "point", maxzoom: 14, thinned: 1, heatIntensity: 1.5 },
+  // 愛爾蘭第 5 波：國家公園（大範圍，預設面）、指定保護區與崩塌範圍（小而零散，預設點）
+  { key: "ieNationalParks", family: "krData", file: "ie_national_parks_points.pmtiles", sourceLayer: "ie_national_parks_points", count: 6, def: "polygon", maxzoom: 14 },
+  { key: "ieProtectedSites", family: "krData", file: "ie_protected_sites_points.pmtiles", sourceLayer: "ie_protected_sites_points", count: 806, def: "point", maxzoom: 14 },
+  { key: "ieLandslideExtents", family: "krData", file: "ie_landslide_extents_points.pmtiles", sourceLayer: "ie_landslide_extents_points", count: 2274, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 10 波：持照養殖場（多為數公頃的小面，預設點）
+  { key: "ieAquaculture", family: "krData", file: "ie_aquaculture_points.pmtiles", sourceLayer: "ie_aquaculture_points", count: 1067, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 9 波：土地使用分區鋪滿城鎮（預設面；8.7 萬點 → 拉遠熱區，代表點檔 z4–9 未抽稀、只帶 category）、廢棄物許可設施（小而零散，預設點）
+  { key: "ieZoning", family: "krData", file: "ie_zoning_points.pmtiles", sourceLayer: "ie_zoning_points", count: 86678, def: "polygon", maxzoom: 14, thinned: 1, heatIntensity: 1 },
+  { key: "ieWasteFacilities", family: "krData", file: "ie_waste_facilities_points.pmtiles", sourceLayer: "ie_waste_facilities_points", count: 292, def: "point", maxzoom: 14 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));

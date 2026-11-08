@@ -100,8 +100,28 @@ export function warehouseGeometryFor(type: WarehouseImportGeometry, group: reado
   return { type, role: type === "Point" ? "generalized" : "proxy", spatialAnalysisEligible: false };
 }
 
-export function warehouseResultIdFor(resultId: string, type: WarehouseImportGeometry, groupCount: number): string {
-  return groupCount === 1 ? resultId : `${resultId}:${type.toLowerCase()}`;
+/** Import group of a geometry type: Polygon + MultiPolygon draw as one area group and LineString +
+ *  MultiLineString as one line group (Mapbox fill/line layers take both), so one choropleth style is
+ *  never split across two session results (which left one half outline-only and doubled the legend). */
+export type WarehouseGroupKey = "Point" | "LineString" | "Polygon";
+export function warehouseGroupKey(type: WarehouseImportGeometry): WarehouseGroupKey {
+  if (type === "Polygon" || type === "MultiPolygon") return "Polygon";
+  if (type === "LineString" || type === "MultiLineString") return "LineString";
+  return "Point";
+}
+
+/** Representative geometry type of a group: the Multi* form when any member is multipart (the
+ *  superset), otherwise the single common type. */
+function representativeType(group: readonly { type: WarehouseImportGeometry }[]): WarehouseImportGeometry {
+  const first = group[0]!.type;
+  const key = warehouseGroupKey(first);
+  if (key === "Polygon") return group.some(feature => feature.type === "MultiPolygon") ? "MultiPolygon" : "Polygon";
+  if (key === "LineString") return group.some(feature => feature.type === "MultiLineString") ? "MultiLineString" : "LineString";
+  return first;
+}
+
+export function warehouseResultIdFor(resultId: string, key: WarehouseGroupKey, groupCount: number): string {
+  return groupCount === 1 ? resultId : `${resultId}:${key.toLowerCase()}`;
 }
 
 /** Fetch, verify and convert a warehouse result into one AnalysisResult per geometry type. */
@@ -144,6 +164,7 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchText: 
   }
   const features = normalizeWarehouseFeatures(parsed);
   const types = [...new Set(features.map(feature => feature.type))];
+  const keys = [...new Set(features.map(feature => warehouseGroupKey(feature.type)))];
   if (args.style?.kind === "heatmap" && types.some(type => type !== "Point")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
   if (args.style?.kind === "compare" && (types.some(type => type !== "Point") || features.length !== args.style.columns.length)) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
   // Proportional symbols are sized circles (Point only); bivariate fills an area and sizes a bubble
@@ -151,16 +172,17 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchText: 
   if (args.style?.kind === "proportional" && types.some(type => type !== "Point")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
   if (args.style?.kind === "bivariate" && types.some(type => type !== "Polygon" && type !== "MultiPolygon")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
   const createdAt = new Date().toISOString();
-  return types.map(type => {
-    const group = features.filter(feature => feature.type === type);
+  return keys.map(key => {
+    const group = features.filter(feature => warehouseGroupKey(feature.type) === key);
+    const type = representativeType(group);
     const datasets = [...new Set(group.map(feature => feature.properties._wh_dataset).filter((value): value is string => typeof value === "string" && value.length > 0))];
     return {
-      resultId: warehouseResultIdFor(args.resultId, type, types.length),
+      resultId: warehouseResultIdFor(args.resultId, key, keys.length),
       datasetId: `warehouse:${args.resultId}`,
       recordGrain: "feature",
       rows: group.map((feature, index) => {
         const name = ["name", "名稱", "school_name", "title"].map(key => feature.properties[key]).find(value => typeof value === "string" && value.trim());
-        return { ...feature.properties, record_id: `${args.resultId}:${type}:${index}`, label: typeof name === "string" ? name : args.label, geometry: feature.geometry };
+        return { ...feature.properties, record_id: `${args.resultId}:${key}:${index}`, label: typeof name === "string" ? name : args.label, geometry: feature.geometry };
       }),
       geometry: warehouseGeometryFor(type, group),
       sourceRefs: [],

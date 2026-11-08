@@ -68,7 +68,7 @@
 
 ## 4. 前端接線
 
-- Loader：`src/data/wasteLoader.ts`（`get_waste_current`、`get_waste_stops`、`get_waste_trails`、`get_waste_trails_day`、`get_waste_trails_matched_day`、`get_waste_facilities`、`get_waste_disposal_points`、`get_waste_cleaning_squads`；後三者走 `staticRpc`）、`src/data/wasteScheduleLoader.ts`（`get_waste_schedule_day`）
+- Loader：`src/data/wasteLoader.ts`（`get_waste_current`、`get_waste_trails`、`get_waste_trails_day`、`get_waste_trails_matched_day`、`get_waste_facilities`、`get_waste_disposal_points`、`get_waste_cleaning_squads`；後三者走 `staticRpc`）、`src/data/wasteScheduleLoader.ts`（`get_waste_schedule_day` 的 56 份靜態快照，`/static-rpc/get_waste_schedule_day_<dow>_<分組>.json`）
 - Hook：`useWasteLayer`（live 近 60 分鐘、60s 輪詢；replay 整日優先讀 matched，無資料或失敗退回 GPS trail）、`useWasteScheduleLayer`（訂閱 `timeStore.subscribeDate` 取 dow，不把 currentTime 放進 deps）、`useWasteFacilityLayer`、`useWasteDisposalPointLayer`、`useWasteCleaningSquadLayer`（開啟才抓、之後永久 cache）
 - Manifest layer key（`src/data/layerManifest.ts`）：`wasteTruck`（dataClass D，Three.js）、`wasteSchedule`、`wasteScheduleNote`、`wasteCleaningSquads`、`wasteStopsStatic`（pmtiles `./geo/waste_stops_static_20260930.pmtiles`，source-layer `waste_stops`，minzoom 6／maxzoom 14）、`wdClothes`、`wdMixed`、`wdRecyclingContainer`、`wdBattery`
 - 聊天工具：`src/chat/tools/rpcTools.ts` 允許呼叫 `get_waste_facility_counts`、`get_waste_disposal_point_counts`

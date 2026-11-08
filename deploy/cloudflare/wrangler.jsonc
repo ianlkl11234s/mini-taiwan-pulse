@@ -3,6 +3,8 @@
   "main": "src/worker.js",
   "compatibility_date": "2026-11-01",
   "workers_dev": true,
+  // 2026-11-09 主站網域改為 Worker custom domain（原本 DNS 指 Zeabur、靠 zone Route 攔截）；workers_dev 必須保留，否則測試網址整站 404
+  "routes": [{ "pattern": "mini-taiwan-pulse.itsmigu.com", "custom_domain": true }],
   "assets": {
     "directory": "../../dist",
     "binding": "ASSETS",
@@ -10,6 +12,6 @@
     "html_handling": "none",
     "not_found_handling": "none"
   },
-  "vars": { "ORIGIN": "https://mini-taiwan-pulse.itsmigu.com" },
+  "vars": { "ORIGIN": "https://pulse-origin.itsmigu.com" },
   "observability": { "enabled": true }
 }

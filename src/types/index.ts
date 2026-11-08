@@ -1,5 +1,6 @@
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 import type { KrDataKey } from '../data/krDataKeys';
+import type { IeDataKey } from '../data/ieDataKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
 import type { EnvironmentStatisticsLayerKey } from '../data/environmentStatisticsRecipes';
 import type { AddictionStatisticsLayerKey } from '../data/addictionStatisticsRecipes';
@@ -116,6 +117,7 @@ export type ExpandableLayerKey =
   | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
   | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
   | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
+  | "jpNaturalParkAreas2015" | "jpNationalParksMoe" | "jpWildlifeProtectionMoe" | "jpDid"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
   | "ooklaMobilePerformance" | "ooklaFixedPerformance"
   | "ooklaMobileTaiwan" | "ooklaFixedTaiwan"
@@ -424,6 +426,8 @@ export type ExpandableLayerKey =
   | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim" | "transitReachGrid" | "transitReachPlayback" | "transitAccessGrid" | "transitAccessPlayback" | "freewayTdcsSim"
   | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
   | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
+  | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
+  | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites" | "mapchallengeDay08Plan1955"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -433,20 +437,21 @@ export type ExpandableLayerKey =
   | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
-  | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
+  | "jpPoliceFacilities" | "jpTrafficAccidents2025" | "jpSchools" | "jpPopulationMesh1km"
   | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
   | "jpLandslideWarningAreas" | "jpInlandFloodAreas"
   | "jpZoningUseDistricts" | "jpNationalForests"
-  | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief" | "historicalMapSinica"
+  | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief" | "historicalMapSinica" | "historicalMapPostwar" | "historicalImagery" | "historicalBoundaries" | "historicalLandUse" | "historicalThematic" | "water1944Taipei"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
-  | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade"
+  | "ieAdminBoundaries" | IeDataKey | "ieBathymetry" | "ieCoillteRecreation" | "ieCoillteForestRoads"
+  | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid"
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbGolfCourses" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbMajorRoads" | "gbTrafficCountsAadf"
-  | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
+  | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
   | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
   | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
@@ -739,6 +744,11 @@ export interface OverlayLayerSpec {
    * 帶新值重新 addLayer）。
    */
   filter?: unknown[] | ((params?: Record<string, number>) => unknown[]);
+  /**
+   * 不併入 V-4 類別篩選（`withCategoryFilter`）。只給「一個圖徵代表多個類別、類別篩選已由 hook
+   * 在資料端先套」的子圖層用（2026 選舉活動同一代表點多場的 group symbol 首用）。
+   */
+  skipCategoryFilter?: boolean;
 }
 
 export interface OverlayConfig {
@@ -808,6 +818,7 @@ export interface FeatureInfo {
     | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
     | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
     | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
+    | "jpNaturalParkAreas2015" | "jpNationalParksMoe" | "jpWildlifeProtectionMoe" | "jpDid"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
@@ -895,7 +906,7 @@ export interface FeatureInfo {
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
     | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
-    | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "importantWetlandZones" | "waterRecreationRestrictedAreas" | "batterySwapStations"
+    | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "importantWetlandZones" | "water1944Taipei" | "waterRecreationRestrictedAreas" | "batterySwapStations"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
     | "indigenousRegions" | "indigenousLanguageDialects" | "hakkaCulturalZones" | "tourServiceSites" | "tourVisitorStats"
@@ -968,6 +979,8 @@ export interface FeatureInfo {
   | "freewayTdcsSim"
   | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
   | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
+  | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
+  | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -982,7 +995,7 @@ export interface FeatureInfo {
     | "jpRailways"
     | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
     // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
-    | "jpPoliceFacilities" | "jpSchools"
+    | "jpPoliceFacilities" | "jpTrafficAccidents2025" | "jpSchools"
     // 日本第一波圖層（避難場所／役所與公民館／公車站，靜態 PMTiles 點層）
     | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
     // 日本第二波面圖層（土砂災害警戒區域／內水浸水想定區域，靜態 PMTiles 面層）
@@ -996,7 +1009,9 @@ export interface FeatureInfo {
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
     | "krAdminBoundaries" | KrDataKey
     // 加拿大第 0＋1 波
-    | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames"
+    | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid"
+    // 愛爾蘭第 0 波：行政邊界（LA／ED／SA）
+    | "ieAdminBoundaries" | IeDataKey | "ieCoillteRecreation" | "ieCoillteForestRoads"
     // 南韓第 1 波：交通 6 層、能源 7 個 key
     | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
@@ -1008,7 +1023,7 @@ export interface FeatureInfo {
     // 英國第 10 波：主要路網、AADF 交通計數點
     | "gbMajorRoads" | "gbTrafficCountsAadf"
     // 英國第 11 波：規劃限制區、棕地、回收點、廢棄物許可、污染排放（蘇格蘭）、噪音
-    | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
+    | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
     // 英國第 12 波：公司登記、製造業、殯葬、養殖、土壤母質
     | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
     // 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護
@@ -1046,7 +1061,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -1258,6 +1273,10 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   accessibleParkFacilities: boolean;
   bicycleSupport: boolean;
   nationalParks: boolean;
+  jpNaturalParkAreas2015: boolean;  // 日本 自然公園地域（KSJ A10 2015，三區分巢狀，無名稱／種別）
+  jpNationalParksMoe: boolean;      // 日本 国立公園（環境省 令和7年4月，35 園 ZONE 7 類）
+  jpWildlifeProtectionMoe: boolean; // 日本 国指定鳥獣保護区（環境省 令和7年4月，347 面）
+  jpDid: boolean;                   // 日本 人口集中地区 DID（KSJ A16 1995–2015 五期，年份換檔）
   visitorCentres: boolean;
   publicLifeOsmCoverage: boolean;
   submarineCables: boolean;
@@ -1274,9 +1293,9 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   newsEvents: boolean;
   /** 2026 地方選舉活動（owner-only RPC get_election_events_2026；研究原型） */
   electionEvents2026: boolean;
-  /** 2024 投開票所（公開 bbox RPC get_polling_stations_2024；gis-platform mig 495） */
+  /** 2024 投開票所（CDN 靜態快照 /static-rpc/polling_stations_2024.json；來源表 gis-platform mig 495） */
   pollingStations2024: boolean;
-  /** 2026 縣市議員選舉區（公開 RPC get_council_districts_2026；gis-platform mig 496） */
+  /** 2026 縣市議員選舉區（CDN 靜態快照 /static-rpc/get_council_districts_2026.json；來源 gis-platform mig 496） */
   councilDistricts2026: boolean;
   /** GitHub append-only 研究經 publisher 發布的全球重要事件；僅顯示有真實 Point 的位置 */
   globalEvents: boolean;
@@ -1335,6 +1354,22 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   mapchallengeDay05SeaView: boolean;
   /** 30 天地圖挑戰 Day 5 視野：最長連續海景（各取前 30 名） */
   mapchallengeDay05SeaViewRuns: boolean;
+  /** 30 天地圖挑戰 Day 6 復古（模擬面板，公開）：臺南海岸線三代（THCTS 衍生） */
+  mapchallengeDay06Coast: boolean;
+  /** 30 天地圖挑戰 Day 6 復古：1932 臺北市町界 */
+  mapchallengeDay06Taipei1932: boolean;
+  /** 30 天地圖挑戰 Day 6 復古：廟不搬家（1921 祠廟） */
+  mapchallengeDay06Temples1921: boolean;
+  /** 30 天地圖挑戰 Day 6 復古：燈塔與測候所今昔 */
+  mapchallengeDay06Lighthouses: boolean;
+  /** 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開）：中和＋永和走到大公園的步行分鐘（可切方案、步速） */
+  mapchallengeDay08Access: boolean;
+  /** 30 天地圖挑戰 Day 8 烏托邦：現有 ≥1 ha 公園（含河濱公園）與河濱穿堤入口 */
+  mapchallengeDay08Parks: boolean;
+  /** 30 天地圖挑戰 Day 8 烏托邦：新公園選址與代價（A／B／B2／C）＋1955 計畫公園與綠地（D／Dfull） */
+  mapchallengeDay08Sites: boolean;
+  /** 30 天地圖挑戰 Day 8 烏托邦：1955 中和鄉都市計畫圖（image source） */
+  mapchallengeDay08Plan1955: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */
@@ -1852,6 +1887,7 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   tainanRoadTunnels: boolean;
   changhuaTrafficSignals: boolean;
   jpPoliceFacilities: boolean;
+  jpTrafficAccidents2025: boolean; // 日本 2025 人身交通事故 287,020 點（警察庁本票，PMTiles）
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
   jpEvacuationSites: boolean;   // 日本避難場所（PMTiles point，199,346 筆；指定緊急避難場所＋指定避難所）
   jpPublicOffices: boolean;     // 日本役所與公民館（PMTiles point，79,532 筆；5 類，集會施設預設隱藏）
@@ -1865,10 +1901,20 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   jpExpressways: boolean;       // 日本高速道路（PMTiles line 1,289＋IC/JCT point 2,384；2025 現況）
   jpGsiHillshade: boolean;      // 國土地理院 陰影起伏図（外部 XYZ raster）
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
-  historicalMapSinica: boolean; // 中研院臺灣百年歷史地圖（外部 XYZ raster，7 個年代）
+  historicalMapSinica: boolean; // 中研院臺灣百年歷史地圖：古地圖（清末至日治，外部 XYZ raster）
+  historicalMapPostwar: boolean; // 同上：戰後地形圖（1950–2003）
+  historicalImagery: boolean;   // 同上：歷史航照與衛星影像
+  historicalBoundaries: boolean; // 同上：歷史界線與路網（透明 PNG 疊加層）
+  historicalLandUse: boolean;   // 同上：歷史土地利用
+  historicalThematic: boolean;  // 同上：歷史主題圖（水利、地質、林務、測量）
+  water1944Taipei: boolean; // 1944 水域（臺北盆地）：1944 美軍地形圖顏色抽取的水域面，依今日是否仍為河道分兩類（站主限定）
   gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
   krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
   caAdminBoundaries: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  ieAdminBoundaries: boolean;   // 愛爾蘭行政邊界（PMTiles polygon，LA 31／CSO ED 3,420／SA 18,919；2026-11-07 第 0 波）
+  ieBathymetry: boolean;   // 愛爾蘭海床地形（INFOMAR raster PMTiles z4–10；2026-11-07 第 1 波；其餘 6 層走 IeDataKey）
+  ieCoillteRecreation: boolean;  // 愛爾蘭 Coillte 遊憩點＋森林入口（13,041 點；第 5c 波站主限定 owner-only RPC get_ie_coillte_recreation）
+  ieCoillteForestRoads: boolean; // 愛爾蘭 Coillte 林道＋遊憩步道（17,076 條；第 5c 波站主限定 owner-only RPC get_ie_coillte_forest_roads）
   caTransitStops: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
   caAirportsPorts: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
   caMajorRoads: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
@@ -1885,6 +1931,14 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   caRents: boolean;   // 加拿大第 2 波（PMTiles，public/world/ca_*.pmtiles）
   caPlaceNames: boolean;   // 加拿大第 2 波（PMTiles，public/world/ca_*.pmtiles）
   caHillshade: boolean;   // 加拿大第 2 波（PMTiles，public/world/ca_*.pmtiles）
+  caClimateStations: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caAqhiStations: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caRadiationStations: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caNpriFacilities: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caWastewaterSystems: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caEarthquakes: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caEarthquakesLive: boolean;   // 加拿大即時地震（瀏覽器直連 NRCan FDSN，近 30 天）
+  caPopulationGrid: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）
   krRailStations: boolean;    // 南韓鐵道車站（KORAIL＋都市鐵道，955）
   krAirports: boolean;        // 南韓機場（KAC 14＋仁川 OSM，15）
@@ -1923,7 +1977,8 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   gbBrownfield: boolean;        // 英格蘭棕地登記冊（Planning Data，30,303 點）
   gbRecyclingCentres: boolean;  // 英國回收點（OSM，12,959 點）
   gbWastePermits: boolean;      // 英國廢棄物處理許可（EA／SEPA／NIEA，8,711 點）
-  gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭暫未顯示）
+  gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭另見 gbPollutionInventoryEngland）
+  gbPollutionInventoryEngland: boolean; // 英格蘭污染排放申報（EA Pollution Inventory 2024，2,536 點；站主限定 owner-only RPC get_gb_ea_pollution_inventory）
   gbNoise: boolean;             // 英國策略噪音地圖（Lden，141,566 面）
   gbCompanies: boolean;         // 英國公司登記（Companies House，郵遞區號 district 聚合 2,835 點）
   gbManufacturing: boolean;     // 英國製造業公司（同檔 c_C，2,698 點）

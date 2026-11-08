@@ -1,4 +1,4 @@
-# Pulse 主站發版：master 有新 commit → ① S3 deploy-assets 只補差異到 R2 site/ → ② build → ③ 部署 Cloudflare Worker。
+# Pulse 主站發版：master 有新 commit → ① S3 deploy-assets 只補差異到 R2 site/，與 ②③ 平行 → ② build → ③ 部署 Cloudflare Worker。
 # 每天另跑一次 ① 當保險（不 build、不部署）。輪替資料（氣候、GFW）由 sync-rotating.yml 負責。
 # 安全：只接 push(master)／schedule／手動（不接 pull_request）；action 固定 commit SHA；
 # S3 金鑰為唯讀 IAM；R2 只用 R2_MIGRATION_*（只能寫 mini-tw-pulse）；同步程式只寫 site/、不刪任何東西。
@@ -63,8 +63,10 @@ jobs:
           if [ "$EXECUTE" = "true" ]; then flag=--execute; else flag=--dry-run; fi
           "$RUNNER_TEMP/venv/bin/python" deploy/cloudflare/sync_site_assets.py "$flag" --log "$RUNNER_TEMP/sync-log.csv"
 
+  # 不等 sync-assets（約 4.5–5.5 分）：兩個 job 平行，發版快約 5 分鐘。
+  # 代價：本次新增的資產若還沒同步到 R2，會有幾分鐘 404；sync 失敗也不擋部署（看 sync-assets 的紅燈補跑）。
+  # 2026-11-08 使用者同意（BACKLOG CI-3、docs/ci.md §7）。
   build-deploy:
-    needs: sync-assets
     # 只部署 master（手動觸發若選了其他分支就不部署）
     if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.sync_only))
     runs-on: ubuntu-latest
@@ -105,11 +107,12 @@ jobs:
         env:
           URL: ${{ steps.deploy.outputs.url }}
           # 對照表內、Worker 走 R2 的圖層大檔（urban 家族，public/ 沒有同名檔）
-          RANGE_PATH: /urban/street_trees_national.pmtiles
+          # CI-4：urban（只在 R2）、world（git 大檔、已在 R2）、ookla（R2 或 dist 皆可，移出 git 前要能 206）
+          RANGE_PATHS: /urban/street_trees_national.pmtiles /world/jp_religion_osm_20260930.pmtiles /geo/ookla_tw_z14.pmtiles
         run: |
           set -euo pipefail
           ver=$(node -p 'require("./package.json").version')
-          # 部署後新版首頁要幾秒到一兩分鐘才會在邊緣生效（v2.23.0 首跑讀到舊版），最多重試 12 次、每次間隔 10 秒
+          # 部署後新版首頁要幾秒到一兩分鐘才會在邊緣生效（v2.23.0、v2.32.0 首跑都讀到舊版），最多重試 12 次、每次間隔 10 秒
           ok=""
           for i in $(seq 1 12); do
             code=$(curl -sS -o "$RUNNER_TEMP/index.html" -w '%{http_code}' "$URL/?smoke=$i" || true)
@@ -118,6 +121,8 @@ jobs:
             echo "第 $i 次：首頁 $code、$main 尚未是 v$ver，10 秒後重試"; sleep 10
           done
           [ -n "$ok" ] || { echo "::error::2 分鐘內首頁仍不是 v$ver（最後 $code $main）"; exit 1; }
-          code=$(curl -sS -o /dev/null -w '%{http_code}' -H 'Range: bytes=0-15' "$URL$RANGE_PATH")
-          [ "$code" = 206 ] || { echo "::error::$RANGE_PATH Range 回 $code（預期 206）"; exit 1; }
-          echo "smoke OK：$URL v$ver（$main），$RANGE_PATH Range 206" | tee -a "$GITHUB_STEP_SUMMARY"
+          for p in $RANGE_PATHS; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' -H 'Range: bytes=0-15' "$URL$p")
+            [ "$code" = 206 ] || { echo "::error::$p Range 回 $code（預期 206）"; exit 1; }
+          done
+          echo "smoke OK：$URL v$ver（$main），Range 206：$RANGE_PATHS" | tee -a "$GITHUB_STEP_SUMMARY"

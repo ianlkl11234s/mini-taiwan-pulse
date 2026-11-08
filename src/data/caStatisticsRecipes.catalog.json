@@ -208,7 +208,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 2
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "2021 普查人口 ÷ 陸地面積（km²）",
       "location_semantics": "常住地所在的省／普查區（2021 年普查界）",
       "disclosure": "加拿大統計局 2021 年人口普查（普查日 2021-05-11）表 98-10-0015-01，省／地區 13、普查區（census division）293。",
       "publisher": "Statistics Canada（加拿大統計局）",
@@ -273,7 +274,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 2
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "2021 普查人口 ÷ 陸地面積（km²）",
       "location_semantics": "常住地所在的省／普查區（2021 年普查界）",
       "disclosure": "加拿大統計局 2021 年人口普查（普查日 2021-05-11）表 98-10-0015-01，省／地區 13、普查區（census division）293。",
       "publisher": "Statistics Canada（加拿大統計局）",
@@ -338,7 +340,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "0–14 歲人口 ÷ 總人口 × 100",
       "location_semantics": "常住地所在的省／普查區（2021 年普查界）",
       "disclosure": "加拿大統計局 2021 年人口普查表 98-10-0022-01（年齡單歲、平均與中位數），省／地區 13、普查區 293；只取 2021、性別合計。",
       "publisher": "Statistics Canada（加拿大統計局）",
@@ -403,7 +406,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "0–14 歲人口 ÷ 總人口 × 100",
       "location_semantics": "常住地所在的省／普查區（2021 年普查界）",
       "disclosure": "加拿大統計局 2021 年人口普查表 98-10-0022-01（年齡單歲、平均與中位數），省／地區 13、普查區 293；只取 2021、性別合計。",
       "publisher": "Statistics Canada（加拿大統計局）",
@@ -467,7 +471,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "15–64 歲人口 ÷ 總人口 × 100",
       "location_semantics": "常住地所在的省／普查區（2021 年普查界）",
       "disclosure": "加拿大統計局 2021 年人口普查表 98-10-0022-01（年齡單歲、平均與中位數），省／地區 13、普查區 293；只取 2021、性別合計。",
       "publisher": "Statistics Canada（加拿大統計局）",
@@ -532,7 +537,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "15–64 歲人口 ÷ 總人口 × 100",
       "location_semantics": "常住地所在的省／普查區（2021 年普查界）",
       "disclosure": "加拿大統計局 2021 年人口普查表 98-10-0022-01（年齡單歲、平均與中位數），省／地區 13、普查區 293；只取 2021、性別合計。",
       "publisher": "Statistics Canada（加拿大統計局）",
@@ -597,7 +603,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "65 歲以上人口 ÷ 總人口 × 100",
       "location_semantics": "常住地所在的省／普查區（2021 年普查界）",
       "disclosure": "加拿大統計局 2021 年人口普查表 98-10-0022-01（年齡單歲、平均與中位數），省／地區 13、普查區 293；只取 2021、性別合計。",
       "publisher": "Statistics Canada（加拿大統計局）",
@@ -662,7 +669,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "65 歲以上人口 ÷ 總人口 × 100",
       "location_semantics": "常住地所在的省／普查區（2021 年普查界）",
       "disclosure": "加拿大統計局 2021 年人口普查表 98-10-0022-01（年齡單歲、平均與中位數），省／地區 13、普查區 293；只取 2021、性別合計。",
       "publisher": "Statistics Canada（加拿大統計局）",

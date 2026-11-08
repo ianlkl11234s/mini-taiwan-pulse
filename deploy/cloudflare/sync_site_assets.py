@@ -315,11 +315,26 @@ def sync(rows, s3, bucket_s3, w: Writer, s3objs: dict, workers: int = 4) -> list
             if p not in seen:
                 rec(r, "error", int(r["size"]), "tar 內找不到此檔")
 
+    # 可變指標檔（jp-medical/current.json、jp-heights/catalog.json、flight-trails/manifest.json）最後才寫：
+    # 指標先於它指向的資產上線，或資產失敗後指標仍留存，都會讓前端讀到指向不存在檔案的版本。
+    def is_pointer(r) -> bool:
+        return "可變指標" in (r.get("note") or "")
+
+    pointers = [r for r in plain if is_pointer(r)]
+    plain = [r for r in plain if not is_pointer(r)]
     with ThreadPoolExecutor(max(1, min(workers, 4))) as ex:
         list(ex.map(do_plain, plain))
         list(ex.map(do_bus, bus))
     if rail:
         do_rail()
+    # 同一資料夾（第一段路徑）的資產有任何失敗／缺來源，就不換該家族的指標
+    bad_families = {row[0].split("/")[1] for row in log if row[2] in ("error", "missing-src") and row[0].count("/") >= 2}
+    for r in pointers:
+        family = r["served_path"].split("/")[1]
+        if family in bad_families:
+            rec(r, "error", int(r["size"]), "同家族資產未全部成功，不換指標")
+        else:
+            do_plain(r)
     return log
 
 

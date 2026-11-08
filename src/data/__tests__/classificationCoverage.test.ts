@@ -9,7 +9,8 @@
  * 不會消失但要記得補」）—— 文件提醒靠人記得，測試不用。
  */
 import { describe, it, expect } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { assetAvailable } from "../../test/publicAssets";
+import { readFileSync } from "node:fs";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../mountainSafetyTypes";
 import { ownerAsset } from "../../test/ownerAssets";
 import { ANCESTRAL_HALL_TYPES, DEITY_FAMILIES } from "../religionTypes";
@@ -196,7 +197,7 @@ const CASES: Case[] = [
 describe("分類表覆蓋資料實際值", () => {
   for (const c of CASES) {
     it(`${c.file} 的 ${c.field} 沒有分類表漏掉的值`, () => {
-      if (!existsSync(`public/${c.file}`)) {
+      if (!assetAvailable(`public/${c.file}`)) {
         console.log(`⚠ ${c.file} 本機不存在，跳過`);
         return;
       }

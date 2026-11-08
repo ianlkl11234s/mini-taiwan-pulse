@@ -71,9 +71,39 @@ function polygonInteriorPoint(rings: Ring[]): [number, number] | null {
   return outer[0] ? [outer[0][0]!, outer[0][1]!] : null; // 最後退路：外環頂點（在邊界上，仍屬於面）
 }
 
-/** Polygon／MultiPolygon → 代表點（MultiPolygon 取面積最大的部件）；其他幾何回 null。 */
+/** 折線沿線長度的中點（混在面圖層裡的少數線幾何：點模式下仍要看得到）。 */
+function lineMidpoint(line: GeoJSON.Position[]): [number, number] | null {
+  if (line.length === 0) return null;
+  if (line.length === 1) return [line[0]![0]!, line[0]![1]!];
+  const seg: number[] = [];
+  let total = 0;
+  for (let i = 1; i < line.length; i += 1) {
+    const d = Math.hypot(line[i]![0]! - line[i - 1]![0]!, line[i]![1]! - line[i - 1]![1]!);
+    seg.push(d); total += d;
+  }
+  let remain = total / 2;
+  for (let i = 0; i < seg.length; i += 1) {
+    if (remain <= seg[i]! || i === seg.length - 1) {
+      const t = seg[i]! > 0 ? remain / seg[i]! : 0;
+      const a = line[i]!; const b = line[i + 1]!;
+      return [a[0]! + (b[0]! - a[0]!) * t, a[1]! + (b[1]! - a[1]!) * t];
+    }
+    remain -= seg[i]!;
+  }
+  return null;
+}
+
+const lineLength = (line: GeoJSON.Position[]) =>
+  line.slice(1).reduce((n, p, i) => n + Math.hypot(p[0]! - line[i]![0]!, p[1]! - line[i]![1]!), 0);
+
+/** Polygon／MultiPolygon → 代表點（MultiPolygon 取面積最大的部件）；LineString／MultiLineString → 沿線中點；其他幾何回 null。 */
 export function geometryInteriorPoint(geometry: GeoJSON.Geometry | null | undefined): [number, number] | null {
   if (!geometry) return null;
+  if (geometry.type === "LineString") return lineMidpoint(geometry.coordinates);
+  if (geometry.type === "MultiLineString") {
+    const longest = [...geometry.coordinates].sort((a, b) => lineLength(b) - lineLength(a))[0];
+    return longest ? lineMidpoint(longest) : null;
+  }
   if (geometry.type === "Polygon") return polygonInteriorPoint(geometry.coordinates);
   if (geometry.type !== "MultiPolygon") return null;
   const largest = geometry.coordinates
@@ -82,7 +112,7 @@ export function geometryInteriorPoint(geometry: GeoJSON.Geometry | null | undefi
   return largest ? polygonInteriorPoint(largest.rings) : null;
 }
 
-/** 保留 feature id／properties，只轉面幾何；其他類型不猜、不補零。 */
+/** 保留 feature id／properties，只轉面（與線）幾何；其他類型不猜、不補零。 */
 export function polygonFeaturesToInteriorPoints(data: GeoJSON.FeatureCollection): GeoJSON.FeatureCollection<GeoJSON.Point> {
   const features: GeoJSON.Feature<GeoJSON.Point>[] = [];
   for (const f of data.features) {

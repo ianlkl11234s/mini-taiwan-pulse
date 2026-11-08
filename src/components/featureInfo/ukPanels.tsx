@@ -77,7 +77,8 @@ import {
 } from "../../data/gbHazardTypes";
 import { GB_GEO_HAZARD_KEYS, GB_SUSCEPTIBILITY_KEYS } from "../legend/gbHazardLegends";
 import {
-  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_OWNERSHIP, GB_BROWNFIELD_URL, GB_ENV_FETCHED_AT, GB_ENV_ODBL, GB_ENV_OGL_V3,
+  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_OWNERSHIP, GB_BROWNFIELD_URL, GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_LICENSE,
+  GB_EA_POLLUTION_URL, GB_ENV_FETCHED_AT, GB_ENV_ODBL, GB_ENV_OGL_V3,
   GB_NOISE_COLOR, GB_NOISE_SOURCES, GB_PLANNING_COLOR, GB_PLANNING_SOURCE_URLS, GB_PLANNING_SOURCES, GB_POLLUTION_ATTRIBUTION,
   GB_POLLUTION_COLOR, GB_POLLUTION_LICENSE, GB_POLLUTION_URL, GB_RECYCLING_ATTRIBUTION, GB_RECYCLING_COLOR, GB_RECYCLING_URL,
   GB_WASTE_ISSUED_PLACEHOLDER, GB_WASTE_PERMITS_COLOR, gbBrownfieldStatus, gbNoiseBand, gbPlanningConstraint, gbRecyclingKind,
@@ -669,6 +670,19 @@ function useHectares() {
 const natureFooter = (src: { attribution: string; url: string } | undefined) =>
   src ? <SourceFooter props={{ source_org: src.attribution, source_url: src.url, license: GB_NATURE_OGL_V3, fetched_at: GB_NATURE_FETCHED_AT }} /> : null;
 
+/** 代表點檔缺 source 時的退路：nation（＋類別）→ GB_PROTECTED_SOURCES 的鍵 */
+function gbProtectedSourceOf(nation: string, designation: string): string {
+  if (nation === "England") return "Natural England";
+  if (nation === "Wales") return "Natural Resources Wales";
+  if (nation === "Northern Ireland") return "DAERA / NIEA";
+  if (nation === "Scotland") return designation === "national_park" || designation === "nsa" ? "Scottish Government" : "NatureScot";
+  return "";
+}
+/** 代表點檔缺 source 時的退路：nation → GB_MPA_SOURCES 的鍵 */
+function gbMpaSourceOf(nation: string): string {
+  return ({ England: "Opendata_NE", Scotland: "SNH_Maps", "Northern Ireland": "DAERA_OpenContent" } as Record<string, string>)[nation] ?? "";
+}
+
 /** 英國保護區：名稱、類別（中文＋當地名稱）、地區、面積、代碼、來源機關。 */
 export function GbProtectedAreasPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
@@ -676,7 +690,8 @@ export function GbProtectedAreasPanel({ props }: { props: Record<string, unknown
   const ha = useHectares();
   const d = gbDesignation(props.designation);
   const local = text(props.designation_local);
-  const source = text(props.source);
+  // 低縮放代表點檔沒有 source 欄：用 nation（＋類別）推出主管機關
+  const source = text(props.source) || gbProtectedSourceOf(text(props.nation), text(props.designation));
   const attribution = GB_PROTECTED_SOURCES[source];
   const url = GB_PROTECTED_SOURCE_URLS[`${text(props.nation)}:${text(props.designation)}`] ?? "";
   return <>
@@ -697,7 +712,7 @@ export function GbMarineProtectedAreasPanel({ props }: { props: Record<string, u
   const nation = useNationLabel();
   const ha = useHectares();
   const type = GB_MPA_TYPES.find((m) => m.value === props.mpa_type);
-  const src = GB_MPA_SOURCES[text(props.source)];
+  const src = GB_MPA_SOURCES[text(props.source) || gbMpaSourceOf(text(props.nation))];
   const footer = src && props.mpa_type === "drmpa" ? { ...src, url: GB_MPA_DRMPA_URL } : src;
   return <>
     <Title color={type?.color ?? GB_MPA_COLOR}>{text(props.name) || t("popup.marine.gbMpaTitle")}</Title>
@@ -1561,6 +1576,34 @@ export function GbPollutionInventoryPanel({ props }: { props: Record<string, unk
   </>;
 }
 
+/** 英格蘭污染排放申報（EA，站主限定）：途徑原文、物質數、五項空氣排放（未申報≠0）。 */
+const GB_EA_AIR_FIELDS = [["co2_air_kg", "CO₂"], ["nox_air_kg", "NOₓ"], ["so2_air_kg", "SO₂"], ["pm10_air_kg", "PM10"], ["nh3_air_kg", "NH₃"]] as const;
+export function GbPollutionInventoryEnglandPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const num = (v: unknown) => {
+    const x = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
+    return Number.isFinite(x) ? x : null;
+  };
+  const subs = num(props.substances_released);
+  return <>
+    <Title color={GB_POLLUTION_COLOR}>{text(props.site_name) || text(props.site_ref)}</Title>
+    <Row label={t("popup.environmentLayer.gbPolSector")} value={text(props.sector) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbPolActivity")} value={text(props.activity) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbPolYear")} value={text(props.year)} />
+    <Row label={t("popup.environmentLayer.gbEaRoutes")} value={text(props.routes) || t("popup.environmentLayer.gbEaRoutesNone")} />
+    <Row label={t("popup.environmentLayer.gbEaSubstances")} value={subs == null ? t("popup.environmentLayer.gbPolNotReported") : t("popup.environmentLayer.gbEaSubstancesValue", { n: formatNumber(subs) })} />
+    {GB_EA_AIR_FIELDS.map(([field, label]) => {
+      const kg = num(props[field]);
+      return <Row key={field} label={t("popup.environmentLayer.gbEaAir", { s: label })} value={kg == null ? t("popup.environmentLayer.gbPolNotReported") : `${formatNumber(kg)} kg`} />;
+    })}
+    <Row label={t("popup.environmentLayer.gbEaPostcode")} value={text(props.postcode) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbEaNote")} />
+    <SourceFooter props={{ source_org: GB_EA_POLLUTION_ATTRIBUTION, source_url: GB_EA_POLLUTION_URL, license: GB_EA_POLLUTION_LICENSE, fetched_at: GB_ENV_FETCHED_AT }} />
+  </>;
+}
+
 /** 策略噪音：來源（道路／鐵路）、Lden 帶、模型輪次；固定一行模型估計說明。 */
 export function GbNoisePanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
@@ -1580,7 +1623,12 @@ export function GbNoisePanel({ props }: { props: Record<string, unknown> }) {
 
 // ─────────────────────────── 第 12 波：公司登記、製造業、殯葬、養殖、土壤 ───────────────────────────
 
-const w12Number = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+/** tile 屬性（PMTiles）一律是字串（例 area_ha "0.12"），GeoJSON 才是數字：兩者都收，空字串／非數字回 null */
+const w12Number = (value: unknown) => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string" && value.trim() !== "") { const n = Number(value); return Number.isFinite(n) ? n : null; }
+  return null;
+};
 
 /** 公司登記／製造業：只有郵遞區號 district 聚合數字（無公司名、無個資）。 */
 function GbCompanyDistrictPanel({ props, manufacturing }: { props: Record<string, unknown>; manufacturing: boolean }) {

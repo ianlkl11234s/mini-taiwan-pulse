@@ -35,6 +35,12 @@
 - [台灣地形圖：地形陰影、等高線與海底地形一次看](https://mini-taiwan-pulse.itsmigu.com/blog/taiwan-terrain-map/)：地形陰影、等高線與海底等深線的資料來源，以及從中看到的台灣海峽與東部海底地形。
 - [建物高度地圖：台灣本島 152 萬棟建物輪廓與樓高](https://mini-taiwan-pulse.itsmigu.com/blog/taiwan-building-height-map/)：台灣本島建物輪廓與推估高度的資料來源（GlobalBuildingAtlas）、各縣市樓高差異與使用限制。
 - [台北行道樹地圖：從清冊看行道樹消失、新植與樹冠高度](https://mini-taiwan-pulse.itsmigu.com/blog/taipei-street-trees-map/)：臺北市行道樹清冊比對出的離冊與新植位置，以及受保護樹木、河濱喬木與樹冠高度圖。
+- [30 天地圖挑戰 2026](https://mini-taiwan-pulse.itsmigu.com/blog/30daymapchallenge/)：#30DayMapChallenge 30 個題目的總覽，連到用 Mini Taiwan Pulse 資料做的每一天。
+- [30 天地圖挑戰 Day 3：英國、南韓、台灣的發電廠地圖](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day03-power-plants/)：30 天地圖挑戰 Day 3（Polygons）文章。
+- [30 天地圖挑戰 Day 4：台灣人口與設施群聚地圖](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day04-clusters/)：30 天地圖挑戰 Day 4（Clusters）文章。
+- [30 天地圖挑戰 Day 5：台灣哪些鐵公路看得到海](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day05-sea-view/)：30 天地圖挑戰 Day 5（Senses: Sight）文章。
+- [30 天地圖挑戰 Day 6：古地圖疊上今天](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day06-vintage/)：30 天地圖挑戰 Day 6（Vintage）文章。
+- [30 天地圖挑戰 Day 7：用 AI 十分鐘做房價與捷運地圖](https://mini-taiwan-pulse.itsmigu.com/blog/mapchallenge-2026-day07-ten-minute-map/)：30 天地圖挑戰 Day 7（10 minute map）文章。
 
 ## 程式碼與文件
 

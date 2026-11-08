@@ -6,6 +6,7 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { paramDefault } from "../data/layerParamsSpec";
 import { BOUNDARY_GRAY } from "../map/mapStyleScale";
 import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { GB_ADMIN_LAD_COLOR, GB_SMALL_AREA_COLOR } from "../data/gbAdminTypes";
 
 /**
@@ -167,6 +168,7 @@ function useGbAdminLayer(
           minzoom: config.minzoom,
           maxzoom: config.maxzoom,
         } as any);
+        keepLoadingUntilMapIdle(map, `${config.sourceId}:render`, "英國行政邊界載入中", config.sourceId);
       }
       for (const sub of config.subLayers) {
         if (!map.getLayer(sub.fillId)) {

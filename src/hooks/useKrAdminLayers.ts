@@ -6,6 +6,7 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { paramDefault } from "../data/layerParamsSpec";
 import { BOUNDARY_GRAY } from "../map/mapStyleScale";
 import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { KR_ADMIN_COLOR, KR_ADMIN_LEVELS } from "../data/krAdminTypes";
 
 /**
@@ -71,6 +72,7 @@ export function useKrAdminLayers(
       registerPmtilesSourceTypeOnce();
       if (!map.getSource(SOURCE_ID)) {
         map.addSource(SOURCE_ID, { type: PMTILES_SOURCE_TYPE, url: absoluteUrl(FILE), minzoom: 2, maxzoom: 12 } as any);
+        keepLoadingUntilMapIdle(map, `${SOURCE_ID}:render`, "南韓行政邊界載入中", SOURCE_ID);
       }
       subLayers.forEach((sub, idx) => {
         if (!map.getLayer(sub.fillId)) {

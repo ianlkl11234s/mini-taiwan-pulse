@@ -166,7 +166,8 @@ git diff src/data/__tests__/__fixtures__/layer-golden.json   # 逐行 review
 - 更新 `docs/features/<slug>/changelog.md`
 - 更新 `docs/features/<slug>/backlog.md` 對應項標 ✅
 - 若動到資料契約 → 開 ADR
-- 從 `develop` 開分支，`gh pr create --base develop`（模板見 CLAUDE.md §Git Workflow）
+- 從 `develop` 開分支，`gh pr create --base develop`（模板見 CLAUDE.md §Git Workflow）；合併後不發版
+- 一整批圖層（使用者只給方向）的跨 repo 流程與交付標準見 analytics `pulse-layer-release` skill；國外圖層檔放 `public/world/<cc>_*`，限內部使用授權的資料不放 `public/`（走 owner-only RPC）
 
 ## Command 完成後自動輸出
 

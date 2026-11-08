@@ -151,6 +151,8 @@ describe("useCwaImageryLayer visibility lifecycle", () => {
 
   afterEach(() => {
     reactHarness.cleanup();
+    // vitest 4 起 restoreAllMocks 不再清 vi.fn() 的呼叫紀錄，要另外 clear
+    vi.clearAllMocks();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();

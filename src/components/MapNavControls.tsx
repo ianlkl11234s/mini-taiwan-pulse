@@ -144,12 +144,17 @@ interface LocateMessages {
 function useLocate(map: MapboxMap | null) {
   const [locating, setLocating] = useState(false);
   const cleanupRef = useRef<(() => void) | null>(null);
+  // 定位請求的世代：卸載／換地圖／清除時遞增，晚到的 callback 看到世代不符就丟棄
+  const requestRef = useRef(0);
 
   const clear = useCallback(() => {
     cleanupRef.current?.();
     cleanupRef.current = null;
   }, []);
-  useEffect(() => clear, [clear, map]);
+  useEffect(() => () => {
+    requestRef.current += 1;
+    clear();
+  }, [clear, map]);
 
   const run = useCallback((messages: LocateMessages) => {
     if (!map || locating) return;
@@ -158,8 +163,10 @@ function useLocate(map: MapboxMap | null) {
       return;
     }
     setLocating(true);
+    const token = ++requestRef.current;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (token !== requestRef.current) return;
         setLocating(false);
         const { longitude: lng, latitude: lat, accuracy } = pos.coords;
         clear();
@@ -186,6 +193,7 @@ function useLocate(map: MapboxMap | null) {
         map.flyTo({ center: [lng, lat], zoom: LOCATE_ZOOM });
       },
       (err) => {
+        if (token !== requestRef.current) return;
         setLocating(false);
         showTransientNotice(err.code === err.PERMISSION_DENIED ? messages.denied : messages.failed);
       },

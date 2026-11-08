@@ -17,7 +17,8 @@ const MAPBOX_POINT_SIZE_BACKLOG: string[] = [
 
 /** 海事邊界的寬度同時縮放線與 basepoint，故不再新增重複的「大小」控制。 */
 // councilDistricts2026：symbol 只是面的選區名標籤（loader 算的面內代表點），沒有點位符號可調大小。
-const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary", "councilDistricts2026"] as const;
+// mapchallengeDay06Taipei1932（2026-11-06）：symbol 只是面的町名標籤（無點位），同 councilDistricts2026 不需大小控件。
+const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary", "councilDistricts2026", "mapchallengeDay06Taipei1932"] as const;
 
 const NO_PARAMS_BACKLOG = [
   "activeFaults", "aqiStations", "medICUBeds", "powerRegionDemand",
@@ -95,7 +96,10 @@ describe("Layer UX policy baseline", () => {
     // 2026-10-29：+2 英國 OS Terrain 50 山體陰影／色別標高（已上色 raster PMTiles，無 feature，同地理院地形）。
     // 2026-11-04：+1 加拿大 MRDEM-30 山體陰影 caHillshade（raster PMTiles，無 feature 屬性）。
     // 2026-11-05：+1 古地圖 historicalMapSinica（中研院臺灣百年歷史地圖外部 XYZ 掃描 raster，無 feature 屬性）。
-    expect(missing).toHaveLength(53); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
+    // 2026-11-07：+5 臺灣百年歷史地圖拆六層（戰後地形圖、航照衛星、界線路網、土地利用、主題圖，同古地圖：外部掃描 raster，無 feature 屬性）。
+    // 2026-11-07：+1 愛爾蘭 INFOMAR 海床地形 ieBathymetry（已著色 raster PMTiles，無 feature 屬性）。
+    // 2026-11-08：+1 30 天地圖挑戰 Day 8 1955 中和鄉都市計畫圖 mapchallengeDay08Plan1955（單張 image source 掃描圖，無 feature 屬性）。
+    expect(missing).toHaveLength(60); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {

@@ -26,7 +26,9 @@ MIRRORS = ["network_structures", "medical", "industrial_zone", "sports", "educat
            "water_resources", "urban", "culture", "religion", "funeral", "welfare", "hazards",
            "indigenous_rural", "marine", "civic_facilities", "environment", "public_life", "poi",
            "harm_reduction", "world", "tourism", "embed-snapshots", "embed-rail", "base_map",
-           "road", "climate", "flood", "police_justice"]
+           "road", "climate", "flood", "police_justice",
+           # CI-4（2026-11-08）：git 大檔改由 S3 鏡像子前綴供應
+           "bus", "finance", "energy", "mapchallenge", "statistics", "state_assets"]
 
 SYNCS: list[tuple[str, str, str, list]] = [
     ("root-json", "", "/", [exc("*"), inc("aviation_data.json"), inc("ship_data.json")]),
@@ -95,10 +97,12 @@ NGINX_DATA = {
     "road": ("data", False), "rail": ("data", False), "embed-snapshots": ("data", False),
     "embed-rail": ("data", False), "jp-heights": ("data", True), "jp-medical": ("data", True),
     "flight-trails": ("data", True),
+    # CI-4：worker.js DATA_THEN_DIST 新增的目錄（nginx.conf 同步加 location）
+    "finance": ("fallback", False), "energy": ("fallback", False), "mapchallenge": ("fallback", False),
+    "statistics": ("fallback", False), "state_assets": ("fallback", False),
 }
 ROOT_JSON = {"/aviation_data.json", "/ship_data.json", "/temperature_grid.json"}
 STATIC_EXT_RE = re.compile(r"\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$", re.I)
-OOKLA_RE = re.compile(r"^/geo/ookla_(fixed_global|mobile_global|tw_z14|tw_z16)(_[0-9]+)?\.(geojson|pmtiles)$")
 # 「整個資料夾都算用到」的家族：檔名在執行期才決定（rail id、氣候 frame、嵌入快照日期）
 WHOLE_FAMILIES = {"rail": "rail.tar.gz 整包解壓、track/schedule id 執行期決定",
                   "climate": "refresh-climate 每 6 小時同步；frames 由 frames/manifest.json 指定",
@@ -112,8 +116,6 @@ def nginx_route(path: str) -> tuple[str, str]:
     seg = path.split("/")[1] if path.count("/") >= 2 else ""
     if any(part.startswith(".") for part in path.split("/")):
         return "none", "dotfile 一律 404"
-    if OOKLA_RE.match(path):
-        return "dist", "nginx ookla 正則只走 dist"
     if seg not in NGINX_DATA:
         return "none", ""
     mode, caret = NGINX_DATA[seg]
@@ -133,9 +135,11 @@ def sync_filter(rel: str, filters: list) -> bool:
 def simulate(s3: dict, ptrs: dict, rail_members: list[tuple[int, str]]) -> tuple[dict, dict]:
     """served/data path → list of (s3_key, rule, extra_note)。第二個回傳：家族說明。"""
     landed: dict[str, list] = defaultdict(list)
-    for key in s3:
-        full = key[len(PREFIX):]
-        for rule, src, dest, filters in SYNCS:
+    # 外層照 SYNCS 規則順序（pull 腳本就是依序執行 aws s3 sync），同一網址後面規則覆蓋前面，
+    # 所以 landed[path][-1] 才是真正的勝者；外層若走 S3 key 順序，勝者會變成「key 字母序最後」而非「sync 規則最後」。
+    for rule, src, dest, filters in SYNCS:
+        for key in s3:
+            full = key[len(PREFIX):]
             if not full.startswith(src):
                 continue
             rel = full[len(src):]
@@ -411,6 +415,22 @@ def build_rows(tree: Path, s3: dict, ptrs: dict, rail_members: list[tuple[int, s
             add(p, keys, "nginx", note + ["src 查無引用"])
         elif p not in exact:
             rows[p] = (rows[p][0], "nginx", rows[p][2])
+
+    # 4) CI-4：deploy/public-assets.lock.json 的 r2 條目一律同步（lock 是 public/ 資料檔正本；
+    #    前端不直接引用的檔，例如測試讀的全球 GeoJSON、release.json 動態組出的路徑，也要在 R2）
+    lock_path = tree / "deploy" / "public-assets.lock.json"
+    if lock_path.is_file():
+        import json as _json
+        for e in _json.loads(lock_path.read_text())["entries"]:
+            key = e.get("s3_key", "")
+            if e.get("delivery") != "r2" or not key or key not in s3 or key.endswith(".tar.gz"):
+                continue
+            path = "/" + e["path"][len("public/"):]
+            if path not in rows:
+                add(path, [(key, "lock", "")], "lock", ["CI-4 lock 條目（前端不一定直接引用）"])
+            elif not any(k[0] for k in rows[path][0]):
+                # 第 3 步登記了「src 引用、但 sync 規則對不到 S3」的列（例：/h3/h3_population_res7.json，h3 規則只收 res8）
+                add(path, [(key, "lock", "")], rows[path][1], rows[path][2] + ["CI-4 lock 補上 S3 key"])
 
     out_rows = []
     for path in sorted(rows):

@@ -29,11 +29,12 @@
  * 掃描保留當交叉驗證（registry 有的 manifest 必須也有）。
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync, existsSync, readdirSync } from "node:fs";
-import { createHash } from "node:crypto";
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimAssets";
+import { OWNER_DATA_ASSETS } from "../../data/ownerDataAssets";
+import { PUBLIC_ASSETS_LOCK as publicAssetsLock, lockedAsset } from "../../test/publicAssets";
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
@@ -53,6 +54,10 @@ const dockerIgnore = readFileSync(".dockerignore", "utf8");
 const jpHeightPublisher = readFileSync("scripts/deploy/publish-jp-height-assets.py", "utf8");
 const privateResearchServer = readFileSync("server/coral-private/coral-private-server.mjs", "utf8");
 const historicalFlightPublisher = readFileSync("scripts/deploy/publish_historical_flight_trails.py", "utf8");
+const workerSource = readFileSync("deploy/cloudflare/src/worker.js", "utf8");
+const siteManifest = readFileSync("deploy/cloudflare/site_manifest.py", "utf8");
+/** CI-4：lock 裡 delivery=r2 的檔（public/ 相對路徑 → S3 key），由 upload-deploy-assets.sh 的 lock 段上傳 */
+const LOCK_R2 = new Map(publicAssetsLock.entries.filter((e) => e.delivery === "r2").map((e) => [e.path.slice("public/".length), e.s3_key as string]));
 /** ADR-0024 §4：已改由 data.itsmigu.com/layers/v1 索引供應的舊相對 URL（"./dir/file"）。 */
 const layerAssetIndexKeys = new Set<string>(
   (JSON.parse(readFileSync("src/data/layerAssetIndex.expected.json", "utf8")) as { keys: string[] }).keys,
@@ -223,6 +228,7 @@ function uploadCovers(path: string): boolean {
     return historicalFlightPublisher.includes('PREFIX = "deploy-assets/flight-trails"');
   }
   if (UPLOAD.syncDirs.has(path.split("/")[0] as string)) return true;
+  if (LOCK_R2.has(path) && uploadScript.includes("deploy/public-assets.lock.json")) return true;
   return UPLOAD_RES.some((re) => re.test(`public/${path}`));
 }
 
@@ -244,10 +250,6 @@ function gitTracked(path: string): boolean {
  * 哪天它又進了上傳清單，下方的雙向斷言會叫你把它移除（ratchet 只進不退）。
  */
 const DEPLOY_EXEMPT_LEDGER = new Set<string>([
-  // owner-gated（docs/features/owner-gated-layers）：改走 owner-only RPC，
-  // upload 的 AGRI_FILES 把兩行註解掉，pull 端另有 --exclude ＋ rm -f 清 volume 殘留。
-  "agriculture/livestock_farms.geojson",
-  "agriculture/slaughterhouses.geojson",
   // GFW 7-day hourly-grid POC is a local 579 MiB acceptance artifact. It is
   // gitignored and stripped from dist until a production storage/RPC contract exists.
   "gfw_hourly_grid_poc/manifest.json",
@@ -420,6 +422,28 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(dockerIgnore).toMatch(/^\*\.local$/m);
   });
 
+  it("站主私人檔 owner-data 只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const match = nginxConf.match(/location ~ (\^\/api\/private-research\/owner-data\/[^ ]+\$) \{([\s\S]*?)\n    \}/);
+    const location = match?.[2] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    // 正規式只放行 key 形狀；每個白名單 key 都要中，路徑／檔名／大寫都不中（未知 key 由 sidecar 回 404）
+    const allow = new RegExp(match?.[1] ?? "^$");
+    for (const key of Object.keys(OWNER_DATA_ASSETS)) expect(allow.test(`/api/private-research/owner-data/${key}`), key).toBe(true);
+    for (const bad of ["livestock_farms.geojson", "livestock-farms/x", "../x", "LIVESTOCK", ""]) expect(allow.test(`/api/private-research/owner-data/${bad}`), bad).toBe(false);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/owner-data \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/owner-data"');
+    expect(privateResearchServer).toContain('const OWNER_DATA_S3_PREFIX = "private-research/owner-data"');
+    expect(pullScript).not.toContain("private-research/owner-data");
+    expect(uploadScript).not.toContain("owner-data");
+    // 檔名前要是非識別字元：公開 static-rpc 排除清單的 get_osm_power_lines.json 等不是同一支檔（第 2 批檔名是它們的尾段）
+    for (const { filename } of Object.values(OWNER_DATA_ASSETS)) expect(uploadScript, filename).not.toMatch(new RegExp(`^[^#]*(?<![A-Za-z0-9_])${filename.replace(".", "\\.")}`, "m"));
+  });
+
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
     const match = nginxConf.match(/location @dist \{([\s\S]*?)\n    \}/);
     expect(match, "public dist fallback missing").not.toBeNull();
@@ -432,9 +456,8 @@ describe("deploy 契約（nginx + pull script）", () => {
     const gzipTypes = nginxConf.match(/^\s*gzip_types\s+([^;]*);/m)?.[1] ?? "";
     expect(gzipTypes).toContain("application/geo+json");
     expect(gzipTypes).not.toContain("application/vnd.pmtiles");
-    const ookla = nginxConf.match(/location ~ \^\/geo\/ookla_[^\n]+\{([\s\S]*?)\n    \}/)?.[1] ?? "";
-    expect(ookla).toContain("root /usr/share/nginx/html;");
-    expect(ookla).toContain("try_files $uri =404;");
+    // CI-4：ookla 不再只走 dist，改跟 /geo/ 一樣先 /data 再 dist（內容由 public-assets.lock.json 把關）
+    expect(nginxConf).not.toMatch(/location ~ \^\/geo\/ookla_/);
   });
 
   it("前端引用的每個 public/ 子目錄都有 nginx location", () => {
@@ -457,7 +480,8 @@ describe("deploy 契約（nginx + pull script）", () => {
 
   it("registry 引用但本機不存在的檔案，必須屬於已接線的 S3 管理目錄", () => {
     const orphans = sourceUrls.filter((u) => {
-      if (existsSync(`public/${u}`)) return false; // 本機有 → OK（git 小檔或已 sync）
+      // 本機有 → OK（git 小檔或已 sync）；登記在 lock → 由「public 資料檔 lock」段把關（CI-4：移出 git 後本機沒有實體檔）
+      if (existsSync(`public/${u}`) || lockedAsset(u)) return false;
       const dir = u.includes("/") ? (u.split("/")[0] as string) : "";
       // 本機沒有 → 必須是 nginx+pull 已涵蓋的子目錄（S3 deploy-assets 管理）
       return !(dir && nginxCovers(dir) && pullCovers(dir));
@@ -652,7 +676,7 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(ASSETS.size, "manifest 靜態資產枚舉為空 → 收集器壞了").toBeGreaterThan(150);
     expect(NGINX_LOCS.length, "nginx location 解析為空").toBeGreaterThan(20);
     expect(UPLOAD.globs.length, "upload 清單解析為空").toBeGreaterThan(50);
-    expect(TRACKED.size, "git ls-files public 為空").toBeGreaterThan(100);
+    expect(TRACKED.size, "git ls-files public 為空").toBeGreaterThan(50);
     // 解析器至少要認得出這幾種形狀，否則後面的斷言是空轉
     expect(uploadCovers("agriculture/ftw_fields_2025.pmtiles"), "逐檔陣列沒解析到").toBe(true);
     expect(uploadCovers("urban/street_trees_national.pmtiles"), "for-loop glob 沒解析到").toBe(true);
@@ -684,10 +708,11 @@ describe("deploy 契約（manifest 逐檔）", () => {
       // 改斷言它登記在 committed 的遷移清單（layerAssetIndex.expected.json）。
       if (layerAssetIndexKeys.has(`./${path}`)) continue;
       if (path === forestReceipt.public_url) {
-        const payload = readFileSync("public/forestry/forest_reserve.pmtiles");
+        // CI-4：比對 lock（正本），不讀實體檔
+        const locked = lockedAsset("forestry/forest_reserve.pmtiles");
         expect(forestReceipt.readback).toBe("PASS");
-        expect(payload.length).toBe(forestReceipt.bytes);
-        expect(createHash("sha256").update(payload).digest("hex")).toBe(forestReceipt.sha256);
+        expect(locked?.bytes).toBe(forestReceipt.bytes);
+        expect(locked?.sha256).toBe(forestReceipt.sha256);
         expect(path).toContain(`/releases/${forestReceipt.sha256}/`);
         expect(forestReceipt.http.some((check: { headers: string[] }) => check.headers.includes("cf-cache-status: HIT"))).toBe(true);
         continue;
@@ -788,5 +813,76 @@ describe("deploy 契約（manifest 逐檔）", () => {
       `→ nginx.conf 加 "location /<dir>/ { root /data; … }"（有 git 小檔就再加 try_files $uri @dist）`,
     ).toEqual([]);
     expect(pushed.size, "反向枚舉為空 → 腳本解析壞了").toBeGreaterThan(15);
+  });
+});
+
+/**
+ * CI-4（2026-11-08）：public/ 資料檔一律登記在 deploy/public-assets.lock.json（正本），網站素材（lock 的 keep_patterns）除外。
+ * 資料檔之後移出 git、改由 S3 正本＋R2 供應；這裡只比對 lock，不讀實體檔（CI 的 test job 沒有 public/ 資料檔）。
+ * 內容 sha256 由 `npm run check:assets` 對 R2 整檔核對。計畫：docs/features/public-assets-r2/PLAN.md。
+ */
+describe("public 資料檔 lock（CI-4）", () => {
+  const workerList = (name: string) =>
+    [...(workerSource.match(new RegExp(`const ${name} = [\\[{]([\\s\\S]*?)[\\]}];`))?.[1] ?? "").matchAll(/'([a-z0-9_-]+)'|([a-z0-9_]+):/g)]
+      .map((m) => (m[1] ?? m[2]) as string);
+  const R2_FIRST = new Set(workerList("DATA_THEN_DIST"));
+  const R2_ONLY = new Set(workerList("DATA_ONLY"));
+  const R2_FILES = new Set([...(workerSource.match(/const LOCKED_DATA_FILES = \[([^\]]*)\]/)?.[1] ?? "").matchAll(/'([^']+)'/g)].map((m) => m[1] as string));
+  // -z：不讓 git 把中文檔名轉成帶引號的八進位跳脫（CI 的 core.quotepath 預設開啟）
+  const tracked = execSync("git ls-files -z public", { encoding: "utf8" }).split("\0").filter(Boolean);
+  const keepRes = publicAssetsLock.keep_patterns.map((p) => {
+    const body = p.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, p.split("/").length === 2 ? "[^/]*" : ".*");
+    return new RegExp(`^${body}$`);
+  });
+  const isKeep = (path: string) => keepRes.some((re) => re.test(path));
+  const baseline = new Set(
+    readFileSync("deploy/public-git-baseline.txt", "utf8").split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#")),
+  );
+
+  it("git 追蹤的 public/ 資料檔都在 lock；本機有實體檔時大小與 lock 一致", () => {
+    const problems: string[] = [];
+    for (const path of tracked) {
+      if (isKeep(path)) continue;
+      const e = lockedAsset(path);
+      if (!e) problems.push(`${path} 不在 lock`);
+      else if (existsSync(path) && statSync(path).size !== e.bytes) problems.push(`${path} 大小 ${statSync(path).size} ≠ lock ${e.bytes}`);
+    }
+    expect(problems, `→ 重跑 python3 scripts/deploy/build-public-assets-lock.py：\n  ${problems.join("\n  ")}`).toEqual([]);
+    expect(publicAssetsLock.entries.length).toBeGreaterThan(500);
+    expect(publicAssetsLock.entries.every((e) => /^[0-9a-f]{64}$/.test(e.sha256) && e.bytes > 0)).toBe(true);
+    expect(publicAssetsLock.entries.filter((e) => isKeep(e.path)).map((e) => e.path), "網站素材不進 lock").toEqual([]);
+  });
+
+  it("不准新增資料檔到 git：public/ 只收網站素材，資料檔要上傳 S3 並用 lock add（ratchet）", () => {
+    const added = tracked.filter((p) => !isKeep(p) && !baseline.has(p));
+    expect(
+      added,
+      `這些資料檔新進了 git：\n  ${added.join("\n  ")}\n` +
+      "→ 上傳 S3 並用 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>`，不要 commit 到 public/（docs/features/public-assets-r2/PLAN.md）",
+    ).toEqual([]);
+    const gone = [...baseline].filter((p) => !tracked.includes(p));
+    expect(gone, `這些檔已移出 git → 從 deploy/public-git-baseline.txt 刪掉（基準只減不增）：\n  ${gone.join("\n  ")}`).toEqual([]);
+    expect([...baseline].filter((p) => isKeep(p)), "網站素材不必列在 baseline").toEqual([]);
+  });
+
+  it("delivery=r2 的檔：Worker 會先讀 R2，S3 key 落在 site_manifest 會同步的前綴", () => {
+    expect(R2_FIRST.has("world") && R2_ONLY.has("rail"), "worker.js 路由清單解析失敗").toBe(true);
+    const broken: string[] = [];
+    for (const e of publicAssetsLock.entries) {
+      if (e.delivery !== "r2") continue;
+      expect(e.sha256).toMatch(/^[0-9a-f]{64}$/);
+      const rel = e.path.slice("public/".length);
+      const seg = rel.split("/")[0] as string;
+      // worker.js 的靜態副檔名規則（.png／.jpg…）在目錄路由之前、一律走 dist：這類資料檔要列進 LOCKED_DATA_FILES
+      if (/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/i.test(rel) && !R2_FILES.has(`/${rel}`)) broken.push(`${rel}：靜態副檔名會被 worker.js 截走走 dist，要列進 LOCKED_DATA_FILES`);
+      if (!R2_FIRST.has(seg) && !R2_ONLY.has(seg) && !R2_FILES.has(`/${rel}`)) broken.push(`${rel}：worker.js 不會從 R2 讀 /${seg}/`);
+      if (e.s3_key === "deploy-assets/rail.tar.gz") continue;
+      const mirror = `deploy-assets/${rel}`;
+      const flatH3 = seg === "h3" && e.s3_key === `deploy-assets/${rel.split("/").pop()}`;
+      if (e.s3_key !== mirror && !flatH3) broken.push(`${rel}：s3_key ${e.s3_key} 不是鏡像路徑`);
+    }
+    expect(broken, broken.join("\n")).toEqual([]);
+    // site_manifest.py 第 4 步：lock 的 r2 條目一律同步（不靠前端引用或目錄規則）
+    expect(siteManifest).toMatch(/public-assets\.lock\.json[\s\S]*delivery"\) != "r2"/);
   });
 });

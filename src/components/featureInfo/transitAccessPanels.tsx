@@ -2,9 +2,10 @@
  * 雙北大眾運輸可及性 popup（模擬面板，公開、情境推演）：只顯示結果與口徑，控制項只在面板（spec §5.40）。
  * 到不了寫明（120／240 分內到不了），不當 0。
  */
+import { useSyncExternalStore } from "react";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { chipOutline } from "../intel/intelTokens";
-import { transitAccessGridState } from "../../data/transitAccessStore";
+import { subscribeTransitAccessGrid, transitAccessGridState } from "../../data/transitAccessStore";
 import {
   TIER_LABEL_KEYS, TRANSIT_ACCESS_COLOR, TRANSIT_ACCESS_GRID_KEY, TRANSIT_ACCESS_GROUP_LABELS, TRANSIT_ACCESS_GROUPS, TRANSIT_ACCESS_NA,
   TRANSIT_ACCESS_NETWORK_LABELS, TRANSIT_ACCESS_NETWORKS, TRANSIT_ACCESS_ORIGINS, TRANSIT_ACCESS_ORIGIN_LABELS, TRANSIT_ACCESS_SLOT_LABELS,
@@ -51,9 +52,10 @@ export function TransitAccessGridPanel({ props }: { props: Record<string, unknow
   const { t: tr } = i18n;
   const cls = useTransitAccessClassification();
   const c = transitAccessGridControls(useLayerParams(TRANSIT_ACCESS_GRID_KEY), cls);
-  const state = transitAccessGridState();
+  // 響應式讀取：slot 載入完成要重繪；且必須和目前控制項的時段／版本一致，不拿新 controls 解讀舊資料
+  const state = useSyncExternalStore(subscribeTransitAccessGrid, transitAccessGridState, transitAccessGridState);
   const i = num(props.i);
-  if (!state || i === null || i < 0 || i >= state.base.cells.h3.length) {
+  if (!state || state.slot !== c.slot || state.network !== c.network || i === null || i < 0 || i >= state.base.cells.h3.length) {
     return <><Title color={TRANSIT_ACCESS_COLOR}>{tr("popup.transitAccess.gridTitle")}</Title><Note>{tr("popup.transitAccess.loading")}</Note></>;
   }
   const { cells, meta, car, facilities } = state.base;

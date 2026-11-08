@@ -37,6 +37,7 @@ import { AttributionHostControl, BasemapAttributionControl } from "./attribution
 import { AttributionBar } from "../components/AttributionBar";
 import { localeStore } from "../state/localeStore";
 import { basemapLabelLanguage, bindBasemapLanguage } from "./basemapLanguage";
+import { clearOverlaySourcesForKeys, registerOwnerGateReset } from "../lib/ownerGateRevoke";
 
 function agricultureParamsFrom(params: Record<string, number>) {
   return {
@@ -260,6 +261,16 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   const hiddenBasemapLabelLayerIdsRef = useRef(new Set<string>());
   const overlayParamsRef = useRef(overlayParams);
   const jpHeightLifecycleRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
+
+  // 撤權（登出／失去站主權限，review F088）：registry GeoJSON overlay 中被撤權的 source 資料清空。
+  // source／layer 殼保留（addAllOverlays 建立、feed 靠 getSource 找它；layer 由 visible=false 隱藏）。
+  useEffect(() => registerOwnerGateReset(
+    OVERLAY_REGISTRY.map((config) => config.id as string),
+    (revoked) => {
+      const map = mapRef.current;
+      if (map) clearOverlaySourcesForKeys(map, OVERLAY_REGISTRY, revoked);
+    },
+  ), []);
   // 右下資料來源列（attribution-compact）：map 建好後才有 host 節點，用 state 觸發 portal 渲染
   const [attribution, setAttribution] = useState<{ map: mapboxgl.Map; host: HTMLElement } | null>(null);
 

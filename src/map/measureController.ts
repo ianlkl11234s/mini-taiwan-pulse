@@ -279,7 +279,7 @@ export function createMeasureController() {
     // 只在繪製中處理：完成後的結果靠「清除」／尺規鈕收掉，避免關分享視窗等的 Esc 把結果一起清掉
     if (!state.drawing || suspended || e.metaKey || e.ctrlKey || e.altKey) return;
     const target = e.target as HTMLElement | null;
-    if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.closest("[role=dialog]"))) return;
+    if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(target.tagName) || target.closest("[role=dialog],[role=button]"))) return;
     if (e.key === "Escape") {
       e.preventDefault();
       clear();

@@ -96,9 +96,6 @@ export const DEMOGRAPHICS_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type DemographicsStatisticsLayerKey = typeof DEMOGRAPHICS_ENABLED_STATISTICS_KEYS[number];
 
-/** Layers／Statistics 的主題標題（沿用既有「人口統計」主題，city 分頁）。 */
-export const DEMOGRAPHICS_STATISTICS_THEME_TITLE = "人口統計 Population Statistics";
-
 const document = catalogJson as unknown as DemographicsRecipeDocument;
 export const DEMOGRAPHICS_STATISTICS_SCOPE = document.scope;
 export const DEMOGRAPHICS_STATISTICS_RECIPES = document.recipes;

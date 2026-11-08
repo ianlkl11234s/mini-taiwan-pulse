@@ -10,6 +10,7 @@ import { electionCampKey, electionEventSpan } from "./electionEventsTypes";
  * RPC 由 gis-platform migration 494 建立並登記 public.gated_layers（owner）；
  * 非 owner 前端 toggle 已擋（不會呼叫本檔）。
  *
+ * properties 原樣保留（含 location_precision、point_role、settlement_name（mig 515，只有聚落代表點有值、其餘 null））。
  * 載入時衍生三個屬性給 paint／filter 用：
  *   camp_key（陣營分組）、start_ts／end_ts（unix 秒；見 electionEventSpan）。
  * 起訖算不出來（缺 event_date）的活動不上圖。

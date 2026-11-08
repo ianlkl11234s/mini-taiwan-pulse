@@ -1,11 +1,12 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
-import { createReadStream } from "node:fs";
+import { createReadStream, existsSync } from "node:fs";
 import { readFile, rm, stat } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import schoolsGridReceipt from "./src/research/contracts/schools-grid-receipt.json";
 import packageJson from "./package.json";
+import publicAssetsLock from "./deploy/public-assets.lock.json";
 import { parseSingleByteRange } from "./src/data/gfwV4Range";
 import { buildLayerSearchIndex } from "./src/lib/layerSearch";
 import { generateBlog } from "./src/blog/generator";
@@ -25,6 +26,37 @@ function stripBuildAssets(relPaths: string[]): Plugin {
       for (const rel of relPaths) {
         await rm(resolve(process.cwd(), "dist", rel), { force: true, recursive: true });
       }
+    },
+  };
+}
+
+/**
+ * Dev-only（CI-4）：deploy/public-assets.lock.json 裡 delivery=r2 的大檔，本機 public/ 沒有時改讀 R2 site/
+ * （正式站同一份檔），讓移出 git 之後新開的 worktree 不用另外下載也能開圖層。只讀、只轉 GET／HEAD 與 Range。
+ */
+function serveLockedPublicAssetsFromR2(): Plugin {
+  const r2Paths = new Set(publicAssetsLock.entries.filter((e) => e.delivery === "r2").map((e) => e.path.slice("public".length)));
+  return {
+    name: "serve-locked-public-assets-from-r2", apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        let path: string;
+        try { path = decodeURIComponent((request.url ?? "").split("?")[0] ?? ""); } catch { return next(); }
+        if (!r2Paths.has(path) || !["GET", "HEAD"].includes(request.method ?? "") || existsSync(resolve(process.cwd(), "public" + path))) return next();
+        const headers: Record<string, string> = {};
+        if (typeof request.headers.range === "string") headers.range = request.headers.range;
+        fetch(publicAssetsLock.r2_base + path.slice(1), { method: request.method, headers })
+          .then(async (upstream) => {
+            response.statusCode = upstream.status;
+            for (const k of ["content-type", "content-length", "content-range", "accept-ranges", "etag"]) {
+              const v = upstream.headers.get(k);
+              if (v) response.setHeader(k, v);
+            }
+            if (request.method === "HEAD" || !upstream.body) return response.end();
+            response.end(Buffer.from(await upstream.arrayBuffer()));
+          })
+          .catch(() => { response.statusCode = 502; response.end("R2 fetch failed"); });
+      });
     },
   };
 }
@@ -1219,6 +1251,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    serveLockedPublicAssetsFromR2(),
     serveCardPage(),
     serveLocalResearchAssets(),
     serveResearchAnalysisSidecars(),
@@ -1329,6 +1362,7 @@ export default defineConfig({
       "/api/private-research/bss-bridge": { target: "http://127.0.0.1:8796", changeOrigin: false },
       "/api/private-research/bridge-resilience": { target: "http://127.0.0.1:8796", changeOrigin: false },
       "/api/private-research/bus-crowding": { target: "http://127.0.0.1:8796", changeOrigin: false },
+      "/api/private-research/owner-data": { target: "http://127.0.0.1:8796", changeOrigin: false },
       // Python preview deliberately binds localhost and has no CORS headers.
       // Expose it through Vite only under the explicit local preview opt-in.
       ...(process.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' ? {

@@ -334,6 +334,7 @@ export function useVesselWatchLayer(
       if (!ensureLayers(map)) return;
       refreshSources(map);
       apply();
+      applyFilterRef.current(map); // 重建的層不帶 filter：補回「含疑似」＋類別篩選
     };
     map.on("style.load", onStyleLoad);
     return () => {
@@ -343,9 +344,9 @@ export function useVesselWatchLayer(
 
   // ── 「含疑似」開關：用 Mapbox filter 而非重建 source ──
   // 兩個 source 的資料不變，只切 filter —— 切換不必重打 RPC，也不用重算 frame。
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !layersReadyRef.current) return;
+  // 抽成函式放 ref：換底圖（style.load）重建圖層後也要補套，否則排除的類別會重現。
+  const applyFilterRef = useRef<(map: MapboxMap) => void>(() => {});
+  applyFilterRef.current = (map: MapboxMap) => {
     // 「含疑似」＋類別篩選（V-4）併成同一個 filter
     const cat = hookCategoryFilter("vesselWatch", catMask === undefined ? undefined : { vesselWatchCatMask: catMask });
     const parts = [...(showPresumed ? [] : [["!=", ["get", "presumed"], 1]]), ...(cat ? [cat] : [])];
@@ -353,6 +354,11 @@ export function useVesselWatchLayer(
     for (const id of [CIRCLE_ID, TRAIL_LINE_ID]) {
       if (map.getLayer(id)) map.setFilter(id, f);
     }
+  };
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !layersReadyRef.current) return;
+    applyFilterRef.current(map);
   }, [showPresumed, catMask, visible, mapRef, mapTick]);
 
   // ── 透明度 ──

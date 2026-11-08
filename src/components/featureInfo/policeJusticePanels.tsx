@@ -66,8 +66,8 @@ const PROS_TYPE_ZH: Record<string, string> = {
 const SPEED_CAM_ZH: Record<string, string> = {
   speed_camera_general: "一般測速",
   speed_camera_freeway: "國道測速",
-  speed_camera_red_light: "闖紅燈",
-  speed_camera_railway_crossing: "鐵路平交道",
+  red_light_camera: "闖紅燈",
+  railway_crossing_camera: "鐵路平交道",
 };
 
 // ── 警政 ──

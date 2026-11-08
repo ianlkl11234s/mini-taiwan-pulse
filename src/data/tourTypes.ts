@@ -94,14 +94,8 @@ export const TOUR_HERITAGE_CATS: { color: string; label: string }[] = [
 
 /**
  * popup 端查表（HeritagePanel）：key = geojson `category` 原始值（中文）。
- * 色碼與上方 match 表 / 圖例列同一組。未知類別由呼叫端另給 fallback（同 match 表基底色 `#64748b`）。
+ * 色碼與上方 match 表 / 圖例列同一組。未知類別由呼叫端另給 fallback（同 match 表基底色 `#64748b`；由 TOUR_HERITAGE_CATS 派生，與地圖／圖例單一來源）。
  */
-export const TOUR_HERITAGE_CATEGORY_COLOR_MAP: Record<string, string> = {
-  古蹟: "#5d4037",
-  歷史建築: "#8d6e63",
-  文化景觀: "#a1887f",
-  考古遺址: "#b7791f",
-  聚落建築群: "#9c6644",
-  紀念建築: "#c9a227",
-  史蹟: "#bf6f4a",
-};
+export const TOUR_HERITAGE_CATEGORY_COLOR_MAP: Record<string, string> = Object.fromEntries(
+  TOUR_HERITAGE_CATS.map(({ color, label }) => [label.split(" ")[0]!, color]),
+);

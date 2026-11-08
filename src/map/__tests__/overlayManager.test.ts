@@ -229,6 +229,11 @@ function createMockMap() {
       if (key === "visibility") layers.get(id)!.visibility = String(value);
     },
     getLayoutProperty: (id: string) => layers.get(id)?.visibility,
+    getFilter: (id: string) => layerSpecs.get(id)?.filter,
+    setFilter: (id: string, filter: unknown) => {
+      const spec = layerSpecs.get(id);
+      if (spec) spec.filter = filter;
+    },
   };
   return { map: map as unknown as MapboxMap, calls, sources, layerSpecs };
 }
@@ -548,6 +553,15 @@ describe("updateOverlayTheme (rebuildOnParamChange)", () => {
     updateOverlayTheme(map, rebuildConfig, true, { scale: 1 });
     expect(calls.filter((c) => c.method === "removeLayer")).toHaveLength(0);
     expect(calls.filter((c) => c.method === "addLayer")).toHaveLength(0);
+  });
+
+  it("rebuild 沿用 hook 覆寫的 filter（review F043：時間軸 filter 不可在改透明度後遺失）", () => {
+    const { map, layerSpecs } = createMockMap();
+    addOverlay(map, rebuildConfig, true, { scale: 1 });
+    const timeFilter = ["<=", ["get", "published_ts"], 123];
+    (map as unknown as { setFilter: (id: string, f: unknown) => void }).setFilter("stations-x-core", timeFilter);
+    updateOverlayTheme(map, rebuildConfig, true, { scale: 2 });
+    expect(layerSpecs.get("stations-x-core")?.filter).toEqual(timeFilter);
   });
 
   it("rebuilds when the rebuild-layer paint actually changed", () => {

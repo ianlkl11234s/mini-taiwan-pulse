@@ -50,6 +50,7 @@ Wrap-up 只處理記憶與收尾 commit；不因此取得 upload、deploy、push
 
 依 `memory/README.md` 的當前定義分流，不為了「全更」而碰無關檔案。
 
+- `docs/PROJECTS.md`：更新相關專案列與「最後盤點」日期（發版時 `docsFreshness` 測試會檢查）。
 - `STATUS.md`：rewrite，只保留當前 touched repos、release truth、blockers 與下一步。
 - `DATA_SCOPE.md`：數字必須直接從 canonical data、DB query、artifact metadata、`wc`/parser 或同等第一手來源驗證；不單信對話摘要或舊文件。
 - `BACKLOG.md`：每個未完成項都要有 blocker、next step 與 acceptance criteria；不以「待處理」結案。

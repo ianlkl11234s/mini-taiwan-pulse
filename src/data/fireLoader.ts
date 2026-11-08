@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { staticRpc, staticRpcFile } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
 
 export interface FireEvent {
@@ -33,7 +33,10 @@ interface RawRow {
 
 const cache = new Map<number, FireEvent[]>();
 
-/** 依民國年載入火災事件（一年 ~16k 筆，安全於 PostgREST 20K cap） */
+/**
+ * 依民國年載入火災事件（一年 ~16k 筆）。
+ * 讀 CDN 靜態快照（public.get_fire_events_by_year 的原樣輸出，每年一檔；111–113 年歷史資料不會再變）。
+ */
 export async function loadFireEventsByYear(year: number): Promise<FireEvent[]> {
   const cached = cache.get(year);
   if (cached) return cached;
@@ -41,15 +44,15 @@ export async function loadFireEventsByYear(year: number): Promise<FireEvent[]> {
   const { data, error } = await withLoading(
     `fire-events:${year}`,
     `火災 ${year}`,
-    supabase.rpc("get_fire_events_by_year", { target_year: year }),
+    staticRpcFile<RawRow[]>(`/static-rpc/get_fire_events_by_year_${year}.json`),
   );
 
   if (error) {
-    console.warn(`[Fire] year=${year} RPC error:`, error.message);
+    console.warn(`[Fire] year=${year} snapshot error:`, error.message);
     return [];
   }
 
-  const rows = (data ?? []) as RawRow[];
+  const rows = data ?? [];
   const events: FireEvent[] = rows.map((r) => ({
     case_id: r.c,
     occurred_ts: Number(r.t),
@@ -74,13 +77,13 @@ export async function loadFireEventYears(): Promise<{ year: number; n: number }[
   const { data, error } = await withLoading(
     "fire:years",
     "火災年份",
-    supabase.rpc("get_fire_event_years"),
+    staticRpc<{ year: number; n: number }[]>("get_fire_event_years"),
   );
   if (error || !data) {
     console.warn(`[Fire] get_fire_event_years error:`, error?.message);
     return [];
   }
-  return (data as { year: number; n: number }[]).map((r) => ({
+  return data.map((r) => ({
     year: Number(r.year),
     n: Number(r.n),
   }));

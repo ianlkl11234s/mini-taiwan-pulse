@@ -8,6 +8,7 @@
  * 本機沒有的切片（大檔走 S3、gitignored）自動略過；CI 上只驗 git 內的那批。
  */
 import { describe, it, expect } from "vitest";
+import { assetAvailable } from "../../test/publicAssets";
 import { existsSync, openSync, readFileSync, readSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { PMTiles, type Source, type RangeResponse } from "pmtiles";
@@ -199,7 +200,7 @@ describe("PMTiles 契約", () => {
     const zoomHygiene: string[] = [];
 
     for (const e of entries) {
-      if (!existsSync(e.file)) continue; // S3 管理的大檔本機/CI 可能沒有
+      if (!assetAvailable(e.file)) continue; // 不在 lock 的 S3 管理檔本機/CI 可能沒有；lock 的 r2 檔缺了會直接失敗
       const tiles = new PMTiles(new NodeFileSource(e.file));
       const meta = (await tiles.getMetadata()) as {
         vector_layers?: { id: string; fields?: Record<string, string> }[];

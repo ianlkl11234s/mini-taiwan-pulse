@@ -17,6 +17,7 @@
   "monitor.vessel.noteNone": "No vessels in the approach zone",
   "monitor.vessel.loading": "Loading data…",
   "monitor.vessel.noObservation": "No observations in the last {days} days",
+  "monitor.vessel.incompleteDays": "Data exists in the last {days} days, but ship counts are incomplete, so no exact count is shown",
   "monitor.vessel.unavailable": "Data temporarily unavailable",
   "monitor.vessel.dataLabel": "Special vessel approach zone",
   "monitor.vessel.unitShips": "ships",

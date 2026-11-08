@@ -262,10 +262,12 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
     const vals = windowed.map((a) => a.minDistNm).filter((v): v is number => v !== null);
     return vals.length ? Math.min(...vals) : null;
   }, [windowed]);
+  // 視窗內有 unknown 日（艘數部分缺值）但沒有任何可精確顯示的日子：不能說「無觀測」
+  const hasIncompleteDay = useMemo(() => windowed.some((a) => a.unknown && (a.ships > 0 || a.minDistNm !== null)), [windowed]);
   const enterDays = useMemo(() => windowed.filter((a) => a.level >= 2).length, [windowed]);
 
   if (v2) {
-    const statusText = rowsQuery.status === "unknown" ? t("monitor.vessel.loading") : rowsQuery.status === "ready" ? t("monitor.vessel.noObservation", { days: windowDays }) : t("monitor.vessel.unavailable");
+    const statusText = rowsQuery.status === "unknown" ? t("monitor.vessel.loading") : rowsQuery.status === "ready" ? t(hasIncompleteDay ? "monitor.vessel.incompleteDays" : "monitor.vessel.noObservation", { days: windowDays }) : t("monitor.vessel.unavailable");
     const deepestShips = latest ? latest.byZone.get(latest.deepestZone) ?? 0 : 0;
     const latestColor = latest ? ZONE_COLORS[latest.level] : undefined;
     return (
@@ -401,7 +403,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
           </>
         ) : (
           <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textDim }}>
-            {rowsQuery.status === "unknown" ? t("monitor.vessel.loading") : rowsQuery.status === "ready" ? t("monitor.vessel.noObservation", { days: windowDays }) : t("monitor.vessel.unavailable")}
+            {rowsQuery.status === "unknown" ? t("monitor.vessel.loading") : rowsQuery.status === "ready" ? t(hasIncompleteDay ? "monitor.vessel.incompleteDays" : "monitor.vessel.noObservation", { days: windowDays }) : t("monitor.vessel.unavailable")}
           </span>
         )}
       </div>

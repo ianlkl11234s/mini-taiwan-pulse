@@ -1,6 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { base64ToObjectUrl } from "./cwaImageryLoader";
+import { loadImageryManifestFrames } from "./imageryManifestLoader";
 
 /**
  * 水利署 IoT 累積雨量柵格 PNG
@@ -70,12 +71,35 @@ export async function fetchLatestPrecipRaster(
 /**
  * 時間窗內全部 frames（migration 160 的 get_precipitation_raster_frames）。
  * 依 observedAtMs 升序，timeline 歷史播放用。
+ * 先讀 R2 每日 manifest（url 為 CDN http URL，revoke 無害；空圖不在 manifest）；一份都沒有才退回 RPC。
  */
 export async function fetchPrecipRasterFrames(
   cumulativeHours: 1 | 3 | 6 | 24,
   sinceIso: string,
   untilIso: string,
 ): Promise<PrecipRasterFrame[]> {
+  const fromR2 = await loadImageryManifestFrames({
+    source: "precip",
+    products: [`ch${cumulativeHours}`],
+    sinceIso,
+    untilIso,
+    loadingKey: `precip-raster-frames-${cumulativeHours}h`,
+    loadingLabel: `累積雨量柵格 ${cumulativeHours}h`,
+  });
+  if (fromR2) {
+    return fromR2.map((f) => ({
+      cumulativeHours,
+      observedAtIso: f.observedAtIso,
+      observedAtMs: f.observedAtMs,
+      url: f.url,
+      ulLat: f.latMax,
+      ulLng: f.lonMin,
+      brLat: f.latMin,
+      brLng: f.lonMax,
+      isEmpty: false,
+    }));
+  }
+
   const { data, error } = await withLoading(
     `precip-raster-frames-${cumulativeHours}h`,
     `累積雨量柵格 ${cumulativeHours}h`,

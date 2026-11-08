@@ -56,6 +56,7 @@ import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
 import { TransitReachGridHost, TransitReachPlaybackHost } from "./hosts/transitReachHosts";
 import { HistoricalMapSinicaHost } from "./hosts/historicalMapHosts";
+import { MapchallengeDay08PlanHost } from "./hosts/mapchallengeHosts";
 import { FreewayTdcsSimHost } from "./hosts/freewayTdcsSimHost";
 import { TransitAccessGridHost, TransitAccessPlaybackHost } from "./hosts/transitAccessHosts";
 import {
@@ -101,11 +102,12 @@ import {
 import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbMajorRoadsHost, GbTrafficCountsAadfHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
 import { GbSurplusLandHost, GbTerrainHost } from "./hosts/ukHosts";
 import { GbAquacultureHost, GbCompaniesHost, GbFuneralHost, GbManufacturingHost, GbSoilParentMaterialHost } from "./hosts/ukHosts";
-import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
+import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbPollutionInventoryEnglandHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
 import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
-import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
-import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost } from "./hosts/canadaHosts";
+import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrTerritorialSeaHost, KrUrbanParksHost, KrSportsFacilitiesHost, KrCemeteriesOsmHost, KrPopulationH3Host, KrSchoolsHost, KrSchoolDistrictsHost, KrHospitalsPharmaciesHost, KrFireStationsHost, KrCivilDefenseSheltersHost, KrPoliceBoxesHost, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
+import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost, CaClimateStationsHost, CaAqhiStationsHost, CaRadiationStationsHost, CaNpriFacilitiesHost, CaWastewaterSystemsHost, CaEarthquakesHost, CaEarthquakesLiveHost, CaPopulationGridHost } from "./hosts/canadaHosts";
+import { IeAdminHost, IeMaritimeBoundariesHost, IePlaceNamesHost, IeGaeltachtHost, IeActivityLocationsHost, IeParksHost, IeGraveyardsHost, IeBathymetryHost, IeCommercialValuationsHost, IeStateAssetsHost, IeHydrometricStationsHost, IeWaterMonitoringHost, IeRiverWaterBodiesHost, IeLakeWaterBodiesHost, IeArterialDrainageHost, IeRiverFloodExtentsHost, IeCoastalErosionHost, IeBathingWatersHost, IeMarineSurveyStationsHost, IeSeabedSurveyCoverageHost, IeProtectedMarineSitesHost, IeOffshoreRenewablesHost, IeTransitStopsHost, IeDublinbikesStationsHost, IeRoadRailNetworkHost, IeRoadMarkersHost, IeTrafficCountersHost, IeAirportsPortsHost, IeNationalParksHost, IeWildAtlanticWayHost, IeProtectedSitesHost, IeNationalTrailsHost, IeStreetTreesHost, IeRadiationStationsHost, IeLandslideEventsHost, IeLandslideExtentsHost, IeRadonRiskHost, IePowerPlantsHost, IePowerLinesHost, IeSubstationsHost, IeWindFarmsHost, IeEvChargingHost, IeFuelStationsHost, IeSchoolsHost, IeSchoolPlanningAreasHost, IeChildcareServicesHost, IeHeritageSitesHost, IeMuseumsHost, IeArtsVenuesHost, IePublicFacilitiesHost, IeReligiousSitesHost, IeHealthFacilitiesHost, IeCareHomesHost, IeFireStationsHost, IeGardaStationsHost, IeCourtsHost, IeIndustrialFacilitiesHost, IeSoilsHost, IePeatSoilsHost, IeAquacultureHost, IeZoningHost, IePlanningApplicationsHost, IeNoiseMapsHost, IeRecyclingPointsHost, IeWasteFacilitiesHost, IePrtrFacilitiesHost, IeCoillteRecreationHost, IeCoillteForestRoadsHost } from "./hosts/irelandHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
@@ -300,7 +302,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpWelfareFacilitiesLayer", keys: ["jpWelfareDisability", "jpWelfareChild"], Host: JpWelfareFacilitiesHost },
   { id: "useJpMajorRoadsLayer", keys: ["jpMajorRoads"], Host: JpMajorRoadsHost },
   { id: "useJpExpresswaysLayer", keys: ["jpExpressways"], Host: JpExpresswaysHost },
-  { id: "useHistoricalMapSinicaLayer", keys: ["historicalMapSinica"], Host: HistoricalMapSinicaHost },
+  { id: "useHistoricalMapSinicaLayer", keys: ["historicalMapSinica", "historicalMapPostwar", "historicalImagery", "historicalBoundaries", "historicalLandUse", "historicalThematic"], Host: HistoricalMapSinicaHost },
   { id: "useJpGsiTerrainLayers", keys: ["jpGsiHillshade", "jpGsiRelief"], Host: JpGsiTerrainHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
   // 英國（2026-10-29 第 0b 波）
@@ -326,6 +328,19 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useKrNpLocationSignsLayer", keys: ["krNpLocationSigns"], Host: KrNpLocationSignsHost },
   { id: "useKrNpTrailsLayer", keys: ["krNpTrails"], Host: KrNpTrailsHost },
   { id: "useKrStreetTreesLayer", keys: ["krStreetTrees"], Host: KrStreetTreesHost },
+  // 南韓第 6 波
+  { id: "useKrTerritorialSeaLayer", keys: ["krTerritorialSea"], Host: KrTerritorialSeaHost },
+  { id: "useKrUrbanParksLayer", keys: ["krUrbanParks"], Host: KrUrbanParksHost },
+  { id: "useKrSportsFacilitiesLayer", keys: ["krSportsFacilities"], Host: KrSportsFacilitiesHost },
+  { id: "useKrCemeteriesOsmLayer", keys: ["krCemeteriesOsm"], Host: KrCemeteriesOsmHost },
+  { id: "useKrPopulationH3Layer", keys: ["krPopulationH3"], Host: KrPopulationH3Host },
+  // 南韓第 7 波
+  { id: "useKrSchoolsLayer", keys: ["krSchools"], Host: KrSchoolsHost },
+  { id: "useKrSchoolDistrictsLayer", keys: ["krSchoolDistricts"], Host: KrSchoolDistrictsHost },
+  { id: "useKrHospitalsPharmaciesLayer", keys: ["krHospitalsPharmacies"], Host: KrHospitalsPharmaciesHost },
+  { id: "useKrFireStationsLayer", keys: ["krFireStations"], Host: KrFireStationsHost },
+  { id: "useKrCivilDefenseSheltersLayer", keys: ["krCivilDefenseShelters"], Host: KrCivilDefenseSheltersHost },
+  { id: "useKrPoliceBoxesLayer", keys: ["krPoliceBoxes"], Host: KrPoliceBoxesHost },
   // 南韓第 1 波（國土基礎：交通＋能源）
   { id: "useKrBusStopsLayer", keys: ["krBusStops"], Host: KrBusStopsHost },
   { id: "useKrRailStationsLayer", keys: ["krRailStations"], Host: KrRailStationsHost },
@@ -342,6 +357,75 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useKrOilGasLayer", keys: ["krOilGas"], Host: KrOilGasHost },
   // 加拿大（2026-11-04 第 0＋1 波：行政邊界、交通 4 層、能源 4 層、人口中心）
   { id: "useCaAdminLayers", keys: ["caAdminBoundaries"], Host: CaAdminHost },
+  // 愛爾蘭（2026-11-07 第 0 波：行政邊界）
+  { id: "useIeAdminLayers", keys: ["ieAdminBoundaries"], Host: IeAdminHost },
+  { id: "useIeMaritimeBoundariesLayer", keys: ["ieMaritimeBoundaries"], Host: IeMaritimeBoundariesHost },
+  { id: "useIeBathymetryLayer", keys: ["ieBathymetry"], Host: IeBathymetryHost },
+  { id: "useIePlaceNamesLayer", keys: ["iePlaceNames"], Host: IePlaceNamesHost },
+  { id: "useIeGaeltachtLayer", keys: ["ieGaeltacht"], Host: IeGaeltachtHost },
+  { id: "useIeActivityLocationsLayer", keys: ["ieActivityLocations"], Host: IeActivityLocationsHost },
+  { id: "useIeParksLayer", keys: ["ieParks"], Host: IeParksHost },
+  { id: "useIeGraveyardsLayer", keys: ["ieGraveyards"], Host: IeGraveyardsHost },
+  { id: "useIeCommercialValuationsLayer", keys: ["ieCommercialValuations"], Host: IeCommercialValuationsHost },
+  { id: "useIeStateAssetsLayer", keys: ["ieStateAssets"], Host: IeStateAssetsHost },
+  { id: "useIeHydrometricStationsLayer", keys: ["ieHydrometricStations"], Host: IeHydrometricStationsHost },
+  { id: "useIeWaterMonitoringLayer", keys: ["ieWaterMonitoring"], Host: IeWaterMonitoringHost },
+  { id: "useIeRiverWaterBodiesLayer", keys: ["ieRiverWaterBodies"], Host: IeRiverWaterBodiesHost },
+  { id: "useIeLakeWaterBodiesLayer", keys: ["ieLakeWaterBodies"], Host: IeLakeWaterBodiesHost },
+  { id: "useIeArterialDrainageLayer", keys: ["ieArterialDrainage"], Host: IeArterialDrainageHost },
+  { id: "useIeRiverFloodExtentsLayer", keys: ["ieRiverFloodExtents"], Host: IeRiverFloodExtentsHost },
+  { id: "useIeCoastalErosionLayer", keys: ["ieCoastalErosion"], Host: IeCoastalErosionHost },
+  { id: "useIeBathingWatersLayer", keys: ["ieBathingWaters"], Host: IeBathingWatersHost },
+  { id: "useIeMarineSurveyStationsLayer", keys: ["ieMarineSurveyStations"], Host: IeMarineSurveyStationsHost },
+  { id: "useIeSeabedSurveyCoverageLayer", keys: ["ieSeabedSurveyCoverage"], Host: IeSeabedSurveyCoverageHost },
+  { id: "useIeProtectedMarineSitesLayer", keys: ["ieProtectedMarineSites"], Host: IeProtectedMarineSitesHost },
+  { id: "useIeOffshoreRenewablesLayer", keys: ["ieOffshoreRenewables"], Host: IeOffshoreRenewablesHost },
+  { id: "useIeTransitStopsLayer", keys: ["ieTransitStops"], Host: IeTransitStopsHost },
+  { id: "useIeDublinbikesStationsLayer", keys: ["ieDublinbikesStations"], Host: IeDublinbikesStationsHost },
+  { id: "useIeRoadRailNetworkLayer", keys: ["ieRoadRailNetwork"], Host: IeRoadRailNetworkHost },
+  { id: "useIeRoadMarkersLayer", keys: ["ieRoadMarkers"], Host: IeRoadMarkersHost },
+  { id: "useIeTrafficCountersLayer", keys: ["ieTrafficCounters"], Host: IeTrafficCountersHost },
+  { id: "useIeAirportsPortsLayer", keys: ["ieAirportsPorts"], Host: IeAirportsPortsHost },
+  { id: "useIeNationalParksLayer", keys: ["ieNationalParks"], Host: IeNationalParksHost },
+  { id: "useIeWildAtlanticWayLayer", keys: ["ieWildAtlanticWay"], Host: IeWildAtlanticWayHost },
+  { id: "useIeProtectedSitesLayer", keys: ["ieProtectedSites"], Host: IeProtectedSitesHost },
+  { id: "useIeNationalTrailsLayer", keys: ["ieNationalTrails"], Host: IeNationalTrailsHost },
+  { id: "useIeCoillteRecreationLayer", keys: ["ieCoillteRecreation"], Host: IeCoillteRecreationHost },
+  { id: "useIeCoillteForestRoadsLayer", keys: ["ieCoillteForestRoads"], Host: IeCoillteForestRoadsHost },
+  { id: "useIeStreetTreesLayer", keys: ["ieStreetTrees"], Host: IeStreetTreesHost },
+  { id: "useIeRadiationStationsLayer", keys: ["ieRadiationStations"], Host: IeRadiationStationsHost },
+  { id: "useIeLandslideEventsLayer", keys: ["ieLandslideEvents"], Host: IeLandslideEventsHost },
+  { id: "useIeLandslideExtentsLayer", keys: ["ieLandslideExtents"], Host: IeLandslideExtentsHost },
+  { id: "useIeRadonRiskLayer", keys: ["ieRadonRisk"], Host: IeRadonRiskHost },
+  { id: "useIePowerPlantsLayer", keys: ["iePowerPlants"], Host: IePowerPlantsHost },
+  { id: "useIePowerLinesLayer", keys: ["iePowerLines"], Host: IePowerLinesHost },
+  { id: "useIeSubstationsLayer", keys: ["ieSubstations"], Host: IeSubstationsHost },
+  { id: "useIeWindFarmsLayer", keys: ["ieWindFarms"], Host: IeWindFarmsHost },
+  { id: "useIeEvChargingLayer", keys: ["ieEvCharging"], Host: IeEvChargingHost },
+  { id: "useIeFuelStationsLayer", keys: ["ieFuelStations"], Host: IeFuelStationsHost },
+  { id: "useIeSchoolsLayer", keys: ["ieSchools"], Host: IeSchoolsHost },
+  { id: "useIeSchoolPlanningAreasLayer", keys: ["ieSchoolPlanningAreas"], Host: IeSchoolPlanningAreasHost },
+  { id: "useIeChildcareServicesLayer", keys: ["ieChildcareServices"], Host: IeChildcareServicesHost },
+  { id: "useIeHeritageSitesLayer", keys: ["ieHeritageSites"], Host: IeHeritageSitesHost },
+  { id: "useIeMuseumsLayer", keys: ["ieMuseums"], Host: IeMuseumsHost },
+  { id: "useIeArtsVenuesLayer", keys: ["ieArtsVenues"], Host: IeArtsVenuesHost },
+  { id: "useIePublicFacilitiesLayer", keys: ["iePublicFacilities"], Host: IePublicFacilitiesHost },
+  { id: "useIeReligiousSitesLayer", keys: ["ieReligiousSites"], Host: IeReligiousSitesHost },
+  { id: "useIeHealthFacilitiesLayer", keys: ["ieHealthFacilities"], Host: IeHealthFacilitiesHost },
+  { id: "useIeCareHomesLayer", keys: ["ieCareHomes"], Host: IeCareHomesHost },
+  { id: "useIeFireStationsLayer", keys: ["ieFireStations"], Host: IeFireStationsHost },
+  { id: "useIeGardaStationsLayer", keys: ["ieGardaStations"], Host: IeGardaStationsHost },
+  { id: "useIeCourtsLayer", keys: ["ieCourts"], Host: IeCourtsHost },
+  { id: "useIeIndustrialFacilitiesLayer", keys: ["ieIndustrialFacilities"], Host: IeIndustrialFacilitiesHost },
+  { id: "useIeSoilsLayer", keys: ["ieSoils"], Host: IeSoilsHost },
+  { id: "useIePeatSoilsLayer", keys: ["iePeatSoils"], Host: IePeatSoilsHost },
+  { id: "useIeAquacultureLayer", keys: ["ieAquaculture"], Host: IeAquacultureHost },
+  { id: "useIeZoningLayer", keys: ["ieZoning"], Host: IeZoningHost },
+  { id: "useIePlanningApplicationsLayer", keys: ["iePlanningApplications"], Host: IePlanningApplicationsHost },
+  { id: "useIeNoiseMapsLayer", keys: ["ieNoiseMaps"], Host: IeNoiseMapsHost },
+  { id: "useIeRecyclingPointsLayer", keys: ["ieRecyclingPoints"], Host: IeRecyclingPointsHost },
+  { id: "useIeWasteFacilitiesLayer", keys: ["ieWasteFacilities"], Host: IeWasteFacilitiesHost },
+  { id: "useIePrtrFacilitiesLayer", keys: ["iePrtrFacilities"], Host: IePrtrFacilitiesHost },
   { id: "useCaTransitStopsLayer", keys: ["caTransitStops"], Host: CaTransitStopsHost },
   { id: "useCaAirportsPortsLayer", keys: ["caAirportsPorts"], Host: CaAirportsPortsHost },
   { id: "useCaMajorRoadsLayer", keys: ["caMajorRoads"], Host: CaMajorRoadsHost },
@@ -358,6 +442,14 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useCaRentsLayer", keys: ["caRents"], Host: CaRentsHost },
   { id: "useCaPlaceNamesLayer", keys: ["caPlaceNames"], Host: CaPlaceNamesHost },
   { id: "useCaHillshadeLayer", keys: ["caHillshade"], Host: CaHillshadeHost },
+  { id: "useCaClimateStationsLayer", keys: ["caClimateStations"], Host: CaClimateStationsHost },
+  { id: "useCaAqhiStationsLayer", keys: ["caAqhiStations"], Host: CaAqhiStationsHost },
+  { id: "useCaRadiationStationsLayer", keys: ["caRadiationStations"], Host: CaRadiationStationsHost },
+  { id: "useCaNpriFacilitiesLayer", keys: ["caNpriFacilities"], Host: CaNpriFacilitiesHost },
+  { id: "useCaWastewaterSystemsLayer", keys: ["caWastewaterSystems"], Host: CaWastewaterSystemsHost },
+  { id: "useCaEarthquakesLayer", keys: ["caEarthquakes"], Host: CaEarthquakesHost },
+  { id: "useCaLiveEarthquakesLayer", keys: ["caEarthquakesLive"], Host: CaEarthquakesLiveHost },
+  { id: "useCaPopulationGridLayer", keys: ["caPopulationGrid"], Host: CaPopulationGridHost },
   // 英國第 1 波（海域界線、建成區、綠地三層）
   { id: "useGbMaritimeLimitsLayer", keys: ["gbMaritimeLimits"], Host: GbMaritimeLimitsHost },
   { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbGolfCourses", "gbCemeteries"], Host: GbOpenSpaceHost },
@@ -385,6 +477,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbRecyclingCentresLayer", keys: ["gbRecyclingCentres"], Host: GbRecyclingCentresHost },
   { id: "useGbWastePermitsLayer", keys: ["gbWastePermits"], Host: GbWastePermitsHost },
   { id: "useGbPollutionInventoryLayer", keys: ["gbPollutionInventory"], Host: GbPollutionInventoryHost },
+  { id: "useGbEaPollutionInventoryLayer", keys: ["gbPollutionInventoryEngland"], Host: GbPollutionInventoryEnglandHost },
   { id: "useGbNoiseLayer", keys: ["gbNoise"], Host: GbNoiseHost },
   // 英國第 10 波（主要路網、AADF 交通計數點）
   { id: "useGbMajorRoadsLayer", keys: ["gbMajorRoads"], Host: GbMajorRoadsHost },
@@ -547,4 +640,6 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "usePollingStationsLayer", keys: ["pollingStations2024"], Host: PollingStationsHost },
   // 政治：2026 議員選區（公開 RPC，一次抓全臺）
   { id: "useCouncilDistrictsLayer", keys: ["councilDistricts2026"], Host: CouncilDistrictsHost },
+  // 30 天地圖挑戰 Day 8：1955 中和鄉都市計畫圖（單張 image source）
+  { id: "useMapchallengeDay08PlanLayer", keys: ["mapchallengeDay08Plan1955"], Host: MapchallengeDay08PlanHost },
 ];

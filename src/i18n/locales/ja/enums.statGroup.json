@@ -73,5 +73,19 @@
   "enum.statGroup.立委選舉（政黨票）": "立法委員選挙（政党票）",
   "enum.statGroup.縣市長選舉": "県市長選挙",
   "enum.statGroup.縣市議員選舉（政黨合計）": "県市議員選挙（政党合計）",
-  "enum.statGroup.全國性公民投票": "全国国民投票"
+  "enum.statGroup.全國性公民投票": "全国国民投票",
+  "enum.statGroup.火災件數": "火災件数",
+  "enum.statGroup.火災死亡人數": "火災死者数",
+  "enum.statGroup.火災受傷人數": "火災負傷者数",
+  "enum.statGroup.火災財產損失": "火災財産損害額",
+  "enum.statGroup.交通事故件數": "交通事故件数",
+  "enum.statGroup.交通事故死亡人數": "交通事故死者数",
+  "enum.statGroup.交通事故重傷人數": "交通事故重傷者数",
+  "enum.statGroup.交通事故受傷人數": "交通事故負傷者数",
+  "enum.statGroup.都市人口比": "都市人口比率",
+  "enum.statGroup.自有住宅比例": "持ち家世帯比率",
+  "enum.statGroup.私人租屋比例": "民間賃貸世帯比率",
+  "enum.statGroup.社會住宅租戶比例": "公営住宅等賃借世帯比率",
+  "enum.statGroup.平均月租": "平均月額家賃",
+  "enum.statGroup.學士以上學歷比例": "学士以上の学歴の比率"
 }

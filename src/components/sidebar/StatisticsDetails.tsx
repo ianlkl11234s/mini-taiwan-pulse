@@ -37,6 +37,7 @@ const LEVEL_KEYS: Record<StatisticsLevel, MessageKey> = {
   statistical_l2: 'statistics.level.statistical_l2', prosecutor_district: 'statistics.level.prosecutor_district',
   gb_lad: 'statistics.level.gb_lad', kr_sido: 'statistics.level.kr_sido', kr_sigungu: 'statistics.level.kr_sigungu',
   ca_pr: 'statistics.level.ca_pr', ca_cd: 'statistics.level.ca_cd',
+  ie_la: 'statistics.level.ie_la', ie_ed: 'statistics.level.ie_ed',
 };
 /** 地理層級名稱（不傳 i18n＝目前語系快照；中文介面即原中文） */
 export function statisticsLevelLabel(level: StatisticsLevel, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
@@ -228,7 +229,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows ?? atlasCategoryLegend;
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
-    <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n)} style={{ marginBottom: 0 }} />
+    <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n, 'valueTransform' in recipe && Boolean(recipe.valueTransform))} style={{ marginBottom: 0 }} />
     <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release, i18n) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded')} · {statisticsUnit(recipe.unit, i18n)}</span>
     {'freshness' in recipe && <span>{tr('statistics.legend.freshness', { value: String(recipe.freshness), frequency: statisticsFrequency(recipe.frequency, i18n) })}</span>}
     {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}

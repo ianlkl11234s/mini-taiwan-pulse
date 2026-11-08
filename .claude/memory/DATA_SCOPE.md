@@ -337,7 +337,7 @@ satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習�
 | OSM 加油站 | `public.osm_gas_stations` | 2,212 | 沒接（E-E 主用）|
 | 政府加油站 | `public.gas_stations` | 573 | 沒接（E-E 對照，不可 UNION OSM）|
 | **充電站** | `public.ev_charging_stations` | **3,060** | ✅ layer 6 |
-| 電桿（低壓）| `public.power_poles` | **2,959,326** | 沒接（E-E 必走 PMTiles 1.4GB raw）|
+| 電桿（低壓）| ~~`public.power_poles`~~（2026-11-07 gis-platform mig 510 已刪表，冷存 S3 `supabase-export/public.power_poles/full-20261107.csv.gz`）| 2,959,326 | 站主圖層走 PMTiles，不讀 DB |
 | 縣市風力統計 | `public.county_wind_stats` | 211 | 沒接（E-F KPI）|
 | 縣市生質統計 | `public.county_biomass_stats` | 188 | 沒接（E-F KPI）|
 | 縣市小水力 | `public.county_small_hydro_stats` | 188 | 沒接（E-F KPI）|

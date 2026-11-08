@@ -1,7 +1,7 @@
 # owner-gated-layers（私人圖層鎖定）
 
 > **Slug**：`owner-gated-layers`
-> **狀態**：上線
+> **狀態**：上線（2026-11-06 名單與呈現統一，見「現況」）
 > **Owner**：migu
 > **上線日期**：2026-07-07
 > **相關 PR**：前端 #60（Phase 1+2）· #62（lock_type）；gis-platform #28（275/276/277）· #30（278/279）
@@ -12,11 +12,79 @@
 把一批敏感私有資料圖層鎖起來：只有登入且 `profiles.tier='owner'` 的帳號能開啟；
 其他訪客照常看到圖層名稱但顯示鎖頭、無法 toggle、資料也不會下載。
 
-## 機制摘要
+## 現況（2026-11-06 統一）
+
+### 名單：一份
+
+- **唯一來源＝manifest `topics` 的 `"OWNER_ONLY"` 標記**（`src/data/layerManifest.ts`）。
+  `layerCatalog.ts` 的 `GATED_LAYERS` 由它派生（名稱、型別不變，urlState／embedWhitelist／layerGates／搜尋等消費端照舊）。
+- 釘死清單測試 `src/data/__tests__/ownerOnlyRegistry.test.ts`：manifest 標記與 `GATED_LAYERS` 都必須等於表內 58 個 key（2026-11-06 古地圖改公開，59→58）；
+  少一個標記（＝私人圖層對外開放）或多一個都會紅。新增站主限定圖層時三處一起改：manifest topics、該測試、gis-platform `public.gated_layers`。
+  **改回公開**同樣三處反向：拿掉 `OWNER_ONLY`、測試移除 key、gated_layers 刪列（只改前端的話，`get_layer_gates()` 回來的 full 列仍會把非站主鎖住）；hook 若 `registerOwnerGateReset` 一併拿掉。前例：古地圖（見下表）。
+- DB `public.gated_layers`：mig 276（34 列）＋494（electionEvents2026）＋499（gbPollutionInventoryEngland）＋512（ieCoillteRecreation、ieCoillteForestRoads，愛爾蘭 Coillte 條款不得轉供；2026-11-08 已套用＋匯入）＋**500**（補前端獨有的 22 個 key 與 allenCoralAtlas，共 23 列，`rpc_name` NULL、`required_tier='owner'`、`lock_type='full'`）。
+  DB 另有 `info_medical_ltc`（member tier，mig 281）不屬站主限定，不在前端名單。
+- 舊的 manifest 第三套名單（`OWNER_ONLY` 標記執行時沒人讀）與 `OWNER_ONLY_THEME_TITLES` 已併入／移除。
+
+### 呈現：一種（spec §5.5）
+
+非站主一律看到**反灰＋鎖頭**，點了走 `App.tsx` `handleGatedIntercept`（未登入導 Google 登入；已登入非站主顯示「私人圖層，僅擁有者可檢視」）。不可整個隱藏。
+
+| 位置 | 2026-11-06 前 | 現在 |
+|---|---|---|
+| 圖層面板列（含 jpWater、土壤液化、BSS、allenCoralAtlas 等私人 Range API 層） | 鎖頭 | 鎖頭（不變） |
+| 主題「歷史底圖」（古地圖） | 非站主整個主題隱藏 | **2026-11-06 改為公開**：不在名單、所有人可開、地名提示卡所有人都會出現；DB 列待 gis-platform migration 刪除（mig 500 補進的那一列），刪之前正式站仍依 DB 對非站主上鎖 |
+| 模擬面板（busCrowdingSim、bridgeResilienceTwinCity） | 非站主濾掉 | 列出鎖頭列（`resolveLayerPanel` 不再分站主） |
+| 面板搜尋（圖層、資料來源） | 上鎖層不出結果 | 照常列出並帶鎖頭（`searchLayers(…, { excludeLocked: false })`）；Agent 工具 `catalogTools` 仍用預設 fail-closed |
+| facOffshore／osmPowerPlantsStatic／powerPlants | 無介面 | 不變：沒有 LayerDef，只擋程式化開啟 |
+
+`lockedKeys`（`App.tsx`）＝ tier＋`get_layer_gates()` 解析 ∪ RELEASE_HOLD ∪ 各私人 Range API 探測結果。
+私人 API 探測（jpWater、土壤液化、BSS、橋梁韌性、公車擁擠、allenCoralAtlas）負責資料能不能讀，名單負責介面上不上鎖，兩者都要過。
+
+**不屬站主權限、維持原樣**：`RELEASE_HOLD_LAYERS`（授權未驗證，連站主都鎖）、`IS_PRODUCTION`／`localResearchGroup`（開發中，只在本機 DEV 顯示；4 個 Glow 層同時在名單內）、統計比較 build flag。
+
+### 撤權清除（登出／失去權限，review F088）
+
+`App.tsx` 以 `lockedKeys` 為唯一訊號，邏輯集中在 `src/lib/ownerGateRevoke.ts`：
+
+1. **關層**：已上鎖但仍開著的 key 一律經 `handleBulkSetVisibility(keys, false)` 關掉（popup、展開面板一併清；URL 與場景由 visibility 派生，不會再帶）。
+2. **清快取**：這次「有→無」權限的 key（`newlyLockedKeys`）交給 `runOwnerGateResets`，各模組用 `registerOwnerGateReset(keys, reset)` 註冊：
+   gbEa、選舉活動、畜牧、石化（只清 owner-gated 那份，加油站不動）、`energyLoader` 的 owner-gated `cachedOnce`（電廠 L1–L6、OSM 電網、化石設施、機組出力）與 `useEnergyPoiLayer` 暫存。
+   module cache 都帶 generation：撤權前發出、撤權後才回來的請求不寫回。
+3. **清 Mapbox**：`MapView` 註冊的清除把 registry 中被撤權的 GeoJSON overlay source `setData(空)`；
+   source／layer 殼保留（`addAllOverlays` 建立、feed 靠 `getSource` 找它，直接移除會讓重新授權後開層空白或破壞 z-order），layer 由 visible=false 隱藏。
+   私人 Range API 六組（Allen、日本水資源、土壤液化、BSS、橋梁韌性、公車擁擠）原本就由各自 host 在 `!access.allowed` 時 `removeSource` 並清快取，沿用不重做。
+
+新增站主限定圖層若有 module cache 或自建 source，記得 `registerOwnerGateReset`。
+
+### owner-data 家族（2026-11-08 起，站主限定靜態資料的標準存法）
+
+使用者 2026-11-08 拍板：站主限定的**靜態或整批替換**資料不再用 Supabase owner-only RPC，改成私人檔＋coral-private sidecar；
+只有要伺服器端依時間視窗查詢的即時資料（電廠出力等）留在 RPC。計畫與批次：`.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`。
+
+- 路徑 `/api/private-research/owner-data/<key>`；白名單 `server/coral-private/owner-data-assets.mjs`（key、filename、size、sha256），前端鏡像 `src/data/ownerDataAssets.ts`（`src/lib/__tests__/ownerData.test.ts` 逐一比對）。
+- 儲存：私有 S3 `migu-private-research-ap-southeast-2/private-research/owner-data/<sha256>/<filename>`（內容定址，舊版並存＝回滾只要改回舊常數）；正本另放 `migu-gis-data-collector/supabase-export/owner-data/<sha256>/<filename>`（ADR-0026），底層表另有 `supabase-export/<schema>.<table>/full-YYYYMMDD.csv.gz`。
+- sidecar **不暖機**：第一次請求某檔才從 S3 抓並驗 sha256，之後留在記憶體；其他家族暖機失敗不影響它。
+- 路由：Caddy（pulse-host `Caddyfile`）、`nginx.conf`、`vite.config.ts` 都用前綴式 `owner-data/[a-z0-9-]+`，**之後加檔不用再改路由**；未知 key 由 sidecar 回 404。
+- 前端：`fetchOwnerJson(asset, taskId, label)`（`src/lib/ownerData.ts`）帶站主 token、分段 Range、註冊 loadingRegistry；非 401／403 的失敗寫進 `ownerDataStatus`，圖例用它顯示「讀取失敗（原因）」。loader 只把 `supabase.rpc` 換成它，回傳形狀不變。
+- 新增一支檔：匯出（RPC 函式本體 SELECT，形狀與 RPC 相同）→ `owner-data.local/` 寫檔與 `local_validation.json` → 兩份 assets 常數加一列 → `node scripts/deploy/upload-owner-data-private.mjs <repo>/owner-data.local`（set -a 載入 .env）→ PR → 主機重建 coral-private → 前端發版後才撤舊 RPC。
+- 目前收錄：`livestock-farms`（13,087 筆）、`livestock-slaughterhouses`（185 筆），2026-11-08 第 1 批。舊 RPC `get_livestock_*` 待前端發布到 master 後撤除。
+- 第 2 批（2026-11-08，能源與石化，12 支 JSON）：`fossil-fuel-layers`（石化 9 層 1,520 列；匯出時**剔除** `gas_station_*` 5 層，加油站仍是公開 `get_gas_station_layers`）、`fossil-fuel-infrastructure`（9）、`osm-substations`（785）、`osm-power-lines`（2,305）、`osm-power-towers`（26,589）、`osm-power-plants-static`（513）、`fac-primary`（209）、`fac-offshore`（8）、`fac-planned`（35）、`fac-historical`（15）、`fac-secondary`（341）、`fac-osm-supplement`（1,215）。Glow 實驗層共用同一 loader 自動跟著改。
+  - `facPrimary` 拆分：點位讀 `fac-primary`，`has_realtime` 仍由即時 RPC `get_ssot_realtime_facility_output` 標記。
+  - **保留 RPC**：`powerGenerationUnit`（`get_ssot_facility_output_24h`）、電廠 popup（`get_power_plant_output_24h`、`get_ssot_facility_units`、`get_ssot_facility_provenance`）、隱藏層 `powerPlants`（`get_ssot_power_plants_with_output`）。
+  - 匯出：函式本體 SELECT 外包 `AS t(<RETURNS TABLE 欄位名>)`，否則 `ST_X(...)`、`CASE` 等無別名欄位名會跑掉；驗收逐支比對欄位集合與筆數。
+  - 圖例「讀取失敗」提示只接了畜牧；能源／石化讀取失敗仍只寫 console（與舊 RPC 相同）。
+  - 舊 RPC 12 支待前端發布到 master、站主驗收後撤除（gis-platform PENDING migration）。
+
+### 已知限制
+
+- 私人 Range API（`server/coral-private/*`）仍認寫死的站主 `OWNER_ID`，不讀 `profiles.tier`；把某層在後台降到 insider 只會解開介面，資料端仍只給站主。
+- 分享網址：`urlState.parseLayers` 在解析階段就丟掉所有 `GATED_LAYERS`（測試 `urlState.test.ts`「🔒 gated 圖層一律 drop」釘住），所以站主收到含私人圖層的分享網址也不會還原。這是設計上的丟棄，不是 tier 載入時序問題；要改需使用者拍板。
+
+## 機制摘要（Phase 1，2026-07-07 原始設計）
 
 三層防護：
 
-1. **前端 SSOT 旗標**：`src/components/sidebar/layerCatalog.ts` 的 `GATED_LAYERS`（Set）為單一真實來源，
+1. **前端 SSOT 旗標**：`src/components/sidebar/layerCatalog.ts` 的 `GATED_LAYERS`（Set）為單一真實來源（2026-11-06 起改由 manifest 派生，見上），
    LayerDef 另加 `gated?: boolean` 型別欄位。桌機 `IconRailSidebar` 與手機 `LayerSidebar` 兩邊
    都依 `GATED_LAYERS.has(key) && !isOwner` 顯示鎖頭（inline SVG，非 emoji）+ 降透明度 + title 提示。
 2. **前端 toggle gate**：`App.tsx` 的 `handleGatedIntercept` 攔截所有「開啟」意圖
@@ -28,23 +96,8 @@
 owner 判定：`src/lib/auth.ts` 的 `useMemberGate()` 登入後 `select tier from profiles where id = auth.uid()`；
 tier 載入為非同步，載入完成前 `isOwner=false`（先顯示鎖），完成後才解鎖。
 
-## 鎖定的 layer keys
-
-有鎖頭 UI（在 sidebar）：
-
-| 群組 | keys |
-|---|---|
-| 畜牧 Livestock | livestockFarmPig / Chicken / Cattle / Duck / Goose / Sheep / Other、livestockSlaughter |
-| 石化 · 油氣 | lpgSubpackaging、lpgRetailers、lngTerminal、pipelineGas、pipelineOilGas、industrialRefinery、industrialStorageTank、industrialPowerPlant、coalTerminal、fossilFuelInfra |
-| 電力 · 電網 | osmSubstationsEhv、osmSubstations、osmPowerLines、osmPowerTowers、substationEhvGlow、powerLinesGlow |
-| 電力 · 廠 | facPrimary、facPlanned、facHistorical、facSecondary、facOsmSupplement、powerGenerationUnit、powerPlantGlow |
-| 僅 UI 鎖（資料路徑不動） | aviationRestrictedGlow |
-
-無鎖頭 UI（已從 sidebar 下架，但 API 敏感 → loader 改直連 + 列入 GATED_LAYERS 防程式化開啟）：
-
-- facOffshore（get_ssot_facilities_offshore_zones）
-- osmPowerPlantsStatic（get_osm_power_plants_static）
-- powerPlants（電廠總圖，資料源 `all_power_plants_v`；Phase 8 從 sidebar 下架，migration 279 REVOKE 後補入 GATED_LAYERS）
+Phase 1 的 key 分組（電力、石化、畜牧與 3 個無介面層）與後來加入的日本水資源、BSS、橋梁韌性、公車擁擠、選舉活動、土壤液化、
+英格蘭污染排放、allenCoralAtlas（古地圖 2026-11-05 加入、2026-11-06 改公開移出），完整清單看 `ownerOnlyRegistry.test.ts`。
 
 **明確排除（保持公開，不鎖）**：`waterCanals`（灌排渠道）、`powerPoles`（電桿 2.96M）、
 加油站 5 層（gasStationCpc/Fpcc/Taisugar/Other/Canonical）與加油站覆蓋分析。
@@ -53,10 +106,10 @@ tier 載入為非同步，載入完成前 `isOwner=false`（先顯示鎖），�
 
 | 圖層群 | 原路徑 | 新路徑 |
 |---|---|---|
-| 畜牧飼養場 / 屠宰場 | 靜態 `./agriculture/*.geojson` | owner-only RPC `get_livestock_farms` / `get_livestock_slaughterhouses`（dynamicData + setData） |
-| 石化 9 層 | staticRpc CDN `get_fossil_fuel_layers` | 直連 `supabase.rpc("get_fossil_fuel_layers")` |
+| 畜牧飼養場 / 屠宰場 | 靜態 `./agriculture/*.geojson` | owner-only RPC `get_livestock_farms` / `get_livestock_slaughterhouses`（dynamicData + setData）→ **2026-11-08 起** owner-data 私人檔 `livestock-farms`／`livestock-slaughterhouses`（同形狀） |
+| 石化 9 層 | staticRpc CDN `get_fossil_fuel_layers` | 直連 `supabase.rpc("get_fossil_fuel_layers")` → **2026-11-08 起** owner-data `fossil-fuel-layers`（剔除加油站列） |
 | 加油站 5 層（公開） | staticRpc `get_fossil_fuel_layers`（共用） | 拆出走公開 `staticRpc("get_gas_station_layers")` |
-| 電網 4 + 電廠 5 + fossil infra + offshore + osm static | staticRpc CDN | 直連 `supabase.rpc(...)` |
+| 電網 4 + 電廠 5 + fossil infra + offshore + osm static | staticRpc CDN | 直連 `supabase.rpc(...)` → **2026-11-08 起** owner-data 私人檔（`facPrimary` 的即時標記仍走 RPC） |
 
 ## 關鍵檔案
 

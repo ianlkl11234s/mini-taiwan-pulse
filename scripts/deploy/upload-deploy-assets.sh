@@ -578,6 +578,8 @@ for f in \
   public/world/jp_national_forests.pmtiles \
   public/world/jp_welfare_facilities.pmtiles \
   public/world/jp_major_roads.pmtiles \
+  public/world/jp_natural_park_areas_ksj_2015.pmtiles \
+  public/world/jp_traffic_accidents_2025.pmtiles \
   public/world/gb_admin_small_areas.pmtiles \
   public/world/gb_built_up_areas.pmtiles \
   public/world/gb_built_up_areas_v2.pmtiles \
@@ -607,6 +609,27 @@ for f in \
   public/world/ca_deprivation.pmtiles \
   public/world/ca_place_names.pmtiles \
   public/world/ca_terrain_hillshade.pmtiles \
+  public/world/ca_earthquakes.pmtiles \
+  public/world/ca_population_grid.pmtiles \
+  public/world/ie_admin_boundaries.pmtiles \
+  public/world/ie_bathymetry.pmtiles \
+  public/world/ie_commercial_valuations.pmtiles \
+  public/world/ie_state_assets.pmtiles \
+  public/world/ie_river_flood_extents_c_0020.pmtiles \
+  public/world/ie_river_flood_extents_c_0100.pmtiles \
+  public/world/ie_river_flood_extents_c_1000.pmtiles \
+  public/world/ie_river_flood_extents_m_0020.pmtiles \
+  public/world/ie_river_flood_extents_m_0100.pmtiles \
+  public/world/ie_river_flood_extents_m_1000.pmtiles \
+  public/world/ie_river_flood_extents_h_0020.pmtiles \
+  public/world/ie_river_flood_extents_h_0100.pmtiles \
+  public/world/ie_river_flood_extents_h_1000.pmtiles \
+  public/world/ie_heritage_sites.pmtiles \
+  public/world/ie_soils.pmtiles \
+  public/world/ie_zoning.pmtiles \
+  public/world/ie_planning_applications.pmtiles \
+  public/world/ie_noise_maps_lden.pmtiles \
+  public/world/ie_noise_maps_lnight.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \
@@ -725,6 +748,27 @@ for f in "${TOURISM_FILES[@]}"; do
   echo "Uploading tourism/$name..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/tourism/$name" --region ap-southeast-2
 done
+
+# CI-4（2026-11-08）：git 追蹤的 >1MB public 檔，依 deploy/public-assets.lock.json（delivery=r2）上傳到 s3_key。
+# 只建新物件（--if-none-match）：S3 已有同 key 就跳過，大小不同時報錯停下，不覆寫。
+# 新增或更新大檔：先重跑 python3 scripts/deploy/build-public-assets-lock.py，再跑本段。
+python3 - "$BUCKET" <<'PY' | while IFS="$(printf '\t')" read -r f key size; do
+import json, sys
+for e in json.load(open("deploy/public-assets.lock.json"))["entries"]:
+    if e["delivery"] == "r2" and e["s3_key"].startswith("deploy-assets/") and not e["s3_key"].endswith(".tar.gz"):
+        print(f'{e["path"]}\t{e["s3_key"]}\t{e["bytes"]}')
+PY
+  [ -f "$f" ] || { echo "Skipping $key (file not found: $f)"; continue; }
+  existing=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --query ContentLength --output text 2>/dev/null || true)
+  if [ -n "$existing" ]; then
+    [ "$existing" = "$size" ] || { echo "Refusing: $key 已存在且大小不同（S3 $existing vs lock $size）" >&2; exit 1; }
+    continue
+  fi
+  name=$(basename "$key")
+  echo "Uploading $key (lock)..."
+  aws s3api put-object --bucket "$BUCKET" --key "$key" --body "$f" --if-none-match '*' \
+    --cache-control "$(cache_control_for "$name")" --region ap-southeast-2 >/dev/null || exit 1
+done || exit 1
 
 echo "Done!"
 

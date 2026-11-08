@@ -4,6 +4,7 @@
 // layerType → 元件對應在 featureInfo/registry.tsx。新增 layer popup 只要：
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
 import { KR_DATA_KEYS } from "../data/krDataKeys";
+import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
 import { COLORS, SURFACE, LIGHT, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -30,6 +31,8 @@ import "./featureInfo/featureInfo.css";
 const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 南韓第 3–5 波 18 層：panel 自掛 SourceFooter
   ...KR_DATA_KEYS,
+  ...IE_DATA_KEYS,
+  "ieCoillteRecreation", "ieCoillteForestRoads", // 站主限定 Coillte：panel 自掛 SourceFooter（makeIePanel）
   // 2024 投開票所：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
   "pollingStations2024",
   // 2026 議員選區：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
@@ -40,6 +43,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
   "fireHydrant",
   "trafficAccidents2025",
+  "jpTrafficAccidents2025", // 日本 C083：PMTiles tile 無來源欄，panel 自掛 SourceFooter
   "analysisResult", // Agent 暫時分析結果：面板自帶「暫時分析結果 · 非完整來源圖層」footer
   // 區域統計：feature 只帶 R2 來源紀錄的 publisher／license／source_url（不是中央版讀的 source_org），
   // 中央版會一律誤判成「來源資訊待補」；panel 自掛 SourceFooter 並依語系翻機關與授權。
@@ -80,6 +84,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "krPowerTowers",
   "krOilGas",
   "caAdminBoundaries",
+  "ieAdminBoundaries",
   "caTransitStops",
   "caAirportsPorts",
   "caMajorRoads",
@@ -95,6 +100,14 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "caDeprivation",
   "caRents",
   "caPlaceNames",
+  "caClimateStations",
+  "caAqhiStations",
+  "caRadiationStations",
+  "caNpriFacilities",
+  "caWastewaterSystems",
+  "caEarthquakes",
+  "caEarthquakesLive",
+  "caPopulationGrid",
   "gbSmallAreaBoundaries",
   "gbMaritimeLimits",
   "gbBuiltUpAreas",
@@ -125,6 +138,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbRecyclingCentres",
   "gbWastePermits",
   "gbPollutionInventory",
+  "gbPollutionInventoryEngland",
   "gbNoise",
   "gbTrafficCountsAadf",
   "gbProtectedAreas",
@@ -157,6 +171,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbEarthquakes",
   "disasterShelters",
   "nationalParks",
+  // 日本第二輪自然保育三層＋DID：panel 自掛 SourceFooter
+  "jpNaturalParkAreas2015", "jpNationalParksMoe", "jpWildlifeProtectionMoe", "jpDid",
   "osmBridgeCarriers",
   "osmBridgeFootprints",
   "officialBridgesNewTaipei",
@@ -180,6 +196,10 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh",
   // 30 天地圖挑戰 Day 5 視野：panel 自掛路線線形／視線推估出處。
   "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns",
+  // 30 天地圖挑戰 Day 6 復古：panel 自掛 THCTS 出處與授權。
+  "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses",
+  // 30 天地圖挑戰 Day 8 烏托邦：panel 自掛研究推估口徑與來源。
+  "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

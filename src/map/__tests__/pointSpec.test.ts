@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
-import { DECORATION_SUFFIX_RE, DENSE_POINT_OVERRIDES, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, isDataDriven, normalizeMixedBranches, withPointSpec } from "../pointSpec";
+import { DECORATION_SUFFIX_RE, DENSE_POINT_OVERRIDES, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, POINT_STROKE_COLOR_KEEP_LIGHT, isDataDriven, normalizeMixedBranches, withPointSpec } from "../pointSpec";
 import { POINT_TIERS } from "../pointTiers";
 import { POINT_RADIUS } from "../mapStyleScale";
 import { getParamsSpec } from "../../data/layerParamsSpec";
@@ -37,7 +37,8 @@ describe("R2 點圖層規格（pointSpec）", () => {
       for (const l of mainCircles(c)) {
         for (const [dark, seam] of [[true, "#0a0a14"], [false, "#ffffff"]] as const) {
           const p = l.paint(dark, {});
-          if (!isDataDriven(p["circle-stroke-color"])) expect(p["circle-stroke-color"]).toBe(seam);
+          // 登記的例外（淺色底圖保留自訂描邊色，P-2）不比對淺色接縫色
+          if (!isDataDriven(p["circle-stroke-color"]) && !(!dark && POINT_STROKE_COLOR_KEEP_LIGHT.has(c.id))) expect(p["circle-stroke-color"]).toBe(seam);
           if (!isDataDriven(p["circle-stroke-width"])) expect(p["circle-stroke-width"]).toBe(1);
         }
       }

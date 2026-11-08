@@ -59,9 +59,7 @@ export const LANDSLIDE_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type LandslideStatisticsLayerKey = typeof LANDSLIDE_ENABLED_STATISTICS_KEYS[number];
 
-/** Layers 階層（完整目錄）的主題標題；manifest section 也用它。 */
-export const LANDSLIDE_STATISTICS_THEME_TITLE = "崩塌與水土保持統計 Landslide & Soil Conservation Statistics";
-/** Statistics 分頁的主題標題（STATISTICS_MACRO_GROUPS「土地與環境」）。 */
+/** 統計主題標題（統計入口與完整目錄共用；STATISTICS_MACRO_GROUPS「土地與環境」）。 */
 export const LANDSLIDE_STATISTICS_TAB_THEME_TITLE = "崩塌與水土保持 Landslides & Soil Conservation";
 /** 小群組閱讀順序（崩塌 → 治山防災工程 → 水土保持災害）。 */
 export const LANDSLIDE_STATISTICS_SUBGROUPS = ["崩塌", "治山防災工程", "水土保持災害"] as const;

@@ -377,6 +377,39 @@ def build_resources(_analytics: Path, raw: Path) -> None:
 NUM_PAIR = re.compile(r"\[\s*([0-9.]+)\s*,\s*([0-9.]+)\s*\]")
 
 
+def _segments_cross(p1, p2, p3, p4) -> bool:
+    """線段 p1p2 與 p3p4 是否真正相交（共端點不算）。"""
+    def orient(a, b, c):
+        v = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+        return (v > 0) - (v < 0)
+    return orient(p1, p2, p3) * orient(p1, p2, p4) < 0 and orient(p3, p4, p1) * orient(p3, p4, p2) < 0
+
+
+def ring_self_intersects(pts: list[list[float]]) -> bool:
+    """pts：未封閉的角點列。任兩條不相鄰的邊相交＝自交（bow tie）。"""
+    n = len(pts)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if j == i + 1 or (i == 0 and j == n - 1):
+                continue
+            if _segments_cross(pts[i], pts[(i + 1) % n], pts[j], pts[(j + 1) % n]):
+                return True
+    return False
+
+
+def order_ring(pts: list[list[float]]) -> list[list[float]]:
+    """海巡來源的角點是「列出順序」，不保證沿邊界走（11 個面照列表封環會自交成 bow tie）。
+    列表順序本身是簡單多邊形就原樣保留（不動凹形）；否則依質心極角排序重排；仍自交就中止。"""
+    if not ring_self_intersects(pts):
+        return pts
+    cx = sum(p[0] for p in pts) / len(pts)
+    cy = sum(p[1] for p in pts) / len(pts)
+    ordered = sorted(pts, key=lambda p: math.atan2(p[1] - cy, p[0] - cx))
+    if ring_self_intersects(ordered):
+        raise SystemExit(f"海巡射擊範圍角點重排後仍自交：{pts}")
+    return ordered
+
+
 def build_firing(_analytics: Path, raw: Path) -> None:
     feats = []
     # 海軍：Coords 為 MultiPolygon 的 [lng,lat] 巢狀陣列；同一範圍同期間的重複列合併
@@ -408,6 +441,7 @@ def build_firing(_analytics: Path, raw: Path) -> None:
             if rest and c[0] - max(rest) > 9 and any(abs(c[0] - 10 - x) < 0.5 for x in rest):
                 c[0] = round(c[0] - 10, 6)
                 lng_fixed = True
+        ring = order_ring(ring)
         ring.append(ring[0])
         clean = lambda s: re.sub(r"\s+", " ", s or "").strip()
         feats.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [ring]}, "properties": {

@@ -193,6 +193,9 @@ export function loadSimFile(bundle: LoadedSimBundle, path: string, label: string
   if (pending) {
     fileCache.delete(key); // LRU：重新插入到最後
     fileCache.set(key, pending);
+    const slug = bundle.slug;
+    // 快取命中也要把殘留的 error 狀態復原（先前其他檔失敗後，這個檔其實是好的）
+    pending.then(() => { if (simBundleStatus(slug).status === "error") setStatus(slug, { status: "ready", version: bundle.version }); }, () => {});
     return pending;
   }
   pending = withLoading(`sim-file-${bundle.slug}-${path}`, label, fetchVerified(bundle, path));

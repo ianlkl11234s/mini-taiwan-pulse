@@ -10,6 +10,7 @@ import type { UpstreamStatus } from "../data/upstreamRegistry";
 export const LAYER_SEARCH_ALIASES: Partial<Record<ManifestKey, readonly string[]>> = {
   medHospital: ["醫療", "急診", "hospital", "emergency", "台灣"],
   trafficAccidents2025: ["交通事故", "車禍", "A1", "A2", "死傷", "肇因", "traffic accident", "crash", "台灣"],
+  jpTrafficAccidents2025: ["交通事故", "車禍", "人身事故", "死亡事故", "死傷", "traffic accident", "crash", "日本", "Japan", "警察庁"],
   fireHydrants: ["消防栓", "台水", "自來水", "hydrant", "消防"],
   disasterResourceSites: ["救災資源", "救災物資", "機具", "發電機", "救護車", "整備", "disaster resource"],
   tsunamiSirens: ["海嘯", "警報臺", "警報台", "警報器", "tsunami", "siren", "民防"],
@@ -196,14 +197,19 @@ export function searchLayers(
     contextByKey?: ReadonlyMap<string, string>;
     /** Effective caller locks. Omit only when no auth context exists; then static sensitive keys fail closed. */
     lockedKeys?: ReadonlySet<string>;
+    /**
+     * 預設 true：上鎖圖層不出結果（Agent 等程式化路徑 fail-closed）。
+     * 面板搜尋傳 false：上鎖圖層照常列出、由列本身顯示鎖頭並走權限提示（spec §5.5，2026-11-06）。
+     */
+    excludeLocked?: boolean;
   } = {},
 ): LayerSearchResult[] {
   const terms = queryTerms(query);
   if (terms.length === 0) return [];
   const limit = options.limit ?? Number.MAX_SAFE_INTEGER;
-  const lockedKeys = options.lockedKeys ?? GATED_LAYERS;
+  const lockedKeys = options.excludeLocked === false ? null : options.lockedKeys ?? GATED_LAYERS;
   return LAYER_SEARCH_INDEX
-    .filter((doc) => (!options.scopeKeys || options.scopeKeys.has(doc.key)) && !lockedKeys.has(doc.key))
+    .filter((doc) => (!options.scopeKeys || options.scopeKeys.has(doc.key)) && !lockedKeys?.has(doc.key))
     .map((doc) => {
       const context = normalize(options.contextByKey?.get(doc.key) ?? "");
       const scores = terms.map((term) => Math.max(scoreTerm(doc, term), context.includes(term) ? 150 : 0));

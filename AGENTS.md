@@ -24,4 +24,6 @@
 - 颱風多來源路徑維持單源優先：優先來源有任何點就只用它，不依時段回退次優來源。
 - 統計的「最近不重疊期別」退回只限污水接管公式，癌症篩檢等其他統計不退回；部分期間下沒有對應期別的口徑選項要停用並標示原因（例「（目前期別未提供）」）。
 - 多語版 SEO：`?lang=en`／`ja` 的 canonical 指向自己的語版網址、與 hreflang 一致；`/card/` 不放 robots.txt Disallow，由 nginx noindex header 控制。
+- 全站站主限定／私人圖層在登出或失去權限時，一律關閉圖層並清除 module 快取與 Mapbox source，不只修單一圖層（實作沿用 owner-gate-unify）。
+- 已套用到正式 DB 的 migration 不為 review 意見回頭改成可重跑（缺 ON CONFLICT 等直接視為已決定）；新寫的 migration seed 一律帶 ON CONFLICT。
 - 正本在 gis-agent-system reports/code-review/POLICIES.md。

@@ -18,7 +18,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { pathToFileURL } from 'node:url';
-import { validateManifest } from '../../scripts/deploy/refresh-gfw-hourly.mjs';
+import { validateManifest, validateV4Release, validateV4Root } from '../../scripts/deploy/refresh-gfw-hourly.mjs';
 
 export const R2_BUCKET = 'mini-tw-pulse';
 export const ALLOWED_PREFIXES = ['site/climate/', 'site/global-maritime/gfw-hourly/'];
@@ -203,15 +203,21 @@ export async function syncGfwNamespace({ ns, src, dst, execute, work, concurrenc
     return stats;
   }
   const manifest = JSON.parse(rootBytes.toString('utf8'));
-  if (manifest.schema_version === 4) fail('schema 4 root 尚未支援（v4 驗證邏輯未 export，需先抽出共用）');
-  const assets = validateManifest(manifest);
+  let assets;
+  if (manifest.schema_version === 4) {
+    // v4：root 只是指標，release manifest（含 artifacts 清單）另外讀並驗 bytes＋sha256；驗證邏輯與容器內 refresh 共用。
+    const ref = validateV4Root(manifest);
+    const releaseBytes = await src.get(`${srcPrefix}/${ref.path}`);
+    if (releaseBytes === null || releaseBytes.length !== ref.bytes || sha256(releaseBytes) !== ref.sha256) fail('v4 release manifest verification failed');
+    assets = validateV4Release(manifest, JSON.parse(releaseBytes.toString('utf8')));
+  } else assets = validateManifest(manifest);
   const rootSha = sha256(rootBytes);
 
   let installed = null;
   if (installedBytes !== null) {
     installed = JSON.parse(installedBytes.toString('utf8'));
     if (releaseDate(installed) > releaseDate(manifest)) fail('refusing release date regression');
-    if (installed.release_id === manifest.release_id && JSON.stringify(installed.assets) !== JSON.stringify(manifest.assets)) fail('immutable release changed');
+    if (installed.release_id === manifest.release_id && JSON.stringify(installed.assets ?? installed.release_manifest) !== JSON.stringify(manifest.assets ?? manifest.release_manifest)) fail('immutable release changed');
   }
   const rootCurrent = installedBytes !== null && sha256(installedBytes) === rootSha;
 
@@ -224,9 +230,9 @@ export async function syncGfwNamespace({ ns, src, dst, execute, work, concurrenc
     const key = assertWritableKey(`${dstPrefix}/${a.path}`);
     const r = have.get(key);
     if (!r || r.size !== a.bytes) { todo.push(a); continue; }
-    const s = upstream.get(`${srcPrefix}/${a.path}`);
-    if (s && s.etag && !s.etag.includes('-') && s.etag === r.etag) { stats.skipped++; continue; }
-    needHead.push(a); // ETag 無法比 → 讀 metadata sha256
+    // 不用 S3/R2 ETag 相等當「內容正確」：兩邊同壞也會相等，且和 manifest 的 sha256 無關。
+    // 一律讀 R2 metadata sha256 與 manifest 比對；沒有 metadata（非本腳本上傳）就重傳一次並驗 hash。
+    needHead.push(a);
   }
   const headErrors = await pool(needHead, concurrency, async (a) => {
     const h = await dst.head(`${dstPrefix}/${a.path}`);

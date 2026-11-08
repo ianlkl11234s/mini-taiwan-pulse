@@ -10,11 +10,13 @@ import {
   type FossilLayerKey,
 } from "../data/fossilFuelLoader";
 import { isAccessDenied } from "../lib/layerGates";
+import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
+import { ownerDataStatus } from "../lib/ownerData";
 
 /**
  * 化石燃料圖層資料供應 hook（拆兩條路徑，coordinator owner-gated 契約）：
  * - 加油站 5 層（公開）：get_gas_station_layers（staticRpc CDN 快照）
- * - 石化 9 層（owner-gated）：get_fossil_fuel_layers（直連 supabase.rpc）
+ * - 石化 9 層（owner-gated）：站主私人檔 owner-data/fossil-fuel-layers（原 get_fossil_fuel_layers 輸出）
  *
  * 各自「任一 visible 才 fetch」+ module-level 30 min cache；樣式在 overlayRegistry，本 hook 只 setData。
  * 非 owner：石化 9 key 的 toggle 被 App 端 gate no-op → 不觸發 locked fetch。
@@ -59,14 +61,29 @@ function loadGas(): Promise<FossilFuelLayers> {
 let lockedCache: FossilFuelLayers | null = null;
 let lockedCachedAt = 0;
 let lockedInflight: Promise<FossilFuelLayers> | null = null;
+/** 撤權時遞增：撤權前發出、撤權後才回來的請求不得寫回 cache */
+let lockedGeneration = 0;
 function loadLocked(): Promise<FossilFuelLayers> {
   const now = Date.now();
   if (lockedCache && now - lockedCachedAt < CACHE_TTL_MS) return Promise.resolve(lockedCache);
   if (lockedInflight) return lockedInflight;
-  lockedInflight = fetchFossilFuelLockedLayers()
-    .then((d) => { lockedCache = d; lockedCachedAt = Date.now(); lockedInflight = null; return d; })
-    .catch((err) => { lockedInflight = null; throw err; });
-  return lockedInflight;
+  const gen = lockedGeneration;
+  const p = fetchFossilFuelLockedLayers()
+    .then((d) => {
+      if (gen !== lockedGeneration) throw new Error("[FossilFuel] access revoked");
+      lockedCache = d; lockedCachedAt = Date.now(); lockedInflight = null; return d;
+    })
+    .catch((err) => { if (lockedInflight === p) lockedInflight = null; throw err; });
+  lockedInflight = p;
+  return p;
+}
+
+/** 撤權（review F088）：只清石化（owner-gated）cache；加油站是公開資料不動 */
+export function clearFossilFuelLockedCache(): void {
+  lockedGeneration += 1;
+  lockedCache = null;
+  lockedCachedAt = 0;
+  lockedInflight = null;
 }
 
 export interface UseFossilFuelLayersOpts {
@@ -77,6 +94,13 @@ export interface UseFossilFuelLayersOpts {
 export function useFossilFuelLayers({ mapRef, visibility }: UseFossilFuelLayersOpts) {
   const gasDataRef = useRef<FossilFuelLayers | null>(null);
   const lockedDataRef = useRef<FossilFuelLayers | null>(null);
+
+  // 撤權：清 cache 與 hook 暫存（style.load 的 feedAll 會連石化一起餵，不清會把舊資料餵回 source）
+  useEffect(() => registerOwnerGateReset(FOSSIL_LOCKED_FE_KEYS, () => {
+    clearFossilFuelLockedCache();
+    ownerDataStatus.reset("fossil-fuel-layers");
+    lockedDataRef.current = null;
+  }), []);
 
   const feed = useCallback((keys: readonly FossilLayerKey[], data: FossilFuelLayers | null) => {
     const map = mapRef.current;
@@ -112,7 +136,7 @@ export function useFossilFuelLayers({ mapRef, visibility }: UseFossilFuelLayersO
     let cancelled = false;
     loadLocked()
       .then((d) => { if (cancelled) return; lockedDataRef.current = d; feed(FOSSIL_LOCKED_FE_KEYS, d); })
-      .catch((err) => { if (!isAccessDenied(err)) console.warn("[FossilFuel] locked load failed:", err); });
+      .catch((err) => { if (!cancelled && !isAccessDenied(err)) console.warn("[FossilFuel] locked load failed:", err); });
     return () => { cancelled = true; };
   }, [anyLockedVisible, feed]);
 

@@ -1,3 +1,4 @@
+import { JpDidPanel, JpNationalParksMoePanel, JpNaturalParkAreas2015Panel, JpWildlifeProtectionMoePanel } from "./jpNatureR2Panels";
 import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
 import { JmaAutumnLeavesPanel, JmaRainySeasonPanel, JmaSakuraPanel, JmaSnowcapPanel, JmaWbgtPanel } from "./jmaPointPanels";
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
@@ -66,7 +67,7 @@ import {
 } from "./japanPanels";
 import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbMajorRoadsPanel, GbSurplusLandPanel, GbTrafficCountsAadfPanel, GbVisitorExperiencePanel } from "./ukPanels";
 import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPanel, GbSoilParentMaterialPanel } from "./ukPanels";
-import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
+import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbPollutionInventoryEnglandPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
 import { KR_DATA_SPECS } from "../../data/krDataLayers";
@@ -76,12 +77,18 @@ import type { KrDataKey } from "../../data/krDataKeys";
 const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
+import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
+import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../../data/ieCoillteTypes";
+import { IE_DATA_SPECS } from "../../data/ieDataLayers";
+import type { IeDataKey } from "../../data/ieDataKeys";
+const IE_HEADER_LABELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IeDataKey, string>;
+import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
-import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel } from "./mapchallengePanels";
+import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
@@ -127,6 +134,7 @@ import {
   AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
 } from "./tourismPanels";
 import { DisasterResourceSitesPanel, FiringNoticeAreasPanel, NuclearEpzEvacuationPanel, TrafficAccidents2025Panel, TsunamiSirensPanel } from "./g36SafetyPanels";
+import { JpTrafficAccidents2025Panel } from "./jpSafetyPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel, EmergencyHospitalLevelPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
@@ -463,6 +471,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   krPowerTowers: KrPowerTowersPanel,
   krOilGas: KrOilGasPanel,
   caAdminBoundaries: CaAdminBoundariesPanel,
+  ieAdminBoundaries: IeAdminBoundariesPanel,
+  ...IE_DATA_PANELS,
+  ieCoillteRecreation: makeIePanel(IE_COILLTE_RECREATION),
+  ieCoillteForestRoads: makeIePanel(IE_COILLTE_FOREST_ROADS),
   caTransitStops: CaTransitStopsPanel,
   caAirportsPorts: CaAirportsPortsPanel,
   caMajorRoads: CaMajorRoadsPanel,
@@ -478,6 +490,14 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   caDeprivation: CaDeprivationPanel,
   caRents: CaRentsPanel,
   caPlaceNames: CaPlaceNamesPanel,
+  caClimateStations: CaClimateStationsPanel,
+  caAqhiStations: CaAqhiStationsPanel,
+  caRadiationStations: CaRadiationStationsPanel,
+  caNpriFacilities: CaNpriFacilitiesPanel,
+  caWastewaterSystems: CaWastewaterSystemsPanel,
+  caEarthquakes: CaEarthquakesPanel,
+  caEarthquakesLive: CaEarthquakesLivePanel,
+  caPopulationGrid: CaPopulationGridPanel,
   gbSmallAreaBoundaries: GbSmallAreaBoundariesPanel,
   gbMaritimeLimits: GbMaritimeLimitsPanel,
   gbBuiltUpAreas: GbBuiltUpAreasPanel,
@@ -508,6 +528,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbRecyclingCentres: GbRecyclingCentresPanel,
   gbWastePermits: GbWastePermitsPanel,
   gbPollutionInventory: GbPollutionInventoryPanel,
+  gbPollutionInventoryEngland: GbPollutionInventoryEnglandPanel,
   gbNoise: GbNoisePanel,
   gbTrafficCountsAadf: GbTrafficCountsAadfPanel,
   gbProtectedAreas: GbProtectedAreasPanel,
@@ -549,6 +570,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpInlandFloodAreas: JpInlandFloodAreasPanel,
   jpZoningUseDistricts: JpZoningUseDistrictsPanel,
   jpNationalForests: JpNationalForestsPanel,
+  jpNaturalParkAreas2015: JpNaturalParkAreas2015Panel,
+  jpNationalParksMoe: JpNationalParksMoePanel,
+  jpWildlifeProtectionMoe: JpWildlifeProtectionMoePanel,
+  jpDid: JpDidPanel,
   jpWelfareDisability: JpWelfareDisabilityPanel,
   jpWelfareChild: JpWelfareChildPanel,
   jpMajorRoads: JpMajorRoadsPanel,
@@ -622,6 +647,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   mapchallengeDay04ScaleTcCh: MapchallengeDay04ScaleTcChPanel,
   mapchallengeDay05SeaView: MapchallengeDay05SeaViewPanel,
   mapchallengeDay05SeaViewRuns: MapchallengeDay05SeaViewRunsPanel,
+  mapchallengeDay06Coast: MapchallengeDay06CoastPanel,
+  mapchallengeDay06Taipei1932: MapchallengeDay06Taipei1932Panel,
+  mapchallengeDay06Temples1921: MapchallengeDay06Temples1921Panel,
+  mapchallengeDay06Lighthouses: MapchallengeDay06LighthousesPanel,
+  mapchallengeDay08Access: MapchallengeDay08AccessPanel,
+  mapchallengeDay08Parks: MapchallengeDay08ParksPanel,
+  mapchallengeDay08Sites: MapchallengeDay08SitesPanel,
   transitAccessGrid: TransitAccessGridPanel,
   transitAccessPlayback: TransitAccessPlaybackPanel,
   // Base map
@@ -655,6 +687,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   accidentTaipei: AccidentTaipeiPanel,
   a1AccidentRealtime: A1AccidentRealtimePanel,
   trafficAccidents2025: TrafficAccidents2025Panel,
+  jpTrafficAccidents2025: JpTrafficAccidents2025Panel,
   disasterResourceSites: DisasterResourceSitesPanel,
   tsunamiSirens: TsunamiSirensPanel,
   nuclearEpzEvacuation: NuclearEpzEvacuationPanel,
@@ -1120,6 +1153,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   krPowerTowers: "高壓鐵塔 송전철탑",
   krOilGas: "油氣設施 석유·가스 시설",
   caAdminBoundaries: "行政邊界 Administrative Boundaries",
+  ieAdminBoundaries: "行政邊界 Administrative Boundaries",
+  ...IE_HEADER_LABELS,
+  ieCoillteRecreation: "Coillte 國有林遊憩點 Coillte Recreation",
+  ieCoillteForestRoads: "Coillte 林道與步道 Coillte Forest Roads",
   caTransitStops: "公共運輸站點 Transit Stops",
   caAirportsPorts: "機場與港口 Airports & Ports",
   caMajorRoads: "主要道路 Major Roads",
@@ -1135,6 +1172,14 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   caDeprivation: "剝奪指數 Deprivation Index",
   caRents: "平均月租 Average Rents",
   caPlaceNames: "地名 Geographical Names",
+  caClimateStations: "氣象站 Climate Stations",
+  caAqhiStations: "AQHI 地點 AQHI Locations",
+  caRadiationStations: "輻射監測站 Radiation Monitoring",
+  caNpriFacilities: "NPRI 申報設施 NPRI Facilities",
+  caWastewaterSystems: "污水處理系統 Wastewater Systems",
+  caEarthquakes: "地震 Earthquakes",
+  caEarthquakesLive: "即時地震 Recent Earthquakes",
+  caPopulationGrid: "人口網格 Population Grid",
   gbSmallAreaBoundaries: "統計小區 Small Areas",
   gbMaritimeLimits: "海域界線 Maritime Limits",
   gbBuiltUpAreas: "建成區 Built Up Areas",
@@ -1165,6 +1210,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbRecyclingCentres: "回收點 Recycling Points",
   gbWastePermits: "廢棄物處理許可 Waste Permits",
   gbPollutionInventory: "污染排放申報 Pollution Releases",
+  gbPollutionInventoryEngland: "污染排放申報（英格蘭）Pollution Releases",
   gbNoise: "策略噪音地圖 Strategic Noise Map",
   gbTrafficCountsAadf: "年平均日交通量 AADF",
   gbProtectedAreas: "保護區 Protected Areas",
@@ -1208,6 +1254,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpInlandFloodAreas: "內水浸水想定區域 雨水出水浸水想定区域",
   jpZoningUseDistricts: "用途地域 用途地域",
   jpNationalForests: "国有林 国有林",
+  jpNaturalParkAreas2015: "自然公園地域",
+  jpNationalParksMoe: "國立公園",
+  jpWildlifeProtectionMoe: "國指定鳥獸保護區",
+  jpDid: "人口集中地區 DID",
   jpWelfareDisability: "障礙福祉設施 障害者福祉施設",
   jpWelfareChild: "兒童福祉設施 児童福祉施設",
   jpMajorRoads: "主要道路 国道・都道府県道",
@@ -1265,6 +1315,13 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   mapchallengeDay04ScaleTcCh: "臺中與彰化工廠細格",
   mapchallengeDay05SeaView: "海景路段",
   mapchallengeDay05SeaViewRuns: "最長連續海景",
+  mapchallengeDay06Coast: "臺南海岸線三代",
+  mapchallengeDay06Taipei1932: "1932 臺北市町界",
+  mapchallengeDay06Temples1921: "廟不搬家：1921 祠廟",
+  mapchallengeDay06Lighthouses: "燈塔與測候所今昔",
+  mapchallengeDay08Access: "走到大公園要幾分鐘",
+  mapchallengeDay08Parks: "現有公園與河濱入口",
+  mapchallengeDay08Sites: "新公園選址與代價",
   transitAccessGrid: "網格大眾運輸可及性（情境推演）",
   transitAccessPlayback: "單一起點大眾運輸擴張（情境推演）",
   // Base map
@@ -1295,6 +1352,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   accidentTaipei: "北市事故點",
   a1AccidentRealtime: "A1 即時事故",
   trafficAccidents2025: "交通事故",
+  jpTrafficAccidents2025: "人身交通事故 人身事故",
   disasterResourceSites: "救災資源據點",
   tsunamiSirens: "海嘯警報臺",
   nuclearEpzEvacuation: "核電廠集結與收容",

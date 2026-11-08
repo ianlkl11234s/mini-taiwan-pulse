@@ -58,7 +58,14 @@ function linePositions(value: unknown): Position[] | null {
 function geometryPositions(value: unknown, expectedType: SupportedPresentationGeometry): Position[] | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const geometry = value as { type?: unknown; coordinates?: unknown };
-  if (geometry.type !== expectedType) return null;
+  // A warehouse result groups Polygon + MultiPolygon (and LineString + MultiLineString) together, so a
+  // row may be the single or multipart form of the group's representative type: read it by its own type.
+  if (geometry.type !== expectedType) {
+    const sameFamily = (expectedType === "Polygon" || expectedType === "MultiPolygon") ? (geometry.type === "Polygon" || geometry.type === "MultiPolygon")
+      : (expectedType === "LineString" || expectedType === "MultiLineString") ? (geometry.type === "LineString" || geometry.type === "MultiLineString") : false;
+    if (!sameFamily) return null;
+    expectedType = geometry.type as SupportedPresentationGeometry;
+  }
   if (expectedType === "Point") return isPosition(geometry.coordinates) ? [geometry.coordinates] : null;
   if (expectedType === "LineString") return linePositions(geometry.coordinates);
   if (expectedType === "MultiLineString") {

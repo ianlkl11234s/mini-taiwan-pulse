@@ -117,6 +117,57 @@ def test_etag_skip_and_copy():
     assert {x[0]: x[2] for x in log}["/geo/same.pmtiles"] == "skip"
 
 
+def test_pointer_written_last_and_skipped_on_family_failure():
+    rows = [{"served_path": "/jp-medical/current.json", "s3_key": "deploy-assets/jp-medical/current.json", "size": "4", "etag": "p", "note": "可變指標"},
+            {"served_path": "/jp-medical/releases/v1/a.json", "s3_key": "deploy-assets/jp-medical/releases/v1/a.json", "size": "4", "etag": "a", "note": ""}]
+    objs = {r["s3_key"]: {} for r in rows}
+    r2 = FakeR2({})
+    sync.sync(rows, FakeS3([]), "b", sync.Writer(r2, "r", True), objs, workers=1)
+    assert [k for k, _ in r2.puts] == ["site/jp-medical/releases/v1/a.json", "site/jp-medical/current.json"]
+    # 資產來源缺（missing-src）→ 指標不換
+    r2 = FakeR2({})
+    only_pointer = {rows[0]["s3_key"]: {}}
+    log = sync.sync(rows, FakeS3([]), "b", sync.Writer(r2, "r", True), only_pointer, workers=1)
+    assert [k for k, _ in r2.puts] == []
+    assert {x[0]: x[2] for x in log}["/jp-medical/current.json"] == "error"
+
+
+def test_simulate_winner_follows_sync_rule_order():
+    import site_manifest as sm
+    # geo-flat（根層 water_*.geojson → /geo/）先於 geo-mirror（geo/ → /geo/）：同網址以後者為準。
+    # key 字母序是 geo/… 在前、根層在後 —— 舊寫法（外層走 key）會讓根層鏡像誤勝。
+    s3 = {sm.PREFIX + "water_x.geojson": {"size": 1, "etag": "flat"}, sm.PREFIX + "geo/water_x.geojson": {"size": 1, "etag": "mirror"}}
+    ptrs = {"jp-medical_current.json": {"version": "v", "catalog": "c", "publication_manifest": "m"}, "jpmed_pub.json": {"files": {}},
+            "jp-heights_catalog.json": {}, "flight-trails_manifest.json": {"samples": []}, "embed-rail_rail-manifest.json": {"bundle": "b.json"}}
+    landed, _ = sm.simulate(s3, ptrs, [])
+    assert landed["/geo/water_x.geojson"][-1][1] == "geo-mirror"
+
+
+def test_lock_entries_always_synced():
+    """CI-4：lock 的 r2 條目一律同步；src 有引用、但 sync 規則對不到 S3 的列也用 lock 補 key（h3 res7 曾因此 404）。"""
+    import json
+    import site_manifest as sm
+    with tempfile.TemporaryDirectory() as d:
+        tree = Path(d)
+        (tree / "src").mkdir()
+        (tree / "src" / "a.ts").write_text('const U = "./h3/h3_population_res7.json";\n')
+        (tree / "deploy").mkdir()
+        (tree / "deploy" / "public-assets.lock.json").write_text(json.dumps({"entries": [
+            {"path": "public/h3/h3_population_res7.json", "delivery": "r2", "s3_key": sm.PREFIX + "h3_population_res7.json"},
+            {"path": "public/geo/test_only.geojson", "delivery": "r2", "s3_key": sm.PREFIX + "geo/test_only.geojson"},
+            {"path": "public/climate/x.png", "delivery": "pending"},
+        ]}))
+        s3 = {sm.PREFIX + "h3_population_res7.json": {"size": 1, "etag": "a"},
+              sm.PREFIX + "geo/test_only.geojson": {"size": 2, "etag": "b"}}
+        ptrs = {"jp-medical_current.json": {"version": "v", "catalog": "c", "publication_manifest": "m"}, "jpmed_pub.json": {"files": {}},
+                "jp-heights_catalog.json": {}, "flight-trails_manifest.json": {"samples": []}, "embed-rail_rail-manifest.json": {"bundle": "b.json"}}
+        rows, _ = sm.build_rows(tree, s3, ptrs, [])
+        by = {r["served_path"]: r["s3_key"] for r in rows}
+        assert by["/h3/h3_population_res7.json"] == sm.PREFIX + "h3_population_res7.json"
+        assert by["/geo/test_only.geojson"] == sm.PREFIX + "geo/test_only.geojson"
+        assert "/climate/x.png" not in by
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

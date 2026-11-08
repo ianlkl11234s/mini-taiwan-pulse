@@ -176,6 +176,20 @@ export const GB_POLLUTION_YEAR = 2017;
 /** SEPA SPRI 1,450 場址：任一途徑（空氣／水體）申報有排放 905、已申報途徑皆無排放 545。 */
 export const GB_POLLUTION_COUNTS = { total: 1_450, released: 905, none: 545 } as const;
 
+// ─────────────────────────── 英格蘭污染排放申報（EA，站主限定）gbPollutionInventoryEngland ───────────────────────────
+// EA Conditional Licence 特別條件限「internal or personal purposes」→ 資料只在 Supabase，經 owner-only RPC
+// get_gb_ea_pollution_inventory（gis-platform mig 499）讀取；不進 public/、S3、R2 或任何公開檔。配色沿用蘇格蘭層。
+
+export const GB_EA_POLLUTION_RPC = "get_gb_ea_pollution_inventory";
+export const GB_EA_POLLUTION_SOURCE_ID = "gb-ea-pollution-inventory";
+export const GB_EA_POLLUTION_ATTRIBUTION = "Contains Environment Agency information © Environment Agency and/or database right";
+export const GB_EA_POLLUTION_URL = "https://www.data.gov.uk/dataset/pollution-inventory";
+export const GB_EA_POLLUTION_LICENSE = "Environment Agency Conditional Licence";
+export const GB_EA_POLLUTION_YEAR = 2024;
+/** 2026-11-06 成品（gb_pollution_inventory_20261106）：RPC 回 England 2,544 點（routes 非空＝有申報排放 1,693、無 851）；
+ *  其中 8 處來源座標落在英格蘭外（蘇格蘭 3、威爾斯 1、海上 4），analytics 已改用 ONSPD 郵遞區號中心（coord_source）。 */
+export const GB_EA_POLLUTION_COUNTS = { total: 2_544, released: 1_693, none: 851, postcodeCentroid: 8 } as const;
+
 // ─────────────────────────── C090 策略噪音地圖 gbNoise ───────────────────────────
 
 export const GB_NOISE_ATTRIBUTION = "© Department for Environment, Food & Rural Affairs copyright and/or database right 2023 (Strategic Noise Mapping Round 4, Open Government Licence) · © Scottish Government, contains Ordnance Survey data © Crown copyright and database right 2024 (Open Government Licence) · Welsh Government DataMapWales (Open Government Licence)";
@@ -198,7 +212,7 @@ const NOISE_RAMP = (NOISE_CAPTURE_COLOR_EXPR.slice(3) as unknown[]).filter((_, i
 const NOISE_RAMP_MIN_DB = Number(NOISE_CAPTURE_COLOR_EXPR[3]);
 const NOISE_RAMP_STEP = 2.5;
 const NOISE_FINE = resampleRamp(NOISE_RAMP, (NOISE_RAMP.length - 1) * (10 / NOISE_RAMP_STEP) + 1);
-const noiseColorAt = (db: number) => NOISE_FINE[Math.round((db - NOISE_RAMP_MIN_DB) / NOISE_RAMP_STEP)]!;
+export const noiseColorAt = (db: number) => NOISE_FINE[Math.round((db - NOISE_RAMP_MIN_DB) / NOISE_RAMP_STEP)]!;
 /** band_min_db 五帶（Lden dB(A)）：label 為圖例文字。 */
 export const GB_NOISE_BANDS: readonly { min: number; label: string; color: string }[] = [
   { min: 55, label: "55–59.9", color: noiseColorAt(57.5) },

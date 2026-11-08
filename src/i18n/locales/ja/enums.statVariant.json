@@ -273,5 +273,7 @@
   "enum.statVariant.有效票數・村里": "有効票数・村・里",
   "enum.statVariant.同意票比率・縣市": "賛成率・県市",
   "enum.statVariant.同意票比率・鄉鎮市區": "賛成率・郷鎮市区",
-  "enum.statVariant.同意票比率・村里": "賛成率・村・里"
+  "enum.statVariant.同意票比率・村里": "賛成率・村・里",
+  "enum.statVariant.地方政府": "地方自治体",
+  "enum.statVariant.選舉分區": "選挙区（ED）"
 }

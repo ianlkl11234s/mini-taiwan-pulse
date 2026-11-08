@@ -9,14 +9,14 @@
 
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { IMAGERY_CDN_BASE, loadImageryManifestFrames } from "./imageryManifestLoader";
 
-/**
- * Feature flag（AR-11d）：影像 frame 讀取路徑。
- * - 有值 → 走 R2/CDN，打 get_cwa_imagery_manifest，frame URL = `${base}/${image_key}`（不產 object URL）
- * - 未設 → 走既有 base64 路徑，打 get_cwa_imagery_frames_batch（預設安全，merge 後行為零變化）
- * 切換方式：設 env + rebuild。尾斜線先剝除，避免拼出 `base//key`。
+/*
+ * 影像 frame 讀取路徑（2026-11-07 起）：
+ * 1. 先讀 R2 每日 manifest（imageryManifestLoader，不經 DB）
+ * 2. 時間窗內一份 manifest 都沒有 → 退回 get_cwa_imagery_manifest RPC（frame URL = `${base}/${image_key}`）
+ * IMAGERY_CDN_BASE 預設正式 R2 網域、env 只當覆寫；base64 路徑（get_cwa_imagery_frames_batch）只在 base 為空時才會走到。
  */
-const IMAGERY_CDN_BASE = (import.meta.env.VITE_IMAGERY_CDN_BASE ?? "").replace(/\/+$/, "");
 
 export interface CwaImageryFrame {
   datasetId: string;
@@ -85,6 +85,38 @@ export async function loadCwaImageryBatch(
   window: CwaImageryWindow,
   opts: { silent?: boolean } = {},
 ): Promise<Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>> {
+  const fromR2 = await loadImageryManifestFrames({
+    source: "cwa",
+    products: datasetIds,
+    sinceIso: window.sinceIso,
+    untilIso: window.untilIso,
+    stepMinutes: window.stepMinutes,
+    loadingKey: `cwa-imagery-batch:${datasetIds.join(",")}`,
+    loadingLabel: `CWA 影像批次載入 ${datasetIds.join("/")}`,
+    silent: opts.silent,
+  });
+  if (fromR2) {
+    const out = new Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>();
+    for (const id of datasetIds) out.set(id, { bundle: { datasetId: id, frames: [] }, urls: new Map() });
+    for (const f of fromR2) {
+      const slot = out.get(f.product);
+      if (!slot) continue;
+      slot.bundle.frames.push({
+        datasetId: f.product,
+        observedAtIso: f.observedAtIso,
+        observedAtMs: f.observedAtMs,
+        mimeType: f.mimeType,
+        lonMin: f.lonMin,
+        lonMax: f.lonMax,
+        latMin: f.latMin,
+        latMax: f.latMax,
+        imageSize: f.imageSize,
+      });
+      slot.urls.set(f.observedAtIso, f.url);
+    }
+    return out;
+  }
+
   const useCdn = IMAGERY_CDN_BASE.length > 0;
   const rpcName = useCdn ? "get_cwa_imagery_manifest" : "get_cwa_imagery_frames_batch";
   const rpcPromise = supabase.rpc(rpcName, {

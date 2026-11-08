@@ -78,7 +78,7 @@ export const isTimeMetric = (metric: TransitReachGridMetric) => metric === "thub
 export function gridValue(grid: TransitReachGridData, i: number, metric: TransitReachGridMetric, view: TransitReachGridView, speed: TransitReachSpeed): number | null {
   const a = grid.v[`all_${speed}`]?.[metric]?.[i];
   const b = grid.v[`drv_${speed}`]?.[metric]?.[i];
-  const bad = (x: number | undefined): x is undefined => x === undefined || x === null || !Number.isFinite(x) || (isTimeMetric(metric) && x < 0);
+  const bad = (x: number | undefined): x is undefined => x === undefined || x === null || !Number.isFinite(x) || x < 0; // 所有指標：負值＝未涵蓋（人口也一樣）
   if (view === "abs") return bad(a) ? null : a;
   if (view === "drv") return bad(b) ? null : b;
   if (bad(a) || bad(b)) return null;

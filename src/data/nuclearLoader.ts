@@ -321,8 +321,8 @@ export function toNuclearFC(rows: NuclearStation[]): GeoJSON.FeatureCollection<G
 // 右界也會誠實跟著落後）。rows 為空（RPC 成功但聚合表全空）直接回 []。
 //
 // 刻意不包 withLoading：Monitor 面板背景輪詢（30min 一次），非圖層載入 ——
-// 灌 LOADING 面板會讓牆面每半小時閃一次。理由同 loadingRegistryContract.test.ts
-// 對 airportPaxLoader 的豁免（本函式已列入該檔 EXEMPT）。
+// 灌 LOADING 面板會讓牆面每半小時閃一次。理由同 eslint.config.js LOADER_RPC_EXEMPT
+// 對 airportPaxLoader 的豁免（本函式已列入）。
 
 export interface NuclearDoseDay {
   /** 台北曆日 YYYY-MM-DD */

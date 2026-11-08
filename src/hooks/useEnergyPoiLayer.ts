@@ -18,6 +18,7 @@ import {
   fetchEvCharging,
   // Phase 8 SSOT 6-layer
   fetchFacPrimary,
+  OWNER_GATED_ENERGY_LAYER_KEYS,
   fetchFacOffshore,
   fetchFacPlanned,
   fetchFacHistorical,
@@ -39,6 +40,7 @@ import {
   type FacilityPoint,
   type FacilityZone,
 } from "../data/energyLoader";
+import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
 
 /**
  * Energy 三 POI 圖層資料供應（layer 1 / 5 / 6）
@@ -401,6 +403,14 @@ export function useEnergyPoiLayer(
   const facHistoricalRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const facSecondaryRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const facOsmSupplementRef = useRef<GeoJSON.FeatureCollection | null>(null);
+
+  // 撤權（review F088）：module cache 由 energyLoader 自己清；這裡清 hook 暫存的站主限定資料
+  useEffect(() => registerOwnerGateReset(OWNER_GATED_ENERGY_LAYER_KEYS, () => {
+    for (const ref of [
+      plantsFcRef, subsFcRef, subsEhvFcRef, linesFcRef, towersFcRef, osmPlantsFcRef, fossilFcRef,
+      facPrimaryRef, facOffshoreRef, facPlannedRef, facHistoricalRef, facSecondaryRef, facOsmSupplementRef,
+    ]) ref.current = null;
+  }), []);
 
   const feedPlants = useSourceFeed(mapRef, showPlants, SRC_PLANTS, plantsFcRef);
   const feedSubs = useSourceFeed(mapRef, showSubstations, SRC_SUBSTATIONS, subsFcRef);

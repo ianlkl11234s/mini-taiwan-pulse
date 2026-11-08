@@ -1,7 +1,15 @@
 import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
+import {
+  JP_NATURAL_PARK_AREAS_URL, JP_NATURAL_PARK_AREAS_COLOR, JP_NATURAL_PARK_LEVELS, JP_NATURAL_PARK_AREAS_ATTRIBUTION,
+  JP_NATIONAL_PARKS_MOE_URL, JP_NATIONAL_PARK_ZONES, JP_NATIONAL_PARKS_MOE_ATTRIBUTION,
+  JP_WILDLIFE_MOE_URL, JP_WILDLIFE_MOE_COLOR, JP_WILDLIFE_CATEGORIES, JP_WILDLIFE_MOE_ATTRIBUTION,
+  JP_DID_DEFAULT_YEAR, JP_DID_YEARS, jpDidUrl, jpDidAttribution, jpDidDensityColorExpr,
+} from "../data/jpNatureR2Types";
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
-import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
+import { ELECTION_APPROX_PRECISIONS, ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_RING_FILL_OPACITY, ELECTION_RING_OFFSET, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
+import { IE_COILLTE_ATTRIBUTION, IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteColorExpr, ieCoillteKindFilter } from "../data/ieCoillteTypes";
+import { GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_SOURCE_ID, GB_ENV_HOLLOW_STROKE, GB_POLLUTION_COLOR } from "../data/gbEnvPlanningTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
 import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
@@ -23,14 +31,40 @@ import {
 import {
   MAPCHALLENGE_DAY05_GLOW, MAPCHALLENGE_DAY05_GLOW_LIGHT_FACTOR, mapchallengeDay05RunWidthExpr, mapchallengeDay05SegmentWidthExpr,
 } from "../data/mapchallengeDay05Style";
+import {
+  MAPCHALLENGE_DAY06_COAST_URL, MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_LABEL_MINZOOM, MAPCHALLENGE_DAY06_LIGHTHOUSE_URL,
+  MAPCHALLENGE_DAY06_LINK_DASH, MAPCHALLENGE_DAY06_STATUSES, MAPCHALLENGE_DAY06_STATUS_COLOR_EXPR, MAPCHALLENGE_DAY06_SURVIVE,
+  MAPCHALLENGE_DAY06_SURVIVE_COLOR_EXPR, MAPCHALLENGE_DAY06_TAIPEI_URL, MAPCHALLENGE_DAY06_TEMPLES_URL, MAPCHALLENGE_DAY06_TEMPLE_CLASSES,
+  MAPCHALLENGE_DAY06_TEMPLE_COLOR_EXPR, MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY, mapchallengeDay06EraColorExpr, mapchallengeDay06TodayColor,
+  mapchallengeDay06TypeFilter, MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, MAPCHALLENGE_DAY06_SAME_RING, mapchallengeDay06CoastWidthExpr,
+} from "../data/mapchallengeDay06Types";
+import {
+  MAPCHALLENGE_DAY08_ACCESS_URL, MAPCHALLENGE_DAY08_PARK_CLASSES, MAPCHALLENGE_DAY08_PARK_FILL_OPACITY, MAPCHALLENGE_DAY08_PARKS_URL, mapchallengeDay08ParkColor, mapchallengeDay08ParkColorExpr, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY, MAPCHALLENGE_DAY08_SITES_URL,
+  mapchallengeDay08AccessColorExpr, mapchallengeDay08ScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
+  mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
+} from "../data/mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
 import { withRepPoints } from "./repPointOverlays";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, pointRadius, LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
 /** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(211_530, 12);
+
+/** 愛爾蘭 Coillte 森林入口 12,888 點：P-4 出點縮放（之下熱區）。 */
+const IE_COILLTE_ENTRANCE_POINTS_FROM = densePointsFromZoom(12_888, 4);
+/** Coillte 遊憩點／入口共用點樣式（P-1 分階、P-2 描邊；顏色依 kind）。 */
+function ieCoillteCirclePaint(isDark: boolean, p: Record<string, number> | undefined, tier: "S" | "M") {
+  const def = densePointOpacity(IE_COILLTE_RECREATION.count);
+  const op = p?.ieCoillteRecreationOpacity ?? def;
+  return {
+    "circle-radius": pointRadius(tier, p?.ieCoillteRecreationScale ?? 1),
+    "circle-color": ieCoillteColorExpr(IE_COILLTE_RECREATION) as unknown as string,
+    "circle-opacity": op,
+    ...pointStrokePaint(isDark, op / def),
+  };
+}
 const FIRE_HYDRANTS_OPACITY_DEFAULT = densePointOpacity(211_530);
 
 /**
@@ -39,6 +73,7 @@ const FIRE_HYDRANTS_OPACITY_DEFAULT = densePointOpacity(211_530);
  */
 const DENSE_FROM = {
   trafficAccidents2025: densePointsFromZoom(321_534, 5),
+  jpTrafficAccidents2025: densePointsFromZoom(287_020, 5),
   pollutionPenaltyGeneral: densePointsFromZoom(248_556, 5),
   streetTreesNational: densePointsFromZoom(210_436),
   manufacturingCompanyPoints: densePointsFromZoom(184_944),
@@ -290,6 +325,7 @@ import {
   DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TSUNAMI_SIREN_COLOR,
   disasterResourceHolderFilter, firingAgencyFilter, g36ColorExpression, nuclearEpzKindFilter, trafficAccidentFilter,
 } from "../data/safetyG36Types";
+import { JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS, jpTrafficAccidentFilter } from "../data/jpTrafficAccidentsTypes";
 import {
   ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
 } from "../data/landslideTypes";
@@ -299,7 +335,7 @@ import {
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
   STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS,
-  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS,
+  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS, WATER_1944_POLYGON_MIN_ZOOM,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColorExpr,
@@ -628,6 +664,7 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
 /** G36（2026-10-31）消防、民防、情勢與交通事故：點層共用公共生活點層 helper（attribution 明傳），射擊公告區為面。 */
 const G36_SAFETY_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("trafficAccidents2025", "./geo/traffic_accidents_2025.pmtiles", "traffic-accidents-2025", g36ColorExpression("cat", TRAFFIC_ACCIDENT_CLASS_OPTIONS), { sourceLayer: "traffic_accidents_2025", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 類道路交通事故資料（2025-01-01～11-17）· 政府資料開放授權條款第1版", [2, 5], { filter: (p) => trafficAccidentFilter(p?.trafficAccidents2025ClassMask, p?.trafficAccidents2025CauseMask), dense: { pointsFromZoom: DENSE_FROM.trafficAccidents2025, intensity: 0.3 }, sortKey: ["match", ["get", "cat"], "A1", 1, 0] }),
+  publicLifePointOverlay("jpTrafficAccidents2025", "./world/jp_traffic_accidents_2025.pmtiles", "jp-traffic-accidents-2025", g36ColorExpression("sev", JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS), { sourceLayer: "jp_traffic_accidents_2025", minzoom: 5, maxzoom: 12 }, "出典：警察庁ウェブサイト（交通事故統計情報のオープンデータ 2025）を加工して作成 · 公共データ利用規約第1.0版", [2, 5], { filter: (p) => jpTrafficAccidentFilter(p?.jpTrafficAccidents2025SeverityMask, p?.jpTrafficAccidents2025TypeMask), dense: { pointsFromZoom: DENSE_FROM.jpTrafficAccidents2025, intensity: 1 }, sortKey: ["match", ["get", "sev"], "fatal", 1, 0] }),
   publicLifePointOverlay("disasterResourceSites", "./geo/disaster_resource_sites.geojson", "disaster-resource-sites", g36ColorExpression("holder", DISASTER_RESOURCE_HOLDER_OPTIONS), undefined, "內政部消防署 救災資源資料庫（data.gov.tw 77862）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterResourceHolderFilter(p?.disasterResourceSitesHolderMask) }),
   publicLifePointOverlay("tsunamiSirens", "./hazards/tsunami_sirens.geojson", "tsunami-sirens", TSUNAMI_SIREN_COLOR, undefined, "內政部警政署 全國海嘯警報臺（data.gov.tw 34102）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12 }),
   publicLifePointOverlay("nuclearEpzEvacuation", "./hazards/nuclear_epz_evacuation.geojson", "nuclear-epz-evacuation", g36ColorExpression("kind", NUCLEAR_EPZ_KIND_OPTIONS), undefined, "核能安全委員會 核電廠緊急應變計畫區集結點與避難收容處所（data.gov.tw 102114／102434）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12, filter: (p) => nuclearEpzKindFilter(p?.nuclearEpzEvacuationKindMask) }),
@@ -832,7 +869,7 @@ function metroPointLayers(prefix: string): OverlayConfig["layers"] {
 }
 
 // ── 🐷 畜牧 Livestock helpers ──
-const FARM_SOURCE = "./agriculture/livestock_farms.geojson";
+const FARM_SOURCE = "./geo/_empty.geojson"; // dynamicData：資料由 useLivestockLayers 讀 owner-data 私人檔後 setData
 
 // 飼養場圓圈大小：per-species 總隻數 log 尺標（各層獨立 domain + 兩端 clamp）。
 // 無 zoom 項（用戶要大小純綁數量，不隨 zoom 變）。
@@ -895,8 +932,8 @@ function livestockFarmOverlay(
     id,
     sourceUrl: FARM_SOURCE,
     sourceId: "livestock-farms",
-    // owner-only 動態：改由 useLivestockLayers 從 owner-only RPC setData（見 docs/features/owner-gated-layers）；
-    // sourceUrl 保留作 loader 端 fallback（本層已改走 RPC，實務不再 fetch 該檔）。
+    // owner-only 動態：由 useLivestockLayers 讀站主私人檔（owner-data 家族）後 setData（見 docs/features/owner-gated-layers）；
+    // sourceUrl 是共用的空 FeatureCollection（dynamicData 起手用）。
     dynamicData: true,
     filter,
     layers: [
@@ -1276,6 +1313,24 @@ function jmaPhenologyOverlay(key: JmaPhenologyLayerKey, sourceId: string): Overl
       },
     }, jmaSeasonalLabelLayer(`${key}Opacity`, 0.9, filter)],
   } satisfies OverlayConfig;
+}
+
+/** 2026 選舉活動主點與精度外環共用的半徑／陣營色／已過運算式 */
+function electionPointExpr(p?: Record<string, number>) {
+  const scale = p?.electionEvents2026Scale ?? 1;
+  const past = ["==", ["coalesce", ["get", "_past"], 0], 1];
+  const base = [
+    "*",
+    ["match", ["get", "scale_tier"], "L", ELECTION_TIER_RADIUS.L, "M", ELECTION_TIER_RADIUS.M, ELECTION_TIER_RADIUS.S],
+    ["case", past, ELECTION_PAST_RADIUS, 1],
+    scale,
+  ];
+  const campColor = [
+    "match", ["get", "camp_key"],
+    ...ELECTION_CAMPS.filter((c) => c.key !== "other").flatMap((c) => [c.key, c.color]),
+    ELECTION_CAMP_COLOR.other,
+  ];
+  return { base, campColor, past };
 }
 
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
@@ -3666,6 +3721,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 🗳 2026 選舉活動（owner-only）──
   // dynamicData：useElectionEventsLayer 從 owner-only RPC 拉一次，依時間軸時間寫入 `_past`（1＝已過）後 setData。
   // 色＝陣營、半徑＝規模、已過＝淡且小、取消／延期＝空心圈。色票 SSOT：data/electionEventsTypes.ts。
+  // 位置精度（2026-11-08 設計稿 A＋B 版）：代表點（聚落／鄉鎮市區／縣市）單場畫在主點下面加一圈精度外環（precision）；
+  // 同一代表點 2 場以上由 hook 合成 `_grp` 圖徵，畫成 group symbol（圖示 map/electionGroupIcon.ts）。
   {
     id: "electionEvents2026",
     sourceUrl: "./geo/_empty.geojson",
@@ -3673,26 +3730,36 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     layers: [
       {
+        // 精度外環：不是裝飾（資料編碼），pointSpec POINT_SPEC_EXEMPT 登記、不套點描邊規格
+        suffix: "precision",
+        type: "circle",
+        minzoom: 5,
+        filter: ["all", ["!=", ["coalesce", ["get", "_grp"], 0], 1], ["in", ["get", "location_precision"], ["literal", [...ELECTION_APPROX_PRECISIONS]]]],
+        layout: { "circle-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]] as unknown as number },
+        paint: (_isDark, p) => {
+          const { base, campColor, past } = electionPointExpr(p);
+          const offset = ["match", ["get", "location_precision"], ...ELECTION_APPROX_PRECISIONS.flatMap((k) => [k, ELECTION_RING_OFFSET[k]]), 0];
+          const op = (p?.electionEvents2026Opacity ?? 0.9) / 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, ["+", ["*", base, 0.75], offset], 12, ["+", ["*", base, 1.25], offset]] as unknown as number,
+            "circle-color": campColor as unknown as string,
+            "circle-opacity": ["case", past, ELECTION_RING_FILL_OPACITY.past * op, ELECTION_RING_FILL_OPACITY.upcoming * op] as unknown as number,
+            "circle-stroke-color": campColor as unknown as string,
+            "circle-stroke-width": ["match", ["get", "location_precision"], ...ELECTION_APPROX_PRECISIONS.flatMap((k) => [k, ELECTION_RING_STROKE[k]]), ELECTION_RING_STROKE.settlement] as unknown as number,
+            "circle-stroke-opacity": ["case", past, Math.min(1, ELECTION_RING_STROKE_OPACITY.past * op), Math.min(1, ELECTION_RING_STROKE_OPACITY.upcoming * op)] as unknown as number,
+          };
+        },
+      },
+      {
         suffix: "circle",
         type: "circle",
         minzoom: 5,
+        filter: ["!=", ["coalesce", ["get", "_grp"], 0], 1],
         layout: { "circle-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]] as unknown as number },
         paint: (isDark, p) => {
-          const scale = p?.electionEvents2026Scale ?? 1;
           const op = p?.electionEvents2026Opacity ?? 0.9;
-          const past = ["==", ["coalesce", ["get", "_past"], 0], 1];
+          const { base, campColor, past } = electionPointExpr(p);
           const hollow = ["in", ["get", "event_status"], ["literal", [...ELECTION_HOLLOW_STATUSES]]];
-          const base = [
-            "*",
-            ["match", ["get", "scale_tier"], "L", ELECTION_TIER_RADIUS.L, "M", ELECTION_TIER_RADIUS.M, ELECTION_TIER_RADIUS.S],
-            ["case", past, ELECTION_PAST_RADIUS, 1],
-            scale,
-          ];
-          const campColor = [
-            "match", ["get", "camp_key"],
-            ...ELECTION_CAMPS.filter((c) => c.key !== "other").flatMap((c) => [c.key, c.color]),
-            ELECTION_CAMP_COLOR.other,
-          ];
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, ["*", base, 0.75], 12, ["*", base, 1.25]] as unknown as number,
             "circle-color": campColor as unknown as string,
@@ -3704,10 +3771,123 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           };
         },
       },
+      {
+        // 同一代表點 2 場以上：圖示已含陣營比例與已舉辦淡化；陣營篩選由 hook 在分組前套用
+        suffix: "group",
+        type: "symbol",
+        minzoom: 5,
+        filter: ["==", ["coalesce", ["get", "_grp"], 0], 1],
+        skipCategoryFilter: true,
+        layout: (_isDark, p) => {
+          const scale = p?.electionEvents2026Scale ?? 1;
+          return {
+            "icon-image": ["get", "_img"],
+            "icon-size": ["interpolate", ["linear"], ["zoom"], 6, 0.8 * scale, 12, 1.15 * scale],
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
+            "symbol-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]],
+          };
+        },
+        paint: (_isDark, p) => ({ "icon-opacity": p?.electionEvents2026Opacity ?? 0.9 }),
+      },
+    ],
+  },
+  // ── 🇬🇧 英格蘭污染排放申報（EA，站主限定）──
+  // dynamicData：useGbEaPollutionInventoryLayer 從 owner-only RPC get_gb_ea_pollution_inventory（gis-platform mig 499）拉一次後 setData。
+  // EA Conditional Licence 限 internal or personal purposes → 不走任何公開檔。配色、實心／空心語意比照蘇格蘭層 gbPollutionInventory：
+  // released（routes 非空＝有申報排放量）實心；無申報＝同色空心。2,536 點 z5 起直接畫（§3.8：英國全覽 z5.5 畫得出點）。
+  {
+    id: "gbPollutionInventoryEngland",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: GB_EA_POLLUTION_SOURCE_ID,
+    dynamicData: true,
+    attribution: GB_EA_POLLUTION_ATTRIBUTION,
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 5,
+        paint: (isDark, p) => {
+          const def = densePointOpacity(GB_EA_POLLUTION_COUNTS.total);
+          const op = p?.gbPollutionInventoryEnglandOpacity ?? def;
+          const scale = p?.gbPollutionInventoryEnglandScale ?? 1;
+          const released = ["==", ["get", "released"], true];
+          // 空環要寫成明確的條件分支：withPointSpec 的 normalizeMixedBranches 會把 case 最後的 fallback 換成標準值，
+          // 空環（同色描邊）若放在 fallback 會被換成底圖色細縫 → 846 個未申報場址變成底色空環
+          const unreleased = ["!=", ["get", "released"], true];
+          const seam = pointStrokePaint(isDark, op / def);
+          return {
+            "circle-radius": 5 * scale,
+            "circle-color": GB_POLLUTION_COLOR,
+            "circle-opacity": ["case", released, op, 0] as unknown as number,
+            "circle-stroke-color": ["case", released, seam["circle-stroke-color"], unreleased, GB_POLLUTION_COLOR, GB_POLLUTION_COLOR] as unknown as string,
+            "circle-stroke-width": ["case", released, seam["circle-stroke-width"], unreleased, GB_ENV_HOLLOW_STROKE, GB_ENV_HOLLOW_STROKE] as unknown as number,
+            "circle-stroke-opacity": ["case", released, seam["circle-stroke-opacity"], unreleased, op, op] as unknown as number,
+          };
+        },
+      },
+    ],
+  },
+  // ── 🇮🇪 愛爾蘭 Coillte 國有林（第 5c 波，站主限定）──
+  // dynamicData：useIeCoillteLayer 從 owner-only RPC（gis-platform mig 512）拉一次後 setData；Coillte 條款不得轉供 → 不走任何公開檔。
+  // 遊憩點 153 z4 起直接畫（M）；森林入口 12,888 拉遠畫熱區（V-1／P-4，z10 起 S 點）。V-4：kind 類別多選，熱區與點共用 filter。
+  {
+    id: "ieCoillteRecreation",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: IE_COILLTE_RECREATION.sourceId,
+    dynamicData: true,
+    attribution: IE_COILLTE_ATTRIBUTION,
+    rebuildOnParamChange: ["heatmap", "entrance-circle", "site-circle"],
+    layers: [
+      denseHeatmapLayer({
+        pointsFromZoom: IE_COILLTE_ENTRANCE_POINTS_FROM, intensity: 1,
+        opacity: { layer: "ieCoillteRecreation", param: "ieCoillteRecreationOpacity" },
+        filter: (p) => ["all", ["==", ["get", "kind"], "entrance"], ieCoillteKindFilter(IE_COILLTE_RECREATION, p?.ieCoillteRecreationCategoryMask)],
+      }),
+      {
+        suffix: "entrance-circle",
+        type: "circle",
+        minzoom: IE_COILLTE_ENTRANCE_POINTS_FROM,
+        filter: (p) => ["all", ["==", ["get", "kind"], "entrance"], ieCoillteKindFilter(IE_COILLTE_RECREATION, p?.ieCoillteRecreationCategoryMask)],
+        paint: (isDark, p) => ieCoillteCirclePaint(isDark, p, "S"),
+      },
+      {
+        suffix: "site-circle",
+        type: "circle",
+        minzoom: 4,
+        filter: (p) => ["all", ["==", ["get", "kind"], "site"], ieCoillteKindFilter(IE_COILLTE_RECREATION, p?.ieCoillteRecreationCategoryMask)],
+        paint: (isDark, p) => ieCoillteCirclePaint(isDark, p, "M"),
+      },
+    ],
+  },
+  // 林道 15,877（細）＋遊憩步道 1,199（標準寬、畫在上層）：useIeCoillteForestRoadsLayer 依畫面 bbox 分批 setData，
+  // z10 起畫（整包約 7.9MB 超過 2MB 門檻；低縮放由視野提示卡提示放大）。
+  {
+    id: "ieCoillteForestRoads",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: IE_COILLTE_FOREST_ROADS.sourceId,
+    dynamicData: true,
+    attribution: IE_COILLTE_ATTRIBUTION,
+    rebuildOnParamChange: ["line"],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: IE_COILLTE_ROADS_MIN_ZOOM,
+        filter: (p) => ieCoillteKindFilter(IE_COILLTE_FOREST_ROADS, p?.ieCoillteForestRoadsCategoryMask),
+        layout: { "line-cap": "round", "line-join": "round", "line-sort-key": ["match", ["get", "kind"], "recreation_trail", 1, 0] },
+        paint: (_isDark, p) => ({
+          "line-color": ieCoillteColorExpr(IE_COILLTE_FOREST_ROADS) as unknown as string,
+          "line-width": ["interpolate", ["linear"], ["zoom"],
+            10, ["match", ["get", "kind"], "recreation_trail", LINE_WIDTH.standard[0], LINE_WIDTH.thin[0]],
+            14, ["match", ["get", "kind"], "recreation_trail", LINE_WIDTH.standard[1], LINE_WIDTH.thin[1]]] as unknown as number,
+          "line-opacity": p?.ieCoillteForestRoadsOpacity ?? 0.85,
+        }),
+      },
     ],
   },
   // ── 🗳 2026 議員選區（公開 RPC，一次抓全臺）──
-  // useCouncilDistrictsLayer 抓 get_council_districts_2026 後 setData；loader 另加每區一個面內代表點（_label=1）掛選區名。
+  // useCouncilDistrictsLayer 讀靜態快照 get_council_districts_2026.json 後 setData；loader 另加每區一個面內代表點（_label=1）掛選區名。
   // 目前 161 區全為區域選區（原住民選區無對應範圍，不在資料內）。
   {
     id: "councilDistricts2026",
@@ -3755,7 +3935,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
   // ── 🗳 2024 投開票所（公開）──
-  // 低縮放熱區：usePollingStationsLayer 開圖層時抓一次全臺熱區點（get_polling_stations_2024_heat）setData。
+  // 低縮放熱區：usePollingStationsLayer 開圖層時由全臺靜態快照（polling_stations_2024.json）算熱區點 setData。
   // 中性／投票率模式＝單色熱區（選舉人數加權）；領先政黨模式＝三黨各一層（各黨 2024 總統票數加權，三個開關個別控制）。
   // 不用的層 opacity 歸零（不 rebuild）；z11.5→12.5 淡出、與 z12 起的點位交接。熱區不可點擊（gisClickRegistry 不登記）。
   {
@@ -3794,7 +3974,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     })),
   },
-  // 點位：usePollingStationsLayer 依視窗 bbox（zoom ≥ 12）查 get_polling_stations_2024 後 setData。
+  // 點位：usePollingStationsLayer 依視窗 bbox（zoom ≥ 12）從全臺靜態快照篩選後 setData。
   // 色＝中性單色（預設）／2024 總統領先政黨（loader 衍生 `lead`）／投票率五階；precision='road'（僅路名）淡化。色票 SSOT：data/pollingStationsTypes.ts。
   {
     id: "pollingStations2024",
@@ -4987,9 +5167,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 屠宰場：依「種類」首字分家畜(豬牛羊)/家禽(雞鴨鵝)
   {
     id: "livestockSlaughter",
-    sourceUrl: "./agriculture/slaughterhouses.geojson",
+    sourceUrl: "./geo/_empty.geojson",
     sourceId: "livestock-slaughter",
-    // owner-only 動態：改由 useLivestockLayers 從 owner-only RPC setData
+    // owner-only 動態：由 useLivestockLayers 讀站主私人檔（owner-data 家族）後 setData
     dynamicData: true,
     layers: [
       {
@@ -5130,33 +5310,34 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./fishery/aquaculture_water_satellite.pmtiles",
     sourceId: "aquaculture-water-satellite",
     pmtiles: { sourceLayer: "aquaculture_water_satellite", minzoom: 5, maxzoom: 14 },
-    rebuildOnParamChange: ["aquacultureWaterSatelliteOpacity"],
+    // 信心層級改走 filter（點／熱區 companion 會沿用同一個 filter，opacity 篩選點層看不到）；切換信心層級才重建
+    rebuildOnParamChange: ["fill", "line"],
+    rebuildOnParamKeys: ["aquacultureWaterSatelliteConfidenceIdx"],
     layers: [
       {
         suffix: "fill", type: "fill",
+        filter: aquacultureWaterSatelliteConfidenceFilter,
         paint: (_isDark, p) => {
           const base = p?.aquacultureWaterSatelliteOpacity ?? 0.5;
-          const level = p?.aquacultureWaterSatelliteConfidenceIdx ?? 0; // 0=全部 1=含蓄水池 2=只確定
-          const isCertain: unknown[] = ["any", ["==", ["get", "in_osm"], true], ["==", ["get", "nlsc_code"], "0102"], ["==", ["get", "solar_symbiotic"], true]];
-          const isReservoir: unknown[] = ["in", ["get", "nlsc_code"], ["literal", ["0402", "0104"]]]; // 蓄水池 0402 + 農業生產設施 0104
+          const isCertain: unknown[] = AQUACULTURE_WATER_CERTAIN;
+          const isReservoir: unknown[] = AQUACULTURE_WATER_RESERVOIR;
           return {
             "fill-color": ["case", isCertain, "#26c6da", isReservoir, "#90a4ae", "#cfd8dc"],
-            // 確定恆顯示；蓄水池於「只確定」隱藏；不確定僅「全部」顯示
-            "fill-opacity": ["case", isCertain, base, isReservoir, level === 2 ? 0 : base, level === 0 ? base : 0],
+            "fill-opacity": base,
           };
         },
       },
       {
         suffix: "line", type: "line",
+        filter: aquacultureWaterSatelliteConfidenceFilter,
         paint: (_isDark, p) => {
           const base = p?.aquacultureWaterSatelliteOpacity ?? 0.5;
-          const level = p?.aquacultureWaterSatelliteConfidenceIdx ?? 0;
-          const isCertain: unknown[] = ["any", ["==", ["get", "in_osm"], true], ["==", ["get", "nlsc_code"], "0102"], ["==", ["get", "solar_symbiotic"], true]];
-          const isReservoir: unknown[] = ["in", ["get", "nlsc_code"], ["literal", ["0402", "0104"]]];
+          const isCertain: unknown[] = AQUACULTURE_WATER_CERTAIN;
+          const isReservoir: unknown[] = AQUACULTURE_WATER_RESERVOIR;
           return {
             "line-color": ["case", isCertain, "#26c6da", isReservoir, "#90a4ae", "#cfd8dc"],
             "line-width": 0.5,
-            "line-opacity": ["case", isCertain, base, isReservoir, level === 2 ? 0 : base, level === 0 ? base : 0],
+            "line-opacity": base,
           };
         },
       },
@@ -11940,6 +12121,16 @@ OVERLAY_REGISTRY.push(...LANDSLIDE_OVERLAYS);
  * PMTiles 點層不畫文字標籤（vector source 的 symbol placement 有 production 崩潰紀錄，見 helper 註解）。
  */
 const OGDL_ATTR = "政府資料開放授權條款第1版";
+/** 衛星偵測養殖水體的信心層級（0=全部 1=含蓄水池 2=只確定）：確定恆顯示；蓄水池於「只確定」隱藏；不確定僅「全部」顯示 */
+const AQUACULTURE_WATER_CERTAIN: unknown[] = ["any", ["==", ["get", "in_osm"], true], ["==", ["get", "nlsc_code"], "0102"], ["==", ["get", "solar_symbiotic"], true]];
+const AQUACULTURE_WATER_RESERVOIR: unknown[] = ["in", ["get", "nlsc_code"], ["literal", ["0402", "0104"]]]; // 蓄水池 0402 + 農業生產設施 0104
+function aquacultureWaterSatelliteConfidenceFilter(p?: Record<string, number>): unknown[] {
+  const level = p?.aquacultureWaterSatelliteConfidenceIdx ?? 0;
+  if (level === 0) return ["literal", true];
+  if (level === 2) return AQUACULTURE_WATER_CERTAIN;
+  return ["any", AQUACULTURE_WATER_CERTAIN, AQUACULTURE_WATER_RESERVOIR];
+}
+
 const polygonLayers = (key: string, color: unknown, def: number, minzoom?: number, filter?: (p?: Record<string, number>) => unknown[]): OverlayConfig["layers"] => [
   { suffix: "fill", type: "fill", ...(minzoom ? { minzoom } : {}), ...(filter ? { filter } : {}), paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": p?.[`${key}Opacity`] ?? def }) },
   { suffix: "outline", type: "line", ...(minzoom ? { minzoom } : {}), ...(filter ? { filter } : {}), paint: (dark, p) => ({
@@ -12138,6 +12329,12 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     attribution: `內政部國家公園署 重要濕地保育利用計畫功能分區圖（data.gov.tw 25659）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("importantWetlandZones", matchColorExpr("zone", WETLAND_ZONE_OPTIONS), 0.45),
   },
+  // 1944 水域（臺北盆地，站主限定）：面 z10 起；z10 以下由代表點接手（repPointOverlays 的 circle-polygon），全國視角看得到位置
+  {
+    id: "water1944Taipei", sourceUrl: "./geo/historical_water_1944_taipei.geojson", sourceId: "water-1944-taipei",
+    attribution: "中央研究院人社中心 GIS 專題中心 臺灣百年歷史地圖 1944 美軍地形圖（CC BY-NC）衍生：水域面抽取", rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("water1944Taipei", matchColorExpr("status", WATER_1944_STATUS_OPTIONS), 0.35, WATER_1944_POLYGON_MIN_ZOOM),
+  },
   {
     id: "waterRecreationRestrictedAreas", sourceUrl: "./tourism/water_recreation_restricted_areas.geojson", sourceId: "water-recreation-restricted-areas",
     attribution: `交通部觀光署 禁止或限制水域遊憩活動區域（data.gov.tw 38872）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
@@ -12303,6 +12500,269 @@ OVERLAY_REGISTRY.push(
   },
 );
 
+// ── 日本第二輪（2026-11-06，C057／C105／X009）：自然公園地域 A10-2015、環境省国立公園／国指定鳥獣保護区（令和7年4月）、
+// 人口集中地区 DID 五期（年份 select 換檔，同淹水情境 sourceUrlByParam）。色與類別讀 data/jpNatureR2Types.ts；
+// 類別多選走 categoryFilters/groupD（withCategoryFilter 自動接線）；點／面切換走 repPointLayers（DID 為統計區劃面，不做點切換）。
+function jpMatchColor(property: string, rows: readonly { value: string; color: string }[], fallback: string): unknown[] {
+  return ["match", ["to-string", ["get", property]], ...rows.flatMap((r) => [r.value, r.color]), fallback];
+}
+const JP_NATURAL_PARK_LEVEL_COLOR = jpMatchColor("level", JP_NATURAL_PARK_LEVELS, JP_NATURAL_PARK_AREAS_COLOR);
+const JP_NATIONAL_PARK_ZONE_COLOR = jpMatchColor("zone", JP_NATIONAL_PARK_ZONES, "#9ca3af");
+const JP_WILDLIFE_CATEGORY_COLOR = jpMatchColor("category", JP_WILDLIFE_CATEGORIES, JP_WILDLIFE_MOE_COLOR);
+
+OVERLAY_REGISTRY.push(
+  {
+    id: "jpNaturalParkAreas2015", sourceUrl: JP_NATURAL_PARK_AREAS_URL, sourceId: "jp-natural-park-areas-2015",
+    pmtiles: { sourceLayer: "jp_natural_park_areas_ksj_2015", minzoom: 4, maxzoom: 13 },
+    attribution: JP_NATURAL_PARK_AREAS_ATTRIBUTION,
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", layout: { "fill-sort-key": ["to-number", ["get", "level"], 1] }, paint: (_d, p) => ({ "fill-color": JP_NATURAL_PARK_LEVEL_COLOR, "fill-opacity": p?.jpNaturalParkAreas2015Opacity ?? 0.35 }) },
+      { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": JP_NATURAL_PARK_LEVEL_COLOR, "line-width": 1, "line-opacity": (p?.jpNaturalParkAreas2015Opacity ?? 0.35) > 0 ? 0.8 : 0 }) },
+    ],
+  },
+  {
+    id: "jpNationalParksMoe", sourceUrl: JP_NATIONAL_PARKS_MOE_URL, sourceId: "jp-national-parks-moe",
+    pmtiles: { sourceLayer: "jp_national_parks_moe_r7", minzoom: 4, maxzoom: 13 },
+    attribution: JP_NATIONAL_PARKS_MOE_ATTRIBUTION,
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      // zone_rank 小＝規制嚴，排在上層（sort-key 大者後畫）
+      { suffix: "fill", type: "fill", layout: { "fill-sort-key": ["-", 10, ["to-number", ["get", "zone_rank"], 7]] }, paint: (_d, p) => ({ "fill-color": JP_NATIONAL_PARK_ZONE_COLOR, "fill-opacity": p?.jpNationalParksMoeOpacity ?? 0.35 }) },
+      { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": JP_NATIONAL_PARK_ZONE_COLOR, "line-width": 1, "line-opacity": (p?.jpNationalParksMoeOpacity ?? 0.35) > 0 ? 0.8 : 0 }) },
+    ],
+  },
+  {
+    id: "jpWildlifeProtectionMoe", sourceUrl: JP_WILDLIFE_MOE_URL, sourceId: "jp-wildlife-protection-moe",
+    pmtiles: { sourceLayer: "jp_wildlife_protection_areas_moe_r7", minzoom: 4, maxzoom: 13 },
+    attribution: JP_WILDLIFE_MOE_ATTRIBUTION,
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", layout: { "fill-sort-key": ["to-number", ["get", "class_rank"], 1] }, paint: (_d, p) => ({ "fill-color": JP_WILDLIFE_CATEGORY_COLOR, "fill-opacity": p?.jpWildlifeProtectionMoeOpacity ?? 0.35 }) },
+      { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": JP_WILDLIFE_CATEGORY_COLOR, "line-width": 1, "line-opacity": (p?.jpWildlifeProtectionMoeOpacity ?? 0.35) > 0 ? 0.8 : 0 }) },
+    ],
+  },
+  {
+    id: "jpDid", sourceUrl: jpDidUrl(JP_DID_DEFAULT_YEAR), sourceId: "jp-did",
+    sourceUrlByParam: { param: "jpDidYearIdx", urls: JP_DID_YEARS.map((y) => jpDidUrl(y)) },
+    pmtiles: { sourceLayer: "jp_did", minzoom: 4, maxzoom: 12 },
+    attribution: jpDidAttribution(JP_DID_DEFAULT_YEAR),
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      // V-1（map-layers §3.8）：z5 全國視角 DID 多半只剩 2–3 px，1px 底圖色細縫會把小面吃掉、0.55 透明度又太淡，
+      // 所以低縮放提高不透明度（z5 ×1.6、z8 起回到滑桿值），細縫 z8 起才畫。
+      { suffix: "fill", type: "fill", paint: (isDark, p) => {
+        const op = p?.jpDidOpacity ?? 0.55;
+        return { "fill-color": jpDidDensityColorExpr(isDark), "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, Math.min(1, op * 1.6), 8, op] };
+      } },
+      { suffix: "outline", type: "line", minzoom: 8, paint: (isDark) => gradedSeamPaint(isDark, true) },
+    ],
+  },
+);
+
+// ── 30 天地圖挑戰 Day 6 復古（模擬面板，公開，2026-11-06）：THCTS 衍生資料（CC BY-NC-SA 3.0 臺灣版）。
+// 類別多選（V-4）與 select 都改 filter，所以 filter 函式自己組、參數變動時重建（同 Day 5）。
+const MAPCHALLENGE_DAY06_THCTS_ATTR = "中央研究院《臺灣歷史文化地圖系統》第一版（2003），CC BY-NC-SA 3.0 臺灣版；本層為衍生資料，同條款";
+const mcDay06Filter = (parts: (unknown[] | null)[]): unknown[] => {
+  const used = parts.filter((f): f is unknown[] => f !== null);
+  return used.length === 0 ? ["all"] : ["all", ...used];
+};
+const mcDay06Cat = <T extends { value: number | string; zh: string }>(property: string, list: readonly T[], mask: number | undefined) =>
+  categoryFilterExpr({ property, options: list.map((o) => ({ value: String(o.value), zh: o.zh })) }, mask);
+const mcDay06Label = (minzoom: number, opacityKey: string, filter: OverlayLayerSpec["filter"], field: unknown = ["get", "name"]): OverlayLayerSpec => ({
+  suffix: "label", type: "symbol", minzoom,
+  layout: {
+    "text-field": field, ...poiLabelLayout(), "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+    "text-variable-anchor": ["top", "bottom", "left", "right"], "text-radial-offset": .8, "text-max-width": 14, "text-optional": true,
+  },
+  filter,
+  paint: (dark, p) => ({ "text-color": dark ? "#f8fafc" : "#0f172a", ...labelHaloPaint(dark), "text-opacity": p?.[opacityKey] ?? 0.85 }),
+});
+
+OVERLAY_REGISTRY.push(
+  {
+    // 1. 臺南海岸線三代（線，依年代分色）＋當年海岸線以西的今日地名（點，依最舊一代上色；可隱藏）
+    id: "mapchallengeDay06Coast", sourceUrl: MAPCHALLENGE_DAY06_COAST_URL, sourceId: "mapchallenge-day06-coast",
+    attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；OpenStreetMap（ODbL）；內政部地名資料`,
+    rebuildOnParamChange: ["line", "circle", "label"], rebuildOnParamKeys: ["mapchallengeDay06CoastCategoryMask", "mapchallengeDay06CoastPlacesIdx"],
+    layers: [{
+      suffix: "line", type: "line",
+      layout: { "line-cap": "round", "line-join": "round", "line-sort-key": ["-", 4, ["to-number", ["get", "era"], 3]] },
+      filter: (p) => mcDay06Filter([["==", ["get", "kind"], "coast"], mcDay06Cat("era", MAPCHALLENGE_DAY06_ERAS, p?.mapchallengeDay06CoastCategoryMask)]),
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay06EraColorExpr(isDark),
+        "line-width": mapchallengeDay06CoastWidthExpr(p?.mapchallengeDay06CoastScale ?? 1),
+        "line-opacity": p?.mapchallengeDay06CoastOpacity ?? 0.85,
+      }),
+    }, {
+      suffix: "circle", type: "circle",
+      filter: (p) => (Math.trunc(p?.mapchallengeDay06CoastPlacesIdx ?? 0) === 1
+        ? ["==", ["get", "kind"], "__hidden__"]
+        : ["==", ["get", "kind"], "place"]),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay06EraColorExpr(isDark, "latest"),
+        "circle-opacity": p?.mapchallengeDay06CoastOpacity ?? 0.85,
+      }),
+    }, mcDay06Label(MAPCHALLENGE_DAY06_LABEL_MINZOOM, "mapchallengeDay06CoastOpacity", (p) => (Math.trunc(p?.mapchallengeDay06CoastPlacesIdx ?? 0) === 1
+      ? ["==", ["get", "kind"], "__hidden__"]
+      : ["==", ["get", "kind"], "place"]))],
+  },
+  {
+    // 2. 1932 臺北市町界（面＋外框＋町名）：町名仍在里名（橘）／已消失（灰）
+    id: "mapchallengeDay06Taipei1932", sourceUrl: MAPCHALLENGE_DAY06_TAIPEI_URL, sourceId: "mapchallenge-day06-taipei-1932",
+    attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；內政部村里界（2026-06-26）`,
+    rebuildOnParamChange: ["fill", "outline", "label"], rebuildOnParamKeys: ["mapchallengeDay06Taipei1932CategoryMask"],
+    layers: [{
+      suffix: "fill", type: "fill",
+      filter: (p) => mcDay06Filter([["==", ["get", "kind"], "zone"], mcDay06Cat("survives", MAPCHALLENGE_DAY06_SURVIVE, p?.mapchallengeDay06Taipei1932CategoryMask)]),
+      paint: (_isDark, p) => ({
+        "fill-color": MAPCHALLENGE_DAY06_SURVIVE_COLOR_EXPR,
+        "fill-opacity": MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY * ((p?.mapchallengeDay06Taipei1932Opacity ?? 0.85) / 0.85),
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      filter: (p) => mcDay06Filter([["==", ["get", "kind"], "zone"], mcDay06Cat("survives", MAPCHALLENGE_DAY06_SURVIVE, p?.mapchallengeDay06Taipei1932CategoryMask)]),
+      paint: (_isDark, p) => ({ "line-color": MAPCHALLENGE_DAY06_SURVIVE_COLOR_EXPR, "line-width": 1, "line-opacity": p?.mapchallengeDay06Taipei1932Opacity ?? 0.85 }),
+    }, mcDay06Label(MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, "mapchallengeDay06Taipei1932Opacity",
+      (p) => mcDay06Filter([["==", ["get", "kind"], "label"], mcDay06Cat("survives", MAPCHALLENGE_DAY06_SURVIVE, p?.mapchallengeDay06Taipei1932CategoryMask)]))],
+  },
+  {
+    // 3. 廟不搬家：1921 祠廟（1,439 點 < 1 萬，V-1 直接畫點）；同名原址 14 處加外圈、z13 起標名稱
+    id: "mapchallengeDay06Temples1921", sourceUrl: MAPCHALLENGE_DAY06_TEMPLES_URL, sourceId: "mapchallenge-day06-temples-1921",
+    attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；內政部全國宗教資訊系統（2026-08-01 擷取）`,
+    rebuildOnParamChange: ["circle", "same-mark", "label"], rebuildOnParamKeys: ["mapchallengeDay06Temples1921CategoryMask"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      layout: { "circle-sort-key": ["+", ["to-number", ["get", "cont"], 0], ["*", 2, ["to-number", ["get", "same"], 0]]] },
+      filter: (p) => mcDay06Filter([mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]),
+      paint: (_isDark, p) => ({ "circle-color": MAPCHALLENGE_DAY06_TEMPLE_COLOR_EXPR, "circle-opacity": p?.mapchallengeDay06Temples1921Opacity ?? 0.85 }),
+    }, {
+      // 同名原址 14 處外圈（資料編碼，不是裝飾；POINT_SPEC_EXEMPT 登記、map-layers.md §3.1 P-6 例外）
+      suffix: "same-mark", type: "circle",
+      filter: (p) => mcDay06Filter([["==", ["to-number", ["get", "same"], 0], 1], mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]),
+      paint: (isDark, p) => {
+        const scale = p?.mapchallengeDay06Temples1921Scale ?? 1;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], ...MAPCHALLENGE_DAY06_SAME_RING.radius.flatMap(([z, r]) => [z, r * scale])],
+          "circle-color": "rgba(0,0,0,0)", "circle-opacity": 0,
+          "circle-stroke-color": mapchallengeDay06TodayColor(isDark), "circle-stroke-width": MAPCHALLENGE_DAY06_SAME_RING.strokeWidth,
+          "circle-stroke-opacity": p?.mapchallengeDay06Temples1921Opacity ?? 0.85,
+        };
+      },
+    }, mcDay06Label(MAPCHALLENGE_DAY06_LABEL_MINZOOM, "mapchallengeDay06Temples1921Opacity",
+      (p) => mcDay06Filter([["==", ["to-number", ["get", "same"], 0], 1], mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]))],
+  },
+  {
+    // 4. 燈塔與測候所今昔：歷史點（狀態色）＋今日點（中性色）＋虛線連線（遷移距離）
+    id: "mapchallengeDay06Lighthouses", sourceUrl: MAPCHALLENGE_DAY06_LIGHTHOUSE_URL, sourceId: "mapchallenge-day06-lighthouses",
+    attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；Pulse 燈塔圖層；中央氣象署測站清單`,
+    rebuildOnParamChange: ["link", "today-circle", "circle"], rebuildOnParamKeys: ["mapchallengeDay06LighthousesTypeIdx", "mapchallengeDay06LighthousesCategoryMask"],
+    layers: [{
+      suffix: "link", type: "line",
+      layout: { "line-cap": "butt", "line-join": "round" },
+      filter: (p) => mcDay06Filter([["==", ["get", "role"], "link"], mapchallengeDay06TypeFilter(p?.mapchallengeDay06LighthousesTypeIdx),
+        mcDay06Cat("status", MAPCHALLENGE_DAY06_STATUSES, p?.mapchallengeDay06LighthousesCategoryMask)]),
+      paint: (_isDark, p) => ({
+        "line-color": MAPCHALLENGE_DAY06_STATUS_COLOR_EXPR, "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 2],
+        "line-dasharray": [...MAPCHALLENGE_DAY06_LINK_DASH], "line-opacity": p?.mapchallengeDay06LighthousesOpacity ?? 0.85,
+      }),
+    }, {
+      suffix: "today-circle", type: "circle",
+      filter: (p) => mcDay06Filter([["==", ["get", "role"], "today"], mapchallengeDay06TypeFilter(p?.mapchallengeDay06LighthousesTypeIdx),
+        mcDay06Cat("status", MAPCHALLENGE_DAY06_STATUSES, p?.mapchallengeDay06LighthousesCategoryMask)]),
+      paint: (isDark, p) => ({ "circle-color": mapchallengeDay06TodayColor(isDark), "circle-opacity": p?.mapchallengeDay06LighthousesOpacity ?? 0.85 }),
+    }, {
+      suffix: "circle", type: "circle",
+      filter: (p) => mcDay06Filter([["==", ["get", "role"], "hist"], mapchallengeDay06TypeFilter(p?.mapchallengeDay06LighthousesTypeIdx),
+        mcDay06Cat("status", MAPCHALLENGE_DAY06_STATUSES, p?.mapchallengeDay06LighthousesCategoryMask)]),
+      paint: (_isDark, p) => ({ "circle-color": MAPCHALLENGE_DAY06_STATUS_COLOR_EXPR, "circle-opacity": p?.mapchallengeDay06LighthousesOpacity ?? 0.85 }),
+    }],
+  },
+);
+
+// ── 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開，2026-11-08）：中和＋永和走到 ≥1 ha 公園（含河濱，只走穿堤入口）的步行分鐘＋新公園選址。
+// 方案 select 兩層共用（mapchallengeDay08ScenarioIdx）。步行分鐘：方案／步速只換 paint 讀的欄位（t0／t0s／t_<S>／ts_<S>）。
+// 選址：方案＋類別多選（V-4）改 filter，參數變動時重建；方案＝現況時沒有用地（filter 自然 0 筆）。
+// 1955 計畫原圖是 image source，由 useMapchallengeDay08PlanLayer 掛（overlay 引擎只收 geojson／pmtiles）。
+const MAPCHALLENGE_DAY08_ATTRIBUTION = "內政部最小統計區人口（2024）；OpenStreetMap（ODbL）；新北市都市計畫土地使用分區；內政部實價登錄；國土利用調查 · 研究推估，非法定查估";
+const mcDay08SiteFilter = (p?: Record<string, number>): unknown[] => {
+  const cat = categoryFilterExpr({ property: "cls", options: MAPCHALLENGE_DAY08_SITE_CLASSES.map((c) => ({ value: c.value, zh: c.zh })) }, p?.mapchallengeDay08SitesCategoryMask);
+  const scenario = ["==", ["get", "scenario"], mapchallengeDay08ScenarioAt(p?.mapchallengeDay08ScenarioIdx).value];
+  return cat ? ["all", scenario, cat] : scenario;
+};
+
+const mcDay08ParkCat = (p?: Record<string, number>): unknown[] | null =>
+  categoryFilterExpr({ property: "cls", options: MAPCHALLENGE_DAY08_PARK_CLASSES.map((c) => ({ value: c.value, zh: c.zh })) }, p?.mapchallengeDay08ParksCategoryMask);
+const mcDay08ParkFilter = (geom: "Polygon" | "Point") => (p?: Record<string, number>): unknown[] => {
+  const g = geom === "Point" ? ["==", ["geometry-type"], "Point"] : ["!=", ["geometry-type"], "Point"];
+  const cat = mcDay08ParkCat(p);
+  return cat ? ["all", g, cat] : g;
+};
+
+OVERLAY_REGISTRY.push(
+  {
+    // 1. 步行可及（統計區面，viridis 四級；G-3 色格縫外框）
+    id: "mapchallengeDay08Access", sourceUrl: MAPCHALLENGE_DAY08_ACCESS_URL, sourceId: "mapchallenge-day08-access",
+    attribution: MAPCHALLENGE_DAY08_ATTRIBUTION,
+    layers: [{
+      suffix: "fill", type: "fill",
+      paint: (isDark, p) => ({
+        "fill-color": mapchallengeDay08AccessColorExpr(
+          mapchallengeDay08TimeProp(mapchallengeDay08ScenarioAt(p?.mapchallengeDay08ScenarioIdx).value, mapchallengeDay08SpeedAt(p?.mapchallengeDay08AccessSpeedIdx)), isDark),
+        "fill-opacity": p?.mapchallengeDay08AccessOpacity ?? 0.7,
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay08AccessOpacity ?? 0.7 }),
+    }],
+  },
+  {
+    // 1b. 現有 ≥1 ha 公園（面：一般／河濱）＋河濱穿堤入口（點）：類別多選（V-4）改 filter
+    id: "mapchallengeDay08Parks", sourceUrl: MAPCHALLENGE_DAY08_PARKS_URL, sourceId: "mapchallenge-day08-parks",
+    attribution: "OpenStreetMap（ODbL）；臺北市疏散門開放資料（data.gov.tw 143891） · 入口由 OSM 推定，為偏保守的下限",
+    rebuildOnParamChange: ["fill", "outline", "circle"], rebuildOnParamKeys: ["mapchallengeDay08ParksCategoryMask"],
+    layers: [{
+      suffix: "fill", type: "fill",
+      filter: (p) => mcDay08ParkFilter("Polygon")(p),
+      paint: (isDark, p) => ({
+        "fill-color": mapchallengeDay08ParkColorExpr(isDark),
+        "fill-opacity": MAPCHALLENGE_DAY08_PARK_FILL_OPACITY * ((p?.mapchallengeDay08ParksOpacity ?? 0.85) / 0.85),
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      layout: { "line-join": "round" },
+      filter: (p) => mcDay08ParkFilter("Polygon")(p),
+      paint: (isDark, p) => ({ "line-color": mapchallengeDay08ParkColorExpr(isDark), "line-width": 1, "line-opacity": p?.mapchallengeDay08ParksOpacity ?? 0.85 }),
+    }, {
+      suffix: "circle", type: "circle",
+      filter: (p) => mcDay08ParkFilter("Point")(p),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay08ParkColor("entrance", isDark),
+        "circle-opacity": p?.mapchallengeDay08ParksOpacity ?? 0.85,
+      }),
+    }],
+  },
+  {
+    // 2. 選址（面＋類別色＋反差外框）：依方案過濾
+    id: "mapchallengeDay08Sites", sourceUrl: MAPCHALLENGE_DAY08_SITES_URL, sourceId: "mapchallenge-day08-sites",
+    attribution: MAPCHALLENGE_DAY08_ATTRIBUTION,
+    rebuildOnParamChange: ["fill", "outline"], rebuildOnParamKeys: ["mapchallengeDay08ScenarioIdx", "mapchallengeDay08SitesCategoryMask"],
+    layers: [{
+      suffix: "fill", type: "fill",
+      filter: (p) => mcDay08SiteFilter(p),
+      paint: (isDark, p) => ({
+        "fill-color": mapchallengeDay08SiteColorExpr(isDark),
+        "fill-opacity": MAPCHALLENGE_DAY08_SITE_FILL_OPACITY * ((p?.mapchallengeDay08SitesOpacity ?? 0.85) / 0.85),
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      layout: { "line-join": "round" },
+      filter: (p) => mcDay08SiteFilter(p),
+      paint: (isDark, p) => ({ "line-color": mapchallengeDay08SiteOutline(isDark), "line-width": 1, "line-opacity": p?.mapchallengeDay08SitesOpacity ?? 0.85 }),
+    }],
+  },
+);
+
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
 OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...withRepPoints(OVERLAY_REGISTRY).map(withPointSpec).map(withLineFillSpec).map(withCategoryFilter));
@@ -12316,7 +12776,7 @@ function withCategoryFilter(config: OverlayConfig): OverlayConfig {
   if (!entry) return config;
   const defs = categoryDefs(entry);
   const layers = config.layers.map((layer): OverlayConfig["layers"][number] => {
-    if (layer.type === "raster") return layer;
+    if (layer.type === "raster" || layer.skipCategoryFilter) return layer;
     return {
       ...layer,
       filter: (params?: Record<string, number>) => {
@@ -12327,6 +12787,6 @@ function withCategoryFilter(config: OverlayConfig): OverlayConfig {
       },
     };
   });
-  const rebuild = new Set([...(config.rebuildOnParamChange ?? []), ...layers.filter((l) => l.type !== "raster").map((l) => l.suffix)]);
+  const rebuild = new Set([...(config.rebuildOnParamChange ?? []), ...layers.filter((l) => l.type !== "raster" && !l.skipCategoryFilter).map((l) => l.suffix)]);
   return { ...config, layers, rebuildOnParamChange: [...rebuild] };
 }

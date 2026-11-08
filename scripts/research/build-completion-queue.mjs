@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
+import { TW_STATISTICS_PLACEMENT } from "../../src/data/statisticsTabThemes.ts";
 
 const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 // 2026-09-26 起舊台帳已封存；此工具屬逐家族 reader 時期遺留腳本，若重跑仍讀寫封存目錄。
@@ -14,7 +15,8 @@ const groups = ["taiwan_gis", "county_statistics", "global_gis", "japan_gis"];
 function groupOf(key, manifest) {
   // These hidden research entries retain their geography even when absent from the visible Japan rail.
   if (key.startsWith("jp")) return "japan_gis";
-  if (key.startsWith("stats") || /統計|Statistics/.test(manifest.section?.theme ?? "")) return "county_statistics";
+  // 台灣統計分類正本（statisticsTabThemes）登記的 key；主題名已不一定帶「統計」字樣
+  if (key.startsWith("stats") || key in TW_STATISTICS_PLACEMENT || /統計|Statistics/.test(manifest.section?.theme ?? "")) return "county_statistics";
   // 以 manifest country 判斷（主題 title 只在同一國家內唯一）
   if (manifest.country === "WORLD") return "global_gis";
   return "taiwan_gis";

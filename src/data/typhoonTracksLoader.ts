@@ -661,7 +661,7 @@ export function pickActiveTyphoon(
 
 // 刻意不包 withLoading：這是 Monitor 面板的背景輪詢（30min 一次），
 // 不是圖層載入 —— 灌 LOADING 面板會讓牆面每半小時閃一次。
-// 比照 loadingRegistryContract.test.ts 對 airportPaxLoader 的豁免理由；
+// 比照 eslint.config.js LOADER_RPC_EXEMPT 對 airportPaxLoader 的豁免理由；
 // 該 ratchet 只掃 supabase.rpc/staticRpc，`.from()` 不在掃描範圍，故無需登記。
 async function fetchTyphoonSummaryUncached(): Promise<TyphoonSummary | null> {
   const { data, error } = await supabase
@@ -732,9 +732,8 @@ interface ProximityRpcRow {
 const DEFAULT_PROXIMITY_DAYS = 14;
 
 /**
- * ⚠️ clamp 刻意抽成函式而不是在 rpc 前寫 `const days = ...`：
- * loadingRegistryContract 的掃描器用「往上找最近的 const/function 宣告」當函式名，
- * 中間夾一個 const 會讓它把 key 算成 `days` 而不是函式名，EXEMPT 就對不上。
+ * clamp 抽成函式：舊的 loadingRegistryContract 掃描器用「往上找最近的 const/function 宣告」當函式名，
+ * 中間夾 const 會對不上豁免鍵。現行 ESLint pulse/loader-rpc-with-loading 用實際函式名，已無此限制。
  */
 function clampProximityDays(daysKey: string): number {
   return Math.min(365, Math.max(1, Math.floor(Number(daysKey))));

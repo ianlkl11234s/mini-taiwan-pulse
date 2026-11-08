@@ -273,5 +273,7 @@
   "enum.statVariant.有效票數・村里": "Valid votes · village",
   "enum.statVariant.同意票比率・縣市": "Approval share · county/city",
   "enum.statVariant.同意票比率・鄉鎮市區": "Approval share · township/district",
-  "enum.statVariant.同意票比率・村里": "Approval share · village"
+  "enum.statVariant.同意票比率・村里": "Approval share · village",
+  "enum.statVariant.地方政府": "Local authority",
+  "enum.statVariant.選舉分區": "Electoral division"
 }

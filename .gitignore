@@ -133,6 +133,10 @@ public/world/jp_national_forests.pmtiles
 # 日本第四波（福祉施設 57MB、主要道路 142MB，走 S3 deploy-assets/world/；jp_expressways 5.8MB git-track）
 public/world/jp_welfare_facilities.pmtiles
 public/world/jp_major_roads.pmtiles
+# 日本第二輪（2026-11-06）：自然公園地域 A10 2015 23.6MB 走 S3 deploy-assets/world/；国立公園 18.8MB、鳥獣保護区、DID 五期（各約 6MB）與代表點檔 git-track
+public/world/jp_natural_park_areas_ksj_2015.pmtiles
+# 日本第二輪 C083（2026-11-06）：警察庁 2025 人身事故 28.9MB 走 S3 deploy-assets/world/
+public/world/jp_traffic_accidents_2025.pmtiles
 # 英國第 0b 波（統計小區 56.8MB 走 S3 deploy-assets/world/；gb_admin_lad 6.2MB git-track）
 public/world/gb_admin_small_areas.pmtiles
 # 英國第 1 波（建成區 41.6MB、綠地 67.8MB 走 S3 deploy-assets/world/；gb_maritime_limits 0.5MB git-track）
@@ -172,6 +176,34 @@ public/world/ca_indigenous_lands.pmtiles
 public/world/ca_deprivation.pmtiles
 public/world/ca_place_names.pmtiles
 public/world/ca_terrain_hillshade.pmtiles
+public/world/ca_earthquakes.pmtiles
+public/world/ca_population_grid.pmtiles
+# 愛爾蘭第 0 波（行政邊界 38.9MB：LA 31／ED 3,420／SA 18,919，走 S3 deploy-assets/world/）
+public/world/ie_admin_boundaries.pmtiles
+# 愛爾蘭第 1 波海床地形（INFOMAR raster 26.5MB，走 S3 deploy-assets/world/；其餘第 1 波 7 檔 < 8MB 進 git）
+public/world/ie_bathymetry.pmtiles
+# 愛爾蘭第 2 波：商業房產估值 31.9MB、國有登記土地面 45.5MB（走 S3 deploy-assets/world/；代表點 19.0MB 進 git）
+public/world/ie_commercial_valuations.pmtiles
+public/world/ie_state_assets.pmtiles
+# 愛爾蘭第 3a 波：OPW NIFM 河川淹水範圍 9 支（3 情境 × 3 重現期，各約 32–34MB，走 S3 deploy-assets/world/；其餘 6 檔 < 16MB 進 git）
+public/world/ie_river_flood_extents_c_0020.pmtiles
+public/world/ie_river_flood_extents_c_0100.pmtiles
+public/world/ie_river_flood_extents_c_1000.pmtiles
+public/world/ie_river_flood_extents_m_0020.pmtiles
+public/world/ie_river_flood_extents_m_0100.pmtiles
+public/world/ie_river_flood_extents_m_1000.pmtiles
+public/world/ie_river_flood_extents_h_0020.pmtiles
+public/world/ie_river_flood_extents_h_0100.pmtiles
+public/world/ie_river_flood_extents_h_1000.pmtiles
+# 愛爾蘭第 8 波：文化資產 SMR＋NIAH 約 18 萬點 38.7MB（走 S3 deploy-assets/world/；其餘第 8 波 4 檔 < 7MB 進 git）
+public/world/ie_heritage_sites.pmtiles
+# 愛爾蘭第 10 波：SIS 全國土壤圖 25,143 面 27.3MB（走 S3 deploy-assets/world/；其餘第 10 波 4 檔 < 7MB 進 git）
+public/world/ie_soils.pmtiles
+# 愛爾蘭第 9 波：土地使用分區面 33.6MB、規劃申請案 83.1MB、策略噪音地圖 Lden 25.0MB／Lnight 28.0MB（走 S3 deploy-assets/world/；分區代表點 10.1MB 與其餘 3 層 < 2MB 進 git）
+public/world/ie_zoning.pmtiles
+public/world/ie_planning_applications.pmtiles
+public/world/ie_noise_maps_lden.pmtiles
+public/world/ie_noise_maps_lnight.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson
@@ -305,3 +337,32 @@ public/world/jp_nature_conservation_ksj_2015_points.pmtiles
 public/world/jp_wildlife_protection_moe_202504_points.pmtiles
 # 雙北國道逐車模擬（本機研究層 freewayTdcsSim）：資料自 taipei-gis-analytics output/freeway_tdcs/ 複製，約 15 MB，不進 git
 public/freeway_tdcs/
+
+# CI-4：check:assets 從 R2 下載的資產檔快取（以 sha256 為檔名）
+.asset-cache/
+
+# CI-4：public/ 資料檔不進 git（正本 S3、R2 供應；清單 deploy/public-assets.lock.json，新增用 build-public-assets-lock.py add）
+public/**/*.pmtiles
+public/**/*.geojson
+public/bus/changhuacounty_bus_routes.json
+public/bus/chiayicounty_bus_routes.json
+public/bus/hsinchucounty_bus_routes.json
+public/bus/kaohsiung_bus_routes.json
+public/bus/keelung_bus_routes.json
+public/bus/nantoucounty_bus_routes.json
+public/bus/newtaipei_bus_routes.json
+public/bus/penghucounty_bus_routes.json
+public/bus/taichung_bus_routes.json
+public/bus/tainan_bus_routes.json
+public/bus/taoyuan_bus_routes.json
+public/bus/yilancounty_bus_routes.json
+public/geo/waste_stops_chat_20261001.json
+public/h3/h3_socioeconomic_res8.json
+public/h3/h3_spatial_economy_res8.json
+public/**/*.json
+public/**/*.png
+!public/blog/**/*.png
+!public/screenshots/*.png
+public/**/*.jpg
+!public/blog/**/*.jpg
+!public/screenshots/*.jpg

@@ -2,6 +2,9 @@ import { supabase } from "../lib/supabase";
 import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce } from "../lib/loaderCache";
+import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
+import { fetchOwnerJson, ownerDataStatus } from "../lib/ownerData";
+import type { OwnerDataAssetName } from "./ownerDataAssets";
 
 /**
  * Energy MVP loader（layer 1-6 + KPI HUD）
@@ -261,17 +264,18 @@ export interface FacilityZone {
 
 /** L1 主要電廠（運轉中）209 — 火/核/水/大型風/大型光電
  *  順手 join realtime 標記 has_realtime（台電 14 廠 + 廠級匯總）→ 前端用作大小差異
+ *  點位是靜態，讀站主私人檔（owner-data，原 get_ssot_facilities_primary_operating 的輸出）；
+ *  has_realtime 是即時資料，繼續走小的即時 RPC get_ssot_realtime_facility_output。
  */
 const _l1Cached = cachedOnce(async () => {
-  const [primaryRes, rtRes] = await Promise.all([
+  const [rows, rtRes] = await Promise.all([
+    fetchOwnerJson<FacilityPoint[]>("fac-primary", "energy:facPrimary", "主要電廠 209"),
+    // 即時標記也要登記載入列：否則它比主清單慢時，載入列先消失、點卻還沒畫上（2026-11-08 CI-2 新規則抓到）
     withLoading(
-      "energy:facPrimary", "主要電廠 209",
-      supabase.rpc("get_ssot_facilities_primary_operating"),  // owner-gated：直連 RPC
+      "energy:facRealtimeFlag", "電廠即時發電標記",
+      supabase.rpc("get_ssot_realtime_facility_output"),
     ),
-    supabase.rpc("get_ssot_realtime_facility_output"),
   ]);
-  if (primaryRes.error) throw new Error(`get_ssot_facilities_primary_operating: ${primaryRes.error.message}`);
-  const rows = (primaryRes.data ?? []) as FacilityPoint[];
   const rtIds = new Set<string>(
     ((rtRes.data ?? []) as { facility_id: string }[]).map((r) => r.facility_id),
   );
@@ -282,56 +286,36 @@ export const fetchFacPrimary = (): Promise<FacilityPoint[]> => _l1Cached();
 
 /** L2 離岸風電場址 polygon 8 — 大彰化/Formosa/Hai Long footprint */
 const _l2Cached = cachedOnce(async () => {
-  const { data, error } = await withLoading(
-    "energy:facOffshore", "離岸風電場址 8",
-    supabase.rpc("get_ssot_facilities_offshore_zones"),  // owner-gated：直連 RPC（敏感電廠資料）
-  );
-  if (error) throw new Error(`get_ssot_facilities_offshore_zones: ${error.message}`);
-  return (data ?? []) as FacilityZone[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_ssot_facilities_offshore_zones 的輸出原樣存檔）
+  return fetchOwnerJson<FacilityZone[]>("fac-offshore", "energy:facOffshore", "離岸風電場址 8");
 }, 60 * 60_000);
 export const fetchFacOffshore = (): Promise<FacilityZone[]> => _l2Cached();
 
 /** L3 規劃 / 未來電廠 35 (pre-construction + announced) */
 const _l3Cached = cachedOnce(async () => {
-  const { data, error } = await withLoading(
-    "energy:facPlanned", "規劃電廠 35",
-    supabase.rpc("get_ssot_facilities_planned"),  // owner-gated：直連 RPC
-  );
-  if (error) throw new Error(`get_ssot_facilities_planned: ${error.message}`);
-  return (data ?? []) as FacilityPoint[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_ssot_facilities_planned 的輸出原樣存檔）
+  return fetchOwnerJson<FacilityPoint[]>("fac-planned", "energy:facPlanned", "規劃電廠 35");
 }, 60 * 60_000);
 export const fetchFacPlanned = (): Promise<FacilityPoint[]> => _l3Cached();
 
 /** L4 歷史 — 退役 / 擱置 15 */
 const _l4Cached = cachedOnce(async () => {
-  const { data, error } = await withLoading(
-    "energy:facHistorical", "歷史電廠 15",
-    supabase.rpc("get_ssot_facilities_historical"),  // owner-gated：直連 RPC
-  );
-  if (error) throw new Error(`get_ssot_facilities_historical: ${error.message}`);
-  return (data ?? []) as FacilityPoint[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_ssot_facilities_historical 的輸出原樣存檔）
+  return fetchOwnerJson<FacilityPoint[]>("fac-historical", "energy:facHistorical", "歷史電廠 15");
 }, 60 * 60_000);
 export const fetchFacHistorical = (): Promise<FacilityPoint[]> => _l4Cached();
 
 /** L5 次要 341（焚化+地熱+小水力+中小光電/風電）*/
 const _l5Cached = cachedOnce(async () => {
-  const { data, error } = await withLoading(
-    "energy:facSecondary", "次要電廠 341",
-    supabase.rpc("get_ssot_facilities_secondary_small"),  // owner-gated：直連 RPC
-  );
-  if (error) throw new Error(`get_ssot_facilities_secondary_small: ${error.message}`);
-  return (data ?? []) as FacilityPoint[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_ssot_facilities_secondary_small 的輸出原樣存檔）
+  return fetchOwnerJson<FacilityPoint[]>("fac-secondary", "energy:facSecondary", "次要電廠 341");
 }, 60 * 60_000);
 export const fetchFacSecondary = (): Promise<FacilityPoint[]> => _l5Cached();
 
 /** L6 OSM 補充 1,215（source_priority=5 無名單機） */
 const _l6Cached = cachedOnce(async () => {
-  const { data, error } = await withLoading(
-    "energy:facOsmSupplement", "OSM 補充 1,215",
-    supabase.rpc("get_ssot_facilities_osm_supplement"),  // owner-gated：直連 RPC
-  );
-  if (error) throw new Error(`get_ssot_facilities_osm_supplement: ${error.message}`);
-  return (data ?? []) as FacilityPoint[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_ssot_facilities_osm_supplement 的輸出原樣存檔）
+  return fetchOwnerJson<FacilityPoint[]>("fac-osm-supplement", "energy:facOsmSupplement", "OSM 補充 1,215");
 }, 60 * 60_000);
 export const fetchFacOsmSupplement = (): Promise<FacilityPoint[]> => _l6Cached();
 
@@ -492,13 +476,8 @@ export interface EvChargingStation {
 }
 
 async function fetchOsmSubstationsUncached(): Promise<OsmSubstation[]> {
-  const { data, error } = await withLoading(
-    "energy:substations",
-    "變電所 785",
-    supabase.rpc("get_osm_substations"),  // owner-gated：直連 RPC
-  );
-  if (error) throw new Error(`get_osm_substations: ${error.message}`);
-  return (data ?? []) as OsmSubstation[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_osm_substations 的輸出原樣存檔）
+  return fetchOwnerJson<OsmSubstation[]>("osm-substations", "energy:substations", "變電所 785");
 }
 const fetchOsmSubstationsCached = cachedOnce(fetchOsmSubstationsUncached, 60 * 60_000);
 export const fetchOsmSubstations = (): Promise<OsmSubstation[]> => fetchOsmSubstationsCached();
@@ -530,26 +509,15 @@ export interface OsmPowerTower {
 }
 
 async function fetchOsmPowerLinesUncached(): Promise<OsmPowerLine[]> {
-  const { data, error } = await withLoading(
-    "energy:powerLines",
-    "高壓輸電線 2,305",
-    supabase.rpc("get_osm_power_lines"),  // owner-gated：直連 RPC
-  );
-  if (error) throw new Error(`get_osm_power_lines: ${error.message}`);
-  return (data ?? []) as OsmPowerLine[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_osm_power_lines 的輸出原樣存檔）
+  return fetchOwnerJson<OsmPowerLine[]>("osm-power-lines", "energy:powerLines", "高壓輸電線 2,305");
 }
 const fetchOsmPowerLinesCached = cachedOnce(fetchOsmPowerLinesUncached, 60 * 60_000);
 export const fetchOsmPowerLines = (): Promise<OsmPowerLine[]> => fetchOsmPowerLinesCached();
 
 async function fetchOsmPowerTowersUncached(): Promise<OsmPowerTower[]> {
-  // 26.6k rows 超過 PostgREST max-rows=20000，RPC 回傳單筆 jsonb array 繞過
-  const { data, error } = await withLoading(
-    "energy:powerTowers",
-    "高壓鐵塔 26,589",
-    supabase.rpc("get_osm_power_towers"),  // owner-gated：直連 RPC
-  );
-  if (error) throw new Error(`get_osm_power_towers: ${error.message}`);
-  return (data ?? []) as unknown as OsmPowerTower[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_osm_power_towers 的輸出原樣存檔）
+  return fetchOwnerJson<OsmPowerTower[]>("osm-power-towers", "energy:powerTowers", "高壓鐵塔 26,589");
 }
 const fetchOsmPowerTowersCached = cachedOnce(fetchOsmPowerTowersUncached, 60 * 60_000);
 export const fetchOsmPowerTowers = (): Promise<OsmPowerTower[]> => fetchOsmPowerTowersCached();
@@ -660,13 +628,8 @@ const fetchOsmSolarFarmsCached = cachedOnce(fetchOsmSolarFarmsUncached, 60 * 60_
 export const fetchOsmSolarFarms = (): Promise<OsmSolarFarm[]> => fetchOsmSolarFarmsCached();
 
 async function fetchOsmPowerPlantsStaticUncached(): Promise<OsmPowerPlantStatic[]> {
-  const { data, error } = await withLoading(
-    "energy:powerPlantsStatic",
-    "OSM 電廠 513",
-    supabase.rpc("get_osm_power_plants_static"),  // owner-gated：直連 RPC（敏感電廠資料）
-  );
-  if (error) throw new Error(`get_osm_power_plants_static: ${error.message}`);
-  return (data ?? []) as OsmPowerPlantStatic[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_osm_power_plants_static 的輸出原樣存檔）
+  return fetchOwnerJson<OsmPowerPlantStatic[]>("osm-power-plants-static", "energy:powerPlantsStatic", "OSM 電廠 513");
 }
 const fetchOsmPowerPlantsStaticCached = cachedOnce(fetchOsmPowerPlantsStaticUncached, 60 * 60_000);
 export const fetchOsmPowerPlantsStatic = (): Promise<OsmPowerPlantStatic[]> => fetchOsmPowerPlantsStaticCached();
@@ -771,13 +734,8 @@ const fetchIslandPowerGridCached = cachedOnce(fetchIslandPowerGridUncached, 60 *
 export const fetchIslandPowerGrid = (): Promise<IslandPowerFacility[]> => fetchIslandPowerGridCached();
 
 async function fetchFossilFuelInfraUncached(): Promise<FossilFuelFacility[]> {
-  const { data, error } = await withLoading(
-    "energy:fossilFuel",
-    "化石燃料設施 9",
-    supabase.rpc("get_fossil_fuel_infrastructure"),  // owner-gated：直連 RPC
-  );
-  if (error) throw new Error(`get_fossil_fuel_infrastructure: ${error.message}`);
-  return (data ?? []) as FossilFuelFacility[];
+  // 站主私人檔（owner-data 家族，原 owner-only RPC get_fossil_fuel_infrastructure 的輸出原樣存檔）
+  return fetchOwnerJson<FossilFuelFacility[]>("fossil-fuel-infrastructure", "energy:fossilFuel", "化石燃料設施 9");
 }
 const fetchFossilFuelInfraCached = cachedOnce(fetchFossilFuelInfraUncached, 60 * 60_000);
 export const fetchFossilFuelInfra = (): Promise<FossilFuelFacility[]> => fetchFossilFuelInfraCached();
@@ -933,3 +891,33 @@ export function fuelColorExpression(): unknown[] {
   cases.push(FUEL_FALLBACK_COLOR);
   return cases;
 }
+
+/**
+ * 撤權（登出／失去站主權限，review F088）：清掉站主限定資料（owner-data 私人檔與 owner-gated RPC）的 module cache。
+ * 公開的 staticRpc 系列（風機、光電、離岸場址、離島電網、地熱、充電站…）與 get_power_dashboard 不動。
+ */
+export function invalidateOwnerGatedEnergyCaches(): void {
+  for (const cached of [
+    _l1Cached, _l2Cached, _l3Cached, _l4Cached, _l5Cached, _l6Cached,
+    fetchPowerPlantsCached, fetchPowerGeneration24hCached,
+    fetchOsmSubstationsCached, fetchOsmPowerLinesCached, fetchOsmPowerTowersCached,
+    fetchOsmPowerPlantsStaticCached, fetchFossilFuelInfraCached,
+  ]) cached.invalidate();
+  for (const asset of OWNER_GATED_ENERGY_ASSETS) ownerDataStatus.reset(asset);
+}
+
+/** 上列 cache 中改讀站主私人檔（owner-data）的資產；撤權時一併清掉讀取狀態 */
+const OWNER_GATED_ENERGY_ASSETS: readonly OwnerDataAssetName[] = [
+  "fac-primary", "fac-offshore", "fac-planned", "fac-historical", "fac-secondary", "fac-osm-supplement",
+  "osm-substations", "osm-power-lines", "osm-power-towers", "osm-power-plants-static", "fossil-fuel-infrastructure",
+];
+
+/** 用到上列 cache 的站主限定圖層（含共用 fetchFacPrimary／OSM 電網的 Glow 實驗層） */
+export const OWNER_GATED_ENERGY_LAYER_KEYS = [
+  "facPrimary", "facOffshore", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement",
+  "powerPlants", "powerGenerationUnit", "osmSubstationsEhv", "osmSubstations", "osmPowerLines",
+  "osmPowerTowers", "osmPowerPlantsStatic", "fossilFuelInfra",
+  "powerPlantGlow", "substationEhvGlow", "powerLinesGlow",
+] as const;
+
+registerOwnerGateReset(OWNER_GATED_ENERGY_LAYER_KEYS, invalidateOwnerGatedEnergyCaches);

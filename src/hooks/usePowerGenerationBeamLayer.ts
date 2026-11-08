@@ -18,6 +18,7 @@ import {
 import { timeStore } from "../state/timeStore";
 import { feedDynamicSource } from "../map/dynamicSourceFeed";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
 
 /**
  * 平面圓點＋透明 hit-test 共用的 source（R6 段 2：registry `circle` 子層把它畫成可見的平面版）。
@@ -82,6 +83,8 @@ export function usePowerGenerationBeamLayer(
   const sizeScaleRef = useRef(sizeScale);
   sizeScaleRef.current = sizeScale;
   const plantsRef = useRef<PowerGenerationRow[] | null>(null);
+  // 撤權（review F088）：module cache 由 energyLoader 清；這裡清 hook 暫存
+  useEffect(() => registerOwnerGateReset(["powerGenerationUnit"], () => { plantsRef.current = null; }), []);
 
   // Slider 值走 ref 給 CustomLayer；值變動仍需主動要求 Mapbox 再 render 一幀。
   useEffect(() => {

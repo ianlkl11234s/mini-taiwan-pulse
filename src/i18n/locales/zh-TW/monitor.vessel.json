@@ -17,6 +17,7 @@
   "monitor.vessel.noteNone": "無船進入接近帶",
   "monitor.vessel.loading": "資料載入中…",
   "monitor.vessel.noObservation": "{days} 天內無觀測紀錄",
+  "monitor.vessel.incompleteDays": "{days} 天內有資料，但艘數不完整，無法顯示精確艘數",
   "monitor.vessel.unavailable": "資料暫不可用",
   "monitor.vessel.dataLabel": "特殊船舶接近帶",
   "monitor.vessel.unitShips": "艘",

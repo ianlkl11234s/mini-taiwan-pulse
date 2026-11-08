@@ -10,8 +10,10 @@ import type { I18nContext } from "./layerText";
 import { demographicsYtdText } from "../data/demographicsStatisticsRecipes";
 
 /** 統計圖層標題：優先圖層譯名，沒有回退配方中文 */
-export function statisticsTitle(layerKey: string, zh: string, { active, lookup }: I18nContext): string {
+export function statisticsTitle(layerKey: string, zh: string, { active, lookup }: I18nContext, presentation = false): string {
   if (active === "zh-TW") return zh;
+  // 衍生呈現指標（例：非勞動力率＝100－勞動力參與率）：標題是呈現指標自己的名稱，不能借來源指標的圖層譯名
+  if (presentation) return lookup(`enum.statMetric.${zh}`) ?? zh;
   return lookup(`layer.${layerKey}`) ?? zh;
 }
 

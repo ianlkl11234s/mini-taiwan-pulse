@@ -41,7 +41,6 @@ export const THEME_HEATMAP_PALETTE: Readonly<Record<string, PaletteId>> = {
   都市分析: "cividis",
   工商登記: "Burg",
   房地產: "YlOrBr",
-  住宅存量與使用: "Burg",
   人口社經: "YlOrBr",
   工作與所得: "Burg",
   廢棄物: "turku",
@@ -112,6 +111,12 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   krParkingLots: "cividis",
   krSpeedCameras: "rocket",
   krChildProtectionZones: "acton",
+  // 南韓 災害：海岸侵蝕拿主題色 rocket，第 7 波民防避難設施錯開成綠
+  krCivilDefenseShelters: "speed",
+  // 愛爾蘭 房地產（第 2 波）：商業房產估值拿主題色 YlOrBr，國有登記土地（代表點熱區）錯開成綠（林地、泥炭地多）
+  ieStateAssets: "viridis",
+  // 愛爾蘭 底圖 › 土地使用分區（第 9 波）：規劃申請案拿主題色 viridis，分區代表點熱區比照台灣 urbanZoningTaipei 錯開成 BuPu
+  ieZoning: "BuPu",
   // 日本 宗教（三個來源）、觀光、社福
   jpReligionOsm: "acton",
   jpReligionWikidata: "turku",
@@ -129,6 +134,9 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   urbanZoningNewTaipei: "cividis",
   nonUrbanZoning: "YlOrBr",
   jpLandslideWarningAreas: "bilbao",
+  // 日本第二輪（2026-11-06）：自然公園兩層同「觀光」主題，錯開主題色 Burg 與彼此
+  jpNaturalParkAreas2015: "YlGnBu",
+  jpNationalParksMoe: "viridis",
   // 第三輪（I 軌）：河川同「水資源」主題錯開湖泊埤塘、魚塭同「農業」主題錯開零售
   waterRivers: "PuBu",
   aquaculturePonds: "acton",

@@ -1,0 +1,5 @@
+{
+  "legend.jpSafety.accidentsPeriod": "対象期間 {period}（2026-10-01 公開）、人身事故 {total} 件（1 点 1 件）",
+  "legend.jpSafety.accidentsScope": "人身事故のみ（死亡＝24 時間以内死亡）。物損事故は本票に含まれず対象外。位置は警察が記録した発生地点、座標なし 3 件は非表示。",
+  "legend.jpSafety.accidentsSource": "出典：警察庁ウェブサイト（交通事故統計情報のオープンデータ）を加工して作成 · 公共データ利用規約第1.0版"
+}

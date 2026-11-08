@@ -945,21 +945,20 @@ function ProfilePage({ lang }: { lang: Lang }) {
       name: L ? "Mini-Taiwan 軌道運輸模擬" : "Mini-Taiwan Rail Simulation",
       desc: L ? "台灣軌道運輸即時模擬視覺化" : "Real-time Taiwan rail transit simulation",
       screenshot: "./screenshots/mini-taiwan.png",
-      site: "https://mini-taiwan-learning-project.zeabur.app/",
+      site: "https://mini-taiwan-learning-project.itsmigu.com/",
       github: "https://github.com/ianlkl11234s/mini-taiwan-learning-project",
     },
     {
       name: "Taiwan Flight Arc",
       desc: L ? "台灣航班弧線 3D 視覺化" : "Taiwan flight arc 3D visualization",
       screenshot: "./screenshots/taiwan-flight-arc.png",
-      site: "https://flight-arc.zeabur.app/",
+      site: "https://flight-arc.itsmigu.com/",
       github: "https://github.com/ianlkl11234s/flight-arc-graph",
     },
     {
       name: L ? "Taiwan Weather Timelapse 台灣氣象模擬" : "Taiwan Weather Timelapse",
       desc: L ? "台灣氣象時序動畫視覺化" : "Taiwan weather time-series animation",
       screenshot: "./screenshots/weather.png",
-      site: "https://taiwan-weather-timelapse.zeabur.app/",
       github: "https://github.com/ianlkl11234s/taiwan-weather-timelapse",
     },
     {

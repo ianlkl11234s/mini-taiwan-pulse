@@ -95,5 +95,7 @@
   "statistics.level.kr_sido": "道級（시·도）",
   "statistics.level.kr_sigungu": "市郡區（시군구）",
   "statistics.level.ca_pr": "省／地區",
-  "statistics.level.ca_cd": "普查區"
+  "statistics.level.ca_cd": "普查區",
+  "statistics.level.ie_la": "地方政府",
+  "statistics.level.ie_ed": "選舉分區"
 }

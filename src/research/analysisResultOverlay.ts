@@ -347,7 +347,9 @@ function cancelReveal(map: Map, index: number): void {
 function collection(result: PresentableResult): FeatureCollection<Point | LineString | MultiLineString | Polygon | MultiPolygon> {
   const features: Feature<Point | LineString | MultiLineString | Polygon | MultiPolygon>[] = result.rows.flatMap<Feature<Point | LineString | MultiLineString | Polygon | MultiPolygon>>((row, rowIndex) => {
     const geometry = row.geometry as { type?: unknown; coordinates?: unknown } | undefined;
-    if (geometry?.type !== result.geometry.type) return [];
+    const family = (type: unknown) => type === "Polygon" || type === "MultiPolygon" ? "area" : type === "LineString" || type === "MultiLineString" ? "line" : type;
+    if (family(geometry?.type) !== family(result.geometry.type)) return [];
+    if (!geometry) return [];
     if (geometry.type === "Polygon" || geometry.type === "MultiPolygon") {
       return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: { ...propertiesFor(row, result), [FEATURE_ID_PROPERTY]: rowIndex }, geometry: geometry as Polygon | MultiPolygon }];
     }

@@ -9,7 +9,7 @@
  */
 import { ALL_PRESETS } from "../map/cameraPresets";
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE";
 
 export interface CountryCamera {
   center: [number, number];
@@ -50,6 +50,9 @@ export const KOREA_CAMERA: CountryCamera = { center: [127.8, 36.3], zoom: 6.3, p
 
 /** 加拿大（13 省／地區；國家全覽 z3.5，map-layers §3.8 V-1；2026-11-04 加拿大第 0 波）。 */
 export const CANADA_CAMERA: CountryCamera = { center: [-96, 60], zoom: 3.5, pitch: 0, bearing: 0 };
+
+/** 愛爾蘭（26 郡、31 地方政府；國家全覽 z6，map-layers §3.8 V-1；2026-11-07 愛爾蘭第 0 波）。 */
+export const IRELAND_CAMERA: CountryCamera = { center: [-8.0, 53.4], zoom: 6, pitch: 0, bearing: 0 };
 
 /** 全台總覽（同 cameraPresets「全台總覽」；開站預設鏡頭 `DEFAULT_CAMERA` 仍是台北，2026-10-28 使用者要求選台灣時看全台）。 */
 const TAIWAN_CAMERA: CountryCamera = (() => {
@@ -199,6 +202,28 @@ export const COUNTRIES: readonly CountryDef[] = [
       [-66.5, 43.3, -59.5, 45.0],      // 新斯科細亞（哈利法克斯；西緣避開 Eastport）
       [-59.5, 47.2, -52.0, 49.0],      // 紐芬蘭（南緣避開聖皮耶與密克隆）
       [-55.9, 46.5, -52.0, 47.2],      // 亞瓦隆半島南部（西緣避開聖皮耶與密克隆）
+    ],
+  },
+  {
+    code: "IE",
+    chip: "IE",
+    labelKey: "country.IE",
+    camera: IRELAND_CAMERA,
+    // 2026-11-07 愛爾蘭第 0 波：外框依 Tailte Local Authorities 2026（-10.66–-5.99E、51.42–55.39N）。
+    // 與 GB 北愛矩形互斥（只共用邊、不重疊，countries.test 守）；依緯度帶切，東緣停在該帶北愛矩形的西緣。
+    // 矩形近似：邊界上的北愛小鎮（Crossmaglen、Newtownbutler、Caledon、Belleek 一帶）可能誤判為愛爾蘭，
+    // 愛爾蘭的 Bridgend、Pettigo 等貼邊村落可能判不到；單元測試釘住常見城市。
+    bboxes: [
+      [-10.75, 51.35, -5.9, 54.0],    // 南部、中部、都柏林、Dundalk（北緣 54.0 避開 Mourne 海岸）
+      [-6.4, 54.0, -6.1, 54.12],      // Cooley 半島、Omeath（西緣避開 South Armagh，北緣避開 Newry）
+      [-10.75, 54.0, -6.65, 54.2],    // Cavan、Monaghan 南部、Clones、Castleblayney（東緣避開 South Armagh）
+      [-7.25, 54.2, -6.8, 54.4],      // Monaghan 鎮、Glaslough、Emyvale（東緣避開 Armagh、北緣避開 Tyrone）
+      [-10.75, 54.2, -7.6, 54.3],     // Sligo、Leitrim、Blacklion（東緣避開 Lisnaskea）
+      [-10.75, 54.3, -8.1, 54.6],     // Mayo 北岸、Bundoran、Ballyshannon（東緣避開 Belleek、Fermanagh）
+      [-10.75, 54.6, -7.6, 54.75],    // Donegal 南部（東緣避開 Castlederg）
+      [-10.75, 54.75, -7.47, 54.95],  // Letterkenny、Lifford、Ballybofey（東緣避開 Strabane）
+      [-10.75, 54.95, -7.42, 55.05],  // Donegal 北部（東緣避開 Derry）
+      [-10.75, 55.05, -6.97, 55.45],  // Inishowen（Buncrana、Moville、Malin Head）、Tory 島（東緣避開 Magilligan）
     ],
   },
 ];
