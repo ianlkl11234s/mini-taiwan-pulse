@@ -40,6 +40,7 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 | 手段 | 狀態 | 代價／風險 |
 |---|---|---|
 | job 平行化 | 採用 | 多 2 台 runner；公開 repo 不收費 |
+| tsc 增量快取（tsconfig.app `incremental: true`＋actions/cache 存 tsbuildinfo） | 採用（2026-11-08） | 原本 noEmit＋`tsc -b` 的 tsbuildinfo 只記檔案清單、每次全量約 25–33s；開 incremental 後沒改的檔不重查。快取以 commit SHA 存、取最近一份，不符時 tsc 自己重算 |
 | vitest `--shard` 分 4 片（2026-11-08 由 2 片改 4 片） | 採用（`check:test` 必須直接呼叫 `vitest run`，若再包一層 `npm test`，`--shard` 會被 npm 吃掉、每片都跑全部） | 每片各付一次 checkout（約 65s）。分片依測試檔數切，不看耗時，兩片可能不平均。用 matrix，`npm run check:test` 在 ci.yml 只出現一次（parity 測試要求）。不合併報告：任一片紅即紅，看該片 log 即可 |
 | quick job 跳過 `public/` | 採用 | 只用在不讀 public/ 的檢查（lint、盤點、coral、worker 已確認） |
 | test／build 跳過 public 大檔 | **不採用** | 有 11 個契約測試會讀 public 大檔，例如 PMTiles sha256、staticDataContract；另外不少測試缺檔時會靜默略過，等於 CI 偷偷變弱 |
