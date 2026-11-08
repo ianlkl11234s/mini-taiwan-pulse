@@ -81,7 +81,7 @@
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
 ### 修正
-- 「關於」頁與部落格關於頁的作品連結改到新網域（軌道模擬、Flight Arc 改 itsmigu.com；氣象 timelapse 只留 GitHub），Zeabur 停止營運後不會失效（#PR）
+- 「關於」頁與部落格關於頁的作品連結改到新網域（軌道模擬、Flight Arc 改 itsmigu.com；氣象 timelapse 只留 GitHub），Zeabur 停止營運後不會失效（#905）
 
 ## v2.27.0 — 2026-11-08 — 愛爾蘭全波次與統計、南韓公共安全統計、歷史底圖六層
 
