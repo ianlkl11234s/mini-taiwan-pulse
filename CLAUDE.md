@@ -8,7 +8,7 @@
 
 ## Session 記憶迴圈
 
-**主題經驗總集（踩坑、best practice、網站哲學、小實驗）先看 [`docs/LESSONS.md`](./docs/LESSONS.md)**，新教訓寫進正本後在那裡加一行。SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES。有接手需求才依 [`.claude/memory/README.md`](./.claude/memory/README.md) 查相關段落；似曾相識的 bug 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)。明確收尾時依 wrap-up 的 scope/evidence/release matrix 留本次紀錄，提交／發布沿用各自授權。框架機制按需查 [`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。
+**主題經驗總集（踩坑、best practice、網站哲學、小實驗）先看 [`docs/LESSONS.md`](./docs/LESSONS.md)**，新教訓寫進正本後在那裡加一行。SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES。有接手需求才依 [`.claude/memory/README.md`](./.claude/memory/README.md) 查相關段落；似曾相識的 bug 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)。明確收尾時依 wrap-up 的 scope/evidence/release matrix 留本次紀錄，提交／發布沿用各自授權。框架機制按需查 [`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。**現況入口是 [`docs/PROJECTS.md`](./docs/PROJECTS.md)**（先讀上半部的進行中／待拍板，細節再查 BACKLOG 對應主題群）。
 
 ## 常用指令
 

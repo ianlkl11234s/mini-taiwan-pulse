@@ -4,14 +4,38 @@ Mini Taiwan Pulse 專案記憶系統。有接手需求時從這裡選讀，結�
 
 > **經驗總集（主題導覽）**：[`docs/LESSONS.md`](../../docs/LESSONS.md)——踩坑、best practice、網站哲學、小實驗依主題整理，每條連回本目錄或 docs 的正本。想知道「這類事以前學到什麼」先看它；新教訓先寫正本，再到 LESSONS.md 加一行。
 
+## 單一入口（2026-11-08 起）
+
+mini-taiwan-pulse 是整個 Pulse 生態系的總 PM，現況只看三份，各司其職：
+
+| 層 | 檔案 | 放什麼 |
+|---|---|---|
+| 專案層 | [`docs/PROJECTS.md`](../../docs/PROJECTS.md) | 一列一專案；上半部只放「進行中／待拍板」，已上線待收尾、暫停、構想摺疊在 `<details>`；開頭「現在最該注意」＝有期限的事（日期排序）＋本週進行中 |
+| 任務層 | [BACKLOG.md](BACKLOG.md) | 一列一個可關閉的 ID，依主題群分段（A 正式站目視包 … N 模擬實驗），每列標 Tier（底線／北極星／內容／待討論） |
+| 發版層 | [STATUS.md](STATUS.md) | 只留最近一次發版 checkpoint；舊段在 `docs/archive/<日期>/STATUS-history.md` |
+
+**開場讀法**：先讀 PROJECTS 上半部 → 需要細節才查 BACKLOG 對應主題群 → STATUS 只看最近發版。`.gis-agent-system` 只放 ADR（`decisions/`）與跨 repo 計畫書（`projects/<slug>/`），不放進度。
+
+**已停更的狀態文件**（不要再更新，也不要從它們判斷現況）：
+
+| 文件 | 改看 |
+|---|---|
+| `.gis-agent-system/orchestrator/SESSION_BOARD.md` | `docs/PROJECTS.md` |
+| `.gis-agent-system/OPEN_QUESTIONS.md` | PROJECTS 待拍板列／BACKLOG `待討論` tier |
+| `.gis-agent-system/roadmap/status/release-queue.md` | `CHANGELOG.md`＋STATUS |
+| `.gis-agent-system/roadmap/status/backlog.md` | 本目錄 BACKLOG.md |
+| `.gis-agent-system/roadmap/status/ai-mcp.md` | `.gis-agent-system/roadmap/status/agent-analysis-runbook.md`＋BACKLOG I 群 |
+
+（這些檔在另一個 repo，本 repo 只記錄停更；它們本身的封存標記另行處理。）
+
 ## 檔案總覽
 
 ### 核心檔
 
 | 檔案 | 用途 | 更新時機 |
 |---|---|---|
-| [STATUS.md](STATUS.md) | 當前進度、下一步 | 每次 session 結束 |
-| [BACKLOG.md](BACKLOG.md) | 待辦清單（P0/P1/P2/P3） | 新 idea / 完成項目 |
+| [STATUS.md](STATUS.md) | 最近一次發版 checkpoint | 每次發版 |
+| [BACKLOG.md](BACKLOG.md) | 任務層待辦（依主題群分段、每列標 Tier） | 新任務／完成項目（完成移到已關閉並附證據） |
 | [DATA_SCOPE.md](DATA_SCOPE.md) | 資料盤點（Supabase / 靜態 GeoJSON / S3） | 新資料上線後 |
 | [PRINCIPLES.md](PRINCIPLES.md) | 不用再溝通的預設 | 新共識產生時 |
 | [PLAYBOOKS.md](PLAYBOOKS.md) | 固定流程 SOP | 重複流程定型時 |
@@ -21,7 +45,7 @@ Mini Taiwan Pulse 專案記憶系統。有接手需求時從這裡選讀，結�
 
 ## Backlog SSOT 與 lifecycle
 
-- [BACKLOG.md](BACKLOG.md) 只負責全站排序：當期 release gates、production incidents / data health、security / governance、跨 feature platform 工作、待決策項與 scheduled / conditional triggers。
+- [BACKLOG.md](BACKLOG.md) 只負責全站排序，依主題群分段（規則與群清單見該檔檔頭）：正式站目視包、Zeabur 收尾、資料保留、資安、collector 健康、舊路徑撤除、開發系統、台灣／多國圖層、Agent、前端技術債、產品舊決策、內容、文件衛生、模擬實驗。
 - `docs/features/<slug>/backlog.md` 是單一 feature 執行細節的 canonical SSOT；核心 backlog 每個 feature 最多保留一行索引，不重抄 layer、欄位、檔名、row count 或驗收矩陣。
 - Priority 與 State 分開：Priority 只比較現在可執行工作；State 使用 `ready` / `in_progress` / `blocked` / `waiting_external` / `conditional` / `verifying`。
 - `conditional` 必填 trigger 或 `not_before`、owner 與觸發後第一個 action；未觸發前不當成 P0/P1 active work。
@@ -41,8 +65,8 @@ Mini Taiwan Pulse 專案記憶系統。有接手需求時從這裡選讀，結�
 
 > 2026-10-16 對齊 CLAUDE.md「Session 記憶迴圈」：SessionStart hook 只給短路由，**不預載**；以下是有接手需求時的選讀順序，只讀與本次 scope 相關的檔與段落。
 
-1. 接續上次工作 → `STATUS.md`（現況、上次結束點）
-2. 要排優先級 → `BACKLOG.md`
+1. 接續上次工作 → `docs/PROJECTS.md` 上半部（進行中／待拍板、現在最該注意）；最近一次發版看 `STATUS.md`
+2. 要排優先級或查單一任務 → `BACKLOG.md` 對應主題群
 3. 動手前想確認既有共識 → `PRINCIPLES.md` 相關段（或先看 `docs/LESSONS.md` 找主題）
 4. 必要時查 `DATA_SCOPE` / `PLAYBOOKS` / `GLOSSARY`；似曾相識的 bug 搜 `../pitfalls/`
 5. **不變規則**在專案根 [../../CLAUDE.md](../../CLAUDE.md)
@@ -84,7 +108,7 @@ Release matrix 的最小格式：
 | **狀態框架** | `.claude/memory/`（本 repo，跟 commit） | 專案本體：pattern / 事件 / 術語 / backlog | 本檔列出的核心檔＋按任務選讀的專案特定檔 |
 | **長文** | `.claude/pitfalls/` | 事件 long-form archive | 具體 incident 的完整 postmortem |
 | **Feature 文件** | `docs/features/<slug>/` | 單一 feature 完整脈絡 | README + backlog + changelog + handoff |
-| **專案總表** | [`docs/PROJECTS.md`](../../docs/PROJECTS.md) | 做到一半的專案總覽（一列一專案，只放指標） | 狀態、下一步、正本連結；收尾時更新 |
+| **專案總表（現況入口）** | [`docs/PROJECTS.md`](../../docs/PROJECTS.md) | 做到一半的專案總覽（一列一專案，只放指標） | 狀態、Tier、下一步、正本連結；收尾時更新 |
 | **跨 repo SSOT** | `taipei-gis-analytics/docs/{handoff,adr}/` | 資料契約 + 決策紀錄 | Handoff（下游要接的） + ADR（決策） |
 
 ### 分工判斷樹
@@ -97,7 +121,7 @@ Release matrix 的最小格式：
 4. **是不是「全站規則、多 feature 共用」？** → `.claude/memory/PRINCIPLES.md` 或 `CLAUDE.md`
 5. **是不是「踩坑事件的長文分析」？** → `.claude/pitfalls/YYYY-MM-DD-*.md`
 6. **是不是「個人偏好 / WIP 短期 status」？** → 全域 `~/.claude/projects/.../memory/`
-7. **是不是「當週動態」？** → `.claude/memory/STATUS.md`
+7. **是不是「專案狀態改變」？** → `docs/PROJECTS.md` 該列；**發版 checkpoint** → `.claude/memory/STATUS.md`
 
 ### 歷史清理原則
 
