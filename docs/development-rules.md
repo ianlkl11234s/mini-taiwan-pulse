@@ -4,11 +4,15 @@
 
 ## 1. 資料來源管理
 
+> 網站結構（Workers＋R2＋pulse-host）、Supabase／R2／S3 各自的職責與保留期限、新增圖層的放置決策樹，正本是 GIS 工作區 `.gis-agent-system/decisions/0026-pulse-architecture-and-data-placement.md`（ADR-0026）。本節只寫前端要守的契約。
+
 ### 依更新語意選 runtime 路徑
-- **動態時序資料**（船舶、航班、溫度、壅塞、地震、災害示警 等）→ Supabase RPC
+- **⛔ 守門：資料不會變，或只會整批替換**（選舉結果、投開票所、選區、年度普查、一次性調查、季／年更開放資料）→ 一律做成 PMTiles／GeoJSON 檔走 S3 deploy-assets → R2，**不進 Supabase、不寫 RPC 圖層**（ADR-0026 §5.1）。
+- **動態時序資料**（船舶、航班、溫度、壅塞、地震、災害示警 等），且需要伺服器端依時間視窗／範圍篩選 → Supabase RPC；新表必須同時登記 `metadata.retention_policies`（≤ 180 天）與 S3 正本路徑（ADR-0026 §6）
+- **每個人看都一樣的最新快照／每日切片、影像** → collector 寫 R2（＋manifest），不經 RPC 回傳大量資料或 base64 影像
 - **靜態 GeoJSON**（機場、港口、燈塔、路網 等）→ `public/<domain>/*.geojson`；既有 URL 視為契約，不因整理目錄任意搬動
 - **Statistics 行政區統計**（包含未來新增指標）→ `regional-statistics-cdn-v1` R2 snapshot；資料庫保留為發布來源，瀏覽器不得 fallback 到 Supabase。發布順序固定為 immutable artifact → immutable manifest → `current.json`，任一 SHA／完整度／來源語意檢查失敗即顯示錯誤。
-- **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/<domain>/`（由 S3 deploy-assets 管理；路徑須與 manifest、nginx、deploy scripts 同步）
+- **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/<domain>/`（由 S3 deploy-assets 管理，`deploy/cloudflare/sync_site_assets.py` 同步到 R2 `site/`；路徑須與 manifest、`deploy/cloudflare/site_manifest.py`、deploy scripts 同步）
 
 ### 統計圖層的專項規則
 
@@ -122,7 +126,7 @@ useEffect(() => {
 |---|---|---|---|
 | 1 | `src/types/index.ts` | `LayerVisibility` interface 加 key | 🔒 tsc（下游多處 `Record<keyof LayerVisibility,T>` 全部強制） |
 | 2 | `src/types/index.ts` | 若可點選：`FeatureInfo["layerType"]` union 加 key | 🔒 tsc（`HEADER_LABELS` 是 Record，見 #15） |
-| 3 | `src/data/xxxLoader.ts` | 寫 loader，Supabase RPC / 靜態 fetch 包 `withLoading` | 🔒 `loadingRegistryContract.test.ts`（檔名需符合 `/Loaders?\.ts$/`；`intelLoaders.ts` 複數檔名曾逃過舊版 filter，已修） |
+| 3 | `src/data/xxxLoader.ts` | 寫 loader，Supabase RPC / 靜態 fetch 包 `withLoading` | 🔒 ESLint `pulse/loader-rpc-with-loading`（範圍 `src/data/*Loader.ts`／`*Loaders.ts`；例外寫在 `eslint.config.js` 的 `LOADER_RPC_EXEMPT` 並附理由） |
 | 4 | `src/data/xxxTypes.ts` | 若分類 ≥2 種：色/標籤 SSOT，供 factory / featureInfo / legend 三邊 import | ⚠️ 人工（漏建會導致三邊各自 inline hex，見 PRINCIPLES 三邊色彩一致性段） |
 | 5 | `src/hooks/useXxxLayer.ts` | React hook：state + 觸發 loader + cleanup | ⚠️ 人工 |
 | 6 | `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts` | 靜態 → registry entry；動態 → CustomLayer | ⚠️ 人工 |
@@ -184,7 +188,7 @@ myNewLayer: [
 2. 這層**有意沒有控件**（純靜態展示層）→ **只有一種寫法**：manifest 寫 `params: null`
    ＋ 把 key 加進 `layerConsistency.test.ts` 的 `NO_PARAMS_LEDGER` 並寫下理由（目前會被 `layerUxPolicy.test.ts` 的透明度基線擋，等於要使用者同意的例外）。
 
-**驗收**：`npm run check`，且 `src/data/__tests__/__fixtures__/layer-golden.json`
+**驗收**：`npm run verify` 加 CI 綠，且 `src/data/__tests__/__fixtures__/layer-golden.json`
 的**既有層那幾行必須逐位元不變**（新層是新增 key，只有新 key 那幾行會動；既有層的任何 diff 都是回歸）。
 ⚠️ AR-22 Phase 4 起該 fixture 只凍 3 個 section（`overlays` / `params` / `gisLayers`）——
 另外 9 個已被 `layerManifest.test.ts` 逐 key 焊死，凍第二份只是 churn。
@@ -193,7 +197,7 @@ myNewLayer: [
 **規模經濟**：殯葬 5 層與教育 16 層兩次實測都落在同一 14 個檔案——多層共用同一批基礎設施檔案（layerCatalog／App.tsx／useMapInteraction 等）只需改一次，per-layer 邊際成本主要落在 #1-6、#11-15（型別／loader／hook／registry／params／legend／popup）。
 
 ### 檢查清單
-- [ ] `npm run check` pass
+- [ ] `npm run verify` pass，PR 的 CI 綠
 - [ ] manifest entry 欄位齊全（color／icon／section／source／legend／popup／params；`LAYER_COLORS` 等由此派生，不手改）
 - [ ] Loader 有 loadingRegistry
 - [ ] Toggle 開關有 loading 提示
@@ -334,10 +338,11 @@ LegendPanel）共用。
 
 ## 6. TypeScript 驗證與 commit 前檢查
 ```bash
-npm run check   # 依序跑 CI 的全部檢查：check:lint（ESLint 守門規則）→ check:build（tsc -b ＋ vite build）→ check:test → check:inventory（樣式盤點）→ check:coral
+npm run verify  # commit 前：tsc -b → lint → 樣式盤點 → 與 origin/develop 相比有改動的測試（vitest --changed）
+npm run check   # 依序跑 CI 的全部檢查（快的在前）：check:lint（ESLint 守門規則）→ check:inventory（樣式盤點）→ check:coral → check:worker → check:build（tsc -b ＋ vite build）→ check:test
 npx tsc -b      # 只驗型別時；project references，不要用 tsc --noEmit
 ```
-Commit／PR 前必跑 `npm run check`，失敗即停。CI（`.github/workflows/ci.yml`）每個 step 呼叫同名的 `check:*`，`src/test/ciCheckParity.test.ts` 擋兩邊清單不一致；新增檢查要兩邊一起加。樣式盤點不一致時檢查會直接重產到工作區，確認 diff 只動本次改的圖層後 commit。
+Commit／PR 前必跑 `npm run verify`，失敗即停；完整套件（`npm run check` 那一組）由 CI 跑，合併前等 CI 綠，CI 紅了才在本機用 `npm run check` 或單跑紅燈的檔重現。CI（`.github/workflows/ci.yml`）每個 step 呼叫同名的 `check:*`，`src/test/ciCheckParity.test.ts` 擋兩邊清單不一致；新增檢查要兩邊一起加。CI 的 job 拆法、跳過規則與加速取捨見 [`ci.md`](./ci.md)。樣式盤點不一致時檢查會直接重產到工作區，確認 diff 只動本次改的圖層後 commit。
 
 **owner-local 測試**：讀隔壁 repo（`../taipei-gis-analytics`、`../runtime/…`）或 gitignored 私有／大檔的測試，`npm test` 預設略過（與 CI 同一組）；要跑時用 `npm run test:owner`（`PULSE_OWNER_TESTS=1`）。新測試的 skip 條件用 `src/test/ownerAssets.ts` 的 `ownerAsset(path)`，只用在不在 git 裡的路徑。
 
@@ -349,11 +354,11 @@ Commit／PR 前必跑 `npm run check`，失敗即停。CI（`.github/workflows/c
 - **規則放哪**：本地 plugin `pulse` 在 `eslint-rules/`（`index.js` 登記、`rules/design.js`／`rules/css.js` 為 design system guard 的 TS／CSS 部分、`rules/guards.js` 為其他守門）；套用到哪些檔寫在 `eslint.config.js` 的 `files`／`ignores`。內建規則表達得了就用內建（例 `no-restricted-imports`）；只是禁某種語法就用 `utils.js` 的 `selectorRule()`（esquery selector），每個守門一個規則 id。
 - **怎麼加**：① 在 `rules/*.js` 寫規則（訊息寫「不要做什麼＋改用什麼＋規範出處」；訊息裡不能出現 `{{`，那是 placeholder 語法）② 在 `index.js` 登記 ③ 在 `eslint.config.js` 加一個 block 指定 `files` ④ `eslint-rules/__tests__/rules.test.js`（CSS 規則用 `cssRules.test.js`）加 RuleTester 樣本（valid／invalid），`config.test.js` 加一列釘住套用範圍 ⑤ `npm run lint`。
 - **既有違規（ratchet）**：記在根目錄 `eslint-suppressions.json`（每檔每規則的筆數）。筆數增加或新檔出現違規 → lint 紅；修掉違規後 lint 會提示有沒用到的 suppression，跑 **`npm run lint:prune`** 把基準降下來並 commit。**不要跑 `eslint --suppress-all`／`--suppress-rule`**：那會把新違規吃進基準＝放寬，與 CLAUDE.md §7「紅燈修程式碼，不改基準」相同。
-- 目前規則：design system guard（TS／TSX `pulse/design-*`、CSS `pulse/design-css-*`，見 design-system/spec.md §9）、`map-ready-tick-deps`、點圖層 R2（`no-zoom-circle-radius`、`no-legacy-radius-helper`、`no-hand-rolled-stroke-opacity`）、`no-fill-outline-color`、`monitor-no-manual-polling`、圖例收斂（`legend-no-letter-spacing`、`legend-no-hand-sized-swatch`）、hook deps 不放 currentTime（`no-current-time-deps`，全站；只看 useEffect／useLayoutEffect／useMemo／useCallback 的第二個參數）、day prefetch（`no-restricted-imports`）、站主限定圖層資安守門（`owner-only-no-external-source`：不寫死 http(s) 網址、不讀 `import.meta`，註解也算；`owner-only-banned-text`：土壤液化不接官方 WMTS／WMS、不寫死站點）。
+- 目前規則：design system guard（TS／TSX `pulse/design-*`、CSS `pulse/design-css-*`，見 design-system/spec.md §9）、`map-ready-tick-deps`、點圖層 R2（`no-zoom-circle-radius`、`no-legacy-radius-helper`、`no-hand-rolled-stroke-opacity`）、`no-fill-outline-color`、`monitor-no-manual-polling`、圖例收斂（`legend-no-letter-spacing`、`legend-no-hand-sized-swatch`）、hook deps 不放 currentTime（`no-current-time-deps`，全站；只看 useEffect／useLayoutEffect／useMemo／useCallback 的第二個參數）、day prefetch（`no-restricted-imports`）、loader RPC 包 withLoading（`loader-rpc-with-loading`，CLAUDE.md §3；例外在 `LOADER_RPC_EXEMPT`，不再需要時規則會報 stale）、sidebar 控制項只經共用 ParamControlList（`sidebar-shared-param-controls`，§4a 規則 4）、獨立 entry 的 bundle 邊界（card／privacy 的 `no-restricted-imports`＋`no-restricted-syntax` 擋動態 import；`src/main.tsx` 禁 `hydrateRoot`）、站主限定圖層資安守門（`owner-only-no-external-source`：不寫死 http(s) 網址、不讀 `import.meta`，註解也算；`owner-only-banned-text`：土壤液化不接官方 WMTS／WMS、不寫死站點）。
 - **站主限定圖層的範圍**：`eslint.config.js` 的 `OWNER_ONLY_FILES`（家族 glob）與 `OWNER_ONLY_EXEMPT`（附理由）。`eslint-rules/__tests__/ownerOnlyScope.test.js` 自己掃 `src/data`、`src/hooks` 找出含 `/api/private-research/`（或 import 了這類 data 模組）的檔，沒被規則覆蓋也沒列豁免就紅——新增私人圖層家族時把檔名加進 `OWNER_ONLY_FAMILIES`；來源卡需要的官方連結用 `allowUrls` 逐一列出，不要整檔豁免。
 
 ## 7. 部署 Checklist
-部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
+部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。2026-11-06 起正式站是 Cloudflare Worker（網頁＝Workers 靜態資產，檔案依 R2 → dist → 404，`/api` 轉 pulse-host），見 [`deploy/cloudflare/README.md`](../deploy/cloudflare/README.md) 與 ADR-0026 §8。改 `public/**` 資產時，manifest URL、`deploy/cloudflare/site_manifest.py`、nginx（Zeabur 回滾備援期間仍保留）與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
 
 ## 8. 動態圖層時間訂閱（External Time Store）
 

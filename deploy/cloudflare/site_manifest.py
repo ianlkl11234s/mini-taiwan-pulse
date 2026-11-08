@@ -26,7 +26,9 @@ MIRRORS = ["network_structures", "medical", "industrial_zone", "sports", "educat
            "water_resources", "urban", "culture", "religion", "funeral", "welfare", "hazards",
            "indigenous_rural", "marine", "civic_facilities", "environment", "public_life", "poi",
            "harm_reduction", "world", "tourism", "embed-snapshots", "embed-rail", "base_map",
-           "road", "climate", "flood", "police_justice"]
+           "road", "climate", "flood", "police_justice",
+           # CI-4（2026-11-08）：git 大檔改由 S3 鏡像子前綴供應
+           "bus", "finance", "energy", "mapchallenge", "statistics", "state_assets"]
 
 SYNCS: list[tuple[str, str, str, list]] = [
     ("root-json", "", "/", [exc("*"), inc("aviation_data.json"), inc("ship_data.json")]),
@@ -95,10 +97,12 @@ NGINX_DATA = {
     "road": ("data", False), "rail": ("data", False), "embed-snapshots": ("data", False),
     "embed-rail": ("data", False), "jp-heights": ("data", True), "jp-medical": ("data", True),
     "flight-trails": ("data", True),
+    # CI-4：worker.js DATA_THEN_DIST 新增的目錄（nginx.conf 同步加 location）
+    "finance": ("fallback", False), "energy": ("fallback", False), "mapchallenge": ("fallback", False),
+    "statistics": ("fallback", False), "state_assets": ("fallback", False),
 }
 ROOT_JSON = {"/aviation_data.json", "/ship_data.json", "/temperature_grid.json"}
 STATIC_EXT_RE = re.compile(r"\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$", re.I)
-OOKLA_RE = re.compile(r"^/geo/ookla_(fixed_global|mobile_global|tw_z14|tw_z16)(_[0-9]+)?\.(geojson|pmtiles)$")
 # 「整個資料夾都算用到」的家族：檔名在執行期才決定（rail id、氣候 frame、嵌入快照日期）
 WHOLE_FAMILIES = {"rail": "rail.tar.gz 整包解壓、track/schedule id 執行期決定",
                   "climate": "refresh-climate 每 6 小時同步；frames 由 frames/manifest.json 指定",
@@ -112,8 +116,6 @@ def nginx_route(path: str) -> tuple[str, str]:
     seg = path.split("/")[1] if path.count("/") >= 2 else ""
     if any(part.startswith(".") for part in path.split("/")):
         return "none", "dotfile 一律 404"
-    if OOKLA_RE.match(path):
-        return "dist", "nginx ookla 正則只走 dist"
     if seg not in NGINX_DATA:
         return "none", ""
     mode, caret = NGINX_DATA[seg]

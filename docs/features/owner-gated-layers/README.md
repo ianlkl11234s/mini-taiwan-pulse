@@ -56,6 +56,19 @@
 
 新增站主限定圖層若有 module cache 或自建 source，記得 `registerOwnerGateReset`。
 
+### owner-data 家族（2026-11-08 起，站主限定靜態資料的標準存法）
+
+使用者 2026-11-08 拍板：站主限定的**靜態或整批替換**資料不再用 Supabase owner-only RPC，改成私人檔＋coral-private sidecar；
+只有要伺服器端依時間視窗查詢的即時資料（電廠出力等）留在 RPC。計畫與批次：`.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`。
+
+- 路徑 `/api/private-research/owner-data/<key>`；白名單 `server/coral-private/owner-data-assets.mjs`（key、filename、size、sha256），前端鏡像 `src/data/ownerDataAssets.ts`（`src/lib/__tests__/ownerData.test.ts` 逐一比對）。
+- 儲存：私有 S3 `migu-private-research-ap-southeast-2/private-research/owner-data/<sha256>/<filename>`（內容定址，舊版並存＝回滾只要改回舊常數）；正本另放 `migu-gis-data-collector/supabase-export/owner-data/<sha256>/<filename>`（ADR-0026），底層表另有 `supabase-export/<schema>.<table>/full-YYYYMMDD.csv.gz`。
+- sidecar **不暖機**：第一次請求某檔才從 S3 抓並驗 sha256，之後留在記憶體；其他家族暖機失敗不影響它。
+- 路由：Caddy（pulse-host `Caddyfile`）、`nginx.conf`、`vite.config.ts` 都用前綴式 `owner-data/[a-z0-9-]+`，**之後加檔不用再改路由**；未知 key 由 sidecar 回 404。
+- 前端：`fetchOwnerJson(asset, taskId, label)`（`src/lib/ownerData.ts`）帶站主 token、分段 Range、註冊 loadingRegistry；非 401／403 的失敗寫進 `ownerDataStatus`，圖例用它顯示「讀取失敗（原因）」。loader 只把 `supabase.rpc` 換成它，回傳形狀不變。
+- 新增一支檔：匯出（RPC 函式本體 SELECT，形狀與 RPC 相同）→ `owner-data.local/` 寫檔與 `local_validation.json` → 兩份 assets 常數加一列 → `node scripts/deploy/upload-owner-data-private.mjs <repo>/owner-data.local`（set -a 載入 .env）→ PR → 主機重建 coral-private → 前端發版後才撤舊 RPC。
+- 目前收錄：`livestock-farms`（13,087 筆）、`livestock-slaughterhouses`（185 筆），2026-11-08 第 1 批。舊 RPC `get_livestock_*` 待前端發布到 master 後撤除。
+
 ### 已知限制
 
 - 私人 Range API（`server/coral-private/*`）仍認寫死的站主 `OWNER_ID`，不讀 `profiles.tier`；把某層在後台降到 insider 只會解開介面，資料端仍只給站主。
@@ -87,7 +100,7 @@ Phase 1 的 key 分組（電力、石化、畜牧與 3 個無介面層）與後�
 
 | 圖層群 | 原路徑 | 新路徑 |
 |---|---|---|
-| 畜牧飼養場 / 屠宰場 | 靜態 `./agriculture/*.geojson` | owner-only RPC `get_livestock_farms` / `get_livestock_slaughterhouses`（dynamicData + setData） |
+| 畜牧飼養場 / 屠宰場 | 靜態 `./agriculture/*.geojson` | owner-only RPC `get_livestock_farms` / `get_livestock_slaughterhouses`（dynamicData + setData）→ **2026-11-08 起** owner-data 私人檔 `livestock-farms`／`livestock-slaughterhouses`（同形狀） |
 | 石化 9 層 | staticRpc CDN `get_fossil_fuel_layers` | 直連 `supabase.rpc("get_fossil_fuel_layers")` |
 | 加油站 5 層（公開） | staticRpc `get_fossil_fuel_layers`（共用） | 拆出走公開 `staticRpc("get_gas_station_layers")` |
 | 電網 4 + 電廠 5 + fossil infra + offshore + osm static | staticRpc CDN | 直連 `supabase.rpc(...)` |

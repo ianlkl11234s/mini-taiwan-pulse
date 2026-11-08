@@ -10,9 +10,8 @@
 
 ## Data quality
 
-- [ ] **RL-2**：Supabase `reference.religion_temples` 補 `deity_family` 欄並重跑上游匯入。
-  - Outcome：DB 參考資料與靜態檔分類契約一致，日後查詢不會看到兩套語意。
-  - Next action：在 gis-platform 建 migration、重跑 `08_supabase.py`，再做 row/classification 對帳。
+- [x] ~~**RL-2**：Supabase `reference.religion_temples` 補 `deity_family` 欄並重跑上游匯入。~~
+  - 作廢（2026-11-08）：該表已於 2026-11-07 由 gis-platform migration 510 刪除（無讀者），冷存 S3 `supabase-export/reference.religion_temples/full-20261107.csv.gz`；DB 端不再有第二套語意。
 - [ ] **RL-3**：補無座標尾巴（temples 2 筆及其他表 `no_coords.csv`）。
   - Outcome：可定位的宗教據點增加，且不改動目前已上線的靜態檔語意。
   - Next action：先驗來源地址與 geocode 命中率，再產新檔與 coverage report。

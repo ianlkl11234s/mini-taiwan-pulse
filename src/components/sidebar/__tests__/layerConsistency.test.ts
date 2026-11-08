@@ -37,6 +37,8 @@
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 import {
   STATISTICS_TAB_CHOROPLETH_LAYER_KEYS,
@@ -55,6 +57,8 @@ import {
 } from "../layerCatalog";
 import { JAPAN_MACRO_GROUPS, JAPAN_THEMES, LAYER_PANELS, PANEL_COUNTRIES, countryLayerKeys, resolveLayerPanel } from "../layerPanels";
 import { hasLayerDetails } from "../../LayerSidebar";
+import { ParamControlList } from "../LayerParamControls";
+import type { ParamControl } from "../../../state/layerParamsControls";
 import { STATISTICS_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../../data/layerManifest";
 import { buildDefaultVisibility } from "../../../state/layerVisibilityStore";
@@ -460,30 +464,19 @@ describe("鐵則 4：select 控件渲染閾值", () => {
    * 唯一的失敗模式是「兩個 sidebar 的閾值改了一邊忘了另一邊」——
    * 桌機看到 dropdown、手機看到撐爆的 button row。
    */
-  it("IconRailSidebar 與 LayerSidebar 用同一個閾值（兩者都經共用 LayersPanel → ExpandedControls → ParamControlList）", () => {
-    // Phase I 起兩個 sidebar 共用 `ParamControlList`（sidebar/LayerParamControls.tsx），閾值只寫在共用元件一處。
-    // 圖層面板統一 A 段起，桌機與手機連面板本體都共用（sidebar/LayersPanel.tsx），展開區只有 ExpandedControls 一份；
-    // 保護意圖不變：兩個 sidebar 都必須走共用元件，不能各自再渲染一份控制項。
-    const THRESHOLD = "ctrl.options.length > 3";
-    expect(
-      readFileSync("src/components/sidebar/LayerParamControls.tsx", "utf8").includes(THRESHOLD),
-      `共用控制項元件找不到 \`${THRESHOLD}\` —— 渲染邏輯改了形狀（請同步更新本測試）。` +
-      `§4a 規則 4：≥ 4 個 option 必用原生 <select>，中文標籤的 button row 一定撐爆 240px 窄欄。`,
-    ).toBe(true);
-    expect(readFileSync("src/components/sidebar/ExpandedControls.tsx", "utf8")).toContain("<ParamControlList controls={controls} />");
-    expect(readFileSync("src/components/sidebar/LayersPanel.tsx", "utf8")).toContain("<ExpandedControls");
-    for (const file of [
-      "src/components/IconRailSidebar.tsx",
-      "src/components/LayerSidebar.tsx",
-      "src/components/sidebar/LayersPanel.tsx",
-    ]) {
-      const source = readFileSync(file, "utf8");
-      if (file !== "src/components/sidebar/LayersPanel.tsx") {
-        expect(source, `${file} 沒有走共用的 LayersPanel`).toMatch(/import \{ LayersPanel[^}]*\} from "\.\/sidebar\/LayersPanel"/);
-        expect(source, `${file} 不該再自己掛 ParamControlList`).not.toContain("<ParamControlList");
-      }
-      expect(source.includes("ctrl.options.length"), `${file} 又自己渲染了一份 select —— 閾值會分岔`).toBe(false);
-    }
+  it("共用 ParamControlList：≤3 個選項畫按鈕列、≥4 個用原生 <select>", () => {
+    const select = (n: number): ParamControl => ({
+      type: "select",
+      label: "測試",
+      value: "0",
+      options: Array.from({ length: n }, (_, i) => ({ label: `選項${i}`, value: String(i) })),
+      onChange: () => {},
+    });
+    const markup = (n: number) => renderToStaticMarkup(createElement(ParamControlList, { controls: [select(n)] }));
+    expect(markup(3)).not.toContain("<select");
+    expect(markup(4)).toContain("<select");
+    // 兩個 sidebar 都走共用 LayersPanel（下方「區域統計 sidebar 接線」釘 <LayersPanel／<ExpandedControls 接線）；
+    // sidebar 自己掛 <ParamControlList> 或自己判斷 options.length 由 ESLint pulse/sidebar-shared-param-controls 擋。
   });
 });
 
@@ -500,6 +493,7 @@ describe("區域統計 sidebar 接線", () => {
     expect(expanded.indexOf('<ParamControlList controls={controls} />')).toBeLessThan(expanded.indexOf('<StatisticsDetails'));
     expect(expanded).toContain('useLinkedSelects(layerKey);');
     const panel = readFileSync('src/components/sidebar/LayersPanel.tsx', 'utf8');
+    expect(panel).toContain('<ExpandedControls');
     // 群組變體由目錄資料（LayerDef.variant）決定，不在面板裡查群組表
     expect(panel).toContain('if (!variant.lead) return null;');
     // 每一列都有展開區（至少「說明・來源」），列按鈕帶 aria-expanded

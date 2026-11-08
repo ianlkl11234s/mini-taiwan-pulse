@@ -749,6 +749,27 @@ for f in "${TOURISM_FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/tourism/$name" --region ap-southeast-2
 done
 
+# CI-4（2026-11-08）：git 追蹤的 >1MB public 檔，依 deploy/public-assets.lock.json（delivery=r2）上傳到 s3_key。
+# 只建新物件（--if-none-match）：S3 已有同 key 就跳過，大小不同時報錯停下，不覆寫。
+# 新增或更新大檔：先重跑 python3 scripts/deploy/build-public-assets-lock.py，再跑本段。
+python3 - "$BUCKET" <<'PY' | while IFS="$(printf '\t')" read -r f key size; do
+import json, sys
+for e in json.load(open("deploy/public-assets.lock.json"))["entries"]:
+    if e["delivery"] == "r2" and e["s3_key"].startswith("deploy-assets/") and not e["s3_key"].endswith(".tar.gz"):
+        print(f'{e["path"]}\t{e["s3_key"]}\t{e["bytes"]}')
+PY
+  [ -f "$f" ] || { echo "Skipping $key (file not found: $f)"; continue; }
+  existing=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --query ContentLength --output text 2>/dev/null || true)
+  if [ -n "$existing" ]; then
+    [ "$existing" = "$size" ] || { echo "Refusing: $key 已存在且大小不同（S3 $existing vs lock $size）" >&2; exit 1; }
+    continue
+  fi
+  name=$(basename "$key")
+  echo "Uploading $key (lock)..."
+  aws s3api put-object --bucket "$BUCKET" --key "$key" --body "$f" --if-none-match '*' \
+    --cache-control "$(cache_control_for "$name")" --region ap-southeast-2 >/dev/null || exit 1
+done || exit 1
+
 echo "Done!"
 
 # Japan height is deliberately excluded from this broad uploader. Use

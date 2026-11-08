@@ -275,6 +275,20 @@ if [ -f "$CACHE/rail.tar.gz" ]; then
 fi
 
 # 公車大檔：*.json.gz 同步到 cache，僅在有變時才重新 gunzip
+# CI-4（2026-11-08）：git 大檔改由 S3 鏡像子前綴供應（bus 各縣市路線、finance 等原本只在 dist 的目錄）
+echo "[pull] sync bus → $DATA_DIR/bus/"
+aws s3 sync "$S3/bus/" "$DATA_DIR/bus/" --no-progress
+echo "[pull] sync finance → $DATA_DIR/finance/"
+aws s3 sync "$S3/finance/" "$DATA_DIR/finance/" --no-progress
+echo "[pull] sync energy → $DATA_DIR/energy/"
+aws s3 sync "$S3/energy/" "$DATA_DIR/energy/" --no-progress
+echo "[pull] sync mapchallenge → $DATA_DIR/mapchallenge/"
+aws s3 sync "$S3/mapchallenge/" "$DATA_DIR/mapchallenge/" --no-progress
+echo "[pull] sync statistics → $DATA_DIR/statistics/"
+aws s3 sync "$S3/statistics/" "$DATA_DIR/statistics/" --no-progress
+echo "[pull] sync state_assets → $DATA_DIR/state_assets/"
+aws s3 sync "$S3/state_assets/" "$DATA_DIR/state_assets/" --no-progress
+
 echo "[pull] sync bus *.json.gz → cache"
 aws s3 sync "$S3/" "$CACHE/" --no-progress --exclude "*" --include "*_bus_routes_v2.json.gz" --include "tourist_shuttle_routes_v2.json.gz"
 for f in taipei_bus_routes_v2.json intercity_bus_routes_v2.json pingtungcounty_bus_routes_v2.json tourist_shuttle_routes_v2.json; do

@@ -269,7 +269,11 @@ const _l1Cached = cachedOnce(async () => {
       "energy:facPrimary", "主要電廠 209",
       supabase.rpc("get_ssot_facilities_primary_operating"),  // owner-gated：直連 RPC
     ),
-    supabase.rpc("get_ssot_realtime_facility_output"),
+    // 即時標記也要登記載入列：否則它比主清單慢時，載入列先消失、點卻還沒畫上（2026-11-08 CI-2 新規則抓到）
+    withLoading(
+      "energy:facRealtimeFlag", "電廠即時發電標記",
+      supabase.rpc("get_ssot_realtime_facility_output"),
+    ),
   ]);
   if (primaryRes.error) throw new Error(`get_ssot_facilities_primary_operating: ${primaryRes.error.message}`);
   const rows = (primaryRes.data ?? []) as FacilityPoint[];

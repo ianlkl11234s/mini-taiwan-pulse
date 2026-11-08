@@ -7,8 +7,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { createClient } from "@supabase/supabase-js";
 import { BUS_CROWDING_ASSETS } from "./bus-crowding-assets.mjs";
+import { OWNER_DATA_ASSETS } from "./owner-data-assets.mjs";
 
-export { BUS_CROWDING_ASSETS };
+export { BUS_CROWDING_ASSETS, OWNER_DATA_ASSETS };
 
 export const OWNER_ID = "c5c835be-fc6c-46bb-b4b7-cb5945f57e7d";
 export const EXPECTED_SIZE = 133400197;
@@ -41,6 +42,13 @@ const BUS_CROWDING_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../.
 const BUS_CROWDING_PATH = "/api/private-research/bus-crowding";
 const BUS_CROWDING_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BUS_CROWDING_S3_PREFIX = "private-research/bus-crowding";
+// 站主限定靜態資料通用家族（2026-11-08 起取代 Supabase owner-only RPC 的靜態圖層；白名單在 owner-data-assets.mjs）。
+// 本機預設讀 repo 根目錄的 owner-data.local/（gitignored）；可用 OWNER_DATA_PRIVATE_ROOT 改指。
+// 與其他家族不同：不在啟動暖機，第一次請求某檔時才從 S3 抓並驗 sha256（之後留在記憶體）。
+const OWNER_DATA_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../owner-data.local");
+const OWNER_DATA_PATH = "/api/private-research/owner-data";
+const OWNER_DATA_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const OWNER_DATA_S3_PREFIX = "private-research/owner-data";
 const ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH = "/data/.private-allen/revoked-sessions.jsonl";
 const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
   benthic: Object.freeze({
@@ -623,6 +631,19 @@ export function createBusCrowdingS3Gateway(config, options = {}) {
   });
 }
 
+export function createOwnerDataGateway(root = firstConfigured(process.env.OWNER_DATA_PRIVATE_ROOT) ?? OWNER_DATA_ROOT, assets = OWNER_DATA_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
+export function createOwnerDataS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: OWNER_DATA_ASSETS,
+    prefix: OWNER_DATA_S3_PREFIX,
+    bucket: OWNER_DATA_S3_BUCKET,
+    ...options,
+  });
+}
+
 const persistentDenylistByPath = new Map();
 const auditWriteQueueByPath = new Map();
 
@@ -684,7 +705,9 @@ export async function writeAllenAuditRecord(request, output, config, audit = und
           ? { path: BRIDGE_RESILIENCE_PATH, assets: BRIDGE_RESILIENCE_ASSETS }
           : url.pathname.startsWith(`${BUS_CROWDING_PATH}/`)
             ? { path: BUS_CROWDING_PATH, assets: BUS_CROWDING_ASSETS }
-            : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
+            : url.pathname.startsWith(`${OWNER_DATA_PATH}/`)
+              ? { path: OWNER_DATA_PATH, assets: OWNER_DATA_ASSETS }
+              : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
   const assetName = url.pathname.slice(family.path.length + 1);
   const asset = Object.hasOwn(family.assets, assetName) ? family.assets[assetName] : undefined;
   const record = {
@@ -866,6 +889,13 @@ export function handleBusCrowdingRequest(request, dependencies = {}) {
   });
 }
 
+export function handleOwnerDataRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: OWNER_DATA_PATH, assets: OWNER_DATA_ASSETS, label: "owner data",
+    createGateway: (config) => config.storage === "s3" ? createOwnerDataS3Gateway(config) : createOwnerDataGateway(),
+  });
+}
+
 async function handleOwnerAssetFamilyRequest(request, dependencies, family) {
   const url = new URL(request.url);
   const assetName = url.pathname.startsWith(`${family.path}/`)
@@ -1033,8 +1063,12 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const busCrowdingGateway = dependencies.busCrowdingGateway ?? (config.storage === "s3"
     ? createBusCrowdingS3Gateway(config)
     : createBusCrowdingGateway());
+  const ownerDataGateway = dependencies.ownerDataGateway ?? (config.storage === "s3"
+    ? createOwnerDataS3Gateway(config)
+    : createOwnerDataGateway());
   const bridgeResilienceDependencies = { ...dependencies, config, gateway: bridgeResilienceGateway };
   const busCrowdingDependencies = { ...dependencies, config, gateway: busCrowdingGateway };
+  const ownerDataDependencies = { ...dependencies, config, gateway: ownerDataGateway };
   const readiness = {
     allen: { ready: false, failed: false },
     jpWater: { ready: false, failed: false },
@@ -1042,6 +1076,8 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
     bssBridge: { ready: false, failed: false },
     bridgeResilience: { ready: false, failed: false },
     busCrowding: { ready: false, failed: false },
+    // owner-data 不暖機：第一次請求某檔時 handler 的 gateway.head() 才抓並驗 sha256，失敗只影響該次請求（502）。
+    ownerData: { ready: true, failed: false },
   };
   const warmupAttempts = dependencies.warmupAttempts ?? 3;
   const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
@@ -1087,12 +1123,15 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       const isBss = pathname.startsWith(`${BSS_BRIDGE_PATH}/`);
       const isBridgeResilience = pathname.startsWith(`${BRIDGE_RESILIENCE_PATH}/`);
       const isBusCrowding = pathname.startsWith(`${BUS_CROWDING_PATH}/`);
-      const familyState = isBusCrowding ? readiness.busCrowding : isBridgeResilience ? readiness.bridgeResilience : isBss ? readiness.bssBridge : isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
-      const familyLabel = isBusCrowding ? "bus crowding" : isBridgeResilience ? "bridge resilience" : isBss ? "bss bridge" : isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
-      if (!isAllen && !isJpWater && !isSoil && !isBss && !isBridgeResilience && !isBusCrowding) {
+      const isOwnerData = pathname.startsWith(`${OWNER_DATA_PATH}/`);
+      const familyState = isOwnerData ? readiness.ownerData : isBusCrowding ? readiness.busCrowding : isBridgeResilience ? readiness.bridgeResilience : isBss ? readiness.bssBridge : isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
+      const familyLabel = isOwnerData ? "owner data" : isBusCrowding ? "bus crowding" : isBridgeResilience ? "bridge resilience" : isBss ? "bss bridge" : isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
+      if (!isAllen && !isJpWater && !isSoil && !isBss && !isBridgeResilience && !isBusCrowding && !isOwnerData) {
         output = response(404, new Headers());
       } else if (familyState.ready || revokeRequest) {
-        output = isBusCrowding
+        output = isOwnerData
+          ? await handleOwnerDataRequest(request, ownerDataDependencies)
+          : isBusCrowding
           ? await handleBusCrowdingRequest(request, busCrowdingDependencies)
           : isBridgeResilience
           ? await handleBridgeResilienceRequest(request, bridgeResilienceDependencies)

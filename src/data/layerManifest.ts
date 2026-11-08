@@ -1353,7 +1353,7 @@ export const LAYER_MANIFEST = {
     topics: ["環境", "毒化物", "化學物質", "列管", "環境部"],
   },
   importantWetlands: {
-    key: "importantWetlands", country: "TW", section: { theme: "環境氣候 Environment", group: "濕地 Wetlands" }, ...layerName({ zh: "國家重要濕地", alt: "Wetlands of Importance" }), expandable: true,
+    key: "importantWetlands", country: "TW", section: { theme: "自然保育 Conservation", group: "濕地 Wetlands" }, ...layerName({ zh: "國家重要濕地", alt: "Wetlands of Importance" }), expandable: true,
     color: ATLAS_LAYER_COLORS.importantWetlands, icon: Leaf,
     upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 25659 → TGOS 重要濕地範圍圖 SHP（2026-01-09 版，89 面，TWD97 TM2 轉經緯度）；mini scripts/fetch/fetch-g37-opendata.py", note: "analytics 尚無 pipeline／catalog；保育利用計畫功能分區（578 面）另見 importantWetlandZones。" },
     dataClass: "A", source: [
@@ -1365,7 +1365,7 @@ export const LAYER_MANIFEST = {
     topics: ["環境", "濕地", "保育", "國家公園署"],
   },
   importantWetlandZones: {
-    key: "importantWetlandZones", country: "TW", section: { theme: "環境氣候 Environment", group: "濕地 Wetlands" }, ...layerName({ zh: "重要濕地功能分區", alt: "Wetland Conservation Zoning" }), expandable: true,
+    key: "importantWetlandZones", country: "TW", section: { theme: "自然保育 Conservation", group: "濕地 Wetlands" }, ...layerName({ zh: "重要濕地功能分區", alt: "Wetland Conservation Zoning" }), expandable: true,
     color: ATLAS_LAYER_COLORS.importantWetlandZones, icon: Leaf,
     upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 25659 資源清單第三列 → TGOS 重要濕地保育利用計畫功能分區圖 SHP（2026-02-12 版，578 面／48 處，TWD97 TM2 轉經緯度；資源清單寫 577 筆）；mini scripts/fetch/fetch-g37-opendata.py", note: "analytics 尚無 pipeline／catalog；面積由 TWD97 幾何計算；來源 DBF 把「(木宜)梧」存成問號，依範圍圖寫法還原。" },
     dataClass: "A", source: [
@@ -7224,7 +7224,7 @@ export const LAYER_MANIFEST = {
 
   convenienceStores: {
     key: "convenienceStores",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "超商", alt: "Convenience Store" }),
     expandable: true,
     color: "#26c6da",
@@ -7244,7 +7244,7 @@ export const LAYER_MANIFEST = {
 
   postOffices: {
     key: "postOffices",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "郵局", alt: "Post Office" }),
     expandable: true,
     color: "#d32f2f",
@@ -7264,7 +7264,7 @@ export const LAYER_MANIFEST = {
 
   iPostBoxes: {
     key: "iPostBoxes",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "i郵箱", alt: "iPost Box" }),
     expandable: true,
     color: "#ef6c00",
@@ -7284,7 +7284,7 @@ export const LAYER_MANIFEST = {
 
   communityCenters: {
     key: "communityCenters",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "活動中心（部分縣市）", alt: "Community Center" }),
     expandable: true,
     color: "#26a69a",
@@ -7304,7 +7304,7 @@ export const LAYER_MANIFEST = {
 
   govServiceOffices: {
     key: "govServiceOffices",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "機關便民據點", alt: "Gov Service Office" }),
     expandable: true,
     color: "#8d6e63",
@@ -7324,7 +7324,7 @@ export const LAYER_MANIFEST = {
 
   publicLibraries: {
     key: "publicLibraries",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "文化 Culture", group: "設施 Facilities" },
     ...layerName({ zh: "公共圖書館", alt: "Public Library" }),
     expandable: true,
     color: "#5c6bc0",
@@ -7338,13 +7338,13 @@ export const LAYER_MANIFEST = {
     legend: null,
     popup: "publicLibrary",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "公共圖書館全國 634 處（含分館；與文化主題的 librarySeats 即時座位不同層）",
+    description: "公共圖書館全國 634 處（含分館；與同主題的 librarySeats 即時座位不同層）",
     topics: ["基礎建設", "圖書館", "公共服務"],
   },
 
   welfareCenters: {
     key: "welfareCenters",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "公部門與民間" },
     ...layerName({ zh: "社福中心", alt: "Welfare Center" }),
     expandable: true,
     color: "#ec407a",
@@ -7430,7 +7430,7 @@ export const LAYER_MANIFEST = {
 
   retailMarkets: {
     key: "retailMarkets",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "公有市場", alt: "Public Market" }),
     expandable: true,
     color: "#66bb6a",
@@ -7450,7 +7450,7 @@ export const LAYER_MANIFEST = {
 
   publicToilets: {
     key: "publicToilets",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" },
     ...layerName({ zh: "公廁", alt: "Public Toilet" }),
     expandable: true,
     color: "#7e57c2",
@@ -8512,8 +8512,8 @@ export const LAYER_MANIFEST = {
   //      （長照 2.0 **特約單位** 23,894）是兩套互不相容的登記體系，名稱交集只有
   //      2,365。**不可 UNION** —— 併起來會重複計算又漏算。故本批不與 medLTC 合併、
   //      不共用 legend、不放同一個主題群，讓使用者自己選一邊。
-  //   2. 既有 `welfareCenters`（掛 基礎建設／公共設施）長得像本批的一員但**不是**。
-  //      本批的 `welfareGovOffices` 已在上游把 `T0103` 社福服務中心排掉（307→151）
+  //   2. 既有 `welfareCenters`（2026-11-08 TWL-12 起與本批同放 社福長照／公部門與民間）
+  //      來源不同、不是本批的一員。本批的 `welfareGovOffices` 已在上游把 `T0103` 社福服務中心排掉（307→151）
   //      正是為了不跟它重複 → **兩層零重疊，可放心同時開**；要算「全部公部門社福
   //      據點」時記得把 welfareCenters 的 162 筆加回來。
   //   3. `permit_status` **不是**有效/失效（上游沒發代碼表，已用兩份現行名冊回推
@@ -8767,7 +8767,7 @@ export const LAYER_MANIFEST = {
 
   forestReserve: {
     key: "forestReserve",
-    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "自然保育 Conservation", group: "森林保育 Forest Conservation" },
     ...layerName({ zh: "保安林", alt: "Reserve" }),
     expandable: true,
     color: "#0F766E",
@@ -8797,7 +8797,7 @@ export const LAYER_MANIFEST = {
 
   forestRecreation: {
     key: "forestRecreation",
-    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "自然保育 Conservation", group: "森林保育 Forest Conservation" },
     ...layerName({ zh: "森林遊樂區", alt: "Recreation" }),
     expandable: true,
     color: "#65A30D",
@@ -9153,7 +9153,7 @@ export const LAYER_MANIFEST = {
 
   forestWildlife: {
     key: "forestWildlife",
-    country: "TW", section: { theme: "林業 Forestry", group: "生態" },
+    country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" },
     ...layerName({ zh: "野生動物分布", alt: "Wildlife" }),
     expandable: true,
     color: "#A855F7",
@@ -11573,7 +11573,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "國道", "交流道"],
   },
   freewayEcoSensitive: {
-    key: "freewayEcoSensitive", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道生態敏感路段", alt: "Freeway Eco-sensitive Sections" }), expandable: true,
+    key: "freewayEcoSensitive", country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" }, ...layerName({ zh: "國道生態敏感路段", alt: "Freeway Eco-sensitive Sections" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayEcoSensitive, icon: Sprout,
     upstream: { status: "verified", datasets: [{ datasetId: "freeway_eco_sensitive_sections", confidence: "HIGH" }], note: "交通部高速公路局 國道生態敏感路段（data.gov.tw 31290）；200 面，敏感等級 1–3 為來源分級（方向未說明）。" },
     dataClass: "A", source: [
@@ -11688,7 +11688,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 海域保護與漁業 G08（2026-10-17）：analytics data/processed/marine → build-atlas-public.py → public/marine/ ──
   natureReserves: {
-    key: "natureReserves", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
+    key: "natureReserves", country: "TW", section: { theme: "自然保育 Conservation", group: "保護區 Protected Areas" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
     color: ATLAS_LAYER_COLORS.natureReserves, icon: TreePine,
     upstream: { status: "verified", datasets: [{ datasetId: "nature_reserves", confidence: "HIGH" }], note: "農業部林業及自然保育署 自然保留區（24 面，全國含陸域）；日期為法定公告日。" },
     dataClass: "A", source: [
@@ -11700,7 +11700,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "保護區", "自然保留區", "保育"],
   },
   wildlifeProtectedAreas: {
-    key: "wildlifeProtectedAreas", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
+    key: "wildlifeProtectedAreas", country: "TW", section: { theme: "自然保育 Conservation", group: "保護區 Protected Areas" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.wildlifeProtectedAreas, icon: Leaf,
     upstream: { status: "verified", datasets: [{ datasetId: "wildlife_protected_areas", confidence: "HIGH" }], note: "農業部林業及自然保育署 野生動物保護區（32 面，同名多面為分區，全國含陸域）。" },
     dataClass: "A", source: [
@@ -11722,7 +11722,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 海洋保育補接 G33（2026-10-29）：analytics → build-atlas-public.py → public/marine/ ──
   marineWildlifeAreas: {
-    key: "marineWildlifeAreas", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "海域野生動物保護區與棲息環境", alt: "Marine Wildlife Habitat & Protected Areas" }), expandable: true,
+    key: "marineWildlifeAreas", country: "TW", section: { theme: "自然保育 Conservation", group: "保護區 Protected Areas" }, ...layerName({ zh: "海域野生動物保護區與棲息環境", alt: "Marine Wildlife Habitat & Protected Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.marineWildlifeAreas, icon: Waves,
     upstream: { status: "verified", datasets: [{ datasetId: "white_dolphin_habitat", confidence: "HIGH" }], note: "海洋委員會海洋保育署 iocean（data.gov.tw 157562）6 面：中華白海豚重要棲息環境 1 面（野生動物重要棲息環境）＋貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區。官方 GeoJSON 座標是 TWD97 公尺值卻標 CRS84，本層採由 SHP 轉出的正確經緯度成品。" },
     dataClass: "A", source: [
@@ -15169,7 +15169,7 @@ export const LAYER_MANIFEST = {
 
   agriRuralRegen: {
     key: "agriRuralRegen",
-    country: "TW", section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "農村 Rural" },
     ...layerName({ zh: "農村再生社區", alt: "Rural Regen" }),
     expandable: true,
     color: "#ffb74d",
@@ -15193,7 +15193,7 @@ export const LAYER_MANIFEST = {
 
   ecoNetworkZones: {
     key: "ecoNetworkZones",
-    country: "TW", section: { theme: "農業 Agriculture", group: "自然保育 Conservation" },
+    country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" },
     ...layerName({ zh: "國土綠網分區", alt: "Eco Network Zones" }),
     expandable: true,
     color: "#4caf50",
@@ -16631,7 +16631,7 @@ export const LAYER_MANIFEST = {
     key: "aviationRestrictedGlow",
     // ⚠️ 名字與資料都是航空，THEMES 位置卻在能源／電力 · 廠（跟其他 Bloom 測試層同組）。
     //    按名字猜主題會猜錯 —— 區塊註解不可信的第九種變形。
-    country: "TW", section: { theme: "能源 Energy", group: "視覺實驗 Visual Experiments" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "機場管制/限航 Rim Glow 測試" }),
     expandable: true,
     color: "#f87171",
@@ -17762,19 +17762,19 @@ export const LAYER_MANIFEST = {
   },
 
   // ══════════ 公共生活 Public life（OSM snapshot；非完整官方清冊）══════════
-  drinkingWaterPoints: { key: "drinkingWaterPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "飲水點", alt: "Drinking Water" }), expandable: true, color: PUBLIC_LIFE_COLORS.drinkingWaterPoints, icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "drinking-water-points", url: "./public_life/drinking_water_points.pmtiles", sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, legend: "drinkingWaterPoints", popup: "drinkingWaterPoints", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記飲水點的 snapshot exploration，非完整官方清冊；z0–z14 保留每筆可定位實體。", topics: ["公共生活", "OSM", "飲水"] },
-  publicWasteBaskets: { key: "publicWasteBaskets", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共垃圾桶", alt: "Waste Baskets" }), expandable: true, color: PUBLIC_LIFE_COLORS.publicWasteBaskets, icon: Trash2, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "public-waste-baskets", url: "./public_life/public_waste_baskets.geojson" }, legend: "publicWasteBaskets", popup: "publicWasteBaskets", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記公共垃圾桶的 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "OSM", "廢棄物"] },
-  materialRecyclingPoints: { key: "materialRecyclingPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "資源回收點", alt: "Recycling" }), expandable: true, color: PUBLIC_LIFE_COLORS.materialRecyclingPoints, icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；materials 未標註時不推論可回收材料。" }, dataClass: "A", source: { kind: "geojson", sourceId: "material-recycling-points", url: "./public_life/material_recycling_points.geojson" }, legend: "materialRecyclingPoints", popup: "materialRecyclingPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "OSM 標記資源回收點；僅顯示來源明列的材料。", topics: ["公共生活", "OSM", "回收"] },
-  disasterShelters: { key: "disasterShelters", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "預定收容處所", alt: "Disaster Shelters" }), expandable: true, color: PUBLIC_LIFE_COLORS.disasterShelters, icon: ShieldAlert, upstream: { status: "verified", datasets: [{ datasetId: "emergency_response.shelters", confidence: "HIGH" }], note: "內政部消防署 73242 預定收容處所；不代表目前已開設。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "disaster-shelters", url: "./public_life/disaster_shelters.pmtiles", sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, legend: "disasterShelters", popup: "disasterShelters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "全國預定天災收容處所；不代表目前已開設；z0–z14 保留每筆有效座標。", topics: ["公共生活", "災害", "政府開放資料"] },
+  drinkingWaterPoints: { key: "drinkingWaterPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "飲水點", alt: "Drinking Water" }), expandable: true, color: PUBLIC_LIFE_COLORS.drinkingWaterPoints, icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "drinking-water-points", url: "./public_life/drinking_water_points.pmtiles", sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, legend: "drinkingWaterPoints", popup: "drinkingWaterPoints", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記飲水點的 snapshot exploration，非完整官方清冊；z0–z14 保留每筆可定位實體。", topics: ["公共生活", "OSM", "飲水"] },
+  publicWasteBaskets: { key: "publicWasteBaskets", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "公共垃圾桶", alt: "Waste Baskets" }), expandable: true, color: PUBLIC_LIFE_COLORS.publicWasteBaskets, icon: Trash2, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "public-waste-baskets", url: "./public_life/public_waste_baskets.geojson" }, legend: "publicWasteBaskets", popup: "publicWasteBaskets", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記公共垃圾桶的 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "OSM", "廢棄物"] },
+  materialRecyclingPoints: { key: "materialRecyclingPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "資源回收點", alt: "Recycling" }), expandable: true, color: PUBLIC_LIFE_COLORS.materialRecyclingPoints, icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；materials 未標註時不推論可回收材料。" }, dataClass: "A", source: { kind: "geojson", sourceId: "material-recycling-points", url: "./public_life/material_recycling_points.geojson" }, legend: "materialRecyclingPoints", popup: "materialRecyclingPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "OSM 標記資源回收點；僅顯示來源明列的材料。", topics: ["公共生活", "OSM", "回收"] },
+  disasterShelters: { key: "disasterShelters", country: "TW", section: { theme: "民防避難 Civil Defense", group: "避難設施" }, ...layerName({ zh: "預定收容處所", alt: "Disaster Shelters" }), expandable: true, color: PUBLIC_LIFE_COLORS.disasterShelters, icon: ShieldAlert, upstream: { status: "verified", datasets: [{ datasetId: "emergency_response.shelters", confidence: "HIGH" }], note: "內政部消防署 73242 預定收容處所；不代表目前已開設。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "disaster-shelters", url: "./public_life/disaster_shelters.pmtiles", sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, legend: "disasterShelters", popup: "disasterShelters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "全國預定天災收容處所；不代表目前已開設；z0–z14 保留每筆有效座標。", topics: ["公共生活", "災害", "政府開放資料"] },
   playgrounds: { key: "playgrounds", country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" }, ...layerName({ zh: "遊戲場", alt: "Playgrounds" }), expandable: true, color: PUBLIC_LIFE_COLORS.playgrounds, icon: PartyPopper, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "playgrounds", url: "./public_life/playgrounds.geojson" }, legend: "playgrounds", popup: "playgrounds", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊戲場 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "公園", "OSM"] },
-  accessibleParkFacilities: { key: "accessibleParkFacilities", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "無障礙 Accessibility" }, ...layerName({ zh: "無障礙設施探索", alt: "Accessibility" }), expandable: true, color: PUBLIC_LIFE_COLORS.accessibleParkFacilities, icon: Accessibility, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "wheelchair=yes/limited/no/unknown 依 OSM 標記；unknown 不等於 false。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "accessible-park-facilities", url: "./public_life/accessible_park_facilities.pmtiles", sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, legend: "accessibleParkFacilities", popup: "accessibleParkFacilities", params: { count: 5, kinds: ["multiSelect", "multiSelect", "palette", "slider", "slider"] }, description: "OSM 廣義無障礙標記設施 snapshot，含出入口、公廁、遊戲場、路徑與其他 POI；unknown 不等於無障礙否；z0–z14 保留每筆實體。", topics: ["公共生活", "無障礙", "OSM"] },
+  accessibleParkFacilities: { key: "accessibleParkFacilities", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "無障礙設施探索", alt: "Accessibility" }), expandable: true, color: PUBLIC_LIFE_COLORS.accessibleParkFacilities, icon: Accessibility, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "wheelchair=yes/limited/no/unknown 依 OSM 標記；unknown 不等於 false。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "accessible-park-facilities", url: "./public_life/accessible_park_facilities.pmtiles", sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, legend: "accessibleParkFacilities", popup: "accessibleParkFacilities", params: { count: 5, kinds: ["multiSelect", "multiSelect", "palette", "slider", "slider"] }, description: "OSM 廣義無障礙標記設施 snapshot，含出入口、公廁、遊戲場、路徑與其他 POI；unknown 不等於無障礙否；z0–z14 保留每筆實體。", topics: ["公共生活", "無障礙", "OSM"] },
   bicycleSupport: { key: "bicycleSupport", country: "TW", section: { theme: "交通 Move", group: "共享運具" }, ...layerName({ zh: "自行車支援", alt: "Bicycle Support" }), expandable: true, color: PUBLIC_LIFE_COLORS.bicycleSupport, icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "bicycle-support", url: "./public_life/bicycle_support.pmtiles", sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, legend: "bicycleSupport", popup: "bicycleSupport", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] }, description: "OSM 自行車支援設施 snapshot exploration，非完整官方清冊；z0–z14 保留每筆實體。", topics: ["公共生活", "自行車", "OSM"] },
-  nationalParks: { key: "nationalParks", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: [
+  nationalParks: { key: "nationalParks", country: "TW", section: { theme: "自然保育 Conservation", group: "保護區 Protected Areas" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: [
       { kind: "pmtiles", sourceId: "national-parks", url: "./public_life/national_parks.pmtiles", sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 },
       { kind: "pmtiles", sourceId: "national-parks-points", url: "./public_life/national_parks_points.pmtiles", sourceLayer: "national_parks_points", minzoom: 4, maxzoom: 10 },
     ], legend: "nationalParks", popup: "nationalParks", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "9 座國家公園 + 1 座國家自然公園的官方計畫邊界。", topics: ["環境", "保護區", "政府開放資料"] },
   visitorCentres: { key: "visitorCentres", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "遊客中心", alt: "Visitor Centres" }), expandable: true, color: PUBLIC_LIFE_COLORS.visitorCentres, icon: MapPinned, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "visitor-centres", url: "./public_life/visitor_centres.geojson" }, legend: "visitorCentres", popup: "visitorCentres", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊客中心 snapshot exploration，非完整官方清冊。", topics: ["觀光", "公共生活", "OSM"] },
-  publicLifeOsmCoverage: { key: "publicLifeOsmCoverage", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共生活 OSM 映射密度" }), expandable: true, color: "#2563eb", icon: Grid3x3, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "public-life-osm-coverage", url: "./public_life/public_life_osm_coverage.pmtiles", sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, legend: "publicLifeOsmCoverage", popup: "publicLifeOsmCoverage", params: { count: 1, kinds: ["slider"] }, description: "OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。", topics: ["公共生活", "OSM", "映射密度"] },
+  publicLifeOsmCoverage: { key: "publicLifeOsmCoverage", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "公共生活 OSM 映射密度" }), expandable: true, color: "#2563eb", icon: Grid3x3, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "public-life-osm-coverage", url: "./public_life/public_life_osm_coverage.pmtiles", sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, legend: "publicLifeOsmCoverage", popup: "publicLifeOsmCoverage", params: { count: 1, kinds: ["slider"] }, description: "OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。", topics: ["公共生活", "OSM", "映射密度"] },
 
   // ══════════ 減害服務 Harm Reduction（官方名冊；座標由地址定位，少數為推估）══════════
   harmReductionNeedle: { key: "harmReductionNeedle", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "清潔針具據點", alt: "Needle & Syringe Services" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionNeedle, icon: Syringe, upstream: { status: "verified", datasets: [{ datasetId: "harm_reduction_needle_points", confidence: "HIGH" }], note: "疾管署清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單；990 點全數定位（綠島鄉衛生所、連江縣衛生局 2 點依機構名稱人工核對）。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-needle", url: "./harm_reduction/needle_points.geojson" }, legend: "harmReductionNeedle", popup: "harmReductionNeedle", params: { count: 4, kinds: ["multiSelect", "toggle", "slider", "slider"] }, description: "清潔針具衛教諮詢站、針具自動服務機與回收桶，一個據點可同時提供多類服務。", topics: ["醫療", "減害", "公共衛生"] },

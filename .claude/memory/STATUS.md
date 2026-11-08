@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-11-08 v2.27.0 發布（愛爾蘭第 2–10 波與統計、Coillte 站主限定、南韓公共安全統計、歷史底圖 6 層、framingCheck、30 天挑戰文章）；同日 PROJECTS／BACKLOG 現況盤點（Zeabur 搬遷含 collector 全部完成，收尾 BACKLOG ZB-1）。前一次：2026-11-07 正式站搬到 Cloudflare（v2.25.1）
+**最後更新**：2026-11-08 v2.28.0 發布（台灣圖層主題重整 #910、大型圖層檔改先讀 R2 #909、畜牧改讀站主私人檔 #911、作品連結新網域 #905；CI 加速 #899／#904）。前一次：同日 v2.27.0（愛爾蘭全波次、南韓公共安全統計、歷史底圖六層）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。

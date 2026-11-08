@@ -15,7 +15,8 @@
 | 指令 | 用途 |
 |---|---|
 | `npm run dev` | 啟動 dev server (port 3721) |
-| `npm run check` | commit／PR 前必跑：依序跑 CI 的全部檢查（lint、build、test、樣式盤點、coral） |
+| `npm run verify` | commit／PR 前必跑：型別、lint、樣式盤點，加上和 `origin/develop` 相比有改動的測試（約 1 分內）；全套交給 CI |
+| `npm run check` | 依序跑 CI 的全部檢查（lint、樣式盤點、coral、worker、build、test）；CI 紅燈要在本機重現時才用 |
 | `npm run lint` | 只跑 ESLint 守門規則（自訂規則見 development-rules §6）；修掉既有違規後跑 `npm run lint:prune` |
 | `npx tsc -b` | TypeScript 驗證（禁用 `--noEmit`） |
 | `npm test` | 跑測試（含 `layerConsistency` 擋漏接圖例；owner-local 測試用 `npm run test:owner`） |
@@ -26,10 +27,12 @@
 
 ### 1. TypeScript 驗證
 
-commit 前必跑 `npm run check`（與 CI 同一組檢查，其中 build 含 `tsc -b`；project references，禁用 `--noEmit`）。
+commit 前必跑 `npm run verify`（`tsc -b`、lint、樣式盤點、相關測試；project references，禁用 `--noEmit`）。完整套件由 CI 跑，**合併前等 CI 綠**；不要在本機重跑一次全套（2026-11-08 使用者決定，原則見 [`docs/ci.md`](./docs/ci.md) §5）。
 
 ### 2. 資料來源管理
 資料來源契約（動態走 `public.*` RPC / Statistics 一律走 R2 snapshot / 靜態走 CDN 資產 / 禁前端直打 `live.*`（舊 `realtime` schema 已併入 `live`））→ [`docs/development-rules.md`](./docs/development-rules.md) §1
+
+**資料不會變或只會整批替換 → PMTiles／R2，不進 Supabase；新 Supabase 表必登記保留期限＋S3 正本。** 網站結構與各儲存職責正本：GIS `.gis-agent-system/decisions/0026-pulse-architecture-and-data-placement.md`（ADR-0026）。
 
 統計新增／整合／UI 調整另見 [統計圖層規則](./docs/statistics-layer-guidelines.md)：配色與 icon 使用共用規則，保留來源語意，**同步補齊資料來源總覽**，包含原始與衍生選項。
 
@@ -106,6 +109,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 | 進度 | [`docs/PROJECTS.md`](./docs/PROJECTS.md) | 專案追蹤總表（做到一半的專案） |
 | 規則 | [`docs/development-rules.md`](./docs/development-rules.md) | 詳細版 + 範例（含 §4a 四鐵則完整） |
 | 規則 | [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) | Pre-aggregate pattern 完整指南 + OOM 5 條 |
+| 規則 | [`docs/ci.md`](./docs/ci.md) | CI 原則：job 結構、何時跳過、加速取捨、本機與 CI 分工 |
 | 規則 | [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) | 時間軸 / timeStore 架構 |
 | 參考 | [`docs/audit/supabase-rpc-audit-2026-04-09.md`](./docs/audit/supabase-rpc-audit-2026-04-09.md) | RPC 效能盤點 |
 | 參考 | [`docs/features/bus/design.md`](./docs/features/bus/design.md) | 公車 progress-based 全台擴展 |
