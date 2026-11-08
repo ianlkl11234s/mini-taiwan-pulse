@@ -428,6 +428,9 @@ def build_rows(tree: Path, s3: dict, ptrs: dict, rail_members: list[tuple[int, s
             path = "/" + e["path"][len("public/"):]
             if path not in rows:
                 add(path, [(key, "lock", "")], "lock", ["CI-4 lock 條目（前端不一定直接引用）"])
+            elif not any(k[0] for k in rows[path][0]):
+                # 第 3 步登記了「src 引用、但 sync 規則對不到 S3」的列（例：/h3/h3_population_res7.json，h3 規則只收 res8）
+                add(path, [(key, "lock", "")], rows[path][1], rows[path][2] + ["CI-4 lock 補上 S3 key"])
 
     out_rows = []
     for path in sorted(rows):

@@ -6,6 +6,7 @@
   "public/screenshots/*",
   "public/showcase/*",
   "public/llms.txt",
+  "public/public_life/README.md",
   "public/robots.txt",
   "public/sitemap.xml",
   "public/*.html"
@@ -248,48 +249,6 @@
    "sha256": "555723bfa670953ff27d7ed3ccbd805aa917d80c6739ce151078b8d7a4d1c61f",
    "delivery": "r2",
    "s3_key": "deploy-assets/civic_facilities/welfare_centers_national.geojson"
-  },
-  {
-   "path": "public/climate/currents_latest.json",
-   "bytes": 429,
-   "sha256": "043dc45da8be4a0381dff0e4b598eb7df91852ae60a130d649be72c0b09eee95",
-   "delivery": "pending",
-   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
-  },
-  {
-   "path": "public/climate/currents_latest.png",
-   "bytes": 609523,
-   "sha256": "1b5b87bf693eaf7c963ecae9e26c3cdb2c5d51ce00ef51e6680a6429de03a6e4",
-   "delivery": "pending",
-   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
-  },
-  {
-   "path": "public/climate/dust_latest.json",
-   "bytes": 333,
-   "sha256": "a383537f1c19c98a3f0eeaa1f0c32bbe73e1c9902568fe8799b9a146b7d9273c",
-   "delivery": "pending",
-   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
-  },
-  {
-   "path": "public/climate/dust_latest.png",
-   "bytes": 18027,
-   "sha256": "94c323fb46886a4090e278ae082ee1952fae63252a6fbc27cc0cb3f77d46fe89",
-   "delivery": "pending",
-   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
-  },
-  {
-   "path": "public/climate/wind10m_latest.json",
-   "bytes": 420,
-   "sha256": "765bb41661f0b81eb4e435f53b01b0b0f314045ba7146c4d57afb7167c9e0b4e",
-   "delivery": "pending",
-   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
-  },
-  {
-   "path": "public/climate/wind10m_latest.png",
-   "bytes": 1013554,
-   "sha256": "28bbf5c79d8d3e0702cc90e839a362a09f590151bf3e577dd15109084063f692",
-   "delivery": "pending",
-   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
   },
   {
    "path": "public/coverage/aviation_airspace.pmtiles",
@@ -1919,13 +1878,6 @@
    "sha256": "287b76c66affa9857721dfdff6d89f34f540a0955ea773c232c0497d9cd27af4",
    "delivery": "r2",
    "s3_key": "deploy-assets/police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson"
-  },
-  {
-   "path": "public/public_life/README.md",
-   "bytes": 1325,
-   "sha256": "a098e6e20388e4fdbb12c6779382de8a529a3530f5e0b1a0b627534a3da08f2d",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/public_life/README.md"
   },
   {
    "path": "public/public_life/manifest.json",

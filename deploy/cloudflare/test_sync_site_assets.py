@@ -143,6 +143,31 @@ def test_simulate_winner_follows_sync_rule_order():
     assert landed["/geo/water_x.geojson"][-1][1] == "geo-mirror"
 
 
+def test_lock_entries_always_synced():
+    """CI-4：lock 的 r2 條目一律同步；src 有引用、但 sync 規則對不到 S3 的列也用 lock 補 key（h3 res7 曾因此 404）。"""
+    import json
+    import site_manifest as sm
+    with tempfile.TemporaryDirectory() as d:
+        tree = Path(d)
+        (tree / "src").mkdir()
+        (tree / "src" / "a.ts").write_text('const U = "./h3/h3_population_res7.json";\n')
+        (tree / "deploy").mkdir()
+        (tree / "deploy" / "public-assets.lock.json").write_text(json.dumps({"entries": [
+            {"path": "public/h3/h3_population_res7.json", "delivery": "r2", "s3_key": sm.PREFIX + "h3_population_res7.json"},
+            {"path": "public/geo/test_only.geojson", "delivery": "r2", "s3_key": sm.PREFIX + "geo/test_only.geojson"},
+            {"path": "public/climate/x.png", "delivery": "pending"},
+        ]}))
+        s3 = {sm.PREFIX + "h3_population_res7.json": {"size": 1, "etag": "a"},
+              sm.PREFIX + "geo/test_only.geojson": {"size": 2, "etag": "b"}}
+        ptrs = {"jp-medical_current.json": {"version": "v", "catalog": "c", "publication_manifest": "m"}, "jpmed_pub.json": {"files": {}},
+                "jp-heights_catalog.json": {}, "flight-trails_manifest.json": {"samples": []}, "embed-rail_rail-manifest.json": {"bundle": "b.json"}}
+        rows, _ = sm.build_rows(tree, s3, ptrs, [])
+        by = {r["served_path"]: r["s3_key"] for r in rows}
+        assert by["/h3/h3_population_res7.json"] == sm.PREFIX + "h3_population_res7.json"
+        assert by["/geo/test_only.geojson"] == sm.PREFIX + "geo/test_only.geojson"
+        assert "/climate/x.png" not in by
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):
