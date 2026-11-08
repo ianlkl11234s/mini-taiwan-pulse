@@ -16,8 +16,6 @@ vi.mock("../../state/timeStore", () => ({ timeStore }));
 
 import { prefetchWindow, subscribePrefetchWindow } from "../dayPrefetch";
 
-const shared = readFileSync("src/lib/dayPrefetch.ts", "utf8");
-const cwa = readFileSync("src/hooks/useCwaImageryLayer.ts", "utf8");
 const scope = readFileSync("docs/features/agent-research-workbench/day-prefetch-scope-2026-10-05.md", "utf8");
 
 describe("AU-3 day-prefetch scope", () => {
@@ -98,9 +96,8 @@ describe("AU-3 day-prefetch scope", () => {
     expect(unsubscribeDate).toHaveBeenCalledOnce();
   });
 
+  // 兩條路徑的日期都從 timeStore 取：共享 helper 由上面兩條（mock timeStore 的 window／當前日）驗，
+  // CWA 由 useCwaImageryLayer.test 的 AU-3 背景預抓驗（window 來自 mock 的 getWindowDateKeys）。
   // CWA 不 import subscribePrefetchWindow、兩條路徑都不把 currentTime 放進 deps：
-  // 改由 ESLint（no-restricted-imports、pulse/no-current-time-deps）檢查。
-  it("兩條路徑都從 timeStore 取日期", () => {
-    for (const source of [shared, cwa]) expect(source).toContain("timeStore");
-  });
+  // 由 ESLint（no-restricted-imports、pulse/no-current-time-deps）檢查。
 });

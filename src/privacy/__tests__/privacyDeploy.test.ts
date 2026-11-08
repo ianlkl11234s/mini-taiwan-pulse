@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const nginx = readFileSync("nginx.conf", "utf8");
@@ -42,10 +42,5 @@ describe("隱私頁部署契約（nginx／vite／entry）", () => {
     expect(html).toContain('src="/src/privacy/main.tsx"');
   });
 
-  it("隱私頁 entry 不 import supabase、mapbox-gl 或整包介面字串", () => {
-    for (const file of readdirSync("src/privacy").filter((name) => /\.tsx?$/.test(name))) {
-      const source = readFileSync(`src/privacy/${file}`, "utf8");
-      expect(source, file).not.toMatch(/(?:from|import)\s*\(?\s*["'][^"']*(?:lib\/supabase|@supabase\/supabase-js|mapbox-gl|state\/localeStore)["']/);
-    }
-  });
+  // 隱私頁 entry 不 import supabase、mapbox-gl 或 localeStore（含動態 import）：改由 ESLint 檢查（eslint.config.js 的 src/privacy 區塊）
 });

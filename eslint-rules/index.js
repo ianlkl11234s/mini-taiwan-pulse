@@ -29,6 +29,8 @@ export default {
     "legend-no-letter-spacing": guards.legendNoLetterSpacing,
     "legend-no-hand-sized-swatch": guards.legendNoHandSizedSwatch,
     "no-current-time-deps": guards.noCurrentTimeDeps,
+    "loader-rpc-with-loading": guards.loaderRpcWithLoading,
+    "sidebar-shared-param-controls": guards.sidebarSharedParamControls,
     "owner-only-no-external-source": ownerOnly.ownerOnlyNoExternalSource,
     "owner-only-banned-text": ownerOnly.ownerOnlyBannedText,
   },

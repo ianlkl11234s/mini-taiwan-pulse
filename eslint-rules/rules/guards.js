@@ -194,3 +194,104 @@ export const noCurrentTimeDeps = {
     };
   },
 };
+
+// 原 src/data/__tests__/loadingRegistryContract.test.ts（CLAUDE.md §3：非同步載入必註冊 loadingRegistry）。
+// 原測試看 RPC 前後 ±10 行有沒有出現 withLoading 字樣；這裡改看語法上是否真的被包住：
+// rpc 呼叫在 withLoading(...) 的引數裡，或先存進變數、之後該變數被傳進 withLoading(...)。
+const isRpcCall = (node) =>
+  (node.callee.type === "Identifier" && node.callee.name === "staticRpc") ||
+  (node.callee.type === "MemberExpression" &&
+    !node.callee.computed &&
+    node.callee.object.type === "Identifier" &&
+    node.callee.object.name === "supabase" &&
+    node.callee.property.name === "rpc");
+const isWithLoadingCall = (node) => node?.type === "CallExpression" && node.callee.type === "Identifier" && node.callee.name === "withLoading";
+const insideWithLoading = (node) => {
+  for (let n = node.parent; n; n = n.parent) if (isWithLoadingCall(n)) return true;
+  return false;
+};
+/** rpc 呼叫（含後面串接的 .eq()／.select() 等）整串的最外層節點。 */
+function chainTop(node) {
+  let n = node;
+  for (;;) {
+    const p = n.parent;
+    if (p?.type === "MemberExpression" && p.object === n && p.parent?.type === "CallExpression" && p.parent.callee === p) n = p.parent;
+    else if (p?.type === "ChainExpression" || p?.type === "TSAsExpression" || p?.type === "TSNonNullExpression") n = p;
+    else return n;
+  }
+}
+/**
+ * 最近的具名函式（function 宣告、持有函式的 const、物件方法）。都沒有時（例如 `const f = cachedOnce(async () => …)`
+ * 這種包一層的匿名函式）用模組層 const 的名字；真的在頂層才回傳 "<module>"。
+ */
+function enclosingFunctionName(node) {
+  let outerConst = null;
+  for (let n = node.parent; n; n = n.parent) {
+    if (n.type === "FunctionDeclaration" && n.id) return n.id.name;
+    if (n.type === "FunctionExpression" || n.type === "ArrowFunctionExpression") {
+      if (n.id) return n.id.name;
+      const p = n.parent;
+      if (p?.type === "VariableDeclarator" && p.id.type === "Identifier") return p.id.name;
+      if ((p?.type === "Property" || p?.type === "MethodDefinition") && !p.computed && p.key.type === "Identifier") return p.key.name;
+    }
+    if (n.type === "VariableDeclarator" && n.id.type === "Identifier") outerConst = n.id.name;
+  }
+  return outerConst ?? "<module>";
+}
+
+export const loaderRpcWithLoading = {
+  meta: {
+    type: "problem",
+    docs: { description: "loader 的 supabase.rpc／staticRpc 要包 withLoading（或列在 exempt 並寫理由）" },
+    schema: [
+      {
+        type: "object",
+        properties: { exempt: { type: "object", additionalProperties: { type: "string", minLength: 1 } } },
+        additionalProperties: false,
+      },
+    ],
+    messages: {
+      missing:
+        "這個 RPC 沒有註冊 loadingRegistry，使用者會看著空白地圖不知道是在載入還是沒資料：" +
+        '包成 withLoading("<key>", "<中文標籤>", supabase.rpc(...))（CLAUDE.md §3）。' +
+        "若確實不該顯示 LOADING 面板（popup 點開才抓、背景 prefetch、monitor 卡片），把「{{key}}」加進 eslint.config.js 的 LOADER_RPC_EXEMPT 並寫理由。",
+      stale: "「{{key}}」已經不需要豁免（已補 withLoading 或函式被刪／改名）：請從 eslint.config.js 的 LOADER_RPC_EXEMPT 移除。",
+    },
+  },
+  create(context) {
+    const exempt = context.options[0]?.exempt ?? {};
+    const file = context.filename.split(/[\\/]/).pop();
+    const hit = new Set();
+    const wrapped = (node) => {
+      if (insideWithLoading(node)) return true;
+      const top = chainTop(node);
+      const decl = top.parent;
+      if (decl?.type !== "VariableDeclarator" || decl.init !== top || decl.id.type !== "Identifier") return false;
+      const variable = context.sourceCode.getDeclaredVariables(decl).find((v) => v.name === decl.id.name);
+      return !!variable?.references.some((ref) => ref.identifier !== decl.id && insideWithLoading(ref.identifier));
+    };
+    return {
+      CallExpression(node) {
+        if (!isRpcCall(node) || wrapped(node)) return;
+        const key = `${file}:${enclosingFunctionName(node)}`;
+        if (key in exempt) hit.add(key);
+        else context.report({ node, messageId: "missing", data: { key } });
+      },
+      "Program:exit"(program) {
+        for (const key of Object.keys(exempt)) {
+          if (key.startsWith(`${file}:`) && !hit.has(key)) context.report({ node: program, messageId: "stale", data: { key } });
+        }
+      },
+    };
+  },
+};
+
+// 原 src/components/sidebar/__tests__/layerConsistency.test.ts「鐵則 4：select 控件渲染閾值」的否定斷言：
+// 桌機 rail、手機 bottom-sheet 與共用 LayersPanel 不自己渲染控制項，一律經 ExpandedControls → ParamControlList，
+// 否則「≥4 個 option 用原生 select」的閾值會分岔（development-rules §4a 規則 4）。
+export const sidebarSharedParamControls = selectorRule({
+  description: "sidebar 不自己掛 ParamControlList 或自己判斷 select 選項數",
+  message:
+    "sidebar 不要自己掛 <ParamControlList> 或自己依 options.length 決定 select／按鈕列：控制項一律經 ExpandedControls → ParamControlList（sidebar/LayerParamControls.tsx），兩個 sidebar 的閾值才不會分岔（development-rules §4a 規則 4）",
+  selectors: ["JSXOpeningElement[name.name='ParamControlList']", "MemberExpression[property.name='length'][object.property.name='options']"],
+});
