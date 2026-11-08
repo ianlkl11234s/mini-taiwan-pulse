@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-11-08 v2.31.2 發布（CI-4 第 1–2 批：237 個大資料檔移出 git、同步改依 lock、Worker 補 R2 路由；計畫 docs/features/public-assets-r2/PLAN.md）。前一次：同日 v2.31.1
+**最後更新**：2026-11-08 v2.31.3 發布（CI-4 B3＋B4：其餘資料檔移出 git，public/ 只剩網站素材與 h3 res7 一檔待下次同步後移出）。前一次：同日 v2.31.2（CI-4 B1＋B2）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
