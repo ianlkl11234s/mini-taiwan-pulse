@@ -5137,6 +5137,16 @@ export const LAYER_PARAMS_SPEC = {
       ],
       out: null,
     },
+    // 位置精度（2026-11-08 使用者：「代表的，跟有精確確認的，可以在圖層開關選擇要哪一個或是都要」）
+    {
+      kind: "select", name: "electionEvents2026Location", label: "位置", default: "all", category: "data",
+      options: [
+        { label: "全部", value: "all" },
+        { label: "只看確切地點", value: "exact" },
+        { label: "只看代表點", value: "approx" },
+      ],
+      out: null,
+    },
   ],
   newsEvents: [
     opacitySlider("newsEventsOpacity", 1),

@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > 用途：做到一半的專案放這裡，有空時從這裡撿回來。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-08（v2.30.0 發布：30 天地圖挑戰 Day 8 烏托邦三層 #919；稍早 v2.29.0：能源與石化改讀站主私人檔 #917、不會變的公開資料改讀 CDN 靜態檔 #918、台灣統計分類統一 #912；同日稍早 v2.28.0、v2.27.0）。
+> 最後盤點：2026-11-08（v2.31.0 發布：2026 選舉活動位置精度標示 #929；稍早 v2.30.0 發布：30 天地圖挑戰 Day 8 烏托邦三層 #919；稍早 v2.29.0：能源與石化改讀站主私人檔 #917、不會變的公開資料改讀 CDN 靜態檔 #918、台灣統計分類統一 #912；同日稍早 v2.28.0、v2.27.0）。
 
 與其他文件的分工：
 
@@ -44,7 +44,7 @@
 | 專案 | 狀態 | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|
 | 選舉圖層第二批（投開票所中性著色＋熱區、2026 議員選區、歷屆選舉統計） | 🟢 | mini #807／#811／#816 隨 v2.22.0 發布（2026-11-04）；gp #197 mig 496／498 已套用（journal 2026-11-04 12:50） | 正式站（v2.26.1）驗收 | CHANGELOG v2.22.0；gp PR #197；analytics `pulse-layers-contract.md` | 2026-11-04 |
-| 2026 地方選舉活動地圖（electionEvents2026） | 🟢 | 站主限定圖層隨 v2.21.0 上線（mini #802、analytics #274、gp #194 mig 493/494）；每日資料由使用者叫跑 run_daily.sh；站主限定名單 2026-11-06 起統一呈現（#836，mig 500） | 投票日 11-28 前每日更新；GUI-2 站主登入目視；要開放只改 gated_layers 一列（待決定） | `../taipei-gis-analytics/docs/topic-research/election_events_2026/`；BACKLOG GUI-2 | 2026-11-06 |
+| 2026 地方選舉活動地圖（electionEvents2026） | 🟢 | 站主限定圖層隨 v2.21.0 上線（mini #802、analytics #274、gp #194 mig 493/494）；每日資料由使用者叫跑 run_daily.sh；站主限定名單 2026-11-06 起統一呈現（#836，mig 500）；位置精度標示（代表點外環、同點場次數、位置篩選）隨 v2.31.0 上線（#929，gp mig 514／515） | 投票日 11-28 前每日更新；GUI-2 站主登入目視；要開放只改 gated_layers 一列（待決定） | `../taipei-gis-analytics/docs/topic-research/election_events_2026/`；BACKLOG GUI-2 | 2026-11-08 |
 
 ## 會員與權限
 
@@ -81,7 +81,7 @@
 |---|---|---|---|---|---|
 | 日本後續 | 🔵 | P1 第 1–4 波隨 v2.15.0 上線（10-28 正式站已驗）；第二輪自然公園、国立公園、鳥獣保護区、DID 隨 v2.24.0（#831）；交通事故 2025（287,020 點，#843）、DID z5 改善（#842）隨 v2.25.0；正式站 2026-11-07 實測 v2.25.1，第二輪與交通事故瀏覽器驗收未做 | JPRD-2 收費道路樣式（等決定）；JPW4-1 等填 WAM NET 表單；JPRD-1 原等搬家，主站已於 11-06 改走 R2（等使用者決定）；交通事故未入倉、2019–2024 未做；N3-4 新舊層並存（已決） | BACKLOG JPRD-1／JPRD-2／JPW4-1／N3-2／N3-4；`../taipei-gis-analytics/docs/topic-research/japan_opendata/_status.md` | 2026-11-06 |
 | 英國後續 | 🔵 | 第 0–12 波隨 v2.18.0 上線（#765）；英格蘭污染排放申報場址（站主限定）隨 v2.24.0（#834，gp mig 499），座標修正 2,544 處隨 v2.25.0（#839，gp mig 501 已套用）；正式站 v2.25.1 | UKD-1 待拍板項；UKOSM-1 OSM 五層卡 Overpass 封鎖（換網路重跑 07_export.py）；UKLZ-1 等決定，UKLZ-2／3 可直接做；EA-1 授權 2027-10-29 到期 | BACKLOG UKD-1／UKOSM-1／UKLZ-1~3／EA-1；`../taipei-gis-analytics/…/united_kingdom_opendata/waves/PLAN.md` §3 | 2026-11-06 |
-| 愛爾蘭 | 🟢 | 第 0、1 波隨 v2.26.0 上線（#868、#870）；統計（#877，gp mig 511）、第 2–10 波（#884–#894）、Coillte 國有林站主限定（#895，gp mig 512 owner-only RPC）隨 v2.27.0 上線（2026-11-08）；mig 511／512 已套用正式 DB，統計已發布 R2；MCP #98 已補 IE | 正式站目視；IECOI-1 站主目視 Coillte；IEW-11 第 11、12 波（搬遷已完成，可重評）；IEADD-1、IEWH-1 | BACKLOG IEREL-1／IECOI-1／IEW-11／IEADD-1／IEWH-1；`../taipei-gis-analytics/docs/topic-research/ireland_opendata/waves/PLAN.md` §5–6 | 2026-11-08 |
+| 愛爾蘭 | 🟢 | 第 0、1 波隨 v2.26.0 上線（#868、#870）；統計（#877，gp mig 511）、第 2–10 波（#884–#894）、Coillte 國有林站主限定（#895，gp mig 512 owner-only RPC；11-08 決定照站主資料新規則搬私有 S3＋owner-data，BACKLOG OWD-4）隨 v2.27.0 上線（2026-11-08）；mig 511／512 已套用正式 DB，統計已發布 R2；MCP #98 已補 IE | 正式站目視；IECOI-1 站主目視 Coillte；IEW-11 第 11、12 波（搬遷已完成，可重評）；IEADD-1、IEWH-1 | BACKLOG IEREL-1／IECOI-1／IEW-11／IEADD-1／IEWH-1；`../taipei-gis-analytics/docs/topic-research/ireland_opendata/waves/PLAN.md` §5–6 | 2026-11-08 |
 | 加拿大第 0–3 波＋統計 | 🟢 | 第 0–2 波＋統計隨 v2.22.0（#812、#813）、第 3 波 7 層（氣象站、AQHI、輻射、NPRI、污水、地震、人口網格）隨 v2.24.0（#832）、即時地震 `caEarthquakesLive`（#847）隨 v2.25.0；地震四類分色（#864）隨 v2.26.0 上線；gp mig 497 依 analytics PLAN §4 步驟 2 紀錄 11-04 已套用（未另查 DB）；正式站 v2.26.1，瀏覽器驗收（PLAN §4 步驟 7）未做 | 正式站驗收；第 2 波建物、C002 海域 HOLD；LODE 補座標前端未接；RV-F068、RV-CA-DERIVED | CHANGELOG v2.22.0／v2.24.0／v2.25.0；analytics `canada_opendata/waves/PLAN.md` §4–5 | 2026-11-07 |
 | 南韓後續 | 🟡 | 第 0–5 波＋統計隨 v2.19.0；第 6 波 5 層隨 v2.24.0（#830）；第 7 波 6 層隨 v2.26.0（#869）；火災與交通事故統計 16 層（#874）隨 v2.27.0 上線；墓地維持 OSM（N3-1 已決） | KRW-6 第 8–10 波；KRSTAT-1 補每萬人比率（0 件被標成無資料）；第 11 波等 data.go.kr key；KRH-1 兩層 HOLD；KRI18N-1；第 6、7 波正式站驗收 | BACKLOG KRW-6／KRSTAT-1／KRH-1／KRI18N-1 | 2026-11-08 |
 | 多國化議題 1 收尾 | 🟢 | 國家主體化隨 v2.16.0 上線 | MC-3 補目視；MC-1 主題識別名與顯示名拆開（有同名主題時再做） | BACKLOG MC-1／MC-3 | 2026-10-28 |
@@ -143,7 +143,7 @@
 |---|---|---|---|---|---|
 | 資料保留期限（Supabase／R2／collector 最長 6 個月） | 🔵 | 使用者 2026-11-07 拍板各表天數；gp #208 mig 505–509 排 2026-11-08 晚上套用；20 張沒人讀的表已冷存到 S3 `supabase-export/` | 套用 mig 505–509；mig 510（drop 冷存表）待使用者拍板 | gis-platform PR #208；個人記憶 data-placement-policy | 2026-11-07 |
 | 資安稽核後續 | 🔵 | 10-17 稽核、多項 migration 已套 | SEC-6 改 ready（搬遷收尾一起換）；SEC-7 改在 pulse-host compose 設 `PULSE_RESEARCH_TRUSTED_PROXY_IPS` 後合 gp #170；SEC-3／4／5／8、SEC-9 見 BACKLOG | `../gis-platform/docs/research/2026-10-17-security-audit.md`；BACKLOG SEC-3~9 | 2026-10-17 |
-| Zeabur 停止營運搬遷 | 🟡 | **搬遷全部完成**：靜態站 10-29；主站、research-gateway、Valhalla 11-06（Cloudflare Worker＋Linode pulse-host）；collector 已搬到 pulse-host（使用者 2026-11-08 確認；collectors #170／#171／#175–#180），correctional 移 HiCloud VM（#174，上游停更已暫停）；OSRM 不搬 | **收尾 ZB-1（12/1 前）**：依序停 Zeabur 舊服務（主站與 gateway 目前留作回滾）、SEC-6 換金鑰、flight-arc-sharing 網址待決、清 zeabur.app 寫死網址、Worker routes 寫進 wrangler.jsonc；搬遷 README §0 仍寫 collector 未搬，待同步 | BACKLOG ZB-1；`../.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0；`SETUP-INVENTORY.md` | 2026-11-08 |
+| Zeabur 停止營運搬遷 | 🟡 | **搬遷全部完成**：靜態站 10-29；主站、research-gateway、Valhalla 11-06（Cloudflare Worker＋Linode pulse-host）；collector 已搬到 pulse-host（使用者 2026-11-08 確認；collectors #170／#171／#175–#180），correctional 移 HiCloud VM（#174，上游停更已暫停）；OSRM 不搬；11-07／08 結構整理：Zeabur 26 服務已 suspend、變數已刪（備份在 1Password 獨立 vault）、保留期限 mig 505–510、架構正本 ADR-0026、站主資料改私有 S3＋coral-private owner-data（第 1、2 批隨 v2.28.0／v2.29.0 上線，mig 514／515 撤 14 支 RPC）、HiCloud VM 整理（#180） | **收尾 ZB-1（~11-14 刪 Zeabur 服務）**、SEC-6（12/3 前）、OWD-4 站主資料第 3 批、WA-3 長期保留表、WA-8 git 資料檔門檻、SR-1／SR-2 撤舊 RPC 與舊目錄；flight-arc-sharing 網址待決、清 zeabur.app 寫死網址、Worker routes 寫進 wrangler.jsonc | BACKLOG ZB-1／OWD-4／WA-3／WA-8／SR-1／SR-2；`../.gis-agent-system/projects/2026-10-zeabur-migration/HANDOFF-20261108.md`；ADR-0026；`SETUP-INVENTORY.md` | 2026-11-08 |
 | Supabase Disk IO 複量 | 🟡 | 第三輪 mig 451–460 於 10-16 套用 | 原定約 10-23 用 pg_stat_io 取差值，未查證有沒有做；中間若重啟，基準作廢 | `../gis-platform/docs/research/2026-10-16-disk-io-round3.md` | 2026-10-16 |
 | AWS 雲端運算工具 cloud_run | 🟡 | analytics `tools/cloud_run/`＋skill `cloud-run`（個人 AWS 帳號 ap-southeast-2，報價→開機→取回→自動刪機）；11-06 實機 smoke 兩項通過、合計約 US$0.19；已隨 analytics #323 合併 | TA-4 測 Spot 中斷接續；TA-5 S3 測試檔去留 | analytics `tools/cloud_run/README.md`；BACKLOG TA-1／TA-4／TA-5 | 2026-11-06 |
 | 地圖圖層改版 R6 | 🟢 | 段 1–3 隨 v2.8.0 上線 | R6-V 正式站目視；段 4（船、公車、垃圾車、漁船）R6-4 暫不碰 | [`features/map-layer-restyle/R6-PROPOSAL.md`](./features/map-layer-restyle/R6-PROPOSAL.md)；BACKLOG R6-V／R6-4 | 2026-10-15 |
