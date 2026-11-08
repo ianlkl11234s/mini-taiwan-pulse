@@ -313,7 +313,9 @@ export function MapchallengeDay08AccessLegend({ isDark }: { isDark: boolean }) {
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day08.accessTitle")} />
     <LegendNote>{t("legend.mapchallenge.day08.accessSub", { scenario: t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario.value]), speed: t(MAPCHALLENGE_DAY08_SPEED_KEYS[speed]) })}</LegendNote>
-    <OverlapRate>{t(speed === "slow" ? "legend.mapchallenge.day08.coveredRateSlow" : "legend.mapchallenge.day08.coveredRate", { pct, base: basePct })}</OverlapRate>
+    <OverlapRate>{scenario.value === "base"
+      ? t(speed === "slow" ? "legend.mapchallenge.day08.coveredNowSlow" : "legend.mapchallenge.day08.coveredNow", { pct })
+      : t(speed === "slow" ? "legend.mapchallenge.day08.coveredRateSlow" : "legend.mapchallenge.day08.coveredRate", { pct, base: basePct })}</OverlapRate>
     {MAPCHALLENGE_DAY08_BIN_KEYS.map((k, i) => <LegendRow key={k} swatch={<SwatchSquare color={colors[i]!} />}>{t(k)}</LegendRow>)}
     <LegendNote>{t("legend.mapchallenge.day08.accessNote")}</LegendNote>
     <Day08Footer />
@@ -330,7 +332,7 @@ export function MapchallengeDay08SitesLegend({ isDark }: { isDark: boolean }) {
     <LegendTitle zh={t("legend.mapchallenge.day08.sitesTitle")} />
     <LegendNote>{t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario.value])}</LegendNote>
     {scenario.costYi && <OverlapRate>{t("legend.mapchallenge.day08.sitesCost", { base: formatNumber(scenario.costYi.base), low: formatNumber(scenario.costYi.low), high: formatNumber(scenario.costYi.high) })}</OverlapRate>}
-    {shown.map((c) => <LegendRow key={c.value} swatch={<SwatchSquare color={mapchallengeDay08SiteColor(c.value, isDark)} opacity={MAPCHALLENGE_DAY08_SITE_FILL_OPACITY * 2} stroke={mapchallengeDay08SiteOutline(isDark)} />}>
+    {shown.map((c) => <LegendRow key={c.value} swatch={<SwatchSquare color={mapchallengeDay08SiteColor(c.value, isDark)} opacity={MAPCHALLENGE_DAY08_SITE_FILL_OPACITY} stroke={mapchallengeDay08SiteOutline(isDark)} />}>
       {t(MAPCHALLENGE_DAY08_SITE_CLASS_KEYS[c.value])}
     </LegendRow>)}
     <LegendNote>{t(historical ? "legend.mapchallenge.day08.sitesNoteHist" : "legend.mapchallenge.day08.sitesNote")}</LegendNote>

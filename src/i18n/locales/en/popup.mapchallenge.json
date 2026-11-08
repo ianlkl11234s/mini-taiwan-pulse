@@ -90,6 +90,6 @@
   "popup.mapchallenge.day08.newVul": "Newly covered children & elderly (3.6 km/h)",
   "popup.mapchallenge.day08.residents": "Living on the site",
   "popup.mapchallenge.day08.peopleRange": "{low}–{high}",
-  "popup.mapchallenge.day08.cost": "Total cost (NT$ 100M, low / base / high)",
-  "popup.mapchallenge.day08.costValue": "{low} / {base} / {high}"
+  "popup.mapchallenge.day08.cost": "Total cost (NT$ 100M)",
+  "popup.mapchallenge.day08.costValue": "{low}–{high} (base {base})"
 }

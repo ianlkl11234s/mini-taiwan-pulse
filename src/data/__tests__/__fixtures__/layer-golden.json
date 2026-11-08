@@ -104625,7 +104625,7 @@
                 "#b38c15",
                 "#5ba74a"
               ],
-              "fill-opacity": 0.35
+              "fill-opacity": 0.7
             },
             "light": {
               "fill-color": [
@@ -104644,7 +104644,7 @@
                 "#d0a83e",
                 "#77c466"
               ],
-              "fill-opacity": 0.35
+              "fill-opacity": 0.7
             }
           },
           "suffix": "fill",
@@ -104666,13 +104666,13 @@
           "paint": {
             "dark": {
               "line-color": "#f8fafc",
-              "line-opacity": 0.8,
-              "line-width": 1
+              "line-opacity": 0.85,
+              "line-width": 2
             },
             "light": {
               "line-color": "#0f172a",
-              "line-opacity": 0.8,
-              "line-width": 1
+              "line-opacity": 0.85,
+              "line-width": 2
             }
           },
           "suffix": "outline",

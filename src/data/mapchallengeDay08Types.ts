@@ -129,8 +129,11 @@ export function mapchallengeDay08SiteColorExpr(isDark: boolean): unknown[] {
 export function mapchallengeDay08SiteOutline(isDark: boolean): string {
   return isDark ? "#f8fafc" : "#0f172a";
 }
-/** 面＋類別色 0.35（F-1 coverage），外框 2px */
-export const MAPCHALLENGE_DAY08_SITE_FILL_OPACITY = 0.35;
+/**
+ * 填色 0.7＋外框 2px（FILL_TIERS keep）：用地多半約 1 ha，疊在步行分鐘面（viridis 0.55）上，
+ * coverage 階的 0.35／1px 會被底下的色塊吃掉、看不出類別色（2026-11-08 本機截圖確認）。
+ */
+export const MAPCHALLENGE_DAY08_SITE_FILL_OPACITY = 0.7;
 
 // ── 1955 計畫原圖 ────────────────────────────────────────────
 /** 四角（TL、TR、BR、BL，lng/lat），取自 day08_summary.json plan_image（仿射對位，控制點 RMS 約 30 m、檢核點約 55 m） */

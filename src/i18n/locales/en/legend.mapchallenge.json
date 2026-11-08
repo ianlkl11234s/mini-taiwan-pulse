@@ -102,5 +102,7 @@
   "legend.mapchallenge.day08.cls.T2": "T2 Industrial zone",
   "legend.mapchallenge.day08.cls.T3": "T3 Residential/commercial block",
   "legend.mapchallenge.day08.cls.park": "1955 planned park",
-  "legend.mapchallenge.day08.cls.greenbelt": "1955 planned green belt"
+  "legend.mapchallenge.day08.cls.greenbelt": "1955 planned green belt",
+  "legend.mapchallenge.day08.coveredNow": "{pct}% within 10 min",
+  "legend.mapchallenge.day08.coveredNowSlow": "Children & elderly: {pct}% within 10 min"
 }

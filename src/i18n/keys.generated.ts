@@ -1699,6 +1699,8 @@ export type GeneratedStaticKey =
   | "legend.mapchallenge.day08.cls.T3"
   | "legend.mapchallenge.day08.cls.greenbelt"
   | "legend.mapchallenge.day08.cls.park"
+  | "legend.mapchallenge.day08.coveredNow"
+  | "legend.mapchallenge.day08.coveredNowSlow"
   | "legend.mapchallenge.day08.coveredRate"
   | "legend.mapchallenge.day08.coveredRateSlow"
   | "legend.mapchallenge.day08.planLicense"

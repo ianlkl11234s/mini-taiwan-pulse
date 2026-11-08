@@ -102,5 +102,7 @@
   "legend.mapchallenge.day08.cls.T2": "T2 工業地域",
   "legend.mapchallenge.day08.cls.T3": "T3 住宅・商業街区",
   "legend.mapchallenge.day08.cls.park": "1955 計画公園",
-  "legend.mapchallenge.day08.cls.greenbelt": "1955 計画緑地"
+  "legend.mapchallenge.day08.cls.greenbelt": "1955 計画緑地",
+  "legend.mapchallenge.day08.coveredNow": "10 分以内 {pct}%",
+  "legend.mapchallenge.day08.coveredNowSlow": "子ども・高齢者 10 分以内 {pct}%"
 }
