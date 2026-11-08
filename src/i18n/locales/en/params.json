@@ -2400,5 +2400,8 @@
   "param.T2 工業區": "T2 Industrial zone",
   "param.T3 住宅商業街廓": "T3 Residential/commercial block",
   "param.1955 計畫公園": "1955 planned park",
-  "param.1955 計畫綠地": "1955 planned green belt"
+  "param.1955 計畫綠地": "1955 planned green belt",
+  "param.一般公園（≥1 ha）": "Park (≥1 ha)",
+  "param.河濱公園（≥1 ha）": "Riverside park (≥1 ha)",
+  "param.河濱穿堤入口": "Riverside levee entrance"
 }

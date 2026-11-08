@@ -25,7 +25,7 @@ import {
   mapchallengeDay06EraColor, mapchallengeDay06SurviveColor, mapchallengeDay06TempleColor, mapchallengeDay06TodayColor,
 } from "../../data/mapchallengeDay06Types";
 import {
-  MAPCHALLENGE_DAY08_SCENARIOS, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY,
+  MAPCHALLENGE_DAY08_ENTRANCE_KINDS, MAPCHALLENGE_DAY08_ENTRANCE_KIND_KEYS, MAPCHALLENGE_DAY08_PARK_FILL_OPACITY, mapchallengeDay08ParkColor, MAPCHALLENGE_DAY08_SCENARIOS, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY,
   mapchallengeDay08BinColors, mapchallengeDay08ScenarioByValue, mapchallengeDay08SiteColor, mapchallengeDay08SiteOutline, mapchallengeDay08YiToBillion, MAPCHALLENGE_DAY08_COST_FORMAT,
   type MapchallengeDay08Scenario, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
@@ -319,6 +319,21 @@ export function MapchallengeDay08AccessLegend({ isDark }: { isDark: boolean }) {
     {MAPCHALLENGE_DAY08_BIN_KEYS.map((k, i) => <LegendRow key={k} swatch={<SwatchSquare color={colors[i]!} />}>{t(k)}</LegendRow>)}
     <LegendNote>{t("legend.mapchallenge.day08.accessNote")}</LegendNote>
     <Day08Footer />
+  </div>;
+}
+
+export function MapchallengeDay08ParksLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  const outline = (cls: "park" | "riverside") => mapchallengeDay08ParkColor(cls, isDark);
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day08.parksTitle")} />
+    <LegendRow swatch={<SwatchSquare color={outline("park")} opacity={MAPCHALLENGE_DAY08_PARK_FILL_OPACITY} stroke={outline("park")} />}>{t("legend.mapchallenge.day08.parkCls.park")}</LegendRow>
+    <LegendRow swatch={<SwatchSquare color={outline("riverside")} opacity={MAPCHALLENGE_DAY08_PARK_FILL_OPACITY} stroke={outline("riverside")} />}>{t("legend.mapchallenge.day08.parkCls.riverside")}</LegendRow>
+    <LegendRow swatch={<SwatchDot color={mapchallengeDay08ParkColor("entrance", isDark)} />}>{t("legend.mapchallenge.day08.parkCls.entrance")}</LegendRow>
+    <LegendNote>{MAPCHALLENGE_DAY08_ENTRANCE_KINDS.map((k) => t(MAPCHALLENGE_DAY08_ENTRANCE_KIND_KEYS[k])).join("、")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day08.entranceRule")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day08.parksSource")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day08.caveat")}</LegendNote>
   </div>;
 }
 

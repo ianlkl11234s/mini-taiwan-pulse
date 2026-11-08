@@ -64,6 +64,7 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   mapchallengeDay04Population: "grid", // 30 天地圖挑戰 Day 4 人口密度基準 Population Density Baseline
   mapchallengeDay06Taipei1932: "coverage", // 30 天地圖挑戰 Day 6 1932 臺北市町界（面＋類別色）
   mapchallengeDay08Access: "graded", // 30 天地圖挑戰 Day 8 走到大公園要幾分鐘（viridis 四級）
+  mapchallengeDay08Parks: "coverage", // 30 天地圖挑戰 Day 8 現有公園（面＋類別色；入口點另見 POINT_TIERS）
   mapchallengeDay08Sites: "coverage", // 30 天地圖挑戰 Day 8 新公園選址與代價（面＋類別色，外框用反差中性色）
   mapchallengeDay04ScaleTcCh: "grid", // 30 天地圖挑戰 Day 4 臺中與彰化工廠細格
   manufacturingCompanyDensityGrid: "grid", // 製造業公司登記密度 Manufacturing Registry Density

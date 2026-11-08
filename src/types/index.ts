@@ -427,7 +427,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
   | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
   | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
-  | "mapchallengeDay08Access" | "mapchallengeDay08Sites" | "mapchallengeDay08Plan1955"
+  | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites" | "mapchallengeDay08Plan1955"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -980,7 +980,7 @@ export interface FeatureInfo {
   | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
   | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
   | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
-  | "mapchallengeDay08Access" | "mapchallengeDay08Sites"
+  | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1364,6 +1364,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   mapchallengeDay06Lighthouses: boolean;
   /** 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開）：中和＋永和走到大公園的步行分鐘（可切方案、步速） */
   mapchallengeDay08Access: boolean;
+  /** 30 天地圖挑戰 Day 8 烏托邦：現有 ≥1 ha 公園（含河濱公園）與河濱穿堤入口 */
+  mapchallengeDay08Parks: boolean;
   /** 30 天地圖挑戰 Day 8 烏托邦：新公園選址與代價（A／B／B2／C）＋1955 計畫公園與綠地（D／Dfull） */
   mapchallengeDay08Sites: boolean;
   /** 30 天地圖挑戰 Day 8 烏托邦：1955 中和鄉都市計畫圖（image source） */

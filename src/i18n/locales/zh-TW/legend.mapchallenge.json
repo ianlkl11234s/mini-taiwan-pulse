@@ -72,7 +72,7 @@
   "legend.mapchallenge.day06.lighthouseNote": "5 個 1896–97 年設的測候所今天都還是氣象署有人站，臺北只差 10 m。今日燈塔清單只收 36 座主要燈塔，「無對應」不代表消失；彭佳嶼歷史點位落在海上，判為數化偏差。",
   "legend.mapchallenge.day06.sourceShort": "中央研究院《臺灣歷史文化地圖系統》第一版（2003），CC BY-NC-SA 3.0 臺灣版；本層為衍生資料、同條款（非商業）",
   "legend.mapchallenge.day08.caveat": "研究推估，非法定查估；固定 2024 人口",
-  "legend.mapchallenge.day08.source": "來源：內政部最小統計區人口（2024）、OpenStreetMap 公園與路網（ODbL）、新北市都市計畫使用分區、內政部實價登錄、國土利用調查",
+  "legend.mapchallenge.day08.source": "來源：內政部最小統計區人口（2024）、OpenStreetMap 公園與路網（ODbL）、臺北市疏散門開放資料（data.gov.tw 143891）、新北市都市計畫使用分區、內政部實價登錄、國土利用調查",
   "legend.mapchallenge.day08.accessTitle": "走到大公園要幾分鐘（中和＋永和）",
   "legend.mapchallenge.day08.accessSub": "{scenario}・{speed}",
   "legend.mapchallenge.day08.coveredRate": "10 分鐘內可達 {pct}%（現況 {base}%）",
@@ -81,7 +81,7 @@
   "legend.mapchallenge.day08.bin1": "5–10 分鐘",
   "legend.mapchallenge.day08.bin2": "10–15 分鐘",
   "legend.mapchallenge.day08.bin3": ">15 分鐘（含走不到）",
-  "legend.mapchallenge.day08.accessNote": "到最近一座 ≥1 ha、非河濱公園的步行分鐘，沿路網計算；>30 分鐘或走不到記為 30。一般看全人口（4.8 km/h），長幼看 65 歲以上與 0–14 歲（3.6 km/h）。",
+  "legend.mapchallenge.day08.accessNote": "到最近一座 ≥1 ha 公園（含河濱公園，河濱公園只能從穿堤入口進入）的步行分鐘，沿路網計算；>30 分鐘或走不到記為 30。一般看全人口（4.8 km/h），長幼看 65 歲以上與 0–14 歲（3.6 km/h）。",
   "legend.mapchallenge.day08.sitesTitle": "新公園選址與代價",
   "legend.mapchallenge.day08.sitesCost": "約 {base} 億元（{low}–{high}）",
   "legend.mapchallenge.day08.sitesNote": "A 效率、B 公平、B2 長幼優先各選 5 處，C 只用還沒開闢的公園用地選 5 處（貪婪法；用地上仍有住戶）。總代價含土地、建物、戶別給付與公園工程，低／基準／高三值。",
@@ -105,5 +105,11 @@
   "legend.mapchallenge.day08.cls.greenbelt": "1955 計畫綠地",
   "legend.mapchallenge.day08.coveredNow": "10 分鐘內可達 {pct}%",
   "legend.mapchallenge.day08.coveredNowSlow": "長幼 10 分鐘內可達 {pct}%",
-  "legend.mapchallenge.day08.sitesNone": "現況沒有新增用地；切到 A／B／B2／C／D／Dfull 看選址。"
+  "legend.mapchallenge.day08.sitesNone": "現況沒有新增用地；切到 A／B／B2／C／D／Dfull 看選址。",
+  "legend.mapchallenge.day08.parksTitle": "現有公園與河濱入口",
+  "legend.mapchallenge.day08.parkCls.park": "一般公園（≥1 ha）",
+  "legend.mapchallenge.day08.parkCls.riverside": "河濱公園（≥1 ha）",
+  "legend.mapchallenge.day08.parkCls.entrance": "河濱穿堤入口",
+  "legend.mapchallenge.day08.entranceRule": "河濱公園只能從穿過堤防的入口進入：陸橋、地下道、上堤階梯、疏散門。入口由 OpenStreetMap 步行路網推定；新北沒有開放的疏散門清單（臺北用臺北市疏散門開放資料），OSM 沒標的門會漏，所以是偏保守的下限；颱風期疏散門關閉時進不去（未模擬）。",
+  "legend.mapchallenge.day08.parksSource": "來源：OpenStreetMap（ODbL）、臺北市疏散門開放資料（data.gov.tw 143891）"
 }

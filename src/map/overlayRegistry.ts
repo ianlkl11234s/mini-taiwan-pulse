@@ -39,7 +39,7 @@ import {
   mapchallengeDay06TypeFilter, MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, MAPCHALLENGE_DAY06_SAME_RING, mapchallengeDay06CoastWidthExpr,
 } from "../data/mapchallengeDay06Types";
 import {
-  MAPCHALLENGE_DAY08_ACCESS_URL, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY, MAPCHALLENGE_DAY08_SITES_URL,
+  MAPCHALLENGE_DAY08_ACCESS_URL, MAPCHALLENGE_DAY08_PARK_CLASSES, MAPCHALLENGE_DAY08_PARK_FILL_OPACITY, MAPCHALLENGE_DAY08_PARKS_URL, mapchallengeDay08ParkColor, mapchallengeDay08ParkColorExpr, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY, MAPCHALLENGE_DAY08_SITES_URL,
   mapchallengeDay08AccessColorExpr, mapchallengeDay08ScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
   mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
 } from "../data/mapchallengeDay08Types";
@@ -12691,6 +12691,14 @@ const mcDay08SiteFilter = (p?: Record<string, number>): unknown[] => {
   return cat ? ["all", scenario, cat] : scenario;
 };
 
+const mcDay08ParkCat = (p?: Record<string, number>): unknown[] | null =>
+  categoryFilterExpr({ property: "cls", options: MAPCHALLENGE_DAY08_PARK_CLASSES.map((c) => ({ value: c.value, zh: c.zh })) }, p?.mapchallengeDay08ParksCategoryMask);
+const mcDay08ParkFilter = (geom: "Polygon" | "Point") => (p?: Record<string, number>): unknown[] => {
+  const g = geom === "Point" ? ["==", ["geometry-type"], "Point"] : ["!=", ["geometry-type"], "Point"];
+  const cat = mcDay08ParkCat(p);
+  return cat ? ["all", g, cat] : g;
+};
+
 OVERLAY_REGISTRY.push(
   {
     // 1. 步行可及（統計區面，viridis 四級；G-3 色格縫外框）
@@ -12706,6 +12714,32 @@ OVERLAY_REGISTRY.push(
     }, {
       suffix: "outline", type: "line",
       paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay08AccessOpacity ?? 0.7 }),
+    }],
+  },
+  {
+    // 1b. 現有 ≥1 ha 公園（面：一般／河濱）＋河濱穿堤入口（點）：類別多選（V-4）改 filter
+    id: "mapchallengeDay08Parks", sourceUrl: MAPCHALLENGE_DAY08_PARKS_URL, sourceId: "mapchallenge-day08-parks",
+    attribution: "OpenStreetMap（ODbL）；臺北市疏散門開放資料（data.gov.tw 143891） · 入口由 OSM 推定，為偏保守的下限",
+    rebuildOnParamChange: ["fill", "outline", "circle"], rebuildOnParamKeys: ["mapchallengeDay08ParksCategoryMask"],
+    layers: [{
+      suffix: "fill", type: "fill",
+      filter: (p) => mcDay08ParkFilter("Polygon")(p),
+      paint: (isDark, p) => ({
+        "fill-color": mapchallengeDay08ParkColorExpr(isDark),
+        "fill-opacity": MAPCHALLENGE_DAY08_PARK_FILL_OPACITY * ((p?.mapchallengeDay08ParksOpacity ?? 0.85) / 0.85),
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      layout: { "line-join": "round" },
+      filter: (p) => mcDay08ParkFilter("Polygon")(p),
+      paint: (isDark, p) => ({ "line-color": mapchallengeDay08ParkColorExpr(isDark), "line-width": 1, "line-opacity": p?.mapchallengeDay08ParksOpacity ?? 0.85 }),
+    }, {
+      suffix: "circle", type: "circle",
+      filter: (p) => mcDay08ParkFilter("Point")(p),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay08ParkColor("entrance", isDark),
+        "circle-opacity": p?.mapchallengeDay08ParksOpacity ?? 0.85,
+      }),
     }],
   },
   {

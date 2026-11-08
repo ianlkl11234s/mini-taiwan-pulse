@@ -1764,5 +1764,6 @@
   "layer.historicalThematic": "歴史的主題図（水利・地質・林野・測量）",
   "layer.mapchallengeDay08Access": "大きな公園まで徒歩何分",
   "layer.mapchallengeDay08Sites": "新しい公園の候補地とコスト",
-  "layer.mapchallengeDay08Plan1955": "1955 年 中和郷 都市計画図"
+  "layer.mapchallengeDay08Plan1955": "1955 年 中和郷 都市計画図",
+  "layer.mapchallengeDay08Parks": "既存の公園と河川敷の出入口"
 }
