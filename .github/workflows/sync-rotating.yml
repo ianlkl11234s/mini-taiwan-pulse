@@ -1,7 +1,7 @@
 # 輪替資料（氣候、GFW 小時檔）S3 → R2 同步，取代 Zeabur 容器內的 refresh-climate.sh／refresh-gfw-hourly.sh。
 # 安全：只用 schedule／手動觸發（不接 pull_request，fork 拿不到 secrets）；
 # S3 金鑰為唯讀 IAM（只能讀 deploy-assets/climate、global-maritime）；R2 金鑰只能寫 mini-tw-pulse；
-# 只安裝 @aws-sdk/client-s3 一個套件（鎖版本），不跑整個專案的 npm ci。
+# 只安裝 @aws-sdk/client-s3 一個套件（鎖版本，裝在獨立目錄、不碰根 package.json），不跑整個專案的 npm ci。
 name: sync-rotating
 
 on:
@@ -35,8 +35,16 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
-      - name: Install S3 SDK only
-        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund @aws-sdk/client-s3@3.995.0
+      # 在獨立目錄安裝 SDK 再 symlink 成 node_modules：
+      # 在 repo 根目錄 npm install 會解析根 package.json（overrides／vitest 4），
+      # 2026-11-07 起觸發 npm 錯誤「Cannot read properties of null (reading 'edgesOut')」。
+      - name: Install S3 SDK only (isolated dir)
+        run: |
+          mkdir -p "/sync-deps"
+          cd "/sync-deps"
+          npm init -y >/dev/null
+          npm install --no-package-lock --ignore-scripts --no-audit --no-fund @aws-sdk/client-s3@3.995.0
+          ln -s "/sync-deps/node_modules" "/node_modules"
       - name: Unit tests
         run: node --test deploy/cloudflare/sync-rotating.test.mjs
       - name: Sync
