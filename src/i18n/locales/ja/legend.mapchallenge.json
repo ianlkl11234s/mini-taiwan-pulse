@@ -83,7 +83,7 @@
   "legend.mapchallenge.day08.bin3": "15 分超（到達不可を含む）",
   "legend.mapchallenge.day08.accessNote": "最寄りの 1 ha 以上・河川敷以外の公園まで道路網沿いの徒歩分数。30 分超または到達不可は 30 として記録。一般は全人口（4.8 km/h）、子ども・高齢者は 65 歳以上と 0–14 歳（3.6 km/h）。",
   "legend.mapchallenge.day08.sitesTitle": "新しい公園の候補地とコスト",
-  "legend.mapchallenge.day08.sitesCost": "約 {base} 億元（{low}–{high}）",
+  "legend.mapchallenge.day08.sitesCost": "約 {base} 億台湾元（{low}–{high}）",
   "legend.mapchallenge.day08.sitesNote": "A 効率、B 公平、B2 子ども・高齢者優先、C 立ち退き最小がそれぞれ 5 か所を選定（貪欲法）。総コストは土地・建物・世帯補償・公園整備を含み、低／基準／高の 3 値。",
   "legend.mapchallenge.day08.sitesNoteHist": "D／Dfull は幾何的な反実仮想：1955 年計画の公園（と緑地）が残っていたら、今それを買い戻すコスト。歴史の再現ではない。学校用地は表示しない。",
   "legend.mapchallenge.day08.planTitle": "1955 年 中和郷 都市計画図",
@@ -104,5 +104,6 @@
   "legend.mapchallenge.day08.cls.park": "1955 計画公園",
   "legend.mapchallenge.day08.cls.greenbelt": "1955 計画緑地",
   "legend.mapchallenge.day08.coveredNow": "10 分以内 {pct}%",
-  "legend.mapchallenge.day08.coveredNowSlow": "子ども・高齢者 10 分以内 {pct}%"
+  "legend.mapchallenge.day08.coveredNowSlow": "子ども・高齢者 10 分以内 {pct}%",
+  "legend.mapchallenge.day08.sitesNone": "現状では新しい用地はありません。A／B／B2／C／D／Dfull に切り替えてください。"
 }

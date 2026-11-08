@@ -90,6 +90,6 @@
   "popup.mapchallenge.day08.newVul": "新たにカバーされる子ども・高齢者（3.6 km/h）",
   "popup.mapchallenge.day08.residents": "用地内の居住者",
   "popup.mapchallenge.day08.peopleRange": "{low}–{high} 人",
-  "popup.mapchallenge.day08.cost": "総コスト（億元）",
+  "popup.mapchallenge.day08.cost": "総コスト（億台湾元）",
   "popup.mapchallenge.day08.costValue": "{low}–{high}（基準 {base}）"
 }

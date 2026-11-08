@@ -40,8 +40,8 @@ import {
 } from "../data/mapchallengeDay06Types";
 import {
   MAPCHALLENGE_DAY08_ACCESS_URL, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY, MAPCHALLENGE_DAY08_SITES_URL,
-  mapchallengeDay08AccessColorExpr, mapchallengeDay08AccessScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
-  mapchallengeDay08SiteScenarioAt, mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
+  mapchallengeDay08AccessColorExpr, mapchallengeDay08ScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
+  mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
 } from "../data/mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
@@ -12632,12 +12632,13 @@ OVERLAY_REGISTRY.push(
 );
 
 // ── 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開，2026-11-08）：中和＋永和走到 ≥1 ha 非河濱公園的步行分鐘＋新公園選址。
-// 步行分鐘：方案／步速 select 只換 paint 讀的欄位（t0／t0s／t_<S>／ts_<S>）。選址：方案 select＋類別多選（V-4）改 filter，參數變動時重建。
+// 方案 select 兩層共用（mapchallengeDay08ScenarioIdx）。步行分鐘：方案／步速只換 paint 讀的欄位（t0／t0s／t_<S>／ts_<S>）。
+// 選址：方案＋類別多選（V-4）改 filter，參數變動時重建；方案＝現況時沒有用地（filter 自然 0 筆）。
 // 1955 計畫原圖是 image source，由 useMapchallengeDay08PlanLayer 掛（overlay 引擎只收 geojson／pmtiles）。
 const MAPCHALLENGE_DAY08_ATTRIBUTION = "內政部最小統計區人口（2024）；OpenStreetMap（ODbL）；新北市都市計畫土地使用分區；內政部實價登錄；國土利用調查 · 研究推估，非法定查估";
 const mcDay08SiteFilter = (p?: Record<string, number>): unknown[] => {
   const cat = categoryFilterExpr({ property: "cls", options: MAPCHALLENGE_DAY08_SITE_CLASSES.map((c) => ({ value: c.value, zh: c.zh })) }, p?.mapchallengeDay08SitesCategoryMask);
-  const scenario = ["==", ["get", "scenario"], mapchallengeDay08SiteScenarioAt(p?.mapchallengeDay08SitesScenarioIdx).value];
+  const scenario = ["==", ["get", "scenario"], mapchallengeDay08ScenarioAt(p?.mapchallengeDay08ScenarioIdx).value];
   return cat ? ["all", scenario, cat] : scenario;
 };
 
@@ -12650,7 +12651,7 @@ OVERLAY_REGISTRY.push(
       suffix: "fill", type: "fill",
       paint: (isDark, p) => ({
         "fill-color": mapchallengeDay08AccessColorExpr(
-          mapchallengeDay08TimeProp(mapchallengeDay08AccessScenarioAt(p?.mapchallengeDay08AccessScenarioIdx).value, mapchallengeDay08SpeedAt(p?.mapchallengeDay08AccessSpeedIdx)), isDark),
+          mapchallengeDay08TimeProp(mapchallengeDay08ScenarioAt(p?.mapchallengeDay08ScenarioIdx).value, mapchallengeDay08SpeedAt(p?.mapchallengeDay08AccessSpeedIdx)), isDark),
         "fill-opacity": p?.mapchallengeDay08AccessOpacity ?? 0.7,
       }),
     }, {
@@ -12662,7 +12663,7 @@ OVERLAY_REGISTRY.push(
     // 2. 選址（面＋類別色＋反差外框）：依方案過濾
     id: "mapchallengeDay08Sites", sourceUrl: MAPCHALLENGE_DAY08_SITES_URL, sourceId: "mapchallenge-day08-sites",
     attribution: MAPCHALLENGE_DAY08_ATTRIBUTION,
-    rebuildOnParamChange: ["fill", "outline"], rebuildOnParamKeys: ["mapchallengeDay08SitesScenarioIdx", "mapchallengeDay08SitesCategoryMask"],
+    rebuildOnParamChange: ["fill", "outline"], rebuildOnParamKeys: ["mapchallengeDay08ScenarioIdx", "mapchallengeDay08SitesCategoryMask"],
     layers: [{
       suffix: "fill", type: "fill",
       filter: (p) => mcDay08SiteFilter(p),
@@ -12674,7 +12675,7 @@ OVERLAY_REGISTRY.push(
       suffix: "outline", type: "line",
       layout: { "line-join": "round" },
       filter: (p) => mcDay08SiteFilter(p),
-      paint: (isDark, p) => ({ "line-color": mapchallengeDay08SiteOutline(isDark), "line-width": 2, "line-opacity": p?.mapchallengeDay08SitesOpacity ?? 0.85 }),
+      paint: (isDark, p) => ({ "line-color": mapchallengeDay08SiteOutline(isDark), "line-width": 1, "line-opacity": p?.mapchallengeDay08SitesOpacity ?? 0.85 }),
     }],
   },
 );

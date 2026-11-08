@@ -83,7 +83,7 @@
   "legend.mapchallenge.day08.bin3": ">15 min (incl. unreachable)",
   "legend.mapchallenge.day08.accessNote": "Walking minutes along the road network to the nearest non-riverside park of ≥1 ha; >30 min or unreachable is recorded as 30. General: all residents at 4.8 km/h; children & elderly: ages 65+ and 0–14 at 3.6 km/h.",
   "legend.mapchallenge.day08.sitesTitle": "New Park Sites and Their Cost",
-  "legend.mapchallenge.day08.sitesCost": "≈ NT$ {base} hundred million ({low}–{high})",
+  "legend.mapchallenge.day08.sitesCost": "≈ NT${base}B ({low}–{high}B)",
   "legend.mapchallenge.day08.sitesNote": "A Efficiency, B Equity, B2 Children & Elderly First and C Low Displacement each pick 5 sites (greedy). Total cost covers land, buildings, household payments and park works, as low / base / high.",
   "legend.mapchallenge.day08.sitesNoteHist": "D / Dfull are geometric counterfactuals: the cost of buying back the parks (and green belts) of the 1955 plan today, had they been kept. Not a reenactment of history. School sites are not shown.",
   "legend.mapchallenge.day08.planTitle": "1955 Zhonghe Town Plan Map",
@@ -104,5 +104,6 @@
   "legend.mapchallenge.day08.cls.park": "1955 planned park",
   "legend.mapchallenge.day08.cls.greenbelt": "1955 planned green belt",
   "legend.mapchallenge.day08.coveredNow": "{pct}% within 10 min",
-  "legend.mapchallenge.day08.coveredNowSlow": "Children & elderly: {pct}% within 10 min"
+  "legend.mapchallenge.day08.coveredNowSlow": "Children & elderly: {pct}% within 10 min",
+  "legend.mapchallenge.day08.sitesNone": "No new sites in the current state; switch to A / B / B2 / C / D / Dfull."
 }

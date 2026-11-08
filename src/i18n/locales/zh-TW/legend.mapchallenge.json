@@ -104,5 +104,6 @@
   "legend.mapchallenge.day08.cls.park": "1955 計畫公園",
   "legend.mapchallenge.day08.cls.greenbelt": "1955 計畫綠地",
   "legend.mapchallenge.day08.coveredNow": "10 分鐘內可達 {pct}%",
-  "legend.mapchallenge.day08.coveredNowSlow": "長幼 10 分鐘內可達 {pct}%"
+  "legend.mapchallenge.day08.coveredNowSlow": "長幼 10 分鐘內可達 {pct}%",
+  "legend.mapchallenge.day08.sitesNone": "現況沒有新增用地；切到 A／B／B2／C／D／Dfull 看選址。"
 }

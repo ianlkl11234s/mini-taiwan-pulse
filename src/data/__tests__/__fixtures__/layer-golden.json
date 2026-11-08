@@ -104523,18 +104523,18 @@
                     "coalesce",
                     [
                       "get",
-                      "t0"
+                      "t_A"
                     ],
                     30
                   ]
                 ],
-                "#365c8d",
+                "#545a6d",
                 5.05,
-                "#1f9a8a",
+                "#8a8678",
                 10.05,
-                "#6fcf58",
+                "#f27d1b",
                 15.05,
-                "#fde725"
+                "#fecc61"
               ],
               "fill-opacity": 0.55
             },
@@ -104547,18 +104547,18 @@
                     "coalesce",
                     [
                       "get",
-                      "t0"
+                      "t_A"
                     ],
                     30
                   ]
                 ],
-                "#46c06f",
+                "#d1d4d9",
                 5.05,
-                "#238a8d",
+                "#b49e6b",
                 10.05,
-                "#3c4e8a",
+                "#d25306",
                 15.05,
-                "#46085c"
+                "#822d05"
               ],
               "fill-opacity": 0.55
             }
@@ -104616,16 +104616,16 @@
                   "cls"
                 ],
                 "T1",
-                "#8466c8",
+                "#5ba74a",
                 "T2",
-                "#b75600",
+                "#00a595",
                 "T3",
-                "#b64d8e",
+                "#2e81d5",
                 "park",
-                "#b38c15",
+                "#2e81d5",
                 "#5ba74a"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": 0.35
             },
             "light": {
               "fill-color": [
@@ -104635,16 +104635,16 @@
                   "cls"
                 ],
                 "T1",
-                "#6f50b2",
+                "#77c466",
                 "T2",
-                "#b95700",
+                "#00cab9",
                 "T3",
-                "#963372",
+                "#3a8ce0",
                 "park",
-                "#d0a83e",
+                "#3a8ce0",
                 "#77c466"
               ],
-              "fill-opacity": 0.7
+              "fill-opacity": 0.35
             }
           },
           "suffix": "fill",
@@ -104666,13 +104666,13 @@
           "paint": {
             "dark": {
               "line-color": "#f8fafc",
-              "line-opacity": 0.85,
-              "line-width": 2
+              "line-opacity": 0.8,
+              "line-width": 1
             },
             "light": {
               "line-color": "#0f172a",
-              "line-opacity": 0.85,
-              "line-width": 2
+              "line-opacity": 0.8,
+              "line-width": 1
             }
           },
           "suffix": "outline",
@@ -137894,7 +137894,7 @@
           }
         ],
         "type": "select",
-        "value": "base"
+        "value": "A"
       },
       {
         "label": "步速",
@@ -137936,6 +137936,10 @@
       {
         "label": "方案",
         "options": [
+          {
+            "label": "現況",
+            "value": "base"
+          },
           {
             "label": "A 效率",
             "value": "A"

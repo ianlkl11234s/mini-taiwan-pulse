@@ -16,7 +16,7 @@ import {
 } from "../../data/mapchallengeDay06Types";
 import {
   MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_UNREACHABLE, mapchallengeDay08BinColor, mapchallengeDay08ScenarioByValue,
-  mapchallengeDay08SiteColor, mapchallengeDay08TimeProp, type MapchallengeDay08SiteClass,
+  mapchallengeDay08SiteColor, mapchallengeDay08TimeProp, mapchallengeDay08YiToBillion, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import { Row, SourceFooter, Title } from "./shared";
@@ -249,7 +249,7 @@ export function MapchallengeDay08AccessPanel({ props }: Props) {
   const { t, formatNumber } = useLocale();
   const isDark = useFeatureTheme() !== LIGHT_FEATURE;
   const values = useLayerParams("mapchallengeDay08Access");
-  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08AccessScenario")).value;
+  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08Scenario")).value;
   const speed = paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08AccessSpeed") === "slow" ? "slow" : "normal";
   const before = numOrNull(props[mapchallengeDay08TimeProp("base", speed)]);
   const after = numOrNull(props[mapchallengeDay08TimeProp(scenario, speed)]);
@@ -272,7 +272,8 @@ export function MapchallengeDay08AccessPanel({ props }: Props) {
 }
 
 export function MapchallengeDay08SitesPanel({ props }: Props) {
-  const { t, formatNumber } = useLocale();
+  const { t, formatNumber, active } = useLocale();
+  const yi = (v: number) => formatNumber(active === "en" ? mapchallengeDay08YiToBillion(v) : v);
   const isDark = useFeatureTheme() !== LIGHT_FEATURE;
   const cls = (MAPCHALLENGE_DAY08_SITE_CLASSES.some((c) => c.value === props.cls) ? props.cls : "T3") as MapchallengeDay08SiteClass;
   const historical = cls === "park" || cls === "greenbelt";
@@ -296,7 +297,9 @@ export function MapchallengeDay08SitesPanel({ props }: Props) {
     {newPop !== null && <Row label={t("popup.mapchallenge.day08.newPop")} value={t("popup.mapchallenge.day08.people", { n: formatNumber(newPop) })} mono />}
     {newVul !== null && <Row label={t("popup.mapchallenge.day08.newVul")} value={t("popup.mapchallenge.day08.people", { n: formatNumber(newVul) })} mono />}
     {popLow !== null && popHigh !== null && <Row label={t("popup.mapchallenge.day08.residents")} value={t("popup.mapchallenge.day08.peopleRange", { low: formatNumber(popLow), high: formatNumber(popHigh) })} mono />}
-    {cLow !== null && cBase !== null && cHigh !== null && <Row label={t("popup.mapchallenge.day08.cost")} value={t("popup.mapchallenge.day08.costValue", { low: formatNumber(cLow), base: formatNumber(cBase), high: formatNumber(cHigh) })} mono />}
+    {cLow !== null && cBase !== null && cHigh !== null && <Row label={t("popup.mapchallenge.day08.cost")} value={t("popup.mapchallenge.day08.costValue", {
+      low: yi(cLow), base: yi(cBase), high: yi(cHigh),
+    })} mono />}
     <Day08Footer />
   </div>;
 }

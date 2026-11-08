@@ -26,7 +26,7 @@ import {
 } from "../../data/mapchallengeDay06Types";
 import {
   MAPCHALLENGE_DAY08_SCENARIOS, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY,
-  mapchallengeDay08BinColors, mapchallengeDay08ScenarioByValue, mapchallengeDay08SiteColor, mapchallengeDay08SiteOutline,
+  mapchallengeDay08BinColors, mapchallengeDay08ScenarioByValue, mapchallengeDay08SiteColor, mapchallengeDay08SiteOutline, mapchallengeDay08YiToBillion,
   type MapchallengeDay08Scenario, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
 
@@ -304,7 +304,7 @@ function Day08Footer() {
 export function MapchallengeDay08AccessLegend({ isDark }: { isDark: boolean }) {
   const { t } = useLocale();
   const values = useLayerParams("mapchallengeDay08Access");
-  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08AccessScenario"));
+  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08Scenario"));
   const speed = paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08AccessSpeed") === "slow" ? "slow" : "normal";
   const base = MAPCHALLENGE_DAY08_SCENARIOS[0];
   const pct = speed === "slow" ? scenario.vulCovered : scenario.covered;
@@ -323,15 +323,21 @@ export function MapchallengeDay08AccessLegend({ isDark }: { isDark: boolean }) {
 }
 
 export function MapchallengeDay08SitesLegend({ isDark }: { isDark: boolean }) {
-  const { t, formatNumber } = useLocale();
+  const { t, formatNumber, active } = useLocale();
   const values = useLayerParams("mapchallengeDay08Sites");
-  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Sites", "mapchallengeDay08SitesScenario"));
+  // 英文以十億（B）表示，其餘語系維持億元；三語共用同一組插值變數
+  const yi = (v: number) => formatNumber(active === "en" ? mapchallengeDay08YiToBillion(v) : v);
+  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Sites", "mapchallengeDay08Scenario"));
   const historical = scenario.value === "D" || scenario.value === "Dfull";
-  const shown = MAPCHALLENGE_DAY08_SITE_CLASSES.filter((c) => (historical ? c.value === "park" || (c.value === "greenbelt" && scenario.value === "Dfull") : c.value.startsWith("T")));
+  // 只列當下方案實際有的類別（A、B2 只有 T3 等；現況沒有用地）
+  const shown = MAPCHALLENGE_DAY08_SITE_CLASSES.filter((c) => (scenario.classes as readonly string[]).includes(c.value));
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day08.sitesTitle")} />
     <LegendNote>{t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario.value])}</LegendNote>
-    {scenario.costYi && <OverlapRate>{t("legend.mapchallenge.day08.sitesCost", { base: formatNumber(scenario.costYi.base), low: formatNumber(scenario.costYi.low), high: formatNumber(scenario.costYi.high) })}</OverlapRate>}
+    {scenario.costYi && <OverlapRate>{t("legend.mapchallenge.day08.sitesCost", {
+      base: yi(scenario.costYi.base), low: yi(scenario.costYi.low), high: yi(scenario.costYi.high),
+    })}</OverlapRate>}
+    {shown.length === 0 && <LegendNote>{t("legend.mapchallenge.day08.sitesNone")}</LegendNote>}
     {shown.map((c) => <LegendRow key={c.value} swatch={<SwatchSquare color={mapchallengeDay08SiteColor(c.value, isDark)} opacity={MAPCHALLENGE_DAY08_SITE_FILL_OPACITY} stroke={mapchallengeDay08SiteOutline(isDark)} />}>
       {t(MAPCHALLENGE_DAY08_SITE_CLASS_KEYS[c.value])}
     </LegendRow>)}

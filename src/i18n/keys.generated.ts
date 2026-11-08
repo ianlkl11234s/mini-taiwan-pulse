@@ -1714,6 +1714,7 @@ export type GeneratedStaticKey =
   | "legend.mapchallenge.day08.scenario.Dfull"
   | "legend.mapchallenge.day08.scenario.base"
   | "legend.mapchallenge.day08.sitesCost"
+  | "legend.mapchallenge.day08.sitesNone"
   | "legend.mapchallenge.day08.sitesNote"
   | "legend.mapchallenge.day08.sitesNoteHist"
   | "legend.mapchallenge.day08.sitesTitle"
