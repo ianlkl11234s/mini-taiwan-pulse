@@ -3,11 +3,8 @@
 
 lock 是正本：資料檔移出 git 後，本機與 CI 都沒有實體檔，檢查一律對 lock。
 每筆記 path／bytes／sha256 與供應方式（delivery）：
-  r2        正式站由 R2 site/ 供應（S3 deploy-assets 的 s3_key 同步而來）
-  s3        只有測試或研究在讀、不會同步到 R2（例如 ookla 全球 GeoJSON）；要用時從 S3 取
-  pending   目錄還沒有 R2 路由（CI-4 B4 處理），目前仍靠 git／dist 供應
-  git       正式站在用、但路由還沒改好的特例（CI-4 B2 處理）
-  undecided 前端沒有引用的舊版檔（CI-4 B2 刪除）
+  r2        由 R2 site/ 供應（S3 deploy-assets 的 s3_key 同步而來；site_manifest.py 第 4 步依 lock 同步，前端不讀的測試檔也帶上）
+  pending   輪替家族 /climate/ 的 git 舊快照（R2 由 sync-rotating 供應），移出 git 時從 lock 刪除
 網站素材（KEEP_PATTERNS：部落格圖片與影片、截圖、showcase 程式、robots／sitemap／llms.txt、根目錄 html）
 留在 git，不進 lock。
 
@@ -43,35 +40,17 @@ KEEP_PATTERNS = [
     "public/*.html",  # 只限根目錄（is_keep 另外檢查沒有子目錄）
 ]
 
-# 正式站在用、路由還沒改好的特例（B2）
-GIT_SPECIAL = {
-    "public/base_map/hillshade.png": "worker.js 的 .png 副檔名規則一律走 dist，R2 版不會被讀（B2 改路由）",
-    "public/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson": "由 release.json 動態組路徑，site_manifest 抓不到引用、不會同步到 R2（B2 改同步規則）",
-    "public/world/jp_water/releases/20260918-v1/jpWaterQualityStations.geojson": "同上（jp_water release.json 動態路徑）",
-    "public/forestry/forest_reserve.pmtiles": "deployContract 以 r2-pilot 收據驗 sha256；正式站走 R2 releases/<sha>/ 路徑，非此路徑（B2 對齊）",
-}
-# 只有測試或研究在讀，不會同步到 R2
-S3_ONLY = {
+# 前端不讀、只有測試或研究在讀：一樣由 lock 驅動同步到 R2（site_manifest.py 第 4 步），check:assets 才下載得到（B2）
+TEST_ONLY = {
     "public/geo/ookla_fixed_global.geojson": "只有 staticDataContract 測試讀；前端改走 _20260930.pmtiles",
     "public/geo/ookla_mobile_global.geojson": "只有 staticDataContract 測試讀；前端改走 _20260930.pmtiles",
     "public/geo/waste_stops_static.geojson": "預處理來源與 wasteStopsChatDataset 測試讀；前端不載入",
-    "public/forestry/hiking_trails.geojson": "只有研究 sidecar（hikingTrailsOwnerDataset）讀；前端走 .pmtiles，pull 刻意排除",
+    "public/forestry/hiking_trails.geojson": "只有研究 sidecar（hikingTrailsOwnerDataset）讀；前端走 .pmtiles",
+    "public/forestry/forest_reserve.pmtiles": "deployContract 收據比對用；正式站走 R2 releases/<sha>/ 路徑",
 }
-UNDECIDED = {
-    "public/world/gb_coastal_erosion.pmtiles": "已由 gb_coastal_erosion_v2.pmtiles 取代，前端無引用",
-    "public/world/jp_religion_osm.geojson": "前端改走 jp_religion_osm_20260930.pmtiles，無引用",
-    "public/forestry/forest_roads.geojson": "前端無引用（已由新版或 PMTiles 取代）",
-    "public/forestry/signal_gap.pmtiles": "前端無引用（已由新版或 PMTiles 取代）",
-    "public/forestry/trail_coverage.pmtiles": "前端無引用（已由新版或 PMTiles 取代）",
-    "public/geo/freeway_traffic_signs.pmtiles": "前端無引用（已由 _v2 取代）",
-    "public/geo/place_names_moi.pmtiles": "前端無引用（已由 _v2 取代）",
-    "public/geo/provincial_road_mileposts.pmtiles": "前端無引用（已由 _v2 取代）",
-    "public/geo/provincial_road_signs.pmtiles": "前端無引用（已由 _v2 取代）",
-    "public/coverage/taiwan_other_nearest.pmtiles": "前端無引用（已由新版或 PMTiles 取代）",
-}
-# 目錄還沒有 R2 路由（B4）
-PENDING_DIRS = {"climate", "statistics-accessibility"}
-PENDING_FILES = {"public/station_pillars.json": "根目錄檔，Worker 只走 dist（B4 加路由）"}
+# /climate/ 是輪替家族（sync-rotating.mjs 每天覆寫 R2），git 那份是舊快照；移出 git 時一併從 lock 刪除
+PENDING_DIRS = {"climate"}
+PENDING_FILES: dict[str, str] = {}
 # rail/ 由 rail.tar.gz 整包供應（site_manifest.py 的 rail-tar 規則）
 TARBALL = {"public/rail/routes_static.geojson": "deploy-assets/rail.tar.gz"}
 
@@ -97,16 +76,12 @@ def s3_key(path: str) -> str:
 
 def classify(path: str) -> dict:
     top = path.split("/")[1] if path.count("/") > 1 else ""
-    if path in GIT_SPECIAL:
-        return {"delivery": "git", "note": GIT_SPECIAL[path]}
-    if path in UNDECIDED:
-        return {"delivery": "undecided", "note": UNDECIDED[path]}
-    if path in S3_ONLY:
-        return {"delivery": "s3", "s3_key": s3_key(path), "note": S3_ONLY[path]}
+    if path in TEST_ONLY:
+        return {"delivery": "r2", "s3_key": s3_key(path), "note": TEST_ONLY[path]}
     if path in PENDING_FILES:
         return {"delivery": "pending", "note": PENDING_FILES[path]}
     if top in PENDING_DIRS:
-        return {"delivery": "pending", "note": f"/{top}/ 還沒有 R2 路由（B4）"}
+        return {"delivery": "pending", "note": f"/{top}/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"}
     return {"delivery": "r2", "s3_key": s3_key(path)}
 
 

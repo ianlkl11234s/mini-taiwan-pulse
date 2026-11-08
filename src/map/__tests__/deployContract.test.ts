@@ -827,6 +827,7 @@ describe("public 資料檔 lock（CI-4）", () => {
       .map((m) => (m[1] ?? m[2]) as string);
   const R2_FIRST = new Set(workerList("DATA_THEN_DIST"));
   const R2_ONLY = new Set(workerList("DATA_ONLY"));
+  const R2_FILES = new Set([...(workerSource.match(/const LOCKED_DATA_FILES = \[([^\]]*)\]/)?.[1] ?? "").matchAll(/'([^']+)'/g)].map((m) => m[1] as string));
   // -z：不讓 git 把中文檔名轉成帶引號的八進位跳脫（CI 的 core.quotepath 預設開啟）
   const tracked = execSync("git ls-files -z public", { encoding: "utf8" }).split("\0").filter(Boolean);
   const keepRes = publicAssetsLock.keep_patterns.map((p) => {
@@ -872,13 +873,14 @@ describe("public 資料檔 lock（CI-4）", () => {
       expect(e.sha256).toMatch(/^[0-9a-f]{64}$/);
       const rel = e.path.slice("public/".length);
       const seg = rel.split("/")[0] as string;
-      if (!R2_FIRST.has(seg) && !R2_ONLY.has(seg)) broken.push(`${rel}：worker.js 不會從 R2 讀 /${seg}/`);
+      if (!R2_FIRST.has(seg) && !R2_ONLY.has(seg) && !R2_FILES.has(`/${rel}`)) broken.push(`${rel}：worker.js 不會從 R2 讀 /${seg}/`);
       if (e.s3_key === "deploy-assets/rail.tar.gz") continue;
       const mirror = `deploy-assets/${rel}`;
       const flatH3 = seg === "h3" && e.s3_key === `deploy-assets/${rel.split("/").pop()}`;
       if (e.s3_key !== mirror && !flatH3) broken.push(`${rel}：s3_key ${e.s3_key} 不是鏡像路徑`);
-      if (e.s3_key === mirror && !siteManifest.includes(`"${seg}"`)) broken.push(`${rel}：site_manifest.py 沒有 ${seg} 的同步規則`);
     }
     expect(broken, broken.join("\n")).toEqual([]);
+    // site_manifest.py 第 4 步：lock 的 r2 條目一律同步（不靠前端引用或目錄規則）
+    expect(siteManifest).toMatch(/public-assets\.lock\.json[\s\S]*delivery"\) != "r2"/);
   });
 });
