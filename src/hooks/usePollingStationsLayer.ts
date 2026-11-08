@@ -22,7 +22,7 @@ import { POLLING_MIN_ZOOM } from "../data/pollingStationsTypes";
  * - 快取鍵＝對齊 0.02° 格網的 bbox（loader 端 LRU）；同一鍵不重查、不 setData。
  * - 新請求會 abort 上一個還在跑的；回來的若已過期（被 abort 或 effect 已清理）直接丟掉。
  * - 函式尚未部署（PGRST202）只記一次 info；樣式全在 overlayRegistry。
- * - 低縮放熱區：開圖層時抓一次全臺熱區點（get_polling_stations_2024_heat，loader session 快取）餵 HEAT_SOURCE_ID；
+ * - 低縮放熱區：開圖層時由全臺靜態快照算熱區點（polling_stations_2024.json，loader session 快取）餵 HEAT_SOURCE_ID；
  *   zoom 交接（熱區淡出／點位淡入）全在 paint 的 zoom 表達式，不在這裡切。
  */
 
@@ -60,7 +60,7 @@ export function usePollingStationsLayer(
       .catch((err: unknown) => {
         if (disposed) return;
         if (isMissingPollingRpc(err)) {
-          if (!missingHeatRpcLogged) console.info("[PollingStations] get_polling_stations_2024_heat 尚未部署，熱區暫無資料");
+          if (!missingHeatRpcLogged) console.info("[PollingStations] polling_stations_2024 靜態快照尚未部署，熱區暫無資料");
           missingHeatRpcLogged = true;
           return;
         }
@@ -105,7 +105,7 @@ export function usePollingStationsLayer(
         .catch((err: unknown) => {
           if (disposed || ctrl.signal.aborted || (err as { name?: string } | null)?.name === "AbortError") return;
           if (isMissingPollingRpc(err)) {
-            if (!missingRpcLogged) console.info("[PollingStations] get_polling_stations_2024 尚未部署，圖層暫無資料");
+            if (!missingRpcLogged) console.info("[PollingStations] polling_stations_2024 靜態快照尚未部署，圖層暫無資料");
             missingRpcLogged = true;
             return;
           }

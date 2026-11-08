@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { staticRpcFile } from "./staticRpc";
 
 /**
  * 水庫完整上下文 RPC 包裝
@@ -119,6 +120,8 @@ export function clearReservoirContextCache(): void {
 
 // ─────────────────────────────────────────────────────────────
 // 集水區內完整河網（migration 053 / public.get_reservoir_watershed_rivers）
+// 2026-11 起讀 CDN 靜態快照（每個 compare_id 一檔；河川線與集水區都是靜態參考資料）。
+// 沒有集水區的水庫沒有快照（404）→ 視同空河網，與 RPC 回空 FeatureCollection 一致。
 // 配合 context 用：context.nearest_river 只回 KNN 最近 1 條（會踩 outlier
 // MultiLineString 導致「全台都亮」），本 RPC 用 ST_Intersection 裁剪集水區
 // polygon 內的所有河川線，避開 outlier 污染
@@ -140,12 +143,12 @@ export async function fetchReservoirWatershedRivers(
     const { data, error } = await withLoading(
       `reservoir-watershed-rivers:${compareId}`,
       `集水區河網 ${compareId}`,
-      supabase.rpc("get_reservoir_watershed_rivers", { p_compare_id: compareId }),
+      staticRpcFile<GeoJSON.FeatureCollection>(`/static-rpc/get_reservoir_watershed_rivers_${compareId}.json`),
     );
-    if (error) {
+    if (error && error.status !== 404) {
       throw new Error(`get_reservoir_watershed_rivers(${compareId}): ${error.message}`);
     }
-    const fc = (data as GeoJSON.FeatureCollection | null) ?? {
+    const fc = (error ? null : data) ?? {
       type: "FeatureCollection",
       features: [],
     };

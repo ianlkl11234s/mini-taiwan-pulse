@@ -9,7 +9,6 @@ import { cachedOnce } from "../lib/loaderCache";
  * 後端：gis-platform migration 069_waste_rpc.sql
  *   - public.get_waste_current(p_cities)        每車最新 GPS（30 分鐘內）
  *   - public.get_waste_routes(p_city)           路線 LineString
- *   - public.get_waste_stops(p_city)            停靠點
  *   - public.get_waste_facilities()             焚化爐/掩埋場
  *   - public.get_waste_trails(p_cities, p_since_minutes)      live 近 N 分鐘
  *   - public.get_waste_trails_day(p_target_date, p_cities)    指定台灣日期整日
@@ -39,21 +38,6 @@ export interface WasteRouteRow {
   district: string | null;
   vehicle_type: "garbage" | "recycling" | "kitchen" | "mixed";
   coords: [number, number][];  // [[lng, lat], ...]
-}
-
-export interface WasteStopRow {
-  id: number;
-  city: string;
-  district: string | null;
-  stop_name: string | null;
-  route_id: string | null;
-  route_name: string | null;
-  arrival_time: string | null;
-  departure_time: string | null;
-  vehicle_type: string;
-  village: string | null;
-  lat: number;
-  lng: number;
 }
 
 export interface WasteFacilityRow {
@@ -147,17 +131,6 @@ const _routesAllCached = cachedOnce(async () => {
 export async function fetchWasteRoutes(city: string = "高雄市"): Promise<WasteRouteRow[]> {
   const all = await _routesAllCached();
   return all.filter((r) => r.city === city);
-}
-
-/** 取得清運點位（193k 筆全量 56MB，不適合全量靜態檔 → 保留 per-city RPC） */
-export async function fetchWasteStops(city: string = "高雄市"): Promise<WasteStopRow[]> {
-  const { data, error } = await withLoading(
-    `waste-stops-${city}`,
-    `清運點位 ${city}`,
-    supabase.rpc("get_waste_stops", { p_city: city }),
-  );
-  if (error) throw new Error(`get_waste_stops(${city}): ${error.message}`);
-  return (data ?? []) as WasteStopRow[];
 }
 
 // 全量靜態檔（~4,609 筆）只抓一次，前端依 facility_type filter。15min TTL。

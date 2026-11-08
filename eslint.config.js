@@ -47,6 +47,7 @@ export const LOADER_RPC_EXEMPT = {
   // 是否改包整個 Promise.all（會多一列或拉長 loading）待使用者拍板（BACKLOG CI-2）。
   "dataCatalogLoader.ts:fetchDataCatalogForLayer": "popup『資料來源』面板 lazy",
   "dataCatalogLoader.ts:fetchDataCatalogByTheme": "popup『資料來源』面板 lazy",
+  "dataCatalogLoader.ts:fetchDataCatalogByDatasetIds": "popup『資料來源』面板 lazy（pulse_only 血緣）",
   "airportPaxLoader.ts:fetchAirportHourlyPax": "monitor 面板 widget，非圖層載入",
   // monitor 卡片的摘要／趨勢查詢（背景輪詢）—— 非圖層載入，灌 LOADING 面板會讓牆面定期閃
   "lightningLoader.ts:fetchLightningDayCount": "monitor 落雷卡計數（head count），非圖層載入",

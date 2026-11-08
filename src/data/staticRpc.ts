@@ -13,27 +13,43 @@ const STATIC_RPC_BASE = "/static-rpc";
 
 export interface RpcResult<T> {
   data: T | null;
-  // 對齊 supabase.rpc 的錯誤形狀（PostgrestError 有 .message）；靜態成功時為 null
-  error: { message: string } | null;
+  // 對齊 supabase.rpc 的錯誤形狀（PostgrestError 有 .message）；靜態成功時為 null。
+  // status：HTTP 狀態（網路失敗或壞 JSON 時沒有）
+  error: { message: string; status?: number } | null;
 }
 
 const inflight = new Map<string, Promise<RpcResult<unknown>>>();
 
-async function loadStaticRpc<T>(name: string): Promise<RpcResult<T>> {
+async function loadStaticJson<T>(url: string, label: string): Promise<RpcResult<T>> {
   try {
-    const res = await fetch(`${STATIC_RPC_BASE}/${name}.json`);
-    if (!res.ok) return { data: null, error: { message: `Static RPC snapshot ${name} unavailable (HTTP ${res.status})` } };
+    const res = await fetch(url);
+    if (!res.ok) return { data: null, error: { message: `Static RPC snapshot ${label} unavailable (HTTP ${res.status})`, status: res.status } };
     try { return { data: (await res.json()) as T, error: null }; }
-    catch { return { data: null, error: { message: `Static RPC snapshot ${name} is invalid JSON` } }; }
+    catch { return { data: null, error: { message: `Static RPC snapshot ${label} is invalid JSON` } }; }
   } catch (error) {
-    return { data: null, error: { message: `Static RPC snapshot ${name} request failed: ${error instanceof Error ? error.message : "unknown error"}` } };
+    return { data: null, error: { message: `Static RPC snapshot ${label} request failed: ${error instanceof Error ? error.message : "unknown error"}` } };
   }
 }
 
-export function staticRpc<T = unknown>(name: string): Promise<RpcResult<T>> {
-  const active = inflight.get(name);
+function dedupe<T>(url: string, label: string): Promise<RpcResult<T>> {
+  const active = inflight.get(url);
   if (active) return active as Promise<RpcResult<T>>;
-  const request = loadStaticRpc<T>(name).finally(() => inflight.delete(name));
-  inflight.set(name, request as Promise<RpcResult<unknown>>);
+  const request = loadStaticJson<T>(url, label).finally(() => inflight.delete(url));
+  inflight.set(url, request as Promise<RpcResult<unknown>>);
   return request;
+}
+
+export function staticRpc<T = unknown>(name: string): Promise<RpcResult<T>> {
+  return dedupe<T>(`${STATIC_RPC_BASE}/${name}.json`, name);
+}
+
+/**
+ * 參數化快照：呼叫端寫**完整路徑樣板**（例 `` `/static-rpc/get_fire_events_by_year_${year}.json` ``），
+ * deploy/cloudflare/site_manifest.py 才認得出引用、同步到 R2（只寫 rpc 名稱的樣板它認不得）。
+ */
+export function staticRpcFile<T = unknown>(path: string): Promise<RpcResult<T>> {
+  if (!path.startsWith(`${STATIC_RPC_BASE}/`) || !path.endsWith(".json")) {
+    return Promise.resolve({ data: null, error: { message: `Static RPC path must be ${STATIC_RPC_BASE}/*.json: ${path}` } });
+  }
+  return dedupe<T>(path, path.slice(STATIC_RPC_BASE.length + 1, -".json".length));
 }
