@@ -72,6 +72,18 @@ export const ELECTION_RING_STROKE: Record<ElectionApproxPrecision, number> = { s
 export const ELECTION_RING_FILL_OPACITY = { upcoming: 0.12, past: 0.06 } as const;
 export const ELECTION_RING_STROKE_OPACITY = { upcoming: 0.8, past: 0.45 } as const;
 
+/**
+ * 聚落名稱（RPC `settlement_name`，gis-platform mig 515）：只有 location_precision='settlement' 才採用，
+ * 其他精度或空值回 null。
+ */
+export function electionSettlementName(props: Record<string, unknown>): string | null {
+  if (props.location_precision !== "settlement") return null;
+  const v = props.settlement_name;
+  if (typeof v !== "string") return null;
+  const name = v.trim();
+  return name && name !== "null" ? name : null;
+}
+
 /** 位置篩選（layerParamsSpec 的 select 值）：全部／只看確切地點／只看代表點 */
 export type ElectionLocationFilter = "all" | "exact" | "approx";
 

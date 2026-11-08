@@ -13,6 +13,7 @@ import {
   type ElectionApproxPrecision,
   electionCampKey,
   electionClaimantKey,
+  electionSettlementName,
   electionSources,
   formatCrowdNumber,
   parseJsonArray,
@@ -86,6 +87,27 @@ function approxPlace(precision: ElectionApproxPrecision, props: Record<string, u
   return placeName(`${city}${town}`, i18n) || placeName(city, i18n);
 }
 
+/**
+ * 「定位」說明文字（單場 single／多場 group）。聚落代表點有聚落名時寫聚落名，沒有時寫縣市區（mig 515 前的資料）。
+ */
+export function electionPrecisionNote(
+  precision: ElectionApproxPrecision,
+  props: Record<string, unknown>,
+  i18n: ReturnType<typeof useLocale>,
+  mode: "single" | "group",
+): string {
+  const settlement = electionSettlementName(props);
+  if (precision === "settlement" && settlement) {
+    return mode === "single"
+      ? i18n.t("popup.politics.precisionNote.settlementNamed", { name: settlement })
+      : i18n.t("popup.politics.precisionGroupNote.settlementNamed", { name: settlement });
+  }
+  const place = approxPlace(precision, props, i18n);
+  return mode === "single"
+    ? i18n.t(PRECISION_NOTE_KEY[precision], { place })
+    : i18n.t(PRECISION_GROUP_NOTE_KEY[precision], { place });
+}
+
 /** 「定位」列：精度名稱 chip＋一句說明（代表點才顯示，場館級寫在地點後面） */
 function PrecisionRow({ precision, note, extra }: { precision: ElectionApproxPrecision; note: string; extra?: string }) {
   const theme = useFeatureTheme();
@@ -143,11 +165,13 @@ function ElectionGroupPanel({ props }: { props: Record<string, unknown> }) {
     );
   }
 
-  const place = approx ? approxPlace(approx, props, i18n) : placeName(`${str(props.city)}${str(props.town)}`, i18n);
+  const area = approx ? approxPlace(approx, props, i18n) : placeName(`${str(props.city)}${str(props.town)}`, i18n);
+  const settlement = electionSettlementName(props);
+  const place = settlement ? t("popup.politics.group.placeWithSettlement", { place: area, name: settlement }) : area;
   return (
     <>
       <Title color={ELECTION_CAMP_COLOR.other}>{t("popup.politics.group.title", { place, count: events.length })}</Title>
-      {approx && <PrecisionRow precision={approx} note={t(PRECISION_GROUP_NOTE_KEY[approx], { place })} />}
+      {approx && <PrecisionRow precision={approx} note={electionPrecisionNote(approx, props, i18n, "group")} />}
       <div style={{ display: "flex", flexDirection: "column", marginTop: 4 }}>
         {events.map((e, i) => {
           const past = e._past === 1 || e._past === "1";
@@ -245,7 +269,7 @@ function ElectionEventSinglePanel({ props }: { props: Record<string, unknown> })
       {approx && (
         <PrecisionRow
           precision={approx}
-          note={t(PRECISION_NOTE_KEY[approx], { place: approxPlace(approx, props, i18n) })}
+          note={electionPrecisionNote(approx, props, i18n, "single")}
           extra={isStart ? t("popup.politics.startPoint") : ""}
         />
       )}

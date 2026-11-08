@@ -197,3 +197,36 @@ describe("2026 選舉活動：位置精度（代表點分組）", () => {
     expect(otherOnly("dpp")).toBe(false);
   });
 });
+
+describe("2026 選舉活動：聚落名稱（mig 515 settlement_name）", () => {
+  it("只有聚落代表點採用 settlement_name；空值與其他精度回 null", async () => {
+    const { electionSettlementName } = await import("../electionEventsTypes");
+    expect(electionSettlementName({ location_precision: "settlement", settlement_name: " 菁寮 " })).toBe("菁寮");
+    expect(electionSettlementName({ location_precision: "settlement", settlement_name: null })).toBeNull();
+    expect(electionSettlementName({ location_precision: "town_centroid", settlement_name: "菁寮" })).toBeNull();
+  });
+
+  it("定位說明：有聚落名寫聚落名，沒有時寫縣市區", async () => {
+    const { electionPrecisionNote } = await import("../../components/featureInfo/politicsPanels");
+    const { localeStore } = await import("../../state/localeStore");
+    const i18n = localeStore.getSnapshot();
+    const base = { location_precision: "settlement", city: "臺南市", town: "後壁區" };
+    expect(electionPrecisionNote("settlement", { ...base, settlement_name: "菁寮" }, i18n, "single")).toBe("在菁寮聚落內，點位不是場地本身");
+    expect(electionPrecisionNote("settlement", { ...base, settlement_name: "菁寮" }, i18n, "group")).toBe("以下活動都在菁寮聚落內，點位不是場地本身");
+    expect(electionPrecisionNote("settlement", { ...base, settlement_name: null }, i18n, "single")).toBe("在臺南市後壁區的聚落內，點位是聚落代表點，不是集合場地本身");
+    expect(electionPrecisionNote("town_centroid", { ...base, location_precision: "town_centroid", settlement_name: "菁寮" }, i18n, "single")).toBe("只知道在臺南市後壁區，點位不是活動地點");
+  });
+
+  it("多場分組帶上聚落名", () => {
+    const { fc } = normalizeElectionEvents({
+      features: ["a", "b"].map((id) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [120.35, 23.36] },
+        properties: { event_id: id, event_date: "2026-11-20", camp: "民主進步黨", location_precision: "settlement", settlement_name: "菁寮", city: "臺南市", town: "後壁區" },
+      })),
+    });
+    const g = buildElectionDisplay(fc, sec("2026-11-10T00:00:00+08:00"), "all").fc.features[0]!.properties!;
+    expect(g._grp).toBe(1);
+    expect(g.settlement_name).toBe("菁寮");
+  });
+});

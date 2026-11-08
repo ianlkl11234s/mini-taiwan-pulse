@@ -173,6 +173,7 @@ export function buildElectionDisplay(
         location_precision: p0.location_precision,
         city: p0.city ?? null,
         town: p0.town ?? null,
+        settlement_name: p0.settlement_name ?? null,
         // Mapbox 會把巢狀陣列轉成字串，這裡直接存 JSON，popup 端解析
         events: JSON.stringify(events),
       },
