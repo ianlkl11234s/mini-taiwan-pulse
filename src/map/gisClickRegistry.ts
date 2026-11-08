@@ -667,7 +667,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["library-seats-circle"], type: "librarySeats" },
   { layers: ["parking-onstreet-fill", "parking-onstreet-circle"], type: "parkingOnstreet" },
   { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },
-  { layers: ["election-events-2026-circle"], type: "electionEvents2026" },
+  { layers: ["election-events-2026-group", "election-events-2026-circle", "election-events-2026-precision"], type: "electionEvents2026" },
   { layers: ["polling-stations-2024-circle"], type: "pollingStations2024" },
   { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
   { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },

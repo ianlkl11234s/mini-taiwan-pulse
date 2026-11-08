@@ -7,7 +7,7 @@ import {
 } from "../data/jpNatureR2Types";
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
-import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
+import { ELECTION_APPROX_PRECISIONS, ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_RING_FILL_OPACITY, ELECTION_RING_OFFSET, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
 import { IE_COILLTE_ATTRIBUTION, IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteColorExpr, ieCoillteKindFilter } from "../data/ieCoillteTypes";
 import { GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_SOURCE_ID, GB_ENV_HOLLOW_STROKE, GB_POLLUTION_COLOR } from "../data/gbEnvPlanningTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
@@ -1313,6 +1313,24 @@ function jmaPhenologyOverlay(key: JmaPhenologyLayerKey, sourceId: string): Overl
       },
     }, jmaSeasonalLabelLayer(`${key}Opacity`, 0.9, filter)],
   } satisfies OverlayConfig;
+}
+
+/** 2026 選舉活動主點與精度外環共用的半徑／陣營色／已過運算式 */
+function electionPointExpr(p?: Record<string, number>) {
+  const scale = p?.electionEvents2026Scale ?? 1;
+  const past = ["==", ["coalesce", ["get", "_past"], 0], 1];
+  const base = [
+    "*",
+    ["match", ["get", "scale_tier"], "L", ELECTION_TIER_RADIUS.L, "M", ELECTION_TIER_RADIUS.M, ELECTION_TIER_RADIUS.S],
+    ["case", past, ELECTION_PAST_RADIUS, 1],
+    scale,
+  ];
+  const campColor = [
+    "match", ["get", "camp_key"],
+    ...ELECTION_CAMPS.filter((c) => c.key !== "other").flatMap((c) => [c.key, c.color]),
+    ELECTION_CAMP_COLOR.other,
+  ];
+  return { base, campColor, past };
 }
 
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
@@ -3703,6 +3721,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 🗳 2026 選舉活動（owner-only）──
   // dynamicData：useElectionEventsLayer 從 owner-only RPC 拉一次，依時間軸時間寫入 `_past`（1＝已過）後 setData。
   // 色＝陣營、半徑＝規模、已過＝淡且小、取消／延期＝空心圈。色票 SSOT：data/electionEventsTypes.ts。
+  // 位置精度（2026-11-08 設計稿 A＋B 版）：代表點（聚落／鄉鎮市區／縣市）單場畫在主點下面加一圈精度外環（precision）；
+  // 同一代表點 2 場以上由 hook 合成 `_grp` 圖徵，畫成 group symbol（圖示 map/electionGroupIcon.ts）。
   {
     id: "electionEvents2026",
     sourceUrl: "./geo/_empty.geojson",
@@ -3710,26 +3730,36 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     layers: [
       {
+        // 精度外環：不是裝飾（資料編碼），pointSpec POINT_SPEC_EXEMPT 登記、不套點描邊規格
+        suffix: "precision",
+        type: "circle",
+        minzoom: 5,
+        filter: ["all", ["!=", ["coalesce", ["get", "_grp"], 0], 1], ["in", ["get", "location_precision"], ["literal", [...ELECTION_APPROX_PRECISIONS]]]],
+        layout: { "circle-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]] as unknown as number },
+        paint: (_isDark, p) => {
+          const { base, campColor, past } = electionPointExpr(p);
+          const offset = ["match", ["get", "location_precision"], ...ELECTION_APPROX_PRECISIONS.flatMap((k) => [k, ELECTION_RING_OFFSET[k]]), 0];
+          const op = (p?.electionEvents2026Opacity ?? 0.9) / 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, ["+", ["*", base, 0.75], offset], 12, ["+", ["*", base, 1.25], offset]] as unknown as number,
+            "circle-color": campColor as unknown as string,
+            "circle-opacity": ["case", past, ELECTION_RING_FILL_OPACITY.past * op, ELECTION_RING_FILL_OPACITY.upcoming * op] as unknown as number,
+            "circle-stroke-color": campColor as unknown as string,
+            "circle-stroke-width": ["match", ["get", "location_precision"], ...ELECTION_APPROX_PRECISIONS.flatMap((k) => [k, ELECTION_RING_STROKE[k]]), ELECTION_RING_STROKE.settlement] as unknown as number,
+            "circle-stroke-opacity": ["case", past, Math.min(1, ELECTION_RING_STROKE_OPACITY.past * op), Math.min(1, ELECTION_RING_STROKE_OPACITY.upcoming * op)] as unknown as number,
+          };
+        },
+      },
+      {
         suffix: "circle",
         type: "circle",
         minzoom: 5,
+        filter: ["!=", ["coalesce", ["get", "_grp"], 0], 1],
         layout: { "circle-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]] as unknown as number },
         paint: (isDark, p) => {
-          const scale = p?.electionEvents2026Scale ?? 1;
           const op = p?.electionEvents2026Opacity ?? 0.9;
-          const past = ["==", ["coalesce", ["get", "_past"], 0], 1];
+          const { base, campColor, past } = electionPointExpr(p);
           const hollow = ["in", ["get", "event_status"], ["literal", [...ELECTION_HOLLOW_STATUSES]]];
-          const base = [
-            "*",
-            ["match", ["get", "scale_tier"], "L", ELECTION_TIER_RADIUS.L, "M", ELECTION_TIER_RADIUS.M, ELECTION_TIER_RADIUS.S],
-            ["case", past, ELECTION_PAST_RADIUS, 1],
-            scale,
-          ];
-          const campColor = [
-            "match", ["get", "camp_key"],
-            ...ELECTION_CAMPS.filter((c) => c.key !== "other").flatMap((c) => [c.key, c.color]),
-            ELECTION_CAMP_COLOR.other,
-          ];
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, ["*", base, 0.75], 12, ["*", base, 1.25]] as unknown as number,
             "circle-color": campColor as unknown as string,
@@ -3740,6 +3770,25 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-opacity": ["case", past, op * ELECTION_PAST_OPACITY, op] as unknown as number,
           };
         },
+      },
+      {
+        // 同一代表點 2 場以上：圖示已含陣營比例與已舉辦淡化；陣營篩選由 hook 在分組前套用
+        suffix: "group",
+        type: "symbol",
+        minzoom: 5,
+        filter: ["==", ["coalesce", ["get", "_grp"], 0], 1],
+        skipCategoryFilter: true,
+        layout: (_isDark, p) => {
+          const scale = p?.electionEvents2026Scale ?? 1;
+          return {
+            "icon-image": ["get", "_img"],
+            "icon-size": ["interpolate", ["linear"], ["zoom"], 6, 0.8 * scale, 12, 1.15 * scale],
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
+            "symbol-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]],
+          };
+        },
+        paint: (_isDark, p) => ({ "icon-opacity": p?.electionEvents2026Opacity ?? 0.9 }),
       },
     ],
   },
@@ -12693,7 +12742,7 @@ function withCategoryFilter(config: OverlayConfig): OverlayConfig {
   if (!entry) return config;
   const defs = categoryDefs(entry);
   const layers = config.layers.map((layer): OverlayConfig["layers"][number] => {
-    if (layer.type === "raster") return layer;
+    if (layer.type === "raster" || layer.skipCategoryFilter) return layer;
     return {
       ...layer,
       filter: (params?: Record<string, number>) => {
@@ -12704,6 +12753,6 @@ function withCategoryFilter(config: OverlayConfig): OverlayConfig {
       },
     };
   });
-  const rebuild = new Set([...(config.rebuildOnParamChange ?? []), ...layers.filter((l) => l.type !== "raster").map((l) => l.suffix)]);
+  const rebuild = new Set([...(config.rebuildOnParamChange ?? []), ...layers.filter((l) => l.type !== "raster" && !l.skipCategoryFilter).map((l) => l.suffix)]);
   return { ...config, layers, rebuildOnParamChange: [...rebuild] };
 }
