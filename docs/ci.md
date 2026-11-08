@@ -17,7 +17,7 @@ CI 只回答一個問題：**這次合併會不會讓 develop 壞掉**。由此�
 ```
 changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse-checkout 跳過 public/）
           ├─ build（tsc -b ＋ vite build）
-          └─ test（vitest，完整 checkout）
+          └─ test ×2 片（vitest --shard，完整 checkout）
                 └─ ci-ok（彙總；永遠會出現）
 ```
 
@@ -39,10 +39,10 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 | 手段 | 狀態 | 代價／風險 |
 |---|---|---|
 | job 平行化 | 採用 | 多 2 台 runner；公開 repo 不收費 |
-| vitest `pool: "threads"` | 採用 | 本機實測 161s→82s（maxWorkers=2）。threads 共用同一個 process，不能用 `process.chdir`。新增測試若改 `process.env`，要用 `vi.stubEnv` 並還原。若在 CI 出現 hang 或 segfault，改回預設 forks |
+| vitest `--shard` 分 2 片 | 採用 | 每片各付一次 checkout（約 65s）。分片依測試檔數切，不看耗時，兩片可能不平均。用 matrix，`npm run check:test` 在 ci.yml 只出現一次（parity 測試要求）。不合併報告：任一片紅即紅，看該片 log 即可 |
 | quick job 跳過 `public/` | 採用 | 只用在不讀 public/ 的檢查（lint、盤點、coral、worker 已確認） |
 | test／build 跳過 public 大檔 | **不採用** | 有 11 個契約測試會讀 public 大檔，例如 PMTiles sha256、staticDataContract；另外不少測試缺檔時會靜默略過，等於 CI 偷偷變弱 |
-| vitest `--shard` 分片 | 暫不採用 | test 已經不是最慢的 job，再分片只會多付 checkout 成本。test 若再次成為瓶頸才加，做法照官方 blob reporter 加 `--merge-reports` |
+| vitest `pool: "threads"` | 不採用 | 2026-11-08 PR #899 第一輪實測：CI 上 vitest 145s，和 forks 的 135–156s 沒有差別（runner 4 核，瓶頸在 CPU）。本機 161s→82s 是在高負載下量的，不可靠。沒有收益就不承擔 threads 的相容性風險 |
 | `isolate: false` | 不採用 | 測試檔之間會共用模組狀態，結果可能互相污染 |
 
 **結構性的慢**：git 追蹤了約 1.75GB 的 `public/`（pmtiles 約 1.39GB），完整 checkout 每次要 40–60 秒。根本解法是把大檔移出 git，改用 LFS 或 R2，但這會牽動部署契約，另案處理。
@@ -64,7 +64,8 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 | 日期 | 版本 | PR 牆鐘 | 細項 |
 |---|---|---|---|
 | 2026-11-07 | 單一 job（舊） | 4–7 分 | checkout 40–63s、build 80s、vitest 135–156s、lint 15s、盤點 21s |
-| 2026-11-08 | 三 job 平行＋threads | （PR 合併後補） | |
+| 2026-11-08 | 三 job 平行＋threads（PR #899 第一輪） | 3 分 57 秒 | quick 55s（checkout 7s）、build 159s（checkout 63s）、test 224s（checkout 67s、vitest 145s）|
+| 2026-11-08 | 三 job 平行＋test 分 2 片 | （見下一列補） | |
 
 ## 出處
 

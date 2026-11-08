@@ -104,11 +104,17 @@ jobs:
         run: npm run check:build
 
   # 測試要完整 checkout：PMTiles sha256、staticDataContract 等契約測試會讀 public/ 大檔，缺檔會靜默略過
+  # 分 2 片平行（vitest 依測試檔切分）；單片時 test 是最慢的 job（2026-11-08 實測 checkout 67s＋vitest 145s）
   test:
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    name: test (${{ matrix.shard }}/2)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -117,7 +123,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: Tests (vitest)
-        run: npm run check:test
+        run: npm run check:test -- --shard=${{ matrix.shard }}/2
 
   ci-ok:
     if: always()
