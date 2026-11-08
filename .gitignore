@@ -340,3 +340,22 @@ public/freeway_tdcs/
 
 # CI-4：check:assets 從 R2 下載的資產檔快取（以 sha256 為檔名）
 .asset-cache/
+
+# CI-4：public/ 資料檔不進 git（正本 S3、R2 供應；清單 deploy/public-assets.lock.json，新增用 build-public-assets-lock.py add）
+public/**/*.pmtiles
+public/**/*.geojson
+public/bus/changhuacounty_bus_routes.json
+public/bus/chiayicounty_bus_routes.json
+public/bus/hsinchucounty_bus_routes.json
+public/bus/kaohsiung_bus_routes.json
+public/bus/keelung_bus_routes.json
+public/bus/nantoucounty_bus_routes.json
+public/bus/newtaipei_bus_routes.json
+public/bus/penghucounty_bus_routes.json
+public/bus/taichung_bus_routes.json
+public/bus/tainan_bus_routes.json
+public/bus/taoyuan_bus_routes.json
+public/bus/yilancounty_bus_routes.json
+public/geo/waste_stops_chat_20261001.json
+public/h3/h3_socioeconomic_res8.json
+public/h3/h3_spatial_economy_res8.json
