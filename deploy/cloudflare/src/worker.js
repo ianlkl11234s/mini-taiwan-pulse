@@ -34,7 +34,9 @@ const familyCc = (seg, path) => /^\/(jp-heights\/assets|jp-medical\/releases|fli
 // nginx L284-542：先 /data 再 dist
 const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urban', 'culture', 'civic_facilities', 'religion', 'funeral', 'welfare', 'hazards', 'indigenous_rural', 'marine', 'environment', 'public_life', 'poi', 'harm_reduction', 'world', 'tourism', 'coverage',
   // CI-4（2026-11-08）：原本只在 dist 的 git 大檔目錄，改成先 R2 再 dist，之後可移出 git
-  'finance', 'energy', 'mapchallenge', 'statistics', 'state_assets'];
+  'finance', 'energy', 'mapchallenge', 'statistics', 'state_assets', 'statistics-accessibility'];
+// CI-4：移出 git 的資料檔裡，落在特殊路由的少數檔（.png 副檔名規則、根目錄）也先讀 R2 再退 dist
+const LOCKED_DATA_FILES = ['/base_map/hillshade.png', '/station_pillars.json'];
 // 純 /data（非 ^~），值為固定 Cache-Control，null = map
 const DATA_ONLY = { water_resources: null, agriculture: null, business_registry: CC_1Y, industrial_zone: CC_1Y, sports: null, education: null, 'static-rpc': null, medical: null, base_map: null, fire: null, police_justice: null, road: null, rail: null, 'embed-snapshots': CC_1Y, 'embed-rail': CC_1Y };
 // ^~ 前綴：不受 L893 副檔名正則影響
@@ -190,6 +192,13 @@ export default {
     if (R2_FAMILY.includes(seg)) return (await fromR2(req, path, familyCc(seg, path))) || r2Miss();
 
     // ookla（L277）：CI-4 起與其他 /geo/ 檔相同，先 R2 再 dist（內容由 deploy/public-assets.lock.json 的 sha256 把關）
+
+    if (LOCKED_DATA_FILES.includes(path)) {
+      const r2 = await fromR2(req, path, ccMap(path));
+      if (r2) return r2;
+      const r = await asset(env, req, path);
+      return r ? withHeaders(r, { 'Cache-Control': ccMap(path) }) : notFound({});
+    }
 
     // L893 靜態副檔名正則：非 ^~ 路徑一律從 dist 供檔、7 天 immutable
     if (!isCaret && /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/i.test(path)) {

@@ -1,10 +1,10 @@
 path	bytes	batch	action	status
-public/agriculture/crop_suitability_132_points.pmtiles	7235502	B1	移出	待辦
+public/agriculture/crop_suitability_132_points.pmtiles	7235502	B1	移出	已移出 git 2026-11-08
 public/agriculture/eco_network_zones_points.pmtiles	8290	B3b	上傳後移出	待辦
-public/agriculture/ftw_fields_2025_points.pmtiles	15869579	B1	移出	待辦
+public/agriculture/ftw_fields_2025_points.pmtiles	15869579	B1	移出	已移出 git 2026-11-08
 public/agriculture/leisure_farm_zones_2025_points.pmtiles	46821	B3b	上傳後移出	待辦
 public/agriculture/rural_regen_communities_2025_points.pmtiles	420817	B3b	上傳後移出	待辦
-public/agriculture/soil_map_national_points.pmtiles	7803272	B1	移出	待辦
+public/agriculture/soil_map_national_points.pmtiles	7803272	B1	移出	已移出 git 2026-11-08
 public/base_map/hillshade.png	8709161	B2	改路由後移出	待辦
 public/blog/blog.js	5465	keep	留 git（網站素材）	待辦
 public/blog/mapchallenge-2026-day03-power-plants/cover-dark.jpg	205958	keep	留 git（網站素材）	待辦
@@ -54,25 +54,25 @@ public/blog/taiwan-terrain-map/contour-yushan.jpg	355520	keep	留 git（網站�
 public/blog/taiwan-terrain-map/cover-dark.jpg	349011	keep	留 git（網站素材）	待辦
 public/blog/taiwan-terrain-map/cover-light.jpg	383005	keep	留 git（網站素材）	待辦
 public/blog/taiwan-terrain-map/terrain-3d.jpg	255028	keep	留 git（網站素材）	待辦
-public/bus/changhuacounty_bus_routes.json	1220937	B1	移出	待辦
+public/bus/changhuacounty_bus_routes.json	1220937	B1	移出	已移出 git 2026-11-08
 public/bus/chiayi_bus_routes.json	530765	B3a	上傳後移出	待辦
-public/bus/chiayicounty_bus_routes.json	2887455	B1	移出	待辦
+public/bus/chiayicounty_bus_routes.json	2887455	B1	移出	已移出 git 2026-11-08
 public/bus/hsinchu_bus_routes.json	506820	B3a	上傳後移出	待辦
-public/bus/hsinchucounty_bus_routes.json	3716623	B1	移出	待辦
+public/bus/hsinchucounty_bus_routes.json	3716623	B1	移出	已移出 git 2026-11-08
 public/bus/hualiencounty_bus_routes.json	703693	B3a	上傳後移出	待辦
-public/bus/kaohsiung_bus_routes.json	5474436	B1	移出	待辦
-public/bus/keelung_bus_routes.json	3257587	B1	移出	待辦
+public/bus/kaohsiung_bus_routes.json	5474436	B1	移出	已移出 git 2026-11-08
+public/bus/keelung_bus_routes.json	3257587	B1	移出	已移出 git 2026-11-08
 public/bus/kinmencounty_bus_routes.json	382950	B3a	上傳後移出	待辦
 public/bus/lienchiangcounty_bus_routes.json	376278	B3a	上傳後移出	待辦
 public/bus/miaolicounty_bus_routes.json	129991	B3a	上傳後移出	待辦
-public/bus/nantoucounty_bus_routes.json	1115532	B1	移出	待辦
-public/bus/newtaipei_bus_routes.json	7605325	B1	移出	待辦
-public/bus/penghucounty_bus_routes.json	2824000	B1	移出	待辦
-public/bus/taichung_bus_routes.json	4648686	B1	移出	待辦
-public/bus/tainan_bus_routes.json	2866252	B1	移出	待辦
+public/bus/nantoucounty_bus_routes.json	1115532	B1	移出	已移出 git 2026-11-08
+public/bus/newtaipei_bus_routes.json	7605325	B1	移出	已移出 git 2026-11-08
+public/bus/penghucounty_bus_routes.json	2824000	B1	移出	已移出 git 2026-11-08
+public/bus/taichung_bus_routes.json	4648686	B1	移出	已移出 git 2026-11-08
+public/bus/tainan_bus_routes.json	2866252	B1	移出	已移出 git 2026-11-08
 public/bus/taitungcounty_bus_routes.json	56195	B3a	上傳後移出	待辦
-public/bus/taoyuan_bus_routes.json	4074550	B1	移出	待辦
-public/bus/yilancounty_bus_routes.json	3232189	B1	移出	待辦
+public/bus/taoyuan_bus_routes.json	4074550	B1	移出	已移出 git 2026-11-08
+public/bus/yilancounty_bus_routes.json	3232189	B1	移出	已移出 git 2026-11-08
 public/bus/yunlincounty_bus_routes.json	594033	B3a	上傳後移出	待辦
 public/business_registry/company_filters_202608_r2.json	14572	B3b	上傳後移出	待辦
 public/business_registry/industrial_park_comparison_20260818_points.pmtiles	109339	B3b	上傳後移出	待辦
@@ -87,32 +87,32 @@ public/climate/dust_latest.json	333	B3c	改路由、上傳後移出	待辦
 public/climate/dust_latest.png	18027	B3c	改路由、上傳後移出	待辦
 public/climate/wind10m_latest.json	420	B3c	改路由、上傳後移出	待辦
 public/climate/wind10m_latest.png	1013554	B3c	改路由、上傳後移出	待辦
-public/coverage/aviation_airspace.pmtiles	1359418	B1	移出	待辦
-public/coverage/drone_restricted_zones.pmtiles	11722440	B1	移出	待辦
-public/coverage/taiwan_all_gas_nearest.pmtiles	5226549	B1	移出	待辦
-public/coverage/taiwan_cpc_nearest.pmtiles	5264422	B1	移出	待辦
-public/coverage/taiwan_ev_nearest.pmtiles	5322606	B1	移出	待辦
-public/coverage/taiwan_fpcc_nearest.pmtiles	5474115	B1	移出	待辦
-public/coverage/taiwan_other_nearest.pmtiles	5480346	B2	刪除（前端無引用，S3 有備份）	待辦
-public/coverage/taiwan_taisugar_nearest.pmtiles	4927058	B1	移出	待辦
-public/culture/arts_events_national.geojson	2910178	B1	移出	待辦
+public/coverage/aviation_airspace.pmtiles	1359418	B1	移出	已移出 git 2026-11-08
+public/coverage/drone_restricted_zones.pmtiles	11722440	B1	移出	已移出 git 2026-11-08
+public/coverage/taiwan_all_gas_nearest.pmtiles	5226549	B1	移出	已移出 git 2026-11-08
+public/coverage/taiwan_cpc_nearest.pmtiles	5264422	B1	移出	已移出 git 2026-11-08
+public/coverage/taiwan_ev_nearest.pmtiles	5322606	B1	移出	已移出 git 2026-11-08
+public/coverage/taiwan_fpcc_nearest.pmtiles	5474115	B1	移出	已移出 git 2026-11-08
+public/coverage/taiwan_other_nearest.pmtiles	5480346	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/coverage/taiwan_taisugar_nearest.pmtiles	4927058	B1	移出	已移出 git 2026-11-08
+public/culture/arts_events_national.geojson	2910178	B1	移出	已移出 git 2026-11-08
 public/culture/cultural_facilities_national.geojson	204963	B3a	上傳後移出	待辦
-public/culture/culture_coin_venues.geojson	2611571	B1	移出	待辦
+public/culture/culture_coin_venues.geojson	2611571	B1	移出	已移出 git 2026-11-08
 public/culture/local_cultural_museums_national.geojson	112536	B3a	上傳後移出	待辦
 public/culture/performing_venues_national.geojson	299254	B3a	上傳後移出	待辦
 public/culture/public_libraries_national.geojson	120657	B3a	上傳後移出	待辦
 public/education/campus_polygon_points.pmtiles	887103	B3b	上傳後移出	待辦
 public/energy/battery_swap_stations.geojson	223931	B3a	上傳後移出	待辦
-public/energy/renewable_permits_national.pmtiles	1188098	B1	移出	待辦
-public/environment/aviation_noise_zones.geojson	1072567	B1	移出	待辦
+public/energy/renewable_permits_national.pmtiles	1188098	B1	移出	已移出 git 2026-11-08
+public/environment/aviation_noise_zones.geojson	1072567	B1	移出	已移出 git 2026-11-08
 public/environment/dioxin_stations.geojson	22484	B3a	上傳後移出	待辦
 public/environment/drinking_water_protection_zones.geojson	682518	B3a	上傳後移出	待辦
-public/environment/important_wetland_zones.geojson	2064235	B1	移出	待辦
-public/environment/important_wetlands.geojson	1493577	B1	移出	待辦
+public/environment/important_wetland_zones.geojson	2064235	B1	移出	已移出 git 2026-11-08
+public/environment/important_wetlands.geojson	1493577	B1	移出	已移出 git 2026-11-08
 public/environment/incinerator_emissions.geojson	29670	B3a	上傳後移出	待辦
 public/environment/official_noise_monitoring.geojson	367694	B3a	上傳後移出	待辦
 public/environment/pm25_manual_stations.geojson	31428	B3a	上傳後移出	待辦
-public/environment/public_toilets_national.geojson	2761031	B1	移出	待辦
+public/environment/public_toilets_national.geojson	2761031	B1	移出	已移出 git 2026-11-08
 public/environment/river_rpi_segments.geojson	654203	B3a	上傳後移出	待辦
 public/environment/river_rpi_stations.geojson	267745	B3a	上傳後移出	待辦
 public/environment/sea_water_quality_stations.geojson	326798	B3a	上傳後移出	待辦
@@ -146,98 +146,98 @@ public/environment/toxic_permits/Z.json	54	B3a	上傳後移出	待辦
 public/environment/toxic_permits/_chems.json	14006	B3a	上傳後移出	待辦
 public/environment/toxic_permits/_meta.json	488	B3a	上傳後移出	待辦
 public/environment/water_quality_stations.geojson	887003	B3a	上傳後移出	待辦
-public/finance/atm_sites_fisc.pmtiles	9854268	B1	移出	待辦
-public/finance/financial_branches_fisc.geojson	4743568	B1	移出	待辦
+public/finance/atm_sites_fisc.pmtiles	9854268	B1	移出	已移出 git 2026-11-08
+public/finance/financial_branches_fisc.geojson	4743568	B1	移出	已移出 git 2026-11-08
 public/finance/insurance_institutions.geojson	750170	B3a	上傳後移出	待辦
 public/finance/post_office_fx_cash_counters.geojson	269991	B3a	上傳後移出	待辦
-public/finance/securities_futures_institutions.geojson	1154188	B1	移出	待辦
+public/finance/securities_futures_institutions.geojson	1154188	B1	移出	已移出 git 2026-11-08
 public/fishery/aquaculture_cage_net.geojson	20001	B3a	上傳後移出	待辦
 public/fishery/aquaculture_integrated_points.pmtiles	1038884	B3a	上傳後移出	待辦
-public/fishery/aquaculture_ponds_osm_points.pmtiles	1318527	B1	移出	待辦
+public/fishery/aquaculture_ponds_osm_points.pmtiles	1318527	B1	移出	已移出 git 2026-11-08
 public/fishery/aquaculture_production_zone.geojson	589378	B3a	上傳後移出	待辦
 public/fishery/aquaculture_release_survey_g70.geojson	46117	B3a	上傳後移出	待辦
-public/fishery/aquaculture_water_sat_union.pmtiles	3125880	B1	移出	待辦
+public/fishery/aquaculture_water_sat_union.pmtiles	3125880	B1	移出	已移出 git 2026-11-08
 public/fishery/aquaculture_water_sat_union_points.pmtiles	465489	B3a	上傳後移出	待辦
-public/fishery/aquaculture_water_satellite_moa.pmtiles	10218064	B1	移出	待辦
-public/fishery/aquaculture_water_satellite_moa_points.pmtiles	2729099	B1	移出	待辦
-public/fishery/aquaculture_water_satellite_points.pmtiles	1108772	B1	移出	待辦
+public/fishery/aquaculture_water_satellite_moa.pmtiles	10218064	B1	移出	已移出 git 2026-11-08
+public/fishery/aquaculture_water_satellite_moa_points.pmtiles	2729099	B1	移出	已移出 git 2026-11-08
+public/fishery/aquaculture_water_satellite_points.pmtiles	1108772	B1	移出	已移出 git 2026-11-08
 public/fishery/fishery_conservation_zones.geojson	6233	B3a	上傳後移出	待辦
 public/fishery/fishery_port_zones_class1.geojson	2124	B3a	上傳後移出	待辦
 public/fishery/fishery_ports.geojson	66888	B3a	上傳後移出	待辦
 public/fishery/fishery_restricted_zones.geojson	36470	B3a	上傳後移出	待辦
 public/fishery/white_dolphin_habitat.geojson	667645	B3a	上傳後移出	待辦
 public/flood/uswg_isochrone_3min.pmtiles	47808	B3a	上傳後移出	待辦
-public/forestry/canopy_giants_taiwan.geojson	1256746	B1	移出	待辦
+public/forestry/canopy_giants_taiwan.geojson	1256746	B1	移出	已移出 git 2026-11-08
 public/forestry/dam_lakes_in_forest.geojson	17234	B3a	上傳後移出	待辦
 public/forestry/flat_forest_parks.geojson	4155	B3a	上傳後移出	待辦
 public/forestry/forest_education_centers.geojson	3460	B3a	上傳後移出	待辦
-public/forestry/forest_recreation_areas.geojson	2530433	B1	移出	待辦
+public/forestry/forest_recreation_areas.geojson	2530433	B1	移出	已移出 git 2026-11-08
 public/forestry/forest_reserve.pmtiles	2030870	B2	改路由後移出	待辦
 public/forestry/forest_reserve_points.pmtiles	171216	B3a	上傳後移出	待辦
-public/forestry/forest_roads.geojson	16523601	B2	刪除（前端無引用，S3 有備份）	待辦
-public/forestry/forest_roads.pmtiles	1213919	B1	移出	待辦
-public/forestry/forestry_treatment_works.geojson	1966455	B1	移出	待辦
+public/forestry/forest_roads.geojson	16523601	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/forestry/forest_roads.pmtiles	1213919	B1	移出	已移出 git 2026-11-08
+public/forestry/forestry_treatment_works.geojson	1966455	B1	移出	已移出 git 2026-11-08
 public/forestry/hiking_trails.geojson	20659963	B2	上傳後移出（研究用）	待辦
 public/forestry/mountain_huts.geojson	119620	B3a	上傳後移出	待辦
 public/forestry/mountain_signal_points.geojson	644461	B3a	上傳後移出	待辦
-public/forestry/mountain_trail_signs.geojson	1288099	B1	移出	待辦
-public/forestry/national_forest_compartments.pmtiles	5774766	B1	移出	待辦
+public/forestry/mountain_trail_signs.geojson	1288099	B1	移出	已移出 git 2026-11-08
+public/forestry/national_forest_compartments.pmtiles	5774766	B1	移出	已移出 git 2026-11-08
 public/forestry/national_forest_compartments_points.pmtiles	657536	B3a	上傳後移出	待辦
-public/forestry/signal_gap.pmtiles	3973683	B2	刪除（前端無引用，S3 有備份）	待辦
-public/forestry/trail_coverage.pmtiles	4625046	B2	刪除（前端無引用，S3 有備份）	待辦
+public/forestry/signal_gap.pmtiles	3973683	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/forestry/trail_coverage.pmtiles	4625046	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/forestry/wildlife_density_h3.geojson	336995	B3a	上傳後移出	待辦
 public/forestry/wildlife_distribution_3rd.geojson	281676	B3a	上傳後移出	待辦
 public/forestry/wildlife_distribution_3rd_alt.geojson	7008	B3a	上傳後移出	待辦
-public/funeral/cemetery_osm.pmtiles	1951592	B1	移出	待辦
+public/funeral/cemetery_osm.pmtiles	1951592	B1	移出	已移出 git 2026-11-08
 public/funeral/cemetery_osm_points.pmtiles	559917	B3a	上傳後移出	待辦
 public/funeral/cemetery_zoning.geojson	601318	B3a	上傳後移出	待辦
-public/funeral/funeral_facilities.geojson	1296614	B1	移出	待辦
-public/funeral/funeral_operators.geojson	2191033	B1	移出	待辦
+public/funeral/funeral_facilities.geojson	1296614	B1	移出	已移出 git 2026-11-08
+public/funeral/funeral_operators.geojson	2191033	B1	移出	已移出 git 2026-11-08
 public/funeral/funeral_operators_density.json	5184	B3a	上傳後移出	待辦
 public/geo/_empty.geojson	43	B3a	上傳後移出	待辦
 public/geo/airports.geojson	51108	B3a	上傳後移出	待辦
-public/geo/anfr_wireless_sites.geojson	4775685	B1	移出	待辦
-public/geo/cctv.geojson	2505252	B1	移出	待辦
-public/geo/disaster_resource_sites.geojson	3129385	B1	移出	待辦
+public/geo/anfr_wireless_sites.geojson	4775685	B1	移出	已移出 git 2026-11-08
+public/geo/cctv.geojson	2505252	B1	移出	已移出 git 2026-11-08
+public/geo/disaster_resource_sites.geojson	3129385	B1	移出	已移出 git 2026-11-08
 public/geo/emergency_hospitals.geojson	130938	B3a	上傳後移出	待辦
 public/geo/etc_gantry.geojson	120660	B3a	上傳後移出	待辦
 public/geo/freeway_eco_sensitive_sections.geojson	1014416	B3a	上傳後移出	待辦
 public/geo/freeway_interchanges.geojson	121196	B3a	上傳後移出	待辦
-public/geo/freeway_traffic_signs.pmtiles	6794877	B2	刪除（前端無引用，S3 有備份）	待辦
-public/geo/freeway_traffic_signs_v2.pmtiles	7483039	B1	移出	待辦
+public/geo/freeway_traffic_signs.pmtiles	6794877	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/geo/freeway_traffic_signs_v2.pmtiles	7483039	B1	移出	已移出 git 2026-11-08
 public/geo/historical_water_1944_taipei.geojson	847337	B3a	上傳後移出	待辦
 public/geo/internet_exchange_points.geojson	494265	B3a	上傳後移出	待辦
 public/geo/landing_stations.geojson	60304	B3a	上傳後移出	待辦
 public/geo/lighthouse.geojson	7638	B3a	上傳後移出	待辦
 public/geo/news_events.geojson	18245	B3a	上傳後移出	待辦
 public/geo/ookla_fixed_global.geojson	23024097	B2	移出（測試改從 R2 下載）	待辦
-public/geo/ookla_fixed_global_20260930.pmtiles	16420097	B1	移出	待辦
+public/geo/ookla_fixed_global_20260930.pmtiles	16420097	B1	移出	已移出 git 2026-11-08
 public/geo/ookla_mobile_global.geojson	18972022	B2	移出（測試改從 R2 下載）	待辦
-public/geo/ookla_mobile_global_20260930.pmtiles	12994136	B1	移出	待辦
-public/geo/ookla_tw_z14.pmtiles	4095539	B1	移出	待辦
-public/geo/ookla_tw_z16.pmtiles	10035995	B1	移出	待辦
+public/geo/ookla_mobile_global_20260930.pmtiles	12994136	B1	移出	已移出 git 2026-11-08
+public/geo/ookla_tw_z14.pmtiles	4095539	B1	移出	已移出 git 2026-11-08
+public/geo/ookla_tw_z16.pmtiles	10035995	B1	移出	已移出 git 2026-11-08
 public/geo/osm_communication_sites.geojson	767899	B3a	上傳後移出	待辦
-public/geo/place_names_moi.pmtiles	15137479	B2	刪除（前端無引用，S3 有備份）	待辦
-public/geo/place_names_moi_v2.pmtiles	17031319	B1	移出	待辦
+public/geo/place_names_moi.pmtiles	15137479	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/geo/place_names_moi_v2.pmtiles	17031319	B1	移出	已移出 git 2026-11-08
 public/geo/port_polygons.geojson	693619	B3a	上傳後移出	待辦
 public/geo/provincial_road_emergency_bays.geojson	220494	B3a	上傳後移出	待辦
-public/geo/provincial_road_mileposts.pmtiles	6294453	B2	刪除（前端無引用，S3 有備份）	待辦
-public/geo/provincial_road_mileposts_v2.pmtiles	7160838	B1	移出	待辦
+public/geo/provincial_road_mileposts.pmtiles	6294453	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/geo/provincial_road_mileposts_v2.pmtiles	7160838	B1	移出	已移出 git 2026-11-08
 public/geo/provincial_road_monitored_sections.pmtiles	339715	B3a	上傳後移出	待辦
 public/geo/provincial_road_monitored_sections_v2.pmtiles	350847	B3a	上傳後移出	待辦
-public/geo/provincial_road_signs.pmtiles	7661192	B2	刪除（前端無引用，S3 有備份）	待辦
-public/geo/provincial_road_signs_v2.pmtiles	8275026	B1	移出	待辦
-public/geo/ripe_atlas_probes.geojson	4722594	B1	移出	待辦
+public/geo/provincial_road_signs.pmtiles	7661192	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/geo/provincial_road_signs_v2.pmtiles	8275026	B1	移出	已移出 git 2026-11-08
+public/geo/ripe_atlas_probes.geojson	4722594	B1	移出	已移出 git 2026-11-08
 public/geo/service_area.geojson	13526	B3a	上傳後移出	待辦
 public/geo/service_area_polygon.geojson	24463	B3a	上傳後移出	待辦
 public/geo/station_points.geojson	137609	B3a	上傳後移出	待辦
 public/geo/station_polygons.geojson	98321	B3a	上傳後移出	待辦
 public/geo/submarine_cables.geojson	117160	B3a	上傳後移出	待辦
 public/geo/taxi_stand.geojson	60283	B3a	上傳後移出	待辦
-public/geo/triangulation_points_moi.geojson	2111799	B1	移出	待辦
-public/geo/waste_stops_chat_20261001.json	2236892	B1	移出	待辦
+public/geo/triangulation_points_moi.geojson	2111799	B1	移出	已移出 git 2026-11-08
+public/geo/waste_stops_chat_20261001.json	2236892	B1	移出	已移出 git 2026-11-08
 public/geo/waste_stops_static.geojson	22445099	B2	移出（測試改從 R2 下載）	待辦
-public/geo/waste_stops_static_20260930.pmtiles	16568946	B1	移出	待辦
+public/geo/waste_stops_static_20260930.pmtiles	16568946	B1	移出	已移出 git 2026-11-08
 public/geo/water_flood_150mm_6hr_points.pmtiles	131964	B3a	上傳後移出	待辦
 public/geo/water_flood_200mm_12hr_points.pmtiles	144085	B3a	上傳後移出	待辦
 public/geo/water_flood_200mm_24hr_points.pmtiles	132545	B3a	上傳後移出	待辦
@@ -249,7 +249,7 @@ public/geo/water_flood_400mm_12hr_points.pmtiles	195496	B3a	上傳後移出	待�
 public/geo/water_flood_500mm_24hr_points.pmtiles	200507	B3a	上傳後移出	待辦
 public/geo/water_flood_650mm_24hr_points.pmtiles	219729	B3a	上傳後移出	待辦
 public/geo/wind_plan.geojson	7726	B3a	上傳後移出	待辦
-public/geo/wra_central_drainage.geojson	1718576	B1	移出	待辦
+public/geo/wra_central_drainage.geojson	1718576	B1	移出	已移出 git 2026-11-08
 public/geo/wra_dredging_points.geojson	108550	B3a	上傳後移出	待辦
 public/geo/wra_ecology_survey_sites.geojson	863801	B3a	上傳後移出	待辦
 public/geo/wra_floodgates_central.geojson	710075	B3a	上傳後移出	待辦
@@ -257,50 +257,50 @@ public/geo/wra_iow_structure_monitoring.geojson	77198	B3a	上傳後移出	待辦
 public/h3/h3_demographics_res7.json	1019402	B3a	上傳後移出	待辦
 public/h3/h3_population_res7.json	356222	B3a	上傳後移出	待辦
 public/h3/h3_socioeconomic_res7.json	640646	B3a	上傳後移出	待辦
-public/h3/h3_socioeconomic_res8.json	4372508	B1	移出	待辦
+public/h3/h3_socioeconomic_res8.json	4372508	B1	移出	已移出 git 2026-11-08
 public/h3/h3_spatial_economy_res7.json	562043	B3a	上傳後移出	待辦
-public/h3/h3_spatial_economy_res8.json	3531599	B1	移出	待辦
+public/h3/h3_spatial_economy_res8.json	3531599	B1	移出	已移出 git 2026-11-08
 public/harm_reduction/alcohol_treatment_facilities.geojson	128133	B3a	上傳後移出	待辦
 public/harm_reduction/anti_drug_pharmacies.geojson	284935	B3a	上傳後移出	待辦
 public/harm_reduction/condom_outlets.geojson	54974	B3a	上傳後移出	待辦
 public/harm_reduction/drug_prevention_centers.geojson	13915	B3a	上傳後移出	待辦
 public/harm_reduction/drug_treatment_facilities.geojson	264374	B3a	上傳後移出	待辦
-public/harm_reduction/dui_crash_points.pmtiles	12974580	B1	移出	待辦
+public/harm_reduction/dui_crash_points.pmtiles	12974580	B1	移出	已移出 git 2026-11-08
 public/harm_reduction/hiv_selftest_outlets.geojson	546768	B3a	上傳後移出	待辦
 public/harm_reduction/hiv_testing_sites.geojson	543693	B3a	上傳後移出	待辦
 public/harm_reduction/internet_addiction_services.geojson	319454	B3a	上傳後移出	待辦
 public/harm_reduction/needle_points.geojson	809723	B3a	上傳後移出	待辦
 public/harm_reduction/offender_aftercare_offices.geojson	14393	B3a	上傳後移出	待辦
 public/harm_reduction/prep_service_sites.geojson	127485	B3a	上傳後移出	待辦
-public/harm_reduction/smoking_cessation_providers.geojson	1810944	B1	移出	待辦
+public/harm_reduction/smoking_cessation_providers.geojson	1810944	B1	移出	已移出 git 2026-11-08
 public/harm_reduction/therapeutic_communities.geojson	14252	B3a	上傳後移出	待辦
-public/hazards/flood_disaster_points_ncdr.pmtiles	1457136	B1	移出	待辦
-public/hazards/highway_disaster_history.pmtiles	5464149	B1	移出	待辦
-public/hazards/land_subsidence_contours.pmtiles	3164550	B1	移出	待辦
+public/hazards/flood_disaster_points_ncdr.pmtiles	1457136	B1	移出	已移出 git 2026-11-08
+public/hazards/highway_disaster_history.pmtiles	5464149	B1	移出	已移出 git 2026-11-08
+public/hazards/land_subsidence_contours.pmtiles	3164550	B1	移出	已移出 git 2026-11-08
 public/hazards/land_subsidence_stations.geojson	89126	B3a	上傳後移出	待辦
-public/hazards/landslide_dod_areas.geojson	1864413	B1	移出	待辦
-public/hazards/landslide_dod_impact.geojson	1713806	B1	移出	待辦
+public/hazards/landslide_dod_areas.geojson	1864413	B1	移出	已移出 git 2026-11-08
+public/hazards/landslide_dod_impact.geojson	1713806	B1	移出	已移出 git 2026-11-08
 public/hazards/major_occupational_accidents.geojson	864626	B3a	上傳後移出	待辦
-public/hazards/mountain_rescue_incidents.geojson	2114522	B1	移出	待辦
+public/hazards/mountain_rescue_incidents.geojson	2114522	B1	移出	已移出 git 2026-11-08
 public/hazards/nuclear_epz_evacuation.geojson	89403	B3a	上傳後移出	待辦
 public/hazards/seawall_zones.geojson	572776	B3a	上傳後移出	待辦
-public/hazards/swcb_disaster_photo_points.pmtiles	15937875	B1	移出	待辦
+public/hazards/swcb_disaster_photo_points.pmtiles	15937875	B1	移出	已移出 git 2026-11-08
 public/hazards/taipei_waterlogging_history.geojson	782399	B3a	上傳後移出	待辦
-public/hazards/toxic_chemical_facilities.pmtiles	2739215	B1	移出	待辦
+public/hazards/toxic_chemical_facilities.pmtiles	2739215	B1	移出	已移出 git 2026-11-08
 public/hazards/tsunami_sirens.geojson	148560	B3a	上傳後移出	待辦
 public/indigenous_rural/hakka_cultural_zones.geojson	256961	B3a	上傳後移出	待辦
 public/indigenous_rural/indigenous_isolation_risk_areas.geojson	155736	B3a	上傳後移出	待辦
 public/indigenous_rural/indigenous_language_dialects.geojson	361367	B3a	上傳後移出	待辦
 public/indigenous_rural/indigenous_regions_55.geojson	318888	B3a	上傳後移出	待辦
 public/indigenous_rural/indigenous_tribes.geojson	638891	B3a	上傳後移出	待辦
-public/indigenous_rural/rural_community_villages.pmtiles	5108785	B1	移出	待辦
+public/indigenous_rural/rural_community_villages.pmtiles	5108785	B1	移出	已移出 git 2026-11-08
 public/indigenous_rural/rural_community_villages_points.pmtiles	587536	B3a	上傳後移出	待辦
 public/industrial_zone/industrial_park_boundaries_20260818_points.pmtiles	113510	B3b	上傳後移出	待辦
 public/llms.txt	5813	keep	留 git（網站素材）	待辦
-public/mapchallenge/day04_clusters_r7.geojson	1702681	B1	移出	待辦
-public/mapchallenge/day04_clusters_r8_tc_ch.geojson	1078413	B1	移出	待辦
+public/mapchallenge/day04_clusters_r7.geojson	1702681	B1	移出	已移出 git 2026-11-08
+public/mapchallenge/day04_clusters_r8_tc_ch.geojson	1078413	B1	移出	已移出 git 2026-11-08
 public/mapchallenge/day05_sea_view_runs.geojson	109391	B3a	上傳後移出	待辦
-public/mapchallenge/day05_sea_view_segments.geojson	3484073	B1	移出	待辦
+public/mapchallenge/day05_sea_view_segments.geojson	3484073	B1	移出	已移出 git 2026-11-08
 public/mapchallenge/day06_coast.geojson	94327	B3a	上傳後移出	待辦
 public/mapchallenge/day06_lighthouse_weather.geojson	18193	B3a	上傳後移出	待辦
 public/mapchallenge/day06_taipei_1932.geojson	166351	B3a	上傳後移出	待辦
@@ -314,13 +314,13 @@ public/marine/exclusive_fishery_right_areas.geojson	331319	B3a	上傳後移出	�
 public/marine/firing_notice_areas.geojson	107878	B3a	上傳後移出	待辦
 public/marine/marine_ecological_monitoring_sites.geojson	35507	B3a	上傳後移出	待辦
 public/marine/marine_microplastics_stations.geojson	18057	B3a	上傳後移出	待辦
-public/marine/marine_pollution_incidents.geojson	1376509	B1	移出	待辦
+public/marine/marine_pollution_incidents.geojson	1376509	B1	移出	已移出 git 2026-11-08
 public/marine/marine_wildlife_areas.geojson	360752	B3a	上傳後移出	待辦
 public/marine/namr_edna_survey_sites.geojson	69955	B3a	上傳後移出	待辦
 public/marine/nature_reserves.geojson	1043057	B3a	上傳後移出	待辦
 public/marine/open_fishing_locations.geojson	71437	B3a	上傳後移出	待辦
 public/marine/protected_reef_areas.geojson	53167	B3a	上傳後移出	待辦
-public/marine/sea_turtle_strandings.geojson	1159716	B1	移出	待辦
+public/marine/sea_turtle_strandings.geojson	1159716	B1	移出	已移出 git 2026-11-08
 public/marine/set_net_fishing_areas.geojson	38163	B3a	上傳後移出	待辦
 public/marine/wildlife_protected_areas.geojson	811117	B3a	上傳後移出	待辦
 public/poi/public_retail_markets_national.geojson	132357	B3a	上傳後移出	待辦
@@ -328,13 +328,13 @@ public/police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson	1
 public/public_life/README.md	1325	B3a	上傳後移出	待辦
 public/public_life/manifest.json	4816	B3a	上傳後移出	待辦
 public/public_life/national_parks_points.pmtiles	7276	B3a	上傳後移出	待辦
-public/rail/routes_static.geojson	1193050	B1	移出	待辦
+public/rail/routes_static.geojson	1193050	B1	移出	已移出 git 2026-11-08
 public/rail/trtc/extensions/xinyi_east_r01.geojson	2833	B3b	上傳後移出	待辦
 public/religion/ancestral_halls.geojson	260374	B3a	上傳後移出	待辦
-public/religion/churches.geojson	2648946	B1	移出	待辦
+public/religion/churches.geojson	2648946	B1	移出	已移出 git 2026-11-08
 public/religion/foundations.geojson	86218	B3a	上傳後移出	待辦
-public/religion/other_worship.geojson	1288553	B1	移出	待辦
-public/religion/temples.pmtiles	11091592	B1	移出	待辦
+public/religion/other_worship.geojson	1288553	B1	移出	已移出 git 2026-11-08
+public/religion/temples.pmtiles	11091592	B1	移出	已移出 git 2026-11-08
 public/religion/top100.geojson	48306	B3a	上傳後移出	待辦
 public/robots.txt	886	keep	留 git（網站素材）	待辦
 public/screenshots/mini-taiwan.png	1940973	keep	留 git（網站素材）	待辦
@@ -353,7 +353,7 @@ public/showcase/effects/scene.js	21849	keep	留 git（網站素材）	待辦
 public/showcase/effects/shader.js	10731	keep	留 git（網站素材）	待辦
 public/showcase/effects/viz.js	19188	keep	留 git（網站素材）	待辦
 public/sitemap.xml	3711	keep	留 git（網站素材）	待辦
-public/state_assets/state_property_tender_listings.geojson	1082309	B1	移出	待辦
+public/state_assets/state_property_tender_listings.geojson	1082309	B1	移出	已移出 git 2026-11-08
 public/state_assets/taisugar_sugar_mills.geojson	9338	B3a	上傳後移出	待辦
 public/state_assets/twc_service_offices.geojson	75334	B3a	上傳後移出	待辦
 public/state_assets/twc_water_facilities.geojson	351283	B3a	上傳後移出	待辦
@@ -364,13 +364,13 @@ public/statistics-accessibility/education-car-receipt.json	1577	B3c	改路由、
 public/statistics-accessibility/education-foot-pilot.geojson	181135	B3c	改路由、上傳後移出	待辦
 public/statistics-accessibility/education-foot-receipt.json	1580	B3c	改路由、上傳後移出	待辦
 public/statistics/county-reference-2025.geojson	513314	B3a	上傳後移出	待辦
-public/statistics/township-reference.geojson	2005865	B1	移出	待辦
+public/statistics/township-reference.geojson	2005865	B1	移出	已移出 git 2026-11-08
 public/three-showcase.html	9956	keep	留 git（網站素材）	待辦
 public/tourism/activities_national.geojson	642962	B3a	上傳後移出	待辦
 public/tourism/amusement_parks_national.geojson	35203	B3a	上傳後移出	待辦
 public/tourism/camping_national.geojson	669663	B3a	上傳後移出	待辦
-public/tourism/heritage_national.geojson	1520526	B1	移出	待辦
-public/tourism/heritage_national_v2.geojson	1563557	B1	移出	待辦
+public/tourism/heritage_national.geojson	1520526	B1	移出	已移出 git 2026-11-08
+public/tourism/heritage_national_v2.geojson	1563557	B1	移出	已移出 git 2026-11-08
 public/tourism/hot_spring_zones_national.geojson	8109	B3a	上傳後移出	待辦
 public/tourism/hot_springs_national.geojson	34397	B3a	上傳後移出	待辦
 public/tourism/national_scenic_areas_national.geojson	200445	B3a	上傳後移出	待辦
@@ -378,60 +378,60 @@ public/tourism/tourism_factories_national.geojson	60770	B3a	上傳後移出	待�
 public/tourism/tourism_service_sites.geojson	380180	B3a	上傳後移出	待辦
 public/tourism/visitor_spot_stats.geojson	196573	B3a	上傳後移出	待辦
 public/tourism/water_recreation_restricted_areas.geojson	42194	B3a	上傳後移出	待辦
-public/urban/non_urban_zoning_points.pmtiles	5864624	B1	移出	待辦
+public/urban/non_urban_zoning_points.pmtiles	5864624	B1	移出	已移出 git 2026-11-08
 public/urban/property_value_admin.json	115888	B3a	上傳後移出	待辦
-public/urban/tree_pits_taipei_points.pmtiles	3554010	B1	移出	待辦
-public/urban/urban_zoning_newtaipei_points.pmtiles	2573116	B1	移出	待辦
-public/urban/urban_zoning_taipei_points.pmtiles	1270817	B1	移出	待辦
-public/water_resources/lakes_ponds_osm_points.pmtiles	4738720	B1	移出	待辦
+public/urban/tree_pits_taipei_points.pmtiles	3554010	B1	移出	已移出 git 2026-11-08
+public/urban/urban_zoning_newtaipei_points.pmtiles	2573116	B1	移出	已移出 git 2026-11-08
+public/urban/urban_zoning_taipei_points.pmtiles	1270817	B1	移出	已移出 git 2026-11-08
+public/water_resources/lakes_ponds_osm_points.pmtiles	4738720	B1	移出	已移出 git 2026-11-08
 public/welfare/child_services_national.geojson	731611	B3a	上傳後移出	待辦
 public/welfare/childcare_centers_national.geojson	812889	B3a	上傳後移出	待辦
 public/welfare/cultural_health_stations.geojson	143642	B3a	上傳後移出	待辦
 public/welfare/disability_facilities_national.geojson	236347	B3a	上傳後移出	待辦
 public/welfare/elderly_care_homes_national.geojson	753998	B3a	上傳後移出	待辦
-public/welfare/ltc_institutions_national.geojson	1757679	B1	移出	待辦
+public/welfare/ltc_institutions_national.geojson	1757679	B1	移出	已移出 git 2026-11-08
 public/welfare/mental_health_facilities_national.geojson	33873	B3a	上傳後移出	待辦
 public/welfare/nursing_homes_national.geojson	971692	B3a	上傳後移出	待辦
 public/welfare/social_work_orgs_national.geojson	302154	B3a	上傳後移出	待辦
 public/welfare/welfare_gov_offices_national.geojson	73967	B3a	上傳後移出	待辦
-public/world/ca_airports_ports.pmtiles	5707783	B1	移出	待辦
+public/world/ca_airports_ports.pmtiles	5707783	B1	移出	已移出 git 2026-11-08
 public/world/ca_aqhi_stations.pmtiles	114574	B3a	上傳後移出	待辦
-public/world/ca_climate_stations.pmtiles	5028131	B1	移出	待辦
-public/world/ca_npri_facilities.pmtiles	10298032	B1	移出	待辦
-public/world/ca_population_centres.pmtiles	7779596	B1	移出	待辦
-public/world/ca_power_grid.pmtiles	17155233	B1	移出	待辦
-public/world/ca_power_plants.pmtiles	2044624	B1	移出	待辦
+public/world/ca_climate_stations.pmtiles	5028131	B1	移出	已移出 git 2026-11-08
+public/world/ca_npri_facilities.pmtiles	10298032	B1	移出	已移出 git 2026-11-08
+public/world/ca_population_centres.pmtiles	7779596	B1	移出	已移出 git 2026-11-08
+public/world/ca_power_grid.pmtiles	17155233	B1	移出	已移出 git 2026-11-08
+public/world/ca_power_plants.pmtiles	2044624	B1	移出	已移出 git 2026-11-08
 public/world/ca_radiation_stations.pmtiles	62222	B3a	上傳後移出	待辦
-public/world/ca_rents.pmtiles	5542113	B1	移出	待辦
-public/world/ca_wastewater_systems.pmtiles	2444060	B1	移出	待辦
-public/world/ca_wind_turbines.pmtiles	3175177	B1	移出	待辦
-public/world/gb_admin_lad.pmtiles	6161446	B1	移出	待辦
-public/world/gb_admin_small_areas_z5_7.pmtiles	6468399	B1	移出	待辦
-public/world/gb_aquaculture.pmtiles	2657642	B1	移出	待辦
-public/world/gb_arts_venues.pmtiles	2195180	B1	移出	待辦
+public/world/ca_rents.pmtiles	5542113	B1	移出	已移出 git 2026-11-08
+public/world/ca_wastewater_systems.pmtiles	2444060	B1	移出	已移出 git 2026-11-08
+public/world/ca_wind_turbines.pmtiles	3175177	B1	移出	已移出 git 2026-11-08
+public/world/gb_admin_lad.pmtiles	6161446	B1	移出	已移出 git 2026-11-08
+public/world/gb_admin_small_areas_z5_7.pmtiles	6468399	B1	移出	已移出 git 2026-11-08
+public/world/gb_aquaculture.pmtiles	2657642	B1	移出	已移出 git 2026-11-08
+public/world/gb_arts_venues.pmtiles	2195180	B1	移出	已移出 git 2026-11-08
 public/world/gb_bathing_waters.pmtiles	841570	B3a	上傳後移出	待辦
-public/world/gb_brownfield.pmtiles	18896494	B1	移出	待辦
-public/world/gb_built_up_areas_points.pmtiles	2091664	B1	移出	待辦
-public/world/gb_care_services.pmtiles	16334187	B1	移出	待辦
-public/world/gb_coastal_erosion.pmtiles	17839663	B2	刪除（前端無引用，S3 有備份）	待辦
-public/world/gb_coastal_erosion_points.pmtiles	2013921	B1	移出	待辦
-public/world/gb_coastal_erosion_v2.pmtiles	17899050	B1	移出	待辦
-public/world/gb_companies.pmtiles	3379260	B1	移出	待辦
+public/world/gb_brownfield.pmtiles	18896494	B1	移出	已移出 git 2026-11-08
+public/world/gb_built_up_areas_points.pmtiles	2091664	B1	移出	已移出 git 2026-11-08
+public/world/gb_care_services.pmtiles	16334187	B1	移出	已移出 git 2026-11-08
+public/world/gb_coastal_erosion.pmtiles	17839663	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/world/gb_coastal_erosion_points.pmtiles	2013921	B1	移出	已移出 git 2026-11-08
+public/world/gb_coastal_erosion_v2.pmtiles	17899050	B1	移出	已移出 git 2026-11-08
+public/world/gb_companies.pmtiles	3379260	B1	移出	已移出 git 2026-11-08
 public/world/gb_courts.pmtiles	608270	B3a	上傳後移出	待辦
-public/world/gb_cultural_facilities.pmtiles	6140532	B1	移出	待辦
-public/world/gb_earthquakes.pmtiles	2523970	B1	移出	待辦
-public/world/gb_fire_stations.pmtiles	1857461	B1	移出	待辦
+public/world/gb_cultural_facilities.pmtiles	6140532	B1	移出	已移出 git 2026-11-08
+public/world/gb_earthquakes.pmtiles	2523970	B1	移出	已移出 git 2026-11-08
+public/world/gb_fire_stations.pmtiles	1857461	B1	移出	已移出 git 2026-11-08
 public/world/gb_flood_defences_z5_6.pmtiles	946122	B3a	上傳後移出	待辦
-public/world/gb_forest_recreation.pmtiles	4628208	B1	移出	待辦
-public/world/gb_forest_recreation_v2.pmtiles	5843300	B1	移出	待辦
-public/world/gb_fuel_stations.pmtiles	4680596	B1	移出	待辦
-public/world/gb_funeral.pmtiles	2215785	B1	移出	待辦
+public/world/gb_forest_recreation.pmtiles	4628208	B1	移出	已移出 git 2026-11-08
+public/world/gb_forest_recreation_v2.pmtiles	5843300	B1	移出	已移出 git 2026-11-08
+public/world/gb_fuel_stations.pmtiles	4680596	B1	移出	已移出 git 2026-11-08
+public/world/gb_funeral.pmtiles	2215785	B1	移出	已移出 git 2026-11-08
 public/world/gb_gamma_dose.pmtiles	171064	B3a	上傳後移出	待辦
-public/world/gb_geosure_hex.pmtiles	7131149	B1	移出	待辦
-public/world/gb_greenspace_points.pmtiles	16295082	B1	移出	待辦
-public/world/gb_health_facilities.pmtiles	7204041	B1	移出	待辦
-public/world/gb_hydro_stations.pmtiles	3145936	B1	移出	待辦
-public/world/gb_landslides.pmtiles	5703911	B1	移出	待辦
+public/world/gb_geosure_hex.pmtiles	7131149	B1	移出	已移出 git 2026-11-08
+public/world/gb_greenspace_points.pmtiles	16295082	B1	移出	已移出 git 2026-11-08
+public/world/gb_health_facilities.pmtiles	7204041	B1	移出	已移出 git 2026-11-08
+public/world/gb_hydro_stations.pmtiles	3145936	B1	移出	已移出 git 2026-11-08
+public/world/gb_landslides.pmtiles	5703911	B1	移出	已移出 git 2026-11-08
 public/world/gb_london_bikepoints.pmtiles	279707	B3a	上傳後移出	待辦
 public/world/gb_london_bikepoints_v2.pmtiles	473234	B3a	上傳後移出	待辦
 public/world/gb_london_charging_zones.pmtiles	217148	B3a	上傳後移出	待辦
@@ -440,173 +440,173 @@ public/world/gb_london_jamcams.pmtiles	578979	B3a	上傳後移出	待辦
 public/world/gb_london_jamcams_v2.pmtiles	823558	B3a	上傳後移出	待辦
 public/world/gb_london_rail.pmtiles	584845	B3a	上傳後移出	待辦
 public/world/gb_london_rail_v2.pmtiles	679339	B3a	上傳後移出	待辦
-public/world/gb_major_roads.pmtiles	11037319	B1	移出	待辦
-public/world/gb_marine_protected_areas.pmtiles	3451450	B1	移出	待辦
+public/world/gb_major_roads.pmtiles	11037319	B1	移出	已移出 git 2026-11-08
+public/world/gb_marine_protected_areas.pmtiles	3451450	B1	移出	已移出 git 2026-11-08
 public/world/gb_marine_protected_areas_points.pmtiles	108296	B3a	上傳後移出	待辦
 public/world/gb_maritime_limits.pmtiles	540081	B3a	上傳後移出	待辦
-public/world/gb_oil_gas.pmtiles	1503900	B1	移出	待辦
+public/world/gb_oil_gas.pmtiles	1503900	B1	移出	已移出 git 2026-11-08
 public/world/gb_oil_gas_points.pmtiles	156537	B3a	上傳後移出	待辦
-public/world/gb_open_access_land_points.pmtiles	4449838	B1	移出	待辦
+public/world/gb_open_access_land_points.pmtiles	4449838	B1	移出	已移出 git 2026-11-08
 public/world/gb_open_access_land_z5.pmtiles	328762	B3a	上傳後移出	待辦
-public/world/gb_planning_constraints_points.pmtiles	3874941	B1	移出	待辦
-public/world/gb_pollution_inventory_sepa.pmtiles	1678837	B1	移出	待辦
-public/world/gb_power_plants.pmtiles	1631381	B1	移出	待辦
-public/world/gb_protected_areas_points.pmtiles	2514393	B1	移出	待辦
-public/world/gb_radon_atlas.pmtiles	18137691	B1	移出	待辦
-public/world/gb_recycling_points.pmtiles	4610724	B1	移出	待辦
-public/world/gb_renewables.pmtiles	17559815	B1	移出	待辦
-public/world/gb_schools.pmtiles	15137348	B1	移出	待辦
-public/world/gb_soil_parent_material.pmtiles	19322299	B1	移出	待辦
+public/world/gb_planning_constraints_points.pmtiles	3874941	B1	移出	已移出 git 2026-11-08
+public/world/gb_pollution_inventory_sepa.pmtiles	1678837	B1	移出	已移出 git 2026-11-08
+public/world/gb_power_plants.pmtiles	1631381	B1	移出	已移出 git 2026-11-08
+public/world/gb_protected_areas_points.pmtiles	2514393	B1	移出	已移出 git 2026-11-08
+public/world/gb_radon_atlas.pmtiles	18137691	B1	移出	已移出 git 2026-11-08
+public/world/gb_recycling_points.pmtiles	4610724	B1	移出	已移出 git 2026-11-08
+public/world/gb_renewables.pmtiles	17559815	B1	移出	已移出 git 2026-11-08
+public/world/gb_schools.pmtiles	15137348	B1	移出	已移出 git 2026-11-08
+public/world/gb_soil_parent_material.pmtiles	19322299	B1	移出	已移出 git 2026-11-08
 public/world/gb_surplus_land.pmtiles	769919	B3a	上傳後移出	待辦
-public/world/gb_traffic_counts_aadf.pmtiles	19163605	B1	移出	待辦
-public/world/gb_trails.pmtiles	9091180	B1	移出	待辦
-public/world/gb_trails_v2.pmtiles	9318695	B1	移出	待辦
-public/world/gb_transport_hubs.pmtiles	3843453	B1	移出	待辦
-public/world/gb_transport_hubs_v2.pmtiles	4667975	B1	移出	待辦
-public/world/gb_tree_protection_points.pmtiles	11179012	B1	移出	待辦
-public/world/gb_visitor_experience.pmtiles	4795731	B1	移出	待辦
-public/world/gb_waste_permits.pmtiles	7459611	B1	移出	待辦
-public/world/gb_woodland_nfi_points.pmtiles	15798178	B1	移出	待辦
-public/world/ie_activity_locations.pmtiles	6087966	B1	移出	待辦
+public/world/gb_traffic_counts_aadf.pmtiles	19163605	B1	移出	已移出 git 2026-11-08
+public/world/gb_trails.pmtiles	9091180	B1	移出	已移出 git 2026-11-08
+public/world/gb_trails_v2.pmtiles	9318695	B1	移出	已移出 git 2026-11-08
+public/world/gb_transport_hubs.pmtiles	3843453	B1	移出	已移出 git 2026-11-08
+public/world/gb_transport_hubs_v2.pmtiles	4667975	B1	移出	已移出 git 2026-11-08
+public/world/gb_tree_protection_points.pmtiles	11179012	B1	移出	已移出 git 2026-11-08
+public/world/gb_visitor_experience.pmtiles	4795731	B1	移出	已移出 git 2026-11-08
+public/world/gb_waste_permits.pmtiles	7459611	B1	移出	已移出 git 2026-11-08
+public/world/gb_woodland_nfi_points.pmtiles	15798178	B1	移出	已移出 git 2026-11-08
+public/world/ie_activity_locations.pmtiles	6087966	B1	移出	已移出 git 2026-11-08
 public/world/ie_airports_ports.pmtiles	105886	B3a	上傳後移出	待辦
-public/world/ie_aquaculture.pmtiles	1371603	B1	移出	待辦
+public/world/ie_aquaculture.pmtiles	1371603	B1	移出	已移出 git 2026-11-08
 public/world/ie_aquaculture_points.pmtiles	702221	B3a	上傳後移出	待辦
-public/world/ie_arterial_drainage.pmtiles	3479945	B1	移出	待辦
+public/world/ie_arterial_drainage.pmtiles	3479945	B1	移出	已移出 git 2026-11-08
 public/world/ie_arts_venues.pmtiles	51938	B3a	上傳後移出	待辦
 public/world/ie_bathing_waters.pmtiles	449922	B3a	上傳後移出	待辦
-public/world/ie_care_homes.pmtiles	1240122	B1	移出	待辦
-public/world/ie_childcare_services.pmtiles	3124429	B1	移出	待辦
-public/world/ie_coastal_erosion.pmtiles	12032107	B1	移出	待辦
+public/world/ie_care_homes.pmtiles	1240122	B1	移出	已移出 git 2026-11-08
+public/world/ie_childcare_services.pmtiles	3124429	B1	移出	已移出 git 2026-11-08
+public/world/ie_coastal_erosion.pmtiles	12032107	B1	移出	已移出 git 2026-11-08
 public/world/ie_courts.pmtiles	170423	B3a	上傳後移出	待辦
 public/world/ie_dublinbikes_stations.pmtiles	41757	B3a	上傳後移出	待辦
 public/world/ie_ev_charging.pmtiles	479122	B3a	上傳後移出	待辦
 public/world/ie_fire_stations.pmtiles	298558	B3a	上傳後移出	待辦
-public/world/ie_fuel_stations.pmtiles	1264678	B1	移出	待辦
+public/world/ie_fuel_stations.pmtiles	1264678	B1	移出	已移出 git 2026-11-08
 public/world/ie_gaeltacht_lpa.pmtiles	938669	B3a	上傳後移出	待辦
 public/world/ie_garda_stations.pmtiles	848456	B3a	上傳後移出	待辦
-public/world/ie_graveyards.pmtiles	7304124	B1	移出	待辦
-public/world/ie_health_facilities.pmtiles	1740996	B1	移出	待辦
-public/world/ie_hydrometric_stations.pmtiles	1723196	B1	移出	待辦
-public/world/ie_industrial_facilities.pmtiles	1215523	B1	移出	待辦
-public/world/ie_lake_water_bodies.pmtiles	1568602	B1	移出	待辦
+public/world/ie_graveyards.pmtiles	7304124	B1	移出	已移出 git 2026-11-08
+public/world/ie_health_facilities.pmtiles	1740996	B1	移出	已移出 git 2026-11-08
+public/world/ie_hydrometric_stations.pmtiles	1723196	B1	移出	已移出 git 2026-11-08
+public/world/ie_industrial_facilities.pmtiles	1215523	B1	移出	已移出 git 2026-11-08
+public/world/ie_lake_water_bodies.pmtiles	1568602	B1	移出	已移出 git 2026-11-08
 public/world/ie_landslide_events.pmtiles	899204	B3a	上傳後移出	待辦
-public/world/ie_landslide_extents.pmtiles	1195553	B1	移出	待辦
+public/world/ie_landslide_extents.pmtiles	1195553	B1	移出	已移出 git 2026-11-08
 public/world/ie_landslide_extents_points.pmtiles	843802	B3a	上傳後移出	待辦
-public/world/ie_marine_survey_stations.pmtiles	1785637	B1	移出	待辦
+public/world/ie_marine_survey_stations.pmtiles	1785637	B1	移出	已移出 git 2026-11-08
 public/world/ie_maritime_boundaries.pmtiles	94666	B3a	上傳後移出	待辦
 public/world/ie_museums.pmtiles	637678	B3a	上傳後移出	待辦
 public/world/ie_national_parks.pmtiles	220215	B3a	上傳後移出	待辦
 public/world/ie_national_parks_points.pmtiles	10901	B3a	上傳後移出	待辦
-public/world/ie_national_trails.pmtiles	4640888	B1	移出	待辦
+public/world/ie_national_trails.pmtiles	4640888	B1	移出	已移出 git 2026-11-08
 public/world/ie_offshore_renewables.pmtiles	135705	B3a	上傳後移出	待辦
-public/world/ie_parks.pmtiles	1578249	B1	移出	待辦
-public/world/ie_parks_points.pmtiles	1549164	B1	移出	待辦
-public/world/ie_peat_soils.pmtiles	6868439	B1	移出	待辦
-public/world/ie_place_names.pmtiles	7540124	B1	移出	待辦
-public/world/ie_power_lines.pmtiles	1932109	B1	移出	待辦
+public/world/ie_parks.pmtiles	1578249	B1	移出	已移出 git 2026-11-08
+public/world/ie_parks_points.pmtiles	1549164	B1	移出	已移出 git 2026-11-08
+public/world/ie_peat_soils.pmtiles	6868439	B1	移出	已移出 git 2026-11-08
+public/world/ie_place_names.pmtiles	7540124	B1	移出	已移出 git 2026-11-08
+public/world/ie_power_lines.pmtiles	1932109	B1	移出	已移出 git 2026-11-08
 public/world/ie_power_plants.pmtiles	65938	B3a	上傳後移出	待辦
-public/world/ie_protected_marine_sites.pmtiles	4936273	B1	移出	待辦
+public/world/ie_protected_marine_sites.pmtiles	4936273	B1	移出	已移出 git 2026-11-08
 public/world/ie_protected_marine_sites_points.pmtiles	365735	B3a	上傳後移出	待辦
-public/world/ie_protected_sites.pmtiles	8418797	B1	移出	待辦
+public/world/ie_protected_sites.pmtiles	8418797	B1	移出	已移出 git 2026-11-08
 public/world/ie_protected_sites_points.pmtiles	1010203	B3a	上傳後移出	待辦
 public/world/ie_prtr_facilities.pmtiles	715574	B3a	上傳後移出	待辦
-public/world/ie_public_facilities.pmtiles	1973448	B1	移出	待辦
+public/world/ie_public_facilities.pmtiles	1973448	B1	移出	已移出 git 2026-11-08
 public/world/ie_radiation_stations.pmtiles	54353	B3a	上傳後移出	待辦
-public/world/ie_radon_risk.pmtiles	18401176	B1	移出	待辦
-public/world/ie_recycling_points.pmtiles	1115995	B1	移出	待辦
-public/world/ie_religious_sites.pmtiles	6948542	B1	移出	待辦
-public/world/ie_river_water_bodies.pmtiles	15030935	B1	移出	待辦
+public/world/ie_radon_risk.pmtiles	18401176	B1	移出	已移出 git 2026-11-08
+public/world/ie_recycling_points.pmtiles	1115995	B1	移出	已移出 git 2026-11-08
+public/world/ie_religious_sites.pmtiles	6948542	B1	移出	已移出 git 2026-11-08
+public/world/ie_river_water_bodies.pmtiles	15030935	B1	移出	已移出 git 2026-11-08
 public/world/ie_road_markers.pmtiles	997498	B3a	上傳後移出	待辦
-public/world/ie_road_rail_network.pmtiles	1783978	B1	移出	待辦
-public/world/ie_school_planning_areas.pmtiles	7510919	B1	移出	待辦
-public/world/ie_schools.pmtiles	5622557	B1	移出	待辦
-public/world/ie_seabed_survey_coverage.pmtiles	9085874	B1	移出	待辦
-public/world/ie_state_assets_points.pmtiles	19022526	B1	移出	待辦
-public/world/ie_street_trees.pmtiles	8984846	B1	移出	待辦
-public/world/ie_substations.pmtiles	1181228	B1	移出	待辦
+public/world/ie_road_rail_network.pmtiles	1783978	B1	移出	已移出 git 2026-11-08
+public/world/ie_school_planning_areas.pmtiles	7510919	B1	移出	已移出 git 2026-11-08
+public/world/ie_schools.pmtiles	5622557	B1	移出	已移出 git 2026-11-08
+public/world/ie_seabed_survey_coverage.pmtiles	9085874	B1	移出	已移出 git 2026-11-08
+public/world/ie_state_assets_points.pmtiles	19022526	B1	移出	已移出 git 2026-11-08
+public/world/ie_street_trees.pmtiles	8984846	B1	移出	已移出 git 2026-11-08
+public/world/ie_substations.pmtiles	1181228	B1	移出	已移出 git 2026-11-08
 public/world/ie_traffic_counters.pmtiles	472678	B3a	上傳後移出	待辦
-public/world/ie_transit_stops.pmtiles	6288402	B1	移出	待辦
+public/world/ie_transit_stops.pmtiles	6288402	B1	移出	已移出 git 2026-11-08
 public/world/ie_waste_facilities.pmtiles	554430	B3a	上傳後移出	待辦
 public/world/ie_waste_facilities_points.pmtiles	373660	B3a	上傳後移出	待辦
-public/world/ie_water_monitoring.pmtiles	11253463	B1	移出	待辦
+public/world/ie_water_monitoring.pmtiles	11253463	B1	移出	已移出 git 2026-11-08
 public/world/ie_wild_atlantic_way.pmtiles	376612	B3a	上傳後移出	待辦
 public/world/ie_wind_farms.pmtiles	411993	B3a	上傳後移出	待辦
-public/world/ie_zoning_points.pmtiles	10056667	B1	移出	待辦
-public/world/jp_admin_boundaries.pmtiles	6311097	B1	移出	待辦
-public/world/jp_admin_boundaries_prefecture.pmtiles	1050451	B1	移出	待辦
+public/world/ie_zoning_points.pmtiles	10056667	B1	移出	已移出 git 2026-11-08
+public/world/jp_admin_boundaries.pmtiles	6311097	B1	移出	已移出 git 2026-11-08
+public/world/jp_admin_boundaries_prefecture.pmtiles	1050451	B1	移出	已移出 git 2026-11-08
 public/world/jp_airports.geojson	259482	B3a	上傳後移出	待辦
-public/world/jp_bus_stops.pmtiles	20218221	B1	移出	待辦
-public/world/jp_did_ksj_1995.pmtiles	5977608	B1	移出	待辦
-public/world/jp_did_ksj_2000.pmtiles	6065502	B1	移出	待辦
-public/world/jp_did_ksj_2005.pmtiles	6110077	B1	移出	待辦
-public/world/jp_did_ksj_2010.pmtiles	6184611	B1	移出	待辦
-public/world/jp_did_ksj_2015.pmtiles	6225429	B1	移出	待辦
-public/world/jp_expressways.pmtiles	5763099	B1	移出	待辦
-public/world/jp_inland_flood_areas.pmtiles	15061714	B1	移出	待辦
-public/world/jp_inland_flood_areas_points.pmtiles	1641853	B1	移出	待辦
-public/world/jp_landslide_warning_areas_points.pmtiles	5730392	B1	移出	待辦
+public/world/jp_bus_stops.pmtiles	20218221	B1	移出	已移出 git 2026-11-08
+public/world/jp_did_ksj_1995.pmtiles	5977608	B1	移出	已移出 git 2026-11-08
+public/world/jp_did_ksj_2000.pmtiles	6065502	B1	移出	已移出 git 2026-11-08
+public/world/jp_did_ksj_2005.pmtiles	6110077	B1	移出	已移出 git 2026-11-08
+public/world/jp_did_ksj_2010.pmtiles	6184611	B1	移出	已移出 git 2026-11-08
+public/world/jp_did_ksj_2015.pmtiles	6225429	B1	移出	已移出 git 2026-11-08
+public/world/jp_expressways.pmtiles	5763099	B1	移出	已移出 git 2026-11-08
+public/world/jp_inland_flood_areas.pmtiles	15061714	B1	移出	已移出 git 2026-11-08
+public/world/jp_inland_flood_areas_points.pmtiles	1641853	B1	移出	已移出 git 2026-11-08
+public/world/jp_landslide_warning_areas_points.pmtiles	5730392	B1	移出	已移出 git 2026-11-08
 public/world/jp_major_roads_z5.pmtiles	578463	B3a	上傳後移出	待辦
 public/world/jp_marine_ebsa_moe_coastal_20150101_points.pmtiles	236482	B3a	上傳後移出	待辦
-public/world/jp_national_forests_points.pmtiles	3497592	B1	移出	待辦
-public/world/jp_national_parks_moe_r7.pmtiles	18791227	B1	移出	待辦
+public/world/jp_national_forests_points.pmtiles	3497592	B1	移出	已移出 git 2026-11-08
+public/world/jp_national_parks_moe_r7.pmtiles	18791227	B1	移出	已移出 git 2026-11-08
 public/world/jp_national_parks_moe_r7_points.pmtiles	1019940	B3a	上傳後移出	待辦
-public/world/jp_natural_park_areas_ksj_2015_points.pmtiles	1150194	B1	移出	待辦
-public/world/jp_police_facilities.pmtiles	20783700	B1	移出	待辦
-public/world/jp_railways.pmtiles	5093949	B1	移出	待辦
-public/world/jp_religion_gsi.pmtiles	15675395	B1	移出	待辦
-public/world/jp_religion_osm.geojson	10929140	B2	刪除（前端無引用，S3 有備份）	待辦
-public/world/jp_religion_osm_20260930.pmtiles	23464938	B1	移出	待辦
-public/world/jp_religion_wikidata.geojson	5852395	B1	移出	待辦
-public/world/jp_schools.pmtiles	17302861	B1	移出	待辦
-public/world/jp_stations.geojson	7590867	B1	移出	待辦
+public/world/jp_natural_park_areas_ksj_2015_points.pmtiles	1150194	B1	移出	已移出 git 2026-11-08
+public/world/jp_police_facilities.pmtiles	20783700	B1	移出	已移出 git 2026-11-08
+public/world/jp_railways.pmtiles	5093949	B1	移出	已移出 git 2026-11-08
+public/world/jp_religion_gsi.pmtiles	15675395	B1	移出	已移出 git 2026-11-08
+public/world/jp_religion_osm.geojson	10929140	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/world/jp_religion_osm_20260930.pmtiles	23464938	B1	移出	已移出 git 2026-11-08
+public/world/jp_religion_wikidata.geojson	5852395	B1	移出	已移出 git 2026-11-08
+public/world/jp_schools.pmtiles	17302861	B1	移出	已移出 git 2026-11-08
+public/world/jp_stations.geojson	7590867	B1	移出	已移出 git 2026-11-08
 public/world/jp_water/release.json	4018	B3a	上傳後移出	待辦
 public/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson	12984998	B2	改路由後移出	待辦
 public/world/jp_water/releases/20260918-v1/jpWaterLevelStations.geojson	32260	B3a	上傳後移出	待辦
 public/world/jp_water/releases/20260918-v1/jpWaterLocalFacilities.geojson	9821	B3a	上傳後移出	待辦
 public/world/jp_water/releases/20260918-v1/jpWaterQualityStations.geojson	7771427	B2	改路由後移出	待辦
-public/world/jp_wildlife_protection_areas_moe_r7.pmtiles	2072922	B1	移出	待辦
+public/world/jp_wildlife_protection_areas_moe_r7.pmtiles	2072922	B1	移出	已移出 git 2026-11-08
 public/world/jp_wildlife_protection_areas_moe_r7_points.pmtiles	183149	B3a	上傳後移出	待辦
-public/world/jp_zoning_use_districts_points.pmtiles	2447771	B1	移出	待辦
-public/world/kr_admin_boundaries.pmtiles	6616423	B1	移出	待辦
+public/world/jp_zoning_use_districts_points.pmtiles	2447771	B1	移出	已移出 git 2026-11-08
+public/world/kr_admin_boundaries.pmtiles	6616423	B1	移出	已移出 git 2026-11-08
 public/world/kr_airports.pmtiles	32667	B3a	上傳後移出	待辦
-public/world/kr_bus_stops.pmtiles	19066953	B1	移出	待辦
-public/world/kr_cemeteries_osm.pmtiles	3164511	B1	移出	待辦
-public/world/kr_cemeteries_osm_points.pmtiles	4421505	B1	移出	待辦
-public/world/kr_child_protection_zones.pmtiles	9171893	B1	移出	待辦
-public/world/kr_civil_defense_shelters.pmtiles	16713062	B1	移出	待辦
+public/world/kr_bus_stops.pmtiles	19066953	B1	移出	已移出 git 2026-11-08
+public/world/kr_cemeteries_osm.pmtiles	3164511	B1	移出	已移出 git 2026-11-08
+public/world/kr_cemeteries_osm_points.pmtiles	4421505	B1	移出	已移出 git 2026-11-08
+public/world/kr_child_protection_zones.pmtiles	9171893	B1	移出	已移出 git 2026-11-08
+public/world/kr_civil_defense_shelters.pmtiles	16713062	B1	移出	已移出 git 2026-11-08
 public/world/kr_coastal_erosion_facilities.pmtiles	762018	B3a	上傳後移出	待辦
-public/world/kr_fire_stations.pmtiles	1315607	B1	移出	待辦
-public/world/kr_fuel_stations.pmtiles	4088593	B1	移出	待辦
-public/world/kr_hospitals_pharmacies.pmtiles	14961891	B1	移出	待辦
+public/world/kr_fire_stations.pmtiles	1315607	B1	移出	已移出 git 2026-11-08
+public/world/kr_fuel_stations.pmtiles	4088593	B1	移出	已移出 git 2026-11-08
+public/world/kr_hospitals_pharmacies.pmtiles	14961891	B1	移出	已移出 git 2026-11-08
 public/world/kr_hospitals_pharmacies_density.pmtiles	487213	B3a	上傳後移出	待辦
 public/world/kr_marine_env_sites.pmtiles	335987	B3a	上傳後移出	待辦
-public/world/kr_marine_pollution_incidents.pmtiles	3576851	B1	移出	待辦
+public/world/kr_marine_pollution_incidents.pmtiles	3576851	B1	移出	已移出 git 2026-11-08
 public/world/kr_marine_protected_areas.pmtiles	511366	B3a	上傳後移出	待辦
 public/world/kr_national_parks.pmtiles	388673	B3a	上傳後移出	待辦
-public/world/kr_national_roads.pmtiles	3033894	B1	移出	待辦
-public/world/kr_np_location_signs.pmtiles	2502523	B1	移出	待辦
+public/world/kr_national_roads.pmtiles	3033894	B1	移出	已移出 git 2026-11-08
+public/world/kr_np_location_signs.pmtiles	2502523	B1	移出	已移出 git 2026-11-08
 public/world/kr_np_trails.pmtiles	881873	B3a	上傳後移出	待辦
 public/world/kr_oil_gas.pmtiles	159478	B3a	上傳後移出	待辦
-public/world/kr_parking_lots.pmtiles	13129786	B1	移出	待辦
-public/world/kr_police_boxes.pmtiles	1709077	B1	移出	待辦
-public/world/kr_population_h3.pmtiles	15093793	B1	移出	待辦
+public/world/kr_parking_lots.pmtiles	13129786	B1	移出	已移出 git 2026-11-08
+public/world/kr_police_boxes.pmtiles	1709077	B1	移出	已移出 git 2026-11-08
+public/world/kr_population_h3.pmtiles	15093793	B1	移出	已移出 git 2026-11-08
 public/world/kr_ports.pmtiles	416691	B3a	上傳後移出	待辦
-public/world/kr_power_grid.pmtiles	5624585	B1	移出	待辦
-public/world/kr_power_plants.pmtiles	1957556	B1	移出	待辦
-public/world/kr_public_bicycle_stations.pmtiles	2949908	B1	移出	待辦
-public/world/kr_rail_lines.pmtiles	5056860	B1	移出	待辦
+public/world/kr_power_grid.pmtiles	5624585	B1	移出	已移出 git 2026-11-08
+public/world/kr_power_plants.pmtiles	1957556	B1	移出	已移出 git 2026-11-08
+public/world/kr_public_bicycle_stations.pmtiles	2949908	B1	移出	已移出 git 2026-11-08
+public/world/kr_rail_lines.pmtiles	5056860	B1	移出	已移出 git 2026-11-08
 public/world/kr_rail_stations.pmtiles	580648	B3a	上傳後移出	待辦
-public/world/kr_renewables.pmtiles	1917478	B1	移出	待辦
-public/world/kr_rivers_osm.pmtiles	7168510	B1	移出	待辦
-public/world/kr_school_districts.pmtiles	17382904	B1	移出	待辦
-public/world/kr_school_districts_points.pmtiles	5800681	B1	移出	待辦
-public/world/kr_schools.pmtiles	9345997	B1	移出	待辦
-public/world/kr_seoul_subway_congestion.pmtiles	1908859	B1	移出	待辦
+public/world/kr_renewables.pmtiles	1917478	B1	移出	已移出 git 2026-11-08
+public/world/kr_rivers_osm.pmtiles	7168510	B1	移出	已移出 git 2026-11-08
+public/world/kr_school_districts.pmtiles	17382904	B1	移出	已移出 git 2026-11-08
+public/world/kr_school_districts_points.pmtiles	5800681	B1	移出	已移出 git 2026-11-08
+public/world/kr_schools.pmtiles	9345997	B1	移出	已移出 git 2026-11-08
+public/world/kr_seoul_subway_congestion.pmtiles	1908859	B1	移出	已移出 git 2026-11-08
 public/world/kr_sluice_gates.pmtiles	998486	B3a	上傳後移出	待辦
 public/world/kr_sports_facilities.pmtiles	577424	B3a	上傳後移出	待辦
 public/world/kr_street_trees_density.pmtiles	275359	B3a	上傳後移出	待辦
 public/world/kr_territorial_sea.pmtiles	61100	B3a	上傳後移出	待辦
-public/world/kr_urban_parks.pmtiles	14325138	B1	移出	待辦
-public/world/kr_water_level_stations.pmtiles	1899032	B1	移出	待辦
-public/world/kr_water_quality_stations.pmtiles	1856482	B1	移出	待辦
-public/world/trash_debris.geojson	3975283	B1	移出	待辦
+public/world/kr_urban_parks.pmtiles	14325138	B1	移出	已移出 git 2026-11-08
+public/world/kr_water_level_stations.pmtiles	1899032	B1	移出	已移出 git 2026-11-08
+public/world/kr_water_quality_stations.pmtiles	1856482	B1	移出	已移出 git 2026-11-08
+public/world/trash_debris.geojson	3975283	B1	移出	已移出 git 2026-11-08

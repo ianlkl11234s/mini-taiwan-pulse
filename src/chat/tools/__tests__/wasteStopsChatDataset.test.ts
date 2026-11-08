@@ -1,6 +1,7 @@
 // PF-14：聊天 wasteStopsStatic 改讀 columnar 精簡檔後，查詢結果必須與原 GeoJSON 一致。
 // 原 GeoJSON（22 MB）仍在 repo 當轉檔輸入，這裡直接讀兩份各跑一次查詢比對。
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+import { assetAvailable } from "../../../test/publicAssets";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import {
   parseDatasetPayload,
@@ -29,7 +30,7 @@ describe("wasteStopsStatic 聊天精簡檔（PF-14）", () => {
     expect(statSync(CHAT_PATH).size).toBeLessThan(5 * 1024 * 1024);
   });
 
-  describe.skipIf(!existsSync(ORIGINAL_PATH))("與原 GeoJSON 查詢結果一致", () => {
+  describe.skipIf(!assetAvailable(ORIGINAL_PATH))("與原 GeoJSON 查詢結果一致", () => {
     const original = parseDatasetPayload(load(ORIGINAL_PATH), ORIGINAL_PATH);
     const slim = parseDatasetPayload(load(CHAT_PATH), CHAT_PATH);
 

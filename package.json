@@ -1,7 +1,7 @@
 {
   "name": "mini-taiwan-pulse",
   "private": true,
-  "version": "2.31.1",
+  "version": "2.31.2",
   "type": "module",
   "packageManager": "npm@11.4.2",
   "scripts": {
@@ -19,10 +19,11 @@
     "lint": "eslint src --no-inline-config",
     "lint:prune": "eslint src --no-inline-config --prune-suppressions",
     "verify": "tsc -b && npm run lint && node scripts/design/check-layer-inventory.mjs && vitest run --changed origin/develop",
-    "check": "npm run check:lint && npm run check:inventory && npm run check:coral && npm run check:worker && npm run check:build && npm run check:test",
+    "check": "npm run check:lint && npm run check:inventory && npm run check:coral && npm run check:worker && npm run check:build && npm run check:test && npm run check:assets",
     "check:lint": "npm run lint",
     "check:build": "npm run build",
     "check:test": "vitest run",
+    "check:assets": "node scripts/deploy/check-assets.mjs",
     "check:inventory": "node scripts/design/check-layer-inventory.mjs",
     "check:coral": "npm ci --prefix server/coral-private && npm test --prefix server/coral-private",
     "check:worker": "node --test deploy/cloudflare/worker.test.mjs",

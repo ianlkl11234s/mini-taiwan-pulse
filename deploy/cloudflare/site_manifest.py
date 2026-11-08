@@ -416,6 +416,19 @@ def build_rows(tree: Path, s3: dict, ptrs: dict, rail_members: list[tuple[int, s
         elif p not in exact:
             rows[p] = (rows[p][0], "nginx", rows[p][2])
 
+    # 4) CI-4：deploy/public-assets.lock.json 的 r2 條目一律同步（lock 是 public/ 資料檔正本；
+    #    前端不直接引用的檔，例如測試讀的全球 GeoJSON、release.json 動態組出的路徑，也要在 R2）
+    lock_path = tree / "deploy" / "public-assets.lock.json"
+    if lock_path.is_file():
+        import json as _json
+        for e in _json.loads(lock_path.read_text())["entries"]:
+            key = e.get("s3_key", "")
+            if e.get("delivery") != "r2" or not key or key not in s3 or key.endswith(".tar.gz"):
+                continue
+            path = "/" + e["path"][len("public/"):]
+            if path not in rows:
+                add(path, [(key, "lock", "")], "lock", ["CI-4 lock 條目（前端不一定直接引用）"])
+
     out_rows = []
     for path in sorted(rows):
         keys, source, notes = rows[path]
