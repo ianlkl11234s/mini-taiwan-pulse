@@ -17,7 +17,7 @@ CI 只回答一個問題：**這次合併會不會讓 develop 壞掉**。由此�
 ```
 changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse-checkout 跳過 public/）
           ├─ build（tsc -b ＋ vite build）
-          ├─ test ×2 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
+          ├─ test ×4 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
           └─ assets（資產測試：依 lock 從 R2 下載、比對 sha256 後驗內容）
                 └─ ci-ok（彙總；永遠會出現）
 ```
@@ -40,7 +40,7 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 | 手段 | 狀態 | 代價／風險 |
 |---|---|---|
 | job 平行化 | 採用 | 多 2 台 runner；公開 repo 不收費 |
-| vitest `--shard` 分 2 片 | 採用（`check:test` 必須直接呼叫 `vitest run`，若再包一層 `npm test`，`--shard` 會被 npm 吃掉、每片都跑全部） | 每片各付一次 checkout（約 65s）。分片依測試檔數切，不看耗時，兩片可能不平均。用 matrix，`npm run check:test` 在 ci.yml 只出現一次（parity 測試要求）。不合併報告：任一片紅即紅，看該片 log 即可 |
+| vitest `--shard` 分 4 片（2026-11-08 由 2 片改 4 片） | 採用（`check:test` 必須直接呼叫 `vitest run`，若再包一層 `npm test`，`--shard` 會被 npm 吃掉、每片都跑全部） | 每片各付一次 checkout（約 65s）。分片依測試檔數切，不看耗時，兩片可能不平均。用 matrix，`npm run check:test` 在 ci.yml 只出現一次（parity 測試要求）。不合併報告：任一片紅即紅，看該片 log 即可 |
 | quick job 跳過 `public/` | 採用 | 只用在不讀 public/ 的檢查（lint、盤點、coral、worker 已確認） |
 | test／build 跳過 public 大檔 | **不採用** | 有 11 個契約測試會讀 public 大檔，例如 PMTiles sha256、staticDataContract；另外不少測試缺檔時會靜默略過，等於 CI 偷偷變弱 |
 | vitest `pool: "threads"` | 不採用 | 2026-11-08 PR #899 第一輪實測：CI 上 vitest 145s，和 forks 的 135–156s 沒有差別（runner 4 核，瓶頸在 CPU）。本機 161s→82s 是在高負載下量的，不可靠。沒有收益就不承擔 threads 的相容性風險 |
