@@ -369,7 +369,7 @@ Older completed work is intentionally discoverable through git log, feature chan
 
 - **OG-5**：分享網址要不要讓站主還原站主限定圖層。 決定：11-06 決定 原列記載：2026-11-06 使用者決定維持現狀：分享網址一律不還原站主限定圖層（含站主）。`urlState.parseLayers` 現行行為與測試不變。
 - **N3-4**：日本舊研究層 jpWildlifeProtection 與新層 jpWildlifeProtectionMoe 同源；舊 jpNaturalParks（2010，有公園名）與新 2015 版。 決定：使用者 11-06 決定並存（First action 寫「無」，可關） 原列記載：使用者 2026-11-06 決定兩組都並存。First action: 無；若之後要合併，先讓新層帶公園名。
-- **HOME-1**：首屏 JS 再瘦身（健檢 D11：`statisticsText`、`propertyValueAdminTypes`、`simPlaybackClock` 移出首屏 modulepreload，約少 1 MB br）。決定：使用者 2026-11-08 選擇首屏維持現狀，不做。理由：目前效能可接受，成本中、與其他優先項相比不急；PERF-1 是否一併關列在待勾選。
+- **HOME-1**：首屏 JS 再瘦身（健檢 D11：`statisticsText`、`propertyValueAdminTypes`、`simPlaybackClock` 移出首屏 modulepreload，約少 1 MB br）。決定：使用者 2026-11-08 拍板首屏維持現狀、不做，原因未記錄。健檢量測：首屏傳輸量約 2.9 MB（br），PERF-1 目標 1 MB（健檢 northstar.md E1）。PERF-1 是否一併關列在待勾選表。
 
 ## 已關閉（2026-10-16 盤點，非完成而是不做／被取代）
 

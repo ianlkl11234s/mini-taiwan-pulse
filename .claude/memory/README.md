@@ -49,7 +49,7 @@ mini-taiwan-pulse 是整個 Pulse 生態系的總 PM，現況只看三份，各�
 - `docs/features/<slug>/backlog.md` 是單一 feature 執行細節的 canonical SSOT；核心 backlog 每個 feature 最多保留一行索引，不重抄 layer、欄位、檔名、row count 或驗收矩陣。
 - Priority 與 State 分開：Priority 只比較現在可執行工作；State 使用 `ready` / `in_progress` / `blocked` / `waiting_external` / `conditional` / `verifying`。
 - `conditional` 必填 trigger 或 `not_before`、owner 與觸發後第一個 action；未觸發前不當成 P0/P1 active work。
-- 完成項移入 feature `changelog.md`、release notes 或 git history；核心 backlog 不保留「近期完成」長篇歷史。已放棄方案移 decision record / archive，不留在 active queue。
+- 完成項從表格移到 BACKLOG 檔尾「已關閉」，只留一行證據（PR、版號、讀回或使用者確認）；詳細過程仍在 feature `changelog.md`、release notes 或 git history，核心 backlog 不保留長篇歷史。已放棄方案移 decision record / archive，不留在 active queue。
 - 每個 ID 全專案唯一；同一工作只能有一個 primary home，其他檔案只用 link 引用。
 
 ### 專案特定／選讀檔
