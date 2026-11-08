@@ -655,6 +655,13 @@
    "s3_key": "deploy-assets/mapchallenge/day05_sea_view_segments.geojson"
   },
   {
+   "path": "public/mapchallenge/day08_access.geojson",
+   "bytes": 1314597,
+   "sha256": "5012dbf979714ddb47a216d57238c9feb23cd78cd6a6d54b5d09397e7cb7839c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day08_access.geojson"
+  },
+  {
    "path": "public/marine/marine_pollution_incidents.geojson",
    "bytes": 1376509,
    "sha256": "02e76db3c721a0327761fb65b3b9b79acaaa0062bcf43b4f164da1e305f0e17b",
