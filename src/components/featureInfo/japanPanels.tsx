@@ -444,11 +444,16 @@ export function JpLandslideWarningAreasPanel({ props }: { props: Record<string, 
   const zone = JP_LANDSLIDE_ZONES.find(z => z.value === props.zone_class);
   const phenomenon = JP_LANDSLIDE_PHENOMENA.find(p => p.value === props.phenomenon_en);
   const designation = JP_LANDSLIDE_DESIGNATIONS.find(d => d.value === props.designation_status);
+  // 原始資料多數沒有地名（area_name 空或只填「—」），標題改用現象種類（土石流／急傾斜地崩塌／地滑），兩者都沒有才用圖層名（V215-V，2026-11-08 使用者拍板）
+  const areaName = policeText(props.area_name);
+  const landslideTitle = (areaName && !/^[-‐–—―－ー\s]+$/.test(areaName) ? areaName : "")
+    || (phenomenon ? enumLabel("jpLandslidePhenomenon", phenomenon.value, phenomenon.label, i18n) : "")
+    || t("popup.japan.landslideDefault");
   const na = t("popup.common.notProvided");
   const pref = JP_PREFECTURE_NAMES[policeText(props.prefecture_code)];
   const licenseNote = policeText(props.license_note);
   return <>
-    <Title color={zone?.color ?? JP_LANDSLIDE_LAYER_COLOR}>{policeText(props.area_name) || t("popup.japan.landslideDefault")}</Title>
+    <Title color={zone?.color ?? JP_LANDSLIDE_LAYER_COLOR}>{landslideTitle}</Title>
     <Row label={t("popup.japan.landslideZone")} value={zone ? enumLabel("jpLandslideZone", zone.value, zone.label, i18n) : na} />
     <Row label={t("popup.japan.landslidePhenomenon")} value={phenomenon ? enumLabel("jpLandslidePhenomenon", phenomenon.value, phenomenon.label, i18n) : na} />
     <Row label={t("popup.japan.landslideDesignation")} value={designation ? enumLabel("jpLandslideDesignation", designation.value, designation.label, i18n) : na} />
