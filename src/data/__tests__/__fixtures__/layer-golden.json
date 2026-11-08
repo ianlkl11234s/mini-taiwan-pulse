@@ -33336,7 +33336,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "livestock-farms",
-      "sourceUrl": "./agriculture/livestock_farms.geojson"
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -33495,7 +33495,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "livestock-farms",
-      "sourceUrl": "./agriculture/livestock_farms.geojson"
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -33654,7 +33654,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "livestock-farms",
-      "sourceUrl": "./agriculture/livestock_farms.geojson"
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -33813,7 +33813,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "livestock-farms",
-      "sourceUrl": "./agriculture/livestock_farms.geojson"
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -33972,7 +33972,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "livestock-farms",
-      "sourceUrl": "./agriculture/livestock_farms.geojson"
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -34131,7 +34131,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "livestock-farms",
-      "sourceUrl": "./agriculture/livestock_farms.geojson"
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -34831,7 +34831,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "livestock-farms",
-      "sourceUrl": "./agriculture/livestock_farms.geojson"
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -34907,7 +34907,7 @@
         "circle"
       ],
       "sourceId": "livestock-slaughter",
-      "sourceUrl": "./agriculture/slaughterhouses.geojson"
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": null,

@@ -252,10 +252,6 @@ function gitTracked(path: string): boolean {
  * 哪天它又進了上傳清單，下方的雙向斷言會叫你把它移除（ratchet 只進不退）。
  */
 const DEPLOY_EXEMPT_LEDGER = new Set<string>([
-  // owner-gated（docs/features/owner-gated-layers）：改走 owner-only RPC，
-  // upload 的 AGRI_FILES 把兩行註解掉，pull 端另有 --exclude ＋ rm -f 清 volume 殘留。
-  "agriculture/livestock_farms.geojson",
-  "agriculture/slaughterhouses.geojson",
   // GFW 7-day hourly-grid POC is a local 579 MiB acceptance artifact. It is
   // gitignored and stripped from dist until a production storage/RPC contract exists.
   "gfw_hourly_grid_poc/manifest.json",
@@ -446,7 +442,8 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(privateResearchServer).toContain('const OWNER_DATA_S3_PREFIX = "private-research/owner-data"');
     expect(pullScript).not.toContain("private-research/owner-data");
     expect(uploadScript).not.toContain("owner-data");
-    for (const { filename } of Object.values(OWNER_DATA_ASSETS)) expect(uploadScript, filename).not.toMatch(new RegExp(`^[^#]*${filename.replace(".", "\\.")}`, "m"));
+    // 檔名前要是非識別字元：公開 static-rpc 排除清單的 get_osm_power_lines.json 等不是同一支檔（第 2 批檔名是它們的尾段）
+    for (const { filename } of Object.values(OWNER_DATA_ASSETS)) expect(uploadScript, filename).not.toMatch(new RegExp(`^[^#]*(?<![A-Za-z0-9_])${filename.replace(".", "\\.")}`, "m"));
   });
 
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
