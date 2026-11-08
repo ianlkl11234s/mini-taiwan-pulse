@@ -11,9 +11,10 @@
  * - day08_plan1955.jpg：1955 中和鄉都市計畫圖（國家文化記憶庫，永和社區大學，CC BY-NC 3.0 TW），仿射對位
  *
  * 配色（map-layers.md §3.2；2026-11-08 使用者拍板第三輪）：
- * - 步行分鐘四級：暗底圖「近＝綠、遠＝橘」，以 10 分鐘為分界（Tailwind green-600／green-300／orange-300／
- *   orange-500，CIE76 ΔE 兩兩 ≥32）；淡底圖維持第二輪的灰 → 黃褐 → 橘（越遠越深）。
- * - 選址類別：避開步行分鐘的綠與橘，用藍（T3、1955 公園）、紫（T2）、粉（T1、1955 綠地）。同色的兩類不會出現在
+ * - 步行分鐘四級：深淺底圖共用獨立小站（mapchallenge-utopia src/app.js）的藍 → 紅色票，近＝藍、遠＝紅，
+ *   10 分鐘為冷暖分界（CIE76 ΔE 兩兩 ≥30）。
+ * - 選址類別：避開步行分鐘的藍、黃、紅，用紫（T3、1955 公園）、粉（T2）、萊姆綠（T1、1955 綠地），
+ *   與步行四級 ΔE 皆 ≥44。同色的兩類不會出現在
  *   同一個方案（T3 只在 A／B／B2，公園只在 D／Dfull；T1 只在 C，綠地只在 Dfull），圖例只列當下方案有的類別。
  *   填色 0.35＋外框 1px（FILL_TIERS coverage 預設），外框用與底圖反差的中性色（暗底 #f8fafc）。
  */
@@ -78,10 +79,10 @@ export const MAPCHALLENGE_DAY08_UNREACHABLE = 30;
 /** 級距上限（含）：≤5／5–10／10–15／>15；資料到 0.1 分，step 斷點放在 .05 */
 export const MAPCHALLENGE_DAY08_BINS = [5, 10, 15] as const;
 export const MAPCHALLENGE_DAY08_BIN_LABELS = ["≤5", "5–10", "10–15", ">15"] as const;
-/** 暗底：近＝綠、遠＝橘（10 分鐘分界）；淡底：灰 → 黃褐 → 橘；色值出處見檔頭 */
+/** 近＝藍、遠＝紅（10 分鐘分界），深淺底圖同一套，與獨立小站一致；色值出處見檔頭 */
 const BIN_COLORS = {
-  dark: ["#16a34a", "#86efac", "#fdba74", "#f97316"],
-  light: ["#d1d4d9", "#b49e6b", "#d25306", "#822d05"],
+  dark: ["#1d5f8a", "#6aaed6", "#f2b84b", "#c8553d"],
+  light: ["#1d5f8a", "#6aaed6", "#f2b84b", "#c8553d"],
 } as const;
 export function mapchallengeDay08BinColors(isDark: boolean): readonly string[] {
   return isDark ? BIN_COLORS.dark : BIN_COLORS.light;
@@ -107,12 +108,12 @@ export const MAPCHALLENGE_DAY08_SITE_CLASSES = [
   { value: "greenbelt", zh: "1955 計畫綠地" },
 ] as const;
 export type MapchallengeDay08SiteClass = (typeof MAPCHALLENGE_DAY08_SITE_CLASSES)[number]["value"];
-/** 藍、紫、粉（暗／淡兩組），避開步行分鐘的綠與橘；同色兩類不在同一方案出現（見檔頭） */
-const SITE_BLUE = { dark: "#3b82f6", light: "#3a8ce0" };
-const SITE_PURPLE = { dark: "#a855f7", light: "#9333ea" };
+/** 紫、粉、萊姆綠（暗／淡兩組），避開步行分鐘的藍、黃、紅；同色兩類不在同一方案出現（見檔頭） */
+const SITE_PURPLE = { dark: "#a855f7", light: "#7e22ce" };
 const SITE_PINK = { dark: "#ec4899", light: "#db2777" };
+const SITE_LIME = { dark: "#a3e635", light: "#65a30d" };
 const SITE_COLORS: Record<MapchallengeDay08SiteClass, { dark: string; light: string }> = {
-  T1: SITE_PINK, T2: SITE_PURPLE, T3: SITE_BLUE, park: SITE_BLUE, greenbelt: SITE_PINK,
+  T1: SITE_LIME, T2: SITE_PINK, T3: SITE_PURPLE, park: SITE_PURPLE, greenbelt: SITE_LIME,
 };
 export function mapchallengeDay08SiteColor(cls: string, isDark: boolean): string {
   const c = SITE_COLORS[(cls in SITE_COLORS ? cls : "T3") as MapchallengeDay08SiteClass];
