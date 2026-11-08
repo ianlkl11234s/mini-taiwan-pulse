@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-11-08 v2.31.3 發布 checkpoint（單一入口整理時重寫）。
+**最後更新**：2026-11-09 v2.32.0 發布（Day 8 主指標改含河濱公園、新增現有公園與河濱入口圖層；另含排程失敗 Telegram 通知、sync-rotating 修復、CI 分 4 片）。前一次：2026-11-08 v2.31.3
 
 > 本檔只留**最近一次發版**的 checkpoint；發下一版時整段換掉，舊段移到 `docs/archive/<日期>/STATUS-history.md`。最近的歷史：[`docs/archive/2026-11-08/STATUS-history.md`](../../docs/archive/2026-11-08/STATUS-history.md)（10-28～11-08）、[`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 現況入口是 [`docs/PROJECTS.md`](../../docs/PROJECTS.md)；單一任務看 [`BACKLOG.md`](./BACKLOG.md) 對應主題群。
