@@ -2383,5 +2383,20 @@
   "param.historicalThematic.1904 三角測量點及水準點配置圖": "1904 triangulation and leveling points",
   "param.historicalThematic.1980 林務局林區轄區圖": "1980 Forestry Bureau forest district map",
   "param.historicalThematic.日治官有林野圖（花蓮）": "Japanese-era state forest map (Hualien)",
-  "param.historicalThematic.1914 日治官有林野圖（臺東）": "1914 Japanese-era state forest map (Taitung)"
+  "param.historicalThematic.1914 日治官有林野圖（臺東）": "1914 Japanese-era state forest map (Taitung)",
+  "param.步速": "Walking speed",
+  "param.現況": "Current",
+  "param.A 效率": "A Efficiency",
+  "param.B 公平": "B Equity",
+  "param.B2 長幼優先": "B2 Children & Elderly First",
+  "param.C 低拆遷": "C Low Displacement",
+  "param.D 1955 七公園": "D 1955 seven parks",
+  "param.Dfull 1955 公園＋綠地": "Dfull 1955 parks + green belts",
+  "param.一般 4.8 km/h": "General 4.8 km/h",
+  "param.長幼 3.6 km/h": "Children & elderly 3.6 km/h",
+  "param.T1 未開闢公園用地": "T1 Unbuilt park land",
+  "param.T2 工業區": "T2 Industrial zone",
+  "param.T3 住宅商業街廓": "T3 Residential/commercial block",
+  "param.1955 計畫公園": "1955 planned park",
+  "param.1955 計畫綠地": "1955 planned green belt"
 }

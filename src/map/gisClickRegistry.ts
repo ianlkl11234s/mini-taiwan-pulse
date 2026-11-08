@@ -1031,6 +1031,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day06-temples-1921-circle"], type: "mapchallengeDay06Temples1921" },
   { layers: ["mapchallenge-day06-coast-circle", "mapchallenge-day06-coast-line"], type: "mapchallengeDay06Coast" },
   { layers: ["mapchallenge-day06-taipei-1932-fill"], type: "mapchallengeDay06Taipei1932" },
+  // 🌳 30 天地圖挑戰 Day 8 烏托邦：選址面（小）在上、步行分鐘統計區面（鋪滿中永和）在下
+  { layers: ["mapchallenge-day08-sites-fill"], type: "mapchallengeDay08Sites" },
+  { layers: ["mapchallenge-day08-access-fill"], type: "mapchallengeDay08Access" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

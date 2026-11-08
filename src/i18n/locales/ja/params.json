@@ -2380,5 +2380,20 @@
   "param.historicalThematic.1904 三角測量點及水準點配置圖": "1904 三角測量点・水準点配置図",
   "param.historicalThematic.1980 林務局林區轄區圖": "1980 林務局林区管轄図",
   "param.historicalThematic.日治官有林野圖（花蓮）": "日本統治期官有林野図（花蓮）",
-  "param.historicalThematic.1914 日治官有林野圖（臺東）": "1914 日本統治期官有林野図（台東）"
+  "param.historicalThematic.1914 日治官有林野圖（臺東）": "1914 日本統治期官有林野図（台東）",
+  "param.步速": "歩行速度",
+  "param.現況": "現状",
+  "param.A 效率": "A 効率",
+  "param.B 公平": "B 公平",
+  "param.B2 長幼優先": "B2 子ども・高齢者優先",
+  "param.C 低拆遷": "C 立ち退き最小",
+  "param.D 1955 七公園": "D 1955 七公園",
+  "param.Dfull 1955 公園＋綠地": "Dfull 1955 公園＋緑地",
+  "param.一般 4.8 km/h": "一般 4.8 km/h",
+  "param.長幼 3.6 km/h": "子ども・高齢者 3.6 km/h",
+  "param.T1 未開闢公園用地": "T1 未整備の公園用地",
+  "param.T2 工業區": "T2 工業地域",
+  "param.T3 住宅商業街廓": "T3 住宅・商業街区",
+  "param.1955 計畫公園": "1955 計画公園",
+  "param.1955 計畫綠地": "1955 計画緑地"
 }

@@ -14,7 +14,11 @@ import {
 import {
   MAPCHALLENGE_DAY06_STATUS_COLORS, MAPCHALLENGE_DAY06_TEMPLE_COLOR, mapchallengeDay06EraColor, mapchallengeDay06SurviveColor, type MapchallengeDay06Status,
 } from "../../data/mapchallengeDay06Types";
-import { MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
+import {
+  MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_UNREACHABLE, mapchallengeDay08BinColor, mapchallengeDay08ScenarioByValue,
+  mapchallengeDay08SiteColor, mapchallengeDay08TimeProp, mapchallengeDay08YiToBillion, type MapchallengeDay08SiteClass,
+} from "../../data/mapchallengeDay08Types";
+import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import { Row, SourceFooter, Title } from "./shared";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 
@@ -226,5 +230,76 @@ export function MapchallengeDay06LighthousesPanel({ props }: Props) {
     {status !== "none" && d !== null && d !== undefined && <Row label={t("popup.mapchallenge.day06.dThenNow")} value={t("popup.mapchallenge.day06.meters", { n: formatNumber(num(d)) })} mono />}
     <Row label={t("popup.mapchallenge.day06.note")} value={str(props.remark)} />
     <Day06Footer />
+  </div>;
+}
+
+// ── Day 8 烏托邦 ─────────────────────────────────────────────
+function Day08Footer() {
+  const { t } = useLocale();
+  return <>
+    <Row label={t("popup.mapchallenge.day08.caveatLabel")} value={t("legend.mapchallenge.day08.caveat")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day08.source") }} />
+  </>;
+}
+
+/** 缺值回 null（不顯示為 0） */
+const numOrNull = (v: unknown): number | null => (v === null || v === undefined || v === "" ? null : Number.isFinite(num(v)) ? num(v) : null);
+
+export function MapchallengeDay08AccessPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const values = useLayerParams("mapchallengeDay08Access");
+  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08Scenario")).value;
+  const speed = paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08AccessSpeed") === "slow" ? "slow" : "normal";
+  const before = numOrNull(props[mapchallengeDay08TimeProp("base", speed)]);
+  const after = numOrNull(props[mapchallengeDay08TimeProp(scenario, speed)]);
+  const mins = (m: number | null) => (m === null ? "" : m >= MAPCHALLENGE_DAY08_UNREACHABLE
+    ? t("popup.mapchallenge.day08.unreachable") : t("popup.mapchallenge.day08.minutes", { n: formatNumber(m) }));
+  const shown = scenario === "base" ? before : after;
+  const pop = numOrNull(props.pop);
+  const vul = numOrNull(props.vul);
+  return <div>
+    <Title color={shown === null ? MAPCHALLENGE_DAY04_ZERO_SWATCH : mapchallengeDay08BinColor(shown, isDark)}>{t("popup.mapchallenge.day08.accessTitle", { town: str(props.town) })}</Title>
+    {pop !== null && <Row label={t("popup.mapchallenge.day08.pop")} value={t("popup.mapchallenge.day08.people", { n: formatNumber(pop) })} mono />}
+    {vul !== null && <Row label={t("popup.mapchallenge.day08.vul")} value={t("popup.mapchallenge.day08.people", { n: formatNumber(vul) })} mono />}
+    <Row label={t("popup.mapchallenge.day08.speed")} value={t(MAPCHALLENGE_DAY08_SPEED_KEYS[speed])} />
+    {scenario === "base"
+      ? <Row label={t(MAPCHALLENGE_DAY08_SCENARIO_KEYS.base)} value={mins(before)} mono />
+      : <Row label={t("popup.mapchallenge.day08.beforeAfter", { scenario: t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario]) })}
+          value={t("popup.mapchallenge.day08.arrow", { a: mins(before), b: mins(after) })} mono />}
+    <Day08Footer />
+  </div>;
+}
+
+export function MapchallengeDay08SitesPanel({ props }: Props) {
+  const { t, formatNumber, active } = useLocale();
+  const yi = (v: number) => formatNumber(active === "en" ? mapchallengeDay08YiToBillion(v) : v);
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const cls = (MAPCHALLENGE_DAY08_SITE_CLASSES.some((c) => c.value === props.cls) ? props.cls : "T3") as MapchallengeDay08SiteClass;
+  const historical = cls === "park" || cls === "greenbelt";
+  const color = mapchallengeDay08SiteColor(cls, isDark);
+  const area = numOrNull(props.area_m2);
+  const newPop = numOrNull(props.new_pop);
+  const newVul = numOrNull(props.new_vul);
+  const popLow = numOrNull(props.pop_low);
+  const popHigh = numOrNull(props.pop_high);
+  const [cLow, cBase, cHigh] = [numOrNull(props.cost_low), numOrNull(props.cost_base), numOrNull(props.cost_high)];
+  const still = numOrNull(props.still_park_pct);
+  const scenario = mapchallengeDay08ScenarioByValue(str(props.scenario)).value;
+  return <div>
+    <Title color={color}>{historical && str(props.label) ? t("popup.mapchallenge.day08.histTitle", { label: str(props.label) }) : t(MAPCHALLENGE_DAY08_SITE_CLASS_KEYS[cls])}</Title>
+    <Row label={t("popup.mapchallenge.day08.cls")} value={t(MAPCHALLENGE_DAY08_SITE_CLASS_KEYS[cls])} color={color} />
+    <Row label={t("popup.mapchallenge.day08.scenario")} value={t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario])} />
+    {!historical && numOrNull(props.step) !== null && <Row label={t("popup.mapchallenge.day08.step")} value={t("popup.mapchallenge.day08.stepN", { n: formatNumber(num(props.step)) })} />}
+    {!historical && str(props.zone) && <Row label={t("popup.mapchallenge.day08.zone")} value={str(props.zone)} />}
+    {area !== null && <Row label={t("popup.mapchallenge.day08.area")} value={t("popup.mapchallenge.day08.ha", { n: formatNumber(Math.round(area / 100) / 100) })} mono />}
+    {still !== null && <Row label={t("popup.mapchallenge.day08.stillPark")} value={t("popup.mapchallenge.day08.pct", { n: formatNumber(still) })} mono color={color} />}
+    {newPop !== null && <Row label={t("popup.mapchallenge.day08.newPop")} value={t("popup.mapchallenge.day08.people", { n: formatNumber(newPop) })} mono />}
+    {newVul !== null && <Row label={t("popup.mapchallenge.day08.newVul")} value={t("popup.mapchallenge.day08.people", { n: formatNumber(newVul) })} mono />}
+    {popLow !== null && popHigh !== null && <Row label={t("popup.mapchallenge.day08.residents")} value={t("popup.mapchallenge.day08.peopleRange", { low: formatNumber(popLow), high: formatNumber(popHigh) })} mono />}
+    {cLow !== null && cBase !== null && cHigh !== null && <Row label={t("popup.mapchallenge.day08.cost")} value={t("popup.mapchallenge.day08.costValue", {
+      low: yi(cLow), base: yi(cBase), high: yi(cHigh),
+    })} mono />}
+    <Day08Footer />
   </div>;
 }

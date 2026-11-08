@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > 用途：做到一半的專案放這裡，有空時從這裡撿回來。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-08（v2.29.0 發布：能源與石化改讀站主私人檔 #917、不會變的公開資料改讀 CDN 靜態檔 #918、台灣統計分類統一 #912；同日稍早 v2.28.0、v2.27.0）。
+> 最後盤點：2026-11-08（v2.30.0 發布：30 天地圖挑戰 Day 8 烏托邦三層 #919；稍早 v2.29.0：能源與石化改讀站主私人檔 #917、不會變的公開資料改讀 CDN 靜態檔 #918、台灣統計分類統一 #912；同日稍早 v2.28.0、v2.27.0）。
 
 與其他文件的分工：
 
@@ -103,7 +103,7 @@
 | G35–G37 第二輪補強 | 🟢 | TWL-8／9／10 隨 v2.19.0 上線 | TWL-15 接續（正式站消防栓 PMTiles 仍舊版等）；frontmatter 改 live | BACKLOG TWL-15 | 2026-11-01 |
 | 土壤液化（站主限定） | 🟢 | #407、#408 上線（09-29） | 正式站目視；MCP 題庫 PR #27 還開著 | [`features/soil-liquefaction/handoff.md`](./features/soil-liquefaction/handoff.md)；mini-pulse-gis-mcp #27 | 2026-09-29 |
 | 古地圖（臺灣百年歷史地圖） | 🟡 | 2026-11-06 改公開隨 v2.26.0 上線（gp mig 503 已刪 gated_layers 列）；2026-11-07 #882 隨 v2.27.0 上線（2026-11-08）：WMTS 86 張接 85 張，拆成歷史底圖 6 層（古地圖、戰後地形圖、航照衛星、界線路網、土地利用、主題圖），來源中研院 GIS 專題中心 CC BY-NC | 寫信向中研院確認授權（HIST-1）；正式站驗收六層；HIST-3 研究成果搬進 git、HIST-4 Day 6 重拍與貼文、HIST-5 water1944 後續；REG-2 補登 registry；主站 CSP enforcing 時補 gis.sinica.edu.tw | BACKLOG HIST-1；PR #882；`src/data/historicalMapSinica.ts` | 2026-11-07 |
-| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | Day 4 群聚四層（#821）、Day 5 海景兩層隨 v2.23.0；Day 6 復古四層隨 v2.26.0 公開；Day 7 成果在獨立站 mapchallenge-mrt.itsmigu.com；部落格總覽頁與 Day 3–5 文章（#873）、Day 6–7 文章（#883）隨 v2.27.0 上線 | HIST-4 Day 6 正式站重拍；之後挑戰日放同主題 | CHANGELOG v2.23.0／v2.26.0；`src/blog/mapChallenge.ts` | 2026-11-08 |
+| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | Day 4 群聚四層（#821）、Day 5 海景兩層隨 v2.23.0；Day 6 復古四層隨 v2.26.0 公開；Day 7 成果在獨立站 mapchallenge-mrt.itsmigu.com；Day 8 烏托邦三層隨 v2.30.0 公開（#919），獨立站 mapchallenge-utopia.itsmigu.com；部落格總覽頁與 Day 3–5 文章（#873）、Day 6–7 文章（#883）隨 v2.27.0 上線 | HIST-4 Day 6 正式站重拍；之後挑戰日放同主題 | CHANGELOG v2.23.0／v2.26.0；`src/blog/mapChallenge.ts` | 2026-11-08 |
 | G30 災情、避難與民防 | ⚪ | 研究完成；避難容量衍生層排在 TWL-5 | B 部分需 collector（TWL-6）；搬遷已完成，可排 | candidates/G30 | 2026-11-08 |
 | G38 全國都市計畫區邊界 | ⏸️ | 授權不明 | TWL-13：寄信問國土署／國土測繪中心 | BACKLOG TWL-13 | 2026-10-31 |
 | G31 飲用水源與污染 | ⚪ | queued | 照 G31「下一步」 | candidates/G31 | 未查證 |
