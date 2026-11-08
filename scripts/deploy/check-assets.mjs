@@ -55,8 +55,20 @@ function sha256File(path) {
 
 const urlOf = (e) => LOCK.r2_base + e.path.slice("public/".length).split("/").map(encodeURIComponent).join("/");
 
-/** 下載整檔並計算 sha256；dest 有給就寫檔（先寫暫存再改名）。 */
+/** 下載整檔並計算 sha256；連線中斷時重試 3 次（R2 大檔偶爾 terminated）。 */
 async function download(e, dest) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await downloadOnce(e, dest);
+    } catch (err) {
+      if (attempt >= 3) throw err;
+      await new Promise((r) => setTimeout(r, 1000 * attempt));
+    }
+  }
+}
+
+/** 下載整檔並計算 sha256；dest 有給就寫檔（先寫暫存再改名）。 */
+async function downloadOnce(e, dest) {
   const res = await fetch(urlOf(e), { headers: HEADERS });
   if (!res.ok || !res.body) return { error: `HTTP ${res.status}` };
   const h = createHash("sha256");

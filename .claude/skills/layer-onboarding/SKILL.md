@@ -38,7 +38,7 @@ Step 7  收尾 (changelog + backlog 標 ✅)
 - 開 downstream feature 資料夾：`cp -r docs/features/_TEMPLATE docs/features/<slug>`
 - 開 worktree 與 branch（不碰主 checkout）：`git worktree add -b feat/<slug> .worktrees/<slug> origin/develop`，進去 `npm ci`；需要的 gitignored 大檔從主 checkout `ln -f` hardlink
 - **先判斷放哪個儲存**（ADR-0026 §5.1，正本 GIS `.gis-agent-system/decisions/0026-pulse-architecture-and-data-placement.md`）：資料不會變或只會整批替換（選舉、選區、普查、季／年更）→ PMTiles／GeoJSON 走 S3 deploy-assets → R2，**不進 Supabase、不寫 RPC**；要伺服器端依時間／範圍篩選的即時資料才進 Supabase，且新表要同時登記保留期限（≤ 180 天）與 S3 正本路徑
-- 檔案放哪：國外圖層一律 `public/world/<cc>_*.pmtiles`（既有家族，免改 `deploy/cloudflare/site_manifest.py`、`nginx.conf`、`scripts/deploy/pull-deploy-assets.sh`）；>20MB 不進 git、上傳 S3 deploy-assets
+- 檔案放哪：國外圖層一律 `public/world/<cc>_*.pmtiles`（既有家族，免改 `deploy/cloudflare/site_manifest.py`、`nginx.conf`、`scripts/deploy/pull-deploy-assets.sh`）。**資料檔一律不進 git**（不論大小，CI-4）：放本機 `public/` 後跑 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>` 登記 lock，再由 `scripts/deploy/upload-deploy-assets.sh` 上傳 S3 deploy-assets，發版時同步到 R2；commit 進 public/ 會被 deployContract 的 ratchet 擋下
 - 授權限內部使用的資料：**不放 `public/`**，走 Supabase owner-only RPC（`docs/features/owner-gated-layers/`）；只加 `GATED_LAYERS` 而檔案公開＝散布
 
 ## Step 1 — 資料完整性驗收（⚠️ 最常漏的地方）
