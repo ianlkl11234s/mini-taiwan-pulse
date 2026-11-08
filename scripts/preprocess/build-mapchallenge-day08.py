@@ -3,9 +3,9 @@
 
 輸入（唯讀）：taipei-gis-analytics data/processed/analysis/mapchallenge_2026_day08_utopia/web/
 （pipelines/analysis/mapchallenge_2026_day08_utopia/10_export_web.py 產生，口徑見該資料夾 README.md）
-- day08_access.geojson：中和＋永和 2,673 個最小統計區，到最近「≥1 ha 公園（含河濱公園，河濱公園只能從穿堤入口進入）」步行分鐘
+- day08_access_v2.geojson：中和＋永和 2,673 個最小統計區，到最近「≥1 ha 公園（含河濱公園，河濱公園只能從穿堤入口進入）」步行分鐘
   （t0／t0s＝現況，t_<S>／ts_<S>＝方案 S 實施後；一般 4.8 km/h／長幼 3.6 km/h；>30 或走不到記為 30）
-- day08_sites.geojson：方案 A／B／B2／C 各 5 處新增公園用地
+- day08_sites_v2.geojson：方案 A／B／B2／C 各 5 處新增公園用地
 - day08_parks.geojson：現有 ≥1 ha 公園面（研究區＋1 km 緩衝，49 面；is_riverside、area_ha）
 - day08_entrances.geojson：河濱公園穿堤入口點（63 點；kind＝bridge／tunnel／steps／gate、way_name、park_name）
   入口由 OpenStreetMap 步行路網推定（新北無開放疏散門清單，臺北用疏散門開放資料 data.gov.tw 143891），
@@ -14,8 +14,8 @@
 - day08_plan1955.jpg：1955 中和鄉都市計畫圖（國家文化記憶庫，永和社區大學，CC BY-NC 3.0 TW）
 
 輸出（public/mapchallenge/）：
-- day08_access.geojson：原欄位照搬，座標 6 位小數
-- day08_sites.geojson：每個（用地 × 方案）一筆，scenario＝A／B／B2／C／D／Dfull；
+- day08_access_v2.geojson：原欄位照搬，座標 6 位小數
+- day08_sites_v2.geojson：每個（用地 × 方案）一筆，scenario＝A／B／B2／C／D／Dfull；
   cls＝T1／T2／T3（新增用地）或 park／greenbelt（1955 歷史面；park 同時出現在 D 與 Dfull，greenbelt 只在 Dfull；
   學校不上圖）；總代價換成億元（1 位小數）
 - day08_parks.geojson：公園面（cls＝park／riverside）與穿堤入口點（cls＝entrance，另留 kind、park_name、way_name）合併成一檔
@@ -80,7 +80,7 @@ for f in load("day08_access.geojson")["features"]:
         v = p.get(k)
         props[k] = None if v is None else round(v, 1)
     access.append({"type": "Feature", "geometry": rnd(f["geometry"]), "properties": props})
-write("day08_access.geojson", access)
+write("day08_access_v2.geojson", access)
 
 # ── 2. 選址（A／B／B2／C 新增用地＋D／Dfull 1955 歷史面）─────────────────
 sites = []
@@ -110,7 +110,7 @@ for f in load("day08_hist1955.geojson")["features"]:
             "pop_low": num(p.get("pop_low")), "pop_high": num(p.get("pop_high")),
             "cost_low": yi(p.get("total_low")), "cost_base": yi(p.get("total_base")), "cost_high": yi(p.get("total_high")),
         }})
-write("day08_sites.geojson", sites)
+write("day08_sites_v2.geojson", sites)
 print("1955 歷史面：", hist_counts)
 
 # ── 2b. 現有公園面＋河濱穿堤入口 ──────────────────────────────────

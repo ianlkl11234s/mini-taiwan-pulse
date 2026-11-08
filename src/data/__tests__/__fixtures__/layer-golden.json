@@ -105159,7 +105159,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "mapchallenge-day08-access",
-      "sourceUrl": "./mapchallenge/day08_access.geojson"
+      "sourceUrl": "./mapchallenge/day08_access_v2.geojson"
     },
     {
       "dynamicData": null,
@@ -105395,7 +105395,7 @@
         "outline"
       ],
       "sourceId": "mapchallenge-day08-sites",
-      "sourceUrl": "./mapchallenge/day08_sites.geojson"
+      "sourceUrl": "./mapchallenge/day08_sites_v2.geojson"
     }
   ],
   "params": {

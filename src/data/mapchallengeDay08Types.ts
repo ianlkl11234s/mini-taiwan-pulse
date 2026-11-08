@@ -5,9 +5,9 @@
  * 題目：新北市中和＋永和，如果要讓每個人走 10 分鐘就到一座 ≥1 ha 的公園（含河濱公園，但河濱公園只能從穿過堤防的入口進入），要在哪裡開、要拆多少、花多少。
  * 資料（scripts/preprocess/build-mapchallenge-day08.py 產製；上游 taipei-gis-analytics
  * pipelines/analysis/mapchallenge_2026_day08_utopia，數字取自 web/day08_summary.json）：
- * - day08_access.geojson：2,673 個最小統計區（2024 人口），t0／t0s＝現況、t_<S>／ts_<S>＝方案 S 後的步行分鐘
+ * - day08_access_v2.geojson：2,673 個最小統計區（2024 人口），t0／t0s＝現況、t_<S>／ts_<S>＝方案 S 後的步行分鐘
  *   （一般 4.8 km/h／長幼 3.6 km/h；>30 或走不到記為 30）
- * - day08_sites.geojson：方案 A／B／B2／C 各 5 處用地（cls＝T1／T2／T3）＋1955 公園（D、Dfull）與綠地（Dfull）
+ * - day08_sites_v2.geojson：方案 A／B／B2／C 各 5 處用地（cls＝T1／T2／T3）＋1955 公園（D、Dfull）與綠地（Dfull）
  * - day08_parks.geojson：現有 ≥1 ha 公園面（cls＝park／riverside）與河濱公園穿堤入口點（cls＝entrance，kind＝bridge／tunnel／steps／gate）
  * - day08_plan1955.jpg：1955 中和鄉都市計畫圖（國家文化記憶庫，永和社區大學，CC BY-NC 3.0 TW），仿射對位
  *
@@ -20,8 +20,8 @@
  *   填色 0.35＋外框 1px（FILL_TIERS coverage 預設），外框用與底圖反差的中性色（暗底 #f8fafc）。
  */
 
-export const MAPCHALLENGE_DAY08_ACCESS_URL = "./mapchallenge/day08_access.geojson";
-export const MAPCHALLENGE_DAY08_SITES_URL = "./mapchallenge/day08_sites.geojson";
+export const MAPCHALLENGE_DAY08_ACCESS_URL = "./mapchallenge/day08_access_v2.geojson";
+export const MAPCHALLENGE_DAY08_SITES_URL = "./mapchallenge/day08_sites_v2.geojson";
 export const MAPCHALLENGE_DAY08_PARKS_URL = "./mapchallenge/day08_parks.geojson";
 export const MAPCHALLENGE_DAY08_PLAN_URL = "./mapchallenge/day08_plan1955.jpg";
 
