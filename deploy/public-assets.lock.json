@@ -57,8 +57,8 @@
    "path": "public/base_map/hillshade.png",
    "bytes": 8709161,
    "sha256": "fea37d5e5cf34c67503007da3130250e12e45cb47b9ee117ec4af1b46a8e8516",
-   "delivery": "git",
-   "note": "worker.js 的 .png 副檔名規則一律走 dist，R2 版不會被讀（B2 改路由）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/base_map/hillshade.png"
   },
   {
    "path": "public/bus/changhuacounty_bus_routes.json",
@@ -254,42 +254,42 @@
    "bytes": 429,
    "sha256": "043dc45da8be4a0381dff0e4b598eb7df91852ae60a130d649be72c0b09eee95",
    "delivery": "pending",
-   "note": "/climate/ 還沒有 R2 路由（B4）"
+   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
   },
   {
    "path": "public/climate/currents_latest.png",
    "bytes": 609523,
    "sha256": "1b5b87bf693eaf7c963ecae9e26c3cdb2c5d51ce00ef51e6680a6429de03a6e4",
    "delivery": "pending",
-   "note": "/climate/ 還沒有 R2 路由（B4）"
+   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
   },
   {
    "path": "public/climate/dust_latest.json",
    "bytes": 333,
    "sha256": "a383537f1c19c98a3f0eeaa1f0c32bbe73e1c9902568fe8799b9a146b7d9273c",
    "delivery": "pending",
-   "note": "/climate/ 還沒有 R2 路由（B4）"
+   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
   },
   {
    "path": "public/climate/dust_latest.png",
    "bytes": 18027,
    "sha256": "94c323fb46886a4090e278ae082ee1952fae63252a6fbc27cc0cb3f77d46fe89",
    "delivery": "pending",
-   "note": "/climate/ 還沒有 R2 路由（B4）"
+   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
   },
   {
    "path": "public/climate/wind10m_latest.json",
    "bytes": 420,
    "sha256": "765bb41661f0b81eb4e435f53b01b0b0f314045ba7146c4d57afb7167c9e0b4e",
    "delivery": "pending",
-   "note": "/climate/ 還沒有 R2 路由（B4）"
+   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
   },
   {
    "path": "public/climate/wind10m_latest.png",
    "bytes": 1013554,
    "sha256": "28bbf5c79d8d3e0702cc90e839a362a09f590151bf3e577dd15109084063f692",
    "delivery": "pending",
-   "note": "/climate/ 還沒有 R2 路由（B4）"
+   "note": "/climate/ 是輪替家族，R2 由 sync-rotating 供應；git 舊快照待移出"
   },
   {
    "path": "public/coverage/aviation_airspace.pmtiles",
@@ -332,13 +332,6 @@
    "sha256": "58315616c1cb40af15624a8835a3850d873312045831e4bbf97e33196527b745",
    "delivery": "r2",
    "s3_key": "deploy-assets/coverage/taiwan_fpcc_nearest.pmtiles"
-  },
-  {
-   "path": "public/coverage/taiwan_other_nearest.pmtiles",
-   "bytes": 5480346,
-   "sha256": "f7b31d6bfb16e256b01ecd615307609843f41966cdeda94e979e7fbff0fcdd85",
-   "delivery": "undecided",
-   "note": "前端無引用（已由新版或 PMTiles 取代）"
   },
   {
    "path": "public/coverage/taiwan_taisugar_nearest.pmtiles",
@@ -890,8 +883,9 @@
    "path": "public/forestry/forest_reserve.pmtiles",
    "bytes": 2030870,
    "sha256": "1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc",
-   "delivery": "git",
-   "note": "deployContract 以 r2-pilot 收據驗 sha256；正式站走 R2 releases/<sha>/ 路徑，非此路徑（B2 對齊）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/forest_reserve.pmtiles",
+   "note": "deployContract 收據比對用；正式站走 R2 releases/<sha>/ 路徑"
   },
   {
    "path": "public/forestry/forest_reserve_points.pmtiles",
@@ -899,13 +893,6 @@
    "sha256": "5167b405393031405f4b20d7fba08cb7a8b87060a60153c04d64706afeb0a6cb",
    "delivery": "r2",
    "s3_key": "deploy-assets/forestry/forest_reserve_points.pmtiles"
-  },
-  {
-   "path": "public/forestry/forest_roads.geojson",
-   "bytes": 16523601,
-   "sha256": "68f26143a39beba971fa1517bda91334d378241de9c320fc52c68e8c1a551f16",
-   "delivery": "undecided",
-   "note": "前端無引用（已由新版或 PMTiles 取代）"
   },
   {
    "path": "public/forestry/forest_roads.pmtiles",
@@ -925,9 +912,9 @@
    "path": "public/forestry/hiking_trails.geojson",
    "bytes": 20659963,
    "sha256": "0c0263b33f7561bc0b06432f6fdd1b5494c2b2978169a16f53616e68305aea9c",
-   "delivery": "s3",
+   "delivery": "r2",
    "s3_key": "deploy-assets/forestry/hiking_trails.geojson",
-   "note": "只有研究 sidecar（hikingTrailsOwnerDataset）讀；前端走 .pmtiles，pull 刻意排除"
+   "note": "只有研究 sidecar（hikingTrailsOwnerDataset）讀；前端走 .pmtiles"
   },
   {
    "path": "public/forestry/mountain_huts.geojson",
@@ -963,20 +950,6 @@
    "sha256": "aa90838f2daa302ef646ae890d5032b82e58163c3f79733583d9fb457f666f01",
    "delivery": "r2",
    "s3_key": "deploy-assets/forestry/national_forest_compartments_points.pmtiles"
-  },
-  {
-   "path": "public/forestry/signal_gap.pmtiles",
-   "bytes": 3973683,
-   "sha256": "e2f80c21f3a6998236ad842553a550990309e178761f6cac67b9dc981763d485",
-   "delivery": "undecided",
-   "note": "前端無引用（已由新版或 PMTiles 取代）"
-  },
-  {
-   "path": "public/forestry/trail_coverage.pmtiles",
-   "bytes": 4625046,
-   "sha256": "d0e939cc77c43bdd1e2688af93535337e5b21bac51f3180269b54e781661d976",
-   "delivery": "undecided",
-   "note": "前端無引用（已由新版或 PMTiles 取代）"
   },
   {
    "path": "public/forestry/wildlife_density_h3.geojson",
@@ -1105,13 +1078,6 @@
    "s3_key": "deploy-assets/geo/freeway_interchanges.geojson"
   },
   {
-   "path": "public/geo/freeway_traffic_signs.pmtiles",
-   "bytes": 6794877,
-   "sha256": "e55b43d8322109c27afbc3ec267107ac78c78db42fb46cd401d575cbbbc9b930",
-   "delivery": "undecided",
-   "note": "前端無引用（已由 _v2 取代）"
-  },
-  {
    "path": "public/geo/freeway_traffic_signs_v2.pmtiles",
    "bytes": 7483039,
    "sha256": "6d3d1fe989d6b119d28b1dcdfd72148e052648188a7a92f76b6f87f52e88c5bf",
@@ -1157,7 +1123,7 @@
    "path": "public/geo/ookla_fixed_global.geojson",
    "bytes": 23024097,
    "sha256": "46e8d5811438bb36cd5a1fb5e9954786b9f83ef8ca4736b939c8c495684b10bf",
-   "delivery": "s3",
+   "delivery": "r2",
    "s3_key": "deploy-assets/geo/ookla_fixed_global.geojson",
    "note": "只有 staticDataContract 測試讀；前端改走 _20260930.pmtiles"
   },
@@ -1172,7 +1138,7 @@
    "path": "public/geo/ookla_mobile_global.geojson",
    "bytes": 18972022,
    "sha256": "b5009e14cb28f913435d58a5652a402f0567ec6a7433a97a185b704d5475bd0c",
-   "delivery": "s3",
+   "delivery": "r2",
    "s3_key": "deploy-assets/geo/ookla_mobile_global.geojson",
    "note": "只有 staticDataContract 測試讀；前端改走 _20260930.pmtiles"
   },
@@ -1205,13 +1171,6 @@
    "s3_key": "deploy-assets/geo/osm_communication_sites.geojson"
   },
   {
-   "path": "public/geo/place_names_moi.pmtiles",
-   "bytes": 15137479,
-   "sha256": "7e1c0f7cc33362b0b1f77fd087e83b70a7309a20b2f0cce32b0f13781a6a2d40",
-   "delivery": "undecided",
-   "note": "前端無引用（已由 _v2 取代）"
-  },
-  {
    "path": "public/geo/place_names_moi_v2.pmtiles",
    "bytes": 17031319,
    "sha256": "32bd8252e59b77aad851ecd37630f7a3348fb7cff1ee48df42cfe6e10c3b7167",
@@ -1233,13 +1192,6 @@
    "s3_key": "deploy-assets/geo/provincial_road_emergency_bays.geojson"
   },
   {
-   "path": "public/geo/provincial_road_mileposts.pmtiles",
-   "bytes": 6294453,
-   "sha256": "9d1062f1465a8488c47913b70c704b56cb1ac8150b7351fdfcf9690816b47881",
-   "delivery": "undecided",
-   "note": "前端無引用（已由 _v2 取代）"
-  },
-  {
    "path": "public/geo/provincial_road_mileposts_v2.pmtiles",
    "bytes": 7160838,
    "sha256": "a989422ceb568ea9db0081249e6d04a96151d0a6a57b4e0231625ecaa691649c",
@@ -1259,13 +1211,6 @@
    "sha256": "9e50dfa72119a47e6f4e3f957d9f4f93dbd2fe54bd64d50b7000d21f589fc46e",
    "delivery": "r2",
    "s3_key": "deploy-assets/geo/provincial_road_monitored_sections_v2.pmtiles"
-  },
-  {
-   "path": "public/geo/provincial_road_signs.pmtiles",
-   "bytes": 7661192,
-   "sha256": "139908ef49e2c1227d223e9a4ee97111666b972e502d8c0a852a742016258f0e",
-   "delivery": "undecided",
-   "note": "前端無引用（已由 _v2 取代）"
   },
   {
    "path": "public/geo/provincial_road_signs_v2.pmtiles",
@@ -1341,7 +1286,7 @@
    "path": "public/geo/waste_stops_static.geojson",
    "bytes": 22445099,
    "sha256": "88951e69b0f6a146c88fdee8392940fce515e36b3cbaeff6a5ce8527dc47a26f",
-   "delivery": "s3",
+   "delivery": "r2",
    "s3_key": "deploy-assets/geo/waste_stops_static.geojson",
    "note": "預處理來源與 wasteStopsChatDataset 測試讀；前端不載入"
   },
@@ -2084,36 +2029,36 @@
    "path": "public/station_pillars.json",
    "bytes": 36262,
    "sha256": "1544974ec567453618fec1008e79740b36a0492fac6d0752a88011e31a9c5a19",
-   "delivery": "pending",
-   "note": "根目錄檔，Worker 只走 dist（B4 加路由）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/station_pillars.json"
   },
   {
    "path": "public/statistics-accessibility/education-car-pilot.geojson",
    "bytes": 173707,
    "sha256": "cbb089a056106cfef0c00bd6f1cced695aedba4ed108f84301ebd903dd0ca07e",
-   "delivery": "pending",
-   "note": "/statistics-accessibility/ 還沒有 R2 路由（B4）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/statistics-accessibility/education-car-pilot.geojson"
   },
   {
    "path": "public/statistics-accessibility/education-car-receipt.json",
    "bytes": 1577,
    "sha256": "f7101b1cf26bf3e2f8e4b0b81dfc4aa232ce2e058b3dc196dd554170f8cf0fb8",
-   "delivery": "pending",
-   "note": "/statistics-accessibility/ 還沒有 R2 路由（B4）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/statistics-accessibility/education-car-receipt.json"
   },
   {
    "path": "public/statistics-accessibility/education-foot-pilot.geojson",
    "bytes": 181135,
    "sha256": "33d78d5744d234723c830575524344bfd3d7879e18579757daa25fb763232dd4",
-   "delivery": "pending",
-   "note": "/statistics-accessibility/ 還沒有 R2 路由（B4）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/statistics-accessibility/education-foot-pilot.geojson"
   },
   {
    "path": "public/statistics-accessibility/education-foot-receipt.json",
    "bytes": 1580,
    "sha256": "8bef681880dc9d36ae1a82e745dea2f3a674c5747370a196f6d45f4bf0242a2f",
-   "delivery": "pending",
-   "note": "/statistics-accessibility/ 還沒有 R2 路由（B4）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/statistics-accessibility/education-foot-receipt.json"
   },
   {
    "path": "public/statistics/county-reference-2025.geojson",
@@ -2457,13 +2402,6 @@
    "sha256": "10b0381c0f29e8e94fba0632f91081972847a974008723712fff09524224080e",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_care_services.pmtiles"
-  },
-  {
-   "path": "public/world/gb_coastal_erosion.pmtiles",
-   "bytes": 17839663,
-   "sha256": "b4c22919de1db2252af701fd4a5768cb59d8db1c0926747f2ef3aaa07e811fcb",
-   "delivery": "undecided",
-   "note": "已由 gb_coastal_erosion_v2.pmtiles 取代，前端無引用"
   },
   {
    "path": "public/world/gb_coastal_erosion_points.pmtiles",
@@ -3446,13 +3384,6 @@
    "s3_key": "deploy-assets/world/jp_religion_gsi.pmtiles"
   },
   {
-   "path": "public/world/jp_religion_osm.geojson",
-   "bytes": 10929140,
-   "sha256": "594bf6e33d18778256addb565f90a0946755da7e7324b2faf8e253c495c48e62",
-   "delivery": "undecided",
-   "note": "前端改走 jp_religion_osm_20260930.pmtiles，無引用"
-  },
-  {
    "path": "public/world/jp_religion_osm_20260930.pmtiles",
    "bytes": 23464938,
    "sha256": "7905a07056aa16a5c4fb5cb5f5489b2d29e6ad8e7c3d5f012b05a5e3a27a4e2a",
@@ -3491,8 +3422,8 @@
    "path": "public/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson",
    "bytes": 12984998,
    "sha256": "9ebb822e341906985cf2d638d3f2dce6316458bc6084d13c77e96113debc90a5",
-   "delivery": "git",
-   "note": "由 release.json 動態組路徑，site_manifest 抓不到引用、不會同步到 R2（B2 改同步規則）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson"
   },
   {
    "path": "public/world/jp_water/releases/20260918-v1/jpWaterLevelStations.geojson",
@@ -3512,8 +3443,8 @@
    "path": "public/world/jp_water/releases/20260918-v1/jpWaterQualityStations.geojson",
    "bytes": 7771427,
    "sha256": "a07d131b2db8d707f9d75f3081018cb182aa98b692635b5ff699a766b186b642",
-   "delivery": "git",
-   "note": "同上（jp_water release.json 動態路徑）"
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_water/releases/20260918-v1/jpWaterQualityStations.geojson"
   },
   {
    "path": "public/world/jp_wildlife_protection_areas_moe_r7.pmtiles",

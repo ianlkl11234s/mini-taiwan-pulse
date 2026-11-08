@@ -93,7 +93,7 @@ public/coverage/taiwan_all_gas_nearest.pmtiles	5226549	B1	移出	已移出 git 2
 public/coverage/taiwan_cpc_nearest.pmtiles	5264422	B1	移出	已移出 git 2026-11-08
 public/coverage/taiwan_ev_nearest.pmtiles	5322606	B1	移出	已移出 git 2026-11-08
 public/coverage/taiwan_fpcc_nearest.pmtiles	5474115	B1	移出	已移出 git 2026-11-08
-public/coverage/taiwan_other_nearest.pmtiles	5480346	B2	刪除（前端無引用，S3 有備份）	待辦
+public/coverage/taiwan_other_nearest.pmtiles	5480346	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/coverage/taiwan_taisugar_nearest.pmtiles	4927058	B1	移出	已移出 git 2026-11-08
 public/culture/arts_events_national.geojson	2910178	B1	移出	已移出 git 2026-11-08
 public/culture/cultural_facilities_national.geojson	204963	B3a	上傳後移出	待辦
@@ -174,7 +174,7 @@ public/forestry/forest_education_centers.geojson	3460	B3a	上傳後移出	待辦
 public/forestry/forest_recreation_areas.geojson	2530433	B1	移出	已移出 git 2026-11-08
 public/forestry/forest_reserve.pmtiles	2030870	B2	改路由後移出	待辦
 public/forestry/forest_reserve_points.pmtiles	171216	B3a	上傳後移出	待辦
-public/forestry/forest_roads.geojson	16523601	B2	刪除（前端無引用，S3 有備份）	待辦
+public/forestry/forest_roads.geojson	16523601	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/forestry/forest_roads.pmtiles	1213919	B1	移出	已移出 git 2026-11-08
 public/forestry/forestry_treatment_works.geojson	1966455	B1	移出	已移出 git 2026-11-08
 public/forestry/hiking_trails.geojson	20659963	B2	上傳後移出（研究用）	待辦
@@ -183,8 +183,8 @@ public/forestry/mountain_signal_points.geojson	644461	B3a	上傳後移出	待辦
 public/forestry/mountain_trail_signs.geojson	1288099	B1	移出	已移出 git 2026-11-08
 public/forestry/national_forest_compartments.pmtiles	5774766	B1	移出	已移出 git 2026-11-08
 public/forestry/national_forest_compartments_points.pmtiles	657536	B3a	上傳後移出	待辦
-public/forestry/signal_gap.pmtiles	3973683	B2	刪除（前端無引用，S3 有備份）	待辦
-public/forestry/trail_coverage.pmtiles	4625046	B2	刪除（前端無引用，S3 有備份）	待辦
+public/forestry/signal_gap.pmtiles	3973683	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
+public/forestry/trail_coverage.pmtiles	4625046	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/forestry/wildlife_density_h3.geojson	336995	B3a	上傳後移出	待辦
 public/forestry/wildlife_distribution_3rd.geojson	281676	B3a	上傳後移出	待辦
 public/forestry/wildlife_distribution_3rd_alt.geojson	7008	B3a	上傳後移出	待辦
@@ -203,7 +203,7 @@ public/geo/emergency_hospitals.geojson	130938	B3a	上傳後移出	待辦
 public/geo/etc_gantry.geojson	120660	B3a	上傳後移出	待辦
 public/geo/freeway_eco_sensitive_sections.geojson	1014416	B3a	上傳後移出	待辦
 public/geo/freeway_interchanges.geojson	121196	B3a	上傳後移出	待辦
-public/geo/freeway_traffic_signs.pmtiles	6794877	B2	刪除（前端無引用，S3 有備份）	待辦
+public/geo/freeway_traffic_signs.pmtiles	6794877	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/geo/freeway_traffic_signs_v2.pmtiles	7483039	B1	移出	已移出 git 2026-11-08
 public/geo/historical_water_1944_taipei.geojson	847337	B3a	上傳後移出	待辦
 public/geo/internet_exchange_points.geojson	494265	B3a	上傳後移出	待辦
@@ -217,15 +217,15 @@ public/geo/ookla_mobile_global_20260930.pmtiles	12994136	B1	移出	已移出 git
 public/geo/ookla_tw_z14.pmtiles	4095539	B1	移出	已移出 git 2026-11-08
 public/geo/ookla_tw_z16.pmtiles	10035995	B1	移出	已移出 git 2026-11-08
 public/geo/osm_communication_sites.geojson	767899	B3a	上傳後移出	待辦
-public/geo/place_names_moi.pmtiles	15137479	B2	刪除（前端無引用，S3 有備份）	待辦
+public/geo/place_names_moi.pmtiles	15137479	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/geo/place_names_moi_v2.pmtiles	17031319	B1	移出	已移出 git 2026-11-08
 public/geo/port_polygons.geojson	693619	B3a	上傳後移出	待辦
 public/geo/provincial_road_emergency_bays.geojson	220494	B3a	上傳後移出	待辦
-public/geo/provincial_road_mileposts.pmtiles	6294453	B2	刪除（前端無引用，S3 有備份）	待辦
+public/geo/provincial_road_mileposts.pmtiles	6294453	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/geo/provincial_road_mileposts_v2.pmtiles	7160838	B1	移出	已移出 git 2026-11-08
 public/geo/provincial_road_monitored_sections.pmtiles	339715	B3a	上傳後移出	待辦
 public/geo/provincial_road_monitored_sections_v2.pmtiles	350847	B3a	上傳後移出	待辦
-public/geo/provincial_road_signs.pmtiles	7661192	B2	刪除（前端無引用，S3 有備份）	待辦
+public/geo/provincial_road_signs.pmtiles	7661192	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/geo/provincial_road_signs_v2.pmtiles	8275026	B1	移出	已移出 git 2026-11-08
 public/geo/ripe_atlas_probes.geojson	4722594	B1	移出	已移出 git 2026-11-08
 public/geo/service_area.geojson	13526	B3a	上傳後移出	待辦
@@ -413,7 +413,7 @@ public/world/gb_bathing_waters.pmtiles	841570	B3a	上傳後移出	待辦
 public/world/gb_brownfield.pmtiles	18896494	B1	移出	已移出 git 2026-11-08
 public/world/gb_built_up_areas_points.pmtiles	2091664	B1	移出	已移出 git 2026-11-08
 public/world/gb_care_services.pmtiles	16334187	B1	移出	已移出 git 2026-11-08
-public/world/gb_coastal_erosion.pmtiles	17839663	B2	刪除（前端無引用，S3 有備份）	待辦
+public/world/gb_coastal_erosion.pmtiles	17839663	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/world/gb_coastal_erosion_points.pmtiles	2013921	B1	移出	已移出 git 2026-11-08
 public/world/gb_coastal_erosion_v2.pmtiles	17899050	B1	移出	已移出 git 2026-11-08
 public/world/gb_companies.pmtiles	3379260	B1	移出	已移出 git 2026-11-08
@@ -554,7 +554,7 @@ public/world/jp_natural_park_areas_ksj_2015_points.pmtiles	1150194	B1	移出	已
 public/world/jp_police_facilities.pmtiles	20783700	B1	移出	已移出 git 2026-11-08
 public/world/jp_railways.pmtiles	5093949	B1	移出	已移出 git 2026-11-08
 public/world/jp_religion_gsi.pmtiles	15675395	B1	移出	已移出 git 2026-11-08
-public/world/jp_religion_osm.geojson	10929140	B2	刪除（前端無引用，S3 有備份）	待辦
+public/world/jp_religion_osm.geojson	10929140	B2	刪除（前端無引用，S3 有備份）	已從 git 刪除 2026-11-08
 public/world/jp_religion_osm_20260930.pmtiles	23464938	B1	移出	已移出 git 2026-11-08
 public/world/jp_religion_wikidata.geojson	5852395	B1	移出	已移出 git 2026-11-08
 public/world/jp_schools.pmtiles	17302861	B1	移出	已移出 git 2026-11-08

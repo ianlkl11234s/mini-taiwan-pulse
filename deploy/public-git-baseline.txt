@@ -26,7 +26,6 @@ public/climate/dust_latest.json
 public/climate/dust_latest.png
 public/climate/wind10m_latest.json
 public/climate/wind10m_latest.png
-public/coverage/taiwan_other_nearest.pmtiles
 public/culture/cultural_facilities_national.geojson
 public/culture/local_cultural_museums_national.geojson
 public/culture/performing_venues_national.geojson
@@ -89,13 +88,10 @@ public/forestry/flat_forest_parks.geojson
 public/forestry/forest_education_centers.geojson
 public/forestry/forest_reserve.pmtiles
 public/forestry/forest_reserve_points.pmtiles
-public/forestry/forest_roads.geojson
 public/forestry/hiking_trails.geojson
 public/forestry/mountain_huts.geojson
 public/forestry/mountain_signal_points.geojson
 public/forestry/national_forest_compartments_points.pmtiles
-public/forestry/signal_gap.pmtiles
-public/forestry/trail_coverage.pmtiles
 public/forestry/wildlife_density_h3.geojson
 public/forestry/wildlife_distribution_3rd.geojson
 public/forestry/wildlife_distribution_3rd_alt.geojson
@@ -108,7 +104,6 @@ public/geo/emergency_hospitals.geojson
 public/geo/etc_gantry.geojson
 public/geo/freeway_eco_sensitive_sections.geojson
 public/geo/freeway_interchanges.geojson
-public/geo/freeway_traffic_signs.pmtiles
 public/geo/historical_water_1944_taipei.geojson
 public/geo/internet_exchange_points.geojson
 public/geo/landing_stations.geojson
@@ -117,13 +112,10 @@ public/geo/news_events.geojson
 public/geo/ookla_fixed_global.geojson
 public/geo/ookla_mobile_global.geojson
 public/geo/osm_communication_sites.geojson
-public/geo/place_names_moi.pmtiles
 public/geo/port_polygons.geojson
 public/geo/provincial_road_emergency_bays.geojson
-public/geo/provincial_road_mileposts.pmtiles
 public/geo/provincial_road_monitored_sections.pmtiles
 public/geo/provincial_road_monitored_sections_v2.pmtiles
-public/geo/provincial_road_signs.pmtiles
 public/geo/service_area.geojson
 public/geo/service_area_polygon.geojson
 public/geo/station_points.geojson
@@ -240,7 +232,6 @@ public/welfare/welfare_gov_offices_national.geojson
 public/world/ca_aqhi_stations.pmtiles
 public/world/ca_radiation_stations.pmtiles
 public/world/gb_bathing_waters.pmtiles
-public/world/gb_coastal_erosion.pmtiles
 public/world/gb_courts.pmtiles
 public/world/gb_flood_defences_z5_6.pmtiles
 public/world/gb_gamma_dose.pmtiles
@@ -289,7 +280,6 @@ public/world/jp_airports.geojson
 public/world/jp_major_roads_z5.pmtiles
 public/world/jp_marine_ebsa_moe_coastal_20150101_points.pmtiles
 public/world/jp_national_parks_moe_r7_points.pmtiles
-public/world/jp_religion_osm.geojson
 public/world/jp_water/release.json
 public/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson
 public/world/jp_water/releases/20260918-v1/jpWaterLevelStations.geojson
