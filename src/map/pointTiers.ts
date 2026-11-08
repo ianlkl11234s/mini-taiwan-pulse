@@ -80,6 +80,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   mountainRescueIncidents: "B", // 山域事故 Mountain Rescue
   newsEvents: "B", // 新聞事件 News Events
   electionEvents2026: "B", // 半徑＝規模分級 · 2026 選舉活動 Election Events
+  ieCoillteRecreation: "M", // 愛爾蘭 Coillte 遊憩點 M、森林入口 S（overlayRegistry 兩個 circle 各用 pointRadius）
   gbPollutionInventoryEngland: "M", // 英格蘭污染排放申報（EA，站主限定；比照蘇格蘭層 gbPollutionInventory）
   noiseEnforcementEvents: "B", // 噪音裁處事件 Enforcement
   parkingOffstreet: "B", // 場外停車場 Off-street

@@ -40,7 +40,10 @@ export function IeAdminBoundariesPanel({ props }: P) {
 }
 
 // ───────── 第 1 波規格驅動 6 層的共用 popup（比照南韓 krPanels makePanel；規格見 data/ieDataLayers.ts）─────────
-function catColor(spec: IeLayerSpec, props: Record<string, unknown>): string {
+/** popup 用到的規格欄位（IE_DATA_SPECS 與站主限定的 Coillte 規格共用） */
+export type IePanelSpec = Pick<IeLayerSpec, "color" | "cats" | "catProp" | "otherColor" | "title" | "fields" | "popupNotes" | "sourceOrg" | "sourceUrl" | "license" | "fetchedAt">;
+
+function catColor(spec: IePanelSpec, props: Record<string, unknown>): string {
   if (!spec.cats || !spec.catProp) return spec.color;
   const v = caText(props[spec.catProp]);
   return spec.cats.find((c) => c.values.includes(v))?.color ?? spec.otherColor ?? spec.color;
@@ -60,7 +63,7 @@ function formatField(f: IeField, props: Record<string, unknown>, locale: string,
   return s;
 }
 
-function makeIePanel(spec: IeLayerSpec): FC<P> {
+export function makeIePanel(spec: IePanelSpec): FC<P> {
   return function IeDataPanel({ props }) {
     const { locale } = useLocale();
     const fmt = (n: number, digits = 0) => n.toLocaleString(undefined, { maximumFractionDigits: digits });

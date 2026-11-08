@@ -29,14 +29,21 @@ function useLayerTitle(key: string): string {
   return name ? localizeLayerName(key, name, i18n).primary : key;
 }
 
-function swatch(spec: IeLayerSpec, color: string): ReactNode {
+/** 圖例用到的規格欄位（IE_DATA_SPECS 與站主限定的 Coillte 規格共用） */
+export type IeLegendSpec = Pick<IeLayerSpec, "geom" | "color" | "ramp" | "cats" | "otherColor" | "otherLabel" | "legendNotes" | "sourceOrg" | "license">;
+
+function swatch(spec: IeLegendSpec, color: string): ReactNode {
   return spec.geom === "point" ? <SwatchDot color={color} /> : spec.geom === "line" ? <SwatchLine color={color} width={LINE_WIDTH.standard[1]} /> : <SwatchSquare color={color} />;
 }
 
 /** 第 1 波規格驅動 6 層（比照南韓 KrDataLayerLegend）：分類列／序列色階、備註、署名。 */
 export function IeDataLegend({ layerKey }: { layerKey: IeDataKey }) {
+  return <IeSpecLegend layerKey={layerKey} spec={IE_SPEC_BY_KEY[layerKey]} />;
+}
+
+/** 規格版圖例本體（`IeDataLegend` 與站主限定 Coillte 兩層共用）。 */
+export function IeSpecLegend({ layerKey, spec, children }: { layerKey: string; spec: IeLegendSpec; children?: ReactNode }) {
   const { locale } = useLocale();
-  const spec = IE_SPEC_BY_KEY[layerKey];
   const title = useLayerTitle(layerKey);
   const theme = useLegendTheme();
   const ramp = spec.ramp ? krRampColors(spec, theme.isDark) : null;
@@ -47,6 +54,7 @@ export function IeDataLegend({ layerKey }: { layerKey: IeDataKey }) {
       {spec.ramp.labels.map((label, i) => <LegendRow key={label} swatch={<SwatchSquare color={ramp[i]!} />}>{label}</LegendRow>)}
     </> : spec.cats ? spec.cats.map((c) => <LegendRow key={c.id} swatch={swatch(spec, c.color)}>{pickL3(c.label, locale)}</LegendRow>) : <LegendRow swatch={swatch(spec, spec.color)}>{title}</LegendRow>}
     {spec.cats && spec.otherLabel ? <LegendRow swatch={swatch(spec, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
+    {children}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
     <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
   </div>;

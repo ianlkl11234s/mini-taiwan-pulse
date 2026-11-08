@@ -27,5 +27,7 @@
   "enum.dataSourceLevel.kr_sido": "Province level (si/do)",
   "enum.dataSourceLevel.kr_sigungu": "Municipal level (si/gun/gu)",
   "enum.dataSourceLevel.ca_pr": "Province / territory",
-  "enum.dataSourceLevel.ca_cd": "Census division"
+  "enum.dataSourceLevel.ca_cd": "Census division",
+  "enum.dataSourceLevel.ie_la": "Local authority",
+  "enum.dataSourceLevel.ie_ed": "Electoral division"
 }
