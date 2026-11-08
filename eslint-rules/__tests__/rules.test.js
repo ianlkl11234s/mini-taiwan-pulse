@@ -268,3 +268,53 @@ tester.run("owner-only-banned-text", rule("owner-only-banned-text"), {
     { code: "// TPSite 臺北市中山站\nconst a = 1;", options: SOIL, errors: [{ messageId: "banned" }, { messageId: "banned" }] },
   ],
 });
+
+// 原 src/data/__tests__/loadingRegistryContract.test.ts（CLAUDE.md §3）
+const LOADER = "src/data/xLoader.ts";
+const loaderCase = (code, options) => ({ code, filename: LOADER, ...(options ? { options: [options] } : {}) });
+tester.run("loader-rpc-with-loading", rule("loader-rpc-with-loading"), {
+  valid: [
+    loaderCase('async function f() { const { data } = await withLoading("k", "標籤", supabase.rpc("get_x", { a: 1 })); return data; }'),
+    loaderCase('function f() { return withLoading("k", "標籤", staticRpc("get_x")); }'),
+    // 先存進變數、之後才傳進 withLoading（含 Promise.all 包一層）
+    loaderCase('async function f() { const q = supabase.rpc("get_x").eq("a", 1); return withLoading("k", "標籤", q); }'),
+    loaderCase('async function f() { const a = supabase.rpc("a"); const b = staticRpc("b"); return withLoading("k", "標籤", Promise.all([a, b])); }'),
+    loaderCase('const f = cachedOnce(() => withLoading("k", "標籤", supabase.rpc("get_x")));'),
+    // 不是 supabase.rpc／staticRpc
+    loaderCase('async function f() { return other.rpc("get_x"); }'),
+    loaderCase('async function fetchTs() { return supabase.rpc("get_ts"); }', { exempt: { "xLoader.ts:fetchTs": "popup sparkline" } }),
+  ],
+  invalid: [
+    // 原測試擋的寫法：靜默 .rpc().then()
+    { ...loaderCase('function f() { supabase.rpc("get_x").then(draw); }'), errors: [{ messageId: "missing" }] },
+    { ...loaderCase('async function f() { const { data } = await staticRpc("get_x"); return data; }'), errors: [{ messageId: "missing" }] },
+    // 原測試漏掉的兩種：換行的 supabase\n.rpc(、±10 行內剛好有別的 withLoading
+    { ...loaderCase('async function f() { return supabase\n  .rpc("get_x"); }'), errors: [{ messageId: "missing" }] },
+    {
+      ...loaderCase('async function f() { return Promise.all([withLoading("k", "標籤", supabase.rpc("a")), supabase.rpc("b")]); }'),
+      errors: [{ messageId: "missing" }],
+    },
+    // 變數有被用到，但沒進 withLoading
+    { ...loaderCase('async function f() { const q = supabase.rpc("a"); withLoading("k", "標籤", other); return q; }'), errors: [{ messageId: "missing" }] },
+    // 豁免鍵是函式名：同檔其他函式不受影響
+    {
+      ...loaderCase('async function fetchTs() { return supabase.rpc("a"); } async function g() { return supabase.rpc("b"); }', { exempt: { "xLoader.ts:fetchTs": "popup" } }),
+      errors: [{ messageId: "missing" }],
+    },
+    // 豁免只減不增：已補 withLoading（或函式被刪／改名）就要移除
+    {
+      ...loaderCase('async function fetchTs() { return withLoading("k", "標籤", supabase.rpc("a")); }', { exempt: { "xLoader.ts:fetchTs": "popup" } }),
+      errors: [{ messageId: "stale" }],
+    },
+  ],
+});
+
+// 原 layerConsistency.test.ts「鐵則 4」：sidebar 不自己渲染控制項
+tester.run("sidebar-shared-param-controls", rule("sidebar-shared-param-controls"), {
+  valid: ok("<LayersPanel visibility={v} />", "<ExpandedControls layerKey={k} />", "const n = layers.length;", "const n = ctrl.values.length;"),
+  invalid: bad([
+    ["<ParamControlList controls={controls} />", 1],
+    ['{ctrl.options.length > 3 ? <select /> : <ControlSegmented />}', 1],
+    ["const many = props.ctrl.options.length >= 4;", 1],
+  ]),
+});

@@ -44,9 +44,5 @@ describe("SEO／AEO 靜態資產", () => {
     expect(html).toMatch(/<div id="root">[\s\S]*<h1[\s>]/);
   });
 
-  it("main.tsx 用 createRoot（靜態說明會被取代，不可改 hydrateRoot）", () => {
-    const main = read("src/main.tsx");
-    expect(main).toContain("createRoot(");
-    expect(main).not.toContain("hydrateRoot");
-  });
+  // main.tsx 用 createRoot、不可 hydrateRoot（靜態說明會被取代）：改由 ESLint no-restricted-imports 檢查（eslint.config.js 的 src/main.tsx 區塊）
 });

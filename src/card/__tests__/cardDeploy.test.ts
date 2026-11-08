@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const nginx = readFileSync("nginx.conf", "utf8");
@@ -33,10 +33,5 @@ describe("卡片頁部署契約（nginx／vite／entry）", () => {
     expect(html).toContain('src="/src/card/main.tsx"');
   });
 
-  it("卡片 entry 不 import 主站 supabase client 或 mapbox-gl", () => {
-    for (const file of readdirSync("src/card").filter(name => /\.tsx?$/.test(name))) {
-      const source = readFileSync(`src/card/${file}`, "utf8");
-      expect(source, file).not.toMatch(/(?:from|import)\s*\(?\s*["'][^"']*(?:lib\/supabase|@supabase\/supabase-js|mapbox-gl)["']/);
-    }
-  });
+  // 卡片 entry 不 import 主站 supabase client 或 mapbox-gl（含動態 import）：改由 ESLint 檢查（eslint.config.js 的 src/card 區塊）
 });

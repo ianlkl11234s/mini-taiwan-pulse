@@ -43,6 +43,29 @@ describe("eslint.config.js 套用範圍", () => {
     ["src/hooks/useTyphoonTracksLayer.ts", "map.setFilter(id, [\"<=\", [\"get\", \"seg_end_ts\"], currentTime]);", "pulse/no-current-time-deps", false],
     ["src/hooks/useCwaImageryLayer.ts", 'import { subscribePrefetchWindow } from "../lib/dayPrefetch";', "no-restricted-imports", true],
     ["src/hooks/useHazardLayer.ts", 'import { subscribePrefetchWindow } from "../lib/dayPrefetch";', "no-restricted-imports", false],
+    ["src/data/fooLoader.ts", 'supabase.rpc("get_x").then(draw);', "pulse/loader-rpc-with-loading", true],
+    ["src/data/fooLoaders.ts", 'supabase.rpc("get_x").then(draw);', "pulse/loader-rpc-with-loading", true],
+    ["src/data/fooTypes.ts", 'supabase.rpc("get_x").then(draw);', "pulse/loader-rpc-with-loading", false],
+    ["src/hooks/useFooLayer.ts", 'supabase.rpc("get_x").then(draw);', "pulse/loader-rpc-with-loading", false],
+    ["src/components/LayerSidebar.tsx", "<ParamControlList controls={c} />", "pulse/sidebar-shared-param-controls", true],
+    ["src/components/IconRailSidebar.tsx", "<ParamControlList controls={c} />", "pulse/sidebar-shared-param-controls", true],
+    ["src/components/sidebar/LayersPanel.tsx", "const n = ctrl.options.length;", "pulse/sidebar-shared-param-controls", true],
+    ["src/components/sidebar/ExpandedControls.tsx", "<ParamControlList controls={c} />", "pulse/sidebar-shared-param-controls", false],
+    ["src/components/sidebar/LayerParamControls.tsx", "const n = ctrl.options.length;", "pulse/sidebar-shared-param-controls", false],
+    ["src/card/CardMap.tsx", 'import mapboxgl from "mapbox-gl";', "no-restricted-imports", true],
+    ["src/card/cardApi.ts", 'import { supabase } from "../lib/supabase";', "no-restricted-imports", true],
+    ["src/card/cardApi.ts", 'import { createClient } from "@supabase/supabase-js";', "no-restricted-imports", true],
+    ["src/card/cardApi.ts", 'const m = await import("../lib/supabase");', "no-restricted-syntax", true],
+    ["src/card/CardMap.tsx", 'const m = await import("mapbox-gl");', "no-restricted-syntax", true],
+    ["src/card/CardMap.tsx", 'import maplibregl from "maplibre-gl";', "no-restricted-imports", false],
+    ["src/card/CardMap.tsx", 'const m = await import("maplibre-gl");', "no-restricted-syntax", false],
+    ["src/privacy/PrivacyPage.tsx", 'import { useLocale } from "../state/localeStore";', "no-restricted-imports", true],
+    ["src/privacy/PrivacyPage.tsx", 'const m = await import("../state/localeStore");', "no-restricted-syntax", true],
+    ["src/privacy/PrivacyPage.tsx", 'import { supabase } from "../lib/supabase";', "no-restricted-imports", true],
+    ["src/card/CardApp.tsx", 'import { useLocale } from "../state/localeStore";', "no-restricted-imports", false],
+    ["src/components/Example.tsx", 'import mapboxgl from "mapbox-gl";', "no-restricted-imports", false],
+    ["src/main.tsx", 'import { hydrateRoot } from "react-dom/client";', "no-restricted-imports", true],
+    ["src/main.tsx", 'import { createRoot } from "react-dom/client";', "no-restricted-imports", false],
     ["src/components/sidebar/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", true],
     ["src/research/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", true],
     ["src/research/jev-layer-screening/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", false],
@@ -70,6 +93,9 @@ describe("eslint.config.js 套用範圍", () => {
       .filter(([, v]) => (Array.isArray(v) ? v[0] : v) !== 0 && (Array.isArray(v) ? v[0] : v) !== "off")
       .map(([k]) => k);
     expect(enabled.filter((k) => !k.startsWith("pulse/"))).toEqual(["no-restricted-imports"]);
+    const cardConfig = await eslint.calculateConfigForFile("src/card/CardMap.tsx");
+    const cardEnabled = Object.entries(cardConfig.rules ?? {}).filter(([, v]) => ![0, "off"].includes(Array.isArray(v) ? v[0] : v));
+    expect(cardEnabled.map(([k]) => k).filter((k) => !k.startsWith("pulse/")).sort()).toEqual(["no-restricted-imports", "no-restricted-syntax"]);
     const cssConfig = await eslint.calculateConfigForFile("src/components/sidebar/layerRow.css");
     const cssEnabled = Object.entries(cssConfig.rules ?? {}).filter(([, v]) => ![0, "off"].includes(Array.isArray(v) ? v[0] : v));
     expect(cssEnabled.map(([k]) => k).filter((k) => !k.startsWith("pulse/"))).toEqual([]);

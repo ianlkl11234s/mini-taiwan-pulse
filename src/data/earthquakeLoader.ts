@@ -76,7 +76,7 @@ export function fetchEarthquakes(): Promise<EarthquakeEvent[]> {
 // 這裡改打兩個小查詢：最新 20 筆（desc）+ 24h 計數（head，不傳 body）。
 //
 // 同樣刻意不包 withLoading：Monitor 面板背景輪詢（15min），非圖層載入 ——
-// 理由同 loadingRegistryContract.test.ts 對 airportPaxLoader 的豁免；
+// 理由同 eslint.config.js LOADER_RPC_EXEMPT 對 airportPaxLoader 的豁免；
 // 該 ratchet 只掃 supabase.rpc/staticRpc，`.from()` 不在掃描範圍，無需登記。
 
 export interface EarthquakeSummary {
