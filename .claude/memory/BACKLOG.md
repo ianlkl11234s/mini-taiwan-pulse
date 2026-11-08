@@ -278,7 +278,7 @@
 | KRREL-1 | P2 | done | 南韓＋圖層可見性整修（#769／#773–#775、#779–#788）整批發版到正式站。 | 2026-11-01 v2.19.0 上線（#790、#792 merge `3110ba9c`，tag＋Release；範圍外 #766／#770／#771／#772／#777／#791 經使用者同意一起發）。S3 deploy-assets 256 檔已上傳。 | 已驗：`main-*.js` 含 2.19.0；8 支大檔 206；四國全國視角截圖；提示卡、點面切換、類別篩選、消防栓彈窗實測通過；console 無新錯誤。 |
 | KRH-1 | P3 | blocked | HOLD 兩層：C101 廣域淨水場、C117 생태자연도。 | 淨水場：地址名冊用 Nominatim 補座標，點位級命中只有 1/42，需另找座標來源。生態自然圖：KOGL 3（可商用、禁改作），全國 0.8–2.7GB、江原道單檔 614MB，等 Zeabur 主機搬遷後處理。First action: 搬遷完成後在 analytics 重評體積與切圖方式。 | 兩層各有可用座標／PMTiles，或在 analytics PLAN §3 註明放棄原因。 |
 | KRI18N-1 | P3 | ready | 南韓 50 層＋統計的英文、日文介面只抽查，沒有逐層驗。 | First action: 本機 dev 用 `?lang=en`／`?lang=ja` 逐層開圖、看圖例與彈窗，記錄缺漏。 | 每層 en／ja 圖例與彈窗無缺字、無中文殘留。 |
-| KRW-6 | P3 | ready | （第 6 波 2026-11-06 已做，#830）南韓第 7–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 7 波（第 6 波已隨 v2.24.0 發布）。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
+| KRW-6 | P3 | ready | （第 6 波 #830、第 7 波 #869 已做）南韓第 8–10 波（領海、公園、體育、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/waves/PLAN.md` §3 開第 8 波（第 7 波 6 層已隨 v2.26.0 發布：學校、小學通學區、醫院藥局、消防、民防避難、派出所）。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
 
 ## 圖層可見性整修（2026-10-31，map-layers §3.8 V-1～V-7，#779–#788 已合 develop）
 
@@ -354,6 +354,20 @@
 | HIST-3 | P3 | ready | 研究成果搬進 git：`_worktree-backups/2026-11-06/thcts/` 與 `water1944/` 不在任何 repo。 | First action：搬（不複製）到 analytics `docs/topic-research/historical-thcts/`，raw zip 依大小決定放 data/raw 或只留下載清單。 | 研究文件在 analytics 有正本，備份資料夾留指標。 |
 | HIST-4 | P2 | conditional | Day 6 發版與發文收尾。 | Trigger：下次整批發版（develop→master 須使用者拍板）。First action：發版後在正式站用拍攝模式重拍 6 張，補 Threads 草稿（`day06-vintage-threads-draft.md`）的網站連結，確認草稿〔待確認〕項（錦町／柳町／綠町部分比對）。 | 正式站可見 Day 6 四層與古地圖（非站主），貼文發出。 |
 | HIST-5 | P3 | ready | water1944Taipei 後續：細水路只抽到約一半未上圖；只有臺北盆地；pulse-data registry／warehouse 是否已登記未確認。 | First action：查 pulse-data registry 有無 water1944Taipei 與 Day 6 四層的條目，缺的補登（DISPLAY_ONLY 或可分析需標明）。 | registry 覆蓋檢查 0 缺口；是否擴大範圍由使用者決定。 |
+
+## 愛爾蘭全波次、南韓第 7 波與統計（2026-11-07～08）
+
+愛爾蘭第 0–10 波＋統計＋Coillte（mini #868 #870 #877 #884–#895；analytics #305–#322；pulse-data #63–#79；gis-platform #209 mig 511、#210 mig 512 已套用）；南韓第 7 波（#869）與火災／交通事故統計（#874，DB＋R2 已發布）；MCP countries.json 補 IE／KR／CA（#98，本機正式版已 build）。第 0、1 波與南韓第 7 波隨 v2.26.0 上線，#874 起未發版。正本：analytics `ireland_opendata/waves/PLAN.md` §5–6。
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| IEREL-1 | P2 | blocked | #874、#877、#884–#895 整批發版到正式站。 | Blocked on 使用者拍板發版。First action: 跑舊版 CHANGELOG 段落比對（`## v2.26.1` 以後與 origin/master 一致）、確認 S3 deploy-assets/world/ 本批大檔都在（ie_commercial_valuations、ie_state_assets、ie_river_flood_extents_* 9 支、ie_heritage_sites、ie_soils、ie_zoning、ie_planning_applications、ie_noise_maps_lden／lnight），再照 RELEASING.md。 | 正式網域 `main-*.js` 含新版號；愛爾蘭全覽 z6 與南韓公共安全統計目視通過。 |
+| IECOI-1 | P2 | blocked | Coillte 國有林（`ieCoillteRecreation`／林道，站主限定，mig 512）站主實際載入未驗。 | Blocked on 使用者用站主帳號登入（無頭瀏覽器無法登 Google）。First action: 測試站或發版後正式站切愛爾蘭，開兩層：遊憩點整包、林道 z10 起依畫面分批、z<10 有「放大到 z10」提示卡；登出後應鎖頭反灰且資料清除。 | 站主看得到兩層、一般會員／未登入看不到；截圖存檔。 |
+| IEW-11 | P3 | blocked | 愛爾蘭第 11、12 波與大名冊（房價 PPR、公司 CRO）。 | 第 11、12 波與大檔照 PLAN 等主機搬遷；PPR、CRO 只有地址、無免費官方 geocoder，使用者決定暫緩。First action: 主機搬遷完成後重評 PLAN §3 的第 11、12 波。 | 各項上線或在 outcomes.csv 記 HOLD 原因。 |
+| IEADD-1 | P3 | blocked | 愛爾蘭未納入項目要不要補：AED、監獄、身障照護機構、pNHA（提議中自然遺產區約 630 處）、郡議會淹水分區 A/B（5/31 郡）、GSI 地下水洪水（NC-ND）、Bord na Móna 泥炭地界（授權不明）。 | Blocked on 使用者決定。主 agent 暫定都不做。First action: 使用者逐項選做／不做。 | 決定記入 PLAN §5，要做的開下一波。 |
+| IEWH-1 | P3 | blocked | 愛爾蘭各波圖層都沒進 MCP 分析倉庫；NC-ND（淹水、侵蝕）是否可入倉未定。 | Blocked on 使用者決定入倉範圍。First action: 列出可入倉層（CC BY）與 NC-ND 兩層，問使用者是否入倉、NC-ND 是否排除。 | 決定後補 registry warehouse 區塊並重組倉庫，或記不入倉原因。 |
+| KRSTAT-1 | P3 | ready | 南韓火災、交通事故統計補每萬人比率；火災某區某年 0 件會被標成「無資料」的程式問題。 | First action: 找與事故年份對應的시군구人口（KOSIS），補比率指標；修 analytics 南韓 S2 pipeline 讓 0 件寫 0。 | 新增比率指標經 import＋R2 發布；0 件區顯示 0。 |
+| REG-2 | P3 | ready | develop 上 10 層未登記 pulse-data registry（他人 session）：mapchallengeDay06 四層、water1944Taipei、historicalMapPostwar／historicalImagery／historicalBoundaries／historicalLandUse／historicalThematic。 | First action: 依 layer-onboarding 標準流程為這 10 層補 registry 條目，跑 `check_layer_coverage.py --from-checkout`。 | 覆蓋檢查 0 缺口。 |
 
 ## Feature backlog index
 
