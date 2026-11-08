@@ -4,11 +4,15 @@
 
 ## 1. 資料來源管理
 
+> 網站結構（Workers＋R2＋pulse-host）、Supabase／R2／S3 各自的職責與保留期限、新增圖層的放置決策樹，正本是 GIS 工作區 `.gis-agent-system/decisions/0026-pulse-architecture-and-data-placement.md`（ADR-0026）。本節只寫前端要守的契約。
+
 ### 依更新語意選 runtime 路徑
-- **動態時序資料**（船舶、航班、溫度、壅塞、地震、災害示警 等）→ Supabase RPC
+- **⛔ 守門：資料不會變，或只會整批替換**（選舉結果、投開票所、選區、年度普查、一次性調查、季／年更開放資料）→ 一律做成 PMTiles／GeoJSON 檔走 S3 deploy-assets → R2，**不進 Supabase、不寫 RPC 圖層**（ADR-0026 §5.1）。
+- **動態時序資料**（船舶、航班、溫度、壅塞、地震、災害示警 等），且需要伺服器端依時間視窗／範圍篩選 → Supabase RPC；新表必須同時登記 `metadata.retention_policies`（≤ 180 天）與 S3 正本路徑（ADR-0026 §6）
+- **每個人看都一樣的最新快照／每日切片、影像** → collector 寫 R2（＋manifest），不經 RPC 回傳大量資料或 base64 影像
 - **靜態 GeoJSON**（機場、港口、燈塔、路網 等）→ `public/<domain>/*.geojson`；既有 URL 視為契約，不因整理目錄任意搬動
 - **Statistics 行政區統計**（包含未來新增指標）→ `regional-statistics-cdn-v1` R2 snapshot；資料庫保留為發布來源，瀏覽器不得 fallback 到 Supabase。發布順序固定為 immutable artifact → immutable manifest → `current.json`，任一 SHA／完整度／來源語意檢查失敗即顯示錯誤。
-- **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/<domain>/`（由 S3 deploy-assets 管理；路徑須與 manifest、nginx、deploy scripts 同步）
+- **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/<domain>/`（由 S3 deploy-assets 管理，`deploy/cloudflare/sync_site_assets.py` 同步到 R2 `site/`；路徑須與 manifest、`deploy/cloudflare/site_manifest.py`、deploy scripts 同步）
 
 ### 統計圖層的專項規則
 
@@ -353,7 +357,7 @@ Commit／PR 前必跑 `npm run check`，失敗即停。CI（`.github/workflows/c
 - **站主限定圖層的範圍**：`eslint.config.js` 的 `OWNER_ONLY_FILES`（家族 glob）與 `OWNER_ONLY_EXEMPT`（附理由）。`eslint-rules/__tests__/ownerOnlyScope.test.js` 自己掃 `src/data`、`src/hooks` 找出含 `/api/private-research/`（或 import 了這類 data 模組）的檔，沒被規則覆蓋也沒列豁免就紅——新增私人圖層家族時把檔名加進 `OWNER_ONLY_FAMILIES`；來源卡需要的官方連結用 `allowUrls` 逐一列出，不要整檔豁免。
 
 ## 7. 部署 Checklist
-部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
+部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。2026-11-06 起正式站是 Cloudflare Worker（網頁＝Workers 靜態資產，檔案依 R2 → dist → 404，`/api` 轉 pulse-host），見 [`deploy/cloudflare/README.md`](../deploy/cloudflare/README.md) 與 ADR-0026 §8。改 `public/**` 資產時，manifest URL、`deploy/cloudflare/site_manifest.py`、nginx（Zeabur 回滾備援期間仍保留）與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
 
 ## 8. 動態圖層時間訂閱（External Time Store）
 
