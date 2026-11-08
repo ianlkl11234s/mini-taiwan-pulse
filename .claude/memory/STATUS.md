@@ -1,9 +1,25 @@
 # Status
 
-**最後更新**：2026-11-07 歷史底圖 6 層（#882）合 develop；同日正式站已搬到 Cloudflare，實測 v2.25.1；2026-11-06 review 修正輪全部合併、mig 502 已套用。前一次：2026-11-06 v2.22.0～v2.24.0 發版（Zeabur 停擺期間）
+**最後更新**：2026-11-08 歷史底圖 6 層（#882）合 develop 待發版；Agent 分析上色／框選修正隨 v2.26.0 上線、framingCheck 數字讀回已合 develop 待發版。前一次：2026-11-07 正式站已搬到 Cloudflare，實測 v2.25.1；2026-11-06 review 修正輪全部合併、mig 502 已套用。前一次：2026-11-06 v2.22.0～v2.24.0 發版（Zeabur 停擺期間）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-11-07～11-08：Agent 分析上色與框選修正（v2.26.0）；framingCheck 數字讀回待發版
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #872（混合幾何面狀結果上色、圖例去重、框選留白上限 24px、角落卡不擋框選）隨 v2.26.0 發布（#875→#876，master `3041a511`，tag／Release 已建）。#881 `map_context` 回傳 `framingCheck`（`safeCoverage`／`outlineOnlyResultIds`／`legendCount`，純函式 `src/research/framingCheck.ts`）合 develop、CI 綠，**未發版**。 |
+| **mini-pulse-gis-mcp** | #97（show_result／fit_bounds 預設留白 60→20）、#99（show_result 帶出 framingCheck；conductor 鐵則 1 指向 `references/framing-check.md`）合 main；本機 `analysis-prod/mcp` 切到 `f06a238` 並重 build。 |
+
+| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| #872 | done：CI 綠 | done：單元測試含使用者版面回歸 | done：develop | N/A | N/A | N/A | done：deploy-workers 成功 | done：正式網域 main-*.js 含 2.26.0（現為 2.26.1） | not run：修正後未用 Agent 實機重跑 |
+| #881 | done：CI 綠 | done：12 個單元案例 | done：develop | N/A | N/A | N/A | not run：待下次發版 | not run | not run |
+| MCP #97／#99 | done：CI 綠、本機 dist 驗到 padding 20、framingCheck | done：缺欄位時不輸出 | done：main | N/A | N/A | N/A | done：本機 MCP 重 build（需 `/mcp` 重連） | N/A | not run |
+
+- 下一步：下次發版帶上 #881 後，用 Agent 問一題面狀結果（例：臺北各區房價），確認回傳含 `framingCheck`、覆蓋率 <0.15 時會重框且最多 2 輪。截圖自檢第二批見 BACKLOG **AG-12**（blocked：使用者排 gateway 部署）。
+- 接手：從 origin/develop 開分支；MCP 改動在 mini-pulse-gis-mcp 開 PR 到 main，合併後在 `analysis-prod/mcp` 切 origin/main 重 build。
 
 ## 2026-11-07：歷史底圖擴充（中研院 WMTS 85 張、6 層）
 

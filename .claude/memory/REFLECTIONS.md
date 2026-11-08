@@ -2272,6 +2272,26 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `BACKLOG.md`：新增 TA-1～TA-6（#841），本輪更正正式站版號。
 - `docs/PROJECTS.md`：更新可及性列、新增 cloud_run 列。
 
+## 2026-11-07～11-08 Agent 分析上色／框選修正、framingCheck 數字讀回
+
+### What worked
+
+- 用使用者截圖當下的實際版面寫回歸測試（safe 區從約 500px 到約 820px），比抽象案例更快抓到「角落卡被當整條側欄」。
+- 截圖功能先派唯讀調查（relay 上限 32KiB／256KiB、Mapbox 無 preserveDrawingBuffer），再拆成無部署風險的數字讀回先上，截圖等 gateway 排程。
+- 前後端兩個 worker 平行做時，主 agent 先寫死欄位契約，兩邊一次接上。
+
+### Friction / limits
+
+- worker 為了 skills.test.ts 的 5000 字上限，刪掉 conductor 的「題型已知就直接動手」行為規則；主 agent 逐行比對 `git show -- '*SKILL.md'` 才發現並補回。之後派工要寫明「只能縮短措辭、不可刪規則，細節放 references/」。
+- 單點結果的覆蓋率四捨五入成 0，會和「不在畫面上」混淆；改成畫面內至少 0.01，skill 註明單點不重框。
+- PR 開出後一直 no checks：是 CHANGELOG 與 develop 衝突（期間有 v2.26.1 hotfix 回併），合 develop 才觸發 CI。
+
+### Memory output
+
+- `STATUS.md`：加 11-07～11-08 段。
+- `BACKLOG.md`：AG-12 已隨 #881 合入。
+
+
 
 ## 2026-11-07 歷史底圖：中研院 WMTS 85 張拆成 6 層（#882）
 
