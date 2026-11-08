@@ -26,7 +26,7 @@ import {
 } from "../../data/mapchallengeDay06Types";
 import {
   MAPCHALLENGE_DAY08_SCENARIOS, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY,
-  mapchallengeDay08BinColors, mapchallengeDay08ScenarioByValue, mapchallengeDay08SiteColor, mapchallengeDay08SiteOutline, mapchallengeDay08YiToBillion,
+  mapchallengeDay08BinColors, mapchallengeDay08ScenarioByValue, mapchallengeDay08SiteColor, mapchallengeDay08SiteOutline, mapchallengeDay08YiToBillion, MAPCHALLENGE_DAY08_COST_FORMAT,
   type MapchallengeDay08Scenario, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
 
@@ -326,7 +326,7 @@ export function MapchallengeDay08SitesLegend({ isDark }: { isDark: boolean }) {
   const { t, formatNumber, active } = useLocale();
   const values = useLayerParams("mapchallengeDay08Sites");
   // 英文以十億（B）表示，其餘語系維持億元；三語共用同一組插值變數
-  const yi = (v: number) => formatNumber(active === "en" ? mapchallengeDay08YiToBillion(v) : v);
+  const yi = (v: number) => formatNumber(active === "en" ? mapchallengeDay08YiToBillion(v) : v, MAPCHALLENGE_DAY08_COST_FORMAT);
   const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Sites", "mapchallengeDay08Scenario"));
   const historical = scenario.value === "D" || scenario.value === "Dfull";
   // 只列當下方案實際有的類別（A、B2 只有 T3 等；現況沒有用地）
