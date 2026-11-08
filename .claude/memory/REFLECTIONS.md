@@ -2309,3 +2309,22 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - `BACKLOG.md`：HIST-1 補充、HIST-2 降為 P3 並記使用者決定、HIST-4 改 ready。
 - `docs/PROJECTS.md`：古地圖列更新。
+
+## 2026-11-07～08 愛爾蘭全波次、南韓第 7 波與統計
+
+### What worked
+
+- 同一國連續多波：共用規則寫成一份 scratchpad 檔，派工只寫波名與範圍；最多兩個 worker，每合一波就通知另一個 worker 合最新 develop、重算 golden 層數／熱區色盤數／國家圖層清單數再推，13 波沒有一次撞壞 develop。
+- 合併前主 agent 自己看全覽截圖：抓到南韓小學通學區在 z6 糊成整片藍（CI 是綠的），改成 z<9 只畫外框後才合。
+- 需要寫正式 DB／R2 的項目一律停在「APPLY.md 寫好」，拿到使用者核准後才由 worker 依序 dry-run→套用→驗數；兩次統計、一次 owner-only 都一次對上預期數字。
+
+### Friction / limits
+
+- 統計 PR #877 合併時漏登 29 個 statsIe* registry 條目，到下一波覆蓋檢查才發現；統計 recipe 也要跑覆蓋檢查。
+- mig 511 第一次套用回「read-only transaction」整筆回滾，原因不明，原樣重跑成功。
+- 站主限定圖層無法用無頭瀏覽器登入驗收，只能用 SQL 模擬身分，前端實載仍要使用者看。
+
+### Memory output
+
+- `BACKLOG.md`：新增 IEREL-1、IECOI-1、IEW-11、IEADD-1、IEWH-1、KRSTAT-1、REG-2；KRW-6 改第 8 波。
+- `STATUS.md`：11-07～08 checkpoint。

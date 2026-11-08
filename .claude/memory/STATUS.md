@@ -1,9 +1,30 @@
 # Status
 
-**最後更新**：2026-11-08 歷史底圖 6 層（#882）合 develop 待發版；Agent 分析上色／框選修正隨 v2.26.0 上線、framingCheck 數字讀回已合 develop 待發版。前一次：2026-11-07 正式站已搬到 Cloudflare，實測 v2.25.1；2026-11-06 review 修正輪全部合併、mig 502 已套用。前一次：2026-11-06 v2.22.0～v2.24.0 發版（Zeabur 停擺期間）
+**最後更新**：2026-11-08 現況盤點（PROJECTS／BACKLOG 對齊：Zeabur 搬遷含 collector 全部完成、收尾見 BACKLOG ZB-1）；同日愛爾蘭第 0–10 波＋統計＋Coillte、南韓第 7 波與統計、歷史底圖 6 層（#882）、framingCheck（#881）合 develop 未發版；正式站實測 v2.26.1。前一次：2026-11-07 正式站搬到 Cloudflare（v2.25.1）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-11-07～11-08：愛爾蘭全波次、南韓第 7 波與統計（develop，#874 起未發版）
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | 加拿大即時地震分色 #864、各國進度 #867、愛爾蘭第 0 波 #868、第 1 波 #870、南韓第 7 波 #869（以上隨 v2.26.0）；南韓統計 #874、愛爾蘭統計 #877、第 2–10 波 #884–#894、Coillte 站主限定 #895 合 develop（`afd759ce` CI 綠），未發版。 |
+| **gis-platform** | #209 mig 511（愛爾蘭統計層級）、#210 mig 512（Coillte owner-only 表＋RPC）合 main 並套用正式 DB。 |
+| **analytics／pulse-data** | analytics #302、#303、#305–#322；pulse-data #62–#79。愛爾蘭 PLAN 正本 `docs/topic-research/ireland_opendata/waves/PLAN.md`。 |
+| **mini-pulse-gis-mcp** | #98 countries.json 補 IE／KR／CA、修北愛範圍框；`analysis-prod/mcp` 已切 origin/main 重 build。 |
+
+| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| 南韓火災／交通事故統計 | done：analytics #309 離線驗證 32/32 | done：mini #874 CI 綠 | done：develop | done：DB +32 release／+4,352 值，R2 +8／+32／+32 | done：公開 current.json 729／13,791／33,229 | N/A | not run：前端未發版 | not run | not run |
+| 愛爾蘭統計（mig 511） | done：dry-run 38/38 | done：mini #877 CI 綠 | done：develop | done：DB +38 release／+48,624 值，R2 +15／+38／+38／+2 | done：current.json 744／13,829／33,267／16 | N/A | not run | not run | not run |
+| Coillte 站主限定（mig 512） | done | done：#895 CI 綠 | done：develop | done：DB 13,041 點／17,076 線 | done：test.psql anon 拒、會員 42501、站主讀得到 | N/A | not run | not run | blocked：無頭瀏覽器無法以站主登入 |
+| 愛爾蘭第 2–10 波圖層 | done | done：各 PR CI 綠 | done：develop | done：S3 deploy-assets/world/ 新檔 sha256 比對一致 | done | N/A | not run：未發版 | not run | done：本機 dev 截圖；not run：正式站 |
+| MCP 國家清單 | done：npm run build | N/A | N/A | N/A | N/A | done：analysis-prod/mcp 切 origin/main | done：本機正式版 | N/A | not run：使用者需 /mcp 重連 |
+
+- 卡點：發版要使用者拍板（BACKLOG IEREL-1）；Coillte 站主目視（IECOI-1）。
+- 下一步：問使用者是否發版 → 照 RELEASING.md，發版前比對舊版 CHANGELOG 段落、確認 S3 大檔；發版後驗 `main-*.js` 版號、愛爾蘭 z6、南韓「公共安全」統計。
+- 接手：從 origin/develop 開分支；主 checkout 本機落後 develop 數百 commit，不要在主 checkout 讀進度文件（用 `git show origin/develop:`）。
 
 ## 2026-11-07～11-08：Agent 分析上色與框選修正（v2.26.0）；framingCheck 數字讀回待發版
 
