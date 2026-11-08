@@ -28,8 +28,8 @@
    "path": "public/base_map/hillshade.png",
    "bytes": 8709161,
    "sha256": "fea37d5e5cf34c67503007da3130250e12e45cb47b9ee117ec4af1b46a8e8516",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/base_map/hillshade.png"
+   "delivery": "git",
+   "note": "worker.js 的 .png 副檔名規則一律走 dist，R2 版不會被讀"
   },
   {
    "path": "public/blog/mapchallenge-2026-day07-ten-minute-map/day07-timelapse.mp4",
@@ -168,8 +168,8 @@
    "path": "public/coverage/taiwan_other_nearest.pmtiles",
    "bytes": 5480346,
    "sha256": "f7b31d6bfb16e256b01ecd615307609843f41966cdeda94e979e7fbff0fcdd85",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/coverage/taiwan_other_nearest.pmtiles"
+   "delivery": "undecided",
+   "note": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2"
   },
   {
    "path": "public/coverage/taiwan_taisugar_nearest.pmtiles",
@@ -301,15 +301,15 @@
    "path": "public/forestry/forest_reserve.pmtiles",
    "bytes": 2030870,
    "sha256": "1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/forestry/forest_reserve.pmtiles"
+   "delivery": "git",
+   "note": "deployContract 以 r2-pilot 收據驗 sha256；正式站走 R2 releases/<sha>/ 路徑，非此路徑"
   },
   {
    "path": "public/forestry/forest_roads.geojson",
    "bytes": 16523601,
    "sha256": "68f26143a39beba971fa1517bda91334d378241de9c320fc52c68e8c1a551f16",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/forestry/forest_roads.geojson"
+   "delivery": "undecided",
+   "note": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2"
   },
   {
    "path": "public/forestry/forest_roads.pmtiles",
@@ -329,8 +329,8 @@
    "path": "public/forestry/hiking_trails.geojson",
    "bytes": 20659963,
    "sha256": "0c0263b33f7561bc0b06432f6fdd1b5494c2b2978169a16f53616e68305aea9c",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/forestry/hiking_trails.geojson"
+   "delivery": "undecided",
+   "note": "只有研究 sidecar（hikingTrailsOwnerDataset）讀；前端走 .pmtiles，pull 刻意排除"
   },
   {
    "path": "public/forestry/mountain_trail_signs.geojson",
@@ -350,15 +350,15 @@
    "path": "public/forestry/signal_gap.pmtiles",
    "bytes": 3973683,
    "sha256": "e2f80c21f3a6998236ad842553a550990309e178761f6cac67b9dc981763d485",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/forestry/signal_gap.pmtiles"
+   "delivery": "undecided",
+   "note": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2"
   },
   {
    "path": "public/forestry/trail_coverage.pmtiles",
    "bytes": 4625046,
    "sha256": "d0e939cc77c43bdd1e2688af93535337e5b21bac51f3180269b54e781661d976",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/forestry/trail_coverage.pmtiles"
+   "delivery": "undecided",
+   "note": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2"
   },
   {
    "path": "public/funeral/cemetery_osm.pmtiles",
@@ -406,8 +406,8 @@
    "path": "public/geo/freeway_traffic_signs.pmtiles",
    "bytes": 6794877,
    "sha256": "e55b43d8322109c27afbc3ec267107ac78c78db42fb46cd401d575cbbbc9b930",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/geo/freeway_traffic_signs.pmtiles"
+   "delivery": "undecided",
+   "note": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2"
   },
   {
    "path": "public/geo/freeway_traffic_signs_v2.pmtiles",
@@ -462,8 +462,8 @@
    "path": "public/geo/place_names_moi.pmtiles",
    "bytes": 15137479,
    "sha256": "7e1c0f7cc33362b0b1f77fd087e83b70a7309a20b2f0cce32b0f13781a6a2d40",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/geo/place_names_moi.pmtiles"
+   "delivery": "undecided",
+   "note": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2"
   },
   {
    "path": "public/geo/place_names_moi_v2.pmtiles",
@@ -476,8 +476,8 @@
    "path": "public/geo/provincial_road_mileposts.pmtiles",
    "bytes": 6294453,
    "sha256": "9d1062f1465a8488c47913b70c704b56cb1ac8150b7351fdfcf9690816b47881",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/geo/provincial_road_mileposts.pmtiles"
+   "delivery": "undecided",
+   "note": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2"
   },
   {
    "path": "public/geo/provincial_road_mileposts_v2.pmtiles",
@@ -490,8 +490,8 @@
    "path": "public/geo/provincial_road_signs.pmtiles",
    "bytes": 7661192,
    "sha256": "139908ef49e2c1227d223e9a4ee97111666b972e502d8c0a852a742016258f0e",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/geo/provincial_road_signs.pmtiles"
+   "delivery": "undecided",
+   "note": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2"
   },
   {
    "path": "public/geo/provincial_road_signs_v2.pmtiles",
@@ -1582,15 +1582,15 @@
    "path": "public/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson",
    "bytes": 12984998,
    "sha256": "9ebb822e341906985cf2d638d3f2dce6316458bc6084d13c77e96113debc90a5",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson"
+   "delivery": "git",
+   "note": "由 release.json 動態組路徑，site_manifest 抓不到引用、不會同步到 R2"
   },
   {
    "path": "public/world/jp_water/releases/20260918-v1/jpWaterQualityStations.geojson",
    "bytes": 7771427,
    "sha256": "a07d131b2db8d707f9d75f3081018cb182aa98b692635b5ff699a766b186b642",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/world/jp_water/releases/20260918-v1/jpWaterQualityStations.geojson"
+   "delivery": "git",
+   "note": "同上（jp_water release.json 動態路徑）"
   },
   {
    "path": "public/world/jp_wildlife_protection_areas_moe_r7.pmtiles",

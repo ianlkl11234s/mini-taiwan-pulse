@@ -24,6 +24,11 @@ KEEP_IN_GIT = {
     "public/blog/mapchallenge-2026-day07-ten-minute-map/day07-timelapse.mp4": "部落格內容資產",
     "public/screenshots/taiwan-flight-arc.png": "頁面截圖",
     "public/screenshots/mini-taiwan.png": "頁面截圖",
+    # 2026-11-08 sync 後實測 R2 沒有、正式站目前靠 dist 供應的 runtime 檔：
+    "public/base_map/hillshade.png": "worker.js 的 .png 副檔名規則一律走 dist，R2 版不會被讀",
+    "public/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson": "由 release.json 動態組路徑，site_manifest 抓不到引用、不會同步到 R2",
+    "public/world/jp_water/releases/20260918-v1/jpWaterQualityStations.geojson": "同上（jp_water release.json 動態路徑）",
+    "public/forestry/forest_reserve.pmtiles": "deployContract 以 r2-pilot 收據驗 sha256；正式站走 R2 releases/<sha>/ 路徑，非此路徑",
 }
 UNDECIDED = {
     "public/geo/ookla_fixed_global.geojson": "只有 staticDataContract 測試讀；前端改走 _20260930.pmtiles",
@@ -31,6 +36,15 @@ UNDECIDED = {
     "public/geo/waste_stops_static.geojson": "預處理來源與 wasteStopsChatDataset 測試讀；前端不載入",
     "public/world/gb_coastal_erosion.pmtiles": "已由 gb_coastal_erosion_v2.pmtiles 取代，前端無引用",
     "public/world/jp_religion_osm.geojson": "前端改走 jp_religion_osm_20260930.pmtiles，無引用",
+    "public/forestry/forest_roads.geojson": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2",
+    "public/forestry/signal_gap.pmtiles": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2",
+    "public/forestry/trail_coverage.pmtiles": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2",
+    "public/geo/freeway_traffic_signs.pmtiles": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2",
+    "public/geo/place_names_moi.pmtiles": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2",
+    "public/geo/provincial_road_mileposts.pmtiles": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2",
+    "public/geo/provincial_road_signs.pmtiles": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2",
+    "public/coverage/taiwan_other_nearest.pmtiles": "前端無引用（已由新版或 PMTiles 取代），sync 不會帶到 R2",
+    "public/forestry/hiking_trails.geojson": "只有研究 sidecar（hikingTrailsOwnerDataset）讀；前端走 .pmtiles，pull 刻意排除",
 }
 # rail/ 由 rail.tar.gz 整包供應（site_manifest.py 的 rail-tar 規則）
 TARBALL = {"public/rail/routes_static.geojson": "deploy-assets/rail.tar.gz"}
