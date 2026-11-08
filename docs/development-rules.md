@@ -358,7 +358,7 @@ Commit／PR 前必跑 `npm run verify`，失敗即停；完整套件（`npm run 
 - **站主限定圖層的範圍**：`eslint.config.js` 的 `OWNER_ONLY_FILES`（家族 glob）與 `OWNER_ONLY_EXEMPT`（附理由）。`eslint-rules/__tests__/ownerOnlyScope.test.js` 自己掃 `src/data`、`src/hooks` 找出含 `/api/private-research/`（或 import 了這類 data 模組）的檔，沒被規則覆蓋也沒列豁免就紅——新增私人圖層家族時把檔名加進 `OWNER_ONLY_FAMILIES`；來源卡需要的官方連結用 `allowUrls` 逐一列出，不要整檔豁免。
 
 ## 7. 部署 Checklist
-部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。2026-11-06 起正式站是 Cloudflare Worker（網頁＝Workers 靜態資產，檔案依 R2 → dist → 404，`/api` 轉 pulse-host），見 [`deploy/cloudflare/README.md`](../deploy/cloudflare/README.md) 與 ADR-0026 §8。改 `public/**` 資產時，manifest URL、`deploy/cloudflare/site_manifest.py`、nginx（Zeabur 回滾備援期間仍保留）與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
+部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。2026-11-06 起正式站是 Cloudflare Worker（網頁＝Workers 靜態資產，檔案依 R2 → dist → 404，`/api` 轉 pulse-host），見 [`deploy/cloudflare/README.md`](../deploy/cloudflare/README.md) 與 ADR-0026 §8。改 `public/**` 資產時，manifest URL、`deploy/cloudflare/site_manifest.py`、`nginx.conf`（現僅作測試契約，待移到 worker）與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
 
 ## 8. 動態圖層時間訂閱（External Time Store）
 

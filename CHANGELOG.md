@@ -88,6 +88,10 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 變更
+
+- 移除 Zeabur 時代的主站部署檔（`Dockerfile`、`scripts/deploy/entrypoint.sh`、`docker-compose.yml`）與對應測試斷言，文件改寫為 Cloudflare Worker 部署；網站行為不變
+
 ## v2.32.0 — 2026-11-09 — Day 8 公園可達改含河濱公園，新增現有公園與河濱入口圖層
 
 ### 新增

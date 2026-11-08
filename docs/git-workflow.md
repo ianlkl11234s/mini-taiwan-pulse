@@ -8,7 +8,7 @@
 
 | 分支 | 用途 | 收什麼 |
 |---|---|---|
-| `master` | 正式站（Zeabur 自動部署）。每個 commit 都應對應一個已發布版本或 hotfix | 只收 `develop` 的發布合併與 `hotfix/*` |
+| `master` | 正式站（push 觸發 `deploy-workers.yml` 部署 Cloudflare Worker）。每個 commit 都應對應一個已發布版本或 hotfix | 只收 `develop` 的發布合併與 `hotfix/*` |
 | `develop` | 日常整合與驗收（staging）。所有功能 PR 的 base | `feat/*`、`fix/*`、`perf/*`、`docs/*`、`chore/*`、`memory/*` |
 | `feat/<slug>` 等工作分支 | 從 `develop` 開，完成後 PR 回 `develop` | — |
 | `hotfix/<slug>` | 線上緊急修正。從 `master` 開，修完合回 `master`，再合回 `develop` | — |
