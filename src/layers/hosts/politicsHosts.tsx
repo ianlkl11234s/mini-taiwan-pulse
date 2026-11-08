@@ -3,16 +3,18 @@
 import { useElectionEventsLayer } from "../../hooks/useElectionEventsLayer";
 import { usePollingStationsLayer } from "../../hooks/usePollingStationsLayer";
 import { useCouncilDistrictsLayer } from "../../hooks/useCouncilDistrictsLayer";
-import { asElectionRange } from "../../data/electionEventsTypes";
+import { asElectionLocationFilter, asElectionRange } from "../../data/electionEventsTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { paramStr, useLayerParams } from "../layerParamsAccess";
+import { paramStr, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 
-/** 依時間軸時間把活動分成已過／未到（樣式在 overlayRegistry），並套「時間範圍」篩選 */
+/** 依時間軸時間把活動分成已過／未到（樣式在 overlayRegistry），套「時間範圍」「位置」「陣營」篩選並合併同一代表點的多場 */
 export const ElectionEventsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useElectionEventsLayer");
   const values = useLayerParams("electionEvents2026");
   const range = asElectionRange(paramStr(values, "electionEvents2026", "electionEvents2026Range"));
-  useElectionEventsLayer(deps.mapRef, deps.layerVisibility.electionEvents2026, range);
+  const location = asElectionLocationFilter(paramStr(values, "electionEvents2026", "electionEvents2026Location"));
+  const campMask = useKeyOverlayParams("electionEvents2026").electionEvents2026CatMask;
+  useElectionEventsLayer(deps.mapRef, deps.layerVisibility.electionEvents2026, range, location, campMask);
   return null;
 };
 

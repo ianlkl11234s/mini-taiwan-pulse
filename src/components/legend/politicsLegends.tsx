@@ -1,9 +1,11 @@
 // 政治 Politics 圖例：2026 選舉活動（色票 SSOT = src/data/electionEventsTypes.ts）、2024 投開票所（src/data/pollingStationsTypes.ts）
 import { useSyncExternalStore } from "react";
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSquare, SwatchSteps } from "./legendKit";
+import { LEGEND_SWATCH, LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
 import { FireCatRows } from "./legendShared";
-import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_PAST_OPACITY, ELECTION_TIER_RADIUS } from "../../data/electionEventsTypes";
+import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_PAST_OPACITY, ELECTION_RING_FILL_OPACITY, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS, type ElectionApproxPrecision } from "../../data/electionEventsTypes";
 import { electionEventsMetaStore } from "../../data/electionEventsLoader";
+import { ELECTION_GROUP_ICON_COLORS } from "../../map/electionGroupIcon";
+import { FONT_DATA } from "../../styles/designTokens";
 import { pollingLegendStore } from "../../data/pollingStationsLoader";
 import { COUNCIL_DISTRICT_COLOR } from "../../data/councilDistrictsLoader";
 import {
@@ -23,6 +25,54 @@ const CAMP_KEY = {
   npp: "legend.politics.camp.npp",
   other: "legend.politics.camp.other",
 } as const;
+
+// 圖例示意的外環位移（圖例 22px 內畫不下地圖實際位移，依同一順序等比縮小：越粗略離點越遠）
+const LEGEND_RING: Record<ElectionApproxPrecision, { r: number; gap: number }> = {
+  settlement: { r: 4, gap: 3 },
+  town_centroid: { r: 3, gap: 5.5 },
+  city_centroid: { r: 2.5, gap: 7.5 },
+};
+const PRECISION_SWATCH = 22;
+
+/** 位置精度示意：主點＋精度外環（同地圖 precision 子圖層的填色／描邊透明度） */
+function SwatchPrecision({ precision, color }: { precision: ElectionApproxPrecision | "venue"; color: string }) {
+  const t = useLegendTheme();
+  const c = PRECISION_SWATCH / 2;
+  const ring = precision === "venue" ? null : LEGEND_RING[precision];
+  const r = ring ? ring.r : LEGEND_SWATCH.dot / 2;
+  return (
+    <svg aria-hidden="true" width={PRECISION_SWATCH} height={PRECISION_SWATCH} style={{ flexShrink: 0 }}>
+      {ring && precision !== "venue" && (
+        <circle cx={c} cy={c} r={ring.r + ring.gap} fill={color} fillOpacity={ELECTION_RING_FILL_OPACITY.upcoming}
+          stroke={color} strokeOpacity={ELECTION_RING_STROKE_OPACITY.upcoming} strokeWidth={ELECTION_RING_STROKE[precision]} />
+      )}
+      <circle cx={c} cy={c} r={r} fill={color} fillOpacity={0.9} stroke={t.seam} strokeWidth={1} />
+    </svg>
+  );
+}
+
+/** 同一代表點多場示意：分段外環（兩陣營）＋中心場次數 */
+function SwatchGroup() {
+  const c = PRECISION_SWATCH / 2;
+  const R = 10;
+  const segs: [string, number][] = [[ELECTION_CAMP_COLOR.kmt, 0.6], [ELECTION_CAMP_COLOR.dpp, 0.4]];
+  let a0 = -90;
+  const arcs = segs.map(([col, f]) => {
+    const a1 = a0 + 360 * f;
+    const pt = (d: number) => [c + R * Math.cos((d * Math.PI) / 180), c + R * Math.sin((d * Math.PI) / 180)] as const;
+    const [x0, y0] = pt(a0 + 4);
+    const [x1, y1] = pt(a1 - 4);
+    a0 = a1;
+    return <path key={col} d={`M${x0},${y0} A${R},${R} 0 ${f > 0.5 ? 1 : 0} 1 ${x1},${y1}`} fill="none" stroke={col} strokeWidth={2} />;
+  });
+  return (
+    <svg aria-hidden="true" width={PRECISION_SWATCH} height={PRECISION_SWATCH} style={{ flexShrink: 0 }}>
+      {arcs}
+      <circle cx={c} cy={c} r={6} fill={ELECTION_GROUP_ICON_COLORS.centerFill} stroke={ELECTION_GROUP_ICON_COLORS.centerStroke} />
+      <text x={c} y={c + 3} textAnchor="middle" fontSize={8} fill={ELECTION_GROUP_ICON_COLORS.label} fontFamily={FONT_DATA}>5</text>
+    </svg>
+  );
+}
 
 export function ElectionEventsLegend() {
   const i18n = useLocale();
@@ -46,6 +96,17 @@ export function ElectionEventsLegend() {
       />
       <LegendRow swatch={<SwatchDot color={ELECTION_CAMP_COLOR.dpp} opacity={ELECTION_PAST_OPACITY} />}>{t("legend.politics.past")}</LegendRow>
       <LegendRow swatch={<SwatchDot color="transparent" stroke={grey} strokeWidth={2} />}>{t("legend.politics.hollow")}</LegendRow>
+      <div style={{ marginTop: 6 }}>
+        <LegendTitle zh={t("legend.politics.precision.title")} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <LegendRow swatch={<SwatchPrecision precision="venue" color={grey} />}>{t("legend.politics.precision.venue")}</LegendRow>
+          <LegendRow swatch={<SwatchPrecision precision="settlement" color={grey} />}>{t("legend.politics.precision.settlement")}</LegendRow>
+          <LegendRow swatch={<SwatchPrecision precision="town_centroid" color={grey} />}>{t("legend.politics.precision.town")}</LegendRow>
+          <LegendRow swatch={<SwatchPrecision precision="city_centroid" color={grey} />}>{t("legend.politics.precision.city")}</LegendRow>
+          <LegendRow swatch={<SwatchGroup />}>{t("legend.politics.precision.group")}</LegendRow>
+        </div>
+        <LegendNote>{t("legend.politics.precision.note")}</LegendNote>
+      </div>
       <LegendNote>{t("legend.politics.bias")}</LegendNote>
       {unmapped !== null && unmapped > 0 && <LegendNote>{t("legend.politics.unmapped", { count: unmapped })}</LegendNote>}
       {loadedAt && !Number.isNaN(loadedAt.getTime()) && (

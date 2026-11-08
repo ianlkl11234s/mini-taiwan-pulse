@@ -1170,7 +1170,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "catalog_missing",
       datasets: [],
-      processing: "taipei-gis-analytics pipelines/analysis/election_events_2026（研究原型）：整合政黨行程、候選人公開貼文、中央社、警政署集會申請等來源，去重後定位（地址／地標／路口），寫入 Supabase intel schema；前端只經 owner-only RPC 讀取。",
+      processing: "taipei-gis-analytics pipelines/analysis/election_events_2026（研究原型）：整合政黨行程、候選人公開貼文、中央社、警政署集會申請等來源，去重後定位（地址／地標／路口；沒有確切地點的記在聚落、鄉鎮市區或縣市代表點，gis-platform mig 514），寫入 Supabase intel schema；前端只經 owner-only RPC 讀取。",
       note: "研究原型；站主限定。收錄公開預告或報導過的活動，不是全部；各陣營、各縣市來源完整度不同，不可比較活動量。不進 embed／分析倉庫／MCP。",
     },
     dataClass: "C",
@@ -1181,8 +1181,8 @@ export const LAYER_MANIFEST = {
     },
     legend: "electionEvents2026",
     popup: "electionEvents2026",
-    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
-    description: "研究中；站主限定。2026 地方選舉（投票日 11/28）各陣營公開預告或報導過的造勢、掃街、座談等活動。色＝陣營、大小＝規模；相對時間軸時間，已過的活動變淡，未來的照常顯示。",
+    params: { count: 5, kinds: ["multiSelect", "slider", "slider", "select", "select"] },
+    description: "研究中；站主限定。2026 地方選舉（投票日 11/28）各陣營公開預告或報導過的造勢、掃街、座談等活動。色＝陣營、大小＝規模；相對時間軸時間，已過的活動變淡，未來的照常顯示。有外環＝只知道在某聚落／鄉鎮市區／縣市的代表點，不是活動地點；同一代表點 2 場以上合成一個標場次數的圖示。",
     topics: ["政治", "選舉", "活動", "研究中", "OWNER_ONLY"],
   },
 

@@ -1,15 +1,19 @@
+import { useState } from "react";
 // 政治 Politics popup：2026 選舉活動（owner-only）、2024 投開票所、2026 議員選區（公開）。色票與代碼 SSOT = src/data/electionEventsTypes.ts
 import { Row, SourceFooter, Title, formatTaiwanMinute } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
-import { FONT_SIZE } from "../../styles/designTokens";
+import { FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { useLocale } from "../../state/localeStore";
 import { placeName } from "../../i18n/placeText";
 import {
+  ELECTION_APPROX_PRECISIONS,
   ELECTION_CAMP_COLOR,
   ELECTION_PRECISIONS,
   ELECTION_STATUSES,
+  type ElectionApproxPrecision,
   electionCampKey,
   electionClaimantKey,
+  electionSettlementName,
   electionSources,
   formatCrowdNumber,
   parseJsonArray,
@@ -36,6 +40,21 @@ const PRECISION_KEY = {
   address: "popup.politics.precision.address",
   landmark: "popup.politics.precision.landmark",
   intersection: "popup.politics.precision.intersection",
+  settlement: "popup.politics.precision.settlement",
+  town_centroid: "popup.politics.precision.town_centroid",
+  city_centroid: "popup.politics.precision.city_centroid",
+} as const;
+/** 代表點的一句說明（單場） */
+const PRECISION_NOTE_KEY = {
+  settlement: "popup.politics.precisionNote.settlement",
+  town_centroid: "popup.politics.precisionNote.town_centroid",
+  city_centroid: "popup.politics.precisionNote.city_centroid",
+} as const;
+/** 代表點的一句說明（同一代表點多場清單） */
+const PRECISION_GROUP_NOTE_KEY = {
+  settlement: "popup.politics.precisionGroupNote.settlement",
+  town_centroid: "popup.politics.precisionGroupNote.town_centroid",
+  city_centroid: "popup.politics.precisionGroupNote.city_centroid",
 } as const;
 const CLAIMANT_KEY = {
   organizer: "popup.politics.claimant.organizer",
@@ -60,7 +79,137 @@ function taipeiHm(iso: string, intl: (d: Date, o: Intl.DateTimeFormatOptions) =>
   return Number.isNaN(d.getTime()) ? "" : intl(d, { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Taipei" });
 }
 
+/** 代表點說明裡的地名：鄉鎮市區代表點寫鄉鎮，縣市代表點寫縣市，聚落寫「縣市＋鄉鎮」 */
+function approxPlace(precision: ElectionApproxPrecision, props: Record<string, unknown>, i18n: ReturnType<typeof useLocale>): string {
+  const city = str(props.city);
+  const town = str(props.town);
+  if (precision === "city_centroid") return placeName(city, i18n);
+  return placeName(`${city}${town}`, i18n) || placeName(city, i18n);
+}
+
+/**
+ * 「定位」說明文字（單場 single／多場 group）。聚落代表點有聚落名時寫聚落名，沒有時寫縣市區（mig 515 前的資料）。
+ */
+export function electionPrecisionNote(
+  precision: ElectionApproxPrecision,
+  props: Record<string, unknown>,
+  i18n: ReturnType<typeof useLocale>,
+  mode: "single" | "group",
+): string {
+  const settlement = electionSettlementName(props);
+  if (precision === "settlement" && settlement) {
+    return mode === "single"
+      ? i18n.t("popup.politics.precisionNote.settlementNamed", { name: settlement })
+      : i18n.t("popup.politics.precisionGroupNote.settlementNamed", { name: settlement });
+  }
+  const place = approxPlace(precision, props, i18n);
+  return mode === "single"
+    ? i18n.t(PRECISION_NOTE_KEY[precision], { place })
+    : i18n.t(PRECISION_GROUP_NOTE_KEY[precision], { place });
+}
+
+/** 「定位」列：精度名稱 chip＋一句說明（代表點才顯示，場館級寫在地點後面） */
+function PrecisionRow({ precision, note, extra }: { precision: ElectionApproxPrecision; note: string; extra?: string }) {
+  const theme = useFeatureTheme();
+  const { t } = useLocale();
+  return (
+    <div className="fi-row" style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, lineHeight: 1.3 }}>
+      <span style={{ color: theme.textMuted, flexShrink: 0, minWidth: 56, fontSize: FONT_SIZE.sm }}>{t("popup.politics.positioning")}</span>
+      <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+        <span>
+          <span style={{ display: "inline-block", padding: "0 5px", border: `1px solid ${theme.border}`, borderRadius: RADIUS.sm, color: theme.textStrong, fontSize: FONT_SIZE.sm }}>
+            {t(PRECISION_KEY[precision])}
+          </span>
+        </span>
+        <span style={{ color: theme.textDim, fontSize: FONT_SIZE.sm }}>{note}</span>
+        {extra && <span style={{ color: theme.textDim, fontSize: FONT_SIZE.sm }}>{extra}</span>}
+      </span>
+    </div>
+  );
+}
+
+/** 「MM/DD」（台北日）：清單用 */
+function shortDate(props: Record<string, unknown>, formatDateTime: (d: Date, o: Intl.DateTimeFormatOptions) => string): string {
+  const ts = Number(props.start_ts);
+  if (!Number.isFinite(ts)) return str(props.event_date);
+  return formatDateTime(new Date(ts * 1000), { month: "2-digit", day: "2-digit", timeZone: "Asia/Taipei" });
+}
+
+/**
+ * 同一代表點 2 場以上（hook 合成的 `_grp` 圖徵）：標題「地名・N 場」＋定位說明＋場次清單；點一場切到單場內容。
+ */
+function ElectionGroupPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatDateTime } = i18n;
+  const theme = useFeatureTheme();
+  const events = parseJsonArray<Record<string, unknown>>(props.events).filter((e) => e && typeof e === "object");
+  const approx = oneOf(props.location_precision, ELECTION_APPROX_PRECISIONS);
+  // FeatureInfoPanel 不以 feature 當 key：換一組代表點時歸零（同 AnalysisResultPanel）
+  const signature = events.map((e) => str(e.event_id)).join(",");
+  const [selected, setSelected] = useState<{ signature: string; id: string | null }>({ signature, id: null });
+  const selectedId = selected.signature === signature ? selected.id : null;
+  const current = selectedId === null ? null : events.find((e) => str(e.event_id) === selectedId) ?? null;
+
+  if (current) {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setSelected({ signature, id: null })}
+          style={{ background: "none", border: "none", padding: "0 0 4px", cursor: "pointer", color: theme.link, fontSize: FONT_SIZE.sm }}
+        >
+          {t("popup.politics.group.back", { count: events.length })}
+        </button>
+        <ElectionEventPanel props={current} />
+      </>
+    );
+  }
+
+  const area = approx ? approxPlace(approx, props, i18n) : placeName(`${str(props.city)}${str(props.town)}`, i18n);
+  const settlement = electionSettlementName(props);
+  const place = settlement ? t("popup.politics.group.placeWithSettlement", { place: area, name: settlement }) : area;
+  return (
+    <>
+      <Title color={ELECTION_CAMP_COLOR.other}>{t("popup.politics.group.title", { place, count: events.length })}</Title>
+      {approx && <PrecisionRow precision={approx} note={electionPrecisionNote(approx, props, i18n, "group")} />}
+      <div style={{ display: "flex", flexDirection: "column", marginTop: 4 }}>
+        {events.map((e, i) => {
+          const past = e._past === 1 || e._past === "1";
+          const tier = oneOf(e.scale_tier, ["L", "M", "S"] as const);
+          const name = str(e.event_name) || t("popup.politics.fallbackTitle");
+          return (
+            <button
+              key={`${str(e.event_id)}:${i}`}
+              type="button"
+              onClick={() => setSelected({ signature, id: str(e.event_id) })}
+              style={{
+                display: "flex", alignItems: "center", gap: 6, padding: "3px 0", background: "none", border: "none",
+                borderTop: i > 0 ? `1px solid ${theme.border}` : "none", cursor: "pointer", textAlign: "left",
+                color: theme.textStrong, fontSize: FONT_SIZE.base, opacity: past ? 0.5 : 1,
+              }}
+            >
+              <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{shortDate(e, formatDateTime)}</span>
+              <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: ELECTION_CAMP_COLOR[electionCampKey(e.camp)], flexShrink: 0 }} />
+              <span style={{ minWidth: 0, flex: "1 1 auto" }}>
+                {name}
+                {past ? t("popup.politics.group.pastSuffix") : ""}
+              </span>
+              {tier && <span style={{ color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{t(TIER_KEY[tier])}</span>}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("popup.politics.group.hint")}</div>
+    </>
+  );
+}
+
 export function ElectionEventPanel({ props }: { props: Record<string, unknown> }) {
+  if (props._grp === 1 || props._grp === "1") return <ElectionGroupPanel props={props} />;
+  return <ElectionEventSinglePanel props={props} />;
+}
+
+function ElectionEventSinglePanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
   const { t, formatNumber, formatDateTime, active } = i18n;
   const theme = useFeatureTheme();
@@ -86,9 +235,12 @@ export function ElectionEventPanel({ props }: { props: Record<string, unknown> }
     : str(props.camp);
 
   const precision = oneOf(props.location_precision, ELECTION_PRECISIONS);
+  const approx = oneOf(props.location_precision, ELECTION_APPROX_PRECISIONS);
+  const isStart = str(props.point_role) === "start_point";
+  // 場館級：精度簡短寫在地點後面（沿用）；代表點另列「定位」說明
   const notes = [
-    precision ? t(PRECISION_KEY[precision]) : "",
-    str(props.point_role) === "start_point" ? t("popup.politics.startPoint") : "",
+    precision && !approx ? t(PRECISION_KEY[precision]) : "",
+    isStart && !approx ? t("popup.politics.startPoint") : "",
   ].filter(Boolean);
   const place = placeName(`${str(props.city)}${str(props.town)}`, i18n);
   const locationText = str(props.location_text);
@@ -114,6 +266,13 @@ export function ElectionEventPanel({ props }: { props: Record<string, unknown> }
       {tier && <Row label={t("popup.politics.scale")} value={t(TIER_KEY[tier])} />}
       <Row field="countyDistrict" value={place} />
       <Row label={t("popup.politics.location")} value={location} />
+      {approx && (
+        <PrecisionRow
+          precision={approx}
+          note={electionPrecisionNote(approx, props, i18n, "single")}
+          extra={isStart ? t("popup.politics.startPoint") : ""}
+        />
+      )}
       <Row label={t("popup.politics.crowd")} value={crowd} />
       <Row label={t("popup.politics.guests")} value={guests} />
       {sources.length > 0 && (

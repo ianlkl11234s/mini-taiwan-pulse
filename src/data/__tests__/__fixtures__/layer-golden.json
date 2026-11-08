@@ -3402,7 +3402,9 @@
     },
     {
       "layers": [
-        "election-events-2026-circle"
+        "election-events-2026-group",
+        "election-events-2026-circle",
+        "election-events-2026-precision"
       ],
       "type": "electionEvents2026"
     },
@@ -14974,7 +14976,469 @@
       "layers": [
         {
           "filter": [
-            "all"
+            "all",
+            [
+              "!=",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_grp"
+                ],
+                0
+              ],
+              1
+            ],
+            [
+              "in",
+              [
+                "get",
+                "location_precision"
+              ],
+              [
+                "literal",
+                [
+                  "settlement",
+                  "town_centroid",
+                  "city_centroid"
+                ]
+              ]
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              1,
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_past"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "camp_key"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "npp",
+                "#f2c230",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.06,
+                0.12
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "*",
+                      [
+                        "match",
+                        [
+                          "get",
+                          "scale_tier"
+                        ],
+                        "L",
+                        9,
+                        "M",
+                        6,
+                        4
+                      ],
+                      [
+                        "case",
+                        [
+                          "==",
+                          [
+                            "coalesce",
+                            [
+                              "get",
+                              "_past"
+                            ],
+                            0
+                          ],
+                          1
+                        ],
+                        0.7,
+                        1
+                      ],
+                      1
+                    ],
+                    0.75
+                  ],
+                  [
+                    "match",
+                    [
+                      "get",
+                      "location_precision"
+                    ],
+                    "settlement",
+                    3,
+                    "town_centroid",
+                    6,
+                    "city_centroid",
+                    10,
+                    0
+                  ]
+                ],
+                12,
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "*",
+                      [
+                        "match",
+                        [
+                          "get",
+                          "scale_tier"
+                        ],
+                        "L",
+                        9,
+                        "M",
+                        6,
+                        4
+                      ],
+                      [
+                        "case",
+                        [
+                          "==",
+                          [
+                            "coalesce",
+                            [
+                              "get",
+                              "_past"
+                            ],
+                            0
+                          ],
+                          1
+                        ],
+                        0.7,
+                        1
+                      ],
+                      1
+                    ],
+                    1.25
+                  ],
+                  [
+                    "match",
+                    [
+                      "get",
+                      "location_precision"
+                    ],
+                    "settlement",
+                    3,
+                    "town_centroid",
+                    6,
+                    "city_centroid",
+                    10,
+                    0
+                  ]
+                ]
+              ],
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "camp_key"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "npp",
+                "#f2c230",
+                "#9ca3af"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.45,
+                0.8
+              ],
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "location_precision"
+                ],
+                "settlement",
+                1.2,
+                "town_centroid",
+                1.2,
+                "city_centroid",
+                1.5,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "camp_key"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "npp",
+                "#f2c230",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.06,
+                0.12
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "*",
+                      [
+                        "match",
+                        [
+                          "get",
+                          "scale_tier"
+                        ],
+                        "L",
+                        9,
+                        "M",
+                        6,
+                        4
+                      ],
+                      [
+                        "case",
+                        [
+                          "==",
+                          [
+                            "coalesce",
+                            [
+                              "get",
+                              "_past"
+                            ],
+                            0
+                          ],
+                          1
+                        ],
+                        0.7,
+                        1
+                      ],
+                      1
+                    ],
+                    0.75
+                  ],
+                  [
+                    "match",
+                    [
+                      "get",
+                      "location_precision"
+                    ],
+                    "settlement",
+                    3,
+                    "town_centroid",
+                    6,
+                    "city_centroid",
+                    10,
+                    0
+                  ]
+                ],
+                12,
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "*",
+                      [
+                        "match",
+                        [
+                          "get",
+                          "scale_tier"
+                        ],
+                        "L",
+                        9,
+                        "M",
+                        6,
+                        4
+                      ],
+                      [
+                        "case",
+                        [
+                          "==",
+                          [
+                            "coalesce",
+                            [
+                              "get",
+                              "_past"
+                            ],
+                            0
+                          ],
+                          1
+                        ],
+                        0.7,
+                        1
+                      ],
+                      1
+                    ],
+                    1.25
+                  ],
+                  [
+                    "match",
+                    [
+                      "get",
+                      "location_precision"
+                    ],
+                    "settlement",
+                    3,
+                    "town_centroid",
+                    6,
+                    "city_centroid",
+                    10,
+                    0
+                  ]
+                ]
+              ],
+              "circle-stroke-color": [
+                "match",
+                [
+                  "get",
+                  "camp_key"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "npp",
+                "#f2c230",
+                "#9ca3af"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.45,
+                0.8
+              ],
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "location_precision"
+                ],
+                "settlement",
+                1.2,
+                "town_centroid",
+                1.2,
+                "city_centroid",
+                1.5,
+                1.2
+              ]
+            }
+          },
+          "suffix": "precision",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "!=",
+            [
+              "coalesce",
+              [
+                "get",
+                "_grp"
+              ],
+              0
+            ],
+            1
           ],
           "layout": {
             "circle-sort-key": [
@@ -15405,10 +15869,104 @@
           },
           "suffix": "circle",
           "type": "circle"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "coalesce",
+              [
+                "get",
+                "_grp"
+              ],
+              0
+            ],
+            1
+          ],
+          "layout": {
+            "dark": {
+              "icon-allow-overlap": true,
+              "icon-ignore-placement": true,
+              "icon-image": [
+                "get",
+                "_img"
+              ],
+              "icon-size": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.8,
+                12,
+                1.15
+              ],
+              "symbol-sort-key": [
+                "-",
+                1,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "_past"
+                  ],
+                  0
+                ]
+              ]
+            },
+            "light": {
+              "icon-allow-overlap": true,
+              "icon-ignore-placement": true,
+              "icon-image": [
+                "get",
+                "_img"
+              ],
+              "icon-size": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.8,
+                12,
+                1.15
+              ],
+              "symbol-sort-key": [
+                "-",
+                1,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "_past"
+                  ],
+                  0
+                ]
+              ]
+            }
+          },
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "icon-opacity": 0.9
+            },
+            "light": {
+              "icon-opacity": 0.9
+            }
+          },
+          "suffix": "group",
+          "type": "symbol"
         }
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
+        "precision",
         "circle"
       ],
       "sourceId": "election-events-2026",
@@ -113806,6 +114364,25 @@
           {
             "label": "已舉辦",
             "value": "held"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "位置",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "只看確切地點",
+            "value": "exact"
+          },
+          {
+            "label": "只看代表點",
+            "value": "approx"
           }
         ],
         "type": "select",
