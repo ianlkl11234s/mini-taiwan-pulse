@@ -261,6 +261,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "農業 Agriculture",
     "動物福利 Animal Welfare",
     "林業 Forestry",
+    "自然保育 Conservation",
     "太空 Space",
     "情勢 Situation",
     "政治 Politics",
@@ -1066,6 +1067,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("lighthouses"),
           fromManifest("aviationControl"),
           fromManifest("aviationRestricted"),
+          // Bloom 視覺實驗層（站主限定，manifest topics OWNER_ONLY；TWL-12 2026-11-08 從本機 DEV 改回正式目錄）
+          fromManifest("aviationRestrictedGlow"),
           fromManifest("droneNoFlyZone"),
           fromManifest("droneRestrictedZone"),
         ],
@@ -1115,7 +1118,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("provincialRoadMileposts"),
           fromManifest("freewayTrafficSigns"),
           fromManifest("freewayInterchanges"),
-          fromManifest("freewayEcoSensitive"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
           fromManifest("cctv"),
@@ -1155,6 +1157,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "農村 Rural",
         layers: [
           fromManifest("agriRuralCommunityVillages"),
+          fromManifest("agriRuralRegen"),
         ],
       },
     ],
@@ -1308,24 +1311,28 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "TW",
     defaultCollapsed: true,
     groups: [
+      // TWL-12（2026-11-08）：原「公共設施」拆成兩群；publicLibraries→文化、welfareCenters→社福長照、
+      // disasterShelters→民防避難；schools 早在 2026-08-08 搬到「教育 Education」
       {
-        title: "公共設施",
+        title: "郵政與便民 Postal & Services",
         layers: [
-          // 2026-08-08：schools 搬到「教育 Education」主題（第 38 主題），此處不再列出
-          fromManifest("convenienceStores"),
           fromManifest("postOffices"),
           fromManifest("iPostBoxes"),
-          fromManifest("communityCenters"),
           fromManifest("govServiceOffices"),
-          fromManifest("publicLibraries"),
-          fromManifest("welfareCenters"),
+          fromManifest("communityCenters"),
+          fromManifest("convenienceStores"),
           fromManifest("retailMarkets"),
+        ],
+      },
+      {
+        title: "公共生活 Public Life",
+        layers: [
           fromManifest("publicToilets"),
           fromManifest("drinkingWaterPoints"),
           fromManifest("publicWasteBaskets"),
           fromManifest("materialRecyclingPoints"),
-          fromManifest("disasterShelters"),
           fromManifest("publicLifeOsmCoverage"),
+          fromManifest("accessibleParkFacilities"),
         ],
       },
       {
@@ -1337,12 +1344,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("securitiesFuturesInstitutions"),
           fromManifest("insuranceInstitutions"),
           fromManifest("postOfficeFxCounters"),
-        ],
-      },
-      {
-        title: "無障礙 Accessibility",
-        layers: [
-          fromManifest("accessibleParkFacilities"),
         ],
       },
     ],
@@ -1377,10 +1378,16 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("powerPoles"),
         ],
       },
-      // 4 個 Bloom／Rim Glow 視覺實驗層：只在本機 DEV 顯示，正式目錄（面板、搜尋）不列；manifest key 保留（分享網址帶 key）
-      ...localResearchGroup("視覺實驗 Visual Experiments", [
-        "powerPlantGlow", "aviationRestrictedGlow", "substationEhvGlow", "powerLinesGlow",
-      ]),
+      // Bloom／Rim Glow 視覺實驗層：站主限定（manifest topics OWNER_ONLY）。TWL-12（2026-11-08）從本機 DEV 改回正式目錄；
+      // 第 4 層 aviationRestrictedGlow 放交通 › 樞紐節點（aviationRestricted 旁）
+      {
+        title: "視覺實驗 Visual Experiments",
+        layers: [
+          fromManifest("powerPlantGlow"),
+          fromManifest("substationEhvGlow"),
+          fromManifest("powerLinesGlow"),
+        ],
+      },
       {
         title: "再生能源",
         layers: [
@@ -1503,8 +1510,8 @@ const THEME_CATALOG: ThemeDef[] = [
   // 🔴 長照有兩套登記體系：本群的 welfareLtcInstitutions 是**立案機構**（3,117），
   //    醫療主題的 medLTC 是長照 2.0 **特約單位**（23,894），名稱交集僅 2,365。
   //    刻意**不放同一群、不合併** —— 兩者量的是不同東西，併起來會重複計算又漏算。
-  // 🔴 基礎建設群的 welfareCenters（社福中心 162）不是本群成員；本群 welfareGovOffices
-  //    已排除 T0103 正是為了不跟它重複 → 兩層零重疊，可同時開。
+  // 🔴 welfareCenters（社福中心 162，TWL-12 2026-11-08 從基礎建設搬來「公部門與民間」）與本批
+  //    welfareGovOffices 同群但來源不同：welfareGovOffices 已排除 T0103 正是為了不跟它重複 → 兩層零重疊，可同時開。
   // ───────────────────────────────────────────────────────────────
   {
     title: "社福長照 Welfare",
@@ -1532,6 +1539,8 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "公部門與民間",
         layers: [
           fromManifest("welfareGovOffices"),
+          // 與 welfareGovOffices 零重疊（上游已排除 T0103 社福服務中心），可同時開
+          fromManifest("welfareCenters"),
           fromManifest("welfareMentalHealth"),
           fromManifest("welfareSocialWorkOrgs"),
         ],
@@ -1586,6 +1595,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("culturalFacilities"),
           fromManifest("culturalMuseums"),
+          fromManifest("publicLibraries"),
         ],
       },
       {
@@ -1687,7 +1697,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("tourHotSprings"),
           fromManifest("tourHotSpringZones"),
           fromManifest("tourScenicAreas"),
-          fromManifest("nationalParks"),
           fromManifest("visitorCentres"),
           fromManifest("tourServiceSites"),
           fromManifest("tourVisitorStats"),
@@ -1937,6 +1946,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "避難設施",
         layers: [
           fromManifest("civilDefenseShelter"),
+          fromManifest("disasterShelters"),
         ],
       },
       {
@@ -2084,13 +2094,6 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
-        title: "濕地 Wetlands",
-        layers: [
-          fromManifest("importantWetlands"),
-          fromManifest("importantWetlandZones"),
-        ],
-      },
-      {
         title: "都市樹木 Urban Trees",
         layers: [
           fromManifest("streetTreesTaipeiDiff"),
@@ -2132,15 +2135,6 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("namrEdnaSurveySites"),
           fromManifest("marineEcologicalMonitoringSites"),
-        ],
-      },
-      {
-        // 自然保留區、野生動物保護區含陸域（說明寫「不限海域」），不是只有海洋；歸屬主題另案（TWL-12）
-        title: "自然保育 Conservation",
-        layers: [
-          fromManifest("natureReserves"),
-          fromManifest("wildlifeProtectedAreas"),
-          fromManifest("marineWildlifeAreas"),
         ],
       },
       {
@@ -2371,12 +2365,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("agriculture"),
           fromManifest("agriLeisureFarmZones"),
-          fromManifest("agriRuralRegen"),
         ],
-      },
-      {
-        title: "自然保育 Conservation",
-        layers: [fromManifest("ecoNetworkZones")],
       },
       {
         title: "土壤",
@@ -2430,8 +2419,6 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "分區",
         layers: [
           fromManifest("forestCompartments"),
-          fromManifest("forestReserve"),
-          fromManifest("forestRecreation"),
           fromManifest("forestFlatParks"),
         ],
       },
@@ -2461,10 +2448,48 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("hikingTrails"),
         ],
       },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🌿 CONSERVATION 自然保育（TWL-12，2026-11-08：從海洋、環境氣候、觀光、農業、林業、交通集中過來）
+  // 水源保護區兩層刻意留在水資源；擱淺、魚礁、漁業、生態調查站留在海洋。
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "自然保育 Conservation",
+    country: "TW",
+    defaultCollapsed: true,
+    groups: [
       {
-        title: "生態",
+        // 自然保留區、野生動物保護區含陸域（說明寫「不限海域」）
+        title: "保護區 Protected Areas",
         layers: [
+          fromManifest("natureReserves"),
+          fromManifest("wildlifeProtectedAreas"),
+          fromManifest("marineWildlifeAreas"),
+          fromManifest("nationalParks"),
+        ],
+      },
+      {
+        title: "濕地 Wetlands",
+        layers: [
+          fromManifest("importantWetlands"),
+          fromManifest("importantWetlandZones"),
+        ],
+      },
+      {
+        title: "綠網與生態 Ecological Networks",
+        layers: [
+          fromManifest("ecoNetworkZones"),
           fromManifest("forestWildlife"),
+          fromManifest("freewayEcoSensitive"),
+        ],
+      },
+      {
+        title: "森林保育 Forest Conservation",
+        layers: [
+          fromManifest("forestReserve"),
+          fromManifest("forestRecreation"),
         ],
       },
     ],
@@ -3610,6 +3635,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "農業 Agriculture": "environment",
     "動物福利 Animal Welfare": "environment",
     "林業 Forestry": "environment",
+    "自然保育 Conservation": "environment",
     "太空 Space": "intelligence",
     "情勢 Situation": "intelligence",
     "政治 Politics": "intelligence",
@@ -3842,6 +3868,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "農業 Agriculture": { zh: "農業", sub: "Agriculture" },
     "動物福利 Animal Welfare": { zh: "動物福利", sub: "Animal Welfare" },
     "林業 Forestry": { zh: "林業", sub: "Forestry" },
+    "自然保育 Conservation": { zh: "自然保育", sub: "Conservation" },
     "太空 Space": { zh: "太空", sub: "Space" },
     "情勢 Situation": { zh: "情勢", sub: "Situation" },
     "政治 Politics": { zh: "政治", sub: "Politics" },
