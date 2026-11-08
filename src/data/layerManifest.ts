@@ -16343,7 +16343,7 @@ export const LAYER_MANIFEST = {
     legend: "mapchallengeDay08Access",
     popup: "mapchallengeDay08Access",
     params: { count: 3, kinds: ["slider", "select", "select"] },
-    description: "30 天地圖挑戰 Day 8 烏托邦：中和＋永和 2,673 個最小統計區，走到最近一座 ≥1 ha 非河濱公園要幾分鐘（≤5／5–10／10–15／>15）。可切方案（現況、A 效率、B 公平、B2 長幼優先、C 低拆遷、D 1955 七公園、Dfull 1955 公園＋綠地）與步速（一般 4.8 km/h、長幼 3.6 km/h）。10 分鐘內可達人口：現況 78.2%，A 方案 98.9%。點面看人口與現況→方案後分鐘。研究推估，非法定查估；固定 2024 人口。來源：內政部最小統計區人口、OpenStreetMap（ODbL）。",
+    description: "30 天地圖挑戰 Day 8 烏托邦：中和＋永和 2,673 個最小統計區，走到最近一座 ≥1 ha 非河濱公園要幾分鐘（≤5／5–10／10–15／>15）。可切方案（現況、A 效率、B 公平、B2 長幼優先、C 未開闢公園地、D 1955 七公園、Dfull 1955 公園＋綠地）與步速（一般 4.8 km/h、長幼 3.6 km/h）。10 分鐘內可達人口：現況 78.2%，A 方案 98.9%。點面看人口與現況→方案後分鐘。研究推估，非法定查估；固定 2024 人口。來源：內政部最小統計區人口、OpenStreetMap（ODbL）。",
     topics: ["公園", "步行", "可及性", "中和", "永和", "都市計畫", "30 天地圖挑戰"],
   },
   mapchallengeDay08Sites: {
