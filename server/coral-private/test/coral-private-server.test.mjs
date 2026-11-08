@@ -26,6 +26,10 @@ import {
   createBusCrowdingS3Gateway,
   BUS_CROWDING_ASSETS,
   handleBusCrowdingRequest,
+  createOwnerDataGateway,
+  createOwnerDataS3Gateway,
+  OWNER_DATA_ASSETS,
+  handleOwnerDataRequest,
   SOIL_LIQUEFACTION_ASSETS,
   createAllenSessionDenylist,
   getAllenCoralAtlasConfig,
@@ -1300,6 +1304,140 @@ test("bus crowding failed warmup fails closed without affecting other families",
     assert.equal((await bus.json()).error, "private bus crowding sidecar unavailable");
     const jp = await fetch(`${root}/jp-water/water?access=1`, { headers: { Authorization: "Bearer owner" } });
     assert.equal(jp.status, 200);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+function ownerDataRequest(asset = "livestock-farms", options = {}) {
+  return request(`/api/private-research/owner-data/${asset}`, options);
+}
+
+test("owner-data allowlist is fixed: lowercase keys without slashes or dots", () => {
+  const names = Object.keys(OWNER_DATA_ASSETS);
+  assert.ok(names.includes("livestock-farms") && names.includes("livestock-slaughterhouses"));
+  assert.ok(Object.isFrozen(OWNER_DATA_ASSETS));
+  for (const name of names) {
+    assert.match(name, /^[a-z0-9-]+$/);
+    const asset = OWNER_DATA_ASSETS[name];
+    assert.ok(Object.isFrozen(asset));
+    assert.match(asset.filename, /^[a-z0-9_]+\.(geo)?json$/);
+    assert.match(asset.sha256, /^[0-9a-f]{64}$/);
+    assert.ok(asset.size > 0);
+  }
+});
+
+test("owner-data assets enforce owner, probe, range and unknown asset boundaries", async () => {
+  const calls = { head: 0, get: 0 };
+  const privateGateway = {
+    async head(asset) { calls.head += 1; return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      calls.get += 1;
+      return {
+        body: new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(range.length)); controller.close(); } }),
+        contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream",
+        etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const revokedSessions = new Set();
+  const deps = (authenticate) => ({ config: allenConfig, authenticate, gateway: privateGateway, revokedSessions });
+  assert.equal((await handleOwnerDataRequest(ownerDataRequest(), deps(async () => ({ status: 401 })))).status, 401);
+  assert.equal((await handleOwnerDataRequest(ownerDataRequest(), deps(async () => ({ status: 403 })))).status, 403);
+  const probe = await handleOwnerDataRequest(request("/api/private-research/owner-data/livestock-farms?access=1"), deps(allenOwner));
+  assert.equal(probe.status, 200);
+  assert.deepEqual(await probe.json(), { allowed: true });
+  assert.equal(calls.head, 0);
+  for (const name of Object.keys(OWNER_DATA_ASSETS)) {
+    const range = await handleOwnerDataRequest(ownerDataRequest(name, { headers: { Range: "bytes=0-3" } }), deps(allenOwner));
+    assert.equal(range.status, 206);
+    assert.equal(range.headers.get("content-range"), `bytes 0-3/${OWNER_DATA_ASSETS[name].size}`);
+    assert.equal(range.headers.get("cache-control"), "private, no-store");
+    assert.equal((await range.arrayBuffer()).byteLength, 4);
+  }
+  assert.equal(calls.get, Object.keys(OWNER_DATA_ASSETS).length);
+  for (const bad of ["unknown", "constructor", "__proto__", "livestock_farms.geojson", "livestock-farms/x", "..%2Flivestock-farms", "LIVESTOCK-FARMS"]) {
+    assert.equal((await handleOwnerDataRequest(ownerDataRequest(bad), deps(allenOwner))).status, 404, bad);
+  }
+  assert.equal(calls.get, Object.keys(OWNER_DATA_ASSETS).length);
+  assert.equal((await handleOwnerDataRequest(ownerDataRequest("livestock-farms"), deps(allenOwner))).status, 416);
+});
+
+test("owner-data local gateway verifies size and sha256 under the configured root", async () => {
+  const bytes = Buffer.from("{\"type\":\"FeatureCollection\",\"features\":[]}");
+  const asset = Object.freeze({ filename: "livestock_farms.geojson", size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
+  // 本機 gateway 依路徑快取驗證結果，所以竄改案例用另一個目錄
+  const dirs = [];
+  try {
+    for (let i = 0; i < 2; i += 1) {
+      const dir = await mkdtemp(join(tmpdir(), "owner-data-"));
+      dirs.push(dir);
+      await writeFile(join(dir, "livestock_farms.geojson"), bytes);
+    }
+    assert.equal((await createOwnerDataGateway(dirs[0], { "livestock-farms": asset }).head(asset)).contentLength, bytes.length);
+    const tampered = Object.freeze({ ...asset, sha256: "0".repeat(64) });
+    await assert.rejects(createOwnerDataGateway(dirs[1], { "livestock-farms": tampered }).head(tampered), /checksum mismatch/);
+  } finally {
+    for (const dir of dirs) await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("owner-data S3 gateway uses immutable private keys", async () => {
+  for (const name of Object.keys(OWNER_DATA_ASSETS)) {
+    const { filename } = OWNER_DATA_ASSETS[name];
+    const bytes = Buffer.from(`owner-data-${name}`);
+    const asset = Object.freeze({ filename, size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
+    const calls = [];
+    const gateway = createOwnerDataS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+      client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+      assets: { [name]: asset },
+    });
+    await gateway.head(asset);
+    assert.deepEqual(calls, [{
+      Bucket: "migu-private-research-ap-southeast-2",
+      Key: `private-research/owner-data/${asset.sha256}/${filename}`,
+      ChecksumMode: "ENABLED",
+    }]);
+  }
+});
+
+test("owner-data is lazy: served while other families fail warmup, never fetched at startup", async () => {
+  let ownerHeads = 0;
+  const ownerGateway = {
+    async head(asset) { ownerHeads += 1; return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      return {
+        body: Buffer.alloc(range.length), contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream", etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const failing = { async head() { throw new Error("missing"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig,
+    authenticate: async (authorization) => authorization === "Bearer owner" ? allenOwner() : { status: 401 },
+    gateway: failing, jpWaterGateway: failing, soilLiquefactionGateway: failing, bssBridgeGateway: failing,
+    bridgeResilienceGateway: failing, busCrowdingGateway: failing, ownerDataGateway: ownerGateway, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.equal(ownerHeads, 0);
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const headers = { Authorization: "Bearer owner", Range: "bytes=0-3" };
+    assert.equal((await fetch(`${root}/bus-crowding/segments`, { headers })).status, 503);
+    assert.equal((await fetch(`${root}/owner-data/livestock-farms`, { headers: { Range: "bytes=0-3" } })).status, 401);
+    assert.equal((await fetch(`${root}/owner-data/livestock-farms?access=1`, { headers: { Authorization: "Bearer owner" } })).status, 200);
+    assert.equal(ownerHeads, 0);
+    assert.equal((await fetch(`${root}/owner-data/livestock-slaughterhouses`, { headers })).status, 206);
+    assert.equal((await fetch(`${root}/owner-data/nope`, { headers })).status, 404);
+    await fetch(`${root}/allen-coral-atlas/revoke`, { method: "POST", headers: { Authorization: "Bearer owner" } });
+    assert.equal((await fetch(`${root}/owner-data/livestock-farms`, { headers })).status, 401);
   } finally {
     if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
