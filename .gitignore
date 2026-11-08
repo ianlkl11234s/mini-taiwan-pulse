@@ -359,3 +359,10 @@ public/bus/yilancounty_bus_routes.json
 public/geo/waste_stops_chat_20261001.json
 public/h3/h3_socioeconomic_res8.json
 public/h3/h3_spatial_economy_res8.json
+public/**/*.json
+public/**/*.png
+!public/blog/**/*.png
+!public/screenshots/*.png
+public/**/*.jpg
+!public/blog/**/*.jpg
+!public/screenshots/*.jpg

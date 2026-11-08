@@ -133,7 +133,7 @@ for (const p of ['/medical/x.pmtiles', '/network_structures/a.pmtiles', '/jp-med
 }
 
 // CI-4：git 大檔目錄與 ookla 改成先 R2 再 dist（之後才能移出 git）；B2 起 .png 副檔名規則與根目錄的 lock 資料檔（LOCKED_DATA_FILES）也先 R2
-for (const p of ['/geo/ookla_tw_z14.pmtiles', '/world/a.pmtiles', '/finance/a.pmtiles', '/energy/a.pmtiles', '/mapchallenge/a.geojson', '/statistics/a.geojson', '/state_assets/a.geojson', '/bus/a_bus_routes.json', '/statistics-accessibility/a.geojson', '/base_map/hillshade.png', '/station_pillars.json']) {
+for (const p of ['/geo/ookla_tw_z14.pmtiles', '/world/a.pmtiles', '/finance/a.pmtiles', '/energy/a.pmtiles', '/mapchallenge/a.geojson', '/statistics/a.geojson', '/state_assets/a.geojson', '/bus/a_bus_routes.json', '/statistics-accessibility/a.geojson', '/base_map/hillshade.png', '/station_pillars.json', '/mapchallenge/day08_plan1955.jpg']) {
   test(`先 R2 再 dist：${p}`, async () => {
     const fromR2 = await route(p, { r2: { [p]: 'r2' }, dist: { [p]: 'dist' } });
     assert.equal(fromR2.res.headers.get('x-pulse-src'), 'r2');
