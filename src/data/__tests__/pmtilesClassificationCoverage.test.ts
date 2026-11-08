@@ -14,7 +14,8 @@
  * Source 介面（只需要 `getKey` / `getBytes`）。
  */
 import { describe, it, expect } from "vitest";
-import { existsSync, openSync, readSync, closeSync } from "node:fs";
+import { assetAvailable } from "../../test/publicAssets";
+import { openSync, readSync, closeSync } from "node:fs";
 import { PMTiles } from "pmtiles";
 import {
   CAMPUS_LEVEL_COLORS,
@@ -115,7 +116,7 @@ describe("PMTiles 分類覆蓋", () => {
 
     it(`${c.file} 的 ${c.field} 分色表涵蓋切片內所有值`, async () => {
       // 大檔 gitignore，CI 沒有本機資產時 graceful skip（與 staticDataContract 同慣例）
-      if (!existsSync(path)) {
+      if (!assetAvailable(path)) {
         console.log(`⚠ ${path} 不存在，skip`);
         return;
       }
@@ -138,7 +139,7 @@ describe("PMTiles 分類覆蓋", () => {
     });
 
     it(`${c.file} 的 feature 數仍是 ${c.count}`, async () => {
-      if (!existsSync(path)) {
+      if (!assetAvailable(path)) {
         console.log(`⚠ ${path} 不存在，skip`);
         return;
       }

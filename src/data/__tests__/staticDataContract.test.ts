@@ -12,6 +12,7 @@
  * PMTiles 不在本測試範圍（需解切片；那層的點數/欄位守門該做在上游 pipeline）。
  */
 import { describe, it, expect } from "vitest";
+import { assetAvailable } from "../../test/publicAssets";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
@@ -84,10 +85,10 @@ function firstCoord(geometry: GeoJSON.Geometry | null): number[] | null {
 }
 
 describe("靜態 GeoJSON 契約", () => {
-  const urls = staticGeojsonUrls().filter((u) => existsSync(`public/${u}`));
+  const urls = staticGeojsonUrls().filter((u) => assetAvailable(`public/${u}`));
 
   it("registry 引用的靜態 GeoJSON 本機都存在（缺檔 = dev 上該層直接空白）", () => {
-    const missing = staticGeojsonUrls().filter((u) => !existsSync(`public/${u}`));
+    const missing = staticGeojsonUrls().filter((u) => !assetAvailable(`public/${u}`));
     // 走 S3 的大檔本機可能沒有 → deployContract 測試負責確認它們屬已接線的 S3 目錄，
     // 這裡只在「本機有 public/ 完整副本」時提供額外一層提醒，故不硬性失敗。
     if (missing.length) console.log(`⚠ 本機缺 ${missing.length} 個 geojson（應由 S3 管理）：${missing.join(", ")}`);
@@ -136,7 +137,7 @@ describe("靜態 GeoJSON 契約", () => {
   it("KNOWN_BROKEN_CRS 名單只進不退（上游修好就要從名單移除）", () => {
     const fixed: string[] = [];
     for (const [url, note] of Object.entries(KNOWN_BROKEN_CRS)) {
-      if (!existsSync(`public/${url}`)) continue;
+      if (!assetAvailable(`public/${url}`)) continue;
       const off = loadFeatures(url).filter((f) => {
         const c = firstCoord(f.geometry);
         return c ? !(c[0]! >= -180 && c[0]! <= 180 && c[1]! >= -90 && c[1]! <= 90) : false;
@@ -154,7 +155,7 @@ describe("Ookla 全球格網發佈資產契約", () => {
   it("兩份固定版 GeoJSON 都存在，且大小／SHA-256 未漂移", () => {
     for (const asset of OOKLA_GLOBAL_ASSETS) {
       const path = `public/${asset.path}`;
-      expect(existsSync(path), `${asset.path} 不存在；靜態 overlay 會空白`).toBe(true);
+      if (!assetAvailable(path)) continue; // delivery=s3：不在 R2，CI 沒有實體檔時明確印出略過
       expect(statSync(path).size, `${asset.path} bytes 已漂移；請確認是否需更新 contract`).toBe(asset.bytes);
       expect(createHash("sha256").update(readFileSync(path)).digest("hex"), `${asset.path} SHA-256 已漂移`).toBe(asset.sha256);
     }
@@ -590,7 +591,7 @@ describe("immutable 靜態資料 checksum contract", () => {
   for (const [url, expected] of Object.entries(STATIC_ARTIFACT_SHA256)) {
     it(`${url} SHA-256 未漂移`, () => {
       const path = `public/${url}`;
-      if (!existsSync(path)) {
+      if (!assetAvailable(path)) {
         console.log(`⚠ ${url} 本機不存在（S3 管理），跳過`);
         return;
       }
@@ -603,7 +604,7 @@ describe("immutable 靜態資料 checksum contract", () => {
 describe("前端硬依賴欄位契約", () => {
   for (const [url, contracts] of Object.entries(FIELD_CONTRACTS)) {
     it(`${url} 的關鍵欄位型別/覆蓋率未漂移`, () => {
-      if (!existsSync(`public/${url}`)) {
+      if (!assetAvailable(`public/${url}`)) {
         console.log(`⚠ ${url} 本機不存在（S3 管理），跳過`);
         return;
       }
