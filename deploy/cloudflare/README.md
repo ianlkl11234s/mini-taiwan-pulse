@@ -8,6 +8,9 @@
 - `sync_site_assets.py`（＋`site_manifest.py`）：S3 deploy-assets → R2 `site/` 只補差異（依 metadata `src-etag`）；預設 dry-run，`--execute` 才寫；
   只用 R2_MIGRATION_*、只寫 `site/`、不刪、排除 climate／global-maritime。`site_manifest.py` 手抄了 `nginx.conf` 與
   `pull-deploy-assets.sh` 的規則，那兩個檔改了要同步改。測試：`python3 deploy/cloudflare/test_sync_site_assets.py`。
+- `../public-assets.lock.json`（CI-4）：git 追蹤、>1MB 的 public 檔清單（大小、sha256、供應方式、S3 key），由
+  `scripts/deploy/build-public-assets-lock.py` 產生；`delivery=r2` 的檔由 `upload-deploy-assets.sh` 末段上傳到 S3，
+  再由本資料夾的同步帶到 R2 `site/`，Worker 先讀 R2、沒有才讀 dist。本機 dev 缺檔時 vite 會改讀 R2（只讀）。
 - `.github/workflows/deploy-workers.yml`：push master → 同步 → build → `wrangler deploy` → smoke；每天 03:40 只同步。
 
 ## 切換到新主機（Akamai＋Cloudflare Tunnel）

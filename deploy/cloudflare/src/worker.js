@@ -32,7 +32,9 @@ const R2_FAMILY = ['jp-heights', 'jp-medical', 'flight-trails'];
 const familyCc = (seg, path) => /^\/(jp-heights\/assets|jp-medical\/releases|flight-trails\/releases)\//.test(path) ? CC_1Y : (seg === 'flight-trails' ? 'no-store' : 'public,max-age=60');
 
 // nginx L284-542：先 /data 再 dist
-const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urban', 'culture', 'civic_facilities', 'religion', 'funeral', 'welfare', 'hazards', 'indigenous_rural', 'marine', 'environment', 'public_life', 'poi', 'harm_reduction', 'world', 'tourism', 'coverage'];
+const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urban', 'culture', 'civic_facilities', 'religion', 'funeral', 'welfare', 'hazards', 'indigenous_rural', 'marine', 'environment', 'public_life', 'poi', 'harm_reduction', 'world', 'tourism', 'coverage',
+  // CI-4（2026-11-08）：原本只在 dist 的 git 大檔目錄，改成先 R2 再 dist，之後可移出 git
+  'finance', 'energy', 'mapchallenge', 'statistics', 'state_assets'];
 // 純 /data（非 ^~），值為固定 Cache-Control，null = map
 const DATA_ONLY = { water_resources: null, agriculture: null, business_registry: CC_1Y, industrial_zone: CC_1Y, sports: null, education: null, 'static-rpc': null, medical: null, base_map: null, fire: null, police_justice: null, road: null, rail: null, 'embed-snapshots': CC_1Y, 'embed-rail': CC_1Y };
 // ^~ 前綴：不受 L893 副檔名正則影響
@@ -187,11 +189,7 @@ export default {
     if (seg === 'network_structures') return (await fromR2(req, path, ccMap(path))) || r2Miss();
     if (R2_FAMILY.includes(seg)) return (await fromR2(req, path, familyCc(seg, path))) || r2Miss();
 
-    // L277 ookla：只走 dist
-    if (/^\/geo\/ookla_(fixed_global|mobile_global|tw_z14|tw_z16)(_[0-9]+)?\.(geojson|pmtiles)$/.test(path)) {
-      const r = await asset(env, req, path);
-      return r ? withHeaders(r, { 'Cache-Control': ccMap(path) }) : notFound();
-    }
+    // ookla（L277）：CI-4 起與其他 /geo/ 檔相同，先 R2 再 dist（內容由 deploy/public-assets.lock.json 的 sha256 把關）
 
     // L893 靜態副檔名正則：非 ^~ 路徑一律從 dist 供檔、7 天 immutable
     if (!isCaret && /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/i.test(path)) {
