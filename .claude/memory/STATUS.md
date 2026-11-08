@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-11-08 v2.28.0 發布（台灣圖層主題重整 #910、大型圖層檔改先讀 R2 #909、畜牧改讀站主私人檔 #911、作品連結新網域 #905；CI 加速 #899／#904）。前一次：同日 v2.27.0（愛爾蘭全波次、南韓公共安全統計、歷史底圖六層）
+**最後更新**：2026-11-08 v2.29.0 發布（能源與石化改讀站主私人檔第 2 批 #917、選舉／火災／垃圾車／集水區河網改讀 CDN static-rpc 與資料目錄血緣改讀 metadata #918、台灣統計分類統一 #912）；發版後步驟與交接待辦見 BACKLOG OWD-1～4、SR-1／2、ZB-V1（#920）。前一次：同日 v2.28.0（台灣圖層主題重整、大型圖層檔改先讀 R2）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
