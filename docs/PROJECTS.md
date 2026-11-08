@@ -71,7 +71,6 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 站主資料改存法（owner-data） | 🟡 | 底線:授權 | 第 1 批畜牧（v2.28.0）、第 2 批能源與石化（v2.29.0）上線並經使用者驗收；mig 514／515 撤 14 支 RPC | OWD-4 第 3 批（EA、Coillte、water1944；選舉活動 11-28 後）；SR-1 撤 static RPC（~11-15）、SR-2 | `../.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`；BACKLOG F 群 | 2026-11-08 |
 | 開發系統與告警整併 | 🔵 | 北極星:開發系統 | 健檢完成（自動化清單 A1–A15、Telegram 告警盤點） | ALERT-1 Telegram 分級（等使用者回答 Hermes／門檻）；DEV-1 branch protection＋關 squash／rebase；DEV-2～6、CI-5／CI-6、MCP-1～3 | BACKLOG G 群 | 2026-11-08 |
 | 資料來源追蹤一條龍（ADR-0018／0024） | 🟡 | 底線:資料正確 | pulse-data #45：606 筆偵測清單，`_detect/changes/` 開始累積；週一 03:00 routine＋VM 04:30 | Phase 2 等 2–4 週數據；61 筆 draft 欄位待補；確認 11/2 起 VM 每週自動清單有在跑（`update_list.py --pull`）；collector run receipt 未做 | `../.gis-agent-system/decisions/0024-source-tracking-and-change-log.md` | 2026-10-29 |
-| Supabase Disk IO 複量 | 🔵 | 底線:花費 | 第三輪 mig 451–460 於 10-16 套用；10-23 複量查無紀錄 | 基準已被 mig 505–510 打亂：以新基準重量一次或結案（DIO-11〔待勾選〕） | `../gis-platform/docs/research/2026-10-16-disk-io-round3.md`；BACKLOG DIO-* | 2026-10-16 |
 
 ### 多國圖層
 
@@ -89,7 +88,6 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 隨 v2.30.0／v2.31.1 | 合 analytics #330（Day 8 第 4 天文件）；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.31.1；`src/blog/mapChallenge.ts` | 2026-11-08 |
 | G27 臺北市局處公務統計 | 🟡 | 北極星:好用 | 部分隨 v2.13.0 上線 | BLOG-V 目視；PDF 獨有表 | candidates/G27；BACKLOG BLOG-V | 2026-10-24 |
 | G32 熱島與高溫曝露 | 🟡 | 北極星:好用 | queued；涼適點、熱傷害排進 TWL-5 第二批 | TWL-5 災害暴露組（使用者說晚點再處理） | candidates/G32；BACKLOG TWL-5 | 2026-10-29 |
-| 舊檔去留（public/fishery） | 🔵 | 北極星:效率 | CI-4 已把 public/ 資料檔全部移出 git（v2.31.3） | TWL-2〔待勾選〕：可能已自然消失，確認後關 | BACKLOG TWL-2 | 2026-11-08 |
 
 ### 模擬實驗
 
@@ -138,7 +136,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 |---|---|---|---|---|---|---|
 | 新聞地點證據 shadow 面板（POC） | ⏸️ 保留 | 待討論 | draft：mini #427、gp #128（migration 須重編號）、collectors #117；mini #425 已於 10-17 合併 | 使用者決定全部留存（2026-11-08）；要重啟再看 CL-3 | BACKLOG CL-3 | 2026-10-03 |
 | 國際媒體台灣情資 feed（GDELT，POC） | ⏸️ 保留 | 待討論 | draft：mini #426、gp #127、collectors #116 | 同上 | BACKLOG CL-3 | 2026-10-03 |
-| Monitor 可拖曳版面 | ⏸️ 保留 | 待討論 | 本機分支 feat/monitor-grid-layout、feat/monitor-widgets-batch1 已於 10-18 依使用者「2甲」刪除，bundle 備份在 `GIS/_worktree-backups/2026-10-18/` | 要重啟時從 bundle 還原 | BACKLOG G015〔待勾選〕 | 2026-10-18 |
+| Monitor 可拖曳版面 | ⏸️ 保留 | 待討論 | 本機分支 feat/monitor-grid-layout、feat/monitor-widgets-batch1 已於 10-18 依使用者「2甲」刪除，bundle 備份在 `GIS/_worktree-backups/2026-10-18/` | 要重啟時從 bundle 還原 | BACKLOG 已關閉 G015（實驗留在 bundle） | 2026-10-18 |
 | 情報牆（mini-taiwan-intel） | ⏸️ | 待討論 | 資安稽核 C1 完成（mig 477、站主登入才可寫） | W30 計畫 §3、§6 待拍板項；W2：「否決關聯」改標 rejected | `../.gis-agent-system/projects/2026-W30-intel-wall/` | 2026-10-17 |
 | Monitor 四域子指數／壓力指數重建 | ⏸️ | 待討論 | 規格 §5.35 I2 已有，無觸發 | MON-P6：決定重啟後先寫公開權重與基期提案 | BACKLOG MON-P6 | 2026-10-16 |
 | 衛星主控台歷史模式機動清單 | ⏸️ 保留 | 待討論 | 2026-10-04 擱置；gp 分支 `feat/satellite-maneuvers-anchor` 本機 commit 未 push | SAT-Z3：解除擱置後先過三項核准 | BACKLOG SAT-Z3 | 2026-10-16 |
@@ -171,7 +169,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 法國 | ⚪ | 待討論 | 國家選單已有 FR（v2.16.0），圖層只有 ANFR 無線站點；MCP 缺邊界與人口 | 決定要不要開 `france_opendata`；最低門檻：countries 一筆＋admin1 邊界＋人口分母 | `../pulse-data/docs/new-country-onboarding.md` §4 | 2026-11-07 |
 | G30 災情、避難與民防 | ⚪ | 北極星:好用 | 研究完成；避難容量衍生層排在 TWL-5 | B 部分需 collector（TWL-6，可排） | candidates/G30 | 2026-11-08 |
 | G31 飲用水源與污染 | ⚪ | 北極星:好用 | queued | 照 G31「下一步」 | candidates/G31 | 未查證 |
-| 次優先候選（TWL-14）＋ researched 群 | ⚪ | 北極星:好用 | researched：G01／03／05／06／07／09／11–15／18／21／22／24–26；TWL-14 是多縣市拼接清單（與 roadmap 重複，〔待勾選〕） | 有空時挑一群排批次 | candidates/_index.md | 2026-10-31 |
+| 次優先候選（TWL-14）＋ researched 群 | ⚪ | 北極星:好用 | researched：G01／03／05／06／07／09／11–15／18／21／22／24–26；TWL-14 是多縣市拼接清單（與 roadmap 重複，BACKLOG 列已於 11-08 關閉，留 roadmap） | 有空時挑一群排批次 | candidates/_index.md | 2026-10-31 |
 | OSINT 研究體系擴充 | ⚪ | 待討論 | 研究結論只在記憶裡 | 等決定是否做；建議先做以統一編號為核心的法人實體表（FtM 格式） | 個人記憶 ctx-handoff（2026-10-30） | 2026-10-30 |
 
 </details>
@@ -190,7 +188,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - `.gis-agent-system` 的 SESSION_BOARD、OPEN_QUESTIONS、release-queue、roadmap `status/backlog.md`、`ai-mcp.md` 已停更，但檔案本身還沒標封存。
 - `.gis-agent-system/projects/2026-10-zeabur-migration/HANDOFF-20261108.md` 全部已轉進 BACKLOG（OWD／SR／ZB／WA／SEC-6），該檔還沒加「已轉 BACKLOG」註記。
 - 個人記憶約 10 份 `*status-ref*.md` 仍寫「未發版」（例：mapchallenge-day04、vintage-history），與正式站不符；ctx-handoff 重述大量專案進度。
-- BACKLOG FP-1 要 1095 天歷史，但新保留政策 food_price_daily 只留 180 天（前提衝突，FP-1 已標〔待勾選〕）。
+- BACKLOG FP-1 要 1095 天歷史，但新保留政策 food_price_daily 只留 180 天（前提衝突，FP-1 待使用者決定；建議 3 年歷史改放 S3／R2）。
 
 ## 怎麼維護
 
@@ -203,6 +201,9 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - 只放指標與一兩句現況，細節留在正本。
 
 ## 已結案
+
+- Supabase Disk IO 複量：2026-11-08 使用者同意結案（DIO-1／DIO-11 關閉；基準被 mig 505–510 打亂，要量另開）。
+- 舊檔去留（public/fishery）：2026-11-08 結案（TWL-2 關閉；CI-4 已把資料檔移出 git）。
 
 回顧影片 v5.4（2026-10-05 發布封存）、隱私說明頁（v2.12.0）、多國議題 2 主體（2026-10-29）；roadmap G02、G08、G17、G19 已上線；TWL-8~12、TWL-16、KRREL-1、UKREL-1、IEREL-1、VIS-1／2／4／5／6 已結案；多國化議題 3 主站遷移（MC-4，2026-11-06 隨 Zeabur 搬家完成）；2026-11-06 review 修正輪（mini #844／#845／#850、gp #202／#204 mig 502 已套用、collectors #172）；G04 parked；**public/ 資料檔移出 git（CI-4，v2.31.2／v2.31.3）**；CI 加速（CI-1～3，#899／#904）；站主資料第 1、2 批與撤 RPC（OWD-1～3）；sync-rotating 修復（#945／#946）。
 
