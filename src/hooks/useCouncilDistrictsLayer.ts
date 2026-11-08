@@ -7,7 +7,7 @@ import { fetchCouncilDistricts } from "../data/councilDistrictsLoader";
 import { isMissingPollingRpc } from "../data/pollingStationsLoader";
 
 /**
- * 2026 議員選區（公開）資料供應 hook：開圖層時抓一次全臺選區（get_council_districts_2026，loader session 快取）
+ * 2026 議員選區（公開）資料供應 hook：開圖層時抓一次全臺選區（靜態快照 get_council_districts_2026.json，loader session 快取）
  * 後 setData。樣式全在 overlayRegistry。
  */
 
@@ -34,7 +34,7 @@ export function useCouncilDistrictsLayer(
       .catch((err: unknown) => {
         if (disposed) return;
         if (isMissingPollingRpc(err)) {
-          if (!missingRpcLogged) console.info("[CouncilDistricts] get_council_districts_2026 尚未部署，圖層暫無資料");
+          if (!missingRpcLogged) console.info("[CouncilDistricts] get_council_districts_2026 靜態快照尚未部署，圖層暫無資料");
           missingRpcLogged = true;
           return;
         }

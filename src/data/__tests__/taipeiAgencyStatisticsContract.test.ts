@@ -34,7 +34,8 @@ describe("臺北市局處統計契約", () => {
       expect(recipe.level, recipe.layer_key).toBe("township");
       expect(recipe.boundary_version, recipe.layer_key).toBe("TOWN_MOI_1140318");
       expect(STATISTICS_CHOROPLETH_KEYS as readonly string[]).toContain(recipe.layer_key);
-      expect(LAYER_MANIFEST[recipe.layer_key as keyof typeof LAYER_MANIFEST]?.section?.theme).toBe(recipe.data_theme);
+      // 統計入口與完整目錄同一套分類（TWL-12 甲案）：section＝統計入口主題（recipe.tab_theme）
+      expect(LAYER_MANIFEST[recipe.layer_key as keyof typeof LAYER_MANIFEST]?.section?.theme).toBe(recipe.tab_theme);
       // 分類位置：不自成一類，併入各自縣市版所在主題
       expect(recipe.data_theme, recipe.layer_key).not.toMatch(/臺北市局處/);
       expect(recipe.subgroup, recipe.layer_key).toBe("臺北市 12 區（月）");

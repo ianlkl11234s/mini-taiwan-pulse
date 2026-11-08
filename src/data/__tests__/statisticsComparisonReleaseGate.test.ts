@@ -29,7 +29,7 @@ describe('statistics comparison release gate', () => {
     expect(groups.MEDICAL_STATISTICS_GROUPS.find(group => group.key === 'hospitalCount')?.options.map(option => option.key)).toEqual(['statsHealthHospitalCount']);
     expect(groups.STATISTICS_TOGGLE_GROUPS.every(group => group.options.length > 0 && group.options.every(option => !String(option.key).startsWith('statsComparison')))).toBe(true);
     expect(groups.STATISTICS_TOGGLE_GROUPS.some(group => group.key === 'a2AccidentCount')).toBe(false);
-    expect(catalog.STATISTICS_DATA_THEMES.some(theme => theme.title === '統計比較')).toBe(false);
+    expect(catalog.TW_STATISTICS_CATALOG_THEMES.flatMap(theme => theme.groups).flatMap(group => group.layers).some(layer => String(layer.key).startsWith('statsComparison'))).toBe(false);
     expect(catalog.STATISTICS_TAB_THEMES.flatMap(theme => theme.groups).flatMap(group => group.layers).some(layer => String(layer.key).startsWith('statsComparison'))).toBe(false);
   });
 
@@ -42,7 +42,7 @@ describe('statistics comparison release gate', () => {
     expect(recipes.COMPARISON_UI_RECIPES).toHaveLength(188);
     expect(views.EDUCATION_PRESENTATION_VIEWS.some(view => view.metrics.some(metric => metric.layerKey.startsWith('statsComparison')))).toBe(true);
     expect(groups.MEDICAL_STATISTICS_GROUPS.find(group => group.key === 'hospitalCount')?.options).toHaveLength(3);
-    expect(catalog.STATISTICS_DATA_THEMES.some(theme => theme.title === '統計比較')).toBe(true);
+    expect(catalog.TW_STATISTICS_CATALOG_THEMES.flatMap(theme => theme.groups).flatMap(group => group.layers).filter(layer => String(layer.key).startsWith('statsComparison'))).toHaveLength(188);
   });
 
   it('accepts an explicit production release opt-in', async () => {

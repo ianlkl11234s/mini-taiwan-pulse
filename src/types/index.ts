@@ -1286,9 +1286,9 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   newsEvents: boolean;
   /** 2026 地方選舉活動（owner-only RPC get_election_events_2026；研究原型） */
   electionEvents2026: boolean;
-  /** 2024 投開票所（公開 bbox RPC get_polling_stations_2024；gis-platform mig 495） */
+  /** 2024 投開票所（CDN 靜態快照 /static-rpc/polling_stations_2024.json；來源表 gis-platform mig 495） */
   pollingStations2024: boolean;
-  /** 2026 縣市議員選舉區（公開 RPC get_council_districts_2026；gis-platform mig 496） */
+  /** 2026 縣市議員選舉區（CDN 靜態快照 /static-rpc/get_council_districts_2026.json；來源 gis-platform mig 496） */
   councilDistricts2026: boolean;
   /** GitHub append-only 研究經 publisher 發布的全球重要事件；僅顯示有真實 Point 的位置 */
   globalEvents: boolean;

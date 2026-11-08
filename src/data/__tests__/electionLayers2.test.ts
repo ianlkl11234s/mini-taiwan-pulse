@@ -35,13 +35,19 @@ describe("2026 議員選區", () => {
     expect(d.meta).toEqual({ count: 161, loadedAt: "2026-11-03T15:00:20+00:00" });
   });
 
-  it("fetch 一次後走快取", async () => {
-    rpc.mockReturnValue(Promise.resolve({ data: { features: [] }, error: null, status: 200 }));
-    const a = await fetchCouncilDistricts();
-    const b = await fetchCouncilDistricts();
-    expect(a).toBe(b);
-    expect(rpc).toHaveBeenCalledTimes(1);
-    expect(rpc).toHaveBeenCalledWith("get_council_districts_2026");
+  it("fetch 一次後走快取（讀 CDN 靜態快照，不打 RPC）", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ features: [] }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      const a = await fetchCouncilDistricts();
+      const b = await fetchCouncilDistricts();
+      expect(a).toBe(b);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledWith("/static-rpc/get_council_districts_2026.json");
+      expect(rpc).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("組成單位：字串、陣列、JSON 字串都可顯示", () => {

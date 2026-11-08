@@ -17,7 +17,8 @@ beforeAll(() => ensureStatisticsRecipeDetails());
 import { STATISTICS_RECIPES } from "../regionalStatisticsRecipes";
 import { AGRI_EXISTING_LAYER_REFERENCES, STATISTICS_TAB_LAYER_ROLES } from "../statisticsLayerRegistry";
 import { AGRI_CATALOG_DATASET_ALIASES, LAYER_MANIFEST } from "../layerManifest";
-import { STATISTICS_DATA_THEMES } from "../../components/sidebar/layerCatalog";
+import { TW_STATISTICS_CATALOG_THEMES } from "../../components/sidebar/layerCatalog";
+import { TW_STATISTICS_PLACEMENT } from "../statisticsTabThemes";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
 type HandoffRecipe = {
@@ -40,7 +41,7 @@ const blockedKeys = [
   "statsAquacultureStockingCounty",
 ];
 const enabledRecipeSet = new Set(enabledKeys);
-const catalogKeys = STATISTICS_DATA_THEMES.flatMap((theme) =>
+const catalogKeys = TW_STATISTICS_CATALOG_THEMES.flatMap((theme) =>
   theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)),
 );
 
@@ -97,8 +98,8 @@ describe("農林漁牧 statistics handoff contract", () => {
       expect(manifest).toMatchObject({
         key: recipe.layer_key,
         label: recipe.label,
-        // 交通統計沿用既有英文 theme title；其他新農林漁牧主題保留 handoff 中文 group。
-        section: { theme: recipe.group === "交通統計" ? "交通統計 Transport Statistics" : recipe.group, group: recipe.subgroup },
+        // 統計入口與完整目錄同一套分類（TWL-12 甲案）：section＝統計入口位置（農林漁牧／交通用地）
+        section: TW_STATISTICS_PLACEMENT[recipe.layer_key],
         upstream: { datasets: [{ datasetId: AGRI_CATALOG_DATASET_ALIASES[recipe.dataset_id] ?? recipe.dataset_id }] },
         legend: recipe.layer_key,
         popup: "regionalStatistic",
