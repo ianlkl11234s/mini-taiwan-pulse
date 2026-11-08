@@ -2291,3 +2291,40 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `STATUS.md`：加 11-07～11-08 段。
 - `BACKLOG.md`：AG-12 已隨 #881 合入。
 
+
+
+## 2026-11-07 歷史底圖：中研院 WMTS 85 張拆成 6 層（#882）
+
+### What worked
+
+- 先逐層打 tile 實測，不信 GetCapabilities：很多層的範圍是預設值，沒資料的地方回 935／798／1246／190 bytes 占位圖；2017 上河地圖在任何位置都回同一張圖，因此排除。實測 CSV 直接給 worker 當測試 fixture。
+- 使用者要「原始資料」而不是自己加工的研究成果；沿用既有元件，不出設計稿，直接實作。合併前自己用 agent-browser 驗疊加順序、年代切換、圖例、各層出圖，再合進 develop。
+
+### Friction / limits
+
+- worker 在 worktree 用 symlink 的 node_modules，`capabilityAudit` 測試裡的 vite-node 子程序載不到套件；CI 正常。
+- worker 順手把地名提示卡擴到五個不透明層（範圍外），回報時有標出來，已告知使用者。
+
+### Memory output
+
+- `BACKLOG.md`：HIST-1 補充、HIST-2 降為 P3 並記使用者決定、HIST-4 改 ready。
+- `docs/PROJECTS.md`：古地圖列更新。
+
+## 2026-11-07～08 愛爾蘭全波次、南韓第 7 波與統計
+
+### What worked
+
+- 同一國連續多波：共用規則寫成一份 scratchpad 檔，派工只寫波名與範圍；最多兩個 worker，每合一波就通知另一個 worker 合最新 develop、重算 golden 層數／熱區色盤數／國家圖層清單數再推，13 波沒有一次撞壞 develop。
+- 合併前主 agent 自己看全覽截圖：抓到南韓小學通學區在 z6 糊成整片藍（CI 是綠的），改成 z<9 只畫外框後才合。
+- 需要寫正式 DB／R2 的項目一律停在「APPLY.md 寫好」，拿到使用者核准後才由 worker 依序 dry-run→套用→驗數；兩次統計、一次 owner-only 都一次對上預期數字。
+
+### Friction / limits
+
+- 統計 PR #877 合併時漏登 29 個 statsIe* registry 條目，到下一波覆蓋檢查才發現；統計 recipe 也要跑覆蓋檢查。
+- mig 511 第一次套用回「read-only transaction」整筆回滾，原因不明，原樣重跑成功。
+- 站主限定圖層無法用無頭瀏覽器登入驗收，只能用 SQL 模擬身分，前端實載仍要使用者看。
+
+### Memory output
+
+- `BACKLOG.md`：新增 IEREL-1、IECOI-1、IEW-11、IEADD-1、IEWH-1、KRSTAT-1、REG-2；KRW-6 改第 8 波。
+- `STATUS.md`：11-07～08 checkpoint。
