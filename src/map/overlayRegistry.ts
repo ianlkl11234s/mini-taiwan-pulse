@@ -864,7 +864,7 @@ function metroPointLayers(prefix: string): OverlayConfig["layers"] {
 }
 
 // ── 🐷 畜牧 Livestock helpers ──
-const FARM_SOURCE = "./agriculture/livestock_farms.geojson";
+const FARM_SOURCE = "./geo/_empty.geojson"; // dynamicData：資料由 useLivestockLayers 讀 owner-data 私人檔後 setData
 
 // 飼養場圓圈大小：per-species 總隻數 log 尺標（各層獨立 domain + 兩端 clamp）。
 // 無 zoom 項（用戶要大小純綁數量，不隨 zoom 變）。
@@ -928,7 +928,7 @@ function livestockFarmOverlay(
     sourceUrl: FARM_SOURCE,
     sourceId: "livestock-farms",
     // owner-only 動態：由 useLivestockLayers 讀站主私人檔（owner-data 家族）後 setData（見 docs/features/owner-gated-layers）；
-    // sourceUrl 只是 manifest 契約欄位（公開路徑不部署，實務不再 fetch 該檔）。
+    // sourceUrl 是共用的空 FeatureCollection（dynamicData 起手用）。
     dynamicData: true,
     filter,
     layers: [
@@ -5113,7 +5113,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 屠宰場：依「種類」首字分家畜(豬牛羊)/家禽(雞鴨鵝)
   {
     id: "livestockSlaughter",
-    sourceUrl: "./agriculture/slaughterhouses.geojson",
+    sourceUrl: "./geo/_empty.geojson",
     sourceId: "livestock-slaughter",
     // owner-only 動態：由 useLivestockLayers 讀站主私人檔（owner-data 家族）後 setData
     dynamicData: true,

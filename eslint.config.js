@@ -12,7 +12,9 @@ const HOOKS_AND_MAP = ["src/hooks/**/*.{ts,tsx}", "src/map/**/*.{ts,tsx}"];
 const OWNER_ONLY_FAMILIES = "{busCrowding,BusCrowding,bridgeResilience,BridgeResilience,bssBridge,BssBridge,soilLiquefaction,SoilLiquefaction,allenCoral,AllenCoral,coralReef,CoralReef,jpWater,JpWater}";
 export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hooks/use${OWNER_ONLY_FAMILIES}*.ts`, "src/lib/coralPrivateUi.ts", "src/lib/auth.ts",
   // owner-data 通用家族（2026-11-08）：契約、共用讀取與第一個使用者（畜牧）
-  "src/data/ownerDataAssets.ts", "src/lib/ownerData.ts", "src/data/livestockLoader.ts"];
+  "src/data/ownerDataAssets.ts", "src/lib/ownerData.ts", "src/data/livestockLoader.ts",
+  // 第 2 批（能源與石化）：這兩支同時含公開／即時 RPC，但站主私人檔也從這裡讀
+  "src/data/energyLoader.ts", "src/data/fossilFuelLoader.ts"];
 /** 不套 owner-only-no-external-source 的檔與理由（ownerOnlyScope.test.js 逐字釘住，新增要改測試並在 PR 說明）。 */
 export const OWNER_ONLY_EXEMPT = {
   "src/data/layerManifest.ts": "全站圖層登記簿，不是 owner-only 專屬檔",

@@ -1,6 +1,6 @@
-import { supabase } from "../lib/supabase";
 import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
+import { fetchOwnerJson } from "../lib/ownerData";
 
 /**
  * 化石燃料 13 layer 資料載入器。
@@ -37,7 +37,7 @@ export type FossilLayerKey = (typeof FOSSIL_LAYER_MAP)[keyof typeof FOSSIL_LAYER
 
 // owner-gated 資料路徑拆分（coordinator 契約）：
 // - 加油站 5 層 → 公開 RPC get_gas_station_layers（走 staticRpc 保留 CDN 快照+fallback，不 gated）
-// - 石化 9 層  → 直連 supabase.rpc get_fossil_fuel_layers（owner-gated；新版仍含加油站 key，忽略即可）
+// - 石化 9 層  → 站主私人檔 owner-data/fossil-fuel-layers（原 get_fossil_fuel_layers 輸出，已剔除加油站列）
 export const GAS_STATION_FE_KEYS: readonly FossilLayerKey[] = [
   "gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther", "gasStationCanonical",
 ];
@@ -192,19 +192,15 @@ export async function fetchGasStationLayers(): Promise<FossilFuelLayers> {
 }
 
 /**
- * 石化 9 層（owner-gated）：直連 supabase.rpc get_fossil_fuel_layers（脫離公開 CDN 快照）。
- * 新版 RPC 仍含加油站 key，但本路徑只餵石化 source（hook 端負責），忽略加油站部分。
- * 非 owner 前端 toggle 已擋 → 不會走到這裡。
+ * 石化 9 層（owner-gated）：讀站主私人檔（owner-data 家族 fossil-fuel-layers，2026-11-08 起取代
+ * owner-only RPC get_fossil_fuel_layers）。檔案是該 RPC 的原始 rows（已剔除公開的 gas_station_* 5 層），
+ * 前端照舊 parseRows（煉油廠白名單、industrial halo 都在這裡做），回傳形狀不變。
+ * 非 owner 前端 toggle 已擋 → 不會走到這裡；sidecar 端非站主一律 401／403。
  */
 export async function fetchFossilFuelLockedLayers(): Promise<FossilFuelLayers> {
   const t0 = performance.now();
-  const { data, error } = await withLoading(
-    "fossilFuel:locked",
-    "石化能源 9 圖層",
-    supabase.rpc("get_fossil_fuel_layers"),
-  );
-  if (error) throw new Error(`get_fossil_fuel_layers: ${error.message}`);
-  const out = parseRows((data ?? []) as RawRow[]);
+  const rows = await fetchOwnerJson<RawRow[]>("fossil-fuel-layers", "fossilFuel:locked", "石化能源 9 圖層");
+  const out = parseRows(rows);
   console.log(`[FossilFuel] locked layers loaded in ${(performance.now() - t0).toFixed(0)}ms`);
   return out;
 }

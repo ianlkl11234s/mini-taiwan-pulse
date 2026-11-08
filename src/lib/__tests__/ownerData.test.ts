@@ -48,6 +48,39 @@ describe("owner-data 私人資產契約", () => {
   });
 });
 
+describe("第 2 批：能源與石化改讀私人檔", () => {
+  const energy = fs.readFileSync(path.join(root, "src/data/energyLoader.ts"), "utf8");
+  const fossil = fs.readFileSync(path.join(root, "src/data/fossilFuelLoader.ts"), "utf8");
+
+  it("12 支靜態 owner-only RPC 不再被前端呼叫", () => {
+    for (const rpc of [
+      "get_fossil_fuel_layers", "get_fossil_fuel_infrastructure", "get_osm_substations", "get_osm_power_lines",
+      "get_osm_power_towers", "get_osm_power_plants_static", "get_ssot_facilities_primary_operating",
+      "get_ssot_facilities_offshore_zones", "get_ssot_facilities_planned", "get_ssot_facilities_historical",
+      "get_ssot_facilities_secondary_small", "get_ssot_facilities_osm_supplement",
+    ]) {
+      expect(energy, rpc).not.toContain(`rpc("${rpc}"`);
+      expect(fossil, rpc).not.toContain(`rpc("${rpc}"`);
+    }
+    expect(fossil).not.toMatch(/lib\/supabase/);
+  });
+
+  it("即時與逐點查詢仍走 RPC（facPrimary 的 has_realtime、powerPlants、24h 出力、popup）", () => {
+    for (const rpc of ["get_ssot_realtime_facility_output", "get_ssot_power_plants_with_output", "get_ssot_facility_output_24h", "get_power_plant_output_24h", "get_ssot_facility_provenance"]) {
+      expect(energy, rpc).toContain(`rpc("${rpc}"`);
+    }
+  });
+
+  it("每個能源／石化資產都有 loader 讀取", () => {
+    for (const asset of ["fac-primary", "fac-offshore", "fac-planned", "fac-historical", "fac-secondary", "fac-osm-supplement",
+      "osm-substations", "osm-power-lines", "osm-power-towers", "osm-power-plants-static", "fossil-fuel-infrastructure"]) {
+      expect(asset in OWNER_DATA_ASSETS, asset).toBe(true);
+      expect(energy, asset).toContain(`("${asset}", "`);
+    }
+    expect(fossil).toContain('fetchOwnerJson<RawRow[]>("fossil-fuel-layers"');
+  });
+});
+
 describe("readOwnerJson／fetchOwnerJson", () => {
   const fc = { type: "FeatureCollection", features: [{ type: "Feature", geometry: null, properties: { 場名: "x" } }] };
 
