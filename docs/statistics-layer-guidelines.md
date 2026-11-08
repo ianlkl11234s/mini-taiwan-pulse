@@ -20,6 +20,7 @@
 
 ## 3. 清單、群組與操作
 
+- 台灣統計的主題與群組只有一套（TWL-12，2026-11-08）：正本是 `src/data/statisticsTabThemes.ts`，統計入口、完整目錄（資料來源總覽、搜尋）與 manifest `section` 都從它產生，所以統計層的 `section` 就是它在統計入口的位置。新增台灣統計層時把 key 登記進這份正本，不要在 manifest 手寫主題名；recipe 的 `group`／`data_theme` 是來源分類，不決定擺放位置（選舉 atlas 例外：不在正本裡，仍依 `data_theme` 併進 GIS「政治」主題）。
 - 一般圖層與整合群組共用滑動 toggle；toggle 只控制顯示，箭頭／標題展開詳情，select 切換指標或統計口徑。不要另做文字「開／關」圓鈕。
 - 期別、指標、細項、群組「指標／口徑」一律是共用規格的**連動選單**（`kind: "linkedSelect"`，設計系統 spec §5.37）：由 `data/statisticsParamsSpec.ts` 依 recipe 目錄派生，不在元件裡手寫 select。新增 recipe 時：releaseSelector 要宣告 `dimensionKeys`（＝`resolve` 輸出的鍵與順序，連動的上下游順序）；農業／社會／勞動／比較讀 catalog 的維度鍵順序；群組成員加進 `medicalStatisticsGroups.ts` 就會自動有「指標」列與群組列（`LayerDef.variant`）。
 - 連動規則：上游改變時下游目前值仍合法就保留，否則改成第一個合法值；只有一個值的維度不顯示，目前選擇寫在「說明・來源」。說明・來源固定在展開區最後，含位置口徑、資料限制、來源與處理紀錄。
