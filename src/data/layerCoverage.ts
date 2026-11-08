@@ -110,6 +110,7 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   mapchallengeDay06Coast: "swCoast",
   mapchallengeDay06Taipei1932: "taipei",
   mapchallengeDay08Access: "zhongheYonghe",
+  mapchallengeDay08Parks: "zhongheYonghe",
   mapchallengeDay08Sites: "zhongheYonghe",
   mapchallengeDay08Plan1955: "zhongheYonghe",
   tainanRoadTunnels: "tainan",

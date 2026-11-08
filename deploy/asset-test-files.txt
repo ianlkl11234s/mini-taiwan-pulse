@@ -161,8 +161,9 @@ public/mapchallenge/day06_coast.geojson
 public/mapchallenge/day06_lighthouse_weather.geojson
 public/mapchallenge/day06_taipei_1932.geojson
 public/mapchallenge/day06_temples_1921.geojson
-public/mapchallenge/day08_access.geojson
-public/mapchallenge/day08_sites.geojson
+public/mapchallenge/day08_access_v2.geojson
+public/mapchallenge/day08_parks.geojson
+public/mapchallenge/day08_sites_v2.geojson
 public/marine/artificial_reef_areas.geojson
 public/marine/beach_water_quality.geojson
 public/marine/cetacean_strandings.geojson

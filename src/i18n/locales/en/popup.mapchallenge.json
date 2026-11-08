@@ -91,5 +91,19 @@
   "popup.mapchallenge.day08.residents": "Living on the site",
   "popup.mapchallenge.day08.peopleRange": "{low}–{high}",
   "popup.mapchallenge.day08.cost": "Total cost",
-  "popup.mapchallenge.day08.costValue": "NT${low}–{high}B (base {base}B)"
+  "popup.mapchallenge.day08.costValue": "NT${low}–{high}B (base {base}B)",
+  "popup.mapchallenge.day08.entranceTitle": "Riverside levee entrance",
+  "popup.mapchallenge.day08.entranceKind": "Kind",
+  "popup.mapchallenge.day08.wayName": "Road name",
+  "popup.mapchallenge.day08.belongsPark": "Park",
+  "popup.mapchallenge.day08.entranceNote": "About entrances",
+  "popup.mapchallenge.day08.unnamedPark": "(Unnamed park)",
+  "popup.mapchallenge.day08.unnamedRiverside": "(Unnamed riverside park)",
+  "popup.mapchallenge.day08.isRiverside": "Riverside",
+  "popup.mapchallenge.day08.riversideYes": "Yes (only through levee entrances)",
+  "popup.mapchallenge.day08.riversideNo": "No",
+  "popup.mapchallenge.day08.kind.bridge": "Footbridge",
+  "popup.mapchallenge.day08.kind.tunnel": "Underpass",
+  "popup.mapchallenge.day08.kind.steps": "Stairs over levee",
+  "popup.mapchallenge.day08.kind.gate": "Flood gate"
 }

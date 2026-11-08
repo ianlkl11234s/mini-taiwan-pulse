@@ -2360,7 +2360,7 @@ const THEME_CATALOG: ThemeDef[] = [
       layers: [fromManifest("mapchallengeDay06Coast"), fromManifest("mapchallengeDay06Taipei1932"), fromManifest("mapchallengeDay06Temples1921"), fromManifest("mapchallengeDay06Lighthouses")],
     }, {
       title: "Day 8 烏托邦 Utopia",
-      layers: [fromManifest("mapchallengeDay08Access"), fromManifest("mapchallengeDay08Sites"), fromManifest("mapchallengeDay08Plan1955")],
+      layers: [fromManifest("mapchallengeDay08Access"), fromManifest("mapchallengeDay08Parks"), fromManifest("mapchallengeDay08Sites"), fromManifest("mapchallengeDay08Plan1955")],
     }],
   },
 

@@ -1032,7 +1032,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day06-coast-circle", "mapchallenge-day06-coast-line"], type: "mapchallengeDay06Coast" },
   { layers: ["mapchallenge-day06-taipei-1932-fill"], type: "mapchallengeDay06Taipei1932" },
   // 🌳 30 天地圖挑戰 Day 8 烏托邦：選址面（小）在上、步行分鐘統計區面（鋪滿中永和）在下
+  // 現有公園（面）與河濱入口（點）：入口點在上，公園面其次，仍在選址面之上不衝突（選址只在 A–Dfull 才有）
+  { layers: ["mapchallenge-day08-parks-circle"], type: "mapchallengeDay08Parks" },
   { layers: ["mapchallenge-day08-sites-fill"], type: "mapchallengeDay08Sites" },
+  { layers: ["mapchallenge-day08-parks-fill"], type: "mapchallengeDay08Parks" },
   { layers: ["mapchallenge-day08-access-fill"], type: "mapchallengeDay08Access" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。

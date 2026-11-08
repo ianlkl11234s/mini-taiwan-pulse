@@ -39,7 +39,7 @@ import {
   mapchallengeDay06TypeFilter, MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, MAPCHALLENGE_DAY06_SAME_RING, mapchallengeDay06CoastWidthExpr,
 } from "../data/mapchallengeDay06Types";
 import {
-  MAPCHALLENGE_DAY08_ACCESS_URL, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY, MAPCHALLENGE_DAY08_SITES_URL,
+  MAPCHALLENGE_DAY08_ACCESS_URL, MAPCHALLENGE_DAY08_PARK_CLASSES, MAPCHALLENGE_DAY08_PARK_FILL_OPACITY, MAPCHALLENGE_DAY08_PARKS_URL, mapchallengeDay08ParkColor, mapchallengeDay08ParkColorExpr, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY, MAPCHALLENGE_DAY08_SITES_URL,
   mapchallengeDay08AccessColorExpr, mapchallengeDay08ScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
   mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
 } from "../data/mapchallengeDay08Types";
@@ -12680,7 +12680,7 @@ OVERLAY_REGISTRY.push(
   },
 );
 
-// ── 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開，2026-11-08）：中和＋永和走到 ≥1 ha 非河濱公園的步行分鐘＋新公園選址。
+// ── 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開，2026-11-08）：中和＋永和走到 ≥1 ha 公園（含河濱，只走穿堤入口）的步行分鐘＋新公園選址。
 // 方案 select 兩層共用（mapchallengeDay08ScenarioIdx）。步行分鐘：方案／步速只換 paint 讀的欄位（t0／t0s／t_<S>／ts_<S>）。
 // 選址：方案＋類別多選（V-4）改 filter，參數變動時重建；方案＝現況時沒有用地（filter 自然 0 筆）。
 // 1955 計畫原圖是 image source，由 useMapchallengeDay08PlanLayer 掛（overlay 引擎只收 geojson／pmtiles）。
@@ -12689,6 +12689,14 @@ const mcDay08SiteFilter = (p?: Record<string, number>): unknown[] => {
   const cat = categoryFilterExpr({ property: "cls", options: MAPCHALLENGE_DAY08_SITE_CLASSES.map((c) => ({ value: c.value, zh: c.zh })) }, p?.mapchallengeDay08SitesCategoryMask);
   const scenario = ["==", ["get", "scenario"], mapchallengeDay08ScenarioAt(p?.mapchallengeDay08ScenarioIdx).value];
   return cat ? ["all", scenario, cat] : scenario;
+};
+
+const mcDay08ParkCat = (p?: Record<string, number>): unknown[] | null =>
+  categoryFilterExpr({ property: "cls", options: MAPCHALLENGE_DAY08_PARK_CLASSES.map((c) => ({ value: c.value, zh: c.zh })) }, p?.mapchallengeDay08ParksCategoryMask);
+const mcDay08ParkFilter = (geom: "Polygon" | "Point") => (p?: Record<string, number>): unknown[] => {
+  const g = geom === "Point" ? ["==", ["geometry-type"], "Point"] : ["!=", ["geometry-type"], "Point"];
+  const cat = mcDay08ParkCat(p);
+  return cat ? ["all", g, cat] : g;
 };
 
 OVERLAY_REGISTRY.push(
@@ -12706,6 +12714,32 @@ OVERLAY_REGISTRY.push(
     }, {
       suffix: "outline", type: "line",
       paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay08AccessOpacity ?? 0.7 }),
+    }],
+  },
+  {
+    // 1b. 現有 ≥1 ha 公園（面：一般／河濱）＋河濱穿堤入口（點）：類別多選（V-4）改 filter
+    id: "mapchallengeDay08Parks", sourceUrl: MAPCHALLENGE_DAY08_PARKS_URL, sourceId: "mapchallenge-day08-parks",
+    attribution: "OpenStreetMap（ODbL）；臺北市疏散門開放資料（data.gov.tw 143891） · 入口由 OSM 推定，為偏保守的下限",
+    rebuildOnParamChange: ["fill", "outline", "circle"], rebuildOnParamKeys: ["mapchallengeDay08ParksCategoryMask"],
+    layers: [{
+      suffix: "fill", type: "fill",
+      filter: (p) => mcDay08ParkFilter("Polygon")(p),
+      paint: (isDark, p) => ({
+        "fill-color": mapchallengeDay08ParkColorExpr(isDark),
+        "fill-opacity": MAPCHALLENGE_DAY08_PARK_FILL_OPACITY * ((p?.mapchallengeDay08ParksOpacity ?? 0.85) / 0.85),
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      layout: { "line-join": "round" },
+      filter: (p) => mcDay08ParkFilter("Polygon")(p),
+      paint: (isDark, p) => ({ "line-color": mapchallengeDay08ParkColorExpr(isDark), "line-width": 1, "line-opacity": p?.mapchallengeDay08ParksOpacity ?? 0.85 }),
+    }, {
+      suffix: "circle", type: "circle",
+      filter: (p) => mcDay08ParkFilter("Point")(p),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay08ParkColor("entrance", isDark),
+        "circle-opacity": p?.mapchallengeDay08ParksOpacity ?? 0.85,
+      }),
     }],
   },
   {

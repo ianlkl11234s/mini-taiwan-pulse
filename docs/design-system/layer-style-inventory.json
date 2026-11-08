@@ -18,20 +18,20 @@
   ]
  },
  "summary": {
-  "layerKeys": 1774,
-  "overlayConfigs": 507,
-  "runtimeSublayers": 966,
+  "layerKeys": 1775,
+  "overlayConfigs": 508,
+  "runtimeSublayers": 969,
   "byResolution": {
-   "runtime": 426,
+   "runtime": 427,
    "static-scan": 308,
    "unresolved": 133,
    "shared-renderer": 907
   },
   "byGeometry": {
-   "point": 594,
+   "point": 595,
    "heatmap": 215,
-   "line": 369,
-   "polygon": 1234,
+   "line": 370,
+   "polygon": 1235,
    "raster": 64,
    "label": 63,
    "3d": 35,
@@ -43,7 +43,7 @@
    "Three.js／WebGL CustomLayer": 11,
    "無 hook／factory（App 掛載或尚無實作）": 103
   },
-  "legendEntries": 1522,
+  "legendEntries": 1523,
   "legendTypes": {
    "square-swatch": 120,
    "svg-icon": 50,
@@ -53,7 +53,7 @@
    "gradient+size+dot-swatch": 4,
    "hatch(missing)": 3,
    "size+dot-swatch": 17,
-   "dot-swatch+square-swatch": 17,
+   "dot-swatch+square-swatch": 18,
    "text-only": 17,
    "square-swatch+line-swatch+hatch(missing)+svg-icon": 1,
    "gradient+dot-swatch+square-swatch+hatch(missing)": 1,
@@ -75,7 +75,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 575,
+   "ssr": 576,
    "static": 947
   },
   "legendsWithIssues": 56,
@@ -108,14 +108,14 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 358,
+    "n": 359,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
     "p75": 5.143,
     "max": 15.3,
     "mostCommon": [
-     "4.5×194",
+     "4.5×195",
      "3×42",
      "5.143×36",
      "6.5×16",
@@ -130,14 +130,14 @@
     "decorationExcluded": 150
    },
    "circle-radius@z14": {
-    "n": 358,
+    "n": 359,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
     "p75": 6,
     "max": 24.48,
     "mostCommon": [
-     "4.5×196",
+     "4.5×197",
      "3×42",
      "6×39",
      "6.5×17",
@@ -152,14 +152,14 @@
     "decorationExcluded": 150
    },
    "circle-stroke-width@z14": {
-    "n": 363,
+    "n": 364,
     "min": 0.6,
     "p25": 1,
     "median": 1,
-    "p75": 1.1,
+    "p75": 1.05,
     "max": 2.2,
     "mostCommon": [
-     "1×266",
+     "1×267",
      "1.2×60",
      "1.4×10",
      "1.5×5",
@@ -174,14 +174,14 @@
     "decorationExcluded": 150
    },
    "circle-opacity": {
-    "n": 359,
+    "n": 360,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
-     "0.85×108",
+     "0.85×109",
      "0.8×78",
      "0.9×44",
      "0.75×43",
@@ -196,14 +196,14 @@
     "decorationExcluded": 150
    },
    "line-width@z10": {
-    "n": 151,
+    "n": 152,
     "min": 0.15,
     "p25": 0.5,
     "median": 1,
     "p75": 1,
     "max": 3,
     "mostCommon": [
-     "1×63",
+     "1×64",
      "0.5×31",
      "0.733×18",
      "2×8",
@@ -218,14 +218,14 @@
     "decorationExcluded": 28
    },
    "line-width@z14": {
-    "n": 151,
+    "n": 152,
     "min": 0.15,
     "p25": 1,
     "median": 1,
-    "p75": 1.933,
+    "p75": 1.8,
     "max": 5,
     "mostCommon": [
-     "1×50",
+     "1×51",
      "0.5×25",
      "2×20",
      "1.4×19",
@@ -240,15 +240,15 @@
     "decorationExcluded": 28
    },
    "line-opacity": {
-    "n": 151,
+    "n": 152,
     "min": 0.04,
     "p25": 0.6,
     "median": 0.8,
-    "p75": 0.85,
+    "p75": 0.8,
     "max": 1,
     "mostCommon": [
      "0.6×52",
-     "0.8×38",
+     "0.8×39",
      "0.85×33",
      "0.75×9",
      "0.65×8",
@@ -262,14 +262,14 @@
     "decorationExcluded": 28
    },
    "fill-opacity": {
-    "n": 128,
+    "n": 129,
     "min": 0,
     "p25": 0.275,
     "median": 0.35,
     "p75": 0.495,
     "max": 0.7,
     "mostCommon": [
-     "0.35×42",
+     "0.35×43",
      "0.7×18",
      "0.15×15",
      "0×10",
@@ -506,12 +506,12 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 360,
+   "隨底圖切換": 361,
    "資料驅動": 2,
    "固定 #c2410c": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #0a0a14 → 淡 #ffffff": 268,
+   "暗 #0a0a14 → 淡 #ffffff": 269,
    "暗 #0f172a → 淡 #ffffff": 59,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
@@ -544,20 +544,20 @@
    "cap=(預設 butt) join=(預設 miter)": 106,
    "cap=round join=round": 38,
    "cap=butt join=miter": 6,
-   "cap=(預設 butt) join=round": 1
+   "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 652,
-   "of": 966,
+   "sublayersWithDiff": 655,
+   "of": 969,
    "byProperty": {
-    "circle-stroke-color": 360,
-    "circle-stroke-opacity": 301,
-    "line-color": 98,
+    "circle-stroke-color": 361,
+    "circle-stroke-opacity": 302,
+    "line-color": 99,
     "heatmap-color": 67,
     "text-color": 64,
     "text-halo-color": 64,
-    "circle-color": 47,
-    "fill-color": 35,
+    "circle-color": 48,
+    "fill-color": 36,
     "line-opacity": 20,
     "circle-opacity": 12,
     "fill-extrusion-color": 3,
@@ -567,12 +567,12 @@
   },
   "colorEncoding": {
    "circle:categorical": 264,
-   "circle:constant": 227,
+   "circle:constant": 228,
    "line:constant": 118,
    "heatmap:sequential": 71,
    "symbol:constant": 64,
-   "fill:categorical": 59,
-   "line:categorical": 58,
+   "fill:categorical": 60,
+   "line:categorical": 59,
    "fill:constant": 36,
    "fill:sequential-step": 18,
    "fill:sequential": 13,
@@ -1103,6 +1103,7 @@
   {"id":"mapchallengeDay06Taipei1932","members":["mapchallengeDay06Taipei1932"],"components":["MapchallengeDay06Taipei1932Legend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":2,"paintComparable":true},
   {"id":"mapchallengeDay06Temples1921","members":["mapchallengeDay06Temples1921"],"components":["MapchallengeDay06Temples1921Legend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10,13],"swatchSizes":["10x10●"],"swatchColorCount":3,"paintComparable":true},
   {"id":"mapchallengeDay08Access","members":["mapchallengeDay08Access"],"components":["MapchallengeDay08AccessLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":4,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10,13],"swatchSizes":["12x10"],"swatchColorCount":4,"paintComparable":true},
+  {"id":"mapchallengeDay08Parks","members":["mapchallengeDay08Parks"],"components":["MapchallengeDay08ParksLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch+square-swatch","features":{"dot":1,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●","12x10"],"swatchColorCount":3,"paintComparable":true},
   {"id":"mapchallengeDay08Plan1955","members":["mapchallengeDay08Plan1955"],"components":["MapchallengeDay08Plan1955Legend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"text-only","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":0,"paintComparable":false},
   {"id":"mapchallengeDay08Sites","members":["mapchallengeDay08Sites"],"components":["MapchallengeDay08SitesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10,13],"swatchSizes":["12x10"],"swatchColorCount":1,"paintComparable":true},
   {"id":"marineEcologicalMonitoringSites","members":["marineEcologicalMonitoringSites"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
@@ -2758,6 +2759,7 @@
   "mapchallengeDay06Taipei1932": {"label":"1932 臺北市町界 Taipei Town Divisions 1932","theme":"30 天地圖挑戰","dataClass":"A","color":"#db5d0b","legend":"mapchallengeDay06Taipei1932","legendType":"square-swatch","popup":"mapchallengeDay06Taipei1932","params":{"opacity":{"name":"mapchallengeDay06Taipei1932Opacity","default":0.85,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":2,"dark":["#d95926","#6b7280"]}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.8},"colors":{"line-color":{"kind":"categorical","count":2,"dark":["#d95926","#6b7280"]}}},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":12,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","line","polygon"],"render":["fill","line","text"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay06Temples1921": {"label":"廟不搬家：1921 祠廟 Temples That Stayed, 1921","theme":"30 天地圖挑戰","dataClass":"A","color":"#db5d0b","legend":"mapchallengeDay06Temples1921","legendType":"dot-swatch","popup":"mapchallengeDay06Temples1921","params":{"opacity":{"name":"mapchallengeDay06Temples1921Opacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay06Temples1921Scale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#fea332","#6b7280"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]},{"suffix":"same-mark","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":7.5,"z14":10},"circle-stroke-width":{"z10":1.5,"z14":1.5},"circle-opacity":0,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":0,"dark":[]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "mapchallengeDay08Access": {"label":"走到大公園要幾分鐘 Walking Minutes to a Large Park","theme":"30 天地圖挑戰","dataClass":"A","color":"#1f9a8a","legend":"mapchallengeDay08Access","legendType":"square-swatch","popup":"mapchallengeDay08Access","params":{"opacity":{"name":"mapchallengeDay08AccessOpacity","default":0.7,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.55},"colors":{"fill-color":{"kind":"sequential-step","count":4}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["line-color","line-opacity"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "mapchallengeDay08Parks": {"label":"現有公園與河濱入口 Existing Parks and Riverside Entrances","theme":"30 天地圖挑戰","dataClass":"A","color":"#1f9a8a","legend":"mapchallengeDay08Parks","legendType":"dot-swatch+square-swatch","popup":"mapchallengeDay08Parks","params":{"opacity":{"name":"mapchallengeDay08ParksOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay08ParksScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":3,"dark":["#2dd4bf","#facc15","#22c55e"],"lightDiffers":true,"light":["#0f766e","#d97706","#15803d"]}},"themeDiff":["fill-color"]},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.8,"line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":3,"dark":["#2dd4bf","#facc15","#22c55e"],"lightDiffers":true,"light":["#0f766e","#d97706","#15803d"]}},"themeDiff":["line-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#facc15"],"lightDiffers":true,"light":["#d97706"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["line","point","polygon"],"render":["circle","fill","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "mapchallengeDay08Plan1955": {"label":"1955 中和鄉都市計畫圖 1955 Zhonghe Town Plan Map","theme":"30 天地圖挑戰","dataClass":"D","color":"#a16207","legend":"mapchallengeDay08Plan1955","legendType":"text-only","popup":null,"params":{"opacity":{"name":"mapchallengeDay08Plan1955Opacity","default":0.5,"min":0.1,"max":1},"controls":1},"hooks":["useMapchallengeDay08PlanLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMapchallengeDay08PlanLayer.ts"],"staticValues":{"raster-fade-duration":[0],"raster-opacity":["non-literal @src/hooks/useMapchallengeDay08PlanLayer.ts"]},"geometry":["raster"],"render":["raster"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
   "mapchallengeDay08Sites": {"label":"新公園選址與代價 New Park Sites and Their Cost","theme":"30 天地圖挑戰","dataClass":"A","color":"#1f9a8a","legend":"mapchallengeDay08Sites","legendType":"square-swatch","popup":"mapchallengeDay08Sites","params":{"opacity":{"name":"mapchallengeDay08SitesOpacity","default":0.85,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":3,"dark":["#a3e635","#ec4899","#a855f7"],"lightDiffers":true,"light":["#65a30d","#db2777","#7e22ce"]}},"themeDiff":["fill-color"]},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.8,"line-join":"round"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "marineEcologicalMonitoringSites": {"label":"全海域生態系調查點位 Marine Ecosystem Survey Sites","theme":"海洋 Marine","dataClass":"A","color":"#4f46e5","legend":"marineEcologicalMonitoringSites","legendType":"dot-swatch","popup":"marineEcologicalMonitoringSites","params":{"opacity":{"name":"marineEcologicalMonitoringSitesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"marineEcologicalMonitoringSitesScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#4f46e5"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#4f46e5"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
