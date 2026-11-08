@@ -5,8 +5,8 @@
 # 發布：.github/workflows/publish-coral-private.yml → ghcr.io/ianlkl11234s/pulse-coral-private
 #
 # 只打包 sidecar 需要的東西：
-#   coral-private-server.mjs —— 只 import node 內建模組、@aws-sdk/client-s3、@supabase/supabase-js、./bus-crowding-assets.mjs
-#   bus-crowding-assets.mjs  —— 純常數
+#   coral-private-server.mjs —— 只 import node 內建模組、@aws-sdk/client-s3、@supabase/supabase-js、./bus-crowding-assets.mjs、./owner-data-assets.mjs
+#   bus-crowding-assets.mjs、owner-data-assets.mjs —— 純常數
 #   package.json／package-lock.json —— 只有上面兩個依賴
 # 不含主站 dist、nginx、aws-cli、scripts/deploy 的 pull／refresh 腳本、test/。
 #
@@ -23,7 +23,7 @@ WORKDIR /opt/coral-server
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund && npm cache clean --force
 
-COPY coral-private-server.mjs bus-crowding-assets.mjs ./
+COPY coral-private-server.mjs bus-crowding-assets.mjs owner-data-assets.mjs ./
 
 # 撤銷名單目錄（compose 以 bind mount 蓋上；主機端要 chown 1000:1000）
 RUN mkdir -p /data/.private-allen && chown -R node:node /data

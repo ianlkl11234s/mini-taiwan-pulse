@@ -83,5 +83,6 @@
   "legend.agri.gbSoilNa": "未分類",
   "legend.agri.gbSoilRow": "{label}（{n} 区画）",
   "legend.agri.gbSoilModelNote": "BGS 1 km モデルによる推計で、現地土壌調査ではありません",
-  "legend.agri.gbSoilCoverage": "北アイルランド：対象外"
+  "legend.agri.gbSoilCoverage": "北アイルランド：対象外",
+  "legend.agri.ownerDataLoadFailed": "読み込み失敗（{reason}）。レイヤーを開き直すと再試行します"
 }

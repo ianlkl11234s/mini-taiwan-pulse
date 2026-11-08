@@ -10,7 +10,9 @@ const HOOKS_AND_MAP = ["src/hooks/**/*.{ts,tsx}", "src/map/**/*.{ts,tsx}"];
 // 範圍由 eslint-rules/__tests__/ownerOnlyScope.test.js 釘住：src/data、src/hooks 裡含 /api/private-research/
 // 或 import 了這類 data 模組的檔，不在下面範圍也不在 OWNER_ONLY_EXEMPT 就紅。
 const OWNER_ONLY_FAMILIES = "{busCrowding,BusCrowding,bridgeResilience,BridgeResilience,bssBridge,BssBridge,soilLiquefaction,SoilLiquefaction,allenCoral,AllenCoral,coralReef,CoralReef,jpWater,JpWater}";
-export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hooks/use${OWNER_ONLY_FAMILIES}*.ts`, "src/lib/coralPrivateUi.ts", "src/lib/auth.ts"];
+export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hooks/use${OWNER_ONLY_FAMILIES}*.ts`, "src/lib/coralPrivateUi.ts", "src/lib/auth.ts",
+  // owner-data 通用家族（2026-11-08）：契約、共用讀取與第一個使用者（畜牧）
+  "src/data/ownerDataAssets.ts", "src/lib/ownerData.ts", "src/data/livestockLoader.ts"];
 /** 不套 owner-only-no-external-source 的檔與理由（ownerOnlyScope.test.js 逐字釘住，新增要改測試並在 PR 說明）。 */
 export const OWNER_ONLY_EXEMPT = {
   "src/data/layerManifest.ts": "全站圖層登記簿，不是 owner-only 專屬檔",

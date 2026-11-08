@@ -83,5 +83,6 @@
   "legend.agri.gbSoilNa": "未分類",
   "legend.agri.gbSoilRow": "{label}（{n} 面）",
   "legend.agri.gbSoilModelNote": "BGS 1 km 模型推估，非實地土壤調查",
-  "legend.agri.gbSoilCoverage": "北愛爾蘭：未涵蓋"
+  "legend.agri.gbSoilCoverage": "北愛爾蘭：未涵蓋",
+  "legend.agri.ownerDataLoadFailed": "讀取失敗（{reason}），重新開啟圖層可再試"
 }

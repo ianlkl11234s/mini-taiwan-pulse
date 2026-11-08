@@ -20,6 +20,9 @@ import { enumLabel } from "../../i18n/dataText";
 import { localizeLayerName } from "../../i18n/layerText";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import type { LayerName } from "../../data/layerManifest";
+import { useSyncExternalStore } from "react";
+import { ownerDataStatus } from "../../lib/ownerData";
+import type { OwnerDataAssetName } from "../../data/ownerDataAssets";
 
 /** 圖層名（manifest）在目前語系的顯示名，給標題與圖層名相同的圖例借用 */
 type I18n = ReturnType<typeof useLocale>;
@@ -37,12 +40,21 @@ const CROP_KIND_ITEMS = [
   { kind: 4, color: "#ef9a9a", label: "不適 Unsuitable" },
 ];
 
+/** 站主私人檔讀取失敗時在圖例寫原因（圖面維持空的，不合成資料）；其餘狀態不顯示。 */
+function OwnerDataFailure({ asset, i18n }: { asset: OwnerDataAssetName; i18n: I18n }) {
+  const get = () => ownerDataStatus.get(asset);
+  const st = useSyncExternalStore(ownerDataStatus.subscribe, get, get);
+  if (st.state !== "error") return null;
+  return <LegendNote>{i18n.t("legend.agri.ownerDataLoadFailed", { reason: st.error })}</LegendNote>;
+}
+
 export function LivestockFarmLegend() {
   const i18n = useLocale();
   const speciesLabel = (key: string, label: string) => enumLabel("legendAgriSpecies", key, label, i18n);
   return (
     <div>
       <LegendTitle zh={i18n.t("legend.agri.livestockFarmTitle")} />
+      <OwnerDataFailure asset="livestock-farms" i18n={i18n} />
       <FireCatRows cats={FARM_SPECIES.filter((s) => s.key !== "其他").map((s) => ({ ...s, label: speciesLabel(s.key, s.label), color: `linear-gradient(90deg,${FARM_COLOR_RAMP[s.key]!.join(",")})` }))} />
       <LegendNote style={{ marginTop: 4, marginBottom: 2 }}>
         {i18n.t("legend.agri.livestockOtherSpecies")}
@@ -61,6 +73,7 @@ export function LivestockFacilityLegend() {
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <div>
         <LegendTitle zh={layerTitle("livestockSlaughter", i18n)} en="Slaughter" />
+        <OwnerDataFailure asset="livestock-slaughterhouses" i18n={i18n} />
         <FireCatRows cats={SLAUGHTER_CATS.map((c) => ({ ...c, label: enumLabel("legendAgriSlaughter", c.key, c.label, i18n) }))} />
       </div>
       <FireCatRows
