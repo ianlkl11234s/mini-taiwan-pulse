@@ -104,7 +104,7 @@
 | G34 治安與交通執法 | 🟢 | 測速照相換新版（#736） | TWL-5 各縣市科技執法；TWL-3 popup 舊 bug | candidates/G34；BACKLOG TWL-3／5 | 2026-10-29 |
 | G35–G37 第二輪補強 | 🟢 | TWL-8／9／10 隨 v2.19.0 上線 | TWL-15 接續（正式站消防栓 PMTiles 仍舊版等）；frontmatter 改 live | BACKLOG TWL-15 | 2026-11-01 |
 | 土壤液化（站主限定） | 🟢 | #407、#408 上線（09-29） | 正式站目視；MCP 題庫 PR #27 還開著 | [`features/soil-liquefaction/handoff.md`](./features/soil-liquefaction/handoff.md)；mini-pulse-gis-mcp #27 | 2026-09-29 |
-| 古地圖（臺灣百年歷史地圖） | 🟡 | 隨 v2.23.0 站主限定發布（#823）；2026-11-06 使用者決定改公開（前端已改，待 gis-platform 刪 gated_layers 列）；5 個年代、來源中研院 GIS 專題中心 CC BY-NC | 正式對外開放前先寫信向中研院確認授權；主站 CSP enforcing 時補 gis.sinica.edu.tw；LIC-1 規則待決 | BACKLOG LIC-1；CHANGELOG v2.23.0 | 2026-11-06 |
+| 古地圖（臺灣百年歷史地圖） | 🟡 | 2026-11-06 改公開隨 v2.26.0 上線；2026-11-07 #882 合 develop（未發版）：WMTS 86 張接 85 張，拆成歷史底圖 6 層（古地圖、戰後地形圖、航照衛星、界線路網、土地利用、主題圖），來源中研院 GIS 專題中心 CC BY-NC | 發版前先寫信向中研院確認授權（HIST-1）；發版後正式站驗收六層；主站 CSP enforcing 時補 gis.sinica.edu.tw | BACKLOG HIST-1；PR #882；`src/data/historicalMapSinica.ts` | 2026-11-07 |
 | 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | Day 4 群聚四層（#821）、Day 5 海景兩層隨 v2.23.0 發布 | 後續挑戰日放同主題；正式站待驗收 | CHANGELOG v2.23.0 | 2026-11-06 |
 | G30 災情、避難與民防 | ⏸️ | 研究完成；避難容量衍生層排在 TWL-5 | B 部分需 collector，卡 Zeabur 搬遷（TWL-6） | candidates/G30 | 2026-10-31 |
 | G38 全國都市計畫區邊界 | ⏸️ | 授權不明 | TWL-13：寄信問國土署／國土測繪中心 | BACKLOG TWL-13 | 2026-10-31 |
