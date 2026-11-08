@@ -17,7 +17,7 @@ CI 只回答一個問題：**這次合併會不會讓 develop 壞掉**。由此�
 ```
 changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse-checkout 跳過 public/）
           ├─ build（tsc -b ＋ vite build）
-          ├─ test ×2 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
+          ├─ test ×4 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
           └─ assets（資產測試：依 lock 從 R2 下載、比對 sha256 後驗內容）
                 └─ ci-ok（彙總；永遠會出現）
 ```
@@ -40,7 +40,8 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 | 手段 | 狀態 | 代價／風險 |
 |---|---|---|
 | job 平行化 | 採用 | 多 2 台 runner；公開 repo 不收費 |
-| vitest `--shard` 分 2 片 | 採用（`check:test` 必須直接呼叫 `vitest run`，若再包一層 `npm test`，`--shard` 會被 npm 吃掉、每片都跑全部） | 每片各付一次 checkout（約 65s）。分片依測試檔數切，不看耗時，兩片可能不平均。用 matrix，`npm run check:test` 在 ci.yml 只出現一次（parity 測試要求）。不合併報告：任一片紅即紅，看該片 log 即可 |
+| tsc 增量快取（tsconfig.app `incremental: true`＋actions/cache 存 tsbuildinfo） | 採用（2026-11-08） | 原本 noEmit＋`tsc -b` 的 tsbuildinfo 只記檔案清單、每次全量約 25–33s；開 incremental 後沒改的檔不重查。快取以 commit SHA 存、取最近一份，不符時 tsc 自己重算 |
+| vitest `--shard` 分 4 片（2026-11-08 由 2 片改 4 片） | 採用（`check:test` 必須直接呼叫 `vitest run`，若再包一層 `npm test`，`--shard` 會被 npm 吃掉、每片都跑全部） | 每片各付一次 checkout（約 65s）。分片依測試檔數切，不看耗時，兩片可能不平均。用 matrix，`npm run check:test` 在 ci.yml 只出現一次（parity 測試要求）。不合併報告：任一片紅即紅，看該片 log 即可 |
 | quick job 跳過 `public/` | 採用 | 只用在不讀 public/ 的檢查（lint、盤點、coral、worker 已確認） |
 | test／build 跳過 public 大檔 | **不採用** | 有 11 個契約測試會讀 public 大檔，例如 PMTiles sha256、staticDataContract；另外不少測試缺檔時會靜默略過，等於 CI 偷偷變弱 |
 | vitest `pool: "threads"` | 不採用 | 2026-11-08 PR #899 第一輪實測：CI 上 vitest 145s，和 forks 的 135–156s 沒有差別（runner 4 核，瓶頸在 CPU）。本機 161s→82s 是在高負載下量的，不可靠。沒有收益就不承擔 threads 的相容性風險 |
@@ -82,6 +83,8 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 | 2026-11-07 | 單一 job（舊） | 4–7 分 | checkout 40–63s、build 80s、vitest 135–156s、lint 15s、盤點 21s |
 | 2026-11-08 | 三 job 平行＋threads（PR #899 第一輪） | 3 分 57 秒 | quick 55s（checkout 7s）、build 159s（checkout 63s）、test 224s（checkout 67s、vitest 145s）|
 | 2026-11-08 | 三 job 平行＋test 分 2 片、forks（PR #899 第三輪） | 3 分 06 秒 | quick 52s、build 159s、test 166s／173s（各片 checkout 約 65s、vitest 85s／94s，288＋285 檔，合計與單片相同）|
+| 2026-11-08 | CI-4 資料檔移出 git 後（PR #943） | 2 分 06 秒 | build 103s、test 102s／114s、quick 69s、assets 49s |
+| 2026-11-08 | test 分 4 片＋tsc 增量快取（PR #944 第 4 輪，快取命中） | 1 分 25 秒 | test 66–72s、quick 65s、build 59s（tsc 9s，未命中時 33s）、assets 40s |
 
 ## 8. 部署（deploy-workers.yml）
 
