@@ -21,7 +21,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
 | 2026-11-09 | 保留期限清理排程（mig 505–509）首跑、reconcile、備份 watchdog、日報 VM 欄位、日本雷達追上：白天唯讀驗 | Claude | ZB-V1 |
-| ~2026-11-14 | 刪 Zeabur 前先把 `mini-taiwan-pulse.itsmigu.com` DNS 改 Worker custom domain（現在仍指 Zeabur，靠 Route 攔截）→ 再刪 Zeabur 26 個已暫停服務 | 使用者 | ZB-4 → ZB-1 |
+| ~2026-11-14 | 刪 Zeabur 26 個已暫停服務（主站網域 2026-11-09 已改 Worker custom domain，ZB-4 完成） | 使用者 | ZB-1 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
 | 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警 | Claude | ZB-2 |
 | 2026-11-28 | 選舉投票日：之前每日更新活動地圖；選後匯出最後一版轉站主資料 | Claude＋使用者 | OWD-4 |
@@ -35,7 +35,8 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 **本週進行中**
 
-- Zeabur 收尾與金鑰：ZB-1／ZB-4／ZB-5／ZB-6、SEC-6（BACKLOG B 群）。
+- Zeabur 收尾與金鑰：ZB-1／ZB-5、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
+- 告警分級 11-09 上線（GitHub 排程、主機看門狗、collector、healthchecks 死人開關）；剩使用者設 Telegram secrets 與第 3 個 healthcheck（G 群 ALERT-1）。
 - 站主資料第 3 批（EA、Coillte、water1944）與撤舊 RPC（F 群 OWD-4、SR-1／SR-2）。
 - 資料保留期限第 2 群（約 21 張超過 6 個月＋22 張無期限）與 R2 獨有資料補 S3（C 群 WA-3、ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
