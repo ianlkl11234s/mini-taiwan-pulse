@@ -229,6 +229,12 @@ export function renderBody(post: BlogPost, publicDir: string, warn: (msg: string
           return "";
         }
         const src = assetPath(post, href);
+        if (/\.mp4$/i.test(href)) {
+          // 影片：同資料夾有同名 .jpg 就當封面；preload="none" 不在開頁時下載整支影片（CSP default-src 'self' 已涵蓋 media）
+          const posterFile = href.replace(/\.mp4$/i, ".jpg");
+          const poster = existsSync(join(publicDir, "blog", post.slug, posterFile)) ? ` poster="${escapeHtml(assetPath(post, posterFile))}"` : "";
+          return `<figure class="blog-figure"><video src="${escapeHtml(src)}"${poster} controls playsinline preload="none" aria-label="${escapeHtml(text)}"></video><figcaption>${escapeHtml(text)}</figcaption></figure>`;
+        }
         return `<figure class="blog-figure"><img src="${escapeHtml(src)}" alt="${escapeHtml(text)}" loading="lazy" decoding="async"><figcaption>${escapeHtml(text)}</figcaption></figure>`;
       },
       link({ href, text, tokens }) {

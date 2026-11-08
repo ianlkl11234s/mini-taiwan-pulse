@@ -190,6 +190,14 @@ describe("封面與圖片", () => {
     expect(() => renderPostPage(post, [post], join(root, "public"))).toThrow(/不支援外站圖片/);
   });
 
+  it("文章資料夾的 .mp4 輸出成 video，同名 .jpg 當封面", () => {
+    const slug = "mapchallenge-2026-day07-ten-minute-map";
+    const post = toPost(`---\nslug: ${slug}\ntopic: making\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![計時剪輯](day07-timelapse.mp4)\n`);
+    const html = renderPostPage(post, [post], join(root, "public"));
+    expect(html).toContain(`<video src="/blog/${slug}/day07-timelapse.mp4" poster="/blog/${slug}/day07-timelapse.jpg" controls playsinline preload="none"`);
+    expect(html).not.toContain('<img src="/blog/' + slug + '/day07-timelapse.mp4"');
+  });
+
   it("同源絕對網址（BLOG_ORIGIN）轉成站內路徑；檔案不存在則略過（F264）", () => {
     const ok = toPost(`---\nslug: one\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![x](${ORIGIN}/blog/taipei-street-trees-map/cover-dark.jpg)\n`);
     const html = renderPostPage(ok, [ok], join(root, "public"));
