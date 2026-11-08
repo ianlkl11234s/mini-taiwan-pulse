@@ -1720,10 +1720,17 @@
   },
   {
    "path": "public/mapchallenge/day08_access.geojson",
-   "bytes": 1314597,
-   "sha256": "5012dbf979714ddb47a216d57238c9feb23cd78cd6a6d54b5d09397e7cb7839c",
+   "bytes": 1313275,
+   "sha256": "1aea88d385b3e37940853aba1b3712e6921daa5a0bb124b748310d295785791d",
    "delivery": "r2",
    "s3_key": "deploy-assets/mapchallenge/day08_access.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day08_parks.geojson",
+   "bytes": 42948,
+   "sha256": "762c4c7b95b4a95d72648bc85a8e2262dd3061b5f7dc6f2d4f63a079e4c3c402",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day08_parks.geojson"
   },
   {
    "path": "public/mapchallenge/day08_plan1955.jpg",
@@ -1734,8 +1741,8 @@
   },
   {
    "path": "public/mapchallenge/day08_sites.geojson",
-   "bytes": 174003,
-   "sha256": "1787674b2d08e973ceb50ed46191c7f6a644fe6d8f1093a42e80abab7902ab3d",
+   "bytes": 194620,
+   "sha256": "b4466a777af86649f8f94a4a290d7de8d436fb6c9d75dde6f5818150a06a3a33",
    "delivery": "r2",
    "s3_key": "deploy-assets/mapchallenge/day08_sites.geojson"
   },
