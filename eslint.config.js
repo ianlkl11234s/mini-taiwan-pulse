@@ -41,7 +41,6 @@ export const LOADER_RPC_EXEMPT = {
   // 原測試沒掃到：±10 行內剛好有同一個 Promise.all 裡另一個 RPC 的 withLoading。
   // ⚠️ 暫列，不是已正當化的豁免：withLoading 只涵蓋主要電廠 RPC，has_realtime RPC 較慢時 loading 消失但資料還沒畫；
   // 是否改包整個 Promise.all（會多一列或拉長 loading）待使用者拍板（BACKLOG CI-2）。
-  "energyLoader.ts:_l1Cached": "暫列：has_realtime RPC 與主要電廠 RPC 同一個 Promise.all，withLoading 只涵蓋後者，有空窗；修法待拍板",
   "dataCatalogLoader.ts:fetchDataCatalogForLayer": "popup『資料來源』面板 lazy",
   "dataCatalogLoader.ts:fetchDataCatalogByTheme": "popup『資料來源』面板 lazy",
   "airportPaxLoader.ts:fetchAirportHourlyPax": "monitor 面板 widget，非圖層載入",
