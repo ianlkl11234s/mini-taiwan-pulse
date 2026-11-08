@@ -14651,7 +14651,9 @@ export const LAYER_MANIFEST = {
   //    （同批 3 教育 edu-schools ×7、批 2 運動場館 ×5）——**不是**拍板②的「同 key 多 config」，
   //    仍寫單數形，契約測試按 `id` 過濾不受影響。7 層以畜種 filter 切分同一份資料，
   //    popup 也共用一個 `livestockFarm`（7 → 1）。
-  // ⚠️ 它們是站主限定（owner-only RPC）：名單來源是 topics 的 "OWNER_ONLY"（GATED_LAYERS 由此派生），
+  // ⚠️ 它們是站主限定：資料走 owner-data 私人檔（/api/private-research/owner-data/livestock-*，2026-11-08 起取代 owner-only RPC），
+  //    `kind: "supabase"` 在這裡的意思是 dynamicData（空 FC 起手、hook setData），fallbackUrl 用共用的 _empty.geojson。
+  //    名單來源是 topics 的 "OWNER_ONLY"（GATED_LAYERS 由此派生），
   //    不用 `gated` 欄位（`gated` 對齊的是 LayerDef → 照現況不填）。
   livestockFarmPig: {
     key: "livestockFarmPig",
@@ -14668,7 +14670,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14692,7 +14694,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14716,7 +14718,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14740,7 +14742,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14764,7 +14766,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14788,7 +14790,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14812,7 +14814,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14836,7 +14838,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-slaughter",
-      fallbackUrl: "./agriculture/slaughterhouses.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockSlaughter",
     popup: "livestockSlaughter",

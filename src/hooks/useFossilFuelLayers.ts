@@ -11,11 +11,12 @@ import {
 } from "../data/fossilFuelLoader";
 import { isAccessDenied } from "../lib/layerGates";
 import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
+import { ownerDataStatus } from "../lib/ownerData";
 
 /**
  * 化石燃料圖層資料供應 hook（拆兩條路徑，coordinator owner-gated 契約）：
  * - 加油站 5 層（公開）：get_gas_station_layers（staticRpc CDN 快照）
- * - 石化 9 層（owner-gated）：get_fossil_fuel_layers（直連 supabase.rpc）
+ * - 石化 9 層（owner-gated）：站主私人檔 owner-data/fossil-fuel-layers（原 get_fossil_fuel_layers 輸出）
  *
  * 各自「任一 visible 才 fetch」+ module-level 30 min cache；樣式在 overlayRegistry，本 hook 只 setData。
  * 非 owner：石化 9 key 的 toggle 被 App 端 gate no-op → 不觸發 locked fetch。
@@ -97,6 +98,7 @@ export function useFossilFuelLayers({ mapRef, visibility }: UseFossilFuelLayersO
   // 撤權：清 cache 與 hook 暫存（style.load 的 feedAll 會連石化一起餵，不清會把舊資料餵回 source）
   useEffect(() => registerOwnerGateReset(FOSSIL_LOCKED_FE_KEYS, () => {
     clearFossilFuelLockedCache();
+    ownerDataStatus.reset("fossil-fuel-layers");
     lockedDataRef.current = null;
   }), []);
 

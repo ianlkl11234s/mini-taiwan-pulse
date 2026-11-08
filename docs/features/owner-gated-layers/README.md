@@ -68,6 +68,12 @@
 - 前端：`fetchOwnerJson(asset, taskId, label)`（`src/lib/ownerData.ts`）帶站主 token、分段 Range、註冊 loadingRegistry；非 401／403 的失敗寫進 `ownerDataStatus`，圖例用它顯示「讀取失敗（原因）」。loader 只把 `supabase.rpc` 換成它，回傳形狀不變。
 - 新增一支檔：匯出（RPC 函式本體 SELECT，形狀與 RPC 相同）→ `owner-data.local/` 寫檔與 `local_validation.json` → 兩份 assets 常數加一列 → `node scripts/deploy/upload-owner-data-private.mjs <repo>/owner-data.local`（set -a 載入 .env）→ PR → 主機重建 coral-private → 前端發版後才撤舊 RPC。
 - 目前收錄：`livestock-farms`（13,087 筆）、`livestock-slaughterhouses`（185 筆），2026-11-08 第 1 批。舊 RPC `get_livestock_*` 待前端發布到 master 後撤除。
+- 第 2 批（2026-11-08，能源與石化，12 支 JSON）：`fossil-fuel-layers`（石化 9 層 1,520 列；匯出時**剔除** `gas_station_*` 5 層，加油站仍是公開 `get_gas_station_layers`）、`fossil-fuel-infrastructure`（9）、`osm-substations`（785）、`osm-power-lines`（2,305）、`osm-power-towers`（26,589）、`osm-power-plants-static`（513）、`fac-primary`（209）、`fac-offshore`（8）、`fac-planned`（35）、`fac-historical`（15）、`fac-secondary`（341）、`fac-osm-supplement`（1,215）。Glow 實驗層共用同一 loader 自動跟著改。
+  - `facPrimary` 拆分：點位讀 `fac-primary`，`has_realtime` 仍由即時 RPC `get_ssot_realtime_facility_output` 標記。
+  - **保留 RPC**：`powerGenerationUnit`（`get_ssot_facility_output_24h`）、電廠 popup（`get_power_plant_output_24h`、`get_ssot_facility_units`、`get_ssot_facility_provenance`）、隱藏層 `powerPlants`（`get_ssot_power_plants_with_output`）。
+  - 匯出：函式本體 SELECT 外包 `AS t(<RETURNS TABLE 欄位名>)`，否則 `ST_X(...)`、`CASE` 等無別名欄位名會跑掉；驗收逐支比對欄位集合與筆數。
+  - 圖例「讀取失敗」提示只接了畜牧；能源／石化讀取失敗仍只寫 console（與舊 RPC 相同）。
+  - 舊 RPC 12 支待前端發布到 master、站主驗收後撤除（gis-platform PENDING migration）。
 
 ### 已知限制
 
@@ -101,9 +107,9 @@ Phase 1 的 key 分組（電力、石化、畜牧與 3 個無介面層）與後�
 | 圖層群 | 原路徑 | 新路徑 |
 |---|---|---|
 | 畜牧飼養場 / 屠宰場 | 靜態 `./agriculture/*.geojson` | owner-only RPC `get_livestock_farms` / `get_livestock_slaughterhouses`（dynamicData + setData）→ **2026-11-08 起** owner-data 私人檔 `livestock-farms`／`livestock-slaughterhouses`（同形狀） |
-| 石化 9 層 | staticRpc CDN `get_fossil_fuel_layers` | 直連 `supabase.rpc("get_fossil_fuel_layers")` |
+| 石化 9 層 | staticRpc CDN `get_fossil_fuel_layers` | 直連 `supabase.rpc("get_fossil_fuel_layers")` → **2026-11-08 起** owner-data `fossil-fuel-layers`（剔除加油站列） |
 | 加油站 5 層（公開） | staticRpc `get_fossil_fuel_layers`（共用） | 拆出走公開 `staticRpc("get_gas_station_layers")` |
-| 電網 4 + 電廠 5 + fossil infra + offshore + osm static | staticRpc CDN | 直連 `supabase.rpc(...)` |
+| 電網 4 + 電廠 5 + fossil infra + offshore + osm static | staticRpc CDN | 直連 `supabase.rpc(...)` → **2026-11-08 起** owner-data 私人檔（`facPrimary` 的即時標記仍走 RPC） |
 
 ## 關鍵檔案
 
