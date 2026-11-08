@@ -744,6 +744,11 @@ export interface OverlayLayerSpec {
    * 帶新值重新 addLayer）。
    */
   filter?: unknown[] | ((params?: Record<string, number>) => unknown[]);
+  /**
+   * 不併入 V-4 類別篩選（`withCategoryFilter`）。只給「一個圖徵代表多個類別、類別篩選已由 hook
+   * 在資料端先套」的子圖層用（2026 選舉活動同一代表點多場的 group symbol 首用）。
+   */
+  skipCategoryFilter?: boolean;
 }
 
 export interface OverlayConfig {

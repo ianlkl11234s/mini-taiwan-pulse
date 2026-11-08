@@ -50,7 +50,52 @@ export const ELECTION_HOLLOW_STATUSES = ["cancelled", "postponed"] as const;
 
 export const ELECTION_STATUSES = ["scheduled", "changed", "postponed", "cancelled", "held"] as const;
 export const ELECTION_CLAIMANTS = ["organizer", "party_press", "media_estimate", "police_estimate"] as const;
-export const ELECTION_PRECISIONS = ["address", "landmark", "intersection"] as const;
+export const ELECTION_PRECISIONS = ["address", "landmark", "intersection", "settlement", "town_centroid", "city_centroid"] as const;
+export type ElectionPrecision = (typeof ELECTION_PRECISIONS)[number];
+
+/** 場館級（確切地點） */
+export const ELECTION_VENUE_PRECISIONS = ["address", "landmark", "intersection"] as const;
+/** 代表點（不是活動地點本身）：聚落代表點、鄉鎮市區代表點、縣市代表點。gis-platform mig 514 */
+export const ELECTION_APPROX_PRECISIONS = ["settlement", "town_centroid", "city_centroid"] as const;
+export type ElectionApproxPrecision = (typeof ELECTION_APPROX_PRECISIONS)[number];
+
+export function isElectionApproxPrecision(v: unknown): v is ElectionApproxPrecision {
+  return (ELECTION_APPROX_PRECISIONS as readonly unknown[]).includes(v);
+}
+
+/**
+ * 代表點外環：半徑＝主點半徑＋位移（px，越粗略越遠）、描邊寬。
+ * 外環是資料品質提示，已舉辦時有自己的下限，不跟主點一起 ×0.35 淡掉。
+ */
+export const ELECTION_RING_OFFSET: Record<ElectionApproxPrecision, number> = { settlement: 3, town_centroid: 6, city_centroid: 10 };
+export const ELECTION_RING_STROKE: Record<ElectionApproxPrecision, number> = { settlement: 1.2, town_centroid: 1.2, city_centroid: 1.5 };
+export const ELECTION_RING_FILL_OPACITY = { upcoming: 0.12, past: 0.06 } as const;
+export const ELECTION_RING_STROKE_OPACITY = { upcoming: 0.8, past: 0.45 } as const;
+
+/**
+ * 聚落名稱（RPC `settlement_name`，gis-platform mig 515）：只有 location_precision='settlement' 才採用，
+ * 其他精度或空值回 null。
+ */
+export function electionSettlementName(props: Record<string, unknown>): string | null {
+  if (props.location_precision !== "settlement") return null;
+  const v = props.settlement_name;
+  if (typeof v !== "string") return null;
+  const name = v.trim();
+  return name && name !== "null" ? name : null;
+}
+
+/** 位置篩選（layerParamsSpec 的 select 值）：全部／只看確切地點／只看代表點 */
+export type ElectionLocationFilter = "all" | "exact" | "approx";
+
+export function asElectionLocationFilter(v: unknown): ElectionLocationFilter {
+  return v === "exact" || v === "approx" ? v : "all";
+}
+
+/** 未知精度值視為確切地點（沿用：不認得的值不加說明，也不當代表點合併） */
+export function matchesElectionLocation(precision: unknown, filter: ElectionLocationFilter): boolean {
+  if (filter === "all") return true;
+  return isElectionApproxPrecision(precision) === (filter === "approx");
+}
 
 /** 時間範圍篩選（layerParamsSpec 的 select 值） */
 export type ElectionRange = "all" | "next7" | "next30" | "held";

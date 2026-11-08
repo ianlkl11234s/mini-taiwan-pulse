@@ -50,6 +50,8 @@ export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
   mapchallengeDay05SeaView: /^glow-/,
   // 30 天地圖挑戰 Day 6 祠廟「同名原址」外圈（資料編碼：14 處今天仍有同名寺廟，2026-11-06 使用者要求；map-layers.md §3.1 P-6 例外）
   mapchallengeDay06Temples1921: /^same-mark$/,
+  // 2026 選舉活動「位置精度外環」：代表點（聚落／鄉鎮市區／縣市）外圈＝資料品質編碼，陣營色描邊、粗細依精度（2026-11-08 使用者核准設計稿 A＋B 版）
+  electionEvents2026: /^precision$/,
 };
 
 /**

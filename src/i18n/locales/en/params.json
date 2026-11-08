@@ -2019,6 +2019,8 @@
   "param.油氣": "Oil & gas",
   "param.焚化": "Waste incineration",
   "param.位置": "Location",
+  "param.只看確切地點": "Exact locations only",
+  "param.只看代表點": "Representative points only",
   "param.離岸": "Offshore",
   "param.陸域／未標": "Onshore / unlabeled",
   "param.樹種": "Species",
