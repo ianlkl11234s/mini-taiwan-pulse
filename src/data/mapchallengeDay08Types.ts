@@ -10,14 +10,13 @@
  * - day08_sites.geojson：方案 A／B／B2／C 各 5 處用地（cls＝T1／T2／T3）＋1955 公園（D、Dfull）與綠地（Dfull）
  * - day08_plan1955.jpg：1955 中和鄉都市計畫圖（國家文化記憶庫，永和社區大學，CC BY-NC 3.0 TW），仿射對位
  *
- * 配色（map-layers.md §3.2；沒有新增色票，全部取自 src/map/palettes.ts 既有色值；2026-11-08 使用者拍板第二輪）：
- * - 步行分鐘四級：兩種底圖同一個方向「近＝低調、遠＝醒目」，色相一律 灰 → 黃褐 → 橘：
- *   暗底圖越遠越亮（cividis 第 1、3 階＋YlOrBr 第 4、6 階），淡底圖越遠越深（oslo 第 6 階、turku 第 4 階、
- *   YlOrBr 第 3、6 階）；明度單調，色盲可靠明度分級。
- * - 選址類別：避開步行分鐘的灰／黃褐／橘與紫、洋紅，只用 viz-library C2 類別色（DECISIONS.md §1.3）的
- *   藍（T3、1955 公園）、青（T2）、綠（T1、1955 綠地）。同色的兩類不會出現在同一個方案
- *   （T3 只在 A／B／B2，公園只在 D／Dfull；T1 只在 C，綠地只在 Dfull），圖例只列當下方案有的類別。
- *   填色 0.35＋外框 1px（FILL_TIERS coverage 預設），外框用與底圖反差的中性色（同 Day 6 今日位置點）。
+ * 配色（map-layers.md §3.2；2026-11-08 使用者拍板第三輪）：
+ * - 步行分鐘四級：深淺底圖共用獨立小站（mapchallenge-utopia src/app.js）的藍 → 紅色票，近＝藍、遠＝紅，
+ *   10 分鐘為冷暖分界（CIE76 ΔE 兩兩 ≥30）。
+ * - 選址類別：避開步行分鐘的藍、黃、紅，用紫（T3、1955 公園）、粉（T2）、萊姆綠（T1、1955 綠地），
+ *   與步行四級 ΔE 皆 ≥44。同色的兩類不會出現在
+ *   同一個方案（T3 只在 A／B／B2，公園只在 D／Dfull；T1 只在 C，綠地只在 Dfull），圖例只列當下方案有的類別。
+ *   填色 0.35＋外框 1px（FILL_TIERS coverage 預設），外框用與底圖反差的中性色（暗底 #f8fafc）。
  */
 
 export const MAPCHALLENGE_DAY08_ACCESS_URL = "./mapchallenge/day08_access.geojson";
@@ -38,7 +37,7 @@ export const MAPCHALLENGE_DAY08_SCENARIOS = [
   { value: "A", zh: "A 效率", covered: 98.9, vulCovered: 81.8, costYi: { low: 131.0, base: 254.8, high: 378.4 }, classes: ["T3"] },
   { value: "B", zh: "B 公平", covered: 98.4, vulCovered: 81.8, costYi: { low: 117.9, base: 229.4, high: 337.1 }, classes: ["T2", "T3"] },
   { value: "B2", zh: "B2 長幼優先", covered: 96.7, vulCovered: 87.2, costYi: { low: 154.1, base: 282.1, high: 423.5 }, classes: ["T3"] },
-  { value: "C", zh: "C 低拆遷", covered: 84.4, vulCovered: 66.2, costYi: { low: 4.7, base: 95.6, high: 227.5 }, classes: ["T1"] },
+  { value: "C", zh: "C 未開闢公園地", covered: 84.4, vulCovered: 66.2, costYi: { low: 4.7, base: 95.6, high: 227.5 }, classes: ["T1"] },
   { value: "D", zh: "D 1955 七公園", covered: 89.9, vulCovered: 76.7, costYi: { low: 601.5, base: 1005.3, high: 1491.9 }, classes: ["park"] },
   { value: "Dfull", zh: "Dfull 1955 公園＋綠地", covered: 93.9, vulCovered: 86.2, costYi: { low: 797.5, base: 1357.8, high: 1959.2 }, classes: ["park", "greenbelt"] },
 ] as const;
@@ -80,10 +79,10 @@ export const MAPCHALLENGE_DAY08_UNREACHABLE = 30;
 /** 級距上限（含）：≤5／5–10／10–15／>15；資料到 0.1 分，step 斷點放在 .05 */
 export const MAPCHALLENGE_DAY08_BINS = [5, 10, 15] as const;
 export const MAPCHALLENGE_DAY08_BIN_LABELS = ["≤5", "5–10", "10–15", ">15"] as const;
-/** 近＝低調、遠＝醒目，色相同序（灰 → 黃褐 → 橘）；色值出處見檔頭 */
+/** 近＝藍、遠＝紅（10 分鐘分界），深淺底圖同一套，與獨立小站一致；色值出處見檔頭 */
 const BIN_COLORS = {
-  dark: ["#545a6d", "#8a8678", "#f27d1b", "#fecc61"],
-  light: ["#d1d4d9", "#b49e6b", "#d25306", "#822d05"],
+  dark: ["#1d5f8a", "#6aaed6", "#f2b84b", "#c8553d"],
+  light: ["#1d5f8a", "#6aaed6", "#f2b84b", "#c8553d"],
 } as const;
 export function mapchallengeDay08BinColors(isDark: boolean): readonly string[] {
   return isDark ? BIN_COLORS.dark : BIN_COLORS.light;
@@ -109,12 +108,12 @@ export const MAPCHALLENGE_DAY08_SITE_CLASSES = [
   { value: "greenbelt", zh: "1955 計畫綠地" },
 ] as const;
 export type MapchallengeDay08SiteClass = (typeof MAPCHALLENGE_DAY08_SITE_CLASSES)[number]["value"];
-/** viz-library C2：藍、青、綠（暗／淡兩組）；同色兩類不在同一方案出現（見檔頭） */
-const C2_BLUE = { dark: "#2e81d5", light: "#3a8ce0" };
-const C2_TEAL = { dark: "#00a595", light: "#00cab9" };
-const C2_GREEN = { dark: "#5ba74a", light: "#77c466" };
+/** 紫、粉、萊姆綠（暗／淡兩組），避開步行分鐘的藍、黃、紅；同色兩類不在同一方案出現（見檔頭） */
+const SITE_PURPLE = { dark: "#a855f7", light: "#7e22ce" };
+const SITE_PINK = { dark: "#ec4899", light: "#db2777" };
+const SITE_LIME = { dark: "#a3e635", light: "#65a30d" };
 const SITE_COLORS: Record<MapchallengeDay08SiteClass, { dark: string; light: string }> = {
-  T1: C2_GREEN, T2: C2_TEAL, T3: C2_BLUE, park: C2_BLUE, greenbelt: C2_GREEN,
+  T1: SITE_LIME, T2: SITE_PINK, T3: SITE_PURPLE, park: SITE_PURPLE, greenbelt: SITE_LIME,
 };
 export function mapchallengeDay08SiteColor(cls: string, isDark: boolean): string {
   const c = SITE_COLORS[(cls in SITE_COLORS ? cls : "T3") as MapchallengeDay08SiteClass];
@@ -139,8 +138,9 @@ export const MAPCHALLENGE_DAY08_PLAN_CORNERS: [[number, number], [number, number
 ];
 export const MAPCHALLENGE_DAY08_PLAN_ATTRIBUTION = "1955 中和鄉都市計畫圖，國家文化記憶庫（永和社區大學），CC BY-NC 3.0 TW";
 
-/** 億元 → 十億元（en 用 NT$…B）：≥10 取 1 位小數、<10 取 2 位 */
+/** 億元 → 十億元（en 用 NT$…B）；顯示一律 1 位小數＋千分位（MAPCHALLENGE_DAY08_COST_FORMAT） */
 export function mapchallengeDay08YiToBillion(yi: number): number {
-  const b = yi / 10;
-  return b >= 10 ? Math.round(b * 10) / 10 : Math.round(b * 100) / 100;
+  return yi / 10;
 }
+/** 代價數字格式：三語一律 1 位小數＋千分位（131.0、1,005.3） */
+export const MAPCHALLENGE_DAY08_COST_FORMAT: Intl.NumberFormatOptions = { minimumFractionDigits: 1, maximumFractionDigits: 1, useGrouping: true };

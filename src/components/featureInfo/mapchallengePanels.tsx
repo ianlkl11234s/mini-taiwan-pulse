@@ -16,7 +16,7 @@ import {
 } from "../../data/mapchallengeDay06Types";
 import {
   MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_UNREACHABLE, mapchallengeDay08BinColor, mapchallengeDay08ScenarioByValue,
-  mapchallengeDay08SiteColor, mapchallengeDay08TimeProp, mapchallengeDay08YiToBillion, type MapchallengeDay08SiteClass,
+  mapchallengeDay08SiteColor, mapchallengeDay08TimeProp, mapchallengeDay08YiToBillion, MAPCHALLENGE_DAY08_COST_FORMAT, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import { Row, SourceFooter, Title } from "./shared";
@@ -273,7 +273,7 @@ export function MapchallengeDay08AccessPanel({ props }: Props) {
 
 export function MapchallengeDay08SitesPanel({ props }: Props) {
   const { t, formatNumber, active } = useLocale();
-  const yi = (v: number) => formatNumber(active === "en" ? mapchallengeDay08YiToBillion(v) : v);
+  const yi = (v: number) => formatNumber(active === "en" ? mapchallengeDay08YiToBillion(v) : v, MAPCHALLENGE_DAY08_COST_FORMAT);
   const isDark = useFeatureTheme() !== LIGHT_FEATURE;
   const cls = (MAPCHALLENGE_DAY08_SITE_CLASSES.some((c) => c.value === props.cls) ? props.cls : "T3") as MapchallengeDay08SiteClass;
   const historical = cls === "park" || cls === "greenbelt";
