@@ -85,7 +85,7 @@
 pulse-research MCP（本機；內含 DuckDB 分析倉庫、等時圈、地理編碼）
    │  HTTPS 長輪詢
    ▼
-Zeabur research-gateway（正式站 nginx /api/research/v1/ 走內網轉送）
+research-gateway（跑在 pulse-host；正式站 Worker 把 /api/research/v1/ 轉回 pulse-host）
    │
    ▼
 已登入的瀏覽器分頁（站主的 Agent 面板）→ 地圖
@@ -94,7 +94,7 @@ Zeabur research-gateway（正式站 nginx /api/research/v1/ 走內網轉送）
 | 元件 | 在哪 |
 |---|---|
 | MCP server、倉庫引擎、回歸測試、skills | 另一個 repo `mini-pulse-gis-mcp`（工作區 `../mini-pulse-gis-mcp`）|
-| research-gateway（配對、轉送指令與結果、分析卡資料表） | `gis-platform` repo 的 `services/research-gateway/`（以 `zeabur deploy` 部署，不隨本 repo 的 master 自動部署） |
+| research-gateway（配對、轉送指令與結果、分析卡資料表） | `gis-platform` repo 的 `services/research-gateway/`（跑在 pulse-host docker compose，不隨本 repo 的 master 自動部署） |
 | 前端：Agent 面板、token 產生、地圖執行端、分析卡頁 | 本 repo `src/research/`、`src/card/` |
 
 **倉庫**：DuckDB + 版本化 GeoParquet，正本在 R2，由 `taipei-gis-analytics` 的 manifest 自動建置；新圖層只要有 manifest 並能入倉庫，就是 L2 可分析。
@@ -157,7 +157,7 @@ UI 改動必須遵守 [`spec.md`](docs/design-system/spec.md)（PR 前照 §8 ch
 | 嵌入版／分析卡 | MapLibre GL + Protomaps | 不吃 Mapbox 額度 |
 | Agent 分析 | MCP（stdio）+ DuckDB + GeoParquet + Valhalla | 計算在本機，瀏覽器只呈現 |
 | 私有研究服務 | Node（`server/coral-private`） | 站主限定的私人圖層 API |
-| 部署 | Docker 三階段 + nginx，Zeabur | — |
+| 部署 | Cloudflare Worker（靜態資產＋R2） | `deploy/cloudflare/` |
 
 ---
 
@@ -273,19 +273,9 @@ mini-taiwan-pulse/
 
 ## 部署
 
-Zeabur 服務綁 GitHub `master` 自動部署：**merge 進 `master` ＝ 直接上線**。`develop` 的部署環境需另行設定。
+`master` 有新 commit 時，[`.github/workflows/deploy-workers.yml`](.github/workflows/deploy-workers.yml) 會 build 並部署 Cloudflare Worker：**merge 進 `master` ＝ 直接上線**。網頁走 Workers 靜態資產，圖層大檔走 R2，`/api/*` 轉回 pulse-host（research-gateway、私有研究 sidecar）。路由、標頭與資產同步見 [`deploy/cloudflare/README.md`](deploy/cloudflare/README.md)。
 
-**Dockerfile 三階段**：
-
-1. `node:22-alpine` build：`npm ci` → `npm run build`（`VITE_MAPBOX_TOKEN`、`VITE_STATISTICS_COMPARISONS_ENABLED` 為 build ARG）
-2. `node:22-alpine` coral-server：安裝 `server/coral-private` 的相依
-3. `nginx:alpine` runtime：裝 aws-cli、nodejs、python3；放入 dist、私有研究服務與部署腳本，監聽 8080
-
-**容器啟動**（[`scripts/deploy/entrypoint.sh`](scripts/deploy/entrypoint.sh)）：有 S3 憑證時背景執行 `pull-deploy-assets.sh` 同步資產到 `/data`，背景重整氣候貼圖，然後 `exec nginx`。資產拉取放背景，健康檢查不必等首次同步。
-
-nginx 另外負責 `/api/research/v1/`（轉送 research-gateway）、`/api/private-research/`、`/card/`、`/lab/`。PMTiles 刻意不進 `gzip_types`（再壓會破壞 Range 請求）。新增大檔要同步部署腳本與 nginx，否則正式站 404。
-
-本機 Docker：`docker compose up -d`（http://localhost:3721），不帶 S3 憑證，只覆蓋部分圖層。
+`nginx.conf` 是 Zeabur 時代的路由，目前只剩測試把它當標頭／快取／路由契約讀；2026-11 起 Dockerfile、`entrypoint.sh`、`docker-compose.yml` 已移除。
 
 ---
 
