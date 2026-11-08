@@ -38,6 +38,11 @@ import {
   MAPCHALLENGE_DAY06_TEMPLE_COLOR_EXPR, MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY, mapchallengeDay06EraColorExpr, mapchallengeDay06TodayColor,
   mapchallengeDay06TypeFilter, MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, MAPCHALLENGE_DAY06_SAME_RING, mapchallengeDay06CoastWidthExpr,
 } from "../data/mapchallengeDay06Types";
+import {
+  MAPCHALLENGE_DAY08_ACCESS_URL, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY, MAPCHALLENGE_DAY08_SITES_URL,
+  mapchallengeDay08AccessColorExpr, mapchallengeDay08ScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
+  mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
+} from "../data/mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -12622,6 +12627,55 @@ OVERLAY_REGISTRY.push(
       filter: (p) => mcDay06Filter([["==", ["get", "role"], "hist"], mapchallengeDay06TypeFilter(p?.mapchallengeDay06LighthousesTypeIdx),
         mcDay06Cat("status", MAPCHALLENGE_DAY06_STATUSES, p?.mapchallengeDay06LighthousesCategoryMask)]),
       paint: (_isDark, p) => ({ "circle-color": MAPCHALLENGE_DAY06_STATUS_COLOR_EXPR, "circle-opacity": p?.mapchallengeDay06LighthousesOpacity ?? 0.85 }),
+    }],
+  },
+);
+
+// ── 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開，2026-11-08）：中和＋永和走到 ≥1 ha 非河濱公園的步行分鐘＋新公園選址。
+// 方案 select 兩層共用（mapchallengeDay08ScenarioIdx）。步行分鐘：方案／步速只換 paint 讀的欄位（t0／t0s／t_<S>／ts_<S>）。
+// 選址：方案＋類別多選（V-4）改 filter，參數變動時重建；方案＝現況時沒有用地（filter 自然 0 筆）。
+// 1955 計畫原圖是 image source，由 useMapchallengeDay08PlanLayer 掛（overlay 引擎只收 geojson／pmtiles）。
+const MAPCHALLENGE_DAY08_ATTRIBUTION = "內政部最小統計區人口（2024）；OpenStreetMap（ODbL）；新北市都市計畫土地使用分區；內政部實價登錄；國土利用調查 · 研究推估，非法定查估";
+const mcDay08SiteFilter = (p?: Record<string, number>): unknown[] => {
+  const cat = categoryFilterExpr({ property: "cls", options: MAPCHALLENGE_DAY08_SITE_CLASSES.map((c) => ({ value: c.value, zh: c.zh })) }, p?.mapchallengeDay08SitesCategoryMask);
+  const scenario = ["==", ["get", "scenario"], mapchallengeDay08ScenarioAt(p?.mapchallengeDay08ScenarioIdx).value];
+  return cat ? ["all", scenario, cat] : scenario;
+};
+
+OVERLAY_REGISTRY.push(
+  {
+    // 1. 步行可及（統計區面，viridis 四級；G-3 色格縫外框）
+    id: "mapchallengeDay08Access", sourceUrl: MAPCHALLENGE_DAY08_ACCESS_URL, sourceId: "mapchallenge-day08-access",
+    attribution: MAPCHALLENGE_DAY08_ATTRIBUTION,
+    layers: [{
+      suffix: "fill", type: "fill",
+      paint: (isDark, p) => ({
+        "fill-color": mapchallengeDay08AccessColorExpr(
+          mapchallengeDay08TimeProp(mapchallengeDay08ScenarioAt(p?.mapchallengeDay08ScenarioIdx).value, mapchallengeDay08SpeedAt(p?.mapchallengeDay08AccessSpeedIdx)), isDark),
+        "fill-opacity": p?.mapchallengeDay08AccessOpacity ?? 0.7,
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay08AccessOpacity ?? 0.7 }),
+    }],
+  },
+  {
+    // 2. 選址（面＋類別色＋反差外框）：依方案過濾
+    id: "mapchallengeDay08Sites", sourceUrl: MAPCHALLENGE_DAY08_SITES_URL, sourceId: "mapchallenge-day08-sites",
+    attribution: MAPCHALLENGE_DAY08_ATTRIBUTION,
+    rebuildOnParamChange: ["fill", "outline"], rebuildOnParamKeys: ["mapchallengeDay08ScenarioIdx", "mapchallengeDay08SitesCategoryMask"],
+    layers: [{
+      suffix: "fill", type: "fill",
+      filter: (p) => mcDay08SiteFilter(p),
+      paint: (isDark, p) => ({
+        "fill-color": mapchallengeDay08SiteColorExpr(isDark),
+        "fill-opacity": MAPCHALLENGE_DAY08_SITE_FILL_OPACITY * ((p?.mapchallengeDay08SitesOpacity ?? 0.85) / 0.85),
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      layout: { "line-join": "round" },
+      filter: (p) => mcDay08SiteFilter(p),
+      paint: (isDark, p) => ({ "line-color": mapchallengeDay08SiteOutline(isDark), "line-width": 1, "line-opacity": p?.mapchallengeDay08SitesOpacity ?? 0.85 }),
     }],
   },
 );

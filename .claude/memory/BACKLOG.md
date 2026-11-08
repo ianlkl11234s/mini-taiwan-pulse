@@ -379,6 +379,14 @@
 | ZB-2 | P3 | ready | HiCloud VM 小遺留。 | Owner: 主 agent。(1) 刪 `/root/vm_backfill_20261108.py`（一次性補傳腳本）；(2) correctional 11/07 在 VM 與 S3 內容不同，**11/17** 會觸發滯留告警，屆時把 VM 版另存 `.vm.tar.gz`。First action：(1) 現在就可做。 | 腳本已刪；11/17 告警處理完、S3 有 `.vm.tar.gz`。 |
 | ZB-3 | P3 | ready | collector 與登記檔小遺留。 | Owner: 主 agent。(1) `env_jp_wbgt` 季節判斷用月份，10/22–10/31 可能誤報——改成依上游實際發布期判斷或接受並註記；(2) analytics `cross_layer_map.yaml` 81 筆 `deployment: zeabur` 是沿用舊名，改成實際部署位置或中性名稱。First action：(2) 先查有哪些程式讀 `deployment` 欄，再決定改名範圍。 | WBGT 不再於非發布期誤報；`cross_layer_map.yaml` 無 `zeabur`（或改名有登記理由）。 |
 
+## GBA 建物足跡缺口（2026-11-08，#30DayMapChallenge Day 8 發現）
+
+Day 8 烏托邦分析中永和時發現 GBA 建物足跡在部分市區大量缺漏。
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| GBA-1 | P2 | ready | GBA 建物足跡涵蓋不足：Pulse `buildings_value_taiwan.pmtiles` 與 analytics 加工檔一致（聯集 17.88 km²），缺口在 GBA 上游本身、集中在 OSM 稀疏區。中永和 534 個統計區建築用地 >1000 m² 但足跡 <5%（約 11.7 萬人、2.6 km²）；永和市中心疊 NLSC 正射約一半街廓無建物框；抽樣板橋 15%、苓雅 13%，大安、台中西區、台南中西約 4–5%。影響 `buildingsGba`、建物估值、`urban_form_grid`。 | First action：評估改用或補疊 NLSC／內政部建物資料；短期先在相關圖層圖例標註涵蓋不足。 | 選定補資料方案並上線（或圖例已標註涵蓋不足並記錄不補原因）；中永和抽樣街廓缺框率明顯下降。 |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.

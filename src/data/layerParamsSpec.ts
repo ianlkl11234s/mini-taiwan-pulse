@@ -182,6 +182,10 @@ import {
   MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_PLACES_ENCODE, MAPCHALLENGE_DAY06_PLACES_OPTIONS, MAPCHALLENGE_DAY06_STATUSES,
   MAPCHALLENGE_DAY06_SURVIVE, MAPCHALLENGE_DAY06_TEMPLE_CLASSES, MAPCHALLENGE_DAY06_TYPE_ENCODE, MAPCHALLENGE_DAY06_TYPE_OPTIONS,
 } from "./mapchallengeDay06Types";
+import {
+  MAPCHALLENGE_DAY08_DEFAULT_SCENARIO, MAPCHALLENGE_DAY08_SCENARIO_ENCODE, MAPCHALLENGE_DAY08_SCENARIOS, MAPCHALLENGE_DAY08_SITE_CLASSES,
+  MAPCHALLENGE_DAY08_SPEEDS, MAPCHALLENGE_DAY08_SPEED_ENCODE,
+} from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY04_DEFAULT_FACILITY, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_FACILITY_KEYS, MAPCHALLENGE_DAY04_HOTSPOT_CLASSES } from "./mapchallengeDay04Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
@@ -863,6 +867,18 @@ function mapchallengeFacilitySelect(key: string): SelectParamSpec {
     kind: "select", category: "data", name: `${key}Kind`, label: "設施", default: MAPCHALLENGE_DAY04_DEFAULT_FACILITY,
     options: MAPCHALLENGE_DAY04_FACILITIES.map((f) => ({ label: f.zh, value: f.key })),
     out: `${key}KindIdx`, encode: MAPCHALLENGE_DAY04_FACILITY_KEYS,
+  };
+}
+
+/**
+ * 30 天地圖挑戰 Day 8：方案下拉，步行可及與選址兩層共用一份值（sharedGroup，選一邊另一邊跟著變）。
+ * 每次呼叫回新物件，兩個成員規格逐欄位相同（layerParamsSharedState 閘）。
+ */
+function mapchallengeDay08ScenarioSelect(): SelectParamSpec {
+  return {
+    kind: "select", category: "data", name: "mapchallengeDay08Scenario", label: "方案", default: MAPCHALLENGE_DAY08_DEFAULT_SCENARIO,
+    options: MAPCHALLENGE_DAY08_SCENARIOS.map((o) => ({ label: o.zh, value: o.value })),
+    out: "mapchallengeDay08ScenarioIdx", encode: [...MAPCHALLENGE_DAY08_SCENARIO_ENCODE], sharedGroup: "mapchallengeDay08Scenario",
   };
 }
 
@@ -1651,6 +1667,23 @@ export const LAYER_PARAMS_SPEC = {
     },
     categoryMultiSelect("mapchallengeDay06Lighthouses", MAPCHALLENGE_DAY06_STATUSES.map((c) => ({ label: c.zh, value: c.value }))),
   ],
+  // 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開）：方案 select 兩層共用（sharedGroup）；步速 select 換 paint 讀的欄位；
+  // 選址的方案與類別多選（V-4）改 filter，由 overlayRegistry 自己組。
+  mapchallengeDay08Access: [
+    opacitySlider("mapchallengeDay08AccessOpacity", 0.7),
+    mapchallengeDay08ScenarioSelect(),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay08AccessSpeed", label: "步速", default: "normal",
+      options: MAPCHALLENGE_DAY08_SPEEDS.map((o) => ({ label: o.zh, value: o.value })),
+      out: "mapchallengeDay08AccessSpeedIdx", encode: [...MAPCHALLENGE_DAY08_SPEED_ENCODE],
+    },
+  ],
+  mapchallengeDay08Sites: [
+    opacitySlider("mapchallengeDay08SitesOpacity", 0.85),
+    mapchallengeDay08ScenarioSelect(),
+    categoryMultiSelect("mapchallengeDay08Sites", MAPCHALLENGE_DAY08_SITE_CLASSES.map((c) => ({ label: c.zh, value: c.value }))),
+  ],
+  mapchallengeDay08Plan1955: [opacitySlider("mapchallengeDay08Plan1955Opacity", 0.5)],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

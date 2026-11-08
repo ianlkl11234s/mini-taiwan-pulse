@@ -201,6 +201,7 @@ import { TRANSIT_ACCESS_COLOR } from "./transitAccessTypes";
 import { MAPCHALLENGE_DAY04_COLOR } from "./mapchallengeDay04Types";
 import { MAPCHALLENGE_DAY05_COLOR } from "./mapchallengeDay05Types";
 import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
+import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -16321,6 +16322,73 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["slider", "slider", "select", "multiSelect"] },
     description: "30 天地圖挑戰 Day 6 復古：日治時期地形圖上的 16 座燈塔與 1896 年起設的 5 個測候所，連到今天同一座燈塔或氣象站，分原址（150 m 內）、遷移、今日清單無對應。5 個百年測候所今天都還是氣象署有人站，臺北站只差 10 m。可切燈塔／測候所。點看名稱、設立年、今昔距離。來源：中央研究院《臺灣歷史文化地圖系統》（CC BY-NC-SA 3.0 臺灣版，本層為衍生資料）；Pulse 燈塔圖層（36 座主要燈塔）、中央氣象署測站清單。",
     topics: ["燈塔", "氣象站", "日治", "古地圖", "今昔", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay08Access: {
+    key: "mapchallengeDay08Access",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-08）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 8 烏托邦 Utopia" },
+    ...layerName({ zh: "走到大公園要幾分鐘", alt: "Walking Minutes to a Large Park" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY08_COLOR,
+    icon: Footprints,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 8 烏托邦：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day08_utopia（10_export_web.py）。研究範圍新北市中和區＋永和區；人口取內政部最小統計區 113 年（2024），長幼＝65 歲以上＋0–14 歲；公園取 OpenStreetMap（ODbL）≥1 ha、非河濱，入口以公園邊界每 50 m 一點代理，沿 OSM 路網算步行分鐘（一般 4.8 km/h、長幼 3.6 km/h，>30 或走不到記為 30）。各方案把該方案用地當成新公園後重算。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。研究推估，非法定查估；固定 2024 人口；選址為貪婪啟發式；D／Dfull 是幾何反事實（假如 1955 計畫公園都留著），不是歷史重演。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day08-access", url: "./mapchallenge/day08_access.geojson" },
+    legend: "mapchallengeDay08Access",
+    popup: "mapchallengeDay08Access",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "30 天地圖挑戰 Day 8 烏托邦：中和＋永和 2,673 個最小統計區，走到最近一座 ≥1 ha 非河濱公園要幾分鐘（≤5／5–10／10–15／>15）。可切方案（現況、A 效率、B 公平、B2 長幼優先、C 低拆遷、D 1955 七公園、Dfull 1955 公園＋綠地）與步速（一般 4.8 km/h、長幼 3.6 km/h）。10 分鐘內可達人口：現況 78.2%，A 方案 98.9%。點面看人口與現況→方案後分鐘。研究推估，非法定查估；固定 2024 人口。來源：內政部最小統計區人口、OpenStreetMap（ODbL）。",
+    topics: ["公園", "步行", "可及性", "中和", "永和", "都市計畫", "30 天地圖挑戰"],
+  },
+  mapchallengeDay08Sites: {
+    key: "mapchallengeDay08Sites",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-08）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 8 烏托邦 Utopia" },
+    ...layerName({ zh: "新公園選址與代價", alt: "New Park Sites and Their Cost" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY08_COLOR,
+    icon: Trees,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 8 烏托邦：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day08_utopia（10_export_web.py）。研究範圍新北市中和區＋永和區；人口取內政部最小統計區 113 年（2024），長幼＝65 歲以上＋0–14 歲；公園取 OpenStreetMap（ODbL）≥1 ha、非河濱，入口以公園邊界每 50 m 一點代理，沿 OSM 路網算步行分鐘（一般 4.8 km/h、長幼 3.6 km/h，>30 或走不到記為 30）。候選用地分三類：T1 計畫公園用地未開闢、T2 工業區、T3 住宅商業街廓（新北市都市計畫土地使用分區），各方案以貪婪法選 5 處。用地上人口與組成取國土利用調查（109 年分類，經最小統計區）；總代價＝土地（內政部實價登錄土地交易 p25／p50／p75）＋建物＋戶別給付（新北市查估拆遷補償救濟標準）＋公園工程，低／基準／高三值。1955 公園與綠地依國家文化記憶庫〈訂定中和鄉都市計畫（1955年）〉圖面數化。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。研究推估，非法定查估；固定 2024 人口；選址為貪婪啟發式；D／Dfull 是幾何反事實（假如 1955 計畫公園都留著），不是歷史重演。學校用地（8 面）不上圖。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day08-sites", url: "./mapchallenge/day08_sites.geojson" },
+    legend: "mapchallengeDay08Sites",
+    popup: "mapchallengeDay08Sites",
+    params: { count: 3, kinds: ["slider", "select", "multiSelect"] },
+    description: "30 天地圖挑戰 Day 8 烏托邦：要讓中和＋永和每個人走 10 分鐘就到大公園，A／B／B2／C 各選 5 處新公園用地（T1 未開闢公園用地、T2 工業區、T3 住宅商業街廓）；D／Dfull 顯示 1955 都市計畫的公園與綠地。點面看新增覆蓋人口、住在用地上的人口、總代價（億元，低／基準／高）；1955 面另顯示今日仍是公園的比例。研究推估，非法定查估；固定 2024 人口。",
+    topics: ["公園", "都市計畫", "拆遷", "中和", "永和", "1955", "30 天地圖挑戰"],
+  },
+  mapchallengeDay08Plan1955: {
+    key: "mapchallengeDay08Plan1955",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-08）：單張 image source（useMapchallengeDay08PlanLayer），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 8 烏托邦 Utopia" },
+    ...layerName({ zh: "1955 中和鄉都市計畫圖", alt: "1955 Zhonghe Town Plan Map" }),
+    expandable: true,
+    color: "#a16207",
+    icon: Map,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "國家文化記憶庫〈訂定中和鄉都市計畫（1955年）〉（永和社區大學），CC BY-NC 3.0 TW；taipei-gis-analytics mapchallenge_2026_day08_utopia 以仿射對位（控制點 RMS 約 30 m、檢核點約 55 m），四角座標寫在 src/data/mapchallengeDay08Types.ts。",
+      note: "掃描原圖，沒有 feature 屬性與 popup；位置可能偏移約 30–55 m；非商業授權，須標示來源。",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "useMapchallengeDay08PlanLayer：Mapbox image source（./mapchallenge/day08_plan1955.jpg，四角 MAPCHALLENGE_DAY08_PLAN_CORNERS），raster 插在底圖第一個 symbol 下" },
+    legend: "mapchallengeDay08Plan1955",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "30 天地圖挑戰 Day 8 烏托邦：1955 年中和鄉都市計畫圖原圖（含今永和），可調透明度疊在今天的地圖上，對照當年畫了公園、今天卻沒有的地方。來源：國家文化記憶庫（永和社區大學），CC BY-NC 3.0 TW；位置可能偏移約 30–55 m。",
+    topics: ["古地圖", "都市計畫", "中和", "永和", "1955", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

@@ -98,7 +98,8 @@ describe("Layer UX policy baseline", () => {
     // 2026-11-05：+1 古地圖 historicalMapSinica（中研院臺灣百年歷史地圖外部 XYZ 掃描 raster，無 feature 屬性）。
     // 2026-11-07：+5 臺灣百年歷史地圖拆六層（戰後地形圖、航照衛星、界線路網、土地利用、主題圖，同古地圖：外部掃描 raster，無 feature 屬性）。
     // 2026-11-07：+1 愛爾蘭 INFOMAR 海床地形 ieBathymetry（已著色 raster PMTiles，無 feature 屬性）。
-    expect(missing).toHaveLength(59); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
+    // 2026-11-08：+1 30 天地圖挑戰 Day 8 1955 中和鄉都市計畫圖 mapchallengeDay08Plan1955（單張 image source 掃描圖，無 feature 屬性）。
+    expect(missing).toHaveLength(60); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {
