@@ -15,7 +15,8 @@
 | 指令 | 用途 |
 |---|---|
 | `npm run dev` | 啟動 dev server (port 3721) |
-| `npm run check` | commit／PR 前必跑：依序跑 CI 的全部檢查（lint、樣式盤點、coral、worker、build、test） |
+| `npm run verify` | commit／PR 前必跑：型別、lint、樣式盤點，加上和 `origin/develop` 相比有改動的測試（約 1 分內）；全套交給 CI |
+| `npm run check` | 依序跑 CI 的全部檢查（lint、樣式盤點、coral、worker、build、test）；CI 紅燈要在本機重現時才用 |
 | `npm run lint` | 只跑 ESLint 守門規則（自訂規則見 development-rules §6）；修掉既有違規後跑 `npm run lint:prune` |
 | `npx tsc -b` | TypeScript 驗證（禁用 `--noEmit`） |
 | `npm test` | 跑測試（含 `layerConsistency` 擋漏接圖例；owner-local 測試用 `npm run test:owner`） |
@@ -26,7 +27,7 @@
 
 ### 1. TypeScript 驗證
 
-commit 前必跑 `npm run check`（與 CI 同一組檢查，其中 build 含 `tsc -b`；project references，禁用 `--noEmit`）。
+commit 前必跑 `npm run verify`（`tsc -b`、lint、樣式盤點、相關測試；project references，禁用 `--noEmit`）。完整套件由 CI 跑，**合併前等 CI 綠**；不要在本機重跑一次全套（2026-11-08 使用者決定，原則見 [`docs/ci.md`](./docs/ci.md) §5）。
 
 ### 2. 資料來源管理
 資料來源契約（動態走 `public.*` RPC / Statistics 一律走 R2 snapshot / 靜態走 CDN 資產 / 禁前端直打 `live.*`（舊 `realtime` schema 已併入 `live`））→ [`docs/development-rules.md`](./docs/development-rules.md) §1

@@ -49,10 +49,16 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 
 ## 5. 本機與 CI 的分工
 
-- **目前規則仍是 commit／PR 前跑 `npm run check`**（CLAUDE.md §1）。等於本機和 CI 各跑一次全套，這是已知的重複。
-- 待拍板的改法：本機只跑 `npx tsc -b`、`npm run lint`、`npx vitest related --run <改動檔>`，以及改到 manifest 時的 manifest 守門 hook；全套交給 CI。
-  - 代價是 CI 紅燈要再推一輪，而 `vitest related` 只看得到靜態 import。
-  - 出處：Vitest CLI 文件的 lint-staged 範例用 `vitest related --run`。「全套交給 CI」只是常見做法，**不是官方規範**。
+**2026-11-08 使用者決定**：本機只跑快速、和改動相關的檢查，全套交給 CI，不再兩邊各跑一次。
+
+- **commit 前**：`npm run verify`，依序跑 `tsc -b`、lint、樣式盤點，再用 `vitest run --changed origin/develop` 只跑和改動相關的測試。
+- **改到 manifest 時**：PostToolUse hook（`.claude/hooks/manifest-guard.sh`）會立刻跑三道 manifest 守門測試。
+- **合併前**：等 PR 的 CI 綠。
+- **CI 紅燈時**：在本機單跑紅燈的檔，或用 `npm run check` 重現，不要盲目重推。
+- **限制**：
+  - `--changed` 只追得到靜態 import。動態 import、讀檔型的契約測試（例如 public/ 資產、docs）不會被選到，要靠 CI 補上。
+  - 本機分支要先 `git fetch`，否則比對的是舊的 `origin/develop`。
+- **出處**：Vitest CLI 文件的 lint-staged 範例用 `vitest related --run`，`--changed` 也是 CLI 選項。「全套交給 CI」是常見做法，不是官方規範。
 
 ## 6. 測試要測行為，不要掃原始碼
 
@@ -65,7 +71,7 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 |---|---|---|---|
 | 2026-11-07 | 單一 job（舊） | 4–7 分 | checkout 40–63s、build 80s、vitest 135–156s、lint 15s、盤點 21s |
 | 2026-11-08 | 三 job 平行＋threads（PR #899 第一輪） | 3 分 57 秒 | quick 55s（checkout 7s）、build 159s（checkout 63s）、test 224s（checkout 67s、vitest 145s）|
-| 2026-11-08 | 三 job 平行＋test 分 2 片、forks（PR #899 第三輪，現行） | 3 分 06 秒 | quick 52s、build 159s、test 166s／173s（各片 checkout 約 65s、vitest 85s／94s，288＋285 檔，合計與單片相同）|
+| 2026-11-08 | 三 job 平行＋test 分 2 片、forks（PR #899 第三輪） | 3 分 06 秒 | quick 52s、build 159s、test 166s／173s（各片 checkout 約 65s、vitest 85s／94s，288＋285 檔，合計與單片相同）|
 
 ## 出處
 
