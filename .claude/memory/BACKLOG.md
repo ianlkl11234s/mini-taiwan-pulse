@@ -387,6 +387,12 @@ Day 8 烏托邦分析中永和時發現 GBA 建物足跡在部分市區大量缺
 |---|---|---|---|---|---|
 | GBA-1 | P2 | ready | GBA 建物足跡涵蓋不足：Pulse `buildings_value_taiwan.pmtiles` 與 analytics 加工檔一致（聯集 17.88 km²），缺口在 GBA 上游本身、集中在 OSM 稀疏區。中永和 534 個統計區建築用地 >1000 m² 但足跡 <5%（約 11.7 萬人、2.6 km²）；永和市中心疊 NLSC 正射約一半街廓無建物框；抽樣板橋 15%、苓雅 13%，大安、台中西區、台南中西約 4–5%。影響 `buildingsGba`、建物估值、`urban_form_grid`。 | First action：評估改用或補疊 NLSC／內政部建物資料；短期先在相關圖層圖例標註涵蓋不足。 | 選定補資料方案並上線（或圖例已標註涵蓋不足並記錄不補原因）；中永和抽樣街廓缺框率明顯下降。 |
 
+## Day 8 烏托邦後續（2026-11-08，v2.30.0 上線後 QA）
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| D8-1 | P3 | ready | 分享網址記住 Day 8 方案與步速（`mapchallengeDay08Scenario`／`AccessSpeed`）。主站目前不支援任何圖層參數進網址：`src/lib/urlState.ts` 的 `UrlState.params`（`p.*`，只收數字）註明「僅 /embed 消費，主站忽略」，`src/App.tsx` 同步網址的 `buildUrl(...)`（約 L1962）也不寫 params，所以要動共用框架，不是 Day 8 單層能做。 | First action：設計主站 `p.*` 讀寫（哪些參數可分享、sharedGroup 成員只寫一次、與 `NON_SHAREABLE_PARAM_NAMES` 和 embed 契約的關係），再決定要不要做。 | 主站分享網址帶方案／步速，開網址後兩層方案一致；urlState 測試補上主站情境。 |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.
