@@ -37,3 +37,9 @@
 私有圖層 sidecar 的映像：`server/coral-private/Dockerfile`，由 `.github/workflows/publish-coral-private.yml`
 在 master 有 sidecar 改動時推到 `ghcr.io/ianlkl11234s/pulse-coral-private`（tag：commit sha、`latest`）。
 第一次推完要到 GitHub Packages 確認該 package 是 private；主機 pull 需要 `read:packages` 的 PAT。
+
+## 網域（2026-11-09 起）
+
+正式網域 `mini-taiwan-pulse.itsmigu.com` 是本 Worker 的 **custom domain**（寫在 `wrangler.jsonc` 的 `routes`），DNS 紀錄由 Cloudflare 自動管理；不再有指向 Zeabur 的 A 紀錄與 zone Route。
+- 後台「Connect domain」視窗曾回「No zones match」（2026-11-09），改用 `wrangler triggers deploy` 綁定成功；之後以 `wrangler.jsonc` 為準，CI 部署會保留。
+- 退回舊路徑：刪 Worker custom domain，加回 A 紀錄 `mini-taiwan-pulse` → `172.105.197.215`（Proxied）＋ zone Route `mini-taiwan-pulse.itsmigu.com/*` → 本 Worker（Zeabur 服務刪除後此路徑失效）。

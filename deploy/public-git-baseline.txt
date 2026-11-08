@@ -1,4 +1,3 @@
 # CI-4 防回流基準：目前仍在 git 裡的 public/ 資料檔（網站素材除外）。
 # 只減不增：每批移出 git 後把該批從這裡刪掉；新資料檔不准加進來，要上傳 S3 並用
 # `python3 scripts/deploy/build-public-assets-lock.py add <路徑>`（src/map/__tests__/deployContract.test.ts 守門）。
-public/h3/h3_population_res7.json

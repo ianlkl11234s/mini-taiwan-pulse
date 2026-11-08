@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1774,
+    "keyCount": 1775,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5978,9 +5978,21 @@
     },
     {
       "layers": [
+        "mapchallenge-day08-parks-circle"
+      ],
+      "type": "mapchallengeDay08Parks"
+    },
+    {
+      "layers": [
         "mapchallenge-day08-sites-fill"
       ],
       "type": "mapchallengeDay08Sites"
+    },
+    {
+      "layers": [
+        "mapchallenge-day08-parks-fill"
+      ],
+      "type": "mapchallengeDay08Parks"
     },
     {
       "layers": [
@@ -105147,7 +105159,147 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "mapchallenge-day08-access",
-      "sourceUrl": "./mapchallenge/day08_access.geojson"
+      "sourceUrl": "./mapchallenge/day08_access_v2.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay08Parks",
+      "layers": [
+        {
+          "filter": [
+            "!=",
+            [
+              "geometry-type"
+            ],
+            "Point"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "cls"
+                ],
+                "riverside",
+                "#2dd4bf",
+                "entrance",
+                "#facc15",
+                "#22c55e"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "cls"
+                ],
+                "riverside",
+                "#0f766e",
+                "entrance",
+                "#d97706",
+                "#15803d"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "!=",
+            [
+              "geometry-type"
+            ],
+            "Point"
+          ],
+          "layout": {
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "cls"
+                ],
+                "riverside",
+                "#2dd4bf",
+                "entrance",
+                "#facc15",
+                "#22c55e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "cls"
+                ],
+                "riverside",
+                "#0f766e",
+                "entrance",
+                "#d97706",
+                "#15803d"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "geometry-type"
+            ],
+            "Point"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#facc15",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#d97706",
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline",
+        "circle"
+      ],
+      "sourceId": "mapchallenge-day08-parks",
+      "sourceUrl": "./mapchallenge/day08_parks.geojson"
     },
     {
       "dynamicData": null,
@@ -105243,7 +105395,7 @@
         "outline"
       ],
       "sourceId": "mapchallenge-day08-sites",
-      "sourceUrl": "./mapchallenge/day08_sites.geojson"
+      "sourceUrl": "./mapchallenge/day08_sites_v2.geojson"
     }
   ],
   "params": {
@@ -138496,6 +138648,49 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay08Parks": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "一般公園（≥1 ha）",
+            "value": "park"
+          },
+          {
+            "label": "河濱公園（≥1 ha）",
+            "value": "riverside"
+          },
+          {
+            "label": "河濱穿堤入口",
+            "value": "entrance"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "park",
+          "riverside",
+          "entrance"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "mapchallengeDay08Plan1955": [

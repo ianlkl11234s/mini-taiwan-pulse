@@ -52,6 +52,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   livestockMarket: "L", // 拍賣/批發市場 Markets
   livestockSlaughter: "L", // 屠宰場 Slaughterhouses
   lngTerminal: "L", // LNG 接收站 Terminal
+  mapchallengeDay08Parks: "M", // 30 天地圖挑戰 Day 8 河濱穿堤入口（63 點，疊在公園面上）
   mapchallengeDay06Lighthouses: "L", // 30 天地圖挑戰 Day 6 燈塔與測候所今昔（21 處，點少要醒目）
   serviceArea: "L", // 國道服務區 Service Area
   // ── 泡泡（依資料） · 44 層

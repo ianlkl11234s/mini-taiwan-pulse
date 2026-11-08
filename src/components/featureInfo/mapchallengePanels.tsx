@@ -15,7 +15,7 @@ import {
   MAPCHALLENGE_DAY06_STATUS_COLORS, MAPCHALLENGE_DAY06_TEMPLE_COLOR, mapchallengeDay06EraColor, mapchallengeDay06SurviveColor, type MapchallengeDay06Status,
 } from "../../data/mapchallengeDay06Types";
 import {
-  MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_UNREACHABLE, mapchallengeDay08BinColor, mapchallengeDay08ScenarioByValue,
+  MAPCHALLENGE_DAY08_ENTRANCE_KINDS, MAPCHALLENGE_DAY08_ENTRANCE_KIND_KEYS, mapchallengeDay08ParkColor, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_UNREACHABLE, mapchallengeDay08BinColor, mapchallengeDay08ScenarioByValue,
   mapchallengeDay08SiteColor, mapchallengeDay08TimeProp, mapchallengeDay08YiToBillion, MAPCHALLENGE_DAY08_COST_FORMAT, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
@@ -242,6 +242,14 @@ function Day08Footer() {
   </>;
 }
 
+function Day08ParksFooter() {
+  const { t } = useLocale();
+  return <>
+    <Row label={t("popup.mapchallenge.day08.caveatLabel")} value={t("legend.mapchallenge.day08.caveat")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day08.parksSource") }} />
+  </>;
+}
+
 /** 缺值回 null（不顯示為 0） */
 const numOrNull = (v: unknown): number | null => (v === null || v === undefined || v === "" ? null : Number.isFinite(num(v)) ? num(v) : null);
 
@@ -268,6 +276,34 @@ export function MapchallengeDay08AccessPanel({ props }: Props) {
       : <Row label={t("popup.mapchallenge.day08.beforeAfter", { scenario: t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario]) })}
           value={t("popup.mapchallenge.day08.arrow", { a: mins(before), b: mins(after) })} mono />}
     <Day08Footer />
+  </div>;
+}
+
+export function MapchallengeDay08ParksPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  if (props.cls === "entrance") {
+    const kind = MAPCHALLENGE_DAY08_ENTRANCE_KINDS.find((k) => k === str(props.kind)) ?? "bridge";
+    const color = mapchallengeDay08ParkColor("entrance", isDark);
+    return <div>
+      <Title color={color}>{t("popup.mapchallenge.day08.entranceTitle")}</Title>
+      <Row label={t("popup.mapchallenge.day08.entranceKind")} value={t(MAPCHALLENGE_DAY08_ENTRANCE_KIND_KEYS[kind])} color={color} />
+      {str(props.way_name) && <Row label={t("popup.mapchallenge.day08.wayName")} value={str(props.way_name)} />}
+      {str(props.park_name) && <Row label={t("popup.mapchallenge.day08.belongsPark")} value={str(props.park_name)} />}
+      <Row label={t("popup.mapchallenge.day08.entranceNote")} value={t("legend.mapchallenge.day08.entranceRule")} />
+      <Day08ParksFooter />
+    </div>;
+  }
+  const riverside = props.cls === "riverside";
+  const color = mapchallengeDay08ParkColor(riverside ? "riverside" : "park", isDark);
+  const area = numOrNull(props.area_ha);
+  return <div>
+    <Title color={color}>{str(props.name) || t(riverside ? "popup.mapchallenge.day08.unnamedRiverside" : "popup.mapchallenge.day08.unnamedPark")}</Title>
+    <Row label={t("popup.mapchallenge.day08.cls")} value={t(riverside ? "legend.mapchallenge.day08.parkCls.riverside" : "legend.mapchallenge.day08.parkCls.park")} color={color} />
+    {area !== null && <Row label={t("popup.mapchallenge.day08.area")} value={t("popup.mapchallenge.day08.ha", { n: formatNumber(area) })} mono />}
+    <Row label={t("popup.mapchallenge.day08.isRiverside")} value={t(riverside ? "popup.mapchallenge.day08.riversideYes" : "popup.mapchallenge.day08.riversideNo")} />
+    {riverside && <Row label={t("popup.mapchallenge.day08.entranceNote")} value={t("legend.mapchallenge.day08.entranceRule")} />}
+    <Day08ParksFooter />
   </div>;
 }
 

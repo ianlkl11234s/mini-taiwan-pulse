@@ -16,6 +16,8 @@ const NOT_PLACE = new Set([
   "forestryPanels.tsx#ForestryGenericPanel",
   "waterPanels.tsx#WaterDetentionBasinPanel",
   "urbanPanels.tsx#StreetTreesNationalPanel",
+  // Day 8 步行可及：town 只有研究區的中和／永和；出處列的「臺北市疏散門開放資料」是資料集名稱，不是縣市欄位
+  "mapchallengePanels.tsx#MapchallengeDay08AccessPanel",
 ]);
 const panels = Object.entries(modules)
   .filter(([path]) => !SKIP.test(path))

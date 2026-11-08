@@ -53,6 +53,11 @@ describe("日本第一波 popup 資料語意", () => {
     expect(plain).not.toContain("授權限制");
     expect(render({ license_note: "商用利用不可" })).toContain("商用利用不可");
     expect(render({ license_note: "商用利用不可" })).toContain("授權限制");
+    // 無地名（空或「—」）時標題改顯示現象種類，不顯示「—」（V215-V）
+    const titleOf = (html: string) => html.match(/<span style="width:9px[^"]*"><\/span>([^<]*)<\/div>/)?.[1];
+    expect(titleOf(render({}))).toBe("テストE");
+    for (const area_name of ["—", "", null]) expect(titleOf(render({ area_name }))).toContain("土石流");
+    expect(titleOf(render({ area_name: "—", phenomenon_en: "unknown" }))).toContain("土砂災害警戒");
   });
 
   it("內水浸水想定區域：想定最大規模降雨、只涵蓋 28 個市町村、無資料不代表無風險", () => {

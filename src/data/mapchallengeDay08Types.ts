@@ -2,12 +2,13 @@
  * 30 天地圖挑戰 Day 8「烏托邦 Utopia」（模擬入口，公開，2026-11-08）：三層的色、方案、選項單一資料源，
  * overlayRegistry（paint／filter）、圖例、說明框、hook 都從這裡 import（此檔被 layerManifest 引用，不可 import map/mapStyleScale）。
  *
- * 題目：新北市中和＋永和，如果要讓每個人走 10 分鐘就到一座 ≥1 ha 的非河濱公園，要在哪裡開、要拆多少、花多少。
+ * 題目：新北市中和＋永和，如果要讓每個人走 10 分鐘就到一座 ≥1 ha 的公園（含河濱公園，但河濱公園只能從穿過堤防的入口進入），要在哪裡開、要拆多少、花多少。
  * 資料（scripts/preprocess/build-mapchallenge-day08.py 產製；上游 taipei-gis-analytics
  * pipelines/analysis/mapchallenge_2026_day08_utopia，數字取自 web/day08_summary.json）：
- * - day08_access.geojson：2,673 個最小統計區（2024 人口），t0／t0s＝現況、t_<S>／ts_<S>＝方案 S 後的步行分鐘
+ * - day08_access_v2.geojson：2,673 個最小統計區（2024 人口），t0／t0s＝現況、t_<S>／ts_<S>＝方案 S 後的步行分鐘
  *   （一般 4.8 km/h／長幼 3.6 km/h；>30 或走不到記為 30）
- * - day08_sites.geojson：方案 A／B／B2／C 各 5 處用地（cls＝T1／T2／T3）＋1955 公園（D、Dfull）與綠地（Dfull）
+ * - day08_sites_v2.geojson：方案 A／B／B2／C 各 5 處用地（cls＝T1／T2／T3）＋1955 公園（D、Dfull）與綠地（Dfull）
+ * - day08_parks.geojson：現有 ≥1 ha 公園面（cls＝park／riverside）與河濱公園穿堤入口點（cls＝entrance，kind＝bridge／tunnel／steps／gate）
  * - day08_plan1955.jpg：1955 中和鄉都市計畫圖（國家文化記憶庫，永和社區大學，CC BY-NC 3.0 TW），仿射對位
  *
  * 配色（map-layers.md §3.2；2026-11-08 使用者拍板第三輪）：
@@ -19,8 +20,9 @@
  *   填色 0.35＋外框 1px（FILL_TIERS coverage 預設），外框用與底圖反差的中性色（暗底 #f8fafc）。
  */
 
-export const MAPCHALLENGE_DAY08_ACCESS_URL = "./mapchallenge/day08_access.geojson";
-export const MAPCHALLENGE_DAY08_SITES_URL = "./mapchallenge/day08_sites.geojson";
+export const MAPCHALLENGE_DAY08_ACCESS_URL = "./mapchallenge/day08_access_v2.geojson";
+export const MAPCHALLENGE_DAY08_SITES_URL = "./mapchallenge/day08_sites_v2.geojson";
+export const MAPCHALLENGE_DAY08_PARKS_URL = "./mapchallenge/day08_parks.geojson";
 export const MAPCHALLENGE_DAY08_PLAN_URL = "./mapchallenge/day08_plan1955.jpg";
 
 /** sidebar 代表色（viridis 中段青綠） */
@@ -29,17 +31,17 @@ export const MAPCHALLENGE_DAY08_COLOR = "#1f9a8a";
 // ── 方案 ─────────────────────────────────────────────────────
 /**
  * 方案清單（順序＝select 選項＝encode 索引）。base＝現況（只有步行可及層有）。
- * covered／vulCovered＝10 分鐘內可達人口比例（一般 4.8 km/h × 全人口／長幼 3.6 km/h × 65+ 與 0–14 歲），
+ * covered／vulCovered＝10 分鐘內可達人口比例（≥1 ha 公園含河濱，河濱公園只走穿堤入口；2026-11-08 B 口徑）（一般 4.8 km/h × 全人口／長幼 3.6 km/h × 65+ 與 0–14 歲），
  * costYi＝總代價（土地＋建物＋戶別給付＋公園工程，億元，low／base／high），取自 day08_summary.json。
  */
 export const MAPCHALLENGE_DAY08_SCENARIOS = [
-  { value: "base", zh: "現況", covered: 78.2, vulCovered: 57.3, costYi: null, classes: [] },
-  { value: "A", zh: "A 效率", covered: 98.9, vulCovered: 81.8, costYi: { low: 131.0, base: 254.8, high: 378.4 }, classes: ["T3"] },
-  { value: "B", zh: "B 公平", covered: 98.4, vulCovered: 81.8, costYi: { low: 117.9, base: 229.4, high: 337.1 }, classes: ["T2", "T3"] },
-  { value: "B2", zh: "B2 長幼優先", covered: 96.7, vulCovered: 87.2, costYi: { low: 154.1, base: 282.1, high: 423.5 }, classes: ["T3"] },
-  { value: "C", zh: "C 未開闢公園地", covered: 84.4, vulCovered: 66.2, costYi: { low: 4.7, base: 95.6, high: 227.5 }, classes: ["T1"] },
-  { value: "D", zh: "D 1955 七公園", covered: 89.9, vulCovered: 76.7, costYi: { low: 601.5, base: 1005.3, high: 1491.9 }, classes: ["park"] },
-  { value: "Dfull", zh: "Dfull 1955 公園＋綠地", covered: 93.9, vulCovered: 86.2, costYi: { low: 797.5, base: 1357.8, high: 1959.2 }, classes: ["park", "greenbelt"] },
+  { value: "base", zh: "現況", covered: 85.7, vulCovered: 64.2, costYi: null, classes: [] },
+  { value: "A", zh: "A 效率", covered: 99.3, vulCovered: 84.1, costYi: { low: 116.5, base: 231.1, high: 374.2 }, classes: ["T3"] },
+  { value: "B", zh: "B 公平", covered: 98.8, vulCovered: 84.1, costYi: { low: 103.4, base: 205.6, high: 332.9 }, classes: ["T2", "T3"] },
+  { value: "B2", zh: "B2 長幼優先", covered: 96.8, vulCovered: 89.2, costYi: { low: 128.6, base: 239.2, high: 399.4 }, classes: ["T3"] },
+  { value: "C", zh: "C 未開闢公園地", covered: 91.9, vulCovered: 73.1, costYi: { low: 4.7, base: 95.6, high: 227.5 }, classes: ["T1"] },
+  { value: "D", zh: "D 1955 七公園", covered: 90.7, vulCovered: 78.9, costYi: { low: 601.5, base: 1005.3, high: 1491.9 }, classes: ["park"] },
+  { value: "Dfull", zh: "Dfull 1955 公園＋綠地", covered: 93.9, vulCovered: 86.3, costYi: { low: 797.5, base: 1357.8, high: 1959.2 }, classes: ["park", "greenbelt"] },
 ] as const;
 export type MapchallengeDay08Scenario = (typeof MAPCHALLENGE_DAY08_SCENARIOS)[number]["value"];
 /**
@@ -130,6 +132,45 @@ export function mapchallengeDay08SiteOutline(isDark: boolean): string {
 }
 /** 填色 0.35、外框 1px（F-1 coverage 預設；FILL_TIERS coverage 實際套用） */
 export const MAPCHALLENGE_DAY08_SITE_FILL_OPACITY = 0.35;
+
+// ── 現有公園與河濱入口 ───────────────────────────────────────
+/** 順序＝圖例＝multiSelect bitmask（新增請加在最後） */
+export const MAPCHALLENGE_DAY08_PARK_CLASSES = [
+  { value: "park", zh: "一般公園（≥1 ha）" },
+  { value: "riverside", zh: "河濱公園（≥1 ha）" },
+  { value: "entrance", zh: "河濱穿堤入口" },
+] as const;
+export type MapchallengeDay08ParkClass = (typeof MAPCHALLENGE_DAY08_PARK_CLASSES)[number]["value"];
+/** 入口種類（資料 kind）：陸橋、地下道、上堤階梯、疏散門 */
+export const MAPCHALLENGE_DAY08_ENTRANCE_KINDS = ["bridge", "tunnel", "steps", "gate"] as const;
+export type MapchallengeDay08EntranceKind = (typeof MAPCHALLENGE_DAY08_ENTRANCE_KINDS)[number];
+export const MAPCHALLENGE_DAY08_ENTRANCE_KIND_KEYS = {
+  bridge: "popup.mapchallenge.day08.kind.bridge",
+  tunnel: "popup.mapchallenge.day08.kind.tunnel",
+  steps: "popup.mapchallenge.day08.kind.steps",
+  gate: "popup.mapchallenge.day08.kind.gate",
+} as const;
+/**
+ * 配色（站上既有色系挑選，與步行分鐘藍／黃／紅、選址紫／粉／萊姆錯開）：
+ * 一般公園綠（tailwind green 500／700）、河濱公園青綠（teal 400／700，與一般公園 ΔE ≥ 20）、入口亮黃（yellow 400／amber 600，加深色描邊）。
+ * 填色 0.35＋外框 1px（FILL_TIERS coverage 預設）。
+ */
+const PARK_COLORS: Record<MapchallengeDay08ParkClass, { dark: string; light: string }> = {
+  park: { dark: "#22c55e", light: "#15803d" },
+  riverside: { dark: "#2dd4bf", light: "#0f766e" },
+  entrance: { dark: "#facc15", light: "#d97706" },
+};
+export function mapchallengeDay08ParkColor(cls: string, isDark: boolean): string {
+  const c = PARK_COLORS[(cls in PARK_COLORS ? cls : "park") as MapchallengeDay08ParkClass];
+  return isDark ? c.dark : c.light;
+}
+export function mapchallengeDay08ParkColorExpr(isDark: boolean): unknown[] {
+  return ["match", ["get", "cls"],
+    "riverside", mapchallengeDay08ParkColor("riverside", isDark),
+    "entrance", mapchallengeDay08ParkColor("entrance", isDark),
+    mapchallengeDay08ParkColor("park", isDark)];
+}
+export const MAPCHALLENGE_DAY08_PARK_FILL_OPACITY = 0.35;
 
 // ── 1955 計畫原圖 ────────────────────────────────────────────
 /** 四角（TL、TR、BR、BL，lng/lat；2026-11-08 裁掉掃描黑邊後的版本），取自 day08_summary.json plan_image（仿射對位，控制點 RMS 約 30 m、檢核點約 55 m） */
