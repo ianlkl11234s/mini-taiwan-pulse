@@ -3,7 +3,6 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   GB_STATISTICS_TAB_THEMES,
-  STATISTICS_DATA_THEMES,
   STATISTICS_TAB_THEMES,
   THEMES,
   type ThemeDef,
@@ -16,7 +15,7 @@ const readThemes = (locale: string): Record<string, string> =>
 /** 圖層入口、資料來源總覽、統計入口會顯示的所有主題與群組名 */
 function allSectionTitles(): string[] {
   const titles = new Set<string>();
-  const themes: ThemeDef[] = [...THEMES, ...STATISTICS_DATA_THEMES, ...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES];
+  const themes: ThemeDef[] = [...THEMES, ...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES];
   for (const theme of themes) {
     titles.add(theme.title);
     for (const group of theme.groups ?? []) titles.add(group.title);

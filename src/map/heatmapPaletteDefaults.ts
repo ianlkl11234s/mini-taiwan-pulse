@@ -41,7 +41,6 @@ export const THEME_HEATMAP_PALETTE: Readonly<Record<string, PaletteId>> = {
   都市分析: "cividis",
   工商登記: "Burg",
   房地產: "YlOrBr",
-  住宅存量與使用: "Burg",
   人口社經: "YlOrBr",
   工作與所得: "Burg",
   廢棄物: "turku",

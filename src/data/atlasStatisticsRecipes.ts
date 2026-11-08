@@ -356,8 +356,6 @@ function groupsBy(select: (recipe: AtlasRecipeCatalogEntry) => boolean, groupOf:
     .map((title) => ({ title, keys: recipes.filter((recipe) => groupOf(recipe) === title).map((recipe) => recipe.layer_key) }));
 }
 
-/** 台灣 Layers 完整目錄（STATISTICS_DATA_THEMES）的主題，依家族順序（不含英國）。 */
-export const ATLAS_DATA_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => atlasRecipeCountry(recipe) === "TW").map((recipe) => recipe.data_theme))];
 
 /** 主題身分是 (country, title)：群組只取同國家的 recipe（缺省＝台灣）。 */
 export function atlasDataThemeGroups(theme: string, country: CountryCode = "TW") {

@@ -71,16 +71,6 @@ export const ENVIRONMENT_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type EnvironmentStatisticsLayerKey = typeof ENVIRONMENT_ENABLED_STATISTICS_KEYS[number];
 
-/** Layers 階層的中分類標題（沿用既有雙語 theme 命名；廢棄物／資源回收沿用既有 theme）。 */
-export const ENVIRONMENT_STATISTICS_THEME_TITLES: Record<string, string> = {
-  廢棄物統計: "廢棄物統計 Waste Statistics",
-  資源回收統計: "資源回收統計 Recycling Statistics",
-  水質與污水統計: "水質與污水統計 Water Quality & Sewage Statistics",
-  空氣品質統計: "空氣品質統計 Air Quality Statistics",
-  污染與公害統計: "污染與公害統計 Pollution & Nuisance Statistics",
-  環境治理統計: "環境治理統計 Environmental Enforcement Statistics",
-};
-
 const document = catalogJson as unknown as EnvironmentRecipeDocument;
 export const ENVIRONMENT_STATISTICS_SCOPE = document.scope;
 export const ENVIRONMENT_STATISTICS_RECIPES = document.recipes;
