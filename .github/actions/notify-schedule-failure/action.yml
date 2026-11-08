@@ -1,0 +1,59 @@
+name: notify-schedule-failure
+description: 排程 workflow 連續失敗第 2 次送 Telegram 🔴，連續失敗後恢復送 ✅（狀態取自 GitHub run 歷史，不另存）
+inputs:
+  token:
+    description: Telegram bot token（空值則略過）
+    required: false
+    default: ''
+  chat:
+    description: Telegram chat id（空值則略過）
+    required: false
+    default: ''
+  repo:
+    description: owner/repo
+    required: true
+  workflow:
+    description: 被監看 workflow 的 name
+    required: true
+  run-id:
+    description: 本次 workflow_run 的 id
+    required: true
+  conclusion:
+    description: 本次 workflow_run 的 conclusion
+    required: true
+  run-url:
+    description: 本次 workflow_run 的網址
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: 判斷並送出 Telegram
+      shell: bash
+      env:
+        TG_TOKEN: ${{ inputs.token }}
+        TG_CHAT: ${{ inputs.chat }}
+        REPO: ${{ inputs.repo }}
+        WORKFLOW: ${{ inputs.workflow }}
+        RUN_ID: ${{ inputs.run-id }}
+        CONCLUSION: ${{ inputs.conclusion }}
+        RUN_URL: ${{ inputs.run-url }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        set -euo pipefail
+        if [ -z "$TG_TOKEN" ] || [ -z "$TG_CHAT" ]; then
+          echo "::notice::未設定 Telegram secrets，略過"
+          exit 0
+        fi
+        hist="$(gh run list -R "$REPO" -w "$WORKFLOW" --event schedule -L 10 --json databaseId,conclusion)"
+        verdict="$(printf '%s' "$hist" | bash "$ACTION_PATH/decide.sh" "$RUN_ID" "$CONCLUSION")"
+        case "$verdict" in
+          fail2)   msg="🔴 排程連續失敗 2 次：${REPO}/${WORKFLOW} ${RUN_URL}" ;;
+          recover) msg="✅ 排程恢復：${REPO}/${WORKFLOW} ${RUN_URL}" ;;
+          *) echo "判斷=none，不送"; exit 0 ;;
+        esac
+        echo "判斷=$verdict，送出通知"
+        curl -fsS --max-time 20 -o /dev/null \
+          "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+          --data-urlencode "chat_id=${TG_CHAT}" \
+          --data-urlencode "text=${msg}" \
+          --data-urlencode "disable_web_page_preview=true"

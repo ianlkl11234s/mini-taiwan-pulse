@@ -141,7 +141,7 @@
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
-| ALERT-1 | 底線:資料正確 | P1 | blocked | 告警改 Telegram 分級（🔴 立即／🟡 彙整／⚪ 只記錄），加去重、死人開關（healthchecks.io）、GitHub Actions 排程失敗通知；分 3 個 PR。 | Blocked：等使用者回答 Hermes 與各級門檻。設計見 健檢報告（2026-11-08，目前在 session scratchpad `audit/`，待放入 `.gis-agent-system`） `telegram-alerts.md`。 | 每日一則彙整；同一問題不重複發；排程失敗與主機失聯都會通知。 |
+| ALERT-1 | 底線:資料正確 | P1 | blocked | 告警改 Telegram 分級（🔴 立即／🟡 彙整／⚪ 只記錄），加去重、死人開關（healthchecks.io）、GitHub Actions 排程失敗通知；分 3 個 PR。 | Blocked：等使用者回答 Hermes 與各級門檻。設計見 健檢報告（2026-11-08，目前在 session scratchpad `audit/`，待放入 `.gis-agent-system`） `telegram-alerts.md`。 **進度 2026-11-08**：healthchecks.io 兩個死人開關已啟用（pulse-host 看門狗、每日備份）；PR-3 排程失敗通知（mini `feat/schedule-watch` ＋ gis-platform 同名分支，待合併與設 `TELEGRAM_BOT_TOKEN`／`TELEGRAM_CHAT_ID` secrets）、PR-2 主機看門狗分級（.gis-agent-system 本機 commit，待 push 與主機部署）、PR-1 collector 告警分級待做。 | 每日一則彙整；同一問題不重複發；排程失敗與主機失聯都會通知。 |
 | MCP-1 | 底線:資安 | P3 | ready | mini-pulse-gis-mcp 的 vitest 3→5。 | #101 修完後剩 2 個 critical，都只在 dev 依賴；升級 vitest 後重跑測試。 | `npm audit` 無 critical。 |
 | DEV-1 | 北極星:開發系統 | P1 | ready | GitHub branch protection（required `ci-ok`、strict up-to-date）＋關 squash／rebase merge（健檢自動化 A1）。 | `gh api -X PATCH repos/…` 設 `allow_squash_merge=false`、`allow_rebase_merge=false`；public repo 開 branch protection；private repo 用 `gh-merge-safe`。Owner：使用者授權改 repo 設定。 | 誤用 squash／未等 CI 合併在 GitHub 端被擋。 |
 | DEV-2 | 北極星:開發系統 | P2 | ready | journal `[auto]` hook 改寫到不進版控的位置（自動化 A4）。 | `.gis-agent-system/scripts/hooks/session_end_journal.sh` 改寫 gitignored 的 `journal/_auto/`，或停用。 | 共用 journal 不再出現他人 session 的髒檔。 |
