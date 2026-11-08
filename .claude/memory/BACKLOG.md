@@ -362,6 +362,14 @@
 | IEWH-1 | P3 | blocked | 愛爾蘭各波圖層都沒進 MCP 分析倉庫；NC-ND（淹水、侵蝕）是否可入倉未定。 | Blocked on 使用者決定入倉範圍。First action: 列出可入倉層（CC BY）與 NC-ND 兩層，問使用者是否入倉、NC-ND 是否排除。 | 決定後補 registry warehouse 區塊並重組倉庫，或記不入倉原因。 |
 | KRSTAT-1 | P3 | ready | 南韓火災、交通事故統計補每萬人比率；火災某區某年 0 件會被標成「無資料」的程式問題。 | First action: 找與事故年份對應的시군구人口（KOSIS），補比率指標；修 analytics 南韓 S2 pipeline 讓 0 件寫 0。 | 新增比率指標經 import＋R2 發布；0 件區顯示 0。 |
 
+## GBA 建物足跡缺口（2026-11-08，#30DayMapChallenge Day 8 發現）
+
+Day 8 烏托邦分析中永和時發現 GBA 建物足跡在部分市區大量缺漏。
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| GBA-1 | P2 | ready | GBA 建物足跡涵蓋不足：Pulse `buildings_value_taiwan.pmtiles` 與 analytics 加工檔一致（聯集 17.88 km²），缺口在 GBA 上游本身、集中在 OSM 稀疏區。中永和 534 個統計區建築用地 >1000 m² 但足跡 <5%（約 11.7 萬人、2.6 km²）；永和市中心疊 NLSC 正射約一半街廓無建物框；抽樣板橋 15%、苓雅 13%，大安、台中西區、台南中西約 4–5%。影響 `buildingsGba`、建物估值、`urban_form_grid`。 | First action：評估改用或補疊 NLSC／內政部建物資料；短期先在相關圖層圖例標註涵蓋不足。 | 選定補資料方案並上線（或圖例已標註涵蓋不足並記錄不補原因）；中永和抽樣街廓缺框率明顯下降。 |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.
