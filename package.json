@@ -18,7 +18,7 @@
     "test:owner": "PULSE_OWNER_TESTS=1 vitest run",
     "lint": "eslint src --no-inline-config",
     "lint:prune": "eslint src --no-inline-config --prune-suppressions",
-    "check": "npm run check:lint && npm run check:build && npm run check:test && npm run check:inventory && npm run check:coral && npm run check:worker",
+    "check": "npm run check:lint && npm run check:inventory && npm run check:coral && npm run check:worker && npm run check:build && npm run check:test",
     "check:lint": "npm run lint",
     "check:build": "npm run build",
     "check:test": "npm test",

@@ -15,7 +15,7 @@
 | 指令 | 用途 |
 |---|---|
 | `npm run dev` | 啟動 dev server (port 3721) |
-| `npm run check` | commit／PR 前必跑：依序跑 CI 的全部檢查（lint、build、test、樣式盤點、coral） |
+| `npm run check` | commit／PR 前必跑：依序跑 CI 的全部檢查（lint、樣式盤點、coral、worker、build、test） |
 | `npm run lint` | 只跑 ESLint 守門規則（自訂規則見 development-rules §6）；修掉既有違規後跑 `npm run lint:prune` |
 | `npx tsc -b` | TypeScript 驗證（禁用 `--noEmit`） |
 | `npm test` | 跑測試（含 `layerConsistency` 擋漏接圖例；owner-local 測試用 `npm run test:owner`） |
@@ -106,6 +106,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 | 進度 | [`docs/PROJECTS.md`](./docs/PROJECTS.md) | 專案追蹤總表（做到一半的專案） |
 | 規則 | [`docs/development-rules.md`](./docs/development-rules.md) | 詳細版 + 範例（含 §4a 四鐵則完整） |
 | 規則 | [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) | Pre-aggregate pattern 完整指南 + OOM 5 條 |
+| 規則 | [`docs/ci.md`](./docs/ci.md) | CI 原則：job 結構、何時跳過、加速取捨、本機與 CI 分工 |
 | 規則 | [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) | 時間軸 / timeStore 架構 |
 | 參考 | [`docs/audit/supabase-rpc-audit-2026-04-09.md`](./docs/audit/supabase-rpc-audit-2026-04-09.md) | RPC 效能盤點 |
 | 參考 | [`docs/features/bus/design.md`](./docs/features/bus/design.md) | 公車 progress-based 全台擴展 |

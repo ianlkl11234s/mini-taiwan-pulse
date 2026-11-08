@@ -1,16 +1,57 @@
 name: CI
 
+# 原則與取捨見 docs/ci.md。結構：
+#   changes（判斷這次 PR 是否只動到不影響程式的路徑）
+#   → quick／build／test 三個 job 平行跑（牆鐘＝最慢那個，而不是全部相加）
+#   → ci-ok 彙總（永遠會出現；要設 required check 只設這一個）
 on:
   pull_request:
     branches: [master, develop]
   push:
     branches: [master, develop]
 
+permissions:
+  contents: read
+  pull-requests: read
+
+# 同一個 PR 連推多次時，取消舊的那輪；push 到 develop／master 每輪都跑完（group 帶 run_id，不會互相取消）
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  test:
+  changes:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      # push 一律 true（合併後一定完整跑一次）；PR 只有動到 skip 清單以外的檔案才 true
+      code: ${{ github.event_name != 'pull_request' || steps.filter.outputs.code == 'true' }}
+    steps:
+      # PR 事件由 GitHub API 取變更清單，不需要 checkout
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        if: github.event_name == 'pull_request'
+        with:
+          predicate-quantifier: every
+          # 只放「確定沒有任何檢查會讀」的路徑；docs/、CHANGELOG.md 會被測試或 build 讀，不可加（docs/ci.md §3）
+          filters: |
+            code:
+              - '**'
+              - '!.claude/**'
+
+  # 不需要 public/ 大檔的檢查集中在這裡，用 sparse-checkout 跳過 public/（約 1.75GB）
+  quick:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/public/
 
       - uses: actions/setup-node@v4
         with:
@@ -29,18 +70,12 @@ jobs:
 
       - run: npm ci
 
-      # 以下每個 step 都是 package.json 的 check:*；本機 `npm run check` 依序跑同一組。
+      # 以下每個 step 都是 package.json 的 check:*；本機 `npm run check` 依序跑同一組（本檔由上而下的順序＝check 的順序）。
       # 新增檢查：在 package.json 加 check:<name> 並串進 check，再在這裡加對應 step
       # （src/test/ciCheckParity.test.ts 會擋兩邊不一致）。
       # 自訂 ESLint 規則（取代原本讀原始碼＋regex 的守門測試；docs/development-rules.md「自訂 ESLint 規則」）
       - name: Lint (ESLint guard rules)
         run: npm run check:lint
-
-      - name: TypeScript build (tsc -b + vite build)
-        run: npm run check:build
-
-      - name: Tests (vitest)
-        run: npm run check:test
 
       # 圖層樣式盤點必須與程式同步（docs/design-system/map-layers.md §6）
       - name: Design layer inventory up to date
@@ -52,3 +87,49 @@ jobs:
       # Cloudflare Worker 轉送新主機的入口驗證 header（deploy/cloudflare/src/worker.js fromOrigin）
       - name: Cloudflare Worker tests
         run: npm run check:worker
+
+  build:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: TypeScript build (tsc -b + vite build)
+        run: npm run check:build
+
+  # 測試要完整 checkout：PMTiles sha256、staticDataContract 等契約測試會讀 public/ 大檔，缺檔會靜默略過
+  test:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Tests (vitest)
+        run: npm run check:test
+
+  ci-ok:
+    if: always()
+    needs: [changes, quick, build, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: All checks passed (or skipped for non-code PR)
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "job results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in success|skipped) ;; *) echo "::error::有 job 未通過（$r）"; exit 1 ;; esac
+          done

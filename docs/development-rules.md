@@ -334,10 +334,10 @@ LegendPanel）共用。
 
 ## 6. TypeScript 驗證與 commit 前檢查
 ```bash
-npm run check   # 依序跑 CI 的全部檢查：check:lint（ESLint 守門規則）→ check:build（tsc -b ＋ vite build）→ check:test → check:inventory（樣式盤點）→ check:coral
+npm run check   # 依序跑 CI 的全部檢查（快的在前）：check:lint（ESLint 守門規則）→ check:inventory（樣式盤點）→ check:coral → check:worker → check:build（tsc -b ＋ vite build）→ check:test
 npx tsc -b      # 只驗型別時；project references，不要用 tsc --noEmit
 ```
-Commit／PR 前必跑 `npm run check`，失敗即停。CI（`.github/workflows/ci.yml`）每個 step 呼叫同名的 `check:*`，`src/test/ciCheckParity.test.ts` 擋兩邊清單不一致；新增檢查要兩邊一起加。樣式盤點不一致時檢查會直接重產到工作區，確認 diff 只動本次改的圖層後 commit。
+Commit／PR 前必跑 `npm run check`，失敗即停。CI（`.github/workflows/ci.yml`）每個 step 呼叫同名的 `check:*`，`src/test/ciCheckParity.test.ts` 擋兩邊清單不一致；新增檢查要兩邊一起加。CI 的 job 拆法、跳過規則與加速取捨見 [`ci.md`](./ci.md)。樣式盤點不一致時檢查會直接重產到工作區，確認 diff 只動本次改的圖層後 commit。
 
 **owner-local 測試**：讀隔壁 repo（`../taipei-gis-analytics`、`../runtime/…`）或 gitignored 私有／大檔的測試，`npm test` 預設略過（與 CI 同一組）；要跑時用 `npm run test:owner`（`PULSE_OWNER_TESTS=1`）。新測試的 skip 條件用 `src/test/ownerAssets.ts` 的 `ownerAsset(path)`，只用在不在 git 裡的路徑。
 
