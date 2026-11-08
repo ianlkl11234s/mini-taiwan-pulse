@@ -363,6 +363,37 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "原民與農村",
     "運動休閒",
     "殯葬",
+    // 第 2 波：商業房產估值、國有登記土地（比照台灣「房地產 Real Estate」）
+    "房地產",
+    // 第 3a 波：水資源（測站、水體、排水）、災害（河川淹水、海岸侵蝕），比照英國第 3 波
+    "水資源",
+    "災害",
+    // 第 3b 波：海洋（浴場、調查站網、受保護海域、離岸能源），比照英國「海洋」
+    "海洋",
+    // 第 4 波：交通（場站、路網、樞紐節點；比照南韓、加拿大）
+    "交通",
+    // 第 5 波：觀光（國家公園、Wild Atlantic Way）、環境氣候（保護區、樹木、輻射站）、林業（步道），比照台灣與英國第 5 波
+    "觀光",
+    "環境氣候",
+    "林業",
+    // 第 6 波：能源（電廠、電網、再生能源、加油站；比照台灣、南韓、英國）
+    "能源",
+    // 第 7a 波：教育（學校、學校規劃區、早期教保服務），比照台灣、英國、南韓「教育」
+    "教育",
+    // 第 8 波：文化（博物館、藝文場館）、宗教（禮拜建築、聖井）、基礎建設（圖書館、社區中心、公廁），比照台灣與英國第 8 波
+    "文化",
+    "宗教",
+    "基礎建設",
+    // 第 7b 波：社福長照、醫療、消防、執法治安（比照英國、南韓）
+    "社福長照",
+    "醫療",
+    "消防",
+    "執法治安",
+    // 第 10 波：工商登記（EPA 持照工業設施）、農業（土壤、泥炭土壤、養殖），比照英國
+    "工商登記",
+    "農業",
+    // 第 9 波：廢棄物（回收點、許可設施；比照台灣、英國）
+    "廢棄物",
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -969,6 +1000,11 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "歷史地圖",
         layers: [
           fromManifest("historicalMapSinica"),
+          fromManifest("historicalMapPostwar"),
+          fromManifest("historicalImagery"),
+          fromManifest("historicalBoundaries"),
+          fromManifest("historicalLandUse"),
+          fromManifest("historicalThematic"),
           fromManifest("water1944Taipei"),
         ],
       },
@@ -3055,6 +3091,8 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "海域界線", layers: [fromManifest("ieMaritimeBoundaries")] },
       { title: "地形", layers: [fromManifest("ieBathymetry")] },
       { title: "地名 Gazetteer", layers: [fromManifest("iePlaceNames")] },
+      // 第 9 波 C005／X002：比照台灣 urbanZoning*、英國 gbPlanningConstraints 的「底圖 › 土地使用分區 Zoning」
+      { title: "土地使用分區 Zoning", layers: [fromManifest("ieZoning"), fromManifest("iePlanningApplications")] },
     ],
   },
   {
@@ -3079,6 +3117,200 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "IE",
     defaultCollapsed: true,
     groups: [{ title: "點位", layers: [fromManifest("ieGraveyards")] }],
+  },
+  {
+    // 第 2 波：比照台灣「房地產」；國有登記土地不是標售清單（與英國「公有財產標售」不同），群組名不用「標售」
+    title: "房地產",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "商業房產估值", layers: [fromManifest("ieCommercialValuations")] },
+      { title: "國有登記土地", layers: [fromManifest("ieStateAssets")] },
+    ],
+  },
+  {
+    // 第 3a 波：比照台灣「水資源 Water」——riverLevel（點位）、waterRivers／waterLevees（面 / 線）；
+    // 水質站＋污水廠比照台灣 waterQualityStations／sewageTreatmentPlants 的「水質與污水 Water Quality」
+    title: "水資源",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("ieHydrometricStations")] },
+      { title: "水質與污水 Water Quality", layers: [fromManifest("ieWaterMonitoring")] },
+      { title: "面 / 線", layers: [fromManifest("ieRiverWaterBodies"), fromManifest("ieLakeWaterBodies"), fromManifest("ieArterialDrainage")] },
+    ],
+  },
+  {
+    // 第 3a 波：NIFM、ICPSS 皆 CC BY-NC-ND，各自單獨成層（比照英國「災害 › 海岸侵蝕」、台灣 waterFloodExtreme）
+    title: "災害",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "淹水", layers: [fromManifest("ieRiverFloodExtents")] },
+      { title: "海岸侵蝕", layers: [fromManifest("ieCoastalErosion")] },
+      // 第 5 波 C070：比照台灣 landslideAnnual、英國 gbLandslide 的「災害 › 崩塌 Landslide」
+      { title: "崩塌 Landslide", layers: [fromManifest("ieLandslideEvents"), fromManifest("ieLandslideExtents")] },
+      // 第 5 波 C073：氡氣比照英國 gbRadon 的「災害 › 地質災害」
+      { title: "地質災害", layers: [fromManifest("ieRadonRisk")] },
+    ],
+  },
+  {
+    // 第 3b 波：比照台灣「海洋 Marine」與英國「海洋」的子群組（海域環境、調查站網、海域保護與漁業）；離岸風場比照台灣「再生能源」
+    title: "海洋",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "海域環境", layers: [fromManifest("ieBathingWaters")] },
+      { title: "調查站網 Survey Sites", layers: [fromManifest("ieMarineSurveyStations"), fromManifest("ieSeabedSurveyCoverage")] },
+      { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [fromManifest("ieProtectedMarineSites")] },
+      { title: "再生能源", layers: [fromManifest("ieOffshoreRenewables")] },
+    ],
+  },
+  {
+    // 第 4 波：群組比照台灣「交通 Move」與南韓、加拿大——場站、路網、樞紐節點
+    title: "交通",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("ieTransitStops"), fromManifest("ieDublinbikesStations")] },
+      { title: "路網", layers: [fromManifest("ieRoadRailNetwork"), fromManifest("ieRoadMarkers"), fromManifest("ieTrafficCounters")] },
+      { title: "樞紐節點", layers: [fromManifest("ieAirportsPorts")] },
+    ],
+  },
+  {
+    // 第 5 波 C054：比照台灣 nationalParks（觀光 › 玩・自然 Nature）；Wild Atlantic Way 同群
+    title: "觀光",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・自然 Nature", layers: [fromManifest("ieNationalParks"), fromManifest("ieWildAtlanticWay")] },
+      // 第 8 波 C055：比照台灣 tourHeritage（觀光 › 玩・人文 Heritage）
+      { title: "玩・人文 Heritage", layers: [fromManifest("ieHeritageSites")] },
+    ],
+  },
+  {
+    // 第 5 波：比照英國「環境氣候」——保護區、都市樹木 Urban Trees；輻射站比照台灣 nuscGammaRadiation、英國 gbRadiation 的「環境污染」
+    title: "環境氣候",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "保護區", layers: [fromManifest("ieProtectedSites")] },
+      { title: "都市樹木 Urban Trees", layers: [fromManifest("ieStreetTrees")] },
+      // 第 9 波 C093：PRTR 比照台灣 pollutionFacility、英國 gbPollutionInventory；C091 噪音比照台灣與英國 gbNoise「噪音／聲響 Noise」
+      { title: "環境污染", layers: [fromManifest("ieRadiationStations"), fromManifest("iePrtrFacilities")] },
+      { title: "噪音／聲響 Noise", layers: [fromManifest("ieNoiseMaps")] },
+    ],
+  },
+  {
+    // 第 5 波 C116：比照台灣 hikingTrails、英國 gbTrails 的「林業 › 線」
+    title: "林業",
+    country: "IE",
+    defaultCollapsed: true,
+    // 第 5c 波 C115／C116：Coillte 國有林（站主限定）比照英國 gbForestRecreation「林業 › 點位」、gbTrails「林業 › 線」
+    groups: [
+      { title: "點位", layers: [fromManifest("ieCoillteRecreation")] },
+      { title: "線", layers: [fromManifest("ieNationalTrails"), fromManifest("ieCoillteForestRoads")] },
+    ],
+  },
+  {
+    // 第 6 波：群組比照台灣「能源 Energy」與南韓、英國——電力 · 廠、電力 · 電網、再生能源（台灣把充電站放這組）、石化 · 加油站
+    title: "能源",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("iePowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("iePowerLines"), fromManifest("ieSubstations")] },
+      { title: "再生能源", layers: [fromManifest("ieWindFarms"), fromManifest("ieEvCharging")] },
+      { title: "石化 · 加油站", layers: [fromManifest("ieFuelStations")] },
+    ],
+  },
+  {
+    // 第 7a 波：比照台灣「教育 › 學校 Schools」「幼托補習 Childcare & Cram」；學校規劃區不是學區（使用者 2026-11-07），另開群組、不放「學區 District」
+    title: "教育",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校 Schools", layers: [fromManifest("ieSchools")] },
+      { title: "學校規劃區", layers: [fromManifest("ieSchoolPlanningAreas")] },
+      { title: "幼托補習 Childcare & Cram", layers: [fromManifest("ieChildcareServices")] },
+    ],
+  },
+  // 第 8 波：比照台灣 culturalMuseums（文化 › 設施 Facilities）、performingVenues（文化 › 藝文活動 Arts & Events）、
+  // religionChurches（宗教 › 點位）、publicLibraries／communityCenters／publicToilets（基礎建設 › 公共設施）
+  {
+    title: "文化",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "設施 Facilities", layers: [fromManifest("ieMuseums")] },
+      { title: "藝文活動 Arts & Events", layers: [fromManifest("ieArtsVenues")] },
+    ],
+  },
+  {
+    title: "宗教",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("ieReligiousSites")] }],
+  },
+  {
+    title: "基礎建設",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "公共設施", layers: [fromManifest("iePublicFacilities")] }],
+  },
+  // 第 7b 波：醫療照護、消防警政、司法（主題與群組比照英國 gbCareHomes／gbHealthFacilities／gbFireStations／gbCourts、南韓 krPoliceBoxes）
+  {
+    title: "社福長照",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "住宿照顧", layers: [fromManifest("ieCareHomes")] }],
+  },
+  {
+    title: "醫療",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("ieHealthFacilities")] }],
+  },
+  {
+    title: "消防",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("ieFireStations")] }],
+  },
+  {
+    title: "執法治安",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "警政", layers: [fromManifest("ieGardaStations")] },
+      { title: "司法矯正", layers: [fromManifest("ieCourts")] },
+    ],
+  },
+  // 第 10 波：工商與農業（主題與群組比照英國 gbManufacturing、gbAquaculture、gbSoilParentMaterial）
+  {
+    title: "工商登記",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [{ title: "製造業", layers: [fromManifest("ieIndustrialFacilities")] }],
+  },
+  {
+    title: "農業",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "養殖漁業 Aquaculture", layers: [fromManifest("ieAquaculture")] },
+      { title: "土壤", layers: [fromManifest("ieSoils"), fromManifest("iePeatSoils")] },
+    ],
+  },
+  {
+    // 第 9 波 C087／C088：比照台灣、英國「廢棄物 Waste」——回收點（投放點）、EPA 許可設施（處理設施）
+    title: "廢棄物",
+    country: "IE",
+    defaultCollapsed: true,
+    groups: [
+      { title: "投放點", layers: [fromManifest("ieRecyclingPoints")] },
+      { title: "處理設施", layers: [fromManifest("ieWasteFacilities")] },
+    ],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3435,6 +3667,26 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "原民與農村": "city",
     "運動休閒": "publicLife",
     "殯葬": "publicLife",
+    "房地產": "city",
+    "水資源": "environment",
+    "災害": "safety",
+    "海洋": "environment",
+    "交通": "city",
+    "觀光": "publicLife",
+    "環境氣候": "environment",
+    "林業": "environment",
+    "能源": "environment",
+    "教育": "publicLife",
+    "文化": "publicLife",
+    "宗教": "publicLife",
+    "基礎建設": "publicLife",
+    "社福長照": "publicLife",
+    "醫療": "safety",
+    "消防": "safety",
+    "執法治安": "safety",
+    "工商登記": "city",
+    "農業": "environment",
+    "廢棄物": "environment",
     // 愛爾蘭統計（完整目錄）：同英國、南韓、加拿大歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3647,6 +3899,26 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "原民與農村": { zh: "原民與農村", sub: "Indigenous & Rural" },
     "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
     "殯葬": { zh: "殯葬", sub: "Funeral" },
+    "房地產": { zh: "房地產", sub: "Real Estate" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "災害": { zh: "災害", sub: "Hazard" },
+    "海洋": { zh: "海洋", sub: "Marine" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "林業": { zh: "林業", sub: "Forestry" },
+    "能源": { zh: "能源", sub: "Energy" },
+    "教育": { zh: "教育", sub: "Education" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "宗教": { zh: "宗教", sub: "Religion" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "社福長照": { zh: "社福長照", sub: "Welfare" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "消防": { zh: "消防", sub: "Fire & Rescue" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "農業": { zh: "農業", sub: "Agriculture" },
+    "廢棄物": { zh: "廢棄物", sub: "Waste" },
     // 愛爾蘭統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

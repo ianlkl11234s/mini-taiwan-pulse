@@ -238,6 +238,7 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-04: +4 30 天地圖挑戰 Day 4 群聚 mapchallengeDay04*（模擬面板）。
     // 2026-11-05: +2 30 天地圖挑戰 Day 5 視野 mapchallengeDay05*（模擬面板）。
     // 2026-11-05: +1 古地圖 historicalMapSinica（外部 XYZ raster，7 個年代）。
+    // 2026-11-07: +5 臺灣百年歷史地圖拆六層（historicalMapPostwar／historicalImagery／historicalBoundaries／historicalLandUse／historicalThematic，外部 XYZ raster）。
     // 2026-11-06: +5 南韓第 6 波（領海線、都市公園、綜合體育設施、OSM 墓地、人口 H3 網格）。
     // 2026-11-06: +4 日本第二輪（自然公園地域 jpNaturalParkAreas2015、国立公園 jpNationalParksMoe、国指定鳥獣保護区 jpWildlifeProtectionMoe、人口集中地区 jpDid）。
     // 2026-11-06: +7 加拿大第 3 波（氣象站、AQHI、輻射監測站、NPRI、污水系統、地震、人口網格）。
@@ -251,7 +252,19 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-07: +6 南韓第 7 波（學校、小學通學區、醫院與藥局、消防署、民防避難設施、派出所）。
     // 2026-11-07: +16 南韓統計公共安全（火災、交通事故 × 道級／市郡區）。
     // 2026-11-07: +29 愛爾蘭統計（ie 家族 statsIe*，地方政府 31／選舉分區 3,420）。
-    expect(keys.length).toBe(1706);
+    // 2026-11-07: +2 愛爾蘭第 2 波（商業房產估值、國有登記土地）。
+    // 2026-11-08: +7 愛爾蘭第 3a 波（水文站、水質監測站與污水廠、WFD 河川／湖泊水體、主幹排水、河川淹水 NIFM、海岸侵蝕 ICPSS）。
+    // 2026-11-08: +5 愛爾蘭第 3b 波（浴場、漁業調查站位、海床調查範圍、受保護海域、離岸再生能源海域）。
+    // 2026-11-08: +6 愛爾蘭第 4 波（交通：站牌、Dublinbikes、道路鐵路、里程標、計數站、機場港口）。
+    // 2026-11-08: +9 愛爾蘭第 5 波（國家公園、Wild Atlantic Way、指定保護區、國家步道、都柏林樹木、輻射站、崩塌事件／範圍、氡氣）。
+    // 2026-11-08: +6 愛爾蘭第 6 波（能源：電廠、輸電線、變電站、風場、充電站、加油站）。
+    // 2026-11-08: +3 愛爾蘭第 7a 波（學校、學校規劃區、早期教保服務）。
+    // 2026-11-08: +5 愛爾蘭第 8 波（文化資產、博物館、藝文場館、公共設施、宗教場所）。
+    // 2026-11-08: +5 愛爾蘭第 7b 波（醫療院所、HIQA 老人照護、消防站、Garda 站、法院）。
+    // 2026-11-08: +4 愛爾蘭第 10 波（EPA 持照工業設施、土壤圖、泥炭土壤、養殖場）。
+    // 2026-11-08: +6 愛爾蘭第 9 波（土地使用分區、規劃申請、策略噪音、回收點、廢棄物許可設施、PRTR）。
+    // 2026-11-08: +2 愛爾蘭第 5c 波（Coillte 國有林遊憩點與森林入口、林道與遊憩步道；站主限定 owner-only RPC）。
+    expect(keys.length).toBe(1771);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

@@ -95,7 +95,14 @@ describe("R7 顏色解析器", () => {
     // 2026-11-06 +2 加拿大第 3 波：NPRI 設施、地震熱區
     // 2026-11-06 +2 日本第二輪：自然公園地域、国立公園（代表點熱區）
     // 2026-11-07 +2 南韓第 7 波：學校、醫院與藥局（格網熱區）
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(108);
+    // 2026-11-07 +2 愛爾蘭第 2 波：商業房產估值熱區、國有登記土地代表點熱區
+    // 2026-11-08 +1 愛爾蘭第 3a 波：水質監測站與污水廠熱區
+    // 2026-11-08 +1 愛爾蘭第 4 波：大眾運輸站牌熱區
+    // 2026-11-08 +1 愛爾蘭第 5 波：都柏林樹木熱區
+    // 2026-11-08 +1 愛爾蘭第 8 波：文化資產（SMR＋NIAH）熱區
+    // 2026-11-08 +2 愛爾蘭第 9 波：土地使用分區代表點熱區、規劃申請案熱區
+    // 2026-11-08 +1 愛爾蘭第 5c 波：Coillte 森林入口熱區（站主限定）
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(117);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

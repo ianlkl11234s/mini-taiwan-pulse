@@ -147,6 +147,19 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "krSchoolDistricts", family: "krData", file: "kr_school_districts_points.pmtiles", sourceLayer: "kr_school_districts_points", count: 7_132, def: "polygon", maxzoom: 14 },
   // 愛爾蘭第 1 波：公園（同一支 useKrDataLayer；Dublin City／South Dublin 官方＋其餘 OSM）
   { key: "ieParks", family: "krData", file: "ie_parks_points.pmtiles", sourceLayer: "ie_parks_points", count: 3221, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 2 波：國有登記土地 folio（小而零散，預設點；7.5 萬點 → 拉遠熱區；代表點檔 z4–9 未抽稀、只帶 owner_group）
+  // 愛爾蘭第 3b 波：受保護海域（保護區類，預設點；點檔另含自然保留區、避難所、拉姆薩這些原本就只有點的站點）
+  { key: "ieProtectedMarineSites", family: "krData", file: "ie_protected_marine_sites_points.pmtiles", sourceLayer: "ie_protected_marine_sites_points", count: 290, def: "point", maxzoom: 14 },
+  { key: "ieStateAssets", family: "krData", file: "ie_state_assets_points.pmtiles", sourceLayer: "ie_state_assets_points", count: 75443, def: "point", maxzoom: 14, thinned: 1, heatIntensity: 1.5 },
+  // 愛爾蘭第 5 波：國家公園（大範圍，預設面）、指定保護區與崩塌範圍（小而零散，預設點）
+  { key: "ieNationalParks", family: "krData", file: "ie_national_parks_points.pmtiles", sourceLayer: "ie_national_parks_points", count: 6, def: "polygon", maxzoom: 14 },
+  { key: "ieProtectedSites", family: "krData", file: "ie_protected_sites_points.pmtiles", sourceLayer: "ie_protected_sites_points", count: 806, def: "point", maxzoom: 14 },
+  { key: "ieLandslideExtents", family: "krData", file: "ie_landslide_extents_points.pmtiles", sourceLayer: "ie_landslide_extents_points", count: 2274, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 10 波：持照養殖場（多為數公頃的小面，預設點）
+  { key: "ieAquaculture", family: "krData", file: "ie_aquaculture_points.pmtiles", sourceLayer: "ie_aquaculture_points", count: 1067, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 9 波：土地使用分區鋪滿城鎮（預設面；8.7 萬點 → 拉遠熱區，代表點檔 z4–9 未抽稀、只帶 category）、廢棄物許可設施（小而零散，預設點）
+  { key: "ieZoning", family: "krData", file: "ie_zoning_points.pmtiles", sourceLayer: "ie_zoning_points", count: 86678, def: "polygon", maxzoom: 14, thinned: 1, heatIntensity: 1 },
+  { key: "ieWasteFacilities", family: "krData", file: "ie_waste_facilities_points.pmtiles", sourceLayer: "ie_waste_facilities_points", count: 292, def: "point", maxzoom: 14 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));

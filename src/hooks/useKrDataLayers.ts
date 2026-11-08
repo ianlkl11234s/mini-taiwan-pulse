@@ -82,7 +82,9 @@ function krRepPointSpec(spec: KrLayerSpec): { rep: GbRepPointsSpec; enabled: boo
     sourceId: `${id}-points`, heatId: `${id}-point-heatmap`, circleId: `${id}-point-circle`, attribution: spec.sourceOrg, loading: spec.loading.zh,
     polygonMinzoom: spec.minzoom, opacityDefault: opacityDefault(spec.key, 0.7), tier: spec.tier ?? "S",
   };
-  if (repPointLayer(spec.key)) return { rep: repPointSpecFor(spec.key, o), enabled: true };
+  const layer = repPointLayer(spec.key);
+  // 代表點檔未抽稀（-r1）的層在 repPointLayers 寫 `thinned: 1`，熱區不再補低縮放權重；省略沿用 2.5
+  if (layer) return { rep: repPointSpecFor(spec.key, { ...o, thinned: layer.thinned }), enabled: true };
   return {
     rep: { key: spec.key, source: { id: o.sourceId, file: spec.file, minzoom: 0, maxzoom: 0, attribution: o.attribution, loading: o.loading }, sourceLayer: spec.sourceLayer,
       heatId: o.heatId, circleId: o.circleId, count: 0, polygonMinzoom: spec.minzoom, heatIntensity: 1, opacityDefault: o.opacityDefault },

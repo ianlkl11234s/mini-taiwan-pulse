@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1706,
+    "keyCount": 1771,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2314,9 +2314,268 @@
     },
     {
       "layers": [
+        "ie-commercial-valuations-circle"
+      ],
+      "type": "ieCommercialValuations"
+    },
+    {
+      "layers": [
+        "ie-hydrometric-stations-circle"
+      ],
+      "type": "ieHydrometricStations"
+    },
+    {
+      "layers": [
+        "ie-water-monitoring-circle"
+      ],
+      "type": "ieWaterMonitoring"
+    },
+    {
+      "layers": [
+        "ie-bathing-waters-circle"
+      ],
+      "type": "ieBathingWaters"
+    },
+    {
+      "layers": [
+        "ie-marine-survey-stations-circle"
+      ],
+      "type": "ieMarineSurveyStations"
+    },
+    {
+      "layers": [
         "ie-maritime-boundaries-line"
       ],
       "type": "ieMaritimeBoundaries"
+    },
+    {
+      "layers": [
+        "ie-arterial-drainage-line"
+      ],
+      "type": "ieArterialDrainage"
+    },
+    {
+      "layers": [
+        "ie-coastal-erosion-line"
+      ],
+      "type": "ieCoastalErosion"
+    },
+    {
+      "layers": [
+        "ie-transit-stops-circle"
+      ],
+      "type": "ieTransitStops"
+    },
+    {
+      "layers": [
+        "ie-dublinbikes-stations-circle"
+      ],
+      "type": "ieDublinbikesStations"
+    },
+    {
+      "layers": [
+        "ie-road-markers-circle"
+      ],
+      "type": "ieRoadMarkers"
+    },
+    {
+      "layers": [
+        "ie-traffic-counters-circle"
+      ],
+      "type": "ieTrafficCounters"
+    },
+    {
+      "layers": [
+        "ie-airports-ports-circle"
+      ],
+      "type": "ieAirportsPorts"
+    },
+    {
+      "layers": [
+        "ie-power-plants-circle"
+      ],
+      "type": "iePowerPlants"
+    },
+    {
+      "layers": [
+        "ie-substations-circle"
+      ],
+      "type": "ieSubstations"
+    },
+    {
+      "layers": [
+        "ie-wind-farms-circle"
+      ],
+      "type": "ieWindFarms"
+    },
+    {
+      "layers": [
+        "ie-ev-charging-circle"
+      ],
+      "type": "ieEvCharging"
+    },
+    {
+      "layers": [
+        "ie-fuel-stations-circle"
+      ],
+      "type": "ieFuelStations"
+    },
+    {
+      "layers": [
+        "ie-health-facilities-circle"
+      ],
+      "type": "ieHealthFacilities"
+    },
+    {
+      "layers": [
+        "ie-care-homes-circle"
+      ],
+      "type": "ieCareHomes"
+    },
+    {
+      "layers": [
+        "ie-fire-stations-circle"
+      ],
+      "type": "ieFireStations"
+    },
+    {
+      "layers": [
+        "ie-garda-stations-circle"
+      ],
+      "type": "ieGardaStations"
+    },
+    {
+      "layers": [
+        "ie-courts-circle"
+      ],
+      "type": "ieCourts"
+    },
+    {
+      "layers": [
+        "ie-industrial-facilities-circle"
+      ],
+      "type": "ieIndustrialFacilities"
+    },
+    {
+      "layers": [
+        "ie-planning-applications-circle"
+      ],
+      "type": "iePlanningApplications"
+    },
+    {
+      "layers": [
+        "ie-recycling-points-circle"
+      ],
+      "type": "ieRecyclingPoints"
+    },
+    {
+      "layers": [
+        "ie-prtr-facilities-circle"
+      ],
+      "type": "iePrtrFacilities"
+    },
+    {
+      "layers": [
+        "ie-road-rail-network-line"
+      ],
+      "type": "ieRoadRailNetwork"
+    },
+    {
+      "layers": [
+        "ie-radiation-stations-circle"
+      ],
+      "type": "ieRadiationStations"
+    },
+    {
+      "layers": [
+        "ie-landslide-events-circle"
+      ],
+      "type": "ieLandslideEvents"
+    },
+    {
+      "layers": [
+        "ie-street-trees-circle"
+      ],
+      "type": "ieStreetTrees"
+    },
+    {
+      "layers": [
+        "ie-coillte-recreation-site-circle",
+        "ie-coillte-recreation-entrance-circle"
+      ],
+      "type": "ieCoillteRecreation"
+    },
+    {
+      "layers": [
+        "ie-national-trails-line"
+      ],
+      "type": "ieNationalTrails"
+    },
+    {
+      "layers": [
+        "ie-coillte-forest-roads-line"
+      ],
+      "type": "ieCoillteForestRoads"
+    },
+    {
+      "layers": [
+        "ie-wild-atlantic-way-line"
+      ],
+      "type": "ieWildAtlanticWay"
+    },
+    {
+      "layers": [
+        "ie-power-lines-line"
+      ],
+      "type": "iePowerLines"
+    },
+    {
+      "layers": [
+        "ie-schools-circle"
+      ],
+      "type": "ieSchools"
+    },
+    {
+      "layers": [
+        "ie-childcare-services-circle"
+      ],
+      "type": "ieChildcareServices"
+    },
+    {
+      "layers": [
+        "ie-museums-circle"
+      ],
+      "type": "ieMuseums"
+    },
+    {
+      "layers": [
+        "ie-arts-venues-circle"
+      ],
+      "type": "ieArtsVenues"
+    },
+    {
+      "layers": [
+        "ie-public-facilities-circle"
+      ],
+      "type": "iePublicFacilities"
+    },
+    {
+      "layers": [
+        "ie-religious-sites-circle"
+      ],
+      "type": "ieReligiousSites"
+    },
+    {
+      "layers": [
+        "ie-heritage-sites-circle"
+      ],
+      "type": "ieHeritageSites"
+    },
+    {
+      "layers": [
+        "ie-river-water-bodies-line"
+      ],
+      "type": "ieRiverWaterBodies"
     },
     {
       "layers": [
@@ -2330,6 +2589,116 @@
         "ie-gaeltacht-fill"
       ],
       "type": "ieGaeltacht"
+    },
+    {
+      "layers": [
+        "ie-state-assets-fill",
+        "ie-state-assets-point-circle"
+      ],
+      "type": "ieStateAssets"
+    },
+    {
+      "layers": [
+        "ie-lake-water-bodies-fill"
+      ],
+      "type": "ieLakeWaterBodies"
+    },
+    {
+      "layers": [
+        "ie-river-flood-extents-fill"
+      ],
+      "type": "ieRiverFloodExtents"
+    },
+    {
+      "layers": [
+        "ie-protected-marine-sites-fill",
+        "ie-protected-marine-sites-point-circle"
+      ],
+      "type": "ieProtectedMarineSites"
+    },
+    {
+      "layers": [
+        "ie-offshore-renewables-fill"
+      ],
+      "type": "ieOffshoreRenewables"
+    },
+    {
+      "layers": [
+        "ie-seabed-survey-coverage-fill"
+      ],
+      "type": "ieSeabedSurveyCoverage"
+    },
+    {
+      "layers": [
+        "ie-landslide-extents-fill",
+        "ie-landslide-extents-point-circle"
+      ],
+      "type": "ieLandslideExtents"
+    },
+    {
+      "layers": [
+        "ie-protected-sites-fill",
+        "ie-protected-sites-point-circle"
+      ],
+      "type": "ieProtectedSites"
+    },
+    {
+      "layers": [
+        "ie-national-parks-fill",
+        "ie-national-parks-point-circle"
+      ],
+      "type": "ieNationalParks"
+    },
+    {
+      "layers": [
+        "ie-radon-risk-fill"
+      ],
+      "type": "ieRadonRisk"
+    },
+    {
+      "layers": [
+        "ie-aquaculture-fill",
+        "ie-aquaculture-point-circle"
+      ],
+      "type": "ieAquaculture"
+    },
+    {
+      "layers": [
+        "ie-peat-soils-fill"
+      ],
+      "type": "iePeatSoils"
+    },
+    {
+      "layers": [
+        "ie-soils-fill"
+      ],
+      "type": "ieSoils"
+    },
+    {
+      "layers": [
+        "ie-school-planning-areas-fill"
+      ],
+      "type": "ieSchoolPlanningAreas"
+    },
+    {
+      "layers": [
+        "ie-waste-facilities-fill",
+        "ie-waste-facilities-point-circle"
+      ],
+      "type": "ieWasteFacilities"
+    },
+    {
+      "layers": [
+        "ie-zoning-fill",
+        "ie-zoning-point-circle"
+      ],
+      "type": "ieZoning"
+    },
+    {
+      "layers": [
+        "ie-noise-maps-fill"
+      ],
+      "type": "ieNoiseMaps"
     },
     {
       "layers": [
@@ -15217,6 +15586,457 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "gb-ea-pollution-inventory",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "ieCoillteRecreation",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "entrance"
+            ],
+            [
+              "all"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(17,109,42,0.00)",
+                0.05,
+                "rgba(17,109,42,0.11)",
+                0.15,
+                "rgba(62,133,26,0.33)",
+                0.3,
+                "rgba(115,152,6,0.66)",
+                0.45,
+                "rgba(165,170,27,0.99)",
+                0.6,
+                "rgba(205,189,75,1.00)",
+                0.8,
+                "rgba(231,213,131,1.00)",
+                1,
+                "rgba(248,241,184,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(170,172,33,0.00)",
+                0.05,
+                "rgba(170,172,33,0.11)",
+                0.15,
+                "rgba(128,157,6,0.33)",
+                0.3,
+                "rgba(82,141,18,0.66)",
+                0.45,
+                "rgba(37,122,36,0.99)",
+                0.6,
+                "rgba(11,99,44,1.00)",
+                0.8,
+                "rgba(20,76,42,1.00)",
+                1,
+                "rgba(25,53,32,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "entrance"
+            ],
+            [
+              "all"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "site"
+                ],
+                "#4ade80",
+                [
+                  "entrance"
+                ],
+                "#a78bfa",
+                "#4ade80"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "site"
+                ],
+                "#4ade80",
+                [
+                  "entrance"
+                ],
+                "#a78bfa",
+                "#4ade80"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "entrance-circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "site"
+            ],
+            [
+              "all"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "site"
+                ],
+                "#4ade80",
+                [
+                  "entrance"
+                ],
+                "#a78bfa",
+                "#4ade80"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "site"
+                ],
+                "#4ade80",
+                [
+                  "entrance"
+                ],
+                "#a78bfa",
+                "#4ade80"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "site-circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "heatmap",
+        "entrance-circle",
+        "site-circle"
+      ],
+      "sourceId": "ie-coillte-recreation",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "ieCoillteForestRoads",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "match",
+              [
+                "get",
+                "kind"
+              ],
+              "recreation_trail",
+              1,
+              0
+            ]
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "forest_road"
+                ],
+                "#f59e0b",
+                [
+                  "recreation_trail"
+                ],
+                "#4ade80",
+                "#f59e0b"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "match",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "recreation_trail",
+                  1,
+                  0.5
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "recreation_trail",
+                  2,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  ""
+                ],
+                [
+                  "forest_road"
+                ],
+                "#f59e0b",
+                [
+                  "recreation_trail"
+                ],
+                "#4ade80",
+                "#f59e0b"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "match",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "recreation_trail",
+                  1,
+                  0.5
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "recreation_trail",
+                  2,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "ie-coillte-forest-roads",
       "sourceUrl": "./geo/_empty.geojson"
     },
     {
@@ -120318,6 +121138,56 @@
         "valueText": "0.50"
       }
     ],
+    "historicalBoundaries": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1901 日治行政區：廳",
+            "value": "admin-1901a"
+          },
+          {
+            "label": "1901 日治行政區：堡里",
+            "value": "admin-1901b"
+          },
+          {
+            "label": "1901 日治行政區：街庄",
+            "value": "admin-1901c"
+          },
+          {
+            "label": "1930 日治行政區：州廳",
+            "value": "admin-1930a"
+          },
+          {
+            "label": "1930 日治行政區：郡市",
+            "value": "admin-1930b"
+          },
+          {
+            "label": "1930 日治行政區：街庄",
+            "value": "admin-1930c"
+          },
+          {
+            "label": "乾隆臺灣番界",
+            "value": "abm"
+          },
+          {
+            "label": "1953 臺糖鐵道網",
+            "value": "tm150k-1953"
+          }
+        ],
+        "type": "select",
+        "value": "admin-1901a"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      }
+    ],
     "historicalFlightTrails": [
       {
         "label": "方向 全部",
@@ -120389,37 +121259,393 @@
         "valueText": "0.75"
       }
     ],
+    "historicalImagery": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1944 美軍航照",
+            "value": "am25k-1944"
+          },
+          {
+            "label": "1966 Corona 衛星影像",
+            "value": "corona-1966"
+          },
+          {
+            "label": "1969 Corona 衛星影像（中北部）",
+            "value": "taiwan-corona-1969"
+          },
+          {
+            "label": "2000 衛星影像地圖（A）（921 災區）",
+            "value": "tm50k-2000a"
+          },
+          {
+            "label": "2000 衛星影像地形圖（B）（921 災區）",
+            "value": "tm50k-2000b"
+          }
+        ],
+        "type": "select",
+        "value": "am25k-1944"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "historicalLandUse": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1956 土地利用及林型圖",
+            "value": "1956-landuse"
+          },
+          {
+            "label": "1956 土地利用及林型分類圖（25 萬分一）",
+            "value": "1956-landuse-250k-1"
+          },
+          {
+            "label": "1956 材積級與保育問題等級圖（25 萬分一）",
+            "value": "1956-landuse-250k-2"
+          },
+          {
+            "label": "1959 海岸及耕地防風林狀況圖",
+            "value": "1959-landuse-windbreak-25k"
+          },
+          {
+            "label": "1974 山坡地土地利用現況圖",
+            "value": "1974-landuse-250k"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（彰化縣）",
+            "value": "1979-landuse-25k-changhua"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（新竹縣）",
+            "value": "1979-landuse-25k-hsinchu"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（花蓮縣）",
+            "value": "1979-landuse-25k-hualien"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（苗栗縣）",
+            "value": "1979-landuse-25k-miaoli"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（南投縣）",
+            "value": "1979-landuse-25k-nantou"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（屏東縣）",
+            "value": "1979-landuse-25k-pingtung"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（臺中縣市）",
+            "value": "1979-landuse-25k-taichung"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（臺北縣市）",
+            "value": "1979-landuse-25k-taipei"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（臺東縣）",
+            "value": "1979-landuse-25k-taitung"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（桃園縣）",
+            "value": "1979-landuse-25k-taoyuan"
+          },
+          {
+            "label": "1979 土地灌溉利用圖（宜蘭縣）",
+            "value": "1979-landuse-25k-yilan"
+          }
+        ],
+        "type": "select",
+        "value": "1956-landuse"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "historicalMapPostwar": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1950 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1950"
+          },
+          {
+            "label": "1953 十萬分一臺灣地形圖",
+            "value": "tm100k-1953"
+          },
+          {
+            "label": "1954 五萬分一臺灣地形圖",
+            "value": "tm50k-1954"
+          },
+          {
+            "label": "1955 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1955"
+          },
+          {
+            "label": "1956 五萬分一臺灣地形圖",
+            "value": "tm50k-1956"
+          },
+          {
+            "label": "1959 三十萬分一臺灣地圖",
+            "value": "tm300k-1959"
+          },
+          {
+            "label": "1962 五千分一臺灣地形圖（西海岸海埔地）",
+            "value": "tm5k-1962"
+          },
+          {
+            "label": "1963 二十五萬分一臺灣地圖",
+            "value": "tm250k-1963"
+          },
+          {
+            "label": "1957–1969 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1966"
+          },
+          {
+            "label": "1966 五十萬分一臺灣地圖",
+            "value": "tm500k-1966"
+          },
+          {
+            "label": "1970 一萬分一臺灣地形圖（北部）",
+            "value": "tm10k-1970"
+          },
+          {
+            "label": "1973 二十五萬分一臺灣地圖",
+            "value": "tm250k-1973"
+          },
+          {
+            "label": "1974 一萬分一臺灣地形圖（北部）",
+            "value": "tm10k-1974"
+          },
+          {
+            "label": "1978 五十萬分一臺灣地圖",
+            "value": "tm500k-1978"
+          },
+          {
+            "label": "1984 十萬分一臺灣地形圖",
+            "value": "tm100k-1984"
+          },
+          {
+            "label": "1987 十萬分一臺灣地形圖",
+            "value": "tm100k-1987"
+          },
+          {
+            "label": "1988 二十五萬分一臺灣地圖",
+            "value": "tm250k-1988"
+          },
+          {
+            "label": "1989 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1989"
+          },
+          {
+            "label": "1990 五萬分一臺灣地形圖",
+            "value": "tm50k-1990"
+          },
+          {
+            "label": "1993 二萬五千分一臺灣地形圖",
+            "value": "tm25k-1993"
+          },
+          {
+            "label": "1996 五萬分一臺灣地形圖",
+            "value": "tm50k-1996"
+          },
+          {
+            "label": "2001 二萬五千分一臺灣地形圖",
+            "value": "tm25k-2001"
+          },
+          {
+            "label": "2003 二萬五千分一臺灣地形圖（北部）",
+            "value": "tm25k-2003"
+          },
+          {
+            "label": "2003 五萬分一臺灣地形圖（北部）",
+            "value": "tm50k-2003"
+          }
+        ],
+        "type": "select",
+        "value": "tm25k-1950"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "historicalMapSinica": [
       {
         "label": "年代",
         "options": [
           {
+            "label": "1895 日軍攻台戰鬥地圖（北部）",
+            "value": "jmwar-1895"
+          },
+          {
+            "label": "1897 二十萬分一臺灣地圖",
+            "value": "jm200k-1897"
+          },
+          {
+            "label": "1897 二十萬分一臺灣地圖（修正版）",
+            "value": "jm200k-1897-new"
+          },
+          {
+            "label": "1899 四十萬分一臺灣地圖",
+            "value": "jm400k-1899"
+          },
+          {
             "label": "1904 臺灣堡圖（明治版）",
             "value": "jm20k-1904"
+          },
+          {
+            "label": "1905 十萬分一臺灣地形圖",
+            "value": "jm100k-1905"
+          },
+          {
+            "label": "1916 五萬分一臺灣地形圖（山區）",
+            "value": "jm50k-1916"
+          },
+          {
+            "label": "1920 五萬分一臺灣地形圖",
+            "value": "jm50k-1920"
           },
           {
             "label": "1921 臺灣堡圖（大正版）",
             "value": "jm20k-1921"
           },
           {
-            "label": "1944 美軍航照",
-            "value": "am25k-1944"
+            "label": "1921 二萬五千分一臺灣地形圖",
+            "value": "jm25k-1921"
+          },
+          {
+            "label": "1924 三十萬分一臺灣地圖",
+            "value": "jm300k-1924"
+          },
+          {
+            "label": "1924 五萬分一臺灣地形圖",
+            "value": "jm50k-1924"
+          },
+          {
+            "label": "1924 五萬分一臺灣地形圖（修正版）",
+            "value": "jm50k-1924-new"
+          },
+          {
+            "label": "1932 二十萬分一臺灣地圖",
+            "value": "jm200k-1932"
+          },
+          {
+            "label": "1933 新高登山地圖 五萬分一（玉山）",
+            "value": "yushan-50k-1933"
+          },
+          {
+            "label": "1934 三十萬分一臺灣地圖",
+            "value": "jm300k-1934"
+          },
+          {
+            "label": "1936 五十萬分一臺灣地圖",
+            "value": "jm500k-1936"
+          },
+          {
+            "label": "1939 三十萬分一臺灣地圖",
+            "value": "jm300k-1939"
+          },
+          {
+            "label": "1942 二萬五千分一地形圖（昭和修正版）（高雄周邊）",
+            "value": "jm25k-1942"
+          },
+          {
+            "label": "1944 二萬五千分一臺灣地形圖",
+            "value": "jm25k-1944"
+          },
+          {
+            "label": "1944 二十萬分一臺灣地圖",
+            "value": "jm200k-1944"
           },
           {
             "label": "1944 美軍地形圖",
             "value": "am25k-1944a"
           },
           {
-            "label": "1945 美軍城市地圖",
-            "value": "amcity-1945"
+            "label": "1944 美軍五萬分一地形圖",
+            "value": "am50k-1944"
           },
           {
-            "label": "1966 Corona 衛星影像",
-            "value": "corona-1966"
+            "label": "1944 美軍二十五萬分一地形圖",
+            "value": "ams250k-1944"
+          },
+          {
+            "label": "1945 美軍城市地圖",
+            "value": "amcity-1945"
           }
         ],
         "type": "select",
         "value": "jm20k-1904"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "historicalThematic": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1931 公共埤圳與水利組合灌溉排水區域圖",
+            "value": "jm1m-1931"
+          },
+          {
+            "label": "1966 水利工程、水文站及基準點位置圖",
+            "value": "tm50k-1966"
+          },
+          {
+            "label": "1930 日治時期地質圖",
+            "value": "jmgeo-1930s"
+          },
+          {
+            "label": "1904 三角測量點及水準點配置圖",
+            "value": "jm20k-1904-triangulation"
+          },
+          {
+            "label": "1980 林務局林區轄區圖",
+            "value": "tm1m-1980"
+          },
+          {
+            "label": "日治官有林野圖（花蓮）",
+            "value": "map-lsb1-hualien"
+          },
+          {
+            "label": "1914 日治官有林野圖（臺東）",
+            "value": "map-lsb1-taitung"
+          }
+        ],
+        "type": "select",
+        "value": "jm1m-1931"
       },
       {
         "label": "透明度 0.85",
@@ -120544,6 +121770,272 @@
         "valueText": "0.85"
       }
     ],
+    "ieAirportsPorts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "機場（≥0.4 km²）",
+            "value": "airport"
+          },
+          {
+            "label": "小型機場、跑道場（<0.4 km²）",
+            "value": "airfield"
+          },
+          {
+            "label": "主要港口",
+            "value": "main_harbour"
+          },
+          {
+            "label": "其他港口",
+            "value": "other_harbour"
+          },
+          {
+            "label": "渡輪碼頭",
+            "value": "ferry_port"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "airport",
+          "airfield",
+          "main_harbour",
+          "other_harbour",
+          "ferry_port"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieAquaculture": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "貝類（牡蠣、貽貝等）",
+            "value": "shellfish"
+          },
+          {
+            "label": "魚類（鮭、鱒等）",
+            "value": "finfish"
+          },
+          {
+            "label": "藻類",
+            "value": "seaweed"
+          },
+          {
+            "label": "棘皮動物（海膽）",
+            "value": "echinoderm"
+          },
+          {
+            "label": "多類混養、未標",
+            "value": "mixed"
+          },
+          {
+            "label": "法定漁港中心（6 處）",
+            "value": "harbour_centre"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "shellfish",
+          "finfish",
+          "seaweed",
+          "echinoderm",
+          "mixed",
+          "harbour_centre"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "ieArterialDrainage": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "主幹排水渠（OPW 維護）",
+            "value": "channel"
+          },
+          {
+            "label": "堤防",
+            "value": "embankment"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "channel",
+          "embankment"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieArtsVenues": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "劇場",
+            "value": "theatre"
+          },
+          {
+            "label": "藝術中心、文化中心",
+            "value": "arts_centre"
+          },
+          {
+            "label": "視覺藝術、展覽空間",
+            "value": "visual"
+          },
+          {
+            "label": "音樂廳、演出場地",
+            "value": "music"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "theatre",
+          "arts_centre",
+          "visual",
+          "music",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieBathingWaters": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "極佳 Excellent",
+            "value": "excellent"
+          },
+          {
+            "label": "良好 Good",
+            "value": "good"
+          },
+          {
+            "label": "合格 Sufficient",
+            "value": "sufficient"
+          },
+          {
+            "label": "不良 Poor",
+            "value": "poor"
+          },
+          {
+            "label": "法定浴場・本年未分級",
+            "value": "not_classified"
+          },
+          {
+            "label": "非法定監測點（無年度分級）",
+            "value": "non_identified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "excellent",
+          "good",
+          "sufficient",
+          "poor",
+          "not_classified",
+          "non_identified"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieBathymetry": [
       {
         "label": "透明度 0.70",
@@ -120555,6 +122047,642 @@
         "valueText": "0.70"
       }
     ],
+    "ieCareHomes": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "推估：命中 OSM 同名設施",
+            "value": "facility"
+          },
+          {
+            "label": "推估：門牌、建物",
+            "value": "address"
+          },
+          {
+            "label": "推估：街道（路段代表點）",
+            "value": "street"
+          },
+          {
+            "label": "推估：城鎮、聚落中心",
+            "value": "town"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "facility",
+          "address",
+          "street",
+          "town"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieChildcareServices": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "私人經營",
+            "value": "private"
+          },
+          {
+            "label": "社區（非營利）",
+            "value": "community"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "private",
+          "community"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieCoastalErosion": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "2050 侵蝕線（現況情境推估）",
+            "value": "2050"
+          },
+          {
+            "label": "侵蝕速率線（2010–2014）",
+            "value": "RL"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2050",
+          "RL"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieCoillteForestRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "林道",
+            "value": "forest_road"
+          },
+          {
+            "label": "遊憩步道",
+            "value": "recreation_trail"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "forest_road",
+          "recreation_trail"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieCoillteRecreation": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "遊憩點（森林公園、步道起點等）",
+            "value": "site"
+          },
+          {
+            "label": "森林入口",
+            "value": "entrance"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "site",
+          "entrance"
+        ]
+      },
+      {
+        "defaultValue": "speed",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "speed"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieCommercialValuations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "零售（商店、量販倉儲）",
+            "value": "retail"
+          },
+          {
+            "label": "辦公",
+            "value": "office"
+          },
+          {
+            "label": "工業",
+            "value": "industrial"
+          },
+          {
+            "label": "餐旅",
+            "value": "hospitality"
+          },
+          {
+            "label": "休閒",
+            "value": "leisure"
+          },
+          {
+            "label": "醫療",
+            "value": "health"
+          },
+          {
+            "label": "加油站與油庫",
+            "value": "fuel_depot"
+          },
+          {
+            "label": "其他（雜項、礦產、公用事業等）",
+            "value": "other"
+          },
+          {
+            "label": "Cork 市、郡（舊制估值，未分類）",
+            "value": "cork_rv"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "retail",
+          "office",
+          "industrial",
+          "hospitality",
+          "leisure",
+          "health",
+          "fuel_depot",
+          "other",
+          "cork_rv"
+        ]
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieCourts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Dublin 區",
+            "value": "dublin"
+          },
+          {
+            "label": "東部區",
+            "value": "eastern"
+          },
+          {
+            "label": "中北部區",
+            "value": "north_midlands"
+          },
+          {
+            "label": "南部區",
+            "value": "southern"
+          },
+          {
+            "label": "西部區",
+            "value": "western"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "dublin",
+          "eastern",
+          "north_midlands",
+          "southern",
+          "western"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieDublinbikesStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieEvCharging": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高功率（≥150 kW）",
+            "value": "hpc"
+          },
+          {
+            "label": "快充（43–149 kW）",
+            "value": "fast"
+          },
+          {
+            "label": "交流慢充（≤22 kW）",
+            "value": "ac"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hpc",
+          "fast",
+          "ac"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieFireStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地方議會官方點位",
+            "value": "official"
+          },
+          {
+            "label": "OSM 補缺",
+            "value": "osm"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "official",
+          "osm"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieFuelStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Circle K",
+            "value": "circle_k"
+          },
+          {
+            "label": "Applegreen",
+            "value": "applegreen"
+          },
+          {
+            "label": "Top Oil",
+            "value": "top"
+          },
+          {
+            "label": "Texaco",
+            "value": "texaco"
+          },
+          {
+            "label": "Maxol",
+            "value": "maxol"
+          },
+          {
+            "label": "Inver",
+            "value": "inver"
+          },
+          {
+            "label": "Emo",
+            "value": "emo"
+          },
+          {
+            "label": "其他品牌（Certa、Amber、Esso…）",
+            "value": "other_brand"
+          },
+          {
+            "label": "未標品牌",
+            "value": "unbranded"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "circle_k",
+          "applegreen",
+          "top",
+          "texaco",
+          "maxol",
+          "inver",
+          "emo",
+          "other_brand",
+          "unbranded"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieGaeltacht": [
       {
         "label": "透明度 0.60",
@@ -120564,6 +122692,59 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "ieGardaStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "官方座標（地方議會）",
+            "value": "official"
+          },
+          {
+            "label": "推估：命中 OSM 同名設施",
+            "value": "facility"
+          },
+          {
+            "label": "推估：門牌、建物",
+            "value": "address"
+          },
+          {
+            "label": "推估：街道（路段代表點）",
+            "value": "street"
+          },
+          {
+            "label": "推估：城鎮、聚落中心",
+            "value": "town"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "official",
+          "facility",
+          "address",
+          "street",
+          "town"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "ieGraveyards": [
@@ -120619,6 +122800,530 @@
         "valueText": "1.0"
       }
     ],
+    "ieHealthFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "醫院",
+            "value": "hospital"
+          },
+          {
+            "label": "診所、醫療中心",
+            "value": "clinic"
+          },
+          {
+            "label": "家庭醫師（GP）",
+            "value": "doctors"
+          },
+          {
+            "label": "牙醫",
+            "value": "dentist"
+          },
+          {
+            "label": "藥局",
+            "value": "pharmacy"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hospital",
+          "clinic",
+          "doctors",
+          "dentist",
+          "pharmacy"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieHeritageSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "環形堡與圍場（SMR）",
+            "value": "smr_ringfort"
+          },
+          {
+            "label": "史前墓葬、巨石與燒石堆（SMR）",
+            "value": "smr_prehistoric"
+          },
+          {
+            "label": "教會遺址、十字碑與石刻（SMR）",
+            "value": "smr_ecclesiastical"
+          },
+          {
+            "label": "城堡與防禦工事（SMR）",
+            "value": "smr_castle"
+          },
+          {
+            "label": "聚落、房屋與地窖（SMR）",
+            "value": "smr_settlement"
+          },
+          {
+            "label": "道路、產業與地景（SMR）",
+            "value": "smr_economy"
+          },
+          {
+            "label": "其他考古遺址（SMR）",
+            "value": "smr_other"
+          },
+          {
+            "label": "建築遺產（NIAH，1700 年後）",
+            "value": "niah"
+          },
+          {
+            "label": "開放參觀的國家古蹟",
+            "value": "visit"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "smr_ringfort",
+          "smr_prehistoric",
+          "smr_ecclesiastical",
+          "smr_castle",
+          "smr_settlement",
+          "smr_economy",
+          "smr_other",
+          "niah",
+          "visit"
+        ]
+      },
+      {
+        "defaultValue": "Burg",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "Burg"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieHydrometricStations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieIndustrialFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "集約畜牧（豬、家禽，第 6 類）",
+            "value": "intensive_agriculture"
+          },
+          {
+            "label": "食品飲料（第 7 類）",
+            "value": "food_drink"
+          },
+          {
+            "label": "化學、製藥（第 5 類）",
+            "value": "chemicals"
+          },
+          {
+            "label": "能源、化石燃料（第 2、9 類）",
+            "value": "energy"
+          },
+          {
+            "label": "廢棄物處理（第 11 類）",
+            "value": "waste"
+          },
+          {
+            "label": "礦物、金屬、玻璃、水泥（第 1、3、4、10 類）",
+            "value": "minerals_metals"
+          },
+          {
+            "label": "木材紙業紡織、表面塗裝（第 8、12 類）",
+            "value": "other_manufacturing"
+          },
+          {
+            "label": "其他、未標類別（多為舊制 IPPC 執照）",
+            "value": "unclassified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "intensive_agriculture",
+          "food_drink",
+          "chemicals",
+          "energy",
+          "waste",
+          "minerals_metals",
+          "other_manufacturing",
+          "unclassified"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieLakeWaterBodies": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "極佳 High",
+            "value": "High"
+          },
+          {
+            "label": "良好 Good",
+            "value": "Good"
+          },
+          {
+            "label": "普通 Moderate",
+            "value": "Moderate"
+          },
+          {
+            "label": "不佳 Poor",
+            "value": "Poor"
+          },
+          {
+            "label": "極差 Bad",
+            "value": "Bad"
+          },
+          {
+            "label": "未評定 Unassigned",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "High",
+          "Good",
+          "Moderate",
+          "Poor",
+          "Bad",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "ieLandslideEvents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "泥炭（含泥炭質土）",
+            "value": "peat"
+          },
+          {
+            "label": "土、泥、冰磧",
+            "value": "earth"
+          },
+          {
+            "label": "岩石、岩屑坡",
+            "value": "rock"
+          },
+          {
+            "label": "岩屑",
+            "value": "debris"
+          },
+          {
+            "label": "未分類",
+            "value": "undifferentiated"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "peat",
+          "earth",
+          "rock",
+          "debris",
+          "undifferentiated"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieLandslideExtents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "泥炭（含泥炭質土）",
+            "value": "peat"
+          },
+          {
+            "label": "土、泥、冰磧",
+            "value": "earth"
+          },
+          {
+            "label": "岩石、岩屑坡",
+            "value": "rock"
+          },
+          {
+            "label": "岩屑",
+            "value": "debris"
+          },
+          {
+            "label": "未分類",
+            "value": "undifferentiated"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "peat",
+          "earth",
+          "rock",
+          "debris",
+          "undifferentiated"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "ieMarineSurveyStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "愛爾蘭底拖網漁業調查 IGFS（2003–2015）",
+            "value": "groundfish"
+          },
+          {
+            "label": "挪威海螯蝦水下攝影調查（2000–2016）",
+            "value": "nephrops_uwtv"
+          },
+          {
+            "label": "鯖魚卵調查（2007–2016）",
+            "value": "mackerel_egg"
+          },
+          {
+            "label": "聲學資源調查（1999–2009）",
+            "value": "acoustic"
+          },
+          {
+            "label": "生物採樣調查（2004–2009）",
+            "value": "biological_sampling"
+          },
+          {
+            "label": "深水調查（2006–2009）",
+            "value": "deepwater"
+          },
+          {
+            "label": "野豬魚調查（2014）",
+            "value": "boarfish"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "groundfish",
+          "nephrops_uwtv",
+          "mackerel_egg",
+          "acoustic",
+          "biological_sampling",
+          "deepwater",
+          "boarfish"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieMaritimeBoundaries": [
       {
         "label": "類別",
@@ -120651,6 +123356,271 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "ieMuseums": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地方政府博物館（LAMN）",
+            "value": "lamn"
+          },
+          {
+            "label": "博物館",
+            "value": "museum"
+          },
+          {
+            "label": "文化遺產中心、遊客中心",
+            "value": "heritage_centre"
+          },
+          {
+            "label": "歷史建築、宅邸與園林",
+            "value": "historic_site"
+          },
+          {
+            "label": "美術館、藝廊",
+            "value": "gallery"
+          },
+          {
+            "label": "檔案館、地方文史室",
+            "value": "archive_library"
+          },
+          {
+            "label": "其他（自然、科學、體驗）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lamn",
+          "museum",
+          "heritage_centre",
+          "historic_site",
+          "gallery",
+          "archive_library",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieNationalParks": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "ieNationalTrails": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "步行步道",
+            "value": "walking"
+          },
+          {
+            "label": "長距離標示步道、朝聖路",
+            "value": "long_distance"
+          },
+          {
+            "label": "綠道（Greenway）",
+            "value": "greenway"
+          },
+          {
+            "label": "單車（公路、越野、登山車）",
+            "value": "cycling"
+          },
+          {
+            "label": "水上（划槳、浮潛）",
+            "value": "water"
+          },
+          {
+            "label": "其他、未分類（登山通道、騎馬等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "walking",
+          "long_distance",
+          "greenway",
+          "cycling",
+          "water",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieNoiseMaps": [
+      {
+        "label": "噪音指標",
+        "options": [
+          {
+            "label": "全日（Lden）",
+            "value": "lden"
+          },
+          {
+            "label": "夜間（Lnight）",
+            "value": "lnight"
+          }
+        ],
+        "type": "select",
+        "value": "lden"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "40–44 dB（只有夜間）",
+            "value": "b40"
+          },
+          {
+            "label": "45–49 dB",
+            "value": "b45"
+          },
+          {
+            "label": "50–54 dB",
+            "value": "b50"
+          },
+          {
+            "label": "55–59 dB",
+            "value": "b55"
+          },
+          {
+            "label": "60–64 dB",
+            "value": "b60"
+          },
+          {
+            "label": "65–69 dB",
+            "value": "b65"
+          },
+          {
+            "label": "70–74 dB（夜間為 70 以上）",
+            "value": "b70"
+          },
+          {
+            "label": "75 dB 以上（只有全日）",
+            "value": "b75"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "b40",
+          "b45",
+          "b50",
+          "b55",
+          "b60",
+          "b65",
+          "b70",
+          "b75"
+        ]
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "ieOffshoreRenewables": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "海域許可 MAC（2022 第一批）",
+            "value": "mac"
+          },
+          {
+            "label": "已運轉（前灘程序）",
+            "value": "foreshore_commissioned"
+          },
+          {
+            "label": "過渡案 Relevant Projects（前灘程序）",
+            "value": "foreshore_relevant"
+          },
+          {
+            "label": "場址調查許可（前灘程序）",
+            "value": "foreshore_site_investigation"
+          },
+          {
+            "label": "大西洋海洋能試驗場 AMETS",
+            "value": "amets"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "mac",
+          "foreshore_commissioned",
+          "foreshore_relevant",
+          "foreshore_site_investigation",
+          "amets"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "ieParks": [
@@ -120711,6 +123681,50 @@
         "value": "point"
       }
     ],
+    "iePeatSoils": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高位泥炭沼 Raised bog",
+            "value": "raised_bog"
+          },
+          {
+            "label": "低地大西洋毯狀泥炭沼",
+            "value": "lowland_blanket_bog"
+          },
+          {
+            "label": "山地毯狀泥炭沼",
+            "value": "mountain_blanket_bog"
+          },
+          {
+            "label": "低位泥炭沼 Fen",
+            "value": "fen"
+          },
+          {
+            "label": "其他泥炭土（多為淺層泥炭，或荒原、石南灌叢、天然草地）",
+            "value": "other_peat"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "raised_bog",
+          "lowland_blanket_bog",
+          "mountain_blanket_bog",
+          "fen",
+          "other_peat"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "iePlaceNames": [
       {
         "label": "類別",
@@ -120752,6 +123766,1978 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "iePlanningApplications": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "核准（含附條件、延長期限）",
+            "value": "granted"
+          },
+          {
+            "label": "駁回",
+            "value": "refused"
+          },
+          {
+            "label": "部分核准、部分駁回",
+            "value": "split"
+          },
+          {
+            "label": "撤回",
+            "value": "withdrawn"
+          },
+          {
+            "label": "不受理（申請無效、文件不全）",
+            "value": "invalid"
+          },
+          {
+            "label": "其他（審查中、補件、豁免宣告、未記錄）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "granted",
+          "refused",
+          "split",
+          "withdrawn",
+          "invalid",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "iePowerLines": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "400 kV",
+            "value": "kv400"
+          },
+          {
+            "label": "220 kV（含跨境 275 kV）",
+            "value": "kv220_275"
+          },
+          {
+            "label": "110 kV",
+            "value": "kv110"
+          },
+          {
+            "label": "38 kV（配電）",
+            "value": "kv38"
+          },
+          {
+            "label": "38 kV 以下（10／20 kV 配電）",
+            "value": "lt38"
+          },
+          {
+            "label": "電壓未標",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv400",
+          "kv220_275",
+          "kv110",
+          "kv38",
+          "lt38",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "iePowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "主要電廠（Tailte 250k）",
+            "value": "tailte_major"
+          },
+          {
+            "label": "其他發電廠（PRTR 燃燒設施）",
+            "value": "prtr_power"
+          },
+          {
+            "label": "資料中心自備燃燒機組（PRTR）",
+            "value": "prtr_datacentre"
+          },
+          {
+            "label": "煉油廠、天然氣處理廠（PRTR）",
+            "value": "prtr_refinery_gas"
+          },
+          {
+            "label": "其他工業鍋爐（PRTR）",
+            "value": "prtr_industrial"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "tailte_major",
+          "prtr_power",
+          "prtr_datacentre",
+          "prtr_refinery_gas",
+          "prtr_industrial"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieProtectedMarineSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "特別保育區 SAC（Natura 2000）",
+            "value": "sac"
+          },
+          {
+            "label": "鳥類特別保護區 SPA（Natura 2000）",
+            "value": "spa"
+          },
+          {
+            "label": "國家自然遺產區 NHA",
+            "value": "nha"
+          },
+          {
+            "label": "都柏林灣生物圈（海域分區）",
+            "value": "biosphere"
+          },
+          {
+            "label": "自然保留區（只有點位）",
+            "value": "nature_reserve"
+          },
+          {
+            "label": "地方動物避難所（只有點位）",
+            "value": "refuge"
+          },
+          {
+            "label": "拉姆薩濕地（只有點位）",
+            "value": "ramsar"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "sac",
+          "spa",
+          "nha",
+          "biosphere",
+          "nature_reserve",
+          "refuge",
+          "ramsar"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "ieProtectedSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "特別保育區 SAC（Natura 2000）",
+            "value": "sac"
+          },
+          {
+            "label": "鳥類特別保護區 SPA（Natura 2000）",
+            "value": "spa"
+          },
+          {
+            "label": "國家自然遺產區 NHA",
+            "value": "nha"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "sac",
+          "spa",
+          "nha"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "iePrtrFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "能源業",
+            "value": "energy"
+          },
+          {
+            "label": "金屬生產與加工",
+            "value": "metals"
+          },
+          {
+            "label": "礦物業",
+            "value": "mineral"
+          },
+          {
+            "label": "化學工業",
+            "value": "chemical"
+          },
+          {
+            "label": "廢棄物與污水管理",
+            "value": "waste"
+          },
+          {
+            "label": "紙與木材生產加工",
+            "value": "paper_wood"
+          },
+          {
+            "label": "集約畜牧與水產養殖",
+            "value": "livestock"
+          },
+          {
+            "label": "動植物食品與飲料",
+            "value": "food"
+          },
+          {
+            "label": "其他活動",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "energy",
+          "metals",
+          "mineral",
+          "chemical",
+          "waste",
+          "paper_wood",
+          "livestock",
+          "food",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "iePublicFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "圖書館",
+            "value": "library"
+          },
+          {
+            "label": "社區中心",
+            "value": "community_centre"
+          },
+          {
+            "label": "公廁",
+            "value": "toilet"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "library",
+          "community_centre",
+          "toilet"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieRadiationStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "陸地（即時上線）",
+            "value": "land_live"
+          },
+          {
+            "label": "陸地（非即時）",
+            "value": "land"
+          },
+          {
+            "label": "海域",
+            "value": "marine"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "land_live",
+          "land",
+          "marine"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieRadonRisk": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "約每 5 戶有 1 戶偏高（High Radon Area）",
+            "value": "1_in_5"
+          },
+          {
+            "label": "約每 10 戶有 1 戶偏高",
+            "value": "1_in_10"
+          },
+          {
+            "label": "約每 20 戶有 1 戶偏高",
+            "value": "1_in_20"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1_in_5",
+          "1_in_10",
+          "1_in_20"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "ieRecyclingPoints": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "回收桶站（玻璃、鋁罐、舊衣）",
+            "value": "bring_bank"
+          },
+          {
+            "label": "回收中心（Civic amenity site）",
+            "value": "recycling_centre"
+          },
+          {
+            "label": "廢電器回收點（WEEE）",
+            "value": "weee"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bring_bank",
+          "recycling_centre",
+          "weee"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieReligiousSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "教堂、禮拜堂（NIAH）",
+            "value": "church"
+          },
+          {
+            "label": "主教座堂（NIAH）",
+            "value": "cathedral"
+          },
+          {
+            "label": "會堂、猶太會堂、小祈禱所（NIAH）",
+            "value": "other_worship"
+          },
+          {
+            "label": "聖井（SMR）",
+            "value": "holy_well"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "church",
+          "cathedral",
+          "other_worship",
+          "holy_well"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieRiverFloodExtents": [
+      {
+        "label": "淹水情境",
+        "options": [
+          {
+            "label": "現況・20 年一遇",
+            "value": "c_0020"
+          },
+          {
+            "label": "現況・100 年一遇",
+            "value": "c_0100"
+          },
+          {
+            "label": "現況・1000 年一遇",
+            "value": "c_1000"
+          },
+          {
+            "label": "中端未來・20 年一遇",
+            "value": "m_0020"
+          },
+          {
+            "label": "中端未來・100 年一遇",
+            "value": "m_0100"
+          },
+          {
+            "label": "中端未來・1000 年一遇",
+            "value": "m_1000"
+          },
+          {
+            "label": "高端未來・20 年一遇",
+            "value": "h_0020"
+          },
+          {
+            "label": "高端未來・100 年一遇",
+            "value": "h_0100"
+          },
+          {
+            "label": "高端未來・1000 年一遇",
+            "value": "h_1000"
+          }
+        ],
+        "type": "select",
+        "value": "c_0100"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "ieRiverWaterBodies": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "極佳 High",
+            "value": "High"
+          },
+          {
+            "label": "良好 Good",
+            "value": "Good"
+          },
+          {
+            "label": "普通 Moderate",
+            "value": "Moderate"
+          },
+          {
+            "label": "不佳 Poor",
+            "value": "Poor"
+          },
+          {
+            "label": "極差 Bad",
+            "value": "Bad"
+          },
+          {
+            "label": "未評定 Unassigned",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "High",
+          "Good",
+          "Moderate",
+          "Poor",
+          "Bad",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieRoadMarkers": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（M）里程標",
+            "value": "motorway_marker"
+          },
+          {
+            "label": "國道（N）里程標",
+            "value": "national_marker"
+          },
+          {
+            "label": "交流道",
+            "value": "interchange"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway_marker",
+          "national_marker",
+          "interchange"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieRoadRailNetwork": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路",
+            "value": "motorway"
+          },
+          {
+            "label": "主要道路",
+            "value": "primary"
+          },
+          {
+            "label": "次要道路",
+            "value": "secondary"
+          },
+          {
+            "label": "地方道路",
+            "value": "local"
+          },
+          {
+            "label": "來源未分類",
+            "value": "unknown"
+          },
+          {
+            "label": "鐵路",
+            "value": "railway"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "primary",
+          "secondary",
+          "local",
+          "unknown",
+          "railway"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieSchoolPlanningAreas": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "ieSchools": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國小（Primary）",
+            "value": "primary"
+          },
+          {
+            "label": "中學（Post-primary）",
+            "value": "post_primary"
+          },
+          {
+            "label": "特殊學校",
+            "value": "special"
+          },
+          {
+            "label": "大學與校區（OSM university）",
+            "value": "higher"
+          },
+          {
+            "label": "學院、繼續教育與職訓（OSM college）",
+            "value": "college"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "primary",
+          "post_primary",
+          "special",
+          "higher",
+          "college"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieSeabedSurveyCoverage": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "INFOMAR（2006–2026）",
+            "value": "infomar"
+          },
+          {
+            "label": "國家海床調查 INSS（1999–2005）",
+            "value": "inss"
+          },
+          {
+            "label": "其他合作航次（海洋能、棲地、漁業等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "infomar",
+          "inss",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "ieSoils": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "棕壤 Brown Earth（排水良好）",
+            "value": "brown_earth"
+          },
+          {
+            "label": "淋溶土 Luvisol（排水良好）",
+            "value": "luvisol"
+          },
+          {
+            "label": "灰化土 Podzol、棕色灰化土（酸性）",
+            "value": "podzol"
+          },
+          {
+            "label": "潛育土 Gley（排水不良）",
+            "value": "gley"
+          },
+          {
+            "label": "石質土、黑色石灰土（淺層）",
+            "value": "lithosol_rendzina"
+          },
+          {
+            "label": "泥炭土",
+            "value": "peat"
+          },
+          {
+            "label": "沖積土（河、湖、海）",
+            "value": "alluvium"
+          },
+          {
+            "label": "潮間沼澤、鹽沼、沙丘",
+            "value": "coastal"
+          },
+          {
+            "label": "裸岩",
+            "value": "rock"
+          },
+          {
+            "label": "都市（土壤已覆蓋）",
+            "value": "urban"
+          },
+          {
+            "label": "水體下、離島（未分類）",
+            "value": "water_island"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "brown_earth",
+          "luvisol",
+          "podzol",
+          "gley",
+          "lithosol_rendzina",
+          "peat",
+          "alluvium",
+          "coastal",
+          "rock",
+          "urban",
+          "water_island"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "ieStateAssets": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地方政府",
+            "value": "local_authority"
+          },
+          {
+            "label": "Coillte（國營林業）",
+            "value": "coillte"
+          },
+          {
+            "label": "Bord na Móna（國營泥炭、能源）",
+            "value": "bord_na_mona"
+          },
+          {
+            "label": "ESB（國營電力）",
+            "value": "esb"
+          },
+          {
+            "label": "農業食品海洋部",
+            "value": "agriculture"
+          },
+          {
+            "label": "住房地方政府遺產部轄下（含 Irish Water）",
+            "value": "housing"
+          },
+          {
+            "label": "公共工程局（OPW）",
+            "value": "opw"
+          },
+          {
+            "label": "其他中央部會",
+            "value": "central_government"
+          },
+          {
+            "label": "其他國營事業與機構",
+            "value": "other_state_body"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "local_authority",
+          "coillte",
+          "bord_na_mona",
+          "esb",
+          "agriculture",
+          "housing",
+          "opw",
+          "central_government",
+          "other_state_body"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "ieStreetTrees": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Fingal 議會",
+            "value": "fingal"
+          },
+          {
+            "label": "Dún Laoghaire-Rathdown 議會（2019）",
+            "value": "dlr"
+          },
+          {
+            "label": "Dublin City 議會",
+            "value": "dcc"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "fingal",
+          "dlr",
+          "dcc"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieSubstations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "400 kV",
+            "value": "kv400"
+          },
+          {
+            "label": "220 kV（含跨境 275 kV）",
+            "value": "kv220_275"
+          },
+          {
+            "label": "110 kV",
+            "value": "kv110"
+          },
+          {
+            "label": "38 kV（配電）",
+            "value": "kv38"
+          },
+          {
+            "label": "38 kV 以下（10／20 kV 配電）",
+            "value": "lt38"
+          },
+          {
+            "label": "電壓未標",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv400",
+          "kv220_275",
+          "kv110",
+          "kv38",
+          "lt38",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieTrafficCounters": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（M）",
+            "value": "motorway"
+          },
+          {
+            "label": "國道（N）",
+            "value": "national"
+          },
+          {
+            "label": "標籤無路線碼",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "national",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieTransitStops": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "鐵路（Irish Rail、DART）",
+            "value": "rail"
+          },
+          {
+            "label": "輕軌（Luas）",
+            "value": "tram"
+          },
+          {
+            "label": "公車、客運",
+            "value": "bus"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rail",
+          "tram",
+          "bus"
+        ]
+      },
+      {
+        "defaultValue": "BuPu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "BuPu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieWasteFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "掩埋場",
+            "value": "landfill"
+          },
+          {
+            "label": "轉運站",
+            "value": "transfer"
+          },
+          {
+            "label": "資源回收分選（MRF）",
+            "value": "materials_recovery"
+          },
+          {
+            "label": "綜合廢棄物管理設施",
+            "value": "integrated"
+          },
+          {
+            "label": "堆肥、厭氧消化",
+            "value": "composting"
+          },
+          {
+            "label": "土石回填、土壤回收",
+            "value": "soil_recovery"
+          },
+          {
+            "label": "有害廢棄物",
+            "value": "hazardous"
+          },
+          {
+            "label": "其他（資源回收站、疏浚、污泥處理、待評估）",
+            "value": "other"
+          },
+          {
+            "label": "未分類（來源無屬性）",
+            "value": "unclassified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "landfill",
+          "transfer",
+          "materials_recovery",
+          "integrated",
+          "composting",
+          "soil_recovery",
+          "hazardous",
+          "other",
+          "unclassified"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "ieWaterMonitoring": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "河川測站",
+            "value": "river"
+          },
+          {
+            "label": "湖泊測站",
+            "value": "lake"
+          },
+          {
+            "label": "河口（感潮）測站",
+            "value": "transitional"
+          },
+          {
+            "label": "沿海測站",
+            "value": "coastal"
+          },
+          {
+            "label": "地下水測站",
+            "value": "groundwater"
+          },
+          {
+            "label": "都市污水處理廠",
+            "value": "uww_plant"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "river",
+          "lake",
+          "transitional",
+          "coastal",
+          "groundwater",
+          "uww_plant"
+        ]
+      },
+      {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieWildAtlanticWay": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "ieWindFarms": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "< 5 MW",
+            "value": "lt5"
+          },
+          {
+            "label": "5–20 MW",
+            "value": "5_20"
+          },
+          {
+            "label": "20–50 MW",
+            "value": "20_50"
+          },
+          {
+            "label": "≥ 50 MW",
+            "value": "ge50"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lt5",
+          "5_20",
+          "20_50",
+          "ge50"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieZoning": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "住宅（R）",
+            "value": "residential"
+          },
+          {
+            "label": "混合使用、市鎮中心（M）",
+            "value": "mixed"
+          },
+          {
+            "label": "商業、產業、就業（C）",
+            "value": "commerce"
+          },
+          {
+            "label": "社區服務與設施（S）",
+            "value": "community"
+          },
+          {
+            "label": "綠地、休憩、保育（G）",
+            "value": "green"
+          },
+          {
+            "label": "交通與公用設施網絡（N）",
+            "value": "network"
+          },
+          {
+            "label": "農業與初級產業（P）",
+            "value": "primary"
+          },
+          {
+            "label": "其他（策略保留地、一般）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "residential",
+          "mixed",
+          "commerce",
+          "community",
+          "green",
+          "network",
+          "primary",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "BuPu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "BuPu"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "immigrationOffice": [

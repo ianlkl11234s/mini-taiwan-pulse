@@ -243,7 +243,7 @@ const NO_POPUP_LEDGER = new Set([
   // 日本第四波：地理院タイル地形 raster（已上色成品 PNG，無 feature 屬性）
   "jpGsiHillshade", "jpGsiRelief",
   // 古地圖：中研院臺灣百年歷史地圖，外部 XYZ 掃描 raster（無 feature 屬性）
-  "historicalMapSinica",
+  "historicalMapSinica", "historicalMapPostwar", "historicalImagery", "historicalBoundaries", "historicalLandUse", "historicalThematic",
   // 英國 C003：OS Terrain 50 地形 raster（上游烘好的 PNG，無 feature 屬性）
   "gbTerrainHillshade", "gbTerrainRelief",
   // 加拿大第 2 波：NRCan MRDEM-30 山體陰影 raster（PNG，無 feature 屬性）
@@ -615,7 +615,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("krAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("CA")].sort()).toEqual(["caAdminBoundaries", "caAirportsPorts", "caAqhiStations", "caClimateStations", "caDeprivation", "caEarthquakes", "caEarthquakesLive", "caFederalDistricts", "caHillshade", "caIndigenousLands", "caMajorRoads", "caNpriFacilities", "caOilGas", "caPlaceNames", "caPopulationCentres", "caPopulationGrid", "caPostalFsa", "caPowerGrid", "caPowerPlants", "caRadiationStations", "caRailways", "caRents", "caTransitStops", "caWastewaterSystems", "caWindTurbines"]);
     expect(tw.has("caAdminBoundaries")).toBe(false);
-    expect([...countryLayerKeys("IE")].sort()).toEqual(["ieActivityLocations", "ieAdminBoundaries", "ieBathymetry", "ieGaeltacht", "ieGraveyards", "ieMaritimeBoundaries", "ieParks", "iePlaceNames"]);
+    expect([...countryLayerKeys("IE")].sort()).toEqual(["ieActivityLocations", "ieAdminBoundaries", "ieAirportsPorts", "ieAquaculture", "ieArterialDrainage", "ieArtsVenues", "ieBathingWaters", "ieBathymetry", "ieCareHomes", "ieChildcareServices", "ieCoastalErosion", "ieCoillteForestRoads", "ieCoillteRecreation", "ieCommercialValuations", "ieCourts", "ieDublinbikesStations", "ieEvCharging", "ieFireStations", "ieFuelStations", "ieGaeltacht", "ieGardaStations", "ieGraveyards", "ieHealthFacilities", "ieHeritageSites", "ieHydrometricStations", "ieIndustrialFacilities", "ieLakeWaterBodies", "ieLandslideEvents", "ieLandslideExtents", "ieMarineSurveyStations", "ieMaritimeBoundaries", "ieMuseums", "ieNationalParks", "ieNationalTrails", "ieNoiseMaps", "ieOffshoreRenewables", "ieParks", "iePeatSoils", "iePlaceNames", "iePlanningApplications", "iePowerLines", "iePowerPlants", "ieProtectedMarineSites", "ieProtectedSites", "iePrtrFacilities", "iePublicFacilities", "ieRadiationStations", "ieRadonRisk", "ieRecyclingPoints", "ieReligiousSites", "ieRiverFloodExtents", "ieRiverWaterBodies", "ieRoadMarkers", "ieRoadRailNetwork", "ieSchoolPlanningAreas", "ieSchools", "ieSeabedSurveyCoverage", "ieSoils", "ieStateAssets", "ieStreetTrees", "ieSubstations", "ieTrafficCounters", "ieTransitStops", "ieWasteFacilities", "ieWaterMonitoring", "ieWildAtlanticWay", "ieWindFarms", "ieZoning"]);
     expect(tw.has("ieAdminBoundaries")).toBe(false);
   });
 

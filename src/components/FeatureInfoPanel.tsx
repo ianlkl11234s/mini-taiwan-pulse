@@ -32,6 +32,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 南韓第 3–5 波 18 層：panel 自掛 SourceFooter
   ...KR_DATA_KEYS,
   ...IE_DATA_KEYS,
+  "ieCoillteRecreation", "ieCoillteForestRoads", // 站主限定 Coillte：panel 自掛 SourceFooter（makeIePanel）
   // 2024 投開票所：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
   "pollingStations2024",
   // 2026 議員選區：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter

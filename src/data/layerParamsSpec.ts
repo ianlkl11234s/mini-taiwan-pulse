@@ -1,4 +1,4 @@
-import { HISTORICAL_MAP_DEFAULT_ERA, HISTORICAL_MAP_ERAS } from './historicalMapSinica';
+import { HISTORICAL_MAP_GROUPS, historicalMapEraOptionZh } from './historicalMapSinica';
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
@@ -100,7 +100,8 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
-import { IE_DATA_SPECS, asKrSpec } from "./ieDataLayers";
+import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -2160,13 +2161,36 @@ export const LAYER_PARAMS_SPEC = {
       out: "ieAdminBoundariesLevelIdx", encode: ["la", "ed", "sa"],
     },
   ],
-  // 愛爾蘭第 1 波（2026-11-07）：規格驅動 6 層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選）；公園的點／面切換由 repPointLayers 補
+  // 愛爾蘭第 1 波起（2026-11-07）：規格驅動層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選、有熱區者加熱區顏色）；公園、國有登記土地的點／面切換由 repPointLayers 補
   ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
+    // 第 3a 波河川淹水（NIFM）：情境 × 重現期一組一支 PMTiles，host 依 ieRiverFloodExtentsScenarioIdx 換檔（同台灣淹水情境）
+    ...(spec.key === "ieRiverFloodExtents" ? [{
+      kind: "select" as const, category: "data" as const, name: "ieRiverFloodExtentsScenario", label: "淹水情境", default: IE_FLOOD_SCENARIO_DEFAULT,
+      options: IE_FLOOD_SCENARIOS.map((x) => ({ label: x.label.zh, value: x.value })),
+      out: "ieRiverFloodExtentsScenarioIdx", encode: IE_FLOOD_SCENARIOS.map((x) => x.value),
+    }] : []),
+    // 第 9 波策略噪音地圖：Lden／Lnight 各一支 PMTiles，host 依 ieNoiseMapsMetricIdx 換檔
+    ...(spec.key === "ieNoiseMaps" ? [{
+      kind: "select" as const, category: "data" as const, name: "ieNoiseMapsMetric", label: "噪音指標", default: IE_NOISE_METRIC_DEFAULT,
+      options: IE_NOISE_METRICS.map((x) => ({ label: x.label.zh, value: x.value })),
+      out: "ieNoiseMapsMetricIdx", encode: IE_NOISE_METRICS.map((x) => x.value),
+    }] : []),
     ...krCatFilterSpecs(asKrSpec(spec)),
+    ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.geom === "polygon" ? 0.7 : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
   ]])),
+  // 愛爾蘭第 5c 波（站主限定 Coillte）：類別多選（順序＝ieCoillteTypes cats＝bitmask）；遊憩點另有入口熱區色盤與點大小
+  ieCoillteRecreation: [
+    categoryMultiSelect("ieCoillteRecreation", IE_COILLTE_RECREATION.cats.map((c) => ({ label: c.label.zh, value: c.id }))),
+    heatmapPalette("ieCoillteRecreation"),
+    opacitySlider("ieCoillteRecreationOpacity", densePointOpacity(IE_COILLTE_RECREATION.count)), scaleSlider("ieCoillteRecreationScale", 1),
+  ],
+  ieCoillteForestRoads: [
+    categoryMultiSelect("ieCoillteForestRoads", IE_COILLTE_FOREST_ROADS.cats.map((c) => ({ label: c.label.zh, value: c.id }))),
+    opacitySlider("ieCoillteForestRoadsOpacity", 0.85),
+  ],
   ieBathymetry: [{ kind: "slider", name: "ieBathymetryOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   // 加拿大第 0＋1 波（2026-11-04）：多選選項 id／順序必須同 `data/caInfraTypes.ts` 的類別陣列（caLayers 測試守）
   caAdminBoundaries: [
@@ -2731,15 +2755,16 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // 1944 水域（臺北盆地）：面 0.35（規範 F-1 覆蓋面）；點／面切換、今日狀態多選由 repPointLayers／categoryFilters 補
   water1944Taipei: [opacitySlider("water1944TaipeiOpacity", 0.35)],
-  historicalMapSinica: [
-    opacitySlider("historicalMapSinicaOpacity", 0.85),
+  // 臺灣百年歷史地圖六層（古地圖／戰後地形圖／航照衛星／界線路網／土地利用／主題圖）：透明度＋年代 select，共用一支 hook
+  ...Object.fromEntries(HISTORICAL_MAP_GROUPS.map((g) => [g.key, [
+    opacitySlider(`${g.key}Opacity`, g.defaultOpacity),
     {
-      // 年代：一個年代一個 WMTS 層，hook 依 historicalMapSinicaEraIdx 換 source
-      kind: "select", name: "historicalMapSinicaEra", label: "年代", default: HISTORICAL_MAP_DEFAULT_ERA, category: "data",
-      options: HISTORICAL_MAP_ERAS.map((e) => ({ label: e.label, value: e.value })),
-      out: "historicalMapSinicaEraIdx", encode: HISTORICAL_MAP_ERAS.map((e) => e.value),
+      // 年代：一個年代一個 WMTS 層，hook 依 <key>EraIdx 換 source
+      kind: "select", name: `${g.key}Era`, label: "年代", default: g.defaultValue, category: "data",
+      options: g.eras.map((e) => ({ label: historicalMapEraOptionZh(e), value: e.value })),
+      out: `${g.key}EraIdx`, encode: g.eras.map((e) => e.value),
     },
-  ],
+  ]])),
   jpGsiHillshade: [{ kind: "slider", name: "jpGsiHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   jpGsiRelief: [{ kind: "slider", name: "jpGsiReliefOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   jpInlandFloodAreas: [

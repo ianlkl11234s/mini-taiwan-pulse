@@ -182,6 +182,28 @@ public/world/ca_population_grid.pmtiles
 public/world/ie_admin_boundaries.pmtiles
 # 愛爾蘭第 1 波海床地形（INFOMAR raster 26.5MB，走 S3 deploy-assets/world/；其餘第 1 波 7 檔 < 8MB 進 git）
 public/world/ie_bathymetry.pmtiles
+# 愛爾蘭第 2 波：商業房產估值 31.9MB、國有登記土地面 45.5MB（走 S3 deploy-assets/world/；代表點 19.0MB 進 git）
+public/world/ie_commercial_valuations.pmtiles
+public/world/ie_state_assets.pmtiles
+# 愛爾蘭第 3a 波：OPW NIFM 河川淹水範圍 9 支（3 情境 × 3 重現期，各約 32–34MB，走 S3 deploy-assets/world/；其餘 6 檔 < 16MB 進 git）
+public/world/ie_river_flood_extents_c_0020.pmtiles
+public/world/ie_river_flood_extents_c_0100.pmtiles
+public/world/ie_river_flood_extents_c_1000.pmtiles
+public/world/ie_river_flood_extents_m_0020.pmtiles
+public/world/ie_river_flood_extents_m_0100.pmtiles
+public/world/ie_river_flood_extents_m_1000.pmtiles
+public/world/ie_river_flood_extents_h_0020.pmtiles
+public/world/ie_river_flood_extents_h_0100.pmtiles
+public/world/ie_river_flood_extents_h_1000.pmtiles
+# 愛爾蘭第 8 波：文化資產 SMR＋NIAH 約 18 萬點 38.7MB（走 S3 deploy-assets/world/；其餘第 8 波 4 檔 < 7MB 進 git）
+public/world/ie_heritage_sites.pmtiles
+# 愛爾蘭第 10 波：SIS 全國土壤圖 25,143 面 27.3MB（走 S3 deploy-assets/world/；其餘第 10 波 4 檔 < 7MB 進 git）
+public/world/ie_soils.pmtiles
+# 愛爾蘭第 9 波：土地使用分區面 33.6MB、規劃申請案 83.1MB、策略噪音地圖 Lden 25.0MB／Lnight 28.0MB（走 S3 deploy-assets/world/；分區代表點 10.1MB 與其餘 3 層 < 2MB 進 git）
+public/world/ie_zoning.pmtiles
+public/world/ie_planning_applications.pmtiles
+public/world/ie_noise_maps_lden.pmtiles
+public/world/ie_noise_maps_lnight.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson
