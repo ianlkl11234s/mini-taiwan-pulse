@@ -1,0 +1,31 @@
+# 排程 workflow 失敗通知（Telegram）。設計：.gis-agent-system 告警整併方案 §2.4。
+# 注意：workflow_run 只在預設分支（develop）的檔案生效；secrets 未設定時 action 會略過、不會紅。
+name: schedule-watch
+
+on:
+  workflow_run:
+    workflows: [sync-rotating, deploy-workers]   # 填被監看檔的 name: 值
+    types: [completed]
+
+permissions:
+  actions: read
+
+jobs:
+  notify:
+    if: github.event.workflow_run.event == 'schedule'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions/notify-schedule-failure
+      - uses: ./.github/actions/notify-schedule-failure
+        with:
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          chat: ${{ secrets.TELEGRAM_CHAT_ID }}
+          repo: ${{ github.repository }}
+          workflow: ${{ github.event.workflow_run.name }}
+          run-id: ${{ github.event.workflow_run.id }}
+          conclusion: ${{ github.event.workflow_run.conclusion }}
+          run-url: ${{ github.event.workflow_run.html_url }}
