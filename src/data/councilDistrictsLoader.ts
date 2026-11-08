@@ -1,11 +1,12 @@
-import { supabase, supabaseConfigured } from "../lib/supabase";
+import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
 import { geometryInteriorPoint } from "../map/interiorPoint";
 
 /**
  * 2026 議員選區（公開）載入器。
  *
- * public.get_council_districts_2026() → GeoJSON FeatureCollection（gis-platform mig 496）
+ * 讀 CDN 靜態快照 /static-rpc/get_council_districts_2026.json（public.get_council_districts_2026() 的原樣輸出，
+ * gis-platform mig 496；scripts/export/export-static-rpc-snapshots.sh 匯出）→ GeoJSON FeatureCollection
  *   properties: county, district_no, district_name, seats, member_units, is_indigenous, indigenous_type,
  *               caveat, basis, source_url, area_km2；meta: count, loaded_at, source
  * 2026-11-03 實測 161 面全為區域選區（原住民選區沒有對應範圍、不在資料內），約 2.2 MB。
@@ -74,17 +75,15 @@ export function clearCouncilDistrictsCache(): void {
 /** 全臺選區（session 內只抓一次；失敗不快取） */
 export function fetchCouncilDistricts(): Promise<CouncilDistrictsData> {
   if (promise) return promise;
-  if (!supabaseConfigured) return Promise.resolve(normalizeCouncilDistricts(null));
   const p = (async () => {
-    const { data, error, status } = await withLoading(
+    const { data, error } = await withLoading(
       "politics:councilDistricts2026",
       "2026 議員選區",
-      supabase.rpc("get_council_districts_2026"),
+      staticRpc("get_council_districts_2026"),
     );
     if (error) {
       const e = new Error(`get_council_districts_2026: ${error.message}`) as Error & { code?: string; status?: number };
-      e.code = String(error.code ?? "");
-      e.status = status;
+      e.status = error.status;
       throw e;
     }
     return normalizeCouncilDistricts(data);

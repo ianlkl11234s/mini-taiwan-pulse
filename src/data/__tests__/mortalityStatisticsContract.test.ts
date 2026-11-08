@@ -26,7 +26,9 @@ describe("死因統計（G20）契約", () => {
     expect(recipes.map((recipe) => recipe.level)).toEqual(["township", "township", "township", "township", "county", "county"]);
     for (const recipe of recipes) {
       expect(STATISTICS_CHOROPLETH_KEYS as readonly string[]).toContain(recipe.layer_key);
-      expect(LAYER_MANIFEST[recipe.layer_key as keyof typeof LAYER_MANIFEST]?.section?.theme).toBe("疾病與健康統計 Disease & Health Statistics");
+      // 統計入口與完整目錄同一套分類（TWL-12 甲案）：section＝統計入口位置
+      expect(LAYER_MANIFEST[recipe.layer_key as keyof typeof LAYER_MANIFEST]?.section).toEqual({ theme: "醫療與長照 Health & Care", group: "死因統計" });
+      expect(recipe.data_theme).toBe("疾病與健康統計 Disease & Health Statistics");
       expect(recipe.tab_theme).toBe("醫療與長照 Health & Care");
       expect(recipe.subgroup).toBe("死因統計");
     }

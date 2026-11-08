@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { staticRpc } from "../staticRpc";
+import { staticRpc, staticRpcFile } from "../staticRpc";
 
 describe("staticRpc", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -23,5 +23,16 @@ describe("staticRpc", () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response("[]", { status: 200 }));
     await staticRpc("same");
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+  it("staticRpcFile reads parameterized snapshot paths and exposes HTTP status", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(new Response("[1]", { status: 200 })).mockResolvedValueOnce(new Response(null, { status: 404 })));
+    await expect(staticRpcFile("/static-rpc/get_x_1.json")).resolves.toEqual({ data: [1], error: null });
+    expect(fetch).toHaveBeenCalledWith("/static-rpc/get_x_1.json");
+    await expect(staticRpcFile("/static-rpc/get_x_2.json")).resolves.toMatchObject({ data: null, error: { status: 404 } });
+  });
+  it("staticRpcFile rejects paths outside /static-rpc/", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    await expect(staticRpcFile("/geo/x.json")).resolves.toMatchObject({ data: null, error: { message: expect.stringContaining("/static-rpc/") } });
+    expect(fetch).not.toHaveBeenCalled();
   });
 });

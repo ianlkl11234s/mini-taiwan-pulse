@@ -81,9 +81,7 @@ export const ADDICTION_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type AddictionStatisticsLayerKey = typeof ADDICTION_ENABLED_STATISTICS_KEYS[number];
 
-/** Layers 階層（完整目錄）的主題標題；manifest section 也用它。 */
-export const ADDICTION_STATISTICS_THEME_TITLE = "成癮與減害統計 Addiction & Harm Reduction Statistics";
-/** Statistics 分頁的主題標題（STATISTICS_MACRO_GROUPS「人口與社會」）。 */
+/** 統計主題標題（統計入口與完整目錄共用；STATISTICS_MACRO_GROUPS「人口與社會」）。 */
 export const ADDICTION_STATISTICS_TAB_THEME_TITLE = "成癮與減害 Addiction & Harm Reduction";
 /** 小群組閱讀順序（疾病 → 執法 → 行為調查 → 服務據點）。 */
 export const ADDICTION_STATISTICS_SUBGROUPS = ["疾病（HIV）", "執法（毒品、酒駕、地檢署）", "行為調查（吸菸、檳榔）", "服務據點"] as const;

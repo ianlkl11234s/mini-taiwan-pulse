@@ -1,4 +1,3 @@
-import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 // ══════════════════════════════════════════════════════════════════
 //  Layer Catalog — Sidebar 圖層目錄「單一真實來源」
 // ══════════════════════════════════════════════════════════════════
@@ -25,13 +24,11 @@ import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 // 3. 每主題內子群順序：點位 → 線/面 → 即時 → 分析
 
 import type { LayerVisibility, TransportType } from "../../types";
-import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
-import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentRecipe } from "../../data/environmentStatisticsRecipes";
-import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
-import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_SUBGROUPS, ADDICTION_STATISTICS_TAB_THEME_TITLE, ADDICTION_STATISTICS_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
-import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_SUBGROUPS, LANDSLIDE_STATISTICS_TAB_THEME_TITLE, LANDSLIDE_STATISTICS_THEME_TITLE } from "../../data/landslideStatisticsRecipes";
-import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, KR_STATISTICS_DATA_THEME_TITLES, KR_STATISTICS_TAB_THEME_TITLES, CA_STATISTICS_DATA_THEME_TITLES, CA_STATISTICS_TAB_THEME_TITLES, IE_STATISTICS_DATA_THEME_TITLES, IE_STATISTICS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
+import { MARINE_STATISTICS_THEME_TITLE, TW_STATISTICS_THEME_TITLES, twStatisticsCatalogThemeSpecs, twStatisticsTabThemeSpecs, type StatisticsThemeSpec } from "../../data/statisticsTabThemes";
+import { ADDICTION_STATISTICS_TAB_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
+import { LANDSLIDE_STATISTICS_TAB_THEME_TITLE } from "../../data/landslideStatisticsRecipes";
+import { GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, KR_STATISTICS_DATA_THEME_TITLES, KR_STATISTICS_TAB_THEME_TITLES, CA_STATISTICS_DATA_THEME_TITLES, CA_STATISTICS_TAB_THEME_TITLES, IE_STATISTICS_DATA_THEME_TITLES, IE_STATISTICS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -157,7 +154,7 @@ export function themeKey(theme: ThemeRef): string {
 /** 尚未標國家的主題（台灣統計兩套目錄先組好，再由 `taiwanThemes` 一次補上 country）。 */
 type CatalogTheme = Omit<ThemeDef, "country">;
 
-/** 台灣統計目錄（`STATISTICS_DATA_THEMES`／`STATISTICS_TAB_THEMES`）都屬台灣。 */
+/** 台灣統計目錄（`TW_STATISTICS_CATALOG_THEMES`／`STATISTICS_TAB_THEMES`）都屬台灣。 */
 function taiwanThemes(themes: readonly CatalogTheme[]): ThemeDef[] {
   return themes.map((theme) => ({ ...theme, country: "TW" }));
 }
@@ -261,42 +258,13 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "農業 Agriculture",
     "動物福利 Animal Welfare",
     "林業 Forestry",
+    "自然保育 Conservation",
     "太空 Space",
     "情勢 Situation",
     "政治 Politics",
     TAIWAN_TELECOM_THEME_TITLE,
-    // 台灣：統計資料主題（統計面在統計入口，其餘設施仍在台灣入口）
-    "工作與所得 Work & Income",
-    "房地產統計 Real Estate Statistics",
-    "交通統計 Transport Statistics",
-    "人口統計 Population Statistics",
-    "財稅與消費統計 Fiscal & Consumption Statistics",
-    "原民與農村統計 Indigenous & Rural Statistics",
-    "國有資產統計 State Assets Statistics",
-    "住宅存量與使用",
-    "統計比較",
-    ADDICTION_STATISTICS_THEME_TITLE,
-    "疾病與健康統計 Disease & Health Statistics",
-    "體育統計 Sports Statistics",
-    "文化統計 Culture Statistics",
-    "教育與少子化統計",
-    "醫療與長照統計",
-    "治安統計 Crime Statistics",
-    "水資源統計 Water Statistics",
-    "廢棄物統計 Waste Statistics",
-    "資源回收統計 Recycling Statistics",
-    "水質與污水統計 Water Quality & Sewage Statistics",
-    "空氣品質統計 Air Quality Statistics",
-    "污染與公害統計 Pollution & Nuisance Statistics",
-    "環境治理統計 Environmental Enforcement Statistics",
-    "能源統計 Energy Statistics",
-    "農業統計",
-    "畜牧統計",
-    "漁業統計",
-    "林業統計",
-    LANDSLIDE_STATISTICS_THEME_TITLE,
-    "災害風險統計 Disaster Risk Statistics",
-    "海洋統計 Marine Statistics",
+    // 台灣：統計主題（統計面在統計入口，其餘設施仍在台灣入口；與統計入口同一套分類，正本在 data/statisticsTabThemes.ts）
+    ...TW_STATISTICS_THEME_TITLES,
   ],
   JP: [
     // 日本（2026-10-26 改用台灣主題系統：title＝台灣主題中文短名，與台灣主題是不同字串）
@@ -467,53 +435,12 @@ export const JAPAN_TAB_THEME_TITLES: string[] = themeTitlesForScope("JP");
  */
 export const SIMULATION_TAB_THEME_TITLES: string[] = themeTitlesForScope("SIM");
 
-/** 環境統計依 recipe 的中分類／小分組派生；raw 在 ratio 前，toggle 群組只在第一個成員渲染。 */
-function environmentLayers(match: (recipe: EnvironmentRecipe) => boolean): LayerDef[] {
-  return ENVIRONMENT_ENABLED_STATISTICS_RECIPES.filter(match).map((recipe) => fromManifest(recipe.layer_key as ManifestKey));
-}
-function environmentSubgroups(group: string): SubGroupDef[] {
-  const subgroups = [...new Set(ENVIRONMENT_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.group === group).map((recipe) => recipe.subgroup))];
-  return subgroups.map((title) => ({ title, layers: environmentLayers((recipe) => recipe.group === group && recipe.subgroup === title) }));
-}
-const environmentDataTheme = (group: string): CatalogTheme => ({ title: ENVIRONMENT_STATISTICS_THEME_TITLES[group]!, groups: environmentSubgroups(group) });
-
-/** 人口統計（戶籍人口／年齡結構…）依 recipe subgroup 派生；Layers 階層保留縣市／鄉鎮小分組。 */
-function demographicsDataGroups(): SubGroupDef[] {
-  const subgroups = [...new Set(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map((recipe) => recipe.subgroup))];
-  return subgroups.map((title) => ({ title, layers: DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
-}
-/**
- * Statistics 分頁：戶籍人口→年齡結構→人口動態→遷徙→原住民→外來人口；同一資料集的縣市＋鄉鎮成員放同一小群組，
- * toggle 群組只在第一個成員渲染。既有「每月出生數（歷史快照）」併入同名「人口動態」小群組末尾。
- */
-function demographicsTabGroups(): SubGroupDef[] {
-  const titles = [...new Set(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.map(demographicsTabGroupTitle))];
-  const groups: SubGroupDef[] = titles.map((title) => ({ title, layers: DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.filter((recipe) => demographicsTabGroupTitle(recipe) === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
-  const births = fromManifest("statsBirthsTownship");
-  const dynamics = groups.find((group) => group.title === "人口動態");
-  if (dynamics) dynamics.layers.push(births);
-  else groups.push({ title: "人口動態", layers: [births] });
-  return groups;
-}
-
-/**
- * 成癮與減害：疾病（HIV）→執法（毒品、酒駕、地檢署）→行為調查（吸菸、檳榔）→服務據點；
- * 同一群組的成員相鄰、原始數與縣市在前（群組列只在第一個成員渲染）。兩套目錄共用同一組小群組。
- */
-function addictionGroups(): SubGroupDef[] {
-  return ADDICTION_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: ADDICTION_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
-}
-
-/** 崩塌與水土保持：崩塌 → 治山防災工程 → 水土保持災害；兩套目錄共用同一組小群組。 */
-function landslideGroups(): SubGroupDef[] {
-  return LANDSLIDE_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: LANDSLIDE_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
-}
-
-/** atlas 六家族＋治安＋臺北市局處（局處統計不自成一類，依主題併入各自縣市版所在主題）：群組依家族檔宣告的 key 順序（群組列只在第一個成員渲染，原始數在前）。 */
+/** atlas 群組（家族檔宣告的 key 順序，群組列只在第一個成員渲染，原始數在前）換成 LayerDef。 */
 function atlasGroups(groups: ReadonlyArray<{ title: string; keys: readonly string[] }>): SubGroupDef[] {
   return groups.map(({ title, keys }) => ({ title, layers: keys.map((key) => fromManifest(key as ManifestKey)) }));
 }
-/** 把 atlas 群組併入既有群組清單：同標題併入該群組末尾（與縣市版同組切換），沒有同標題才新增小群組。 */
+
+/** 把 atlas 群組併入既有群組清單：同標題併入該群組末尾，沒有同標題才新增小群組（政治 Politics 的選舉群組用）。 */
 function mergeAtlasGroups(base: SubGroupDef[], extra: SubGroupDef[]): SubGroupDef[] {
   const merged = base.map((group) => ({ ...group, layers: [...group.layers] }));
   for (const group of extra) {
@@ -523,17 +450,11 @@ function mergeAtlasGroups(base: SubGroupDef[], extra: SubGroupDef[]): SubGroupDe
   }
   return merged;
 }
-/** Statistics 分頁主題（新主題或併入既有主題的群組）。 */
-function atlasTabTheme(title: string): CatalogTheme {
-  return { title, defaultCollapsed: true, groups: atlasGroups(atlasTabThemeGroups(title)) };
-}
 
 /**
- * data_theme 是 GIS 主題（不是統計主題）的 atlas 家族：選舉統計併進 GIS「政治 Politics → 選舉」群組（與投開票所、
- * 議員選區同列），不在統計目錄另開同名主題。
+ * GIS 主題裡的 atlas 統計群組：data_theme 是 GIS 主題（不是統計主題）的 atlas 家族，例如選舉統計併進
+ * GIS「政治 Politics → 選舉」群組（與投開票所、議員選區同列）。成員照統計入口標上群組變體（一屆選舉一列，列內下拉切指標×層級）。
  */
-const ATLAS_GIS_THEME_TITLES = new Set(["政治 Politics"]);
-/** GIS 主題裡的 atlas 統計群組：成員照統計入口標上群組變體（一屆選舉一列，列內下拉切指標×層級）。 */
 function atlasGisThemeGroups(title: string): SubGroupDef[] {
   const groups = atlasGroups(atlasDataThemeGroups(title));
   for (const layer of groups.flatMap((group) => group.layers)) {
@@ -542,257 +463,28 @@ function atlasGisThemeGroups(title: string): SubGroupDef[] {
   }
   return groups;
 }
-const ATLAS_DATA_THEMES: CatalogTheme[] = ATLAS_DATA_THEME_TITLES.filter((title) => !ATLAS_GIS_THEME_TITLES.has(title)).map((title) => ({ title, groups: atlasGroups(atlasDataThemeGroups(title)) }));
 
-/**
- * atlas 的 data_theme 若與既有主題同名（例如臺北市局處統計併入「廢棄物統計」「工作與所得」），
- * 不另開主題：群組併進既有主題末尾，原位置的重複主題移除。
- */
-function foldAtlasDataThemes(themes: CatalogTheme[]): CatalogTheme[] {
-  const hostOf = (atlasTheme: CatalogTheme) => themes.find((candidate) => candidate !== atlasTheme && !ATLAS_DATA_THEMES.includes(candidate) && candidate.title === atlasTheme.title);
-  const folded = themes.map((theme) => ({ theme, host: ATLAS_DATA_THEMES.includes(theme) ? hostOf(theme) : undefined }));
-  for (const { theme, host } of folded) if (host) host.groups = mergeAtlasGroups(host.groups, theme.groups);
-  return folded.filter(({ host }) => !host).map(({ theme }) => theme);
+/** 統計分類正本（`data/statisticsTabThemes.ts`）的 key 清單換成 LayerDef。 */
+function statisticsThemes(specs: readonly StatisticsThemeSpec[], defaultCollapsed?: boolean): CatalogTheme[] {
+  return specs.map((spec) => ({
+    title: spec.title,
+    ...(defaultCollapsed === undefined ? {} : { defaultCollapsed }),
+    groups: spec.groups.map((group) => ({ title: group.title, layers: group.keys.map((key) => fromManifest(key as ManifestKey)) })),
+  }));
 }
 
-/** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
-export const STATISTICS_DATA_THEMES: ThemeDef[] = taiwanThemes(foldAtlasDataThemes([
-  { title: "工作與所得 Work & Income", groups: [
-    { title: "戶籍村里／申報戶", layers: [fromManifest("statsLaborVillageIncomeMedian")] },
-    { title: "實際工作所在地", layers: [fromManifest("statsLaborCountyAnnualSalaryMedian")] },
-    { title: "居住地人力資源調查", layers: [fromManifest("statsLaborCountyLaborForce"), fromManifest("statsLaborCountyEmployment"), fromManifest("statsLaborCountyUnemployment"), fromManifest("statsLaborCountyNonLaborForce"), fromManifest("statsLaborCountyParticipationRate"), fromManifest("statsLaborCountyUnemploymentRate"), fromManifest("statsLaborCountyEmploymentByIndustry")] },
-  ] },
-  { title: "房地產統計 Real Estate Statistics", groups: [
-    { title: "行政區總市值", layers: [fromManifest("propertyValueAdmin")] },
-  ] },
-  ...(COMPARISON_UI_RECIPES.length > 0 ? [{ title: '統計比較', groups: [...new Set(COMPARISON_UI_RECIPES.map(r => r.groupLabel))].map(title => ({title, layers: COMPARISON_UI_RECIPES.filter(r => r.groupLabel === title).map(r => fromManifest(r.layer_key))})) }] : []),
-  { title: "交通統計 Transport Statistics", groups: [
-    { title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] },
-    { title: "民航獎補助", layers: [fromManifest("statsCivilAeronauticsSubsidyCounty")] },
-    { title: "臺北市違規舉發", layers: [fromManifest("statsTaipeiTrafficViolationCitations")] },
-    { title: "臺中道路噪音監測", layers: [fromManifest("statsTaichungRoadNoiseMonitoringStations")] },
-    { title: "市區客運營運概況", layers: [fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount"), fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingVehicleCount"), fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"), fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm")] },
-    { title: "中捷車站出站人次", layers: [fromManifest("statsTmrtStationOutboundCounty")] },
-    { title: "臺北自行車使用（110 年）", layers: [fromManifest("statsTaipeiUrbanRentalStations"), fromManifest("statsTaipeiUrbanRentalTrips"), fromManifest("statsTaipeiRiversideRentalStations"), fromManifest("statsTaipeiRiversideBicycles"), fromManifest("statsTaipeiRiversideRentalTrips")] },
-    { title: "A1 交通事故（114 年）", layers: [fromManifest("statsA1AccidentCount"), fromManifest("statsA1DeathCount"), fromManifest("statsA1InjuryCount")] },
-    { title: "民航各機場所在地活動（115 年 7 月）", layers: [fromManifest("statsAirportTakeoffsLandings"), fromManifest("statsAirportPassengerMovements"), fromManifest("statsAirportCargoTonnes")] },
-    { title: "桃園機場所在地旅客活動（2022 年）", layers: [fromManifest("statsTaoyuanAirportArrivals"), fromManifest("statsTaoyuanAirportDepartures"), fromManifest("statsTaoyuanAirportTransit"), fromManifest("statsTaoyuanAirportPassengerMovements")] },
-    { title: "縣市交通供給", layers: [
-      fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
-      fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount"),
-      fromManifest("statsAutomobileLicenseHoldersCount"), fromManifest("statsMotorcycleLicenseHoldersCount"),
-    ] },
-    { title: "土地使用結構", layers: [fromManifest("statsRoadLandAreaTownship"), fromManifest("statsRailLandAreaTownship"), fromManifest("statsAirportLandAreaTownship"), fromManifest("statsPortLandAreaTownship")] },
-  ] },
-  { title: "水資源統計 Water Statistics", groups: [{ title: "畜牧用水", layers: [fromManifest("statsPigWaterCounty")] }, { title: "公共給水", layers: [fromManifest("statsWaterSupplyHistorical")] }] },
-  { title: "廢棄物統計 Waste Statistics", groups: [{ title: "清運量能", layers: [fromManifest("statsWasteCounty")] }, { title: "回收成果", layers: [fromManifest("statsWasteRecyclingRate")] }, ...environmentSubgroups("廢棄物統計")] },
-  { title: "資源回收統計 Recycling Statistics", groups: [{ title: "資源回收量能", layers: [fromManifest("statsRecyclingCounty")] }, ...environmentSubgroups("資源回收統計")] },
-  environmentDataTheme("水質與污水統計"),
-  environmentDataTheme("空氣品質統計"),
-  environmentDataTheme("污染與公害統計"),
-  environmentDataTheme("環境治理統計"),
-  { title: "能源統計 Energy Statistics", groups: [{ title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] }] },
-  { title: "農業統計", groups: [
-    { title: "土地使用結構", layers: [fromManifest("statsPaddyLandAreaTownship"), fromManifest("statsDryFieldAreaTownship"), fromManifest("statsOrchardAreaTownship"), fromManifest("statsAgriculturalFacilityAreaTownship")] },
-    { title: "作物生產", layers: [fromManifest("statsRiceHarvest"), fromManifest("statsCropPlantedAreaTownship"), fromManifest("statsCropHarvestedAreaTownship"), fromManifest("statsCropProductionTownship"), fromManifest("statsCropYieldTownship")] },
-  ] },
-  { title: "畜牧統計", groups: [
-    { title: "土地使用結構", layers: [fromManifest("statsLivestockBuildingAreaTownship"), fromManifest("statsPastureAreaTownship")] },
-    { title: "在養與場數", layers: [fromManifest("statsLivestockFarmCountTownship"), fromManifest("statsLivestockHeadCountTownship")] },
-  ] },
-  { title: "漁業統計", groups: [
-    { title: "土地使用結構", layers: [fromManifest("statsAquacultureLandAreaTownship")] },
-    { title: "產量與產值", layers: [fromManifest("statsFisheryProductionCounty"), fromManifest("statsFisheryProductionValueCounty")] },
-    { title: "養殖結構", layers: [fromManifest("statsAquacultureAreaCounty")] },
-  ] },
-  { title: "林業統計", groups: [{ title: "土地使用結構", layers: [fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"), fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship")] }] },
-  { title: "人口統計 Population Statistics", groups: [...demographicsDataGroups(), { title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
-  { title: ADDICTION_STATISTICS_THEME_TITLE, groups: addictionGroups() },
-  { title: LANDSLIDE_STATISTICS_THEME_TITLE, groups: landslideGroups() },
-  ...ATLAS_DATA_THEMES,
-  { title: "教育與少子化統計", groups: [{ title: "學校所在地縣市別", layers: [
-    fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
-    ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
-  ] }] },
-  { title: "醫療與長照統計", groups: [
-    { title: "醫院病床與人力", layers: [fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount")] },
-    { title: "一般護理之家人力", layers: [fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum")] },
-    { title: "一般護理之家床位", layers: [fromManifest("statsHealthGeneralNursingHomeOpenBeds")] },
-    { title: "母嬰照護床位", layers: [fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds")] },
-    { title: "長照人員登錄", layers: [fromManifest("statsHealthCareWorkerRegistration")] },
-    { title: "每萬人口醫療資源", layers: [fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population")] },
-  ] },
-  { title: "住宅存量與使用", groups: [
-    { title: "住宅使用類別", layers: [fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship")] },
-    { title: "住宅使用比例", layers: [fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship")] },
-  ] },
-]));
+/**
+ * 台灣統計的完整目錄（進 `THEMES`：資料來源總覽、圖層搜尋、Agent、manifest `section` 都以它為準）。
+ * 2026-11-08 起與統計入口用同一套分類（TWL-12 甲案），比入口多列教育 view 背後的指標。
+ */
+export const TW_STATISTICS_CATALOG_THEMES: ThemeDef[] = taiwanThemes(statisticsThemes(twStatisticsCatalogThemeSpecs()));
 
 /**
- * 統計專屬入口以「使用者想找的主題」重新索引既有 layers。
- *
- * 這裡刻意不沿用 manifest.section：manifest 的 section 是完整 Layers 目錄位置，
- * 統計入口則是跨主題索引。Layer key、label、來源、release 與 geometry 契約仍由
- * manifest / statistics recipes 管理，這裡只決定統計入口的閱讀順序。
- * 2026-10-03 依統計面板大分類（layerPanels.ts `STATISTICS_MACRO_GROUPS`）拆主題並重排：同一大分類的主題相鄰；
- * 從原「人口與社會」拆出的主題維持展開、從原「交通與運輸」拆出的維持收合。
+ * 統計入口：與完整目錄同一份分類（`data/statisticsTabThemes.ts`），不列教育 view 背後的指標，另加「地圖參考」。
+ * 2026-10-03 依統計面板大分類（layerPanels.ts `STATISTICS_MACRO_GROUPS`）排序；主題預設收合。
  */
 export const STATISTICS_TAB_THEMES: ThemeDef[] = taiwanThemes([
-  {
-    title: "人口與教育 Population & Education",
-    defaultCollapsed: true,
-    groups: [
-      ...demographicsTabGroups(),
-      { title: "教育與少子化", layers: [
-        ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
-      ] },
-      ...atlasGroups(atlasTabThemeGroups("人口與教育 Population & Education")),
-    ],
-  },
-  {
-    title: "醫療與長照 Health & Care",
-    defaultCollapsed: true,
-    groups: [
-      { title: "醫療與長照", layers: [
-        fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount"), fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum"), fromManifest("statsHealthGeneralNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds"), fromManifest("statsHealthCareWorkerRegistration"), fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population"),
-      ] },
-      ...atlasGroups(atlasTabThemeGroups("醫療與長照 Health & Care")),
-    ],
-  },
-  {
-    title: ADDICTION_STATISTICS_TAB_THEME_TITLE,
-    defaultCollapsed: true,
-    groups: addictionGroups(),
-  },
-  atlasTabTheme(ATLAS_TAB_THEME_TITLES.crime),
-  atlasTabTheme(ATLAS_TAB_THEME_TITLES.sports),
-  atlasTabTheme(ATLAS_TAB_THEME_TITLES.culture),
-  {
-    title: "工作與所得 Work & Income",
-    defaultCollapsed: true,
-    groups: [
-      { title: "戶籍村里／申報戶", layers: [fromManifest("statsLaborVillageIncomeMedian")] },
-      { title: "實際工作所在地", layers: [fromManifest("statsLaborCountyAnnualSalaryMedian")] },
-      { title: "居住地人力資源調查", layers: [
-        fromManifest("statsLaborCountyLaborForce"), fromManifest("statsLaborCountyEmployment"),
-        fromManifest("statsLaborCountyUnemployment"), fromManifest("statsLaborCountyNonLaborForce"),
-        fromManifest("statsLaborCountyParticipationRate"), fromManifest("statsLaborCountyUnemploymentRate"),
-        fromManifest("statsLaborCountyEmploymentByIndustry"),
-      ] },
-      ...atlasGroups(atlasTabThemeGroups("工作與所得 Work & Income")),
-    ],
-  },
-  {
-    title: "住宅與不動產 Housing & Property",
-    defaultCollapsed: true,
-    groups: [
-      { title: "住宅存量與使用", layers: [
-        fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship"),
-      ] },
-      { title: "不動產總市值", layers: [fromManifest("propertyValueAdmin")] },
-      ...atlasGroups(atlasTabThemeGroups("住宅與不動產 Housing & Property")),
-    ],
-  },
-  atlasTabTheme(ATLAS_TAB_THEME_TITLES.fiscal),
-  {
-    title: "公共運輸 Public Transport",
-    defaultCollapsed: true,
-    groups: [
-      { title: "建置量", layers: [fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount")] },
-      { title: "使用與營運", layers: [fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm"), fromManifest("statsTmrtStationOutboundCounty")] },
-      { title: "自行車（臺北市，民國 110 年）", layers: [
-        fromManifest("statsTaipeiUrbanRentalStations"), fromManifest("statsTaipeiUrbanRentalTrips"),
-        fromManifest("statsTaipeiRiversideRentalStations"), fromManifest("statsTaipeiRiversideBicycles"),
-        fromManifest("statsTaipeiRiversideRentalTrips"),
-      ] },
-      { title: "航空運輸", layers: [
-        fromManifest("statsAirportTakeoffsLandings"), fromManifest("statsAirportPassengerMovements"),
-        fromManifest("statsAirportCargoTonnes"), fromManifest("statsTaoyuanAirportArrivals"),
-        fromManifest("statsTaoyuanAirportDepartures"), fromManifest("statsTaoyuanAirportTransit"),
-        fromManifest("statsTaoyuanAirportPassengerMovements"),
-      ] },
-      { title: "運輸補助", layers: [
-        fromManifest("statsMaritimeSubsidyCounty"), fromManifest("statsCivilAeronauticsSubsidyCounty"),
-      ] },
-    ],
-  },
-  {
-    title: "道路與車輛 Roads & Vehicles",
-    defaultCollapsed: true,
-    groups: [
-      { title: "車輛登記存量", layers: [fromManifest("statsBusOperatingVehicleCount"), fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"), fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount")] },
-      { title: "道路安全與監測", layers: [
-        fromManifest("statsA1AccidentCount"), fromManifest("statsA1DeathCount"), fromManifest("statsA1InjuryCount"),
-        fromManifest("statsTaipeiTrafficViolationCitations"), fromManifest("statsTaichungRoadNoiseMonitoringStations"),
-      ] },
-      { title: "駕照與停車", layers: [
-        fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
-        fromManifest("statsAutomobileLicenseHoldersCount"), fromManifest("statsMotorcycleLicenseHoldersCount"),
-      ] },
-    ],
-  },
-  {
-    title: "交通用地 Transport Land",
-    defaultCollapsed: true,
-    groups: [
-      { title: "交通用地", layers: [
-        fromManifest("statsRoadLandAreaTownship"), fromManifest("statsRailLandAreaTownship"),
-        fromManifest("statsAirportLandAreaTownship"), fromManifest("statsPortLandAreaTownship"),
-      ] },
-    ],
-  },
-  {
-    title: "農林漁牧 Agriculture, Forestry & Fisheries",
-    defaultCollapsed: true,
-    groups: [
-      { title: "農地與設施", layers: [
-        fromManifest("statsPaddyLandAreaTownship"), fromManifest("statsDryFieldAreaTownship"),
-        fromManifest("statsOrchardAreaTownship"), fromManifest("statsAgriculturalFacilityAreaTownship"),
-      ] },
-      { title: "作物生產", layers: [
-        fromManifest("statsRiceHarvest"), fromManifest("statsCropPlantedAreaTownship"),
-        fromManifest("statsCropHarvestedAreaTownship"), fromManifest("statsCropProductionTownship"),
-        fromManifest("statsCropYieldTownship"),
-      ] },
-      { title: "畜牧用地", layers: [
-        fromManifest("statsLivestockBuildingAreaTownship"), fromManifest("statsPastureAreaTownship"),
-      ] },
-      { title: "畜牧飼養", layers: [
-        fromManifest("statsLivestockFarmCountTownship"), fromManifest("statsLivestockHeadCountTownship"),
-      ] },
-      { title: "漁業生產", layers: [
-        fromManifest("statsFisheryProductionCounty"), fromManifest("statsFisheryProductionValueCounty"),
-      ] },
-      { title: "水產養殖", layers: [
-        fromManifest("statsAquacultureLandAreaTownship"), fromManifest("statsAquacultureAreaCounty"),
-      ] },
-      { title: "森林用地", layers: [
-        fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"),
-        fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship"),
-      ] },
-      ...atlasGroups(atlasTabThemeGroups("農林漁牧 Agriculture, Forestry & Fisheries")),
-    ],
-  },
-  {
-    title: "環境與資源 Environment & Resources",
-    defaultCollapsed: true,
-    groups: mergeAtlasGroups([
-      { title: "用水與供水", layers: [fromManifest("statsPigWaterCounty"), fromManifest("statsWaterSupplyHistorical")] },
-      { title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] },
-      { title: "廢棄物與回收", layers: [
-        fromManifest("statsWasteCounty"), fromManifest("statsRecyclingCounty"), fromManifest("statsWasteRecyclingRate"),
-        ...environmentLayers((recipe) => recipe.tab_group === "廢棄物與回收"),
-      ] },
-      ...["水質與污水", "空氣品質", "污染與公害", "環境治理"].map((title) => ({ title, layers: environmentLayers((recipe) => recipe.tab_group === title) })),
-    ], atlasGroups(atlasTabThemeGroups("環境與資源 Environment & Resources"))),
-  },
-  {
-    title: LANDSLIDE_STATISTICS_TAB_THEME_TITLE,
-    defaultCollapsed: true,
-    groups: landslideGroups(),
-  },
-  atlasTabTheme(ATLAS_TAB_THEME_TITLES.hazard),
-  atlasTabTheme(ATLAS_TAB_THEME_TITLES.marine),
+  ...statisticsThemes(twStatisticsTabThemeSpecs(), true),
   {
     title: "地圖參考 Map Reference",
     defaultCollapsed: true,
@@ -880,29 +572,6 @@ export function withoutStatisticsLayers(themes: readonly ThemeDef[]): ThemeDef[]
   });
 }
 
-// Derived metrics keep the source topic; education metrics are represented by the twelve presentation views.
-for (const recipe of COMPARISON_UI_RECIPES) {
-  const id = recipe.indicator_id;
-  if (id.startsWith('education_')) continue;
-  const title = recipe.groupLabel === '醫療與長照' ? '醫療與長照'
-    : id.startsWith('housing_') ? '住宅存量與使用'
-    : /^(bus_operating_route_length|bus_approved_route)_/.test(id) ? '建置量'
-    : /^(bus_operating_vehicle|bus_accessible_vehicle|bus_electric_vehicle)_/.test(id) ? '車輛登記存量'
-    : /^(bus_|urban_bus_)/.test(id) ? '使用與營運'
-    : /^(a1_|a2_|a1_a2_)/.test(id) ? '道路安全與監測'
-    : /^(motorcycle_registered_count|automobile_registered_count)_/.test(id) ? '車輛登記存量'
-    : /^(offstreet_small_car_parking_spaces_count|onstreet_small_car_parking_spaces_count|automobile_license_holders_count|motorcycle_license_holders_count)_/.test(id) ? '駕照與停車'
-    : /^(waste_|recycling_)/.test(id) ? '廢棄物與回收'
-    : /^(road_land|rail_land|airport_land|port_land)_/.test(id) ? '交通用地'
-    : /^(conifer_forest|broadleaf_forest|bamboo_forest|mixed_forest)_/.test(id) ? '森林用地'
-    : /^(livestock_building|pasture)_/.test(id) ? '畜牧用地'
-    : id.startsWith('livestock_heads_') ? '畜牧飼養'
-    : id.startsWith('fishery_') ? '漁業生產'
-    : id.startsWith('aquaculture_') ? '水產養殖' : '農地與設施';
-  const group = STATISTICS_TAB_THEMES.flatMap(theme => theme.groups).find(group => group.title === title);
-  group?.layers.push(fromManifest(recipe.layer_key));
-}
-
 // 群組變體：統計入口裡屬於同一群組的成員標上 group／lead（LayersPanel 依此畫群組列）。
 for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES, ...KR_STATISTICS_TAB_THEMES, ...CA_STATISTICS_TAB_THEMES, ...IE_STATISTICS_TAB_THEMES].flatMap(theme => theme.groups.flatMap(group => group.layers))) {
   const group = getMedicalStatisticsGroup(layer.key);
@@ -914,7 +583,7 @@ for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES, ...K
  * `THEMES` 依大分類排序後才是 sidebar 的顯示順序。
  */
 const THEME_CATALOG: ThemeDef[] = [
-  ...STATISTICS_DATA_THEMES,
+  ...TW_STATISTICS_CATALOG_THEMES,
   ...GB_STATISTICS_DATA_THEMES,
   ...KR_STATISTICS_DATA_THEMES,
   ...CA_STATISTICS_DATA_THEMES,
@@ -1066,6 +735,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("lighthouses"),
           fromManifest("aviationControl"),
           fromManifest("aviationRestricted"),
+          // Bloom 視覺實驗層（站主限定，manifest topics OWNER_ONLY；TWL-12 2026-11-08 從本機 DEV 改回正式目錄）
+          fromManifest("aviationRestrictedGlow"),
           fromManifest("droneNoFlyZone"),
           fromManifest("droneRestrictedZone"),
         ],
@@ -1115,7 +786,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("provincialRoadMileposts"),
           fromManifest("freewayTrafficSigns"),
           fromManifest("freewayInterchanges"),
-          fromManifest("freewayEcoSensitive"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
           fromManifest("cctv"),
@@ -1155,6 +825,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "農村 Rural",
         layers: [
           fromManifest("agriRuralCommunityVillages"),
+          fromManifest("agriRuralRegen"),
         ],
       },
     ],
@@ -1308,24 +979,28 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "TW",
     defaultCollapsed: true,
     groups: [
+      // TWL-12（2026-11-08）：原「公共設施」拆成兩群；publicLibraries→文化、welfareCenters→社福長照、
+      // disasterShelters→民防避難；schools 早在 2026-08-08 搬到「教育 Education」
       {
-        title: "公共設施",
+        title: "郵政與便民 Postal & Services",
         layers: [
-          // 2026-08-08：schools 搬到「教育 Education」主題（第 38 主題），此處不再列出
-          fromManifest("convenienceStores"),
           fromManifest("postOffices"),
           fromManifest("iPostBoxes"),
-          fromManifest("communityCenters"),
           fromManifest("govServiceOffices"),
-          fromManifest("publicLibraries"),
-          fromManifest("welfareCenters"),
+          fromManifest("communityCenters"),
+          fromManifest("convenienceStores"),
           fromManifest("retailMarkets"),
+        ],
+      },
+      {
+        title: "公共生活 Public Life",
+        layers: [
           fromManifest("publicToilets"),
           fromManifest("drinkingWaterPoints"),
           fromManifest("publicWasteBaskets"),
           fromManifest("materialRecyclingPoints"),
-          fromManifest("disasterShelters"),
           fromManifest("publicLifeOsmCoverage"),
+          fromManifest("accessibleParkFacilities"),
         ],
       },
       {
@@ -1337,12 +1012,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("securitiesFuturesInstitutions"),
           fromManifest("insuranceInstitutions"),
           fromManifest("postOfficeFxCounters"),
-        ],
-      },
-      {
-        title: "無障礙 Accessibility",
-        layers: [
-          fromManifest("accessibleParkFacilities"),
         ],
       },
     ],
@@ -1377,10 +1046,16 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("powerPoles"),
         ],
       },
-      // 4 個 Bloom／Rim Glow 視覺實驗層：只在本機 DEV 顯示，正式目錄（面板、搜尋）不列；manifest key 保留（分享網址帶 key）
-      ...localResearchGroup("視覺實驗 Visual Experiments", [
-        "powerPlantGlow", "aviationRestrictedGlow", "substationEhvGlow", "powerLinesGlow",
-      ]),
+      // Bloom／Rim Glow 視覺實驗層：站主限定（manifest topics OWNER_ONLY）。TWL-12（2026-11-08）從本機 DEV 改回正式目錄；
+      // 第 4 層 aviationRestrictedGlow 放交通 › 樞紐節點（aviationRestricted 旁）
+      {
+        title: "視覺實驗 Visual Experiments",
+        layers: [
+          fromManifest("powerPlantGlow"),
+          fromManifest("substationEhvGlow"),
+          fromManifest("powerLinesGlow"),
+        ],
+      },
       {
         title: "再生能源",
         layers: [
@@ -1503,8 +1178,8 @@ const THEME_CATALOG: ThemeDef[] = [
   // 🔴 長照有兩套登記體系：本群的 welfareLtcInstitutions 是**立案機構**（3,117），
   //    醫療主題的 medLTC 是長照 2.0 **特約單位**（23,894），名稱交集僅 2,365。
   //    刻意**不放同一群、不合併** —— 兩者量的是不同東西，併起來會重複計算又漏算。
-  // 🔴 基礎建設群的 welfareCenters（社福中心 162）不是本群成員；本群 welfareGovOffices
-  //    已排除 T0103 正是為了不跟它重複 → 兩層零重疊，可同時開。
+  // 🔴 welfareCenters（社福中心 162，TWL-12 2026-11-08 從基礎建設搬來「公部門與民間」）與本批
+  //    welfareGovOffices 同群但來源不同：welfareGovOffices 已排除 T0103 正是為了不跟它重複 → 兩層零重疊，可同時開。
   // ───────────────────────────────────────────────────────────────
   {
     title: "社福長照 Welfare",
@@ -1532,6 +1207,8 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "公部門與民間",
         layers: [
           fromManifest("welfareGovOffices"),
+          // 與 welfareGovOffices 零重疊（上游已排除 T0103 社福服務中心），可同時開
+          fromManifest("welfareCenters"),
           fromManifest("welfareMentalHealth"),
           fromManifest("welfareSocialWorkOrgs"),
         ],
@@ -1586,6 +1263,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("culturalFacilities"),
           fromManifest("culturalMuseums"),
+          fromManifest("publicLibraries"),
         ],
       },
       {
@@ -1687,7 +1365,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("tourHotSprings"),
           fromManifest("tourHotSpringZones"),
           fromManifest("tourScenicAreas"),
-          fromManifest("nationalParks"),
           fromManifest("visitorCentres"),
           fromManifest("tourServiceSites"),
           fromManifest("tourVisitorStats"),
@@ -1937,6 +1614,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "避難設施",
         layers: [
           fromManifest("civilDefenseShelter"),
+          fromManifest("disasterShelters"),
         ],
       },
       {
@@ -2084,13 +1762,6 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
-        title: "濕地 Wetlands",
-        layers: [
-          fromManifest("importantWetlands"),
-          fromManifest("importantWetlandZones"),
-        ],
-      },
-      {
         title: "都市樹木 Urban Trees",
         layers: [
           fromManifest("streetTreesTaipeiDiff"),
@@ -2132,15 +1803,6 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("namrEdnaSurveySites"),
           fromManifest("marineEcologicalMonitoringSites"),
-        ],
-      },
-      {
-        // 自然保留區、野生動物保護區含陸域（說明寫「不限海域」），不是只有海洋；歸屬主題另案（TWL-12）
-        title: "自然保育 Conservation",
-        layers: [
-          fromManifest("natureReserves"),
-          fromManifest("wildlifeProtectedAreas"),
-          fromManifest("marineWildlifeAreas"),
         ],
       },
       {
@@ -2371,12 +2033,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("agriculture"),
           fromManifest("agriLeisureFarmZones"),
-          fromManifest("agriRuralRegen"),
         ],
-      },
-      {
-        title: "自然保育 Conservation",
-        layers: [fromManifest("ecoNetworkZones")],
       },
       {
         title: "土壤",
@@ -2430,8 +2087,6 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "分區",
         layers: [
           fromManifest("forestCompartments"),
-          fromManifest("forestReserve"),
-          fromManifest("forestRecreation"),
           fromManifest("forestFlatParks"),
         ],
       },
@@ -2461,10 +2116,48 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("hikingTrails"),
         ],
       },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🌿 CONSERVATION 自然保育（TWL-12，2026-11-08：從海洋、環境氣候、觀光、農業、林業、交通集中過來）
+  // 水源保護區兩層刻意留在水資源；擱淺、魚礁、漁業、生態調查站留在海洋。
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "自然保育 Conservation",
+    country: "TW",
+    defaultCollapsed: true,
+    groups: [
       {
-        title: "生態",
+        // 自然保留區、野生動物保護區含陸域（說明寫「不限海域」）
+        title: "保護區 Protected Areas",
         layers: [
+          fromManifest("natureReserves"),
+          fromManifest("wildlifeProtectedAreas"),
+          fromManifest("marineWildlifeAreas"),
+          fromManifest("nationalParks"),
+        ],
+      },
+      {
+        title: "濕地 Wetlands",
+        layers: [
+          fromManifest("importantWetlands"),
+          fromManifest("importantWetlandZones"),
+        ],
+      },
+      {
+        title: "綠網與生態 Ecological Networks",
+        layers: [
+          fromManifest("ecoNetworkZones"),
           fromManifest("forestWildlife"),
+          fromManifest("freewayEcoSensitive"),
+        ],
+      },
+      {
+        title: "森林保育 Forest Conservation",
+        layers: [
+          fromManifest("forestReserve"),
+          fromManifest("forestRecreation"),
         ],
       },
     ],
@@ -3553,39 +3246,26 @@ type ThemeTable<T> = Readonly<Partial<Record<ThemeScope, Readonly<Record<string,
 
 const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, LayerMacroGroup>>>> = {
   TW: {
+    // 台灣統計主題（與統計入口同一套分類，2026-11-08 TWL-12 甲案）
+    "人口與教育 Population & Education": "city",
+    "醫療與長照 Health & Care": "publicLife",
+    [ADDICTION_STATISTICS_TAB_THEME_TITLE]: "publicLife",
+    "犯罪與治安 Crime & Safety": "safety",
+    "體育運動 Sports": "publicLife",
+    "文化與藝文 Culture & Arts": "publicLife",
     "工作與所得 Work & Income": "city",
-    "農業統計": "environment",
-    "畜牧統計": "environment",
-    "漁業統計": "environment",
-    "林業統計": "environment",
-    "交通統計 Transport Statistics": "city",
-    "水資源統計 Water Statistics": "environment",
-    "廢棄物統計 Waste Statistics": "environment",
-    "能源統計 Energy Statistics": "environment",
-    "人口統計 Population Statistics": "city",
-    [ADDICTION_STATISTICS_THEME_TITLE]: "publicLife",
-    [LANDSLIDE_STATISTICS_THEME_TITLE]: "environment",
-    "疾病與健康統計 Disease & Health Statistics": "publicLife",
-    "財稅與消費統計 Fiscal & Consumption Statistics": "city",
-    "原民與農村統計 Indigenous & Rural Statistics": "city",
-    "體育統計 Sports Statistics": "publicLife",
-    "文化統計 Culture Statistics": "publicLife",
-    "國有資產統計 State Assets Statistics": "city",
-    "災害風險統計 Disaster Risk Statistics": "environment",
-    "海洋統計 Marine Statistics": "environment",
-    "治安統計 Crime Statistics": "safety",
+    "住宅與不動產 Housing & Property": "city",
+    "財稅與消費 Fiscal & Consumption": "city",
+    "公共運輸 Public Transport": "city",
+    "道路與車輛 Roads & Vehicles": "city",
+    "交通用地 Transport Land": "city",
+    "農林漁牧 Agriculture, Forestry & Fisheries": "environment",
+    "環境與資源 Environment & Resources": "environment",
+    [LANDSLIDE_STATISTICS_TAB_THEME_TITLE]: "environment",
+    "災害風險 Disaster Risk": "environment",
+    [MARINE_STATISTICS_THEME_TITLE]: "environment",
     "原民與農村 Indigenous & Rural": "city",
     "海洋 Marine": "environment",
-    "統計比較": "publicLife",
-    "教育與少子化統計": "publicLife",
-    "醫療與長照統計": "publicLife",
-    "住宅存量與使用": "city",
-    "房地產統計 Real Estate Statistics": "city",
-    "資源回收統計 Recycling Statistics": "environment",
-    "水質與污水統計 Water Quality & Sewage Statistics": "environment",
-    "空氣品質統計 Air Quality Statistics": "environment",
-    "污染與公害統計 Pollution & Nuisance Statistics": "environment",
-    "環境治理統計 Environmental Enforcement Statistics": "environment",
     "底圖 Base Map": "baseline",
     "歷史底圖 Historical Basemaps": "baseline",
     "交通 Move": "city",
@@ -3613,6 +3293,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "農業 Agriculture": "environment",
     "動物福利 Animal Welfare": "environment",
     "林業 Forestry": "environment",
+    "自然保育 Conservation": "environment",
     "太空 Space": "intelligence",
     "情勢 Situation": "intelligence",
     "政治 Politics": "intelligence",
@@ -3768,7 +3449,7 @@ export interface ThemeName {
 
 const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName>>>> = {
   TW: {
-    // 統計入口的重組主題（STATISTICS_TAB_THEMES）
+    // 統計主題（統計入口與完整目錄同一套，data/statisticsTabThemes.ts）
     "人口與教育 Population & Education": { zh: "人口與教育", sub: "Population & Education" },
     "醫療與長照 Health & Care": { zh: "醫療與長照", sub: "Health & Care" },
     "成癮與減害 Addiction & Harm Reduction": { zh: "成癮與減害", sub: "Addiction & Harm Reduction" },
@@ -3788,36 +3469,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "原民與農村 Indigenous & Rural": { zh: "原民與農村", sub: "Indigenous & Rural" },
     "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
     "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
-    "農業統計": { zh: "農業統計" },
-    "畜牧統計": { zh: "畜牧統計" },
-    "漁業統計": { zh: "漁業統計" },
-    "林業統計": { zh: "林業統計" },
-    "交通統計 Transport Statistics": { zh: "交通統計", sub: "Transport Statistics" },
-    "水資源統計 Water Statistics": { zh: "水資源統計", sub: "Water Statistics" },
-    "廢棄物統計 Waste Statistics": { zh: "廢棄物統計", sub: "Waste Statistics" },
-    "能源統計 Energy Statistics": { zh: "能源統計", sub: "Energy Statistics" },
-    "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
-    "成癮與減害統計 Addiction & Harm Reduction Statistics": { zh: "成癮與減害統計", sub: "Addiction & Harm Reduction Statistics" },
-    "崩塌與水土保持統計 Landslide & Soil Conservation Statistics": { zh: "崩塌與水土保持統計", sub: "Landslide & Soil Conservation Statistics" },
-    "疾病與健康統計 Disease & Health Statistics": { zh: "疾病與健康統計", sub: "Disease & Health Statistics" },
-    "財稅與消費統計 Fiscal & Consumption Statistics": { zh: "財稅與消費統計", sub: "Fiscal & Consumption Statistics" },
-    "原民與農村統計 Indigenous & Rural Statistics": { zh: "原民與農村統計", sub: "Indigenous & Rural Statistics" },
-    "體育統計 Sports Statistics": { zh: "體育統計", sub: "Sports Statistics" },
-    "文化統計 Culture Statistics": { zh: "文化統計", sub: "Culture Statistics" },
-    "國有資產統計 State Assets Statistics": { zh: "國有資產統計", sub: "State Assets Statistics" },
-    "災害風險統計 Disaster Risk Statistics": { zh: "災害風險統計", sub: "Disaster Risk Statistics" },
-    "海洋統計 Marine Statistics": { zh: "海洋統計", sub: "Marine Statistics" },
-    "治安統計 Crime Statistics": { zh: "治安統計", sub: "Crime Statistics" },
-    "統計比較": { zh: "統計比較" },
-    "教育與少子化統計": { zh: "教育與少子化統計" },
-    "醫療與長照統計": { zh: "醫療與長照統計" },
-    "住宅存量與使用": { zh: "住宅存量與使用" },
-    "房地產統計 Real Estate Statistics": { zh: "房地產統計", sub: "Real Estate Statistics" },
-    "資源回收統計 Recycling Statistics": { zh: "資源回收統計", sub: "Recycling Statistics" },
-    "水質與污水統計 Water Quality & Sewage Statistics": { zh: "水質與污水統計", sub: "Water Quality & Sewage Statistics" },
-    "空氣品質統計 Air Quality Statistics": { zh: "空氣品質統計", sub: "Air Quality Statistics" },
-    "污染與公害統計 Pollution & Nuisance Statistics": { zh: "污染與公害統計", sub: "Pollution & Nuisance Statistics" },
-    "環境治理統計 Environmental Enforcement Statistics": { zh: "環境治理統計", sub: "Environmental Enforcement Statistics" },
+    // 統計「海洋」：識別字與台灣圖層的「海洋 Marine」不同，顯示名相同（data/statisticsTabThemes.ts）
+    [MARINE_STATISTICS_THEME_TITLE]: { zh: "海洋", sub: "Marine" },
     "底圖 Base Map": { zh: "底圖", sub: "Base Map" },
     "歷史底圖 Historical Basemaps": { zh: "歷史底圖", sub: "Historical Basemaps" },
     "交通 Move": { zh: "交通", sub: "Move" },
@@ -3845,6 +3498,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "農業 Agriculture": { zh: "農業", sub: "Agriculture" },
     "動物福利 Animal Welfare": { zh: "動物福利", sub: "Animal Welfare" },
     "林業 Forestry": { zh: "林業", sub: "Forestry" },
+    "自然保育 Conservation": { zh: "自然保育", sub: "Conservation" },
     "太空 Space": { zh: "太空", sub: "Space" },
     "情勢 Situation": { zh: "情勢", sub: "Situation" },
     "政治 Politics": { zh: "政治", sub: "Politics" },

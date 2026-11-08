@@ -5,7 +5,8 @@ import { GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, CA_STATISTICS_TAB_T
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
 import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, KOREA_THEMES, CANADA_THEMES, IRELAND_THEMES, WORLD_THEMES, resolveLayerPanel, STATISTICS_MACRO_GROUPS, GB_STATISTICS_MACRO_GROUPS, KR_STATISTICS_MACRO_GROUPS, CA_STATISTICS_MACRO_GROUPS, IE_STATISTICS_MACRO_GROUPS } from "../layerPanels";
-import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
+import { THEMES, TW_STATISTICS_CATALOG_THEMES } from "../layerCatalog";
+import { EDUCATION_METRIC_KEYS, MARINE_STATISTICS_THEME_TITLE, TW_STATISTICS_PLACEMENT, TW_STATISTICS_THEME_TITLES } from "../../../data/statisticsTabThemes";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../../data/environmentStatisticsRecipes";
@@ -43,7 +44,7 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收", "水質與污水", "空氣品質", "污染與公害", "環境治理"] },
   { title: "崩塌與水土保持 Landslides & Soil Conservation", groups: ["崩塌", "治山防災工程", "水土保持災害"] },
   { title: "災害風險 Disaster Risk", groups: ["土石流警戒", "社會脆弱度"] },
-  { title: "海洋 Marine", groups: ["海洋動物擱淺", "海洋廢棄物"] },
+  { title: MARINE_STATISTICS_THEME_TITLE, groups: ["海洋動物擱淺", "海洋廢棄物"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
 const NON_EDUCATION_COMPARISON_KEYS = COMPARISON_STATISTICS_KEYS.filter(key => !key.startsWith('statsComparisonEducation'));
@@ -138,7 +139,7 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(group("人口與教育 Population & Education", "原住民保留地")).toEqual(["statsIndigenousReservedLandParcels", "statsIndigenousReservedLandArea"]);
     expect(group("農林漁牧 Agriculture, Forestry & Fisheries", "農村再生")).toEqual(["statsRuralRegenTraining"]);
     expect(group("災害風險 Disaster Risk", "社會脆弱度")[0]).toBe("statsSocialVulnerabilityCompositeCounty");
-    expect(group("海洋 Marine", "海洋動物擱淺")).toEqual(["statsCetaceanStrandedCounty", "statsCetaceanStrandedAliveCounty", "statsCetaceanStrandedDeadCounty", "statsSeaTurtleStrandedCounty", "statsSeaTurtleStrandedAliveCounty", "statsSeaTurtleStrandedDeadCounty"]);
+    expect(group(MARINE_STATISTICS_THEME_TITLE, "海洋動物擱淺")).toEqual(["statsCetaceanStrandedCounty", "statsCetaceanStrandedAliveCounty", "statsCetaceanStrandedDeadCounty", "statsSeaTurtleStrandedCounty", "statsSeaTurtleStrandedAliveCounty", "statsSeaTurtleStrandedDeadCounty"]);
     // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
     const pollution = group("環境與資源 Environment & Resources", "污染與公害");
     expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));
@@ -162,7 +163,7 @@ describe("STATISTICS_TAB_THEMES", () => {
 
 describe("Layers 與 Statistics 分頁", () => {
   it("mobile 與桌機同一份四入口（圖層／統計／世界／模擬）；各國圖層主題樹＋世界＋模擬合起來涵蓋全部非統計主題，統計頁仍使用專屬索引", () => {
-    const statisticsDataTitles = new Set(STATISTICS_DATA_THEMES.map(theme => theme.title));
+    const statisticsDataTitles = new Set(TW_STATISTICS_THEME_TITLES);
     // 英國統計的完整目錄主題（人口統計／社經統計／住宅統計）只有統計面，從英國圖層頁濾掉。
     const gbStatisticsDataTitles = new Set(THEMES.filter(theme => theme.country === "GB" && theme.groups.every(group => group.layers.every(layer => GB_KEYS.has(layer.key)))).map(theme => theme.title));
     expect(MOBILE_LAYER_PANELS).toBe(LAYER_PANELS);
@@ -253,13 +254,49 @@ describe("Layers 與 Statistics 分頁", () => {
   });
 
   it("以共享 membership 從一般 Layers 排除統計面，保留行政邊界參考", () => {
-    expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set([...EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary"), ...GB_ENABLED_STATISTICS_KEYS, ...KR_ENABLED_STATISTICS_KEYS, ...CA_ENABLED_STATISTICS_KEYS, ...IE_ENABLED_STATISTICS_KEYS]));
+    // 統計比較（測試環境＝DEV，已列進統計入口）也是統計面
+    expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set([...EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary"), ...NON_EDUCATION_COMPARISON_KEYS, ...GB_ENABLED_STATISTICS_KEYS, ...KR_ENABLED_STATISTICS_KEYS, ...CA_ENABLED_STATISTICS_KEYS, ...IE_ENABLED_STATISTICS_KEYS]));
     const filtered = withoutStatisticsLayers([
       { title: "混合主題", country: "TW", groups: [{ title: "資料", layers: layers.filter((layer) => ["statsBirthsTownship", "countyBoundary"].includes(layer.key)) }] },
     ]);
     expect(filtered).toEqual([
       { title: "混合主題", country: "TW", groups: [{ title: "資料", layers: [layers.find((layer) => layer.key === "countyBoundary")] }] },
     ]);
+  });
+});
+
+describe("統計入口與完整目錄同一套分類（TWL-12 甲案）", () => {
+  const keysOf = (theme: { groups: { layers: { key: string }[] }[] }) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key));
+  const educationMetricKeys = new Set<string>([...EDUCATION_METRIC_KEYS, ...COMPARISON_STATISTICS_KEYS.filter((key) => key.startsWith("statsComparisonEducation"))]);
+
+  it("完整目錄的台灣統計主題＝統計入口主題（不含地圖參考），順序與群組相同", () => {
+    expect(TW_STATISTICS_CATALOG_THEMES.map((theme) => theme.title)).toEqual([...TW_STATISTICS_THEME_TITLES]);
+    expect(STATISTICS_TAB_THEMES.map((theme) => theme.title)).toEqual([...TW_STATISTICS_THEME_TITLES, "地圖參考 Map Reference"]);
+    for (const [index, catalog] of TW_STATISTICS_CATALOG_THEMES.entries()) {
+      const tab = STATISTICS_TAB_THEMES[index]!;
+      expect(catalog.groups.map((group) => group.title), catalog.title).toEqual(tab.groups.map((group) => group.title));
+      // 完整目錄只比統計入口多列教育 view 背後的指標
+      expect(keysOf(catalog).filter((key) => !educationMetricKeys.has(key)), catalog.title).toEqual(keysOf(tab));
+    }
+  });
+
+  it("教育 view 背後的指標只在完整目錄「人口與教育 › 教育與少子化」", () => {
+    const tabKeys = new Set(STATISTICS_TAB_THEMES.flatMap(keysOf));
+    for (const key of educationMetricKeys) {
+      expect(tabKeys.has(key), key).toBe(false);
+      expect(TW_STATISTICS_PLACEMENT[key], key).toEqual({ theme: "人口與教育 Population & Education", group: "教育與少子化" });
+    }
+  });
+
+  it("每個台灣統計層的 manifest section＝統計入口位置", () => {
+    for (const key of TW_STATISTICS_CATALOG_THEMES.flatMap(keysOf)) {
+      expect(LAYER_MANIFEST[key as keyof typeof LAYER_MANIFEST]?.section, key).toEqual(TW_STATISTICS_PLACEMENT[key]);
+    }
+  });
+
+  it("統計「海洋」與台灣圖層「海洋 Marine」是不同主題，圖層頁的海洋不會被當成統計濾掉", () => {
+    expect(MARINE_STATISTICS_THEME_TITLE).not.toBe("海洋 Marine");
+    expect(MAIN_THEMES.some((theme) => theme.title === "海洋 Marine")).toBe(true);
   });
 });
 
@@ -272,7 +309,7 @@ describe("選舉統計放在政治主題", () => {
     expect(keys.slice(0, 2)).toEqual(["electionEvents2026", "pollingStations2024"]);
     expect(keys.filter((key) => ELECTION_KEYS.has(key)).sort()).toEqual([...ELECTION_ENABLED_STATISTICS_KEYS].sort());
     expect(THEMES.filter((theme) => theme.title === "政治 Politics")).toHaveLength(1);
-    expect(STATISTICS_DATA_THEMES.some((theme) => theme.title === "政治 Politics")).toBe(false);
+    expect(TW_STATISTICS_CATALOG_THEMES.some((theme) => theme.title === "政治 Politics")).toBe(false);
     // 一屆選舉一列：五個群組各有一個 lead，預設＝最高黨・縣市（公投＝同意票比率・縣市）
     const leads = election.layers.filter((layer) => layer.variant?.lead).map((layer) => layer.key);
     expect(leads).toEqual(["statsElectionPresidentTopPartyCounty", "statsElectionLegislatorPartyTopPartyCounty", "statsElectionMayorTopPartyCounty", "statsElectionCouncilorPartyTopPartyCounty", "statsElectionReferendumAgreeRateCounty"]);

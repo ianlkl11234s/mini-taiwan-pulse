@@ -10,7 +10,11 @@ const HOOKS_AND_MAP = ["src/hooks/**/*.{ts,tsx}", "src/map/**/*.{ts,tsx}"];
 // 範圍由 eslint-rules/__tests__/ownerOnlyScope.test.js 釘住：src/data、src/hooks 裡含 /api/private-research/
 // 或 import 了這類 data 模組的檔，不在下面範圍也不在 OWNER_ONLY_EXEMPT 就紅。
 const OWNER_ONLY_FAMILIES = "{busCrowding,BusCrowding,bridgeResilience,BridgeResilience,bssBridge,BssBridge,soilLiquefaction,SoilLiquefaction,allenCoral,AllenCoral,coralReef,CoralReef,jpWater,JpWater}";
-export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hooks/use${OWNER_ONLY_FAMILIES}*.ts`, "src/lib/coralPrivateUi.ts", "src/lib/auth.ts"];
+export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hooks/use${OWNER_ONLY_FAMILIES}*.ts`, "src/lib/coralPrivateUi.ts", "src/lib/auth.ts",
+  // owner-data 通用家族（2026-11-08）：契約、共用讀取與第一個使用者（畜牧）
+  "src/data/ownerDataAssets.ts", "src/lib/ownerData.ts", "src/data/livestockLoader.ts",
+  // 第 2 批（能源與石化）：這兩支同時含公開／即時 RPC，但站主私人檔也從這裡讀
+  "src/data/energyLoader.ts", "src/data/fossilFuelLoader.ts"];
 /** 不套 owner-only-no-external-source 的檔與理由（ownerOnlyScope.test.js 逐字釘住，新增要改測試並在 PR 說明）。 */
 export const OWNER_ONLY_EXEMPT = {
   "src/data/layerManifest.ts": "全站圖層登記簿，不是 owner-only 專屬檔",
@@ -43,6 +47,7 @@ export const LOADER_RPC_EXEMPT = {
   // 是否改包整個 Promise.all（會多一列或拉長 loading）待使用者拍板（BACKLOG CI-2）。
   "dataCatalogLoader.ts:fetchDataCatalogForLayer": "popup『資料來源』面板 lazy",
   "dataCatalogLoader.ts:fetchDataCatalogByTheme": "popup『資料來源』面板 lazy",
+  "dataCatalogLoader.ts:fetchDataCatalogByDatasetIds": "popup『資料來源』面板 lazy（pulse_only 血緣）",
   "airportPaxLoader.ts:fetchAirportHourlyPax": "monitor 面板 widget，非圖層載入",
   // monitor 卡片的摘要／趨勢查詢（背景輪詢）—— 非圖層載入，灌 LOADING 面板會讓牆面定期閃
   "lightningLoader.ts:fetchLightningDayCount": "monitor 落雷卡計數（head count），非圖層載入",

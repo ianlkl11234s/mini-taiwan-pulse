@@ -24,11 +24,12 @@ import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
-import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
-import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
-import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_THEME_TITLE, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
-import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_THEME_TITLE, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
+import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_RECIPES, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
 import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasRecipeCountry, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
+import { TW_STATISTICS_PLACEMENT, twStatisticsSection } from "./statisticsTabThemes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 import { KR_DATA_SPECS } from "./krDataLayers";
@@ -455,7 +456,7 @@ export const AGRI_CATALOG_DATASET_ALIASES: Readonly<Record<string, string>> = {
 /** 24 enabled recipes share the dynamic Statistics renderer; this derives only their manifest registration. */
 const AGRI_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
   key: recipe.layer_key,
-  country: "TW", section: { theme: recipe.group === "交通統計" ? "交通統計 Transport Statistics" : recipe.group, group: recipe.subgroup },
+  country: "TW", section: twStatisticsSection(recipe.layer_key),
   ...layerName({ zh: recipe.label }), expandable: true, color: AGRI_STATISTICS_COLORS[recipe.group] ?? "#64748b", icon: Recycle,
   upstream: { status: "verified", datasets: [{ datasetId: AGRI_CATALOG_DATASET_ALIASES[recipe.dataset_id] ?? recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
   source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -470,7 +471,7 @@ const SOCIAL_STATISTICS_COLORS: Record<string, string> = {
 /** Social-statistics recipes use the shared dynamic Statistics renderer. */
 const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
   key: recipe.layer_key,
-  country: "TW", section: { theme: recipe.group, group: recipe.subgroup },
+  country: "TW", section: twStatisticsSection(recipe.layer_key),
   ...layerName({ zh: recipe.label }), expandable: true, color: SOCIAL_STATISTICS_COLORS[recipe.group] ?? "#64748b", icon: Recycle,
   upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
   source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -482,7 +483,7 @@ const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STA
 /** Labor recipes are an incremental local delivery and share the dynamic Statistics renderer. */
 const LABOR_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LABOR_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
   key: recipe.layer_key,
-  country: "TW", section: { theme: "工作與所得 Work & Income", group: recipe.subgroup },
+  country: "TW", section: twStatisticsSection(recipe.layer_key),
   ...layerName({ zh: recipe.label }), expandable: true, color: getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group).accent, icon: getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group).icon,
   upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
   source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -496,7 +497,7 @@ const ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ENVIRONMENT_E
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    country: "TW", section: { theme: ENVIRONMENT_STATISTICS_THEME_TITLES[recipe.group] ?? recipe.group, group: recipe.subgroup },
+    country: "TW", section: twStatisticsSection(recipe.layer_key),
     ...layerName({ zh: recipe.label }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -512,7 +513,7 @@ const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    country: "TW", section: { theme: DEMOGRAPHICS_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    country: "TW", section: twStatisticsSection(recipe.layer_key),
     ...layerName({ zh: demographicsDisplayLabel(recipe), qualifier: DEMOGRAPHICS_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -528,7 +529,7 @@ const ADDICTION_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ADDICTION_ENABL
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    country: "TW", section: { theme: ADDICTION_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    country: "TW", section: twStatisticsSection(recipe.layer_key),
     ...layerName({ zh: recipe.label, qualifier: ADDICTION_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -543,7 +544,7 @@ const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABL
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    country: "TW", section: { theme: LANDSLIDE_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    country: "TW", section: twStatisticsSection(recipe.layer_key),
     ...layerName({ zh: recipe.label, qualifier: "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -568,7 +569,7 @@ const ATLAS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ATLAS_ENABLED_STATI
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    country: atlasRecipeCountry(recipe), section: { theme: recipe.data_theme, group: recipe.subgroup },
+    country: atlasRecipeCountry(recipe), section: TW_STATISTICS_PLACEMENT[recipe.layer_key] ?? { theme: recipe.data_theme, group: recipe.subgroup },
     ...layerName({ zh: recipe.label, qualifier: atlasNameQualifier(recipe.level) }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -584,7 +585,7 @@ const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRE
   const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(candidate => candidate.layer_key === metric.layerKey)!;
   return [view.key, {
     key: view.key,
-    country: "TW", section: { theme: '教育與少子化統計', group: '學校所在地縣市別' },
+    country: "TW", section: twStatisticsSection(view.key),
     ...layerName({ zh: view.label }), expandable: true, color: SOCIAL_STATISTICS_COLORS['教育與少子化統計'], icon: Recycle,
     upstream: { status: 'verified', datasets: [{ datasetId: recipe.dataset_id, confidence: 'HIGH' }] }, dataClass: 'D',
     source: { kind: 'custom', note: `Fixed ${view.stage} presentation view over immutable ${recipe.dataset_id} releases; regionalStatisticsMap runtime` },
@@ -610,7 +611,7 @@ const COMPARISON_UPSTREAM: UpstreamRef = {
 };
 
 const COMPARISON_MANIFEST_ENTRIES = Object.fromEntries(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, {
-  key: recipe.layer_key, country: "TW", section: { theme: '統計比較', group: recipe.groupLabel }, ...layerName({ zh: recipe.label }),
+  key: recipe.layer_key, country: "TW", section: twStatisticsSection(recipe.layer_key), ...layerName({ zh: recipe.label }),
   expandable: true, color: '#2563eb', icon: Recycle,
   upstream: COMPARISON_UPSTREAM, dataClass: 'D',
   source: { kind: 'custom', note: 'Offline derived immutable Statistics artifacts; exact release allowlist and regionalStatisticsMap runtime' },
@@ -939,7 +940,7 @@ export const LAYER_MANIFEST = {
   ...ATLAS_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
-    key: "statsMaritimeSubsidyCounty", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
+    key: "statsMaritimeSubsidyCounty", country: "TW", section: twStatisticsSection("statsMaritimeSubsidyCounty"),
     ...layerName({ zh: "航港局獎補助金額（受補助對象所在地）" }), expandable: true, color: "#2563eb", icon: Anchor,
     upstream: { status: "verified", datasets: [{ datasetId: "maritime_bureau_subsidy_county", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC plus verified county geometry; regionalStatisticsMap runtime" },
@@ -947,7 +948,7 @@ export const LAYER_MANIFEST = {
     description: "依受補助對象所在地彙總的航港局獎補助金額；不是工程地、港口投資地或最終受益地。PARTIAL coverage、未分配金額與缺值會明確揭露。", topics: ["統計", "交通", "航港", "行政區"],
   },
   statsCivilAeronauticsSubsidyCounty: {
-    key: "statsCivilAeronauticsSubsidyCounty", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "民航獎補助" },
+    key: "statsCivilAeronauticsSubsidyCounty", country: "TW", section: twStatisticsSection("statsCivilAeronauticsSubsidyCounty"),
     ...layerName({ zh: "民航局獎補助費（受補助對象所在地）" }), expandable: true, color: "#d97706", icon: Anchor,
     upstream: { status: "verified", datasets: [{ datasetId: "civil_aeronautics_subsidy_county", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Immutable 112Q4 statistics releases plus verified county geometry; regionalStatisticsMap runtime" },
@@ -955,7 +956,7 @@ export const LAYER_MANIFEST = {
     description: "112Q4 年度累計歷史快照，依受補助對象所在地縣市呈現；不是機場、工程或實際受益地。不得跨預算類型或期別合計。", topics: ["統計", "交通", "民航", "行政區", "歷史版本"],
   },
   statsTaipeiTrafficViolationCitations: {
-    key: "statsTaipeiTrafficViolationCitations", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北市違規舉發" },
+    key: "statsTaipeiTrafficViolationCitations", country: "TW", section: twStatisticsSection("statsTaipeiTrafficViolationCitations"),
     ...layerName({ zh: "臺北市交通違規舉發筆數（法條）" }), expandable: true, color: "#7c3aed", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "taipei_traffic_violation_citations_135096", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Immutable Taipei-only law-article statistics releases plus verified county geometry; regionalStatisticsMap runtime" },
@@ -963,39 +964,39 @@ export const LAYER_MANIFEST = {
     description: "臺北市法條分類交通違規舉發筆數；其餘縣市為缺資料，法條間不得相加推論唯一事件或人數。", topics: ["統計", "交通", "違規", "臺北市", "行政區"],
   },
   statsTaichungRoadNoiseMonitoringStations: {
-    key: "statsTaichungRoadNoiseMonitoringStations", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺中道路噪音監測" },
+    key: "statsTaichungRoadNoiseMonitoringStations", country: "TW", section: twStatisticsSection("statsTaichungRoadNoiseMonitoringStations"),
     ...layerName({ zh: "臺中市道路交通噪音監測站數" }), expandable: true, color: "#0891b2", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "taichung_road_noise_monitoring_stations_89477", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Immutable Taichung-only control-zone releases plus verified county geometry; regionalStatisticsMap runtime" },
     legend: "statsTaichungRoadNoiseMonitoringStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaichungRoadNoiseMonitoringStations"),
     description: "臺中市道路交通噪音監測站數，依管制區類別呈現；不是不合格站數、噪音均值或暴露人口。", topics: ["統計", "交通", "噪音", "臺中市", "行政區"],
   },
-  statsBusOperatingRouteLengthKm: { key: "statsBusOperatingRouteLengthKm", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末營業里程" }), expandable: true, color: "#2563eb", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingRouteLengthKm", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingRouteLengthKm"), description: "114 年縣市市區客運期末營業里程；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusApprovedRouteCount: { key: "statsBusApprovedRouteCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "核定路線數" }), expandable: true, color: "#16a34a", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusApprovedRouteCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusApprovedRouteCount"), description: "114 年縣市市區客運核定路線數；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsUrbanBusOperatorCount: { key: "statsUrbanBusOperatorCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "市區客運業家數" }), expandable: true, color: "#c026d3", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsUrbanBusOperatorCount", popup: "regionalStatistic", params: statisticsManifestParams("statsUrbanBusOperatorCount"), description: "114 年縣市市區客運業家數；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusOperatingVehicleCount: { key: "statsBusOperatingVehicleCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末營業車輛" }), expandable: true, color: "#ea580c", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingVehicleCount"), description: "114 年縣市市區客運期末營業車輛；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusAccessibleVehicleCount: { key: "statsBusAccessibleVehicleCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末無障礙車輛" }), expandable: true, color: "#0891b2", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusAccessibleVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusAccessibleVehicleCount"), description: "114 年縣市市區客運期末無障礙車輛；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusElectricVehicleCount: { key: "statsBusElectricVehicleCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末電動車輛" }), expandable: true, color: "#ca8a04", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusElectricVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusElectricVehicleCount"), description: "114 年縣市市區客運期末電動車輛；7 縣市來源為缺資料，非零。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusOperatingTripCount: { key: "statsBusOperatingTripCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "營業行車次數" }), expandable: true, color: "#7c3aed", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingTripCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingTripCount"), description: "114 年縣市市區客運營業行車次數；不是不重複乘客或唯一事件。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusOperatingVehicleKm: { key: "statsBusOperatingVehicleKm", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "營業行車里程" }), expandable: true, color: "#dc2626", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingVehicleKm", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingVehicleKm"), description: "114 年縣市市區客運營業行車里程；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsTmrtStationOutboundCounty: { key: "statsTmrtStationOutboundCounty", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "中捷車站出站人次" }, ...layerName({ zh: "中捷車站所在地出站人次" }), expandable: true, color: "#0891b2", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "tmrt_station_outbound_county", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 2025-12 facility-crosswalk statistics release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTmrtStationOutboundCounty", popup: "regionalStatistic", params: statisticsManifestParams("statsTmrtStationOutboundCounty"), description: "中捷車站所在地出站人次歷史快照；不是不重複旅客、居民旅運或全市旅次。", topics: ["統計", "交通", "捷運", "臺中市", "歷史版本"] },
-  statsTaipeiUrbanRentalStations: { key: "statsTaipeiUrbanRentalStations", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "市區自行車租借站數" }), expandable: true, color: "#2563eb", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiUrbanRentalStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiUrbanRentalStations"), description: "110 年臺北市 12 區市區自行車租借站數；不是即時站點、車輛可用量或全臺統計。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsTaipeiUrbanRentalTrips: { key: "statsTaipeiUrbanRentalTrips", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "市區自行車年租借次數" }), expandable: true, color: "#16a34a", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiUrbanRentalTrips", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiUrbanRentalTrips"), description: "110 年臺北市 12 區市區自行車年租借人次；不是不重複騎士或即時旅次。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsTaipeiRiversideRentalStations: { key: "statsTaipeiRiversideRentalStations", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園租借站數" }), expandable: true, color: "#0891b2", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideRentalStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideRentalStations"), description: "110 年臺北市 12 區河濱公園自行車租借站數；不是市區站數或即時服務狀態。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsTaipeiRiversideBicycles: { key: "statsTaipeiRiversideBicycles", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園自行車數" }), expandable: true, color: "#ea580c", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideBicycles", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideBicycles"), description: "110 年臺北市 12 區河濱公園自行車數；不是可租車輛即時庫存。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsTaipeiRiversideRentalTrips: { key: "statsTaipeiRiversideRentalTrips", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園年租借次數" }), expandable: true, color: "#7c3aed", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideRentalTrips", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideRentalTrips"), description: "110 年臺北市 12 區河濱公園年租借人次；不是不重複騎士或即時旅次。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsA1AccidentCount: { key: "statsA1AccidentCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故件數" }), expandable: true, color: "#dc2626", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1AccidentCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1AccidentCount"), description: "114 年 A1 當場或 24 小時內死亡事故件數；不是全部交通事故。連江缺資料與未分配事件會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
-  statsA1DeathCount: { key: "statsA1DeathCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故死亡人數" }), expandable: true, color: "#991b1b", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1DeathCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1DeathCount"), description: "114 年 A1 當場或 24 小時內死亡人數；不是全事故死亡或事故件數。連江缺資料與未分配人數會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
-  statsA1InjuryCount: { key: "statsA1InjuryCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故受傷人數" }), expandable: true, color: "#f59e0b", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1InjuryCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1InjuryCount"), description: "114 年 A1 當場或 24 小時內死亡事故的受傷人數；不是全部交通事故傷者。連江缺資料與未分配人數會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
-  statsAirportTakeoffsLandings: { key: "statsAirportTakeoffsLandings", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地起降架次" }), expandable: true, color: "#2563eb", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportTakeoffsLandings", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportTakeoffsLandings"), description: "115 年 7 月各機場所在地起降架次；不是居民活動或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
-  statsAirportPassengerMovements: { key: "statsAirportPassengerMovements", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地旅客人次" }), expandable: true, color: "#16a34a", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportPassengerMovements", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportPassengerMovements"), description: "115 年 7 月各機場所在地旅客人次，含入境、出境與過境；不是居民或不重複旅客。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
-  statsAirportCargoTonnes: { key: "statsAirportCargoTonnes", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地貨運量" }), expandable: true, color: "#7c3aed", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportCargoTonnes", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportCargoTonnes"), description: "115 年 7 月各機場所在地貨運量；不是居民貨運或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
-  statsTaoyuanAirportArrivals: { key: "statsTaoyuanAirportArrivals", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地入境旅客人次" }), expandable: true, color: "#0891b2", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportArrivals", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportArrivals"), description: "2022 年桃園機場所在地入境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
-  statsTaoyuanAirportDepartures: { key: "statsTaoyuanAirportDepartures", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地出境旅客人次" }), expandable: true, color: "#2563eb", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportDepartures", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportDepartures"), description: "2022 年桃園機場所在地出境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
-  statsTaoyuanAirportTransit: { key: "statsTaoyuanAirportTransit", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地過境旅客人次" }), expandable: true, color: "#ea580c", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportTransit", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportTransit"), description: "2022 年桃園機場所在地過境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
-  statsTaoyuanAirportPassengerMovements: { key: "statsTaoyuanAirportPassengerMovements", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地旅客人次總計" }), expandable: true, color: "#7c3aed", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportPassengerMovements", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportPassengerMovements"), description: "2022 年桃園機場所在地旅客人次總計；這是總計欄位，不可再與入境、出境、過境指標相加。僅桃園市有值。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
+  statsBusOperatingRouteLengthKm: { key: "statsBusOperatingRouteLengthKm", country: "TW", section: twStatisticsSection("statsBusOperatingRouteLengthKm"), ...layerName({ zh: "期末營業里程" }), expandable: true, color: "#2563eb", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingRouteLengthKm", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingRouteLengthKm"), description: "114 年縣市市區客運期末營業里程；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusApprovedRouteCount: { key: "statsBusApprovedRouteCount", country: "TW", section: twStatisticsSection("statsBusApprovedRouteCount"), ...layerName({ zh: "核定路線數" }), expandable: true, color: "#16a34a", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusApprovedRouteCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusApprovedRouteCount"), description: "114 年縣市市區客運核定路線數；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsUrbanBusOperatorCount: { key: "statsUrbanBusOperatorCount", country: "TW", section: twStatisticsSection("statsUrbanBusOperatorCount"), ...layerName({ zh: "市區客運業家數" }), expandable: true, color: "#c026d3", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsUrbanBusOperatorCount", popup: "regionalStatistic", params: statisticsManifestParams("statsUrbanBusOperatorCount"), description: "114 年縣市市區客運業家數；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusOperatingVehicleCount: { key: "statsBusOperatingVehicleCount", country: "TW", section: twStatisticsSection("statsBusOperatingVehicleCount"), ...layerName({ zh: "期末營業車輛" }), expandable: true, color: "#ea580c", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingVehicleCount"), description: "114 年縣市市區客運期末營業車輛；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusAccessibleVehicleCount: { key: "statsBusAccessibleVehicleCount", country: "TW", section: twStatisticsSection("statsBusAccessibleVehicleCount"), ...layerName({ zh: "期末無障礙車輛" }), expandable: true, color: "#0891b2", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusAccessibleVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusAccessibleVehicleCount"), description: "114 年縣市市區客運期末無障礙車輛；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusElectricVehicleCount: { key: "statsBusElectricVehicleCount", country: "TW", section: twStatisticsSection("statsBusElectricVehicleCount"), ...layerName({ zh: "期末電動車輛" }), expandable: true, color: "#ca8a04", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusElectricVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusElectricVehicleCount"), description: "114 年縣市市區客運期末電動車輛；7 縣市來源為缺資料，非零。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusOperatingTripCount: { key: "statsBusOperatingTripCount", country: "TW", section: twStatisticsSection("statsBusOperatingTripCount"), ...layerName({ zh: "營業行車次數" }), expandable: true, color: "#7c3aed", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingTripCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingTripCount"), description: "114 年縣市市區客運營業行車次數；不是不重複乘客或唯一事件。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusOperatingVehicleKm: { key: "statsBusOperatingVehicleKm", country: "TW", section: twStatisticsSection("statsBusOperatingVehicleKm"), ...layerName({ zh: "營業行車里程" }), expandable: true, color: "#dc2626", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingVehicleKm", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingVehicleKm"), description: "114 年縣市市區客運營業行車里程；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsTmrtStationOutboundCounty: { key: "statsTmrtStationOutboundCounty", country: "TW", section: twStatisticsSection("statsTmrtStationOutboundCounty"), ...layerName({ zh: "中捷車站所在地出站人次" }), expandable: true, color: "#0891b2", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "tmrt_station_outbound_county", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 2025-12 facility-crosswalk statistics release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTmrtStationOutboundCounty", popup: "regionalStatistic", params: statisticsManifestParams("statsTmrtStationOutboundCounty"), description: "中捷車站所在地出站人次歷史快照；不是不重複旅客、居民旅運或全市旅次。", topics: ["統計", "交通", "捷運", "臺中市", "歷史版本"] },
+  statsTaipeiUrbanRentalStations: { key: "statsTaipeiUrbanRentalStations", country: "TW", section: twStatisticsSection("statsTaipeiUrbanRentalStations"), ...layerName({ zh: "市區自行車租借站數" }), expandable: true, color: "#2563eb", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiUrbanRentalStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiUrbanRentalStations"), description: "110 年臺北市 12 區市區自行車租借站數；不是即時站點、車輛可用量或全臺統計。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsTaipeiUrbanRentalTrips: { key: "statsTaipeiUrbanRentalTrips", country: "TW", section: twStatisticsSection("statsTaipeiUrbanRentalTrips"), ...layerName({ zh: "市區自行車年租借次數" }), expandable: true, color: "#16a34a", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiUrbanRentalTrips", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiUrbanRentalTrips"), description: "110 年臺北市 12 區市區自行車年租借人次；不是不重複騎士或即時旅次。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsTaipeiRiversideRentalStations: { key: "statsTaipeiRiversideRentalStations", country: "TW", section: twStatisticsSection("statsTaipeiRiversideRentalStations"), ...layerName({ zh: "河濱公園租借站數" }), expandable: true, color: "#0891b2", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideRentalStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideRentalStations"), description: "110 年臺北市 12 區河濱公園自行車租借站數；不是市區站數或即時服務狀態。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsTaipeiRiversideBicycles: { key: "statsTaipeiRiversideBicycles", country: "TW", section: twStatisticsSection("statsTaipeiRiversideBicycles"), ...layerName({ zh: "河濱公園自行車數" }), expandable: true, color: "#ea580c", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideBicycles", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideBicycles"), description: "110 年臺北市 12 區河濱公園自行車數；不是可租車輛即時庫存。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsTaipeiRiversideRentalTrips: { key: "statsTaipeiRiversideRentalTrips", country: "TW", section: twStatisticsSection("statsTaipeiRiversideRentalTrips"), ...layerName({ zh: "河濱公園年租借次數" }), expandable: true, color: "#7c3aed", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideRentalTrips", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideRentalTrips"), description: "110 年臺北市 12 區河濱公園年租借人次；不是不重複騎士或即時旅次。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsA1AccidentCount: { key: "statsA1AccidentCount", country: "TW", section: twStatisticsSection("statsA1AccidentCount"), ...layerName({ zh: "A1 交通事故件數" }), expandable: true, color: "#dc2626", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1AccidentCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1AccidentCount"), description: "114 年 A1 當場或 24 小時內死亡事故件數；不是全部交通事故。連江缺資料與未分配事件會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
+  statsA1DeathCount: { key: "statsA1DeathCount", country: "TW", section: twStatisticsSection("statsA1DeathCount"), ...layerName({ zh: "A1 交通事故死亡人數" }), expandable: true, color: "#991b1b", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1DeathCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1DeathCount"), description: "114 年 A1 當場或 24 小時內死亡人數；不是全事故死亡或事故件數。連江缺資料與未分配人數會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
+  statsA1InjuryCount: { key: "statsA1InjuryCount", country: "TW", section: twStatisticsSection("statsA1InjuryCount"), ...layerName({ zh: "A1 交通事故受傷人數" }), expandable: true, color: "#f59e0b", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1InjuryCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1InjuryCount"), description: "114 年 A1 當場或 24 小時內死亡事故的受傷人數；不是全部交通事故傷者。連江缺資料與未分配人數會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
+  statsAirportTakeoffsLandings: { key: "statsAirportTakeoffsLandings", country: "TW", section: twStatisticsSection("statsAirportTakeoffsLandings"), ...layerName({ zh: "機場所在地起降架次" }), expandable: true, color: "#2563eb", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportTakeoffsLandings", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportTakeoffsLandings"), description: "115 年 7 月各機場所在地起降架次；不是居民活動或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
+  statsAirportPassengerMovements: { key: "statsAirportPassengerMovements", country: "TW", section: twStatisticsSection("statsAirportPassengerMovements"), ...layerName({ zh: "機場所在地旅客人次" }), expandable: true, color: "#16a34a", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportPassengerMovements", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportPassengerMovements"), description: "115 年 7 月各機場所在地旅客人次，含入境、出境與過境；不是居民或不重複旅客。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
+  statsAirportCargoTonnes: { key: "statsAirportCargoTonnes", country: "TW", section: twStatisticsSection("statsAirportCargoTonnes"), ...layerName({ zh: "機場所在地貨運量" }), expandable: true, color: "#7c3aed", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportCargoTonnes", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportCargoTonnes"), description: "115 年 7 月各機場所在地貨運量；不是居民貨運或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
+  statsTaoyuanAirportArrivals: { key: "statsTaoyuanAirportArrivals", country: "TW", section: twStatisticsSection("statsTaoyuanAirportArrivals"), ...layerName({ zh: "桃園機場所在地入境旅客人次" }), expandable: true, color: "#0891b2", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportArrivals", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportArrivals"), description: "2022 年桃園機場所在地入境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
+  statsTaoyuanAirportDepartures: { key: "statsTaoyuanAirportDepartures", country: "TW", section: twStatisticsSection("statsTaoyuanAirportDepartures"), ...layerName({ zh: "桃園機場所在地出境旅客人次" }), expandable: true, color: "#2563eb", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportDepartures", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportDepartures"), description: "2022 年桃園機場所在地出境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
+  statsTaoyuanAirportTransit: { key: "statsTaoyuanAirportTransit", country: "TW", section: twStatisticsSection("statsTaoyuanAirportTransit"), ...layerName({ zh: "桃園機場所在地過境旅客人次" }), expandable: true, color: "#ea580c", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportTransit", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportTransit"), description: "2022 年桃園機場所在地過境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
+  statsTaoyuanAirportPassengerMovements: { key: "statsTaoyuanAirportPassengerMovements", country: "TW", section: twStatisticsSection("statsTaoyuanAirportPassengerMovements"), ...layerName({ zh: "桃園機場所在地旅客人次總計" }), expandable: true, color: "#7c3aed", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportPassengerMovements", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportPassengerMovements"), description: "2022 年桃園機場所在地旅客人次總計；這是總計欄位，不可再與入境、出境、過境指標相加。僅桃園市有值。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
   statsOffstreetSmallCarParkingSpacesCount: {
-    key: "statsOffstreetSmallCarParkingSpacesCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsOffstreetSmallCarParkingSpacesCount", country: "TW", section: twStatisticsSection("statsOffstreetSmallCarParkingSpacesCount"),
     ...layerName({ zh: "小型汽車路外停車位" }), expandable: true, color: "#0891b2", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1003,7 +1004,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的小型汽車路外停車位；不是道路流量或居民比率。", topics: ["統計", "交通", "停車", "行政區"],
   },
   statsOnstreetSmallCarParkingSpacesCount: {
-    key: "statsOnstreetSmallCarParkingSpacesCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsOnstreetSmallCarParkingSpacesCount", country: "TW", section: twStatisticsSection("statsOnstreetSmallCarParkingSpacesCount"),
     ...layerName({ zh: "小型汽車路邊停車位" }), expandable: true, color: "#16a34a", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1011,7 +1012,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的小型汽車路邊停車位；不是道路流量或居民比率。", topics: ["統計", "交通", "停車", "行政區"],
   },
   statsMotorcycleRegisteredCount: {
-    key: "statsMotorcycleRegisteredCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsMotorcycleRegisteredCount", country: "TW", section: twStatisticsSection("statsMotorcycleRegisteredCount"),
     ...layerName({ zh: "機車登記數" }), expandable: true, color: "#c026d3", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1019,7 +1020,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的機車登記數；不是居民比率或道路流量。", topics: ["統計", "交通", "車籍", "行政區"],
   },
   statsAutomobileRegisteredCount: {
-    key: "statsAutomobileRegisteredCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsAutomobileRegisteredCount", country: "TW", section: twStatisticsSection("statsAutomobileRegisteredCount"),
     ...layerName({ zh: "汽車登記數" }), expandable: true, color: "#2563eb", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1027,7 +1028,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的汽車登記數；不是居民比率或道路流量。", topics: ["統計", "交通", "車籍", "行政區"],
   },
   statsAutomobileLicenseHoldersCount: {
-    key: "statsAutomobileLicenseHoldersCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsAutomobileLicenseHoldersCount", country: "TW", section: twStatisticsSection("statsAutomobileLicenseHoldersCount"),
     ...layerName({ zh: "汽車駕照持有人數" }), expandable: true, color: "#ea580c", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1035,7 +1036,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的汽車駕照持有人數；不是居民比率或道路流量。", topics: ["統計", "交通", "駕照", "行政區"],
   },
   statsMotorcycleLicenseHoldersCount: {
-    key: "statsMotorcycleLicenseHoldersCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsMotorcycleLicenseHoldersCount", country: "TW", section: twStatisticsSection("statsMotorcycleLicenseHoldersCount"),
     ...layerName({ zh: "機車駕照持有人數" }), expandable: true, color: "#ca8a04", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1044,7 +1045,7 @@ export const LAYER_MANIFEST = {
   },
 
   statsWaterSupplyHistorical: {
-    key: "statsWaterSupplyHistorical", country: "TW", section: { theme: "水資源統計 Water Statistics", group: "公共給水" },
+    key: "statsWaterSupplyHistorical", country: "TW", section: twStatisticsSection("statsWaterSupplyHistorical"),
     ...layerName({ zh: "供水普及率（2015 年，7 縣市）" }), expandable: true, color: "#06b6d4", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "water_supply_county_historical", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1053,7 +1054,7 @@ export const LAYER_MANIFEST = {
   },
 
   statsPigWaterCounty: {
-    key: "statsPigWaterCounty", country: "TW", section: { theme: "水資源統計 Water Statistics", group: "畜牧用水" },
+    key: "statsPigWaterCounty", country: "TW", section: twStatisticsSection("statsPigWaterCounty"),
     ...layerName({ zh: "養豬用水量（歷史統計）" }), expandable: true, color: "#0891b2", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "livestock_pig_water_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1062,7 +1063,7 @@ export const LAYER_MANIFEST = {
   },
 
   statsWasteRecyclingRate: {
-    key: "statsWasteRecyclingRate", country: "TW", section: { theme: "廢棄物統計 Waste Statistics", group: "回收成果" },
+    key: "statsWasteRecyclingRate", country: "TW", section: twStatisticsSection("statsWasteRecyclingRate"),
     ...layerName({ zh: "一般廢棄物回收率" }), expandable: true, color: "#059669", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "waste_recycling_rate_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1070,7 +1071,7 @@ export const LAYER_MANIFEST = {
     description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
   },
   statsResidentialElectricity: {
-    key: "statsResidentialElectricity", country: "TW", section: { theme: "能源統計 Energy Statistics", group: "住宅用電" },
+    key: "statsResidentialElectricity", country: "TW", section: twStatisticsSection("statsResidentialElectricity"),
     ...layerName({ zh: "住宅每月售電量" }), expandable: true, color: "#f59e0b", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "residential_electricity_sales_county_monthly", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1078,7 +1079,7 @@ export const LAYER_MANIFEST = {
     description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
   },
   statsRiceHarvest: {
-    key: "statsRiceHarvest", country: "TW", section: { theme: "農業統計", group: "作物生產" },
+    key: "statsRiceHarvest", country: "TW", section: twStatisticsSection("statsRiceHarvest"),
     ...layerName({ zh: "全年稻作收穫面積（複種計次）" }), expandable: true, color: "#84cc16", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "rice_harvested_area_township", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1086,7 +1087,7 @@ export const LAYER_MANIFEST = {
     description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
   },
   statsBirthsTownship: {
-    key: "statsBirthsTownship", country: "TW", section: { theme: "人口統計 Population Statistics", group: "出生登記" },
+    key: "statsBirthsTownship", country: "TW", section: twStatisticsSection("statsBirthsTownship"),
     ...layerName({ zh: "每月出生數（歷史快照）" }), expandable: true, color: "#a78bfa", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "village_births_township_monthly", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -1095,7 +1096,7 @@ export const LAYER_MANIFEST = {
   },
 
   statsWasteCounty: {
-    key: "statsWasteCounty", country: "TW", section: { theme: "廢棄物統計 Waste Statistics", group: "清運量能" },
+    key: "statsWasteCounty", country: "TW", section: twStatisticsSection("statsWasteCounty"),
     ...layerName({ zh: "垃圾清運車輛數" }), expandable: true, color: "#10b981", icon: Truck,
     upstream: { status: "verified", datasets: [{ datasetId: "waste_vehicles_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC and verified geometry manifest; regionalStatisticsMap runtime" },
@@ -1103,7 +1104,7 @@ export const LAYER_MANIFEST = {
     description: "依縣市與資料期別呈現原始統計值；與既有GIS圖層獨立開關", topics: ["統計", "行政區", "歷史版本"],
   },
   statsRecyclingCounty: {
-    key: "statsRecyclingCounty", country: "TW", section: { theme: "資源回收統計 Recycling Statistics", group: "資源回收量能" },
+    key: "statsRecyclingCounty", country: "TW", section: twStatisticsSection("statsRecyclingCounty"),
     ...layerName({ zh: "資源回收車輛數" }), expandable: true, color: "#eab308", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "waste_vehicles_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC and verified geometry manifest; regionalStatisticsMap runtime" },
@@ -1185,7 +1186,7 @@ export const LAYER_MANIFEST = {
     topics: ["政治", "選舉", "活動", "研究中", "OWNER_ONLY"],
   },
 
-  // 🗳 政治：2024 投開票所（公開 bbox RPC get_polling_stations_2024；gis-platform mig 495；不 gate、不進 embed 白名單）
+  // 🗳 政治：2024 投開票所（CDN 靜態快照 polling_stations_2024.json；來源表 gis-platform mig 495；不 gate、不進 embed 白名單）
   pollingStations2024: {
     key: "pollingStations2024",
     country: "TW", section: { theme: "政治 Politics", group: "選舉" },
@@ -1196,7 +1197,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "catalog_missing",
       datasets: [],
-      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024，前端依視窗 bbox 經公開 RPC 即時查詢；低縮放熱區另由公開 RPC get_polling_stations_2024_heat（mig 496）一次取全臺站址點。",
+      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024；2026-11 起匯出成 CDN 靜態快照 /static-rpc/polling_stations_2024.json（scripts/export/export-static-rpc-snapshots.sh @polling，2024 結果不會再變），前端一次載入後依視窗 bbox 篩選點位、低縮放熱區由同一份算出。",
       note: "OGDL-1.0。座標為本站自行定位；僅定位到村里／鄉鎮代表點的約 2,200 所不顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
     },
     dataClass: "C",
@@ -1212,7 +1213,7 @@ export const LAYER_MANIFEST = {
     topics: ["政治", "選舉", "投開票所", "投票率"],
   },
 
-  // 🗳 政治：2026 議員選區（公開 RPC get_council_districts_2026；gis-platform mig 496；不 gate）
+  // 🗳 政治：2026 議員選區（CDN 靜態快照 get_council_districts_2026.json，原 RPC 輸出；gis-platform mig 496；不 gate）
   councilDistricts2026: {
     key: "councilDistricts2026",
     country: "TW", section: { theme: "政治 Politics", group: "選舉" },
@@ -1354,7 +1355,7 @@ export const LAYER_MANIFEST = {
     topics: ["環境", "毒化物", "化學物質", "列管", "環境部"],
   },
   importantWetlands: {
-    key: "importantWetlands", country: "TW", section: { theme: "環境氣候 Environment", group: "濕地 Wetlands" }, ...layerName({ zh: "國家重要濕地", alt: "Wetlands of Importance" }), expandable: true,
+    key: "importantWetlands", country: "TW", section: { theme: "自然保育 Conservation", group: "濕地 Wetlands" }, ...layerName({ zh: "國家重要濕地", alt: "Wetlands of Importance" }), expandable: true,
     color: ATLAS_LAYER_COLORS.importantWetlands, icon: Leaf,
     upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 25659 → TGOS 重要濕地範圍圖 SHP（2026-01-09 版，89 面，TWD97 TM2 轉經緯度）；mini scripts/fetch/fetch-g37-opendata.py", note: "analytics 尚無 pipeline／catalog；保育利用計畫功能分區（578 面）另見 importantWetlandZones。" },
     dataClass: "A", source: [
@@ -1366,7 +1367,7 @@ export const LAYER_MANIFEST = {
     topics: ["環境", "濕地", "保育", "國家公園署"],
   },
   importantWetlandZones: {
-    key: "importantWetlandZones", country: "TW", section: { theme: "環境氣候 Environment", group: "濕地 Wetlands" }, ...layerName({ zh: "重要濕地功能分區", alt: "Wetland Conservation Zoning" }), expandable: true,
+    key: "importantWetlandZones", country: "TW", section: { theme: "自然保育 Conservation", group: "濕地 Wetlands" }, ...layerName({ zh: "重要濕地功能分區", alt: "Wetland Conservation Zoning" }), expandable: true,
     color: ATLAS_LAYER_COLORS.importantWetlandZones, icon: Leaf,
     upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 25659 資源清單第三列 → TGOS 重要濕地保育利用計畫功能分區圖 SHP（2026-02-12 版，578 面／48 處，TWD97 TM2 轉經緯度；資源清單寫 577 筆）；mini scripts/fetch/fetch-g37-opendata.py", note: "analytics 尚無 pipeline／catalog；面積由 TWD97 幾何計算；來源 DBF 把「(木宜)梧」存成問號，依範圍圖寫法還原。" },
     dataClass: "A", source: [
@@ -1976,7 +1977,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useFireEventsLayer 自行接線：Supabase RPC get_fire_events_by_year 按年載入，餵進自建的 fire-events-src geojson source",
+      note: "useFireEventsLayer 自行接線：按年讀 CDN 靜態快照 /static-rpc/get_fire_events_by_year_<民國年>.json（原 RPC 輸出；111–113 年不會再變），餵進自建的 fire-events-src geojson source",
     },
     legend: "fireEvents",
     popup: "fireEvent",
@@ -1999,7 +2000,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useFireLatestLayer 自行接線：與 fireEvents 同源（get_fire_event_years 取最新年再 get_fire_events_by_year），另建 fire-latest-src source 讓它不進歷史模式也常駐",
+      note: "useFireLatestLayer 自行接線：與 fireEvents 同源（靜態快照 get_fire_event_years.json 取最新年再讀該年快照），另建 fire-latest-src source 讓它不進歷史模式也常駐",
     },
     legend: "fireEvents",
     popup: "fireEvent",
@@ -2277,7 +2278,7 @@ export const LAYER_MANIFEST = {
       status: "catalog_missing",
       datasets: [],
       processing: "Supabase RPC get_gfw_vessel_presence_current；每日快照/延遲資料依 viewport 查詢",
-      note: "舊版每日 presence collector 目前不是生產 freshness 來源；本層只保留歷史快照，最新 release 應以小時 Grid／Tracks／SAR 的完整 UTC 日期為準",
+      note: "舊版每日 presence collector（data-collectors gfw_vessel_presence）因授權 gate 刻意停用（GFW_VESSEL_PRESENCE_ENABLED=false），live.gfw_vessel_presence_* 自始 0 列，本層目前空白；最新 release 以小時 Grid／Tracks／SAR 的完整 UTC 日期為準",
     },
     dataClass: "D",
     source: {
@@ -2287,7 +2288,7 @@ export const LAYER_MANIFEST = {
     legend: "gfwVesselPresence",
     popup: "gfwVesselPresence",
     params: { count: 1, kinds: ["slider"] },
-    description: "Global Fishing Watch 舊版每日 presence 歷史快照；不代表最新 release，也不是即時 AIS 或暗船清單",
+    description: "Global Fishing Watch 舊版每日 presence；收集器待授權尚未啟用，目前沒有資料（最新船舶看小時 Grid／Tracks／SAR）",
     topics: ["世界", "海事", "船舶", "GFW"],
   },
 
@@ -7225,7 +7226,7 @@ export const LAYER_MANIFEST = {
 
   convenienceStores: {
     key: "convenienceStores",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "超商", alt: "Convenience Store" }),
     expandable: true,
     color: "#26c6da",
@@ -7245,7 +7246,7 @@ export const LAYER_MANIFEST = {
 
   postOffices: {
     key: "postOffices",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "郵局", alt: "Post Office" }),
     expandable: true,
     color: "#d32f2f",
@@ -7265,7 +7266,7 @@ export const LAYER_MANIFEST = {
 
   iPostBoxes: {
     key: "iPostBoxes",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "i郵箱", alt: "iPost Box" }),
     expandable: true,
     color: "#ef6c00",
@@ -7285,7 +7286,7 @@ export const LAYER_MANIFEST = {
 
   communityCenters: {
     key: "communityCenters",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "活動中心（部分縣市）", alt: "Community Center" }),
     expandable: true,
     color: "#26a69a",
@@ -7305,7 +7306,7 @@ export const LAYER_MANIFEST = {
 
   govServiceOffices: {
     key: "govServiceOffices",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "機關便民據點", alt: "Gov Service Office" }),
     expandable: true,
     color: "#8d6e63",
@@ -7325,7 +7326,7 @@ export const LAYER_MANIFEST = {
 
   publicLibraries: {
     key: "publicLibraries",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "文化 Culture", group: "設施 Facilities" },
     ...layerName({ zh: "公共圖書館", alt: "Public Library" }),
     expandable: true,
     color: "#5c6bc0",
@@ -7339,13 +7340,13 @@ export const LAYER_MANIFEST = {
     legend: null,
     popup: "publicLibrary",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "公共圖書館全國 634 處（含分館；與文化主題的 librarySeats 即時座位不同層）",
+    description: "公共圖書館全國 634 處（含分館；與同主題的 librarySeats 即時座位不同層）",
     topics: ["基礎建設", "圖書館", "公共服務"],
   },
 
   welfareCenters: {
     key: "welfareCenters",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "公部門與民間" },
     ...layerName({ zh: "社福中心", alt: "Welfare Center" }),
     expandable: true,
     color: "#ec407a",
@@ -7431,7 +7432,7 @@ export const LAYER_MANIFEST = {
 
   retailMarkets: {
     key: "retailMarkets",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" },
     ...layerName({ zh: "公有市場", alt: "Public Market" }),
     expandable: true,
     color: "#66bb6a",
@@ -7451,7 +7452,7 @@ export const LAYER_MANIFEST = {
 
   publicToilets: {
     key: "publicToilets",
-    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" },
     ...layerName({ zh: "公廁", alt: "Public Toilet" }),
     expandable: true,
     color: "#7e57c2",
@@ -8513,8 +8514,8 @@ export const LAYER_MANIFEST = {
   //      （長照 2.0 **特約單位** 23,894）是兩套互不相容的登記體系，名稱交集只有
   //      2,365。**不可 UNION** —— 併起來會重複計算又漏算。故本批不與 medLTC 合併、
   //      不共用 legend、不放同一個主題群，讓使用者自己選一邊。
-  //   2. 既有 `welfareCenters`（掛 基礎建設／公共設施）長得像本批的一員但**不是**。
-  //      本批的 `welfareGovOffices` 已在上游把 `T0103` 社福服務中心排掉（307→151）
+  //   2. 既有 `welfareCenters`（2026-11-08 TWL-12 起與本批同放 社福長照／公部門與民間）
+  //      來源不同、不是本批的一員。本批的 `welfareGovOffices` 已在上游把 `T0103` 社福服務中心排掉（307→151）
   //      正是為了不跟它重複 → **兩層零重疊，可放心同時開**；要算「全部公部門社福
   //      據點」時記得把 welfareCenters 的 162 筆加回來。
   //   3. `permit_status` **不是**有效/失效（上游沒發代碼表，已用兩份現行名冊回推
@@ -8768,7 +8769,7 @@ export const LAYER_MANIFEST = {
 
   forestReserve: {
     key: "forestReserve",
-    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "自然保育 Conservation", group: "森林保育 Forest Conservation" },
     ...layerName({ zh: "保安林", alt: "Reserve" }),
     expandable: true,
     color: "#0F766E",
@@ -8798,7 +8799,7 @@ export const LAYER_MANIFEST = {
 
   forestRecreation: {
     key: "forestRecreation",
-    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "自然保育 Conservation", group: "森林保育 Forest Conservation" },
     ...layerName({ zh: "森林遊樂區", alt: "Recreation" }),
     expandable: true,
     color: "#65A30D",
@@ -9154,7 +9155,7 @@ export const LAYER_MANIFEST = {
 
   forestWildlife: {
     key: "forestWildlife",
-    country: "TW", section: { theme: "林業 Forestry", group: "生態" },
+    country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" },
     ...layerName({ zh: "野生動物分布", alt: "Wildlife" }),
     expandable: true,
     color: "#A855F7",
@@ -9339,7 +9340,7 @@ export const LAYER_MANIFEST = {
 
   propertyValueAdmin: {
     key: "propertyValueAdmin",
-    country: "TW", section: { theme: "房地產統計 Real Estate Statistics", group: "行政區總市值" },
+    country: "TW", section: twStatisticsSection("propertyValueAdmin"),
     ...layerName({ zh: "不動產總市值行政區", alt: "Property Value" }),
     expandable: true,
     color: "#ec7014",
@@ -11574,7 +11575,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "國道", "交流道"],
   },
   freewayEcoSensitive: {
-    key: "freewayEcoSensitive", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道生態敏感路段", alt: "Freeway Eco-sensitive Sections" }), expandable: true,
+    key: "freewayEcoSensitive", country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" }, ...layerName({ zh: "國道生態敏感路段", alt: "Freeway Eco-sensitive Sections" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayEcoSensitive, icon: Sprout,
     upstream: { status: "verified", datasets: [{ datasetId: "freeway_eco_sensitive_sections", confidence: "HIGH" }], note: "交通部高速公路局 國道生態敏感路段（data.gov.tw 31290）；200 面，敏感等級 1–3 為來源分級（方向未說明）。" },
     dataClass: "A", source: [
@@ -11689,7 +11690,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 海域保護與漁業 G08（2026-10-17）：analytics data/processed/marine → build-atlas-public.py → public/marine/ ──
   natureReserves: {
-    key: "natureReserves", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
+    key: "natureReserves", country: "TW", section: { theme: "自然保育 Conservation", group: "保護區 Protected Areas" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
     color: ATLAS_LAYER_COLORS.natureReserves, icon: TreePine,
     upstream: { status: "verified", datasets: [{ datasetId: "nature_reserves", confidence: "HIGH" }], note: "農業部林業及自然保育署 自然保留區（24 面，全國含陸域）；日期為法定公告日。" },
     dataClass: "A", source: [
@@ -11701,7 +11702,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "保護區", "自然保留區", "保育"],
   },
   wildlifeProtectedAreas: {
-    key: "wildlifeProtectedAreas", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
+    key: "wildlifeProtectedAreas", country: "TW", section: { theme: "自然保育 Conservation", group: "保護區 Protected Areas" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.wildlifeProtectedAreas, icon: Leaf,
     upstream: { status: "verified", datasets: [{ datasetId: "wildlife_protected_areas", confidence: "HIGH" }], note: "農業部林業及自然保育署 野生動物保護區（32 面，同名多面為分區，全國含陸域）。" },
     dataClass: "A", source: [
@@ -11723,7 +11724,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 海洋保育補接 G33（2026-10-29）：analytics → build-atlas-public.py → public/marine/ ──
   marineWildlifeAreas: {
-    key: "marineWildlifeAreas", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "海域野生動物保護區與棲息環境", alt: "Marine Wildlife Habitat & Protected Areas" }), expandable: true,
+    key: "marineWildlifeAreas", country: "TW", section: { theme: "自然保育 Conservation", group: "保護區 Protected Areas" }, ...layerName({ zh: "海域野生動物保護區與棲息環境", alt: "Marine Wildlife Habitat & Protected Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.marineWildlifeAreas, icon: Waves,
     upstream: { status: "verified", datasets: [{ datasetId: "white_dolphin_habitat", confidence: "HIGH" }], note: "海洋委員會海洋保育署 iocean（data.gov.tw 157562）6 面：中華白海豚重要棲息環境 1 面（野生動物重要棲息環境）＋貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區。官方 GeoJSON 座標是 TWD97 公尺值卻標 CRS84，本層採由 SHP 轉出的正確經緯度成品。" },
     dataClass: "A", source: [
@@ -14121,7 +14122,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useWasteScheduleLayer：Supabase RPC get_waste_schedule_day（day-of-week 驅動，訂閱 timeStore.subscribeDate 取 dow，不進 currentTime deps）→ wasteScheduleCustomLayer 的 WasteScheduleScene 依表定時刻推算車輛位置 —— 非 OVERLAY_REGISTRY",
+      note: "useWasteScheduleLayer：CDN 靜態快照 /static-rpc/get_waste_schedule_day_<dow>_<分組>.json（7 天 × 8 區分組，原 RPC 輸出；day-of-week 驅動，訂閱 timeStore.subscribeDate 取 dow，不進 currentTime deps）→ wasteScheduleCustomLayer 的 WasteScheduleScene 依表定時刻推算車輛位置 —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
     popup: null,
@@ -14651,7 +14652,9 @@ export const LAYER_MANIFEST = {
   //    （同批 3 教育 edu-schools ×7、批 2 運動場館 ×5）——**不是**拍板②的「同 key 多 config」，
   //    仍寫單數形，契約測試按 `id` 過濾不受影響。7 層以畜種 filter 切分同一份資料，
   //    popup 也共用一個 `livestockFarm`（7 → 1）。
-  // ⚠️ 它們是站主限定（owner-only RPC）：名單來源是 topics 的 "OWNER_ONLY"（GATED_LAYERS 由此派生），
+  // ⚠️ 它們是站主限定：資料走 owner-data 私人檔（/api/private-research/owner-data/livestock-*，2026-11-08 起取代 owner-only RPC），
+  //    `kind: "supabase"` 在這裡的意思是 dynamicData（空 FC 起手、hook setData），fallbackUrl 用共用的 _empty.geojson。
+  //    名單來源是 topics 的 "OWNER_ONLY"（GATED_LAYERS 由此派生），
   //    不用 `gated` 欄位（`gated` 對齊的是 LayerDef → 照現況不填）。
   livestockFarmPig: {
     key: "livestockFarmPig",
@@ -14668,7 +14671,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14692,7 +14695,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14716,7 +14719,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14740,7 +14743,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14764,7 +14767,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14788,7 +14791,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14812,7 +14815,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-farms",
-      fallbackUrl: "./agriculture/livestock_farms.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockFarmPig",
     popup: "livestockFarm",
@@ -14836,7 +14839,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "supabase",
       sourceId: "livestock-slaughter",
-      fallbackUrl: "./agriculture/slaughterhouses.geojson",
+      fallbackUrl: "./geo/_empty.geojson",
     },
     legend: "livestockSlaughter",
     popup: "livestockSlaughter",
@@ -15170,7 +15173,7 @@ export const LAYER_MANIFEST = {
 
   agriRuralRegen: {
     key: "agriRuralRegen",
-    country: "TW", section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "農村 Rural" },
     ...layerName({ zh: "農村再生社區", alt: "Rural Regen" }),
     expandable: true,
     color: "#ffb74d",
@@ -15194,7 +15197,7 @@ export const LAYER_MANIFEST = {
 
   ecoNetworkZones: {
     key: "ecoNetworkZones",
-    country: "TW", section: { theme: "農業 Agriculture", group: "自然保育 Conservation" },
+    country: "TW", section: { theme: "自然保育 Conservation", group: "綠網與生態 Ecological Networks" },
     ...layerName({ zh: "國土綠網分區", alt: "Eco Network Zones" }),
     expandable: true,
     color: "#4caf50",
@@ -16699,7 +16702,7 @@ export const LAYER_MANIFEST = {
     key: "aviationRestrictedGlow",
     // ⚠️ 名字與資料都是航空，THEMES 位置卻在能源／電力 · 廠（跟其他 Bloom 測試層同組）。
     //    按名字猜主題會猜錯 —— 區塊註解不可信的第九種變形。
-    country: "TW", section: { theme: "能源 Energy", group: "視覺實驗 Visual Experiments" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "機場管制/限航 Rim Glow 測試" }),
     expandable: true,
     color: "#f87171",
@@ -17830,19 +17833,19 @@ export const LAYER_MANIFEST = {
   },
 
   // ══════════ 公共生活 Public life（OSM snapshot；非完整官方清冊）══════════
-  drinkingWaterPoints: { key: "drinkingWaterPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "飲水點", alt: "Drinking Water" }), expandable: true, color: PUBLIC_LIFE_COLORS.drinkingWaterPoints, icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "drinking-water-points", url: "./public_life/drinking_water_points.pmtiles", sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, legend: "drinkingWaterPoints", popup: "drinkingWaterPoints", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記飲水點的 snapshot exploration，非完整官方清冊；z0–z14 保留每筆可定位實體。", topics: ["公共生活", "OSM", "飲水"] },
-  publicWasteBaskets: { key: "publicWasteBaskets", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共垃圾桶", alt: "Waste Baskets" }), expandable: true, color: PUBLIC_LIFE_COLORS.publicWasteBaskets, icon: Trash2, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "public-waste-baskets", url: "./public_life/public_waste_baskets.geojson" }, legend: "publicWasteBaskets", popup: "publicWasteBaskets", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記公共垃圾桶的 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "OSM", "廢棄物"] },
-  materialRecyclingPoints: { key: "materialRecyclingPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "資源回收點", alt: "Recycling" }), expandable: true, color: PUBLIC_LIFE_COLORS.materialRecyclingPoints, icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；materials 未標註時不推論可回收材料。" }, dataClass: "A", source: { kind: "geojson", sourceId: "material-recycling-points", url: "./public_life/material_recycling_points.geojson" }, legend: "materialRecyclingPoints", popup: "materialRecyclingPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "OSM 標記資源回收點；僅顯示來源明列的材料。", topics: ["公共生活", "OSM", "回收"] },
-  disasterShelters: { key: "disasterShelters", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "預定收容處所", alt: "Disaster Shelters" }), expandable: true, color: PUBLIC_LIFE_COLORS.disasterShelters, icon: ShieldAlert, upstream: { status: "verified", datasets: [{ datasetId: "emergency_response.shelters", confidence: "HIGH" }], note: "內政部消防署 73242 預定收容處所；不代表目前已開設。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "disaster-shelters", url: "./public_life/disaster_shelters.pmtiles", sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, legend: "disasterShelters", popup: "disasterShelters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "全國預定天災收容處所；不代表目前已開設；z0–z14 保留每筆有效座標。", topics: ["公共生活", "災害", "政府開放資料"] },
+  drinkingWaterPoints: { key: "drinkingWaterPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "飲水點", alt: "Drinking Water" }), expandable: true, color: PUBLIC_LIFE_COLORS.drinkingWaterPoints, icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "drinking-water-points", url: "./public_life/drinking_water_points.pmtiles", sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, legend: "drinkingWaterPoints", popup: "drinkingWaterPoints", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記飲水點的 snapshot exploration，非完整官方清冊；z0–z14 保留每筆可定位實體。", topics: ["公共生活", "OSM", "飲水"] },
+  publicWasteBaskets: { key: "publicWasteBaskets", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "公共垃圾桶", alt: "Waste Baskets" }), expandable: true, color: PUBLIC_LIFE_COLORS.publicWasteBaskets, icon: Trash2, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "public-waste-baskets", url: "./public_life/public_waste_baskets.geojson" }, legend: "publicWasteBaskets", popup: "publicWasteBaskets", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記公共垃圾桶的 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "OSM", "廢棄物"] },
+  materialRecyclingPoints: { key: "materialRecyclingPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "資源回收點", alt: "Recycling" }), expandable: true, color: PUBLIC_LIFE_COLORS.materialRecyclingPoints, icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；materials 未標註時不推論可回收材料。" }, dataClass: "A", source: { kind: "geojson", sourceId: "material-recycling-points", url: "./public_life/material_recycling_points.geojson" }, legend: "materialRecyclingPoints", popup: "materialRecyclingPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "OSM 標記資源回收點；僅顯示來源明列的材料。", topics: ["公共生活", "OSM", "回收"] },
+  disasterShelters: { key: "disasterShelters", country: "TW", section: { theme: "民防避難 Civil Defense", group: "避難設施" }, ...layerName({ zh: "預定收容處所", alt: "Disaster Shelters" }), expandable: true, color: PUBLIC_LIFE_COLORS.disasterShelters, icon: ShieldAlert, upstream: { status: "verified", datasets: [{ datasetId: "emergency_response.shelters", confidence: "HIGH" }], note: "內政部消防署 73242 預定收容處所；不代表目前已開設。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "disaster-shelters", url: "./public_life/disaster_shelters.pmtiles", sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, legend: "disasterShelters", popup: "disasterShelters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "全國預定天災收容處所；不代表目前已開設；z0–z14 保留每筆有效座標。", topics: ["公共生活", "災害", "政府開放資料"] },
   playgrounds: { key: "playgrounds", country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" }, ...layerName({ zh: "遊戲場", alt: "Playgrounds" }), expandable: true, color: PUBLIC_LIFE_COLORS.playgrounds, icon: PartyPopper, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "playgrounds", url: "./public_life/playgrounds.geojson" }, legend: "playgrounds", popup: "playgrounds", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊戲場 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "公園", "OSM"] },
-  accessibleParkFacilities: { key: "accessibleParkFacilities", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "無障礙 Accessibility" }, ...layerName({ zh: "無障礙設施探索", alt: "Accessibility" }), expandable: true, color: PUBLIC_LIFE_COLORS.accessibleParkFacilities, icon: Accessibility, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "wheelchair=yes/limited/no/unknown 依 OSM 標記；unknown 不等於 false。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "accessible-park-facilities", url: "./public_life/accessible_park_facilities.pmtiles", sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, legend: "accessibleParkFacilities", popup: "accessibleParkFacilities", params: { count: 5, kinds: ["multiSelect", "multiSelect", "palette", "slider", "slider"] }, description: "OSM 廣義無障礙標記設施 snapshot，含出入口、公廁、遊戲場、路徑與其他 POI；unknown 不等於無障礙否；z0–z14 保留每筆實體。", topics: ["公共生活", "無障礙", "OSM"] },
+  accessibleParkFacilities: { key: "accessibleParkFacilities", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "無障礙設施探索", alt: "Accessibility" }), expandable: true, color: PUBLIC_LIFE_COLORS.accessibleParkFacilities, icon: Accessibility, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "wheelchair=yes/limited/no/unknown 依 OSM 標記；unknown 不等於 false。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "accessible-park-facilities", url: "./public_life/accessible_park_facilities.pmtiles", sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, legend: "accessibleParkFacilities", popup: "accessibleParkFacilities", params: { count: 5, kinds: ["multiSelect", "multiSelect", "palette", "slider", "slider"] }, description: "OSM 廣義無障礙標記設施 snapshot，含出入口、公廁、遊戲場、路徑與其他 POI；unknown 不等於無障礙否；z0–z14 保留每筆實體。", topics: ["公共生活", "無障礙", "OSM"] },
   bicycleSupport: { key: "bicycleSupport", country: "TW", section: { theme: "交通 Move", group: "共享運具" }, ...layerName({ zh: "自行車支援", alt: "Bicycle Support" }), expandable: true, color: PUBLIC_LIFE_COLORS.bicycleSupport, icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "bicycle-support", url: "./public_life/bicycle_support.pmtiles", sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, legend: "bicycleSupport", popup: "bicycleSupport", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] }, description: "OSM 自行車支援設施 snapshot exploration，非完整官方清冊；z0–z14 保留每筆實體。", topics: ["公共生活", "自行車", "OSM"] },
-  nationalParks: { key: "nationalParks", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: [
+  nationalParks: { key: "nationalParks", country: "TW", section: { theme: "自然保育 Conservation", group: "保護區 Protected Areas" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: [
       { kind: "pmtiles", sourceId: "national-parks", url: "./public_life/national_parks.pmtiles", sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 },
       { kind: "pmtiles", sourceId: "national-parks-points", url: "./public_life/national_parks_points.pmtiles", sourceLayer: "national_parks_points", minzoom: 4, maxzoom: 10 },
     ], legend: "nationalParks", popup: "nationalParks", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "9 座國家公園 + 1 座國家自然公園的官方計畫邊界。", topics: ["環境", "保護區", "政府開放資料"] },
   visitorCentres: { key: "visitorCentres", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "遊客中心", alt: "Visitor Centres" }), expandable: true, color: PUBLIC_LIFE_COLORS.visitorCentres, icon: MapPinned, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "visitor-centres", url: "./public_life/visitor_centres.geojson" }, legend: "visitorCentres", popup: "visitorCentres", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊客中心 snapshot exploration，非完整官方清冊。", topics: ["觀光", "公共生活", "OSM"] },
-  publicLifeOsmCoverage: { key: "publicLifeOsmCoverage", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共生活 OSM 映射密度" }), expandable: true, color: "#2563eb", icon: Grid3x3, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "public-life-osm-coverage", url: "./public_life/public_life_osm_coverage.pmtiles", sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, legend: "publicLifeOsmCoverage", popup: "publicLifeOsmCoverage", params: { count: 1, kinds: ["slider"] }, description: "OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。", topics: ["公共生活", "OSM", "映射密度"] },
+  publicLifeOsmCoverage: { key: "publicLifeOsmCoverage", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "公共生活 OSM 映射密度" }), expandable: true, color: "#2563eb", icon: Grid3x3, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "public-life-osm-coverage", url: "./public_life/public_life_osm_coverage.pmtiles", sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, legend: "publicLifeOsmCoverage", popup: "publicLifeOsmCoverage", params: { count: 1, kinds: ["slider"] }, description: "OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。", topics: ["公共生活", "OSM", "映射密度"] },
 
   // ══════════ 減害服務 Harm Reduction（官方名冊；座標由地址定位，少數為推估）══════════
   harmReductionNeedle: { key: "harmReductionNeedle", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "清潔針具據點", alt: "Needle & Syringe Services" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionNeedle, icon: Syringe, upstream: { status: "verified", datasets: [{ datasetId: "harm_reduction_needle_points", confidence: "HIGH" }], note: "疾管署清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單；990 點全數定位（綠島鄉衛生所、連江縣衛生局 2 點依機構名稱人工核對）。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-needle", url: "./harm_reduction/needle_points.geojson" }, legend: "harmReductionNeedle", popup: "harmReductionNeedle", params: { count: 4, kinds: ["multiSelect", "toggle", "slider", "slider"] }, description: "清潔針具衛教諮詢站、針具自動服務機與回收桶，一個據點可同時提供多類服務。", topics: ["醫療", "減害", "公共衛生"] },

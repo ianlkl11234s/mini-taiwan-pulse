@@ -869,7 +869,7 @@ function metroPointLayers(prefix: string): OverlayConfig["layers"] {
 }
 
 // ── 🐷 畜牧 Livestock helpers ──
-const FARM_SOURCE = "./agriculture/livestock_farms.geojson";
+const FARM_SOURCE = "./geo/_empty.geojson"; // dynamicData：資料由 useLivestockLayers 讀 owner-data 私人檔後 setData
 
 // 飼養場圓圈大小：per-species 總隻數 log 尺標（各層獨立 domain + 兩端 clamp）。
 // 無 zoom 項（用戶要大小純綁數量，不隨 zoom 變）。
@@ -932,8 +932,8 @@ function livestockFarmOverlay(
     id,
     sourceUrl: FARM_SOURCE,
     sourceId: "livestock-farms",
-    // owner-only 動態：改由 useLivestockLayers 從 owner-only RPC setData（見 docs/features/owner-gated-layers）；
-    // sourceUrl 保留作 loader 端 fallback（本層已改走 RPC，實務不再 fetch 該檔）。
+    // owner-only 動態：由 useLivestockLayers 讀站主私人檔（owner-data 家族）後 setData（見 docs/features/owner-gated-layers）；
+    // sourceUrl 是共用的空 FeatureCollection（dynamicData 起手用）。
     dynamicData: true,
     filter,
     layers: [
@@ -3838,7 +3838,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
   // ── 🗳 2026 議員選區（公開 RPC，一次抓全臺）──
-  // useCouncilDistrictsLayer 抓 get_council_districts_2026 後 setData；loader 另加每區一個面內代表點（_label=1）掛選區名。
+  // useCouncilDistrictsLayer 讀靜態快照 get_council_districts_2026.json 後 setData；loader 另加每區一個面內代表點（_label=1）掛選區名。
   // 目前 161 區全為區域選區（原住民選區無對應範圍，不在資料內）。
   {
     id: "councilDistricts2026",
@@ -3886,7 +3886,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
   // ── 🗳 2024 投開票所（公開）──
-  // 低縮放熱區：usePollingStationsLayer 開圖層時抓一次全臺熱區點（get_polling_stations_2024_heat）setData。
+  // 低縮放熱區：usePollingStationsLayer 開圖層時由全臺靜態快照（polling_stations_2024.json）算熱區點 setData。
   // 中性／投票率模式＝單色熱區（選舉人數加權）；領先政黨模式＝三黨各一層（各黨 2024 總統票數加權，三個開關個別控制）。
   // 不用的層 opacity 歸零（不 rebuild）；z11.5→12.5 淡出、與 z12 起的點位交接。熱區不可點擊（gisClickRegistry 不登記）。
   {
@@ -3925,7 +3925,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     })),
   },
-  // 點位：usePollingStationsLayer 依視窗 bbox（zoom ≥ 12）查 get_polling_stations_2024 後 setData。
+  // 點位：usePollingStationsLayer 依視窗 bbox（zoom ≥ 12）從全臺靜態快照篩選後 setData。
   // 色＝中性單色（預設）／2024 總統領先政黨（loader 衍生 `lead`）／投票率五階；precision='road'（僅路名）淡化。色票 SSOT：data/pollingStationsTypes.ts。
   {
     id: "pollingStations2024",
@@ -5118,9 +5118,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 屠宰場：依「種類」首字分家畜(豬牛羊)/家禽(雞鴨鵝)
   {
     id: "livestockSlaughter",
-    sourceUrl: "./agriculture/slaughterhouses.geojson",
+    sourceUrl: "./geo/_empty.geojson",
     sourceId: "livestock-slaughter",
-    // owner-only 動態：改由 useLivestockLayers 從 owner-only RPC setData
+    // owner-only 動態：由 useLivestockLayers 讀站主私人檔（owner-data 家族）後 setData
     dynamicData: true,
     layers: [
       {

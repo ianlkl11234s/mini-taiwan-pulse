@@ -107,7 +107,8 @@ jobs:
         env:
           URL: ${{ steps.deploy.outputs.url }}
           # 對照表內、Worker 走 R2 的圖層大檔（urban 家族，public/ 沒有同名檔）
-          RANGE_PATH: /urban/street_trees_national.pmtiles
+          # CI-4：urban（只在 R2）、world（git 大檔、已在 R2）、ookla（R2 或 dist 皆可，移出 git 前要能 206）
+          RANGE_PATHS: /urban/street_trees_national.pmtiles /world/jp_religion_osm_20260930.pmtiles /geo/ookla_tw_z14.pmtiles
         run: |
           set -euo pipefail
           ver=$(node -p 'require("./package.json").version')
@@ -117,6 +118,8 @@ jobs:
           [ -n "$main" ] || { echo '::error::首頁找不到 main-*.js'; exit 1; }
           curl -sSf -o "$RUNNER_TEMP/main.js" "$URL$main"
           grep -q "\"$ver\"" "$RUNNER_TEMP/main.js" || { echo "::error::$main 不含版號 $ver"; exit 1; }
-          code=$(curl -sS -o /dev/null -w '%{http_code}' -H 'Range: bytes=0-15' "$URL$RANGE_PATH")
-          [ "$code" = 206 ] || { echo "::error::$RANGE_PATH Range 回 $code（預期 206）"; exit 1; }
-          echo "smoke OK：$URL v$ver（$main），$RANGE_PATH Range 206" | tee -a "$GITHUB_STEP_SUMMARY"
+          for p in $RANGE_PATHS; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' -H 'Range: bytes=0-15' "$URL$p")
+            [ "$code" = 206 ] || { echo "::error::$p Range 回 $code（預期 206）"; exit 1; }
+          done
+          echo "smoke OK：$URL v$ver（$main），Range 206：$RANGE_PATHS" | tee -a "$GITHUB_STEP_SUMMARY"

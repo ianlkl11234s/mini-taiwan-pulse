@@ -3,6 +3,7 @@
  *
  * 走 Step 2 建立的 RPC：
  *  - public.get_data_catalog_for_layer(layer_key)   → 該 layer 對應的 upstream datasets
+ *  - public.get_data_catalog_by_dataset_ids(ids)    → pulse_only 衍生層的上游（mig 513）
  *  - public.get_data_catalog_by_theme(theme)        → 該主題所有 datasets
  *
  * SSOT chain：
@@ -75,12 +76,7 @@ export async function fetchDataCatalogForLayer(
   if (ref.status === "pulse_only") {
     const datasetIds = resolveUpstreamDatasets(layerKey);
     if (datasetIds.length === 0) return [];
-    // Batch: pick any pulse_layer that uses each dataset — cheaper to use direct dataset lookup
-    // For MVP just do one RPC per dataset (dataset count is small: usually 1-4)
-    const results = await Promise.all(
-      datasetIds.map((did) => fetchDataCatalogByDatasetId(did))
-    );
-    return results.filter((r): r is DataCatalogEntry => r !== null);
+    return fetchDataCatalogByDatasetIds(datasetIds);
   }
 
   if (ref.status !== "verified") return [];
@@ -96,19 +92,19 @@ export async function fetchDataCatalogForLayer(
 }
 
 /**
- * Fetch a single catalog entry by dataset_id. Used for pulse_only lineage resolution.
- * Reuses get_data_catalog_by_theme with client-side filter to avoid needing a new RPC.
+ * Fetch catalog entries by dataset_id（pulse_only 血緣用）。
+ * 讀 metadata.data_catalog（gis-platform mig 513 的 RPC）；舊版直讀的 public.data_catalog
+ * 是 2026-04 的另一份目錄、沒有這些欄位，查詢從未成功過。RPC 未套用時回空陣列。
  */
-async function fetchDataCatalogByDatasetId(datasetId: string): Promise<DataCatalogEntry | null> {
-  const { data, error } = await supabase
-    .from("data_catalog")
-    .select("dataset_id, title, summary, provider_agency, source_url, source_dataset_id, license, lifecycle, update_frequency, last_updated, catalog_md_path")
-    .eq("dataset_id", datasetId)
-    .maybeSingle();
-  if (error || !data) {
-    return null;
+async function fetchDataCatalogByDatasetIds(datasetIds: string[]): Promise<DataCatalogEntry[]> {
+  const { data, error } = await supabase.rpc("get_data_catalog_by_dataset_ids", {
+    p_dataset_ids: datasetIds,
+  });
+  if (error) {
+    console.warn("[dataCatalog] RPC get_data_catalog_by_dataset_ids failed:", error.message);
+    return [];
   }
-  return mapEntry(data as Record<string, unknown>);
+  return Array.isArray(data) ? data.map(mapEntry) : [];
 }
 
 /**

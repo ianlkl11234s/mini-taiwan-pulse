@@ -132,6 +132,19 @@ for (const p of ['/medical/x.pmtiles', '/network_structures/a.pmtiles', '/jp-med
   });
 }
 
+// CI-4：git 大檔目錄與 ookla 改成先 R2 再 dist（之後才能移出 git）
+for (const p of ['/geo/ookla_tw_z14.pmtiles', '/world/a.pmtiles', '/finance/a.pmtiles', '/energy/a.pmtiles', '/mapchallenge/a.geojson', '/statistics/a.geojson', '/state_assets/a.geojson', '/bus/a_bus_routes.json']) {
+  test(`先 R2 再 dist：${p}`, async () => {
+    const fromR2 = await route(p, { r2: { [p]: 'r2' }, dist: { [p]: 'dist' } });
+    assert.equal(fromR2.res.headers.get('x-pulse-src'), 'r2');
+    assert.equal(await fromR2.res.text(), 'r2');
+    const fromDist = await route(p, { dist: { [p]: 'dist' } });
+    assert.equal(fromDist.res.status, 200);
+    assert.equal(await fromDist.res.text(), 'dist');
+    assert.equal(fromDist.toOrigin, false);
+  });
+}
+
 test('/api 仍轉 ORIGIN', async () => {
   const { res, toOrigin } = await route('/api/research/v1/health');
   assert.equal(toOrigin, true);

@@ -1,6 +1,7 @@
 import type { LayerVisibility } from "../../types";
 import { STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
-import { GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, CA_STATISTICS_TAB_THEMES, IE_STATISTICS_TAB_THEMES, LAYER_MACRO_GROUPS, THEMES, scopeThemes, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
+import { MARINE_STATISTICS_THEME_TITLE, TW_STATISTICS_THEME_TITLES } from "../../data/statisticsTabThemes";
+import { GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, CA_STATISTICS_TAB_THEMES, IE_STATISTICS_TAB_THEMES, LAYER_MACRO_GROUPS, THEMES, scopeThemes, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
 import { COUNTRIES, type CountryCode } from "../../constants/countries";
 
 /**
@@ -58,8 +59,8 @@ function sharedMacroGroups(themes: readonly ThemeDef[]): PanelMacroGroup[] {
 // 一律以 `ThemeDef.country` 篩（主題身分是 (country, title)，不同國家可同名）。
 export const WORLD_THEMES = scopeThemes("WORLD");
 export const JAPAN_THEMES = scopeThemes("JP");
-/** 統計資料主題都屬台灣（`taiwanThemes`），只在台灣內以 title 比對。 */
-const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
+/** 台灣統計主題（與統計入口同一套分類），只在台灣內以 title 比對。 */
+const statisticsDataThemeTitles = new Set(TW_STATISTICS_THEME_TITLES);
 /** 「模擬」入口（站主限定）：雙北跨河橋梁中斷、臺北 307 走廊公車擁擠兩個主題。 */
 export const SIMULATION_THEMES = THEMES.filter((t) => t.country === "SIM");
 /** 台灣入口：country 為 TW 的主題，扣掉統計資料主題、再濾掉統計面（統計面在統計入口）。 */
@@ -94,7 +95,7 @@ export const STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
   { zh: "人口與社會", en: "Population & Society", themes: ["人口與教育 Population & Education", "醫療與長照 Health & Care", "成癮與減害 Addiction & Harm Reduction", "犯罪與治安 Crime & Safety", "體育運動 Sports", "文化與藝文 Culture & Arts"] },
   { zh: "經濟與住宅", en: "Economy & Housing", themes: ["工作與所得 Work & Income", "住宅與不動產 Housing & Property", "財稅與消費 Fiscal & Consumption"] },
   { zh: "交通", en: "Transport", themes: ["公共運輸 Public Transport", "道路與車輛 Roads & Vehicles", "交通用地 Transport Land"] },
-  { zh: "土地與環境", en: "Land & Environment", themes: ["農林漁牧 Agriculture, Forestry & Fisheries", "環境與資源 Environment & Resources", "崩塌與水土保持 Landslides & Soil Conservation", "災害風險 Disaster Risk", "海洋 Marine"] },
+  { zh: "土地與環境", en: "Land & Environment", themes: ["農林漁牧 Agriculture, Forestry & Fisheries", "環境與資源 Environment & Resources", "崩塌與水土保持 Landslides & Soil Conservation", "災害風險 Disaster Risk", MARINE_STATISTICS_THEME_TITLE] },
   { zh: "基準", en: "Baseline", themes: ["地圖參考 Map Reference"] },
 ];
 

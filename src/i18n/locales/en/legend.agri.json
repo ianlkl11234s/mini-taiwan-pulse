@@ -83,5 +83,6 @@
   "legend.agri.gbSoilNa": "Not classified",
   "legend.agri.gbSoilRow": "{label} ({n} zones)",
   "legend.agri.gbSoilModelNote": "BGS 1 km model estimate, not a field soil survey",
-  "legend.agri.gbSoilCoverage": "Northern Ireland: not covered"
+  "legend.agri.gbSoilCoverage": "Northern Ireland: not covered",
+  "legend.agri.ownerDataLoadFailed": "Failed to load ({reason}); toggle the layer to retry"
 }
