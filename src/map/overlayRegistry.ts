@@ -12680,7 +12680,7 @@ OVERLAY_REGISTRY.push(
   },
 );
 
-// ── 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開，2026-11-08）：中和＋永和走到 ≥1 ha 非河濱公園的步行分鐘＋新公園選址。
+// ── 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開，2026-11-08）：中和＋永和走到 ≥1 ha 公園（含河濱，只走穿堤入口）的步行分鐘＋新公園選址。
 // 方案 select 兩層共用（mapchallengeDay08ScenarioIdx）。步行分鐘：方案／步速只換 paint 讀的欄位（t0／t0s／t_<S>／ts_<S>）。
 // 選址：方案＋類別多選（V-4）改 filter，參數變動時重建；方案＝現況時沒有用地（filter 自然 0 筆）。
 // 1955 計畫原圖是 image source，由 useMapchallengeDay08PlanLayer 掛（overlay 引擎只收 geojson／pmtiles）。
