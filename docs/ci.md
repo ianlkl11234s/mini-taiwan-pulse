@@ -17,12 +17,13 @@ CI 只回答一個問題：**這次合併會不會讓 develop 壞掉**。由此�
 ```
 changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse-checkout 跳過 public/）
           ├─ build（tsc -b ＋ vite build）
-          └─ test ×2 片（vitest --shard，完整 checkout）
+          ├─ test ×2 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
+          └─ assets（資產測試：依 lock 從 R2 下載、比對 sha256 後驗內容）
                 └─ ci-ok（彙總；永遠會出現）
 ```
 
-- **三個 job 平行跑**，牆鐘時間等於最慢的那一個。每個 job 自己付 checkout 與 `npm ci` 的成本，`npm ci` 有 setup-node 的 npm 快取，約 5 秒。
-- **檢查的順序以 package.json 的 `check` 為準**：lint → inventory → coral → worker → build → test，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
+- **四個 job 平行跑**，牆鐘時間等於最慢的那一個。每個 job 自己付 checkout 與 `npm ci` 的成本，`npm ci` 有 setup-node 的 npm 快取，約 5 秒。
+- **檢查的順序以 package.json 的 `check` 為準**：lint → inventory → coral → worker → build → test → assets，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
 - **`ci-ok`** 用 `if: always()` 接住所有 job，只要有任何一個不是 success 或 skipped 就紅。之後如果要設 required status check，只設這一個。
 - **每個 job 都有 `timeout-minutes`**。沒設的話，卡住會跑滿 6 小時。
 
@@ -64,6 +65,15 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 
 - **本專案的決定**（development-rules §6「自訂 ESLint 規則」）：「讀原始碼再用 regex 比對」的禁用型檢查，一律寫成 ESLint 規則，不再新增這類測試。這是專案自己的取捨，不是業界共識；可參考 Google Testing Blog 對 change-detector test 的批評。
 - 2026-11-08 盤點到約 19 個測試檔還有讀 `src/` 原始碼的斷言，分類與後續處理記在 BACKLOG（CI-2）。其中讀 JSON、nginx.conf、tokens.css、產出物的屬於資料契約，不在此列。
+
+## 6a. public/ 資料檔與測試（CI-4）
+
+- public/ 的資料檔（GeoJSON、PMTiles、資料用 JSON／PNG）正本在 S3、由 R2 供應，清單是 `deploy/public-assets.lock.json`（路徑、bytes、sha256、供應方式）；git 只留網站素材。計畫與進度：[`docs/features/public-assets-r2/PLAN.md`](features/public-assets-r2/PLAN.md)。
+- **主套件不讀資料檔**：只檢查存在／大小／sha256 的測試查 lock（`src/test/publicAssets.ts`）。
+- **讀資料內容的測試**列在 `vitest.shared.ts` 的 `ASSET_TESTS`，由 `npm run check:assets` 跑：先依 `deploy/asset-test-files.txt` 準備檔案（本機有且 sha256 相符就沿用，否則從 R2 下載到 `.asset-cache/`），再跑 `vitest.assets.config.ts`。新測試要讀資料內容 → 加進 `ASSET_TESTS` 與 `deploy/asset-test-files.txt`。
+- **不可靜默略過**：資產測試用 `assetAvailable()` 守門，lock 的 r2 檔缺了直接失敗。
+- **防回流**：新資料檔不准 commit 到 public/（deployContract 的 ratchet，基準 `deploy/public-git-baseline.txt` 只減不增）；改用 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>`，再由 `upload-deploy-assets.sh` 上傳 S3。
+- **R2 整檔核對**：`npm run check:assets -- --verify-only [--paths <清單>]`，移檔前的關卡。
 
 ## 7. 實測耗時
 

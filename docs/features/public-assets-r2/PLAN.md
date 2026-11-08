@@ -25,7 +25,7 @@ B2 細項：
 | 檔 | 處理 |
 |---|---|
 | 前端已無引用的舊版 10 檔（coverage 1、forestry 3、geo 4、world 2） | 從 git 刪除；S3 已有一份，不另外上傳 |
-| ookla_fixed_global、ookla_mobile_global、waste_stops_static（只有測試在讀） | 移出；測試改成先從 R2 下載、比對 sha256 |
+| ookla_fixed_global、ookla_mobile_global、waste_stops_static（只有測試在讀；lock delivery=s3） | 移出；改成同步到 R2（或改小樣本），資產測試才拿得到；拿不到時測試明確印出略過 |
 | hiking_trails.geojson（研究 sidecar） | 上傳 S3 後移出 |
 | base_map/hillshade.png | Worker 的 .png 規則加例外改讀 R2，再移出 |
 | world/jp_water 兩檔（路徑由 release.json 組出） | 同步規則把 jp_water 整個資料夾帶上，再移出 |
@@ -34,19 +34,31 @@ B2 細項：
 ## 每一批的固定步驟
 
 1. **上傳**：`scripts/deploy/upload-deploy-assets.sh` 依清單上傳 S3 `deploy-assets/`，只新增不覆寫；S3 已有同名但內容不同的檔，停下來問（不覆寫）。
-2. **更新 lock**：`build-public-assets-lock.py` 把該批加進 `deploy/public-assets.lock.json`（路徑、bytes、sha256）。小檔也要進 lock，`min_bytes` 改 0，只收資料副檔名。
+2. **更新 lock**：lock 已收錄所有資料檔（B0）；新資產用 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>`。
 3. **等同步**：發版到 master 時 deploy-workers 會把 S3 同步到 R2（或等每天 03:40 的排程）。
-4. **核對 R2**（移出前的關卡）：對該批每一檔從 R2 公開網域整檔下載，比對 bytes 與 sha256，必須全數一致才進下一步。R2 網域會擋 Python urllib，用 curl。
-5. **移出**：`git rm --cached` 該批、加進 `.gitignore`；讀檔內容的測試改走 lock＋R2 下載（CI 用 curl，比對 sha256 後快取）；只檢查「檔案存在」的測試改查 lock。
+4. **核對 R2**（移出前的關卡）：`npm run check:assets -- --verify-only --paths <該批清單>`，從 R2 整檔下載、比對 bytes 與 sha256，必須全數 SAME 才進下一步。
+5. **移出**：`git rm --cached` 該批、加進 `.gitignore`，並從 `deploy/public-git-baseline.txt` 刪掉該批。測試不用改（B0 已分流，見下節）。
 6. **CI 綠＋本機驗**：dev server 缺檔時會從 R2 取（`serveLockedPublicAssetsFromR2`），每批開 2–3 個圖層目視。
 7. **上線後核對**：正式站每個目錄抽樣，回 200（pmtiles 回 206）且標頭 `X-Pulse-Src: r2`；`inventory.tsv` 該批改「完成」。
-8. **防回流**：「public/ 不准新增資料檔」的檢查用基準清單，每批完成就把基準縮小，最後清單只剩 keep。
+8. **防回流**：deployContract 的 ratchet 只允許 `deploy/public-git-baseline.txt` 裡的資料檔留在 git，新資料檔一律擋下；基準只減不增，全部移完時應為空。
+
+## 測試怎麼分（B0，三桶）
+
+| 桶 | 測試在做什麼 | 做法 |
+|---|---|---|
+| A | 只檢查存在、大小、sha256，或 manifest source 對得上檔 | 改查 lock，不讀檔（`src/test/publicAssets.ts` 的 `lockedAsset`）。deployContract 的 lock 段、forest_reserve 收據比對都改成這樣 |
+| B | 驗資料內容（解析 GeoJSON、欄位、筆數、分類覆蓋、PMTiles metadata），或以釘死 sha256 的真實資產測 adapter | 列在 `vitest.shared.ts` 的 `ASSET_TESTS`（41 支），主套件排除；`npm run check:assets` 先依 `deploy/asset-test-files.txt`（227 檔、約 457MB）從 R2 下載、比對 sha256，再跑這 41 支。CI 的 assets job 每個程式 PR 都跑，下載用 actions/cache 保留 |
+| C | 只需要一份輸入來測程式邏輯 | 用 repo 內小樣本。研究 dataset 測試都釘死真實資產的 sha256 與筆數，換小樣本就不再驗那份資產，所以這次都歸 B |
+
+- 靜默略過改成明確失敗：資產測試的 `existsSync` 守門改用 `assetAvailable()`。lock 的 r2 檔沒有實體檔會直接失敗；不在 R2 的（s3、pending 等）印出「略過」。
+- CI 的 test job 用 sparse-checkout 只取網站素材，證明主套件不需要 public/ 資料檔。
+- 2026-11-08 B0 驗收：刪掉所有 lock 資料檔後，主套件結果與有檔時相同（5,560 通過、198 略過）；資產測試從 R2 下載 111 檔後 41 支全過。R2 整檔核對：B1 的 237 檔全部一致。
 
 ## 順序
 
 | 步 | PR | 內容 | 前置條件 |
 |---|---|---|---|
-| 0 | PR-B0 | 核對腳本（第 4、7 步）、測試用 R2 下載工具、防回流檢查（先凍結現況）、lock 收小檔 | 無 |
+| 0 | PR-B0 | lock v2（收所有資料檔）、測試三桶分流＋`check:assets`、防回流 ratchet、test job 不取 public/ 資料 | 無 |
 | 1 | PR-B1 | B1 237 檔移出 | v2.28.0 同步完成、R2 237/237 一致 |
 | 2 | PR-B2 | B2：刪 10 檔、Worker 與同步規則改 4 檔、測試改下載 3 檔、hiking 上傳 | B2 檔案上傳並同步 |
 | 3 | PR-B3 | B3a＋B3b 277 檔上傳後移出 | 上傳＋同步＋核對 |

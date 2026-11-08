@@ -10,7 +10,7 @@
 - **⛔ 守門：資料不會變，或只會整批替換**（選舉結果、投開票所、選區、年度普查、一次性調查、季／年更開放資料）→ 一律做成 PMTiles／GeoJSON 檔走 S3 deploy-assets → R2，**不進 Supabase、不寫 RPC 圖層**（ADR-0026 §5.1）。
 - **動態時序資料**（船舶、航班、溫度、壅塞、地震、災害示警 等），且需要伺服器端依時間視窗／範圍篩選 → Supabase RPC；新表必須同時登記 `metadata.retention_policies`（≤ 180 天）與 S3 正本路徑（ADR-0026 §6）
 - **每個人看都一樣的最新快照／每日切片、影像** → collector 寫 R2（＋manifest），不經 RPC 回傳大量資料或 base64 影像
-- **靜態 GeoJSON**（機場、港口、燈塔、路網 等）→ `public/<domain>/*.geojson`；既有 URL 視為契約，不因整理目錄任意搬動
+- **靜態 GeoJSON**（機場、港口、燈塔、路網 等）→ `public/<domain>/*.geojson`；既有 URL 視為契約，不因整理目錄任意搬動。**檔案不進 git**（CI-4）：放在本機 public/ 後跑 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>` 登記 lock，再由 `scripts/deploy/upload-deploy-assets.sh` 上傳 S3 deploy-assets，發版時同步到 R2；deployContract 的 ratchet 會擋下 commit 進 public/ 的新資料檔
 - **Statistics 行政區統計**（包含未來新增指標）→ `regional-statistics-cdn-v1` R2 snapshot；資料庫保留為發布來源，瀏覽器不得 fallback 到 Supabase。發布順序固定為 immutable artifact → immutable manifest → `current.json`，任一 SHA／完整度／來源語意檢查失敗即顯示錯誤。
 - **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/<domain>/`（由 S3 deploy-assets 管理，`deploy/cloudflare/sync_site_assets.py` 同步到 R2 `site/`；路徑須與 manifest、`deploy/cloudflare/site_manifest.py`、deploy scripts 同步）
 

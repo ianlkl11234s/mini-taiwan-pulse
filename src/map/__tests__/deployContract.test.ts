@@ -30,11 +30,11 @@
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
-import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimAssets";
 import { OWNER_DATA_ASSETS } from "../../data/ownerDataAssets";
+import { PUBLIC_ASSETS_LOCK as publicAssetsLock, lockedAsset } from "../../test/publicAssets";
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
@@ -56,8 +56,6 @@ const privateResearchServer = readFileSync("server/coral-private/coral-private-s
 const historicalFlightPublisher = readFileSync("scripts/deploy/publish_historical_flight_trails.py", "utf8");
 const workerSource = readFileSync("deploy/cloudflare/src/worker.js", "utf8");
 const siteManifest = readFileSync("deploy/cloudflare/site_manifest.py", "utf8");
-interface PublicAssetLockEntry { path: string; bytes: number; sha256: string; delivery: "r2" | "git" | "undecided"; s3_key?: string }
-const publicAssetsLock = JSON.parse(readFileSync("deploy/public-assets.lock.json", "utf8")) as { min_bytes: number; entries: PublicAssetLockEntry[] };
 /** CI-4：lock 裡 delivery=r2 的檔（public/ 相對路徑 → S3 key），由 upload-deploy-assets.sh 的 lock 段上傳 */
 const LOCK_R2 = new Map(publicAssetsLock.entries.filter((e) => e.delivery === "r2").map((e) => [e.path.slice("public/".length), e.s3_key as string]));
 /** ADR-0024 §4：已改由 data.itsmigu.com/layers/v1 索引供應的舊相對 URL（"./dir/file"）。 */
@@ -482,7 +480,8 @@ describe("deploy 契約（nginx + pull script）", () => {
 
   it("registry 引用但本機不存在的檔案，必須屬於已接線的 S3 管理目錄", () => {
     const orphans = sourceUrls.filter((u) => {
-      if (existsSync(`public/${u}`)) return false; // 本機有 → OK（git 小檔或已 sync）
+      // 本機有 → OK（git 小檔或已 sync）；登記在 lock → 由「public 資料檔 lock」段把關（CI-4：移出 git 後本機沒有實體檔）
+      if (existsSync(`public/${u}`) || lockedAsset(u)) return false;
       const dir = u.includes("/") ? (u.split("/")[0] as string) : "";
       // 本機沒有 → 必須是 nginx+pull 已涵蓋的子目錄（S3 deploy-assets 管理）
       return !(dir && nginxCovers(dir) && pullCovers(dir));
@@ -709,10 +708,11 @@ describe("deploy 契約（manifest 逐檔）", () => {
       // 改斷言它登記在 committed 的遷移清單（layerAssetIndex.expected.json）。
       if (layerAssetIndexKeys.has(`./${path}`)) continue;
       if (path === forestReceipt.public_url) {
-        const payload = readFileSync("public/forestry/forest_reserve.pmtiles");
+        // CI-4：比對 lock（正本），不讀實體檔
+        const locked = lockedAsset("forestry/forest_reserve.pmtiles");
         expect(forestReceipt.readback).toBe("PASS");
-        expect(payload.length).toBe(forestReceipt.bytes);
-        expect(createHash("sha256").update(payload).digest("hex")).toBe(forestReceipt.sha256);
+        expect(locked?.bytes).toBe(forestReceipt.bytes);
+        expect(locked?.sha256).toBe(forestReceipt.sha256);
         expect(path).toContain(`/releases/${forestReceipt.sha256}/`);
         expect(forestReceipt.http.some((check: { headers: string[] }) => check.headers.includes("cf-cache-status: HIT"))).toBe(true);
         continue;
@@ -817,30 +817,51 @@ describe("deploy 契約（manifest 逐檔）", () => {
 });
 
 /**
- * CI-4（2026-11-08）：git 追蹤的 >1MB public 檔要登記在 deploy/public-assets.lock.json，
- * 讓這些檔之後可以移出 git、改由 R2 site/ 供應而不失去檢查力。
+ * CI-4（2026-11-08）：public/ 資料檔一律登記在 deploy/public-assets.lock.json（正本），網站素材（lock 的 keep_patterns）除外。
+ * 資料檔之後移出 git、改由 S3 正本＋R2 供應；這裡只比對 lock，不讀實體檔（CI 的 test job 沒有 public/ 資料檔）。
+ * 內容 sha256 由 `npm run check:assets` 對 R2 整檔核對。計畫：docs/features/public-assets-r2/PLAN.md。
  */
-describe("public 大檔 lock（CI-4）", () => {
+describe("public 資料檔 lock（CI-4）", () => {
   const workerList = (name: string) =>
     [...(workerSource.match(new RegExp(`const ${name} = [\\[{]([\\s\\S]*?)[\\]}];`))?.[1] ?? "").matchAll(/'([a-z0-9_-]+)'|([a-z0-9_]+):/g)]
       .map((m) => (m[1] ?? m[2]) as string);
   const R2_FIRST = new Set(workerList("DATA_THEN_DIST"));
   const R2_ONLY = new Set(workerList("DATA_ONLY"));
+  // -z：不讓 git 把中文檔名轉成帶引號的八進位跳脫（CI 的 core.quotepath 預設開啟）
+  const tracked = execSync("git ls-files -z public", { encoding: "utf8" }).split("\0").filter(Boolean);
+  const keepRes = publicAssetsLock.keep_patterns.map((p) => {
+    const body = p.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, p.split("/").length === 2 ? "[^/]*" : ".*");
+    return new RegExp(`^${body}$`);
+  });
+  const isKeep = (path: string) => keepRes.some((re) => re.test(path));
+  const baseline = new Set(
+    readFileSync("deploy/public-git-baseline.txt", "utf8").split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#")),
+  );
 
-  it("每個 git 追蹤、超過 min_bytes 的 public 檔都在 lock 裡，大小一致", () => {
-    const locked = new Map(publicAssetsLock.entries.map((e) => [e.path, e]));
+  it("git 追蹤的 public/ 資料檔都在 lock；本機有實體檔時大小與 lock 一致", () => {
     const problems: string[] = [];
-    // -z：不讓 git 把中文檔名轉成帶引號的八進位跳脫（CI 的 core.quotepath 預設開啟）
-    const tracked = execSync("git ls-files -z public", { encoding: "utf8" }).split("\0").filter(Boolean);
     for (const path of tracked) {
-      const size = statSync(path).size;
-      if (size <= publicAssetsLock.min_bytes) continue;
-      const e = locked.get(path);
-      if (!e) problems.push(`${path}（${size}B）不在 lock`);
-      else if (e.bytes !== size) problems.push(`${path} 大小 ${size} ≠ lock ${e.bytes}`);
+      if (isKeep(path)) continue;
+      const e = lockedAsset(path);
+      if (!e) problems.push(`${path} 不在 lock`);
+      else if (existsSync(path) && statSync(path).size !== e.bytes) problems.push(`${path} 大小 ${statSync(path).size} ≠ lock ${e.bytes}`);
     }
     expect(problems, `→ 重跑 python3 scripts/deploy/build-public-assets-lock.py：\n  ${problems.join("\n  ")}`).toEqual([]);
-    expect(publicAssetsLock.entries.length).toBeGreaterThan(200);
+    expect(publicAssetsLock.entries.length).toBeGreaterThan(500);
+    expect(publicAssetsLock.entries.every((e) => /^[0-9a-f]{64}$/.test(e.sha256) && e.bytes > 0)).toBe(true);
+    expect(publicAssetsLock.entries.filter((e) => isKeep(e.path)).map((e) => e.path), "網站素材不進 lock").toEqual([]);
+  });
+
+  it("不准新增資料檔到 git：public/ 只收網站素材，資料檔要上傳 S3 並用 lock add（ratchet）", () => {
+    const added = tracked.filter((p) => !isKeep(p) && !baseline.has(p));
+    expect(
+      added,
+      `這些資料檔新進了 git：\n  ${added.join("\n  ")}\n` +
+      "→ 上傳 S3 並用 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>`，不要 commit 到 public/（docs/features/public-assets-r2/PLAN.md）",
+    ).toEqual([]);
+    const gone = [...baseline].filter((p) => !tracked.includes(p));
+    expect(gone, `這些檔已移出 git → 從 deploy/public-git-baseline.txt 刪掉（基準只減不增）：\n  ${gone.join("\n  ")}`).toEqual([]);
+    expect([...baseline].filter((p) => isKeep(p)), "網站素材不必列在 baseline").toEqual([]);
   });
 
   it("delivery=r2 的檔：Worker 會先讀 R2，S3 key 落在 site_manifest 會同步的前綴", () => {

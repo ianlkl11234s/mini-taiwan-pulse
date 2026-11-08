@@ -2,7 +2,7 @@ name: CI
 
 # 原則與取捨見 docs/ci.md。結構：
 #   changes（判斷這次 PR 是否只動到不影響程式的路徑）
-#   → quick／build／test 三個 job 平行跑（牆鐘＝最慢那個，而不是全部相加）
+#   → quick／build／test／assets 四個 job 平行跑（牆鐘＝最慢那個，而不是全部相加）
 #   → ci-ok 彙總（永遠會出現；要設 required check 只設這一個）
 on:
   pull_request:
@@ -103,8 +103,10 @@ jobs:
       - name: TypeScript build (tsc -b + vite build)
         run: npm run check:build
 
-  # 測試要完整 checkout：PMTiles sha256、staticDataContract 等契約測試會讀 public/ 大檔，缺檔會靜默略過
-  # 分 2 片平行（vitest 依測試檔切分）；單片時 test 是最慢的 job（2026-11-08 實測 checkout 67s＋vitest 145s）
+  # 主套件不讀 public/ 資料檔（CI-4）：只檢查存在／大小／sha256 的測試改查 deploy/public-assets.lock.json，
+  # 讀內容的資產測試另由 assets job 跑（vitest.shared.ts）。所以 checkout 跳過 public/ 資料，只留網站素材
+  # （清單＝scripts/deploy/build-public-assets-lock.py 的 KEEP_PATTERNS，兩邊要同步）。
+  # 分 2 片平行（vitest 依測試檔切分）；2026-11-08 實測單片時 checkout 67s＋vitest 145s
   test:
     needs: changes
     if: needs.changes.outputs.code == 'true'
@@ -117,6 +119,18 @@ jobs:
     name: test (${{ matrix.shard }}/2)
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/public/*
+            /public/blog/
+            /public/screenshots/
+            /public/showcase/
+            /public/llms.txt
+            /public/robots.txt
+            /public/sitemap.xml
+            /public/*.html
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -125,9 +139,33 @@ jobs:
       - name: Tests (vitest)
         run: npm run check:test -- --shard=${{ matrix.shard }}/2
 
+  # 資產測試（讀 public/ 資料檔內容，vitest.shared.ts 的 ASSET_TESTS）：依 deploy/asset-test-files.txt 準備檔案，
+  # git 裡沒有的從 R2 下載並比對 lock 的 sha256（.asset-cache 以 actions/cache 保留，lock 不變就不重抓）。
+  # 每個程式 PR 都跑：這些測試也守 overlayRegistry、分類表等程式端改動，只在資料變動時跑會漏。
+  # CI-4 移檔期間仍完整 checkout（資料檔還在 git 的部分直接用）；全部移出後 checkout 只剩網站素材。
+  assets:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - uses: actions/cache@v4
+        with:
+          path: .asset-cache
+          key: asset-cache-${{ hashFiles('deploy/asset-test-files.txt', 'deploy/public-assets.lock.json') }}
+          restore-keys: asset-cache-
+      - run: npm ci
+      - name: Asset tests (R2 sha256 + content contracts)
+        run: npm run check:assets
+
   ci-ok:
     if: always()
-    needs: [changes, quick, build, test]
+    needs: [changes, quick, build, test, assets]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
