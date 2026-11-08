@@ -811,7 +811,9 @@ describe("public 大檔 lock（CI-4）", () => {
   it("每個 git 追蹤、超過 min_bytes 的 public 檔都在 lock 裡，大小一致", () => {
     const locked = new Map(publicAssetsLock.entries.map((e) => [e.path, e]));
     const problems: string[] = [];
-    for (const path of TRACKED) {
+    // -z：不讓 git 把中文檔名轉成帶引號的八進位跳脫（CI 的 core.quotepath 預設開啟）
+    const tracked = execSync("git ls-files -z public", { encoding: "utf8" }).split("\0").filter(Boolean);
+    for (const path of tracked) {
       const size = statSync(path).size;
       if (size <= publicAssetsLock.min_bytes) continue;
       const e = locked.get(path);
