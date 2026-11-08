@@ -38,6 +38,8 @@ export const COVERAGE_AREAS = {
   // 30 天地圖挑戰 Day 4 r8 細格：臺中市＋彰化縣（兩框聯集）
   taichungChanghua: { label: { zh: "臺中與彰化", en: "Taichung & Changhua", ja: "台中・彰化" }, bbox: [120.22, 23.78, 121.46, 24.45] },
   tainan: { label: { zh: "臺南市", en: "Tainan City", ja: "台南市" }, bbox: [120.03, 22.88, 120.66, 23.42] },
+  // 30 天地圖挑戰 Day 8 烏托邦：新北市中和區＋永和區（資料與 1955 計畫圖 121.464–121.536°E、24.964–25.024°N）
+  zhongheYonghe: { label: { zh: "中和與永和", en: "Zhonghe & Yonghe", ja: "中和・永和" }, bbox: [121.455, 24.955, 121.545, 25.03] },
   // 30 天地圖挑戰 Day 6 西南海岸線三代：高雄北端到雲林口湖（資料 22.77–23.66°N）
   swCoast: { label: { zh: "臺灣西南沿海", en: "Southwest coast of Taiwan", ja: "台湾南西部沿岸" }, bbox: [119.95, 22.74, 120.42, 23.70] },
 } as const satisfies Record<string, CoverageArea>;
@@ -107,6 +109,9 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   mapchallengeDay04ScaleTcCh: "taichungChanghua",
   mapchallengeDay06Coast: "swCoast",
   mapchallengeDay06Taipei1932: "taipei",
+  mapchallengeDay08Access: "zhongheYonghe",
+  mapchallengeDay08Sites: "zhongheYonghe",
+  mapchallengeDay08Plan1955: "zhongheYonghe",
   tainanRoadTunnels: "tainan",
 };
 

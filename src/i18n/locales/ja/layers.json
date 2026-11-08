@@ -1761,5 +1761,8 @@
   "layer.historicalImagery": "歴史的空中写真・衛星画像",
   "layer.historicalBoundaries": "歴史的境界・路線網",
   "layer.historicalLandUse": "歴史的土地利用",
-  "layer.historicalThematic": "歴史的主題図（水利・地質・林野・測量）"
+  "layer.historicalThematic": "歴史的主題図（水利・地質・林野・測量）",
+  "layer.mapchallengeDay08Access": "大きな公園まで徒歩何分",
+  "layer.mapchallengeDay08Sites": "新しい公園の候補地とコスト",
+  "layer.mapchallengeDay08Plan1955": "1955 年 中和郷 都市計画図"
 }

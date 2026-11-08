@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1771,
+    "keyCount": 1774,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5973,6 +5973,18 @@
         "mapchallenge-day06-taipei-1932-fill"
       ],
       "type": "mapchallengeDay06Taipei1932"
+    },
+    {
+      "layers": [
+        "mapchallenge-day08-sites-fill"
+      ],
+      "type": "mapchallengeDay08Sites"
+    },
+    {
+      "layers": [
+        "mapchallenge-day08-access-fill"
+      ],
+      "type": "mapchallengeDay08Access"
     },
     {
       "layers": [
@@ -104491,6 +104503,189 @@
       ],
       "sourceId": "mapchallenge-day06-lighthouses",
       "sourceUrl": "./mapchallenge/day06_lighthouse_weather.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay08Access",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "t0"
+                    ],
+                    30
+                  ]
+                ],
+                "#365c8d",
+                5.05,
+                "#1f9a8a",
+                10.05,
+                "#6fcf58",
+                15.05,
+                "#fde725"
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "t0"
+                    ],
+                    30
+                  ]
+                ],
+                "#46c06f",
+                5.05,
+                "#238a8d",
+                10.05,
+                "#3c4e8a",
+                15.05,
+                "#46085c"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day08-access",
+      "sourceUrl": "./mapchallenge/day08_access.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay08Sites",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "scenario"
+            ],
+            "A"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "cls"
+                ],
+                "T1",
+                "#8466c8",
+                "T2",
+                "#b75600",
+                "T3",
+                "#b64d8e",
+                "park",
+                "#b38c15",
+                "#5ba74a"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "cls"
+                ],
+                "T1",
+                "#6f50b2",
+                "T2",
+                "#b95700",
+                "T3",
+                "#963372",
+                "park",
+                "#d0a83e",
+                "#77c466"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "scenario"
+            ],
+            "A"
+          ],
+          "layout": {
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#f8fafc",
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#0f172a",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "mapchallenge-day08-sites",
+      "sourceUrl": "./mapchallenge/day08_sites.geojson"
     }
   ],
   "params": {
@@ -137663,6 +137858,153 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay08Access": [
+      {
+        "label": "方案",
+        "options": [
+          {
+            "label": "現況",
+            "value": "base"
+          },
+          {
+            "label": "A 效率",
+            "value": "A"
+          },
+          {
+            "label": "B 公平",
+            "value": "B"
+          },
+          {
+            "label": "B2 長幼優先",
+            "value": "B2"
+          },
+          {
+            "label": "C 低拆遷",
+            "value": "C"
+          },
+          {
+            "label": "D 1955 七公園",
+            "value": "D"
+          },
+          {
+            "label": "Dfull 1955 公園＋綠地",
+            "value": "Dfull"
+          }
+        ],
+        "type": "select",
+        "value": "base"
+      },
+      {
+        "label": "步速",
+        "options": [
+          {
+            "label": "一般 4.8 km/h",
+            "value": "normal"
+          },
+          {
+            "label": "長幼 3.6 km/h",
+            "value": "slow"
+          }
+        ],
+        "type": "select",
+        "value": "normal"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay08Plan1955": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "mapchallengeDay08Sites": [
+      {
+        "label": "方案",
+        "options": [
+          {
+            "label": "A 效率",
+            "value": "A"
+          },
+          {
+            "label": "B 公平",
+            "value": "B"
+          },
+          {
+            "label": "B2 長幼優先",
+            "value": "B2"
+          },
+          {
+            "label": "C 低拆遷",
+            "value": "C"
+          },
+          {
+            "label": "D 1955 七公園",
+            "value": "D"
+          },
+          {
+            "label": "Dfull 1955 公園＋綠地",
+            "value": "Dfull"
+          }
+        ],
+        "type": "select",
+        "value": "A"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "T1 未開闢公園用地",
+            "value": "T1"
+          },
+          {
+            "label": "T2 工業區",
+            "value": "T2"
+          },
+          {
+            "label": "T3 住宅商業街廓",
+            "value": "T3"
+          },
+          {
+            "label": "1955 計畫公園",
+            "value": "park"
+          },
+          {
+            "label": "1955 計畫綠地",
+            "value": "greenbelt"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "T1",
+          "T2",
+          "T3",
+          "park",
+          "greenbelt"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "marineEcologicalMonitoringSites": [

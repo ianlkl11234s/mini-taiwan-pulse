@@ -24,6 +24,11 @@ import {
   MAPCHALLENGE_DAY06_OLDEST_WIDTH_MUL, MAPCHALLENGE_DAY06_SAME_RING,
   mapchallengeDay06EraColor, mapchallengeDay06SurviveColor, mapchallengeDay06TempleColor, mapchallengeDay06TodayColor,
 } from "../../data/mapchallengeDay06Types";
+import {
+  MAPCHALLENGE_DAY08_SCENARIOS, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY,
+  mapchallengeDay08BinColors, mapchallengeDay08ScenarioByValue, mapchallengeDay08SiteColor, mapchallengeDay08SiteOutline,
+  type MapchallengeDay08Scenario, type MapchallengeDay08SiteClass,
+} from "../../data/mapchallengeDay08Types";
 
 /** i18n key 寫成字面值（localeParity 靠字面值判斷 key 有沒有人用） */
 export const MAPCHALLENGE_FACILITY_NAME_KEYS: Record<MapchallengeFacilityKey, `legend.mapchallenge.facility.${MapchallengeFacilityKey}`> = {
@@ -259,5 +264,85 @@ export function MapchallengeDay06LighthousesLegend({ isDark }: { isDark: boolean
     <LegendRow swatch={<SwatchLine color={MAPCHALLENGE_DAY06_STATUS_COLORS.moved} width={2} dash={MAPCHALLENGE_DAY06_LINK_DASH} />}>{t("legend.mapchallenge.day06.link")}</LegendRow>
     <LegendNote>{t("legend.mapchallenge.day06.lighthouseNote")}</LegendNote>
     <Day06Footer />
+  </div>;
+}
+
+// ── Day 8 烏托邦：步行可及／選址／1955 計畫圖 ─────────────────────
+/** i18n key 寫成字面值（同上） */
+export const MAPCHALLENGE_DAY08_SCENARIO_KEYS: Record<MapchallengeDay08Scenario, `legend.mapchallenge.day08.scenario.${MapchallengeDay08Scenario}`> = {
+  base: "legend.mapchallenge.day08.scenario.base",
+  A: "legend.mapchallenge.day08.scenario.A",
+  B: "legend.mapchallenge.day08.scenario.B",
+  B2: "legend.mapchallenge.day08.scenario.B2",
+  C: "legend.mapchallenge.day08.scenario.C",
+  D: "legend.mapchallenge.day08.scenario.D",
+  Dfull: "legend.mapchallenge.day08.scenario.Dfull",
+};
+export const MAPCHALLENGE_DAY08_SPEED_KEYS = {
+  normal: "legend.mapchallenge.day08.speed.normal",
+  slow: "legend.mapchallenge.day08.speed.slow",
+} as const;
+export const MAPCHALLENGE_DAY08_SITE_CLASS_KEYS: Record<MapchallengeDay08SiteClass, `legend.mapchallenge.day08.cls.${MapchallengeDay08SiteClass}`> = {
+  T1: "legend.mapchallenge.day08.cls.T1",
+  T2: "legend.mapchallenge.day08.cls.T2",
+  T3: "legend.mapchallenge.day08.cls.T3",
+  park: "legend.mapchallenge.day08.cls.park",
+  greenbelt: "legend.mapchallenge.day08.cls.greenbelt",
+};
+const MAPCHALLENGE_DAY08_BIN_KEYS = [
+  "legend.mapchallenge.day08.bin0", "legend.mapchallenge.day08.bin1", "legend.mapchallenge.day08.bin2", "legend.mapchallenge.day08.bin3",
+] as const;
+
+function Day08Footer() {
+  const { t } = useLocale();
+  return <>
+    <LegendNote>{t("legend.mapchallenge.day08.caveat")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day08.source")}</LegendNote>
+  </>;
+}
+
+export function MapchallengeDay08AccessLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  const values = useLayerParams("mapchallengeDay08Access");
+  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08AccessScenario"));
+  const speed = paramStr(values, "mapchallengeDay08Access", "mapchallengeDay08AccessSpeed") === "slow" ? "slow" : "normal";
+  const base = MAPCHALLENGE_DAY08_SCENARIOS[0];
+  const pct = speed === "slow" ? scenario.vulCovered : scenario.covered;
+  const basePct = speed === "slow" ? base.vulCovered : base.covered;
+  const colors = mapchallengeDay08BinColors(isDark);
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day08.accessTitle")} />
+    <LegendNote>{t("legend.mapchallenge.day08.accessSub", { scenario: t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario.value]), speed: t(MAPCHALLENGE_DAY08_SPEED_KEYS[speed]) })}</LegendNote>
+    <OverlapRate>{t(speed === "slow" ? "legend.mapchallenge.day08.coveredRateSlow" : "legend.mapchallenge.day08.coveredRate", { pct, base: basePct })}</OverlapRate>
+    {MAPCHALLENGE_DAY08_BIN_KEYS.map((k, i) => <LegendRow key={k} swatch={<SwatchSquare color={colors[i]!} />}>{t(k)}</LegendRow>)}
+    <LegendNote>{t("legend.mapchallenge.day08.accessNote")}</LegendNote>
+    <Day08Footer />
+  </div>;
+}
+
+export function MapchallengeDay08SitesLegend({ isDark }: { isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const values = useLayerParams("mapchallengeDay08Sites");
+  const scenario = mapchallengeDay08ScenarioByValue(paramStr(values, "mapchallengeDay08Sites", "mapchallengeDay08SitesScenario"));
+  const historical = scenario.value === "D" || scenario.value === "Dfull";
+  const shown = MAPCHALLENGE_DAY08_SITE_CLASSES.filter((c) => (historical ? c.value === "park" || (c.value === "greenbelt" && scenario.value === "Dfull") : c.value.startsWith("T")));
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day08.sitesTitle")} />
+    <LegendNote>{t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario.value])}</LegendNote>
+    {scenario.costYi && <OverlapRate>{t("legend.mapchallenge.day08.sitesCost", { base: formatNumber(scenario.costYi.base), low: formatNumber(scenario.costYi.low), high: formatNumber(scenario.costYi.high) })}</OverlapRate>}
+    {shown.map((c) => <LegendRow key={c.value} swatch={<SwatchSquare color={mapchallengeDay08SiteColor(c.value, isDark)} opacity={MAPCHALLENGE_DAY08_SITE_FILL_OPACITY * 2} stroke={mapchallengeDay08SiteOutline(isDark)} />}>
+      {t(MAPCHALLENGE_DAY08_SITE_CLASS_KEYS[c.value])}
+    </LegendRow>)}
+    <LegendNote>{t(historical ? "legend.mapchallenge.day08.sitesNoteHist" : "legend.mapchallenge.day08.sitesNote")}</LegendNote>
+    <Day08Footer />
+  </div>;
+}
+
+export function MapchallengeDay08Plan1955Legend() {
+  const { t } = useLocale();
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day08.planTitle")} />
+    <LegendNote>{t("legend.mapchallenge.day08.planLicense")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day08.planOffset")}</LegendNote>
   </div>;
 }

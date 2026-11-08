@@ -1761,5 +1761,8 @@
   "layer.historicalImagery": "Historical Aerial and Satellite Imagery",
   "layer.historicalBoundaries": "Historical Boundaries and Rail Network",
   "layer.historicalLandUse": "Historical Land Use",
-  "layer.historicalThematic": "Historical Thematic Maps (Water, Geology, Forestry, Survey)"
+  "layer.historicalThematic": "Historical Thematic Maps (Water, Geology, Forestry, Survey)",
+  "layer.mapchallengeDay08Access": "Walking Minutes to a Large Park",
+  "layer.mapchallengeDay08Sites": "New Park Sites and Their Cost",
+  "layer.mapchallengeDay08Plan1955": "1955 Zhonghe Town Plan Map"
 }

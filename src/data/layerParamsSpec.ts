@@ -182,6 +182,10 @@ import {
   MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_PLACES_ENCODE, MAPCHALLENGE_DAY06_PLACES_OPTIONS, MAPCHALLENGE_DAY06_STATUSES,
   MAPCHALLENGE_DAY06_SURVIVE, MAPCHALLENGE_DAY06_TEMPLE_CLASSES, MAPCHALLENGE_DAY06_TYPE_ENCODE, MAPCHALLENGE_DAY06_TYPE_OPTIONS,
 } from "./mapchallengeDay06Types";
+import {
+  MAPCHALLENGE_DAY08_ACCESS_SCENARIO_ENCODE, MAPCHALLENGE_DAY08_SCENARIOS, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_SCENARIOS,
+  MAPCHALLENGE_DAY08_SITE_SCENARIO_ENCODE, MAPCHALLENGE_DAY08_SPEEDS, MAPCHALLENGE_DAY08_SPEED_ENCODE,
+} from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY04_DEFAULT_FACILITY, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_FACILITY_KEYS, MAPCHALLENGE_DAY04_HOTSPOT_CLASSES } from "./mapchallengeDay04Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
@@ -1651,6 +1655,31 @@ export const LAYER_PARAMS_SPEC = {
     },
     categoryMultiSelect("mapchallengeDay06Lighthouses", MAPCHALLENGE_DAY06_STATUSES.map((c) => ({ label: c.zh, value: c.value }))),
   ],
+  // 30 天地圖挑戰 Day 8 烏托邦（模擬面板，公開）：方案／步速 select 換 paint 讀的欄位（資料不重抓）；
+  // 選址的方案 select 與類別多選（V-4）改 filter，由 overlayRegistry 自己組。兩層方案各自一個參數。
+  mapchallengeDay08Access: [
+    opacitySlider("mapchallengeDay08AccessOpacity", 0.7),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay08AccessScenario", label: "方案", default: "base",
+      options: MAPCHALLENGE_DAY08_SCENARIOS.map((o) => ({ label: o.zh, value: o.value })),
+      out: "mapchallengeDay08AccessScenarioIdx", encode: [...MAPCHALLENGE_DAY08_ACCESS_SCENARIO_ENCODE],
+    },
+    {
+      kind: "select", category: "data", name: "mapchallengeDay08AccessSpeed", label: "步速", default: "normal",
+      options: MAPCHALLENGE_DAY08_SPEEDS.map((o) => ({ label: o.zh, value: o.value })),
+      out: "mapchallengeDay08AccessSpeedIdx", encode: [...MAPCHALLENGE_DAY08_SPEED_ENCODE],
+    },
+  ],
+  mapchallengeDay08Sites: [
+    opacitySlider("mapchallengeDay08SitesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay08SitesScenario", label: "方案", default: "A",
+      options: MAPCHALLENGE_DAY08_SITE_SCENARIOS.map((o) => ({ label: o.zh, value: o.value })),
+      out: "mapchallengeDay08SitesScenarioIdx", encode: [...MAPCHALLENGE_DAY08_SITE_SCENARIO_ENCODE],
+    },
+    categoryMultiSelect("mapchallengeDay08Sites", MAPCHALLENGE_DAY08_SITE_CLASSES.map((c) => ({ label: c.zh, value: c.value }))),
+  ],
+  mapchallengeDay08Plan1955: [opacitySlider("mapchallengeDay08Plan1955Opacity", 0.5)],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

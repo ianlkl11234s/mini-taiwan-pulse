@@ -248,6 +248,8 @@ const NO_POPUP_LEDGER = new Set([
   "jpGsiHillshade", "jpGsiRelief",
   // 古地圖：中研院臺灣百年歷史地圖，外部 XYZ 掃描 raster（無 feature 屬性）
   "historicalMapSinica", "historicalMapPostwar", "historicalImagery", "historicalBoundaries", "historicalLandUse", "historicalThematic",
+  // 30 天地圖挑戰 Day 8：1955 中和鄉都市計畫圖（單張 image source 掃描圖，同古地圖無 feature 屬性；2026-11-08）
+  "mapchallengeDay08Plan1955",
   // 英國 C003：OS Terrain 50 地形 raster（上游烘好的 PNG，無 feature 屬性）
   "gbTerrainHillshade", "gbTerrainRelief",
   // 加拿大第 2 波：NRCan MRDEM-30 山體陰影 raster（PNG，無 feature 屬性）
