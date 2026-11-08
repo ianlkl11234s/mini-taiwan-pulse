@@ -3833,7 +3833,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
   // ── 🗳 2026 議員選區（公開 RPC，一次抓全臺）──
-  // useCouncilDistrictsLayer 抓 get_council_districts_2026 後 setData；loader 另加每區一個面內代表點（_label=1）掛選區名。
+  // useCouncilDistrictsLayer 讀靜態快照 get_council_districts_2026.json 後 setData；loader 另加每區一個面內代表點（_label=1）掛選區名。
   // 目前 161 區全為區域選區（原住民選區無對應範圍，不在資料內）。
   {
     id: "councilDistricts2026",
@@ -3881,7 +3881,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
   // ── 🗳 2024 投開票所（公開）──
-  // 低縮放熱區：usePollingStationsLayer 開圖層時抓一次全臺熱區點（get_polling_stations_2024_heat）setData。
+  // 低縮放熱區：usePollingStationsLayer 開圖層時由全臺靜態快照（polling_stations_2024.json）算熱區點 setData。
   // 中性／投票率模式＝單色熱區（選舉人數加權）；領先政黨模式＝三黨各一層（各黨 2024 總統票數加權，三個開關個別控制）。
   // 不用的層 opacity 歸零（不 rebuild）；z11.5→12.5 淡出、與 z12 起的點位交接。熱區不可點擊（gisClickRegistry 不登記）。
   {
@@ -3920,7 +3920,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     })),
   },
-  // 點位：usePollingStationsLayer 依視窗 bbox（zoom ≥ 12）查 get_polling_stations_2024 後 setData。
+  // 點位：usePollingStationsLayer 依視窗 bbox（zoom ≥ 12）從全臺靜態快照篩選後 setData。
   // 色＝中性單色（預設）／2024 總統領先政黨（loader 衍生 `lead`）／投票率五階；precision='road'（僅路名）淡化。色票 SSOT：data/pollingStationsTypes.ts。
   {
     id: "pollingStations2024",

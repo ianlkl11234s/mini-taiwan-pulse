@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const rpc = vi.fn();
 vi.mock("../../lib/supabase", () => ({ supabase: { rpc: (...a: unknown[]) => rpc(...a) }, supabaseConfigured: true }));
 
 import {
   clearPollingHeatCache,
+  clearPollingSnapshotCache,
   clearPollingStationsCache,
   fetchPollingHeat,
   fetchPollingStations,
@@ -12,9 +13,10 @@ import {
   isMissingPollingRpc,
   normalizePollingStations,
   pollingBoundsKey,
+  pollingSnapshotToBbox,
   snapPollingBounds,
 } from "../pollingStationsLoader";
-import { POLLING_COLOR_MODES, POLLING_FETCH_LIMIT, POLLING_HEAT_ELECTORS_UNIT, POLLING_HEAT_VOTES_UNIT, pollingHeatRamp, pollingLead } from "../pollingStationsTypes";
+import { POLLING_COLOR_MODES, POLLING_HEAT_ELECTORS_UNIT, POLLING_HEAT_VOTES_UNIT, pollingHeatRamp, pollingLead } from "../pollingStationsTypes";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { formatPartyVotes } from "../../components/featureInfo/politicsPanels";
 import { LAYER_PARAMS_SPEC } from "../layerParamsSpec";
@@ -47,12 +49,27 @@ const RAW = {
   ],
 };
 
+// CDN 快照形狀（export-static-rpc-snapshots.sh @polling）的最小 fixture
+const SNAP = {
+  meta: { total: 17795, mapped: 2, loaded_at: "2026-11-03T03:18:05+00:00" },
+  cols: ["lng", "lat", "county", "town", "village", "station_no", "name", "address", "precision",
+    "pres24_electors", "pres24_votes", "pres24_valid", "pres24_turnout",
+    "pres24_dpp_votes", "pres24_dpp_pct", "pres24_kmt_votes", "pres24_kmt_pct", "pres24_tpp_votes", "pres24_tpp_pct"],
+  rows: [
+    [121.5446, 25.033, "臺北市", "大安區", "仁慈里", "0401", "仁愛國小", "臺北市大安區仁愛路四段99號", "poi_name",
+      1200, 900, 890, 75.0, 300, 33.71, 450, 50.56, 140, 15.73],
+    [120.3, 22.6, "高雄市", "前鎮區", "", "0001", "某國小", "", "poi_name", 800, null, null, null, null, null, null, null, null, null],
+  ],
+};
+
 describe("pollingStations loader", () => {
   beforeEach(() => {
     rpc.mockReset();
     clearPollingStationsCache();
     clearPollingHeatCache();
+    clearPollingSnapshotCache();
   });
+  afterEach(() => vi.unstubAllGlobals());
 
   it("normalize：衍生 lead、缺投票率給 -1、跳過非 Point、meta 轉 camelCase", () => {
     const d = normalizePollingStations(RAW);
@@ -78,25 +95,32 @@ describe("pollingStations loader", () => {
     expect(pollingBoundsKey(a)).toBe(pollingBoundsKey(b));
   });
 
-  it("fetch：以對齊後的 bbox 與 p_limit 呼叫 RPC，同鍵第二次走快取", async () => {
-    const abortSignal = vi.fn();
-    rpc.mockImplementation(() => {
-      const p = Promise.resolve({ data: RAW, error: null, status: 200 });
-      return Object.assign(p, { abortSignal: (s: AbortSignal) => { abortSignal(s); return p; } });
-    });
+  it("fetch：讀全臺快照、前端依對齊後 bbox 篩選；同鍵第二次走快取、快照只抓一次", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(SNAP), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
     const ctrl = new AbortController();
     const d1 = await fetchPollingStations({ west: 121.501, south: 25.011, east: 121.559, north: 25.049 }, ctrl.signal);
-    expect(rpc).toHaveBeenCalledWith("get_polling_stations_2024", {
-      p_west: 121.5, p_south: 25.0, p_east: 121.56, p_north: 25.06, p_limit: POLLING_FETCH_LIMIT,
-    });
-    expect(abortSignal).toHaveBeenCalledWith(ctrl.signal);
+    expect(fetchMock).toHaveBeenCalledWith("/static-rpc/polling_stations_2024.json");
+    expect(d1.fc.features).toHaveLength(1);
+    expect(d1.fc.features[0]!.properties).toMatchObject({ name: "仁愛國小", lead: "kmt", pres24_electors: 1200 });
+    expect(d1.meta).toEqual({ total: 17795, mapped: 2, inBbox: 1, truncated: false, loadedAt: "2026-11-03T03:18:05+00:00" });
     const d2 = await fetchPollingStations({ west: 121.505, south: 25.015, east: 121.555, north: 25.045 });
-    expect(rpc).toHaveBeenCalledTimes(1);
     expect(d2).toBe(d1);
+    await fetchPollingStations({ west: 120, south: 22, east: 121, north: 23 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(rpc).not.toHaveBeenCalled();
   });
 
-  it("fetch：RPC 未部署時拋出可辨識的錯誤", async () => {
-    rpc.mockImplementation(() => Promise.resolve({ data: null, error: { message: "Could not find the function", code: "PGRST202" }, status: 404 }));
+  it("bbox 篩選：超過上限等距取樣並標 truncated", () => {
+    const rows = Array.from({ length: 10 }, (_, k) => [121 + k * 0.001, 25, "臺北市", "", "", String(k)]);
+    const out = pollingSnapshotToBbox({ meta: { total: 10, mapped: 10 }, cols: ["lng", "lat", "county", "town", "village", "station_no"], rows }, { west: 120, south: 24, east: 122, north: 26 }, 4) as { meta: Record<string, unknown>; features: GeoJSON.Feature[] };
+    expect(out.features).toHaveLength(4);
+    expect(out.meta).toMatchObject({ in_bbox: 10, truncated: true });
+    expect(out.features.map((f) => f.properties!.station_no)).toEqual(["0", "2", "5", "7"]);
+  });
+
+  it("fetch：快照未部署（404）時拋出可辨識的錯誤", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
     await expect(fetchPollingStations({ west: 121, south: 25, east: 121.1, north: 25.1 })).rejects.toSatisfy(isMissingPollingRpc);
   });
 
@@ -147,15 +171,23 @@ describe("pollingStations loader", () => {
     expect(tie.fc.features[0]!.properties).toMatchObject({ w_dpp: 0, w_kmt: 0, w_tpp: 0 });
   });
 
-  it("heat fetch：session 內只呼叫一次；失敗不快取", async () => {
-    rpc.mockResolvedValueOnce({ data: null, error: { message: "boom", code: "X" }, status: 500 });
-    await expect(fetchPollingHeat()).rejects.toThrow("boom");
-    rpc.mockResolvedValue({ data: { cols: ["lng", "lat"], rows: [[121, 25]] }, error: null, status: 200 });
+  it("heat fetch：與點位共用全臺快照；session 內只抓一次；失敗不快取", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 500 }))
+      .mockResolvedValue(new Response(JSON.stringify(SNAP), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(fetchPollingHeat()).rejects.toThrow("HTTP 500");
     const a = await fetchPollingHeat();
     const b = await fetchPollingHeat();
     expect(a).toBe(b);
-    expect(rpc).toHaveBeenCalledTimes(2);
-    expect(rpc).toHaveBeenLastCalledWith("get_polling_stations_2024_heat");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(a.count).toBe(2);
+    expect(a.fc.features[0]!.properties).toEqual({
+      w_electors: 1200 / POLLING_HEAT_ELECTORS_UNIT, w_dpp: 0, w_kmt: 450 / POLLING_HEAT_VOTES_UNIT, w_tpp: 0,
+    });
+    await fetchPollingStations({ west: 121, south: 25, east: 121.1, north: 25.1 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(rpc).not.toHaveBeenCalled();
   });
 
   it("熱區：中性模式只亮單色層；領先政黨三層依開關個別歸零；z12.5 淡到 0", () => {

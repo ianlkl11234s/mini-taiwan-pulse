@@ -34,7 +34,7 @@
   "legend.maritime.aisNote": "即時點位；目前未接逐船 trail",
   "legend.maritime.presTitle": "GFW 舊版每日船舶",
   "legend.maritime.presRow": "歷史快照；不代表最新 release",
-  "legend.maritime.presNote": "最新日期請以小時 Grid／Tracks／SAR 為準；本層非即時 AIS。",
+  "legend.maritime.presNote": "舊版每日收集器待授權、尚未啟用，目前沒有資料；最新船舶請看小時 Grid／Tracks／SAR。本層非即時 AIS。",
   "legend.maritime.gridTitle": "GFW 小時船舶網格",
   "legend.maritime.gridNote1": "色階＝每個 0.1° 格網內的船舶數；透明度隨船舶數連續插值",
   "legend.maritime.gridNote2": "依全域時間軸切換 UTC 整點",

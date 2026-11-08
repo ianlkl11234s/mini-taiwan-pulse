@@ -1185,7 +1185,7 @@ export const LAYER_MANIFEST = {
     topics: ["政治", "選舉", "活動", "研究中", "OWNER_ONLY"],
   },
 
-  // 🗳 政治：2024 投開票所（公開 bbox RPC get_polling_stations_2024；gis-platform mig 495；不 gate、不進 embed 白名單）
+  // 🗳 政治：2024 投開票所（CDN 靜態快照 polling_stations_2024.json；來源表 gis-platform mig 495；不 gate、不進 embed 白名單）
   pollingStations2024: {
     key: "pollingStations2024",
     country: "TW", section: { theme: "政治 Politics", group: "選舉" },
@@ -1196,7 +1196,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "catalog_missing",
       datasets: [],
-      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024，前端依視窗 bbox 經公開 RPC 即時查詢；低縮放熱區另由公開 RPC get_polling_stations_2024_heat（mig 496）一次取全臺站址點。",
+      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024；2026-11 起匯出成 CDN 靜態快照 /static-rpc/polling_stations_2024.json（scripts/export/export-static-rpc-snapshots.sh @polling，2024 結果不會再變），前端一次載入後依視窗 bbox 篩選點位、低縮放熱區由同一份算出。",
       note: "OGDL-1.0。座標為本站自行定位；僅定位到村里／鄉鎮代表點的約 2,200 所不顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
     },
     dataClass: "C",
@@ -1212,7 +1212,7 @@ export const LAYER_MANIFEST = {
     topics: ["政治", "選舉", "投開票所", "投票率"],
   },
 
-  // 🗳 政治：2026 議員選區（公開 RPC get_council_districts_2026；gis-platform mig 496；不 gate）
+  // 🗳 政治：2026 議員選區（CDN 靜態快照 get_council_districts_2026.json，原 RPC 輸出；gis-platform mig 496；不 gate）
   councilDistricts2026: {
     key: "councilDistricts2026",
     country: "TW", section: { theme: "政治 Politics", group: "選舉" },
@@ -1976,7 +1976,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useFireEventsLayer 自行接線：Supabase RPC get_fire_events_by_year 按年載入，餵進自建的 fire-events-src geojson source",
+      note: "useFireEventsLayer 自行接線：按年讀 CDN 靜態快照 /static-rpc/get_fire_events_by_year_<民國年>.json（原 RPC 輸出；111–113 年不會再變），餵進自建的 fire-events-src geojson source",
     },
     legend: "fireEvents",
     popup: "fireEvent",
@@ -1999,7 +1999,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useFireLatestLayer 自行接線：與 fireEvents 同源（get_fire_event_years 取最新年再 get_fire_events_by_year），另建 fire-latest-src source 讓它不進歷史模式也常駐",
+      note: "useFireLatestLayer 自行接線：與 fireEvents 同源（靜態快照 get_fire_event_years.json 取最新年再讀該年快照），另建 fire-latest-src source 讓它不進歷史模式也常駐",
     },
     legend: "fireEvents",
     popup: "fireEvent",
@@ -2277,7 +2277,7 @@ export const LAYER_MANIFEST = {
       status: "catalog_missing",
       datasets: [],
       processing: "Supabase RPC get_gfw_vessel_presence_current；每日快照/延遲資料依 viewport 查詢",
-      note: "舊版每日 presence collector 目前不是生產 freshness 來源；本層只保留歷史快照，最新 release 應以小時 Grid／Tracks／SAR 的完整 UTC 日期為準",
+      note: "舊版每日 presence collector（data-collectors gfw_vessel_presence）因授權 gate 刻意停用（GFW_VESSEL_PRESENCE_ENABLED=false），live.gfw_vessel_presence_* 自始 0 列，本層目前空白；最新 release 以小時 Grid／Tracks／SAR 的完整 UTC 日期為準",
     },
     dataClass: "D",
     source: {
@@ -2287,7 +2287,7 @@ export const LAYER_MANIFEST = {
     legend: "gfwVesselPresence",
     popup: "gfwVesselPresence",
     params: { count: 1, kinds: ["slider"] },
-    description: "Global Fishing Watch 舊版每日 presence 歷史快照；不代表最新 release，也不是即時 AIS 或暗船清單",
+    description: "Global Fishing Watch 舊版每日 presence；收集器待授權尚未啟用，目前沒有資料（最新船舶看小時 Grid／Tracks／SAR）",
     topics: ["世界", "海事", "船舶", "GFW"],
   },
 
@@ -14121,7 +14121,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useWasteScheduleLayer：Supabase RPC get_waste_schedule_day（day-of-week 驅動，訂閱 timeStore.subscribeDate 取 dow，不進 currentTime deps）→ wasteScheduleCustomLayer 的 WasteScheduleScene 依表定時刻推算車輛位置 —— 非 OVERLAY_REGISTRY",
+      note: "useWasteScheduleLayer：CDN 靜態快照 /static-rpc/get_waste_schedule_day_<dow>_<分組>.json（7 天 × 8 區分組，原 RPC 輸出；day-of-week 驅動，訂閱 timeStore.subscribeDate 取 dow，不進 currentTime deps）→ wasteScheduleCustomLayer 的 WasteScheduleScene 依表定時刻推算車輛位置 —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
     popup: null,

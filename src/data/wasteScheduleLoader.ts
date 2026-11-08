@@ -1,11 +1,14 @@
-import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { staticRpcFile } from "./staticRpc";
+import { WASTE_GROUP_CITIES, type BusGroup } from "../types";
 
 /**
  * 垃圾車「表定」時刻表 loader（Phase 3 prototype）
  *
- * 後端：gis-platform migration 079_waste_schedule_rpc.sql
- *   - public.get_waste_schedule_day(p_cities, p_dow)
+ * 資料：CDN 靜態快照 /static-rpc/get_waste_schedule_day_<dow>_<分組>.json
+ *   = public.get_waste_schedule_day(分組城市, dow) 的原樣輸出（gis-platform migration 079；
+ *   spatial.waste_schedule_day_agg 自 2026-07-22 後未再刷新，屬靜態表定）。
+ *   7 個星期幾 × 8 區分組（WASTE_GROUP_CITIES）＝56 檔，由 scripts/export/export-static-rpc-snapshots.sh @waste_schedule 匯出。
  *
  * 跟 wasteLoader（GPS）的差異：
  *   - wasteLoader = 真實 GPS 軌跡 / OSRM matched
@@ -77,21 +80,32 @@ export const ALL_22_CITIES: string[] = [
   "澎湖縣", "金門縣", "連江縣",
 ];
 
+/** 要讀哪些分組檔才涵蓋 cities（分組內其他城市讀進來後再濾掉） */
+export function wasteScheduleGroupsFor(cities: string[]): BusGroup[] {
+  const want = new Set(cities);
+  return (Object.keys(WASTE_GROUP_CITIES) as BusGroup[]).filter((g) => WASTE_GROUP_CITIES[g].some((c) => want.has(c)));
+}
+
 export async function fetchWasteScheduleDay(
   cities: string[] = ALL_22_CITIES,
   dow: number,
 ): Promise<WasteScheduleRoute[]> {
   const citiesKey = [...cities].sort().join(",");
-  const { data, error } = await withLoading(
+  const want = new Set(cities);
+  const groups = wasteScheduleGroupsFor(cities);
+  const results = await withLoading(
     `waste-schedule-${citiesKey}-${dow}`,
     `垃圾車表定 ${citiesKey} dow=${dow}`,
-    supabase.rpc("get_waste_schedule_day", { p_cities: cities, p_dow: dow }),
+    Promise.all(groups.map((g) => staticRpcFile<RawScheduleRow[]>(`/static-rpc/get_waste_schedule_day_${dow}_${g}.json`))),
   );
-  if (error) throw new Error(`get_waste_schedule_day(dow=${dow}): ${error.message}`);
-  const rows = (data ?? []) as RawScheduleRow[];
+  const rows: RawScheduleRow[] = [];
+  for (const { data, error } of results) {
+    if (error) throw new Error(`get_waste_schedule_day(dow=${dow}): ${error.message}`);
+    for (const r of data ?? []) if (want.has(r.city)) rows.push(r);
+  }
   console.log(`[WasteSchedule] fetched ${rows.length} routes for dow=${dow} cities=${citiesKey}`);
 
-  // RPC 已是 grouped per-route，stops 是 JSONB array，直接 map
+  // 快照已是 grouped per-route，stops 是 JSONB array，直接 map
   const routes: WasteScheduleRoute[] = rows.map((r) => {
     let stops: WasteScheduleStop[] = (r.stops ?? []).map((s) => ({
       stopId: s.stop_id,

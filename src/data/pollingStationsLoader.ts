@@ -1,13 +1,15 @@
-import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { staticRpcFile } from "./staticRpc";
 import { POLLING_FETCH_LIMIT, POLLING_HEAT_ELECTORS_UNIT, POLLING_HEAT_PARTIES, POLLING_HEAT_VOTES_UNIT, pollingLead, pollingNumber } from "./pollingStationsTypes";
 
 /**
  * 2024 投開票所（公開）bbox 載入器。
  *
- * public.get_polling_stations_2024(p_west, p_south, p_east, p_north, p_limit) → jsonb
- *   { type: "FeatureCollection", meta: { total, mapped, in_bbox, truncated, loaded_at }, features: [Point…] }
- * RPC 由 gis-platform migration 495 建立（anon 可執行；只回有站址座標者）。
+ * 資料：CDN 靜態快照 /static-rpc/polling_stations_2024.json（2024 結果不會再變；ADR-0026）
+ *   { meta: { total, mapped, loaded_at }, cols: [lng, lat, county, …, pres24_tpp_pct], rows: [[…], …] }
+ *   由 scripts/export/export-static-rpc-snapshots.sh @polling 直接讀 reference.polling_stations_2024 匯出
+ *   （欄位同原 RPC get_polling_stations_2024，gis-platform mig 495；只含有站址座標者）。
+ *   全臺約 1.76 萬所、一次載入後 session 快取；bbox 篩選與上限都在前端做，輸出形狀與原 RPC 相同。
  *
  * - bbox 向外對齊 0.02° 格網當快取鍵（小幅平移直接命中），LRU 保留最近 16 個範圍。
  * - 呼叫端傳 AbortSignal：新的 moveend 來時中止上一個還在跑的請求（被中止的不進快取）。
@@ -45,7 +47,7 @@ export class PollingStationsError extends Error {
   }
 }
 
-/** 函式尚未部署（migration 未套）：PostgREST 回 PGRST202／404 */
+/** 資料尚未部署：RPC 時代為 PostgREST PGRST202／404；改讀 CDN 快照後為快照 404 */
 export function isMissingPollingRpc(err: unknown): boolean {
   const v = err as { code?: unknown; status?: unknown; message?: unknown } | null;
   return String(v?.code ?? "") === "PGRST202" || v?.status === 404
@@ -114,6 +116,67 @@ export function clearPollingStationsCache(): void {
   cache.clear();
 }
 
+// ── 全臺快照（點位與熱區共用；session 內只抓一次，失敗不快取）──
+export interface PollingSnapshot {
+  meta: { total?: unknown; mapped?: unknown; loaded_at?: unknown };
+  cols: string[];
+  rows: unknown[][];
+}
+
+let snapshotPromise: Promise<PollingSnapshot> | null = null;
+
+/** 測試用：清全臺快照 */
+export function clearPollingSnapshotCache(): void {
+  snapshotPromise = null;
+}
+
+function loadPollingSnapshot(label: string, loadingId: string): Promise<PollingSnapshot> {
+  if (snapshotPromise) return snapshotPromise;
+  const p = (async () => {
+    const { data, error } = await withLoading(loadingId, label, staticRpcFile<PollingSnapshot>("/static-rpc/polling_stations_2024.json"));
+    if (error || !data) {
+      throw new PollingStationsError(`polling_stations_2024: ${error?.message ?? "empty snapshot"}`, "", error?.status);
+    }
+    return {
+      meta: data.meta ?? {},
+      cols: Array.isArray(data.cols) ? data.cols.map(String) : [],
+      rows: Array.isArray(data.rows) ? data.rows : [],
+    };
+  })();
+  snapshotPromise = p;
+  p.catch(() => { if (snapshotPromise === p) snapshotPromise = null; });
+  return p;
+}
+
+/**
+ * 全臺快照 → 與原 RPC 相同形狀的 bbox FeatureCollection（純函式，測試用）。
+ * 超過 limit 時等距取樣（決定性、空間上大致均勻），meta.truncated＝true。
+ */
+export function pollingSnapshotToBbox(snap: PollingSnapshot, b: PollingBounds, limit: number): unknown {
+  const iLng = snap.cols.indexOf("lng");
+  const iLat = snap.cols.indexOf("lat");
+  const hits: unknown[][] = [];
+  if (iLng >= 0 && iLat >= 0) {
+    for (const r of snap.rows) {
+      const lng = Number(r[iLng]);
+      const lat = Number(r[iLat]);
+      if (lng >= b.west && lng <= b.east && lat >= b.south && lat <= b.north) hits.push(r);
+    }
+  }
+  const lim = Math.min(Math.max(limit, 1), 5000);
+  const picked = hits.length <= lim ? hits : Array.from({ length: lim }, (_, k) => hits[Math.floor((k * hits.length) / lim)]!);
+  const features = picked.map((r) => {
+    const properties: Record<string, unknown> = {};
+    snap.cols.forEach((c, k) => { if (k !== iLng && k !== iLat) properties[c] = r[k]; });
+    return { type: "Feature", geometry: { type: "Point", coordinates: [Number(r[iLng]), Number(r[iLat])] }, properties };
+  });
+  return {
+    type: "FeatureCollection",
+    meta: { total: snap.meta.total, mapped: snap.meta.mapped, in_bbox: hits.length, truncated: hits.length > lim, loaded_at: snap.meta.loaded_at },
+    features,
+  };
+}
+
 export async function fetchPollingStations(bounds: PollingBounds, signal?: AbortSignal): Promise<PollingStationsData> {
   const snapped = snapPollingBounds(bounds);
   const key = pollingBoundsKey(snapped);
@@ -122,21 +185,9 @@ export async function fetchPollingStations(bounds: PollingBounds, signal?: Abort
     remember(key, hit);
     return hit;
   }
-  if (!supabaseConfigured) return normalizePollingStations(null);
-  let query = supabase.rpc("get_polling_stations_2024", {
-    p_west: snapped.west,
-    p_south: snapped.south,
-    p_east: snapped.east,
-    p_north: snapped.north,
-    p_limit: POLLING_FETCH_LIMIT,
-  });
-  if (signal) query = query.abortSignal(signal);
-  const { data, error, status } = await withLoading(`polling:stations2024:${key}`, "2024 投開票所", query);
+  const snap = await loadPollingSnapshot("2024 投開票所", "polling:stations2024");
   if (signal?.aborted) throw new DOMException("aborted", "AbortError");
-  if (error) {
-    throw new PollingStationsError(`get_polling_stations_2024: ${error.message}`, String(error.code ?? ""), status);
-  }
-  const out = normalizePollingStations(data);
+  const out = normalizePollingStations(pollingSnapshotToBbox(snap, snapped, POLLING_FETCH_LIMIT));
   remember(key, out);
   return out;
 }
@@ -169,13 +220,22 @@ export const pollingLegendStore = {
 
 // ── 低縮放熱區（全臺一次抓、session 快取）──
 /**
- * public.get_polling_stations_2024_heat() → jsonb（gis-platform mig 496）
- *   { meta: { count, loaded_at }, cols: ["lng","lat","electors","dpp","kmt","tpp"], rows: [[…], …] }
+ * 由全臺快照取 lng／lat／選舉人數／三黨得票（原 RPC get_polling_stations_2024_heat，mig 496 的同一組欄位）
+ *   → { meta: { count, loaded_at }, cols: ["lng","lat","electors","dpp","kmt","tpp"], rows: [[…], …] }
  * 只含有站址座標者（村里／鄉鎮代表點不進熱區）。票數缺值為 null → 權重 0。
  * 三黨熱區：每所只計入該所領先政黨那一層（w_<領先黨>＝領先者得票數 ÷ 單位，其他兩層 0），各層空間上大致互斥；
  * 同票或全缺值三層都 0。
  * 權重在這裡先算好（w_electors／w_dpp…），paint 直接 get，不在 GPU 端除。
  */
+export function pollingSnapshotToHeat(snap: PollingSnapshot): unknown {
+  const src = ["lng", "lat", "pres24_electors", "pres24_dpp_votes", "pres24_kmt_votes", "pres24_tpp_votes"].map((c) => snap.cols.indexOf(c));
+  return {
+    meta: { count: snap.rows.length, loaded_at: snap.meta.loaded_at },
+    cols: ["lng", "lat", "electors", "dpp", "kmt", "tpp"],
+    rows: snap.rows.map((r) => src.map((k) => (k >= 0 ? r[k] ?? null : null))),
+  };
+}
+
 export interface PollingHeatData {
   fc: GeoJSON.FeatureCollection<GeoJSON.Point>;
   count: number | null;
@@ -229,18 +289,8 @@ export function clearPollingHeatCache(): void {
 /** 全臺熱區點（session 內只抓一次；失敗不快取，下次開圖層再試） */
 export function fetchPollingHeat(): Promise<PollingHeatData> {
   if (heatPromise) return heatPromise;
-  if (!supabaseConfigured) return Promise.resolve(normalizePollingHeat(null));
-  const p = (async () => {
-    const { data, error, status } = await withLoading(
-      "polling:stations2024:heat",
-      "2024 投開票所熱區",
-      supabase.rpc("get_polling_stations_2024_heat"),
-    );
-    if (error) {
-      throw new PollingStationsError(`get_polling_stations_2024_heat: ${error.message}`, String(error.code ?? ""), status);
-    }
-    return normalizePollingHeat(data);
-  })();
+  const p = loadPollingSnapshot("2024 投開票所熱區", "polling:stations2024:heat")
+    .then((snap) => normalizePollingHeat(pollingSnapshotToHeat(snap)));
   heatPromise = p;
   p.catch(() => { if (heatPromise === p) heatPromise = null; });
   return p;
