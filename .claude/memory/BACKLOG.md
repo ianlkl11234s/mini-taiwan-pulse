@@ -58,6 +58,8 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
+| CI-2 | P3 | verifying | 清理「讀 src 原始碼再 regex 比對」的測試（2026-11-08，PR #904）。 | 已完成：loading（改規則 `pulse/loader-rpc-with-loading`）、mapReadyTick（改行為測試）、dayPrefetch 原始碼那條（刪）、layerConsistency 鐵則 4（規則 `pulse/sidebar-shared-param-controls`＋行為測試）、monitorResourceCards（改行為測試）；補漏 card、privacy、seo（改 ESLint 內建規則）。保留並附理由：hookLineFill、hookPoint、r5Heatmap、mobileTimelineTheme、mapContextCountry、warehouseResultRestore、LayerSidebar。待拍板：energyLoader `_l1Cached` 的 `has_realtime` RPC 沒包 withLoading（舊測試因 ±10 行誤放行），暫列 `LOADER_RPC_EXEMPT`。 | #904 合併；energyLoader 空窗有決定。[docs/ci.md](../../docs/ci.md) §6。 |
+| CI-4 | P3 | ready | 把 git 追蹤的 public/ 大檔（約 1.75GB，pmtiles 約 1.39GB）移出 git，讓 CI checkout 從 40–60 秒降到數秒。 | 牽動部署契約（deployContract、pull-deploy-assets、layerAssetIndex）與 11 個讀 public 大檔的契約測試。First action: 列出哪些大檔已在 S3 deploy-assets，評估 LFS 或 R2 方案。 | CI checkout <15s，契約測試不變弱。[docs/ci.md](../../docs/ci.md) §4。 |
 | MC-1 | P2 | conditional | 主題識別名與顯示名拆開，讓不同國家可以有同名主題（2026-10-28 國家主體化遺留）。 | Trigger: 第二個國家要加與既有主題同名的主題（例：日本「通訊」）。Owner: mini。現況：主題 title 全站唯一，`layerCatalog.ts` `THEME_SCOPE` 以 title 當鍵，台灣用「通訊 Telecom」、法國用「通訊」暫時避開。First action: 主題加獨立 id，`THEME_SCOPE` 改 (country, id) 鍵，顯示名另存。 | 兩國同名主題各自顯示、`layerManifest.test` 與 layerConsistency 綠。[多國化計畫](../../../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic1-website.md) |
 | MC-3 | P3 | ready | 國家選單與視野提示補目視（v2.16.0／v2.16.1 只驗了桌機暗色選單、切法國、切回全台、飛行中不閃提示）。 | 正式站逐項開：淡色底圖的提示卡、Monitor split、真實 Agent session 中提示被抑制、統計面板切日本後「切回台灣」、手拖到東京跳提示並按「保持」。 | 每項有截圖或照實標 not run；發現問題另開修正 PR。 |
 | AG-12 | P2 | blocked | Agent 截圖自檢第二批（2026-11-07 規劃；第一批數字讀回 framingCheck 是 #881＋MCP #99）：Agent 能自己截地圖畫面目視判斷要不要重框或換畫法。 | Blocker: 使用者排 research-gateway 部署時間（部署順序 gateway → 前端 → MCP）。三個 PR：C gateway 白名單加 `capture_map`、截圖讀走即過期（不留在 SQLite queryHistory）；D 前端 `once('render')`＋toDataURL、等 tilesSettled、縮到約 900px JPEG（base64 ≤160KB）切成 ≤32KiB 字串陣列，背景分頁回 `CAPTURE_UNAVAILABLE`；E MCP `pulse_capture_map` 回 image content（不放 structuredContent），skill 加「有疑慮或重要成品才截圖、最多調 2 輪」。隱私：畫面上有站主限定圖層時預設回 `CAPTURE_PRIVATE_LAYERS_VISIBLE`，要 `includePrivate:true` 才截（使用者 11-07 未異議，照建議）。 | Agent 上圖後能取回截圖；私人圖層可見時預設擋下；gateway 狀態不保留截圖。 |
@@ -90,6 +92,8 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
+| CI-1 | P2 | done | 本機與 CI 分工（2026-11-08 使用者決定：本機 `npm run verify`，全套交給 CI）。 | 已隨 PR #899 改 CLAUDE.md §1、development-rules §6、git-workflow 第 4 步。 | [docs/ci.md](../../docs/ci.md) §5。 |
+| CI-3 | P3 | done | deploy-workers 的 build-deploy 不等 S3→R2 同步（2026-11-08 使用者同意，接受新資產晚幾分鐘到的 404 空窗）。 | 已隨 PR #899 移除 `needs: sync-assets`；下次發版看 build-deploy 是否與 sync 同時開始。 | [docs/ci.md](../../docs/ci.md) §8。 |
 | MC-6 | P3 | ready | 跨國行政區表補英文名（`boundaries_admin.name_en` 台灣、日本目前全空）。 | Owner: mini-pulse-gis-mcp `warehouse/admin_tables.py`。First action: 台灣接內政部羅馬拼音 CSV（analytics `place_name_romanization_moi`），日本接國土數值情報或 geoBoundaries 英文名。 | 兩國 name_en 非空率 >99%，重組倉庫後台灣既有工具輸出不變。 |
 | MC-7 | P3 | conditional | 拆開混有多國資料的兩張表（airspace、allen_coral_atlas 暫標 TW）。 | Trigger: 要對日本或全球做空域、珊瑚礁分析時。First action: 依 country 欄拆成 TW 與 WORLD 兩份 registry，照 Ookla 拆表做法（pulse-data #48）。 | check_registry 0 ERROR，台灣表 geom_3826 不變，nearby 回歸一致。 |
 | MC-8 | P3 | verifying | 觀察多國 eval 兩個不穩點：N10 有一次沒畫日本 1,898 區分級圖；N08 有 2 次沒載入 pulse-conductor、沒移鏡頭。 | 下次跑 agent-regression 時各加跑 3 次記錄；連續出現再定位是 show_result 負載還是 skill 觸發。 | 各 3 次中上圖與載入 skill 都 ≥2 次，或開修正 PR。紀錄在 mini-pulse-gis-mcp `eval/agent-regression/README.md`。 |
