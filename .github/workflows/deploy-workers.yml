@@ -1,4 +1,4 @@
-# Pulse 主站發版：master 有新 commit → ① S3 deploy-assets 只補差異到 R2 site/ → ② build → ③ 部署 Cloudflare Worker。
+# Pulse 主站發版：master 有新 commit → ① S3 deploy-assets 只補差異到 R2 site/，與 ②③ 平行 → ② build → ③ 部署 Cloudflare Worker。
 # 每天另跑一次 ① 當保險（不 build、不部署）。輪替資料（氣候、GFW）由 sync-rotating.yml 負責。
 # 安全：只接 push(master)／schedule／手動（不接 pull_request）；action 固定 commit SHA；
 # S3 金鑰為唯讀 IAM；R2 只用 R2_MIGRATION_*（只能寫 mini-tw-pulse）；同步程式只寫 site/、不刪任何東西。
@@ -63,8 +63,10 @@ jobs:
           if [ "$EXECUTE" = "true" ]; then flag=--execute; else flag=--dry-run; fi
           "$RUNNER_TEMP/venv/bin/python" deploy/cloudflare/sync_site_assets.py "$flag" --log "$RUNNER_TEMP/sync-log.csv"
 
+  # 不等 sync-assets（約 4.5–5.5 分）：兩個 job 平行，發版快約 5 分鐘。
+  # 代價：本次新增的資產若還沒同步到 R2，會有幾分鐘 404；sync 失敗也不擋部署（看 sync-assets 的紅燈補跑）。
+  # 2026-11-08 使用者同意（BACKLOG CI-3、docs/ci.md §7）。
   build-deploy:
-    needs: sync-assets
     # 只部署 master（手動觸發若選了其他分支就不部署）
     if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.sync_only))
     runs-on: ubuntu-latest

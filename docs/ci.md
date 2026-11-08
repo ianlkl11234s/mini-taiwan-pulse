@@ -73,6 +73,14 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 | 2026-11-08 | 三 job 平行＋threads（PR #899 第一輪） | 3 分 57 秒 | quick 55s（checkout 7s）、build 159s（checkout 63s）、test 224s（checkout 67s、vitest 145s）|
 | 2026-11-08 | 三 job 平行＋test 分 2 片、forks（PR #899 第三輪） | 3 分 06 秒 | quick 52s、build 159s、test 166s／173s（各片 checkout 約 65s、vitest 85s／94s，288＋285 檔，合計與單片相同）|
 
+## 8. 部署（deploy-workers.yml）
+
+- master 有新 commit 時，`sync-assets`（S3 deploy-assets → R2 site/，約 4.5–5.5 分）和 `build-deploy`（build＋wrangler，約 2 分）**平行跑**。2026-11-08 使用者同意（BACKLOG CI-3）。
+- 代價：
+  - 本次發版新增的 S3 資產，在同步完成前的幾分鐘內會 404。
+  - sync 失敗不會擋住部署。看到 sync-assets 紅燈時，用 workflow_dispatch 選 `sync_only` 補跑。
+- 要讓新圖層一上線就有資料：先手動觸發 `sync_only`，等它跑完再發版。
+
 ## 出處
 
 - GitHub Actions：workflow 被 paths 跳過時 required check 會停在 pending — https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks
