@@ -117,5 +117,5 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 | 參考 | [`docs/research/`](./docs/research/) | 決策軌跡 / 跨系統比對 / 故事 cookbook |
 | 關聯 repo | `../gis-platform` | Supabase migrations |
 | 關聯 repo | `../data-collectors` | 資料收集 + SQL 範本 |
-| 關聯 repo | `../pulse-api` | FastAPI 備援 |
+| 關聯 repo | `../pulse-api` | FastAPI 備援（已停用，2026-04 起無 commit） |
 | 關聯 repo | `../mini-taipei-v3` | 鐵道資料來源 |
