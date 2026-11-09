@@ -29,6 +29,10 @@
 
 **Rule**: 前端只用 `public.*` RPC 或 `reference.*` / `spatial.*` 直讀。不允許前端直接打 `live.*`（舊 `realtime` schema 已併入 `live`，ADR-0010／migration 312）。
 
+### RPC 效能契約（DB 效能鐵則 R1／R2，正本 [supabase-optimization §0](./supabase-optimization.md#0-db-效能鐵則2026-11-09-減量大掃除後設立正本)）
+- **R1 前端只讀預先算好的結果**：前端呼叫的 RPC 只讀預算表＋小範圍補尾巴，不在請求時對原始時序表做整天聚合。上線前用 `/check-rpc` 量**冷快取**（`EXPLAIN (ANALYZE, BUFFERS)` 有 `shared read` 的那次、最大參數）：目標 <300 ms，硬上限 1 s。實例：`get_youbike_h3_snapshots` 每次從原始表重算整天（12 秒），mig 519 改讀 daily 表後 0.12–0.27 秒。
+- **R2 每張預算表都要有登記的讀者**：新圖層的 RPC 讀哪張預算表，就在 gis-platform 建表那支 migration 寫 `-- reader: <RPC>（<圖層 key>）`；圖層下線時同步停掉 refresh 排程。實例：`youbike_h3_daily` 每 30 分鐘重算卻沒有任何 RPC 讀它。gis-platform CI 會擋沒登記讀者的預算表；上線後 data-collectors 每週一體檢列出慢 RPC 與沒人讀的預算表（併進日報 🟡）。
+
 ### 環境變數
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`（前端）
 - `SUPABASE_SERVICE_ROLE_KEY`（腳本，禁止進前端 bundle）
@@ -96,6 +100,8 @@ useEffect(() => {
 → 使用者看不到 loading，誤以為當機。
 
 ## 3. 資料庫優化（Pre-aggregate Pattern）
+
+> 先讀 [supabase-optimization §0](./supabase-optimization.md#0-db-效能鐵則2026-11-09-減量大掃除後設立正本) 的 R1–R4（前端只讀預算結果、預算表要有讀者、排程只算增量、監控不掃表）；下面是 R1 的觸發條件。
 
 ### 觸發條件
 任何 RPC **任一** 條件成立就必須套 pattern：
@@ -358,7 +364,7 @@ Commit／PR 前必跑 `npm run verify`，失敗即停；完整套件（`npm run 
 - **站主限定圖層的範圍**：`eslint.config.js` 的 `OWNER_ONLY_FILES`（家族 glob）與 `OWNER_ONLY_EXEMPT`（附理由）。`eslint-rules/__tests__/ownerOnlyScope.test.js` 自己掃 `src/data`、`src/hooks` 找出含 `/api/private-research/`（或 import 了這類 data 模組）的檔，沒被規則覆蓋也沒列豁免就紅——新增私人圖層家族時把檔名加進 `OWNER_ONLY_FAMILIES`；來源卡需要的官方連結用 `allowUrls` 逐一列出，不要整檔豁免。
 
 ## 7. 部署 Checklist
-部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。2026-11-06 起正式站是 Cloudflare Worker（網頁＝Workers 靜態資產，檔案依 R2 → dist → 404，`/api` 轉 pulse-host），見 [`deploy/cloudflare/README.md`](../deploy/cloudflare/README.md) 與 ADR-0026 §8。改 `public/**` 資產時，manifest URL、`deploy/cloudflare/site_manifest.py`、nginx（Zeabur 回滾備援期間仍保留）與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
+部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。2026-11-06 起正式站是 Cloudflare Worker（網頁＝Workers 靜態資產，檔案依 R2 → dist → 404，`/api` 轉 pulse-host），見 [`deploy/cloudflare/README.md`](../deploy/cloudflare/README.md) 與 ADR-0026 §8。改 `public/**` 資產時，manifest URL、`deploy/cloudflare/site_manifest.py`、`nginx.conf`（現僅作測試契約，待移到 worker）與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
 
 ## 8. 動態圖層時間訂閱（External Time Store）
 

@@ -43,5 +43,6 @@
   "popup.marine.gbMpaLead": "所管機関",
   "popup.marine.gbMpaArea": "面積",
   "popup.marine.gbMpaStatus": "状態",
-  "popup.marine.gbMpaNav": "航海には使用できません"
+  "popup.marine.gbMpaNav": "航海には使用できません",
+  "popup.marine.hourlyAggregate": "7 日間の曲線は 1 時間平均です。風向・波向・流向は各時間の最後の値です。"
 }

@@ -16,7 +16,7 @@ import { useMapReadyTick } from "./useMapReadyTick";
  *   taipei-gis-analytics/data/processed/energy/power_poles/*.geojson (22 縣市)
  *   → tippecanoe -Z8 -z14 --cluster-densest-as-needed --drop-densest-as-needed
  *   → /public/coverage/power_poles.pmtiles（26 MB）
- *   → S3 deploy-assets/coverage/ → Zeabur volume → nginx
+ *   → S3 deploy-assets/coverage/ → R2 → Cloudflare Worker
  *
  * 路線：純 PMTiles 靜態，零 DB / 零 API 呼叫。
  * 視覺：circle by pole_type 5 類分色：

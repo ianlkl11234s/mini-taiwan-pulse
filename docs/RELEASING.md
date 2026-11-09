@@ -44,7 +44,7 @@
    git push origin vX.Y.Z
    ```
 6. 建 GitHub Release：`gh release create vX.Y.Z --title "vX.Y.Z — <標題>" --notes-file <該版段落>`
-7. 確認 Zeabur 部署完成、正式站「關於」顯示新版號（部署檢查見 `.claude/memory/PLAYBOOKS.md` PB-06）
+7. 確認 `deploy-workers` workflow 跑完、正式站「關於」顯示新版號（部署檢查見 `.claude/memory/PLAYBOOKS.md` PB-06）
 8. `develop` 若在發布後又進了新 PR，不用處理；若 master 有 develop 沒有的 commit（hotfix），把 `master` 合回 `develop`
 
 ## Hotfix

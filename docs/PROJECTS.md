@@ -21,7 +21,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
 | 2026-11-09 | 保留期限清理排程（mig 505–509）首跑、reconcile、備份 watchdog、日報 VM 欄位、日本雷達追上：白天唯讀驗 | Claude | ZB-V1 |
-| ~2026-11-14 | 刪 Zeabur 前先把 `mini-taiwan-pulse.itsmigu.com` DNS 改 Worker custom domain（現在仍指 Zeabur，靠 Route 攔截）→ 再刪 Zeabur 26 個已暫停服務 | 使用者 | ZB-4 → ZB-1 |
+| ~2026-11-14 | 刪 Zeabur 26 個已暫停服務（主站網域 2026-11-09 已改 Worker custom domain，ZB-4 完成） | 使用者 | ZB-1 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
 | 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警 | Claude | ZB-2 |
 | 2026-11-28 | 選舉投票日：之前每日更新活動地圖；選後匯出最後一版轉站主資料 | Claude＋使用者 | OWD-4 |
@@ -35,11 +35,12 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 **本週進行中**
 
-- Zeabur 收尾與金鑰：ZB-1／ZB-4／ZB-5／ZB-6、SEC-6（BACKLOG B 群）。
+- Zeabur 收尾與金鑰：ZB-1／ZB-5、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
+- 告警分級 11-09 上線（GitHub 排程、主機看門狗、collector、healthchecks 死人開關）；剩使用者設 Telegram secrets 與第 3 個 healthcheck（G 群 ALERT-1）。
 - 站主資料第 3 批（EA、Coillte、water1944）與撤舊 RPC（F 群 OWD-4、SR-1／SR-2）。
 - 資料保留期限第 2 群（約 21 張超過 6 個月＋22 張無期限）與 R2 獨有資料補 S3（C 群 WA-3、ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
-- 30 天地圖挑戰：Day 8 第 4 天文件 analytics PR #330 待合併；Day 6 正式站重拍（HIST-4）。
+- 30 天地圖挑戰：Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
 - 正式站目視包：v2.22～v2.31 各版目視集中在 BACKLOG A 群（VP-1～VP-13），等 Claude 用瀏覽器一次截圖。
 
 ## 進行中與待拍板
@@ -85,7 +86,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | 古地圖（臺灣百年歷史地圖） | 🟡 | 底線:授權 | 11-06 改公開（v2.26.0）；#882 拆成歷史底圖 6 層隨 v2.27.0 上線（85 張，CC BY-NC） | **HIST-1 寫信向中研院確認授權（已在授權未確認下公開，優先）**；VP-7 目視；HIST-3 研究成果搬進 git；主站 CSP enforcing 時補 gis.sinica.edu.tw | BACKLOG HIST-1；`src/data/historicalMapSinica.ts` | 2026-11-07 |
-| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 隨 v2.30.0／v2.31.1 | 合 analytics #330（Day 8 第 4 天文件）；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.31.1；`src/blog/mapChallenge.ts` | 2026-11-08 |
+| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 圖層隨 v2.32.0（河濱口徑）、Day 8 文章 #957 已合 develop 待發版；所有文章文末有資料來源（#959）；analytics #330 已合 | 發版後正式站目視 Day 8 文章；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.32.0；`src/blog/mapChallenge.ts`；`docs/features/blog/article-plan.md` | 2026-11-09 |
 | G27 臺北市局處公務統計 | 🟡 | 北極星:好用 | 部分隨 v2.13.0 上線 | BLOG-V 目視；PDF 獨有表 | candidates/G27；BACKLOG BLOG-V | 2026-10-24 |
 | G32 熱島與高溫曝露 | 🟡 | 北極星:好用 | queued；涼適點、熱傷害排進 TWL-5 第二批 | TWL-5 災害暴露組（使用者說晚點再處理） | candidates/G32；BACKLOG TWL-5 | 2026-10-29 |
 

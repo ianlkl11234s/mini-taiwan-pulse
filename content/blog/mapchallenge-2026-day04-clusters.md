@@ -6,7 +6,7 @@ topic: analysis
 series: 30 天地圖挑戰
 challengeDay: 4
 date: 2026-11-04
-updated: 2026-11-07
+updated: 2026-11-09
 tags: [30DayMapChallenge, 群聚, 人口密度, 六角網格, 寺廟]
 cover: cover-dark.jpg
 coverLight: cover-light.jpg
@@ -97,3 +97,13 @@ height: 460
 ### 為什麼寺廟的分布和人口不一樣？
 
 人口最密的一成格子只有約 25% 的登記寺廟，寺廟最密的格子多在臺南、鹿港、基隆、嘉義等舊市街。推測是因為許多寺廟隨早期聚落建立，每個村莊各有信仰中心，反映的是過去的聚落分布，而不是今天的人口。
+
+## 資料來源
+
+- **人口**：歐盟執委會聯合研究中心（JRC）〈[GHS-POP R2023A](https://ghsl.jrc.ec.europa.eu/ghs_pop2023.php)〉2020 年人口推估網格（3 弧秒，約 90 公尺），CC BY 4.0；引用 Schiavina M., Freire S., Carioli A., MacManus K. (2023), doi:10.2905/2FF68A52-5B5B-4A22-8F40-C41DA8332CFE。
+- **便利商店**：© OpenStreetMap 貢獻者（7-ELEVEN、全家、萊爾富、OK 品牌點，2026 年 3 月整理），ODbL。
+- **短期補習班**：教育部補教資訊網〈全國立案短期補習班〉，2026-08-07 取得，[data.gov.tw 16461](https://data.gov.tw/dataset/16461)，政府資料開放授權條款第 1 版；座標由地址地理編碼。
+- **診所**：衛生福利部中央健康保險署〈健保特約醫事機構〉，約 2026 年 5–7 月版；座標由地址地理編碼。
+- **工廠**：經濟部產業發展署〈生產中工廠清冊〉，2026 年 6 月清冊，[data.gov.tw 6569](https://data.gov.tw/dataset/6569)，政府資料開放授權條款第 1 版；座標由地址地理編碼。
+- **寺廟**：內政部全國宗教資訊系統〈寺廟登記〉，2026-08-01 擷取，[data.gov.tw 8203](https://data.gov.tw/dataset/8203)，政府資料開放授權條款第 1 版。
+- **國中小**：教育部統計處〈[各級學校地理資訊及地區別統計查詢系統](https://stats.moe.gov.tw/EduGis/)〉學校名錄，約 2024 年版。

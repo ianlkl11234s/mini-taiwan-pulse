@@ -47,8 +47,6 @@ const gfwDarkLoader = readFileSync("src/data/gfwDarkVesselsLoader.ts", "utf8");
 const gfwManifestContract = readFileSync("src/data/gfwHourlyReleaseManifest.ts", "utf8");
 const gfwRefreshScript = readFileSync("scripts/deploy/refresh-gfw-hourly.sh", "utf8");
 const gfwV4LocalInstall = readFileSync("scripts/deploy/install-gfw-v4-local-release.sh", "utf8");
-const entrypoint = readFileSync("scripts/deploy/entrypoint.sh", "utf8");
-const dockerfile = readFileSync("Dockerfile", "utf8");
 const viteConfig = readFileSync("vite.config.ts", "utf8");
 const dockerIgnore = readFileSync(".dockerignore", "utf8");
 const jpHeightPublisher = readFileSync("scripts/deploy/publish-jp-height-assets.py", "utf8");
@@ -504,7 +502,6 @@ describe("deploy 契約（nginx + pull script）", () => {
     // fire 同步只收根層 pmtiles，子前綴（例 global-maritime/）不可遞迴灌進 /data/fire/
     const fireSync = pullScript.split("\n").find((line: string) => line.includes('"$DATA_DIR/fire/"'));
     expect(fireSync).toContain('--exclude "*/*"');
-    expect(dockerfile).toContain('COPY scripts/deploy/install-jp-medical-assets.py');
     expect(dockerIgnore).toContain('public/jp-medical');
     expect(nginxConf).toMatch(/location \^~ \/jp-medical\/releases\/ \{\s*types \{\s*application\/vnd\.pmtiles pmtiles;\s*application\/geo\+json geojson;\s*application\/json json;/);
     expect(existsSync("scripts/deploy/publish-jp-medical-assets.py")).toBe(true);
@@ -513,7 +510,6 @@ describe("deploy 契約（nginx + pull script）", () => {
   it("Japan height catalog publisher/install/nginx are connected without legacy broad upload", () => {
     expect(pullCovers("jp-heights")).toBe(true);
     expect(pullScript).toContain("python3 /usr/local/bin/install-jp-height-assets.py");
-    expect(dockerfile).toContain("COPY scripts/deploy/install-jp-height-assets.py");
     expect(dockerIgnore).toContain("public/jp-heights");
     expect(jpHeightPublisher).toContain('write_order": "last"');
     expect(jpHeightPublisher).toContain("IfNoneMatch=\"*\"");
@@ -575,10 +571,6 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(gfwRefreshScript).not.toContain('aws s3 sync');
     expect(pullScript).toContain('/usr/local/bin/refresh-gfw-hourly.sh');
     expect(pullScript).not.toContain('aws s3 sync "$S3/global-maritime/gfw-hourly/"');
-    expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-3600");
-    expect(entrypoint).toContain("/usr/local/bin/refresh-gfw-hourly.sh");
-    expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.sh");
-    expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.mjs");
   });
 
   it("GFW v4 local fixture 只接受可驗證的正式 immutable release，不偷接 /private/tmp POC", () => {

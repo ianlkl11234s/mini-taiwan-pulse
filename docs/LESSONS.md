@@ -82,6 +82,7 @@
 6. **保存層求完整、成品包求小**，前端不直讀保存層（S3 egress 一年比儲存還貴）。→ [PRINCIPLES「保存層 vs 成品包分離」](../.claude/memory/PRINCIPLES.md#保存層-vs-成品包分離-p02026-08-08-nightly-trails-教訓)
 7. **先量再改，估算要標「估算」**：road_congestion 類比得 81%，實測只有 57%。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 8. **Disk IO 要看 pg_stat_io**：pg_stat_statements 看不到 autovacuum（實測約佔讀取 58%）；前端 anon RPC 全部加起來只有約 0.7 GB／天，壓力在 collector 寫入與 cron。→ gis-platform `docs/research/2026-10-12-disk-io-round2.md`（正本在 gis-platform，本 repo 只有 BACKLOG DIO-*）
+9. **前端只讀預算結果、預算表要有讀者、排程只算增量、監控不掃表**（DB 效能鐵則 R1–R4，2026-11-09 減量大掃除：每天約 140 GB 讀、400 GB temp 寫，大多是沒人讀的表在算、讀的人自己重算）；規則寫了沒人擋就會再犯，所以 gis-platform CI 擋新 migration、data-collectors 每週一體檢。→ [supabase-optimization §0](./supabase-optimization.md#0-db-效能鐵則2026-11-09-減量大掃除後設立正本)
 
 ## 5. AI、Agent 與 MCP 分析
 

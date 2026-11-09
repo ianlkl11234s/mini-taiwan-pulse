@@ -6,7 +6,7 @@ topic: layers
 series: 30 天地圖挑戰
 challengeDay: 3
 date: 2026-11-03
-updated: 2026-11-07
+updated: 2026-11-09
 tags: [30DayMapChallenge, 發電廠, 能源, 英國, 南韓]
 cover: cover-dark.jpg
 coverLight: cover-light.jpg
@@ -78,3 +78,10 @@ threads:
 ### 這張地圖的電廠數量可以拿來比較三國嗎？
 
 不行。英國是官方完整清單，南韓是 OpenStreetMap 志工標註，台灣只有台電的水力與火力電廠，三者收錄範圍不同。地圖適合比較分布的型態，例如燃氣靠近都市、燃煤靠港口，不適合比誰的電廠多。
+
+## 資料來源
+
+- **英國電廠**：英國能源安全與淨零部（DESNZ）〈[DUKES 2026 Table 5.11 Power stations in the United Kingdom](https://www.gov.uk/government/statistics/electricity-chapter-5-digest-of-united-kingdom-energy-statistics-dukes)〉，2026 年 5 月版，Open Government Licence v3.0。
+- **南韓電廠**：© OpenStreetMap 貢獻者（power=plant 與火力、核能機組，經 [Geofabrik](https://download.geofabrik.de/asia/south-korea.html) 下載），ODbL。
+- **台灣電廠**：台灣電力公司〈水火力發電廠位置及機組設備資料〉，22 座廠、175 部機組，[data.gov.tw 8934](https://data.gov.tw/dataset/8934)，政府資料開放授權條款第 1 版。
+- **英格蘭陸域風電政策**：英國政府 2015 年 6 月 18 日部長書面聲明；國家規劃政策框架（NPPF）2024 年 7 月 8 日修訂版。

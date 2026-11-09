@@ -43,5 +43,6 @@
   "popup.marine.gbMpaLead": "主管機關",
   "popup.marine.gbMpaArea": "面積",
   "popup.marine.gbMpaStatus": "狀態",
-  "popup.marine.gbMpaNav": "不可用於航行"
+  "popup.marine.gbMpaNav": "不可用於航行",
+  "popup.marine.hourlyAggregate": "7 天曲線為每小時平均；風向、波向、流向取該小時最後一筆。"
 }

@@ -39,7 +39,7 @@ Step 7  收尾 (changelog + backlog 標 ✅)
 - 開 worktree 與 branch（不碰主 checkout）：`git worktree add -b feat/<slug> .worktrees/<slug> origin/develop`，進去 `npm ci`；需要的 gitignored 大檔從主 checkout `ln -f` hardlink
 - **先判斷放哪個儲存**（ADR-0026 §5.1，正本 GIS `.gis-agent-system/decisions/0026-pulse-architecture-and-data-placement.md`）：資料不會變或只會整批替換（選舉、選區、普查、季／年更）→ PMTiles／GeoJSON 走 S3 deploy-assets → R2，**不進 Supabase、不寫 RPC**；要伺服器端依時間／範圍篩選的即時資料才進 Supabase，且新表要同時登記保留期限（≤ 180 天）與 S3 正本路徑
 - 檔案放哪：國外圖層一律 `public/world/<cc>_*.pmtiles`（既有家族，免改 `deploy/cloudflare/site_manifest.py`、`nginx.conf`、`scripts/deploy/pull-deploy-assets.sh`）。**資料檔一律不進 git**（不論大小，CI-4）：放本機 `public/` 後跑 `python3 scripts/deploy/build-public-assets-lock.py add <路徑>` 登記 lock，再由 `scripts/deploy/upload-deploy-assets.sh` 上傳 S3 deploy-assets，發版時同步到 R2；commit 進 public/ 會被 deployContract 的 ratchet 擋下
-- 授權限內部使用的資料：**不放 `public/`**，走 Supabase owner-only RPC（`docs/features/owner-gated-layers/`）；只加 `GATED_LAYERS` 而檔案公開＝散布
+- 授權限內部使用的資料：**不放 `public/`**；不會變或整批替換的站主資料放私有 S3 `private-research/owner-data/<sha256>/<檔名>`，經 pulse-host coral-private sidecar 的 owner-data 家族提供（`src/lib/ownerData.ts` fetchOwnerJson、白名單 `server/coral-private/owner-data-assets.mjs`，計畫 `.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`）；只有需伺服器端依時間查詢的即時資料才留 Supabase owner-only RPC（`docs/features/owner-gated-layers/`）；只加 `GATED_LAYERS` 而檔案公開＝散布
 
 ## Step 1 — 資料完整性驗收（⚠️ 最常漏的地方）
 
@@ -79,6 +79,11 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.get_xxx(...);
 ```
 
 **若 > 1s 或 > 10k rows → 立刻套 pre-aggregate pattern**（見 `supabase-optimize` skill）。
+
+**DB 效能驗收（鐵則 R1／R2，正本 `docs/supabase-optimization.md` §0；缺一不可上線）**：
+- [ ] **量 RPC 冷快取耗時**：`/check-rpc <name>` 用最大參數（最長時間窗、整天）跑，換一個最近沒人查過的日期再跑一次，取有 `shared read` 的那次 Execution Time：目標 <300 ms，>1 s 不上線。數字與 shared read blocks 寫進 PR 描述。
+- [ ] **確認預算表讀者**：RPC 讀的預算表（`*_daily`／`_hourly`／`_agg`…）在 gis-platform 建表 migration 有 `-- reader: <這支 RPC>（<layer key>）`，而且 RPC 本體真的讀這張表、不是自己從原始表重算（反例：`get_youbike_h3_snapshots` 旁邊有 `youbike_h3_daily` 卻沒接上，12 秒）。
+- [ ] 白天的 refresh 排程呼叫 `_incremental`，整天全量只在夜間 yesterday（R3；gis-platform CI 會擋）。
 
 ### 座標系統
 
@@ -215,7 +220,7 @@ npm run dev
 ## Related
 
 - Command：`/new-layer` — 產骨架
-- Skill：`supabase-optimize` — RPC 效能
+- Skill：`supabase-optimize` — RPC 效能；DB 效能鐵則 R1–R4 → `docs/supabase-optimization.md` §0
 - Skill：`three-3d-component` — 3D layer
 - Skill：`gis-data-onboard`（在 taipei-gis-analytics）— 資料落地路由
 - Rules：`CLAUDE.md §5 §5a` + `docs/development-rules.md`

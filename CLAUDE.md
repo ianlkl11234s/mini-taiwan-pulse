@@ -40,7 +40,7 @@ commit 前必跑 `npm run verify`（`tsc -b`、lint、樣式盤點、相關測�
 所有非同步載入必註冊 loadingRegistry，禁靜默 `.rpc().then()` → development-rules §2
 
 ### 4. 資料庫優化（Pre-aggregate Pattern）
-RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) + `/supabase-optimize` skill + `/check-rpc`
+RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) + `/supabase-optimize` skill + `/check-rpc`。**DB 效能鐵則 R1–R4**（前端 RPC 冷快取 <300ms／上限 1s、預算表要登記讀者、排程只算增量、監控不掃表）正本在該檔 §0，gis-platform CI 與每週體檢會擋
 
 ### 5. 新增 Layer 強制順序 ⚠️
 新增 Layer → `/new-layer` 產骨架 + `layer-onboarding` skill 驗收；接線順序見 development-rules §4。
@@ -61,7 +61,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 ## Git Workflow（develop → master，2026-10-04 起）
 
 - **`develop` 是所有 PR 的 base**（`gh pr create --base develop`）；`master` = 正式站，只收 develop 的發布合併與 `hotfix/*`。GitHub 預設分支已是 develop（2026-10-04 起）。
-- **`develop → master` 會觸發 Zeabur 正式部署，須使用者拍板**；發布步驟、版號（SemVer）、tag 與 GitHub Release → [`docs/RELEASING.md`](./docs/RELEASING.md)
+- **`develop → master` 會觸發 Cloudflare Worker 正式部署（`.github/workflows/deploy-workers.yml`），須使用者拍板**；發布步驟、版號（SemVer）、tag 與 GitHub Release → [`docs/RELEASING.md`](./docs/RELEASING.md)
 - 每個 user-facing PR 在根目錄 [`CHANGELOG.md`](./CHANGELOG.md) 的 `## [Unreleased]` 加一行
 - **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge（使用者 2026-09-15 指示）。未經明確要求，不壓縮、合併或改寫既有 commit。
 - branch 命名 / PR 流程 / hotfix 判準 → [`docs/git-workflow.md`](./docs/git-workflow.md)
@@ -117,5 +117,5 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 | 參考 | [`docs/research/`](./docs/research/) | 決策軌跡 / 跨系統比對 / 故事 cookbook |
 | 關聯 repo | `../gis-platform` | Supabase migrations |
 | 關聯 repo | `../data-collectors` | 資料收集 + SQL 範本 |
-| 關聯 repo | `../pulse-api` | FastAPI 備援 |
+| 關聯 repo | `../pulse-api` | FastAPI 備援（已停用，2026-04 起無 commit） |
 | 關聯 repo | `../mini-taipei-v3` | 鐵道資料來源 |
