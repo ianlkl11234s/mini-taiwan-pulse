@@ -201,6 +201,12 @@ npm run dev
 
 **登記是每個新圖層的必經步驟（2026-11-06 使用者拍板）**：manifest 每個 `upstream.datasets[].datasetId` 都要在 pulse-data 有 `registry/<datasetId>.yaml`，`consumers.pulse_layers` 列出這個 layer key；資料換版或新增使用圖層時改既有條目。圖層 PR 合進 develop 後，在 pulse-data 跑 `python3 scripts/check_layer_coverage.py --from-checkout <mini checkout>` 要 exit 0（不該登記的寫進 `registry/_no_upstream.yaml` 附理由）。只登記、沒有 `warehouse` 區塊時，Agent 還查不到；要可查再走下面的入倉流程。
 
+**入倉守門（AG-13，2026-11-09）：圖層上線即入倉；做不到就標 DISPLAY_ONLY 並寫解鎖條件。** 驗收清單：
+- [ ] 每個 `upstream.datasets[].datasetId` 的登記條目有 `warehouse` 區塊（統計層：dataset 進了 `stats_observations`，即 `_indicator_semantics.yaml` 有它）
+- [ ] 做不到入倉、且確實只做展示（純視覺特效、連續 raster 等）→ 加進 pulse-data `registry/_display_only.yaml`，`reason`（為什麼不能入倉）與 `unlock`（滿足什麼就入倉）缺一不可；即時、授權待清、還沒排到的層**不算**展示專用
+- [ ] `registry/_warehouse_baseline.yaml` 是既有未入倉層的基準，**只減不增**：新層不可加進去；某層入倉後要刪該行
+- [ ] `PULSE_DATA_ROOT=<pulse-data> npx vitest run src/data/__tests__/layerRegistryCoverage.test.ts` 綠（AG-13 case）；pulse-data `python3 scripts/check_layer_coverage.py --from-checkout <mini>` 的 (d)(e) 為 0
+
 新圖層：**L2 可分析＝在 pulse-data registry 有 `warehouse` 區塊，且已組裝上線**（ADR-0023；不再靠掃描 analytics 自動入倉）。入倉流程：analytics 備好 `_manifest.json` → `publish_package.py` 發包（點線面 `--dataset`、統計 `--stats-cdn`、別名 `--aliases`）→ pulse-data PR 合併 → `assemble_store.py` 組裝 → `warehouse:upload`（保留 3 版）；驗收要在新的 stdio process 下 `pulse_find_data` 找得到、`pulse_sql` 查得到。步驟與指令見 [ARCHITECTURE.md §5c](../../../docs/features/agent-research-workbench/ARCHITECTURE.md)、MCP `warehouse/README.md`「新資料入口」。分級定義見 [PLAN-warehouse-20260926](../../../docs/features/general-analysis/PLAN-warehouse-20260926.md)。上線仍留 Q0–Q6 收據：先核來源、授權、版次、筆數／缺值與 geometry，再接 `DatasetDescriptor` 和有界 reader，以新地點、問題變體、原表獨立 oracle 及正常 MCP 實問。需要地圖的結果再驗 `ready`／readback／目視。預設至少 Q0–Q3 通過才稱「Agent 可查」；僅有 PMTiles／地圖展示不得當作查詢已通。對已接受來源，驗的是系統忠實查詢原座標；來源點是否等於真實現場的限制要說明，但不反覆重審既有資料品質。來源本質不能查或授權不明時標具體 `DISPLAY_ONLY`／HOLD，記解鎖條件，不編造分析能力。
 
 ## Step 7 — 收尾
