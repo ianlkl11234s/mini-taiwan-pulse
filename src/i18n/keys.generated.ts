@@ -5843,6 +5843,7 @@ export type GeneratedStaticKey =
   | "popup.marine.gbMpaType"
   | "popup.marine.historyError"
   | "popup.marine.historyLoading"
+  | "popup.marine.hourlyAggregate"
   | "popup.marine.invalid"
   | "popup.marine.invalidWithReason"
   | "popup.marine.latestMetrics"

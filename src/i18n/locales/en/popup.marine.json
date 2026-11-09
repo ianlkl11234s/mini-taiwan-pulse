@@ -43,5 +43,6 @@
   "popup.marine.gbMpaLead": "Lead body",
   "popup.marine.gbMpaArea": "Area",
   "popup.marine.gbMpaStatus": "Status",
-  "popup.marine.gbMpaNav": "Not to be used for navigation"
+  "popup.marine.gbMpaNav": "Not to be used for navigation",
+  "popup.marine.hourlyAggregate": "7-day curve shows hourly means; wind, wave and current directions use the last reading of each hour."
 }
