@@ -21,13 +21,17 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
 | 2026-11-09 | 保留期限清理排程（mig 505–509）首跑、reconcile、備份 watchdog、日報 VM 欄位、日本雷達追上：白天唯讀驗 | Claude | ZB-V1 |
-| ~2026-11-14 | 刪 Zeabur 最後兩個專案（mini-tw-pulse、data-collectors-gomn；其餘 11-09 已刪；主站網域已改 Worker，ZB-4 完成）；uk-trip DNS 一併決定 | 使用者 | ZB-1／ZB-7 |
-| 2026-11-10 | gis-platform mig 532 測試：確認 11 個分區索引沒長回（避開 10:00–20:00） | Claude | SBE-2 |
+| 2026-11-10 | 四件事：mig 532 測試、VM moa 00:53 log、pgss 查詢文字量、保留期限首次清理刪除量＋vacuum（避開 10:00–20:00） | Claude | CHK-1110（SBE-1／SBE-2／WA-3） |
+| ~2026-11-12～14 | pgss 乾淨慢查詢清單（11-09 15:27 重置）→ 先優化 >1s，再收 timeout 10–15s | Claude | SEC-5 |
+| ~2026-11-14 | 刪 Zeabur 最後兩個專案（mini-tw-pulse、data-collectors-gomn；其餘 11-09 已刪；主站網域已改 Worker，ZB-4 完成），須使用者同意；uk-trip DNS 要使用者在 Cloudflare 手動刪 | 使用者 | ZB-1／ZB-7 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
-| 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警 | Claude | ZB-2 |
+| ~2026-11-16 | pulse-host 記憶體峰值檢視（collector-mem 觀察中）後決定 mem_limit | Claude | HOST-1 |
+| 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警，VM 版另存 `.vm.tar.gz` | Claude | ZB-2 |
+| ~2026-11-20 | 動物收容成果收集器確認有新 run（設計低頻，不是故障） | Claude | COL-ANIMAL-1 |
 | 2026-11-28 | 選舉投票日：之前每日更新活動地圖；選後匯出最後一版轉站主資料 | Claude＋使用者 | OWD-4 |
-| 2026-12-01 前 | Zeabur 專用主機停止續約 | 使用者 | ZB-5 |
+| 2026-12-01 前 | 使用者取消 Zeabur 專用主機續約 | 使用者 | ZB-5 |
 | 2026-12-03 前 | SEC-6 金鑰輪換（22 把換、9 項刪；Claude 前置 C1–C8） | 使用者＋Claude | SEC-6 |
+| 2027-03 前 | intel 三表每月匯出 S3 排程（另一 worker 進行中） | Claude | WA-13 |
 | 約 2027-05 | vessel_watch_positions 11 月後資料再匯出 S3（180 天保留開始刪） | Claude | VW-EXP-1 |
 | 約 2027-05-15 | 監所人數卡片的 365 天視窗會變空（上游 05-15 停更） | 使用者拍板 | PR-1 |
 | 2027-10-29 | 英格蘭 EA 污染名錄授權到期 | 使用者 | EA-1 |
@@ -38,9 +42,9 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 - Zeabur 收尾與金鑰：ZB-1／ZB-5、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
 - 告警分級 11-09 完成（GitHub 排程、主機看門狗、collector、healthchecks 3 個死人開關皆已設）；剩 aisstream／VM 接告警（G 群 ALERT-1）。
-- Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；剩 VM 5 支收集器換固定形狀、reset 驗證（E 群 SBE-1）與待拍板的 SBE-3／SBE-4／FARE-1。
+- Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；11-09 晚第一批權限（gp #227 mig 536–539）與 VM 固定形狀寫入（collectors #194）也完成；剩 11-10 驗證（CHK-1110）、慢查詢清單（SEC-5）、預算表（SBE-5）、軌跡改讀每日檔方案（TRAIL-1）、新發現的 RLS／權限（SEC-11／SEC-12／HERMES-2）。
 - 站主資料第 3 批（EA、Coillte、water1944）與撤舊 RPC（F 群 OWD-4、SR-1／SR-2）。
-- 資料保留期限第 2 群（約 21 張超過 6 個月＋22 張無期限）與 R2 獨有資料補 S3（C 群 WA-3、ST-2）。
+- 資料保留期限：第 2 批 11-09 完成（gp #228／#229 mig 540–543、ADR-0026 #57），剩項目在 WA-3；靜態表搬遷乙組（WA-14，動前端前先給使用者看方案）；R2 獨有資料補 S3（ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
 - 30 天地圖挑戰：Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
 - 正式站目視包：v2.22～v2.31 各版目視集中在 BACKLOG A 群（VP-1～VP-13），等 Claude 用瀏覽器一次截圖。
