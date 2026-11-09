@@ -33,6 +33,7 @@ import {
   JP_ROAD_ATTRIBUTION, JP_ROAD_SOURCE_URL, JP_ROAD_LICENSE, JP_ROAD_DATA_AS_OF,
   JP_EXPRESSWAY_CATEGORIES, JP_EXPRESSWAY_OTHER, JP_EXPRESSWAY_SERVICE_STATUS, JP_EXPRESSWAY_JUNCTION_TYPES, JP_EXPRESSWAY_LAYER_COLOR,
   JP_EXPRESSWAY_ATTRIBUTION, JP_EXPRESSWAY_SOURCE_URL, JP_EXPRESSWAY_LICENSE, JP_EXPRESSWAY_DATA_AS_OF,
+  JP_MUNICIPAL_ROAD, JP_MUNICIPAL_ROAD_COLOR,
 } from "../../data/jpRoadTypes";
 import {
   JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_LAYER_COLOR,
@@ -598,6 +599,24 @@ export function JpMajorRoadsPanel({ props }: { props: Record<string, unknown> })
     <Row label={t("popup.japan.roadState")} value={JP_ROAD_STATES[state] ?? na} />
     <Row label={t("popup.japan.dataAsOf")} value={JP_ROAD_DATA_AS_OF} />
     <Row label={t("popup.japan.notes")} value={t("popup.japan.roadNote")} />
+    <SourceFooter props={{ source_org: JP_ROAD_ATTRIBUTION, source_url: JP_ROAD_SOURCE_URL, license: JP_ROAD_LICENSE, fetched_at: JP_ROAD_DATA_AS_OF }} />
+  </>;
+}
+
+/** 日本市町村道（N13_003=3）：tile 只有 width_class，road_state 缺＝通常部、toll 缺＝無料（pipeline 只在非預設值時寫入）；沒有路名。 */
+export function JpMunicipalRoadsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const na = t("popup.common.notProvided");
+  const width = policeText(props.width_class);
+  const state = policeText(props.road_state) || "normal";
+  const toll = props.toll === true || props.toll === "true" ? t("popup.japan.roadTollYes") : t("popup.japan.roadTollNo");
+  return <>
+    <Title color={JP_MUNICIPAL_ROAD_COLOR}>{`${t("popup.japan.municipalRoadTitle")}（${JP_MUNICIPAL_ROAD.ja}）`}</Title>
+    <Row label={t("popup.japan.roadWidth")} value={JP_ROAD_WIDTH_CLASSES[width] ?? na} />
+    <Row label={t("popup.japan.roadToll")} value={toll} />
+    <Row label={t("popup.japan.roadState")} value={JP_ROAD_STATES[state] ?? na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_ROAD_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.municipalRoadNote")} />
     <SourceFooter props={{ source_org: JP_ROAD_ATTRIBUTION, source_url: JP_ROAD_SOURCE_URL, license: JP_ROAD_LICENSE, fetched_at: JP_ROAD_DATA_AS_OF }} />
   </>;
 }

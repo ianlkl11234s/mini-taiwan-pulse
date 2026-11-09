@@ -3630,6 +3630,48 @@
    "s3_key": "deploy-assets/world/jp_marine_ebsa_moe_coastal_20150101_points.pmtiles"
   },
   {
+   "path": "public/world/jp_municipal_roads_chubu.pmtiles",
+   "bytes": 112334085,
+   "sha256": "54ac90f758cf6bcb4158ab1a7fcc8798c9f9931cdc6ea2a20e1c229eab23d91e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_municipal_roads_chubu.pmtiles"
+  },
+  {
+   "path": "public/world/jp_municipal_roads_chugoku_shikoku.pmtiles",
+   "bytes": 63543912,
+   "sha256": "807f1894b1c9d06b80b291e0b45624de9b1253e60ff7debb5dbcd3fa6c0c0972",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_municipal_roads_chugoku_shikoku.pmtiles"
+  },
+  {
+   "path": "public/world/jp_municipal_roads_hokkaido_tohoku.pmtiles",
+   "bytes": 216002277,
+   "sha256": "3e25e8eae43eec4d8368c31cd796df31b6f275ae83cca8bb1d165e0af17ab96e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_municipal_roads_hokkaido_tohoku.pmtiles"
+  },
+  {
+   "path": "public/world/jp_municipal_roads_kanto.pmtiles",
+   "bytes": 199140751,
+   "sha256": "10367e9deeefb10af150f1401fdd865a2457c56fd0b98b86d955032ae975a1b7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_municipal_roads_kanto.pmtiles"
+  },
+  {
+   "path": "public/world/jp_municipal_roads_kinki.pmtiles",
+   "bytes": 181231905,
+   "sha256": "9f8fa3dca46d9979496e47ecf1785cbfd50513cef4344e5904474c6acef8f601",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_municipal_roads_kinki.pmtiles"
+  },
+  {
+   "path": "public/world/jp_municipal_roads_kyushu_okinawa.pmtiles",
+   "bytes": 122391587,
+   "sha256": "db3393ad79bdefa7bfdc09ad10c159889d988e70c2b014f7cc319f84e8e8fc7f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_municipal_roads_kyushu_okinawa.pmtiles"
+  },
+  {
    "path": "public/world/jp_national_forests_points.pmtiles",
    "bytes": 3497592,
    "sha256": "38ad62157cbe9b88f35242914142db1f94ab1b048b57f4f0c74d67f41758b1b0",

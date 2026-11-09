@@ -15,6 +15,7 @@ import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STA
 import { JP_RAILWAY_TYPES } from "../../data/jpRailwayTypes";
 import {
   JP_ROAD_CLASSES, JP_ROAD_ATTRIBUTION, JP_EXPRESSWAY_CATEGORIES, JP_EXPRESSWAY_PROVISIONAL_MIX, JP_EXPRESSWAY_JUNCTION_TYPES, JP_EXPRESSWAY_ATTRIBUTION,
+  JP_MUNICIPAL_ROAD, JP_MUNICIPAL_ROAD_COLOR,
 } from "../../data/jpRoadTypes";
 import { mixWithWhite } from "../../data/jpZoningUseDistrictTypes";
 import { LINE_WIDTH } from "../../map/mapStyleScale";
@@ -280,6 +281,20 @@ export function JpMajorRoadsLegend() {
       <LegendNote>{i18n.t("legend.transport.jpRoadScope")}</LegendNote>
       <LegendNote>{i18n.t("legend.transport.jpRoadZoom")}</LegendNote>
       <LegendNote>{i18n.t("legend.transport.jpRoadOverlap")}</LegendNote>
+      <LegendNote>{JP_ROAD_ATTRIBUTION}</LegendNote>
+    </div>
+  );
+}
+
+/** 日本市町村道（N13_003=3）：單一淡色細線，z12 起顯示。 */
+export function JpMunicipalRoadsLegend() {
+  const i18n = useLocale();
+  return (
+    <div>
+      <LegendTitle zh={i18n.t("legend.transport.jpMunicipalRoadTitle")} />
+      <LegendRow swatch={<SwatchLine color={JP_MUNICIPAL_ROAD_COLOR} width={LINE_WIDTH[JP_MUNICIPAL_ROAD.tier][1]} />}>{i18n.t("legend.transport.jpMunicipalRoadRow")}</LegendRow>
+      <LegendNote>{i18n.t("legend.transport.jpMunicipalRoadZoom")}</LegendNote>
+      <LegendNote>{i18n.t("legend.transport.jpMunicipalRoadScope")}</LegendNote>
       <LegendNote>{JP_ROAD_ATTRIBUTION}</LegendNote>
     </div>
   );

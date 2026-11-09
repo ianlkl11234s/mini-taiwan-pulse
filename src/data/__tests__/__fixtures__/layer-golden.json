@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1816,
+    "keyCount": 1817,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1078,6 +1078,17 @@
         "jp-major-roads-z5-line"
       ],
       "type": "jpMajorRoads"
+    },
+    {
+      "layers": [
+        "jp-municipal-roads-hokkaido_tohoku-line",
+        "jp-municipal-roads-kanto-line",
+        "jp-municipal-roads-chubu-line",
+        "jp-municipal-roads-kinki-line",
+        "jp-municipal-roads-chugoku_shikoku-line",
+        "jp-municipal-roads-kyushu_okinawa-line"
+      ],
+      "type": "jpMunicipalRoads"
     },
     {
       "layers": [
@@ -137802,6 +137813,17 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      }
+    ],
+    "jpMunicipalRoads": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "jpNationalForests": [

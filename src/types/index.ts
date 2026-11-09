@@ -461,7 +461,7 @@ export type ExpandableLayerKey =
   | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
   | "jpLandslideWarningAreas" | "jpInlandFloodAreas"
   | "jpZoningUseDistricts" | "jpNationalForests"
-  | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief" | "historicalMapSinica" | "historicalMapPostwar" | "historicalImagery" | "historicalBoundaries" | "historicalLandUse" | "historicalThematic" | "water1944Taipei"
+  | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpMunicipalRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief" | "historicalMapSinica" | "historicalMapPostwar" | "historicalImagery" | "historicalBoundaries" | "historicalLandUse" | "historicalThematic" | "water1944Taipei"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
   | "ieAdminBoundaries" | IeDataKey | "ieBathymetry" | "ieCoillteRecreation" | "ieCoillteForestRoads"
@@ -1043,7 +1043,7 @@ export interface FeatureInfo {
     // 日本第三波面圖層（用途地域／国有林，靜態 PMTiles 面層）
     | "jpZoningUseDistricts" | "jpNationalForests"
     // 日本第四波（福祉兩層、主要道路、高速道路；地理院地形 raster 無 popup 不列）
-    | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways"
+    | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpMunicipalRoads" | "jpExpressways"
     // 英國第 0b 波：行政邊界（LAD、統計小區）
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
@@ -1978,6 +1978,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   jpWelfareDisability: boolean; // 日本障礙福祉設施（PMTiles point，75,945 點；與 jpWelfareChild 共用 source）
   jpWelfareChild: boolean;      // 日本兒童福祉設施（PMTiles point，78,627 點）
   jpMajorRoads: boolean;        // 日本主要道路（PMTiles line，1,838,441 線段；國道／縣道／高速）
+  jpMunicipalRoads: boolean;    // 日本市町村道（PMTiles line 6 片，z12 起）
   jpExpressways: boolean;       // 日本高速道路（PMTiles line 1,289＋IC/JCT point 2,384；2025 現況）
   jpGsiHillshade: boolean;      // 國土地理院 陰影起伏図（外部 XYZ raster）
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）

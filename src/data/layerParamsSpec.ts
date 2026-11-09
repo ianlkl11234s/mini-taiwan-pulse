@@ -2799,6 +2799,10 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ value: "all", label: "全部" }, ...JP_ROAD_FILTER_OPTIONS],
       out: "jpMajorRoadsClassIdx", encode: ["all", ...JP_ROAD_FILTER_OPTIONS.map(o => o.value)] },
   ],
+  // 市町村道：單一類別，只有透明度
+  jpMunicipalRoads: [
+    opacitySlider("jpMunicipalRoadsOpacity", 0.85),
+  ],
   // 高速道路：0=全部、1–5=路線種別（只篩線，IC 點不受影響）
   jpExpressways: [
     opacitySlider("jpExpresswaysOpacity", 0.85),

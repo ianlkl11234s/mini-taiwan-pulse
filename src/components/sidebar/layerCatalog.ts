@@ -2427,7 +2427,7 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "場站", layers: [fromManifest("jpStations"), fromManifest("jpBusStops")] },
       { title: "歷史軌跡", layers: [fromManifest("jpHistoricalFlightTrails")] },
-      { title: "路網", layers: [fromManifest("jpRailways"), fromManifest("jpExpressways"), fromManifest("jpMajorRoads")] },
+      { title: "路網", layers: [fromManifest("jpRailways"), fromManifest("jpExpressways"), fromManifest("jpMajorRoads"), fromManifest("jpMunicipalRoads")] },
       { title: "樞紐節點", layers: [fromManifest("jpAirports")] },
     ],
   },

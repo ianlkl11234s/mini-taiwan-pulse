@@ -18,7 +18,7 @@ import { JP_ZONING_LAYER_COLOR } from "./jpZoningUseDistrictTypes";
 import { JP_FOREST_LAYER_COLOR } from "./jpNationalForestTypes";
 import { JP_NATURE_R2_LAYER_COLORS } from "./jpNatureR2Colors";
 import { JP_WELFARE_LAYER_COLOR } from "./jpWelfareFacilityTypes";
-import { JP_ROAD_LAYER_COLOR, JP_EXPRESSWAY_LAYER_COLOR } from "./jpRoadTypes";
+import { JP_ROAD_LAYER_COLOR, JP_EXPRESSWAY_LAYER_COLOR, JP_MUNICIPAL_ROAD_COLOR } from "./jpRoadTypes";
 import { JP_BUS_STOP_LAYER_COLOR } from "./jpBusStopTypes";
 import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
@@ -3426,6 +3426,35 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "日本國道、都道府縣道與高速道路中心線（2024-09 時點），依道路等級分色分線寬；不含市町村道",
     topics: ["世界", "日本", "交通", "道路", "國道", "路網"],
+  },
+  jpMunicipalRoads: {
+    key: "jpMunicipalRoads",
+    country: "JP", section: { theme: "交通", group: "路網" },
+    ...layerName({ zh: "市町村道", alt: "市区町村道等", qualifier: "2024年度" }),
+    expandable: true,
+    color: JP_MUNICIPAL_ROAD_COLOR,
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_municipal_roads", confidence: "HIGH" }],
+      processing: "国土数値情報 N13 道路データ 2024年度版（2024-09 時點）只取市区町村道等（N13_003=3）22,210,998 線段，依 1次メッシュ分 6 片 PMTiles",
+      note: "DISPLAY_ONLY（未入分析倉庫；解鎖條件：倉庫支援千萬級線資料或改為依地區抽取）。z12 起才顯示（PMTiles z12–14，z15 起 overzoom），拉遠由視野提示卡說明；與主要道路分層、國道與都道府縣道請開主要道路層；N13 沒有路名；線段在 mesh 與屬性邊界被切斷，線段數≠道路條數；分類名為「市区町村道等」，國土地理院原典未再細分管理者",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpMunicipalRoadsLayer 自建 6 個 mapbox-pmtiles source（同一樣式）；source-layer=jp_municipal_roads，minzoom=12 maxzoom=14；每片 < 500MB 走 R2（CI-4 lock）",
+      staticAssets: [
+        "./world/jp_municipal_roads_hokkaido_tohoku.pmtiles", "./world/jp_municipal_roads_kanto.pmtiles",
+        "./world/jp_municipal_roads_chubu.pmtiles", "./world/jp_municipal_roads_kinki.pmtiles",
+        "./world/jp_municipal_roads_chugoku_shikoku.pmtiles", "./world/jp_municipal_roads_kyushu_okinawa.pmtiles",
+      ],
+    },
+    legend: "jpMunicipalRoads",
+    popup: "jpMunicipalRoads",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本市町村道等道路中心線（2024-09 時點），放大到 z12 才顯示；國道與都道府縣道請開「主要道路」",
+    topics: ["世界", "日本", "交通", "道路", "市町村道", "路網"],
   },
   jpExpressways: {
     key: "jpExpressways",
