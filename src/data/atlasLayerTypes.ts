@@ -777,10 +777,14 @@ export const VIO_SERVICE_OPTIONS = [
   { value: "car", label: "汽車監理" },
   { value: "motorcycle", label: "機車監理" },
 ] as const;
-/** 轄區面依 office_id 輪替 8 色，只為區分相鄰所站；來源未載明（無 office_id）用灰色。 */
-export const VIO_ZONE_PALETTE = ["#38bdf8", "#f472b6", "#a3e635", "#fbbf24", "#a78bfa", "#34d399", "#fb923c", "#60a5fa"] as const;
+/** 轄區面 8 色，只為區分相鄰所站；來源未載明（無 office_id）用灰色。 */
+export const VIO_ZONE_PALETTE = ["#38bdf8", "#f472b6", "#a3e635", "#fbbf24", "#a78bfa", "#34d399", "#fb923c", "#f87171"] as const;
+/** vio_01..vio_37 的色號：依 1150421 版轄區面（汽車、機車各自）的相鄰關係做貪婪著色，相鄰所站不同色；轄區資料改版時要重算。 */
+const VIO_ZONE_COLOR_INDEX: readonly number[] = [
+  2, 0, 1, 3, 6, 7, 0, 3, 2, 3, 2, 1, 3, 6, 7, 3, 6, 4, 5, 4, 1, 7, 4, 0, 2, 1, 4, 6, 5, 5, 0, 0, 7, 5, 2, 1, 4,
+];
 export const VIO_ZONE_OPTIONS: readonly AtlasOption[] = Array.from({ length: 37 }, (_, index) => ({
-  value: `vio_${String(index + 1).padStart(2, "0")}`, label: "", color: VIO_ZONE_PALETTE[index % VIO_ZONE_PALETTE.length]!,
+  value: `vio_${String(index + 1).padStart(2, "0")}`, label: "", color: VIO_ZONE_PALETTE[VIO_ZONE_COLOR_INDEX[index]!]!,
 }));
 /** 爆竹煙火場所種類（上游 site_kind；英日文 enum.atlasFireworksKind.*）。 */
 export const FIREWORKS_KIND_OPTIONS: readonly AtlasOption[] = [
