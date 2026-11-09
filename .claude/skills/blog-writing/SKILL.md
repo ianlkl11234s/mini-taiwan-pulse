@@ -66,23 +66,13 @@ ln -s ../../node_modules .worktrees/blog-<slug>/node_modules
 
 - **開頭兩三句就回答「這是什麼、在哪裡看」**，AI 摘要最常引用開頭。
 - 內文 1,800–3,000 個中文字，分 4–6 個 `##` 小節（自動進左側目錄）。
-- 最後一節前放 `## 10. 30 天地圖挑戰（每天一篇）
-
-使用者發完當天的 #30DayMapChallenge Threads 貼文後，說「把 Day N 寫成文章」就照這節做；其餘步驟同上（§4 查證、§6 截圖、§8 驗證不可省）。
-
-1. **抓貼文**（在 `../knowledge-radar`）：`python3 threads/scripts/02_fetch_my_posts.py --since-last` 同步主文；結尾寫「（續）」的續文在作者自己的回覆裡，再對主文 id 跑 `python3 threads/scripts/03_fetch_replies.py --conversation <post id>`，只留 `username == ianlkl1314` 的回覆。兩支腳本都要連網（Bash 帶 `dangerouslyDisableSandbox: true`）。
-2. **題目**：查 `src/blog/mapChallenge.ts`（2026 官方題目表，已核對官網）。貼文沒點題時照實寫官方題目，不要替作品硬凹題目。
-3. **素材位置**：網站圖層 `public/mapchallenge/dayNN_*`、`src/data/mapchallengeDayNN*.ts`、manifest 的 `mapchallengeDayNN*` processing 欄；分析在 analytics `pipelines/analysis/mapchallenge_2026_dayNN_*`、`docs/topic-research/mapchallenge_2026_dayNN_*`；登記簿在 pulse-data `mapchallenge_dayNN_*`。沿用既有圖層的天（例：Day 3 電廠）就看該圖層的資料檔與 manifest。
-4. **front matter**：slug `mapchallenge-2026-dayNN-<英文主題>`；`series: 30 天地圖挑戰`；`challengeDay: N`（1–30，同一天不能兩篇，build 會擋）；`topic` 仍選 layers／analysis／making；`date` 用 Threads 發文日。範本：`content/blog/mapchallenge-2026-day05-sea-view.md`。
-5. **篇幅**：中篇 1,000–1,800 字，4–5 個 `##`：題目與發想 → 資料與做法 → 發現 → 限制（或背景）→ 常見問題 3 題（使用者 2026-11-07 拍板）。
-6. **圖片只用正式站截圖**（使用者拍板）。先用 `git tag --contains <該天 PR merge SHA>` 確認圖層已發版；還在 develop 的天先寫文字、等發版再拍，不用本機或 develop 代替。封面要選縮成卡片（約 180px 寬）仍看得出主角的局部構圖，不要用全台總覽。
-7. **登記**：總覽頁 `/blog/30daymapchallenge/` 自動依 `challengeDay` 長出卡片，不用手改；文章仍照 §7 登記 sitemap（該主題第一篇要加主題頁）、llms.txt、CHANGELOG，並在 `article-plan.md` 的「30 天地圖挑戰」表更新該天。
-
-## 常見問題`，3 題，每題用 `### 問題` 加一段答案（自動產生 FAQ 結構化資料）。
+- 倒數第二節放 `## 常見問題`，3 題，每題用 `### 問題` 加一段答案（自動產生 FAQ 結構化資料）。
 - 標題含搜尋關鍵字（計劃表有列），32 字內；`description` 120 字內。
 - 不出現內部名稱：程式識別字、資料表名、檔名、圖層 key。
 - 文末不要自己放 Threads 連結，版型會依 `threads:` 自動列出。
 - `tags` 不要重複主題名。
+- 最後一節固定是 `## 資料來源`（放在常見問題之後；FAQ 擷取到下一個 `##` 就停，不受影響）。逐條列出文中用到的每份資料：機關或作者、資料名稱、版本或時間範圍、授權，有公開網址就附連結；法規、單價、新聞稿等推估依據也要列。使用者 2026-11-09 要求每篇都要有。
+- 分析類文章的方法要寫到讀者能照著重做：每一步用了什麼資料、門檻與參數的數值和理由、演算法在做什麼、低／基準／高各是什麼假設。可用 `###` 分小節，篇幅可超過上限。
 
 ## 6. 圖片與嵌入地圖
 
@@ -131,6 +121,18 @@ npm --prefix "$WT" run preview -- --port 4399   # 背景執行
 - 開 PR 後、等 CI 前，先查 `gh pr view <n> --json mergeable`。結果是 `CONFLICTING` 時 CI 不會跑，要先合併 develop、解完衝突再推，不要空等。衝突最常出在 CHANGELOG。
 - 合併後更新 `article-plan.md`：狀態、PR 編號、更新紀錄一行。新發現的素材或點子加進候選。
 - 發布到正式站（develop → master）要使用者另外拍板。發布後到正式站開文章頁驗收。
+
+## 10. 30 天地圖挑戰（每天一篇）
+
+使用者發完當天的 #30DayMapChallenge Threads 貼文後，說「把 Day N 寫成文章」就照這節做；其餘步驟同上（§4 查證、§6 截圖、§8 驗證不可省）。
+
+1. **抓貼文**（在 `../knowledge-radar`）：`python3 threads/scripts/02_fetch_my_posts.py --since-last` 同步主文；結尾寫「（續）」的續文在作者自己的回覆裡，再對主文 id 跑 `python3 threads/scripts/03_fetch_replies.py --conversation <post id>`，只留 `username == ianlkl1314` 的回覆。兩支腳本都要連網（Bash 帶 `dangerouslyDisableSandbox: true`）。
+2. **題目**：查 `src/blog/mapChallenge.ts`（2026 官方題目表，已核對官網）。貼文沒點題時照實寫官方題目，不要替作品硬凹題目。
+3. **素材位置**：網站圖層 `public/mapchallenge/dayNN_*`、`src/data/mapchallengeDayNN*.ts`、manifest 的 `mapchallengeDayNN*` processing 欄；分析在 analytics `pipelines/analysis/mapchallenge_2026_dayNN_*`、`docs/topic-research/mapchallenge_2026_dayNN_*`；登記簿在 pulse-data `mapchallenge_dayNN_*`。沿用既有圖層的天（例：Day 3 電廠）就看該圖層的資料檔與 manifest。
+4. **front matter**：slug `mapchallenge-2026-dayNN-<英文主題>`；`series: 30 天地圖挑戰`；`challengeDay: N`（1–30，同一天不能兩篇，build 會擋）；`topic` 仍選 layers／analysis／making；`date` 用 Threads 發文日。範本：`content/blog/mapchallenge-2026-day05-sea-view.md`。
+5. **篇幅**：中篇 1,000–1,800 字，4–5 個 `##`：題目與發想 → 資料與做法 → 發現 → 限制（或背景）→ 常見問題 3 題 → 資料來源（使用者 2026-11-07 拍板；分析類方法寫詳細時可超過字數，2026-11-09）。
+6. **圖片只用正式站截圖**（使用者拍板）。先用 `git tag --contains <該天 PR merge SHA>` 確認圖層已發版；還在 develop 的天先寫文字、等發版再拍，不用本機或 develop 代替。封面要選縮成卡片（約 180px 寬）仍看得出主角的局部構圖，不要用全台總覽。
+7. **登記**：總覽頁 `/blog/30daymapchallenge/` 自動依 `challengeDay` 長出卡片，不用手改；文章仍照 §7 登記 sitemap（該主題第一篇要加主題頁）、llms.txt、CHANGELOG，並在 `article-plan.md` 的「30 天地圖挑戰」表更新該天。
 
 ## 常見問題
 

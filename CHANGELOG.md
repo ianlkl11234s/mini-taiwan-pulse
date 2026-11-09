@@ -88,6 +88,10 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 新增
+
+- Pulse 筆記新增 30 天地圖挑戰 Day 8 文章〈中和永和多蓋 5 座公園要放哪？走路 10 分鐘到大公園的代價〉
+
 ### 變更
 
 - 移除 Zeabur 時代的主站部署檔（`Dockerfile`、`scripts/deploy/entrypoint.sh`、`docker-compose.yml`）與對應測試斷言，文件改寫為 Cloudflare Worker 部署；網站行為不變
