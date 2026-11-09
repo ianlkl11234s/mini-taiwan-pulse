@@ -8,6 +8,11 @@
  *   L3 位置精度：倉庫 precision_class（official／address_geocode／google_geocode／village_centroid／proxy／unknown）；
  *              只決定答案的但書，不是關卡。
  *
+ * 入倉狀態（AG-13／AG-14）：warehouse_status 欄以 pulse-data 登記簿為準（warehouse 區塊／stats_observations／
+ *   _no_upstream／_display_only；其餘 missing＝在只減不增的基準 _warehouse_baseline.yaml）。涵蓋 manifest 全部國家
+ *   （TW／JP／GB／KR／CA／IE／FR，另有 WORLD、SIM）；有違反入倉守門的層時印出並 exit 1。
+ *   登記簿位置：PULSE_DATA_ROOT（預設主 checkout 隔壁的 ../pulse-data）。
+ *
  * 輸入：layer manifest（upstream.datasets）、舊瀏覽器 reader 註冊、
  *       ../runtime/warehouse/{catalog.json,warehouse-extras.json}（PULSE_WAREHOUSE_DIR 可覆寫）、
  *       docs/features/general-analysis/layer-status-overrides.json（少量人工判斷）、
@@ -16,13 +21,14 @@
  *
  * Run: npx vite-node --script scripts/research/build-layer-status.mjs
  */
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
 import { ensureStatisticsResearchDatasets, registeredDatasetsForLayer } from "../../src/research/researchDatasets.ts";
 import { panelForExplorationLayers } from "../../src/research/explorationNavigation.ts";
 import { layerAlias, sharedTableWarning } from "./layer-status-helpers.mjs";
+import { checkWarehouseGate, indexRegistry } from "./layer-warehouse-status.mjs";
 
 // PF-7: statistics-recipe datasets register after their lazily imported details load.
 await ensureStatisticsResearchDatasets();
@@ -35,12 +41,26 @@ function readJson(path, fallback) {
   return existsSync(path) ? JSON.parse(readFileSync(path, "utf-8")) : fallback;
 }
 
+// 登記簿：worktree 內 ../pulse-data 會解到 .worktrees/pulse-data，所以再試主 checkout 的隔壁。
+const registryDir = [process.env.PULSE_DATA_ROOT, resolve(root, "../pulse-data"), resolve(root, "../../../pulse-data")]
+  .filter(Boolean).map(dir => resolve(dir, "registry")).find(dir => existsSync(dir));
+if (!registryDir) {
+  console.error("pulse-data registry not found; set PULSE_DATA_ROOT to a pulse-data checkout.");
+  process.exit(1);
+}
+const registryIndex = indexRegistry(readdirSync(registryDir).filter(name => name.endsWith(".yaml")).sort()
+  .map(name => ({ name, text: readFileSync(resolve(registryDir, name), "utf-8") })));
+const gate = checkWarehouseGate(MANIFEST_KEYS.map(key => ({
+  key, datasets: (LAYER_MANIFEST[key].upstream?.datasets ?? []).map(dataset => dataset.datasetId),
+})), registryIndex);
+
 const catalogRaw = readJson(resolve(warehouseDir, "catalog.json"), null);
 if (!catalogRaw) {
   console.error(`warehouse catalog not found under ${warehouseDir}; build the warehouse first (mcp/warehouse/build_warehouse.py).`);
   process.exit(1);
 }
 const catalog = Array.isArray(catalogRaw) ? catalogRaw : catalogRaw.datasets ?? [];
+const catalogSource = `catalog.json ${new Date(statSync(resolve(warehouseDir, "catalog.json")).mtime).toISOString().slice(0, 10)}`;
 const extras = readJson(resolve(warehouseDir, "warehouse-extras.json"), { countyCoverage: {}, statsDatasets: {} });
 const overrides = readJson(resolve(docsDir, "layer-status-overrides.json"), {});
 const aliases = readJson(resolve(docsDir, "layer-dataset-aliases.json"), { byUpstream: {}, byLayer: {} });
@@ -69,11 +89,13 @@ for (const key of MANIFEST_KEYS) {
     tableUsers.get(item.table).add(key);
   }
 }
-const PANEL_LABEL = { statistics: "統計", world: "世界" };
+const PANEL_LABEL = { statistics: "統計", world: "世界", simulation: "模擬" };
 /** 「圖層」入口依國家主體分欄（2026-10-28 國家主體化；舊「日本」入口併入圖層入口的日本）。 */
-const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國" };
+const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國", GB: "英國", KR: "南韓", CA: "加拿大", IE: "愛爾蘭" };
+/** 國別順序（與 src/constants/countries.ts 的 COUNTRIES 相同），之後是跨國與模擬。 */
+const COUNTRY_ORDER = ["TW", "JP", "FR", "GB", "KR", "CA", "IE", "WORLD", "SIM"];
 function panelLabel(target) {
-  if (target.panel === "layers") return COUNTRY_PANEL_LABEL[target.country ?? "TW"];
+  if (target.panel === "layers") return COUNTRY_PANEL_LABEL[target.country ?? "TW"] ?? target.country;
   return PANEL_LABEL[target.panel] ?? target.panel;
 }
 
@@ -147,6 +169,7 @@ function classify(key) {
   return {
     layer_key: key,
     label: entry.section === null ? "" : entry.label,
+    country: entry.country ?? "TW",
     panel: panelLabel(target),
     theme: entry.section?.theme ?? "(orphan)",
     source_kind: sourceKinds(entry),
@@ -160,6 +183,7 @@ function classify(key) {
     l1_operable: "yes",
     l2_analysis: l2,
     l2_via: via,
+    warehouse_status: gate.status.get(key),
     l3_precision: l2 === "spatial" ? precision || "unknown" : "",
     owner_only: entry.section && entry.gated ? "yes" : "",
     blocker,
@@ -177,7 +201,19 @@ writeFileSync(resolve(docsDir, "layer-status.csv"), [columns.join(","), ...rows.
 
 const count = (list, key) => list.reduce((acc, row) => { acc[row[key]] = (acc[row[key]] ?? 0) + 1; return acc; }, {});
 const L2_ORDER = ["spatial", "statistics", "attribute", "browser_reader", "none", "display_only"];
-const panels = ["臺灣圖層", "統計", "世界", "日本", "法國"];
+const panels = [...new Set(rows.map(row => row.panel))].sort((a, b) => {
+  const rank = label => { const i = Object.values(COUNTRY_PANEL_LABEL).indexOf(label); return i < 0 ? 100 + Object.values(PANEL_LABEL).indexOf(label) : i; };
+  return rank(a) - rank(b);
+});
+const WH_ORDER = ["warehouse", "statistics", "no_upstream", "display_only", "missing"];
+const countries = [...new Set(rows.map(row => row.country))].sort((a, b) => COUNTRY_ORDER.indexOf(a) - COUNTRY_ORDER.indexOf(b));
+const countryRows = countries.map(country => {
+  const subset = rows.filter(row => row.country === country);
+  const counts = count(subset, "warehouse_status");
+  const inWarehouse = (counts.warehouse ?? 0) + (counts.statistics ?? 0);
+  return [country, subset.length, ...WH_ORDER.map(status => counts[status] ?? 0), `${(inWarehouse / subset.length * 100).toFixed(1)}%`];
+});
+const whTotals = count(rows, "warehouse_status");
 const table = (headers, body) => [`| ${headers.join(" | ")} |`, `|${headers.map(() => "---").join("|")}|`, ...body.map(cells => `| ${cells.join(" | ")} |`)].join("\n");
 const l2Present = L2_ORDER.filter(l2 => rows.some(row => row.l2_analysis === l2));
 const panelRows = panels.map(panel => {
@@ -196,11 +232,20 @@ const summary = `# 圖層總表摘要
 
 > 由 \`scripts/research/build-layer-status.mjs\` 產生，請勿手改；逐層明細見 [layer-status.csv](./layer-status.csv)。
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
+> L2 欄來自倉庫 catalog（\`${catalogSource}\`）；入倉狀態欄來自 pulse-data 登記簿（ADR-0023 成員清單 SSOT），兩者口徑不同時以入倉狀態為準。
 
 - 圖層總數：**${rows.length}**；L1 可操作：**${rows.length}/${rows.length}**
 - L2 倉庫可分析（spatial＋statistics＋attribute）：**${analysable}/${rows.length}**（${(analysable / rows.length * 100).toFixed(1)}%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：${unfilteredShared}
 - 只有舊瀏覽器 reader：${totals.browser_reader ?? 0}；尚不可分析：${totals.none ?? 0}
+
+## 各國入倉狀態（AG-14；以 pulse-data 登記簿為準）
+
+${table(["國別", "圖層數", ...WH_ORDER, "入倉率"], countryRows)}
+
+- 合計：入倉 ${(whTotals.warehouse ?? 0) + (whTotals.statistics ?? 0)}/${rows.length}（warehouse ${whTotals.warehouse ?? 0}、statistics ${whTotals.statistics ?? 0}）；DISPLAY_ONLY ${whTotals.display_only ?? 0}；外部圖磚等無上游 ${whTotals.no_upstream ?? 0}；未入倉（在只減不增基準）${whTotals.missing ?? 0}
+- \`warehouse\`：登記條目有 warehouse 區塊；\`statistics\`：dataset 在 stats_observations；\`no_upstream\`：registry/_no_upstream.yaml；\`display_only\`：registry/_display_only.yaml（附解鎖條件）；\`missing\`：registry/_warehouse_baseline.yaml（AG-13 基準）
+- WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest \`country\`（未寫＝TW）。
 
 ## 各面板 L2 狀態
 
@@ -226,4 +271,13 @@ ${table(["涵蓋", "圖層數"], coverage)}
 「N counties」代表區域性資料集：跨地比較時，未涵蓋的縣市應標「未涵蓋」而非 0（引擎的 nearby_profile 已自動處理）。
 `;
 writeFileSync(resolve(docsDir, "layer-status-summary.md"), summary);
-console.log(`layers=${rows.length} analysable=${analysable} ${JSON.stringify(totals)}`);
+console.log(`layers=${rows.length} analysable=${analysable} ${JSON.stringify(totals)} warehouse=${JSON.stringify(whTotals)}`);
+const gateProblems = [
+  ...gate.violations.map(key => `沒入倉也沒標 DISPLAY_ONLY：${key}`),
+  ...gate.staleBaseline.map(key => `基準該刪：${key}`),
+  ...gate.incompleteDisplayOnly.map(key => `DISPLAY_ONLY 缺 reason／unlock：${key}`),
+];
+if (gateProblems.length) {
+  console.error(`入倉守門（AG-13）${gateProblems.length} 項：\n  ${gateProblems.join("\n  ")}`);
+  process.exit(1);
+}

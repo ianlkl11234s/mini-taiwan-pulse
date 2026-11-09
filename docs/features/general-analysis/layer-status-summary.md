@@ -2,32 +2,56 @@
 
 > 由 `scripts/research/build-layer-status.mjs` 產生，請勿手改；逐層明細見 [layer-status.csv](./layer-status.csv)。
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
+> L2 欄來自倉庫 catalog（`catalog.json 2026-10-17`）；入倉狀態欄來自 pulse-data 登記簿（ADR-0023 成員清單 SSOT），兩者口徑不同時以入倉狀態為準。
 
-- 圖層總數：**1172**；L1 可操作：**1172/1172**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**954/1172**（81.4%）
+- 圖層總數：**1784**；L1 可操作：**1784/1784**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**1007/1784**（56.4%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：27
-- 只有舊瀏覽器 reader：6；尚不可分析：180
+- 只有舊瀏覽器 reader：6；尚不可分析：739
+
+## 各國入倉狀態（AG-14；以 pulse-data 登記簿為準）
+
+| 國別 | 圖層數 | warehouse | statistics | no_upstream | display_only | missing | 入倉率 |
+|---|---|---|---|---|---|---|---|
+| TW | 1309 | 471 | 593 | 6 | 1 | 238 | 81.3% |
+| JP | 105 | 24 | 0 | 5 | 1 | 75 | 22.9% |
+| FR | 1 | 0 | 0 | 0 | 0 | 1 | 0.0% |
+| GB | 86 | 0 | 0 | 0 | 0 | 86 | 0.0% |
+| KR | 92 | 0 | 0 | 0 | 0 | 92 | 0.0% |
+| CA | 49 | 0 | 0 | 0 | 0 | 49 | 0.0% |
+| IE | 97 | 0 | 0 | 0 | 0 | 97 | 0.0% |
+| WORLD | 23 | 5 | 0 | 0 | 0 | 18 | 21.7% |
+| SIM | 22 | 0 | 0 | 0 | 0 | 22 | 0.0% |
+
+- 合計：入倉 1093/1784（warehouse 500、statistics 593）；DISPLAY_ONLY 2；外部圖磚等無上游 11；未入倉（在只減不增基準）678
+- `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
+- WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
 ## 各面板 L2 狀態
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 663 | 342 | 199 | 2 | 5 | 111 | 4 |
-| 統計 | 421 | 1 | 412 | 3 | 0 | 5 | 0 |
-| 世界 | 22 | 5 | 0 | 0 | 1 | 16 | 0 |
-| 日本 | 64 | 15 | 0 | 2 | 0 | 46 | 1 |
+| 臺灣圖層 | 612 | 358 | 21 | 4 | 5 | 220 | 4 |
+| 日本 | 105 | 15 | 0 | 2 | 0 | 87 | 1 |
 | 法國 | 1 | 0 | 0 | 0 | 0 | 1 | 0 |
+| 英國 | 64 | 0 | 0 | 0 | 0 | 64 | 0 |
+| 南韓 | 43 | 0 | 0 | 0 | 0 | 43 | 0 |
+| 加拿大 | 25 | 0 | 0 | 0 | 0 | 25 | 0 |
+| 愛爾蘭 | 68 | 0 | 0 | 0 | 0 | 68 | 0 |
+| 統計 | 821 | 0 | 626 | 3 | 0 | 192 | 0 |
+| 世界 | 23 | 5 | 0 | 0 | 1 | 17 | 0 |
+| 模擬 | 22 | 0 | 0 | 0 | 0 | 22 | 0 |
 
 ## 尚不可分析的原因
 
 | 原因 | 圖層數 |
 |---|---|
-| dataset_not_in_warehouse | 91 |
+| dataset_not_in_warehouse | 580 |
+| upstream_catalog_missing | 76 |
 | unfiltered_shared_table | 27 |
 | warehouse_SKIPPED_FORMAT | 15 |
-| derived_layer | 9 |
+| derived_layer | 10 |
 | warehouse_SKIPPED_DISPLAY_ONLY | 8 |
-| upstream_catalog_missing | 7 |
 | warehouse_FAILED | 7 |
 | override: snapshot_candidate: 同一 2025-04 PMTiles artifact 換 filter；LICENSE_UNVERIFIED。 | 2 |
 | override: snapshot_candidate: 本地 research PMTiles 靜態界線（A10 2010 historical outer polygon），非現行法定界線／zoning；可入倉做面積、與其他保護區重疊分析；NON_COMMERCIAL_ONLY 限制需保留於 metadata。 | 1 |
@@ -92,9 +116,9 @@
 
 | precision_class | 圖層數 |
 |---|---|
-| official | 162 |
-| address_geocode | 84 |
-| unknown | 82 |
+| official | 166 |
+| address_geocode | 91 |
+| unknown | 86 |
 | google_geocode | 22 |
 | address_geocode+official | 6 |
 | unknown+official | 3 |
@@ -105,13 +129,13 @@
 
 | 涵蓋 | 圖層數 |
 |---|---|
-| national | 193 |
+| national | 195 |
 | 19 counties | 36 |
-| unknown | 20 |
+| unknown | 23 |
 | 2 counties | 15 |
-| 18 counties | 13 |
+| 18 counties | 14 |
+| 13 counties | 13 |
 | 17 counties | 13 |
-| 13 counties | 10 |
-| 3 counties | 7 |
+| 3 counties | 9 |
 
 「N counties」代表區域性資料集：跨地比較時，未涵蓋的縣市應標「未涵蓋」而非 0（引擎的 nearby_profile 已自動處理）。
