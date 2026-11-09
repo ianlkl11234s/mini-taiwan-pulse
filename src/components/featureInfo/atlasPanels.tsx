@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Row, Title } from "./shared";
+import { Row, SourceFooter, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
@@ -17,7 +17,7 @@ import {
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   MAILBOX_SERVICE_OPTIONS,
-  DEBRIS_RISK_OPTIONS,
+  DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
   optionColor, type AtlasLayerKey,
@@ -25,6 +25,7 @@ import {
 import { ToxicPermitsBlock } from "./pollutionPanels";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { LAND_SUBSIDENCE_PANELS, TrendChart } from "./landSubsidencePanels";
+import { ATLAS_ORGS } from "../legend/atlasLegends";
 
 /**
  * atlas 批次 2026-10 的 26 層 popup。來源 footer 由 FeatureInfoPanel 統一掛（每筆都帶
@@ -1290,15 +1291,39 @@ function BatterySwapPanel({ props }: Props) {
   </>;
 }
 
+type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
+/** G53 批 1 出處（與圖例同一份機關＋data.gov.tw 資料集；土石流依圖徵種類指向溪流／集水區／影響範圍資料集）。 */
+const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
+  postMailboxes: { org: "chunghwaPost", dataset: () => "178399" },
+  debrisFlowPotential: { org: "swcb", dataset: (p) => (p.zone_id != null || p.total_res != null ? "176526" : p.area_ha != null ? "176525" : "176524") },
+  swcSpecialZones: { org: "swcb", dataset: () => "176847" },
+  slopelandSwcAct: { org: "swcb", dataset: () => "178645" },
+  landUseChangeMonitoring: { org: "nlma", dataset: () => "168030" },
+  motorcycleInspectionStations: { org: "moenv", dataset: () => "6352" },
+  antivenomHospitals: { org: "cdc", dataset: () => "24468" },
+  freewayHundredMeterStakes: { org: "freeway", dataset: () => "95016" },
+};
+
+function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
+  return function G53SourcedPanel({ props }: Props) {
+    const i18n = useLocale();
+    const { org, dataset } = G53_SOURCES[key];
+    return <>
+      <Panel props={props} />
+      <SourceFooter props={{ source_org: enumLabel("atlasOrg", org, ATLAS_ORGS[org], i18n), source_url: `https://data.gov.tw/dataset/${dataset(props)}`, license: i18n.t("popup.environmentLayer.licenseGov") }} />
+    </>;
+  };
+}
+
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
-  landUseChangeMonitoring: LandUseChangePanel,
-  debrisFlowPotential: DebrisFlowPotentialPanel,
-  slopelandSwcAct: SlopelandSwcActPanel,
-  swcSpecialZones: SwcSpecialZonePanel,
-  freewayHundredMeterStakes: FreewayStakePanel,
-  antivenomHospitals: AntivenomHospitalPanel,
-  postMailboxes: PostMailboxPanel,
-  motorcycleInspectionStations: MotorcycleInspectionPanel,
+  landUseChangeMonitoring: withG53Footer("landUseChangeMonitoring", LandUseChangePanel),
+  debrisFlowPotential: withG53Footer("debrisFlowPotential", DebrisFlowPotentialPanel),
+  slopelandSwcAct: withG53Footer("slopelandSwcAct", SlopelandSwcActPanel),
+  swcSpecialZones: withG53Footer("swcSpecialZones", SwcSpecialZonePanel),
+  freewayHundredMeterStakes: withG53Footer("freewayHundredMeterStakes", FreewayStakePanel),
+  antivenomHospitals: withG53Footer("antivenomHospitals", AntivenomHospitalPanel),
+  postMailboxes: withG53Footer("postMailboxes", PostMailboxPanel),
+  motorcycleInspectionStations: withG53Footer("motorcycleInspectionStations", MotorcycleInspectionPanel),
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
   agriRuralCommunityVillages: RuralCommunityPanel,

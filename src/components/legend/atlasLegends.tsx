@@ -39,7 +39,7 @@ function swatchOf(kind: Swatch, color: string): ReactNode {
 }
 
 /** 來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*） */
-const ORGS = {
+export const ATLAS_ORGS = {
   cip: "原住民族委員會", swcb: "農業部農村發展及水土保持署", thb: "交通部公路局", freeway: "交通部高速公路局",
   ncdr: "國家災害防救科技中心", taipeiHydraulic: "臺北市政府工務局水利工程處", marn: "海洋委員會海洋保育署 MARN",
   oca: "海洋委員會海洋保育署", moenv: "環境部", oac: "海洋委員會", namr: "國家海洋研究院",
@@ -53,7 +53,7 @@ const ORGS = {
   ...G35_ORGS,
   ...G53_ORGS,
 } as const;
-type Source = { org: keyof typeof ORGS; ids?: readonly string[]; etc?: boolean };
+type Source = { org: keyof typeof ATLAS_ORGS; ids?: readonly string[]; etc?: boolean };
 const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
 
 /** 一張 atlas 圖例：標題＋色塊列＋說明（ATLAS_NOTES）＋來源。標題預設借圖層名，標題與圖層名不同的才傳 `title`。 */
@@ -67,7 +67,7 @@ function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, lic
   const i18n = useLocale();
   const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[layer]?.name;
   const heading = title ? i18n.t(title) : name ? localizeLayerName(layer, name, i18n).primary : layer;
-  const org = enumLabel("atlasOrg", source.org, ORGS[source.org], i18n);
+  const org = enumLabel("atlasOrg", source.org, ATLAS_ORGS[source.org], i18n);
   const sourceText = source.ids
     ? i18n.t(source.etc ? "legend.atlas.sourceIdsEtc" : "legend.atlas.sourceIds", { org, ids: source.ids.join(i18n.t("legend.atlas.idSeparator")) })
     : org;

@@ -12259,7 +12259,8 @@ function landUseChangeMonitoringOverlays(): OverlayConfig[] {
     {
       id, sourceUrl: "./urban/land_use_change_monitoring_107_112_points.pmtiles", sourceId: "land-use-change-points",
       pmtiles: { sourceLayer: "land_use_change_monitoring_points", minzoom: 10, maxzoom: 12 }, attribution,
-      layers: [{ suffix: "circle", type: "circle", maxzoom: 13, paint: (dark, p) => ({
+      // maxzoom 13.5：向量圖磚用 roundZoom，z12.5 起就載 z13（超縮放）圖磚，maxzoom 13 會在 12.5 提前消失
+      layers: [{ suffix: "circle", type: "circle", maxzoom: 13.5, paint: (dark, p) => ({
         "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2 * (p?.landUseChangeMonitoringScale ?? 1), 13, 3.5 * (p?.landUseChangeMonitoringScale ?? 1)],
         "circle-opacity": Math.min(1, opacity(p) + 0.2), "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.5,
         "circle-stroke-opacity": Math.min(1, opacity(p) + 0.2),

@@ -604,6 +604,12 @@ export const LAND_CHANGE_CLASS_OPTIONS: readonly (AtlasOption & { fields: readon
 ];
 /** 國土利用監測年度（民國；網格檔分年計數欄 `y<年>`） */
 export const LAND_CHANGE_YEARS = [107, 108, 109, 110, 111, 112] as const;
+/** G53 批 1：analytics PMTiles 不帶 source_org／license 欄，popup 由 atlasPanels 依常數自掛 SourceFooter
+ *  （FeatureInfoPanel 的中央 SourceFooter 跳過這些 layerType，否則會誤顯示「來源資訊待補」）。 */
+export const G53_SELF_FOOTER_KEYS = [
+  "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
+  "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
+] as const;
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署" } as const;
 
 export const ATLAS_NOTES = {
