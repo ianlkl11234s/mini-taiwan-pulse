@@ -12304,7 +12304,8 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
     {
       id, sourceUrl: "./hazards/debris_flow_streams_115_points.pmtiles", sourceId: "debris-flow-streams-points",
       pmtiles: { sourceLayer: "debris_flow_streams_points", minzoom: 4, maxzoom: 10 }, attribution,
-      layers: [{ suffix: "circle", type: "circle", maxzoom: 11, paint: (dark, p) => {
+      // maxzoom 11.5：向量圖磚 roundZoom 在 z10.5 就換 z11 超縮放圖磚，maxzoom 11 會提前消失
+      layers: [{ suffix: "circle", type: "circle", maxzoom: 11.5, paint: (dark, p) => {
         const scale = p?.debrisFlowPotentialScale ?? 1;
         const op = Math.min(1, opacity(p) + 0.3);
         return {
