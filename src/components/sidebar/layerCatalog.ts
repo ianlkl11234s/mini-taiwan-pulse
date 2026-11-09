@@ -2910,7 +2910,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "IE",
     defaultCollapsed: true,
     groups: [
-      { title: "淹水", layers: [fromManifest("ieRiverFloodExtents")] },
+      { title: "淹水", layers: [fromManifest("ieRiverFloodExtents"), fromManifest("ieGroundwaterFlooding"), fromManifest("ieFloodZones")] },
       { title: "海岸侵蝕", layers: [fromManifest("ieCoastalErosion")] },
       // 第 5 波 C070：比照台灣 landslideAnnual、英國 gbLandslide 的「災害 › 崩塌 Landslide」
       { title: "崩塌 Landslide", layers: [fromManifest("ieLandslideEvents"), fromManifest("ieLandslideExtents")] },
@@ -2958,7 +2958,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "IE",
     defaultCollapsed: true,
     groups: [
-      { title: "保護區", layers: [fromManifest("ieProtectedSites")] },
+      { title: "保護區", layers: [fromManifest("ieProtectedSites"), fromManifest("ieProposedNha")] },
       { title: "都市樹木 Urban Trees", layers: [fromManifest("ieStreetTrees")] },
       // 第 9 波 C093：PRTR 比照台灣 pollutionFacility、英國 gbPollutionInventory；C091 噪音比照台灣與英國 gbNoise「噪音／聲響 Noise」
       { title: "環境污染", layers: [fromManifest("ieRadiationStations"), fromManifest("iePrtrFacilities")] },
@@ -3033,7 +3033,7 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "醫療",
     country: "IE",
     defaultCollapsed: true,
-    groups: [{ title: "點位", layers: [fromManifest("ieHealthFacilities")] }],
+    groups: [{ title: "點位", layers: [fromManifest("ieHealthFacilities"), fromManifest("ieDefibrillators")] }],
   },
   {
     title: "消防",
@@ -3047,7 +3047,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "警政", layers: [fromManifest("ieGardaStations")] },
-      { title: "司法矯正", layers: [fromManifest("ieCourts")] },
+      { title: "司法矯正", layers: [fromManifest("ieCourts"), fromManifest("iePrisons")] },
     ],
   },
   // 第 10 波：工商與農業（主題與群組比照英國 gbManufacturing、gbAquaculture、gbSoilParentMaterial）
@@ -3063,7 +3063,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "養殖漁業 Aquaculture", layers: [fromManifest("ieAquaculture")] },
-      { title: "土壤", layers: [fromManifest("ieSoils"), fromManifest("iePeatSoils")] },
+      { title: "土壤", layers: [fromManifest("ieSoils"), fromManifest("iePeatSoils"), fromManifest("iePeatExtractionBogs")] },
     ],
   },
   {

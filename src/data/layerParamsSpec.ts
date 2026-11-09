@@ -101,7 +101,7 @@ import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, asKrSpec } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -2222,11 +2222,17 @@ export const LAYER_PARAMS_SPEC = {
       options: IE_NOISE_METRICS.map((x) => ({ label: x.label.zh, value: x.value })),
       out: "ieNoiseMapsMetricIdx", encode: IE_NOISE_METRICS.map((x) => x.value),
     }] : []),
+    // 第 11 波 GSI 地下水淹水（ND）：一產品一支 PMTiles，host 依 ieGroundwaterFloodingProductIdx 換檔
+    ...(spec.key === "ieGroundwaterFlooding" ? [{
+      kind: "select" as const, category: "data" as const, name: "ieGroundwaterFloodingProduct", label: "淹水圖種類", default: IE_GW_FLOOD_DEFAULT,
+      options: IE_GW_FLOOD_PRODUCTS.map((x) => ({ label: x.label.zh, value: x.value })),
+      out: "ieGroundwaterFloodingProductIdx", encode: IE_GW_FLOOD_PRODUCTS.map((x) => x.value),
+    }] : []),
     ...krCatFilterSpecs(asKrSpec(spec)),
     ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" || spec.key === "ieGroundwaterFlooding" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
   ]])),
   // 愛爾蘭第 5c 波（站主限定 Coillte）：類別多選（順序＝ieCoillteTypes cats＝bitmask）；遊憩點另有入口熱區色盤與點大小
   ieCoillteRecreation: [
