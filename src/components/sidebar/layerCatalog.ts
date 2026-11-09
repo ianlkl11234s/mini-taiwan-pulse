@@ -314,6 +314,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "觀光",
     "基礎建設",
     "社福長照",
+    // 第 9 波：工商登記（產業園區）、廢棄物（舊衣回收箱），比照台灣與愛爾蘭；噪音測點併入既有「環境氣候」
+    "工商登記",
+    "廢棄物",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經／公共安全」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2673,7 +2676,11 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "環境氣候",
     country: "KR",
     defaultCollapsed: true,
-    groups: [{ title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] }],
+    groups: [
+      { title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] },
+      // 第 9 波 C091：比照台灣、英國、愛爾蘭「噪音／聲響 Noise」
+      { title: "噪音／聲響 Noise", layers: [fromManifest("krNoiseSites")] },
+    ],
   },
   // 第 6 波：比照台灣「運動休閒 › 運動場館／公園 Parks」與「殯葬 › 墓區範圍」
   {
@@ -2753,6 +2760,19 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     groups: [{ title: "長照與托育", layers: [fromManifest("krSeniorCenters")] }],
+  },
+  // 第 9 波：C031 產業園區比照台灣 industrialParkBoundaries（工商登記 › 園區）；C087 舊衣回收箱比照愛爾蘭 ieRecyclingPoints（廢棄物 › 投放點）
+  {
+    title: "工商登記",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "園區", layers: [fromManifest("krIndustrialComplexes")] }],
+  },
+  {
+    title: "廢棄物",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "投放點", layers: [fromManifest("krClothingBins")] }],
   },
   {
     title: "林業",
@@ -3412,6 +3432,9 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "觀光": "publicLife",
     "基礎建設": "publicLife",
     "社福長照": "publicLife",
+    // 第 9 波（同台灣、愛爾蘭）
+    "工商登記": "city",
+    "廢棄物": "environment",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3619,6 +3642,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "觀光": { zh: "觀光", sub: "관광" },
     "基礎建設": { zh: "基礎建設", sub: "기반시설" },
     "社福長照": { zh: "社福長照", sub: "사회복지" },
+    "工商登記": { zh: "工商登記", sub: "산업" },
+    "廢棄物": { zh: "廢棄物", sub: "폐기물" },
     // 南韓統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },

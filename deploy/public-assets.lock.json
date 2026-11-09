@@ -3812,6 +3812,13 @@
    "s3_key": "deploy-assets/world/kr_civil_defense_shelters.pmtiles"
   },
   {
+   "path": "public/world/kr_clothing_bins.pmtiles",
+   "bytes": 5017621,
+   "sha256": "fe33f54e8689639c063317202ec165b48e3b06dfe2cc245e38354019284a9142",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_clothing_bins.pmtiles"
+  },
+  {
    "path": "public/world/kr_coastal_erosion_facilities.pmtiles",
    "bytes": 762018,
    "sha256": "4b2a561681cdab6bb9c3d3a8362a7594986a1863f18b98bcedf34c20798b6f9b",
@@ -3859,6 +3866,20 @@
    "sha256": "5bde0b1a39fe37460192ad2243f4c78f3986afd76704fcfd65052f8fd545deb0",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_hospitals_pharmacies_density.pmtiles"
+  },
+  {
+   "path": "public/world/kr_industrial_complexes.pmtiles",
+   "bytes": 2765128,
+   "sha256": "f68a0b2365ef47d848b6e5d59f5804bcc9e138e20d5ea86d50af4fa462f145af",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_industrial_complexes.pmtiles"
+  },
+  {
+   "path": "public/world/kr_industrial_complexes_points.pmtiles",
+   "bytes": 1126694,
+   "sha256": "3d5e5345b3a3790e0bd83b6d2da0d28ade613787e7b2445343cec445649e124c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_industrial_complexes_points.pmtiles"
   },
   {
    "path": "public/world/kr_libraries.pmtiles",
@@ -3915,6 +3936,13 @@
    "sha256": "08f99c7e4b96451b26a6c1943e148f20bf2ed84f386c43e883d6dee65cb8a497",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_national_roads.pmtiles"
+  },
+  {
+   "path": "public/world/kr_noise_sites.pmtiles",
+   "bytes": 377886,
+   "sha256": "f71887f8b9caec9ffe08d80fb909f7bab813403cff188afb440e2b7d0d816b97",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_noise_sites.pmtiles"
   },
   {
    "path": "public/world/kr_np_location_signs.pmtiles",

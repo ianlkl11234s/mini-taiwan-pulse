@@ -10,5 +10,7 @@ export const KR_DATA_KEYS = [
   "krSchools", "krSchoolDistricts", "krHospitalsPharmacies", "krFireStations", "krCivilDefenseShelters", "krPoliceBoxes",
   // 第 8 波（2026-11-10）：圖書館、博物館美術館、公演、文化祭、國家遺產、住宿、安心宅配櫃、敬老堂
   "krLibraries", "krMuseums", "krPerformances", "krFestivals", "krHeritage", "krLodging", "krSafeDeliveryBoxes", "krSeniorCenters",
+  // 第 9 波（2026-11-10）：產業園區、環境噪音測點、舊衣回收箱
+  "krIndustrialComplexes", "krNoiseSites", "krClothingBins",
 ] as const;
 export type KrDataKey = (typeof KR_DATA_KEYS)[number];

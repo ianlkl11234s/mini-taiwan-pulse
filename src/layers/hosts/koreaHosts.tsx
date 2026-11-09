@@ -168,3 +168,6 @@ export const KrHeritageHost = makeKrDataHost("krHeritage", 0.85);
 export const KrLodgingHost = makeKrDataHost("krLodging", 0.85);
 export const KrSafeDeliveryBoxesHost = makeKrDataHost("krSafeDeliveryBoxes", 0.85);
 export const KrSeniorCentersHost = makeKrDataHost("krSeniorCenters", 0.85);
+export const KrIndustrialComplexesHost = makeKrDataHost("krIndustrialComplexes", 0.7);
+export const KrNoiseSitesHost = makeKrDataHost("krNoiseSites", 0.85);
+export const KrClothingBinsHost = makeKrDataHost("krClothingBins", 0.85);
