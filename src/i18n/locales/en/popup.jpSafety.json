@@ -3,5 +3,5 @@
   "popup.jpSafety.road": "Road shape",
   "popup.jpSafety.conditions": "Light & conditions",
   "popup.jpSafety.prefecture": "Prefecture",
-  "popup.jpSafety.accidentNote": "Period {period}; NPA main records, location as recorded by police"
+  "popup.jpSafety.accidentNote": "NPA 2025 main records (~97% occurred in 2025; ~3% occurred in 2024 or earlier); location as recorded by police"
 }

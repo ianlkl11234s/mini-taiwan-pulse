@@ -102,6 +102,8 @@ export function haversineKm(lon1: number, lat1: number, lon2: number, lat2: numb
  *
  * ⚠️ 契約：`has_x === true ⟺ x 對應的 key 非 null ⟺ 用該 key **等值查詢**必有列。
  * ±90s / ±5s 時間窗配對已全做在 DB 端，前端一律等值查，禁止自己算時間窗。
+ * 例外（2026-11-09）：震度網格改讀 R2 事件檔，配對用 R2 index.json 在前端做同樣的 ±90s
+ *（matchShakemapIndex），DB 網格表只留短期；R2 沒有對應事件時才退回 RPC 的 has_grid／grid_event_time。
  * `event_id` 為 opaque string（格式不對稱，不要 parse）。
  */
 export interface EarthquakeReplayEvent {
@@ -117,6 +119,8 @@ export interface EarthquakeReplayEvent {
   town_origin_time: string | null;
   has_grid: boolean;
   grid_event_time: string | null;
+  /** R2 震度圖事件檔 key（events/shakemap/<UTC>.json）；null＝R2 沒有對應事件、改走 DB 等值查詢 */
+  grid_key?: string | null;
   has_tensor: boolean;
   tensor_origin_utc: string | null;
 }

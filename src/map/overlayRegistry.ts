@@ -100,6 +100,8 @@ const DENSE_FROM = {
   freewayTrafficSigns: densePointsFromZoom(51_405, 7),
   // G53 批 1（2026-11-09）：國道百公尺樁 PMTiles z5 起
   freewayHundredMeterStakes: densePointsFromZoom(10_082, 5),
+  // G53 批 2／3（2026-11-10）：TEDS 點源工廠 15,996 家（顯示模式「點源工廠」）
+  tedsGridEmissions: densePointsFromZoom(15_996, 4),
   placeNames: densePointsFromZoom(36_431, 7),
   agriProduceWholesale: densePointsFromZoom(22_843, 8),
   accessibleParkFacilities: densePointsFromZoom(20_870),
@@ -346,7 +348,8 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -12215,6 +12218,60 @@ function culturalHealthStationsOverlay(): OverlayConfig {
 }
 
 /**
+ * G53 批 2／3 空污排放網格 TEDS 13.0：一層三個 config（同 id）。select `tedsGridEmissionsViewIdx`
+ * 0–3＝網格 source（point／line／area／bio），4＝點源工廠；未選中的 config 子圖層 visibility none（不抓圖磚）。
+ * 網格：z4–9 用 5 km 合成檔、z10 起 1 km 檔，色依「公噸／km²‧年」log10 色階（5 km 格除以 25）；生物源只有 NMHC，強制換 nmhc。
+ * 點源工廠：≥ 1 萬點 → 低縮放熱區（weight＝所選污染物 ln 正規化），z10 起畫點、大小依排放量平方根。
+ */
+function tedsView(p?: Record<string, number>): string {
+  return TEDS_VIEW_OPTIONS[p?.tedsGridEmissionsViewIdx ?? 0]?.value ?? "point";
+}
+function tedsPollutant(p?: Record<string, number>): string {
+  if (tedsView(p) === "bio") return "nmhc";
+  return TEDS_POLLUTANT_OPTIONS[p?.tedsGridEmissionsPollutantIdx ?? 0]?.value ?? "pm25";
+}
+function tedsGridEmissionsOverlays(): OverlayConfig[] {
+  const id = "tedsGridEmissions";
+  const attribution = `環境部 臺灣排放量清冊 TEDS 13.0（data.gov.tw 48201、170705、152688、47244）· ${OGDL_ATTR}`;
+  const opacity = (p?: Record<string, number>) => p?.tedsGridEmissionsOpacity ?? 0.6;
+  const value = (p?: Record<string, number>) => ["coalesce", ["get", tedsPollutant(p)], 0];
+  const gridLayout = (_dark: boolean, p?: Record<string, number>) => ({ visibility: tedsView(p) === "facilities" ? "none" : "visible" });
+  const gridFilter = (p?: Record<string, number>) => ["all", ["==", ["get", "source"], tedsView(p)], [">", value(p), 0]];
+  const densityColor = (area: number, p?: Record<string, number>) => ["interpolate", ["linear"], ["log10", ["max", ["/", value(p), area], 0.001]],
+    ...TEDS_DENSITY_STEPS.flatMap((step) => [Math.log10(step.min), step.color])];
+  const grid = (sourceId: string, file: string, sourceLayer: string, area: number, zoom: { minzoom: number; maxzoom: number }, layerZoom: { minzoom?: number; maxzoom?: number }): OverlayConfig => ({
+    id, sourceUrl: `./environment/${file}`, sourceId, pmtiles: { sourceLayer, ...zoom }, attribution, rebuildOnParamChange: ["fill"],
+    layers: [{ suffix: "fill", type: "fill", ...layerZoom, layout: gridLayout, filter: gridFilter, paint: (_dark, p) => ({ "fill-color": densityColor(area, p), "fill-opacity": opacity(p) }) }],
+  });
+  const facilityLayout = (_dark: boolean, p?: Record<string, number>) => ({ visibility: tedsView(p) === "facilities" ? "visible" : "none" });
+  const heat = denseHeatmapLayer({
+    pointsFromZoom: DENSE_FROM.tedsGridEmissions, intensity: 1, layer: id,
+    opacity: { layer: id, param: "tedsGridEmissionsOpacity" },
+    weight: (p) => ["interpolate", ["linear"], ["ln", ["+", 1, value(p)]], 0, 0, Math.log(1001), 1],
+  });
+  return [
+    grid("teds-grid-emissions-5km", "teds_grid_emissions_teds13_5km.pmtiles", "teds_grid_emissions_5km", 25, { minzoom: 4, maxzoom: 9 }, { maxzoom: 10 }),
+    grid("teds-grid-emissions", "teds_grid_emissions_teds13.pmtiles", "teds_grid_emissions", 1, { minzoom: 10, maxzoom: 12 }, { minzoom: 10 }),
+    {
+      id, sourceUrl: "./environment/teds_point_source_facilities_teds13.pmtiles", sourceId: "teds-point-source-facilities",
+      pmtiles: { sourceLayer: "teds_point_source_facilities", minzoom: 4, maxzoom: 14 }, attribution,
+      layers: [
+        { ...heat, layout: facilityLayout },
+        { suffix: "circle", type: "circle", minzoom: DENSE_FROM.tedsGridEmissions, layout: facilityLayout, paint: (dark, p) => {
+          const scale = p?.tedsGridEmissionsScale ?? 1;
+          const op = Math.min(1, opacity(p) + 0.25);
+          return {
+            "circle-color": ATLAS_LAYER_COLORS.tedsGridEmissions,
+            "circle-radius": ["interpolate", ["linear"], ["sqrt", value(p)], 0, 2.5 * scale, 1, 3.5 * scale, 10, 8 * scale, 30, 14 * scale],
+            "circle-opacity": op, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.8, "circle-stroke-opacity": op,
+          };
+        } },
+      ],
+    },
+  ];
+}
+
+/**
  * G53 批 1 國土利用監測變異點：z4–9 畫 H3 res7 六角格（網格檔），z10 起畫範圍面＋逐點（點畫到 z13）。
  * 六角格不吃 V-4 篩選 filter（一格含多類別、多年度），改由 paint 依兩個 mask 加總計數欄：
  * 只篩年度→分年欄 y<年>；有篩類別→分類欄 c_*（兩者都篩時只照類別，網格檔沒有類別×年度交叉數，圖例 note 有寫）。
@@ -12318,7 +12375,125 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
   ];
 }
 
+/**
+ * G53 批 2／3 植群／森林林型：一層四個 config（同 id）。select `vegetationForestTypesViewIdx` 0＝天然植群、1＝林型，
+ * 未選中的 visibility none（不抓圖磚）。z4–10 是 100 m 格網化融合的概覽小檔（只有 *_class_key，不開 popup），
+ * z11 起換全量圖斑（可點選）。全覆蓋土地覆蓋圖，填色透明度 0.35（規範），不做點／面切換。
+ */
+function iOceanFishingOverlays(): OverlayConfig[] {
+  const id = "iOceanFishing";
+  const attribution = `海洋委員會海洋保育署 iOcean 垂釣回報（data.gov.tw 157622，公民回報）· ${OGDL_ATTR}`;
+  const opacity = (p?: Record<string, number>) => p?.iOceanFishingOpacity ?? 0.8;
+  return [
+    {
+      // z4–9 彙總點（0.01° 格網，n_reports）只畫熱區；沒有 fishing_type，不吃類型篩選
+      id, sourceUrl: "./marine/iocean_fishing_reports_20260506_z4_9.pmtiles", sourceId: "iocean-fishing-reports-z4-9",
+      pmtiles: { sourceLayer: "iocean_fishing_reports_z4_9", minzoom: 4, maxzoom: 9 }, attribution,
+      layers: [{
+        ...denseHeatmapLayer({
+          pointsFromZoom: 10, intensity: 1, layer: id, opacity: { layer: id, param: "iOceanFishingOpacity" },
+          weight: () => ["interpolate", ["linear"], ["ln", ["+", 1, ["coalesce", ["get", "n_reports"], 0]]], 0, 0, Math.log(1001), 1],
+        }),
+        skipCategoryFilter: true,
+      }],
+    },
+    {
+      id, sourceUrl: "./marine/iocean_fishing_reports_20260506.pmtiles", sourceId: "iocean-fishing-reports",
+      pmtiles: { sourceLayer: "iocean_fishing_reports", minzoom: 10, maxzoom: 14 }, attribution,
+      layers: [{ suffix: "circle", type: "circle", minzoom: 10, paint: (dark, p) => {
+        const scale = p?.iOceanFishingScale ?? 1;
+        const op = opacity(p);
+        return {
+          "circle-color": matchColorExpr("fishing_type", FISHING_TYPE_OPTIONS), "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2.5 * scale, 14, 5 * scale],
+          "circle-opacity": op, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.6, "circle-stroke-opacity": op,
+        };
+      } }],
+    },
+  ];
+}
+
+function vegetationForestTypesOverlays(): OverlayConfig[] {
+  const id = "vegetationForestTypes";
+  const attribution = `農業部林業及自然保育署 天然植群圖（data.gov.tw 9930）、第四次森林資源調查林型（57873）· ${OGDL_ATTR}`;
+  const opacity = (p?: Record<string, number>) => p?.vegetationForestTypesOpacity ?? 0.35;
+  const datasets = [
+    { view: 0, property: "veg_class_key" as const, options: VEG_CLASS_OPTIONS, mask: "vegetationForestTypesVegClassMask", base: "natural_vegetation_map", file: "natural_vegetation_map_2014", sourceId: "natural-vegetation-map" },
+    { view: 1, property: "forest_type_key" as const, options: FOREST_TYPE_OPTIONS, mask: "vegetationForestTypesForestTypeMask", base: "forest_types_4th_survey", file: "forest_types_4th_survey", sourceId: "forest-types-4th-survey" },
+  ];
+  return datasets.flatMap((d) => {
+    const layout = (_dark: boolean, p?: Record<string, number>) => ({ visibility: (p?.vegetationForestTypesViewIdx ?? 0) === d.view ? "visible" : "none" });
+    const filter = (p?: Record<string, number>) => vegClassFilter(d.property, d.options, p?.[d.mask]) ?? ["has", d.property];
+    const color = matchColorExpr(d.property, d.options);
+    const fill = (zoom: { minzoom?: number; maxzoom?: number }): OverlayConfig["layers"][number] => ({
+      suffix: "fill", type: "fill", ...zoom, layout, filter, paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": opacity(p) }),
+    });
+    return [
+      {
+        id, sourceUrl: `./forestry/${d.file}_z4_10.pmtiles`, sourceId: `${d.sourceId}-z4-10`,
+        pmtiles: { sourceLayer: `${d.base}_z4_10`, minzoom: 4, maxzoom: 10 }, attribution, rebuildOnParamChange: ["fill"],
+        layers: [fill({ maxzoom: 11 })],
+      },
+      {
+        id, sourceUrl: `./forestry/${d.file}.pmtiles`, sourceId: d.sourceId,
+        pmtiles: { sourceLayer: d.base, minzoom: 11, maxzoom: 14 }, attribution, rebuildOnParamChange: ["fill", "outline"],
+        layers: [
+          fill({ minzoom: 11 }),
+          { suffix: "outline", type: "line", minzoom: 11, layout, filter, paint: (dark, p) => ({
+            "line-color": dark ? "#e2e8f0" : color, "line-width": ["interpolate", ["linear"], ["zoom"], 11, 0.2, 14, 0.8], "line-opacity": Math.min(1, opacity(p) + 0.2),
+          }) },
+        ],
+      },
+    ] satisfies OverlayConfig[];
+  });
+}
+
+/** G53 批 2／3 監理所站＋轄區：面依 select 切汽車／機車業務（不吃所站種類篩選），點用 publicLifePointOverlay＋種類篩選。 */
+function vehicleInspectionOverlays(): OverlayConfig[] {
+  const id = "vehicleInspectionOffices";
+  const attribution = `交通部公路局 監理所站名冊（data.gov.tw 14203）· ${OGDL_ATTR}；3 處位置 © OpenStreetMap contributors（ODbL）`;
+  const opacity = (p?: Record<string, number>) => p?.vehicleInspectionOfficesOpacity ?? 0.9;
+  const filter = (p?: Record<string, number>) => ["==", ["get", "service"], (p?.vehicleInspectionOfficesViewIdx ?? 0) === 1 ? "motorcycle" : "car"];
+  const color = matchColorExpr("office_id", VIO_ZONE_OPTIONS);
+  return [
+    {
+      id, sourceUrl: "./geo/vehicle_inspection_jurisdictions_1150421.pmtiles", sourceId: "vehicle-inspection-jurisdictions",
+      pmtiles: { sourceLayer: "vehicle_inspection_jurisdictions", minzoom: 4, maxzoom: 12 }, attribution, rebuildOnParamChange: ["fill", "outline"],
+      layers: [
+        { suffix: "fill", type: "fill", skipCategoryFilter: true, filter, paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": 0.25 * opacity(p) }) },
+        { suffix: "outline", type: "line", skipCategoryFilter: true, filter, paint: (_dark, p) => ({
+          "line-color": color, "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 10, 1.6], "line-opacity": Math.min(1, opacity(p) + 0.1),
+        }) },
+      ],
+    },
+    publicLifePointOverlay(id, "./geo/vehicle_inspection_offices_1150421.pmtiles", "vehicle-inspection-offices", matchColorExpr("office_kind", VIO_KIND_OPTIONS), { sourceLayer: "vehicle_inspection_offices", minzoom: 4, maxzoom: 14 }, attribution, [4, 8]),
+  ];
+}
+
 const ATLAS_OVERLAYS: OverlayConfig[] = [
+  ...vegetationForestTypesOverlays(),
+  ...iOceanFishingOverlays(),
+  ...vehicleInspectionOverlays(),
+  // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──
+  ...tedsGridEmissionsOverlays(),
+  {
+    // 事件型崩塌：面 z10 起（代表點 companion 自動產生、預設點＋熱區）；年度＋事件類型篩選放在面子圖層，companion 沿用
+    id: "landslideEventCatalog", sourceUrl: "./hazards/landslide_event_catalog_093_114.pmtiles", sourceId: "landslide-event-catalog",
+    pmtiles: { sourceLayer: "landslide_event_catalog", minzoom: 10, maxzoom: 14 },
+    attribution: `農業部農村發展及水土保持署 事件型崩塌目錄 93–114 年（data.gov.tw 96823 等 22 筆）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("landslideEventCatalog", landslideEventColorExpr(), 0.7, undefined, (p) => landslideEventFilter(p?.landslideEventCatalogYearMask, p?.landslideEventCatalogTypeMask)),
+  },
+  {
+    // 污染管制區：面 z8 起（代表點 companion 由 repPointLayers 自動產生、預設點）；列管狀態篩選放在面子圖層，companion 沿用
+    id: "pollutionControlZones", sourceUrl: "./environment/pollution_control_zones_202611.pmtiles", sourceId: "pollution-control-zones",
+    pmtiles: { sourceLayer: "pollution_control_zones", minzoom: 8, maxzoom: 14 },
+    attribution: `環境部 土壤污染管制區（data.gov.tw 6384）、地下水污染管制區（35092）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("pollutionControlZones", pollutionZoneColorExpr(), 0.6, undefined, (p) => pollutionZoneStatusFilter(p?.pollutionControlZonesStatusMask)),
+  },
+  publicLifePointOverlay("fireworksSites", "./geo/fireworks_sites_7070_v2.pmtiles", "fireworks-sites", matchColorExpr("site_kind", FIREWORKS_KIND_OPTIONS), { sourceLayer: "fireworks_sites", minzoom: 4, maxzoom: 14 }, `內政部消防署 爆竹煙火製造及儲存場所（data.gov.tw 7070，地址定位）· ${OGDL_ATTR}`, [4, 8]),
+  publicLifePointOverlay("iOceanSightings", "./marine/iocean_sightings_20260506_gen.pmtiles", "iocean-sightings", matchColorExpr("group_key", IOCEAN_GROUP_OPTIONS), { sourceLayer: "iocean_sightings", minzoom: 4, maxzoom: 14 }, `海洋委員會海洋保育署 iOcean 海洋生物目擊回報（data.gov.tw 157621，公民回報）· ${OGDL_ATTR}`, [3, 6.5]),
+  publicLifePointOverlay("traLevelCrossings", "./rail/tra_level_crossings_11970.pmtiles", "tra-level-crossings", matchColorExpr("type_key", TRA_CROSSING_TYPE_OPTIONS), { sourceLayer: "tra_level_crossings", minzoom: 6, maxzoom: 14 }, `國營臺灣鐵路公司 平交道（data.gov.tw 11970）· ${OGDL_ATTR}；部分位置 © OpenStreetMap contributors（ODbL）`, [3, 6.5]),
+  publicLifePointOverlay("wraDisasterCctv", "./geo/wra_disaster_cctv_20261109.pmtiles", "wra-disaster-cctv", matchColorExpr("kind", WRA_CCTV_KIND_OPTIONS), { sourceLayer: "wra_disaster_cctv", minzoom: 4, maxzoom: 14 }, `經濟部水利署 水情影像監視站（data.gov.tw 36687）、疏濬工區管制站（41567）· ${OGDL_ATTR}`, [3, 6.5]),
+  publicLifePointOverlay("broadcastTransmitters", "./geo/broadcast_transmitters_1150703.pmtiles", "broadcast-transmitters", matchColorExpr("kind", BROADCAST_KIND_OPTIONS), { sourceLayer: "broadcast_transmitters", minzoom: 4, maxzoom: 14 }, `國家通訊傳播委員會 FM 廣播電臺（data.gov.tw 6445）、AM 廣播電臺（6446）、電波監測站（6825）· ${OGDL_ATTR}`, [3, 6.5]),
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
   ...debrisFlowPotentialOverlays(),
   ...landUseChangeMonitoringOverlays(),

@@ -101,7 +101,7 @@ import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, asKrSpec } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
@@ -117,7 +117,7 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
-import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, ANTIVENOM_SERUM_OPTIONS, DEBRIS_FLOW_VIEW_OPTIONS, TOUR_SERVICE_SITE_OPTIONS } from "./atlasLayerTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, ANTIVENOM_SERUM_OPTIONS, DEBRIS_FLOW_VIEW_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, POLLUTION_ZONE_STATUS_OPTIONS, LANDSLIDE_EVENT_YEARS, LANDSLIDE_EVENT_TYPE_OPTIONS, VEG_DATASET_OPTIONS, VIO_SERVICE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -2222,11 +2222,17 @@ export const LAYER_PARAMS_SPEC = {
       options: IE_NOISE_METRICS.map((x) => ({ label: x.label.zh, value: x.value })),
       out: "ieNoiseMapsMetricIdx", encode: IE_NOISE_METRICS.map((x) => x.value),
     }] : []),
+    // 第 11 波 GSI 地下水淹水（ND）：一產品一支 PMTiles，host 依 ieGroundwaterFloodingProductIdx 換檔
+    ...(spec.key === "ieGroundwaterFlooding" ? [{
+      kind: "select" as const, category: "data" as const, name: "ieGroundwaterFloodingProduct", label: "淹水圖種類", default: IE_GW_FLOOD_DEFAULT,
+      options: IE_GW_FLOOD_PRODUCTS.map((x) => ({ label: x.label.zh, value: x.value })),
+      out: "ieGroundwaterFloodingProductIdx", encode: IE_GW_FLOOD_PRODUCTS.map((x) => x.value),
+    }] : []),
     ...krCatFilterSpecs(asKrSpec(spec)),
     ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.key === "ieGaeltacht" ? 0.6 : spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" || spec.key === "ieGroundwaterFlooding" ? 0.55 : spec.geom === "polygon" ? 0.7 : 0.85)]),
   ]])),
   // 愛爾蘭第 5c 波（站主限定 Coillte）：類別多選（順序＝ieCoillteTypes cats＝bitmask）；遊憩點另有入口熱區色盤與點大小
   ieCoillteRecreation: [
@@ -5289,6 +5295,66 @@ export const LAYER_PARAMS_SPEC = {
   ],
   postMailboxes: [opacitySlider("postMailboxesOpacity", densePointOpacity(6_024)), scaleSlider("postMailboxesScale", 1)],
   motorcycleInspectionStations: [opacitySlider("motorcycleInspectionStationsOpacity", densePointOpacity(3_893)), scaleSlider("motorcycleInspectionStationsScale", 1)],
+  broadcastTransmitters: [opacitySlider("broadcastTransmittersOpacity", 0.9), scaleSlider("broadcastTransmittersScale", 1)],
+  wraDisasterCctv: [opacitySlider("wraDisasterCctvOpacity", 0.9), scaleSlider("wraDisasterCctvScale", 1)],
+  traLevelCrossings: [opacitySlider("traLevelCrossingsOpacity", 0.9), scaleSlider("traLevelCrossingsScale", 1)],
+  iOceanSightings: [opacitySlider("iOceanSightingsOpacity", 0.9), scaleSlider("iOceanSightingsScale", 1)],
+  fireworksSites: [opacitySlider("fireworksSitesOpacity", 0.9), scaleSlider("fireworksSitesScale", 1)],
+  vehicleInspectionOffices: [
+    {
+      kind: "select", category: "data", name: "vehicleInspectionOfficesService", label: "轄區業務", default: "car",
+      options: [...VIO_SERVICE_OPTIONS], out: "vehicleInspectionOfficesViewIdx", encode: VIO_SERVICE_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("vehicleInspectionOfficesOpacity", 0.9), scaleSlider("vehicleInspectionOfficesScale", 1),
+  ],
+  iOceanFishing: [heatmapPalette("iOceanFishing"), opacitySlider("iOceanFishingOpacity", 0.8), scaleSlider("iOceanFishingScale", 1)],
+  vegetationForestTypes: [
+    {
+      kind: "select", category: "data", name: "vegetationForestTypesDataset", label: "資料集", default: "vegetation",
+      options: [...VEG_DATASET_OPTIONS], out: "vegetationForestTypesViewIdx", encode: VEG_DATASET_OPTIONS.map((option) => option.value),
+    },
+    {
+      kind: "multiSelect", name: "vegetationForestTypesVegClass", label: "植群大類", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(VEG_CLASS_OPTIONS), out: "vegetationForestTypesVegClassMask",
+      showWhen: { param: "vegetationForestTypesDataset", equals: "vegetation" },
+    },
+    {
+      kind: "multiSelect", name: "vegetationForestTypesForestType", label: "林型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FOREST_TYPE_OPTIONS), out: "vegetationForestTypesForestTypeMask",
+      showWhen: { param: "vegetationForestTypesDataset", equals: "forestType" },
+    },
+    opacitySlider("vegetationForestTypesOpacity", 0.35),
+  ],
+  landslideEventCatalog: [
+    {
+      kind: "multiSelect", name: "landslideEventCatalogYear", label: "年度（西元）", default: serializeMultiSelectValues(["114"]),
+      options: LANDSLIDE_EVENT_YEARS.map((y) => ({ label: String(Number(y) + 1911), value: y })), out: "landslideEventCatalogYearMask",
+    },
+    {
+      kind: "multiSelect", name: "landslideEventCatalogType", label: "事件類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(LANDSLIDE_EVENT_TYPE_OPTIONS), out: "landslideEventCatalogTypeMask",
+    },
+    opacitySlider("landslideEventCatalogOpacity", 0.7),
+  ],
+  pollutionControlZones: [
+    {
+      kind: "multiSelect", name: "pollutionControlZonesStatus", label: "列管狀態", default: serializeMultiSelectValues(["true"]),
+      options: POLLUTION_ZONE_STATUS_OPTIONS.map((o) => ({ label: o.label, value: o.value })), out: "pollutionControlZonesStatusMask",
+    },
+    opacitySlider("pollutionControlZonesOpacity", 0.6),
+  ],
+  tedsGridEmissions: [
+    {
+      kind: "select", name: "tedsGridEmissionsView", label: "顯示", default: "point",
+      options: [...TEDS_VIEW_OPTIONS], out: "tedsGridEmissionsViewIdx", encode: TEDS_VIEW_OPTIONS.map((option) => option.value),
+    },
+    {
+      kind: "select", category: "data", name: "tedsGridEmissionsPollutant", label: "污染物", default: "pm25",
+      options: [...TEDS_POLLUTANT_OPTIONS], out: "tedsGridEmissionsPollutantIdx", encode: TEDS_POLLUTANT_OPTIONS.map((option) => option.value),
+    },
+    heatmapPalette("tedsGridEmissions"),
+    opacitySlider("tedsGridEmissionsOpacity", 0.6), scaleSlider("tedsGridEmissionsScale", 1),
+  ],
   pollutionFacility: [
     heatmapPalette("pollutionFacility"),
     opacitySlider("pollutionFacilityOpacity", densePointOpacity(152_246)),

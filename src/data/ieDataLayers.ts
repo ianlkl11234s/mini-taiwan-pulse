@@ -1,5 +1,5 @@
 /**
- * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層、第 8 波 5 層、第 7b 波 5 層、第 9 波 6 層、第 10 波 4 層）SSOT：hook paint、圖例、popup 三邊共用。
+ * 愛爾蘭第 1 波起規格驅動資料層（第 1 波 6 層、第 2 波 2 層、第 3a 波 7 層、第 3b 波 5 層、第 4 波 6 層、第 5 波 9 層、第 6 波 6 層、第 7a 波 3 層、第 8 波 5 層、第 7b 波 5 層、第 9 波 6 層、第 10 波 4 層、第 11 波 6 層）SSOT：hook paint、圖例、popup 三邊共用。
  * 畫法沿用南韓規格驅動 hook（`hooks/useKrDataLayers.ts`），規格型別同 `KrLayerSpec`，只把 key 換成 `IeDataKey`；
  * 海床地形是 raster，另在 `hooks/useIeBathymetryLayer.ts`。
  * 資料、處理與授權見 taipei-gis-analytics `docs/data-catalog/{base_map,sports,funeral,urban_open_space}/ie_*.md`
@@ -552,6 +552,42 @@ const WASTE_FACILITY_CATS: readonly KrCat[] = [
   { id: "other", values: ["other"], color: "#2dd4bf", label: l3("其他（資源回收站、疏浚、污泥處理、待評估）", "Other (civic amenity, dredging, sludge, to be assessed)", "その他（資源回収所・浚渫・汚泥処理・評価待ち）") },
   { id: "unclassified", values: ["unclassified"], color: "#94a3b8", label: l3("未分類（來源無屬性）", "Unclassified (no attributes in source)", "未分類（出典に属性なし）") },
 ];
+
+// ───────────── 第 11 波（2026-11-10）：IEADD-1 補做 ─────────────
+export const IE_W11_FETCHED_AT = "2026-11-10";
+const OSM_ODBL = "ODbL 1.0（© OpenStreetMap contributors）";
+/** GSI 地下水淹水圖：一產品一支 PMTiles（ND 原樣），host 依 `ieGroundwaterFloodingProductIdx` 換檔（同 OPW 河川淹水情境）。 */
+export const IE_GW_FLOOD_PRODUCTS = [
+  { value: "high", label: l3("地下水淹水・高機率（年機率 10%）", "Groundwater flooding · high probability (10% AEP)", "地下水浸水・高確率（年超過確率10%）") },
+  { value: "medium", label: l3("地下水淹水・中機率（年機率 1%）", "Groundwater flooding · medium probability (1% AEP)", "地下水浸水・中確率（年超過確率1%）") },
+  { value: "low", label: l3("地下水淹水・低機率（年機率 0.1%）", "Groundwater flooding · low probability (0.1% AEP)", "地下水浸水・低確率（年超過確率0.1%）") },
+  { value: "historic", label: l3("歷史最大地下水淹水範圍", "Maximum historic groundwater flooding", "過去最大の地下水浸水範囲") },
+  { value: "surface_2015", label: l3("2015/16 冬季地表水淹水（衛星判釋）", "Winter 2015/16 surface water flooding (satellite)", "2015/16年冬の地表水浸水（衛星判読）") },
+] as const;
+export const IE_GW_FLOOD_DEFAULT = "historic";
+export const ieGwFloodFile = (value: string) => `ie_groundwater_flooding_${value}.pmtiles`;
+export function ieGwFloodFileAt(idx: number | undefined): string {
+  const s = IE_GW_FLOOD_PRODUCTS[idx ?? -1] ?? IE_GW_FLOOD_PRODUCTS.find((x) => x.value === IE_GW_FLOOD_DEFAULT)!;
+  return ieGwFloodFile(s.value);
+}
+const GW_FLOOD_TYPE: Record<string, L3> = {
+  GW: l3("地下水", "Groundwater", "地下水"), GWSW: l3("地下水與地表水", "Groundwater and surface water", "地下水と地表水"),
+  SW: l3("地表水", "Surface water", "地表水"), SWp: l3("SWp（代碼原文，來源未附說明）", "SWp (source code, not defined by the source)", "SWp（出典のコード、説明なし）"),
+};
+const AED_ACCESS_CATS: readonly KrCat[] = [
+  { id: "public", values: ["public"], color: "#ef4444", label: l3("公開可用（access=yes／public）", "Public access", "誰でも使える（access=yes／public）") },
+  { id: "restricted", values: ["restricted"], color: "#f59e0b", label: l3("限顧客、員工或會員", "Customers, staff or members only", "客・職員・会員のみ") },
+  { id: "unknown", values: ["unknown"], color: "#94a3b8", label: l3("未標示", "Not tagged", "記載なし") },
+];
+const AED_INDOOR: Record<string, L3> = { indoor: l3("室內", "Indoor", "屋内"), outdoor: l3("室外", "Outdoor", "屋外"), unknown: l3("未標示", "Not tagged", "記載なし") };
+const FLOOD_ZONE_CATS: readonly KrCat[] = [
+  { id: "A", values: ["A"], color: "#ef4444", label: l3("Flood Zone A（河川 ≥1%／年、海岸 ≥0.5%／年）", "Flood Zone A (fluvial ≥1% or coastal ≥0.5% a year)", "Flood Zone A（河川 年1%以上・海岸 年0.5%以上）") },
+  { id: "B", values: ["B"], color: "#f59e0b", label: l3("Flood Zone B（A 以外、≥0.1%／年）", "Flood Zone B (outside A, ≥0.1% a year)", "Flood Zone B（A 以外・年0.1%以上）") },
+];
+const FLOOD_ZONE_COUNCIL: Record<string, L3> = {
+  cork_county: l3("Cork County", "Cork County", "Cork County"), galway_county: l3("Galway County", "Galway County", "Galway County"),
+  roscommon: l3("Roscommon", "Roscommon", "Roscommon"), wicklow: l3("Wicklow", "Wicklow", "Wicklow"),
+};
 
 export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   // ───────────── 底圖：海域界線、地名 ─────────────
@@ -1651,6 +1687,100 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "Environmental Protection Agency (EPA), PRTR facilities (all sectors)", sourceUrl: DGI("prtr-facilities"), license: CC_BY, fetchedAt: IE_W9_FETCHED_AT,
     loading: l3("愛爾蘭 PRTR 申報設施載入中", "Loading Ireland PRTR facilities", "アイルランドの PRTR 報告施設を読み込み中"),
+  },
+  // ───────────── 第 11 波（2026-11-10）：IEADD-1 補做 ─────────────
+  {
+    key: "ieDefibrillators", file: "ie_defibrillators.pmtiles", sourceLayer: "ie_defibrillators", geom: "point", layerId: "ie-defibrillators-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#ef4444", tier: "S", count: 2463,
+    catProp: "access", cats: AED_ACCESS_CATS,
+    title: { props: ["name", "location"], fallback: l3("AED", "AED (defibrillator)", "AED") },
+    fields: [{ prop: "access", label: l3("使用限制", "Access", "利用制限"), map: catMap(AED_ACCESS_CATS) },
+             { prop: "indoor", label: l3("室內外", "Indoor / outdoor", "屋内・屋外"), map: AED_INDOOR },
+             { prop: "location", label: l3("放置位置", "Location", "設置場所") }, { prop: "opening_hours", label: l3("可用時間", "Opening hours", "利用可能時間") },
+             { prop: "operator", label: l3("管理單位", "Operator", "管理者") }, { prop: "level", label: l3("樓層", "Level", "階") },
+             { prop: "check_date", label: l3("最近查核", "Last checked", "最終確認"), kind: "code" }, LA],
+    legendNotes: [l3("OpenStreetMap 標記的 AED 2,463 台（剔除北愛 340）；國家救護車服務的官方 AED 登記冊不公開，所以不是全部", "2,463 AEDs mapped in OpenStreetMap (340 in Northern Ireland removed); the National Ambulance Service register is not public, so this is not complete", "OpenStreetMap に登録された AED 2,463台（北アイルランド340台を除外）。救急隊の公式 AED 登録簿は非公開のため全数ではない"),
+                  l3("使用限制依 OSM access 標籤；管理單位像個人姓名者不顯示", "Access from the OSM access tag; operators that look like personal names are not shown", "利用制限は OSM の access タグ。個人名らしい管理者は表示しない")],
+    popupNotes: [l3("緊急時請撥 112／999", "In an emergency call 112 / 999", "緊急時は 112／999 へ")],
+    sourceOrg: "© OpenStreetMap contributors (emergency=defibrillator)", sourceUrl: "https://www.openstreetmap.org/copyright", license: OSM_ODBL, fetchedAt: IE_W11_FETCHED_AT,
+    loading: l3("愛爾蘭 AED 載入中", "Loading Ireland AEDs", "アイルランドの AED を読み込み中"),
+  },
+  {
+    key: "iePrisons", file: "ie_prisons.pmtiles", sourceLayer: "ie_prisons", geom: "point", layerId: "ie-prisons-circle",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f472b6", tier: "M", count: 11,
+    title: { props: ["name"], fallback: l3("監獄", "Prison", "刑務所") },
+    fields: [{ prop: "operator", label: l3("管理機關", "Operator", "管理機関") }, { prop: "street", label: l3("街道", "Street", "通り") }, LA],
+    legendNotes: [l3("OpenStreetMap 標記的監獄 11 處（Irish Prison Service 12 處中 Wheatfield 與 Cloverhill 是同一個面）；剔除北愛 4 處", "11 prisons mapped in OpenStreetMap (of the Irish Prison Service's 12, Wheatfield and Cloverhill share one polygon); 4 in Northern Ireland removed", "OpenStreetMap に登録された刑務所11か所（Irish Prison Service の12か所のうち Wheatfield と Cloverhill は同じ面）。北アイルランド4か所を除外"),
+                  l3("Irish Prison Service 沒有開放點位資料集；位置是 OSM 面的代表點", "The Irish Prison Service publishes no open location dataset; positions are representative points of the OSM areas", "Irish Prison Service に位置の公開データはない。位置は OSM の面の代表点")],
+    popupNotes: [],
+    sourceOrg: "© OpenStreetMap contributors (amenity=prison)", sourceUrl: "https://www.openstreetmap.org/copyright", license: OSM_ODBL, fetchedAt: IE_W11_FETCHED_AT,
+    loading: l3("愛爾蘭監獄載入中", "Loading Ireland prisons", "アイルランドの刑務所を読み込み中"),
+  },
+  {
+    // V-5：多數 pNHA 只有數十至數百公頃 → 預設代表點（`ie_proposed_nha_points.pmtiles`，repPointLayers），可切面
+    key: "ieProposedNha", file: "ie_proposed_nha.pmtiles", sourceLayer: "ie_proposed_nha", geom: "polygon", layerId: "ie-proposed-nha-fill", outlineId: "ie-proposed-nha-line",
+    srcMinzoom: 4, srcMaxzoom: 13, minzoom: 4, color: "#2dd4bf", count: 1180,
+    title: { props: ["name"], fallback: l3("提議中自然遺產區", "Proposed Natural Heritage Area", "提案中の自然遺産地域") },
+    fields: [{ prop: "site_code", label: l3("站點代碼", "Site code", "サイトコード"), kind: "code" },
+             { prop: "area_ha", label: l3("面積（此面）", "Area (this polygon)", "面積（この面）"), kind: "num", unit: "ha", digits: 0 },
+             { prop: "source_scale", label: l3("數化比例尺", "Source scale", "作成縮尺"), kind: "code" },
+             { prop: "version", label: l3("邊界版本", "Boundary version", "境界の版"), kind: "code" }, LA],
+    legendNotes: [l3("NPWS 提議中自然遺產區（pNHA）1,089 處、1,180 面（跨郡的站點拆成多面）；1995 年公布，尚未完成法定指定", "1,089 NPWS proposed Natural Heritage Areas (pNHA) in 1,180 polygons (sites crossing county lines are split); published in 1995, not yet statutorily designated", "NPWS の提案中自然遺産地域（pNHA）1,089か所・1,180面（県境をまたぐ地点は分割）。1995年公表、法定指定は未了"),
+                  l3("不少 pNHA 與 SAC／SPA 範圍重疊（法定保護區另見「指定保護區」圖層）；預設畫代表點，可切換面", "Many pNHAs overlap SACs/SPAs (see the Designated Sites layer for statutory sites); representative points by default (switch to areas)", "多くの pNHA は SAC／SPA と重なる（法定保護区は「指定保護区」レイヤー）。既定は代表点（面に切替可）")],
+    popupNotes: [l3("提議中，尚未完成法定指定", "Proposed; not yet statutorily designated", "提案中で法定指定は未了")],
+    sourceOrg: "National Parks and Wildlife Service (NPWS), DHLGH — Proposed Natural Heritage Areas", sourceUrl: DGI("proposed-natural-heritage-areas"), license: CC_BY, fetchedAt: IE_W11_FETCHED_AT,
+    loading: l3("愛爾蘭提議中自然遺產區載入中", "Loading Ireland proposed Natural Heritage Areas", "アイルランドの提案中自然遺産地域を読み込み中"),
+  },
+  {
+    // ND：原樣上圖、單獨成層（不與 OPW 河川淹水、郡議會 Flood Zone 合併）。一產品一支 PMTiles（`IE_GW_FLOOD_PRODUCTS`），host 依參數換 `file`
+    key: "ieGroundwaterFlooding", file: ieGwFloodFile(IE_GW_FLOOD_DEFAULT), sourceLayer: "ie_groundwater_flooding", geom: "polygon",
+    layerId: "ie-groundwater-flooding-fill", outlineId: "ie-groundwater-flooding-line",
+    srcMinzoom: 5, srcMaxzoom: 13, minzoom: 5, color: "#2563eb", count: 3598,
+    title: { props: [], fallback: l3("地下水淹水範圍", "Groundwater flood extent", "地下水浸水範囲") },
+    fields: [{ prop: "FLOOD_TYPE", label: l3("淹水類型", "Flood type", "浸水の種類"), map: GW_FLOOD_TYPE },
+             { prop: "MDL_SOURCE", label: l3("模擬單位", "Model source", "モデル作成者"), kind: "code" },
+             { prop: "SOURCE", label: l3("判釋依據", "Mapping source", "判読の根拠") },
+             { prop: "AREA_M2", label: l3("面積", "Area", "面積"), kind: "num", unit: "m²", digits: 0 },
+             { prop: "ID", label: l3("編號", "ID", "ID"), kind: "code" }],
+    legendNotes: [l3("CC BY-NC-ND 4.0・非商業使用；Contains Irish Public Sector Data (Geological Survey Ireland)。原樣上圖、未改作（不合併、不裁切、不改屬性）", "CC BY-NC-ND 4.0 · non-commercial use; Contains Irish Public Sector Data (Geological Survey Ireland). Shown unaltered (not merged, clipped or re-classified)", "CC BY-NC-ND 4.0・非商用。Contains Irish Public Sector Data (Geological Survey Ireland)。改変せず原データのまま表示"),
+                  l3("GSI 地下水淹水圖 1:20,000：高／中／低機率（年機率 10%／1%／0.1%，現況氣候）、歷史最大範圍、2015/16 冬季地表水淹水，在圖層設定切換（預設歷史最大）", "GSI groundwater flood maps 1:20,000: high / medium / low probability (10% / 1% / 0.1% AEP, present-day climate), maximum historic extent, and winter 2015/16 surface water flooding, switchable in layer settings (default: historic)", "GSI 地下水浸水図 1:20,000：高・中・低確率（年超過確率10%／1%／0.1%、現況気候）、過去最大範囲、2015/16年冬の地表水浸水をレイヤー設定で切替（既定：過去最大）"),
+                  l3("只涵蓋 GSI 判定可能有地下水淹水的喀斯特低地（西部、中部為主），不是全國；河川淹水見「河川淹水範圍」圖層。2015/16 地表水 1 面位於北愛已捨去", "Covers only karst lowlands where GSI found groundwater flooding (mainly west and midlands), not the whole country; for river flooding see the River Flood Extents layer. One 2015/16 surface water polygon in Northern Ireland removed", "GSI が地下水浸水の可能性を認めたカルスト低地（西部・中部中心）のみで全国ではない。河川氾濫は「河川浸水範囲」レイヤー。2015/16 地表水の北アイルランド1面は除外"),
+                  l3("GSI 要求搭配使用說明（GSI Guidance Notes）判讀；拉遠時圖磚會省略最小的面（只影響顯示）", "GSI requires use with its Guidance Notes; smallest polygons are omitted in zoomed-out tiles (display only)", "GSI のガイダンスノートと併せて利用すること。縮小時のタイルでは最小の面を省略（表示のみ）")],
+    popupNotes: [l3("CC BY-NC-ND・非商業使用；GSI 指示性地圖，非地塊判定", "CC BY-NC-ND · non-commercial; GSI indicative map, not property-level", "CC BY-NC-ND・非商用。GSI の指示的な地図で地点判定ではない")],
+    sourceOrg: "Contains Irish Public Sector Data (Geological Survey Ireland) licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0) International Licence", sourceUrl: DGI("historic-groundwater-flood-map-120000-ireland-roi-itm"), license: CC_BY_NC_ND, fetchedAt: IE_W11_FETCHED_AT,
+    loading: l3("愛爾蘭地下水淹水圖載入中", "Loading Ireland groundwater flood maps", "アイルランドの地下水浸水図を読み込み中"),
+  },
+  {
+    // V-5：沼地多為數百公頃 → 預設代表點（`ie_peat_extraction_bogs_points.pmtiles`，repPointLayers），可切面
+    key: "iePeatExtractionBogs", file: "ie_peat_extraction_bogs.pmtiles", sourceLayer: "ie_peat_extraction_bogs", geom: "polygon",
+    layerId: "ie-peat-extraction-bogs-fill", outlineId: "ie-peat-extraction-bogs-line",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f59e0b", count: 162,
+    title: { props: ["name"], fallback: l3("泥炭開採沼地", "Peat extraction bog", "泥炭採掘湿原") },
+    fields: [{ prop: "works", label: l3("Bord na Móna 工場代碼", "Bord na Móna works code", "Bord na Móna 事業所コード"), kind: "code" },
+             { prop: "hectares", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 0 }, LA],
+    legendNotes: [l3("環境保護署（EPA）登錄的 Bord na Móna 持照泥炭開採沼地 162 面、約 7.9 萬公頃（9 張 IPC 執照，分布 13 個地方政府）", "162 Bord na Móna bogs licensed for peat extraction, about 79,000 ha, as held by the EPA (9 IPC licences, 13 local authorities)", "環境保護庁（EPA）登録の Bord na Móna 泥炭採掘許可湿原162面・約7.9万 ha（IPC 許可9件・13自治体）"),
+                  l3("是執照範圍，不代表現況仍在開採（Bord na Móna 2021 年起停止泥炭開採、轉為復育）；工場代碼來源未附對照表", "Licensed extents, not current extraction (Bord na Móna ended peat harvesting in 2021 and moved to rehabilitation); the works code has no lookup in the source", "許可範囲で現在の採掘を示すものではない（Bord na Móna は2021年に泥炭採掘を終了し再生へ）。事業所コードの対照表は出典になし"),
+                  l3("授權未標示（EPA GeoServer），照常上線並標來源", "Licence not stated (EPA GeoServer); shown with source attribution", "ライセンス記載なし（EPA GeoServer）。出典を明記して表示")],
+    popupNotes: [l3("執照範圍，非現況", "Licensed extent, not current state", "許可範囲で現況ではない")],
+    sourceOrg: "Environmental Protection Agency (EPA), Licensed Peat Extraction Installation Boundary (Bord na Móna)", sourceUrl: "https://gis.epa.ie/EPAMaps/", license: "授權未標示（EPA GeoServer）", fetchedAt: IE_W11_FETCHED_AT,
+    loading: l3("愛爾蘭泥炭開採沼地載入中", "Loading Ireland peat extraction bogs", "アイルランドの泥炭採掘湿原を読み込み中"),
+  },
+  {
+    // 郡議會規劃分區（CC BY），與 OPW／GSI 的 NC-ND 淹水圖分開成層。V-5：聚落尺度小面 → 預設代表點（repPointLayers），可切面
+    key: "ieFloodZones", file: "ie_flood_zones.pmtiles", sourceLayer: "ie_flood_zones", geom: "polygon", layerId: "ie-flood-zones-fill", outlineId: "ie-flood-zones-line",
+    srcMinzoom: 5, srcMaxzoom: 14, minzoom: 5, color: "#ef4444", count: 4287,
+    catProp: "zone", cats: FLOOD_ZONE_CATS,
+    title: { props: ["settlement", "plan"], fallback: l3("淹水分區", "Flood zone", "浸水区域") },
+    fields: [{ prop: "zone", label: l3("分區", "Zone", "区域"), map: catMap(FLOOD_ZONE_CATS) },
+             { prop: "council", label: l3("郡議會", "Council", "県議会"), map: FLOOD_ZONE_COUNCIL },
+             { prop: "plan", label: l3("所屬計畫", "Plan", "計画") }, { prop: "settlement", label: l3("聚落", "Settlement", "集落") },
+             { prop: "area_ha", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 1 }, LA],
+    legendNotes: [l3("只有 4／31 個地方政府：Cork County、Galway County（含 Tuam、Ballinasloe 地方計畫）、Roscommon、Wicklow；其餘地方政府沒有開放資料（Limerick 伺服器憑證過期未收），空白不代表沒有淹水風險", "Only 4 of 31 local authorities: Cork County, Galway County (incl. Tuam and Ballinasloe LAPs), Roscommon and Wicklow; others publish no open data (Limerick's server certificate has expired), so blank areas do not mean no flood risk", "31自治体のうち4のみ：Cork County・Galway County（Tuam・Ballinasloe 地区計画を含む）・Roscommon・Wicklow。他は公開データなし（Limerick はサーバー証明書切れで未収録）。空白は浸水リスクがないという意味ではない"),
+                  l3("各郡發展計畫的策略淹水風險評估（SFRA）劃的規劃分區，方法與範圍各郡不同（多數只畫計畫內聚落）", "Planning zones from each county development plan's Strategic Flood Risk Assessment; methods and extents differ by council (most cover plan settlements only)", "各県開発計画の戦略的浸水リスク評価（SFRA）による計画区域。手法と範囲は県ごとに異なる（多くは計画内の集落のみ）"),
+                  l3("Cork 的分區原為網格碎片：已合併相鄰碎片，剩下的小碎片依 1 公里網格收成一筆（面積為該格合計）；預設畫代表點，可切換面", "Cork's zones were raster fragments: adjacent pieces are merged and remaining slivers grouped per 1 km grid cell (area is the cell total); representative points by default (switch to areas)", "Cork の区域はラスター由来の断片：隣接部分を統合し、残る小片は 1 km 格子ごとに 1 件へ集約（面積は格子内合計）。既定は代表点（面に切替可）")],
+    popupNotes: [l3("規劃分區，非地塊淹水判定", "Planning zone, not a property-level assessment", "計画区域で地点の浸水判定ではない")],
+    sourceOrg: "Cork County Council, Galway County Council, Roscommon County Council, Wicklow County Council — Flood Zones A/B (development plans)", sourceUrl: DGI("cdp2022-flood-zone-a"), license: CC_BY, fetchedAt: IE_W11_FETCHED_AT,
+    loading: l3("愛爾蘭淹水分區載入中", "Loading Ireland flood zones", "アイルランドの浸水区域を読み込み中"),
   },
 ];
 

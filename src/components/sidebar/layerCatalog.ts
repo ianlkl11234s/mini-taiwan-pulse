@@ -309,6 +309,14 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "醫療",
     "消防",
     "執法治安",
+    // 第 8 波：文化（圖書館、博物館美術館、公演）、觀光（國家遺產、文化祭、住宿）、基礎建設（安心宅配櫃）、社福長照（敬老堂），比照台灣與英國、愛爾蘭第 8 波
+    "文化",
+    "觀光",
+    "基礎建設",
+    "社福長照",
+    // 第 9 波：工商登記（產業園區）、廢棄物（舊衣回收箱），比照台灣與愛爾蘭；噪音測點併入既有「環境氣候」
+    "工商登記",
+    "廢棄物",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經／公共安全」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -793,6 +801,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayInterchanges"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
+          fromManifest("traLevelCrossings"),
           fromManifest("cctv"),
           fromManifest("etcGantry"),
           fromManifest("serviceArea"),
@@ -1007,6 +1016,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("materialRecyclingPoints"),
           fromManifest("publicLifeOsmCoverage"),
           fromManifest("accessibleParkFacilities"),
+          fromManifest("vehicleInspectionOffices"),
         ],
       },
       {
@@ -1514,6 +1524,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("fireStations"),
           fromManifest("fireHydrants"),
           fromManifest("disasterResourceSites"),
+          fromManifest("fireworksSites"),
         ],
       },
       {
@@ -1584,6 +1595,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("debrisFlowPotential"),
           fromManifest("highwayDisasterHistory"),
           fromManifest("landslideAnnual"),
+          fromManifest("landslideEventCatalog"),
           fromManifest("swcbDisasterPhotoPoints"),
         ],
       },
@@ -1730,6 +1742,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("aqiMicroSensors"),
           fromManifest("pm25ManualStations"),
           fromManifest("dioxinStations"),
+          fromManifest("tedsGridEmissions"),
         ],
       },
       {
@@ -1765,6 +1778,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),
           fromManifest("pollutionSite"),
+          fromManifest("pollutionControlZones"),
           fromManifest("incineratorEmissions"),
           fromManifest("cemsStackLive"),
           fromManifest("nuscGammaRadiation"),
@@ -1819,6 +1833,8 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("coastalAreaExtents"),
           fromManifest("openFishingLocations"),
+          fromManifest("iOceanSightings"),
+          fromManifest("iOceanFishing"),
           fromManifest("artificialReefCenters"),
           fromManifest("protectedReefCenters"),
           fromManifest("setNetFishingAreas"),
@@ -1888,6 +1904,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("wraCentralDrainage"),
           fromManifest("iowStructureMonitoring"),
           fromManifest("wraDredgingPoints"),
+          fromManifest("wraDisasterCctv"),
           fromManifest("wraEcologySurveySites"),
         ],
       },
@@ -1961,6 +1978,13 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("ooklaMobileTaiwan"),
           fromManifest("ooklaFixedTaiwan"),
+        ],
+      },
+      {
+        // G53 批 2／3（2026-11-10）：廣播發射站（FM／AM）與 NCC 電波監測站
+        title: "廣播與電波 Broadcast",
+        layers: [
+          fromManifest("broadcastTransmitters"),
         ],
       },
     ],
@@ -2097,6 +2121,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("forestCompartments"),
           fromManifest("forestFlatParks"),
+          fromManifest("vegetationForestTypes"),
         ],
       },
       {
@@ -2651,7 +2676,11 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "環境氣候",
     country: "KR",
     defaultCollapsed: true,
-    groups: [{ title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] }],
+    groups: [
+      { title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] },
+      // 第 9 波 C091：比照台灣、英國、愛爾蘭「噪音／聲響 Noise」
+      { title: "噪音／聲響 Noise", layers: [fromManifest("krNoiseSites")] },
+    ],
   },
   // 第 6 波：比照台灣「運動休閒 › 運動場館／公園 Parks」與「殯葬 › 墓區範圍」
   {
@@ -2697,6 +2726,53 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     // 第 7 波 C075：比照日本 jpPoliceFacilities 的「執法治安 › 警政」
     groups: [{ title: "警政", layers: [fromManifest("krPoliceBoxes")] }],
+  },
+  // 第 8 波：比照台灣 culturalMuseums／publicLibraries（文化 › 設施 Facilities）、artsEvents（文化 › 藝文活動 Arts & Events）、
+  // tourHeritage（觀光 › 玩・人文 Heritage）、tourEvents（觀光 › 玩・體驗 Experience）、tourHotels（觀光 › 住・食 Stay & Eat）、
+  // iPostBoxes（基礎建設 › 郵政與便民 Postal & Services）、culturalHealthStations（社福長照 › 長照與托育）
+  {
+    title: "文化",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "設施 Facilities", layers: [fromManifest("krMuseums"), fromManifest("krLibraries")] },
+      { title: "藝文活動 Arts & Events", layers: [fromManifest("krPerformances")] },
+    ],
+  },
+  {
+    title: "觀光",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・人文 Heritage", layers: [fromManifest("krHeritage")] },
+      { title: "玩・體驗 Experience", layers: [fromManifest("krFestivals")] },
+      { title: "住・食 Stay & Eat", layers: [fromManifest("krLodging")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "郵政與便民 Postal & Services", layers: [fromManifest("krSafeDeliveryBoxes")] }],
+  },
+  {
+    title: "社福長照",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "長照與托育", layers: [fromManifest("krSeniorCenters")] }],
+  },
+  // 第 9 波：C031 產業園區比照台灣 industrialParkBoundaries（工商登記 › 園區）；C087 舊衣回收箱比照愛爾蘭 ieRecyclingPoints（廢棄物 › 投放點）
+  {
+    title: "工商登記",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "園區", layers: [fromManifest("krIndustrialComplexes")] }],
+  },
+  {
+    title: "廢棄物",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "投放點", layers: [fromManifest("krClothingBins")] }],
   },
   {
     title: "林業",
@@ -2854,7 +2930,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "IE",
     defaultCollapsed: true,
     groups: [
-      { title: "淹水", layers: [fromManifest("ieRiverFloodExtents")] },
+      { title: "淹水", layers: [fromManifest("ieRiverFloodExtents"), fromManifest("ieGroundwaterFlooding"), fromManifest("ieFloodZones")] },
       { title: "海岸侵蝕", layers: [fromManifest("ieCoastalErosion")] },
       // 第 5 波 C070：比照台灣 landslideAnnual、英國 gbLandslide 的「災害 › 崩塌 Landslide」
       { title: "崩塌 Landslide", layers: [fromManifest("ieLandslideEvents"), fromManifest("ieLandslideExtents")] },
@@ -2902,7 +2978,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "IE",
     defaultCollapsed: true,
     groups: [
-      { title: "保護區", layers: [fromManifest("ieProtectedSites")] },
+      { title: "保護區", layers: [fromManifest("ieProtectedSites"), fromManifest("ieProposedNha")] },
       { title: "都市樹木 Urban Trees", layers: [fromManifest("ieStreetTrees")] },
       // 第 9 波 C093：PRTR 比照台灣 pollutionFacility、英國 gbPollutionInventory；C091 噪音比照台灣與英國 gbNoise「噪音／聲響 Noise」
       { title: "環境污染", layers: [fromManifest("ieRadiationStations"), fromManifest("iePrtrFacilities")] },
@@ -2977,7 +3053,7 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "醫療",
     country: "IE",
     defaultCollapsed: true,
-    groups: [{ title: "點位", layers: [fromManifest("ieHealthFacilities")] }],
+    groups: [{ title: "點位", layers: [fromManifest("ieHealthFacilities"), fromManifest("ieDefibrillators")] }],
   },
   {
     title: "消防",
@@ -2991,7 +3067,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "警政", layers: [fromManifest("ieGardaStations")] },
-      { title: "司法矯正", layers: [fromManifest("ieCourts")] },
+      { title: "司法矯正", layers: [fromManifest("ieCourts"), fromManifest("iePrisons")] },
     ],
   },
   // 第 10 波：工商與農業（主題與群組比照英國 gbManufacturing、gbAquaculture、gbSoilParentMaterial）
@@ -3007,7 +3083,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "養殖漁業 Aquaculture", layers: [fromManifest("ieAquaculture")] },
-      { title: "土壤", layers: [fromManifest("ieSoils"), fromManifest("iePeatSoils")] },
+      { title: "土壤", layers: [fromManifest("ieSoils"), fromManifest("iePeatSoils"), fromManifest("iePeatExtractionBogs")] },
     ],
   },
   {
@@ -3351,6 +3427,14 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "醫療": "safety",
     "消防": "safety",
     "執法治安": "safety",
+    // 第 8 波（同台灣、英國）
+    "文化": "publicLife",
+    "觀光": "publicLife",
+    "基礎建設": "publicLife",
+    "社福長照": "publicLife",
+    // 第 9 波（同台灣、愛爾蘭）
+    "工商登記": "city",
+    "廢棄物": "environment",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3554,6 +3638,12 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "醫療": { zh: "醫療", sub: "의료" },
     "消防": { zh: "消防", sub: "소방" },
     "執法治安": { zh: "執法治安", sub: "치안" },
+    "文化": { zh: "文化", sub: "문화" },
+    "觀光": { zh: "觀光", sub: "관광" },
+    "基礎建設": { zh: "基礎建設", sub: "기반시설" },
+    "社福長照": { zh: "社福長照", sub: "사회복지" },
+    "工商登記": { zh: "工商登記", sub: "산업" },
+    "廢棄物": { zh: "廢棄物", sub: "폐기물" },
     // 南韓統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
