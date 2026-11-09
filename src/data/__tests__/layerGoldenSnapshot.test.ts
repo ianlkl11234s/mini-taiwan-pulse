@@ -274,7 +274,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-09: +1 台灣圖層待辦池第一批 slopelandSwcAct（G53 批 1）。
     // 2026-11-09: +1 台灣圖層待辦池第一批 debrisFlowPotential（G53 批 1）。
     // 2026-11-09: +1 台灣圖層待辦池第一批 landUseChangeMonitoring（G53 批 1）。
-    expect(keys.length).toBe(1783);
+    // 2026-11-09: +1 30 天地圖挑戰 Day 9 城鄉 mapchallengeDay09UrbanRural（模擬面板）。
+    expect(keys.length).toBe(1784);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1783,
+    "keyCount": 1784,
     "sections": [
       "gisLayers",
       "overlays",
@@ -6045,6 +6045,12 @@
         "mapchallenge-day08-access-fill"
       ],
       "type": "mapchallengeDay08Access"
+    },
+    {
+      "layers": [
+        "mapchallenge-day09-urban-rural-fill"
+      ],
+      "type": "mapchallengeDay09UrbanRural"
     },
     {
       "layers": [
@@ -107383,6 +107389,131 @@
       ],
       "sourceId": "mapchallenge-day08-sites",
       "sourceUrl": "./mapchallenge/day08_sites_v2.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay09UrbanRural",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "c_police"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#6b7280",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "r_police"
+                    ],
+                    0
+                  ],
+                  "#1d2a3a",
+                  -2,
+                  "#22476b",
+                  -1,
+                  "#286f8f",
+                  -0.33,
+                  "#3b9c99",
+                  0.33,
+                  "#71c387",
+                  1,
+                  "#bddf6a",
+                  2,
+                  "#f7f38a"
+                ]
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "c_police"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#6b7280",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "r_police"
+                    ],
+                    0
+                  ],
+                  "#1d2a3a",
+                  -2,
+                  "#22476b",
+                  -1,
+                  "#286f8f",
+                  -0.33,
+                  "#3b9c99",
+                  0.33,
+                  "#71c387",
+                  1,
+                  "#bddf6a",
+                  2,
+                  "#f7f38a"
+                ]
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day09-urban-rural",
+      "sourceUrl": "./mapchallenge/day09_urban_rural.geojson"
     }
   ],
   "params": {
@@ -141071,6 +141202,64 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay09UrbanRural": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "人口密度五等份",
+            "value": "density"
+          },
+          {
+            "label": "公共服務：國小",
+            "value": "elem"
+          },
+          {
+            "label": "公共服務：派出所／分駐所",
+            "value": "police"
+          },
+          {
+            "label": "公共服務：郵局",
+            "value": "post"
+          },
+          {
+            "label": "公共服務：有健保門診的衛生所",
+            "value": "hc"
+          },
+          {
+            "label": "市場服務：短期補習班",
+            "value": "cram"
+          },
+          {
+            "label": "市場服務：診所",
+            "value": "clinic"
+          },
+          {
+            "label": "市場服務：藥局",
+            "value": "pharm"
+          },
+          {
+            "label": "市場服務：銀行等金融分支",
+            "value": "bank"
+          },
+          {
+            "label": "例外：超商（設 ATM 的門市）",
+            "value": "cvs"
+          }
+        ],
+        "type": "select",
+        "value": "police"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "marineEcologicalMonitoringSites": [
