@@ -131,6 +131,8 @@
   "popup.japan.roadTollNo": "無料",
   "popup.japan.roadState": "道路状態",
   "popup.japan.roadNote": "線はメッシュ境界や属性の境目で分割されており、1本の線＝1本の道路ではありません。市区町村道は含みません",
+  "popup.japan.municipalRoadTitle": "市区町村道等",
+  "popup.japan.municipalRoadNote": "線はメッシュ境界と属性境界で分割されるため、1 本の線が 1 路線ではありません。路線名のデータはありません。国道・都道府県道は「主要道路」レイヤーにあります",
   "popup.japan.expresswayDefault": "高速道路",
   "popup.japan.expresswayCategory": "路線種別",
   "popup.japan.expresswayStatus": "供用状況",

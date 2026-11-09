@@ -67,6 +67,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "waterFloodExtreme",
   "jpWelfareChild",
   "jpMajorRoads",
+  "jpMunicipalRoads",
   "jpExpressways",
   // 英國第 0b 波：panel 自掛四地各自的署名與授權
   "gbAdminBoundaries",

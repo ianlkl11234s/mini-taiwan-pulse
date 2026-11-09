@@ -68,6 +68,24 @@ export const JP_ROAD_LICENSE = "CC BY 4.0 / PDL1.0";
 export const JP_ROAD_DATA_AS_OF = "2024年度版（2024-09 時點）";
 export const JP_ROAD_FEATURE_COUNT = 1_838_441;
 
+// ── 市町村道（N13_003=3，jp_municipal_roads）──────────────────────
+
+/**
+ * 市町村道等：與都道府縣道同系的淡色（混白，同高速道路暫定供用的淡化手法）、L-1 最細階（thin），不新增設計語意。
+ * tile 屬性只有 width_class（必有）、road_state（只在非「通常部」時有）、toll（只在有料時有 true）。
+ */
+export const JP_MUNICIPAL_ROAD = { code: 3, value: "municipal", ja: "市区町村道等", label: "市町村道", tier: "thin" } as const;
+export const JP_MUNICIPAL_ROAD_MIX = 0.5;
+export const JP_MUNICIPAL_ROAD_COLOR = mixWithWhite(JP_ROAD_CLASSES[2].color, JP_MUNICIPAL_ROAD_MIX);
+/** 只在 z12 起顯示（PMTiles z12–14，z15 起 overzoom）。 */
+export const JP_MUNICIPAL_ROAD_MINZOOM = 12;
+export const JP_MUNICIPAL_ROAD_MAXZOOM = 14;
+/** 全國依 1次メッシュ分 6 片 PMTiles（每片 < 500MB，Cloudflare 單檔快取上限 512MB）；分片只是儲存切法，邊界近似地方、不等於都道府縣界。 */
+export const JP_MUNICIPAL_ROAD_SHARDS = [
+  "hokkaido_tohoku", "kanto", "chubu", "kinki", "chugoku_shikoku", "kyushu_okinawa",
+] as const;
+export const JP_MUNICIPAL_ROAD_FEATURE_COUNT = 0;
+
 // ── 高速道路（N06）────────────────────────────────────────────
 
 export interface JpExpresswayCategory { value: string; ja: string; label: string; color: string }

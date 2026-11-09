@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { JpExpresswaysPanel, JpMajorRoadsPanel, JpWelfareChildPanel, JpWelfareDisabilityPanel } from "../japanPanels";
+import { JpExpresswaysPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpWelfareChildPanel, JpWelfareDisabilityPanel } from "../japanPanels";
 
 describe("日本第四波 popup 資料語意", () => {
   it("福祉：license_note 非空才顯示；代表點標示位置正確度", () => {
@@ -23,6 +23,18 @@ describe("日本第四波 popup 資料語意", () => {
     expect(html).toContain("有料");
     expect(html).toContain("トンネル");
     expect(html).toContain("不含市町村道");
+  });
+
+  it("市町村道：缺 road_state＝通常部、缺 toll＝無料；有值照查表", () => {
+    const plain = renderToStaticMarkup(createElement(JpMunicipalRoadsPanel, { props: { width_class: "3_to_5_5m" } }));
+    expect(plain).toContain("市区町村道等");
+    expect(plain).toContain("3m–5.5m未満");
+    expect(plain).toContain("通常部");
+    expect(plain).toContain("無料");
+    expect(plain).toContain("沒有路名");
+    const bridge = renderToStaticMarkup(createElement(JpMunicipalRoadsPanel, { props: { width_class: "lt_3m", road_state: "bridge_viaduct", toll: true } }));
+    expect(bridge).toContain("橋・高架");
+    expect(bridge).toContain("有料");
   });
 
   it("高速道路：線顯示路線與車道數（null 寫未記載）；點顯示接合部與推導路線", () => {

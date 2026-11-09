@@ -247,6 +247,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-welfare-child-circle"], type: "jpWelfareChild" },
   { layers: ["jp-expressway-junctions-circle", "jp-expressways-line"], type: "jpExpressways" },
   { layers: ["jp-major-roads-line", "jp-major-roads-z5-line"], type: "jpMajorRoads" },
+  { layers: ["jp-municipal-roads-hokkaido_tohoku-line", "jp-municipal-roads-kanto-line", "jp-municipal-roads-chubu-line", "jp-municipal-roads-kinki-line", "jp-municipal-roads-chugoku_shikoku-line", "jp-municipal-roads-kyushu_okinawa-line"], type: "jpMunicipalRoads" },
   { layers: ["jp-water-jpWaterDams"], type: "jpWaterDams" },
   { layers: ["jp-water-jpWaterSupplyFacilities"], type: "jpWaterSupplyFacilities" },
   { layers: ["jp-water-jpWaterSewerFacilities"], type: "jpWaterSewerFacilities" },
