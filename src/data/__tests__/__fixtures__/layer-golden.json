@@ -196643,6 +196643,37 @@
     ],
     "tedsGridEmissions": [
       {
+        "label": "污染物",
+        "options": [
+          {
+            "label": "PM2.5",
+            "value": "pm25"
+          },
+          {
+            "label": "PM10",
+            "value": "pm10"
+          },
+          {
+            "label": "SOx",
+            "value": "sox"
+          },
+          {
+            "label": "NOx",
+            "value": "nox"
+          },
+          {
+            "label": "NMHC",
+            "value": "nmhc"
+          },
+          {
+            "label": "CO",
+            "value": "co"
+          }
+        ],
+        "type": "select",
+        "value": "pm25"
+      },
+      {
         "defaultValue": "YlOrBr",
         "label": "熱區顏色",
         "options": [
@@ -196763,37 +196794,6 @@
         ],
         "type": "select",
         "value": "point"
-      },
-      {
-        "label": "污染物",
-        "options": [
-          {
-            "label": "PM2.5",
-            "value": "pm25"
-          },
-          {
-            "label": "PM10",
-            "value": "pm10"
-          },
-          {
-            "label": "SOx",
-            "value": "sox"
-          },
-          {
-            "label": "NOx",
-            "value": "nox"
-          },
-          {
-            "label": "NMHC",
-            "value": "nmhc"
-          },
-          {
-            "label": "CO",
-            "value": "co"
-          }
-        ],
-        "type": "select",
-        "value": "pm25"
       }
     ],
     "temperatureGrid": [
@@ -199105,6 +199105,21 @@
     ],
     "vegetationForestTypes": [
       {
+        "label": "資料集",
+        "options": [
+          {
+            "label": "天然植群圖（2014）",
+            "value": "vegetation"
+          },
+          {
+            "label": "森林林型（第四次調查）",
+            "value": "forestType"
+          }
+        ],
+        "type": "select",
+        "value": "vegetation"
+      },
+      {
         "label": "植群大類",
         "options": [
           {
@@ -199150,21 +199165,6 @@
         "step": 0.05,
         "value": 0.35,
         "valueText": "0.35"
-      },
-      {
-        "label": "資料集",
-        "options": [
-          {
-            "label": "天然植群圖（2014）",
-            "value": "vegetation"
-          },
-          {
-            "label": "森林林型（第四次調查）",
-            "value": "forestType"
-          }
-        ],
-        "type": "select",
-        "value": "vegetation"
       }
     ],
     "vehicleInspectionOffices": [
@@ -199192,6 +199192,21 @@
         ]
       },
       {
+        "label": "轄區業務",
+        "options": [
+          {
+            "label": "汽車監理",
+            "value": "car"
+          },
+          {
+            "label": "機車監理",
+            "value": "motorcycle"
+          }
+        ],
+        "type": "select",
+        "value": "car"
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -199208,21 +199223,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "轄區業務",
-        "options": [
-          {
-            "label": "汽車監理",
-            "value": "car"
-          },
-          {
-            "label": "機車監理",
-            "value": "motorcycle"
-          }
-        ],
-        "type": "select",
-        "value": "car"
       }
     ],
     "vesselWatch": [

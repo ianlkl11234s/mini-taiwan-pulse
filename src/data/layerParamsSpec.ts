@@ -5292,7 +5292,7 @@ export const LAYER_PARAMS_SPEC = {
   fireworksSites: [opacitySlider("fireworksSitesOpacity", 0.9), scaleSlider("fireworksSitesScale", 1)],
   vehicleInspectionOffices: [
     {
-      kind: "select", name: "vehicleInspectionOfficesService", label: "轄區業務", default: "car",
+      kind: "select", category: "data", name: "vehicleInspectionOfficesService", label: "轄區業務", default: "car",
       options: [...VIO_SERVICE_OPTIONS], out: "vehicleInspectionOfficesViewIdx", encode: VIO_SERVICE_OPTIONS.map((option) => option.value),
     },
     opacitySlider("vehicleInspectionOfficesOpacity", 0.9), scaleSlider("vehicleInspectionOfficesScale", 1),
@@ -5300,7 +5300,7 @@ export const LAYER_PARAMS_SPEC = {
   iOceanFishing: [heatmapPalette("iOceanFishing"), opacitySlider("iOceanFishingOpacity", 0.8), scaleSlider("iOceanFishingScale", 1)],
   vegetationForestTypes: [
     {
-      kind: "select", name: "vegetationForestTypesDataset", label: "資料集", default: "vegetation",
+      kind: "select", category: "data", name: "vegetationForestTypesDataset", label: "資料集", default: "vegetation",
       options: [...VEG_DATASET_OPTIONS], out: "vegetationForestTypesViewIdx", encode: VEG_DATASET_OPTIONS.map((option) => option.value),
     },
     {
@@ -5339,7 +5339,7 @@ export const LAYER_PARAMS_SPEC = {
       options: [...TEDS_VIEW_OPTIONS], out: "tedsGridEmissionsViewIdx", encode: TEDS_VIEW_OPTIONS.map((option) => option.value),
     },
     {
-      kind: "select", name: "tedsGridEmissionsPollutant", label: "污染物", default: "pm25",
+      kind: "select", category: "data", name: "tedsGridEmissionsPollutant", label: "污染物", default: "pm25",
       options: [...TEDS_POLLUTANT_OPTIONS], out: "tedsGridEmissionsPollutantIdx", encode: TEDS_POLLUTANT_OPTIONS.map((option) => option.value),
     },
     heatmapPalette("tedsGridEmissions"),

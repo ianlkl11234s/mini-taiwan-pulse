@@ -8773,7 +8773,7 @@ export const LAYER_MANIFEST = {
       { kind: "pmtiles", sourceId: "forest-types-4th-survey-z4-10", url: "./forestry/forest_types_4th_survey_z4_10.pmtiles", sourceLayer: "forest_types_4th_survey_z4_10", minzoom: 4, maxzoom: 10 },
       { kind: "pmtiles", sourceId: "forest-types-4th-survey", url: "./forestry/forest_types_4th_survey.pmtiles", sourceLayer: "forest_types_4th_survey", minzoom: 11, maxzoom: 14 },
     ],
-    legend: "vegetationForestTypes", popup: "vegetationForestTypes", params: { count: 4, kinds: ["select", "multiSelect", "multiSelect", "slider"] },
+    legend: "vegetationForestTypes", popup: "vegetationForestTypes", params: { count: 3, kinds: ["select", "multiSelect", "slider"] },
     description: "天然植群圖（2014）與第四次森林資源調查林型，可切換資料集；放大到 11 級可點選看植群型與林型。",
     topics: ["林業", "植群", "植被", "森林", "林型", "土地覆蓋", "林保署"],
   },
