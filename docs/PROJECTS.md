@@ -46,7 +46,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - 站主資料第 3 批（EA、Coillte、water1944）與撤舊 RPC（F 群 OWD-4、SR-1／SR-2）。
 - 資料保留期限：第 2 批 11-09 完成（gp #228／#229 mig 540–543、ADR-0026 #57），剩項目在 WA-3；靜態表搬遷乙組（WA-14，動前端前先給使用者看方案）；R2 獨有資料補 S3（ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
-- 30 天地圖挑戰：Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
+- 30 天地圖挑戰：Day 9 城鄉圖層 mapchallengeDay09UrbanRural（#972）、Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
 - 正式站目視包：v2.22～v2.31 各版目視集中在 BACKLOG A 群（VP-1～VP-13），等 Claude 用瀏覽器一次截圖。
 
 ## 進行中與待拍板
@@ -92,7 +92,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | 古地圖（臺灣百年歷史地圖） | 🟡 | 底線:授權 | 11-06 改公開（v2.26.0）；#882 拆成歷史底圖 6 層隨 v2.27.0 上線（85 張，CC BY-NC） | **HIST-1 寫信向中研院確認授權（已在授權未確認下公開，優先）**；VP-7 目視；HIST-3 研究成果搬進 git；主站 CSP enforcing 時補 gis.sinica.edu.tw | BACKLOG HIST-1；`src/data/historicalMapSinica.ts` | 2026-11-07 |
-| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 圖層隨 v2.32.0（河濱口徑）、Day 8 文章 #957 已合 develop 待發版；所有文章文末有資料來源（#959）；analytics #330 已合 | 發版後正式站目視 Day 8 文章；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.32.0；`src/blog/mapChallenge.ts`；`docs/features/blog/article-plan.md` | 2026-11-09 |
+| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 圖層隨 v2.32.0（河濱口徑）、Day 8 文章 #957、Day 9 城鄉圖層 #972（下拉切 10 指標，素材 analytics docs/topic-research/mapchallenge_2026_day09_urban_rural/）已合 develop 待發版；所有文章文末有資料來源（#959）；analytics #330 已合 | 發版後正式站目視 Day 8 文章與 Day 9 圖層（圖例、popup、指標切換）；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.32.0；`src/blog/mapChallenge.ts`；`docs/features/blog/article-plan.md` | 2026-11-09 |
 | G27 臺北市局處公務統計 | 🟡 | 北極星:好用 | 部分隨 v2.13.0 上線 | BLOG-V 目視；PDF 獨有表 | candidates/G27；BACKLOG BLOG-V | 2026-10-24 |
 | G32 熱島與高溫曝露 | 🟡 | 北極星:好用 | queued；涼適點、熱傷害排進 TWL-5 第二批 | TWL-5 災害暴露組（使用者說晚點再處理） | candidates/G32；BACKLOG TWL-5 | 2026-10-29 |
 
