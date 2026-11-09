@@ -475,6 +475,27 @@
    "s3_key": "deploy-assets/environment/sound_camera_locations.geojson"
   },
   {
+   "path": "public/environment/teds_grid_emissions_teds13.pmtiles",
+   "bytes": 24893831,
+   "sha256": "43d36afb4c0c5db0b14f3250e4e8d682763ac4954c38f62aa2d7f262c7a549c4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/teds_grid_emissions_teds13.pmtiles"
+  },
+  {
+   "path": "public/environment/teds_grid_emissions_teds13_5km.pmtiles",
+   "bytes": 3324370,
+   "sha256": "fab9121d2db7a5b3382f3e0ebcaa815cabfdda2900f8f707b20f082245a073a9",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/teds_grid_emissions_teds13_5km.pmtiles"
+  },
+  {
+   "path": "public/environment/teds_point_source_facilities_teds13.pmtiles",
+   "bytes": 7576319,
+   "sha256": "3f0f75483cb2e55d35324465cdda9cfffcc7f9a7829a54757e8f29214df2caf1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/teds_point_source_facilities_teds13.pmtiles"
+  },
+  {
    "path": "public/environment/toxic_permits/A.json",
    "bytes": 33139,
    "sha256": "6e7ee285b4b003a6ead2180f9fe559d1029c8b48f7aef8fc66d81afdf899abd5",

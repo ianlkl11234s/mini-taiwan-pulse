@@ -16,7 +16,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1307,9 +1307,41 @@ function BroadcastTransmitterPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 TEDS：網格（1 km／5 km 合成）與點源工廠共用；列出主要污染物，單位公噸／年。 */
+function TedsGridEmissionsPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const facility = props.control_no != null || props.n_sources != null;
+  const source = facility ? "facilities" : str(props.source);
+  const color = ATLAS_LAYER_COLORS.tedsGridEmissions;
+  const label = TEDS_VIEW_OPTIONS.find((o) => o.value === source)?.label ?? source;
+  const tons = (v: unknown) => fmt(v, 3, t("popup.atlas.tedsUnit"), i18n);
+  const cell = props.cell5_id != null ? t("popup.atlas.tedsCell5") : t("popup.atlas.tedsCell1");
+  return <>
+    <Title color={color}>{facility ? str(props.name) : `${enumOf("atlasTedsView", source, label, i18n)}${t("popup.atlas.dot")}${cell}`}</Title>
+    {facility ? <Row field="type" value={enumOf("atlasTedsView", source, label, i18n)} color={color} /> : null}
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    {facility ? <Row label={t("popup.atlas.tedsSources")} value={fmt(props.n_sources, 0, "", i18n)} mono /> : null}
+    {source === "bio" ? <>
+      <Row label="NMHC" value={tons(props.nmhc)} mono />
+      <Row label={t("popup.atlas.tedsIsoprene")} value={tons(props.isoprene)} mono />
+      <Row label={t("popup.atlas.tedsMonoterpenes")} value={tons(props.monoterpenes)} mono />
+    </> : <>
+      <Row label="PM2.5" value={tons(props.pm25)} mono />
+      <Row label="PM10" value={tons(props.pm10)} mono />
+      <Row label="SOx" value={tons(props.sox)} mono />
+      <Row label="NOx" value={tons(props.nox)} mono />
+      <Row label="NMHC" value={tons(props.nmhc)} mono />
+      <Row label="CO" value={tons(props.co)} mono />
+    </>}
+    <Row field="caution" value={facility ? t("popup.atlas.tedsFacilityCaution") : t("popup.atlas.tedsCaution")} />
+  </>;
+}
+
 type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
 /** G53 批 1 出處（與圖例同一份機關＋data.gov.tw 資料集；土石流依圖徵種類指向溪流／集水區／影響範圍資料集）。 */
 const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
+  tedsGridEmissions: { org: "moenv", dataset: (p) => (p.control_no != null || p.n_sources != null ? "48201" : "152688") },
   broadcastTransmitters: { org: "ncc", dataset: (p) => (p.kind === "am" ? "6446" : p.kind === "monitoring" ? "6825" : "6445") },
   postMailboxes: { org: "chunghwaPost", dataset: () => "178399" },
   debrisFlowPotential: { org: "swcb", dataset: (p) => (p.zone_id != null || p.total_res != null ? "176526" : p.area_ha != null ? "176525" : "176524") },
@@ -1333,6 +1365,7 @@ function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
   landUseChangeMonitoring: withG53Footer("landUseChangeMonitoring", LandUseChangePanel),
   debrisFlowPotential: withG53Footer("debrisFlowPotential", DebrisFlowPotentialPanel),
@@ -1417,6 +1450,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
+  tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),
   postMailboxes: manifestZh("postMailboxes"),
   motorcycleInspectionStations: manifestZh("motorcycleInspectionStations"),

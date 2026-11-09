@@ -34,5 +34,8 @@
   "legend.atlas.motorcycleInspectionStation": "検査ステーション",
   "legend.atlas.antivenomHospital": "備蓄医療機関",
   "legend.atlas.hundredMeterStake": "100 m 距離杭",
-  "legend.atlas.slopelandArea": "山坡地範囲"
+  "legend.atlas.slopelandArea": "山坡地範囲",
+  "legend.atlas.tedsGridSubtitle": "{view} · {pollutant}（トン／km²・年）",
+  "legend.atlas.tedsFacilitySubtitle": "{view} · {pollutant}（点の大きさは年間排出トン数）",
+  "legend.atlas.tedsFacility": "事業所（排出口の中央位置）"
 }

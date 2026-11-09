@@ -1730,6 +1730,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("aqiMicroSensors"),
           fromManifest("pm25ManualStations"),
           fromManifest("dioxinStations"),
+          fromManifest("tedsGridEmissions"),
         ],
       },
       {

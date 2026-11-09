@@ -338,5 +338,13 @@
   "popup.atlas.lucCaution": "A suspected change detected from satellite imagery, not a confirmed violation",
   "popup.atlas.bcFrequency": "Frequency",
   "popup.atlas.bcClass": "Station class",
-  "popup.atlas.bcCoordFixed": "Longitude typo in the source (102→120), corrected from the address"
+  "popup.atlas.bcCoordFixed": "Longitude typo in the source (102→120), corrected from the address",
+  "popup.atlas.tedsUnit": "t/yr",
+  "popup.atlas.tedsCell1": "1 km cell",
+  "popup.atlas.tedsCell5": "5 km cell (merged)",
+  "popup.atlas.tedsSources": "Stacks",
+  "popup.atlas.tedsIsoprene": "Isoprene",
+  "popup.atlas.tedsMonoterpenes": "Monoterpenes",
+  "popup.atlas.tedsCaution": "Estimated emissions (TEDS 13.0, 2023), not measurements",
+  "popup.atlas.tedsFacilityCaution": "Estimated emissions (TEDS 13.0, 2023); location is the median position of the facility's stacks"
 }

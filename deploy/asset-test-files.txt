@@ -40,6 +40,9 @@ public/environment/river_rpi_stations.geojson
 public/environment/sea_water_quality_stations.geojson
 public/environment/sewage_treatment_plants.geojson
 public/environment/sound_camera_locations.geojson
+public/environment/teds_grid_emissions_teds13.pmtiles
+public/environment/teds_grid_emissions_teds13_5km.pmtiles
+public/environment/teds_point_source_facilities_teds13.pmtiles
 public/environment/water_quality_stations.geojson
 public/finance/atm_sites_fisc.pmtiles
 public/finance/financial_branches_fisc.geojson

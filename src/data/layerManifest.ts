@@ -12006,6 +12006,22 @@ export const LAYER_MANIFEST = {
     description: "疾管署公告儲備抗蛇毒血清的醫療院所 191 家，可依血清種類（龜殼花及赤尾鮐、雨傘節及飯匙倩、百步蛇、鎖鏈蛇）篩選。",
     topics: ["醫療", "蛇咬", "抗蛇毒血清", "急救", "疾管署"],
   },
+  tedsGridEmissions: {
+    key: "tedsGridEmissions", country: "TW", section: { theme: "環境氣候 Environment", group: "空品" }, ...layerName({ zh: "空污排放網格 TEDS", alt: "Air Pollutant Emission Grid (TEDS)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.tedsGridEmissions, icon: Factory,
+    upstream: { status: "verified", datasets: [
+      { datasetId: "teds_grid_emissions", confidence: "HIGH" },
+      { datasetId: "teds_point_source_facilities", confidence: "HIGH" },
+    ], processing: "analytics environment/teds_grid_emissions、teds_point_source_facilities（TEDS 13.0，排放年 2023）：環境部 data.gov.tw 48201／170705／152688／47244 全量 zip；1 km 格（點／線／面／生物源 101,364 列，z10–12）、5 km 合成格（z4–9）、點源工廠 15,996 家（255,912 排放口依管制編號彙總，z4–14）；TM2（離島 119 中央經線）轉 WGS84", note: "推估清冊不是監測值；全部污染物為 0 的格不收；非公路運輸與氨網格未收。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "teds-grid-emissions-5km", url: "./environment/teds_grid_emissions_teds13_5km.pmtiles", sourceLayer: "teds_grid_emissions_5km", minzoom: 4, maxzoom: 9 },
+      { kind: "pmtiles", sourceId: "teds-grid-emissions", url: "./environment/teds_grid_emissions_teds13.pmtiles", sourceLayer: "teds_grid_emissions", minzoom: 10, maxzoom: 12 },
+      { kind: "pmtiles", sourceId: "teds-point-source-facilities", url: "./environment/teds_point_source_facilities_teds13.pmtiles", sourceLayer: "teds_point_source_facilities", minzoom: 4, maxzoom: 14 },
+    ],
+    legend: "tedsGridEmissions", popup: "tedsGridEmissions", params: { count: 5, kinds: ["select", "select", "palette", "slider", "slider"] },
+    description: "環境部 TEDS 13.0 推估的空氣污染物排放量（2023 年）：1 km 網格分點源、線源、面源、生物源四種來源，另可看 15,996 家點源工廠，可切換 PM2.5、PM10、SOx、NOx、NMHC、CO。",
+    topics: ["空品", "空氣污染", "排放清冊", "TEDS", "PM2.5", "工廠", "環境部"],
+  },
   broadcastTransmitters: {
     key: "broadcastTransmitters", country: "TW", section: { theme: "通訊 Telecom", group: "廣播與電波 Broadcast" }, ...layerName({ zh: "廣播發射站與電波監測站", alt: "Broadcast Transmitters & Radio Monitoring Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.broadcastTransmitters, icon: RadioTower,

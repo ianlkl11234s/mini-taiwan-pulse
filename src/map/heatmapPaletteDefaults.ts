@@ -90,6 +90,8 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   pollutionPenaltyCritical: "rocket",
   pollutionPenaltyMobile: "magma",
   noiseEnforcementEvents: "BuPu",
+  // G53 批 2／3（2026-11-10）：TEDS 點源工廠熱區（排放量）錯開成橙褐
+  tedsGridEmissions: "YlOrBr",
   // 台灣 消防：消防栓是水
   fireLatest: "rocket",
   fireHydrants: "oslo",

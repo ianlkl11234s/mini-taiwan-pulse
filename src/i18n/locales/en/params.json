@@ -2446,5 +2446,11 @@
   "param.例外：超商（設 ATM 的門市）": "Exception: Convenience stores (with ATM)",
   "param.FM 廣播": "FM radio",
   "param.AM 廣播": "AM radio",
-  "param.電波監測站": "Radio monitoring station"
+  "param.電波監測站": "Radio monitoring station",
+  "param.污染物": "Pollutant",
+  "param.點源（網格）": "Point sources (grid)",
+  "param.線源（公路車輛）": "Line sources (road vehicles)",
+  "param.面源": "Area sources",
+  "param.生物源": "Biogenic sources",
+  "param.點源工廠": "Point-source facilities"
 }

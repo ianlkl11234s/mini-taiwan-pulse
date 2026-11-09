@@ -338,5 +338,13 @@
   "popup.atlas.lucCaution": "衛星画像の判読による「変化の疑い」で、調査で確認された違反ではありません",
   "popup.atlas.bcFrequency": "周波数",
   "popup.atlas.bcClass": "局の区分",
-  "popup.atlas.bcCoordFixed": "元データの経度誤記（102→120）を住所に基づき修正"
+  "popup.atlas.bcCoordFixed": "元データの経度誤記（102→120）を住所に基づき修正",
+  "popup.atlas.tedsUnit": "トン／年",
+  "popup.atlas.tedsCell1": "1 km メッシュ",
+  "popup.atlas.tedsCell5": "5 km メッシュ（集約）",
+  "popup.atlas.tedsSources": "排出口数",
+  "popup.atlas.tedsIsoprene": "イソプレン",
+  "popup.atlas.tedsMonoterpenes": "モノテルペン",
+  "popup.atlas.tedsCaution": "推計排出量（TEDS 13.0、2023 年）で、測定値ではありません",
+  "popup.atlas.tedsFacilityCaution": "推計排出量（TEDS 13.0、2023 年）。位置は事業所の排出口の中央位置"
 }

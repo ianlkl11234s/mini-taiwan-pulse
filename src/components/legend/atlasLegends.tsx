@@ -14,7 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   G53_ORGS,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS,
@@ -26,6 +26,7 @@ import { CUMULATIVE_STEPS, RATE_STEPS, STATION_TYPE_OPTIONS } from "../../data/l
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { localizeLayerName } from "../../i18n/layerText";
+import { oneOfParam, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import type { StaticMessageKey } from "../../i18n/keys";
 
 type Swatch = "dot" | "square" | "line";
@@ -57,8 +58,10 @@ type Source = { org: keyof typeof ATLAS_ORGS; ids?: readonly string[]; etc?: boo
 const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
 
 /** 一張 atlas 圖例：標題＋色塊列＋說明（ATLAS_NOTES）＋來源。標題預設借圖層名，標題與圖層名不同的才傳 `title`。 */
-function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, license, dense = false }: {
+function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, license, dense = false, subtitle }: {
   layer: AtlasLayerKey; en: string; rows: readonly Row[]; kind?: Swatch; source: Source; domain?: string; title?: StaticMessageKey;
+  /** 標題下的一行說明（例：目前選的顯示模式與單位） */
+  subtitle?: string;
   /** 非 OGDL 的授權說明（例：定置漁業權區＝漁業署網站著作權聲明）；未給時沿用 OGDL 模板。 */
   license?: StaticMessageKey;
   /** ≥ 1 萬點：低縮放畫密度熱區（P-4），圖例補色階列 */
@@ -75,6 +78,7 @@ function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, lic
   const labelOf = (row: Row) => row.labelKey ? i18n.t(row.labelKey) : domain && row.value != null ? enumLabel(domain, row.value, row.label ?? "", i18n) : row.label;
   return <div>
     <LegendTitle zh={heading} en={en} />
+    {subtitle ? <LegendNote>{subtitle}</LegendNote> : null}
     {rows.map((row, index) => <LegendRow key={`${index}-${row.value ?? row.label ?? row.labelKey}`} swatch={row.ring ? <SwatchDot color={row.color} opacity={0.15} stroke={row.color} strokeWidth={2} /> : swatchOf(kind, row.color)}>{labelOf(row)}</LegendRow>)}
     {dense && <DenseHeatmapLegendRow layers={[layer]} />}
     <LegendNote>{license
@@ -87,7 +91,23 @@ const single = (layer: AtlasLayerKey, labelKey: StaticMessageKey): Row[] => [{ l
 const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
+/** G53 批 2／3 TEDS：圖例跟著顯示模式與污染物（網格＝密度色階，點源工廠＝點大小＋熱區）。 */
+function TedsGridEmissionsLegend() {
+  const i18n = useLocale();
+  const values = useLayerParams("tedsGridEmissions");
+  const view = oneOfParam(paramStr(values, "tedsGridEmissions", "tedsGridEmissionsView"), TEDS_VIEW_OPTIONS.map((o) => o.value), "point");
+  const pollutantRaw = oneOfParam(paramStr(values, "tedsGridEmissions", "tedsGridEmissionsPollutant"), TEDS_POLLUTANT_OPTIONS.map((o) => o.value), "pm25");
+  const pollutant = TEDS_POLLUTANT_OPTIONS.find((o) => o.value === (view === "bio" ? "nmhc" : pollutantRaw))!.label;
+  const viewLabel = enumLabel("atlasTedsView", view, TEDS_VIEW_OPTIONS.find((o) => o.value === view)!.label, i18n);
+  const facilities = view === "facilities";
+  const subtitle = i18n.t(facilities ? "legend.atlas.tedsFacilitySubtitle" : "legend.atlas.tedsGridSubtitle", { view: viewLabel, pollutant });
+  const rows: Row[] = facilities ? single("tedsGridEmissions", "legend.atlas.tedsFacility") : stepRows(TEDS_DENSITY_STEPS);
+  return <AtlasLegend layer="tedsGridEmissions" en="Air Pollutant Emission Grid (TEDS 13.0)" kind={facilities ? "dot" : "square"} subtitle={subtitle}
+    source={src("moenv", ["48201", "170705", "152688", "47244"])} rows={rows} dense={facilities} />;
+}
+
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  tedsGridEmissions: () => <TedsGridEmissionsLegend />,
   broadcastTransmitters: () => <AtlasLegend layer="broadcastTransmitters" en="Broadcast Transmitters & Radio Monitoring Stations" source={src("ncc", ["6445", "6446", "6825"])} domain="atlasBroadcastKind" rows={BROADCAST_KIND_OPTIONS} />,
   landUseChangeMonitoring: () => <AtlasLegend layer="landUseChangeMonitoring" en="Land Use Change Monitoring" kind="square" source={src("nlma", ["168030"])} domain="atlasLandChange" rows={LAND_CHANGE_CLASS_OPTIONS} />,
   debrisFlowPotential: () => <AtlasLegend layer="debrisFlowPotential" en="Debris Flow Potential Streams" kind="square" source={src("swcb", ["176524", "176525", "176526"])} domain="atlasDebrisRisk" rows={DEBRIS_RISK_OPTIONS} />,

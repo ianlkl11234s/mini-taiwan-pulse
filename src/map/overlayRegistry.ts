@@ -100,6 +100,8 @@ const DENSE_FROM = {
   freewayTrafficSigns: densePointsFromZoom(51_405, 7),
   // G53 批 1（2026-11-09）：國道百公尺樁 PMTiles z5 起
   freewayHundredMeterStakes: densePointsFromZoom(10_082, 5),
+  // G53 批 2／3（2026-11-10）：TEDS 點源工廠 15,996 家（顯示模式「點源工廠」）
+  tedsGridEmissions: densePointsFromZoom(15_996, 4),
   placeNames: densePointsFromZoom(36_431, 7),
   agriProduceWholesale: densePointsFromZoom(22_843, 8),
   accessibleParkFacilities: densePointsFromZoom(20_870),
@@ -346,7 +348,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -12215,6 +12217,60 @@ function culturalHealthStationsOverlay(): OverlayConfig {
 }
 
 /**
+ * G53 批 2／3 空污排放網格 TEDS 13.0：一層三個 config（同 id）。select `tedsGridEmissionsViewIdx`
+ * 0–3＝網格 source（point／line／area／bio），4＝點源工廠；未選中的 config 子圖層 visibility none（不抓圖磚）。
+ * 網格：z4–9 用 5 km 合成檔、z10 起 1 km 檔，色依「公噸／km²‧年」log10 色階（5 km 格除以 25）；生物源只有 NMHC，強制換 nmhc。
+ * 點源工廠：≥ 1 萬點 → 低縮放熱區（weight＝所選污染物 ln 正規化），z10 起畫點、大小依排放量平方根。
+ */
+function tedsView(p?: Record<string, number>): string {
+  return TEDS_VIEW_OPTIONS[p?.tedsGridEmissionsViewIdx ?? 0]?.value ?? "point";
+}
+function tedsPollutant(p?: Record<string, number>): string {
+  if (tedsView(p) === "bio") return "nmhc";
+  return TEDS_POLLUTANT_OPTIONS[p?.tedsGridEmissionsPollutantIdx ?? 0]?.value ?? "pm25";
+}
+function tedsGridEmissionsOverlays(): OverlayConfig[] {
+  const id = "tedsGridEmissions";
+  const attribution = `環境部 臺灣排放量清冊 TEDS 13.0（data.gov.tw 48201、170705、152688、47244）· ${OGDL_ATTR}`;
+  const opacity = (p?: Record<string, number>) => p?.tedsGridEmissionsOpacity ?? 0.6;
+  const value = (p?: Record<string, number>) => ["coalesce", ["get", tedsPollutant(p)], 0];
+  const gridLayout = (_dark: boolean, p?: Record<string, number>) => ({ visibility: tedsView(p) === "facilities" ? "none" : "visible" });
+  const gridFilter = (p?: Record<string, number>) => ["all", ["==", ["get", "source"], tedsView(p)], [">", value(p), 0]];
+  const densityColor = (area: number, p?: Record<string, number>) => ["interpolate", ["linear"], ["log10", ["max", ["/", value(p), area], 0.001]],
+    ...TEDS_DENSITY_STEPS.flatMap((step) => [Math.log10(step.min), step.color])];
+  const grid = (sourceId: string, file: string, sourceLayer: string, area: number, zoom: { minzoom: number; maxzoom: number }, layerZoom: { minzoom?: number; maxzoom?: number }): OverlayConfig => ({
+    id, sourceUrl: `./environment/${file}`, sourceId, pmtiles: { sourceLayer, ...zoom }, attribution, rebuildOnParamChange: ["fill"],
+    layers: [{ suffix: "fill", type: "fill", ...layerZoom, layout: gridLayout, filter: gridFilter, paint: (_dark, p) => ({ "fill-color": densityColor(area, p), "fill-opacity": opacity(p) }) }],
+  });
+  const facilityLayout = (_dark: boolean, p?: Record<string, number>) => ({ visibility: tedsView(p) === "facilities" ? "visible" : "none" });
+  const heat = denseHeatmapLayer({
+    pointsFromZoom: DENSE_FROM.tedsGridEmissions, intensity: 1, layer: id,
+    opacity: { layer: id, param: "tedsGridEmissionsOpacity" },
+    weight: (p) => ["interpolate", ["linear"], ["ln", ["+", 1, value(p)]], 0, 0, Math.log(1001), 1],
+  });
+  return [
+    grid("teds-grid-emissions-5km", "teds_grid_emissions_teds13_5km.pmtiles", "teds_grid_emissions_5km", 25, { minzoom: 4, maxzoom: 9 }, { maxzoom: 10 }),
+    grid("teds-grid-emissions", "teds_grid_emissions_teds13.pmtiles", "teds_grid_emissions", 1, { minzoom: 10, maxzoom: 12 }, { minzoom: 10 }),
+    {
+      id, sourceUrl: "./environment/teds_point_source_facilities_teds13.pmtiles", sourceId: "teds-point-source-facilities",
+      pmtiles: { sourceLayer: "teds_point_source_facilities", minzoom: 4, maxzoom: 14 }, attribution,
+      layers: [
+        { ...heat, layout: facilityLayout },
+        { suffix: "circle", type: "circle", minzoom: DENSE_FROM.tedsGridEmissions, layout: facilityLayout, paint: (dark, p) => {
+          const scale = p?.tedsGridEmissionsScale ?? 1;
+          const op = Math.min(1, opacity(p) + 0.25);
+          return {
+            "circle-color": ATLAS_LAYER_COLORS.tedsGridEmissions,
+            "circle-radius": ["interpolate", ["linear"], ["sqrt", value(p)], 0, 2.5 * scale, 1, 3.5 * scale, 10, 8 * scale, 30, 14 * scale],
+            "circle-opacity": op, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.8, "circle-stroke-opacity": op,
+          };
+        } },
+      ],
+    },
+  ];
+}
+
+/**
  * G53 批 1 國土利用監測變異點：z4–9 畫 H3 res7 六角格（網格檔），z10 起畫範圍面＋逐點（點畫到 z13）。
  * 六角格不吃 V-4 篩選 filter（一格含多類別、多年度），改由 paint 依兩個 mask 加總計數欄：
  * 只篩年度→分年欄 y<年>；有篩類別→分類欄 c_*（兩者都篩時只照類別，網格檔沒有類別×年度交叉數，圖例 note 有寫）。
@@ -12320,6 +12376,7 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
 
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──
+  ...tedsGridEmissionsOverlays(),
   publicLifePointOverlay("broadcastTransmitters", "./geo/broadcast_transmitters_1150703.pmtiles", "broadcast-transmitters", matchColorExpr("kind", BROADCAST_KIND_OPTIONS), { sourceLayer: "broadcast_transmitters", minzoom: 4, maxzoom: 14 }, `國家通訊傳播委員會 FM 廣播電臺（data.gov.tw 6445）、AM 廣播電臺（6446）、電波監測站（6825）· ${OGDL_ATTR}`, [3, 6.5]),
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
   ...debrisFlowPotentialOverlays(),

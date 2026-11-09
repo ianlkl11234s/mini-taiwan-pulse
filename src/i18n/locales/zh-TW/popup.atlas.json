@@ -338,5 +338,13 @@
   "popup.atlas.lucCaution": "衛星影像判釋的「疑似變異」，不是查報確認的違規",
   "popup.atlas.bcFrequency": "頻率",
   "popup.atlas.bcClass": "電臺類別",
-  "popup.atlas.bcCoordFixed": "來源經度筆誤（102→120），已依地址修正"
+  "popup.atlas.bcCoordFixed": "來源經度筆誤（102→120），已依地址修正",
+  "popup.atlas.tedsUnit": "公噸／年",
+  "popup.atlas.tedsCell1": "1 km 網格",
+  "popup.atlas.tedsCell5": "5 km 網格（合成）",
+  "popup.atlas.tedsSources": "排放口數",
+  "popup.atlas.tedsIsoprene": "異戊二烯",
+  "popup.atlas.tedsMonoterpenes": "單萜烯",
+  "popup.atlas.tedsCaution": "推估排放量（TEDS 13.0，2023 年），不是監測值",
+  "popup.atlas.tedsFacilityCaution": "推估排放量（TEDS 13.0，2023 年）；位置為該事業排放口的中位位置"
 }

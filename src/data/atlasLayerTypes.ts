@@ -610,7 +610,7 @@ export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
-  "broadcastTransmitters",
+  "broadcastTransmitters", "tedsGridEmissions",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -619,9 +619,36 @@ export const BROADCAST_KIND_OPTIONS: readonly AtlasOption[] = [
   { value: "am", label: "AM 廣播", color: "#f59e0b" },
   { value: "monitoring", label: "電波監測站", color: "#0891b2" },
 ];
+/** TEDS 13.0 空污排放網格的顯示模式（select；encode 順序＝`tedsGridEmissionsViewIdx`）：前四種是網格 source 值，最後一種換點源工廠檔。 */
+export const TEDS_VIEW_OPTIONS = [
+  { value: "point", label: "點源（網格）" },
+  { value: "line", label: "線源（公路車輛）" },
+  { value: "area", label: "面源" },
+  { value: "bio", label: "生物源" },
+  { value: "facilities", label: "點源工廠" },
+] as const;
+/** TEDS 污染物（select；encode 順序＝`tedsGridEmissionsPollutantIdx`；生物源只有 NMHC，前端強制換成 nmhc）。 */
+export const TEDS_POLLUTANT_OPTIONS = [
+  { value: "pm25", label: "PM2.5" },
+  { value: "pm10", label: "PM10" },
+  { value: "sox", label: "SOx" },
+  { value: "nox", label: "NOx" },
+  { value: "nmhc", label: "NMHC" },
+  { value: "co", label: "CO" },
+] as const;
+/** TEDS 網格排放密度色階（公噸／平方公里‧年，log10 內插；分布極度右偏，依 layer-plan 建議用對數）。 */
+export const TEDS_DENSITY_STEPS = [
+  { min: 0.01, label: "0.01", color: "#fff7bc" },
+  { min: 0.1, label: "0.1", color: "#fee391" },
+  { min: 1, label: "1", color: "#fec44f" },
+  { min: 10, label: "10", color: "#fe9929" },
+  { min: 100, label: "100", color: "#d95f0e" },
+  { min: 1000, label: "1,000", color: "#993404" },
+] as const;
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會" } as const;
 
 export const ATLAS_NOTES = {
+  tedsGridEmissions: "環境部臺灣排放量清冊 TEDS 13.0（排放年 2023）的推估排放量，不是監測值。網格模式顯示每平方公里每年排放公噸數（1 km 方格；拉遠到 9 級以下合成 5 km 方格），四種來源分開看：點源（工廠煙囪等）、線源（公路車輛）、面源（其他人為來源）、生物源（植物排放，只有 NMHC）。只收有排放的格。「點源工廠」模式是 15,996 家事業的年排放量（由 255,912 個排放口依管制編號合併，位置取排放口的中位位置），拉遠畫熱區、放大到 10 級起畫點，點大小依所選污染物。非公路運輸與氨排放網格未收。",
   broadcastTransmitters: "國家通訊傳播委員會公告的 FM 廣播電臺 290 座、AM 廣播電臺 136 座（data.gov.tw 6445、6446，115-07-03 版）與電波監測站 21 站（6825，2025-12）。點是發射機位置；同一站址常有多座電臺共用（FM 245 址、AM 92 址），點會重疊，放大後逐一點選。1 座經度筆誤（102→120）已依地址修正。電臺類別（甲、乙、丙等）照來源原文；「海外電臺」是對海外播音的 AM 發射站。",
   landUseChangeMonitoring: "內政部國土管理署國土利用監測的衛星影像變異點 107–112 年共 143,891 處（data.gov.tw 168030），是「疑似變異」，不是查報確認的違規。依變異類別上色（裸露地占 88%）；同一地點可能在不同年度各出現一次。拉遠時畫六角格（每格約 5 km²），顏色深淺是格內變異處數；六角格跟著類別篩選，只篩年度時改用分年數，兩者都篩時只照類別。放大到 10 級起畫逐點與範圍面。107 年原為 TWD67，已轉換。",
   debrisFlowPotential: "水保署 115 年度土石流潛勢溪流 1,753 條（data.gov.tw 176524），可切換溪流線、影響範圍（176526，1,894 區，一溪可有多個溢流點）、集水區（176525）；三者都依風險等級上色。拉遠到 11 級以下另畫溪流中點，標示位置。涵蓋 17 縣市，新竹市、嘉義市、澎湖、金門、連江沒有潛勢溪流。影響範圍的保全住戶門牌清單不收。溪流編號年度會改編，對照舊警戒紀錄用舊編號（popup）。",

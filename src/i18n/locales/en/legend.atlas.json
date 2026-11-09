@@ -34,5 +34,8 @@
   "legend.atlas.motorcycleInspectionStation": "Inspection stations",
   "legend.atlas.antivenomHospital": "Reserve hospitals",
   "legend.atlas.hundredMeterStake": "100 m stakes",
-  "legend.atlas.slopelandArea": "Slopeland"
+  "legend.atlas.slopelandArea": "Slopeland",
+  "legend.atlas.tedsGridSubtitle": "{view} · {pollutant} (tonnes per km² per year)",
+  "legend.atlas.tedsFacilitySubtitle": "{view} · {pollutant} (dot size by tonnes per year)",
+  "legend.atlas.tedsFacility": "Facility (median location of its stacks)"
 }

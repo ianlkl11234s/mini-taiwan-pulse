@@ -18,24 +18,24 @@
   ]
  },
  "summary": {
-  "layerKeys": 1789,
-  "overlayConfigs": 524,
-  "runtimeSublayers": 997,
+  "layerKeys": 1790,
+  "overlayConfigs": 527,
+  "runtimeSublayers": 1001,
   "byResolution": {
-   "runtime": 437,
+   "runtime": 438,
    "static-scan": 308,
    "unresolved": 133,
    "shared-renderer": 911
   },
   "byGeometry": {
-   "point": 603,
-   "heatmap": 216,
+   "point": 604,
+   "heatmap": 217,
    "line": 375,
    "polygon": 1244,
    "raster": 64,
    "label": 63,
    "3d": 35,
-   "grid": 15,
+   "grid": 16,
    "point/label": 4
   },
   "unresolvedReasons": {
@@ -43,9 +43,9 @@
    "Three.js／WebGL CustomLayer": 11,
    "無 hook／factory（App 掛載或尚無實作）": 103
   },
-  "legendEntries": 1537,
+  "legendEntries": 1538,
   "legendTypes": {
-   "square-swatch": 125,
+   "square-swatch": 126,
    "svg-icon": 50,
    "dot-swatch": 244,
    "gradient+dot-swatch": 74,
@@ -75,10 +75,10 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 586,
+   "ssr": 587,
    "static": 951
   },
-  "legendsWithIssues": 57,
+  "legendsWithIssues": 58,
   "ironRules": {
    "missingOpacity": [
     "activeFaults",
@@ -108,7 +108,7 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 367,
+    "n": 368,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
@@ -124,13 +124,13 @@
      "4.143×6",
      "6.143×6"
     ],
-    "dataDrivenCounted": 44,
+    "dataDrivenCounted": 45,
     "notSet": 0,
     "unresolved": 5,
     "decorationExcluded": 155
    },
    "circle-radius@z14": {
-    "n": 367,
+    "n": 368,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
@@ -146,13 +146,13 @@
      "3.45×7",
      "8×6"
     ],
-    "dataDrivenCounted": 44,
+    "dataDrivenCounted": 45,
     "notSet": 0,
     "unresolved": 5,
     "decorationExcluded": 155
    },
    "circle-stroke-width@z14": {
-    "n": 372,
+    "n": 373,
     "min": 0.5,
     "p25": 1,
     "median": 1,
@@ -166,7 +166,7 @@
      "1.3×4",
      "1.25×3",
      "1.7×3",
-     "1.05×2"
+     "0.8×2"
     ],
     "dataDrivenCounted": 38,
     "notSet": 0,
@@ -174,14 +174,14 @@
     "decorationExcluded": 155
    },
    "circle-opacity": {
-    "n": 368,
+    "n": 369,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
-     "0.85×110",
+     "0.85×111",
      "0.8×80",
      "0.9×48",
      "0.75×44",
@@ -262,7 +262,7 @@
     "decorationExcluded": 28
    },
    "fill-opacity": {
-    "n": 136,
+    "n": 138,
     "min": 0,
     "p25": 0.3,
     "median": 0.35,
@@ -299,14 +299,14 @@
     "decorationExcluded": 0
    },
    "heatmap-radius@z14": {
-    "n": 72,
+    "n": 73,
     "min": 20,
     "p25": 20,
     "median": 20,
     "p75": 20,
     "max": 20,
     "mostCommon": [
-     "20×72"
+     "20×73"
     ],
     "dataDrivenCounted": 0,
     "notSet": 0,
@@ -508,13 +508,13 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 369,
+   "隨底圖切換": 370,
    "資料驅動": 2,
    "固定 #c2410c": 1
   },
   "circleStrokeThemePairs": {
    "暗 #0a0a14 → 淡 #ffffff": 270,
-   "暗 #0f172a → 淡 #ffffff": 66,
+   "暗 #0f172a → 淡 #ffffff": 67,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
    "暗 #0a0a14 → 淡 #475569": 1
@@ -550,13 +550,13 @@
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 670,
-   "of": 997,
+   "sublayersWithDiff": 672,
+   "of": 1001,
    "byProperty": {
-    "circle-stroke-color": 369,
+    "circle-stroke-color": 370,
     "circle-stroke-opacity": 303,
     "line-color": 105,
-    "heatmap-color": 68,
+    "heatmap-color": 69,
     "text-color": 64,
     "text-halo-color": 64,
     "circle-color": 48,
@@ -570,15 +570,15 @@
   },
   "colorEncoding": {
    "circle:categorical": 271,
-   "circle:constant": 234,
+   "circle:constant": 235,
    "line:constant": 124,
-   "heatmap:sequential": 72,
+   "heatmap:sequential": 73,
    "fill:categorical": 65,
    "symbol:constant": 64,
    "line:categorical": 60,
    "fill:constant": 37,
    "fill:sequential-step": 18,
-   "fill:sequential": 14,
+   "fill:sequential": 16,
    "circle:data-driven": 9,
    "circle:sequential-step": 7,
    "circle:sequential": 6,
@@ -2141,6 +2141,7 @@
   {"id":"taipeiSewer","members":["taipeiSewer"],"components":["TaipeiSewerLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"taipeiWaterloggingHistory","members":["taipeiWaterloggingHistory"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":1,"paintComparable":true},
   {"id":"taisugarSugarMills","members":["taisugarSugarMills"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
+  {"id":"tedsGridEmissions","members":["tedsGridEmissions"],"components":["TedsGridEmissionsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":6,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":6,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"temperatureGrid","members":["temperatureGrid"],"components":["TemperatureGridLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":10,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":10,"paintComparable":false},
   {"id":"temperatureWave","members":["temperatureWave"],"components":["TemperatureWaveLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":10,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":10,"paintComparable":false},
   {"id":"tourAttractions","members":["tourAttractions"],"components":["TourAttractionsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":true},
@@ -3882,6 +3883,7 @@
   "taipeiWaterloggingHistory": {"label":"臺北市歷年積水範圍 Taipei Waterlogging History","theme":"災害 Hazard","dataClass":"A","color":"#2563eb","legend":"taipeiWaterloggingHistory","legendType":"square-swatch","popup":"taipeiWaterloggingHistory","params":{"opacity":{"name":"taipeiWaterloggingHistoryOpacity","default":0.5,"min":0.1,"max":1},"size":{"name":"taipeiWaterloggingHistoryScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.5},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#2563eb"]}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.733,"z14":1.4},"line-opacity":0.8},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true,"light":["#2563eb"]}},"themeDiff":["line-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#2563eb"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["line","point","polygon"],"render":["circle","fill","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "taisugarSugarMills": {"label":"台糖糖廠據點 Taisugar Sugar Mills","theme":"工商登記 Business Registry","dataClass":"A","color":"#a16207","legend":"taisugarSugarMills","legendType":"dot-swatch","popup":"taisugarSugarMills","params":{"opacity":{"name":"taisugarSugarMillsOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"taisugarSugarMillsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":12.343,"z14":14.4},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#a16207"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":6.857,"z14":8},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.9,"circle-stroke-opacity":0.9},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#a16207"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.9,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "taxiStand": {"label":"計程車招呼站 Taxi Stand","theme":"交通 Move","dataClass":"A","color":"#ffd54f","legend":null,"legendType":null,"popup":"taxiStand","params":{"opacity":{"name":"taxiStandOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"taxiStandScale","default":1,"min":0.3,"max":3},"height":{"name":"taxiStandZ","default":0,"min":0,"max":100},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4,"z14":9},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd54f"],"lightDiffers":true,"light":["#f9a825"]}},"themeDiff":["circle-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd54f"],"lightDiffers":true,"light":["#f9a825"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},
+  "tedsGridEmissions": {"label":"空污排放網格 TEDS Air Pollutant Emission Grid (TEDS)","theme":"環境氣候 Environment","dataClass":"B","color":"#d95f0e","legend":"tedsGridEmissions","legendType":"square-swatch","popup":"tedsGridEmissions","params":{"opacity":{"name":"tedsGridEmissionsOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"tedsGridEmissionsScale","default":1,"min":0.3,"max":3},"controls":5},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"grid","render":"fill","maxzoom":10,"values":{"fill-opacity":0.6},"colors":{"fill-color":{"kind":"sequential","count":6}}},{"suffix":"fill","type":"fill","role":"main","geometry":"grid","render":"fill","minzoom":10,"values":{"fill-opacity":0.6},"colors":{"fill-color":{"kind":"sequential","count":6}}},{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":1,"heatmap-weight":{"min":0,"max":1}},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":{"min":2.5,"max":14},"z14":{"min":2.5,"max":14}},"circle-stroke-width":{"z10":0.8,"z14":0.8},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#d95f0e"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["grid","heatmap","point"],"render":["circle","fill","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "temperatureGrid": {"label":"溫度網格 Temperature Grid","theme":"環境氣候 Environment","dataClass":"D","color":"#f46d43","legend":"temperatureGrid","legendType":"square-swatch","popup":"temperatureGrid","params":{"opacity":{"name":"tempGridOpacity","default":0.7,"min":0.1,"max":1},"controls":1},"hooks":["useTemperatureGridLayer"],"siblings":["temperatureWave"],"resolution":"static-scan","scope":"hook","evidence":["src/map/temperatureGridLayerFactory.ts"],"staticValues":{"fill-antialias":[0],"fill-color":["non-literal @src/map/temperatureGridLayerFactory.ts"],"fill-opacity":["non-literal @src/map/temperatureGridLayerFactory.ts"]},"geometry":["polygon"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "temperatureWave": {"label":"溫度波 Temperature Wave","theme":"環境氣候 Environment","dataClass":"D","color":"#ff6b35","legend":"temperatureWave","legendType":"square-swatch","popup":null,"params":{"opacity":{"name":"tempOpacity","default":0.85,"min":0.1,"max":1},"height":{"name":"tempHeight","default":200,"min":0,"max":400},"controls":5},"hooks":["useTemperatureGridLayer"],"siblings":["temperatureGrid"],"resolution":"static-scan","scope":"hook","evidence":["src/map/temperatureGridLayerFactory.ts"],"staticValues":{"fill-antialias":[0],"fill-color":["non-literal @src/map/temperatureGridLayerFactory.ts"],"fill-opacity":["non-literal @src/map/temperatureGridLayerFactory.ts"]},"geometry":["polygon"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
   "theftTaoyuan": {"label":"桃園竊盜 Theft Taoyuan","theme":"執法治安 Law & Order","dataClass":"A","color":"#f59e0b","legend":"policeStation","legendType":"gradient+size+dot-swatch+square-swatch+line-swatch","popup":"theftTaoyuan","params":{"opacity":{"name":"theftTaoyuanOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"theftTaoyuanScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":4},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},

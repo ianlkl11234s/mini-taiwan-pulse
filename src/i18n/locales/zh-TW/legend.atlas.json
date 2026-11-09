@@ -34,5 +34,8 @@
   "legend.atlas.motorcycleInspectionStation": "定檢站",
   "legend.atlas.antivenomHospital": "儲備院所",
   "legend.atlas.hundredMeterStake": "百公尺樁",
-  "legend.atlas.slopelandArea": "山坡地範圍"
+  "legend.atlas.slopelandArea": "山坡地範圍",
+  "legend.atlas.tedsGridSubtitle": "{view} · {pollutant}（公噸／平方公里‧年）",
+  "legend.atlas.tedsFacilitySubtitle": "{view} · {pollutant}（點大小依年排放公噸數）",
+  "legend.atlas.tedsFacility": "事業（排放口中位位置）"
 }
