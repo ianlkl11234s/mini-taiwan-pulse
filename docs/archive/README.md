@@ -106,7 +106,7 @@
 
 ## 2026-11-09 歸檔：功能 backlog 封存（`docs/archive/2026-11-09/<原相對路徑>`）
 
-使用者要求「讀了之後封存」：81 份功能 backlog 逐條盤點後整份搬來（檔首加封存註記，相對連結已重算，原文未改）。仍有效的未完成項目搬成 [`.claude/memory/BACKLOG.md`](../../.claude/memory/BACKLOG.md) 各主題群的 `FB-*` 列；已完成／過時／查不到證據的列在該檔「待勾選（2026-11-09 feature backlog 封存）」段。後繼：之後待辦一律寫進 BACKLOG。設計型 roadmap 未搬；`docs/features/_TEMPLATE/backlog.md` 已刪除（範本改為待辦寫進 BACKLOG）。
+使用者要求「讀了之後封存」：81 份功能 backlog 逐條盤點後整份搬來（檔首加封存註記，相對連結已重算，原文未改）。仍有效的未完成項目搬成 [`.claude/memory/BACKLOG.md`](../../.claude/memory/BACKLOG.md) 各主題群的 `FB-*` 列；已完成／過時／查不到證據的2026-11-09 經使用者確認後移到該檔「已關閉（2026-11-09 封存清單清理）」段或併入目標列。後繼：之後待辦一律寫進 BACKLOG。設計型 roadmap 未搬；`docs/features/_TEMPLATE/backlog.md` 已刪除（範本改為待辦寫進 BACKLOG）。
 
 | 原路徑 | 新路徑 |
 |---|---|
