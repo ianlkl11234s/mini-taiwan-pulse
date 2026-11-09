@@ -80,6 +80,11 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.get_xxx(...);
 
 **若 > 1s 或 > 10k rows → 立刻套 pre-aggregate pattern**（見 `supabase-optimize` skill）。
 
+**DB 效能驗收（鐵則 R1／R2，正本 `docs/supabase-optimization.md` §0；缺一不可上線）**：
+- [ ] **量 RPC 冷快取耗時**：`/check-rpc <name>` 用最大參數（最長時間窗、整天）跑，換一個最近沒人查過的日期再跑一次，取有 `shared read` 的那次 Execution Time：目標 <300 ms，>1 s 不上線。數字與 shared read blocks 寫進 PR 描述。
+- [ ] **確認預算表讀者**：RPC 讀的預算表（`*_daily`／`_hourly`／`_agg`…）在 gis-platform 建表 migration 有 `-- reader: <這支 RPC>（<layer key>）`，而且 RPC 本體真的讀這張表、不是自己從原始表重算（反例：`get_youbike_h3_snapshots` 旁邊有 `youbike_h3_daily` 卻沒接上，12 秒）。
+- [ ] 白天的 refresh 排程呼叫 `_incremental`，整天全量只在夜間 yesterday（R3；gis-platform CI 會擋）。
+
 ### 座標系統
 
 `|Response_X| > 1000` → 是 TWD97 TM2 → 要轉 WGS84。
@@ -215,7 +220,7 @@ npm run dev
 ## Related
 
 - Command：`/new-layer` — 產骨架
-- Skill：`supabase-optimize` — RPC 效能
+- Skill：`supabase-optimize` — RPC 效能；DB 效能鐵則 R1–R4 → `docs/supabase-optimization.md` §0
 - Skill：`three-3d-component` — 3D layer
 - Skill：`gis-data-onboard`（在 taipei-gis-analytics）— 資料落地路由
 - Rules：`CLAUDE.md §5 §5a` + `docs/development-rules.md`
