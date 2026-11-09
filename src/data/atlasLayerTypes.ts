@@ -549,6 +549,7 @@ export const CULTURAL_HEALTH_PRECISION_LABELS: Readonly<Record<string, string>> 
 // ── 圖例／popup 共用說明 ────────────────────────────────────────────────
 
 export const ATLAS_NOTES = {
+  motorcycleInspectionStations: "環境部機車排氣定期檢驗站名冊 3,934 站（MOENV API mpi_s_01，2026-11-09 抓取），地圖上 3,893 站（99.0%）：3,305 站用來源經緯度；來源沒有座標的 629 站以本機離線地址比對補到 588 站（464 站門牌、124 站路段內插，點開可看），41 站無法定位未上圖。當日營業狀態不收；手機號碼不顯示。縣市到檢率見「機車定檢到檢率」統計。",
   indigenousTribes: "原民會部落位置點表（2022-07）× 現行核定部落（2026-09）；灰點＝不在現行核定名單。另有 13 個現行核定部落沒有點位，未上圖。",
   indigenousIsolationRisk: "點是地區代表中心點，不是範圍；3 筆來源無座標，以村里代表點代替。",
   agriRuralCommunityVillages: "農村社區分類以村里為單位（農業部農村發展及水土保持署）；放大到 7 級以上顯示。",

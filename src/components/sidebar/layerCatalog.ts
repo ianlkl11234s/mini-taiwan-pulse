@@ -1752,6 +1752,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("pollutionFacility"),
           fromManifest("toxicChemicalFacilities"),
+          fromManifest("motorcycleInspectionStations"),
           fromManifest("pollutionPenaltyCritical"),
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),

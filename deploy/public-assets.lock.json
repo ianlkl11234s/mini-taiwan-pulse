@@ -405,6 +405,13 @@
    "s3_key": "deploy-assets/environment/incinerator_emissions.geojson"
   },
   {
+   "path": "public/environment/motorcycle_inspection_stations_20261109.pmtiles",
+   "bytes": 2289108,
+   "sha256": "5a3f47e26c66fe2bd5389d2f7e37acd1f662a78b01a1a44f3d2f034f7c1f1657",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/motorcycle_inspection_stations_20261109.pmtiles"
+  },
+  {
    "path": "public/environment/official_noise_monitoring.geojson",
    "bytes": 367694,
    "sha256": "8f88b0192d0a874ee0a42da322c0ba1390ae69b40e5b90345fbe00b3088ff162",

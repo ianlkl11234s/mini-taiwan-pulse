@@ -12207,6 +12207,8 @@ function culturalHealthStationsOverlay(): OverlayConfig {
 }
 
 const ATLAS_OVERLAYS: OverlayConfig[] = [
+  // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
+  publicLifePointOverlay("motorcycleInspectionStations", "./environment/motorcycle_inspection_stations_20261109.pmtiles", "motorcycle-inspection-stations", ATLAS_LAYER_COLORS.motorcycleInspectionStations, { sourceLayer: "motorcycle_inspection_stations", minzoom: 4, maxzoom: 14 }, `環境部 機車排氣定期檢驗站（data.gov.tw 6352）· ${OGDL_ATTR}`, [2.5, 6]),
   // ── 原民與農村 ──
   publicLifePointOverlay("indigenousTribes", "./indigenous_rural/indigenous_tribes.geojson", "indigenous-tribes", tribeColorExpr(), undefined, `原住民族委員會 部落位置 GIS 點位表（data.gov.tw 156632）＋核定部落（7093）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 12 }),
   publicLifePointOverlay("indigenousIsolationRisk", "./indigenous_rural/indigenous_isolation_risk_areas.geojson", "indigenous-isolation-risk", matchColorExpr("cause_combo", ISOLATION_CAUSE_OPTIONS), undefined, `原住民族委員會 原住民族地區易成孤島地區（data.gov.tw 170259，114 年度）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 11 }),

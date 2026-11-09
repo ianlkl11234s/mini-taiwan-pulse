@@ -154,6 +154,8 @@ import {
   Languages,
   // 🗳 政治 選舉活動（2026-11-02）
   Vote,
+  // G53 批 1（2026-11-09）
+  Motorbike,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -11930,6 +11932,15 @@ export const LAYER_MANIFEST = {
     legend: "postOfficeFxCounters", popup: "postOfficeFxCounters", params: { count: 2, kinds: ["slider", "slider"] },
     description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
+  },
+  motorcycleInspectionStations: {
+    key: "motorcycleInspectionStations", country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" }, ...layerName({ zh: "機車排氣定檢站", alt: "Motorcycle Emission Inspection Stations" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.motorcycleInspectionStations, icon: Motorbike,
+    upstream: { status: "verified", datasets: [{ datasetId: "motorcycle_inspection_stations", confidence: "HIGH" }], processing: "analytics environment/motorcycle_inspection_stations 20261109：MOENV API mpi_s_01（data.gov.tw 6352）3,934 站 → 3,893 站上圖（來源座標 3,305、離線地址比對補 588），41 站無法定位", note: "precision 欄：source／geocoded_door／geocoded_road；手機號不收；同主題另有縣市到檢率統計（motorcycle_inspection_county）。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "motorcycle-inspection-stations", url: "./environment/motorcycle_inspection_stations_20261109.pmtiles", sourceLayer: "motorcycle_inspection_stations", minzoom: 4, maxzoom: 14 },
+    legend: "motorcycleInspectionStations", popup: "motorcycleInspectionStations", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "環境部機車排氣定期檢驗站 3,893 站（名冊 3,934 站，41 站無法定位）；部分站點位置由地址推估。",
+    topics: ["環境", "空氣污染", "機車", "排氣定檢", "環境部"],
   },
   culturalHealthStations: {
     key: "culturalHealthStations", country: "TW", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,

@@ -266,7 +266,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-08: +2 愛爾蘭第 5c 波（Coillte 國有林遊憩點與森林入口、林道與遊憩步道；站主限定 owner-only RPC）。
     // 2026-11-08: +3 30 天地圖挑戰 Day 8 烏托邦 mapchallengeDay08*（模擬面板）。
     // 2026-11-08: +1 mapchallengeDay08Parks（現有公園與河濱入口）。
-    expect(keys.length).toBe(1775);
+    // 2026-11-09: +1 台灣圖層待辦池第一批 motorcycleInspectionStations（G53 批 1）。
+    expect(keys.length).toBe(1776);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

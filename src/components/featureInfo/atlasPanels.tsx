@@ -957,6 +957,20 @@ function SecuritiesFuturesPanel({ props }: Props) {
 }
 
 // G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
+function MotorcycleInspectionPanel({ props }: Props) {
+  const { t } = useLocale();
+  const theme = useFeatureTheme();
+  const precision = str(props.precision);
+  const estimated = precision === "geocoded_door" ? t("popup.atlas.miPrecisionDoor") : precision === "geocoded_road" ? t("popup.atlas.miPrecisionRoad") : "";
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.motorcycleInspectionStations}>{str(props.name)}</Title>
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.phone) || "—"} mono />
+    <Row field="coordPrecision" value={estimated} color={theme.warn} />
+    <Row field="caution" value={t("popup.atlas.miCaution")} />
+  </>;
+}
+
 function PostOfficeFxPanel({ props }: Props) {
   const { t } = useLocale();
   const theme = useFeatureTheme();
@@ -1151,6 +1165,7 @@ function BatterySwapPanel({ props }: Props) {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  motorcycleInspectionStations: MotorcycleInspectionPanel,
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
   agriRuralCommunityVillages: RuralCommunityPanel,
@@ -1220,6 +1235,7 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  motorcycleInspectionStations: manifestZh("motorcycleInspectionStations"),
   indigenousTribes: "原住民族部落",
   indigenousIsolationRisk: "原鄉易成孤島地區",
   agriRuralCommunityVillages: "農村社區分類",

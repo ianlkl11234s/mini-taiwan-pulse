@@ -82,6 +82,7 @@ const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  motorcycleInspectionStations: () => <AtlasLegend layer="motorcycleInspectionStations" en="Motorcycle Emission Inspection Stations" source={src("moenv", ["6352"])} rows={single("motorcycleInspectionStations", "legend.atlas.motorcycleInspectionStation")} />,
   indigenousTribes: () => <AtlasLegend layer="indigenousTribes" en="Indigenous Tribes" source={src("cip", ["156632", "7093"])} domain="atlasEthnic"
     rows={[...TRIBE_LEGEND_OPTIONS, { labelKey: "legend.atlas.otherMultiEthnic", color: ATLAS_OTHER_COLOR }, { labelKey: "legend.atlas.notApprovedList", color: TRIBE_NOT_APPROVED_COLOR }]} />,
   indigenousIsolationRisk: () => <AtlasLegend layer="indigenousIsolationRisk" en="Isolation-risk Areas" source={src("cip", ["170259"])} domain="atlasIsolation" rows={ISOLATION_CAUSE_OPTIONS} />,

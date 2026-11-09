@@ -149,6 +149,7 @@ export type ExpandableLayerKey =
   | "securitiesFuturesInstitutions" | "insuranceInstitutions"
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   | "postOfficeFxCounters"
+  | "motorcycleInspectionStations" // G53 批 1（2026-11-09）
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "firingNoticeAreas"
   // 🗳 政治 Politics：2026 選舉活動（owner-only RPC）
@@ -915,6 +916,7 @@ export interface FeatureInfo {
     | "atmSitesFisc" | "financialBranchesFisc"
     | "securitiesFuturesInstitutions" | "insuranceInstitutions"
     | "postOfficeFxCounters"
+    | "motorcycleInspectionStations"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -1457,6 +1459,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   insuranceInstitutions: boolean;
   /** 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局 290（非外幣收兌處） */
   postOfficeFxCounters: boolean;
+  /** G53 批 1（2026-11-09）機車排氣定檢站：環境部 6352，3,893 站 */
+  motorcycleInspectionStations: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC / CWA 颱風軌跡（observed + forecast＋風圈）

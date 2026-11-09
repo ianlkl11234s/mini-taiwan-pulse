@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1775,
+    "keyCount": 1776,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5621,6 +5621,13 @@
         "toxic-chemical-facilities-glow"
       ],
       "type": "toxicChemicalFacilities"
+    },
+    {
+      "layers": [
+        "motorcycle-inspection-stations-circle",
+        "motorcycle-inspection-stations-glow"
+      ],
+      "type": "motorcycleInspectionStations"
     },
     {
       "layers": [
@@ -83870,6 +83877,154 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "motorcycleInspectionStations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#a16207",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#a16207",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#a16207",
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#a16207",
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "motorcycle_inspection_stations"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "motorcycle-inspection-stations",
+      "sourceUrl": "./environment/motorcycle_inspection_stations_20261109.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "indigenousTribes",
       "layers": [
         {
@@ -139379,6 +139534,26 @@
       }
     ],
     "medPharmacy": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "motorcycleInspectionStations": [
       {
         "label": "透明度 0.80",
         "max": 1,

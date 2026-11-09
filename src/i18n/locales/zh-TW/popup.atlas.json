@@ -299,5 +299,8 @@
   "popup.atlas.swTaipowerCaution": "這是台電出租的土地，用途登記為換電站或充電站，不保證目前是營運中的換電站",
   "popup.atlas.w1944Town": "鄉鎮市區",
   "popup.atlas.w1944Source": "原始面編號",
-  "popup.atlas.w1944Caution": "由 1944 美軍地形圖依顏色抽取，位置可能偏移 5–15 m；同一個 1944 面依今日河川面外擴 50 m 切成仍是河道與已非河道兩部分"
+  "popup.atlas.w1944Caution": "由 1944 美軍地形圖依顏色抽取，位置可能偏移 5–15 m；同一個 1944 面依今日河川面外擴 50 m 切成仍是河道與已非河道兩部分",
+  "popup.atlas.miPrecisionDoor": "位置由地址推估（門牌比對）",
+  "popup.atlas.miPrecisionRoad": "位置由地址推估（同路段門牌內插）",
+  "popup.atlas.miCaution": "定檢站名冊不含當日營業狀態，前往前請先電話確認"
 }
