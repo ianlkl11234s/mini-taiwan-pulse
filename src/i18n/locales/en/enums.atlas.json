@@ -579,5 +579,16 @@
   "enum.atlasForestType.regenerating": "Regenerating forest land",
   "enum.atlasForestType.bare": "Bare land",
   "enum.atlasForestType.shadow": "Shadow (not interpretable)",
-  "enum.atlasNote.vegetationForestTypes": "Two vegetation maps from the Forestry and Nature Conservation Agency (MOA), switched with “Dataset”: the natural vegetation map (data.gov.tw 9930, 2014 survey, 49,943 polygons, covering only the main island's mountains and hills, about 1.62 million ha) coloured by 6 classes, and forest types (57873, 4th National Forest Resource Inventory, 575,206 polygons, about 2.18 million ha) coloured by 10 types; matching classes share a colour across the two. At zoom 10 and below the map is an overview rasterised to a 100 m grid, with small fragments removed and merged by class, so boundaries are coarse; from zoom 11 the original polygons appear and can be clicked for formation, forest type, management function and area (computed from geometry, not the source field). This is a wall-to-wall land cover map, so there is no point mode. The forest type “Shadow” is one polygon hidden by shadow in the aerial photos."
+  "enum.atlasNote.vegetationForestTypes": "Two vegetation maps from the Forestry and Nature Conservation Agency (MOA), switched with “Dataset”: the natural vegetation map (data.gov.tw 9930, 2014 survey, 49,943 polygons, covering only the main island's mountains and hills, about 1.62 million ha) coloured by 6 classes, and forest types (57873, 4th National Forest Resource Inventory, 575,206 polygons, about 2.18 million ha) coloured by 10 types; matching classes share a colour across the two. At zoom 10 and below the map is an overview rasterised to a 100 m grid, with small fragments removed and merged by class, so boundaries are coarse; from zoom 11 the original polygons appear and can be clicked for formation, forest type, management function and area (computed from geometry, not the source field). This is a wall-to-wall land cover map, so there is no point mode. The forest type “Shadow” is one polygon hidden by shadow in the aerial photos.",
+  "enum.atlasIOceanGroup.cetacean": "Whales & dolphins",
+  "enum.atlasIOceanGroup.turtle_snake": "Sea turtles & sea snakes",
+  "enum.atlasIOceanGroup.mollusc": "Shellfish & molluscs",
+  "enum.atlasIOceanGroup.reef_fish": "Reef fish",
+  "enum.atlasIOceanGroup.other_fish": "Other fish",
+  "enum.atlasIOceanGroup.echinoderm": "Echinoderms",
+  "enum.atlasIOceanGroup.crustacean": "Crustaceans & horseshoe crabs",
+  "enum.atlasIOceanGroup.coral": "Corals",
+  "enum.atlasIOceanGroup.shark_ray": "Sharks & rays",
+  "enum.atlasIOceanGroup.seabird": "Seabirds",
+  "enum.atlasNote.iOceanSightings": "Marine wildlife sightings reported by the public on the Ocean Conservation Administration's iOcean platform (data.gov.tw 157621, edition of 2026-05-06): 2,135 reports (2017–2026). Citizen reports, not verified. Groups are inferred from species names, not an official classification. 1,963 reports of protected species (matched to the marine protected wildlife list, plus whales and dolphins, shellfish and corals) have positions rounded to 2 decimal places (about 1 km), so reports in the same cell overlap; zoom in and click them one by one. 19 reports outside 118–124°E, 20–27°N are not shown. “臺灣白海豚” and “中華白海豚” are kept as the two spellings used in the source."
 }

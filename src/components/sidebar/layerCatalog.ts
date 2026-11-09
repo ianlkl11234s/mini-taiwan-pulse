@@ -1823,6 +1823,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("coastalAreaExtents"),
           fromManifest("openFishingLocations"),
+          fromManifest("iOceanSightings"),
           fromManifest("artificialReefCenters"),
           fromManifest("protectedReefCenters"),
           fromManifest("setNetFishingAreas"),

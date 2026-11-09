@@ -2491,5 +2491,16 @@
   "param.竹針混淆林": "Bamboo-conifer mixed forest",
   "param.竹針闊混淆林": "Bamboo-conifer-broadleaf mixed forest",
   "param.待成林地": "Regenerating forest land",
-  "param.陰影（判釋不到）": "Shadow (not interpretable)"
+  "param.陰影（判釋不到）": "Shadow (not interpretable)",
+  "param.推定類群": "Inferred group",
+  "param.鯨豚": "Whales & dolphins",
+  "param.海龜與海蛇": "Sea turtles & sea snakes",
+  "param.貝類與軟體動物": "Shellfish & molluscs",
+  "param.珊瑚礁魚類": "Reef fish",
+  "param.其他魚類": "Other fish",
+  "param.棘皮動物": "Echinoderms",
+  "param.甲殼類與鱟": "Crustaceans & horseshoe crabs",
+  "param.珊瑚": "Corals",
+  "param.鯊魚與魟": "Sharks & rays",
+  "param.海鳥": "Seabirds"
 }

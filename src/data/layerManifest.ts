@@ -11736,6 +11736,15 @@ export const LAYER_MANIFEST = {
     description: "全國野生動物保護區與分區（含陸域，不限海域）；僅供參考，不構成法規適用判斷。",
     topics: ["海洋", "保護區", "野生動物", "保育"],
   },
+  iOceanSightings: {
+    key: "iOceanSightings", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "iOcean 海洋生物目擊", alt: "iOcean Marine Wildlife Sightings" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.iOceanSightings, icon: Turtle,
+    upstream: { status: "verified", datasets: [{ datasetId: "iocean_sightings", confidence: "MED" }], processing: "analytics marine/iocean_sightings 20260506_gen：海保署 data.gov.tw 157621 公民回報 2,135 筆；類群依物種名推定；保育物種（名錄 161739 對上、鯨豚、貝類、珊瑚）1,963 筆座標四捨五入到 0.01°；框外 19 筆不上圖", note: "公民回報未經查核；來源只有回報 UUID，未進成品。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "iocean-sightings", url: "./marine/iocean_sightings_20260506_gen.pmtiles", sourceLayer: "iocean_sightings", minzoom: 4, maxzoom: 14 },
+    legend: "iOceanSightings", popup: "iOceanSightings", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "民眾在 iOcean 回報的鯨豚、海龜等海洋生物目擊 2,135 筆；保育物種位置已粗化到約 1 公里。",
+    topics: ["海洋", "海洋生物", "鯨豚", "海龜", "目擊", "公民科學", "海保署"],
+  },
   openFishingLocations: {
     key: "openFishingLocations", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "開放捕魚點", alt: "Open Fishing Locations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.openFishingLocations, icon: Fish,

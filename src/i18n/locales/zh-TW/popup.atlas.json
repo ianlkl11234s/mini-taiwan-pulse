@@ -373,5 +373,11 @@
   "popup.atlas.vftVegetation": "天然植群圖（2014）",
   "popup.atlas.vftForestType": "第四次森林資源調查林型",
   "popup.atlas.vftFunction": "經營功能",
-  "popup.atlas.vftSubclass": "次類"
+  "popup.atlas.vftSubclass": "次類",
+  "popup.atlas.iosNoSpecies": "未填物種",
+  "popup.atlas.iosGroup": "推定類群",
+  "popup.atlas.iosCount": "數量概估",
+  "popup.atlas.iosAliases": "別名",
+  "popup.atlas.iosGeneralized": "保育物種，位置已粗化至約 1 km",
+  "popup.atlas.iosCitizen": "公民回報，未經查核；類群依物種名推定，非官方分類"
 }

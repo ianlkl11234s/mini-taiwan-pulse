@@ -97,4 +97,5 @@ export const ATLAS_LAYER_COLORS = {
   wraDisasterCctv: "#0284c7",
   traLevelCrossings: "#f59e0b",
   vegetationForestTypes: "#166534",
+  iOceanSightings: "#2563eb",
 } as const;

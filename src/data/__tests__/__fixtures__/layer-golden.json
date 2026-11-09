@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1795,
+    "keyCount": 1796,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5664,6 +5664,13 @@
         "forest-types-4th-survey-fill"
       ],
       "type": "vegetationForestTypes"
+    },
+    {
+      "layers": [
+        "iocean-sightings-circle",
+        "iocean-sightings-glow"
+      ],
+      "type": "iOceanSightings"
     },
     {
       "layers": [
@@ -86122,6 +86129,266 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "iOceanSightings",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "iocean_sightings"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "iocean-sightings",
+      "sourceUrl": "./marine/iocean_sightings_20260506_gen.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "traLevelCrossings",
       "layers": [
         {
@@ -127766,6 +128033,84 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "iOceanSightings": [
+      {
+        "label": "推定類群",
+        "options": [
+          {
+            "label": "鯨豚",
+            "value": "cetacean"
+          },
+          {
+            "label": "海龜與海蛇",
+            "value": "turtle_snake"
+          },
+          {
+            "label": "貝類與軟體動物",
+            "value": "mollusc"
+          },
+          {
+            "label": "珊瑚礁魚類",
+            "value": "reef_fish"
+          },
+          {
+            "label": "其他魚類",
+            "value": "other_fish"
+          },
+          {
+            "label": "棘皮動物",
+            "value": "echinoderm"
+          },
+          {
+            "label": "甲殼類與鱟",
+            "value": "crustacean"
+          },
+          {
+            "label": "珊瑚",
+            "value": "coral"
+          },
+          {
+            "label": "鯊魚與魟",
+            "value": "shark_ray"
+          },
+          {
+            "label": "海鳥",
+            "value": "seabird"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "cetacean",
+          "turtle_snake",
+          "mollusc",
+          "reef_fish",
+          "other_fish",
+          "echinoderm",
+          "crustacean",
+          "coral",
+          "shark_ray",
+          "seabird"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "iPostBoxes": [

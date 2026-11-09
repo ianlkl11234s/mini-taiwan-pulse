@@ -18,17 +18,17 @@
   ]
  },
  "summary": {
-  "layerKeys": 1795,
-  "overlayConfigs": 537,
-  "runtimeSublayers": 1020,
+  "layerKeys": 1796,
+  "overlayConfigs": 538,
+  "runtimeSublayers": 1022,
   "byResolution": {
-   "runtime": 443,
+   "runtime": 444,
    "static-scan": 308,
    "unresolved": 133,
    "shared-renderer": 911
   },
   "byGeometry": {
-   "point": 608,
+   "point": 609,
    "heatmap": 218,
    "line": 378,
    "polygon": 1247,
@@ -43,11 +43,11 @@
    "Three.js／WebGL CustomLayer": 11,
    "無 hook／factory（App 掛載或尚無實作）": 103
   },
-  "legendEntries": 1543,
+  "legendEntries": 1544,
   "legendTypes": {
    "square-swatch": 128,
    "svg-icon": 50,
-   "dot-swatch": 246,
+   "dot-swatch": 247,
    "gradient+dot-swatch": 75,
    "square-swatch+hatch(missing)": 916,
    "gradient+size+dot-swatch": 4,
@@ -75,7 +75,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 592,
+   "ssr": 593,
    "static": 951
   },
   "legendsWithIssues": 59,
@@ -108,7 +108,7 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 373,
+    "n": 374,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
@@ -127,10 +127,10 @@
     "dataDrivenCounted": 45,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 157
+    "decorationExcluded": 158
    },
    "circle-radius@z14": {
-    "n": 373,
+    "n": 374,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
@@ -140,7 +140,7 @@
      "4.5×201",
      "3×43",
      "6×41",
-     "6.5×20",
+     "6.5×21",
      "5×9",
      "7×7",
      "3.45×7",
@@ -149,10 +149,10 @@
     "dataDrivenCounted": 45,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 157
+    "decorationExcluded": 158
    },
    "circle-stroke-width@z14": {
-    "n": 378,
+    "n": 379,
     "min": 0.5,
     "p25": 1,
     "median": 1,
@@ -160,7 +160,7 @@
     "max": 2.2,
     "mostCommon": [
      "1×271",
-     "1.2×67",
+     "1.2×68",
      "1.4×10",
      "1.5×5",
      "1.3×4",
@@ -171,10 +171,10 @@
     "dataDrivenCounted": 38,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 157
+    "decorationExcluded": 158
    },
    "circle-opacity": {
-    "n": 374,
+    "n": 375,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
@@ -183,7 +183,7 @@
     "mostCommon": [
      "0.85×111",
      "0.8×82",
-     "0.9×50",
+     "0.9×51",
      "0.75×45",
      "0.45×15",
      "0.6×12",
@@ -193,7 +193,7 @@
     "dataDrivenCounted": 44,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 157
+    "decorationExcluded": 158
    },
    "line-width@z10": {
     "n": 163,
@@ -510,24 +510,24 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 375,
+   "隨底圖切換": 376,
    "資料驅動": 2,
    "固定 #c2410c": 1
   },
   "circleStrokeThemePairs": {
    "暗 #0a0a14 → 淡 #ffffff": 273,
-   "暗 #0f172a → 淡 #ffffff": 69,
+   "暗 #0f172a → 淡 #ffffff": 70,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
    "暗 #0a0a14 → 淡 #475569": 1
   },
   "decorationSublayers": {
-   "count": 185,
+   "count": 186,
    "byType": {
-    "circle": 157,
+    "circle": 158,
     "line": 28
    },
-   "keys": 161
+   "keys": 162
   },
   "lineDash": [
    "debrisFlowPotential/outline=[4,3]",
@@ -552,10 +552,10 @@
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 683,
-   "of": 1020,
+   "sublayersWithDiff": 684,
+   "of": 1022,
    "byProperty": {
-    "circle-stroke-color": 375,
+    "circle-stroke-color": 376,
     "circle-stroke-opacity": 306,
     "line-color": 109,
     "heatmap-color": 71,
@@ -571,7 +571,7 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 278,
+   "circle:categorical": 280,
    "circle:constant": 235,
    "line:constant": 128,
    "heatmap:sequential": 75,
@@ -954,6 +954,7 @@
   {"id":"industrialParkComparison","members":["industrialParkComparison"],"components":["IndustrialParkComparisonLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":7,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":7,"paintComparable":true},
   {"id":"insuranceInstitutions","members":["insuranceInstitutions"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":true},
   {"id":"internetExchangePoints","members":["internetExchangePoints"],"components":["InternetExchangePointsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":true},
+  {"id":"iOceanSightings","members":["iOceanSightings"],"components":["IOceanSightingsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":10,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":10,"paintComparable":true},
   {"id":"iotWraRiver","members":["iotWraRiver"],"components":["IotRiverLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":7,"paintComparable":false},
   {"id":"iotWraStructure","members":["iotWraStructure"],"components":["IotStructureLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"iowStructureMonitoring","members":["iowStructureMonitoring"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":2,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":2,"paintComparable":true},
@@ -2509,6 +2510,7 @@
   "historicalMapPostwar": {"label":"戰後地形圖（1950–2003） Postwar Topographic Maps（臺灣百年歷史地圖）","theme":"歷史底圖 Historical Basemaps","dataClass":"D","color":"#92400e","legend":"historicalMapPostwar","legendType":"text-only","popup":null,"params":{"opacity":{"name":"historicalMapPostwarOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"hooks":["useHistoricalMapSinicaLayer"],"siblings":["historicalBoundaries","historicalImagery","historicalLandUse","historicalMapSinica","historicalThematic"],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
   "historicalMapSinica": {"label":"古地圖（清末至日治） Historical Maps（臺灣百年歷史地圖）","theme":"歷史底圖 Historical Basemaps","dataClass":"D","color":"#a16207","legend":"historicalMapSinica","legendType":"text-only","popup":null,"params":{"opacity":{"name":"historicalMapSinicaOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"hooks":["useHistoricalMapSinicaLayer"],"siblings":["historicalBoundaries","historicalImagery","historicalLandUse","historicalMapPostwar","historicalThematic"],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
   "historicalThematic": {"label":"歷史主題圖 Historical Thematic Maps（臺灣百年歷史地圖）","theme":"歷史底圖 Historical Basemaps","dataClass":"D","color":"#0e7490","legend":"historicalThematic","legendType":"text-only","popup":null,"params":{"opacity":{"name":"historicalThematicOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"hooks":["useHistoricalMapSinicaLayer"],"siblings":["historicalBoundaries","historicalImagery","historicalLandUse","historicalMapPostwar","historicalMapSinica"],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
+  "iOceanSightings": {"label":"iOcean 海洋生物目擊 iOcean Marine Wildlife Sightings","theme":"海洋 Marine","dataClass":"B","color":"#2563eb","legend":"iOceanSightings","legendType":"dot-swatch","popup":"iOceanSightings","params":{"opacity":{"name":"iOceanSightingsOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"iOceanSightingsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.9,"z14":11.7},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":10}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.5,"z14":6.5},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.9,"circle-stroke-opacity":0.9},"colors":{"circle-color":{"kind":"categorical","count":10},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "iPostBoxes": {"label":"i郵箱 iPost Box","theme":"基礎建設 Infrastructure","dataClass":"A","color":"#ef6c00","legend":null,"legendType":null,"popup":"iPostBox","params":{"opacity":{"name":"iPostBoxesOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"iPostBoxesScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":10,"z14":12},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ef6c00"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ef6c00"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},
   "ieActivityLocations": {"label":"運動活動地點 Activity Locations","theme":"運動休閒","dataClass":"D","color":"#ef6c00","legend":"ieActivityLocations","legendType":"dot-swatch","popup":"ieActivityLocations","params":{"opacity":{"name":"ieActivityLocationsOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"ieActivityLocationsScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useIeActivityLocationsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "ieAdminBoundaries": {"label":"行政區界 Administrative Boundaries","theme":"底圖","dataClass":"D","color":"#9ca3af","legend":"ieAdminBoundaries","legendType":"svg-icon","popup":"ieAdminBoundaries","params":{"opacity":{"name":"ieAdminBoundariesOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"hooks":["useIeAdminLayers"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useIeAdminLayers.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":["non-literal @src/hooks/useIeAdminLayers.ts"],"fill-opacity":[0,"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useIeAdminLayers.ts","non-literal @src/hooks/useIeAdminLayers.ts","non-literal @src/hooks/useIeAdminLayers.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useIeAdminLayers.ts","non-literal @src/hooks/useIeAdminLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/hooks/useIeAdminLayers.ts","non-literal @src/hooks/useIeAdminLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

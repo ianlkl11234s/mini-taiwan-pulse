@@ -579,5 +579,16 @@
   "enum.atlasForestType.regenerating": "未立木地",
   "enum.atlasForestType.bare": "裸地",
   "enum.atlasForestType.shadow": "影（判読不能）",
-  "enum.atlasNote.vegetationForestTypes": "農業部林業及自然保育署の植生図 2 種を「データセット」で切り替えます：天然植生図（data.gov.tw 9930、2014 年調査、49,943 面、本島の山地と丘陵のみ約 162 万 ha）は 6 大分類で、森林林型（57873、第 4 次森林資源調査、575,206 面、約 218 万 ha）は 10 林型で色分けし、両データで同じ分類は同じ色です。ズーム 10 以下は 100 m 格子化して小片を除き分類ごとに融合した概観図で境界は粗く、ズーム 11 から元の図形に切り替わり、クリックで植生型・林型・経営機能・面積（ジオメトリから計算、元の欄は不使用）を表示します。全域を覆う土地被覆図のため点表示はありません。林型の「影」は空中写真で影に隠れて判読できなかった 1 面です。"
+  "enum.atlasNote.vegetationForestTypes": "農業部林業及自然保育署の植生図 2 種を「データセット」で切り替えます：天然植生図（data.gov.tw 9930、2014 年調査、49,943 面、本島の山地と丘陵のみ約 162 万 ha）は 6 大分類で、森林林型（57873、第 4 次森林資源調査、575,206 面、約 218 万 ha）は 10 林型で色分けし、両データで同じ分類は同じ色です。ズーム 10 以下は 100 m 格子化して小片を除き分類ごとに融合した概観図で境界は粗く、ズーム 11 から元の図形に切り替わり、クリックで植生型・林型・経営機能・面積（ジオメトリから計算、元の欄は不使用）を表示します。全域を覆う土地被覆図のため点表示はありません。林型の「影」は空中写真で影に隠れて判読できなかった 1 面です。",
+  "enum.atlasIOceanGroup.cetacean": "クジラ・イルカ",
+  "enum.atlasIOceanGroup.turtle_snake": "ウミガメ・ウミヘビ",
+  "enum.atlasIOceanGroup.mollusc": "貝類・軟体動物",
+  "enum.atlasIOceanGroup.reef_fish": "サンゴ礁魚類",
+  "enum.atlasIOceanGroup.other_fish": "その他の魚類",
+  "enum.atlasIOceanGroup.echinoderm": "棘皮動物",
+  "enum.atlasIOceanGroup.crustacean": "甲殻類・カブトガニ",
+  "enum.atlasIOceanGroup.coral": "サンゴ",
+  "enum.atlasIOceanGroup.shark_ray": "サメ・エイ",
+  "enum.atlasIOceanGroup.seabird": "海鳥",
+  "enum.atlasNote.iOceanSightings": "海洋委員会海洋保育署の iOcean に市民が投稿した海洋生物の目撃情報（data.gov.tw 157621、2026-05-06 版）2,135 件（2017–2026）。市民投稿で未検証です。分類群は種名から推定したもので、公式の分類ではありません。保護種（海洋保護野生動物リストに該当するもの、クジラ・イルカ、貝類、サンゴ）1,963 件は位置を小数 2 桁（約 1 km）に丸めているため、同じ格子の投稿は重なります。拡大して一つずつクリックしてください。118–124°E、20–27°N の範囲外の 19 件は非表示です。「臺灣白海豚」と「中華白海豚」は元データの 2 通りの表記のまま統合していません。"
 }

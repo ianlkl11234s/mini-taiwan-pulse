@@ -1950,6 +1950,13 @@
    "s3_key": "deploy-assets/marine/firing_notice_areas.geojson"
   },
   {
+   "path": "public/marine/iocean_sightings_20260506_gen.pmtiles",
+   "bytes": 811867,
+   "sha256": "61f31466505fa814842ddf73690c9b513d99712a018d93a7617cc98482b5c582",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/iocean_sightings_20260506_gen.pmtiles"
+  },
+  {
    "path": "public/marine/marine_ecological_monitoring_sites.geojson",
    "bytes": 35507,
    "sha256": "0142f58c8d031d11f2da109d493003b788e64458e83b6002f681b5581497e519",

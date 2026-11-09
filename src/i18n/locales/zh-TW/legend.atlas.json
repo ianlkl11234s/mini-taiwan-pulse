@@ -40,5 +40,6 @@
   "legend.atlas.tedsFacility": "事業（排放口中位位置）",
   "legend.atlas.pczReleased": "已解除列管",
   "legend.atlas.traLcSubtitle": "臺鐵 2024 年公開清單，部分可能已廢除；來源 801 處、地圖上 440 處、361 處無座標未上圖",
-  "legend.atlas.licenseOgdlOsmPatch": "政府資料開放授權條款第 1 版；25 處位置補自 © OpenStreetMap contributors（ODbL）"
+  "legend.atlas.licenseOgdlOsmPatch": "政府資料開放授權條款第 1 版；25 處位置補自 © OpenStreetMap contributors（ODbL）",
+  "legend.atlas.iosSubtitle": "推定類群（依物種名推定，非官方分類）· 公民回報，未經查核"
 }

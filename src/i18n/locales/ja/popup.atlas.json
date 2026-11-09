@@ -373,5 +373,11 @@
   "popup.atlas.vftVegetation": "天然植生図（2014）",
   "popup.atlas.vftForestType": "第 4 次森林資源調査 林型",
   "popup.atlas.vftFunction": "経営機能",
-  "popup.atlas.vftSubclass": "細分類"
+  "popup.atlas.vftSubclass": "細分類",
+  "popup.atlas.iosNoSpecies": "種名未記入",
+  "popup.atlas.iosGroup": "推定分類群",
+  "popup.atlas.iosCount": "推定個体数",
+  "popup.atlas.iosAliases": "別名",
+  "popup.atlas.iosGeneralized": "保護種のため位置を約 1 km に丸めています",
+  "popup.atlas.iosCitizen": "市民投稿で未検証。分類群は種名からの推定で公式分類ではありません"
 }

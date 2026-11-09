@@ -18,7 +18,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1378,6 +1378,23 @@ function LandslideEventPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 iOcean 目擊：公民回報；類群為推定；保育物種位置粗化 0.01°。 */
+function IOceanSightingPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(IOCEAN_GROUP_OPTIONS, props.group_key);
+  const count = num(props.count_est);
+  return <>
+    <Title color={color}>{str(props.species) || t("popup.atlas.iosNoSpecies")}</Title>
+    <Row label={t("popup.atlas.iosGroup")} value={enumOf("atlasIOceanGroup", props.group_key, optionLabel(IOCEAN_GROUP_OPTIONS, props.group_key) || str(props.group_name), i18n)} color={color} />
+    <Row field="date" value={str(props.sighted_on)} mono />
+    {count != null && count > 0 ? <Row label={t("popup.atlas.iosCount")} value={i18n.formatNumber(count)} mono /> : null}
+    <Row label={t("popup.atlas.iosAliases")} value={str(props.species_aliases)} />
+    {props.location_generalized === true ? <Row field="caution" value={t("popup.atlas.iosGeneralized")} /> : null}
+    <Row field="remarks" value={t("popup.atlas.iosCitizen")} />
+  </>;
+}
+
 /** G53 批 2／3 植群／森林林型：只有 z11 起的全量圖斑可點；依欄位判斷是植群還是林型。 */
 function VegetationForestTypePanel({ props }: Props) {
   const i18n = useLocale();
@@ -1498,6 +1515,7 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
   // TEDS 來源是 48201、170705、152688、47244 四筆（圖例全列）；footer 只有一個連結，指 152688——其說明頁寫明全量 zip 由 air.moenv.gov.tw 提供（registry-spec）
   tedsGridEmissions: { org: "moenv", dataset: () => "152688" },
+  iOceanSightings: { org: "oca", dataset: () => "157621" },
   vegetationForestTypes: { org: "forestry", dataset: (p) => (p.forest_type_key != null ? "57873" : "9930") },
   traLevelCrossings: { org: "tra", dataset: () => "11970" },
   wraDisasterCctv: { org: "wra", dataset: (p) => (p.kind === "dredging" ? "41567" : "36687") },
@@ -1528,6 +1546,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   wraDisasterCctv: withG53Footer("wraDisasterCctv", WraDisasterCctvPanel),
   traLevelCrossings: withG53Footer("traLevelCrossings", TraLevelCrossingPanel),
   vegetationForestTypes: withG53Footer("vegetationForestTypes", VegetationForestTypePanel),
+  iOceanSightings: withG53Footer("iOceanSightings", IOceanSightingPanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
@@ -1618,6 +1637,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   wraDisasterCctv: manifestZh("wraDisasterCctv"),
   traLevelCrossings: manifestZh("traLevelCrossings"),
   vegetationForestTypes: manifestZh("vegetationForestTypes"),
+  iOceanSightings: manifestZh("iOceanSightings"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),

@@ -373,5 +373,11 @@
   "popup.atlas.vftVegetation": "Natural vegetation map (2014)",
   "popup.atlas.vftForestType": "Forest types, 4th National Forest Resource Inventory",
   "popup.atlas.vftFunction": "Management function",
-  "popup.atlas.vftSubclass": "Subclass"
+  "popup.atlas.vftSubclass": "Subclass",
+  "popup.atlas.iosNoSpecies": "Species not given",
+  "popup.atlas.iosGroup": "Inferred group",
+  "popup.atlas.iosCount": "Estimated count",
+  "popup.atlas.iosAliases": "Other names",
+  "popup.atlas.iosGeneralized": "Protected species: position rounded to about 1 km",
+  "popup.atlas.iosCitizen": "Citizen report, not verified; group inferred from the species name, not an official classification"
 }

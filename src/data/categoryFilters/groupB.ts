@@ -9,6 +9,23 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       options: [{ value: "remediation", zh: "整治場址" }, { value: "control", zh: "控制場址" }, { value: "gw_restriction", zh: "地下水受污染使用限制地區" }],
     },
   ],
+  // G53 批 2／3（2026-11-10）：iOcean 目擊推定類群（值與 atlasLayerTypes IOCEAN_GROUP_OPTIONS 同序）
+  iOceanSightings: {
+    property: "group_key",
+    label: "推定類群",
+    options: [
+      { value: "cetacean", zh: "鯨豚" },
+      { value: "turtle_snake", zh: "海龜與海蛇" },
+      { value: "mollusc", zh: "貝類與軟體動物" },
+      { value: "reef_fish", zh: "珊瑚礁魚類" },
+      { value: "other_fish", zh: "其他魚類" },
+      { value: "echinoderm", zh: "棘皮動物" },
+      { value: "crustacean", zh: "甲殼類與鱟" },
+      { value: "coral", zh: "珊瑚" },
+      { value: "shark_ray", zh: "鯊魚與魟" },
+      { value: "seabird", zh: "海鳥" },
+    ],
+  },
   // G53 批 2／3（2026-11-10）：臺鐵平交道分類（值與 atlasLayerTypes TRA_CROSSING_TYPE_OPTIONS 同序）
   traLevelCrossings: {
     property: "type_key",

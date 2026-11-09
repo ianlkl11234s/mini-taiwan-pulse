@@ -14,7 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, LANDSLIDE_EVENT_TYPE_OPTIONS,
   G53_ORGS,
   DEBRIS_RISK_OPTIONS,
@@ -92,6 +92,12 @@ const single = (layer: AtlasLayerKey, labelKey: StaticMessageKey): Row[] => [{ l
 const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
+/** G53 批 2／3 iOcean 目擊：副標註明「推定類群」與公民回報。 */
+function IOceanSightingsLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="iOceanSightings" en="iOcean Marine Wildlife Sightings" subtitle={t("legend.atlas.iosSubtitle")} source={src("oca", ["157621"])} domain="atlasIOceanGroup" rows={IOCEAN_GROUP_OPTIONS} />;
+}
+
 /** G53 批 2／3 植群／森林林型：圖例色塊跟著資料集切換。 */
 function VegetationForestTypesLegend() {
   const values = useLayerParams("vegetationForestTypes");
@@ -129,6 +135,7 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   tedsGridEmissions: () => <TedsGridEmissionsLegend />,
   traLevelCrossings: () => <TraLevelCrossingsLegend />,
   vegetationForestTypes: () => <VegetationForestTypesLegend />,
+  iOceanSightings: () => <IOceanSightingsLegend />,
   wraDisasterCctv: () => <AtlasLegend layer="wraDisasterCctv" en="WRA Disaster Monitoring Cameras" source={src("wra", ["36687", "41567"])} domain="atlasWraCctvKind" rows={WRA_CCTV_KIND_OPTIONS} />,
   broadcastTransmitters: () => <AtlasLegend layer="broadcastTransmitters" en="Broadcast Transmitters & Radio Monitoring Stations" source={src("ncc", ["6445", "6446", "6825"])} domain="atlasBroadcastKind" rows={BROADCAST_KIND_OPTIONS} />,
   landUseChangeMonitoring: () => <AtlasLegend layer="landUseChangeMonitoring" en="Land Use Change Monitoring" kind="square" source={src("nlma", ["168030"])} domain="atlasLandChange" rows={LAND_CHANGE_CLASS_OPTIONS} />,
