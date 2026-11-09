@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1799,
+    "keyCount": 1807,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1967,6 +1967,54 @@
         "kr-police-boxes-circle"
       ],
       "type": "krPoliceBoxes"
+    },
+    {
+      "layers": [
+        "kr-libraries-circle"
+      ],
+      "type": "krLibraries"
+    },
+    {
+      "layers": [
+        "kr-museums-circle"
+      ],
+      "type": "krMuseums"
+    },
+    {
+      "layers": [
+        "kr-performances-circle"
+      ],
+      "type": "krPerformances"
+    },
+    {
+      "layers": [
+        "kr-festivals-circle"
+      ],
+      "type": "krFestivals"
+    },
+    {
+      "layers": [
+        "kr-heritage-circle"
+      ],
+      "type": "krHeritage"
+    },
+    {
+      "layers": [
+        "kr-lodging-circle"
+      ],
+      "type": "krLodging"
+    },
+    {
+      "layers": [
+        "kr-safe-delivery-boxes-circle"
+      ],
+      "type": "krSafeDeliveryBoxes"
+    },
+    {
+      "layers": [
+        "kr-senior-centers-circle"
+      ],
+      "type": "krSeniorCenters"
     },
     {
       "layers": [
@@ -141197,6 +141245,49 @@
         "valueText": "1.0"
       }
     ],
+    "krFestivals": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "2026 年",
+            "value": "y2026"
+          },
+          {
+            "label": "2025 年",
+            "value": "y2025"
+          },
+          {
+            "label": "2024 年以前",
+            "value": "older"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "y2026",
+          "y2025",
+          "older"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krFireStations": [
       {
         "label": "類別",
@@ -141360,6 +141451,131 @@
         "valueText": "1.0"
       }
     ],
+    "krHeritage": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國家指定（國寶、寶物、史蹟、名勝、天然紀念物、民俗）",
+            "value": "national"
+          },
+          {
+            "label": "市道指定",
+            "value": "provincial"
+          },
+          {
+            "label": "登錄文化遺產",
+            "value": "registered"
+          },
+          {
+            "label": "文化遺產資料",
+            "value": "material"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "national",
+          "provincial",
+          "registered",
+          "material"
+        ]
+      },
+      {
+        "defaultValue": "Burg",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "Burg"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krHospitalsPharmacies": [
       {
         "label": "類別",
@@ -141489,6 +141705,184 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krLibraries": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公共圖書館（공공도서관）",
+            "value": "public"
+          },
+          {
+            "label": "小型圖書館（작은도서관）",
+            "value": "small"
+          },
+          {
+            "label": "兒童圖書館（어린이도서관）",
+            "value": "children"
+          },
+          {
+            "label": "其他（學校、身障、專門、大學）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "public",
+          "small",
+          "children",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krLodging": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "飯店（관광／일반호텔）",
+            "value": "hotel"
+          },
+          {
+            "label": "渡假公寓（휴양콘도）",
+            "value": "condo"
+          },
+          {
+            "label": "旅館與旅人宿（여관／여인숙）",
+            "value": "motel"
+          },
+          {
+            "label": "生活型住宿（생활숙박）",
+            "value": "residence"
+          },
+          {
+            "label": "其他住宿",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hotel",
+          "condo",
+          "motel",
+          "residence",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "acton",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "acton"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -141633,6 +142027,44 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "krMuseums": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "博物館（박물관）",
+            "value": "museum"
+          },
+          {
+            "label": "美術館（미술관）",
+            "value": "gallery"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "museum",
+          "gallery"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "krNationalParks": [
@@ -141892,6 +142324,49 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krPerformances": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "2026 年",
+            "value": "y2026"
+          },
+          {
+            "label": "2025 年",
+            "value": "y2025"
+          },
+          {
+            "label": "2024 年以前",
+            "value": "older"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "y2026",
+          "y2025",
+          "older"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -142409,6 +142884,26 @@
         "valueText": "0.85"
       }
     ],
+    "krSafeDeliveryBoxes": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krSchoolDistricts": [
       {
         "label": "透明度 0.35",
@@ -142544,6 +143039,126 @@
         "role": "heatmap",
         "type": "palette",
         "value": "cividis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krSeniorCenters": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "敬老堂（경로당）",
+            "value": "senior"
+          },
+          {
+            "label": "里民會館兼敬老堂",
+            "value": "both"
+          },
+          {
+            "label": "里民會館（마을회관）",
+            "value": "hall"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "senior",
+          "both",
+          "hall"
+        ]
+      },
+      {
+        "defaultValue": "PuBuGn",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBuGn"
       },
       {
         "label": "透明度 0.75",

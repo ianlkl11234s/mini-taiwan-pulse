@@ -309,6 +309,11 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "醫療",
     "消防",
     "執法治安",
+    // 第 8 波：文化（圖書館、博物館美術館、公演）、觀光（國家遺產、文化祭、住宿）、基礎建設（安心宅配櫃）、社福長照（敬老堂），比照台灣與英國、愛爾蘭第 8 波
+    "文化",
+    "觀光",
+    "基礎建設",
+    "社福長照",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經／公共安全」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2715,6 +2720,40 @@ const THEME_CATALOG: ThemeDef[] = [
     // 第 7 波 C075：比照日本 jpPoliceFacilities 的「執法治安 › 警政」
     groups: [{ title: "警政", layers: [fromManifest("krPoliceBoxes")] }],
   },
+  // 第 8 波：比照台灣 culturalMuseums／publicLibraries（文化 › 設施 Facilities）、artsEvents（文化 › 藝文活動 Arts & Events）、
+  // tourHeritage（觀光 › 玩・人文 Heritage）、tourEvents（觀光 › 玩・體驗 Experience）、tourHotels（觀光 › 住・食 Stay & Eat）、
+  // iPostBoxes（基礎建設 › 郵政與便民 Postal & Services）、culturalHealthStations（社福長照 › 長照與托育）
+  {
+    title: "文化",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "設施 Facilities", layers: [fromManifest("krMuseums"), fromManifest("krLibraries")] },
+      { title: "藝文活動 Arts & Events", layers: [fromManifest("krPerformances")] },
+    ],
+  },
+  {
+    title: "觀光",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・人文 Heritage", layers: [fromManifest("krHeritage")] },
+      { title: "玩・體驗 Experience", layers: [fromManifest("krFestivals")] },
+      { title: "住・食 Stay & Eat", layers: [fromManifest("krLodging")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "郵政與便民 Postal & Services", layers: [fromManifest("krSafeDeliveryBoxes")] }],
+  },
+  {
+    title: "社福長照",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "長照與托育", layers: [fromManifest("krSeniorCenters")] }],
+  },
   {
     title: "林業",
     country: "KR",
@@ -3368,6 +3407,11 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "醫療": "safety",
     "消防": "safety",
     "執法治安": "safety",
+    // 第 8 波（同台灣、英國）
+    "文化": "publicLife",
+    "觀光": "publicLife",
+    "基礎建設": "publicLife",
+    "社福長照": "publicLife",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3571,6 +3615,10 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "醫療": { zh: "醫療", sub: "의료" },
     "消防": { zh: "消防", sub: "소방" },
     "執法治安": { zh: "執法治安", sub: "치안" },
+    "文化": { zh: "文化", sub: "문화" },
+    "觀光": { zh: "觀光", sub: "관광" },
+    "基礎建設": { zh: "基礎建設", sub: "기반시설" },
+    "社福長照": { zh: "社福長照", sub: "사회복지" },
     // 南韓統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },

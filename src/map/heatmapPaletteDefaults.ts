@@ -118,6 +118,8 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   krChildProtectionZones: "acton",
   // 南韓 災害：海岸侵蝕拿主題色 rocket，第 7 波民防避難設施錯開成綠
   krCivilDefenseShelters: "speed",
+  // 南韓 觀光：第 8 波國家遺產拿主題色 Burg，住宿錯開成 acton（同日本住宿 OSM）
+  krLodging: "acton",
   // 愛爾蘭 房地產（第 2 波）：商業房產估值拿主題色 YlOrBr，國有登記土地（代表點熱區）錯開成綠（林地、泥炭地多）
   ieStateAssets: "viridis",
   // 愛爾蘭 底圖 › 土地使用分區（第 9 波）：規劃申請案拿主題色 viridis，分區代表點熱區比照台灣 urbanZoningTaipei 錯開成 BuPu

@@ -1,5 +1,5 @@
 /**
- * 南韓第 3–7 波資料層規格 SSOT：hook paint、圖例、popup 三邊共用。
+ * 南韓第 3–8 波資料層規格 SSOT：hook paint、圖例、popup 三邊共用。
  * 資料與授權原句見 taipei-gis-analytics `docs/data-catalog/{water_resources,marine,transportation,forestry}/kr_*.md`
  * 與 `docs/topic-research/south_korea_opendata/waves/w{3,4,5}/layer-plan.md`（2026-10-31 逐一重開授權頁）。
  * 介面字串（類別名、備註）以三語 `L3` 寫在本檔，顯示時依目前語系挑；圖層名／主題名走 layers.json／themes.json。
@@ -67,6 +67,8 @@ const DGS = (pk: string) => `https://www.data.go.kr/data/${pk}/standard.do`;
 export const KR_W6_FETCHED_AT = "2026-11-06";
 /** 第 7 波（2026-11-07 重開授權頁）。 */
 export const KR_W7_FETCHED_AT = "2026-11-07";
+/** 第 8 波（2026-11-10 重開授權頁）。 */
+export const KR_W8_FETCHED_AT = "2026-11-10";
 
 export const KR_UNMEASURED = l3("未測", "Not measured", "未測定");
 const UNNAMED = l3("(未命名)", "(unnamed)", "(名称なし)");
@@ -603,6 +605,161 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     popupNotes: [l3("位置由地址比對 OpenStreetMap 推得，可能有數十公尺偏差", "Location derived by matching the address to OpenStreetMap; may be off by tens of metres", "位置は住所とOpenStreetMapの照合による推定で、数十m程度ずれる場合あり")],
     sourceOrg: "경찰청 전국 지구대 파출소 주소 현황 (공공데이터포털)；座標 Nominatim／© OpenStreetMap contributors", sourceUrl: DG("15077036"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W7_FETCHED_AT,
     loading: l3("南韓派出所載入中", "Loading South Korea police boxes", "韓国の派出所を読み込み中"),
+  },
+  // ───────────── 第 8 波：文化、觀光、生活據點 ─────────────
+  {
+    key: "krLibraries", file: "kr_libraries.pmtiles", sourceLayer: "kr_libraries", geom: "point", layerId: "kr-libraries-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#38bdf8", tier: "M", count: 3472,
+    catProp: "kind", otherColor: "#94a3b8", otherLabel: l3("其他（學校、身障、專門、大學）", "Other (school, accessible, special, university)", "その他（学校・障害者・専門・大学）"),
+    cats: [
+      { id: "public", values: ["공공도서관"], color: "#38bdf8", label: l3("公共圖書館（공공도서관）", "Public library", "公共図書館") },
+      { id: "small", values: ["작은도서관"], color: "#a78bfa", label: l3("小型圖書館（작은도서관）", "Small library", "小さな図書館") },
+      { id: "children", values: ["어린이도서관"], color: "#f59e0b", label: l3("兒童圖書館（어린이도서관）", "Children's library", "子ども図書館") },
+    ],
+    title: { props: ["name"], fallback: l3("圖書館", "Library", "図書館") },
+    fields: [{ prop: "kind", label: l3("類型", "Type", "種別"), map: { "공공도서관": l3("公共圖書館", "Public", "公共図書館"), "작은도서관": l3("小型圖書館", "Small library", "小さな図書館"), "어린이도서관": l3("兒童圖書館", "Children's", "子ども図書館"), "학교도서관": l3("學校圖書館", "School", "学校図書館"), "장애인도서관": l3("身障圖書館", "Accessible", "障害者図書館"), "전문도서관": l3("專門圖書館", "Special", "専門図書館"), "대학도서관": l3("大學圖書館", "University", "大学図書館") } },
+             { prop: "operator", label: l3("運營機關", "Operator", "運営機関") }, { prop: "closed", label: l3("休館日", "Closed", "休館日") },
+             { prop: "weekday", label: l3("平日開放", "Weekday hours", "平日開館") }, { prop: "seats", label: l3("閱覽座位", "Seats", "閲覧席") },
+             { prop: "books", label: l3("藏書（冊）", "Books", "蔵書（冊）") }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "provider", label: l3("提供機關", "Data provider", "提供機関") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("3,472 館（小型圖書館 2,097、公共圖書館 1,308）；學校、大學圖書館只有少數機關申報，不代表全國", "3,472 libraries (2,097 small, 1,308 public); school and university libraries are reported by only a few agencies", "3,472館（小さな図書館2,097・公共図書館1,308）。学校・大学図書館は一部機関の申告のみ"),
+                  l3("無座標 111 館未上圖", "111 without coordinates are not shown", "座標なし111館は非表示")],
+    popupNotes: [],
+    sourceOrg: "문화체육관광부 전국도서관표준데이터 (공공데이터포털)", sourceUrl: DGS("15013109"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
+    loading: l3("南韓圖書館載入中", "Loading South Korea libraries", "韓国の図書館を読み込み中"),
+  },
+  {
+    key: "krMuseums", file: "kr_museums.pmtiles", sourceLayer: "kr_museums", geom: "point", layerId: "kr-museums-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#f472b6", tier: "M", count: 873,
+    catProp: "kind",
+    cats: [
+      { id: "museum", values: ["박물관"], color: "#f472b6", label: l3("博物館（박물관）", "Museum", "博物館") },
+      { id: "gallery", values: ["미술관"], color: "#a78bfa", label: l3("美術館（미술관）", "Art gallery", "美術館") },
+    ],
+    title: { props: ["name"], fallback: l3("博物館", "Museum", "博物館") },
+    fields: [{ prop: "kind", label: l3("類別", "Type", "種別"), map: { "박물관": l3("博物館", "Museum", "博物館"), "미술관": l3("美術館", "Art gallery", "美術館") } },
+             { prop: "type", label: l3("種類", "Category", "種類") },
+             { prop: "founder", label: l3("設立主體", "Founded by", "設立主体"), map: { "국립": l3("國立", "National", "国立"), "공립": l3("公立", "Public", "公立"), "사립": l3("私立", "Private", "私立"), "대학": l3("大學", "University", "大学") } },
+             { prop: "opened", label: l3("開館日", "Opened", "開館日") }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "updated", label: l3("最後修改", "Last modified", "最終更新") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("依《博物館及美術館振興法》登錄、營業中的 873 館；歇業 92、無座標 119 未上圖，同館由市與區重複登錄的 184 筆已合併", "873 registered, operating museums and galleries; 92 closed and 119 without coordinates are not shown, and 184 duplicate city/district registrations were merged", "博物館・美術館振興法に基づく登録館で営業中の873館。閉館92・座標なし119は非表示、市と区の重複登録184件は統合"),
+                  l3("首爾幾乎未涵蓋：名冊中首爾只有 1 館（首爾市的館不在這份全國名冊，原因未查證）；未登錄的展示館、文化院、文藝會館也未涵蓋", "Seoul is almost entirely missing: the national list has only 1 Seoul entry (reason not verified); unregistered exhibition halls, cultural centres and arts halls are not covered either", "ソウルはほぼ未収録（全国名簿にソウルは1館のみ、理由は未確認）。未登録の展示館・文化院・文芸会館も未収録")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 박물관·미술관 (LOCALDATA, 공공데이터포털)", sourceUrl: DG("15045093"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
+    loading: l3("南韓博物館與美術館載入中", "Loading South Korea museums and galleries", "韓国の博物館・美術館を読み込み中"),
+  },
+  {
+    key: "krPerformances", file: "kr_performances.pmtiles", sourceLayer: "kr_performances", geom: "point", layerId: "kr-performances-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#f472b6", tier: "M", count: 9552,
+    catProp: "year_group",
+    cats: [
+      { id: "y2026", values: ["2026"], color: "#f472b6", label: l3("2026 年", "2026", "2026年") },
+      { id: "y2025", values: ["2025"], color: "#a78bfa", label: l3("2025 年", "2025", "2025年") },
+      { id: "older", values: ["2024_or_earlier"], color: "#94a3b8", label: l3("2024 年以前", "2024 or earlier", "2024年以前"), faded: true },
+    ],
+    title: { props: ["name"], fallback: l3("公演活動", "Performance", "公演") },
+    fields: [{ prop: "venue", label: l3("場地", "Venue", "会場") }, { prop: "start", label: l3("開始日", "Starts", "開始日") }, { prop: "end", label: l3("結束日", "Ends", "終了日") },
+             { prop: "time", label: l3("時間", "Time", "時間") }, { prop: "fee", label: l3("票價", "Fee", "料金") }, { prop: "age", label: l3("入場年齡", "Age", "入場年齢") },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "provider", label: l3("提供機關", "Data provider", "提供機関") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("各機關申報的歷年活動清單（2017–2026，9,552 場），不是目前正在舉行的活動；依開始年分色", "A cumulative list of events reported by agencies (2017–2026, 9,552), not what is on now; coloured by start year", "各機関が申告した過去分を含む公演リスト（2017–2026、9,552件）で、現在開催中の一覧ではない。開始年で色分け"),
+                  l3("同一場館的多場活動疊在同一點；國家機關申報占多數，地方小型活動不完整；世宗無資料", "Several events at one venue share a point; national agencies dominate and small local events are incomplete; no data for Sejong", "同じ会場の公演は同じ点に重なる。国の機関の申告が多く地方の小規模公演は不完全。世宗はデータなし")],
+    popupNotes: [l3("同一點可能疊了多場活動，這裡只顯示其中一場", "Several events may share this point; only one is shown", "同じ点に複数の公演が重なる場合があり、ここでは1件のみ表示")],
+    sourceOrg: "전국공연행사정보표준데이터 (공공데이터포털)", sourceUrl: DGS("15013106"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
+    loading: l3("南韓公演活動載入中", "Loading South Korea performances", "韓国の公演を読み込み中"),
+  },
+  {
+    key: "krFestivals", file: "kr_festivals.pmtiles", sourceLayer: "kr_festivals", geom: "point", layerId: "kr-festivals-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#fb7185", tier: "M", count: 1113,
+    catProp: "year_group",
+    cats: [
+      { id: "y2026", values: ["2026"], color: "#fb7185", label: l3("2026 年", "2026", "2026年") },
+      { id: "y2025", values: ["2025"], color: "#f59e0b", label: l3("2025 年", "2025", "2025年") },
+      { id: "older", values: ["2024_or_earlier"], color: "#94a3b8", label: l3("2024 年以前", "2024 or earlier", "2024年以前"), faded: true },
+    ],
+    title: { props: ["name"], fallback: l3("文化祭", "Festival", "祭り") },
+    fields: [{ prop: "venue", label: l3("會場", "Venue", "会場") }, { prop: "start", label: l3("開始日", "Starts", "開始日") }, { prop: "end", label: l3("結束日", "Ends", "終了日") },
+             { prop: "desc", label: l3("內容", "Description", "内容") }, { prop: "host", label: l3("主辦", "Organiser", "主催") },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "provider", label: l3("提供機關", "Data provider", "提供機関") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("自治團體申報的文化祭，每點一屆（1,113 屆）；檔案逐年累積，同一祭典可能有多屆多點；依開始年分色", "Festivals reported by local governments, one point per edition (1,113); the file accumulates by year, so a festival may appear more than once; coloured by start year", "自治体が申告した祭り（1回ごとに1点、1,113件）。年ごとに累積するため同じ祭りが複数回載る場合あり。開始年で色分け"),
+                  l3("無座標 231 屆未上圖", "231 without coordinates are not shown", "座標なし231件は非表示")],
+    popupNotes: [],
+    sourceOrg: "전국문화축제표준데이터 (공공데이터포털)", sourceUrl: DGS("15013104"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
+    loading: l3("南韓文化祭載入中", "Loading South Korea festivals", "韓国の祭りを読み込み中"),
+  },
+  {
+    key: "krHeritage", file: "kr_heritage.pmtiles", sourceLayer: "kr_heritage", geom: "point", layerId: "kr-heritage-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 3 }, color: "#f59e0b", tier: "M", count: 10197,
+    catProp: "cat",
+    cats: [
+      { id: "national", values: ["national"], color: "#f59e0b", label: l3("國家指定（國寶、寶物、史蹟、名勝、天然紀念物、民俗）", "National designation (treasures, historic sites, scenic sites, natural monuments, folklore)", "国指定（国宝・宝物・史跡・名勝・天然記念物・民俗）") },
+      { id: "provincial", values: ["provincial"], color: "#a78bfa", label: l3("市道指定", "Provincial designation", "市道指定") },
+      { id: "registered", values: ["registered"], color: "#38bdf8", label: l3("登錄文化遺產", "Registered heritage", "登録文化遺産") },
+      { id: "material", values: ["material"], color: "#94a3b8", label: l3("文化遺產資料", "Heritage material", "文化遺産資料") },
+    ],
+    title: { props: ["name"], fallback: l3("國家遺產", "Heritage", "国家遺産") },
+    fields: [{ prop: "name_hanja", label: l3("漢字名", "Hanja name", "漢字名") }, { prop: "grade", label: l3("指定種別", "Designation", "指定種別") },
+             { prop: "region", label: l3("地區", "Region", "地域") }, { prop: "heritage_no", label: l3("指定號", "Designation no.", "指定番号"), kind: "code" },
+             { prop: "registered", label: l3("登錄日", "Recorded", "登録日") }],
+    legendNotes: [l3("有座標、未解除指定的 10,197 處；無形遺產 829 筆（座標是保有者所在地）與無座標的可移動文物 4,886 筆未上圖", "10,197 designated items with coordinates; 829 intangible heritage items (located at the holder) and 4,886 movable items without coordinates are not shown", "座標があり指定解除されていない10,197件。無形遺産829件（保持者の所在地）と座標のない動産文化財4,886件は非表示"),
+                  l3("文物（書畫、典籍等）的點是收藏地，不是出土地", "Points for movable objects (paintings, books) mark where they are kept, not where they were found", "書画・典籍などの点は所蔵地で、出土地ではない")],
+    popupNotes: [],
+    sourceOrg: "국가유산청 국가유산 목록 Open API (khs.go.kr)", sourceUrl: "https://www.khs.go.kr/cha/SearchKindOpenapiList.do", license: "未標示授權（API 端點無條款）", fetchedAt: KR_W8_FETCHED_AT,
+    loading: l3("南韓國家遺產載入中", "Loading South Korea heritage", "韓国の国家遺産を読み込み中"),
+  },
+  {
+    key: "krLodging", file: "kr_lodging.pmtiles", sourceLayer: "kr_lodging", geom: "point", layerId: "kr-lodging-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 3 }, color: "#fb7185", tier: "S", count: 30358,
+    catProp: "cat",
+    cats: [
+      { id: "hotel", values: ["hotel"], color: "#f59e0b", label: l3("飯店（관광／일반호텔）", "Hotel", "ホテル") },
+      { id: "condo", values: ["condo"], color: "#22c55e", label: l3("渡假公寓（휴양콘도）", "Resort condominium", "リゾートコンド") },
+      { id: "motel", values: ["motel"], color: "#fb7185", label: l3("旅館與旅人宿（여관／여인숙）", "Inn / motel (yeogwan)", "旅館（여관・여인숙）") },
+      { id: "residence", values: ["residence"], color: "#38bdf8", label: l3("生活型住宿（생활숙박）", "Serviced residence", "生活型宿泊") },
+    ],
+    otherColor: "#94a3b8", otherLabel: l3("其他住宿", "Other lodging", "その他の宿泊"),
+    title: { props: ["name"], fallback: l3("住宿", "Lodging", "宿泊施設") },
+    fields: [{ prop: "kind", label: l3("業態", "Business type", "業態") }, { prop: "rooms", label: l3("客房數", "Rooms", "客室数"), kind: "num", digits: 0 },
+             { prop: "licensed", label: l3("許可日", "Licensed", "許可日") }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "updated", label: l3("最後修改", "Last modified", "最終更新") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("營業中的住宿業 30,358 處；歇業 27,607、無座標 1,042 未上圖", "30,358 operating lodging businesses; 27,607 closed and 1,042 without coordinates are not shown", "営業中の宿泊業30,358か所。廃業27,607・座標なし1,042は非表示"),
+                  l3("農漁村民宿、外國人觀光都市民宿、韓屋體驗業未涵蓋", "Rural homestays, urban guesthouses for foreign tourists and hanok stays are not covered", "農漁村民泊・外国人観光都市民泊・韓屋体験業は未収録")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 숙박업 (LOCALDATA, 공공데이터포털)", sourceUrl: DG("15044968"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
+    loading: l3("南韓住宿載入中", "Loading South Korea lodging", "韓国の宿泊施設を読み込み中"),
+  },
+  {
+    key: "krSafeDeliveryBoxes", file: "kr_safe_delivery_boxes.pmtiles", sourceLayer: "kr_safe_delivery_boxes", geom: "point", layerId: "kr-safe-delivery-boxes-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#22c55e", tier: "M", count: 789,
+    title: { props: ["name"], fallback: l3("安心宅配櫃", "Safe parcel locker", "安心宅配ボックス") },
+    fields: [{ prop: "address", label: l3("地址", "Address", "住所") }, { prop: "weekday", label: l3("平日時間", "Weekday hours", "平日時間") },
+             { prop: "free_hours", label: l3("免費保管（小時）", "Free storage (hours)", "無料保管（時間）") }, { prop: "installed", label: l3("設置日", "Installed", "設置日") },
+             { prop: "manager", label: l3("管理機關", "Managed by", "管理機関") }, { prop: "provider", label: l3("提供機關", "Data provider", "提供機関") },
+             { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("自治團體設置的安心宅配櫃 789 處（免費代收包裹）；89 個機關申報，未申報的市郡區不代表沒有；世宗無資料", "789 safe parcel lockers run by local governments (free parcel pick-up); reported by 89 agencies, so gaps do not mean none; no data for Sejong", "自治体の安心宅配ボックス789か所（無料受け取り）。89機関の申告で、空白はゼロを意味しない。世宗はデータなし")],
+    popupNotes: [],
+    sourceOrg: "전국안심택배함표준데이터 (공공데이터포털)", sourceUrl: DGS("15034534"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
+    loading: l3("南韓安心宅配櫃載入中", "Loading South Korea parcel lockers", "韓国の安心宅配ボックスを読み込み中"),
+  },
+  {
+    key: "krSeniorCenters", file: "kr_senior_centers.pmtiles", sourceLayer: "kr_senior_centers", geom: "point", layerId: "kr-senior-centers-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 2 }, color: "#a78bfa", tier: "S", count: 56028,
+    catProp: "kind",
+    cats: [
+      { id: "senior", values: ["경로당"], color: "#a78bfa", label: l3("敬老堂（경로당）", "Senior centre (gyeongnodang)", "敬老堂（경로당）") },
+      { id: "both", values: ["마을회관및경로당"], color: "#38bdf8", label: l3("里民會館兼敬老堂", "Village hall with senior centre", "村会館兼敬老堂") },
+      { id: "hall", values: ["마을회관"], color: "#f59e0b", label: l3("里民會館（마을회관）", "Village hall (maeul hoegwan)", "村会館（마을회관）") },
+    ],
+    title: { props: ["name"], fallback: l3("敬老堂", "Senior centre", "敬老堂") },
+    fields: [{ prop: "kind", label: l3("類型", "Type", "種別"), map: { "경로당": l3("敬老堂", "Senior centre", "敬老堂"), "마을회관및경로당": l3("里民會館兼敬老堂", "Village hall + senior centre", "村会館兼敬老堂"), "마을회관": l3("里民會館", "Village hall", "村会館") } },
+             { prop: "status", label: l3("營運狀態", "Status", "運営状態"), map: { "영업": l3("營運中", "Open", "運営中"), "휴업": l3("暫停", "Suspended", "休止") } },
+             { prop: "built", label: l3("建立日", "Built", "建立日") }, { prop: "area_m2", label: l3("建物面積（㎡）", "Floor area (m²)", "建物面積（㎡）") },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "manager", label: l3("管理機關", "Managed by", "管理機関") },
+             { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("163 個機關申報的 56,028 處；首爾只有 12 區申報，未申報區不代表沒有敬老堂", "56,028 reported by 163 agencies; only 12 Seoul districts reported, so gaps do not mean none", "163機関が申告した56,028か所。ソウルは12区のみで、空白はゼロを意味しない"),
+                  l3("歇業 327、同名同座標重複 2,295 筆未上圖", "327 closed and 2,295 duplicates are not shown", "廃止327・重複2,295件は非表示")],
+    popupNotes: [],
+    sourceOrg: "전국마을회관및경로당표준데이터 (공공데이터포털)", sourceUrl: DGS("15114136"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
+    loading: l3("南韓敬老堂載入中", "Loading South Korea senior centres", "韓国の敬老堂を読み込み中"),
   },
 ];
 
