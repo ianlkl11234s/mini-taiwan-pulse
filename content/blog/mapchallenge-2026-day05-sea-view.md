@@ -6,7 +6,7 @@ topic: analysis
 series: 30 天地圖挑戰
 challengeDay: 5
 date: 2026-11-05
-updated: 2026-11-07
+updated: 2026-11-09
 tags: [30DayMapChallenge, 海景, 視線分析, 公路, 鐵路]
 cover: cover-dark.jpg
 coverLight: cover-light.jpg
@@ -91,3 +91,12 @@ height: 460
 ### 這張海景地圖準嗎？
 
 它是用地形、建物、樹冠高度推估的視線模型，用街景抽看，判成開闊海景的路段體感約七到八成真的看得到。隔音牆、護欄、新建物和近距離行道樹都沒算，海堤與防風林高度也是假設值，適合用來找候選路段。
+
+## 資料來源
+
+- **地形與海的範圍**：內政部國土測繪中心〈全臺 20 公尺網格數值地形模型〉2024 年版，[data.gov.tw 169807](https://data.gov.tw/dataset/169807)，政府資料開放授權條款第 1 版。
+- **海岸線、公路、鐵路**：© OpenStreetMap 貢獻者，ODbL。
+- **建物高度**：GlobalBuildingAtlas（慕尼黑工業大學，Zhu et al. 2025），CC BY-NC 4.0；與 © OpenStreetMap 貢獻者 的建物輪廓融合，ODbL。
+- **樹冠高度**：Meta 與世界資源研究所（WRI）全球樹冠高度（Tolan et al. 2024），CC BY 4.0。
+- **海堤**：經濟部水利署地理資訊中心〈一般性海堤區域〉（SEAWALLZONE），政府資料開放授權條款第 1 版。
+- **沿海保安林**：農業部林業及自然保育署〈全臺保安林分布概略圖〉1151 版，[data.gov.tw 9928](https://data.gov.tw/dataset/9928)，政府資料開放授權條款第 1 版。
