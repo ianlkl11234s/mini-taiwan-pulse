@@ -87,5 +87,7 @@
   "enum.statGroup.私人租屋比例": "Private rented share",
   "enum.statGroup.社會住宅租戶比例": "Social housing tenant share",
   "enum.statGroup.平均月租": "Average monthly rent",
-  "enum.statGroup.學士以上學歷比例": "Bachelor's degree or higher share"
+  "enum.statGroup.學士以上學歷比例": "Bachelor's degree or higher share",
+  "enum.statGroup.每萬人火災件數": "Fire incidents per 10,000 residents",
+  "enum.statGroup.每萬人交通事故件數": "Road traffic accidents per 10,000 residents"
 }
