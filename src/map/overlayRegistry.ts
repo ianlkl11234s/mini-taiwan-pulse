@@ -349,7 +349,7 @@ import {
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
-  pollutionZoneColorExpr, pollutionZoneStatusFilter,
+  pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -12378,6 +12378,13 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──
   ...tedsGridEmissionsOverlays(),
+  {
+    // 事件型崩塌：面 z10 起（代表點 companion 自動產生、預設點＋熱區）；年度＋事件類型篩選放在面子圖層，companion 沿用
+    id: "landslideEventCatalog", sourceUrl: "./hazards/landslide_event_catalog_093_114.pmtiles", sourceId: "landslide-event-catalog",
+    pmtiles: { sourceLayer: "landslide_event_catalog", minzoom: 10, maxzoom: 14 },
+    attribution: `農業部農村發展及水土保持署 事件型崩塌目錄 93–114 年（data.gov.tw 96823 等 22 筆）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("landslideEventCatalog", landslideEventColorExpr(), 0.7, undefined, (p) => landslideEventFilter(p?.landslideEventCatalogYearMask, p?.landslideEventCatalogTypeMask)),
+  },
   {
     // 污染管制區：面 z8 起（代表點 companion 由 repPointLayers 自動產生、預設點）；列管狀態篩選放在面子圖層，companion 沿用
     id: "pollutionControlZones", sourceUrl: "./environment/pollution_control_zones_202611.pmtiles", sourceId: "pollution-control-zones",

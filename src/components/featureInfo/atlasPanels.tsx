@@ -16,7 +16,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1357,9 +1357,29 @@ function PollutionControlZonePanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 事件型崩塌目錄：面（z10 起）帶事件名稱與影像日期；代表點只有年度、面積與類型旗標。 */
+function LandslideEventPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const types = LANDSLIDE_EVENT_TYPE_OPTIONS.filter((o) => props[`has_${o.value}`] === true);
+  const color = types[0]?.color ?? LANDSLIDE_EVENT_TYPE_OPTIONS[3]!.color;
+  const typeText = types.map((o) => enumOf("atlasLandslideEventType", o.value, o.label, i18n)).join(t("popup.common.listSeparator"));
+  const year = props.year == null ? "" : t("popup.atlas.lseYear", { year: displayRocYear(String(props.year), i18n) });
+  return <>
+    <Title color={color}>{str(props.events) || typeText}</Title>
+    <Row field="type" value={typeText} color={color} />
+    <Row label={t("popup.atlas.lseYearLabel")} value={year} />
+    <Row label={t("popup.atlas.lseDates")} value={[str(props.before_date), str(props.after_date)].filter(Boolean).join(" → ")} mono />
+    <Row field="area" value={fmt(props.area_ha, 2, t("popup.atlas.unitHectares"), i18n)} mono />
+    <Row field="dataSource" value={str(props.data_source)} />
+    {props.events == null ? <Row field="remarks" value={t("popup.atlas.lsePointHint")} /> : null}
+  </>;
+}
+
 type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
 /** G53 批 1 出處（與圖例同一份機關＋data.gov.tw 資料集；土石流依圖徵種類指向溪流／集水區／影響範圍資料集）。 */
 const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
+  landslideEventCatalog: { org: "swcb", dataset: (p) => (p.source_nid != null ? String(p.source_nid) : "177455") },
   pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
   tedsGridEmissions: { org: "moenv", dataset: (p) => (p.control_no != null || p.n_sources != null ? "48201" : "152688") },
   broadcastTransmitters: { org: "ncc", dataset: (p) => (p.kind === "am" ? "6446" : p.kind === "monitoring" ? "6825" : "6445") },
@@ -1385,6 +1405,7 @@ function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  landslideEventCatalog: withG53Footer("landslideEventCatalog", LandslideEventPanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
@@ -1471,6 +1492,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
+  landslideEventCatalog: manifestZh("landslideEventCatalog"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),

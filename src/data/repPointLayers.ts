@@ -86,6 +86,8 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   R({ key: "swcSpecialZones", sourceId: "swc-special-zones", file: "urban/swc_special_zones_115_points.pmtiles", sourceLayer: "swc_special_zones_points", count: 66, def: "point" }),
   // G53 批 2／3（2026-11-10）：污染管制區多為單筆地號小面 → 預設點；代表點檔 z4–12
   R({ key: "pollutionControlZones", sourceId: "pollution-control-zones", file: "environment/pollution_control_zones_202611_points.pmtiles", sourceLayer: "pollution_control_zones_points", count: 7803, def: "point", maxzoom: 12 }),
+  // G53 批 2／3（2026-11-10）：事件型崩塌 4.4 萬小面 → 預設點、拉遠熱區；代表點檔 z4–12 未抽稀
+  R({ key: "landslideEventCatalog", sourceId: "landslide-event-catalog", file: "hazards/landslide_event_catalog_093_114_points.pmtiles", sourceLayer: "landslide_event_catalog_points", count: 43_779, def: "point", maxzoom: 12, heatIntensity: 0.6 }),
   // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──
   G({ key: "importantWetlands", sourceId: "important-wetlands", count: 89, def: "point" }),
   G({ key: "importantWetlandZones", sourceId: "important-wetland-zones", count: 578, def: "polygon" }),

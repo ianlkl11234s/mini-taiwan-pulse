@@ -12006,6 +12006,18 @@ export const LAYER_MANIFEST = {
     description: "疾管署公告儲備抗蛇毒血清的醫療院所 191 家，可依血清種類（龜殼花及赤尾鮐、雨傘節及飯匙倩、百步蛇、鎖鏈蛇）篩選。",
     topics: ["醫療", "蛇咬", "抗蛇毒血清", "急救", "疾管署"],
   },
+  landslideEventCatalog: {
+    key: "landslideEventCatalog", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "事件型崩塌目錄", alt: "Event-based Landslide Inventory" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.landslideEventCatalog, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_event_catalog", confidence: "HIGH" }], processing: "analytics hazards/landslide_event_catalog 093–114：水保署 data.gov.tw 22 個事件型崩塌目錄（96823…177455；113／114 年跟 FileToJson 索引到實際 zip）合併 43,779 面（104 年 1 筆空幾何不上圖）＋代表點檔（z4–12）；日期寫法統一、事件類型旗標 has_typhoon／rain／quake／other", note: "事件後判釋，和 landslideAnnual 年度全島判釋不同；98 年莫拉克占 27%。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "landslide-event-catalog", url: "./hazards/landslide_event_catalog_093_114.pmtiles", sourceLayer: "landslide_event_catalog", minzoom: 10, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "landslide-event-catalog-points", url: "./hazards/landslide_event_catalog_093_114_points.pmtiles", sourceLayer: "landslide_event_catalog_points", minzoom: 4, maxzoom: 12 },
+    ],
+    legend: "landslideEventCatalog", popup: "landslideEventCatalog", params: { count: 6, kinds: ["select", "multiSelect", "multiSelect", "slider", "palette", "slider"] },
+    description: "水保署民國 93–114 年歷次颱風、豪雨、地震後衛星判釋的崩塌地 43,779 處，可依年度與事件類型篩選（預設 114 年）。",
+    topics: ["災害", "崩塌", "颱風", "豪雨", "地震", "莫拉克", "水保署"],
+  },
   pollutionControlZones: {
     key: "pollutionControlZones", country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" }, ...layerName({ zh: "土壤及地下水污染管制區", alt: "Soil & Groundwater Pollution Control Zones" }), expandable: true,
     color: ATLAS_LAYER_COLORS.pollutionControlZones, icon: Biohazard,

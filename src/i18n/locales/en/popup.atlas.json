@@ -351,5 +351,9 @@
   "popup.atlas.pczAnnoDate": "Announced",
   "popup.atlas.pczStatusDate": "Status changed",
   "popup.atlas.pczReleaseDate": "Released",
-  "popup.atlas.pczSiteId": "Site code"
+  "popup.atlas.pczSiteId": "Site code",
+  "popup.atlas.lseYearLabel": "Year",
+  "popup.atlas.lseYear": "{year}",
+  "popup.atlas.lseDates": "Before → after image dates",
+  "popup.atlas.lsePointHint": "Zoom to level 10 and switch to polygons to see the event name and image dates"
 }

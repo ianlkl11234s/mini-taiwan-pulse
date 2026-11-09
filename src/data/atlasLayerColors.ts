@@ -93,4 +93,5 @@ export const ATLAS_LAYER_COLORS = {
   broadcastTransmitters: "#7c3aed",
   tedsGridEmissions: "#d95f0e",
   pollutionControlZones: "#b91c1c",
+  landslideEventCatalog: "#7c3aed",
 } as const;

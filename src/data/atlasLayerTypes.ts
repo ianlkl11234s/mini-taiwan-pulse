@@ -610,7 +610,7 @@ export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
-  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones",
+  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -670,9 +670,34 @@ export function pollutionZoneStatusFilter(mask?: number): unknown[] {
 export function pollutionZoneColorExpr(): unknown[] {
   return ["case", ["==", ["to-string", ["get", "is_active"]], "false"], POLLUTION_ZONE_RELEASED_COLOR, matchColorExpr("status_group", POLLUTION_ZONE_GROUP_OPTIONS)];
 }
+/** 事件型崩塌目錄的事件類型（上游布林 has_<value>；色序＝颱風 > 豪雨 > 地震 > 其他，取第一個成立的）。 */
+export const LANDSLIDE_EVENT_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "typhoon", label: "颱風", color: "#7c3aed" },
+  { value: "rain", label: "豪雨", color: "#0284c7" },
+  { value: "quake", label: "地震", color: "#ea580c" },
+  { value: "other", label: "其他", color: "#64748b" },
+];
+/** 事件型崩塌目錄年度（民國；PMTiles year 為數字，以 to-string 比對）。 */
+export const LANDSLIDE_EVENT_YEARS = ["93", "94", "95", "96", "97", "98", "99", "100", "101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "112", "113", "114"] as const;
+export function landslideEventColorExpr(): unknown[] {
+  return ["case", ...LANDSLIDE_EVENT_TYPE_OPTIONS.slice(0, 3).flatMap((o) => [["==", ["get", `has_${o.value}`], true], o.color]), LANDSLIDE_EVENT_TYPE_OPTIONS[3]!.color];
+}
+/** 年度（預設 114）× 事件類型（任一成立）篩選；兩組 mask 都缺省時：年度只開最新、類型全開。 */
+export function landslideEventFilter(yearMask?: number, typeMask?: number): unknown[] {
+  const latest = 1 << (LANDSLIDE_EVENT_YEARS.length - 1);
+  const ym = yearMask === undefined || !Number.isFinite(yearMask) ? latest : Math.trunc(yearMask);
+  const years = LANDSLIDE_EVENT_YEARS.filter((_, i) => (ym & (1 << i)) !== 0);
+  const allTypes = (1 << LANDSLIDE_EVENT_TYPE_OPTIONS.length) - 1;
+  const tm = typeMask === undefined || !Number.isFinite(typeMask) ? allTypes : Math.trunc(typeMask) & allTypes;
+  const yearExpr = ["in", ["to-string", ["get", "year"]], ["literal", years]];
+  if (tm === allTypes) return yearExpr;
+  const types = LANDSLIDE_EVENT_TYPE_OPTIONS.filter((_, i) => (tm & (1 << i)) !== 0);
+  return ["all", yearExpr, ["any", false, ...types.map((o) => ["==", ["get", `has_${o.value}`], true])]];
+}
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會" } as const;
 
 export const ATLAS_NOTES = {
+  landslideEventCatalog: "農業部農村發展及水土保持署的事件型崩塌目錄：民國 93–114 年（2004–2025）各次颱風、豪雨、地震後以衛星影像判釋的崩塌地 43,779 處（22 個 data.gov.tw 資料集；104 年 1 筆空幾何未上圖）。預設只顯示最新的 114 年，「年度」可多選；98 年（莫拉克颱風）11,707 處，一起開會主導全國畫面。依事件類型上色（同一處可同時屬颱風與豪雨，顏色依颱風、豪雨、地震、其他的順序取第一個），「事件類型」篩選是有任一勾選類型就顯示。小面多，預設畫點（拉遠熱區），可切成面（10 級起）；事件名稱與影像日期要放大切成面才看得到。和「年度全島崩塌地」不同：本層是事件後判釋，早期年度部分取自林務局全島判釋，兩層可能重疊。",
   pollutionControlZones: "環境部土壤及地下水污染管制區範圍：土壤 7,402 場址（data.gov.tw 6384，2026-11 月檔）、地下水 401 場址（35092，2026-10），共 7,803 場址，含已解除列管的。預設只顯示列管中的 384 場址，「列管狀態」可勾已解除（灰色）。依列管類型上色：整治場址（較嚴重）深紅、控制場址橙、地下水受污染使用限制地區紫。多為單筆農地地號的小面，預設畫點，可切成面（8 級起）。彰化、桃園多為農地重金屬污染。102 個場址名稱含「?」是來源造字遺失，照原樣顯示。場址代碼與「污染場址」圖層相同，可互相對照；範圍以環境部公告為準。",
   tedsGridEmissions: "環境部臺灣排放量清冊 TEDS 13.0（排放年 2023）的推估排放量，不是監測值。網格模式顯示每平方公里每年排放公噸數（1 km 方格；拉遠到 9 級以下合成 5 km 方格），四種來源分開看：點源（工廠煙囪等）、線源（公路車輛）、面源（其他人為來源）、生物源（植物排放，只有 NMHC）。只收有排放的格。「點源工廠」模式是 15,996 家事業的年排放量（由 255,912 個排放口依管制編號合併，位置取排放口的中位位置），拉遠畫熱區、放大到 10 級起畫點，點大小依所選污染物。非公路運輸與氨排放網格未收。",
   broadcastTransmitters: "國家通訊傳播委員會公告的 FM 廣播電臺 290 座、AM 廣播電臺 136 座（data.gov.tw 6445、6446，115-07-03 版）與電波監測站 21 站（6825，2025-12）。點是發射機位置；同一站址常有多座電臺共用（FM 245 址、AM 92 址），點會重疊，放大後逐一點選。1 座經度筆誤（102→120）已依地址修正。電臺類別（甲、乙、丙等）照來源原文；「海外電臺」是對海外播音的 AM 發射站。",

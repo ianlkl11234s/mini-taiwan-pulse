@@ -1649,6 +1649,20 @@
    "s3_key": "deploy-assets/hazards/landslide_dod_impact.geojson"
   },
   {
+   "path": "public/hazards/landslide_event_catalog_093_114.pmtiles",
+   "bytes": 39275952,
+   "sha256": "8438781fcb4ba76235630d59e9a46c7c842b4675f4f4bb0fec1f4e3fe9649fd5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/landslide_event_catalog_093_114.pmtiles"
+  },
+  {
+   "path": "public/hazards/landslide_event_catalog_093_114_points.pmtiles",
+   "bytes": 6513713,
+   "sha256": "ec2eac49fcf8a4b9aa7e658ebcb35fab5e10f77c7f35334d5e0c85897ba51767",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/landslide_event_catalog_093_114_points.pmtiles"
+  },
+  {
    "path": "public/hazards/major_occupational_accidents.geojson",
    "bytes": 864626,
    "sha256": "7fc1c0551a6a50b194345b54698b4f673261b918684e6d7579a6f31dd6f78afb",

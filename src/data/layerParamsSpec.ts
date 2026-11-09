@@ -117,7 +117,7 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
-import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, ANTIVENOM_SERUM_OPTIONS, DEBRIS_FLOW_VIEW_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, POLLUTION_ZONE_STATUS_OPTIONS } from "./atlasLayerTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, ANTIVENOM_SERUM_OPTIONS, DEBRIS_FLOW_VIEW_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, POLLUTION_ZONE_STATUS_OPTIONS, LANDSLIDE_EVENT_YEARS, LANDSLIDE_EVENT_TYPE_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -5286,6 +5286,17 @@ export const LAYER_PARAMS_SPEC = {
   postMailboxes: [opacitySlider("postMailboxesOpacity", densePointOpacity(6_024)), scaleSlider("postMailboxesScale", 1)],
   motorcycleInspectionStations: [opacitySlider("motorcycleInspectionStationsOpacity", densePointOpacity(3_893)), scaleSlider("motorcycleInspectionStationsScale", 1)],
   broadcastTransmitters: [opacitySlider("broadcastTransmittersOpacity", 0.9), scaleSlider("broadcastTransmittersScale", 1)],
+  landslideEventCatalog: [
+    {
+      kind: "multiSelect", name: "landslideEventCatalogYear", label: "年度（西元）", default: serializeMultiSelectValues(["114"]),
+      options: LANDSLIDE_EVENT_YEARS.map((y) => ({ label: String(Number(y) + 1911), value: y })), out: "landslideEventCatalogYearMask",
+    },
+    {
+      kind: "multiSelect", name: "landslideEventCatalogType", label: "事件類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(LANDSLIDE_EVENT_TYPE_OPTIONS), out: "landslideEventCatalogTypeMask",
+    },
+    opacitySlider("landslideEventCatalogOpacity", 0.7),
+  ],
   pollutionControlZones: [
     {
       kind: "multiSelect", name: "pollutionControlZonesStatus", label: "列管狀態", default: serializeMultiSelectValues(["true"]),

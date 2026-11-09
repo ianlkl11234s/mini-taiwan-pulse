@@ -2460,5 +2460,8 @@
   "param.列管類型": "Control type",
   "param.整治場址": "Remediation site",
   "param.控制場址": "Control site",
-  "param.地下水受污染使用限制地區": "Groundwater-use restriction area"
+  "param.地下水受污染使用限制地區": "Groundwater-use restriction area",
+  "param.年度（西元）": "Year",
+  "param.豪雨": "Heavy rain",
+  "param.事件類型": "Event type"
 }

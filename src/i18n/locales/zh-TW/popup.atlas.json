@@ -351,5 +351,9 @@
   "popup.atlas.pczAnnoDate": "公告日",
   "popup.atlas.pczStatusDate": "狀態異動日",
   "popup.atlas.pczReleaseDate": "解除日",
-  "popup.atlas.pczSiteId": "場址代碼"
+  "popup.atlas.pczSiteId": "場址代碼",
+  "popup.atlas.lseYearLabel": "年度",
+  "popup.atlas.lseYear": "民國 {year} 年",
+  "popup.atlas.lseDates": "前後期影像日期",
+  "popup.atlas.lsePointHint": "放大到 10 級並切成「面」可看事件名稱與影像日期"
 }

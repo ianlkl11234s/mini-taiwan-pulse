@@ -351,5 +351,9 @@
   "popup.atlas.pczAnnoDate": "公告日",
   "popup.atlas.pczStatusDate": "状況変更日",
   "popup.atlas.pczReleaseDate": "解除日",
-  "popup.atlas.pczSiteId": "サイトコード"
+  "popup.atlas.pczSiteId": "サイトコード",
+  "popup.atlas.lseYearLabel": "年度",
+  "popup.atlas.lseYear": "{year} 年",
+  "popup.atlas.lseDates": "前後の画像日付",
+  "popup.atlas.lsePointHint": "ズーム 10 まで拡大し「面」に切り替えるとイベント名と画像日付が表示されます"
 }

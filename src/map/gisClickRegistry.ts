@@ -954,6 +954,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["freeway-hundred-meter-stakes-circle", "freeway-hundred-meter-stakes-glow"], type: "freewayHundredMeterStakes" },
   { layers: ["antivenom-hospitals-circle", "antivenom-hospitals-glow"], type: "antivenomHospitals" },
   { layers: ["broadcast-transmitters-circle", "broadcast-transmitters-glow"], type: "broadcastTransmitters" },
+  { layers: ["landslide-event-catalog-fill", "landslide-event-catalog-outline"], type: "landslideEventCatalog" },
   { layers: ["pollution-control-zones-fill", "pollution-control-zones-outline"], type: "pollutionControlZones" },
   // G53 批 2／3：TEDS 點源工廠先、1 km 網格次之、5 km 網格最後
   { layers: ["teds-point-source-facilities-circle", "teds-grid-emissions-fill", "teds-grid-emissions-5km-fill"], type: "tedsGridEmissions" },

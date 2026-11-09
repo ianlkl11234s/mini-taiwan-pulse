@@ -1781,5 +1781,6 @@
   "layer.statsKrTrafficAccidentsPer10kSgg": "人口1万人あたり交通事故件数（基礎自治体）",
   "layer.broadcastTransmitters": "放送送信所・電波監視局",
   "layer.tedsGridEmissions": "大気汚染物質排出量グリッド（TEDS）",
-  "layer.pollutionControlZones": "土壌・地下水汚染管制区域"
+  "layer.pollutionControlZones": "土壌・地下水汚染管制区域",
+  "layer.landslideEventCatalog": "イベント別崩壊地目録"
 }

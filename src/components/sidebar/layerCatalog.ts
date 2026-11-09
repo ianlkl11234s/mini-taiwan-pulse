@@ -1584,6 +1584,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("debrisFlowPotential"),
           fromManifest("highwayDisasterHistory"),
           fromManifest("landslideAnnual"),
+          fromManifest("landslideEventCatalog"),
           fromManifest("swcbDisasterPhotoPoints"),
         ],
       },

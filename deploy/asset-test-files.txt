@@ -151,6 +151,8 @@ public/hazards/land_subsidence_contours.pmtiles
 public/hazards/land_subsidence_stations.geojson
 public/hazards/landslide_dod_areas.geojson
 public/hazards/landslide_dod_impact.geojson
+public/hazards/landslide_event_catalog_093_114.pmtiles
+public/hazards/landslide_event_catalog_093_114_points.pmtiles
 public/hazards/major_occupational_accidents.geojson
 public/hazards/mountain_rescue_incidents.geojson
 public/hazards/nuclear_epz_evacuation.geojson

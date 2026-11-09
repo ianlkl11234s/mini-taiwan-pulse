@@ -15,7 +15,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
   MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
-  POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR,
+  POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, LANDSLIDE_EVENT_TYPE_OPTIONS,
   G53_ORGS,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS,
@@ -108,6 +108,7 @@ function TedsGridEmissionsLegend() {
 }
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  landslideEventCatalog: () => <AtlasLegend layer="landslideEventCatalog" en="Event-based Landslide Inventory" source={src("swcb", ["96823", "177455"], true)} domain="atlasLandslideEventType" rows={LANDSLIDE_EVENT_TYPE_OPTIONS} dense />,
   pollutionControlZones: () => <AtlasLegend layer="pollutionControlZones" en="Soil & Groundwater Pollution Control Zones" kind="square" source={src("moenv", ["6384", "35092"])} domain="atlasPollutionZoneGroup"
     rows={[...POLLUTION_ZONE_GROUP_OPTIONS, { labelKey: "legend.atlas.pczReleased", color: POLLUTION_ZONE_RELEASED_COLOR }]} />,
   tedsGridEmissions: () => <TedsGridEmissionsLegend />,

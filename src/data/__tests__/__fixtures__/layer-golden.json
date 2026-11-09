@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1791,
+    "keyCount": 1792,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5664,6 +5664,15 @@
         "broadcast-transmitters-glow"
       ],
       "type": "broadcastTransmitters"
+    },
+    {
+      "layers": [
+        "landslide-event-catalog-fill",
+        "landslide-event-catalog-outline",
+        "landslide-event-catalog-points-circle-point",
+        "landslide-event-catalog-points-circle-polygon"
+      ],
+      "type": "landslideEventCatalog"
     },
     {
       "layers": [
@@ -84511,6 +84520,640 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "landslideEventCatalog",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "landslide_event_catalog"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-event-catalog",
+      "sourceUrl": "./hazards/landslide_event_catalog_093_114.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideEventCatalog",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "landslide_event_catalog_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "landslide-event-catalog-points",
+      "sourceUrl": "./hazards/landslide_event_catalog_093_114_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "pollutionControlZones",
       "layers": [
         {
@@ -140895,6 +141538,243 @@
         "step": 0.05,
         "value": 0.35,
         "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "landslideEventCatalog": [
+      {
+        "label": "年度（西元）",
+        "options": [
+          {
+            "label": "2004",
+            "value": "93"
+          },
+          {
+            "label": "2005",
+            "value": "94"
+          },
+          {
+            "label": "2006",
+            "value": "95"
+          },
+          {
+            "label": "2007",
+            "value": "96"
+          },
+          {
+            "label": "2008",
+            "value": "97"
+          },
+          {
+            "label": "2009",
+            "value": "98"
+          },
+          {
+            "label": "2010",
+            "value": "99"
+          },
+          {
+            "label": "2011",
+            "value": "100"
+          },
+          {
+            "label": "2012",
+            "value": "101"
+          },
+          {
+            "label": "2013",
+            "value": "102"
+          },
+          {
+            "label": "2014",
+            "value": "103"
+          },
+          {
+            "label": "2015",
+            "value": "104"
+          },
+          {
+            "label": "2016",
+            "value": "105"
+          },
+          {
+            "label": "2017",
+            "value": "106"
+          },
+          {
+            "label": "2018",
+            "value": "107"
+          },
+          {
+            "label": "2019",
+            "value": "108"
+          },
+          {
+            "label": "2020",
+            "value": "109"
+          },
+          {
+            "label": "2021",
+            "value": "110"
+          },
+          {
+            "label": "2022",
+            "value": "111"
+          },
+          {
+            "label": "2023",
+            "value": "112"
+          },
+          {
+            "label": "2024",
+            "value": "113"
+          },
+          {
+            "label": "2025",
+            "value": "114"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "114"
+        ]
+      },
+      {
+        "label": "事件類型",
+        "options": [
+          {
+            "label": "颱風",
+            "value": "typhoon"
+          },
+          {
+            "label": "豪雨",
+            "value": "rain"
+          },
+          {
+            "label": "地震",
+            "value": "quake"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "typhoon",
+          "rain",
+          "quake",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "acton",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "acton"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       },
       {
         "label": "大小 1.0",
