@@ -86,6 +86,9 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 南韓後續 | 🟡 | 北極星:好用 | 第 0–7 波＋統計已上線；11-10 夜：第 8 波 8 層（#983）、第 9 波 3 層（#987）、每萬人火災／交通事故（#978）合 develop 待發版；第 0–9 波 52 層已發包入倉，待組裝 | 第 10 波先盤點候選；第 11 波等 data.go.kr key；KRH-1 生態自然圖、C086 垃圾排出要新設計；KRSTAT-1 分母授權待確認 | BACKLOG KRW-6／KRH-1；`../.gis-agent-system/projects/2026-11-multi-country-night/PLAN.md` | 2026-11-10 |
 | 日本後續 | 🔵 | 北極星:好用 | P1 第 1–4 波隨 v2.15.0；第二輪隨 v2.24.0；交通事故 2025、DID z5 隨 v2.25.0；11-10 夜：市町村道 jpMunicipalRoads（#988，6 地區分檔）、事故期間口徑改字（#986）合 develop 待發版 | JPACC-1 查官方收錄口徑；JPW4-1 等填 WAM NET 表單；第二輪重掃待選落地波次 | BACKLOG JPACC-1／JPW4-1；`../taipei-gis-analytics/docs/topic-research/japan_opendata/_status.md` | 2026-11-10 |
 | 英國後續 | 🔵 | 北極星:好用 | 第 0–12 波隨 v2.18.0；UKLZ-1／2 熱區實為 #784 隨 v2.19.0；11-10 夜 UKD-1 各項結案（analytics #339）、補測試 #979 | UKLZ-3 高爾夫點樣式待拍板；UKFLOOD-1 C070 洪水區要不要上；UKOSM-1；AG-15 入倉（session 5d 進行中）；EA-1 授權 2027-10-29 到期 | BACKLOG UKLZ-3／UKFLOOD-1／UKOSM-1／EA-1 | 2026-11-10 |
+| 中國 | 🔵 | 北極星:好用 | 11-10 跨夜盤點：131 概念 P1 12、READY 2；系統盤點排進第 0–7 波 33 層、暫緩 90（多為只有地址或單市）；港澳另開一輪、GCJ-02 可轉換（使用者 11-10） | 使用者審 system-inventory §6 五題；第 0 波國家選項要排除台灣、港澳 | BACKLOG CNW-0；`../taipei-gis-analytics/docs/topic-research/china_opendata/system-inventory.md`（analytics 分支 `research/cn-ph-vn-opendata`，未 push） | 2026-11-10 |
+| 菲律賓 | 🔵 | 北極星:好用 | 11-10 跨夜盤點＋系統盤點：Geoportal WMS GFI 可當取得途徑（使用者 11-10）→ P1 22、排進第 0–11 波 70 層、暫緩 57 | 使用者審 §6 五題；C117 土地覆蓋、C123 林業租約由使用者填 Geoportal 表單 | BACKLOG PHW-0／PHGEO-1；`../taipei-gis-analytics/docs/topic-research/philippines_opendata/system-inventory.md`（analytics 分支 `research/cn-ph-vn-opendata`，未 push） | 2026-11-10 |
+| 越南 | 🔵 | 北極星:好用 | 11-10 跨夜盤點＋系統盤點：分母新制 34 省／3,321 社（使用者 11-10）；P1 17、READY 0；排進第 0–8 波 50 層、暫緩 76 | 使用者審 §6 五題（南海、NĐ 194/2025、envisoft、安江示範波、ODM 登記） | BACKLOG VNW-0；`../taipei-gis-analytics/docs/topic-research/vietnam_opendata/system-inventory.md`（analytics 分支 `research/cn-ph-vn-opendata`，未 push） | 2026-11-10 |
 
 ### 台灣圖層
 
