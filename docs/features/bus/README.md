@@ -47,7 +47,7 @@
 
 ## 相關 backlog
 
-看 [backlog.md](./backlog.md) — 全台擴展要點。
+看 [backlog.md](../../archive/2026-11-09/features/bus/backlog.md) — 全台擴展要點。
 
 ## 相關文件
 

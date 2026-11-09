@@ -11,7 +11,7 @@
 
 三層全數落地於分支 `feat/jp-deferred-layers`，四個 commit：
 `72c626a` 鐵道 → `d662840` 學校 → `3f6609b` 人口網格＋S3 供應鏈 → `7a7a878` 點擊順序修正＋鐵道 popup 去重。
-**成果與實測數字一律以 [changelog.md](./changelog.md) 的「2026-09-02 — Batch 2」段為準**；殘留待辦見 [backlog.md](./backlog.md)。
+**成果與實測數字一律以 [changelog.md](./changelog.md) 的「2026-09-02 — Batch 2」段為準**；殘留待辦見 [backlog.md](../../archive/2026-11-09/features/jp-core-layers/backlog.md)。
 
 > 本檔以下內容是**動工前的交辦**，刻意原文保留當決策軌跡。
 > 實作後發現與現況不符的地方，用 `> ⟳ 實際：…` 區塊就地標注，**不刪原文**。
@@ -113,7 +113,7 @@
      > `.gitignore` 也刻意寫**單一檔名**而非 `public/world/*.pmtiles` glob——同夾的 `jp_admin_boundaries*` /
      > `jp_religion_gsi` / `jp_railways` / `jp_schools` 都 git-track，glob 會把它們一起 un-track。
      > 🔴 **`deployContract` 擋不住漏上傳**：它對 `/world/` 的判準是「upload 清單**或** git-track 其一即可」（因為 nginx 有 dist fallback）。
-     > 🔴 **aws s3 cp 至今未執行**（owner 拍板事項），見 [backlog.md](./backlog.md)。
+     > 🔴 **aws s3 cp 至今未執行**（owner 拍板事項），見 [backlog.md](../../archive/2026-11-09/features/jp-core-layers/backlog.md)。
   2. hook clone `useJpAdminLayers`（PMTiles polygon fill+line）；source-layer 用 `pmtiles show` 確認（應為 `jp_population_mesh_1km`）。
      > ⟳ **實際**：只做 **fill，不做 line**（與 step 6 的「outline 0」一致）——176,896 格 1km 網格畫框線會糊成一片灰、
      > 吃掉 choropleth 的顏色辨識度。source-layer 確為 `jp_population_mesh_1km`，min/maxzoom = 4 / **11**（同學校，圖層不設 maxzoom）。
@@ -152,7 +152,7 @@
 - 轉檔（schools PMTiles）產物：回存 `taipei-gis-analytics/data/processed/world/jp_schools/` + 更新上游 handoff / manifest（上游先動、下游後動）。
 - mesh S3：deploy 相關改動在本 repo（nginx/scripts）。
 > ⟳ **實際：上游沒有 commit**——主樹當時停在別人的分支 `codex/noise-layers-data-ready-20260828`、且有平行 session 的未提交改動。
-> `jp_railways/_manifest.json` 與 `jp_schools/_manifest.json` **已就地改好但未提交**（備援 patch 路徑與後續動作見 [backlog.md](./backlog.md)）。
+> `jp_railways/_manifest.json` 與 `jp_schools/_manifest.json` **已就地改好但未提交**（備援 patch 路徑與後續動作見 [backlog.md](../../archive/2026-11-09/features/jp-core-layers/backlog.md)）。
 > 「上游先動、下游後動」這次是**反著跑的**：下游先接線、上游待補。因為 Batch 2 沒有改資料契約本身（只是多出 pmtiles 產物），
 > 風險僅止於登記簿落後，但**上游 handoff §3.1 的 54MB 配方若不更正，下一個人照抄會再撞一次**。
 - 完工更新 `docs/features/jp-core-layers/{changelog,backlog}.md`，PR 走 `gh pr create`（模板）+ `gh pr merge --merge`。

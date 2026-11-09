@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > **現況入口（單一入口）**：開場先讀本檔上半部（現在最該注意＋進行中／待拍板），需要細節再查 BACKLOG 對應主題群。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-09（v2.33.0 發布：Day 8 文章、10 篇補資料來源、海洋 7 天曲線；白天另完成告警重整與 Supabase 效率大掃除）。
+> 最後盤點：2026-11-09（v2.33.0 發布：Day 8 文章、10 篇補資料來源、海洋 7 天曲線；白天另完成告警重整與 Supabase 效率大掃除；晚間功能 backlog 封存、待辦統一進 BACKLOG）。
 
 與其他文件的分工（mini-taiwan-pulse 是整個 Pulse 生態系的總 PM）：
 
@@ -21,13 +21,17 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
 | 2026-11-09 | 保留期限清理排程（mig 505–509）首跑、reconcile、備份 watchdog、日報 VM 欄位、日本雷達追上：白天唯讀驗 | Claude | ZB-V1 |
-| ~2026-11-14 | 刪 Zeabur 最後兩個專案（mini-tw-pulse、data-collectors-gomn；其餘 11-09 已刪；主站網域已改 Worker，ZB-4 完成）；uk-trip DNS 一併決定 | 使用者 | ZB-1／ZB-7 |
-| 2026-11-10 | gis-platform mig 532 測試：確認 11 個分區索引沒長回（避開 10:00–20:00） | Claude | SBE-2 |
+| 2026-11-10 | 四件事：mig 532 測試、VM moa 00:53 log、pgss 查詢文字量、保留期限首次清理刪除量＋vacuum（避開 10:00–20:00） | Claude | CHK-1110（SBE-1／SBE-2／WA-3） |
+| ~2026-11-12～14 | pgss 乾淨慢查詢清單（11-09 15:27 重置）→ 先優化 >1s，再收 timeout 10–15s | Claude | SEC-5 |
+| ~2026-11-14 | 刪 Zeabur 最後兩個專案（mini-tw-pulse、data-collectors-gomn；其餘 11-09 已刪；主站網域已改 Worker，ZB-4 完成），須使用者同意；uk-trip DNS 要使用者在 Cloudflare 手動刪 | 使用者 | ZB-1／ZB-7 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
-| 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警 | Claude | ZB-2 |
+| ~2026-11-16 | pulse-host 記憶體峰值檢視（collector-mem 觀察中）後決定 mem_limit | Claude | HOST-1 |
+| 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警，VM 版另存 `.vm.tar.gz` | Claude | ZB-2 |
+| ~2026-11-20 | 動物收容成果收集器確認有新 run（設計低頻，不是故障） | Claude | COL-ANIMAL-1 |
 | 2026-11-28 | 選舉投票日：之前每日更新活動地圖；選後匯出最後一版轉站主資料 | Claude＋使用者 | OWD-4 |
-| 2026-12-01 前 | Zeabur 專用主機停止續約 | 使用者 | ZB-5 |
+| 2026-12-01 前 | 使用者取消 Zeabur 專用主機續約 | 使用者 | ZB-5 |
 | 2026-12-03 前 | SEC-6 金鑰輪換（22 把換、9 項刪；Claude 前置 C1–C8） | 使用者＋Claude | SEC-6 |
+| 2027-03 前 | intel 三表每月匯出 S3 排程（另一 worker 進行中） | Claude | WA-13 |
 | 約 2027-05 | vessel_watch_positions 11 月後資料再匯出 S3（180 天保留開始刪） | Claude | VW-EXP-1 |
 | 約 2027-05-15 | 監所人數卡片的 365 天視窗會變空（上游 05-15 停更） | 使用者拍板 | PR-1 |
 | 2027-10-29 | 英格蘭 EA 污染名錄授權到期 | 使用者 | EA-1 |
@@ -38,9 +42,9 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 - Zeabur 收尾與金鑰：ZB-1／ZB-5、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
 - 告警分級 11-09 完成（GitHub 排程、主機看門狗、collector、healthchecks 3 個死人開關皆已設）；剩 aisstream／VM 接告警（G 群 ALERT-1）。
-- Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；剩 VM 5 支收集器換固定形狀、reset 驗證（E 群 SBE-1）與待拍板的 SBE-3／SBE-4／FARE-1。
+- Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；11-09 晚第一批權限（gp #227 mig 536–539）與 VM 固定形狀寫入（collectors #194）也完成；剩 11-10 驗證（CHK-1110）、慢查詢清單（SEC-5）、預算表（SBE-5）、軌跡改讀每日檔方案（TRAIL-1）、新發現的 RLS／權限（SEC-11／SEC-12／HERMES-2）。
 - 站主資料第 3 批（EA、Coillte、water1944）與撤舊 RPC（F 群 OWD-4、SR-1／SR-2）。
-- 資料保留期限第 2 群（約 21 張超過 6 個月＋22 張無期限）與 R2 獨有資料補 S3（C 群 WA-3、ST-2）。
+- 資料保留期限：第 2 批 11-09 完成（gp #228／#229 mig 540–543、ADR-0026 #57），剩項目在 WA-3；靜態表搬遷乙組（WA-14，動前端前先給使用者看方案）；R2 獨有資料補 S3（ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
 - 30 天地圖挑戰：Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
 - 正式站目視包：v2.22～v2.31 各版目視集中在 BACKLOG A 群（VP-1～VP-13），等 Claude 用瀏覽器一次截圖。
@@ -61,7 +65,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | Agent 分析能力（ADR-0022 A→B→C） | 🟡 | 北極星:AI | A（空間統計）10-21、B 10-23 上線；多國議題 2 P0–P5 10-29 上線；framingCheck（#881）隨 v2.27.0 上線 | AG-13 上線即入倉規則、AG-14 layer-status 涵蓋全部國家、AG-15 外國入倉基礎先英國；IEWH-1 愛爾蘭入倉待拍板；AG-12 排 gateway 部署；C（p-median）未動工 | ADR-0022；`../.gis-agent-system/roadmap/status/agent-analysis-runbook.md`；BACKLOG I 群 | 2026-11-08 |
-| BYOK 對話預設模型 | 🔵 | 北極星:AI | — | BC-3：決定預設是否改中階檔 | [`features/byok-chat/backlog.md`](./features/byok-chat/backlog.md) | 2026-10-16 |
+| BYOK 對話預設模型 | 🔵 | 北極星:AI | — | BC-3：決定預設是否改中階檔 | [`features/byok-chat/backlog.md`](archive/2026-11-09/features/byok-chat/backlog.md) | 2026-10-16 |
 
 ### 資料新鮮度、collector 與平台維運
 
@@ -105,7 +109,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| 國內新聞圖層維運 | 🟢 | 底線:資料正確 | 2026-06 已上線 | NEWS-1：在 pulse-host（Linode 東京 IP）驗自由時報 RSS 是否可抓 | [`features/news/backlog.md`](./features/news/backlog.md) | 2026-11-08 |
+| 國內新聞圖層維運 | 🟢 | 底線:資料正確 | 2026-06 已上線 | NEWS-1：在 pulse-host（Linode 東京 IP）驗自由時報 RSS 是否可抓 | [`features/news/backlog.md`](archive/2026-11-09/features/news/backlog.md) | 2026-11-08 |
 | 衛星主控台改版收尾（#533） | 🟢 | 北極星:視覺 | 最早含在 v2.5.0 | VP-2 正式站目視暗／淡主題與手機版 | [`features/satellite-console-restyle/README.md`](./features/satellite-console-restyle/README.md) | 2026-10-16 |
 | 選舉圖層第二批（投開票所、2026 議員選區、歷屆統計） | 🟢 | 北極星:好用 | mini #807／#811／#816 隨 v2.22.0；gp #197 mig 496／498 已套用 | VP-1 正式站目視 | CHANGELOG v2.22.0 | 2026-11-04 |
 | 會員區 v1（Google 登入、配額） | 🟢 | 北極星:好用 | 前端 #220、gp #98（mig 408）；v2.12.0 可自行刪帳號 | VP-11 真實 Google 登入／多裝置；BC-2 收藏＋chat_logs 未動工 | [`features/member-area/`](./features/member-area/) | 2026-10-23 |
@@ -143,7 +147,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 情報牆（mini-taiwan-intel） | ⏸️ | 待討論 | 資安稽核 C1 完成（mig 477、站主登入才可寫） | W30 計畫 §3、§6 待拍板項；W2：「否決關聯」改標 rejected | `../.gis-agent-system/projects/2026-W30-intel-wall/` | 2026-10-17 |
 | Monitor 四域子指數／壓力指數重建 | ⏸️ | 待討論 | 規格 §5.35 I2 已有，無觸發 | MON-P6：決定重啟後先寫公開權重與基期提案 | BACKLOG MON-P6 | 2026-10-16 |
 | 衛星主控台歷史模式機動清單 | ⏸️ 保留 | 待討論 | 2026-10-04 擱置；gp 分支 `feat/satellite-maneuvers-anchor` 本機 commit 未 push | SAT-Z3：解除擱置後先過三項核准 | BACKLOG SAT-Z3 | 2026-10-16 |
-| 站主限定圖層機制（owner-gated） | ⏸️ | 北極星:好用 | 機制已上；UI 鎖類型尚無實際圖層 | OG-3：有第一個 ui 鎖圖層時驗完整鏈 | [`features/owner-gated-layers/backlog.md`](./features/owner-gated-layers/backlog.md) | 2026-10-16 |
+| 站主限定圖層機制（owner-gated） | ⏸️ | 北極星:好用 | 機制已上；UI 鎖類型尚無實際圖層 | OG-3：有第一個 ui 鎖圖層時驗完整鏈 | [`features/owner-gated-layers/backlog.md`](archive/2026-11-09/features/owner-gated-layers/backlog.md) | 2026-10-16 |
 | 移民署金門／連江座標錯 | ⏸️ | 底線:資料正確 | 上游資料兩點座標是台北 | 等上游修正後發 v2 | 個人記憶 ctx-handoff | 2026-10-25 |
 | 閃電快照遺失／縣市彙總 | ⏸️ | 底線:資料正確 | DS-01 等改 env 拍板（collector 已在 pulse-host）、DS-04 ready | DS-04：mig 505–510 後重查縣市面表 | BACKLOG DS-01／DS-04 | 2026-10-05 |
 | A1 事故 feed | ⏸️ | 底線:資料正確 | 上游凍結在 2026-06 | 另找資源或標示非即時 | BACKLOG DS-02 | 2026-10-05 |

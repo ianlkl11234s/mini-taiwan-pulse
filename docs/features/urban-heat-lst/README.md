@@ -71,7 +71,7 @@
 
 ## 相關 backlog
 
-看 [backlog.md](./backlog.md)。
+看 [backlog.md](../../archive/2026-11-09/features/urban-heat-lst/backlog.md)。
 
 ## 歷次改動
 

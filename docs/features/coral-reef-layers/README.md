@@ -21,7 +21,7 @@ UNEP-WCMC v4.1（2021-03 發布）全球暖水珊瑚礁歷史分布 polygon，�
 
 ## 驗收方式
 
-[browser-acceptance.md](./browser-acceptance.md)（九視角、桌面／手機）。未驗證：實體手機效能與 Light 底圖（見 [backlog.md](./backlog.md)）。公開化後的驗收見 [`../allen-coral-atlas/access-release-20260916.md`](../allen-coral-atlas/access-release-20260916.md)。
+[browser-acceptance.md](./browser-acceptance.md)（九視角、桌面／手機）。未驗證：實體手機效能與 Light 底圖（見 [backlog.md](../../archive/2026-11-09/features/coral-reef-layers/backlog.md)）。公開化後的驗收見 [`../allen-coral-atlas/access-release-20260916.md`](../allen-coral-atlas/access-release-20260916.md)。
 
 ## 文件索引
 
@@ -30,4 +30,4 @@ UNEP-WCMC v4.1（2021-03 發布）全球暖水珊瑚礁歷史分布 polygon，�
 | [handoff.md](./handoff.md) | 本地前端交接與資料契約（2026-09-08，歷史） |
 | [private-access.md](./private-access.md) | 存取沿革：開頭為現行（公開），其後為 2026-09-08 私人設計 |
 | [browser-acceptance.md](./browser-acceptance.md) | 本地 browser 驗收 |
-| [backlog.md](./backlog.md) / [changelog.md](./changelog.md) | 範圍清單／改動紀錄 |
+| [backlog.md](../../archive/2026-11-09/features/coral-reef-layers/backlog.md) / [changelog.md](./changelog.md) | 範圍清單／改動紀錄 |

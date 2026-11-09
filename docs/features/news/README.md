@@ -42,7 +42,7 @@ RSS ×29 → Gemini Flash-Lite 地名抽取 → `realtime.news_events` → 前�
 
 ## 相關 backlog
 
-看 [backlog.md](./backlog.md)。
+看 [backlog.md](../../archive/2026-11-09/features/news/backlog.md)。
 
 ## 相關文件
 

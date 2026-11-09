@@ -61,7 +61,7 @@ release-gated、DEV-only 與 `section: null` 的內部 key；正式 UI 以 produ
 AR-22 Phase 0–5 的批次遷移、設計取捨與 commit 紀錄保留於：
 
 - [changelog.md](./changelog.md)
-- [backlog.md](./backlog.md)
+- [backlog.md](../../archive/2026-11-09/features/layer-manifest/backlog.md)
 - [handoff.md](./handoff.md)
 
 這些是歷史與接手證據，不取代本頁的現行契約或 `docs/development-rules.md`。

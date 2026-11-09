@@ -35,6 +35,6 @@
 
 ## 相關文件
 
-- [Backlog](./backlog.md)
+- [Backlog](../../archive/2026-11-09/features/jp-religion-layers/backlog.md)
 - [Changelog](./changelog.md)
 - [開發規則](../../development-rules.md)

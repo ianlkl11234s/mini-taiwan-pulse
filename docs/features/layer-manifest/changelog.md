@@ -2521,7 +2521,7 @@ FAIL  layerParamsStore.test.ts > 參數名與 overlayParams out key 全域唯一
    觸點 #13 #15 #16）—— 本棒**沒做**，只做了護欄那半。
    現況：manifest 的 `legend` / `popup` 是**宣告 ＋ 雙向對帳**，
    不是 `LEGEND_REGISTRY` / `GIS_LAYERS` 的**產生源**。
-   要做的話，批 8 交接的五件事仍然有效（見 [backlog.md](./backlog.md)「Phase 3-5 展望」），
+   要做的話，批 8 交接的五件事仍然有效（見 [backlog.md](../../archive/2026-11-09/features/layer-manifest/backlog.md)「Phase 3-5 展望」），
    其中最硬的一條：**`GIS_LAYERS` 是 first-hit-wins，派生必須保序**，
    而 manifest 的 popup 陣列只保證「同一個 key 內多個 layerType 的相對先後」，
    跨 key 的全域順序需要一個顯式的 `clickPriority` 欄位。

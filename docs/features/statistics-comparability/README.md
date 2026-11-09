@@ -37,4 +37,4 @@ PR #258 追加清單樣式、語意 icon、主題色階及資料來源總覽；�
 
 歷史 `evidence/` 和早期 acceptance 數字只能說明當時工作，不可代替此表的本輪證據。
 
-詳見 [驗收](./acceptance.md)、[復原操作](./recovery.md) 與 [待辦](./backlog.md)。
+詳見 [驗收](./acceptance.md)、[復原操作](./recovery.md) 與 [待辦](../../archive/2026-11-09/features/statistics-comparability/backlog.md)。

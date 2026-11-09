@@ -133,7 +133,7 @@ Embed 的 ODbL 標示由共用 LegendPanel ＋ 右下不可關閉的 OSM attribu
 
 ## 相關
 
-- [backlog.md](./backlog.md) · [changelog.md](./changelog.md) · [handoff.md](./handoff.md)
+- [backlog.md](../../archive/2026-11-09/features/funeral-layers/backlog.md) · [changelog.md](./changelog.md) · [handoff.md](./handoff.md)
 - 上游 pipeline：`taipei-gis-analytics/pipelines/funeral/`
 - 資料目錄：`taipei-gis-analytics/docs/data-catalog/funeral/`
 - Migration（**未 apply**，前端不依賴）：`gis-platform/migrations/335_funeral.sql`

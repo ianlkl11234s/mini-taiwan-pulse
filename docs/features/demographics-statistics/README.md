@@ -64,4 +64,4 @@ VITE_DEMOGRAPHICS_STATISTICS_PREVIEW=true DEMOGRAPHICS_STATISTICS_PREVIEW_PORT=3
 
 只有 DEV＋flag＋已登錄 key＋dataset 相符才走 preview；不改全域 `VITE_STATISTICS_CDN_BASE`。
 
-資料契約見 [handoff.md](./handoff.md)；後續見 [backlog.md](./backlog.md)。
+資料契約見 [handoff.md](./handoff.md)；後續見 [backlog.md](../../archive/2026-11-09/features/demographics-statistics/backlog.md)。

@@ -2,7 +2,7 @@
 
 > **2026-08-02 更新：本檔記錄的待辦已全部完成，保留作為決策軌跡。**
 > 現況請看 [`README.md`](./README.md)（feature 全貌）與 [`changelog.md`](./changelog.md)（時序）；
-> 後續工作看 [`backlog.md`](./backlog.md)。
+> 後續工作看 [`backlog.md`](../../archive/2026-11-09/features/pla-activity/backlog.md)。
 >
 > 三件當時的「待辦」後來的結果：
 > | 當時狀態 | 現在 |

@@ -59,7 +59,7 @@ NLSC 20m DTM (taipei-gis-analytics 本機)
 
 ## 相關 backlog
 
-看 [backlog.md](./backlog.md)。
+看 [backlog.md](../../archive/2026-11-09/features/terrain-vector/backlog.md)。
 
 ## 歷次改動
 

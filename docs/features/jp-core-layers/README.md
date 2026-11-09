@@ -58,7 +58,7 @@
 
 ## 相關 backlog / changelog
 
-看 [backlog.md](./backlog.md)、[changelog.md](./changelog.md)。
+看 [backlog.md](../../archive/2026-11-09/features/jp-core-layers/backlog.md)、[changelog.md](./changelog.md)。
 
 ## 相關文件
 

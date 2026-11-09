@@ -20,7 +20,7 @@
 
 下一階段不再以逐層手寫 adapter 或固定問句作為主軸，改為：由 manifest／statistics recipes 自動產生 capability，以少量 source-family adapters 取得完整資料，以 typed spatial kernel 組合點線面運算，並將多個結果放入可獨立開關與讀回的 result layer collection。「任意圖層／數量」表示不被領域或固定層數寫死，仍受 source contract、ACL、rows／bytes／vertices／GPU 預算約束。
 
-本輪今晚 P0 同時包含 provider-neutral Google Geocoder fallback、版本化 OSM／Valhalla walking route 與 isochrone、以及不綁問句的通用空間運算契約。完整工作項、邊界與驗收順序見 [backlog 的「2026-09-21 今晚 P0」](./backlog.md#2026-09-21-今晚-p0通用-dataset-與空間分析底座)。
+本輪今晚 P0 同時包含 provider-neutral Google Geocoder fallback、版本化 OSM／Valhalla walking route 與 isochrone、以及不綁問句的通用空間運算契約。完整工作項、邊界與驗收順序見 [backlog 的「2026-09-21 今晚 P0」](../../archive/2026-11-09/features/agent-research-workbench/backlog.md#2026-09-21-今晚-p0通用-dataset-與空間分析底座)。
 
 ## 路線與能力
 

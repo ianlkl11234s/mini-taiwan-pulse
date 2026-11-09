@@ -46,7 +46,7 @@ mini-taiwan-pulse 是整個 Pulse 生態系的總 PM，現況只看三份，各�
 ## Backlog SSOT 與 lifecycle
 
 - [BACKLOG.md](BACKLOG.md) 只負責全站排序，依主題群分段（規則與群清單見該檔檔頭）：正式站目視包、Zeabur 收尾、資料保留、資安、collector 健康、舊路徑撤除、開發系統、台灣／多國圖層、Agent、前端技術債、產品舊決策、內容、文件衛生、模擬實驗。
-- `docs/features/<slug>/backlog.md` 是單一 feature 執行細節的 canonical SSOT；核心 backlog 每個 feature 最多保留一行索引，不重抄 layer、欄位、檔名、row count 或驗收矩陣。
+- **2026-11-09 起待辦只有一個家**：未完成工作一律寫進 [BACKLOG.md](BACKLOG.md)（可附 feature 文件連結當細節）。舊的 `docs/features/<slug>/backlog.md` 已讀過、仍有效的項目搬進 BACKLOG 後整份封存到 `docs/archive/2026-11-09/`；feature 資料夾保留 README／changelog／handoff 等脈絡文件，不再新開 backlog.md。
 - Priority 與 State 分開：Priority 只比較現在可執行工作；State 使用 `ready` / `in_progress` / `blocked` / `waiting_external` / `conditional` / `verifying`。
 - `conditional` 必填 trigger 或 `not_before`、owner 與觸發後第一個 action；未觸發前不當成 P0/P1 active work。
 - 完成項從表格移到 BACKLOG 檔尾「已關閉」，只留一行證據（PR、版號、讀回或使用者確認）；詳細過程仍在 feature `changelog.md`、release notes 或 git history，核心 backlog 不保留長篇歷史。已放棄方案移 decision record / archive，不留在 active queue。
@@ -107,7 +107,7 @@ Release matrix 的最小格式：
 | **規則** | `CLAUDE.md`（本 repo） | 不變規則、程式風格 | 開發鐵則、目錄慣例、Git workflow |
 | **狀態框架** | `.claude/memory/`（本 repo，跟 commit） | 專案本體：pattern / 事件 / 術語 / backlog | 本檔列出的核心檔＋按任務選讀的專案特定檔 |
 | **長文** | `.claude/pitfalls/` | 事件 long-form archive | 具體 incident 的完整 postmortem |
-| **Feature 文件** | `docs/features/<slug>/` | 單一 feature 完整脈絡 | README + backlog + changelog + handoff |
+| **Feature 文件** | `docs/features/<slug>/` | 單一 feature 完整脈絡 | README + changelog + handoff（待辦一律進 BACKLOG） |
 | **專案總表（現況入口）** | [`docs/PROJECTS.md`](../../docs/PROJECTS.md) | 做到一半的專案總覽（一列一專案，只放指標） | 狀態、Tier、下一步、正本連結；收尾時更新 |
 | **跨 repo SSOT** | `taipei-gis-analytics/docs/{handoff,adr}/` | 資料契約 + 決策紀錄 | Handoff（下游要接的） + ADR（決策） |
 
@@ -125,7 +125,18 @@ Release matrix 的最小格式：
 
 ### 歷史清理原則
 
-- 全域 `~/.claude/projects/.../memory/` 中 `<feature>-status.md` 型檔案 → **功能上線後**應該併入 `docs/features/<slug>/README.md` 或 `changelog.md`，然後全域 memory 檔可以刪
+- 全域 `~/.claude/projects/.../memory/` 中 `<feature>-status.md` 型檔案 → **功能上線後**把仍有用的內容併入 `docs/features/<slug>/README.md` 或 `changelog.md`，記憶檔搬到 `_archive/`（不刪，見下節）
 - 全域 `feedback_*.md` → 若是 P0 級規則應該搬進 `PRINCIPLES.md`；純個人習慣可留全域
+
+### 每月記憶整理（2026-11-09 使用者拍板）
+
+使用者原則：「原始資料不要刪，可能之後還可以有缺漏可以去補」；任何項目不可自動砍。每月一次（或使用者說「整理記憶／文件」時）依序做：
+
+1. **備份**：個人 memory 目錄整份 `cp -p` 到 `memory/_archive/originals-<YYYYMMDD>/`（含 `ctx-handoff.md`、所有 `*-status-ref.md`、`MEMORY.md`；data-collectors 的 ctx-handoff 放子資料夾）。
+2. **status-ref**：逐檔對照 [`docs/PROJECTS.md`](../../docs/PROJECTS.md) 與 [BACKLOG.md](BACKLOG.md)（讀 `origin/develop` 版）。已上線結案 → 搬 `_archive/`、檔首加一行歸檔原因與正本，MEMORY.md 改成歸檔表一行；進行中 → 精簡成「狀態一句＋正本連結＋只存在這裡的使用者決定」。不確定的保留原狀。
+3. **ctx-handoff**：保持 `## 記憶`／`## 規則` 結構與 `[project]`／`[reference]`／`[user]`／`[feedback]` 前綴（由 shark-tank mod 解析）。合併重複、已被正本完整收錄的改成一行指標、更新過時狀態；規則合併同義條、每條「根據」留 2–3 條代表。寫回前確認背景 mod 沒有同時追加。
+4. **功能文件待辦**：`docs/features/**` 若又長出待辦清單，仍有效的搬進 BACKLOG 對應主題群（標 Tier、附原檔連結），原檔封存到 `docs/archive/<日期>/`（連結一併改）。
+5. **〔待勾選〕**：已完成但查不到證據、過時、過小的項目，不自行關閉，列進 BACKLOG「待勾選」段讓使用者勾。
+6. MEMORY.md 每行一個指標；最後在 PROJECTS「最後盤點」與 journal 留一行。
 
 詳見可移植框架說明：[../FRAMEWORK.md](../FRAMEWORK.md)
