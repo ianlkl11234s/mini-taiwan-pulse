@@ -269,7 +269,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-09: +1 台灣圖層待辦池第一批 motorcycleInspectionStations（G53 批 1）。
     // 2026-11-09: +1 台灣圖層待辦池第一批 postMailboxes（G53 批 1）。
     // 2026-11-09: +1 台灣圖層待辦池第一批 antivenomHospitals（G53 批 1）。
-    expect(keys.length).toBe(1778);
+    // 2026-11-09: +1 台灣圖層待辦池第一批 freewayHundredMeterStakes（G53 批 1）。
+    expect(keys.length).toBe(1779);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

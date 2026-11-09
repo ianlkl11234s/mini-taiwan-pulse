@@ -1051,6 +1051,13 @@
    "s3_key": "deploy-assets/geo/freeway_eco_sensitive_sections.geojson"
   },
   {
+   "path": "public/geo/freeway_hundred_meter_stakes_95016.pmtiles",
+   "bytes": 3311867,
+   "sha256": "532174d98ae019761013bb98792212ef362af66b16576702d821fd061161fcb9",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/freeway_hundred_meter_stakes_95016.pmtiles"
+  },
+  {
    "path": "public/geo/freeway_interchanges.geojson",
    "bytes": 121196,
    "sha256": "f59e25f609e0b6aedc107fc16a19e3edba5c3c6f00e8ee732757f7ca9be1fdbe",

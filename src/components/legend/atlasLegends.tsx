@@ -85,6 +85,7 @@ const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  freewayHundredMeterStakes: () => <AtlasLegend layer="freewayHundredMeterStakes" en="Freeway 100 m Stakes" source={src("freeway", ["95016"])} rows={single("freewayHundredMeterStakes", "legend.atlas.hundredMeterStake")} dense />,
   antivenomHospitals: () => <AtlasLegend layer="antivenomHospitals" en="Antivenom Reserve Hospitals" source={src("cdc", ["24468"])} rows={single("antivenomHospitals", "legend.atlas.antivenomHospital")} />,
   postMailboxes: () => <AtlasLegend layer="postMailboxes" en="Mailboxes" source={src("chunghwaPost", ["178399", "52781"])} domain="atlasMailboxService" rows={MAILBOX_SERVICE_OPTIONS} />,
   motorcycleInspectionStations: () => <AtlasLegend layer="motorcycleInspectionStations" en="Motorcycle Emission Inspection Stations" source={src("moenv", ["6352"])} rows={single("motorcycleInspectionStations", "legend.atlas.motorcycleInspectionStation")} />,

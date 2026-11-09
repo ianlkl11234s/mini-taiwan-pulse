@@ -309,5 +309,7 @@
   "popup.atlas.mbFeatured": "特色郵筒",
   "popup.atlas.mbServiceUnit": "服務單位",
   "popup.atlas.avSerums": "儲備血清",
-  "popup.atlas.avCaution": "儲備品項以疾管署公告為準；被蛇咬傷請撥 119 或就近就醫"
+  "popup.atlas.avCaution": "儲備品項以疾管署公告為準；被蛇咬傷請撥 119 或就近就醫",
+  "popup.atlas.fsStake": "樁號",
+  "popup.atlas.fsKm": "里程"
 }

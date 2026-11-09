@@ -84,4 +84,5 @@ export const ATLAS_LAYER_COLORS = {
   motorcycleInspectionStations: "#a16207",
   postMailboxes: "#16a34a",
   antivenomHospitals: "#db2777",
+  freewayHundredMeterStakes: "#059669",
 } as const;

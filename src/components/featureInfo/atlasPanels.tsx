@@ -958,6 +958,18 @@ function SecuritiesFuturesPanel({ props }: Props) {
 }
 
 // G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
+function FreewayStakePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.freewayHundredMeterStakes}>{`${str(props.road_name)} ${str(props.stake)}`.trim()}</Title>
+    <Row field="route" value={str(props.road_name)} />
+    <Row label={t("popup.atlas.fsStake")} value={str(props.stake)} mono />
+    <Row label={t("popup.atlas.fsKm")} value={fmt(props.km, 1, "km", i18n)} mono />
+    <Row field="elevation" value={fmt(props.elev_m, 1, "m", i18n) || "—"} mono />
+  </>;
+}
+
 function AntivenomHospitalPanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -1197,6 +1209,7 @@ function BatterySwapPanel({ props }: Props) {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  freewayHundredMeterStakes: FreewayStakePanel,
   antivenomHospitals: AntivenomHospitalPanel,
   postMailboxes: PostMailboxPanel,
   motorcycleInspectionStations: MotorcycleInspectionPanel,
@@ -1269,6 +1282,7 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
   postMailboxes: manifestZh("postMailboxes"),
   motorcycleInspectionStations: manifestZh("motorcycleInspectionStations"),

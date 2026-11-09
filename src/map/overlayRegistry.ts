@@ -97,6 +97,8 @@ const DENSE_FROM = {
   eduCramSchool: densePointsFromZoom(17_137, 7),
   provincialRoadMileposts: densePointsFromZoom(30_098, 7),
   freewayTrafficSigns: densePointsFromZoom(51_405, 7),
+  // G53 批 1（2026-11-09）：國道百公尺樁 PMTiles z5 起
+  freewayHundredMeterStakes: densePointsFromZoom(10_082, 5),
   placeNames: densePointsFromZoom(36_431, 7),
   agriProduceWholesale: densePointsFromZoom(22_843, 8),
   accessibleParkFacilities: densePointsFromZoom(20_870),
@@ -12210,6 +12212,7 @@ function culturalHealthStationsOverlay(): OverlayConfig {
 
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
+  publicLifePointOverlay("freewayHundredMeterStakes", "./geo/freeway_hundred_meter_stakes_95016.pmtiles", "freeway-hundred-meter-stakes", ATLAS_LAYER_COLORS.freewayHundredMeterStakes, { sourceLayer: "freeway_hundred_meter_stakes", minzoom: 5, maxzoom: 14 }, `交通部高速公路局 國道百公尺里程樁（data.gov.tw 95016）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.freewayHundredMeterStakes, intensity: 1 } }),
   publicLifePointOverlay("antivenomHospitals", "./geo/antivenom_reserve_hospitals_20241230.pmtiles", "antivenom-hospitals", ATLAS_LAYER_COLORS.antivenomHospitals, { sourceLayer: "antivenom_reserve_hospitals", minzoom: 4, maxzoom: 14 }, `衛生福利部疾病管制署 抗蛇毒血清儲備醫療院所（data.gov.tw 24468）· ${OGDL_ATTR}`, [3.5, 7], { filter: (p) => antivenomSerumFilter(p?.antivenomHospitalsSerumMask) }),
   publicLifePointOverlay("postMailboxes", "./civic_facilities/post_mailboxes_1150428.pmtiles", "post-mailboxes", matchColorExpr("service", MAILBOX_SERVICE_OPTIONS), { sourceLayer: "post_mailboxes", minzoom: 4, maxzoom: 14 }, `中華郵政 郵筒（data.gov.tw 178399）、特色郵筒（52781）· ${OGDL_ATTR}`, [2.5, 6]),
   publicLifePointOverlay("motorcycleInspectionStations", "./environment/motorcycle_inspection_stations_20261109.pmtiles", "motorcycle-inspection-stations", ATLAS_LAYER_COLORS.motorcycleInspectionStations, { sourceLayer: "motorcycle_inspection_stations", minzoom: 4, maxzoom: 14 }, `環境部 機車排氣定期檢驗站（data.gov.tw 6352）· ${OGDL_ATTR}`, [2.5, 6]),

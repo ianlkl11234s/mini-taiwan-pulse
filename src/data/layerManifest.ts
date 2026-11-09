@@ -11933,6 +11933,15 @@ export const LAYER_MANIFEST = {
     description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
   },
+  freewayHundredMeterStakes: {
+    key: "freewayHundredMeterStakes", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道百公尺樁", alt: "Freeway 100 m Stakes" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.freewayHundredMeterStakes, icon: Milestone,
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_hundred_meter_stakes", confidence: "HIGH" }], processing: "analytics transportation/freeway_hundred_meter_stakes 95016：高公局 KML（2019-11）＋國 4 豐潭延伸段、國 2 甲 CSV，10,082 支；PMTiles z5–14 逐點完整", note: "與 freewayTrafficSigns 的指 45 里程牌（公里牌）不同實體，兩層並存；lr 全為 M、不分向。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-hundred-meter-stakes", url: "./geo/freeway_hundred_meter_stakes_95016.pmtiles", sourceLayer: "freeway_hundred_meter_stakes", minzoom: 5, maxzoom: 14 },
+    legend: "freewayHundredMeterStakes", popup: "freewayHundredMeterStakes", params: { count: 3, kinds: ["palette", "slider", "slider"] },
+    description: "國道每 100 公尺一支的里程樁 10,082 支（線性參考用；拉遠為熱區，10 級起畫樁位）。",
+    topics: ["交通", "國道", "里程", "高速公路局"],
+  },
   antivenomHospitals: {
     key: "antivenomHospitals", country: "TW", section: { theme: "醫療 Medical", group: "點位" }, ...layerName({ zh: "抗蛇毒血清儲備點", alt: "Antivenom Reserve Hospitals" }), expandable: true,
     color: ATLAS_LAYER_COLORS.antivenomHospitals, icon: Syringe,
