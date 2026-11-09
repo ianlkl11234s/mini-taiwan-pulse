@@ -733,6 +733,23 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "南韓民防避難設施 17,247 處（行政安全部 LOCALDATA，使用中 17,231＋暫停 16）", processing: "LOCALDATA CSV CP949；只留使用中與暫停，剔除已停止使用 1,591、無座標 8；WGS84 위도／경도 欄；地址 시·도 與座標比對 0 筆不符；PMTiles z0–14", note: "平台標籤；16/16 시·도；比照日本併入「災害 › 避難設施」" },
   krPoliceBoxes: { theme: "執法治安", group: "警政", zh: "派出所與地區隊", alt: "Police Boxes", icon: ShieldCheck, dataset: "kr_police_boxes", topics: ["南韓", "警察", "派出所", "지구대", "파출소", "治安"],
     description: "南韓地區隊與派出所 1,544 處（警察廳 2025-12-31 名冊 2,047 處，Nominatim 補座標）", processing: "名冊只有地址；Nominatim 先查「名稱＋시군구」的 amenity=police，再查地址全文；只留設施點與門牌精度，座標與地址 시군구 不符者剔除；PMTiles z0–14", note: "平台標籤＋座標 ODbL（© OpenStreetMap contributors）；未定位 503 處不上圖" },
+  // 第 8 波（2026-11-10）
+  krLibraries: { theme: "文化", group: "設施 Facilities", zh: "圖書館", alt: "Libraries", icon: Library, dataset: "kr_libraries", topics: ["南韓", "圖書館", "도서관", "文化"],
+    description: "南韓圖書館 3,472 館（小型圖書館 2,097、公共圖書館 1,308、兒童 33、其他 34；전국도서관표준데이터）", processing: "標準資料全國合併檔 3,657 列；WGS84；剔除無座標 111、시·도 不符 1、同名同座標重複 73；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；學校、大學圖書館只有少數申報" },
+  krMuseums: { theme: "文化", group: "設施 Facilities", zh: "博物館與美術館", alt: "Museums & Galleries", icon: Landmark, dataset: "kr_museums", topics: ["南韓", "博物館", "美術館", "박물관", "미술관", "LOCALDATA"],
+    description: "南韓登錄博物館 659＋美術館 214 館（LOCALDATA，營業中）", processing: "LOCALDATA CSV CP949、EPSG:5174 → 4326；剔除歇業 92、無座標 119，市與區重複登錄 184 筆合併；法人名與電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；未登錄展示館未涵蓋" },
+  krPerformances: { theme: "文化", group: "藝文活動 Arts & Events", zh: "公演與文化活動", alt: "Performances & Events", icon: Theater, dataset: "kr_performances", topics: ["南韓", "公演", "活動", "공연", "藝文"],
+    description: "南韓各機關申報的公演與文化活動 9,552 場（2017–2026 累積；2026 年 2,970、2025 年 1,913）", processing: "標準資料 10,562 列；WGS84；剔除無座標 565、境外與 시·도 不符 12、重複 433；主辦／主管（可能是個人）與電話欄排除；PMTiles z0–14", note: "平台標籤；15/16 시·도（世宗無）；歷年清單、不是目前活動" },
+  krFestivals: { theme: "觀光", group: "玩・體驗 Experience", zh: "文化祭", alt: "Festivals", icon: PartyPopper, dataset: "kr_festivals", topics: ["南韓", "祭典", "축제", "節慶", "觀光"],
+    description: "南韓自治團體申報的文化祭 1,113 屆（2026 年 720、2025 年 158、2024 年以前 235）", processing: "標準資料 1,372 列；WGS84；剔除無座標 231、重複 28；電話欄排除；內容截 200 字；PMTiles z0–14", note: "平台標籤；16/16 시·도；同一祭典可能有多屆" },
+  krHeritage: { theme: "觀光", group: "玩・人文 Heritage", zh: "國家遺產", alt: "Heritage", icon: Castle, dataset: "kr_heritage", topics: ["南韓", "文化遺產", "國寶", "史蹟", "국가유산", "문화재"],
+    description: "南韓指定與登錄文化遺產 10,197 處（國家指定 3,043、市道指定 4,335、登錄 577、文化遺產資料 2,242）", processing: "국가유산청 API 17,960 筆；剔除指定解除 2,029、無形遺產 829、無座標 4,886、시·도 不符 19；管理者欄排除；PMTiles z0–14", note: "API 未標授權（照常上線、標來源）；16/16 시·도；文物點是收藏地" },
+  krLodging: { theme: "觀光", group: "住・食 Stay & Eat", zh: "住宿", alt: "Lodging", icon: BedDouble, dataset: "kr_lodging", topics: ["南韓", "住宿", "飯店", "旅館", "숙박", "LOCALDATA"],
+    description: "南韓營業中住宿業 30,358 處（旅館與旅人宿 17,235、生活型 7,043、飯店 4,199、渡假公寓 186、其他 1,695）", processing: "LOCALDATA CSV CP949、EPSG:5174 → 4326；剔除歇業 27,607、無座標 1,042；電話與從業員欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；民宿類未涵蓋" },
+  krSafeDeliveryBoxes: { theme: "基礎建設", group: "郵政與便民 Postal & Services", zh: "安心宅配櫃", alt: "Safe Parcel Lockers", icon: PackageCheck, dataset: "kr_safe_delivery_boxes", topics: ["南韓", "宅配櫃", "안심택배함", "包裹", "便民"],
+    description: "南韓自治團體安心宅配櫃 789 處（89 個機關申報）", processing: "標準資料 823 列；WGS84；剔除重複 34；客服與管理機關電話排除；PMTiles z0–14", note: "平台標籤；15/16 시·도（世宗無）" },
+  krSeniorCenters: { theme: "社福長照", group: "長照與托育", zh: "敬老堂與里民會館", alt: "Senior Centres & Village Halls", icon: Users, dataset: "kr_senior_centers", topics: ["南韓", "敬老堂", "경로당", "마을회관", "高齡", "社福"],
+    description: "南韓敬老堂 43,662、里民會館兼敬老堂 7,124、里民會館 5,242，共 56,028 處（163 個機關申報）", processing: "標準資料逐頁抓到底 58,768 列（columList totalCount 封頂 5 萬）；WGS84；剔除歇業 327、境外與 시·도 不符 118、重複 2,295；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；首爾只有 12 區申報" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];

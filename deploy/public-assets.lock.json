@@ -3588,6 +3588,13 @@
    "s3_key": "deploy-assets/world/kr_coastal_erosion_facilities.pmtiles"
   },
   {
+   "path": "public/world/kr_festivals.pmtiles",
+   "bytes": 2177519,
+   "sha256": "7ec729ed19ea9897db53d947fe2b9e597b283d6ed13dec7d960dd012314f6049",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_festivals.pmtiles"
+  },
+  {
    "path": "public/world/kr_fire_stations.pmtiles",
    "bytes": 1315607,
    "sha256": "1b9b9eb5f16b44a979174bd5894949a66858d49599f9626d2c1cd9c06ecf2825",
@@ -3602,6 +3609,13 @@
    "s3_key": "deploy-assets/world/kr_fuel_stations.pmtiles"
   },
   {
+   "path": "public/world/kr_heritage.pmtiles",
+   "bytes": 9620207,
+   "sha256": "2649221b087093179ee031bf7d1d32fe0877fa337ba0542e5fb04c935f766215",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_heritage.pmtiles"
+  },
+  {
    "path": "public/world/kr_hospitals_pharmacies.pmtiles",
    "bytes": 14961891,
    "sha256": "aa3f743bb6c6056ae6414c09bcf9dd66a5ab1352f32f2c98454f1d311a897629",
@@ -3614,6 +3628,20 @@
    "sha256": "5bde0b1a39fe37460192ad2243f4c78f3986afd76704fcfd65052f8fd545deb0",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_hospitals_pharmacies_density.pmtiles"
+  },
+  {
+   "path": "public/world/kr_libraries.pmtiles",
+   "bytes": 4218030,
+   "sha256": "a98d8990726470035a885f876c9992107e2064b7802777d3f7250b31e63f06df",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_libraries.pmtiles"
+  },
+  {
+   "path": "public/world/kr_lodging.pmtiles",
+   "bytes": 23565531,
+   "sha256": "fe02cdc2025afaf3b0377d8691454cdbd4b0ddbd250db62282230e8785b16fc4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_lodging.pmtiles"
   },
   {
    "path": "public/world/kr_marine_env_sites.pmtiles",
@@ -3635,6 +3663,13 @@
    "sha256": "1b1d44d3692f62449e288b8523b548177ea8a00b271ec34cb6f8d6adfbf553ca",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_marine_protected_areas.pmtiles"
+  },
+  {
+   "path": "public/world/kr_museums.pmtiles",
+   "bytes": 1415640,
+   "sha256": "7da69f63d9b7c6f52555a7ca63ad41a0f93cea9ca1574056aa8571a5a48272f5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_museums.pmtiles"
   },
   {
    "path": "public/world/kr_national_parks.pmtiles",
@@ -3677,6 +3712,13 @@
    "sha256": "64f3876741758eab2f5c022ffb922a1a90507fa836539afb33be2978b2f24e4e",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_parking_lots.pmtiles"
+  },
+  {
+   "path": "public/world/kr_performances.pmtiles",
+   "bytes": 5313491,
+   "sha256": "6d6b10057adeb316cd821f96cefbe0d8bc858d2854fa0f116126de2918d2636b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_performances.pmtiles"
   },
   {
    "path": "public/world/kr_police_boxes.pmtiles",
@@ -3749,6 +3791,13 @@
    "s3_key": "deploy-assets/world/kr_rivers_osm.pmtiles"
   },
   {
+   "path": "public/world/kr_safe_delivery_boxes.pmtiles",
+   "bytes": 754936,
+   "sha256": "5e453da33be4a2bb7933ef35c7fedfedb63dedd65f536fb385d96eec4fa0e933",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_safe_delivery_boxes.pmtiles"
+  },
+  {
    "path": "public/world/kr_school_districts.pmtiles",
    "bytes": 17382904,
    "sha256": "bde9dce49562e04e066073b6e436835d2da9c190c454b0ea2ecdbfc2d458ba60",
@@ -3768,6 +3817,13 @@
    "sha256": "b167da6493b9281b26b042d39a28fe0ead907687b5de180fe6c1c898ef16b275",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_schools.pmtiles"
+  },
+  {
+   "path": "public/world/kr_senior_centers.pmtiles",
+   "bytes": 33197708,
+   "sha256": "095d27c08eb3d8b976b7f72cd92b92d24b08798d81120bba28cfd438543e04b2",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_senior_centers.pmtiles"
   },
   {
    "path": "public/world/kr_seoul_subway_congestion.pmtiles",
