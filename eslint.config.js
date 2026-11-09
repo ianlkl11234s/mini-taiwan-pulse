@@ -35,7 +35,6 @@ export const LOADER_RPC_EXEMPT = {
   "iotWraRiverLoader.ts:fetchIotWraTimeseries": "popup sparkline on-demand",
   "rainGaugeLoader.ts:fetchRainGaugeTimeseries": "popup sparkline on-demand",
   "riverLevelLoader.ts:fetchRiverLevelTimeseries": "popup sparkline on-demand",
-  "landSubsidenceLoader.ts:fetchUncached": "popup 趨勢圖 on-demand（地層下陷測站）",
   "wicTaipeiLoader.ts:fetchTaipeiSewerTimeseries": "popup sparkline on-demand",
   "wicTaipeiLoader.ts:fetchTaipeiPumbTimeseries": "popup sparkline on-demand",
   "wicTaipeiLoader.ts:fetchTaipeiEvacuateTimeseries": "popup sparkline on-demand",

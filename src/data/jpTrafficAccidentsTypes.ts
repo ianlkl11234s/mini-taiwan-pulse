@@ -37,7 +37,6 @@ export const JP_TRAFFIC_ACCIDENT_ROAD_LABELS: Record<string, string> = {
 export const JP_TRAFFIC_ACCIDENT_SEVERITY_VALUES = valuesOf(JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS);
 export const JP_TRAFFIC_ACCIDENT_TYPE_VALUES = valuesOf(JP_TRAFFIC_ACCIDENT_TYPE_OPTIONS);
 export const JP_TRAFFIC_ACCIDENT_TOTAL = 287_020;
-export const JP_TRAFFIC_ACCIDENT_PERIOD = "2025-01-01～2025-12-31";
 export const JP_TRAFFIC_ACCIDENT_SOURCE = {
   source_org: "警察庁 交通事故統計情報のオープンデータ（2025 本票）",
   source_url: "https://www.npa.go.jp/publications/statistics/koutsuu/opendata/index_opendata.html",

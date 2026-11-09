@@ -2,7 +2,7 @@
 """Build the South Korea (KR) regional statistics family from the analytics handoff recipes.
 
 Input (taipei-gis-analytics, read-only):
-  --handoff  docs/handoff/kr-statistics-recipes.json（49 recipes, levels kr_sido 16／kr_sigungu 256, 65 releases）
+  --handoff  docs/handoff/kr-statistics-recipes.json（53 recipes, levels kr_sido 16／kr_sigungu 256, 73 releases）
   --root     analytics checkout whose data/processed/<theme>/<dataset_id>/releases/<release_id>.json holds the bundles.
 
 Output: src/data/krStatisticsRecipes.json（atlas recipe schema, src/data/atlasStatisticsTypes.ts; family "kr", country "KR"）.
@@ -72,6 +72,10 @@ TRAFFIC_SCOPE = "只含警察處理、有人員傷亡的交通事故；死亡指
 TRAFFIC_INJURY = "受傷人數＝重傷（治療 3 週以上）＋輕傷（5 日至 3 週）＋傷害申報（未滿 5 日）。"
 TRAFFIC_GAP = "水原、城南、安養、富川、安山、華城、高陽、龍仁、清州、天安、全州、浦項、昌原 13 市只有市合計，其 39 個一般區無資料；仁川 2026 年改制的 4 區無資料（不是 0）。這些件數仍計入道級。"
 COUNT_NOTE = "件數與人數未除以人口，人口多的地區自然較高。"
+RATE_NOTE = "每萬人件數＝件數 ÷ 同年 12 月底住民登錄人口 × 10,000（本站計算的衍生值；人口來源：行政安全部住民登錄人口統計）。"
+FIRE_GUNWI_RATE = "軍威郡 2023 年 7 月劃入大邱，2021–2022 年的件數與人口也都算在大邱。"
+TRAFFIC_RATE_FLOW = "事故依發生地歸區、人口依住民登錄地歸區，觀光或通勤流入多而居民少的區比率會偏高。"
+MERGED_RATE = "全南光州統合特別市的道級值＝光州廣域市＋全羅南道的件數合計 ÷ 人口合計（資料年份早於 2026 年 7 月合併）。"
 MERGED_SUM = "全南光州統合特別市的道級值＝光州廣域市＋全羅南道合計（資料年份早於 2026 年 7 月合併）。"
 ZERO_IN_LOWEST = "最淺色含 0 人（該區該年為 0，不是無資料）。"
 ZERO_OWN_CLASS = "0 人自成最淺一級（該區該年無火災死亡，不是無資料）。"
@@ -82,7 +86,9 @@ SGIS_NOTES = [SGIS_YEAR, SGIS_BOUNDARY]
 FIRE_NOTES = [FIRE_SCOPE, COUNT_NOTE, FIRE_GUNWI]
 TRAFFIC_NOTES = [TRAFFIC_SCOPE, COUNT_NOTE]
 # 市郡區層才有「無資料」區；道級是全部列加總，另加全南光州合併說明
-GAP_NOTES = {"kr_fire_incidents_nfds": FIRE_GAP, "kr_traffic_accidents_koroad": TRAFFIC_GAP}
+GAP_NOTES = {"kr_fire_incidents_nfds": FIRE_GAP, "kr_traffic_accidents_koroad": TRAFFIC_GAP,
+             "kr_fire_incidents_nfds_per10k": FIRE_GAP, "kr_traffic_accidents_koroad_per10k": TRAFFIC_GAP}
+RATE_DATASETS = {"kr_fire_incidents_nfds_per10k", "kr_traffic_accidents_koroad_per10k"}
 
 # 一列一個指標（group），列內用 道級／市郡區 切換（option）；visual 對應 statisticsVisuals 的主題色。
 INDICATORS = [
@@ -115,9 +121,13 @@ INDICATORS = [
          zero_note={"kr_sido": ZERO_IN_LOWEST, "kr_sigungu": ZERO_OWN_CLASS}, breaks={"kr_sigungu": [1, 2, 3, 5]}),
     dict(base="statsKrFireInjuries", tab="safety", sub=SUB_FIRE, label="火災受傷人數", digits=0, loc=LOC_FIRE, notes=FIRE_NOTES, visual="security",
          zero_note={"kr_sigungu": ZERO_IN_LOWEST}),
+    dict(base="statsKrFireIncidentsPer10k", tab="safety", sub=SUB_FIRE, label="每萬人火災件數", digits=2, loc=LOC_FIRE,
+         notes=[FIRE_SCOPE, RATE_NOTE, FIRE_GUNWI_RATE], visual="security"),
     dict(base="statsKrFireDamage", tab="safety", sub=SUB_FIRE, label="火災財產損失", digits=0, loc=LOC_FIRE, notes=FIRE_NOTES + [FIRE_DAMAGE], visual="security"),
     # ── 公共安全：交通事故（2025）──
     dict(base="statsKrTrafficAccidents", tab="safety", sub=SUB_TRAFFIC, label="交通事故件數", digits=0, loc=LOC_TRAFFIC, notes=TRAFFIC_NOTES, visual="security"),
+    dict(base="statsKrTrafficAccidentsPer10k", tab="safety", sub=SUB_TRAFFIC, label="每萬人交通事故件數", digits=2, loc=LOC_TRAFFIC,
+         notes=[TRAFFIC_SCOPE, RATE_NOTE, TRAFFIC_RATE_FLOW], visual="security"),
     dict(base="statsKrTrafficDeaths", tab="safety", sub=SUB_TRAFFIC, label="交通事故死亡人數", digits=0, loc=LOC_TRAFFIC, notes=TRAFFIC_NOTES, visual="security",
          zero_note={"kr_sigungu": ZERO_IN_LOWEST}),
     dict(base="statsKrTrafficSeriousInjuries", tab="safety", sub=SUB_TRAFFIC, label="交通事故重傷人數", digits=0, loc=LOC_TRAFFIC, notes=TRAFFIC_NOTES, visual="security"),
@@ -125,7 +135,7 @@ INDICATORS = [
 ]
 # 本專案（或上游 pipeline）由來源欄位自行計算的指標：derived=True，並以 handoff 的 definition 當 derived_method。
 # 來源直接公布的值（人口、SGIS 平均年齡、戶數…）維持 False。
-DERIVED_BASES = ['statsKrSexRatio', 'statsKrAgeYoungShare', 'statsKrAgeWorkingShare', 'statsKrAgeOldShare', 'statsKrAgingIndex', 'statsKrSeoulLivingPop', 'statsKrSeoulLivingPopDay', 'statsKrSeoulLivingPopNight', 'statsKrSeoulDayNightRatio', 'statsKrTrafficInjuries']
+DERIVED_BASES = ['statsKrSexRatio', 'statsKrAgeYoungShare', 'statsKrAgeWorkingShare', 'statsKrAgeOldShare', 'statsKrAgingIndex', 'statsKrSeoulLivingPop', 'statsKrSeoulLivingPopDay', 'statsKrSeoulLivingPopNight', 'statsKrSeoulDayNightRatio', 'statsKrTrafficInjuries', 'statsKrFireIncidentsPer10k', 'statsKrTrafficAccidentsPer10k']
 LEVEL_SUFFIX = {"kr_sido": "Sido", "kr_sigungu": "Sgg"}
 SGIS_DATASET = "kr_sgis_admin_stats"
 
@@ -202,7 +212,8 @@ def main() -> None:
         if layer["dataset_id"] == SGIS_DATASET and level == "kr_sido":
             notes.append(SGIS_MERGED)
         if layer["dataset_id"] in GAP_NOTES:
-            notes.append(MERGED_SUM if level == "kr_sido" else GAP_NOTES[layer["dataset_id"]])
+            merged = MERGED_RATE if layer["dataset_id"] in RATE_DATASETS else MERGED_SUM
+            notes.append(merged if level == "kr_sido" else GAP_NOTES[layer["dataset_id"]])
         notes += [BOUNDARY, f"署名：{attribution}"]
         default_option = max(options, key=lambda o: (o["period_end"], o["period_start"]))
         recipes.append({

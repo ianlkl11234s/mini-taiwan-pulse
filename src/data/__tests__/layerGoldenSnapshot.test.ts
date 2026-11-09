@@ -273,9 +273,24 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-09: +1 台灣圖層待辦池第一批 swcSpecialZones（G53 批 1）。
     // 2026-11-09: +1 台灣圖層待辦池第一批 slopelandSwcAct（G53 批 1）。
     // 2026-11-09: +1 台灣圖層待辦池第一批 debrisFlowPotential（G53 批 1）。
+    // 2026-11-10: +1 日本市町村道 jpMunicipalRoads（JPRD-1，6 片 PMTiles，z12 起）。
     // 2026-11-09: +1 台灣圖層待辦池第一批 landUseChangeMonitoring（G53 批 1）。
     // 2026-11-09: +1 30 天地圖挑戰 Day 9 城鄉 mapchallengeDay09UrbanRural（模擬面板）。
-    expect(keys.length).toBe(1784);
+    // 2026-11-09: +4 南韓每萬人比率 statsKr{FireIncidents,TrafficAccidents}Per10k{Sido,Sgg}（KRSTAT-1）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 broadcastTransmitters（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 tedsGridEmissions（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 pollutionControlZones（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 landslideEventCatalog（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 wraDisasterCctv（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 traLevelCrossings（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 vegetationForestTypes（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 iOceanSightings（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 iOceanFishing（G53 批 2／3）。
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 fireworksSites（G53 批 2／3）。
+    // 2026-11-10: +1 vehicleInspectionOffices（G53 批 2／3）。
+    // 2026-11-10: +8 南韓第 8 波（圖書館、博物館美術館、公演、文化祭、國家遺產、住宿、安心宅配櫃、敬老堂）。
+    // 2026-11-10: +6 愛爾蘭第 11 波（AED、監獄、pNHA、郡議會淹水分區、GSI 地下水淹水、泥炭開採沼地）。
+    expect(keys.length).toBe(1817);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

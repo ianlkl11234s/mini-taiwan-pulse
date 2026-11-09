@@ -1,4 +1,4 @@
-/** 南韓第 3–7 波資料層 key（SSOT：types／registry／測試共用，不放其他相依）。 */
+/** 南韓第 3–8 波資料層 key（SSOT：types／registry／測試共用，不放其他相依）。 */
 export const KR_DATA_KEYS = [
   "krWaterLevelStations", "krSluiceGates", "krWaterQualityStations", "krCoastalErosionFacilities", "krRiversOsm",
   "krMarinePollutionIncidents", "krMarineEnvSites", "krMarineProtectedAreas",
@@ -8,5 +8,9 @@ export const KR_DATA_KEYS = [
   "krTerritorialSea", "krUrbanParks", "krSportsFacilities", "krCemeteriesOsm", "krPopulationH3",
   // 第 7 波（2026-11-07）：學校、學區、醫院藥局、消防署
   "krSchools", "krSchoolDistricts", "krHospitalsPharmacies", "krFireStations", "krCivilDefenseShelters", "krPoliceBoxes",
+  // 第 8 波（2026-11-10）：圖書館、博物館美術館、公演、文化祭、國家遺產、住宿、安心宅配櫃、敬老堂
+  "krLibraries", "krMuseums", "krPerformances", "krFestivals", "krHeritage", "krLodging", "krSafeDeliveryBoxes", "krSeniorCenters",
+  // 第 9 波（2026-11-10）：產業園區、環境噪音測點、舊衣回收箱
+  "krIndustrialComplexes", "krNoiseSites", "krClothingBins",
 ] as const;
 export type KrDataKey = (typeof KR_DATA_KEYS)[number];

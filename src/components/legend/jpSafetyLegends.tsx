@@ -5,7 +5,7 @@ import { enumLabel } from "../../i18n/dataText";
 import { localizeLayerName } from "../../i18n/layerText";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
-import { JP_TRAFFIC_ACCIDENT_PERIOD, JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS, JP_TRAFFIC_ACCIDENT_TOTAL } from "../../data/jpTrafficAccidentsTypes";
+import { JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS, JP_TRAFFIC_ACCIDENT_TOTAL } from "../../data/jpTrafficAccidentsTypes";
 
 export function JpTrafficAccidents2025Legend() {
   const i18n = useLocale();
@@ -18,7 +18,7 @@ export function JpTrafficAccidents2025Legend() {
     ))}
     <DenseHeatmapLegendRow layers={["jpTrafficAccidents2025"]} />
     <LegendNote>
-      {i18n.t("legend.jpSafety.accidentsPeriod", { period: JP_TRAFFIC_ACCIDENT_PERIOD, total: i18n.formatNumber(JP_TRAFFIC_ACCIDENT_TOTAL) })}<br />
+      {i18n.t("legend.jpSafety.accidentsPeriod", { total: i18n.formatNumber(JP_TRAFFIC_ACCIDENT_TOTAL) })}<br />
       {i18n.t("legend.jpSafety.accidentsScope")}<br />
       {i18n.t("legend.jpSafety.accidentsSource")}
     </LegendNote>

@@ -42,7 +42,7 @@ import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/tra
 import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
 import { MapchallengeFacilityLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend } from "./legend/mapchallengeLegends";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
-import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
+import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { CouncilDistrictsLegend, ElectionEventsLegend, PollingStationsLegend } from "./legend/politicsLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
@@ -317,6 +317,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpWelfareDisability", render: () => <JpWelfareFacilitiesLegend layerKey="jpWelfareDisability" /> },
   { id: "jpWelfareChild", render: () => <JpWelfareFacilitiesLegend layerKey="jpWelfareChild" /> },
   { id: "jpMajorRoads", render: () => <JpMajorRoadsLegend /> },
+  { id: "jpMunicipalRoads", render: () => <JpMunicipalRoadsLegend /> },
   { id: "jpExpressways", render: () => <JpExpresswaysLegend /> },
   { id: "jpGsiHillshade", render: () => <JpGsiHillshadeLegend /> },
   { id: "jpGsiRelief", render: () => <JpGsiReliefLegend /> },

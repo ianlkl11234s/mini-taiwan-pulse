@@ -12,6 +12,7 @@ import { fetchWasteScheduleDay, wasteScheduleGroupsFor } from "../wasteScheduleL
 import { loadFireEventsByYear, loadFireEventYears } from "../fireLoader";
 import { fetchReservoirWatershedRivers } from "../reservoirContextLoader";
 import { fetchDataCatalogForLayer } from "../dataCatalogLoader";
+import { fetchLandSubsidenceTimeseries, landSubsidenceStationFileId } from "../landSubsidenceLoader";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets } from "../upstreamRegistry";
 
 const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
@@ -97,5 +98,24 @@ describe("資料目錄 pulse_only 血緣", () => {
       && resolveUpstreamDatasets(k as never).length > 0)!;
     rpc.mockResolvedValue({ data: null, error: { message: "Could not find the function" } });
     await expect(fetchDataCatalogForLayer(key as never)).resolves.toEqual([]);
+  });
+});
+
+describe("地層下陷單站時序", () => {
+  it("站號以 UTF-8 hex 當檔名，讀靜態快照、不打 RPC", async () => {
+    expect(landSubsidenceStationFileId("deep_pile:BM_NTUH(1)")).toBe("646565705f70696c653a424d5f4e545548283129");
+    const fetchMock = vi.fn((_url: string) => Promise.resolve(ok([
+      { bucket_start: "2020-01-01", depth_layer_m: "3", value: "1.5", n: 2, value_kind: "ring_compression_mm" },
+    ])));
+    vi.stubGlobal("fetch", fetchMock);
+    const rows = await fetchLandSubsidenceTimeseries("mag_ring:TEST(1)");
+    expect(fetchMock.mock.calls[0]![0]).toBe(`/static-rpc/get_land_subsidence_timeseries_${landSubsidenceStationFileId("mag_ring:TEST(1)")}.json`);
+    expect(rows).toEqual([{ bucket_start: "2020-01-01", depth_layer_m: 3, value: 1.5, n: 2, value_kind: "ring_compression_mm" }]);
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("缺檔明確失敗", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
+    await expect(fetchLandSubsidenceTimeseries("gnss:MISSING")).rejects.toThrow("HTTP 404");
   });
 });

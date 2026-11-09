@@ -84,6 +84,10 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   R({ key: "waterFloodExtreme", sourceId: "water-flood-extreme", file: "geo/water_flood_650mm_24hr_points.pmtiles", sourceLayer: "flood_scenario_points", count: 2356, def: "polygon", opacityParam: "waterFloodOpacity" }),
   // G53 批 1（2026-11-09）：特定水土保持區 66 區，小而零散 → 預設點
   R({ key: "swcSpecialZones", sourceId: "swc-special-zones", file: "urban/swc_special_zones_115_points.pmtiles", sourceLayer: "swc_special_zones_points", count: 66, def: "point" }),
+  // G53 批 2／3（2026-11-10）：污染管制區多為單筆地號小面 → 預設點；代表點檔 z4–12
+  R({ key: "pollutionControlZones", sourceId: "pollution-control-zones", file: "environment/pollution_control_zones_202611_points.pmtiles", sourceLayer: "pollution_control_zones_points", count: 7803, def: "point", maxzoom: 12 }),
+  // G53 批 2／3（2026-11-10）：事件型崩塌 4.4 萬小面 → 預設點、拉遠熱區；代表點檔 z4–12 未抽稀
+  R({ key: "landslideEventCatalog", sourceId: "landslide-event-catalog", file: "hazards/landslide_event_catalog_093_114_points.pmtiles", sourceLayer: "landslide_event_catalog_points", count: 43_779, def: "point", maxzoom: 12, heatIntensity: 1.5 }),
   // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──
   G({ key: "importantWetlands", sourceId: "important-wetlands", count: 89, def: "point" }),
   G({ key: "importantWetlandZones", sourceId: "important-wetland-zones", count: 578, def: "polygon" }),
@@ -146,6 +150,8 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // ── 南韓：useKrDataLayers 規格驅動層（circle id＝`${kebab(key)}-point-circle`，面＝規格 layerId） ──
   { key: "krCemeteriesOsm", family: "krData", file: "kr_cemeteries_osm_points.pmtiles", sourceLayer: "kr_cemeteries_osm_points", count: 16_842, def: "point", maxzoom: 14, heatIntensity: 0.05 },
   // 第 7 波：小學通學區鋪滿國土（大範圍面）→ 預設面
+  // 第 9 波：產業園區小而零散 → 預設點
+  { key: "krIndustrialComplexes", family: "krData", file: "kr_industrial_complexes_points.pmtiles", sourceLayer: "kr_industrial_complexes_points", count: 1_372, def: "point", maxzoom: 14 },
   { key: "krSchoolDistricts", family: "krData", file: "kr_school_districts_points.pmtiles", sourceLayer: "kr_school_districts_points", count: 7_132, def: "polygon", maxzoom: 14 },
   // 愛爾蘭第 1 波：公園（同一支 useKrDataLayer；Dublin City／South Dublin 官方＋其餘 OSM）
   { key: "ieParks", family: "krData", file: "ie_parks_points.pmtiles", sourceLayer: "ie_parks_points", count: 3221, def: "point", maxzoom: 14 },
@@ -162,6 +168,10 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // 愛爾蘭第 9 波：土地使用分區鋪滿城鎮（預設面；8.7 萬點 → 拉遠熱區，代表點檔 z4–9 未抽稀、只帶 category）、廢棄物許可設施（小而零散，預設點）
   { key: "ieZoning", family: "krData", file: "ie_zoning_points.pmtiles", sourceLayer: "ie_zoning_points", count: 86678, def: "polygon", maxzoom: 14, thinned: 1, heatIntensity: 1 },
   { key: "ieWasteFacilities", family: "krData", file: "ie_waste_facilities_points.pmtiles", sourceLayer: "ie_waste_facilities_points", count: 292, def: "point", maxzoom: 14 },
+  // 愛爾蘭第 11 波：pNHA、郡議會淹水分區、泥炭開採沼地（多為小面，預設點）
+  { key: "ieProposedNha", family: "krData", file: "ie_proposed_nha_points.pmtiles", sourceLayer: "ie_proposed_nha_points", count: 1180, def: "point", maxzoom: 14 },
+  { key: "ieFloodZones", family: "krData", file: "ie_flood_zones_points.pmtiles", sourceLayer: "ie_flood_zones_points", count: 4287, def: "point", maxzoom: 14 },
+  { key: "iePeatExtractionBogs", family: "krData", file: "ie_peat_extraction_bogs_points.pmtiles", sourceLayer: "ie_peat_extraction_bogs_points", count: 162, def: "point", maxzoom: 14 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));

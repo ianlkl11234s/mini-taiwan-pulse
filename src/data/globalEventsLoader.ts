@@ -184,10 +184,12 @@ export function parseGlobalEventCandidate(row: JsonObject): GlobalEventCandidate
   };
 }
 
-export interface GlobalEventCandidateWindow { rows: GlobalEventCandidate[]; totalCandidates: number; partial: boolean; continuation: { afterCandidateId: string; loadedPages: number; loadedRows: number } | null }
+export interface GlobalEventCandidateWindow { rows: GlobalEventCandidate[]; totalCandidates: number; partial: boolean; continuation: { afterCandidateId: string; loadedPages: number; loadedRows: number; loadedCandidates: number } | null }
 const CANDIDATE_PAGE_SIZE = 200;
 const CANDIDATE_PAGE_BUDGET = 5;
-const CANDIDATE_ROW_BUDGET = CANDIDATE_PAGE_SIZE * CANDIDATE_PAGE_BUDGET;
+// The RPC limits candidates per page; each candidate expands to one row per observation × place,
+// so pages legitimately carry more rows than candidates. Budgets and guards count candidates.
+const CANDIDATE_BUDGET = CANDIDATE_PAGE_SIZE * CANDIDATE_PAGE_BUDGET;
 async function fetchGlobalEventCandidatesWindowUncached(cacheKey: string, signal?: AbortSignal): Promise<GlobalEventCandidateWindow> {
   if (!supabaseConfigured) throw new Error("Global Events Supabase is not configured");
   const [windowStart, requestedEnd] = cacheKey.split("|");
@@ -197,6 +199,7 @@ async function fetchGlobalEventCandidatesWindowUncached(cacheKey: string, signal
   let after: string | null = null;
   let totalCandidates = 0;
   let loadedPages = 0;
+  let loadedCandidates = 0;
   for (;;) {
     if (signal?.aborted) throw signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
     const query = supabase.rpc("get_global_event_candidates_window", { p_window_start: windowStart, p_window_end: windowEnd, p_limit_candidates: CANDIDATE_PAGE_SIZE, p_after_candidate_id: after });
@@ -207,15 +210,17 @@ async function fetchGlobalEventCandidatesWindowUncached(cacheKey: string, signal
     }
     const envelope = data as JsonObject;
     const page = envelope.rows as JsonObject[];
-    if (page.length > CANDIDATE_PAGE_SIZE) throw new Error("Global Events candidate page exceeds configured row limit");
+    const pageCandidates = new Set(page.map((row) => String(row.candidate_id ?? ""))).size;
+    if (pageCandidates > CANDIDATE_PAGE_SIZE) throw new Error("Global Events candidate page exceeds configured candidate limit");
     rows.push(...page.map(parseGlobalEventCandidate));
     loadedPages += 1;
+    loadedCandidates += pageCandidates;
     totalCandidates = Math.max(totalCandidates, Number(envelope.total_candidates ?? 0));
     if (envelope.has_more !== true) return { rows, totalCandidates, partial: false, continuation: null };
     const next = nullableString(envelope.next_after_candidate_id);
     if (!next || (after !== null && next <= after)) throw new Error("Global Events candidate pagination did not advance");
     if (signal?.aborted) throw signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
-    if (loadedPages >= CANDIDATE_PAGE_BUDGET || rows.length >= CANDIDATE_ROW_BUDGET) return { rows, totalCandidates, partial: true, continuation: { afterCandidateId: next, loadedPages, loadedRows: rows.length } };
+    if (loadedPages >= CANDIDATE_PAGE_BUDGET || loadedCandidates >= CANDIDATE_BUDGET) return { rows, totalCandidates, partial: true, continuation: { afterCandidateId: next, loadedPages, loadedRows: rows.length, loadedCandidates } };
     after = next;
   }
 }

@@ -89,4 +89,16 @@ export const ATLAS_LAYER_COLORS = {
   slopelandSwcAct: "#a3734c",
   debrisFlowPotential: "#ea580c",
   landUseChangeMonitoring: "#ca8a04",
+  // G53 批 2／3（2026-11-10）
+  broadcastTransmitters: "#7c3aed",
+  tedsGridEmissions: "#d95f0e",
+  pollutionControlZones: "#b91c1c",
+  landslideEventCatalog: "#7c3aed",
+  wraDisasterCctv: "#0284c7",
+  traLevelCrossings: "#f59e0b",
+  vegetationForestTypes: "#166534",
+  iOceanSightings: "#2563eb",
+  iOceanFishing: "#0ea5e9",
+  fireworksSites: "#dc2626",
+  vehicleInspectionOffices: "#22d3ee",
 } as const;

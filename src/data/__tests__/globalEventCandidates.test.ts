@@ -90,7 +90,7 @@ describe("Global situation candidates are retained independently of Qwen importa
     const result = await fetchGlobalEventCandidatesWindow("2026-08-20T00:00:00Z", "2026-09-02T00:00:00Z");
     expect(api.rpc).toHaveBeenCalledTimes(5);
     expect(result.rows).toHaveLength(1000);
-    expect(result).toMatchObject({ totalCandidates: 1200, partial: true, continuation: { afterCandidateId: "after-5", loadedPages: 5, loadedRows: 1000 } });
+    expect(result).toMatchObject({ totalCandidates: 1200, partial: true, continuation: { afterCandidateId: "after-5", loadedPages: 5, loadedRows: 1000, loadedCandidates: 1000 } });
   });
 
   it("aborting transport rejects before a follow-up page is requested", async () => {
@@ -110,7 +110,16 @@ describe("Global situation candidates are retained independently of Qwen importa
 
   it("rejects an oversized page instead of silently dropping rows behind its cursor", async () => {
     api.rpc.mockResolvedValue({ data: { rows: Array.from({ length: 201 }, (_, i) => observation({ candidate_id: `oversized-${i}` })), has_more: false }, error: null });
-    await expect(fetchGlobalEventCandidatesWindow("2026-08-18T00:00:00Z", "2026-09-02T00:00:00Z")).rejects.toThrow("exceeds configured row limit");
+    await expect(fetchGlobalEventCandidatesWindow("2026-08-18T00:00:00Z", "2026-09-02T00:00:00Z")).rejects.toThrow("exceeds configured candidate limit");
+  });
+
+  it("accepts a full candidate page whose candidates expand into multiple place/version rows", async () => {
+    // Production 2026-11-09: 200 candidates in a 24h page came back as 585 rows (one per observation × place).
+    const rows = Array.from({ length: 200 }, (_, i) => [0, 1, 2].map((p) => observation({ candidate_id: `multi-${i}`, place_key: `place-${p}` }))).flat();
+    api.rpc.mockResolvedValue({ data: { rows, total_candidates: 200, has_more: false }, error: null });
+    const result = await fetchGlobalEventCandidatesWindow("2026-08-17T00:00:00Z", "2026-09-02T00:00:00Z");
+    expect(result).toMatchObject({ partial: false, totalCandidates: 200 });
+    expect(result.rows).toHaveLength(600);
   });
 
   it("does not resurrect a retracted formal event as an AI map point; history before withdrawal remains", () => {
