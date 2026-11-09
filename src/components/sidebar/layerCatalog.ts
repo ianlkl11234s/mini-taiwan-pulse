@@ -2370,6 +2370,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 8 烏托邦 Utopia",
       layers: [fromManifest("mapchallengeDay08Access"), fromManifest("mapchallengeDay08Parks"), fromManifest("mapchallengeDay08Sites"), fromManifest("mapchallengeDay08Plan1955")],
+    }, {
+      title: "Day 9 城鄉 Urban-rural",
+      layers: [fromManifest("mapchallengeDay09UrbanRural")],
     }],
   },
 

@@ -1044,6 +1044,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day08-sites-fill"], type: "mapchallengeDay08Sites" },
   { layers: ["mapchallenge-day08-parks-fill"], type: "mapchallengeDay08Parks" },
   { layers: ["mapchallenge-day08-access-fill"], type: "mapchallengeDay08Access" },
+  // 🏘️ 30 天地圖挑戰 Day 9 城鄉：全台鄉鎮面（大面積面層，排在 Day 8 之後）
+  { layers: ["mapchallenge-day09-urban-rural-fill"], type: "mapchallengeDay09UrbanRural" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

@@ -1773,5 +1773,6 @@
   "layer.swcSpecialZones": "特定水土保持区",
   "layer.slopelandSwcAct": "山坡地範囲（水土保持法）",
   "layer.debrisFlowPotential": "土石流潜在渓流",
-  "layer.landUseChangeMonitoring": "国土利用モニタリング変化地点"
+  "layer.landUseChangeMonitoring": "国土利用モニタリング変化地点",
+  "layer.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設"
 }

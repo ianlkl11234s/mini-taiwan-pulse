@@ -1773,5 +1773,6 @@
   "layer.swcSpecialZones": "Special Soil and Water Conservation Zones",
   "layer.slopelandSwcAct": "Slopeland (Soil and Water Conservation Act)",
   "layer.debrisFlowPotential": "Debris Flow Potential Streams",
-  "layer.landUseChangeMonitoring": "Land Use Change Monitoring"
+  "layer.landUseChangeMonitoring": "Land Use Change Monitoring",
+  "layer.mapchallengeDay09UrbanRural": "Which Services Stay Where People Are Few"
 }

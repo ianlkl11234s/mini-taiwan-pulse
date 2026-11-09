@@ -29,6 +29,10 @@ import {
   mapchallengeDay08BinColors, mapchallengeDay08ScenarioByValue, mapchallengeDay08SiteColor, mapchallengeDay08SiteOutline, mapchallengeDay08YiToBillion, MAPCHALLENGE_DAY08_COST_FORMAT,
   type MapchallengeDay08Scenario, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
+import {
+  MAPCHALLENGE_DAY09_DENSITY_COLORS, MAPCHALLENGE_DAY09_DENSITY_RANGES, MAPCHALLENGE_DAY09_RATIO_COLORS, MAPCHALLENGE_DAY09_ZERO_COLOR,
+  mapchallengeDay09Facility, mapchallengeDay09MetricByKey, type MapchallengeDay09Metric,
+} from "../../data/mapchallengeDay09Types";
 
 /** i18n key 寫成字面值（localeParity 靠字面值判斷 key 有沒有人用） */
 export const MAPCHALLENGE_FACILITY_NAME_KEYS: Record<MapchallengeFacilityKey, `legend.mapchallenge.facility.${MapchallengeFacilityKey}`> = {
@@ -367,5 +371,58 @@ export function MapchallengeDay08Plan1955Legend() {
     <LegendTitle zh={t("legend.mapchallenge.day08.planTitle")} />
     <LegendNote>{t("legend.mapchallenge.day08.planLicense")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day08.planOffset")}</LegendNote>
+  </div>;
+}
+
+// ── Day 9 城鄉：人口密度五等份／設施每萬人數相對全國 ─────────────
+/** i18n key 寫成字面值（同上） */
+export const MAPCHALLENGE_DAY09_METRIC_KEYS: Record<MapchallengeDay09Metric, `legend.mapchallenge.day09.metric.${MapchallengeDay09Metric}`> = {
+  density: "legend.mapchallenge.day09.metric.density",
+  elem: "legend.mapchallenge.day09.metric.elem",
+  police: "legend.mapchallenge.day09.metric.police",
+  post: "legend.mapchallenge.day09.metric.post",
+  hc: "legend.mapchallenge.day09.metric.hc",
+  cram: "legend.mapchallenge.day09.metric.cram",
+  clinic: "legend.mapchallenge.day09.metric.clinic",
+  pharm: "legend.mapchallenge.day09.metric.pharm",
+  bank: "legend.mapchallenge.day09.metric.bank",
+  cvs: "legend.mapchallenge.day09.metric.cvs",
+};
+export const MAPCHALLENGE_DAY09_QUINTILE_KEYS = [
+  "legend.mapchallenge.day09.q0", "legend.mapchallenge.day09.q1", "legend.mapchallenge.day09.q2", "legend.mapchallenge.day09.q3", "legend.mapchallenge.day09.q4",
+] as const;
+const MAPCHALLENGE_DAY09_BIN_KEYS = [
+  "legend.mapchallenge.day09.bin0", "legend.mapchallenge.day09.bin1", "legend.mapchallenge.day09.bin2", "legend.mapchallenge.day09.bin3",
+  "legend.mapchallenge.day09.bin4", "legend.mapchallenge.day09.bin5", "legend.mapchallenge.day09.bin6",
+] as const;
+
+export function MapchallengeDay09UrbanRuralLegend() {
+  const { t } = useLocale();
+  const theme = useLegendTheme();
+  const values = useLayerParams("mapchallengeDay09UrbanRural");
+  const metric = mapchallengeDay09MetricByKey(paramStr(values, "mapchallengeDay09UrbanRural", "mapchallengeDay09UrbanRuralMetric"));
+  if (metric === "density") {
+    return <div>
+      <LegendTitle zh={t(MAPCHALLENGE_DAY09_METRIC_KEYS.density)} />
+      <LegendNote>{t("legend.mapchallenge.day09.densityUnit")}</LegendNote>
+      {[4, 3, 2, 1, 0].map((q) => <LegendRow key={q} swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_DENSITY_COLORS[q]!} stroke={theme.seam} />}>
+        {t(MAPCHALLENGE_DAY09_QUINTILE_KEYS[q]!)} <LegendNum>{MAPCHALLENGE_DAY09_DENSITY_RANGES[q]}</LegendNum>
+      </LegendRow>)}
+      <LegendNote>{t("legend.mapchallenge.day09.groupNote")}</LegendNote>
+      <LegendNote>{t("legend.mapchallenge.day09.source")}</LegendNote>
+    </div>;
+  }
+  const f = mapchallengeDay09Facility(metric);
+  return <div>
+    <LegendTitle zh={t(MAPCHALLENGE_DAY09_METRIC_KEYS[metric])} />
+    <LegendNote>{t("legend.mapchallenge.day09.ratioSub", { n: f.national.toFixed(2) })}</LegendNote>
+    {[6, 5, 4, 3, 2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_RATIO_COLORS[i]!} stroke={theme.seam} />}>
+      {t(MAPCHALLENGE_DAY09_BIN_KEYS[i]!)}
+    </LegendRow>)}
+    <LegendRow swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_ZERO_COLOR} stroke={theme.seam} />}>{t("legend.mapchallenge.day09.zero")}</LegendRow>
+    {metric === "cvs" && <LegendNote>{t("legend.mapchallenge.day09.cvsNote")}</LegendNote>}
+    {metric === "hc" && <LegendNote>{t("legend.mapchallenge.day09.hcNote")}</LegendNote>}
+    <LegendNote>{t("legend.mapchallenge.day09.groupNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day09.source")}</LegendNote>
   </div>;
 }
