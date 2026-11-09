@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
+import type { LayerManifestEntry } from "../../data/layerManifest";
 
 const CSV = resolve(__dirname, "../../../docs/features/general-analysis/layer-status.csv");
 const WAREHOUSE_STATUSES = new Set(["warehouse", "statistics", "no_upstream", "display_only", "missing"]);
@@ -32,17 +33,17 @@ function parseCsv(text: string): string[][] {
   return rows;
 }
 
-const [header, ...body] = parseCsv(readFileSync(CSV, "utf-8"));
+const [header = [], ...body] = parseCsv(readFileSync(CSV, "utf-8"));
 const col = (name: string) => header.indexOf(name);
 const records = body.map((cells) => ({
-  key: cells[col("layer_key")],
-  country: cells[col("country")],
-  warehouse: cells[col("warehouse_status")],
+  key: cells[col("layer_key")] ?? "",
+  country: cells[col("country")] ?? "",
+  warehouse: cells[col("warehouse_status")] ?? "",
 }));
 const countBy = (list: string[]) => list.reduce<Record<string, number>>((acc, v) => ({ ...acc, [v]: (acc[v] ?? 0) + 1 }), {});
 
 describe("layer-status.csv covers every country in the manifest (AG-14)", () => {
-  const manifest = Object.values(LAYER_MANIFEST);
+  const manifest: LayerManifestEntry[] = Object.values(LAYER_MANIFEST);
 
   it("has country and warehouse_status columns", () => {
     expect(col("country")).toBeGreaterThanOrEqual(0);
