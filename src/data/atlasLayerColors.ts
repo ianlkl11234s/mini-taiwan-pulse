@@ -88,4 +88,5 @@ export const ATLAS_LAYER_COLORS = {
   swcSpecialZones: "#dc2626",
   slopelandSwcAct: "#a3734c",
   debrisFlowPotential: "#ea580c",
+  landUseChangeMonitoring: "#ca8a04",
 } as const;

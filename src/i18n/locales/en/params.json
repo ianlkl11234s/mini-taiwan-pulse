@@ -2424,5 +2424,14 @@
   "param.風險等級": "Risk level",
   "param.高": "High",
   "param.低": "Low",
-  "param.持續觀察": "Under observation"
+  "param.持續觀察": "Under observation",
+  "param.裸露地": "Bare land",
+  "param.建物": "Building",
+  "param.水體": "Water",
+  "param.107 年": "2018 (ROC 107)",
+  "param.108 年": "2019 (ROC 108)",
+  "param.109 年": "2020 (ROC 109)",
+  "param.110 年": "2021 (ROC 110)",
+  "param.111 年": "2022 (ROC 111)",
+  "param.112 年": "2023 (ROC 112)"
 }

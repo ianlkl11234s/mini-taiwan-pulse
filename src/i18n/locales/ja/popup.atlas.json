@@ -328,5 +328,12 @@
   "popup.atlas.dfLandmark": "目印",
   "popup.atlas.dfCatchmentArea": "集水域面積",
   "popup.atlas.dfStreamType": "渓流の種類",
-  "popup.atlas.dfOldNo": "旧番号"
+  "popup.atlas.dfOldNo": "旧番号",
+  "popup.atlas.lucTitle": "変化の疑い：{cls}",
+  "popup.atlas.lucGridTitle": "この六角形内の変化の疑い {n} か所",
+  "popup.atlas.lucByYear": "年度別（民国）",
+  "popup.atlas.lucYear": "年度（民国）",
+  "popup.atlas.lucChange": "前期 → 後期の判読",
+  "popup.atlas.lucDates": "画像の日付",
+  "popup.atlas.lucCaution": "衛星画像の判読による「変化の疑い」で、調査で確認された違反ではありません"
 }

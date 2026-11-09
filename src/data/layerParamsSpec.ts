@@ -5259,6 +5259,7 @@ export const LAYER_PARAMS_SPEC = {
     },
     opacitySlider("debrisFlowPotentialOpacity", 0.6), scaleSlider("debrisFlowPotentialScale", 1),
   ],
+  landUseChangeMonitoring: [opacitySlider("landUseChangeMonitoringOpacity", 0.7), scaleSlider("landUseChangeMonitoringScale", 1)],
   slopelandSwcAct: [opacitySlider("slopelandSwcActOpacity", 0.3)],
   swcSpecialZones: [opacitySlider("swcSpecialZonesOpacity", 0.45)],
   freewayHundredMeterStakes: [

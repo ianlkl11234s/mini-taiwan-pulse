@@ -328,5 +328,12 @@
   "popup.atlas.dfLandmark": "地標",
   "popup.atlas.dfCatchmentArea": "集水區面積",
   "popup.atlas.dfStreamType": "溪流類型",
-  "popup.atlas.dfOldNo": "舊編號"
+  "popup.atlas.dfOldNo": "舊編號",
+  "popup.atlas.lucTitle": "疑似變異：{cls}",
+  "popup.atlas.lucGridTitle": "此六角格疑似變異 {n} 處",
+  "popup.atlas.lucByYear": "分年（民國）",
+  "popup.atlas.lucYear": "年度（民國）",
+  "popup.atlas.lucChange": "前期 → 後期判釋",
+  "popup.atlas.lucDates": "影像日期",
+  "popup.atlas.lucCaution": "衛星影像判釋的「疑似變異」，不是查報確認的違規"
 }

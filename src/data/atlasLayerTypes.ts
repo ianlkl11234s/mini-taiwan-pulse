@@ -593,9 +593,21 @@ export const DEBRIS_FLOW_VIEW_OPTIONS = [
   { value: "impact", label: "影響範圍" },
   { value: "catchments", label: "集水區" },
 ] as const;
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署" } as const;
+/** 國土利用監測變異類別（上游 change_class；英日文 enum.atlasLandChange.*）。前 4 類語意色，
+ *  unknown／farmland／orchard（合計約 215 筆）併入「其他」；`fields`＝網格檔對應的分類計數欄。 */
+export const LAND_CHANGE_CLASS_OPTIONS: readonly (AtlasOption & { fields: readonly string[] })[] = [
+  { value: "bare", label: "裸露地", color: "#ca8a04", fields: ["c_bare"] },
+  { value: "building", label: "建物", color: "#dc2626", fields: ["c_building"] },
+  { value: "road", label: "道路", color: "#64748b", fields: ["c_road"] },
+  { value: "water", label: "水體", color: "#2563eb", fields: ["c_water"] },
+  { value: "other", label: "其他", color: "#a8a29e", fields: ["c_unknown", "c_farmland", "c_orchard", "c_forest"] },
+];
+/** 國土利用監測年度（民國；網格檔分年計數欄 `y<年>`） */
+export const LAND_CHANGE_YEARS = [107, 108, 109, 110, 111, 112] as const;
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署" } as const;
 
 export const ATLAS_NOTES = {
+  landUseChangeMonitoring: "內政部國土管理署國土利用監測的衛星影像變異點 107–112 年共 143,891 處（data.gov.tw 168030），是「疑似變異」，不是查報確認的違規。依變異類別上色（裸露地占 88%）；同一地點可能在不同年度各出現一次。拉遠時畫六角格（每格約 5 km²），顏色深淺是格內變異處數；六角格跟著類別篩選，只篩年度時改用分年數，兩者都篩時只照類別。放大到 10 級起畫逐點與範圍面。107 年原為 TWD67，已轉換。",
   debrisFlowPotential: "水保署 115 年度土石流潛勢溪流 1,753 條（data.gov.tw 176524），可切換溪流線、影響範圍（176526，1,894 區，一溪可有多個溢流點）、集水區（176525）；三者都依風險等級上色。拉遠到 11 級以下另畫溪流中點，標示位置。涵蓋 17 縣市，新竹市、嘉義市、澎湖、金門、連江沒有潛勢溪流。影響範圍的保全住戶門牌清單不收。溪流編號年度會改編，對照舊警戒紀錄用舊編號（popup）。",
   slopelandSwcAct: "水保署公告的水土保持法山坡地範圍（data.gov.tw 178645，115 年版），15 縣市合計約 192.7 萬公頃。不含六都（臺北、新北、桃園、臺中、臺南、高雄由市府自行公告）與澎湖縣（來源沒有）。來源檔沒有附座標系統，依 TWD97 處理並以金門、連江位置驗證。範圍以公告為準，僅供參考，不構成個別土地的法規判斷。",
   swcSpecialZones: "農業部農村發展及水土保持署公告的特定水土保持區 66 區（data.gov.tw 176847，115 年度，合計約 13,454 公頃），分布 14 縣市。分類依計畫名稱；劃定依據是依水土保持法第 16 條各款推定（來源沒有代碼表）。公告面積與圖形面積約差 1.5%。範圍與管制以公告為準，僅供參考。",

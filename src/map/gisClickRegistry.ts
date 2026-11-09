@@ -1056,6 +1056,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["indigenous-regions-fill", "indigenous-regions-outline"], type: "indigenousRegions" },
   { layers: ["indigenous-language-dialects-fill", "indigenous-language-dialects-outline"], type: "indigenousLanguageDialects" },
   { layers: ["hakka-cultural-zones-fill", "hakka-cultural-zones-outline"], type: "hakkaCulturalZones" },
+  // G53 批 1（2026-11-09）國土利用監測變異點：逐點先、面次之；拉遠時點六角格看格內處數
+  { layers: ["land-use-change-points-circle", "land-use-change-fill", "land-use-change-grid-hex"], type: "landUseChangeMonitoring" },
   // G53 批 1（2026-11-09）山坡地範圍：每縣市一個大面，排在其他點線面之後，不搶細節命中
   { layers: ["slopeland-swc-act-fill"], type: "slopelandSwcAct" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層

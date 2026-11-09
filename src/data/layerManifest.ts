@@ -155,7 +155,7 @@ import {
   // 🗳 政治 選舉活動（2026-11-02）
   Vote,
   // G53 批 1（2026-11-09）
-  Mailbox, Motorbike,
+  Mailbox, Motorbike, ScanSearch,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -11950,6 +11950,19 @@ export const LAYER_MANIFEST = {
     legend: "debrisFlowPotential", popup: "debrisFlowPotential", params: { count: 4, kinds: ["multiSelect", "select", "slider", "slider"] },
     description: "水保署 115 年度土石流潛勢溪流 1,753 條，可切換溪流線、影響範圍、集水區，依風險等級（高／中／低／持續觀察）上色。",
     topics: ["災害", "土石流", "坡地災害", "水保署"],
+  },
+  landUseChangeMonitoring: {
+    key: "landUseChangeMonitoring", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "國土利用監測變異點", alt: "Land Use Change Monitoring" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.landUseChangeMonitoring, icon: ScanSearch,
+    upstream: { status: "verified", datasets: [{ datasetId: "land_use_change_monitoring", confidence: "HIGH" }], processing: "analytics urban_composite/land_use_change_monitoring 107–112：國土管理署 data.gov.tw 168030（107 年 TWD67 已轉）143,891 面；另產逐點檔（z10–12）與 H3 res7 網格檔（z4–9，5,435 格，分年／分類計數）", note: "「疑似變異」非查報確認；97 筆空／框外幾何不上圖；同一地點不同年度各一列。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "land-use-change-grid", url: "./urban/land_use_change_monitoring_107_112_grid.pmtiles", sourceLayer: "land_use_change_monitoring_grid", minzoom: 4, maxzoom: 9 },
+      { kind: "pmtiles", sourceId: "land-use-change", url: "./urban/land_use_change_monitoring_107_112.pmtiles", sourceLayer: "land_use_change_monitoring", minzoom: 10, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "land-use-change-points", url: "./urban/land_use_change_monitoring_107_112_points.pmtiles", sourceLayer: "land_use_change_monitoring_points", minzoom: 10, maxzoom: 12 },
+    ],
+    legend: "landUseChangeMonitoring", popup: "landUseChangeMonitoring", params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
+    description: "國土管理署衛星影像判釋的國土利用疑似變異點 107–112 年 143,891 處，依類別（裸露地、建物、道路、水體）上色；拉遠畫六角格。",
+    topics: ["土地使用", "國土利用監測", "違規使用", "國土管理署"],
   },
   slopelandSwcAct: {
     key: "slopelandSwcAct", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "山坡地範圍（水保法）", alt: "Slopeland (Soil and Water Conservation Act)" }), expandable: true,

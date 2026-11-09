@@ -510,5 +510,12 @@
   "enum.atlasDebrisRisk.中": "Medium",
   "enum.atlasDebrisRisk.低": "Low",
   "enum.atlasDebrisRisk.持續觀察": "Under observation",
-  "enum.atlasNote.debrisFlowPotential": "1,753 debris flow potential streams for ROC year 115 from the Agency of Rural Development and Soil and Water Conservation (data.gov.tw 176524). Switch between stream lines, impact areas (176526; 1,894 areas, a stream can have several overflow points) and catchments (176525); all three are coloured by risk level. Below zoom 11 the stream midpoints are also drawn to show where they are. Covers 17 counties and cities; Hsinchu City, Chiayi City, Penghu, Kinmen and Lienchiang have none. The list of protected household addresses in the impact areas is not included. Stream IDs are renumbered by year; the popup shows the former ID for matching older alerts."
+  "enum.atlasNote.debrisFlowPotential": "1,753 debris flow potential streams for ROC year 115 from the Agency of Rural Development and Soil and Water Conservation (data.gov.tw 176524). Switch between stream lines, impact areas (176526; 1,894 areas, a stream can have several overflow points) and catchments (176525); all three are coloured by risk level. Below zoom 11 the stream midpoints are also drawn to show where they are. Covers 17 counties and cities; Hsinchu City, Chiayi City, Penghu, Kinmen and Lienchiang have none. The list of protected household addresses in the impact areas is not included. Stream IDs are renumbered by year; the popup shows the former ID for matching older alerts.",
+  "enum.atlasLandChange.bare": "Bare land",
+  "enum.atlasLandChange.building": "Building",
+  "enum.atlasLandChange.road": "Road",
+  "enum.atlasLandChange.water": "Water",
+  "enum.atlasLandChange.other": "Other",
+  "enum.atlasOrg.nlma": "National Land Management Agency, Ministry of the Interior",
+  "enum.atlasNote.landUseChangeMonitoring": "143,891 change spots detected from satellite imagery in ROC years 107–112 by the National Land Management Agency's land use monitoring (data.gov.tw 168030). They are suspected changes, not confirmed violations. Coloured by change type (88% bare land); the same place can appear once in each of several years. Zoomed out, hexagons (about 5 km² each) are shaded by the number of changes inside. The hexagons follow the type filter; with only the year filter they use the yearly counts, and with both filters they follow the type only. From zoom 10, individual spots and their areas are drawn. Year 107 was in TWD67 and has been converted."
 }

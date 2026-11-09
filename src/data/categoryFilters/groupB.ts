@@ -1,6 +1,32 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 
 export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // G53 批 1（2026-11-09）：國土利用監測變異點類別＋年度（網格層 skipCategoryFilter，改由 paint 依兩個 mask 加總計數欄）
+  landUseChangeMonitoring: [
+    {
+      property: "change_class",
+      options: [
+        { value: "bare", zh: "裸露地" },
+        { value: "building", zh: "建物" },
+        { value: "road", zh: "道路" },
+        { value: "water", zh: "水體" },
+        { value: ["unknown", "farmland", "orchard", "forest"], zh: "其他" },
+      ],
+    },
+    {
+      property: "year",
+      id: "Year",
+      label: "年度",
+      options: [
+        { value: "107", zh: "107 年" },
+        { value: "108", zh: "108 年" },
+        { value: "109", zh: "109 年" },
+        { value: "110", zh: "110 年" },
+        { value: "111", zh: "111 年" },
+        { value: "112", zh: "112 年" },
+      ],
+    },
+  ],
   // G53 批 1（2026-11-09）：土石流潛勢溪流風險等級（三檔＋中點檔都有 risk；值與 DEBRIS_RISK_OPTIONS 同序）
   debrisFlowPotential: {
     property: "risk",

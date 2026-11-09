@@ -149,6 +149,7 @@ export type ExpandableLayerKey =
   | "securitiesFuturesInstitutions" | "insuranceInstitutions"
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   | "postOfficeFxCounters"
+  | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
   | "slopelandSwcAct" // G53 批 1（2026-11-09）
   | "swcSpecialZones" // G53 批 1（2026-11-09）
@@ -922,6 +923,7 @@ export interface FeatureInfo {
     | "atmSitesFisc" | "financialBranchesFisc"
     | "securitiesFuturesInstitutions" | "insuranceInstitutions"
     | "postOfficeFxCounters"
+    | "landUseChangeMonitoring"
     | "debrisFlowPotential"
     | "slopelandSwcAct"
     | "swcSpecialZones"
@@ -1471,6 +1473,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   insuranceInstitutions: boolean;
   /** 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局 290（非外幣收兌處） */
   postOfficeFxCounters: boolean;
+  /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
+  landUseChangeMonitoring: boolean;
   /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */
   debrisFlowPotential: boolean;
   /** G53 批 1（2026-11-09）山坡地範圍（水保法）：水保署 178645，15 縣市 */

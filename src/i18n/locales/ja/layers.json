@@ -1772,5 +1772,6 @@
   "layer.freewayHundredMeterStakes": "国道 100 m 距離杭",
   "layer.swcSpecialZones": "特定水土保持区",
   "layer.slopelandSwcAct": "山坡地範囲（水土保持法）",
-  "layer.debrisFlowPotential": "土石流潜在渓流"
+  "layer.debrisFlowPotential": "土石流潜在渓流",
+  "layer.landUseChangeMonitoring": "国土利用モニタリング変化地点"
 }

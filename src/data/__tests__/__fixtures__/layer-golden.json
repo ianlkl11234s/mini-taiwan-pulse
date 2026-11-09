@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1782,
+    "keyCount": 1783,
     "sections": [
       "gisLayers",
       "overlays",
@@ -6101,6 +6101,14 @@
         "hakka-cultural-zones-points-circle-polygon"
       ],
       "type": "hakkaCulturalZones"
+    },
+    {
+      "layers": [
+        "land-use-change-points-circle",
+        "land-use-change-fill",
+        "land-use-change-grid-hex"
+      ],
+      "type": "landUseChangeMonitoring"
     },
     {
       "layers": [
@@ -84418,6 +84426,339 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "landUseChangeMonitoring",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "total"
+                  ],
+                  0
+                ],
+                1,
+                "#fef3c7",
+                10,
+                "#fbbf24",
+                40,
+                "#d97706",
+                120,
+                "#7c2d12"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  ">",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "total"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.595,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "total"
+                  ],
+                  0
+                ],
+                1,
+                "#fef3c7",
+                10,
+                "#fbbf24",
+                40,
+                "#d97706",
+                120,
+                "#7c2d12"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  ">",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "total"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.595,
+                0
+              ]
+            }
+          },
+          "suffix": "hex",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 9,
+        "minzoom": 4,
+        "sourceLayer": "land_use_change_monitoring_grid"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "land-use-change-grid",
+      "sourceUrl": "./urban/land_use_change_monitoring_107_112_grid.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landUseChangeMonitoring",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "fill-opacity": 0.42
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "fill-opacity": 0.42
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "land_use_change_monitoring"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "land-use-change",
+      "sourceUrl": "./urban/land_use_change_monitoring_107_112.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landUseChangeMonitoring",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 13,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                13,
+                3.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.5
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                13,
+                3.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.5
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 10,
+        "sourceLayer": "land_use_change_monitoring_points"
+      },
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "land-use-change-points",
+      "sourceUrl": "./urban/land_use_change_monitoring_107_112_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "slopelandSwcAct",
       "layers": [
         {
@@ -138815,6 +139156,97 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "landUseChangeMonitoring": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "裸露地",
+            "value": "bare"
+          },
+          {
+            "label": "建物",
+            "value": "building"
+          },
+          {
+            "label": "道路",
+            "value": "road"
+          },
+          {
+            "label": "水體",
+            "value": "water"
+          },
+          {
+            "label": "其他",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bare",
+          "building",
+          "road",
+          "water",
+          "unknown"
+        ]
+      },
+      {
+        "label": "年度",
+        "options": [
+          {
+            "label": "107 年",
+            "value": "107"
+          },
+          {
+            "label": "108 年",
+            "value": "108"
+          },
+          {
+            "label": "109 年",
+            "value": "109"
+          },
+          {
+            "label": "110 年",
+            "value": "110"
+          },
+          {
+            "label": "111 年",
+            "value": "111"
+          },
+          {
+            "label": "112 年",
+            "value": "112"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "107",
+          "108",
+          "109",
+          "110",
+          "111",
+          "112"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       },
       {
         "label": "大小 1.0",

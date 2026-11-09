@@ -328,5 +328,12 @@
   "popup.atlas.dfLandmark": "Landmark",
   "popup.atlas.dfCatchmentArea": "Catchment area",
   "popup.atlas.dfStreamType": "Stream type",
-  "popup.atlas.dfOldNo": "Former ID"
+  "popup.atlas.dfOldNo": "Former ID",
+  "popup.atlas.lucTitle": "Suspected change: {cls}",
+  "popup.atlas.lucGridTitle": "{n} suspected changes in this hexagon",
+  "popup.atlas.lucByYear": "By year (ROC)",
+  "popup.atlas.lucYear": "Year (ROC)",
+  "popup.atlas.lucChange": "Before → after",
+  "popup.atlas.lucDates": "Image dates",
+  "popup.atlas.lucCaution": "A suspected change detected from satellite imagery, not a confirmed violation"
 }

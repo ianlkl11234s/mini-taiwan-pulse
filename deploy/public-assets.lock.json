@@ -2174,6 +2174,27 @@
    "s3_key": "deploy-assets/tourism/water_recreation_restricted_areas.geojson"
   },
   {
+   "path": "public/urban/land_use_change_monitoring_107_112.pmtiles",
+   "bytes": 46304867,
+   "sha256": "b6b1e6cb8645e4d7d3fd7d517b5f9850a3c13608dd6654ec1935c2e9709f38d4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/urban/land_use_change_monitoring_107_112.pmtiles"
+  },
+  {
+   "path": "public/urban/land_use_change_monitoring_107_112_grid.pmtiles",
+   "bytes": 1490075,
+   "sha256": "8f8e137708a63328fffb4226c2e9b29a36fcbe78d7d5d8375f9d2673987fec51",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/urban/land_use_change_monitoring_107_112_grid.pmtiles"
+  },
+  {
+   "path": "public/urban/land_use_change_monitoring_107_112_points.pmtiles",
+   "bytes": 8547323,
+   "sha256": "800550ddfa4a178972f275bf3cdacc036e6020b7d5e760ccce94b8e0aa053f62",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/urban/land_use_change_monitoring_107_112_points.pmtiles"
+  },
+  {
    "path": "public/urban/non_urban_zoning_points.pmtiles",
    "bytes": 5864624,
    "sha256": "2e9314c302dd22eb7d5176dae49942f703613e4f9dfda4d23f1b6d036c36e439",

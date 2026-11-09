@@ -640,6 +640,7 @@ const THEME_CATALOG: ThemeDef[] = [
           // G53 批 1（2026-11-09）：水保法管制範圍（使用者決定放土地使用分區）
           fromManifest("swcSpecialZones"),
           fromManifest("slopelandSwcAct"),
+          fromManifest("landUseChangeMonitoring"),
         ],
       },
       {

@@ -18,6 +18,7 @@ import {
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   MAILBOX_SERVICE_OPTIONS,
   DEBRIS_RISK_OPTIONS,
+  LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
@@ -960,6 +961,33 @@ function SecuritiesFuturesPanel({ props }: Props) {
 }
 
 /** 土石流潛勢溪流：三種圖徵（溪流線／中點、影響範圍、集水區）共用一個 popup，依欄位判斷是哪一種。 */
+/** 國土利用監測變異點：網格（h3）顯示格內處數；逐點／面顯示單處（逐點檔只帶類別、年度、面積）。 */
+function LandUseChangePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  if (props.h3 != null) {
+    const years = LAND_CHANGE_YEARS.map((y) => `${y}：${fmt(props[`y${y}`], 0, "", i18n)}`).join(t("popup.atlas.dot"));
+    return <>
+      <Title color={ATLAS_LAYER_COLORS.landUseChangeMonitoring}>{t("popup.atlas.lucGridTitle", { n: fmt(props.total, 0, "", i18n) })}</Title>
+      {LAND_CHANGE_CLASS_OPTIONS.map((o) => <Row key={o.value} label={enumOf("atlasLandChange", o.value, o.label, i18n)} value={fmt(o.fields.reduce((sum, f) => sum + (Number(props[f]) || 0), 0), 0, "", i18n)} color={o.color} mono />)}
+      <Row label={t("popup.atlas.lucByYear")} value={years} mono />
+      <Row field="caution" value={t("popup.atlas.lucCaution")} />
+    </>;
+  }
+  const cls = LAND_CHANGE_CLASS_OPTIONS.some((o) => o.value === props.change_class) ? str(props.change_class) : "other";
+  const option = LAND_CHANGE_CLASS_OPTIONS.find((o) => o.value === cls)!;
+  const before = str(props.before_type), after = str(props.after_type);
+  return <>
+    <Title color={option.color}>{t("popup.atlas.lucTitle", { cls: enumOf("atlasLandChange", cls, option.label, i18n) })}</Title>
+    <Row label={t("popup.atlas.lucYear")} value={str(props.year)} mono />
+    <Row label={t("popup.atlas.lucChange")} value={before || after ? `${before || "—"} → ${after || "—"}` : ""} />
+    <Row label={t("popup.atlas.lucDates")} value={str(props.before_date) || str(props.after_date) ? `${str(props.before_date) || "—"} → ${str(props.after_date) || "—"}` : ""} mono />
+    <Row field="countyDistrict" value={[str(props.county), str(props.town)].filter(Boolean).join(" ")} />
+    <Row field="area" value={fmt(props.area_m2, 0, "m²", i18n)} mono />
+    <Row field="caution" value={t("popup.atlas.lucCaution")} />
+  </>;
+}
+
 function DebrisFlowPotentialPanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -1263,6 +1291,7 @@ function BatterySwapPanel({ props }: Props) {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  landUseChangeMonitoring: LandUseChangePanel,
   debrisFlowPotential: DebrisFlowPotentialPanel,
   slopelandSwcAct: SlopelandSwcActPanel,
   swcSpecialZones: SwcSpecialZonePanel,
@@ -1339,6 +1368,7 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  landUseChangeMonitoring: manifestZh("landUseChangeMonitoring"),
   debrisFlowPotential: manifestZh("debrisFlowPotential"),
   slopelandSwcAct: manifestZh("slopelandSwcAct"),
   swcSpecialZones: manifestZh("swcSpecialZones"),

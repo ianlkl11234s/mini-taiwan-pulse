@@ -347,6 +347,7 @@ import {
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   MAILBOX_SERVICE_OPTIONS,
   DEBRIS_RISK_OPTIONS,
+  LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
   antivenomSerumFilter,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
@@ -12213,6 +12214,61 @@ function culturalHealthStationsOverlay(): OverlayConfig {
 }
 
 /**
+ * G53 批 1 國土利用監測變異點：z4–9 畫 H3 res7 六角格（網格檔），z10 起畫範圍面＋逐點（點畫到 z13）。
+ * 六角格不吃 V-4 篩選 filter（一格含多類別、多年度），改由 paint 依兩個 mask 加總計數欄：
+ * 只篩年度→分年欄 y<年>；有篩類別→分類欄 c_*（兩者都篩時只照類別，網格檔沒有類別×年度交叉數，圖例 note 有寫）。
+ */
+function landUseChangeGridWeight(p?: Record<string, number>): unknown {
+  const maskOf = (raw: number | undefined, n: number) => {
+    const all = (1 << n) - 1;
+    return raw === undefined || !Number.isFinite(raw) ? all : Math.trunc(raw) & all;
+  };
+  const sum = (fields: readonly string[]) => (fields.length === 0 ? 0 : ["+", 0, ...fields.map((f) => ["coalesce", ["get", f], 0])]);
+  const classAll = (1 << LAND_CHANGE_CLASS_OPTIONS.length) - 1;
+  const yearAll = (1 << LAND_CHANGE_YEARS.length) - 1;
+  const cm = maskOf(p?.landUseChangeMonitoringCatMask, LAND_CHANGE_CLASS_OPTIONS.length);
+  const ym = maskOf(p?.landUseChangeMonitoringYearMask, LAND_CHANGE_YEARS.length);
+  if (ym === 0) return 0;
+  if (cm === classAll && ym === yearAll) return ["coalesce", ["get", "total"], 0];
+  if (cm === classAll) return sum(LAND_CHANGE_YEARS.filter((_, i) => ym & (1 << i)).map((y) => `y${y}`));
+  return sum(LAND_CHANGE_CLASS_OPTIONS.filter((_, i) => cm & (1 << i)).flatMap((o) => o.fields));
+}
+
+function landUseChangeMonitoringOverlays(): OverlayConfig[] {
+  const id = "landUseChangeMonitoring";
+  const attribution = `內政部國土管理署 國土利用監測變異點（data.gov.tw 168030）· ${OGDL_ATTR}`;
+  const color = ["match", ["get", "change_class"], ...LAND_CHANGE_CLASS_OPTIONS.slice(0, 4).flatMap((o) => [o.value, o.color]), LAND_CHANGE_CLASS_OPTIONS[4]!.color];
+  const opacity = (p?: Record<string, number>) => p?.landUseChangeMonitoringOpacity ?? 0.7;
+  return [
+    {
+      id, sourceUrl: "./urban/land_use_change_monitoring_107_112_grid.pmtiles", sourceId: "land-use-change-grid",
+      pmtiles: { sourceLayer: "land_use_change_monitoring_grid", minzoom: 4, maxzoom: 9 }, attribution,
+      layers: [{ suffix: "hex", type: "fill", maxzoom: 10, skipCategoryFilter: true, paint: (_dark, p) => {
+        const w = landUseChangeGridWeight(p);
+        return {
+          "fill-color": ["interpolate", ["linear"], w, 1, "#fef3c7", 10, "#fbbf24", 40, "#d97706", 120, "#7c2d12"],
+          "fill-opacity": ["case", [">", w, 0], opacity(p) * 0.85, 0],
+        };
+      } }],
+    },
+    {
+      id, sourceUrl: "./urban/land_use_change_monitoring_107_112.pmtiles", sourceId: "land-use-change",
+      pmtiles: { sourceLayer: "land_use_change_monitoring", minzoom: 10, maxzoom: 14 }, attribution,
+      layers: polygonLayers(id, color, 0.7).map((l) => (l.suffix === "fill" ? { ...l, paint: (dark: boolean, p?: Record<string, number>) => ({ ...l.paint(dark, p), "fill-opacity": opacity(p) * 0.6 }) } : l)),
+    },
+    {
+      id, sourceUrl: "./urban/land_use_change_monitoring_107_112_points.pmtiles", sourceId: "land-use-change-points",
+      pmtiles: { sourceLayer: "land_use_change_monitoring_points", minzoom: 10, maxzoom: 12 }, attribution,
+      layers: [{ suffix: "circle", type: "circle", maxzoom: 13, paint: (dark, p) => ({
+        "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2 * (p?.landUseChangeMonitoringScale ?? 1), 13, 3.5 * (p?.landUseChangeMonitoringScale ?? 1)],
+        "circle-opacity": Math.min(1, opacity(p) + 0.2), "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.5,
+        "circle-stroke-opacity": Math.min(1, opacity(p) + 0.2),
+      }) }],
+    },
+  ];
+}
+
+/**
  * G53 批 1 土石流潛勢溪流：一層四個 config（同 id）。select `debrisFlowPotentialViewIdx`
  * 0＝溪流線、1＝影響範圍、2＝集水區，未選中的子圖層 visibility none（不抓圖磚）；
  * 溪流中點（analytics _points 檔，z4–10）三種顯示都畫到 z11，國家全覽 z7 才看得到位置（線、面在全覽太小）。
@@ -12262,6 +12318,7 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
   ...debrisFlowPotentialOverlays(),
+  ...landUseChangeMonitoringOverlays(),
   {
     // 大面積覆蓋面（15 縣市各一面）：§3.8 V-5 區劃面類，不做點／面切換
     id: "slopelandSwcAct", sourceUrl: "./urban/slopeland_swc_act_115.pmtiles", sourceId: "slopeland-swc-act",
