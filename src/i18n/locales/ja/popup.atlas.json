@@ -366,5 +366,7 @@
   "popup.atlas.wcLoadingList": "水利署から当日の画像 URL を取得中…",
   "popup.atlas.wcNoImage": "このカメラの画像 URL を現在取得できません",
   "popup.atlas.wcSnapshotNote": "水利署オープンデータに接続できないため 2026-11-09 時点の画像 URL を使用中（表示できない場合があります）",
-  "popup.atlas.wcOfficial": "水利署防災情報サイト"
+  "popup.atlas.wcOfficial": "水利署防災情報サイト",
+  "popup.atlas.tlcLine": "路線",
+  "popup.atlas.tlcOsmMatch": "元データに座標がなく、同じ県市の OpenStreetMap 同名踏切から位置を推定（© OpenStreetMap contributors、ODbL）"
 }

@@ -204,6 +204,7 @@ public/poi/public_retail_markets_national.geojson
 public/police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson
 public/public_life/national_parks_points.pmtiles
 public/rail/routes_static.geojson
+public/rail/tra_level_crossings_11970.pmtiles
 public/religion/ancestral_halls.geojson
 public/religion/churches.geojson
 public/religion/foundations.geojson

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1793,
+    "keyCount": 1794,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5657,6 +5657,13 @@
         "antivenom-hospitals-glow"
       ],
       "type": "antivenomHospitals"
+    },
+    {
+      "layers": [
+        "tra-level-crossings-circle",
+        "tra-level-crossings-glow"
+      ],
+      "type": "traLevelCrossings"
     },
     {
       "layers": [
@@ -85588,6 +85595,234 @@
       ],
       "sourceId": "pollution-control-zones-points",
       "sourceUrl": "./environment/pollution_control_zones_202611_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "traLevelCrossings",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type_key"
+                ],
+                "type3a",
+                "#f59e0b",
+                "type1",
+                "#2563eb",
+                "type2",
+                "#0891b2",
+                "half_closed",
+                "#7c3aed",
+                "manual",
+                "#db2777",
+                "private",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type_key"
+                ],
+                "type3a",
+                "#f59e0b",
+                "type1",
+                "#2563eb",
+                "type2",
+                "#0891b2",
+                "half_closed",
+                "#7c3aed",
+                "manual",
+                "#db2777",
+                "private",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type_key"
+                ],
+                "type3a",
+                "#f59e0b",
+                "type1",
+                "#2563eb",
+                "type2",
+                "#0891b2",
+                "half_closed",
+                "#7c3aed",
+                "manual",
+                "#db2777",
+                "private",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type_key"
+                ],
+                "type3a",
+                "#f59e0b",
+                "type1",
+                "#2563eb",
+                "type2",
+                "#0891b2",
+                "half_closed",
+                "#7c3aed",
+                "manual",
+                "#db2777",
+                "private",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "tra_level_crossings"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tra-level-crossings",
+      "sourceUrl": "./rail/tra_level_crossings_11970.pmtiles"
     },
     {
       "dynamicData": null,
@@ -195055,6 +195290,64 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "traLevelCrossings": [
+      {
+        "label": "分類",
+        "options": [
+          {
+            "label": "第三種甲平交道",
+            "value": "type3a"
+          },
+          {
+            "label": "第一種平交道",
+            "value": "type1"
+          },
+          {
+            "label": "第二種平交道",
+            "value": "type2"
+          },
+          {
+            "label": "半封閉式平交道",
+            "value": "half_closed"
+          },
+          {
+            "label": "人工控制平交道",
+            "value": "manual"
+          },
+          {
+            "label": "專用平交道",
+            "value": "private"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "type3a",
+          "type1",
+          "type2",
+          "half_closed",
+          "manual",
+          "private"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",

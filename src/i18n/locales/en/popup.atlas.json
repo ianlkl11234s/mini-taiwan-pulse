@@ -366,5 +366,7 @@
   "popup.atlas.wcLoadingList": "Getting today's image address from the WRA…",
   "popup.atlas.wcNoImage": "No image address is available for this camera right now",
   "popup.atlas.wcSnapshotNote": "Could not reach the WRA open data platform; using the 2026-11-09 image address, which may no longer work",
-  "popup.atlas.wcOfficial": "WRA disaster information site"
+  "popup.atlas.wcOfficial": "WRA disaster information site",
+  "popup.atlas.tlcLine": "Line",
+  "popup.atlas.tlcOsmMatch": "No coordinates in the source; position inferred from a same-name OpenStreetMap crossing in the same county (© OpenStreetMap contributors, ODbL)"
 }

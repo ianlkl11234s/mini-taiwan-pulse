@@ -38,5 +38,7 @@
   "legend.atlas.tedsGridSubtitle": "{view} · {pollutant}（トン／km²・年）",
   "legend.atlas.tedsFacilitySubtitle": "{view} · {pollutant}（点の大きさは年間排出トン数）",
   "legend.atlas.tedsFacility": "事業所（排出口の中央位置）",
-  "legend.atlas.pczReleased": "指定解除"
+  "legend.atlas.pczReleased": "指定解除",
+  "legend.atlas.traLcSubtitle": "台鉄 2024 年の公開一覧で、一部は廃止済みの可能性あり。元データ 801 か所、地図上 440 か所、座標なし 361 か所は非表示",
+  "legend.atlas.licenseOgdlOsmPatch": "政府資料オープンライセンス第 1 版。25 か所の位置は © OpenStreetMap contributors（ODbL）"
 }

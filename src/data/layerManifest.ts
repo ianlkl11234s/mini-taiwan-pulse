@@ -11543,6 +11543,15 @@ export const LAYER_MANIFEST = {
     description: "依村里分平地、丘陵、高山三類農村社區（放大到 7 級以上顯示）。",
     topics: ["農村", "農村社區", "村里"],
   },
+  traLevelCrossings: {
+    key: "traLevelCrossings", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "臺鐵平交道", alt: "TRA Level Crossings" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.traLevelCrossings, icon: TrainTrack,
+    upstream: { status: "verified", datasets: [{ datasetId: "tra_level_crossings", confidence: "MED" }], processing: "analytics transportation/tra_level_crossings 11970：臺鐵 data.gov.tw 11970（2024-08-26）801 處；來源座標 415、OSM 同縣市同名節點補位 25，361 處無座標未上圖；改制前縣市名改為今日縣市", note: "清單可能仍列已廢除者（46 處離最近 OSM 平交道 >200 m，未查證）；補位 © OpenStreetMap contributors（ODbL）。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "tra-level-crossings", url: "./rail/tra_level_crossings_11970.pmtiles", sourceLayer: "tra_level_crossings", minzoom: 6, maxzoom: 14 },
+    legend: "traLevelCrossings", popup: "traLevelCrossings", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "臺鐵公開的平交道 440 處（來源 801 處，361 處無座標未上圖），依平交道分類著色。",
+    topics: ["鐵路", "臺鐵", "平交道", "交通安全"],
+  },
   provincialRoadSigns: {
     key: "provincialRoadSigns", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道交通標誌", alt: "Provincial Road Signs" }), expandable: true,
     color: ATLAS_LAYER_COLORS.provincialRoadSigns, icon: Construction,

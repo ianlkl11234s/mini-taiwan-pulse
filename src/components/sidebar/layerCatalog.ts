@@ -793,6 +793,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayInterchanges"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
+          fromManifest("traLevelCrossings"),
           fromManifest("cctv"),
           fromManifest("etcGantry"),
           fromManifest("serviceArea"),

@@ -2465,5 +2465,11 @@
   "param.豪雨": "Heavy rain",
   "param.事件類型": "Event type",
   "param.水情影像監視站": "River monitoring camera",
-  "param.疏濬工區管制站": "Dredging site camera"
+  "param.疏濬工區管制站": "Dredging site camera",
+  "param.第三種甲平交道": "Type 3A crossing",
+  "param.第一種平交道": "Type 1 crossing",
+  "param.第二種平交道": "Type 2 crossing",
+  "param.半封閉式平交道": "Semi-closed crossing",
+  "param.人工控制平交道": "Manually controlled crossing",
+  "param.專用平交道": "Private crossing"
 }

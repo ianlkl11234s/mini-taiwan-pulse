@@ -9,6 +9,19 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       options: [{ value: "remediation", zh: "整治場址" }, { value: "control", zh: "控制場址" }, { value: "gw_restriction", zh: "地下水受污染使用限制地區" }],
     },
   ],
+  // G53 批 2／3（2026-11-10）：臺鐵平交道分類（值與 atlasLayerTypes TRA_CROSSING_TYPE_OPTIONS 同序）
+  traLevelCrossings: {
+    property: "type_key",
+    label: "分類",
+    options: [
+      { value: "type3a", zh: "第三種甲平交道" },
+      { value: "type1", zh: "第一種平交道" },
+      { value: "type2", zh: "第二種平交道" },
+      { value: "half_closed", zh: "半封閉式平交道" },
+      { value: "manual", zh: "人工控制平交道" },
+      { value: "private", zh: "專用平交道" },
+    ],
+  },
   // G53 批 2／3（2026-11-10）：水利署防災影像種類（值與 atlasLayerTypes WRA_CCTV_KIND_OPTIONS 同序）
   wraDisasterCctv: {
     property: "kind",

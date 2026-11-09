@@ -95,4 +95,5 @@ export const ATLAS_LAYER_COLORS = {
   pollutionControlZones: "#b91c1c",
   landslideEventCatalog: "#7c3aed",
   wraDisasterCctv: "#0284c7",
+  traLevelCrossings: "#f59e0b",
 } as const;

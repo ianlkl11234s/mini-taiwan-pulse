@@ -2034,6 +2034,13 @@
    "s3_key": "deploy-assets/rail.tar.gz"
   },
   {
+   "path": "public/rail/tra_level_crossings_11970.pmtiles",
+   "bytes": 289949,
+   "sha256": "94149f47f4980cb0f81b6f8ed6fa9f313346cf730d3846aeda5a582fbe65fa24",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/rail/tra_level_crossings_11970.pmtiles"
+  },
+  {
    "path": "public/rail/trtc/extensions/xinyi_east_r01.geojson",
    "bytes": 2833,
    "sha256": "1c589cee0f579b7fb85d11a11328e305cd392562e72ea05f8319c59114de1d23",

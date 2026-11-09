@@ -1783,5 +1783,6 @@
   "layer.tedsGridEmissions": "Air Pollutant Emission Grid (TEDS)",
   "layer.pollutionControlZones": "Soil & Groundwater Pollution Control Zones",
   "layer.landslideEventCatalog": "Event-based Landslide Inventory",
-  "layer.wraDisasterCctv": "WRA Disaster Monitoring Cameras"
+  "layer.wraDisasterCctv": "WRA Disaster Monitoring Cameras",
+  "layer.traLevelCrossings": "TRA Level Crossings"
 }

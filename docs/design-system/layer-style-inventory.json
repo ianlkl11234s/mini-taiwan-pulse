@@ -18,17 +18,17 @@
   ]
  },
  "summary": {
-  "layerKeys": 1793,
-  "overlayConfigs": 532,
-  "runtimeSublayers": 1012,
+  "layerKeys": 1794,
+  "overlayConfigs": 533,
+  "runtimeSublayers": 1014,
   "byResolution": {
-   "runtime": 441,
+   "runtime": 442,
    "static-scan": 308,
    "unresolved": 133,
    "shared-renderer": 911
   },
   "byGeometry": {
-   "point": 607,
+   "point": 608,
    "heatmap": 218,
    "line": 377,
    "polygon": 1246,
@@ -43,11 +43,11 @@
    "Three.js／WebGL CustomLayer": 11,
    "無 hook／factory（App 掛載或尚無實作）": 103
   },
-  "legendEntries": 1541,
+  "legendEntries": 1542,
   "legendTypes": {
    "square-swatch": 127,
    "svg-icon": 50,
-   "dot-swatch": 245,
+   "dot-swatch": 246,
    "gradient+dot-swatch": 75,
    "square-swatch+hatch(missing)": 916,
    "gradient+size+dot-swatch": 4,
@@ -75,7 +75,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 590,
+   "ssr": 591,
    "static": 951
   },
   "legendsWithIssues": 59,
@@ -108,7 +108,7 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 372,
+    "n": 373,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
@@ -127,10 +127,10 @@
     "dataDrivenCounted": 45,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 156
+    "decorationExcluded": 157
    },
    "circle-radius@z14": {
-    "n": 372,
+    "n": 373,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
@@ -140,7 +140,7 @@
      "4.5×201",
      "3×43",
      "6×41",
-     "6.5×19",
+     "6.5×20",
      "5×9",
      "7×7",
      "3.45×7",
@@ -149,18 +149,18 @@
     "dataDrivenCounted": 45,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 156
+    "decorationExcluded": 157
    },
    "circle-stroke-width@z14": {
-    "n": 377,
+    "n": 378,
     "min": 0.5,
     "p25": 1,
     "median": 1,
-    "p75": 1.15,
+    "p75": 1.2,
     "max": 2.2,
     "mostCommon": [
      "1×271",
-     "1.2×66",
+     "1.2×67",
      "1.4×10",
      "1.5×5",
      "1.3×4",
@@ -171,10 +171,10 @@
     "dataDrivenCounted": 38,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 156
+    "decorationExcluded": 157
    },
    "circle-opacity": {
-    "n": 373,
+    "n": 374,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
@@ -183,7 +183,7 @@
     "mostCommon": [
      "0.85×111",
      "0.8×82",
-     "0.9×49",
+     "0.9×50",
      "0.75×45",
      "0.45×15",
      "0.6×12",
@@ -193,7 +193,7 @@
     "dataDrivenCounted": 44,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 156
+    "decorationExcluded": 157
    },
    "line-width@z10": {
     "n": 161,
@@ -508,24 +508,24 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 374,
+   "隨底圖切換": 375,
    "資料驅動": 2,
    "固定 #c2410c": 1
   },
   "circleStrokeThemePairs": {
    "暗 #0a0a14 → 淡 #ffffff": 273,
-   "暗 #0f172a → 淡 #ffffff": 68,
+   "暗 #0f172a → 淡 #ffffff": 69,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
    "暗 #0a0a14 → 淡 #475569": 1
   },
   "decorationSublayers": {
-   "count": 184,
+   "count": 185,
    "byType": {
-    "circle": 156,
+    "circle": 157,
     "line": 28
    },
-   "keys": 160
+   "keys": 161
   },
   "lineDash": [
    "debrisFlowPotential/outline=[4,3]",
@@ -550,10 +550,10 @@
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 680,
-   "of": 1012,
+   "sublayersWithDiff": 681,
+   "of": 1014,
    "byProperty": {
-    "circle-stroke-color": 374,
+    "circle-stroke-color": 375,
     "circle-stroke-opacity": 306,
     "line-color": 107,
     "heatmap-color": 71,
@@ -569,7 +569,7 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 276,
+   "circle:categorical": 278,
    "circle:constant": 235,
    "line:constant": 126,
    "heatmap:sequential": 75,
@@ -2155,6 +2155,7 @@
   {"id":"tourVisitorStats","members":["tourVisitorStats"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":6,"paintComparable":true},
   {"id":"toxicChemicalFacilities","members":["toxicChemicalFacilities"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"trafficAccidents2025","members":["trafficAccidents2025"],"components":["TrafficAccidents2025Legend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":2,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":9,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
+  {"id":"traLevelCrossings","members":["traLevelCrossings"],"components":["TraLevelCrossingsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":6,"paintComparable":true},
   {"id":"transitAccessGrid","members":["transitAccessGrid"],"components":["TransitAccessGridLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":10,"line":0,"dashed":0,"gradient":0,"hatch":6,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"transitAccessPlayback","members":["transitAccessPlayback"],"components":["TransitAccessPlaybackLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"dot-swatch+square-swatch+hatch(missing)","features":{"dot":1,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":3,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":2,"paintComparable":false},
   {"id":"transitReachGrid","members":["transitReachGrid"],"components":["TransitReachGridLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":1,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
@@ -3908,6 +3909,7 @@
   "touristShuttleLive": {"label":"台灣好行 Tourist Shuttle","theme":"交通 Move","dataClass":"D","color":"#26a69a","legend":"touristShuttleLive","legendType":"gradient","popup":null,"params":{"opacity":{"name":"touristShuttleOpacity","default":0.85,"min":0.2,"max":1},"size":{"name":"touristShuttleOrbScale","default":0.000004,"min":0.000001,"max":0.00001},"height":{"name":"touristShuttleAltOffset","default":0,"min":0,"max":500},"controls":4},"hooks":[],"resolution":"unresolved","unresolvedReason":"找不到 paint 字面值（src/hooks/useTouristShuttleLayer.ts）","evidence":["src/hooks/useTouristShuttleLayer.ts"],"geometry":[],"render":[],"ironRules":{"opacity":true,"legend":true,"popup":false}},
   "townshipBoundary": {"label":"鄉鎮市區界 Township","theme":"底圖 Base Map","dataClass":"B","color":"#6b7280","legend":null,"legendType":null,"popup":"townshipBoundary","params":{"opacity":{"name":"townshipBoundaryOpacity","default":0.75,"min":0.1,"max":1},"lineWidth":{"name":"townshipBoundaryWidth","default":1,"min":0.3,"max":4},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":8,"values":{"fill-opacity":0},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#6b7280"]}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":8,"values":{"line-width":{"z10":1,"z14":2},"line-opacity":0.85,"line-cap":"butt","line-join":"miter"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#9ca3af"],"lightDiffers":true,"light":["#374151"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":false,"popup":true}},
   "toxicChemicalFacilities": {"label":"毒化物運作場所 Toxic Chemical Operating Sites","theme":"環境氣候 Environment","dataClass":"B","color":"#c026d3","legend":"toxicChemicalFacilities","legendType":"dot-swatch","popup":"toxicChemicalFacilities","params":{"opacity":{"name":"toxicChemicalFacilitiesOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"toxicChemicalFacilitiesScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":7.457,"z14":9},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#c026d3"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.143,"z14":5},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#c026d3"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "traLevelCrossings": {"label":"臺鐵平交道 TRA Level Crossings","theme":"交通 Move","dataClass":"B","color":"#f59e0b","legend":"traLevelCrossings","legendType":"dot-swatch","popup":"traLevelCrossings","params":{"opacity":{"name":"traLevelCrossingsOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"traLevelCrossingsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.9,"z14":11.7},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":7}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.5,"z14":6.5},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.9,"circle-stroke-opacity":0.9},"colors":{"circle-color":{"kind":"categorical","count":7},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "trafficAccidentYearly": {"label":"A1 死亡事故 Fatal Accident","theme":"執法治安 Law & Order","dataClass":"A","color":"#fb7185","legend":"policeStation","legendType":"gradient+size+dot-swatch+square-swatch+line-swatch","popup":"trafficAccidentYearly","params":{"opacity":{"name":"trafficAccidentYearlyOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"trafficAccidentYearlyScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#fb7185"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "trafficAccidents2025": {"label":"A1／A2 交通事故 A1/A2 Crashes（2025）","theme":"執法治安 Law & Order","dataClass":"B","color":"#f97316","legend":"trafficAccidents2025","legendType":"gradient+dot-swatch","popup":"trafficAccidents2025","params":{"opacity":{"name":"trafficAccidents2025Opacity","default":0.6,"min":0.1,"max":1},"size":{"name":"trafficAccidents2025Scale","default":1,"min":0.3,"max":3},"controls":4},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.3,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":7.457,"z14":9},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#dc2626","#f97316","#94a3b8"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.6,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#dc2626","#f97316","#94a3b8"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "transitAccessGrid": {"label":"網格大眾運輸可及性（推估・情境推演）","theme":"雙北大眾運輸可及性","dataClass":"D","color":"#35b779","legend":"transitAccessGrid","legendType":"square-swatch+hatch(missing)","popup":"transitAccessGrid","params":{"opacity":{"name":"transitAccessGridOpacity","default":0.8,"min":0.1,"max":1},"controls":13},"hooks":["useTransitAccessGridLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useTransitAccessGridLayer.ts"],"staticValues":{"fill-color":["non-literal @src/hooks/useTransitAccessGridLayer.ts"],"fill-opacity":["non-literal @src/hooks/useTransitAccessGridLayer.ts"],"line-color":["non-literal @src/hooks/useTransitAccessGridLayer.ts"],"line-width":[{"z10":0.5,"z14":0.5}]},"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

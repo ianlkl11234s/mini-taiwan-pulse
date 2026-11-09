@@ -18,7 +18,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1378,6 +1378,20 @@ function LandslideEventPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 臺鐵平交道：25 處位置依 OSM 同名平交道推定，另註明。 */
+function TraLevelCrossingPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(TRA_CROSSING_TYPE_OPTIONS, props.type_key);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasTraCrossingType", props.type_key, optionLabel(TRA_CROSSING_TYPE_OPTIONS, props.type_key) || str(props.crossing_type), i18n)} color={color} />
+    <Row label={t("popup.atlas.tlcLine")} value={str(props.line)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    {props.precision === "osm_name_match" ? <Row field="caution" value={t("popup.atlas.tlcOsmMatch")} /> : null}
+  </>;
+}
+
 type WraCctvImages = { urls: string[]; index: number; loading: boolean; fromSnapshot: boolean };
 
 /**
@@ -1458,6 +1472,7 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   landslideEventCatalog: { org: "swcb", dataset: (p) => (p.source_nid != null ? String(p.source_nid) : "177455") },
   pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
   tedsGridEmissions: { org: "moenv", dataset: (p) => (p.control_no != null || p.n_sources != null ? "48201" : "152688") },
+  traLevelCrossings: { org: "tra", dataset: () => "11970" },
   wraDisasterCctv: { org: "wra", dataset: (p) => (p.kind === "dredging" ? "41567" : "36687") },
   broadcastTransmitters: { org: "ncc", dataset: (p) => (p.kind === "am" ? "6446" : p.kind === "monitoring" ? "6825" : "6445") },
   postMailboxes: { org: "chunghwaPost", dataset: () => "178399" },
@@ -1484,6 +1499,7 @@ function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   landslideEventCatalog: withG53Footer("landslideEventCatalog", LandslideEventPanel),
   wraDisasterCctv: withG53Footer("wraDisasterCctv", WraDisasterCctvPanel),
+  traLevelCrossings: withG53Footer("traLevelCrossings", TraLevelCrossingPanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
@@ -1572,6 +1588,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   antivenomHospitals: manifestZh("antivenomHospitals"),
   landslideEventCatalog: manifestZh("landslideEventCatalog"),
   wraDisasterCctv: manifestZh("wraDisasterCctv"),
+  traLevelCrossings: manifestZh("traLevelCrossings"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),

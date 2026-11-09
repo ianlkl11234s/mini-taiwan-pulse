@@ -1783,5 +1783,6 @@
   "layer.tedsGridEmissions": "大気汚染物質排出量グリッド（TEDS）",
   "layer.pollutionControlZones": "土壌・地下水汚染管制区域",
   "layer.landslideEventCatalog": "イベント別崩壊地目録",
-  "layer.wraDisasterCctv": "水利署防災カメラ"
+  "layer.wraDisasterCctv": "水利署防災カメラ",
+  "layer.traLevelCrossings": "台鉄踏切"
 }
