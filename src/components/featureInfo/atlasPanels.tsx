@@ -1434,7 +1434,8 @@ function IOceanFishingPanel({ props }: Props) {
     <Row label={t("popup.atlas.iofSpecies")} value={str(props.top_species) || t("popup.atlas.iofNoSpecies")} />
     {catchCount != null ? <Row label={t("popup.atlas.iofCatch")} value={t("popup.atlas.iofCatchValue", { n: i18n.formatNumber(catchCount) })} mono /> : null}
     {speciesN != null ? <Row label={t("popup.atlas.iofSpeciesN")} value={i18n.formatNumber(speciesN)} mono /> : null}
-    <Row label={t("popup.atlas.iofMaxLength")} value={fmt(props.max_length_cm, 1, "cm", i18n)} mono />
+    {/* 0 cm＝回報未填體長（約 5%），視為缺值不顯示 */}
+    <Row label={t("popup.atlas.iofMaxLength")} value={Number(props.max_length_cm) > 0 ? fmt(props.max_length_cm, 1, "cm", i18n) : ""} mono />
     <Row field="remarks" value={t("popup.atlas.iofCitizen")} />
   </>;
 }
