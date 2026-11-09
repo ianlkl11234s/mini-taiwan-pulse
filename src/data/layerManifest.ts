@@ -204,6 +204,7 @@ import { MAPCHALLENGE_DAY04_COLOR } from "./mapchallengeDay04Types";
 import { MAPCHALLENGE_DAY05_COLOR } from "./mapchallengeDay05Types";
 import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
+import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -16501,6 +16502,28 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "30 天地圖挑戰 Day 8 烏托邦：1955 年中和鄉都市計畫圖原圖（含今永和），可調透明度疊在今天的地圖上，對照當年畫了公園、今天卻沒有的地方。來源：國家文化記憶庫（永和社區大學），CC BY-NC 3.0 TW；位置可能偏移約 30–55 m。",
     topics: ["古地圖", "都市計畫", "中和", "永和", "1955", "30 天地圖挑戰"],
+  },
+  mapchallengeDay09UrbanRural: {
+    key: "mapchallengeDay09UrbanRural",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-09）：靜態 GeoJSON（鄉鎮彙總），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 9 城鄉 Urban-rural" },
+    ...layerName({ zh: "人口變少時，哪些設施還留著", alt: "Which Services Stay Where People Are Few" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY09_COLOR,
+    icon: House,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 9 城鄉：Pulse 分析倉庫 2026-11-09 實算（taipei-gis-analytics docs/topic-research/mapchallenge_2026_day09_urban_rural），設施點位依落在哪個鄉鎮計數，368 鄉鎮彙總。人口與面積：內政部戶籍人口（鄉鎮市區，2026-08-31）；國小：各級學校名冊（國民小學本校，約 2024）；派出所／分駐所：警政署警察機關資料（2026-06）；郵局：中華郵政營業據點（2026-07）；衛生所、診所、藥局：健保署特約醫事機構名冊（2026 年 5–7 月）；短期補習班：教育部全國立案短期補習班（2026-08）；銀行等金融分支：財金公司金融機構總分支名冊（2026-10）；超商：財金公司 ATM 裝設點名冊（2026-10）推估。城鄉依人口密度由低到高分五等份（每組約 74 鄉鎮，自訂，非官方分類）；顏色＝log2(鄉鎮每萬人數／全國每萬人數)。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。醫療與學校名冊只發布鄉鎮彙總、不發布點位。單期橫斷面，不能推論設施隨人口減少而關閉；鄉鎮內有據點不等於居民容易到達。超商只算設有銀行 ATM 的 7-11、全家、萊爾富、OK 門市（雙北比對約 96% 門市對得到，離島可能漏算）；衛生所只含有健保門診者（臺北市 12 區健康服務中心不在名冊，高雄十多區亦無）。屏東縣瑪家鄉國小 0 未查證。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day09-urban-rural", url: "./mapchallenge/day09_urban_rural.geojson" },
+    legend: "mapchallengeDay09UrbanRural",
+    popup: "mapchallengeDay09UrbanRural",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 9 城鄉：全台 368 鄉鎮依人口密度分五等份，比較 9 類設施每萬人分到幾處。公共服務（國小、派出所、郵局、衛生所）越偏遠每人分到越多：派出所每萬人從最稀疏組 5.37 到最密集組 0.34；市場服務（補習班、診所、藥局、銀行）跟著人走：補習班 0.82 → 9.10；超商是例外，4.43 → 6.18 幾乎持平。可切指標；顏色是相對全國平均（越亮每人分到越多），深灰＝鄉鎮內一個都沒有。點面看人口、密度、9 類設施數與每萬人數。城鄉分組自訂、非官方分類。來源：內政部、教育部、警政署、中華郵政、健保署、財金公司。",
+    topics: ["城鄉", "人口密度", "公共服務", "派出所", "補習班", "超商", "鄉鎮", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

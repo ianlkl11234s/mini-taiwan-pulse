@@ -186,6 +186,7 @@ import {
   MAPCHALLENGE_DAY08_DEFAULT_SCENARIO, MAPCHALLENGE_DAY08_PARK_CLASSES, MAPCHALLENGE_DAY08_SCENARIO_ENCODE, MAPCHALLENGE_DAY08_SCENARIOS, MAPCHALLENGE_DAY08_SITE_CLASSES,
   MAPCHALLENGE_DAY08_SPEEDS, MAPCHALLENGE_DAY08_SPEED_ENCODE,
 } from "./mapchallengeDay08Types";
+import { MAPCHALLENGE_DAY09_DEFAULT_METRIC, MAPCHALLENGE_DAY09_METRIC_ENCODE, MAPCHALLENGE_DAY09_METRIC_OPTIONS } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY04_DEFAULT_FACILITY, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_FACILITY_KEYS, MAPCHALLENGE_DAY04_HOTSPOT_CLASSES } from "./mapchallengeDay04Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
@@ -1688,6 +1689,15 @@ export const LAYER_PARAMS_SPEC = {
     categoryMultiSelect("mapchallengeDay08Sites", MAPCHALLENGE_DAY08_SITE_CLASSES.map((c) => ({ label: c.zh, value: c.value }))),
   ],
   mapchallengeDay08Plan1955: [opacitySlider("mapchallengeDay08Plan1955Opacity", 0.5)],
+  // 30 天地圖挑戰 Day 9 城鄉（模擬面板，公開）：指標 select 只換 paint 讀的欄位（q／c_<key>＋r_<key>）。
+  mapchallengeDay09UrbanRural: [
+    opacitySlider("mapchallengeDay09UrbanRuralOpacity", 0.7),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay09UrbanRuralMetric", label: "指標", default: MAPCHALLENGE_DAY09_DEFAULT_METRIC,
+      options: MAPCHALLENGE_DAY09_METRIC_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay09UrbanRuralMetricIdx", encode: [...MAPCHALLENGE_DAY09_METRIC_ENCODE],
+    },
+  ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

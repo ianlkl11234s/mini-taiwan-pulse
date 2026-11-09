@@ -105,5 +105,11 @@
   "popup.mapchallenge.day08.kind.bridge": "Footbridge",
   "popup.mapchallenge.day08.kind.tunnel": "Underpass",
   "popup.mapchallenge.day08.kind.steps": "Stairs over levee",
-  "popup.mapchallenge.day08.kind.gate": "Flood gate"
+  "popup.mapchallenge.day08.kind.gate": "Flood gate",
+  "popup.mapchallenge.day09.pop": "Population",
+  "popup.mapchallenge.day09.people": "{n} people",
+  "popup.mapchallenge.day09.density": "Population density",
+  "popup.mapchallenge.day09.perKm2": "{n} /km²",
+  "popup.mapchallenge.day09.group": "Density group",
+  "popup.mapchallenge.day09.countPer": "{n} · {per} per 10k"
 }

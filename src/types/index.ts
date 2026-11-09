@@ -436,6 +436,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
   | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites" | "mapchallengeDay08Plan1955"
+  | "mapchallengeDay09UrbanRural"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -997,6 +998,7 @@ export interface FeatureInfo {
   | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
   | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites"
+  | "mapchallengeDay09UrbanRural"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1386,6 +1388,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   mapchallengeDay08Sites: boolean;
   /** 30 天地圖挑戰 Day 8 烏托邦：1955 中和鄉都市計畫圖（image source） */
   mapchallengeDay08Plan1955: boolean;
+  /** 30 天地圖挑戰 Day 9 城鄉（模擬面板，公開）：368 鄉鎮人口密度五等份與 9 類設施每萬人數 */
+  mapchallengeDay09UrbanRural: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */

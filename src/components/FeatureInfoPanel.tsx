@@ -202,6 +202,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses",
   // 30 天地圖挑戰 Day 8 烏托邦：panel 自掛研究推估口徑與來源。
   "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites",
+  "mapchallengeDay09UrbanRural",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

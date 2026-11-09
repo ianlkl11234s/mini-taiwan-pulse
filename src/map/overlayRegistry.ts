@@ -43,6 +43,7 @@ import {
   mapchallengeDay08AccessColorExpr, mapchallengeDay08ScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
   mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
 } from "../data/mapchallengeDay08Types";
+import { MAPCHALLENGE_DAY09_URL, mapchallengeDay09ColorExpr, mapchallengeDay09MetricAt } from "../data/mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -12893,6 +12894,23 @@ OVERLAY_REGISTRY.push(
     }],
   },
 );
+
+// ── 30 天地圖挑戰 Day 9 城鄉（模擬面板，公開，2026-11-09）：368 鄉鎮面，指標 select 只換 paint 讀的欄位
+// （密度五等份讀 q；設施先判 c_<key>=0 畫灰，再依 r_<key> 的 log2 比值分 7 階）。G-3 色格縫外框。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay09UrbanRural", sourceUrl: MAPCHALLENGE_DAY09_URL, sourceId: "mapchallenge-day09-urban-rural",
+  attribution: "內政部戶籍人口（2026-08-31）；教育部、警政署、中華郵政、健保署、財金公司開放資料 · 政府資料開放授權條款",
+  layers: [{
+    suffix: "fill", type: "fill",
+    paint: (_isDark, p) => ({
+      "fill-color": mapchallengeDay09ColorExpr(mapchallengeDay09MetricAt(p?.mapchallengeDay09UrbanRuralMetricIdx)),
+      "fill-opacity": p?.mapchallengeDay09UrbanRuralOpacity ?? 0.7,
+    }),
+  }, {
+    suffix: "outline", type: "line",
+    paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay09UrbanRuralOpacity ?? 0.7 }),
+  }],
+});
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
