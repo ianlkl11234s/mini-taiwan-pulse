@@ -60,3 +60,36 @@ export function parseTimeline(timeline: string): Array<{ t: number; v: number }>
     return acc;
   }, []);
 }
+
+/** get_iot_wra_timeseries 回傳列（gis-platform migration 534：每小時一點＋尾端最新讀值） */
+export interface IotWraTimeseriesRow {
+  physical_quantity_id: string;
+  measurement_name: string | null;
+  si_unit: string | null;
+  observed_at: string;
+  value: number | null;
+}
+
+/** popup 曲線請求的逾時：超過就中止並顯示「載入失敗」，不讓 popup 一直停在載入中 */
+const TIMESERIES_TIMEOUT_MS = 8_000;
+
+/**
+ * 單站過去 N 小時各測項時序（給 popup sparkline 用；RPC 上限 48h）。
+ * 一站可能有多個測項（水位、預測水位…），由呼叫端依 physical_quantity_id 篩選。
+ */
+export async function fetchIotWraTimeseries(
+  iowStationId: string,
+  hours = 24,
+): Promise<IotWraTimeseriesRow[]> {
+  const to = new Date();
+  const from = new Date(to.getTime() - hours * 3_600_000);
+  const { data, error } = await supabase
+    .rpc("get_iot_wra_timeseries", {
+      p_iow_station_id: iowStationId,
+      p_from: from.toISOString(),
+      p_to: to.toISOString(),
+    })
+    .abortSignal(AbortSignal.timeout(TIMESERIES_TIMEOUT_MS));
+  if (error) throw new Error(`get_iot_wra_timeseries(${iowStationId}): ${error.message}`);
+  return (data ?? []) as IotWraTimeseriesRow[];
+}

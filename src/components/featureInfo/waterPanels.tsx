@@ -6,6 +6,7 @@ import { FLOOD_HAZARD_SOURCE } from "../../data/floodScenarios";
 import { fetchRiverLevelTimeseries } from "../../data/riverLevelLoader";
 import { fetchGroundwaterTimeseries } from "../../data/groundwaterLoader";
 import { fetchRainGaugeTimeseries } from "../../data/rainGaugeLoader";
+import { fetchIotWraTimeseries } from "../../data/iotWraRiverLoader";
 import { BRIDGE_TABLE_URL } from "../../data/bridgeRainThresholds";
 import type { ReservoirContext } from "../../data/reservoirContextLoader";
 import { Row, SourceFooter, formatTaiwanTime, formatTaiwanMinute } from "./shared";
@@ -860,8 +861,10 @@ function IotReadingBlock({
 /**
  * IoT 河川水位站（1,634 站，與既有 riverLevel 831 站僅重疊 266 對）。
  * 欄位由 useIotWraRiverLayer.buildFC 逐欄烤進 properties：
- *   name / measurement_name / si_unit / value / delta_m / observed_at / iow_station_id
+ *   name / measurement_name / si_unit / value / delta_m / observed_at / iow_station_id / physical_quantity_id
  * `delta_m` = 當下讀值 − 該站基準水位（hook 內的 baseLevel）。
+ * 24h 曲線：get_iot_wra_timeseries（gis-platform 534，每小時一點＋尾端最新讀值），
+ * 一站可有多測項，依 physical_quantity_id 只畫 popup 顯示的那一項。
  */
 export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
@@ -870,6 +873,33 @@ export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) 
   const delta = props.delta_m == null ? null : Number(props.delta_m);
   const unit = String(props.si_unit ?? "m");
   const obs = String(props.observed_at ?? "");
+  const stationId = String(props.iow_station_id ?? "");
+  const pqId = String(props.physical_quantity_id ?? "");
+
+  const [series, setSeries] = useState<SparklinePoint[]>([]);
+  const [loadingTs, setLoadingTs] = useState(true);
+  const [failedTs, setFailedTs] = useState(false);
+
+  useEffect(() => {
+    if (!stationId) { setLoadingTs(false); return; }
+    let cancelled = false;
+    setLoadingTs(true);
+    setFailedTs(false);
+    fetchIotWraTimeseries(stationId, 24)
+      .then((rows) => {
+        if (cancelled) return;
+        setSeries(rows
+          .filter((r) => r.value != null && (!pqId || r.physical_quantity_id === pqId))
+          .map((r) => ({ t: Date.parse(r.observed_at) / 1000, v: Number(r.value) })));
+      })
+      .catch((e) => {
+        console.warn("[IotWraRiver] timeseries fetch failed:", e);
+        if (!cancelled) { setSeries([]); setFailedTs(true); }
+      })
+      .finally(() => { if (!cancelled) setLoadingTs(false); });
+    return () => { cancelled = true; };
+  }, [stationId, pqId]);
+
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -882,6 +912,17 @@ export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) 
       <Row field="measurement" value={String(props.measurement_name ?? "")} />
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row field="stationNo" value={String(props.iow_station_id ?? "")} color={t.textDim} />
+
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textMuted, letterSpacing: 0.5 }}>
+        {i18n.t("popup.water.trend24h")}
+      </div>
+      {loadingTs || failedTs ? (
+        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim, padding: "8px 4px", textAlign: "center" }}>
+          {i18n.t(loadingTs ? "popup.common.loading" : "popup.water.trendLoadFailed")}
+        </div>
+      ) : (
+        <TimeseriesSparkline data={series} unit={unit} lineColor="#22d3ee" height={120} />
+      )}
     </>
   );
 }
