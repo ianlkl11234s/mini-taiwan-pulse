@@ -12037,7 +12037,7 @@ export const LAYER_MANIFEST = {
   broadcastTransmitters: {
     key: "broadcastTransmitters", country: "TW", section: { theme: "通訊 Telecom", group: "廣播與電波 Broadcast" }, ...layerName({ zh: "廣播發射站與電波監測站", alt: "Broadcast Transmitters & Radio Monitoring Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.broadcastTransmitters, icon: RadioTower,
-    upstream: { status: "verified", datasets: [{ datasetId: "broadcast_transmitters", confidence: "HIGH" }], processing: "analytics telecom/broadcast_transmitters 1150703：NCC data.gov.tw 6445（FM 290）、6446（AM 136）、6825（電波監測站 21）合併 447 點；金聲廣播電臺經度筆誤 102→120 依地址修正", note: "同站址多電臺（FM 245 址、AM 92 址）點重疊；station_class 照來源原文。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "broadcast_transmitters", confidence: "HIGH" }], processing: "analytics infrastructure/broadcast_transmitters 1150703：NCC data.gov.tw 6445（FM 290）、6446（AM 136）、6825（電波監測站 21）合併 447 點；金聲廣播電臺經度筆誤 102→120 依地址修正", note: "同站址多電臺（FM 245 址、AM 92 址）點重疊；station_class 照來源原文。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "broadcast-transmitters", url: "./geo/broadcast_transmitters_1150703.pmtiles", sourceLayer: "broadcast_transmitters", minzoom: 4, maxzoom: 14 },
     legend: "broadcastTransmitters", popup: "broadcastTransmitters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "NCC 公告的 FM 廣播電臺 290 座、AM 廣播電臺 136 座發射機位置，以及 21 個電波監測站；含頻率與電臺類別。",
