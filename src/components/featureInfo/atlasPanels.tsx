@@ -958,6 +958,19 @@ function SecuritiesFuturesPanel({ props }: Props) {
 }
 
 // G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
+function AntivenomHospitalPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const serums = str(props.serum_types).split("；").filter(Boolean).map((name) => enumOf("atlasSerum", name, name, i18n)).join(t("popup.common.listSeparator"));
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.antivenomHospitals}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.avSerums")} value={serums} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.phone)} mono />
+    <Row field="caution" value={t("popup.atlas.avCaution")} />
+  </>;
+}
+
 function PostMailboxPanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -1184,6 +1197,7 @@ function BatterySwapPanel({ props }: Props) {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  antivenomHospitals: AntivenomHospitalPanel,
   postMailboxes: PostMailboxPanel,
   motorcycleInspectionStations: MotorcycleInspectionPanel,
   indigenousTribes: IndigenousTribePanel,
@@ -1255,6 +1269,7 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  antivenomHospitals: manifestZh("antivenomHospitals"),
   postMailboxes: manifestZh("postMailboxes"),
   motorcycleInspectionStations: manifestZh("motorcycleInspectionStations"),
   indigenousTribes: "原住民族部落",

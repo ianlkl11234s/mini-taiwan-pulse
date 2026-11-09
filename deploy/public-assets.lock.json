@@ -1009,6 +1009,13 @@
    "s3_key": "deploy-assets/geo/anfr_wireless_sites.geojson"
   },
   {
+   "path": "public/geo/antivenom_reserve_hospitals_20241230.pmtiles",
+   "bytes": 456005,
+   "sha256": "ec36704da8fa6908662a75bc6d8d65844c2d7fcb39ae5e23825b8a6f7ed7e467",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/antivenom_reserve_hospitals_20241230.pmtiles"
+  },
+  {
    "path": "public/geo/cctv.geojson",
    "bytes": 2505252,
    "sha256": "aaa461000f16837a03d81fb67133f6503a7f0bc04cf5c8604f5021e725c145aa",

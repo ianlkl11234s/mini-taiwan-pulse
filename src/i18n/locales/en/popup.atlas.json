@@ -307,5 +307,7 @@
   "popup.atlas.mbPickup": "Collection times",
   "popup.atlas.mbPickupUnknown": "Not stated",
   "popup.atlas.mbFeatured": "Featured mailbox",
-  "popup.atlas.mbServiceUnit": "Service unit"
+  "popup.atlas.mbServiceUnit": "Service unit",
+  "popup.atlas.avSerums": "Antivenoms in stock",
+  "popup.atlas.avCaution": "Stocked items follow the Taiwan CDC announcement; for a snakebite call 119 or go to the nearest hospital"
 }

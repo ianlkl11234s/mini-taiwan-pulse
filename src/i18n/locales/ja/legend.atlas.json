@@ -31,5 +31,6 @@
   "legend.atlas.toxicSite": "毒性化学物質の取扱事業場（住所の点）",
   "legend.atlas.otherAccidentType": "その他の種類",
   "legend.atlas.licenseSinicaCcByNc": "原図 CC BY-NC、本レイヤーは派生データ",
-  "legend.atlas.motorcycleInspectionStation": "検査ステーション"
+  "legend.atlas.motorcycleInspectionStation": "検査ステーション",
+  "legend.atlas.antivenomHospital": "備蓄医療機関"
 }

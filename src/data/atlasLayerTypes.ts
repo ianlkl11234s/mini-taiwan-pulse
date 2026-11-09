@@ -7,7 +7,7 @@
  *
  * ⚠️ 表達式不得含 ["zoom"]：zoom 只能在最外層 interpolate/step。
  */
-import { allMultiSelectBitmask, multiSelectFilter } from "./multiSelectMapbox";
+import { allMultiSelectBitmask, multiSelectFilter, selectedMultiSelectValues } from "./multiSelectMapbox";
 import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
 
 export { ATLAS_LAYER_COLORS };
@@ -557,7 +557,25 @@ export const MAILBOX_SERVICE_OPTIONS: readonly AtlasOption[] = [
   { value: "pair", label: "同址兩筒（普通＋限時）", color: "#ca8a04" },
 ];
 
+/** 抗蛇毒血清種類：value＝PMTiles 布林欄 `has_<value>`；label＝疾管署品項名（popup 逐項翻譯用 enum.atlasSerum.<品項名>）。 */
+export const ANTIVENOM_SERUM_OPTIONS = [
+  { value: "habu_greenpit", label: "抗龜殼花及赤尾鮐蛇毒血清" },
+  { value: "krait_cobra", label: "抗雨傘節及飯匙倩蛇毒血清" },
+  { value: "hundred_pacer", label: "抗百步蛇毒血清" },
+  { value: "russells_viper", label: "抗鎖鏈蛇毒血清" },
+] as const;
+const ANTIVENOM_SERUM_VALUES = ANTIVENOM_SERUM_OPTIONS.map((option) => option.value);
+/** 血清多選：一院可儲備多種，勾選的種類「有任一種」就顯示。全選回 `has name`（不排除任何院所）。 */
+export function antivenomSerumFilter(mask?: number): unknown[] {
+  const selected = selectedMultiSelectValues(mask ?? allMultiSelectBitmask(ANTIVENOM_SERUM_VALUES), ANTIVENOM_SERUM_VALUES);
+  if (selected.length === ANTIVENOM_SERUM_VALUES.length) return ["has", "name"];
+  if (selected.length === 0) return ["==", ["get", "name"], "__multi_select_none__"];
+  return ["any", ...selected.map((value) => ["==", ["get", `has_${value}`], true])];
+}
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署" } as const;
+
 export const ATLAS_NOTES = {
+  antivenomHospitals: "衛生福利部疾病管制署公告的抗蛇毒血清儲備醫療院所 191 家（data.gov.tw 24468，2024-12-30 更新；來源 428 列是院所依血清種類拆列，這裡依院所合併）。四種血清：龜殼花及赤尾鮐 175 家、雨傘節及飯匙倩 162 家、百步蛇 66 家、鎖鏈蛇 25 家。儲備品項與數量會調整，以疾管署公告為準；被蛇咬傷請撥 119 或就近就醫。",
   postMailboxes: "中華郵政郵筒 6,024 筒（data.gov.tw 178399，2026-04-28 版；來源 6,033 筒，9 筒座標無效未上圖）。特色郵筒說明取自 52781（59 筒中 57 筒對到）。收信時間空白表示來源未載明，不代表不收信。",
   motorcycleInspectionStations: "環境部機車排氣定期檢驗站名冊 3,934 站（MOENV API mpi_s_01，2026-11-09 抓取），地圖上 3,893 站（99.0%）：3,305 站用來源經緯度；來源沒有座標的 629 站以本機離線地址比對補到 588 站（464 站門牌、124 站路段內插，點開可看），41 站無法定位未上圖。當日營業狀態不收；手機號碼不顯示。縣市到檢率見「機車定檢到檢率」統計。",
   indigenousTribes: "原民會部落位置點表（2022-07）× 現行核定部落（2026-09）；灰點＝不在現行核定名單。另有 13 個現行核定部落沒有點位，未上圖。",

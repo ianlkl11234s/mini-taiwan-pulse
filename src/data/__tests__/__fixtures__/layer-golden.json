@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1777,
+    "keyCount": 1778,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5621,6 +5621,13 @@
         "toxic-chemical-facilities-glow"
       ],
       "type": "toxicChemicalFacilities"
+    },
+    {
+      "layers": [
+        "antivenom-hospitals-circle",
+        "antivenom-hospitals-glow"
+      ],
+      "type": "antivenomHospitals"
     },
     {
       "layers": [
@@ -83884,6 +83891,160 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "antivenomHospitals",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "name"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#db2777",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#db2777",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "name"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#db2777",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.2249999999999999,
+                5,
+                3.5,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#db2777",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.2249999999999999,
+                5,
+                3.5,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "antivenom_reserve_hospitals"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "antivenom-hospitals",
+      "sourceUrl": "./geo/antivenom_reserve_hospitals_20241230.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "postMailboxes",
       "layers": [
         {
@@ -107642,6 +107803,54 @@
         "value": [
           "central",
           "local"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "antivenomHospitals": [
+      {
+        "label": "血清種類",
+        "options": [
+          {
+            "label": "抗龜殼花及赤尾鮐蛇毒血清",
+            "value": "habu_greenpit"
+          },
+          {
+            "label": "抗雨傘節及飯匙倩蛇毒血清",
+            "value": "krait_cobra"
+          },
+          {
+            "label": "抗百步蛇毒血清",
+            "value": "hundred_pacer"
+          },
+          {
+            "label": "抗鎖鏈蛇毒血清",
+            "value": "russells_viper"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "habu_greenpit",
+          "krait_cobra",
+          "hundred_pacer",
+          "russells_viper"
         ]
       },
       {

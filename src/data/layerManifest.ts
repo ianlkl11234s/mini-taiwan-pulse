@@ -11933,6 +11933,15 @@ export const LAYER_MANIFEST = {
     description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
   },
+  antivenomHospitals: {
+    key: "antivenomHospitals", country: "TW", section: { theme: "醫療 Medical", group: "點位" }, ...layerName({ zh: "抗蛇毒血清儲備點", alt: "Antivenom Reserve Hospitals" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.antivenomHospitals, icon: Syringe,
+    upstream: { status: "verified", datasets: [{ datasetId: "antivenom_reserve_hospitals", confidence: "HIGH" }], processing: "analytics emergency_response/antivenom_reserve_hospitals 20241230：疾管署 data.gov.tw 24468 共 428 列（院所 × 血清種類）依醫事機構代碼＋名稱合併為 191 家", note: "四種血清各有布林欄 has_*；篩選語意＝有任一勾選種類即顯示。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "antivenom-hospitals", url: "./geo/antivenom_reserve_hospitals_20241230.pmtiles", sourceLayer: "antivenom_reserve_hospitals", minzoom: 4, maxzoom: 14 },
+    legend: "antivenomHospitals", popup: "antivenomHospitals", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "疾管署公告儲備抗蛇毒血清的醫療院所 191 家，可依血清種類（龜殼花及赤尾鮐、雨傘節及飯匙倩、百步蛇、鎖鏈蛇）篩選。",
+    topics: ["醫療", "蛇咬", "抗蛇毒血清", "急救", "疾管署"],
+  },
   postMailboxes: {
     key: "postMailboxes", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" }, ...layerName({ zh: "郵筒", alt: "Mailboxes" }), expandable: true,
     color: ATLAS_LAYER_COLORS.postMailboxes, icon: Mailbox,

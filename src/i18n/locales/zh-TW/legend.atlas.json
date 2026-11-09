@@ -31,5 +31,6 @@
   "legend.atlas.toxicSite": "毒化物運作場所（地址點）",
   "legend.atlas.otherAccidentType": "其他類型",
   "legend.atlas.licenseSinicaCcByNc": "原圖 CC BY-NC，本層為衍生資料",
-  "legend.atlas.motorcycleInspectionStation": "定檢站"
+  "legend.atlas.motorcycleInspectionStation": "定檢站",
+  "legend.atlas.antivenomHospital": "儲備院所"
 }

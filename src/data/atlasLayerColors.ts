@@ -83,4 +83,5 @@ export const ATLAS_LAYER_COLORS = {
   // 台灣圖層待辦池第一批 G53 批 1（2026-11-09）
   motorcycleInspectionStations: "#a16207",
   postMailboxes: "#16a34a",
+  antivenomHospitals: "#db2777",
 } as const;

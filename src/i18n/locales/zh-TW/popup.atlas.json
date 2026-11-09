@@ -307,5 +307,7 @@
   "popup.atlas.mbPickup": "收信時間",
   "popup.atlas.mbPickupUnknown": "未載明",
   "popup.atlas.mbFeatured": "特色郵筒",
-  "popup.atlas.mbServiceUnit": "服務單位"
+  "popup.atlas.mbServiceUnit": "服務單位",
+  "popup.atlas.avSerums": "儲備血清",
+  "popup.atlas.avCaution": "儲備品項以疾管署公告為準；被蛇咬傷請撥 119 或就近就醫"
 }

@@ -487,5 +487,11 @@
   "enum.atlasMailboxService.express": "Express mail",
   "enum.atlasMailboxService.dual": "Ordinary and express (dual-use)",
   "enum.atlasMailboxService.pair": "Two boxes at one spot (ordinary + express)",
-  "enum.atlasNote.postMailboxes": "6,024 Chunghwa Post mailboxes (data.gov.tw 178399, 2026-04-28 edition; 6,033 in the source, 9 with invalid coordinates are not shown). Notes on featured mailboxes come from 52781 (57 of 59 matched). A blank collection time means the source does not state it, not that mail is not collected."
+  "enum.atlasNote.postMailboxes": "6,024 Chunghwa Post mailboxes (data.gov.tw 178399, 2026-04-28 edition; 6,033 in the source, 9 with invalid coordinates are not shown). Notes on featured mailboxes come from 52781 (57 of 59 matched). A blank collection time means the source does not state it, not that mail is not collected.",
+  "enum.atlasOrg.cdc": "Taiwan Centers for Disease Control, Ministry of Health and Welfare",
+  "enum.atlasSerum.抗龜殼花及赤尾鮐蛇毒血清": "Habu and green pit viper antivenom",
+  "enum.atlasSerum.抗雨傘節及飯匙倩蛇毒血清": "Krait and cobra antivenom",
+  "enum.atlasSerum.抗百步蛇毒血清": "Hundred-pace viper antivenom",
+  "enum.atlasSerum.抗鎖鏈蛇毒血清": "Russell's viper antivenom",
+  "enum.atlasNote.antivenomHospitals": "191 hospitals and clinics stocking antivenom, announced by the Taiwan CDC (data.gov.tw 24468, updated 2024-12-30; the 428 source rows list each hospital once per antivenom and are merged here by hospital). Four antivenoms: habu and green pit viper 175, krait and cobra 162, hundred-pace viper 66, Russell's viper 25. Stocks change; the CDC announcement prevails. For a snakebite call 119 or go to the nearest hospital."
 }

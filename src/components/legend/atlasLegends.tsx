@@ -15,6 +15,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
   MAILBOX_SERVICE_OPTIONS,
+  G53_ORGS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -47,6 +48,7 @@ const ORGS = {
   ...STATE_ASSET_ORGS,
   ...FINANCE_ACCESS_ORGS,
   ...G35_ORGS,
+  ...G53_ORGS,
 } as const;
 type Source = { org: keyof typeof ORGS; ids?: readonly string[]; etc?: boolean };
 const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
@@ -83,6 +85,7 @@ const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  antivenomHospitals: () => <AtlasLegend layer="antivenomHospitals" en="Antivenom Reserve Hospitals" source={src("cdc", ["24468"])} rows={single("antivenomHospitals", "legend.atlas.antivenomHospital")} />,
   postMailboxes: () => <AtlasLegend layer="postMailboxes" en="Mailboxes" source={src("chunghwaPost", ["178399", "52781"])} domain="atlasMailboxService" rows={MAILBOX_SERVICE_OPTIONS} />,
   motorcycleInspectionStations: () => <AtlasLegend layer="motorcycleInspectionStations" en="Motorcycle Emission Inspection Stations" source={src("moenv", ["6352"])} rows={single("motorcycleInspectionStations", "legend.atlas.motorcycleInspectionStation")} />,
   indigenousTribes: () => <AtlasLegend layer="indigenousTribes" en="Indigenous Tribes" source={src("cip", ["156632", "7093"])} domain="atlasEthnic"

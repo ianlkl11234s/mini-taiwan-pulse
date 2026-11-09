@@ -307,5 +307,7 @@
   "popup.atlas.mbPickup": "取集時刻",
   "popup.atlas.mbPickupUnknown": "記載なし",
   "popup.atlas.mbFeatured": "特色ポスト",
-  "popup.atlas.mbServiceUnit": "担当局"
+  "popup.atlas.mbServiceUnit": "担当局",
+  "popup.atlas.avSerums": "備蓄血清",
+  "popup.atlas.avCaution": "備蓄品目は疾病管制署の公告に従います。ヘビに咬まれたら 119 に通報するか最寄りの医療機関へ"
 }

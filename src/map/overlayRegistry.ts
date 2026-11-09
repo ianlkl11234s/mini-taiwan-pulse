@@ -344,6 +344,7 @@ import {
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   MAILBOX_SERVICE_OPTIONS,
+  antivenomSerumFilter,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
 import { contourColorExpr, contourFilter, SEAWALL_MIN_ZOOM, STATION_TYPE_OPTIONS, type ContourType } from "../data/landSubsidenceTypes";
@@ -12209,6 +12210,7 @@ function culturalHealthStationsOverlay(): OverlayConfig {
 
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
+  publicLifePointOverlay("antivenomHospitals", "./geo/antivenom_reserve_hospitals_20241230.pmtiles", "antivenom-hospitals", ATLAS_LAYER_COLORS.antivenomHospitals, { sourceLayer: "antivenom_reserve_hospitals", minzoom: 4, maxzoom: 14 }, `衛生福利部疾病管制署 抗蛇毒血清儲備醫療院所（data.gov.tw 24468）· ${OGDL_ATTR}`, [3.5, 7], { filter: (p) => antivenomSerumFilter(p?.antivenomHospitalsSerumMask) }),
   publicLifePointOverlay("postMailboxes", "./civic_facilities/post_mailboxes_1150428.pmtiles", "post-mailboxes", matchColorExpr("service", MAILBOX_SERVICE_OPTIONS), { sourceLayer: "post_mailboxes", minzoom: 4, maxzoom: 14 }, `中華郵政 郵筒（data.gov.tw 178399）、特色郵筒（52781）· ${OGDL_ATTR}`, [2.5, 6]),
   publicLifePointOverlay("motorcycleInspectionStations", "./environment/motorcycle_inspection_stations_20261109.pmtiles", "motorcycle-inspection-stations", ATLAS_LAYER_COLORS.motorcycleInspectionStations, { sourceLayer: "motorcycle_inspection_stations", minzoom: 4, maxzoom: 14 }, `環境部 機車排氣定期檢驗站（data.gov.tw 6352）· ${OGDL_ATTR}`, [2.5, 6]),
   // ── 原民與農村 ──

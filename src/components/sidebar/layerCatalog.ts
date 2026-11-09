@@ -1453,6 +1453,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("medHospital"),
           fromManifest("emergencyHospitals"),
+          fromManifest("antivenomHospitals"),
           fromManifest("medClinic"),
           fromManifest("medPharmacy"),
           fromManifest("medAED"),

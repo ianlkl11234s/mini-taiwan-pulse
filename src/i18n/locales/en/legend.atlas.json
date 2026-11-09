@@ -31,5 +31,6 @@
   "legend.atlas.toxicSite": "Toxic chemical operating site (address point)",
   "legend.atlas.otherAccidentType": "Other types",
   "legend.atlas.licenseSinicaCcByNc": "source map CC BY-NC; this layer is derived data",
-  "legend.atlas.motorcycleInspectionStation": "Inspection stations"
+  "legend.atlas.motorcycleInspectionStation": "Inspection stations",
+  "legend.atlas.antivenomHospital": "Reserve hospitals"
 }

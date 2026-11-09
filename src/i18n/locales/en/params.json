@@ -2408,5 +2408,10 @@
   "param.普通郵筒": "Ordinary mail",
   "param.限時郵筒": "Express mail",
   "param.限時普通雙用": "Ordinary and express (dual-use)",
-  "param.同址兩筒（普通＋限時）": "Two boxes at one spot (ordinary + express)"
+  "param.同址兩筒（普通＋限時）": "Two boxes at one spot (ordinary + express)",
+  "param.血清種類": "Antivenom",
+  "param.抗龜殼花及赤尾鮐蛇毒血清": "Habu and green pit viper",
+  "param.抗雨傘節及飯匙倩蛇毒血清": "Krait and cobra",
+  "param.抗百步蛇毒血清": "Hundred-pace viper",
+  "param.抗鎖鏈蛇毒血清": "Russell's viper"
 }

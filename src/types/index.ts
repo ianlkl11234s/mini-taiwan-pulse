@@ -149,6 +149,7 @@ export type ExpandableLayerKey =
   | "securitiesFuturesInstitutions" | "insuranceInstitutions"
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   | "postOfficeFxCounters"
+  | "antivenomHospitals" // G53 批 1（2026-11-09）
   | "postMailboxes" // G53 批 1（2026-11-09）
   | "motorcycleInspectionStations" // G53 批 1（2026-11-09）
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
@@ -917,6 +918,7 @@ export interface FeatureInfo {
     | "atmSitesFisc" | "financialBranchesFisc"
     | "securitiesFuturesInstitutions" | "insuranceInstitutions"
     | "postOfficeFxCounters"
+    | "antivenomHospitals"
     | "postMailboxes"
     | "motorcycleInspectionStations"
     | "hikingTrails"
@@ -1461,6 +1463,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   insuranceInstitutions: boolean;
   /** 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局 290（非外幣收兌處） */
   postOfficeFxCounters: boolean;
+  /** G53 批 1（2026-11-09）抗蛇毒血清儲備點：疾管署 24468，191 家 */
+  antivenomHospitals: boolean;
   /** G53 批 1（2026-11-09）郵筒：中華郵政 178399，6,024 筒 */
   postMailboxes: boolean;
   /** G53 批 1（2026-11-09）機車排氣定檢站：環境部 6352，3,893 站 */
