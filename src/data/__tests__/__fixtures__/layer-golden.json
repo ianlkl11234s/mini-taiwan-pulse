@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1784,
+    "keyCount": 1788,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5157,6 +5157,8 @@
         "statsKrFireInjuriesSgg-fill",
         "statsKrFireDamageSido-fill",
         "statsKrFireDamageSgg-fill",
+        "statsKrFireIncidentsPer10kSido-fill",
+        "statsKrFireIncidentsPer10kSgg-fill",
         "statsKrTrafficAccidentsSido-fill",
         "statsKrTrafficAccidentsSgg-fill",
         "statsKrTrafficDeathsSido-fill",
@@ -5165,6 +5167,8 @@
         "statsKrTrafficSeriousInjuriesSgg-fill",
         "statsKrTrafficInjuriesSido-fill",
         "statsKrTrafficInjuriesSgg-fill",
+        "statsKrTrafficAccidentsPer10kSido-fill",
+        "statsKrTrafficAccidentsPer10kSgg-fill",
         "statsCaPopulationPr-fill",
         "statsCaPopulationCd-fill",
         "statsCaPopulationDensityPr-fill",
@@ -183734,6 +183738,76 @@
         "valueText": "0.55"
       }
     ],
+    "statsKrFireIncidentsPer10kSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireIncidentsPer10kSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireIncidentsPer10kSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireIncidentsPer10kSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireIncidentsPer10kSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireIncidentsPer10kSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireIncidentsPer10kSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireIncidentsPer10kSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsKrFireIncidentsSgg": [
       {
         "label": "地理層級／口徑",
@@ -184440,6 +184514,76 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsKrSexRatioSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficAccidentsPer10kSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficAccidentsPer10kSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficAccidentsPer10kSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficAccidentsPer10kSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficAccidentsPer10kSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficAccidentsPer10kSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficAccidentsPer10kSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficAccidentsPer10kSido"
       },
       {
         "label": "資料期別",

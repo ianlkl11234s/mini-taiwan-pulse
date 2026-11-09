@@ -1774,5 +1774,9 @@
   "layer.slopelandSwcAct": "山坡地範囲（水土保持法）",
   "layer.debrisFlowPotential": "土石流潜在渓流",
   "layer.landUseChangeMonitoring": "国土利用モニタリング変化地点",
-  "layer.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設"
+  "layer.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設",
+  "layer.statsKrFireIncidentsPer10kSido": "人口1万人あたり火災件数（広域自治体）",
+  "layer.statsKrFireIncidentsPer10kSgg": "人口1万人あたり火災件数（基礎自治体）",
+  "layer.statsKrTrafficAccidentsPer10kSido": "人口1万人あたり交通事故件数（広域自治体）",
+  "layer.statsKrTrafficAccidentsPer10kSgg": "人口1万人あたり交通事故件数（基礎自治体）"
 }
