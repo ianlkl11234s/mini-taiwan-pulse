@@ -168,7 +168,7 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "ieWasteFacilities", family: "krData", file: "ie_waste_facilities_points.pmtiles", sourceLayer: "ie_waste_facilities_points", count: 292, def: "point", maxzoom: 14 },
   // 愛爾蘭第 11 波：pNHA、郡議會淹水分區、泥炭開採沼地（多為小面，預設點）
   { key: "ieProposedNha", family: "krData", file: "ie_proposed_nha_points.pmtiles", sourceLayer: "ie_proposed_nha_points", count: 1180, def: "point", maxzoom: 14 },
-  { key: "ieFloodZones", family: "krData", file: "ie_flood_zones_points.pmtiles", sourceLayer: "ie_flood_zones_points", count: 999999, def: "point", maxzoom: 14 },
+  { key: "ieFloodZones", family: "krData", file: "ie_flood_zones_points.pmtiles", sourceLayer: "ie_flood_zones_points", count: 4287, def: "point", maxzoom: 14 },
   { key: "iePeatExtractionBogs", family: "krData", file: "ie_peat_extraction_bogs_points.pmtiles", sourceLayer: "ie_peat_extraction_bogs_points", count: 162, def: "point", maxzoom: 14 },
 ];
 

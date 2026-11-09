@@ -1768,7 +1768,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   {
     // 郡議會規劃分區（CC BY），與 OPW／GSI 的 NC-ND 淹水圖分開成層。V-5：聚落尺度小面 → 預設代表點（repPointLayers），可切面
     key: "ieFloodZones", file: "ie_flood_zones.pmtiles", sourceLayer: "ie_flood_zones", geom: "polygon", layerId: "ie-flood-zones-fill", outlineId: "ie-flood-zones-line",
-    srcMinzoom: 5, srcMaxzoom: 14, minzoom: 5, color: "#ef4444", count: 999999,
+    srcMinzoom: 5, srcMaxzoom: 14, minzoom: 5, color: "#ef4444", count: 4287,
     catProp: "zone", cats: FLOOD_ZONE_CATS,
     title: { props: ["settlement", "plan"], fallback: l3("淹水分區", "Flood zone", "浸水区域") },
     fields: [{ prop: "zone", label: l3("分區", "Zone", "区域"), map: catMap(FLOOD_ZONE_CATS) },
@@ -1777,7 +1777,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "area_ha", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 1 }, LA],
     legendNotes: [l3("只有 4／31 個地方政府：Cork County、Galway County（含 Tuam、Ballinasloe 地方計畫）、Roscommon、Wicklow；其餘地方政府沒有開放資料（Limerick 伺服器憑證過期未收），空白不代表沒有淹水風險", "Only 4 of 31 local authorities: Cork County, Galway County (incl. Tuam and Ballinasloe LAPs), Roscommon and Wicklow; others publish no open data (Limerick's server certificate has expired), so blank areas do not mean no flood risk", "31自治体のうち4のみ：Cork County・Galway County（Tuam・Ballinasloe 地区計画を含む）・Roscommon・Wicklow。他は公開データなし（Limerick はサーバー証明書切れで未収録）。空白は浸水リスクがないという意味ではない"),
                   l3("各郡發展計畫的策略淹水風險評估（SFRA）劃的規劃分區，方法與範圍各郡不同（多數只畫計畫內聚落）", "Planning zones from each county development plan's Strategic Flood Risk Assessment; methods and extents differ by council (most cover plan settlements only)", "各県開発計画の戦略的浸水リスク評価（SFRA）による計画区域。手法と範囲は県ごとに異なる（多くは計画内の集落のみ）"),
-                  l3("Cork 的分區原為網格碎片，已合併相鄰碎片；預設畫代表點，可切換面", "Cork's zones were raster fragments and adjacent pieces have been merged; representative points by default (switch to areas)", "Cork の区域はラスター由来の断片で、隣接部分を統合。既定は代表点（面に切替可）")],
+                  l3("Cork 的分區原為網格碎片：已合併相鄰碎片，剩下的小碎片依 1 公里網格收成一筆（面積為該格合計）；預設畫代表點，可切換面", "Cork's zones were raster fragments: adjacent pieces are merged and remaining slivers grouped per 1 km grid cell (area is the cell total); representative points by default (switch to areas)", "Cork の区域はラスター由来の断片：隣接部分を統合し、残る小片は 1 km 格子ごとに 1 件へ集約（面積は格子内合計）。既定は代表点（面に切替可）")],
     popupNotes: [l3("規劃分區，非地塊淹水判定", "Planning zone, not a property-level assessment", "計画区域で地点の浸水判定ではない")],
     sourceOrg: "Cork County Council, Galway County Council, Roscommon County Council, Wicklow County Council — Flood Zones A/B (development plans)", sourceUrl: DGI("cdp2022-flood-zone-a"), license: CC_BY, fetchedAt: IE_W11_FETCHED_AT,
     loading: l3("愛爾蘭淹水分區載入中", "Loading Ireland flood zones", "アイルランドの浸水区域を読み込み中"),
