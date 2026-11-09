@@ -80,4 +80,13 @@ export const ATLAS_LAYER_COLORS = {
   insuranceInstitutions: "#16a34a",
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   postOfficeFxCounters: "#c2410c",
+  // 台灣圖層待辦池第一批 G53 批 1（2026-11-09）
+  motorcycleInspectionStations: "#a16207",
+  postMailboxes: "#16a34a",
+  antivenomHospitals: "#db2777",
+  freewayHundredMeterStakes: "#059669",
+  swcSpecialZones: "#dc2626",
+  slopelandSwcAct: "#a3734c",
+  debrisFlowPotential: "#ea580c",
+  landUseChangeMonitoring: "#ca8a04",
 } as const;

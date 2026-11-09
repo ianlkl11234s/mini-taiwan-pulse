@@ -77,6 +77,7 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   // 台灣 交通（§3.8 V-1 台灣重切檔新增熱區）：錯開市區公車站（BuPu）
   provincialRoadMileposts: "tokyo",
   freewayTrafficSigns: "Burg",
+  freewayHundredMeterStakes: "oslo",
   // 台灣 醫療
   medAED: "rocket",
   medLTC: "PuBuGn",

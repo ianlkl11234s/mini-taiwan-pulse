@@ -14,6 +14,11 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
+  MAILBOX_SERVICE_OPTIONS,
+  G53_ORGS,
+  DEBRIS_RISK_OPTIONS,
+  LAND_CHANGE_CLASS_OPTIONS,
+  SWC_ZONE_TYPE_OPTIONS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -34,7 +39,7 @@ function swatchOf(kind: Swatch, color: string): ReactNode {
 }
 
 /** 來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*） */
-const ORGS = {
+export const ATLAS_ORGS = {
   cip: "原住民族委員會", swcb: "農業部農村發展及水土保持署", thb: "交通部公路局", freeway: "交通部高速公路局",
   ncdr: "國家災害防救科技中心", taipeiHydraulic: "臺北市政府工務局水利工程處", marn: "海洋委員會海洋保育署 MARN",
   oca: "海洋委員會海洋保育署", moenv: "環境部", oac: "海洋委員會", namr: "國家海洋研究院",
@@ -46,8 +51,9 @@ const ORGS = {
   ...STATE_ASSET_ORGS,
   ...FINANCE_ACCESS_ORGS,
   ...G35_ORGS,
+  ...G53_ORGS,
 } as const;
-type Source = { org: keyof typeof ORGS; ids?: readonly string[]; etc?: boolean };
+type Source = { org: keyof typeof ATLAS_ORGS; ids?: readonly string[]; etc?: boolean };
 const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
 
 /** 一張 atlas 圖例：標題＋色塊列＋說明（ATLAS_NOTES）＋來源。標題預設借圖層名，標題與圖層名不同的才傳 `title`。 */
@@ -61,7 +67,7 @@ function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, lic
   const i18n = useLocale();
   const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[layer]?.name;
   const heading = title ? i18n.t(title) : name ? localizeLayerName(layer, name, i18n).primary : layer;
-  const org = enumLabel("atlasOrg", source.org, ORGS[source.org], i18n);
+  const org = enumLabel("atlasOrg", source.org, ATLAS_ORGS[source.org], i18n);
   const sourceText = source.ids
     ? i18n.t(source.etc ? "legend.atlas.sourceIdsEtc" : "legend.atlas.sourceIds", { org, ids: source.ids.join(i18n.t("legend.atlas.idSeparator")) })
     : org;
@@ -82,6 +88,14 @@ const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  landUseChangeMonitoring: () => <AtlasLegend layer="landUseChangeMonitoring" en="Land Use Change Monitoring" kind="square" source={src("nlma", ["168030"])} domain="atlasLandChange" rows={LAND_CHANGE_CLASS_OPTIONS} />,
+  debrisFlowPotential: () => <AtlasLegend layer="debrisFlowPotential" en="Debris Flow Potential Streams" kind="square" source={src("swcb", ["176524", "176525", "176526"])} domain="atlasDebrisRisk" rows={DEBRIS_RISK_OPTIONS} />,
+  slopelandSwcAct: () => <AtlasLegend layer="slopelandSwcAct" en="Slopeland (Soil and Water Conservation Act)" kind="square" source={src("swcb", ["178645"])} rows={single("slopelandSwcAct", "legend.atlas.slopelandArea")} />,
+  swcSpecialZones: () => <AtlasLegend layer="swcSpecialZones" en="Special Soil and Water Conservation Zones" kind="square" source={src("swcb", ["176847"])} domain="atlasSwcZoneType" rows={SWC_ZONE_TYPE_OPTIONS} />,
+  freewayHundredMeterStakes: () => <AtlasLegend layer="freewayHundredMeterStakes" en="Freeway 100 m Stakes" source={src("freeway", ["95016"])} rows={single("freewayHundredMeterStakes", "legend.atlas.hundredMeterStake")} dense />,
+  antivenomHospitals: () => <AtlasLegend layer="antivenomHospitals" en="Antivenom Reserve Hospitals" source={src("cdc", ["24468"])} rows={single("antivenomHospitals", "legend.atlas.antivenomHospital")} />,
+  postMailboxes: () => <AtlasLegend layer="postMailboxes" en="Mailboxes" source={src("chunghwaPost", ["178399", "52781"])} domain="atlasMailboxService" rows={MAILBOX_SERVICE_OPTIONS} />,
+  motorcycleInspectionStations: () => <AtlasLegend layer="motorcycleInspectionStations" en="Motorcycle Emission Inspection Stations" source={src("moenv", ["6352"])} rows={single("motorcycleInspectionStations", "legend.atlas.motorcycleInspectionStation")} />,
   indigenousTribes: () => <AtlasLegend layer="indigenousTribes" en="Indigenous Tribes" source={src("cip", ["156632", "7093"])} domain="atlasEthnic"
     rows={[...TRIBE_LEGEND_OPTIONS, { labelKey: "legend.atlas.otherMultiEthnic", color: ATLAS_OTHER_COLOR }, { labelKey: "legend.atlas.notApprovedList", color: TRIBE_NOT_APPROVED_COLOR }]} />,
   indigenousIsolationRisk: () => <AtlasLegend layer="indigenousIsolationRisk" en="Isolation-risk Areas" source={src("cip", ["170259"])} domain="atlasIsolation" rows={ISOLATION_CAUSE_OPTIONS} />,

@@ -149,6 +149,14 @@ export type ExpandableLayerKey =
   | "securitiesFuturesInstitutions" | "insuranceInstitutions"
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   | "postOfficeFxCounters"
+  | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
+  | "debrisFlowPotential" // G53 批 1（2026-11-09）
+  | "slopelandSwcAct" // G53 批 1（2026-11-09）
+  | "swcSpecialZones" // G53 批 1（2026-11-09）
+  | "freewayHundredMeterStakes" // G53 批 1（2026-11-09）
+  | "antivenomHospitals" // G53 批 1（2026-11-09）
+  | "postMailboxes" // G53 批 1（2026-11-09）
+  | "motorcycleInspectionStations" // G53 批 1（2026-11-09）
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "firingNoticeAreas"
   // 🗳 政治 Politics：2026 選舉活動（owner-only RPC）
@@ -915,6 +923,14 @@ export interface FeatureInfo {
     | "atmSitesFisc" | "financialBranchesFisc"
     | "securitiesFuturesInstitutions" | "insuranceInstitutions"
     | "postOfficeFxCounters"
+    | "landUseChangeMonitoring"
+    | "debrisFlowPotential"
+    | "slopelandSwcAct"
+    | "swcSpecialZones"
+    | "freewayHundredMeterStakes"
+    | "antivenomHospitals"
+    | "postMailboxes"
+    | "motorcycleInspectionStations"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -1457,6 +1473,22 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   insuranceInstitutions: boolean;
   /** 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局 290（非外幣收兌處） */
   postOfficeFxCounters: boolean;
+  /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
+  landUseChangeMonitoring: boolean;
+  /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */
+  debrisFlowPotential: boolean;
+  /** G53 批 1（2026-11-09）山坡地範圍（水保法）：水保署 178645，15 縣市 */
+  slopelandSwcAct: boolean;
+  /** G53 批 1（2026-11-09）特定水土保持區：水保署 176847，66 區 */
+  swcSpecialZones: boolean;
+  /** G53 批 1（2026-11-09）國道百公尺樁：高公局 95016，10,082 支 */
+  freewayHundredMeterStakes: boolean;
+  /** G53 批 1（2026-11-09）抗蛇毒血清儲備點：疾管署 24468，191 家 */
+  antivenomHospitals: boolean;
+  /** G53 批 1（2026-11-09）郵筒：中華郵政 178399，6,024 筒 */
+  postMailboxes: boolean;
+  /** G53 批 1（2026-11-09）機車排氣定檢站：環境部 6352，3,893 站 */
+  motorcycleInspectionStations: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC / CWA 颱風軌跡（observed + forecast＋風圈）

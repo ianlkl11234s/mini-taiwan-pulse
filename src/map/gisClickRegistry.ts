@@ -943,11 +943,18 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["marine-wildlife-areas-fill", "marine-wildlife-areas-outline"], type: "marineWildlifeAreas" },
   { layers: ["exclusive-fishery-right-areas-fill", "exclusive-fishery-right-areas-outline"], type: "exclusiveFisheryRightAreas" },
   // 功能分區在重要濕地範圍內 → 排在範圍前面，點到分區時優先顯示分區
+  // 土石流潛勢溪流：中點／溪流線先、影響範圍排在集水區前（影響範圍在溪流下游、與集水區相接）
+  { layers: ["debris-flow-streams-points-circle", "debris-flow-streams-line", "debris-flow-impact-zones-fill", "debris-flow-catchments-fill"], type: "debrisFlowPotential" },
+  { layers: ["swc-special-zones-fill", "swc-special-zones-outline"], type: "swcSpecialZones" },
   { layers: ["important-wetland-zones-fill", "important-wetland-zones-outline"], type: "importantWetlandZones" },
   { layers: ["important-wetlands-fill", "important-wetlands-outline"], type: "importantWetlands" },
   { layers: ["water-1944-taipei-fill", "water-1944-taipei-outline"], type: "water1944Taipei" },
   { layers: ["water-recreation-restricted-areas-fill", "water-recreation-restricted-areas-outline"], type: "waterRecreationRestrictedAreas" },
   { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
+  { layers: ["freeway-hundred-meter-stakes-circle", "freeway-hundred-meter-stakes-glow"], type: "freewayHundredMeterStakes" },
+  { layers: ["antivenom-hospitals-circle", "antivenom-hospitals-glow"], type: "antivenomHospitals" },
+  { layers: ["post-mailboxes-circle", "post-mailboxes-glow"], type: "postMailboxes" },
+  { layers: ["motorcycle-inspection-stations-circle", "motorcycle-inspection-stations-glow"], type: "motorcycleInspectionStations" },
   { layers: ["major-occupational-accidents-circle", "major-occupational-accidents-glow"], type: "majorOccupationalAccidents" },
   { layers: ["renewable-permits-national-circle", "renewable-permits-national-glow"], type: "renewablePermitsNational" },
   { layers: ["battery-swap-stations-circle", "battery-swap-stations-glow"], type: "batterySwapStations" },
@@ -1049,6 +1056,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["indigenous-regions-fill", "indigenous-regions-outline"], type: "indigenousRegions" },
   { layers: ["indigenous-language-dialects-fill", "indigenous-language-dialects-outline"], type: "indigenousLanguageDialects" },
   { layers: ["hakka-cultural-zones-fill", "hakka-cultural-zones-outline"], type: "hakkaCulturalZones" },
+  // G53 批 1（2026-11-09）國土利用監測變異點：逐點先、面次之；拉遠時點六角格看格內處數
+  { layers: ["land-use-change-points-circle", "land-use-change-fill", "land-use-change-grid-hex"], type: "landUseChangeMonitoring" },
+  // G53 批 1（2026-11-09）山坡地範圍：每縣市一個大面，排在其他點線面之後，不搶細節命中
+  { layers: ["slopeland-swc-act-fill"], type: "slopelandSwcAct" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。

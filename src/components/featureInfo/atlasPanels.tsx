@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Row, Title } from "./shared";
+import { Row, SourceFooter, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
@@ -16,11 +16,16 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS,
+  DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
+  LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
+  SWC_ZONE_TYPE_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { ToxicPermitsBlock } from "./pollutionPanels";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { LAND_SUBSIDENCE_PANELS, TrendChart } from "./landSubsidencePanels";
+import { ATLAS_ORGS } from "../legend/atlasLegends";
 
 /**
  * atlas 批次 2026-10 的 26 層 popup。來源 footer 由 FeatureInfoPanel 統一掛（每筆都帶
@@ -956,6 +961,142 @@ function SecuritiesFuturesPanel({ props }: Props) {
   </>;
 }
 
+/** 土石流潛勢溪流：三種圖徵（溪流線／中點、影響範圍、集水區）共用一個 popup，依欄位判斷是哪一種。 */
+/** 國土利用監測變異點：網格（h3）顯示格內處數；逐點／面顯示單處（逐點檔只帶類別、年度、面積）。 */
+function LandUseChangePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  if (props.h3 != null) {
+    const years = LAND_CHANGE_YEARS.map((y) => `${y}：${fmt(props[`y${y}`], 0, "", i18n)}`).join(t("popup.atlas.dot"));
+    return <>
+      <Title color={ATLAS_LAYER_COLORS.landUseChangeMonitoring}>{t("popup.atlas.lucGridTitle", { n: fmt(props.total, 0, "", i18n) })}</Title>
+      {LAND_CHANGE_CLASS_OPTIONS.map((o) => <Row key={o.value} label={enumOf("atlasLandChange", o.value, o.label, i18n)} value={fmt(o.fields.reduce((sum, f) => sum + (Number(props[f]) || 0), 0), 0, "", i18n)} color={o.color} mono />)}
+      <Row label={t("popup.atlas.lucByYear")} value={years} mono />
+      <Row field="caution" value={t("popup.atlas.lucCaution")} />
+    </>;
+  }
+  const cls = LAND_CHANGE_CLASS_OPTIONS.some((o) => o.value === props.change_class) ? str(props.change_class) : "other";
+  const option = LAND_CHANGE_CLASS_OPTIONS.find((o) => o.value === cls)!;
+  const before = str(props.before_type), after = str(props.after_type);
+  return <>
+    <Title color={option.color}>{t("popup.atlas.lucTitle", { cls: enumOf("atlasLandChange", cls, option.label, i18n) })}</Title>
+    <Row label={t("popup.atlas.lucYear")} value={str(props.year)} mono />
+    <Row label={t("popup.atlas.lucChange")} value={before || after ? `${before || "—"} → ${after || "—"}` : ""} />
+    <Row label={t("popup.atlas.lucDates")} value={str(props.before_date) || str(props.after_date) ? `${str(props.before_date) || "—"} → ${str(props.after_date) || "—"}` : ""} mono />
+    <Row field="countyDistrict" value={[str(props.county), str(props.town)].filter(Boolean).join(" ")} />
+    <Row field="area" value={fmt(props.area_m2, 0, "m²", i18n)} mono />
+    <Row field="caution" value={t("popup.atlas.lucCaution")} />
+  </>;
+}
+
+function DebrisFlowPotentialPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(DEBRIS_RISK_OPTIONS, props.risk);
+  const kind = props.zone_id != null || props.total_res != null ? "impact" : props.area_ha != null ? "catchment" : "stream";
+  const kindLabel = t(kind === "impact" ? "popup.atlas.dfImpact" : kind === "catchment" ? "popup.atlas.dfCatchment" : "popup.atlas.dfStream");
+  return <>
+    <Title color={color}>{[str(props.debris_no), str(props.name)].filter(Boolean).join(t("popup.atlas.dot"))}</Title>
+    <Row field="type" value={kindLabel} />
+    <Row field="level" value={enumOf("atlasDebrisRisk", props.risk, props.risk, i18n)} color={color} />
+    <Row label={t("popup.atlas.dfResClass")} value={str(props.res_class)} />
+    <Row label={t("popup.atlas.dfTotalRes")} value={fmt(props.total_res, 0, "", i18n)} mono />
+    <Row field="countyDistrict" value={str(props.full_admin) || admin(props, i18n)} />
+    <Row label={t("popup.atlas.dfLandmark")} value={str(props.landmark)} />
+    <Row field="roadSection" value={str(props.road)} />
+    <Row field="length" value={fmt(props.length_km, 2, "km", i18n)} mono />
+    <Row label={t("popup.atlas.dfCatchmentArea")} value={fmt(props.catchment_ha ?? props.area_ha, 2, t("popup.atlas.unitHectares"), i18n)} mono />
+    <Row label={t("popup.atlas.dfStreamType")} value={str(props.stream_type)} />
+    <Row label={t("popup.atlas.dfOldNo")} value={str(props.dbno_old)} mono />
+  </>;
+}
+
+function SlopelandSwcActPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.slopelandSwcAct}>{t("popup.atlas.slTitle", { county: placeName(str(props.county), i18n) })}</Title>
+    <Row label={t("popup.atlas.slArea")} value={fmt(props.p_area_ha, 0, t("popup.atlas.unitHectares"), i18n)} mono />
+    <Row label={t("popup.atlas.slDate")} value={str(props.p_date)} mono />
+    <Row field="authority" value={str(props.authority)} />
+    <Row field="caution" value={t("popup.atlas.slCaution")} />
+  </>;
+}
+
+function SwcSpecialZonePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(SWC_ZONE_TYPE_OPTIONS, props.zone_type);
+  const basis = str(props.desig_label).split("；").filter(Boolean).map((part) => enumOf("atlasSwcDesig", part, part, i18n)).join(t("popup.common.semicolon"));
+  return <>
+    <Title color={color}>{str(props.zone_name)}</Title>
+    <Row field="category" value={enumOf("atlasSwcZoneType", props.zone_type, optionLabel(SWC_ZONE_TYPE_OPTIONS, props.zone_type), i18n)} color={color} />
+    <Row label={t("popup.atlas.swcBasis")} value={basis} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.atlas.swcAnnoArea")} value={fmt(props.anno_area_ha, 2, t("popup.atlas.unitHectares"), i18n)} mono />
+    <Row label={t("popup.atlas.swcAnnoDate")} value={str(props.anno_date)} mono />
+    <Row field="managingAgency" value={str(props.admin_name)} />
+    <Row field="caution" value={t("popup.atlas.swcCaution")} />
+  </>;
+}
+
+function FreewayStakePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.freewayHundredMeterStakes}>{`${str(props.road_name)} ${str(props.stake)}`.trim()}</Title>
+    <Row field="route" value={str(props.road_name)} />
+    <Row label={t("popup.atlas.fsStake")} value={str(props.stake)} mono />
+    <Row label={t("popup.atlas.fsKm")} value={fmt(props.km, 1, "km", i18n)} mono />
+    <Row field="elevation" value={fmt(props.elev_m, 1, "m", i18n) || "—"} mono />
+  </>;
+}
+
+function AntivenomHospitalPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const serums = str(props.serum_types).split("；").filter(Boolean).map((name) => enumOf("atlasSerum", name, name, i18n)).join(t("popup.common.listSeparator"));
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.antivenomHospitals}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.avSerums")} value={serums} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.phone)} mono />
+    <Row field="caution" value={t("popup.atlas.avCaution")} />
+  </>;
+}
+
+function PostMailboxPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(MAILBOX_SERVICE_OPTIONS, props.service);
+  return <>
+    <Title color={color}>{str(props.category) || enumOf("atlasMailboxService", props.service, optionLabel(MAILBOX_SERVICE_OPTIONS, props.service), i18n)}</Title>
+    <Row field="type" value={enumOf("atlasMailboxService", props.service, optionLabel(MAILBOX_SERVICE_OPTIONS, props.service), i18n)} color={color} />
+    <Row label={t("popup.atlas.mbStyle")} value={str(props.style)} />
+    <Row field="address" value={str(props.road)} />
+    <Row field="location" value={str(props.location_desc)} />
+    <Row label={t("popup.atlas.mbPickup")} value={str(props.pickup_times) || t("popup.atlas.mbPickupUnknown")} />
+    <Row label={t("popup.atlas.mbFeatured")} value={str(props.featured_note)} />
+    <Row label={t("popup.atlas.mbServiceUnit")} value={str(props.service_unit)} />
+    <Row field="phone" value={str(props.phone)} mono />
+    <Row field="countyDistrict" value={admin(props, i18n)} />
+  </>;
+}
+
+function MotorcycleInspectionPanel({ props }: Props) {
+  const { t } = useLocale();
+  const theme = useFeatureTheme();
+  const precision = str(props.precision);
+  const estimated = precision === "geocoded_door" ? t("popup.atlas.miPrecisionDoor") : precision === "geocoded_road" ? t("popup.atlas.miPrecisionRoad") : "";
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.motorcycleInspectionStations}>{str(props.name)}</Title>
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.phone) || "—"} mono />
+    <Row field="coordPrecision" value={estimated} color={theme.warn} />
+    <Row field="caution" value={t("popup.atlas.miCaution")} />
+  </>;
+}
+
 // G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
 function PostOfficeFxPanel({ props }: Props) {
   const { t } = useLocale();
@@ -1150,7 +1291,39 @@ function BatterySwapPanel({ props }: Props) {
   </>;
 }
 
+type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
+/** G53 批 1 出處（與圖例同一份機關＋data.gov.tw 資料集；土石流依圖徵種類指向溪流／集水區／影響範圍資料集）。 */
+const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
+  postMailboxes: { org: "chunghwaPost", dataset: () => "178399" },
+  debrisFlowPotential: { org: "swcb", dataset: (p) => (p.zone_id != null || p.total_res != null ? "176526" : p.area_ha != null ? "176525" : "176524") },
+  swcSpecialZones: { org: "swcb", dataset: () => "176847" },
+  slopelandSwcAct: { org: "swcb", dataset: () => "178645" },
+  landUseChangeMonitoring: { org: "nlma", dataset: () => "168030" },
+  motorcycleInspectionStations: { org: "moenv", dataset: () => "6352" },
+  antivenomHospitals: { org: "cdc", dataset: () => "24468" },
+  freewayHundredMeterStakes: { org: "freeway", dataset: () => "95016" },
+};
+
+function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
+  return function G53SourcedPanel({ props }: Props) {
+    const i18n = useLocale();
+    const { org, dataset } = G53_SOURCES[key];
+    return <>
+      <Panel props={props} />
+      <SourceFooter props={{ source_org: enumLabel("atlasOrg", org, ATLAS_ORGS[org], i18n), source_url: `https://data.gov.tw/dataset/${dataset(props)}`, license: i18n.t("popup.environmentLayer.licenseGov") }} />
+    </>;
+  };
+}
+
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  landUseChangeMonitoring: withG53Footer("landUseChangeMonitoring", LandUseChangePanel),
+  debrisFlowPotential: withG53Footer("debrisFlowPotential", DebrisFlowPotentialPanel),
+  slopelandSwcAct: withG53Footer("slopelandSwcAct", SlopelandSwcActPanel),
+  swcSpecialZones: withG53Footer("swcSpecialZones", SwcSpecialZonePanel),
+  freewayHundredMeterStakes: withG53Footer("freewayHundredMeterStakes", FreewayStakePanel),
+  antivenomHospitals: withG53Footer("antivenomHospitals", AntivenomHospitalPanel),
+  postMailboxes: withG53Footer("postMailboxes", PostMailboxPanel),
+  motorcycleInspectionStations: withG53Footer("motorcycleInspectionStations", MotorcycleInspectionPanel),
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
   agriRuralCommunityVillages: RuralCommunityPanel,
@@ -1220,6 +1393,14 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  landUseChangeMonitoring: manifestZh("landUseChangeMonitoring"),
+  debrisFlowPotential: manifestZh("debrisFlowPotential"),
+  slopelandSwcAct: manifestZh("slopelandSwcAct"),
+  swcSpecialZones: manifestZh("swcSpecialZones"),
+  freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
+  antivenomHospitals: manifestZh("antivenomHospitals"),
+  postMailboxes: manifestZh("postMailboxes"),
+  motorcycleInspectionStations: manifestZh("motorcycleInspectionStations"),
   indigenousTribes: "原住民族部落",
   indigenousIsolationRisk: "原鄉易成孤島地區",
   agriRuralCommunityVillages: "農村社區分類",

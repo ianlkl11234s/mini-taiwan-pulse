@@ -7,7 +7,7 @@
  *
  * ⚠️ 表達式不得含 ["zoom"]：zoom 只能在最外層 interpolate/step。
  */
-import { allMultiSelectBitmask, multiSelectFilter } from "./multiSelectMapbox";
+import { allMultiSelectBitmask, multiSelectFilter, selectedMultiSelectValues } from "./multiSelectMapbox";
 import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
 
 export { ATLAS_LAYER_COLORS };
@@ -548,7 +548,79 @@ export const CULTURAL_HEALTH_PRECISION_LABELS: Readonly<Record<string, string>> 
 
 // ── 圖例／popup 共用說明 ────────────────────────────────────────────────
 
+// ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──────────────────────────
+/** 郵筒收件類別（上游 service；英日文 enum.atlasMailboxService.*）：沿用郵筒實物色，普通綠、限時紅。 */
+export const MAILBOX_SERVICE_OPTIONS: readonly AtlasOption[] = [
+  { value: "regular", label: "普通郵筒", color: "#16a34a" },
+  { value: "express", label: "限時郵筒", color: "#dc2626" },
+  { value: "dual", label: "限時普通雙用", color: "#7c3aed" },
+  { value: "pair", label: "同址兩筒（普通＋限時）", color: "#ca8a04" },
+];
+
+/** 抗蛇毒血清種類：value＝PMTiles 布林欄 `has_<value>`；label＝疾管署品項名（popup 逐項翻譯用 enum.atlasSerum.<品項名>）。 */
+export const ANTIVENOM_SERUM_OPTIONS = [
+  { value: "habu_greenpit", label: "抗龜殼花及赤尾鮐蛇毒血清" },
+  { value: "krait_cobra", label: "抗雨傘節及飯匙倩蛇毒血清" },
+  { value: "hundred_pacer", label: "抗百步蛇毒血清" },
+  { value: "russells_viper", label: "抗鎖鏈蛇毒血清" },
+] as const;
+const ANTIVENOM_SERUM_VALUES = ANTIVENOM_SERUM_OPTIONS.map((option) => option.value);
+/** 血清多選：一院可儲備多種，勾選的種類「有任一種」就顯示。全選回 `has name`（不排除任何院所）。 */
+export function antivenomSerumFilter(mask?: number): unknown[] {
+  const selected = selectedMultiSelectValues(mask ?? allMultiSelectBitmask(ANTIVENOM_SERUM_VALUES), ANTIVENOM_SERUM_VALUES);
+  if (selected.length === ANTIVENOM_SERUM_VALUES.length) return ["has", "name"];
+  if (selected.length === 0) return ["==", ["get", "name"], "__multi_select_none__"];
+  return ["any", ...selected.map((value) => ["==", ["get", `has_${value}`], true])];
+}
+/** 特定水土保持區分類（上游 zone_type；英日文 enum.atlasSwcZoneType.*）：崩塌系暖色、水系藍。 */
+export const SWC_ZONE_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "large_landslide", label: "大規模崩塌", color: "#b45309" },
+  { value: "debris_flow", label: "土石流", color: "#dc2626" },
+  { value: "landslide", label: "崩塌地", color: "#f59e0b" },
+  { value: "reservoir_catchment", label: "水庫集水區", color: "#2563eb" },
+  { value: "riverbank", label: "河岸", color: "#06b6d4" },
+];
+/** 土石流潛勢溪流風險等級（三檔共用 risk；色沿用大規模崩塌 DOD 高紅／中橙／低黃，持續觀察石板灰）。 */
+export const DEBRIS_RISK_OPTIONS: readonly AtlasOption[] = [
+  { value: "高", label: "高", color: "#b91c1c" },
+  { value: "中", label: "中", color: "#ea580c" },
+  { value: "低", label: "低", color: "#facc15" },
+  { value: "持續觀察", label: "持續觀察", color: "#64748b" },
+];
+/** 土石流潛勢溪流的三種顯示（同一層 select 切換；encode 順序＝`debrisFlowPotentialViewIdx`）。 */
+export const DEBRIS_FLOW_VIEW_OPTIONS = [
+  { value: "streams", label: "溪流線" },
+  { value: "impact", label: "影響範圍" },
+  { value: "catchments", label: "集水區" },
+] as const;
+/** 國土利用監測變異類別（上游 change_class；英日文 enum.atlasLandChange.*）。前 4 類語意色，
+ *  unknown／farmland／orchard（合計約 215 筆）併入「其他」；`fields`＝網格檔對應的分類計數欄。 */
+export const LAND_CHANGE_CLASS_OPTIONS: readonly (AtlasOption & { fields: readonly string[] })[] = [
+  { value: "bare", label: "裸露地", color: "#ca8a04", fields: ["c_bare"] },
+  { value: "building", label: "建物", color: "#dc2626", fields: ["c_building"] },
+  { value: "road", label: "道路", color: "#64748b", fields: ["c_road"] },
+  { value: "water", label: "水體", color: "#2563eb", fields: ["c_water"] },
+  { value: "other", label: "其他", color: "#a8a29e", fields: ["c_unknown", "c_farmland", "c_orchard", "c_forest"] },
+];
+/** 國土利用監測年度（民國；網格檔分年計數欄 `y<年>`） */
+export const LAND_CHANGE_YEARS = [107, 108, 109, 110, 111, 112] as const;
+/** G53 批 1：analytics PMTiles 不帶 source_org／license 欄，popup 由 atlasPanels 依常數自掛 SourceFooter
+ *  （FeatureInfoPanel 的中央 SourceFooter 跳過這些 layerType，否則會誤顯示「來源資訊待補」）。 */
+export const G53_SELF_FOOTER_KEYS = [
+  "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
+  "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
+] as const;
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署" } as const;
+
 export const ATLAS_NOTES = {
+  landUseChangeMonitoring: "內政部國土管理署國土利用監測的衛星影像變異點 107–112 年共 143,891 處（data.gov.tw 168030），是「疑似變異」，不是查報確認的違規。依變異類別上色（裸露地占 88%）；同一地點可能在不同年度各出現一次。拉遠時畫六角格（每格約 5 km²），顏色深淺是格內變異處數；六角格跟著類別篩選，只篩年度時改用分年數，兩者都篩時只照類別。放大到 10 級起畫逐點與範圍面。107 年原為 TWD67，已轉換。",
+  debrisFlowPotential: "水保署 115 年度土石流潛勢溪流 1,753 條（data.gov.tw 176524），可切換溪流線、影響範圍（176526，1,894 區，一溪可有多個溢流點）、集水區（176525）；三者都依風險等級上色。拉遠到 11 級以下另畫溪流中點，標示位置。涵蓋 17 縣市，新竹市、嘉義市、澎湖、金門、連江沒有潛勢溪流。影響範圍的保全住戶門牌清單不收。溪流編號年度會改編，對照舊警戒紀錄用舊編號（popup）。",
+  slopelandSwcAct: "水保署公告的水土保持法山坡地範圍（data.gov.tw 178645，115 年版），15 縣市合計約 192.7 萬公頃。不含六都（臺北、新北、桃園、臺中、臺南、高雄由市府自行公告）與澎湖縣（來源沒有）。來源檔沒有附座標系統，依 TWD97 處理並以金門、連江位置驗證。範圍以公告為準，僅供參考，不構成個別土地的法規判斷。",
+  swcSpecialZones: "農業部農村發展及水土保持署公告的特定水土保持區 66 區（data.gov.tw 176847，115 年度，合計約 13,454 公頃），分布 14 縣市。分類依計畫名稱；劃定依據是依水土保持法第 16 條各款推定（來源沒有代碼表）。公告面積與圖形面積約差 1.5%。範圍與管制以公告為準，僅供參考。",
+  freewayHundredMeterStakes: "交通部高速公路局國道百公尺里程樁 10,082 支（data.gov.tw 95016；KML 2019-11 版＋國 4 豐潭延伸段、國 2 甲 CSV），每 100 m 一支、不分方向，含國道 1–10 號、國 2 甲、國 3 甲、台 2 己、南港聯絡道。與「國道交通標誌」的里程牌（指 45，公里牌）是不同設施。拉遠時畫密度熱區，放大到 10 級起畫樁位。高程有 122 支空白。",
+  antivenomHospitals: "衛生福利部疾病管制署公告的抗蛇毒血清儲備醫療院所 191 家（data.gov.tw 24468，2024-12-30 更新；來源 428 列是院所依血清種類拆列，這裡依院所合併）。四種血清：龜殼花及赤尾鮐 175 家、雨傘節及飯匙倩 162 家、百步蛇 66 家、鎖鏈蛇 25 家。儲備品項與數量會調整，以疾管署公告為準；被蛇咬傷請撥 119 或就近就醫。",
+  postMailboxes: "中華郵政郵筒 6,024 筒（data.gov.tw 178399，2026-04-28 版；來源 6,033 筒，9 筒座標無效未上圖）。特色郵筒說明取自 52781（59 筒中 57 筒對到）。收信時間空白表示來源未載明，不代表不收信。",
+  motorcycleInspectionStations: "環境部機車排氣定期檢驗站名冊 3,934 站（MOENV API mpi_s_01，2026-11-09 抓取），地圖上 3,893 站（99.0%）：3,305 站用來源經緯度；來源沒有座標的 629 站以本機離線地址比對補到 588 站（464 站門牌、124 站路段內插，點開可看），41 站無法定位未上圖。當日營業狀態不收；手機號碼不顯示。縣市到檢率見「機車定檢到檢率」統計。",
   indigenousTribes: "原民會部落位置點表（2022-07）× 現行核定部落（2026-09）；灰點＝不在現行核定名單。另有 13 個現行核定部落沒有點位，未上圖。",
   indigenousIsolationRisk: "點是地區代表中心點，不是範圍；3 筆來源無座標，以村里代表點代替。",
   agriRuralCommunityVillages: "農村社區分類以村里為單位（農業部農村發展及水土保持署）；放大到 7 級以上顯示。",
