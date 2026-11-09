@@ -100,4 +100,5 @@ export const ATLAS_LAYER_COLORS = {
   iOceanSightings: "#2563eb",
   iOceanFishing: "#0ea5e9",
   fireworksSites: "#dc2626",
+  vehicleInspectionOffices: "#22d3ee",
 } as const;

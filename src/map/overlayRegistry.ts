@@ -348,7 +348,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -12447,9 +12447,32 @@ function vegetationForestTypesOverlays(): OverlayConfig[] {
   });
 }
 
+/** G53 批 2／3 監理所站＋轄區：面依 select 切汽車／機車業務（不吃所站種類篩選），點用 publicLifePointOverlay＋種類篩選。 */
+function vehicleInspectionOverlays(): OverlayConfig[] {
+  const id = "vehicleInspectionOffices";
+  const attribution = `交通部公路局 監理所站名冊（data.gov.tw 14203）· ${OGDL_ATTR}；3 處位置 © OpenStreetMap contributors（ODbL）`;
+  const opacity = (p?: Record<string, number>) => p?.vehicleInspectionOfficesOpacity ?? 0.9;
+  const filter = (p?: Record<string, number>) => ["==", ["get", "service"], (p?.vehicleInspectionOfficesViewIdx ?? 0) === 1 ? "motorcycle" : "car"];
+  const color = matchColorExpr("office_id", VIO_ZONE_OPTIONS);
+  return [
+    {
+      id, sourceUrl: "./geo/vehicle_inspection_jurisdictions_1150421.pmtiles", sourceId: "vehicle-inspection-jurisdictions",
+      pmtiles: { sourceLayer: "vehicle_inspection_jurisdictions", minzoom: 4, maxzoom: 12 }, attribution, rebuildOnParamChange: ["fill", "outline"],
+      layers: [
+        { suffix: "fill", type: "fill", skipCategoryFilter: true, filter, paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": 0.25 * opacity(p) }) },
+        { suffix: "outline", type: "line", skipCategoryFilter: true, filter, paint: (_dark, p) => ({
+          "line-color": color, "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 10, 1.6], "line-opacity": Math.min(1, opacity(p) + 0.1),
+        }) },
+      ],
+    },
+    publicLifePointOverlay(id, "./geo/vehicle_inspection_offices_1150421.pmtiles", "vehicle-inspection-offices", matchColorExpr("office_kind", VIO_KIND_OPTIONS), { sourceLayer: "vehicle_inspection_offices", minzoom: 4, maxzoom: 14 }, attribution, [4, 8]),
+  ];
+}
+
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   ...vegetationForestTypesOverlays(),
   ...iOceanFishingOverlays(),
+  ...vehicleInspectionOverlays(),
   // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──
   ...tedsGridEmissionsOverlays(),
   {

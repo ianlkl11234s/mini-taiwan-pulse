@@ -2513,5 +2513,12 @@
   "param.礫灘釣": "Gravel beach fishing",
   "param.筏釣": "Raft fishing",
   "param.製造場所": "Manufacturing site",
-  "param.儲存場所": "Storage site"
+  "param.儲存場所": "Storage site",
+  "param.轄區業務": "Jurisdiction service",
+  "param.汽車監理": "Cars",
+  "param.機車監理": "Motorcycles",
+  "param.所站種類": "Office type",
+  "param.監理所": "Motor vehicle office",
+  "param.監理站": "Motor vehicle station",
+  "param.監理分站": "Motor vehicle sub-station"
 }

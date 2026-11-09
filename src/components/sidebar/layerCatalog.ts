@@ -1008,6 +1008,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("materialRecyclingPoints"),
           fromManifest("publicLifeOsmCoverage"),
           fromManifest("accessibleParkFacilities"),
+          fromManifest("vehicleInspectionOffices"),
         ],
       },
       {

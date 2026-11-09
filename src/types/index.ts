@@ -159,6 +159,7 @@ export type ExpandableLayerKey =
   | "iOceanSightings" // G53 批 2／3（2026-11-10）
   | "iOceanFishing" // G53 批 2／3（2026-11-10）
   | "fireworksSites" // G53 批 2／3（2026-11-10）
+  | "vehicleInspectionOffices" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
   | "slopelandSwcAct" // G53 批 1（2026-11-09）
@@ -950,6 +951,7 @@ export interface FeatureInfo {
     | "iOceanSightings"
     | "iOceanFishing"
     | "fireworksSites"
+    | "vehicleInspectionOffices"
     | "postMailboxes"
     | "motorcycleInspectionStations"
     | "hikingTrails"
@@ -1517,6 +1519,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   iOceanFishing: boolean;
   /** G53 批 2／3（2026-11-10）爆竹煙火製造及儲存場所：消防署 7070，名冊 19 處、上圖 10 處 */
   fireworksSites: boolean;
+  /** G53 批 2／3（2026-11-10）監理所站＋轄區：公路局 14203，34／37 所站上圖，轄區依汽車／機車切換 */
+  vehicleInspectionOffices: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
   landUseChangeMonitoring: boolean;
   /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */

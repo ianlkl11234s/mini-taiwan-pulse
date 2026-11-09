@@ -1909,6 +1909,18 @@ export const LAYER_MANIFEST = {
     topics: ["消防", "緊急應變"],
   },
 
+  vehicleInspectionOffices: {
+    key: "vehicleInspectionOffices", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "監理所站與轄區", alt: "Motor Vehicle Offices & Jurisdictions" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.vehicleInspectionOffices, icon: Car,
+    upstream: { status: "verified", datasets: [{ datasetId: "vehicle_inspection_offices", confidence: "MED" }, { datasetId: "vehicle_inspection_jurisdictions", confidence: "MED" }], processing: "analytics transport/vehicle_inspection 1150421：公路局 data.gov.tw 14203 名冊 37 所站；本機離線 tw_geocoder 門牌 28、路段內插 3，OSM 同名地物補 3（300 m 內且鄉鎮檢核），3 處無座標；轄區依名冊文字以鄉鎮界組面（汽車／機車各 368 鄉鎮），汽車 24 鄉鎮來源未載明保留灰色不推定", note: "所站位置由地址推估；轄區面依轄區文字組成。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "vehicle-inspection-jurisdictions", url: "./geo/vehicle_inspection_jurisdictions_1150421.pmtiles", sourceLayer: "vehicle_inspection_jurisdictions", minzoom: 4, maxzoom: 12 },
+      { kind: "pmtiles", sourceId: "vehicle-inspection-offices", url: "./geo/vehicle_inspection_offices_1150421.pmtiles", sourceLayer: "vehicle_inspection_offices", minzoom: 4, maxzoom: 14 },
+    ],
+    legend: "vehicleInspectionOffices", popup: "vehicleInspectionOffices", params: { count: 4, kinds: ["multiSelect", "select", "slider", "slider"] },
+    description: "公路局監理所、監理站、分站位置與汽車／機車監理轄區（依鄉鎮組成），可切換業務。",
+    topics: ["監理", "公路局", "駕照", "行照", "轄區", "公共服務"],
+  },
   fireworksSites: {
     key: "fireworksSites", country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" }, ...layerName({ zh: "爆竹煙火製造及儲存場所", alt: "Fireworks Manufacturing & Storage Sites" }), expandable: true,
     color: ATLAS_LAYER_COLORS.fireworksSites, icon: Sparkles,

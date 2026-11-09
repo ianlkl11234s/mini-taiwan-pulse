@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1798,
+    "keyCount": 1799,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5664,6 +5664,14 @@
         "forest-types-4th-survey-fill"
       ],
       "type": "vegetationForestTypes"
+    },
+    {
+      "layers": [
+        "vehicle-inspection-offices-circle",
+        "vehicle-inspection-offices-glow",
+        "vehicle-inspection-jurisdictions-fill"
+      ],
+      "type": "vehicleInspectionOffices"
     },
     {
       "layers": [
@@ -84829,6 +84837,626 @@
       ],
       "sourceId": "iocean-fishing-reports",
       "sourceUrl": "./marine/iocean_fishing_reports_20260506.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vehicleInspectionOffices",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "service"
+            ],
+            "car"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#38bdf8",
+                "vio_02",
+                "#f472b6",
+                "vio_03",
+                "#a3e635",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#a78bfa",
+                "vio_06",
+                "#34d399",
+                "vio_07",
+                "#fb923c",
+                "vio_08",
+                "#60a5fa",
+                "vio_09",
+                "#38bdf8",
+                "vio_10",
+                "#f472b6",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#fbbf24",
+                "vio_13",
+                "#a78bfa",
+                "vio_14",
+                "#34d399",
+                "vio_15",
+                "#fb923c",
+                "vio_16",
+                "#60a5fa",
+                "vio_17",
+                "#38bdf8",
+                "vio_18",
+                "#f472b6",
+                "vio_19",
+                "#a3e635",
+                "vio_20",
+                "#fbbf24",
+                "vio_21",
+                "#a78bfa",
+                "vio_22",
+                "#34d399",
+                "vio_23",
+                "#fb923c",
+                "vio_24",
+                "#60a5fa",
+                "vio_25",
+                "#38bdf8",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a3e635",
+                "vio_28",
+                "#fbbf24",
+                "vio_29",
+                "#a78bfa",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#fb923c",
+                "vio_32",
+                "#60a5fa",
+                "vio_33",
+                "#38bdf8",
+                "vio_34",
+                "#f472b6",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#fbbf24",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.225
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#38bdf8",
+                "vio_02",
+                "#f472b6",
+                "vio_03",
+                "#a3e635",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#a78bfa",
+                "vio_06",
+                "#34d399",
+                "vio_07",
+                "#fb923c",
+                "vio_08",
+                "#60a5fa",
+                "vio_09",
+                "#38bdf8",
+                "vio_10",
+                "#f472b6",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#fbbf24",
+                "vio_13",
+                "#a78bfa",
+                "vio_14",
+                "#34d399",
+                "vio_15",
+                "#fb923c",
+                "vio_16",
+                "#60a5fa",
+                "vio_17",
+                "#38bdf8",
+                "vio_18",
+                "#f472b6",
+                "vio_19",
+                "#a3e635",
+                "vio_20",
+                "#fbbf24",
+                "vio_21",
+                "#a78bfa",
+                "vio_22",
+                "#34d399",
+                "vio_23",
+                "#fb923c",
+                "vio_24",
+                "#60a5fa",
+                "vio_25",
+                "#38bdf8",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a3e635",
+                "vio_28",
+                "#fbbf24",
+                "vio_29",
+                "#a78bfa",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#fb923c",
+                "vio_32",
+                "#60a5fa",
+                "vio_33",
+                "#38bdf8",
+                "vio_34",
+                "#f472b6",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#fbbf24",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.225
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "service"
+            ],
+            "car"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#38bdf8",
+                "vio_02",
+                "#f472b6",
+                "vio_03",
+                "#a3e635",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#a78bfa",
+                "vio_06",
+                "#34d399",
+                "vio_07",
+                "#fb923c",
+                "vio_08",
+                "#60a5fa",
+                "vio_09",
+                "#38bdf8",
+                "vio_10",
+                "#f472b6",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#fbbf24",
+                "vio_13",
+                "#a78bfa",
+                "vio_14",
+                "#34d399",
+                "vio_15",
+                "#fb923c",
+                "vio_16",
+                "#60a5fa",
+                "vio_17",
+                "#38bdf8",
+                "vio_18",
+                "#f472b6",
+                "vio_19",
+                "#a3e635",
+                "vio_20",
+                "#fbbf24",
+                "vio_21",
+                "#a78bfa",
+                "vio_22",
+                "#34d399",
+                "vio_23",
+                "#fb923c",
+                "vio_24",
+                "#60a5fa",
+                "vio_25",
+                "#38bdf8",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a3e635",
+                "vio_28",
+                "#fbbf24",
+                "vio_29",
+                "#a78bfa",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#fb923c",
+                "vio_32",
+                "#60a5fa",
+                "vio_33",
+                "#38bdf8",
+                "vio_34",
+                "#f472b6",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#fbbf24",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.6,
+                10,
+                1.6
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#38bdf8",
+                "vio_02",
+                "#f472b6",
+                "vio_03",
+                "#a3e635",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#a78bfa",
+                "vio_06",
+                "#34d399",
+                "vio_07",
+                "#fb923c",
+                "vio_08",
+                "#60a5fa",
+                "vio_09",
+                "#38bdf8",
+                "vio_10",
+                "#f472b6",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#fbbf24",
+                "vio_13",
+                "#a78bfa",
+                "vio_14",
+                "#34d399",
+                "vio_15",
+                "#fb923c",
+                "vio_16",
+                "#60a5fa",
+                "vio_17",
+                "#38bdf8",
+                "vio_18",
+                "#f472b6",
+                "vio_19",
+                "#a3e635",
+                "vio_20",
+                "#fbbf24",
+                "vio_21",
+                "#a78bfa",
+                "vio_22",
+                "#34d399",
+                "vio_23",
+                "#fb923c",
+                "vio_24",
+                "#60a5fa",
+                "vio_25",
+                "#38bdf8",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a3e635",
+                "vio_28",
+                "#fbbf24",
+                "vio_29",
+                "#a78bfa",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#fb923c",
+                "vio_32",
+                "#60a5fa",
+                "vio_33",
+                "#38bdf8",
+                "vio_34",
+                "#f472b6",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#fbbf24",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.6,
+                10,
+                1.6
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "vehicle_inspection_jurisdictions"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "vehicle-inspection-jurisdictions",
+      "sourceUrl": "./geo/vehicle_inspection_jurisdictions_1150421.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vehicleInspectionOffices",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "vehicle_inspection_offices"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "vehicle-inspection-offices",
+      "sourceUrl": "./geo/vehicle_inspection_offices_1150421.pmtiles"
     },
     {
       "dynamicData": null,
@@ -198537,6 +199165,64 @@
         ],
         "type": "select",
         "value": "vegetation"
+      }
+    ],
+    "vehicleInspectionOffices": [
+      {
+        "label": "所站種類",
+        "options": [
+          {
+            "label": "監理所",
+            "value": "office"
+          },
+          {
+            "label": "監理站",
+            "value": "station"
+          },
+          {
+            "label": "監理分站",
+            "value": "substation"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "office",
+          "station",
+          "substation"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "轄區業務",
+        "options": [
+          {
+            "label": "汽車監理",
+            "value": "car"
+          },
+          {
+            "label": "機車監理",
+            "value": "motorcycle"
+          }
+        ],
+        "type": "select",
+        "value": "car"
       }
     ],
     "vesselWatch": [

@@ -122,6 +122,8 @@ public/geo/station_polygons.geojson
 public/geo/submarine_cables.geojson
 public/geo/taxi_stand.geojson
 public/geo/triangulation_points_moi.geojson
+public/geo/vehicle_inspection_jurisdictions_1150421.pmtiles
+public/geo/vehicle_inspection_offices_1150421.pmtiles
 public/geo/waste_stops_chat_20261001.json
 public/geo/waste_stops_static.geojson
 public/geo/waste_stops_static_20260930.pmtiles

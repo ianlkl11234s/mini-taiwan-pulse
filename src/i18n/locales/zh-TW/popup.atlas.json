@@ -390,5 +390,17 @@
   "popup.atlas.iofCitizen": "公民回報，未經查核",
   "popup.atlas.fwPersonal": "個人經營（名稱不顯示）",
   "popup.atlas.fwTownship": "個人經營，位置只標到鄉鎮",
-  "popup.atlas.fwGeocoded": "位置由地址推估"
+  "popup.atlas.fwGeocoded": "位置由地址推估",
+  "popup.atlas.vioUnstated": "來源未載明",
+  "popup.atlas.vioService": "業務",
+  "popup.atlas.vioCar": "汽車監理",
+  "popup.atlas.vioMotorcycle": "機車監理",
+  "popup.atlas.vioTownCount": "鄉鎮數",
+  "popup.atlas.vioTowns": "轄區鄉鎮",
+  "popup.atlas.vioZoneNote": "轄區依名冊文字以鄉鎮界組成",
+  "popup.atlas.vioUnstatedNote": "來源沒寫這些鄉鎮的汽車監理單位，不推定",
+  "popup.atlas.vioParent": "所屬監理所",
+  "popup.atlas.vioFax": "傳真",
+  "popup.atlas.vioJurisdiction": "轄區（原文）",
+  "popup.atlas.vioOsm": "位置依 OpenStreetMap 同名地物"
 }

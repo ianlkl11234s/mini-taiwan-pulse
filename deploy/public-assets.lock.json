@@ -1340,6 +1340,20 @@
    "s3_key": "deploy-assets/geo/triangulation_points_moi.geojson"
   },
   {
+   "path": "public/geo/vehicle_inspection_jurisdictions_1150421.pmtiles",
+   "bytes": 1255443,
+   "sha256": "3d76b255fa14b5f9568e3c0e33b5d765d0b84f4cde2d3267b82f2850140b2bb3",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/vehicle_inspection_jurisdictions_1150421.pmtiles"
+  },
+  {
+   "path": "public/geo/vehicle_inspection_offices_1150421.pmtiles",
+   "bytes": 111190,
+   "sha256": "54365f444697392b6f909a4ad687d507ffda2a2849b02ecc50d78b56eee7814e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/vehicle_inspection_offices_1150421.pmtiles"
+  },
+  {
    "path": "public/geo/waste_stops_chat_20261001.json",
    "bytes": 2236892,
    "sha256": "73ff85946d835169dba6005badbb0237fc76c71fa2e0438a2b5569f3ef1f0d2a",

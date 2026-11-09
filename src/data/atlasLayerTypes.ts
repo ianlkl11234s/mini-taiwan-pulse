@@ -610,7 +610,7 @@ export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
-  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing", "fireworksSites",
+  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing", "fireworksSites", "vehicleInspectionOffices",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -766,6 +766,22 @@ export const FISHING_TYPE_OPTIONS: readonly AtlasOption[] = [
   { value: "礫灘釣", label: "礫灘釣", color: "#78716c" },
   { value: "筏釣", label: "筏釣", color: "#ec4899" },
 ];
+/** 監理所站種類（上游 office_kind；英日文 enum.atlasVioKind.*）。 */
+export const VIO_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "office", label: "監理所", color: "#facc15" },
+  { value: "station", label: "監理站", color: "#22d3ee" },
+  { value: "substation", label: "監理分站", color: "#e879f9" },
+];
+/** 監理轄區業務（select；面 service 欄）。 */
+export const VIO_SERVICE_OPTIONS = [
+  { value: "car", label: "汽車監理" },
+  { value: "motorcycle", label: "機車監理" },
+] as const;
+/** 轄區面依 office_id 輪替 8 色，只為區分相鄰所站；來源未載明（無 office_id）用灰色。 */
+export const VIO_ZONE_PALETTE = ["#38bdf8", "#f472b6", "#a3e635", "#fbbf24", "#a78bfa", "#34d399", "#fb923c", "#60a5fa"] as const;
+export const VIO_ZONE_OPTIONS: readonly AtlasOption[] = Array.from({ length: 37 }, (_, index) => ({
+  value: `vio_${String(index + 1).padStart(2, "0")}`, label: "", color: VIO_ZONE_PALETTE[index % VIO_ZONE_PALETTE.length]!,
+}));
 /** 爆竹煙火場所種類（上游 site_kind；英日文 enum.atlasFireworksKind.*）。 */
 export const FIREWORKS_KIND_OPTIONS: readonly AtlasOption[] = [
   { value: "manufacturing", label: "製造場所", color: "#dc2626" },
@@ -774,6 +790,7 @@ export const FIREWORKS_KIND_OPTIONS: readonly AtlasOption[] = [
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署" } as const;
 
 export const ATLAS_NOTES = {
+  vehicleInspectionOffices: "交通部公路局監理所站名冊（data.gov.tw 14203，115 年 4 月 21 日版）37 所站，來源只有地址：本機離線門牌定位 31 處（門牌 28、路段內插 3），另 3 處依 OpenStreetMap 同名地物補位（連江、澎湖、臺中市監理站）；金門監理站、彰化監理站、東勢監理分站找不到位置，未上圖。轄區面是依名冊的轄區文字把鄉鎮界組起來（86521「監理機關轄區」是同一份文字，不是面圖資），汽車與機車監理各自全國 368 鄉鎮各歸一所站；汽車監理有 24 個鄉鎮（南投埔里等 4、雲林沿海 9 加北港、屏東恆春等 6、高雄新興前金苓雅鹽埕）來源沒寫，畫成灰色「來源未載明」，不推定。轄區顏色只用來區分相鄰所站，沒有其他意義。電話與傳真是機關總機。",
   fireworksSites: "內政部消防署公告的爆竹煙火製造及儲存場所名冊（data.gov.tw 7070，2025-12-04 更新）共 19 處，來源只有地址，以本機離線門牌定位：地圖上 10 處（門牌 7、路段內插 1、鄉鎮 2），另 9 處是沒有路名的鄉間地址，定位不到未上圖（新竹湖口、峨眉，苗栗造橋、苑裡，桃園新屋，雲林斗南，嘉義東石）。位置由地址推估，不是場所邊界。以個人姓名為名的 3 處不顯示名稱，地址與位置都只到鄉鎮（上圖 2 處）。",
   iOceanFishing: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾垂釣回報（data.gov.tw 157622，2026-05-06 版，實際含到 2026-11-03），56,420 筆（2015–2026，2021 年以後占 98%）。公民回報，未經查核。拉遠時（縮放 10 以下）以 0.01° 格網彙總的回報筆數畫熱區，熱區不隨垂釣類型篩選；放大到 10 級起畫每筆回報，依垂釣類型著色。座標落在 118–124°E、20–27°N 以外的 124 筆未上圖。回報沒有姓名或帳號等個資；同行人數欄品質不佳，不顯示。",
   iOceanSightings: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾海洋生物目擊回報（data.gov.tw 157621，2026-05-06 版），2,135 筆（2017–2026）。公民回報，未經查核。類群是依物種名推定，不是官方分類。保育物種（對上海洋保育類野生動物名錄者、鯨豚、貝類與珊瑚）1,963 筆位置已粗化到小數 2 位（約 1 km），同一格多筆會重疊，放大後逐一點選。座標落在 118–124°E、20–27°N 以外的 19 筆未上圖。「臺灣白海豚」與「中華白海豚」照來源兩種寫法，不合併。",

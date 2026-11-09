@@ -390,5 +390,17 @@
   "popup.atlas.iofCitizen": "Citizen report, not verified",
   "popup.atlas.fwPersonal": "Individually operated (name not shown)",
   "popup.atlas.fwTownship": "Individually operated; position shown only to the township",
-  "popup.atlas.fwGeocoded": "Position estimated from the address"
+  "popup.atlas.fwGeocoded": "Position estimated from the address",
+  "popup.atlas.vioUnstated": "Not stated in source",
+  "popup.atlas.vioService": "Service",
+  "popup.atlas.vioCar": "Cars",
+  "popup.atlas.vioMotorcycle": "Motorcycles",
+  "popup.atlas.vioTownCount": "Townships",
+  "popup.atlas.vioTowns": "Townships covered",
+  "popup.atlas.vioZoneNote": "Built from township boundaries per the register text",
+  "popup.atlas.vioUnstatedNote": "The source does not name the car office for these townships; not inferred",
+  "popup.atlas.vioParent": "Parent office",
+  "popup.atlas.vioFax": "Fax",
+  "popup.atlas.vioJurisdiction": "Jurisdiction (original text)",
+  "popup.atlas.vioOsm": "Position from a same-named OpenStreetMap feature"
 }

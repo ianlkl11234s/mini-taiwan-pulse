@@ -43,5 +43,9 @@
   "legend.atlas.licenseOgdlOsmPatch": "政府資料オープンライセンス第 1 版。25 か所の位置は © OpenStreetMap contributors（ODbL）",
   "legend.atlas.iosSubtitle": "推定分類群（種名から推定、公式分類ではない）・市民投稿、未検証",
   "legend.atlas.iofOther": "その他（渓流・ため池・ダム湖・未記入）",
-  "legend.atlas.fwSubtitle": "名簿 19 か所、地図上 10 か所（9 か所は住所から位置を特定できず）"
+  "legend.atlas.fwSubtitle": "名簿 19 か所、地図上 10 か所（9 か所は住所から位置を特定できず）",
+  "legend.atlas.vioZone": "管轄区域（色は隣接所站の区別のみ）",
+  "legend.atlas.vioUnstated": "記載なし（自動車業務 24 郷鎮）",
+  "legend.atlas.vioSubtitle": "ほかに位置不明の 3 か所：金門監理站、彰化監理站、東勢監理分站",
+  "legend.atlas.licenseOgdlOsm3": "政府資料開放授権条項第 1 版；3 か所の位置は © OpenStreetMap contributors（ODbL）"
 }

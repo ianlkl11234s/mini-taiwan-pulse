@@ -18,7 +18,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, ATLAS_OTHER_COLOR, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1378,6 +1378,34 @@ function LandslideEventPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 監理所站＋轄區：點＝所站資料，面＝轄區（有 service 欄）。 */
+function VehicleInspectionPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  if (props.service != null) {
+    const stated = props.stated !== false && props.office_id != null;
+    const color = stated ? optionColor(VIO_ZONE_OPTIONS, props.office_id) : ATLAS_OTHER_COLOR;
+    return <>
+      <Title color={color}>{stated ? str(props.office_label) : t("popup.atlas.vioUnstated")}</Title>
+      <Row label={t("popup.atlas.vioService")} value={t(props.service === "motorcycle" ? "popup.atlas.vioMotorcycle" : "popup.atlas.vioCar")} />
+      <Row label={t("popup.atlas.vioTownCount")} value={fmt(props.n_towns, 0, "", i18n)} mono />
+      <Row label={t("popup.atlas.vioTowns")} value={str(props.towns)} />
+      <Row field="caution" value={t(stated ? "popup.atlas.vioZoneNote" : "popup.atlas.vioUnstatedNote")} />
+    </>;
+  }
+  const color = optionColor(VIO_KIND_OPTIONS, props.office_kind);
+  return <>
+    <Title color={color}>{str(props.office_name)}</Title>
+    <Row field="type" value={enumOf("atlasVioKind", props.office_kind, optionLabel(VIO_KIND_OPTIONS, props.office_kind), i18n)} color={color} />
+    <Row label={t("popup.atlas.vioParent")} value={str(props.parent_office)} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.phone)} mono />
+    <Row label={t("popup.atlas.vioFax")} value={str(props.fax)} mono />
+    <Row label={t("popup.atlas.vioJurisdiction")} value={str(props.jurisdiction_text)} />
+    <Row field="caution" value={t(props.precision === "osm_name" ? "popup.atlas.vioOsm" : "popup.atlas.fwGeocoded")} />
+  </>;
+}
+
 /** G53 批 2／3 爆竹煙火場所：位置由地址推估；個人經營不顯示名稱、只到鄉鎮。 */
 function FireworksSitePanel({ props }: Props) {
   const i18n = useLocale();
@@ -1549,6 +1577,7 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   // TEDS 來源是 48201、170705、152688、47244 四筆（圖例全列）；footer 只有一個連結，指 152688——其說明頁寫明全量 zip 由 air.moenv.gov.tw 提供（registry-spec）
   tedsGridEmissions: { org: "moenv", dataset: () => "152688" },
   fireworksSites: { org: "nfa", dataset: () => "7070" },
+  vehicleInspectionOffices: { org: "thb", dataset: () => "14203" },
   iOceanFishing: { org: "oca", dataset: () => "157622" },
   iOceanSightings: { org: "oca", dataset: () => "157621" },
   vegetationForestTypes: { org: "forestry", dataset: (p) => (p.forest_type_key != null ? "57873" : "9930") },
@@ -1584,6 +1613,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   iOceanSightings: withG53Footer("iOceanSightings", IOceanSightingPanel),
   iOceanFishing: withG53Footer("iOceanFishing", IOceanFishingPanel),
   fireworksSites: withG53Footer("fireworksSites", FireworksSitePanel),
+  vehicleInspectionOffices: withG53Footer("vehicleInspectionOffices", VehicleInspectionPanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
@@ -1677,6 +1707,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   iOceanSightings: manifestZh("iOceanSightings"),
   iOceanFishing: manifestZh("iOceanFishing"),
   fireworksSites: manifestZh("fireworksSites"),
+  vehicleInspectionOffices: manifestZh("vehicleInspectionOffices"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),

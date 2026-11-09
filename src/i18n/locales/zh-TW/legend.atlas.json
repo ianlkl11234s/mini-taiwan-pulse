@@ -43,5 +43,9 @@
   "legend.atlas.licenseOgdlOsmPatch": "政府資料開放授權條款第 1 版；25 處位置補自 © OpenStreetMap contributors（ODbL）",
   "legend.atlas.iosSubtitle": "推定類群（依物種名推定，非官方分類）· 公民回報，未經查核",
   "legend.atlas.iofOther": "其他（野溪、埤塘、水庫、未填）",
-  "legend.atlas.fwSubtitle": "名冊 19 處，地圖上 10 處（9 處地址定位不到）"
+  "legend.atlas.fwSubtitle": "名冊 19 處，地圖上 10 處（9 處地址定位不到）",
+  "legend.atlas.vioZone": "轄區（顏色只區分相鄰所站）",
+  "legend.atlas.vioUnstated": "來源未載明（汽車監理 24 鄉鎮）",
+  "legend.atlas.vioSubtitle": "另有 3 所站無座標：金門監理站、彰化監理站、東勢監理分站",
+  "legend.atlas.licenseOgdlOsm3": "政府資料開放授權條款第 1 版；3 處位置補自 © OpenStreetMap contributors（ODbL）"
 }

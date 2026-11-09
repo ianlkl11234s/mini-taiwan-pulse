@@ -1788,5 +1788,6 @@
   "layer.vegetationForestTypes": "Vegetation & Forest Types",
   "layer.iOceanSightings": "iOcean Marine Wildlife Sightings",
   "layer.iOceanFishing": "iOcean Recreational Fishing Reports",
-  "layer.fireworksSites": "Fireworks Manufacturing & Storage Sites"
+  "layer.fireworksSites": "Fireworks Manufacturing & Storage Sites",
+  "layer.vehicleInspectionOffices": "Motor Vehicle Offices & Jurisdictions"
 }

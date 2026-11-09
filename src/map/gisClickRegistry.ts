@@ -954,6 +954,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["freeway-hundred-meter-stakes-circle", "freeway-hundred-meter-stakes-glow"], type: "freewayHundredMeterStakes" },
   { layers: ["antivenom-hospitals-circle", "antivenom-hospitals-glow"], type: "antivenomHospitals" },
   { layers: ["natural-vegetation-map-fill", "forest-types-4th-survey-fill"], type: "vegetationForestTypes" },
+  { layers: ["vehicle-inspection-offices-circle", "vehicle-inspection-offices-glow", "vehicle-inspection-jurisdictions-fill"], type: "vehicleInspectionOffices" },
   { layers: ["fireworks-sites-circle", "fireworks-sites-glow"], type: "fireworksSites" },
   { layers: ["iocean-fishing-reports-circle"], type: "iOceanFishing" },
   { layers: ["iocean-sightings-circle", "iocean-sightings-glow"], type: "iOceanSightings" },

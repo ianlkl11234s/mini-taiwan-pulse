@@ -9,6 +9,16 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       options: [{ value: "remediation", zh: "整治場址" }, { value: "control", zh: "控制場址" }, { value: "gw_restriction", zh: "地下水受污染使用限制地區" }],
     },
   ],
+  // G53 批 2／3（2026-11-10）：監理所站種類（只作用在所站點；轄區面 skipCategoryFilter）
+  vehicleInspectionOffices: {
+    property: "office_kind",
+    label: "所站種類",
+    options: [
+      { value: "office", zh: "監理所" },
+      { value: "station", zh: "監理站" },
+      { value: "substation", zh: "監理分站" },
+    ],
+  },
   // G53 批 2／3（2026-11-10）：爆竹煙火場所種類（值與 atlasLayerTypes FIREWORKS_KIND_OPTIONS 同序）
   fireworksSites: {
     property: "site_kind",
