@@ -87,4 +87,5 @@ export const ATLAS_LAYER_COLORS = {
   freewayHundredMeterStakes: "#059669",
   swcSpecialZones: "#dc2626",
   slopelandSwcAct: "#a3734c",
+  debrisFlowPotential: "#ea580c",
 } as const;

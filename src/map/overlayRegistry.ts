@@ -346,6 +346,7 @@ import {
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   MAILBOX_SERVICE_OPTIONS,
+  DEBRIS_RISK_OPTIONS,
   SWC_ZONE_TYPE_OPTIONS,
   antivenomSerumFilter,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
@@ -12211,8 +12212,56 @@ function culturalHealthStationsOverlay(): OverlayConfig {
   };
 }
 
+/**
+ * G53 批 1 土石流潛勢溪流：一層四個 config（同 id）。select `debrisFlowPotentialViewIdx`
+ * 0＝溪流線、1＝影響範圍、2＝集水區，未選中的子圖層 visibility none（不抓圖磚）；
+ * 溪流中點（analytics _points 檔，z4–10）三種顯示都畫到 z11，國家全覽 z7 才看得到位置（線、面在全覽太小）。
+ */
+function debrisFlowPotentialOverlays(): OverlayConfig[] {
+  const id = "debrisFlowPotential";
+  const color = matchColorExpr("risk", DEBRIS_RISK_OPTIONS);
+  const attribution = `農業部農村發展及水土保持署 土石流潛勢溪流（data.gov.tw 176524）、集水區（176525）、影響範圍（176526）· ${OGDL_ATTR}`;
+  const opacity = (p?: Record<string, number>) => p?.debrisFlowPotentialOpacity ?? 0.6;
+  const viewLayout = (view: number) => (_dark: boolean, p?: Record<string, number>) => ({ visibility: (p?.debrisFlowPotentialViewIdx ?? 0) === view ? "visible" : "none" });
+  const polygon = (sourceId: string, file: string, sourceLayer: string, view: number, dashed: boolean): OverlayConfig => ({
+    id, sourceUrl: `./hazards/${file}`, sourceId, pmtiles: { sourceLayer, minzoom: 4, maxzoom: 14 }, attribution,
+    layers: [
+      { suffix: "fill", type: "fill", layout: viewLayout(view), paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": opacity(p) * 0.6 }) },
+      { suffix: "outline", type: "line", layout: viewLayout(view), paint: (dark, p) => ({
+        "line-color": dark ? "#e2e8f0" : color, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 14, 1.4],
+        ...(dashed ? { "line-dasharray": [4, 3] } : {}), "line-opacity": Math.min(1, opacity(p) + 0.3),
+      }) },
+    ],
+  });
+  return [
+    polygon("debris-flow-catchments", "debris_flow_catchments_115.pmtiles", "debris_flow_catchments", 2, false),
+    polygon("debris-flow-impact-zones", "debris_flow_impact_zones_115.pmtiles", "debris_flow_impact_zones", 1, true),
+    {
+      id, sourceUrl: "./hazards/debris_flow_streams_115.pmtiles", sourceId: "debris-flow-streams",
+      pmtiles: { sourceLayer: "debris_flow_streams", minzoom: 4, maxzoom: 14 }, attribution,
+      layers: [{ suffix: "line", type: "line", layout: (dark, p) => ({ ...viewLayout(0)(dark, p), "line-cap": "round", "line-join": "round" }), paint: (_dark, p) => ({
+        "line-color": color, "line-width": ["interpolate", ["linear"], ["zoom"], 6, 1 * (p?.debrisFlowPotentialScale ?? 1), 12, 2.5 * (p?.debrisFlowPotentialScale ?? 1), 16, 4 * (p?.debrisFlowPotentialScale ?? 1)],
+        "line-opacity": Math.min(1, opacity(p) + 0.3),
+      }) }],
+    },
+    {
+      id, sourceUrl: "./hazards/debris_flow_streams_115_points.pmtiles", sourceId: "debris-flow-streams-points",
+      pmtiles: { sourceLayer: "debris_flow_streams_points", minzoom: 4, maxzoom: 10 }, attribution,
+      layers: [{ suffix: "circle", type: "circle", maxzoom: 11, paint: (dark, p) => {
+        const scale = p?.debrisFlowPotentialScale ?? 1;
+        const op = Math.min(1, opacity(p) + 0.3);
+        return {
+          "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.2 * scale, 10, 4.5 * scale],
+          "circle-opacity": op, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.8, "circle-stroke-opacity": op,
+        };
+      } }],
+    },
+  ];
+}
+
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
+  ...debrisFlowPotentialOverlays(),
   {
     // 大面積覆蓋面（15 縣市各一面）：§3.8 V-5 區劃面類，不做點／面切換
     id: "slopelandSwcAct", sourceUrl: "./urban/slopeland_swc_act_115.pmtiles", sourceId: "slopeland-swc-act",

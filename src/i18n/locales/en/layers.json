@@ -1771,5 +1771,6 @@
   "layer.antivenomHospitals": "Antivenom Reserve Hospitals",
   "layer.freewayHundredMeterStakes": "Freeway 100 m Stakes",
   "layer.swcSpecialZones": "Special Soil and Water Conservation Zones",
-  "layer.slopelandSwcAct": "Slopeland (Soil and Water Conservation Act)"
+  "layer.slopelandSwcAct": "Slopeland (Soil and Water Conservation Act)",
+  "layer.debrisFlowPotential": "Debris Flow Potential Streams"
 }

@@ -1,6 +1,17 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 
 export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // G53 批 1（2026-11-09）：土石流潛勢溪流風險等級（三檔＋中點檔都有 risk；值與 DEBRIS_RISK_OPTIONS 同序）
+  debrisFlowPotential: {
+    property: "risk",
+    label: "風險等級",
+    options: [
+      { value: "高", zh: "高" },
+      { value: "中", zh: "中" },
+      { value: "低", zh: "低" },
+      { value: "持續觀察", zh: "持續觀察" },
+    ],
+  },
   // G53 批 1（2026-11-09）：特定水土保持區分類（值與 atlasLayerTypes SWC_ZONE_TYPE_OPTIONS 同序）
   swcSpecialZones: {
     property: "zone_type",

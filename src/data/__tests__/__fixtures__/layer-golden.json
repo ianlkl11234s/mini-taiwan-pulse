@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1781,
+    "keyCount": 1782,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5578,6 +5578,15 @@
         "exclusive-fishery-right-areas-points-circle-polygon"
       ],
       "type": "exclusiveFisheryRightAreas"
+    },
+    {
+      "layers": [
+        "debris-flow-streams-points-circle",
+        "debris-flow-streams-line",
+        "debris-flow-impact-zones-fill",
+        "debris-flow-catchments-fill"
+      ],
+      "type": "debrisFlowPotential"
     },
     {
       "layers": [
@@ -83913,6 +83922,502 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_catchments"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "debris-flow-catchments",
+      "sourceUrl": "./hazards/debris_flow_catchments_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_impact_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "debris-flow-impact-zones",
+      "sourceUrl": "./hazards/debris_flow_impact_zones_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "line-cap": "round",
+              "line-join": "round",
+              "visibility": "visible"
+            },
+            "light": {
+              "line-cap": "round",
+              "line-join": "round",
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_streams"
+      },
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "debris-flow-streams",
+      "sourceUrl": "./hazards/debris_flow_streams_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                2.2,
+                10,
+                4.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.8
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                2.2,
+                10,
+                4.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.8
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_streams_points"
+      },
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "debris-flow-streams-points",
+      "sourceUrl": "./hazards/debris_flow_streams_115_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "slopelandSwcAct",
       "layers": [
         {
@@ -114725,6 +115230,73 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "debrisFlowPotential": [
+      {
+        "label": "風險等級",
+        "options": [
+          {
+            "label": "高",
+            "value": "高"
+          },
+          {
+            "label": "中",
+            "value": "中"
+          },
+          {
+            "label": "低",
+            "value": "低"
+          },
+          {
+            "label": "持續觀察",
+            "value": "持續觀察"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "高",
+          "中",
+          "低",
+          "持續觀察"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "溪流線",
+            "value": "streams"
+          },
+          {
+            "label": "影響範圍",
+            "value": "impact"
+          },
+          {
+            "label": "集水區",
+            "value": "catchments"
+          }
+        ],
+        "type": "select",
+        "value": "streams"
       }
     ],
     "dioxinStations": [

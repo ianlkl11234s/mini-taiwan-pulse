@@ -319,5 +319,14 @@
   "popup.atlas.slTitle": "{county}の山坡地範囲",
   "popup.atlas.slArea": "公告面積",
   "popup.atlas.slDate": "公告日",
-  "popup.atlas.slCaution": "県市ごとの山坡地範囲が 1 つの面です。個別の土地が山坡地かどうかは主管機関で確認してください"
+  "popup.atlas.slCaution": "県市ごとの山坡地範囲が 1 つの面です。個別の土地が山坡地かどうかは主管機関で確認してください",
+  "popup.atlas.dfStream": "潜在渓流",
+  "popup.atlas.dfImpact": "影響範囲",
+  "popup.atlas.dfCatchment": "集水域",
+  "popup.atlas.dfResClass": "保全世帯数の区分",
+  "popup.atlas.dfTotalRes": "保全世帯数",
+  "popup.atlas.dfLandmark": "目印",
+  "popup.atlas.dfCatchmentArea": "集水域面積",
+  "popup.atlas.dfStreamType": "渓流の種類",
+  "popup.atlas.dfOldNo": "旧番号"
 }

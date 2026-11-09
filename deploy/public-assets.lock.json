@@ -1537,6 +1537,34 @@
    "s3_key": "deploy-assets/harm_reduction/therapeutic_communities.geojson"
   },
   {
+   "path": "public/hazards/debris_flow_catchments_115.pmtiles",
+   "bytes": 3179227,
+   "sha256": "661b055577d5a0fca5a2d7425342b44b951b1b866ad01e70b897462c83889260",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/debris_flow_catchments_115.pmtiles"
+  },
+  {
+   "path": "public/hazards/debris_flow_impact_zones_115.pmtiles",
+   "bytes": 2107315,
+   "sha256": "e8904578ed17c8946571eecc75d5e608b6eb4f290e56729f4fbeaa92442ffc78",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/debris_flow_impact_zones_115.pmtiles"
+  },
+  {
+   "path": "public/hazards/debris_flow_streams_115.pmtiles",
+   "bytes": 4920889,
+   "sha256": "ddecebfcc8912aedc690a0e40d5ea4d9ea59362e0667278a0b83d9fe907cc20f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/debris_flow_streams_115.pmtiles"
+  },
+  {
+   "path": "public/hazards/debris_flow_streams_115_points.pmtiles",
+   "bytes": 292061,
+   "sha256": "69ebc0310528bfad31e7573c1ba28f134724f4b63d4c701e48ac9b004e0f0493",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/debris_flow_streams_115_points.pmtiles"
+  },
+  {
    "path": "public/hazards/flood_disaster_points_ncdr.pmtiles",
    "bytes": 1457136,
    "sha256": "cdf5fe544bf4287c615c1dcbf37141dbe17d4d26cb660df2811fdc0a7c25a9a2",

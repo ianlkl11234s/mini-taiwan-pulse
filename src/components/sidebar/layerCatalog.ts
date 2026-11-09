@@ -1580,6 +1580,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("landslideDodAreas"),
           fromManifest("landslideDodImpact"),
+          fromManifest("debrisFlowPotential"),
           fromManifest("highwayDisasterHistory"),
           fromManifest("landslideAnnual"),
           fromManifest("swcbDisasterPhotoPoints"),

@@ -319,5 +319,14 @@
   "popup.atlas.slTitle": "{county}山坡地範圍",
   "popup.atlas.slArea": "劃入公告面積",
   "popup.atlas.slDate": "劃入公告日期",
-  "popup.atlas.slCaution": "整個縣市的山坡地範圍是一個面；個別土地是否屬山坡地以主管機關查詢為準"
+  "popup.atlas.slCaution": "整個縣市的山坡地範圍是一個面；個別土地是否屬山坡地以主管機關查詢為準",
+  "popup.atlas.dfStream": "潛勢溪流",
+  "popup.atlas.dfImpact": "影響範圍",
+  "popup.atlas.dfCatchment": "集水區",
+  "popup.atlas.dfResClass": "保全住戶級距",
+  "popup.atlas.dfTotalRes": "保全住戶數",
+  "popup.atlas.dfLandmark": "地標",
+  "popup.atlas.dfCatchmentArea": "集水區面積",
+  "popup.atlas.dfStreamType": "溪流類型",
+  "popup.atlas.dfOldNo": "舊編號"
 }

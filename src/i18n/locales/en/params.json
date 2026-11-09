@@ -2417,5 +2417,12 @@
   "param.大規模崩塌": "Large-scale landslide",
   "param.崩塌地": "Landslide",
   "param.水庫集水區": "Reservoir catchment",
-  "param.河岸": "Riverbank"
+  "param.河岸": "Riverbank",
+  "param.溪流線": "Stream lines",
+  "param.影響範圍": "Impact areas",
+  "param.集水區": "Catchments",
+  "param.風險等級": "Risk level",
+  "param.高": "High",
+  "param.低": "Low",
+  "param.持續觀察": "Under observation"
 }

@@ -943,6 +943,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["marine-wildlife-areas-fill", "marine-wildlife-areas-outline"], type: "marineWildlifeAreas" },
   { layers: ["exclusive-fishery-right-areas-fill", "exclusive-fishery-right-areas-outline"], type: "exclusiveFisheryRightAreas" },
   // 功能分區在重要濕地範圍內 → 排在範圍前面，點到分區時優先顯示分區
+  // 土石流潛勢溪流：中點／溪流線先、影響範圍排在集水區前（影響範圍在溪流下游、與集水區相接）
+  { layers: ["debris-flow-streams-points-circle", "debris-flow-streams-line", "debris-flow-impact-zones-fill", "debris-flow-catchments-fill"], type: "debrisFlowPotential" },
   { layers: ["swc-special-zones-fill", "swc-special-zones-outline"], type: "swcSpecialZones" },
   { layers: ["important-wetland-zones-fill", "important-wetland-zones-outline"], type: "importantWetlandZones" },
   { layers: ["important-wetlands-fill", "important-wetlands-outline"], type: "importantWetlands" },

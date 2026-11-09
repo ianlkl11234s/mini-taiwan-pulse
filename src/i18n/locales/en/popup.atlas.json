@@ -319,5 +319,14 @@
   "popup.atlas.slTitle": "Slopeland in {county}",
   "popup.atlas.slArea": "Announced area",
   "popup.atlas.slDate": "Announced",
-  "popup.atlas.slCaution": "Each county's slopeland is one area; whether a given parcel is slopeland must be checked with the competent authority"
+  "popup.atlas.slCaution": "Each county's slopeland is one area; whether a given parcel is slopeland must be checked with the competent authority",
+  "popup.atlas.dfStream": "Potential stream",
+  "popup.atlas.dfImpact": "Impact area",
+  "popup.atlas.dfCatchment": "Catchment",
+  "popup.atlas.dfResClass": "Protected households (band)",
+  "popup.atlas.dfTotalRes": "Protected households",
+  "popup.atlas.dfLandmark": "Landmark",
+  "popup.atlas.dfCatchmentArea": "Catchment area",
+  "popup.atlas.dfStreamType": "Stream type",
+  "popup.atlas.dfOldNo": "Former ID"
 }

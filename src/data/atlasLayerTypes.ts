@@ -580,9 +580,23 @@ export const SWC_ZONE_TYPE_OPTIONS: readonly AtlasOption[] = [
   { value: "reservoir_catchment", label: "水庫集水區", color: "#2563eb" },
   { value: "riverbank", label: "河岸", color: "#06b6d4" },
 ];
+/** 土石流潛勢溪流風險等級（三檔共用 risk；色沿用大規模崩塌 DOD 高紅／中橙／低黃，持續觀察石板灰）。 */
+export const DEBRIS_RISK_OPTIONS: readonly AtlasOption[] = [
+  { value: "高", label: "高", color: "#b91c1c" },
+  { value: "中", label: "中", color: "#ea580c" },
+  { value: "低", label: "低", color: "#facc15" },
+  { value: "持續觀察", label: "持續觀察", color: "#64748b" },
+];
+/** 土石流潛勢溪流的三種顯示（同一層 select 切換；encode 順序＝`debrisFlowPotentialViewIdx`）。 */
+export const DEBRIS_FLOW_VIEW_OPTIONS = [
+  { value: "streams", label: "溪流線" },
+  { value: "impact", label: "影響範圍" },
+  { value: "catchments", label: "集水區" },
+] as const;
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署" } as const;
 
 export const ATLAS_NOTES = {
+  debrisFlowPotential: "水保署 115 年度土石流潛勢溪流 1,753 條（data.gov.tw 176524），可切換溪流線、影響範圍（176526，1,894 區，一溪可有多個溢流點）、集水區（176525）；三者都依風險等級上色。拉遠到 11 級以下另畫溪流中點，標示位置。涵蓋 17 縣市，新竹市、嘉義市、澎湖、金門、連江沒有潛勢溪流。影響範圍的保全住戶門牌清單不收。溪流編號年度會改編，對照舊警戒紀錄用舊編號（popup）。",
   slopelandSwcAct: "水保署公告的水土保持法山坡地範圍（data.gov.tw 178645，115 年版），15 縣市合計約 192.7 萬公頃。不含六都（臺北、新北、桃園、臺中、臺南、高雄由市府自行公告）與澎湖縣（來源沒有）。來源檔沒有附座標系統，依 TWD97 處理並以金門、連江位置驗證。範圍以公告為準，僅供參考，不構成個別土地的法規判斷。",
   swcSpecialZones: "農業部農村發展及水土保持署公告的特定水土保持區 66 區（data.gov.tw 176847，115 年度，合計約 13,454 公頃），分布 14 縣市。分類依計畫名稱；劃定依據是依水土保持法第 16 條各款推定（來源沒有代碼表）。公告面積與圖形面積約差 1.5%。範圍與管制以公告為準，僅供參考。",
   freewayHundredMeterStakes: "交通部高速公路局國道百公尺里程樁 10,082 支（data.gov.tw 95016；KML 2019-11 版＋國 4 豐潭延伸段、國 2 甲 CSV），每 100 m 一支、不分方向，含國道 1–10 號、國 2 甲、國 3 甲、台 2 己、南港聯絡道。與「國道交通標誌」的里程牌（指 45，公里牌）是不同設施。拉遠時畫密度熱區，放大到 10 級起畫樁位。高程有 122 支空白。",

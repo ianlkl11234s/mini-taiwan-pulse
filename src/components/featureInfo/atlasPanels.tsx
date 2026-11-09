@@ -17,6 +17,7 @@ import {
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   MAILBOX_SERVICE_OPTIONS,
+  DEBRIS_RISK_OPTIONS,
   SWC_ZONE_TYPE_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
@@ -958,7 +959,29 @@ function SecuritiesFuturesPanel({ props }: Props) {
   </>;
 }
 
-// G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
+/** 土石流潛勢溪流：三種圖徵（溪流線／中點、影響範圍、集水區）共用一個 popup，依欄位判斷是哪一種。 */
+function DebrisFlowPotentialPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(DEBRIS_RISK_OPTIONS, props.risk);
+  const kind = props.zone_id != null || props.total_res != null ? "impact" : props.area_ha != null ? "catchment" : "stream";
+  const kindLabel = t(kind === "impact" ? "popup.atlas.dfImpact" : kind === "catchment" ? "popup.atlas.dfCatchment" : "popup.atlas.dfStream");
+  return <>
+    <Title color={color}>{[str(props.debris_no), str(props.name)].filter(Boolean).join(t("popup.atlas.dot"))}</Title>
+    <Row field="type" value={kindLabel} />
+    <Row field="level" value={enumOf("atlasDebrisRisk", props.risk, props.risk, i18n)} color={color} />
+    <Row label={t("popup.atlas.dfResClass")} value={str(props.res_class)} />
+    <Row label={t("popup.atlas.dfTotalRes")} value={fmt(props.total_res, 0, "", i18n)} mono />
+    <Row field="countyDistrict" value={str(props.full_admin) || admin(props, i18n)} />
+    <Row label={t("popup.atlas.dfLandmark")} value={str(props.landmark)} />
+    <Row field="roadSection" value={str(props.road)} />
+    <Row field="length" value={fmt(props.length_km, 2, "km", i18n)} mono />
+    <Row label={t("popup.atlas.dfCatchmentArea")} value={fmt(props.catchment_ha ?? props.area_ha, 2, t("popup.atlas.unitHectares"), i18n)} mono />
+    <Row label={t("popup.atlas.dfStreamType")} value={str(props.stream_type)} />
+    <Row label={t("popup.atlas.dfOldNo")} value={str(props.dbno_old)} mono />
+  </>;
+}
+
 function SlopelandSwcActPanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -1045,6 +1068,7 @@ function MotorcycleInspectionPanel({ props }: Props) {
   </>;
 }
 
+// G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
 function PostOfficeFxPanel({ props }: Props) {
   const { t } = useLocale();
   const theme = useFeatureTheme();
@@ -1239,6 +1263,7 @@ function BatterySwapPanel({ props }: Props) {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  debrisFlowPotential: DebrisFlowPotentialPanel,
   slopelandSwcAct: SlopelandSwcActPanel,
   swcSpecialZones: SwcSpecialZonePanel,
   freewayHundredMeterStakes: FreewayStakePanel,
@@ -1314,6 +1339,7 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  debrisFlowPotential: manifestZh("debrisFlowPotential"),
   slopelandSwcAct: manifestZh("slopelandSwcAct"),
   swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),

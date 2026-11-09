@@ -216,6 +216,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "freewayHundredMeterStakes", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "swcSpecialZones", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   "slopelandSwcAct", // G53 批 1（2026-11-09）：atlas overlay，無 hook
+  "debrisFlowPotential", // G53 批 1（2026-11-09）：atlas overlay，無 hook
   // 文化幣藝文消費點 G23：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。
   "cultureCoinVenues",
   // 文化、觀光、原民補強 G35：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。

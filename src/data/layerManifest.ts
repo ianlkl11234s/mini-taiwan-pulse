@@ -11933,6 +11933,24 @@ export const LAYER_MANIFEST = {
     description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
   },
+  debrisFlowPotential: {
+    key: "debrisFlowPotential", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土石流潛勢溪流", alt: "Debris Flow Potential Streams" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.debrisFlowPotential, icon: Mountain,
+    upstream: { status: "verified", datasets: [
+      { datasetId: "debris_flow_catchments", confidence: "HIGH" },
+      { datasetId: "debris_flow_impact_zones", confidence: "HIGH" },
+      { datasetId: "debris_flow_streams", confidence: "HIGH" },
+    ], processing: "analytics hazards/debris_flow_{streams,catchments,impact_zones} 115：水保署 data.gov.tw 176524／176525／176526（.cpg UTF-8 重讀，舊 debris_flow 亂碼已解）；溪流 1,753 線、集水區 1,753 面、影響範圍 1,894 面＋溪流中點檔（z4–10）", note: "一層三檔，select 切換顯示；舊 datasetId debris_flow（warehouse_stub）由三者取代、舊條目不動；影響範圍保全住戶門牌不收。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "debris-flow-catchments", url: "./hazards/debris_flow_catchments_115.pmtiles", sourceLayer: "debris_flow_catchments", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "debris-flow-impact-zones", url: "./hazards/debris_flow_impact_zones_115.pmtiles", sourceLayer: "debris_flow_impact_zones", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "debris-flow-streams", url: "./hazards/debris_flow_streams_115.pmtiles", sourceLayer: "debris_flow_streams", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "debris-flow-streams-points", url: "./hazards/debris_flow_streams_115_points.pmtiles", sourceLayer: "debris_flow_streams_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "debrisFlowPotential", popup: "debrisFlowPotential", params: { count: 4, kinds: ["multiSelect", "select", "slider", "slider"] },
+    description: "水保署 115 年度土石流潛勢溪流 1,753 條，可切換溪流線、影響範圍、集水區，依風險等級（高／中／低／持續觀察）上色。",
+    topics: ["災害", "土石流", "坡地災害", "水保署"],
+  },
   slopelandSwcAct: {
     key: "slopelandSwcAct", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "山坡地範圍（水保法）", alt: "Slopeland (Soil and Water Conservation Act)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.slopelandSwcAct, icon: Mountain,
