@@ -409,7 +409,7 @@ export function useGlobalEventsLayer(
         const status = errors.length === 2 ? "error" : errors.length ? "partial" : "ready";
         const message = errors.length ? `${published.status === "rejected" ? "研究事件" : "AI 初判"}資料載入失敗，並非零件。`
           : candidates.status === "fulfilled" && candidates.value.partial
-            ? `AI 初判已載入 ${candidates.value.continuation?.loadedRows ?? 0}/${candidates.value.totalCandidates} 件；超過頁面預算，尚可自 ${candidates.value.continuation?.afterCandidateId ?? ""} 繼續。`
+            ? `AI 初判已載入 ${candidates.value.continuation?.loadedCandidates ?? 0}/${candidates.value.totalCandidates} 件；超過頁面預算，尚可自 ${candidates.value.continuation?.afterCandidateId ?? ""} 繼續。`
           : published.status === "fulfilled" && new Set(published.value.map((row) => row.eventId)).size >= 100
             ? "研究事件已達單次100件上限；AI初判仍完整分頁載入。" : null;
         if (published.status !== "fulfilled") {
