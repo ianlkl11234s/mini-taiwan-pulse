@@ -1,6 +1,18 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 
 export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // G53 批 1（2026-11-09）：特定水土保持區分類（值與 atlasLayerTypes SWC_ZONE_TYPE_OPTIONS 同序）
+  swcSpecialZones: {
+    property: "zone_type",
+    label: "分類",
+    options: [
+      { value: "large_landslide", zh: "大規模崩塌" },
+      { value: "debris_flow", zh: "土石流" },
+      { value: "landslide", zh: "崩塌地" },
+      { value: "reservoir_catchment", zh: "水庫集水區" },
+      { value: "riverbank", zh: "河岸" },
+    ],
+  },
   // G53 批 1（2026-11-09）：郵筒收件類別（值與 atlasLayerTypes MAILBOX_SERVICE_OPTIONS 同序）
   postMailboxes: {
     property: "service",

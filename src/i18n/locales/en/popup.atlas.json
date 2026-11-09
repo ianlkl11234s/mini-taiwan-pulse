@@ -311,5 +311,9 @@
   "popup.atlas.avSerums": "Antivenoms in stock",
   "popup.atlas.avCaution": "Stocked items follow the Taiwan CDC announcement; for a snakebite call 119 or go to the nearest hospital",
   "popup.atlas.fsStake": "Stake",
-  "popup.atlas.fsKm": "Distance"
+  "popup.atlas.fsKm": "Distance",
+  "popup.atlas.swcBasis": "Designation basis (Art. 16, Soil and Water Conservation Act)",
+  "popup.atlas.swcAnnoArea": "Announced area",
+  "popup.atlas.swcAnnoDate": "Announced",
+  "popup.atlas.swcCaution": "Boundaries and controls follow the official announcement; the designation basis is inferred from the article's clauses"
 }

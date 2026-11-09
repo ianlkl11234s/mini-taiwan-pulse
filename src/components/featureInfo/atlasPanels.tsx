@@ -17,6 +17,7 @@ import {
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   MAILBOX_SERVICE_OPTIONS,
+  SWC_ZONE_TYPE_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { ToxicPermitsBlock } from "./pollutionPanels";
@@ -958,6 +959,23 @@ function SecuritiesFuturesPanel({ props }: Props) {
 }
 
 // G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
+function SwcSpecialZonePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(SWC_ZONE_TYPE_OPTIONS, props.zone_type);
+  const basis = str(props.desig_label).split("；").filter(Boolean).map((part) => enumOf("atlasSwcDesig", part, part, i18n)).join(t("popup.common.semicolon"));
+  return <>
+    <Title color={color}>{str(props.zone_name)}</Title>
+    <Row field="category" value={enumOf("atlasSwcZoneType", props.zone_type, optionLabel(SWC_ZONE_TYPE_OPTIONS, props.zone_type), i18n)} color={color} />
+    <Row label={t("popup.atlas.swcBasis")} value={basis} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.atlas.swcAnnoArea")} value={fmt(props.anno_area_ha, 2, t("popup.atlas.unitHectares"), i18n)} mono />
+    <Row label={t("popup.atlas.swcAnnoDate")} value={str(props.anno_date)} mono />
+    <Row field="managingAgency" value={str(props.admin_name)} />
+    <Row field="caution" value={t("popup.atlas.swcCaution")} />
+  </>;
+}
+
 function FreewayStakePanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -1209,6 +1227,7 @@ function BatterySwapPanel({ props }: Props) {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  swcSpecialZones: SwcSpecialZonePanel,
   freewayHundredMeterStakes: FreewayStakePanel,
   antivenomHospitals: AntivenomHospitalPanel,
   postMailboxes: PostMailboxPanel,
@@ -1282,6 +1301,7 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
   postMailboxes: manifestZh("postMailboxes"),

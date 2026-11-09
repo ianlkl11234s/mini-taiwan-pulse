@@ -572,9 +572,18 @@ export function antivenomSerumFilter(mask?: number): unknown[] {
   if (selected.length === 0) return ["==", ["get", "name"], "__multi_select_none__"];
   return ["any", ...selected.map((value) => ["==", ["get", `has_${value}`], true])];
 }
+/** 特定水土保持區分類（上游 zone_type；英日文 enum.atlasSwcZoneType.*）：崩塌系暖色、水系藍。 */
+export const SWC_ZONE_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "large_landslide", label: "大規模崩塌", color: "#b45309" },
+  { value: "debris_flow", label: "土石流", color: "#dc2626" },
+  { value: "landslide", label: "崩塌地", color: "#f59e0b" },
+  { value: "reservoir_catchment", label: "水庫集水區", color: "#2563eb" },
+  { value: "riverbank", label: "河岸", color: "#06b6d4" },
+];
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署" } as const;
 
 export const ATLAS_NOTES = {
+  swcSpecialZones: "農業部農村發展及水土保持署公告的特定水土保持區 66 區（data.gov.tw 176847，115 年度，合計約 13,454 公頃），分布 14 縣市。分類依計畫名稱；劃定依據是依水土保持法第 16 條各款推定（來源沒有代碼表）。公告面積與圖形面積約差 1.5%。範圍與管制以公告為準，僅供參考。",
   freewayHundredMeterStakes: "交通部高速公路局國道百公尺里程樁 10,082 支（data.gov.tw 95016；KML 2019-11 版＋國 4 豐潭延伸段、國 2 甲 CSV），每 100 m 一支、不分方向，含國道 1–10 號、國 2 甲、國 3 甲、台 2 己、南港聯絡道。與「國道交通標誌」的里程牌（指 45，公里牌）是不同設施。拉遠時畫密度熱區，放大到 10 級起畫樁位。高程有 122 支空白。",
   antivenomHospitals: "衛生福利部疾病管制署公告的抗蛇毒血清儲備醫療院所 191 家（data.gov.tw 24468，2024-12-30 更新；來源 428 列是院所依血清種類拆列，這裡依院所合併）。四種血清：龜殼花及赤尾鮐 175 家、雨傘節及飯匙倩 162 家、百步蛇 66 家、鎖鏈蛇 25 家。儲備品項與數量會調整，以疾管署公告為準；被蛇咬傷請撥 119 或就近就醫。",
   postMailboxes: "中華郵政郵筒 6,024 筒（data.gov.tw 178399，2026-04-28 版；來源 6,033 筒，9 筒座標無效未上圖）。特色郵筒說明取自 52781（59 筒中 57 筒對到）。收信時間空白表示來源未載明，不代表不收信。",

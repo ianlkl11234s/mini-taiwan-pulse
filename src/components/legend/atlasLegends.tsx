@@ -16,6 +16,7 @@ import {
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
   MAILBOX_SERVICE_OPTIONS,
   G53_ORGS,
+  SWC_ZONE_TYPE_OPTIONS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -85,6 +86,7 @@ const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  swcSpecialZones: () => <AtlasLegend layer="swcSpecialZones" en="Special Soil and Water Conservation Zones" kind="square" source={src("swcb", ["176847"])} domain="atlasSwcZoneType" rows={SWC_ZONE_TYPE_OPTIONS} />,
   freewayHundredMeterStakes: () => <AtlasLegend layer="freewayHundredMeterStakes" en="Freeway 100 m Stakes" source={src("freeway", ["95016"])} rows={single("freewayHundredMeterStakes", "legend.atlas.hundredMeterStake")} dense />,
   antivenomHospitals: () => <AtlasLegend layer="antivenomHospitals" en="Antivenom Reserve Hospitals" source={src("cdc", ["24468"])} rows={single("antivenomHospitals", "legend.atlas.antivenomHospital")} />,
   postMailboxes: () => <AtlasLegend layer="postMailboxes" en="Mailboxes" source={src("chunghwaPost", ["178399", "52781"])} domain="atlasMailboxService" rows={MAILBOX_SERVICE_OPTIONS} />,

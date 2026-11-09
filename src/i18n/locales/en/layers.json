@@ -1769,5 +1769,6 @@
   "layer.motorcycleInspectionStations": "Motorcycle Emission Inspection Stations",
   "layer.postMailboxes": "Mailboxes",
   "layer.antivenomHospitals": "Antivenom Reserve Hospitals",
-  "layer.freewayHundredMeterStakes": "Freeway 100 m Stakes"
+  "layer.freewayHundredMeterStakes": "Freeway 100 m Stakes",
+  "layer.swcSpecialZones": "Special Soil and Water Conservation Zones"
 }

@@ -346,6 +346,7 @@ import {
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   MAILBOX_SERVICE_OPTIONS,
+  SWC_ZONE_TYPE_OPTIONS,
   antivenomSerumFilter,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
@@ -12212,6 +12213,12 @@ function culturalHealthStationsOverlay(): OverlayConfig {
 
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
+  {
+    id: "swcSpecialZones", sourceUrl: "./urban/swc_special_zones_115.pmtiles", sourceId: "swc-special-zones",
+    pmtiles: { sourceLayer: "swc_special_zones", minzoom: 4, maxzoom: 14 },
+    attribution: `農業部農村發展及水土保持署 特定水土保持區（data.gov.tw 176847）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("swcSpecialZones", matchColorExpr("zone_type", SWC_ZONE_TYPE_OPTIONS), 0.45),
+  },
   publicLifePointOverlay("freewayHundredMeterStakes", "./geo/freeway_hundred_meter_stakes_95016.pmtiles", "freeway-hundred-meter-stakes", ATLAS_LAYER_COLORS.freewayHundredMeterStakes, { sourceLayer: "freeway_hundred_meter_stakes", minzoom: 5, maxzoom: 14 }, `交通部高速公路局 國道百公尺里程樁（data.gov.tw 95016）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.freewayHundredMeterStakes, intensity: 1 } }),
   publicLifePointOverlay("antivenomHospitals", "./geo/antivenom_reserve_hospitals_20241230.pmtiles", "antivenom-hospitals", ATLAS_LAYER_COLORS.antivenomHospitals, { sourceLayer: "antivenom_reserve_hospitals", minzoom: 4, maxzoom: 14 }, `衛生福利部疾病管制署 抗蛇毒血清儲備醫療院所（data.gov.tw 24468）· ${OGDL_ATTR}`, [3.5, 7], { filter: (p) => antivenomSerumFilter(p?.antivenomHospitalsSerumMask) }),
   publicLifePointOverlay("postMailboxes", "./civic_facilities/post_mailboxes_1150428.pmtiles", "post-mailboxes", matchColorExpr("service", MAILBOX_SERVICE_OPTIONS), { sourceLayer: "post_mailboxes", minzoom: 4, maxzoom: 14 }, `中華郵政 郵筒（data.gov.tw 178399）、特色郵筒（52781）· ${OGDL_ATTR}`, [2.5, 6]),

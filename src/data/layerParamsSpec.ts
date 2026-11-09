@@ -5252,6 +5252,7 @@ export const LAYER_PARAMS_SPEC = {
   toxicChemicalFacilities: [opacitySlider("toxicChemicalFacilitiesOpacity", densePointOpacity(7_045)), scaleSlider("toxicChemicalFacilitiesScale", 1)],
   importantWetlands: [opacitySlider("importantWetlandsOpacity", 0.35)],
   importantWetlandZones: [opacitySlider("importantWetlandZonesOpacity", 0.45)],
+  swcSpecialZones: [opacitySlider("swcSpecialZonesOpacity", 0.45)],
   freewayHundredMeterStakes: [
     heatmapPalette("freewayHundredMeterStakes"),
     opacitySlider("freewayHundredMeterStakesOpacity", densePointOpacity(10_082)), scaleSlider("freewayHundredMeterStakesScale", 1),

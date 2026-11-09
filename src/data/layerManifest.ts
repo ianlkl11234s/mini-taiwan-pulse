@@ -11933,6 +11933,18 @@ export const LAYER_MANIFEST = {
     description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
   },
+  swcSpecialZones: {
+    key: "swcSpecialZones", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "特定水土保持區", alt: "Special Soil and Water Conservation Zones" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.swcSpecialZones, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "swc_special_zones", confidence: "HIGH" }], processing: "analytics urban_composite/swc_special_zones 115：水保署 data.gov.tw 176847（115 年度，檔 1150922）66 區；代表點檔 _points（z4–10）供點／面切換", note: "114 年度 54 區（173077）只備查不上圖；Desig_Code 無官方代碼表，劃定依據 label 依水保法第 16 條款次推定。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "swc-special-zones", url: "./urban/swc_special_zones_115.pmtiles", sourceLayer: "swc_special_zones", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "swc-special-zones-points", url: "./urban/swc_special_zones_115_points.pmtiles", sourceLayer: "swc_special_zones_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "swcSpecialZones", popup: "swcSpecialZones", params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
+    description: "水保署公告的特定水土保持區 66 區（大規模崩塌、土石流、崩塌地、水庫集水區、河岸），115 年度版。",
+    topics: ["水土保持", "土地使用", "崩塌", "土石流", "水保署"],
+  },
   freewayHundredMeterStakes: {
     key: "freewayHundredMeterStakes", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道百公尺樁", alt: "Freeway 100 m Stakes" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayHundredMeterStakes, icon: Milestone,

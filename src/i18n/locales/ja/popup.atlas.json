@@ -311,5 +311,9 @@
   "popup.atlas.avSerums": "備蓄血清",
   "popup.atlas.avCaution": "備蓄品目は疾病管制署の公告に従います。ヘビに咬まれたら 119 に通報するか最寄りの医療機関へ",
   "popup.atlas.fsStake": "杭番号",
-  "popup.atlas.fsKm": "キロ程"
+  "popup.atlas.fsKm": "キロ程",
+  "popup.atlas.swcBasis": "指定根拠（水土保持法第 16 条）",
+  "popup.atlas.swcAnnoArea": "公告面積",
+  "popup.atlas.swcAnnoDate": "公告日",
+  "popup.atlas.swcCaution": "範囲と規制は水土保持署の公告に従います。指定根拠は条文の款から推定"
 }

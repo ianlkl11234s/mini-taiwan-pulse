@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1779,
+    "keyCount": 1780,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5578,6 +5578,15 @@
         "exclusive-fishery-right-areas-points-circle-polygon"
       ],
       "type": "exclusiveFisheryRightAreas"
+    },
+    {
+      "layers": [
+        "swc-special-zones-fill",
+        "swc-special-zones-outline",
+        "swc-special-zones-points-circle-point",
+        "swc-special-zones-points-circle-polygon"
+      ],
+      "type": "swcSpecialZones"
     },
     {
       "layers": [
@@ -83894,6 +83903,238 @@
       ],
       "sourceId": "highway-disaster-history",
       "sourceUrl": "./hazards/highway_disaster_history.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcSpecialZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "swc_special_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "swc-special-zones",
+      "sourceUrl": "./urban/swc_special_zones_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcSpecialZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "swc_special_zones_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "swc-special-zones-points",
+      "sourceUrl": "./urban/swc_special_zones_115_points.pmtiles"
     },
     {
       "dynamicData": null,
@@ -189800,6 +190041,74 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00×"
+      }
+    ],
+    "swcSpecialZones": [
+      {
+        "label": "分類",
+        "options": [
+          {
+            "label": "大規模崩塌",
+            "value": "large_landslide"
+          },
+          {
+            "label": "土石流",
+            "value": "debris_flow"
+          },
+          {
+            "label": "崩塌地",
+            "value": "landslide"
+          },
+          {
+            "label": "水庫集水區",
+            "value": "reservoir_catchment"
+          },
+          {
+            "label": "河岸",
+            "value": "riverbank"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "large_landslide",
+          "debris_flow",
+          "landslide",
+          "reservoir_catchment",
+          "riverbank"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "swcbDisasterPhotoPoints": [

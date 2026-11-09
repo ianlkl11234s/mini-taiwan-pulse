@@ -494,5 +494,15 @@
   "enum.atlasSerum.抗百步蛇毒血清": "ヒャッポダ抗毒素血清",
   "enum.atlasSerum.抗鎖鏈蛇毒血清": "クサリヘビ抗毒素血清",
   "enum.atlasNote.antivenomHospitals": "衛生福利部疾病管制署が公告する抗毒素血清の備蓄医療機関 191 か所（data.gov.tw 24468、2024-12-30 更新。元データ 428 行は医療機関×血清の種類で、ここでは医療機関ごとに統合）。4 種類の血清：タイワンハブ・アオハブ 175、アマガサヘビ・コブラ 162、ヒャッポダ 66、クサリヘビ 25。備蓄品目は変わることがあり、疾病管制署の公告が優先します。ヘビに咬まれたら 119 に通報するか最寄りの医療機関へ。",
-  "enum.atlasNote.freewayHundredMeterStakes": "交通部高速公路局の国道 100 m 距離杭 10,082 本（data.gov.tw 95016。2019-11 の KML に国道 4 号豊潭延伸区間、国道 2 号甲線の CSV を追加）。100 m ごとに 1 本、上下線の区別なし。国道 1–10 号、2 号甲線、3 号甲線、台 2 線己、南港連絡道を含みます。「国道交通標識」のキロポスト（指 45）とは別の施設です。縮小時は密度ヒートマップ、ズーム 10 から杭を表示。標高は 122 本が空欄です。"
+  "enum.atlasNote.freewayHundredMeterStakes": "交通部高速公路局の国道 100 m 距離杭 10,082 本（data.gov.tw 95016。2019-11 の KML に国道 4 号豊潭延伸区間、国道 2 号甲線の CSV を追加）。100 m ごとに 1 本、上下線の区別なし。国道 1–10 号、2 号甲線、3 号甲線、台 2 線己、南港連絡道を含みます。「国道交通標識」のキロポスト（指 45）とは別の施設です。縮小時は密度ヒートマップ、ズーム 10 から杭を表示。標高は 122 本が空欄です。",
+  "enum.atlasSwcZoneType.large_landslide": "大規模崩壊",
+  "enum.atlasSwcZoneType.debris_flow": "土石流",
+  "enum.atlasSwcZoneType.landslide": "崩壊地",
+  "enum.atlasSwcZoneType.reservoir_catchment": "ダム集水域",
+  "enum.atlasSwcZoneType.riverbank": "河岸",
+  "enum.atlasSwcDesig.山坡地坡度陡峭，具危害公共安全之虞者": "急傾斜で公共の安全を脅かすおそれのある山地",
+  "enum.atlasSwcDesig.其他對水土保育有嚴重影響者": "その他水土保全に重大な影響があるもの",
+  "enum.atlasSwcDesig.水庫集水區": "ダム集水域",
+  "enum.atlasSwcDesig.海岸、湖泊沿岸、水道兩岸須特別保護者": "特別な保護が必要な海岸・湖岸・水路両岸",
+  "enum.atlasNote.swcSpecialZones": "農業部農村発展及水土保持署が公告した特定水土保持区 66 区（data.gov.tw 176847、民国 115 年度、合計約 13,454 ha）、14 県市。分類は計画名から。指定根拠は水土保持法第 16 条の各款から推定（元データにコード表なし）。公告面積と図形面積は約 1.5% 異なります。範囲と規制は公告に従い、参考情報です。"
 }

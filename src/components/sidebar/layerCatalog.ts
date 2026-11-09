@@ -637,6 +637,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("urbanZoningNewTaipei"),
           // 與上面兩層互補：那兩層是「都市計畫區內」，本層是「非都市土地」，合起來是全國拼圖
           fromManifest("nonUrbanZoning"),
+          // G53 批 1（2026-11-09）：水保法管制範圍（使用者決定放土地使用分區）
+          fromManifest("swcSpecialZones"),
         ],
       },
       {

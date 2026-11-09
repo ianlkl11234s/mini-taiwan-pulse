@@ -943,6 +943,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["marine-wildlife-areas-fill", "marine-wildlife-areas-outline"], type: "marineWildlifeAreas" },
   { layers: ["exclusive-fishery-right-areas-fill", "exclusive-fishery-right-areas-outline"], type: "exclusiveFisheryRightAreas" },
   // 功能分區在重要濕地範圍內 → 排在範圍前面，點到分區時優先顯示分區
+  { layers: ["swc-special-zones-fill", "swc-special-zones-outline"], type: "swcSpecialZones" },
   { layers: ["important-wetland-zones-fill", "important-wetland-zones-outline"], type: "importantWetlandZones" },
   { layers: ["important-wetlands-fill", "important-wetlands-outline"], type: "importantWetlands" },
   { layers: ["water-1944-taipei-fill", "water-1944-taipei-outline"], type: "water1944Taipei" },

@@ -494,5 +494,15 @@
   "enum.atlasSerum.抗百步蛇毒血清": "Hundred-pace viper antivenom",
   "enum.atlasSerum.抗鎖鏈蛇毒血清": "Russell's viper antivenom",
   "enum.atlasNote.antivenomHospitals": "191 hospitals and clinics stocking antivenom, announced by the Taiwan CDC (data.gov.tw 24468, updated 2024-12-30; the 428 source rows list each hospital once per antivenom and are merged here by hospital). Four antivenoms: habu and green pit viper 175, krait and cobra 162, hundred-pace viper 66, Russell's viper 25. Stocks change; the CDC announcement prevails. For a snakebite call 119 or go to the nearest hospital.",
-  "enum.atlasNote.freewayHundredMeterStakes": "10,082 freeway 100 m distance stakes from the Freeway Bureau (data.gov.tw 95016; KML of 2019-11 plus CSVs for the Fengtan extension of Freeway 4 and Freeway 2A), one every 100 m regardless of direction, covering Freeways 1–10, 2A, 3A, Provincial Highway 2J and the Nangang connector. These are not the kilometre posts (sign 45) in the Freeway Traffic Signs layer. Zoomed out the layer shows a density heatmap; stakes are drawn from zoom 10. Elevation is blank for 122 stakes."
+  "enum.atlasNote.freewayHundredMeterStakes": "10,082 freeway 100 m distance stakes from the Freeway Bureau (data.gov.tw 95016; KML of 2019-11 plus CSVs for the Fengtan extension of Freeway 4 and Freeway 2A), one every 100 m regardless of direction, covering Freeways 1–10, 2A, 3A, Provincial Highway 2J and the Nangang connector. These are not the kilometre posts (sign 45) in the Freeway Traffic Signs layer. Zoomed out the layer shows a density heatmap; stakes are drawn from zoom 10. Elevation is blank for 122 stakes.",
+  "enum.atlasSwcZoneType.large_landslide": "Large-scale landslide",
+  "enum.atlasSwcZoneType.debris_flow": "Debris flow",
+  "enum.atlasSwcZoneType.landslide": "Landslide",
+  "enum.atlasSwcZoneType.reservoir_catchment": "Reservoir catchment",
+  "enum.atlasSwcZoneType.riverbank": "Riverbank",
+  "enum.atlasSwcDesig.山坡地坡度陡峭，具危害公共安全之虞者": "Steep slopeland that may endanger public safety",
+  "enum.atlasSwcDesig.其他對水土保育有嚴重影響者": "Other areas with serious impact on soil and water conservation",
+  "enum.atlasSwcDesig.水庫集水區": "Reservoir catchment",
+  "enum.atlasSwcDesig.海岸、湖泊沿岸、水道兩岸須特別保護者": "Coasts, lake shores and watercourse banks needing special protection",
+  "enum.atlasNote.swcSpecialZones": "66 special soil and water conservation zones announced by the Agency of Rural Development and Soil and Water Conservation (data.gov.tw 176847, ROC year 115, about 13,454 ha in total) in 14 counties and cities. The category follows the plan name; the designation basis is inferred from the clauses of Article 16 of the Soil and Water Conservation Act (the source has no code table). Announced and drawn areas differ by about 1.5%. Boundaries and controls follow the announcement; for reference only."
 }

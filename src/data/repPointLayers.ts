@@ -82,6 +82,8 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   R({ key: "osmBridgeFootprints", sourceId: "osm-bridge-footprints", file: "network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles", sourceLayer: "osm_bridge_footprints_points", count: 1_505, def: "polygon" }),
   // 淹水：10 情境一個情境一支（切情境換 source，同 `sourceUrlByParam`），tile layer 統一 flood_scenario_points
   R({ key: "waterFloodExtreme", sourceId: "water-flood-extreme", file: "geo/water_flood_650mm_24hr_points.pmtiles", sourceLayer: "flood_scenario_points", count: 2356, def: "polygon", opacityParam: "waterFloodOpacity" }),
+  // G53 批 1（2026-11-09）：特定水土保持區 66 區，小而零散 → 預設點
+  R({ key: "swcSpecialZones", sourceId: "swc-special-zones", file: "urban/swc_special_zones_115_points.pmtiles", sourceLayer: "swc_special_zones_points", count: 66, def: "point" }),
   // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──
   G({ key: "importantWetlands", sourceId: "important-wetlands", count: 89, def: "point" }),
   G({ key: "importantWetlandZones", sourceId: "important-wetland-zones", count: 578, def: "polygon" }),

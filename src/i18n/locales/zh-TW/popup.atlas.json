@@ -311,5 +311,9 @@
   "popup.atlas.avSerums": "儲備血清",
   "popup.atlas.avCaution": "儲備品項以疾管署公告為準；被蛇咬傷請撥 119 或就近就醫",
   "popup.atlas.fsStake": "樁號",
-  "popup.atlas.fsKm": "里程"
+  "popup.atlas.fsKm": "里程",
+  "popup.atlas.swcBasis": "劃定依據（水保法第 16 條）",
+  "popup.atlas.swcAnnoArea": "公告面積",
+  "popup.atlas.swcAnnoDate": "公告日期",
+  "popup.atlas.swcCaution": "範圍與管制以水保署公告為準；劃定依據是依法條款次推定"
 }

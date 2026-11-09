@@ -2160,6 +2160,20 @@
    "s3_key": "deploy-assets/urban/property_value_admin.json"
   },
   {
+   "path": "public/urban/swc_special_zones_115.pmtiles",
+   "bytes": 346318,
+   "sha256": "b798b2f5982cd04ea2fbfa8e835529bac80d23363ff009811c7c712c2e805946",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/urban/swc_special_zones_115.pmtiles"
+  },
+  {
+   "path": "public/urban/swc_special_zones_115_points.pmtiles",
+   "bytes": 63940,
+   "sha256": "4e0d381eafe5d339c091a37cc40bb2fcaeb04b018fe4834b672cca6939015186",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/urban/swc_special_zones_115_points.pmtiles"
+  },
+  {
    "path": "public/urban/tree_pits_taipei_points.pmtiles",
    "bytes": 3554010,
    "sha256": "a8d3e70808c0add47b1aecd6912e0c83ab6edc461f47e0069edb782eebdc6125",
