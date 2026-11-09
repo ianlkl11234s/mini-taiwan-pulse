@@ -1496,7 +1496,8 @@ type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
 const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
   landslideEventCatalog: { org: "swcb", dataset: (p) => (p.source_nid != null ? String(p.source_nid) : "177455") },
   pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
-  tedsGridEmissions: { org: "moenv", dataset: (p) => (p.control_no != null || p.n_sources != null ? "48201" : "152688") },
+  // TEDS 來源是 48201、170705、152688、47244 四筆（圖例全列）；footer 只有一個連結，指 152688——其說明頁寫明全量 zip 由 air.moenv.gov.tw 提供（registry-spec）
+  tedsGridEmissions: { org: "moenv", dataset: () => "152688" },
   vegetationForestTypes: { org: "forestry", dataset: (p) => (p.forest_type_key != null ? "57873" : "9930") },
   traLevelCrossings: { org: "tra", dataset: () => "11970" },
   wraDisasterCctv: { org: "wra", dataset: (p) => (p.kind === "dredging" ? "41567" : "36687") },
