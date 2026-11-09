@@ -34,5 +34,18 @@
   "legend.atlas.motorcycleInspectionStation": "検査ステーション",
   "legend.atlas.antivenomHospital": "備蓄医療機関",
   "legend.atlas.hundredMeterStake": "100 m 距離杭",
-  "legend.atlas.slopelandArea": "山坡地範囲"
+  "legend.atlas.slopelandArea": "山坡地範囲",
+  "legend.atlas.tedsGridSubtitle": "{view} · {pollutant}（トン／km²・年）",
+  "legend.atlas.tedsFacilitySubtitle": "{view} · {pollutant}（点の大きさは年間排出トン数）",
+  "legend.atlas.tedsFacility": "事業所（排出口の中央位置）",
+  "legend.atlas.pczReleased": "指定解除",
+  "legend.atlas.traLcSubtitle": "台鉄 2024 年の公開一覧で、一部は廃止済みの可能性あり。元データ 801 か所、地図上 440 か所、座標なし 361 か所は非表示",
+  "legend.atlas.licenseOgdlOsmPatch": "政府資料オープンライセンス第 1 版。25 か所の位置は © OpenStreetMap contributors（ODbL）",
+  "legend.atlas.iosSubtitle": "推定分類群（種名から推定、公式分類ではない）・市民投稿、未検証",
+  "legend.atlas.iofOther": "その他（渓流・ため池・ダム湖・未記入）",
+  "legend.atlas.fwSubtitle": "名簿 19 か所、地図上 10 か所（9 か所は住所から位置を特定できず）",
+  "legend.atlas.vioZone": "管轄区域（色は隣接所站の区別のみ）",
+  "legend.atlas.vioUnstated": "記載なし（自動車業務 24 郷鎮）",
+  "legend.atlas.vioSubtitle": "ほかに位置不明の 3 か所：金門監理站、彰化監理站、東勢監理分站",
+  "legend.atlas.licenseOgdlOsm3": "政府資料開放授権条項第 1 版；3 か所の位置は © OpenStreetMap contributors（ODbL）"
 }

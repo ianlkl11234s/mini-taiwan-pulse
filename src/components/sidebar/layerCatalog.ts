@@ -798,6 +798,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayInterchanges"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
+          fromManifest("traLevelCrossings"),
           fromManifest("cctv"),
           fromManifest("etcGantry"),
           fromManifest("serviceArea"),
@@ -1012,6 +1013,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("materialRecyclingPoints"),
           fromManifest("publicLifeOsmCoverage"),
           fromManifest("accessibleParkFacilities"),
+          fromManifest("vehicleInspectionOffices"),
         ],
       },
       {
@@ -1519,6 +1521,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("fireStations"),
           fromManifest("fireHydrants"),
           fromManifest("disasterResourceSites"),
+          fromManifest("fireworksSites"),
         ],
       },
       {
@@ -1589,6 +1592,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("debrisFlowPotential"),
           fromManifest("highwayDisasterHistory"),
           fromManifest("landslideAnnual"),
+          fromManifest("landslideEventCatalog"),
           fromManifest("swcbDisasterPhotoPoints"),
         ],
       },
@@ -1735,6 +1739,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("aqiMicroSensors"),
           fromManifest("pm25ManualStations"),
           fromManifest("dioxinStations"),
+          fromManifest("tedsGridEmissions"),
         ],
       },
       {
@@ -1770,6 +1775,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),
           fromManifest("pollutionSite"),
+          fromManifest("pollutionControlZones"),
           fromManifest("incineratorEmissions"),
           fromManifest("cemsStackLive"),
           fromManifest("nuscGammaRadiation"),
@@ -1824,6 +1830,8 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("coastalAreaExtents"),
           fromManifest("openFishingLocations"),
+          fromManifest("iOceanSightings"),
+          fromManifest("iOceanFishing"),
           fromManifest("artificialReefCenters"),
           fromManifest("protectedReefCenters"),
           fromManifest("setNetFishingAreas"),
@@ -1893,6 +1901,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("wraCentralDrainage"),
           fromManifest("iowStructureMonitoring"),
           fromManifest("wraDredgingPoints"),
+          fromManifest("wraDisasterCctv"),
           fromManifest("wraEcologySurveySites"),
         ],
       },
@@ -1966,6 +1975,13 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("ooklaMobileTaiwan"),
           fromManifest("ooklaFixedTaiwan"),
+        ],
+      },
+      {
+        // G53 批 2／3（2026-11-10）：廣播發射站（FM／AM）與 NCC 電波監測站
+        title: "廣播與電波 Broadcast",
+        layers: [
+          fromManifest("broadcastTransmitters"),
         ],
       },
     ],
@@ -2102,6 +2118,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("forestCompartments"),
           fromManifest("forestFlatParks"),
+          fromManifest("vegetationForestTypes"),
         ],
       },
       {
