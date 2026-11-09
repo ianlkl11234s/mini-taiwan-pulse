@@ -28,9 +28,9 @@
 
 看 [handoff.md](./handoff.md)。上游 SSOT：`taipei-gis-analytics/docs/handoff/<slug>.md`。
 
-## 相關 backlog
+## 相關待辦
 
-看 [backlog.md](./backlog.md)。
+待辦一律寫進 [`.claude/memory/BACKLOG.md`](../../../.claude/memory/BACKLOG.md)（對應主題群，可連回本資料夾）；feature 資料夾不另開 backlog.md（2026-11-09 起）。
 
 ## 歷次改動
 

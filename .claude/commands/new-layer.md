@@ -159,12 +159,12 @@ git diff src/data/__tests__/__fixtures__/layer-golden.json   # 逐行 review
 - UX baseline 表套用（radius / opacity / cluster / min-zoom）
 - 四鐵則自檢（slider / legend / popup / select）
 - 跨 repo handoff 對齊
-- Feature 資料夾 changelog / backlog 更新
+- Feature 資料夾 changelog 更新、BACKLOG 對應列關閉
 
 ## Step 4 — 收尾
 
 - 更新 `docs/features/<slug>/changelog.md`
-- 更新 `docs/features/<slug>/backlog.md` 對應項標 ✅
+- 在 `.claude/memory/BACKLOG.md` 關閉對應列（移到「已關閉」附證據）
 - 若動到資料契約 → 開 ADR
 - 從 `develop` 開分支，`gh pr create --base develop`（模板見 CLAUDE.md §Git Workflow）；合併後不發版
 - 一整批圖層（使用者只給方向）的跨 repo 流程與交付標準見 analytics `pulse-layer-release` skill；國外圖層檔放 `public/world/<cc>_*`，限內部使用授權的資料不放 `public/`（站主資料走私有 S3 owner-data／coral-private sidecar，`src/lib/ownerData.ts`；僅需伺服器端依時間查詢的即時資料才走 owner-only RPC）
