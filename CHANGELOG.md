@@ -96,6 +96,7 @@
 ### 變更
 
 - 移除 Zeabur 時代的主站部署檔（`Dockerfile`、`scripts/deploy/entrypoint.sh`、`docker-compose.yml`）與對應測試斷言，文件改寫為 Cloudflare Worker 部署；網站行為不變
+- 海洋固定站觀測 popup 的「7 天」曲線改用每小時平均（資料庫改讀每小時表，載入更快），並註明方向類取每小時最後一筆；缺 3 小時以上才斷線
 
 ## v2.32.0 — 2026-11-09 — Day 8 公園可達改含河濱公園，新增現有公園與河濱入口圖層
 

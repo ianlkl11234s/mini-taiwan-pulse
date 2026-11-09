@@ -13,6 +13,8 @@ type I18n = LocaleSnapshot;
 const currentI18n = (): I18n => localeStore.getSnapshot();
 
 type HistoryRange = "24h" | "7d";
+/** 7 天歷史由 RPC 回每小時一列（UTC 整點桶）：相鄰點本來就差 1 小時，缺 3 小時以上才斷線。 */
+const HOURLY_GAP_SEC = 3 * 3600;
 type UnknownRecord = Record<string, unknown>;
 
 export interface MarineMetricView {
@@ -493,9 +495,12 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
               unit={selection.unit}
               lineColor={network.color}
               height={120}
-              gapSec={network.gapSec}
+              gapSec={range === "7d" && network.gapSec != null ? Math.max(network.gapSec, HOURLY_GAP_SEC) : network.gapSec}
               showTooltip
             />
+          )}
+          {range === "7d" && history != null && !historyError && historyView.points.length > 0 && (
+            <div style={{ marginTop: 3, color: t.textDim, fontSize: FONT_SIZE.xs }}>{tr("popup.marine.hourlyAggregate")}</div>
           )}
           {history != null && historyView.excludedCount > 0 && !historyError && (
             <div style={{ marginTop: 3, color: t.textDim, fontSize: FONT_SIZE.xs }}>
