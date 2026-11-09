@@ -60,8 +60,9 @@
 | 3 | Polygons | mapchallenge-2026-day03-power-plants | layers | 已合併（#873） | 2026-11-03 | 貼文是三國電廠點位，沒點題 Polygons |
 | 4 | Clusters | mapchallenge-2026-day04-clusters | analysis | 已合併（#873） | 2026-11-04 | 圖層已隨 v2.23.0 上線 |
 | 5 | Senses: Sight | mapchallenge-2026-day05-sea-view | analysis | 已合併（#873） | 2026-11-05 | 網站群組名寫「視野 Perspectives」與官方題目不一致 |
-| 6 | Vintage | mapchallenge-2026-day06-vintage | layers | 已開 PR | 2026-11-06 | 圖層隨 v2.26.0 上線；研究成果在 GIS/_worktree-backups/2026-11-06/thcts/ |
-| 7 | 10 minute map | mapchallenge-2026-day07-ten-minute-map | making | 已開 PR | 2026-11-07 | 文內附 95 秒計時剪輯影片；成果網頁 mapchallenge-mrt.itsmigu.com；以錄影 11 分 39 秒為準 |
+| 6 | Vintage | mapchallenge-2026-day06-vintage | layers | 已合併（#883） | 2026-11-06 | 圖層隨 v2.26.0 上線；研究成果在 GIS/_worktree-backups/2026-11-06/thcts/ |
+| 7 | 10 minute map | mapchallenge-2026-day07-ten-minute-map | making | 已合併（#883） | 2026-11-07 | 文內附 95 秒計時剪輯影片；成果網頁 mapchallenge-mrt.itsmigu.com；以錄影 11 分 39 秒為準 |
+| 8 | Utopia | mapchallenge-2026-day08-utopia | analysis | 已合併（#957） | 2026-11-08 | 圖層隨 v2.32.0 上線（B 口徑）；成果小站 mapchallenge-utopia.itsmigu.com；方法分小節詳寫、約 3,900 字 |
 
 ## 新文章要決定的事
 
@@ -76,3 +77,4 @@
 - 2026-10-24：B 隨 #683 合併進 develop；G1 改為要寫（從 Pulse 地形圖層角度），G1～G3 開寫。
 - 2026-11-07：Day 6、Day 7 開寫；部落格支援在文章資料夾放 .mp4 影片。
 - 2026-11-07：新增 30 天地圖挑戰總覽頁與「30 天地圖挑戰」表；Day 3、4、5 開寫，Day 6 等發版。
+- 2026-11-09：Day 8 隨 #957 合併；所有文章文末加「資料來源」節（新規則寫進 blog-writing skill，10 篇舊文隨 #959 補齊）。
