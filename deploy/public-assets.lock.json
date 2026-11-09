@@ -1803,6 +1803,13 @@
    "s3_key": "deploy-assets/mapchallenge/day08_sites_v2.geojson"
   },
   {
+   "path": "public/mapchallenge/day09_urban_rural.geojson",
+   "bytes": 623882,
+   "sha256": "967594996e6fcd5563a843b5a32dac50d535b77c353829dd88616b10637bcb5c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day09_urban_rural.geojson"
+  },
+  {
    "path": "public/marine/artificial_reef_areas.geojson",
    "bytes": 65643,
    "sha256": "d16a890d059b1f42b9b34c557998fb5c34e49a495d454ac917bbe6c62d4ef851",
