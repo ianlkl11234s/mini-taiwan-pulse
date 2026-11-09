@@ -8,6 +8,7 @@ public/business_registry/industrial_park_comparison_20260818_points.pmtiles
 public/civic_facilities/community_centers_national.geojson
 public/civic_facilities/gov_service_offices_national.geojson
 public/civic_facilities/ibox_national.geojson
+public/civic_facilities/post_mailboxes_1150428.pmtiles
 public/civic_facilities/post_offices_national.geojson
 public/civic_facilities/welfare_centers_national.geojson
 public/coverage/taiwan_all_gas_nearest.pmtiles
@@ -30,6 +31,7 @@ public/environment/drinking_water_protection_zones.geojson
 public/environment/important_wetland_zones.geojson
 public/environment/important_wetlands.geojson
 public/environment/incinerator_emissions.geojson
+public/environment/motorcycle_inspection_stations_20261109.pmtiles
 public/environment/official_noise_monitoring.geojson
 public/environment/pm25_manual_stations.geojson
 public/environment/public_toilets_national.geojson
@@ -75,11 +77,13 @@ public/funeral/funeral_facilities.geojson
 public/funeral/funeral_operators.geojson
 public/geo/airports.geojson
 public/geo/anfr_wireless_sites.geojson
+public/geo/antivenom_reserve_hospitals_20241230.pmtiles
 public/geo/cctv.geojson
 public/geo/disaster_resource_sites.geojson
 public/geo/emergency_hospitals.geojson
 public/geo/etc_gantry.geojson
 public/geo/freeway_eco_sensitive_sections.geojson
+public/geo/freeway_hundred_meter_stakes_95016.pmtiles
 public/geo/freeway_interchanges.geojson
 public/geo/freeway_traffic_signs_v2.pmtiles
 public/geo/historical_water_1944_taipei.geojson
@@ -131,6 +135,10 @@ public/harm_reduction/offender_aftercare_offices.geojson
 public/harm_reduction/prep_service_sites.geojson
 public/harm_reduction/smoking_cessation_providers.geojson
 public/harm_reduction/therapeutic_communities.geojson
+public/hazards/debris_flow_catchments_115.pmtiles
+public/hazards/debris_flow_impact_zones_115.pmtiles
+public/hazards/debris_flow_streams_115.pmtiles
+public/hazards/debris_flow_streams_115_points.pmtiles
 public/hazards/flood_disaster_points_ncdr.pmtiles
 public/hazards/highway_disaster_history.pmtiles
 public/hazards/land_subsidence_contours.pmtiles
@@ -208,7 +216,13 @@ public/tourism/tourism_factories_national.geojson
 public/tourism/tourism_service_sites.geojson
 public/tourism/visitor_spot_stats.geojson
 public/tourism/water_recreation_restricted_areas.geojson
+public/urban/land_use_change_monitoring_107_112.pmtiles
+public/urban/land_use_change_monitoring_107_112_grid.pmtiles
+public/urban/land_use_change_monitoring_107_112_points.pmtiles
 public/urban/non_urban_zoning_points.pmtiles
+public/urban/slopeland_swc_act_115.pmtiles
+public/urban/swc_special_zones_115.pmtiles
+public/urban/swc_special_zones_115_points.pmtiles
 public/urban/tree_pits_taipei_points.pmtiles
 public/urban/urban_zoning_newtaipei_points.pmtiles
 public/urban/urban_zoning_taipei_points.pmtiles
