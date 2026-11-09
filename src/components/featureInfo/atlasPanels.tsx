@@ -18,7 +18,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1378,6 +1378,25 @@ function LandslideEventPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 iOcean 垂釣回報：公民回報；同行人數品質差不顯示。 */
+function IOceanFishingPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(FISHING_TYPE_OPTIONS, props.fishing_type);
+  const type = str(props.fishing_type);
+  const catchCount = num(props.catch_count);
+  const speciesN = num(props.species_n);
+  return <>
+    <Title color={color}>{type ? enumOf("atlasFishingType", type, type, i18n) : t("popup.atlas.iofNoType")}</Title>
+    <Row field="date" value={str(props.fished_on)} mono />
+    <Row label={t("popup.atlas.iofSpecies")} value={str(props.top_species) || t("popup.atlas.iofNoSpecies")} />
+    {catchCount != null ? <Row label={t("popup.atlas.iofCatch")} value={t("popup.atlas.iofCatchValue", { n: i18n.formatNumber(catchCount) })} mono /> : null}
+    {speciesN != null ? <Row label={t("popup.atlas.iofSpeciesN")} value={i18n.formatNumber(speciesN)} mono /> : null}
+    <Row label={t("popup.atlas.iofMaxLength")} value={fmt(props.max_length_cm, 1, "cm", i18n)} mono />
+    <Row field="remarks" value={t("popup.atlas.iofCitizen")} />
+  </>;
+}
+
 /** G53 批 2／3 iOcean 目擊：公民回報；類群為推定；保育物種位置粗化 0.01°。 */
 function IOceanSightingPanel({ props }: Props) {
   const i18n = useLocale();
@@ -1515,6 +1534,7 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
   // TEDS 來源是 48201、170705、152688、47244 四筆（圖例全列）；footer 只有一個連結，指 152688——其說明頁寫明全量 zip 由 air.moenv.gov.tw 提供（registry-spec）
   tedsGridEmissions: { org: "moenv", dataset: () => "152688" },
+  iOceanFishing: { org: "oca", dataset: () => "157622" },
   iOceanSightings: { org: "oca", dataset: () => "157621" },
   vegetationForestTypes: { org: "forestry", dataset: (p) => (p.forest_type_key != null ? "57873" : "9930") },
   traLevelCrossings: { org: "tra", dataset: () => "11970" },
@@ -1547,6 +1567,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   traLevelCrossings: withG53Footer("traLevelCrossings", TraLevelCrossingPanel),
   vegetationForestTypes: withG53Footer("vegetationForestTypes", VegetationForestTypePanel),
   iOceanSightings: withG53Footer("iOceanSightings", IOceanSightingPanel),
+  iOceanFishing: withG53Footer("iOceanFishing", IOceanFishingPanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
@@ -1638,6 +1659,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   traLevelCrossings: manifestZh("traLevelCrossings"),
   vegetationForestTypes: manifestZh("vegetationForestTypes"),
   iOceanSightings: manifestZh("iOceanSightings"),
+  iOceanFishing: manifestZh("iOceanFishing"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),

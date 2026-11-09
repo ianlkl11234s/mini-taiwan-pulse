@@ -41,5 +41,6 @@
   "legend.atlas.pczReleased": "Released from control",
   "legend.atlas.traLcSubtitle": "TRA's 2024 public list; some may already be abolished. 801 in the source, 440 on the map, 361 without coordinates not shown",
   "legend.atlas.licenseOgdlOsmPatch": "Open Government Data License v1; 25 positions from © OpenStreetMap contributors (ODbL)",
-  "legend.atlas.iosSubtitle": "Inferred groups (from species names, not an official classification) · citizen reports, not verified"
+  "legend.atlas.iosSubtitle": "Inferred groups (from species names, not an official classification) · citizen reports, not verified",
+  "legend.atlas.iofOther": "Other (streams, ponds, reservoirs, not given)"
 }

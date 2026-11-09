@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1796,
+    "keyCount": 1797,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5664,6 +5664,12 @@
         "forest-types-4th-survey-fill"
       ],
       "type": "vegetationForestTypes"
+    },
+    {
+      "layers": [
+        "iocean-fishing-reports-circle"
+      ],
+      "type": "iOceanFishing"
     },
     {
       "layers": [
@@ -84517,6 +84523,309 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "iOceanFishing",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(43,92,149,0.00)",
+                0.05,
+                "rgba(43,92,149,0.11)",
+                0.15,
+                "rgba(68,114,179,0.33)",
+                0.3,
+                "rgba(101,138,198,0.66)",
+                0.45,
+                "rgba(140,162,201,0.99)",
+                0.6,
+                "rgba(178,187,204,1.00)",
+                0.8,
+                "rgba(209,212,217,1.00)",
+                1,
+                "rgba(238,238,239,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "+",
+                    1,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "n_reports"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                0,
+                6.90875477931522,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,165,201,0.00)",
+                0.05,
+                "rgba(145,165,201,0.11)",
+                0.15,
+                "rgba(110,144,201,0.33)",
+                0.3,
+                "rgba(79,123,188,0.66)",
+                0.45,
+                "rgba(54,103,165,0.99)",
+                0.6,
+                "rgba(36,84,136,1.00)",
+                0.8,
+                "rgba(25,66,105,1.00)",
+                1,
+                "rgba(18,47,76,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "+",
+                    1,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "n_reports"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                0,
+                6.90875477931522,
+                1
+              ]
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 9,
+        "minzoom": 4,
+        "sourceLayer": "iocean_fishing_reports_z4_9"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "iocean-fishing-reports-z4-9",
+      "sourceUrl": "./marine/iocean_fishing_reports_20260506_z4_9.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iOceanFishing",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "fishing_type"
+                ],
+                "堤岸釣",
+                "#0ea5e9",
+                "港區垂釣",
+                "#6366f1",
+                "岩磯岸釣",
+                "#a16207",
+                "船釣",
+                "#14b8a6",
+                "島礁垂釣",
+                "#f97316",
+                "沙灘釣",
+                "#eab308",
+                "礫灘釣",
+                "#78716c",
+                "筏釣",
+                "#ec4899",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2.5,
+                14,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 0.6
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "fishing_type"
+                ],
+                "堤岸釣",
+                "#0ea5e9",
+                "港區垂釣",
+                "#6366f1",
+                "岩磯岸釣",
+                "#a16207",
+                "船釣",
+                "#14b8a6",
+                "島礁垂釣",
+                "#f97316",
+                "沙灘釣",
+                "#eab308",
+                "礫灘釣",
+                "#78716c",
+                "筏釣",
+                "#ec4899",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2.5,
+                14,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 0.6
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "iocean_fishing_reports"
+      },
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "iocean-fishing-reports",
+      "sourceUrl": "./marine/iocean_fishing_reports_20260506.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "tedsGridEmissions",
       "layers": [
         {
@@ -128033,6 +128342,156 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "iOceanFishing": [
+      {
+        "label": "垂釣類型",
+        "options": [
+          {
+            "label": "堤岸釣",
+            "value": "堤岸釣"
+          },
+          {
+            "label": "港區垂釣",
+            "value": "港區垂釣"
+          },
+          {
+            "label": "岩磯岸釣",
+            "value": "岩磯岸釣"
+          },
+          {
+            "label": "船釣",
+            "value": "船釣"
+          },
+          {
+            "label": "島礁垂釣",
+            "value": "島礁垂釣"
+          },
+          {
+            "label": "沙灘釣",
+            "value": "沙灘釣"
+          },
+          {
+            "label": "礫灘釣",
+            "value": "礫灘釣"
+          },
+          {
+            "label": "筏釣",
+            "value": "筏釣"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "堤岸釣",
+          "港區垂釣",
+          "岩磯岸釣",
+          "船釣",
+          "島礁垂釣",
+          "沙灘釣",
+          "礫灘釣",
+          "筏釣",
+          "__other__"
+        ]
+      },
+      {
+        "defaultValue": "oslo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "oslo"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "iOceanSightings": [

@@ -5289,6 +5289,7 @@ export const LAYER_PARAMS_SPEC = {
   wraDisasterCctv: [opacitySlider("wraDisasterCctvOpacity", 0.9), scaleSlider("wraDisasterCctvScale", 1)],
   traLevelCrossings: [opacitySlider("traLevelCrossingsOpacity", 0.9), scaleSlider("traLevelCrossingsScale", 1)],
   iOceanSightings: [opacitySlider("iOceanSightingsOpacity", 0.9), scaleSlider("iOceanSightingsScale", 1)],
+  iOceanFishing: [heatmapPalette("iOceanFishing"), opacitySlider("iOceanFishingOpacity", 0.8), scaleSlider("iOceanFishingScale", 1)],
   vegetationForestTypes: [
     {
       kind: "select", name: "vegetationForestTypesDataset", label: "資料集", default: "vegetation",

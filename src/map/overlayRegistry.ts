@@ -348,7 +348,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -12380,6 +12380,38 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
  * 未選中的 visibility none（不抓圖磚）。z4–10 是 100 m 格網化融合的概覽小檔（只有 *_class_key，不開 popup），
  * z11 起換全量圖斑（可點選）。全覆蓋土地覆蓋圖，填色透明度 0.35（規範），不做點／面切換。
  */
+function iOceanFishingOverlays(): OverlayConfig[] {
+  const id = "iOceanFishing";
+  const attribution = `海洋委員會海洋保育署 iOcean 垂釣回報（data.gov.tw 157622，公民回報）· ${OGDL_ATTR}`;
+  const opacity = (p?: Record<string, number>) => p?.iOceanFishingOpacity ?? 0.8;
+  return [
+    {
+      // z4–9 彙總點（0.01° 格網，n_reports）只畫熱區；沒有 fishing_type，不吃類型篩選
+      id, sourceUrl: "./marine/iocean_fishing_reports_20260506_z4_9.pmtiles", sourceId: "iocean-fishing-reports-z4-9",
+      pmtiles: { sourceLayer: "iocean_fishing_reports_z4_9", minzoom: 4, maxzoom: 9 }, attribution,
+      layers: [{
+        ...denseHeatmapLayer({
+          pointsFromZoom: 10, intensity: 1, layer: id, opacity: { layer: id, param: "iOceanFishingOpacity" },
+          weight: () => ["interpolate", ["linear"], ["ln", ["+", 1, ["coalesce", ["get", "n_reports"], 0]]], 0, 0, Math.log(1001), 1],
+        }),
+        skipCategoryFilter: true,
+      }],
+    },
+    {
+      id, sourceUrl: "./marine/iocean_fishing_reports_20260506.pmtiles", sourceId: "iocean-fishing-reports",
+      pmtiles: { sourceLayer: "iocean_fishing_reports", minzoom: 10, maxzoom: 14 }, attribution,
+      layers: [{ suffix: "circle", type: "circle", minzoom: 10, paint: (dark, p) => {
+        const scale = p?.iOceanFishingScale ?? 1;
+        const op = opacity(p);
+        return {
+          "circle-color": matchColorExpr("fishing_type", FISHING_TYPE_OPTIONS), "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2.5 * scale, 14, 5 * scale],
+          "circle-opacity": op, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.6, "circle-stroke-opacity": op,
+        };
+      } }],
+    },
+  ];
+}
+
 function vegetationForestTypesOverlays(): OverlayConfig[] {
   const id = "vegetationForestTypes";
   const attribution = `農業部林業及自然保育署 天然植群圖（data.gov.tw 9930）、第四次森林資源調查林型（57873）· ${OGDL_ATTR}`;
@@ -12417,6 +12449,7 @@ function vegetationForestTypesOverlays(): OverlayConfig[] {
 
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   ...vegetationForestTypesOverlays(),
+  ...iOceanFishingOverlays(),
   // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──
   ...tedsGridEmissionsOverlays(),
   {

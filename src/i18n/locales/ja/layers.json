@@ -1786,5 +1786,6 @@
   "layer.wraDisasterCctv": "水利署防災カメラ",
   "layer.traLevelCrossings": "台鉄踏切",
   "layer.vegetationForestTypes": "植生と森林林型",
-  "layer.iOceanSightings": "iOcean 海洋生物目撃"
+  "layer.iOceanSightings": "iOcean 海洋生物目撃",
+  "layer.iOceanFishing": "iOcean 釣果報告"
 }

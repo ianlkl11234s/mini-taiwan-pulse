@@ -379,5 +379,13 @@
   "popup.atlas.iosCount": "Estimated count",
   "popup.atlas.iosAliases": "Other names",
   "popup.atlas.iosGeneralized": "Protected species: position rounded to about 1 km",
-  "popup.atlas.iosCitizen": "Citizen report, not verified; group inferred from the species name, not an official classification"
+  "popup.atlas.iosCitizen": "Citizen report, not verified; group inferred from the species name, not an official classification",
+  "popup.atlas.iofNoType": "Fishing type not given",
+  "popup.atlas.iofSpecies": "Main species",
+  "popup.atlas.iofNoSpecies": "Species not given",
+  "popup.atlas.iofCatch": "Total catch",
+  "popup.atlas.iofCatchValue": "{n} fish",
+  "popup.atlas.iofSpeciesN": "Number of species",
+  "popup.atlas.iofMaxLength": "Largest fish",
+  "popup.atlas.iofCitizen": "Citizen report, not verified"
 }

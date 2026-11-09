@@ -9,6 +9,22 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       options: [{ value: "remediation", zh: "整治場址" }, { value: "control", zh: "控制場址" }, { value: "gw_restriction", zh: "地下水受污染使用限制地區" }],
     },
   ],
+  // G53 批 2／3（2026-11-10）：iOcean 垂釣類型（值與 atlasLayerTypes FISHING_TYPE_OPTIONS 同序；罕見類型與空值併「其他」）
+  iOceanFishing: {
+    property: "fishing_type",
+    label: "垂釣類型",
+    options: [
+      { value: "堤岸釣", zh: "堤岸釣" },
+      { value: "港區垂釣", zh: "港區垂釣" },
+      { value: "岩磯岸釣", zh: "岩磯岸釣" },
+      { value: "船釣", zh: "船釣" },
+      { value: "島礁垂釣", zh: "島礁垂釣" },
+      { value: "沙灘釣", zh: "沙灘釣" },
+      { value: "礫灘釣", zh: "礫灘釣" },
+      { value: "筏釣", zh: "筏釣" },
+    ],
+    other: "其他",
+  },
   // G53 批 2／3（2026-11-10）：iOcean 目擊推定類群（值與 atlasLayerTypes IOCEAN_GROUP_OPTIONS 同序）
   iOceanSightings: {
     property: "group_key",

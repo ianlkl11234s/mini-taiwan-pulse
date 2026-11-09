@@ -1950,6 +1950,20 @@
    "s3_key": "deploy-assets/marine/firing_notice_areas.geojson"
   },
   {
+   "path": "public/marine/iocean_fishing_reports_20260506.pmtiles",
+   "bytes": 5686682,
+   "sha256": "9c2db25ab22564a597054780d820975c429749f9701502c089f475ce1ed03f7f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/iocean_fishing_reports_20260506.pmtiles"
+  },
+  {
+   "path": "public/marine/iocean_fishing_reports_20260506_z4_9.pmtiles",
+   "bytes": 112668,
+   "sha256": "bf88b311ae9c3532c84cd45574e19728afa7c89ff2a7e2c5fbc777abaaa02b90",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/iocean_fishing_reports_20260506_z4_9.pmtiles"
+  },
+  {
    "path": "public/marine/iocean_sightings_20260506_gen.pmtiles",
    "bytes": 811867,
    "sha256": "61f31466505fa814842ddf73690c9b513d99712a018d93a7617cc98482b5c582",

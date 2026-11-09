@@ -157,6 +157,7 @@ export type ExpandableLayerKey =
   | "traLevelCrossings" // G53 批 2／3（2026-11-10）
   | "vegetationForestTypes" // G53 批 2／3（2026-11-10）
   | "iOceanSightings" // G53 批 2／3（2026-11-10）
+  | "iOceanFishing" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
   | "slopelandSwcAct" // G53 批 1（2026-11-09）
@@ -946,6 +947,7 @@ export interface FeatureInfo {
     | "traLevelCrossings"
     | "vegetationForestTypes"
     | "iOceanSightings"
+    | "iOceanFishing"
     | "postMailboxes"
     | "motorcycleInspectionStations"
     | "hikingTrails"
@@ -1509,6 +1511,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   vegetationForestTypes: boolean;
   /** G53 批 2／3（2026-11-10）iOcean 海洋生物目擊：海保署 157621，2,135 筆，保育物種位置粗化 0.01° */
   iOceanSightings: boolean;
+  /** G53 批 2／3（2026-11-10）iOcean 垂釣回報：海保署 157622，56,420 筆；z4–9 格網彙總熱區、z10 起逐筆 */
+  iOceanFishing: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
   landUseChangeMonitoring: boolean;
   /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */

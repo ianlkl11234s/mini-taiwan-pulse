@@ -8746,7 +8746,12 @@ export const LAYER_MANIFEST = {
     key: "vegetationForestTypes", country: "TW", section: { theme: "林業 Forestry", group: "分區" }, ...layerName({ zh: "植群與森林林型", alt: "Vegetation & Forest Types" }), expandable: true,
     color: ATLAS_LAYER_COLORS.vegetationForestTypes, icon: Trees,
     upstream: { status: "verified", datasets: [{ datasetId: "natural_vegetation_map", confidence: "HIGH" }, { datasetId: "forest_types_4th_survey", confidence: "HIGH" }], processing: "analytics forestry/vegetation_forest_types：林保署 data.gov.tw 9930 天然植群圖（2014，49,943 面）、57873 第四次森林資源調查林型（575,206 面）；全量檔 z11–14，概覽小檔 z4–10＝EPSG:3826 100 m 格網化→去 <4 格碎塊→向量化→50 m 簡化→依大類融合（只有 *_class_key）", note: "面積用幾何計算（植群 AREA_HA 有離群值）；林型「針闊葉樹混」截斷寫法已併入「針闊葉樹混淆」。全覆蓋土地覆蓋圖，不做點／面切換。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "natural-vegetation-map-z4-10", url: "./forestry/natural_vegetation_map_2014_z4_10.pmtiles", sourceLayer: "natural_vegetation_map_z4_10", minzoom: 4, maxzoom: 10 },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "natural-vegetation-map-z4-10", url: "./forestry/natural_vegetation_map_2014_z4_10.pmtiles", sourceLayer: "natural_vegetation_map_z4_10", minzoom: 4, maxzoom: 10 },
+      { kind: "pmtiles", sourceId: "natural-vegetation-map", url: "./forestry/natural_vegetation_map_2014.pmtiles", sourceLayer: "natural_vegetation_map", minzoom: 11, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "forest-types-4th-survey-z4-10", url: "./forestry/forest_types_4th_survey_z4_10.pmtiles", sourceLayer: "forest_types_4th_survey_z4_10", minzoom: 4, maxzoom: 10 },
+      { kind: "pmtiles", sourceId: "forest-types-4th-survey", url: "./forestry/forest_types_4th_survey.pmtiles", sourceLayer: "forest_types_4th_survey", minzoom: 11, maxzoom: 14 },
+    ],
     legend: "vegetationForestTypes", popup: "vegetationForestTypes", params: { count: 4, kinds: ["select", "multiSelect", "multiSelect", "slider"] },
     description: "天然植群圖（2014）與第四次森林資源調查林型，可切換資料集；放大到 11 級可點選看植群型與林型。",
     topics: ["林業", "植群", "植被", "森林", "林型", "土地覆蓋", "林保署"],
@@ -11735,6 +11740,18 @@ export const LAYER_MANIFEST = {
     legend: "wildlifeProtectedAreas", popup: "wildlifeProtectedAreas", params: { count: 3, kinds: ["select", "slider", "slider"] },
     description: "全國野生動物保護區與分區（含陸域，不限海域）；僅供參考，不構成法規適用判斷。",
     topics: ["海洋", "保護區", "野生動物", "保育"],
+  },
+  iOceanFishing: {
+    key: "iOceanFishing", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "iOcean 垂釣回報", alt: "iOcean Recreational Fishing Reports" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.iOceanFishing, icon: Fish,
+    upstream: { status: "verified", datasets: [{ datasetId: "iocean_fishing_reports", confidence: "MED" }], processing: "analytics marine/iocean_fishing_reports 20260506：海保署 data.gov.tw 157622 公民回報 56,420 筆；z4–9 另做 0.01° 格網彙總點（n_reports、catch_count），z10–14 逐筆；框外 124 筆不上圖", note: "公民回報未經查核；party_size 品質差不顯示；無個資欄位。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "iocean-fishing-reports-z4-9", url: "./marine/iocean_fishing_reports_20260506_z4_9.pmtiles", sourceLayer: "iocean_fishing_reports_z4_9", minzoom: 4, maxzoom: 9 },
+      { kind: "pmtiles", sourceId: "iocean-fishing-reports", url: "./marine/iocean_fishing_reports_20260506.pmtiles", sourceLayer: "iocean_fishing_reports", minzoom: 10, maxzoom: 14 },
+    ],
+    legend: "iOceanFishing", popup: "iOceanFishing", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
+    description: "民眾在 iOcean 回報的垂釣紀錄 56,420 筆；拉遠看熱區，放大看每筆的釣法與漁獲。",
+    topics: ["海洋", "釣魚", "垂釣", "釣點", "公民科學", "海保署"],
   },
   iOceanSightings: {
     key: "iOceanSightings", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "iOcean 海洋生物目擊", alt: "iOcean Marine Wildlife Sightings" }), expandable: true,

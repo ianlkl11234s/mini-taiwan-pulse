@@ -610,7 +610,7 @@ export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
-  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings",
+  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -755,9 +755,21 @@ export const IOCEAN_GROUP_OPTIONS: readonly AtlasOption[] = [
   { value: "shark_ray", label: "鯊魚與魟", color: "#06b6d4" },
   { value: "seabird", label: "海鳥", color: "#eab308" },
 ];
+/** iOcean 垂釣類型（上游 fishing_type 原文；野溪、埤塘、水庫與空值併入「其他」；英日文 enum.atlasFishingType.*）。 */
+export const FISHING_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "堤岸釣", label: "堤岸釣", color: "#0ea5e9" },
+  { value: "港區垂釣", label: "港區垂釣", color: "#6366f1" },
+  { value: "岩磯岸釣", label: "岩磯岸釣", color: "#a16207" },
+  { value: "船釣", label: "船釣", color: "#14b8a6" },
+  { value: "島礁垂釣", label: "島礁垂釣", color: "#f97316" },
+  { value: "沙灘釣", label: "沙灘釣", color: "#eab308" },
+  { value: "礫灘釣", label: "礫灘釣", color: "#78716c" },
+  { value: "筏釣", label: "筏釣", color: "#ec4899" },
+];
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司" } as const;
 
 export const ATLAS_NOTES = {
+  iOceanFishing: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾垂釣回報（data.gov.tw 157622，2026-05-06 版，實際含到 2026-11-03），56,420 筆（2015–2026，2021 年以後占 98%）。公民回報，未經查核。拉遠時（縮放 10 以下）以 0.01° 格網彙總的回報筆數畫熱區，熱區不隨垂釣類型篩選；放大到 10 級起畫每筆回報，依垂釣類型著色。座標落在 118–124°E、20–27°N 以外的 124 筆未上圖。回報沒有姓名或帳號等個資；同行人數欄品質不佳，不顯示。",
   iOceanSightings: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾海洋生物目擊回報（data.gov.tw 157621，2026-05-06 版），2,135 筆（2017–2026）。公民回報，未經查核。類群是依物種名推定，不是官方分類。保育物種（對上海洋保育類野生動物名錄者、鯨豚、貝類與珊瑚）1,963 筆位置已粗化到小數 2 位（約 1 km），同一格多筆會重疊，放大後逐一點選。座標落在 118–124°E、20–27°N 以外的 19 筆未上圖。「臺灣白海豚」與「中華白海豚」照來源兩種寫法，不合併。",
   vegetationForestTypes: "農業部林業及自然保育署的兩份植被圖，用「資料集」切換：天然植群圖（data.gov.tw 9930，2014 年調查，49,943 面，只涵蓋本島山區與丘陵約 162 萬公頃）依 6 大類著色；森林林型（57873，第四次森林資源調查，575,206 面，約 218 萬公頃）依 10 種林型著色，兩份資料同類別用同色。縮放 10 以下是 100 m 格網化、去除小碎塊後依類別融合的概覽圖，邊界較粗略；放大到 11 級才換成原始圖斑並可點選看植群型、林型、經營功能與面積（面積依幾何計算，不用來源欄位）。這是全覆蓋的土地覆蓋圖，不提供點位模式。林型「陰影」是航照判釋時被陰影遮住的 1 面。",
   traLevelCrossings: "國營臺灣鐵路公司在 data.gov.tw 公開的平交道清單（11970，2024-08-26 更新）。來源 801 處中 361 處沒有座標、也對不到 OpenStreetMap 同名平交道，沒有上圖（縱貫線 82、高雄港線 50、林口線 44 最多）；地圖上 440 處，其中 415 處用來源座標，25 處依同縣市 OpenStreetMap 同名平交道推定位置。清單可能仍列已廢除的平交道（臺中、高雄、屏東鐵路高架化或地下化路段），有 46 處離最近的 OpenStreetMap 平交道超過 200 m，疑為已廢除，未逐一查證。顏色依臺鐵的平交道分類。來源縣市欄的改制前名稱已改為今日縣市。",

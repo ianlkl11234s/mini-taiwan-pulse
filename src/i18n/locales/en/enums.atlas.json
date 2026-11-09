@@ -590,5 +590,14 @@
   "enum.atlasIOceanGroup.coral": "Corals",
   "enum.atlasIOceanGroup.shark_ray": "Sharks & rays",
   "enum.atlasIOceanGroup.seabird": "Seabirds",
-  "enum.atlasNote.iOceanSightings": "Marine wildlife sightings reported by the public on the Ocean Conservation Administration's iOcean platform (data.gov.tw 157621, edition of 2026-05-06): 2,135 reports (2017–2026). Citizen reports, not verified. Groups are inferred from species names, not an official classification. 1,963 reports of protected species (matched to the marine protected wildlife list, plus whales and dolphins, shellfish and corals) have positions rounded to 2 decimal places (about 1 km), so reports in the same cell overlap; zoom in and click them one by one. 19 reports outside 118–124°E, 20–27°N are not shown. “臺灣白海豚” and “中華白海豚” are kept as the two spellings used in the source."
+  "enum.atlasNote.iOceanSightings": "Marine wildlife sightings reported by the public on the Ocean Conservation Administration's iOcean platform (data.gov.tw 157621, edition of 2026-05-06): 2,135 reports (2017–2026). Citizen reports, not verified. Groups are inferred from species names, not an official classification. 1,963 reports of protected species (matched to the marine protected wildlife list, plus whales and dolphins, shellfish and corals) have positions rounded to 2 decimal places (about 1 km), so reports in the same cell overlap; zoom in and click them one by one. 19 reports outside 118–124°E, 20–27°N are not shown. “臺灣白海豚” and “中華白海豚” are kept as the two spellings used in the source.",
+  "enum.atlasFishingType.堤岸釣": "Pier and jetty fishing",
+  "enum.atlasFishingType.港區垂釣": "Harbour fishing",
+  "enum.atlasFishingType.岩磯岸釣": "Rocky shore fishing",
+  "enum.atlasFishingType.船釣": "Boat fishing",
+  "enum.atlasFishingType.島礁垂釣": "Reef island fishing",
+  "enum.atlasFishingType.沙灘釣": "Beach fishing",
+  "enum.atlasFishingType.礫灘釣": "Gravel beach fishing",
+  "enum.atlasFishingType.筏釣": "Raft fishing",
+  "enum.atlasNote.iOceanFishing": "Recreational fishing reports submitted by the public on the Ocean Conservation Administration's iOcean platform (data.gov.tw 157622, edition of 2026-05-06, actually including reports up to 2026-11-03): 56,420 reports (2015–2026, 98% from 2021 on). Citizen reports, not verified. Zoomed out (below zoom 10) the heatmap shows report counts aggregated to a 0.01° grid and does not follow the fishing type filter; from zoom 10 each report is drawn and coloured by fishing type. 124 reports outside 118–124°E, 20–27°N are not shown. Reports carry no names or accounts; the party size field is unreliable and not shown."
 }

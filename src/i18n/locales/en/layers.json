@@ -1786,5 +1786,6 @@
   "layer.wraDisasterCctv": "WRA Disaster Monitoring Cameras",
   "layer.traLevelCrossings": "TRA Level Crossings",
   "layer.vegetationForestTypes": "Vegetation & Forest Types",
-  "layer.iOceanSightings": "iOcean Marine Wildlife Sightings"
+  "layer.iOceanSightings": "iOcean Marine Wildlife Sightings",
+  "layer.iOceanFishing": "iOcean Recreational Fishing Reports"
 }

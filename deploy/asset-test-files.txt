@@ -193,6 +193,8 @@ public/marine/coastal_area_extents.pmtiles
 public/marine/coastal_area_extents_points.pmtiles
 public/marine/exclusive_fishery_right_areas.geojson
 public/marine/firing_notice_areas.geojson
+public/marine/iocean_fishing_reports_20260506.pmtiles
+public/marine/iocean_fishing_reports_20260506_z4_9.pmtiles
 public/marine/iocean_sightings_20260506_gen.pmtiles
 public/marine/marine_ecological_monitoring_sites.geojson
 public/marine/marine_microplastics_stations.geojson

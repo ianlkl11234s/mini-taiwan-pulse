@@ -1824,6 +1824,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("coastalAreaExtents"),
           fromManifest("openFishingLocations"),
           fromManifest("iOceanSightings"),
+          fromManifest("iOceanFishing"),
           fromManifest("artificialReefCenters"),
           fromManifest("protectedReefCenters"),
           fromManifest("setNetFishingAreas"),

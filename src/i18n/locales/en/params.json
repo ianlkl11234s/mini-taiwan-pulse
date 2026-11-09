@@ -2502,5 +2502,14 @@
   "param.甲殼類與鱟": "Crustaceans & horseshoe crabs",
   "param.珊瑚": "Corals",
   "param.鯊魚與魟": "Sharks & rays",
-  "param.海鳥": "Seabirds"
+  "param.海鳥": "Seabirds",
+  "param.垂釣類型": "Fishing type",
+  "param.堤岸釣": "Pier and jetty fishing",
+  "param.港區垂釣": "Harbour fishing",
+  "param.岩磯岸釣": "Rocky shore fishing",
+  "param.船釣": "Boat fishing",
+  "param.島礁垂釣": "Reef island fishing",
+  "param.沙灘釣": "Beach fishing",
+  "param.礫灘釣": "Gravel beach fishing",
+  "param.筏釣": "Raft fishing"
 }
