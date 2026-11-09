@@ -19,6 +19,7 @@ import { useJpZoningUseDistrictsLayer } from "../../hooks/useJpZoningUseDistrict
 import { useJpNationalForestsLayer } from "../../hooks/useJpNationalForestsLayer";
 import { useJpWelfareFacilitiesLayer } from "../../hooks/useJpWelfareFacilitiesLayer";
 import { useJpMajorRoadsLayer } from "../../hooks/useJpMajorRoadsLayer";
+import { useJpMunicipalRoadsLayer } from "../../hooks/useJpMunicipalRoadsLayer";
 import { useJpExpresswaysLayer } from "../../hooks/useJpExpresswaysLayer";
 import { useJpGsiTerrainLayer } from "../../hooks/useJpGsiTerrainLayers";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
@@ -214,6 +215,13 @@ export const JpMajorRoadsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpMajorRoadsLayer");
   const p = useKeyOverlayParams("jpMajorRoads");
   useJpMajorRoadsLayer(deps.mapRef, deps.layerVisibility.jpMajorRoads, p.jpMajorRoadsOpacity ?? 0.85, p.jpMajorRoadsClassIdx ?? 0);
+  return null;
+};
+
+export const JpMunicipalRoadsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpMunicipalRoadsLayer");
+  const p = useKeyOverlayParams("jpMunicipalRoads");
+  useJpMunicipalRoadsLayer(deps.mapRef, deps.layerVisibility.jpMunicipalRoads, p.jpMunicipalRoadsOpacity ?? 0.85);
   return null;
 };
 

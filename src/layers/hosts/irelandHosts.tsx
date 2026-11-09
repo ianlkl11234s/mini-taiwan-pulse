@@ -5,7 +5,7 @@ import { useIeAdminLayers } from "../../hooks/useIeAdminLayers";
 import { useIeBathymetryLayer } from "../../hooks/useIeBathymetryLayer";
 import { useKrDataLayer } from "../../hooks/useKrDataLayers";
 import { useIeCoillteForestRoadsLayer, useIeCoillteLayer } from "../../hooks/useIeCoillteLayers";
-import { IE_SPEC_BY_KEY, asKrSpec, ieFloodScenarioFileAt, ieNoiseMetricFileAt } from "../../data/ieDataLayers";
+import { IE_SPEC_BY_KEY, asKrSpec, ieFloodScenarioFileAt, ieGwFloodFileAt, ieNoiseMetricFileAt } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -105,6 +105,23 @@ export const IePlanningApplicationsHost = makeIeDataHost("iePlanningApplications
 export const IeRecyclingPointsHost = makeIeDataHost("ieRecyclingPoints", 0.85);
 export const IeWasteFacilitiesHost = makeIeDataHost("ieWasteFacilities", 0.7);
 export const IePrtrFacilitiesHost = makeIeDataHost("iePrtrFacilities", 0.85);
+// 第 11 波：IEADD-1 補做
+export const IeDefibrillatorsHost = makeIeDataHost("ieDefibrillators", 0.9);
+export const IePrisonsHost = makeIeDataHost("iePrisons", 0.9);
+export const IeProposedNhaHost = makeIeDataHost("ieProposedNha", 0.7);
+export const IeFloodZonesHost = makeIeDataHost("ieFloodZones", 0.7);
+export const IePeatExtractionBogsHost = makeIeDataHost("iePeatExtractionBogs", 0.7);
+
+/** GSI 地下水淹水圖（ND）：一產品一支 PMTiles，依 `ieGroundwaterFloodingProductIdx` 換 `file`（同河川淹水）。 */
+const GW_FLOOD_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieGroundwaterFlooding);
+export const IeGroundwaterFloodingHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useIeGroundwaterFloodingLayer");
+  const p = useKeyOverlayParams("ieGroundwaterFlooding");
+  const file = ieGwFloodFileAt(p.ieGroundwaterFloodingProductIdx);
+  const spec = useMemo(() => ({ ...GW_FLOOD_SPEC, file }), [file]);
+  useKrDataLayer(deps.mapRef, spec, deps.layerVisibility.ieGroundwaterFlooding, p.ieGroundwaterFloodingOpacity ?? 0.55, 1, deps.isDarkTheme, undefined, undefined);
+  return null;
+};
 
 /** 策略噪音地圖：Lden／Lnight 各一支 PMTiles，依 `ieNoiseMapsMetricIdx` 換 `file`（同河川淹水）；噪音等級多選照常傳 CatMask。 */
 const NOISE_SPEC = asKrSpec(IE_SPEC_BY_KEY.ieNoiseMaps);

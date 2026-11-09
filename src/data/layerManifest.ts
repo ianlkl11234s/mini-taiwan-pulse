@@ -18,7 +18,7 @@ import { JP_ZONING_LAYER_COLOR } from "./jpZoningUseDistrictTypes";
 import { JP_FOREST_LAYER_COLOR } from "./jpNationalForestTypes";
 import { JP_NATURE_R2_LAYER_COLORS } from "./jpNatureR2Colors";
 import { JP_WELFARE_LAYER_COLOR } from "./jpWelfareFacilityTypes";
-import { JP_ROAD_LAYER_COLOR, JP_EXPRESSWAY_LAYER_COLOR } from "./jpRoadTypes";
+import { JP_ROAD_LAYER_COLOR, JP_EXPRESSWAY_LAYER_COLOR, JP_MUNICIPAL_ROAD_COLOR } from "./jpRoadTypes";
 import { JP_BUS_STOP_LAYER_COLOR } from "./jpBusStopTypes";
 import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
@@ -36,7 +36,7 @@ import { KR_DATA_SPECS } from "./krDataLayers";
 import { repPointDense, repPointLayer } from "./repPointLayers";
 import type { KrDataKey } from "./krDataKeys";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRICS, ieNoiseMetricFile } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRICS, ieNoiseMetricFile, IE_GW_FLOOD_PRODUCTS, ieGwFloodFile } from "./ieDataLayers";
 import type { IeDataKey } from "./ieDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
@@ -156,6 +156,8 @@ import {
   Vote,
   // G53 批 1（2026-11-09）
   Mailbox, Motorbike, ScanSearch,
+  // G53 批 2／3（2026-11-10）
+  RadioTower,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -733,6 +735,30 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "南韓民防避難設施 17,247 處（行政安全部 LOCALDATA，使用中 17,231＋暫停 16）", processing: "LOCALDATA CSV CP949；只留使用中與暫停，剔除已停止使用 1,591、無座標 8；WGS84 위도／경도 欄；地址 시·도 與座標比對 0 筆不符；PMTiles z0–14", note: "平台標籤；16/16 시·도；比照日本併入「災害 › 避難設施」" },
   krPoliceBoxes: { theme: "執法治安", group: "警政", zh: "派出所與地區隊", alt: "Police Boxes", icon: ShieldCheck, dataset: "kr_police_boxes", topics: ["南韓", "警察", "派出所", "지구대", "파출소", "治安"],
     description: "南韓地區隊與派出所 1,544 處（警察廳 2025-12-31 名冊 2,047 處，Nominatim 補座標）", processing: "名冊只有地址；Nominatim 先查「名稱＋시군구」的 amenity=police，再查地址全文；只留設施點與門牌精度，座標與地址 시군구 不符者剔除；PMTiles z0–14", note: "平台標籤＋座標 ODbL（© OpenStreetMap contributors）；未定位 503 處不上圖" },
+  // 第 8 波（2026-11-10）
+  krLibraries: { theme: "文化", group: "設施 Facilities", zh: "圖書館", alt: "Libraries", icon: Library, dataset: "kr_libraries", topics: ["南韓", "圖書館", "도서관", "文化"],
+    description: "南韓圖書館 3,472 館（小型圖書館 2,097、公共圖書館 1,308、兒童 33、其他 34；전국도서관표준데이터）", processing: "標準資料全國合併檔 3,657 列；WGS84；剔除無座標 111、시·도 不符 1、同名同座標重複 73；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；學校、大學圖書館只有少數申報" },
+  krMuseums: { theme: "文化", group: "設施 Facilities", zh: "博物館與美術館", alt: "Museums & Galleries", icon: Landmark, dataset: "kr_museums", topics: ["南韓", "博物館", "美術館", "박물관", "미술관", "LOCALDATA"],
+    description: "南韓登錄博物館 659＋美術館 214 館（LOCALDATA，營業中）", processing: "LOCALDATA CSV CP949、EPSG:5174 → 4326；剔除歇業 92、無座標 119，市與區重複登錄 184 筆合併；法人名與電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도但首爾只有 1 館（首爾幾乎未涵蓋）；未登錄展示館未涵蓋" },
+  krPerformances: { theme: "文化", group: "藝文活動 Arts & Events", zh: "公演與文化活動", alt: "Performances & Events", icon: Theater, dataset: "kr_performances", topics: ["南韓", "公演", "活動", "공연", "藝文"],
+    description: "南韓各機關申報的公演與文化活動 9,552 場（2017–2026 累積；2026 年 2,970、2025 年 1,913）", processing: "標準資料 10,562 列；WGS84；剔除無座標 565、境外與 시·도 不符 12、重複 433；主辦／主管（可能是個人）與電話欄排除；PMTiles z0–14", note: "平台標籤；15/16 시·도（世宗無）；歷年清單、不是目前活動" },
+  krFestivals: { theme: "觀光", group: "玩・體驗 Experience", zh: "文化祭", alt: "Festivals", icon: PartyPopper, dataset: "kr_festivals", topics: ["南韓", "祭典", "축제", "節慶", "觀光"],
+    description: "南韓自治團體申報的文化祭 1,113 屆（2026 年 720、2025 年 158、2024 年以前 235）", processing: "標準資料 1,372 列；WGS84；剔除無座標 231、重複 28；電話欄排除；內容截 200 字；PMTiles z0–14", note: "平台標籤；16/16 시·도；同一祭典可能有多屆" },
+  krHeritage: { theme: "觀光", group: "玩・人文 Heritage", zh: "國家遺產", alt: "Heritage", icon: Castle, dataset: "kr_heritage", topics: ["南韓", "文化遺產", "國寶", "史蹟", "국가유산", "문화재"],
+    description: "南韓指定與登錄文化遺產 10,197 處（國家指定 3,043、市道指定 4,335、登錄 577、文化遺產資料 2,242）", processing: "국가유산청 API 17,960 筆；剔除指定解除 2,029、無形遺產 829、無座標 4,886、시·도 不符 19；管理者欄排除；PMTiles z0–14", note: "API 未標授權（照常上線、標來源）；16/16 시·도；文物點是收藏地" },
+  krLodging: { theme: "觀光", group: "住・食 Stay & Eat", zh: "住宿", alt: "Lodging", icon: BedDouble, dataset: "kr_lodging", topics: ["南韓", "住宿", "飯店", "旅館", "숙박", "LOCALDATA"],
+    description: "南韓營業中住宿業 30,358 處（旅館與旅人宿 17,235、生活型 7,043、飯店 4,199、渡假公寓 186、其他 1,695）", processing: "LOCALDATA CSV CP949、EPSG:5174 → 4326；剔除歇業 27,607、無座標 1,042；電話與從業員欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；民宿類未涵蓋" },
+  krSafeDeliveryBoxes: { theme: "基礎建設", group: "郵政與便民 Postal & Services", zh: "安心宅配櫃", alt: "Safe Parcel Lockers", icon: PackageCheck, dataset: "kr_safe_delivery_boxes", topics: ["南韓", "宅配櫃", "안심택배함", "包裹", "便民"],
+    description: "南韓自治團體安心宅配櫃 789 處（89 個機關申報）", processing: "標準資料 823 列；WGS84；剔除重複 34；客服與管理機關電話排除；PMTiles z0–14", note: "平台標籤；15/16 시·도（世宗無）" },
+  krSeniorCenters: { theme: "社福長照", group: "長照與托育", zh: "敬老堂與里民會館", alt: "Senior Centres & Village Halls", icon: Users, dataset: "kr_senior_centers", topics: ["南韓", "敬老堂", "경로당", "마을회관", "高齡", "社福"],
+    description: "南韓敬老堂 43,662、里民會館兼敬老堂 7,124、里民會館 5,242，共 56,028 處（163 個機關申報）", processing: "標準資料逐頁抓到底 58,768 列（columList totalCount 封頂 5 萬）；WGS84；剔除歇業 327、境外與 시·도 不符 118、重複 2,295；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；首爾只有 12 區申報" },
+  // 第 9 波（2026-11-10）
+  krIndustrialComplexes: { theme: "工商登記", group: "園區", zh: "產業園區", alt: "Industrial Complexes", icon: Factory, dataset: "kr_industrial_complexes", topics: ["南韓", "產業園區", "산업단지", "工業區", "農工團地"],
+    description: "南韓產業園區邊界 1,372 處（國家 65、一般 771、都市尖端 53、農工 483）", processing: "국토교통부 dam_dan.shp（EPSG:3857、DBF CP949）→ 4326；原始屬性全保留、未簡化共用邊；另產代表點；PMTiles z4–14", note: "KOGL 4（禁商用、禁變更）原樣單獨成層；16/16 시·도" },
+  krNoiseSites: { theme: "環境氣候", group: "噪音／聲響 Noise", zh: "環境噪音測點", alt: "Noise Monitoring Sites", icon: Volume2, dataset: "kr_noise_sites", topics: ["南韓", "噪音", "소음", "測定網", "環境監測"],
+    description: "韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）", processing: "CSV（UTF-8 BOM）WGS84；0 筆剔除；PMTiles z0–14", note: "平台標籤；16/16 시·도；只有位置、沒有測值" },
+  krClothingBins: { theme: "廢棄物", group: "投放點", zh: "舊衣回收箱", alt: "Clothing Collection Bins", icon: Shirt, dataset: "kr_clothing_bins", topics: ["南韓", "舊衣回收", "의류수거함", "回收", "廢棄物"],
+    description: "南韓舊衣回收箱 20,931 處（57 個市郡區清單合併）", processing: "data.go.kr 各機關 fileData 93 份：有座標 CSV 59 份（58 份採用）、只有地址 19 份未上圖；剔除無座標 1,051、境外 5、座標落在提供機關轄區外 25、重複 2,103；管理團體與電話欄排除；PMTiles z0–14", note: "平台標籤；瑞草區 KOGL 4 不併入；11/16 시·도（釜山、大邱、蔚山、世宗、忠北無）" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];
@@ -902,6 +928,19 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭 EPA 廢棄物許可設施邊界 292 處（掩埋場 76、轉運站 63、資源回收分選 19、堆肥 19、綜合 15、土石 24、有害 20、其他 6、未分類 50）", processing: "EPA WFS WASTE_Boundary；50 處無屬性者以 LEMA_Facilities_Waste 補名 28；聯絡人、電話、稽查員不收，個人營運者不顯示；面＋代表點 z4–14", note: "CC BY 4.0；地方政府核發的許可與登記證未涵蓋" },
   iePrtrFacilities: { theme: "環境氣候", group: "環境污染", zh: "PRTR 申報設施", alt: "PRTR Facilities", icon: Factory, dataset: "ie_prtr_facilities", topics: ["愛爾蘭", "PRTR", "污染排放", "工業排放", "EPA", "IED"],
     description: "愛爾蘭 EPA PRTR 全部門設施 656 處（廢棄物與污水 165、畜牧 134、食品 96、化學 92、礦物 53、能源 43、金屬 31、其他 26、紙木 16）", processing: "EPA WFS All_PRTR_Sectors；重複登記號去 2；集約畜牧個人姓名 49 處不顯示；PMTiles z4–14", note: "CC BY 4.0；不含排放量" },
+  // 第 11 波（2026-11-10）：IEADD-1 補做（主題沿用既有：醫療、執法治安、環境氣候、災害、農業）
+  ieDefibrillators: { theme: "醫療", group: "點位", zh: "AED 自動體外心臟去顫器", alt: "AEDs (Defibrillators)", icon: HeartPulse, dataset: "ie_defibrillators", topics: ["愛爾蘭", "AED", "去顫器", "急救", "心臟", "OSM"],
+    description: "愛爾蘭 OpenStreetMap 標記的 AED 2,463 台（公開可用 1,182、限顧客或員工 246、未標示 1,035；剔除北愛 340）", processing: "Geofabrik PBF 261105 points emergency=defibrillator；剔北愛；不收電話與聯絡人，像個人姓名的管理單位不顯示；PMTiles z4–14", note: "ODbL 1.0；NAS 官方登記冊不公開，非全部" },
+  iePrisons: { theme: "執法治安", group: "司法矯正", zh: "監獄", alt: "Prisons", icon: Lock, dataset: "ie_prisons", topics: ["愛爾蘭", "監獄", "矯正", "Irish Prison Service", "OSM"],
+    description: "愛爾蘭監獄 11 處（OpenStreetMap；Irish Prison Service 12 處，Wheatfield 與 Cloverhill 同一個面）", processing: "Geofabrik PBF 261105 multipolygons amenity=prison → 代表點；剔北愛 4；PMTiles z4–14", note: "ODbL 1.0；IPS 無開放點位" },
+  ieProposedNha: { theme: "環境氣候", group: "保護區", zh: "提議中自然遺產區（pNHA）", alt: "Proposed Natural Heritage Areas (pNHA)", icon: Leaf, dataset: "ie_proposed_nha", topics: ["愛爾蘭", "保護區", "pNHA", "自然遺產", "生態", "NPWS"],
+    description: "愛爾蘭 NPWS 提議中自然遺產區 1,089 處、1,180 面（約 84.5 萬公頃，含與 SAC／SPA 重疊部分）", processing: "NPWSDesignatedAreas FeatureServer layer 1 → 4326；面 PMTiles z4–13＋代表點（預設點）", note: "CC BY 4.0；1995 年公布、未完成法定指定" },
+  ieFloodZones: { theme: "災害", group: "淹水", zh: "郡議會淹水分區 Flood Zone A／B", alt: "Council Flood Zones A/B", icon: Droplets, dataset: "ie_flood_zones", topics: ["愛爾蘭", "淹水", "Flood Zone", "SFRA", "發展計畫", "Cork", "Galway", "Roscommon", "Wicklow"],
+    description: "愛爾蘭 4 個郡議會發展計畫的 Flood Zone A／B（Cork County、Galway County、Roscommon、Wicklow；只涵蓋 4/31 地方政府）", processing: "各郡 ArcGIS FeatureServer（CDP／LAP SFRA）→ 4326；Cork 網格碎片依分區合併相鄰碎片；面 PMTiles z5–14＋代表點（預設點）", note: "CC BY 4.0；各郡方法不一，非全國" },
+  ieGroundwaterFlooding: { theme: "災害", group: "淹水", zh: "地下水淹水圖（GSI）", alt: "Groundwater Flood Maps (GSI)", icon: CloudRain, dataset: "ie_groundwater_flooding", topics: ["愛爾蘭", "淹水", "地下水", "喀斯特", "turlough", "GSI"],
+    description: "愛爾蘭 GSI 地下水淹水圖 1:20,000：高／中／低機率（554／485／466 面）、歷史最大範圍 3,598 面、2015/16 冬季地表水 15,967 面", processing: "GSI 下載 shapefile（IE26）→ 4326，原樣不改屬性（ID 統一為字串）；一產品一支 PMTiles z5–13，圖層設定切換產品換檔；北愛 1 面整面捨去", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；只涵蓋喀斯特低地" },
+  iePeatExtractionBogs: { theme: "農業", group: "土壤", zh: "Bord na Móna 泥炭開採沼地", alt: "Bord na Móna Peat Extraction Bogs", icon: Shovel, dataset: "ie_peat_extraction_bogs", topics: ["愛爾蘭", "泥炭", "泥炭沼", "bog", "Bord na Móna", "EPA", "開採"],
+    description: "愛爾蘭 EPA 登錄的 Bord na Móna 持照泥炭開採沼地 162 面、約 7.9 萬公頃（13 個地方政府）", processing: "EPA GeoServer WFS BORDNAMONA_BOGBOUNDARIES（4326 輸出）；面 PMTiles z4–14＋代表點（預設點）", note: "授權未標示（照常上線、標來源 EPA）；執照範圍，2021 起已停採" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];
@@ -915,12 +954,12 @@ const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => 
     icon: m.icon,
     upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
     dataClass: "D",
-    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: spec.key === "ieRiverFloodExtents" ? IE_FLOOD_SCENARIOS.map((x) => `./world/${ieFloodScenarioFile(x.value)}`) : spec.key === "ieNoiseMaps" ? IE_NOISE_METRICS.map((x) => `./world/${ieNoiseMetricFile(x.value)}`) : [`./world/${spec.file}`] },
+    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: spec.key === "ieRiverFloodExtents" ? IE_FLOOD_SCENARIOS.map((x) => `./world/${ieFloodScenarioFile(x.value)}`) : spec.key === "ieNoiseMaps" ? IE_NOISE_METRICS.map((x) => `./world/${ieNoiseMetricFile(x.value)}`) : spec.key === "ieGroundwaterFlooding" ? IE_GW_FLOOD_PRODUCTS.map((x) => `./world/${ieGwFloodFile(x.value)}`) : [`./world/${spec.file}`] },
     legend: spec.key,
     popup: spec.key,
     params: (() => {
       const rep = repPointLayer(spec.key);
-      const kinds = [...(rep || spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
+      const kinds = [...(rep || spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" || spec.key === "ieGroundwaterFlooding" ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
         ...(rep && repPointDense(rep) ? ["palette"] : []), ...(rep ? ["slider"] : [])] as ("select" | "multiSelect" | "palette" | "slider")[];
       return { count: kinds.length, kinds };
     })(),
@@ -1907,6 +1946,27 @@ export const LAYER_MANIFEST = {
     topics: ["消防", "緊急應變"],
   },
 
+  vehicleInspectionOffices: {
+    key: "vehicleInspectionOffices", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "監理所站與轄區", alt: "Motor Vehicle Offices & Jurisdictions" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.vehicleInspectionOffices, icon: Car,
+    upstream: { status: "verified", datasets: [{ datasetId: "vehicle_inspection_offices", confidence: "MED" }, { datasetId: "vehicle_inspection_jurisdictions", confidence: "MED" }], processing: "analytics transport/vehicle_inspection 1150421：公路局 data.gov.tw 14203 名冊 37 所站；本機離線 tw_geocoder 門牌 28、路段內插 3，OSM 同名地物補 3（300 m 內且鄉鎮檢核），3 處無座標；轄區依名冊文字以鄉鎮界組面（汽車／機車各 368 鄉鎮），汽車 24 鄉鎮來源未載明保留灰色不推定", note: "所站位置由地址推估；轄區面依轄區文字組成。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "vehicle-inspection-jurisdictions", url: "./geo/vehicle_inspection_jurisdictions_1150421.pmtiles", sourceLayer: "vehicle_inspection_jurisdictions", minzoom: 4, maxzoom: 12 },
+      { kind: "pmtiles", sourceId: "vehicle-inspection-offices", url: "./geo/vehicle_inspection_offices_1150421.pmtiles", sourceLayer: "vehicle_inspection_offices", minzoom: 4, maxzoom: 14 },
+    ],
+    legend: "vehicleInspectionOffices", popup: "vehicleInspectionOffices", params: { count: 4, kinds: ["multiSelect", "select", "slider", "slider"] },
+    description: "公路局監理所、監理站、分站位置與汽車／機車監理轄區（依鄉鎮組成），可切換業務。",
+    topics: ["監理", "公路局", "駕照", "行照", "轄區", "公共服務"],
+  },
+  fireworksSites: {
+    key: "fireworksSites", country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" }, ...layerName({ zh: "爆竹煙火製造及儲存場所", alt: "Fireworks Manufacturing & Storage Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.fireworksSites, icon: Sparkles,
+    upstream: { status: "verified", datasets: [{ datasetId: "fireworks_sites", confidence: "MED" }], processing: "analytics fire/fireworks_sites 7070_v2：消防署 data.gov.tw 7070 名冊 19 處；本機離線 tw_geocoder 定位：門牌 7、路段內插 1、鄉鎮 2（不打 TGOS／Google），9 處無座標未上圖；個人經營 3 處名稱不顯示、地址與點位粗化到鄉鎮", note: "位置由地址推估；名冊 19 處、地圖上 10 處。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "fireworks-sites", url: "./geo/fireworks_sites_7070_v2.pmtiles", sourceLayer: "fireworks_sites", minzoom: 4, maxzoom: 14 },
+    legend: "fireworksSites", popup: "fireworksSites", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "消防署名冊的爆竹煙火製造與儲存場所（19 處中 10 處可定位）。",
+    topics: ["消防", "爆竹煙火", "危險物品", "公共安全", "消防署"],
+  },
   fireHydrants: {
     key: "fireHydrants",
     country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" },
@@ -3013,14 +3073,14 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "jp_traffic_accidents_2025", confidence: "HIGH" }],
       processing: "analytics pipelines/world/jp_traffic_accidents_2025：本票 287,023 件，度分秒×1000 換十進位，缺座標 3 件剔除 → 287,020 點；PMTiles z5–12（z12 全點，以下抽稀只供熱區）",
-      note: "資料期間 2025-01-01～12-31（2026-10-01 公開）；物損事故不在本票，未涵蓋；年齢等當事者屬性不收；PDL1.0",
+      note: "警察庁 2025 年本票（約 97% 發生於 2025 年，另約 3% 發生於 2024 年以前；2026-10-01 公開）；物損事故不在本票，未涵蓋；年齢等當事者屬性不收；PDL1.0",
     },
     dataClass: "B",
     source: { kind: "pmtiles", sourceId: "jp-traffic-accidents-2025", url: "./world/jp_traffic_accidents_2025.pmtiles", sourceLayer: "jp_traffic_accidents_2025", minzoom: 5, maxzoom: 12 },
     legend: "jpTrafficAccidents2025",
     popup: "jpTrafficAccidents2025",
     params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
-    description: "2025 年全日本人身交通事故 28.7 萬件（死亡 2,495 件、負傷 28.5 萬件），可依事故內容與事故類型篩選；物損事故未納入",
+    description: "警察庁 2025 年本票全日本人身交通事故 28.7 萬件（死亡 2,495 件、負傷 28.5 萬件），可依事故內容與事故類型篩選；物損事故未納入",
     topics: ["世界", "日本", "治安", "交通事故", "傷亡", "道路安全"],
   },
   jpEvacuationSites: {
@@ -3366,6 +3426,35 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "日本國道、都道府縣道與高速道路中心線（2024-09 時點），依道路等級分色分線寬；不含市町村道",
     topics: ["世界", "日本", "交通", "道路", "國道", "路網"],
+  },
+  jpMunicipalRoads: {
+    key: "jpMunicipalRoads",
+    country: "JP", section: { theme: "交通", group: "路網" },
+    ...layerName({ zh: "市町村道", alt: "市区町村道等", qualifier: "2024年度" }),
+    expandable: true,
+    color: JP_MUNICIPAL_ROAD_COLOR,
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_municipal_roads", confidence: "HIGH" }],
+      processing: "国土数値情報 N13 道路データ 2024年度版（2024-09 時點）只取市区町村道等（N13_003=3）22,210,998 線段，依 1次メッシュ分 6 片 PMTiles",
+      note: "DISPLAY_ONLY（未入分析倉庫；解鎖條件：倉庫支援千萬級線資料或改為依地區抽取）。z12 起才顯示（PMTiles z12–14，z15 起 overzoom），拉遠由視野提示卡說明；與主要道路分層、國道與都道府縣道請開主要道路層；N13 沒有路名；線段在 mesh 與屬性邊界被切斷，線段數≠道路條數；分類名為「市区町村道等」，國土地理院原典未再細分管理者",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpMunicipalRoadsLayer 自建 6 個 mapbox-pmtiles source（同一樣式）；source-layer=jp_municipal_roads，minzoom=12 maxzoom=14；每片 < 500MB 走 R2（CI-4 lock）",
+      staticAssets: [
+        "./world/jp_municipal_roads_hokkaido_tohoku.pmtiles", "./world/jp_municipal_roads_kanto.pmtiles",
+        "./world/jp_municipal_roads_chubu.pmtiles", "./world/jp_municipal_roads_kinki.pmtiles",
+        "./world/jp_municipal_roads_chugoku_shikoku.pmtiles", "./world/jp_municipal_roads_kyushu_okinawa.pmtiles",
+      ],
+    },
+    legend: "jpMunicipalRoads",
+    popup: "jpMunicipalRoads",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本市町村道等道路中心線（2024-09 時點），放大到 z12 才顯示；國道與都道府縣道請開「主要道路」",
+    topics: ["世界", "日本", "交通", "道路", "市町村道", "路網"],
   },
   jpExpressways: {
     key: "jpExpressways",
@@ -8740,6 +8829,20 @@ export const LAYER_MANIFEST = {
   //  PMTiles，**沒有 sourceLayer**（其餘 4 層有）—— source 欄位的 optional
   //  sourceLayer 正是為這種形狀留的。
   // ══════════════════════════════════════════════════════════════
+  vegetationForestTypes: {
+    key: "vegetationForestTypes", country: "TW", section: { theme: "林業 Forestry", group: "分區" }, ...layerName({ zh: "植群與森林林型", alt: "Vegetation & Forest Types" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.vegetationForestTypes, icon: Trees,
+    upstream: { status: "verified", datasets: [{ datasetId: "natural_vegetation_map", confidence: "HIGH" }, { datasetId: "forest_types_4th_survey", confidence: "HIGH" }], processing: "analytics forestry/vegetation_forest_types：林保署 data.gov.tw 9930 天然植群圖（2014，49,943 面）、57873 第四次森林資源調查林型（575,206 面）；全量檔 z11–14，概覽小檔 z4–10＝EPSG:3826 100 m 格網化→去 <4 格碎塊→向量化→50 m 簡化→依大類融合（只有 *_class_key）", note: "面積用幾何計算（植群 AREA_HA 有離群值）；林型「針闊葉樹混」截斷寫法已併入「針闊葉樹混淆」。全覆蓋土地覆蓋圖，不做點／面切換。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "natural-vegetation-map-z4-10", url: "./forestry/natural_vegetation_map_2014_z4_10.pmtiles", sourceLayer: "natural_vegetation_map_z4_10", minzoom: 4, maxzoom: 10 },
+      { kind: "pmtiles", sourceId: "natural-vegetation-map", url: "./forestry/natural_vegetation_map_2014.pmtiles", sourceLayer: "natural_vegetation_map", minzoom: 11, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "forest-types-4th-survey-z4-10", url: "./forestry/forest_types_4th_survey_z4_10.pmtiles", sourceLayer: "forest_types_4th_survey_z4_10", minzoom: 4, maxzoom: 10 },
+      { kind: "pmtiles", sourceId: "forest-types-4th-survey", url: "./forestry/forest_types_4th_survey.pmtiles", sourceLayer: "forest_types_4th_survey", minzoom: 11, maxzoom: 14 },
+    ],
+    legend: "vegetationForestTypes", popup: "vegetationForestTypes", params: { count: 3, kinds: ["select", "multiSelect", "slider"] },
+    description: "天然植群圖（2014）與第四次森林資源調查林型，可切換資料集；放大到 11 級可點選看植群型與林型。",
+    topics: ["林業", "植群", "植被", "森林", "林型", "土地覆蓋", "林保署"],
+  },
   forestCompartments: {
     key: "forestCompartments",
     country: "TW", section: { theme: "林業 Forestry", group: "分區" },
@@ -11541,6 +11644,15 @@ export const LAYER_MANIFEST = {
     description: "依村里分平地、丘陵、高山三類農村社區（放大到 7 級以上顯示）。",
     topics: ["農村", "農村社區", "村里"],
   },
+  traLevelCrossings: {
+    key: "traLevelCrossings", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "臺鐵平交道", alt: "TRA Level Crossings" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.traLevelCrossings, icon: TrainTrack,
+    upstream: { status: "verified", datasets: [{ datasetId: "tra_level_crossings", confidence: "MED" }], processing: "analytics transportation/tra_level_crossings 11970：臺鐵 data.gov.tw 11970（2024-08-26）801 處；來源座標 415、OSM 同縣市同名節點補位 25，361 處無座標未上圖；改制前縣市名改為今日縣市", note: "清單可能仍列已廢除者（46 處離最近 OSM 平交道 >200 m，未查證）；補位 © OpenStreetMap contributors（ODbL）。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "tra-level-crossings", url: "./rail/tra_level_crossings_11970.pmtiles", sourceLayer: "tra_level_crossings", minzoom: 6, maxzoom: 14 },
+    legend: "traLevelCrossings", popup: "traLevelCrossings", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "臺鐵公開的平交道 440 處（來源 801 處，361 處無座標未上圖），依平交道分類著色。",
+    topics: ["鐵路", "臺鐵", "平交道", "交通安全"],
+  },
   provincialRoadSigns: {
     key: "provincialRoadSigns", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道交通標誌", alt: "Provincial Road Signs" }), expandable: true,
     color: ATLAS_LAYER_COLORS.provincialRoadSigns, icon: Construction,
@@ -11716,6 +11828,27 @@ export const LAYER_MANIFEST = {
     description: "全國野生動物保護區與分區（含陸域，不限海域）；僅供參考，不構成法規適用判斷。",
     topics: ["海洋", "保護區", "野生動物", "保育"],
   },
+  iOceanFishing: {
+    key: "iOceanFishing", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "iOcean 垂釣回報", alt: "iOcean Recreational Fishing Reports" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.iOceanFishing, icon: Fish,
+    upstream: { status: "verified", datasets: [{ datasetId: "iocean_fishing_reports", confidence: "MED" }], processing: "analytics marine/iocean_fishing_reports 20260506：海保署 data.gov.tw 157622 公民回報 56,420 筆；z4–9 另做 0.01° 格網彙總點（n_reports、catch_count），z10–14 逐筆；框外 124 筆不上圖", note: "公民回報未經查核；party_size 品質差不顯示；無個資欄位。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "iocean-fishing-reports-z4-9", url: "./marine/iocean_fishing_reports_20260506_z4_9.pmtiles", sourceLayer: "iocean_fishing_reports_z4_9", minzoom: 4, maxzoom: 9 },
+      { kind: "pmtiles", sourceId: "iocean-fishing-reports", url: "./marine/iocean_fishing_reports_20260506.pmtiles", sourceLayer: "iocean_fishing_reports", minzoom: 10, maxzoom: 14 },
+    ],
+    legend: "iOceanFishing", popup: "iOceanFishing", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
+    description: "民眾在 iOcean 回報的垂釣紀錄 56,420 筆；拉遠看熱區，放大看每筆的釣法與漁獲。",
+    topics: ["海洋", "釣魚", "垂釣", "釣點", "公民科學", "海保署"],
+  },
+  iOceanSightings: {
+    key: "iOceanSightings", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "iOcean 海洋生物目擊", alt: "iOcean Marine Wildlife Sightings" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.iOceanSightings, icon: Turtle,
+    upstream: { status: "verified", datasets: [{ datasetId: "iocean_sightings", confidence: "MED" }], processing: "analytics marine/iocean_sightings 20260506_gen：海保署 data.gov.tw 157621 公民回報 2,135 筆；類群依物種名推定；保育物種（名錄 161739 對上、鯨豚、貝類、珊瑚）1,963 筆座標四捨五入到 0.01°；框外 19 筆不上圖", note: "公民回報未經查核；來源只有回報 UUID，未進成品。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "iocean-sightings", url: "./marine/iocean_sightings_20260506_gen.pmtiles", sourceLayer: "iocean_sightings", minzoom: 4, maxzoom: 14 },
+    legend: "iOceanSightings", popup: "iOceanSightings", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "民眾在 iOcean 回報的鯨豚、海龜等海洋生物目擊 2,135 筆；保育物種位置已粗化到約 1 公里。",
+    topics: ["海洋", "海洋生物", "鯨豚", "海龜", "目擊", "公民科學", "海保署"],
+  },
   openFishingLocations: {
     key: "openFishingLocations", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "開放捕魚點", alt: "Open Fishing Locations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.openFishingLocations, icon: Fish,
@@ -11805,7 +11938,7 @@ export const LAYER_MANIFEST = {
   landSubsidenceStations: {
     key: "landSubsidenceStations", country: "TW", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "地層下陷監測站", alt: "Land Subsidence Monitoring Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.landSubsidenceStations, icon: TrendingDown,
-    upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_stations", confidence: "HIGH" }], note: "經濟部水利署 GNSS 測站 42／磁環分層監測井 62／深層水準樁 9（上圖 112；金湖國小上游座標錯不上圖）；popup 趨勢走 RPC get_land_subsidence_timeseries（mig 474）。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_stations", confidence: "HIGH" }], note: "經濟部水利署 GNSS 測站 42／磁環分層監測井 62／深層水準樁 9（上圖 112；金湖國小上游座標錯不上圖）；popup 趨勢讀靜態快照 /static-rpc/get_land_subsidence_timeseries_<站號 hex>.json（mig 474 RPC 原樣輸出，2026-11-09 起）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "land-subsidence-stations", url: "./hazards/land_subsidence_stations.geojson" },
     legend: "landSubsidenceStations", popup: "landSubsidenceStations", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "水利署地層下陷監測站（GNSS、磁環分層監測井、深層水準樁）；點開看長期趨勢。單站量測不代表整個地區。",
@@ -12003,6 +12136,64 @@ export const LAYER_MANIFEST = {
     legend: "antivenomHospitals", popup: "antivenomHospitals", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "疾管署公告儲備抗蛇毒血清的醫療院所 191 家，可依血清種類（龜殼花及赤尾鮐、雨傘節及飯匙倩、百步蛇、鎖鏈蛇）篩選。",
     topics: ["醫療", "蛇咬", "抗蛇毒血清", "急救", "疾管署"],
+  },
+  wraDisasterCctv: {
+    key: "wraDisasterCctv", country: "TW", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "水利署防災影像", alt: "WRA Disaster Monitoring Cameras" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.wraDisasterCctv, icon: Camera,
+    upstream: { status: "verified", datasets: [{ datasetId: "wra_disaster_cctv", confidence: "HIGH" }], processing: "analytics water_resources/wra_disaster_cctv 20261109：水利署 data.gov.tw 36687（水情影像 132）＋41567（疏濬工區 134）合併 266 點；36687 影像網址的 CCTV_SN 每天換，popup 開啟時向 opendata.wra.gov.tw 重抓清單依 cameraid 對回當天網址", note: "41567 座標只到 0.01°（121 支）或 0.1°（13 支），同工區多支共用座標（22 處）→ popup 列出同工區攝影機切換。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "wra-disaster-cctv", url: "./geo/wra_disaster_cctv_20261109.pmtiles", sourceLayer: "wra_disaster_cctv", minzoom: 4, maxzoom: 14 },
+    legend: "wraDisasterCctv", popup: "wraDisasterCctv", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "水利署河川水情影像監視站 132 支與疏濬工區管制站 134 支；點開可看即時影像。",
+    topics: ["水利", "CCTV", "攝影機", "即時影像", "河川", "疏濬", "防災"],
+  },
+  landslideEventCatalog: {
+    key: "landslideEventCatalog", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "事件型崩塌目錄", alt: "Event-based Landslide Inventory" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.landslideEventCatalog, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_event_catalog", confidence: "HIGH" }], processing: "analytics hazards/landslide_event_catalog 093–114：水保署 data.gov.tw 22 個事件型崩塌目錄（96823…177455；113／114 年跟 FileToJson 索引到實際 zip）合併 43,779 面（104 年 1 筆空幾何不上圖）＋代表點檔（z4–12）；日期寫法統一、事件類型旗標 has_typhoon／rain／quake／other", note: "事件後判釋，和 landslideAnnual 年度全島判釋不同；98 年莫拉克占 27%。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "landslide-event-catalog", url: "./hazards/landslide_event_catalog_093_114.pmtiles", sourceLayer: "landslide_event_catalog", minzoom: 10, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "landslide-event-catalog-points", url: "./hazards/landslide_event_catalog_093_114_points.pmtiles", sourceLayer: "landslide_event_catalog_points", minzoom: 4, maxzoom: 12 },
+    ],
+    legend: "landslideEventCatalog", popup: "landslideEventCatalog", params: { count: 6, kinds: ["select", "multiSelect", "multiSelect", "slider", "palette", "slider"] },
+    description: "水保署民國 93–114 年歷次颱風、豪雨、地震後衛星判釋的崩塌地 43,779 處，可依年度與事件類型篩選（預設 114 年）。",
+    topics: ["災害", "崩塌", "颱風", "豪雨", "地震", "莫拉克", "水保署"],
+  },
+  pollutionControlZones: {
+    key: "pollutionControlZones", country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" }, ...layerName({ zh: "土壤及地下水污染管制區", alt: "Soil & Groundwater Pollution Control Zones" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.pollutionControlZones, icon: Biohazard,
+    upstream: { status: "verified", datasets: [{ datasetId: "pollution_control_zones", confidence: "HIGH" }], processing: "analytics environment/pollution_control_zones 202611：環境部 data.gov.tw 6384（土壤 7,402 場址，2026-11 月檔）、35092（地下水 401 場址，範圍圖取自土污整治網開放資料集頁）；同場址多地號依 site_id 合併為 7,803 面＋代表點檔（z4–12）", note: "含已解除列管；site_id 與 pollutionSite 同一套；102 個名稱含來源造字遺失的「?」；土壤 H10227 一片幾何在北緯 16° 未上圖。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "pollution-control-zones", url: "./environment/pollution_control_zones_202611.pmtiles", sourceLayer: "pollution_control_zones", minzoom: 8, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "pollution-control-zones-points", url: "./environment/pollution_control_zones_202611_points.pmtiles", sourceLayer: "pollution_control_zones_points", minzoom: 4, maxzoom: 12 },
+    ],
+    legend: "pollutionControlZones", popup: "pollutionControlZones", params: { count: 6, kinds: ["select", "multiSelect", "multiSelect", "multiSelect", "slider", "slider"] },
+    description: "環境部公告的土壤及地下水污染控制場址、整治場址與地下水受污染使用限制地區範圍 7,803 場址（含已解除，預設只開列管中）。",
+    topics: ["環境污染", "土壤污染", "地下水污染", "控制場址", "整治場址", "環境部"],
+  },
+  tedsGridEmissions: {
+    key: "tedsGridEmissions", country: "TW", section: { theme: "環境氣候 Environment", group: "空品" }, ...layerName({ zh: "空污排放網格 TEDS", alt: "Air Pollutant Emission Grid (TEDS)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.tedsGridEmissions, icon: Factory,
+    upstream: { status: "verified", datasets: [
+      { datasetId: "teds_grid_emissions", confidence: "HIGH" },
+      { datasetId: "teds_point_source_facilities", confidence: "HIGH" },
+    ], processing: "analytics environment/teds_grid_emissions、teds_point_source_facilities（TEDS 13.0，排放年 2023）：環境部 data.gov.tw 48201／170705／152688／47244 全量 zip；1 km 格（點／線／面／生物源 101,364 列，z10–12）、5 km 合成格（z4–9）、點源工廠 15,996 家（255,912 排放口依管制編號彙總，z4–14）；TM2（離島 119 中央經線）轉 WGS84", note: "推估清冊不是監測值；全部污染物為 0 的格不收；非公路運輸與氨網格未收。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "teds-grid-emissions-5km", url: "./environment/teds_grid_emissions_teds13_5km.pmtiles", sourceLayer: "teds_grid_emissions_5km", minzoom: 4, maxzoom: 9 },
+      { kind: "pmtiles", sourceId: "teds-grid-emissions", url: "./environment/teds_grid_emissions_teds13.pmtiles", sourceLayer: "teds_grid_emissions", minzoom: 10, maxzoom: 12 },
+      { kind: "pmtiles", sourceId: "teds-point-source-facilities", url: "./environment/teds_point_source_facilities_teds13.pmtiles", sourceLayer: "teds_point_source_facilities", minzoom: 4, maxzoom: 14 },
+    ],
+    legend: "tedsGridEmissions", popup: "tedsGridEmissions", params: { count: 5, kinds: ["select", "select", "palette", "slider", "slider"] },
+    description: "環境部 TEDS 13.0 推估的空氣污染物排放量（2023 年）：1 km 網格分點源、線源、面源、生物源四種來源，另可看 15,996 家點源工廠，可切換 PM2.5、PM10、SOx、NOx、NMHC、CO。",
+    topics: ["空品", "空氣污染", "排放清冊", "TEDS", "PM2.5", "工廠", "環境部"],
+  },
+  broadcastTransmitters: {
+    key: "broadcastTransmitters", country: "TW", section: { theme: "通訊 Telecom", group: "廣播與電波 Broadcast" }, ...layerName({ zh: "廣播發射站與電波監測站", alt: "Broadcast Transmitters & Radio Monitoring Stations" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.broadcastTransmitters, icon: RadioTower,
+    upstream: { status: "verified", datasets: [{ datasetId: "broadcast_transmitters", confidence: "HIGH" }], processing: "analytics infrastructure/broadcast_transmitters 1150703：NCC data.gov.tw 6445（FM 290）、6446（AM 136）、6825（電波監測站 21）合併 447 點；金聲廣播電臺經度筆誤 102→120 依地址修正", note: "同站址多電臺（FM 245 址、AM 92 址）點重疊；station_class 照來源原文。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "broadcast-transmitters", url: "./geo/broadcast_transmitters_1150703.pmtiles", sourceLayer: "broadcast_transmitters", minzoom: 4, maxzoom: 14 },
+    legend: "broadcastTransmitters", popup: "broadcastTransmitters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "NCC 公告的 FM 廣播電臺 290 座、AM 廣播電臺 136 座發射機位置，以及 21 個電波監測站；含頻率與電臺類別。",
+    topics: ["通訊", "廣播", "電臺", "FM", "AM", "電波監測", "NCC"],
   },
   postMailboxes: {
     key: "postMailboxes", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" }, ...layerName({ zh: "郵筒", alt: "Mailboxes" }), expandable: true,

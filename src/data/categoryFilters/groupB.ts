@@ -1,6 +1,98 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 
 export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // G53 批 2／3（2026-11-10）：污染管制區介質、列管類型（列管狀態另由 layerParamsSpec 手寫，預設只開列管中）
+  pollutionControlZones: [
+    { id: "Medium", property: "medium", label: "介質", options: [{ value: "soil", zh: "土壤" }, { value: "groundwater", zh: "地下水" }] },
+    {
+      id: "Group", property: "status_group", label: "列管類型",
+      options: [{ value: "remediation", zh: "整治場址" }, { value: "control", zh: "控制場址" }, { value: "gw_restriction", zh: "地下水受污染使用限制地區" }],
+    },
+  ],
+  // G53 批 2／3（2026-11-10）：監理所站種類（只作用在所站點；轄區面 skipCategoryFilter）
+  vehicleInspectionOffices: {
+    property: "office_kind",
+    label: "所站種類",
+    options: [
+      { value: "office", zh: "監理所" },
+      { value: "station", zh: "監理站" },
+      { value: "substation", zh: "監理分站" },
+    ],
+  },
+  // G53 批 2／3（2026-11-10）：爆竹煙火場所種類（值與 atlasLayerTypes FIREWORKS_KIND_OPTIONS 同序）
+  fireworksSites: {
+    property: "site_kind",
+    label: "種類",
+    options: [
+      { value: "manufacturing", zh: "製造場所" },
+      { value: "storage", zh: "儲存場所" },
+    ],
+  },
+  // G53 批 2／3（2026-11-10）：iOcean 垂釣類型（值與 atlasLayerTypes FISHING_TYPE_OPTIONS 同序；罕見類型與空值併「其他」）
+  iOceanFishing: {
+    property: "fishing_type",
+    label: "垂釣類型",
+    options: [
+      { value: "堤岸釣", zh: "堤岸釣" },
+      { value: "港區垂釣", zh: "港區垂釣" },
+      { value: "岩磯岸釣", zh: "岩磯岸釣" },
+      { value: "船釣", zh: "船釣" },
+      { value: "島礁垂釣", zh: "島礁垂釣" },
+      { value: "沙灘釣", zh: "沙灘釣" },
+      { value: "礫灘釣", zh: "礫灘釣" },
+      { value: "筏釣", zh: "筏釣" },
+    ],
+    other: "其他",
+  },
+  // G53 批 2／3（2026-11-10）：iOcean 目擊推定類群（值與 atlasLayerTypes IOCEAN_GROUP_OPTIONS 同序）
+  iOceanSightings: {
+    property: "group_key",
+    label: "推定類群",
+    options: [
+      { value: "cetacean", zh: "鯨豚" },
+      { value: "turtle_snake", zh: "海龜與海蛇" },
+      { value: "mollusc", zh: "貝類與軟體動物" },
+      { value: "reef_fish", zh: "珊瑚礁魚類" },
+      { value: "other_fish", zh: "其他魚類" },
+      { value: "echinoderm", zh: "棘皮動物" },
+      { value: "crustacean", zh: "甲殼類與鱟" },
+      { value: "coral", zh: "珊瑚" },
+      { value: "shark_ray", zh: "鯊魚與魟" },
+      { value: "seabird", zh: "海鳥" },
+    ],
+  },
+  // G53 批 2／3（2026-11-10）：臺鐵平交道分類（值與 atlasLayerTypes TRA_CROSSING_TYPE_OPTIONS 同序）
+  traLevelCrossings: {
+    property: "type_key",
+    label: "分類",
+    options: [
+      { value: "type3a", zh: "第三種甲平交道" },
+      { value: "type1", zh: "第一種平交道" },
+      { value: "type2", zh: "第二種平交道" },
+      { value: "half_closed", zh: "半封閉式平交道" },
+      { value: "manual", zh: "人工控制平交道" },
+      { value: "private", zh: "專用平交道" },
+    ],
+  },
+  // G53 批 2／3（2026-11-10）：水利署防災影像種類（值與 atlasLayerTypes WRA_CCTV_KIND_OPTIONS 同序）
+  wraDisasterCctv: {
+    property: "kind",
+    label: "種類",
+    options: [
+      { value: "disaster", zh: "水情影像監視站" },
+      { value: "dredging", zh: "疏濬工區管制站" },
+    ],
+  },
+  // G53 批 2／3（2026-11-10）：廣播發射站種類（值與 atlasLayerTypes BROADCAST_KIND_OPTIONS 同序）
+  broadcastTransmitters: {
+    property: "kind",
+    label: "種類",
+    options: [
+      { value: "fm", zh: "FM 廣播" },
+      { value: "am", zh: "AM 廣播" },
+      { value: "monitoring", zh: "電波監測站" },
+    ],
+  },
   // G53 批 1（2026-11-09）：國土利用監測變異點類別＋年度（網格層 skipCategoryFilter，改由 paint 依兩個 mask 加總計數欄）
   landUseChangeMonitoring: [
     {

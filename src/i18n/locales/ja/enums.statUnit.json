@@ -124,5 +124,6 @@
   "enum.statUnit.票": "票",
   "enum.statUnit.類別碼": "カテゴリコード",
   "enum.statUnit.千韓元": "千ウォン",
-  "enum.statUnit.歐元/月": "ユーロ/月"
+  "enum.statUnit.歐元/月": "ユーロ/月",
+  "enum.statUnit.件／萬人": "件／人口1万人"
 }

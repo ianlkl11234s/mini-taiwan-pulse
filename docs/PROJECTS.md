@@ -64,7 +64,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| Agent 分析能力（ADR-0022 A→B→C） | 🟡 | 北極星:AI | A（空間統計）10-21、B 10-23 上線；多國議題 2 P0–P5 10-29 上線；framingCheck（#881）隨 v2.27.0 上線 | AG-13 上線即入倉規則、AG-14 layer-status 涵蓋全部國家、AG-15 外國入倉基礎先英國；IEWH-1 愛爾蘭入倉待拍板；AG-12 排 gateway 部署；C（p-median）未動工 | ADR-0022；`../.gis-agent-system/roadmap/status/agent-analysis-runbook.md`；BACKLOG I 群 | 2026-11-08 |
+| Agent 分析能力（ADR-0022 A→B→C） | 🟡 | 北極星:AI | A（空間統計）10-21、B 10-23 上線；多國議題 2 P0–P5 10-29 上線；framingCheck（#881）隨 v2.27.0 上線 | AG-13 上線即入倉規則、AG-14 layer-status 涵蓋全部國家、AG-15 外國入倉基礎先英國；IEWH-1 愛爾蘭 64 層已入倉（11-10）；南韓 52 層已發包待組裝（11-10）；AG-12 排 gateway 部署；C（p-median）未動工 | ADR-0022；`../.gis-agent-system/roadmap/status/agent-analysis-runbook.md`；BACKLOG I 群 | 2026-11-10 |
 | BYOK 對話預設模型 | 🔵 | 北極星:AI | — | BC-3：決定預設是否改中階檔 | [`features/byok-chat/backlog.md`](archive/2026-11-09/features/byok-chat/backlog.md) | 2026-10-16 |
 
 ### 資料新鮮度、collector 與平台維運
@@ -83,9 +83,9 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| 南韓後續 | 🟡 | 北極星:好用 | 第 0–5 波＋統計隨 v2.19.0；第 6 波隨 v2.24.0（#830）；第 7 波隨 v2.26.0（#869）；火災與交通事故統計 16 層（#874）隨 v2.27.0 | KRSTAT-1 補每萬人比率（0 件被標成無資料）；KRW-6 第 8–10 波；第 11 波等 data.go.kr key；KRH-1 兩層 HOLD；KRI18N-1；VP-5 正式站目視 | BACKLOG KRW-6／KRSTAT-1／KRH-1／KRI18N-1 | 2026-11-08 |
-| 日本後續 | 🔵 | 北極星:好用 | P1 第 1–4 波隨 v2.15.0；第二輪自然公園等隨 v2.24.0（#831）；交通事故 2025（#843）、DID z5（#842）隨 v2.25.0 | JPRD-1、JPRD-2 待決定；JPW4-1 等填 WAM NET 表單；第二輪重掃（analytics #292）待選落地波次；VP-3 目視 | BACKLOG JPRD-1／JPRD-2／JPW4-1；`../taipei-gis-analytics/docs/topic-research/japan_opendata/_status.md` | 2026-11-06 |
-| 英國後續 | 🔵 | 北極星:好用 | 第 0–12 波隨 v2.18.0；EA 污染排放（站主限定）隨 v2.24.0、座標修正隨 v2.25.0 | UKD-1 逐題拍板；UKOSM-1 OSM 五層改在 pulse-host 跑 Overpass；UKLZ-1 等決定、UKLZ-2／3 可直接做；EA-1 授權 2027-10-29 到期；AG-15 外國入倉先做英國 | BACKLOG UKD-1／UKOSM-1／UKLZ-1~3／EA-1；`../taipei-gis-analytics/…/united_kingdom_opendata/waves/PLAN.md` §3 | 2026-11-06 |
+| 南韓後續 | 🟡 | 北極星:好用 | 第 0–7 波＋統計已上線；11-10 夜：第 8 波 8 層（#983）、第 9 波 3 層（#987）、每萬人火災／交通事故（#978）合 develop 待發版；第 0–9 波 52 層已發包入倉，待組裝 | 第 10 波先盤點候選；第 11 波等 data.go.kr key；KRH-1 生態自然圖、C086 垃圾排出要新設計；KRSTAT-1 分母授權待確認 | BACKLOG KRW-6／KRH-1；`../.gis-agent-system/projects/2026-11-multi-country-night/PLAN.md` | 2026-11-10 |
+| 日本後續 | 🔵 | 北極星:好用 | P1 第 1–4 波隨 v2.15.0；第二輪隨 v2.24.0；交通事故 2025、DID z5 隨 v2.25.0；11-10 夜：市町村道 jpMunicipalRoads（#988，6 地區分檔）、事故期間口徑改字（#986）合 develop 待發版 | JPACC-1 查官方收錄口徑；JPW4-1 等填 WAM NET 表單；第二輪重掃待選落地波次 | BACKLOG JPACC-1／JPW4-1；`../taipei-gis-analytics/docs/topic-research/japan_opendata/_status.md` | 2026-11-10 |
+| 英國後續 | 🔵 | 北極星:好用 | 第 0–12 波隨 v2.18.0；UKLZ-1／2 熱區實為 #784 隨 v2.19.0；11-10 夜 UKD-1 各項結案（analytics #339）、補測試 #979 | UKLZ-3 高爾夫點樣式待拍板；UKFLOOD-1 C070 洪水區要不要上；UKOSM-1；AG-15 入倉（session 5d 進行中）；EA-1 授權 2027-10-29 到期 | BACKLOG UKLZ-3／UKFLOOD-1／UKOSM-1／EA-1 | 2026-11-10 |
 
 ### 台灣圖層
 
@@ -113,7 +113,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 衛星主控台改版收尾（#533） | 🟢 | 北極星:視覺 | 最早含在 v2.5.0 | VP-2 正式站目視暗／淡主題與手機版 | [`features/satellite-console-restyle/README.md`](./features/satellite-console-restyle/README.md) | 2026-10-16 |
 | 選舉圖層第二批（投開票所、2026 議員選區、歷屆統計） | 🟢 | 北極星:好用 | mini #807／#811／#816 隨 v2.22.0；gp #197 mig 496／498 已套用 | VP-1 正式站目視 | CHANGELOG v2.22.0 | 2026-11-04 |
 | 會員區 v1（Google 登入、配額） | 🟢 | 北極星:好用 | 前端 #220、gp #98（mig 408）；v2.12.0 可自行刪帳號 | VP-11 真實 Google 登入／多裝置；BC-2 收藏＋chat_logs 未動工 | [`features/member-area/`](./features/member-area/) | 2026-10-23 |
-| 愛爾蘭 | 🟢 | 北極星:AI | 第 0–10 波＋統計＋Coillte 隨 v2.26.0／v2.27.0 上線（IEREL-1 已關）；mig 511／512 已套用；MCP #98 已補 IE | VP-6 目視；IECOI-1 站主目視 Coillte（OWD-4 搬完後）；IEWH-1 入倉拍板；IEW-11 第 11、12 波；IEADD-1 | analytics `ireland_opendata/waves/PLAN.md` §5–6；BACKLOG H2 群 | 2026-11-08 |
+| 愛爾蘭 | 🟢 | 北極星:AI | 第 0–10 波＋統計＋Coillte 隨 v2.26.0／v2.27.0；11-10 夜：64 層入倉（倉庫 20261109T171745Z）、IEADD 6 層（#985）合 develop 待發版 | 統計 5 筆隨 AG-15 合併後進倉；IECOI-1 站主目視；Limerick 淹水分區憑證修好後重試 | analytics `ireland_opendata/waves/PLAN.md`；BACKLOG H2 群 | 2026-11-10 |
 | 加拿大第 0–3 波＋統計 | 🟢 | 北極星:好用 | 第 0–3 波＋統計＋即時地震隨 v2.22.0～v2.26.0 | VP-4 目視；第 2 波建物、C002 海域 HOLD；LODE 補座標前端未接；RV-F068、RV-CA-DERIVED | analytics `canada_opendata/waves/PLAN.md` §4–5 | 2026-11-07 |
 | 多國化議題 1 收尾 | 🟢 | 北極星:兼容 | 國家主體化隨 v2.16.0 | MC-3 目視；MC-1 主題識別名與顯示名拆開（有同名主題時再做） | BACKLOG MC-1／MC-3 | 2026-10-28 |
 | 多國化議題 2 收尾（MCP 跨國） | 🟢 | 北極星:AI | P0–P5 10-29 上線；countries.json 11-07 補 KR／CA／IE（MCP #98） | MC-6 補 name_en；MC-7 拆 airspace／coral 表；MC-8 觀察 eval 不穩點 | `../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic2-mcp.md` §5 | 2026-11-07 |

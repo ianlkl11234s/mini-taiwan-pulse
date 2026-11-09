@@ -132,6 +132,8 @@
   "popup.japan.roadState": "Road structure",
   "popup.japan.expresswayDefault": "Expressway",
   "popup.japan.roadNote": "Lines are split at mesh and attribute boundaries, so one segment is not one road; municipal roads are not included",
+  "popup.japan.municipalRoadTitle": "Municipal road",
+  "popup.japan.municipalRoadNote": "Lines are split at mesh and attribute boundaries, so one segment is not one road; the data has no road names; national and prefectural roads are in the \"Major Roads\" layer",
   "popup.japan.expresswayCategory": "Route type",
   "popup.japan.expresswayStatus": "Service status",
   "popup.japan.expresswayLanes": "Lanes (both directions)",

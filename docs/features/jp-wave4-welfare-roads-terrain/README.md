@@ -43,4 +43,15 @@
 
 - 主站 CSP 轉 enforcing 前，`img-src`／`connect-src` 要確認涵蓋 `cyberjapandata.gsi.go.jp`（目前 Report-Only 的 img-src 是 `https:`，不擋）。
 - 有料道路是否要另外的視覺編碼（目前只在 popup／篩選）。
-- 市町村道未收（全收粗估超過 1GB）：等 Zeabur 搬遷、大檔改放 R2 後再另開一層，見 BACKLOG `JPRD-1`。
+- ~~市町村道未收~~：2026-11-10 已另開 `jpMunicipalRoads` 層（JPRD-1），見下節。
+
+## 市町村道 `jpMunicipalRoads`（JPRD-1，2026-11-10）
+
+- **資料**：N13 2024 的「市区町村道等」（N13_003=3），共 22,210,998 線。上游是 analytics `pipelines/world/jp_municipal_roads/`、`docs/data-catalog/world/jp_municipal_roads.md`（analytics #352）。
+- **做法與體積**：前端讀 R2，Cloudflare 單檔快取上限 512MB。實測單一檔案估 0.9–1.2GB（東京 mesh 54.5MB、岩手 mesh 9.4MB，對原始 zip 比 0.72–0.93），(a) 單檔不可行；降到 z13 只少約 40%，仍然超過。所以採 (b)：依 1次メッシュ分 6 片 z12–14 PMTiles，每片 <500,000,000 bytes：hokkaido_tohoku 216.0MB、kanto 199.1MB、kinki 181.2MB、kyushu_okinawa 122.4MB、chubu 112.3MB、chugoku_shikoku 63.5MB，合計 894.6MB。分片只是儲存方式，邊界和都道府縣界不一致。
+- **供應**：`public/world/jp_municipal_roads_<shard>.pmtiles`（不進 git），登記在 `deploy/public-assets.lock.json`，上傳到 S3 `deploy-assets/world/`（只新增），發版時同步到 R2。URL 帶 `?v=<sha256 前 12 碼>`。
+- **前端**：`useJpMunicipalRoadsLayer.ts` 建 6 個 source／6 個 line layer，共用同一份樣式，插在主要道路圖層之下。layer 與 source minzoom 都是 12，z15 起 overzoom。樣式沿用 L-2 道路語意：都道府縣道橙色混白 50%（`#facf85`，和高速道路「暫定供用」的淡化做法相同），L-1 最細一階（thin）；L-1 沒有比 thin 更細的階，所以只在顏色上跟縣道區分，沒有新增設計語意。控制項只有透明度，因為只有單一類別，不需要篩選。
+- **拉遠**：國家全覽 z5 看不到，由視野提示卡（spec §5.42.1，執行時從點擊登記反查 minzoom）顯示「市町村道　放大到 z12 才顯示」；不另外做低縮放熱區。
+- **popup**：只有種別、幅員、收費、道路狀態（缺值分別當成通常部、無料）、資料時點。N13 沒有路名欄，所以不顯示名稱。
+- **倉庫**：DISPLAY_ONLY，不入倉。解鎖條件是倉庫要能處理千萬級線資料，或改成依地區抽取。
+- **截圖**：`.gis-agent-system/projects/2026-11-multi-country-night/shots/jp-roads/`（全覽提示卡、東京 z12／z14／popup／疊主要道路、岩手遠野 z12／z14、大阪 z12／z14）。

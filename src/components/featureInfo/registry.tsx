@@ -62,7 +62,7 @@ import {
 } from "./religionPanels";
 import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
-  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
+  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpMunicipalRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
 import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbMajorRoadsPanel, GbSurplusLandPanel, GbTrafficCountsAadfPanel, GbVisitorExperiencePanel } from "./ukPanels";
@@ -577,6 +577,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpWelfareDisability: JpWelfareDisabilityPanel,
   jpWelfareChild: JpWelfareChildPanel,
   jpMajorRoads: JpMajorRoadsPanel,
+  jpMunicipalRoads: JpMunicipalRoadsPanel,
   jpExpressways: JpExpresswaysPanel,
   jmaAmedas: JmaAmedasPanel,
   jmaWarnings: JmaWarningsPanel,
@@ -1262,6 +1263,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpWelfareDisability: "障礙福祉設施 障害者福祉施設",
   jpWelfareChild: "兒童福祉設施 児童福祉施設",
   jpMajorRoads: "主要道路 国道・都道府県道",
+  jpMunicipalRoads: "市町村道 市区町村道等",
   jpExpressways: "高速道路 高速道路",
   jmaAmedas: "AMeDAS 即時觀測 アメダス",
   jmaWarnings: "警報・注意報",

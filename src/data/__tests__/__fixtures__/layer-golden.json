@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1784,
+    "keyCount": 1817,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1081,6 +1081,17 @@
     },
     {
       "layers": [
+        "jp-municipal-roads-hokkaido_tohoku-line",
+        "jp-municipal-roads-kanto-line",
+        "jp-municipal-roads-chubu-line",
+        "jp-municipal-roads-kinki-line",
+        "jp-municipal-roads-chugoku_shikoku-line",
+        "jp-municipal-roads-kyushu_okinawa-line"
+      ],
+      "type": "jpMunicipalRoads"
+    },
+    {
+      "layers": [
         "jp-water-jpWaterDams"
       ],
       "type": "jpWaterDams"
@@ -1970,6 +1981,66 @@
     },
     {
       "layers": [
+        "kr-libraries-circle"
+      ],
+      "type": "krLibraries"
+    },
+    {
+      "layers": [
+        "kr-museums-circle"
+      ],
+      "type": "krMuseums"
+    },
+    {
+      "layers": [
+        "kr-performances-circle"
+      ],
+      "type": "krPerformances"
+    },
+    {
+      "layers": [
+        "kr-festivals-circle"
+      ],
+      "type": "krFestivals"
+    },
+    {
+      "layers": [
+        "kr-heritage-circle"
+      ],
+      "type": "krHeritage"
+    },
+    {
+      "layers": [
+        "kr-lodging-circle"
+      ],
+      "type": "krLodging"
+    },
+    {
+      "layers": [
+        "kr-safe-delivery-boxes-circle"
+      ],
+      "type": "krSafeDeliveryBoxes"
+    },
+    {
+      "layers": [
+        "kr-senior-centers-circle"
+      ],
+      "type": "krSeniorCenters"
+    },
+    {
+      "layers": [
+        "kr-noise-sites-circle"
+      ],
+      "type": "krNoiseSites"
+    },
+    {
+      "layers": [
+        "kr-clothing-bins-circle"
+      ],
+      "type": "krClothingBins"
+    },
+    {
+      "layers": [
         "kr-np-trails-line"
       ],
       "type": "krNpTrails"
@@ -2005,6 +2076,13 @@
         "kr-cemeteries-osm-point-circle"
       ],
       "type": "krCemeteriesOsm"
+    },
+    {
+      "layers": [
+        "kr-industrial-complexes-fill",
+        "kr-industrial-complexes-point-circle"
+      ],
+      "type": "krIndustrialComplexes"
     },
     {
       "layers": [
@@ -2476,6 +2554,18 @@
     },
     {
       "layers": [
+        "ie-defibrillators-circle"
+      ],
+      "type": "ieDefibrillators"
+    },
+    {
+      "layers": [
+        "ie-prisons-circle"
+      ],
+      "type": "iePrisons"
+    },
+    {
+      "layers": [
         "ie-road-rail-network-line"
       ],
       "type": "ieRoadRailNetwork"
@@ -2605,6 +2695,19 @@
     },
     {
       "layers": [
+        "ie-flood-zones-fill",
+        "ie-flood-zones-point-circle"
+      ],
+      "type": "ieFloodZones"
+    },
+    {
+      "layers": [
+        "ie-groundwater-flooding-fill"
+      ],
+      "type": "ieGroundwaterFlooding"
+    },
+    {
+      "layers": [
         "ie-river-flood-extents-fill"
       ],
       "type": "ieRiverFloodExtents"
@@ -2644,6 +2747,13 @@
     },
     {
       "layers": [
+        "ie-proposed-nha-fill",
+        "ie-proposed-nha-point-circle"
+      ],
+      "type": "ieProposedNha"
+    },
+    {
+      "layers": [
         "ie-national-parks-fill",
         "ie-national-parks-point-circle"
       ],
@@ -2661,6 +2771,13 @@
         "ie-aquaculture-point-circle"
       ],
       "type": "ieAquaculture"
+    },
+    {
+      "layers": [
+        "ie-peat-extraction-bogs-fill",
+        "ie-peat-extraction-bogs-point-circle"
+      ],
+      "type": "iePeatExtractionBogs"
     },
     {
       "layers": [
@@ -5157,6 +5274,8 @@
         "statsKrFireInjuriesSgg-fill",
         "statsKrFireDamageSido-fill",
         "statsKrFireDamageSgg-fill",
+        "statsKrFireIncidentsPer10kSido-fill",
+        "statsKrFireIncidentsPer10kSgg-fill",
         "statsKrTrafficAccidentsSido-fill",
         "statsKrTrafficAccidentsSgg-fill",
         "statsKrTrafficDeathsSido-fill",
@@ -5165,6 +5284,8 @@
         "statsKrTrafficSeriousInjuriesSgg-fill",
         "statsKrTrafficInjuriesSido-fill",
         "statsKrTrafficInjuriesSgg-fill",
+        "statsKrTrafficAccidentsPer10kSido-fill",
+        "statsKrTrafficAccidentsPer10kSgg-fill",
         "statsCaPopulationPr-fill",
         "statsCaPopulationCd-fill",
         "statsCaPopulationDensityPr-fill",
@@ -5653,6 +5774,88 @@
         "antivenom-hospitals-glow"
       ],
       "type": "antivenomHospitals"
+    },
+    {
+      "layers": [
+        "natural-vegetation-map-fill",
+        "forest-types-4th-survey-fill"
+      ],
+      "type": "vegetationForestTypes"
+    },
+    {
+      "layers": [
+        "vehicle-inspection-offices-circle",
+        "vehicle-inspection-offices-glow",
+        "vehicle-inspection-jurisdictions-fill"
+      ],
+      "type": "vehicleInspectionOffices"
+    },
+    {
+      "layers": [
+        "fireworks-sites-circle",
+        "fireworks-sites-glow"
+      ],
+      "type": "fireworksSites"
+    },
+    {
+      "layers": [
+        "iocean-fishing-reports-circle"
+      ],
+      "type": "iOceanFishing"
+    },
+    {
+      "layers": [
+        "iocean-sightings-circle",
+        "iocean-sightings-glow"
+      ],
+      "type": "iOceanSightings"
+    },
+    {
+      "layers": [
+        "tra-level-crossings-circle",
+        "tra-level-crossings-glow"
+      ],
+      "type": "traLevelCrossings"
+    },
+    {
+      "layers": [
+        "wra-disaster-cctv-circle",
+        "wra-disaster-cctv-glow"
+      ],
+      "type": "wraDisasterCctv"
+    },
+    {
+      "layers": [
+        "broadcast-transmitters-circle",
+        "broadcast-transmitters-glow"
+      ],
+      "type": "broadcastTransmitters"
+    },
+    {
+      "layers": [
+        "landslide-event-catalog-fill",
+        "landslide-event-catalog-outline",
+        "landslide-event-catalog-points-circle-point",
+        "landslide-event-catalog-points-circle-polygon"
+      ],
+      "type": "landslideEventCatalog"
+    },
+    {
+      "layers": [
+        "pollution-control-zones-fill",
+        "pollution-control-zones-outline",
+        "pollution-control-zones-points-circle-point",
+        "pollution-control-zones-points-circle-polygon"
+      ],
+      "type": "pollutionControlZones"
+    },
+    {
+      "layers": [
+        "teds-point-source-facilities-circle",
+        "teds-grid-emissions-fill",
+        "teds-grid-emissions-5km-fill"
+      ],
+      "type": "tedsGridEmissions"
     },
     {
       "layers": [
@@ -83936,6 +84139,4141 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "natural_vegetation_map_z4_10"
+      },
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "natural-vegetation-map-z4-10",
+      "sourceUrl": "./forestry/natural_vegetation_map_2014_z4_10.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 11,
+        "sourceLayer": "natural_vegetation_map"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "natural-vegetation-map",
+      "sourceUrl": "./forestry/natural_vegetation_map_2014.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "forest_types_4th_survey_z4_10"
+      },
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "forest-types-4th-survey-z4-10",
+      "sourceUrl": "./forestry/forest_types_4th_survey_z4_10.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 11,
+        "sourceLayer": "forest_types_4th_survey"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "forest-types-4th-survey",
+      "sourceUrl": "./forestry/forest_types_4th_survey.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iOceanFishing",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(43,92,149,0.00)",
+                0.05,
+                "rgba(43,92,149,0.11)",
+                0.15,
+                "rgba(68,114,179,0.33)",
+                0.3,
+                "rgba(101,138,198,0.66)",
+                0.45,
+                "rgba(140,162,201,0.99)",
+                0.6,
+                "rgba(178,187,204,1.00)",
+                0.8,
+                "rgba(209,212,217,1.00)",
+                1,
+                "rgba(238,238,239,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "+",
+                    1,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "n_reports"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                0,
+                6.90875477931522,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,165,201,0.00)",
+                0.05,
+                "rgba(145,165,201,0.11)",
+                0.15,
+                "rgba(110,144,201,0.33)",
+                0.3,
+                "rgba(79,123,188,0.66)",
+                0.45,
+                "rgba(54,103,165,0.99)",
+                0.6,
+                "rgba(36,84,136,1.00)",
+                0.8,
+                "rgba(25,66,105,1.00)",
+                1,
+                "rgba(18,47,76,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "+",
+                    1,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "n_reports"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                0,
+                6.90875477931522,
+                1
+              ]
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 9,
+        "minzoom": 4,
+        "sourceLayer": "iocean_fishing_reports_z4_9"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "iocean-fishing-reports-z4-9",
+      "sourceUrl": "./marine/iocean_fishing_reports_20260506_z4_9.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iOceanFishing",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "fishing_type"
+                ],
+                "堤岸釣",
+                "#0ea5e9",
+                "港區垂釣",
+                "#6366f1",
+                "岩磯岸釣",
+                "#a16207",
+                "船釣",
+                "#14b8a6",
+                "島礁垂釣",
+                "#f97316",
+                "沙灘釣",
+                "#eab308",
+                "礫灘釣",
+                "#78716c",
+                "筏釣",
+                "#ec4899",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2.5,
+                14,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 0.6
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "fishing_type"
+                ],
+                "堤岸釣",
+                "#0ea5e9",
+                "港區垂釣",
+                "#6366f1",
+                "岩磯岸釣",
+                "#a16207",
+                "船釣",
+                "#14b8a6",
+                "島礁垂釣",
+                "#f97316",
+                "沙灘釣",
+                "#eab308",
+                "礫灘釣",
+                "#78716c",
+                "筏釣",
+                "#ec4899",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2.5,
+                14,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 0.6
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "iocean_fishing_reports"
+      },
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "iocean-fishing-reports",
+      "sourceUrl": "./marine/iocean_fishing_reports_20260506.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vehicleInspectionOffices",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "service"
+            ],
+            "car"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#a3e635",
+                "vio_02",
+                "#38bdf8",
+                "vio_03",
+                "#f472b6",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#fb923c",
+                "vio_06",
+                "#f87171",
+                "vio_07",
+                "#38bdf8",
+                "vio_08",
+                "#fbbf24",
+                "vio_09",
+                "#a3e635",
+                "vio_10",
+                "#fbbf24",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#f472b6",
+                "vio_13",
+                "#fbbf24",
+                "vio_14",
+                "#fb923c",
+                "vio_15",
+                "#f87171",
+                "vio_16",
+                "#fbbf24",
+                "vio_17",
+                "#fb923c",
+                "vio_18",
+                "#a78bfa",
+                "vio_19",
+                "#34d399",
+                "vio_20",
+                "#a78bfa",
+                "vio_21",
+                "#f472b6",
+                "vio_22",
+                "#f87171",
+                "vio_23",
+                "#a78bfa",
+                "vio_24",
+                "#38bdf8",
+                "vio_25",
+                "#a3e635",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a78bfa",
+                "vio_28",
+                "#fb923c",
+                "vio_29",
+                "#34d399",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#38bdf8",
+                "vio_32",
+                "#38bdf8",
+                "vio_33",
+                "#f87171",
+                "vio_34",
+                "#34d399",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#f472b6",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.225
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#a3e635",
+                "vio_02",
+                "#38bdf8",
+                "vio_03",
+                "#f472b6",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#fb923c",
+                "vio_06",
+                "#f87171",
+                "vio_07",
+                "#38bdf8",
+                "vio_08",
+                "#fbbf24",
+                "vio_09",
+                "#a3e635",
+                "vio_10",
+                "#fbbf24",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#f472b6",
+                "vio_13",
+                "#fbbf24",
+                "vio_14",
+                "#fb923c",
+                "vio_15",
+                "#f87171",
+                "vio_16",
+                "#fbbf24",
+                "vio_17",
+                "#fb923c",
+                "vio_18",
+                "#a78bfa",
+                "vio_19",
+                "#34d399",
+                "vio_20",
+                "#a78bfa",
+                "vio_21",
+                "#f472b6",
+                "vio_22",
+                "#f87171",
+                "vio_23",
+                "#a78bfa",
+                "vio_24",
+                "#38bdf8",
+                "vio_25",
+                "#a3e635",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a78bfa",
+                "vio_28",
+                "#fb923c",
+                "vio_29",
+                "#34d399",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#38bdf8",
+                "vio_32",
+                "#38bdf8",
+                "vio_33",
+                "#f87171",
+                "vio_34",
+                "#34d399",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#f472b6",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.225
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "service"
+            ],
+            "car"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#a3e635",
+                "vio_02",
+                "#38bdf8",
+                "vio_03",
+                "#f472b6",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#fb923c",
+                "vio_06",
+                "#f87171",
+                "vio_07",
+                "#38bdf8",
+                "vio_08",
+                "#fbbf24",
+                "vio_09",
+                "#a3e635",
+                "vio_10",
+                "#fbbf24",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#f472b6",
+                "vio_13",
+                "#fbbf24",
+                "vio_14",
+                "#fb923c",
+                "vio_15",
+                "#f87171",
+                "vio_16",
+                "#fbbf24",
+                "vio_17",
+                "#fb923c",
+                "vio_18",
+                "#a78bfa",
+                "vio_19",
+                "#34d399",
+                "vio_20",
+                "#a78bfa",
+                "vio_21",
+                "#f472b6",
+                "vio_22",
+                "#f87171",
+                "vio_23",
+                "#a78bfa",
+                "vio_24",
+                "#38bdf8",
+                "vio_25",
+                "#a3e635",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a78bfa",
+                "vio_28",
+                "#fb923c",
+                "vio_29",
+                "#34d399",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#38bdf8",
+                "vio_32",
+                "#38bdf8",
+                "vio_33",
+                "#f87171",
+                "vio_34",
+                "#34d399",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#f472b6",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.6,
+                10,
+                1.6
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "office_id"
+                ],
+                "vio_01",
+                "#a3e635",
+                "vio_02",
+                "#38bdf8",
+                "vio_03",
+                "#f472b6",
+                "vio_04",
+                "#fbbf24",
+                "vio_05",
+                "#fb923c",
+                "vio_06",
+                "#f87171",
+                "vio_07",
+                "#38bdf8",
+                "vio_08",
+                "#fbbf24",
+                "vio_09",
+                "#a3e635",
+                "vio_10",
+                "#fbbf24",
+                "vio_11",
+                "#a3e635",
+                "vio_12",
+                "#f472b6",
+                "vio_13",
+                "#fbbf24",
+                "vio_14",
+                "#fb923c",
+                "vio_15",
+                "#f87171",
+                "vio_16",
+                "#fbbf24",
+                "vio_17",
+                "#fb923c",
+                "vio_18",
+                "#a78bfa",
+                "vio_19",
+                "#34d399",
+                "vio_20",
+                "#a78bfa",
+                "vio_21",
+                "#f472b6",
+                "vio_22",
+                "#f87171",
+                "vio_23",
+                "#a78bfa",
+                "vio_24",
+                "#38bdf8",
+                "vio_25",
+                "#a3e635",
+                "vio_26",
+                "#f472b6",
+                "vio_27",
+                "#a78bfa",
+                "vio_28",
+                "#fb923c",
+                "vio_29",
+                "#34d399",
+                "vio_30",
+                "#34d399",
+                "vio_31",
+                "#38bdf8",
+                "vio_32",
+                "#38bdf8",
+                "vio_33",
+                "#f87171",
+                "vio_34",
+                "#34d399",
+                "vio_35",
+                "#a3e635",
+                "vio_36",
+                "#f472b6",
+                "vio_37",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.6,
+                10,
+                1.6
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "vehicle_inspection_jurisdictions"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "vehicle-inspection-jurisdictions",
+      "sourceUrl": "./geo/vehicle_inspection_jurisdictions_1150421.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vehicleInspectionOffices",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "office",
+                "#facc15",
+                "station",
+                "#22d3ee",
+                "substation",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "vehicle_inspection_offices"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "vehicle-inspection-offices",
+      "sourceUrl": "./geo/vehicle_inspection_offices_1150421.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tedsGridEmissions",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "source"
+              ],
+              "point"
+            ],
+            [
+              ">",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "pm25"
+                ],
+                0
+              ],
+              0
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "log10",
+                  [
+                    "max",
+                    [
+                      "/",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "pm25"
+                        ],
+                        0
+                      ],
+                      25
+                    ],
+                    0.001
+                  ]
+                ],
+                -2,
+                "#fff7bc",
+                -1,
+                "#fee391",
+                0,
+                "#fec44f",
+                1,
+                "#fe9929",
+                2,
+                "#d95f0e",
+                3,
+                "#993404"
+              ],
+              "fill-opacity": 0.6
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "log10",
+                  [
+                    "max",
+                    [
+                      "/",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "pm25"
+                        ],
+                        0
+                      ],
+                      25
+                    ],
+                    0.001
+                  ]
+                ],
+                -2,
+                "#fff7bc",
+                -1,
+                "#fee391",
+                0,
+                "#fec44f",
+                1,
+                "#fe9929",
+                2,
+                "#d95f0e",
+                3,
+                "#993404"
+              ],
+              "fill-opacity": 0.6
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 9,
+        "minzoom": 4,
+        "sourceLayer": "teds_grid_emissions_5km"
+      },
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "teds-grid-emissions-5km",
+      "sourceUrl": "./environment/teds_grid_emissions_teds13_5km.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tedsGridEmissions",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "source"
+              ],
+              "point"
+            ],
+            [
+              ">",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "pm25"
+                ],
+                0
+              ],
+              0
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "log10",
+                  [
+                    "max",
+                    [
+                      "/",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "pm25"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    0.001
+                  ]
+                ],
+                -2,
+                "#fff7bc",
+                -1,
+                "#fee391",
+                0,
+                "#fec44f",
+                1,
+                "#fe9929",
+                2,
+                "#d95f0e",
+                3,
+                "#993404"
+              ],
+              "fill-opacity": 0.6
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "log10",
+                  [
+                    "max",
+                    [
+                      "/",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "pm25"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    0.001
+                  ]
+                ],
+                -2,
+                "#fff7bc",
+                -1,
+                "#fee391",
+                0,
+                "#fec44f",
+                1,
+                "#fe9929",
+                2,
+                "#d95f0e",
+                3,
+                "#993404"
+              ],
+              "fill-opacity": 0.6
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 10,
+        "sourceLayer": "teds_grid_emissions"
+      },
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "teds-grid-emissions",
+      "sourceUrl": "./environment/teds_grid_emissions_teds13.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tedsGridEmissions",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(154,53,4,0.00)",
+                0.05,
+                "rgba(154,53,4,0.11)",
+                0.15,
+                "rgba(189,69,3,0.33)",
+                0.3,
+                "rgba(219,93,11,0.66)",
+                0.45,
+                "rgba(242,125,27,0.99)",
+                0.6,
+                "rgba(254,163,50,1.00)",
+                0.8,
+                "rgba(254,204,97,1.00)",
+                1,
+                "rgba(255,239,172,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "+",
+                    1,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "pm25"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                0,
+                6.90875477931522,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(245,132,30,0.00)",
+                0.05,
+                "rgba(245,132,30,0.11)",
+                0.15,
+                "rgba(230,105,17,0.33)",
+                0.3,
+                "rgba(210,83,6,0.66)",
+                0.45,
+                "rgba(185,67,3,0.99)",
+                0.6,
+                "rgba(158,54,4,1.00)",
+                0.8,
+                "rgba(130,45,5,1.00)",
+                1,
+                "rgba(102,37,6,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "ln",
+                  [
+                    "+",
+                    1,
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "pm25"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                0,
+                0,
+                6.90875477931522,
+                1
+              ]
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#d95f0e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "sqrt",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "pm25"
+                    ],
+                    0
+                  ]
+                ],
+                0,
+                2.5,
+                1,
+                3.5,
+                10,
+                8,
+                30,
+                14
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": 0.8
+            },
+            "light": {
+              "circle-color": "#d95f0e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "sqrt",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "pm25"
+                    ],
+                    0
+                  ]
+                ],
+                0,
+                2.5,
+                1,
+                3.5,
+                10,
+                8,
+                30,
+                14
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": 0.8
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "teds_point_source_facilities"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "teds-point-source-facilities",
+      "sourceUrl": "./environment/teds_point_source_facilities_teds13.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideEventCatalog",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "landslide_event_catalog"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-event-catalog",
+      "sourceUrl": "./hazards/landslide_event_catalog_093_114.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideEventCatalog",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.005859375,
+                12,
+                1.5
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "year"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "114"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_typhoon"
+                  ],
+                  true
+                ],
+                "#7c3aed",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_rain"
+                  ],
+                  true
+                ],
+                "#0284c7",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_quake"
+                  ],
+                  true
+                ],
+                "#ea580c",
+                "#64748b"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "landslide_event_catalog_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "landslide-event-catalog-points",
+      "sourceUrl": "./hazards/landslide_event_catalog_093_114_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "pollutionControlZones",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "is_active"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "true"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "fill-opacity": 0.6
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "fill-opacity": 0.6
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "is_active"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "true"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 8,
+        "sourceLayer": "pollution_control_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "pollution-control-zones",
+      "sourceUrl": "./environment/pollution_control_zones_202611.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "pollutionControlZones",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "is_active"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "true"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "is_active"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "true"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 8,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "pollution_control_zones_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point",
+        "circle-polygon"
+      ],
+      "sourceId": "pollution-control-zones-points",
+      "sourceUrl": "./environment/pollution_control_zones_202611_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "fireworksSites",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "manufacturing",
+                "#dc2626",
+                "storage",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "manufacturing",
+                "#dc2626",
+                "storage",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "manufacturing",
+                "#dc2626",
+                "storage",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "manufacturing",
+                "#dc2626",
+                "storage",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "fireworks_sites"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "fireworks-sites",
+      "sourceUrl": "./geo/fireworks_sites_7070_v2.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "iOceanSightings",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "group_key"
+                ],
+                "cetacean",
+                "#2563eb",
+                "turtle_snake",
+                "#16a34a",
+                "mollusc",
+                "#f59e0b",
+                "reef_fish",
+                "#ec4899",
+                "other_fish",
+                "#94a3b8",
+                "echinoderm",
+                "#a855f7",
+                "crustacean",
+                "#ef4444",
+                "coral",
+                "#f97316",
+                "shark_ray",
+                "#06b6d4",
+                "seabird",
+                "#eab308",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "iocean_sightings"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "iocean-sightings",
+      "sourceUrl": "./marine/iocean_sightings_20260506_gen.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "traLevelCrossings",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type_key"
+                ],
+                "type3a",
+                "#f59e0b",
+                "type1",
+                "#2563eb",
+                "type2",
+                "#0891b2",
+                "half_closed",
+                "#7c3aed",
+                "manual",
+                "#db2777",
+                "private",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type_key"
+                ],
+                "type3a",
+                "#f59e0b",
+                "type1",
+                "#2563eb",
+                "type2",
+                "#0891b2",
+                "half_closed",
+                "#7c3aed",
+                "manual",
+                "#db2777",
+                "private",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type_key"
+                ],
+                "type3a",
+                "#f59e0b",
+                "type1",
+                "#2563eb",
+                "type2",
+                "#0891b2",
+                "half_closed",
+                "#7c3aed",
+                "manual",
+                "#db2777",
+                "private",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "type_key"
+                ],
+                "type3a",
+                "#f59e0b",
+                "type1",
+                "#2563eb",
+                "type2",
+                "#0891b2",
+                "half_closed",
+                "#7c3aed",
+                "manual",
+                "#db2777",
+                "private",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "tra_level_crossings"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "tra-level-crossings",
+      "sourceUrl": "./rail/tra_level_crossings_11970.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wraDisasterCctv",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "disaster",
+                "#0284c7",
+                "dredging",
+                "#b45309",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "disaster",
+                "#0284c7",
+                "dredging",
+                "#b45309",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "disaster",
+                "#0284c7",
+                "dredging",
+                "#b45309",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "disaster",
+                "#0284c7",
+                "dredging",
+                "#b45309",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "wra_disaster_cctv"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "wra-disaster-cctv",
+      "sourceUrl": "./geo/wra_disaster_cctv_20261109.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "broadcastTransmitters",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "fm",
+                "#7c3aed",
+                "am",
+                "#f59e0b",
+                "monitoring",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "fm",
+                "#7c3aed",
+                "am",
+                "#f59e0b",
+                "monitoring",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "fm",
+                "#7c3aed",
+                "am",
+                "#f59e0b",
+                "monitoring",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "fm",
+                "#7c3aed",
+                "am",
+                "#f59e0b",
+                "monitoring",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "broadcast_transmitters"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "broadcast-transmitters",
+      "sourceUrl": "./geo/broadcast_transmitters_1150703.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "debrisFlowPotential",
       "layers": [
         {
@@ -110880,6 +115218,49 @@
         "valueText": "0.90"
       }
     ],
+    "broadcastTransmitters": [
+      {
+        "label": "種類",
+        "options": [
+          {
+            "label": "FM 廣播",
+            "value": "fm"
+          },
+          {
+            "label": "AM 廣播",
+            "value": "am"
+          },
+          {
+            "label": "電波監測站",
+            "value": "monitoring"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "fm",
+          "am",
+          "monitoring"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "bssNationalBridgePointsPreview": [
       {
         "label": "品質",
@@ -118152,6 +122533,44 @@
         "valueText": "0 px"
       }
     ],
+    "fireworksSites": [
+      {
+        "label": "種類",
+        "options": [
+          {
+            "label": "製造場所",
+            "value": "manufacturing"
+          },
+          {
+            "label": "儲存場所",
+            "value": "storage"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "manufacturing",
+          "storage"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "firingNoticeAreas": [
       {
         "label": "發布機關",
@@ -124911,6 +129330,234 @@
         "valueText": "0.85"
       }
     ],
+    "iOceanFishing": [
+      {
+        "label": "垂釣類型",
+        "options": [
+          {
+            "label": "堤岸釣",
+            "value": "堤岸釣"
+          },
+          {
+            "label": "港區垂釣",
+            "value": "港區垂釣"
+          },
+          {
+            "label": "岩磯岸釣",
+            "value": "岩磯岸釣"
+          },
+          {
+            "label": "船釣",
+            "value": "船釣"
+          },
+          {
+            "label": "島礁垂釣",
+            "value": "島礁垂釣"
+          },
+          {
+            "label": "沙灘釣",
+            "value": "沙灘釣"
+          },
+          {
+            "label": "礫灘釣",
+            "value": "礫灘釣"
+          },
+          {
+            "label": "筏釣",
+            "value": "筏釣"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "堤岸釣",
+          "港區垂釣",
+          "岩磯岸釣",
+          "船釣",
+          "島礁垂釣",
+          "沙灘釣",
+          "礫灘釣",
+          "筏釣",
+          "__other__"
+        ]
+      },
+      {
+        "defaultValue": "oslo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "oslo"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "iOceanSightings": [
+      {
+        "label": "推定類群",
+        "options": [
+          {
+            "label": "鯨豚",
+            "value": "cetacean"
+          },
+          {
+            "label": "海龜與海蛇",
+            "value": "turtle_snake"
+          },
+          {
+            "label": "貝類與軟體動物",
+            "value": "mollusc"
+          },
+          {
+            "label": "珊瑚礁魚類",
+            "value": "reef_fish"
+          },
+          {
+            "label": "其他魚類",
+            "value": "other_fish"
+          },
+          {
+            "label": "棘皮動物",
+            "value": "echinoderm"
+          },
+          {
+            "label": "甲殼類與鱟",
+            "value": "crustacean"
+          },
+          {
+            "label": "珊瑚",
+            "value": "coral"
+          },
+          {
+            "label": "鯊魚與魟",
+            "value": "shark_ray"
+          },
+          {
+            "label": "海鳥",
+            "value": "seabird"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "cetacean",
+          "turtle_snake",
+          "mollusc",
+          "reef_fish",
+          "other_fish",
+          "echinoderm",
+          "crustacean",
+          "coral",
+          "shark_ray",
+          "seabird"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "iPostBoxes": [
       {
         "label": "透明度 0.80",
@@ -125763,6 +130410,49 @@
         "valueText": "1.0"
       }
     ],
+    "ieDefibrillators": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公開可用（access=yes／public）",
+            "value": "public"
+          },
+          {
+            "label": "限顧客、員工或會員",
+            "value": "restricted"
+          },
+          {
+            "label": "未標示",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "public",
+          "restricted",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieDublinbikesStations": [
       {
         "label": "透明度 0.85",
@@ -125862,6 +130552,59 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieFloodZones": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Flood Zone A（河川 ≥1%／年、海岸 ≥0.5%／年）",
+            "value": "A"
+          },
+          {
+            "label": "Flood Zone B（A 以外、≥0.1%／年）",
+            "value": "B"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "ieFuelStations": [
@@ -126052,6 +130795,44 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieGroundwaterFlooding": [
+      {
+        "label": "淹水圖種類",
+        "options": [
+          {
+            "label": "地下水淹水・高機率（年機率 10%）",
+            "value": "high"
+          },
+          {
+            "label": "地下水淹水・中機率（年機率 1%）",
+            "value": "medium"
+          },
+          {
+            "label": "地下水淹水・低機率（年機率 0.1%）",
+            "value": "low"
+          },
+          {
+            "label": "歷史最大地下水淹水範圍",
+            "value": "historic"
+          },
+          {
+            "label": "2015/16 冬季地表水淹水（衛星判釋）",
+            "value": "surface_2015"
+          }
+        ],
+        "type": "select",
+        "value": "historic"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       }
     ],
     "ieHealthFacilities": [
@@ -126935,6 +131716,41 @@
         "value": "point"
       }
     ],
+    "iePeatExtractionBogs": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "iePeatSoils": [
       {
         "label": "類別",
@@ -127257,6 +132073,61 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "iePrisons": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieProposedNha": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "ieProtectedMarineSites": [
@@ -132944,6 +137815,17 @@
         "valueText": "0.80"
       }
     ],
+    "jpMunicipalRoads": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "jpNationalForests": [
       {
         "label": "類別",
@@ -136532,6 +141414,103 @@
         "valueText": "1.0"
       }
     ],
+    "krClothingBins": [
+      {
+        "defaultValue": "turku",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "turku"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krCoastalErosionFacilities": [
       {
         "label": "類別",
@@ -136647,6 +141626,49 @@
         "role": "heatmap",
         "type": "palette",
         "value": "rocket"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krFestivals": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "2026 年",
+            "value": "y2026"
+          },
+          {
+            "label": "2025 年",
+            "value": "y2025"
+          },
+          {
+            "label": "2024 年以前",
+            "value": "older"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "y2026",
+          "y2025",
+          "older"
+        ]
       },
       {
         "label": "透明度 0.80",
@@ -136830,6 +141852,131 @@
         "valueText": "1.0"
       }
     ],
+    "krHeritage": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國家指定（國寶、寶物、史蹟、名勝、天然紀念物、民俗）",
+            "value": "national"
+          },
+          {
+            "label": "市道指定",
+            "value": "provincial"
+          },
+          {
+            "label": "登錄文化遺產",
+            "value": "registered"
+          },
+          {
+            "label": "文化遺產資料",
+            "value": "material"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "national",
+          "provincial",
+          "registered",
+          "material"
+        ]
+      },
+      {
+        "defaultValue": "Burg",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "Burg"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krHospitalsPharmacies": [
       {
         "label": "類別",
@@ -136959,6 +142106,247 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krIndustrialComplexes": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國家產業園區（국가산업단지）",
+            "value": "national"
+          },
+          {
+            "label": "一般產業園區（일반산업단지）",
+            "value": "general"
+          },
+          {
+            "label": "都市尖端產業園區（도시첨단산업단지）",
+            "value": "hightech"
+          },
+          {
+            "label": "農工園區（농공단지）",
+            "value": "agri"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "national",
+          "general",
+          "hightech",
+          "agri"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "krLibraries": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公共圖書館（공공도서관）",
+            "value": "public"
+          },
+          {
+            "label": "小型圖書館（작은도서관）",
+            "value": "small"
+          },
+          {
+            "label": "兒童圖書館（어린이도서관）",
+            "value": "children"
+          },
+          {
+            "label": "其他（學校、身障、專門、大學）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "public",
+          "small",
+          "children",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krLodging": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "飯店（관광／일반호텔）",
+            "value": "hotel"
+          },
+          {
+            "label": "渡假公寓（휴양콘도）",
+            "value": "condo"
+          },
+          {
+            "label": "旅館與旅人宿（여관／여인숙）",
+            "value": "motel"
+          },
+          {
+            "label": "生活型住宿（생활숙박）",
+            "value": "residence"
+          },
+          {
+            "label": "其他住宿",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hotel",
+          "condo",
+          "motel",
+          "residence",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "acton",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "acton"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -137105,6 +142493,44 @@
         "valueText": "0.70"
       }
     ],
+    "krMuseums": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "博物館（박물관）",
+            "value": "museum"
+          },
+          {
+            "label": "美術館（미술관）",
+            "value": "gallery"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "museum",
+          "gallery"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krNationalParks": [
       {
         "label": "透明度 0.50",
@@ -137125,6 +142551,44 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "krNoiseSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "道路噪音測點",
+            "value": "road"
+          },
+          {
+            "label": "一般地區測點",
+            "value": "general"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "road",
+          "general"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "krNpLocationSigns": [
@@ -137362,6 +142826,49 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krPerformances": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "2026 年",
+            "value": "y2026"
+          },
+          {
+            "label": "2025 年",
+            "value": "y2025"
+          },
+          {
+            "label": "2024 年以前",
+            "value": "older"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "y2026",
+          "y2025",
+          "older"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -137879,6 +143386,26 @@
         "valueText": "0.85"
       }
     ],
+    "krSafeDeliveryBoxes": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krSchoolDistricts": [
       {
         "label": "透明度 0.35",
@@ -138014,6 +143541,126 @@
         "role": "heatmap",
         "type": "palette",
         "value": "cividis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krSeniorCenters": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "敬老堂（경로당）",
+            "value": "senior"
+          },
+          {
+            "label": "里民會館兼敬老堂",
+            "value": "both"
+          },
+          {
+            "label": "里民會館（마을회관）",
+            "value": "hall"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "senior",
+          "both",
+          "hall"
+        ]
+      },
+      {
+        "defaultValue": "PuBuGn",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBuGn"
       },
       {
         "label": "透明度 0.75",
@@ -139642,6 +145289,243 @@
         "step": 0.05,
         "value": 0.35,
         "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "landslideEventCatalog": [
+      {
+        "label": "年度（西元）",
+        "options": [
+          {
+            "label": "2004",
+            "value": "93"
+          },
+          {
+            "label": "2005",
+            "value": "94"
+          },
+          {
+            "label": "2006",
+            "value": "95"
+          },
+          {
+            "label": "2007",
+            "value": "96"
+          },
+          {
+            "label": "2008",
+            "value": "97"
+          },
+          {
+            "label": "2009",
+            "value": "98"
+          },
+          {
+            "label": "2010",
+            "value": "99"
+          },
+          {
+            "label": "2011",
+            "value": "100"
+          },
+          {
+            "label": "2012",
+            "value": "101"
+          },
+          {
+            "label": "2013",
+            "value": "102"
+          },
+          {
+            "label": "2014",
+            "value": "103"
+          },
+          {
+            "label": "2015",
+            "value": "104"
+          },
+          {
+            "label": "2016",
+            "value": "105"
+          },
+          {
+            "label": "2017",
+            "value": "106"
+          },
+          {
+            "label": "2018",
+            "value": "107"
+          },
+          {
+            "label": "2019",
+            "value": "108"
+          },
+          {
+            "label": "2020",
+            "value": "109"
+          },
+          {
+            "label": "2021",
+            "value": "110"
+          },
+          {
+            "label": "2022",
+            "value": "111"
+          },
+          {
+            "label": "2023",
+            "value": "112"
+          },
+          {
+            "label": "2024",
+            "value": "113"
+          },
+          {
+            "label": "2025",
+            "value": "114"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "114"
+        ]
+      },
+      {
+        "label": "事件類型",
+        "options": [
+          {
+            "label": "颱風",
+            "value": "typhoon"
+          },
+          {
+            "label": "豪雨",
+            "value": "rain"
+          },
+          {
+            "label": "地震",
+            "value": "quake"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "typhoon",
+          "rain",
+          "quake",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "acton",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "acton"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       },
       {
         "label": "大小 1.0",
@@ -144158,6 +150042,99 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "pollutionControlZones": [
+      {
+        "label": "介質",
+        "options": [
+          {
+            "label": "土壤",
+            "value": "soil"
+          },
+          {
+            "label": "地下水",
+            "value": "groundwater"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "soil",
+          "groundwater"
+        ]
+      },
+      {
+        "label": "列管類型",
+        "options": [
+          {
+            "label": "整治場址",
+            "value": "remediation"
+          },
+          {
+            "label": "控制場址",
+            "value": "control"
+          },
+          {
+            "label": "地下水受污染使用限制地區",
+            "value": "gw_restriction"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "remediation",
+          "control",
+          "gw_restriction"
+        ]
+      },
+      {
+        "label": "列管狀態",
+        "options": [
+          {
+            "label": "列管中",
+            "value": "true"
+          },
+          {
+            "label": "已解除",
+            "value": "false"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "true"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "pollutionFacility": [
@@ -183734,6 +189711,76 @@
         "valueText": "0.55"
       }
     ],
+    "statsKrFireIncidentsPer10kSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireIncidentsPer10kSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireIncidentsPer10kSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireIncidentsPer10kSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrFireIncidentsPer10kSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrFireIncidentsPer10kSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrFireIncidentsPer10kSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrFireIncidentsPer10kSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsKrFireIncidentsSgg": [
       {
         "label": "地理層級／口徑",
@@ -184440,6 +190487,76 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsKrSexRatioSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficAccidentsPer10kSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficAccidentsPer10kSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficAccidentsPer10kSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficAccidentsPer10kSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrTrafficAccidentsPer10kSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrTrafficAccidentsPer10kSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrTrafficAccidentsPer10kSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrTrafficAccidentsPer10kSido"
       },
       {
         "label": "資料期別",
@@ -191641,6 +197758,161 @@
         "valueText": "0 px"
       }
     ],
+    "tedsGridEmissions": [
+      {
+        "label": "污染物",
+        "options": [
+          {
+            "label": "PM2.5",
+            "value": "pm25"
+          },
+          {
+            "label": "PM10",
+            "value": "pm10"
+          },
+          {
+            "label": "SOx",
+            "value": "sox"
+          },
+          {
+            "label": "NOx",
+            "value": "nox"
+          },
+          {
+            "label": "NMHC",
+            "value": "nmhc"
+          },
+          {
+            "label": "CO",
+            "value": "co"
+          }
+        ],
+        "type": "select",
+        "value": "pm25"
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "點源（網格）",
+            "value": "point"
+          },
+          {
+            "label": "線源（公路車輛）",
+            "value": "line"
+          },
+          {
+            "label": "面源",
+            "value": "area"
+          },
+          {
+            "label": "生物源",
+            "value": "bio"
+          },
+          {
+            "label": "點源工廠",
+            "value": "facilities"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "temperatureGrid": [
       {
         "label": "透明度 0.70",
@@ -192331,6 +198603,64 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "traLevelCrossings": [
+      {
+        "label": "分類",
+        "options": [
+          {
+            "label": "第三種甲平交道",
+            "value": "type3a"
+          },
+          {
+            "label": "第一種平交道",
+            "value": "type1"
+          },
+          {
+            "label": "第二種平交道",
+            "value": "type2"
+          },
+          {
+            "label": "半封閉式平交道",
+            "value": "half_closed"
+          },
+          {
+            "label": "人工控制平交道",
+            "value": "manual"
+          },
+          {
+            "label": "專用平交道",
+            "value": "private"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "type3a",
+          "type1",
+          "type2",
+          "half_closed",
+          "manual",
+          "private"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",
@@ -193888,6 +200218,128 @@
         ],
         "type": "select",
         "value": "polygon"
+      }
+    ],
+    "vegetationForestTypes": [
+      {
+        "label": "資料集",
+        "options": [
+          {
+            "label": "天然植群圖（2014）",
+            "value": "vegetation"
+          },
+          {
+            "label": "森林林型（第四次調查）",
+            "value": "forestType"
+          }
+        ],
+        "type": "select",
+        "value": "vegetation"
+      },
+      {
+        "label": "植群大類",
+        "options": [
+          {
+            "label": "森林",
+            "value": "forest"
+          },
+          {
+            "label": "灌叢",
+            "value": "shrub"
+          },
+          {
+            "label": "草本植群",
+            "value": "herbaceous"
+          },
+          {
+            "label": "特殊棲地",
+            "value": "special_habitat"
+          },
+          {
+            "label": "人工植生",
+            "value": "planted"
+          },
+          {
+            "label": "其他（裸露地、耕地、水域、建地等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "forest",
+          "shrub",
+          "herbaceous",
+          "special_habitat",
+          "planted",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      }
+    ],
+    "vehicleInspectionOffices": [
+      {
+        "label": "所站種類",
+        "options": [
+          {
+            "label": "監理所",
+            "value": "office"
+          },
+          {
+            "label": "監理站",
+            "value": "station"
+          },
+          {
+            "label": "監理分站",
+            "value": "substation"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "office",
+          "station",
+          "substation"
+        ]
+      },
+      {
+        "label": "轄區業務",
+        "options": [
+          {
+            "label": "汽車監理",
+            "value": "car"
+          },
+          {
+            "label": "機車監理",
+            "value": "motorcycle"
+          }
+        ],
+        "type": "select",
+        "value": "car"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "vesselWatch": [
@@ -196215,6 +202667,44 @@
         ],
         "type": "select",
         "value": "polygon"
+      }
+    ],
+    "wraDisasterCctv": [
+      {
+        "label": "種類",
+        "options": [
+          {
+            "label": "水情影像監視站",
+            "value": "disaster"
+          },
+          {
+            "label": "疏濬工區管制站",
+            "value": "dredging"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "disaster",
+          "dredging"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "wraDredgingPoints": [

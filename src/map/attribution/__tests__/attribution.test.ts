@@ -57,7 +57,7 @@ describe("圖層來源收集（不漏顯名）", () => {
         setOverlayVisible(m, config, true, true, params);
         return collectLayerAttributions(readMapSourceViews(m));
       };
-      const collected = [{}, { [`${config.id}DisplayModeIdx`]: 0 }, { [`${config.id}DisplayModeIdx`]: 1 }, { [`${config.id}ViewIdx`]: 1 }, { [`${config.id}ViewIdx`]: 2 }]
+      const collected = [{}, { [`${config.id}DisplayModeIdx`]: 0 }, { [`${config.id}DisplayModeIdx`]: 1 }, { [`${config.id}ViewIdx`]: 1 }, { [`${config.id}ViewIdx`]: 2 }, { [`${config.id}ViewIdx`]: 3 }, { [`${config.id}ViewIdx`]: 4 }]
         .map(collectedFor).find((c) => c.includes(config.attribution!.trim())) ?? [];
       if (!collected.includes(config.attribution!.trim())) {
         missing.push(`${config.id}: not collected`);
