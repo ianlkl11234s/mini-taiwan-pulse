@@ -509,6 +509,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-planning-applications-circle"], type: "iePlanningApplications" },
   { layers: ["ie-recycling-points-circle"], type: "ieRecyclingPoints" },
   { layers: ["ie-prtr-facilities-circle"], type: "iePrtrFacilities" },
+  // 第 11 波：點（AED、監獄）
+  { layers: ["ie-defibrillators-circle"], type: "ieDefibrillators" },
+  { layers: ["ie-prisons-circle"], type: "iePrisons" },
   { layers: ["ie-road-rail-network-line"], type: "ieRoadRailNetwork" },
   // 第 5 波：點（輻射站、樹木、崩塌事件）→ 線（步道、Wild Atlantic Way）；面在後（代表點 circle 由 repPointClickLayerIds 補）
   { layers: ["ie-radiation-stations-circle"], type: "ieRadiationStations" },
@@ -535,6 +538,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-state-assets-fill"], type: "ieStateAssets" },
   // 第 3a 波：淹水、湖泊面
   { layers: ["ie-lake-water-bodies-fill"], type: "ieLakeWaterBodies" },
+  // 第 11 波：郡議會淹水分區（小，代表點 circle 由 repPointClickLayerIds 補）、GSI 地下水淹水，在 OPW 河川淹水之前
+  { layers: ["ie-flood-zones-fill"], type: "ieFloodZones" },
+  { layers: ["ie-groundwater-flooding-fill"], type: "ieGroundwaterFlooding" },
   { layers: ["ie-river-flood-extents-fill"], type: "ieRiverFloodExtents" },
   // 第 3b 波：受保護海域（代表點 circle 由 repPointClickLayerIds 補）、離岸能源、海床調查範圍（大面最後命中）
   { layers: ["ie-protected-marine-sites-fill"], type: "ieProtectedMarineSites" },
@@ -543,10 +549,14 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 第 5 波面：崩塌範圍（小）→ 保護區 → 國家公園 → 氡氣（鋪滿國土，最後命中）
   { layers: ["ie-landslide-extents-fill"], type: "ieLandslideExtents" },
   { layers: ["ie-protected-sites-fill"], type: "ieProtectedSites" },
+  // 第 11 波：提議中自然遺產區（代表點 circle 由 repPointClickLayerIds 補）
+  { layers: ["ie-proposed-nha-fill"], type: "ieProposedNha" },
   { layers: ["ie-national-parks-fill"], type: "ieNationalParks" },
   { layers: ["ie-radon-risk-fill"], type: "ieRadonRisk" },
   // 第 10 波面：養殖場（小，代表點 circle 由 repPointClickLayerIds 補）→ 泥炭土壤 → 土壤圖（鋪滿國土）
   { layers: ["ie-aquaculture-fill"], type: "ieAquaculture" },
+  // 第 11 波：泥炭開採沼地（代表點 circle 由 repPointClickLayerIds 補），在泥炭土壤之前
+  { layers: ["ie-peat-extraction-bogs-fill"], type: "iePeatExtractionBogs" },
   { layers: ["ie-peat-soils-fill"], type: "iePeatSoils" },
   { layers: ["ie-soils-fill"], type: "ieSoils" },
   // 第 7a 波：學校規劃區（鋪滿國土，在行政界之前）

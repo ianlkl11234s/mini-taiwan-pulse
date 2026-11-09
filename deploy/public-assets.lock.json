@@ -3056,6 +3056,13 @@
    "s3_key": "deploy-assets/world/ie_courts.pmtiles"
   },
   {
+   "path": "public/world/ie_defibrillators.pmtiles",
+   "bytes": 1904563,
+   "sha256": "f436309ad65fbdd9f255ba6b7c87e1c09a5783df133b2bfdb5b8bbb5a5ef020b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_defibrillators.pmtiles"
+  },
+  {
    "path": "public/world/ie_dublinbikes_stations.pmtiles",
    "bytes": 41757,
    "sha256": "43a47c9d9d661b74c72b7156a1c472b133a87aa4389446dec544e48a3c5825bb",
@@ -3103,6 +3110,41 @@
    "sha256": "63a80a6756ca7df79fce7cd292d018389ebbed5c38fee6edf4d83483b3ff42b9",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/ie_graveyards.pmtiles"
+  },
+  {
+   "path": "public/world/ie_groundwater_flooding_high.pmtiles",
+   "bytes": 1080623,
+   "sha256": "146adf7899a9d9e7615da1ff24f71474b6583d3821e3c786f5d3d5a30ed4214f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_groundwater_flooding_high.pmtiles"
+  },
+  {
+   "path": "public/world/ie_groundwater_flooding_historic.pmtiles",
+   "bytes": 3545576,
+   "sha256": "3d05303479d618c1e21475bc7214d6e37fa1c14f45de29dff8f7de9833bb2eb0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_groundwater_flooding_historic.pmtiles"
+  },
+  {
+   "path": "public/world/ie_groundwater_flooding_low.pmtiles",
+   "bytes": 1127316,
+   "sha256": "6365d2db395610259c9ad3e92c5ae8d5da2f2add4016ed49bff839a1c995c17a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_groundwater_flooding_low.pmtiles"
+  },
+  {
+   "path": "public/world/ie_groundwater_flooding_medium.pmtiles",
+   "bytes": 1111713,
+   "sha256": "341a1678b7bd794fc124ec1b99624d4de260cd75e6ec11d163198464f8b2259e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_groundwater_flooding_medium.pmtiles"
+  },
+  {
+   "path": "public/world/ie_groundwater_flooding_surface_2015.pmtiles",
+   "bytes": 15352107,
+   "sha256": "05b62bfaa8ed23aa28e0ace4b1140da844ba4dd82ec0a1d2a941c1ed7226eed6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_groundwater_flooding_surface_2015.pmtiles"
   },
   {
    "path": "public/world/ie_health_facilities.pmtiles",
@@ -3217,6 +3259,20 @@
    "s3_key": "deploy-assets/world/ie_parks_points.pmtiles"
   },
   {
+   "path": "public/world/ie_peat_extraction_bogs.pmtiles",
+   "bytes": 854710,
+   "sha256": "00d9643e21500bf094ee44ec736660b0c8ce2db3f18fb8af34502506958a8dc6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_peat_extraction_bogs.pmtiles"
+  },
+  {
+   "path": "public/world/ie_peat_extraction_bogs_points.pmtiles",
+   "bytes": 135842,
+   "sha256": "6f57a59e050417caffca108d2ae566e780972aaa48e5aaea34d1342410d2a053",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_peat_extraction_bogs_points.pmtiles"
+  },
+  {
    "path": "public/world/ie_peat_soils.pmtiles",
    "bytes": 6868439,
    "sha256": "9740296decbfe2c0d4f54847f49a73797a9b08b77cf5afc3c5b62533703d0612",
@@ -3243,6 +3299,27 @@
    "sha256": "bf6ddf1eda086b125157802de9923eb676643587e9d241f107641da2f8d793df",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/ie_power_plants.pmtiles"
+  },
+  {
+   "path": "public/world/ie_prisons.pmtiles",
+   "bytes": 17507,
+   "sha256": "1c119dca83996367f61e167a7c1e6c1c4ac25d3698e44207f4e6402c61e999f5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_prisons.pmtiles"
+  },
+  {
+   "path": "public/world/ie_proposed_nha.pmtiles",
+   "bytes": 4623839,
+   "sha256": "f9a810097cfb78b21b03fe52788c95ec74783cd30799c31ce7f00406e4977184",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_proposed_nha.pmtiles"
+  },
+  {
+   "path": "public/world/ie_proposed_nha_points.pmtiles",
+   "bytes": 1201923,
+   "sha256": "d22b4dba12019b5566ade858416f87133317cdb8dae809cae821c567590b2424",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_proposed_nha_points.pmtiles"
   },
   {
    "path": "public/world/ie_protected_marine_sites.pmtiles",

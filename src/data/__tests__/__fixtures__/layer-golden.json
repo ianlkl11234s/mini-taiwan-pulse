@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1807,
+    "keyCount": 1813,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2524,6 +2524,18 @@
     },
     {
       "layers": [
+        "ie-defibrillators-circle"
+      ],
+      "type": "ieDefibrillators"
+    },
+    {
+      "layers": [
+        "ie-prisons-circle"
+      ],
+      "type": "iePrisons"
+    },
+    {
+      "layers": [
         "ie-road-rail-network-line"
       ],
       "type": "ieRoadRailNetwork"
@@ -2653,6 +2665,19 @@
     },
     {
       "layers": [
+        "ie-flood-zones-fill",
+        "ie-flood-zones-point-circle"
+      ],
+      "type": "ieFloodZones"
+    },
+    {
+      "layers": [
+        "ie-groundwater-flooding-fill"
+      ],
+      "type": "ieGroundwaterFlooding"
+    },
+    {
+      "layers": [
         "ie-river-flood-extents-fill"
       ],
       "type": "ieRiverFloodExtents"
@@ -2692,6 +2717,13 @@
     },
     {
       "layers": [
+        "ie-proposed-nha-fill",
+        "ie-proposed-nha-point-circle"
+      ],
+      "type": "ieProposedNha"
+    },
+    {
+      "layers": [
         "ie-national-parks-fill",
         "ie-national-parks-point-circle"
       ],
@@ -2709,6 +2741,13 @@
         "ie-aquaculture-point-circle"
       ],
       "type": "ieAquaculture"
+    },
+    {
+      "layers": [
+        "ie-peat-extraction-bogs-fill",
+        "ie-peat-extraction-bogs-point-circle"
+      ],
+      "type": "iePeatExtractionBogs"
     },
     {
       "layers": [
@@ -130341,6 +130380,49 @@
         "valueText": "1.0"
       }
     ],
+    "ieDefibrillators": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公開可用（access=yes／public）",
+            "value": "public"
+          },
+          {
+            "label": "限顧客、員工或會員",
+            "value": "restricted"
+          },
+          {
+            "label": "未標示",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "public",
+          "restricted",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ieDublinbikesStations": [
       {
         "label": "透明度 0.85",
@@ -130440,6 +130522,136 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieFloodZones": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Flood Zone A（河川 ≥1%／年、海岸 ≥0.5%／年）",
+            "value": "A"
+          },
+          {
+            "label": "Flood Zone B（A 以外、≥0.1%／年）",
+            "value": "B"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "ieFuelStations": [
@@ -130630,6 +130842,44 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "ieGroundwaterFlooding": [
+      {
+        "label": "淹水圖種類",
+        "options": [
+          {
+            "label": "地下水淹水・高機率（年機率 10%）",
+            "value": "high"
+          },
+          {
+            "label": "地下水淹水・中機率（年機率 1%）",
+            "value": "medium"
+          },
+          {
+            "label": "地下水淹水・低機率（年機率 0.1%）",
+            "value": "low"
+          },
+          {
+            "label": "歷史最大地下水淹水範圍",
+            "value": "historic"
+          },
+          {
+            "label": "2015/16 冬季地表水淹水（衛星判釋）",
+            "value": "surface_2015"
+          }
+        ],
+        "type": "select",
+        "value": "historic"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       }
     ],
     "ieHealthFacilities": [
@@ -131513,6 +131763,41 @@
         "value": "point"
       }
     ],
+    "iePeatExtractionBogs": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "iePeatSoils": [
       {
         "label": "類別",
@@ -131835,6 +132120,61 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "iePrisons": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ieProposedNha": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "ieProtectedMarineSites": [

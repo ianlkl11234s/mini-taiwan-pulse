@@ -36,7 +36,7 @@ import { KR_DATA_SPECS } from "./krDataLayers";
 import { repPointDense, repPointLayer } from "./repPointLayers";
 import type { KrDataKey } from "./krDataKeys";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
-import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRICS, ieNoiseMetricFile } from "./ieDataLayers";
+import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRICS, ieNoiseMetricFile, IE_GW_FLOOD_PRODUCTS, ieGwFloodFile } from "./ieDataLayers";
 import type { IeDataKey } from "./ieDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
@@ -921,6 +921,19 @@ const IE_DATA_ENTRY_META: Record<IeDataKey, { theme: string; group: string; zh: 
     description: "愛爾蘭 EPA 廢棄物許可設施邊界 292 處（掩埋場 76、轉運站 63、資源回收分選 19、堆肥 19、綜合 15、土石 24、有害 20、其他 6、未分類 50）", processing: "EPA WFS WASTE_Boundary；50 處無屬性者以 LEMA_Facilities_Waste 補名 28；聯絡人、電話、稽查員不收，個人營運者不顯示；面＋代表點 z4–14", note: "CC BY 4.0；地方政府核發的許可與登記證未涵蓋" },
   iePrtrFacilities: { theme: "環境氣候", group: "環境污染", zh: "PRTR 申報設施", alt: "PRTR Facilities", icon: Factory, dataset: "ie_prtr_facilities", topics: ["愛爾蘭", "PRTR", "污染排放", "工業排放", "EPA", "IED"],
     description: "愛爾蘭 EPA PRTR 全部門設施 656 處（廢棄物與污水 165、畜牧 134、食品 96、化學 92、礦物 53、能源 43、金屬 31、其他 26、紙木 16）", processing: "EPA WFS All_PRTR_Sectors；重複登記號去 2；集約畜牧個人姓名 49 處不顯示；PMTiles z4–14", note: "CC BY 4.0；不含排放量" },
+  // 第 11 波（2026-11-10）：IEADD-1 補做（主題沿用既有：醫療、執法治安、環境氣候、災害、農業）
+  ieDefibrillators: { theme: "醫療", group: "點位", zh: "AED 自動體外心臟去顫器", alt: "AEDs (Defibrillators)", icon: HeartPulse, dataset: "ie_defibrillators", topics: ["愛爾蘭", "AED", "去顫器", "急救", "心臟", "OSM"],
+    description: "愛爾蘭 OpenStreetMap 標記的 AED 2,463 台（公開可用 1,182、限顧客或員工 246、未標示 1,035；剔除北愛 340）", processing: "Geofabrik PBF 261105 points emergency=defibrillator；剔北愛；不收電話與聯絡人，像個人姓名的管理單位不顯示；PMTiles z4–14", note: "ODbL 1.0；NAS 官方登記冊不公開，非全部" },
+  iePrisons: { theme: "執法治安", group: "司法矯正", zh: "監獄", alt: "Prisons", icon: Lock, dataset: "ie_prisons", topics: ["愛爾蘭", "監獄", "矯正", "Irish Prison Service", "OSM"],
+    description: "愛爾蘭監獄 11 處（OpenStreetMap；Irish Prison Service 12 處，Wheatfield 與 Cloverhill 同一個面）", processing: "Geofabrik PBF 261105 multipolygons amenity=prison → 代表點；剔北愛 4；PMTiles z4–14", note: "ODbL 1.0；IPS 無開放點位" },
+  ieProposedNha: { theme: "環境氣候", group: "保護區", zh: "提議中自然遺產區（pNHA）", alt: "Proposed Natural Heritage Areas (pNHA)", icon: Leaf, dataset: "ie_proposed_nha", topics: ["愛爾蘭", "保護區", "pNHA", "自然遺產", "生態", "NPWS"],
+    description: "愛爾蘭 NPWS 提議中自然遺產區 1,089 處、1,180 面（約 84.5 萬公頃，含與 SAC／SPA 重疊部分）", processing: "NPWSDesignatedAreas FeatureServer layer 1 → 4326；面 PMTiles z4–13＋代表點（預設點）", note: "CC BY 4.0；1995 年公布、未完成法定指定" },
+  ieFloodZones: { theme: "災害", group: "淹水", zh: "郡議會淹水分區 Flood Zone A／B", alt: "Council Flood Zones A/B", icon: Droplets, dataset: "ie_flood_zones", topics: ["愛爾蘭", "淹水", "Flood Zone", "SFRA", "發展計畫", "Cork", "Galway", "Roscommon", "Wicklow"],
+    description: "愛爾蘭 4 個郡議會發展計畫的 Flood Zone A／B（Cork County、Galway County、Roscommon、Wicklow；只涵蓋 4/31 地方政府）", processing: "各郡 ArcGIS FeatureServer（CDP／LAP SFRA）→ 4326；Cork 網格碎片依分區合併相鄰碎片；面 PMTiles z5–14＋代表點（預設點）", note: "CC BY 4.0；各郡方法不一，非全國" },
+  ieGroundwaterFlooding: { theme: "災害", group: "淹水", zh: "地下水淹水圖（GSI）", alt: "Groundwater Flood Maps (GSI)", icon: CloudRain, dataset: "ie_groundwater_flooding", topics: ["愛爾蘭", "淹水", "地下水", "喀斯特", "turlough", "GSI"],
+    description: "愛爾蘭 GSI 地下水淹水圖 1:20,000：高／中／低機率（554／485／466 面）、歷史最大範圍 3,598 面、2015/16 冬季地表水 15,967 面", processing: "GSI 下載 shapefile（IE26）→ 4326，原樣不改屬性（ID 統一為字串）；一產品一支 PMTiles z5–13，圖層設定切換產品換檔；北愛 1 面整面捨去", note: "CC BY-NC-ND 4.0（非商業使用、原樣未改作）；只涵蓋喀斯特低地" },
+  iePeatExtractionBogs: { theme: "農業", group: "土壤", zh: "Bord na Móna 泥炭開採沼地", alt: "Bord na Móna Peat Extraction Bogs", icon: Shovel, dataset: "ie_peat_extraction_bogs", topics: ["愛爾蘭", "泥炭", "泥炭沼", "bog", "Bord na Móna", "EPA", "開採"],
+    description: "愛爾蘭 EPA 登錄的 Bord na Móna 持照泥炭開採沼地 162 面、約 7.9 萬公頃（13 個地方政府）", processing: "EPA GeoServer WFS BORDNAMONA_BOGBOUNDARIES（4326 輸出）；面 PMTiles z4–14＋代表點（預設點）", note: "授權未標示（照常上線、標來源 EPA）；執照範圍，2021 起已停採" },
 };
 const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => {
   const m = IE_DATA_ENTRY_META[spec.key];
@@ -934,12 +947,12 @@ const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => 
     icon: m.icon,
     upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
     dataClass: "D",
-    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: spec.key === "ieRiverFloodExtents" ? IE_FLOOD_SCENARIOS.map((x) => `./world/${ieFloodScenarioFile(x.value)}`) : spec.key === "ieNoiseMaps" ? IE_NOISE_METRICS.map((x) => `./world/${ieNoiseMetricFile(x.value)}`) : [`./world/${spec.file}`] },
+    source: { kind: "custom", note: `useKrDataLayer（IE 規格）自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: spec.key === "ieRiverFloodExtents" ? IE_FLOOD_SCENARIOS.map((x) => `./world/${ieFloodScenarioFile(x.value)}`) : spec.key === "ieNoiseMaps" ? IE_NOISE_METRICS.map((x) => `./world/${ieNoiseMetricFile(x.value)}`) : spec.key === "ieGroundwaterFlooding" ? IE_GW_FLOOD_PRODUCTS.map((x) => `./world/${ieGwFloodFile(x.value)}`) : [`./world/${spec.file}`] },
     legend: spec.key,
     popup: spec.key,
     params: (() => {
       const rep = repPointLayer(spec.key);
-      const kinds = [...(rep || spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
+      const kinds = [...(rep || spec.key === "ieRiverFloodExtents" || spec.key === "ieNoiseMaps" || spec.key === "ieGroundwaterFlooding" ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
         ...(rep && repPointDense(rep) ? ["palette"] : []), ...(rep ? ["slider"] : [])] as ("select" | "multiSelect" | "palette" | "slider")[];
       return { count: kinds.length, kinds };
     })(),
