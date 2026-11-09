@@ -8,4 +8,4 @@
 
 目前本地 code、contract、delivery、routing、catalog、manifest、store、map、hook/click registry、完整 tests、build 與瀏覽器驗收皆通過。尚無 commit、push、PR、資料發布、部署或 production browser 證據；不得把本地 preview 成功描述成正式上線。
 
-重現與驗收摘要見 [README](./README.md)，剩餘門檻見 [backlog](./backlog.md)。
+重現與驗收摘要見 [README](./README.md)，剩餘門檻見 [backlog](../../archive/2026-11-09/features/labor-statistics/backlog.md)。

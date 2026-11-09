@@ -126,4 +126,4 @@ CustomLayer，per-layer 邊際成本只有 manifest ＋ spec ＋ registry ＋ pa
 - 代碼表：`taipei-gis-analytics/docs/topic-research/welfare/code-table.md`
 - 體系架構：`taipei-gis-analytics/docs/systems/welfare_tic.md`
 - 下游視角接線紀錄：[`handoff.md`](./handoff.md)
-- 待辦：[`backlog.md`](./backlog.md)
+- 待辦：[`backlog.md`](../../archive/2026-11-09/features/welfare-layers/backlog.md)

@@ -105,5 +105,11 @@
   "popup.mapchallenge.day08.kind.bridge": "陸橋",
   "popup.mapchallenge.day08.kind.tunnel": "地下道",
   "popup.mapchallenge.day08.kind.steps": "上堤階梯",
-  "popup.mapchallenge.day08.kind.gate": "疏散門"
+  "popup.mapchallenge.day08.kind.gate": "疏散門",
+  "popup.mapchallenge.day09.pop": "人口",
+  "popup.mapchallenge.day09.people": "{n} 人",
+  "popup.mapchallenge.day09.density": "人口密度",
+  "popup.mapchallenge.day09.perKm2": "{n} 人/km²",
+  "popup.mapchallenge.day09.group": "密度分組",
+  "popup.mapchallenge.day09.countPer": "{n} 處・每萬人 {per}"
 }

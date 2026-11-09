@@ -637,6 +637,10 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("urbanZoningNewTaipei"),
           // 與上面兩層互補：那兩層是「都市計畫區內」，本層是「非都市土地」，合起來是全國拼圖
           fromManifest("nonUrbanZoning"),
+          // G53 批 1（2026-11-09）：水保法管制範圍（使用者決定放土地使用分區）
+          fromManifest("swcSpecialZones"),
+          fromManifest("slopelandSwcAct"),
+          fromManifest("landUseChangeMonitoring"),
         ],
       },
       {
@@ -785,6 +789,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("provincialRoadSigns"),
           fromManifest("provincialRoadMileposts"),
           fromManifest("freewayTrafficSigns"),
+          fromManifest("freewayHundredMeterStakes"),
           fromManifest("freewayInterchanges"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
@@ -986,6 +991,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("postOffices"),
           fromManifest("iPostBoxes"),
+          fromManifest("postMailboxes"),
           fromManifest("govServiceOffices"),
           fromManifest("communityCenters"),
           fromManifest("convenienceStores"),
@@ -1452,6 +1458,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("medHospital"),
           fromManifest("emergencyHospitals"),
+          fromManifest("antivenomHospitals"),
           fromManifest("medClinic"),
           fromManifest("medPharmacy"),
           fromManifest("medAED"),
@@ -1574,6 +1581,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("landslideDodAreas"),
           fromManifest("landslideDodImpact"),
+          fromManifest("debrisFlowPotential"),
           fromManifest("highwayDisasterHistory"),
           fromManifest("landslideAnnual"),
           fromManifest("swcbDisasterPhotoPoints"),
@@ -1752,6 +1760,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("pollutionFacility"),
           fromManifest("toxicChemicalFacilities"),
+          fromManifest("motorcycleInspectionStations"),
           fromManifest("pollutionPenaltyCritical"),
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),
@@ -2361,6 +2370,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 8 烏托邦 Utopia",
       layers: [fromManifest("mapchallengeDay08Access"), fromManifest("mapchallengeDay08Parks"), fromManifest("mapchallengeDay08Sites"), fromManifest("mapchallengeDay08Plan1955")],
+    }, {
+      title: "Day 9 城鄉 Urban-rural",
+      layers: [fromManifest("mapchallengeDay09UrbanRural")],
     }],
   },
 

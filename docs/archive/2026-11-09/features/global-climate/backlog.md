@@ -1,0 +1,39 @@
+> **已封存 2026-11-09**（原路徑 `docs/features/global-climate/backlog.md`）：讀過後仍有效的未完成項目已搬進 [`.claude/memory/BACKLOG.md`](../../../../../.claude/memory/BACKLOG.md)（各主題群，附回本檔連結；已完成／過時／查不到證據的列在「已關閉（2026-11-09 封存清單清理）」段（使用者 2026-11-09 確認；併入者記在目標列））。本檔保留原文，不再更新。
+
+# Global Climate Backlog（GC 系列）
+
+> 2026-07-02 盤點後建立。Phase 0 = 資料活水；Phase 1 = 視覺/UX；Phase 2 = 覆蓋/時間；Phase 3 = 交互故事。
+
+## Phase 0 資料活水（completed + residual）
+
+- [x] **GC-1** Zeabur 開啟 GFS/CMEMS/CAMS collector — 環境變數已設 + data-collectors PR #24 補依賴（requirements.txt + Dockerfile eccodes），2026-07-02 merge
+- [x] **GC-2** 烤圖排程化：data-collectors 新增 `ClimateBakeCollector`（每 6h，讀 f000 實況場，取代手動 extract_climate_uv.py）→ deploy-assets/climate/。前端遞送：entrypoint 背景迴圈每 6h re-sync climate（`refresh-climate.sh`）+ PNG 帶 `?v=valid_at` 破快取。順帶修「風場是 +5 天預報」→ 改當下實況。(data-collectors PR #26 + mini-taiwan-pulse feat/global-climate-ux)
+- [ ] **GC-2b** 沙塵改烤「數值通道」texture（現為預烤色階，數值不可逆 → popup 讀值做不到）
+- [x] **GC-3** 文件補齊：本 feature 資料夾 + App.tsx 過時 stub 註解修正 + BACKLOG 條目
+
+## Completed / historical — Phase 1 視覺 / UX（feat/global-climate-ux）
+
+- [x] **GC-4** 風場改速度色階（藍→青→綠→黃→橘→紅→紫紅，0-30 m/s）+ 風/海流/沙塵三層補圖例（`climateRamps.ts` SSOT，LEGEND_REGISTRY + ratchet baseline 移除）
+- [x] **GC-5** click 讀值 popup：`climateFieldSampler.ts` 前端 UV 雙線性取樣 → `ClimateFieldPanel`（風速/風向/流速/流向 + 資料時刻）
+- [x] **GC-6** 粒子調校：wind trail 18→22 / alpha 0.62→0.66；ocean trail 16→20 / alpha 0.58→0.62（browser 驗收後可再調）
+
+## Active work / conditional — Phase 2 覆蓋與時間
+
+- [x] **GC-7（海流）** · `data-health`：CMEMS bbox 已擴至 90–180E × -15–55N（data-collectors PR #27）；PNG 1081×841 / 597KB。CAMS 不屬本項完成範圍。
+- [ ] **GC-7b** · `data-health` · P3 · `conditional`：CAMS bbox 擴域仍 open。Trigger：owner 決定需要全球/更廣覆蓋；Next action：調整 `cams.py` 並重烤資產；Acceptance：bbox、成品 checksum、browser 覆蓋 evidence。
+- [x] **GC-6b 效能（全球視角）** Canvas drape 改分色桶批次繪製：stroke 呼叫 O(粒子數)→O(24)、消除每顆粒子字串運算
+- [x] **GC-6c 效能（高 zoom 細緻線）** WebGL 線層改 instanced rendering（四角幾何固定、每段只上傳 8 float，上傳量降 ~87%）+ 快取 mercator 座標（消除逐幀 log/tan）→ 粒子數拉到 50k 仍順、細緻。browser 實測 50k 無 GL error / 無破圖
+- [x] **GC-6d 拿掉 drape + zoom 自適應密度** 移除低 zoom Canvas drape（mercator 投影下非必要），WebGL 線層覆蓋全 zoom。補回「拉遠自動加密」：`adaptiveCount` z≤5.5 起每級 ×(1+0.7) 封頂 6×、量化 4000 避免連續 zoom 重配置、近景維持 slider 精確值。修正「拉遠粒子數不隨 zoom 變動」
+- [ ] **GC-8** GFS 預報時間序列：leadtime 0/24/48/72/96/120hr 烤 6 張 texture 接 timeStore 播放（守動態圖層時間訂閱鐵則）
+
+## Data health / fixes
+
+- [x] **TY-1 颱風軌跡 loader 欄位 bug** `typhoonTracksLoader` 選 `center_pressure` 但 public view 欄位是 `center_pressure_hpa` → 查詢整個失敗、圖層靜默不建、颱風軌跡一直空白。修正欄位名。實測 442 點正常渲染（Bavi TC2611 / TC2610 / JTWC Ten/Nine 等）
+- [ ] **TY-2 JMA 強度資料缺** JMA bosai forecast.json 只有位置軌跡，無氣壓/風速（強度在 JMA 另一端點）；JTWC ATCF 有風速無氣壓 → popup 強度多為「—」。要補需新增 JMA 強度來源（data-collectors，P3）
+
+## Product / research backlog — Phase 3 交互故事
+
+- [ ] **GC-9** Quick wins：PRMSL 等壓線 / 250hPa 噴流 / SST / 波浪（collector 已抓、前端零接線）
+  - [ ] **GC-9a** · P3 · `conditional`（HOLD：上線前須先確認下列三項）：海溫（CMEMS `thetao`）＋ 波浪（CMEMS `VHM0`）上圖。2026-09-29 owner 決定兩者繼續收集、之後要做成可顯示。現況：data-collectors `collectors/global_climate/cmems.py` 每日抓、寫 `live.global_climate_grids`（`dataset_id` = `cmems_sst` / `cmems_waves`）＋ S3 `global_climate_cmems/YYYY/MM/DD/*.nc`；**目前沒有任何下游讀取**（`climate_bake.py` 只烤 currents）。格網同 currents：90–180E × -15–55N、1081×841；sst 每 6h（今日 00Z 起 9 步），waves 每 3h（17 步）。Next action：比照 currents 在 `climate_bake.py` 加 sst／waves 的 raster 烤圖（純量場，不需粒子）→ 前端圖層＋`climateRamps.ts` 色階＋圖例＋`ClimateFieldPanel` 讀值。**開工前須先記錄**：(1) CMEMS 授權／使用條款與目前狀態（未查證，待確認）；(2) 遮罩語意：陸地／無資料格（NaN／fill value）與真實 0 值要分開，烤圖時 NaN 保持透明、不得畫成 0；(3) `thetao` 取哪一個深度／層（表層？）與篩選條件。Acceptance：上述三項已記錄；兩層在 production 可開關、圖例與 popup 讀值正確（遮罩格顯示「無資料」而非 0）、資料時刻隨烤圖更新。
+- [ ] **GC-10** 颱風作戰室 preset（軌跡 + 風場 + 等壓線 + 雲圖；對應 `docs/archive/2026-10-04/proposal/worldmonitor-taiwan-vision.md` D-1）
+- [ ] **GC-11** 海流 × 船舶軌跡疊圖分析

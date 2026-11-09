@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1775,
+    "keyCount": 1784,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5581,6 +5581,24 @@
     },
     {
       "layers": [
+        "debris-flow-streams-points-circle",
+        "debris-flow-streams-line",
+        "debris-flow-impact-zones-fill",
+        "debris-flow-catchments-fill"
+      ],
+      "type": "debrisFlowPotential"
+    },
+    {
+      "layers": [
+        "swc-special-zones-fill",
+        "swc-special-zones-outline",
+        "swc-special-zones-points-circle-point",
+        "swc-special-zones-points-circle-polygon"
+      ],
+      "type": "swcSpecialZones"
+    },
+    {
+      "layers": [
         "important-wetland-zones-fill",
         "important-wetland-zones-outline",
         "important-wetland-zones-points-circle-point",
@@ -5621,6 +5639,34 @@
         "toxic-chemical-facilities-glow"
       ],
       "type": "toxicChemicalFacilities"
+    },
+    {
+      "layers": [
+        "freeway-hundred-meter-stakes-circle",
+        "freeway-hundred-meter-stakes-glow"
+      ],
+      "type": "freewayHundredMeterStakes"
+    },
+    {
+      "layers": [
+        "antivenom-hospitals-circle",
+        "antivenom-hospitals-glow"
+      ],
+      "type": "antivenomHospitals"
+    },
+    {
+      "layers": [
+        "post-mailboxes-circle",
+        "post-mailboxes-glow"
+      ],
+      "type": "postMailboxes"
+    },
+    {
+      "layers": [
+        "motorcycle-inspection-stations-circle",
+        "motorcycle-inspection-stations-glow"
+      ],
+      "type": "motorcycleInspectionStations"
     },
     {
       "layers": [
@@ -6002,6 +6048,12 @@
     },
     {
       "layers": [
+        "mapchallenge-day09-urban-rural-fill"
+      ],
+      "type": "mapchallengeDay09UrbanRural"
+    },
+    {
+      "layers": [
         "public-life-osm-coverage-fill",
         "public-life-osm-coverage-outline"
       ],
@@ -6055,6 +6107,20 @@
         "hakka-cultural-zones-points-circle-polygon"
       ],
       "type": "hakkaCulturalZones"
+    },
+    {
+      "layers": [
+        "land-use-change-points-circle",
+        "land-use-change-fill",
+        "land-use-change-grid-hex"
+      ],
+      "type": "landUseChangeMonitoring"
+    },
+    {
+      "layers": [
+        "slopeland-swc-act-fill"
+      ],
+      "type": "slopelandSwcAct"
     },
     {
       "layers": [
@@ -83870,6 +83936,1933 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_catchments"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "debris-flow-catchments",
+      "sourceUrl": "./hazards/debris_flow_catchments_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.36
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_impact_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "debris-flow-impact-zones",
+      "sourceUrl": "./hazards/debris_flow_impact_zones_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "line-cap": "round",
+              "line-join": "round",
+              "visibility": "visible"
+            },
+            "light": {
+              "line-cap": "round",
+              "line-join": "round",
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_streams"
+      },
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "debris-flow-streams",
+      "sourceUrl": "./hazards/debris_flow_streams_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "debrisFlowPotential",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 11.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                2.2,
+                10,
+                4.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.8
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "risk"
+                ],
+                "高",
+                "#b91c1c",
+                "中",
+                "#ea580c",
+                "低",
+                "#facc15",
+                "持續觀察",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                2.2,
+                10,
+                4.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.8
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "debris_flow_streams_points"
+      },
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "debris-flow-streams-points",
+      "sourceUrl": "./hazards/debris_flow_streams_115_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landUseChangeMonitoring",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "total"
+                  ],
+                  0
+                ],
+                1,
+                "#fef3c7",
+                10,
+                "#fbbf24",
+                40,
+                "#d97706",
+                120,
+                "#7c2d12"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  ">",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "total"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.595,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "total"
+                  ],
+                  0
+                ],
+                1,
+                "#fef3c7",
+                10,
+                "#fbbf24",
+                40,
+                "#d97706",
+                120,
+                "#7c2d12"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  ">",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "total"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                0.595,
+                0
+              ]
+            }
+          },
+          "suffix": "hex",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 9,
+        "minzoom": 4,
+        "sourceLayer": "land_use_change_monitoring_grid"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "land-use-change-grid",
+      "sourceUrl": "./urban/land_use_change_monitoring_107_112_grid.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landUseChangeMonitoring",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "fill-opacity": 0.42
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "fill-opacity": 0.42
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "line-opacity": 1,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 10,
+        "sourceLayer": "land_use_change_monitoring"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "land-use-change",
+      "sourceUrl": "./urban/land_use_change_monitoring_107_112.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landUseChangeMonitoring",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 13.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                13,
+                3.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.5
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "change_class"
+                ],
+                "bare",
+                "#ca8a04",
+                "building",
+                "#dc2626",
+                "road",
+                "#64748b",
+                "water",
+                "#2563eb",
+                "#a8a29e"
+              ],
+              "circle-opacity": 0.8999999999999999,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                13,
+                3.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8999999999999999,
+              "circle-stroke-width": 0.5
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 10,
+        "sourceLayer": "land_use_change_monitoring_points"
+      },
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "land-use-change-points",
+      "sourceUrl": "./urban/land_use_change_monitoring_107_112_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "slopelandSwcAct",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#a3734c",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#a3734c",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#a3734c",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "slopeland_swc_act"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "slopeland-swc-act",
+      "sourceUrl": "./urban/slopeland_swc_act_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcSpecialZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "swc_special_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "swc-special-zones",
+      "sourceUrl": "./urban/swc_special_zones_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcSpecialZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone_type"
+                ],
+                "large_landslide",
+                "#b45309",
+                "debris_flow",
+                "#dc2626",
+                "landslide",
+                "#f59e0b",
+                "reservoir_catchment",
+                "#2563eb",
+                "riverbank",
+                "#06b6d4",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "swc_special_zones_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "swc-special-zones-points",
+      "sourceUrl": "./urban/swc_special_zones_115_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "freewayHundredMeterStakes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(43,92,149,0.00)",
+                0.05,
+                "rgba(43,92,149,0.11)",
+                0.15,
+                "rgba(68,114,179,0.33)",
+                0.3,
+                "rgba(101,138,198,0.66)",
+                0.45,
+                "rgba(140,162,201,0.99)",
+                0.6,
+                "rgba(178,187,204,1.00)",
+                0.8,
+                "rgba(209,212,217,1.00)",
+                1,
+                "rgba(238,238,239,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,165,201,0.00)",
+                0.05,
+                "rgba(145,165,201,0.11)",
+                0.15,
+                "rgba(110,144,201,0.33)",
+                0.3,
+                "rgba(79,123,188,0.66)",
+                0.45,
+                "rgba(54,103,165,0.99)",
+                0.6,
+                "rgba(36,84,136,1.00)",
+                0.8,
+                "rgba(25,66,105,1.00)",
+                1,
+                "rgba(18,47,76,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#059669",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#059669",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#059669",
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#059669",
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "freeway_hundred_meter_stakes"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "freeway-hundred-meter-stakes",
+      "sourceUrl": "./geo/freeway_hundred_meter_stakes_95016.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "antivenomHospitals",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "name"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#db2777",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#db2777",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "name"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#db2777",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.2249999999999999,
+                5,
+                3.5,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#db2777",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.2249999999999999,
+                5,
+                3.5,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "antivenom_reserve_hospitals"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "antivenom-hospitals",
+      "sourceUrl": "./geo/antivenom_reserve_hospitals_20241230.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "postMailboxes",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "post_mailboxes"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "post-mailboxes",
+      "sourceUrl": "./civic_facilities/post_mailboxes_1150428.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "motorcycleInspectionStations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#a16207",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#a16207",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#a16207",
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#a16207",
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "motorcycle_inspection_stations"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "motorcycle-inspection-stations",
+      "sourceUrl": "./environment/motorcycle_inspection_stations_20261109.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "indigenousTribes",
       "layers": [
         {
@@ -105396,6 +107389,131 @@
       ],
       "sourceId": "mapchallenge-day08-sites",
       "sourceUrl": "./mapchallenge/day08_sites_v2.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay09UrbanRural",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "c_police"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#6b7280",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "r_police"
+                    ],
+                    0
+                  ],
+                  "#1d2a3a",
+                  -2,
+                  "#22476b",
+                  -1,
+                  "#286f8f",
+                  -0.33,
+                  "#3b9c99",
+                  0.33,
+                  "#71c387",
+                  1,
+                  "#bddf6a",
+                  2,
+                  "#f7f38a"
+                ]
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "c_police"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#6b7280",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "r_police"
+                    ],
+                    0
+                  ],
+                  "#1d2a3a",
+                  -2,
+                  "#22476b",
+                  -1,
+                  "#286f8f",
+                  -0.33,
+                  "#3b9c99",
+                  0.33,
+                  "#71c387",
+                  1,
+                  "#bddf6a",
+                  2,
+                  "#f7f38a"
+                ]
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day09-urban-rural",
+      "sourceUrl": "./mapchallenge/day09_urban_rural.geojson"
     }
   ],
   "params": {
@@ -107268,6 +109386,54 @@
         "value": [
           "central",
           "local"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "antivenomHospitals": [
+      {
+        "label": "血清種類",
+        "options": [
+          {
+            "label": "抗龜殼花及赤尾鮐蛇毒血清",
+            "value": "habu_greenpit"
+          },
+          {
+            "label": "抗雨傘節及飯匙倩蛇毒血清",
+            "value": "krait_cobra"
+          },
+          {
+            "label": "抗百步蛇毒血清",
+            "value": "hundred_pacer"
+          },
+          {
+            "label": "抗鎖鏈蛇毒血清",
+            "value": "russells_viper"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "habu_greenpit",
+          "krait_cobra",
+          "hundred_pacer",
+          "russells_viper"
         ]
       },
       {
@@ -113538,6 +115704,73 @@
         "valueText": "1.0"
       }
     ],
+    "debrisFlowPotential": [
+      {
+        "label": "風險等級",
+        "options": [
+          {
+            "label": "高",
+            "value": "高"
+          },
+          {
+            "label": "中",
+            "value": "中"
+          },
+          {
+            "label": "低",
+            "value": "低"
+          },
+          {
+            "label": "持續觀察",
+            "value": "持續觀察"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "高",
+          "中",
+          "低",
+          "持續觀察"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "溪流線",
+            "value": "streams"
+          },
+          {
+            "label": "影響範圍",
+            "value": "impact"
+          },
+          {
+            "label": "集水區",
+            "value": "catchments"
+          }
+        ],
+        "type": "select",
+        "value": "streams"
+      }
+    ],
     "dioxinStations": [
       {
         "label": "透明度 0.90",
@@ -116677,6 +118910,103 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "freewayHundredMeterStakes": [
+      {
+        "defaultValue": "oslo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "oslo"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "freewayInterchanges": [
@@ -136968,6 +139298,97 @@
         "valueText": "1.0"
       }
     ],
+    "landUseChangeMonitoring": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "裸露地",
+            "value": "bare"
+          },
+          {
+            "label": "建物",
+            "value": "building"
+          },
+          {
+            "label": "道路",
+            "value": "road"
+          },
+          {
+            "label": "水體",
+            "value": "water"
+          },
+          {
+            "label": "其他",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bare",
+          "building",
+          "road",
+          "water",
+          "unknown"
+        ]
+      },
+      {
+        "label": "年度",
+        "options": [
+          {
+            "label": "107 年",
+            "value": "107"
+          },
+          {
+            "label": "108 年",
+            "value": "108"
+          },
+          {
+            "label": "109 年",
+            "value": "109"
+          },
+          {
+            "label": "110 年",
+            "value": "110"
+          },
+          {
+            "label": "111 年",
+            "value": "111"
+          },
+          {
+            "label": "112 年",
+            "value": "112"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "107",
+          "108",
+          "109",
+          "110",
+          "111",
+          "112"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "landingStations": [
       {
         "label": "透明度 1.00",
@@ -138783,6 +141204,64 @@
         "valueText": "0.85"
       }
     ],
+    "mapchallengeDay09UrbanRural": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "人口密度五等份",
+            "value": "density"
+          },
+          {
+            "label": "公共服務：國小",
+            "value": "elem"
+          },
+          {
+            "label": "公共服務：派出所／分駐所",
+            "value": "police"
+          },
+          {
+            "label": "公共服務：郵局",
+            "value": "post"
+          },
+          {
+            "label": "公共服務：有健保門診的衛生所",
+            "value": "hc"
+          },
+          {
+            "label": "市場服務：短期補習班",
+            "value": "cram"
+          },
+          {
+            "label": "市場服務：診所",
+            "value": "clinic"
+          },
+          {
+            "label": "市場服務：藥局",
+            "value": "pharm"
+          },
+          {
+            "label": "市場服務：銀行等金融分支",
+            "value": "bank"
+          },
+          {
+            "label": "例外：超商（設 ATM 的門市）",
+            "value": "cvs"
+          }
+        ],
+        "type": "select",
+        "value": "police"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "marineEcologicalMonitoringSites": [
       {
         "label": "透明度 0.85",
@@ -139379,6 +141858,26 @@
       }
     ],
     "medPharmacy": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "motorcycleInspectionStations": [
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -142686,6 +145185,54 @@
         "valueText": "0.3"
       }
     ],
+    "postMailboxes": [
+      {
+        "label": "郵筒類別",
+        "options": [
+          {
+            "label": "普通郵筒",
+            "value": "regular"
+          },
+          {
+            "label": "限時郵筒",
+            "value": "express"
+          },
+          {
+            "label": "限時普通雙用",
+            "value": "dual"
+          },
+          {
+            "label": "同址兩筒（普通＋限時）",
+            "value": "pair"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "regular",
+          "express",
+          "dual",
+          "pair"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "postOfficeFxCounters": [
       {
         "label": "透明度 0.85",
@@ -145928,6 +148475,17 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "slopelandSwcAct": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
       }
     ],
     "socioeconomic": [
@@ -188771,6 +191329,74 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00×"
+      }
+    ],
+    "swcSpecialZones": [
+      {
+        "label": "分類",
+        "options": [
+          {
+            "label": "大規模崩塌",
+            "value": "large_landslide"
+          },
+          {
+            "label": "土石流",
+            "value": "debris_flow"
+          },
+          {
+            "label": "崩塌地",
+            "value": "landslide"
+          },
+          {
+            "label": "水庫集水區",
+            "value": "reservoir_catchment"
+          },
+          {
+            "label": "河岸",
+            "value": "riverbank"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "large_landslide",
+          "debris_flow",
+          "landslide",
+          "reservoir_catchment",
+          "riverbank"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "swcbDisasterPhotoPoints": [

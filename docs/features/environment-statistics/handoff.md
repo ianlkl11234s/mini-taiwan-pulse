@@ -16,4 +16,4 @@
 
 瀏覽器煙霧測試未做：headless agent-browser 無 WebGL，MapView 在 sidebar 掛載前就失敗（環境限制，非本變更造成），留待 headed session。
 
-重現與驗收見 [README](./README.md)，剩餘門檻見 [backlog](./backlog.md)。
+重現與驗收見 [README](./README.md)，剩餘門檻見 [backlog](../../archive/2026-11-09/features/environment-statistics/backlog.md)。

@@ -1765,5 +1765,14 @@
   "layer.mapchallengeDay08Access": "Walking Minutes to a Large Park",
   "layer.mapchallengeDay08Sites": "New Park Sites and Their Cost",
   "layer.mapchallengeDay08Plan1955": "1955 Zhonghe Town Plan Map",
-  "layer.mapchallengeDay08Parks": "Existing Parks and Riverside Entrances"
+  "layer.mapchallengeDay08Parks": "Existing Parks and Riverside Entrances",
+  "layer.motorcycleInspectionStations": "Motorcycle Emission Inspection Stations",
+  "layer.postMailboxes": "Mailboxes",
+  "layer.antivenomHospitals": "Antivenom Reserve Hospitals",
+  "layer.freewayHundredMeterStakes": "Freeway 100 m Stakes",
+  "layer.swcSpecialZones": "Special Soil and Water Conservation Zones",
+  "layer.slopelandSwcAct": "Slopeland (Soil and Water Conservation Act)",
+  "layer.debrisFlowPotential": "Debris Flow Potential Streams",
+  "layer.landUseChangeMonitoring": "Land Use Change Monitoring",
+  "layer.mapchallengeDay09UrbanRural": "Which Services Stay Where People Are Few"
 }

@@ -83,5 +83,5 @@
 
 ## 資料契約 / backlog / changelog
 
-見 [handoff.md](./handoff.md) / [backlog.md](./backlog.md) / [changelog.md](./changelog.md)。
+見 [handoff.md](./handoff.md) / [backlog.md](../../archive/2026-11-09/features/livestock/backlog.md) / [changelog.md](./changelog.md)。
 上游 SSOT：`../../../taipei-gis-analytics/docs/topic-research/livestock/HANDOFF_mini-taiwan-pulse.md`。

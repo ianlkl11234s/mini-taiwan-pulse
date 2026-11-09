@@ -5,6 +5,7 @@
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
 import { KR_DATA_KEYS } from "../data/krDataKeys";
 import { IE_DATA_KEYS } from "../data/ieDataKeys";
+import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
 import { COLORS, SURFACE, LIGHT, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -32,6 +33,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 南韓第 3–5 波 18 層：panel 自掛 SourceFooter
   ...KR_DATA_KEYS,
   ...IE_DATA_KEYS,
+  ...G53_SELF_FOOTER_KEYS, // G53 批 1：analytics PMTiles 無來源欄，atlasPanels withG53Footer 自掛
   "ieCoillteRecreation", "ieCoillteForestRoads", // 站主限定 Coillte：panel 自掛 SourceFooter（makeIePanel）
   // 2024 投開票所：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
   "pollingStations2024",
@@ -200,6 +202,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses",
   // 30 天地圖挑戰 Day 8 烏托邦：panel 自掛研究推估口徑與來源。
   "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites",
+  "mapchallengeDay09UrbanRural",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

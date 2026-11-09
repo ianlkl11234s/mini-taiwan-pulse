@@ -26,7 +26,7 @@ Claude 收到後執行以下（用 Bash / Read，**不要**修改任何檔案）
 cat docs/features/$1/README.md
 cat docs/features/$1/changelog.md
 cat docs/features/$1/handoff.md
-cat docs/features/$1/backlog.md 2>/dev/null
+grep -n "$1" .claude/memory/BACKLOG.md   # 待辦統一在 BACKLOG（feature backlog 已於 2026-11-09 封存）
 
 # 上游 handoff SSOT
 cat ../taipei-gis-analytics/docs/handoff/$1.md 2>/dev/null || echo "上游 handoff 尚未建"

@@ -27,6 +27,7 @@
   "popup.water.abnormal": "異常",
   "popup.water.levelUnit": "m 水位",
   "popup.water.trend24h": "24時間の推移",
+  "popup.water.trendLoadFailed": "24時間の推移を読み込めませんでした",
   "popup.water.alertHint": "ⓘ 警戒水位データ（3段階警戒）は上流のシード完了後に追加予定",
   "popup.water.groundwaterUnit": "m 地下水位（標高）",
   "popup.water.wellNo": "井戸番号",

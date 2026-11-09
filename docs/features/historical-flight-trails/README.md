@@ -6,7 +6,7 @@
 
 - [資料契約與執行方式](handoff.md)
 - [資料驗證清單](data-inventory.json)
-- [驗收與限制](backlog.md)
+- [驗收與限制](../../archive/2026-11-09/features/historical-flight-trails/backlog.md)
 - [本次變更](changelog.md)
 
 ## 發布狀態

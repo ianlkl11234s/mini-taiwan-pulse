@@ -66,7 +66,7 @@ Scope 說明：本 feature 涵蓋「建物輪廓」+「都市紋理網格」兩�
 
 ## 相關 backlog
 
-看 [backlog.md](./backlog.md)。
+看 [backlog.md](../../archive/2026-11-09/features/urban-form/backlog.md)。
 
 ## 歷次改動
 

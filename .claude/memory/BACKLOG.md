@@ -8,7 +8,7 @@
 
 - **不放完成列**：完成就移到檔尾「已關閉」並寫證據（PR 編號、版號、正式站讀回或使用者確認）；State 欄不得是 `done`／`idea`／`decision`。使用者待決寫成 `blocked`，blocker 寫「owner decision」。
 - **一列一個主題群**：新列加進對應主題群；找不到合適的群才新增一群，並更新下方清單。同一件事只能有一列，重複的併入既有 ID。
-- **主題群**：A 正式站目視包（VIS-PACK）、B Zeabur 收尾與金鑰輪換、C 資料保留／儲存／備份、D 資安與 DB 權限、E collector 與資料健康、F 站主資料與舊 RPC／舊路徑撤除、G 開發系統／CI／告警、H1 台灣圖層、H2 多國圖層、I Agent／MCP 分析、J 前端技術債與效能、K 產品舊決策、L 內容、M 文件與 repo 衛生、N 模擬實驗。
+- **主題群**（`FB-*`＝2026-11-09 從功能 backlog 搬入的列，原 ID 寫在 Item 內）：A 正式站目視包（VIS-PACK）、B Zeabur 收尾與金鑰輪換、C 資料保留／儲存／備份、D 資安與 DB 權限、E collector 與資料健康、F 站主資料與舊 RPC／舊路徑撤除、G 開發系統／CI／告警、H1 台灣圖層、H2 多國圖層、I Agent／MCP 分析、J 前端技術債與效能、K 產品舊決策、L 內容、M 文件與 repo 衛生、N 模擬實驗。
 - **Tier（每列必填一個）**：
   - `底線:<資安|授權|資料正確|期限|花費|備份>`：不做會出事，優先於北極星。
   - `北極星:<效率|兼容|視覺|好用|AI|開發系統>`：北極星＝效率高、兼容性高、視覺化好、好用的 GIS 資料＋倉儲系統，AI 分析為核心。
@@ -16,7 +16,7 @@
   - `待討論`：還不確定要不要做。
 - **〔已併入 X〕**：與 X 同一題；原文保留在 X 下方供參考，進度只記在 X。
 - **Priority**：`P0` 緊急發版／事故、`P1` 本期、`P2` 已排、`P3` 有空再做；有日期或上游閘門的事不因重要就升 P0。**State** 只能是 `ready`、`in_progress`、`blocked`、`waiting_external`、`conditional`、`verifying`（併入列為 `merged`）。
-- Feature 細節留在各 feature backlog（見檔尾 Feature backlog index），本檔只放發版、事故、資安或跨 repo 的依賴。
+- **本檔是唯一的待辦清單**（2026-11-09 起）：feature backlog 已封存（見檔尾 Feature backlog index）；細節可連到 feature 文件，但待辦列只開在這裡。
 
 **重新稽核方法**：for each non-closed row, check git log + merged PRs (`gh pr list -R ianlkl11234s/<repo> --state merged --search <ID or keyword>` over mini-taiwan-pulse / taipei-gis-analytics / gis-platform / gis-data-collectors / mini-pulse-gis-mcp) + current code on `origin/develop`, plus bounded read-only production SQL (LIMIT, outside 10:00–20:00) or public HTTP probes where the acceptance is runtime. Repo, branch, worktree and asset counts come from re-running `.gis-agent-system/scripts/gen_repo_hygiene.py`.
 
@@ -34,14 +34,14 @@
 | VP-5 | 北極星:視覺 | P2 | ready | 正式站目視：南韓第 6、7 波（#830、#869）與公共安全統計（#874）。 | Claude 用瀏覽器 All Off 後逐層開、截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
 | VP-6 | 北極星:視覺 | P2 | ready | 正式站目視：愛爾蘭全覽 z6 與第 2–10 波、統計（v2.27.0；IEREL-1 關閉時留下的目視）。 | Claude 用瀏覽器 All Off 後逐層開、截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
 | VP-7 | 北極星:視覺 | P2 | ready | 正式站目視：歷史底圖六層（#882，v2.27.0）與現代地名提示卡。 | All Off 後逐層開、截圖圖例與 popup；疊加層順序、select 換年代。 | 截圖存檔、問題轉成新列。 |
-| VP-12 | 北極星:AI | P2 | ready | Agent 實機驗 framingCheck（#881，v2.27.0）：問一題面狀結果（例：臺北各區房價），確認回傳含 framingCheck、覆蓋率 <0.15 時會重框且最多 2 輪。 | 需 pulse-research MCP 連正式站地圖分頁。 | 一次實機紀錄。 |
+| VP-12 | 北極星:AI | P2 | ready | Agent 實機驗 framingCheck（#881，v2.27.0）：問一題面狀結果（例：臺北各區房價），確認回傳含 framingCheck、覆蓋率 <0.15 時會重框且最多 2 輪。 | 需 pulse-research MCP 連正式站地圖分頁。<br>**2026-11-09 封存項併入**（原檔 [agent-research-workbench](../../docs/archive/2026-11-09/features/agent-research-workbench/backlog.md)）：fresh session 驗 origin→scope→multi-result→clear／revoke | 一次實機紀錄。 |
 | VP-8 | 北極星:視覺 | P3 | ready | 正式站目視：國道逐車模擬（G39，#814）。 | Claude 用瀏覽器 All Off 後逐層開、截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
 | VP-9 | 北極星:視覺 | P3 | ready | 正式站目視：雙北大眾運輸可及性（#810）。 | Claude 用瀏覽器 All Off 後逐層開、截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
 | VP-10 | 北極星:視覺 | P3 | blocked | 站主目視：公車擁擠模擬（#701）、土壤液化（#407／#408）。 | Blocked：需使用者用站主帳號登入（無頭瀏覽器無法登 Google）。 | 使用者確認或截圖。 |
 | VP-11 | 北極星:好用 | P3 | blocked | 正式站驗收：會員區真實 Google 登入、多裝置。 | Blocked：需使用者本人操作。 | 使用者確認。 |
 | VP-13 | 北極星:視覺 | P3 | ready | 正式站目視：靜態資產版本化讀取端（#700，R2 layers/v1 試點 immigration_offices、dui_crash_points）。 | Claude 用瀏覽器 All Off 後逐層開、截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
-| BR-3 | 北極星:視覺 | P1 | ready | Establish production truth for the Business Registry experience. | Assets are live (2026-10-05 probe: all 18 referenced `business_registry/*` assets 200/206, sizes match the 2026-09-18 publication receipt); remaining work is the All Off production browser QA (one pass covers the three feature-level items BR-C-BROWSER, BR-I-BROWSER and BR-B4-VERIFY, which stay as per-layer evidence matrices in their feature backlogs). **健檢 2026-11-08**：併入單一目視 checklist；證據：資產 10-05 HTTP 200/206。 | Zoom split, controls, popups, legends and dark-map readability have recorded production browser evidence. [Company backlog](../../docs/features/business-registry-company-layers/backlog.md) |
-| MAR-2 | 北極星:視覺 | P1 | ready | Establish production-frontend truth for Japan religion and global maritime layers. | Production is at v2.8.0 (2026-10-15 release) and static assets return 200/206 (2026-10-05 probe); no production browser record exists yet. Repeat camera/toggle/legend/popup/empty-state checks on production. **健檢 2026-11-08**：版號描述過時；證據：寫 v2.8.0，現正式站 v2.31.1。 | A production browser run records GSI/OSM/Wikidata + AIS/GFW behavior with console evidence. [Global maritime](../../docs/features/global-maritime/backlog.md), [Japan religion](../../docs/features/jp-religion-layers/backlog.md) |
+| BR-3 | 北極星:視覺 | P1 | ready | Establish production truth for the Business Registry experience. | Assets are live (2026-10-05 probe: all 18 referenced `business_registry/*` assets 200/206, sizes match the 2026-09-18 publication receipt); remaining work is the All Off production browser QA (one pass covers the three feature-level items BR-C-BROWSER, BR-I-BROWSER and BR-B4-VERIFY, which stay as per-layer evidence matrices in their feature backlogs). **健檢 2026-11-08**：併入單一目視 checklist；證據：資產 10-05 HTTP 200/206。<br>**2026-11-09 封存項併入**（原檔 [business-registry-company-layers](../../docs/archive/2026-11-09/features/business-registry-company-layers/backlog.md)、[business-registry-industrial-layers](../../docs/archive/2026-11-09/features/business-registry-industrial-layers/backlog.md)、[common-registration-addresses](../../docs/archive/2026-11-09/features/common-registration-addresses/backlog.md)）：BR-C-RELEASE 公司登記層部署與 Range 404 smoke；BR-C-BROWSER All Off 逐層瀏覽器驗收；BR-I-BROWSER A1／A2／A5／A6 逐層瀏覽器驗收；BR-I-RELEASE 部署並驗 /industrial_zone/ Range；BR-B4-VERIFY 共同登記地址 All Off 單層瀏覽器驗收；BR-B4-RELEASE 部署並 production smoke | Zoom split, controls, popups, legends and dark-map readability have recorded production browser evidence. [Company backlog](../../docs/archive/2026-11-09/features/business-registry-company-layers/backlog.md) |
+| MAR-2 | 北極星:視覺 | P1 | ready | Establish production-frontend truth for Japan religion and global maritime layers. | Production is at v2.8.0 (2026-10-15 release) and static assets return 200/206 (2026-10-05 probe); no production browser record exists yet. Repeat camera/toggle/legend/popup/empty-state checks on production. **健檢 2026-11-08**：版號描述過時；證據：寫 v2.8.0，現正式站 v2.31.1。<br>**2026-11-09 封存項併入**（原檔 [global-maritime](../../docs/archive/2026-11-09/features/global-maritime/backlog.md)）：v3 push／deploy／browser 驗收，不得稱 production-ready；v3 rollback gate 與 canonical cutover；GFW 小時格網正式 CDN／browser、license、retention、egress gate；gfwDarkVessels 線上有偵測時的畫面驗收；兩層 viewport、3000 筆上限、空結果與 loading timeout 正式驗證 | A production browser run records GSI/OSM/Wikidata + AIS/GFW behavior with console evidence. [Global maritime](../../docs/archive/2026-11-09/features/global-maritime/backlog.md), [Japan religion](../../docs/archive/2026-11-09/features/jp-religion-layers/backlog.md) |
 | AG-5 | 北極星:AI | P1 | verifying | 正式站端到端量測。 | 自動量測 2026-10-04 已完成（bind 0.93 s、set_camera 1.8 s、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s）。剩下兩項要使用者手動做：重整還原、在面板撤銷 token。 **健檢 2026-11-08**：需使用者手動；證據：10-04。 | 使用者手動重整一次、在面板撤銷一次，確認結果還原與 15 s 內斷線。 |
 | R5-2 | 北極星:視覺 | P2 | verifying | 汙染裁處類圖層（`pollutionPenalty*`）剛打開時沒套預設年份篩選（2026、只看該年），要第一次改參數才生效；點與熱區行為一致。 | **程式已合併（PR #543，v2.6.0 已發布）；尚缺瀏覽器目視。** 在正式站打開 `pollutionPenalty*`，確認不改參數就只顯示預設年份。 **健檢 2026-11-08**：證據：#543 v2.6.0。 | 瀏覽器目視：打開即只顯示預設年份；點數與改參數後一致。 |
 | R6-V | 北極星:視覺 | P2 | verifying | R6 段 1–3（#547／#572／#573／#578）已隨 v2.8.0 上正式站（2026-10-15 讀正式站 main-*.js 確認 "2.8.0"），尚未瀏覽器目視。 | 在正式站逐一看：輸電線光暈（立體效果開）、機組即時出力平面點與 popup、水庫與五類廢棄物設施開「立體效果」時仍可點選；另順看列車平面時箭頭貼軌道、換底圖後軌道仍在。 **健檢 2026-11-08**：證據：v2.8.0。 | 以上各點暗／淡底圖各看一次無誤即結案；有問題開 fix PR。對照頁：`docs/features/map-layer-restyle/r6-s{1,2,3}-compare.html`。 |
@@ -51,55 +51,84 @@
 | KRI18N-1 | 北極星:兼容 | P3 | ready | 南韓 50 層＋統計的英文、日文介面只抽查，沒有逐層驗。 | First action: 本機 dev 用 `?lang=en`／`?lang=ja` 逐層開圖、看圖例與彈窗，記錄缺漏。 | 每層 en／ja 圖例與彈窗無缺字、無中文殘留。 |
 | VIS-3 | 北極星:視覺 | P3 | ready | 2026-11-01 正式站已驗：提示卡、英國墓園／保護區／公園綠地／開放進入地／規劃限制區／建成區點面切換，魚塭兩層、河川面、橋梁輪廓點面切換，`gbSchools`／`speedCamera`／`court`／`jpAccommodationCanonical` 篩選，`fireHydrants` 彈窗；淡色主題可辨識但偏淡。林地／樹木保護 z10–11 空白已在 #795 修。剩：(1) 那輪沒讀 console；(2) 台灣 `landslideAnnual` 點模式權重曲線與林地相同，正式站 z10.5 熱區偏淡但看得到，使用者尚未決定是否比照 `GB_THINNED_POINTS_WEIGHT_TO_Z12` 調亮。 | First action: 問使用者 landslideAnnual 要不要調；下次正式站驗收順便讀 console。 | console 無新錯誤；landslideAnnual 依決定處理。 |
 | BLOG-V | 內容:部落格 | P3 | verifying | v2.13.0（2026-10-24）上線後仍未目視的項目。 | 正式站開「臺北市局處統計」任一層與污水接管普及率新舊口徑切換（#679）；手機實機確認嵌入地圖單指捲頁、雙指移動地圖；Search Console 確認 sitemap 已重讀（使用者操作）。 | 三項各留截圖或 Search Console 讀取時間；部落格本體已於 2026-10-24 正式站瀏覽器驗收。 |
+| FB-001 | 底線:資安 | P2 | ready | 〔allen-coral-atlas〕用非站主真人帳號在瀏覽器驗證被拒（尚無測試帳號） | 原檔：[allen-coral-atlas](../../docs/archive/2026-11-09/features/allen-coral-atlas/backlog.md)。依據：檔內未勾；BACKLOG 無對應列（VP-11 是會員登入多裝置，非同題）；需另一個帳號，可能 blocked | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-025 | 北極星:好用 | P3 | ready | 〔chart-hover-tooltip〕PowerCard 機組出力折線與燃料堆疊條 tooltip 待站主登入後目視 | 原檔：[chart-hover-tooltip](../../docs/archive/2026-11-09/features/chart-hover-tooltip/backlog.md)。依據：RPC 仍站主限定（power_generation_unit 留 RPC）；BACKLOG 無對應目視列；站主目視，可併 VP-10 類 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-030 | 北極星:視覺 | P3 | ready | 〔coral-reef-layers〕實體手機效能與 Light 底圖切換未驗 | 原檔：[coral-reef-layers](../../docs/archive/2026-11-09/features/coral-reef-layers/backlog.md)。依據：檔內未勾；BACKLOG 無對應；檔內註明 production 未授權，可能根本未公開 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-033 | 北極星:視覺 | P3 | ready | 〔demographics-statistics〕人口統計正式站 browser 驗收 | 原檔：[demographics-statistics](../../docs/archive/2026-11-09/features/demographics-statistics/backlog.md)。依據：BACKLOG 無對應 VP 列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-039 | 北極星:兼容 | P3 | ready | 〔embeddable-map〕EM-23 嵌入地圖行動裝置實機（低階 Android）驗收 | 原檔：[embeddable-map](../../docs/archive/2026-11-09/features/embeddable-map/backlog.md)。依據：檔內未驗；BACKLOG 無對應 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-060 | 北極星:視覺 | P3 | ready | 〔global-events〕固定錨點與 popup 瘦身正式視覺驗收（使用者執行） | 原檔：[global-events](../../docs/archive/2026-11-09/features/global-events/backlog.md)。依據：BACKLOG 無對應 VP 列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-066 | 北極星:兼容 | P3 | ready | 〔historical-flight-trails〕實體手機效能 | 原檔：[historical-flight-trails](../../docs/archive/2026-11-09/features/historical-flight-trails/backlog.md)。依據：未驗 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-068 | 北極星:視覺 | P3 | ready | 〔isobath〕ISO-3 等深線瀏覽器驗證 4 控件與 popup | 原檔：[isobath](../../docs/archive/2026-11-09/features/isobath/backlog.md)。依據：PR #160 已上線；BACKLOG 無 VP 列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-071 | 北極星:視覺 | P3 | ready | 〔jma-live-layers〕JMA-1 四層瀏覽器逐層驗收 | 原檔：[jma-live-layers](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)。依據：#571 已上線；BACKLOG 無 VP 列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-072 | 底線:資料正確 | P2 | ready | 〔jma-live-layers〕JMA-2 冬季積雪模式 11 月後確認有值 | 原檔：[jma-live-layers](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)。依據：觸發時間已到（11 月） | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-075 | 底線:資料正確 | P2 | ready | 〔jma-live-layers〕JMA-12 警戒時數分析圖以實資料核對 | 原檔：[jma-live-layers](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)。依據：等警戒事件 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-076 | 底線:資料正確 | P2 | ready | 〔jma-live-layers〕JMA-10 洪水キキクル有警戒時核對上色與屬性 | 原檔：[jma-live-layers](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)。依據：等事件 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-078 | 底線:資料正確 | P2 | ready | 〔jma-live-layers〕JMA-15 紅葉、櫻花、梅雨當季實地抽驗 | 原檔：[jma-live-layers](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)。依據：11 月紅葉季已到 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-082 | 北極星:視覺 | P3 | ready | 〔jp-core-layers〕Batch 1 七層逐層瀏覽器複驗 | 原檔：[jp-core-layers](../../docs/archive/2026-11-09/features/jp-core-layers/backlog.md)。依據：檔內寫仍開；BACKLOG 無對應 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-090 | 底線:資安 | P2 | ready | 〔jp-water〕JPW-5 八個全國層站主限定：bucket policy、Range 401/403、站主登入目視 | 原檔：[jp-water](../../docs/archive/2026-11-09/features/jp-water/backlog.md)。依據：BACKLOG 索引寫唯一 home 在此；OG-4 涵蓋 sidecar 改讀；可併入 VIS-PACK 站主目視 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-094 | 北極星:視覺 | P3 | ready | 〔landslide〕真實瀏覽器 WebGL 視覺驗收 | 原檔：[landslide](../../docs/archive/2026-11-09/features/landslide/backlog.md)。依據：BACKLOG 無對應 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-104 | 北極星:視覺 | P3 | ready | 〔monitor-split〕MS-5 窄視窗時間軸與 split dock 重疊未實測 | 原檔：[monitor-split](../../docs/archive/2026-11-09/features/monitor-split/backlog.md)。依據：未實測；可在 VIS-PACK 截 1280 寬 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-137 | 北極星:視覺 | P3 | ready | 〔urban-heat-lst〕UH-1 瀏覽器驗收兩模式色帶、nodata、overzoom、opacity | 原檔：[urban-heat-lst](../../docs/archive/2026-11-09/features/urban-heat-lst/backlog.md)。依據：BACKLOG 無對應 VP 列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-142 | 底線:資料正確 | P2 | ready | 〔water-resources〕WR-3 驗證 overlaps_aquaculture filter、分類覆蓋與稀疏 name popup | 原檔：[water-resources](../../docs/archive/2026-11-09/features/water-resources/backlog.md)。依據：未見驗收紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| VP-14 | 北極星:視覺 | P3 | ready | 正式站目視：INTEL 全球情勢分頁（#215）（2026-11-09 封存項：只有 PR 證據、未目視）。 | Claude 用瀏覽器 All Off 後開該分頁／圖層，截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
+| VP-15 | 北極星:視覺 | P3 | ready | 正式站目視：日本醫療院所（#298）（2026-11-09 封存項：只有 PR 證據、未目視）。 | Claude 用瀏覽器 All Off 後開該分頁／圖層，截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
+| VP-16 | 北極星:視覺 | P3 | ready | 正式站目視：山域安全 MS-0-RELEASE（#99）（2026-11-09 封存項：只有 PR 證據、未目視）。 | Claude 用瀏覽器 All Off 後開該分頁／圖層，截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
+| VP-17 | 北極星:視覺 | P3 | ready | 正式站目視：轉運站顯示（#217）（2026-11-09 封存項：只有 PR 證據、未目視）。 | Claude 用瀏覽器 All Off 後開該分頁／圖層，截圖圖例與 popup。 | 截圖存檔、問題轉成新列。 |
 
 ## B. Zeabur 收尾與金鑰輪換
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
-| ZB-1 | 底線:花費 | P1 | ready | Zeabur 搬遷收尾：停舊服務並清掉殘留依賴（Zeabur 2026-12-31 全停，以 12/1 前停完為準）。 | 2026-11-08 使用者確認 collector 已搬到 pulse-host（gis-data-collectors #170／#171 11-07 合併、#175–#180 新主機調整；correctional 依 #174 移到 HiCloud VM，上游 today.xml 自 05-15 停更故 `265864d` 暫停）。剩：(1) 依序停 Zeabur 服務——11 個靜態站、主站與 gateway（目前留作回滾，定停用日）、collector 新主機穩定一週後停舊 collector、最後停專用主機續約；(2) SEC-6 換金鑰；(3) flight-arc-sharing 要不要給 itsmigu.com 網址（待使用者）；(4) 寫死的 zeabur.app 網址（2026-11-08 盤點：mini 作品連結已改 #905；plan-art 作品連結 PR flight-arc-graph #24 待合併（合併會部署 Flight Arc）；plan-art `scripts/fuse-collector-data.ts` 的 `COLLECTORS_API_BASE` 預設值待決定 collector 對外網址；OSRM 4 處——collectors `scripts/compute_waste_inferred_segments.py`、analytics `grid_accessibility.py` 預設值、`yunlin_poc.py` 2 處——待標停用或改 Valhalla；mini nginx.conf 回滾設定在停 Zeabur 時連同 Dockerfile／entrypoint.sh／deployContract 測試整批退役）；(5) `HC_PING_URL` 死人開關、備份 age 加密；(6) 1Password 重跑 `op-import.py`；(7) 主站 Worker routes 寫進 wrangler.jsonc、觀察 Worker 請求量（Free 每日 10 萬）；(8) NEWS-1 改在新主機（Linode 東京 IP）驗自由時報 RSS，CelesTrak 已擋該 IP。正本 `.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0（該檔 11-08 仍寫 collector 未搬，待同步）。Owner: 使用者（停服務、金鑰）／主 agent（清網址）. **2026-11-08 交接：約 11-14** Zeabur 26 個已暫停服務觀察滿一週，經使用者同意後刪除（變數備份在 1Password vault「Zeabur 已停服務備份」）；HiCloud VM 與 collector 的小遺留拆到 ZB-2、ZB-3。 **健檢 2026-11-08**：列內『README 仍寫 collector 未搬』『PR #24 待合併』兩句已過時；建議拆成 ZB-1a 刪服務(~11-14)/1b 寫死網址/1c 監控；證據：zeabur README 11-08 已更新 collector 已搬；flight-arc-graph #24 已 MERGED 11-08。 **2026-11-08 健檢拆分**：DNS 改 Worker custom domain 拆成 ZB-4（~11-14），停止續約拆成 ZB-5（12/1），殘留設定根治拆成 ZB-6。 | Zeabur 專案無運行中服務、帳單停止；repo 內無 zeabur.app 依賴。 |
+| ZB-1 | 底線:花費 | P1 | ready | Zeabur 搬遷收尾：停舊服務並清掉殘留依賴（Zeabur 2026-12-31 全停，以 12/1 前停完為準）。 | **2026-11-09 進度**：13 個靜態站逐一驗證新網址 200 後已刪；刪除不搬的服務（mini-tw-pulse-api、osrm、mini-tw-story 舊版、uk-trip、openAB 4 個，openAB 規格備份在 `~/.config/pulse-backups/zeabur-openab-20261109/`）與 11 個空專案也已刪。只剩 `mini-tw-pulse`（主站、gateway）與 `data-collectors-gomn`（collector、valhalla）兩個專案留作回滾，約 11-14 刪；uk-trip.itsmigu.com DNS 仍指向 Zeabur（見 ZB-7）。以下為 11-08 原文（已刪的項目不再適用）： 2026-11-08 使用者確認 collector 已搬到 pulse-host（gis-data-collectors #170／#171 11-07 合併、#175–#180 新主機調整；correctional 依 #174 移到 HiCloud VM，上游 today.xml 自 05-15 停更故 `265864d` 暫停）。剩：(1) 依序停 Zeabur 服務——11 個靜態站、主站與 gateway（目前留作回滾，定停用日）、collector 新主機穩定一週後停舊 collector、最後停專用主機續約；(2) SEC-6 換金鑰；(3) flight-arc-sharing 要不要給 itsmigu.com 網址（待使用者）；(4) 寫死的 zeabur.app 網址（2026-11-08 盤點：mini 作品連結已改 #905；plan-art 作品連結 PR flight-arc-graph #24 待合併（合併會部署 Flight Arc）；plan-art `scripts/fuse-collector-data.ts` 的 `COLLECTORS_API_BASE` 預設值待決定 collector 對外網址；OSRM 4 處——collectors `scripts/compute_waste_inferred_segments.py`、analytics `grid_accessibility.py` 預設值、`yunlin_poc.py` 2 處——待標停用或改 Valhalla；mini nginx.conf 回滾設定在停 Zeabur 時連同 Dockerfile／entrypoint.sh／deployContract 測試整批退役）；(5) `HC_PING_URL` 死人開關、備份 age 加密；(6) 1Password 重跑 `op-import.py`；(7) 主站 Worker routes 寫進 wrangler.jsonc、觀察 Worker 請求量（Free 每日 10 萬）；(8) NEWS-1 改在新主機（Linode 東京 IP）驗自由時報 RSS，CelesTrak 已擋該 IP。正本 `.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0（該檔 11-08 仍寫 collector 未搬，待同步）。Owner: 使用者（停服務、金鑰）／主 agent（清網址）. **2026-11-08 交接：約 11-14** Zeabur 26 個已暫停服務觀察滿一週，經使用者同意後刪除（變數備份在 1Password vault「Zeabur 已停服務備份」）；HiCloud VM 與 collector 的小遺留拆到 ZB-2、ZB-3。 **健檢 2026-11-08**：列內『README 仍寫 collector 未搬』『PR #24 待合併』兩句已過時；建議拆成 ZB-1a 刪服務(~11-14)/1b 寫死網址/1c 監控；證據：zeabur README 11-08 已更新 collector 已搬；flight-arc-graph #24 已 MERGED 11-08。 **2026-11-08 健檢拆分**：DNS 改 Worker custom domain 拆成 ZB-4（~11-14），停止續約拆成 ZB-5（12/1），殘留設定根治拆成 ZB-6。 **2026-11-09 晚**：剩兩個回滾專案約 **11-14** 刪，須使用者同意後才動；**12/1** 前使用者取消 Zeabur 續約見 ZB-5。<br>**2026-11-09 封存項併入**（原檔 [news](../../docs/archive/2026-11-09/features/news/backlog.md)）：NEWS-1 自由時報 RSS 是否仍被雲端 IP 403 | Zeabur 專案無運行中服務、帳單停止；repo 內無 zeabur.app 依賴。 |
 | ZB-5 | 底線:花費 | P1 | ready | Zeabur 專用主機停止續約（12/1 前）。 | 12/1 起不能續費、12 月依到期日關機、12/31 全停；不處理可能多扣一期。Owner：使用者。 | Zeabur 帳單頁顯示不續約。 |
-| SEC-6 | 底線:資安 | P2 | ready | 決定 data-collectors 服務的其他秘密要不要輪換（2026-10-17 資安稽核後續）。 | 2026-10-17 使用者決定先不處理（也未開額外存取紀錄）。已處理：外洩的 API key 已換、相關漏洞已修。脈絡、影響範圍、甲／乙／丙選項與代價只記在私有 repo（本 repo 公開，不寫細節）：gis-platform `docs/research/2026-10-17-security-audit.md` §回家要處理 1。Trigger: 發現異常存取或資料異動、或要做其他金鑰維護時順便做（也與 Zeabur 搬遷一起評估）。2026-10-27 起另有一組 DB 直連憑證列為必換（只曾出現在本機對話紀錄，未進任何 repo），排在 Zeabur 搬遷時一起換。**2026-11-08：觸發成立**——collector 已搬完，Zeabur 搬遷收尾要一起換（範圍見 `.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0 第 4 項／§6；coral-private S3、valhalla R2 仍沿用舊值）。時機：新主機 collector 穩定後、停 Zeabur 服務前。Owner: 使用者. First action: 讀私有稽核報告該節，選甲／乙／丙。 **2026-11-08 交接：期限 12/3 前**（Zeabur 專用主機到期日）；coral-private 的 S3 金鑰與 valhalla 的 R2 金鑰仍是舊值，一併換（HANDOFF-20261108 §5）。 **健檢 2026-11-08**：有期限；與 G016 合併；證據：HANDOFF §5。 **2026-11-08 健檢擴大**：範圍改為 22 把換、9 項刪／撤銷，期限 12/3；Claude 前置 C1–C8（拿掉寫死連線字串、移除文件裡的舊金鑰、多 env 檔換值小腳本等）。計畫書：`.gis-agent-system/projects/2026-10-zeabur-migration/SEC-6-rotation-plan.md`（待放入，本 PR 不含）。G016 可同批處理。 | 使用者選定選項並執行完畢，或明確結案。 |
+| SEC-6 | 底線:資安 | P2 | ready | 決定 data-collectors 服務的其他秘密要不要輪換（2026-10-17 資安稽核後續）。 | 2026-10-17 使用者決定先不處理（也未開額外存取紀錄）。已處理：外洩的 API key 已換、相關漏洞已修。脈絡、影響範圍、甲／乙／丙選項與代價只記在私有 repo（本 repo 公開，不寫細節）：gis-platform `docs/research/2026-10-17-security-audit.md` §回家要處理 1。Trigger: 發現異常存取或資料異動、或要做其他金鑰維護時順便做（也與 Zeabur 搬遷一起評估）。2026-10-27 起另有一組 DB 直連憑證列為必換（只曾出現在本機對話紀錄，未進任何 repo），排在 Zeabur 搬遷時一起換。**2026-11-08：觸發成立**——collector 已搬完，Zeabur 搬遷收尾要一起換（範圍見 `.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §0 第 4 項／§6；coral-private S3、valhalla R2 仍沿用舊值）。時機：新主機 collector 穩定後、停 Zeabur 服務前。Owner: 使用者. First action: 讀私有稽核報告該節，選甲／乙／丙。 **2026-11-08 交接：期限 12/3 前**（Zeabur 專用主機到期日）；coral-private 的 S3 金鑰與 valhalla 的 R2 金鑰仍是舊值，一併換（HANDOFF-20261108 §5）。 **健檢 2026-11-08**：有期限；與 G016 合併；證據：HANDOFF §5。 **2026-11-08 健檢擴大**：範圍改為 22 把換、9 項刪／撤銷，期限 12/3；Claude 前置 C1–C8（拿掉寫死連線字串、移除文件裡的舊金鑰、多 env 檔換值小腳本等）。計畫書：`.gis-agent-system/projects/2026-10-zeabur-migration/SEC-6-rotation-plan.md`（已放入 healthcheck-20261108/）。G016 可同批處理。 | 使用者選定選項並執行完畢，或明確結案。 |
 | ZB-6 | 北極星:開發系統 | P3 | ready | Zeabur 殘留根治剩餘項。 | **2026-11-09 已完成**：collectors #186（`PULSE_ENV`、cross_layer_map 81 筆改 `pulse_host`、刪 zeabur.json，已部署 bf30522）、主機 compose `PRODUCTION`→`PULSE_ENV`（gis-agent-system #51）、mini #954（刪 Dockerfile、entrypoint.sh、docker-compose.yml，文件改 Worker）。**剩**：(1) `nginx.conf` 仍被 8 支測試當標頭／快取／路由規格驗（CSP 與 worker.js 逐條一致），測試改驗 worker.js 後刪 nginx.conf；(2) 根目錄 `.dockerignore`、`pull-deploy-assets.sh`、`refresh-climate.sh`、`refresh-gfw-hourly.*`、`install-jp-*-assets.py` 仍有測試或 `site_manifest.py` 引用；(3) 穩定一週後拿掉 collectors `config.py` 對 `ZEABUR`／`PRODUCTION` 的過渡相容。 | `rg -i zeabur` 只剩歷史文件與 archive。 |
 | ZB-V1 | 底線:備份 | P2 | verifying | 2026-11-09 清晨第一次自動跑的項目。 | Owner: 主 agent。First action（11-09 白天唯讀查）：(1) 04:45 起 mig 505–509 清理排程第一次跑（iot_wra 約 8 晚才降到 30 天）；(2) pulse-host 03:00 歸檔後 reconcile 的 🔴 由 10 降到 0（#176 誤報修正）；(3) 06:30 備份 watchdog 第一次跑，`/health` 的 `backup.last_success_date` 有值；(4) 每日 Telegram 日報出現 HiCloud VM 磁碟／滯留告警欄位（#180）；(5) 日本雷達已追上最新幀（#178）。 **健檢 2026-11-08**：明天白天查；證據：尚未到時間。 | 五項各有觀察紀錄；未達的另開列或回報。 |
-| ZB-2 | 底線:備份 | P3 | ready | HiCloud VM 小遺留。 | Owner: 主 agent。(1) 刪 `/root/vm_backfill_20261108.py`（一次性補傳腳本）；(2) correctional 11/07 在 VM 與 S3 內容不同，**11/17** 會觸發滯留告警，屆時把 VM 版另存 `.vm.tar.gz`。First action：(1) 現在就可做。 **健檢 2026-11-08**：11/17 有日期。 | 腳本已刪；11/17 告警處理完、S3 有 `.vm.tar.gz`。 |
+| ZB-2 | 底線:備份 | P3 | ready | HiCloud VM 小遺留。 | Owner: 主 agent。(1) 刪 `/root/vm_backfill_20261108.py`（一次性補傳腳本）；(2) correctional 11/07 在 VM 與 S3 內容不同，**11/17** 會觸發滯留告警，屆時把 VM 版另存 `.vm.tar.gz`。First action：(1) 現在就可做。 **健檢 2026-11-08**：11/17 有日期。 **2026-11-09**：(1) 已完成（主 agent 回報）；只剩 (2) **11/17** `.vm.tar.gz`。 | 腳本已刪；11/17 告警處理完、S3 有 `.vm.tar.gz`。 |
 | ZB-3 | 北極星:開發系統 | P3 | ready | collector 與登記檔小遺留。 | Owner: 主 agent。(1) `env_jp_wbgt` 季節判斷用月份，10/22–10/31 可能誤報——改成依上游實際發布期判斷或接受並註記；(2) analytics `cross_layer_map.yaml` 81 筆 `deployment: zeabur` 是沿用舊名，改成實際部署位置或中性名稱。First action：(2) 先查有哪些程式讀 `deployment` 欄，再決定改名範圍。 | WBGT 不再於非發布期誤報；`cross_layer_map.yaml` 無 `zeabur`（或改名有登記理由）。 |
+| ZB-7 | 底線:花費 | P3 | blocked | uk-trip.itsmigu.com 的 DNS 仍指向 Zeabur（服務已刪，回 525）。 | Blocked（owner decision）：刪記錄，或改指新站。 **2026-11-09**：要使用者在 Cloudflare 後台手動刪該 DNS 記錄（Owner：使用者）。 | DNS 記錄已刪或指向有效站。 |
 
 ## C. 資料保留、儲存與備份
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
-| ST-2 | 底線:備份 | P1 | in_progress | R2 獨有資料補回 S3，並在產生流程尾端持續上傳 S3（ADR-0026：S3 是所有資料的永久正本）。 | 只在 R2 的資料：warehouse packages 約 6 GB、pulse-staging `_detect` 約 1.09 GB、`sim/v1`（健檢報告（2026-11-08，目前在 session scratchpad `audit/`，待放入 `.gis-agent-system`） `architecture.md` 第 6 項）。補傳進行中。 | 各前綴 S3 有對應副本；產生腳本尾端有上傳 S3 步驟。 |
-| G026 | 底線:備份 | P2 | blocked | Drop the production backup tables and the rewrite backup branch once their sources are confirmed good. | Deliberately retained pending owner sign-off (re-checked 2026-10-05, all still present): `live.public_health_weekly_backup_20260821`, `live.disaster_alerts_mojibake_backup_20260822`, `live.disaster_alerts_daily_mojibake_backup_20260822` (third table not previously listed), and branch `backup/pre-lfs-rewrite-20260822` in **mini-taiwan-info** (11 commits, no upstream; holds the pre-filter-branch history including the stripped 218MB geojson). **健檢 2026-11-08**：可併入 WA-3 保留期限批次（先匯出 S3 再 drop）；證據：10-05。 | Each source verified correct, then dropped/deleted in one scoped action. |
-| WA-3 | 底線:期限 | P2 | ready | Give the large `live` time-series tables an explicit retention policy. | 2026-09-01 audit (mig 385/387/388) + gis-platform #113 (mig 412) registered the residual tables; as of 2026-10-05 `check_retention_coverage()` returns only `news_events` and `yt_live_history` ("archive/retention decision pending; deletion blocked"). Blocker: owner decision on archive verification + retention window for those two. `freeway_sections_current` is unregistered but not currently flagged. **2026-11-08 擴充（使用者同意「全做」，此部分不再 blocked）**：保留期限超過 6 個月或永久的表約 21 張、另有 22 張小表沒有期限；intel `global_event` 在 S3 沒有備份且有防刪 trigger。First action：先用 `export_table_to_s3.py` 全部匯出到 S3，再設期限；地震、颱風等事件史要先在 R2 留事件檔再縮短保留（否則回放消失）；重 DB 工作排 20:00 後；盤點報告已消失，需要清單時重跑唯讀盤點（摘要在 `.gis-agent-system/projects/2026-10-zeabur-migration/HANDOFF-20261108.md` §3）。Owner: 主 agent（匯出、migration 草稿）／使用者（套 migration 拍板）。 **健檢 2026-11-08**：主題群 C 的主項；證據：HANDOFF §3；mig 505–510 已套。 | `check_retention_coverage()` returns only intentional rows (owner-decided retention or keep-forever for news_events / yt_live_history). [proposal](../../docs/features/data-lifecycle-lean/retention-2026-09-01.md) |
-| TD-4 | 底線:期限 | P3 | merged | 〔已併入 WA-3〕Keep the TRA delay trajectory column from growing without bound. | `analytics.tra_train_delay_daily.delay_trajectory` is ~72% of the table (128MB of 177MB across 219 days, queried 2026-10-05). Raw is fully recoverable from S3 (`tra_train/archives/`, continuous since 2026-02-28), so trimming is safe. Trigger: Supabase storage becomes a constraint (threshold not set; owner: 使用者 — trigger 待定, flagged 2026-10-16). First action: write the retention rule for `delay_trajectory`. **健檢 2026-11-08**：與 WA-3 同一題，內容保留在此供參考，進度改記在 WA-3。 | A retention rule that keeps numeric metrics indefinitely and trajectories only for recent months. |
+| ST-2 | 底線:備份 | P1 | in_progress | R2 獨有資料補回 S3，並在產生流程尾端持續上傳 S3（ADR-0026：S3 是所有資料的永久正本）。 | 只在 R2 的資料：warehouse packages 約 6 GB、pulse-staging `_detect` 約 1.09 GB、`sim/v1`（[健檢報告（2026-11-08）](../../../.gis-agent-system/projects/2026-10-zeabur-migration/healthcheck-20261108/) `architecture.md` 第 6 項）。補傳進行中。 | 各前綴 S3 有對應副本；產生腳本尾端有上傳 S3 步驟。 |
+| WA-3 | 底線:期限 | P2 | ready | Give the large `live` time-series tables an explicit retention policy. | 2026-09-01 audit (mig 385/387/388) + gis-platform #113 (mig 412) registered the residual tables; as of 2026-10-05 `check_retention_coverage()` returns only `news_events` and `yt_live_history` ("archive/retention decision pending; deletion blocked"). Blocker: owner decision on archive verification + retention window for those two. `freeway_sections_current` is unregistered but not currently flagged. **2026-11-08 擴充（使用者同意「全做」，此部分不再 blocked）**：保留期限超過 6 個月或永久的表約 21 張、另有 22 張小表沒有期限；intel `global_event` 在 S3 沒有備份且有防刪 trigger。First action：先用 `export_table_to_s3.py` 全部匯出到 S3，再設期限；地震、颱風等事件史要先在 R2 留事件檔再縮短保留（否則回放消失）；重 DB 工作排 20:00 後；盤點報告已消失，需要清單時重跑唯讀盤點（摘要在 `.gis-agent-system/projects/2026-10-zeabur-migration/HANDOFF-20261108.md` §3）。Owner: 主 agent（匯出、migration 草稿）／使用者（套 migration 拍板）。 **健檢 2026-11-08**：主題群 C 的主項；證據：HANDOFF §3；mig 505–510 已套。 **2026-11-09 第 2 批完成**：gis-platform #228、#229、mig 540–543，ADR-0026 小表例外（gis-agent-system #57）。剩：`public_health_weekly` 二選一；launches 收集器要先改才能回補 5 年；intel 三表每月匯出（2027-03 前，另一 worker 進行中，見 WA-13）；shakemap 改 R2 事件檔；**11-10** 確認首次清理刪除量＋大表 vacuum；analytics `05_load_to_supabase.py`／`14_import_to_supabase.py` 仍寫入已刪的 drone／pollution 表要改；gis-platform `docs/data-safety-inventory.md` L170–173 動物 400→180 要改；`flood_hazard_zones`／`storm_drainage`／fire 兩表併入 WA-14。<br>**2026-11-09 封存項併入**（原檔 [road-congestion](../../docs/archive/2026-11-09/features/road-congestion/backlog.md)）：RC-4 每日 refresh 掃描量成長後分段 | `check_retention_coverage()` returns only intentional rows (owner-decided retention or keep-forever for news_events / yt_live_history). [proposal](../../docs/features/data-lifecycle-lean/retention-2026-09-01.md) |
 | WA-12 | 底線:期限 | P3 | merged | 〔已併入 WA-3〕Give `climate/frames/` a retention policy. | The "no AWS credentials" premise is outdated (use the `S3_*` keys in data-collectors/.env, 2026-10-16); `climate_bake.py` (data-collectors) writes `deploy-assets/climate/frames` with no prune logic. Original audit: 322 frames, 220.9 MB, 2026-07-06 to 08-25 incl. future forecast timestamps. Next: check S3 lifecycle config + object count with credentials. **健檢 2026-11-08**：與 WA-3 同一題，內容保留在此供參考，進度改記在 WA-3。 | Either an S3 lifecycle rule or an upstream collector retention window is in place and documented. |
 | ADR-1 | 底線:備份 | P2 | ready | ADR-0026 補正。 | 補記 S3 DEEP_ARCHIVE lifecycle（`<collector>/archives/` 270 天、supabase-snapshots/realtime 180 天；取回需 12–48 小時＋費用）、R2 `pulse-staging` bucket、§5.1 owner-data 路徑（已改私有 S3＋coral-private）。在 `.gis-agent-system` 開 PR。 | ADR-0026 與實測 lifecycle 一致。 |
-| ST-1 | 底線:花費 | P3 | ready | Reclaim OS disk from the retention/aqi deletes. | Sizes as of 2026-10-05: `live.aqi_imagery_frames` 294 MB total but only 488 kB heap (space sits in TOAST); `live.groundwater_level_readings` 1754 MB (1444 MB index / 309 MB heap); `live.rain_gauge_readings` 2725 MB (1807 MB index / 918 MB heap). Run `VACUUM FULL` / pg_repack on aqi, and REINDEX CONCURRENTLY (or pg_repack) on the two index-bloated tables, off-peak (avoid 10:00-20:00). Autovacuum handles reuse meanwhile. **健檢 2026-11-08**：mig 505–509 清理後回收更有價值，排在保留期限之後；證據：10-05 尺寸。 | Physical sizes drop after a scheduled off-peak run; no peak-hour lock impact. [proposal](../../docs/features/data-lifecycle-lean/retention-2026-09-01.md) |
 | DIO-3 | 底線:花費 | P3 | blocked | Decide whether `bus_positions` ingest (~30 GB/day) is worth reducing. | owner decision. This is raw ingest volume, not waste; reducing it means lowering bus collection frequency, i.e. a **product trade-off**, not a bug fix. No work before the owner call. | An explicit keep-or-reduce decision; no silent frequency change. |
 | CL-5 | 底線:備份 | P3 | conditional | Delete the 2026-09-29 cleanup backup folder once nothing in it is needed. | `GIS/_worktree-backups/2026-09-29/` (6.0 GB on 2026-10-05): deleted-branch SHA lists, removed-worktree data outputs, local-only branch bundles, diverged-repo and pulse-main-dirty copies, analysis-prod previous SHAs. (A newer `2026-10-04/` backup exists alongside; not covered by this row.) **健檢 2026-11-08**：_worktree-backups 現有 9 個日期資料夾，一起決定。 | Trigger: owner confirms nothing in it is needed (trigger 待定, owner: 使用者, flagged 2026-10-16). First action: list what still references it, then move the folder to ~/.Trash. |
 | WA-8 | 底線:花費 | P3 | ready | Reassess the tracked files over 5MB. | 2026-10-05: 32 files / 363.5 MB; largest is `public/world/jp_religion_osm_20260930.pmtiles` (22.4 MB) — `forest_reserve.geojson` is no longer on the list. List in `REPO_HYGIENE.md` §4.3 — re-run `scripts/gen_repo_hygiene.py` to refresh. **2026-11-08 盤點**：git 裡有 385 個資料檔、1.13GB 在 S3 沒有副本；使用者同意定門檻（例：>5MB 一律走 S3 deploy-assets → R2，其餘維持）。mini `public/` 由 CI-4 不論大小全部移出；本列只剩 `public/` 以外與其他 repo 的檔。First action：重跑唯讀盤點分 repo 列出 >5MB 檔，提門檻案給使用者確認。 **健檢 2026-11-08**：mini public/ 部分已由 CI-4 完成；本列只剩 public/ 以外與其他 repo；證據：11-08 擴充。 | Each file is either moved to S3 + gitignored, or recorded as intentionally version-controlled. |
 | VW-EXP-1 | 底線:期限 | P3 | conditional | vessel_watch_positions 11 月以後的資料再匯出 S3。 | Trigger：2027-05 前（180 天保留會開始刪 2026-11 的資料）。Owner: 主 agent。First action：2027-04 用 `export_table_to_s3.py` 匯出 2026-11-01 起的資料，比對列數。 | S3 有完整月檔且列數與 DB 一致。 |
 | DB-1 | 底線:資料正確 | P3 | ready | 晚上 8 點後用唯讀 psql 補查各表大小與 `cron.job` 清單。 | 健檢時避開餐期沒查；補上後更新保留期限第 2 群（WA-3）與 DIO 系列的基準。SQL 一律 LIMIT／有界聚合。 | 表大小與 cron 清單存檔並連到 WA-3。 |
 | WA-11 | 底線:花費 | P2 | ready | Remove the 31 duplicated objects sitting in both `deploy-assets/` root and their category sub-prefix. | The "no AWS credentials" premise is outdated: S3 `migu-gis-data-collector` was fully enumerated 2026-10-06 with the `S3_*` keys in data-collectors/.env (the local aws profiles are iCHEF company accounts — do not use). Re-run `collect_storage` with those keys to refresh the duplicate list (~365.6 MB, e.g. `ftw_fields_2025.pmtiles` in root and `agriculture/`), then confirm each is unreferenced by deploy scripts / nginx. **健檢 2026-11-08**：CI-4 已完成（v2.31.3）整理過 S3 正本；需重查 31 個重複物件是否還在。 | Every duplicate is confirmed unreferenced by any deploy script or nginx location before deletion; `collect_storage` reports 0 duplicate groups. |
+| WA-13 | 底線:備份 | P2 | in_progress | intel 三表（含 `global_event`）每月匯出 S3，2027-03 前要有排程。 | 另一個 worker 2026-11-09 進行中；細節以該 PR 為準。 | 每月自動匯出到 S3、筆數核對通過。 |
+| WA-14 | 北極星:效率 | P2 | ready | 靜態表搬遷乙組（約 2.4 GB）：`stat_values`、`land_subsidence`、H3 人口、`fire.incidents`、`water_quality`、`flood_hazard_zones`、`storm_drainage`、fire 兩表。 | 依 ADR-0026「不會變的不進 Supabase」：盤點讀者 → 換載體（PMTiles／R2）→ 改前端 → 匯出 S3 → 刪表。後幾張 mini-taiwan-info 也在讀，要一起改。**動前端前先給使用者看方案。** | 各表讀者改讀新載體、S3 有完整匯出、表已刪。 |
+| FB-032 | 底線:花費 | P2 | ready | 〔data-lifecycle-lean〕DL-3 GFW failed spool 重複儲存與中間產物瘦身 | 原檔：[data-lifecycle-lean](../../docs/archive/2026-11-09/features/data-lifecycle-lean/backlog.md)。依據：BACKLOG 無對應列（WA-3 是 live 表）；需先確認 GFW spool 仍存在（GFW 收集器部分停用） | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-121 | 底線:花費 | P2 | ready | 〔property-value〕PV-2 是否刪除無前端引用的 buildings_3d_taiwan.pmtiles（約 194MB，需核准） | 原檔：[property-value](../../docs/archive/2026-11-09/features/property-value/backlog.md)。依據：src 只剩 layerManifest 註解提到此檔名，無載入引用；需使用者拍板；依保留政策 S3 正本應保留，只刪 R2 副本？ | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
 
 ## D. 資安與 DB 權限
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
 | D3 | 底線:資安 | P1 | blocked | Reduce anonymous PostgREST surface to the intended schemas. | First confirm no other gis-platform consumer relies on direct REST access to the schemas being removed (2026-10-05 still exposed reference, spatial, metadata, opendata, fire, maritime, rail, safety, demographics, intel; merged with former AR-41 on 2026-10-16). Include mini-taiwan-info, terrain-art, weather_change and tree-report in the consumer scan. **健檢 2026-11-08**：需掃 consumer；證據：10-05 仍曝露 10 schema。 | `public`/`graphql_public` only, regression checks for shared consumers, and reversible dashboard evidence. [Launch hardening](../../docs/launch/08_POST_LAUNCH_HARDENING.md) |
-| BC-4b | 底線:資安 | P1 | waiting_external | Production auth + enforcing-CSP step (the header/privacy-page prerequisites stay in the BYOK backlog as BC-4; renamed BC-4b on 2026-10-16 to keep IDs unique). | Configure production OAuth URLs in Supabase/Google; then collect browser CSP violations before changing Report-Only to enforcing (2026-10-05: production root still serves the main policy as `Content-Security-Policy-Report-Only`). 2026-10-28 補：改 enforcing 前 allowlist 要加日本官方網域 `cyberjapandata.gsi.go.jp`（地理院地形、淹水圖磚）與 `jma.go.jp`，否則日本圖層會被擋。 **健檢 2026-11-08**：搬 Cloudflare 後實作位置變（Worker/_headers）；allowlist 再加 gis.sinica.edu.tw、NRCan；證據：2026-11-08 curl：主 CSP 仍 Report-Only，server=cloudflare。 | Production Google login works; all key flows have no CSP violations before enforcement. [BYOK backlog](../../docs/features/byok-chat/backlog.md) |
-| SEC-10 | 底線:資安 | P1 | ready | analytics 裡帶 iCHEF 客戶編號的 geojson 移出 GIS 工作區。 | iCHEF 店家資料是公司內部資料，不可放在 GIS 工作區或任何發布管道。First action：列出檔案路徑（只看檔名與欄位名，不讀內容值），移到工作區外並確認未進 git／S3／R2。 | GIS 工作區內 `rg` 查無該欄位；git 歷史有無進版另記。 |
+| BC-4b | 底線:資安 | P1 | waiting_external | Production auth + enforcing-CSP step (the header/privacy-page prerequisites stay in the BYOK backlog as BC-4; renamed BC-4b on 2026-10-16 to keep IDs unique). | Configure production OAuth URLs in Supabase/Google; then collect browser CSP violations before changing Report-Only to enforcing (2026-10-05: production root still serves the main policy as `Content-Security-Policy-Report-Only`). 2026-10-28 補：改 enforcing 前 allowlist 要加日本官方網域 `cyberjapandata.gsi.go.jp`（地理院地形、淹水圖磚）與 `jma.go.jp`，否則日本圖層會被擋。 **健檢 2026-11-08**：搬 Cloudflare 後實作位置變（Worker/_headers）；allowlist 再加 gis.sinica.edu.tw、NRCan；證據：2026-11-08 curl：主 CSP 仍 Report-Only，server=cloudflare。<br>**2026-11-09 封存項併入**（原檔 [byok-chat](../../docs/archive/2026-11-09/features/byok-chat/backlog.md)）：BC-4 部署前置：CSP connect-src、隱私頁 BYOK、OAuth 網域切換 | Production Google login works; all key flows have no CSP violations before enforcement. [BYOK backlog](../../docs/archive/2026-11-09/features/byok-chat/backlog.md) |
 | G016 | 底線:資安 | P2 | waiting_external | Revoke the obsolete `weather_change` AWS credential. | Repo-side references appear gone (2026-10-05: no `weather_change` hit in data-collectors origin/main; local `.env` not inspected). An AWS administrator must deactivate the `gis-data-collectors` key ending `E7PK`. **健檢 2026-11-08**：可併入 SEC-6 金鑰輪換一次做；證據：需 AWS 管理員。 | Old credential fails through STS and retirement is recorded without exposing secret material. |
-| SEC-7 | 底線:資安 | P2 | ready | research-gateway 限流改用真實來源 IP、先驗 token 再扣額度（gis-platform #170）。 | 前提 mini #614（nginx real_ip）已隨 v2.9.0 上線。剩（2026-11-08 改寫：gateway 已於 11-06 搬到 pulse-host，經 Cloudflare Tunnel）：查清新主機上 gateway 前面的轉發來源（Tunnel／nginx）→ 在 pulse-host compose 設 `PULSE_RESEARCH_TRUSTED_PROXY_IPS` → 合併 gis-platform #170 並部署。舊的 Zeabur 轉發網段已不適用。 **健檢 2026-11-08**：文件寫「合併 #170」已過時；只剩 pulse-host 設 PULSE_RESEARCH_TRUSTED_PROXY_IPS 並驗證；證據：gp #170 已 MERGED 2026-10-17（b743e83）。 | 不同來源 IP 各自計算額度；無效 token 不扣額度。 |
-| SEC-8 | 底線:資安 | P2 | blocked | 收回 `cloud_agent_ro` 對會刪資料的 SECURITY DEFINER 函式的 EXECUTE。 | Blocked by SEC-3：`cloud_agent_ro` 的權限有一部分只靠 PUBLIC EXECUTE 取得（SEC-3 記載），直接 REVOKE 該角色無效，要與 SEC-3 的 PUBLIC 收回一併處理。2026-10-17 資安稽核發現；先列出該角色可執行且會 DELETE／TRUNCATE 的函式，確認沒有合法用途後寫 migration 收回（套用正式庫前請使用者同意）。 **健檢 2026-11-08**：與 SEC-3 同一件，建議合併；證據：10-17。 | 以 `cloud_agent_ro` 身分驗有效權限（含經 PUBLIC 繼承者），只剩唯讀用途的函式可執行。 |
-| SEC-3 | 底線:資安 | P2 | ready | 公開 RPC 收回多餘的 PUBLIC EXECUTE，只留需要的角色。 | gis-platform 473（2026-10-17 已套用）加上限時刻意沒 REVOKE PUBLIC：交易內實測收回會讓 15 個只靠 PUBLIC 的服務角色失權（gis_monitor_hermes、global_events_publisher、supabase_read_only_user、air_ticket_writer、cloud_agent_ro 等）。First action: 盤點這些角色實際呼叫哪些函式，先明確 GRANT 給它們，再 REVOKE PUBLIC。 **健檢 2026-11-08**：與 SEC-8 合併。 | 收回後各服務角色呼叫正常、anon 只剩前端用到的函式。 |
+| SEC-7 | 底線:資安 | P2 | verifying | research-gateway 限流改用真實來源 IP、先驗 token 再扣額度（gis-platform #170）。 | 前提 mini #614（nginx real_ip）已隨 v2.9.0 上線。剩（2026-11-08 改寫：gateway 已於 11-06 搬到 pulse-host，經 Cloudflare Tunnel）：查清新主機上 gateway 前面的轉發來源（Tunnel／nginx）→ 在 pulse-host compose 設 `PULSE_RESEARCH_TRUSTED_PROXY_IPS` → 合併 gis-platform #170 並部署。舊的 Zeabur 轉發網段已不適用。 **健檢 2026-11-08**：文件寫「合併 #170」已過時；只剩 pulse-host 設 PULSE_RESEARCH_TRUSTED_PROXY_IPS 並驗證；證據：gp #170 已 MERGED 2026-10-17（b743e83）。 **2026-11-09**：pulse-host 已設定（主 agent 回報）；剩兩種網路來源實測（不同 IP 各自計額、無效 token 不扣額）。 | 不同來源 IP 各自計算額度；無效 token 不扣額度。 |
 | SEC-4 | 底線:資安 | P3 | ready | `get_rain_basin_accumulated` 本身太慢（查 1 天約 13.6 s、7 天約 29 s），473 的 30 天上限擋不住。 | 目前無前端呼叫者。二選一：pre-aggregate／加索引優化，或確認無人使用後收回 anon／authenticated 權限。 | 1 天查詢 < 1 s，或 anon 已不能執行。 |
-| SEC-5 | 底線:資安 | P3 | ready | 公開 RPC 在上限內仍可重複拖慢 DB（例：`get_waste_trails` 上限 180 分一次約 8 s，前端只用 60 分約 1 s）。 | 二選一：上限再收緊（垃圾車 180→120 分）或在上層加限流（PostgREST／Cloudflare）。稽核報告見 473 檔頭與 PR gis-platform #174。 | 單次最大範圍查詢 < 3 s，或同 IP 頻率受限。 |
+| SEC-5 | 底線:資安 | P3 | ready | 公開 RPC 在上限內仍可重複拖慢 DB（例：`get_waste_trails` 上限 180 分一次約 8 s，前端只用 60 分約 1 s）。 | 二選一：上限再收緊（垃圾車 180→120 分）或在上層加限流（PostgREST／Cloudflare）。稽核報告見 473 檔頭與 PR gis-platform #174。 **2026-11-09**：pgss 11-09 15:27 重置；**~11-12～14** 取乾淨慢查詢清單 → 先優化 >1s 的，再把 statement timeout 收到 10–15s；公車／船舶軌跡維持 60s 例外（軌跡另見 TRAIL-1）。 | 單次最大範圍查詢 < 3 s，或同 IP 頻率受限。 |
 | GP-296 | 底線:授權 | P3 | blocked | mig 296 的 default privileges 讓 `reference` schema 新表自動授 SELECT 給 `cloud_agent_ro`，授權限定的物件（如 EA 污染名錄）每次都要另外收權。 | Blocked on 使用者決定是否改 default privileges。First action: 唯讀列 `reference` schema 現有表的 `cloud_agent_ro` 權限與 default ACL，列出改法與影響（會不會讓既有 MCP 查詢失效）給使用者選。 | 使用者選定：維持（每次收權寫進 onboarding 清單）或改 default（新 migration 並驗 MCP 倉庫查詢不壞）。 |
 | SB-1 | 底線:花費 | P3 | ready | Supabase `migu` project 不用就移除。 | 刪除前先確認沒有 repo、collector 或排程連它（只查設定名稱）。Owner：使用者拍板刪除。 | project 已刪或記錄保留理由。 |
 | OG-4 | 北極星:好用 | P2 | ready | 私人 Range API（coral-private sidecar：jpWater、土壤液化、BSS、橋梁韌性、公車擁擠、allenCoralAtlas）改讀 `profiles.tier`，不再寫死 `OWNER_ID`。 | Trigger 已成立（2026-11-06 主站搬離 Zeabur，`/api` 經 Tunnel 到 pulse-host 的 sidecar）。現況：後台把這些層改成非 owner 只會解開介面、資料仍拿不到。Owner: 主 agent。First action: 搬遷方案定案後，在新 sidecar 以 Supabase JWT 查 tier，與 `public.gated_layers.required_tier` 對照。 **健檢 2026-11-08**：與 OWD-4 同一個 sidecar，排一起。 | 後台改 tier 後，對應帳號能讀到資料；未登入仍 401。 |
 | JP-1 | 底線:資安 | P2 | ready | Verify the Japan religion view hardening through the real PostgREST write path. | Migration 374 readback proves SELECT-only grants, `security_invoker=true` and anon reads; perform bounded anon/authenticated REST write attempts without modifying valid rows. **健檢 2026-11-08**：一次唯讀驗證即可關；證據：mig 374。 | Reads remain 200 and INSERT/UPDATE/DELETE attempts are rejected by PostgREST; evidence records status/error without logging secrets. |
 | SEC-9 | 底線:資安 | P3 | verifying | 確認 2026-10-17 資安 migration 沒有擋到正常功能。 | (1) `log_session_events` 90 天清理 cron（mig 472）首次執行在 2026-10-18 06:50 台北，查 `cron.job_run_details` 成功、刪約 9,600 筆；(2) tree-report 照片上傳（mig 470 限 5 MB、jpeg／png／webp）實際傳一張；(3) `ship_last_seen` 改 full_table 後，03:30 台北的備份有產出。 **健檢 2026-11-08**：一次唯讀查詢可關；證據：3 項待查。 | 三項都確認正常。正本：gis-platform `docs/research/2026-10-17-security-audit.md`。 |
+| SEC-11 | 底線:資安 | P2 | ready | `iot_wra_daily`、`iot_wra_latest` 兩表沒開 RLS（2026-11-09 第一批權限整理時發現）。 | First action：確認讀者（前端 RPC／MCP）後，出 gis-platform migration 開 RLS 並只留需要的讀取政策；套用須使用者拍板。 | 兩表 RLS 已開、既有讀者仍可讀。 |
+| SEC-12 | 底線:資安 | P3 | waiting_external | anon 對 `net.http_*` 的執行權限收不回（由 supabase_admin 授權）。 | 需 Supabase 後台或支援處理；低優先。2026-11-09 第一批（gis-platform #227）時確認。 | anon 無法執行 `net.http_*`，或 Supabase 回覆無法收回並記錄接受理由。 |
+| HERMES-2 | 待討論 | P3 | blocked | Hermes 已退役（HERMES-1），`gis_monitor_hermes` 角色要不要 drop。 | Blocked（owner decision）：權限已於 mig 536 收回（回滾在 gis-platform `scripts/rollback_536...` 第 3 段）；角色本身保留或 drop 待使用者決定。collectors `operations.md` L26／L82「待確認」改「已退役」。 | 使用者決定後角色已 drop 或記錄保留理由。 |
+| FB-065 | 底線:授權 | P2 | ready | 〔historical-flight-trails〕個別資料合約與公開展示授權（license unverified） | 原檔：[historical-flight-trails](../../docs/archive/2026-11-09/features/historical-flight-trails/backlog.md)。依據：license_status=unverified；BACKLOG 無對應；已公開上線，授權未確認 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-139 | 底線:資安 | P2 | ready | 〔urban-zoning〕UZ-2 新北官方站 TLS 憑證，排程不再用 --insecure | 原檔：[urban-zoning](../../docs/archive/2026-11-09/features/urban-zoning/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-170 | 底線:授權 | P2 | ready | 〔agent-research-workbench〕Google geocoder quota／成本 ledger／circuit breaker 與條款 review（P0-D、地址 fallback 共 4 項） | 原檔：[agent-research-workbench](../../docs/archive/2026-11-09/features/agent-research-workbench/backlog.md)。依據：MCP 規則仍要求逐次 externalConsent，條款 review 未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-181 | 底線:資安 | P2 | ready | 〔cctv-finetune-roadmap-2026-09-29〕不模糊影像訓練完成後刪除（使用者決定） | 原檔：[cctv-finetune-roadmap-2026-09-29](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)。依據：訓練未完成，原始影像仍在 ~/cctv-collector 與 ~/Backups；需在封存或訓練後執行；若決定封存，也要處理這批影像 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
 
 ## E. collector 與資料健康
 
@@ -111,16 +140,40 @@
 | G013 | 底線:資料正確 | P2 | waiting_external | Restore the corrected KHH collector on its VM runtime. | (P1→P2 2026-10-16: waiting on an external VM；與 Zeabur 搬遷無關，目標仍是 HiCloud VM，待使用者部署。) Copy the already-pushed collector (data-collectors `a2f158a` adds KHH1/KHH5) to the HiCloud VM according to its runbook. 2026-10-05: newest 20k rows of `live.border_airport_snapshot` contain TPE/TSA/RMQ only, no KHH. **健檢 2026-11-08**：VM 現由主 agent 操作中（ZB-2），不再是 external；可直接做；證據：collectors a2f158a 已 push；10-05 無 KHH 列。 | VM cron runs the corrected collector and fresh KHH rows are observed. `data-collectors/external/immigration_apis_airport_vm/README.md` |
 | PR-1 | 底線:期限 | P2 | blocked | Stop the inmate card from silently shrinking to empty while upstream stays dead. | Blocked on 拍板 / migration authorization (owner). Apply the prepared RPC-window-anchor migration (`max(observed_date)` instead of `now()`); written but **not applied** — needs 拍板. File deliberately unnumbered (`prison_population_window_anchor.PENDING.sql`); take a number on the day it is applied. 2026-10-05: `live.prison_population_daily` still ends at 2026-05-15 while the collector keeps polling, so the 365-day window empties around 2027-05-15. **健檢 2026-11-08**：約 2027-05-15 卡片會變空；上游停更、collector 已停，可考慮直接退卡；證據：PENDING.sql 未套；上游 05-15 停更；collector 已暫停(265864d)。 | Card still renders its trend after the window would have passed the last data point. [SQL](../../docs/archive/2026-10-16/proposal/monitor-tweaks-2026-08-21/prison_population_window_anchor.PENDING.sql) |
 | DS-04 | 底線:資料正確 | P2 | ready | Restore county-level lightning summaries. | Check whether the county polygon tables the refresh function looks for exist in production; if missing, provide them, if present, fix the refresh function's county join. Polygons per migration 201: `public.taiwan_counties_simplified`/`taiwan_counties`/`county_boundary`. Then rerun the summary path. 2026-10-05: last 10 days still only `county=NULL` rows (one per source). **健檢 2026-11-08**：mig 505–510 後要重查；證據：10-05 只有 county=NULL。 | Summary has county rows rather than only `county=NULL`. |
-| FP-2 | 底線:資料正確 | P2 | ready | Detect a stalled food-price index within days instead of weeks. | `analytics.food_price_index_daily` has no timestamptz column, so `check_collector_freshness` cannot cover it; `realtime_tables.yaml` only watches the raw table, which stays green forever. Add a `loaded_at` column (new migration) or a `max(trade_date)`-based check. Threshold must allow 3–4 days (T+1 + weekend + holiday market closures). | A stall raises an alert. `realtime_tables.yaml` is a shared registry — wire it by hand, not from an agent. Same source doc as FP-1. |
-| DIO-4 | 底線:資料正確 | P2 | ready | Fix `metadata.collector_status` coverage gaps. | 2026-10-05 same-moment join of 71 owners: 62 FRESH / 5 STALE / 4 MISSING (the old "13" could not be reproduced). Per owner: `ship_ais`, `waste_positions` and `cdc_public_health_weekly` write via independent paths that bypass the generic writer; `aisstream` has no same-name status; `flight_fr24` owner name mismatches (actual `flight_fr24_zone`); `gfw_vessel_presence` is intentionally retired; `air_ticket_radar` has an unknown owner (`fare_offers` stopped on 09-08); `earthquake_shakemap_grid` is event-driven; `wra_drought_alert` see DIO-6. No heartbeat has been fixed yet. **健檢 2026-11-08**：搬到 pulse-host 後 owner 名稱可能變，需重跑；證據：10-05。 | Every `owner_collector` in `realtime_tables.yaml` joins to a fresh `collector_status` row, or is explicitly marked retired/event-idle. data-collectors `docs/investigations/2026-10-05-collector-health.md` §DIO-4 |
 | DIO-6 | 底線:資料正確 | P2 | blocked | `drought_alert_current` has not been written since 2026-05-15 without alerting. | Root cause (2026-10-05): `collectors/wra_drought_alert.py:191-203` produces no records when there are zero or unchanged alerts, so `storage/supabase_writer.py:185-189` returns early and skips the heartbeat. The stale current rows (Hsinchu and Taichung, published 04-27) are never cleared. The 3x rule itself works (it should read STALE), but the DB alert `metadata.check_collector_freshness` only checks MAX(last_success_at) across all collectors, so other collectors mask it. The public page parser currently reads alerts=[] (05-26 notice). Blocker: owner decision on how to represent a legitimate empty snapshot, whether to clear the old current rows, and per-owner alerting. | The collector records a run receipt for empty runs, stale current rows follow the decided policy, **and** a stalled owner raises its own alert. data-collectors `docs/investigations/2026-10-05-collector-health.md` §DIO-6 |
-| COL-F010 | 底線:資料正確 | P2 | ready | `supabase_writer` 舊的 partial 寫入會蓋掉較新的 ok（`live.weather_raster_frames` 缺 revision 欄，無法判斷新舊）。 | First action: gis-platform 先加 revision 欄 migration（須使用者套用），collectors 再改 upsert 的 WHERE 條件只允許較新 revision 覆寫；上游先動、下游後動。 | 舊 partial 重送不會覆蓋較新的 ok 列；有回歸測試。 |
-| HOST-1 | 底線:資料正確 | P2 | ready | pulse-host 記憶體上限超賣：compose `mem_limit` 加總約 4,848 MiB，主機 4 GB＋swap。 | 先實測各容器實際用量（docker stats 數日峰值），再調整 `mem_limit` 或主機規格。 | mem_limit 加總不超過實體記憶體＋合理 swap，或記錄接受理由。 |
-| GFW-1 | 底線:資料正確 | P3 | ready | GFW 小時檔停更是刻意（授權），在圖例標示。 | S3 `deploy-assets/global-maritime/gfw-hourly/manifest.json` 停在 2026-08-25。比照 #918 舊版每日船舶的寫法，圖例三語寫明停更原因與日期。使用者 2026-11-08 決定不藏層。 | 圖例顯示停更日期與原因。 |
+| HOST-1 | 底線:資料正確 | P2 | verifying | pulse-host 記憶體上限超賣：compose `mem_limit` 加總約 4,848 MiB，主機 4 GB＋swap。 | 先實測各容器實際用量（docker stats 數日峰值），再調整 `mem_limit` 或主機規格。 **2026-11-09 觀察中**：collector-mem 記峰值，**~11-16** 檢視後決定調整。 | mem_limit 加總不超過實體記憶體＋合理 swap，或記錄接受理由。 |
+| GFW-1 | 底線:資料正確 | P3 | ready | GFW 小時檔停更是刻意（授權），在圖例標示。 | S3 `deploy-assets/global-maritime/gfw-hourly/manifest.json` 停在 2026-08-25。比照 #918 舊版每日船舶的寫法，圖例三語寫明停更原因與日期。使用者 2026-11-08 決定不藏層。<br>**2026-11-09 封存項併入**（原檔 [global-maritime](../../docs/archive/2026-11-09/features/global-maritime/backlog.md)）：區域正式化 5 項（固定切片 queue、每日增量、去重預產、DB／RPC、GFW 授權審查）；全球規模 6 項（tile catalog、overview／detail、PMTiles、容量成本 gate、分階段）；每日 job 產 GFW current snapshot 並驗授權 | 圖例顯示停更日期與原因。 |
 | with-conn-timeout | 北極星:效率 | P2 | ready | Bound custom SQL and long collector tasks. | Add transaction-local timeout coverage for `satellite_passes` and `waste_match`. | Long calls terminate predictably without affecting unrelated pooled requests. |
 | TD-1 | 底線:資料正確 | P2 | verifying | **2026-11-08 使用者拍板乙：不回補**（原始資料在 S3 永久保存；4/02 已超過 180 天保留期，補了也會被清）。剩下唯一動作：唯讀確認 pulse-host 的 `RAIL_TIMETABLE_INTERVAL`（只看 key 與是否 1440）與 manifest `expected_interval`，確認後關。 Stop `rail_timetable` from silently dropping whole days of TRA schedules. | Code fix merged in collectors #126 (2026-10-05): `config.py:291` default interval 1440→240; `supabase_writer.py:885-906` fallback now keeps `system='tra_daily'` with `metadata.degraded`, and a degraded upsert does not overwrite a healthy same-day row. (2026-10-16 盤點：待確認 data-collectors config/Zeabur 是否仍 1440) Not yet verified: whether a Zeabur `RAIL_TIMETABLE_INTERVAL` override still pins 1440 (check the variable name only), and manifest `expected_interval` is still 1440. Backfill awaits approval: 2026-04-02 (919 trains, in DB as `system='tra'`) and 2026-06-26 (S3 `rail_timetable/archives/`); the other 4 missing days are unrecoverable. **健檢 2026-11-08**：前提過時：collector 已搬 pulse-host，改查新主機 env；回補仍待拍板；證據：collectors #126；文中提 Zeabur 變數。 | Seven consecutive days each have a `tra_daily` row and no new `system='tra'` orphan; after the two backfills, to-arrival delay is no longer NULL on those days. data-collectors `docs/investigations/2026-10-05-collector-health.md` §TD-1 |
 | FP-1 | 底線:備份 | P2 | ready | **2026-11-08 使用者拍板乙：3 年歷史整理成一個檔放 S3，主機每天讀「歷史檔＋最新菜價」算 1095 天中位數**（燈號意義不變、不再靠 Mac；Supabase 照 180 天保留）。State 改 ready，約半天；完成後停掉 Mac 的 launchd `com.gis.foodprice_index`，AU-8 一併補文件。 Move the food-price **index** pipeline off the local Mac onto the same 24/7 footing as every other collector. | Blocked on history: the light thresholds use a rolling **1095-day median**, but `live.food_price_daily` holds only 71 days (2026-07-27~10-05, queried 2026-10-05); the 3.64M-row raw backfill was never loaded into Supabase. Either load the raw history first, or have the collector read local parquet (which defeats the decoupling). **健檢 2026-11-08**：新保留期 180 天 < 1095 天中位數需求 → 前提衝突，需重新決策；證據：10-05 只 71 天；mig 505 food_price_daily 180 天保留。 | Index lands daily without a human or a Mac being awake. **Interim (2026-08-21): option A** — launchd `com.gis.foodprice_index` runs `pipelines/food_prices/wholesale_prices/run_daily.sh` at 06:00 (index max trade_date 2026-10-03 on 2026-10-05). [food-price stale recovery](../../docs/archive/2026-10-16/proposal/monitor-tweaks-2026-08-21/food-price-stale-recovery.md) |
-| DIO-5 | 底線:資料正確 | P2 | ready | `live.aisstream_archive_manifests` has never been monitored correctly. | Root cause confirmed 2026-10-05: `config/realtime_tables.yaml:58` uses `created_at`, but the table has `uploaded_at` / `verified_at` (latest 10-05 04:28 UTC, status verified). Change the time column to `uploaded_at` and also check `status='verified'`. The config has not been changed yet; no schema migration is needed. **健檢 2026-11-08**：改一行 yaml。 | The table reports real freshness. data-collectors `docs/investigations/2026-10-05-collector-health.md` §DIO-5 |
+| SBE-1 | 北極星:效率 | P1 | ready | VM 上 5 支收集器換成固定形狀寫入（R5；pulse-host 已於 collectors #192／#193 部署）。 | Owner: 主 agent。VM 部署一併帶 `utils/alerting.py`（ALERT-1）；全部部署後執行 `pg_stat_statements_reset`，隔日用 pg_stat_statements 驗證不再有大量變形 SQL 文字（查詢文字曾撐到 233MB）；驗完把 R5 由建議升為必須。 **2026-11-09**：VM 部分完成（collectors #194）。剩 **11-10** 驗：VM `/var/log/moa-opendata/collect.log` 00:53 寫入成功、pgss 查詢文字未暴增（pgss 已於 11-09 15:27 重置）→ 通過就把 R5 升為必須；菜價 11-07 缺資料續觀察。 | pg_stat_statements 查詢文字大小維持小量，R5 升必須。 |
+| SBE-2 | 底線:資料正確 | P2 | verifying | 2026-11-10 跑 gis-platform mig 532 的測試，確認被刪的 11 個分區索引沒長回。 | Owner: 主 agent。避開 10:00–20:00 唯讀驗；長回就查是哪個 refresh／建表流程重建。 | 測試通過，11 個索引仍不存在。 |
+| FARE-1 | 待討論 | P3 | blocked | `air_tickets.fare_offers` 自 2026-09-08 停更（寫入端 Hermes 已退役），資料去留。 | Blocked（owner decision）：保留舊資料唯讀、匯出 S3 後 drop、或重啟寫入端。 | 使用者決定並執行。 |
+| CHK-1110 | 底線:資料正確 | P1 | verifying | 2026-11-10 要看的四件事。 | Owner: 主 agent（避開 10:00–20:00）：(1) mig 532 測試（SBE-2）；(2) VM moa 00:53 log 寫入成功（SBE-1）；(3) pgss 查詢文字量未暴增（SBE-1）；(4) 保留期限首次清理的刪除量＋大表 vacuum（WA-3）。 | 四項各有觀察紀錄，未達的回寫對應 ID。 |
+| COL-POP-1 | 底線:資料正確 | P2 | ready | 在監人口（correctional）資料日期停在 05-15。 | 主 agent 2026-11-09 判定是收集器問題（不是上游停更）；First action：查收集器解析與上游最新檔日期。 | 資料日期追上上游最新發布。 |
+| COL-ANIMAL-1 | 底線:資料正確 | P3 | verifying | 動物收容成果／獸醫寵物業點位 10-23 起沒新資料。 | 2026-11-09 判定是設計低頻（30／90／180／365 天），不是故障；**~11-20** 確認 `animal_shelter_outcomes` 有新 run。 | 有新 run 紀錄。 |
+| FB-029 | 底線:資料正確 | P2 | ready | 〔civic-facilities-layers〕CF-4 welfareCenters 仍是 2023-04 快照，上游更新時重跑 | 原檔：[civic-facilities-layers](../../docs/archive/2026-11-09/features/civic-facilities-layers/backlog.md)。依據：條件觸發；可交給 pulse-data 更新清單（ADR-0024）偵測 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-038 | 底線:資料正確 | P2 | ready | 〔earthquake-replay〕EQ-2 首次出現 moment_tensor A 解時驗證 A 優先 | 原檔：[earthquake-replay](../../docs/archive/2026-11-09/features/earthquake-replay/backlog.md)。依據：等事件發生 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-049 | 底線:資料正確 | P2 | ready | 〔er-hospital〕ER-2 確認 inform Y/N 旗標語意 | 原檔：[er-hospital](../../docs/archive/2026-11-09/features/er-hospital/backlog.md)。依據：未見決策紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-056 | 底線:資料正確 | P2 | ready | 〔global-climate〕TY-2 颱風 popup 強度多為「—」，需新增 JMA 強度來源 | 原檔：[global-climate](../../docs/archive/2026-11-09/features/global-climate/backlog.md)。依據：未見 collector PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-069 | 底線:資料正確 | P2 | waiting_external | 〔isr-satellite-monitor〕ISR-MON-3 ISR registry 覆核日期 SLA 與逾期告警 | 原檔：[isr-satellite-monitor](../../docs/archive/2026-11-09/features/isr-satellite-monitor/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-108 | 北極星:好用 | P3 | ready | 〔news〕NEWS-2 接 PTT 地方板 Atom feed | 原檔：[news](../../docs/archive/2026-11-09/features/news/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-109 | 北極星:AI | P3 | ready | 〔news〕NEWS-6 新聞事件 POI 級精度 | 原檔：[news](../../docs/archive/2026-11-09/features/news/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| NEWS-3 | 北極星:好用 | P3 | waiting_external | 新聞來源接 Threads 關鍵字搜尋：增加新聞來源可信度的候選。 | 需先通過 Meta app review；使用者 2026-11-09 決定保留在新聞這一群。原文：[news](../../docs/archive/2026-11-09/features/news/backlog.md)。 | app review 通過後再排實作與驗收。 |
+| FB-110 | 底線:資料正確 | P2 | ready | 〔noise-layers〕NOISE-4 上游 snapshot 更新時重建替換 | 原檔：[noise-layers](../../docs/archive/2026-11-09/features/noise-layers/backlog.md)。依據：條件觸發；可交給 pulse-data 更新清單偵測 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-113 | 底線:資料正確 | P2 | ready | 〔parking〕PK-2 補 phase-2 座標覆蓋（台北基隆場外、新北台中路邊） | 原檔：[parking](../../docs/archive/2026-11-09/features/parking/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-115 | 底線:資料正確 | P2 | ready | 〔parking〕PK-4 parking_ref 改月更排程 | 原檔：[parking](../../docs/archive/2026-11-09/features/parking/backlog.md)。依據：條件觸發 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-116 | 底線:資料正確 | P2 | ready | 〔pla-activity〕PA-1 共機航跡 588 天全量向量化（先抽驗 2025 前版型） | 原檔：[pla-activity](../../docs/archive/2026-11-09/features/pla-activity/backlog.md)。依據：BACKLOG 索引寫 PA-1 只在此；PLA-190 只補 10/01–11/08 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-117 | 底線:資料正確 | P2 | ready | 〔pla-activity〕PA-2 26 天待審形狀人工複核（不放寬門檻） | 原檔：[pla-activity](../../docs/archive/2026-11-09/features/pla-activity/backlog.md)。依據：PLA-190 另有 10 天待審，可合併成一個複核批 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-118 | 北極星:AI | P3 | ready | 〔pla-activity〕PA-3 空飄氣球獨立欄位與圖層（從 raw_text 回填） | 原檔：[pla-activity](../../docs/archive/2026-11-09/features/pla-activity/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-122 | 底線:資料正確 | P2 | ready | 〔property-value〕PV-3 實價新季度快照重跑並重檢色階 | 原檔：[property-value](../../docs/archive/2026-11-09/features/property-value/backlog.md)。依據：條件觸發（季度更新）；可交給 pulse-data 更新清單 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-143 | 底線:資料正確 | P2 | ready | 〔vessel-watch〕VW-2 人工審 46 艘規則認不出的船 | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：未見紀錄；可與 VZ-8 待查 7 筆、VZ-10 合成一個人工審查批 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-148 | 底線:資料正確 | P2 | ready | 〔vessel-watch〕VZ-8 needs_review 落地成 registry 欄位、999999999 路由邊界 | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：檔內兩個已知瑕疵未處理；主項已完成，只列瑕疵 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-149 | 底線:資料正確 | P2 | ready | 〔vessel-watch〕VZ-9 AIS 寫入端加 MMSI 格式閘門（A 格式＋B 測試碼黑名單） | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：未見 migration | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-150 | 底線:資料正確 | P2 | ready | 〔vessel-watch〕VZ-10 994161168（自主無人載具）分類精修與 994161820 查證 | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-159 | 底線:資料正確 | P2 | waiting_external | 〔welfare-layers〕WF-2 medLTC 暫不同步，待查清上游 C 級巷弄長照站縮 87% 原因 | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：BACKLOG 索引寫 WF-2 P1 waiting_external、細節只在此，但無獨立列；建議進正本 BACKLOG | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-183 | 北極星:兼容 | P3 | ready | 〔waste-collection〕Phase 1B.1 接台中垃圾車 GPS collector | 原檔：[waste-collection](../../docs/features/waste-collection/research/roadmap.md)。依據：handoff.md 即時 GPS 只有高雄、新北、臺南三家；需先確認台中端點仍可用 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-186 | 底線:資料正確 | P2 | ready | 〔waste-collection〕Phase 4.4／4.5 PBF 月更與 hwms 月更自動化 | 原檔：[waste-collection](../../docs/features/waste-collection/research/roadmap.md)。依據：handoff：靜態資料無自動排程（301 註明）；可交給 pulse-data 更新清單 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
 
 ## F. 站主資料、舊 RPC／舊路徑撤除
 
@@ -128,49 +181,104 @@
 |---|---|---|---|---|---|---|
 | OWD-4 | 底線:授權 | P2 | ready | 站主資料第 3 批。 | 使用者已同意照同一套系統規則搬。Owner: 主 agent。First action：英格蘭 EA、愛爾蘭 Coillte（林道 1.7 萬條改 PMTiles）搬進 owner-data；water1944Taipei 搬進私人檔；選舉活動等 11/28 選後匯出最後一版再轉（trigger 2026-11-28）。最後更新 ADR-0026 與 analytics skill `pulse-layer-release/references/license-and-deploy.md` 的 sidecar 規則（站主限定靜態資料改走 owner-data，不再用 owner-only RPC）。 **健檢 2026-11-08**：含 11-28 選舉活動 trigger。 | 上述圖層非站主讀不到資料（401）、站主正常；ADR 與 skill 規則已更新；IECOI-1 同步驗收。 |
 | WA-4 | 底線:資安 | P3 | blocked | Retire the orphan `public` RPCs. | Review done — gis-platform [#138](https://github.com/ianlkl11234s/gis-platform/pull/138) (merged 2026-10-05, `docs/audit/2026-10-05-orphan-rpc-review.md`): 87 candidates = DROP_SAFE 15 / INTERNAL 41 / KEEP_EXTERNAL 2 / UNSURE 29. **DROP_SAFE 15 awaiting owner approval** (draft `docs/audit/2026-10-05-orphan-rpc-drop-batch-1.PENDING.sql` + rollback). `pg_stat_statements` only covers ~4 days since the 10-01 reset; option: enable `track_functions='all'` for one cycle first. **健檢 2026-11-08**：可與 SR-1/SR-2 同批；證據：gp #138。 | DROP_SAFE batch applied or deferred by owner decision; UNSURE 29 decided group by group. |
-| AR-11e | 北極星:效率 | P1 | ready | Retire the CWA imagery DB fallback and legacy RPCs now that R2 CORS answers (also absorbs the stale imagery-backlog item IMG-cwa-r2-cors, closed 2026-10-16). | 2026-10-05 probe: `data.itsmigu.com` returns `access-control-allow-origin: *` on GET and OPTIONS (204). Next: production browser check (cloud/radar/timeline, zero legacy RPC calls), then redo open PR #428 on latest develop and ship migration 344 as a separately approved DB release. Keep the 14-day DB copy and collector dual-write. **健檢 2026-11-08**：與 CL-3 的 #428 重複；證據：PR #428 仍 draft（2026-10-03）。 | Production browser reads manifest/CDN imagery without CORS errors, frontend makes zero legacy RPC calls, and the RPC retirement ships as an independently verified DB release. [Imagery backlog](../../docs/features/imagery/backlog.md) |
-| AR-12/13 | 北極星:效率 | P2 | ready | Move C-class shared realtime snapshots from per-user DB reads to CDN delivery. | (P1→P2 2026-10-16: design-only, overlaps static-to-cdn STC-*.) Define snapshot writer, manifest and CDN read contract. **健檢 2026-11-08**：與 static-to-cdn、#918 static-rpc 部分重疊，需重寫範圍；證據：設計中。 | Target consumers read immutable/current CDN snapshots with no regression. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |
-| EM-30 | 北極星:效率 | P2 | ready | Remove rail-geometry fallback only after an observation window. | Gate passed (not_before 2026-11-01; 2026-11-08 the fallback in `src/embed/railReplayData.ts` is still present). Owner: 使用者 (approval to delete the old S3 object). First action: check fallback fetch counts, then remove code and old S3 object together with approval. **健檢 2026-11-08**：需刪舊 S3 物件拍板；證據：11-08 railReplayData.ts 仍有 fallback。 | Production has used the hashed asset through the window and no fallback fetch occurred. [Embeddable map backlog](../../docs/features/embeddable-map/backlog.md) |
+| AR-11e | 北極星:效率 | P1 | ready | Retire the CWA imagery DB fallback and legacy RPCs now that R2 CORS answers (also absorbs the stale imagery-backlog item IMG-cwa-r2-cors, closed 2026-10-16). | 2026-10-05 probe: `data.itsmigu.com` returns `access-control-allow-origin: *` on GET and OPTIONS (204). Next: production browser check (cloud/radar/timeline, zero legacy RPC calls), then redo open PR #428 on latest develop and ship migration 344 as a separately approved DB release. Keep the 14-day DB copy and collector dual-write. **健檢 2026-11-08**：與 CL-3 的 #428 重複；證據：PR #428 仍 draft（2026-10-03）。 | Production browser reads manifest/CDN imagery without CORS errors, frontend makes zero legacy RPC calls, and the RPC retirement ships as an independently verified DB release. [Imagery backlog](../../docs/archive/2026-11-09/features/imagery/backlog.md) |
+| AR-12/13 | 北極星:效率 | P2 | ready | Move C-class shared realtime snapshots from per-user DB reads to CDN delivery. | (P1→P2 2026-10-16: design-only, overlaps static-to-cdn STC-*.) Define snapshot writer, manifest and CDN read contract. **健檢 2026-11-08**：與 static-to-cdn、#918 static-rpc 部分重疊，需重寫範圍；證據：設計中。<br>**2026-11-09 封存項併入**（原檔 [static-to-cdn](../../docs/archive/2026-11-09/features/static-to-cdn/backlog.md)）：STC-3 waste_stops 拆 per-city snapshot；STC-4 其餘 bespoke（data catalog、年度 H3、reservoir、satellite catalog）deferred | Target consumers read immutable/current CDN snapshots with no regression. [Architecture plan](../../docs/proposal/architecture-overhaul-plan.md) |
+| EM-30 | 北極星:效率 | P2 | ready | Remove rail-geometry fallback only after an observation window. | Gate passed (not_before 2026-11-01; 2026-11-08 the fallback in `src/embed/railReplayData.ts` is still present). Owner: 使用者 (approval to delete the old S3 object). First action: check fallback fetch counts, then remove code and old S3 object together with approval. **健檢 2026-11-08**：需刪舊 S3 物件拍板；證據：11-08 railReplayData.ts 仍有 fallback。 | Production has used the hashed asset through the window and no fallback fetch occurred. [Embeddable map backlog](../../docs/archive/2026-11-09/features/embeddable-map/backlog.md) |
 | SR-1 | 北極星:效率 | P2 | blocked | 撤舊 static layer RPC（#918 改讀 CDN static-rpc 之後）。 | Trigger：發版後觀察 7 天，舊 static RPC 呼叫數不再增加。火災兩支因 AI chat 白名單保留。Owner: 使用者拍板／主 agent。First action：發版當天記下各 RPC 在 `pg_stat_statements` 的 calls 基準，7 天後比對；不再增加就取號套 gis-platform `migrations/retire_static_layer_rpcs.PENDING.sql`（有 `.PENDING.test.sql`）。 **健檢 2026-11-08**：~11-15 可判斷；證據：#918 隨 v2.29.0 11-08。 | migration 已套、對應前端功能正常、火災兩支仍在。 |
 | SR-2 | 北極星:效率 | P3 | ready | 撤 `public.data_catalog`。 | 已無讀者（#918 血緣改讀 metadata，需 mig 513）；唯一寫入者是 analytics 一次性匯入腳本。Owner: 主 agent（草稿）／使用者（套用拍板）。First action：全 repo 搜 `data_catalog` 讀寫點確認只剩該匯入腳本，另開 gis-platform migration（含 ROLLBACK）並把匯入腳本標停用。 | 表已撤、`rg data_catalog` 只剩歷史文件；衍生分析圖層的上游清單仍正常。 |
+| FB-101 | 底線:資料正確 | P2 | waiting_external | 〔livestock〕LS-2 畜牧場補到 100% 覆蓋（上游 ARIS 後續批次） | 原檔：[livestock](../../docs/archive/2026-11-09/features/livestock/backlog.md)。依據：未見紀錄；注意已改站主資料（OWD 第 1 批），「CDN＋Supabase 雙寫」流程過時 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
 
 ## G. 開發系統、CI 與告警
 
-2026-11-08 健檢新增的開發系統與告警項目。來源：健檢報告（2026-11-08，目前在 session scratchpad `audit/`，待放入 `.gis-agent-system`） `dev-system.md`（自動化清單 A1–A15）、`telegram-alerts.md`。
+2026-11-08 健檢新增的開發系統與告警項目。來源：[健檢報告（2026-11-08）](../../../.gis-agent-system/projects/2026-10-zeabur-migration/healthcheck-20261108/) `dev-system.md`（自動化清單 A1–A15）、`telegram-alerts.md`。
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
-| ALERT-1 | 底線:資料正確 | P1 | blocked | 告警分級收尾：使用者端設定與待決項。 | **2026-11-09 已上線**：mini #950／gis-platform #218 排程失敗通知（連續第 2 次 🔴、恢復 ✅）、gis-agent-system #48 主機看門狗分級（已部署主機）、collectors #185 告警分級＋日報一則（已部署 pulse-host）、healthchecks.io 兩個死人開關。**Blocked（owner decision）**：(1) mini 與 gis-platform repo secrets `TELEGRAM_BOT_TOKEN`／`TELEGRAM_CHAT_ID`（建議另開告警 bot，從使用者終端機 `gh secret set`），未設前排程通知會略過；(2) healthchecks 第 3 個檢查「collector 每日日報」（1 天／寬限 2 小時），ping 網址寫進 collector.env `HC_DAILY_REPORT_PING_URL`；(3) Hermes（Discord 巡檢）停不停；(4) critical 名單建議加 flight_fr24_zone、flight_opensky、bus_intercity；(5) 確認門檻預設：高頻 3 次且 15 分、每日類 2 次、news_events 6 次／60 分、twse 5 次／30 分。Claude 待做：aisstream 常駐 worker 接告警；HiCloud VM 下次部署要帶 `utils/alerting.py`；refresh-dataflow 已連續失敗多次，依規則不補發 🔴，恢復時才送 ✅。 | 平常日 1–3 則；排程失敗與主機失聯都會通知。 |
+| ALERT-1 | 底線:資料正確 | P3 | ready | 告警分級剩餘項（主體 2026-11-09 已完成，見已關閉）。 | Claude 待做：(1) aisstream 常駐 worker 接新告警；(2) HiCloud VM 下次部署要帶 `utils/alerting.py`（VM 5 支收集器換固定形狀寫入時一起，見 SBE-1）。 | 平常日 1–3 則；aisstream 與 VM 都走同一套「太久沒新資料」判斷。 |
 | DEV-4 | 北極星:開發系統 | P2 | ready | 開場瘦身（自動化 A15）。 | Zeabur 刪除後停用 zeabur plugin；刪 `~/.claude-migu/skills` 的 docx／pdf／pptx／xlsx 手動副本；ctx-handoff 已有 PROJECTS／BACKLOG 正本的段落改成指標。 | 開場注入量下降並記錄前後數字。 |
 | DEV-5 | 北極星:開發系統 | P3 | blocked | 個人全域 `~/.claude-migu/CLAUDE.md` 的「強制分流規則」「模型指派」與 GIS 根 CLAUDE.md 不一致。 | 2026-11-09 已改 GIS 根 CLAUDE.md（worker 上限 1–2、現況入口改 PROJECTS／BACKLOG）與各 repo 過時指引。剩個人全域檔是使用者自己的指示，Claude 不自行改。Blocker：owner decision（要不要刪「>3 工具強制分流」與 sonnet 指派段）。 | 各層 CLAUDE.md 不再互相矛盾。 |
 | CI-5 | 北極星:開發系統 | P2 | ready | CI 從 R2 下載測試需要的資產（健檢 D10）。 | CI-4 後資料檔不在 git，讀資料檔的測試會變 skip；CI 先依 lock 從 R2 下載並比對 sha256。 | 原本 skip 的資料測試在 CI 實際執行。 |
 | CI-6 | 北極星:開發系統 | P2 | ready | CI 輸出 skipped 測試數並設上限（ratchet，自動化 A10）。 | mini ci.yml 加小腳本與基準檔。 | skip 數超過基準時 CI 紅燈。 |
 | DEV-6 | 北極星:開發系統 | P3 | ready | SessionStart hook 顯示主 checkout 落後 origin 的 commit 數，以及 CLAUDE.md／skills 是否與 origin 不同（自動化 A5）。 | mini `load-session.sh`、analytics `session_start.sh`。與 DEV-1～3 合為自動化清單前 5 條。 | 落後時開場會提示。 |
 | MCP-3 | 北極星:開發系統 | P3 | ready | 文件寫明倉庫組裝固定用 `/opt/homebrew/bin/python3.14`＋duckdb 1.5.3。 | 本機 `python3` 的 duckdb 2.0 與倉庫檔格式不相容；寫進 pulse-data 組裝說明與 runbook。 | 組裝文件有版本說明。 |
+| FB-098 | 北極星:開發系統 | P3 | ready | 〔layer-manifest〕LM-HOOK-1 7 個 hybrid keys 掛載契約盲區 | 原檔：[layer-manifest](../../docs/archive/2026-11-09/features/layer-manifest/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-100 | 北極星:開發系統 | P3 | ready | 〔layer-manifest〕LM-YEAR-1 PENALTY_YEAR_MAX 調高時 golden 漂移 | 原檔：[layer-manifest](../../docs/archive/2026-11-09/features/layer-manifest/backlog.md)。依據：條件觸發；與 R5-2 汙染裁處預設年份相關；2027 年資料出現時觸發 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-167 | 北極星:開發系統 | P3 | ready | 〔welfare-layers〕WF-11 upstreamRegistry 跨 repo 檢查在 worktree／CI 下 skip | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：upstreamRegistry.test.ts 仍用相對路徑 ../../../../taipei-gis-analytics，找不到就印 skipping | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-168 | 北極星:開發系統 | P3 | ready | 〔welfare-layers〕WF-12 layerParamsSpec.ts 含 NUL byte（grep 視為 binary） | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：實測檔內仍有 2 個 NUL byte；小但會讓搜尋工具誤判 0 命中 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
 
 ## H1. 台灣圖層
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
-| BR-6 | 底線:資料正確 | P2 | ready | Improve Business Registry geocoding without substituting company coordinates. | TGOS is the chosen source: p01/p02 backfill (analytics `690be1bd`) cut 202609 misses 2,600→2,421 with denominator 656,713 stable, ambiguous kept unresolved; LOCAL_ONLY. Next: decide whether to run further TGOS packs and publish a dated 202609 asset (ties to BR-C-202609) without overwriting 202608. | Misses decrease with denominator stable; unresolved reasons retained; published asset has new dated filename and checksum. [Company backlog](../../docs/features/business-registry-company-layers/backlog.md) |
-| GBA-1 | 底線:資料正確 | P2 | ready | GBA 建物足跡涵蓋不足：Pulse `buildings_value_taiwan.pmtiles` 與 analytics 加工檔一致（聯集 17.88 km²），缺口在 GBA 上游本身、集中在 OSM 稀疏區。中永和 534 個統計區建築用地 >1000 m² 但足跡 <5%（約 11.7 萬人、2.6 km²）；永和市中心疊 NLSC 正射約一半街廓無建物框；抽樣板橋 15%、苓雅 13%，大安、台中西區、台南中西約 4–5%。影響 `buildingsGba`、建物估值、`urban_form_grid`。 | First action：評估改用或補疊 NLSC／內政部建物資料；短期先在相關圖層圖例標註涵蓋不足。 **健檢 2026-11-08**：至少先在圖例標註。 | 選定補資料方案並上線（或圖例已標註涵蓋不足並記錄不補原因）；中永和抽樣街廓缺框率明顯下降。 |
-| MC-5 | 底線:資料正確 | P3 | ready | Refresh static LST after the 2026 warm season. | Gate passed (not_before 2026-10-01); as of 2026-10-05 the latest product is still `urban_heat_lst_*_20260729` and production serves that build. Rerun the median pipeline for the full 2026 warm season, review color ranges, then publish a dated replacement. | Replaced asset has date/provenance and expected P2–P98 ranges. [Urban Heat backlog](../../docs/features/urban-heat-lst/backlog.md) |
+| BR-6 | 底線:資料正確 | P2 | ready | Improve Business Registry geocoding without substituting company coordinates. | TGOS is the chosen source: p01/p02 backfill (analytics `690be1bd`) cut 202609 misses 2,600→2,421 with denominator 656,713 stable, ambiguous kept unresolved; LOCAL_ONLY. Next: decide whether to run further TGOS packs and publish a dated 202609 asset (ties to BR-C-202609) without overwriting 202608. | Misses decrease with denominator stable; unresolved reasons retained; published asset has new dated filename and checksum. [Company backlog](../../docs/archive/2026-11-09/features/business-registry-company-layers/backlog.md) |
+| GBA-1 | 底線:資料正確 | P2 | ready | GBA 建物足跡涵蓋不足：Pulse `buildings_value_taiwan.pmtiles` 與 analytics 加工檔一致（聯集 17.88 km²），缺口在 GBA 上游本身、集中在 OSM 稀疏區。中永和 534 個統計區建築用地 >1000 m² 但足跡 <5%（約 11.7 萬人、2.6 km²）；永和市中心疊 NLSC 正射約一半街廓無建物框；抽樣板橋 15%、苓雅 13%，大安、台中西區、台南中西約 4–5%。影響 `buildingsGba`、建物估值、`urban_form_grid`。 | First action：評估改用或補疊 NLSC／內政部建物資料；短期先在相關圖層圖例標註涵蓋不足。 **健檢 2026-11-08**：至少先在圖例標註。<br>**2026-11-09 封存項併入**（原檔 [urban-form](../../docs/archive/2026-11-09/features/urban-form/backlog.md)）：UF-2 補澎湖金馬建物圖磚 | 選定補資料方案並上線（或圖例已標註涵蓋不足並記錄不補原因）；中永和抽樣街廓缺框率明顯下降。 |
+| MC-5 | 底線:資料正確 | P3 | ready | Refresh static LST after the 2026 warm season. | Gate passed (not_before 2026-10-01); as of 2026-10-05 the latest product is still `urban_heat_lst_*_20260729` and production serves that build. Rerun the median pipeline for the full 2026 warm season, review color ranges, then publish a dated replacement. | Replaced asset has date/provenance and expected P2–P98 ranges. [Urban Heat backlog](../../docs/archive/2026-11-09/features/urban-heat-lst/backlog.md) |
 | TWL-13 | 底線:授權 | P3 | blocked | G38 全國都市計畫區邊界。 | Blocked: 授權不明（國土署／國土測繪中心，需使用者發信）。Pulse 只有北市、新北使用分區與非都市土地使用分區；analytics 只有 luz_tcd_poc 試抓。 | 授權確認後開 pipeline。[G38](../../../.gis-agent-system/roadmap/candidates/G38-urban-plan-district-boundaries.md) |
 | TWL-5 | 北極星:好用 | P2 | ready | 第二批：三個 worktree／三個 PR（使用者 2026-10-29 同意分組，「晚點再來處理」）。 | (1) 災害暴露：G32 涼適點（177893，約 7,100 點是超商，要能篩公有）＋熱傷害縣市日統計（157637，需瀏覽器 UA、cp950）；G30 鄉鎮「戶籍人口 ÷ 避難容量」衍生層（分母不可用 `ds_demographics_population`，容量總數與內政部的差異要說明）。(2) 科技執法：G34 各縣市科技執法點位（約 18 縣市有官方清單，臺東 178734 經緯度顛倒）。(3) 水：G31 河段申報排放負荷（EMS_S_03，依河川×申報期聚合，證據類型 Reported）＋G29 雨水下水道管線（`storm_drainage_pipes`，只有臺北、桃園、嘉義市，其他縣市標未涵蓋）。同時最多 3 個 worker，共用登記檔由主 agent 接線。 | 三個 PR 合進 develop、CI 綠、本機 dev 目視。[G29](../../../.gis-agent-system/roadmap/candidates/G29-flood-realtime-scenarios.md)／[G30](../../../.gis-agent-system/roadmap/candidates/G30-disaster-shelter-civil-defense.md)／[G31](../../../.gis-agent-system/roadmap/candidates/G31-drinking-water-source-pollution.md)／[G32](../../../.gis-agent-system/roadmap/candidates/G32-urban-heat-exposure.md)／[G34](../../../.gis-agent-system/roadmap/candidates/G34-police-traffic-enforcement.md) |
 | TWL-6 | 北極星:好用 | P2 | ready | 第三批：需要新 collector 的即時層（水利署集水區即時降雨 178988–178990、消防署災情與收容開設）。 | 原阻塞「Zeabur 搬遷完成」已解除（2026-11-08 使用者確認 collector 已搬到新主機 pulse-host）。First action: 依 G29／G30 規格在 data-collectors 新增 collector，部署到 pulse-host。 | collector 上線、前端即時圖層接上。[G29](../../../.gis-agent-system/roadmap/candidates/G29-flood-realtime-scenarios.md)／[G30](../../../.gis-agent-system/roadmap/candidates/G30-disaster-shelter-civil-defense.md) |
 | TWL-15 | 北極星:AI | P2 | ready | G35–G37 合併後的接續工作（2026-10-31；G35–G37＋#791 已隨 v2.19.0 上線）。 | (1) ~~發版日上傳~~ v2.19.0 已上傳 `traffic_accidents_2025.pmtiles`（正式站 200）；但正式站 `fire_hydrants_national.pmtiles` 是 #771 舊版（sha 15341b1c…，主 checkout 為 #791 新版 6ed4d0b1…），程式已是 #791 → 台水約 14 萬點畫成「其他」灰。使用者 2026-11-02 選「換新檔名、隨下次發版」：`fire_hydrants_national_v2.pmtiles`（fix/tw-hydrant-v2，與本筆同一個 PR），**下次發版日上傳**，本機主 checkout `public/geo/`：`fire_hydrants_national_v2.pmtiles`＝#791 版（6ed4d0b1…，要上傳），`fire_hydrants_national.pmtiles`＝#771 版（與 S3 相同，上傳守門會略過；之後無引用可清）；舊版備份 `GIS/_worktree-backups/fire_hydrants_national.pr771.pmtiles`。(2) pulse-data registry 補條目：G35 6 筆、G36 5 筆＋消防栓全國（含台水 44642 來源與型式對照）、G37 7 筆＋`importantWetlandZones`（#791，25659 功能分區 578 面），並同步 analytics data-catalog `used_by_pulse_layers`。(3) 村里教育程度統計層：analytics 已有資料與 `docs/handoff/village-education-recipes.draft.json`，走 R2 發布。(4) 跳過的來源：地質敏感區 27744（RAR 需另解）、暴潮線 158145（GeoTIFF 需轉向量）。濕地功能分區已做（#791）。(5) 合併後目視 2026-10-31 已完成。(6) `statsRiceHarvest`（datasetId `rice_harvested_area_township`）section.theme 隨 #777 改了，MCP datasetLabels 要重產。First action: (1) 下次發版日上傳 v2 檔；(2) 開 pulse-data PR。 **健檢 2026-11-08**：只剩 (3) 村里教育程度統計、(4) 地質敏感區／暴潮線；(1)(2)(6) 可劃掉；證據：(1) 正式站 fire_hydrants_national_v2.pmtiles 206、manifest 已用 v2；(2)(6) pulse-data #57–#60 補登、MCP #100 重產。 | (1) 正式站 `?layers=fireHydrants` 台水點顯示地上式／地下式；(2) registry 測試綠、MCP 查得到；(3) 統計入口看得到；(4) 每項做或結案。 |
 | TWL-7 | 北極星:AI | P3 | ready | 縣市×降雨情境的淹水高潛勢面積比例做成統計圖層。 | 資料已在 Supabase（G29 深挖時算出），尚未發布 R2 snapshot。First action: 依 statistics-layer-guidelines 走 pulse-layer-release。 | 統計面板可選情境、資料來源總覽同步。[G29](../../../.gis-agent-system/roadmap/candidates/G29-flood-realtime-scenarios.md) |
+| TWL-17 | 北極星:好用 | P2 | ready | 台灣圖層待辦池：使用者說「做更多台灣圖層」時從這裡挑（2026-11-09 用 data.gov.tw 探索器快照全量反查各 repo 現況；快照自帶的 pulse 欄已過時）。A 級 18 組（P01–P18，例：臺鐵平交道、郵筒、土石流潛勢溪流、特定水保區、山坡地範圍、TEDS 排放網格、抗蛇毒血清）、B 級 22 組（P19–P40）、統計 10 名（S01–S10），分四個建議批次。**2026-11-09 批 1（P02、P03、P04、P05、P07、P09、P10、P11）已合 develop**（mini #967、analytics #335、pulse-data #86，待發版）；剩批 2–4。已處理：舊 ds_water_resources_debris_flow 撤出倉庫、Day 8 四層補登記（pulse-data #87，使用者 11-09 決定）。剩小項：郵筒 pickup_times 入倉被推斷成時間型別（7 筒雙時段只留第一個，地圖正常），要改 mini-pulse-gis-mcp build_warehouse 讀成字串再重發包，待使用者決定。 | First action：請使用者用編號挑項目或批次（批 1 計畫書可當範本：`.gis-agent-system/projects/2026-11-tw-layer-pool-batch1/`）；開工前對挑到的項目再比一次 mini `origin/develop` 的 manifest 與 pulse-data registry，並重打 data.gov.tw 資料集頁。做完在 G53 表格把狀態改成 ✅＋PR。<br>**2026-11-09 封存項併入**（原檔 [social-statistics](../../docs/archive/2026-11-09/features/social-statistics/backlog.md)、[tourism-layers](../../docs/archive/2026-11-09/features/tourism-layers/backlog.md)）：28 個延伸候選另輪規劃；TO-5 每月快照重跑接半動態提醒 | 挑定的項目上線（圖層＋registry＋分析倉庫）且 G53 表格狀態已更新；池子做完或剩下的全部標 ❌ 理由後關閉本列。[G53](../../../.gis-agent-system/roadmap/candidates/G53-tw-layer-pool-atlas.md) |
+| FB-002 | 北極星:視覺 | P3 | waiting_external | 〔aquaculture〕AQ-3 放養量 G70（79 點）接入 | 原檔：[aquaculture](../../docs/archive/2026-11-09/features/aquaculture/backlog.md)。依據：查不到 PR；上游未交付 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-003 | 底線:資料正確 | P2 | waiting_external | 〔aquaculture〕AQ-4 牡蠣養殖區上游正式 pipeline 化 | 原檔：[aquaculture](../../docs/archive/2026-11-09/features/aquaculture/backlog.md)。依據：查不到 PR；上游 staged | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-004 | 待討論 | P3 | ready | 〔aquaculture〕AQ-5 popup 顯示資料來源 Tier（等上游補 source_tier 欄） | 原檔：[aquaculture](../../docs/archive/2026-11-09/features/aquaculture/backlog.md)。依據：條件觸發，上游未補 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-005 | 北極星:視覺 | P3 | ready | 〔atlas-layers〕地名文字標籤：PMTiles 不畫 symbol，要另出精簡 GeoJSON | 原檔：[atlas-layers](../../docs/archive/2026-11-09/features/atlas-layers/backlog.md)。依據：未見對應 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-006 | 北極星:視覺 | P3 | ready | 〔atlas-layers〕孤島地區點大小依人口 | 原檔：[atlas-layers](../../docs/archive/2026-11-09/features/atlas-layers/backlog.md)。依據：未做（檔內寫現為固定大小）；小 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-007 | 北極星:好用 | P3 | ready | 〔atlas-layers〕微塑膠、海龜年份／類別篩選細化 | 原檔：[atlas-layers](../../docs/archive/2026-11-09/features/atlas-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-011 | 北極星:AI | P3 | ready | 〔atlas-statistics〕財稅、海廢、體育參與補人均或每公里海岸版（分母待上游） | 原檔：[atlas-statistics](../../docs/archive/2026-11-09/features/atlas-statistics/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-012 | 底線:資料正確 | P2 | ready | 〔atlas-statistics〕社會脆弱度子指標方向待 NCDR 確認 | 原檔：[atlas-statistics](../../docs/archive/2026-11-09/features/atlas-statistics/backlog.md)。依據：等外部回覆 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-019 | 待討論 | P3 | ready | 〔business-registry-company-layers〕BR-C-CATEGORIES 產業類別多選（產品需要才做） | 原檔：[business-registry-company-layers](../../docs/archive/2026-11-09/features/business-registry-company-layers/backlog.md)。依據：待使用者拍板 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-020 | 北極星:AI | P3 | ready | 〔business-registry-company-layers〕BR-C-INDUSTRY-LQ 單一產業相對全台集中度（區位商數） | 原檔：[business-registry-company-layers](../../docs/archive/2026-11-09/features/business-registry-company-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-021 | 待討論 | P3 | waiting_external | 〔business-registry-industrial-layers〕BR-I-A3 三個 assertion flags 分開接篩選（待產品語意） | 原檔：[business-registry-industrial-layers](../../docs/archive/2026-11-09/features/business-registry-industrial-layers/backlog.md)。依據：待使用者拍板語意 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-027 | 底線:資料正確 | P2 | waiting_external | 〔civic-facilities-layers〕CF-2 公共圖書館與文化設施（typeId=K）重疊去重 | 原檔：[civic-facilities-layers](../../docs/archive/2026-11-09/features/civic-facilities-layers/backlog.md)。依據：未見去重 PR；等上游欄位 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-028 | 北極星:好用 | P3 | waiting_external | 〔civic-facilities-layers〕CF-3 公廁補欄位以支援無障礙篩選 | 原檔：[civic-facilities-layers](../../docs/archive/2026-11-09/features/civic-facilities-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-034 | 底線:授權 | P2 | ready | 〔demographics-statistics〕到 data.gov.tw 確認授權後更新來源卡措辭 | 原檔：[demographics-statistics](../../docs/archive/2026-11-09/features/demographics-statistics/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-037 | 北極星:視覺 | P3 | ready | 〔earthquake-replay〕EQ-5 接海嘯警報 badge 與 WarningArea popup | 原檔：[earthquake-replay](../../docs/archive/2026-11-09/features/earthquake-replay/backlog.md)。依據：src 無 tsunami_alerts | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-044 | 底線:資料正確 | P2 | ready | 〔environment-layers〕RPI 河段 partial_unverified 32 段是否另標 | 原檔：[environment-layers](../../docs/archive/2026-11-09/features/environment-layers/backlog.md)。依據：等上游驗證 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-045 | 底線:資料正確 | P2 | ready | 〔environment-layers〕RPI 河段 87 段 review_flags 待 analytics 人工複核回寫 | 原檔：[environment-layers](../../docs/archive/2026-11-09/features/environment-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-046 | 底線:資料正確 | P2 | ready | 〔environment-statistics〕CDN readback 抽查公害陳情、自來水 0 值、裁處率 >100% | 原檔：[environment-statistics](../../docs/archive/2026-11-09/features/environment-statistics/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-047 | 底線:資料正確 | P2 | ready | 〔environment-statistics〕羅浮／義盛水資源回收中心 geocode 同座標重疊 | 原檔：[environment-statistics](../../docs/archive/2026-11-09/features/environment-statistics/backlog.md)。依據：上游 APPROXIMATE，未見修正 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-050 | 底線:資料正確 | P2 | waiting_external | 〔funeral-layers〕FN-2 殯葬設施 438 筆無座標尾巴回填（等上游） | 原檔：[funeral-layers](../../docs/archive/2026-11-09/features/funeral-layers/backlog.md)。依據：未見上游重跑紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-051 | 北極星:兼容 | P3 | waiting_external | 〔funeral-layers〕FN-3 都計墓地分區擴到其他 20 縣市，另找非都市「墳墓用地」 | 原檔：[funeral-layers](../../docs/archive/2026-11-09/features/funeral-layers/backlog.md)。依據：目前只有雙北 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-053 | 北極星:AI | P3 | waiting_external | 〔funeral-layers〕FN-6 業者密度改每萬人 | 原檔：[funeral-layers](../../docs/archive/2026-11-09/features/funeral-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-091 | 底線:資料正確 | P2 | ready | 〔landslide〕水保災害損失單位向農水署確認（推定千元） | 原檔：[landslide](../../docs/archive/2026-11-09/features/landslide/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-092 | 底線:資料正確 | P2 | ready | 〔landslide〕崩塌地處理面積離群值釐清 | 原檔：[landslide](../../docs/archive/2026-11-09/features/landslide/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-093 | 底線:資料正確 | P2 | ready | 〔landslide〕影響範圍 county「苗栗／苗栗縣」與 res_class 變體未正規化 | 原檔：[landslide](../../docs/archive/2026-11-09/features/landslide/backlog.md)。依據：上游未修 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-095 | 北極星:視覺 | P3 | ready | 〔landslide〕年度崩塌地低縮放需上游出概化版 | 原檔：[landslide](../../docs/archive/2026-11-09/features/landslide/backlog.md)。依據：符合 map-layers 全國視角規範 V 系列，未做；#788 只加點面切換 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-096 | 北極星:好用 | P3 | ready | 〔layer-manifest〕LM-POPUP-1 29 個無 popup 圖層分 9 包補接 | 原檔：[layer-manifest](../../docs/archive/2026-11-09/features/layer-manifest/backlog.md)。依據：no-popup-audit.md 仍在；未見對應 PR；違反四鐵則 popup，可考慮升優先 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-102 | 底線:資料正確 | P2 | waiting_external | 〔livestock〕LS-4 EMS_S_01 補 geocode miss 的豬牛場 | 原檔：[livestock](../../docs/archive/2026-11-09/features/livestock/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-111 | 北極星:兼容 | P3 | ready | 〔noise-layers〕NOISE-5 新縣市取得官方管制 polygon 時擴充 | 原檔：[noise-layers](../../docs/archive/2026-11-09/features/noise-layers/backlog.md)。依據：條件觸發 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-114 | 底線:資料正確 | P2 | ready | 〔parking〕PK-3 car_park_type 是否需正式 codebook | 原檔：[parking](../../docs/archive/2026-11-09/features/parking/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-123 | 底線:資料正確 | P2 | ready | 〔religion〕RL-3 補無座標尾巴（temples 2 筆等） | 原檔：[religion](../../docs/archive/2026-11-09/features/religion/backlog.md)。依據：未見 PR；小 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-126 | 北極星:兼容 | P3 | ready | 〔road-congestion〕RC-3 v2 擴充市區路況（桃中南基宜）與速度 popup | 原檔：[road-congestion](../../docs/archive/2026-11-09/features/road-congestion/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-131 | 北極星:兼容 | P3 | ready | 〔street_trees_taipei_diff〕STD-1 擴充到其他縣市（等上游 diff） | 原檔：[street_trees_taipei_diff](../../docs/archive/2026-11-09/features/street_trees_taipei_diff/backlog.md)。依據：條件觸發 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-133 | 底線:資料正確 | P2 | ready | 〔terrain-vector〕TV-2 坡度解析度精細化（現 100m 低估陡度） | 原檔：[terrain-vector](../../docs/archive/2026-11-09/features/terrain-vector/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-134 | 底線:資料正確 | P2 | ready | 〔tourism-layers〕TO-3 tourRestaurants 分色 v2（等 cuisine_class 官方對照） | 原檔：[tourism-layers](../../docs/archive/2026-11-09/features/tourism-layers/backlog.md)。依據：等上游 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-138 | 北極星:兼容 | P3 | ready | 〔urban-zoning〕UZ-1 逐城補其他縣市都計分區 | 原檔：[urban-zoning](../../docs/archive/2026-11-09/features/urban-zoning/backlog.md)。依據：記憶：全國分區無官方來源，只能逐縣市拼；TWL-13 是都計區「邊界」不同題 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-140 | 底線:資料正確 | P2 | ready | 〔urban-zoning〕UZ-5 上游移除北市 4 筆範圍框 meta-polygon | 原檔：[urban-zoning](../../docs/archive/2026-11-09/features/urban-zoning/backlog.md)。依據：前端有防禦 filter，上游未清；小 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-144 | 北極星:好用 | P3 | ready | 〔vessel-watch〕VW-5 圖例接 get_vessel_watch_classes 顯示即時艘數 | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：vesselWatchLoader.ts 註明本層目前未用，圖例走靜態 12 類 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-145 | 底線:資料正確 | P2 | ready | 〔vessel-watch〕VW-6 只有 1 個定位點的船沒有軌跡線的誤讀 | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-146 | 北極星:好用 | P3 | ready | 〔vessel-watch〕VZ-5 圖層 popup 顯示距離與 zone、依 zone 描邊、只看接近船 | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-147 | 北極星:視覺 | P3 | ready | 〔vessel-watch〕VZ-6 +6／+12 浬預警環 GeoJSON（標非法律界線） | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-162 | 北極星:好用 | P3 | ready | 〔welfare-layers〕WF-5 早療單位「純社福」篩選 | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：目前只在 popup 提醒 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-164 | 底線:資料正確 | P2 | ready | 〔welfare-layers〕WF-7 上游 trust_chain 同址不同名去重 | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：上游未做 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-165 | 底線:資料正確 | P2 | ready | 〔welfare-layers〕WF-8 性侵害防治中心只有 7 筆（官方連結 404） | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：未見替代來源 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-166 | 北極星:兼容 | P3 | ready | 〔welfare-layers〕WF-10 居家托育（保母）全國來源 | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：條件觸發；可放 TWL-17 台灣圖層池；或 merged:TWL-17 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-177 | 底線:資料正確 | P2 | ready | 〔i18n〕少數上游公車站英文名錯誤（例：財政部印刷廠→Dalijian library） | 原檔：[i18n](../../docs/features/i18n/ROADMAP.md)。依據：未見修正紀錄；小 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-184 | 底線:資料正確 | P2 | ready | 〔waste-collection〕表定動畫改沿路網（OSRM stop-to-stop，BL-17／Phase 4.2） | 原檔：[waste-collection](../../docs/features/waste-collection/research/roadmap.md)。依據：handoff.md 寫明目前直線插值會穿越建物水域，BL-17 未做 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| ARTS-CAT | 底線:資料正確 | P3 | ready | 藝文活動 category 1–19 來源代碼補官方對照。 | 查證 2026-11-09：`src/research/artsEventsOwnerDataset.ts` coverage 仍寫「category 為未對照的來源代碼」。原文：[culture-layers](../../docs/archive/2026-11-09/features/culture-layers/backlog.md)。 | 代碼對照有官方出處，倉庫與 popup 顯示中文類別。 |
+| WASTE-CITY | 待討論 | P3 | blocked | 垃圾車圖層城市切換與 matched／fallback 圖例。 | Blocked on owner decision。查證 2026-11-09：未做——wasteTruck 參數只有 4 個 slider＋3D 開關，圖例依 R6 LG-1 刻意做成單列同色。原文：[waste-collection](../../docs/features/waste-collection/research/roadmap.md)。 | 決定要不要做；要做則加城市選單與圖例分類並截圖。 |
 
 ## H2. 多國圖層
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
-| MAR-3 | 底線:資料正確 | P2 | verifying | Explain AIS points whose displayed position violates geographic intuition. | Local browser clicked MMSI `994163329` near inland Tucheng; check raw coordinates, vessel/AtoN class, timestamp and upstream semantics before changing filters or geometry. | Each sampled inland point is classified as legitimate AtoN/static report, upstream bad coordinate, or transform bug; any required filter/fix has a reproducible test and denominator impact. [Global maritime backlog](../../docs/features/global-maritime/backlog.md) |
+| MAR-3 | 底線:資料正確 | P2 | verifying | Explain AIS points whose displayed position violates geographic intuition. | Local browser clicked MMSI `994163329` near inland Tucheng; check raw coordinates, vessel/AtoN class, timestamp and upstream semantics before changing filters or geometry. | Each sampled inland point is classified as legitimate AtoN/static report, upstream bad coordinate, or transform bug; any required filter/fix has a reproducible test and denominator impact. [Global maritime backlog](../../docs/archive/2026-11-09/features/global-maritime/backlog.md) |
 | EA-1 | 底線:期限 | P2 | scheduled | 英格蘭 EA Pollution Inventory 授權一年到期（2026-10-29 起算，2027-10-29 自動終止）。 | Trigger: 2027-10 前。First action: 確認 EA 是否續期或改發新年度檔；不續就刪 `reference.world_gb_ea_pollution_inventory` 資料並下架 `gbPollutionInventoryEngland`。⚠️ 圖例數字（2,544／1,693／851／8 處郵遞區號定位）寫死在前端，重新匯入時要一起改。 **健檢 2026-11-08**：OWD-4 搬 owner-data 後下架步驟要改寫。 | 到期前已續期換資料，或已刪資料並下架。 |
 | RV-CA-DERIVED | 底線:資料正確 | P3 | ready | 加拿大失業率／勞參率／就業率統計是否該標 derived（review F036／F073 修正時發現，未確認）。 | First action: 對照 StatCan 原表，看這三個比率是官方發布值還是由人數自算。 | recipes JSON 標示與來源一致；資料來源總覽同步。 |
 | KRSTAT-1 | 底線:資料正確 | P3 | ready | 南韓火災、交通事故統計補每萬人比率；火災某區某年 0 件會被標成「無資料」的程式問題。 | First action: 找與事故年份對應的시군구人口（KOSIS），補比率指標；修 analytics 南韓 S2 pipeline 讓 0 件寫 0。 | 新增比率指標經 import＋R2 發布；0 件區顯示 0。 |
 | MC-1 | 北極星:兼容 | P2 | conditional | 主題識別名與顯示名拆開，讓不同國家可以有同名主題（2026-10-28 國家主體化遺留）。 | Trigger: 第二個國家要加與既有主題同名的主題（例：日本「通訊」）。Owner: mini。現況：主題 title 全站唯一，`layerCatalog.ts` `THEME_SCOPE` 以 title 當鍵，台灣用「通訊 Telecom」、法國用「通訊」暫時避開。First action: 主題加獨立 id，`THEME_SCOPE` 改 (country, id) 鍵，顯示名另存。 | 兩國同名主題各自顯示、`layerManifest.test` 與 layerConsistency 綠。[多國化計畫](../../../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic1-website.md) |
-| I18N-1 | 北極星:兼容 | P2 | ready | 英日文介面下，統計圖層彈窗／說明的「資料限制／口徑說明」段落改成對應語言（2026-10-24 發現：目前英日文仍顯示中文）。 | 範圍：全部統計圖層（atlas 各家族、治安、死因、臺北局處、社會、勞動、環境、成癮、崩塌、人口等）。原因：說明文字（各家族 recipe／release 的 `disclosure`）直接寫在 recipe／資料設定，彈窗（`regionalStatisticsPanel.tsx` 的 dataLimits 列）與說明・來源（`StatisticsDetails.tsx`）只經 `humanizeStatisticsText` 換內部代碼，沒接 i18n。建議做法：說明文字改用翻譯鍵（比照 `enum.statLegendNote.*`），或 recipe 帶 `disclosure_en`／`disclosure_ja` 欄位由 builder 產生；可依家族分批，先做 atlas 第二批（G10／G16／G23）。粗估 1–2 天。 | 英日文介面開任一統計層，資料限制段落無中文外漏；`statisticsText.test.ts` 加 disclosure 的外文檢查。 |
+| I18N-1 | 北極星:兼容 | P2 | ready | 英日文介面下，統計圖層彈窗／說明的「資料限制／口徑說明」段落改成對應語言（2026-10-24 發現：目前英日文仍顯示中文）。 | 範圍：全部統計圖層（atlas 各家族、治安、死因、臺北局處、社會、勞動、環境、成癮、崩塌、人口等）。原因：說明文字（各家族 recipe／release 的 `disclosure`）直接寫在 recipe／資料設定，彈窗（`regionalStatisticsPanel.tsx` 的 dataLimits 列）與說明・來源（`StatisticsDetails.tsx`）只經 `humanizeStatisticsText` 換內部代碼，沒接 i18n。建議做法：說明文字改用翻譯鍵（比照 `enum.statLegendNote.*`），或 recipe 帶 `disclosure_en`／`disclosure_ja` 欄位由 builder 產生；可依家族分批，先做 atlas 第二批（G10／G16／G23）。粗估 1–2 天。<br>**2026-11-09 封存項併入**（原檔 [i18n](../../docs/features/i18n/ROADMAP.md)）：P2 地圖 hook／圖層文字 350 行未翻：2026-11-09 hardcoded-zh 報告：P2「地圖 hook／圖層文字」643 行（基準 386）仍未翻（原 P2 約 350 行項） | 英日文介面開任一統計層，資料限制段落無中文外漏；`statisticsText.test.ts` 加 disclosure 的外文檢查。 |
 | JPRD-2 | 北極星:視覺 | P3 | blocked | 決定日本主要道路的收費道路要不要在地圖上另外標示。 | Blocked on 使用者決定（2026-10-28 提出）。現況：`jpMajorRoads` 的收費只出現在 popup 與「只看有料道路」篩選；設計規範 L-2 虛線沒有「收費」語意，所以沒有加樣式。First action: 使用者選「維持現狀」或「新增樣式語意」；選後者要先在 `docs/design-system/spec.md` 登記新語意再改 hook。 | 使用者已決定；若加樣式，圖例與規範同步、golden／inventory 通過。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
 | JPW4-1 | 北極星:好用 | P3 | blocked | 補日本身障服務的放課後等デイサービス、共同生活援助等類別（WAM NET 來源）。 | Blocked on 使用者本人先填 WAM NET 的利用表單通知（Claude 不能代填）。現況：`jpWelfareDisability` 只用国土数値情報 P14，沒有這些類別。First action: 使用者填完表單後，在 analytics 新增 WAM NET pipeline，前端併入或另開一層。 | 新類別上線並標示來源與授權。analytics `docs/handoff/jp-wave4-welfare-roads.md` §4 |
 | JPRD-1 | 北極星:好用 | P3 | conditional | 日本主要道路補上市町村道（2026-10-28 使用者決定先不做）。 | Trigger: Zeabur 搬遷完成、靜態大檔改放 Cloudflare R2 之後（2026-11-07 註：主站已於 11-06 改走 Workers＋R2、正式站 v2.25.1，條件已到，等使用者決定是否開工）（使用者：「先完整搬家完再說」；2026-11-08 collector 也已搬完，整個搬家完成）。Owner: 使用者。現況：`jpMajorRoads` 只收 N13-2024 的国道、都道府県道、高速（N13_003=1／2／4），PMTiles 141.9MB。這三類只佔全部線段約 8%（抽樣 mesh 5136），全收粗估 PMTiles 超過 1GB（推估，未實際產出）。當初的 150MB 是派工自訂目標，理由是 Zeabur 主機磁碟已用 96%、主站 /data 會整包同步 S3 deploy-assets，不是平台硬限制。First action: 搬完後在 analytics `pipelines/world/jp_major_roads/` 另產一份市町村道 PMTiles，前端另開一層（例如 z12 以上才顯示），不併進現有主要道路層。 | 市町村道圖層上線，四鐵則齊全，檔案放 R2，不佔主機磁碟。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
@@ -184,18 +292,40 @@
 | UKD-1 | 待討論 | P2 | blocked | 英國第 0–12 波累積的待拍板項（配色、授權依據、大檔縮檔、主題擺放等）。 | Blocked on owner decision。清單正本在 analytics `docs/topic-research/united_kingdom_opendata/waves/PLAN.md` §3 各波 HOLD 欄與個人記憶 uk-opendata-status-ref。First action: 逐項列給使用者用選擇題拍板（一次只問核心 2 題）。 | 每項有決定並落到對應 PR 或明確「不做」。 |
 | IEADD-1 | 待討論 | P3 | blocked | 愛爾蘭未納入項目要不要補：AED、監獄、身障照護機構、pNHA（提議中自然遺產區約 630 處）、郡議會淹水分區 A/B（5/31 郡）、GSI 地下水洪水（NC-ND）、Bord na Móna 泥炭地界（授權不明）。 | Blocked on 使用者決定。主 agent 暫定都不做。First action: 使用者逐項選做／不做。 **健檢 2026-11-08**：主 agent 暫定都不做，可直接結案。 | 決定記入 PLAN §5，要做的開下一波。 |
 | UKLZ-3 | 北極星:視覺 | P3 | ready | 運動場地 `gbSportsFacilities` 全英視角的熱區被高爾夫點（2,980 點 S 階）蓋住，熱區幾乎看不出。 | 使用者 2026-10-30 選「高爾夫單獨拆」後的副作用，未要求修。First action: 問使用者要不要把高爾夫點改小或空心；要就改 `useGbOpenSpaceLayers` 高爾夫 circle 半徑／填色並更新 golden。 | 全英 z5.5 截圖熱區與高爾夫點都辨識得出；check 全綠。 |
+| FB-054 | 北極星:好用 | P3 | ready | 〔global-climate〕GC-2b 沙塵改烤數值通道 texture，讓 popup 可讀值 | 原檔：[global-climate](../../docs/archive/2026-11-09/features/global-climate/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-055 | 北極星:視覺 | P3 | ready | 〔global-climate〕GC-8 GFS 預報 0–120hr 六張 texture 接時間軸播放 | 原檔：[global-climate](../../docs/archive/2026-11-09/features/global-climate/backlog.md)。依據：未見實作 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-057 | 北極星:視覺 | P3 | ready | 〔global-climate〕GC-9 等壓線、噴流、SST、波浪上圖（collector 已抓、前端未接） | 原檔：[global-climate](../../docs/archive/2026-11-09/features/global-climate/backlog.md)。依據：src 無 prmsl／cmems_sst；#456 只記 backlog | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-058 | 北極星:視覺 | P3 | ready | 〔global-climate〕GC-9a 海溫＋波浪上圖（使用者 9-29 決定要做；需先查 CMEMS 授權、NaN 遮罩、深度） | 原檔：[global-climate](../../docs/archive/2026-11-09/features/global-climate/backlog.md)。依據：#456 只是 docs；src 無 cmems_sst；先過授權（底線:授權） | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-061 | 北極星:好用 | P3 | ready | 〔global-maritime〕AISStream 選取船接 get_aisstream_vessel_trail 航跡 | 原檔：[global-maritime](../../docs/archive/2026-11-09/features/global-maritime/backlog.md)。依據：src 無此 RPC 呼叫 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-062 | 待討論 | P3 | ready | 〔historical-flight-trails〕平日／週末補全部機場（需付費抓取授權） | 原檔：[historical-flight-trails](../../docs/archive/2026-11-09/features/historical-flight-trails/backlog.md)。依據：未授權執行；與 plan-art FR24 戰役相關 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-063 | 底線:資料正確 | P2 | ready | 〔historical-flight-trails〕恆春可得軌跡查證 | 原檔：[historical-flight-trails](../../docs/archive/2026-11-09/features/historical-flight-trails/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-064 | 底線:資料正確 | P2 | ready | 〔historical-flight-trails〕來源分頁／事件日完整對帳（現全 partial） | 原檔：[historical-flight-trails](../../docs/archive/2026-11-09/features/historical-flight-trails/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-073 | 北極星:好用 | P3 | ready | 〔jma-live-layers〕JMA-3 地震 popup 改縣別震度表 | 原檔：[jma-live-layers](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-074 | 底線:資料正確 | P2 | ready | 〔jma-live-layers〕JMA-8 海冰色票改官方圖例（12 月） | 原檔：[jma-live-layers](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)。依據：觸發 12 月 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-079 | 北極星:好用 | P3 | ready | 〔jp-core-layers〕人口網格 timeline slider（2020–2070） | 原檔：[jp-core-layers](../../docs/archive/2026-11-09/features/jp-core-layers/backlog.md)。依據：目前仍為 select | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-080 | 北極星:視覺 | P3 | ready | 〔jp-core-layers〕車站依運量 graduated 圓大小 | 原檔：[jp-core-layers](../../docs/archive/2026-11-09/features/jp-core-layers/backlog.md)。依據：未做 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-081 | 北極星:視覺 | P3 | ready | 〔jp-core-layers〕機場依空港種別分色＋圖例 | 原檔：[jp-core-layers](../../docs/archive/2026-11-09/features/jp-core-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-083 | 待討論 | P3 | ready | 〔jp-height-layers〕建物高度全國擴展（11 完成／37,993 待處理，需使用者重新授權小批） | 原檔：[jp-height-layers](../../docs/archive/2026-11-09/features/jp-height-layers/backlog.md)。依據：等使用者授權；磁碟限制 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-084 | 待討論 | P3 | ready | 〔jp-height-layers〕樹冠高度全國擴展（overview 108、detail 5,026 待處理） | 原檔：[jp-height-layers](../../docs/archive/2026-11-09/features/jp-height-layers/backlog.md)。依據：同上 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-085 | 北極星:AI | P3 | ready | 〔jp-medical-static〕第二批：年度病床／外來申報（先驗 ID crosswalk） | 原檔：[jp-medical-static](../../docs/archive/2026-11-09/features/jp-medical-static/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-086 | 北極星:AI | P3 | ready | 〔jp-medical-static〕第三批：區域統計解析與地理鍵驗證 | 原檔：[jp-medical-static](../../docs/archive/2026-11-09/features/jp-medical-static/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-087 | 底線:授權 | P2 | blocked | 〔jp-religion-layers〕JPR-4 重新評估公開 canonical POC（精度、授權） | 原檔：[jp-religion-layers](../../docs/archive/2026-11-09/features/jp-religion-layers/backlog.md)。依據：owner decision；BACKLOG 索引列 JPR-4 但無獨立列；MAR-2 涵蓋日本宗教正式站目視 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-088 | 底線:資料正確 | P2 | blocked | 〔jp-water〕JPW-2 半田管線 CRS 確認 | 原檔：[jp-water](../../docs/archive/2026-11-09/features/jp-water/backlog.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-089 | 底線:授權 | P2 | waiting_external | 〔jp-water〕JPW-4 全國水資源 PMTiles 公開發布（逐資產授權） | 原檔：[jp-water](../../docs/archive/2026-11-09/features/jp-water/backlog.md)。依據：目前站主限定（#458） | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-132 | 待討論 | P3 | ready | 〔telecom-world-layers〕評估 PeeringDB facilities／IXP（先確認 AUP） | 原檔：[telecom-world-layers](../../docs/archive/2026-11-09/features/telecom-world-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| JP-TOUR-2 | 待討論 | P3 | blocked | 日本 A10（自然公園）／A11／A28 三層正式公開。 | Blocked on owner decision（授權）。查證 2026-11-09：manifest 有 jpNaturalParks*（A10）、jpWildlifeProtection*、jpWorldHeritage* 等層，但仍標 NON_COMMERCIAL_ONLY、本地研究 PMTiles、不進正式 catalog／S3；要不要比照 11-06 自托管 CC BY-NC 公開規則解除，需使用者決定。原文：[jp-tourism-protected-heritage](../../docs/archive/2026-11-09/features/jp-tourism-protected-heritage/backlog.md)。 | 決定後逐層解除或維持，並更新 manifest note。 |
 
 ## I. Agent／MCP 分析
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
 | AG-13 | 北極星:AI | P1 | ready | 規則：新圖層上線即入倉；做不到就標 `DISPLAY_ONLY` 並寫解鎖條件。 | 寫進 layer-onboarding／pulse-layer-release 驗收清單，並在 `layerConsistency` 或 registry 檢查加守門。 | 新圖層 PR 沒有 warehouse 區塊也沒有 DISPLAY_ONLY 時檢查紅燈。 |
-| AG-12 | 北極星:AI | P2 | blocked | Agent 截圖自檢第二批（2026-11-07 規劃；第一批數字讀回 framingCheck 是 #881＋MCP #99）：Agent 能自己截地圖畫面目視判斷要不要重框或換畫法。 | Blocker: 使用者排 research-gateway 部署時間（部署順序 gateway → 前端 → MCP）。三個 PR：C gateway 白名單加 `capture_map`、截圖讀走即過期（不留在 SQLite queryHistory）；D 前端 `once('render')`＋toDataURL、等 tilesSettled、縮到約 900px JPEG（base64 ≤160KB）切成 ≤32KiB 字串陣列，背景分頁回 `CAPTURE_UNAVAILABLE`；E MCP `pulse_capture_map` 回 image content（不放 structuredContent），skill 加「有疑慮或重要成品才截圖、最多調 2 輪」。隱私：畫面上有站主限定圖層時預設回 `CAPTURE_PRIVATE_LAYERS_VISIBLE`，要 `includePrivate:true` 才截（使用者 11-07 未異議，照建議）。 **健檢 2026-11-08**：只差使用者排 gateway 部署時間；證據：規格完整。 | Agent 上圖後能取回截圖；私人圖層可見時預設擋下；gateway 狀態不保留截圖。 |
+| AG-12 | 北極星:AI | P2 | blocked | Agent 截圖自檢第二批（2026-11-07 規劃；第一批數字讀回 framingCheck 是 #881＋MCP #99）：Agent 能自己截地圖畫面目視判斷要不要重框或換畫法。 | Blocker: 使用者排 research-gateway 部署時間（部署順序 gateway → 前端 → MCP）。三個 PR：C gateway 白名單加 `capture_map`、截圖讀走即過期（不留在 SQLite queryHistory）；D 前端 `once('render')`＋toDataURL、等 tilesSettled、縮到約 900px JPEG（base64 ≤160KB）切成 ≤32KiB 字串陣列，背景分頁回 `CAPTURE_UNAVAILABLE`；E MCP `pulse_capture_map` 回 image content（不放 structuredContent），skill 加「有疑慮或重要成品才截圖、最多調 2 輪」。隱私：畫面上有站主限定圖層時預設回 `CAPTURE_PRIVATE_LAYERS_VISIBLE`，要 `includePrivate:true` 才截（使用者 11-07 未異議，照建議）。 **健檢 2026-11-08**：只差使用者排 gateway 部署時間；證據：規格完整。<br>**2026-11-09 封存項併入**（原檔 [agent-research-workbench](../../docs/features/agent-research-workbench/gis-analysis-roadmap.md)）：M6 完整成果 UX（line、raster、圖表、compare） | Agent 上圖後能取回截圖；私人圖層可見時預設擋下；gateway 狀態不保留截圖。 |
 | AG-2 | 北極星:AI | P2 | ready | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | 2026-10-05 倉庫已切到 20261005T051814Z（update_store.py 增量），但 wh_catalog 牧場標題仍是「肉品拍賣/批發市場（21 家）」。先查清楚 update_store 為何沒套用 analytics #134 的 manifest title 與 build_warehouse 修正，必要時對 livestock_ranch 全量重建，之後再刪 override。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
-| CAT-1 | 北極星:AI | P2 | ready | Restore verified upstream lineage for the 6 Global Maritime layers still declared `catalog_missing`. | In taipei-gis-analytics, define authoritative catalog entries and dataset ids for AISStream current vessels, GFW vessel presence, hourly grid, hourly tracks, fishing effort and SAR unmatched detections (none in `docs/data-registry.yaml` as of 2026-10-05); then bridge those exact ids in the Pulse manifest. | Data Source Overview reports 0 `catalog_missing` for these layers; every bridged id exists in the analytics catalog; the cross-repo `upstreamRegistry` catalog test runs without the worktree skip and stays green. [Global maritime backlog](../../docs/features/global-maritime/backlog.md) |
-| AG-14 | 北極星:AI | P2 | ready | layer-status 涵蓋全部國家。 | 目前圖層總表以台灣為主；改成 TW／JP／GB／KR／CA／IE／FR 都列，並標入倉狀態。與 RV27-2 一起看。 | 總表各國層數與 manifest 一致。 |
-| AG-15 | 北極星:AI | P2 | ready | 外國入倉基礎：行政界＋人口分母，先做英國。 | 依多國化議題 2 的 `boundaries_admin`／`population_admin` 格式補 GB；之後再排其他國。題庫回歸測試這輪暫不跑（使用者 2026-11-08）。 | MCP 對英國回得出行政區排名與人均，不再回「未涵蓋」。 |
-| AG-4 | 北極星:AI | P3 | blocked | A10 綜合生活品質題的判分方式。 | owner decision：綜合指標的權重與方向沒有標準答案，需決定題庫收哪些口徑，或改成只檢查方法正確（2026-09-29 PASS／2026-10-02 FAIL）。 | 題庫寫明可接受口徑，並以唯讀查詢驗證各口徑數字。 |
+| CAT-1 | 北極星:AI | P2 | ready | Restore verified upstream lineage for the 6 Global Maritime layers still declared `catalog_missing`. | In taipei-gis-analytics, define authoritative catalog entries and dataset ids for AISStream current vessels, GFW vessel presence, hourly grid, hourly tracks, fishing effort and SAR unmatched detections (none in `docs/data-registry.yaml` as of 2026-10-05); then bridge those exact ids in the Pulse manifest. | Data Source Overview reports 0 `catalog_missing` for these layers; every bridged id exists in the analytics catalog; the cross-repo `upstreamRegistry` catalog test runs without the worktree skip and stays green. [Global maritime backlog](../../docs/archive/2026-11-09/features/global-maritime/backlog.md) |
+| AG-14 | 北極星:AI | P2 | ready | layer-status 涵蓋全部國家。 | 目前圖層總表以台灣為主；改成 TW／JP／GB／KR／CA／IE／FR 都列，並標入倉狀態。與 RV27-2 一起看。<br>**2026-11-09 封存項併入**（原檔 [agent-research-workbench](../../docs/archive/2026-11-09/features/agent-research-workbench/backlog.md)）：P0-A capability compiler、source-family adapter、全圖層 search／describe、coverage report（4 項） | 總表各國層數與 manifest 一致。 |
+| AG-15 | 北極星:AI | P2 | ready | 外國入倉基礎：行政界＋人口分母，先做英國。 | 依多國化議題 2 的 `boundaries_admin`／`population_admin` 格式補 GB；之後再排其他國。題庫回歸測試這輪暫不跑（使用者 2026-11-08）。<br>**2026-11-09 封存項併入**（原檔 [agent-research-workbench](../../docs/archive/2026-11-09/features/agent-research-workbench/backlog.md)）：OSM 步行網路可重現 build、snap／unreachable、拓撲驗證（P0-E 與步行 pilot 共 6 項） | MCP 對英國回得出行政區排名與人均，不再回「未涵蓋」。 |
+| AG-4 | 北極星:AI | P3 | blocked | A10 綜合生活品質題的判分方式。 | owner decision：綜合指標的權重與方向沒有標準答案，需決定題庫收哪些口徑，或改成只檢查方法正確（2026-09-29 PASS／2026-10-02 FAIL）。<br>**2026-11-09 封存項併入**（原檔 [general-analysis](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)）：生活品質指數（各面向標準化＋權重＋敏感度） | 題庫寫明可接受口徑，並以唯讀查詢驗證各口徑數字。 |
 | MC-6 | 北極星:兼容 | P3 | ready | 跨國行政區表補英文名（`boundaries_admin.name_en` 台灣、日本目前全空）。 | Owner: mini-pulse-gis-mcp `warehouse/admin_tables.py`。First action: 台灣接內政部羅馬拼音 CSV（analytics `place_name_romanization_moi`），日本接國土數值情報或 geoBoundaries 英文名。 | 兩國 name_en 非空率 >99%，重組倉庫後台灣既有工具輸出不變。 |
 | MC-7 | 北極星:AI | P3 | conditional | 拆開混有多國資料的兩張表（airspace、allen_coral_atlas 暫標 TW）。 | Trigger: 要對日本或全球做空域、珊瑚礁分析時。First action: 依 country 欄拆成 TW 與 WORLD 兩份 registry，照 Ookla 拆表做法（pulse-data #48）。 | check_registry 0 ERROR，台灣表 geom_3826 不變，nearby 回歸一致。 |
 | CL-4 | 北極星:AI | P3 | ready | Close the remaining location-precision gap in warehouse results. | MCP #29 tags `_wh_location_precision` from the catalog; gridded / isochrone / region_rank results are now `derived`, but `pulse_sql` results still inherit the worst lineage class, so centroids/buffers computed in SQL from precise sources stay `actual` (engine.ts `locationPrecisionsFor`, comment "known gap"). Mark SQL-derived geometries as `derived` unless they are the source rows' own coordinates. | A centroid/derived-point query yields `derived` and is not spatial-analysis eligible in Pulse. mini-pulse-gis-mcp #29 |
@@ -204,7 +334,40 @@
 | AG-11 | 北極星:AI | P3 | ready | 公車總表（`bus`）標題寫「即時位置」，實為靜態站點與路線（2026-10-05 倉庫 20261005T051814Z 仍是「公車即時位置與站點（全台 22 縣市）」）。 | 改 analytics `docs/data-registry.yaml` transportation.bus title（或在 bus `_manifest.json` 補 title），或加 MCP datasetLabelOverrides。 **健檢 2026-11-08**：證據：10-05。 | find_data 顯示的標題不再含「即時」。 |
 | MC-8 | 北極星:AI | P3 | verifying | 觀察多國 eval 兩個不穩點：N10 有一次沒畫日本 1,898 區分級圖；N08 有 2 次沒載入 pulse-conductor、沒移鏡頭。 | 下次跑 agent-regression 時各加跑 3 次記錄；連續出現再定位是 show_result 負載還是 skill 觸發。 | 各 3 次中上圖與載入 skill 都 ≥2 次，或開修正 PR。紀錄在 mini-pulse-gis-mcp `eval/agent-regression/README.md`。 |
 | TWL-4 | 北極星:AI | P3 | ready | MCP 圖層標籤跟上「管制區」改名。 | #737 已把 `waterProtectionZones` 改名「自來水保護區與地下水管制（水利署）」，mini-pulse-gis-mcp 的 `datasetLabels.json` 仍是舊名「管制區」。First action: 在 MCP repo 重產標籤檔。 **健檢 2026-11-08**：需查 waterProtectionZones 對應 datasetId；#100 重產過標籤，可能已解；證據：MCP datasetLabels origin/main 找不到水利署保護區那層的新舊名。 | MCP 搜尋「自來水」「地下水」找得到這層。 |
-| RV27-2 | 北極星:AI | P3 | ready | `docs/features/general-analysis/layer-status*` 自 10-12 後未重產（約差 159 層）。 | 在主 checkout 同層 worktree 設 `PULSE_WAREHOUSE_DIR` 指向最新倉庫快照後跑 `npm run research:layer-status`；worktree 的 symlink node_modules 會 ERR_MODULE_NOT_FOUND，需改 `cp -Rc` 副本。#715 手刪的 wasteRoute／wasteStop 已確認與重產一致。 **健檢 2026-11-08**：可能只重產主題欄，需確認 159 層差距是否已補；證據：layer-status.csv 11-08 被 #912 等重產（0e876e76『重產…圖層總表主題欄』）。 | 重產 PR 說明差異來源（新增圖層 vs 倉庫快照），CI 綠。 |
+| RV27-2 | 北極星:AI | P3 | ready | `docs/features/general-analysis/layer-status*` 自 10-12 後未重產（約差 159 層）。 | 在主 checkout 同層 worktree 設 `PULSE_WAREHOUSE_DIR` 指向最新倉庫快照後跑 `npm run research:layer-status`；worktree 的 symlink node_modules 會 ERR_MODULE_NOT_FOUND，需改 `cp -Rc` 副本。#715 手刪的 wasteRoute／wasteStop 已確認與重產一致。 **健檢 2026-11-08**：可能只重產主題欄，需確認 159 層差距是否已補；證據：layer-status.csv 11-08 被 #912 等重產（0e876e76『重產…圖層總表主題欄』）。<br>**2026-11-09 封存項併入**（原檔 [atlas-statistics](../../docs/archive/2026-11-09/features/atlas-statistics/backlog.md)、[landslide](../../docs/archive/2026-11-09/features/landslide/backlog.md)）：66 層統計加進 research layer status 表；分析倉庫：入倉後重跑 build-layer-status | 重產 PR 說明差異來源（新增圖層 vs 倉庫快照），CI 綠。 |
+| AG-MAR | 北極星:AI | P2 | in_progress | 海洋每小時表 `marine_observation_hourly` 登記進 AI 倉庫（甲案）。 | pulse-data #83 由另一個 worker 進行中，本 session 不碰。 | registry 有 warehouse 區塊並經發包上線。 |
+| FB-008 | 北極星:AI | P3 | ready | 〔atlas-layers〕中文同義詞（鯨魚／海豚、海廢）在 MCP discovery.ts | 原檔：[atlas-layers](../../docs/archive/2026-11-09/features/atlas-layers/backlog.md)。依據：屬 MCP repo；BACKLOG 無同義詞列；跨 repo（mini-pulse-gis-mcp） | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-009 | 底線:資料正確 | P2 | ready | 〔atlas-layers〕layer-status.csv 中 temperatureGrid 被標 dataset_not_in_warehouse | 原檔：[atlas-layers](../../docs/archive/2026-11-09/features/atlas-layers/backlog.md)。依據：現行 layer-status.csv 第 963 列仍是 dataset_not_in_warehouse；可併 RV27-2 重產時一起查 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-010 | 北極星:AI | P3 | ready | 〔atlas-statistics〕MCP 中文同義詞（結核、癌症、綜所稅…），SYNONYM_GROUPS 近上限需取捨 | 原檔：[atlas-statistics](../../docs/archive/2026-11-09/features/atlas-statistics/backlog.md)。依據：BACKLOG 無同義詞列；可與 atlas-layers 同義詞合一列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-043 | 北極星:AI | P3 | ready | 〔environment-layers〕環境統計 adapter 登錄 researchDatasets.ts | 原檔：[environment-layers](../../docs/archive/2026-11-09/features/environment-layers/backlog.md)。依據：src/research 無環境統計 adapter；可併 AG-13 入倉規則 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-052 | 北極星:AI | P3 | ready | 〔funeral-layers〕FN-5 「最近的火化場」距離分析 | 原檔：[funeral-layers](../../docs/archive/2026-11-09/features/funeral-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-105 | 北極星:AI | P3 | ready | 〔mountain-safety〕MTS-1 事故點 500m 內無通訊點的量化分析 | 原檔：[mountain-safety](../../docs/archive/2026-11-09/features/mountain-safety/backlog.md)。依據：BACKLOG 索引列 MTS-1~3 但無獨立列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-106 | 北極星:AI | P3 | waiting_external | 〔mountain-safety〕MTS-2 山屋容量 vs 週邊事故密度 | 原檔：[mountain-safety](../../docs/archive/2026-11-09/features/mountain-safety/backlog.md)。依據：同上 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-107 | 北極星:AI | P3 | ready | 〔mountain-safety〕MTS-3 cause × 山區 Top 10 危險路段排行（需選呈現位置） | 原檔：[mountain-safety](../../docs/archive/2026-11-09/features/mountain-safety/backlog.md)。依據：同上 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-124 | 北極星:AI | P3 | ready | 〔religion〕RL-5 宗教密度 × 人口分析 | 原檔：[religion](../../docs/archive/2026-11-09/features/religion/backlog.md)。依據：未見 PR；可用 MCP cross_analysis 做 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-127 | 北極星:AI | P3 | ready | 〔statistics-comparability〕全臺教育路網、離島山區與學齡人口分母（目前北臺灣 pilot） | 原檔：[statistics-comparability](../../docs/archive/2026-11-09/features/statistics-comparability/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-128 | 底線:資料正確 | P2 | ready | 〔statistics-comparability〕取得交通曝險分母（VKT）後才談事故風險 | 原檔：[statistics-comparability](../../docs/archive/2026-11-09/features/statistics-comparability/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-129 | 北極星:AI | P3 | ready | 〔statistics-comparability〕補畜牧漁業作物土地完整母體再做 share／LQ | 原檔：[statistics-comparability](../../docs/archive/2026-11-09/features/statistics-comparability/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-136 | 北極星:AI | P3 | ready | 〔tree-layers〕TL-3 樹穴 × 行道樹「空樹穴偵測」 | 原檔：[tree-layers](../../docs/archive/2026-11-09/features/tree-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-152 | 北極星:視覺 | P3 | ready | 〔viz-library〕1 呼吸脈衝 R2（先在結果契約定義「即時／進行中」標記） | 原檔：[viz-library](../../docs/archive/2026-11-09/features/viz-library/BACKLOG.md)。依據：未見實作；檔名大小寫：backlog.md 與 BACKLOG.md 在 macOS 是同一檔 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-154 | 底線:資料正確 | P2 | ready | 〔viz-library〕3 新聞 published_ts 時區查證（影響 Q19、Q28 期望值） | 原檔：[viz-library](../../docs/archive/2026-11-09/features/viz-library/BACKLOG.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-155 | 底線:授權 | P2 | ready | 〔viz-library〕4 食品價格指數原料授權查證後才開放分析卡 | 原檔：[viz-library](../../docs/archive/2026-11-09/features/viz-library/BACKLOG.md)。依據：使用者 09-28 決定暫不公開 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-156 | 北極星:AI | P3 | ready | 〔viz-library〕7 統計指標缺中文名稱欄位（上游先動） | 原檔：[viz-library](../../docs/archive/2026-11-09/features/viz-library/BACKLOG.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-157 | 北極星:AI | P3 | ready | 〔viz-library〕8 分析卡 v1 補 compare、isochrone 與村里層級 | 原檔：[viz-library](../../docs/archive/2026-11-09/features/viz-library/BACKLOG.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-158 | 北極星:視覺 | P3 | ready | 〔viz-library〕9 立體柱預設高度偏尖，依格子大小自動調整 | 原檔：[viz-library](../../docs/archive/2026-11-09/features/viz-library/BACKLOG.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-160 | 北極星:AI | P3 | ready | 〔welfare-layers〕WF-3 托嬰中心對 0–5 歲人口人均密度面量圖 | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-161 | 北極星:AI | P3 | blocked | 〔welfare-layers〕WF-4 長照服務覆蓋分析（先選立案或特約體系） | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：BACKLOG 索引寫 WF-4 blocked、無獨立列；需使用者拍板 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-163 | 北極星:AI | P3 | ready | 〔welfare-layers〕WF-6 社福 9 層縣市級統計彙總 | 原檔：[welfare-layers](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)。依據：未見 PR；MCP region_rank 可部分替代 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-169 | 北極星:AI | P3 | ready | 〔agent-research-workbench〕line／raster kernel、自管 Taiwan Valhalla graph、Google／Valhalla 真實 E2E、clear／expiry／revoke 回歸 | 原檔：[agent-research-workbench](../../docs/archive/2026-11-09/features/agent-research-workbench/backlog.md)。依據：未見自管 graph 紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-171 | 北極星:AI | P3 | ready | 〔general-analysis〕擴充：加油站／LPG × 住宅、變電所 × 淹水、水庫淨水場 × 污染源 | 原檔：[general-analysis](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)。依據：未見對應題庫紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-172 | 北極星:AI | P3 | ready | 〔general-analysis〕生活品質缺口：服飾行業分類對照、超商與分區入倉、公車班次 | 原檔：[general-analysis](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)。依據：超商倉庫只有雙北（記憶 2026-11-09 用 ATM 代理） | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-173 | 北極星:AI | P3 | ready | 〔general-analysis〕運動可及性（網球／匹克球／羽球場 15 分）需場館細分類 | 原檔：[general-analysis](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)。依據：需場館細分類欄位 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-174 | 北極星:AI | P3 | ready | 〔general-analysis〕污染源 × 水源保護區 × 工商登記 | 原檔：[general-analysis](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-175 | 北極星:AI | P3 | ready | 〔general-analysis〕地震震央周邊設施（回放資料快照入倉） | 原檔：[general-analysis](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)。依據：未見入倉紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-176 | 北極星:兼容 | P3 | ready | 〔i18n〕P4-C Agent 依配對網頁語言回答（MCP map_context 帶 locale、conductor 英日版、拿掉圖例須含漢字限制、eval 語氣依語系） | 原檔：[i18n](../../docs/features/i18n/ROADMAP.md)。依據：PROJECTS.md 列為待做，但 BACKLOG 無獨立 ID；跨 repo，MCP 先改 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-185 | 北極星:AI | P3 | ready | 〔waste-collection〕Phase 4.1 時刻表 vs GPS 誤差分析 | 原檔：[waste-collection](../../docs/features/waste-collection/research/roadmap.md)。依據：未見紀錄 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| AG-16 | 北極星:AI | P3 | conditional | AI 路線候選待辦（2026-11-09 封存項併成一列，候選、未排），6 項子能力：(1) 可保存的分析成果；(2) 研究檔案庫；(3) 線與網格（raster）結果；(4) 時序基準（baseline）；(5) raster 取樣；(6) KDE／地形／視域。 | 使用者 2026-11-09 決定保留。排入時先對照 ADR-0022 階段 C，逐項拆成獨立列。原文：[agent-research-workbench](../../docs/archive/2026-11-09/features/agent-research-workbench/backlog.md)、[agent-research-workbench](../../docs/features/agent-research-workbench/gis-analysis-roadmap.md)、[main-site-ai-gis-roadmap-2026-09-05](../../docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md)。 | 排入時每項各附驗收題與 PR。 |
+| AG-17 | 北極星:AI | P3 | conditional | 題庫候選題（候選題，未排）：(1) 國中小步行等時圈與學區錯位；(2) 海警船×新聞（題庫可能已有 Q28，排入前先比對）；(3) 雙變量地圖；(4) 再擴 8 個面向。 | 使用者 2026-11-09 決定先保留。原文：[general-analysis](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)。 | 排入的題目進題庫並有 SQL 驗算。 |
 
 ## J. 前端技術債與效能
 
@@ -220,7 +383,7 @@
 | RV-8 | 北極星:好用 | P2 | conditional | Geological-survey district R2 registry file exposes `district_code` but consumers need `area_code` (gis-platform F028). | Trigger: before the next release that ships this layer. Owner: gis-platform / analytics. First action: produce a derived file with `area_code`, leaving the registered original untouched. **健檢 2026-11-08**：合併成 review 殘項一列；RV-7 待決策。 | Derived file with `area_code` is published and referenced; release checklist item checked. |
 | A11Y-1 | 北極星:好用 | P2 | ready | 移除 viewport 的 `user-scalable=no`（Lighthouse 無障礙唯一未過項）。 | 先確認地圖雙指縮放不受影響。 | Lighthouse 無障礙 ≥ 0.95。 |
 | OPS-1 | 北極星:好用 | P2 | ready | 無 WebGL 時顯示說明，而不是整個畫面空白。 | 加初始化失敗提示與 ErrorBoundary。 | 無 WebGL 環境看得到提示與替代連結。 |
-| GUI-3 | 北極星:好用 | P2 | blocked | 地址／地名搜尋（WebGIS 第 5 類）。 | Blocker：owner decision——地理編碼服務選 Mapbox Geocoding／TGOS／國土測繪中心（用量上限與授權不同）。First action：列三者配額、授權、繁中地址命中率比較給使用者選。 | 使用者選定服務；設計稿多版給使用者選位置與樣式後才實作（先看設計稿再實作）。 |
+| GUI-3 | 北極星:好用 | P2 | blocked | 地址／地名搜尋（WebGIS 第 5 類）。 | Blocker：owner decision——地理編碼服務選 Mapbox Geocoding／TGOS／國土測繪中心（用量上限與授權不同）。First action：列三者配額、授權、繁中地址命中率比較給使用者選。<br>**2026-11-09 封存項併入**（原檔 [main-site-ai-gis-roadmap-2026-09-05](../../docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md)）：A1 不靠 AI 的地點周邊分析面板（選點→周邊→統計→保存） | 使用者選定服務；設計稿多版給使用者選位置與樣式後才實作（先看設計稿再實作）。 |
 | G025 | 北極星:效率 | P3 | ready | Make Monitor alert-series fetching incremental. | Design a recent-window RPC/cache update rather than reloading 24h×6 groups. | Network/DB work drops with equivalent displayed history. Renamed from legacy duplicate `G012`. |
 | CL-8 | 北極星:好用 | P3 | ready | Decide the low-priority reviewer findings skipped as design choices. | Re-checked 2026-10-05, all still present: A32 negative values draw zero-width bars (`src/research/charts/RankBars.tsx`, `CompareTable.tsx`); A37 LoadingStatus unmounts in capture mode and loses running loads (`App.tsx`); A39 mobile more-menu (popover 30 inside toolbar 25 stacking) trapped under the bottom sheet (40); A40 `layer-dataset-aliases.json` `osm_power` umbrella maps all 8 tables to every layer; A42 isochrone/flow outline, flow endpoints and extrusions not dimmed on selection (`analysisResultOverlay.ts`); A46 `CAMERA_MAX_ZOOM_CEILING=16` clamps explicit maxZoom 17–18 (`viewportFit.ts`). A47 largely resolved by MCP 313a9a4 (internal check + max one user-facing 「小提醒」); confirm `nearby-profile.md` "caveats 原樣帶上" wording, then drop. **健檢 2026-11-08**：與 RV-*、RV27-1 同性質，合併成 review 殘項。 | Each item fixed in its own PR or explicitly declined here. |
 | DS-COLOR | 北極星:視覺 | P3 | ready | 定義逐層顏色契約：代表色、分類色、主題、色階各以誰為準。 | AU-1（2026-10-05 結案）查證：manifest→側欄已由 `layerManifest.test.ts:88` 逐 key 驗證，地圖↔圖例由 `legendAlignment.test.ts` R4 12 組守門；`docs/design-system/map-layers.md:345` 明定多類別／序列代表色不必出現在 paint。剩下的缺口是「各類顏色的權威來源」未定義，先定契約再擴大守門。 | 每層顏色類型與權威來源有文件；新增守門能抓出違反契約的定義。分析：`docs/research/contract-guards-20261005.md`（PR #539）。 |
@@ -236,6 +399,29 @@
 | RV-F045 | 北極星:視覺 | P3 | ready | 發電機組光柱（beams）不跟圖例類別篩選（review F045，同上暫緩）。 | First action: 同 RV-F039，可一起做。 **健檢 2026-11-08**：合併一列。 | 同上。 |
 | AU-8 | 北極星:開發系統 | P2 | ready | Give the shipped food-price monitor feature a proper documentation home. | Add the four feature documents and point this index to it. | README/backlog/changelog/handoff exist and match runtime scope. |
 | TD-3 | 北極星:視覺 | P2 | ready | Replace the provisional `traDelay` grid coordinates with a sandbox export. | Coordinates were hand-picked and later hand-shifted (now wide `x0,y75,w5,h5`, split `x0,y122,w12,h8`; 2026-10-05), never sandbox-exported. `monitorPacking` asserts the "three columns + bottom two columns" top level. Re-drag both wide and split layouts. | `MONITOR_LAYOUT` and `MONITOR_LAYOUT_SPLIT` regenerated from the sandbox rather than hand-edited. `docs/features/monitor-grid-static/sandbox.html` |
+| TRAIL-1 | 北極星:效率 | P2 | ready | 候選：過去日期的軌跡改讀每日檔，只有今天走 RPC。 | 公車過去日期改讀 S3／R2 每日檔（`trails/bus/<date>.arrow` 已有，S3 缺 10-01）；查船舶、航班、觀光接駁有沒有同樣每日檔。先調查再出方案給使用者（使用者 2026-11-09：「可以優化也最好」）。 | 方案經使用者同意後實作；過去日期不再打 RPC。 |
+| SBE-5 | 北極星:效率 | P2 | ready | `get_alert_series_24h`（告警 24h 序列）、`get_er_wait_total_14d`（急診 14 天）改預算表；衛星分類表與 `p_entity_type` 函式慢的原因待查。 | 照 R1–R5（docs/supabase-optimization.md §0）出 gis-platform migration。 | 冷快取 <300ms，pg_stat_statements 不再出現在慢查詢清單。 |
+| FB-013 | 北極星:視覺 | P3 | ready | 〔bloom-experiments〕BE-1 輸電線 bloom 測試層 line-width／blur 改隨 zoom 內插 | 原檔：[bloom-experiments](../../docs/archive/2026-11-09/features/bloom-experiments/backlog.md)。依據：usePowerLinesGlowTestLayer.ts 仍為常數 blur／width；實驗層；可能併成一列「bloom 實驗」 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-014 | 北極星:視覺 | P3 | ready | 〔bloom-experiments〕BE-2 抽通用 GlowLinesScene primitive | 原檔：[bloom-experiments](../../docs/archive/2026-11-09/features/bloom-experiments/backlog.md)。依據：src 無 GlowLinesScene | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-015 | 北極星:視覺 | P3 | ready | 〔bloom-experiments〕BE-3 面 rim glow 改 Three.js additive 版 | 原檔：[bloom-experiments](../../docs/archive/2026-11-09/features/bloom-experiments/backlog.md)。依據：未見實作 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-016 | 北極星:視覺 | P3 | ready | 〔bloom-experiments〕BE-4 Bloom palette 系統（glow/palettes.ts） | 原檔：[bloom-experiments](../../docs/archive/2026-11-09/features/bloom-experiments/backlog.md)。依據：src 無 glow/palettes | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-017 | 北極星:視覺 | P3 | ready | 〔bloom-experiments〕BE-5 光暈核心／衰減半徑開 uniform 讓 slider 控制 | 原檔：[bloom-experiments](../../docs/archive/2026-11-09/features/bloom-experiments/backlog.md)。依據：未見實作 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-018 | 待討論 | P3 | ready | 〔bloom-experiments〕BE-8 bloom 版取代原生視覺上線（發電廠、輸電線） | 原檔：[bloom-experiments](../../docs/archive/2026-11-09/features/bloom-experiments/backlog.md)。依據：需使用者決定；未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-024 | 北極星:效率 | P3 | ready | 〔byok-chat〕BC-5 police_stations_20260626 日期戳 URL 改讀 manifest／latest | 原檔：[byok-chat](../../docs/archive/2026-11-09/features/byok-chat/backlog.md)。依據：src/research/policeIsochroneOwnerDataset.ts 等仍引用日期戳檔名 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-026 | 北極星:開發系統 | P3 | ready | 〔chart-hover-tooltip〕TimeseriesSparkline 內建 tooltip 收斂到共用基礎設施（約 70 行） | 原檔：[chart-hover-tooltip](../../docs/archive/2026-11-09/features/chart-hover-tooltip/backlog.md)。依據：TimeseriesSparkline.tsx 仍未用 useChartTooltip | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-035 | 北極星:效率 | P3 | ready | 〔demographics-statistics〕統計 catalog JSON 846KB 進 layerCatalog chunk，瘦身到約 248KB 或 lazy | 原檔：[demographics-statistics](../../docs/archive/2026-11-09/features/demographics-statistics/backlog.md)。依據：release_options 仍在 researchDatasets.ts；與 HOME-1／PERF-1「首屏維持現狀」決定有關，需使用者判斷 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-040 | 北極星:兼容 | P3 | ready | 〔embeddable-map〕EM-18 更多歷史快照圖層（earthquakeReplay 等） | 原檔：[embeddable-map](../../docs/archive/2026-11-09/features/embeddable-map/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-041 | 北極星:兼容 | P3 | ready | 〔embeddable-map〕EM-12 Protomaps 字型／sprite 自託管 | 原檔：[embeddable-map](../../docs/archive/2026-11-09/features/embeddable-map/backlog.md)。依據：basemapStyle.ts 仍指 protomaps.github.io | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-042 | 北極星:兼容 | P3 | ready | 〔embeddable-map〕EM-08 嵌入碼防腐：layerAliases.ts＋守門測試 | 原檔：[embeddable-map](../../docs/archive/2026-11-09/features/embeddable-map/backlog.md)。依據：src 無 layerAliases.ts；layer key 改名會讓舊文章地圖壞（部落格有嵌入地圖） | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-048 | 北極星:好用 | P3 | ready | 〔environment-statistics〕MedicalStatisticsGroupControls 拒絕訊息固定「請先調整年份」措辭不精確 | 原檔：[environment-statistics](../../docs/archive/2026-11-09/features/environment-statistics/backlog.md)。依據：未查到修正；小 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-067 | 底線:資料正確 | P2 | ready | 〔imagery〕IMG-rain-history-label 雨量 2026-06-05 前日期顯示「無資料」而非 0 | 原檔：[imagery](../../docs/archive/2026-11-09/features/imagery/backlog.md)。依據：未見對應 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-077 | 北極星:好用 | P3 | ready | 〔jma-live-layers〕JMA-14 時間軸暫停時「現在」自動跟上 | 原檔：[jma-live-layers](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)。依據：描述的是行為缺陷，未見修正 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-119 | 北極星:好用 | P3 | ready | 〔pla-activity〕PA-7 疊加模式 popup 列出該點所有命中形狀 | 原檔：[pla-activity](../../docs/archive/2026-11-09/features/pla-activity/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-120 | 底線:資料正確 | P2 | ready | 〔pla-activity〕PA-10 單日模式遇資料斷層整片空白，需 fallback 或明示無資料 | 原檔：[pla-activity](../../docs/archive/2026-11-09/features/pla-activity/backlog.md)。依據：未見 PR；符合「缺資料不當 0」原則 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-130 | 底線:資料正確 | P2 | ready | 〔statistics-comparability〕醫療 PARTIAL、住宅 STALE、年度錯配的可見說明 | 原檔：[statistics-comparability](../../docs/archive/2026-11-09/features/statistics-comparability/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-135 | 底線:資料正確 | P2 | ready | 〔tourist-shuttle〕TS-2 GPS 點與路線距離 gate（>500m fallback） | 原檔：[tourist-shuttle](../../docs/archive/2026-11-09/features/tourist-shuttle/backlog.md)。依據：未見 PR | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-153 | 北極星:開發系統 | P3 | ready | 〔viz-library〕2 合併三份重複 sparkline 成共用 SVG 元件 | 原檔：[viz-library](../../docs/archive/2026-11-09/features/viz-library/BACKLOG.md)。依據：與 chart-hover-tooltip「TimeseriesSparkline 收斂」同一件事，建議合一列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| TLD-1 | 北極星:好用 | P3 | ready | 時間軸標出新聞與共軍航跡「有資料的日期」。 | 查證 2026-11-09：`fetchNewsEventDates` 只在 `MonitorPanel.tsx` 取最新日期；`fetchPlaTrackDates` 除 loader 外沒有呼叫者；時間軸元件沒有可標日期的介面。原文：[news](../../docs/archive/2026-11-09/features/news/backlog.md)、[pla-activity](../../docs/archive/2026-11-09/features/pla-activity/backlog.md)。 | 時間軸上可看出哪些日期有資料；依設計規範附截圖。 |
 
 ## K. 產品舊決策（Monitor、情報等）
 
@@ -247,17 +433,29 @@
 | IN-1 | 北極星:好用 | P3 | ready | Make the Intel panel's three counts agree. | Header「共 N 則」counts news only; the「全部」tab sums news + alerts-in-all + global-in-all; `AlertSummaryBar`「N 則警報」uses `alertTally.total` without the RANGE filter — so one screen can show「共 0 則」「全部 11」「66 則警報」at once. Decide one denominator per label (or relabel) before changing code. Found during UI unification Phase H (2026-09-27). **健檢 2026-11-08**：先決定分母；證據：09-27 發現。 | All three numbers are explainable from the same filter state; a test covers the RANGE/tab combinations. `src/components/intel/IntelPanel.tsx`, `alerts/FeedTabs.tsx`, `alerts/AlertSummaryBar.tsx` |
 | LW-1 | 北極星:好用 | P3 | conditional | Keep live-wall cells from sitting on YouTube's「無法播放這部影片」. | Trigger: owner review done (trigger 待定, owner: 使用者, flagged 2026-10-16); first action: decide the onError switching design. Owner wants to review first (2026-10-03). Observed: CTS `wM0g8EoUZ_E` and TVBS `m_dhMSvUCIc` refused in the embed while still live and oEmbed-embeddable (200), so the block is viewer-side (network/region/sign-in/bot check), not stale IDs. Proposed: YouTube IFrame API `onError` (101/150/152/153) → switch the cell to another currently-live resolved channel (`get_yt_live_videos`, 13 handles) and label「華視無法嵌入，已改播 ○○」; decide whether the legacy wall follows. | Owner decision; if built, a refused cell auto-switches within one load and the label names both channels. `src/components/intel/monitor/LiveWall.tsx` |
 | AG-3 | 北極星:視覺 | P3 | blocked | 地震漣漪暫停時的行為：新版暫停 3 秒收起，舊版會無限循環。 | owner decision：要不要循環。 **健檢 2026-11-08**：建議 TINY，維持現狀即關。 | 決定後依需求調整 `useEarthquakesGlobalLayer`，並附單元測試。 |
-| D8-1 | 北極星:好用 | P3 | ready | 分享網址記住 Day 8 方案與步速（`mapchallengeDay08Scenario`／`AccessSpeed`）。主站目前不支援任何圖層參數進網址：`src/lib/urlState.ts` 的 `UrlState.params`（`p.*`，只收數字）註明「僅 /embed 消費，主站忽略」，`src/App.tsx` 同步網址的 `buildUrl(...)`（約 L1962）也不寫 params，所以要動共用框架，不是 Day 8 單層能做。 | First action：設計主站 `p.*` 讀寫（哪些參數可分享、sharedGroup 成員只寫一次、與 `NON_SHAREABLE_PARAM_NAMES` 和 embed 契約的關係），再決定要不要做。 **健檢 2026-11-08**：與 FE-01 同一題，FE-01 併入本列。 | 主站分享網址帶方案／步速，開網址後兩層方案一致；urlState 測試補上主站情境。 |
+| D8-1 | 北極星:好用 | P3 | ready | 分享網址記住 Day 8 方案與步速（`mapchallengeDay08Scenario`／`AccessSpeed`）。主站目前不支援任何圖層參數進網址：`src/lib/urlState.ts` 的 `UrlState.params`（`p.*`，只收數字）註明「僅 /embed 消費，主站忽略」，`src/App.tsx` 同步網址的 `buildUrl(...)`（約 L1962）也不寫 params，所以要動共用框架，不是 Day 8 單層能做。 | First action：設計主站 `p.*` 讀寫（哪些參數可分享、sharedGroup 成員只寫一次、與 `NON_SHAREABLE_PARAM_NAMES` 和 embed 契約的關係），再決定要不要做。 **健檢 2026-11-08**：與 FE-01 同一題，FE-01 併入本列。<br>**2026-11-09 封存項併入**（原檔 [main-site-ai-gis-roadmap-2026-09-05](../../docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md)）：F2 命名場景與會員同步（camera／time／layers／params round-trip） | 主站分享網址帶方案／步速，開網址後兩層方案一致；urlState 測試補上主站情境。 |
 | FE-01 | 北極星:好用 | P2 | merged | 〔已併入 D8-1〕Make share URLs truthful about parameter support. | owner decision (2026-10-05, skipped from PR #543): `/embed` depends on `parseParams` reading `p.*` (`src/embed/EmbedApp.tsx:102`), so the parsing cannot be removed; the main app ignoring `p.*` is documented as intentional (`docs/features/embeddable-map/README.md`). Choose: close as intended, or apply + validate + write back `p.*` in the main app (`App.tsx` syncUrlRef ~1871). **健檢 2026-11-08**：與 D8-1 同一題，內容保留在此供參考，進度改記在 D8-1。 | Shared link reproduces state or no longer claims to. |
-| MON-P6 | 待討論 | P3 | conditional | Monitor four-domain sub-indices (spec §5.35 I2): 災害／民生／國防／網路與交通, then rebuild the pressure composite from them. | Trigger: owner decides to restart (none set; 2026-10-16 flagged). Owner: 使用者. First action: write the public weights and baseline-period proposal. Owner parked it 2026-10-03 as hard; P1–P5 merged (#482–#505). Needs: gis-platform pre-aggregated table + schedule + migration (owner approval), public weights and baseline period proposal, and a way to show which sources are missing so a stopped source never silently lowers an index. Start from `docs/features/monitor-restyle/README.md` 實作順序 and spec §5.35 I2. **健檢 2026-11-08**：建議封存（與北極星 AI 分析弱相關）；證據：10-03 擱置。 | Owner-approved weights/baseline; migration applied; each sub-index shows its inputs and missing sources; composite is the published weighted sum. |
+| MON-P6 | 待討論 | P3 | conditional | Monitor four-domain sub-indices (spec §5.35 I2): 災害／民生／國防／網路與交通, then rebuild the pressure composite from them. | Trigger: owner decides to restart (none set; 2026-10-16 flagged). Owner: 使用者. First action: write the public weights and baseline-period proposal. Owner parked it 2026-10-03 as hard; P1–P5 merged (#482–#505). Needs: gis-platform pre-aggregated table + schedule + migration (owner approval), public weights and baseline period proposal, and a way to show which sources are missing so a stopped source never silently lowers an index. Start from `docs/features/monitor-restyle/README.md` 實作順序 and spec §5.35 I2. **健檢 2026-11-08**：建議封存（與北極星 AI 分析弱相關）；證據：10-03 擱置。<br>**2026-11-09 封存項併入**（原檔 [chart-hover-tooltip](../../docs/archive/2026-11-09/features/chart-hover-tooltip/backlog.md)）：pressure 指數 per_signal 回扁平 dict，前端 10 訊號權重長條恆為空；需後端改回結構化陣列 | Owner-approved weights/baseline; migration applied; each sub-index shows its inputs and missing sources; composite is the published weighted sum. |
 | SAT-Z3 | 待討論 | P3 | conditional | Make the satellite console's maneuver list follow the timeline in history mode (decision Z3). | Trigger: owner un-parks (trigger 待定, owner: 使用者, flagged 2026-10-16); first action: the three approvals listed below. Owner parked it 2026-10-04 (not urgent); front-end shows an interim notice since #533. Draft migration `426_satellite_maneuvers_at_anchor.sql` (`get_satellite_maneuvers_at(p_anchor, p_hours)`) sits on gis-platform branch `feat/satellite-maneuvers-anchor` (worktree `.worktrees/sat-maneuver-anchor`, local commit `a0bc247`, not pushed, not applied; the handoff doc exists only on that branch; renumber on the day it is applied). Before applying, owner must approve: (1) one-row-per-satellite "what the panel would have shown at the anchor" semantics; (2) a read-only `EXPLAIN (ANALYZE, BUFFERS)` on production after 20:00 for 24 h and 72 h windows (reads `live.satellite_tle_history`, ~2.3 GB, tied to the 2026-09-04 Disk IO incident); (3) error `SM001` for anchors older than the 30-day retention (UI「無法推算」) and a 72 h `p_hours` cap. Then upstream PR → apply → front-end swaps `resolveManeuverListScope` to call the RPC with a debounced timeline anchor. **健檢 2026-11-08**：建議封存或明確保留；本機分支有遺失風險；證據：gp 分支未 push。 | Production query cost measured and < 1 s (else pre-aggregate); migration applied; history-mode list changes with the timeline and shows「無法推算」past 30 days. [Feature README](../../docs/features/satellite-console-restyle/README.md), gis-platform branch `feat/satellite-maneuvers-anchor`: `docs/handoff/satellite-maneuvers-at.md` |
+| FB-022 | 北極星:好用 | P3 | ready | 〔byok-chat〕BC-2 會員加值：圖層狀態收藏 user_favorites、chat_logs、跨裝置歷史 | 原檔：[byok-chat](../../docs/archive/2026-11-09/features/byok-chat/backlog.md)。依據：src 無 user_favorites／chat_logs | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-023 | 待討論 | P3 | waiting_external | 〔byok-chat〕BC-3 預設模型檔位改中階 | 原檔：[byok-chat](../../docs/archive/2026-11-09/features/byok-chat/backlog.md)。依據：待使用者決定 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-031 | 北極星:視覺 | P3 | ready | 〔culture-layers〕CU-5 librarySeats 閉館段在折線用灰帶呈現 | 原檔：[culture-layers](../../docs/archive/2026-11-09/features/culture-layers/backlog.md)。依據：待使用者決定 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-036 | 北極星:好用 | P3 | ready | 〔earthquake-replay〕EQ-1 事件累積到 100+ 時加分頁或篩選 | 原檔：[earthquake-replay](../../docs/archive/2026-11-09/features/earthquake-replay/backlog.md)。依據：條件型；未查目前事件數 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-059 | 北極星:好用 | P3 | ready | 〔global-climate〕GC-10 颱風作戰室 preset | 原檔：[global-climate](../../docs/archive/2026-11-09/features/global-climate/backlog.md)。依據：未見實作 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-070 | 底線:資料正確 | P2 | ready | 〔isr-satellite-monitor〕ISR-MON-4 twmain_12nm 是否含附屬島嶼 | 原檔：[isr-satellite-monitor](../../docs/archive/2026-11-09/features/isr-satellite-monitor/backlog.md)。依據：待使用者決定 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-097 | 北極星:好用 | P3 | blocked | 〔layer-manifest〕LM-EDGE-1 6 個 no-popup 邊界案例待拍板（房地產網格、temperatureWave 等） | 原檔：[layer-manifest](../../docs/archive/2026-11-09/features/layer-manifest/backlog.md)。依據：owner decision | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-103 | 北極星:開發系統 | P3 | ready | 〔monitor-split〕MS-7 沙盒 DEFAULT_LAYOUT 未同步二版座標 | 原檔：[monitor-split](../../docs/archive/2026-11-09/features/monitor-split/backlog.md)。依據：不阻塞，但重設會拿到舊版；小 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-112 | 北極星:好用 | P3 | ready | 〔owner-gated-layers〕OG-2 資料新鮮度後台可編輯（admin_upsert_freshness 表單） | 原檔：[owner-gated-layers](../../docs/archive/2026-11-09/features/owner-gated-layers/backlog.md)。依據：src 無 admin_upsert_freshness 呼叫；注意編號與核心 BACKLOG 不衝突 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-125 | 底線:資料正確 | P2 | ready | 〔road-congestion〕RC-2 保留「最新可得快照」clamp 或改嚴格 slot | 原檔：[road-congestion](../../docs/archive/2026-11-09/features/road-congestion/backlog.md)。依據：owner decision | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-141 | 待討論 | P3 | ready | 〔urban-zoning〕UZ-3 未覆蓋縣市用 NLSC LUIMAP WMS 當暫時視覺層 | 原檔：[urban-zoning](../../docs/archive/2026-11-09/features/urban-zoning/backlog.md)。依據：owner decision；記憶寫 NLSC WMTS／WMS 無都計分區層，需重查；可能不可行 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-182 | 北極星:好用 | P3 | ready | 〔main-site-ai-gis-roadmap-2026-09-05〕F1 圖層收藏與已開啟管理 | 原檔：[main-site-ai-gis-roadmap-2026-09-05](../../docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md)。依據：與 byok-chat backlog BC-2（收藏）同一件事；BC-2 不在正本 BACKLOG；併入 BC-2 新列 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| EMB-3D | 待討論 | P3 | conditional | 構想（不排時程）：嵌入版地圖支援 Three.js 立體圖層（例如列車）。 | 使用者 08-04「之後再談」，2026-11-09 決定保留成構想。原文：[embeddable-map](../../docs/archive/2026-11-09/features/embeddable-map/backlog.md)。 | 排入時再寫驗收。 |
 
 ## L. 內容（部落格、挑戰日、歷史研究）
 
 | ID | Tier | Pri | State | Item | Next action / blocker | Acceptance |
 |---|---|---|---|---|---|---|
 | HIST-1 | 底線:授權 | P2 | blocked | 確認兩個中研院來源的授權能用在個人網站：THCTS（CC BY-NC-SA 3.0 TW，條文開頭寫「國內研究、教學等非商業使用者」）與臺灣百年歷史地圖 WMTS（CC BY-NC，簡報寫免申請）。2026-11-07 #882 已把 WMTS 從 6 張擴到 85 張公開圖（歷史底圖 6 層，develop 未發版），發版前確認更重要。 | Blocked on 使用者寄信（owner decision）。First action：寄 gis@gate.sinica.edu.tw，說明非營利個人網站、圖層用途與署名方式。 **健檢 2026-11-08**：已在授權未確認下公開，優先度應提高；證據：#882 已隨 v2.27.0 上線（公開中）。 | 收到回覆並記在 thcts_inventory_summary.md；若不允許，下架或改站主限定 Day 6 與古地圖。 |
-| HIST-3 | 底線:備份 | P3 | ready | 研究成果搬進 git：`_worktree-backups/2026-11-06/thcts/` 與 `water1944/` 不在任何 repo。 | First action：搬（不複製）到 analytics `docs/topic-research/historical-thcts/`，raw zip 依大小決定放 data/raw 或只留下載清單。 | 研究文件在 analytics 有正本，備份資料夾留指標。 |
 | SEO-4 | 北極星:好用 | P2 | waiting_external | 社群分享預覽圖。 | 需要一張 1200×630 站圖（`public/` 目前沒有適合的），到位後補 og:image 與 `twitter:card=summary_large_image`。 | 分享連結出現預覽圖。 |
 | BLOG-1 | 內容:部落格 | P2 | conditional | 持續把 Threads 開發日記改寫成 `/blog/` 長文（SEO／AEO）。 | 2026-11-08 改寫：使用者 10-24 決定 Flight Arc 不寫進 Pulse 筆記（article-plan C1 已標「不寫」），且說先觀察效應、暫停一般長文；目前只照 30 天地圖挑戰產文（使用者發完 Threads 後）。Trigger: 使用者說恢復寫一般長文。D／E／H 三篇主題 id 待定。流程照 `.claude/skills/blog-writing/SKILL.md`。 **健檢 2026-11-08**：暫停中；證據：11-08 改寫。 | 新文章在 sitemap 與 llms.txt 登記、正式站文章頁 200；進度與清單在 [`docs/features/blog/article-plan.md`](../../docs/features/blog/article-plan.md)。 |
 | SEO-6 | 內容:部落格 | P2 | conditional | 讓爬蟲讀到實質內容（預渲染或靜態「關於／資料來源／主題導覽」頁）。 | Trigger: SEO-5 收錄兩週後的結果。Owner: 使用者決定投入。First action: 與 SEO-7（英日文實體頁）、AEO-3（FAQ）同一包規劃。 | 重點說明頁有實體 HTML 並被收錄。 |
@@ -278,6 +476,10 @@
 | CL-6 | 北極星:開發系統 | P3 | ready | Preserve the untracked GFW freshness investigation note. | Still untracked on 2026-10-05: `data-collectors/docs/investigations/2026-09-18-gfw-freshness.md` (origin/main has only `2026-09-18-gfw-safe-publish.md`; copy also in the backup folder). Commit it with the next code change to collectors, because a docs-only merge would trigger a production redeploy. **健檢 2026-11-08**：證據：collectors origin/main 仍只有 gfw-safe-publish.md。 | File is tracked in data-collectors main. |
 | CL-7 | 北極星:開發系統 | P3 | ready | Resolve the analytics ADR number collision. | The collision is now committed on analytics origin/master (2026-10-05): `0005-jp-height-grid-contract.md` (835edf90, 2026-09-20) and `0005-historical-flight-trails-static-detail.md` (ed3886e0, 2026-10-04). The highest number is 0008. Renumber the later file to 0009 and fix the links that point to it. **健檢 2026-11-08**：證據：origin/master 仍兩個 0005。 | No duplicate ADR numbers in analytics `docs/adr/`. |
 | G003 | 待討論 | P3 | blocked | Decide whether the independent Three showcase remains tracked. | Owner decides retain versus move to examples. | Decision and path are documented; app build is unaffected. |
+| FB-099 | 北極星:開發系統 | P3 | ready | 〔layer-manifest〕LM-UPSTREAM-DOC-1 analytics _pending_source_urls.md 清掉舊 fire catalog 路徑 | 原檔：[layer-manifest](../../docs/archive/2026-11-09/features/layer-manifest/backlog.md)。依據：analytics _pending_source_urls.md 仍有 fire_hydrants.md 引用；小 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-151 | 北極星:開發系統 | P3 | ready | 〔vessel-watch〕VZ-11 RPC audit 補登 get_vessel_zone_daily、analytics maritime_boundary catalog 過時 | 原檔：[vessel-watch](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)。依據：supabase-rpc-audit-2026-04-09.md 無 get_vessel_zone_daily（catalog 那半未見「尚未建表」字樣，可能已修）；小 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-178 | 北極星:開發系統 | P3 | ready | 〔cctv-finetune-roadmap-2026-09-29〕收集結束後 bootout launchd plist（stopAfter 10-21） | 原檔：[cctv-finetune-roadmap-2026-09-29](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)。依據：2026-11-09 launchctl list 仍見 com.migu.cctv-training-collect 已載入（未執行中）；小；收集程式在 ~/cctv-collector | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| DCAT-1 | 北極星:AI | P3 | ready | analytics `docs/data-catalog` 補登：圖書館座位（tpml_seat，librarySeats）、急診（erHospital）、環境即時 4 層；補完把 manifest upstream 升 verified。 | 查證 2026-11-09：librarySeats、erHospital 仍 `pulse_only`；incineratorEmissions、waterEffluentLive、cemsStackLive 等仍 `catalog_missing`（第 4 層未逐一對應）；行道樹 7 份已 verified（已關）。原文：[culture-layers](../../docs/archive/2026-11-09/features/culture-layers/backlog.md)、[environment-layers](../../docs/archive/2026-11-09/features/environment-layers/backlog.md)、[er-hospital](../../docs/archive/2026-11-09/features/er-hospital/backlog.md)。 | 各層 catalog .md 進 analytics、manifest upstream 改 verified。 |
 
 ## N. 模擬實驗
 
@@ -287,28 +489,402 @@
 | TA-6 | 北極星:AI | P3 | merged | 〔已併入 TA-2〕雙北重算 P1 未解疑點：兩個「禁止行人」樣本格反而變慢（原因未查）；Google 夜間能到土城／泰山／林口／五股、新模型判定到不了（Google 步行 1.35–1.9 km）。 | First action：併入 TA-2 報告逐格查路網與步行上限。 **健檢 2026-11-08**：與 TA-2 同一題，內容保留在此供參考，進度改記在 TA-2。 | 原因寫進 ntpe_rerun.md，或確認為模型假設差異。 |
 | TA-3 | 北極星:視覺 | P2 | blocked | 三市怎麼上網站：一市一個 slug 還是合成一個；高雄「只有 GPS 版、沒有時刻表版」怎麼標示。 | Blocked on 使用者決定（TA-1 合併後）。First action：做設計稿（多版）給使用者選。 | 拍板後 publish_sim_bundle 上 R2、mini 接線 PR 進 develop。 |
 | TA-4 | 北極星:開發系統 | P3 | ready | 雲端工具未測項：Spot（約半價）中途被收回後的接續流程。 | Trigger：下次要跑長任務且想用 Spot。First action：用 smoke.job.env 開 Spot 跑一次，手動中斷後驗證接續。 | 中斷後能從斷點接續，結果與 On-Demand 一致。 |
+| FB-179 | 內容:研究專題 | P3 | ready | 〔cctv-finetune-roadmap-2026-09-29〕階段 2–6：r2 標註批次（約 144 張）→ 切分 → 訓練 → 評估 → 主動學習 | 原檔：[cctv-finetune-roadmap-2026-09-29](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)。依據：PROJECTS.md 列 ⏸️ 保留、待討論「本機訓練或封存」；BACKLOG 無 ID；需使用者決定 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
+| FB-180 | 底線:資料正確 | P2 | ready | 〔cctv-finetune-roadmap-2026-09-29〕白天資料取得後重檢驗證集 | 原檔：[cctv-finetune-roadmap-2026-09-29](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)。依據：驗證集目前全是夜間與傍晚 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
 
-## Feature backlog index
+> CCTV 長期目標（**保留中的長期目標，非放棄**，不排時程）：目標 2 衛星圖＋道路模型、目標 3 路口還原、緊急車輛裁切分類器，正本在 [cctv-finetune-roadmap §5、§6、§10.5](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)；依賴標註累積，排入時再開列。
 
-Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.
+## Feature backlog index（2026-11-09 已封存）
 
-| Program | Canonical backlog | Cross-cutting reference in this file |
-|---|---|---|
-| Agriculture / aquaculture / livestock | [Agriculture](../../docs/features/agriculture/backlog.md), [Aquaculture](../../docs/features/aquaculture/backlog.md), [Livestock](../../docs/features/livestock/backlog.md) | — |
-| Business Registry | [Company layers](../../docs/features/business-registry-company-layers/backlog.md), [Industrial layers](../../docs/features/business-registry-industrial-layers/backlog.md), [common addresses](../../docs/features/common-registration-addresses/backlog.md) | BR-3, BR-5, BR-6 |
-| Civic, culture, education, tourism, religion, tree | [Civic](../../docs/features/civic-facilities-layers/backlog.md), [Culture](../../docs/features/culture-layers/backlog.md), [Education](../../docs/features/education-layers/backlog.md), [Tourism](../../docs/features/tourism-layers/backlog.md), [Religion](../../docs/features/religion/backlog.md), [Japan religion](../../docs/features/jp-religion-layers/backlog.md), [Tree](../../docs/features/tree-layers/backlog.md) | Release-assets, JPR-4, CL-1→JPW-5（JP 水 8 層 owner-only 目視，唯一 home 在 jp-water backlog） |
-| Climate, imagery, terrain, urban form/heat/zoning | [Global climate](../../docs/features/global-climate/backlog.md), [Imagery](../../docs/features/imagery/backlog.md), [Terrain](../../docs/features/terrain-vector/backlog.md), [Buildings night lights](../../docs/features/buildings-night-lights/backlog.md), [Urban form](../../docs/features/urban-form/backlog.md), [Urban heat](../../docs/features/urban-heat-lst/backlog.md), [Urban zoning](../../docs/features/urban-zoning/backlog.md) | AR-11e, MC-5, Release-assets |
-| Emergency, fire, mountain safety, welfare | [Earthquake replay](../../docs/features/earthquake-replay/backlog.md), [ER hospital](../../docs/features/er-hospital/backlog.md), [Fire rescue](../../docs/features/fire-rescue/backlog.md), [Mountain safety](../../docs/features/mountain-safety/backlog.md), [Welfare](../../docs/features/welfare-layers/backlog.md) | WF-2（P1 waiting_external）/WF-4（blocked）—細節只在 Welfare backlog, MTS-1~3, Release-assets |
-| Embed, map platform, layer manifest, bloom | [Embeddable map](../../docs/features/embeddable-map/backlog.md), [Layer manifest](../../docs/features/layer-manifest/backlog.md), [Bloom](../../docs/features/bloom-experiments/backlog.md), [Chart tooltip](../../docs/features/chart-hover-tooltip/backlog.md) | EM-30, AU-4, AU-8 |
-| Monitor, news, owner gating, BYOK | [Monitor grid](../../docs/features/monitor-grid-static/backlog.md), [Monitor split](../../docs/features/monitor-split/backlog.md), [News](../../docs/features/news/backlog.md), [Owner-gated](../../docs/features/owner-gated-layers/backlog.md), [BYOK](../../docs/features/byok-chat/backlog.md) | BC-4, OG-1, MO-6, G023/G025 |
-| Mobility and place | [Bus](../../docs/features/bus/backlog.md), [Historical flight trails](../../docs/features/historical-flight-trails/backlog.md), [Parking](../../docs/features/parking/backlog.md), [Road congestion](../../docs/features/road-congestion/backlog.md), [Tourist shuttle](../../docs/features/tourist-shuttle/backlog.md), [Vessel watch](../../docs/features/vessel-watch/backlog.md), [Real estate](../../docs/features/real-estate/backlog.md), [Street trees](../../docs/features/street_trees_taipei_diff/backlog.md) | AR-14/15, G022, Release-assets |
-| PLA activity | [PLA activity](../../docs/features/pla-activity/backlog.md) | — (PA-1 lives in the feature backlog) |
-| Funeral | [Funeral layers](../../docs/features/funeral-layers/backlog.md) | — |
-| Property value / static delivery / water | [Property value](../../docs/features/property-value/backlog.md), [Static-to-CDN](../../docs/features/static-to-cdn/backlog.md), [Water resources](../../docs/features/water-resources/backlog.md) | Release-assets, AR-12/13 |
-| Data lifecycle / storage slimming | [Data lifecycle lean](../../docs/features/data-lifecycle-lean/backlog.md) | WA-3, WA-5, WA-11 |
-| Agent research / GIS analysis | [Layer Discovery／MCP handoff](../../docs/features/agent-research-workbench/layer-discovery-mcp-handoff-20260921.md) | P0 scene-ready readback + result overlay；P1 boundary／point-in-polygon／density |
+各功能資料夾的 `backlog.md`（含 viz-library、agent-research-workbench、general-analysis 題庫 backlog）2026-11-09 讀過後整份封存到 [`docs/archive/2026-11-09/features/`](../../docs/archive/2026-11-09/features/)，索引見 [`docs/archive/README.md`](../../docs/archive/README.md) 2026-11-09 段。仍有效的項目已搬成各主題群的 `FB-*` 列，其餘項目 2026-11-09 經使用者確認後已關閉（見「已關閉（2026-11-09 封存清單清理）」）或併入目標列。之後待辦一律寫進本檔，不再新開 feature backlog。
 
-Older completed work is intentionally discoverable through git log, feature changelogs/handoffs and release evidence—not this active index.
+設計／研究型 roadmap 未封存（只把未完成項搬進本檔）：`docs/features/i18n/ROADMAP.md`、`docs/research/cctv-finetune-roadmap-2026-09-29.md`、`docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md`。gis-analysis 與垃圾車兩份路線圖 2026-11-09 已封存到 `docs/archive/2026-11-09/`（原處留指標）。
+
+## 已關閉（2026-11-09 封存清單清理：使用者確認，附證據／理由）
+
+> 2026-11-09 feature backlog 封存時未搬成新列的清單，使用者確認：已完成、明顯過時一律關閉；已併入者記在目標列；需決定的 9 條依使用者決定處理（保留者已開成 AG-16、AG-17、EMB-3D、NEWS-3）；可查證的 13 條查完後關閉或轉列（TLD-1、DCAT-1、ARTS-CAT、WASTE-CITY、JP-TOUR-2）。原文在各封存檔。
+
+### 已完成（115 條）
+
+- **agri-statistics**（[原檔](../../docs/archive/2026-11-09/features/agri-statistics/backlog.md)）
+  - 9 項已完成（24 層統計上線）（依據：PR #227、檔內 production 驗收證據）
+- **agriculture**（[原檔](../../docs/archive/2026-11-09/features/agriculture/backlog.md)）
+  - 9 項已完成（Phase 3 六層＋農企業 3 層上線）（依據：檔內 2026-07-01 用戶確認）
+- **allen-coral-atlas**（[原檔](../../docs/archive/2026-11-09/features/allen-coral-atlas/backlog.md)）
+  - 8 項已完成（站主限定 Range、白名單、目視）（依據：檔內勾選）
+- **animal-adoption**（[原檔](../../docs/archive/2026-11-09/features/animal-adoption/backlog.md)）
+  - 6 項已完成（依據：檔內勾選（mig 353–360 套用、browser 驗收））
+- **aquaculture**（[原檔](../../docs/archive/2026-11-09/features/aquaculture/backlog.md)）
+  - AQ-2 3.1MB aquaculture_ponds_osm.pmtiles 部署策略（git 或 S3）（依據：CI-4：deploy/public-assets.lock.json 已含 aquaculture_ponds_osm（S3／R2 正本））
+  - AQ-1 初始 3 層 PR／正式站證據確認（依據：PR #64（07-12）、#77（07-20）已合，之後多次發版）
+- **atlas-layers**（[原檔](../../docs/archive/2026-11-09/features/atlas-layers/backlog.md)）
+  - 4 項已完成（26 層接線、PMTiles 稽核、入倉、瀏覽器驗收）（依據：檔內勾選）
+- **atlas-statistics**（[原檔](../../docs/archive/2026-11-09/features/atlas-statistics/backlog.md)）
+  - 66 層統計接上 Statistics（依據：檔內勾選）
+- **buildings-night-lights**（[原檔](../../docs/archive/2026-11-09/features/buildings-night-lights/backlog.md)）
+  - BNL-1 README 與 changelog 狀態對齊（依據：檔內：2026-10-16 盤點關閉，#78／#80（v1.10.0））
+- **bus**（[原檔](../../docs/archive/2026-11-09/features/bus/backlog.md)）
+  - BUS-city-enum 擴充 BusCity 與城市清單（全台擴展）（依據：src/types/index.ts BusCity 已含 22 縣市＋8 組 BusGroup）
+  - 6 項已完成（progress-based 架構等）（依據：檔內 commit b3bef73、bc4b3e9）
+- **business-registry-company-layers**（[原檔](../../docs/archive/2026-11-09/features/business-registry-company-layers/backlog.md)）
+  - 7 項已完成（B1–B3／A4、密度層）（依據：檔內勾選）
+- **business-registry-industrial-layers**（[原檔](../../docs/archive/2026-11-09/features/business-registry-industrial-layers/backlog.md)）
+  - 7 項已完成（依據：檔內勾選）
+- **byok-chat**（[原檔](../../docs/archive/2026-11-09/features/byok-chat/backlog.md)）
+  - 5 項已完成（BC-1、P1–P2、FX）（依據：PR #51、#52）
+- **chart-hover-tooltip**（[原檔](../../docs/archive/2026-11-09/features/chart-hover-tooltip/backlog.md)）
+  - 31 個圖表 tooltip 已套用（依據：commit d367a42、ca60346、057b9fd、7f2b71b、a4860c5）
+- **civic-facilities-layers**（[原檔](../../docs/archive/2026-11-09/features/civic-facilities-layers/backlog.md)）
+  - 2 項已完成（CF-0、CF-1）（依據：PR #74）
+- **common-registration-addresses**（[原檔](../../docs/archive/2026-11-09/features/common-registration-addresses/backlog.md)）
+  - 3 項已完成（依據：檔內勾選）
+- **coral-reef-layers**（[原檔](../../docs/archive/2026-11-09/features/coral-reef-layers/backlog.md)）
+  - 4 項已完成（本地整合與驗收）（依據：檔內勾選）
+- **culture-layers**（[原檔](../../docs/archive/2026-11-09/features/culture-layers/backlog.md)）
+  - CU-0 首批 5 層上線確認（依據：PR #72（v1.9.0），10-16 盤點關閉）
+- **data-lifecycle-lean**（[原檔](../../docs/archive/2026-11-09/features/data-lifecycle-lean/backlog.md)）
+  - DL-2 新聞、YouTube、水利署線上歷史保留期限（依據：2026-11-07 保留期限拍板：news_events、yt_live_history 180 天、iot_wra 30 天，gis-platform mig 505–510 已套用）
+  - DL-1 Deep Archive 還原驗證（依據：2026-09-20 cold-archive.md）
+- **demographics-statistics**（[原檔](../../docs/archive/2026-11-09/features/demographics-statistics/backlog.md)）
+  - 2 項已完成（R2 發布、村里層）（依據：檔內勾選）
+- **embeddable-map**（[原檔](../../docs/archive/2026-11-09/features/embeddable-map/backlog.md)）
+  - 3 項已完成（EM-21、EM-13、EM-17）（依據：檔內 ✅、PR #125）
+  - EM-11 嵌入底圖改放 R2（依據：src/embed/basemapStyle.ts 註明正式站 VITE_EMBED_BASEMAP_URL 指向 R2；CI-4 後資料皆走 R2）
+- **environment-layers**（[原檔](../../docs/archive/2026-11-09/features/environment-layers/backlog.md)）
+  - 6 項已完成（9 層接線、驗收、RPI 全台版）（依據：檔內勾選）
+- **environment-statistics**（[原檔](../../docs/archive/2026-11-09/features/environment-statistics/backlog.md)）
+  - 9 項已完成（37 層統計接線與驗收）（依據：檔內勾選）
+- **er-hospital**（[原檔](../../docs/archive/2026-11-09/features/er-hospital/backlog.md)）
+  - ERCard 已完成（依據：PR #91）
+- **fire-rescue**（[原檔](../../docs/archive/2026-11-09/features/fire-rescue/backlog.md)）
+  - 11 項已完成（含 G36 消防栓全國化）（依據：檔內勾選、TWL-9 已關）
+- **funeral-layers**（[原檔](../../docs/archive/2026-11-09/features/funeral-layers/backlog.md)）
+  - FN-1、FN-0、FN-8 已完成（依據：PR #107、#110；10-16 盤點確認正式站 200）
+  - FN-4 套用 gis-platform mig 335_funeral（6 表）供跨主題分析（依據：gis-platform 有 418_funeral_enable_rls.sql（對 335 建的表開 RLS），推定 335 已套用）
+- **global-climate**（[原檔](../../docs/archive/2026-11-09/features/global-climate/backlog.md)）
+  - 12 項已完成（GC-1–7、TY-1 等）（依據：檔內勾選；collectors PR #24／#26／#27）
+- **global-events**（[原檔](../../docs/archive/2026-11-09/features/global-events/backlog.md)）
+  - 14 項已完成（七天情勢、避讓、INTEL 分頁等）（依據：PR #202／#205–#208／#215／#242）
+  - INTEL 全球情勢分頁 CI／正式部署（依據：PR #215 已合（09-05），之後多次發版；只有 PR 證據 → 已加入 VIS-PACK 目視清單）
+- **global-maritime**（[原檔](../../docs/archive/2026-11-09/features/global-maritime/backlog.md)）
+  - v3 full-fidelity 與 GFW 航跡／格網 POC 已完成 24 項（依據：檔內勾選、mig 376／377）
+- **harm-reduction**（[原檔](../../docs/archive/2026-11-09/features/harm-reduction/backlog.md)）
+  - 無待辦（後續在 RV-7）（依據：檔內寫明已上線、RV-7 在 BACKLOG）
+- **historical-flight-trails**（[原檔](../../docs/archive/2026-11-09/features/historical-flight-trails/backlog.md)）
+  - 12 項已完成（v1／v2 發布、PR #313）（依據：檔內勾選、PR #313）
+- **imagery**（[原檔](../../docs/archive/2026-11-09/features/imagery/backlog.md)）
+  - 4 項已完成（依據：mig 160、d85f5be）
+- **isobath**（[原檔](../../docs/archive/2026-11-09/features/isobath/backlog.md)）
+  - ISO-0 前端接線（依據：PR #160、#161）
+- **isr-satellite-monitor**（[原檔](../../docs/archive/2026-11-09/features/isr-satellite-monitor/backlog.md)）
+  - 5 項已完成（依據：PR #185–#191）
+- **jp-core-layers**（[原檔](../../docs/archive/2026-11-09/features/jp-core-layers/backlog.md)）
+  - 9 項已完成（Batch 1／2、PR #199／#210、人口網格上 S3）（依據：PR #199、#210）
+  - 日本全資料 S3 副本（小檔依 hash 存封存位置）（依據：CI-4 後所有資料檔以 S3 為正本（public-assets.lock.json））
+- **jp-height-layers**（[原檔](../../docs/archive/2026-11-09/features/jp-height-layers/backlog.md)）
+  - 7 項已完成（東京 pilot 與本地驗收）（依據：檔內勾選）
+- **jp-medical-static**（[原檔](../../docs/archive/2026-11-09/features/jp-medical-static/backlog.md)）
+  - 2 項已完成（第一批）（依據：檔內勾選）
+  - exact payload 上傳與 CDN／production readback（依據：PR #298「record production release」；只有 PR 證據 → 已加入 VIS-PACK 目視清單）
+- **jp-police-facilities**（[原檔](../../docs/archive/2026-11-09/features/jp-police-facilities/backlog.md)）
+  - 3 項已完成（依據：檔內勾選）
+  - 正式發布：git 提交、production 資產與瀏覽器驗收（依據：mini #224「add full-density police facilities layer」已在 master）
+- **jp-religion-layers**（[原檔](../../docs/archive/2026-11-09/features/jp-religion-layers/backlog.md)）
+  - JPR-2 宗教三檔走獨立 S3 deploy release（依據：CI-4 後資料檔皆走 S3／R2 lock）
+  - JPR-0／1／1a 已完成（依據：檔內勾選）
+- **jp-tourism-protected-heritage**（[原檔](../../docs/archive/2026-11-09/features/jp-tourism-protected-heritage/backlog.md)）
+  - JP-TOUR-3 鳥獸保護與 Ramsar 授權／幾何 clearance（依據：manifest 已有 jpWildlifeProtection*、jpRamsarSites；#831 上線（VP-3 待目視））
+- **labor-statistics**（[原檔](../../docs/archive/2026-11-09/features/labor-statistics/backlog.md)）
+  - 9 項已完成（依據：PR #384）
+- **landslide**（[原檔](../../docs/archive/2026-11-09/features/landslide/backlog.md)）
+  - 4 項已完成（依據：檔內勾選）
+- **layer-manifest**（[原檔](../../docs/archive/2026-11-09/features/layer-manifest/backlog.md)）
+  - LM-REL-1 manifest 涵蓋的 gitignored 資產實際部署與抽樣 browser（依據：CI-4：public-assets.lock.json＋check-assets 比對 R2 sha；Release-assets 已在 11-08 勾選關閉）
+- **livestock**（[原檔](../../docs/archive/2026-11-09/features/livestock/backlog.md)）
+  - LS-1 7 層上線確認（依據：PR #55（v1.7.0））
+- **marine-observations**（[原檔](../../docs/archive/2026-11-09/features/marine-observations/backlog.md)）
+  - 5 項已完成（依據：檔內勾選）
+  - push／PR／merge／deploy（等授權）（依據：develop layerManifest 已有 marineObservationCwa／marineObservationIsohe；#961 已修其 7 天曲線）
+- **monitor-grid-static**（[原檔](../../docs/archive/2026-11-09/features/monitor-grid-static/backlog.md)）
+  - 4 項已完成（八版、九版等）（依據：PR #121）
+- **monitor-split**（[原檔](../../docs/archive/2026-11-09/features/monitor-split/backlog.md)）
+  - MS-1 窄版座標定稿（依據：2026-08-16 changelog 二版）
+- **mountain-safety**（[原檔](../../docs/archive/2026-11-09/features/mountain-safety/backlog.md)）
+  - MS-0 兩層對齊（依據：檔內勾選）
+  - MS-0-RELEASE PR 與正式站證據補齊（依據：PR #99（2026-08-02）已合，之後多次發版；只有 PR 證據 → 已加入 VIS-PACK 目視清單）
+- **network-structures**（[原檔](../../docs/archive/2026-11-09/features/network-structures/backlog.md)）
+  - 5 項已完成（依據：PR #222）
+- **news**（[原檔](../../docs/archive/2026-11-09/features/news/backlog.md)）
+  - NEWS-7 補建上游 docs/handoff/news.md（依據：analytics docs/handoff/news.md 已存在）
+  - collector 與分類聚合已完成（依據：mig 162–165）
+- **noise-layers**（[原檔](../../docs/archive/2026-11-09/features/noise-layers/backlog.md)）
+  - NOISE-3 push／PR／發布資產與前端（依據：PR #213（2026-09-03）「撿回擱置的噪音六圖層（含 S3 資產補上傳）」）
+  - NOISE-0／1／2 已完成（依據：檔內勾選）
+- **owner-gated-layers**（[原檔](../../docs/archive/2026-11-09/features/owner-gated-layers/backlog.md)）
+  - OG-1 anon key 濫用防護（Spend Cap）（依據：BACKLOG 已關 OG-1：Spend Cap 10-17 已開）
+  - OG-5（feature 版）PowerCard 匿名者看到永久 loading 假象（依據：PR #141「UNIT OUTPUT 權限狀態修復」；chart-hover backlog 記載 isAccessDenied() 已分流為 denied 並顯示「需登入後檢視」）
+  - Phase 1–3 與電廠洩漏修補已完成（依據：PR #60、#62、#63；gis-platform #28／#30）
+- **parking**（[原檔](../../docs/archive/2026-11-09/features/parking/backlog.md)）
+  - PK-1 Batch 3 與時間軸回放上線確認（依據：10-16 盤點：develop 含 cea20cfe、a3247e08）
+  - Batch 3 與回放已完成（依據：mig 288）
+- **pla-activity**（[原檔](../../docs/archive/2026-11-09/features/pla-activity/backlog.md)）
+  - PA-9／PA-11 已完成（依據：mig 337、PB-33）
+- **property-value**（[原檔](../../docs/archive/2026-11-09/features/property-value/backlog.md)）
+  - PV-1 四份 PMTiles 與 admin json 上線（依據：PR #295／#296（v1.20.0））
+- **real-estate**（[原檔](../../docs/archive/2026-11-09/features/real-estate/backlog.md)）
+  - RE-CustomLayer 上線確認（依據：PR #32（v1.5.0））
+  - RE-2025Q4 等 2025Q4 全國鏡像後重跑（依據：src/lib/realEstateTime.ts RE_PERIODS 已含 2025Q4、2026Q1）
+  - 6 圖層上線（依據：PR #31）
+- **religion**（[原檔](../../docs/archive/2026-11-09/features/religion/backlog.md)）
+  - RL-1 宗教 6 層上線（依據：PR #101（v1.11.0））
+  - RL-2 Supabase 表補 deity_family（已作廢，表已刪）（依據：mig 510 已刪表；檔內寫作廢）
+- **road-congestion**（[原檔](../../docs/archive/2026-11-09/features/road-congestion/backlog.md)）
+  - RC-1 mig、PMTiles 上線（依據：gis-platform #82 mig 386）
+  - v1 省道路況已完成（依據：changelog）
+- **social-statistics**（[原檔](../../docs/archive/2026-11-09/features/social-statistics/backlog.md)）
+  - 10 項已完成（45 層統計上線）（依據：檔內勾選）
+- **static-to-cdn**（[原檔](../../docs/archive/2026-11-09/features/static-to-cdn/backlog.md)）
+  - STC-1 25 個 snapshot 上線（依據：PR #54（v1.6.0））
+- **statistics-comparability**（[原檔](../../docs/archive/2026-11-09/features/statistics-comparability/backlog.md)）
+  - 3 項已完成（本地測試、build、browser）（依據：檔內勾選）
+  - 以 receipt 重驗 preview pointer、SHA 與 loader（依據：mini #255（statistics-comparability recovery）已合併且在 master，之後多次發版）
+  - release handoff（immutable 先行、current.json 後更新）（依據：同上 #255）
+  - production readback、部署與實體手機證據（依據：同上 #255）
+- **street_trees_taipei_diff**（[原檔](../../docs/archive/2026-11-09/features/street_trees_taipei_diff/backlog.md)）
+  - STD-0 上線確認（依據：PR #65／#67（v1.8.0））
+- **telecom-world-layers**（[原檔](../../docs/archive/2026-11-09/features/telecom-world-layers/backlog.md)）
+  - 8 項已完成（海纜、Ookla、RIPE Atlas 等）（依據：檔內勾選）
+  - Ookla 下一季前四個資產改走 S3（依據：CI-4：public-assets.lock.json 已含 ookla_*，且有帶季度檔名 ookla_fixed_global_20260930.pmtiles）
+- **terrain-vector**（[原檔](../../docs/archive/2026-11-09/features/terrain-vector/backlog.md)）
+  - 坡度坡向向量分級已完成（依據：changelog）
+- **tourism-layers**（[原檔](../../docs/archive/2026-11-09/features/tourism-layers/backlog.md)）
+  - TO-2 D 類 3 檔上傳 S3 與正式站驗證（依據：CI-4 後 public-assets.lock.json 含 public/tourism/ 12 檔、R2 sha 比對）
+  - TO-1 12 層首發（依據：PR #82）
+- **tourist-shuttle**（[原檔](../../docs/archive/2026-11-09/features/tourist-shuttle/backlog.md)）
+  - TS-1 route JSON、mig 284 與正式站確認（依據：路線檔走 bus-gz-cache 同步家族（site_manifest.py L69／L80、pull-deploy-assets.sh L293），不在 lock 是設計如此）
+  - v1 接線與驗收（依據：changelog）
+- **transport-hub-display**（[原檔](../../docs/archive/2026-11-09/features/transport-hub-display/backlog.md)）
+  - 2 項已完成（依據：PR #217）
+  - deploy／production browser（依據：PR #217（09-05）已合，之後多次發版；只有 PR 證據 → 已加入 VIS-PACK 目視清單）
+- **tree-layers**（[原檔](../../docs/archive/2026-11-09/features/tree-layers/backlog.md)）
+  - TL-1 5 個大檔上傳（依據：10-16 盤點正式站 200/206）
+  - TL-4、TL-0 已完成（依據：PR #83）
+- **urban-form**（[原檔](../../docs/archive/2026-11-09/features/urban-form/backlog.md)）
+  - UF-1、UF-3 上線（依據：PR #71（v1.9.0））
+- **urban-heat-lst**（[原檔](../../docs/archive/2026-11-09/features/urban-heat-lst/backlog.md)）
+  - UH-2 上傳熱島 PMTiles（依據：10-16 正式站 206）
+  - UH-0／3／4 已完成（依據：changelog）
+- **urban-zoning**（[原檔](../../docs/archive/2026-11-09/features/urban-zoning/backlog.md)）
+  - UZ-4、UZ-0、UZ-6 已完成（依據：PR #73、#100）
+- **water-resources**（[原檔](../../docs/archive/2026-11-09/features/water-resources/backlog.md)）
+  - WR-1 lakesPondsOsm 上線（依據：10-16 正式站 206）
+  - WR-2 11.3MB PMTiles 走 git 或 S3（依據：CI-4：lakes_ponds_osm 已在 public-assets.lock.json）
+- **vessel-watch**（[原檔](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)）
+  - 已完成 9 項（VW-3、VW-7、VW-8、VW-9、VZ-1–4、VZ-8、兩批 MMSI 排除）（依據：mig 361–366、PR #146、collectors 39efbcc）
+- **welfare-layers**（[原檔](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)）
+  - WF-1 預設開啟三層（使用者拍板不開）（依據：2026-08-13 使用者拍板維持全關）
+- **agent-research-workbench**（[原檔](../../docs/archive/2026-11-09/features/agent-research-workbench/backlog.md)）
+  - 約 30 項已完成（統計 adapter、空間 kernel、result collection、geocoder consent、Valhalla POC、M2 卡、Phase A／B、Codex 配對等）（依據：檔內勾選；現行 MCP 已有 pulse_isochrone、pulse_geocode_address、pulse_show_result 等工具）
+- **general-analysis**（[原檔](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)）
+  - ✅ 已入倉可答的題目（基礎設施周邊、淹水×房價、畜牧分佈、新聞持續性、多縣市並排等約 10 題）（依據：檔內標 ✅；10 月 Agent 改版題庫 3/20→18/20（記憶 feedback_agent_iteration_method））
+- **i18n**（[原檔](../../docs/features/i18n/ROADMAP.md)）
+  - P0–P5 與收尾全部完成（工具列、側欄、說明框、圖例、監測、衛星、時間軸、會員、AI 介面、站名、底圖語言）（依據：PR #576、#603–#608 等，隨 v2.9.0 上線）
+- **agent-research-workbench**（[原檔](../../docs/features/agent-research-workbench/gis-analysis-roadmap.md)）
+  - M3 向量與行政區交叉分析（spatial join、buffer、nearest、cluster、版本化邊界）（依據：MCP 已上線 pulse_show_nearby、pulse_region_rank、pulse_spatial_stats、pulse_cross_analysis（ADR-0022 A 10-21））
+  - M7 Production 化（auth、TLS、監控、部署）（依據：research-gateway 已正式部署（SEC-7 指 gis-platform #170；VP-12 為正式站實機驗收））
+- **main-site-ai-gis-roadmap-2026-09-05**（[原檔](../../docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md)）
+  - G0 分析語意修正（missing≠0、樣本截斷、結果契約）（依據：MCP 規則與倉庫回答格式已強制「未涵蓋不寫 0」；ADR-0022 結果契約）
+  - Q1／P1 AI 結果問答與分析規劃（依據：pulse-research MCP＋pulse-conductor 分派已上線（取代 BYOK planner））
+  - A2 路網可達性（版本化路網、不可達不補假結果）（依據：pulse_isochrone 上線；交通可及性模擬 v2.20.0（#801））
+- **waste-collection**（[原檔](../../docs/features/waste-collection/research/roadmap.md)）
+  - Phase 1 Track A：TGOS 7 天批次與 unified callback，22 縣市 stops 進 DB（依據：handoff.md：hwms 22 縣市、3,991 路線、308K unified stops 已入 waste_collection_stops）
+  - Phase 3 時刻表捷運式動畫（22 縣市）（依據：wasteSchedule 圖層與 WasteScheduleScene.ts 已上線（v1 直線插值））
+  - Phase 4.3 ETL UNIQUE constraint（每天少寫 5 萬重複列）（依據：handoff.md 記載 migration 458 與 collectors #148 去重）
+
+### 明顯過時（100 條）
+
+- **agriculture**（[原檔](../../docs/archive/2026-11-09/features/agriculture/backlog.md)）
+  - 農企業 GeoJSON 座標精度與冗欄位太大，等上游出瘦身版（依據：農企業層已改站主資料（OWD／WA-1 已關），上游瘦身前提不存在）
+  - 3 個農企業 GeoJSON 約 34MB 在 style.load 一次載入，超過門檻才評估 lazy load（依據：同上，農企業層已改站主資料，不再隨首屏載入 34MB）
+- **atlas-layers**（[原檔](../../docs/archive/2026-11-09/features/atlas-layers/backlog.md)）
+  - 疏濬工程低精度座標改空心符號（依據：目前已用 popup 標示，效益小）
+- **atlas-statistics**（[原檔](../../docs/archive/2026-11-09/features/atlas-statistics/backlog.md)）
+  - 電子發票行業門檻待月份多了再調（依據：條件觸發、無期限，效益小）
+- **bloom-experiments**（[原檔](../../docs/archive/2026-11-09/features/bloom-experiments/backlog.md)）
+  - BE-6 bloom 改重 RPC 時補 loading task（依據：條件觸發（目前輕量不需要），規則已由 lint pulse/loader-rpc-with-loading 守）
+- **buildings-night-lights**（[原檔](../../docs/archive/2026-11-09/features/buildings-night-lights/backlog.md)）
+  - BNL-2 同一 GL context 同時跑兩個 Three.js bloom scene（依據：觸發條件（產品要同時顯示）未出現）
+- **bus**（[原檔](../../docs/archive/2026-11-09/features/bus/backlog.md)）
+  - BUS-lazy-load-routes 路線 JSON 依城市 lazy load（依據：公車全台已上線多月，沒有效能問題回報；屬無觸發條件的優化）
+  - BUS-max-instances 是否升到 1–2 萬（依據：同上）
+  - BUS-city-filter-progress ensureProgressPaths 加城市過濾（依據：同上）
+  - BUS-preprocess-script 建 build_bus_routes.py（依據：scripts 無此檔，但全台擴展已用別的路徑完成）
+- **business-registry-company-layers**（[原檔](../../docs/archive/2026-11-09/features/business-registry-company-layers/backlog.md)）
+  - BR-C-202609 202609 新版資料到位時換檔名不覆寫（依據：新版資料到位改由每週更新清單（ADR-0024）偵測提醒）
+- **byok-chat**（[原檔](../../docs/archive/2026-11-09/features/byok-chat/backlog.md)）
+  - BC-6 Anthropic 進階檔開 extended thinking（依據：條件觸發、無需求）
+  - BC-7 Phase 4：站方付費額度／pin 到 Monitor／tool 目錄改 manifest（依據：AR-43、AR-44 已在 BACKLOG 關閉（被 MCP 取代／無需求））
+- **chart-hover-tooltip**（[原檔](../../docs/archive/2026-11-09/features/chart-hover-tooltip/backlog.md)）
+  - 靠近上緣往下翻的 tooltip 只有單元測試、沒瀏覽器驗證（依據：檔內自評架構風險低，只是記錄）
+  - TimelineDock 新聞密度柱刻意不改（依據：明確不做）
+- **civic-facilities-layers**（[原檔](../../docs/archive/2026-11-09/features/civic-facilities-layers/backlog.md)）
+  - CF-5 iPostBoxes payment_method 空值（產品要顯示才處理）（依據：觸發條件無人提出，效益小）
+- **common-registration-addresses**（[原檔](../../docs/archive/2026-11-09/features/common-registration-addresses/backlog.md)）
+  - BR-B4-NEXT 202609 新檔到位換檔名（依據：同上，由每週更新清單偵測）
+- **culture-layers**（[原檔](../../docs/archive/2026-11-09/features/culture-layers/backlog.md)）
+  - CU-3 arts_events 每月整檔更新 SOP（依據：arts_events 已轉站主資料＋CI-4 移出 git，「替換 public/culture」流程已不適用）
+  - CU-4 venue 粒度與空白變體由上游改善（依據：P3、無進展）
+- **earthquake-replay**（[原檔](../../docs/archive/2026-11-09/features/earthquake-replay/backlog.md)）
+  - EQ-3 沙灘球鋸齒改 SVG path（依據：純美觀，無人反映）
+  - EQ-4 town_intensity autovacuum 觀察（依據：檔內寫無需動作、僅記錄）
+- **education-layers**（[原檔](../../docs/archive/2026-11-09/features/education-layers/backlog.md)）
+  - EDU-14 補習班取消抽稀（使用者已拍板維持）（依據：使用者 08-09 已拍板維持抽稀）
+- **embeddable-map**（[原檔](../../docs/archive/2026-11-09/features/embeddable-map/backlog.md)）
+  - EM-07 facade 模式（先縮圖再載入）（依據：檔內降級為純效能優化）
+  - EM-22 popup 欄位標籤擴充（依據：小、無需求）
+- **environment-layers**（[原檔](../../docs/archive/2026-11-09/features/environment-layers/backlog.md)）
+  - commit 時正式 git add river_rpi_segments.geojson（依據：CI-4 已把 public 資料檔移出 git，題目消失）
+  - Zeabur collector 啟用後再看即時 4 層（依據：收集器已搬 pulse-host，Zeabur 前提不存在；如需目視併 VIS-PACK）
+  - 輻射 ≥0.2 紅框非官方分級，要對齊需上游門檻（依據：目前已標為提示性質）
+  - cmux 背景 surface 無法跑 Mapbox（驗收注意事項）（依據：不是待辦，是操作注意）
+- **environment-statistics**（[原檔](../../docs/archive/2026-11-09/features/environment-statistics/backlog.md)）
+  - 環境 catalog 約 211KB 在首屏共享 chunk，需要時走家族 lazy details（依據：2026-11-08 使用者決定首屏維持現狀（HOME-1／PERF-1 已關））
+  - 四個 GeoJSON 正式 git add（依據：CI-4 已把資料檔移出 git）
+- **er-hospital**（[原檔](../../docs/archive/2026-11-09/features/er-hospital/backlog.md)）
+  - ER-3 急救責任醫院名單變動時核對命中率（依據：條件觸發、非 release gate）
+- **fire-rescue**（[原檔](../../docs/archive/2026-11-09/features/fire-rescue/backlog.md)）
+  - FR-adr-blaze-removal 補 ADR 記錄火焰特效移除（依據：過小，backlog 內已有記錄）
+  - FR-station-csv-schema 兩份消防站 CSV 欄位順序不同（依據：消防圖層已全國化（TWL-9 已關），CSV 欄位順序屬上游小問題）
+- **global-climate**（[原檔](../../docs/archive/2026-11-09/features/global-climate/backlog.md)）
+  - GC-7b CAMS bbox 擴域（依據：觸發條件（使用者要全球覆蓋）未出現）
+  - GC-11 海流 × 船舶軌跡疊圖分析（依據：構想、無需求）
+- **global-maritime**（[原檔](../../docs/archive/2026-11-09/features/global-maritime/backlog.md)）
+  - 下一次 probe metadata 加入完整 wall time（依據：GFW 收集等授權停用（GFW-1））
+- **imagery**（[原檔](../../docs/archive/2026-11-09/features/imagery/backlog.md)）
+  - IMG-upstream-handoff 上游 imagery handoff 補前端 loader／hook 清單（依據：文件小項；#871 影像改讀 R2 manifest 後原檔名清單已過時）
+- **jma-live-layers**（[原檔](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)）
+  - JMA-9 雲圖在亮色底圖可讀（依據：「需要的話」，無人提）
+  - JMA-13 分析圖點擊讀值（依據：P3 機會型）
+  - JMA-11 雪覆蓋多日合成（依據：P3 需要時再做）
+  - JMA-16 梅雨地方界線精修（依據：P3 需要時）
+  - JMA-6 積雪深點擊讀值（依據：P3，列 NO_POPUP ledger）
+- **jp-core-layers**（[原檔](../../docs/archive/2026-11-09/features/jp-core-layers/backlog.md)）
+  - 上游兩支 _manifest.json 已改未提交（patch 在舊 scratchpad）（依據：舊 session scratchpad 多半已消失；上游檔需另查）
+  - 上游 handoff／catalog 反向引用本 feature 資料夾（依據：過小文件連結）
+  - 鐵道加線寬滑桿（依據：小 UX，無人提）
+  - auto-flyTo JAPAN_CAMERA 座標微調含沖繩（依據：10-28 國家主體化後改用國家全覽視角（z5））
+  - Locations 面板加「日本」跳點（依據：國家選單（v2.16.0）已取代）
+  - 上游 handoff 3.1 節學校切片配方（-Z4 -z14 會產 54MB）更正（依據：只在舊 codex 分支的上游文件更正，日本學校層已上線）
+- **jp-medical-static**（[原檔](../../docs/archive/2026-11-09/features/jp-medical-static/backlog.md)）
+  - 延期：疫情、collector、排程（依據：檔內標延期）
+- **jp-water**（[原檔](../../docs/archive/2026-11-09/features/jp-water/backlog.md)）
+  - JPW-1 上游提供 release.json 與 asset SHA（依據：jpWater 已改站主限定私人資料（#458），release.json 前提不適用）
+  - JPW-3 橫濱水位站接觀測序列（依據：P2 條件型，無需求）
+- **layer-manifest**（[原檔](../../docs/archive/2026-11-09/features/layer-manifest/backlog.md)）
+  - LM-SPEC-1 拆 layerParamsSpec.ts 上半段型別與 builder（依據：G008 已關（無具體痛點不拆大檔））
+- **livestock**（[原檔](../../docs/archive/2026-11-09/features/livestock/backlog.md)）
+  - LS-3 低精度 769 場視覺處理再評估（依據：P3、無人提）
+- **monitor-grid-static**（[原檔](../../docs/archive/2026-11-09/features/monitor-grid-static/backlog.md)）
+  - MG-1 沙盒模擬流式高度（依據：觸發條件未出現）
+  - MG-2 alertBoard +5px、situationOverview +11px 微幅溢出（依據：檔內寫只在影響閱讀時才追）
+  - MG-3 偶發 1 failed／440 測試（依據：之後全綠；CI 已重構（#899 等））
+- **monitor-split**（[原檔](../../docs/archive/2026-11-09/features/monitor-split/backlog.md)）
+  - MS-9 split 在 1440 以下退化成單欄（刻意不修）（依據：檔內寫刻意不修，使用者沙盒定稿）
+  - MS-11 dock 版災害四卡比照 split 拆列（依據：dock 非主要模式，純美觀）
+  - MS-10 layersWidth 目前是 no-op（依據：檔內註明不是 bug）
+  - MS-8 沙盒寫入 5 個 widget 實測最小高度並警告（依據：與 MG-1 同類，觸發條件未出現）
+  - MS-4 mapPaddingRight 觀察後移除（依據：小清理）
+  - MS-6 兩份沙盒維護成本重估（依據：檔內判斷維持現狀）
+- **news**（[原檔](../../docs/archive/2026-11-09/features/news/backlog.md)）
+  - NEWS-4 sidebar「臺灣即時新聞」清單（依據：#215 INTEL 分頁已提供新聞清單）
+- **owner-gated-layers**（[原檔](../../docs/archive/2026-11-09/features/owner-gated-layers/backlog.md)）
+  - OG-3 第一個 ui 鎖圖層出現時驗收鎖頭→登入即開（依據：條件觸發，目前無 ui 鎖圖層）
+  - OG-4（feature 版）powerPlants 總圖恢復給站主（依據：觸發條件未出現；站主改走 facPrimary 與站主資料（OWD））
+- **pla-activity**（[原檔](../../docs/archive/2026-11-09/features/pla-activity/backlog.md)）
+  - PA-4 794×1115 版型 3 張配準失敗（依據：檔內寫樣本變多才處理）
+  - PA-6 回放速度、暫停與拖曳（依據：檔內「夠用」）
+  - PA-8 日期正則寫死 0600、未偵獲時共艦未記 0（使用者決定先不改）（依據：使用者 08-03 已決定不改）
+- **real-estate**（[原檔](../../docs/archive/2026-11-09/features/real-estate/backlog.md)）
+  - RE-ADR-CustomLayer 補 ADR：放棄點層 hover 換效能（依據：過小文件項）
+- **religion**（[原檔](../../docs/archive/2026-11-09/features/religion/backlog.md)）
+  - RL-4 「其他神祇」4,276 筆是否細分（依據：等使用回饋，無人提）
+- **static-to-cdn**（[原檔](../../docs/archive/2026-11-09/features/static-to-cdn/backlog.md)）
+  - STC-2 /static-rpc/ 建 Cloudflare cache rule（依據：主站已改 Workers＋R2（ZB-4、#918 static-rpc 改 CDN），舊 nginx 路徑前提不存在）
+- **street_trees_taipei_diff**（[原檔](../../docs/archive/2026-11-09/features/street_trees_taipei_diff/backlog.md)）
+  - STD-2 多個 Wayback 基準快照（依據：條件觸發、無需求）
+- **telecom-world-layers**（[原檔](../../docs/archive/2026-11-09/features/telecom-world-layers/backlog.md)）
+  - 更完整海纜幾何需可合法再散布來源（依據：無來源、無需求）
+  - Ookla 兩套配色預設值待實際使用後確認（依據：過小）
+- **terrain-vector**（[原檔](../../docs/archive/2026-11-09/features/terrain-vector/backlog.md)）
+  - TV-1 是否套用 mig 289_h3_terrain（56,376 cells）（依據：ADR-0026：不會變的資料不進 Supabase，應走 PMTiles／R2；原案前提已被取代）
+  - TV-3 AOI 地形統計前端入口（依據：觸發需求未出現；GUI-4 範圍圈選涵蓋類似需求）
+- **tourist-shuttle**（[原檔](../../docs/archive/2026-11-09/features/tourist-shuttle/backlog.md)）
+  - TS-3 sub-route 級精準幾何（依據：需先驗 TDX 是否提供，無需求）
+  - TS-4 upstreamRegistry 沿用 bus_realtime id 是否合理（依據：觸發條件未出現）
+- **transport-hub-display**（[原檔](../../docs/archive/2026-11-09/features/transport-hub-display/backlog.md)）
+  - 取得捷運站體範圍才開 Polygon 模式（依據：條件觸發）
+- **tree-layers**（[原檔](../../docs/archive/2026-11-09/features/tree-layers/backlog.md)）
+  - TL-5 全國行道樹上游瘦身（去 lat/lon 冗欄）（依據：條件觸發、效益未量化）
+- **urban-heat-lst**（[原檔](../../docs/archive/2026-11-09/features/urban-heat-lst/backlog.md)）
+  - UH-A 維持不做 popup ΔT（除非有需求）（依據：決策紀錄、不是待辦）
+- **vessel-watch**（[原檔](../../docs/archive/2026-11-09/features/vessel-watch/backlog.md)）
+  - VW-1 回補 2026-02-03～02-27 S3 逐檔版面（依據：vessel_watch_positions 2026-11-07 起保留 180 天，2 月資料回補後會被清；S3 正本已永久保存（比照 TD-1 不回補））
+  - VZ-7（選）進出事件表與事件列表（依據：檔內標「選」）
+  - VW-4 週掃排程化（使用者刻意手動）（依據：使用者先前已決定維持手動週掃）
+- **viz-library**（[原檔](../../docs/archive/2026-11-09/features/viz-library/BACKLOG.md)）
+  - 5 倉庫長期存放 Google geocode 座標是否違反條款（依據：2026-10-09 授權政策：Google 座標維持不標注，同類意見判 NA）
+  - 6 allDescriptors() 無快取（依據：檔內寫目前無可感延遲）
+- **welfare-layers**（[原檔](../../docs/archive/2026-11-09/features/welfare-layers/backlog.md)）
+  - WF-9 社福 9 張 Supabase reference 表 migration（依據：ADR-0026：不會變的資料不進 Supabase；跨主題分析改走 MCP 倉庫）
+  - WF-13 BYOK DATASET_WHITELIST 未加社福 9 層（依據：BYOK 資料問答已由 pulse-research MCP 倉庫取代（AR-43 已關））
+- **agent-research-workbench**（[原檔](../../docs/archive/2026-11-09/features/agent-research-workbench/backlog.md)）
+  - 正式服務拓樸 5 項（同源 /api/research/v1、Gateway sidecar、MCP stdio、state store、分項驗收）（依據：research-gateway 已部署（SEC-7 提 gis-platform #170）、MCP 已日常使用；VP-12 等正式站實機驗收另列）
+  - 地址作為探索起點 4 項（共用流程、新 command 同步檢查、排查順序、未註冊資料說明）（依據：pulse_geocode_address＋pulse_show_nearby 已上線，pulse-conductor skill 已固定流程）
+  - 09-14 增量 4 項（新 grid 配對 mobile、第二個 library asset、network 證據、學區與實價資料）（依據：Research Library 路線已被 MCP 倉庫（ADR-0022／0023）取代）
+  - Implementation backlog 11 項（holes geometry、正式 HTTPS 部署、桌面 MCP 日常、本地快取、共用 catalog、估價、私有 artifact、S3-only 等）（依據：原 workbench 規劃；正式部署已透過 research-gateway 完成，其餘被倉庫組裝（ADR-0023）取代）
+- **general-analysis**（[原檔](../../docs/archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)）
+  - Jev 路由器 pulse_route_request 寫入題型、路由正確率 ≥80%（依據：現行 MCP 工具無 pulse_route_request，改由 pulse-conductor skill 分派）
+- **i18n**（[原檔](../../docs/features/i18n/ROADMAP.md)）
+  - 「其他」603 行歸類後分到各階段（依據：近似指標，非具體待辦）
+  - 後台 29 行不翻、新聞警報內文不翻（依據：使用者已決定不翻）
+- **agent-research-workbench**（[原檔](../../docs/features/agent-research-workbench/gis-analysis-roadmap.md)）
+  - M1 三類 pilot：新聞非空樣本、統計 boundary join、醫院資產證據（依據：統計已接行政界（ARW backlog 勾選），MCP 倉庫已涵蓋新聞；09-15 後文件未更新）
+- **cctv-finetune-roadmap-2026-09-29**（[原檔](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)）
+  - 台北監視器擋國外 IP 的收集方案（VPN 或台灣雲端）（依據：使用者已回台，10-21 收集結束）
+- **main-site-ai-gis-roadmap-2026-09-05**（[原檔](../../docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md)）
+  - M1 手機 App 封裝（依據：未見任何進展，北極星未列 App）
+- **waste-collection**（[原檔](../../docs/features/waste-collection/research/roadmap.md)）
+  - Phase 1B.2／1B.3 新北台南 OSRM 收尾、高雄 5/9 落差查證（BL-9、BL-14）（依據：5 月舊項；OSRM map-matching 已上線（waste_trails_matched_daily））
+  - 待拍板 Q1–Q4（callback 誰寫、視覺選項、台中 GPS、TGOS 節奏）（依據：Q1、Q2、Q4 已因實作完成而失效；Q3 併入 1B.1）
+
+### 使用者決定關閉（6 條）
+
+- **bloom-experiments**（[原檔](../../docs/archive/2026-11-09/features/bloom-experiments/backlog.md)）
+  - BE-7 真 UnrealBloomPass（風險大、投報低）（C：使用者 2026-11-09 決定關閉（風險大、效果不確定））
+- **funeral-layers**（[原檔](../../docs/archive/2026-11-09/features/funeral-layers/backlog.md)）
+  - FN-7 OSM 與都計墓地差集分析（F：使用者 2026-11-09 決定關閉）
+- **tourism-layers**（[原檔](../../docs/archive/2026-11-09/features/tourism-layers/backlog.md)）
+  - TO-4 交互分析候選（民宿聚落×吸引核等）（G：使用者 2026-11-09 決定關閉（需要時由 Agent 分析現做））
+- **cctv-finetune-roadmap-2026-09-29**（[原檔](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)）
+  - 目標 2 衛星圖＋道路模型、目標 3 整合還原路口（I：使用者 2026-11-09 關閉勾選項；目標 2、3 保留在 cctv roadmap（保留中的長期目標，非放棄），N 群留指標）
+  - 緊急車輛每類 100 個以上後做裁切分類器（I：同上（緊急車輛裁切分類器保留在 roadmap §10.5））
+- **main-site-ai-gis-roadmap-2026-09-05**（[原檔](../../docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md)）
+  - E1 情報事件↔周邊分析↔Monitor 卡（H：使用者 2026-11-09 決定關閉（情報牆暫停））
+
+### 查證後關閉（4 條）
+
+- **jma-live-layers**（[原檔](../../docs/archive/2026-11-09/features/jma-live-layers/backlog.md)）
+  - JMA-4 解析積雪深以真實發布幀播放（查證 2026-11-09：manifest `jmaSnowDepth` 已改讀發布幀（RPC get_weather_imagery_manifest → R2 PNG，#871）；正式站是否有實幀播放未目視）
+  - JMA-7 其餘發布幀產品以真實資料驗證（同 P-101 查證）
+- **tree-layers**（[原檔](../../docs/archive/2026-11-09/features/tree-layers/backlog.md)）
+  - TL-2 上游補 7 個 dataset catalog（目前 catalog_missing）（查證 2026-11-09：行道樹 7 層（streetTreesNational、streetTreesTaipei3epoch、streetTreesTaipeiDiff、protectedTreesNational、riversideTreesTaipei、treePitsTaipei 等）manifest upstream 皆已 verified）
+- **main-site-ai-gis-roadmap-2026-09-05**（[原檔](../../docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md)）
+  - S1 共用圖層搜尋（manifest 派生索引、alias）（查證 2026-11-09：側欄 LayersPanel、站內 AI catalogTools 與 MCP 經 MainMapConnection→discovery.ts 都用 `src/lib/layerSearch` 同一索引）
+
+### 已併入（目標列已關閉）（1 條）
+
+- **isr-satellite-monitor**（[原檔](../../docs/archive/2026-11-09/features/isr-satellite-monitor/backlog.md)）
+  - ISR-MON-5 ISR collector 在 collector_status 無專屬列（已併入 DIO-4，DIO-4 已關閉）
 
 ## 已關閉（2026-11-08 單一入口整理：已完成，附證據）
 
@@ -336,6 +912,17 @@ Older completed work is intentionally discoverable through git log, feature chan
 - **CI-SYNC-1**：sync-rotating（氣候、GFW 輪替每小時同步）11-06 起失敗的修復。證據：mini #945、#946 合併，2026-11-08 補同步成功。
 - **MCP-SEC-1**：mini-pulse-gis-mcp 套件漏洞修補。證據：mini-pulse-gis-mcp #101 合併，本機正式版已切 `012ab13`；剩餘 dev 依賴轉 MCP-1。
 
+## 已關閉（2026-11-09 白天：已完成，附證據）
+
+- **ALERT-1（主體）**：告警重整。證據：collectors #185（分級）、#187（日報誤報修正、中文 label、排除停用／事件型／非當季）、#188（太久沒新資料才發 🔴、恢復 ✅）、#189（停更檢查零 DB 讀取、資料庫連不上告警）；healthchecks.io 死人開關 3 個皆設好（主機 `HC_PING_URL`、`HC_BACKUP_PING_URL`、collector `HC_DAILY_REPORT_PING_URL`）；GitHub 排程失敗通知 mini #950、gis-platform #218，secrets 已設、測試訊息成功；gis-agent-system #48、#53；gis-platform refresh-dataflow 排程依使用者決定停用。
+- **SBE-0（Supabase 效率大掃除）**：盤點報告 [db-waste-20261109](../../../.gis-agent-system/projects/2026-10-zeabur-migration/healthcheck-20261108/db-waste-20261109.md)。證據：gis-platform #220（mig 518–520）、#221（mig 526–531）、#223（mig 532 刪 11 個索引約 3.8 GB）、#222（sql-lint L1／L2）、#224（匯出腳本改交易層級唯讀）；mini #958（R1–R5 鐵則）；collectors #191（每週一 DB 體檢）、#192＋#193（收集器固定形狀 SQL，已部署 pulse-host）。實測：機場旅客 RPC 1.46 s→約 70 ms、YouBike H3 12 s→0.4–1.6 s、警訊 2.3 s→98 ms、颱風 2.6–9.4 s→0.15–0.3 s。VM 5 支未換見 SBE-1。
+- **MAR-HR**：海洋固定站 popup 長範圍改讀每小時表。證據：gis-platform #225（mig 533 已套用並測試通過）、mini #961（7 天曲線，隨 v2.33.0）。登記 AI 倉庫見 AG-MAR。
+- **INC-20261109**：唯讀檢查腳本的 session 唯讀設定經 6543 pooler 殘留，收集器寫入失敗。證據：13:03–13:23 共 20 分鐘，buffer 全數補寫、無資料遺失；根因修在 gis-platform #224，教訓寫入個人記憶。
+- **PLA-190**：共軍航跡支援國防部 10/01 起新尺寸 1125×1625。證據：collectors #190；補算 10/01–11/08 共 29 天（19 通過、10 待審，10-14 原圖 404 無法補）。
+- **HERMES-1**：Hermes（機票雷達寫入端）退役。證據：2026-11-09 使用者決定；ALERT-1 原待決項 (3) 一併結案；資料去留見 FARE-1。
+- **REL-v2.33.0**：發版。證據：mini #963，tag 已打，正式站 main-*.js 為 2.33.0；內容含 Day 8 文章（#957）、10 篇補資料來源（#959）、移除 Zeabur 部署檔（#954）、海洋 7 天曲線（#961）。
+- **LOCAL-1**：本機負載規則與磁碟。證據：`~/.claude-migu/CLAUDE.md` 已加本機負載規則；約 38 GB 移到 `~/.Trash/gis-cleanup-20261109/`（待使用者清空垃圾桶才實際釋放）。
+
 ## 已關閉（2026-11-09 夜間執行：已完成，附證據）
 
 - **ZB-4**：刪 Zeabur 前把 `mini-taiwan-pulse.itsmigu.com` DNS 改成 Worker custom domain 或佔位記錄（期限約 11-14）。 正式網域改 Worker custom domain。證據：2026-11-09 00:20 使用者刪 Zeabur A 紀錄（172.105.197.215）、`wrangler triggers deploy` 綁定，mini #952 寫進 `wrangler.jsonc`；v2.32.0 部署後正式站 200、main-*.js 為 2.32.0（斷線約數分鐘：後台 Connect domain 回 No zones match，改用 wrangler）。
@@ -345,6 +932,24 @@ Older completed work is intentionally discoverable through git log, feature chan
 - **DEV-2**：journal `[auto]` hook 改寫到不進版控的位置（自動化 A4）。 證據：gis-agent-system #50 改寫到 gitignored `journal/_auto/`；settings 改指 `~/.claude-migu/hooks/session_end_journal.sh`，實測寫入 `_auto/2026-11.md`。
 - **DEV-3**：修 2 支失效 hook（自動化 A2、A3）。 證據：2026-11-09 cbm gate 路徑改 `~/.claude-migu/hooks/cbm-code-discovery-gate`（實測 exit 0）；pre-push-check 從未生效（讀已失效的 `$CLAUDE_TOOL_INPUT`），依「本機 verify＋CI 把關」移除註冊、檔案保留；settings 備份 `settings.json.bak-20261109`。
 - **G027**：Clear the remaining workspace residue left untouched on 2026-08-22. 證據：2026-11-09 清理 87 個已合併且乾淨的 worktree、333 條已合併本機分支（bundle 備份 `GIS/_worktree-backups/2026-11-08/`），實驗與有資料的 worktree 保留。
+
+## 已關閉（2026-11-09 晚間：主 agent 第一、二批執行回報）
+
+> ZB-2 第 1 部分、WA-3 第 2 批、SBE-1 VM 部分也完成，但原列仍有剩餘工作，進度寫在原列。
+
+- **DIO-5**：`aisstream_archive_manifests` 監測欄位改用 `uploaded_at` 已修。證據：主 agent 2026-11-09 回報（PR 編號待補）。
+- **SEC-10**：analytics 帶 iCHEF 客戶編號的 geojson 已移出 GIS 工作區。證據：主 agent 2026-11-09 回報（細節不寫入公開 repo）。
+- **HIST-3**：THCTS 今昔對比與 1944 水域研究已搬進 analytics `docs/topic-research/historical_thcts/`。證據：analytics #334（MERGED）；原始檔 619 個（428 MB）在 S3 `research-source/historical_thcts/20261106/`。
+- **SBE-3**：`get_iot_wra_timeseries` 改為修正後保留（非退役）。證據：主 agent 2026-11-09 回報。
+- **SBE-4**：`youbike_h3_daily`、`parking_availability_daily` RLS。證據：主 agent 2026-11-09 回報完成（PR／mig 編號待補）。
+- **TD-4**：台鐵誤點軌跡欄無限增長。證據：gis-platform mig 507（保留期限 180 天）。
+- **COL-F010**：`weather_raster_frames` 舊 partial 蓋掉新 ok。證據：collectors #195。
+- **SEC-3**：公開 RPC 收回多餘 PUBLIC EXECUTE。證據：gis-platform #227（mig 536）。
+- **SEC-8**：`cloud_agent_ro` 對會刪資料的 SECURITY DEFINER 函式收回 EXECUTE。證據：gis-platform #227（mig 536）。
+- **G026**：正式庫備份表與改寫備份分支。證據：gis-platform #227（mig 539）。
+- **ST-1**：回收 retention／aqi 刪除後的磁碟。證據：主 agent 2026-11-09 回報已回收約 2.35 GB。
+- **DIO-4**：`metadata.collector_status` 涵蓋缺口。證據：主 agent 2026-11-09 回報完成（PR 編號待補）。
+- **FP-2**：菜價指數停更改為數天內偵測。證據：主 agent 2026-11-09 回報完成（PR 編號待補）。
 
 ## 已關閉（2026-11-08 使用者勾選：過時／效益小／被取代）
 

@@ -131,7 +131,7 @@ x / w / 前後順序仍然由座標決定，**高度分兩種**：
 
 ## 相關 backlog
 
-看 [backlog.md](./backlog.md)。
+看 [backlog.md](../../archive/2026-11-09/features/monitor-grid-static/backlog.md)。
 
 ## 歷次改動
 

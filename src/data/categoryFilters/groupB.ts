@@ -1,6 +1,66 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 
 export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // G53 批 1（2026-11-09）：國土利用監測變異點類別＋年度（網格層 skipCategoryFilter，改由 paint 依兩個 mask 加總計數欄）
+  landUseChangeMonitoring: [
+    {
+      property: "change_class",
+      options: [
+        { value: "bare", zh: "裸露地" },
+        { value: "building", zh: "建物" },
+        { value: "road", zh: "道路" },
+        { value: "water", zh: "水體" },
+        { value: ["unknown", "farmland", "orchard", "forest"], zh: "其他" },
+      ],
+    },
+    {
+      property: "year",
+      id: "Year",
+      label: "年度",
+      options: [
+        { value: "107", zh: "107 年" },
+        { value: "108", zh: "108 年" },
+        { value: "109", zh: "109 年" },
+        { value: "110", zh: "110 年" },
+        { value: "111", zh: "111 年" },
+        { value: "112", zh: "112 年" },
+      ],
+    },
+  ],
+  // G53 批 1（2026-11-09）：土石流潛勢溪流風險等級（三檔＋中點檔都有 risk；值與 DEBRIS_RISK_OPTIONS 同序）
+  debrisFlowPotential: {
+    property: "risk",
+    label: "風險等級",
+    options: [
+      { value: "高", zh: "高" },
+      { value: "中", zh: "中" },
+      { value: "低", zh: "低" },
+      { value: "持續觀察", zh: "持續觀察" },
+    ],
+  },
+  // G53 批 1（2026-11-09）：特定水土保持區分類（值與 atlasLayerTypes SWC_ZONE_TYPE_OPTIONS 同序）
+  swcSpecialZones: {
+    property: "zone_type",
+    label: "分類",
+    options: [
+      { value: "large_landslide", zh: "大規模崩塌" },
+      { value: "debris_flow", zh: "土石流" },
+      { value: "landslide", zh: "崩塌地" },
+      { value: "reservoir_catchment", zh: "水庫集水區" },
+      { value: "riverbank", zh: "河岸" },
+    ],
+  },
+  // G53 批 1（2026-11-09）：郵筒收件類別（值與 atlasLayerTypes MAILBOX_SERVICE_OPTIONS 同序）
+  postMailboxes: {
+    property: "service",
+    label: "郵筒類別",
+    options: [
+      { value: "regular", zh: "普通郵筒" },
+      { value: "express", zh: "限時郵筒" },
+      { value: "dual", zh: "限時普通雙用" },
+      { value: "pair", zh: "同址兩筒（普通＋限時）" },
+    ],
+  },
   forestReserve: {
     property: "種類",
     label: "保安林種類",

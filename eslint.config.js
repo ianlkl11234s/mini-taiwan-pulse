@@ -32,6 +32,7 @@ export const LOADER_RPC_EXEMPT = {
   // popup 點開才抓的單站時序（sparkline）—— 掛 LOADING 面板會每次點都閃一下
   "floodSensorLoader.ts:fetchFloodSensorTimeseries": "popup sparkline on-demand",
   "groundwaterLoader.ts:fetchGroundwaterTimeseries": "popup sparkline on-demand",
+  "iotWraRiverLoader.ts:fetchIotWraTimeseries": "popup sparkline on-demand",
   "rainGaugeLoader.ts:fetchRainGaugeTimeseries": "popup sparkline on-demand",
   "riverLevelLoader.ts:fetchRiverLevelTimeseries": "popup sparkline on-demand",
   "landSubsidenceLoader.ts:fetchUncached": "popup 趨勢圖 on-demand（地層下陷測站）",

@@ -70,4 +70,4 @@ temples / churches / other_worship 含 OSM 來源 → **ODbL**：
 
 ## 相關 backlog / 歷次改動
 
-[backlog.md](./backlog.md) · [changelog.md](./changelog.md)
+[backlog.md](../../archive/2026-11-09/features/religion/backlog.md) · [changelog.md](./changelog.md)

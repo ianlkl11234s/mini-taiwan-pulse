@@ -43,6 +43,7 @@ import {
   mapchallengeDay08AccessColorExpr, mapchallengeDay08ScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
   mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
 } from "../data/mapchallengeDay08Types";
+import { MAPCHALLENGE_DAY09_URL, mapchallengeDay09ColorExpr, mapchallengeDay09MetricAt } from "../data/mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -97,6 +98,8 @@ const DENSE_FROM = {
   eduCramSchool: densePointsFromZoom(17_137, 7),
   provincialRoadMileposts: densePointsFromZoom(30_098, 7),
   freewayTrafficSigns: densePointsFromZoom(51_405, 7),
+  // G53 批 1（2026-11-09）：國道百公尺樁 PMTiles z5 起
+  freewayHundredMeterStakes: densePointsFromZoom(10_082, 5),
   placeNames: densePointsFromZoom(36_431, 7),
   agriProduceWholesale: densePointsFromZoom(22_843, 8),
   accessibleParkFacilities: densePointsFromZoom(20_870),
@@ -343,6 +346,11 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
+  MAILBOX_SERVICE_OPTIONS,
+  DEBRIS_RISK_OPTIONS,
+  LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
+  SWC_ZONE_TYPE_OPTIONS,
+  antivenomSerumFilter,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
 import { contourColorExpr, contourFilter, SEAWALL_MIN_ZOOM, STATION_TYPE_OPTIONS, type ContourType } from "../data/landSubsidenceTypes";
@@ -12206,7 +12214,131 @@ function culturalHealthStationsOverlay(): OverlayConfig {
   };
 }
 
+/**
+ * G53 批 1 國土利用監測變異點：z4–9 畫 H3 res7 六角格（網格檔），z10 起畫範圍面＋逐點（點畫到 z13）。
+ * 六角格不吃 V-4 篩選 filter（一格含多類別、多年度），改由 paint 依兩個 mask 加總計數欄：
+ * 只篩年度→分年欄 y<年>；有篩類別→分類欄 c_*（兩者都篩時只照類別，網格檔沒有類別×年度交叉數，圖例 note 有寫）。
+ */
+function landUseChangeGridWeight(p?: Record<string, number>): unknown {
+  const maskOf = (raw: number | undefined, n: number) => {
+    const all = (1 << n) - 1;
+    return raw === undefined || !Number.isFinite(raw) ? all : Math.trunc(raw) & all;
+  };
+  const sum = (fields: readonly string[]) => (fields.length === 0 ? 0 : ["+", 0, ...fields.map((f) => ["coalesce", ["get", f], 0])]);
+  const classAll = (1 << LAND_CHANGE_CLASS_OPTIONS.length) - 1;
+  const yearAll = (1 << LAND_CHANGE_YEARS.length) - 1;
+  const cm = maskOf(p?.landUseChangeMonitoringCatMask, LAND_CHANGE_CLASS_OPTIONS.length);
+  const ym = maskOf(p?.landUseChangeMonitoringYearMask, LAND_CHANGE_YEARS.length);
+  if (ym === 0) return 0;
+  if (cm === classAll && ym === yearAll) return ["coalesce", ["get", "total"], 0];
+  if (cm === classAll) return sum(LAND_CHANGE_YEARS.filter((_, i) => ym & (1 << i)).map((y) => `y${y}`));
+  return sum(LAND_CHANGE_CLASS_OPTIONS.filter((_, i) => cm & (1 << i)).flatMap((o) => o.fields));
+}
+
+function landUseChangeMonitoringOverlays(): OverlayConfig[] {
+  const id = "landUseChangeMonitoring";
+  const attribution = `內政部國土管理署 國土利用監測變異點（data.gov.tw 168030）· ${OGDL_ATTR}`;
+  const color = ["match", ["get", "change_class"], ...LAND_CHANGE_CLASS_OPTIONS.slice(0, 4).flatMap((o) => [o.value, o.color]), LAND_CHANGE_CLASS_OPTIONS[4]!.color];
+  const opacity = (p?: Record<string, number>) => p?.landUseChangeMonitoringOpacity ?? 0.7;
+  return [
+    {
+      id, sourceUrl: "./urban/land_use_change_monitoring_107_112_grid.pmtiles", sourceId: "land-use-change-grid",
+      pmtiles: { sourceLayer: "land_use_change_monitoring_grid", minzoom: 4, maxzoom: 9 }, attribution,
+      layers: [{ suffix: "hex", type: "fill", maxzoom: 10, skipCategoryFilter: true, paint: (_dark, p) => {
+        const w = landUseChangeGridWeight(p);
+        return {
+          "fill-color": ["interpolate", ["linear"], w, 1, "#fef3c7", 10, "#fbbf24", 40, "#d97706", 120, "#7c2d12"],
+          "fill-opacity": ["case", [">", w, 0], opacity(p) * 0.85, 0],
+        };
+      } }],
+    },
+    {
+      id, sourceUrl: "./urban/land_use_change_monitoring_107_112.pmtiles", sourceId: "land-use-change",
+      pmtiles: { sourceLayer: "land_use_change_monitoring", minzoom: 10, maxzoom: 14 }, attribution,
+      layers: polygonLayers(id, color, 0.7).map((l) => (l.suffix === "fill" ? { ...l, paint: (dark: boolean, p?: Record<string, number>) => ({ ...l.paint(dark, p), "fill-opacity": opacity(p) * 0.6 }) } : l)),
+    },
+    {
+      id, sourceUrl: "./urban/land_use_change_monitoring_107_112_points.pmtiles", sourceId: "land-use-change-points",
+      pmtiles: { sourceLayer: "land_use_change_monitoring_points", minzoom: 10, maxzoom: 12 }, attribution,
+      // maxzoom 13.5：向量圖磚用 roundZoom，z12.5 起就載 z13（超縮放）圖磚，maxzoom 13 會在 12.5 提前消失
+      layers: [{ suffix: "circle", type: "circle", maxzoom: 13.5, paint: (dark, p) => ({
+        "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2 * (p?.landUseChangeMonitoringScale ?? 1), 13, 3.5 * (p?.landUseChangeMonitoringScale ?? 1)],
+        "circle-opacity": Math.min(1, opacity(p) + 0.2), "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.5,
+        "circle-stroke-opacity": Math.min(1, opacity(p) + 0.2),
+      }) }],
+    },
+  ];
+}
+
+/**
+ * G53 批 1 土石流潛勢溪流：一層四個 config（同 id）。select `debrisFlowPotentialViewIdx`
+ * 0＝溪流線、1＝影響範圍、2＝集水區，未選中的子圖層 visibility none（不抓圖磚）；
+ * 溪流中點（analytics _points 檔，z4–10）三種顯示都畫到 z11，國家全覽 z7 才看得到位置（線、面在全覽太小）。
+ */
+function debrisFlowPotentialOverlays(): OverlayConfig[] {
+  const id = "debrisFlowPotential";
+  const color = matchColorExpr("risk", DEBRIS_RISK_OPTIONS);
+  const attribution = `農業部農村發展及水土保持署 土石流潛勢溪流（data.gov.tw 176524）、集水區（176525）、影響範圍（176526）· ${OGDL_ATTR}`;
+  const opacity = (p?: Record<string, number>) => p?.debrisFlowPotentialOpacity ?? 0.6;
+  const viewLayout = (view: number) => (_dark: boolean, p?: Record<string, number>) => ({ visibility: (p?.debrisFlowPotentialViewIdx ?? 0) === view ? "visible" : "none" });
+  const polygon = (sourceId: string, file: string, sourceLayer: string, view: number, dashed: boolean): OverlayConfig => ({
+    id, sourceUrl: `./hazards/${file}`, sourceId, pmtiles: { sourceLayer, minzoom: 4, maxzoom: 14 }, attribution,
+    layers: [
+      { suffix: "fill", type: "fill", layout: viewLayout(view), paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": opacity(p) * 0.6 }) },
+      { suffix: "outline", type: "line", layout: viewLayout(view), paint: (dark, p) => ({
+        "line-color": dark ? "#e2e8f0" : color, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 14, 1.4],
+        ...(dashed ? { "line-dasharray": [4, 3] } : {}), "line-opacity": Math.min(1, opacity(p) + 0.3),
+      }) },
+    ],
+  });
+  return [
+    polygon("debris-flow-catchments", "debris_flow_catchments_115.pmtiles", "debris_flow_catchments", 2, false),
+    polygon("debris-flow-impact-zones", "debris_flow_impact_zones_115.pmtiles", "debris_flow_impact_zones", 1, true),
+    {
+      id, sourceUrl: "./hazards/debris_flow_streams_115.pmtiles", sourceId: "debris-flow-streams",
+      pmtiles: { sourceLayer: "debris_flow_streams", minzoom: 4, maxzoom: 14 }, attribution,
+      layers: [{ suffix: "line", type: "line", layout: (dark, p) => ({ ...viewLayout(0)(dark, p), "line-cap": "round", "line-join": "round" }), paint: (_dark, p) => ({
+        "line-color": color, "line-width": ["interpolate", ["linear"], ["zoom"], 6, 1 * (p?.debrisFlowPotentialScale ?? 1), 12, 2.5 * (p?.debrisFlowPotentialScale ?? 1), 16, 4 * (p?.debrisFlowPotentialScale ?? 1)],
+        "line-opacity": Math.min(1, opacity(p) + 0.3),
+      }) }],
+    },
+    {
+      id, sourceUrl: "./hazards/debris_flow_streams_115_points.pmtiles", sourceId: "debris-flow-streams-points",
+      pmtiles: { sourceLayer: "debris_flow_streams_points", minzoom: 4, maxzoom: 10 }, attribution,
+      // maxzoom 11.5：向量圖磚 roundZoom 在 z10.5 就換 z11 超縮放圖磚，maxzoom 11 會提前消失
+      layers: [{ suffix: "circle", type: "circle", maxzoom: 11.5, paint: (dark, p) => {
+        const scale = p?.debrisFlowPotentialScale ?? 1;
+        const op = Math.min(1, opacity(p) + 0.3);
+        return {
+          "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.2 * scale, 10, 4.5 * scale],
+          "circle-opacity": op, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 0.8, "circle-stroke-opacity": op,
+        };
+      } }],
+    },
+  ];
+}
+
 const ATLAS_OVERLAYS: OverlayConfig[] = [
+  // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
+  ...debrisFlowPotentialOverlays(),
+  ...landUseChangeMonitoringOverlays(),
+  {
+    // 大面積覆蓋面（15 縣市各一面）：§3.8 V-5 區劃面類，不做點／面切換
+    id: "slopelandSwcAct", sourceUrl: "./urban/slopeland_swc_act_115.pmtiles", sourceId: "slopeland-swc-act",
+    pmtiles: { sourceLayer: "slopeland_swc_act", minzoom: 4, maxzoom: 13 },
+    attribution: `農業部農村發展及水土保持署 山坡地範圍（data.gov.tw 178645）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("slopelandSwcAct", ATLAS_LAYER_COLORS.slopelandSwcAct, 0.3),
+  },
+  {
+    id: "swcSpecialZones", sourceUrl: "./urban/swc_special_zones_115.pmtiles", sourceId: "swc-special-zones",
+    pmtiles: { sourceLayer: "swc_special_zones", minzoom: 4, maxzoom: 14 },
+    attribution: `農業部農村發展及水土保持署 特定水土保持區（data.gov.tw 176847）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("swcSpecialZones", matchColorExpr("zone_type", SWC_ZONE_TYPE_OPTIONS), 0.45),
+  },
+  publicLifePointOverlay("freewayHundredMeterStakes", "./geo/freeway_hundred_meter_stakes_95016.pmtiles", "freeway-hundred-meter-stakes", ATLAS_LAYER_COLORS.freewayHundredMeterStakes, { sourceLayer: "freeway_hundred_meter_stakes", minzoom: 5, maxzoom: 14 }, `交通部高速公路局 國道百公尺里程樁（data.gov.tw 95016）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.freewayHundredMeterStakes, intensity: 1 } }),
+  publicLifePointOverlay("antivenomHospitals", "./geo/antivenom_reserve_hospitals_20241230.pmtiles", "antivenom-hospitals", ATLAS_LAYER_COLORS.antivenomHospitals, { sourceLayer: "antivenom_reserve_hospitals", minzoom: 4, maxzoom: 14 }, `衛生福利部疾病管制署 抗蛇毒血清儲備醫療院所（data.gov.tw 24468）· ${OGDL_ATTR}`, [3.5, 7], { filter: (p) => antivenomSerumFilter(p?.antivenomHospitalsSerumMask) }),
+  publicLifePointOverlay("postMailboxes", "./civic_facilities/post_mailboxes_1150428.pmtiles", "post-mailboxes", matchColorExpr("service", MAILBOX_SERVICE_OPTIONS), { sourceLayer: "post_mailboxes", minzoom: 4, maxzoom: 14 }, `中華郵政 郵筒（data.gov.tw 178399）、特色郵筒（52781）· ${OGDL_ATTR}`, [2.5, 6]),
+  publicLifePointOverlay("motorcycleInspectionStations", "./environment/motorcycle_inspection_stations_20261109.pmtiles", "motorcycle-inspection-stations", ATLAS_LAYER_COLORS.motorcycleInspectionStations, { sourceLayer: "motorcycle_inspection_stations", minzoom: 4, maxzoom: 14 }, `環境部 機車排氣定期檢驗站（data.gov.tw 6352）· ${OGDL_ATTR}`, [2.5, 6]),
   // ── 原民與農村 ──
   publicLifePointOverlay("indigenousTribes", "./indigenous_rural/indigenous_tribes.geojson", "indigenous-tribes", tribeColorExpr(), undefined, `原住民族委員會 部落位置 GIS 點位表（data.gov.tw 156632）＋核定部落（7093）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 12 }),
   publicLifePointOverlay("indigenousIsolationRisk", "./indigenous_rural/indigenous_isolation_risk_areas.geojson", "indigenous-isolation-risk", matchColorExpr("cause_combo", ISOLATION_CAUSE_OPTIONS), undefined, `原住民族委員會 原住民族地區易成孤島地區（data.gov.tw 170259，114 年度）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 11 }),
@@ -12762,6 +12894,23 @@ OVERLAY_REGISTRY.push(
     }],
   },
 );
+
+// ── 30 天地圖挑戰 Day 9 城鄉（模擬面板，公開，2026-11-09）：368 鄉鎮面，指標 select 只換 paint 讀的欄位
+// （密度五等份讀 q；設施先判 c_<key>=0 畫灰，再依 r_<key> 的 log2 比值分 7 階）。G-3 色格縫外框。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay09UrbanRural", sourceUrl: MAPCHALLENGE_DAY09_URL, sourceId: "mapchallenge-day09-urban-rural",
+  attribution: "內政部戶籍人口（2026-08-31）；教育部、警政署、中華郵政、健保署、財金公司開放資料 · 政府資料開放授權條款",
+  layers: [{
+    suffix: "fill", type: "fill",
+    paint: (_isDark, p) => ({
+      "fill-color": mapchallengeDay09ColorExpr(mapchallengeDay09MetricAt(p?.mapchallengeDay09UrbanRuralMetricIdx)),
+      "fill-opacity": p?.mapchallengeDay09UrbanRuralOpacity ?? 0.7,
+    }),
+  }, {
+    suffix: "outline", type: "line",
+    paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay09UrbanRuralOpacity ?? 0.7 }),
+  }],
+});
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。

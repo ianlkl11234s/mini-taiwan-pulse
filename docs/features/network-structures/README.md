@@ -26,6 +26,6 @@
 
 - [handoff.md](./handoff.md)：上游版本、四層契約、部署保全、2026-09-24 擴充與全臺橋梁研究圖層
 - [changelog.md](./changelog.md)：2026-09-06 發布、2026-09-25 擴充待發布
-- [backlog.md](./backlog.md)：已完成清單與後續增量
+- [backlog.md](../../archive/2026-11-09/features/network-structures/backlog.md)：已完成清單與後續增量
 
 相關：橋梁韌性專題為另一組圖層（`bridgeResilienceTwinCity` 等），不在本資料夾。

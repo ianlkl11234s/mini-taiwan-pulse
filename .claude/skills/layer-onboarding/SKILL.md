@@ -28,7 +28,7 @@ Step 4  四鐵則自檢 (slider / legend / popup / dropdown)
 Step 5  跨 repo 對齊 (handoff 反向引用 + commit hash)
 Step 6  驗收 (tsc / test / browser All Off 單測)
 Step 6a Agent 查詢關卡 (來源契約 / 有界 reader / 實問 / 可分析範圍)
-Step 7  收尾 (changelog + backlog 標 ✅)
+Step 7  收尾 (changelog + BACKLOG 關閉對應列)
 ```
 
 ## Step 0 — 規劃
@@ -170,7 +170,7 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.get_xxx(...);
 1. `taipei-gis-analytics/docs/handoff/<slug>.md` — 資料契約 SSOT（upstream）
 2. `mini-taiwan-pulse/docs/features/<slug>/handoff.md` — 反向引用 + 硬依賴欄位表
 3. `mini-taiwan-pulse/docs/features/<slug>/changelog.md` — 本次 PR 記
-4. `mini-taiwan-pulse/docs/features/<slug>/backlog.md` — 對應項標 ✅
+4. `mini-taiwan-pulse/.claude/memory/BACKLOG.md` — 對應列移到「已關閉」附證據
 
 **若動到資料契約 → 開 ADR**：`taipei-gis-analytics/docs/adr/NNNN-<title>.md`。
 
@@ -208,7 +208,7 @@ npm run dev
 - 根目錄 `CHANGELOG.md` 條目只加在 `## [Unreleased]`（沒有對應小節就自己新增）
 - PR `--base develop`，`gh pr merge --merge`（禁 squash）；合併後看 develop CI；**不發版到 master**（發版須使用者拍板）
 - 更新 `docs/features/<slug>/changelog.md`（PR # + merge commit hash）
-- 更新 `docs/features/<slug>/backlog.md` 標 ✅
+- 在 `.claude/memory/BACKLOG.md` 關閉對應列（移到「已關閉」附證據）
 - 更新 `.claude/memory/STATUS.md` 加最新段落
 - 若踩到新坑 → 寫 `.claude/pitfalls/YYYY-MM-DD-<slug>.md`
 - 若學到 P0 規則 → 補進 `.claude/memory/PRINCIPLES.md`

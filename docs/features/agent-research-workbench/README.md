@@ -35,7 +35,7 @@
 | [analysis-capability-onboarding.md](./analysis-capability-onboarding.md) | 新圖層接入分析能力的規則 |
 | [layer-capability-inventory-20260919.md](./layer-capability-inventory-20260919.md) | 全圖層能力盤點快照 |
 | [layer-discovery-mcp-handoff-20260920.md](./layer-discovery-mcp-handoff-20260920.md) / [-20260921.md](./layer-discovery-mcp-handoff-20260921.md) | 圖層搜尋／MCP／GIS 分析接手文件 |
-| [handoff.md](./handoff.md) / [backlog.md](./backlog.md) / [changelog.md](./changelog.md) | 歷史接手、待辦（含持久化分析成果、正式服務拓樸）、改動紀錄 |
+| [handoff.md](./handoff.md) / [backlog.md](../../archive/2026-11-09/features/agent-research-workbench/backlog.md) / [changelog.md](./changelog.md) | 歷史接手、待辦（含持久化分析成果、正式服務拓樸）、改動紀錄 |
 | [tool-foundation-plan.md](./tool-foundation-plan.md)、[gis-analysis-roadmap.md](./gis-analysis-roadmap.md)、[map-exploration.md](./map-exploration.md) | 工具基礎、分析路線圖、第一階段探索（歷史） |
 | [pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md)、[pulse-research-system-map.html](./pulse-research-system-map.html) | 白話導覽與互動架構圖 |
 | [jev-routing-accelerator.md](./jev-routing-accelerator.md) | MCP shadow routing 說明 |

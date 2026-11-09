@@ -1765,5 +1765,14 @@
   "layer.mapchallengeDay08Access": "大きな公園まで徒歩何分",
   "layer.mapchallengeDay08Sites": "新しい公園の候補地とコスト",
   "layer.mapchallengeDay08Plan1955": "1955 年 中和郷 都市計画図",
-  "layer.mapchallengeDay08Parks": "既存の公園と河川敷の出入口"
+  "layer.mapchallengeDay08Parks": "既存の公園と河川敷の出入口",
+  "layer.motorcycleInspectionStations": "バイク排ガス定期検査ステーション",
+  "layer.postMailboxes": "郵便ポスト",
+  "layer.antivenomHospitals": "抗毒素血清備蓄医療機関",
+  "layer.freewayHundredMeterStakes": "国道 100 m 距離杭",
+  "layer.swcSpecialZones": "特定水土保持区",
+  "layer.slopelandSwcAct": "山坡地範囲（水土保持法）",
+  "layer.debrisFlowPotential": "土石流潜在渓流",
+  "layer.landUseChangeMonitoring": "国土利用モニタリング変化地点",
+  "layer.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設"
 }

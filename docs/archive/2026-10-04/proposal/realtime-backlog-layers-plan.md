@@ -2,9 +2,9 @@
 
 > **HISTORICAL / SUPERSEDED（2026-08-19）**：本文件保留 2026-07-10 的探索、取捨與架構歷史，
 > 不再是 current backlog 或 release truth。現在的 residual 請看各 feature 的
-> [tourist-shuttle backlog](../../../features/tourist-shuttle/backlog.md)、
-> [road-congestion backlog](../../../features/road-congestion/backlog.md)、
-> [parking backlog](../../../features/parking/backlog.md) 與
+> [tourist-shuttle backlog](../../2026-11-09/features/tourist-shuttle/backlog.md)、
+> [road-congestion backlog](../../2026-11-09/features/road-congestion/backlog.md)、
+> [parking backlog](../../2026-11-09/features/parking/backlog.md) 與
 > [er-hospital feature 文件](../../../features/er-hospital/)。實際完成／部署證據以各 feature 的
 > changelog、handoff、PR/CI、S3 checksum、HTTP/browser evidence 為準。
 

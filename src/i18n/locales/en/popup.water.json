@@ -27,6 +27,7 @@
   "popup.water.abnormal": "Abnormal",
   "popup.water.levelUnit": "m water level",
   "popup.water.trend24h": "24-hour trend",
+  "popup.water.trendLoadFailed": "Failed to load the 24-hour trend",
   "popup.water.alertHint": "ⓘ Warning water level data (three-level alerts) will be added once the upstream seed is complete",
   "popup.water.groundwaterUnit": "m groundwater level (elevation)",
   "popup.water.wellNo": "Well no.",

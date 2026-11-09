@@ -8,7 +8,7 @@
 
 年度病床／外來報告、區域統計、疫情、持續 collector、自動排程均不在本批。申報床數不是即時空床；公告時段不是現在可接診；長照服務登記不是唯一機構數。
 
-執行與證據見 [handoff.md](./handoff.md)、[acceptance.md](./acceptance.md)、[backlog.md](./backlog.md)。2026-09-15 已授權接上既有 S3／Zeabur 發布流程；最新分層證據見 [release.md](./release.md)，原 acceptance 保留為本地驗收紀錄。
+執行與證據見 [handoff.md](./handoff.md)、[acceptance.md](./acceptance.md)、[backlog.md](../../archive/2026-11-09/features/jp-medical-static/backlog.md)。2026-09-15 已授權接上既有 S3／Zeabur 發布流程；最新分層證據見 [release.md](./release.md)，原 acceptance 保留為本地驗收紀錄。
 
 本地預覽：`npm run dev -- --host 127.0.0.1 --port 3737`，網址 http://127.0.0.1:3737/?v=1&lng=137&lat=37&z=4.5&layers=jpMedicalFacilities&style=dark 。發布整合 worktree 使用 port 3738。手機從底部「圖層與搜尋」的「醫療」分類操作。
 

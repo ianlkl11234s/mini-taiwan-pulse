@@ -109,7 +109,7 @@ nginx `/world/` location 有 `root /data; try_files $uri @dist`，build 後從 d
 | 項目 | 上游位置 |
 |---|---|
 | 原始／中繼產物 | `data/processed/world/jp_railways/`、`jp_schools/`、`jp_population_mesh_1km/` |
-| 產物登記簿 | 各該目錄的 `_manifest.json`（⚠️ 本批的 pmtiles 產物記錄**已就地改好但未提交**，見 [backlog.md](./backlog.md)）|
+| 產物登記簿 | 各該目錄的 `_manifest.json`（⚠️ 本批的 pmtiles 產物記錄**已就地改好但未提交**，見 [backlog.md](../../archive/2026-11-09/features/jp-core-layers/backlog.md)）|
 | 資料 catalog | `docs/data-catalog/world/jp_railways.md`、`jp_schools.md`、`jp_population_mesh_1km.md` |
 | 契約 handoff | `docs/handoff/jp-core-layers.md` ⚠️ **只存在於 `codex/noise-layers-data-ready-20260828` 分支、未進 `origin/master`**；其 §3.1（第 82 行）學校配方 `-Z4 -z14` 會產出 54MB 過大檔，待該分支併回時更正 |
 
@@ -131,4 +131,4 @@ nginx `/world/` location 有 `root /data; try_files $uri @dist`，build 後從 d
 - 機場為 polygon footprint，國家級 zoom 幾乎看不見是**預期**（放大才顯現）。
 - auto-flyTo 座標 `[137.5,37.5]` z4.7 為估算（上游踩雷 #7），可目視微調 `JAPAN_CAMERA`。
 - ~~遞延三層（railways/schools/mesh）需資料工序或 S3 deploy，屬另一批。~~ → **2026-09-02 Batch 2 已落地**，見 [changelog.md](./changelog.md)；
-  其中人口網格的 S3 上傳仍待 owner 執行（[backlog.md](./backlog.md)）。
+  其中人口網格的 S3 上傳仍待 owner 執行（[backlog.md](../../archive/2026-11-09/features/jp-core-layers/backlog.md)）。

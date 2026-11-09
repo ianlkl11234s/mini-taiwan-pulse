@@ -54,7 +54,7 @@ manifest，不新增資料表、不改 RPC、不動 PMTiles 產製、不碰 coll
 
 1. `docs/development-rules.md` §4 完整觸點表 —— manifest 的欄位就是照那張表切的
 2. `src/data/layerManifest.ts` 檔頭的「界線：什麼進 manifest、什麼不進」
-3. [backlog.md](./backlog.md) 的「開始 Phase 2 之前必須先拍板的 4 件事」
+3. [backlog.md](../../archive/2026-11-09/features/layer-manifest/backlog.md) 的「開始 Phase 2 之前必須先拍板的 4 件事」
 
 ## 驗收指令（每批搬移都要跑）
 

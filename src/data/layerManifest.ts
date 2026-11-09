@@ -154,6 +154,8 @@ import {
   Languages,
   // 🗳 政治 選舉活動（2026-11-02）
   Vote,
+  // G53 批 1（2026-11-09）
+  Mailbox, Motorbike, ScanSearch,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -202,6 +204,7 @@ import { MAPCHALLENGE_DAY04_COLOR } from "./mapchallengeDay04Types";
 import { MAPCHALLENGE_DAY05_COLOR } from "./mapchallengeDay05Types";
 import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
+import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -11931,6 +11934,94 @@ export const LAYER_MANIFEST = {
     description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
   },
+  debrisFlowPotential: {
+    key: "debrisFlowPotential", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土石流潛勢溪流", alt: "Debris Flow Potential Streams" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.debrisFlowPotential, icon: Mountain,
+    upstream: { status: "verified", datasets: [
+      { datasetId: "debris_flow_catchments", confidence: "HIGH" },
+      { datasetId: "debris_flow_impact_zones", confidence: "HIGH" },
+      { datasetId: "debris_flow_streams", confidence: "HIGH" },
+    ], processing: "analytics hazards/debris_flow_{streams,catchments,impact_zones} 115：水保署 data.gov.tw 176524／176525／176526（.cpg UTF-8 重讀，舊 debris_flow 亂碼已解）；溪流 1,753 線、集水區 1,753 面、影響範圍 1,894 面＋溪流中點檔（z4–10）", note: "一層三檔，select 切換顯示；舊 datasetId debris_flow（warehouse_stub）由三者取代、舊條目不動；影響範圍保全住戶門牌不收。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "debris-flow-catchments", url: "./hazards/debris_flow_catchments_115.pmtiles", sourceLayer: "debris_flow_catchments", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "debris-flow-impact-zones", url: "./hazards/debris_flow_impact_zones_115.pmtiles", sourceLayer: "debris_flow_impact_zones", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "debris-flow-streams", url: "./hazards/debris_flow_streams_115.pmtiles", sourceLayer: "debris_flow_streams", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "debris-flow-streams-points", url: "./hazards/debris_flow_streams_115_points.pmtiles", sourceLayer: "debris_flow_streams_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "debrisFlowPotential", popup: "debrisFlowPotential", params: { count: 4, kinds: ["multiSelect", "select", "slider", "slider"] },
+    description: "水保署 115 年度土石流潛勢溪流 1,753 條，可切換溪流線、影響範圍、集水區，依風險等級（高／中／低／持續觀察）上色。",
+    topics: ["災害", "土石流", "坡地災害", "水保署"],
+  },
+  landUseChangeMonitoring: {
+    key: "landUseChangeMonitoring", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "國土利用監測變異點", alt: "Land Use Change Monitoring" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.landUseChangeMonitoring, icon: ScanSearch,
+    upstream: { status: "verified", datasets: [{ datasetId: "land_use_change_monitoring", confidence: "HIGH" }], processing: "analytics urban_composite/land_use_change_monitoring 107–112：國土管理署 data.gov.tw 168030（107 年 TWD67 已轉）143,891 面；另產逐點檔（z10–12）與 H3 res7 網格檔（z4–9，5,435 格，分年／分類計數）", note: "「疑似變異」非查報確認；97 筆空／框外幾何不上圖；同一地點不同年度各一列。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "land-use-change-grid", url: "./urban/land_use_change_monitoring_107_112_grid.pmtiles", sourceLayer: "land_use_change_monitoring_grid", minzoom: 4, maxzoom: 9 },
+      { kind: "pmtiles", sourceId: "land-use-change", url: "./urban/land_use_change_monitoring_107_112.pmtiles", sourceLayer: "land_use_change_monitoring", minzoom: 10, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "land-use-change-points", url: "./urban/land_use_change_monitoring_107_112_points.pmtiles", sourceLayer: "land_use_change_monitoring_points", minzoom: 10, maxzoom: 12 },
+    ],
+    legend: "landUseChangeMonitoring", popup: "landUseChangeMonitoring", params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
+    description: "國土管理署衛星影像判釋的國土利用疑似變異點 107–112 年 143,891 處，依類別（裸露地、建物、道路、水體）上色；拉遠畫六角格。",
+    topics: ["土地使用", "國土利用監測", "違規使用", "國土管理署"],
+  },
+  slopelandSwcAct: {
+    key: "slopelandSwcAct", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "山坡地範圍（水保法）", alt: "Slopeland (Soil and Water Conservation Act)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.slopelandSwcAct, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "slopeland_swc_act", confidence: "HIGH" }], processing: "analytics urban_composite/slopeland_swc_act 115：水保署 data.gov.tw 178645（115 年版，檔 1150708；zip 無 .prj，以 EPSG:3826 處理）15 縣市各一列", note: "不含六都（市府自行公告）、不含澎湖（來源缺）；114 年版 172915 只差南投縣面積。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "slopeland-swc-act", url: "./urban/slopeland_swc_act_115.pmtiles", sourceLayer: "slopeland_swc_act", minzoom: 4, maxzoom: 13 },
+    legend: "slopelandSwcAct", popup: "slopelandSwcAct", params: { count: 1, kinds: ["slider"] },
+    description: "水土保持法公告的山坡地範圍（15 縣市，不含六都與澎湖），115 年版。",
+    topics: ["水土保持", "山坡地", "土地使用", "水保署"],
+  },
+  swcSpecialZones: {
+    key: "swcSpecialZones", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "特定水土保持區", alt: "Special Soil and Water Conservation Zones" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.swcSpecialZones, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "swc_special_zones", confidence: "HIGH" }], processing: "analytics urban_composite/swc_special_zones 115：水保署 data.gov.tw 176847（115 年度，檔 1150922）66 區；代表點檔 _points（z4–10）供點／面切換", note: "114 年度 54 區（173077）只備查不上圖；Desig_Code 無官方代碼表，劃定依據 label 依水保法第 16 條款次推定。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "swc-special-zones", url: "./urban/swc_special_zones_115.pmtiles", sourceLayer: "swc_special_zones", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "swc-special-zones-points", url: "./urban/swc_special_zones_115_points.pmtiles", sourceLayer: "swc_special_zones_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "swcSpecialZones", popup: "swcSpecialZones", params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
+    description: "水保署公告的特定水土保持區 66 區（大規模崩塌、土石流、崩塌地、水庫集水區、河岸），115 年度版。",
+    topics: ["水土保持", "土地使用", "崩塌", "土石流", "水保署"],
+  },
+  freewayHundredMeterStakes: {
+    key: "freewayHundredMeterStakes", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道百公尺樁", alt: "Freeway 100 m Stakes" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.freewayHundredMeterStakes, icon: Milestone,
+    upstream: { status: "verified", datasets: [{ datasetId: "freeway_hundred_meter_stakes", confidence: "HIGH" }], processing: "analytics transportation/freeway_hundred_meter_stakes 95016：高公局 KML（2019-11）＋國 4 豐潭延伸段、國 2 甲 CSV，10,082 支；PMTiles z5–14 逐點完整", note: "與 freewayTrafficSigns 的指 45 里程牌（公里牌）不同實體，兩層並存；lr 全為 M、不分向。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-hundred-meter-stakes", url: "./geo/freeway_hundred_meter_stakes_95016.pmtiles", sourceLayer: "freeway_hundred_meter_stakes", minzoom: 5, maxzoom: 14 },
+    legend: "freewayHundredMeterStakes", popup: "freewayHundredMeterStakes", params: { count: 3, kinds: ["palette", "slider", "slider"] },
+    description: "國道每 100 公尺一支的里程樁 10,082 支（線性參考用；拉遠為熱區，10 級起畫樁位）。",
+    topics: ["交通", "國道", "里程", "高速公路局"],
+  },
+  antivenomHospitals: {
+    key: "antivenomHospitals", country: "TW", section: { theme: "醫療 Medical", group: "點位" }, ...layerName({ zh: "抗蛇毒血清儲備點", alt: "Antivenom Reserve Hospitals" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.antivenomHospitals, icon: Syringe,
+    upstream: { status: "verified", datasets: [{ datasetId: "antivenom_reserve_hospitals", confidence: "HIGH" }], processing: "analytics emergency_response/antivenom_reserve_hospitals 20241230：疾管署 data.gov.tw 24468 共 428 列（院所 × 血清種類）依醫事機構代碼＋名稱合併為 191 家", note: "四種血清各有布林欄 has_*；篩選語意＝有任一勾選種類即顯示。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "antivenom-hospitals", url: "./geo/antivenom_reserve_hospitals_20241230.pmtiles", sourceLayer: "antivenom_reserve_hospitals", minzoom: 4, maxzoom: 14 },
+    legend: "antivenomHospitals", popup: "antivenomHospitals", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "疾管署公告儲備抗蛇毒血清的醫療院所 191 家，可依血清種類（龜殼花及赤尾鮐、雨傘節及飯匙倩、百步蛇、鎖鏈蛇）篩選。",
+    topics: ["醫療", "蛇咬", "抗蛇毒血清", "急救", "疾管署"],
+  },
+  postMailboxes: {
+    key: "postMailboxes", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" }, ...layerName({ zh: "郵筒", alt: "Mailboxes" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.postMailboxes, icon: Mailbox,
+    upstream: { status: "verified", datasets: [{ datasetId: "post_mailboxes", confidence: "HIGH" }], processing: "analytics civic_facilities/post_mailboxes 1150428：中華郵政郵筒（data.gov.tw 178399 主、7964 備援）6,033 筒 → 6,024 筒上圖（9 筒座標無效）；特色郵筒 52781 併入 featured_note", note: "service 欄 regular／express／dual／pair（同址兩筒）；信筒編號有 6 組重複。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "post-mailboxes", url: "./civic_facilities/post_mailboxes_1150428.pmtiles", sourceLayer: "post_mailboxes", minzoom: 4, maxzoom: 14 },
+    legend: "postMailboxes", popup: "postMailboxes", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "中華郵政全國郵筒 6,024 筒（普通、限時、雙用、同址兩筒），含收信時間與特色郵筒說明。",
+    topics: ["郵政", "郵筒", "中華郵政", "便民"],
+  },
+  motorcycleInspectionStations: {
+    key: "motorcycleInspectionStations", country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" }, ...layerName({ zh: "機車排氣定檢站", alt: "Motorcycle Emission Inspection Stations" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.motorcycleInspectionStations, icon: Motorbike,
+    upstream: { status: "verified", datasets: [{ datasetId: "motorcycle_inspection_stations", confidence: "HIGH" }], processing: "analytics environment/motorcycle_inspection_stations 20261109：MOENV API mpi_s_01（data.gov.tw 6352）3,934 站 → 3,893 站上圖（來源座標 3,305、離線地址比對補 588），41 站無法定位", note: "precision 欄：source／geocoded_door／geocoded_road；手機號不收；同主題另有縣市到檢率統計（motorcycle_inspection_county）。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "motorcycle-inspection-stations", url: "./environment/motorcycle_inspection_stations_20261109.pmtiles", sourceLayer: "motorcycle_inspection_stations", minzoom: 4, maxzoom: 14 },
+    legend: "motorcycleInspectionStations", popup: "motorcycleInspectionStations", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "環境部機車排氣定期檢驗站 3,893 站（名冊 3,934 站，41 站無法定位）；部分站點位置由地址推估。",
+    topics: ["環境", "空氣污染", "機車", "排氣定檢", "環境部"],
+  },
   culturalHealthStations: {
     key: "culturalHealthStations", country: "TW", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.culturalHealthStations, icon: HousePlus,
@@ -16411,6 +16502,28 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "30 天地圖挑戰 Day 8 烏托邦：1955 年中和鄉都市計畫圖原圖（含今永和），可調透明度疊在今天的地圖上，對照當年畫了公園、今天卻沒有的地方。來源：國家文化記憶庫（永和社區大學），CC BY-NC 3.0 TW；位置可能偏移約 30–55 m。",
     topics: ["古地圖", "都市計畫", "中和", "永和", "1955", "30 天地圖挑戰"],
+  },
+  mapchallengeDay09UrbanRural: {
+    key: "mapchallengeDay09UrbanRural",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-09）：靜態 GeoJSON（鄉鎮彙總），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 9 城鄉 Urban-rural" },
+    ...layerName({ zh: "人口變少時，哪些設施還留著", alt: "Which Services Stay Where People Are Few" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY09_COLOR,
+    icon: House,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 9 城鄉：Pulse 分析倉庫 2026-11-09 實算（taipei-gis-analytics docs/topic-research/mapchallenge_2026_day09_urban_rural），設施點位依落在哪個鄉鎮計數，368 鄉鎮彙總。人口與面積：內政部戶籍人口（鄉鎮市區，2026-08-31）；國小：各級學校名冊（國民小學本校，約 2024）；派出所／分駐所：警政署警察機關資料（2026-06）；郵局：中華郵政營業據點（2026-07）；衛生所、診所、藥局：健保署特約醫事機構名冊（2026 年 5–7 月）；短期補習班：教育部全國立案短期補習班（2026-08）；銀行等金融分支：財金公司金融機構總分支名冊（2026-10）；超商：財金公司 ATM 裝設點名冊（2026-10）推估。城鄉依人口密度由低到高分五等份（每組約 74 鄉鎮，自訂，非官方分類）；顏色＝log2(鄉鎮每萬人數／全國每萬人數)。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。醫療與學校名冊只發布鄉鎮彙總、不發布點位。單期橫斷面，不能推論設施隨人口減少而關閉；鄉鎮內有據點不等於居民容易到達。超商只算設有銀行 ATM 的 7-11、全家、萊爾富、OK 門市（雙北比對約 96% 門市對得到，離島可能漏算）；衛生所只含有健保門診者（臺北市 12 區健康服務中心不在名冊，高雄十多區亦無）。屏東縣瑪家鄉國小 0 未查證。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day09-urban-rural", url: "./mapchallenge/day09_urban_rural.geojson" },
+    legend: "mapchallengeDay09UrbanRural",
+    popup: "mapchallengeDay09UrbanRural",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 9 城鄉：全台 368 鄉鎮依人口密度分五等份，比較 9 類設施每萬人分到幾處。公共服務（國小、派出所、郵局、衛生所）越偏遠每人分到越多：派出所每萬人從最稀疏組 5.37 到最密集組 0.34；市場服務（補習班、診所、藥局、銀行）跟著人走：補習班 0.82 → 9.10；超商是例外，4.43 → 6.18 幾乎持平。可切指標；顏色是相對全國平均（越亮每人分到越多），深灰＝鄉鎮內一個都沒有。點面看人口、密度、9 類設施數與每萬人數。城鄉分組自訂、非官方分類。來源：內政部、教育部、警政署、中華郵政、健保署、財金公司。",
+    topics: ["城鄉", "人口密度", "公共服務", "派出所", "補習班", "超商", "鄉鎮", "30 天地圖挑戰"],
   },
 
   roadCongestion: {
