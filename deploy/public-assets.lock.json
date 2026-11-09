@@ -910,6 +910,20 @@
    "s3_key": "deploy-assets/forestry/forest_roads.pmtiles"
   },
   {
+   "path": "public/forestry/forest_types_4th_survey.pmtiles",
+   "bytes": 192876599,
+   "sha256": "6904dabe5ec70beaebf0cba3258e91a603978ff3205c6581c2c2a8f40e5c72fc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/forest_types_4th_survey.pmtiles"
+  },
+  {
+   "path": "public/forestry/forest_types_4th_survey_z4_10.pmtiles",
+   "bytes": 4587190,
+   "sha256": "173497e3aff5a7893c7d62d44468da6ee6b0fd9dabbf93371907cc971f4a8661",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/forest_types_4th_survey_z4_10.pmtiles"
+  },
+  {
    "path": "public/forestry/forestry_treatment_works.geojson",
    "bytes": 1966455,
    "sha256": "266a981d42ec5c601b1fdf6b79097cadb96724a13eb815dc7b3680960efe8e2b",
@@ -958,6 +972,20 @@
    "sha256": "aa90838f2daa302ef646ae890d5032b82e58163c3f79733583d9fb457f666f01",
    "delivery": "r2",
    "s3_key": "deploy-assets/forestry/national_forest_compartments_points.pmtiles"
+  },
+  {
+   "path": "public/forestry/natural_vegetation_map_2014.pmtiles",
+   "bytes": 49146967,
+   "sha256": "1144b03da472546c53de8ea4658a304831312f2e8141cc1d8b720fab178ef50c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/natural_vegetation_map_2014.pmtiles"
+  },
+  {
+   "path": "public/forestry/natural_vegetation_map_2014_z4_10.pmtiles",
+   "bytes": 2446417,
+   "sha256": "6626fbd9929568b449043934e3a9734cacc28e2f3031888407a414bca6058364",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/natural_vegetation_map_2014_z4_10.pmtiles"
   },
   {
    "path": "public/forestry/wildlife_density_h3.geojson",

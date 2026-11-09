@@ -117,7 +117,7 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
-import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, ANTIVENOM_SERUM_OPTIONS, DEBRIS_FLOW_VIEW_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, POLLUTION_ZONE_STATUS_OPTIONS, LANDSLIDE_EVENT_YEARS, LANDSLIDE_EVENT_TYPE_OPTIONS } from "./atlasLayerTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, ANTIVENOM_SERUM_OPTIONS, DEBRIS_FLOW_VIEW_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, POLLUTION_ZONE_STATUS_OPTIONS, LANDSLIDE_EVENT_YEARS, LANDSLIDE_EVENT_TYPE_OPTIONS, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -5288,6 +5288,23 @@ export const LAYER_PARAMS_SPEC = {
   broadcastTransmitters: [opacitySlider("broadcastTransmittersOpacity", 0.9), scaleSlider("broadcastTransmittersScale", 1)],
   wraDisasterCctv: [opacitySlider("wraDisasterCctvOpacity", 0.9), scaleSlider("wraDisasterCctvScale", 1)],
   traLevelCrossings: [opacitySlider("traLevelCrossingsOpacity", 0.9), scaleSlider("traLevelCrossingsScale", 1)],
+  vegetationForestTypes: [
+    {
+      kind: "select", name: "vegetationForestTypesDataset", label: "資料集", default: "vegetation",
+      options: [...VEG_DATASET_OPTIONS], out: "vegetationForestTypesViewIdx", encode: VEG_DATASET_OPTIONS.map((option) => option.value),
+    },
+    {
+      kind: "multiSelect", name: "vegetationForestTypesVegClass", label: "植群大類", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(VEG_CLASS_OPTIONS), out: "vegetationForestTypesVegClassMask",
+      showWhen: { param: "vegetationForestTypesDataset", equals: "vegetation" },
+    },
+    {
+      kind: "multiSelect", name: "vegetationForestTypesForestType", label: "林型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FOREST_TYPE_OPTIONS), out: "vegetationForestTypesForestTypeMask",
+      showWhen: { param: "vegetationForestTypesDataset", equals: "forestType" },
+    },
+    opacitySlider("vegetationForestTypesOpacity", 0.35),
+  ],
   landslideEventCatalog: [
     {
       kind: "multiSelect", name: "landslideEventCatalogYear", label: "年度（西元）", default: serializeMultiSelectValues(["114"]),

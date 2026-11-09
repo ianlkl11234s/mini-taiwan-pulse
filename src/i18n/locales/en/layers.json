@@ -1784,5 +1784,6 @@
   "layer.pollutionControlZones": "Soil & Groundwater Pollution Control Zones",
   "layer.landslideEventCatalog": "Event-based Landslide Inventory",
   "layer.wraDisasterCctv": "WRA Disaster Monitoring Cameras",
-  "layer.traLevelCrossings": "TRA Level Crossings"
+  "layer.traLevelCrossings": "TRA Level Crossings",
+  "layer.vegetationForestTypes": "Vegetation & Forest Types"
 }

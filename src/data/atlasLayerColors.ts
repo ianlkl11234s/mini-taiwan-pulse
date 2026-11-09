@@ -96,4 +96,5 @@ export const ATLAS_LAYER_COLORS = {
   landslideEventCatalog: "#7c3aed",
   wraDisasterCctv: "#0284c7",
   traLevelCrossings: "#f59e0b",
+  vegetationForestTypes: "#166534",
 } as const;

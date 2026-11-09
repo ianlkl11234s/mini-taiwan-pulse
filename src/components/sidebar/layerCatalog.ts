@@ -2109,6 +2109,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("forestCompartments"),
           fromManifest("forestFlatParks"),
+          fromManifest("vegetationForestTypes"),
         ],
       },
       {

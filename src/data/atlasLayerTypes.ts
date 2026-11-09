@@ -610,7 +610,7 @@ export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
-  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings",
+  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -708,9 +708,44 @@ export const TRA_CROSSING_TYPE_OPTIONS: readonly AtlasOption[] = [
   { value: "manual", label: "人工控制平交道", color: "#db2777" },
   { value: "private", label: "專用平交道", color: "#64748b" },
 ];
+/** 植群／森林林型：資料集切換（select `vegetationForestTypesDataset`）。 */
+export const VEG_DATASET_OPTIONS = [
+  { value: "vegetation", label: "天然植群圖（2014）" },
+  { value: "forestType", label: "森林林型（第四次調查）" },
+] as const;
+/** 天然植群圖 6 大類（上游 veg_class_key；來源 veg_class 被截斷，顯示用全名；英日文 enum.atlasVegClass.*）。 */
+export const VEG_CLASS_OPTIONS: readonly AtlasOption[] = [
+  { value: "forest", label: "森林", color: "#166534" },
+  { value: "shrub", label: "灌叢", color: "#65a30d" },
+  { value: "herbaceous", label: "草本植群", color: "#86efac" },
+  { value: "special_habitat", label: "特殊棲地", color: "#0e7490" },
+  { value: "planted", label: "人工植生", color: "#ca8a04" },
+  { value: "other", label: "其他（裸露地、耕地、水域、建地等）", color: "#94a3b8" },
+];
+/** 森林林型（上游 forest_type_key；英日文 enum.atlasForestType.*）。闊葉與植群「森林」同色，待成林地與「人工植生」同色。 */
+export const FOREST_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "broadleaf", label: "闊葉樹林型", color: "#166534" },
+  { value: "conifer", label: "針葉樹林型", color: "#0f766e" },
+  { value: "mixed_conifer_broadleaf", label: "針闊葉樹混淆林", color: "#4d7c0f" },
+  { value: "bamboo", label: "竹林", color: "#a3e635" },
+  { value: "bamboo_broadleaf", label: "竹闊混淆林", color: "#84cc16" },
+  { value: "bamboo_conifer", label: "竹針混淆林", color: "#22c55e" },
+  { value: "bamboo_conifer_broadleaf", label: "竹針闊混淆林", color: "#3f6212" },
+  { value: "regenerating", label: "待成林地", color: "#ca8a04" },
+  { value: "bare", label: "裸露地", color: "#94a3b8" },
+  { value: "shadow", label: "陰影（判釋不到）", color: "#475569" },
+];
+/** 植群／林型類別篩選：全選回 null（不加篩選）；值缺（另一個資料集的圖徵）不在此判斷，因兩資料集分屬不同 config。 */
+export function vegClassFilter(property: "veg_class_key" | "forest_type_key", options: readonly AtlasOption[], mask?: number): unknown[] | null {
+  const all = (1 << options.length) - 1;
+  const m = mask === undefined || !Number.isFinite(mask) ? all : Math.trunc(mask) & all;
+  if (m === all) return null;
+  return ["in", ["to-string", ["get", property]], ["literal", options.filter((_, i) => (m & (1 << i)) !== 0).map((o) => o.value)]];
+}
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司" } as const;
 
 export const ATLAS_NOTES = {
+  vegetationForestTypes: "農業部林業及自然保育署的兩份植被圖，用「資料集」切換：天然植群圖（data.gov.tw 9930，2014 年調查，49,943 面，只涵蓋本島山區與丘陵約 162 萬公頃）依 6 大類著色；森林林型（57873，第四次森林資源調查，575,206 面，約 218 萬公頃）依 10 種林型著色，兩份資料同類別用同色。縮放 10 以下是 100 m 格網化、去除小碎塊後依類別融合的概覽圖，邊界較粗略；放大到 11 級才換成原始圖斑並可點選看植群型、林型、經營功能與面積（面積依幾何計算，不用來源欄位）。這是全覆蓋的土地覆蓋圖，不提供點位模式。林型「陰影」是航照判釋時被陰影遮住的 1 面。",
   traLevelCrossings: "國營臺灣鐵路公司在 data.gov.tw 公開的平交道清單（11970，2024-08-26 更新）。來源 801 處中 361 處沒有座標、也對不到 OpenStreetMap 同名平交道，沒有上圖（縱貫線 82、高雄港線 50、林口線 44 最多）；地圖上 440 處，其中 415 處用來源座標，25 處依同縣市 OpenStreetMap 同名平交道推定位置。清單可能仍列已廢除的平交道（臺中、高雄、屏東鐵路高架化或地下化路段），有 46 處離最近的 OpenStreetMap 平交道超過 200 m，疑為已廢除，未逐一查證。顏色依臺鐵的平交道分類。來源縣市欄的改制前名稱已改為今日縣市。",
   wraDisasterCctv: "經濟部水利署的防災影像攝影機 266 支：水情影像監視站 132 支（data.gov.tw 36687）與河川疏濬工區管制站 134 支（41567），2026-11-09 版。點開才載入即時影像，不預載。水情影像的網址每天更換，點開時會向水利署開放資料平臺重抓當天網址；平臺連不上時改用 11-09 的快照網址，可能已失效，可改從水利署防災資訊網觀看。疏濬工區座標只到小數 2 位（121 支，約 1 km）或 1 位（13 支，約 10 km），位置為概略；同一工區多支攝影機共用一個位置（22 處），點開後可切換同工區的攝影機。疏濬攝影機是防盜採砂石的工區監控，畫面可能拍到車輛。",
   landslideEventCatalog: "農業部農村發展及水土保持署的事件型崩塌目錄：民國 93–114 年（2004–2025）各次颱風、豪雨、地震後以衛星影像判釋的崩塌地 43,779 處（22 個 data.gov.tw 資料集；104 年 1 筆空幾何未上圖）。預設只顯示最新的 114 年，「年度」可多選；98 年（莫拉克颱風）11,707 處，一起開會主導全國畫面。依事件類型上色（同一處可同時屬颱風與豪雨，顏色依颱風、豪雨、地震、其他的順序取第一個），「事件類型」篩選是有任一勾選類型就顯示。小面多，預設畫點（拉遠熱區），可切成面（10 級起）；事件名稱與影像日期要放大切成面才看得到。和「年度全島崩塌地」不同：本層是事件後判釋，早期年度部分取自林務局全島判釋，兩層可能重疊。",

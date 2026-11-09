@@ -1784,5 +1784,6 @@
   "layer.pollutionControlZones": "土壌・地下水汚染管制区域",
   "layer.landslideEventCatalog": "イベント別崩壊地目録",
   "layer.wraDisasterCctv": "水利署防災カメラ",
-  "layer.traLevelCrossings": "台鉄踏切"
+  "layer.traLevelCrossings": "台鉄踏切",
+  "layer.vegetationForestTypes": "植生と森林林型"
 }

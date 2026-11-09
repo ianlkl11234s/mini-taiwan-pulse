@@ -67,12 +67,16 @@ public/forestry/forest_education_centers.geojson
 public/forestry/forest_recreation_areas.geojson
 public/forestry/forest_reserve_points.pmtiles
 public/forestry/forest_roads.pmtiles
+public/forestry/forest_types_4th_survey.pmtiles
+public/forestry/forest_types_4th_survey_z4_10.pmtiles
 public/forestry/forestry_treatment_works.geojson
 public/forestry/mountain_huts.geojson
 public/forestry/mountain_signal_points.geojson
 public/forestry/mountain_trail_signs.geojson
 public/forestry/national_forest_compartments.pmtiles
 public/forestry/national_forest_compartments_points.pmtiles
+public/forestry/natural_vegetation_map_2014.pmtiles
+public/forestry/natural_vegetation_map_2014_z4_10.pmtiles
 public/forestry/wildlife_distribution_3rd.geojson
 public/forestry/wildlife_distribution_3rd_alt.geojson
 public/funeral/cemetery_osm.pmtiles

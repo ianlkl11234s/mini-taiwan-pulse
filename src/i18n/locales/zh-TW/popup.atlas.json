@@ -368,5 +368,10 @@
   "popup.atlas.wcSnapshotNote": "連不上水利署開放資料平臺，改用 2026-11-09 的影像網址，可能已失效",
   "popup.atlas.wcOfficial": "水利署防災資訊網",
   "popup.atlas.tlcLine": "路線",
-  "popup.atlas.tlcOsmMatch": "來源沒有座標，位置依同縣市 OpenStreetMap 同名平交道推定（© OpenStreetMap contributors，ODbL）"
+  "popup.atlas.tlcOsmMatch": "來源沒有座標，位置依同縣市 OpenStreetMap 同名平交道推定（© OpenStreetMap contributors，ODbL）",
+  "popup.atlas.vftDataset": "資料集",
+  "popup.atlas.vftVegetation": "天然植群圖（2014）",
+  "popup.atlas.vftForestType": "第四次森林資源調查林型",
+  "popup.atlas.vftFunction": "經營功能",
+  "popup.atlas.vftSubclass": "次類"
 }

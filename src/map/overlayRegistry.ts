@@ -348,7 +348,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -12375,7 +12375,48 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
   ];
 }
 
+/**
+ * G53 批 2／3 植群／森林林型：一層四個 config（同 id）。select `vegetationForestTypesViewIdx` 0＝天然植群、1＝林型，
+ * 未選中的 visibility none（不抓圖磚）。z4–10 是 100 m 格網化融合的概覽小檔（只有 *_class_key，不開 popup），
+ * z11 起換全量圖斑（可點選）。全覆蓋土地覆蓋圖，填色透明度 0.35（規範），不做點／面切換。
+ */
+function vegetationForestTypesOverlays(): OverlayConfig[] {
+  const id = "vegetationForestTypes";
+  const attribution = `農業部林業及自然保育署 天然植群圖（data.gov.tw 9930）、第四次森林資源調查林型（57873）· ${OGDL_ATTR}`;
+  const opacity = (p?: Record<string, number>) => p?.vegetationForestTypesOpacity ?? 0.35;
+  const datasets = [
+    { view: 0, property: "veg_class_key" as const, options: VEG_CLASS_OPTIONS, mask: "vegetationForestTypesVegClassMask", base: "natural_vegetation_map", file: "natural_vegetation_map_2014", sourceId: "natural-vegetation-map" },
+    { view: 1, property: "forest_type_key" as const, options: FOREST_TYPE_OPTIONS, mask: "vegetationForestTypesForestTypeMask", base: "forest_types_4th_survey", file: "forest_types_4th_survey", sourceId: "forest-types-4th-survey" },
+  ];
+  return datasets.flatMap((d) => {
+    const layout = (_dark: boolean, p?: Record<string, number>) => ({ visibility: (p?.vegetationForestTypesViewIdx ?? 0) === d.view ? "visible" : "none" });
+    const filter = (p?: Record<string, number>) => vegClassFilter(d.property, d.options, p?.[d.mask]) ?? ["has", d.property];
+    const color = matchColorExpr(d.property, d.options);
+    const fill = (zoom: { minzoom?: number; maxzoom?: number }): OverlayConfig["layers"][number] => ({
+      suffix: "fill", type: "fill", ...zoom, layout, filter, paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": opacity(p) }),
+    });
+    return [
+      {
+        id, sourceUrl: `./forestry/${d.file}_z4_10.pmtiles`, sourceId: `${d.sourceId}-z4-10`,
+        pmtiles: { sourceLayer: `${d.base}_z4_10`, minzoom: 4, maxzoom: 10 }, attribution, rebuildOnParamChange: ["fill"],
+        layers: [fill({ maxzoom: 11 })],
+      },
+      {
+        id, sourceUrl: `./forestry/${d.file}.pmtiles`, sourceId: d.sourceId,
+        pmtiles: { sourceLayer: d.base, minzoom: 11, maxzoom: 14 }, attribution, rebuildOnParamChange: ["fill", "outline"],
+        layers: [
+          fill({ minzoom: 11 }),
+          { suffix: "outline", type: "line", minzoom: 11, layout, filter, paint: (dark, p) => ({
+            "line-color": dark ? "#e2e8f0" : color, "line-width": ["interpolate", ["linear"], ["zoom"], 11, 0.2, 14, 0.8], "line-opacity": Math.min(1, opacity(p) + 0.2),
+          }) },
+        ],
+      },
+    ] satisfies OverlayConfig[];
+  });
+}
+
 const ATLAS_OVERLAYS: OverlayConfig[] = [
+  ...vegetationForestTypesOverlays(),
   // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──
   ...tedsGridEmissionsOverlays(),
   {

@@ -18,11 +18,11 @@
   ]
  },
  "summary": {
-  "layerKeys": 1794,
-  "overlayConfigs": 533,
-  "runtimeSublayers": 1014,
+  "layerKeys": 1795,
+  "overlayConfigs": 537,
+  "runtimeSublayers": 1020,
   "byResolution": {
-   "runtime": 442,
+   "runtime": 443,
    "static-scan": 308,
    "unresolved": 133,
    "shared-renderer": 911
@@ -30,8 +30,8 @@
   "byGeometry": {
    "point": 608,
    "heatmap": 218,
-   "line": 377,
-   "polygon": 1246,
+   "line": 378,
+   "polygon": 1247,
    "raster": 64,
    "label": 63,
    "3d": 35,
@@ -43,9 +43,9 @@
    "Three.js／WebGL CustomLayer": 11,
    "無 hook／factory（App 掛載或尚無實作）": 103
   },
-  "legendEntries": 1542,
+  "legendEntries": 1543,
   "legendTypes": {
-   "square-swatch": 127,
+   "square-swatch": 128,
    "svg-icon": 50,
    "dot-swatch": 246,
    "gradient+dot-swatch": 75,
@@ -75,7 +75,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 591,
+   "ssr": 592,
    "static": 951
   },
   "legendsWithIssues": 59,
@@ -196,7 +196,7 @@
     "decorationExcluded": 157
    },
    "line-width@z10": {
-    "n": 161,
+    "n": 163,
     "min": 0.15,
     "p25": 0.733,
     "median": 1,
@@ -210,7 +210,7 @@
      "0.35×4",
      "0.15×3",
      "3×2",
-     "0.75×2"
+     "0.2×2"
     ],
     "dataDrivenCounted": 9,
     "notSet": 0,
@@ -218,7 +218,7 @@
     "decorationExcluded": 28
    },
    "line-width@z14": {
-    "n": 161,
+    "n": 163,
     "min": 0.15,
     "p25": 1,
     "median": 1,
@@ -240,7 +240,7 @@
     "decorationExcluded": 28
    },
    "line-opacity": {
-    "n": 161,
+    "n": 163,
     "min": 0.04,
     "p25": 0.6,
     "median": 0.8,
@@ -262,14 +262,14 @@
     "decorationExcluded": 28
    },
    "fill-opacity": {
-    "n": 140,
+    "n": 144,
     "min": 0,
     "p25": 0.3,
     "median": 0.35,
-    "p75": 0.5,
+    "p75": 0.495,
     "max": 0.7,
     "mostCommon": [
-     "0.35×43",
+     "0.35×47",
      "0.7×19",
      "0.15×15",
      "0.55×11",
@@ -437,6 +437,8 @@
     "ooklaFixedTaiwan/line=0.35",
     "ooklaMobileTaiwan/line=0.35",
     "ooklaMobileTaiwan/line=0.35",
+    "vegetationForestTypes/outline=0.2",
+    "vegetationForestTypes/outline=0.2",
     "policeIsoCityDept/line=0.15",
     "policeIsoPrecinct/line=0.15",
     "policeIsoSubstation/line=0.15"
@@ -544,18 +546,18 @@
    "waterBasins/line=[2,2]"
   ],
   "lineCapJoin": {
-   "cap=(預設 butt) join=(預設 miter)": 114,
+   "cap=(預設 butt) join=(預設 miter)": 116,
    "cap=round join=round": 39,
    "cap=butt join=miter": 6,
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 681,
-   "of": 1014,
+   "sublayersWithDiff": 683,
+   "of": 1020,
    "byProperty": {
     "circle-stroke-color": 375,
     "circle-stroke-opacity": 306,
-    "line-color": 107,
+    "line-color": 109,
     "heatmap-color": 71,
     "text-color": 64,
     "text-halo-color": 64,
@@ -571,9 +573,9 @@
   "colorEncoding": {
    "circle:categorical": 278,
    "circle:constant": 235,
-   "line:constant": 126,
+   "line:constant": 128,
    "heatmap:sequential": 75,
-   "fill:categorical": 67,
+   "fill:categorical": 71,
    "symbol:constant": 64,
    "line:categorical": 60,
    "fill:constant": 37,
@@ -2170,6 +2172,7 @@
   {"id":"urbanFormGrid","members":["urbanFormGrid"],"components":["UrbanFormGridLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":6,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":6,"paintComparable":true},
   {"id":"urbanHeat","members":["urbanHeat"],"components":["UrbanHeatLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":9,"paintComparable":true},
   {"id":"urbanZoning","members":["urbanZoningNewTaipei","urbanZoningTaipei"],"components":["UrbanZoningLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":9,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":9,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
+  {"id":"vegetationForestTypes","members":["vegetationForestTypes"],"components":["VegetationForestTypesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":6,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":6,"paintComparable":true},
   {"id":"vesselWatch","members":["vesselWatch"],"components":["VesselWatchLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":12,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":12,"paintComparable":false},
   {"id":"visitorCentres","members":["visitorCentres"],"components":["PublicLifeOsmLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"wasteStopsStatic","members":["wasteStopsStatic"],"components":["DenseSingleColorLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":8,"paintComparable":true},
@@ -3928,6 +3931,7 @@
   "urbanHeat": {"label":"都市熱島 Urban Heat","theme":"都市分析 Urban Analysis","dataClass":"B","color":"#b2182b","legend":"urbanHeat","legendType":"gradient","popup":"rasterProbe","params":{"opacity":{"name":"urbanHeatOpacity","default":0.7,"min":0.3,"max":1},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"raster","type":"raster","role":"main","geometry":"raster","render":"raster","values":{"raster-opacity":0.7,"raster-fade-duration":0},"colors":{"raster-color":{"kind":"sequential","count":9}}}],"geometry":["raster"],"render":["raster"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "urbanZoningNewTaipei": {"label":"新北土地使用分區 New Taipei Zoning","theme":"底圖 Base Map","dataClass":"B","color":"#eb5757","legend":"urbanZoning","legendType":"dot-swatch","popup":"urbanZoningNewTaipei","params":{"opacity":{"name":"urbanZoningNewTaipeiOpacity","default":0.5,"min":0,"max":1},"size":{"name":"urbanZoningNewTaipeiScale","default":1,"min":0.3,"max":3},"controls":5},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":10}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.8},"colors":{"line-color":{"kind":"categorical","count":10}}},{"suffix":"heat-point","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.06,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"heat-polygon","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":6.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.06,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":10},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","line","point","polygon"],"render":["circle","fill","heatmap","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "urbanZoningTaipei": {"label":"北市土地使用分區 Taipei Zoning","theme":"底圖 Base Map","dataClass":"B","color":"#f2c94c","legend":"urbanZoning","legendType":"dot-swatch","popup":"urbanZoningTaipei","params":{"opacity":{"name":"urbanZoningTaipeiOpacity","default":0.5,"min":0,"max":1},"size":{"name":"urbanZoningTaipeiScale","default":1,"min":0.3,"max":3},"controls":5},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":10}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.8},"colors":{"line-color":{"kind":"categorical","count":10}}},{"suffix":"heat-point","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.12,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"heat-polygon","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":6.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.12,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":10},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","line","point","polygon"],"render":["circle","fill","heatmap","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "vegetationForestTypes": {"label":"植群與森林林型 Vegetation & Forest Types","theme":"林業 Forestry","dataClass":"B","color":"#166534","legend":"vegetationForestTypes","legendType":"square-swatch","popup":"vegetationForestTypes","params":{"opacity":{"name":"vegetationForestTypesOpacity","default":0.35,"min":0.1,"max":1},"controls":4},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","maxzoom":11,"values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":6}}},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":11,"values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":6}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","minzoom":11,"values":{"line-width":{"z10":0.2,"z14":0.8},"line-opacity":0.55},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true}},"themeDiff":["line-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","maxzoom":11,"values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":10}}},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":11,"values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":10}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","minzoom":11,"values":{"line-width":{"z10":0.2,"z14":0.8},"line-opacity":0.55},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "vesselWatch": {"label":"特殊船舶 Vessel Watch","theme":"情勢 Situation","dataClass":"D","color":"#fb7185","legend":"vesselWatch","legendType":"dot-swatch","popup":"vesselWatch","params":{"opacity":{"name":"vesselWatchOpacity","default":0.9,"min":0.1,"max":1},"controls":4},"hooks":["useVesselWatchLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useVesselWatchLayer.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useVesselWatchLayer.ts"],"circle-opacity":["non-literal @src/hooks/useVesselWatchLayer.ts"],"circle-radius":["non-literal @src/hooks/useVesselWatchLayer.ts"],"circle-stroke-color":["non-literal @src/hooks/useVesselWatchLayer.ts","non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/hooks/useVesselWatchLayer.ts","non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/hooks/useVesselWatchLayer.ts","non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useVesselWatchLayer.ts","non-literal @src/hooks/useVesselWatchLayer.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useVesselWatchLayer.ts","non-literal @src/hooks/useVesselWatchLayer.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":[{"z10":1.4,"z14":1.4},{"z10":1.4,"z14":1.4},"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["line","point"],"render":["circle","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "villageBoundary": {"label":"村里界 Village","theme":"底圖 Base Map","dataClass":"B","color":"#9ca3af","legend":null,"legendType":null,"popup":"villageBoundary","params":{"opacity":{"name":"villageBoundaryOpacity","default":0.65,"min":0.1,"max":1},"lineWidth":{"name":"villageBoundaryWidth","default":1,"min":0.3,"max":4},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":11,"values":{"fill-opacity":0},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#9ca3af"]}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":11,"values":{"line-width":{"z10":0.5,"z14":1},"line-opacity":0.85,"line-cap":"butt","line-join":"miter"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#9ca3af"],"lightDiffers":true,"light":["#374151"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":false,"popup":true}},
   "visitorCentres": {"label":"遊客中心 Visitor Centres","theme":"觀光 Tourism","dataClass":"A","color":"#6366f1","legend":"visitorCentres","legendType":"dot-swatch","popup":"visitorCentres","params":{"opacity":{"name":"visitorCentresOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"visitorCentresScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#6366f1"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#6366f1"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},

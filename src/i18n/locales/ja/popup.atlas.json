@@ -368,5 +368,10 @@
   "popup.atlas.wcSnapshotNote": "水利署オープンデータに接続できないため 2026-11-09 時点の画像 URL を使用中（表示できない場合があります）",
   "popup.atlas.wcOfficial": "水利署防災情報サイト",
   "popup.atlas.tlcLine": "路線",
-  "popup.atlas.tlcOsmMatch": "元データに座標がなく、同じ県市の OpenStreetMap 同名踏切から位置を推定（© OpenStreetMap contributors、ODbL）"
+  "popup.atlas.tlcOsmMatch": "元データに座標がなく、同じ県市の OpenStreetMap 同名踏切から位置を推定（© OpenStreetMap contributors、ODbL）",
+  "popup.atlas.vftDataset": "データセット",
+  "popup.atlas.vftVegetation": "天然植生図（2014）",
+  "popup.atlas.vftForestType": "第 4 次森林資源調査 林型",
+  "popup.atlas.vftFunction": "経営機能",
+  "popup.atlas.vftSubclass": "細分類"
 }

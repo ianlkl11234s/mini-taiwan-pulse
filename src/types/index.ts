@@ -155,6 +155,7 @@ export type ExpandableLayerKey =
   | "landslideEventCatalog" // G53 批 2／3（2026-11-10）
   | "wraDisasterCctv" // G53 批 2／3（2026-11-10）
   | "traLevelCrossings" // G53 批 2／3（2026-11-10）
+  | "vegetationForestTypes" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
   | "slopelandSwcAct" // G53 批 1（2026-11-09）
@@ -942,6 +943,7 @@ export interface FeatureInfo {
     | "landslideEventCatalog"
     | "wraDisasterCctv"
     | "traLevelCrossings"
+    | "vegetationForestTypes"
     | "postMailboxes"
     | "motorcycleInspectionStations"
     | "hikingTrails"
@@ -1501,6 +1503,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   wraDisasterCctv: boolean;
   /** G53 批 2／3（2026-11-10）臺鐵平交道：臺鐵 11970，來源 801 處、上圖 440 處 */
   traLevelCrossings: boolean;
+  /** G53 批 2／3（2026-11-10）植群／森林林型：林保署 9930 天然植群圖＋57873 第四次森林資源調查林型，select 切換 */
+  vegetationForestTypes: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
   landUseChangeMonitoring: boolean;
   /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */

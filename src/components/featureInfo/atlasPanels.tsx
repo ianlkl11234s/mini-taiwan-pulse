@@ -18,7 +18,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1378,6 +1378,31 @@ function LandslideEventPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 植群／森林林型：只有 z11 起的全量圖斑可點；依欄位判斷是植群還是林型。 */
+function VegetationForestTypePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const area = fmt(props.area_ha, 1, t("popup.atlas.unitHectares"), i18n);
+  if (props.forest_type_key != null) {
+    const color = optionColor(FOREST_TYPE_OPTIONS, props.forest_type_key);
+    const type = enumOf("atlasForestType", props.forest_type_key, optionLabel(FOREST_TYPE_OPTIONS, props.forest_type_key) || str(props.forest_type), i18n);
+    return <>
+      <Title color={color}>{type}</Title>
+      <Row label={t("popup.atlas.vftDataset")} value={t("popup.atlas.vftForestType")} />
+      <Row label={t("popup.atlas.vftFunction")} value={str(props.function)} />
+      <Row field="area" value={area} mono />
+    </>;
+  }
+  const color = optionColor(VEG_CLASS_OPTIONS, props.veg_class_key);
+  return <>
+    <Title color={color}>{str(props.formation) || optionLabel(VEG_CLASS_OPTIONS, props.veg_class_key)}</Title>
+    <Row label={t("popup.atlas.vftDataset")} value={t("popup.atlas.vftVegetation")} />
+    <Row field="type" value={enumOf("atlasVegClass", props.veg_class_key, optionLabel(VEG_CLASS_OPTIONS, props.veg_class_key), i18n)} color={color} />
+    <Row label={t("popup.atlas.vftSubclass")} value={str(props.subclass)} />
+    <Row field="area" value={area} mono />
+  </>;
+}
+
 /** G53 批 2／3 臺鐵平交道：25 處位置依 OSM 同名平交道推定，另註明。 */
 function TraLevelCrossingPanel({ props }: Props) {
   const i18n = useLocale();
@@ -1472,6 +1497,7 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   landslideEventCatalog: { org: "swcb", dataset: (p) => (p.source_nid != null ? String(p.source_nid) : "177455") },
   pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
   tedsGridEmissions: { org: "moenv", dataset: (p) => (p.control_no != null || p.n_sources != null ? "48201" : "152688") },
+  vegetationForestTypes: { org: "forestry", dataset: (p) => (p.forest_type_key != null ? "57873" : "9930") },
   traLevelCrossings: { org: "tra", dataset: () => "11970" },
   wraDisasterCctv: { org: "wra", dataset: (p) => (p.kind === "dredging" ? "41567" : "36687") },
   broadcastTransmitters: { org: "ncc", dataset: (p) => (p.kind === "am" ? "6446" : p.kind === "monitoring" ? "6825" : "6445") },
@@ -1500,6 +1526,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   landslideEventCatalog: withG53Footer("landslideEventCatalog", LandslideEventPanel),
   wraDisasterCctv: withG53Footer("wraDisasterCctv", WraDisasterCctvPanel),
   traLevelCrossings: withG53Footer("traLevelCrossings", TraLevelCrossingPanel),
+  vegetationForestTypes: withG53Footer("vegetationForestTypes", VegetationForestTypePanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
@@ -1589,6 +1616,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   landslideEventCatalog: manifestZh("landslideEventCatalog"),
   wraDisasterCctv: manifestZh("wraDisasterCctv"),
   traLevelCrossings: manifestZh("traLevelCrossings"),
+  vegetationForestTypes: manifestZh("vegetationForestTypes"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1794,
+    "keyCount": 1795,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5657,6 +5657,13 @@
         "antivenom-hospitals-glow"
       ],
       "type": "antivenomHospitals"
+    },
+    {
+      "layers": [
+        "natural-vegetation-map-fill",
+        "forest-types-4th-survey-fill"
+      ],
+      "type": "vegetationForestTypes"
     },
     {
       "layers": [
@@ -83983,6 +83990,522 @@
       ],
       "sourceId": "highway-disaster-history",
       "sourceUrl": "./hazards/highway_disaster_history.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "natural_vegetation_map_z4_10"
+      },
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "natural-vegetation-map-z4-10",
+      "sourceUrl": "./forestry/natural_vegetation_map_2014_z4_10.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "veg_class_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "veg_class_key"
+                ],
+                "forest",
+                "#166534",
+                "shrub",
+                "#65a30d",
+                "herbaceous",
+                "#86efac",
+                "special_habitat",
+                "#0e7490",
+                "planted",
+                "#ca8a04",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 11,
+        "sourceLayer": "natural_vegetation_map"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "natural-vegetation-map",
+      "sourceUrl": "./forestry/natural_vegetation_map_2014.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 11,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "forest_types_4th_survey_z4_10"
+      },
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "forest-types-4th-survey-z4-10",
+      "sourceUrl": "./forestry/forest_types_4th_survey_z4_10.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "vegetationForestTypes",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "forest_type_key"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "forest_type_key"
+                ],
+                "broadleaf",
+                "#166534",
+                "conifer",
+                "#0f766e",
+                "mixed_conifer_broadleaf",
+                "#4d7c0f",
+                "bamboo",
+                "#a3e635",
+                "bamboo_broadleaf",
+                "#84cc16",
+                "bamboo_conifer",
+                "#22c55e",
+                "bamboo_conifer_broadleaf",
+                "#3f6212",
+                "regenerating",
+                "#ca8a04",
+                "bare",
+                "#94a3b8",
+                "shadow",
+                "#475569",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0.2,
+                14,
+                0.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 11,
+        "sourceLayer": "forest_types_4th_survey"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "forest-types-4th-survey",
+      "sourceUrl": "./forestry/forest_types_4th_survey.pmtiles"
     },
     {
       "dynamicData": null,
@@ -196905,6 +197428,70 @@
         ],
         "type": "select",
         "value": "polygon"
+      }
+    ],
+    "vegetationForestTypes": [
+      {
+        "label": "植群大類",
+        "options": [
+          {
+            "label": "森林",
+            "value": "forest"
+          },
+          {
+            "label": "灌叢",
+            "value": "shrub"
+          },
+          {
+            "label": "草本植群",
+            "value": "herbaceous"
+          },
+          {
+            "label": "特殊棲地",
+            "value": "special_habitat"
+          },
+          {
+            "label": "人工植生",
+            "value": "planted"
+          },
+          {
+            "label": "其他（裸露地、耕地、水域、建地等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "forest",
+          "shrub",
+          "herbaceous",
+          "special_habitat",
+          "planted",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "資料集",
+        "options": [
+          {
+            "label": "天然植群圖（2014）",
+            "value": "vegetation"
+          },
+          {
+            "label": "森林林型（第四次調查）",
+            "value": "forestType"
+          }
+        ],
+        "type": "select",
+        "value": "vegetation"
       }
     ],
     "vesselWatch": [
