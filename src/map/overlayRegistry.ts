@@ -348,7 +348,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -12392,6 +12392,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     attribution: `環境部 土壤污染管制區（data.gov.tw 6384）、地下水污染管制區（35092）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("pollutionControlZones", pollutionZoneColorExpr(), 0.6, undefined, (p) => pollutionZoneStatusFilter(p?.pollutionControlZonesStatusMask)),
   },
+  publicLifePointOverlay("wraDisasterCctv", "./geo/wra_disaster_cctv_20261109.pmtiles", "wra-disaster-cctv", matchColorExpr("kind", WRA_CCTV_KIND_OPTIONS), { sourceLayer: "wra_disaster_cctv", minzoom: 4, maxzoom: 14 }, `經濟部水利署 水情影像監視站（data.gov.tw 36687）、疏濬工區管制站（41567）· ${OGDL_ATTR}`, [3, 6.5]),
   publicLifePointOverlay("broadcastTransmitters", "./geo/broadcast_transmitters_1150703.pmtiles", "broadcast-transmitters", matchColorExpr("kind", BROADCAST_KIND_OPTIONS), { sourceLayer: "broadcast_transmitters", minzoom: 4, maxzoom: 14 }, `國家通訊傳播委員會 FM 廣播電臺（data.gov.tw 6445）、AM 廣播電臺（6446）、電波監測站（6825）· ${OGDL_ATTR}`, [3, 6.5]),
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
   ...debrisFlowPotentialOverlays(),

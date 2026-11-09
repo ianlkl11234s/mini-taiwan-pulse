@@ -5286,6 +5286,7 @@ export const LAYER_PARAMS_SPEC = {
   postMailboxes: [opacitySlider("postMailboxesOpacity", densePointOpacity(6_024)), scaleSlider("postMailboxesScale", 1)],
   motorcycleInspectionStations: [opacitySlider("motorcycleInspectionStationsOpacity", densePointOpacity(3_893)), scaleSlider("motorcycleInspectionStationsScale", 1)],
   broadcastTransmitters: [opacitySlider("broadcastTransmittersOpacity", 0.9), scaleSlider("broadcastTransmittersScale", 1)],
+  wraDisasterCctv: [opacitySlider("wraDisasterCctvOpacity", 0.9), scaleSlider("wraDisasterCctvScale", 1)],
   landslideEventCatalog: [
     {
       kind: "multiSelect", name: "landslideEventCatalogYear", label: "年度（西元）", default: serializeMultiSelectValues(["114"]),

@@ -2463,5 +2463,7 @@
   "param.地下水受污染使用限制地區": "Groundwater-use restriction area",
   "param.年度（西元）": "Year",
   "param.豪雨": "Heavy rain",
-  "param.事件類型": "Event type"
+  "param.事件類型": "Event type",
+  "param.水情影像監視站": "River monitoring camera",
+  "param.疏濬工區管制站": "Dredging site camera"
 }

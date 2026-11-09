@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1792,
+    "keyCount": 1793,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5657,6 +5657,13 @@
         "antivenom-hospitals-glow"
       ],
       "type": "antivenomHospitals"
+    },
+    {
+      "layers": [
+        "wra-disaster-cctv-circle",
+        "wra-disaster-cctv-glow"
+      ],
+      "type": "wraDisasterCctv"
     },
     {
       "layers": [
@@ -85581,6 +85588,202 @@
       ],
       "sourceId": "pollution-control-zones-points",
       "sourceUrl": "./environment/pollution_control_zones_202611_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wraDisasterCctv",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "disaster",
+                "#0284c7",
+                "dredging",
+                "#b45309",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "disaster",
+                "#0284c7",
+                "dredging",
+                "#b45309",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "disaster",
+                "#0284c7",
+                "dredging",
+                "#b45309",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "disaster",
+                "#0284c7",
+                "dredging",
+                "#b45309",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "wra_disaster_cctv"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "wra-disaster-cctv",
+      "sourceUrl": "./geo/wra_disaster_cctv_20261109.pmtiles"
     },
     {
       "dynamicData": null,
@@ -198736,6 +198939,44 @@
         ],
         "type": "select",
         "value": "polygon"
+      }
+    ],
+    "wraDisasterCctv": [
+      {
+        "label": "種類",
+        "options": [
+          {
+            "label": "水情影像監視站",
+            "value": "disaster"
+          },
+          {
+            "label": "疏濬工區管制站",
+            "value": "dredging"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "disaster",
+          "dredging"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "wraDredgingPoints": [

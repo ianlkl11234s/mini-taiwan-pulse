@@ -280,7 +280,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-10: +1 台灣圖層待辦池第二＋三批 tedsGridEmissions（G53 批 2／3）。
     // 2026-11-10: +1 台灣圖層待辦池第二＋三批 pollutionControlZones（G53 批 2／3）。
     // 2026-11-10: +1 台灣圖層待辦池第二＋三批 landslideEventCatalog（G53 批 2／3）。
-    expect(keys.length).toBe(1792);
+    // 2026-11-10: +1 台灣圖層待辦池第二＋三批 wraDisasterCctv（G53 批 2／3）。
+    expect(keys.length).toBe(1793);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

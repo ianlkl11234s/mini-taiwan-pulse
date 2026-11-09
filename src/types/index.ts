@@ -153,6 +153,7 @@ export type ExpandableLayerKey =
   | "tedsGridEmissions" // G53 批 2／3（2026-11-10）
   | "pollutionControlZones" // G53 批 2／3（2026-11-10）
   | "landslideEventCatalog" // G53 批 2／3（2026-11-10）
+  | "wraDisasterCctv" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
   | "slopelandSwcAct" // G53 批 1（2026-11-09）
@@ -938,6 +939,7 @@ export interface FeatureInfo {
     | "tedsGridEmissions"
     | "pollutionControlZones"
     | "landslideEventCatalog"
+    | "wraDisasterCctv"
     | "postMailboxes"
     | "motorcycleInspectionStations"
     | "hikingTrails"
@@ -1493,6 +1495,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   pollutionControlZones: boolean;
   /** G53 批 2／3（2026-11-10）事件型崩塌目錄：水保署 93–114 年 22 個資料集，43,779 處（預設 114 年） */
   landslideEventCatalog: boolean;
+  /** G53 批 2／3（2026-11-10）水利署防災影像：36687 水情影像 132＋41567 疏濬工區 134，popup 才載入即時影像 */
+  wraDisasterCctv: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
   landUseChangeMonitoring: boolean;
   /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */

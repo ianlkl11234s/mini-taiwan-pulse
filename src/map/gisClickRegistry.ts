@@ -953,6 +953,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
   { layers: ["freeway-hundred-meter-stakes-circle", "freeway-hundred-meter-stakes-glow"], type: "freewayHundredMeterStakes" },
   { layers: ["antivenom-hospitals-circle", "antivenom-hospitals-glow"], type: "antivenomHospitals" },
+  { layers: ["wra-disaster-cctv-circle", "wra-disaster-cctv-glow"], type: "wraDisasterCctv" },
   { layers: ["broadcast-transmitters-circle", "broadcast-transmitters-glow"], type: "broadcastTransmitters" },
   { layers: ["landslide-event-catalog-fill", "landslide-event-catalog-outline"], type: "landslideEventCatalog" },
   { layers: ["pollution-control-zones-fill", "pollution-control-zones-outline"], type: "pollutionControlZones" },

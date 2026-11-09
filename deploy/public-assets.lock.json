@@ -1411,6 +1411,13 @@
    "s3_key": "deploy-assets/geo/wra_central_drainage.geojson"
   },
   {
+   "path": "public/geo/wra_disaster_cctv_20261109.pmtiles",
+   "bytes": 332553,
+   "sha256": "957402ce6e961b7328c3e67bee232590e80356302b677189ec26e766b9399383",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/wra_disaster_cctv_20261109.pmtiles"
+  },
+  {
    "path": "public/geo/wra_dredging_points.geojson",
    "bytes": 108550,
    "sha256": "07ba5a4109e6f85ed1a5d5e23664d9693b462854836063580c73c0e20a87ac81",

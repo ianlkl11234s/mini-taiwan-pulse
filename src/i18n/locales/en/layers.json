@@ -1782,5 +1782,6 @@
   "layer.broadcastTransmitters": "Broadcast Transmitters & Radio Monitoring Stations",
   "layer.tedsGridEmissions": "Air Pollutant Emission Grid (TEDS)",
   "layer.pollutionControlZones": "Soil & Groundwater Pollution Control Zones",
-  "layer.landslideEventCatalog": "Event-based Landslide Inventory"
+  "layer.landslideEventCatalog": "Event-based Landslide Inventory",
+  "layer.wraDisasterCctv": "WRA Disaster Monitoring Cameras"
 }

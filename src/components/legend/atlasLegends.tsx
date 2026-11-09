@@ -14,7 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, LANDSLIDE_EVENT_TYPE_OPTIONS,
   G53_ORGS,
   DEBRIS_RISK_OPTIONS,
@@ -112,6 +112,7 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   pollutionControlZones: () => <AtlasLegend layer="pollutionControlZones" en="Soil & Groundwater Pollution Control Zones" kind="square" source={src("moenv", ["6384", "35092"])} domain="atlasPollutionZoneGroup"
     rows={[...POLLUTION_ZONE_GROUP_OPTIONS, { labelKey: "legend.atlas.pczReleased", color: POLLUTION_ZONE_RELEASED_COLOR }]} />,
   tedsGridEmissions: () => <TedsGridEmissionsLegend />,
+  wraDisasterCctv: () => <AtlasLegend layer="wraDisasterCctv" en="WRA Disaster Monitoring Cameras" source={src("wra", ["36687", "41567"])} domain="atlasWraCctvKind" rows={WRA_CCTV_KIND_OPTIONS} />,
   broadcastTransmitters: () => <AtlasLegend layer="broadcastTransmitters" en="Broadcast Transmitters & Radio Monitoring Stations" source={src("ncc", ["6445", "6446", "6825"])} domain="atlasBroadcastKind" rows={BROADCAST_KIND_OPTIONS} />,
   landUseChangeMonitoring: () => <AtlasLegend layer="landUseChangeMonitoring" en="Land Use Change Monitoring" kind="square" source={src("nlma", ["168030"])} domain="atlasLandChange" rows={LAND_CHANGE_CLASS_OPTIONS} />,
   debrisFlowPotential: () => <AtlasLegend layer="debrisFlowPotential" en="Debris Flow Potential Streams" kind="square" source={src("swcb", ["176524", "176525", "176526"])} domain="atlasDebrisRisk" rows={DEBRIS_RISK_OPTIONS} />,

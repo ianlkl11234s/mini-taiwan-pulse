@@ -355,5 +355,16 @@
   "popup.atlas.lseYearLabel": "年度",
   "popup.atlas.lseYear": "{year} 年",
   "popup.atlas.lseDates": "前後の画像日付",
-  "popup.atlas.lsePointHint": "ズーム 10 まで拡大し「面」に切り替えるとイベント名と画像日付が表示されます"
+  "popup.atlas.lsePointHint": "ズーム 10 まで拡大し「面」に切り替えるとイベント名と画像日付が表示されます",
+  "popup.atlas.wcStation": "監視局",
+  "popup.atlas.wcRiver": "流域／河川",
+  "popup.atlas.wcAuthority": "管理機関",
+  "popup.atlas.wcApprox1km": "位置は概略（元の座標は小数 2 桁、約 1 km）",
+  "popup.atlas.wcApprox10km": "位置は概略（元の座標は小数 1 桁、約 10 km）",
+  "popup.atlas.wcSameSite": "同じ工区のカメラ {n} 台",
+  "popup.atlas.wcImage": "ライブ画像",
+  "popup.atlas.wcLoadingList": "水利署から当日の画像 URL を取得中…",
+  "popup.atlas.wcNoImage": "このカメラの画像 URL を現在取得できません",
+  "popup.atlas.wcSnapshotNote": "水利署オープンデータに接続できないため 2026-11-09 時点の画像 URL を使用中（表示できない場合があります）",
+  "popup.atlas.wcOfficial": "水利署防災情報サイト"
 }

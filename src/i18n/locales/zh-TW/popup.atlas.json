@@ -355,5 +355,16 @@
   "popup.atlas.lseYearLabel": "年度",
   "popup.atlas.lseYear": "民國 {year} 年",
   "popup.atlas.lseDates": "前後期影像日期",
-  "popup.atlas.lsePointHint": "放大到 10 級並切成「面」可看事件名稱與影像日期"
+  "popup.atlas.lsePointHint": "放大到 10 級並切成「面」可看事件名稱與影像日期",
+  "popup.atlas.wcStation": "監視站",
+  "popup.atlas.wcRiver": "流域／河川",
+  "popup.atlas.wcAuthority": "管理機關",
+  "popup.atlas.wcApprox1km": "位置為概略（來源座標只到小數 2 位，約 1 km）",
+  "popup.atlas.wcApprox10km": "位置為概略（來源座標只到小數 1 位，約 10 km）",
+  "popup.atlas.wcSameSite": "同工區攝影機 {n} 支",
+  "popup.atlas.wcImage": "即時影像",
+  "popup.atlas.wcLoadingList": "向水利署取得當天影像網址…",
+  "popup.atlas.wcNoImage": "目前取不到這支攝影機的影像網址",
+  "popup.atlas.wcSnapshotNote": "連不上水利署開放資料平臺，改用 2026-11-09 的影像網址，可能已失效",
+  "popup.atlas.wcOfficial": "水利署防災資訊網"
 }

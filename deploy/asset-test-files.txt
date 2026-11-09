@@ -123,6 +123,7 @@ public/geo/waste_stops_static_20260930.pmtiles
 public/geo/water_flood_650mm_24hr_points.pmtiles
 public/geo/wind_plan.geojson
 public/geo/wra_central_drainage.geojson
+public/geo/wra_disaster_cctv_20261109.pmtiles
 public/geo/wra_dredging_points.geojson
 public/geo/wra_ecology_survey_sites.geojson
 public/geo/wra_floodgates_central.geojson

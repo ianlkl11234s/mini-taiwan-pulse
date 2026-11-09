@@ -610,7 +610,7 @@ export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
-  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog",
+  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -694,9 +694,15 @@ export function landslideEventFilter(yearMask?: number, typeMask?: number): unkn
   const types = LANDSLIDE_EVENT_TYPE_OPTIONS.filter((_, i) => (tm & (1 << i)) !== 0);
   return ["all", yearExpr, ["any", false, ...types.map((o) => ["==", ["get", `has_${o.value}`], true])]];
 }
+/** 水利署防災影像（上游 kind；英日文 enum.atlasWraCctvKind.*）。 */
+export const WRA_CCTV_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "disaster", label: "水情影像監視站", color: "#0284c7" },
+  { value: "dredging", label: "疏濬工區管制站", color: "#b45309" },
+];
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會" } as const;
 
 export const ATLAS_NOTES = {
+  wraDisasterCctv: "經濟部水利署的防災影像攝影機 266 支：水情影像監視站 132 支（data.gov.tw 36687）與河川疏濬工區管制站 134 支（41567），2026-11-09 版。點開才載入即時影像，不預載。水情影像的網址每天更換，點開時會向水利署開放資料平臺重抓當天網址；平臺連不上時改用 11-09 的快照網址，可能已失效，可改從水利署防災資訊網觀看。疏濬工區座標只到小數 2 位（121 支，約 1 km）或 1 位（13 支，約 10 km），位置為概略；同一工區多支攝影機共用一個位置（22 處），點開後可切換同工區的攝影機。疏濬攝影機是防盜採砂石的工區監控，畫面可能拍到車輛。",
   landslideEventCatalog: "農業部農村發展及水土保持署的事件型崩塌目錄：民國 93–114 年（2004–2025）各次颱風、豪雨、地震後以衛星影像判釋的崩塌地 43,779 處（22 個 data.gov.tw 資料集；104 年 1 筆空幾何未上圖）。預設只顯示最新的 114 年，「年度」可多選；98 年（莫拉克颱風）11,707 處，一起開會主導全國畫面。依事件類型上色（同一處可同時屬颱風與豪雨，顏色依颱風、豪雨、地震、其他的順序取第一個），「事件類型」篩選是有任一勾選類型就顯示。小面多，預設畫點（拉遠熱區），可切成面（10 級起）；事件名稱與影像日期要放大切成面才看得到。和「年度全島崩塌地」不同：本層是事件後判釋，早期年度部分取自林務局全島判釋，兩層可能重疊。",
   pollutionControlZones: "環境部土壤及地下水污染管制區範圍：土壤 7,402 場址（data.gov.tw 6384，2026-11 月檔）、地下水 401 場址（35092，2026-10），共 7,803 場址，含已解除列管的。預設只顯示列管中的 384 場址，「列管狀態」可勾已解除（灰色）。依列管類型上色：整治場址（較嚴重）深紅、控制場址橙、地下水受污染使用限制地區紫。多為單筆農地地號的小面，預設畫點，可切成面（8 級起）。彰化、桃園多為農地重金屬污染。102 個場址名稱含「?」是來源造字遺失，照原樣顯示。場址代碼與「污染場址」圖層相同，可互相對照；範圍以環境部公告為準。",
   tedsGridEmissions: "環境部臺灣排放量清冊 TEDS 13.0（排放年 2023）的推估排放量，不是監測值。網格模式顯示每平方公里每年排放公噸數（1 km 方格；拉遠到 9 級以下合成 5 km 方格），四種來源分開看：點源（工廠煙囪等）、線源（公路車輛）、面源（其他人為來源）、生物源（植物排放，只有 NMHC）。只收有排放的格。「點源工廠」模式是 15,996 家事業的年排放量（由 255,912 個排放口依管制編號合併，位置取排放口的中位位置），拉遠畫熱區、放大到 10 級起畫點，點大小依所選污染物。非公路運輸與氨排放網格未收。",

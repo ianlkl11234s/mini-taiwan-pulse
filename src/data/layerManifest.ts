@@ -12006,6 +12006,15 @@ export const LAYER_MANIFEST = {
     description: "疾管署公告儲備抗蛇毒血清的醫療院所 191 家，可依血清種類（龜殼花及赤尾鮐、雨傘節及飯匙倩、百步蛇、鎖鏈蛇）篩選。",
     topics: ["醫療", "蛇咬", "抗蛇毒血清", "急救", "疾管署"],
   },
+  wraDisasterCctv: {
+    key: "wraDisasterCctv", country: "TW", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "水利署防災影像", alt: "WRA Disaster Monitoring Cameras" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.wraDisasterCctv, icon: Camera,
+    upstream: { status: "verified", datasets: [{ datasetId: "wra_disaster_cctv", confidence: "HIGH" }], processing: "analytics water_resources/wra_disaster_cctv 20261109：水利署 data.gov.tw 36687（水情影像 132）＋41567（疏濬工區 134）合併 266 點；36687 影像網址的 CCTV_SN 每天換，popup 開啟時向 opendata.wra.gov.tw 重抓清單依 cameraid 對回當天網址", note: "41567 座標只到 0.01°（121 支）或 0.1°（13 支），同工區多支共用座標（22 處）→ popup 列出同工區攝影機切換。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "wra-disaster-cctv", url: "./geo/wra_disaster_cctv_20261109.pmtiles", sourceLayer: "wra_disaster_cctv", minzoom: 4, maxzoom: 14 },
+    legend: "wraDisasterCctv", popup: "wraDisasterCctv", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "水利署河川水情影像監視站 132 支與疏濬工區管制站 134 支；點開可看即時影像。",
+    topics: ["水利", "CCTV", "攝影機", "即時影像", "河川", "疏濬", "防災"],
+  },
   landslideEventCatalog: {
     key: "landslideEventCatalog", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "事件型崩塌目錄", alt: "Event-based Landslide Inventory" }), expandable: true,
     color: ATLAS_LAYER_COLORS.landslideEventCatalog, icon: Mountain,

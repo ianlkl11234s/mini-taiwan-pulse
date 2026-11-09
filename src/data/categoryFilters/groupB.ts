@@ -9,6 +9,15 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       options: [{ value: "remediation", zh: "整治場址" }, { value: "control", zh: "控制場址" }, { value: "gw_restriction", zh: "地下水受污染使用限制地區" }],
     },
   ],
+  // G53 批 2／3（2026-11-10）：水利署防災影像種類（值與 atlasLayerTypes WRA_CCTV_KIND_OPTIONS 同序）
+  wraDisasterCctv: {
+    property: "kind",
+    label: "種類",
+    options: [
+      { value: "disaster", zh: "水情影像監視站" },
+      { value: "dredging", zh: "疏濬工區管制站" },
+    ],
+  },
   // G53 批 2／3（2026-11-10）：廣播發射站種類（值與 atlasLayerTypes BROADCAST_KIND_OPTIONS 同序）
   broadcastTransmitters: {
     property: "kind",

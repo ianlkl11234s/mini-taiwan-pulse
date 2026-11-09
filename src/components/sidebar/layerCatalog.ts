@@ -1891,6 +1891,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("wraCentralDrainage"),
           fromManifest("iowStructureMonitoring"),
           fromManifest("wraDredgingPoints"),
+          fromManifest("wraDisasterCctv"),
           fromManifest("wraEcologySurveySites"),
         ],
       },

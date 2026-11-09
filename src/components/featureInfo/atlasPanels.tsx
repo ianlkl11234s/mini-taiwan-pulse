@@ -1,10 +1,12 @@
-import type { FC } from "react";
+import { useEffect, useState, type FC } from "react";
+import { CctvStreamView } from "../CctvStreamView";
+import { dredgingSiblingImages, fetchWraCctvList, resolveDisasterImage, safeWraImageUrl, WRA_CCTV_OFFICIAL_URL } from "../../data/wraDisasterCctv";
 import { Row, SourceFooter, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
 import { placeName, placeNameList, placeTown } from "../../i18n/placeText";
-import { FONT_SIZE } from "../../styles/designTokens";
+import { FONT_SIZE, RADIUS, SPACING } from "../../styles/designTokens";
 import {
   ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS,
   FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MONITOR_SERIES_OPTIONS,
@@ -16,7 +18,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1376,12 +1378,87 @@ function LandslideEventPanel({ props }: Props) {
   </>;
 }
 
+type WraCctvImages = { urls: string[]; index: number; loading: boolean; fromSnapshot: boolean };
+
+/**
+ * 點開才取影像網址：水情影像依 cameraid 從當天清單取（CCTV_SN 每天換），抓不到退回快照網址並註明；
+ * 疏濬工區網址固定，但同工區多支共用座標，取清單列出同工區所有攝影機。詳見 data/wraDisasterCctv.ts。
+ */
+function useWraCctvImages(props: Record<string, unknown>): [WraCctvImages, (index: number) => void] {
+  const dredging = props.kind === "dredging";
+  const snapshot = safeWraImageUrl(props.image_url);
+  const [state, setState] = useState<WraCctvImages>(() => ({
+    urls: dredging && snapshot ? [snapshot] : [], index: 0, loading: true, fromSnapshot: false,
+  }));
+  useEffect(() => {
+    let cancelled = false;
+    const fallback = (): WraCctvImages => ({ urls: snapshot ? [snapshot] : [], index: 0, loading: false, fromSnapshot: !dredging && !!snapshot });
+    fetchWraCctvList(dredging ? "dredging" : "disaster").then((list) => {
+      if (cancelled) return;
+      if (dredging) {
+        const urls = dredgingSiblingImages(list, props.name);
+        if (snapshot && !urls.includes(snapshot)) urls.unshift(snapshot);
+        setState(urls.length ? { urls, index: Math.max(0, snapshot ? urls.indexOf(snapshot) : 0), loading: false, fromSnapshot: false } : fallback());
+      } else {
+        const live = resolveDisasterImage(list, props.cctv_id);
+        setState(live ? { urls: [live], index: 0, loading: false, fromSnapshot: false } : fallback());
+      }
+    }).catch(() => { if (!cancelled) setState(fallback()); });
+    return () => { cancelled = true; };
+  }, [dredging, snapshot, props.name, props.cctv_id]);
+  return [state, (index) => setState((s) => ({ ...s, index }))];
+}
+
+/** G53 批 2／3 水利署防災影像：即時影像只在 popup 開啟時載入；疏濬工區位置概略且多支共用座標。 */
+function WraDisasterCctvBody({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(WRA_CCTV_KIND_OPTIONS, props.kind);
+  const [images, setIndex] = useWraCctvImages(props);
+  const url = images.urls[images.index] ?? "";
+  const station = str(props.station_name);
+  const precision = str(props.coord_precision);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasWraCctvKind", props.kind, optionLabel(WRA_CCTV_KIND_OPTIONS, props.kind), i18n)} color={color} />
+    {station && station !== str(props.name) ? <Row label={t("popup.atlas.wcStation")} value={station} /> : null}
+    <Row label={t("popup.atlas.wcRiver")} value={[str(props.basin), str(props.river)].filter(Boolean).join(" › ")} />
+    <Row field="address" value={[str(props.county), str(props.town)].filter(Boolean).join(" ")} />
+    <Row label={t("popup.atlas.wcAuthority")} value={str(props.authority)} />
+    {precision === "approx_1km" || precision === "approx_10km"
+      ? <Row field="caution" value={t(precision === "approx_1km" ? "popup.atlas.wcApprox1km" : "popup.atlas.wcApprox10km")} /> : null}
+    {images.urls.length > 1 ? (
+      <div className="fi-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: SPACING.xs, padding: `${SPACING.xxs}px 0`, fontSize: FONT_SIZE.sm }}>
+        <span style={{ color: theme.textMuted, marginRight: SPACING.xs }}>{t("popup.atlas.wcSameSite", { n: images.urls.length })}</span>
+        {images.urls.map((_, i) => (
+          <button key={i} type="button" aria-pressed={i === images.index} onClick={() => setIndex(i)} style={{
+            padding: `${SPACING.xxs}px ${SPACING.sm}px`, border: `1px solid ${i === images.index ? color : theme.border}`, borderRadius: RADIUS.sm,
+            background: i === images.index ? `${color}22` : "transparent", color: i === images.index ? color : theme.textMuted, cursor: "pointer", fontSize: FONT_SIZE.xs,
+          }}>{i + 1}</button>
+        ))}
+      </div>
+    ) : null}
+    {images.loading && !url ? <Row label={t("popup.atlas.wcImage")} value={t("popup.atlas.wcLoadingList")} /> : null}
+    {url ? <CctvStreamView key={url} streamUrl={url} imageUrl={url} source="wra" accentColor={color} /> : null}
+    {!images.loading && !url ? <Row label={t("popup.atlas.wcImage")} value={t("popup.atlas.wcNoImage")} /> : null}
+    {images.fromSnapshot ? <Row field="remarks" value={t("popup.atlas.wcSnapshotNote")} /> : null}
+    <LinkRow label={t("popup.atlas.wcOfficial")} url={WRA_CCTV_OFFICIAL_URL} />
+  </>;
+}
+
+/** 換點時以 key 重置（狀態只在非同步回呼裡更新）。 */
+function WraDisasterCctvPanel({ props }: Props) {
+  return <WraDisasterCctvBody key={`${str(props.cctv_id)}|${str(props.image_url)}`} props={props} />;
+}
+
 type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
 /** G53 批 1 出處（與圖例同一份機關＋data.gov.tw 資料集；土石流依圖徵種類指向溪流／集水區／影響範圍資料集）。 */
 const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
   landslideEventCatalog: { org: "swcb", dataset: (p) => (p.source_nid != null ? String(p.source_nid) : "177455") },
   pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
   tedsGridEmissions: { org: "moenv", dataset: (p) => (p.control_no != null || p.n_sources != null ? "48201" : "152688") },
+  wraDisasterCctv: { org: "wra", dataset: (p) => (p.kind === "dredging" ? "41567" : "36687") },
   broadcastTransmitters: { org: "ncc", dataset: (p) => (p.kind === "am" ? "6446" : p.kind === "monitoring" ? "6825" : "6445") },
   postMailboxes: { org: "chunghwaPost", dataset: () => "178399" },
   debrisFlowPotential: { org: "swcb", dataset: (p) => (p.zone_id != null || p.total_res != null ? "176526" : p.area_ha != null ? "176525" : "176524") },
@@ -1406,6 +1483,7 @@ function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   landslideEventCatalog: withG53Footer("landslideEventCatalog", LandslideEventPanel),
+  wraDisasterCctv: withG53Footer("wraDisasterCctv", WraDisasterCctvPanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
@@ -1493,6 +1571,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
   landslideEventCatalog: manifestZh("landslideEventCatalog"),
+  wraDisasterCctv: manifestZh("wraDisasterCctv"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),

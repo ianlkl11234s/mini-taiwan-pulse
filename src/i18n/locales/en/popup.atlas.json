@@ -355,5 +355,16 @@
   "popup.atlas.lseYearLabel": "Year",
   "popup.atlas.lseYear": "{year}",
   "popup.atlas.lseDates": "Before → after image dates",
-  "popup.atlas.lsePointHint": "Zoom to level 10 and switch to polygons to see the event name and image dates"
+  "popup.atlas.lsePointHint": "Zoom to level 10 and switch to polygons to see the event name and image dates",
+  "popup.atlas.wcStation": "Station",
+  "popup.atlas.wcRiver": "Basin / river",
+  "popup.atlas.wcAuthority": "Managing agency",
+  "popup.atlas.wcApprox1km": "Approximate position (source coordinates have 2 decimal places, about 1 km)",
+  "popup.atlas.wcApprox10km": "Approximate position (source coordinates have 1 decimal place, about 10 km)",
+  "popup.atlas.wcSameSite": "{n} cameras at this site",
+  "popup.atlas.wcImage": "Live image",
+  "popup.atlas.wcLoadingList": "Getting today's image address from the WRA…",
+  "popup.atlas.wcNoImage": "No image address is available for this camera right now",
+  "popup.atlas.wcSnapshotNote": "Could not reach the WRA open data platform; using the 2026-11-09 image address, which may no longer work",
+  "popup.atlas.wcOfficial": "WRA disaster information site"
 }
