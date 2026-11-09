@@ -1,6 +1,16 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 
 export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // G53 批 2／3（2026-11-10）：廣播發射站種類（值與 atlasLayerTypes BROADCAST_KIND_OPTIONS 同序）
+  broadcastTransmitters: {
+    property: "kind",
+    label: "種類",
+    options: [
+      { value: "fm", zh: "FM 廣播" },
+      { value: "am", zh: "AM 廣播" },
+      { value: "monitoring", zh: "電波監測站" },
+    ],
+  },
   // G53 批 1（2026-11-09）：國土利用監測變異點類別＋年度（網格層 skipCategoryFilter，改由 paint 依兩個 mask 加總計數欄）
   landUseChangeMonitoring: [
     {

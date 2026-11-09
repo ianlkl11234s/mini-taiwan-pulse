@@ -335,5 +335,8 @@
   "popup.atlas.lucYear": "年度（民國）",
   "popup.atlas.lucChange": "前期 → 後期判釋",
   "popup.atlas.lucDates": "影像日期",
-  "popup.atlas.lucCaution": "衛星影像判釋的「疑似變異」，不是查報確認的違規"
+  "popup.atlas.lucCaution": "衛星影像判釋的「疑似變異」，不是查報確認的違規",
+  "popup.atlas.bcFrequency": "頻率",
+  "popup.atlas.bcClass": "電臺類別",
+  "popup.atlas.bcCoordFixed": "來源經度筆誤（102→120），已依地址修正"
 }

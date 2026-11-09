@@ -335,5 +335,8 @@
   "popup.atlas.lucYear": "年度（民国）",
   "popup.atlas.lucChange": "前期 → 後期の判読",
   "popup.atlas.lucDates": "画像の日付",
-  "popup.atlas.lucCaution": "衛星画像の判読による「変化の疑い」で、調査で確認された違反ではありません"
+  "popup.atlas.lucCaution": "衛星画像の判読による「変化の疑い」で、調査で確認された違反ではありません",
+  "popup.atlas.bcFrequency": "周波数",
+  "popup.atlas.bcClass": "局の区分",
+  "popup.atlas.bcCoordFixed": "元データの経度誤記（102→120）を住所に基づき修正"
 }

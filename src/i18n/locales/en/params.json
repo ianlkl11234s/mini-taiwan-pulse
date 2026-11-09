@@ -2443,5 +2443,8 @@
   "param.市場服務：診所": "Market: Clinics",
   "param.市場服務：藥局": "Market: Pharmacies",
   "param.市場服務：銀行等金融分支": "Market: Bank & financial branches",
-  "param.例外：超商（設 ATM 的門市）": "Exception: Convenience stores (with ATM)"
+  "param.例外：超商（設 ATM 的門市）": "Exception: Convenience stores (with ATM)",
+  "param.FM 廣播": "FM radio",
+  "param.AM 廣播": "AM radio",
+  "param.電波監測站": "Radio monitoring station"
 }

@@ -18,17 +18,17 @@
   ]
  },
  "summary": {
-  "layerKeys": 1788,
-  "overlayConfigs": 523,
-  "runtimeSublayers": 995,
+  "layerKeys": 1789,
+  "overlayConfigs": 524,
+  "runtimeSublayers": 997,
   "byResolution": {
-   "runtime": 436,
+   "runtime": 437,
    "static-scan": 308,
    "unresolved": 133,
    "shared-renderer": 911
   },
   "byGeometry": {
-   "point": 602,
+   "point": 603,
    "heatmap": 216,
    "line": 375,
    "polygon": 1244,
@@ -43,11 +43,11 @@
    "Three.js／WebGL CustomLayer": 11,
    "無 hook／factory（App 掛載或尚無實作）": 103
   },
-  "legendEntries": 1536,
+  "legendEntries": 1537,
   "legendTypes": {
    "square-swatch": 125,
    "svg-icon": 50,
-   "dot-swatch": 243,
+   "dot-swatch": 244,
    "gradient+dot-swatch": 74,
    "square-swatch+hatch(missing)": 916,
    "gradient+size+dot-swatch": 4,
@@ -75,7 +75,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 585,
+   "ssr": 586,
    "static": 951
   },
   "legendsWithIssues": 57,
@@ -108,7 +108,7 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 366,
+    "n": 367,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
@@ -127,10 +127,10 @@
     "dataDrivenCounted": 44,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 154
+    "decorationExcluded": 155
    },
    "circle-radius@z14": {
-    "n": 366,
+    "n": 367,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
@@ -140,7 +140,7 @@
      "4.5×199",
      "3×42",
      "6×41",
-     "6.5×17",
+     "6.5×18",
      "5×9",
      "7×7",
      "3.45×7",
@@ -149,10 +149,10 @@
     "dataDrivenCounted": 44,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 154
+    "decorationExcluded": 155
    },
    "circle-stroke-width@z14": {
-    "n": 371,
+    "n": 372,
     "min": 0.5,
     "p25": 1,
     "median": 1,
@@ -160,7 +160,7 @@
     "max": 2.2,
     "mostCommon": [
      "1×268",
-     "1.2×64",
+     "1.2×65",
      "1.4×10",
      "1.5×5",
      "1.3×4",
@@ -171,10 +171,10 @@
     "dataDrivenCounted": 38,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 154
+    "decorationExcluded": 155
    },
    "circle-opacity": {
-    "n": 367,
+    "n": 368,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
@@ -183,7 +183,7 @@
     "mostCommon": [
      "0.85×110",
      "0.8×80",
-     "0.9×47",
+     "0.9×48",
      "0.75×44",
      "0.45×15",
      "0.6×12",
@@ -193,7 +193,7 @@
     "dataDrivenCounted": 44,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 154
+    "decorationExcluded": 155
    },
    "line-width@z10": {
     "n": 159,
@@ -508,24 +508,24 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 368,
+   "隨底圖切換": 369,
    "資料驅動": 2,
    "固定 #c2410c": 1
   },
   "circleStrokeThemePairs": {
    "暗 #0a0a14 → 淡 #ffffff": 270,
-   "暗 #0f172a → 淡 #ffffff": 65,
+   "暗 #0f172a → 淡 #ffffff": 66,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
    "暗 #0a0a14 → 淡 #475569": 1
   },
   "decorationSublayers": {
-   "count": 182,
+   "count": 183,
    "byType": {
-    "circle": 154,
+    "circle": 155,
     "line": 28
    },
-   "keys": 158
+   "keys": 159
   },
   "lineDash": [
    "debrisFlowPotential/outline=[4,3]",
@@ -550,10 +550,10 @@
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 669,
-   "of": 995,
+   "sublayersWithDiff": 670,
+   "of": 997,
    "byProperty": {
-    "circle-stroke-color": 368,
+    "circle-stroke-color": 369,
     "circle-stroke-opacity": 303,
     "line-color": 105,
     "heatmap-color": 68,
@@ -569,7 +569,7 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 269,
+   "circle:categorical": 271,
    "circle:constant": 234,
    "line:constant": 124,
    "heatmap:sequential": 72,
@@ -685,6 +685,7 @@
   {"id":"bridgeComparisonNewTaipei","members":["bridgeComparisonNewTaipei"],"components":["NetworkStructuresLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":6,"paintComparable":true},
   {"id":"bridgeRainThresholds","members":["bridgeRainThresholds"],"components":["NetworkStructuresLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":3,"paintComparable":false},
   {"id":"bridgeResilienceTwinCity","members":["bridgeResilienceTwinCity"],"components":["BridgeResilienceLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"svg-icon","features":{"dot":0,"square":0,"line":0,"dashed":1,"gradient":0,"hatch":0,"svg":4,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":2,"paintComparable":false},
+  {"id":"broadcastTransmitters","members":["broadcastTransmitters"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":3,"paintComparable":true},
   {"id":"bssNationalBridgePointsPreview","members":["bssNationalBridgePointsPreview"],"components":["BssBridgePointLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":11,"paintComparable":false},
   {"id":"bssNationalBridgePreview","members":["bssNationalBridgePreview"],"components":["BssBridgeLineLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"svg-icon","features":{"dot":0,"square":0,"line":0,"dashed":1,"gradient":0,"hatch":0,"svg":4,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":4,"paintComparable":false},
   {"id":"buildingsGba","members":["buildingsGba"],"components":["BuildingsGbaLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":6,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":6,"paintComparable":true},
@@ -2241,6 +2242,7 @@
   "bridgeComparisonNewTaipei": {"label":"新北橋梁 OSM 比對","theme":"交通 Move","dataClass":"B","color":"#22c55e","legend":"bridgeComparisonNewTaipei","legendType":"dot-swatch","popup":"bridgeComparisonNewTaipei","params":{"opacity":{"name":"bridgeComparisonNewTaipeiOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"bridgeComparisonNewTaipeiScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":2,"z14":3.5},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":6}}},{"suffix":"coincident-endpoints","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":6},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["line","point"],"render":["circle","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "bridgeRainThresholds": {"label":"一級監控橋梁參考雨量","theme":"交通 Move","dataClass":"D","color":"#ef4444","legend":"bridgeRainThresholds","legendType":"dot-swatch","popup":"bridgeRainThresholds","params":{"opacity":{"name":"bridgeRainThresholdsOpacity","default":0.9,"min":0.1,"max":1},"controls":1},"hooks":["useBridgeRainLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useBridgeRainLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":[{"kind":"categorical"}],"circle-opacity":[0.95],"circle-radius":["non-literal @src/hooks/useBridgeRainLayer.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "bridgeResilienceTwinCity": {"label":"雙北跨河橋梁韌性（推估・研究中）","theme":"雙北跨河橋梁中斷","dataClass":"D","color":"#f59e0b","legend":"bridgeResilienceTwinCity","legendType":"svg-icon","popup":"bridgeResilienceTwinCity","params":{"opacity":{"name":"bridgeResilienceTwinCityOpacity","default":0.9,"min":0.1,"max":1},"controls":7},"hooks":["useBridgeResilienceLayers"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useBridgeResilienceLayers.ts","src/map/lineFillSpec.ts"],"staticValues":{"fill-color":["non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts"],"fill-opacity":["non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-blur":[{"z10":1.5,"z14":1.5}],"line-cap":["unresolved:\"round\"","unresolved:\"round\"","unresolved:\"round\"","unresolved:\"round\"","unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts"],"line-dasharray":["unresolved:[1.5,1.5]","unresolved:[1.5,1.5]","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"round\"","unresolved:\"round\"","unresolved:\"round\"","unresolved:\"round\"","unresolved:\"round\""],"line-opacity":["non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts","non-literal @src/hooks/useBridgeResilienceLayers.ts"],"line-width":[{"z10":0.5,"z14":0.5},{"z10":1.5,"z14":2.5},{"z10":2.667,"z14":4},{"z10":7.5,"z14":15.333},{"z10":2.214,"z14":3.643},{"z10":2.857,"z14":4.571}]},"geometry":["polygon"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "broadcastTransmitters": {"label":"廣播發射站與電波監測站 Broadcast Transmitters & Radio Monitoring Stations","theme":"通訊 Telecom","dataClass":"B","color":"#7c3aed","legend":"broadcastTransmitters","legendType":"dot-swatch","popup":"broadcastTransmitters","params":{"opacity":{"name":"broadcastTransmittersOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"broadcastTransmittersScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.9,"z14":11.7},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":4}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.5,"z14":6.5},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.9,"circle-stroke-opacity":0.9},"colors":{"circle-color":{"kind":"categorical","count":4},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "bssNationalBridgePointsPreview": {"label":"全臺橋梁清冊點位（進行中）","theme":"交通 Move","dataClass":"D","color":"#facc15","legend":"bssNationalBridgePointsPreview","legendType":"gradient+dot-swatch","popup":"bssNationalBridgePointsPreview","params":{"opacity":{"name":"bssNationalBridgePointsPreviewOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"bssNationalBridgePointsPreviewScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useBssBridgeLayers"],"siblings":["bssNationalBridgePreview"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useBssBridgeLayers.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useBssBridgeLayers.ts"],"circle-opacity":["non-literal @src/hooks/useBssBridgeLayers.ts"],"circle-radius":["non-literal @src/hooks/useBssBridgeLayers.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","line","point"],"render":["circle","heatmap","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "bssNationalBridgePreview": {"label":"全臺橋梁方向候選（進行中）","theme":"交通 Move","dataClass":"D","color":"#22d3ee","legend":"bssNationalBridgePreview","legendType":"svg-icon","popup":"bssNationalBridgePreview","params":{"opacity":{"name":"bssNationalBridgePreviewOpacity","default":0.82,"min":0.1,"max":1},"controls":3},"hooks":["useBssBridgeLayers"],"siblings":["bssNationalBridgePointsPreview"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useBssBridgeLayers.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useBssBridgeLayers.ts"],"circle-opacity":["non-literal @src/hooks/useBssBridgeLayers.ts"],"circle-radius":["non-literal @src/hooks/useBssBridgeLayers.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/hooks/useBssBridgeLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","line","point"],"render":["circle","heatmap","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "buildingsGba": {"label":"建物輪廓 Buildings","theme":"底圖 Base Map","dataClass":"B","color":"#78909c","legend":"buildingsGba","legendType":"square-swatch","popup":"buildingsGba","params":{"opacity":{"name":"buildingsGbaOpacity","default":0.75,"min":0,"max":1},"height":{"name":"buildingsGbaMinHeight","default":0,"min":0,"max":100},"controls":5},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.55},"colors":{"fill-color":{"kind":"categorical","count":7}}},{"suffix":"extrusion","type":"fill-extrusion","role":"main","geometry":"3d","render":"fill-extrusion","minzoom":13,"values":{"fill-extrusion-opacity":0,"fill-extrusion-height":"unresolved:[\"get\",\"h\"]","fill-extrusion-base":0},"colors":{"fill-extrusion-color":{"kind":"categorical","count":7}}}],"geometry":["3d","polygon"],"render":["fill","fill-extrusion"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

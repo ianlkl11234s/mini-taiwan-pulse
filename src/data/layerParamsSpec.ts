@@ -5285,6 +5285,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   postMailboxes: [opacitySlider("postMailboxesOpacity", densePointOpacity(6_024)), scaleSlider("postMailboxesScale", 1)],
   motorcycleInspectionStations: [opacitySlider("motorcycleInspectionStationsOpacity", densePointOpacity(3_893)), scaleSlider("motorcycleInspectionStationsScale", 1)],
+  broadcastTransmitters: [opacitySlider("broadcastTransmittersOpacity", 0.9), scaleSlider("broadcastTransmittersScale", 1)],
   pollutionFacility: [
     heatmapPalette("pollutionFacility"),
     opacitySlider("pollutionFacilityOpacity", densePointOpacity(152_246)),

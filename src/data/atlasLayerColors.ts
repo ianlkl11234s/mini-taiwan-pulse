@@ -89,4 +89,6 @@ export const ATLAS_LAYER_COLORS = {
   slopelandSwcAct: "#a3734c",
   debrisFlowPotential: "#ea580c",
   landUseChangeMonitoring: "#ca8a04",
+  // G53 批 2／3（2026-11-10）
+  broadcastTransmitters: "#7c3aed",
 } as const;

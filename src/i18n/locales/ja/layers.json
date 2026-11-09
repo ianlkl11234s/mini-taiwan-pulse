@@ -1778,5 +1778,6 @@
   "layer.statsKrFireIncidentsPer10kSido": "人口1万人あたり火災件数（広域自治体）",
   "layer.statsKrFireIncidentsPer10kSgg": "人口1万人あたり火災件数（基礎自治体）",
   "layer.statsKrTrafficAccidentsPer10kSido": "人口1万人あたり交通事故件数（広域自治体）",
-  "layer.statsKrTrafficAccidentsPer10kSgg": "人口1万人あたり交通事故件数（基礎自治体）"
+  "layer.statsKrTrafficAccidentsPer10kSgg": "人口1万人あたり交通事故件数（基礎自治体）",
+  "layer.broadcastTransmitters": "放送送信所・電波監視局"
 }

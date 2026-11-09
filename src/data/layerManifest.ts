@@ -156,6 +156,8 @@ import {
   Vote,
   // G53 批 1（2026-11-09）
   Mailbox, Motorbike, ScanSearch,
+  // G53 批 2／3（2026-11-10）
+  RadioTower,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -12003,6 +12005,15 @@ export const LAYER_MANIFEST = {
     legend: "antivenomHospitals", popup: "antivenomHospitals", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "疾管署公告儲備抗蛇毒血清的醫療院所 191 家，可依血清種類（龜殼花及赤尾鮐、雨傘節及飯匙倩、百步蛇、鎖鏈蛇）篩選。",
     topics: ["醫療", "蛇咬", "抗蛇毒血清", "急救", "疾管署"],
+  },
+  broadcastTransmitters: {
+    key: "broadcastTransmitters", country: "TW", section: { theme: "通訊 Telecom", group: "廣播與電波 Broadcast" }, ...layerName({ zh: "廣播發射站與電波監測站", alt: "Broadcast Transmitters & Radio Monitoring Stations" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.broadcastTransmitters, icon: RadioTower,
+    upstream: { status: "verified", datasets: [{ datasetId: "broadcast_transmitters", confidence: "HIGH" }], processing: "analytics telecom/broadcast_transmitters 1150703：NCC data.gov.tw 6445（FM 290）、6446（AM 136）、6825（電波監測站 21）合併 447 點；金聲廣播電臺經度筆誤 102→120 依地址修正", note: "同站址多電臺（FM 245 址、AM 92 址）點重疊；station_class 照來源原文。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "broadcast-transmitters", url: "./geo/broadcast_transmitters_1150703.pmtiles", sourceLayer: "broadcast_transmitters", minzoom: 4, maxzoom: 14 },
+    legend: "broadcastTransmitters", popup: "broadcastTransmitters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "NCC 公告的 FM 廣播電臺 290 座、AM 廣播電臺 136 座發射機位置，以及 21 個電波監測站；含頻率與電臺類別。",
+    topics: ["通訊", "廣播", "電臺", "FM", "AM", "電波監測", "NCC"],
   },
   postMailboxes: {
     key: "postMailboxes", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" }, ...layerName({ zh: "郵筒", alt: "Mailboxes" }), expandable: true,

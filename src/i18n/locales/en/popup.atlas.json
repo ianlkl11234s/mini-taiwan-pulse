@@ -335,5 +335,8 @@
   "popup.atlas.lucYear": "Year (ROC)",
   "popup.atlas.lucChange": "Before → after",
   "popup.atlas.lucDates": "Image dates",
-  "popup.atlas.lucCaution": "A suspected change detected from satellite imagery, not a confirmed violation"
+  "popup.atlas.lucCaution": "A suspected change detected from satellite imagery, not a confirmed violation",
+  "popup.atlas.bcFrequency": "Frequency",
+  "popup.atlas.bcClass": "Station class",
+  "popup.atlas.bcCoordFixed": "Longitude typo in the source (102→120), corrected from the address"
 }

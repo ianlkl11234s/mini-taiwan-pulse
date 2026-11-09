@@ -346,7 +346,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -12319,6 +12319,8 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
 }
 
 const ATLAS_OVERLAYS: OverlayConfig[] = [
+  // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──
+  publicLifePointOverlay("broadcastTransmitters", "./geo/broadcast_transmitters_1150703.pmtiles", "broadcast-transmitters", matchColorExpr("kind", BROADCAST_KIND_OPTIONS), { sourceLayer: "broadcast_transmitters", minzoom: 4, maxzoom: 14 }, `國家通訊傳播委員會 FM 廣播電臺（data.gov.tw 6445）、AM 廣播電臺（6446）、電波監測站（6825）· ${OGDL_ATTR}`, [3, 6.5]),
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
   ...debrisFlowPotentialOverlays(),
   ...landUseChangeMonitoringOverlays(),

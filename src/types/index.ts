@@ -149,6 +149,7 @@ export type ExpandableLayerKey =
   | "securitiesFuturesInstitutions" | "insuranceInstitutions"
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   | "postOfficeFxCounters"
+  | "broadcastTransmitters" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
   | "slopelandSwcAct" // G53 批 1（2026-11-09）
@@ -930,6 +931,7 @@ export interface FeatureInfo {
     | "swcSpecialZones"
     | "freewayHundredMeterStakes"
     | "antivenomHospitals"
+    | "broadcastTransmitters"
     | "postMailboxes"
     | "motorcycleInspectionStations"
     | "hikingTrails"
@@ -1477,6 +1479,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   insuranceInstitutions: boolean;
   /** 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局 290（非外幣收兌處） */
   postOfficeFxCounters: boolean;
+  /** G53 批 2／3（2026-11-10）廣播發射站與電波監測站：NCC 6445／6446／6825，447 點 */
+  broadcastTransmitters: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
   landUseChangeMonitoring: boolean;
   /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */

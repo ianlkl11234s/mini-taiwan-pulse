@@ -1963,6 +1963,13 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("ooklaFixedTaiwan"),
         ],
       },
+      {
+        // G53 批 2／3（2026-11-10）：廣播發射站（FM／AM）與 NCC 電波監測站
+        title: "廣播與電波 Broadcast",
+        layers: [
+          fromManifest("broadcastTransmitters"),
+        ],
+      },
     ],
   },
 

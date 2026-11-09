@@ -609,10 +609,20 @@ export const LAND_CHANGE_YEARS = [107, 108, 109, 110, 111, 112] as const;
 export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
+  // G53 批 2／3（2026-11-10）
+  "broadcastTransmitters",
 ] as const;
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署" } as const;
+// ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
+/** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
+export const BROADCAST_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "fm", label: "FM 廣播", color: "#7c3aed" },
+  { value: "am", label: "AM 廣播", color: "#f59e0b" },
+  { value: "monitoring", label: "電波監測站", color: "#0891b2" },
+];
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會" } as const;
 
 export const ATLAS_NOTES = {
+  broadcastTransmitters: "國家通訊傳播委員會公告的 FM 廣播電臺 290 座、AM 廣播電臺 136 座（data.gov.tw 6445、6446，115-07-03 版）與電波監測站 21 站（6825，2025-12）。點是發射機位置；同一站址常有多座電臺共用（FM 245 址、AM 92 址），點會重疊，放大後逐一點選。1 座經度筆誤（102→120）已依地址修正。電臺類別（甲、乙、丙等）照來源原文；「海外電臺」是對海外播音的 AM 發射站。",
   landUseChangeMonitoring: "內政部國土管理署國土利用監測的衛星影像變異點 107–112 年共 143,891 處（data.gov.tw 168030），是「疑似變異」，不是查報確認的違規。依變異類別上色（裸露地占 88%）；同一地點可能在不同年度各出現一次。拉遠時畫六角格（每格約 5 km²），顏色深淺是格內變異處數；六角格跟著類別篩選，只篩年度時改用分年數，兩者都篩時只照類別。放大到 10 級起畫逐點與範圍面。107 年原為 TWD67，已轉換。",
   debrisFlowPotential: "水保署 115 年度土石流潛勢溪流 1,753 條（data.gov.tw 176524），可切換溪流線、影響範圍（176526，1,894 區，一溪可有多個溢流點）、集水區（176525）；三者都依風險等級上色。拉遠到 11 級以下另畫溪流中點，標示位置。涵蓋 17 縣市，新竹市、嘉義市、澎湖、金門、連江沒有潛勢溪流。影響範圍的保全住戶門牌清單不收。溪流編號年度會改編，對照舊警戒紀錄用舊編號（popup）。",
   slopelandSwcAct: "水保署公告的水土保持法山坡地範圍（data.gov.tw 178645，115 年版），15 縣市合計約 192.7 萬公頃。不含六都（臺北、新北、桃園、臺中、臺南、高雄由市府自行公告）與澎湖縣（來源沒有）。來源檔沒有附座標系統，依 TWD97 處理並以金門、連江位置驗證。範圍以公告為準，僅供參考，不構成個別土地的法規判斷。",

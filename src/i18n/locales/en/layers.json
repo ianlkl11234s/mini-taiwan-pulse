@@ -1778,5 +1778,6 @@
   "layer.statsKrFireIncidentsPer10kSido": "Fire incidents per 10,000 residents (province level)",
   "layer.statsKrFireIncidentsPer10kSgg": "Fire incidents per 10,000 residents (municipal level)",
   "layer.statsKrTrafficAccidentsPer10kSido": "Road traffic accidents per 10,000 residents (province level)",
-  "layer.statsKrTrafficAccidentsPer10kSgg": "Road traffic accidents per 10,000 residents (municipal level)"
+  "layer.statsKrTrafficAccidentsPer10kSgg": "Road traffic accidents per 10,000 residents (municipal level)",
+  "layer.broadcastTransmitters": "Broadcast Transmitters & Radio Monitoring Stations"
 }

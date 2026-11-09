@@ -517,5 +517,10 @@
   "enum.atlasLandChange.water": "Water",
   "enum.atlasLandChange.other": "Other",
   "enum.atlasOrg.nlma": "National Land Management Agency, Ministry of the Interior",
-  "enum.atlasNote.landUseChangeMonitoring": "143,891 change spots detected from satellite imagery in ROC years 107–112 by the National Land Management Agency's land use monitoring (data.gov.tw 168030). They are suspected changes, not confirmed violations. Coloured by change type (88% bare land); the same place can appear once in each of several years. Zoomed out, hexagons (about 5 km² each) are shaded by the number of changes inside. The hexagons follow the type filter; with only the year filter they use the yearly counts, and with both filters they follow the type only. From zoom 10, individual spots and their areas are drawn. Year 107 was in TWD67 and has been converted."
+  "enum.atlasNote.landUseChangeMonitoring": "143,891 change spots detected from satellite imagery in ROC years 107–112 by the National Land Management Agency's land use monitoring (data.gov.tw 168030). They are suspected changes, not confirmed violations. Coloured by change type (88% bare land); the same place can appear once in each of several years. Zoomed out, hexagons (about 5 km² each) are shaded by the number of changes inside. The hexagons follow the type filter; with only the year filter they use the yearly counts, and with both filters they follow the type only. From zoom 10, individual spots and their areas are drawn. Year 107 was in TWD67 and has been converted.",
+  "enum.atlasBroadcastKind.fm": "FM radio",
+  "enum.atlasBroadcastKind.am": "AM radio",
+  "enum.atlasBroadcastKind.monitoring": "Radio monitoring station",
+  "enum.atlasOrg.ncc": "National Communications Commission (NCC)",
+  "enum.atlasNote.broadcastTransmitters": "290 FM and 136 AM radio stations published by the National Communications Commission (data.gov.tw 6445, 6446; edition of ROC 115-07-03) and 21 radio monitoring stations (6825, 2025-12). Points are transmitter locations; many stations share one site (245 FM sites, 92 AM sites), so points overlap — zoom in and click them one by one. One station's longitude typo (102→120) was corrected from its address. Station classes (甲, 乙, 丙, etc.) are shown as in the source; \"overseas\" stations are AM transmitters broadcasting abroad."
 }

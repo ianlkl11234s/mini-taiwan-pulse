@@ -16,7 +16,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1291,9 +1291,26 @@ function BatterySwapPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 廣播發射站與電波監測站：同站址常有多座電臺（點重疊），頻率依 FM／AM 帶單位。 */
+function BroadcastTransmitterPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(BROADCAST_KIND_OPTIONS, props.kind);
+  const freq = str(props.frequency);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasBroadcastKind", props.kind, optionLabel(BROADCAST_KIND_OPTIONS, props.kind), i18n)} color={color} />
+    <Row label={t("popup.atlas.bcFrequency")} value={freq ? `${freq} ${str(props.frequency_unit)}`.trim() : ""} mono />
+    <Row label={t("popup.atlas.bcClass")} value={str(props.station_class)} />
+    <Row field="address" value={str(props.address)} />
+    {props.coord_fixed === true ? <Row field="caution" value={t("popup.atlas.bcCoordFixed")} /> : null}
+  </>;
+}
+
 type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
 /** G53 批 1 出處（與圖例同一份機關＋data.gov.tw 資料集；土石流依圖徵種類指向溪流／集水區／影響範圍資料集）。 */
 const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
+  broadcastTransmitters: { org: "ncc", dataset: (p) => (p.kind === "am" ? "6446" : p.kind === "monitoring" ? "6825" : "6445") },
   postMailboxes: { org: "chunghwaPost", dataset: () => "178399" },
   debrisFlowPotential: { org: "swcb", dataset: (p) => (p.zone_id != null || p.total_res != null ? "176526" : p.area_ha != null ? "176525" : "176524") },
   swcSpecialZones: { org: "swcb", dataset: () => "176847" },
@@ -1316,6 +1333,7 @@ function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
   landUseChangeMonitoring: withG53Footer("landUseChangeMonitoring", LandUseChangePanel),
   debrisFlowPotential: withG53Footer("debrisFlowPotential", DebrisFlowPotentialPanel),
   slopelandSwcAct: withG53Footer("slopelandSwcAct", SlopelandSwcActPanel),
@@ -1399,6 +1417,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
+  broadcastTransmitters: manifestZh("broadcastTransmitters"),
   postMailboxes: manifestZh("postMailboxes"),
   motorcycleInspectionStations: manifestZh("motorcycleInspectionStations"),
   indigenousTribes: "原住民族部落",

@@ -1016,6 +1016,13 @@
    "s3_key": "deploy-assets/geo/antivenom_reserve_hospitals_20241230.pmtiles"
   },
   {
+   "path": "public/geo/broadcast_transmitters_1150703.pmtiles",
+   "bytes": 496547,
+   "sha256": "20e0dd93f2c69bc0ee6bac61fa48d54a664bf6b65cc740952549557cc87c366c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/broadcast_transmitters_1150703.pmtiles"
+  },
+  {
    "path": "public/geo/cctv.geojson",
    "bytes": 2505252,
    "sha256": "aaa461000f16837a03d81fb67133f6503a7f0bc04cf5c8604f5021e725c145aa",
