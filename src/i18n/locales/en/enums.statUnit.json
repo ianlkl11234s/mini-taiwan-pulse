@@ -124,5 +124,6 @@
   "enum.statUnit.票": "votes",
   "enum.statUnit.類別碼": "category code",
   "enum.statUnit.千韓元": "KRW thousand",
-  "enum.statUnit.歐元/月": "EUR/month"
+  "enum.statUnit.歐元/月": "EUR/month",
+  "enum.statUnit.件／萬人": "incidents per 10,000 residents"
 }

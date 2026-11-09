@@ -87,5 +87,7 @@
   "enum.statGroup.私人租屋比例": "民間賃貸世帯比率",
   "enum.statGroup.社會住宅租戶比例": "公営住宅等賃借世帯比率",
   "enum.statGroup.平均月租": "平均月額家賃",
-  "enum.statGroup.學士以上學歷比例": "学士以上の学歴の比率"
+  "enum.statGroup.學士以上學歷比例": "学士以上の学歴の比率",
+  "enum.statGroup.每萬人火災件數": "人口1万人あたり火災件数",
+  "enum.statGroup.每萬人交通事故件數": "人口1万人あたり交通事故件数"
 }
