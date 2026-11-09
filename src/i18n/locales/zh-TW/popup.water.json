@@ -27,6 +27,7 @@
   "popup.water.abnormal": "異常",
   "popup.water.levelUnit": "m 水位",
   "popup.water.trend24h": "24h 趨勢",
+  "popup.water.trendLoadFailed": "24h 趨勢載入失敗",
   "popup.water.alertHint": "ⓘ 警戒水位資料（三級警戒）待上游 seed 補齊後加入",
   "popup.water.groundwaterUnit": "m 地下水位（海拔）",
   "popup.water.wellNo": "井號",

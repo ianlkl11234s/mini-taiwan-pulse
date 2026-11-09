@@ -7133,6 +7133,7 @@ export type GeneratedStaticKey =
   | "popup.water.tableVersion"
   | "popup.water.totalOutflow"
   | "popup.water.trend24h"
+  | "popup.water.trendLoadFailed"
   | "popup.water.unitWanM3"
   | "popup.water.unnamed"
   | "popup.water.unnamedBasin"
