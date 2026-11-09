@@ -643,7 +643,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
              { prop: "opened", label: l3("開館日", "Opened", "開館日") }, { prop: "address", label: l3("地址", "Address", "住所") },
              { prop: "updated", label: l3("最後修改", "Last modified", "最終更新") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
     legendNotes: [l3("依《博物館及美術館振興法》登錄、營業中的 873 館；歇業 92、無座標 119 未上圖，同館由市與區重複登錄的 184 筆已合併", "873 registered, operating museums and galleries; 92 closed and 119 without coordinates are not shown, and 184 duplicate city/district registrations were merged", "博物館・美術館振興法に基づく登録館で営業中の873館。閉館92・座標なし119は非表示、市と区の重複登録184件は統合"),
-                  l3("未登錄的展示館、文化院、文藝會館未涵蓋", "Unregistered exhibition halls, cultural centres and arts halls are not covered", "未登録の展示館・文化院・文芸会館は未収録")],
+                  l3("首爾幾乎未涵蓋：名冊中首爾只有 1 館（首爾市的館不在這份全國名冊，原因未查證）；未登錄的展示館、文化院、文藝會館也未涵蓋", "Seoul is almost entirely missing: the national list has only 1 Seoul entry (reason not verified); unregistered exhibition halls, cultural centres and arts halls are not covered either", "ソウルはほぼ未収録（全国名簿にソウルは1館のみ、理由は未確認）。未登録の展示館・文化院・文芸会館も未収録")],
     popupNotes: [],
     sourceOrg: "행정안전부 박물관·미술관 (LOCALDATA, 공공데이터포털)", sourceUrl: DG("15045093"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
     loading: l3("南韓博物館與美術館載入中", "Loading South Korea museums and galleries", "韓国の博物館・美術館を読み込み中"),

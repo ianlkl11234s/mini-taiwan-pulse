@@ -737,7 +737,7 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
   krLibraries: { theme: "文化", group: "設施 Facilities", zh: "圖書館", alt: "Libraries", icon: Library, dataset: "kr_libraries", topics: ["南韓", "圖書館", "도서관", "文化"],
     description: "南韓圖書館 3,472 館（小型圖書館 2,097、公共圖書館 1,308、兒童 33、其他 34；전국도서관표준데이터）", processing: "標準資料全國合併檔 3,657 列；WGS84；剔除無座標 111、시·도 不符 1、同名同座標重複 73；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；學校、大學圖書館只有少數申報" },
   krMuseums: { theme: "文化", group: "設施 Facilities", zh: "博物館與美術館", alt: "Museums & Galleries", icon: Landmark, dataset: "kr_museums", topics: ["南韓", "博物館", "美術館", "박물관", "미술관", "LOCALDATA"],
-    description: "南韓登錄博物館 659＋美術館 214 館（LOCALDATA，營業中）", processing: "LOCALDATA CSV CP949、EPSG:5174 → 4326；剔除歇業 92、無座標 119，市與區重複登錄 184 筆合併；法人名與電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；未登錄展示館未涵蓋" },
+    description: "南韓登錄博物館 659＋美術館 214 館（LOCALDATA，營業中）", processing: "LOCALDATA CSV CP949、EPSG:5174 → 4326；剔除歇業 92、無座標 119，市與區重複登錄 184 筆合併；法人名與電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도但首爾只有 1 館（首爾幾乎未涵蓋）；未登錄展示館未涵蓋" },
   krPerformances: { theme: "文化", group: "藝文活動 Arts & Events", zh: "公演與文化活動", alt: "Performances & Events", icon: Theater, dataset: "kr_performances", topics: ["南韓", "公演", "活動", "공연", "藝文"],
     description: "南韓各機關申報的公演與文化活動 9,552 場（2017–2026 累積；2026 年 2,970、2025 年 1,913）", processing: "標準資料 10,562 列；WGS84；剔除無座標 565、境外與 시·도 不符 12、重複 433；主辦／主管（可能是個人）與電話欄排除；PMTiles z0–14", note: "平台標籤；15/16 시·도（世宗無）；歷年清單、不是目前活動" },
   krFestivals: { theme: "觀光", group: "玩・體驗 Experience", zh: "文化祭", alt: "Festivals", icon: PartyPopper, dataset: "kr_festivals", topics: ["南韓", "祭典", "축제", "節慶", "觀光"],
