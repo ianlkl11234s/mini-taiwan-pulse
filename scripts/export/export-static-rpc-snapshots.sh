@@ -65,7 +65,7 @@ RPCS=(
 
 # 參數化群組（"@名稱"）：每個參數值各一檔，前端用完整路徑樣板讀
 # （`/static-rpc/<rpc>_<參數>.json`，deploy/cloudflare/site_manifest.py 才認得出引用）。
-PARAM_GROUPS=(polling fire waste_schedule reservoir_rivers)
+PARAM_GROUPS=(polling fire waste_schedule reservoir_rivers land_subsidence)
 
 # 垃圾車表定的 8 區分組（必須與 src/types/index.ts WASTE_GROUP_CITIES 一致；
 # src/data/__tests__/staticRpcExports.test.ts 會比對）
@@ -168,6 +168,19 @@ run_group () {
       for id in $(q_list "SELECT DISTINCT compare_id FROM reference.reservoir_watershed WHERE compare_id IS NOT NULL ORDER BY 1;"); do
         run_sql "get_reservoir_watershed_rivers_$id" "SELECT public.get_reservoir_watershed_rivers($id);"
       done
+      ;;
+    land_subsidence)
+      # 地層下陷單站月均時序（popup 趨勢圖）：每站一檔，檔名＝站號 UTF-8 hex
+      # （站號含 `:`、`(`；與 src/data/landSubsidenceLoader.ts landSubsidenceStationFileId 一致）。
+      # 原表 public.land_subsidence_readings 預定搬離 Supabase（ADR-0026）；DROP 後本群組無法重跑，
+      # 資料年更、要更新時先從 S3 supabase-export/public.land_subsidence_readings/ 回灌再跑。
+      local sid hex
+      while IFS= read -r sid; do
+        [ -n "$sid" ] || continue
+        hex=$(printf '%s' "$sid" | xxd -p | tr -d '\n')
+        run_sql "get_land_subsidence_timeseries_$hex" \
+          "SELECT coalesce(jsonb_agg(r),'[]'::jsonb) FROM public.get_land_subsidence_timeseries('$sid', NULL, NULL, 'month') r;"
+      done < <(q_list "SELECT DISTINCT station_id FROM public.land_subsidence_readings ORDER BY 1;")
       ;;
     *) echo "[SKIP] 未知群組 @$1"; return 0 ;;
   esac

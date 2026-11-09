@@ -11805,7 +11805,7 @@ export const LAYER_MANIFEST = {
   landSubsidenceStations: {
     key: "landSubsidenceStations", country: "TW", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "地層下陷監測站", alt: "Land Subsidence Monitoring Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.landSubsidenceStations, icon: TrendingDown,
-    upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_stations", confidence: "HIGH" }], note: "經濟部水利署 GNSS 測站 42／磁環分層監測井 62／深層水準樁 9（上圖 112；金湖國小上游座標錯不上圖）；popup 趨勢走 RPC get_land_subsidence_timeseries（mig 474）。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_stations", confidence: "HIGH" }], note: "經濟部水利署 GNSS 測站 42／磁環分層監測井 62／深層水準樁 9（上圖 112；金湖國小上游座標錯不上圖）；popup 趨勢讀靜態快照 /static-rpc/get_land_subsidence_timeseries_<站號 hex>.json（mig 474 RPC 原樣輸出，2026-11-09 起）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "land-subsidence-stations", url: "./hazards/land_subsidence_stations.geojson" },
     legend: "landSubsidenceStations", popup: "landSubsidenceStations", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "水利署地層下陷監測站（GNSS、磁環分層監測井、深層水準樁）；點開看長期趨勢。單站量測不代表整個地區。",
