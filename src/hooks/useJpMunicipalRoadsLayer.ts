@@ -21,14 +21,28 @@ type Shard = (typeof JP_MUNICIPAL_ROAD_SHARDS)[number];
 const SOURCE_LAYER = "jp_municipal_roads";
 /** 契約：每片 PMTiles z12–14（z15 起 overzoom），屬性 width_class／road_state（非通常部才有）／toll（有料才有）。 */
 const FILE_VERSION: Record<Shard, string> = {
-  hokkaido_tohoku: "", kanto: "", chubu: "", kinki: "", chugoku_shikoku: "", kyushu_okinawa: "",
+  hokkaido_tohoku: "3e25e8eae43e",
+  kanto: "10367e9deeef",
+  chubu: "54ac90f758cf",
+  kinki: "9f8fa3dca46d",
+  chugoku_shikoku: "807f1894b1c9",
+  kyushu_okinawa: "db3393ad79bd",
 };
 const OPACITY_DEFAULT = Number(paramDefault("jpMunicipalRoads", "jpMunicipalRoadsOpacity"));
 /** 插在主要道路之下，讓國道／縣道畫在市町村道上面。 */
 const BEFORE_LAYER_IDS = ["jp-major-roads-z5-line", "jp-major-roads-line"];
 
+/** layer id 寫成字面值：gisClickRegistry 的點擊登記由 mapInteractionLayers 測試逐字比對。 */
+const LAYER_ID: Record<Shard, string> = {
+  hokkaido_tohoku: "jp-municipal-roads-hokkaido_tohoku-line",
+  kanto: "jp-municipal-roads-kanto-line",
+  chubu: "jp-municipal-roads-chubu-line",
+  kinki: "jp-municipal-roads-kinki-line",
+  chugoku_shikoku: "jp-municipal-roads-chugoku_shikoku-line",
+  kyushu_okinawa: "jp-municipal-roads-kyushu_okinawa-line",
+};
 export const jpMunicipalRoadsSourceId = (shard: Shard) => `jp-municipal-roads-${shard}`;
-export const jpMunicipalRoadsLayerId = (shard: Shard) => `jp-municipal-roads-${shard}-line`;
+export const jpMunicipalRoadsLayerId = (shard: Shard) => LAYER_ID[shard];
 export const JP_MUNICIPAL_ROADS_LAYER_IDS = JP_MUNICIPAL_ROAD_SHARDS.map(jpMunicipalRoadsLayerId);
 
 function clampOpacity(opacity: number): number {
@@ -37,7 +51,7 @@ function clampOpacity(opacity: number): number {
 
 function absoluteUrl(shard: Shard): string {
   const v = FILE_VERSION[shard];
-  const relative = `${import.meta.env.BASE_URL ?? "/"}world/jp_municipal_roads_${shard}.pmtiles${v ? `?v=${v}` : ""}`;
+  const relative = `${import.meta.env.BASE_URL ?? "/"}world/jp_municipal_roads_${shard}.pmtiles?v=${v}`;
   return new URL(relative, window.location.href).href;
 }
 

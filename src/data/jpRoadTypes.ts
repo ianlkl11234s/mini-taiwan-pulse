@@ -84,7 +84,6 @@ export const JP_MUNICIPAL_ROAD_MAXZOOM = 14;
 export const JP_MUNICIPAL_ROAD_SHARDS = [
   "hokkaido_tohoku", "kanto", "chubu", "kinki", "chugoku_shikoku", "kyushu_okinawa",
 ] as const;
-export const JP_MUNICIPAL_ROAD_FEATURE_COUNT = 0;
 
 // ── 高速道路（N06）────────────────────────────────────────────
 

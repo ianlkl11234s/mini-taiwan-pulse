@@ -3377,7 +3377,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "jp_municipal_roads", confidence: "HIGH" }],
-      processing: "国土数値情報 N13 道路データ 2024年度版（2024-09 時點）只取市区町村道等（N13_003=3）FEATURE_COUNT_PLACEHOLDER 線段，依 1次メッシュ分 6 片 PMTiles",
+      processing: "国土数値情報 N13 道路データ 2024年度版（2024-09 時點）只取市区町村道等（N13_003=3）22,210,998 線段，依 1次メッシュ分 6 片 PMTiles",
       note: "DISPLAY_ONLY（未入分析倉庫；解鎖條件：倉庫支援千萬級線資料或改為依地區抽取）。z12 起才顯示（PMTiles z12–14，z15 起 overzoom），拉遠由視野提示卡說明；與主要道路分層、國道與都道府縣道請開主要道路層；N13 沒有路名；線段在 mesh 與屬性邊界被切斷，線段數≠道路條數；分類名為「市区町村道等」，國土地理院原典未再細分管理者",
     },
     dataClass: "D",
