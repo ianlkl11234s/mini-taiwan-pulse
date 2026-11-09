@@ -19,7 +19,7 @@ import {
   mapchallengeDay08SiteColor, mapchallengeDay08TimeProp, mapchallengeDay08YiToBillion, MAPCHALLENGE_DAY08_COST_FORMAT, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
 import {
-  MAPCHALLENGE_DAY09_FACILITIES, MAPCHALLENGE_DAY09_DENSITY_COLORS, mapchallengeDay09FeatureColor, mapchallengeDay09MetricByKey,
+  MAPCHALLENGE_DAY09_FACILITIES, mapchallengeDay09FeatureColor, mapchallengeDay09MetricByKey,
 } from "../../data/mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY09_METRIC_KEYS, MAPCHALLENGE_DAY09_QUINTILE_KEYS } from "../legend/mapchallengeLegends";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
@@ -355,7 +355,7 @@ export function MapchallengeDay09UrbanRuralPanel({ props }: Props) {
     <Title color={mapchallengeDay09FeatureColor(metric, props)}>{str(props.name)}</Title>
     <Row label={t("popup.mapchallenge.day09.pop")} value={t("popup.mapchallenge.day09.people", { n: formatNumber(pop) })} mono />
     <Row label={t("popup.mapchallenge.day09.density")} value={t("popup.mapchallenge.day09.perKm2", { n: formatNumber(num(props.density)) })} mono />
-    <Row label={t("popup.mapchallenge.day09.group")} value={t(MAPCHALLENGE_DAY09_QUINTILE_KEYS[q]!)} color={MAPCHALLENGE_DAY09_DENSITY_COLORS[q]} />
+    <Row label={t("popup.mapchallenge.day09.group")} value={t(MAPCHALLENGE_DAY09_QUINTILE_KEYS[q]!)} />
     {MAPCHALLENGE_DAY09_FACILITIES.map((f) => {
       const c = num(props[`c_${f.key}`]);
       const per = pop > 0 ? (c / pop) * 1e4 : 0;
