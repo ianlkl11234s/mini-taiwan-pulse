@@ -6,12 +6,15 @@ import { z } from "zod";
 import { supabase } from "../../lib/supabase";
 import { withLoading } from "../../lib/loadingRegistry";
 import { capToolResult } from "./truncate";
+import { staticRpc, staticRpcFile, type RpcResult } from "../../data/staticRpc";
 
 export interface RpcSpec {
   params: z.ZodType<Record<string, unknown>>;
   label: string;
   /** 給 LLM：這支 RPC 何時用 */
   description: string;
+  /** 已改讀 static-rpc 快照的 RPC：回傳快照讀取（不打 Supabase）；404＝沒有該參數組合的資料，當空結果 */
+  staticSnapshot?: (params: Record<string, unknown>) => Promise<RpcResult<unknown>>;
 }
 
 export const RPC_WHITELIST: Record<string, RpcSpec> = {
@@ -52,11 +55,14 @@ export const RPC_WHITELIST: Record<string, RpcSpec> = {
     label: "H3 年度人口",
     description:
       "取某年 H3 六角格人口統計（人口 / 戶數 / 性別比 / 扶養比 / 老化指數等，res 預設 7）。資料量大會被截斷；適合抓某年概況。",
+    // 2026-11-10 起讀靜態快照（原表搬出 Supabase，ADR-0026）
+    staticSnapshot: (p) => staticRpcFile(`/static-rpc/get_h3_demographics_yearly_${Number(p.target_year)}_r${Number(p.target_resolution ?? 7)}.json`),
   },
   get_h3_demographics_years: {
     params: z.object({}),
     label: "H3 人口年份",
     description: "回 H3 年度人口有哪些年份 / 解析度（極輕量）。挑年份前先問這支。",
+    staticSnapshot: () => staticRpc("get_h3_demographics_years"),
   },
 
   // ── 廢棄物設施數量（薄計數，全國）──
@@ -107,12 +113,14 @@ export async function callWhitelistedRpc(
   if (!parsed.success) {
     return { ok: false, error: `參數不符：${parsed.error.issues.map((i) => i.message).join("; ")}` };
   }
-  const { data, error } = await withLoading(
-    `chat-rpc:${name}`,
-    spec.label,
-    supabase.rpc(name, parsed.data as Record<string, unknown>),
-  );
-  if (error) return { ok: false, error: error.message };
+  const args = parsed.data as Record<string, unknown>;
+  const { data, error } = spec.staticSnapshot
+    ? await withLoading(`chat-rpc:${name}`, spec.label, spec.staticSnapshot(args))
+    : await withLoading(`chat-rpc:${name}`, spec.label, supabase.rpc(name, args));
+  if (error) {
+    if (spec.staticSnapshot && "status" in error && error.status === 404) return { ok: true, result: capToolResult([]) };
+    return { ok: false, error: error.message };
+  }
   const rows = Array.isArray(data) ? data : data == null ? [] : [data];
   return { ok: true, result: capToolResult(rows as unknown[]) };
 }

@@ -65,7 +65,7 @@ RPCS=(
 
 # 參數化群組（"@名稱"）：每個參數值各一檔，前端用完整路徑樣板讀
 # （`/static-rpc/<rpc>_<參數>.json`，deploy/cloudflare/site_manifest.py 才認得出引用）。
-PARAM_GROUPS=(polling fire waste_schedule reservoir_rivers land_subsidence)
+PARAM_GROUPS=(polling fire waste_schedule reservoir_rivers land_subsidence h3_demographics)
 
 # 垃圾車表定的 8 區分組（必須與 src/types/index.ts WASTE_GROUP_CITIES 一致；
 # src/data/__tests__/staticRpcExports.test.ts 會比對）
@@ -181,6 +181,18 @@ run_group () {
         run_sql "get_land_subsidence_timeseries_$hex" \
           "SELECT coalesce(jsonb_agg(r),'[]'::jsonb) FROM public.get_land_subsidence_timeseries('$sid', NULL, NULL, 'month') r;"
       done < <(q_list "SELECT DISTINCT station_id FROM public.land_subsidence_readings ORDER BY 1;")
+      ;;
+    h3_demographics)
+      # H3 年度人口：年份清單＋每個（年, 解析度）一檔（全量，不受 PostgREST 2 萬列上限）。
+      # 檔名與 src/data/h3Loader.ts、src/chat/tools/rpcTools.ts 一致。原表 spatial.h3_demographics_yearly
+      # 預定搬離 Supabase（ADR-0026）；DROP 後要更新得先從 S3 supabase-export/spatial.h3_demographics_yearly/ 回灌。
+      run_sql "get_h3_demographics_years" "SELECT coalesce(jsonb_agg(r),'[]'::jsonb) FROM public.get_h3_demographics_years() r;"
+      local yr res
+      while read -r yr res; do
+        [ -n "$yr" ] || continue
+        run_sql "get_h3_demographics_yearly_${yr}_r${res}" \
+          "SELECT coalesce(jsonb_agg(r),'[]'::jsonb) FROM public.get_h3_demographics_yearly($yr, $res) r;"
+      done < <(q_list "SELECT year || ' ' || resolution FROM public.get_h3_demographics_years() ORDER BY 1;")
       ;;
     *) echo "[SKIP] 未知群組 @$1"; return 0 ;;
   esac

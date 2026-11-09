@@ -1,5 +1,5 @@
-import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { staticRpc, staticRpcFile } from "./staticRpc";
 
 export interface H3CellData {
   h: string; // H3 index
@@ -237,10 +237,13 @@ export async function loadH3SpatialEconomy(resolution: number): Promise<SpatialE
   return empty;
 }
 
-// ── H3 Demographics Yearly (Supabase RPC) ──
+// ── H3 Demographics Yearly（static-rpc 快照）──
 
 /**
- * Load H3 demographics for a specific year + resolution from Supabase.
+ * Load H3 demographics for a specific year + resolution.
+ * 2026-11-10 起讀靜態快照 `/static-rpc/get_h3_demographics_yearly_<年>_r<解析度>.json`
+ *（內容＝RPC get_h3_demographics_yearly 原樣、**全量**；舊 RPC 經 PostgREST 會被截在 2 萬列，
+ * res8 每年約 5.6 萬格只畫出一部分，使用者同意改為完整）。沒有該年／解析度的檔（例 res8 109 年起）→ 空陣列。
  */
 export async function loadH3DemographicsYearly(
   year: number,
@@ -253,13 +256,11 @@ export async function loadH3DemographicsYearly(
   const { data, error } = await withLoading(
     `h3-demo:${year}:r${resolution}`,
     `H3 人口 ${year}`,
-    supabase.rpc("get_h3_demographics_yearly", {
-      target_year: year,
-      target_resolution: resolution,
-    }),
+    staticRpcFile<DemographicH3CellData[]>(`/static-rpc/get_h3_demographics_yearly_${year}_r${resolution}.json`),
   );
   if (error) {
-    console.warn(`[H3-DemoYearly] Supabase RPC error:`, error.message);
+    // 404＝該年／解析度沒有資料（RPC 時代回空陣列），其他錯誤照樣 warn
+    if (error.status !== 404) console.warn(`[H3-DemoYearly] static snapshot error:`, error.message);
     return [];
   }
   const cells = (data ?? []) as DemographicH3CellData[];
@@ -269,7 +270,7 @@ export async function loadH3DemographicsYearly(
 }
 
 /**
- * Get available years from Supabase.
+ * Get available years（static-rpc 快照 get_h3_demographics_years.json）.
  */
 export async function loadH3DemographicsYears(): Promise<
   { year: number; resolution: number; cell_count: number }[]
@@ -277,7 +278,7 @@ export async function loadH3DemographicsYears(): Promise<
   const { data, error } = await withLoading(
     "h3-demographics:years",
     "人口網格年份",
-    supabase.rpc("get_h3_demographics_years"),
+    staticRpc<{ year: number; resolution: number; cell_count: number }[]>("get_h3_demographics_years"),
   );
   if (error || !data) {
     console.warn(`[H3-DemoYearly] get_h3_demographics_years failed:`, error?.message);
