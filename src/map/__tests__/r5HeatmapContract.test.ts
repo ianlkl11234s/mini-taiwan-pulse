@@ -5,6 +5,7 @@ import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { applyLayerOpacity } from "../overlayManager";
 import { densePointOpacity, densePointsFromZoom, HEATMAP, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "../mapStyleScale";
 import { LAYER_PARAMS_SPEC, paramDefault } from "../../data/layerParamsSpec";
+import { GB_RECREATION_MINZOOM } from "../../data/gbNatureTypes";
 import { paletteRamp } from "../palettes";
 
 const MAGMA_DARK = paletteRamp("magma", true)!;
@@ -167,6 +168,11 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["gbGreenspace", "useGbWaterLayers.ts", 80_918],
   ["gbSportsFacilities", "useGbWaterLayers.ts", 51_872],
   ["gbCemeteries", "useGbWaterLayers.ts", 30_208],
+  // 規劃限制區、樹木保護（§3.8 2026-10-31，#784）：低縮放熱區用代表點檔，熱區與點由共用 useGbRepPointLayers 建（count 同 hook 傳入值）
+  ["gbPlanningConstraints", "useGbWaterLayers.ts", 18_727],
+  ["gbTreeProtection", "useGbWaterLayers.ts", 502_408],
+  // 森林遊憩設施：gb_forest_recreation_v2（z5 起重切）z<10 熱區、z10 起點；出點縮放寫成常數 GB_RECREATION_MINZOOM（另測與 densePointsFromZoom 一致）
+  ["gbForestRecreation", "useGbNatureLayers.ts", 24_487],
   // 南韓（2026-10-31 V-1 全國視角可見性）：橋梁／停車場 z10 起畫點（使用者拍板）；其餘為使用者點名 <1 萬或既有 minzoom 較高者
   ["krBusStops", "useKrTransportLayers.ts", 227_059],
   ["krFuelStations", "useKrEnergyLayers.ts", 7_106],
@@ -185,6 +191,13 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["caEarthquakes", "useCaEnvLayers.ts", 101_365],
 ];
 const HOOK_DETAIL_IS_POLYGON = new Set(["gbGreenspace", "gbSportsFacilities", "gbCemeteries"]);
+/** 出點縮放寫成常數（不在 hook 內呼叫 densePointsFromZoom），另有測試鎖定常數＝densePointsFromZoom 結果。 */
+const HOOK_POINTS_FROM_CONSTANT = new Set(["gbForestRecreation"]);
+/**
+ * 透明度滑桿預設是面填色（規劃限制區 0.35 覆蓋、樹木保護 0.7），不是點的密度透明度；
+ * 代表點與熱區的透明度在 useGbRepPointLayers 內以 densePointOpacity(count) × (滑桿 ÷ 預設) 換算。
+ */
+const HOOK_FILL_OPACITY_DEFAULT = new Set(["gbPlanningConstraints", "gbTreeProtection"]);
 /** 乘數型透明度滑桿（預設 1，點的 alpha 寫在 paint）：火災兩層。 */
 const HOOK_MULTIPLIER_OPACITY = new Set(["fireEvents", "fireLatest"]);
 
@@ -194,9 +207,19 @@ describe("R5 hook 密集點全面套用", () => {
     expect(src).toMatch(/type: "heatmap"|heatmapLayer\(|gbHeatmapBuild\(/);
     expect(src).toContain("heatmapMaxzoom(");
     // 綠地三層的細節層是面（出現縮放＝面的 minzoom，z9／z10），熱區 maxzoom 直接接面，不經 densePointsFromZoom
-    if (!HOOK_DETAIL_IS_POLYGON.has(id)) expect(src).toContain("densePointsFromZoom(");
+    if (!HOOK_DETAIL_IS_POLYGON.has(id) && !HOOK_POINTS_FROM_CONSTANT.has(id)) expect(src).toContain("densePointsFromZoom(");
+    if (HOOK_FILL_OPACITY_DEFAULT.has(id)) return;
     const def = Number(paramDefault(id, `${id}Opacity`));
     expect(def).toBe(HOOK_MULTIPLIER_OPACITY.has(id) ? 1 : densePointOpacity(count));
+  });
+
+  it("gbForestRecreation：出點縮放常數 GB_RECREATION_MINZOOM＝densePointsFromZoom(24,487 點, source z5)", () => {
+    expect(GB_RECREATION_MINZOOM).toBe(densePointsFromZoom(24_487, 5));
+  });
+
+  it("規劃限制區、樹木保護：代表點層的熱區／點透明度由 useGbRepPointLayers 依點數換算", () => {
+    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/useGbWaterLayers.ts"), "utf8");
+    expect(src).toContain("densePointOpacity(spec.count) * rel");
   });
 });
 
