@@ -6,6 +6,7 @@ topic: making
 series: 30 天地圖挑戰
 challengeDay: 7
 date: 2026-11-07
+updated: 2026-11-09
 tags: [30DayMapChallenge, AI Agent, 實價登錄, 捷運, 房價]
 cover: cover-dark.jpg
 coverLight: cover-light.jpg
@@ -87,3 +88,10 @@ Pulse 有一組給 AI 用的研究工具。接上之後，AI 可以查 Pulse 背
 ### 十分鐘真的能做出這樣的分析嗎？
 
 分析本身約 5 分鐘：從提問、追問內湖、上網查證、畫成交點到換高雄再算一次。把結論做成網頁和修改又花了約 6 分半，總共 11 分 39 秒，超過了十分鐘。
+
+## 資料來源
+
+- **房價**：內政部〈[不動產成交案件實際資訊](https://plvr.land.moi.gov.tw/DownloadOpenData)〉（實價登錄），2024 年第 3 季至 2026 年第 1 季買賣成交（不含預售），政府資料開放授權條款第 1 版；座標以 TGOS 地址批次地理編碼。
+- **捷運車站**：交通部 TDX 運輸資料流通服務軌道車站（臺北捷運、高雄捷運紅線與橘線），2026 年 5 月版，政府資料開放授權條款第 1 版。
+- **行政區與里界**：內政部國土測繪中心〈鄉鎮市區界線〉（[data.gov.tw 7441](https://data.gov.tw/dataset/7441)）、〈村（里）界〉（[data.gov.tw 7438](https://data.gov.tw/dataset/7438)），政府資料開放授權條款第 1 版。
+- **分析與網頁**：Claude Code（Anthropic）透過 Pulse 研究工具查詢上述資料、計算距離與中位數、上網查證內湖三個里，並產生成果網頁。

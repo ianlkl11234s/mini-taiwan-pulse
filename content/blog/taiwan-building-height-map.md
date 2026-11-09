@@ -4,7 +4,7 @@ description: Mini Taiwan Pulse 的建物輪廓圖層用 GlobalBuildingAtlas 把�
 slug: taiwan-building-height-map
 topic: layers
 date: 2026-07-22
-updated: 2026-10-24
+updated: 2026-11-09
 tags: [開發日記, 建物, 衛星影像]
 cover: cover-dark.jpg
 coverLight: cover-light.jpg
@@ -114,3 +114,13 @@ GlobalBuildingAtlas 依經緯度切成 5 度乘 5 度的圖磚，Pulse 目前只
 這是我做 Pulse 以來覺得最「漂亮」的資料之一。當建物一棟一棟被點上去，台灣的城市紋理第一次這麼清楚：台北盆地密密麻麻的公寓、中南部散在田間的透天厝、各城市零星冒出來的高樓群。
 
 有興趣的話，可以打開 Pulse 的建物輪廓，切到 3D 或夜景模式，去你熟悉的街區看看。
+
+## 資料來源
+
+- **建物輪廓與高度**：GlobalBuildingAtlas（慕尼黑工業大學，Zhu et al. 2025），CC BY-NC 4.0，論文刊於《Earth System Science Data》；高度以 2019 年前後的 PlanetScope 衛星影像推估。
+- **部分建物輪廓**：© OpenStreetMap 貢獻者，ODbL。
+- **縣市與鄉鎮市區界**：內政部國土測繪中心〈直轄市、縣市界線〉（[data.gov.tw 7442](https://data.gov.tw/dataset/7442)）、〈鄉鎮市區界線〉（[data.gov.tw 7441](https://data.gov.tw/dataset/7441)），114 年版，政府資料開放授權條款第 1 版。
+- **估值模式**：內政部〈[不動產成交案件實際資訊](https://plvr.land.moi.gov.tw/DownloadOpenData)〉（實價登錄），政府資料開放授權條款第 1 版。
+- **淹水潛勢**：經濟部水利署地理資訊中心〈淹水潛勢圖〉，政府資料開放授權條款第 1 版。
+- **都市淹水感測器**：經濟部水利署水利物聯網平台的都市淹水感知器（USWG）站點。
+- **日本建物高度**：日本 PLATEAU 計畫 3D 都市模型，16 塊區域、2020–2025 年度，CC BY 4.0。

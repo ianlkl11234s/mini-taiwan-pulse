@@ -5,7 +5,7 @@ slug: taiwan-rail-realtime-map
 topic: layers
 series: 軌道地圖
 date: 2026-02-02
-updated: 2026-10-23
+updated: 2026-11-09
 tags: [開發日記, 時刻表]
 cover: cover-dark.jpg
 coverLight: cover-light.jpg
@@ -131,3 +131,10 @@ height: 520
 但我更期待的是另一件事。軌道只是第一層，當公車、船、飛機、人口這些資料一層一層疊上去，就有機會看到更多關聯與交互作用，讓這張地圖從「呈現」走到能解釋、甚至預測的那一刻。
 
 以上如果有哪條線跑得不對，或是哪裡我理解錯了，也歡迎熟悉鐵道的大家告訴我～
+
+## 資料來源
+
+- **時刻表、軌道與車站**：交通部〈[TDX 運輸資料流通服務](https://tdx.transportdata.tw/api-service/swagger/basic)〉的台鐵、高鐵、捷運與輕軌資料，政府資料開放授權條款第 1 版。
+- **台北捷運時刻表與路線**：Eric Yu 的開源專案〈[TaipeiMetroTimeTable](https://github.com/ericyu/TaipeiMetroTimeTable)〉與〈[TaipeiMetroRouteInfo](https://github.com/ericyu/TaipeiMetroRouteInfo)〉。
+- **台鐵軌道**：內政部國土測繪中心的台鐵軌道圖資，斷掉的區段以手工補齊。
+- **三鶯線**：軌道取自 © OpenStreetMap 貢獻者，ODbL；時刻用試營運時刻表。

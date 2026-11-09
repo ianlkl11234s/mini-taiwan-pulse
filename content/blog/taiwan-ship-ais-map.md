@@ -4,7 +4,7 @@ description: Mini Taiwan Pulse 每 10 分鐘收集一次航港局的船舶 AIS �
 slug: taiwan-ship-ais-map
 topic: layers
 date: 2026-02-13
-updated: 2026-10-24
+updated: 2026-11-09
 tags: [開發日記, AIS]
 cover: cover-dark.jpg
 coverLight: cover-light.jpg
@@ -115,3 +115,11 @@ AIS 可以被關閉，軍艦等船隻通常不廣播；船離岸太遠時，岸�
 ## 下一步
 
 船舶 AIS 是我最早開始收集的資料之一，每次打開來複習，都還是很喜歡這些船移動的規律與畫面。接下來想把港口、能源設施和船舶串起來，看看不同船種在各個港口的停靠節奏～
+
+## 資料來源
+
+- **船舶位置**：交通部航港局〈臺灣海域船舶即時資訊系統〉船舶即時位置（AIS），2026-02-03 起每 10 分鐘收集一次。
+- **中國海警名冊**：依上述 AIS 的船舶識別碼（MMSI）前三碼與船名規則推斷，89 艘，不是官方認定。
+- **海流**：歐盟哥白尼海洋服務（Copernicus Marine）〈[Global Ocean Physics Analysis and Forecast](https://data.marine.copernicus.eu/product/GLOBAL_ANALYSISFORECAST_PHY_001_024/)〉表層海流預報，約 9 公里、每 6 小時一個時間點。
+- **領海界線**：內政部公告的領海基線、12 浬領海與 24 浬鄰接區，政府資料開放授權條款第 1 版。
+- **背景報導**：天下雜誌關於中國海警動態的報導（2026 年 8 月）。

@@ -4,7 +4,7 @@ description: Mini Taiwan Pulse 的「地形」圖層把國土測繪中心的數�
 slug: taiwan-terrain-map
 topic: layers
 date: 2026-08-25
-updated: 2026-10-24
+updated: 2026-11-09
 tags: [開發日記, 地形, 等高線, 海底地形]
 cover: cover-dark.jpg
 coverLight: cover-light.jpg
@@ -116,3 +116,9 @@ GEBCO 是整合各國測深資料做成的全球網格，解析度約 450 公尺
 ## 下一步
 
 地形是其他資料的舞台。接下來想把河川、水庫、坍方和交通路線和地形疊在一起看，例如鐵路為什麼在某段一直繞，或某些山區道路為什麼常常中斷。經建版等高線也會隨國土測繪中心每年釋出的新圖幅，慢慢補成完整的一輪～
+
+## 資料來源
+
+- **山體陰影、DTM 推算等高線、坡度與坡向**：內政部國土測繪中心〈全臺 20 公尺網格數值地形模型〉2024 年版，[data.gov.tw 169807](https://data.gov.tw/dataset/169807)，政府資料開放授權條款第 1 版。
+- **經建版等高線**：內政部國土測繪中心〈經建版地形圖 1:25,000〉等高線，114 年第 1 期（[data.gov.tw 176020](https://data.gov.tw/dataset/176020)）與第 2 期（[data.gov.tw 176794](https://data.gov.tw/dataset/176794)），共 71 幅，政府資料開放授權條款第 1 版。
+- **海底等深線**：GEBCO Compilation Group (2025)〈[GEBCO 2025 Grid](https://www.gebco.net/data-products-gridded-bathymetry-data/gebco2025-grid)〉，15 角秒，公有領域。
