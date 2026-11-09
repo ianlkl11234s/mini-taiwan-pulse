@@ -101,3 +101,8 @@ SSOT 靜態 5：`get_ssot_facilities_secondary_small` `get_ssot_facilities_plann
 
 S3 `deploy-assets/static-rpc/`：**25 檔已上**。
 排除：waste_stops（193k/56MB，per-city RPC 保留）。
+
+## 2026-11-10 追加：H3 年度人口、地層下陷單站時序
+
+- `get_h3_demographics_yearly`：每（年, 解析度）一檔 `get_h3_demographics_yearly_<年>_r<解析度>.json`＋`get_h3_demographics_years.json`（匯出群組 `@h3_demographics`，15 檔約 41MB）；chat 白名單同步改讀快照（`RpcSpec.staticSnapshot`，404 當空結果）。res8 從被 PostgREST 截斷的 2 萬列改為完整約 5.6 萬格（使用者同意畫面變多）。
+- `get_land_subsidence_timeseries`：每站一檔、站號 UTF-8 hex（`@land_subsidence`，#981）。
