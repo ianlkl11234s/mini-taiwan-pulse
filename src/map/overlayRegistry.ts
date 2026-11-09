@@ -12214,6 +12214,13 @@ function culturalHealthStationsOverlay(): OverlayConfig {
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
   {
+    // 大面積覆蓋面（15 縣市各一面）：§3.8 V-5 區劃面類，不做點／面切換
+    id: "slopelandSwcAct", sourceUrl: "./urban/slopeland_swc_act_115.pmtiles", sourceId: "slopeland-swc-act",
+    pmtiles: { sourceLayer: "slopeland_swc_act", minzoom: 4, maxzoom: 13 },
+    attribution: `農業部農村發展及水土保持署 山坡地範圍（data.gov.tw 178645）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("slopelandSwcAct", ATLAS_LAYER_COLORS.slopelandSwcAct, 0.3),
+  },
+  {
     id: "swcSpecialZones", sourceUrl: "./urban/swc_special_zones_115.pmtiles", sourceId: "swc-special-zones",
     pmtiles: { sourceLayer: "swc_special_zones", minzoom: 4, maxzoom: 14 },
     attribution: `農業部農村發展及水土保持署 特定水土保持區（data.gov.tw 176847）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],

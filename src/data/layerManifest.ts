@@ -11933,6 +11933,15 @@ export const LAYER_MANIFEST = {
     description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
   },
+  slopelandSwcAct: {
+    key: "slopelandSwcAct", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "山坡地範圍（水保法）", alt: "Slopeland (Soil and Water Conservation Act)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.slopelandSwcAct, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "slopeland_swc_act", confidence: "HIGH" }], processing: "analytics urban_composite/slopeland_swc_act 115：水保署 data.gov.tw 178645（115 年版，檔 1150708；zip 無 .prj，以 EPSG:3826 處理）15 縣市各一列", note: "不含六都（市府自行公告）、不含澎湖（來源缺）；114 年版 172915 只差南投縣面積。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "slopeland-swc-act", url: "./urban/slopeland_swc_act_115.pmtiles", sourceLayer: "slopeland_swc_act", minzoom: 4, maxzoom: 13 },
+    legend: "slopelandSwcAct", popup: "slopelandSwcAct", params: { count: 1, kinds: ["slider"] },
+    description: "水土保持法公告的山坡地範圍（15 縣市，不含六都與澎湖），115 年版。",
+    topics: ["水土保持", "山坡地", "土地使用", "水保署"],
+  },
   swcSpecialZones: {
     key: "swcSpecialZones", country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" }, ...layerName({ zh: "特定水土保持區", alt: "Special Soil and Water Conservation Zones" }), expandable: true,
     color: ATLAS_LAYER_COLORS.swcSpecialZones, icon: Mountain,

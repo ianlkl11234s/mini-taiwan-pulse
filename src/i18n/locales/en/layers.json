@@ -1770,5 +1770,6 @@
   "layer.postMailboxes": "Mailboxes",
   "layer.antivenomHospitals": "Antivenom Reserve Hospitals",
   "layer.freewayHundredMeterStakes": "Freeway 100 m Stakes",
-  "layer.swcSpecialZones": "Special Soil and Water Conservation Zones"
+  "layer.swcSpecialZones": "Special Soil and Water Conservation Zones",
+  "layer.slopelandSwcAct": "Slopeland (Soil and Water Conservation Act)"
 }

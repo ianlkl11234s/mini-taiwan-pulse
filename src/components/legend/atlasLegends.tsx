@@ -86,6 +86,7 @@ const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  slopelandSwcAct: () => <AtlasLegend layer="slopelandSwcAct" en="Slopeland (Soil and Water Conservation Act)" kind="square" source={src("swcb", ["178645"])} rows={single("slopelandSwcAct", "legend.atlas.slopelandArea")} />,
   swcSpecialZones: () => <AtlasLegend layer="swcSpecialZones" en="Special Soil and Water Conservation Zones" kind="square" source={src("swcb", ["176847"])} domain="atlasSwcZoneType" rows={SWC_ZONE_TYPE_OPTIONS} />,
   freewayHundredMeterStakes: () => <AtlasLegend layer="freewayHundredMeterStakes" en="Freeway 100 m Stakes" source={src("freeway", ["95016"])} rows={single("freewayHundredMeterStakes", "legend.atlas.hundredMeterStake")} dense />,
   antivenomHospitals: () => <AtlasLegend layer="antivenomHospitals" en="Antivenom Reserve Hospitals" source={src("cdc", ["24468"])} rows={single("antivenomHospitals", "legend.atlas.antivenomHospital")} />,

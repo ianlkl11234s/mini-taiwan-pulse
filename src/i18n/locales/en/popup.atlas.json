@@ -315,5 +315,9 @@
   "popup.atlas.swcBasis": "Designation basis (Art. 16, Soil and Water Conservation Act)",
   "popup.atlas.swcAnnoArea": "Announced area",
   "popup.atlas.swcAnnoDate": "Announced",
-  "popup.atlas.swcCaution": "Boundaries and controls follow the official announcement; the designation basis is inferred from the article's clauses"
+  "popup.atlas.swcCaution": "Boundaries and controls follow the official announcement; the designation basis is inferred from the article's clauses",
+  "popup.atlas.slTitle": "Slopeland in {county}",
+  "popup.atlas.slArea": "Announced area",
+  "popup.atlas.slDate": "Announced",
+  "popup.atlas.slCaution": "Each county's slopeland is one area; whether a given parcel is slopeland must be checked with the competent authority"
 }

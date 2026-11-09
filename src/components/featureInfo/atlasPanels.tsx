@@ -959,6 +959,18 @@ function SecuritiesFuturesPanel({ props }: Props) {
 }
 
 // G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
+function SlopelandSwcActPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.slopelandSwcAct}>{t("popup.atlas.slTitle", { county: placeName(str(props.county), i18n) })}</Title>
+    <Row label={t("popup.atlas.slArea")} value={fmt(props.p_area_ha, 0, t("popup.atlas.unitHectares"), i18n)} mono />
+    <Row label={t("popup.atlas.slDate")} value={str(props.p_date)} mono />
+    <Row field="authority" value={str(props.authority)} />
+    <Row field="caution" value={t("popup.atlas.slCaution")} />
+  </>;
+}
+
 function SwcSpecialZonePanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -1227,6 +1239,7 @@ function BatterySwapPanel({ props }: Props) {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  slopelandSwcAct: SlopelandSwcActPanel,
   swcSpecialZones: SwcSpecialZonePanel,
   freewayHundredMeterStakes: FreewayStakePanel,
   antivenomHospitals: AntivenomHospitalPanel,
@@ -1301,6 +1314,7 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  slopelandSwcAct: manifestZh("slopelandSwcAct"),
   swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),

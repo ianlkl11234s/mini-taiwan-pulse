@@ -315,5 +315,9 @@
   "popup.atlas.swcBasis": "劃定依據（水保法第 16 條）",
   "popup.atlas.swcAnnoArea": "公告面積",
   "popup.atlas.swcAnnoDate": "公告日期",
-  "popup.atlas.swcCaution": "範圍與管制以水保署公告為準；劃定依據是依法條款次推定"
+  "popup.atlas.swcCaution": "範圍與管制以水保署公告為準；劃定依據是依法條款次推定",
+  "popup.atlas.slTitle": "{county}山坡地範圍",
+  "popup.atlas.slArea": "劃入公告面積",
+  "popup.atlas.slDate": "劃入公告日期",
+  "popup.atlas.slCaution": "整個縣市的山坡地範圍是一個面；個別土地是否屬山坡地以主管機關查詢為準"
 }

@@ -2160,6 +2160,13 @@
    "s3_key": "deploy-assets/urban/property_value_admin.json"
   },
   {
+   "path": "public/urban/slopeland_swc_act_115.pmtiles",
+   "bytes": 1602176,
+   "sha256": "3ecd88fbe1ffc6c1436b2f29e3aa3b8bad75dcfc404203b0a1c94791790a5d2a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/urban/slopeland_swc_act_115.pmtiles"
+  },
+  {
    "path": "public/urban/swc_special_zones_115.pmtiles",
    "bytes": 346318,
    "sha256": "b798b2f5982cd04ea2fbfa8e835529bac80d23363ff009811c7c712c2e805946",

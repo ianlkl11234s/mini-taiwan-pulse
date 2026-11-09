@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1780,
+    "keyCount": 1781,
     "sections": [
       "gisLayers",
       "overlays",
@@ -6092,6 +6092,12 @@
         "hakka-cultural-zones-points-circle-polygon"
       ],
       "type": "hakkaCulturalZones"
+    },
+    {
+      "layers": [
+        "slopeland-swc-act-fill"
+      ],
+      "type": "slopelandSwcAct"
     },
     {
       "layers": [
@@ -83907,6 +83913,84 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "slopelandSwcAct",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#a3734c",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#a3734c",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#a3734c",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "slopeland_swc_act"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "slopeland-swc-act",
+      "sourceUrl": "./urban/slopeland_swc_act_115.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "swcSpecialZones",
       "layers": [
         {
@@ -147198,6 +147282,17 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "slopelandSwcAct": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
       }
     ],
     "socioeconomic": [
