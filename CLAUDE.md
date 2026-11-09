@@ -40,7 +40,7 @@ commit 前必跑 `npm run verify`（`tsc -b`、lint、樣式盤點、相關測�
 所有非同步載入必註冊 loadingRegistry，禁靜默 `.rpc().then()` → development-rules §2
 
 ### 4. 資料庫優化（Pre-aggregate Pattern）
-RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) + `/supabase-optimize` skill + `/check-rpc`
+RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) + `/supabase-optimize` skill + `/check-rpc`。**DB 效能鐵則 R1–R4**（前端 RPC 冷快取 <300ms／上限 1s、預算表要登記讀者、排程只算增量、監控不掃表）正本在該檔 §0，gis-platform CI 與每週體檢會擋
 
 ### 5. 新增 Layer 強制順序 ⚠️
 新增 Layer → `/new-layer` 產骨架 + `layer-onboarding` skill 驗收；接線順序見 development-rules §4。
