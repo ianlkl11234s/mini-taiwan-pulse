@@ -483,7 +483,7 @@
 
 各功能資料夾的 `backlog.md`（含 viz-library、agent-research-workbench、general-analysis 題庫 backlog）2026-11-09 讀過後整份封存到 [`docs/archive/2026-11-09/features/`](../../docs/archive/2026-11-09/features/)，索引見 [`docs/archive/README.md`](../../docs/archive/README.md) 2026-11-09 段。仍有效的項目已搬成各主題群的 `FB-*` 列，其餘列在「待勾選（2026-11-09 feature backlog 封存）」。之後待辦一律寫進本檔，不再新開 feature backlog。
 
-設計／研究型 roadmap 未封存（只把未完成項搬進本檔）：`docs/features/i18n/ROADMAP.md`、`docs/features/agent-research-workbench/gis-analysis-roadmap.md`、`docs/research/cctv-finetune-roadmap-2026-09-29.md`、`docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md`、`docs/features/waste-collection/research/roadmap.md`。
+設計／研究型 roadmap 未封存（只把未完成項搬進本檔）：`docs/features/i18n/ROADMAP.md`、`docs/research/cctv-finetune-roadmap-2026-09-29.md`、`docs/proposal/main-site-ai-gis-roadmap-2026-09-05.md`。gis-analysis 與垃圾車兩份路線圖 2026-11-09 已封存到 `docs/archive/2026-11-09/`（原處留指標）。
 
 ## 待勾選（2026-11-09 feature backlog 封存）
 
