@@ -117,7 +117,7 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
-import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, ANTIVENOM_SERUM_OPTIONS, DEBRIS_FLOW_VIEW_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS } from "./atlasLayerTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, ANTIVENOM_SERUM_OPTIONS, DEBRIS_FLOW_VIEW_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, POLLUTION_ZONE_STATUS_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -5286,6 +5286,13 @@ export const LAYER_PARAMS_SPEC = {
   postMailboxes: [opacitySlider("postMailboxesOpacity", densePointOpacity(6_024)), scaleSlider("postMailboxesScale", 1)],
   motorcycleInspectionStations: [opacitySlider("motorcycleInspectionStationsOpacity", densePointOpacity(3_893)), scaleSlider("motorcycleInspectionStationsScale", 1)],
   broadcastTransmitters: [opacitySlider("broadcastTransmittersOpacity", 0.9), scaleSlider("broadcastTransmittersScale", 1)],
+  pollutionControlZones: [
+    {
+      kind: "multiSelect", name: "pollutionControlZonesStatus", label: "列管狀態", default: serializeMultiSelectValues(["true"]),
+      options: POLLUTION_ZONE_STATUS_OPTIONS.map((o) => ({ label: o.label, value: o.value })), out: "pollutionControlZonesStatusMask",
+    },
+    opacitySlider("pollutionControlZonesOpacity", 0.6),
+  ],
   tedsGridEmissions: [
     {
       kind: "select", name: "tedsGridEmissionsView", label: "顯示", default: "point",

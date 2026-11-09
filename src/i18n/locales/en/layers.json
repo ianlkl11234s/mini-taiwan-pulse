@@ -1780,5 +1780,6 @@
   "layer.statsKrTrafficAccidentsPer10kSido": "Road traffic accidents per 10,000 residents (province level)",
   "layer.statsKrTrafficAccidentsPer10kSgg": "Road traffic accidents per 10,000 residents (municipal level)",
   "layer.broadcastTransmitters": "Broadcast Transmitters & Radio Monitoring Stations",
-  "layer.tedsGridEmissions": "Air Pollutant Emission Grid (TEDS)"
+  "layer.tedsGridEmissions": "Air Pollutant Emission Grid (TEDS)",
+  "layer.pollutionControlZones": "Soil & Groundwater Pollution Control Zones"
 }

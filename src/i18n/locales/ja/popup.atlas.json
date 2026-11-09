@@ -346,5 +346,10 @@
   "popup.atlas.tedsIsoprene": "イソプレン",
   "popup.atlas.tedsMonoterpenes": "モノテルペン",
   "popup.atlas.tedsCaution": "推計排出量（TEDS 13.0、2023 年）で、測定値ではありません",
-  "popup.atlas.tedsFacilityCaution": "推計排出量（TEDS 13.0、2023 年）。位置は事業所の排出口の中央位置"
+  "popup.atlas.tedsFacilityCaution": "推計排出量（TEDS 13.0、2023 年）。位置は事業所の排出口の中央位置",
+  "popup.atlas.pczMedium": "媒体",
+  "popup.atlas.pczAnnoDate": "公告日",
+  "popup.atlas.pczStatusDate": "状況変更日",
+  "popup.atlas.pczReleaseDate": "解除日",
+  "popup.atlas.pczSiteId": "サイトコード"
 }

@@ -433,6 +433,20 @@
    "s3_key": "deploy-assets/environment/pm25_manual_stations.geojson"
   },
   {
+   "path": "public/environment/pollution_control_zones_202611.pmtiles",
+   "bytes": 2932706,
+   "sha256": "da5f13e051a677ff19c487b8a04e24dbc05dd841448c8cfcc5b6b8a1e2b9592f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/pollution_control_zones_202611.pmtiles"
+  },
+  {
+   "path": "public/environment/pollution_control_zones_202611_points.pmtiles",
+   "bytes": 2424192,
+   "sha256": "25376edec3b981de34edb5eec4916b5810ae701e1900400b6d67ab4ca4877608",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/pollution_control_zones_202611_points.pmtiles"
+  },
+  {
    "path": "public/environment/public_toilets_national.geojson",
    "bytes": 2761031,
    "sha256": "3f8f9e75b6f05e3697a0af90224bed792e435b1605678ce8182f6045e5d2bc5b",

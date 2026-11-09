@@ -15,6 +15,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
   MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR,
   G53_ORGS,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS,
@@ -107,6 +108,8 @@ function TedsGridEmissionsLegend() {
 }
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  pollutionControlZones: () => <AtlasLegend layer="pollutionControlZones" en="Soil & Groundwater Pollution Control Zones" kind="square" source={src("moenv", ["6384", "35092"])} domain="atlasPollutionZoneGroup"
+    rows={[...POLLUTION_ZONE_GROUP_OPTIONS, { labelKey: "legend.atlas.pczReleased", color: POLLUTION_ZONE_RELEASED_COLOR }]} />,
   tedsGridEmissions: () => <TedsGridEmissionsLegend />,
   broadcastTransmitters: () => <AtlasLegend layer="broadcastTransmitters" en="Broadcast Transmitters & Radio Monitoring Stations" source={src("ncc", ["6445", "6446", "6825"])} domain="atlasBroadcastKind" rows={BROADCAST_KIND_OPTIONS} />,
   landUseChangeMonitoring: () => <AtlasLegend layer="landUseChangeMonitoring" en="Land Use Change Monitoring" kind="square" source={src("nlma", ["168030"])} domain="atlasLandChange" rows={LAND_CHANGE_CLASS_OPTIONS} />,

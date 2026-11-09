@@ -346,5 +346,10 @@
   "popup.atlas.tedsIsoprene": "Isoprene",
   "popup.atlas.tedsMonoterpenes": "Monoterpenes",
   "popup.atlas.tedsCaution": "Estimated emissions (TEDS 13.0, 2023), not measurements",
-  "popup.atlas.tedsFacilityCaution": "Estimated emissions (TEDS 13.0, 2023); location is the median position of the facility's stacks"
+  "popup.atlas.tedsFacilityCaution": "Estimated emissions (TEDS 13.0, 2023); location is the median position of the facility's stacks",
+  "popup.atlas.pczMedium": "Medium",
+  "popup.atlas.pczAnnoDate": "Announced",
+  "popup.atlas.pczStatusDate": "Status changed",
+  "popup.atlas.pczReleaseDate": "Released",
+  "popup.atlas.pczSiteId": "Site code"
 }

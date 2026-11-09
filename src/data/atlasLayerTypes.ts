@@ -610,7 +610,7 @@ export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
-  "broadcastTransmitters", "tedsGridEmissions",
+  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -645,9 +645,35 @@ export const TEDS_DENSITY_STEPS = [
   { min: 100, label: "100", color: "#d95f0e" },
   { min: 1000, label: "1,000", color: "#993404" },
 ] as const;
+/** 土壤／地下水污染管制區列管類型（上游 status_group；英日文 enum.atlasPollutionZoneGroup.*）；已解除一律灰。 */
+export const POLLUTION_ZONE_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "remediation", label: "整治場址", color: "#b91c1c" },
+  { value: "control", label: "控制場址", color: "#ea580c" },
+  { value: "gw_restriction", label: "地下水受污染使用限制地區", color: "#7c3aed" },
+];
+export const POLLUTION_ZONE_RELEASED_COLOR = "#94a3b8";
+/** 污染管制區介質（上游 medium；英日文 enum.atlasPollutionMedium.*；popup 中文標籤用） */
+export const POLLUTION_MEDIUM_OPTIONS: readonly AtlasOption[] = [
+  { value: "soil", label: "土壤", color: "#a16207" },
+  { value: "groundwater", label: "地下水", color: "#2563eb" },
+];
+/** 列管狀態多選（上游布林 is_active，以 to-string 比對；預設只開列管中）。 */
+export const POLLUTION_ZONE_STATUS_OPTIONS = [
+  { value: "true", label: "列管中" },
+  { value: "false", label: "已解除" },
+] as const;
+export function pollutionZoneStatusFilter(mask?: number): unknown[] {
+  const m = mask === undefined || !Number.isFinite(mask) ? 1 : Math.trunc(mask);
+  const selected = POLLUTION_ZONE_STATUS_OPTIONS.filter((_, i) => (m & (1 << i)) !== 0).map((o) => o.value);
+  return ["in", ["to-string", ["get", "is_active"]], ["literal", selected]];
+}
+export function pollutionZoneColorExpr(): unknown[] {
+  return ["case", ["==", ["to-string", ["get", "is_active"]], "false"], POLLUTION_ZONE_RELEASED_COLOR, matchColorExpr("status_group", POLLUTION_ZONE_GROUP_OPTIONS)];
+}
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會" } as const;
 
 export const ATLAS_NOTES = {
+  pollutionControlZones: "環境部土壤及地下水污染管制區範圍：土壤 7,402 場址（data.gov.tw 6384，2026-11 月檔）、地下水 401 場址（35092，2026-10），共 7,803 場址，含已解除列管的。預設只顯示列管中的 384 場址，「列管狀態」可勾已解除（灰色）。依列管類型上色：整治場址（較嚴重）深紅、控制場址橙、地下水受污染使用限制地區紫。多為單筆農地地號的小面，預設畫點，可切成面（8 級起）。彰化、桃園多為農地重金屬污染。102 個場址名稱含「?」是來源造字遺失，照原樣顯示。場址代碼與「污染場址」圖層相同，可互相對照；範圍以環境部公告為準。",
   tedsGridEmissions: "環境部臺灣排放量清冊 TEDS 13.0（排放年 2023）的推估排放量，不是監測值。網格模式顯示每平方公里每年排放公噸數（1 km 方格；拉遠到 9 級以下合成 5 km 方格），四種來源分開看：點源（工廠煙囪等）、線源（公路車輛）、面源（其他人為來源）、生物源（植物排放，只有 NMHC）。只收有排放的格。「點源工廠」模式是 15,996 家事業的年排放量（由 255,912 個排放口依管制編號合併，位置取排放口的中位位置），拉遠畫熱區、放大到 10 級起畫點，點大小依所選污染物。非公路運輸與氨排放網格未收。",
   broadcastTransmitters: "國家通訊傳播委員會公告的 FM 廣播電臺 290 座、AM 廣播電臺 136 座（data.gov.tw 6445、6446，115-07-03 版）與電波監測站 21 站（6825，2025-12）。點是發射機位置；同一站址常有多座電臺共用（FM 245 址、AM 92 址），點會重疊，放大後逐一點選。1 座經度筆誤（102→120）已依地址修正。電臺類別（甲、乙、丙等）照來源原文；「海外電臺」是對海外播音的 AM 發射站。",
   landUseChangeMonitoring: "內政部國土管理署國土利用監測的衛星影像變異點 107–112 年共 143,891 處（data.gov.tw 168030），是「疑似變異」，不是查報確認的違規。依變異類別上色（裸露地占 88%）；同一地點可能在不同年度各出現一次。拉遠時畫六角格（每格約 5 km²），顏色深淺是格內變異處數；六角格跟著類別篩選，只篩年度時改用分年數，兩者都篩時只照類別。放大到 10 級起畫逐點與範圍面。107 年原為 TWD67，已轉換。",

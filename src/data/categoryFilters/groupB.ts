@@ -1,6 +1,14 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 
 export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // G53 批 2／3（2026-11-10）：污染管制區介質、列管類型（列管狀態另由 layerParamsSpec 手寫，預設只開列管中）
+  pollutionControlZones: [
+    { id: "Medium", property: "medium", label: "介質", options: [{ value: "soil", zh: "土壤" }, { value: "groundwater", zh: "地下水" }] },
+    {
+      id: "Group", property: "status_group", label: "列管類型",
+      options: [{ value: "remediation", zh: "整治場址" }, { value: "control", zh: "控制場址" }, { value: "gw_restriction", zh: "地下水受污染使用限制地區" }],
+    },
+  ],
   // G53 批 2／3（2026-11-10）：廣播發射站種類（值與 atlasLayerTypes BROADCAST_KIND_OPTIONS 同序）
   broadcastTransmitters: {
     property: "kind",

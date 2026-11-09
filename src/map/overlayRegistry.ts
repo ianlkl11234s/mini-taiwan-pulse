@@ -349,6 +349,7 @@ import {
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  pollutionZoneColorExpr, pollutionZoneStatusFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -12377,6 +12378,13 @@ function debrisFlowPotentialOverlays(): OverlayConfig[] {
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──
   ...tedsGridEmissionsOverlays(),
+  {
+    // 污染管制區：面 z8 起（代表點 companion 由 repPointLayers 自動產生、預設點）；列管狀態篩選放在面子圖層，companion 沿用
+    id: "pollutionControlZones", sourceUrl: "./environment/pollution_control_zones_202611.pmtiles", sourceId: "pollution-control-zones",
+    pmtiles: { sourceLayer: "pollution_control_zones", minzoom: 8, maxzoom: 14 },
+    attribution: `環境部 土壤污染管制區（data.gov.tw 6384）、地下水污染管制區（35092）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("pollutionControlZones", pollutionZoneColorExpr(), 0.6, undefined, (p) => pollutionZoneStatusFilter(p?.pollutionControlZonesStatusMask)),
+  },
   publicLifePointOverlay("broadcastTransmitters", "./geo/broadcast_transmitters_1150703.pmtiles", "broadcast-transmitters", matchColorExpr("kind", BROADCAST_KIND_OPTIONS), { sourceLayer: "broadcast_transmitters", minzoom: 4, maxzoom: 14 }, `國家通訊傳播委員會 FM 廣播電臺（data.gov.tw 6445）、AM 廣播電臺（6446）、電波監測站（6825）· ${OGDL_ATTR}`, [3, 6.5]),
   // ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──
   ...debrisFlowPotentialOverlays(),

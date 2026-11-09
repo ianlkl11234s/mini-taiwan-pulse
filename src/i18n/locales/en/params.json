@@ -2452,5 +2452,13 @@
   "param.線源（公路車輛）": "Line sources (road vehicles)",
   "param.面源": "Area sources",
   "param.生物源": "Biogenic sources",
-  "param.點源工廠": "Point-source facilities"
+  "param.點源工廠": "Point-source facilities",
+  "param.列管狀態": "Control status",
+  "param.列管中": "Under control",
+  "param.已解除": "Released",
+  "param.土壤": "Soil",
+  "param.列管類型": "Control type",
+  "param.整治場址": "Remediation site",
+  "param.控制場址": "Control site",
+  "param.地下水受污染使用限制地區": "Groundwater-use restriction area"
 }

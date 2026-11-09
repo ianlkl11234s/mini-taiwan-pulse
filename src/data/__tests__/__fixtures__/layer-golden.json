@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1790,
+    "keyCount": 1791,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5664,6 +5664,15 @@
         "broadcast-transmitters-glow"
       ],
       "type": "broadcastTransmitters"
+    },
+    {
+      "layers": [
+        "pollution-control-zones-fill",
+        "pollution-control-zones-outline",
+        "pollution-control-zones-points-circle-point",
+        "pollution-control-zones-points-circle-polygon"
+      ],
+      "type": "pollutionControlZones"
     },
     {
       "layers": [
@@ -84502,6 +84511,437 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "pollutionControlZones",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "is_active"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "true"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "fill-opacity": 0.6
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "fill-opacity": 0.6
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "is_active"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "true"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "line-opacity": 0.8999999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 8,
+        "sourceLayer": "pollution_control_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "pollution-control-zones",
+      "sourceUrl": "./environment/pollution_control_zones_202611.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "pollutionControlZones",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "is_active"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "true"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "is_active"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "true"
+              ]
+            ]
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 8,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "is_active"
+                    ]
+                  ],
+                  "false"
+                ],
+                "#94a3b8",
+                [
+                  "match",
+                  [
+                    "get",
+                    "status_group"
+                  ],
+                  "remediation",
+                  "#b91c1c",
+                  "control",
+                  "#ea580c",
+                  "gw_restriction",
+                  "#7c3aed",
+                  "#94a3b8"
+                ]
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "pollution_control_zones_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point",
+        "circle-polygon"
+      ],
+      "sourceId": "pollution-control-zones-points",
+      "sourceUrl": "./environment/pollution_control_zones_202611_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "broadcastTransmitters",
       "layers": [
         {
@@ -144971,6 +145411,99 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "pollutionControlZones": [
+      {
+        "label": "介質",
+        "options": [
+          {
+            "label": "土壤",
+            "value": "soil"
+          },
+          {
+            "label": "地下水",
+            "value": "groundwater"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "soil",
+          "groundwater"
+        ]
+      },
+      {
+        "label": "列管類型",
+        "options": [
+          {
+            "label": "整治場址",
+            "value": "remediation"
+          },
+          {
+            "label": "控制場址",
+            "value": "control"
+          },
+          {
+            "label": "地下水受污染使用限制地區",
+            "value": "gw_restriction"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "remediation",
+          "control",
+          "gw_restriction"
+        ]
+      },
+      {
+        "label": "列管狀態",
+        "options": [
+          {
+            "label": "列管中",
+            "value": "true"
+          },
+          {
+            "label": "已解除",
+            "value": "false"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "true"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "pollutionFacility": [

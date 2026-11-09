@@ -37,5 +37,6 @@
   "legend.atlas.slopelandArea": "山坡地範囲",
   "legend.atlas.tedsGridSubtitle": "{view} · {pollutant}（トン／km²・年）",
   "legend.atlas.tedsFacilitySubtitle": "{view} · {pollutant}（点の大きさは年間排出トン数）",
-  "legend.atlas.tedsFacility": "事業所（排出口の中央位置）"
+  "legend.atlas.tedsFacility": "事業所（排出口の中央位置）",
+  "legend.atlas.pczReleased": "指定解除"
 }

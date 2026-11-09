@@ -92,4 +92,5 @@ export const ATLAS_LAYER_COLORS = {
   // G53 批 2／3（2026-11-10）
   broadcastTransmitters: "#7c3aed",
   tedsGridEmissions: "#d95f0e",
+  pollutionControlZones: "#b91c1c",
 } as const;

@@ -151,6 +151,7 @@ export type ExpandableLayerKey =
   | "postOfficeFxCounters"
   | "broadcastTransmitters" // G53 批 2／3（2026-11-10）
   | "tedsGridEmissions" // G53 批 2／3（2026-11-10）
+  | "pollutionControlZones" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
   | "slopelandSwcAct" // G53 批 1（2026-11-09）
@@ -934,6 +935,7 @@ export interface FeatureInfo {
     | "antivenomHospitals"
     | "broadcastTransmitters"
     | "tedsGridEmissions"
+    | "pollutionControlZones"
     | "postMailboxes"
     | "motorcycleInspectionStations"
     | "hikingTrails"
@@ -1485,6 +1487,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   broadcastTransmitters: boolean;
   /** G53 批 2／3（2026-11-10）空污排放網格 TEDS 13.0：環境部 48201／170705／152688／47244，網格四源＋點源工廠 */
   tedsGridEmissions: boolean;
+  /** G53 批 2／3（2026-11-10）土壤／地下水污染管制區：環境部 6384／35092，7,803 場址（預設只開列管中） */
+  pollutionControlZones: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
   landUseChangeMonitoring: boolean;
   /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */

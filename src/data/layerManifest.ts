@@ -12006,6 +12006,18 @@ export const LAYER_MANIFEST = {
     description: "疾管署公告儲備抗蛇毒血清的醫療院所 191 家，可依血清種類（龜殼花及赤尾鮐、雨傘節及飯匙倩、百步蛇、鎖鏈蛇）篩選。",
     topics: ["醫療", "蛇咬", "抗蛇毒血清", "急救", "疾管署"],
   },
+  pollutionControlZones: {
+    key: "pollutionControlZones", country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" }, ...layerName({ zh: "土壤及地下水污染管制區", alt: "Soil & Groundwater Pollution Control Zones" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.pollutionControlZones, icon: Biohazard,
+    upstream: { status: "verified", datasets: [{ datasetId: "pollution_control_zones", confidence: "HIGH" }], processing: "analytics environment/pollution_control_zones 202611：環境部 data.gov.tw 6384（土壤 7,402 場址，2026-11 月檔）、35092（地下水 401 場址，範圍圖取自土污整治網開放資料集頁）；同場址多地號依 site_id 合併為 7,803 面＋代表點檔（z4–12）", note: "含已解除列管；site_id 與 pollutionSite 同一套；102 個名稱含來源造字遺失的「?」；土壤 H10227 一片幾何在北緯 16° 未上圖。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "pollution-control-zones", url: "./environment/pollution_control_zones_202611.pmtiles", sourceLayer: "pollution_control_zones", minzoom: 8, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "pollution-control-zones-points", url: "./environment/pollution_control_zones_202611_points.pmtiles", sourceLayer: "pollution_control_zones_points", minzoom: 4, maxzoom: 12 },
+    ],
+    legend: "pollutionControlZones", popup: "pollutionControlZones", params: { count: 6, kinds: ["select", "multiSelect", "multiSelect", "multiSelect", "slider", "slider"] },
+    description: "環境部公告的土壤及地下水污染控制場址、整治場址與地下水受污染使用限制地區範圍 7,803 場址（含已解除，預設只開列管中）。",
+    topics: ["環境污染", "土壤污染", "地下水污染", "控制場址", "整治場址", "環境部"],
+  },
   tedsGridEmissions: {
     key: "tedsGridEmissions", country: "TW", section: { theme: "環境氣候 Environment", group: "空品" }, ...layerName({ zh: "空污排放網格 TEDS", alt: "Air Pollutant Emission Grid (TEDS)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.tedsGridEmissions, icon: Factory,

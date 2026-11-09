@@ -346,5 +346,10 @@
   "popup.atlas.tedsIsoprene": "異戊二烯",
   "popup.atlas.tedsMonoterpenes": "單萜烯",
   "popup.atlas.tedsCaution": "推估排放量（TEDS 13.0，2023 年），不是監測值",
-  "popup.atlas.tedsFacilityCaution": "推估排放量（TEDS 13.0，2023 年）；位置為該事業排放口的中位位置"
+  "popup.atlas.tedsFacilityCaution": "推估排放量（TEDS 13.0，2023 年）；位置為該事業排放口的中位位置",
+  "popup.atlas.pczMedium": "介質",
+  "popup.atlas.pczAnnoDate": "公告日",
+  "popup.atlas.pczStatusDate": "狀態異動日",
+  "popup.atlas.pczReleaseDate": "解除日",
+  "popup.atlas.pczSiteId": "場址代碼"
 }

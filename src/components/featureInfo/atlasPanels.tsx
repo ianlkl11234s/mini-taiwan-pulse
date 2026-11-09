@@ -16,7 +16,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1338,9 +1338,29 @@ function TedsGridEmissionsPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 土壤／地下水污染管制區：已解除的顯示解除日（灰）；列管中顯示公告日。 */
+function PollutionControlZonePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const active = String(props.is_active) !== "false";
+  const color = active ? optionColor(POLLUTION_ZONE_GROUP_OPTIONS, props.status_group) : POLLUTION_ZONE_RELEASED_COLOR;
+  return <>
+    <Title color={color}>{str(props.site_name)}</Title>
+    <Row field="status" value={enumOf("atlasPollutionControlType", props.control_type, props.control_type, i18n)} color={color} />
+    <Row label={t("popup.atlas.pczMedium")} value={enumOf("atlasPollutionMedium", props.medium, optionLabel(POLLUTION_MEDIUM_OPTIONS, props.medium), i18n)} />
+    <Row field="category" value={enumOf("atlasPollutionSiteKind", props.site_kind, props.site_kind, i18n)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.atlas.pczAnnoDate")} value={str(props.anno_date)} mono />
+    <Row label={t(active ? "popup.atlas.pczStatusDate" : "popup.atlas.pczReleaseDate")} value={str(props.status_date)} mono />
+    <Row field="area" value={fmt(props.area_m2, 0, "m²", i18n)} mono />
+    <Row label={t("popup.atlas.pczSiteId")} value={str(props.site_id)} mono />
+  </>;
+}
+
 type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
 /** G53 批 1 出處（與圖例同一份機關＋data.gov.tw 資料集；土石流依圖徵種類指向溪流／集水區／影響範圍資料集）。 */
 const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
+  pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
   tedsGridEmissions: { org: "moenv", dataset: (p) => (p.control_no != null || p.n_sources != null ? "48201" : "152688") },
   broadcastTransmitters: { org: "ncc", dataset: (p) => (p.kind === "am" ? "6446" : p.kind === "monitoring" ? "6825" : "6445") },
   postMailboxes: { org: "chunghwaPost", dataset: () => "178399" },
@@ -1365,6 +1385,7 @@ function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
   broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
   landUseChangeMonitoring: withG53Footer("landUseChangeMonitoring", LandUseChangePanel),
@@ -1450,6 +1471,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
+  pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),
   broadcastTransmitters: manifestZh("broadcastTransmitters"),
   postMailboxes: manifestZh("postMailboxes"),

@@ -34,6 +34,8 @@ public/environment/incinerator_emissions.geojson
 public/environment/motorcycle_inspection_stations_20261109.pmtiles
 public/environment/official_noise_monitoring.geojson
 public/environment/pm25_manual_stations.geojson
+public/environment/pollution_control_zones_202611.pmtiles
+public/environment/pollution_control_zones_202611_points.pmtiles
 public/environment/public_toilets_national.geojson
 public/environment/river_rpi_segments.geojson
 public/environment/river_rpi_stations.geojson

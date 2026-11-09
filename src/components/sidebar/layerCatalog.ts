@@ -1766,6 +1766,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),
           fromManifest("pollutionSite"),
+          fromManifest("pollutionControlZones"),
           fromManifest("incineratorEmissions"),
           fromManifest("cemsStackLive"),
           fromManifest("nuscGammaRadiation"),
