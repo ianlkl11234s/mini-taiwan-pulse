@@ -107,7 +107,7 @@ describe("R7 顏色解析器", () => {
     // 2026-11-10 +1 G53 批 2／3：事件型崩塌目錄代表點熱區
     // 2026-11-10 +1 G53 批 2／3：iOcean 垂釣回報格網彙總熱區
     // 2026-11-10 +3 南韓第 8 波：國家遺產、住宿、敬老堂
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(124);
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(125);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);
