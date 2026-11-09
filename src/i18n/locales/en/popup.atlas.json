@@ -387,5 +387,8 @@
   "popup.atlas.iofCatchValue": "{n} fish",
   "popup.atlas.iofSpeciesN": "Number of species",
   "popup.atlas.iofMaxLength": "Largest fish",
-  "popup.atlas.iofCitizen": "Citizen report, not verified"
+  "popup.atlas.iofCitizen": "Citizen report, not verified",
+  "popup.atlas.fwPersonal": "Individually operated (name not shown)",
+  "popup.atlas.fwTownship": "Individually operated; position shown only to the township",
+  "popup.atlas.fwGeocoded": "Position estimated from the address"
 }

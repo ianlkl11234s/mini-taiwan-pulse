@@ -92,6 +92,7 @@ public/geo/cctv.geojson
 public/geo/disaster_resource_sites.geojson
 public/geo/emergency_hospitals.geojson
 public/geo/etc_gantry.geojson
+public/geo/fireworks_sites_7070_v2.pmtiles
 public/geo/freeway_eco_sensitive_sections.geojson
 public/geo/freeway_hundred_meter_stakes_95016.pmtiles
 public/geo/freeway_interchanges.geojson

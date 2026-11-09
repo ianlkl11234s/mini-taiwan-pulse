@@ -387,5 +387,8 @@
   "popup.atlas.iofCatchValue": "{n} 尾",
   "popup.atlas.iofSpeciesN": "魚種數",
   "popup.atlas.iofMaxLength": "最大體長",
-  "popup.atlas.iofCitizen": "公民回報，未經查核"
+  "popup.atlas.iofCitizen": "公民回報，未經查核",
+  "popup.atlas.fwPersonal": "個人經營（名稱不顯示）",
+  "popup.atlas.fwTownship": "個人經營，位置只標到鄉鎮",
+  "popup.atlas.fwGeocoded": "位置由地址推估"
 }

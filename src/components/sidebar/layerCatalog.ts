@@ -1515,6 +1515,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("fireStations"),
           fromManifest("fireHydrants"),
           fromManifest("disasterResourceSites"),
+          fromManifest("fireworksSites"),
         ],
       },
       {

@@ -9,6 +9,15 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       options: [{ value: "remediation", zh: "整治場址" }, { value: "control", zh: "控制場址" }, { value: "gw_restriction", zh: "地下水受污染使用限制地區" }],
     },
   ],
+  // G53 批 2／3（2026-11-10）：爆竹煙火場所種類（值與 atlasLayerTypes FIREWORKS_KIND_OPTIONS 同序）
+  fireworksSites: {
+    property: "site_kind",
+    label: "種類",
+    options: [
+      { value: "manufacturing", zh: "製造場所" },
+      { value: "storage", zh: "儲存場所" },
+    ],
+  },
   // G53 批 2／3（2026-11-10）：iOcean 垂釣類型（值與 atlasLayerTypes FISHING_TYPE_OPTIONS 同序；罕見類型與空值併「其他」）
   iOceanFishing: {
     property: "fishing_type",

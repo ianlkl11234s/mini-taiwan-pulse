@@ -387,5 +387,8 @@
   "popup.atlas.iofCatchValue": "{n} 尾",
   "popup.atlas.iofSpeciesN": "魚種数",
   "popup.atlas.iofMaxLength": "最大体長",
-  "popup.atlas.iofCitizen": "市民投稿、未検証"
+  "popup.atlas.iofCitizen": "市民投稿、未検証",
+  "popup.atlas.fwPersonal": "個人経営（名称非表示）",
+  "popup.atlas.fwTownship": "個人経営のため位置は郷鎮までの表示",
+  "popup.atlas.fwGeocoded": "位置は住所からの推定"
 }

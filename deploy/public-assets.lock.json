@@ -1114,6 +1114,13 @@
    "s3_key": "deploy-assets/geo/etc_gantry.geojson"
   },
   {
+   "path": "public/geo/fireworks_sites_7070_v2.pmtiles",
+   "bytes": 26179,
+   "sha256": "72bac27b8f08e6b0c17c3d313caf71a4116c46fc2e799d893d514c9db7806653",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/fireworks_sites_7070_v2.pmtiles"
+  },
+  {
    "path": "public/geo/freeway_eco_sensitive_sections.geojson",
    "bytes": 1014416,
    "sha256": "00e68a9e825831267c36e5b500c06fb160964898336066dc1ef4946f1ecfdff4",

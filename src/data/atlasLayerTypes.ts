@@ -610,7 +610,7 @@ export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
-  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing",
+  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing", "fireworksSites",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -766,9 +766,15 @@ export const FISHING_TYPE_OPTIONS: readonly AtlasOption[] = [
   { value: "礫灘釣", label: "礫灘釣", color: "#78716c" },
   { value: "筏釣", label: "筏釣", color: "#ec4899" },
 ];
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司" } as const;
+/** 爆竹煙火場所種類（上游 site_kind；英日文 enum.atlasFireworksKind.*）。 */
+export const FIREWORKS_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "manufacturing", label: "製造場所", color: "#dc2626" },
+  { value: "storage", label: "儲存場所", color: "#f97316" },
+];
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署" } as const;
 
 export const ATLAS_NOTES = {
+  fireworksSites: "內政部消防署公告的爆竹煙火製造及儲存場所名冊（data.gov.tw 7070，2025-12-04 更新）共 19 處，來源只有地址，以本機離線門牌定位：地圖上 10 處（門牌 7、路段內插 1、鄉鎮 2），另 9 處是沒有路名的鄉間地址，定位不到未上圖（新竹湖口、峨眉，苗栗造橋、苑裡，桃園新屋，雲林斗南，嘉義東石）。位置由地址推估，不是場所邊界。以個人姓名為名的 3 處不顯示名稱，地址與位置都只到鄉鎮（上圖 2 處）。",
   iOceanFishing: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾垂釣回報（data.gov.tw 157622，2026-05-06 版，實際含到 2026-11-03），56,420 筆（2015–2026，2021 年以後占 98%）。公民回報，未經查核。拉遠時（縮放 10 以下）以 0.01° 格網彙總的回報筆數畫熱區，熱區不隨垂釣類型篩選；放大到 10 級起畫每筆回報，依垂釣類型著色。座標落在 118–124°E、20–27°N 以外的 124 筆未上圖。回報沒有姓名或帳號等個資；同行人數欄品質不佳，不顯示。",
   iOceanSightings: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾海洋生物目擊回報（data.gov.tw 157621，2026-05-06 版），2,135 筆（2017–2026）。公民回報，未經查核。類群是依物種名推定，不是官方分類。保育物種（對上海洋保育類野生動物名錄者、鯨豚、貝類與珊瑚）1,963 筆位置已粗化到小數 2 位（約 1 km），同一格多筆會重疊，放大後逐一點選。座標落在 118–124°E、20–27°N 以外的 19 筆未上圖。「臺灣白海豚」與「中華白海豚」照來源兩種寫法，不合併。",
   vegetationForestTypes: "農業部林業及自然保育署的兩份植被圖，用「資料集」切換：天然植群圖（data.gov.tw 9930，2014 年調查，49,943 面，只涵蓋本島山區與丘陵約 162 萬公頃）依 6 大類著色；森林林型（57873，第四次森林資源調查，575,206 面，約 218 萬公頃）依 10 種林型著色，兩份資料同類別用同色。縮放 10 以下是 100 m 格網化、去除小碎塊後依類別融合的概覽圖，邊界較粗略；放大到 11 級才換成原始圖斑並可點選看植群型、林型、經營功能與面積（面積依幾何計算，不用來源欄位）。這是全覆蓋的土地覆蓋圖，不提供點位模式。林型「陰影」是航照判釋時被陰影遮住的 1 面。",

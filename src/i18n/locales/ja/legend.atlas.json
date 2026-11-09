@@ -42,5 +42,6 @@
   "legend.atlas.traLcSubtitle": "台鉄 2024 年の公開一覧で、一部は廃止済みの可能性あり。元データ 801 か所、地図上 440 か所、座標なし 361 か所は非表示",
   "legend.atlas.licenseOgdlOsmPatch": "政府資料オープンライセンス第 1 版。25 か所の位置は © OpenStreetMap contributors（ODbL）",
   "legend.atlas.iosSubtitle": "推定分類群（種名から推定、公式分類ではない）・市民投稿、未検証",
-  "legend.atlas.iofOther": "その他（渓流・ため池・ダム湖・未記入）"
+  "legend.atlas.iofOther": "その他（渓流・ため池・ダム湖・未記入）",
+  "legend.atlas.fwSubtitle": "名簿 19 か所、地図上 10 か所（9 か所は住所から位置を特定できず）"
 }

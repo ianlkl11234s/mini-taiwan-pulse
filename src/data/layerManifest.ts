@@ -1909,6 +1909,15 @@ export const LAYER_MANIFEST = {
     topics: ["消防", "緊急應變"],
   },
 
+  fireworksSites: {
+    key: "fireworksSites", country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" }, ...layerName({ zh: "爆竹煙火製造及儲存場所", alt: "Fireworks Manufacturing & Storage Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.fireworksSites, icon: Sparkles,
+    upstream: { status: "verified", datasets: [{ datasetId: "fireworks_sites", confidence: "MED" }], processing: "analytics fire/fireworks_sites 7070_v2：消防署 data.gov.tw 7070 名冊 19 處；本機離線 tw_geocoder 定位：門牌 7、路段內插 1、鄉鎮 2（不打 TGOS／Google），9 處無座標未上圖；個人經營 3 處名稱不顯示、地址與點位粗化到鄉鎮", note: "位置由地址推估；名冊 19 處、地圖上 10 處。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "fireworks-sites", url: "./geo/fireworks_sites_7070_v2.pmtiles", sourceLayer: "fireworks_sites", minzoom: 4, maxzoom: 14 },
+    legend: "fireworksSites", popup: "fireworksSites", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "消防署名冊的爆竹煙火製造與儲存場所（19 處中 10 處可定位）。",
+    topics: ["消防", "爆竹煙火", "危險物品", "公共安全", "消防署"],
+  },
   fireHydrants: {
     key: "fireHydrants",
     country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" },

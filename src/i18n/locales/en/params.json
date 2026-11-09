@@ -2511,5 +2511,7 @@
   "param.島礁垂釣": "Reef island fishing",
   "param.沙灘釣": "Beach fishing",
   "param.礫灘釣": "Gravel beach fishing",
-  "param.筏釣": "Raft fishing"
+  "param.筏釣": "Raft fishing",
+  "param.製造場所": "Manufacturing site",
+  "param.儲存場所": "Storage site"
 }
