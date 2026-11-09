@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > **現況入口（單一入口）**：開場先讀本檔上半部（現在最該注意＋進行中／待拍板），需要細節再查 BACKLOG 對應主題群。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-09（v2.33.0 發布：Day 8 文章、10 篇補資料來源、海洋 7 天曲線；白天另完成告警重整與 Supabase 效率大掃除）。
+> 最後盤點：2026-11-09（v2.33.0 發布：Day 8 文章、10 篇補資料來源、海洋 7 天曲線；白天另完成告警重整與 Supabase 效率大掃除；晚間功能 backlog 封存、待辦統一進 BACKLOG）。
 
 與其他文件的分工（mini-taiwan-pulse 是整個 Pulse 生態系的總 PM）：
 
@@ -65,7 +65,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | Agent 分析能力（ADR-0022 A→B→C） | 🟡 | 北極星:AI | A（空間統計）10-21、B 10-23 上線；多國議題 2 P0–P5 10-29 上線；framingCheck（#881）隨 v2.27.0 上線 | AG-13 上線即入倉規則、AG-14 layer-status 涵蓋全部國家、AG-15 外國入倉基礎先英國；IEWH-1 愛爾蘭入倉待拍板；AG-12 排 gateway 部署；C（p-median）未動工 | ADR-0022；`../.gis-agent-system/roadmap/status/agent-analysis-runbook.md`；BACKLOG I 群 | 2026-11-08 |
-| BYOK 對話預設模型 | 🔵 | 北極星:AI | — | BC-3：決定預設是否改中階檔 | [`features/byok-chat/backlog.md`](./features/byok-chat/backlog.md) | 2026-10-16 |
+| BYOK 對話預設模型 | 🔵 | 北極星:AI | — | BC-3：決定預設是否改中階檔 | [`features/byok-chat/backlog.md`](archive/2026-11-09/features/byok-chat/backlog.md) | 2026-10-16 |
 
 ### 資料新鮮度、collector 與平台維運
 
@@ -109,7 +109,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| 國內新聞圖層維運 | 🟢 | 底線:資料正確 | 2026-06 已上線 | NEWS-1：在 pulse-host（Linode 東京 IP）驗自由時報 RSS 是否可抓 | [`features/news/backlog.md`](./features/news/backlog.md) | 2026-11-08 |
+| 國內新聞圖層維運 | 🟢 | 底線:資料正確 | 2026-06 已上線 | NEWS-1：在 pulse-host（Linode 東京 IP）驗自由時報 RSS 是否可抓 | [`features/news/backlog.md`](archive/2026-11-09/features/news/backlog.md) | 2026-11-08 |
 | 衛星主控台改版收尾（#533） | 🟢 | 北極星:視覺 | 最早含在 v2.5.0 | VP-2 正式站目視暗／淡主題與手機版 | [`features/satellite-console-restyle/README.md`](./features/satellite-console-restyle/README.md) | 2026-10-16 |
 | 選舉圖層第二批（投開票所、2026 議員選區、歷屆統計） | 🟢 | 北極星:好用 | mini #807／#811／#816 隨 v2.22.0；gp #197 mig 496／498 已套用 | VP-1 正式站目視 | CHANGELOG v2.22.0 | 2026-11-04 |
 | 會員區 v1（Google 登入、配額） | 🟢 | 北極星:好用 | 前端 #220、gp #98（mig 408）；v2.12.0 可自行刪帳號 | VP-11 真實 Google 登入／多裝置；BC-2 收藏＋chat_logs 未動工 | [`features/member-area/`](./features/member-area/) | 2026-10-23 |
@@ -147,7 +147,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 情報牆（mini-taiwan-intel） | ⏸️ | 待討論 | 資安稽核 C1 完成（mig 477、站主登入才可寫） | W30 計畫 §3、§6 待拍板項；W2：「否決關聯」改標 rejected | `../.gis-agent-system/projects/2026-W30-intel-wall/` | 2026-10-17 |
 | Monitor 四域子指數／壓力指數重建 | ⏸️ | 待討論 | 規格 §5.35 I2 已有，無觸發 | MON-P6：決定重啟後先寫公開權重與基期提案 | BACKLOG MON-P6 | 2026-10-16 |
 | 衛星主控台歷史模式機動清單 | ⏸️ 保留 | 待討論 | 2026-10-04 擱置；gp 分支 `feat/satellite-maneuvers-anchor` 本機 commit 未 push | SAT-Z3：解除擱置後先過三項核准 | BACKLOG SAT-Z3 | 2026-10-16 |
-| 站主限定圖層機制（owner-gated） | ⏸️ | 北極星:好用 | 機制已上；UI 鎖類型尚無實際圖層 | OG-3：有第一個 ui 鎖圖層時驗完整鏈 | [`features/owner-gated-layers/backlog.md`](./features/owner-gated-layers/backlog.md) | 2026-10-16 |
+| 站主限定圖層機制（owner-gated） | ⏸️ | 北極星:好用 | 機制已上；UI 鎖類型尚無實際圖層 | OG-3：有第一個 ui 鎖圖層時驗完整鏈 | [`features/owner-gated-layers/backlog.md`](archive/2026-11-09/features/owner-gated-layers/backlog.md) | 2026-10-16 |
 | 移民署金門／連江座標錯 | ⏸️ | 底線:資料正確 | 上游資料兩點座標是台北 | 等上游修正後發 v2 | 個人記憶 ctx-handoff | 2026-10-25 |
 | 閃電快照遺失／縣市彙總 | ⏸️ | 底線:資料正確 | DS-01 等改 env 拍板（collector 已在 pulse-host）、DS-04 ready | DS-04：mig 505–510 後重查縣市面表 | BACKLOG DS-01／DS-04 | 2026-10-05 |
 | A1 事故 feed | ⏸️ | 底線:資料正確 | 上游凍結在 2026-06 | 另找資源或標示非即時 | BACKLOG DS-02 | 2026-10-05 |

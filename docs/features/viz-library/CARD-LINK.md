@@ -45,7 +45,7 @@ pulse_publish_card
 - 白名單 `mcp/src/warehouse/publishAllowlist.json`（141 筆：OGDL 133、base_map 衍生 6、縣市／鄉鎮界 2），以 `ds_*` 表名為鍵；重產：`npm run allowlist:build -- --catalog <catalog.json>`（腳本 `scripts/build-publish-allowlist.mts`，含明確排除清單）。
 - 一律擋：Google geocode 衍生 21 個資料集、一般地址定位（TGOS 等）57 個、明寫不得再散布、未標授權、混合授權；食品價格指數（原料未查證，2026-09-28 使用者決定暫不公開）。
 - 閘門依結果 lineage 判斷：SQL 來源表名、nearby_profile 的 dataset、region_rank 逐列 license＋界線表、`iso_*` 往回追（Valhalla/OSM 第一批不收）。追不到來源也擋。擋下時回白話原因。
-- **Google 條款結論：不可發布** Google Geocoding 結果（Maps Service Specific Terms §6.2 不得與非 Google 地圖並用、§6.3.1 暫存上限 30 天；ToS §3.2.3）。來源：https://cloud.google.com/maps-platform/terms/maps-service-terms 、https://cloud.google.com/maps-platform/terms 。此為條文字面判讀，非法律意見。倉庫長期存放 Google 座標是否合規另列 [BACKLOG](./BACKLOG.md)。
+- **Google 條款結論：不可發布** Google Geocoding 結果（Maps Service Specific Terms §6.2 不得與非 Google 地圖並用、§6.3.1 暫存上限 30 天；ToS §3.2.3）。來源：https://cloud.google.com/maps-platform/terms/maps-service-terms 、https://cloud.google.com/maps-platform/terms 。此為條文字面判讀，非法律意見。倉庫長期存放 Google 座標是否合規另列 [BACKLOG](../../archive/2026-11-09/features/viz-library/BACKLOG.md)。
 
 ## 5. payload v1
 

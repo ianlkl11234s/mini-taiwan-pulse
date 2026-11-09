@@ -222,4 +222,4 @@ Phase 1 的 key 分組（電力、石化、畜牧與 3 個無介面層）與後�
 
 ## 相關 backlog / changelog / ADR
 
-看 [backlog.md](./backlog.md)、[changelog.md](./changelog.md)。上游 handoff：taipei-gis-analytics/docs/handoff/owner-gated-layers.md（migration 275 由 DB agent 維護）。
+看 [backlog.md](../../archive/2026-11-09/features/owner-gated-layers/backlog.md)、[changelog.md](./changelog.md)。上游 handoff：taipei-gis-analytics/docs/handoff/owner-gated-layers.md（migration 275 由 DB agent 維護）。

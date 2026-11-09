@@ -271,5 +271,5 @@ aws s3 sync public/embed-snapshots/ "s3://$S3_BUCKET/deploy-assets/embed-snapsho
 ## 相關
 
 - 原型與重建步驟：[`../../proposal/embed-prototype/README.md`](../../archive/2026-10-04/proposal/embed-prototype/README.md)
-- 剩餘待辦：[`backlog.md`](./backlog.md)
+- 剩餘待辦：[`backlog.md`](../../archive/2026-11-09/features/embeddable-map/backlog.md)
 - 接手入口：[`handoff.md`](./handoff.md)

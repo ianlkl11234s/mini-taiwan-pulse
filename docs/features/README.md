@@ -7,7 +7,7 @@
 
 - `README.md`：active/shipped feature 必備，說明用途、runtime 路徑、資料來源與驗收方式。
 - `handoff.md`：有跨 repo 資料契約或需要接手時必備。
-- `backlog.md`：有未完成工作時才建立；完成後可保留決策與明確的 done/closed 狀態。
+- ~~`backlog.md`~~：**2026-11-09 起不再建立**。待辦一律寫進 [`.claude/memory/BACKLOG.md`](../../.claude/memory/BACKLOG.md)；舊的 feature backlog 已封存到 [`docs/archive/2026-11-09/features/`](../archive/2026-11-09/features/)。
 - `changelog.md`：需要逐 PR 保存設計脈絡時使用，不強制每個 feature 建空檔。
 
 舊資料夾可能只有 handoff/backlog；巡檢會列為文件債，但不得為了湊模板建立空文件或刪除歷史。

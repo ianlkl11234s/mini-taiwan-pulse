@@ -81,7 +81,7 @@
 - `scripts/deploy/pull-deploy-assets.sh` — mkdir + fire catch-all 加 `--exclude "fishery/*"` + fishery sync
 - `scripts/deploy/upload-deploy-assets.sh` — 新增 `FISHERY_FILES` 區塊
 
-> ⚠️ **部署方式待決**：3.1MB pmtiles 要 git commit 進版控、還是 gitignore + 跑 `upload-deploy-assets.sh` 上 S3（deploy 腳本已備 S3 路徑）。見 [backlog.md](./backlog.md)。
+> ⚠️ **部署方式待決**：3.1MB pmtiles 要 git commit 進版控、還是 gitignore + 跑 `upload-deploy-assets.sh` 上 S3（deploy 腳本已備 S3 路徑）。見 [backlog.md](../../archive/2026-11-09/features/aquaculture/backlog.md)。
 
 ## 關鍵檔案（本次改動 13 檔）
 
@@ -101,6 +101,6 @@
 
 ## 資料契約 / backlog / changelog
 
-見 [handoff.md](./handoff.md) / [backlog.md](./backlog.md) / [changelog.md](./changelog.md)。
+見 [handoff.md](./handoff.md) / [backlog.md](../../archive/2026-11-09/features/aquaculture/backlog.md) / [changelog.md](./changelog.md)。
 上游 SSOT：`../../../taipei-gis-analytics/docs/handoff/aquaculture.md`。
 </content>

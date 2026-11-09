@@ -1,7 +1,7 @@
 # Embeddable Map — Handoff
 
 > 給「另一個 session／另一個人」接手用。目標是**不用回問**就能繼續做。
-> 全貌看 [`README.md`](./README.md)，剩餘工作看 [`backlog.md`](./backlog.md)。
+> 全貌看 [`README.md`](./README.md)，剩餘工作看 [`backlog.md`](../../archive/2026-11-09/features/embeddable-map/backlog.md)。
 
 ## 0. 現況：已上線
 

@@ -97,4 +97,4 @@ RPC 契約：gis-platform `docs/jma-time-rpcs.md`（migration 463／464）。共
 
 ## 相關 backlog / 歷次改動
 
-[backlog.md](./backlog.md)、[changelog.md](./changelog.md)
+[backlog.md](../../archive/2026-11-09/features/jma-live-layers/backlog.md)、[changelog.md](./changelog.md)

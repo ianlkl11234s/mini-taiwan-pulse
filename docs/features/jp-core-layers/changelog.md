@@ -92,7 +92,7 @@ golden fixture keyCount ratchet 392 → 393（鐵道）→ 394（學校）→ 39
 
 ### 待辦（🔴 = 擋合併）
 
-- 🔴 **人口網格 pmtiles 尚未上傳 S3**，需 owner 執行 `aws s3 cp`（指令見 [backlog.md](./backlog.md)）；否則上線後該層 tile 404。
+- 🔴 **人口網格 pmtiles 尚未上傳 S3**，需 owner 執行 `aws s3 cp`（指令見 [backlog.md](../../archive/2026-11-09/features/jp-core-layers/backlog.md)）；否則上線後該層 tile 404。
   `deployContract` 對 `/world/` 的判準是「upload 清單**或** git-track 其一即可」（nginx 有 dist fallback）→ **不會**機械擋住漏上傳。
 - 上游 `taipei-gis-analytics` 兩支 `_manifest.json` 已就地改好但**未提交**（主樹停在別人的分支）；上游 handoff §3.1 的 `-z14` 配方待更正。
 - 本批 PR 待開。

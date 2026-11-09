@@ -2,7 +2,7 @@
 
 > 元件：[`src/components/ChartHoverTooltip.tsx`](../../../src/components/ChartHoverTooltip.tsx)
 > 單元測試：`src/components/__tests__/chartHoverTooltip.test.ts`
-> 套用清單／分工規則：[`backlog.md`](./backlog.md)
+> 套用清單／分工規則：[`backlog.md`](../../archive/2026-11-09/features/chart-hover-tooltip/backlog.md)
 > 目的：讓監看模式的圖表用**同一套** hover 顯示數值，取代目前四種各寫各的做法。
 > 盤點結果：全站 **35 個圖表實例**，已完成 5、待套用 30（div 柱狀條 21／SVG 7／自製待收斂 2）。
 

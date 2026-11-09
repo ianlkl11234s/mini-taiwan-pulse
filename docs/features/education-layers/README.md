@@ -14,7 +14,7 @@
 ## 已接範圍（W1 ＋ W2 ＋ W3）
 
 上游 **9 個 dataset 全部接完**，合計 16.86 MB（全走 S3 `deploy-assets/education/`）。
-剩餘待辦只有分析層與技術債，見 [backlog](./backlog.md)。
+剩餘待辦只有分析層與技術債，見 [backlog](../../archive/2026-11-09/features/education-layers/backlog.md)。
 
 ## 17 個圖層
 
@@ -93,4 +93,4 @@ k12 兩級同樣共用 `edu-district-k12` 一份切片。
 - 上游 SSOT：[`../../../taipei-gis-analytics/docs/handoff/education-layers.md`](../../../../taipei-gis-analytics/docs/handoff/education-layers.md)
 - 下游接線摘要 + 與上游的三處差異：[handoff.md](./handoff.md)
 - 變更紀錄：[changelog.md](./changelog.md)
-- 待辦（W2/W3 七個 dataset）：[backlog.md](./backlog.md)
+- 待辦（W2/W3 七個 dataset）：[backlog.md](../../archive/2026-11-09/features/education-layers/backlog.md)

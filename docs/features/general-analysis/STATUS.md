@@ -39,7 +39,7 @@
 | 找資料 | `pulse_find_data`：跨資料集名稱、中文圖層標籤、欄位、統計指標與同義詞搜尋；Jev 判斷相關性 | 09-27（mcp #13、#14） |
 | 周邊生活機能／多點比較 | `pulse_nearby_profile`；多點比較表 | 09-27 |
 | 縣市／鄉鎮排名 | `pulse_region_rank`（統計指標 300 項） | 09-26 |
-| 任意查詢 | `pulse_sql`（唯讀 DuckDB，預期以台灣時間分組；已知例外：Q19／Q28 直接 `date_trunc`、輸入時區未查證，見 [viz-library/BACKLOG.md](../viz-library/BACKLOG.md)） | 09-26／09-28 |
+| 任意查詢 | `pulse_sql`（唯讀 DuckDB，預期以台灣時間分組；已知例外：Q19／Q28 直接 `date_trunc`、輸入時區未查證，見 [viz-library/BACKLOG.md](../../archive/2026-11-09/features/viz-library/BACKLOG.md)） | 09-26／09-28 |
 | 等時圈 | `pulse_isochrone`（自架 Valhalla，步行／自行車／開車，可一次要 10／15／20 分） | 09-27（mcp #11） |
 | 地圖呈現 10 種樣式 | 區域深淺（含時間播放）、熱力、比較、泡泡、雙指標、流向、格點（H3／方格）、立體柱、多層等時圈、時間序列 | 09-28（mcp #16–#20、mini #369–#388） |
 | 互動 | 滑過提示、點選淡化、最多疊 3 個結果、圖例併入圖例面板、popup 趨勢線、播放列 | 09-28（mini #376、#388） |
@@ -82,7 +82,7 @@
 | 第三輪（覆蓋度、問題庫、等時圈、語氣）完整紀錄 | [PLAN-round3-20260927.md](./PLAN-round3-20260927.md) |
 | 視覺化、面板圖表、分析卡 | [viz-library/README.md](../viz-library/README.md)（DECISIONS、PLAN、CARD-LINK、BACKLOG） |
 | 本機正式環境與上雲準備 | [PROD-HOME.md](./PROD-HOME.md) |
-| 問題庫題綱 | [question-bank-backlog-20260927.md](./question-bank-backlog-20260927.md) |
+| 問題庫題綱 | [question-bank-backlog-20260927.md](../../archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md) |
 | Agent 回歸測試 | mcp `eval/agent-regression/README.md` |
 | UI 規範（面板、popup、token） | [ui-consistency-audit handoff](../ui-consistency-audit-20260927/handoff.md)、`docs/design-system/` |
 

@@ -36,4 +36,4 @@ Allen Coral Atlas 台灣與沖繩淺海棲地分類／礁體地形（5 m 名目�
 | [production-release.md](./production-release.md) | 正式架構（私人 S3、sidecar、nginx、撤銷清單） |
 | [access-release-20260916.md](./access-release-20260916.md) | 2026-09-16 存取設定與正式資料發布 |
 | [browser-acceptance.md](./browser-acceptance.md) | browser 驗收 |
-| [backlog.md](./backlog.md) / [changelog.md](./changelog.md) | 驗收清單／改動紀錄 |
+| [backlog.md](../../archive/2026-11-09/features/allen-coral-atlas/backlog.md) / [changelog.md](./changelog.md) | 驗收清單／改動紀錄 |

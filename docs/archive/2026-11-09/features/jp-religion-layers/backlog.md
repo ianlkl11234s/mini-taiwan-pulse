@@ -1,0 +1,24 @@
+> **已封存 2026-11-09**（原路徑 `docs/features/jp-religion-layers/backlog.md`）：讀過後仍有效的未完成項目已搬進 [`.claude/memory/BACKLOG.md`](../../../../../.claude/memory/BACKLOG.md)（各主題群，附回本檔連結；已完成／過時／查不到證據的列在「待勾選（2026-11-09 feature backlog 封存）」段）。本檔保留原文，不再更新。
+
+# Backlog — 日本宗教設施三源圖層
+
+## Active work
+
+目前無 active item。
+
+## Conditional / triggered later
+
+| ID | Category | Priority | State | Trigger | Next action | Acceptance |
+|---|---|---|---|---|---|---|
+| JPR-2 | release | P2 | conditional | 本 feature 要走獨立 S3 deploy asset release | 補 world upload 清單並上傳三檔 | object HEAD、下載 checksum 與正式 HTTP 均一致 |
+| JPR-4 | release-governance | P2 | blocked | Owner 決定重新評估公開 canonical POC | 先確認 analytics 能從上游重建並固定 method/source lineage；完成 gold/blind evaluation 與 ODbL/GSI 授權、attribution review 後，從最新 master 只抽仍有效的 POC，不直接 merge local archive branch | High bucket precision ≥99%、跨宗教 false positive=0、lineage 完整、授權結論明確，且 asset HEAD/checksum、正式 HTTP/browser 驗收通過 |
+
+## Completed / historical
+
+- [x] **JPR-0**：三個靜態資產與上游契約驗收相符 — 2026-08-24；詳見 [changelog.md](../../../../features/jp-religion-layers/changelog.md)。
+- [x] **JPR-1**：三源已接入世界 tab；tsc、650 tests、All Off、逐層 attribution／popup 與 GSI z15.6／z16.6 browser 驗收通過 — 2026-08-24；詳見 [changelog.md](../../../../features/jp-religion-layers/changelog.md)。
+- [x] **JPR-1a**：三源新增獨立點位大小 slider，保留各來源原始 zoom radius baseline — 2026-08-24；詳見 [changelog.md](../../../../features/jp-religion-layers/changelog.md)。
+
+## Explicitly not planned
+
+- **JPR-X1**：融合三源或相加筆數 — OSM 的 ODbL 授權與跨源重複／漏失使此結果不具可解釋性。

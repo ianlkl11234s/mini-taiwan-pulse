@@ -25,4 +25,4 @@ Japan 分類「治安 → 點位」下的全日本警察設施圖層（本部／
 
 - [handoff.md](./handoff.md)：上游契約（SHA-256、欄位依賴、degraded 語意）、接線方式與本機驗收紀錄
 - [changelog.md](./changelog.md)：2026-09-07 的接線、全縮放保留完整點位、PR 整合
-- [backlog.md](./backlog.md)：本次範圍核對清單；正式發布不在範圍內
+- [backlog.md](../../archive/2026-11-09/features/jp-police-facilities/backlog.md)：本次範圍核對清單；正式發布不在範圍內

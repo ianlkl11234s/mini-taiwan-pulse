@@ -1,0 +1,28 @@
+> **已封存 2026-11-09**（原路徑 `docs/features/real-estate/backlog.md`）：讀過後仍有效的未完成項目已搬進 [`.claude/memory/BACKLOG.md`](../../../../../.claude/memory/BACKLOG.md)（各主題群，附回本檔連結；已完成／過時／查不到證據的列在「待勾選（2026-11-09 feature backlog 封存）」段）。本檔保留原文，不再更新。
+
+# Backlog — real-estate
+
+> 本檔只保留 current residual；已完成 PR #31 項目移至歷史區。
+
+## Release / verifying
+
+- [x] **RE-CustomLayer · `verifying`**：確認 `feat/real-estate-points-customlayer` 與 taipei-gis-analytics 改動是否已 push、PR/merge，及 production evidence。 — 2026-10-16 盤點關閉：PR #32（v1.5.0，merge b4bb90c4）
+  - Outcome：GPU picking 的 hover/click 取捨有可追溯 release 狀態，不把 local branch 當 shipped。
+  - Next action：核對兩 repo branch/PR、PMTiles/S3 與 browser hover/click；若仍未合併，保留 branch blocker。
+
+## Decision needed / tech debt
+
+- [ ] **RE-ADR-CustomLayer**：補 ADR 記錄「放棄點層 hover 換效能」的取捨。
+  - Outcome：後續不會重新爭論同一個 GPU picking/效能決策。
+  - Next action：以實測 bundle/render/picking evidence 寫 ADR，連到 handoff。
+
+## Conditional / scheduled
+
+- [ ] **RE-2025Q4**：等 twinkle-hub 補 2025Q4 全國鏡像後，重跑 pipeline、重出 PMTiles + buffer。
+  - Trigger：2025Q4 全國鏡像可取得且授權確認。
+  - Outcome：房地產時間軸可包含該季度，不在來源尚未存在時反覆重跑。
+  - Acceptance：全國 coverage、快照日期、PMTiles checksum 與時間軸資料對帳。
+
+## 已完成（歷史，不列入 active）
+
+- [x] 6 圖層上線、排除雙北 toggle、季/月/週時間軸與 basemap fix — PR #31, 2026-06-24。

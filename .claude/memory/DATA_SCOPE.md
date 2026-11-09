@@ -600,7 +600,7 @@ resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢�
 
 | 資產 | 內容 |
 |---|---|
-| `live.pla_activity_daily` | **731 天零缺日**（2024-08-02 起，每日累加）。**架次 0 缺**；逾越中線缺 1、共艦缺 7、統計窗缺 1（成因見 `docs/features/pla-activity/backlog.md` PA-8）。`raw_text` 全數為乾淨內文（可重解析） |
+| `live.pla_activity_daily` | **731 天零缺日**（2024-08-02 起，每日累加）。**架次 0 缺**；逾越中線缺 1、共艦缺 7、統計窗缺 1（成因見 `docs/archive/2026-11-09/features/pla-activity/backlog.md` PA-8）。`raw_text` 全數為乾淨內文（可重解析） |
 | `spatial.pla_tracks` | 活動區多邊形 **348 個 / 164 天**（僅 2026）。`shape_kind` rect 走廊／poly 不規則活動區；43 個 `needs_review=true`（守門未過）。migration 330 |
 | `live.pla_activity_items` | 航跡圖表格逐項 **399 項次 / 178 天**（僅 2026）。機型／架次／時段／氣球顆數，OCR 抽取。migration 333 |
 | `spatial.pla_tracks_runs` | **ledger**（migration 337，2026-08-07 加）。1 row/通報日，記守門結果／配準偏差／版型／S3 key／error。**這是向量化 pipeline 唯一可靠的心跳** —— 「0 架次」那天 `pla_tracks` 本來就沒有 row，分不出「沒共機」與「沒跑」。已進 `realtime_tables.yaml`；`pla_tracks` / `pla_activity_items` 則列入測試的 EXEMPT（由本表代監控） |

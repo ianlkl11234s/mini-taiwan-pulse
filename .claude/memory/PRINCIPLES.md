@@ -1359,6 +1359,6 @@ chardet 猜測**，中文 UTF-8 位元組常被猜成西里爾單位元組碼頁
 - **worktree 開工先補 `.env*` 鍵名存在性、node_modules、gitignored 資產**；Vite ready ≠ app 已 mount；新增 runtime 產物要 `git check-ignore -v` 確認，本機有檔 ≠ clean checkout 有。（2026-08-05/06、2026-08-13、2026-08-19、2026-08-29）
 
 **從 feature 文件升級的三條**
-- React StrictMode 下 effect 會跑兩次，`disposedRef` 這類旗標**要在 effect 開頭重設為 false**，否則第二次 mount 一開始就被當成已卸載。（`docs/features/imagery/backlog.md`）
+- React StrictMode 下 effect 會跑兩次，`disposedRef` 這類旗標**要在 effect 開頭重設為 false**，否則第二次 mount 一開始就被當成已卸載。（`docs/archive/2026-11-09/features/imagery/backlog.md`）
 - `gisClickRegistry` 是 first-hit-wins：不只「點在前、面在後」，**面層之間也要小面在前、大面在後**。（`docs/features/jp-core-layers/deferred-handoff.md`）
-- 一次性的預先計算要處理「依賴的資料晚到」，不能依賴呼叫順序。（`docs/features/bus/backlog.md`）
+- 一次性的預先計算要處理「依賴的資料晚到」，不能依賴呼叫順序。（`docs/archive/2026-11-09/features/bus/backlog.md`）

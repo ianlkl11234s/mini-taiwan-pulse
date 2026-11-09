@@ -44,7 +44,7 @@ circle 半徑 + 3D 光柱高度 + 漣漪半徑都依 cat：**大隊 1.8× → �
 
 ## 相關 backlog
 
-看 [backlog.md](./backlog.md)。
+看 [backlog.md](../../archive/2026-11-09/features/fire-rescue/backlog.md)。
 
 ## 相關文件
 
