@@ -1,6 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
+import { IMAGERY_CDN_BASE } from "./imageryManifestLoader";
 import {
   S_WAVE_KM_S,
   eventTier,
@@ -19,6 +20,8 @@ import {
  *
  * ⚠️ 明細一律用 RPC 給的 key **等值查詢**（±90s / ±5s 時間窗配對已做在 DB 端）。
  * 清單 15min TTL 快取、明細 per-event 快取（切回同一起地震不重打 DB）。
+ * 震度網格（2026-11-09 起）讀 R2 事件檔 `events/shakemap/<UTC>.json`，以 index.json ±90s 配對；
+ * R2 沒有對應事件（或 index 讀取失敗）才退回 DB `earthquake_shakemap_grid`。
  * 全部包 withLoading（開發規則 §2）。
  */
 
@@ -41,18 +44,72 @@ interface RawEventRow {
   tensor_origin_utc: string | null;
 }
 
+// ── R2 震度圖事件檔 ────────────────────────────────────────────────
+
+export const SHAKEMAP_INDEX_URL = `${IMAGERY_CDN_BASE}/events/shakemap/index.json`;
+/** 與 earthquake_replay_events() 的 grid 配對時間窗相同 */
+export const SHAKEMAP_MATCH_WINDOW_MS = 90_000;
+
+export interface ShakemapIndexEntry {
+  event_time: string;
+  key: string;
+}
+
+/** 找 occurred_at ±90s 內最近的 R2 事件檔；沒有回 null */
+export function matchShakemapIndex(
+  occurredAt: string,
+  entries: readonly ShakemapIndexEntry[],
+): ShakemapIndexEntry | null {
+  const t = Date.parse(occurredAt);
+  if (!Number.isFinite(t)) return null;
+  let best: ShakemapIndexEntry | null = null;
+  let bestDiff = Infinity;
+  for (const e of entries) {
+    const diff = Math.abs(Date.parse(e.event_time) - t);
+    if (diff <= SHAKEMAP_MATCH_WINDOW_MS && diff < bestDiff) {
+      best = e;
+      bestDiff = diff;
+    }
+  }
+  return best;
+}
+
+/** index 讀取失敗回 null（呼叫端退回 RPC 的 has_grid），不讓整個清單失敗 */
+async function fetchShakemapIndex(): Promise<ShakemapIndexEntry[] | null> {
+  try {
+    const res = await withLoading(
+      "earthquake-shakemap-index",
+      "地震回放 震度圖清單",
+      fetch(SHAKEMAP_INDEX_URL),
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = (await res.json()) as { events?: unknown };
+    if (!Array.isArray(json.events)) throw new Error("index.json 缺 events");
+    return (json.events as Record<string, unknown>[])
+      .filter((e) => typeof e.event_time === "string" && typeof e.key === "string")
+      .map((e) => ({ event_time: e.event_time as string, key: e.key as string }));
+  } catch (err) {
+    console.warn("[earthquakeReplay] R2 震度圖清單讀取失敗，改用 DB 配對", err);
+    return null;
+  }
+}
+
 async function fetchReplayEventsUncached(): Promise<EarthquakeReplayEvent[]> {
-  const { data, error } = await withLoading(
-    "earthquake-replay-events",
-    "地震回放事件清單",
-    supabase.rpc("earthquake_replay_events"),
-  );
+  const [{ data, error }, shakemapIndex] = await Promise.all([
+    withLoading(
+      "earthquake-replay-events",
+      "地震回放事件清單",
+      supabase.rpc("earthquake_replay_events"),
+    ),
+    fetchShakemapIndex(),
+  ]);
   if (error) throw new Error(`Supabase earthquake_replay_events: ${error.message}`);
 
   const rows = (data ?? []) as RawEventRow[];
   const out: EarthquakeReplayEvent[] = [];
   for (const r of rows) {
     if (r.epicenter_lat == null || r.epicenter_lng == null) continue;
+    const r2Grid = shakemapIndex ? matchShakemapIndex(r.occurred_at, shakemapIndex) : null;
     out.push({
       event_id: r.event_id,
       occurred_at: r.occurred_at,
@@ -64,8 +121,9 @@ async function fetchReplayEventsUncached(): Promise<EarthquakeReplayEvent[]> {
       station_count: Number(r.station_count ?? 0),
       has_town: r.has_town === true,
       town_origin_time: r.town_origin_time,
-      has_grid: r.has_grid === true,
-      grid_event_time: r.grid_event_time,
+      has_grid: r2Grid != null || r.has_grid === true,
+      grid_event_time: r2Grid?.event_time ?? r.grid_event_time,
+      grid_key: r2Grid?.key ?? null,
       has_tensor: r.has_tensor === true,
       tensor_origin_utc: r.tensor_origin_utc,
     });
@@ -139,21 +197,43 @@ async function fetchTowns(ev: EarthquakeReplayEvent): Promise<EqReplayTown[]> {
   return out;
 }
 
+/** R2 事件檔（欄式 cells）→ 有感格（intensity > 0，與 DB 路徑同口徑） */
+export function parseShakemapEventFile(
+  json: unknown,
+): { lon: number; lat: number; pga: number; intensity: number }[] {
+  const obj = json as { columns?: unknown; cells?: unknown };
+  if (!Array.isArray(obj?.columns) || !Array.isArray(obj?.cells)) {
+    throw new Error("震度圖事件檔格式不符（缺 columns／cells）");
+  }
+  const cols = obj.columns as string[];
+  const iLon = cols.indexOf("lon");
+  const iLat = cols.indexOf("lat");
+  const iPga = cols.indexOf("pga");
+  const iInt = cols.indexOf("intensity");
+  if (iLon < 0 || iLat < 0 || iInt < 0) throw new Error("震度圖事件檔缺 lon／lat／intensity 欄");
+  const out: { lon: number; lat: number; pga: number; intensity: number }[] = [];
+  for (const c of obj.cells as unknown[][]) {
+    const intensity = Number(c[iInt] ?? 0);
+    if (!(intensity > 0)) continue;
+    out.push({ lon: Number(c[iLon]), lat: Number(c[iLat]), pga: Number((iPga >= 0 ? c[iPga] : 0) ?? 0), intensity });
+  }
+  return out;
+}
+
+async function fetchGridRows(ev: EarthquakeReplayEvent): Promise<Record<string, unknown>[]> {
+  if (ev.grid_key) {
+    const url = `${IMAGERY_CDN_BASE}/${ev.grid_key}`;
+    const res = await withLoading(`eq-replay-grid:${ev.event_id}`, `地震回放 等震度網格 ${ev.event_id}`, fetch(url));
+    if (!res.ok) throw new Error(`R2 震度圖事件檔 HTTP ${res.status}: ${ev.grid_key}`);
+    return parseShakemapEventFile(await res.json());
+  }
+  return fetchGridRowsFromDb(ev);
+}
+
 async function fetchGrid(ev: EarthquakeReplayEvent): Promise<EqReplayGridCell[]> {
   if (!ev.has_grid || !ev.grid_event_time) return [];
-  // intensity > 0 才拉（DB 有 partial index）：全量 4,377 含大量 0 值外海格，畫了也是透明
-  const { data, error } = await withLoading(
-    `eq-replay-grid:${ev.event_id}`,
-    `地震回放 等震度網格 ${ev.event_id}`,
-    supabase
-      .from("earthquake_shakemap_grid")
-      .select("lon, lat, pga, intensity")
-      .eq("event_time", ev.grid_event_time)
-      .gt("intensity", 0),
-  );
-  if (error) throw new Error(`Supabase earthquake_shakemap_grid: ${error.message}`);
   const out: EqReplayGridCell[] = [];
-  for (const r of (data ?? []) as Record<string, unknown>[]) {
+  for (const r of await fetchGridRows(ev)) {
     const lon = Number(r.lon);
     const lat = Number(r.lat);
     if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
@@ -167,6 +247,22 @@ async function fetchGrid(ev: EarthquakeReplayEvent): Promise<EqReplayGridCell[]>
     });
   }
   return out;
+}
+
+/** 退路：R2 沒有對應事件時讀 DB（DB 只留短期，見 retention_policies） */
+async function fetchGridRowsFromDb(ev: EarthquakeReplayEvent): Promise<Record<string, unknown>[]> {
+  // intensity > 0 才拉（DB 有 partial index）：全量 4,377 含大量 0 值外海格，畫了也是透明
+  const { data, error } = await withLoading(
+    `eq-replay-grid:${ev.event_id}`,
+    `地震回放 等震度網格 ${ev.event_id}`,
+    supabase
+      .from("earthquake_shakemap_grid")
+      .select("lon, lat, pga, intensity")
+      .eq("event_time", ev.grid_event_time)
+      .gt("intensity", 0),
+  );
+  if (error) throw new Error(`Supabase earthquake_shakemap_grid: ${error.message}`);
+  return (data ?? []) as Record<string, unknown>[];
 }
 
 async function fetchTensor(ev: EarthquakeReplayEvent): Promise<EqReplayTensor | null> {

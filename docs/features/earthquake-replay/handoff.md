@@ -21,4 +21,5 @@
 
 - RPC `earthquake_replay_events()` 的 signature（resolved key 欄位名）
 - 四張明細表欄位：station_obs（epicenter_distance_km/intensity_value/pga_int）、town_intensity（town_code/intensity_value）、shakemap_grid（lon/lat/intensity + partial index `intensity > 0`）、moment_tensor（strike/dip/rake ×2 + solution_type）
+- 2026-11-09 起震度網格改讀 R2 事件檔 `https://data.itsmigu.com/events/shakemap/<UTC YYYYMMDDTHHMMSSZ>.json`（欄式 cells，含 intensity 0）＋ `events/shakemap/index.json`；前端以 occurred_at ±90s 配對 index（`matchShakemapIndex`），配不到才退回 DB `earthquake_shakemap_grid`。收集器 collectors #197 寫 R2＋S3 正本，DB 網格表只留短期（ADR-0026）
 - `township_boundary.pmtiles` 的 source-layer 名 `township_boundary` 與 `TOWNCODE` 屬性（8 碼格式）
