@@ -752,6 +752,13 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "南韓自治團體安心宅配櫃 789 處（89 個機關申報）", processing: "標準資料 823 列；WGS84；剔除重複 34；客服與管理機關電話排除；PMTiles z0–14", note: "平台標籤；15/16 시·도（世宗無）" },
   krSeniorCenters: { theme: "社福長照", group: "長照與托育", zh: "敬老堂與里民會館", alt: "Senior Centres & Village Halls", icon: Users, dataset: "kr_senior_centers", topics: ["南韓", "敬老堂", "경로당", "마을회관", "高齡", "社福"],
     description: "南韓敬老堂 43,662、里民會館兼敬老堂 7,124、里民會館 5,242，共 56,028 處（163 個機關申報）", processing: "標準資料逐頁抓到底 58,768 列（columList totalCount 封頂 5 萬）；WGS84；剔除歇業 327、境外與 시·도 不符 118、重複 2,295；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；首爾只有 12 區申報" },
+  // 第 9 波（2026-11-10）
+  krIndustrialComplexes: { theme: "工商登記", group: "園區", zh: "產業園區", alt: "Industrial Complexes", icon: Factory, dataset: "kr_industrial_complexes", topics: ["南韓", "產業園區", "산업단지", "工業區", "農工團地"],
+    description: "南韓產業園區邊界 1,372 處（國家 65、一般 771、都市尖端 53、農工 483）", processing: "국토교통부 dam_dan.shp（EPSG:3857、DBF CP949）→ 4326；原始屬性全保留、未簡化共用邊；另產代表點；PMTiles z4–14", note: "KOGL 4（禁商用、禁變更）原樣單獨成層；16/16 시·도" },
+  krNoiseSites: { theme: "環境氣候", group: "噪音／聲響 Noise", zh: "環境噪音測點", alt: "Noise Monitoring Sites", icon: Volume2, dataset: "kr_noise_sites", topics: ["南韓", "噪音", "소음", "測定網", "環境監測"],
+    description: "韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）", processing: "CSV（UTF-8 BOM）WGS84；0 筆剔除；PMTiles z0–14", note: "平台標籤；16/16 시·도；只有位置、沒有測值" },
+  krClothingBins: { theme: "廢棄物", group: "投放點", zh: "舊衣回收箱", alt: "Clothing Collection Bins", icon: Shirt, dataset: "kr_clothing_bins", topics: ["南韓", "舊衣回收", "의류수거함", "回收", "廢棄物"],
+    description: "南韓舊衣回收箱 20,931 處（57 個市郡區清單合併）", processing: "data.go.kr 各機關 fileData 93 份：有座標 CSV 59 份（58 份採用）、只有地址 19 份未上圖；剔除無座標 1,051、境外 5、座標落在提供機關轄區外 25、重複 2,103；管理團體與電話欄排除；PMTiles z0–14", note: "平台標籤；瑞草區 KOGL 4 不併入；11/16 시·도（釜山、大邱、蔚山、世宗、忠北無）" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];

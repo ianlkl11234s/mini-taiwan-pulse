@@ -69,6 +69,9 @@ export const KR_W6_FETCHED_AT = "2026-11-06";
 export const KR_W7_FETCHED_AT = "2026-11-07";
 /** 第 8 波（2026-11-10 重開授權頁）。 */
 export const KR_W8_FETCHED_AT = "2026-11-10";
+/** 第 9 波（2026-11-10 重開授權頁）。 */
+export const KR_W9_FETCHED_AT = "2026-11-10";
+const KOGL4_LICENSE = "공공누리 제4유형（출처표시・상업적 이용금지・변경금지）";
 
 export const KR_UNMEASURED = l3("未測", "Not measured", "未測定");
 const UNNAMED = l3("(未命名)", "(unnamed)", "(名称なし)");
@@ -760,6 +763,63 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "전국마을회관및경로당표준데이터 (공공데이터포털)", sourceUrl: DGS("15114136"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W8_FETCHED_AT,
     loading: l3("南韓敬老堂載入中", "Loading South Korea senior centres", "韓国の敬老堂を読み込み中"),
+  },
+  // ───────────── 第 9 波：產業園區、環境噪音、舊衣回收箱 ─────────────
+  {
+    // V-5：面＋代表點（`kr_industrial_complexes_points.pmtiles`，登記在 repPointLayers，預設點）；KOGL 4 原樣、單獨成層
+    key: "krIndustrialComplexes", file: "kr_industrial_complexes.pmtiles", sourceLayer: "kr_industrial_complexes", geom: "polygon",
+    layerId: "kr-industrial-complexes-fill", outlineId: "kr-industrial-complexes-line",
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#a78bfa", count: 1372,
+    catProp: "DANJI_TYPE",
+    cats: [
+      { id: "national", values: ["1"], color: "#f472b6", label: l3("國家產業園區（국가산업단지）", "National industrial complex", "国家産業団地") },
+      { id: "general", values: ["2"], color: "#a78bfa", label: l3("一般產業園區（일반산업단지）", "General industrial complex", "一般産業団地") },
+      { id: "hightech", values: ["3"], color: "#38bdf8", label: l3("都市尖端產業園區（도시첨단산업단지）", "Urban high-tech industrial complex", "都市先端産業団地") },
+      { id: "agri", values: ["4"], color: "#84cc16", label: l3("農工園區（농공단지）", "Agro-industrial complex", "農工団地") },
+    ],
+    title: { props: ["DAN_NAME"], fallback: l3("產業園區", "Industrial complex", "産業団地") },
+    fields: [{ prop: "DANJI_TYPE", label: l3("園區類型", "Type", "団地種別"), map: { "1": l3("國家產業園區", "National", "国家"), "2": l3("一般產業園區", "General", "一般"), "3": l3("都市尖端產業園區", "Urban high-tech", "都市先端"), "4": l3("農工園區", "Agro-industrial", "農工") } },
+             { prop: "GOSI", label: l3("告示", "Official notice", "告示") }, { prop: "REMARK", label: l3("備註", "Remarks", "備考") },
+             { prop: "DAN_ID", label: l3("園區代碼", "Complex ID", "団地コード"), kind: "code" }],
+    legendNotes: [l3("公共著作物第 4 類（KOGL 4）：須標示出處、禁止商業使用、禁止變更；本層原樣呈現邊界與屬性、未改作", "KOGL Type 4: attribution required, no commercial use, no modification; boundaries and attributes are shown as published, unmodified", "公共ヌリ第4類型（出典表示・商用禁止・改変禁止）。境界と属性は原データのまま表示し、改変していない"),
+                  l3("1,372 處：國家 65、一般 771、都市尖端 53、農工 483（同一園區可能分成多筆）", "1,372 areas: national 65, general 771, urban high-tech 53, agro-industrial 483 (one complex may span several records)", "1,372か所：国家65・一般771・都市先端53・農工483（1団地が複数件に分かれる場合あり）")],
+    popupNotes: [l3("KOGL 4：非商用、未改作", "KOGL 4: non-commercial, unmodified", "KOGL 4：非商用・改変なし")],
+    sourceOrg: "국토교통부 산업단지 경계도면 (공공데이터포털)", sourceUrl: DG("15152766"), license: KOGL4_LICENSE, fetchedAt: KR_W9_FETCHED_AT,
+    loading: l3("南韓產業園區載入中", "Loading South Korea industrial complexes", "韓国の産業団地を読み込み中"),
+  },
+  {
+    key: "krNoiseSites", file: "kr_noise_sites.pmtiles", sourceLayer: "kr_noise_sites", geom: "point", layerId: "kr-noise-sites-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#f59e0b", tier: "M", count: 546,
+    catProp: "network",
+    cats: [
+      { id: "road", values: ["도로"], color: "#f59e0b", label: l3("道路噪音測點", "Roadside site", "道路沿い測定点") },
+      { id: "general", values: ["일반"], color: "#38bdf8", label: l3("一般地區測點", "General-area site", "一般地域測定点") },
+    ],
+    title: { props: ["name"], fallback: l3("噪音測點", "Noise monitoring site", "騒音測定点") },
+    fields: [{ prop: "network", label: l3("測定網", "Network", "測定網"), map: { "도로": l3("道路", "Roadside", "道路"), "일반": l3("一般地區", "General area", "一般地域") } },
+             { prop: "zone_class", label: l3("噪音環境標準地區", "Noise standard zone", "騒音環境基準の地域区分"),
+               map: { "가": l3("가：綠地、專用住宅、醫院與學校周邊", "Ga: green, exclusive residential, hospital/school areas", "가：緑地・専用住居・病院学校周辺"),
+                      "나": l3("나：一般住宅、準住宅", "Na: general and semi-residential", "나：一般住居・準住居"),
+                      "다": l3("다：商業、準工業", "Da: commercial and semi-industrial", "다：商業・準工業"),
+                      "라": l3("라：一般工業、專用工業", "Ra: general and exclusive industrial", "라：一般工業・専用工業") } },
+             { prop: "land_use", label: l3("用途", "Land use", "用途") }, { prop: "address", label: l3("地址", "Address", "住所") }],
+    legendNotes: [l3("韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）；只有位置，沒有測值", "546 Korea Environment Corporation noise monitoring sites (roadside 331, general 215); locations only, no readings", "韓国環境公団の環境騒音測定網546地点（道路331・一般215）。位置のみで測定値なし")],
+    popupNotes: [],
+    sourceOrg: "한국환경공단 환경소음 측정망 지점 정보 (공공데이터포털)", sourceUrl: DG("15093409"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W9_FETCHED_AT,
+    loading: l3("南韓噪音測點載入中", "Loading South Korea noise monitoring sites", "韓国の騒音測定点を読み込み中"),
+  },
+  {
+    key: "krClothingBins", file: "kr_clothing_bins.pmtiles", sourceLayer: "kr_clothing_bins", geom: "point", layerId: "kr-clothing-bins-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 2.5 }, color: "#2dd4bf", tier: "M", count: 20931,
+    title: { props: ["place", "address"], fallback: l3("舊衣回收箱", "Clothing collection bin", "古着回収ボックス") },
+    fields: [{ prop: "address", label: l3("地址", "Address", "住所") }, { prop: "dong", label: l3("行政洞", "Administrative dong", "行政洞") },
+             { prop: "provider", label: l3("提供機關", "Provided by", "提供機関") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("57 個市郡區自行公開的清單合併，涵蓋 11 個市道（釜山、大邱、蔚山、世宗、忠北沒有可用座標檔）；空白不代表沒有回收箱", "Merged from lists published by 57 cities and districts, covering 11 provinces (Busan, Daegu, Ulsan, Sejong and North Chungcheong have no usable coordinate files); gaps do not mean no bins", "57の市郡区が個別に公開したリストを統合。11の広域自治体をカバー（釜山・大邱・蔚山・世宗・忠清北道は座標付きファイルなし）。空白は回収箱がないことを意味しない"),
+                  l3("只有地址、沒有座標的 19 份清單未上圖；瑞草區清單為 KOGL 4（禁止變更），不併入", "19 address-only lists are not shown; the Seocho-gu list is KOGL Type 4 (no modification) and is not merged", "住所のみの19件は非表示。瑞草区のリストはKOGL第4類型（改変禁止）のため統合しない"),
+                  l3("重複 2,103 筆、座標落在提供機關轄區外 25 筆未上圖", "2,103 duplicates and 25 points outside the provider's own district are not shown", "重複2,103件・提供機関の管轄外に落ちる25件は非表示")],
+    popupNotes: [],
+    sourceOrg: "각 시·군·구 의류수거함 위치 (공공데이터포털 파일데이터 57건)", sourceUrl: "https://www.data.go.kr/tcs/dss/selectDataSetList.do?keyword=%EC%9D%98%EB%A5%98%EC%88%98%EA%B1%B0%ED%95%A8", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W9_FETCHED_AT,
+    loading: l3("南韓舊衣回收箱載入中", "Loading South Korea clothing collection bins", "韓国の古着回収ボックスを読み込み中"),
   },
 ];
 
