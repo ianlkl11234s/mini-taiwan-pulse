@@ -149,6 +149,17 @@ export type ExpandableLayerKey =
   | "securitiesFuturesInstitutions" | "insuranceInstitutions"
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   | "postOfficeFxCounters"
+  | "broadcastTransmitters" // G53 批 2／3（2026-11-10）
+  | "tedsGridEmissions" // G53 批 2／3（2026-11-10）
+  | "pollutionControlZones" // G53 批 2／3（2026-11-10）
+  | "landslideEventCatalog" // G53 批 2／3（2026-11-10）
+  | "wraDisasterCctv" // G53 批 2／3（2026-11-10）
+  | "traLevelCrossings" // G53 批 2／3（2026-11-10）
+  | "vegetationForestTypes" // G53 批 2／3（2026-11-10）
+  | "iOceanSightings" // G53 批 2／3（2026-11-10）
+  | "iOceanFishing" // G53 批 2／3（2026-11-10）
+  | "fireworksSites" // G53 批 2／3（2026-11-10）
+  | "vehicleInspectionOffices" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
   | "slopelandSwcAct" // G53 批 1（2026-11-09）
@@ -930,6 +941,17 @@ export interface FeatureInfo {
     | "swcSpecialZones"
     | "freewayHundredMeterStakes"
     | "antivenomHospitals"
+    | "broadcastTransmitters"
+    | "tedsGridEmissions"
+    | "pollutionControlZones"
+    | "landslideEventCatalog"
+    | "wraDisasterCctv"
+    | "traLevelCrossings"
+    | "vegetationForestTypes"
+    | "iOceanSightings"
+    | "iOceanFishing"
+    | "fireworksSites"
+    | "vehicleInspectionOffices"
     | "postMailboxes"
     | "motorcycleInspectionStations"
     | "hikingTrails"
@@ -1477,6 +1499,28 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   insuranceInstitutions: boolean;
   /** 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局 290（非外幣收兌處） */
   postOfficeFxCounters: boolean;
+  /** G53 批 2／3（2026-11-10）廣播發射站與電波監測站：NCC 6445／6446／6825，447 點 */
+  broadcastTransmitters: boolean;
+  /** G53 批 2／3（2026-11-10）空污排放網格 TEDS 13.0：環境部 48201／170705／152688／47244，網格四源＋點源工廠 */
+  tedsGridEmissions: boolean;
+  /** G53 批 2／3（2026-11-10）土壤／地下水污染管制區：環境部 6384／35092，7,803 場址（預設只開列管中） */
+  pollutionControlZones: boolean;
+  /** G53 批 2／3（2026-11-10）事件型崩塌目錄：水保署 93–114 年 22 個資料集，43,779 處（預設 114 年） */
+  landslideEventCatalog: boolean;
+  /** G53 批 2／3（2026-11-10）水利署防災影像：36687 水情影像 132＋41567 疏濬工區 134，popup 才載入即時影像 */
+  wraDisasterCctv: boolean;
+  /** G53 批 2／3（2026-11-10）臺鐵平交道：臺鐵 11970，來源 801 處、上圖 440 處 */
+  traLevelCrossings: boolean;
+  /** G53 批 2／3（2026-11-10）植群／森林林型：林保署 9930 天然植群圖＋57873 第四次森林資源調查林型，select 切換 */
+  vegetationForestTypes: boolean;
+  /** G53 批 2／3（2026-11-10）iOcean 海洋生物目擊：海保署 157621，2,135 筆，保育物種位置粗化 0.01° */
+  iOceanSightings: boolean;
+  /** G53 批 2／3（2026-11-10）iOcean 垂釣回報：海保署 157622，56,420 筆；z4–9 格網彙總熱區、z10 起逐筆 */
+  iOceanFishing: boolean;
+  /** G53 批 2／3（2026-11-10）爆竹煙火製造及儲存場所：消防署 7070，名冊 19 處、上圖 10 處 */
+  fireworksSites: boolean;
+  /** G53 批 2／3（2026-11-10）監理所站＋轄區：公路局 14203，34／37 所站上圖，轄區依汽車／機車切換 */
+  vehicleInspectionOffices: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
   landUseChangeMonitoring: boolean;
   /** G53 批 1（2026-11-09）土石流潛勢溪流：水保署 176524／176525／176526，一層三檔切換 */

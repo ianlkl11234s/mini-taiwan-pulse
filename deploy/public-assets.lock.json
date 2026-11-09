@@ -433,6 +433,20 @@
    "s3_key": "deploy-assets/environment/pm25_manual_stations.geojson"
   },
   {
+   "path": "public/environment/pollution_control_zones_202611.pmtiles",
+   "bytes": 2932706,
+   "sha256": "da5f13e051a677ff19c487b8a04e24dbc05dd841448c8cfcc5b6b8a1e2b9592f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/pollution_control_zones_202611.pmtiles"
+  },
+  {
+   "path": "public/environment/pollution_control_zones_202611_points.pmtiles",
+   "bytes": 2424192,
+   "sha256": "25376edec3b981de34edb5eec4916b5810ae701e1900400b6d67ab4ca4877608",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/pollution_control_zones_202611_points.pmtiles"
+  },
+  {
    "path": "public/environment/public_toilets_national.geojson",
    "bytes": 2761031,
    "sha256": "3f8f9e75b6f05e3697a0af90224bed792e435b1605678ce8182f6045e5d2bc5b",
@@ -473,6 +487,27 @@
    "sha256": "671dcc019a074d5e702bcd0fa0f803a79ce03d9133511151b2d126563db5a5db",
    "delivery": "r2",
    "s3_key": "deploy-assets/environment/sound_camera_locations.geojson"
+  },
+  {
+   "path": "public/environment/teds_grid_emissions_teds13.pmtiles",
+   "bytes": 24893831,
+   "sha256": "43d36afb4c0c5db0b14f3250e4e8d682763ac4954c38f62aa2d7f262c7a549c4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/teds_grid_emissions_teds13.pmtiles"
+  },
+  {
+   "path": "public/environment/teds_grid_emissions_teds13_5km.pmtiles",
+   "bytes": 3324370,
+   "sha256": "fab9121d2db7a5b3382f3e0ebcaa815cabfdda2900f8f707b20f082245a073a9",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/teds_grid_emissions_teds13_5km.pmtiles"
+  },
+  {
+   "path": "public/environment/teds_point_source_facilities_teds13.pmtiles",
+   "bytes": 7576319,
+   "sha256": "3f0f75483cb2e55d35324465cdda9cfffcc7f9a7829a54757e8f29214df2caf1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/teds_point_source_facilities_teds13.pmtiles"
   },
   {
    "path": "public/environment/toxic_permits/A.json",
@@ -875,6 +910,20 @@
    "s3_key": "deploy-assets/forestry/forest_roads.pmtiles"
   },
   {
+   "path": "public/forestry/forest_types_4th_survey.pmtiles",
+   "bytes": 192876599,
+   "sha256": "6904dabe5ec70beaebf0cba3258e91a603978ff3205c6581c2c2a8f40e5c72fc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/forest_types_4th_survey.pmtiles"
+  },
+  {
+   "path": "public/forestry/forest_types_4th_survey_z4_10.pmtiles",
+   "bytes": 4587190,
+   "sha256": "173497e3aff5a7893c7d62d44468da6ee6b0fd9dabbf93371907cc971f4a8661",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/forest_types_4th_survey_z4_10.pmtiles"
+  },
+  {
    "path": "public/forestry/forestry_treatment_works.geojson",
    "bytes": 1966455,
    "sha256": "266a981d42ec5c601b1fdf6b79097cadb96724a13eb815dc7b3680960efe8e2b",
@@ -923,6 +972,20 @@
    "sha256": "aa90838f2daa302ef646ae890d5032b82e58163c3f79733583d9fb457f666f01",
    "delivery": "r2",
    "s3_key": "deploy-assets/forestry/national_forest_compartments_points.pmtiles"
+  },
+  {
+   "path": "public/forestry/natural_vegetation_map_2014.pmtiles",
+   "bytes": 49146967,
+   "sha256": "1144b03da472546c53de8ea4658a304831312f2e8141cc1d8b720fab178ef50c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/natural_vegetation_map_2014.pmtiles"
+  },
+  {
+   "path": "public/forestry/natural_vegetation_map_2014_z4_10.pmtiles",
+   "bytes": 2446417,
+   "sha256": "6626fbd9929568b449043934e3a9734cacc28e2f3031888407a414bca6058364",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/natural_vegetation_map_2014_z4_10.pmtiles"
   },
   {
    "path": "public/forestry/wildlife_density_h3.geojson",
@@ -1016,6 +1079,13 @@
    "s3_key": "deploy-assets/geo/antivenom_reserve_hospitals_20241230.pmtiles"
   },
   {
+   "path": "public/geo/broadcast_transmitters_1150703.pmtiles",
+   "bytes": 496551,
+   "sha256": "be33377ec9866fecd874c32cb053f56e50efddac1fb55a6b41d15fdc52138ad0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/broadcast_transmitters_1150703.pmtiles"
+  },
+  {
    "path": "public/geo/cctv.geojson",
    "bytes": 2505252,
    "sha256": "aaa461000f16837a03d81fb67133f6503a7f0bc04cf5c8604f5021e725c145aa",
@@ -1042,6 +1112,13 @@
    "sha256": "f3e1b2433fec26b506482846a56027f8bc986c1ecbaec21f731ebc635d3ed5f1",
    "delivery": "r2",
    "s3_key": "deploy-assets/geo/etc_gantry.geojson"
+  },
+  {
+   "path": "public/geo/fireworks_sites_7070_v2.pmtiles",
+   "bytes": 26179,
+   "sha256": "72bac27b8f08e6b0c17c3d313caf71a4116c46fc2e799d893d514c9db7806653",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/fireworks_sites_7070_v2.pmtiles"
   },
   {
    "path": "public/geo/freeway_eco_sensitive_sections.geojson",
@@ -1263,6 +1340,20 @@
    "s3_key": "deploy-assets/geo/triangulation_points_moi.geojson"
   },
   {
+   "path": "public/geo/vehicle_inspection_jurisdictions_1150421.pmtiles",
+   "bytes": 1255443,
+   "sha256": "3d76b255fa14b5f9568e3c0e33b5d765d0b84f4cde2d3267b82f2850140b2bb3",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/vehicle_inspection_jurisdictions_1150421.pmtiles"
+  },
+  {
+   "path": "public/geo/vehicle_inspection_offices_1150421.pmtiles",
+   "bytes": 111190,
+   "sha256": "54365f444697392b6f909a4ad687d507ffda2a2849b02ecc50d78b56eee7814e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/vehicle_inspection_offices_1150421.pmtiles"
+  },
+  {
    "path": "public/geo/waste_stops_chat_20261001.json",
    "bytes": 2236892,
    "sha256": "73ff85946d835169dba6005badbb0237fc76c71fa2e0438a2b5569f3ef1f0d2a",
@@ -1367,6 +1458,13 @@
    "sha256": "f1842f076ce236470f4b753fe579054cd428c4c71cf17989dcf0734633488b99",
    "delivery": "r2",
    "s3_key": "deploy-assets/geo/wra_central_drainage.geojson"
+  },
+  {
+   "path": "public/geo/wra_disaster_cctv_20261109.pmtiles",
+   "bytes": 332553,
+   "sha256": "957402ce6e961b7328c3e67bee232590e80356302b677189ec26e766b9399383",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/wra_disaster_cctv_20261109.pmtiles"
   },
   {
    "path": "public/geo/wra_dredging_points.geojson",
@@ -1605,6 +1703,20 @@
    "sha256": "bb41b89228ba5f8bf2f5329262b5011def7ea991793318e7c348180964b105a8",
    "delivery": "r2",
    "s3_key": "deploy-assets/hazards/landslide_dod_impact.geojson"
+  },
+  {
+   "path": "public/hazards/landslide_event_catalog_093_114.pmtiles",
+   "bytes": 39275952,
+   "sha256": "8438781fcb4ba76235630d59e9a46c7c842b4675f4f4bb0fec1f4e3fe9649fd5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/landslide_event_catalog_093_114.pmtiles"
+  },
+  {
+   "path": "public/hazards/landslide_event_catalog_093_114_points.pmtiles",
+   "bytes": 6513713,
+   "sha256": "ec2eac49fcf8a4b9aa7e658ebcb35fab5e10f77c7f35334d5e0c85897ba51767",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/landslide_event_catalog_093_114_points.pmtiles"
   },
   {
    "path": "public/hazards/major_occupational_accidents.geojson",
@@ -1859,6 +1971,27 @@
    "s3_key": "deploy-assets/marine/firing_notice_areas.geojson"
   },
   {
+   "path": "public/marine/iocean_fishing_reports_20260506.pmtiles",
+   "bytes": 5686682,
+   "sha256": "9c2db25ab22564a597054780d820975c429749f9701502c089f475ce1ed03f7f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/iocean_fishing_reports_20260506.pmtiles"
+  },
+  {
+   "path": "public/marine/iocean_fishing_reports_20260506_z4_9.pmtiles",
+   "bytes": 112668,
+   "sha256": "bf88b311ae9c3532c84cd45574e19728afa7c89ff2a7e2c5fbc777abaaa02b90",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/iocean_fishing_reports_20260506_z4_9.pmtiles"
+  },
+  {
+   "path": "public/marine/iocean_sightings_20260506_gen.pmtiles",
+   "bytes": 811867,
+   "sha256": "61f31466505fa814842ddf73690c9b513d99712a018d93a7617cc98482b5c582",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/iocean_sightings_20260506_gen.pmtiles"
+  },
+  {
    "path": "public/marine/marine_ecological_monitoring_sites.geojson",
    "bytes": 35507,
    "sha256": "0142f58c8d031d11f2da109d493003b788e64458e83b6002f681b5581497e519",
@@ -1969,6 +2102,13 @@
    "sha256": "de7d94d4b73867a5a43c654fef24ec605bbe68a7aedec22df264081eb756ae30",
    "delivery": "r2",
    "s3_key": "deploy-assets/rail.tar.gz"
+  },
+  {
+   "path": "public/rail/tra_level_crossings_11970.pmtiles",
+   "bytes": 289949,
+   "sha256": "94149f47f4980cb0f81b6f8ed6fa9f313346cf730d3846aeda5a582fbe65fa24",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/rail/tra_level_crossings_11970.pmtiles"
   },
   {
    "path": "public/rail/trtc/extensions/xinyi_east_r01.geojson",

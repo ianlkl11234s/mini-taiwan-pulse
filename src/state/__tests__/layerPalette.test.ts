@@ -103,7 +103,10 @@ describe("R7 顏色解析器", () => {
     // 2026-11-08 +2 愛爾蘭第 9 波：土地使用分區代表點熱區、規劃申請案熱區
     // 2026-11-08 +1 愛爾蘭第 5c 波：Coillte 森林入口熱區（站主限定）
     // 2026-11-09 +1 G53 批 1：國道百公尺樁熱區
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(118);
+    // 2026-11-10 +1 G53 批 2／3：TEDS 點源工廠熱區
+    // 2026-11-10 +1 G53 批 2／3：事件型崩塌目錄代表點熱區
+    // 2026-11-10 +1 G53 批 2／3：iOcean 垂釣回報格網彙總熱區
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(121);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

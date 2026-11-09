@@ -609,10 +609,202 @@ export const LAND_CHANGE_YEARS = [107, 108, 109, 110, 111, 112] as const;
 export const G53_SELF_FOOTER_KEYS = [
   "postMailboxes", "debrisFlowPotential", "swcSpecialZones", "slopelandSwcAct", "landUseChangeMonitoring",
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
+  // G53 批 2／3（2026-11-10）
+  "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing", "fireworksSites", "vehicleInspectionOffices",
 ] as const;
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署" } as const;
+// ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
+/** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
+export const BROADCAST_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "fm", label: "FM 廣播", color: "#7c3aed" },
+  { value: "am", label: "AM 廣播", color: "#f59e0b" },
+  { value: "monitoring", label: "電波監測站", color: "#0891b2" },
+];
+/** TEDS 13.0 空污排放網格的顯示模式（select；encode 順序＝`tedsGridEmissionsViewIdx`）：前四種是網格 source 值，最後一種換點源工廠檔。 */
+export const TEDS_VIEW_OPTIONS = [
+  { value: "point", label: "點源（網格）" },
+  { value: "line", label: "線源（公路車輛）" },
+  { value: "area", label: "面源" },
+  { value: "bio", label: "生物源" },
+  { value: "facilities", label: "點源工廠" },
+] as const;
+/** TEDS 污染物（select；encode 順序＝`tedsGridEmissionsPollutantIdx`；生物源只有 NMHC，前端強制換成 nmhc）。 */
+export const TEDS_POLLUTANT_OPTIONS = [
+  { value: "pm25", label: "PM2.5" },
+  { value: "pm10", label: "PM10" },
+  { value: "sox", label: "SOx" },
+  { value: "nox", label: "NOx" },
+  { value: "nmhc", label: "NMHC" },
+  { value: "co", label: "CO" },
+] as const;
+/** TEDS 網格排放密度色階（公噸／平方公里‧年，log10 內插；分布極度右偏，依 layer-plan 建議用對數）。 */
+export const TEDS_DENSITY_STEPS = [
+  { min: 0.01, label: "0.01", color: "#fff7bc" },
+  { min: 0.1, label: "0.1", color: "#fee391" },
+  { min: 1, label: "1", color: "#fec44f" },
+  { min: 10, label: "10", color: "#fe9929" },
+  { min: 100, label: "100", color: "#d95f0e" },
+  { min: 1000, label: "1,000", color: "#993404" },
+] as const;
+/** 土壤／地下水污染管制區列管類型（上游 status_group；英日文 enum.atlasPollutionZoneGroup.*）；已解除一律灰。 */
+export const POLLUTION_ZONE_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "remediation", label: "整治場址", color: "#b91c1c" },
+  { value: "control", label: "控制場址", color: "#ea580c" },
+  { value: "gw_restriction", label: "地下水受污染使用限制地區", color: "#7c3aed" },
+];
+export const POLLUTION_ZONE_RELEASED_COLOR = "#94a3b8";
+/** 污染管制區介質（上游 medium；英日文 enum.atlasPollutionMedium.*；popup 中文標籤用） */
+export const POLLUTION_MEDIUM_OPTIONS: readonly AtlasOption[] = [
+  { value: "soil", label: "土壤", color: "#a16207" },
+  { value: "groundwater", label: "地下水", color: "#2563eb" },
+];
+/** 列管狀態多選（上游布林 is_active，以 to-string 比對；預設只開列管中）。 */
+export const POLLUTION_ZONE_STATUS_OPTIONS = [
+  { value: "true", label: "列管中" },
+  { value: "false", label: "已解除" },
+] as const;
+export function pollutionZoneStatusFilter(mask?: number): unknown[] {
+  const m = mask === undefined || !Number.isFinite(mask) ? 1 : Math.trunc(mask);
+  const selected = POLLUTION_ZONE_STATUS_OPTIONS.filter((_, i) => (m & (1 << i)) !== 0).map((o) => o.value);
+  return ["in", ["to-string", ["get", "is_active"]], ["literal", selected]];
+}
+export function pollutionZoneColorExpr(): unknown[] {
+  return ["case", ["==", ["to-string", ["get", "is_active"]], "false"], POLLUTION_ZONE_RELEASED_COLOR, matchColorExpr("status_group", POLLUTION_ZONE_GROUP_OPTIONS)];
+}
+/** 事件型崩塌目錄的事件類型（上游布林 has_<value>；色序＝颱風 > 豪雨 > 地震 > 其他，取第一個成立的）。 */
+export const LANDSLIDE_EVENT_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "typhoon", label: "颱風", color: "#7c3aed" },
+  { value: "rain", label: "豪雨", color: "#0284c7" },
+  { value: "quake", label: "地震", color: "#ea580c" },
+  { value: "other", label: "其他", color: "#64748b" },
+];
+/** 事件型崩塌目錄年度（民國；PMTiles year 為數字，以 to-string 比對）。 */
+export const LANDSLIDE_EVENT_YEARS = ["93", "94", "95", "96", "97", "98", "99", "100", "101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "112", "113", "114"] as const;
+export function landslideEventColorExpr(): unknown[] {
+  return ["case", ...LANDSLIDE_EVENT_TYPE_OPTIONS.slice(0, 3).flatMap((o) => [["==", ["get", `has_${o.value}`], true], o.color]), LANDSLIDE_EVENT_TYPE_OPTIONS[3]!.color];
+}
+/** 年度（預設 114）× 事件類型（任一成立）篩選；兩組 mask 都缺省時：年度只開最新、類型全開。 */
+export function landslideEventFilter(yearMask?: number, typeMask?: number): unknown[] {
+  const latest = 1 << (LANDSLIDE_EVENT_YEARS.length - 1);
+  const ym = yearMask === undefined || !Number.isFinite(yearMask) ? latest : Math.trunc(yearMask);
+  const years = LANDSLIDE_EVENT_YEARS.filter((_, i) => (ym & (1 << i)) !== 0);
+  const allTypes = (1 << LANDSLIDE_EVENT_TYPE_OPTIONS.length) - 1;
+  const tm = typeMask === undefined || !Number.isFinite(typeMask) ? allTypes : Math.trunc(typeMask) & allTypes;
+  const yearExpr = ["in", ["to-string", ["get", "year"]], ["literal", years]];
+  if (tm === allTypes) return yearExpr;
+  const types = LANDSLIDE_EVENT_TYPE_OPTIONS.filter((_, i) => (tm & (1 << i)) !== 0);
+  return ["all", yearExpr, ["any", false, ...types.map((o) => ["==", ["get", `has_${o.value}`], true])]];
+}
+/** 水利署防災影像（上游 kind；英日文 enum.atlasWraCctvKind.*）。 */
+export const WRA_CCTV_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "disaster", label: "水情影像監視站", color: "#0284c7" },
+  { value: "dredging", label: "疏濬工區管制站", color: "#b45309" },
+];
+/** 臺鐵平交道分類（上游 type_key；英日文 enum.atlasTraCrossingType.*）。第三種甲占 9 成用主色，其餘依防護方式區分。 */
+export const TRA_CROSSING_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "type3a", label: "第三種甲平交道", color: "#f59e0b" },
+  { value: "type1", label: "第一種平交道", color: "#2563eb" },
+  { value: "type2", label: "第二種平交道", color: "#0891b2" },
+  { value: "half_closed", label: "半封閉式平交道", color: "#7c3aed" },
+  { value: "manual", label: "人工控制平交道", color: "#db2777" },
+  { value: "private", label: "專用平交道", color: "#64748b" },
+];
+/** 植群／森林林型：資料集切換（select `vegetationForestTypesDataset`）。 */
+export const VEG_DATASET_OPTIONS = [
+  { value: "vegetation", label: "天然植群圖（2014）" },
+  { value: "forestType", label: "森林林型（第四次調查）" },
+] as const;
+/** 天然植群圖 6 大類（上游 veg_class_key；來源 veg_class 被截斷，顯示用全名；英日文 enum.atlasVegClass.*）。 */
+export const VEG_CLASS_OPTIONS: readonly AtlasOption[] = [
+  { value: "forest", label: "森林", color: "#166534" },
+  { value: "shrub", label: "灌叢", color: "#65a30d" },
+  { value: "herbaceous", label: "草本植群", color: "#86efac" },
+  { value: "special_habitat", label: "特殊棲地", color: "#0e7490" },
+  { value: "planted", label: "人工植生", color: "#ca8a04" },
+  { value: "other", label: "其他（裸露地、耕地、水域、建地等）", color: "#94a3b8" },
+];
+/** 森林林型（上游 forest_type_key；英日文 enum.atlasForestType.*）。闊葉與植群「森林」同色，待成林地與「人工植生」同色。 */
+export const FOREST_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "broadleaf", label: "闊葉樹林型", color: "#166534" },
+  { value: "conifer", label: "針葉樹林型", color: "#0f766e" },
+  { value: "mixed_conifer_broadleaf", label: "針闊葉樹混淆林", color: "#4d7c0f" },
+  { value: "bamboo", label: "竹林", color: "#a3e635" },
+  { value: "bamboo_broadleaf", label: "竹闊混淆林", color: "#84cc16" },
+  { value: "bamboo_conifer", label: "竹針混淆林", color: "#22c55e" },
+  { value: "bamboo_conifer_broadleaf", label: "竹針闊混淆林", color: "#3f6212" },
+  { value: "regenerating", label: "待成林地", color: "#ca8a04" },
+  { value: "bare", label: "裸露地", color: "#94a3b8" },
+  { value: "shadow", label: "陰影（判釋不到）", color: "#475569" },
+];
+/** 植群／林型類別篩選：全選回 null（不加篩選）；值缺（另一個資料集的圖徵）不在此判斷，因兩資料集分屬不同 config。 */
+export function vegClassFilter(property: "veg_class_key" | "forest_type_key", options: readonly AtlasOption[], mask?: number): unknown[] | null {
+  const all = (1 << options.length) - 1;
+  const m = mask === undefined || !Number.isFinite(mask) ? all : Math.trunc(mask) & all;
+  if (m === all) return null;
+  return ["in", ["to-string", ["get", property]], ["literal", options.filter((_, i) => (m & (1 << i)) !== 0).map((o) => o.value)]];
+}
+/** iOcean 目擊推定類群（上游 group_key，依物種名推定、非官方分類；英日文 enum.atlasIOceanGroup.*）。 */
+export const IOCEAN_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "cetacean", label: "鯨豚", color: "#2563eb" },
+  { value: "turtle_snake", label: "海龜與海蛇", color: "#16a34a" },
+  { value: "mollusc", label: "貝類與軟體動物", color: "#f59e0b" },
+  { value: "reef_fish", label: "珊瑚礁魚類", color: "#ec4899" },
+  { value: "other_fish", label: "其他魚類", color: "#94a3b8" },
+  { value: "echinoderm", label: "棘皮動物", color: "#a855f7" },
+  { value: "crustacean", label: "甲殼類與鱟", color: "#ef4444" },
+  { value: "coral", label: "珊瑚", color: "#f97316" },
+  { value: "shark_ray", label: "鯊魚與魟", color: "#06b6d4" },
+  { value: "seabird", label: "海鳥", color: "#eab308" },
+];
+/** iOcean 垂釣類型（上游 fishing_type 原文；野溪、埤塘、水庫與空值併入「其他」；英日文 enum.atlasFishingType.*）。 */
+export const FISHING_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "堤岸釣", label: "堤岸釣", color: "#0ea5e9" },
+  { value: "港區垂釣", label: "港區垂釣", color: "#6366f1" },
+  { value: "岩磯岸釣", label: "岩磯岸釣", color: "#a16207" },
+  { value: "船釣", label: "船釣", color: "#14b8a6" },
+  { value: "島礁垂釣", label: "島礁垂釣", color: "#f97316" },
+  { value: "沙灘釣", label: "沙灘釣", color: "#eab308" },
+  { value: "礫灘釣", label: "礫灘釣", color: "#78716c" },
+  { value: "筏釣", label: "筏釣", color: "#ec4899" },
+];
+/** 監理所站種類（上游 office_kind；英日文 enum.atlasVioKind.*）。 */
+export const VIO_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "office", label: "監理所", color: "#facc15" },
+  { value: "station", label: "監理站", color: "#22d3ee" },
+  { value: "substation", label: "監理分站", color: "#e879f9" },
+];
+/** 監理轄區業務（select；面 service 欄）。 */
+export const VIO_SERVICE_OPTIONS = [
+  { value: "car", label: "汽車監理" },
+  { value: "motorcycle", label: "機車監理" },
+] as const;
+/** 轄區面 8 色，只為區分相鄰所站；來源未載明（無 office_id）用灰色。 */
+export const VIO_ZONE_PALETTE = ["#38bdf8", "#f472b6", "#a3e635", "#fbbf24", "#a78bfa", "#34d399", "#fb923c", "#f87171"] as const;
+/** vio_01..vio_37 的色號：依 1150421 版轄區面（汽車、機車各自）的相鄰關係做貪婪著色，相鄰所站不同色；轄區資料改版時要重算。 */
+const VIO_ZONE_COLOR_INDEX: readonly number[] = [
+  2, 0, 1, 3, 6, 7, 0, 3, 2, 3, 2, 1, 3, 6, 7, 3, 6, 4, 5, 4, 1, 7, 4, 0, 2, 1, 4, 6, 5, 5, 0, 0, 7, 5, 2, 1, 4,
+];
+export const VIO_ZONE_OPTIONS: readonly AtlasOption[] = Array.from({ length: 37 }, (_, index) => ({
+  value: `vio_${String(index + 1).padStart(2, "0")}`, label: "", color: VIO_ZONE_PALETTE[VIO_ZONE_COLOR_INDEX[index]!]!,
+}));
+/** 爆竹煙火場所種類（上游 site_kind；英日文 enum.atlasFireworksKind.*）。 */
+export const FIREWORKS_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "manufacturing", label: "製造場所", color: "#dc2626" },
+  { value: "storage", label: "儲存場所", color: "#f97316" },
+];
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署" } as const;
 
 export const ATLAS_NOTES = {
+  vehicleInspectionOffices: "交通部公路局監理所站名冊（data.gov.tw 14203，115 年 4 月 21 日版）37 所站，來源只有地址：本機離線門牌定位 31 處（門牌 28、路段內插 3），另 3 處依 OpenStreetMap 同名地物補位（連江、澎湖、臺中市監理站）；金門監理站、彰化監理站、東勢監理分站找不到位置，未上圖。轄區面是依名冊的轄區文字把鄉鎮界組起來（86521「監理機關轄區」是同一份文字，不是面圖資），汽車與機車監理各自全國 368 鄉鎮各歸一所站；汽車監理有 24 個鄉鎮（南投埔里等 4、雲林沿海 9 加北港、屏東恆春等 6、高雄新興前金苓雅鹽埕）來源沒寫，畫成灰色「來源未載明」，不推定。轄區顏色只用來區分相鄰所站，沒有其他意義。電話與傳真是機關總機。",
+  fireworksSites: "內政部消防署公告的爆竹煙火製造及儲存場所名冊（data.gov.tw 7070，2025-12-04 更新）共 19 處，來源只有地址，以本機離線門牌定位：地圖上 10 處（門牌 7、路段內插 1、鄉鎮 2），另 9 處是沒有路名的鄉間地址，定位不到未上圖（新竹湖口、峨眉，苗栗造橋、苑裡，桃園新屋，雲林斗南，嘉義東石）。位置由地址推估，不是場所邊界。以個人姓名為名的 3 處不顯示名稱，地址與位置都只到鄉鎮（上圖 2 處）。",
+  iOceanFishing: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾垂釣回報（data.gov.tw 157622，2026-05-06 版，實際含到 2026-11-03），56,420 筆（2015–2026，2021 年以後占 98%）。公民回報，未經查核。拉遠時（縮放 10 以下）以 0.01° 格網彙總的回報筆數畫熱區，熱區不隨垂釣類型篩選；放大到 10 級起畫每筆回報，依垂釣類型著色。座標落在 118–124°E、20–27°N 以外的 124 筆未上圖。回報沒有姓名或帳號等個資；同行人數欄品質不佳，不顯示。",
+  iOceanSightings: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾海洋生物目擊回報（data.gov.tw 157621，2026-05-06 版），2,135 筆（2017–2026）。公民回報，未經查核。類群是依物種名推定，不是官方分類。保育物種（對上海洋保育類野生動物名錄者、鯨豚、貝類與珊瑚）1,963 筆位置已粗化到小數 2 位（約 1 km），同一格多筆會重疊，放大後逐一點選。座標落在 118–124°E、20–27°N 以外的 19 筆未上圖。「臺灣白海豚」與「中華白海豚」照來源兩種寫法，不合併。",
+  vegetationForestTypes: "農業部林業及自然保育署的兩份植被圖，用「資料集」切換：天然植群圖（data.gov.tw 9930，2014 年調查，49,943 面，只涵蓋本島山區與丘陵約 162 萬公頃）依 6 大類著色；森林林型（57873，第四次森林資源調查，575,206 面，約 218 萬公頃）依 10 種林型著色，兩份資料同類別用同色。縮放 10 以下是 100 m 格網化、去除小碎塊後依類別融合的概覽圖，邊界較粗略；放大到 11 級才換成原始圖斑並可點選看植群型、林型、經營功能與面積（面積依幾何計算，不用來源欄位）。這是全覆蓋的土地覆蓋圖，不提供點位模式。林型「陰影」是航照判釋時被陰影遮住的 1 面。",
+  traLevelCrossings: "國營臺灣鐵路公司在 data.gov.tw 公開的平交道清單（11970，2024-08-26 更新）。來源 801 處中 361 處沒有座標、也對不到 OpenStreetMap 同名平交道，沒有上圖（縱貫線 82、高雄港線 50、林口線 44 最多）；地圖上 440 處，其中 415 處用來源座標，25 處依同縣市 OpenStreetMap 同名平交道推定位置。清單可能仍列已廢除的平交道（臺中、高雄、屏東鐵路高架化或地下化路段），有 46 處離最近的 OpenStreetMap 平交道超過 200 m，疑為已廢除，未逐一查證。顏色依臺鐵的平交道分類。來源縣市欄的改制前名稱已改為今日縣市。",
+  wraDisasterCctv: "經濟部水利署的防災影像攝影機 266 支：水情影像監視站 132 支（data.gov.tw 36687）與河川疏濬工區管制站 134 支（41567），2026-11-09 版。點開才載入即時影像，不預載。水情影像的網址每天更換，點開時會向水利署開放資料平臺重抓當天網址；平臺連不上時改用 11-09 的快照網址，可能已失效，可改從水利署防災資訊網觀看。疏濬工區座標只到小數 2 位（121 支，約 1 km）或 1 位（13 支，約 10 km），位置為概略；同一工區多支攝影機共用一個位置（22 處），點開後可切換同工區的攝影機。疏濬攝影機是防盜採砂石的工區監控，畫面可能拍到車輛。",
+  landslideEventCatalog: "農業部農村發展及水土保持署的事件型崩塌目錄：民國 93–114 年（2004–2025）各次颱風、豪雨、地震後以衛星影像判釋的崩塌地 43,779 處（22 個 data.gov.tw 資料集；104 年 1 筆空幾何未上圖）。預設只顯示最新的 114 年，「年度」可多選；98 年（莫拉克颱風）11,707 處，一起開會主導全國畫面。依事件類型上色（同一處可同時屬颱風與豪雨，顏色依颱風、豪雨、地震、其他的順序取第一個），「事件類型」篩選是有任一勾選類型就顯示。小面多，預設畫點（拉遠熱區），可切成面（10 級起）；事件名稱與影像日期要放大切成面才看得到。和「年度全島崩塌地」不同：本層是事件後判釋，早期年度部分取自林務局全島判釋，兩層可能重疊。",
+  pollutionControlZones: "環境部土壤及地下水污染管制區範圍：土壤 7,402 場址（data.gov.tw 6384，2026-11 月檔）、地下水 401 場址（35092，2026-10），共 7,803 場址，含已解除列管的。預設只顯示列管中的 384 場址，「列管狀態」可勾已解除（灰色）。依列管類型上色：整治場址（較嚴重）深紅、控制場址橙、地下水受污染使用限制地區紫。多為單筆農地地號的小面，預設畫點，可切成面（8 級起）。彰化、桃園多為農地重金屬污染。102 個場址名稱含「?」是來源造字遺失，照原樣顯示。場址代碼與「污染場址」圖層相同，可互相對照；範圍以環境部公告為準。",
+  tedsGridEmissions: "環境部臺灣排放量清冊 TEDS 13.0（排放年 2023）的推估排放量，不是監測值。網格模式顯示每平方公里每年排放公噸數（1 km 方格；拉遠到 9 級以下合成 5 km 方格），四種來源分開看：點源（工廠煙囪等）、線源（公路車輛）、面源（其他人為來源）、生物源（植物排放，只有 NMHC）。只收有排放的格。「點源工廠」模式是 15,996 家事業的年排放量（由 255,912 個排放口依管制編號合併，位置取排放口的中位位置），拉遠畫熱區、放大到 10 級起畫點，點大小依所選污染物。非公路運輸與氨排放網格未收。",
+  broadcastTransmitters: "國家通訊傳播委員會公告的 FM 廣播電臺 290 座、AM 廣播電臺 136 座（data.gov.tw 6445、6446，115-07-03 版）與電波監測站 21 站（6825，2025-12）。點是發射機位置；同一站址常有多座電臺共用（FM 245 址、AM 92 址），點會重疊，放大後逐一點選。1 座經度筆誤（102→120）已依地址修正。電臺類別（甲、乙、丙等）照來源原文；「海外電臺」是對海外播音的 AM 發射站。",
   landUseChangeMonitoring: "內政部國土管理署國土利用監測的衛星影像變異點 107–112 年共 143,891 處（data.gov.tw 168030），是「疑似變異」，不是查報確認的違規。依變異類別上色（裸露地占 88%）；同一地點可能在不同年度各出現一次。拉遠時畫六角格（每格約 5 km²），顏色深淺是格內變異處數；六角格跟著類別篩選，只篩年度時改用分年數，兩者都篩時只照類別。放大到 10 級起畫逐點與範圍面。107 年原為 TWD67，已轉換。",
   debrisFlowPotential: "水保署 115 年度土石流潛勢溪流 1,753 條（data.gov.tw 176524），可切換溪流線、影響範圍（176526，1,894 區，一溪可有多個溢流點）、集水區（176525）；三者都依風險等級上色。拉遠到 11 級以下另畫溪流中點，標示位置。涵蓋 17 縣市，新竹市、嘉義市、澎湖、金門、連江沒有潛勢溪流。影響範圍的保全住戶門牌清單不收。溪流編號年度會改編，對照舊警戒紀錄用舊編號（popup）。",
   slopelandSwcAct: "水保署公告的水土保持法山坡地範圍（data.gov.tw 178645，115 年版），15 縣市合計約 192.7 萬公頃。不含六都（臺北、新北、桃園、臺中、臺南、高雄由市府自行公告）與澎湖縣（來源沒有）。來源檔沒有附座標系統，依 TWD97 處理並以金門、連江位置驗證。範圍以公告為準，僅供參考，不構成個別土地的法規判斷。",
