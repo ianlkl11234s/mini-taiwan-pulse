@@ -302,5 +302,10 @@
   "popup.atlas.w1944Caution": "由 1944 美軍地形圖依顏色抽取，位置可能偏移 5–15 m；同一個 1944 面依今日河川面外擴 50 m 切成仍是河道與已非河道兩部分",
   "popup.atlas.miPrecisionDoor": "位置由地址推估（門牌比對）",
   "popup.atlas.miPrecisionRoad": "位置由地址推估（同路段門牌內插）",
-  "popup.atlas.miCaution": "定檢站名冊不含當日營業狀態，前往前請先電話確認"
+  "popup.atlas.miCaution": "定檢站名冊不含當日營業狀態，前往前請先電話確認",
+  "popup.atlas.mbStyle": "樣式",
+  "popup.atlas.mbPickup": "收信時間",
+  "popup.atlas.mbPickupUnknown": "未載明",
+  "popup.atlas.mbFeatured": "特色郵筒",
+  "popup.atlas.mbServiceUnit": "服務單位"
 }

@@ -2403,5 +2403,10 @@
   "param.1955 計畫綠地": "1955 planned green belt",
   "param.一般公園（≥1 ha）": "Park (≥1 ha)",
   "param.河濱公園（≥1 ha）": "Riverside park (≥1 ha)",
-  "param.河濱穿堤入口": "Riverside levee entrance"
+  "param.河濱穿堤入口": "Riverside levee entrance",
+  "param.郵筒類別": "Mailbox type",
+  "param.普通郵筒": "Ordinary mail",
+  "param.限時郵筒": "Express mail",
+  "param.限時普通雙用": "Ordinary and express (dual-use)",
+  "param.同址兩筒（普通＋限時）": "Two boxes at one spot (ordinary + express)"
 }

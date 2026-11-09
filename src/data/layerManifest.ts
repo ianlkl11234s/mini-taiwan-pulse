@@ -155,7 +155,7 @@ import {
   // 🗳 政治 選舉活動（2026-11-02）
   Vote,
   // G53 批 1（2026-11-09）
-  Motorbike,
+  Mailbox, Motorbike,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -11932,6 +11932,15 @@ export const LAYER_MANIFEST = {
     legend: "postOfficeFxCounters", popup: "postOfficeFxCounters", params: { count: 2, kinds: ["slider", "slider"] },
     description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
+  },
+  postMailboxes: {
+    key: "postMailboxes", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" }, ...layerName({ zh: "郵筒", alt: "Mailboxes" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.postMailboxes, icon: Mailbox,
+    upstream: { status: "verified", datasets: [{ datasetId: "post_mailboxes", confidence: "HIGH" }], processing: "analytics civic_facilities/post_mailboxes 1150428：中華郵政郵筒（data.gov.tw 178399 主、7964 備援）6,033 筒 → 6,024 筒上圖（9 筒座標無效）；特色郵筒 52781 併入 featured_note", note: "service 欄 regular／express／dual／pair（同址兩筒）；信筒編號有 6 組重複。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "post-mailboxes", url: "./civic_facilities/post_mailboxes_1150428.pmtiles", sourceLayer: "post_mailboxes", minzoom: 4, maxzoom: 14 },
+    legend: "postMailboxes", popup: "postMailboxes", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "中華郵政全國郵筒 6,024 筒（普通、限時、雙用、同址兩筒），含收信時間與特色郵筒說明。",
+    topics: ["郵政", "郵筒", "中華郵政", "便民"],
   },
   motorcycleInspectionStations: {
     key: "motorcycleInspectionStations", country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" }, ...layerName({ zh: "機車排氣定檢站", alt: "Motorcycle Emission Inspection Stations" }), expandable: true,

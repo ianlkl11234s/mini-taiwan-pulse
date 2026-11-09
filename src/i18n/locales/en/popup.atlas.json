@@ -302,5 +302,10 @@
   "popup.atlas.w1944Caution": "Extracted by colour from the 1944 US Army topographic map; positions may be off by 5–15 m. Each 1944 polygon is split by today's river polygons buffered by 50 m into the part still a river and the part no longer a river",
   "popup.atlas.miPrecisionDoor": "Estimated from the address (house-number match)",
   "popup.atlas.miPrecisionRoad": "Estimated from the address (interpolated along the street)",
-  "popup.atlas.miCaution": "The register does not show whether a station is open today; call before you go"
+  "popup.atlas.miCaution": "The register does not show whether a station is open today; call before you go",
+  "popup.atlas.mbStyle": "Style",
+  "popup.atlas.mbPickup": "Collection times",
+  "popup.atlas.mbPickupUnknown": "Not stated",
+  "popup.atlas.mbFeatured": "Featured mailbox",
+  "popup.atlas.mbServiceUnit": "Service unit"
 }

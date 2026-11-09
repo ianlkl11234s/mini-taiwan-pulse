@@ -237,6 +237,13 @@
    "s3_key": "deploy-assets/civic_facilities/ibox_national.geojson"
   },
   {
+   "path": "public/civic_facilities/post_mailboxes_1150428.pmtiles",
+   "bytes": 4182266,
+   "sha256": "fb1970976a8b1b922d816cd8f6743b307b03ca41d6d5dd8c43086f4b7d76e821",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/civic_facilities/post_mailboxes_1150428.pmtiles"
+  },
+  {
    "path": "public/civic_facilities/post_offices_national.geojson",
    "bytes": 496891,
    "sha256": "ee8b89fc042fa891a0924f5d069dbed45591ad64eef8daecb9a1d6ffa1684770",

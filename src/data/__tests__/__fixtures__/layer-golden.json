@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1776,
+    "keyCount": 1777,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5621,6 +5621,13 @@
         "toxic-chemical-facilities-glow"
       ],
       "type": "toxicChemicalFacilities"
+    },
+    {
+      "layers": [
+        "post-mailboxes-circle",
+        "post-mailboxes-glow"
+      ],
+      "type": "postMailboxes"
     },
     {
       "layers": [
@@ -83877,6 +83884,218 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "postMailboxes",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "service"
+                ],
+                "regular",
+                "#16a34a",
+                "express",
+                "#dc2626",
+                "dual",
+                "#7c3aed",
+                "pair",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "post_mailboxes"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "post-mailboxes",
+      "sourceUrl": "./civic_facilities/post_mailboxes_1150428.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "motorcycleInspectionStations",
       "layers": [
         {
@@ -142859,6 +143078,54 @@
         "step": 0.1,
         "value": 0.3,
         "valueText": "0.3"
+      }
+    ],
+    "postMailboxes": [
+      {
+        "label": "郵筒類別",
+        "options": [
+          {
+            "label": "普通郵筒",
+            "value": "regular"
+          },
+          {
+            "label": "限時郵筒",
+            "value": "express"
+          },
+          {
+            "label": "限時普通雙用",
+            "value": "dual"
+          },
+          {
+            "label": "同址兩筒（普通＋限時）",
+            "value": "pair"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "regular",
+          "express",
+          "dual",
+          "pair"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "postOfficeFxCounters": [

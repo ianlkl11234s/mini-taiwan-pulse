@@ -302,5 +302,10 @@
   "popup.atlas.w1944Caution": "1944 年米軍地形図から色で抽出。位置は 5–15 m ずれる可能性があります。1944 年の各面を現在の河川面（50 m 拡張）で、現在も河道の部分と河道でない部分に分けています",
   "popup.atlas.miPrecisionDoor": "住所から推定（番地照合）",
   "popup.atlas.miPrecisionRoad": "住所から推定（同じ道路の番地から内挿）",
-  "popup.atlas.miCaution": "名簿には当日の営業状況が含まれません。訪問前に電話で確認してください"
+  "popup.atlas.miCaution": "名簿には当日の営業状況が含まれません。訪問前に電話で確認してください",
+  "popup.atlas.mbStyle": "形状",
+  "popup.atlas.mbPickup": "取集時刻",
+  "popup.atlas.mbPickupUnknown": "記載なし",
+  "popup.atlas.mbFeatured": "特色ポスト",
+  "popup.atlas.mbServiceUnit": "担当局"
 }

@@ -14,6 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
+  MAILBOX_SERVICE_OPTIONS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -82,6 +83,7 @@ const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
+  postMailboxes: () => <AtlasLegend layer="postMailboxes" en="Mailboxes" source={src("chunghwaPost", ["178399", "52781"])} domain="atlasMailboxService" rows={MAILBOX_SERVICE_OPTIONS} />,
   motorcycleInspectionStations: () => <AtlasLegend layer="motorcycleInspectionStations" en="Motorcycle Emission Inspection Stations" source={src("moenv", ["6352"])} rows={single("motorcycleInspectionStations", "legend.atlas.motorcycleInspectionStation")} />,
   indigenousTribes: () => <AtlasLegend layer="indigenousTribes" en="Indigenous Tribes" source={src("cip", ["156632", "7093"])} domain="atlasEthnic"
     rows={[...TRIBE_LEGEND_OPTIONS, { labelKey: "legend.atlas.otherMultiEthnic", color: ATLAS_OTHER_COLOR }, { labelKey: "legend.atlas.notApprovedList", color: TRIBE_NOT_APPROVED_COLOR }]} />,

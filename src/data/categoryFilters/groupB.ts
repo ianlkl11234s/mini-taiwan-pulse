@@ -1,6 +1,17 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 
 export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // G53 批 1（2026-11-09）：郵筒收件類別（值與 atlasLayerTypes MAILBOX_SERVICE_OPTIONS 同序）
+  postMailboxes: {
+    property: "service",
+    label: "郵筒類別",
+    options: [
+      { value: "regular", zh: "普通郵筒" },
+      { value: "express", zh: "限時郵筒" },
+      { value: "dual", zh: "限時普通雙用" },
+      { value: "pair", zh: "同址兩筒（普通＋限時）" },
+    ],
+  },
   forestReserve: {
     property: "種類",
     label: "保安林種類",

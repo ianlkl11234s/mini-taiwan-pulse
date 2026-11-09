@@ -948,6 +948,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["water-1944-taipei-fill", "water-1944-taipei-outline"], type: "water1944Taipei" },
   { layers: ["water-recreation-restricted-areas-fill", "water-recreation-restricted-areas-outline"], type: "waterRecreationRestrictedAreas" },
   { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
+  { layers: ["post-mailboxes-circle", "post-mailboxes-glow"], type: "postMailboxes" },
   { layers: ["motorcycle-inspection-stations-circle", "motorcycle-inspection-stations-glow"], type: "motorcycleInspectionStations" },
   { layers: ["major-occupational-accidents-circle", "major-occupational-accidents-glow"], type: "majorOccupationalAccidents" },
   { layers: ["renewable-permits-national-circle", "renewable-permits-national-glow"], type: "renewablePermitsNational" },

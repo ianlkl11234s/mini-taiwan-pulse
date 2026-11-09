@@ -82,4 +82,5 @@ export const ATLAS_LAYER_COLORS = {
   postOfficeFxCounters: "#c2410c",
   // 台灣圖層待辦池第一批 G53 批 1（2026-11-09）
   motorcycleInspectionStations: "#a16207",
+  postMailboxes: "#16a34a",
 } as const;

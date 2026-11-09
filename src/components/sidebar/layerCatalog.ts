@@ -986,6 +986,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("postOffices"),
           fromManifest("iPostBoxes"),
+          fromManifest("postMailboxes"),
           fromManifest("govServiceOffices"),
           fromManifest("communityCenters"),
           fromManifest("convenienceStores"),

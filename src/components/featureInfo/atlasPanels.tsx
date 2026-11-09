@@ -16,6 +16,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { ToxicPermitsBlock } from "./pollutionPanels";
@@ -957,6 +958,24 @@ function SecuritiesFuturesPanel({ props }: Props) {
 }
 
 // G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
+function PostMailboxPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(MAILBOX_SERVICE_OPTIONS, props.service);
+  return <>
+    <Title color={color}>{str(props.category) || enumOf("atlasMailboxService", props.service, optionLabel(MAILBOX_SERVICE_OPTIONS, props.service), i18n)}</Title>
+    <Row field="type" value={enumOf("atlasMailboxService", props.service, optionLabel(MAILBOX_SERVICE_OPTIONS, props.service), i18n)} color={color} />
+    <Row label={t("popup.atlas.mbStyle")} value={str(props.style)} />
+    <Row field="address" value={str(props.road)} />
+    <Row field="location" value={str(props.location_desc)} />
+    <Row label={t("popup.atlas.mbPickup")} value={str(props.pickup_times) || t("popup.atlas.mbPickupUnknown")} />
+    <Row label={t("popup.atlas.mbFeatured")} value={str(props.featured_note)} />
+    <Row label={t("popup.atlas.mbServiceUnit")} value={str(props.service_unit)} />
+    <Row field="phone" value={str(props.phone)} mono />
+    <Row field="countyDistrict" value={admin(props, i18n)} />
+  </>;
+}
+
 function MotorcycleInspectionPanel({ props }: Props) {
   const { t } = useLocale();
   const theme = useFeatureTheme();
@@ -1165,6 +1184,7 @@ function BatterySwapPanel({ props }: Props) {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  postMailboxes: PostMailboxPanel,
   motorcycleInspectionStations: MotorcycleInspectionPanel,
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
@@ -1235,6 +1255,7 @@ function manifestZh(key: AtlasLayerKey): string {
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
+  postMailboxes: manifestZh("postMailboxes"),
   motorcycleInspectionStations: manifestZh("motorcycleInspectionStations"),
   indigenousTribes: "原住民族部落",
   indigenousIsolationRisk: "原鄉易成孤島地區",

@@ -548,7 +548,17 @@ export const CULTURAL_HEALTH_PRECISION_LABELS: Readonly<Record<string, string>> 
 
 // ── 圖例／popup 共用說明 ────────────────────────────────────────────────
 
+// ── 台灣圖層待辦池第一批 G53 批 1（2026-11-09）──────────────────────────
+/** 郵筒收件類別（上游 service；英日文 enum.atlasMailboxService.*）：沿用郵筒實物色，普通綠、限時紅。 */
+export const MAILBOX_SERVICE_OPTIONS: readonly AtlasOption[] = [
+  { value: "regular", label: "普通郵筒", color: "#16a34a" },
+  { value: "express", label: "限時郵筒", color: "#dc2626" },
+  { value: "dual", label: "限時普通雙用", color: "#7c3aed" },
+  { value: "pair", label: "同址兩筒（普通＋限時）", color: "#ca8a04" },
+];
+
 export const ATLAS_NOTES = {
+  postMailboxes: "中華郵政郵筒 6,024 筒（data.gov.tw 178399，2026-04-28 版；來源 6,033 筒，9 筒座標無效未上圖）。特色郵筒說明取自 52781（59 筒中 57 筒對到）。收信時間空白表示來源未載明，不代表不收信。",
   motorcycleInspectionStations: "環境部機車排氣定期檢驗站名冊 3,934 站（MOENV API mpi_s_01，2026-11-09 抓取），地圖上 3,893 站（99.0%）：3,305 站用來源經緯度；來源沒有座標的 629 站以本機離線地址比對補到 588 站（464 站門牌、124 站路段內插，點開可看），41 站無法定位未上圖。當日營業狀態不收；手機號碼不顯示。縣市到檢率見「機車定檢到檢率」統計。",
   indigenousTribes: "原民會部落位置點表（2022-07）× 現行核定部落（2026-09）；灰點＝不在現行核定名單。另有 13 個現行核定部落沒有點位，未上圖。",
   indigenousIsolationRisk: "點是地區代表中心點，不是範圍；3 筆來源無座標，以村里代表點代替。",
