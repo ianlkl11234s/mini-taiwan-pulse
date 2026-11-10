@@ -2353,3 +2353,23 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `docs/PROJECTS.md`：南韓、英國、Agent 分析、多國化議題 1 列更新。
 - 設計稿 https://claude.ai/artifact/3HbEoZF2C5Huw4xgwCKsR5（截圖在 `.gis-agent-system/projects/2026-11-multi-country-night/shots/kr-design/`）。
 
+
+## 2026-11-09～10 台灣圖層待辦池批 2＋3、倉庫版本保留
+
+### What happened
+
+- 跨夜做完 G53 批 2＋3：10 項 11 層（mini #982、analytics #341／#342、pulse-data #95），隔天隨其他 session 發的 v2.35.0 上線；P01／P13／P14 只部分上圖，代決項使用者 11-10 確認 OK（#1000）。
+- 倉庫版本保留：使用者 11-09 說「只要都留一個版本就好」，我解讀成「R2 一版、舊版全搬 S3」，搬了 5 版才被追問更正。最後定為 R2 1 版＋S3 latest／上一版 2 版（pulse-data #102），提早刪除經使用者同意，共刪約 98 GB。
+- analytics 主 checkout 落後 399、有 5 個未推 commit：備份分支＋cherry-pick 成 #356，再 `reset --keep`；75 個上游已追蹤的未追蹤檔備份到 `_worktree-backups/2026-11-10/` 後移垃圾桶。
+
+### Lessons
+
+- 一句話的保留／刪除政策，動手前逐個儲存位置列「各留幾版、這次刪多少 GB」請使用者確認；「都」有兩種解讀時兩種都列。
+- R2 sync dry-run 若列出別的 session 的檔，先 curl 確認是「缺檔新增」而非覆寫再執行；CI assets 在 R2 補齊前跑會紅，補完只 rerun failed。
+- upstream 先動：pulse-data registry 合併後才合 mini；registry 撞 `_warehouse_core.yaml` 時取 main 版再重發本批。
+- 倉庫 24h 保護期從 latest 最後一次切換起算，別的 session 上傳會順延；提早刪只影響舊 MCP 程序，`/mcp` 重連即可。
+- 跨夜後的總表與回報都要用中文（這輪 context 接續後又寫成英文，使用者要求「講中文」）。
+
+### Memory output
+
+- `BACKLOG.md` TWL-17（#984、#1000）；G53 表與計畫書（gis-agent-system #60）；pulse-data `docs/storage-policy.md`（#98、#102）。
