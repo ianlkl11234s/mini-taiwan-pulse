@@ -16,6 +16,7 @@ import { BASEMAP_LAND } from "./mapStyleScale";
 import { compositeOver, contrastRatio, deltaE, fromOklch, normalizeColor, oklch, parseColor, toHex, type Rgb } from "./colorContrast";
 import { isDecorativeSuffix } from "./decorativeSuffix";
 import { DECORATION_SUFFIX_RE } from "./pointSpec";
+import { buildDefaultParams, encodeParamsToOverlay } from "../state/layerParamsStore";
 
 /** min：對比下限；target：提亮目標（留捨入餘裕）；categoryDeltaE：同層類別提亮後彼此至少的 ΔE（OKLab×100）；rampDeltaE：連續色階壓縮後相鄰兩級至少的 ΔE。 */
 export const DARK_CONTRAST = { min: 3, target: 3.15, categoryDeltaE: 8, rampDeltaE: 6 } as const;
@@ -30,6 +31,7 @@ const LIGHT_LAND = parseColor(BASEMAP_LAND.light)!.rgb;
 export const LIGHT_KEEP: Readonly<Record<string, string>> = {
   gasStationFpcc: "台塑石化品牌藍",
   gasStationCpc: "中油品牌綠",
+  electionEvents2026: "選舉陣營色（政黨色淡底不動）",
 };
 
 /**
@@ -44,6 +46,10 @@ export const RAMP_FLOOR_FIRST: Readonly<Record<string, string>> = {
 export const DARK_LIFT_EXEMPT: Readonly<Record<string, string>> = {};
 
 type Paint = Record<string, unknown>;
+
+/** 規格預設參數（overlay 編碼）；提亮基準與圖例對照都用它，不吃使用者當下的滑桿值。第一次用到才算（避免模組載入順序問題）。 */
+let defaultParams: Record<string, number> | null = null;
+const defaultOverlayParams = (): Record<string, number> => (defaultParams ??= encodeParamsToOverlay(buildDefaultParams()));
 
 /** 子圖層透明度：數字；表達式取輸出位置 0–1 的最大值（同對比契約）。 */
 export function maxOpacityOf(expr: unknown): number {
@@ -65,6 +71,10 @@ export function maxOpacityOf(expr: unknown): number {
 }
 
 const contrastOn = (rgb: Rgb, land: Rgb, alpha: number) => contrastRatio(compositeOver(rgb, land, alpha), land);
+
+/** 這個透明度下連白色都到不了目標對比：提亮只會把所有顏色推成白、抹掉類別差異（K-2 不自動減色），維持原色。 */
+const WHITE: Rgb = [1, 1, 1];
+export const darkTargetUnreachable = (alpha: number): boolean => contrastOn(WHITE, DARK_LAND, alpha) < DARK_CONTRAST.target;
 
 const isColorLiteral = (value: unknown): value is string =>
   typeof value === "string" && (value.startsWith("#") || value.startsWith("rgb")) && parseColor(value) !== null;
@@ -93,7 +103,7 @@ export function liftForDark(color: string, alpha: number): string {
   const parsed = parseColor(color);
   if (!parsed) return color;
   const a = alpha * parsed.alpha;
-  if (a <= 0 || contrastOn(parsed.rgb, DARK_LAND, a) >= DARK_CONTRAST.min) return color;
+  if (a <= 0 || contrastOn(parsed.rgb, DARK_LAND, a) >= DARK_CONTRAST.min || darkTargetUnreachable(a)) return color;
   const [, C, h] = oklch(parsed.rgb);
   return format(fromOklch(floorLightness(parsed.rgb, a), C, h), parsed.alpha);
 }
@@ -107,7 +117,7 @@ export function liftRampForDark(colors: readonly string[], alpha: number, floorF
   const parsed = colors.map((c) => parseColor(c));
   if (parsed.some((p) => !p)) return colors.map((c) => liftForDark(c, alpha));
   const ok = parsed.every((p) => contrastOn(p!.rgb, DARK_LAND, alpha * p!.alpha) >= DARK_CONTRAST.min);
-  if (ok) return [...colors];
+  if (ok || parsed.some((p) => darkTargetUnreachable(alpha * p!.alpha))) return [...colors];
   const lch = parsed.map((p) => oklch(p!.rgb));
   if (floorFirst) {
     // 級數多：整段亮度線性壓縮進 [最高下限, 原最亮]，級距平均縮小、每級都到下限
@@ -253,10 +263,10 @@ interface LiftInfo { map: Map<string, string>; mode: LiftMode }
 const LIFT_INFO = new Map<string, () => LiftInfo>();
 const LIFT_CACHE = new Map<string, LiftInfo>();
 
-function liftDark(base: Paint, type: string, floorFirst = false): Paint {
-  const [cProp, oProp] = COLOR_PROP[type]!;
+/** alpha：求提亮用的透明度；省略時取 base 的透明度。地圖固定傳子圖層暗底預設透明度（拖滑桿只淡化、不改色，與圖例對照一致）。 */
+function liftDark(base: Paint, type: string, floorFirst = false, alpha: number = maxOpacityOf(base[COLOR_PROP[type]![1]])): Paint {
+  const [cProp] = COLOR_PROP[type]!;
   if (!(cProp in base)) return base;
-  const alpha = maxOpacityOf(base[oProp]);
   const lifted = mapColorExpr(base[cProp], (c) => liftForDark(c, alpha), (cs) => liftRampForDark(cs, alpha, floorFirst), (cs) => liftCategoricalForDark(cs, alpha));
   return lifted === base[cProp] ? base : { ...base, [cProp]: lifted };
 }
@@ -281,7 +291,7 @@ function computeInfo(config: OverlayConfig, originals: Array<[OverlayLayerSpec, 
     const [cProp, oProp] = COLOR_PROP[layer.type]!;
     let dark: Paint;
     let light: Paint;
-    try { dark = paint(true); light = paint(false); } catch { continue; }
+    try { dark = paint(true, defaultOverlayParams()); light = paint(false, defaultOverlayParams()); } catch { continue; }
     const before = dark[cProp];
     const after = liftDark(dark, layer.type, config.id in RAMP_FLOOR_FIRST)[cProp];
     const local = new Map<string, string>();
@@ -337,11 +347,19 @@ export function withDarkContrast(config: OverlayConfig): OverlayConfig {
   const layers = config.layers.map((layer): OverlayLayerSpec => {
     if (!targets(config, layer)) return layer;
     const paint = layer.paint;
+    // 暗底預設透明度（與 computeInfo 的圖例對照同一基準）；只算一次
+    let defaultAlpha: number | null | undefined;
+    const darkDefaultAlpha = (): number | null => {
+      if (defaultAlpha === undefined) {
+        try { defaultAlpha = maxOpacityOf(paint(true, defaultOverlayParams())[COLOR_PROP[layer.type]![1]]); } catch { defaultAlpha = null; }
+      }
+      return defaultAlpha;
+    };
     return {
       ...layer,
       paint: (isDark, params) => {
         const base = paint(isDark, params);
-        if (isDark) return liftDark(base, layer.type, id in RAMP_FLOOR_FIRST);
+        if (isDark) return liftDark(base, layer.type, id in RAMP_FLOOR_FIRST, darkDefaultAlpha() ?? undefined);
         const info = infoOf(id);
         return info?.mode === "shared" ? applyMap(base, layer.type, info.map) : base;
       },

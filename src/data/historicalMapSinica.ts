@@ -76,7 +76,7 @@ export const HISTORICAL_MAP_GROUPS: readonly HistoricalMapGroup[] = [
     name: { zh: "戰後地形圖（1950–2003）", en: "Postwar Topographic Maps (1950–2003)", ja: "戦後地形図（1950〜2003）" },
     eras: [
     { value: "tm25k-1950", layer: "TM25K_1950", ext: "png", label: { zh: "1950 二萬五千分一臺灣地形圖", en: "1950 Taiwan topographic map 1:25,000", ja: "1950 台湾2万5千分1地形図" }, bounds: [119.2499087, 21.8333067, 122.1250768, 25.666769] },
-    { value: "tm100k-1953", layer: "TM100K_1953", ext: "png", label: { zh: "1953 十萬分一臺灣地形圖", en: "1953 Taiwan topographic map 1:100,000", ja: "1953 台湾10万分1地形図" }, bounds: [119.1678814, 21.8826745, 122.0851541, 25.3075065] },
+    { value: "tm100k-1953", layer: "TM100K_1953", ext: "png", label: { zh: "1953 十萬分一臺灣省交通圖", en: "1953 Taiwan Province transportation map 1:100,000", ja: "1953 台湾省10万分1交通図" }, bounds: [119.1678814, 21.8826745, 122.0851541, 25.3075065] },
     { value: "tm50k-1954", layer: "TM50K_1954", ext: "png", label: { zh: "1954 五萬分一臺灣地形圖", en: "1954 Taiwan topographic map 1:50,000", ja: "1954 台湾5万分1地形図" }, bounds: [119.2998126, 21.8335493, 122.1668521, 25.5833777] },
     { value: "tm25k-1955", layer: "TM25K_1955", ext: "png", label: { zh: "1955 二萬五千分一臺灣地形圖", en: "1955 Taiwan topographic map 1:25,000", ja: "1955 台湾2万5千分1地形図" }, bounds: [119.2630987, 21.8184722, 122.1582605, 25.6655868] },
     { value: "tm50k-1956", layer: "TM50K_1956", ext: "jpg", label: { zh: "1956 五萬分一臺灣地形圖", en: "1956 Taiwan topographic map 1:50,000", ja: "1956 台湾5万分1地形図" } },
@@ -89,7 +89,7 @@ export const HISTORICAL_MAP_GROUPS: readonly HistoricalMapGroup[] = [
     { value: "tm250k-1973", layer: "TM250K_1973", ext: "png", label: { zh: "1973 二十五萬分一臺灣地圖", en: "1973 Taiwan map 1:250,000", ja: "1973 台湾25万分1図" }, bounds: [118.91549766, 21.85982524, 122.55531142, 25.98629048] },
     { value: "tm10k-1974", layer: "TM10K_1974", ext: "png", label: { zh: "1974 一萬分一臺灣地形圖", en: "1974 Taiwan topographic map 1:10,000", ja: "1974 台湾1万分1地形図" }, scope: { zh: "北部", en: "Northern Taiwan", ja: "北部" }, bounds: [121.0590422, 24.7941643, 121.5076214, 25.1503655] },
     { value: "tm500k-1978", layer: "TM500K_1978", ext: "png", label: { zh: "1978 五十萬分一臺灣地圖", en: "1978 Taiwan map 1:500,000", ja: "1978 台湾50万分1図" }, bounds: [119.259226122, 21.7654808322, 122.089344603, 25.3881445076] },
-    { value: "tm100k-1984", layer: "TM100K_1984", ext: "png", label: { zh: "1984 十萬分一臺灣地形圖", en: "1984 Taiwan topographic map 1:100,000", ja: "1984 台湾10万分1地形図" }, bounds: [119.2538476, 21.8256457, 122.1152616, 25.3044774] },
+    { value: "tm100k-1984", layer: "TM100K_1984", ext: "png", label: { zh: "1984 十萬分一臺灣省交通圖", en: "1984 Taiwan Province transportation map 1:100,000", ja: "1984 台湾省10万分1交通図" }, bounds: [119.2538476, 21.8256457, 122.1152616, 25.3044774] },
     { value: "tm100k-1987", layer: "TM100K_1987", ext: "png", label: { zh: "1987 十萬分一臺灣地形圖", en: "1987 Taiwan topographic map 1:100,000", ja: "1987 台湾10万分1地形図" } },
     { value: "tm250k-1988", layer: "TM250K_1988", ext: "png", label: { zh: "1988 二十五萬分一臺灣地圖", en: "1988 Taiwan map 1:250,000", ja: "1988 台湾25万分1図" }, bounds: [119.3722152, 21.8384253, 122.0618345, 25.335036] },
     { value: "tm25k-1989", layer: "TM25K_1989", ext: "jpg", label: { zh: "1989 二萬五千分一臺灣地形圖", en: "1989 Taiwan topographic map 1:25,000", ja: "1989 台湾2万5千分1地形図" } },
