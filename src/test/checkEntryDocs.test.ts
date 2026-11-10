@@ -111,12 +111,13 @@ describe("checkEntryDocs", () => {
       "| 2026-11-08 | 待確認不算 〔待確認〕 | Claude | OPEN-1 |",
       "| ~2026-11-09～12 | 範圍 | Claude | OPEN-1 |",
       "| 2026-11 前 | 月份 | Claude | OPEN-1 |",
+      "| 2026-11-20（原 2026-11-09） | 改期 | Claude | OPEN-1 |",
       "| 持續留意 | 無日期 | 使用者 | — |",
     ].join("\n");
     const ps = projectProblems("| a | 🟡 | — | — | — | — | — |", dl, "2026-11-10");
     expect(ps.filter((p) => p.rule === "deadline")).toHaveLength(2);
     const later = projectProblems("| a | 🟡 | — | — | — | — | — |", dl, "2026-12-01").filter((p) => p.rule === "deadline");
-    expect(later).toHaveLength(4);
+    expect(later).toHaveLength(5);
   });
 
   it("行內豁免要寫理由；有理由就略過該規則", () => {

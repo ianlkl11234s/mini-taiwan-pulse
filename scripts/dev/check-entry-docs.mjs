@@ -139,7 +139,8 @@ export function parseBacklog(text) {
 function parseDeadline(cell) {
   const dates = [...cell.matchAll(/(\d{4})-(\d{2})(?:-(\d{2}))?(?:\s*～\s*(\d{1,2}))?/g)];
   if (!dates.length) return null;
-  const d = dates[dates.length - 1];
+  // 取第一個日期：改期寫成「2026-11-20（原 2026-11-09）」時新日期在前
+  const d = dates[0];
   const [, y, mo, day, rangeEnd] = d;
   if (rangeEnd) return `${y}-${mo}-${rangeEnd.padStart(2, "0")}`;
   if (day) return `${y}-${mo}-${day}`;
