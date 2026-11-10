@@ -30,7 +30,7 @@ import {
   type MapchallengeDay08Scenario, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
 import {
-  MAPCHALLENGE_DAY09_DENSITY_COLORS, MAPCHALLENGE_DAY09_DENSITY_RANGES, MAPCHALLENGE_DAY09_RATIO_COLORS, MAPCHALLENGE_DAY09_ZERO_COLOR,
+  mapchallengeDay09DensityColors, MAPCHALLENGE_DAY09_DENSITY_RANGES, mapchallengeDay09RatioColors, MAPCHALLENGE_DAY09_ZERO_COLOR,
   mapchallengeDay09Facility, mapchallengeDay09MetricByKey, type MapchallengeDay09Metric,
 } from "../../data/mapchallengeDay09Types";
 
@@ -405,7 +405,7 @@ export function MapchallengeDay09UrbanRuralLegend() {
     return <div>
       <LegendTitle zh={t(MAPCHALLENGE_DAY09_METRIC_KEYS.density)} />
       <LegendNote>{t("legend.mapchallenge.day09.densityUnit")}</LegendNote>
-      {[4, 3, 2, 1, 0].map((q) => <LegendRow key={q} swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_DENSITY_COLORS[q]!} stroke={theme.seam} />}>
+      {[4, 3, 2, 1, 0].map((q) => <LegendRow key={q} swatch={<SwatchSquare color={mapchallengeDay09DensityColors(theme.isDark)[q]!} stroke={theme.seam} />}>
         {t(MAPCHALLENGE_DAY09_QUINTILE_KEYS[q]!)} <LegendNum>{MAPCHALLENGE_DAY09_DENSITY_RANGES[q]}</LegendNum>
       </LegendRow>)}
       <LegendNote>{t("legend.mapchallenge.day09.groupNote")}</LegendNote>
@@ -416,7 +416,7 @@ export function MapchallengeDay09UrbanRuralLegend() {
   return <div>
     <LegendTitle zh={t(MAPCHALLENGE_DAY09_METRIC_KEYS[metric])} />
     <LegendNote>{t("legend.mapchallenge.day09.ratioSub", { n: f.national.toFixed(2) })}</LegendNote>
-    {[6, 5, 4, 3, 2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_RATIO_COLORS[i]!} stroke={theme.seam} />}>
+    {[6, 5, 4, 3, 2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchSquare color={mapchallengeDay09RatioColors(theme.isDark)[i]!} stroke={theme.seam} />}>
       {t(MAPCHALLENGE_DAY09_BIN_KEYS[i]!)}
     </LegendRow>)}
     <LegendRow swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_ZERO_COLOR} stroke={theme.seam} />}>{t("legend.mapchallenge.day09.zero")}</LegendRow>

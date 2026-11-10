@@ -24,6 +24,14 @@ export const MAPCHALLENGE_DAY09_DENSITY_RANGES = ["4–133", "137–387", "387�
 /** 設施 log2 比值切點與 7 色（低 → 高） */
 export const MAPCHALLENGE_DAY09_RATIO_CUTS = [-2, -1, -0.33, 0.33, 1, 2] as const;
 export const MAPCHALLENGE_DAY09_RATIO_COLORS = ["#1d2a3a", "#22476b", "#286f8f", "#3b9c99", "#71c387", "#bddf6a", "#f7f38a"] as const;
+/**
+ * 暗底版（2026-11-10 使用者同意重開「維持 0.55」）：最低兩、三階原本是深藍黑，疊在暗陸上等於底圖；
+ * 改成同色相、較亮的靛藍，仍是「越亮越多」，相鄰級 ΔE ≥ 8。上面三階（綠→黃）不變。淡底維持原色。
+ */
+export const MAPCHALLENGE_DAY09_RATIO_COLORS_DARK = ["#4a4f9c", "#3f6cb3", "#3290b8", "#45aea6", "#78c88a", "#bddf6a", "#f7f38a"] as const;
+export const MAPCHALLENGE_DAY09_DENSITY_COLORS_DARK = ["#4a4f9c", "#3f78b0", "#5fa3b8", "#a8d5cf", "#f1f5e8"] as const;
+export const mapchallengeDay09RatioColors = (isDark: boolean) => (isDark ? MAPCHALLENGE_DAY09_RATIO_COLORS_DARK : MAPCHALLENGE_DAY09_RATIO_COLORS);
+export const mapchallengeDay09DensityColors = (isDark: boolean) => (isDark ? MAPCHALLENGE_DAY09_DENSITY_COLORS_DARK : MAPCHALLENGE_DAY09_DENSITY_COLORS);
 /** 計數 0：中性灰（和最低階深藍黑分得開） */
 export const MAPCHALLENGE_DAY09_ZERO_COLOR = "#6b7280";
 
@@ -76,26 +84,27 @@ export function mapchallengeDay09Facility(key: MapchallengeDay09FacilityKey): Ma
   return MAPCHALLENGE_DAY09_FACILITIES.find((f) => f.key === key)!;
 }
 
-export function mapchallengeDay09DensityColorExpr(): unknown[] {
-  const c = MAPCHALLENGE_DAY09_DENSITY_COLORS;
+export function mapchallengeDay09DensityColorExpr(isDark = false): unknown[] {
+  const c = mapchallengeDay09DensityColors(isDark);
   return ["match", ["to-number", ["get", "q"], 0], 0, c[0], 1, c[1], 2, c[2], 3, c[3], c[4]];
 }
 
-export function mapchallengeDay09RatioColorExpr(key: MapchallengeDay09FacilityKey): unknown[] {
-  const step: unknown[] = ["step", ["to-number", ["get", `r_${key}`], 0], MAPCHALLENGE_DAY09_RATIO_COLORS[0]];
-  MAPCHALLENGE_DAY09_RATIO_CUTS.forEach((cut, i) => step.push(cut, MAPCHALLENGE_DAY09_RATIO_COLORS[i + 1]));
+export function mapchallengeDay09RatioColorExpr(key: MapchallengeDay09FacilityKey, isDark = false): unknown[] {
+  const colors = mapchallengeDay09RatioColors(isDark);
+  const step: unknown[] = ["step", ["to-number", ["get", `r_${key}`], 0], colors[0]];
+  MAPCHALLENGE_DAY09_RATIO_CUTS.forEach((cut, i) => step.push(cut, colors[i + 1]));
   return ["case", ["<=", ["to-number", ["get", `c_${key}`], 0], 0], MAPCHALLENGE_DAY09_ZERO_COLOR, step];
 }
 
-export function mapchallengeDay09ColorExpr(metric: MapchallengeDay09Metric): unknown[] {
-  return metric === "density" ? mapchallengeDay09DensityColorExpr() : mapchallengeDay09RatioColorExpr(metric);
+export function mapchallengeDay09ColorExpr(metric: MapchallengeDay09Metric, isDark = false): unknown[] {
+  return metric === "density" ? mapchallengeDay09DensityColorExpr(isDark) : mapchallengeDay09RatioColorExpr(metric, isDark);
 }
 
 /** 說明框標題色點：依目前指標算單一鄉鎮的顏色 */
-export function mapchallengeDay09FeatureColor(metric: MapchallengeDay09Metric, props: Record<string, unknown>): string {
-  if (metric === "density") return MAPCHALLENGE_DAY09_DENSITY_COLORS[Math.min(4, Math.max(0, Number(props.q) || 0))]!;
+export function mapchallengeDay09FeatureColor(metric: MapchallengeDay09Metric, props: Record<string, unknown>, isDark = false): string {
+  if (metric === "density") return mapchallengeDay09DensityColors(isDark)[Math.min(4, Math.max(0, Number(props.q) || 0))]!;
   if (!(Number(props[`c_${metric}`]) > 0)) return MAPCHALLENGE_DAY09_ZERO_COLOR;
   const r = Number(props[`r_${metric}`]);
   const i = MAPCHALLENGE_DAY09_RATIO_CUTS.filter((cut) => r >= cut).length;
-  return MAPCHALLENGE_DAY09_RATIO_COLORS[i]!;
+  return mapchallengeDay09RatioColors(isDark)[i]!;
 }

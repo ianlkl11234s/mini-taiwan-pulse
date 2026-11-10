@@ -11,441 +11,69 @@
   "darkLand": "#292828"
  },
  "violations": {
-  "a1AccidentRealtime": {
-   "contrast": 2.85,
-   "type": "circle"
-  },
-  "agriProduceWholesale": {
-   "contrast": 1.74,
-   "type": "circle"
-  },
-  "agriRetail": {
-   "contrast": 2.38,
-   "type": "circle"
-  },
-  "antivenomHospitals": {
-   "contrast": 2.81,
-   "type": "circle"
-  },
-  "aquacultureCageNet": {
-   "contrast": 2.56,
-   "type": "circle"
-  },
-  "atmSitesFisc": {
-   "contrast": 2.97,
-   "type": "circle"
-  },
   "aviationNoiseZones": {
-   "contrast": 1.21,
-   "type": "fill"
-  },
-  "buildingsGba": {
-   "contrast": 2.92,
-   "type": "fill"
-  },
-  "busStationsIntercity": {
-   "contrast": 2.28,
-   "type": "circle"
-  },
-  "cemeteryOsm": {
-   "contrast": 2.43,
-   "type": "line"
-  },
-  "cemsStackLive": {
-   "contrast": 2.77,
-   "type": "circle"
-  },
-  "civilDefenseShelter": {
-   "contrast": 2.34,
-   "type": "circle"
-  },
-  "coastGuardStation": {
-   "contrast": 2.96,
-   "type": "circle"
-  },
-  "companyIndustryDistribution": {
-   "contrast": 2.89,
-   "type": "fill"
-  },
-  "contour25k": {
    "contrast": 1.5,
-   "type": "line"
-  },
-  "contourDtm20": {
-   "contrast": 1.9,
-   "type": "line"
-  },
-  "correctionalFacility": {
-   "contrast": 1.85,
-   "type": "circle"
-  },
-  "court": {
-   "contrast": 2.32,
-   "type": "circle"
-  },
-  "culturalHealthStations": {
-   "contrast": 2.53,
-   "type": "circle"
-  },
-  "cultureCoinVenues": {
-   "contrast": 2.37,
-   "type": "circle"
-  },
-  "drinkingWaterProtectionZones": {
-   "contrast": 2.62,
-   "type": "circle"
-  },
-  "eduAfterschoolCare": {
-   "contrast": 2.69,
-   "type": "circle"
-  },
-  "eduCampusArea": {
-   "contrast": 2.84,
    "type": "fill"
-  },
-  "eduDistrictSenior": {
-   "contrast": 1.97,
-   "type": "line"
-  },
-  "eduSchoolUniversity": {
-   "contrast": 2.56,
-   "type": "circle"
-  },
-  "eduUniversityStudents": {
-   "contrast": 2.45,
-   "type": "circle"
-  },
-  "evIsland": {
-   "contrast": 2.98,
-   "type": "line"
-  },
-  "facHistorical": {
-   "contrast": 1.4,
-   "type": "circle"
-  },
-  "factoryLocations": {
-   "contrast": 2.8,
-   "type": "circle"
-  },
-  "fireHydrants": {
-   "contrast": 2.8,
-   "type": "circle"
-  },
-  "floodDisasterPointsNcdr": {
-   "contrast": 2.77,
-   "type": "circle"
-  },
-  "forestAlishanRail": {
-   "contrast": 1.91,
-   "type": "circle"
-  },
-  "forestCompartments": {
-   "contrast": 2.34,
-   "type": "circle"
-  },
-  "forestRoads": {
-   "contrast": 2.53,
-   "type": "line"
-  },
-  "forestWildlife": {
-   "contrast": 2.86,
-   "type": "circle"
-  },
-  "freewayHundredMeterStakes": {
-   "contrast": 2.78,
-   "type": "circle"
-  },
-  "freewayInterchanges": {
-   "contrast": 2.25,
-   "type": "circle"
-  },
-  "gasStationCpc": {
-   "contrast": 2.54,
-   "type": "circle"
-  },
-  "gasStationFpcc": {
-   "contrast": 1.53,
-   "type": "circle"
-  },
-  "hakkaCulturalZones": {
-   "contrast": 2.39,
-   "type": "circle"
-  },
-  "harmReductionAftercare": {
-   "contrast": 1.81,
-   "type": "circle"
-  },
-  "harmReductionAlcohol": {
-   "contrast": 2.47,
-   "type": "circle"
-  },
-  "harmReductionPrep": {
-   "contrast": 2.58,
-   "type": "circle"
-  },
-  "harmReductionTherapeuticCommunities": {
-   "contrast": 2.62,
-   "type": "circle"
-  },
-  "highwayDisasterHistory": {
-   "contrast": 2.13,
-   "type": "circle"
-  },
-  "highways": {
-   "contrast": 2.78,
-   "type": "line"
-  },
-  "indigenousIsolationRisk": {
-   "contrast": 2.53,
-   "type": "circle"
-  },
-  "indigenousLanguageDialects": {
-   "contrast": 2.57,
-   "type": "circle"
-  },
-  "indigenousRegions": {
-   "contrast": 2.47,
-   "type": "circle"
-  },
-  "indigenousTribes": {
-   "contrast": 2.62,
-   "type": "circle"
   },
   "industrialPowerPlant": {
-   "contrast": 1.58,
+   "contrast": 2,
    "type": "fill"
   },
   "industrialRefinery": {
-   "contrast": 1.76,
+   "contrast": 2.31,
    "type": "fill"
   },
   "industrialStorageTank": {
-   "contrast": 1.88,
+   "contrast": 2.53,
    "type": "fill"
-  },
-  "insuranceInstitutions": {
-   "contrast": 2.99,
-   "type": "circle"
-  },
-  "investigationBureau": {
-   "contrast": 1.93,
-   "type": "circle"
-  },
-  "isobath": {
-   "contrast": 2.03,
-   "type": "line"
-  },
-  "jpAccommodationDensity": {
-   "contrast": 2.59,
-   "type": "fill"
-  },
-  "jpTrafficAccidents2025": {
-   "contrast": 2.75,
-   "type": "circle"
-  },
-  "landslideAnnual": {
-   "contrast": 1.5,
-   "type": "circle"
-  },
-  "landslideEventCatalog": {
-   "contrast": 2.47,
-   "type": "circle"
-  },
-  "livestockFeed": {
-   "contrast": 1.89,
-   "type": "circle"
-  },
-  "majorOccupationalAccidents": {
-   "contrast": 2.72,
-   "type": "circle"
   },
   "mapchallengeDay04Overlap": {
-   "contrast": 2.6,
+   "contrast": 2.99,
    "type": "fill"
   },
   "mapchallengeDay04ScaleTcCh": {
-   "contrast": 2.6,
+   "contrast": 2.99,
    "type": "fill"
-  },
-  "mapchallengeDay05SeaView": {
-   "contrast": 1.91,
-   "type": "line"
   },
   "mapchallengeDay06Taipei1932": {
-   "contrast": 1.5,
-   "type": "fill"
-  },
-  "mapchallengeDay08Access": {
-   "contrast": 2.37,
+   "contrast": 1.82,
    "type": "fill"
   },
   "mapchallengeDay08Sites": {
-   "contrast": 1.57,
+   "contrast": 1.98,
    "type": "fill"
-  },
-  "mapchallengeDay09UrbanRural": {
-   "contrast": 2.08,
-   "type": "fill"
-  },
-  "marineEcologicalMonitoringSites": {
-   "contrast": 2.03,
-   "type": "circle"
-  },
-  "marinePollutionIncidents": {
-   "contrast": 2.79,
-   "type": "circle"
-  },
-  "medLTC": {
-   "contrast": 2.28,
-   "type": "circle"
-  },
-  "motorcycleInspectionStations": {
-   "contrast": 2.39,
-   "type": "circle"
-  },
-  "namrEdnaSurveySites": {
-   "contrast": 2.34,
-   "type": "circle"
-  },
-  "nationalParks": {
-   "contrast": 2.48,
-   "type": "circle"
-  },
-  "natureReserves": {
-   "contrast": 1.83,
-   "type": "circle"
   },
   "noiseCaptureGrid": {
    "contrast": 1.85,
    "type": "fill"
   },
   "noiseControlZones": {
-   "contrast": 1.17,
+   "contrast": 1.39,
    "type": "fill"
   },
-  "noiseEnforcementEvents": {
-   "contrast": 2.71,
-   "type": "circle"
-  },
-  "osmPowerTowers": {
-   "contrast": 2.78,
-   "type": "circle"
-  },
-  "performingVenues": {
-   "contrast": 2.56,
-   "type": "circle"
-  },
-  "placeNames": {
-   "contrast": 2.21,
-   "type": "circle"
-  },
   "policeIsoCityDept": {
-   "contrast": 1.95,
+   "contrast": 2,
    "type": "fill"
   },
   "policeIsoPrecinct": {
-   "contrast": 2.12,
+   "contrast": 2.18,
    "type": "fill"
   },
   "policeIsoSubstation": {
-   "contrast": 2.3,
+   "contrast": 2.37,
    "type": "fill"
   },
-  "policeStation": {
-   "contrast": 1.59,
-   "type": "circle"
-  },
-  "pollutionFacility": {
-   "contrast": 2.75,
-   "type": "circle"
-  },
-  "pollutionPenaltyCritical": {
-   "contrast": 2.3,
-   "type": "circle"
-  },
   "pollutionPenaltyGeneral": {
-   "contrast": 1.42,
+   "contrast": 2.42,
    "type": "circle"
   },
   "pollutionPenaltyMobile": {
-   "contrast": 1.87,
-   "type": "circle"
-  },
-  "pollutionSite": {
-   "contrast": 2.4,
-   "type": "circle"
-  },
-  "postOfficeFxCounters": {
-   "contrast": 2.39,
-   "type": "circle"
-  },
-  "postOffices": {
-   "contrast": 2.31,
-   "type": "circle"
-  },
-  "prosecutorsOffice": {
-   "contrast": 2.59,
-   "type": "circle"
-  },
-  "protectedReefCenters": {
-   "contrast": 2.47,
-   "type": "circle"
-  },
-  "provincialRoadMileposts": {
-   "contrast": 2.07,
-   "type": "circle"
-  },
-  "provincialRoadMonitored": {
-   "contrast": 2.96,
-   "type": "circle"
-  },
-  "provincialRoadSigns": {
-   "contrast": 2.25,
-   "type": "circle"
-  },
-  "publicLibraries": {
-   "contrast": 2.71,
-   "type": "circle"
-  },
-  "publicToilets": {
-   "contrast": 2.48,
-   "type": "circle"
-  },
-  "realEstateSaleGrid": {
-   "contrast": 2.63,
-   "type": "fill"
-  },
-  "religionTop100": {
-   "contrast": 1.6,
-   "type": "circle"
-  },
-  "seaTurtleStrandings": {
-   "contrast": 2.98,
-   "type": "circle"
-  },
-  "seawallZones": {
-   "contrast": 2.3,
-   "type": "circle"
-  },
-  "securitiesFuturesInstitutions": {
-   "contrast": 2.7,
-   "type": "circle"
-  },
-  "setNetFishingAreas": {
-   "contrast": 2.2,
+   "contrast": 2.93,
    "type": "circle"
   },
   "slopelandSwcAct": {
-   "contrast": 1.45,
+   "contrast": 2.74,
    "type": "fill"
-  },
-  "speedZoneSegment": {
-   "contrast": 1.94,
-   "type": "line"
-  },
-  "statePropertyTenderListings": {
-   "contrast": 2.81,
-   "type": "circle"
   },
   "statsElectionCouncilorPartyKmtMinusDppCounty": {
    "contrast": 1.36,
@@ -543,81 +171,9 @@
    "contrast": 1.38,
    "type": "statistics-party"
   },
-  "streetTreesTaipei3epoch": {
-   "contrast": 1.81,
-   "type": "circle"
-  },
-  "streetTreesTaipeiDiff": {
-   "contrast": 2.48,
-   "type": "circle"
-  },
-  "swcbDisasterPhotoPoints": {
-   "contrast": 2.26,
-   "type": "circle"
-  },
-  "tainanBridgeInspections": {
-   "contrast": 2.86,
-   "type": "circle"
-  },
-  "taipeiWaterloggingHistory": {
-   "contrast": 2.41,
-   "type": "circle"
-  },
-  "taisugarSugarMills": {
-   "contrast": 2.67,
-   "type": "circle"
-  },
-  "tourAttractions": {
-   "contrast": 2.42,
-   "type": "circle"
-  },
-  "tourFactories": {
-   "contrast": 2.34,
-   "type": "circle"
-  },
-  "tourHotSprings": {
-   "contrast": 2.45,
-   "type": "circle"
-  },
-  "tourRestaurants": {
-   "contrast": 2.08,
-   "type": "circle"
-  },
-  "tourServiceSites": {
-   "contrast": 2.78,
-   "type": "circle"
-  },
-  "toxicChemicalFacilities": {
-   "contrast": 2.41,
-   "type": "circle"
-  },
-  "trafficAccidents2025": {
-   "contrast": 2.75,
-   "type": "circle"
-  },
-  "traLevelCrossings": {
-   "contrast": 2.81,
-   "type": "circle"
-  },
-  "twcServiceOffices": {
-   "contrast": 2.55,
-   "type": "circle"
-  },
   "vegetationForestTypes": {
    "contrast": 1.76,
    "type": "fill"
-  },
-  "visitorCentres": {
-   "contrast": 2.75,
-   "type": "circle"
-  },
-  "welfareSocialWorkOrgs": {
-   "contrast": 2.91,
-   "type": "circle"
-  },
-  "wraDredgingPoints": {
-   "contrast": 2.57,
-   "type": "circle"
   }
  }
 }

@@ -33,10 +33,21 @@ export const POINT_RADIUS = { S: 3, M: 4.5, L: 6.5 } as const;
 export type PointTier = keyof typeof POINT_RADIUS;
 export const pointRadius = (tier: PointTier, sizeScale = 1) => POINT_RADIUS[tier] * sizeScale;
 
-/** P-2 A：描邊 1px，暗深色 0.8／淡白 0.9。 */
-export const POINT_STROKE = { width: 1, opacity: { dark: 0.8, light: 0.9 } } as const;
+/**
+ * P-2：描邊 1px。淡底＝白 0.9（同底圖色細縫）。
+ * 暗底 2026-11-10 改淺色細環（使用者同意重開 P-2）：原本的底圖色 `#0a0a14` 疊在暗陸 `#292828` 上對比只有 1.29，
+ * 等於沒有邊，深色點直接融進底圖；改 `#e5e7eb` 0.45，點的外緣在暗底一定看得到，又不搶點本身的顏色。
+ * 面細縫（MAP_SEAM／mapSeamColor）不變。
+ */
+export const POINT_STROKE = { width: 1, color: { dark: "#e5e7eb", light: MAP_SEAM.light }, opacity: { dark: 0.45, light: 0.9 } } as const;
+export const pointStrokeColor = (isDark: boolean) => POINT_STROKE.color[themeOf(isDark)];
+/**
+ * 描邊依資料變化（例：有傷亡、資料過期才加白框）的點：非編碼分支維持原本的底圖色細縫與透明度，
+ * 不然暗底的淺色細環會和白色編碼外框混在一起、編碼失效。
+ */
+export const POINT_STROKE_DATA_ENCODED = { color: MAP_SEAM, opacity: { dark: 0.8, light: 0.9 } } as const;
 export const pointStrokePaint = (isDark: boolean, opacityFactor = 1) => ({
-  "circle-stroke-color": mapSeamColor(isDark),
+  "circle-stroke-color": pointStrokeColor(isDark),
   "circle-stroke-width": POINT_STROKE.width,
   "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[themeOf(isDark)] * opacityFactor),
 });
@@ -63,6 +74,21 @@ export const movingPointStrokePaint = (isDark: boolean, opacityFactor = 1) => ({
   "circle-stroke-opacity": Math.min(1, MOVING_POINT.stroke.opacity * opacityFactor),
 });
 
+/**
+ * C-5 類別色盤（2026-11-10）：同一機關多階層、原本同色相深淺區分的點圖層（警察、法院、檢察署）改用色相分明的類別色。
+ * 兩種底圖各一套、同色相：暗底版在 0.85 透明度疊 `#292828` 對比 ≥ 3.15；淡底版在 0.85 疊 `#f8f8fa` 對比 ≥ 3.4。
+ * 順序即挑選順序（貪婪法，前 n 色彼此最遠）：前 4 色兩套 ΔE（OKLab×100）≥ 17.7、
+ * 紅綠色弱（protan／deutan）與藍黃色弱（tritan）模擬 ≥ 13；8 色全用時一般 ≥ 10、色弱模擬 ≥ 6。
+ * 中性（其他、未分類）用 neutral。新圖層要「類別、無外部語意」的顏色時從這裡取，不要另挑。
+ */
+export const MAP_CATEGORICAL = {
+  dark: ["#2d82ff", "#ef4614", "#00daff", "#ffa41b", "#d749c7", "#00b6a6", "#0c9743", "#978fff"],
+  light: ["#216bff", "#d93c0f", "#003e5d", "#652800", "#c23fb4", "#006057", "#07873a", "#4840e0"],
+  neutral: { dark: "#94a3b8", light: "#64748b" },
+} as const;
+export const categoricalColor = (index: number, isDark: boolean) => MAP_CATEGORICAL[themeOf(isDark)][index % MAP_CATEGORICAL.dark.length]!;
+export const categoricalNeutral = (isDark: boolean) => MAP_CATEGORICAL.neutral[themeOf(isDark)];
+
 /** P-3：主體不透明度，依全台點數。 */
 export const POINT_OPACITY = { base: 0.85, over1k: 0.8, over10k: 0.75, over100k: 0.6 } as const;
 
@@ -87,6 +113,11 @@ export const BOUNDARY_GRAY = { dark: "#9ca3af", light: "#374151" } as const;
 // ── 面（F-1／F-2／F-3／G-3）──────────────────────────────
 /** F-1：面透明度四階。 */
 export const FILL_OPACITY = { graded: 0.55, coverage: 0.35, background: 0.15, grid: 0.7 } as const;
+/**
+ * F-1 暗底（2026-11-10 使用者同意重開 F-1）：暗陸 `#292828` 上同一透明度看起來比淡底淡很多（中低明度色幾乎等於底圖），
+ * registry 圖層在暗底改用這組。只由 lineFillSpec 的 registry 路徑讀（hook 自建圖層與統計圖層另有規格，不跟著改）。
+ */
+export const FILL_OPACITY_DARK = { graded: 0.7, coverage: 0.5, background: 0.3, grid: 0.8 } as const;
 
 /**
  * F-2：統計分級面的 1px 底圖色細縫（不綁透明度滑桿）。

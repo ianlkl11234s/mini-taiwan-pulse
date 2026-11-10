@@ -8,9 +8,9 @@
  * ⚠️ 表達式不得含 ["zoom"]：zoom 只能在最外層 interpolate/step。
  */
 import { allMultiSelectBitmask, multiSelectFilter, selectedMultiSelectValues } from "./multiSelectMapbox";
-import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
+import { ATLAS_LAYER_COLORS, ATLAS_SLOPELAND_DARK } from "./atlasLayerColors";
 
-export { ATLAS_LAYER_COLORS };
+export { ATLAS_LAYER_COLORS, ATLAS_SLOPELAND_DARK };
 
 export type AtlasLayerKey = keyof typeof ATLAS_LAYER_COLORS;
 

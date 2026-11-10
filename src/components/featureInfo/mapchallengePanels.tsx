@@ -351,8 +351,9 @@ export function MapchallengeDay09UrbanRuralPanel({ props }: Props) {
   const metric = mapchallengeDay09MetricByKey(paramStr(values, "mapchallengeDay09UrbanRural", "mapchallengeDay09UrbanRuralMetric"));
   const pop = num(props.pop);
   const q = Math.min(4, Math.max(0, Math.trunc(num(props.q)) || 0));
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
   return <div>
-    <Title color={mapchallengeDay09FeatureColor(metric, props)}>{str(props.name)}</Title>
+    <Title color={mapchallengeDay09FeatureColor(metric, props, isDark)}>{str(props.name)}</Title>
     <Row label={t("popup.mapchallenge.day09.pop")} value={t("popup.mapchallenge.day09.people", { n: formatNumber(pop) })} mono />
     <Row label={t("popup.mapchallenge.day09.density")} value={t("popup.mapchallenge.day09.perKm2", { n: formatNumber(num(props.density)) })} mono />
     <Row label={t("popup.mapchallenge.day09.group")} value={t(MAPCHALLENGE_DAY09_QUINTILE_KEYS[q]!)} />
@@ -361,7 +362,7 @@ export function MapchallengeDay09UrbanRuralPanel({ props }: Props) {
       const per = pop > 0 ? (c / pop) * 1e4 : 0;
       return <Row key={f.key} label={t(MAPCHALLENGE_DAY09_METRIC_KEYS[f.key])}
         value={t("popup.mapchallenge.day09.countPer", { n: formatNumber(c), per: per.toFixed(2) })}
-        color={f.key === metric ? mapchallengeDay09FeatureColor(metric, props) : undefined} mono />;
+        color={f.key === metric ? mapchallengeDay09FeatureColor(metric, props, isDark) : undefined} mono />;
     })}
     <SourceFooter props={{ source: t("legend.mapchallenge.day09.source") }} />
   </div>;

@@ -4,6 +4,8 @@
 import { describe, expect, it } from "vitest";
 import { FIRE_STATION_CATS, fireStationColor, fireStationColorMatch } from "../fireTypes";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { liftedColorMap } from "../../map/darkContrast";
+import { normalizeColor } from "../../map/colorContrast";
 
 describe("fireStations 類別色", () => {
   it("match 表達式由 FIRE_STATION_CATS 展開，其他＝fallback", () => {
@@ -13,13 +15,16 @@ describe("fireStations 類別色", () => {
     for (const c of FIRE_STATION_CATS) expect(fireStationColor(c.cat)).toBe(c.color);
   });
 
-  it("overlay 兩個子層（glow / circle）的 circle-color 都等於圖例常數展開", () => {
+  it("overlay 兩個子層（glow / circle）的 circle-color 都等於圖例常數展開（暗底提亮 C-4 後經同一份對照，圖例同步）", () => {
     const cfg = OVERLAY_REGISTRY.find((c) => c.id === "fireStations")!;
     expect(cfg.layers.map((l) => l.suffix)).toEqual(["glow", "circle"]);
     for (const layer of cfg.layers) {
       for (const dark of [true, false]) {
         const paint = typeof layer.paint === "function" ? layer.paint(dark, {}) : layer.paint;
-        expect((paint as Record<string, unknown>)["circle-color"]).toEqual(fireStationColorMatch());
+        const lift = liftedColorMap("fireStations", dark);
+        const expected = fireStationColorMatch().map((v) => (typeof v === "string" ? lift.get(normalizeColor(v)) ?? v : v));
+        // 光暈是裝飾子圖層，不提亮
+        expect((paint as Record<string, unknown>)["circle-color"]).toEqual(layer.suffix === "glow" ? fireStationColorMatch() : expected);
       }
     }
   });

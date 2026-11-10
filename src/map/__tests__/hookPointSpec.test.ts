@@ -56,13 +56,14 @@ describe("hook point spec R2 ratchet", () => {
 
   it("uses fixed tiers and theme seam strokes in extracted paint helpers", () => {
     expect(animalWelfarePointRadius(1)).toBe(4.5);
+    // 暗底：淺色細環 0.45（P-2，2026-11-10）
     expect(animalWelfarePointStroke(true, 0.8)).toMatchObject({
-      "circle-stroke-color": "#0a0a14", "circle-stroke-width": 1, "circle-stroke-opacity": 0.8,
+      "circle-stroke-color": "#e5e7eb", "circle-stroke-width": 1, "circle-stroke-opacity": 0.45,
     });
     expect(powerPolePointPaint(false, 0.7, 1)).toMatchObject({
       "circle-radius": 4.5, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1, "circle-stroke-opacity": 0.9,
     });
-    // 火災：casualty 為真時有外框（暗白／淡 #111827，資料編碼），其餘為底圖色細縫。
+    // 火災：casualty 為真時有外框（暗白／淡 #111827，資料編碼），其餘維持底圖色細縫（外框是編碼，不用暗底淺色細環）。
     expect(fireEventsPointStroke(true, 1)).toMatchObject({
       "circle-stroke-color": ["case", ["get", "casualty"], "#ffffff", "#0a0a14"],
       "circle-stroke-opacity": 0.8,

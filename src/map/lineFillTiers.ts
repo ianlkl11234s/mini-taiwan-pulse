@@ -438,3 +438,11 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "weatherAlerts/weatherAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
   "youbikeFullness/h3-youbike-fill": "graded", // src/map/youbikeLayerFactory.ts
 };
+/**
+ * 暗底面透明度的個別例外（F-1 暗底，2026-11-10）：值＝暗底預設透明度，取代 FILL_OPACITY_DARK 的階。
+ * Day 9 城鄉的最高階是亮黃，0.7 疊暗陸會變橄欖色；0.85 才讀得出「最亮＝最多」。
+ */
+export const FILL_DARK_OPACITY_OVERRIDE: Readonly<Record<string, number>> = {
+  mapchallengeDay09UrbanRural: 0.85,
+};
+

@@ -5,8 +5,8 @@ import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES }
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { memo, useEffect, useState } from "react";
 import { useLocale, type LocaleSnapshot } from "../state/localeStore";
-import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendFillOpacityCtx, LegendThemeCtx } from "./legend/legendKit";
-import { legendFillOpacity } from "../map/legendLayerOpacity";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendFillOpacityCtx, LegendLiftCtx, LegendThemeCtx } from "./legend/legendKit";
+import { legendFillOpacity, legendLiftMap } from "../map/legendLayerOpacity";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { BORDER, COLORS, ELEVATION, LIGHT, SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { type LayerVisibility } from "../types";
@@ -810,7 +810,10 @@ export const LegendPanel = memo(function LegendPanel({
           {active.map((entry) => (
             // LG-14：面圖層的色票畫「目前透明度 × 底圖陸地色」的合成色（查不到透明度的圖層維持原色票）。
             <LegendFillOpacityCtx.Provider key={entry.id} value={legendFillOpacity(legendKeys(entry.id), visibility, isDarkTheme, overlayParams) ?? null}>
-              {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, embedded, i18n })}
+              {/* C-4：點／線色票換成地圖上提亮後的顏色 */}
+              <LegendLiftCtx.Provider value={legendLiftMap(legendKeys(entry.id), visibility, isDarkTheme)}>
+                {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, embedded, i18n })}
+              </LegendLiftCtx.Provider>
             </LegendFillOpacityCtx.Provider>
           ))}
         </div>

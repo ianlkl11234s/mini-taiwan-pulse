@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource, HeatmapLayer } from "mapbox-gl";
 import { loadFireEventsByYear, type FireEvent } from "../data/fireLoader";
 import type { HistoricalGranularity } from "../components/HistoricalTimeline";
-import { densePointsFromZoom, heatmapMaxzoom, pointStrokePaint } from "../map/mapStyleScale";
+import { POINT_STROKE_DATA_ENCODED, densePointsFromZoom, heatmapMaxzoom, pointStrokePaint } from "../map/mapStyleScale";
 import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { hookCategoryFilter } from "../data/categoryFilters";
@@ -29,7 +29,9 @@ export function fireEventsPointStroke(isDark: boolean, opacity: number) {
   const seam = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
   return {
     ...seam,
-    "circle-stroke-color": ["case", ["get", "casualty"], CASUALTY_STROKE[isDark ? "dark" : "light"], seam["circle-stroke-color"]] as unknown as string,
+    // 外框是編碼：非傷亡維持底圖色細縫（POINT_STROKE_DATA_ENCODED），暗底淺色細環會和白框混在一起
+    "circle-stroke-color": ["case", ["get", "casualty"], CASUALTY_STROKE[isDark ? "dark" : "light"], POINT_STROKE_DATA_ENCODED.color[isDark ? "dark" : "light"]] as unknown as string,
+    "circle-stroke-opacity": Math.min(1, POINT_STROKE_DATA_ENCODED.opacity[isDark ? "dark" : "light"] * (opacity / OPACITY_DEFAULT)),
   };
 }
 

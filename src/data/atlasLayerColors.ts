@@ -86,7 +86,7 @@ export const ATLAS_LAYER_COLORS = {
   antivenomHospitals: "#db2777",
   freewayHundredMeterStakes: "#059669",
   swcSpecialZones: "#dc2626",
-  slopelandSwcAct: "#a3734c",
+  slopelandSwcAct: "#a3734c", // 暗底另見 ATLAS_SLOPELAND_DARK
   debrisFlowPotential: "#ea580c",
   landUseChangeMonitoring: "#ca8a04",
   // G53 批 2／3（2026-11-10）
@@ -102,3 +102,6 @@ export const ATLAS_LAYER_COLORS = {
   fireworksSites: "#dc2626",
   vehicleInspectionOffices: "#22d3ee",
 } as const;
+
+/** 山坡地暗底版（2026-11-10）：土褐 0.3 疊暗灰陸地只剩泥色，改沙褐、透明度 ×1.5。地圖與圖例共用。 */
+export const ATLAS_SLOPELAND_DARK = { color: "#e8b27a", opacityFactor: 1.5 } as const;

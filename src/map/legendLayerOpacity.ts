@@ -13,9 +13,9 @@ import type { LayerVisibility, OverlayConfig, OverlayLayerSpec } from "../types"
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { isOverlayVisible } from "./overlayManager";
 
-/** 裝飾子圖層 suffix 關鍵字（圖例合成與對比契約 contrastContractExtract 共用）。 */
-export const DECORATIVE_SUFFIX_WORDS = ["glow", "halo", "ripple", "pulse", "hit", "range", "hover", "selected", "highlight", "label", "text", "outline", "stroke", "casing", "seam", "hatch", "missing"] as const;
-export const isDecorativeSuffix = (suffix: string | undefined) => DECORATIVE_SUFFIX_WORDS.some((word) => (suffix ?? "").toLowerCase().includes(word));
+export { DECORATIVE_SUFFIX_WORDS, isDecorativeSuffix } from "./decorativeSuffix";
+import { isDecorativeSuffix } from "./decorativeSuffix";
+import { liftedColorMap } from "./darkContrast";
 
 let configsByKey: Map<string, OverlayConfig[]> | null = null;
 
@@ -75,4 +75,24 @@ export function legendFillOpacity(
     if (alpha !== undefined) return alpha;
   }
   return undefined;
+}
+
+/**
+ * C-4 圖例同步：群組內「開著」的圖層提亮對照合併（darkContrast liftedColorMap）；都沒有回 null。
+ * 同一原色在不同圖層提亮結果不同時，取群組順序中第一個。
+ */
+export function legendLiftMap(
+  keys: readonly (keyof LayerVisibility)[],
+  visibility: Partial<Record<keyof LayerVisibility, boolean>>,
+  isDark: boolean,
+): ReadonlyMap<string, string> | null {
+  let out: Map<string, string> | null = null;
+  for (const key of keys) {
+    if (!visibility[key]) continue;
+    const map = liftedColorMap(key, isDark);
+    if (map.size === 0) continue;
+    out ??= new Map();
+    for (const [from, to] of map) if (!out.has(from)) out.set(from, to);
+  }
+  return out;
 }

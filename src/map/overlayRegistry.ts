@@ -46,9 +46,11 @@ import {
 import { MAPCHALLENGE_DAY09_URL, mapchallengeDay09ColorExpr, mapchallengeDay09MetricAt } from "../data/mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
+import { withDarkContrast } from "./darkContrast";
 import { withLineFillSpec } from "./lineFillSpec";
 import { withRepPoints } from "./repPointOverlays";
-import { BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, pointRadius, LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
+import { COURT_TIER_COLOR_KEYS, POLICE_ISO_OVERLAP_BREAKS, POLICE_ISO_OVERLAP_COLORS, POLICE_TIER_COLOR_KEYS, PROSECUTOR_TIER_COLOR_KEYS } from "./justiceTierColors";
+import { categoricalColor, categoricalNeutral, BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, pointRadius, LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
 /** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(211_530, 12);
@@ -335,7 +337,7 @@ import {
   ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
 } from "../data/landslideTypes";
 import {
-  ANIMAL_STATUS_OPTIONS, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FLOOD_YEARS, FREEWAY_SIGN_GROUP_OPTIONS,
+  ANIMAL_STATUS_OPTIONS, ATLAS_LAYER_COLORS, ATLAS_SLOPELAND_DARK, BEACH_LEVEL_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FLOOD_YEARS, FREEWAY_SIGN_GROUP_OPTIONS,
   FREEWAY_SIGNS_MIN_ZOOM, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MILEPOSTS_MIN_ZOOM, MONITORED_MIN_ZOOM,
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
@@ -9188,16 +9190,16 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./police_justice/police_stations/police_stations_20260626.geojson",
     sourceId: "police-station",
     rebuildOnParamChange: ["policeStationOpacity", "policeStationScale"],
-    // 按 facility_subtype 階層分大小 + 深淺：
-    //   headquarters (5)        → 最大、最深藍（警政署）
-    //   police_dept (27)        → 大、深藍（縣市警察局）
-    //   precinct (163)          → 中、中藍（分局）
-    //   substation (1,541)      → 小、淺藍（派出所，量最多）
-    //   specialized (298)       → 中、紅色（專業警隊：交通/刑事/保警，視覺突出）
-    //   security / other (62)   → 最小、灰
+    // 按 facility_subtype 階層分大小＋顏色（顏色見 justiceTierColors.ts，C-5 類別色盤，2026-11-10）：
+    //   headquarters (5)        → 最大（警政署）
+    //   police_dept (27)        → 大（縣市警察局）
+    //   precinct (163)          → 中（分局）
+    //   substation (1,541)      → 小、藍（派出所，量最多）
+    //   specialized (298)       → 中、朱紅（專業警隊：交通/刑事/保警）
+    //   security / other (62)   → 最小
     layers: [{
       suffix: "circle", type: "circle",
-      paint: (_isDark, p) => {
+      paint: (isDark, p) => {
         const s = p?.policeStationScale ?? 1;
         const op = p?.policeStationOpacity ?? 0.8;
         // 半徑用 (zoom × subtype tier) 二維插值：subtype 帶 baseRadius factor
@@ -9219,16 +9221,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             10, ["*", s, ["*", 4, radiusFactor]],
             14, ["*", s, ["*", 7, radiusFactor]],
           ] as unknown as number,
+          // C-5 類別色盤（2026-11-10）：原本 4 階深淺藍在暗底看不到也分不開，改色相分明；派出所（量最多）維持藍
           "circle-color": [
             "match", ["get", "facility_subtype"],
-            "headquarters", "#0a1e6b",   // 最深藍
-            "police_dept", "#1e3a8a",
-            "precinct", "#1e40af",
-            "substation", "#3b82f6",     // 淺藍
-            "specialized", "#dc2626",     // 紅色突顯（專業警隊）
-            "security", "#475569",        // 灰藍
-            "other", "#64748b",
-            "#1e40af",
+            ...POLICE_TIER_COLOR_KEYS.flatMap(([value, index]) => [value, categoricalColor(index, isDark)]),
+            "other", categoricalNeutral(isDark),
+            categoricalNeutral(isDark),
           ] as unknown as string,
           "circle-stroke-color": "#fff",
           "circle-stroke-width": [
@@ -9334,7 +9332,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     // 按 court_type 6 階層：supreme 最大深紫 → district 小淺紫
     layers: [{
       suffix: "circle", type: "circle",
-      paint: (_isDark, p) => {
+      paint: (isDark, p) => {
         const s = p?.courtScale ?? 1;
         const op = p?.courtOpacity ?? 0.9;
         const radiusFactor: unknown[] = [
@@ -9354,15 +9352,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             10, ["*", s, ["*", 6, radiusFactor]],
             14, ["*", s, ["*", 9, radiusFactor]],
           ] as unknown as number,
+          // C-5 類別色盤（2026-11-10）：原本 6 階紫在暗底撞在一起，改色相分明；地方法院（量最多）維持紫
           "circle-color": [
             "match", ["get", "court_type"],
-            "supreme", "#4c1d95",       // 最深紫（最高法院）
-            "high", "#6d28d9",
-            "admin", "#7c3aed",          // 高等行政
-            "ipc", "#a855f7",            // 智財商業
-            "juvenile_family", "#c084fc",
-            "district", "#c4b5fd",       // 淺紫（地方法院）
-            "#7c3aed",
+            ...COURT_TIER_COLOR_KEYS.flatMap(([value, index]) => [value, categoricalColor(index, isDark)]),
+            categoricalColor(7, isDark),
           ] as unknown as string,
           "circle-stroke-color": "#fff",
           "circle-stroke-width": ["match", ["get", "court_type"], "supreme", 1.4, "high", 1.1, 0.8] as unknown as number,
@@ -9379,7 +9373,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     // 按 pros_type 3 階：supreme 最深紫 / high 中 / district 淺
     layers: [{
       suffix: "circle", type: "circle",
-      paint: (_isDark, p) => {
+      paint: (isDark, p) => {
         const s = p?.prosecutorsOfficeScale ?? 1;
         const op = p?.prosecutorsOfficeOpacity ?? 0.9;
         const radiusFactor: unknown[] = [
@@ -9396,12 +9390,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             10, ["*", s, ["*", 5, radiusFactor]],
             14, ["*", s, ["*", 8, radiusFactor]],
           ] as unknown as number,
+          // C-5 類別色盤（2026-11-10）：地方檢察署（量最多）維持紫
           "circle-color": [
             "match", ["get", "pros_type"],
-            "supreme", "#581c87",
-            "high", "#7e22ce",
-            "district", "#c084fc",
-            "#a855f7",
+            ...PROSECUTOR_TIER_COLOR_KEYS.flatMap(([value, index]) => [value, categoricalColor(index, isDark)]),
+            categoricalColor(7, isDark),
           ] as unknown as string,
           "circle-stroke-color": "#fff",
           "circle-stroke-width": ["match", ["get", "pros_type"], "supreme", 1.4, "high", 1.0, 0.7] as unknown as number,
@@ -9820,21 +9813,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       layers: [
         {
           suffix: "fill", type: "fill" as const,
-          paint: (_isDark: boolean, p: Record<string, number | undefined> | undefined) => {
+          paint: (isDark: boolean, p: Record<string, number | undefined> | undefined) => {
             const modeDrive = p?.[`${id}Mode_drive`] ?? 0;
             const minutesNum = p?.[`${id}Minutes_num`] ?? defaultMinutesNum;
             const baseOp = p?.[`${id}Opacity`] ?? 0.5;
+            // 重疊越多＝越醒目：淡底越深、暗底越亮（2026-11-10；暗底原本最內圈最深＝最不顯眼）
+            const colors = POLICE_ISO_OVERLAP_COLORS[isDark ? "dark" : "light"];
             return {
               "fill-color": [
                 "step", ["coalesce", ["to-number", ["get", "overlap_count"]], 0],
-                "#fef2f2",
-                1, "#fee2e2",
-                2, "#fca5a5",
-                3, "#f87171",
-                5, "#ef4444",
-                8, "#dc2626",
-                12, "#991b1b",
-                20, "#7f1d1d",
+                colors[0],
+                ...POLICE_ISO_OVERLAP_BREAKS.flatMap((b, i) => [b, colors[i + 1]]),
               ] as unknown as string,
               "fill-opacity": [
                 "case",
@@ -12502,7 +12491,14 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     id: "slopelandSwcAct", sourceUrl: "./urban/slopeland_swc_act_115.pmtiles", sourceId: "slopeland-swc-act",
     pmtiles: { sourceLayer: "slopeland_swc_act", minzoom: 4, maxzoom: 13 },
     attribution: `農業部農村發展及水土保持署 山坡地範圍（data.gov.tw 178645）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
-    layers: polygonLayers("slopelandSwcAct", ATLAS_LAYER_COLORS.slopelandSwcAct, 0.3),
+    // 暗底（2026-11-10）：土褐色 0.3 疊暗灰陸地只剩泥色，改亮一階的沙褐、透明度 ×1.5（淡底不變）
+    layers: polygonLayers("slopelandSwcAct", ATLAS_LAYER_COLORS.slopelandSwcAct, 0.3).map((l) => (l.suffix === "fill" ? {
+      ...l,
+      paint: (dark: boolean, p?: Record<string, number>) => {
+        const base = l.paint(dark, p);
+        return dark ? { ...base, "fill-color": ATLAS_SLOPELAND_DARK.color, "fill-opacity": Math.min(1, Number(base["fill-opacity"]) * ATLAS_SLOPELAND_DARK.opacityFactor) } : base;
+      },
+    } : l)),
   },
   {
     id: "swcSpecialZones", sourceUrl: "./urban/swc_special_zones_115.pmtiles", sourceId: "swc-special-zones",
@@ -13077,8 +13073,8 @@ OVERLAY_REGISTRY.push({
   attribution: "內政部戶籍人口（2026-08-31）；教育部、警政署、中華郵政、健保署、財金公司開放資料 · 政府資料開放授權條款",
   layers: [{
     suffix: "fill", type: "fill",
-    paint: (_isDark, p) => ({
-      "fill-color": mapchallengeDay09ColorExpr(mapchallengeDay09MetricAt(p?.mapchallengeDay09UrbanRuralMetricIdx)),
+    paint: (isDark, p) => ({
+      "fill-color": mapchallengeDay09ColorExpr(mapchallengeDay09MetricAt(p?.mapchallengeDay09UrbanRuralMetricIdx), isDark),
       "fill-opacity": p?.mapchallengeDay09UrbanRuralOpacity ?? 0.7,
     }),
   }, {
@@ -13089,7 +13085,7 @@ OVERLAY_REGISTRY.push({
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
-OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...withRepPoints(OVERLAY_REGISTRY).map(withPointSpec).map(withLineFillSpec).map(withCategoryFilter));
+OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...withRepPoints(OVERLAY_REGISTRY).map(withPointSpec).map(withLineFillSpec).map(withDarkContrast).map(withCategoryFilter));
 
 /**
  * V-4 類別篩選（`data/categoryFilters.ts` 規格表）：把類別多選併進該圖層每個子圖層的 filter

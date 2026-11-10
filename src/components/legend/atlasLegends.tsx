@@ -1,9 +1,9 @@
 // atlas 批次 2026-10 的 26 層圖例（legendKit；色票與地圖 paint 同源，皆 import atlasLayerTypes）。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import {
-  ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, ATLAS_NOTES, ATLAS_OTHER_COLOR, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS,
+  ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, ATLAS_SLOPELAND_DARK, ATLAS_NOTES, ATLAS_OTHER_COLOR, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS,
   ECOLOGY_SPECIES_STEPS, ECO_SENSITIVE_LEVEL_OPTIONS, EMERGENCY_BAY_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS,
   GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MICROPLASTIC_STEPS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS,
   POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS,
@@ -88,6 +88,12 @@ function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, lic
   </div>;
 }
 
+function SlopelandLegend() {
+  const { isDark } = useLegendTheme();
+  const rows: Row[] = [{ labelKey: "legend.atlas.slopelandArea", color: isDark ? ATLAS_SLOPELAND_DARK.color : ATLAS_LAYER_COLORS.slopelandSwcAct }];
+  return <AtlasLegend layer="slopelandSwcAct" en="Slopeland (Soil and Water Conservation Act)" kind="square" source={src("swcb", ["178645"])} rows={rows} />;
+}
+
 const single = (layer: AtlasLayerKey, labelKey: StaticMessageKey): Row[] => [{ labelKey, color: ATLAS_LAYER_COLORS[layer] }];
 const flagRow: Row = { labelKey: "legend.atlas.flag", color: ATLAS_FLAG_COLOR };
 const stepRows = (steps: readonly { min: number; label: string; color: string }[]): Row[] => steps.map((step) => ({ label: step.label, value: String(step.min), color: step.color }));
@@ -160,7 +166,7 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   broadcastTransmitters: () => <AtlasLegend layer="broadcastTransmitters" en="Broadcast Transmitters & Radio Monitoring Stations" source={src("ncc", ["6445", "6446", "6825"])} domain="atlasBroadcastKind" rows={BROADCAST_KIND_OPTIONS} />,
   landUseChangeMonitoring: () => <AtlasLegend layer="landUseChangeMonitoring" en="Land Use Change Monitoring" kind="square" source={src("nlma", ["168030"])} domain="atlasLandChange" rows={LAND_CHANGE_CLASS_OPTIONS} />,
   debrisFlowPotential: () => <AtlasLegend layer="debrisFlowPotential" en="Debris Flow Potential Streams" kind="square" source={src("swcb", ["176524", "176525", "176526"])} domain="atlasDebrisRisk" rows={DEBRIS_RISK_OPTIONS} />,
-  slopelandSwcAct: () => <AtlasLegend layer="slopelandSwcAct" en="Slopeland (Soil and Water Conservation Act)" kind="square" source={src("swcb", ["178645"])} rows={single("slopelandSwcAct", "legend.atlas.slopelandArea")} />,
+  slopelandSwcAct: () => <SlopelandLegend />,
   swcSpecialZones: () => <AtlasLegend layer="swcSpecialZones" en="Special Soil and Water Conservation Zones" kind="square" source={src("swcb", ["176847"])} domain="atlasSwcZoneType" rows={SWC_ZONE_TYPE_OPTIONS} />,
   freewayHundredMeterStakes: () => <AtlasLegend layer="freewayHundredMeterStakes" en="Freeway 100 m Stakes" source={src("freeway", ["95016"])} rows={single("freewayHundredMeterStakes", "legend.atlas.hundredMeterStake")} dense />,
   antivenomHospitals: () => <AtlasLegend layer="antivenomHospitals" en="Antivenom Reserve Hospitals" source={src("cdc", ["24468"])} rows={single("antivenomHospitals", "legend.atlas.antivenomHospital")} />,
