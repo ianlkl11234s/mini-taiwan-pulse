@@ -39,6 +39,26 @@ jobs:
               - '**'
               - '!.claude/**'
 
+  # 單一入口文件（docs/PROJECTS.md ↔ .claude/memory/BACKLOG.md）一致性檢查。
+  # 不掛 changes 的 if：只動 .claude/** 的 memory PR 正是最需要它的時候（quick 會被跳過）。
+  # 腳本零相依、不跑 npm ci。checkout 和 quick 一樣只跳過 public/（文件裡的相對連結可能指到 repo 任何地方，連結存在檢查要看得到）。
+  # 規則：.claude/memory/README.md「入口文件自動檢查」
+  entry-docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/public/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Entry docs consistency (PROJECTS ↔ BACKLOG)
+        run: npm run check:entry-docs
+
   # 不需要 public/ 大檔的檢查集中在這裡，用 sparse-checkout 跳過 public/（約 1.75GB）
   quick:
     needs: changes
@@ -172,7 +192,7 @@ jobs:
 
   ci-ok:
     if: always()
-    needs: [changes, quick, build, test, assets]
+    needs: [changes, entry-docs, quick, build, test, assets]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
