@@ -21,6 +21,21 @@ describe("C-4 暗底亮度下限", () => {
     expect(liftForDark("#fbbf24", 0.8)).toBe("#fbbf24");
   });
 
+  it("連白色都到不了目標對比的透明度：維持原色、保留類別差異（不推成全白）", () => {
+    const cats = ["#1f9d55", "#3b6fe0", "#22b8c7", "#f2c230"];
+    expect(liftCategoricalForDark(cats, 0.12)).toEqual(cats);
+    expect(liftForDark("#7f1d1d", 0.08)).toBe("#7f1d1d");
+    expect(liftRampForDark(["#04121f", "#0a4272", "#3b8ec9"], 0.1)).toEqual(["#04121f", "#0a4272", "#3b8ec9"]);
+  });
+
+  it("暗底提亮依預設透明度：拖低滑桿只淡化、不改色，與圖例對照一致", () => {
+    const config = OVERLAY_REGISTRY.find((c) => c.id === "speedCamera")!;
+    const layer = config.layers.find((l) => l.suffix === "circle")!;
+    const color = (params: Record<string, number>) => JSON.stringify(layer.paint(true, params)["circle-color"]);
+    expect(color({ speedCameraOpacity: 0.1 })).toBe(color({}));
+    expect(color({ speedCameraOpacity: 0.1 })).not.toContain("#ffffff");
+  });
+
   it("連續色階保留深淺順序", () => {
     const ramp = ["#04121f", "#0a4272", "#3b8ec9", "#b0dcf5"];
     const lifted = liftRampForDark(ramp, 0.85, true);
