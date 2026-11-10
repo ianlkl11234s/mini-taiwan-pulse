@@ -10,7 +10,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from '../regionalStatisticsRecipes';
-import { STATISTICS_FILL_OPACITY, statisticsFillOpacity, statisticsVisualColors } from '../statisticsVisuals';
+import { STATISTICS_FILL_OPACITY, statisticsFillOpacity, statisticsScaleWording, statisticsVisualColors } from '../statisticsVisuals';
 import { BASEMAP_LAND } from '../../map/mapStyleScale';
 import { compositeOver, contrastRatio, deltaE, parseColor, toHex, type Rgb } from '../../map/colorContrast';
 
@@ -64,6 +64,17 @@ describe('statistics dark-basemap ramps', () => {
     expect(sequential).toBeGreaterThan(700);
     expect(diverging).toBeGreaterThan(0);
     expect(basemapIndependent).toBeGreaterThan(0);
+  });
+
+  it('rewrites shade wording in legend notes on the dark basemap only', () => {
+    expect(statisticsScaleWording('最淺色含 0（該區為 0，不是無資料）。', true)).toBe('最暗色含 0（該區為 0，不是無資料）。');
+    expect(statisticsScaleWording('0 自成最淺一級；離群值落在最深一級。', true)).toBe('0 自成最暗一級；離群值落在最亮一級。');
+    expect(statisticsScaleWording('色階：淺 → 深＝低 → 高', true)).toBe('色階：暗 → 亮＝低 → 高');
+    expect(statisticsScaleWording('0 forms the lightest class', true)).toBe('0 forms the darkest class');
+    expect(statisticsScaleWording('0件は最も淡い独立の階級', true)).toBe('0件は最も暗い独立の階級');
+    expect(statisticsScaleWording('最淺色含 0', false)).toBe('最淺色含 0');
+    // 政黨色不分底圖，「越深差距越大」不換
+    expect(statisticsScaleWording('越深差距越大', true)).toBe('越深差距越大');
   });
 
   it('keeps party palettes identical on both basemaps', () => {

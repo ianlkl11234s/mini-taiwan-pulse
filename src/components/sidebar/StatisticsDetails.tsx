@@ -244,12 +244,12 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {!binaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : t.isDark ? 'statistics.legend.sequentialDark' : 'statistics.legend.sequential')}</span>}
     {(binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>)}
     {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
-    {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
+    {addiction?.legend.zero_note && <span>{shadeWording(addiction.legend.zero_note)}</span>}
     {addiction && addictionStatusLegendRows(addiction).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
-    {landslide?.legend.zero_note && <span>{landslide.legend.zero_note}</span>}
-    {landslide?.legend.display_note && <span>{landslide.legend.display_note}</span>}
+    {landslide?.legend.zero_note && <span>{shadeWording(landslide.legend.zero_note)}</span>}
+    {landslide?.legend.display_note && <span>{shadeWording(landslide.legend.display_note)}</span>}
     {landslide?.status_labels.missing && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr('statistics.legend.hatchLabel', { label: landslide.status_labels.missing })}</LegendRow>}
-    {atlas?.legend.zero_note && <span>{enumLabel('statLegendNote', atlas.legend.zero_note, atlas.legend.zero_note, i18n)}</span>}
+    {atlas?.legend.zero_note && <span>{shadeWording(enumLabel('statLegendNote', atlas.legend.zero_note, atlas.legend.zero_note, i18n))}</span>}
     {atlas?.legend.display_note && <span>{shadeWording(enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n))}</span>}
     {atlas?.legend.notes?.map((note) => <span key={note}>{shadeWording(enumLabel('statLegendNote', note, note, i18n))}</span>)}
     {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label, solid }) => <LegendRow key={kind} swatch={solid ? <SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} /> : <SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}

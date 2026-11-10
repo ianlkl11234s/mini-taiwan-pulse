@@ -63,6 +63,13 @@ describe("legendKit", () => {
     expect(overlayFillOpacity("notAnOverlayKey", true, base)).toBeUndefined();
   });
 
+  it("LG-13：只認目前畫著的面（V-5 點模式時面隱藏 → 不合成）", () => {
+    const base = encodeParamsToOverlay(layerParamsStore.getAll());
+    const modes = [0, 1, 2].map((i) => overlayFillOpacity("cemeteryOsm", true, { ...base, cemeteryOsmDisplayModeIdx: i }));
+    expect(modes.filter((v) => v === undefined).length).toBeGreaterThan(0);
+    expect(modes.filter((v) => v !== undefined).length).toBe(1);
+  });
+
   it("LG-9：compact 時註記不顯示", () => {
     const note = createElement(LegendNote, null, "來源：內政部");
     expect(renderToStaticMarkup(note)).toContain("來源：內政部");

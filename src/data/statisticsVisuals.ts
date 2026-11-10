@@ -143,11 +143,19 @@ const PU_OR_6_DARK = ['#ffe6d2', '#f6ab6a', '#be834f', '#9686ca', '#c2b0ff', '#e
  */
 export const STATISTICS_FILL_OPACITY = { light: 0.55, dark: 0.75 } as const;
 /**
- * 方向說明的底圖用語：recipe 內建「淺 → 深」說明（社會脆弱度等 scale_note）在暗底改寫成「暗 → 亮」，
- * 與暗底版色階方向一致。只換這個固定片語，其他文字不動。
+ * 方向說明的底圖用語：recipe 內建的色階用語（社會脆弱度等 scale_note「淺 → 深」、零值註記「最淺色含 0」
+ * 「0 自成最淺一級」、離群註記「落在最深一級」）在暗底改寫成暗底版色階的實際外觀（低＝暗、高＝亮）。
+ * 只換這幾個固定片語（含 en／ja 譯文）；政黨色「越深差距越大」不分底圖，不換。
  */
+const DARK_SHADE_WORDING: ReadonlyArray<readonly [RegExp, string]> = [
+  [/淺 → 深/g, '暗 → 亮'],
+  [/最淺/g, '最暗'],
+  [/最深/g, '最亮'],
+  [/\blightest\b/g, 'darkest'],
+  [/最も淡い/g, '最も暗い'],
+];
 export function statisticsScaleWording(text: string, isDark: boolean): string {
-  return isDark ? text.split('淺 → 深').join('暗 → 亮') : text;
+  return isDark ? DARK_SHADE_WORDING.reduce((out, [pattern, replacement]) => out.replace(pattern, replacement), text) : text;
 }
 export function statisticsFillOpacity(sliderValue: number | undefined, isDark: boolean): number {
   const value = sliderValue ?? STATISTICS_FILL_OPACITY.light;
