@@ -26,4 +26,6 @@
 - 多語版 SEO：`?lang=en`／`ja` 的 canonical 指向自己的語版網址、與 hreflang 一致；`/card/` 不放 robots.txt Disallow，由 nginx noindex header 控制。
 - 全站站主限定／私人圖層在登出或失去權限時，一律關閉圖層並清除 module 快取與 Mapbox source，不只修單一圖層（實作沿用 owner-gate-unify）。
 - 已套用到正式 DB 的 migration 不為 review 意見回頭改成可重跑（缺 ON CONFLICT 等直接視為已決定）；新寫的 migration seed 一律帶 ON CONFLICT。
+- 圖例群組的面填色透明度取第一個開著且查得到的成員，不逐列各算（map-layers.md LG-14）。
+- 多資料集圖層：每個 dataset 都要登記，任一 dataset 入倉即算可分析；不要求每個都有 `warehouse` 區塊。
 - 正本在 gis-agent-system reports/code-review/POLICIES.md。
