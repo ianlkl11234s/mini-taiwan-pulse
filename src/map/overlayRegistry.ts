@@ -9190,13 +9190,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./police_justice/police_stations/police_stations_20260626.geojson",
     sourceId: "police-station",
     rebuildOnParamChange: ["policeStationOpacity", "policeStationScale"],
-    // 按 facility_subtype 階層分大小 + 深淺：
-    //   headquarters (5)        → 最大、最深藍（警政署）
-    //   police_dept (27)        → 大、深藍（縣市警察局）
-    //   precinct (163)          → 中、中藍（分局）
-    //   substation (1,541)      → 小、淺藍（派出所，量最多）
-    //   specialized (298)       → 中、紅色（專業警隊：交通/刑事/保警，視覺突出）
-    //   security / other (62)   → 最小、灰
+    // 按 facility_subtype 階層分大小＋顏色（顏色見 justiceTierColors.ts，C-5 類別色盤，2026-11-10）：
+    //   headquarters (5)        → 最大（警政署）
+    //   police_dept (27)        → 大（縣市警察局）
+    //   precinct (163)          → 中（分局）
+    //   substation (1,541)      → 小、藍（派出所，量最多）
+    //   specialized (298)       → 中、朱紅（專業警隊：交通/刑事/保警）
+    //   security / other (62)   → 最小
     layers: [{
       suffix: "circle", type: "circle",
       paint: (isDark, p) => {
