@@ -47,10 +47,25 @@ mini-taiwan-pulse 是整個 Pulse 生態系的總 PM，現況只看三份，各�
 
 - [BACKLOG.md](BACKLOG.md) 只負責全站排序，依主題群分段（規則與群清單見該檔檔頭）：正式站目視包、Zeabur 收尾、資料保留、資安、collector 健康、舊路徑撤除、開發系統、台灣／多國圖層、Agent、前端技術債、產品舊決策、內容、文件衛生、模擬實驗。
 - **2026-11-09 起待辦只有一個家**：未完成工作一律寫進 [BACKLOG.md](BACKLOG.md)（可附 feature 文件連結當細節）。舊的 `docs/features/<slug>/backlog.md` 已讀過、仍有效的項目搬進 BACKLOG 後整份封存到 `docs/archive/2026-11-09/`；feature 資料夾保留 README／changelog／handoff 等脈絡文件，不再新開 backlog.md。
-- Priority 與 State 分開：Priority 只比較現在可執行工作；State 使用 `ready` / `in_progress` / `blocked` / `waiting_external` / `conditional` / `verifying`。
+- Priority 與 State 分開：Priority 只比較現在可執行工作；State 使用 `ready` / `in_progress` / `blocked` / `waiting_external` / `conditional` / `verifying`，併入別列的用 `merged`（白名單就這 7 個，`scheduled` 這類改寫成 `conditional`＋not_before）。
 - `conditional` 必填 trigger 或 `not_before`、owner 與觸發後第一個 action；未觸發前不當成 P0/P1 active work。
 - 完成項從表格移到 BACKLOG 檔尾「已關閉」，只留一行證據（PR、版號、讀回或使用者確認）；詳細過程仍在 feature `changelog.md`、release notes 或 git history，核心 backlog 不保留長篇歷史。已放棄方案移 decision record / archive，不留在 active queue。
 - 每個 ID 全專案唯一；同一工作只能有一個 primary home，其他檔案只用 link 引用。
+
+### 入口文件自動檢查（`npm run check:entry-docs`，2026-11-10 起）
+
+`scripts/dev/check-entry-docs.mjs` 檢查 PROJECTS 與 BACKLOG 不互相矛盾；`npm run check` 與 CI（`entry-docs` job，只動 `.claude/**` 的 PR 也會跑）都會執行。範圍：PROJECTS 從開頭到「## 已結案」；BACKLOG 從開頭到第一個「## 已關閉」（之後全算已關閉段，不檢查）。
+
+| 規則 | 內容 |
+|---|---|
+| `closed-id` | PROJECTS 表格的「下一步」「正本」「BACKLOG」三欄引用的 ID 若只在 BACKLOG 已關閉段 → 紅。已完成的事寫在「做到哪」欄，或不寫 ID。縮寫（`SEC-3／4`、`DEV-2～6`、`VP-1～VP-13`）會展開比對。FB 列 Item 內〔slug〕後的原 ID（例 FB-023 的 BC-3）算未關閉。 |
+| `unknown-id` | 「BACKLOG」欄、其他欄「BACKLOG 」字樣之後（到「；」為止）、以及「下一步」欄以「ID：」開頭的子句，引用了 BACKLOG 查無的 ID → 紅（要先開列）。 |
+| `deadline` | 「有期限的事」表的期限早於今天（Asia/Taipei）且該列沒有結果標記 → 紅。期限取格內最後一個日期：`~2026-11-12～14` 取 14 日、`2027-03 前`／`約 2027-05` 取月底、`持續留意` 不檢查。**結果標記**寫在該列任一格：`〔結果 YYYY-MM-DD：一句結果〕`；〔待確認〕不算結果。處理方式三選一：寫結果、改期（期限欄寫新日期並註明原日期與理由）、刪列。 |
+| `state` | BACKLOG 未關閉段的 State 必須在上面的 7 個白名單內。 |
+| `link` | 兩檔未關閉段的 markdown 相對連結（`[…](路徑)`）必須指向 repo 內存在的檔；連到 repo 外（`../../../.gis-agent-system/…` 這類跨 repo 路徑）與純文字路徑不檢查。 |
+| `archive-link` | PROJECTS「正本」欄不得連到 `docs/archive/`（封存檔不是正本）。BACKLOG FB 列的「原檔」連 archive 是刻意的，不受此限。 |
+
+**豁免**（確實需要時才用）：在該行加 `<!-- entry-docs-ignore <規則名>: <理由> -->`，理由必填，沒寫理由本身就會報錯。測試：`src/test/checkEntryDocs.test.ts`（fixture 字串，不讀真檔）；指定日期重跑：`node scripts/dev/check-entry-docs.mjs --today YYYY-MM-DD`。
 
 ### 專案特定／選讀檔
 
