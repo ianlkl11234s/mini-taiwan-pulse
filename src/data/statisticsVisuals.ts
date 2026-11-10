@@ -88,33 +88,40 @@ import {
 export interface StatisticsVisual {
   icon: LucideIcon;
   accent: string;
+  /** 淡色底圖（light／streets）用：低 → 高＝淺 → 深（ColorBrewer）。 */
   colors: readonly string[];
+  /**
+   * 暗色底圖（dark／pure black／衛星等其餘底圖）用：低 → 高＝暗 → 亮（OKLCH 同色相，L 0.50 → 0.94）。
+   * 每級以 STATISTICS_FILL_OPACITY.dark 疊在暗陸 #292828 上，對比單調遞增、最低級 ≥ 1.8、最高級 ≥ 6
+   * （statisticsDarkRamp.test.ts）。design-system map-layers §3.6 K-4、statistics-layer-guidelines §4。
+   */
+  darkColors: readonly string[];
   theme: string;
 }
 
 type StatisticsTheme = Omit<StatisticsVisual, 'icon'>;
 
-// ColorBrewer sequential five-class schemes, ordered from low to high values.
+// ColorBrewer sequential five-class schemes, ordered from low to high values（淡底）；darkColors＝暗底版（低→高＝暗→亮）。
 const THEMES = {
-  education: { theme: '教育', accent: '#9e9ac8', colors: ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'] },
-  health: { theme: '醫療', accent: '#66c2a4', colors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] },
-  housing: { theme: '住宅', accent: '#fd8d3c', colors: ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603'] },
-  transport: { theme: '交通', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'] },
-  agriculture: { theme: '農業', accent: '#78c679', colors: ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'] },
-  livestock: { theme: '畜牧', accent: '#fe9929', colors: ['#ffffd4', '#fed98e', '#fe9929', '#d95f0e', '#993404'] },
-  fishery: { theme: '漁業', accent: '#74a9cf', colors: ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d'] },
-  forestry: { theme: '林業', accent: '#74c476', colors: ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'] },
-  environment: { theme: '環境', accent: '#8c96c6', colors: ['#edf8fb', '#b3cde3', '#8c96c6', '#8856a7', '#810f7c'] },
-  utilities: { theme: '公用事業', accent: '#7bccc4', colors: ['#f0f9e8', '#bae4bc', '#7bccc4', '#43a2ca', '#0868ac'] },
-  income: { theme: '所得', accent: '#8d8778', colors: ['#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e'] },
-  labor: { theme: '工作與所得', accent: '#2a9d8f', colors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] },
+  education: { theme: '教育', accent: '#9e9ac8', colors: ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'], darkColors: ['#62579e', '#8477cf', '#a89cf8', '#cbc6fd', '#eae8ff'] },
+  health: { theme: '醫療', accent: '#66c2a4', colors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'], darkColors: ['#03755b', '#049d7b', '#3bc59e', '#87e3c4', '#c8f8e6'] },
+  housing: { theme: '住宅', accent: '#fd8d3c', colors: ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603'], darkColors: ['#934f1d', '#c26d31', '#ea9258', '#febd95', '#ffe5d6'] },
+  transport: { theme: '交通', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'], darkColors: ['#066b97', '#1191c9', '#49b7f1', '#98d7fe', '#d8effe'] },
+  agriculture: { theme: '農業', accent: '#78c679', colors: ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'], darkColors: ['#367338', '#4f9a51', '#74c075', '#a5dfa5', '#d6f6d5'] },
+  livestock: { theme: '畜牧', accent: '#fe9929', colors: ['#ffffd4', '#fed98e', '#fe9929', '#d95f0e', '#993404'], darkColors: ['#8f520d', '#bd7221', '#e5974c', '#fdbf89', '#ffe6d1'] },
+  fishery: { theme: '漁業', accent: '#74a9cf', colors: ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d'], darkColors: ['#106a9b', '#268fcc', '#53b5f4', '#9ed5fd', '#daeffe'] },
+  forestry: { theme: '林業', accent: '#74c476', colors: ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'], darkColors: ['#367339', '#4f9a52', '#74c076', '#a5dfa5', '#d5f6d5'] },
+  environment: { theme: '環境', accent: '#8c96c6', colors: ['#edf8fb', '#b3cde3', '#8c96c6', '#8856a7', '#810f7c'], darkColors: ['#525ca1', '#707ed4', '#94a3fc', '#c0cbfe', '#e6eafe'] },
+  utilities: { theme: '公用事業', accent: '#7bccc4', colors: ['#f0f9e8', '#bae4bc', '#7bccc4', '#43a2ca', '#0868ac'], darkColors: ['#05736c', '#0d9a92', '#17c4b9', '#79e3d9', '#c2f8f2'] },
+  income: { theme: '所得', accent: '#8d8778', colors: ['#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e'], darkColors: ['#406496', '#607799', '#7d85ad', '#9995bf', '#bead83', '#d0c389', '#ebd870', '#ffee70'] },
+  labor: { theme: '工作與所得', accent: '#2a9d8f', colors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'], darkColors: ['#03755b', '#049d7b', '#3bc59e', '#87e3c4', '#c8f8e6'] },
   // 人口統計：ColorBrewer RdPu（淺粉→深紫）。序列色只表數量高低；老化、性比例都不是好壞，不用紅綠。
-  population: { theme: '人口', accent: '#c51b8a', colors: ['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177'] },
-  security: { theme: '治安', accent: '#ef4444', colors: ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'] },
+  population: { theme: '人口', accent: '#c51b8a', colors: ['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177'], darkColors: ['#934563', '#c36286', '#ec86aa', '#feb6cd', '#fee3eb'] },
+  security: { theme: '治安', accent: '#ef4444', colors: ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'], darkColors: ['#974937', '#c8664f', '#f18b73', '#fdbbac', '#ffe4de'] },
   // 選舉統計（投票率、有效票、公投同意率）：中性紫（ColorBrewer Purples），不用政黨色以免讀成某黨；
   // 依政黨的得票率改走 partyColor、藍綠差走 partisan、最高黨走類別色（statisticsVisualColors options）。
-  politics: { theme: '選舉', accent: '#8b5cf6', colors: ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'] },
-  fallback: { theme: '統計', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'] },
+  politics: { theme: '選舉', accent: '#8b5cf6', colors: ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'], darkColors: ['#62579e', '#8477cf', '#a89cf8', '#cbc6fd', '#eae8ff'] },
+  fallback: { theme: '統計', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'], darkColors: ['#066b97', '#1191c9', '#49b7f1', '#98d7fe', '#d8effe'] },
 } as const satisfies Record<string, StatisticsTheme>;
 
 /** 五階序列色（低 → 高）供點圖層漸層共用；與 Statistics 同一組 ColorBrewer 色，不另造色號。 */
@@ -124,6 +131,21 @@ const textFor = (key: string, label?: string, group?: string) => `${key} ${label
 const has = (text: string, terms: readonly string[]) => terms.some(term => text.includes(term.toLocaleLowerCase()));
 
 const PU_OR_6 = ['#b35806', '#f1a340', '#fee0b6', '#d8daeb', '#998ec3', '#542788'] as const;
+/**
+ * PuOr 暗底版：兩端（離 0 最遠）最亮、靠近 0 的兩級最暗但不沉（α 0.75 疊暗陸對比約 3.2）；
+ * 棕橘負、紫正，色相同淡底版。疊暗陸對比 7.55／4.98／3.21｜3.23／4.99／7.57。
+ */
+const PU_OR_6_DARK = ['#ffe6d2', '#f6ab6a', '#be834f', '#9686ca', '#c2b0ff', '#ece8fe'] as const;
+
+/**
+ * 統計面填色透明度（K-4 統計例外，2026-11-10 拍板）：淡底 0.55（F-1 graded）；暗底 0.75。
+ * 透明度滑桿值以淡底為準，暗底依比例放大（預設 0.55 → 0.75，上限 1），地圖與圖例共用這個換算。
+ */
+export const STATISTICS_FILL_OPACITY = { light: 0.55, dark: 0.75 } as const;
+export function statisticsFillOpacity(sliderValue: number | undefined, isDark: boolean): number {
+  const value = sliderValue ?? STATISTICS_FILL_OPACITY.light;
+  return isDark ? Math.min(1, value * STATISTICS_FILL_OPACITY.dark / STATISTICS_FILL_OPACITY.light) : value;
+}
 /**
  * 藍綠雙向（選舉 kmt_minus_dpp_pp）：綠（負＝民進黨領先）→ 中性灰（0）→ 藍（正＝國民黨領先）。
  * 兩端取 Pulse 政黨色（ELECTION_CAMPS）的深一階，中段淺色；奇數類別時正中一類為中性灰。
@@ -478,19 +500,23 @@ export function statisticsVisualColors(
   label: string,
   breaks: readonly number[],
   direction?: 'ascending' | 'descending' | 'diverging',
-  options?: { palette?: 'partisan'; partyColor?: string },
+  options?: { palette?: 'partisan'; partyColor?: string; isDark?: boolean },
 ): string[] {
+  // 暗底（isDark）：序列色換 darkColors（低→高＝暗→亮）、雙向換 PU_OR_6_DARK；政黨色（partisan／partyColor）不分底圖。
+  const dark = options?.isDark === true;
+  const sequentialOf = (visualTheme: StatisticsVisual) => dark ? visualTheme.darkColors : visualTheme.colors;
+  const divergingPalette = dark ? PU_OR_6_DARK : PU_OR_6;
   // partisan（選舉藍綠差）：明確宣告才用，0 為中心；不論 direction 一律綠負藍正。
   if (options?.palette === 'partisan') return resample(PARTISAN_7, breaks.length + 1);
   // 依政黨 sequential（vote_share 選了某黨）：近白 → 該黨色 → 該黨色加深。
   if (options?.partyColor) return resample(partySequentialAnchors(options.partyColor), breaks.length + 1);
   // diverging（英國房價／租金年變動率）：明確宣告的雙向 PuOr，breaks 以 0 為中間門檻（棕負紫正）。
-  if (direction === 'diverging') return resample(PU_OR_6, breaks.length + 1);
+  if (direction === 'diverging') return resample(divergingPalette, breaks.length + 1);
   if (direction) {
-    const sequential = resample(getStatisticsVisual(key, label).colors, breaks.length + 1);
+    const sequential = resample(sequentialOf(getStatisticsVisual(key, label)), breaks.length + 1);
     return direction === 'descending' ? sequential.reverse() : sequential;
   }
-  const palette = breaks.some(value => value < 0) ? PU_OR_6 : getStatisticsVisual(key, label).colors;
+  const palette = breaks.some(value => value < 0) ? divergingPalette : sequentialOf(getStatisticsVisual(key, label));
   return resample(palette, breaks.length + 1);
 }
 

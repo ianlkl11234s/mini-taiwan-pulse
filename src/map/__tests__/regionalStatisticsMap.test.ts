@@ -26,10 +26,10 @@ const SHORT_PALETTE = 'short_palette';
 vi.mock('../../data/regionalStatisticsRecipes', () => ({
   STATISTICS_RENDER_KEYS: ['statsEducationElementarySchool'],
   statisticsBaseKey: (_key: string, indicator?: string) => indicator === 'institution_count' ? 'statsEducationCountyInstitutionCount' : 'statsComparisonEducationInstitutionCountPer10000Residents',
-  statisticsRenderRecipe: (_key: string, indicator?: string) => indicator === 'institution_count'
+  statisticsRenderRecipe: (_key: string, indicator?: string, _dims?: unknown, basemap?: { isDark?: boolean }) => indicator === 'institution_count'
     ? { dataset_id: 'education_statistics', indicator_id: 'institution_count', label: '機構數', level: 'county', unit: '所', dimensions: { education_stage: 'elementary' }, releaseId: 'social-114', colors: ['#200', '#201', '#202', '#203', '#204'], breaks: [10, 20, 30, 40] }
     : indicator === 'short_palette'
-      ? { dataset_id: 'comparison_statistics', indicator_id: 'short_palette', label: '短色盤', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: ['#300', '#301', '#302'], breaks: [1, 2] }
+      ? { dataset_id: 'comparison_statistics', indicator_id: 'short_palette', label: '短色盤', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: basemap?.isDark ? ['#d00', '#d01', '#d02'] : ['#300', '#301', '#302'], breaks: [1, 2] }
     : { dataset_id: 'comparison_statistics', indicator_id: 'education_institution_count_per_10000_residents', label: '每萬居民機構數', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: ['#100', '#101', '#102', '#103', '#104'], breaks: [1, 2, 3, 4] },
   statisticsReleaseFallback: () => undefined,
 }));
@@ -145,7 +145,8 @@ describe('attachRegionalStatistics', () => {
 
     state.params[`${VIEW}Opacity`] = 0.41;
     state.paramsListener?.();
-    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.41);
+    // 暗底（預設）：填色透明度依 STATISTICS_FILL_OPACITY 比例放大，斜線維持滑桿值
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBeCloseTo(0.41 * 0.75 / 0.55);
     // F-2：細縫不綁透明度滑桿
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.6, 0.5]);
     expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-opacity']).toBe(0.41);
@@ -173,8 +174,15 @@ describe('attachRegionalStatistics', () => {
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-dark');
     expect(mock.map.addImage).toHaveBeenCalledWith('map-hatch-missing-light', expect.objectContaining({ width: 8, height: 8 }));
 
+    // Q7：暗底版色階（低→高＝暗→亮）、填色 0.75
+    expect(fillColorSteps(mock, VIEW)).toEqual(['step', ['get', 'value'], '#d00', 1, '#d01', 2, '#d02']);
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBeCloseTo(0.75);
+
     dark = false;
     mock.events.get('style.load')?.();
+    // 換淡底：已開啟的統計圖層即時換回淡底色階與 0.55
+    expect(fillColorSteps(mock, VIEW)).toEqual(['step', ['get', 'value'], '#300', 1, '#301', 2, '#302']);
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.55);
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-color'] as unknown[]).slice(2)).toEqual(['#ffffff', '#374151']);
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.8, 0.5]);
     expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-pattern']).toBe('map-hatch-missing-light');

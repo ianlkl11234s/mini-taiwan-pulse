@@ -4,6 +4,7 @@ import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../state/layerVisibilityStore';
 import { layerParamsStore } from '../state/layerParamsStore';
 import { keepLoadingUntilMapIdle } from '../lib/loadingRegistry';
+import { statisticsFillOpacity } from '../data/statisticsVisuals';
 import { gradedSeamPaint, hatchImageData, hatchImageId, type HatchKind } from './mapStyleScale';
 
 /** 有數值才上色；缺值、未發布、遮蔽一律透明底，由 hatch 子圖層表示（F-3 A）。 */
@@ -14,7 +15,7 @@ const SUFFIXES = ['fill', 'missing', 'suppressed', 'line'] as const;
 
 /**
  * Owns only statistics sources/layers; other GIS visibility is untouched.
- * @param getIsDark 目前底圖是否暗色（細縫與斜線顏色依底圖切換；換底圖會觸發 style.load 重畫）。
+ * @param getIsDark 目前底圖是否暗色（色階、填色透明度、細縫與斜線顏色依底圖切換；換底圖會觸發 style.load 重畫）。
  */
 export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boolean = () => true): () => void {
   const shown = new Map<StatisticsRenderKey, boolean>();
@@ -41,14 +42,14 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     for (const key of STATISTICS_RENDER_KEYS) {
       const visible = layerVisibilityStore.getVisibility(key);
       const state = regionalStatisticsStore.getSnapshot(key);
-      const recipe = statisticsRenderRecipe(key, state.selection?.indicatorId, state.selection?.dimensions);
+      const recipe = statisticsRenderRecipe(key, state.selection?.indicatorId, state.selection?.dimensions, { isDark });
       if (!layerVisibilityStore.getAll()[key] && !map.getSource(key)) continue;
       if (!map.getSource(key)) {
         rendered.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
         map.addLayer({ id: `${key}-fill`, type: 'fill', source: key, layout: { visibility: 'none' }, paint: {
           'fill-color': statisticsFillCase(recipe, HAS_VALUE, NO_FILL) as mapboxgl.ExpressionSpecification,
-          'fill-opacity': 0.55,
+          'fill-opacity': statisticsFillOpacity(undefined, isDark),
         } });
         map.addLayer({ id: `${key}-missing`, type: 'fill', source: key, filter: IS_MISSING as mapboxgl.FilterSpecification, layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('missing', isDark), 'fill-opacity': 0.55 } });
         map.addLayer({ id: `${key}-suppressed`, type: 'fill', source: key, filter: ['==', ['get', 'status'], 'suppressed'], layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('suppressed', isDark), 'fill-opacity': 0.55 } });
@@ -73,7 +74,8 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       }
       for (const suffix of SUFFIXES) map.setLayoutProperty(`${key}-${suffix}`, 'visibility', visible && data ? 'visible' : 'none');
       const opacity = Number(layerParamsStore.getParam(key, `${key}Opacity`) ?? 0.55);
-      map.setPaintProperty(`${key}-fill`, 'fill-opacity', opacity);
+      // 填色：暗底依 STATISTICS_FILL_OPACITY 比例放大（K-4 統計例外）；斜線維持滑桿值。
+      map.setPaintProperty(`${key}-fill`, 'fill-opacity', statisticsFillOpacity(opacity, isDark));
       map.setPaintProperty(`${key}-missing`, 'fill-opacity', opacity);
       map.setPaintProperty(`${key}-suppressed`, 'fill-opacity', opacity);
     }
