@@ -24,7 +24,7 @@ if ((added.length || worse.length) && !allowNew && existsSync(CONTRAST_BASELINE_
 }
 const body = {
   note: "對比契約基準（map-layers §3.9 C-3）：只准減少。重產：npm run contrast:baseline",
-  thresholds: { registryDarkMin: 3, statisticsMin: 1.8, statisticsTop: 6, darkLand: "#292828" },
+  thresholds: { registryDarkMin: 3, statisticsDeepestMin: 2.2, statisticsDeepestChroma: 0.1, statisticsLightest: [6, 9], darkLand: "#292828" },
   violations: current,
 };
 writeFileSync(CONTRAST_BASELINE_PATH, `${JSON.stringify(body, null, 1)}\n`, "utf8");

@@ -2,8 +2,12 @@
  "note": "對比契約基準（map-layers §3.9 C-3）：只准減少。重產：npm run contrast:baseline",
  "thresholds": {
   "registryDarkMin": 3,
-  "statisticsMin": 1.8,
-  "statisticsTop": 6,
+  "statisticsDeepestMin": 2.2,
+  "statisticsDeepestChroma": 0.1,
+  "statisticsLightest": [
+   6,
+   9
+  ],
   "darkLand": "#292828"
  },
  "violations": {
@@ -444,99 +448,99 @@
    "type": "circle"
   },
   "statsElectionCouncilorPartyKmtMinusDppCounty": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionCouncilorPartyKmtMinusDppTownship": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionCouncilorPartyKmtMinusDppVillage": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionCouncilorPartyVoteShareCounty": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionCouncilorPartyVoteShareTownship": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionCouncilorPartyVoteShareVillage": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionLegislatorPartyKmtMinusDppCounty": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionLegislatorPartyKmtMinusDppTownship": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionLegislatorPartyKmtMinusDppVillage": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionLegislatorPartyVoteShareCounty": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionLegislatorPartyVoteShareTownship": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionLegislatorPartyVoteShareVillage": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionMayorKmtMinusDppCounty": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionMayorKmtMinusDppTownship": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionMayorKmtMinusDppVillage": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionMayorVoteShareCounty": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionMayorVoteShareTownship": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionMayorVoteShareVillage": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionPresidentKmtMinusDppCounty": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionPresidentKmtMinusDppTownship": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionPresidentKmtMinusDppVillage": {
-   "contrast": 7.35,
+   "contrast": 1.36,
    "type": "statistics-party"
   },
   "statsElectionPresidentVoteShareCounty": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionPresidentVoteShareTownship": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "statsElectionPresidentVoteShareVillage": {
-   "contrast": 7.94,
+   "contrast": 1.38,
    "type": "statistics-party"
   },
   "streetTreesTaipei3epoch": {

@@ -11,12 +11,13 @@
  *   - 子圖層透明度＝opacity 數字；是表達式時取輸出位置 0–1 的最大數值（可能高估可見度）。
  *   - 子圖層代表對比＝各色（× 透明度 × 色本身 alpha）疊在暗陸 `#292828` 後 WCAG 對比的中位數。
  *   - 每個 key 取最顯眼的主體子圖層（代表對比最大者）。違規：< 3。
- * 統計規則：對比單調（序列）或兩端最亮（雙向）、最低 ≥ 1.8、最高 ≥ 6；違規時記最高級對比（政黨色另記 statistics-party）。
+ * 統計規則（2026-11-10 使用者決定：暗底與淡底同方向，越深越多）：對比單調（序列）或兩端最深（雙向）；
+ * 最深一級對比 ≥ 2.2 且 OKLCH 彩度 ≥ 0.10、最淺一級對比 6–9；違規時記最深一級對比（政黨色另記 statistics-party）。
  * 不涵蓋：hook 自建圖層、Three.js／3D、heatmap／raster（另有色盤測試）、symbol 文字。
  */
 import { readFileSync } from "node:fs";
 import { BASEMAP_LAND } from "../mapStyleScale";
-import { compositeOver, contrastRatio, parseColor } from "../colorContrast";
+import { compositeOver, contrastRatio, oklab, parseColor } from "../colorContrast";
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from "../../data/regionalStatisticsRecipes";
 import { STATISTICS_FILL_OPACITY } from "../../data/statisticsVisuals";
 import { isDecorativeSuffix } from "../legendLayerOpacity";
@@ -24,11 +25,12 @@ import { isDecorativeSuffix } from "../legendLayerOpacity";
 export const GOLDEN_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 export const CONTRAST_BASELINE_PATH = "src/map/__tests__/__fixtures__/contrast-baseline.json";
 export const MIN_CONTRAST_DARK = 3;
-export const STATISTICS_MIN = 1.8;
-export const STATISTICS_TOP = 6;
+export const STATISTICS_DEEPEST_MIN = 2.2;
+export const STATISTICS_DEEPEST_CHROMA = 0.1;
+export const STATISTICS_LIGHTEST = [6, 9.05] as const;
 
 export interface ContrastViolation {
-  /** 對比（registry：最顯眼主體子圖層的代表對比；統計：最高級對比）。 */
+  /** 對比（registry：最顯眼主體子圖層的代表對比；統計：最深一級對比）。 */
   contrast: number;
   /** 最顯眼子圖層的型別；統計為 statistics。 */
   type: string;
@@ -122,21 +124,30 @@ export function registryKeyContrasts(golden = JSON.parse(readFileSync(GOLDEN_PAT
   return best;
 }
 
-/** 統計圖層暗底色階不合門檻者（最高級對比）。 */
+/** 統計圖層暗底色階不合門檻者（記最深一級對比）。 */
 export function statisticsViolations(): Map<string, ContrastViolation> {
   const out = new Map<string, ContrastViolation>();
   for (const key of STATISTICS_RENDER_KEYS) {
     const recipe = statisticsRenderRecipe(key, undefined, undefined, { isDark: true });
     if ("categories" in recipe && recipe.categories) continue;
-    const cr = recipe.colors.map((color) => contrastRatio(compositeOver(parseColor(color)!.rgb, LAND, STATISTICS_FILL_OPACITY.dark), LAND));
+    const composite = recipe.colors.map((color) => compositeOver(parseColor(color)!.rgb, LAND, STATISTICS_FILL_OPACITY.dark));
+    const cr = composite.map((rgb) => contrastRatio(rgb, LAND));
     if (cr.length < 2) continue;
+    const chroma = composite.map((rgb) => { const [, a, b] = oklab(rgb); return Math.hypot(a, b); });
     const ascending = cr.every((v, i) => i === 0 || v > cr[i - 1]!);
     const descending = cr.every((v, i) => i === 0 || v < cr[i - 1]!);
-    const endsBright = Math.min(cr[0]!, cr[cr.length - 1]!) >= STATISTICS_TOP;
-    const ok = (ascending || descending || endsBright) && Math.min(...cr) >= STATISTICS_MIN && Math.max(...cr) >= STATISTICS_TOP;
+    const deepestIndex = cr.indexOf(Math.min(...cr));
+    const lightest = Math.max(...cr);
+    // 序列：最深在一端；雙向：兩端都要是深色（對比 ≤ 中段），兩端都檢查彩度。
+    const endsDeep = Math.max(cr[0]!, cr[cr.length - 1]!) <= Math.min(...cr.slice(1, -1));
+    const deepIndices = ascending || descending ? [deepestIndex] : [0, cr.length - 1];
+    const ok = (ascending || descending || endsDeep)
+      && Math.min(...cr) >= STATISTICS_DEEPEST_MIN
+      && deepIndices.every((i) => chroma[i]! >= STATISTICS_DEEPEST_CHROMA)
+      && lightest >= STATISTICS_LIGHTEST[0] && lightest <= STATISTICS_LIGHTEST[1];
     // 政黨色（partisan、依政黨 sequential）刻意不分底圖（statistics-layer-guidelines §4），另記一類供後續拍板。
     const party = recipe.colors.join() === statisticsRenderRecipe(key).colors.join();
-    if (!ok) out.set(key, { contrast: round2(Math.max(...cr)), type: party ? "statistics-party" : "statistics" });
+    if (!ok) out.set(key, { contrast: round2(Math.min(...cr)), type: party ? "statistics-party" : "statistics" });
   }
   return out;
 }

@@ -19,7 +19,7 @@ import type { StatisticsLevel, StatisticsRecipe } from '../../data/regionalStati
 import { statisticsColorStops } from '../../data/statisticsColorScale';
 import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
 import { LegendFillOpacityCtx, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
-import { statisticsFillOpacity, statisticsScaleWording } from '../../data/statisticsVisuals';
+import { statisticsFillOpacity } from '../../data/statisticsVisuals';
 import { useLayerParams } from '../../state/layerParamsStore';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
 import { enumLabel } from '../../i18n/dataText';
@@ -213,7 +213,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const state = useStatisticsSnapshot(layerKey);
   const baseKey = statisticsBaseKey(layerKey, state.selection?.indicatorId);
   const t = useLegendTheme();
-  // 同地圖（regionalStatisticsMap）：色階依底圖換暗底版，色票畫「滑桿換算後的填色透明度 × 底圖陸地色」合成色（LG-14）。
+  // 同地圖（regionalStatisticsMap）：色階依底圖換暗底版，色票畫「滑桿值（＝實際填色透明度）× 底圖陸地色」合成色（LG-14）。
   const recipe = statisticsRenderRecipe(layerKey, state.selection?.indicatorId, state.selection?.dimensions, { isDark: t.isDark });
   const sliderOpacity = useLayerParams(layerKey)[`${layerKey}Opacity`];
   const fillOpacity = statisticsFillOpacity(typeof sliderOpacity === 'number' ? sliderOpacity : undefined, t.isDark);
@@ -226,8 +226,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const landslide = getLandslideRecipe(baseKey);
   const atlas = getAtlasRecipe(baseKey);
   const atlasScaleRaw = atlas ? atlasScaleNote(baseKey, state.selection?.dimensions) : undefined;
-  const shadeWording = (text: string) => statisticsScaleWording(text, t.isDark);
-  const atlasScale = atlasScaleRaw ? shadeWording(enumLabel('statLegendNote', atlasScaleRaw, atlasScaleRaw, i18n)) : undefined;
+  const atlasScale = atlasScaleRaw ? enumLabel('statLegendNote', atlasScaleRaw, atlasScaleRaw, i18n) : undefined;
   // 二元圖例（自來水不合格：有／無；金融服務欠缺鄉鎮：名單內／外）不是連續色階，不顯示「淺 → 深」通用說明。
   const atlasBinaryRows = atlas ? atlasBinaryLegendRows(atlas, recipe.colors)?.map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
   // 類別型（最高黨）：每類一列、用類別名（不顯示門檻區間與「淺 → 深」）。
@@ -241,17 +240,17 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
     {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
     {state.loading && <span>{tr('statistics.legend.loading')}</span>}{state.error && <span role="alert" title={i18n.active === 'zh-TW' ? undefined : state.error}>{i18n.active === 'zh-TW' ? state.error : tr('statistics.loadFailed')}</span>}
-    {!binaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : t.isDark ? 'statistics.legend.sequentialDark' : 'statistics.legend.sequential')}</span>}
+    {!binaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
     {(binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>)}
     {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
-    {addiction?.legend.zero_note && <span>{shadeWording(addiction.legend.zero_note)}</span>}
+    {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
     {addiction && addictionStatusLegendRows(addiction).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
-    {landslide?.legend.zero_note && <span>{shadeWording(landslide.legend.zero_note)}</span>}
-    {landslide?.legend.display_note && <span>{shadeWording(landslide.legend.display_note)}</span>}
+    {landslide?.legend.zero_note && <span>{landslide.legend.zero_note}</span>}
+    {landslide?.legend.display_note && <span>{landslide.legend.display_note}</span>}
     {landslide?.status_labels.missing && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr('statistics.legend.hatchLabel', { label: landslide.status_labels.missing })}</LegendRow>}
-    {atlas?.legend.zero_note && <span>{shadeWording(enumLabel('statLegendNote', atlas.legend.zero_note, atlas.legend.zero_note, i18n))}</span>}
-    {atlas?.legend.display_note && <span>{shadeWording(enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n))}</span>}
-    {atlas?.legend.notes?.map((note) => <span key={note}>{shadeWording(enumLabel('statLegendNote', note, note, i18n))}</span>)}
+    {atlas?.legend.zero_note && <span>{enumLabel('statLegendNote', atlas.legend.zero_note, atlas.legend.zero_note, i18n)}</span>}
+    {atlas?.legend.display_note && <span>{enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n)}</span>}
+    {atlas?.legend.notes?.map((note) => <span key={note}>{enumLabel('statLegendNote', note, note, i18n)}</span>)}
     {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label, solid }) => <LegendRow key={kind} swatch={solid ? <SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} /> : <SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
     {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}

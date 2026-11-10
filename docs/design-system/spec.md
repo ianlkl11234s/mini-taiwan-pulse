@@ -517,7 +517,7 @@
 - **尺寸**：input 高 14、2px 軌道、10px 圓點（`margin-top: -4px`）、圓點外 3px 12% 光暈；已拖段較亮（`--p` 由元件 inline 更新）。
 - **色**：`--slider-track`／`--slider-fill`／`--slider-thumb`（淡色 `--light-slider-*`）。
 - **狀態**：focus-visible → 圓點 `0 0 0 2px accent`。
-- **數值**：`valueText` 由 `splitSliderLabel()` 產生（§6.2）。
+- **數值**：`valueText` 由 `splitSliderLabel()` 產生（§6.2）。透明度滑桿顯示的就是實際套用的透明度，不在背後換算（2026-11-10 使用者決定）。預設值依底圖不同時（統計 choropleth 淡 0.55／暗 0.75），使用者沒動過滑桿則換底圖跟著換預設值，動過就保留（`map-layers.md` §3.6 K-4 統計例外）。
 - **禁止**：在共用元件以外寫原生 `type="range"`（guard `native-range`）；粗軌道、系統預設藍色滑桿。
 - **實作**：全站唯一元件 `src/components/controls/Slider.tsx`＋`slider.css`（`.ctl-range`），見 §5.28；圖層控制 `LayerParamControls.tsx` `SliderControl` 也用它（Phase Q 收斂，舊 `.lpc-range` 已刪）。
 

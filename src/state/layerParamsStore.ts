@@ -167,6 +167,14 @@ export const layerParamsStore = {
     applyWrites([{ key, name, value }]);
   },
 
+  /**
+   * 多筆 `setParamDirect` 一次寫入、只通知一次（換底圖時統計圖層 911 個透明度預設一起換，
+   * 見 regionalStatisticsMap `syncStatisticsOpacityDefaults`）。未遷移 / 未宣告的一律忽略。
+   */
+  setManyDirect(writes: readonly { key: string; name: string; value: ParamValue }[]): void {
+    applyWrites(writes);
+  },
+
   /** 訂閱任何 key 的變動（`useLayerParamsRuntime` 走這條） */
   subscribe(cb: Listener): () => void {
     globalListeners.add(cb);

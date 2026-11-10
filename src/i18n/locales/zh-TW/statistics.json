@@ -9,7 +9,6 @@
   "statistics.legend.loading": "載入中…",
   "statistics.legend.diverging": "棕色：負值；紫色：非負值；0 為分界，顏色不代表好壞",
   "statistics.legend.sequential": "淺 → 深：數值低 → 高；請依本指標的數字區間比較",
-  "statistics.legend.sequentialDark": "暗 → 亮：數值低 → 高（暗色底圖）；請依本指標的數字區間比較",
   "statistics.legend.hatchSocial": "斜線：missing／來源未涵蓋，不等於 0；observed 0 使用數值色階",
   "statistics.legend.hatchDefault": "斜線：缺資料／未發布數值",
   "statistics.legend.hatchLabel": "斜線：{label}",
