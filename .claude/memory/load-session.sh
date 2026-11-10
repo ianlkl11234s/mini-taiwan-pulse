@@ -33,7 +33,7 @@ fetch_age() {
   date -r "$(stat -f %m "$f" 2>/dev/null || stat -c %Y "$f")" "+%m-%d %H:%M" 2>/dev/null
 }
 
-LINES=()
+MSGS=()
 
 # ── 1. 本 checkout vs origin/develop
 if git -C "$ROOT" rev-parse --verify -q origin/develop >/dev/null 2>&1; then
@@ -45,7 +45,7 @@ if git -C "$ROOT" rev-parse --verify -q origin/develop >/dev/null 2>&1; then
     if ! git -C "$ROOT" diff --quiet HEAD origin/develop -- CLAUDE.md AGENTS.md .claude/ 2>/dev/null; then
       extra="；CLAUDE.md／.claude（hook、skills、memory）與 origin 不同"
     fi
-    LINES+=("本 checkout 落後 origin/develop ${behind} 個 commit（領先 ${ahead}；上次 fetch $(fetch_age "$ROOT")）${extra}。讀文件請用 \`git show origin/develop:<path>\`，不要讀工作區檔；更新主 checkout 要先問使用者。")
+    MSGS+=("本 checkout 落後 origin/develop ${behind} 個 commit（領先 ${ahead}；上次 fetch $(fetch_age "$ROOT")）${extra}。讀文件請用 \`git show origin/develop:<path>\`，不要讀工作區檔；更新主 checkout 要先問使用者。")
   fi
 fi
 
@@ -62,11 +62,11 @@ if [ -d "$AGS/.git" ] || [ -f "$AGS/.git" ]; then
     a="${counts%%[[:space:]]*}"; b="${counts##*[[:space:]]}"
     if [ -n "$counts" ]; then
       if [ "$a" -gt 0 ] 2>/dev/null && [ "$b" -gt 0 ] 2>/dev/null; then
-        LINES+=(".gis-agent-system 與 ${dref} 分叉：落後 ${b}、領先 ${a}（本機有未 push 的 commit；上次 fetch $(fetch_age "$AGS")）。讀 ADR／計畫書用 \`git -C ../.gis-agent-system show ${dref}:<path>\`。")
+        MSGS+=(".gis-agent-system 與 ${dref} 分叉：落後 ${b}、領先 ${a}（本機有未 push 的 commit；上次 fetch $(fetch_age "$AGS")）。讀 ADR／計畫書用 \`git -C ../.gis-agent-system show ${dref}:<path>\`。")
       elif [ "$b" -gt 0 ] 2>/dev/null; then
-        LINES+=(".gis-agent-system 落後 ${dref} ${b} 個 commit（上次 fetch $(fetch_age "$AGS")）。讀 ADR／計畫書用 \`git -C ../.gis-agent-system show ${dref}:<path>\`。")
+        MSGS+=(".gis-agent-system 落後 ${dref} ${b} 個 commit（上次 fetch $(fetch_age "$AGS")）。讀 ADR／計畫書用 \`git -C ../.gis-agent-system show ${dref}:<path>\`。")
       elif [ "$a" -gt 0 ] 2>/dev/null; then
-        LINES+=(".gis-agent-system 領先 ${dref} ${a} 個 commit（未 push）。")
+        MSGS+=(".gis-agent-system 領先 ${dref} ${a} 個 commit（未 push）。")
       fi
     fi
   fi
@@ -78,11 +78,12 @@ if command -v node >/dev/null 2>&1 && [ -f "$CHECKER" ]; then
   REF=origin/develop
   git -C "$ROOT" rev-parse --verify -q "$REF" >/dev/null 2>&1 || REF=HEAD
   overdue="$(
-    P="$(git -C "$ROOT" show "$REF:docs/PROJECTS.md" 2>/dev/null)" \
-    B="$(git -C "$ROOT" show "$REF:.claude/memory/BACKLOG.md" 2>/dev/null)" \
     node --input-type=module -e '
+      // 文件內容由 node 自己 git show（BACKLOG 約 300KB，不經環境變數，避免撞 ARG_MAX）
+      const { execFileSync } = await import("node:child_process");
       const { checkEntryDocs, taipeiToday } = await import(process.argv[1]);
-      const { P, B } = process.env;
+      const show = (p) => { try { return execFileSync("git", ["-C", process.argv[2], "show", `${process.argv[3]}:${p}`], { encoding: "utf8", maxBuffer: 32 << 20, stdio: ["ignore", "pipe", "ignore"] }); } catch { return ""; } };
+      const P = show("docs/PROJECTS.md"), B = show(".claude/memory/BACKLOG.md");
       if (!P || !B) process.exit(0);
       const lines = P.split("\n");
       const ws = checkEntryDocs({ projects: P, backlog: B, today: taipeiToday() }).filter((p) => p.rule === "deadline");
@@ -95,14 +96,14 @@ if command -v node >/dev/null 2>&1 && [ -f "$CHECKER" ]; then
         return `${id || "L" + w.line} ${what}…（${due}）`;
       });
       if (items.length) console.log(`PROJECTS 有期限的事已過期 ${items.length} 項：${items.slice(0, 4).join("、")}${items.length > 4 ? "…" : ""}；請寫〔結果 YYYY-MM-DD：…〕或改期。`);
-    ' "file://$CHECKER" 2>/dev/null
+    ' "file://$CHECKER" "$ROOT" "$REF" 2>/dev/null
   )"
-  [ -n "$overdue" ] && LINES+=("$overdue")
+  [ -n "$overdue" ] && MSGS+=("$overdue")
 fi
 
 STATUS=""
-if [ "${#LINES[@]}" -gt 0 ]; then
-  STATUS="$(printf '%s\n' "${LINES[@]}" | head -n 5)"
+if [ "${#MSGS[@]}" -gt 0 ]; then
+  STATUS="$(printf '%s\n' "${MSGS[@]}" | head -n 5)"
 fi
 
 STATUS="$STATUS" python3 - <<'JSON_OUTPUT'
