@@ -16,6 +16,7 @@
 2. [現況總覽](#2-現況總覽)
 3. [規格（拍板版）](#3-規格2026-09-28-拍板)
    - [3.8 全國視角可見性（V-1～V-7）](#38-全國視角可見性2026-10-31)
+   - [3.9 圖層色對底圖的對比（C-1～C-3）](#39-圖層色對底圖的對比2026-11-10)
 4. [圖例規格](#4-圖例legend規格)
 5. [組合範例](#5-組合範例)
 6. [調整工作流](#6-調整工作流)
@@ -307,7 +308,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 | 階 | fill-opacity | 用途 | 依據 |
 |---|---|---|---|
-| 統計分級面 | **0.55** | 行政區統計、分級 choropleth | 統計 renderer 現值；onboarding「熱區／密度」0.55 |
+| 統計分級面 | **0.55**（統計圖層暗底 0.75，見 K-4 統計例外） | 行政區統計、分級 choropleth | 統計 renderer 現值；onboarding「熱區／密度」0.55 |
 | 覆蓋範圍面 | **0.35** | 等時圈、服務範圍、分區、保護區 | onboarding 0.35；現況中位 0.37 |
 | 背景參考面 | **0.15** | 行政區、底層分區、只為提示範圍 | onboarding 0.15 |
 | 網格 | 0.7 | 規則網格（格小、需讀值） | 現況 0.7–0.85 |
@@ -375,6 +376,17 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 現況有 11 層改線寬、10 層改面透明度、11 層改點透明度（去重共 23 層），拍板後逐層改成只換色（若淡底圖真的需要更不透明，應整體調 F-1 的值，而不是單層例外）。R3a 已處理 registry 線面（`lineFillSpec.test.ts` 的 K-4 測試守門），剩依資料的「保留」層與 hook 圖層。
 
+**K-4 統計例外（2026-11-10 使用者拍板）**：行政區統計 choropleth（`regionalStatisticsMap`，約 910 個 key）整類隨底圖切換色階與填色透明度，不是單層例外：
+
+| | 淡色底圖（light、streets） | 暗色底圖（dark、Pure Black、衛星等其餘） |
+|---|---|---|
+| 色階 | `colors`：ColorBrewer，低 → 高＝淺 → 深 | `darkColors`：OKLCH 同色相 L 0.50 → 0.94，低 → 高＝暗 → 亮 |
+| 雙向（PuOr） | 近 0 淺、兩端深 | `PU_OR_6_DARK`：近 0 兩級暗但不沉、兩端最亮 |
+| 政黨色（藍綠差、依政黨得票率、最高黨類別） | 不分底圖 | 不分底圖（不動，基準登記 `statistics-party`） |
+| 填色透明度 | 滑桿值（預設 0.55） | 滑桿值 × 0.75／0.55（預設 0.75，上限 1）；斜線維持滑桿值 |
+
+單一來源：`src/data/statisticsVisuals.ts`（`THEMES[*].darkColors`、`statisticsVisualColors(…, { isDark })`、`statisticsFillOpacity`）；地圖與圖例都經 `statisticsRenderRecipe(…, { isDark })`，換底圖時已開啟的統計圖層即時換色。門檻見 §3.9 C-2。
+
 ### 3.7 顏色
 
 - **K-1 `LAYER_COLORS` 的角色**：圖層的**識別色**（側欄 icon、單色圖層的預設 paint 色、圖例標題色塊）。單色圖層的 paint 主色必須等於 `LAYER_COLORS`（R4 前 13 層不一致，R4 已把 manifest 的 `color` 改成地圖暗色版主色）。拍板 B：**以地圖現在的顏色為準**：`LAYER_COLORS` 改成地圖的暗色版主色；若地圖暗淡不同色，圖例色票跟著暗淡切換（醫療 5 層：暗 `#e53935`／淡 `#c62828`）；類別或序列圖層的 paint 用自己的色票，`LAYER_COLORS` 只當識別，不要求出現在 paint。
@@ -393,6 +405,14 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
   - 台灣＋日本 PMTiles 面層（2026-10-31）：登記表 `src/data/repPointLayers.ts`（檔、點數、預設樣式），控件由 `layerParamsSpec` 依表補（樣式、≥1 萬點補熱區顏色、大小）；registry 圖層由 `map/repPointOverlays.ts` 自動產生同 id 的第二個 config（`<sourceId>-points`，顏色、篩選沿用面層），自建 hook／factory 讀同一張表。「面」樣式在面出現前補熱區或代表點；土砂警戒的代表點檔只到 z7，不提供切換、只補熱區。
 - **V-6 熱區顏色多樣**：取代 G-2 原「預設一律 magma」，改依主題給預設色盤（表見 §3.4 G-2），同國同主題的熱區層不同色；使用者仍可換。
 - **V-7 驗收**：每層在國家全覽縮放截圖一張，確認有東西（點或熱區）或有提示；契約測試只涵蓋 registry overlay 與南韓資料層，其他 hook 圖層靠截圖。
+
+### 3.9 圖層色對底圖的對比（2026-11-10）
+
+稽核（暗底圖統計最高級合成後對比只有 1.05–1.60）後補上的規則。合成一律用 gamma 空間 source-over（Mapbox 實際畫法，已用正式站像素驗證），算法在 `src/map/colorContrast.ts`。
+
+- **C-1 底圖色**：暗陸 `#292828`、淡陸 `#f8f8fa`（正式站截圖實測，常數 `BASEMAP_LAND`）。Pure Black、衛星等其他暗底圖以暗陸近似。注意 `MAP_SEAM.dark #0a0a14` 不是底圖色。
+- **C-2 分級色階**：每一級「色 × 預設透明度」疊在暗陸上的對比要**單調**（低 → 高越來越亮；`descending` 反轉時越來越暗），最暗一級 ≥ **1.8**、最亮一級 ≥ **6**，相鄰級 OKLab ΔE ≥ **4**（重新取樣到 2–9 級都要符合）。雙向色階兩端 ≥ 6、每一級 ≥ 1.8。統計圖層由 `statisticsDarkRamp.test.ts` 逐 render key 驗；統計實測（暗底、0.75）：最高級 7.52–7.75、最低級 1.83–3.21。
+- **C-3 單層對比下限**：每個圖層「最顯眼主體子圖層」（circle／line／fill／fill-extrusion，排除 glow、outline、label 等裝飾）各色合成到暗陸後對比的中位數 ≥ **3**。契約測試 `src/map/__tests__/contrastContract.test.ts`（ratchet：既有違規列在 `__fixtures__/contrast-baseline.json`，不准新增、不准變差；違規減少時跑 `npm run contrast:baseline` 重產）。涵蓋 registry overlay（`layer-golden.json`）與統計；hook 自建、Three.js、heatmap／raster、文字不涵蓋。
 
 ---
 
@@ -453,6 +473,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | **LG-6 icon** | 與地圖同一 sprite 圖示 14px | symbol icon |
 | **LG-7 缺值／遮蔽** | 16×12 斜線，同地圖 pattern | 統計 suppressed、N1 缺值 |
 | **LG-8 熱區／影像漸層** | 漸層條＋兩端「低／高」＋單位；熱區漸層讀 `state/layerPalette.ts`（與地圖同一色盤、依底圖暗／淡），一個圖例管多層且色盤不同時各畫一條並標層名 | heatmap、raster |
+| **LG-13 合成色**（2026-11-10） | 面類別（LG-2 實心）與序列分級（LG-3 方塊列）畫「色 × 圖層**目前**填色透明度 × 底圖陸地色（C-1）」的合成色，不透明，外加 1px 面板邊框（`legendTheme.border`）；透明度很低時色塊接近底圖色，但邊框讓位置仍看得到。透明度跟滑桿與底圖即時變 | 一般圖層：`LegendPanel` 以 overlayRegistry fill 子圖層 `paint(isDark, overlayParams)` 求出的 `fill-opacity`（含 `opacityParam`）經 `LegendFillOpacityCtx` 傳入；統計：`statisticsFillOpacity`。透明度是表達式、hook 自建或 3D 圖層查不到時維持原色票；呼叫端自己傳 `opacity` 的色票也維持原畫法 |
 
 元件：`legendKit.tsx` 的 `LegendTitle`／`LegendRow`／`LegendNote`／`LegendNum`／`Swatch*`、`useLegendTheme`、`useLegendCompact`、尺寸常數 `LEGEND_SWATCH`（`spec.md` §5.32）。**LG-5 大小尚無共用元件**；LG-6 icon 目前只有方向箭頭 `SwatchArrow`（R6 段 3，`LEGEND_SWATCH.icon = 14`），其他 sprite 逐層做時補。
 
