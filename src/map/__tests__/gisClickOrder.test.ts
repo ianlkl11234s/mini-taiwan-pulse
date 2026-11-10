@@ -12,6 +12,14 @@ describe("GIS_LAYERS 點擊順序（first-hit-wins）", () => {
     }
   });
 
+  it("Day 6 點／線排在所有大面積面層之前（review F007）", () => {
+    for (const point of ["mapchallengeDay06Lighthouses", "mapchallengeDay06Temples1921", "mapchallengeDay06Coast"]) {
+      for (const area of ["temperatureGrid", "funeralOperatorDensity", "eduCampus", "mapchallengeDay06Taipei1932"]) {
+        expect(order(point), `${point} 應在 ${area} 之前`).toBeLessThan(order(area));
+      }
+    }
+  });
+
   it("國土利用監測：篩選後 opacity 0 的六角格不算命中（review F067）", () => {
     const hex = (opacity: unknown) => ({ layer: { id: "land-use-change-grid-hex", paint: { "fill-opacity": opacity } } });
     const point = { layer: { id: "land-use-change-points-circle", paint: {} } };
