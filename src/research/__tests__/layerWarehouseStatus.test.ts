@@ -1,6 +1,6 @@
 /** AG-13 入倉守門的純函式（scripts/research/layer-warehouse-status.mjs）：CI 可跑的 fixture 測試。 */
 import { describe, expect, it } from "vitest";
-import { checkWarehouseGate, indexRegistry, parseLayerList } from "../../../scripts/research/layer-warehouse-status.mjs";
+import { checkWarehouseGate, indexRegistry, parseLayerList, parseLayerListKeys } from "../../../scripts/research/layer-warehouse-status.mjs";
 
 const FILES = [
   { name: "a.yaml", text: "id: a\nconsumers:\n  pulse_layers: [inWh]\nwarehouse:\n- table: ds_a\n  core: false\n" },
@@ -51,5 +51,9 @@ describe("layer warehouse gate (AG-13)", () => {
   it("parses list files with comments and nested fields", () => {
     const list = parseLayerList("# 註解\nlayers:\n- layer: a  # TW｜x\n- layer: b\n  reason: r\n  unlock: u\n");
     expect([...list.entries()]).toEqual([["a", { reason: "", unlock: "" }], ["b", { reason: "r", unlock: "u" }]]);
+  });
+
+  it("parseLayerListKeys keeps duplicates so _no_upstream.yaml duplicate checks can fire (review F072)", () => {
+    expect(parseLayerListKeys("layers:\n- layer: a\n- layer: b\n- layer: a  # dup\n")).toEqual(["a", "b", "a"]);
   });
 });

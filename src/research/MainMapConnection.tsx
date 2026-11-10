@@ -182,7 +182,8 @@ export function MainMapConnection(props: Props) {
     const positions: [number, number][] = [];
     for (const result of availableResultRowsRef.current) {
       if (!presentedIds.has(result.resultId)) continue;
-      try { positions.push(...presentationMetrics(result.rows, result.geometry.type as Parameters<typeof presentationMetrics>[1]).positions as [number, number][]); } catch { /* unsupported geometry: skip */ }
+      // Loop instead of push(...spread): a result near the 400k-vertex cap overflows the call stack (review F024).
+      try { for (const position of presentationMetrics(result.rows, result.geometry.type as Parameters<typeof presentationMetrics>[1]).positions as [number, number][]) positions.push(position); } catch { /* unsupported geometry: skip */ }
     }
     return buildFramingCheck({
       project: lngLat => map.project(lngLat),
@@ -322,7 +323,9 @@ export function MainMapConnection(props: Props) {
         expired: expiredWarehouseIds.current,
       });
       if (run !== generation.current || analysis.current !== session) return "error";
-      if (restore.dropped.length) { expiredResults = restore.dropped.length; scene = { ...scene, results: restore.collection }; }
+      // Legacy split ids may be remapped (review F018) even when nothing was dropped.
+      if (restore.collection !== scene.results) scene = { ...scene, results: restore.collection };
+      if (restore.dropped.length) expiredResults = restore.dropped.length;
     }
     // Validate every declared ID, including hidden collection entries, before
     // acknowledging the scene. Hidden must not become a way to retain an

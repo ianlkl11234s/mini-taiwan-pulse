@@ -46,6 +46,11 @@ import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLa
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+  // 🏯 30 天地圖挑戰 Day 6 復古點與線（燈塔歷史／今日點、祠廟、今日地名、海岸線）：小目標，
+  //    放在所有大面積面層（溫度網格、校地等）之前，兩層同開時才點得到（review F007）
+  { layers: ["mapchallenge-day06-lighthouses-circle", "mapchallenge-day06-lighthouses-today-circle"], type: "mapchallengeDay06Lighthouses" },
+  { layers: ["mapchallenge-day06-temples-1921-circle"], type: "mapchallengeDay06Temples1921" },
+  { layers: ["mapchallenge-day06-coast-circle", "mapchallenge-day06-coast-line"], type: "mapchallengeDay06Coast" },
   { layers: ["harm-reduction-prevention-centers-circle", "harm-reduction-prevention-centers-glow"], type: "harmReductionPreventionCenters" },
   { layers: ["harm-reduction-needle-circle", "harm-reduction-needle-glow"], type: "harmReductionNeedle" },
   { layers: ["harm-reduction-treatment-circle", "harm-reduction-treatment-glow"], type: "harmReductionTreatment" },
@@ -1067,10 +1072,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌊 30 天地圖挑戰 Day 5 視野（模擬面板，線；±5px bbox 命中）：最長連續海景在上、路段在下
   { layers: ["mapchallenge-day05-sea-view-runs-line"], type: "mapchallengeDay05SeaViewRuns" },
   { layers: ["mapchallenge-day05-sea-view-line"], type: "mapchallengeDay05SeaView" },
-  // 🏯 30 天地圖挑戰 Day 6 復古：點與線在上（燈塔歷史／今日點、祠廟、今日地名、海岸線），町界面放最後（面會吞點擊）
-  { layers: ["mapchallenge-day06-lighthouses-circle", "mapchallenge-day06-lighthouses-today-circle"], type: "mapchallengeDay06Lighthouses" },
-  { layers: ["mapchallenge-day06-temples-1921-circle"], type: "mapchallengeDay06Temples1921" },
-  { layers: ["mapchallenge-day06-coast-circle", "mapchallenge-day06-coast-line"], type: "mapchallengeDay06Coast" },
+  // 🏯 30 天地圖挑戰 Day 6 復古：町界面放大面積段（面會吞點擊）；點與線 entry 在陣列開頭（review F007）
   { layers: ["mapchallenge-day06-taipei-1932-fill"], type: "mapchallengeDay06Taipei1932" },
   // 🌳 30 天地圖挑戰 Day 8 烏托邦：選址面（小）在上、步行分鐘統計區面（鋪滿中永和）在下
   // 現有公園（面）與河濱入口（點）：入口點在上，公園面其次，仍在選址面之上不衝突（選址只在 A–Dfull 才有）
@@ -1104,6 +1106,18 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // so a coverage polygon never intercepts any detailed point, line, or other fill.
   { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },
 ];
+
+/**
+ * 國土利用監測六角格篩選時以 fill-opacity 0 隱藏零權重格（不走 filter），queryRenderedFeatures 仍會命中。
+ * 命中結果的 layer.paint 是逐 feature 求值後的值 → 丟掉 opacity 為 0 的六角格，讓點擊落到下一個條目（review F067）。
+ */
+export function dropHiddenLandUseHex<F extends { layer?: { id?: string; paint?: unknown } | null }>(features: F[]): F[] {
+  return features.filter((feature) => {
+    if (feature.layer?.id !== "land-use-change-grid-hex") return true;
+    const opacity = (feature.layer.paint as Record<string, unknown> | undefined)?.["fill-opacity"];
+    return typeof opacity !== "number" || opacity > 0;
+  });
+}
 
 // V-5：面層的代表點 circle 沿用同一個 FeatureInfo 類型（點樣式下面層隱藏，點擊落在代表點上）
 for (const { polygonLayerId, circleIds } of repPointClickLayerIds()) {

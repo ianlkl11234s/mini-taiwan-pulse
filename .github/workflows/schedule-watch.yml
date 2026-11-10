@@ -30,5 +30,6 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           conclusion: ${{ github.event.workflow_run.conclusion }}
           run-url: ${{ github.event.workflow_run.html_url }}
+          run-attempt: ${{ github.event.workflow_run.run_attempt }}
           # 連續失敗幾次才通知：每天跑一次或本身已去抖（12 小時門檻）的檢查第一次失敗就通知，其餘 2 次
           threshold: ${{ contains(fromJSON('["rotating-freshness","asset-lock-audit"]'), github.event.workflow_run.name) && '1' || '2' }}
