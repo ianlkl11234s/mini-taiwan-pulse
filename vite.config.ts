@@ -48,7 +48,10 @@ function serveLockedPublicAssetsFromR2(): Plugin {
         fetch(publicAssetsLock.r2_base + path.slice(1), { method: request.method, headers })
           .then(async (upstream) => {
             response.statusCode = upstream.status;
+            // fetch 已把 gzip／br 解壓：上游 content-length 是壓縮後長度，有 content-encoding 時不轉（review F036）
+            const encoded = !!upstream.headers.get("content-encoding");
             for (const k of ["content-type", "content-length", "content-range", "accept-ranges", "etag"]) {
+              if (k === "content-length" && encoded) continue;
               const v = upstream.headers.get(k);
               if (v) response.setHeader(k, v);
             }
@@ -1375,6 +1378,18 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:8000",
         changeOrigin: true,
+      },
+      // DEV：全球氣候貼圖（風場、洋流、沙塵）只在正式站 /data/climate/（不在 git、也不在 lock），
+      // 本機一律轉正式站，否則新 checkout 的風場／洋流沒有資料（review F045）。
+      "/climate/": {
+        target: "https://mini-taiwan-pulse.itsmigu.com",
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq) => {
+            proxyReq.removeHeader("authorization");
+            proxyReq.removeHeader("cookie");
+          });
+        },
       },
       // DEV 經 production origin 讀 GFW immutable releases；顯式轉送 Range，
       // 讓 PMTiles 收到與 production 相同的 206 response。
