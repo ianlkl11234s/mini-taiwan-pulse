@@ -750,23 +750,35 @@ for f in "${TOURISM_FILES[@]}"; do
 done
 
 # CI-4（2026-11-08）：git 追蹤的 >1MB public 檔，依 deploy/public-assets.lock.json（delivery=r2）上傳到 s3_key。
-# 只建新物件（--if-none-match）：S3 已有同 key 就跳過，大小不同時報錯停下，不覆寫。
+# 只建新物件（--if-none-match）：S3 已有同 key 時比對鎖定的 sha256（metadata；舊物件沒有就讀回算），
+# 相同才跳過，大小或雜湊不同就報錯停下，不覆寫（review F035／F037）。本機檔與鎖定雜湊不符也拒絕上傳。
 # 新增或更新大檔：先重跑 python3 scripts/deploy/build-public-assets-lock.py，再跑本段。
-python3 - "$BUCKET" <<'PY' | while IFS="$(printf '\t')" read -r f key size; do
+python3 - "$BUCKET" <<'PY' | while IFS="$(printf '\t')" read -r f key size sha; do
 import json, sys
 for e in json.load(open("deploy/public-assets.lock.json"))["entries"]:
     if e["delivery"] == "r2" and e["s3_key"].startswith("deploy-assets/") and not e["s3_key"].endswith(".tar.gz"):
-        print(f'{e["path"]}\t{e["s3_key"]}\t{e["bytes"]}')
+        print(f'{e["path"]}\t{e["s3_key"]}\t{e["bytes"]}\t{e["sha256"]}')
 PY
   [ -f "$f" ] || { echo "Skipping $key (file not found: $f)"; continue; }
-  existing=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --query ContentLength --output text 2>/dev/null || true)
+  existing=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 \
+    --query '[ContentLength, Metadata.sha256]' --output text 2>/dev/null || true)
   if [ -n "$existing" ]; then
-    [ "$existing" = "$size" ] || { echo "Refusing: $key 已存在且大小不同（S3 $existing vs lock $size）" >&2; exit 1; }
+    existing_size=$(printf '%s' "$existing" | awk '{print $1}')
+    existing_sha=$(printf '%s' "$existing" | awk '{print $2}')
+    [ "$existing_size" = "$size" ] || { echo "Refusing: $key 已存在且大小不同（S3 $existing_size vs lock $size）" >&2; exit 1; }
+    if [ "$existing_sha" != "$sha" ]; then
+      # 舊物件沒帶 sha256 metadata（或不符）：讀回內容算雜湊，失敗也當不符（fail closed）
+      remote_sha=$(aws s3 cp "s3://$BUCKET/$key" - --region ap-southeast-2 | openssl dgst -sha256 | awk '{print $NF}') || remote_sha=""
+      [ "$remote_sha" = "$sha" ] || { echo "Refusing: $key 已存在但 sha256 與 lock 不同（S3 ${remote_sha:-讀取失敗} vs lock $sha）" >&2; exit 1; }
+    fi
     continue
   fi
+  local_sha=$(openssl dgst -sha256 "$f" | awk '{print $NF}')
+  [ "$local_sha" = "$sha" ] || { echo "Refusing: $f 與 lock sha256 不同（本機 $local_sha vs lock $sha），先重跑 build-public-assets-lock.py" >&2; exit 1; }
   name=$(basename "$key")
   echo "Uploading $key (lock)..."
   aws s3api put-object --bucket "$BUCKET" --key "$key" --body "$f" --if-none-match '*' \
+    --metadata "sha256=$sha" \
     --cache-control "$(cache_control_for "$name")" --region ap-southeast-2 >/dev/null || exit 1
 done || exit 1
 
