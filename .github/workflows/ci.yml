@@ -112,6 +112,19 @@ jobs:
       - name: Monitor script tests
         run: npm run check:monitor
 
+      # 入倉守門（AG-13）：layer-status.csv 的 missing（沒入倉也沒標 DISPLAY_ONLY）只准比 base 少。
+      # 和 PR base（push 時和 before）比；只動文件的 PR 不會動到 CSV，自然通過。
+      - name: Warehouse gate (layer-status missing only shrinks)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "::notice::沒有可比較的 base（新分支的第一次 push），入倉守門略過；PR 會再檢查"
+            exit 0
+          fi
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          npm run check:warehouse-gate -- --base "$BASE_SHA"
+
   build:
     needs: changes
     if: needs.changes.outputs.code == 'true'
