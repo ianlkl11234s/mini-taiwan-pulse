@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { DECORATION_SUFFIX_RE, isDataDriven } from "../pointSpec";
 import { valueAtZ14 } from "../lineFillSpec";
-import { FILL_TIERS, LINE_TIERS } from "../lineFillTiers";
-import { FILL_OPACITY, LINE_OPACITY, LINE_WIDTH } from "../mapStyleScale";
+import { FILL_DARK_OPACITY_OVERRIDE, FILL_TIERS, LINE_TIERS } from "../lineFillTiers";
+import { FILL_OPACITY, FILL_OPACITY_DARK, LINE_OPACITY, LINE_WIDTH } from "../mapStyleScale";
 import { encodeKeyOverlay } from "../../layers/layerParamsAccess";
 
 const defaults = (key: string) => encodeKeyOverlay(key, {});
@@ -37,22 +37,26 @@ describe("R3a 線與面規格（lineFillSpec）", () => {
     expect(bad).toEqual([]);
   });
 
-  it("F-1：套階的面在預設參數下透明度等於規格值（全透明的點擊面除外）", () => {
+  it("F-1：套階的面在預設參數下透明度等於規格值（淡底 FILL_OPACITY、暗底 FILL_OPACITY_DARK 或個別例外；全透明的點擊面除外）", () => {
     const bad: string[] = [];
     for (const c of OVERLAY_REGISTRY) {
       const t = FILL_TIERS[c.id];
       if (!t || t === "keep") continue;
       for (const l of c.layers.filter((x) => x.type === "fill")) {
-        const o = l.paint(true, defaults(c.id))["fill-opacity"];
-        if (o === 0 || isDataDriven(o)) continue;
-        const div = c.opacityParam ? Number(defaults(c.id)[c.opacityParam] ?? 1) : 1;
-        if (Math.abs(Number(o) * div - FILL_OPACITY[t]) > 1e-9) bad.push(`${c.id}/${l.suffix} ${o}`);
+        for (const dark of [true, false]) {
+          const o = l.paint(dark, defaults(c.id))["fill-opacity"];
+          if (o === 0 || isDataDriven(o)) continue;
+          const div = c.opacityParam ? Number(defaults(c.id)[c.opacityParam] ?? 1) : 1;
+          const want = dark ? FILL_DARK_OPACITY_OVERRIDE[c.id] ?? FILL_OPACITY_DARK[t] : FILL_OPACITY[t];
+          if (Math.abs(Number(o) * div - want) > 1e-9) bad.push(`${c.id}/${l.suffix} ${dark ? "dark" : "light"} ${o}`);
+        }
       }
     }
     expect(bad).toEqual([]);
   });
 
-  it("K-4：套階的線寬、線透明度、面透明度不隨暗淡改變（依資料、底圖色細縫除外）", () => {
+  // 2026-11-10 使用者同意重開 K-4：面透明度改分底圖（F-1 暗底），線寬與線透明度仍不分。
+  it("K-4：套階的線寬、線透明度不隨暗淡改變（依資料、底圖色細縫除外）", () => {
     const bad: string[] = [];
     for (const c of OVERLAY_REGISTRY) {
       const ft = FILL_TIERS[c.id];
@@ -62,7 +66,7 @@ describe("R3a 線與面規格（lineFillSpec）", () => {
         if (!lt && (!ft || ft === "keep")) continue;
         const seam = !lt && l.type === "line" && (ft === "graded" || ft === "grid");
         const [d, n] = [l.paint(true, defaults(c.id)), l.paint(false, defaults(c.id))];
-        for (const k of ["line-width", "line-opacity", "fill-opacity"]) {
+        for (const k of ["line-width", "line-opacity"]) {
           if (seam && k === "line-opacity") continue;
           if (isDataDriven(d[k])) continue;
           if (JSON.stringify(d[k]) !== JSON.stringify(n[k])) bad.push(`${c.id}/${l.suffix} ${k}`);

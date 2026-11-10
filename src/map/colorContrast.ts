@@ -85,3 +85,49 @@ export function deltaE(a: Rgb, b: Rgb): number {
   const B = oklab(b);
   return 100 * Math.hypot(A[0] - B[0], A[1] - B[1], A[2] - B[2]);
 }
+
+const gammaEncode = (u: number) => (u <= 0.0031308 ? 12.92 * u : 1.055 * u ** (1 / 2.4) - 0.055);
+
+/** OKLab → sRGB（0–1，未裁切；超出 0–1＝不在色域）。 */
+export function fromOklab(lab: Rgb): Rgb {
+  const [L, a, b] = lab;
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  return [
+    gammaEncode(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+    gammaEncode(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+    gammaEncode(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s),
+  ];
+}
+
+/** OKLCH（L、C、h 度）→ 色域內 sRGB：超出色域時保留 L 與色相、降彩度。 */
+export function fromOklch(L: number, C: number, hueDeg: number): Rgb {
+  const h = (hueDeg * Math.PI) / 180;
+  const at = (c: number) => fromOklab([L, c * Math.cos(h), c * Math.sin(h)]);
+  const inGamut = (rgb: Rgb) => rgb.every((v) => v >= -1e-4 && v <= 1 + 1e-4);
+  let rgb = at(C);
+  if (inGamut(rgb)) return rgb;
+  let lo = 0;
+  let hi = C;
+  for (let i = 0; i < 24; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (inGamut(at(mid))) lo = mid; else hi = mid;
+  }
+  rgb = at(lo);
+  return [clamp01(rgb[0]), clamp01(rgb[1]), clamp01(rgb[2])];
+}
+
+/** sRGB → OKLCH（L、C、h 度）。 */
+export function oklch(rgb: Rgb): Rgb {
+  const [L, a, b] = oklab(rgb);
+  const h = (Math.atan2(b, a) * 180) / Math.PI;
+  return [L, Math.hypot(a, b), h < 0 ? h + 360 : h];
+}
+
+/** 色字串正規化（大小寫、#rgb、rgb()）成小寫 hex（帶 alpha 時 8 碼），供對照表當鍵；解析不了回小寫原字串。 */
+export function normalizeColor(color: string): string {
+  const p = parseColor(color);
+  if (!p) return color.trim().toLowerCase();
+  return p.alpha >= 1 ? toHex(p.rgb) : `${toHex(p.rgb)}${Math.round(p.alpha * 255).toString(16).padStart(2, "0")}`;
+}

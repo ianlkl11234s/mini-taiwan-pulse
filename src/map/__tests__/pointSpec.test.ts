@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { DECORATION_SUFFIX_RE, DENSE_POINT_OVERRIDES, LIVE_DECORATION_LAYERS, POINT_SPEC_EXEMPT, POINT_STROKE_COLOR_KEEP_LIGHT, isDataDriven, normalizeMixedBranches, withPointSpec } from "../pointSpec";
 import { POINT_TIERS } from "../pointTiers";
-import { POINT_RADIUS } from "../mapStyleScale";
+import { POINT_RADIUS, POINT_STROKE, pointStrokeColor } from "../mapStyleScale";
 import { getParamsSpec } from "../../data/layerParamsSpec";
 import type { OverlayConfig } from "../../types";
 
@@ -31,11 +31,11 @@ describe("R2 點圖層規格（pointSpec）", () => {
     expect(bad).toEqual([]);
   });
 
-  it("P-2 A：固定描邊一律是底圖色 1px；依資料變化的描邊（資料編碼）保留", () => {
+  it("P-2：固定描邊一律是標準描邊色 1px（暗底淺色細環、淡底白）；依資料變化的描邊（資料編碼）保留", () => {
     for (const c of OVERLAY_REGISTRY) {
       if (!POINT_TIERS[c.id] || DENSE_POINT_OVERRIDES.has(c.id)) continue;
       for (const l of mainCircles(c)) {
-        for (const [dark, seam] of [[true, "#0a0a14"], [false, "#ffffff"]] as const) {
+        for (const [dark, seam] of [[true, POINT_STROKE.color.dark], [false, POINT_STROKE.color.light]] as const) {
           const p = l.paint(dark, {});
           // 登記的例外（淺色底圖保留自訂描邊色，P-2）不比對淺色接縫色
           if (!isDataDriven(p["circle-stroke-color"]) && !(!dark && POINT_STROKE_COLOR_KEEP_LIGHT.has(c.id))) expect(p["circle-stroke-color"]).toBe(seam);
@@ -66,7 +66,7 @@ describe("R2 點圖層規格（pointSpec）", () => {
         expect(zoomAt(p["circle-radius"], 14)).toBe(POINT_RADIUS.M);
         expect(zoomAt(p["circle-stroke-width"], 11)).toBe(0);
         expect(zoomAt(p["circle-stroke-width"], 14)).toBe(1);
-        expect(p["circle-stroke-color"]).toBe(dark ? "#0a0a14" : "#ffffff");
+        expect(p["circle-stroke-color"]).toBe(pointStrokeColor(dark));
       }
       // 大小滑桿照舊乘上去
       const scaled = l.paint(true, { [`${id}Scale`]: 2 });

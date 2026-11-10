@@ -8,8 +8,8 @@
 import { useLocale } from "../../state/localeStore";
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS } from "../../styles/designTokens";
-import { MAP_SEAM, MISSING_HATCH, MOVING_POINT, basemapLandColor } from "../../map/mapStyleScale";
-import { compositeHex } from "../../map/colorContrast";
+import { MAP_SEAM, MISSING_HATCH, MOVING_POINT, POINT_STROKE, basemapLandColor } from "../../map/mapStyleScale";
+import { compositeHex, normalizeColor, parseColor } from "../../map/colorContrast";
 
 // ── 主題 ──────────────────────────────────────────────────
 export interface LegendPalette {
@@ -20,12 +20,20 @@ export interface LegendPalette {
   textDim: string;
   bgSubtle: string;
   border: string;
-  /** 色票描邊：同地圖點描邊的底圖色（P-2）。 */
+  /** 面色票描邊：底圖色細縫（F-2）。 */
   seam: string;
+  /** 點色票外環：同地圖點描邊（P-2；暗底淺色細環、淡底白）。 */
+  pointRing: string;
   /** 移動物件平面點／箭頭的對比描邊（MOVING_POINT，P-2 例外）。 */
   movingStroke: string;
   /** 缺值斜線色（F-3 A／viz-library N1）。 */
   hatch: string;
+}
+/** 點色票外環＝地圖點描邊：暗底淺色細環（帶透明度），淡底維持白。 */
+function compositeRing(isDark: boolean): string {
+  if (!isDark) return MAP_SEAM.light;
+  const rgb = parseColor(POINT_STROKE.color.dark)!.rgb.map((v) => Math.round(v * 255));
+  return `rgba(${rgb.join(",")},${POINT_STROKE.opacity.dark})`;
 }
 export const DARK_LEGEND: LegendPalette = {
   isDark: true,
@@ -36,6 +44,7 @@ export const DARK_LEGEND: LegendPalette = {
   bgSubtle: "rgba(255,255,255,0.05)",
   border: "rgba(255,255,255,0.10)",
   seam: MAP_SEAM.dark,
+  pointRing: compositeRing(true),
   movingStroke: MOVING_POINT.stroke.color.dark,
   hatch: `rgba(${MISSING_HATCH.rgb.dark.join(",")},${MISSING_HATCH.alpha})`,
 };
@@ -48,6 +57,7 @@ export const LIGHT_LEGEND: LegendPalette = {
   bgSubtle: LIGHT.fillSubtle,
   border: LIGHT.border,
   seam: MAP_SEAM.light,
+  pointRing: compositeRing(false),
   movingStroke: MOVING_POINT.stroke.color.light,
   hatch: `rgba(${MISSING_HATCH.rgb.light.join(",")},${MISSING_HATCH.alpha})`,
 };
@@ -60,6 +70,17 @@ export const useLegendTheme = () => useContext(LegendThemeCtx);
  * 外加 1px 面板邊框，透明度很低時色票位置仍看得到。null＝不知道透明度，維持原色票。
  */
 export const LegendFillOpacityCtx = createContext<number | null>(null);
+
+/**
+ * C-4：圖層在目前底圖下被提亮過的顏色（darkContrast liftedColorMap，鍵為 normalizeColor 後的原色）。
+ * SwatchDot／SwatchLine 查表換成地圖上實際畫的顏色，圖例與地圖同步。沒有對照（hook 自建圖層、未提亮）＝原色。
+ */
+export const LegendLiftCtx = createContext<ReadonlyMap<string, string> | null>(null);
+export function useLegendColorMapper(): (color: string) => string {
+  const map = useContext(LegendLiftCtx);
+  return (color) => map?.get(normalizeColor(color)) ?? color;
+}
+export const useLegendColor = (color: string) => useLegendColorMapper()(color);
 export const useLegendFillOpacity = () => useContext(LegendFillOpacityCtx);
 
 /** LG-14 合成色：`alpha` 為 null 時回原色。 */
@@ -125,10 +146,11 @@ export function LegendNum({ children }: { children: ReactNode }) {
 
 // ── 色票 ──────────────────────────────────────────────────
 /** LG-1 點類別：10×10 圓，1px 底圖色描邊。 */
-export function SwatchDot({ color, opacity = 0.9, stroke, strokeWidth = 1, glow }: { color: string; opacity?: number; stroke?: string; strokeWidth?: number; glow?: string }) {
+export function SwatchDot({ color: rawColor, opacity = 0.9, stroke, strokeWidth = 1, glow }: { color: string; opacity?: number; stroke?: string; strokeWidth?: number; glow?: string }) {
   const t = useLegendTheme();
+  const color = useLegendColor(rawColor);
   const d = LEGEND_SWATCH.dot;
-  return <span aria-hidden="true" style={{ width: d, height: d, borderRadius: RADIUS.full, background: color, opacity, boxSizing: "border-box", border: stroke ? `${strokeWidth}px solid ${stroke}` : undefined, boxShadow: `${stroke ? "0 0 0 0 transparent" : `0 0 0 1px ${t.seam}`}${glow ? `, 0 0 5px ${glow}` : ""}`, flexShrink: 0, display: "inline-block" }} />;
+  return <span aria-hidden="true" style={{ width: d, height: d, borderRadius: RADIUS.full, background: color, opacity, boxSizing: "border-box", border: stroke ? `${strokeWidth}px solid ${stroke}` : undefined, boxShadow: `${stroke ? "0 0 0 0 transparent" : `0 0 0 1px ${t.pointRing}`}${glow ? `, 0 0 5px ${glow}` : ""}`, flexShrink: 0, display: "inline-block" }} />;
 }
 
 /**
@@ -169,7 +191,8 @@ export function SwatchArrow({ color }: { color: string }) {
 }
 
 /** LG-4 線型：20px 線段；dash 同地圖 line-dasharray（線寬倍數）。 */
-export function SwatchLine({ color, width = 2, dash, opacity = 1 }: { color: string; width?: number; dash?: readonly number[]; opacity?: number }) {
+export function SwatchLine({ color: rawColor, width = 2, dash, opacity = 1 }: { color: string; width?: number; dash?: readonly number[]; opacity?: number }) {
+  const color = useLegendColor(rawColor);
   const w = Math.max(LEGEND_SWATCH.line.minHeight, width);
   const h = Math.ceil(w) + 2;
   return (
@@ -241,7 +264,7 @@ export function LegendSizeRow({ title, items, fill, ring }: { title: string; ite
                 width: x.r * 2, height: x.r * 2, borderRadius: RADIUS.full, boxSizing: "border-box", flexShrink: 0, display: "inline-block",
                 ...(ring
                   ? { background: "transparent", border: `${LEGEND_SIZE_RING_WIDTH}px solid ${ring}` }
-                  : { background: fill, boxShadow: `0 0 0 1px ${t.seam}` }),
+                  : { background: fill, boxShadow: `0 0 0 1px ${t.pointRing}` }),
               }}
             />
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}><LegendNum>{x.label}</LegendNum></span>

@@ -3,7 +3,7 @@
  *
  * OVERLAY_REGISTRY 匯出前每個 config 過一次 withPointSpec()：
  *  - 主體 circle 子圖層（suffix 不是光暈／點擊熱區等裝飾）的半徑改成 POINT_TIERS 的固定階（P-1 B，不隨縮放）
- *  - 描邊統一底圖色 1px（P-2 A）
+ *  - 描邊統一 1px：淡底白、暗底淺色細環（P-2，2026-11-10 暗底改）
  * 大小滑桿照舊：半徑 = 階 × (滑桿值 ÷ 滑桿預設)，所以預設值剛好是階的半徑。
  * 描邊透明度跟著透明度滑桿，同樣以預設值為基準。
  *
@@ -12,7 +12,7 @@
  */
 import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { getParamsSpec, specOutKey, type LayerParamSpec } from "../data/layerParamsSpec";
-import { POINT_STROKE, mapSeamColor, pointRadius } from "./mapStyleScale";
+import { POINT_STROKE, POINT_STROKE_DATA_ENCODED, pointRadius, pointStrokeColor } from "./mapStyleScale";
 import { POINT_TIERS } from "./pointTiers";
 
 /** 裝飾子圖層（光暈、漣漪、點擊熱區、選取…）不套主體規格；與 design:audit-layers 同一條規則。整詞比對（manufacturing-circle 不是 ring）。 */
@@ -169,16 +169,19 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
         const opacity = config.opacityParam
           ? 1 / (Number(opacitySpec?.default) || 1)
           : sliderFactor(opacitySpec, params);
-        // 描邊依資料屬性變化＝資料編碼（spec：map-layers §3 P-2 例外），保留原值；固定描邊才換成底圖色細縫
+        // 描邊依資料屬性變化＝資料編碼（spec：map-layers §3 P-2 例外），保留原值；固定描邊才換成標準描邊色
         const keep = (prop: string) => isDataDriven(base[prop]);
+        // 描邊色依資料＝外框是編碼：其餘分支用底圖色細縫（POINT_STROKE_DATA_ENCODED），不用暗底淺色細環
+        const encoded = keep("circle-stroke-color");
+        const ring = encoded ? POINT_STROKE_DATA_ENCODED : POINT_STROKE;
         const strokeOpacity = fadesByAlpha(base["circle-opacity"])
-          ? ["*", Math.min(1, POINT_STROKE.opacity[theme] * opacity), ["coalesce", ["get", "alpha"], 1]]
-          : Math.min(1, POINT_STROKE.opacity[theme] * opacity);
+          ? ["*", Math.min(1, ring.opacity[theme] * opacity), ["coalesce", ["get", "alpha"], 1]]
+          : Math.min(1, ring.opacity[theme] * opacity);
         const stroke = (prop: string, std: unknown) => (keep(prop) ? normalizeMixedBranches(base[prop], std) : std);
         return {
           ...base,
           ...(tier === "B" ? {} : { "circle-radius": dense ? denseRadius(pointRadius(tier), sliderFactor(sizeSpec, params)) : pointRadius(tier, sliderFactor(sizeSpec, params)) }),
-          "circle-stroke-color": !isDark && POINT_STROKE_COLOR_KEEP_LIGHT.has(config.id) ? base["circle-stroke-color"] : stroke("circle-stroke-color", mapSeamColor(isDark)),
+          "circle-stroke-color": !isDark && POINT_STROKE_COLOR_KEEP_LIGHT.has(config.id) ? base["circle-stroke-color"] : stroke("circle-stroke-color", encoded ? ring.color[theme] : pointStrokeColor(isDark)),
           "circle-stroke-width": stroke("circle-stroke-width", dense ? denseStrokeWidth : POINT_STROKE.width),
           "circle-stroke-opacity": stroke("circle-stroke-opacity", strokeOpacity),
         };
