@@ -28,9 +28,28 @@ function withDeadline<T>(promise: Promise<T>, deadline: number): Promise<T> {
   ]).finally(() => clearTimeout(timer));
 }
 
+const LEGACY_SUFFIX: Record<string, string> = { multipolygon: "polygon", multilinestring: "linestring", multipoint: "point" };
+
+/**
+ * Ids a stored scene item may now be presented under. Imports group Polygon+MultiPolygon (and the
+ * line/point pairs) together, so a scene saved before that change may hold `wh-3:multipolygon`
+ * while the session now has `wh-3:polygon`, or plain `wh-3` when only one group remains (review F018).
+ */
+function presentedIdCandidates(resultId: string): string[] {
+  const base = warehouseBaseResultId(resultId);
+  if (base === null || base === resultId) return [resultId];
+  const suffix = resultId.slice(base.length + 1);
+  const normalized = `${base}:${LEGACY_SUFFIX[suffix] ?? suffix}`;
+  return [...new Set([resultId, normalized, base])];
+}
+
+function resolvePresentedId(resultId: string, has: (resultId: string) => boolean): string | null {
+  return presentedIdCandidates(resultId).find(has) ?? null;
+}
+
 export async function restoreWarehouseResults(collection: ResultCollection, deps: WarehouseRestoreDeps): Promise<WarehouseRestoreOutcome> {
-  const missingBases = [...new Set(collection.items.filter(item => !deps.has(item.resultId)).map(item => warehouseBaseResultId(item.resultId)).filter((id): id is string => id !== null))];
-  if (!missingBases.length) return { collection, restored: [], dropped: [] };
+  const missingBases = [...new Set(collection.items.filter(item => resolvePresentedId(item.resultId, deps.has) === null).map(item => warehouseBaseResultId(item.resultId)).filter((id): id is string => id !== null))];
+  if (!missingBases.length) return { collection: remapItems(collection, deps.has).collection, restored: [], dropped: [] };
   const deadline = Date.now() + (deps.deadlineMs ?? WAREHOUSE_RESTORE_DEADLINE_MS);
   const restored: string[] = [];
   const toFetch = missingBases.filter(id => !deps.expired?.has(id));
@@ -50,10 +69,25 @@ export async function restoreWarehouseResults(collection: ResultCollection, deps
       }
     } catch { /* Meta unavailable: drop for this render only; a later render retries. */ }
   }
-  // Anything still absent locally (gone, failed, or split differently than the stored scene) is dropped.
-  const items = collection.items.filter(item => deps.has(item.resultId) || warehouseBaseResultId(item.resultId) === null);
-  const dropped = collection.items.filter(item => !items.includes(item)).map(item => item.resultId);
-  if (!dropped.length) return { collection, restored, dropped };
+  return { ...remapItems(collection, deps.has), restored };
+}
+
+/** Maps legacy split ids to the ids now present; anything still absent locally (gone or failed) is dropped. */
+function remapItems(collection: ResultCollection, has: (resultId: string) => boolean): { collection: ResultCollection | null; dropped: string[] } {
+  const items: ResultCollection["items"] = [];
+  const dropped: string[] = [];
+  const seen = new Set<string>();
+  let changed = false;
+  for (const item of collection.items) {
+    const resolved = warehouseBaseResultId(item.resultId) === null ? item.resultId : resolvePresentedId(item.resultId, has);
+    if (resolved === null) { dropped.push(item.resultId); changed = true; continue; }
+    // Two legacy items (`:polygon` and `:multipolygon`) can now be the same result: keep the first.
+    if (seen.has(resolved)) { changed = true; continue; }
+    seen.add(resolved);
+    if (resolved !== item.resultId) changed = true;
+    items.push(resolved === item.resultId ? item : { ...item, resultId: resolved });
+  }
+  if (!changed) return { collection, dropped };
   const usedGroups = new Set(items.map(item => item.groupId).filter((id): id is string => id !== null));
-  return { collection: items.length ? { items, groups: collection.groups.filter(group => usedGroups.has(group.groupId)) } : null, restored, dropped };
+  return { collection: items.length ? { items, groups: collection.groups.filter(group => usedGroups.has(group.groupId)) } : null, dropped };
 }

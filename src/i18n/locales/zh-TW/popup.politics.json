@@ -35,6 +35,8 @@
   "popup.politics.group.title": "{place}・{count} 場",
   "popup.politics.group.back": "‹ 回到 {count} 場清單",
   "popup.politics.group.pastSuffix": "（已舉辦）",
+  "popup.politics.group.pastTimeSuffix": "（時間已過）",
+  "popup.politics.group.statusSuffix": "（{status}）",
   "popup.politics.group.hint": "點選一場看完整內容 ›",
   "popup.politics.precisionNote.settlementNamed": "在{name}聚落內，點位不是場地本身",
   "popup.politics.precisionGroupNote.settlementNamed": "以下活動都在{name}聚落內，點位不是場地本身",

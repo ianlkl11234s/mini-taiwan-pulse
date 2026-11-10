@@ -77,13 +77,15 @@ export function matchShakemapIndex(
 /** index 讀取失敗回 null（呼叫端退回 RPC 的 has_grid），不讓整個清單失敗 */
 async function fetchShakemapIndex(): Promise<ShakemapIndexEntry[] | null> {
   try {
-    const res = await withLoading(
+    const json = await withLoading(
       "earthquake-shakemap-index",
       "地震回放 震度圖清單",
-      fetch(SHAKEMAP_INDEX_URL),
+      (async () => {
+        const res = await fetch(SHAKEMAP_INDEX_URL);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return (await res.json()) as { events?: unknown };
+      })(),
     );
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = (await res.json()) as { events?: unknown };
     if (!Array.isArray(json.events)) throw new Error("index.json 缺 events");
     return (json.events as Record<string, unknown>[])
       .filter((e) => typeof e.event_time === "string" && typeof e.key === "string")
@@ -223,9 +225,13 @@ export function parseShakemapEventFile(
 async function fetchGridRows(ev: EarthquakeReplayEvent): Promise<Record<string, unknown>[]> {
   if (ev.grid_key) {
     const url = `${IMAGERY_CDN_BASE}/${ev.grid_key}`;
-    const res = await withLoading(`eq-replay-grid:${ev.event_id}`, `地震回放 等震度網格 ${ev.event_id}`, fetch(url));
-    if (!res.ok) throw new Error(`R2 震度圖事件檔 HTTP ${res.status}: ${ev.grid_key}`);
-    return parseShakemapEventFile(await res.json());
+    const gridKey = ev.grid_key;
+    const json = await withLoading(`eq-replay-grid:${ev.event_id}`, `地震回放 等震度網格 ${ev.event_id}`, (async () => {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`R2 震度圖事件檔 HTTP ${res.status}: ${gridKey}`);
+      return (await res.json()) as unknown;
+    })());
+    return parseShakemapEventFile(json);
   }
   return fetchGridRowsFromDb(ev);
 }

@@ -175,6 +175,12 @@ function ElectionGroupPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", flexDirection: "column", marginTop: 4 }}>
         {events.map((e, i) => {
           const past = e._past === 1 || e._past === "1";
+          // 取消／延期照實際狀態標示；已過時間但未標已舉辦的用中性字樣（review F044）
+          const status = oneOf(e.event_status, ELECTION_STATUSES);
+          const suffix = status === "cancelled" || status === "postponed"
+            ? t("popup.politics.group.statusSuffix", { status: t(STATUS_KEY[status]) })
+            : !past ? ""
+              : status === "held" ? t("popup.politics.group.pastSuffix") : t("popup.politics.group.pastTimeSuffix");
           const tier = oneOf(e.scale_tier, ["L", "M", "S"] as const);
           const name = str(e.event_name) || t("popup.politics.fallbackTitle");
           return (
@@ -192,7 +198,7 @@ function ElectionGroupPanel({ props }: { props: Record<string, unknown> }) {
               <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: ELECTION_CAMP_COLOR[electionCampKey(e.camp)], flexShrink: 0 }} />
               <span style={{ minWidth: 0, flex: "1 1 auto" }}>
                 {name}
-                {past ? t("popup.politics.group.pastSuffix") : ""}
+                {suffix}
               </span>
               {tier && <span style={{ color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{t(TIER_KEY[tier])}</span>}
             </button>

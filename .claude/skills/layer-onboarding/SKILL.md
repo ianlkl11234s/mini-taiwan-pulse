@@ -202,7 +202,7 @@ npm run dev
 **登記是每個新圖層的必經步驟（2026-11-06 使用者拍板）**：manifest 每個 `upstream.datasets[].datasetId` 都要在 pulse-data 有 `registry/<datasetId>.yaml`，`consumers.pulse_layers` 列出這個 layer key；資料換版或新增使用圖層時改既有條目。圖層 PR 合進 develop 後，在 pulse-data 跑 `python3 scripts/check_layer_coverage.py --from-checkout <mini checkout>` 要 exit 0（不該登記的寫進 `registry/_no_upstream.yaml` 附理由）。只登記、沒有 `warehouse` 區塊時，Agent 還查不到；要可查再走下面的入倉流程。
 
 **入倉守門（AG-13，2026-11-09）：圖層上線即入倉；做不到就標 DISPLAY_ONLY 並寫解鎖條件。** 驗收清單：
-- [ ] 每個 `upstream.datasets[].datasetId` 的登記條目有 `warehouse` 區塊（統計層：dataset 進了 `stats_observations`，即 `_indicator_semantics.yaml` 有它）
+- [ ] 至少一個 `upstream.datasets[].datasetId` 的登記條目有 `warehouse` 區塊（統計層：dataset 進了 `stats_observations`，即 `_indicator_semantics.yaml` 有它）。登記仍是每個 datasetId 都要（見上段）；入倉則是多資料集圖層任一 dataset 入倉即算可分析——與 `scripts/research/layer-warehouse-status.mjs`、pulse-data `check_layer_coverage.py` 現行判定一致（2026-11-10 使用者決定）
 - [ ] 做不到入倉、且確實只做展示（純視覺特效、連續 raster 等）→ 加進 pulse-data `registry/_display_only.yaml`，`reason`（為什麼不能入倉）與 `unlock`（滿足什麼就入倉）缺一不可；即時、授權待清、還沒排到的層**不算**展示專用
 - [ ] `registry/_warehouse_baseline.yaml` 是既有未入倉層的基準，**只減不增**：新層不可加進去；某層入倉後要刪該行
 - [ ] `PULSE_DATA_ROOT=<pulse-data> npx vitest run src/data/__tests__/layerRegistryCoverage.test.ts` 綠（AG-13 case）；pulse-data `python3 scripts/check_layer_coverage.py --from-checkout <mini>` 的 (d)(e) 為 0
