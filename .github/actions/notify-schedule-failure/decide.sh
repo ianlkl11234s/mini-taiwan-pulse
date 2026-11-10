@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # 判斷排程失敗通知：stdin 讀 `gh run list --json databaseId,conclusion` 的 JSON（新到舊）。
-# 用法：decide.sh <本次 run id> <本次 conclusion> [門檻 N，預設 2] < history.json
+# 用法：decide.sh <本次 run id> <本次 conclusion> [門檻 N，預設 2] [本 run 上一個 attempt 的 conclusion] < history.json
+# 重跑（run_attempt>1）時同一個 run id 在歷史裡已變成本次結果，上一個 attempt 的結果要另外傳入，
+# 當成「最近一次之前的結果」，否則失敗後重跑成功永遠不會發恢復通知（review F047）。
 # 輸出一個字：fail（剛好連續第 N 次失敗）／recover（連續 N 次以上失敗後恢復）／none
 # N=2：每 15–60 分跑的排程，偶發一次失敗不吵；N=1：每天才跑或已自行去抖的檢查，第一次失敗就通知。
 set -euo pipefail
-cur_id="$1"; cur_concl="$2"; n="${3:-2}"
+cur_id="$1"; cur_concl="$2"; n="${3:-2}"; prev_attempt="${4:-}"
 case "$n" in ''|*[!0-9]*|0) echo "門檻須為正整數：$n" >&2; exit 2 ;; esac
 is_bad() { case "$1" in failure|timed_out|cancelled) return 0 ;; *) return 1 ;; esac; }
 
 # 只取比本次舊、且已結束（有 conclusion）的 run，最近 N 次（新到舊；不足補 -）
 prev=()
+[ -n "$prev_attempt" ] && prev+=("$prev_attempt")
 while read -r c; do prev+=("$c"); done < <(jq -r --argjson cur "$cur_id" --argjson n "$n" \
   '[.[] | select(.databaseId < $cur and (.conclusion // "") != "")] | sort_by(-.databaseId) | .[0:$n] | map(.conclusion) | . + [range(0; $n - length) | "-"] | .[]')
 

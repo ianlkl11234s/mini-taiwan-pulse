@@ -29,25 +29,31 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
-      # 同一 UTC 日上一次成功執行的時間：腳本用它判斷那一輪是否已經超過（已超過＝已通知過，不重送）
-      - name: Last successful run today
-        id: last
+      # 同一 UTC 日較早的 run 是否已實際送出 Telegram（看該 run 的 Telegram step 成功與否，不從用量推斷；review F089）
+      - name: Notified today
+        id: notified
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.run_id }}
         run: |
           today=$(date -u +%F)
-          last=$(gh run list -R "$GITHUB_REPOSITORY" -w workers-usage -L 30 --json databaseId,conclusion,createdAt \
-            -q "[.[] | select(.conclusion == \"success\" and .databaseId < $RUN_ID and (.createdAt | startswith(\"$today\")))] | sort_by(.createdAt) | last | .createdAt // \"\"")
-          echo "at=$last" >> "$GITHUB_OUTPUT"
+          ids=$(gh run list -R "$GITHUB_REPOSITORY" -w workers-usage -L 30 --json databaseId,createdAt \
+            -q ".[] | select(.databaseId < $RUN_ID and (.createdAt | startswith(\"$today\"))) | .databaseId")
+          notified=""
+          for id in $ids; do
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id/jobs" \
+              --jq '[.jobs[].steps[]? | select((.name | startswith("Telegram")) and .conclusion == "success")] | length')
+            if [ "$n" -gt 0 ]; then notified=1; break; fi
+          done
+          echo "today=$notified" >> "$GITHUB_OUTPUT"
       - name: Query usage
         id: usage
         env:
           CF_ANALYTICS_API_TOKEN: ${{ secrets.CF_ANALYTICS_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          LAST: ${{ steps.last.outputs.at }}
+          NOTIFIED: ${{ steps.notified.outputs.today }}
         run: |
-          if [ -n "$LAST" ]; then node scripts/monitor/workers-usage.mjs --since-last "$LAST"; else node scripts/monitor/workers-usage.mjs; fi
+          if [ -n "$NOTIFIED" ]; then node scripts/monitor/workers-usage.mjs --notified-today; else node scripts/monitor/workers-usage.mjs; fi
       - name: Telegram（當日第一次超過門檻）
         if: steps.usage.outputs.status == 'over-new'
         env:

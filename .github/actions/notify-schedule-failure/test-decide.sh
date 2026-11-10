@@ -5,7 +5,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fail=0
 # check <預期> <本次 id> <本次 conclusion> <歷史 JSON> [門檻]
 check() {
-  got="$(printf '%s' "$4" | bash "$here/decide.sh" "$2" "$3" ${5:-})"
+  got="$(printf '%s' "$4" | bash "$here/decide.sh" "$2" "$3" "${5:-2}" "${6:-}")"
   if [ "$got" = "$1" ]; then echo "ok   $1 ($3)"; else echo "FAIL 預期 $1 實得 $got ($3 / $4)"; fail=1; fi
 }
 S='{"databaseId":%s,"conclusion":"%s"}'
@@ -36,4 +36,10 @@ check fail    50 failure "$(h 40 failure 30 failure 20 success)" 3
 check none    50 failure "$(h 40 failure 30 success)" 3
 check recover 50 success "$(h 40 failure 30 failure 20 failure)" 3
 check none    50 success "$(h 40 failure 30 failure 20 success)" 3
+# 重跑（第 6 參數＝本 run 上一個 attempt 的結果；歷史裡本 run 已是新結果）
+check recover 50 success "$(h 50 success 40 failure 30 success)" 2 failure   # 連續 2 次失敗後重跑成功
+check none    50 success "$(h 50 success 40 success)" 2 failure              # 單次失敗後重跑成功
+check none    50 failure "$(h 50 failure 40 failure)" 2 failure              # 重跑仍失敗：已通知過
+check recover 50 success "$(h 50 success 40 success)" 1 failure              # 門檻 1：失敗後重跑成功
+check fail    50 failure "$(h 50 failure 40 success)" 2 failure              # 重跑仍失敗＝連續第 2 次
 exit $fail
