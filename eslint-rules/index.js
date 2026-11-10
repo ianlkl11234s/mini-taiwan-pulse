@@ -31,6 +31,7 @@ export default {
     "no-current-time-deps": guards.noCurrentTimeDeps,
     "loader-rpc-with-loading": guards.loaderRpcWithLoading,
     "sidebar-shared-param-controls": guards.sidebarSharedParamControls,
+    "no-nonpublic-schema": guards.noNonpublicSchema,
     "owner-only-no-external-source": ownerOnly.ownerOnlyNoExternalSource,
     "owner-only-banned-text": ownerOnly.ownerOnlyBannedText,
   },

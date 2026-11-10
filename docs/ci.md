@@ -16,7 +16,7 @@ CI 只回答一個問題：**這次合併會不會讓 develop 壞掉**。由此�
 
 ```
 entry-docs（PROJECTS ↔ BACKLOG 一致性；不看 changes，永遠跑）
-changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse-checkout 跳過 public/）
+changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監測腳本測試 → 入倉守門 → lock 外引用；sparse-checkout 跳過 public/）
           ├─ build（tsc -b ＋ vite build）
           ├─ test ×4 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
           └─ assets（資產測試：依 lock 從 R2 下載、比對 sha256 後驗內容）
@@ -24,7 +24,7 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
 ```
 
 - **四個 job 平行跑**，牆鐘時間等於最慢的那一個。每個 job 自己付 checkout 與 `npm ci` 的成本，`npm ci` 有 setup-node 的 npm 快取，約 5 秒。
-- **檢查的順序以 package.json 的 `check` 為準**：entry-docs → lint → inventory → coral → worker → build → test → assets，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
+- **檢查的順序以 package.json 的 `check` 為準**：entry-docs → lint → inventory → coral → worker → monitor → warehouse-gate → asset-refs → build → test → assets，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
 - **`ci-ok`** 用 `if: always()` 接住所有 job，只要有任何一個不是 success 或 skipped 就紅。之後如果要設 required status check，只設這一個。
 - **每個 job 都有 `timeout-minutes`**。沒設的話，卡住會跑滿 6 小時。
 
@@ -95,6 +95,24 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse
   - 本次發版新增的 S3 資產，在同步完成前的幾分鐘內會 404。
   - sync 失敗不會擋住部署。看到 sync-assets 紅燈時，用 workflow_dispatch 選 `sync_only` 補跑。
 - 要讓新圖層一上線就有資料：先手動觸發 `sync_only`，等它跑完再發版。
+
+## 9. 守門與排程監測（2026-11-10）
+
+**PR 時（quick job）**
+- `check:warehouse-gate`（AG-13）：`docs/features/general-analysis/layer-status.csv` 的 `warehouse_status=missing`（沒入倉也沒標 DISPLAY_ONLY）只准比 PR base 少。pulse-data 是私有 repo，CI 讀不到登記簿，所以比 mini 內由登記簿產生、且 `layerStatusCoverage.test.ts` 強制與 manifest 同步的 CSV。只動文件的 PR 不會改到 CSV。
+- `check:asset-refs`（ASSET-1）：前端字面引用的資料檔都要在 `deploy/public-assets.lock.json`；既有例外在 `deploy/public-assets-not-in-lock.txt`（只減不增）。不連網。
+
+**排程（都只在 develop 上的檔生效；失敗 exit 1，由 `schedule-watch.yml` 去抖後發 Telegram）**
+
+| workflow | 頻率 | 檢查 | 通知門檻 |
+|---|---|---|---|
+| `site-watch` | 每 30 分 | 首頁 200＋標記、main-*.js、主站 PMTiles Range 206、R2 lock 資產 Range 206（`scripts/monitor/site-health.mjs`） | 連續 2 次 |
+| `rotating-freshness` | 每小時 | R2 climate manifest `generated_at` ≤ 12 小時（烤圖每 6 小時，門檻＝漏兩版）。GFW 刻意停更不查 | 1 次 |
+| `asset-lock-audit` | 每日 05:17 | lock 全部 HEAD 比 bytes、每日輪替 6 筆比 sha256、lock 外被引用且 R2 供應中（`scripts/monitor/audit_asset_lock.py`；lock 與引用以 master 為準） | 1 次 |
+| `workers-usage` | 每 2 小時 | Cloudflare Workers 當日（UTC）請求 > 10 萬的 6 成 → 自己發 Telegram、每 UTC 日一次；查詢失敗才走 schedule-watch（`scripts/monitor/workers-usage.mjs`，需 `CF_ANALYTICS_API_TOKEN`） | 連續 2 次 |
+
+- 監測腳本的單元測試在 `npm run check:monitor`（含 `notify-schedule-failure/test-decide.sh`）。
+- **限制**：GitHub 排程常延遲或略過（sync-rotating 實測 99 小時只跑 17 次），「多久內收到通知」沒有保證；要準時就把同一支腳本搬到 pulse-host cron。
 
 ## 出處
 
