@@ -10,6 +10,26 @@
   "gisLayers": [
     {
       "layers": [
+        "mapchallenge-day06-lighthouses-circle",
+        "mapchallenge-day06-lighthouses-today-circle"
+      ],
+      "type": "mapchallengeDay06Lighthouses"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-temples-1921-circle"
+      ],
+      "type": "mapchallengeDay06Temples1921"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-coast-circle",
+        "mapchallenge-day06-coast-line"
+      ],
+      "type": "mapchallengeDay06Coast"
+    },
+    {
+      "layers": [
         "harm-reduction-prevention-centers-circle",
         "harm-reduction-prevention-centers-glow"
       ],
@@ -6198,26 +6218,6 @@
         "mapchallenge-day05-sea-view-line"
       ],
       "type": "mapchallengeDay05SeaView"
-    },
-    {
-      "layers": [
-        "mapchallenge-day06-lighthouses-circle",
-        "mapchallenge-day06-lighthouses-today-circle"
-      ],
-      "type": "mapchallengeDay06Lighthouses"
-    },
-    {
-      "layers": [
-        "mapchallenge-day06-temples-1921-circle"
-      ],
-      "type": "mapchallengeDay06Temples1921"
-    },
-    {
-      "layers": [
-        "mapchallenge-day06-coast-circle",
-        "mapchallenge-day06-coast-line"
-      ],
-      "type": "mapchallengeDay06Coast"
     },
     {
       "layers": [
