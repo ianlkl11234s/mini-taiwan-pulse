@@ -108,6 +108,10 @@ jobs:
       - name: Cloudflare Worker tests
         run: npm run check:worker
 
+      # 排程監測腳本（site-watch／rotating-freshness／asset-lock-audit／workers-usage）與排程失敗通知的去抖判斷
+      - name: Monitor script tests
+        run: npm run check:monitor
+
   build:
     needs: changes
     if: needs.changes.outputs.code == 'true'

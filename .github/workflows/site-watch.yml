@@ -1,0 +1,35 @@
+# 正式站外部檢查（UPT-1）：首頁 200＋標記、main-*.js、主站 PMTiles Range 206、R2 lock 資產 Range 206。
+# 檢查邏輯在 scripts/monitor/site-health.mjs（本機可直接跑）。失敗 exit 1，通知由 schedule-watch.yml 負責
+# （連續 2 次失敗發 🔴、恢復發 ✅，不洗版）。GitHub 排程常延遲或略過（sync-rotating 實測 99 小時只跑 17 次），
+# 所以「多久內收到通知」沒有保證；要準時請改由 pulse-host cron 跑同一支腳本（BACKLOG UPT-1／SYNCR-1）。
+# 只讀公開網址、不用任何 secret；每輪約 3 次 Worker 請求（每天約 300 次，免費額度 10 萬）。
+name: site-watch
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-watch
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/monitor
+            deploy
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - name: Site health
+        run: node scripts/monitor/site-health.mjs
