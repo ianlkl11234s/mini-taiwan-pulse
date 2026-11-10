@@ -70,16 +70,22 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | Agent 分析能力（ADR-0022 A→B→C） | 🟡 | 北極星:AI | A（空間統計）10-21、B 10-23 上線；多國議題 2 P0–P5 10-29 上線；framingCheck（#881）隨 v2.27.0 上線 | MCPD-1 部署 MCP #107（11-10 已合 main）；MCPK-1 搜尋排序 key 失效；AG-13 入倉守門接 CI；AG-14 layer-status 涵蓋全部國家、AG-15 外國入倉基礎先英國；AGQ-1 南韓／愛爾蘭表補口徑；OWNV-1 開放他人使用前的條件；AG-12 排 gateway 部署；C（p-median）未動工。（愛爾蘭 64 層 11-10 已入倉；南韓 52 層已發包待組裝） | ADR-0022；`../.gis-agent-system/roadmap/status/agent-analysis-runbook.md`；BACKLOG I 群 | 2026-11-10 |
 | BYOK 對話預設模型 | 🔵 | 北極星:AI | — | 決定預設是否改中階檔（原 BC-3） | BACKLOG FB-023；[`features/byok-chat/`](./features/byok-chat/) | 2026-10-16 |
 
+### 視覺
+
+| 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
+|---|---|---|---|---|---|---|
+| 圖層配色與可見性 | 🟡 | 北極星:視覺 | 11-10 根因分析：暗底圖上統計色階最高級對比只有 1.13–1.60、圖例畫的是未乘透明度的原色；第一段另一 worker 進行中 | VIZ-1 第一段（統計色階暗底版＋圖例合成色＋對比契約測試）；VIZ-2 第二段等使用者從示範頁 https://claude.ai/artifact/59hyixtnXWsFUEHEbwKak4 挑手法 | BACKLOG VIZ-1／VIZ-2 | 2026-11-10 |
+
 ### 資料新鮮度、collector 與平台維運
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| Zeabur 停止營運搬遷收尾 | 🟡 | 底線:花費 | **搬遷全部完成**（11-09 已刪 13 個靜態站、不搬服務與 11 個空專案，只剩 mini-tw-pulse、data-collectors-gomn 兩專案留作回滾）：靜態站 10-29；主站、research-gateway、Valhalla 11-06（Cloudflare Worker＋Linode pulse-host）；collector 已搬 pulse-host（collectors #170／#171／#175–#180），correctional 移 HiCloud VM；Zeabur 26 服務已 suspend、變數已刪；zeabur README 11-08 已更新、flight-arc-graph #24 已合併 | ZB-1 刪最後兩個回滾專案（~11-14，須使用者同意）→ ZB-5 停約（12/1）→ SEC-6（12/3）；ZB-7 uk-trip DNS（主站網域改 Worker 已於 11-09 完成） | BACKLOG B 群；`../.gis-agent-system/projects/2026-10-zeabur-migration/`；ADR-0026 | 2026-11-09 |
+| Zeabur 停止營運搬遷收尾 | 🟡 | 底線:花費 | **搬遷全部完成**（11-09 已刪 13 個靜態站、不搬服務與 11 個空專案，只剩 mini-tw-pulse、data-collectors-gomn 兩專案留作回滾）：靜態站 10-29；主站、research-gateway、Valhalla 11-06（Cloudflare Worker＋Linode pulse-host）；collector 已搬 pulse-host（collectors #170／#171／#175–#180），correctional 移 HiCloud VM；Zeabur 26 服務已 suspend、變數已刪；zeabur README 11-08 已更新、flight-arc-graph #24 已合併 | ZB-1 刪最後兩個回滾專案（~11-14，須使用者同意）→ ZB-5 停約（12/1）→ SEC-6（12/3）；ZB-6 Zeabur 殘留根治剩餘項；ZB-7 uk-trip DNS（主站網域改 Worker 已於 11-09 完成） | BACKLOG B 群；`../.gis-agent-system/projects/2026-10-zeabur-migration/`；ADR-0026 | 2026-11-09 |
 | 資安稽核後續 | 🟡 | 底線:資安 | 10-17 稽核、多項 migration 已套（含 mig 502）；gp #170 已於 10-17 合併；11-09 第一批權限（gp #227 mig 536）與 iCHEF 客戶編號檔移出完成 | SEC-6 擴大版（12/3 前，計畫書 `.gis-agent-system/projects/2026-10-zeabur-migration/healthcheck-20261108/SEC-6-rotation-plan.md`）；SEC-7 只剩在 pulse-host 設 `PULSE_RESEARCH_TRUSTED_PROXY_IPS` 並驗證；SEC-4、SEC-5、SEC-9；SEC-11／SEC-12 | `../gis-platform/docs/research/2026-10-17-security-audit.md`；BACKLOG D 群 | 2026-11-08 |
 | 資料保留期限（Supabase／R2／collector 最長 6 個月） | 🟡 | 底線:期限 | 使用者 2026-11-07 拍板；gp #208／#212 mig 505–510 已於 **11-07 晚套用**（510 drop 20 張冷存表，約少 3.77 GiB；冷存檔在 S3 `supabase-export/`） | 驗清理首跑（ZB-V1，改期 11-11）；第 2 群約 21＋22 張表（WA-3）；DB-1 晚間補表大小 | BACKLOG WA-3；ADR-0026 | 2026-11-08 |
 | R2 獨有資料補回 S3 | 🟡 | 底線:備份 | warehouse packages 約 6 GB、pulse-staging `_detect` 約 1.09 GB、`sim/v1` 只在 R2；補傳進行中 | ST-2：補完後在產生流程尾端加上傳 S3；ADR-1 補正 ADR-0026；還原演練 BKP-1（Supabase 還原到新專案，需使用者操作）、BKP-2（pulse-host 從零重建）、BKP-3（`auth.users` 進 S3 備份） | BACKLOG ST-2／ADR-1／BKP-1～3 | 2026-11-10 |
 | 站主資料改存法（owner-data） | 🟡 | 底線:授權 | 第 1 批畜牧（v2.28.0）、第 2 批能源與石化（v2.29.0）上線並經使用者驗收；mig 514／515 撤 14 支 RPC | OWD-4 第 3 批（EA、Coillte、water1944；選舉活動 11-28 後）；SR-1 撤 static RPC（~11-15）、SR-2 | `../.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`；BACKLOG F 群 | 2026-11-08 |
-| 開發系統與告警整併 | 🔵 | 北極星:開發系統 | 健檢完成（自動化清單 A1–A15、Telegram 告警盤點）；11-09 關閉 DEV-1～3、MCP-1／2、CI-5；11-10 加入口文件自動檢查 `check:entry-docs` | ALERT-1 剩 aisstream／VM 接告警；CI-9 required `ci-ok`、CI-8 Dependabot（使用者 11-10 同意）；DEV-6 開場落後提示、DEV-4 開場瘦身；DEV-7～12、CI-6、CI-7、MCP-3；守門：UPT-1、CFW-1、SYNCR-1、ASSET-1、SQLL-1、LINT-1 | BACKLOG G 群 | 2026-11-10 |
+| 開發系統與告警整併 | 🔵 | 北極星:開發系統 | 健檢完成（自動化清單 A1–A15、Telegram 告警盤點）；11-09 branch protection、hook 修復、MCP 依賴升級完成；11-10 確認 CI 已從 R2 下載資產、加入口文件自動檢查 `check:entry-docs` | ALERT-1 剩 aisstream／VM 接告警；CI-9 required `ci-ok`、CI-8 Dependabot（使用者 11-10 同意）；DEV-6 開場落後提示、DEV-4 開場瘦身、DEV-5 個人全域 CLAUDE.md 待決；DEV-7～12、CI-6、CI-7、MCP-3；守門：UPT-1、CFW-1、SYNCR-1、ASSET-1、SQLL-1、LINT-1 | BACKLOG G 群 | 2026-11-10 |
 | 資料來源追蹤一條龍（ADR-0018／0024） | 🟡 | 底線:資料正確 | pulse-data #45：606 筆偵測清單，`_detect/changes/` 開始累積；週一 03:00 routine＋VM 04:30 | Phase 2 等 2–4 週數據；61 筆 draft 欄位待補；確認 11/2 起 VM 每週自動清單有在跑（`update_list.py --pull`）；collector run receipt 未做 | `../.gis-agent-system/decisions/0024-source-tracking-and-change-log.md` | 2026-10-29 |
 
 ### 多國圖層
