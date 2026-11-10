@@ -5,7 +5,7 @@ name: schedule-watch
 
 on:
   workflow_run:
-    workflows: [sync-rotating, deploy-workers, site-watch, rotating-freshness]   # 填被監看檔的 name: 值
+    workflows: [sync-rotating, deploy-workers, site-watch, rotating-freshness, workers-usage]   # 填被監看檔的 name: 值
     types: [completed]
 
 permissions:
