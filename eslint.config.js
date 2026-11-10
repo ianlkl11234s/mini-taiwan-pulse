@@ -232,6 +232,8 @@ export default [
   // day prefetch（AU-3）：CWA 不走共享 queue
   // currentTime 不進 hook deps（CLAUDE.md §6）：全站
   { files: ["src/**/*.{ts,tsx}"], rules: { "pulse/no-current-time-deps": "error" } },
+  // 前端只讀 public RPC 與 reference／spatial（development-rules §1 Schema 分工，LINT-1）：全站
+  { files: ["src/**/*.{ts,tsx}"], rules: { "pulse/no-nonpublic-schema": "error" } },
   {
     files: ["src/hooks/useCwaImageryLayer.ts"],
     rules: {

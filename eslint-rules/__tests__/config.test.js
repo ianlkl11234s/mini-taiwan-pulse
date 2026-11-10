@@ -66,6 +66,8 @@ describe("eslint.config.js 套用範圍", () => {
     ["src/components/Example.tsx", 'import mapboxgl from "mapbox-gl";', "no-restricted-imports", false],
     ["src/main.tsx", 'import { hydrateRoot } from "react-dom/client";', "no-restricted-imports", true],
     ["src/main.tsx", 'import { createRoot } from "react-dom/client";', "no-restricted-imports", false],
+    ["src/data/fooLoader.ts", 'supabase.schema("live").from("ships");', "pulse/no-nonpublic-schema", true],
+    ["src/lib/supabase.ts", 'createClient(u, k, { db: { schema: "live" } });', "pulse/no-nonpublic-schema", true],
     ["src/components/sidebar/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", true],
     ["src/research/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", true],
     ["src/research/jev-layer-screening/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", false],
