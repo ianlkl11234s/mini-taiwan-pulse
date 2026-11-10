@@ -41,7 +41,7 @@ import {
 import {
   MAPCHALLENGE_DAY08_ACCESS_URL, MAPCHALLENGE_DAY08_PARK_CLASSES, MAPCHALLENGE_DAY08_PARK_FILL_OPACITY, MAPCHALLENGE_DAY08_PARKS_URL, mapchallengeDay08ParkColor, mapchallengeDay08ParkColorExpr, MAPCHALLENGE_DAY08_SITE_CLASSES, MAPCHALLENGE_DAY08_SITE_FILL_OPACITY, MAPCHALLENGE_DAY08_SITES_URL,
   mapchallengeDay08AccessColorExpr, mapchallengeDay08ScenarioAt, mapchallengeDay08SiteColorExpr, mapchallengeDay08SiteOutline,
-  mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp,
+  mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp, MAPCHALLENGE_DAY08_PLAN_ATTRIBUTION,
 } from "../data/mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_URL, mapchallengeDay09ColorExpr, mapchallengeDay09MetricAt } from "../data/mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
@@ -12987,7 +12987,8 @@ OVERLAY_REGISTRY.push(
 // 方案 select 兩層共用（mapchallengeDay08ScenarioIdx）。步行分鐘：方案／步速只換 paint 讀的欄位（t0／t0s／t_<S>／ts_<S>）。
 // 選址：方案＋類別多選（V-4）改 filter，參數變動時重建；方案＝現況時沒有用地（filter 自然 0 筆）。
 // 1955 計畫原圖是 image source，由 useMapchallengeDay08PlanLayer 掛（overlay 引擎只收 geojson／pmtiles）。
-const MAPCHALLENGE_DAY08_ATTRIBUTION = "內政部最小統計區人口（2024）；OpenStreetMap（ODbL）；新北市都市計畫土地使用分區；內政部實價登錄；國土利用調查 · 研究推估，非法定查估";
+// 方案 D／Dfull 的用地與步行分鐘由 1955 計畫圖數化而來，不開原圖層時也要帶出該圖來源與 CC BY-NC 授權
+const MAPCHALLENGE_DAY08_ATTRIBUTION = `內政部最小統計區人口（2024）；OpenStreetMap（ODbL）；新北市都市計畫土地使用分區；內政部實價登錄；國土利用調查；${MAPCHALLENGE_DAY08_PLAN_ATTRIBUTION} · 研究推估，非法定查估`;
 const mcDay08SiteFilter = (p?: Record<string, number>): unknown[] => {
   const cat = categoryFilterExpr({ property: "cls", options: MAPCHALLENGE_DAY08_SITE_CLASSES.map((c) => ({ value: c.value, zh: c.zh })) }, p?.mapchallengeDay08SitesCategoryMask);
   const scenario = ["==", ["get", "scenario"], mapchallengeDay08ScenarioAt(p?.mapchallengeDay08ScenarioIdx).value];

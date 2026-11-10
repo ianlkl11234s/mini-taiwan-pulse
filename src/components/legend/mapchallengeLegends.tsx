@@ -297,11 +297,13 @@ const MAPCHALLENGE_DAY08_BIN_KEYS = [
   "legend.mapchallenge.day08.bin0", "legend.mapchallenge.day08.bin1", "legend.mapchallenge.day08.bin2", "legend.mapchallenge.day08.bin3",
 ] as const;
 
-function Day08Footer() {
+/** historical：方案 D／Dfull 的用地由 1955 計畫圖數化而來，補列該圖來源與 CC BY-NC 授權 */
+function Day08Footer({ historical = false }: { historical?: boolean }) {
   const { t } = useLocale();
   return <>
     <LegendNote>{t("legend.mapchallenge.day08.caveat")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day08.source")}</LegendNote>
+    {historical && <LegendNote>{t("legend.mapchallenge.day08.planLicense")}</LegendNote>}
   </>;
 }
 
@@ -322,7 +324,7 @@ export function MapchallengeDay08AccessLegend({ isDark }: { isDark: boolean }) {
       : t(speed === "slow" ? "legend.mapchallenge.day08.coveredRateSlow" : "legend.mapchallenge.day08.coveredRate", { pct, base: basePct })}</OverlapRate>
     {MAPCHALLENGE_DAY08_BIN_KEYS.map((k, i) => <LegendRow key={k} swatch={<SwatchSquare color={colors[i]!} />}>{t(k)}</LegendRow>)}
     <LegendNote>{t("legend.mapchallenge.day08.accessNote")}</LegendNote>
-    <Day08Footer />
+    <Day08Footer historical={scenario.value === "D" || scenario.value === "Dfull"} />
   </div>;
 }
 
@@ -361,7 +363,7 @@ export function MapchallengeDay08SitesLegend({ isDark }: { isDark: boolean }) {
       {t(MAPCHALLENGE_DAY08_SITE_CLASS_KEYS[c.value])}
     </LegendRow>)}
     <LegendNote>{t(historical ? "legend.mapchallenge.day08.sitesNoteHist" : "legend.mapchallenge.day08.sitesNote")}</LegendNote>
-    <Day08Footer />
+    <Day08Footer historical={historical} />
   </div>;
 }
 
