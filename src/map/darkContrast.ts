@@ -98,47 +98,53 @@ export function liftForDark(color: string, alpha: number): string {
   return format(fromOklch(floorLightness(parsed.rgb, a), C, h), parsed.alpha);
 }
 
-/** 連續色階：整段亮度線性壓縮進可見範圍（保留深淺順序），再逐色補到下限。 */
+/**
+ * 連續色階：由暗到亮逐級處理，每級亮度 ≥ 原值、≥ 自己的下限、≥ 前一級，且與先前每一級 ΔE ≥ min(rampDeltaE, 原本兩色的 ΔE)，
+ * 保留深淺順序；本來就夠亮的級不動（不整段壓縮，避免中高段被推成粉彩）。最多推到 L 0.97。
+ * floorFirst（RAMP_FLOOR_FIRST，級數多的色階）：改成整段亮度線性壓縮進可見範圍，級距平均縮小、每級都到下限。
+ */
 export function liftRampForDark(colors: readonly string[], alpha: number, floorFirst = false): string[] {
   const parsed = colors.map((c) => parseColor(c));
   if (parsed.some((p) => !p)) return colors.map((c) => liftForDark(c, alpha));
   const ok = parsed.every((p) => contrastOn(p!.rgb, DARK_LAND, alpha * p!.alpha) >= DARK_CONTRAST.min);
   if (ok) return [...colors];
   const lch = parsed.map((p) => oklch(p!.rgb));
-  const Ls = lch.map(([L]) => L);
-  const floor = Math.max(...parsed.map((p) => floorLightness(p!.rgb, alpha * p!.alpha)));
-  const minL = Math.min(...Ls);
-  const maxL = Math.max(...Ls);
-  const span = maxL - minL;
-  const build = (lo: number) => {
-    const hiL = Math.min(0.97, Math.max(maxL, lo + 0.15));
-    return lch.map(([L, C, h]) => {
+  if (floorFirst) {
+    // 級數多：整段亮度線性壓縮進 [最高下限, 原最亮]，級距平均縮小、每級都到下限
+    const Ls = lch.map(([L]) => L);
+    const lo = Math.max(...parsed.map((p) => floorLightness(p!.rgb, alpha * p!.alpha)));
+    const minL = Math.min(...Ls);
+    const hiL = Math.min(0.97, Math.max(Math.max(...Ls), lo + 0.15));
+    const span = Math.max(...Ls) - minL;
+    return lch.map(([L, C, h], i) => {
       const t = span > 0 ? (L - minL) / span : 1;
-      return fromOklch(lo + t * (hiL - lo), C, h);
+      return liftForDark(format(fromOklch(lo + t * (hiL - lo), C, h), parsed[i]!.alpha), alpha);
     });
-  };
-  const rgbs0 = parsed.map((p) => p!.rgb);
-  // 相鄰＝依原亮度排序後相鄰（match 當色階用時，表達式裡的順序不一定是深淺順序）
-  const byL = Ls.map((_, i) => i).sort((a, b) => Ls[a]! - Ls[b]!);
-  const minStep = (rgbs: Rgb[]) => {
-    const sorted = byL.map((i) => rgbs[i]!);
-    const steps = sorted.slice(1).map((c, i) => deltaE(c, sorted[i]!)).filter((d) => d > 0.01);
-    return steps.length ? Math.min(...steps) : Infinity;
-  };
-  // 色階相鄰級距：壓縮後不可小於 rampDeltaE（原本就小於則以原值為準）；做不到時寧可最深一級不到下限，也要分得出級距。
-  const need = floorFirst ? 0 : Math.min(DARK_CONTRAST.rampDeltaE, minStep(rgbs0));
-  let lo = floor;
-  if (minStep(build(floor)) < need) {
-    let a = minL;
-    let b = floor;
-    for (let i = 0; i < 24; i += 1) {
-      const mid = (a + b) / 2;
-      if (minStep(build(mid)) >= need) a = mid; else b = mid;
-    }
-    lo = a;
   }
-  const out = build(lo).map((rgb, i) => format(rgb, parsed[i]!.alpha));
-  return lo >= floor ? out.map((c) => liftForDark(c, alpha)) : out;
+  const order = lch.map((_, i) => i).sort((x, y) => lch[x]![0] - lch[y]![0]);
+  const out: Rgb[] = parsed.map((p) => p!.rgb);
+  const done = new Map<string, Rgb>();
+  const placed: Array<{ orig: Rgb; next: Rgb }> = [];
+  for (const i of order) {
+    const key = normalizeColor(colors[i]!);
+    const same = done.get(key);
+    if (same) { out[i] = same; continue; }
+    const p = parsed[i]!;
+    const [L0, C, h] = lch[i]!;
+    const prevL = placed.length ? oklch(placed[placed.length - 1]!.next)[0] : 0;
+    let L = Math.max(L0, floorLightness(p.rgb, alpha * p.alpha), prevL);
+    let rgb = L === L0 ? p.rgb : fromOklch(L, C, h);
+    // 與先前每一級都要分得開（不只相鄰：中性灰等夾在中間的色也算）
+    const short = (x: Rgb) => placed.some((q) => deltaE(q.next, x) < Math.min(DARK_CONTRAST.rampDeltaE, deltaE(q.orig, p.rgb)));
+    while (short(rgb) && L < 0.97) {
+      L = Math.min(0.97, L + 0.01);
+      rgb = fromOklch(L, C, h);
+    }
+    out[i] = rgb;
+    done.set(key, rgb);
+    placed.push({ orig: p.rgb, next: rgb });
+  }
+  return out.map((rgb, i) => (rgb === parsed[i]!.rgb ? colors[i]! : format(rgb, parsed[i]!.alpha)));
 }
 
 /**

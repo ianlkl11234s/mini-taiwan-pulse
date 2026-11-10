@@ -431,13 +431,13 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 - **C-1 底圖色**：暗陸 `#292828`、淡陸 `#f8f8fa`（正式站截圖實測，常數 `BASEMAP_LAND`）。Pure Black、衛星等其他暗底圖以暗陸近似。注意 `MAP_SEAM.dark #0a0a14` 不是底圖色。
 - **C-2 分級色階**（方向與淡底相同：低 → 高＝淺 → 深）：每一級「色 × 預設透明度」疊在暗陸上的對比要**單調**，最淺一級對比 **6–9**（亮但不刺眼），最深一級對比 ≥ **2.2** 且 OKLCH 彩度 ≥ **0.10**（靠彩度與明度兩者和中性灰底圖分開），相鄰級 OKLab ΔE ≥ **4**（目標 8；重新取樣到 2–9 級都要符合）。雙向色階兩端最深（各自 ≥ 2.2、彩度 ≥ 0.10）、近 0 最淺。統計圖層由 `statisticsDarkRamp.test.ts` 逐 render key 驗；實測（暗底、0.75）：最深一級 2.24–2.61、彩度 0.118–0.160，最淺一級 7.82–8.45；五級色系相鄰 ΔE 7.5–10.7，所得八級 4.7–9.7。
-- **C-3 單層對比下限**：每個圖層「最顯眼主體子圖層」（circle／line／fill／fill-extrusion，排除 glow、outline、label 等裝飾）各色合成到暗陸後對比的中位數 ≥ **3**。契約測試 `src/map/__tests__/contrastContract.test.ts`（ratchet：既有違規列在 `__fixtures__/contrast-baseline.json`，不准新增、不准變差；違規減少時跑 `npm run contrast:baseline` 重產）。涵蓋 registry overlay（`layer-golden.json`）與統計；hook 自建、Three.js、heatmap／raster、文字不涵蓋。2026-11-10 C-4 之後基準 152 → 42 筆：點 96 → 3、線 10 → 0、面 22 → 15、政黨色 24 不動（剩餘原因見下）。
+- **C-3 單層對比下限**：每個圖層「最顯眼主體子圖層」（circle／line／fill／fill-extrusion，排除 glow、outline、label 等裝飾）各色合成到暗陸後對比的中位數 ≥ **3**。契約測試 `src/map/__tests__/contrastContract.test.ts`（ratchet：既有違規列在 `__fixtures__/contrast-baseline.json`，不准新增、不准變差；違規減少時跑 `npm run contrast:baseline` 重產）。涵蓋 registry overlay（`layer-golden.json`）與統計；hook 自建、Three.js、heatmap／raster、文字不涵蓋。2026-11-10 C-4 之後基準 152 → 41 筆：點 96 → 2、線 10 → 0、面 22 → 15、政黨色 24 不動（剩餘原因見下）。
 - **C-4 暗底點／線亮度下限（2026-11-10，使用者：「點的部分可以修正，現在很多預設會是暗色的」）**：registry 主體 circle／line 的字面色，在該子圖層暗底預設透明度下疊暗陸對比 < 3 時，由 `withDarkContrast()`（`src/map/darkContrast.ts`，`withLineFillSpec` 之後）保留色相、提高 OKLab 亮度到 ≥ 3.15（超出色域降彩度）。
   - 類別（match／case）逐色提亮；提亮後與同層其他色 ΔE < 8 時，依原深淺順序往上錯開，最多再 +0.12 亮度（推到近白會失去色相）。
-  - 色階（step／interpolate，以及有彩色色相差 ≤ 45° 的 match）整段壓縮進可見範圍、保留深淺順序；相鄰 ΔE 不小於 6（原本就更小則以原值為準），做不到時最深一級可不到 3。級數多的登記在 `RAMP_FLOOR_FIRST`（isobath）改成每級都到 3。
-  - **共用或兩套**：提亮後的顏色在淡底預設透明度下對比也 ≥ 3、且不在 `LIGHT_KEEP`（品牌色：台塑、中油）時，兩種底圖共用新色（38 層）；其餘只換暗底、淡底維持原色（212 層）。實測同色相在兩底都 ≥ 3 的範圍很窄：透明度 0.75 以下不存在，0.85 時只有 OKLab L≈0.77 一帶，所以多數層是兩套。
+  - 色階（step／interpolate，以及有彩色色相差 ≤ 45° 的 match）由暗到亮逐級處理：每級亮度 ≥ 原值、≥ 自己的下限、≥ 前一級，且和先前各級 ΔE ≥ min(6, 原本兩色的 ΔE)；本來就夠亮的級不動（不整段壓縮，避免中高段被推成粉彩）。級數多的登記在 `RAMP_FLOOR_FIRST`（isobath 12 級）改成整段亮度線性壓縮，級距平均縮小（相鄰 ΔE 約 1–3）、每級都到 3。
+  - **共用或兩套**：提亮後的顏色在淡底預設透明度下對比也 ≥ 3、且不在 `LIGHT_KEEP`（品牌色：台塑、中油）時，兩種底圖共用新色（44 層）；其餘只換暗底、淡底維持原色（207 層）。實測同色相在兩底都 ≥ 3 的範圍很窄：透明度 0.75 以下不存在，0.85 時只有 OKLab L≈0.77 一帶，所以多數層是兩套。
   - 讀資料的顏色（`["get","color"]`）、裝飾子圖層、面不處理。圖例 `SwatchDot`／`SwatchLine` 由 `LegendPanel` 的 `LegendLiftCtx`（`legendLiftMap()`）換成同一份對照；手寫色票（非 legendKit）的圖例不會自動同步，警政司法已改。
-  - 剩下 3 個點層：`a1AccidentRealtime`（依事件時間由紅轉深紅＝刻意淡出）、`pollutionPenaltyGeneral`／`Mobile`（白點 0.17–0.33 透明度＝依嚴重度的資料編碼）。
+  - 剩下 2 個點層：`pollutionPenaltyGeneral`／`Mobile`（白點 0.17–0.33 透明度＝依嚴重度的資料編碼，顏色已是白、只能靠透明度）。
   - 剩下 15 個面層：背景／覆蓋面在 0.3–0.5 透明度下中位數本來就難到 3（噪音管制、航空噪音、工業設施、植被、Day 4／6／8 等），以及警察等時圈（色階一半是低重疊的暗紅）；面不設 3 的硬門檻，維持 ratchet。
 - **C-5 類別色盤 `MAP_CATEGORICAL`（2026-11-10）**：`mapStyleScale.ts`，暗／淡各 8 色、同色相；順序即挑選順序（貪婪法，前 n 色彼此最遠）。暗底版 0.85 疊暗陸 ≥ 3.15，淡底版 0.85 疊淡陸 ≥ 3.4；中性（其他）用 `MAP_CATEGORICAL.neutral`。
 

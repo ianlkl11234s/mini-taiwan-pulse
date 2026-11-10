@@ -11,10 +11,6 @@
   "darkLand": "#292828"
  },
  "violations": {
-  "a1AccidentRealtime": {
-   "contrast": 2.85,
-   "type": "circle"
-  },
   "aviationNoiseZones": {
    "contrast": 1.5,
    "type": "fill"
