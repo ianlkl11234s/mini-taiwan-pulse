@@ -11,7 +11,8 @@ export declare const RULES: {
   link: string;
   archive: string;
 };
-export interface EntryDocProblem { file: string; line: number; rule: string; message: string }
+export declare const WARNING_RULES: Set<string>;
+export interface EntryDocProblem { file: string; line: number; rule: string; level: "error" | "warning"; message: string }
 export interface BacklogIndex {
   open: Map<string, number>;
   closed: Map<string, number>;

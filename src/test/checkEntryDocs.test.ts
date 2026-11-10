@@ -85,6 +85,7 @@ describe("checkEntryDocs", () => {
   it("引用已關閉 ID 報錯並帶行號；做到哪欄與已結案段不檢查", () => {
     const ps = projectProblems("| a | 🟡 | — | DONE-1 完成 | DONE-2／3 | BACKLOG OPEN-1 | — |");
     expect(rulesOf(ps)).toEqual(["closed-id", "closed-id"]);
+    expect(ps.every((p) => p.level === "error")).toBe(true);
     expect(ps[0]!.line).toBeGreaterThan(0);
     expect(ps.map((p) => p.message).join()).toMatch(/DONE-2.*DONE-3|DONE-3.*DONE-2/);
   });
@@ -115,7 +116,10 @@ describe("checkEntryDocs", () => {
       "| 持續留意 | 無日期 | 使用者 | — |",
     ].join("\n");
     const ps = projectProblems("| a | 🟡 | — | — | — | — | — |", dl, "2026-11-10");
-    expect(ps.filter((p) => p.rule === "deadline")).toHaveLength(2);
+    const due = ps.filter((p) => p.rule === "deadline");
+    expect(due).toHaveLength(2);
+    // 只警告：日期前進不該讓 CI 紅
+    expect(due.every((p) => p.level === "warning")).toBe(true);
     const later = projectProblems("| a | 🟡 | — | — | — | — | — |", dl, "2026-12-01").filter((p) => p.rule === "deadline");
     expect(later).toHaveLength(5);
   });

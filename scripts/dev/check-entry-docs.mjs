@@ -29,6 +29,9 @@ export const RULES = {
   archive: "archive-link",
 };
 
+/** 只警告、不讓 CI 紅的規則：結果只因日期前進而改變的檢查（主要出口是開場 hook，見 BACKLOG DEV-6）。 */
+export const WARNING_RULES = new Set(["deadline"]);
+
 // 「像 ID」只用來切 token；是不是 BACKLOG ID 由 BACKLOG 的集合決定，不靠 regex 判斷。
 const TOKEN = /[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+[a-z]?/g;
 
@@ -157,7 +160,7 @@ function relLinks(text) {
 
 /**
  * 檢查兩份文件。fileExists(repoRelPath) 由呼叫端注入，方便測試。
- * 回傳違規清單：{ file, line, rule, message }
+ * 回傳違規清單：{ file, line, rule, level: "error"|"warning", message }
  */
 export function checkEntryDocs({ projects, backlog, today, fileExists = () => true }) {
   const problems = [];
@@ -165,7 +168,7 @@ export function checkEntryDocs({ projects, backlog, today, fileExists = () => tr
   const push = (file, line, rule, message, raw) => {
     const why = ignoresOf(raw ?? "").get(rule);
     if (why) return;
-    problems.push({ file, line, rule, message });
+    problems.push({ file, line, rule, level: WARNING_RULES.has(rule) ? "warning" : "error", message });
   };
   const resolveFrom = (fromFile, href) => {
     const p = normalize(join(dirname(fromFile), decodeURI(href)));
@@ -176,7 +179,7 @@ export function checkEntryDocs({ projects, backlog, today, fileExists = () => tr
   for (const [file, text] of [[PROJECTS_PATH, projects], [BACKLOG_PATH, backlog]]) {
     text.split("\n").forEach((l, i) => {
       for (const m of l.matchAll(/<!--\s*entry-docs-ignore\b([^>]*)-->/g)) {
-        if (!/^\s+[a-z-]+\s*:\s*\S/.test(m[1])) problems.push({ file, line: i + 1, rule: "ignore-syntax", message: "豁免標記要寫成 <!-- entry-docs-ignore <rule>: <理由> -->" });
+        if (!/^\s+[a-z-]+\s*:\s*\S/.test(m[1])) problems.push({ file, line: i + 1, rule: "ignore-syntax", level: "error", message: "豁免標記要寫成 <!-- entry-docs-ignore <rule>: <理由> -->" });
       }
     });
   }
@@ -273,13 +276,23 @@ function main() {
     today,
     fileExists: (p) => existsSync(join(root, p)),
   });
-  if (!problems.length) {
-    console.log(`check-entry-docs：0 違規（today=${today}）`);
-    return;
+  const errors = problems.filter((p) => p.level === "error");
+  const warnings = problems.filter((p) => p.level === "warning");
+  const gha = Boolean(process.env.GITHUB_ACTIONS);
+  const where = (p) => relative(root, join(root, p.file));
+  if (warnings.length) {
+    console.log(`過期提醒（只警告，不影響結果）：`);
+    for (const p of warnings) {
+      console.log(`  ${where(p)}:${p.line} [${p.rule}] ${p.message}`);
+      if (gha) console.log(`::warning file=${where(p)},line=${p.line}::${p.message}`);
+    }
   }
-  for (const p of problems) console.log(`${relative(root, join(root, p.file))}:${p.line} [${p.rule}] ${p.message}`);
-  console.log(`\ncheck-entry-docs：${problems.length} 個違規（today=${today}）。規則與豁免寫法見 .claude/memory/README.md「入口文件自動檢查」。`);
-  process.exitCode = 1;
+  for (const p of errors) {
+    console.log(`${where(p)}:${p.line} [${p.rule}] ${p.message}`);
+    if (gha) console.log(`::error file=${where(p)},line=${p.line}::[${p.rule}] ${p.message}`);
+  }
+  console.log(`check-entry-docs：${errors.length} 個違規、${warnings.length} 個過期提醒（today=${today}）。規則與豁免寫法見 .claude/memory/README.md「入口文件自動檢查」。`);
+  if (errors.length) process.exitCode = 1;
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
