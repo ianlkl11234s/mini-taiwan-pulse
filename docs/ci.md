@@ -15,22 +15,24 @@ CI 只回答一個問題：**這次合併會不會讓 develop 壞掉**。由此�
 ## 2. 結構
 
 ```
+entry-docs（PROJECTS ↔ BACKLOG 一致性；不看 changes，永遠跑）
 changes ──┬─ quick（lint → 樣式盤點 → coral → worker；sparse-checkout 跳過 public/）
           ├─ build（tsc -b ＋ vite build）
           ├─ test ×4 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
           └─ assets（資產測試：依 lock 從 R2 下載、比對 sha256 後驗內容）
-                └─ ci-ok（彙總；永遠會出現）
+                └─ ci-ok（彙總 entry-docs 與上面全部；永遠會出現）
 ```
 
 - **四個 job 平行跑**，牆鐘時間等於最慢的那一個。每個 job 自己付 checkout 與 `npm ci` 的成本，`npm ci` 有 setup-node 的 npm 快取，約 5 秒。
-- **檢查的順序以 package.json 的 `check` 為準**：lint → inventory → coral → worker → build → test → assets，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
+- **檢查的順序以 package.json 的 `check` 為準**：entry-docs → lint → inventory → coral → worker → build → test → assets，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
 - **`ci-ok`** 用 `if: always()` 接住所有 job，只要有任何一個不是 success 或 skipped 就紅。之後如果要設 required status check，只設這一個。
 - **每個 job 都有 `timeout-minutes`**。沒設的話，卡住會跑滿 6 小時。
 
 ## 3. 什麼時候跳過
 
 - **只有 PR 會跳過**：push 到 develop／master 一律完整跑。原因是兩個各自綠燈的 PR 交會後仍可能紅，例如 layer-golden 快照。
-- PR 只動到 `.claude/**`（memory、pitfalls、skills、hooks）時，quick、build、test 三個 job 會顯示 skipped，`ci-ok` 仍是綠的。
+- PR 只動到 `.claude/**`（memory、pitfalls、skills、hooks）時，quick、build、test、assets 會顯示 skipped，`ci-ok` 仍是綠的。
+- **`entry-docs` job 永遠跑**（2026-11-10）：它檢查 `docs/PROJECTS.md` 與 `.claude/memory/BACKLOG.md` 互不矛盾，最常改這兩檔的正是只動 `.claude/**` 的 `memory:` PR，放進 quick 會被跳過。腳本零相依、不跑 `npm ci`。規則見 `.claude/memory/README.md`「入口文件自動檢查」。注意其中「有期限的事」過期規則和日期有關：期限一過，**所有 PR 與 develop 都會紅**，直到 PROJECTS 寫上結果、改期或刪列。
 - **跳過名單只放「確定沒有任何檢查會讀」的路徑**。`docs/` 與 `CHANGELOG.md` 不能加：`CHANGELOG.md` 會被 `src/data/changelog.ts` 打包進網站；`docsFreshness.test.ts`、`deployContract.test.ts`、樣式盤點、ESLint 規則都會讀 docs。要新增路徑前，先在 `src/`、`eslint-rules/`、`scripts/design/` 搜尋有沒有程式讀它。
 - **不用 workflow 層級的 `paths-ignore`**：被過濾掉的 workflow 不會產生任何 check。這會讓 required check 一直停在 pending，也會讓「等 CI 出現再合併」的流程永遠等不到。改用 `dorny/paths-filter` 在 job 層判斷，job 用 `if:` 跳過時會顯示 skipped，check 照樣存在。
 - **同一個 PR 連推多次時，舊的那輪會被取消**（`concurrency` 搭配 `cancel-in-progress`，只對 pull_request 生效）。
