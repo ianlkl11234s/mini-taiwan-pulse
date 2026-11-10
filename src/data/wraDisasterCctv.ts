@@ -10,6 +10,8 @@
  * - 清單是外部資料：只接受這兩個影像主機的 https 網址，其餘丟掉。
  */
 
+import { withLoading } from "../lib/loadingRegistry";
+
 export type WraCctvKind = "disaster" | "dredging";
 
 export const WRA_CCTV_LIST_URLS: Record<WraCctvKind, string> = {
@@ -70,12 +72,16 @@ export function dredgingSiblingImages(list: readonly Row[], stationName: unknown
 export function fetchWraCctvList(kind: WraCctvKind, fetcher: typeof fetch = fetch, now = Date.now()): Promise<Row[]> {
   const hit = cache.get(kind);
   if (hit && now - hit.at < LIST_TTL_MS) return hit.promise;
-  const promise = fetcher(WRA_CCTV_LIST_URLS[kind])
-    .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
-    .then((data: unknown) => {
-      if (!Array.isArray(data)) throw new Error("not a JSON array");
-      return data.filter((r): r is Row => r != null && typeof r === "object");
-    });
+  const promise = withLoading(
+    `wra-cctv-list:${kind}`,
+    kind === "disaster" ? "水利署水情影像清單" : "水利署疏濬工區影像清單",
+    fetcher(WRA_CCTV_LIST_URLS[kind])
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((data: unknown) => {
+        if (!Array.isArray(data)) throw new Error("not a JSON array");
+        return data.filter((r): r is Row => r != null && typeof r === "object");
+      }),
+  );
   promise.catch(() => cache.delete(kind));
   cache.set(kind, { at: now, promise });
   return promise;

@@ -63,6 +63,15 @@ describe("legendKit", () => {
     expect(overlayFillOpacity("notAnOverlayKey", true, base)).toBeUndefined();
   });
 
+  it("LG-14：滑桿拉到 0 回 0（不當查不到）；不論參數都是 0 的點擊用面仍查不到", () => {
+    const base = encodeParamsToOverlay(layerParamsStore.getAll());
+    // 切到面模式（V-5 點／面切換；哪個索引是面不寫死）
+    const polyIdx = [0, 1, 2].find((i) => overlayFillOpacity("lakesPondsOsm", true, { ...base, lakesPondsOsmDisplayModeIdx: i }) !== undefined);
+    expect(polyIdx).toBeDefined();
+    expect(overlayFillOpacity("lakesPondsOsm", true, { ...base, lakesPondsOsmDisplayModeIdx: polyIdx!, lakesPondsOsmOpacity: 0 })).toBe(0);
+    expect(overlayFillOpacity("countyBoundary", true, base)).toBeUndefined();
+  });
+
   it("LG-14：只認目前畫著的面（V-5 點模式時面隱藏 → 不合成）", () => {
     const base = encodeParamsToOverlay(layerParamsStore.getAll());
     const modes = [0, 1, 2].map((i) => overlayFillOpacity("cemeteryOsm", true, { ...base, cemeteryOsmDisplayModeIdx: i }));

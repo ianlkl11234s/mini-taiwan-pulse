@@ -21,6 +21,7 @@ export declare function parsePulseLayers(text: string): string[];
 export declare function hasWarehouseTables(text: string): boolean;
 export declare function parseEntryId(text: string): string | null;
 export declare function parseIndicatorDatasets(text: string): Set<string>;
+export declare function parseLayerListKeys(text: string): string[];
 export declare function parseLayerList(text: string): Map<string, ListRow>;
 export declare function indexRegistry(files: RegistryFile[]): RegistryIndex;
 export declare function warehouseStatus(key: string, datasets: string[], index: RegistryIndex): WarehouseStatus;

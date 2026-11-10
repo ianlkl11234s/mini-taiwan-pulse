@@ -402,5 +402,5 @@
   "popup.atlas.vioParent": "Parent office",
   "popup.atlas.vioFax": "Fax",
   "popup.atlas.vioJurisdiction": "Jurisdiction (original text)",
-  "popup.atlas.vioOsm": "Position from a same-named OpenStreetMap feature"
+  "popup.atlas.vioOsm": "Position from a same-named OpenStreetMap feature (© OpenStreetMap contributors, ODbL)"
 }

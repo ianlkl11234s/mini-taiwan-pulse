@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { loadingRegistry } from "../../lib/loadingRegistry";
 import {
   dredgingSiblingImages, fetchWraCctvList, resetWraCctvListCache, resolveDisasterImage, safeWraImageUrl, wraCameraId,
 } from "../wraDisasterCctv";
@@ -47,4 +48,15 @@ describe("wraDisasterCctv", () => {
     await fetchWraCctvList("disaster", good as unknown as typeof fetch, 2);
     expect(good).toHaveBeenCalledTimes(1);
   });
+
+  it("抓清單時登記 loadingRegistry，解析完才結束", async () => {
+    resetWraCctvListCache();
+    const events: string[] = [];
+    const off = loadingRegistry.subscribeEvents((e) => { if (e.id.startsWith("wra-cctv-list:")) events.push(`${e.type}:${e.id}`); });
+    const good = vi.fn(async () => new Response(JSON.stringify([{ cameraid: "1" }]), { status: 200 }));
+    await fetchWraCctvList("dredging", good as unknown as typeof fetch, 0);
+    off();
+    expect(events).toEqual(["start:wra-cctv-list:dredging", "end:wra-cctv-list:dredging"]);
+  });
 });
+

@@ -156,7 +156,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 |---|---|---|---|---|---|---|
 | 新聞地點證據 shadow 面板（POC） | ⏸️ 保留 | 待討論 | draft：mini #427、gp #128（migration 須重編號）、collectors #117；mini #425 已於 10-17 合併 | 使用者決定全部留存（2026-11-08）；要重啟再看 CL-3 | BACKLOG CL-3 | 2026-10-03 |
 | 國際媒體台灣情資 feed（GDELT，POC） | ⏸️ 保留 | 待討論 | draft：mini #426、gp #127、collectors #116 | 同上 | BACKLOG CL-3 | 2026-10-03 |
-| Monitor 可拖曳版面 | ⏸️ 保留 | 待討論 | 本機分支 feat/monitor-grid-layout、feat/monitor-widgets-batch1 已於 10-18 依使用者「2甲」刪除，bundle 備份在 `GIS/_worktree-backups/2026-10-18/` | 要重啟時從 bundle 還原 | BACKLOG 已關閉 G015（實驗留在 bundle） | 2026-10-18 |
+| Monitor 可拖曳版面 | ⏸️ 保留 | 待討論 | 本機分支 feat/monitor-grid-layout、feat/monitor-widgets-batch1 已於 10-18 依使用者「2甲」刪除，bundle 備份在 `GIS/_worktree-backups/2026-10-18/` | 要重啟時從 bundle 還原 | BACKLOG 已關閉 G015（實驗留在 bundle）<!-- entry-docs-ignore closed-id: 刻意註明已關閉、實驗留在備份 --> | 2026-10-18 |
 | gis-platform portal（Next.js 個人管理介面） | ⏸️ 停用 | 待討論 | 9 月後未更新；main 上 build／lint 失敗、CI 不建置、原部署在 Zeabur；Dependabot 漏洞已清到剩 1 個 low（gp #239） | 使用者 11-10 決定標記停用、不要移除；不修建置、不封存 | `../gis-platform/` portal 目錄 | 2026-11-10 |
 | 情報牆（mini-taiwan-intel） | ⏸️ | 待討論 | 資安稽核 C1 完成（mig 477、站主登入才可寫） | W30 計畫 §3、§6 待拍板項；W2：「否決關聯」改標 rejected | `../.gis-agent-system/projects/2026-W30-intel-wall/` | 2026-10-17 |
 | Monitor 四域子指數／壓力指數重建 | ⏸️ | 待討論 | 規格 §5.35 I2 已有，無觸發 | MON-P6：決定重啟後先寫公開權重與基期提案 | BACKLOG MON-P6 | 2026-10-16 |

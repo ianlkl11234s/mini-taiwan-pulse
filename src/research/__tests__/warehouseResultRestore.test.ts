@@ -10,7 +10,11 @@ const mixed = JSON.stringify({ type: "FeatureCollection", features: [
 ] });
 const single = JSON.stringify({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [121.5, 25] }, properties: {} }] });
 const sha = (text: string) => createHash("sha256").update(text).digest("hex");
-const files: Record<string, string> = { "wh-3": mixed, "wh-7": single };
+const polygons = JSON.stringify({ type: "FeatureCollection", features: [
+  { type: "Feature", geometry: { type: "Polygon", coordinates: [[[121.5, 25.03], [121.52, 25.03], [121.52, 25.05], [121.5, 25.03]]] }, properties: {} },
+  { type: "Feature", geometry: { type: "MultiPolygon", coordinates: [[[[121.6, 25.03], [121.62, 25.03], [121.62, 25.05], [121.6, 25.03]]]] }, properties: {} },
+] });
+const files: Record<string, string> = { "wh-3": mixed, "wh-7": single, "wh-9": polygons };
 const metaOf = (id: string) => ({ resultId: id, sha256: sha(files[id]!), bytes: files[id]!.length, label: `結果 ${id}`, featureCount: JSON.parse(files[id]!).features.length, style: null });
 
 function setup(meta: (ids: string[]) => Promise<WarehouseResultsMeta>) {
@@ -62,6 +66,15 @@ describe("restoreWarehouseResults (P1 reload)", () => {
     const local = collection([["local-analysis", null]]);
     expect(await restoreWarehouseResults(local, { ...deps, has: () => true })).toEqual({ collection: local, restored: [], dropped: [] });
     expect(metaSpy).not.toHaveBeenCalled();
+  });
+
+  it("remaps legacy per-type split ids (`:multipolygon`) to the ids imports produce now (review F018)", async () => {
+    const { session, deps } = setup(async ids => ({ results: ids.map(metaOf), missing: [] }));
+    const scene = collection([["wh-3:multipolygon", "g"], ["wh-9:polygon", null], ["wh-9:multipolygon", null]], ["g"]);
+    const outcome = await restoreWarehouseResults(scene, deps);
+    expect(outcome.dropped).toEqual([]);
+    expect(outcome.collection).toEqual(collection([["wh-3:polygon", "g"], ["wh-9", null]], ["g"]));
+    expect(session.hasResult("wh-3:polygon") && session.hasResult("wh-9")).toBe(true);
   });
 
   it("gives up on a stalled restore at the deadline", async () => {

@@ -9,9 +9,11 @@
  * 環境變數：CF_ANALYTICS_API_TOKEN（Account Analytics: Read）、CLOUDFLARE_ACCOUNT_ID。
  * 缺任一個 → 印 ::warning:: 並在 summary 寫「未設定、已跳過」，exit 0（不是假裝有在看：summary 與 annotation 會明寫）。
  *
- *   node scripts/monitor/workers-usage.mjs [--since-last <ISO 時間>]
- *     --since-last：同一 UTC 日上一次成功執行的時間。超過門檻時再查一次「當時」的累計，
- *                   當時已超過就代表那一輪已經通知過 → 不重送（每個 UTC 日只通知一次，不需另存狀態）。
+ *   node scripts/monitor/workers-usage.mjs [--notified-today]
+ *     --notified-today：同一 UTC 日較早的 run 已實際送出 Telegram（workflow 從 run 歷史的 Telegram step 結果判斷）。
+ *                       超過門檻時有這個旗標 → over-already 不重送；沒有 → over-new（每個 UTC 日只通知一次）。
+ *                       以「實際通知」為準，不從上一輪的用量推斷：缺 secret 的 skipped run 也算 success，
+ *                       當時已超標不代表有通知過（review F089）。
  * 輸出（GITHUB_OUTPUT）：status=ok|over-new|over-already|skipped、total、pct、message。查詢失敗 exit 1。
  */
 import { appendFileSync } from "node:fs";
@@ -20,8 +22,6 @@ import { pathToFileURL } from "node:url";
 export const ENDPOINT = "https://api.cloudflare.com/client/v4/graphql";
 export const DAILY_LIMIT = 100000; // Workers Free：每日 10 萬請求，UTC 00:00 重置
 export const ALERT_RATIO = 0.6;
-// Analytics 資料有入帳延遲：回查上一輪時往前退 15 分，誤差只會偏向「重複通知」，不會把沒通知過的判成通知過
-export const LOOKBACK_SLACK_MS = 15 * 60000;
 
 const QUERY = `query WorkersDaily($accountTag: string, $start: string, $end: string) {
   viewer {
@@ -63,10 +63,10 @@ export function isOver(total, limit = DAILY_LIMIT, ratio = ALERT_RATIO) {
   return total > limit * ratio;
 }
 
-/** 判定是否要送：現在超過、而上一次成功執行時（同 UTC 日）還沒超過 → over-new */
-export function decide(totalNow, totalAtLastRun) {
+/** 判定是否要送：現在超過、且今天（UTC）還沒實際通知過 → over-new */
+export function decide(totalNow, notifiedToday) {
   if (!isOver(totalNow)) return "ok";
-  return totalAtLastRun != null && isOver(totalAtLastRun) ? "over-already" : "over-new";
+  return notifiedToday ? "over-already" : "over-new";
 }
 
 async function queryTotal(token, accountId, now, end, fetchImpl) {
@@ -80,17 +80,10 @@ async function queryTotal(token, accountId, now, end, fetchImpl) {
   return parseUsage(await res.json());
 }
 
-export async function run({ token, accountId, now = new Date(), sinceLast, fetchImpl = fetch }) {
+export async function run({ token, accountId, now = new Date(), notifiedToday = false, fetchImpl = fetch }) {
   if (!token || !accountId) return { status: "skipped" };
   const { total, byScript } = await queryTotal(token, accountId, now, now, fetchImpl);
-  let atLast = null;
-  const last = sinceLast ? new Date(sinceLast) : null;
-  const sameDay = last && Number.isFinite(last.getTime()) && last.toISOString().slice(0, 10) === now.toISOString().slice(0, 10) && last < now;
-  const lastEnd = sameDay ? new Date(last.getTime() - LOOKBACK_SLACK_MS) : null;
-  if (isOver(total) && lastEnd && lastEnd.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)) {
-    atLast = (await queryTotal(token, accountId, now, lastEnd, fetchImpl)).total;
-  }
-  return { status: decide(total, atLast), total, byScript, pct: (total / DAILY_LIMIT) * 100 };
+  return { status: decide(total, notifiedToday), total, byScript, pct: (total / DAILY_LIMIT) * 100 };
 }
 
 function out(key, value) {
@@ -98,10 +91,9 @@ function out(key, value) {
 }
 
 async function main() {
-  const i = process.argv.indexOf("--since-last");
-  const sinceLast = i >= 0 ? process.argv[i + 1] : undefined;
+  const notifiedToday = process.argv.includes("--notified-today");
   const summary = process.env.GITHUB_STEP_SUMMARY;
-  const r = await run({ token: process.env.CF_ANALYTICS_API_TOKEN, accountId: process.env.CLOUDFLARE_ACCOUNT_ID, sinceLast });
+  const r = await run({ token: process.env.CF_ANALYTICS_API_TOKEN, accountId: process.env.CLOUDFLARE_ACCOUNT_ID, notifiedToday });
   out("status", r.status);
   if (r.status === "skipped") {
     const msg = "CF_ANALYTICS_API_TOKEN 或 CLOUDFLARE_ACCOUNT_ID 未設定：Workers 用量告警未運作、本次已跳過";

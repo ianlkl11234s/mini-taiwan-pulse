@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
-import { GIS_LAYERS } from "../map/gisClickRegistry";
+import { GIS_LAYERS, dropHiddenLandUseHex } from "../map/gisClickRegistry";
 import { requireH3 } from "../map/h3Runtime";
 import { pickTransitReachCell } from "../data/transitReachStore";
 import { pickFreewayTdcsCar } from "../data/freewayTdcsSimStore";
@@ -431,6 +431,7 @@ export function useMapInteraction(
           let features = type === "gfwHourlyGrid"
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
+          if (type === "landUseChangeMonitoring") features = dropHiddenLandUseHex(queried);
           if (type === "busCrowdingSim") {
             // 命中層與線同 filter（不畫的段點不到）；這裡再防一次。多條路線疊在同一條街時，
             // 優先回答超載比例最高的那條（與 line-sort-key 讓高值畫在上面一致）。

@@ -82,21 +82,28 @@ export const caQuakeLiveStatus = {
   subscribe: (l: () => void) => { listeners.add(l); return () => { listeners.delete(l); }; },
 };
 
+/** 請求世代：只有最新一次 fetch 能寫狀態，避免關開圖層時舊請求晚回來覆寫圖例。 */
+let requestGen = 0;
+
 /** 抓最近 30 天；204（無事件）＝空集合；失敗丟錯並寫進狀態（呼叫端清空 source，不留舊資料）。 */
 export async function fetchCaQuakesLive(nowMs = Date.now()): Promise<GeoJSON.FeatureCollection<GeoJSON.Point>> {
+  const gen = ++requestGen;
+  const setIfLatest = (next: CaQuakeLiveStatus) => { if (gen === requestGen) setStatus(next); };
   setStatus({ ...status, state: "loading", error: null });
   try {
-    const res = await withLoading("ca-earthquakes-live", "加拿大即時地震", fetch(caQuakeLiveUrl(nowMs), { cache: "no-cache" }));
-    if (res.status !== 200 && res.status !== 204) throw new Error(`HTTP ${res.status}`);
-    const fc = res.status === 204 ? { type: "FeatureCollection" as const, features: [] } : parseCaQuakeText(await res.text());
+    const fc = await withLoading("ca-earthquakes-live", "加拿大即時地震", (async () => {
+      const res = await fetch(caQuakeLiveUrl(nowMs), { cache: "no-cache" });
+      if (res.status !== 200 && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+      return res.status === 204 ? { type: "FeatureCollection" as const, features: [] } : parseCaQuakeText(await res.text());
+    })());
     const latest = fc.features.reduce<string | null>((m, f) => {
       const t = String(f.properties?.time_utc ?? "");
       return t && (!m || t > m) ? t : m;
     }, null);
-    setStatus({ state: "ready", count: fc.features.length, latest, fetchedAt: new Date(nowMs).toISOString(), error: null });
+    setIfLatest({ state: "ready", count: fc.features.length, latest, fetchedAt: new Date(nowMs).toISOString(), error: null });
     return fc;
   } catch (e) {
-    setStatus({ state: "error", count: 0, latest: null, fetchedAt: new Date(nowMs).toISOString(), error: e instanceof Error ? e.message : String(e) });
+    setIfLatest({ state: "error", count: 0, latest: null, fetchedAt: new Date(nowMs).toISOString(), error: e instanceof Error ? e.message : String(e) });
     throw e;
   }
 }

@@ -10,6 +10,26 @@
   "gisLayers": [
     {
       "layers": [
+        "mapchallenge-day06-lighthouses-circle",
+        "mapchallenge-day06-lighthouses-today-circle"
+      ],
+      "type": "mapchallengeDay06Lighthouses"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-temples-1921-circle"
+      ],
+      "type": "mapchallengeDay06Temples1921"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-coast-circle",
+        "mapchallenge-day06-coast-line"
+      ],
+      "type": "mapchallengeDay06Coast"
+    },
+    {
+      "layers": [
         "harm-reduction-prevention-centers-circle",
         "harm-reduction-prevention-centers-glow"
       ],
@@ -6201,26 +6221,6 @@
     },
     {
       "layers": [
-        "mapchallenge-day06-lighthouses-circle",
-        "mapchallenge-day06-lighthouses-today-circle"
-      ],
-      "type": "mapchallengeDay06Lighthouses"
-    },
-    {
-      "layers": [
-        "mapchallenge-day06-temples-1921-circle"
-      ],
-      "type": "mapchallengeDay06Temples1921"
-    },
-    {
-      "layers": [
-        "mapchallenge-day06-coast-circle",
-        "mapchallenge-day06-coast-line"
-      ],
-      "type": "mapchallengeDay06Coast"
-    },
-    {
-      "layers": [
         "mapchallenge-day06-taipei-1932-fill"
       ],
       "type": "mapchallengeDay06Taipei1932"
@@ -7274,7 +7274,7 @@
           "minzoom": 10,
           "paint": {
             "dark": {
-              "circle-color": "#ffffff",
+              "circle-color": "#b8a080",
               "circle-opacity": 0.08,
               "circle-radius": 4.5,
               "circle-stroke-color": "#e5e7eb",
@@ -12393,7 +12393,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "line-color": "rgba(255, 255, 255, 0.45)",
+              "line-color": "rgba(255,255,255,0.45)",
               "line-opacity": 0.6000000000000001,
               "line-width": [
                 "interpolate",
@@ -12583,7 +12583,7 @@
           "minzoom": 15,
           "paint": {
             "dark": {
-              "line-color": "rgba(255, 255, 255, 0.45)",
+              "line-color": "rgba(255,255,255,0.45)",
               "line-opacity": 0.6000000000000001,
               "line-width": [
                 "interpolate",
@@ -12775,7 +12775,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "line-color": "rgba(255, 255, 255, 0.45)",
+              "line-color": "rgba(255,255,255,0.45)",
               "line-opacity": 0.6000000000000001,
               "line-width": [
                 "interpolate",
@@ -12965,7 +12965,7 @@
           "minzoom": 15,
           "paint": {
             "dark": {
-              "line-color": "rgba(255, 255, 255, 0.45)",
+              "line-color": "rgba(255,255,255,0.45)",
               "line-opacity": 0.6000000000000001,
               "line-width": [
                 "interpolate",
@@ -15310,14 +15310,14 @@
                   "camp_key"
                 ],
                 "dpp",
-                "#ffffff",
+                "#1f9d55",
                 "kmt",
-                "#ffffff",
+                "#3b6fe0",
                 "tpp",
-                "#ffffff",
+                "#22b8c7",
                 "npp",
-                "#ffffff",
-                "#ffffff"
+                "#f2c230",
+                "#9ca3af"
               ],
               "circle-opacity": [
                 "case",
@@ -47291,7 +47291,7 @@
               "circle-stroke-width": 1
             },
             "light": {
-              "circle-color": "#b76135",
+              "circle-color": "#bc663a",
               "circle-opacity": 0.9,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
@@ -59931,7 +59931,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "line-color": "#ffffff",
+              "line-color": "#7f1d1d",
               "line-opacity": [
                 "case",
                 [
@@ -60181,7 +60181,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "line-color": "#ffffff",
+              "line-color": "#7f1d1d",
               "line-opacity": [
                 "case",
                 [
@@ -60431,7 +60431,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "line-color": "#ffffff",
+              "line-color": "#7f1d1d",
               "line-opacity": [
                 "case",
                 [
@@ -67930,18 +67930,18 @@
                   "event_medium"
                 ],
                 "air",
-                "#ffffff",
+                "#9ca3af",
                 "water",
-                "#ffffff",
+                "#3b82f6",
                 "waste",
-                "#ffffff",
+                "#a16207",
                 "toxic",
-                "#ffffff",
+                "#a855f7",
                 "soil",
-                "#ffffff",
+                "#ca8a04",
                 "noise",
-                "#ffffff",
-                "#ffffff"
+                "#f97316",
+                "#64748b"
               ],
               "circle-opacity": [
                 "case",
@@ -68291,7 +68291,7 @@
           "paint": {
             "dark": {
               "circle-blur": 0.18,
-              "circle-color": "#ffffff",
+              "circle-color": "#22c55e",
               "circle-opacity": 0.33,
               "circle-radius": 3,
               "circle-stroke-color": "#e5e7eb",
@@ -103562,7 +103562,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "circle-color": "#ffffff",
+              "circle-color": "#c2410c",
               "circle-opacity": 0.108,
               "circle-radius": [
                 "interpolate",
@@ -103638,7 +103638,7 @@
               ]
             },
             "light": {
-              "circle-color": "#c2410c",
+              "circle-color": "#d55326",
               "circle-opacity": 0.108,
               "circle-radius": [
                 "interpolate",
@@ -103838,7 +103838,7 @@
               ]
             },
             "light": {
-              "circle-color": "#c2410c",
+              "circle-color": "#d55326",
               "circle-opacity": 0.9,
               "circle-radius": [
                 "interpolate",
@@ -108683,7 +108683,7 @@
                 3,
                 "rgba(162, 212, 255, 0.7)",
                 -1,
-                "rgba(255, 255, 255, 0.35)",
+                "rgba(107,114,128,0.35)",
                 "rgba(185, 192, 208, 0.6)"
               ],
               "line-opacity": 0.85,
@@ -129061,7 +129061,7 @@
             "value": "tm25k-1950"
           },
           {
-            "label": "1953 十萬分一臺灣地形圖",
+            "label": "1953 十萬分一臺灣省交通圖",
             "value": "tm100k-1953"
           },
           {
@@ -129113,7 +129113,7 @@
             "value": "tm500k-1978"
           },
           {
-            "label": "1984 十萬分一臺灣地形圖",
+            "label": "1984 十萬分一臺灣省交通圖",
             "value": "tm100k-1984"
           },
           {

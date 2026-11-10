@@ -29,7 +29,7 @@ import {
   NO_UPSTREAM_FILE,
   checkWarehouseGate,
   indexRegistry,
-  parseLayerList,
+  parseLayerListKeys,
   parsePulseLayers,
 } from "../../../scripts/research/layer-warehouse-status.mjs";
 
@@ -62,7 +62,8 @@ describe.skipIf(!registryDir)("layerManifest ↔ pulse-data registry coverage (o
       }
     }
     const noUpstreamPath = join(dir, NO_UPSTREAM_FILE);
-    if (existsSync(noUpstreamPath)) noUpstream.push(...parseLayerList(readFileSync(noUpstreamPath, "utf-8")).keys());
+    // 用保留重複的原始清單，下方 dup 檢查才有意義（review F072）
+    if (existsSync(noUpstreamPath)) noUpstream.push(...parseLayerListKeys(readFileSync(noUpstreamPath, "utf-8")));
   }
   const manifestKeys = Object.keys(LAYER_MANIFEST);
   const manifestSet = new Set(manifestKeys);

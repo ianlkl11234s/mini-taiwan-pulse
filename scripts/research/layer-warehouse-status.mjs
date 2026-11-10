@@ -45,6 +45,13 @@ export function parseIndicatorDatasets(text) {
 }
 
 /** 清單檔（_no_upstream／_display_only／_warehouse_baseline）：layer → {reason, unlock} */
+/** `- layer: x` 清單的 key（照檔案順序、保留重複），給重複檢查用（parseLayerList 回 Map 會去重；review F072）。 */
+export function parseLayerListKeys(text) {
+  return text.split(/^(?=[ \t]*- layer:)/m)
+    .filter((b) => /^[ \t]*- layer:/.test(b))
+    .map((block) => unquote(block.match(/- layer:[ \t]*([^\s#]+)/)[1]));
+}
+
 export function parseLayerList(text) {
   const out = new Map();
   const blocks = text.split(/^(?=[ \t]*- layer:)/m).filter((b) => /^[ \t]*- layer:/.test(b));

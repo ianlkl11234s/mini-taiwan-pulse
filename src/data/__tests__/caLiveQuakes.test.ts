@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { caQuakeEventType, caQuakeLiveUrl, caQuakePlaceEn, parseCaQuakeText } from "../caLiveQuakesLoader";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { caQuakeEventType, caQuakeLiveStatus, caQuakeLiveUrl, caQuakePlaceEn, fetchCaQuakesLive, parseCaQuakeText } from "../caLiveQuakesLoader";
 
 const SAMPLE = `#EventID|Time|Latitude|Longitude|Depth/km|MagType|Magnitude|EventLocationName
 ca2026vycq|2026-11-05T15:56:06.000Z|54.5418|-117.3|3|MLy|2.33|Suspected industry-related event, 36 km WNW of Fox Creek, AB/Événement lié à l'industrie soupçonné, 36 km ONO de Fox Creek, AB
@@ -33,5 +33,23 @@ describe("加拿大即時地震（NRCan FDSN text）", () => {
 
   it("查詢網址：現在往前 30 天、format=text", () => {
     expect(caQuakeLiveUrl(Date.UTC(2026, 10, 6, 9, 0, 0))).toBe("https://earthquakescanada.nrcan.gc.ca/fdsnws/event/1/query?starttime=2026-10-07T09:00:00&format=text");
+  });
+
+  describe("狀態世代守衛", () => {
+    afterEach(() => { vi.unstubAllGlobals(); });
+
+    it("舊請求晚回來不覆寫最新請求的狀態", async () => {
+      const resolvers: Array<(r: Response) => void> = [];
+      vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>((r) => { resolvers.push(r); })));
+      const first = fetchCaQuakesLive(Date.UTC(2026, 10, 6));
+      const second = fetchCaQuakesLive(Date.UTC(2026, 10, 6));
+      await Promise.resolve();
+      resolvers[1]!(new Response(null, { status: 204 }));
+      await second;
+      expect(caQuakeLiveStatus.get()).toMatchObject({ state: "ready", count: 0 });
+      resolvers[0]!(new Response("oops", { status: 500 }));
+      await expect(first).rejects.toThrow("HTTP 500");
+      expect(caQuakeLiveStatus.get()).toMatchObject({ state: "ready", count: 0, error: null });
+    });
   });
 });

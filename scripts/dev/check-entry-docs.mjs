@@ -33,7 +33,8 @@ export const RULES = {
 export const WARNING_RULES = new Set(["deadline"]);
 
 // 「像 ID」只用來切 token；是不是 BACKLOG ID 由 BACKLOG 的集合決定，不靠 regex 判斷。
-const TOKEN = /[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+[a-z]?/g;
+// 舊式無連字號 ID（G015、G025）也要納入，否則引用已關閉／不存在的 G### 不會被檢查（review F087）。
+const TOKEN = /[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+[a-z]?|(?<![A-Za-z0-9])G\d{3}(?![A-Za-z0-9])/g;
 
 /** 依 Asia/Taipei 取今天（YYYY-MM-DD）。 */
 export function taipeiToday(now = new Date()) {
@@ -128,13 +129,15 @@ export function parseBacklog(text) {
     }
     const id = cells[0];
     if (!id) continue;
+    // 列首複合 ID（AR-12/13、AR-14/15）展開後每個都登記，PROJECTS 引用 AR-13 才找得到（review F084）
+    const rowIds = [id, ...extractIds(id)];
     if (inOpen) {
-      if (!open.has(id)) open.set(id, i + 1);
+      for (const rid of rowIds) if (!open.has(rid)) open.set(rid, i + 1);
       const item = cells[header.indexOf("Item")] ?? "";
       const orig = item.match(/^〔[^〕]+〕\s*([A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+)/);
       if (orig && !open.has(orig[1])) open.set(orig[1], i + 1);
       rows.push({ line: i + 1, raw: line, id, header, cells });
-    } else if (!closed.has(id)) closed.set(id, i + 1);
+    } else for (const rid of rowIds) if (!closed.has(rid)) closed.set(rid, i + 1);
   }
   return { open, closed, rows, lines, end };
 }
@@ -237,7 +240,7 @@ export function checkEntryDocs({ projects, backlog, today, fileExists = () => tr
       // 查無此 ID：BACKLOG 欄整格、其他欄「BACKLOG 」字樣之後到「；」為止
       const scopes = name === "BACKLOG" ? [cell] : [...cell.matchAll(/BACKLOG\s+([^；;]*)/g)].map((m) => m[1]);
       // 「下一步」欄以「ID：」開頭的子句，也當成在引用 BACKLOG 列
-      if (name === "下一步") for (const m of cell.matchAll(/(?:^|[；;（(]\s*)([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)[：:]/g)) scopes.push(m[1]);
+      if (name === "下一步") for (const m of cell.matchAll(/(?:^|[；;（(]\s*)([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|G\d{3})[：:]/g)) scopes.push(m[1]);
       for (const scope of scopes)
         for (const id of new Set(extractIds(scope)))
           if (!bl.open.has(id) && !bl.closed.has(id)) push(PROJECTS_PATH, i + 1, RULES.unknownId, `「${name}」欄引用的 ${id} 在 BACKLOG 查無此列`, line);

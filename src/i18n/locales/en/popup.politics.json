@@ -35,6 +35,8 @@
   "popup.politics.group.title": "{place} · {count} events",
   "popup.politics.group.back": "‹ Back to {count} events",
   "popup.politics.group.pastSuffix": " (held)",
+  "popup.politics.group.pastTimeSuffix": " (time passed)",
+  "popup.politics.group.statusSuffix": " ({status})",
   "popup.politics.group.hint": "Select an event for details ›",
   "popup.politics.precisionNote.settlementNamed": "Within the settlement of {name}; the dot is not the venue itself",
   "popup.politics.precisionGroupNote.settlementNamed": "These events are within the settlement of {name}; the dot is not the venue itself",
