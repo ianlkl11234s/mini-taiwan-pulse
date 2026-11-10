@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > **現況入口（單一入口）**：開場先讀本檔上半部（現在最該注意＋進行中／待拍板），需要細節再查 BACKLOG 對應主題群。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-10 差異檢核（對 11-08 健檢逐項比對：PROJECTS 引用已關閉 ID、過期期限、封存連結全數修正，新增 `npm run check:entry-docs` 自動檢查；使用者同日拍板的決定登記進 BACKLOG，決策清單 https://claude.ai/artifact/5jeCEF7zwwCWbgAWveLtWd ）。同日稍早：v2.35.0 發布（台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表）。
+> 最後盤點：2026-11-10 差異檢核收尾（當天完成並登記：MCP 發版關卡與倉庫 1.5.3 重發、四個守門排程、Dependabot 與 required `ci-ok`、開場提示與瘦身第一輪、配色第一／二段；之前：對 11-08 健檢逐項比對：PROJECTS 引用已關閉 ID、過期期限、封存連結全數修正，新增 `npm run check:entry-docs` 自動檢查；使用者同日拍板的決定登記進 BACKLOG，決策清單 https://claude.ai/artifact/5jeCEF7zwwCWbgAWveLtWd ）。同日稍早：v2.35.0 發布（台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表）。
 > 自動檢查：`npm run check:entry-docs`（規則與標記寫法見 [memory README](../.claude/memory/README.md)「入口文件自動檢查」）；期限過了要寫〔結果 YYYY-MM-DD：…〕或刪列（過期只警告、不讓 CI 紅；開場 hook 會提醒）。
 
 與其他文件的分工（mini-taiwan-pulse 是整個 Pulse 生態系的總 PM）：
@@ -21,7 +21,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
-| 2026-11-09 | 保留期限清理排程（mig 505–509）首跑、reconcile、備份 watchdog、日報 VM 欄位、日本雷達追上：白天唯讀驗。11-10 差異檢核：文件查無五項觀察紀錄〔待確認〕 | Claude | ZB-V1 |
+| 2026-11-09 | 保留期限清理排程（mig 505–509）首跑、reconcile、備份 watchdog、日報 VM 欄位、日本雷達追上：白天唯讀驗。11-10 差異檢核：文件查無五項觀察紀錄〔待確認〕，待唯讀 DB 驗證 | Claude | ZB-V1 |
 | 2026-11-10 | 四件事：mig 532 測試、VM moa 00:53 log、pgss 查詢文字量、保留期限首次清理刪除量＋vacuum（避開 10:00–20:00） | Claude | CHK-1110（SBE-1／SBE-2／WA-3） |
 | ~2026-11-12～14 | pgss 乾淨慢查詢清單（11-09 15:27 重置）→ 先優化 >1s，再收 timeout 10–15s | Claude | SEC-5 |
 | ~2026-11-14 | 刪 Zeabur 最後兩個專案（mini-tw-pulse、data-collectors-gomn；其餘 11-09 已刪；主站網域已改 Worker，ZB-4 完成），須使用者同意；uk-trip DNS 要使用者在 Cloudflare 手動刪 | 使用者 | ZB-1／ZB-7 |
@@ -37,7 +37,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 約 2027-05-15 | 監所人數卡片的 365 天視窗會變空（上游 05-15 停更） | 使用者拍板 | PR-1 |
 | 2027-10-29 | 英格蘭 EA 污染名錄授權到期 | 使用者 | EA-1 |
 | 約 2027-11 | GHCR classic PAT 到期（pulse-host 拉不到映像），未設提醒 | 使用者 | — |
-| 持續留意 | OpenRouter 預付餘額（用完 news_events 停寫；collector 用的那把歸 SEC-6，MCP 搜尋 11-10 已換專用新 key）；Cloudflare Workers 免費額度每日 10 萬請求（11-10 實測本月累計 8.94 萬，決定不升級，只加 6 成告警，見 CFW-1）；Access service token 與 CI 的 Cloudflare API token 效期❓未實測 | 使用者 | SEC-6／CFW-1 |
+| 持續留意 | OpenRouter 預付餘額（用完 news_events 停寫；collector 用的那把歸 SEC-6，MCP 搜尋 11-10 已換專用新 key）；Cloudflare Workers 免費額度每日 10 萬請求（決定不升級；6 成告警 11-10 已上線，當日實測 12,307，幾乎都來自名為 `mini-taiwan-pulse-staging` 的 Worker）；Access service token 與 CI 的 Cloudflare API token 效期❓未實測 | 使用者 | SEC-6 |
 
 **本週進行中**
 
@@ -49,8 +49,8 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - 2026 選舉活動地圖每日更新（到 11-28）。
 - 30 天地圖挑戰：Day 9 城鄉圖層 mapchallengeDay09UrbanRural（#972）、Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
 - 正式站目視包：v2.22～v2.31 各版目視集中在 BACKLOG A 群（VP-1～VP-13），等 Claude 用瀏覽器一次截圖。
-- 配色與可見性：第一段（統計色階暗底版、圖例合成色、對比契約測試）進行中（VIZ-1）；第二段等使用者從示範頁挑手法（VIZ-2）。
-- MCP：#107 已部署 analysis-prod（11-10 13:19），等使用者 /mcp 重連後跑兩題冒煙（MCPD-1）；搜尋排序 key 11-10 已換新、恢復 jev 排序。
+- 配色與可見性：第一、二段已合 develop 待發版（#998、#1002）；第三階段待做（VIZ-3）；視覺化功能設計提案 Q-A～Q-G 等使用者回答（VIZ-4）。
+- MCP 與倉庫：#107 已部署並冒煙通過；發版關卡（MCP #108～#111）上線；72 表以 DuckDB 1.5.3 重發為 `20261110T084641Z`（pulse-data #104），S3 歸檔與 R2 舊版清理等使用者驗收（WHDB-2）。
 
 ## 進行中與待拍板
 
@@ -67,14 +67,15 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| Agent 分析能力（ADR-0022 A→B→C） | 🟡 | 北極星:AI | A（空間統計）10-21、B 10-23 上線；多國議題 2 P0–P5 10-29 上線；framingCheck（#881）隨 v2.27.0 上線 | MCPD-1 MCP #107 已部署 analysis-prod（11-10），等使用者 /mcp 重連後冒煙；AG-13 入倉守門接 CI；AG-14 layer-status 涵蓋全部國家、AG-15 外國入倉基礎先英國；AGQ-1 南韓／愛爾蘭表補口徑；OWNV-1 開放他人使用前的條件；AG-12 排 gateway 部署；C（p-median）未動工。（愛爾蘭 64 層 11-10 已入倉；南韓 52 層已發包待組裝；搜尋排序 key 11-10 換新已恢復） | ADR-0022；`../.gis-agent-system/roadmap/status/agent-analysis-runbook.md`；BACKLOG I 群 | 2026-11-10 |
+| Agent 分析能力（ADR-0022 A→B→C） | 🟡 | 北極星:AI | A（空間統計）10-21、B 10-23 上線；多國議題 2 P0–P5 10-29 上線；framingCheck（#881）隨 v2.27.0 上線；11-10：MCP #107 部署、發版關卡（#108～#111）、入倉守門接 CI（#999）、DuckDB 1.5.3 重發（pulse-data #104） | WHDB-2 舊版清理（等使用者驗收）；MCPD-2 wh-N 重連後覆寫；DOCWH-1 analytics skill 舊參數；AG-14 layer-status 涵蓋全部國家、AG-15 外國入倉基礎先英國；AGQ-1 南韓／愛爾蘭表補口徑；OWNV-1 開放他人使用前的條件；AG-12 排 gateway 部署；C（p-median）未動工。（愛爾蘭 64 層 11-10 已入倉；南韓 52 層已發包待組裝；搜尋排序 key 11-10 換新已恢復） | ADR-0022；`../.gis-agent-system/roadmap/status/agent-analysis-runbook.md`；BACKLOG I 群 | 2026-11-10 |
 | BYOK 對話預設模型 | 🔵 | 北極星:AI | — | 決定預設是否改中階檔（原 BC-3） | BACKLOG FB-023；[`features/byok-chat/`](./features/byok-chat/) | 2026-10-16 |
 
 ### 視覺
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| 圖層配色與可見性 | 🟡 | 北極星:視覺 | 11-10 根因分析：暗底圖上統計色階最高級對比只有 1.13–1.60、圖例畫的是未乘透明度的原色；第一段另一 worker 進行中 | VIZ-1 第一段（統計色階暗底版＋圖例合成色＋對比契約測試）；VIZ-2 第二段等使用者從示範頁 https://claude.ai/artifact/59hyixtnXWsFUEHEbwKak4 挑手法 | BACKLOG VIZ-1／VIZ-2 | 2026-11-10 |
+| 圖層配色與可見性 | 🟡 | 北極星:視覺 | 11-10 根因分析後，第一段（#998）、第二段（#1002）已合 develop、未發版；截圖只驗過 4 層 | VIZ-1／VIZ-2 發版後正式站目視；VIZ-3 第三階段（15 面、2 點、約 24 支 hook 寫死暗色、手寫圖例、淡底圖 44 共用色層、約 73 自繪點層） | BACKLOG VIZ-1～VIZ-3 | 2026-11-10 |
+| 視覺化功能設計提案 | 🔵 | 北極星:視覺 | 提案 https://claude.ai/artifact/G7qsxVy7Cy3qA1BfZqNs6y | VIZ-4：Q-A～Q-G 等使用者回答（11-10：「我晚點看」），回答後才實作 | BACKLOG VIZ-4 | 2026-11-10 |
 
 ### 資料新鮮度、collector 與平台維運
 
@@ -85,7 +86,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 資料保留期限（Supabase／R2／collector 最長 6 個月） | 🟡 | 底線:期限 | 使用者 2026-11-07 拍板；gp #208／#212 mig 505–510 已於 **11-07 晚套用**（510 drop 20 張冷存表，約少 3.77 GiB；冷存檔在 S3 `supabase-export/`） | 驗清理首跑（ZB-V1，11-09 到期、紀錄〔待確認〕）；第 2 群約 21＋22 張表（WA-3）；DB-1 晚間補表大小 | BACKLOG WA-3；ADR-0026 | 2026-11-08 |
 | R2 獨有資料補回 S3 | 🟡 | 底線:備份 | warehouse packages 約 6 GB、pulse-staging `_detect` 約 1.09 GB、`sim/v1` 只在 R2；補傳進行中 | ST-2：補完後在產生流程尾端加上傳 S3；ADR-1 補正 ADR-0026；還原演練 BKP-1（Supabase 還原到新專案，需使用者操作）、BKP-2（pulse-host 從零重建）、BKP-3（`auth.users` 進 S3 備份） | BACKLOG ST-2／ADR-1／BKP-1～3 | 2026-11-10 |
 | 站主資料改存法（owner-data） | 🟡 | 底線:授權 | 第 1 批畜牧（v2.28.0）、第 2 批能源與石化（v2.29.0）上線並經使用者驗收；mig 514／515 撤 14 支 RPC | OWD-4 第 3 批（EA、Coillte、water1944；選舉活動 11-28 後）；SR-1 撤 static RPC（~11-15）、SR-2 | `../.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`；BACKLOG F 群 | 2026-11-08 |
-| 開發系統與告警整併 | 🔵 | 北極星:開發系統 | 健檢完成（自動化清單 A1–A15、Telegram 告警盤點）；11-09 branch protection、hook 修復、MCP 依賴升級完成；11-10 確認 CI 已從 R2 下載資產、加入口文件自動檢查 `check:entry-docs` | ALERT-1 剩 aisstream／VM 接告警；CI-9 required `ci-ok`、CI-8 Dependabot（使用者 11-10 同意）；DEV-6 開場落後提示、DEV-4 開場瘦身、DEV-5 個人全域 CLAUDE.md 待決；DEV-7～12、CI-6、CI-7、MCP-3；守門：UPT-1、CFW-1、SYNCR-1、ASSET-1、SQLL-1、LINT-1 | BACKLOG G 群 | 2026-11-10 |
+| 開發系統與告警整併 | 🔵 | 北極星:開發系統 | 健檢完成（自動化清單 A1–A15）；11-09 branch protection、hook 修復；11-10：入口文件檢查（#997）、開場落後提示（#1003）、required `ci-ok`、7 repo Dependabot alerts、四個守門排程（#999）、pulse-data／MCP 補 CI、sql-lint L3（gp #238）、開場瘦身第一輪（52.9K→31.3K 字，模擬值） | ALERT-1 剩 aisstream／VM 接告警；CI-8 Dependabot 回讀與 `dependabot.yml` 待決；DEV-4 瘦身剩項；DEV-5 個人全域 CLAUDE.md 待決；DEV-7～12、CI-6、MCP-3；ASSET-1 215 檔補進 lock；SQLL-2 文件補寫 L3；DISK-1 package-cache 整併 | BACKLOG G 群 | 2026-11-10 |
 | 資料來源追蹤一條龍（ADR-0018／0024） | 🟡 | 底線:資料正確 | pulse-data #45：606 筆偵測清單，`_detect/changes/` 開始累積；週一 03:00 routine＋VM 04:30 | Phase 2 等 2–4 週數據；61 筆 draft 欄位待補；確認 11/2 起 VM 每週自動清單有在跑（`update_list.py --pull`）；collector run receipt 未做 | `../.gis-agent-system/decisions/0024-source-tracking-and-change-log.md` | 2026-10-29 |
 
 ### 多國圖層
@@ -156,6 +157,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 新聞地點證據 shadow 面板（POC） | ⏸️ 保留 | 待討論 | draft：mini #427、gp #128（migration 須重編號）、collectors #117；mini #425 已於 10-17 合併 | 使用者決定全部留存（2026-11-08）；要重啟再看 CL-3 | BACKLOG CL-3 | 2026-10-03 |
 | 國際媒體台灣情資 feed（GDELT，POC） | ⏸️ 保留 | 待討論 | draft：mini #426、gp #127、collectors #116 | 同上 | BACKLOG CL-3 | 2026-10-03 |
 | Monitor 可拖曳版面 | ⏸️ 保留 | 待討論 | 本機分支 feat/monitor-grid-layout、feat/monitor-widgets-batch1 已於 10-18 依使用者「2甲」刪除，bundle 備份在 `GIS/_worktree-backups/2026-10-18/` | 要重啟時從 bundle 還原 | BACKLOG 已關閉 G015（實驗留在 bundle） | 2026-10-18 |
+| gis-platform portal（Next.js 個人管理介面） | ⏸️ 停用 | 待討論 | 9 月後未更新；main 上 build／lint 失敗、CI 不建置、原部署在 Zeabur；Dependabot 漏洞已清到剩 1 個 low（gp #239） | 使用者 11-10 決定標記停用、不要移除；不修建置、不封存 | `../gis-platform/` portal 目錄 | 2026-11-10 |
 | 情報牆（mini-taiwan-intel） | ⏸️ | 待討論 | 資安稽核 C1 完成（mig 477、站主登入才可寫） | W30 計畫 §3、§6 待拍板項；W2：「否決關聯」改標 rejected | `../.gis-agent-system/projects/2026-W30-intel-wall/` | 2026-10-17 |
 | Monitor 四域子指數／壓力指數重建 | ⏸️ | 待討論 | 規格 §5.35 I2 已有，無觸發 | MON-P6：決定重啟後先寫公開權重與基期提案 | BACKLOG MON-P6 | 2026-10-16 |
 | 衛星主控台歷史模式機動清單 | ⏸️ 保留 | 待討論 | 2026-10-04 擱置；gp 分支 `feat/satellite-maneuvers-anchor` 本機 commit 未 push | SAT-Z3：解除擱置後先過三項核准 | BACKLOG SAT-Z3 | 2026-10-16 |
