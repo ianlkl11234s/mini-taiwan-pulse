@@ -9,6 +9,7 @@
   "statistics.legend.loading": "読み込み中…",
   "statistics.legend.diverging": "茶色：負の値、紫色：0 以上。0 が境界で、色は良し悪しを表さない",
   "statistics.legend.sequential": "淡 → 濃：値が低 → 高。この指標の数値区間で比較",
+  "statistics.legend.sequentialDark": "暗 → 明：値が低 → 高（暗い背景地図）。この指標の数値区間で比較",
   "statistics.legend.hatchSocial": "斜線：missing／出典の対象外。0 ではない。観測値 0 は段階色で表示",
   "statistics.legend.hatchDefault": "斜線：データなし／未公表",
   "statistics.legend.hatchLabel": "斜線：{label}",

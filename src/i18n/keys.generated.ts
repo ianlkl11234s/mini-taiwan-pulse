@@ -7978,6 +7978,7 @@ export type GeneratedStaticKey =
   | "statistics.legend.perDimensionThresholds"
   | "statistics.legend.range"
   | "statistics.legend.sequential"
+  | "statistics.legend.sequentialDark"
   | "statistics.level.ca_cd"
   | "statistics.level.ca_pr"
   | "statistics.level.county"

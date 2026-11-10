@@ -142,6 +142,13 @@ const PU_OR_6_DARK = ['#ffe6d2', '#f6ab6a', '#be834f', '#9686ca', '#c2b0ff', '#e
  * 透明度滑桿值以淡底為準，暗底依比例放大（預設 0.55 → 0.75，上限 1），地圖與圖例共用這個換算。
  */
 export const STATISTICS_FILL_OPACITY = { light: 0.55, dark: 0.75 } as const;
+/**
+ * 方向說明的底圖用語：recipe 內建「淺 → 深」說明（社會脆弱度等 scale_note）在暗底改寫成「暗 → 亮」，
+ * 與暗底版色階方向一致。只換這個固定片語，其他文字不動。
+ */
+export function statisticsScaleWording(text: string, isDark: boolean): string {
+  return isDark ? text.split('淺 → 深').join('暗 → 亮') : text;
+}
 export function statisticsFillOpacity(sliderValue: number | undefined, isDark: boolean): number {
   const value = sliderValue ?? STATISTICS_FILL_OPACITY.light;
   return isDark ? Math.min(1, value * STATISTICS_FILL_OPACITY.dark / STATISTICS_FILL_OPACITY.light) : value;

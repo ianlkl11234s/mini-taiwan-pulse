@@ -9,6 +9,7 @@
   "statistics.legend.loading": "Loading…",
   "statistics.legend.diverging": "Brown: negative; purple: non-negative; 0 is the divide. Colors do not mean good or bad",
   "statistics.legend.sequential": "Light → dark: low → high values. Compare using this indicator's value ranges",
+  "statistics.legend.sequentialDark": "Dim → bright: low → high values (dark basemap). Compare using this indicator's value ranges",
   "statistics.legend.hatchSocial": "Hatched: missing / not covered by the source, not 0. An observed 0 uses the color scale",
   "statistics.legend.hatchDefault": "Hatched: no data / value not published",
   "statistics.legend.hatchLabel": "Hatched: {label}",

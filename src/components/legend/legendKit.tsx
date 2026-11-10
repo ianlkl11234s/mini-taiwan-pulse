@@ -8,7 +8,8 @@
 import { useLocale } from "../../state/localeStore";
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS } from "../../styles/designTokens";
-import { MAP_SEAM, MISSING_HATCH, MOVING_POINT } from "../../map/mapStyleScale";
+import { MAP_SEAM, MISSING_HATCH, MOVING_POINT, basemapLandColor } from "../../map/mapStyleScale";
+import { compositeHex } from "../../map/colorContrast";
 
 // ── 主題 ──────────────────────────────────────────────────
 export interface LegendPalette {
@@ -52,6 +53,19 @@ export const LIGHT_LEGEND: LegendPalette = {
 };
 export const LegendThemeCtx = createContext<LegendPalette>(DARK_LEGEND);
 export const useLegendTheme = () => useContext(LegendThemeCtx);
+
+/**
+ * LG-13：圖層目前的面填色透明度（LegendPanel 依 overlayRegistry 求值、統計圖例依 statisticsFillOpacity）。
+ * 有值時 SwatchSquare（未指定 opacity 的實心面）與 SwatchSteps 改畫「色 × 透明度疊在底圖陸地色上」的合成色，
+ * 外加 1px 面板邊框，透明度很低時色票位置仍看得到。null＝不知道透明度，維持原色票。
+ */
+export const LegendFillOpacityCtx = createContext<number | null>(null);
+export const useLegendFillOpacity = () => useContext(LegendFillOpacityCtx);
+
+/** LG-13 合成色：`alpha` 為 null 時回原色。 */
+export function legendCompositeColor(color: string, alpha: number | null, isDark: boolean): string {
+  return alpha === null ? color : compositeHex(color, basemapLandColor(isDark), alpha);
+}
 
 /** LG-9：停靠 popup 開著時為 true，註記與來源收起，只留標題與色票。 */
 export const LegendCompactCtx = createContext(false);
@@ -117,15 +131,23 @@ export function SwatchDot({ color, opacity = 0.9, stroke, strokeWidth = 1, glow 
   return <span aria-hidden="true" style={{ width: d, height: d, borderRadius: RADIUS.full, background: color, opacity, boxSizing: "border-box", border: stroke ? `${strokeWidth}px solid ${stroke}` : undefined, boxShadow: `${stroke ? "0 0 0 0 transparent" : `0 0 0 1px ${t.seam}`}${glow ? `, 0 0 5px ${glow}` : ""}`, flexShrink: 0, display: "inline-block" }} />;
 }
 
-/** LG-2 面類別：12×10 方、圓角 2；outline 表示只有外框的面。 */
-export function SwatchSquare({ color, outline = false, opacity = 0.9, stroke }: { color: string; outline?: boolean; opacity?: number; stroke?: string }) {
+/**
+ * LG-2 面類別：12×10 方、圓角 2；outline 表示只有外框的面。
+ * LG-13：沒指定 `opacity`、又在 LegendFillOpacityCtx 內時，畫合成色（不透明）＋1px 面板邊框。
+ */
+export function SwatchSquare({ color, outline = false, opacity, stroke }: { color: string; outline?: boolean; opacity?: number; stroke?: string }) {
+  const t = useLegendTheme();
+  const fillAlpha = useLegendFillOpacity();
   const s = LEGEND_SWATCH.square;
+  const composite = !outline && opacity === undefined && fillAlpha !== null;
   return (
     <span
       aria-hidden="true"
       style={{
         width: s.width, height: s.height, borderRadius: s.radius, boxSizing: "border-box", flexShrink: 0, display: "inline-block",
-        background: outline ? "transparent" : color, border: outline ? `2px solid ${color}` : stroke ? `1px solid ${stroke}` : "none", opacity,
+        background: outline ? "transparent" : composite ? legendCompositeColor(color, fillAlpha, t.isDark) : color,
+        border: outline ? `2px solid ${color}` : stroke ? `1px solid ${stroke}` : composite ? `1px solid ${t.border}` : "none",
+        opacity: composite ? 1 : opacity ?? 0.9,
       }}
     />
   );
@@ -157,13 +179,14 @@ export function SwatchLine({ color, width = 2, dash, opacity = 1 }: { color: str
   );
 }
 
-/** LG-3 分級：等寬方塊列＋下方實際分界。 */
+/** LG-3 分級：等寬方塊列＋下方實際分界。LG-13：在 LegendFillOpacityCtx 內畫合成色，整列加 1px 面板邊框。 */
 export function SwatchSteps({ colors, breaks }: { colors: readonly string[]; breaks?: readonly ReactNode[] }) {
   const t = useLegendTheme();
+  const fillAlpha = useLegendFillOpacity();
   return (
     <div>
-      <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "1fr", gap: 1 }}>
-        {colors.map((c, i) => <span key={`${c}:${i}`} style={{ height: LEGEND_SWATCH.steps.height, background: c }} />)}
+      <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "1fr", gap: 1, ...(fillAlpha === null ? {} : { border: `1px solid ${t.border}` }) }}>
+        {colors.map((c, i) => <span key={`${c}:${i}`} style={{ height: LEGEND_SWATCH.steps.height, background: legendCompositeColor(c, fillAlpha, t.isDark) }} />)}
       </div>
       {breaks && (
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>

@@ -3,9 +3,10 @@ import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes"
 import { KR_DATA_KEYS } from "../data/krDataKeys";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
-import { Fragment, memo, useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useLocale, type LocaleSnapshot } from "../state/localeStore";
-import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendThemeCtx } from "./legend/legendKit";
+import { DARK_LEGEND, LIGHT_LEGEND, LegendCompactCtx, LegendFillOpacityCtx, LegendThemeCtx } from "./legend/legendKit";
+import { legendFillOpacity } from "../map/legendLayerOpacity";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { BORDER, COLORS, ELEVATION, LIGHT, SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { type LayerVisibility } from "../types";
@@ -807,9 +808,10 @@ export const LegendPanel = memo(function LegendPanel({
         <div className="layer-sidebar-scroll" style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10, minHeight: 0, overflowY: "auto" }}>
           <AnalysisLegendSection entries={analysisLegend.entries} compact={analysisLegend.compact} isDark={isDarkTheme} />
           {active.map((entry) => (
-            <Fragment key={entry.id}>
+            // LG-13：面圖層的色票畫「目前透明度 × 底圖陸地色」的合成色（查不到透明度的圖層維持原色票）。
+            <LegendFillOpacityCtx.Provider key={entry.id} value={legendFillOpacity(legendKeys(entry.id), visibility, isDarkTheme, overlayParams) ?? null}>
               {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, embedded, i18n })}
-            </Fragment>
+            </LegendFillOpacityCtx.Provider>
           ))}
         </div>
       )}
