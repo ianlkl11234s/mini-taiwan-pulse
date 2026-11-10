@@ -41,12 +41,14 @@ test("run：缺 secret 跳過、超過時查上一輪", async () => {
   const fetchImpl = async (_url, init) => {
     const { variables } = JSON.parse(init.body);
     calls.push(variables.end);
-    return new Response(JSON.stringify(resp(["w", variables.end.startsWith("2026-11-10T04") ? 62000 : 65000])));
+    return new Response(JSON.stringify(resp(["w", variables.end.startsWith("2026-11-10T03") ? 62000 : 65000])));
   };
   const now = new Date("2026-11-10T06:00:00Z");
   const r = await run({ token: "t", accountId: "a", now, sinceLast: "2026-11-10T04:00:00Z", fetchImpl });
   assert.equal(r.status, "over-already");
   assert.equal(calls.length, 2);
+  // 回查往前退 15 分（入帳延遲只會造成重複通知、不會漏報）
+  assert.equal(calls[1], "2026-11-10T03:45:00.000Z");
   // 上一輪是前一天 → 不比，直接 over-new
   calls.length = 0;
   const r2 = await run({ token: "t", accountId: "a", now, sinceLast: "2026-11-09T23:00:00Z", fetchImpl });

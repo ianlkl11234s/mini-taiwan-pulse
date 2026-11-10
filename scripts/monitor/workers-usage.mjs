@@ -20,6 +20,8 @@ import { pathToFileURL } from "node:url";
 export const ENDPOINT = "https://api.cloudflare.com/client/v4/graphql";
 export const DAILY_LIMIT = 100000; // Workers Free：每日 10 萬請求，UTC 00:00 重置
 export const ALERT_RATIO = 0.6;
+// Analytics 資料有入帳延遲：回查上一輪時往前退 15 分，誤差只會偏向「重複通知」，不會把沒通知過的判成通知過
+export const LOOKBACK_SLACK_MS = 15 * 60000;
 
 const QUERY = `query WorkersDaily($accountTag: string, $start: string, $end: string) {
   viewer {
@@ -84,7 +86,10 @@ export async function run({ token, accountId, now = new Date(), sinceLast, fetch
   let atLast = null;
   const last = sinceLast ? new Date(sinceLast) : null;
   const sameDay = last && Number.isFinite(last.getTime()) && last.toISOString().slice(0, 10) === now.toISOString().slice(0, 10) && last < now;
-  if (isOver(total) && sameDay) atLast = (await queryTotal(token, accountId, now, last, fetchImpl)).total;
+  const lastEnd = sameDay ? new Date(last.getTime() - LOOKBACK_SLACK_MS) : null;
+  if (isOver(total) && lastEnd && lastEnd.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)) {
+    atLast = (await queryTotal(token, accountId, now, lastEnd, fetchImpl)).total;
+  }
   return { status: decide(total, atLast), total, byScript, pct: (total / DAILY_LIMIT) * 100 };
 }
 
