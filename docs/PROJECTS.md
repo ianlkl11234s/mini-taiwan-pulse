@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > **現況入口（單一入口）**：開場先讀本檔上半部（現在最該注意＋進行中／待拍板），需要細節再查 BACKLOG 對應主題群。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-09（v2.33.0 發布：Day 8 文章、10 篇補資料來源、海洋 7 天曲線；白天另完成告警重整與 Supabase 效率大掃除；晚間功能 backlog 封存、待辦統一進 BACKLOG）。
+> 最後盤點：2026-11-10（v2.35.0 發布：台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表（AG-13～15）；乙組靜態表搬出 Supabase 進行中）。
 
 與其他文件的分工（mini-taiwan-pulse 是整個 Pulse 生態系的總 PM）：
 
@@ -46,7 +46,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - 站主資料第 3 批（EA、Coillte、water1944）與撤舊 RPC（F 群 OWD-4、SR-1／SR-2）。
 - 資料保留期限：第 2 批 11-09 完成（gp #228／#229 mig 540–543、ADR-0026 #57），剩項目在 WA-3；靜態表搬遷乙組（WA-14，動前端前先給使用者看方案）；R2 獨有資料補 S3（ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
-- 30 天地圖挑戰：Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
+- 30 天地圖挑戰：Day 9 城鄉圖層 mapchallengeDay09UrbanRural（#972）、Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
 - 正式站目視包：v2.22～v2.31 各版目視集中在 BACKLOG A 群（VP-1～VP-13），等 Claude 用瀏覽器一次截圖。
 
 ## 進行中與待拍板
@@ -83,9 +83,9 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| 南韓後續 | 🟡 | 北極星:好用 | 第 0–7 波＋統計已上線；11-10 夜：第 8 波 8 層（#983）、第 9 波 3 層（#987）、每萬人火災／交通事故（#978）合 develop 待發版；第 0–9 波 52 層已發包入倉，待組裝 | 第 10 波先盤點候選；第 11 波等 data.go.kr key；KRH-1 生態自然圖、C086 垃圾排出要新設計；KRSTAT-1 分母授權待確認 | BACKLOG KRW-6／KRH-1；`../.gis-agent-system/projects/2026-11-multi-country-night/PLAN.md` | 2026-11-10 |
+| 南韓後續 | 🟡 | 北極星:好用 | 第 0–7 波＋統計已上線；11-10 夜：第 8 波 8 層（#983）、第 9 波 3 層（#987）、每萬人火災／交通事故（#978）合 develop 待發版；第 0–9 波 52 層已發包入倉，待組裝 | 第 10 波先盤點候選；第 11 波等 data.go.kr key；KRH-1 生態自然圖、C086 垃圾排出：使用者 11-10 決定做，先出設計稿 | BACKLOG KRW-6／KRH-1；`../.gis-agent-system/projects/2026-11-multi-country-night/PLAN.md` | 2026-11-10 |
 | 日本後續 | 🔵 | 北極星:好用 | P1 第 1–4 波隨 v2.15.0；第二輪隨 v2.24.0；交通事故 2025、DID z5 隨 v2.25.0；11-10 夜：市町村道 jpMunicipalRoads（#988，6 地區分檔）、事故期間口徑改字（#986）合 develop 待發版 | JPACC-1 查官方收錄口徑；JPW4-1 等填 WAM NET 表單；第二輪重掃待選落地波次 | BACKLOG JPACC-1／JPW4-1；`../taipei-gis-analytics/docs/topic-research/japan_opendata/_status.md` | 2026-11-10 |
-| 英國後續 | 🔵 | 北極星:好用 | 第 0–12 波隨 v2.18.0；UKLZ-1／2 熱區實為 #784 隨 v2.19.0；11-10 夜 UKD-1 各項結案（analytics #339）、補測試 #979 | UKLZ-3 高爾夫點樣式待拍板；UKFLOOD-1 C070 洪水區要不要上；UKOSM-1；AG-15 入倉（session 5d 進行中）；EA-1 授權 2027-10-29 到期 | BACKLOG UKLZ-3／UKFLOOD-1／UKOSM-1／EA-1 | 2026-11-10 |
+| 英國後續 | 🔵 | 北極星:好用 | 第 0–12 波隨 v2.18.0；UKLZ-1／2 熱區實為 #784 隨 v2.19.0；11-10 夜 UKD-1 各項結案（analytics #339）、補測試 #979 | UKLZ-3 維持現狀（11-10）；UKFLOOD-1 C070 洪水區記錄待擴英國時做；UKOSM-1；AG-15 入倉（session 5d 進行中）；EA-1 授權 2027-10-29 到期 | BACKLOG UKLZ-3／UKFLOOD-1／UKOSM-1／EA-1 | 2026-11-10 |
 | 中國 | 🔵 | 北極星:好用 | 11-10 跨夜盤點：131 概念 P1 12、READY 2；系統盤點排進第 0–7 波 33 層、暫緩 90（多為只有地址或單市）；港澳另開一輪、GCJ-02 可轉換（使用者 11-10） | §6 已拍板（11-10）；有空照 `china_opendata/waves/PLAN.md` 開工；CN 圖層一律站主限定 | BACKLOG CNW-0／HKMO-0；`../taipei-gis-analytics/docs/topic-research/china_opendata/system-inventory.md`（analytics 分支 `research/cn-ph-vn-opendata`，未 push） | 2026-11-10 |
 | 菲律賓 | 🔵 | 北極星:好用 | 11-10 跨夜盤點＋系統盤點：Geoportal WMS GFI 可當取得途徑（使用者 11-10）→ P1 22、排進第 0–11 波 70 層、暫緩 57 | §6 已拍板（11-10）；有空照 `philippines_opendata/waves/PLAN.md` 開工；C117、C123 等使用者填表 | BACKLOG PHW-0／PHGEO-1；`../taipei-gis-analytics/docs/topic-research/philippines_opendata/system-inventory.md`（analytics 分支 `research/cn-ph-vn-opendata`，未 push） | 2026-11-10 |
 | 越南 | 🔵 | 北極星:好用 | 11-10 跨夜盤點＋系統盤點：分母新制 34 省／3,321 社（使用者 11-10）；P1 17、READY 0；排進第 0–8 波 50 層、暫緩 76 | §6 已拍板（11-10）；有空照 `vietnam_opendata/waves/PLAN.md` 開工；主權爭議改做全球版 WDISP-1 | BACKLOG VNW-0／WDISP-1；`../taipei-gis-analytics/docs/topic-research/vietnam_opendata/system-inventory.md`（analytics 分支 `research/cn-ph-vn-opendata`，未 push） | 2026-11-10 |
@@ -95,7 +95,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | 古地圖（臺灣百年歷史地圖） | 🟡 | 底線:授權 | 11-06 改公開（v2.26.0）；#882 拆成歷史底圖 6 層隨 v2.27.0 上線（85 張，CC BY-NC） | **HIST-1 寫信向中研院確認授權（已在授權未確認下公開，優先）**；VP-7 目視；HIST-3 研究成果搬進 git；主站 CSP enforcing 時補 gis.sinica.edu.tw | BACKLOG HIST-1；`src/data/historicalMapSinica.ts` | 2026-11-07 |
-| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 圖層隨 v2.32.0（河濱口徑）、Day 8 文章 #957 已合 develop 待發版；所有文章文末有資料來源（#959）；analytics #330 已合 | 發版後正式站目視 Day 8 文章；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.32.0；`src/blog/mapChallenge.ts`；`docs/features/blog/article-plan.md` | 2026-11-09 |
+| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 圖層隨 v2.32.0（河濱口徑）、Day 8 文章 #957、Day 9 城鄉圖層 #972（下拉切 10 指標，素材 analytics docs/topic-research/mapchallenge_2026_day09_urban_rural/）已合 develop 待發版；所有文章文末有資料來源（#959）；analytics #330 已合 | 發版後正式站目視 Day 8 文章與 Day 9 圖層（圖例、popup、指標切換）；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.32.0；`src/blog/mapChallenge.ts`；`docs/features/blog/article-plan.md` | 2026-11-09 |
 | G27 臺北市局處公務統計 | 🟡 | 北極星:好用 | 部分隨 v2.13.0 上線 | BLOG-V 目視；PDF 獨有表 | candidates/G27；BACKLOG BLOG-V | 2026-10-24 |
 | G32 熱島與高溫曝露 | 🟡 | 北極星:好用 | queued；涼適點、熱傷害排進 TWL-5 第二批 | TWL-5 災害暴露組（使用者說晚點再處理） | candidates/G32；BACKLOG TWL-5 | 2026-10-29 |
 
@@ -118,7 +118,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 會員區 v1（Google 登入、配額） | 🟢 | 北極星:好用 | 前端 #220、gp #98（mig 408）；v2.12.0 可自行刪帳號 | VP-11 真實 Google 登入／多裝置；BC-2 收藏＋chat_logs 未動工 | [`features/member-area/`](./features/member-area/) | 2026-10-23 |
 | 愛爾蘭 | 🟢 | 北極星:AI | 第 0–10 波＋統計＋Coillte 隨 v2.26.0／v2.27.0；11-10 夜：64 層入倉（倉庫 20261109T171745Z）、IEADD 6 層（#985）合 develop 待發版 | 統計 5 筆隨 AG-15 合併後進倉；IECOI-1 站主目視；Limerick 淹水分區憑證修好後重試 | analytics `ireland_opendata/waves/PLAN.md`；BACKLOG H2 群 | 2026-11-10 |
 | 加拿大第 0–3 波＋統計 | 🟢 | 北極星:好用 | 第 0–3 波＋統計＋即時地震隨 v2.22.0～v2.26.0 | VP-4 目視；第 2 波建物、C002 海域 HOLD；LODE 補座標前端未接；RV-F068、RV-CA-DERIVED | analytics `canada_opendata/waves/PLAN.md` §4–5 | 2026-11-07 |
-| 多國化議題 1 收尾 | 🟢 | 北極星:兼容 | 國家主體化隨 v2.16.0 | MC-3 目視；MC-1 主題識別名與顯示名拆開（有同名主題時再做） | BACKLOG MC-1／MC-3 | 2026-10-28 |
+| 多國化議題 1 收尾 | 🟢 | 北極星:兼容 | 國家主體化隨 v2.16.0 | MC-3 目視；MC-1 查證已由 #733 完成（11-10 關閉） | BACKLOG MC-1／MC-3 | 2026-10-28 |
 | 多國化議題 2 收尾（MCP 跨國） | 🟢 | 北極星:AI | P0–P5 10-29 上線；countries.json 11-07 補 KR／CA／IE（MCP #98） | MC-6 補 name_en；MC-7 拆 airspace／coral 表；MC-8 觀察 eval 不穩點 | `../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic2-mcp.md` §5 | 2026-11-07 |
 | 主題分類統一（TWL-12） | 🟢 | 北極星:好用 | 6 題全部完成：#910（v2.28.0）、#912（v2.29.0）、MCP #100 | STAT-SYNC-1 稽核 parser 待選來源 | BACKLOG STAT-SYNC-1 | 2026-11-08 |
 | G10／G16／G20／G23（金融、國營事業、健康行為、文化幣） | 🟢 | 北極星:開發系統 | #688–#690 merge commit 均在 v2.14.0（健檢 git tag --contains）；roadmap frontmatter 仍寫 in_progress | 改 frontmatter 為 live 或寫剩餘項 | roadmap `candidates/G10`、`G16`、`G20`、`G23` | 2026-11-08 |

@@ -12,6 +12,8 @@ import { fetchWasteScheduleDay, wasteScheduleGroupsFor } from "../wasteScheduleL
 import { loadFireEventsByYear, loadFireEventYears } from "../fireLoader";
 import { fetchReservoirWatershedRivers } from "../reservoirContextLoader";
 import { fetchDataCatalogForLayer } from "../dataCatalogLoader";
+import { loadH3DemographicsYearly, loadH3DemographicsYears } from "../h3Loader";
+import { callWhitelistedRpc } from "../../chat/tools/rpcTools";
 import { fetchLandSubsidenceTimeseries, landSubsidenceStationFileId } from "../landSubsidenceLoader";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets } from "../upstreamRegistry";
 
@@ -117,5 +119,35 @@ describe("地層下陷單站時序", () => {
   it("缺檔明確失敗", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
     await expect(fetchLandSubsidenceTimeseries("gnss:MISSING")).rejects.toThrow("HTTP 404");
+  });
+});
+
+describe("H3 年度人口", () => {
+  it("年份清單與（年, 解析度）讀靜態快照、不打 RPC", async () => {
+    const fetchMock = vi.fn((url: string) => Promise.resolve(ok(url.endsWith("get_h3_demographics_years.json")
+      ? [{ year: 107, resolution: 8, cell_count: 1 }]
+      : [{ h3_index: "88abc", population: 10 }])));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(loadH3DemographicsYears()).resolves.toEqual([{ year: 107, resolution: 8, cell_count: 1 }]);
+    const cells = await loadH3DemographicsYearly(107, 8);
+    expect(cells).toHaveLength(1);
+    expect(fetchMock.mock.calls.map((c) => c[0])).toContain("/static-rpc/get_h3_demographics_yearly_107_r8.json");
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("沒有該年／解析度（404）回空陣列", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
+    await expect(loadH3DemographicsYearly(113, 8)).resolves.toEqual([]);
+  });
+
+  it("chat 白名單改讀快照，404 當空結果", async () => {
+    const fetchMock = vi.fn((url: string) => Promise.resolve(url.includes("_112_r7") ? ok([{ h3_index: "87a" }]) : new Response(null, { status: 404 })));
+    vi.stubGlobal("fetch", fetchMock);
+    const hit = await callWhitelistedRpc("get_h3_demographics_yearly", { target_year: 112 });
+    expect(hit.ok).toBe(true);
+    expect(fetchMock.mock.calls[0]![0]).toBe("/static-rpc/get_h3_demographics_yearly_112_r7.json");
+    const miss = await callWhitelistedRpc("get_h3_demographics_yearly", { target_year: 113, target_resolution: 8 });
+    expect(miss.ok).toBe(true);
+    expect(rpc).not.toHaveBeenCalled();
   });
 });

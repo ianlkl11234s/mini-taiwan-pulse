@@ -12,16 +12,26 @@
  * CI 沒有 pulse-data：未設 env 且非 owner 模式 → skip；env 指到的位置沒有 registry/ → 直接報錯（避免設錯路徑卻靜默略過）。
  *
  * 不加 YAML 依賴：只解析 `pulse_layers:` 的 flow（[a, b]，可跨行）與 block（- a）兩種寫法，和 `_no_upstream.yaml` 的 `- layer: x`。
+ *
+ * 入倉守門（AG-13）：每層要「入倉」（登記條目有 warehouse 區塊，或 dataset 在 stats_observations），
+ * 或列在 `_no_upstream.yaml`／`_display_only.yaml`（reason＋unlock），否則必須在只減不增的 `_warehouse_baseline.yaml`。
+ * 規則與 pulse-data `scripts/check_layer_coverage.py` (d)(e) 相同；解析與分類在 scripts/research/layer-warehouse-status.mjs。
  */
 import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { LAYER_MANIFEST } from "../layerManifest";
 import { OWNER_TESTS } from "../../test/ownerAssets";
-
-const NO_UPSTREAM_FILE = "_no_upstream.yaml";
-/** 衍生檔（由登記簿產生），不算登記 */
-const DERIVED_FILES = new Set(["watchlist.yaml"]);
+import {
+  BASELINE_FILE,
+  DERIVED_FILES,
+  DISPLAY_ONLY_FILE,
+  NO_UPSTREAM_FILE,
+  checkWarehouseGate,
+  indexRegistry,
+  parseLayerList,
+  parsePulseLayers,
+} from "../../../scripts/research/layer-warehouse-status.mjs";
 
 function resolveRegistryDir(): string | null {
   const envRoot = process.env.PULSE_DATA_ROOT;
@@ -35,27 +45,6 @@ function resolveRegistryDir(): string | null {
   return existsSync(dir) ? dir : null;
 }
 
-const unquote = (s: string) => s.trim().replace(/^['"]|['"]$/g, "");
-
-/** 一個 YAML 檔裡所有 pulse_layers 清單的圖層 key */
-function parsePulseLayers(text: string): string[] {
-  const out: string[] = [];
-  for (const m of text.matchAll(/^[ \t]+pulse_layers:[ \t]*\[([^\]]*)\]/gm)) {
-    out.push(...(m[1] ?? "").split(",").map(unquote).filter(Boolean));
-  }
-  for (const m of text.matchAll(/^([ \t]+)pulse_layers:[ \t]*(?:#.*)?\n((?:\1[ \t]*- .*(?:\n|$))+)/gm)) {
-    for (const line of (m[2] ?? "").split("\n")) {
-      const item = line.match(/^[ \t]*- (.+?)\s*(?:#.*)?$/);
-      if (item?.[1]) out.push(unquote(item[1]));
-    }
-  }
-  return out;
-}
-
-function parseNoUpstream(text: string): string[] {
-  return [...text.matchAll(/^[ \t]*-[ \t]+layer:[ \t]*(\S+)/gm)].map((m) => unquote(m[1] ?? ""));
-}
-
 const registryDir = resolveRegistryDir();
 
 describe.skipIf(!registryDir)("layerManifest ↔ pulse-data registry coverage (owner-local)", () => {
@@ -63,15 +52,17 @@ describe.skipIf(!registryDir)("layerManifest ↔ pulse-data registry coverage (o
   const dir = registryDir ?? "";
   const registered = new Map<string, string[]>(); // layer key -> 登記檔名
   const noUpstream: string[] = [];
+  const files: { name: string; text: string }[] = [];
   if (registryDir) {
     for (const name of readdirSync(dir).sort()) {
-      if (!name.endsWith(".yaml") || name === NO_UPSTREAM_FILE || DERIVED_FILES.has(name)) continue;
+      if (name.endsWith(".yaml")) files.push({ name, text: readFileSync(join(dir, name), "utf-8") });
+      if (!name.endsWith(".yaml") || name.startsWith("_") || DERIVED_FILES.has(name)) continue;
       for (const key of parsePulseLayers(readFileSync(join(dir, name), "utf-8"))) {
         registered.set(key, [...(registered.get(key) ?? []), name]);
       }
     }
     const noUpstreamPath = join(dir, NO_UPSTREAM_FILE);
-    if (existsSync(noUpstreamPath)) noUpstream.push(...parseNoUpstream(readFileSync(noUpstreamPath, "utf-8")));
+    if (existsSync(noUpstreamPath)) noUpstream.push(...parseLayerList(readFileSync(noUpstreamPath, "utf-8")).keys());
   }
   const manifestKeys = Object.keys(LAYER_MANIFEST);
   const manifestSet = new Set(manifestKeys);
@@ -102,5 +93,24 @@ describe.skipIf(!registryDir)("layerManifest ↔ pulse-data registry coverage (o
     const both = noUpstream.filter((k) => registered.has(k));
     const dup = noUpstream.filter((k, i) => noUpstream.indexOf(k) !== i);
     expect({ both, dup }).toEqual({ both: [], dup: [] });
+  });
+
+  it("AG-13: every layer is in the warehouse, exempt, DISPLAY_ONLY (with unlock) or in the shrink-only baseline", () => {
+    const index = indexRegistry(files);
+    const layers = Object.values(LAYER_MANIFEST).map((entry) => ({
+      key: entry.key,
+      datasets: (entry.upstream?.datasets ?? []).map((d) => d.datasetId),
+    }));
+    const gate = checkWarehouseGate(layers, index);
+    expect(
+      gate.violations,
+      `${gate.violations.length} 個圖層沒入倉、也沒標 DISPLAY_ONLY：先在 pulse-data 登記並發包入倉（warehouse 區塊），` +
+        `真的只做展示才加進 registry/${DISPLAY_ONLY_FILE}（reason＋unlock）；${BASELINE_FILE} 只減不增，不可加新層：${gate.violations.join(", ")}`,
+    ).toEqual([]);
+    expect(gate.incompleteDisplayOnly, `${DISPLAY_ONLY_FILE} 每層都要寫 reason 與 unlock（解鎖條件）`).toEqual([]);
+    expect(
+      gate.staleBaseline,
+      `${BASELINE_FILE} 只減不增：這些層已入倉、已豁免或已不在 manifest，請刪掉該行：${gate.staleBaseline.join(", ")}`,
+    ).toEqual([]);
   });
 });
