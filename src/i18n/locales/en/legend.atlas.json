@@ -34,5 +34,18 @@
   "legend.atlas.motorcycleInspectionStation": "Inspection stations",
   "legend.atlas.antivenomHospital": "Reserve hospitals",
   "legend.atlas.hundredMeterStake": "100 m stakes",
-  "legend.atlas.slopelandArea": "Slopeland"
+  "legend.atlas.slopelandArea": "Slopeland",
+  "legend.atlas.tedsGridSubtitle": "{view} · {pollutant} (tonnes per km² per year)",
+  "legend.atlas.tedsFacilitySubtitle": "{view} · {pollutant} (dot size by tonnes per year)",
+  "legend.atlas.tedsFacility": "Facility (median location of its stacks)",
+  "legend.atlas.pczReleased": "Released from control",
+  "legend.atlas.traLcSubtitle": "TRA's 2024 public list; some may already be abolished. 801 in the source, 440 on the map, 361 without coordinates not shown",
+  "legend.atlas.licenseOgdlOsmPatch": "Open Government Data License v1; 25 positions from © OpenStreetMap contributors (ODbL)",
+  "legend.atlas.iosSubtitle": "Inferred groups (from species names, not an official classification) · citizen reports, not verified",
+  "legend.atlas.iofOther": "Other (streams, ponds, reservoirs, not given)",
+  "legend.atlas.fwSubtitle": "19 sites in the register, 10 on the map (9 addresses could not be located)",
+  "legend.atlas.vioZone": "Jurisdiction (colours only separate neighbouring offices)",
+  "legend.atlas.vioUnstated": "Not stated in source (24 townships, car services)",
+  "legend.atlas.vioSubtitle": "3 more offices have no position: Kinmen Station, Changhua Station, Dongshi Sub-station",
+  "legend.atlas.licenseOgdlOsm3": "Open Government Data License, version 1.0; 3 positions from © OpenStreetMap contributors (ODbL)"
 }

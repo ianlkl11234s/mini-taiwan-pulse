@@ -23,5 +23,7 @@ export const IE_DATA_KEYS = [
   "ieIndustrialFacilities", "ieSoils", "iePeatSoils", "ieAquaculture",
   // 第 9 波（2026-11-08）：規劃與環境
   "ieZoning", "iePlanningApplications", "ieNoiseMaps", "ieRecyclingPoints", "ieWasteFacilities", "iePrtrFacilities",
+  // 第 11 波（2026-11-10）：IEADD-1 補做（AED、監獄、pNHA、郡議會淹水分區、GSI 地下水淹水、Bord na Móna 泥炭開採沼地）
+  "ieDefibrillators", "iePrisons", "ieProposedNha", "ieFloodZones", "ieGroundwaterFlooding", "iePeatExtractionBogs",
 ] as const;
 export type IeDataKey = (typeof IE_DATA_KEYS)[number];

@@ -1,6 +1,6 @@
-// 南韓統計（2026-10-31 統計面板多國化）：道級 16＋市郡區 256，5 dataset、49 recipe、65 個 exact selector。
+// 南韓統計（2026-10-31 統計面板多國化）：道級 16＋市郡區 256，7 dataset、53 recipe、73 個 exact selector。
 // 人口（住民登錄人口 2026-09、SGIS 2024 人口密度與高齡化、首爾生活人口 2026-07）／社經（SGIS 2024 家戶住宅、事業體）／
-// 公共安全（2026-11-07：소방청火災 2021–2023、도로교통공단交通事故 2025）。
+// 公共安全（2026-11-07：소방청火災 2021–2023、도로교통공단交通事故 2025；2026-11-09 KRSTAT-1 加兩者每萬人比率，分母同年 12 月底住民登錄人口）。
 // 交付 JSON 由 scripts/statistics/build_kr_statistics_recipes.py 從 analytics docs/handoff/kr-statistics-recipes.json
 // 與各 release bundle 產生；首屏只帶去掉 `delivery` 收據的派生目錄（statisticsRecipeCatalog.test.ts 保證一致）。
 // recipe 帶 country: "KR"，目錄與統計分頁依國家分（layerCatalog KR_STATISTICS_TAB_THEMES）。
@@ -21,10 +21,10 @@ export const KR_ENABLED_STATISTICS_KEYS = [
   "statsKrEstablishmentsSgg", "statsKrEmployeesSido", "statsKrEmployeesSgg",
   "statsKrFireIncidentsSido", "statsKrFireIncidentsSgg", "statsKrFireDeathsSido",
   "statsKrFireDeathsSgg", "statsKrFireInjuriesSido", "statsKrFireInjuriesSgg",
-  "statsKrFireDamageSido", "statsKrFireDamageSgg", "statsKrTrafficAccidentsSido",
+  "statsKrFireDamageSido", "statsKrFireDamageSgg", "statsKrFireIncidentsPer10kSido", "statsKrFireIncidentsPer10kSgg", "statsKrTrafficAccidentsSido",
   "statsKrTrafficAccidentsSgg", "statsKrTrafficDeathsSido", "statsKrTrafficDeathsSgg",
   "statsKrTrafficSeriousInjuriesSido", "statsKrTrafficSeriousInjuriesSgg", "statsKrTrafficInjuriesSido",
-  "statsKrTrafficInjuriesSgg",
+  "statsKrTrafficInjuriesSgg", "statsKrTrafficAccidentsPer10kSido", "statsKrTrafficAccidentsPer10kSgg",
 ] as const;
 export type KrStatisticsLayerKey = typeof KR_ENABLED_STATISTICS_KEYS[number];
 

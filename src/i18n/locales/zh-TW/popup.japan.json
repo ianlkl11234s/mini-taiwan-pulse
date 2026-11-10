@@ -131,6 +131,8 @@
   "popup.japan.roadTollNo": "無料",
   "popup.japan.roadState": "道路狀態",
   "popup.japan.roadNote": "線段在網格與屬性邊界被切斷，一段不等於一條路；不含市町村道",
+  "popup.japan.municipalRoadTitle": "市町村道",
+  "popup.japan.municipalRoadNote": "線段在網格與屬性邊界被切斷，一段不等於一條路；資料沒有路名；國道與都道府縣道在「主要道路」層",
   "popup.japan.expresswayDefault": "高速道路",
   "popup.japan.expresswayCategory": "路線種別",
   "popup.japan.expresswayStatus": "供用狀況",

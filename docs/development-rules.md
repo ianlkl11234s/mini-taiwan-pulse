@@ -150,6 +150,7 @@ useEffect(() => {
 | 17 | `src/components/IconRailSidebar.tsx` | **不手改 `LAYER_ICONS`**；icon 由 manifest 派生，只驗證兩側欄顯示一致 | 🔒 tsc + manifest 契約測試 |
 | 18 | `src/data/upstreamRegistry.ts` | **不手改 registry**；資料血緣由 manifest `source` 派生，另核對 taipei-gis-analytics catalog dataset | 🔒 `upstreamRegistry.test.ts` |
 | 18a | pulse-data `registry/<dataset>.yaml`（私有 repo） | 圖層 key 加進對應登記的 `consumers.pulse_layers`；真的沒有上游才加進 `registry/_no_upstream.yaml`（ADR-0024） | 🔒 `layerRegistryCoverage.test.ts`（owner-local：`npm run test:owner`，CI 不跑） |
+| 18b | pulse-data 入倉（AG-13） | **圖層上線即入倉**：登記條目要有 `warehouse` 區塊（`publish_package.py` 發包），統計層的 dataset 要進 `stats_observations`；真的只做展示（純視覺特效、連續 raster）才加進 `registry/_display_only.yaml` 並寫 `reason`＋`unlock`（解鎖條件）。既有未入倉層在 `registry/_warehouse_baseline.yaml`，**只減不增**，新層不可加進去 | 🔒 `layerRegistryCoverage.test.ts` AG-13 case（owner-local）＋ pulse-data `check_layer_coverage.py` (d)(e) |
 | 19 | `src/chat/tools/datasets.ts` | 選配：若是點狀＋有分類欄位的靜態 GeoJSON，想讓 BYOK 對話查詢，加進 `DATASET_WHITELIST` | ⚠️ 人工（非強制） |
 | 20 | `nginx.conf` + `scripts/deploy/upload-deploy-assets.sh` / `pull-deploy-assets.sh` | 僅 PMTiles／大型靜態檔層：nginx location 對應 + deploy 腳本清單加檔名 | ⚠️ 人工——PT-1 曾因漏此步，13 層全站 404 |
 

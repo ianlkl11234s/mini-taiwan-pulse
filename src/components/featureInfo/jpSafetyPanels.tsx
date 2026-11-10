@@ -5,7 +5,7 @@ import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { g36ColorOf } from "../../data/safetyG36Types";
 import {
-  JP_TRAFFIC_ACCIDENT_LIGHT_LABELS, JP_TRAFFIC_ACCIDENT_PARTY_LABELS, JP_TRAFFIC_ACCIDENT_PERIOD, JP_TRAFFIC_ACCIDENT_ROAD_LABELS,
+  JP_TRAFFIC_ACCIDENT_LIGHT_LABELS, JP_TRAFFIC_ACCIDENT_PARTY_LABELS, JP_TRAFFIC_ACCIDENT_ROAD_LABELS,
   JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS, JP_TRAFFIC_ACCIDENT_SOURCE, JP_TRAFFIC_ACCIDENT_SURFACE_LABELS, JP_TRAFFIC_ACCIDENT_TYPE_OPTIONS,
   JP_TRAFFIC_ACCIDENT_WEATHER_LABELS,
 } from "../../data/jpTrafficAccidentsTypes";
@@ -52,7 +52,7 @@ export function JpTrafficAccidents2025Panel({ props }: Props) {
     <Row label={tr("popup.jpSafety.conditions")} value={conditions} />
     <Row label={tr("popup.jpSafety.prefecture")} value={str(props.pref)} />
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6, lineHeight: 1.4 }}>
-      {tr("popup.jpSafety.accidentNote", { period: JP_TRAFFIC_ACCIDENT_PERIOD })}
+      {tr("popup.jpSafety.accidentNote")}
     </div>
     <SourceFooter props={JP_TRAFFIC_ACCIDENT_SOURCE} />
   </>;

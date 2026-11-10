@@ -247,6 +247,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-welfare-child-circle"], type: "jpWelfareChild" },
   { layers: ["jp-expressway-junctions-circle", "jp-expressways-line"], type: "jpExpressways" },
   { layers: ["jp-major-roads-line", "jp-major-roads-z5-line"], type: "jpMajorRoads" },
+  { layers: ["jp-municipal-roads-hokkaido_tohoku-line", "jp-municipal-roads-kanto-line", "jp-municipal-roads-chubu-line", "jp-municipal-roads-kinki-line", "jp-municipal-roads-chugoku_shikoku-line", "jp-municipal-roads-kyushu_okinawa-line"], type: "jpMunicipalRoads" },
   { layers: ["jp-water-jpWaterDams"], type: "jpWaterDams" },
   { layers: ["jp-water-jpWaterSupplyFacilities"], type: "jpWaterSupplyFacilities" },
   { layers: ["jp-water-jpWaterSewerFacilities"], type: "jpWaterSewerFacilities" },
@@ -413,12 +414,23 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-fire-stations-circle"], type: "krFireStations" },
   { layers: ["kr-civil-defense-shelters-circle"], type: "krCivilDefenseShelters" },
   { layers: ["kr-police-boxes-circle"], type: "krPoliceBoxes" },
+  { layers: ["kr-libraries-circle"], type: "krLibraries" },
+  { layers: ["kr-museums-circle"], type: "krMuseums" },
+  { layers: ["kr-performances-circle"], type: "krPerformances" },
+  { layers: ["kr-festivals-circle"], type: "krFestivals" },
+  { layers: ["kr-heritage-circle"], type: "krHeritage" },
+  { layers: ["kr-lodging-circle"], type: "krLodging" },
+  { layers: ["kr-safe-delivery-boxes-circle"], type: "krSafeDeliveryBoxes" },
+  { layers: ["kr-senior-centers-circle"], type: "krSeniorCenters" },
+  { layers: ["kr-noise-sites-circle"], type: "krNoiseSites" },
+  { layers: ["kr-clothing-bins-circle"], type: "krClothingBins" },
   { layers: ["kr-np-trails-line"], type: "krNpTrails" },
   { layers: ["kr-territorial-sea-line"], type: "krTerritorialSea" },
   { layers: ["kr-rivers-osm-line", "kr-rivers-osm-major-line"], type: "krRiversOsm" },
   { layers: ["kr-marine-protected-areas-fill"], type: "krMarineProtectedAreas" },
   { layers: ["kr-national-parks-fill"], type: "krNationalParks" },
   { layers: ["kr-cemeteries-osm-fill"], type: "krCemeteriesOsm" },
+  { layers: ["kr-industrial-complexes-fill"], type: "krIndustrialComplexes" },
   // 南韓第 1 波：點（機場 → 電廠 → 再生能源 → 變電所 → 燃料站 → 鐵道站 → 公車站 → 鐵塔）→ 線（電網、國道、鐵道）→ 面（油氣、港灣）
   { layers: ["kr-airports-circle"], type: "krAirports" },
   { layers: ["kr-power-plants-circle", "kr-power-plants-minor-circle"], type: "krPowerPlants" },
@@ -501,6 +513,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-planning-applications-circle"], type: "iePlanningApplications" },
   { layers: ["ie-recycling-points-circle"], type: "ieRecyclingPoints" },
   { layers: ["ie-prtr-facilities-circle"], type: "iePrtrFacilities" },
+  // 第 11 波：點（AED、監獄）
+  { layers: ["ie-defibrillators-circle"], type: "ieDefibrillators" },
+  { layers: ["ie-prisons-circle"], type: "iePrisons" },
   { layers: ["ie-road-rail-network-line"], type: "ieRoadRailNetwork" },
   // 第 5 波：點（輻射站、樹木、崩塌事件）→ 線（步道、Wild Atlantic Way）；面在後（代表點 circle 由 repPointClickLayerIds 補）
   { layers: ["ie-radiation-stations-circle"], type: "ieRadiationStations" },
@@ -527,6 +542,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-state-assets-fill"], type: "ieStateAssets" },
   // 第 3a 波：淹水、湖泊面
   { layers: ["ie-lake-water-bodies-fill"], type: "ieLakeWaterBodies" },
+  // 第 11 波：郡議會淹水分區（小，代表點 circle 由 repPointClickLayerIds 補）、GSI 地下水淹水，在 OPW 河川淹水之前
+  { layers: ["ie-flood-zones-fill"], type: "ieFloodZones" },
+  { layers: ["ie-groundwater-flooding-fill"], type: "ieGroundwaterFlooding" },
   { layers: ["ie-river-flood-extents-fill"], type: "ieRiverFloodExtents" },
   // 第 3b 波：受保護海域（代表點 circle 由 repPointClickLayerIds 補）、離岸能源、海床調查範圍（大面最後命中）
   { layers: ["ie-protected-marine-sites-fill"], type: "ieProtectedMarineSites" },
@@ -535,10 +553,14 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 第 5 波面：崩塌範圍（小）→ 保護區 → 國家公園 → 氡氣（鋪滿國土，最後命中）
   { layers: ["ie-landslide-extents-fill"], type: "ieLandslideExtents" },
   { layers: ["ie-protected-sites-fill"], type: "ieProtectedSites" },
+  // 第 11 波：提議中自然遺產區（代表點 circle 由 repPointClickLayerIds 補）
+  { layers: ["ie-proposed-nha-fill"], type: "ieProposedNha" },
   { layers: ["ie-national-parks-fill"], type: "ieNationalParks" },
   { layers: ["ie-radon-risk-fill"], type: "ieRadonRisk" },
   // 第 10 波面：養殖場（小，代表點 circle 由 repPointClickLayerIds 補）→ 泥炭土壤 → 土壤圖（鋪滿國土）
   { layers: ["ie-aquaculture-fill"], type: "ieAquaculture" },
+  // 第 11 波：泥炭開採沼地（代表點 circle 由 repPointClickLayerIds 補），在泥炭土壤之前
+  { layers: ["ie-peat-extraction-bogs-fill"], type: "iePeatExtractionBogs" },
   { layers: ["ie-peat-soils-fill"], type: "iePeatSoils" },
   { layers: ["ie-soils-fill"], type: "ieSoils" },
   // 第 7a 波：學校規劃區（鋪滿國土，在行政界之前）
@@ -953,6 +975,18 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
   { layers: ["freeway-hundred-meter-stakes-circle", "freeway-hundred-meter-stakes-glow"], type: "freewayHundredMeterStakes" },
   { layers: ["antivenom-hospitals-circle", "antivenom-hospitals-glow"], type: "antivenomHospitals" },
+  { layers: ["natural-vegetation-map-fill", "forest-types-4th-survey-fill"], type: "vegetationForestTypes" },
+  { layers: ["vehicle-inspection-offices-circle", "vehicle-inspection-offices-glow", "vehicle-inspection-jurisdictions-fill"], type: "vehicleInspectionOffices" },
+  { layers: ["fireworks-sites-circle", "fireworks-sites-glow"], type: "fireworksSites" },
+  { layers: ["iocean-fishing-reports-circle"], type: "iOceanFishing" },
+  { layers: ["iocean-sightings-circle", "iocean-sightings-glow"], type: "iOceanSightings" },
+  { layers: ["tra-level-crossings-circle", "tra-level-crossings-glow"], type: "traLevelCrossings" },
+  { layers: ["wra-disaster-cctv-circle", "wra-disaster-cctv-glow"], type: "wraDisasterCctv" },
+  { layers: ["broadcast-transmitters-circle", "broadcast-transmitters-glow"], type: "broadcastTransmitters" },
+  { layers: ["landslide-event-catalog-fill", "landslide-event-catalog-outline"], type: "landslideEventCatalog" },
+  { layers: ["pollution-control-zones-fill", "pollution-control-zones-outline"], type: "pollutionControlZones" },
+  // G53 批 2／3：TEDS 點源工廠先、1 km 網格次之、5 km 網格最後
+  { layers: ["teds-point-source-facilities-circle", "teds-grid-emissions-fill", "teds-grid-emissions-5km-fill"], type: "tedsGridEmissions" },
   { layers: ["post-mailboxes-circle", "post-mailboxes-glow"], type: "postMailboxes" },
   { layers: ["motorcycle-inspection-stations-circle", "motorcycle-inspection-stations-glow"], type: "motorcycleInspectionStations" },
   { layers: ["major-occupational-accidents-circle", "major-occupational-accidents-glow"], type: "majorOccupationalAccidents" },

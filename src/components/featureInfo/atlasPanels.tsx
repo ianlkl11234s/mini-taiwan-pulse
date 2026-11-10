@@ -1,10 +1,12 @@
-import type { FC } from "react";
+import { useEffect, useState, type FC } from "react";
+import { CctvStreamView } from "../CctvStreamView";
+import { dredgingSiblingImages, fetchWraCctvList, resolveDisasterImage, safeWraImageUrl, WRA_CCTV_OFFICIAL_URL } from "../../data/wraDisasterCctv";
 import { Row, SourceFooter, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
 import { placeName, placeNameList, placeTown } from "../../i18n/placeText";
-import { FONT_SIZE } from "../../styles/designTokens";
+import { FONT_SIZE, RADIUS, SPACING } from "../../styles/designTokens";
 import {
   ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS,
   FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MONITOR_SERIES_OPTIONS,
@@ -16,7 +18,7 @@ import {
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
-  MAILBOX_SERVICE_OPTIONS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, TEDS_VIEW_OPTIONS, POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, POLLUTION_MEDIUM_OPTIONS, LANDSLIDE_EVENT_TYPE_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, ATLAS_OTHER_COLOR, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS,
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
@@ -1291,9 +1293,298 @@ function BatterySwapPanel({ props }: Props) {
   </>;
 }
 
+/** G53 批 2／3 廣播發射站與電波監測站：同站址常有多座電臺（點重疊），頻率依 FM／AM 帶單位。 */
+function BroadcastTransmitterPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(BROADCAST_KIND_OPTIONS, props.kind);
+  const freq = str(props.frequency);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasBroadcastKind", props.kind, optionLabel(BROADCAST_KIND_OPTIONS, props.kind), i18n)} color={color} />
+    <Row label={t("popup.atlas.bcFrequency")} value={freq ? `${freq} ${str(props.frequency_unit)}`.trim() : ""} mono />
+    <Row label={t("popup.atlas.bcClass")} value={str(props.station_class)} />
+    <Row field="address" value={str(props.address)} />
+    {props.coord_fixed === true ? <Row field="caution" value={t("popup.atlas.bcCoordFixed")} /> : null}
+  </>;
+}
+
+/** G53 批 2／3 TEDS：網格（1 km／5 km 合成）與點源工廠共用；列出主要污染物，單位公噸／年。 */
+function TedsGridEmissionsPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const facility = props.control_no != null || props.n_sources != null;
+  const source = facility ? "facilities" : str(props.source);
+  const color = ATLAS_LAYER_COLORS.tedsGridEmissions;
+  const label = TEDS_VIEW_OPTIONS.find((o) => o.value === source)?.label ?? source;
+  const tons = (v: unknown) => fmt(v, 3, t("popup.atlas.tedsUnit"), i18n);
+  const cell = props.cell5_id != null ? t("popup.atlas.tedsCell5") : t("popup.atlas.tedsCell1");
+  return <>
+    <Title color={color}>{facility ? str(props.name) : `${enumOf("atlasTedsView", source, label, i18n)}${t("popup.atlas.dot")}${cell}`}</Title>
+    {facility ? <Row field="type" value={enumOf("atlasTedsView", source, label, i18n)} color={color} /> : null}
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    {facility ? <Row label={t("popup.atlas.tedsSources")} value={fmt(props.n_sources, 0, "", i18n)} mono /> : null}
+    {source === "bio" ? <>
+      <Row label="NMHC" value={tons(props.nmhc)} mono />
+      <Row label={t("popup.atlas.tedsIsoprene")} value={tons(props.isoprene)} mono />
+      <Row label={t("popup.atlas.tedsMonoterpenes")} value={tons(props.monoterpenes)} mono />
+    </> : <>
+      <Row label="PM2.5" value={tons(props.pm25)} mono />
+      <Row label="PM10" value={tons(props.pm10)} mono />
+      <Row label="SOx" value={tons(props.sox)} mono />
+      <Row label="NOx" value={tons(props.nox)} mono />
+      <Row label="NMHC" value={tons(props.nmhc)} mono />
+      <Row label="CO" value={tons(props.co)} mono />
+    </>}
+    <Row field="caution" value={facility ? t("popup.atlas.tedsFacilityCaution") : t("popup.atlas.tedsCaution")} />
+  </>;
+}
+
+/** G53 批 2／3 土壤／地下水污染管制區：已解除的顯示解除日（灰）；列管中顯示公告日。 */
+function PollutionControlZonePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const active = String(props.is_active) !== "false";
+  const color = active ? optionColor(POLLUTION_ZONE_GROUP_OPTIONS, props.status_group) : POLLUTION_ZONE_RELEASED_COLOR;
+  return <>
+    <Title color={color}>{str(props.site_name)}</Title>
+    <Row field="status" value={enumOf("atlasPollutionControlType", props.control_type, props.control_type, i18n)} color={color} />
+    <Row label={t("popup.atlas.pczMedium")} value={enumOf("atlasPollutionMedium", props.medium, optionLabel(POLLUTION_MEDIUM_OPTIONS, props.medium), i18n)} />
+    <Row field="category" value={enumOf("atlasPollutionSiteKind", props.site_kind, props.site_kind, i18n)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.atlas.pczAnnoDate")} value={str(props.anno_date)} mono />
+    <Row label={t(active ? "popup.atlas.pczStatusDate" : "popup.atlas.pczReleaseDate")} value={str(props.status_date)} mono />
+    <Row field="area" value={fmt(props.area_m2, 0, "m²", i18n)} mono />
+    <Row label={t("popup.atlas.pczSiteId")} value={str(props.site_id)} mono />
+  </>;
+}
+
+/** G53 批 2／3 事件型崩塌目錄：面（z10 起）帶事件名稱與影像日期；代表點只有年度、面積與類型旗標。 */
+function LandslideEventPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const types = LANDSLIDE_EVENT_TYPE_OPTIONS.filter((o) => props[`has_${o.value}`] === true);
+  const color = types[0]?.color ?? LANDSLIDE_EVENT_TYPE_OPTIONS[3]!.color;
+  const typeText = types.map((o) => enumOf("atlasLandslideEventType", o.value, o.label, i18n)).join(t("popup.common.listSeparator"));
+  const year = props.year == null ? "" : t("popup.atlas.lseYear", { year: displayRocYear(String(props.year), i18n) });
+  return <>
+    <Title color={color}>{str(props.events) || typeText}</Title>
+    <Row field="type" value={typeText} color={color} />
+    <Row label={t("popup.atlas.lseYearLabel")} value={year} />
+    <Row label={t("popup.atlas.lseDates")} value={[str(props.before_date), str(props.after_date)].filter(Boolean).join(" → ")} mono />
+    <Row field="area" value={fmt(props.area_ha, 2, t("popup.atlas.unitHectares"), i18n)} mono />
+    <Row field="dataSource" value={str(props.data_source)} />
+    {props.events == null ? <Row field="remarks" value={t("popup.atlas.lsePointHint")} /> : null}
+  </>;
+}
+
+/** G53 批 2／3 監理所站＋轄區：點＝所站資料，面＝轄區（有 service 欄）。 */
+function VehicleInspectionPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  if (props.service != null) {
+    const stated = props.stated !== false && props.office_id != null;
+    const color = stated ? optionColor(VIO_ZONE_OPTIONS, props.office_id) : ATLAS_OTHER_COLOR;
+    return <>
+      <Title color={color}>{stated ? str(props.office_label) : t("popup.atlas.vioUnstated")}</Title>
+      <Row label={t("popup.atlas.vioService")} value={t(props.service === "motorcycle" ? "popup.atlas.vioMotorcycle" : "popup.atlas.vioCar")} />
+      <Row label={t("popup.atlas.vioTownCount")} value={fmt(props.n_towns, 0, "", i18n)} mono />
+      <Row label={t("popup.atlas.vioTowns")} value={str(props.towns)} />
+      <Row field="caution" value={t(stated ? "popup.atlas.vioZoneNote" : "popup.atlas.vioUnstatedNote")} />
+    </>;
+  }
+  const color = optionColor(VIO_KIND_OPTIONS, props.office_kind);
+  return <>
+    <Title color={color}>{str(props.office_name)}</Title>
+    <Row field="type" value={enumOf("atlasVioKind", props.office_kind, optionLabel(VIO_KIND_OPTIONS, props.office_kind), i18n)} color={color} />
+    <Row label={t("popup.atlas.vioParent")} value={str(props.parent_office)} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.phone)} mono />
+    <Row label={t("popup.atlas.vioFax")} value={str(props.fax)} mono />
+    <Row label={t("popup.atlas.vioJurisdiction")} value={str(props.jurisdiction_text)} />
+    <Row field="caution" value={t(props.precision === "osm_name" ? "popup.atlas.vioOsm" : "popup.atlas.fwGeocoded")} />
+  </>;
+}
+
+/** G53 批 2／3 爆竹煙火場所：位置由地址推估；個人經營不顯示名稱、只到鄉鎮。 */
+function FireworksSitePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(FIREWORKS_KIND_OPTIONS, props.site_kind);
+  const personal = props.is_personal === true || props.precision === "township";
+  return <>
+    <Title color={color}>{personal ? t("popup.atlas.fwPersonal") : str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasFireworksKind", props.site_kind, optionLabel(FIREWORKS_KIND_OPTIONS, props.site_kind), i18n)} color={color} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="caution" value={t(personal ? "popup.atlas.fwTownship" : "popup.atlas.fwGeocoded")} />
+  </>;
+}
+
+/** G53 批 2／3 iOcean 垂釣回報：公民回報；同行人數品質差不顯示。 */
+function IOceanFishingPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(FISHING_TYPE_OPTIONS, props.fishing_type);
+  const type = str(props.fishing_type);
+  const catchCount = num(props.catch_count);
+  const speciesN = num(props.species_n);
+  return <>
+    <Title color={color}>{type ? enumOf("atlasFishingType", type, type, i18n) : t("popup.atlas.iofNoType")}</Title>
+    <Row field="date" value={str(props.fished_on)} mono />
+    <Row label={t("popup.atlas.iofSpecies")} value={str(props.top_species) || t("popup.atlas.iofNoSpecies")} />
+    {catchCount != null ? <Row label={t("popup.atlas.iofCatch")} value={t("popup.atlas.iofCatchValue", { n: i18n.formatNumber(catchCount) })} mono /> : null}
+    {speciesN != null ? <Row label={t("popup.atlas.iofSpeciesN")} value={i18n.formatNumber(speciesN)} mono /> : null}
+    {/* 0 cm＝回報未填體長（約 5%），視為缺值不顯示 */}
+    <Row label={t("popup.atlas.iofMaxLength")} value={Number(props.max_length_cm) > 0 ? fmt(props.max_length_cm, 1, "cm", i18n) : ""} mono />
+    <Row field="remarks" value={t("popup.atlas.iofCitizen")} />
+  </>;
+}
+
+/** G53 批 2／3 iOcean 目擊：公民回報；類群為推定；保育物種位置粗化 0.01°。 */
+function IOceanSightingPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(IOCEAN_GROUP_OPTIONS, props.group_key);
+  const count = num(props.count_est);
+  return <>
+    <Title color={color}>{str(props.species) || t("popup.atlas.iosNoSpecies")}</Title>
+    <Row label={t("popup.atlas.iosGroup")} value={enumOf("atlasIOceanGroup", props.group_key, optionLabel(IOCEAN_GROUP_OPTIONS, props.group_key) || str(props.group_name), i18n)} color={color} />
+    <Row field="date" value={str(props.sighted_on)} mono />
+    {count != null && count > 0 ? <Row label={t("popup.atlas.iosCount")} value={i18n.formatNumber(count)} mono /> : null}
+    <Row label={t("popup.atlas.iosAliases")} value={str(props.species_aliases)} />
+    {props.location_generalized === true ? <Row field="caution" value={t("popup.atlas.iosGeneralized")} /> : null}
+    <Row field="remarks" value={t("popup.atlas.iosCitizen")} />
+  </>;
+}
+
+/** G53 批 2／3 植群／森林林型：只有 z11 起的全量圖斑可點；依欄位判斷是植群還是林型。 */
+function VegetationForestTypePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const area = fmt(props.area_ha, 1, t("popup.atlas.unitHectares"), i18n);
+  if (props.forest_type_key != null) {
+    const color = optionColor(FOREST_TYPE_OPTIONS, props.forest_type_key);
+    const type = enumOf("atlasForestType", props.forest_type_key, optionLabel(FOREST_TYPE_OPTIONS, props.forest_type_key) || str(props.forest_type), i18n);
+    return <>
+      <Title color={color}>{type}</Title>
+      <Row label={t("popup.atlas.vftDataset")} value={t("popup.atlas.vftForestType")} />
+      <Row label={t("popup.atlas.vftFunction")} value={str(props.function)} />
+      <Row field="area" value={area} mono />
+    </>;
+  }
+  const color = optionColor(VEG_CLASS_OPTIONS, props.veg_class_key);
+  return <>
+    <Title color={color}>{str(props.formation) || optionLabel(VEG_CLASS_OPTIONS, props.veg_class_key)}</Title>
+    <Row label={t("popup.atlas.vftDataset")} value={t("popup.atlas.vftVegetation")} />
+    <Row field="type" value={enumOf("atlasVegClass", props.veg_class_key, optionLabel(VEG_CLASS_OPTIONS, props.veg_class_key), i18n)} color={color} />
+    <Row label={t("popup.atlas.vftSubclass")} value={str(props.subclass)} />
+    <Row field="area" value={area} mono />
+  </>;
+}
+
+/** G53 批 2／3 臺鐵平交道：25 處位置依 OSM 同名平交道推定，另註明。 */
+function TraLevelCrossingPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(TRA_CROSSING_TYPE_OPTIONS, props.type_key);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasTraCrossingType", props.type_key, optionLabel(TRA_CROSSING_TYPE_OPTIONS, props.type_key) || str(props.crossing_type), i18n)} color={color} />
+    <Row label={t("popup.atlas.tlcLine")} value={str(props.line)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    {props.precision === "osm_name_match" ? <Row field="caution" value={t("popup.atlas.tlcOsmMatch")} /> : null}
+  </>;
+}
+
+type WraCctvImages = { urls: string[]; index: number; loading: boolean; fromSnapshot: boolean };
+
+/**
+ * 點開才取影像網址：水情影像依 cameraid 從當天清單取（CCTV_SN 每天換），抓不到退回快照網址並註明；
+ * 疏濬工區網址固定，但同工區多支共用座標，取清單列出同工區所有攝影機。詳見 data/wraDisasterCctv.ts。
+ */
+function useWraCctvImages(props: Record<string, unknown>): [WraCctvImages, (index: number) => void] {
+  const dredging = props.kind === "dredging";
+  const snapshot = safeWraImageUrl(props.image_url);
+  const [state, setState] = useState<WraCctvImages>(() => ({
+    urls: dredging && snapshot ? [snapshot] : [], index: 0, loading: true, fromSnapshot: false,
+  }));
+  useEffect(() => {
+    let cancelled = false;
+    const fallback = (): WraCctvImages => ({ urls: snapshot ? [snapshot] : [], index: 0, loading: false, fromSnapshot: !dredging && !!snapshot });
+    fetchWraCctvList(dredging ? "dredging" : "disaster").then((list) => {
+      if (cancelled) return;
+      if (dredging) {
+        const urls = dredgingSiblingImages(list, props.name);
+        if (snapshot && !urls.includes(snapshot)) urls.unshift(snapshot);
+        setState(urls.length ? { urls, index: Math.max(0, snapshot ? urls.indexOf(snapshot) : 0), loading: false, fromSnapshot: false } : fallback());
+      } else {
+        const live = resolveDisasterImage(list, props.cctv_id);
+        setState(live ? { urls: [live], index: 0, loading: false, fromSnapshot: false } : fallback());
+      }
+    }).catch(() => { if (!cancelled) setState(fallback()); });
+    return () => { cancelled = true; };
+  }, [dredging, snapshot, props.name, props.cctv_id]);
+  return [state, (index) => setState((s) => ({ ...s, index }))];
+}
+
+/** G53 批 2／3 水利署防災影像：即時影像只在 popup 開啟時載入；疏濬工區位置概略且多支共用座標。 */
+function WraDisasterCctvBody({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(WRA_CCTV_KIND_OPTIONS, props.kind);
+  const [images, setIndex] = useWraCctvImages(props);
+  const url = images.urls[images.index] ?? "";
+  const station = str(props.station_name);
+  const precision = str(props.coord_precision);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasWraCctvKind", props.kind, optionLabel(WRA_CCTV_KIND_OPTIONS, props.kind), i18n)} color={color} />
+    {station && station !== str(props.name) ? <Row label={t("popup.atlas.wcStation")} value={station} /> : null}
+    <Row label={t("popup.atlas.wcRiver")} value={[str(props.basin), str(props.river)].filter(Boolean).join(" › ")} />
+    <Row field="address" value={[str(props.county), str(props.town)].filter(Boolean).join(" ")} />
+    <Row label={t("popup.atlas.wcAuthority")} value={str(props.authority)} />
+    {precision === "approx_1km" || precision === "approx_10km"
+      ? <Row field="caution" value={t(precision === "approx_1km" ? "popup.atlas.wcApprox1km" : "popup.atlas.wcApprox10km")} /> : null}
+    {images.urls.length > 1 ? (
+      <div className="fi-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: SPACING.xs, padding: `${SPACING.xxs}px 0`, fontSize: FONT_SIZE.sm }}>
+        <span style={{ color: theme.textMuted, marginRight: SPACING.xs }}>{t("popup.atlas.wcSameSite", { n: images.urls.length })}</span>
+        {images.urls.map((_, i) => (
+          <button key={i} type="button" aria-pressed={i === images.index} onClick={() => setIndex(i)} style={{
+            padding: `${SPACING.xxs}px ${SPACING.sm}px`, border: `1px solid ${i === images.index ? color : theme.border}`, borderRadius: RADIUS.sm,
+            background: i === images.index ? `${color}22` : "transparent", color: i === images.index ? color : theme.textMuted, cursor: "pointer", fontSize: FONT_SIZE.xs,
+          }}>{i + 1}</button>
+        ))}
+      </div>
+    ) : null}
+    {images.loading && !url ? <Row label={t("popup.atlas.wcImage")} value={t("popup.atlas.wcLoadingList")} /> : null}
+    {url ? <CctvStreamView key={url} streamUrl={url} imageUrl={url} source="wra" accentColor={color} /> : null}
+    {!images.loading && !url ? <Row label={t("popup.atlas.wcImage")} value={t("popup.atlas.wcNoImage")} /> : null}
+    {images.fromSnapshot ? <Row field="remarks" value={t("popup.atlas.wcSnapshotNote")} /> : null}
+    <LinkRow label={t("popup.atlas.wcOfficial")} url={WRA_CCTV_OFFICIAL_URL} />
+  </>;
+}
+
+/** 換點時以 key 重置（狀態只在非同步回呼裡更新）。 */
+function WraDisasterCctvPanel({ props }: Props) {
+  return <WraDisasterCctvBody key={`${str(props.cctv_id)}|${str(props.image_url)}`} props={props} />;
+}
+
 type G53Key = (typeof G53_SELF_FOOTER_KEYS)[number];
 /** G53 批 1 出處（與圖例同一份機關＋data.gov.tw 資料集；土石流依圖徵種類指向溪流／集水區／影響範圍資料集）。 */
 const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (props: Record<string, unknown>) => string }> = {
+  landslideEventCatalog: { org: "swcb", dataset: (p) => (p.source_nid != null ? String(p.source_nid) : "177455") },
+  pollutionControlZones: { org: "moenv", dataset: (p) => (p.medium === "groundwater" ? "35092" : "6384") },
+  // TEDS 來源是 48201、170705、152688、47244 四筆（圖例全列）；footer 只有一個連結，指 152688——其說明頁寫明全量 zip 由 air.moenv.gov.tw 提供（registry-spec）
+  tedsGridEmissions: { org: "moenv", dataset: () => "152688" },
+  fireworksSites: { org: "nfa", dataset: () => "7070" },
+  vehicleInspectionOffices: { org: "thb", dataset: () => "14203" },
+  iOceanFishing: { org: "oca", dataset: () => "157622" },
+  iOceanSightings: { org: "oca", dataset: () => "157621" },
+  vegetationForestTypes: { org: "forestry", dataset: (p) => (p.forest_type_key != null ? "57873" : "9930") },
+  traLevelCrossings: { org: "tra", dataset: () => "11970" },
+  wraDisasterCctv: { org: "wra", dataset: (p) => (p.kind === "dredging" ? "41567" : "36687") },
+  broadcastTransmitters: { org: "ncc", dataset: (p) => (p.kind === "am" ? "6446" : p.kind === "monitoring" ? "6825" : "6445") },
   postMailboxes: { org: "chunghwaPost", dataset: () => "178399" },
   debrisFlowPotential: { org: "swcb", dataset: (p) => (p.zone_id != null || p.total_res != null ? "176526" : p.area_ha != null ? "176525" : "176524") },
   swcSpecialZones: { org: "swcb", dataset: () => "176847" },
@@ -1316,6 +1607,17 @@ function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
 }
 
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
+  landslideEventCatalog: withG53Footer("landslideEventCatalog", LandslideEventPanel),
+  wraDisasterCctv: withG53Footer("wraDisasterCctv", WraDisasterCctvPanel),
+  traLevelCrossings: withG53Footer("traLevelCrossings", TraLevelCrossingPanel),
+  vegetationForestTypes: withG53Footer("vegetationForestTypes", VegetationForestTypePanel),
+  iOceanSightings: withG53Footer("iOceanSightings", IOceanSightingPanel),
+  iOceanFishing: withG53Footer("iOceanFishing", IOceanFishingPanel),
+  fireworksSites: withG53Footer("fireworksSites", FireworksSitePanel),
+  vehicleInspectionOffices: withG53Footer("vehicleInspectionOffices", VehicleInspectionPanel),
+  pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
+  tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
+  broadcastTransmitters: withG53Footer("broadcastTransmitters", BroadcastTransmitterPanel),
   landUseChangeMonitoring: withG53Footer("landUseChangeMonitoring", LandUseChangePanel),
   debrisFlowPotential: withG53Footer("debrisFlowPotential", DebrisFlowPotentialPanel),
   slopelandSwcAct: withG53Footer("slopelandSwcAct", SlopelandSwcActPanel),
@@ -1399,6 +1701,17 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
+  landslideEventCatalog: manifestZh("landslideEventCatalog"),
+  wraDisasterCctv: manifestZh("wraDisasterCctv"),
+  traLevelCrossings: manifestZh("traLevelCrossings"),
+  vegetationForestTypes: manifestZh("vegetationForestTypes"),
+  iOceanSightings: manifestZh("iOceanSightings"),
+  iOceanFishing: manifestZh("iOceanFishing"),
+  fireworksSites: manifestZh("fireworksSites"),
+  vehicleInspectionOffices: manifestZh("vehicleInspectionOffices"),
+  pollutionControlZones: manifestZh("pollutionControlZones"),
+  tedsGridEmissions: manifestZh("tedsGridEmissions"),
+  broadcastTransmitters: manifestZh("broadcastTransmitters"),
   postMailboxes: manifestZh("postMailboxes"),
   motorcycleInspectionStations: manifestZh("motorcycleInspectionStations"),
   indigenousTribes: "原住民族部落",

@@ -3,6 +3,13 @@ import {
   JP_EXPRESSWAY_COLOR_EXPRESSION, JP_ROAD_CLASSES, JP_ROAD_SORT_KEY, jpExpresswayFilter, jpRoadFilter,
 } from "../data/jpRoadTypes";
 import { jpRoadWidthExpression } from "./useJpMajorRoadsLayer";
+import { JP_MUNICIPAL_ROADS_LAYER_IDS } from "./useJpMunicipalRoadsLayer";
+import {
+  JP_MUNICIPAL_ROAD, JP_MUNICIPAL_ROAD_COLOR, JP_MUNICIPAL_ROAD_MINZOOM, JP_MUNICIPAL_ROAD_SHARDS, JP_MUNICIPAL_ROAD_MIX,
+} from "../data/jpRoadTypes";
+import { mixWithWhite } from "../data/jpZoningUseDistrictTypes";
+import { GIS_LAYERS } from "../map/gisClickRegistry";
+import { LAYER_MANIFEST } from "../data/layerManifest";
 import { LINE_WIDTH } from "../map/mapStyleScale";
 
 describe("日本道路 PMTiles 契約", () => {
@@ -23,6 +30,18 @@ describe("日本道路 PMTiles 契約", () => {
     expect(jpRoadFilter(3)).toEqual(["==", ["get", "road_class_code"], 2]);
     expect(jpRoadFilter(4)).toEqual(["==", ["get", "toll"], true]);
     expect(jpRoadFilter(5)).toEqual(["literal", false]);
+  });
+
+  it("市町村道：都道府縣道同系淡色＋最細階、z12 起；6 片 id、點擊登記與靜態資產對齊", () => {
+    expect(JP_MUNICIPAL_ROAD.tier).toBe("thin");
+    expect(JP_MUNICIPAL_ROAD_COLOR).toBe(mixWithWhite(JP_ROAD_CLASSES[2].color, JP_MUNICIPAL_ROAD_MIX));
+    expect(JP_MUNICIPAL_ROAD_MINZOOM).toBe(12);
+    expect(JP_MUNICIPAL_ROADS_LAYER_IDS).toHaveLength(JP_MUNICIPAL_ROAD_SHARDS.length);
+    const click = GIS_LAYERS.find((e) => e.type === "jpMunicipalRoads");
+    expect(click?.layers).toEqual(JP_MUNICIPAL_ROADS_LAYER_IDS);
+    const src = LAYER_MANIFEST.jpMunicipalRoads.source;
+    const assets = (Array.isArray(src) ? src : [src]).flatMap((s) => ("staticAssets" in s ? s.staticAssets ?? [] : []));
+    expect(assets).toEqual(JP_MUNICIPAL_ROAD_SHARDS.map((s) => `./world/jp_municipal_roads_${s}.pmtiles`));
   });
 
   it("高速道路：暫定供用淡色（case），不用虛線；路線種別篩選", () => {
