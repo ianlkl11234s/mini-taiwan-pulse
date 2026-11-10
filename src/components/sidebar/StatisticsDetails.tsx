@@ -213,7 +213,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const state = useStatisticsSnapshot(layerKey);
   const baseKey = statisticsBaseKey(layerKey, state.selection?.indicatorId);
   const t = useLegendTheme();
-  // 同地圖（regionalStatisticsMap）：色階依底圖換暗底版，色票畫「滑桿換算後的填色透明度 × 底圖陸地色」合成色（LG-13）。
+  // 同地圖（regionalStatisticsMap）：色階依底圖換暗底版，色票畫「滑桿換算後的填色透明度 × 底圖陸地色」合成色（LG-14）。
   const recipe = statisticsRenderRecipe(layerKey, state.selection?.indicatorId, state.selection?.dimensions, { isDark: t.isDark });
   const sliderOpacity = useLayerParams(layerKey)[`${layerKey}Opacity`];
   const fillOpacity = statisticsFillOpacity(typeof sliderOpacity === 'number' ? sliderOpacity : undefined, t.isDark);

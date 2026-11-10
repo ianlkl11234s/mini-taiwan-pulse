@@ -19,6 +19,7 @@ import { BASEMAP_LAND } from "../mapStyleScale";
 import { compositeOver, contrastRatio, parseColor } from "../colorContrast";
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from "../../data/regionalStatisticsRecipes";
 import { STATISTICS_FILL_OPACITY } from "../../data/statisticsVisuals";
+import { isDecorativeSuffix } from "../legendLayerOpacity";
 
 export const GOLDEN_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 export const CONTRAST_BASELINE_PATH = "src/map/__tests__/__fixtures__/contrast-baseline.json";
@@ -41,7 +42,6 @@ const COLOR_TO_OPACITY: Record<string, string> = {
   "fill-extrusion-color": "fill-extrusion-opacity",
 };
 const MAIN_TYPES = new Set(["circle", "line", "fill", "fill-extrusion"]);
-const DECOR = ["glow", "halo", "ripple", "pulse", "hit", "range", "hover", "selected", "highlight", "label", "text", "outline", "stroke", "casing", "seam", "hatch", "missing"];
 const CONDITION_OPS = new Set(["get", "has", "==", "!=", "<", ">", "<=", ">=", "in", "zoom", "literal", "feature-state", "to-string", "to-number", "concat", "all", "any", "!", "length", "typeof"]);
 
 function walkColors(expr: unknown, out: string[]): void {
@@ -102,8 +102,7 @@ export function registryKeyContrasts(golden = JSON.parse(readFileSync(GOLDEN_PAT
   for (const overlay of golden.overlays) {
     for (const layer of overlay.layers) {
       if (!MAIN_TYPES.has(layer.type)) continue;
-      const suffix = (layer.suffix ?? "").toLowerCase();
-      if (DECOR.some((word) => suffix.includes(word))) continue;
+      if (isDecorativeSuffix(layer.suffix)) continue;
       const paint = layer.paint?.dark ?? {};
       for (const [colorProp, opacityProp] of Object.entries(COLOR_TO_OPACITY)) {
         if (!(colorProp in paint)) continue;

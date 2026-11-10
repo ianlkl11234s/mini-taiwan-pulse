@@ -55,14 +55,14 @@ export const LegendThemeCtx = createContext<LegendPalette>(DARK_LEGEND);
 export const useLegendTheme = () => useContext(LegendThemeCtx);
 
 /**
- * LG-13：圖層目前的面填色透明度（LegendPanel 依 overlayRegistry 求值、統計圖例依 statisticsFillOpacity）。
+ * LG-14：圖層目前的面填色透明度（LegendPanel 依 overlayRegistry 求值、統計圖例依 statisticsFillOpacity）。
  * 有值時 SwatchSquare（未指定 opacity 的實心面）與 SwatchSteps 改畫「色 × 透明度疊在底圖陸地色上」的合成色，
  * 外加 1px 面板邊框，透明度很低時色票位置仍看得到。null＝不知道透明度，維持原色票。
  */
 export const LegendFillOpacityCtx = createContext<number | null>(null);
 export const useLegendFillOpacity = () => useContext(LegendFillOpacityCtx);
 
-/** LG-13 合成色：`alpha` 為 null 時回原色。 */
+/** LG-14 合成色：`alpha` 為 null 時回原色。 */
 export function legendCompositeColor(color: string, alpha: number | null, isDark: boolean): string {
   return alpha === null ? color : compositeHex(color, basemapLandColor(isDark), alpha);
 }
@@ -133,7 +133,7 @@ export function SwatchDot({ color, opacity = 0.9, stroke, strokeWidth = 1, glow 
 
 /**
  * LG-2 面類別：12×10 方、圓角 2；outline 表示只有外框的面。
- * LG-13：沒指定 `opacity`、又在 LegendFillOpacityCtx 內時，畫合成色（不透明）＋1px 面板邊框。
+ * LG-14：沒指定 `opacity`、又在 LegendFillOpacityCtx 內時，畫合成色（不透明）＋1px 面板邊框。
  */
 export function SwatchSquare({ color, outline = false, opacity, stroke }: { color: string; outline?: boolean; opacity?: number; stroke?: string }) {
   const t = useLegendTheme();
@@ -179,7 +179,7 @@ export function SwatchLine({ color, width = 2, dash, opacity = 1 }: { color: str
   );
 }
 
-/** LG-3 分級：等寬方塊列＋下方實際分界。LG-13：在 LegendFillOpacityCtx 內畫合成色，整列加 1px 面板邊框。 */
+/** LG-3 分級：等寬方塊列＋下方實際分界。LG-14：在 LegendFillOpacityCtx 內畫合成色，整列加 1px 面板邊框。 */
 export function SwatchSteps({ colors, breaks }: { colors: readonly string[]; breaks?: readonly ReactNode[] }) {
   const t = useLegendTheme();
   const fillAlpha = useLegendFillOpacity();

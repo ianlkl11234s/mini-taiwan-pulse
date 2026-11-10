@@ -18,7 +18,7 @@ export const mapSeamColor = (isDark: boolean) => MAP_SEAM[themeOf(isDark)];
 
 /**
  * 底圖陸地實測色（§3.9 C-1）：正式站「全部關閉」截圖取像素（dark-v11 z7 `#292828`、light-v11 z7 `#f8f8fa`）。
- * 圖例合成色（LG-13）與對比契約測試的底色；Pure Black、衛星等其他暗底圖一律以 dark 近似。
+ * 圖例合成色（LG-14）與對比契約測試的底色；Pure Black、衛星等其他暗底圖一律以 dark 近似。
  */
 export const BASEMAP_LAND = { dark: "#292828", light: "#f8f8fa" } as const;
 export const basemapLandColor = (isDark: boolean) => BASEMAP_LAND[themeOf(isDark)];

@@ -1,5 +1,5 @@
 /**
- * 圖例合成色（design-system map-layers §4 LG-13）：查圖層「目前畫在地圖上」的面填色透明度。
+ * 圖例合成色（design-system map-layers §4 LG-14）：查圖層「目前畫在地圖上」的面填色透明度。
  *
  * 用與地圖相同的路徑求值：
  *   - config 當下可見（`isOverlayVisible`：toggle 開著、多尺度圖層選中的那個尺度）；
@@ -13,7 +13,7 @@ import type { LayerVisibility, OverlayConfig, OverlayLayerSpec } from "../types"
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { isOverlayVisible } from "./overlayManager";
 
-/** 裝飾子圖層 suffix 關鍵字（對比契約 contrastContractExtract 同一份）。 */
+/** 裝飾子圖層 suffix 關鍵字（圖例合成與對比契約 contrastContractExtract 共用）。 */
 export const DECORATIVE_SUFFIX_WORDS = ["glow", "halo", "ripple", "pulse", "hit", "range", "hover", "selected", "highlight", "label", "text", "outline", "stroke", "casing", "seam", "hatch", "missing"] as const;
 export const isDecorativeSuffix = (suffix: string | undefined) => DECORATIVE_SUFFIX_WORDS.some((word) => (suffix ?? "").toLowerCase().includes(word));
 

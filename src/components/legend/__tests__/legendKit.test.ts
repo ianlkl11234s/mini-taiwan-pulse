@@ -34,7 +34,7 @@ describe("legendKit", () => {
     expect(lit("suppressed")).toBeGreaterThan(lit("missing"));
   });
 
-  it("LG-13：面色票畫「色 × 圖層透明度疊在底圖陸地色」的合成色，加 1px 面板邊框；沒有透明度資訊時維持原色票", () => {
+  it("LG-14：面色票畫「色 × 圖層透明度疊在底圖陸地色」的合成色，加 1px 面板邊框；沒有透明度資訊時維持原色票", () => {
     const render = (alpha: number | null, theme = DARK_LEGEND, el: ReactElement = createElement(SwatchSquare, { color: "#3182bd" })) =>
       renderToStaticMarkup(createElement(LegendThemeCtx.Provider, { value: theme }, createElement(LegendFillOpacityCtx.Provider, { value: alpha }, el)));
     // 稽核像素驗證：#3182bd@0.55 疊暗陸 #292828 → #2d5a7a
@@ -54,7 +54,7 @@ describe("legendKit", () => {
     expect(steps).not.toContain("#08519c");
   });
 
-  it("LG-13：圖層透明度與地圖同一路徑求值（fill-opacity 數值，隨滑桿變）", () => {
+  it("LG-14：圖層透明度與地圖同一路徑求值（fill-opacity 數值，隨滑桿變）", () => {
     const base = encodeParamsToOverlay(layerParamsStore.getAll());
     const def = overlayFillOpacity("aviationNoiseZones", true, base);
     expect(def).toBeGreaterThan(0);
@@ -63,7 +63,7 @@ describe("legendKit", () => {
     expect(overlayFillOpacity("notAnOverlayKey", true, base)).toBeUndefined();
   });
 
-  it("LG-13：只認目前畫著的面（V-5 點模式時面隱藏 → 不合成）", () => {
+  it("LG-14：只認目前畫著的面（V-5 點模式時面隱藏 → 不合成）", () => {
     const base = encodeParamsToOverlay(layerParamsStore.getAll());
     const modes = [0, 1, 2].map((i) => overlayFillOpacity("cemeteryOsm", true, { ...base, cemeteryOsmDisplayModeIdx: i }));
     expect(modes.filter((v) => v === undefined).length).toBeGreaterThan(0);
