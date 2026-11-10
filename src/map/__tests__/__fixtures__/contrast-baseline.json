@@ -64,11 +64,11 @@
    "type": "fill"
   },
   "pollutionPenaltyGeneral": {
-   "contrast": 2.42,
+   "contrast": 1.42,
    "type": "circle"
   },
   "pollutionPenaltyMobile": {
-   "contrast": 2.93,
+   "contrast": 1.87,
    "type": "circle"
   },
   "slopelandSwcAct": {
