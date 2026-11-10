@@ -10,6 +10,7 @@ const BACKLOG = `# Backlog
 |---|---|---|---|---|---|---|
 | OPEN-1 | 底線:資安 | P1 | ready | 未關閉列 | [細節](../../docs/features/x/README.md) | 驗收 |
 | AR-12/13 | 北極星:效率 | P2 | blocked | 不規則 ID | — | — |
+| G025 | 北極星:效率 | P3 | ready | 無連字號舊式 ID | — | — |
 | FB-001 | 待討論 | P3 | waiting_external | 〔byok-chat〕BC-3 預設模型 | 原檔：[byok](../../docs/archive/2026-11-09/features/byok-chat/backlog.md) | — |
 | BAD-1 | 待討論 | P3 | scheduled | State 不在白名單 | — | — |
 | BAD-2 | 待討論 | P3 | ready | 連結壞掉 | [x](../../docs/missing.md) | — |
@@ -23,6 +24,7 @@ const BACKLOG = `# Backlog
 | ID | 說明 |
 |---|---|
 | DONE-5 | 表格裡的已關閉列 |
+| G015 | 無連字號舊式 ID 已關閉 |
 | OPEN-1 | 同時出現在已關閉段：以未關閉為準 |
 `;
 
@@ -67,7 +69,7 @@ describe("extractIds", () => {
 describe("parseBacklog", () => {
   it("分出未關閉與已關閉集合（含 FB 原 ID、粗體、縮排列、表格）", () => {
     const bl = parseBacklog(BACKLOG);
-    for (const id of ["OPEN-1", "AR-12/13", "FB-001", "BC-3"]) expect(bl.open.has(id), id).toBe(true);
+    for (const id of ["OPEN-1", "AR-12/13", "AR-12", "AR-13", "G025", "FB-001", "BC-3"]) expect(bl.open.has(id), id).toBe(true);
     for (const id of ["DONE-1", "DONE-2", "DONE-3", "DONE-4", "DONE-5"]) expect(bl.closed.has(id), id).toBe(true);
   });
 });
@@ -88,6 +90,16 @@ describe("checkEntryDocs", () => {
     expect(ps.every((p) => p.level === "error")).toBe(true);
     expect(ps[0]!.line).toBeGreaterThan(0);
     expect(ps.map((p) => p.message).join()).toMatch(/DONE-2.*DONE-3|DONE-3.*DONE-2/);
+  });
+
+  it("列首複合 ID（AR-12/13）展開後可被引用（review F084）", () => {
+    expect(projectProblems("| a | 🔵 | — | — | AR-13：做 | BACKLOG AR-12 | — |")).toEqual([]);
+  });
+
+  it("無連字號 G### 也檢查已關閉與查無此 ID（review F087）", () => {
+    expect(projectProblems("| a | 🔵 | — | — | G025：做 | BACKLOG G025 | — |")).toEqual([]);
+    const ps = projectProblems("| a | 🔵 | — | — | G015：重啟 | BACKLOG G099 | — |");
+    expect(rulesOf(ps)).toEqual(["closed-id", "unknown-id"]);
   });
 
   it("FB 原 ID 與未關閉／已關閉都出現的 ID 算未關閉", () => {
