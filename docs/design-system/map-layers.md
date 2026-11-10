@@ -517,7 +517,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | **LG-6 icon** | 與地圖同一 sprite 圖示 14px | symbol icon |
 | **LG-7 缺值／遮蔽** | 16×12 斜線，同地圖 pattern | 統計 suppressed、N1 缺值 |
 | **LG-8 熱區／影像漸層** | 漸層條＋兩端「低／高」＋單位；熱區漸層讀 `state/layerPalette.ts`（與地圖同一色盤、依底圖暗／淡），一個圖例管多層且色盤不同時各畫一條並標層名 | heatmap、raster |
-| **LG-14 合成色**（2026-11-10） | 面類別（LG-2 實心）與序列分級（LG-3 方塊列）畫「色 × 圖層**目前**填色透明度 × 底圖陸地色（C-1）」的合成色，不透明，外加 1px 面板邊框（`legendTheme.border`）；透明度很低時色塊接近底圖色，但邊框讓位置仍看得到。透明度跟滑桿與底圖即時變 | 一般圖層：`LegendPanel` 以 overlayRegistry 中**目前畫著**的 fill 子圖層（多尺度只看選中的尺度、V-5 點模式時面隱藏不算、略過 hit／hatch 等裝飾子圖層）`paint(isDark, overlayParams)` 求出的 `fill-opacity`（含 `opacityParam`）經 `LegendFillOpacityCtx` 傳入；統計：`statisticsFillOpacity`。透明度是表達式、hook 自建或 3D 圖層查不到時維持原色票；呼叫端自己傳 `opacity` 的色票也維持原畫法 |
+| **LG-14 合成色**（2026-11-10） | 面類別（LG-2 實心）與序列分級（LG-3 方塊列）畫「色 × 圖層**目前**填色透明度 × 底圖陸地色（C-1）」的合成色，不透明，外加 1px 面板邊框（`legendTheme.border`）；透明度很低時色塊接近底圖色，但邊框讓位置仍看得到。透明度跟滑桿與底圖即時變 | 一般圖層：`LegendPanel` 以 overlayRegistry 中**目前畫著**的 fill 子圖層（多尺度只看選中的尺度、V-5 點模式時面隱藏不算、略過 hit／hatch 等裝飾子圖層）`paint(isDark, overlayParams)` 求出的 `fill-opacity`（含 `opacityParam`）經 `LegendFillOpacityCtx` 傳入；統計：`statisticsFillOpacity`。透明度是表達式、hook 自建或 3D 圖層查不到時維持原色票；呼叫端自己傳 `opacity` 的色票也維持原畫法。一張圖例管多個面圖層時，整組色票用第一個開著且查得到的成員的透明度（`legendFillOpacity`），不逐列各算（2026-11-10 使用者決定，POLICIES G5） |
 
 元件：`legendKit.tsx` 的 `LegendTitle`／`LegendRow`／`LegendNote`／`LegendNum`／`Swatch*`、`useLegendTheme`、`useLegendCompact`、尺寸常數 `LEGEND_SWATCH`（`spec.md` §5.32）。**LG-5 大小尚無共用元件**；LG-6 icon 目前只有方向箭頭 `SwatchArrow`（R6 段 3，`LEGEND_SWATCH.icon = 14`），其他 sprite 逐層做時補。
 
