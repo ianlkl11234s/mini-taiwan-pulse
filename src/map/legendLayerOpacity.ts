@@ -51,10 +51,12 @@ export function overlayFillOpacity(
       try {
         if (layoutHidden(spec, isDark, params)) continue;
         value = spec.paint(isDark, params)["fill-opacity"];
+        // 0 是有效值（滑桿拉到 0）；只有「不論參數都是 0」的點擊用透明面（如縣市界 fill）才當查不到
+        if (value === 0 && !(Number(spec.paint(isDark, {})["fill-opacity"]) > 0)) continue;
       } catch {
         continue;
       }
-      if (typeof value !== "number" || value <= 0) continue;
+      if (typeof value !== "number" || value < 0) continue;
       const multiplier = config.opacityParam ? params[config.opacityParam] : undefined;
       return Math.max(0, Math.min(1, multiplier === undefined ? value : value * multiplier));
     }
