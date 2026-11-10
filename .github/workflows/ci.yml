@@ -125,6 +125,11 @@ jobs:
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
           npm run check:warehouse-gate -- --base "$BASE_SHA"
 
+      # ASSET-1：前端引用的資料檔都要在 lock（新資料檔走 S3＋build-public-assets-lock.py add）；
+      # 既有例外在 deploy/public-assets-not-in-lock.txt（只減不增）。不連網，線上核對由 asset-lock-audit 排程做。
+      - name: Referenced data files are in the lock
+        run: npm run check:asset-refs
+
   build:
     needs: changes
     if: needs.changes.outputs.code == 'true'

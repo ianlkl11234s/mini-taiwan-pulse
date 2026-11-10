@@ -5,7 +5,7 @@ name: schedule-watch
 
 on:
   workflow_run:
-    workflows: [sync-rotating, deploy-workers, site-watch, rotating-freshness, workers-usage]   # 填被監看檔的 name: 值
+    workflows: [sync-rotating, deploy-workers, site-watch, rotating-freshness, workers-usage, asset-lock-audit]   # 填被監看檔的 name: 值
     types: [completed]
 
 permissions:
@@ -31,4 +31,4 @@ jobs:
           conclusion: ${{ github.event.workflow_run.conclusion }}
           run-url: ${{ github.event.workflow_run.html_url }}
           # 連續失敗幾次才通知：每天跑一次或本身已去抖（12 小時門檻）的檢查第一次失敗就通知，其餘 2 次
-          threshold: ${{ contains(fromJSON('["rotating-freshness"]'), github.event.workflow_run.name) && '1' || '2' }}
+          threshold: ${{ contains(fromJSON('["rotating-freshness","asset-lock-audit"]'), github.event.workflow_run.name) && '1' || '2' }}
