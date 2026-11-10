@@ -1,4 +1,4 @@
-import { createElement, Fragment } from "react";
+import { createElement, Fragment, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { DARK_LEGEND, LEGEND_SWATCH, LegendCompactCtx, LegendFillOpacityCtx, LegendNote, LegendThemeCtx, LegendTitle, LIGHT_LEGEND, SwatchDot, SwatchHatch, SwatchSquare, SwatchSteps } from "../legendKit";
@@ -35,7 +35,7 @@ describe("legendKit", () => {
   });
 
   it("LG-13：面色票畫「色 × 圖層透明度疊在底圖陸地色」的合成色，加 1px 面板邊框；沒有透明度資訊時維持原色票", () => {
-    const render = (alpha: number | null, theme = DARK_LEGEND, el = createElement(SwatchSquare, { color: "#3182bd" })) =>
+    const render = (alpha: number | null, theme = DARK_LEGEND, el: ReactElement = createElement(SwatchSquare, { color: "#3182bd" })) =>
       renderToStaticMarkup(createElement(LegendThemeCtx.Provider, { value: theme }, createElement(LegendFillOpacityCtx.Provider, { value: alpha }, el)));
     // 稽核像素驗證：#3182bd@0.55 疊暗陸 #292828 → #2d5a7a
     expect(render(0.55)).toContain("background:#2d5a7a");
