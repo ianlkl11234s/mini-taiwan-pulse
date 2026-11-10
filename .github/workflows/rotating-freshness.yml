@@ -1,0 +1,32 @@
+# 輪替資料新鮮度（SYNCR-1）：R2 上 climate frames/manifest.json 的 generated_at 超過 12 小時就紅
+# （climate_bake 每 6 小時一版＋sync-rotating 每小時搬，門檻＝連續漏兩版）。只偵測不搬家；
+# 和 site-watch 分開是為了資料長期落後時，紅燈不會蓋掉之後真正的站台中斷通知。
+# GFW 小時檔停更是刻意的（collector 等授權），不檢查。通知由 schedule-watch.yml（門檻 1）負責。
+name: rotating-freshness
+
+on:
+  schedule:
+    - cron: '47 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rotating-freshness
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/monitor
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - name: Climate freshness
+        run: node scripts/monitor/site-health.mjs --mode freshness

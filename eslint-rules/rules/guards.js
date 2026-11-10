@@ -295,3 +295,55 @@ export const sidebarSharedParamControls = selectorRule({
     "sidebar 不要自己掛 <ParamControlList> 或自己依 options.length 決定 select／按鈕列：控制項一律經 ExpandedControls → ParamControlList（sidebar/LayerParamControls.tsx），兩個 sidebar 的閾值才不會分岔（development-rules §4a 規則 4）",
   selectors: ["JSXOpeningElement[name.name='ParamControlList']", "MemberExpression[property.name='length'][object.property.name='options']"],
 });
+
+// LINT-1（development-rules §1「Schema 分工」）：前端只讀 public RPC 與 reference／spatial 直讀；
+// live（舊 realtime 已併入）、metadata 等其他 schema 一律要透過 public RPC。現況 0 違規（2026-11-10）。
+// 擋三種寫法：`.schema(<非允許值>)`、`createClient(url, key, { db: { schema } })`、`.from("live.x")`／`.rpc("metadata.f")`。
+// schema 參數不是字面值（變數、運算式）也擋：靜態看不出讀哪個 schema。
+export const FRONTEND_READABLE_SCHEMAS = ["public", "reference", "spatial"];
+const staticString = (n) =>
+  n?.type === "Literal" && typeof n.value === "string"
+    ? n.value
+    : n?.type === "TemplateLiteral" && n.expressions.length === 0
+      ? n.quasis[0].value.cooked
+      : null;
+
+export const noNonpublicSchema = {
+  meta: {
+    type: "problem",
+    docs: { description: "前端不直接讀 public／reference／spatial 以外的 Supabase schema（development-rules §1）" },
+    schema: [],
+    messages: {
+      banned:
+        "前端不可直接讀 schema「{{schema}}」：live（舊 realtime）、metadata 等只能經 public RPC 讀（development-rules §1 Schema 分工）。" +
+        "需要的資料請在 gis-platform 加 public RPC wrapper。",
+      dynamic: "schema 參數必須是字面值（public／reference／spatial），靜態看不出會讀哪個 schema（development-rules §1）",
+    },
+  },
+  create(context) {
+    const allowed = new Set(FRONTEND_READABLE_SCHEMAS);
+    const check = (node, arg) => {
+      const s = staticString(arg);
+      if (s === null) context.report({ node, messageId: "dynamic" });
+      else if (!allowed.has(s)) context.report({ node, messageId: "banned", data: { schema: s } });
+    };
+    return {
+      CallExpression(node) {
+        const name = calleeName(node);
+        const [first] = node.arguments;
+        if (node.callee.type !== "MemberExpression" || !first) return;
+        if (name === "schema") return check(node, first);
+        if (name === "from" || name === "rpc") {
+          const s = staticString(first);
+          const m = s?.match(/^([A-Za-z_][A-Za-z0-9_]*)\.[A-Za-z_]/);
+          if (m && !allowed.has(m[1])) context.report({ node, messageId: "banned", data: { schema: m[1] } });
+        }
+      },
+      Property(node) {
+        if (propName(node) !== "db" || node.value.type !== "ObjectExpression") return;
+        const schemaProp = node.value.properties.find((p) => p.type === "Property" && propName(p) === "schema");
+        if (schemaProp) check(schemaProp, schemaProp.value);
+      },
+    };
+  },
+};

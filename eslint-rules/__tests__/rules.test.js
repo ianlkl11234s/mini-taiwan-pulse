@@ -318,3 +318,34 @@ tester.run("sidebar-shared-param-controls", rule("sidebar-shared-param-controls"
     ["const many = props.ctrl.options.length >= 4;", 1],
   ]),
 });
+
+// LINT-1：前端只讀 public RPC 與 reference／spatial（development-rules §1）
+tester.run("no-nonpublic-schema", rule("no-nonpublic-schema"), {
+  valid: ok(
+    'supabase.rpc("get_ships_day", { p_day: d });',
+    'supabase.from("boundaries_town").select("*");',
+    'supabase.schema("reference").from("daily_schedules").select("*");',
+    "supabase.schema(`spatial`).from(\"h3_demographics\");",
+    'supabase.schema("public").rpc("get_x");',
+    'createClient(url, key, { db: { schema: "public" } });',
+    'createClient(url, key, { auth: { persistSession: false } });',
+    'const doc = "資料源：live.vessel_watch_positions（經 RPC）";',
+    'Array.from("live");',
+    'Array.from(items);',
+  ),
+  invalid: [
+    ...[
+      'supabase.schema("live").from("ships").select("*");',
+      'supabase.schema("realtime").from("earthquake_events");',
+      "supabase.schema(`metadata`).rpc(\"expected_probe_count\");",
+      'createClient(url, key, { db: { schema: "live" } });',
+      'supabase.from("live.ships").select("*");',
+      'supabase.rpc("metadata.check_retention_coverage");',
+    ].map((code) => ({ code, filename: "x.ts", errors: [{ messageId: "banned" }] })),
+    ...['supabase.schema(name).from("x");', 'createClient(url, key, { db: { schema: cfg.schema } });'].map((code) => ({
+      code,
+      filename: "x.ts",
+      errors: [{ messageId: "dynamic" }],
+    })),
+  ],
+});
