@@ -2328,3 +2328,28 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - `BACKLOG.md`：新增 IEREL-1、IECOI-1、IEW-11、IEADD-1、IEWH-1、KRSTAT-1、REG-2；KRW-6 改第 8 波。
 - `STATUS.md`：11-07～08 checkpoint。
+
+## 2026-11-09～10 多國跨夜（南韓、愛爾蘭、日本、英國、加拿大）
+
+### What worked
+
+- 使用者睡前一次答完 D1–D9 授權（CI 綠可合 develop、KRSTAT 可寫正式 DB／R2、不發 master），整夜依計畫書 `.gis-agent-system/projects/2026-11-multi-country-night/PLAN.md` 一件一件跑；共用限制寫成 `WORKER_RULES.md`，每個 worker brief 只寫範圍與驗收，同時最多兩個 worker。
+- 與平行 session（5d）用跨 session 訊息分工：AG-13／14／15、倉庫組裝、發版都交給 5d，我方未完成的 AG-15 WIP 留在 worktree 交接；最後只發一次 v2.35.0，沒有兩邊各發或撞 develop。
+- worker 卡住約 5 小時（JPRD-1）與中途 API 登入失效（KR 設計稿）：先由主 agent 把它的 worktree 存成 WIP commit，再用 SendMessage 讓原 worker 從中斷處接續，兩次都沒有白做。
+- 早上把待決事項整理成「要你選（附建議與影響）／只要你動手／之後再做」三段，使用者一則訊息答完 9 題，再一則答完設計稿 4 題。
+- 回答「會不會跟台灣衝突」前先查程式：主題身分早在 #733 改成 country:title，順手把重複的 MC-1 查證關閉。
+
+### Friction / limits
+
+- UKLZ-1／UKLZ-2 其實 10-31 已隨 #784 上線，BACKLOG 沒關，worker 白查一輪才發現。派工前要先 `git log -S`／查 PR 確認項目是否已完成。
+- 日本市町村道新圖層漏登 pulse-data registry，事後補 pulse-data #101；AG-13 守門（#975）之後會擋這類漏登。
+- worker 用系統 python 的 DuckDB 2.0.0 寫倉庫包，慣例是 1.5.3（python3.14）；1.5.3 讀得了但版本不一致，記成 WHDB-1。brief 要寫明用哪個 interpreter。
+- MCP 代表點被 UNION 導致 10 份資料重複計算（MCP #105 修）；入倉後要用筆數對照原始資料驗，不能只看查得到。
+- 本機 load 一度 47、磁碟剩 12–22GB；中間檔與 20 個已合併 worktree 都搬 `~/.Trash/`，要使用者自己清空。
+
+### Memory output
+
+- `BACKLOG.md`：關 KRSTAT-1、RV-CA-DERIVED、IEWH-1、UKLZ-1／2／3、UKD-1、JPRD-1／2、IEW-11、IEADD-1、KRI18N-1、RV-F068、MC-1；新增 UKFLOOD-1、JPACC-1、WHDB-1；KRH-1 記 C117 選 A、C086 選 B（mini #989、#992、#994）。
+- `docs/PROJECTS.md`：南韓、英國、Agent 分析、多國化議題 1 列更新。
+- 設計稿 https://claude.ai/artifact/3HbEoZF2C5Huw4xgwCKsR5（截圖在 `.gis-agent-system/projects/2026-11-multi-country-night/shots/kr-design/`）。
+
