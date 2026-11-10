@@ -26,10 +26,10 @@ const SHORT_PALETTE = 'short_palette';
 vi.mock('../../data/regionalStatisticsRecipes', () => ({
   STATISTICS_RENDER_KEYS: ['statsEducationElementarySchool'],
   statisticsBaseKey: (_key: string, indicator?: string) => indicator === 'institution_count' ? 'statsEducationCountyInstitutionCount' : 'statsComparisonEducationInstitutionCountPer10000Residents',
-  statisticsRenderRecipe: (_key: string, indicator?: string) => indicator === 'institution_count'
+  statisticsRenderRecipe: (_key: string, indicator?: string, _dims?: unknown, basemap?: { isDark?: boolean }) => indicator === 'institution_count'
     ? { dataset_id: 'education_statistics', indicator_id: 'institution_count', label: '機構數', level: 'county', unit: '所', dimensions: { education_stage: 'elementary' }, releaseId: 'social-114', colors: ['#200', '#201', '#202', '#203', '#204'], breaks: [10, 20, 30, 40] }
     : indicator === 'short_palette'
-      ? { dataset_id: 'comparison_statistics', indicator_id: 'short_palette', label: '短色盤', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: ['#300', '#301', '#302'], breaks: [1, 2] }
+      ? { dataset_id: 'comparison_statistics', indicator_id: 'short_palette', label: '短色盤', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: basemap?.isDark ? ['#d00', '#d01', '#d02'] : ['#300', '#301', '#302'], breaks: [1, 2] }
     : { dataset_id: 'comparison_statistics', indicator_id: 'education_institution_count_per_10000_residents', label: '每萬居民機構數', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: ['#100', '#101', '#102', '#103', '#104'], breaks: [1, 2, 3, 4] },
   statisticsReleaseFallback: () => undefined,
 }));
@@ -62,6 +62,7 @@ vi.mock('../../state/layerVisibilityStore', () => ({
 vi.mock('../../state/layerParamsStore', () => ({
   layerParamsStore: {
     getParam: (_key: string, name: string) => state.params[name],
+    setManyDirect: (writes: { name: string; value: number }[]) => { for (const w of writes) state.params[w.name] = w.value; if (writes.length) state.paramsListener?.(); },
     subscribe: (listener: () => void) => { state.paramsListener = listener; return () => { state.paramsListener = undefined; }; },
   },
 }));
@@ -145,6 +146,7 @@ describe('attachRegionalStatistics', () => {
 
     state.params[`${VIEW}Opacity`] = 0.41;
     state.paramsListener?.();
+    // 滑桿值＝實際透明度（填色與斜線同值，不再依底圖換算）
     expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.41);
     // F-2：細縫不綁透明度滑桿
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.6, 0.5]);
@@ -162,6 +164,7 @@ describe('attachRegionalStatistics', () => {
   it('F-2／F-3：外框是 1px 底圖色細縫、缺值與遮蔽用不同斜線，並隨底圖切換', () => {
     state.snapshots.set(VIEW, { selection: { indicatorId: SHORT_PALETTE }, data: feature(2) });
     state.visibility[VIEW] = true;
+    state.params[`${VIEW}Opacity`] = 0.55;   // 規格預設（淡底）
     let dark = true;
     const mock = mapMock();
     const dispose = attachRegionalStatistics(mock.map as never, () => dark);
@@ -173,12 +176,29 @@ describe('attachRegionalStatistics', () => {
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-dark');
     expect(mock.map.addImage).toHaveBeenCalledWith('map-hatch-missing-light', expect.objectContaining({ width: 8, height: 8 }));
 
+    // Q7：暗底版色階、填色 0.75；使用者沒動過滑桿 → 滑桿本身換成暗底預設 0.75（顯示＝實際）
+    expect(fillColorSteps(mock, VIEW)).toEqual(['step', ['get', 'value'], '#d00', 1, '#d01', 2, '#d02']);
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.75);
+    expect(state.params[`${VIEW}Opacity`]).toBe(0.75);
+
     dark = false;
     mock.events.get('style.load')?.();
+    // 換淡底：已開啟的統計圖層即時換回淡底色階與 0.55
+    expect(fillColorSteps(mock, VIEW)).toEqual(['step', ['get', 'value'], '#300', 1, '#301', 2, '#302']);
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.55);
+    expect(state.params[`${VIEW}Opacity`]).toBe(0.55);
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-color'] as unknown[]).slice(2)).toEqual(['#ffffff', '#374151']);
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.8, 0.5]);
     expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-pattern']).toBe('map-hatch-missing-light');
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-light');
+
+    // 使用者動過滑桿 → 換底圖保留他的值
+    state.params[`${VIEW}Opacity`] = 0.4;
+    state.paramsListener?.();
+    dark = true;
+    mock.events.get('style.load')?.();
+    expect(state.params[`${VIEW}Opacity`]).toBe(0.4);
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.4);
     dispose();
   });
 

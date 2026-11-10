@@ -564,11 +564,16 @@ function educationMetricInitial(key: StatisticsLayerKey, stage: string) {
  * @param selectedDimensions 目前選擇的維度（atlas 家族用）：癌別、行業等量級差很大的組合各有固定門檻，
  *   社會脆弱度子指標依正負號反轉色階；map 與圖例都經過這裡，確保兩者一致。其他家族忽略。
  */
-function atlasColors(key: string, label: string, scale: ReturnType<typeof atlasRecipeRenderScale>): string[] {
-  return statisticsVisualColors(key, label, scale.breaks, scale.direction, { palette: scale.palette, partyColor: scale.partyColor });
+function atlasColors(key: string, label: string, scale: ReturnType<typeof atlasRecipeRenderScale>, isDark = false): string[] {
+  return statisticsVisualColors(key, label, scale.breaks, scale.direction, { palette: scale.palette, partyColor: scale.partyColor, isDark });
 }
 
-export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string, selectedDimensions?: Record<string, unknown>) {
+/**
+ * @param basemap.isDark 目前底圖是否暗色：色階換暗底版（statisticsVisualColors `isDark`）。地圖（regionalStatisticsMap）
+ *   與圖例（StatisticsLegend）都要傳同一個值，兩者才對得上；不傳＝淡底版（資料面板、選單等不畫色的呼叫端）。
+ */
+export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string, selectedDimensions?: Record<string, unknown>, basemap: { isDark?: boolean } = {}) {
+  const isDark = basemap.isDark === true;
   const baseKey = statisticsBaseKey(key, selectedIndicator);
   const source = STATISTICS_RECIPES[baseKey];
   const atlasScale = getAtlasRecipe(baseKey) ? atlasRenderScale(baseKey, selectedDimensions) : undefined;
@@ -576,9 +581,9 @@ export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicat
     const atlas = getAtlasRecipe(baseKey)!;
     // categorical（最高黨）：地圖改用 match（regionalStatisticsMap），breaks／colors 只留給不認 categories 的舊路徑。
     const categories = atlasCategoryRows(atlas);
-    return { ...source, breaks: atlasScale.breaks, colors: atlasColors(baseKey, source.label, atlasScale), ...(categories ? { categories } : {}) };
+    return { ...source, breaks: atlasScale.breaks, colors: atlasColors(baseKey, source.label, atlasScale, isDark), ...(categories ? { categories } : {}) };
   }
-  const base = { ...source, colors: statisticsVisualColors(baseKey, source.label, source.breaks) };
+  const base = { ...source, colors: statisticsVisualColors(baseKey, source.label, source.breaks, undefined, { isDark }) };
   const laborMetric = getLaborStatisticsPresentationMetric(key, selectedIndicator);
   if (laborMetric?.valueTransform) {
     const breaks = [...(laborMetric.breaks ?? source.breaks)];
@@ -587,7 +592,7 @@ export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicat
       ...base,
       label,
       breaks,
-      colors: statisticsVisualColors(baseKey, label, breaks),
+      colors: statisticsVisualColors(baseKey, label, breaks, undefined, { isDark }),
       sourceLayerKey: laborMetric.sourceLayerKey,
       valueTransform: laborMetric.valueTransform,
       derivationFormula: laborMetric.formula,

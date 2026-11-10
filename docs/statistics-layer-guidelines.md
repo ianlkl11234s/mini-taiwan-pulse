@@ -48,12 +48,18 @@
 | 環境、公用事業 | 回收／垃圾／噪音、電力／水 | BuPu 藍紫、GnBu 綠藍 |
 
 - icon 與清單 accent 是分類提示；圖形、文字共同辨識，不能只靠不同色相區分主題。
-- 數量、密度、率、占比使用有序順序色階：淺→深代表低→高。不要彩虹色，也不以紅／綠暗示好壞。
-- 有正負意義的增減使用雙向 PuOr：棕負、紫非負；現有分級以 0 為分界，沒有單獨的「零值中性色」類別。
+- 數量、密度、率、占比使用有序順序色階，**兩種底圖同方向：淺 → 深代表低 → 高（越深越多）**（2026-11-10 使用者決定，design-system map-layers §3.6 K-4 統計例外、§3.9）：
+  - 淡色底圖（light、streets）：`colors`（ColorBrewer），填色透明度預設 0.55。
+  - 暗色底圖（dark、Pure Black、衛星等其餘）：`darkColors`，方向相同，只調明度下限與彩度：最深一級用中低明度、高彩度的飽和色（不用近黑深色），填色透明度預設 0.75。
+  - 透明度滑桿顯示實際值；沒動過時換底圖跟著換預設值，動過就保留（`regionalStatisticsMap`）。
+  - 門檻（每個 render key 的實際輸出、含重新取樣的級數，以 0.75 疊在暗陸 `#292828`）：對比單調、最淺一級 6–9、最深一級 ≥ 2.2 且 OKLCH 彩度 ≥ 0.10、相鄰級 OKLab ΔE ≥ 4（目標 8）（`statisticsDarkRamp.test.ts`）；新主題要同時給 `colors` 與 `darkColors`。
+  - 不要彩虹色，也不以紅／綠暗示好壞。圖例說明文字兩種底圖相同（「淺 → 深」「最淺／最深」）。
+- 有正負意義的增減使用雙向 PuOr：棕負、紫非負；現有分級以 0 為分界，沒有單獨的「零值中性色」類別。暗底版同方向：近 0 最淺（對比約 7.9）、兩端最深最飽和（約 2.5、彩度 0.13–0.15）。
+- 政黨色（藍綠差、依政黨得票率、最高黨類別）不分底圖；暗底下依政黨得票率最高級、藍綠差兩端對比偏低，已登記在對比契約基準（`statistics-party`），改不改另行拍板。
 - 分級門檻屬比較契約：不可為了每張圖都五顏六色而按當次資料任意重算 quantile。變更門檻需另寫理由及對跨期比較的影響。
 - 色票至少有 `breaks.length + 1` 色；重複門檻經 `statisticsColorStops` 合併，map／legend 必須一致。
 - 同一主題的原始數、人均值與面積平均保持同色系；切換指標後同時刷新 map 色階與 legend 的數值／單位。
-- 色覺驗證包含一般及 protan／deutan／tritan 模擬的明度順序；目前測試以相鄰 CIELAB L* 差大於 5 作為護欄。這是色票測試，不是所有視覺障礙的可用性保證；還要檢查底圖與透明度下的真實畫面。
+- 色覺驗證包含一般及 protan／deutan／tritan 模擬的明度順序（淡底與暗底兩組都驗）；目前測試以相鄰 CIELAB L* 差大於 5 作為護欄。這是色票測試，不是所有視覺障礙的可用性保證；還要檢查底圖與透明度下的真實畫面。
 - 獨立 renderer（如犯罪統計）應單獨檢查 map／legend，不可假設共用 recipe 的色階會自動套用。行政邊界不是數值色階。
 
 方法參考：[ColorBrewer](https://colorbrewer2.org/learnmore/schemes_full.html)、[Matplotlib](https://matplotlib.org/stable/users/explain/colors/colormaps.html)、[Machado 2009 模擬矩陣](https://github.com/njsmith/colorspacious/blob/master/colorspacious/cvd.py)。

@@ -16,6 +16,13 @@ const themeOf = (isDark: boolean): Theme => (isDark ? "dark" : "light");
 export const MAP_SEAM = { dark: "#0a0a14", light: "#ffffff" } as const;
 export const mapSeamColor = (isDark: boolean) => MAP_SEAM[themeOf(isDark)];
 
+/**
+ * 底圖陸地實測色（§3.9 C-1）：正式站「全部關閉」截圖取像素（dark-v11 z7 `#292828`、light-v11 z7 `#f8f8fa`）。
+ * 圖例合成色（LG-14）與對比契約測試的底色；Pure Black、衛星等其他暗底圖一律以 dark 近似。
+ */
+export const BASEMAP_LAND = { dark: "#292828", light: "#f8f8fa" } as const;
+export const basemapLandColor = (isDark: boolean) => BASEMAP_LAND[themeOf(isDark)];
+
 /** 轉乘站（捷運站圖層）：白底＋深色描邊（仿官方捷運圖）；描邊取 token，暗色底圖用 textDim 才看得見。 */
 export const TRANSFER_STATION = { fill: "#ffffff", ring: { dark: COLORS.textDim, light: LIGHT.textDefault }, ringWidth: 2 } as const;
 export const transferRingColor = (isDark: boolean) => TRANSFER_STATION.ring[themeOf(isDark)];

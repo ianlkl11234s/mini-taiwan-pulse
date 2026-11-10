@@ -517,7 +517,7 @@
 - **尺寸**：input 高 14、2px 軌道、10px 圓點（`margin-top: -4px`）、圓點外 3px 12% 光暈；已拖段較亮（`--p` 由元件 inline 更新）。
 - **色**：`--slider-track`／`--slider-fill`／`--slider-thumb`（淡色 `--light-slider-*`）。
 - **狀態**：focus-visible → 圓點 `0 0 0 2px accent`。
-- **數值**：`valueText` 由 `splitSliderLabel()` 產生（§6.2）。
+- **數值**：`valueText` 由 `splitSliderLabel()` 產生（§6.2）。透明度滑桿顯示的就是實際套用的透明度，不在背後換算（2026-11-10 使用者決定）。預設值依底圖不同時（統計 choropleth 淡 0.55／暗 0.75），使用者沒動過滑桿則換底圖跟著換預設值，動過就保留（`map-layers.md` §3.6 K-4 統計例外）。
 - **禁止**：在共用元件以外寫原生 `type="range"`（guard `native-range`）；粗軌道、系統預設藍色滑桿。
 - **實作**：全站唯一元件 `src/components/controls/Slider.tsx`＋`slider.css`（`.ctl-range`），見 §5.28；圖層控制 `LayerParamControls.tsx` `SliderControl` 也用它（Phase Q 收斂，舊 `.lpc-range` 已刪）。
 
@@ -753,6 +753,7 @@
 - **色票同源**（R4）：色票顏色一律 import 與地圖 paint **同一個常數**（`src/map/layerPaintColors.ts`、各 `src/data/*Types.ts`），不在 `LegendPanel.tsx` 重抄色號；地圖暗淡不同色時，圖例依 `isDark` 取同一邊。
 - **主題**（LG-12）：文字色只用 `useLegendTheme()`（`DARK_LEGEND`／`LIGHT_LEGEND`），不直接用 `COLORS.*`。文字色取 `COLORS`／`LIGHT`；暗色 `bgSubtle`、`border` 目前是 inline rgba（§10.3）。
 - **尺寸常數**：`LEGEND_SWATCH`（點、方塊、線、分級、漸層、斜線、icon 14、間距 6）。`SwatchDot`／`SwatchSquare` 預設不透明度 0.9。
+- **合成色（LG-14，2026-11-10）**：面圖層的 `SwatchSquare`（實心、呼叫端未傳 `opacity`）與 `SwatchSteps` 在 `LegendFillOpacityCtx` 內時，畫「色 × 圖層目前填色透明度 × 底圖陸地色」的不透明合成色，加 1px `border`，跟透明度滑桿與底圖即時變；`LegendPanel` 依 overlayRegistry 自動提供透明度，統計圖例自己提供。查不到透明度（表達式、hook 自建、3D）維持原色票。規格 `map-layers.md` §4.2 LG-14、§3.9。
 - **尚無元件**：LG-5 大小（三圓）、LG-6 icon 還沒有共用元件，逐層做時補。
 - **字型**（LG-10）：面板容器 `FONT_CJK`；數字、分界、單位用 `LegendNum`（`FONT_DATA`＋tabular-nums）。
 - **精簡版**（LG-9）：`LegendPanel` 的 `compact`（停靠 popup 開著時）會讓 `LegendNote` 不顯示；色階、分界、單位不可收。
