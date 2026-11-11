@@ -2,7 +2,7 @@
 """City Sound Atlas 場景快照產生器（pulse-sound-scene-v1）。
 
 把「某一天、某個接收點周圍」的三類時變資料（航跡、落雷、雨量）裁切成一個小 JSON，
-讓場景在 Supabase 過了保留期之後仍可回放。垃圾車是週期班表，不進快照（前端照常讀 RPC）。
+讓場景在 Supabase 過了保留期之後仍可回放。垃圾車是週期班表，不進快照（前端照常讀既有垃圾車班表靜態快照）。
 
 輸出：public/sound-atlas/scenes/<id>.json
   public/**/*.json 已被 gitignore（CI-4）：檔案不進 git，產出後用
@@ -400,7 +400,7 @@ def build_scene(scene: dict) -> dict:
     notes: list[str] = [
         f"bbox＝接收點 ±{BBOX_HALF_KM:g} km；日期為臺北日 {scene['date']}。",
         "相對潛勢是無單位 0–1 的類別活躍度，不是 dB。",
-        "垃圾車是週期班表，不進快照；前端照常讀 get_waste_schedule_day。",
+        "垃圾車是週期班表，不進快照；前端照常讀既有班表靜態快照（get_waste_schedule_day_<dow>_<分組>.json）。",
     ]
     aviation = build_aviation(scene, bbox, notes)
     thunder = build_thunder(scene, bbox, notes)
