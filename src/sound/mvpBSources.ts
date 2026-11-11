@@ -126,6 +126,8 @@ export interface SceneRoadworkBlock {
   health: SnapshotHealth;
   /** 歸檔的 per_city（TDX 縣市代碼 → 筆數，含非施工事件）；>0 的縣市視為有發布 */
   per_city?: Record<string, number>;
+  /** 施工事件的裁切範圍（接收點 ±5 km，比場景 bbox 小）；接收點在外 → unknown */
+  bbox?: [number, number, number, number];
   events: RoadEvent[];
 }
 
@@ -137,7 +139,8 @@ export function parseMvpBSceneBlocks(json: unknown): { roadwork?: SceneRoadworkB
   const rw = (json as Record<string, unknown>).roadwork;
   if (!rw || typeof rw !== "object" || !Array.isArray((rw as { events?: unknown }).events) || !isHealth((rw as { health?: unknown }).health)) return {};
   const b = rw as SceneRoadworkBlock;
-  return { roadwork: { origin: typeof b.origin === "string" ? b.origin : undefined, health: b.health, per_city: b.per_city, events: b.events } };
+  const bbox = Array.isArray(b.bbox) && b.bbox.length === 4 && b.bbox.every((x) => typeof x === "number" && Number.isFinite(x)) ? b.bbox : undefined;
+  return { roadwork: { origin: typeof b.origin === "string" ? b.origin : undefined, health: b.health, per_city: b.per_city, bbox, events: b.events } };
 }
 
 export function coveredCitiesFromPerCity(perCity: Record<string, number> | undefined): string[] {
@@ -152,7 +155,7 @@ export function coveredCitiesFromPerCity(perCity: Record<string, number> | undef
 /** 快照施工區塊 → SoundSourceSet（coverage 直接取 health，不以 bbox 內筆數重判） */
 export function roadworkSnapshotSet(block: SceneRoadworkBlock, date: string): SoundSourceSet<RoadworkPayload, "roadwork"> {
   const start = taipeiMidnightMs(date) / 1000;
-  const { records } = roadEventsToRecords(block.events, date, coveredCitiesFromPerCity(block.per_city));
+  const { records } = roadEventsToRecords(block.events, date, coveredCitiesFromPerCity(block.per_city), block.bbox ?? null);
   return {
     family: "roadwork",
     dateKey: date,

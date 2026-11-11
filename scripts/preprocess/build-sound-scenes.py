@@ -29,9 +29,21 @@
     航跡以該日全台判定，所以 bbox 內 0 架仍是 ok（＝沒飛經），不是資料缺。
   - 雨量只保留接收點 ±RAIN_HALF_KM（15 km，比 bbox 小）內各站的每小時列（與 get_rain_gauge_day 同形，null 保持 null）。
 
+MVP-B（W4）施工區塊 `roadwork`（只有 S3，不需要 SUPABASE_DB_URL）：
+  - 來源：S3 road_event_planned/archives/<D>.tar.gz（TDX 縣市預告事件，collector 每 12 小時一抓；檔名日期＝收集時間的臺北日）。
+    讀 D−1 與 D 兩包，以 EventID 去重（同一事件取 LastUpdateTime 最新的版本）。
+  - 只留 EventType=2（施工）、許可期間（EffectiveTime～ExpireTime）與臺北日 D 重疊、幾何外框與「接收點 ±5 km」相交者
+    （區塊自帶 bbox；接收點移出該範圍時前端回 unknown）；
+    幾何取 Geometry，沒有時取 Positions（與 data-collectors supabase_writer._transform_road_event 相同），WKT 轉 GeoJSON。
+  - 列形狀＝前端 RoadEvent（src/data/roadEventsLoader.ts），前端與即時 RPC 共用 roadEventsToRecords。
+  - health：D 包存在且有資料＝ok、D 包存在但 0 筆＝empty、缺檔／讀取失敗＝error。per_city 取 D 包最後一個檔。
+  - 鐵道（班表類，即時算）與道路車流（只有道路類型 proxy，無流量來源）不進快照。
+  --merge-mvp-b：只把 roadwork 區塊併進既有場景檔（其他區塊原樣保留），不需要資料庫。
+
 用法（repo 根目錄）：
   SUPABASE_DB_URL=… AWS_PROFILE=… python3 scripts/preprocess/build-sound-scenes.py [--scene ID ...] [--out DIR]
   python3 scripts/preprocess/build-sound-scenes.py --list
+  AWS_PROFILE=… python3 -I scripts/preprocess/build-sound-scenes.py --merge-mvp-b [--scene ID ...]
 只用標準函式庫（可用 python3 -I 執行）。
 """
 from __future__ import annotations
@@ -394,6 +406,226 @@ def build_rain(scene: dict, notes: list[str]) -> dict:
 # ── 主流程 ──────────────────────────────────────────────────
 
 
+# ── 施工（MVP-B，S3 only）───────────────────────────────────
+
+ROADWORK_EVENT_TYPES = (2,)
+# 施工只留接收點 ±5 km（引擎候選半徑 300 m；±30 km 會讓臺北場景超過 2 MB）。
+# 區塊自帶 bbox，接收點移出這個範圍時前端回 unknown（不會被當成「沒有施工」）。
+ROADWORK_HALF_KM = 5.0
+ROADWORK_ARCHIVE = "road_event_planned/archives"
+DESC_MAX = 200
+
+
+def _wkt_tokens(text: str):
+    i = 0
+    while i < len(text):
+        c = text[i]
+        if c in "(),":
+            yield c
+            i += 1
+        elif c.isspace():
+            i += 1
+        else:
+            j = i
+            while j < len(text) and text[j] not in "(), \t\n":
+                j += 1
+            yield text[i:j]
+            i = j
+
+
+def wkt_to_geojson(wkt: str | None) -> dict | None:
+    """標準函式庫版 WKT → GeoJSON（POINT／LINESTRING／POLYGON 與 MULTI*）；無法解析回 None。"""
+    if not wkt or not isinstance(wkt, str):
+        return None
+    wkt = wkt.strip()
+    if wkt.upper().startswith("SRID="):
+        wkt = wkt.split(";", 1)[1]
+    head = wkt.split("(", 1)[0].strip().upper()
+    kinds = {"POINT": "Point", "LINESTRING": "LineString", "POLYGON": "Polygon", "MULTIPOINT": "MultiPoint", "MULTILINESTRING": "MultiLineString", "MULTIPOLYGON": "MultiPolygon"}
+    if head not in kinds or "(" not in wkt:
+        return None
+    toks = list(_wkt_tokens(wkt[len(wkt.split("(", 1)[0]):]))
+    pos = 0
+
+    def parse():
+        nonlocal pos
+        assert toks[pos] == "("
+        pos += 1
+        items, nums = [], []
+        while toks[pos] != ")":
+            t = toks[pos]
+            if t == "(":
+                items.append(parse())
+            elif t == ",":
+                if nums:
+                    items.append(nums)
+                    nums = []
+                pos += 1
+            else:
+                nums.append(float(t))
+                pos += 1
+        if nums:
+            items.append(nums)
+        pos += 1
+        return items
+
+    try:
+        body = parse()
+    except (AssertionError, IndexError, ValueError):
+        return None
+    typ = kinds[head]
+    if typ == "Point":
+        coords = body[0] if body else None
+    elif typ == "MultiPoint":  # MULTIPOINT((x y),(x y)) 或 MULTIPOINT(x y, x y)
+        coords = [c[0] if isinstance(c[0], list) else c for c in body]
+    else:
+        coords = body
+    if not coords:
+        return None
+
+    def r(x):
+        return [round(v, 6) for v in x] if x and isinstance(x[0], float) else [r(v) for v in x]
+
+    return {"type": typ, "coordinates": r(coords)}
+
+
+def _geo_bbox(g: dict) -> list[float] | None:
+    xs, ys = [], []
+
+    def walk(c):
+        if c and isinstance(c[0], (int, float)):
+            xs.append(c[0])
+            ys.append(c[1])
+        else:
+            for v in c:
+                walk(v)
+
+    walk(g["coordinates"])
+    return [min(xs), min(ys), max(xs), max(ys)] if xs else None
+
+
+def _iso_ts(s: str | None) -> int | None:
+    if not s:
+        return None
+    try:
+        t = dt.datetime.fromisoformat(s)
+    except ValueError:
+        return None
+    if t.tzinfo is None:
+        t = t.replace(tzinfo=TPE)
+    return int(t.timestamp())
+
+
+def _planned_archive(date: str) -> list[dict] | None:
+    """road_event_planned 某日歸檔的各檔 JSON（依檔名排序）；缺檔回 None"""
+    try:
+        raw = s3_bytes(f"{ROADWORK_ARCHIVE}/{date}.tar.gz")
+    except RuntimeError:
+        return None
+    docs = []
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as tf:
+        for m in sorted(tf.getmembers(), key=lambda m: m.name):
+            if m.isfile() and m.name.endswith(".json"):
+                docs.append(json.load(tf.extractfile(m)))
+    return docs
+
+
+def tdx_event_to_row(ev: dict) -> dict | None:
+    """TDX RoadEvent（歸檔原樣）→ 前端 RoadEvent 同形列；幾何同 supabase_writer：Geometry 優先，否則 Positions"""
+    geom = wkt_to_geojson(ev.get("Geometry")) or wkt_to_geojson(ev.get("Positions"))
+    loc = ev.get("Location") or {}
+    feh = loc.get("FreeExpressHighway") or {}
+    enrich = ev.get("_enrich") or {}
+    desc = ev.get("Description")
+    return {
+        "event_id": ev.get("EventID"),
+        "source": ev.get("_source"),
+        "event_type": ev.get("EventType"),
+        "event_subtype": ev.get("EventSubType"),
+        "event_step": ev.get("EventStep"),
+        "severity": (ev.get("Impact") or {}).get("Severity"),
+        "road_name": feh.get("Road"),
+        "direction": feh.get("Direction"),
+        "start_km": enrich.get("start_km"),
+        "end_km": enrich.get("end_km"),
+        "title": ev.get("EventTitle"),
+        "description": desc[:DESC_MAX] if isinstance(desc, str) else None,
+        "location_other": loc.get("Other"),
+        "blocked_lanes": (ev.get("Impact") or {}).get("BlockedLanes"),
+        "geometry": geom,
+        "matched_section_id": enrich.get("matched_section_id"),
+        "enrich_status": enrich.get("enrich_status"),
+        # 與 roadEventsLoader 相同：缺生效時間 → 0（前端不當進行中）；缺到期 → null
+        "start_ts": _iso_ts(ev.get("EffectiveTime")) or 0,
+        "end_ts": _iso_ts(ev.get("ExpireTime")),
+        "last_updated_ts": _iso_ts(ev.get("LastUpdateTime")) or 0,
+        "_city": ev.get("_city"),
+    }
+
+
+def build_roadwork(scene: dict, _scene_bbox: list[float], notes: list[str]) -> dict:
+    date = scene["date"]
+    bbox = bbox_around(scene["receiver"]["lon"], scene["receiver"]["lat"], ROADWORK_HALF_KM)
+    start, end = day_window(date)
+    today = _planned_archive(date)
+    prev = _planned_archive(shift(date, -1)) or []
+    if today is None:
+        notes.append(f"施工：S3 {ROADWORK_ARCHIVE}/{date}.tar.gz 缺檔 → health=error（前端回 unknown）。")
+        return {"origin": f"s3:{ROADWORK_ARCHIVE}", "health": "error", "bbox": bbox, "per_city": {}, "events": []}
+    per_city = (today[-1].get("per_city") if today else None) or {}
+    latest: dict[str, dict] = {}
+    total_type2 = 0
+    for doc in prev + today:
+        for ev in doc.get("data") or []:
+            eid = ev.get("EventID")
+            if not eid:
+                continue
+            old = latest.get(eid)
+            if old is None or (ev.get("LastUpdateTime") or "") >= (old.get("LastUpdateTime") or ""):
+                latest[eid] = ev
+    rows = []
+    for ev in latest.values():
+        if ev.get("EventType") not in ROADWORK_EVENT_TYPES:
+            continue
+        total_type2 += 1
+        row = tdx_event_to_row(ev)
+        if not row or not row["geometry"]:
+            continue
+        s_ts, e_ts = row["start_ts"], row["end_ts"]
+        if s_ts and s_ts >= end:
+            continue
+        if e_ts is not None and e_ts <= start:
+            continue
+        gb = _geo_bbox(row["geometry"])
+        if not gb or gb[2] < bbox[0] or gb[0] > bbox[2] or gb[3] < bbox[1] or gb[1] > bbox[3]:
+            continue
+        rows.append(row)
+    rows.sort(key=lambda r: r["event_id"])
+    health = "ok" if total_type2 > 0 else "empty"
+    notes.append(
+        f"施工：S3 {ROADWORK_ARCHIVE} {shift(date, -1)}＋{date}（{len(today)} 個檔），全台施工事件 {total_type2} 筆，"
+        f"接收點 ±{ROADWORK_HALF_KM:g} km 內且許可期間與當日重疊 {len(rows)} 筆（移出此範圍前端回 unknown）；per_city＝{json.dumps(per_city, ensure_ascii=False)}（0 筆的縣市視為沒發布 → unknown）。"
+        "許可期間≠機具運轉，沒有每日工時。"
+    )
+    return {"origin": f"s3:{ROADWORK_ARCHIVE}", "health": health, "bbox": bbox, "per_city": per_city, "events": rows}
+
+
+def merge_mvp_b(path: str, scene: dict) -> dict:
+    """既有場景檔只加 roadwork 區塊（其他區塊原樣）；鐵道與車流不進快照"""
+    with open(path, encoding="utf-8") as f:
+        doc = json.load(f)
+    if doc.get("schema") != SCHEMA or doc.get("id") != scene["id"]:
+        raise RuntimeError(f"{path}: schema/id mismatch")
+    notes = [n for n in doc.get("notes_zh", []) if not n.startswith("施工：") and not n.startswith("MVP-B：")]
+    rw_notes: list[str] = []
+    doc["roadwork"] = build_roadwork(scene, doc["bbox"], rw_notes)
+    notes += rw_notes
+    notes.append("MVP-B：鐵道是班表、前端即時算，不進快照；道路車流只有國道道路類型 proxy（無車流量來源），不進快照。")
+    doc["notes_zh"] = notes
+    doc["generated_at"] = dt.datetime.now(TPE).replace(microsecond=0).isoformat()
+    return doc
+
+
 def build_scene(scene: dict) -> dict:
     rc = scene["receiver"]
     bbox = bbox_around(rc["lon"], rc["lat"], BBOX_HALF_KM)
@@ -405,6 +637,8 @@ def build_scene(scene: dict) -> dict:
     aviation = build_aviation(scene, bbox, notes)
     thunder = build_thunder(scene, bbox, notes)
     rain = build_rain(scene, notes)
+    roadwork = build_roadwork(scene, bbox, notes)
+    notes.append("MVP-B：鐵道是班表、前端即時算，不進快照；道路車流只有國道道路類型 proxy（無車流量來源），不進快照。")
     return {
         "schema": SCHEMA,
         "id": scene["id"],
@@ -422,6 +656,7 @@ def build_scene(scene: dict) -> dict:
         "aviation": aviation,
         "thunder": thunder,
         "rain": rain,
+        "roadwork": roadwork,
         "notes_zh": notes,
         "generated_at": dt.datetime.now(TPE).replace(microsecond=0).isoformat(),
     }
@@ -432,6 +667,7 @@ def main() -> int:
     ap.add_argument("--scene", action="append", help="只產指定場景（可重複）")
     ap.add_argument("--out", default=os.path.join(REPO, "public", "sound-atlas", "scenes"))
     ap.add_argument("--list", action="store_true")
+    ap.add_argument("--merge-mvp-b", action="store_true", help="只把 roadwork 區塊併進 --out 內既有場景檔（不需要資料庫）")
     args = ap.parse_args()
     if args.list:
         for s in SCENES:
@@ -444,6 +680,17 @@ def main() -> int:
     os.makedirs(args.out, exist_ok=True)
     rc = 0
     for s in targets:
+        path = os.path.join(args.out, f"{s['id']}.json")
+        if args.merge_mvp_b:
+            doc = merge_mvp_b(path, s)
+            body = json.dumps(doc, ensure_ascii=False, separators=(",", ":"))
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(body)
+            size = len(body.encode())
+            rw = doc["roadwork"]
+            print(f"{s['id']}: {size / 1024:.0f} KB  roadwork health={rw['health']} events={len(rw['events'])}{'' if size <= MAX_BYTES else '  ⚠ 超過 2 MB'}")
+            rc |= 1 if size > MAX_BYTES else 0
+            continue
         doc = build_scene(s)
         body = json.dumps(doc, ensure_ascii=False, separators=(",", ":"))
         path = os.path.join(args.out, f"{s['id']}.json")

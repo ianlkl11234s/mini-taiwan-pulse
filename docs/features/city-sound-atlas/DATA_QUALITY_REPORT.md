@@ -108,3 +108,35 @@ focus_time 瞬時查詢：
 - 快照尚未上傳 S3（lock 已登記 `delivery=r2`）；發版前要跑 `scripts/deploy/upload-deploy-assets.sh`，否則正式站 404。見 handoff。
 - cwa `event_id` > 2^53 的精度問題在既有 RPC 路徑也存在，未修。
 - VALIDATION_REPORT.md（計畫 §13：測試、瀏覽器驗收、效能）未寫，待 W2 UI 完成後補。
+
+## 8. MVP-B（W4，2026-11-11）：施工區塊與三新家族引擎實跑
+
+模型 `sound-atlas-mvp-b-0.2.0`。查核與口徑見 [MVP_B_SOURCES.md](./MVP_B_SOURCES.md)。
+
+**快照變更**：三個場景檔加 `roadwork` 區塊（`build-sound-scenes.py --merge-mvp-b`，只讀 S3、不需資料庫；其他區塊原樣）。
+
+| id | 檔案 | 施工 health | 全台施工事件（EventType 2） | 接收點 ±5 km 且許可與當日重疊 | per_city=0（視為未涵蓋） |
+|---|---|---|---|---|---|
+| taipei-1109 | 1,513 KB | ok | 1,644 | 2 | 臺南、高雄、宜蘭、金門 |
+| taichung-heping-1108 | 166 KB | ok | 2,037 | 0 | 臺南、高雄、金門 |
+| taipei-typhoon-1024 | 1,060 KB | ok | 2,686 | 0 | 臺南、高雄 |
+
+- 施工只裁切接收點 ±5 km（第一次用 ±30 km，兩個臺北場景到 2.3 MB 超標）；區塊帶 `bbox`，接收點移出 → unknown。
+- 鐵道（班表，即時算）與道路車流（只有道路類型 proxy）不進快照。
+- 三檔 sha 已變，`deploy/public-assets.lock.json` 未改（共用登記檔），要重登記並上傳。
+
+**引擎實跑**（10 分鐘格 ×144；鐵道用本機固定時刻表範本 basis=local_template，不是場景日實際班表；道路車流 node 讀不到 RPC）：
+
+| 場景 | 家族 | active | inactive | unknown | unavailable | 最強值＠時刻 | 說明 |
+|---|---|---|---|---|---|---|---|
+| taipei-1109 | 鐵道 | 111 | 33 | 0 | 0 | 0.083＠00:00 格 | 文湖線內湖段高架，最近約 0.9 km；01–06 時無車 |
+| | 道路車流 | 0 | 0 | 0 | 144 | — | source_not_loaded |
+| | 施工 | 0 | 144 | 0 | 0 | — | 2 筆許可都在 300 m 外 |
+| taichung-heping-1108 | 鐵道 | 0 | 144 | 0 | 0 | — | 1.5 km 內無軌道 |
+| | 道路車流 | 0 | 0 | 0 | 144 | — | |
+| | 施工 | 0 | 0 | 144 | 0 | — | 外框同時落在花蓮縣（未涵蓋）→ roadwork_city_not_covered |
+| taipei-typhoon-1024 | 鐵道 | 0 | 144 | 0 | 0 | — | 1.5 km 內無軌道；颱風停駛不反映（班表） |
+| | 道路車流 | 0 | 0 | 0 | 144 | — | |
+| | 施工 | 0 | 144 | 0 | 0 | — | |
+
+focus_time：臺北 07:39:30 鐵道 0.074（881 m，elevated）；和平 10:25:34 施工 unknown；颱風 14:03 鐵道、施工 inactive。MVP-A 四族數值與 §5 相同（未改）。

@@ -28,6 +28,8 @@ export type RoadworkPayload =
       /** 這組資料的空間涵蓋（哪些縣市有發布施工事件） */
       kind: "coverage";
       coveredCities: readonly string[];
+      /** 快照裁切範圍 [w,s,e,n]；接收點（含候選半徑）超出 → unknown。即時 RPC 為 null（全台） */
+      bbox: readonly [number, number, number, number] | null;
     };
 
 export type RoadworkRecord = SoundSourceRecord<RoadworkPayload, "roadwork">;
@@ -41,6 +43,13 @@ export function receiverCovered(receiver: Pick<Receiver, "longitude" | "latitude
   return { covered: cities.length > 0 && cities.every((c) => coveredCities.includes(c)), cities };
 }
 
+/** 接收點連同候選半徑都在 bbox 內 */
+function receiverInsideBbox(receiver: Pick<Receiver, "longitude" | "latitude">, b: readonly [number, number, number, number], radiusM: number): boolean {
+  const dLat = radiusM / 111_195;
+  const dLon = radiusM / (111_195 * Math.cos((receiver.latitude * Math.PI) / 180));
+  return receiver.longitude - dLon >= b[0] && receiver.longitude + dLon <= b[2] && receiver.latitude - dLat >= b[1] && receiver.latitude + dLat <= b[3];
+}
+
 /** 生命週期上界（unix 秒）：ExpireTime；沒有時用 isRoadEventActive 的新鮮度規則判定，這裡只給篩選用的寬鬆上界 */
 function permitEnd(e: RoadEvent): number {
   return e.end_ts ?? e.last_updated_ts + 36 * 3600;
@@ -50,6 +59,7 @@ export function roadEventsToRecords(
   events: readonly RoadEvent[],
   dateKey: string,
   coveredCities: readonly string[],
+  bbox: readonly [number, number, number, number] | null = null,
 ): { records: RoadworkRecord[]; skipped: { notRoadwork: number; noStart: number; noGeometry: number } } {
   const dayStart = taipeiMidnightMs(dateKey) / 1000;
   const skipped = { notRoadwork: 0, noStart: 0, noGeometry: 0 };
@@ -58,7 +68,7 @@ export function roadEventsToRecords(
       id: ROADWORK_COVERAGE_ID,
       family: "roadwork",
       geometryKind: "area",
-      payload: { kind: "coverage", coveredCities },
+      payload: { kind: "coverage", coveredCities, bbox },
       validFrom: dayStart,
       validUntil: dayStart + 86_400,
       modelVersion: MODEL_VERSION,
@@ -137,6 +147,8 @@ export const queryRoadworkInterval: IntervalQuery<RoadworkPayload, "roadwork"> =
   const coverage = records.find((r) => r.payload.kind === "coverage");
   const coveredCities = coverage && coverage.payload.kind === "coverage" ? coverage.payload.coveredCities : ROADWORK.coveredCities.value;
   const cov = receiverCovered(receiver, coveredCities);
+  const bbox = coverage && coverage.payload.kind === "coverage" ? coverage.payload.bbox : null;
+  const outsideBbox = bbox != null && !receiverInsideBbox(receiver, bbox, radius);
   for (const r of records) {
     const p = r.payload;
     if (p.kind !== "permit") continue;
@@ -176,7 +188,23 @@ export const queryRoadworkInterval: IntervalQuery<RoadworkPayload, "roadwork"> =
       });
     }
   }
-  if (!cov.covered) {
+  if (outsideBbox) {
+    contributions.push({
+      sourceId: ROADWORK_COVERAGE_ID,
+      family: "roadwork",
+      status: "unknown",
+      unknownReason: "outside_snapshot_bbox",
+      sourceTime: iso(t0),
+      spatialDistanceM: null,
+      relativePotential: null,
+      modeledDbA: null,
+      evidence: "scheduled",
+      spatialPrecision: "none",
+      temporalPrecision: "none",
+      acousticConfidence: "unmeasured",
+      notes: [`snapshot_bbox:${bbox!.join(",")}`],
+    });
+  } else if (!cov.covered) {
     contributions.push({
       sourceId: ROADWORK_COVERAGE_ID,
       family: "roadwork",

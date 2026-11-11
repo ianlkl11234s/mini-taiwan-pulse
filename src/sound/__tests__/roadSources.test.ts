@@ -148,6 +148,11 @@ describe("roadworkAdapter（C01）", () => {
     const r = queryReceiver(RECV, NOON, [set], ["roadwork"]);
     expect(r.families[0]!.status).toBe("inactive"); // bbox 內 0 筆＋health ok＝真的沒有
     expect(parseMvpBSceneBlocks({ roadwork: { health: "weird", events: [] } }).roadwork).toBeUndefined();
+    // 快照只裁切接收點 ±5 km：接收點移出區塊 bbox → unknown，不是「沒有施工」
+    const clipped = roadworkSnapshotSet({ ...block, bbox: [121.6, 25.05, 121.7, 25.15] }, DATE);
+    const out = queryReceiver(RECV, NOON, [clipped], ["roadwork"]);
+    expect(out.families[0]!.status).toBe("unknown");
+    expect(out.families[0]!.reason).toBe("outside_snapshot_bbox");
     const empty = roadworkSnapshotSet({ ...block, health: "empty" }, DATE);
     expect(queryReceiver(RECV, NOON, [empty], ["roadwork"]).families[0]!.status).toBe("unknown");
   });
