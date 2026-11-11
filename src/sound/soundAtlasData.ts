@@ -3,17 +3,26 @@
  * 不 import React；hook 呼叫這裡，測試可直接打。
  */
 import { fetchAirspaceDayArrow } from "../data/airspaceLoader";
-import { fetchLightningDay } from "../data/lightningLoader";
+import { flightRowsToFlights } from "../data/flightTrails";
+import { fetchLightningDay, type LightningSource, type LightningStrike } from "../data/lightningLoader";
 import { fetchRainGaugeDay } from "../data/rainGaugeLoader";
+import { taipeiMidnightMs } from "../lib/taipeiDay";
 import type { Flight } from "../types";
-import { AVIATION, RAIN } from "./model/soundProfiles";
+import { AVIATION, RAIN, THUNDER } from "./model/soundProfiles";
+import { clipCoverageEnd } from "./engines/coverageWindow";
 import { haversineM } from "./engines/geometryDistance";
-import { aviationPositionAt, loadAviation, type AviationRecord } from "./sourceAdapters/aviationAdapter";
-import { loadRain, nearestRainStation, type RainRecord } from "./sourceAdapters/rainFieldAdapter";
-import { loadThunder, type ThunderRecord } from "./sourceAdapters/thunderAdapter";
+import { aviationPositionAt, flightsToAviationRecords, loadAviation, type AviationRecord } from "./sourceAdapters/aviationAdapter";
+import { loadRain, nearestRainStation, rainRowsToRecords, type RainRecord } from "./sourceAdapters/rainFieldAdapter";
+import {
+  fetchThunderSourceResults,
+  loadThunder,
+  thunderSetFromResults,
+  type ThunderRecord,
+  type ThunderSourceResult,
+} from "./sourceAdapters/thunderAdapter";
 import { loadWaste, type WasteRecord } from "./sourceAdapters/wasteAdapter";
-import { snapshotApplies, snapshotFetchers, type SoundSceneSnapshot } from "./scenes";
-import type { Receiver, SoundSourceFamily, SoundSourceRecord, SoundSourceSet } from "./types";
+import { snapshotApplies, type SnapshotHealth, type SoundSceneSnapshot } from "./scenes";
+import type { Receiver, SoundSourceFamily, SoundSourceRecord, SoundSourceSet, SourceContribution, SourceCoverage } from "./types";
 
 // ── 垃圾車：只讀接收點所在（含附近）縣市 ───────────────────
 
@@ -100,6 +109,64 @@ function sceneHasBlock(snapshot: SoundSceneSnapshot, family: SoundSourceFamily):
   return false;
 }
 
+type LightningFetcher = (date: string, source: LightningSource) => Promise<LightningStrike[]>;
+
+function snapshotCoverage(
+  family: SoundSourceFamily,
+  provider: string,
+  date: string,
+  status: SnapshotHealth,
+  nowUnix: number,
+): SourceCoverage {
+  const start = taipeiMidnightMs(date) / 1000;
+  const base = { family, provider, dateKey: date, windowStart: start, windowEnd: clipCoverageEnd(start, nowUnix), temporalKind: "day_series" as const };
+  return status === "ok" ? { ...base, status } : { ...base, status, reason: `scene_snapshot_health_${status}` };
+}
+
+/**
+ * 場景快照區塊 → SoundSourceSet（與 scripts/preprocess/verify-sound-scenes.ts 的 sceneToSets 同規則）：
+ * - coverage 一律取快照 health，**不可**用 bbox 內筆數重判：快照只留接收點附近的資料，
+ *   health=ok 但 0 筆 ＝ 附近真的沒有（inactive），不是 empty／unknown；
+ * - aviation／rain 沒寫 health 的舊快照：有列 → ok、沒列 → empty；
+ * - 落雷：health=error 的來源不採事件；THUNDER.sources 裡快照沒寫 health 的來源改走即時 RPC。
+ * 回傳 null ＝ 快照沒有這個區塊（呼叫端走即時）。
+ */
+export async function snapshotSet(
+  snapshot: SoundSceneSnapshot,
+  family: SoundSourceFamily,
+  nowUnix: number = Date.now() / 1000,
+  liveThunder: LightningFetcher = fetchLightningDay,
+): Promise<SoundSourceSet | null> {
+  const date = snapshot.date;
+  if (family === "aviation" && snapshot.aviation) {
+    const { rows, health } = snapshot.aviation;
+    const status = health ?? (rows.length ? "ok" : "empty");
+    const records = status === "error" ? [] : flightsToAviationRecords(flightRowsToFlights(rows).flights);
+    return { family, dateKey: date, records, coverage: [snapshotCoverage(family, "flight_trails", date, status, nowUnix)] };
+  }
+  if (family === "rain" && snapshot.rain) {
+    const { rows, health } = snapshot.rain;
+    const status = health ?? (rows.length ? "ok" : "empty");
+    const records = status === "error" ? [] : rainRowsToRecords(rows);
+    return { family, dateKey: date, records, coverage: [snapshotCoverage(family, "cwa_rain_gauge", date, status, nowUnix)] };
+  }
+  if (family === "thunder" && snapshot.thunder) {
+    const th = snapshot.thunder;
+    const sources = THUNDER.sources.value;
+    const missing = sources.filter((src) => !th.health?.[src]);
+    const live = missing.length ? await fetchThunderSourceResults(date, liveThunder, missing) : [];
+    const results = sources.map((source): ThunderSourceResult => {
+      const h = th.health?.[source];
+      if (!h) return live.find((r) => r.source === source)!;
+      if (h === "error") return { source, status: "error", reason: "scene_snapshot_health_error" };
+      const strikes = h === "ok" ? th.events.filter((e) => e.source === source) : [];
+      return h === "ok" ? { source, status: "ok", strikes } : { source, status: "empty", strikes, reason: "scene_snapshot_health_empty" };
+    });
+    return thunderSetFromResults({ date, nowUnix }, results);
+  }
+  return null;
+}
+
 /**
  * 載入一個家族：場景快照適用且有該區塊 → 快照；否則即時 RPC／靜態檔。
  * 回傳 null 表示這個家族目前不需要載入（垃圾車沒有接收點）。
@@ -111,19 +178,53 @@ export async function loadSoundFamily(
   snapshot: SoundSceneSnapshot | null,
   nowUnix: number = Date.now() / 1000,
 ): Promise<LoadedFamily | null> {
-  const applies = snapshotApplies(snapshot, date, receiver);
-  const fx = applies && snapshot ? snapshotFetchers(snapshot, fetchLightningDay) : {};
+  if (family === "waste_collection") {
+    if (!receiver) return null;
+    return { set: await loadWaste({ date, cities: citiesNearReceiver(receiver) }), origin: "live" };
+  }
+  if (snapshot && snapshotApplies(snapshot, date, receiver)) {
+    const set = await snapshotSet(snapshot, family, nowUnix);
+    if (set) return { set, origin: "scene" };
+  }
   switch (family) {
     case "aviation":
-      return { set: await loadAviation({ date, nowUnix }, fx.aviation ?? cachedAviationDay), origin: fx.aviation ? "scene" : "live" };
+      return { set: await loadAviation({ date, nowUnix }, cachedAviationDay), origin: "live" };
     case "rain":
-      return { set: await loadRain({ date }, fx.rain ?? fetchRainGaugeDay), origin: fx.rain ? "scene" : "live" };
+      return { set: await loadRain({ date }, fetchRainGaugeDay), origin: "live" };
     case "thunder":
-      return { set: await loadThunder({ date, nowUnix }, fx.thunder ?? fetchLightningDay), origin: fx.thunder ? "scene" : "live" };
-    case "waste_collection":
-      if (!receiver) return null;
-      return { set: await loadWaste({ date, cities: citiesNearReceiver(receiver) }), origin: "live" };
+      return { set: await loadThunder({ date, nowUnix }, fetchLightningDay), origin: "live" };
   }
+}
+
+// ── 面板「此刻主要來源」列表 ─────────────────────────────
+
+export interface TopContributions {
+  rows: SourceContribution[];
+  /** 低於顯示門檻、併成一行的遠方航機（count=0 → 不顯示） */
+  farAviation: { count: number; maxPotential: number };
+}
+
+/**
+ * 只為顯示：相對潛勢低於 AVIATION.displayMinPotential 的 active 航機不逐筆列，併成「遠方航機」。
+ * unknown（潛勢 null）照常列出，不被當成「遠」；其他家族不受影響。
+ */
+export function topContributionsForDisplay(
+  contributions: readonly SourceContribution[],
+  limit: number,
+  minAviation: number = AVIATION.displayMinPotential.value,
+): TopContributions {
+  const rows: SourceContribution[] = [];
+  let count = 0;
+  let maxPotential = 0;
+  for (const c of contributions) {
+    if (c.family === "aviation" && c.status === "active" && c.relativePotential != null && c.relativePotential < minAviation) {
+      count++;
+      maxPotential = Math.max(maxPotential, c.relativePotential);
+      continue;
+    }
+    if (rows.length < limit) rows.push(c);
+  }
+  return { rows, farAviation: { count, maxPotential } };
 }
 
 // ── 接收點周邊預篩（只為效能；結果必須與不篩相同）──────────

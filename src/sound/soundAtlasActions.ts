@@ -4,8 +4,8 @@
  */
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { requestTimelineJump } from "../state/timelineJumpBridge";
-import { fetchSceneSnapshot, findScene, type SoundSceneId } from "./scenes";
-import { getSoundAtlasMap, makeReceiver, soundAtlasStore } from "./soundAtlasStore";
+import { fetchSceneSnapshot, findScene, sceneFallbackFocusUnix, type SoundSceneId } from "./scenes";
+import { DEFAULT_RECEIVER_HEIGHT_M, getSoundAtlasMap, makeReceiver, soundAtlasStore } from "./soundAtlasStore";
 
 export function selectSoundScene(id: SoundSceneId | null): void {
   if (!id) {
@@ -14,32 +14,27 @@ export function selectSoundScene(id: SoundSceneId | null): void {
   }
   const def = findScene(id);
   if (!def) return;
-  // 先寫場景與接收點，再撥時間軸：日期切換觸發載入時，已能判斷快照是否適用
-  soundAtlasStore.set({
-    sceneId: id,
-    snapshot: null,
-    snapshotStatus: "loading",
-    placing: false,
-    receiver: makeReceiver(def.receiver.lon, def.receiver.lat, def.receiver.heightM),
-  });
+  soundAtlasStore.set({ sceneId: id, snapshot: null, snapshotStatus: "loading", placing: false });
   for (const key of def.companionLayers ?? []) layerVisibilityStore.setVisibility(key, true);
-  getSoundAtlasMap()?.flyTo({ center: [def.receiver.lon, def.receiver.lat], zoom: def.zoom, essential: true });
-  requestTimelineJump(Date.parse(def.focusTime) / 1000);
 
+  // 接收點與焦點時刻只看快照（不寫死在前端）。先寫快照與接收點、再撥時間軸：
+  // 日期切換觸發載入時，已能判斷快照是否適用。
   void fetchSceneSnapshot(id).then((snap) => {
     if (soundAtlasStore.get().sceneId !== id) return;
     if (!snap) {
+      // 快照讀不到：只把時間軸撥到場景日期中午，接收點不動（來源全走即時）
       soundAtlasStore.set({ snapshotStatus: "missing" });
+      requestTimelineJump(sceneFallbackFocusUnix(def));
       return;
     }
     const r = snap.receiver;
     soundAtlasStore.set({
       snapshot: snap,
       snapshotStatus: "loaded",
-      ...(r ? { receiver: makeReceiver(r.lon, r.lat, r.height_m ?? def.receiver.heightM) } : {}),
+      ...(r ? { receiver: makeReceiver(r.lon, r.lat, r.height_m ?? DEFAULT_RECEIVER_HEIGHT_M) } : {}),
     });
     if (r) getSoundAtlasMap()?.flyTo({ center: [r.lon, r.lat], zoom: def.zoom, essential: true });
-    if (snap.focus_time && snap.focus_time !== def.focusTime) requestTimelineJump(Date.parse(snap.focus_time) / 1000);
+    requestTimelineJump(snap.focus_time ? Date.parse(snap.focus_time) / 1000 : sceneFallbackFocusUnix(def));
   });
 }
 

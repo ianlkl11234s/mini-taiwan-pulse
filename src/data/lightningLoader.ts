@@ -14,6 +14,8 @@ import { padTaipeiDaily } from "../lib/taipeiDay";
 
 export interface LightningStrike {
   event_id: number;
+  /** 字串版 event_id（CWA id 超過 2^53 時 number 會失真；有給就以它為準） */
+  event_id_str?: string;
   strike_ts: number;
   intensity_ka: number | null;
   strike_type: number; // 0=雲對地, 1=雲中

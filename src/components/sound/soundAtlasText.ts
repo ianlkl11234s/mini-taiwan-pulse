@@ -34,10 +34,11 @@ export const HEALTH_KEYS: Record<SourceHealth, MessageKey> = {
   unavailable: "soundAtlas.health.unavailable",
 };
 
-export const SCENE_KEYS: Record<SoundSceneId, { title: MessageKey; reason: MessageKey }> = {
-  "taipei-1109": { title: "soundAtlas.scene.taipei1109", reason: "soundAtlas.scene.taipei1109Reason" },
-  "taichung-heping-1108": { title: "soundAtlas.scene.heping1108", reason: "soundAtlas.scene.heping1108Reason" },
-  "taipei-typhoon-1024": { title: "soundAtlas.scene.typhoon1024", reason: "soundAtlas.scene.typhoon1024Reason" },
+/** 場景下拉選單標題（選點理由不在這裡：一律讀快照 receiver.reason_zh） */
+export const SCENE_KEYS: Record<SoundSceneId, { title: MessageKey }> = {
+  "taipei-1109": { title: "soundAtlas.scene.taipei1109" },
+  "taichung-heping-1108": { title: "soundAtlas.scene.heping1108" },
+  "taipei-typhoon-1024": { title: "soundAtlas.scene.typhoon1024" },
 };
 
 export function providerKey(provider: string): MessageKey {

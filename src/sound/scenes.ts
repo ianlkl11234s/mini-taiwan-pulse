@@ -2,18 +2,17 @@
  * City Sound Atlas — 真實場景（計畫書 §8 B「案例必用實際有資料日」）。
  *
  * 兩層：
- * 1. 內建定義 `SOUND_SCENES`：日期、焦點時刻、接收點與選點理由。快照還沒產出時場景照樣可用
- *    （來源走即時 RPC）。
+ * 1. 內建清單 `SOUND_SCENES`：只有 id、日期、鏡頭。接收點、焦點時刻、選點理由都讀快照。
  * 2. 場景快照 `public/sound-atlas/scenes/<id>.json`（schema pulse-sound-scene-v1，W3 產出）：
- *    有快照就用快照的 aviation／thunder／rain 區塊；**缺哪一塊，那一塊就走即時 RPC**；
+ *    有快照就用快照的 aviation／thunder／rain 區塊，coverage 直接取快照的 health（不以筆數重判）；
+ *    **缺哪一塊，那一塊就走即時 RPC**；
  *    RPC 也查不到 → adapter 回 empty／error，引擎回 unknown／unavailable（T12），不以今天資料回填。
  *
  * ⚠️ 快照只涵蓋 bbox：接收點移出 bbox、或時間軸日期不是場景日期 → 整份快照不用，改走 RPC，
  *    否則 bbox 外會被算成「健康但沒有來源」＝0（T18）。
  */
-import type { Flight } from "../types";
-import { flightRowsToFlights, type FlightTrailRow } from "../data/flightTrails";
-import type { LightningSource, LightningStrike } from "../data/lightningLoader";
+import type { FlightTrailRow } from "../data/flightTrails";
+import type { LightningSource } from "../data/lightningLoader";
 import type { RainGaugeDayRow } from "../data/rainGaugeLoader";
 import { withLoading } from "../lib/loadingRegistry";
 import type { SoundSourceFamily } from "./types";
@@ -22,92 +21,50 @@ export const SOUND_SCENE_SCHEMA = "pulse-sound-scene-v1";
 
 export type SoundSceneId = "taipei-1109" | "taichung-heping-1108" | "taipei-typhoon-1024";
 
-export interface SoundSceneReceiver {
-  lon: number;
-  lat: number;
-  heightM: number;
-  labelZh: string;
-  reasonZh: string;
-}
-
 export interface SoundSceneDef {
   id: SoundSceneId;
-  titleZh: string;
-  /** 臺灣日期 YYYY-MM-DD */
+  /** 臺灣日期 YYYY-MM-DD（快照讀不到時，時間軸只能跳到這天中午） */
   date: string;
-  /** ISO-8601（+08:00）焦點時刻 */
-  focusTime: string;
-  receiver: SoundSceneReceiver;
-  /** [w, s, e, n] */
-  bbox: [number, number, number, number];
   zoom: number;
   /** 場景建議同時開的既有圖層（例：颱風路徑） */
   companionLayers?: readonly "typhoonTracks"[];
 }
 
 /**
- * 內建場景（2026-11-11 以 get_rain_gauge_day／get_flight_trails 實查挑點）。
- * 快照的 receiver／focus_time 若不同，以快照為準。
+ * 內建場景清單：只放 id、日期、鏡頭與搭配圖層。
+ * 接收點、焦點時刻、選點理由一律以快照（W3 實查產出）為準，這裡不寫死，避免兩邊說法不一致。
  */
 export const SOUND_SCENES: readonly SoundSceneDef[] = [
-  {
-    id: "taipei-1109",
-    titleZh: "臺北 11/9：雨＋松山航班＋垃圾車",
-    date: "2026-11-09",
-    // 09:22 JAL96 以約 460 m 高度從東側進場，最近約 1.75 km；09 時東湖國小站有 0.5 mm
-    focusTime: "2026-11-09T09:22:00+08:00",
-    receiver: {
-      lon: 121.6068,
-      lat: 25.071,
-      heightM: 1.5,
-      labelZh: "內湖東湖國小雨量站旁",
-      reasonZh:
-        "臺北市內 11/9 有降雨紀錄的雨量站（東湖國小，07、09、11、17、19 時各 0.5 mm）；位在松山機場跑道東側延長線上（距機場約 5.5 km），當天約 20 班航機從 2.5 km 內通過。",
-    },
-    bbox: [121.45, 24.97, 121.75, 25.17],
-    zoom: 12.5,
-  },
-  {
-    id: "taichung-heping-1108",
-    titleZh: "臺中和平 11/8：台電落雷＋航班",
-    date: "2026-11-08",
-    focusTime: "2026-11-08T10:25:00+08:00",
-    receiver: {
-      lon: 121.44,
-      lat: 24.315,
-      heightM: 1.5,
-      labelZh: "臺中和平區山區",
-      reasonZh: "11/8 10:25 前後台電落雷（3.97 kA）附近；最近的南湖圈谷雨量站當天 0 mm。",
-    },
-    bbox: [121.14, 24.015, 121.74, 24.615],
-    zoom: 11,
-  },
-  {
-    id: "taipei-typhoon-1024",
-    titleZh: "Champi 颱風 10/24：北投小油坑",
-    date: "2026-10-24",
-    // 小油坑站 14 時 46.5 mm（當日臺北最大）
-    focusTime: "2026-10-24T14:30:00+08:00",
-    receiver: {
-      lon: 121.5406,
-      lat: 25.1821,
-      heightM: 1.5,
-      labelZh: "北投小油坑雨量站旁",
-      reasonZh: "Champi 颱風外圍環流期間，小油坑站 10/24 14 時 46.5 mm，為當日臺北最大時雨量。",
-    },
-    bbox: [121.24, 24.88, 121.84, 25.48],
-    zoom: 12,
-    companionLayers: ["typhoonTracks"],
-  },
+  { id: "taipei-1109", date: "2026-11-09", zoom: 12.5 },
+  { id: "taichung-heping-1108", date: "2026-11-08", zoom: 11 },
+  { id: "taipei-typhoon-1024", date: "2026-10-24", zoom: 12, companionLayers: ["typhoonTracks"] },
 ];
 
 export function findScene(id: string | null | undefined): SoundSceneDef | null {
   return SOUND_SCENES.find((s) => s.id === id) ?? null;
 }
 
+/** 快照讀不到時的退路：場景日期臺灣時間中午（不猜接收點） */
+export function sceneFallbackFocusUnix(def: SoundSceneDef): number {
+  return Date.parse(`${def.date}T12:00:00+08:00`) / 1000;
+}
+
 // ── 快照契約 ─────────────────────────────────────────────
 
-type HealthValue = "ok" | "empty" | "error";
+export type SnapshotHealth = "ok" | "empty" | "error";
+const isHealth = (v: unknown): v is SnapshotHealth => v === "ok" || v === "empty" || v === "error";
+
+export interface SceneThunderEvent {
+  event_id: number;
+  /** CWA event_id 會超過 2^53，比對一律用字串 */
+  event_id_str?: string;
+  source: string;
+  strike_ts: number;
+  lon: number;
+  lat: number;
+  strike_type: number;
+  intensity_ka: number | null;
+}
 
 export interface SoundSceneSnapshot {
   schema: typeof SOUND_SCENE_SCHEMA;
@@ -117,14 +74,16 @@ export interface SoundSceneSnapshot {
   focus_time?: string;
   receiver?: { lon: number; lat: number; height_m?: number; label_zh?: string; reason_zh?: string };
   bbox: [number, number, number, number];
-  aviation?: { origin?: string; rows: FlightTrailRow[] };
+  /** health 是整日來源健康度；rows 只留 bbox 內（bbox 內 0 筆 + ok ＝ 真的沒有） */
+  aviation?: { origin?: string; health?: SnapshotHealth; rows: FlightTrailRow[] };
   thunder?: {
     origin?: string;
-    health?: Partial<Record<LightningSource, HealthValue>>;
-    events: Array<{ event_id: number; source: string; strike_ts: number; lon: number; lat: number; strike_type: number; intensity_ka: number | null }>;
+    health?: Partial<Record<LightningSource, SnapshotHealth>>;
+    events: SceneThunderEvent[];
   };
-  rain?: { origin?: string; rows: RainGaugeDayRow[] };
+  rain?: { origin?: string; health?: SnapshotHealth; rows: RainGaugeDayRow[] };
   notes_zh?: string[];
+  generated_at?: string;
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -153,18 +112,30 @@ export function parseSceneSnapshot(json: unknown): SoundSceneSnapshot | null {
     };
   }
   const a = json.aviation;
-  if (isObj(a) && Array.isArray(a.rows)) out.aviation = { origin: typeof a.origin === "string" ? a.origin : undefined, rows: a.rows as FlightTrailRow[] };
+  if (isObj(a) && Array.isArray(a.rows)) {
+    out.aviation = { origin: typeof a.origin === "string" ? a.origin : undefined, health: isHealth(a.health) ? a.health : undefined, rows: a.rows as FlightTrailRow[] };
+  }
   const th = json.thunder;
   if (isObj(th) && Array.isArray(th.events)) {
+    // health 只收認得的值；認不得的來源視為沒寫（呼叫端改走即時），不猜
+    const health = isObj(th.health)
+      ? (Object.fromEntries(Object.entries(th.health).filter(([, v]) => isHealth(v))) as Partial<Record<LightningSource, SnapshotHealth>>)
+      : undefined;
     out.thunder = {
       origin: typeof th.origin === "string" ? th.origin : undefined,
-      health: isObj(th.health) ? (th.health as Partial<Record<LightningSource, HealthValue>>) : undefined,
-      events: th.events as NonNullable<SoundSceneSnapshot["thunder"]>["events"],
+      health,
+      events: (th.events as SceneThunderEvent[]).map((e) => ({
+        ...e,
+        event_id_str: typeof e.event_id_str === "string" ? e.event_id_str : undefined,
+      })),
     };
   }
   const rn = json.rain;
-  if (isObj(rn) && Array.isArray(rn.rows)) out.rain = { origin: typeof rn.origin === "string" ? rn.origin : undefined, rows: rn.rows as RainGaugeDayRow[] };
+  if (isObj(rn) && Array.isArray(rn.rows)) {
+    out.rain = { origin: typeof rn.origin === "string" ? rn.origin : undefined, health: isHealth(rn.health) ? rn.health : undefined, rows: rn.rows as RainGaugeDayRow[] };
+  }
   if (Array.isArray(json.notes_zh)) out.notes_zh = json.notes_zh.filter((n): n is string => typeof n === "string");
+  if (typeof json.generated_at === "string") out.generated_at = json.generated_at;
   return out;
 }
 
@@ -195,50 +166,6 @@ export function snapshotApplies(
   if (!snapshot || snapshot.date !== dateKey || !receiver) return false;
   const [w, s, e, n] = snapshot.bbox;
   return receiver.longitude >= w && receiver.longitude <= e && receiver.latitude >= s && receiver.latitude <= n;
-}
-
-// ── 快照 → adapter fetcher ───────────────────────────────
-
-export interface SnapshotFetchers {
-  aviation?: (date: string) => Promise<{ flights: Flight[] }>;
-  thunder?: (date: string, source: LightningSource) => Promise<LightningStrike[]>;
-  rain?: (date: string) => Promise<RainGaugeDayRow[]>;
-}
-
-/**
- * 把快照區塊轉成 adapter 可注入的 fetcher。
- * - 只回傳快照有的區塊；缺的家族呼叫端用預設（RPC）fetcher。
- * - 落雷：health=error → throw（adapter 記 error）；empty → []；ok → 該源事件；
- *   health 沒寫到的來源 → 交回 `fallbackThunder`（即時 RPC），不當成 empty。
- */
-export function snapshotFetchers(
-  snapshot: SoundSceneSnapshot,
-  fallbackThunder: (date: string, source: LightningSource) => Promise<LightningStrike[]>,
-): SnapshotFetchers {
-  const out: SnapshotFetchers = {};
-  if (snapshot.aviation) {
-    const rows = snapshot.aviation.rows;
-    out.aviation = async () => ({ flights: flightRowsToFlights(rows).flights });
-  }
-  if (snapshot.thunder) {
-    const th = snapshot.thunder;
-    out.thunder = async (date, source) => {
-      const h = th.health?.[source];
-      if (h === "error") throw new Error(`scene_snapshot_source_error:${source}`);
-      if (h === "empty") return [];
-      if (h === "ok") {
-        return th.events
-          .filter((e) => e.source === source)
-          .map((e) => ({ event_id: e.event_id, strike_ts: e.strike_ts, intensity_ka: e.intensity_ka ?? null, strike_type: e.strike_type, lon: e.lon, lat: e.lat }));
-      }
-      return fallbackThunder(date, source);
-    };
-  }
-  if (snapshot.rain) {
-    const rows = snapshot.rain.rows;
-    out.rain = async () => rows;
-  }
-  return out;
 }
 
 /** 快照的區塊來源說明（面板「資料來源」用） */

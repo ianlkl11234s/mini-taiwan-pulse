@@ -15,6 +15,8 @@ import { layerVisibilityStore, useLayerVisible } from "../../state/layerVisibili
 import { soundAtlasStore } from "../../sound/soundAtlasStore";
 import { SOUND_SCENES, snapshotApplies, type SoundSceneId } from "../../sound/scenes";
 import { clearReceiver, selectSoundScene, startPlacingReceiver } from "../../sound/soundAtlasActions";
+import { topContributionsForDisplay } from "../../sound/soundAtlasData";
+import { AVIATION } from "../../sound/model/soundProfiles";
 import { SOUND_FAMILY_COLORS } from "../../sound/soundAtlasColors";
 import type { SoundSourceFamily, SourceContribution, SourceCoverage } from "../../sound/types";
 import { SoundDayProfile } from "./SoundDayProfile";
@@ -69,7 +71,7 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
 
   const receiver = st.receiver;
   const current = st.current;
-  const top = current ? current.contributions.slice(0, TOP_N) : [];
+  const { rows: top, farAviation } = topContributionsForDisplay(current?.contributions ?? [], TOP_N);
   const sceneApplies = snapshotApplies(st.snapshot, st.dateKey ?? "", receiver);
 
   // 各家族的來源健康：直接列 coverage 的 provider × status
@@ -104,8 +106,12 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
         </div>
         {st.sceneId && (
           <div style={note}>
-            {t("soundAtlas.scene.reason")}：{t(SCENE_KEYS[st.sceneId].reason)}
-            <br />
+            {st.snapshot?.receiver?.reason_zh && (
+              <>
+                {t("soundAtlas.scene.reason")}：{st.snapshot.receiver.reason_zh}
+                <br />
+              </>
+            )}
             {st.snapshotStatus === "loading" && t("soundAtlas.scene.snapshotLoading")}
             {st.snapshotStatus === "missing" && t("soundAtlas.scene.snapshotMissing")}
             {st.snapshotStatus === "loaded" && (sceneApplies ? t("soundAtlas.scene.snapshotLoaded") : t("soundAtlas.scene.outside"))}
@@ -136,8 +142,13 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
               {current && <span style={{ fontFamily: FONT_DATA, fontWeight: 400, marginLeft: 6 }}>{formatTaipeiTime(current.unixSeconds, true)}</span>}
             </div>
             {st.loading.length > 0 && <div style={note}>{t("soundAtlas.current.loading")}</div>}
-            {current && top.length === 0 && st.loading.length === 0 && <div style={note}>{t("soundAtlas.current.empty")}</div>}
+            {current && top.length === 0 && farAviation.count === 0 && st.loading.length === 0 && <div style={note}>{t("soundAtlas.current.empty")}</div>}
             {top.map((cb) => <ContributionRow key={cb.sourceId} c={cb} origin={st.origins[cb.family] ?? "live"} colors={c} />)}
+            {farAviation.count > 0 && (
+              <div style={note}>
+                {t("soundAtlas.current.farAviation", { count: farAviation.count, max: formatPotential(farAviation.maxPotential), min: formatPotential(AVIATION.displayMinPotential.value) })}
+              </div>
+            )}
           </>
         )}
 

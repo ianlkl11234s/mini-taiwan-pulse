@@ -6,17 +6,16 @@ import {
   SOUND_SCENES,
   fetchSceneSnapshot,
   parseSceneSnapshot,
+  sceneFallbackFocusUnix,
   snapshotApplies,
-  snapshotFetchers,
 } from "../scenes";
-import { citiesNearReceiver, prefilterSetsForReceiver } from "../soundAtlasData";
+import { citiesNearReceiver, prefilterSetsForReceiver, snapshotSet, topContributionsForDisplay } from "../soundAtlasData";
 import { activeWavefronts, geodesicRing } from "../engines/wavefronts";
 import { haversineM } from "../engines/geometryDistance";
 import { dayProfile, queryReceiver } from "../engines/receiverQuery";
-import { flightsToAviationRecords, loadAviation } from "../sourceAdapters/aviationAdapter";
+import { flightsToAviationRecords } from "../sourceAdapters/aviationAdapter";
 import { loadRain, rainRowsToRecords } from "../sourceAdapters/rainFieldAdapter";
-import { loadThunder } from "../sourceAdapters/thunderAdapter";
-import type { SoundSourceSet } from "../types";
+import type { SoundSourceSet, SourceContribution } from "../types";
 import { DATE, DAY_START, RECV, latNorth } from "./fixtures";
 
 const snap = parseSceneSnapshot(sceneJson)!;
@@ -48,46 +47,82 @@ describe("場景快照契約 pulse-sound-scene-v1", () => {
     expect(snapshotApplies(snap, DATE, null)).toBe(false);
   });
 
-  it("落雷 health：ok 用快照事件、empty 回空集合（→ coverage empty，不等於無雷）、未寫的來源交回即時", async () => {
+  const NOW = DAY_START + 3 * 86_400;
+
+  it("落雷 health：ok 用快照事件、empty → coverage empty，沒寫 health 的來源才走即時", async () => {
     const live = vi.fn(async () => []);
-    const fx = snapshotFetchers(snap, live);
-    const set = await loadThunder({ date: DATE, nowUnix: DAY_START + 3 * 86_400 }, fx.thunder!);
+    const set = (await snapshotSet(snap, "thunder", NOW, live))!;
     expect(set.coverage.map((c) => [c.provider, c.status])).toEqual([["cwa", "empty"], ["taipower", "ok"]]);
     expect(set.records).toHaveLength(1);
     expect(live).not.toHaveBeenCalled();
     const partial = parseSceneSnapshot({ ...sceneJson, thunder: { ...sceneJson.thunder, health: { taipower: "ok" } } })!;
-    await snapshotFetchers(partial, live).thunder!(DATE, "cwa");
+    await snapshotSet(partial, "thunder", NOW, live);
     expect(live).toHaveBeenCalledWith(DATE, "cwa");
+    expect(live).toHaveBeenCalledTimes(1);
   });
 
-  it("health=error → 該源 coverage error；兩源都不是 ok → 雷家族 unknown（不是安靜）", async () => {
+  it("health=ok 但接收點附近 0 筆落雷 → coverage ok、雷家族 inactive（不是 unknown）", async () => {
+    const quiet = parseSceneSnapshot({ ...sceneJson, thunder: { ...sceneJson.thunder, health: { cwa: "ok", taipower: "ok" }, events: [] } })!;
+    const set = (await snapshotSet(quiet, "thunder", NOW, async () => { throw new Error("不該呼叫即時"); }))!;
+    expect(set.coverage.map((c) => c.status)).toEqual(["ok", "ok"]);
+    const r = queryReceiver(RECV, DAY_START + 15 * 3600 + 2, [set], ["thunder"]);
+    expect(r.families[0]!.status).toBe("inactive");
+    expect(r.families[0]!.relativePotential).toBe(0);
+  });
+
+  it("health=error → 該源 coverage error、事件不採；兩源都不是 ok → 雷家族 unknown（不是安靜）", async () => {
     const bad = parseSceneSnapshot({ ...sceneJson, thunder: { ...sceneJson.thunder, health: { cwa: "error", taipower: "empty" } } })!;
-    const set = await loadThunder({ date: DATE, nowUnix: DAY_START + 3 * 86_400 }, snapshotFetchers(bad, async () => []).thunder!);
+    const set = (await snapshotSet(bad, "thunder", NOW, async () => []))!;
     expect(set.coverage.map((c) => c.status)).toEqual(["error", "empty"]);
+    expect(set.records).toHaveLength(0);
     const r = queryReceiver(RECV, DAY_START + 15 * 3600 + 2, [set], ["thunder"]);
     expect(r.families[0]!.status).toBe("unknown");
     expect(r.families[0]!.relativePotential).toBeNull();
   });
 
-  it("航班區塊轉成 adapter 可吃的 flights；雨區塊缺 → 沒有 rain fetcher（呼叫端走 RPC）", async () => {
-    const fx = snapshotFetchers(snap, async () => []);
-    expect(fx.rain).toBeUndefined();
-    const set = await loadAviation({ date: DATE, nowUnix: DAY_START + 3 * 86_400 }, fx.aviation!);
-    expect(set.coverage[0]!.status).toBe("ok");
-    const r = queryReceiver(RECV, 1784012460, [set], ["aviation"]);
-    expect(r.families[0]!.status).toBe("active");
+  it("event_id_str 優先：超過 2^53 的 CWA id 不會因 number 失真而互相去重", async () => {
+    const big = parseSceneSnapshot({
+      ...sceneJson,
+      thunder: {
+        ...sceneJson.thunder,
+        health: { cwa: "ok", taipower: "empty" },
+        events: [
+          { event_id: 9007199254740993, event_id_str: "9007199254740993", source: "cwa", strike_ts: 1784012400, lon: 121.5, lat: 25.003, strike_type: 0, intensity_ka: null },
+          { event_id: 9007199254740992, event_id_str: "9007199254740992", source: "cwa", strike_ts: 1784012460, lon: 121.5, lat: 25.01, strike_type: 0, intensity_ka: null },
+        ],
+      },
+    })!;
+    const set = (await snapshotSet(big, "thunder", NOW, async () => []))!;
+    expect(set.records.map((r) => r.id).sort()).toEqual(["thunder:cwa:9007199254740992", "thunder:cwa:9007199254740993"]);
   });
 
-  it("內建三個場景：日期、焦點時刻與接收點在 bbox 內", () => {
+  it("航班：health 取快照；bbox 內 0 架 + health=ok → ok（inactive），沒寫 health 才依列數；雨區塊缺 → null（走 RPC）", async () => {
+    expect(await snapshotSet(snap, "rain", NOW)).toBeNull();
+    const set = (await snapshotSet(snap, "aviation", NOW))!;
+    expect(set.coverage[0]!.status).toBe("ok");
+    expect(queryReceiver(RECV, 1784012460, [set], ["aviation"]).families[0]!.status).toBe("active");
+    const none = parseSceneSnapshot({ ...sceneJson, aviation: { origin: "x", health: "ok", rows: [] } })!;
+    const noneSet = (await snapshotSet(none, "aviation", NOW))!;
+    expect(noneSet.coverage[0]!.status).toBe("ok");
+    expect(queryReceiver(RECV, 1784012460, [noneSet], ["aviation"]).families[0]!.status).toBe("inactive");
+    const legacy = parseSceneSnapshot({ ...sceneJson, aviation: { origin: "x", rows: [] } })!;
+    expect((await snapshotSet(legacy, "aviation", NOW))!.coverage[0]!.status).toBe("empty");
+  });
+
+  it("雨 health=error → coverage error、不採列", async () => {
+    const row = { station_id: "S1", station_name: "甲", county: null, town: null, lat: 25, lng: 121.5, bucket_at: "2026-07-14T07:00:00Z", observed_at: "2026-07-14T07:00:00Z", precipitation_10min: null, precipitation_1hr: 5, precipitation_3hr: null, precipitation_24hr: null };
+    const s2 = parseSceneSnapshot({ ...sceneJson, rain: { origin: "x", health: "error", rows: [row] } })!;
+    const set = (await snapshotSet(s2, "rain", NOW))!;
+    expect(set.coverage[0]!.status).toBe("error");
+    expect(set.records).toHaveLength(0);
+  });
+
+  it("內建場景只有 id／日期／鏡頭：接收點與焦點時刻不寫死（讀快照）", () => {
     expect(SOUND_SCENES.map((s) => s.id)).toEqual(["taipei-1109", "taichung-heping-1108", "taipei-typhoon-1024"]);
     for (const s of SOUND_SCENES) {
-      const [w, so, e, n] = s.bbox;
-      expect(s.receiver.lon).toBeGreaterThan(w);
-      expect(s.receiver.lon).toBeLessThan(e);
-      expect(s.receiver.lat).toBeGreaterThan(so);
-      expect(s.receiver.lat).toBeLessThan(n);
-      expect(new Date(s.focusTime).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" })).toBe(s.date);
-      expect(s.receiver.heightM).toBe(1.5);
+      expect(s).not.toHaveProperty("receiver");
+      expect(s).not.toHaveProperty("focusTime");
+      expect(new Date(sceneFallbackFocusUnix(s) * 1000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" })).toBe(s.date);
     }
   });
 });
@@ -177,5 +212,25 @@ describe("雷聲波前（示意）", () => {
     const ring = geodesicRing(121.5, 25, 5000, 32);
     expect(ring[0]).toEqual(ring[ring.length - 1]);
     for (const [lon, lat] of ring) expect(haversineM(121.5, 25, lon, lat)).toBeCloseTo(5000, 0);
+  });
+});
+
+describe("topContributionsForDisplay（只影響面板列表）", () => {
+  const mk = (family: SourceContribution["family"], potential: number | null, id: string): SourceContribution =>
+    ({ family, sourceId: id, status: potential == null ? "unknown" : "active", relativePotential: potential }) as SourceContribution;
+
+  it("低於門檻的 active 航機併成遠方一行；unknown 航機與其他家族照列", () => {
+    const list = [mk("aviation", 0.55, "a1"), mk("rain", 0.22, "r1"), mk("aviation", 0.04, "a2"), mk("aviation", 0.02, "a3"), mk("aviation", null, "a4"), mk("thunder", 0.01, "t1")];
+    const out = topContributionsForDisplay(list, 5, 0.1);
+    expect(out.rows.map((c) => c.sourceId)).toEqual(["a1", "r1", "a4", "t1"]);
+    expect(out.farAviation).toEqual({ count: 2, maxPotential: 0.04 });
+  });
+
+  it("limit 只算逐筆列出的列；門檻不改原陣列", () => {
+    const list = Array.from({ length: 8 }, (_, i) => mk("aviation", i < 3 ? 0.5 : 0.02, `a${i}`));
+    const out = topContributionsForDisplay(list, 2, 0.1);
+    expect(out.rows).toHaveLength(2);
+    expect(out.farAviation.count).toBe(5);
+    expect(list).toHaveLength(8);
   });
 });

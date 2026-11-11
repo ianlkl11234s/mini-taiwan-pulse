@@ -32,7 +32,8 @@ import type {
 
 export interface ThunderPayload {
   source: LightningSource;
-  eventId: number;
+  /** 原始事件 id 字串（CWA event_id 會超過 2^53，數字會失真，一律以字串比對） */
+  eventId: string;
   flashTime: number;
   lon: number;
   lat: number;
@@ -47,16 +48,20 @@ export type ThunderRecord = SoundSourceRecord<ThunderPayload>;
 const maxActiveSpanS = () =>
   thunderTiming(0, THUNDER.candidateRadiusM.value).envelopeEndTime;
 
+/** 事件 id：優先用 event_id_str（>2^53 時 number 已失真），否則 String(event_id) */
+export const strikeEventId = (s: LightningStrike): string => s.event_id_str ?? String(s.event_id);
+
 function strikeToRecord(source: LightningSource, s: LightningStrike): ThunderRecord {
+  const eventId = strikeEventId(s);
   return {
-    id: `thunder:${source}:${s.event_id}`,
+    id: `thunder:${source}:${eventId}`,
     family: "thunder",
     geometryKind: "impulse_event",
-    payload: { source, eventId: s.event_id, flashTime: s.strike_ts, lon: s.lon, lat: s.lat, strikeType: s.strike_type, linkedRecordIds: [] },
+    payload: { source, eventId, flashTime: s.strike_ts, lon: s.lon, lat: s.lat, strikeType: s.strike_type, linkedRecordIds: [] },
     validFrom: s.strike_ts,
     validUntil: s.strike_ts + maxActiveSpanS(),
     modelVersion: MODEL_VERSION,
-    provenance: { provider: source, originalId: String(s.event_id), observedAt: s.strike_ts },
+    provenance: { provider: source, originalId: eventId, observedAt: s.strike_ts },
     quality: { location: "exact_observed", time: "observed", emission: "unmeasured" },
     visibility: "public",
   };
@@ -87,7 +92,7 @@ export function dedupeAndLinkStrikes(
   for (const { source, strikes } of bySource) {
     const fromThisSource: ThunderRecord[] = [];
     for (const s of strikes) {
-      const key = `${source}|${s.event_id}`;
+      const key = `${source}|${strikeEventId(s)}`;
       if (seen.has(key)) continue;
       seen.add(key);
       const rec = strikeToRecord(source, s);
@@ -159,34 +164,56 @@ export const queryThunderInterval: IntervalQuery<ThunderPayload> = (records, rec
   return { contributions, notes: [] };
 };
 
+/** 單一來源的讀取結果（即時 RPC 或場景快照的 health 都轉成這個） */
+export type ThunderSourceResult =
+  | { source: LightningSource; status: "ok" | "empty"; strikes: readonly LightningStrike[]; reason?: string }
+  | { source: LightningSource; status: "error"; reason: string };
+
+/**
+ * 各源結果 → SoundSourceSet。status 由呼叫端決定（不以筆數重判）：
+ * 場景快照只留接收點附近的事件，health=ok 但 0 筆 ＝ 附近真的沒雷（inactive），不是 empty。
+ */
+export function thunderSetFromResults(
+  ctx: { date: string; nowUnix?: number },
+  results: readonly ThunderSourceResult[],
+): SoundSourceSet<ThunderPayload> {
+  const start = taipeiMidnightMs(ctx.date) / 1000;
+  // 今天：涵蓋窗只到現在；落雷稀疏，無法以最後一筆判斷收集進度
+  const windowEnd = clipCoverageEnd(start, ctx.nowUnix ?? Date.now() / 1000);
+  const coverage: SourceCoverage[] = [];
+  const bySource: { source: LightningSource; strikes: readonly LightningStrike[] }[] = [];
+  for (const r of results) {
+    const base = { family: "thunder" as const, provider: r.source, dateKey: ctx.date, windowStart: start, windowEnd, temporalKind: "day_series" as const };
+    coverage.push(r.reason ? { ...base, status: r.status, reason: r.reason } : { ...base, status: r.status });
+    if (r.status !== "error") bySource.push({ source: r.source, strikes: r.strikes });
+  }
+  return { family: "thunder", dateKey: ctx.date, records: dedupeAndLinkStrikes(bySource), coverage };
+}
+
+/** 即時讀多源：拿到資料 → ok、空集合 → empty（無法區分無雷與斷供）、失敗 → error */
+export async function fetchThunderSourceResults(
+  date: string,
+  fetcher: (date: string, source: LightningSource) => Promise<LightningStrike[]>,
+  sources: readonly LightningSource[],
+): Promise<ThunderSourceResult[]> {
+  const settled = await Promise.allSettled(sources.map((s) => fetcher(date, s)));
+  return settled.map((res, i): ThunderSourceResult => {
+    const source = sources[i]!;
+    if (res.status === "rejected") return { source, status: "error", reason: String(res.reason) };
+    const strikes = res.value ?? [];
+    return strikes.length
+      ? { source, status: "ok", strikes }
+      : { source, status: "empty", strikes, reason: "source_returned_empty_set_cannot_distinguish_no_strikes_from_outage" };
+  });
+}
+
 /** 讀多源；每源各自 coverage（ok／empty／error）。fetcher 可注入以便測試。 */
 export async function loadThunder(
   ctx: { date: string; nowUnix?: number },
   fetcher: (date: string, source: LightningSource) => Promise<LightningStrike[]> = fetchLightningDay,
   sources: readonly LightningSource[] = THUNDER.sources.value,
 ): Promise<SoundSourceSet<ThunderPayload>> {
-  const start = taipeiMidnightMs(ctx.date) / 1000;
-  // 今天：涵蓋窗只到現在；落雷稀疏，無法以最後一筆判斷收集進度
-  const windowEnd = clipCoverageEnd(start, ctx.nowUnix ?? Date.now() / 1000);
-  const settled = await Promise.allSettled(sources.map((s) => fetcher(ctx.date, s)));
-  const coverage: SourceCoverage[] = [];
-  const bySource: { source: LightningSource; strikes: LightningStrike[] }[] = [];
-  settled.forEach((res, i) => {
-    const source = sources[i]!;
-    const base = { family: "thunder" as const, provider: source, dateKey: ctx.date, windowStart: start, windowEnd, temporalKind: "day_series" as const };
-    if (res.status === "rejected") {
-      coverage.push({ ...base, status: "error", reason: String(res.reason) });
-      return;
-    }
-    const strikes = res.value ?? [];
-    coverage.push(
-      strikes.length
-        ? { ...base, status: "ok" }
-        : { ...base, status: "empty", reason: "source_returned_empty_set_cannot_distinguish_no_strikes_from_outage" },
-    );
-    bySource.push({ source, strikes });
-  });
-  return { family: "thunder", dateKey: ctx.date, records: dedupeAndLinkStrikes(bySource), coverage };
+  return thunderSetFromResults(ctx, await fetchThunderSourceResults(ctx.date, fetcher, sources));
 }
 
 export const thunderAdapter: SoundSourceAdapter<ThunderPayload> = {
