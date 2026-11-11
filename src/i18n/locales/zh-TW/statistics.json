@@ -97,5 +97,9 @@
   "statistics.level.ca_pr": "省／地區",
   "statistics.level.ca_cd": "普查區",
   "statistics.level.ie_la": "地方政府",
-  "statistics.level.ie_ed": "選舉分區"
+  "statistics.level.ie_ed": "選舉分區",
+  "statistics.legend.circleArea": "圓面積代表數量（半徑不是）；圓大小固定、不隨縮放；觀測值 0 不畫圓",
+  "statistics.legend.circleReference": "最大圓對應本期最大值往上取整，換期別可能改變",
+  "statistics.legend.circleReferenceSource": "最大圓對應本期最大值往上取整，換期別可能改變；來源：{provider}",
+  "statistics.legend.circleNoPositive": "本期沒有大於 0 的觀測值，不畫比例圓"
 }

@@ -180,6 +180,7 @@ function renderControl(ctrl: ParamControl, key: string, t: Translate): ReactNode
         ) : (
           <ControlSegmented label={ctrl.label} value={ctrl.value} options={ctrl.options} onChange={ctrl.onChange} />
         )}
+        {ctrl.note && <span role="status" className="lpc-note">{ctrl.note}</span>}
       </ControlRow>
     );
   }

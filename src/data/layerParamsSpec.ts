@@ -7,6 +7,7 @@ import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } f
 import { ATLAS_ENABLED_STATISTICS_KEYS, type AtlasStatisticsLayerKey } from './atlasStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
 import { statisticsLinkedSelects } from './statisticsParamsSpec';
+import { statisticsPresentationSpec } from './statisticsPresentation';
 import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
 import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
@@ -5454,11 +5455,13 @@ export const LAYER_PARAMS_SPEC = {
  * `keyof LayerVisibility` 全集，`MigratedParamsKey` 就退化成 348 key，
  * 雙軌判別式跟著失效（同 `LAYER_MANIFEST` 的 `ManifestKey` 那道護欄）。
  */
-// 統計（圖層面板統一 C 段）：每個統計 key 在透明度前補上連動選單（群組「指標」、指標、期別、各維度）。
-// 規格由 recipe catalog 派生（`statisticsParamsSpec.ts`），不逐層手寫；值在 `regionalStatisticsStore`。
+// 統計（圖層面板統一 C 段）：每個統計 key 在透明度前補上連動選單（群組「指標」、指標、期別、各維度），
+// 可切比例圓的總量層再補「呈現方式」（`statisticsPresentation.ts` 依 recipe 單位推導＋站主覆寫）。
+// 規格由 recipe catalog 派生（`statisticsParamsSpec.ts`），不逐層手寫；連動選單的值在 `regionalStatisticsStore`。
 for (const key of STATISTICS_RENDER_KEYS) {
   const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key];
-  if (specs) (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...statisticsLinkedSelects(key), ...specs];
+  const presentation = statisticsPresentationSpec(key);
+  if (specs) (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...statisticsLinkedSelects(key), ...(presentation ? [presentation] : []), ...specs];
 }
 
 // V-4（map-layers.md §3.8）：規格表 `categoryFilters.ts` 登記的圖層，在控件最前面補「類別」多選（out＝`${key}${id}Mask`）。

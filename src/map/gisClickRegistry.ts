@@ -1,4 +1,5 @@
 import { STATISTICS_RENDER_KEYS } from '../data/regionalStatisticsRecipes';
+import { PRESENTATION_KEYS } from '../state/statisticsPresentationStore';
 import { repPointClickLayerIds } from './repPointOverlays';
 /**
  * GIS 點擊接線註冊表（AR-22 Phase 4b）
@@ -913,7 +914,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["prosecutors-office-circle"], type: "prosecutorsOffice" },
   { layers: ["correctional-facility-circle"], type: "correctionalFacility" },
   { layers: ["court-jurisdiction-fill", "court-jurisdiction-line"], type: "courtJurisdiction" },
-  { layers: STATISTICS_RENDER_KEYS.map(key => `${key}-fill`), type: "regionalStatistic" },
+  // 比例圓（呈現方式）：圓與面同一份 properties，點圓開同一個 popup；圓排在面之前（圓疊在面上，先命中圓）
+  { layers: [...PRESENTATION_KEYS.map(key => `${key}-circle`), ...STATISTICS_RENDER_KEYS.map(key => `${key}-fill`)], type: "regionalStatistic" },
   { layers: ["theft-taoyuan-circle"], type: "theftTaoyuan" },
   { layers: ["traffic-accident-yearly-circle"], type: "trafficAccidentYearly" },
   { layers: ["accident-taipei-circle"], type: "accidentTaipei" },

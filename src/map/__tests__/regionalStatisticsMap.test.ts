@@ -9,8 +9,10 @@ const state = vi.hoisted(() => {
   let paramsListener: (() => void) | undefined;
   const visibility: Record<string, boolean> = {};
   const params: Record<string, unknown> = {};
+  const presentation: Record<string, string> = {};
+  const hollow = { value: false };
   return {
-    snapshots, statisticsListeners, visibility, params,
+    snapshots, statisticsListeners, visibility, params, presentation, hollow,
     get visibilityListener() { return visibilityListener; },
     set visibilityListener(value: (() => void) | undefined) { visibilityListener = value; },
     get paramsListener() { return paramsListener; },
@@ -67,6 +69,11 @@ vi.mock('../../state/layerParamsStore', () => ({
   },
 }));
 vi.mock('../../lib/loadingRegistry', () => ({ keepLoadingUntilMapIdle: vi.fn() }));
+vi.mock('../../state/statisticsPresentationStore', () => ({
+  isPresentationKey: (key: string) => key in state.presentation,
+  statisticsPresentationMode: (key: string) => state.presentation[key] ?? 'choropleth',
+  statisticsCircleHollow: () => state.hollow.value,
+}));
 
 import { attachRegionalStatistics } from '../regionalStatisticsMap';
 
@@ -77,14 +84,16 @@ function mapMock() {
   const paintCalls: Array<[string, string, unknown]> = [];
   const layoutCalls: Array<[string, string, unknown]> = [];
   const events = new Map<string, (() => void)>();
+  const addedBefore: Array<[string, string]> = [];
   let styleLoaded = true;
   const map = {
     isStyleLoaded: () => styleLoaded,
     hasImage: () => false,
     addImage: vi.fn(),
     getSource: (id: string) => sources.get(id),
+    getLayer: (id: string) => layers.get(id),
     addSource: (id: string) => sources.set(id, { setData: vi.fn() }),
-    addLayer: (layer: Layer) => layers.set(layer.id, { ...layer, layout: { ...layer.layout }, paint: { ...layer.paint } }),
+    addLayer: (layer: Layer, before?: string) => { layers.set(layer.id, { ...layer, layout: { ...layer.layout }, paint: { ...layer.paint } }); if (before) addedBefore.push([layer.id, before]); },
     setPaintProperty: (id: string, property: string, value: unknown) => { paintCalls.push([id, property, value]); layers.get(id)?.paint && (layers.get(id)!.paint![property] = value); },
     setLayoutProperty: (id: string, property: string, value: unknown) => { layoutCalls.push([id, property, value]); layers.get(id)?.layout && (layers.get(id)!.layout![property] = value); },
     setFilter: (id: string, filter: unknown) => { const layer = layers.get(id) as (Layer & { filter?: unknown }) | undefined; if (layer) layer.filter = filter; },
@@ -98,7 +107,7 @@ function mapMock() {
     events.get('style.load')?.();
     styleLoaded = true;
   };
-  return { map, sources, layers, paintCalls, layoutCalls, events, switchStyle };
+  return { map, sources, layers, paintCalls, layoutCalls, events, switchStyle, addedBefore };
 }
 function feature(value: number): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { area_code: 'A', value, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [] } }] };
@@ -112,6 +121,8 @@ describe('attachRegionalStatistics', () => {
     state.snapshots.clear(); state.statisticsListeners.clear();
     Object.keys(state.visibility).forEach(key => delete state.visibility[key]);
     Object.keys(state.params).forEach(key => delete state.params[key]);
+    Object.keys(state.presentation).forEach(key => delete state.presentation[key]);
+    state.hollow.value = false;
     state.visibilityListener = undefined; state.paramsListener = undefined;
   });
 
@@ -220,6 +231,43 @@ describe('attachRegionalStatistics', () => {
       expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-pattern']).toBe(next ? 'map-hatch-missing-dark' : 'map-hatch-missing-light');
     }
     expect(vi.mocked(regionalStatisticsStore.load).mock.calls.length).toBe(loads);
+    dispose();
+  });
+  it('比例圓：關掉面量填色、保留缺值斜線與細縫，圓在面內代表點、實心／空心依是否疊在其他面量圖上', () => {
+    const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+      { type: 'Feature', properties: { area_code: 'A', value: 430, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'B', value: 100, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[4, 0], [6, 0], [6, 2], [4, 2], [4, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'C', value: null, status: 'missing' }, geometry: { type: 'Polygon', coordinates: [[[8, 0], [9, 0], [9, 1], [8, 1], [8, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'D', value: 0, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[10, 0], [11, 0], [11, 1], [10, 1], [10, 0]]] } },
+    ] };
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+    state.visibility[VIEW] = true;
+    state.params[`${VIEW}Opacity`] = 0.6;
+    state.presentation[VIEW] = 'circle';
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => true);
+
+    expect(mock.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('none');
+    for (const suffix of ['missing', 'suppressed', 'line']) expect(mock.layers.get(`${VIEW}-${suffix}`)?.layout?.visibility).toBe('visible');
+    const points = mock.sources.get(`${VIEW}-circles`)?.setData.mock.calls[0]?.[0] as GeoJSON.FeatureCollection<GeoJSON.Point>;
+    // 只畫有觀測值且 > 0 的區（缺值、0 不畫圓）；大的先畫、properties 與面相同（popup 一致）
+    expect(points.features.map((f) => f.properties?.area_code)).toEqual(['A', 'B']);
+    expect(points.features[0]!.geometry.coordinates).toEqual([1, 1]);
+    const circle = mock.layers.get(`${VIEW}-circle`)!;
+    expect(circle).toMatchObject({ layout: { visibility: 'visible' }, paint: { 'circle-color': '#104', 'circle-opacity': 0.6 } });
+    // 半徑 ∝ √值：最大值 430 取整到參考值 500 → 縣市最大半徑 28 px
+    expect(circle.paint!['circle-radius']).toEqual(['*', 28, ['sqrt', ['/', ['max', ['to-number', ['get', 'value'], 0], 0], 500]]]);
+    expect(mock.layers.get(`${VIEW}-circle-halo`)?.layout?.visibility).toBe('none');
+
+    state.hollow.value = true;
+    state.paramsListener?.();
+    expect(mock.layers.get(`${VIEW}-circle`)?.paint).toMatchObject({ 'circle-opacity': 0, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 });
+    expect(mock.layers.get(`${VIEW}-circle-halo`)?.layout?.visibility).toBe('visible');
+
+    state.presentation[VIEW] = 'choropleth';
+    state.paramsListener?.();
+    expect(mock.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('visible');
+    expect(mock.layers.get(`${VIEW}-circle`)?.layout?.visibility).toBe('none');
     dispose();
   });
 });
