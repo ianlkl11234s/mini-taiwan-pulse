@@ -290,7 +290,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-10: +1 vehicleInspectionOffices（G53 批 2／3）。
     // 2026-11-10: +8 南韓第 8 波（圖書館、博物館美術館、公演、文化祭、國家遺產、住宿、安心宅配櫃、敬老堂）。
     // 2026-11-10: +6 愛爾蘭第 11 波（AED、監獄、pNHA、郡議會淹水分區、GSI 地下水淹水、泥炭開採沼地）。
-    expect(keys.length).toBe(1817);
+    // 2026-11-11: +4 City Sound Atlas 聲景（實驗）soundAviation／soundRain／soundThunder／soundWaste。
+    expect(keys.length).toBe(1821);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

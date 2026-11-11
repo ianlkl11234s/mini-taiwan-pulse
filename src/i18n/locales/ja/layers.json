@@ -1807,5 +1807,9 @@
   "layer.iOceanSightings": "iOcean 海洋生物目撃",
   "layer.iOceanFishing": "iOcean 釣果報告",
   "layer.fireworksSites": "花火製造・貯蔵場所",
-  "layer.vehicleInspectionOffices": "監理所・監理站と管轄区域"
+  "layer.vehicleInspectionOffices": "監理所・監理站と管轄区域",
+  "layer.soundAviation": "航空機の音",
+  "layer.soundRain": "雨音",
+  "layer.soundThunder": "雷鳴",
+  "layer.soundWaste": "ごみ収集車の音楽"
 }

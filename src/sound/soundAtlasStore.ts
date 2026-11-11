@@ -76,6 +76,15 @@ export const soundAtlasStore = {
 
 export const DEFAULT_RECEIVER_HEIGHT_M = 1.5;
 
+/** Host 掛上的地圖（面板「選場景」要 flyTo 用）；圖層全關時清掉 */
+let soundAtlasMap: import("mapbox-gl").Map | null = null;
+export function setSoundAtlasMap(map: import("mapbox-gl").Map | null): void {
+  soundAtlasMap = map;
+}
+export function getSoundAtlasMap(): import("mapbox-gl").Map | null {
+  return soundAtlasMap;
+}
+
 export function makeReceiver(lon: number, lat: number, heightM: number = DEFAULT_RECEIVER_HEIGHT_M): Receiver {
   return { id: "sound-receiver", longitude: lon, latitude: lat, heightM, environment: "outdoor" };
 }

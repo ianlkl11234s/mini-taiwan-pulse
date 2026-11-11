@@ -198,6 +198,7 @@ import { HARM_REDUCTION_COLORS } from "./harmReductionTypes";
 import { LANDSLIDE_LAYER_COLORS } from "./landslideTypes";
 import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
 import { BUS_CROWDING_REPRESENTATIVE_COLOR } from "./busCrowdingSimTypes";
+import { SOUND_FAMILY_COLORS } from "../sound/soundAtlasColors";
 import { BUS_CROWDING_SIM_ASSETS } from "./busCrowdingSimAssets";
 import { TRANSIT_REACH_COLOR } from "./transitReachTypes";
 import { FREEWAY_TDCS_SIM_COLOR } from "./freewayTdcsSimTypes";
@@ -13067,6 +13068,112 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "臺南／彰化官方設備或執法路段清單；定位精度混合，不代表即時啟用、違規事件位置或 dB",
     topics: ["環境", "噪音", "聲音照相", "定位精度", "設備清單"],
+  },
+
+  // 🔊 City Sound Atlas 聲景（實驗，2026-11-11）：四個來源家族各一個開關，共用接收點面板／圖例／popup。
+  soundAviation: {
+    key: "soundAviation",
+    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    ...layerName({ zh: "飛機聲源", alt: "Aircraft", qualifier: "推估・實驗" }),
+    expandable: true,
+    color: SOUND_FAMILY_COLORS.aviation,
+    icon: Plane,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["flights"],
+      derivationType: "custom",
+      processing: "航跡（get_flight_trails）內插到接收點的 3D 斜距 → 相對潛勢 1/(1+(d/2 km)²)；高度單位依 flight_id 判定（FR24 英尺、OpenSky 公尺，未知單位擋 3D 衰減），超過 30 分鐘缺口不插值。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）；相對聲源活動推估，非實測噪音、非 dB。模型參數正本 src/sound/model/soundProfiles.ts；計畫書 City Sound Atlas MVP §6–§8。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useSoundAtlasLayer（layers/hosts/soundAtlasHost）：重用既有 loader（flights 同一支 RPC／靜態檔），由 src/sound 引擎算接收點的相對潛勢；選了真實場景且有場景快照（public/sound-atlas/scenes/<id>.json，pulse-sound-scene-v1）時，快照有的區塊優先、缺的走即時。地圖：GeoJSON 標記（接收點附近活躍來源）＋連線，雷另畫波前；時間跟全站時間軸（timeStore 節流）。",
+    },
+    legend: "soundAtlas",
+    popup: "soundSource",
+    params: { count: 1, kinds: ["slider"] },
+    description: "接收點 20 km 內航機的相對聲源活動（距離越近越高，0–1，非 dB）。高度基準未與地形校正；軌跡缺口顯示「無法判斷」。",
+    topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "航班"],
+  },
+  soundRain: {
+    key: "soundRain",
+    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    ...layerName({ zh: "雨聲", alt: "Rain", qualifier: "推估・實驗" }),
+    expandable: true,
+    color: SOUND_FAMILY_COLORS.rain,
+    icon: CloudRain,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["rainGauge"],
+      derivationType: "custom",
+      processing: "最近雨量站（5 km 內）的每小時雨量（get_rain_gauge_day precipitation_1hr）→ 1−exp(−R/10)；超過 5 km 或該小時缺資料為「無法判斷」，不以雷達圖色換算。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）；相對聲源活動推估，非實測噪音、非 dB。模型參數正本 src/sound/model/soundProfiles.ts；計畫書 City Sound Atlas MVP §6–§8。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useSoundAtlasLayer（layers/hosts/soundAtlasHost）：重用既有 loader（rainGauge 同一支 RPC／靜態檔），由 src/sound 引擎算接收點的相對潛勢；選了真實場景且有場景快照（public/sound-atlas/scenes/<id>.json，pulse-sound-scene-v1）時，快照有的區塊優先、缺的走即時。地圖：GeoJSON 標記（接收點附近活躍來源）＋連線，雷另畫波前；時間跟全站時間軸（timeStore 節流）。",
+    },
+    legend: "soundAtlas",
+    popup: "soundSource",
+    params: { count: 1, kinds: ["slider"] },
+    description: "接收點最近雨量站（5 km 內）每小時雨量換算的相對雨聲活動（每小時解析度，非 dB）；站點代理，不代表街區精確雨勢。",
+    topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "雨量"],
+  },
+  soundThunder: {
+    key: "soundThunder",
+    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    ...layerName({ zh: "雷聲", alt: "Thunder", qualifier: "推估・實驗" }),
+    expandable: true,
+    color: SOUND_FAMILY_COLORS.thunder,
+    icon: CloudLightning,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["lightning"],
+      derivationType: "custom",
+      processing: "氣象署＋台電落雷（get_lightning_day 兩源）；接收點 25 km 內，聲音延遲＝距離÷343 m/s，抵達後 8 秒 envelope；跨源 1 秒／1 km 內視為同一事件只計一次。地圖波前半徑＝經過秒數×343 m/s（示意，非聲壓範圍）。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）；相對聲源活動推估，非實測噪音、非 dB。模型參數正本 src/sound/model/soundProfiles.ts；計畫書 City Sound Atlas MVP §6–§8。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useSoundAtlasLayer（layers/hosts/soundAtlasHost）：重用既有 loader（lightning 同一支 RPC／靜態檔），由 src/sound 引擎算接收點的相對潛勢；選了真實場景且有場景快照（public/sound-atlas/scenes/<id>.json，pulse-sound-scene-v1）時，快照有的區塊優先、缺的走即時。地圖：GeoJSON 標記（接收點附近活躍來源）＋連線，雷另畫波前；時間跟全站時間軸（timeStore 節流）。",
+    },
+    legend: "soundAtlas",
+    popup: "soundSource",
+    params: { count: 1, kinds: ["slider"] },
+    description: "落雷到接收點的雷聲延遲與相對活動（非 dB）；兩個來源都空或錯誤時是「無法判斷是否有雷」，不是安靜。地圖波前為示意。",
+    topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "落雷"],
+  },
+  soundWaste: {
+    key: "soundWaste",
+    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    ...layerName({ zh: "垃圾車音樂", alt: "Waste Truck", qualifier: "推估・實驗" }),
+    expandable: true,
+    color: SOUND_FAMILY_COLORS.waste_collection,
+    icon: Truck,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["wasteSchedule"],
+      derivationType: "custom",
+      processing: "垃圾車表定停點（靜態快照，接收點附近縣市）500 m 內、到站前 2 分鐘至離站；臺北市來源沒有星期欄位，預設為「無法判斷」。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）；相對聲源活動推估，非實測噪音、非 dB。模型參數正本 src/sound/model/soundProfiles.ts；計畫書 City Sound Atlas MVP §6–§8。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useSoundAtlasLayer（layers/hosts/soundAtlasHost）：重用既有 loader（wasteSchedule 同一支 RPC／靜態檔），由 src/sound 引擎算接收點的相對潛勢；選了真實場景且有場景快照（public/sound-atlas/scenes/<id>.json，pulse-sound-scene-v1）時，快照有的區塊優先、缺的走即時。地圖：GeoJSON 標記（接收點附近活躍來源）＋連線，雷另畫波前；時間跟全站時間軸（timeStore 節流）。",
+    },
+    legend: "soundAtlas",
+    popup: "soundSource",
+    params: { count: 1, kinds: ["slider"] },
+    description: "接收點 500 m 內垃圾車表定停點的相對活動（表定，非 GPS、非 dB）；沒有星期欄位的城市標為無法判斷，不當成每天確定收運。",
+    topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "垃圾車"],
   },
 
   // 水質與污水 4 層（taipei-gis-analytics output/environment-layers，2026-10-02 快照，隨 dist 打包）。

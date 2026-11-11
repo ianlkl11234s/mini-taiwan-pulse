@@ -1,0 +1,8 @@
+{
+  "legend.soundAtlas.title": "サウンドスケープ（実験）",
+  "legend.soundAtlas.receiver": "受音点（ドラッグ可）",
+  "legend.soundAtlas.unknown": "灰色の輪＝判断不可",
+  "legend.soundAtlas.size": "円が大きいほど相対ポテンシャルが高い（0〜1）",
+  "legend.soundAtlas.link": "線：受音点から音源（航空機は地上投影・破線）",
+  "legend.soundAtlas.wavefront": "雷鳴の波面：毎秒 343 m 拡大（イメージ、音圧範囲ではない）"
+}

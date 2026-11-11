@@ -181,6 +181,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
   { layers: ["hazard-lightning-cwa-core", "hazard-lightning-cwa-halo"], type: "lightningStrike" },
   { layers: ["jma-lightning-core", "jma-lightning-halo"], type: "lightningStrike" },
+  // 🔊 City Sound Atlas 聲景（實驗）：接收點附近的來源標記（四家族各一層，同一個 popup）
+  { layers: ["sound-atlas-src-aviation", "sound-atlas-src-rain", "sound-atlas-src-thunder", "sound-atlas-src-waste"], type: "soundSource" },
   { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
   // 本土地震（useEarthquakeLayer 的 pre/post 兩態，穩定半徑可點；
   // ripple 動畫圈半徑會瞬時放大到 60~80px+ 且持續變動，納入點擊會蓋過其他層的既有命中範圍，故不收）

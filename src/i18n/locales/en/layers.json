@@ -1807,5 +1807,9 @@
   "layer.iOceanSightings": "iOcean Marine Wildlife Sightings",
   "layer.iOceanFishing": "iOcean Recreational Fishing Reports",
   "layer.fireworksSites": "Fireworks Manufacturing & Storage Sites",
-  "layer.vehicleInspectionOffices": "Motor Vehicle Offices & Jurisdictions"
+  "layer.vehicleInspectionOffices": "Motor Vehicle Offices & Jurisdictions",
+  "layer.soundAviation": "Aircraft Sound",
+  "layer.soundRain": "Rain Sound",
+  "layer.soundThunder": "Thunder",
+  "layer.soundWaste": "Garbage Truck Music"
 }

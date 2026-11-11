@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1817,
+    "keyCount": 1821,
     "sections": [
       "gisLayers",
       "overlays",
@@ -730,6 +730,15 @@
         "jma-lightning-halo"
       ],
       "type": "lightningStrike"
+    },
+    {
+      "layers": [
+        "sound-atlas-src-aviation",
+        "sound-atlas-src-rain",
+        "sound-atlas-src-thunder",
+        "sound-atlas-src-waste"
+      ],
+      "type": "soundSource"
     },
     {
       "layers": [
@@ -154544,6 +154553,17 @@
         "valueText": "0.55"
       }
     ],
+    "soundAviation": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
     "soundCameraLocations": [
       {
         "label": "定位精度",
@@ -154568,6 +154588,39 @@
         "type": "select",
         "value": "all"
       },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "soundRain": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "soundThunder": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "soundWaste": [
       {
         "label": "透明度 0.90",
         "max": 1,

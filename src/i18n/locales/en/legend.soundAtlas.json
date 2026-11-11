@@ -1,0 +1,8 @@
+{
+  "legend.soundAtlas.title": "Soundscape (experimental)",
+  "legend.soundAtlas.receiver": "Listening point (draggable)",
+  "legend.soundAtlas.unknown": "Grey ring = cannot tell",
+  "legend.soundAtlas.size": "Larger circle = higher relative potential (0–1)",
+  "legend.soundAtlas.link": "Lines: listening point to source (aircraft = ground projection, dashed)",
+  "legend.soundAtlas.wavefront": "Thunder wavefront: grows 343 m per second (illustrative, not a sound-pressure extent)"
+}

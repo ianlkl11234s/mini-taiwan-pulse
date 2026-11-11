@@ -123,6 +123,7 @@ import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
 import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
+const SoundReceiverPanel = lazy(() => import("./components/sound/SoundReceiverPanel").then(({ SoundReceiverPanel }) => ({ default: SoundReceiverPanel })));
 import { LoadingStatus } from "./components/LoadingStatus";
 import { CountryViewportHint } from "./components/CountryViewportHint";
 import { useViewportCountry } from "./hooks/useViewportCountry";
@@ -3270,6 +3271,14 @@ export default function App() {
         {layerVisibility.jmaKosa && (
           <div style={{ pointerEvents: "auto", flexShrink: 0 }}>
             <JmaKosaPanel isDark={isDarkTheme} />
+          </div>
+        )}
+        {/* City Sound Atlas 接收點面板：任一聲景（實驗）圖層開著才掛；可縮、自行捲動 */}
+        {(layerVisibility.soundAviation || layerVisibility.soundRain || layerVisibility.soundThunder || layerVisibility.soundWaste) && (
+          <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 2, minHeight: 0 }}>
+            <Suspense fallback={null}>
+              <SoundReceiverPanel isDark={isDarkTheme} />
+            </Suspense>
           </div>
         )}
         <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", minHeight: 0, flexShrink: 8 }}>

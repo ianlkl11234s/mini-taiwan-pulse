@@ -1698,6 +1698,11 @@ export const LAYER_PARAMS_SPEC = {
       out: "mapchallengeDay09UrbanRuralMetricIdx", encode: [...MAPCHALLENGE_DAY09_METRIC_ENCODE],
     },
   ],
+  // City Sound Atlas 聲景（實驗）：四個來源家族各自一支透明度（標記、連線、波前一起淡）
+  soundAviation: [opacitySlider("soundAviationOpacity", 0.9)],
+  soundRain: [opacitySlider("soundRainOpacity", 0.9)],
+  soundThunder: [opacitySlider("soundThunderOpacity", 0.9)],
+  soundWaste: [opacitySlider("soundWasteOpacity", 0.9)],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

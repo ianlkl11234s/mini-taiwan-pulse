@@ -8,12 +8,12 @@ import { fetchRainGaugeDay } from "../data/rainGaugeLoader";
 import type { Flight } from "../types";
 import { AVIATION, RAIN } from "./model/soundProfiles";
 import { haversineM } from "./engines/geometryDistance";
-import { loadAviation, type AviationRecord } from "./sourceAdapters/aviationAdapter";
+import { aviationPositionAt, loadAviation, type AviationRecord } from "./sourceAdapters/aviationAdapter";
 import { loadRain, nearestRainStation, type RainRecord } from "./sourceAdapters/rainFieldAdapter";
-import { loadThunder } from "./sourceAdapters/thunderAdapter";
-import { loadWaste } from "./sourceAdapters/wasteAdapter";
+import { loadThunder, type ThunderRecord } from "./sourceAdapters/thunderAdapter";
+import { loadWaste, type WasteRecord } from "./sourceAdapters/wasteAdapter";
 import { snapshotApplies, snapshotFetchers, type SoundSceneSnapshot } from "./scenes";
-import type { Receiver, SoundSourceFamily, SoundSourceSet } from "./types";
+import type { Receiver, SoundSourceFamily, SoundSourceRecord, SoundSourceSet } from "./types";
 
 // ── 垃圾車：只讀接收點所在（含附近）縣市 ───────────────────
 
@@ -180,3 +180,46 @@ export const RAIN_STATION_LIMIT_M = RAIN.maxStationDistanceM.value;
 
 /** 測地距離（面板／地圖共用） */
 export const distanceM = (a: { lon: number; lat: number }, b: { lon: number; lat: number }) => haversineM(a.lon, a.lat, b.lon, b.lat);
+
+// ── 貢獻 → 地圖位置與名稱（只用來源原座標，不合成位置）──────
+
+export interface ContributionPlace {
+  lon: number;
+  lat: number;
+  /** 飛機：該時刻高度（公尺；單位未知為 null） */
+  altitudeM: number | null;
+  /** 人讀名稱：航班呼號／雨量站名／落雷來源／垃圾車路線與停點 */
+  label: string;
+}
+
+export function indexRecords(sets: readonly SoundSourceSet[]): Map<string, SoundSourceRecord> {
+  const m = new Map<string, SoundSourceRecord>();
+  for (const s of sets) for (const r of s.records) m.set(r.id, r);
+  return m;
+}
+
+/** 位置未知（例：航跡缺口）回 null —— 不畫，不補座標 */
+export function contributionPlace(record: SoundSourceRecord | undefined, t: number): ContributionPlace | null {
+  if (!record) return null;
+  switch (record.family) {
+    case "aviation": {
+      const p = (record as AviationRecord).payload;
+      const pos = aviationPositionAt(p, t);
+      if (pos.status !== "position") return null;
+      return { lon: pos.lon, lat: pos.lat, altitudeM: pos.altitudeM, label: p.callsign || p.flightId };
+    }
+    case "rain": {
+      const p = (record as RainRecord).payload;
+      return { lon: p.lon, lat: p.lat, altitudeM: null, label: p.stationName ?? p.stationId };
+    }
+    case "thunder": {
+      const p = (record as ThunderRecord).payload;
+      return { lon: p.lon, lat: p.lat, altitudeM: null, label: p.source };
+    }
+    case "waste_collection": {
+      const p = (record as WasteRecord).payload;
+      const route = p.routeName ?? p.routeId;
+      return { lon: p.lon, lat: p.lat, altitudeM: null, label: p.stopName ? `${route}・${p.stopName}` : route };
+    }
+  }
+}

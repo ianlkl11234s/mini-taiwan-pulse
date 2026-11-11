@@ -1,0 +1,8 @@
+{
+  "legend.soundAtlas.title": "聲景（實驗）",
+  "legend.soundAtlas.receiver": "接收點（可拖曳）",
+  "legend.soundAtlas.unknown": "灰色空心＝無法判斷",
+  "legend.soundAtlas.size": "圓越大＝相對潛勢越高（0–1）",
+  "legend.soundAtlas.link": "連線：接收點到來源（飛機為地面投影，虛線）",
+  "legend.soundAtlas.wavefront": "雷聲波前：每秒擴散 343 m（示意，非聲壓範圍）"
+}
