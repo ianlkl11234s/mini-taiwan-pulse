@@ -540,3 +540,50 @@ describe("pm= 統計呈現方式", () => {
     expect(buildUrl({}, "/")).not.toContain("pm=");
   });
 });
+
+describe("比較模式 cmp*（選填欄位、不升版）", () => {
+  const camera = { center: [121.5, 25.03] as [number, number], zoom: 10, pitch: 0, bearing: 0 };
+
+  it("沒有比較狀態時 buildUrl 輸出與加欄位前逐字相同", () => {
+    expect(buildUrl({ camera, layers: ["flights"] as (keyof LayerVisibility)[] }, "/")).toBe("/?v=1&lng=121.5&lat=25.03&z=10&layers=flights");
+  });
+
+  it("舊網址（沒有 cmp）解析結果不含 compare", () => {
+    expect(parseUrlState(`?${V}&lng=121.5&lat=25&z=10`).compare).toBeUndefined();
+  });
+
+  it("沒有 cmp=1 時其他 cmp 參數一律不採用", () => {
+    expect(parseUrlState(`?${V}&cmpx=0.3&cmpr=historicalMapSinica`).compare).toBeUndefined();
+  });
+
+  it("往返：把手、側別、左右期別與細項", () => {
+    const compare = {
+      split: 0.35,
+      left: ["statsA"],
+      right: ["historicalMapSinica"],
+      leftSelection: { statsB: { Period: "2018-12-abc", DimSex: "female" } },
+      rightSelection: { statsB: { Period: "2026-08-def", DimSex: "male" } },
+    };
+    const url = buildUrl({ camera, compare }, "/");
+    expect(url).toContain("cmp=1");
+    expect(url).toContain("cmpx=0.35");
+    const parsed = parseUrlState(url.slice(1));
+    expect(parsed.compare).toEqual(compare);
+  });
+
+  it("只記非預設：把手在中間、全部兩側時只有 cmp=1", () => {
+    const url = buildUrl({ camera, compare: { split: 0.5 } }, "/");
+    expect(url).toBe("/?v=1&lng=121.5&lat=25.03&z=10&cmp=1");
+    expect(parseUrlState(url.slice(1)).compare).toEqual({});
+  });
+
+  it("壞值逐一略過：越界把手、非法 key、含分隔字元的值", () => {
+    const parsed = parseUrlState(`?${V}&cmp=1&cmpx=2&cmpl=ok,bad-key,ok&cmpr=ok,also&cmpdl=statsB:Period=x;Bad-Suffix=y;DimSex=,9bad:Period=1`);
+    expect(parsed.compare).toEqual({ left: ["ok"], right: ["also"], leftSelection: { statsB: { Period: "x" } } });
+  });
+
+  it("中文細項值經 URL 編碼往返", () => {
+    const compare = { rightSelection: { statsC: { DimCancer: "肺癌" } } };
+    expect(parseUrlState(buildUrl({ compare }, "/").slice(1)).compare).toEqual(compare);
+  });
+});
