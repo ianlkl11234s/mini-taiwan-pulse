@@ -11,6 +11,7 @@
   "statistics.legend.sequential": "Light → dark: low → high values. Compare using this indicator's value ranges",
   "statistics.legend.hatchSocial": "Hatched: missing / not covered by the source, not 0. An observed 0 uses the color scale",
   "statistics.legend.hatchDefault": "Hatched: no data / value not published",
+  "statistics.legend.hatchCircle": "Hatched: missing / not covered by the source, not 0 (no circle)",
   "statistics.legend.hatchLabel": "Hatched: {label}",
   "statistics.legend.crossHatch": "Cross-hatched: suppressed (*)",
   "statistics.legend.notReported": "{label} not_reported (-): not 0. A true 0 uses the color scale",
@@ -97,5 +98,9 @@
   "statistics.level.ca_pr": "Province / territory",
   "statistics.level.ca_cd": "Census division",
   "statistics.level.ie_la": "Local authority",
-  "statistics.level.ie_ed": "Electoral division"
+  "statistics.level.ie_ed": "Electoral division",
+  "statistics.legend.circleArea": "Circle area (not radius) shows the amount; circles keep their size when zooming; observed zeros have no circle",
+  "statistics.legend.circleReference": "The largest circle matches this period's maximum rounded up, so it may change between periods",
+  "statistics.legend.circleReferenceSource": "The largest circle matches this period's maximum rounded up, so it may change between periods; source: {provider}",
+  "statistics.legend.circleNoPositive": "No observed values above 0 in this period, so no circles are drawn"
 }

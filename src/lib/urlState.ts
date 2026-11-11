@@ -43,6 +43,11 @@ export interface UrlState {
   layers?: (keyof LayerVisibility)[];
   /** Statistics choropleth display mode. URL presence takes precedence over local preference. */
   statisticsMode?: StatisticsDisplayMode;
+  /**
+   * 統計圖層呈現方式（`pm=<layerKey>:<mode>,…`）：只記開著而且不是預設的層（例 `pm=statsDemographicsTownshipPopulationTotal:circle`）。
+   * 這裡只驗格式；key 與模式是否合法由主站套用時對推導出的可選清單驗（`statisticsPresentationStore`）。
+   */
+  presentation?: Record<string, string>;
   /** overlayParams 覆寫。**僅 `/embed` 消費**，主站忽略（見 impl §1-1） */
   params?: Record<string, number>;
   /** 凍結歷史畫面的日期 YYYY-MM-DD */
@@ -187,6 +192,20 @@ function parseRailSystems(q: URLSearchParams): string[] | undefined {
   return out.length > 0 ? out : undefined;
 }
 
+const PRESENTATION_ENTRY_RE = /^([A-Za-z][A-Za-z0-9]{0,95}):([a-z]{1,16})$/;
+
+/** `pm=` 格式驗證；壞掉的項目逐一略過，全部壞掉回 undefined。 */
+function parsePresentation(q: URLSearchParams): Record<string, string> | undefined {
+  const raw = q.get("pm");
+  if (!raw) return undefined;
+  const out: Record<string, string> = {};
+  for (const item of raw.split(",").slice(0, 32)) {
+    const matched = PRESENTATION_ENTRY_RE.exec(item.trim());
+    if (matched) out[matched[1]!] = matched[2]!;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 function parseParams(q: URLSearchParams): Record<string, number> | undefined {
   const out: Record<string, number> = {};
   let has = false;
@@ -227,6 +246,9 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
 
   const statisticsMode = q.get("sm");
   if (statisticsMode === "single" || statisticsMode === "overlap") state.statisticsMode = statisticsMode;
+
+  const presentation = parsePresentation(q);
+  if (presentation) state.presentation = presentation;
 
   const params = parseParams(q);
   if (params) state.params = params;
@@ -287,6 +309,10 @@ export function buildUrl(state: UrlState, base: string): string {
   const layers = state.layers?.filter(k => k !== "allenCoralAtlas");
   if (layers?.length) q.set("layers", layers.join(","));
   if (state.statisticsMode) q.set("sm", state.statisticsMode);
+  if (state.presentation) {
+    const entries = Object.entries(state.presentation).filter(([key, mode]) => PRESENTATION_ENTRY_RE.test(`${key}:${mode}`)).sort(([a], [b]) => a.localeCompare(b));
+    if (entries.length) q.set("pm", entries.map(([key, mode]) => `${key}:${mode}`).join(","));
+  }
   if (state.params) {
     for (const [k, v] of Object.entries(state.params)) {
       if (NON_SHAREABLE_PARAM_NAMES.has(k)) continue;

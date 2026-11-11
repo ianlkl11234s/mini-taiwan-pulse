@@ -250,6 +250,52 @@ export function SwatchHatch({ kind = "missing" }: { kind?: "missing" | "suppress
  * - `ring`：空心圈，描邊＝傳入色（例：水庫容量用水庫面的水系色）。圖層另有灰色「無資料」類別時用這個，避免大小圈跟無資料撞色。
  */
 export const LEGEND_SIZE_RING_WIDTH = 1.5;
+
+/**
+ * LG-5 大小（三圓套疊）：比例圓（統計「呈現方式」＝比例圓）。三個參考值的圓底邊對齊、由大到小套疊，
+ * 每個圓頂端拉一條細線到右側數值；直徑＝地圖實際直徑（固定 px、不隨縮放）。
+ * - `fill`：實心（地圖單獨顯示比例圓時），描邊用面板邊框色。
+ * - `ring`：空心圈（地圖疊在其他面量圖上時），描邊＝傳入色。
+ * 數值由大到小傳入；`value` 是數字（等寬字），`suffix` 是量級與單位（「萬人」，CJK 字型，不包進 FONT_DATA）。
+ */
+export function LegendNestedCircles({ items, fill, ring }: { items: readonly { r: number; value: string; suffix?: string }[]; fill?: string; ring?: string }) {
+  const t = useLegendTheme();
+  const fillAlpha = useLegendFillOpacity();
+  const max = Math.max(...items.map((x) => x.r), 1);
+  const pad = LEGEND_SIZE_RING_WIDTH;
+  const size = max * 2 + pad * 2;
+  const leader = LEGEND_SWATCH.gap * 2;
+  const minGap = 12;
+  // 標籤 y＝圓頂；太近時往上推，避免小圓的數字疊在一起
+  const tops: number[] = [];
+  for (const x of items) {
+    const top = size - pad - x.r * 2;
+    const prev = tops[tops.length - 1];
+    tops.push(prev !== undefined && top - prev < minGap ? prev + minGap : top);
+  }
+  const color = fill ? legendCompositeColor(fill, fillAlpha, t.isDark) : "transparent";
+  return (
+    <div style={{ position: "relative", height: Math.max(size, (tops[tops.length - 1] ?? 0) + minGap), marginTop: 4 }}>
+      <svg aria-hidden="true" width={size + leader} height={size} style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }}>
+        {items.map((x, i) => {
+          const cy = size - pad - x.r;
+          return (
+            <g key={`${x.value}${x.suffix ?? ""}`}>
+              <circle cx={pad + max} cy={cy} r={x.r} fill={color} stroke={ring ?? t.border} strokeWidth={ring ? LEGEND_SIZE_RING_WIDTH : 1} />
+              <line x1={pad + max} y1={cy - x.r} x2={size + leader} y2={tops[i]!} stroke={t.textDim} strokeWidth={0.75} />
+            </g>
+          );
+        })}
+      </svg>
+      {items.map((x, i) => (
+        <span key={`${x.value}${x.suffix ?? ""}`} style={{ position: "absolute", left: size + leader + 3, top: tops[i]! - 6, fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: "12px", whiteSpace: "nowrap" }}>
+          <LegendNum>{x.value}</LegendNum>{x.suffix ? ` ${x.suffix}` : ""}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export function LegendSizeRow({ title, items, fill, ring }: { title: string; items: readonly { r: number; label: string }[]; fill?: string; ring?: string }) {
   const t = useLegendTheme();
   return (

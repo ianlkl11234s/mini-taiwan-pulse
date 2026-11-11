@@ -18,7 +18,9 @@ import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, type Sta
 import type { StatisticsLevel, StatisticsRecipe } from '../../data/regionalStatisticsLoader';
 import { statisticsColorStops } from '../../data/statisticsColorScale';
 import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
-import { LegendFillOpacityCtx, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
+import { LegendFillOpacityCtx, LegendNestedCircles, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
+import { PROPORTIONAL_CIRCLE, proportionalCircleRadius, proportionalLegendValues, statisticsCircleData } from '../../map/statisticsCircles';
+import { statisticsCircleHollow, statisticsPresentationMode } from '../../state/statisticsPresentationStore';
 import { statisticsFillOpacity } from '../../data/statisticsVisuals';
 import { useLayerParams } from '../../state/layerParamsStore';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
@@ -232,6 +234,8 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   // 類別型（最高黨）：每類一列、用類別名（不顯示門檻區間與「淺 → 深」）。
   const atlasCategoryLegend = atlas ? atlasCategoryRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
   const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows ?? atlasCategoryLegend;
+  // 呈現方式＝比例圓：色階列換成三圓套疊（圖例只負責顯示，切換在圖層控制區）；缺值斜線等狀態列照舊
+  const circle = statisticsPresentationMode(layerKey) === 'circle';
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <LegendFillOpacityCtx.Provider value={fillOpacity}><div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
     <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n, 'valueTransform' in recipe && Boolean(recipe.valueTransform))} style={{ marginBottom: 0 }} />
@@ -240,8 +244,10 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
     {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
     {state.loading && <span>{tr('statistics.legend.loading')}</span>}{state.error && <span role="alert" title={i18n.active === 'zh-TW' ? undefined : state.error}>{i18n.active === 'zh-TW' ? state.error : tr('statistics.loadFailed')}</span>}
-    {!binaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
-    {(binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>)}
+    {circle ? <StatisticsCircleLegend layerKey={layerKey} data={state.data} level={recipe.level} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} isDark={t.isDark} /> : <>
+      {!binaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
+      {(binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>)}
+    </>}
     {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
     {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
     {addiction && addictionStatusLegendRows(addiction).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
@@ -252,15 +258,45 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {atlas?.legend.display_note && <span>{enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n)}</span>}
     {atlas?.legend.notes?.map((note) => <span key={note}>{enumLabel('statLegendNote', note, note, i18n)}</span>)}
     {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label, solid }) => <LegendRow key={kind} swatch={solid ? <SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} /> : <SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
-    {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
+    {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(circle && (social || labor || environment || demographics) ? 'statistics.legend.hatchCircle' : social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}
     {agri && <span>{tr('statistics.legend.notReported', { label: agri.legend.not_reported_label })}</span>}
     {labor && <><span>{tr('statistics.legend.locationBasis', { value: statisticsLocationBasis(laborLocationSemantics(labor), i18n) })}</span><span>{tr('statistics.legend.boundaryDisclosed', { boundary: boundaryVersionLabel(labor.boundary_version, i18n) })}</span></>}
-    {demographics && <span>{tr('statistics.legend.fixedDemographics', { provider: demographicsSource(demographics).provider })}</span>}
-    {addiction && <span>{tr('statistics.legend.fixedAddiction', { value: statisticsLocationBasis(addiction.location_semantics, i18n) })}</span>}
-    {landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
-    {atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length && atlas.legend.by_dimension ? tr('statistics.legend.perDimensionThresholds') : '', value: statisticsLocationBasis(atlas.location_semantics, i18n) })}</span>}
+    {/* 比例圓不用固定色階門檻：改說明最大圓的參考值會隨期別變（人口類照舊帶來源） */}
+    {circle && <span>{demographics ? tr('statistics.legend.circleReferenceSource', { provider: demographicsSource(demographics).provider }) : tr('statistics.legend.circleReference')}</span>}
+    {circle && (addiction ?? atlas) && <span>{tr('statistics.legend.locationBasis', { value: statisticsLocationBasis((addiction ?? atlas)!.location_semantics, i18n) })}</span>}
+    {!circle && demographics && <span>{tr('statistics.legend.fixedDemographics', { provider: demographicsSource(demographics).provider })}</span>}
+    {!circle && addiction && <span>{tr('statistics.legend.fixedAddiction', { value: statisticsLocationBasis(addiction.location_semantics, i18n) })}</span>}
+    {!circle && landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
+    {!circle && atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length && atlas.legend.by_dimension ? tr('statistics.legend.perDimensionThresholds') : '', value: statisticsLocationBasis(atlas.location_semantics, i18n) })}</span>}
   </div></LegendFillOpacityCtx.Provider>;
+}
+
+/** 數字拆成「數值」與「量級」（萬、K…）：數值用等寬字、量級與單位用 CJK 字型（LG-10） */
+function compactParts(value: number, locale: string): { value: string; compact: string } {
+  const parts = new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 }).formatToParts(value);
+  return {
+    value: parts.filter(part => ['integer', 'group', 'decimal', 'fraction', 'minusSign'].includes(part.type)).map(part => part.value).join(''),
+    compact: parts.filter(part => part.type === 'compact').map(part => part.value).join(''),
+  };
+}
+
+/** LG-5 比例圓圖例：三個套疊圓（與地圖同一個半徑公式與參考值）＋「圓面積代表數量」 */
+function StatisticsCircleLegend({ layerKey, data, level, unit, color, isDark }: { layerKey: StatisticsRenderKey; data: GeoJSON.FeatureCollection | null | undefined; level: string; unit: string; color: string; isDark: boolean }) {
+  const i18n = useLocale();
+  if (!data) return null;
+  const reference = statisticsCircleData(data).reference;
+  if (!reference) return <span>{i18n.t('statistics.legend.circleNoPositive')}</span>;
+  const hollow = statisticsCircleHollow(layerKey);
+  const items = proportionalLegendValues(reference).map((value) => {
+    const { value: number, compact } = compactParts(value, i18n.active);
+    const suffix = `${compact}${compact && i18n.active !== 'en' ? '' : ' '}${unit}`.trim();
+    return { r: proportionalCircleRadius(value, reference, level), value: number, suffix };
+  });
+  return <>
+    <LegendNestedCircles items={items} {...(hollow ? { ring: PROPORTIONAL_CIRCLE.ring.color[isDark ? 'dark' : 'light'] } : { fill: color })} />
+    <span>{i18n.t('statistics.legend.circleArea')}</span>
+  </>;
 }
 
 /** 成癮衍生指標的說明 key（服務據點另有說明） */

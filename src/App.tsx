@@ -54,6 +54,7 @@ import { layerVisibilityStore } from "./state/layerVisibilityStore";
 import { isStatisticsChoropleth, type StatisticsChoroplethKey } from "./data/statisticsLayerRegistry";
 import { shouldClearFeatureInfoForLayerClick, type LayerClickIntent } from "./lib/statisticsPopupSelection";
 import { resolveStatisticsModeForUrl, statisticsDisplayModeStore } from "./state/statisticsDisplayModeStore";
+import { applyPresentationUrlEntries, presentationUrlEntries } from "./state/statisticsPresentationStore";
 import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
@@ -1903,7 +1904,9 @@ export default function App() {
   useEffect(() => {
     if (urlStateAppliedRef.current) return;
     urlStateAppliedRef.current = true;
-    const { layers, date, hour, statisticsMode: urlStatisticsMode } = urlStateRef.current;
+    const { layers, date, hour, statisticsMode: urlStatisticsMode, presentation } = urlStateRef.current;
+    // 呈現方式（pm=）先套，圖層開啟時第一次畫就是比例圓
+    applyPresentationUrlEntries(presentation);
     // URL 明示模式優先於 localStorage；舊連結若列出統計面卻沒有 sm，安全地以單一
     // 模式收斂（layers 原始順序的最後一個統計面保留），避免舊多色階重疊難以閱讀。
     const hydratedStatisticsMode = resolveStatisticsModeForUrl(urlStatisticsMode, layers?.some(isStatisticsChoropleth) ?? false);
@@ -1969,6 +1972,7 @@ export default function App() {
         },
         layers: keys,
         statisticsMode: statisticsDisplayMode,
+        presentation: presentationUrlEntries((key) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility])),
         style: mapStyleId,
         date,
         hour,
@@ -1988,7 +1992,9 @@ export default function App() {
     const onMoveEnd = () => syncUrlRef.current();
     map.on("moveend", onMoveEnd);
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
-    return () => { map.off("moveend", onMoveEnd); };
+    // 呈現方式（pm=）在 layerParamsStore：切換、或被「同時一層比例圓」自動改回時也要更新網址
+    const offParams = layerParamsStore.subscribe(() => syncUrlRef.current());
+    return () => { map.off("moveend", onMoveEnd); offParams(); };
   }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country]);
 
   // 量測（§5.44）：主題、觸控（不顯示游標提示）、標籤文案；拍攝模式暫停加點（量測線保留）
