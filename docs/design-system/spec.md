@@ -502,6 +502,7 @@
   - 寫死在 `ExpandedControls` 的區塊不參與排序：航班模式鈕、`PropertyValueStatisticsDetails`、歷史航跡在控制項之前；「說明・來源」固定最後。統計的期別、指標、細項（C 段）已改成連動選單（§5.37），照類別排在資料篩選；統計的來源與處理紀錄放在「說明・來源」裡。
   - `linkedSelect` 一律歸資料篩選（不必進詞彙表）。
   - 「立體效果」toggle（R6，2026-10-05）歸顏色組：排在資料篩選之後、透明度之前，每個有 Three.js 效果的非移動物件圖層一個，預設關。
+  - 統計「呈現方式」（面量圖／比例圓，2026-11-11）`category: 'color'`：同樣排在資料篩選之後、透明度之前；由 `statisticsPresentation.ts` 依 recipe 推導產生，≥2 個選項才出現。被「同時只能一層比例圓」改回的層，在新比例圓層這一列下方顯示一行說明（`SelectConfig.note`，`.lpc-note`，`role="status"`）。圖例不放這個切換。
   - 護欄：`src/state/__tests__/layerParamsOrder.test.ts`——分不出類（新標籤）就紅：在詞彙表補一列或寫 `category`；輸出名次必須單調不減。
 - **禁止**：手寫圖層控制 JSX（一律 `layerParamsSpec.ts` 規格 → `ParamControlList`）；標籤與數值擠在同一字串；為了順序去搬 spec 陣列（排序由類別決定）。
 - **實作**：`src/components/sidebar/{LayerParamControls.tsx,layerParamControls.css}`、`src/state/layerParamsControls.ts`。
@@ -755,7 +756,8 @@
 - **尺寸常數**：`LEGEND_SWATCH`（點、方塊、線、分級、漸層、斜線、icon 14、間距 6）。`SwatchDot`／`SwatchSquare` 預設不透明度 0.9。
 - **合成色（LG-14，2026-11-10）**：面圖層的 `SwatchSquare`（實心、呼叫端未傳 `opacity`）與 `SwatchSteps` 在 `LegendFillOpacityCtx` 內時，畫「色 × 圖層目前填色透明度 × 底圖陸地色」的不透明合成色，加 1px `border`，跟透明度滑桿與底圖即時變；`LegendPanel` 依 overlayRegistry 自動提供透明度，統計圖例自己提供。查不到透明度（表達式、hook 自建、3D）維持原色票。規格 `map-layers.md` §4.2 LG-14、§3.9。
 - **暗底提亮同步（C-4，2026-11-10）**：registry 點／線在暗底被 `darkContrast` 提亮過的顏色，`LegendPanel` 以 `LegendLiftCtx` 提供「原色 → 地圖色」對照，`SwatchDot`／`SwatchLine` 自動換色；手寫色票改用 `useLegendColorMapper()`。點色票外環用 `LegendPalette.pointRing`（同地圖點描邊 P-2：暗 `#e5e7eb` 0.45、淡白）。類別無語意的新配色取 `MAP_CATEGORICAL`（map-layers §3.9 C-5）。
-- **尚無元件**：LG-5 大小（三圓）、LG-6 icon 還沒有共用元件，逐層做時補。
+- **大小（LG-5）**：`LegendSizeRow`（點大小三圓並排＋標籤）、`LegendNestedCircles`（三圓底邊對齊套疊、圓頂細線拉到右側數值；`fill` 實心／`ring` 空心圈，直徑＝地圖實際直徑；統計比例圓用，`map-layers.md` §3.10）。數值用 `LegendNum`，量級與單位用 CJK 字型。
+- **尚無元件**：LG-6 icon（除方向箭頭）還沒有共用元件，逐層做時補。
 - **字型**（LG-10）：面板容器 `FONT_CJK`；數字、分界、單位用 `LegendNum`（`FONT_DATA`＋tabular-nums）。
 - **精簡版**（LG-9）：`LegendPanel` 的 `compact`（停靠 popup 開著時）會讓 `LegendNote` 不顯示；色階、分界、單位不可收。
 - **禁止**：手寫 `width／height` 色票（ratchet 只准減少）；英文大寫標題；在圖例裡用 `FONT_DATA` 包中文。
