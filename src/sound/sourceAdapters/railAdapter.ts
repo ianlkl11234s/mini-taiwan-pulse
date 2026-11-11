@@ -395,6 +395,7 @@ export function departuresToRecords(
 ): { records: RailRecord[]; missingTrack: number } {
   const midnight = taipeiMidnightMs(opDay) / 1000;
   const records: RailRecord[] = [];
+  const seenIds = new Set<string>();
   let missingTrack = 0;
   for (const d of departures) {
     const track = tracks.get(d.trackId);
@@ -405,8 +406,14 @@ export function departuresToRecords(
     // 日曆日系統（台鐵、高鐵）：班表時刻就是 opDay 當天時刻；捷運類：延長日制（05:50 前 +24h）
     const depUnix = midnight + (calendarDay ? clockSeconds(d.departureTime) : timeToSeconds(d.departureTime));
     const last = d.stations[d.stations.length - 1]!;
+    // 車次編號不保證跨軌道唯一（北捷班表同一 train_id 會出現在不同 track）：重複時補 trackId，
+    // 否則 UI 以 id 建索引會把列車畫到別條線上
+    let id = `rail:${system}:${opDay}:${d.trainId}`;
+    if (seenIds.has(id)) id = `${id}@${d.trackId}`;
+    for (let k = 2; seenIds.has(id); k++) id = `rail:${system}:${opDay}:${d.trainId}@${d.trackId}#${k}`;
+    seenIds.add(id);
     records.push({
-      id: `rail:${system}:${opDay}:${d.trainId}`,
+      id,
       family: "rail",
       geometryKind: "moving_point_2d",
       payload: { kind: "train", system, opDay, trainId: d.trainId, depUnix, totalTravelTime: d.totalTravelTime, stations: d.stations, basis, track },

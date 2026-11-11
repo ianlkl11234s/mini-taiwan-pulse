@@ -67,6 +67,11 @@ function setOf(records: ReturnType<typeof recordsFor>): SoundSourceSet<unknown, 
 }
 
 describe("railAdapter", () => {
+  it("同營運日同車次編號出現兩次 → record id 仍唯一（UI 以 id 建索引）", () => {
+    const ids = recordsFor(ALL_ELEVATED, [DEP, { ...DEP, departureTime: "07:00:00" }]).map((r) => r.id);
+    expect(ids).toEqual([`rail:trtc:${DATE}:T-001`, `rail:trtc:${DATE}:T-001@T-1-0`]);
+  });
+
   it("列車位置與既有 RailEngine.update 一致（重用同規則）", () => {
     const [rec] = recordsFor(ALL_ELEVATED);
     const sched = { track_id: "T-1-0", route_id: "T-1", name: "t", train_color: "#fff", stations: ["A", "B", "C", "D"], departures: [{ departure_time: DEP.departureTime, train_id: DEP.trainId, total_travel_time: DEP.totalTravelTime, stations: DEP.stations }] } as unknown as RailSchedule;
