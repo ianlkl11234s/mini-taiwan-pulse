@@ -263,7 +263,8 @@ export function ensureAnimLayers(map: MapboxMap): void {
       id: ANIM_LAYERS.leaf, type: "symbol", source: ANIM_SOURCE,
       filter: ["==", ["get", "kind"], "leaf"],
       layout: {
-        "icon-image": LEAF_IMAGE, "icon-size": ["get", "size"], "icon-rotate": ["get", "rot"],
+        // 拉遠時葉子放大一些（場景預設 z12 時 1 km 只有約 40 px，葉子要看得到）；zoom 運算式只能放在最外層 interpolate
+        "icon-image": LEAF_IMAGE, "icon-size": ["interpolate", ["linear"], ["zoom"], 11, ["*", 1.6, ["get", "size"]], 14, ["get", "size"]], "icon-rotate": ["get", "rot"],
         "icon-allow-overlap": true, "icon-ignore-placement": true, "icon-rotation-alignment": "map",
       },
       paint: { "icon-opacity": ["get", "opacity"] },
@@ -539,13 +540,13 @@ export class SoundAtlasAnimator {
     if (wind == null && wave == null && river == null) return;
     const cosLat = Math.cos(receiver.latitude * (Math.PI / 180));
 
-    // 風：接收點周圍 100–700 m 的葉子，數量∝潛勢，搖擺幅度與速度∝潛勢
+    // 風：接收點周圍 120–1,020 m 的葉子，數量∝潛勢，搖擺幅度與速度∝潛勢
     if (wind != null && wind > 0) {
       const o = clamp01(opacity.wind_vegetation);
-      const n = Math.max(2, Math.round(wind * ANIM_CAPS.leaves));
+      const n = Math.max(4, Math.round(wind * ANIM_CAPS.leaves));
       for (let i = 0; i < n; i++) {
         const ang = hash01(i, 7) * Math.PI * 2;
-        const dist = 100 + Math.sqrt(hash01(i, 13)) * 600;
+        const dist = 120 + Math.sqrt(hash01(i, 13)) * 900;
         const sway = Math.sin(nowMs / (900 - 450 * wind) + i * 1.7);
         const drift = 30 * wind * sway;
         const lon = receiver.longitude + (Math.cos(ang) * dist + drift) / (M_PER_DEG * cosLat);

@@ -17,7 +17,7 @@ export function selectSoundScene(id: SoundSceneId | null): void {
   }
   const def = findScene(id);
   if (!def) return;
-  soundAtlasStore.set({ sceneId: id, snapshot: null, snapshotStatus: "loading", placing: false });
+  soundAtlasStore.set({ sceneId: id, snapshot: null, snapshotStatus: "loading", placing: false, route: { ...EMPTY_ROUTE, mode: soundAtlasStore.get().route.mode } });
   for (const key of def.companionLayers ?? []) layerVisibilityStore.setVisibility(key, true);
 
   // 接收點與焦點時刻只看快照（子場景以 def.view 覆寫，見 scenes.ts）。先寫快照與接收點、再撥時間軸：
@@ -58,10 +58,10 @@ export function startPlacingReceiver(): void {
 
 // ── 路線剖面（沿途主要聲源，不是噪音暴露量）────────────────────
 
-/** 開始畫路線：清掉舊路線，之後每次點地圖加一個節點（Esc 取消） */
+/** 開始畫路線：清掉舊路線，之後每次點地圖加一個節點；畫線中再按一次＝取消（同 Esc） */
 export function startRouteDrawing(): void {
   const st = soundAtlasStore.get();
-  soundAtlasStore.set({ placing: false, route: { ...EMPTY_ROUTE, mode: st.route.mode, drawing: true } });
+  soundAtlasStore.set({ placing: false, route: { ...EMPTY_ROUTE, mode: st.route.mode, drawing: !st.route.drawing } });
 }
 
 export function addRoutePoint(lon: number, lat: number): void {

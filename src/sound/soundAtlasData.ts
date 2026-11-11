@@ -202,6 +202,17 @@ export async function loadSoundFamily(
   }
   if (family === "wind_vegetation" || family === "coastal_wave" || family === "river_water") {
     // W5 自然三族：時變觀測只在場景快照（S3 正本裁切）；即時：風、浪 unavailable，河川讀 RPC 但缺河道與分位 → unknown
+    if (family === "river_water" && !(applies && snapshot && naturalBlockFor(snapshot.raw, family))) {
+      // 河川即時：RPC 有水位，但河道幾何與歷史分位檔尚未發布 → 一律無法判斷；直接標「僅場景快照提供」，不白打 RPC
+      const start = taipeiMidnightMs(date) / 1000;
+      return {
+        set: {
+          family, dateKey: date, records: [],
+          coverage: [{ family, provider: "wra_river_water_level", dateKey: date, status: "unavailable", windowStart: start, windowEnd: start + 86_400, temporalKind: "day_series", reason: "river_assets_not_published(snapshot_only)" }],
+        } as SoundSourceSet,
+        origin: "live",
+      };
+    }
     const r = await loadAdvancedFamily(family, date, applies ? snapshot!.raw : null);
     return { set: r.set as SoundSourceSet, origin: r.origin };
   }

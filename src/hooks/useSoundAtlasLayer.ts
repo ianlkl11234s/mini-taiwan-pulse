@@ -19,7 +19,7 @@ import {
   contributionPlace, familyLoadKey, indexRecords, loadSoundFamily, nearestPointOnGeometry, nearestPointOnLine, prefilterSetsForReceiver, type LoadedFamily,
 } from "../sound/soundAtlasData";
 import { makeReceiver, setSoundAtlasMap, soundAtlasStore, type SoundAtlasState } from "../sound/soundAtlasStore";
-import { addRoutePoint } from "../sound/soundAtlasActions";
+import { addRoutePoint, clearRoute } from "../sound/soundAtlasActions";
 import { SOUND_FAMILY_COLORS, SOUND_UNKNOWN_COLOR } from "../sound/soundAtlasColors";
 import {
   createReceiverElements, ensureAnimLayers, removeAnimLayers, setSoundAtlasAnimator, SoundAtlasAnimator, type ReceiverElements,
@@ -405,7 +405,7 @@ export function useSoundAtlasLayer(
     };
   }, [mapRef, anyOn, placing, mapTick]);
 
-  // ── 畫路線模式：每次點地圖加一個節點；Esc 結束畫線（不計算）──
+  // ── 畫路線模式：每次點地圖加一個節點；Esc 取消（清掉節點）；畫線期間停用雙擊縮放（否則一次雙擊加兩點又縮放）──
   const drawingRoute = route.drawing;
   useEffect(() => {
     const map = mapRef.current;
@@ -414,10 +414,13 @@ export function useSoundAtlasLayer(
     const prevCursor = canvas.style.cursor;
     canvas.style.cursor = "crosshair";
     const onClick = (e: mapboxgl.MapMouseEvent) => addRoutePoint(e.lngLat.lng, e.lngLat.lat);
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") soundAtlasStore.set({ route: { ...soundAtlasStore.get().route, drawing: false } }); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") clearRoute(); };
+    const dbl = map.doubleClickZoom.isEnabled();
+    if (dbl) map.doubleClickZoom.disable();
     map.on("click", onClick);
     window.addEventListener("keydown", onKey);
     return () => {
+      if (dbl) map.doubleClickZoom.enable();
       map.off("click", onClick);
       window.removeEventListener("keydown", onKey);
       canvas.style.cursor = prevCursor;

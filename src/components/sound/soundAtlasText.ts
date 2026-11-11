@@ -112,7 +112,7 @@ export function reasonKey(reason: string | null | undefined): MessageKey {
   if (r === "station_hour_missing") return "soundAtlas.reason.hourMissing";
   if (r === "precipitation_1hr_null") return "soundAtlas.reason.valueNull";
   // W5 自然三族：風、浪即時沒有讀取路徑（coverage unavailable）→「僅場景快照提供」
-  if (r.endsWith("(snapshot_only)") || (r.startsWith("no_healthy_source") && /(cwa_weather_obs|cwa_marine_obs):unavailable/.test(r))) return "soundAtlas.reason.snapshotOnly";
+  if (r.endsWith("(snapshot_only)") || (r.startsWith("no_healthy_source") && /(cwa_weather_obs|cwa_marine_obs|wra_river_water_level):unavailable/.test(r))) return "soundAtlas.reason.snapshotOnly";
   if (r === "vegetation_not_sampled") return "soundAtlas.reason.noVegetation";
   if (r === "canopy_masked_ambiguous") return "soundAtlas.reason.canopyAmbiguous";
   if (r.startsWith("coastline_") || r.startsWith("river_network_")) return "soundAtlas.reason.naturalNotLoaded";

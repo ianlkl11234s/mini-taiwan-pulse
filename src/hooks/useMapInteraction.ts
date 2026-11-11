@@ -31,6 +31,7 @@ import { bridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { selectBridgeResilienceOrigin } from "../state/bridgeResilienceDestinationRetry";
 import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
 import { isDrawn as isBusCrowdingDrawn } from "../data/busCrowdingSimTypes";
+import { soundAtlasStore } from "../sound/soundAtlasStore";
 
 interface TooltipInfo {
   flight: Flight;
@@ -131,6 +132,9 @@ export function useMapInteraction(
     clickBoundRef.current = true;
 
     map.on("click", (e) => {
+      // 聲景放接收點／畫路線時，這一下點擊是在放點，不開 popup
+      const sa = soundAtlasStore.get();
+      if (sa.placing || sa.route.drawing) return;
       const featureRequest = ++featureRequestRef.current;
       const container = map.getContainer();
       const w = container.clientWidth;
