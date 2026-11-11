@@ -1,0 +1,24 @@
+{
+  "schema": "pulse-sound-scene-v1",
+  "id": "test-mini",
+  "title_zh": "測試用極小場景（去識別、非真實資料）",
+  "date": "2026-07-14",
+  "focus_time": "2026-07-14T15:00:00+08:00",
+  "receiver": { "lon": 121.5, "lat": 25.0, "height_m": 1.5, "label_zh": "測試點", "reason_zh": "單元測試" },
+  "bbox": [121.3, 24.8, 121.7, 25.2],
+  "aviation": {
+    "origin": "s3://example/test",
+    "rows": [
+      { "flight_id": "abc123", "callsign": "TST001", "aircraft_type": "", "origin": "", "destination": "",
+        "trail": "25.009,121.5,500,1784012400;25.0,121.5,450,1784012460;24.991,121.5,400,1784012520" }
+    ]
+  },
+  "thunder": {
+    "origin": "s3://example/test",
+    "health": { "cwa": "empty", "taipower": "ok" },
+    "events": [
+      { "event_id": 1, "source": "taipower", "strike_ts": 1784012400, "lon": 121.5, "lat": 25.003085, "strike_type": 0, "intensity_ka": 3.97 }
+    ]
+  },
+  "notes_zh": ["雨區塊刻意缺：測試走 fallback"]
+}

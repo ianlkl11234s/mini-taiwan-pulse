@@ -181,11 +181,15 @@ export const queryRainInterval: IntervalQuery<RainPayload> = (records, receiver,
   return { contributions, notes: anyDry || best ? [stationLabel(nearest), "granularity:hourly"] : [] };
 };
 
-export async function loadRain(ctx: { date: string }): Promise<SoundSourceSet<RainPayload>> {
+/** fetcher 可注入（測試、場景快照）；預設走 get_rain_gauge_day */
+export async function loadRain(
+  ctx: { date: string },
+  fetcher: (date: string) => Promise<RainGaugeDayRow[]> = fetchRainGaugeDay,
+): Promise<SoundSourceSet<RainPayload>> {
   const start = taipeiMidnightMs(ctx.date) / 1000;
   const base = { family: "rain" as const, provider: "cwa_rain_gauge", dateKey: ctx.date, windowStart: start, windowEnd: start + 86_400, temporalKind: "day_series" as const };
   try {
-    const rows = await fetchRainGaugeDay(ctx.date);
+    const rows = await fetcher(ctx.date);
     const records = rainRowsToRecords(rows);
     return { family: "rain", dateKey: ctx.date, records, coverage: [{ ...base, status: records.length ? "ok" : "empty", reason: records.length ? undefined : "no_rain_rows_for_date" }] };
   } catch (e) {
