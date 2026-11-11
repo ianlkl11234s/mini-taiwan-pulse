@@ -144,9 +144,10 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
             {st.loading.length > 0 && <div style={note}>{t("soundAtlas.current.loading")}</div>}
             {current && top.length === 0 && farAviation.count === 0 && st.loading.length === 0 && <div style={note}>{t("soundAtlas.current.empty")}</div>}
             {top.map((cb) => <ContributionRow key={cb.sourceId} c={cb} origin={st.origins[cb.family] ?? "live"} colors={c} />)}
+            {/* 最高值無條件捨去：0.0999 不可顯示成與門檻相同的 0.10 */}
             {farAviation.count > 0 && (
               <div style={note}>
-                {t("soundAtlas.current.farAviation", { count: farAviation.count, max: formatPotential(farAviation.maxPotential), min: formatPotential(AVIATION.displayMinPotential.value) })}
+                {t("soundAtlas.current.farAviation", { count: farAviation.count, max: formatPotential(Math.floor(farAviation.maxPotential * 100) / 100), min: formatPotential(AVIATION.displayMinPotential.value) })}
               </div>
             )}
           </>
