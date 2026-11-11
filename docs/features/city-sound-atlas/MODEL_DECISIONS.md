@@ -147,3 +147,13 @@ ADR-0025 的情境推演模式是「analytics 預先算好固定情境 → `outp
 - 許可期間判定重用 `roadEventsLoader.isRoadEventActive`（缺生效時間不算進行中；沒有到期時間依來源新鮮度）。
 - 許可多為跨月／跨年、沒有每日工時（2026-11-08 歸檔 1,100 筆只有 1 筆描述含時段），**不自行假設工時**；contribution 帶 `permit_is_not_machinery_operation`、`daily_work_hours_unknown`、`permit_span_days`。
 - 接收者落在任一非涵蓋縣市外框內 → unknown（`roadwork_city_not_covered`），外框重疊處保守處理。
+
+## 6. W5（2026-11-11）：自然聲源三族與路線剖面
+
+> 模型版本升為 `sound-atlas-w5-0.3.0`（只新增 WIND_VEGETATION／COASTAL_WAVE／RIVER_WATER／ROUTE 參數，既有七族不變）。口徑、查核、UI 接線規格見 [ADVANCED_SOURCES.md](./ADVANCED_SOURCES.md)；遮蔽與校準研究見 [ADVANCED_RESEARCH.md](./ADVANCED_RESEARCH.md)。
+
+- 型別：`AdvancedSoundFamily` 併入 `AnySoundFamily`、不併入 `SoundSourceFamily`（同 §5.1 理由）；`proxyKind` 新增 `wind_speed_x_canopy`、`wave_height_period_x_coast_distance`、`water_level_percentile`。
+- 三族都先判「靜態脈絡」（樹冠／海岸／河道）：脈絡缺 → unknown；脈絡在但沒有候選（無樹、離海 >1 km、離河 >300 m）→ inactive；之後才看時變資料，缺 → unknown。
+- 樹冠 A=0 同時代表無樹／海／無資料：範圍內全部 A=0 → unknown；有任一格有值才把其餘 A=0 當無樹。
+- 河川活動＝水位在該站前 60 天（不含當天）分位表中的位置；沒有分位或樣本 <336 小時 → unknown。
+- 路線剖面：等距取樣、每點時間＝出發＋距離÷速度、逐點瞬時查詢；跨日由 coverage 時間窗挑對的那天。
