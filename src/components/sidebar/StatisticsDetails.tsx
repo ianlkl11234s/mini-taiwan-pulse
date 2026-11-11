@@ -258,7 +258,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {atlas?.legend.display_note && <span>{enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n)}</span>}
     {atlas?.legend.notes?.map((note) => <span key={note}>{enumLabel('statLegendNote', note, note, i18n)}</span>)}
     {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label, solid }) => <LegendRow key={kind} swatch={solid ? <SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} /> : <SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
-    {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
+    {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(circle && (social || labor || environment || demographics) ? 'statistics.legend.hatchCircle' : social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}
     {agri && <span>{tr('statistics.legend.notReported', { label: agri.legend.not_reported_label })}</span>}
     {labor && <><span>{tr('statistics.legend.locationBasis', { value: statisticsLocationBasis(laborLocationSemantics(labor), i18n) })}</span><span>{tr('statistics.legend.boundaryDisclosed', { boundary: boundaryVersionLabel(labor.boundary_version, i18n) })}</span></>}

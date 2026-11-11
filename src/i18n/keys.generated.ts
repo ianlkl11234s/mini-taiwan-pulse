@@ -7975,6 +7975,7 @@ export type GeneratedStaticKey =
   | "statistics.legend.fixedDemographics"
   | "statistics.legend.fixedLandslide"
   | "statistics.legend.freshness"
+  | "statistics.legend.hatchCircle"
   | "statistics.legend.hatchDefault"
   | "statistics.legend.hatchLabel"
   | "statistics.legend.hatchSocial"

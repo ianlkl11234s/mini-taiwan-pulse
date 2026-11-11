@@ -11,6 +11,7 @@
   "statistics.legend.sequential": "Light → dark: low → high values. Compare using this indicator's value ranges",
   "statistics.legend.hatchSocial": "Hatched: missing / not covered by the source, not 0. An observed 0 uses the color scale",
   "statistics.legend.hatchDefault": "Hatched: no data / value not published",
+  "statistics.legend.hatchCircle": "Hatched: missing / not covered by the source, not 0 (no circle)",
   "statistics.legend.hatchLabel": "Hatched: {label}",
   "statistics.legend.crossHatch": "Cross-hatched: suppressed (*)",
   "statistics.legend.notReported": "{label} not_reported (-): not 0. A true 0 uses the color scale",

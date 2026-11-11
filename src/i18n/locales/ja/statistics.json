@@ -11,6 +11,7 @@
   "statistics.legend.sequential": "淡 → 濃：値が低 → 高。この指標の数値区間で比較",
   "statistics.legend.hatchSocial": "斜線：missing／出典の対象外。0 ではない。観測値 0 は段階色で表示",
   "statistics.legend.hatchDefault": "斜線：データなし／未公表",
+  "statistics.legend.hatchCircle": "斜線：missing／出典の対象外。0 ではない（円は描かない）",
   "statistics.legend.hatchLabel": "斜線：{label}",
   "statistics.legend.crossHatch": "交差斜線：秘匿 suppressed（*）",
   "statistics.legend.notReported": "{label} not_reported（-）：0 ではない。真の 0 は段階色で表示",
