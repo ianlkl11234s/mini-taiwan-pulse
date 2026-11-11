@@ -2181,6 +2181,13 @@
    "s3_key": "deploy-assets/sound-atlas/scenes/taipei-typhoon-1024.json"
   },
   {
+   "path": "public/sound-atlas/vd-baseline-taipei.json",
+   "bytes": 418719,
+   "sha256": "fcc187c9d3bb8fbd4311c518d7cef304e92c35748197ca44d1870576d49b1c1f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/vd-baseline-taipei.json"
+  },
+  {
    "path": "public/state_assets/state_property_tender_listings.geojson",
    "bytes": 1082309,
    "sha256": "997d7c42c4f58c0af9b9f89930dadfaafe4678d64bfd264a4d1175134d7a5ee7",
