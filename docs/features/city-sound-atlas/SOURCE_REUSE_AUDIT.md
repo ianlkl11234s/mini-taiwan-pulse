@@ -10,7 +10,7 @@
 |---|---|---|---|---|---|---|
 | 飛機 | `airspaceLoader.fetchAirspaceDayArrow` → `get_flight_trails(target_date date)` → `live.flight_trails_daily` | 每航班一列；`trail`＝`lat,lng,alt,ts;…`，點距中位數 300 秒；`day`＝**臺北日**，實際涵蓋前一日 23:00～隔日 01:00 | 7 天（`cleanup_flight_trails_daily(7)`，表內現有 11-03～11-11） | `trails/flights/<D>.json.gz`（同列形，每日 02:00 匯出） | 正常，11-08 5,705 架、11-09 5,493 架 | **可直接複用**；高度單位混用，見 §2 |
 | 雷 | `lightningLoader.fetchLightningDay(dateKey, source)` → `get_lightning_day(date_key text, p_source text default 'taipower')` → `live.lightning_events` | 每次落雷一列：`event_id bigint`、`strike_ts`（unix 秒）、`intensity_ka`、`strike_type`（0 雲對地／1 雲中）、`lon`、`lat`；依臺北日切 | 7 天（`cleanup_lightning_events(7)`） | `lightning_cwa/archives/<D>.tar.gz`（每 5 分鐘一個 json）、`lightning_events/archives/<D>.tar.gz`（台電，每 30 分鐘一個 json）；**檔名日期＝收集時間的臺北日** | cwa：表內只有 11-06 兩筆；taipower：11-04～11-10 共 27 筆；jma 1,856 筆（只涵蓋日本，不用） | **可複用**；必須逐源記 health，見 §3 |
-| 雨 | `rainGaugeLoader.fetchRainGaugeDay(dateKey)` → `get_rain_gauge_day(target_date date)` → `live.rain_gauge_readings` | `DISTINCT ON (station_id, date_trunc('hour', observed_at))` 取每小時**最後一筆**：每站每小時一列；`precipitation_10min／1hr／3hr／24hr`（mm） | 30 天（表內現有 10-12 起） | 無逐筆正本快照（本次場景快照補上 10-24、11-08、11-09 三天的裁切） | 正常；臺北 11-09 有 197 站×24 小時；`precipitation_10min` 臺北站多為 NULL | **可複用**；只能做每小時粒度 |
+| 雨 | `rainGaugeLoader.fetchRainGaugeDay(dateKey)` → `get_rain_gauge_day(target_date date)` → `live.rain_gauge_readings` | `DISTINCT ON (station_id, date_trunc('hour', observed_at))` 取每小時**最後一筆**：每站每小時一列；`precipitation_10min／1hr／3hr／24hr`（mm） | 30 天（表內現有 10-12 起） | 無逐筆正本快照（本次場景快照補上 10-24、11-08、11-09 三天的裁切） | 正常；臺北場景 11-09 接收點 ±30 km 內 197 站×24 小時；`precipitation_10min` 臺北場景約 30% 列為 NULL，且數值語意可疑（見 §4） | **可複用**；只能做每小時粒度 |
 | 垃圾車 | `wasteScheduleLoader.fetchWasteScheduleDay(cities, dow)` → 靜態快照 `/static-rpc/get_waste_schedule_day_<dow>_<分組>.json`（＝`public.get_waste_schedule_day` 原樣輸出） | 每路線一列，`stops` 含 `arrival_sec／departure_sec`；臺北星期欄位全空 → RPC 當每日 | 表 `spatial.waste_schedule_day_agg` 無保留期（靜態表） | 靜態快照在 R2 | **`refreshed_at` 全部在 2026-07-22 22:45～22:48，之後未刷新**（20 城、15,685 列） | **可複用但標 stale**；班表是週期資料，本身不過期，但路線異動不會反映 |
 | 時間 | `src/state/timeStore.ts` | `getTime()`／`subscribeThrottled()`／`subscribeDate()` | — | — | — | UI 接線用（W2） |
 
@@ -24,20 +24,20 @@ RPC 定義是 2026-11-11 用 `pg_get_functiondef` 從正式 DB 讀出的現行�
 - 三個場景快照內：臺北 11/9 1,262 架中 785 架是英尺、477 架是公尺；沒有第三種 id。
 - 聲景引擎依 `flight_id` 判斷（`aviationAdapter.altitudeUnitForFlightId`），其他格式回 `unknown`、只算 2D、不給潛勢（T05）。高度基準（MSL／AGL、氣壓／幾何）未與地形校正，斜距附 note。
 - **FlightScene 既有 bug（不在本分支修）**：`src/three/FlightScene.ts` 163–164、333 行把 `a[2]` 直接傳給 `utils/coordinates.toMercator(lat, lng, altMeters)`，第三個參數語意是公尺；FR24 的英尺值因此被當公尺，3D 航跡高度約放大 3.28 倍，且和 OpenSky 航班高度不一致。顏色門檻 `MAX_ALT = 13000`（135 行）也假設公尺。需另開 BACKLOG 修。
-- 缺口：`flightRowsToFlights` 以 30 分鐘切段；快照內 >30 分鐘的間隔在臺北 11/9 有 771 個（多是同 id 不同趟），10–30 分鐘的 267 個。引擎段內 >10 分鐘不內插、段間回 unknown，不以直線補軌跡（計畫 §2 風險 4）。
+- 缺口：`flightRowsToFlights` 以 30 分鐘切段；快照內 >30 分鐘的間隔在臺北 11/9 有 771 個、10–30 分鐘的 267 個（未逐一判斷是否同 id 不同趟）。引擎段內 >10 分鐘不內插、段間回 unknown，不以直線補軌跡（計畫 §2 風險 4）。
 
 ## 3. 雷：台電落雷現況與「空≠沒雷」
 
 - `src/data/lightningLoader.ts` 84、136 行註解寫「台電源自 2026-07-10 起端點活著但永遠回空」，Monitor 卡片因此以 cwa 為主（143 行）。**這個結論已過時**：2026-11-11 實查，`live.lightning_events` 的 taipower 在 11-04～11-10 有 27 筆，S3 archive 10-24 有 9 筆；反而 cwa 近期很稀疏（表內只有 11-06 兩筆，10-24 全台 3 筆）。
 - 聲景引擎因此兩源都讀（`THUNDER.sources = ["cwa","taipower"]`），每源各自 `ok／empty／error`；loader 檔頭註解與 Monitor 主來源要不要改，留給使用者決定（不在本分支改 `src/data`）。
-- `get_lightning_day` 的 `p_source` 預設是 `'taipower'`；p_source=null 會兩源加總（loader 304 行註解），聲景一律指定來源。
+- `get_lightning_day` 的 `p_source` 預設是 `'taipower'`，定義為 `WHERE source = p_source`（傳 null 會回 0 筆）；loader 304 行「null 會兩源加總」的註解講的是另一支 `get_lightning_daily`。聲景一律指定來源。
 - cwa 的 `strike_time` 只到**分鐘**（S3 樣本 `15:07:00+00:00`），延遲計算與跨源 ±1 秒 possible-link 對 cwa 沒有意義。
 - cwa 的 `event_id` 是 18 位數（例 `455525717468717829`），**超過 2^53**，JS `JSON.parse`／supabase-js 會失真；adapter 以 `source+event_id` 去重，理論上可能誤併。既有 RPC 路徑同樣有此問題，場景快照另附 `event_id_str`。
 
 ## 4. 雨：粒度
 
 - RPC 每站每小時一筆（取該小時最後一筆觀測），`bucket_at` 為小時起點。adapter 用 `precipitation_1hr`（過去 1 小時累積 mm）當 mm/h 代理，`[bucket_at, bucket_at+1h)` 代表該筆。
-- `precipitation_10min` 單位是 mm/10min，臺北近期多 NULL（臺北 11/9 快照 2,710 列中 819 列 NULL），**不與 1hr 混用**。
+- `precipitation_10min` 名義單位是 mm/10min，但臺北 11/9 快照 2,710 列中 819 列 NULL；而且 10/24 小油坑 14 時一列是 `precipitation_10min=209.5`、`precipitation_1hr=46.5`，10 分鐘量大於 1 小時量，顯然不是單純 10 分鐘雨量（欄位語意待上游查證）。**不與 1hr 混用，也不使用。**
 - 雷達：`precipitation_raster`（水利署 IoT PNG）與 CWA 雷達都是著色影像，不可反推毫米雨量（T10），本版不用。
 
 ## 5. 垃圾車

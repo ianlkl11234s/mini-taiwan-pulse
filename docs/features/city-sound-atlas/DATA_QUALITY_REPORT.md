@@ -33,17 +33,17 @@
 
 | id | 日期 | 接收點 | 理由（摘要） | focus_time |
 |---|---|---|---|---|
-| `taipei-1109` | 2026-11-09 | 121.5830, 25.0860 內湖碧湖 | 松山機場跑道東端約 3 km、東側起降航線下；碧湖國小雨量站（A1AA40）旁 75 m，當天 5 小時有雨（內湖站只 2 小時，所以換點） | 07:39:30（上午飛機潛勢最高、同時在下雨） |
+| `taipei-1109` | 2026-11-09 | 121.5830, 25.0860 內湖碧湖 | 松山機場東北方、東側起降航線附近（07:39 有航機在斜距 1.8 km）；碧湖國小雨量站（A1AA40）旁 75 m，當天 5 小時有雨（內湖站只 2 小時，所以換點） | 07:39:30（上午飛機潛勢最高、同時在下雨） |
 | `taichung-heping-1108` | 2026-11-08 | 121.4380, 24.3350 南湖大山南側 | 台電 10:25:26 落雷（121.4399, 24.3149）北方 2.2 km；從指定的 121.440, 24.315 往北移，讓最近雨量站南湖圈谷（C0F0E0）落在 5 km 內（原點距 5.6 km，雨會整天 unknown） | 10:25:34（雷聲抵達後 1 秒；閃光時刻聲音還沒到） |
-| `taipei-typhoon-1024` | 2026-10-24 | 121.5420, 25.1800 陽明山小油坑 | Champi 颱風；小油坑雨量站（A1AD40）旁 270 m；14 時 1 小時雨量全天最大 | 14:03:00（雨最大、同時有航機在 20 km 內） |
+| `taipei-typhoon-1024` | 2026-10-24 | 121.5420, 25.1800 陽明山小油坑 | Champi 颱風；小油坑雨量站（A1AD40）旁 270 m；10/24 臺北市 1 小時雨量最大的站（14 時 46.5 mm） | 14:03:00（雨最大、同時有航機在 20 km 內） |
 
 ## 3. 各源筆數與檔案大小
 
 | id | 檔案 | 航班（ft／m） | 航跡點 | 落雷 health（cwa／taipower） | 落雷全台（cwa＋taipower）／bbox 內 | 雨量站／列 | 來源 |
 |---|---|---|---|---|---|---|---|
-| taipei-1109 | 1,545,958 B | 1,262（785／477） | 17,238 | empty／ok | 0＋5／0 | 113／2,710 | 全 RPC |
+| taipei-1109 | 1,546,009 B | 1,262（785／477） | 17,238 | empty／ok | 0＋5／0 | 113／2,710 | 全 RPC |
 | taichung-heping-1108 | 168,985 B | 127（68／59） | 2,359 | empty／ok | 0＋8／1（taipower） | 10／240 | 全 RPC |
-| taipei-typhoon-1024 | 1,084,243 B | 970（603／367） | 13,003 | ok／ok | 3＋9／0 | 75／1,761 | 航跡、落雷 S3；雨 RPC |
+| taipei-typhoon-1024 | 1,084,273 B | 970（603／367） | 13,003 | ok／ok | 3＋9／0 | 75／1,761 | 航跡、落雷 S3；雨 RPC |
 
 三檔都在 2 MB 目標內。
 
@@ -60,7 +60,7 @@
 - 20 km 候選半徑讓臺北「飛機 active」幾乎整天成立（136／144 格），但多數格的值只有 0.01–0.05；UI 若要表達「明顯聽得到」需另設顯示門檻（屬 UI 決定，引擎不改）。
 
 **雨**
-- 每站每小時一筆；`precipitation_1hr` 三場景都沒有 null。`precipitation_10min` 臺北 11/9 有 819／2,710 列 null（不使用）。
+- 每站每小時一筆；`precipitation_1hr` 三場景都沒有 null。`precipitation_10min` 臺北 11/9 有 819／2,710 列 null，且 10/24 小油坑 14 時出現 10min＝209.5、1hr＝46.5 的矛盾值，語意待上游查證（不使用）。
 - 颱風場景 75 站中 70 站有完整 24 小時。
 
 **雷**
@@ -82,7 +82,7 @@
 | | 雨 | 0 | 144 | 0 | 0 | 0（南湖圈谷整天 0 mm） |
 | | 雷 | 1 | 143 | 0 | 0 | 0.641＠10:20 格 |
 | taipei-typhoon-1024 | 飛機 | 106 | 22 | 16 | 0.111 | 0.361＠21:40 |
-| | 雨 | 126 | 18 | 0 | 0 | 0.990＠14:00（約 46 mm/h） |
+| | 雨 | 126 | 18 | 0 | 0 | 0.990＠14:00（小油坑 `precipitation_1hr`＝46.5 mm） |
 | | 雷 | 0 | 144 | 0 | 0 | — |
 
 focus_time 瞬時查詢：
@@ -91,7 +91,19 @@ focus_time 瞬時查詢：
 - 颱風 14:03:00：雨 0.990（站距 273 m）、飛機 0.099（斜距 6,021 m）。颱風日航跡缺口較多（unknown ratio 0.111，例如 08:00 的飛機是 `trail_gap_over_30min_between_segments`）。
 - 垃圾車在三個場景都沒有載入（family＝unavailable／source_not_loaded），屬預期。
 
-## 6. 未解
+## 6. UI 接線的實測問題（2026-11-11，W2 commit c31e4843 時的 `src/sound/scenes.ts`）
+
+用 W2 的 `parseSceneSnapshot` → `snapshotFetchers` → `loadThunder` 跑三個真實快照（三檔都能 parse）：
+
+| 場景 | 落雷 coverage（W2 路徑） | 雷 unknown ratio（W2 路徑） | 本報告 §5（health 直接當 coverage） |
+|---|---|---|---|
+| taipei-1109 | cwa:empty、taipower:**empty** | **1.000（整天 unknown）** | 0（整天 inactive） |
+| taichung-heping-1108 | cwa:empty、taipower:ok | 0 | 0 |
+| taipei-typhoon-1024 | cwa:empty、taipower:**empty** | **1.000** | 0 |
+
+原因：`snapshotFetchers` 在 health=ok 時只回 bbox 內事件，0 筆時 `loadThunder` 依筆數判 `empty`，兩源都 empty → unknown。修法：coverage 直接取快照 health（`verify-sound-scenes.ts` 的 `sceneToSets` 寫法），不要經 `loadThunder` 重判。另外 `SOUND_SCENES` 內建的接收點／focus 和快照不同（例：和平 121.44, 24.315 離最近雨量站 5.6 km，雨會整天 unknown），建議改讀快照的 `receiver` 與 `focus_time`。
+
+## 7. 未解
 
 - 快照尚未上傳 S3（lock 已登記 `delivery=r2`）；發版前要跑 `scripts/deploy/upload-deploy-assets.sh`，否則正式站 404。見 handoff。
 - cwa `event_id` > 2^53 的精度問題在既有 RPC 路徑也存在，未修。

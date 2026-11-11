@@ -2162,21 +2162,21 @@
   {
    "path": "public/sound-atlas/scenes/taichung-heping-1108.json",
    "bytes": 168985,
-   "sha256": "9ac19668fdac1dee9fda48ccabad124612a7a5f7e43aefee664f8948a1326964",
+   "sha256": "f28d0adc7f0846362236000339f0ed8fae074dfd162b8f4f89e591ae0c1094f1",
    "delivery": "r2",
    "s3_key": "deploy-assets/sound-atlas/scenes/taichung-heping-1108.json"
   },
   {
    "path": "public/sound-atlas/scenes/taipei-1109.json",
-   "bytes": 1545958,
-   "sha256": "02bce82c17e84785ffe398cbdec90ba0382491ed50c904f36bec751fc6485752",
+   "bytes": 1546009,
+   "sha256": "c177d82e32803f3ac88db45aec47fa8231fb4c30b9a3d963198954e0574dfd38",
    "delivery": "r2",
    "s3_key": "deploy-assets/sound-atlas/scenes/taipei-1109.json"
   },
   {
    "path": "public/sound-atlas/scenes/taipei-typhoon-1024.json",
-   "bytes": 1084243,
-   "sha256": "8163cd81c9edbd4f841e19bf4f3e07a3c568f4175281184f32f90a7cfae547c3",
+   "bytes": 1084273,
+   "sha256": "b97b67734c6882c2d482e6a5c8dec28df7066c4436351598362adbabfc26614e",
    "delivery": "r2",
    "s3_key": "deploy-assets/sound-atlas/scenes/taipei-typhoon-1024.json"
   },

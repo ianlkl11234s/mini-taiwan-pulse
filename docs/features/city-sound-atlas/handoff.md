@@ -19,6 +19,7 @@
 2. 若重產快照（檔內有 `generated_at`，sha 會變）：重跑 `build-public-assets-lock.py add`，且要在上傳前做；S3 已有同名不同內容時上傳腳本會停下。
 3. 上線後核對：`npm run check:assets -- --verify-only --paths public/sound-atlas/scenes/<id>.json` 與正式站回 200、`X-Pulse-Src: r2`。
 4. VALIDATION_REPORT.md（測試、瀏覽器驗收、效能）待 W2 完成後補。
+5. UI 讀快照時 coverage 要取快照 health；W2 c31e4843 版會把臺北兩場景的雷變成整天 unknown（見 DATA_QUALITY_REPORT §6）。
 
 ## 跨 repo 契約
 
