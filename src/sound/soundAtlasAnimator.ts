@@ -307,10 +307,10 @@ export class SoundAtlasAnimator {
           const phase = ((nowMs / cycleMs + i / per) % 1 + 1) % 1;
           const cycle = Math.floor(nowMs / cycleMs + i / per);
           const ang = hash01(i + ci * 97, cycle) * Math.PI * 2;
-          const dist = 40 + Math.sqrt(hash01(cycle, i * 31 + ci)) * 320;
+          const dist = 80 + Math.sqrt(hash01(cycle, i * 31 + ci)) * 1200;
           const lon = ctr.lon + (Math.cos(ang) * dist) / (M_PER_DEG * cosLat);
           const lat = ctr.lat + (Math.sin(ang) * dist) / M_PER_DEG;
-          out.push(circle(lon, lat, { r: 2 + 10 * phase, stroke: SOUND_FAMILY_COLORS.rain, strokeWidth: 1.2, opacity: (1 - phase) * 0.85 * op("rain") }));
+          out.push(circle(lon, lat, { r: 3 + 13 * phase, stroke: SOUND_FAMILY_COLORS.rain, strokeWidth: 1.8, opacity: (1 - phase) * 0.95 * op("rain") }));
         }
       });
     }
