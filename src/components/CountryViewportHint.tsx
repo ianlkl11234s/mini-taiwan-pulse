@@ -1,4 +1,4 @@
-import { EyeOff, Type } from "lucide-react";
+import { Columns2, EyeOff, Type } from "lucide-react";
 import { countryDef, type CountryCode } from "../constants/countries";
 import { useLocale } from "../state/localeStore";
 import { COLORS, LIGHT } from "../styles/designTokens";
@@ -20,6 +20,12 @@ export interface LayerHintSection {
   onDismiss: () => void;
 }
 
+export interface CompareTipSection {
+  /** 開著、但比較模式不支援（只畫在左側）的圖層數 */
+  unsupported: number;
+  onDismiss: () => void;
+}
+
 export interface LabelsTipSection {
   onHide: () => void;
   onDismiss: () => void;
@@ -32,6 +38,7 @@ export interface LabelsTipSection {
  *
  * @param target 視野所在、要提示切換過去的國家；null＝不顯示第一段
  * 3. 「現代地名可以關」（古地圖開著、底圖地名還開著時）：附「關閉地名」按鈕，與工具列底圖選單的「顯示地名」是同一個開關。
+ * 4. 「左右比較」（比較模式剛開時）：把手與「顯示在」怎麼用，並列出幾個開著的圖層只在左側（DESIGN §4）。
  *
  * @param current 目前國家主體（「保持〇〇」）
  * @param layers 第二段；null 或沒有列＝不顯示
@@ -44,6 +51,7 @@ export function CountryViewportHint({
   onKeep,
   layers = null,
   labelsTip = null,
+  compareTip = null,
   isDarkTheme = true,
   top = 88,
   rightOffset = "16px",
@@ -54,6 +62,7 @@ export function CountryViewportHint({
   onKeep: () => void;
   layers?: LayerHintSection | null;
   labelsTip?: LabelsTipSection | null;
+  compareTip?: CompareTipSection | null;
   isDarkTheme?: boolean;
   top?: number;
   rightOffset?: string;
@@ -61,7 +70,7 @@ export function CountryViewportHint({
   const i18n = useLocale();
   const { t } = i18n;
   const showLayers = !!layers && layers.rows.length > 0;
-  if (!target && !showLayers && !labelsTip) return null;
+  if (!target && !showLayers && !labelsTip && !compareTip) return null;
   const currentName = t(countryDef(current).labelKey);
   const areaName = (row: HintRow) => (row.area ? COVERAGE_AREAS[row.area].label[i18n.active === "zh-TW" ? "zh" : i18n.active] : "");
   const layerName = (key: string) => {
@@ -102,6 +111,19 @@ export function CountryViewportHint({
             <button type="button" className="country-hint__btn" onClick={onKeep}>
               {t("countryHint.keep", { country: currentName })}
             </button>
+          </div>
+        </div>
+      )}
+      {compareTip && (
+        <div className="country-hint__section">
+          <div className="country-hint__head">
+            <Columns2 size={13} aria-hidden="true" className="country-hint__icon" />
+            <p className="country-hint__title">{t("compare.hintTitle")}</p>
+          </div>
+          <p className="country-hint__detail">{t("compare.hintBody")}</p>
+          {compareTip.unsupported > 0 && <p className="country-hint__detail">{t("compare.hintUnsupported", { count: String(compareTip.unsupported) })}</p>}
+          <div className="country-hint__actions">
+            <button type="button" className="country-hint__btn" onClick={compareTip.onDismiss}>{t("compare.hintDismiss")}</button>
           </div>
         </div>
       )}

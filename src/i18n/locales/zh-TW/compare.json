@@ -11,7 +11,6 @@
   "compare.rightPrefix": "右側 {label}",
   "compare.handle": "比較分隔把手",
   "compare.handleHint": "拖曳或用左右方向鍵移動；Esc 結束比較",
-  "compare.legendSides": "左 {left} ｜ 右 {right}",
   "compare.legendLeft": "左側",
   "compare.legendRight": "右側",
   "compare.legendOnlyLeft": "只顯示在左側",

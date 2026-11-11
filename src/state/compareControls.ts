@@ -64,14 +64,21 @@ export function buildCompareControls(key: string, snapshot: CompareState, i18n: 
 }
 
 /**
- * 統計層兩側時，左側原本的期別／細項列標籤加「左側」前綴（面板層改名，不改規格中文：Agent 與黃金快照照舊）。
+ * 把比較控制項併進原本的展開區列表：「顯示在」排最前；統計層兩側時，左側原本的期別／細項列標籤加「左側」前綴
+ * （面板層改名，不改規格中文：Agent 與黃金快照照舊），右側的期別／細項緊接在左側最後一列之後。
  * `visible` 是 `visibleControlSpecs(key)`，與 `controls` 逐位對應。
  */
-export function prefixLeftStatisticsLabels(key: string, snapshot: CompareState, controls: readonly ParamControl[], visible: readonly LayerParamSpec[], i18n: I18n): ParamControl[] {
-  if (!snapshot.enabled || !isStatisticsRenderLayer(key) || compareSideOf(key, snapshot) !== "both") return [...controls];
+export function withCompareControls(key: string, snapshot: CompareState, controls: readonly ParamControl[], visible: readonly LayerParamSpec[], i18n: I18n): ParamControl[] {
+  const [side, ...right] = buildCompareControls(key, snapshot, i18n);
+  if (!side) return [...controls];
+  if (!right.length) return [side, ...controls];
   const names = new Set(leftStatisticsSpecs(key).map((spec) => spec.name));
-  return controls.map((control, index) => {
+  let last = -1;
+  const left = controls.map((control, index) => {
     const spec = visible[index];
-    return spec && names.has(spec.name) && "label" in control ? { ...control, label: i18n.t("compare.leftPrefix", { label: control.label }) } : control;
+    if (!spec || !names.has(spec.name) || !("label" in control)) return control;
+    last = index;
+    return { ...control, label: i18n.t("compare.leftPrefix", { label: control.label }) };
   });
+  return [side, ...left.slice(0, last + 1), ...right, ...left.slice(last + 1)];
 }

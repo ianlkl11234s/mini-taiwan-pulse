@@ -188,7 +188,6 @@ export type GeneratedStaticKey =
   | "compare.legendOnlyLeft"
   | "compare.legendOnlyRight"
   | "compare.legendRight"
-  | "compare.legendSides"
   | "compare.mobileFallback"
   | "compare.popupLeft"
   | "compare.popupRight"

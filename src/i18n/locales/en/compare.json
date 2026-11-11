@@ -11,7 +11,6 @@
   "compare.rightPrefix": "Right: {label}",
   "compare.handle": "Compare divider",
   "compare.handleHint": "Drag or use the arrow keys; Esc ends compare",
-  "compare.legendSides": "Left {left} | Right {right}",
   "compare.legendLeft": "Left",
   "compare.legendRight": "Right",
   "compare.legendOnlyLeft": "Shown on the left only",

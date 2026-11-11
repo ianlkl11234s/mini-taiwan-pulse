@@ -11,7 +11,6 @@
   "compare.rightPrefix": "右側 {label}",
   "compare.handle": "比較の境界ハンドル",
   "compare.handleHint": "ドラッグまたは左右キーで移動、Esc で比較を終了",
-  "compare.legendSides": "左 {left} ｜ 右 {right}",
   "compare.legendLeft": "左側",
   "compare.legendRight": "右側",
   "compare.legendOnlyLeft": "左側のみに表示",

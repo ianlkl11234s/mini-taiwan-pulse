@@ -3,7 +3,7 @@ import type { DisplayMode, ExpandableLayerKey } from "../../types";
 // 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
 import { useEffect, useReducer } from "react";
 import { buildParamControls, visibleControlSpecs } from "../../state/layerParamsControls";
-import { buildCompareControls, prefixLeftStatisticsLabels } from "../../state/compareControls";
+import { withCompareControls } from "../../state/compareControls";
 import { useCompareState } from "../../state/compareStore";
 import { STATISTICS_RIGHT_PROVIDER } from "../../state/statisticsLinkedSelect";
 import { linkedSelectProvider } from "../../state/linkedSelect";
@@ -60,13 +60,10 @@ export function ExpandedControls({
   const paramValues = useLayerParams(layerKey);
   useLinkedSelects(layerKey);
   const i18n = useLocale();
-  // 比較模式（DESIGN §4）：「顯示在」與右側期別／細項排最前；統計左側列改名「左側 …」（只在面板，規格不變）
+  // 比較模式（DESIGN §4）：「顯示在」排最前；統計左側列改名「左側 …」、右側列接在其後（只在面板，規格不變）
   const compare = useCompareState();
   useRightStatistics(layerKey, compare.enabled);
-  const controls = [
-    ...buildCompareControls(layerKey, compare, i18n),
-    ...prefixLeftStatisticsLabels(layerKey, compare, buildParamControls(layerKey, paramValues, i18n) ?? [], visibleControlSpecs(layerKey, paramValues), i18n),
-  ];
+  const controls = withCompareControls(layerKey, compare, buildParamControls(layerKey, paramValues, i18n) ?? [], visibleControlSpecs(layerKey, paramValues), i18n);
   const { TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const isDarkTheme = COLOR_SCHEME === "dark";
 

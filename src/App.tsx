@@ -125,7 +125,7 @@ import type { MapBridge } from "./chat/types";
 import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2, UserRound } from "lucide-react";
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
-import { compareStore, useCompareState } from "./state/compareStore";
+import { compareStore, isCompareSupported, useCompareState } from "./state/compareStore";
 import { compareSelectionsForUrl, restoreCompareSelections } from "./state/compareStatistics";
 import { regionalStatisticsStore } from "./state/regionalStatisticsStore";
 import { STATISTICS_RENDER_KEYS } from "./data/regionalStatisticsRecipes";
@@ -2105,6 +2105,15 @@ export default function App() {
       onDismiss: () => setHistoricalLabelTipDismissed(true),
     }
     : null;
+  // 比較模式剛開：同一張卡的第四段（§5.42）說明把手與「顯示在」，並列出幾個開著的圖層只在左側；每次開比較顯示一次
+  const [compareTipDismissed, setCompareTipDismissed] = useState(false);
+  useEffect(() => { if (!compareActive) setCompareTipDismissed(false); }, [compareActive]);
+  const compareTip = compareActive && !compareTipDismissed && !captureMode && !chatOpen && !agentActivityVisible
+    ? {
+      unsupported: (Object.entries(layerVisibility) as [string, boolean][]).filter(([key, on]) => on && !lockedKeys.has(key as keyof LayerVisibility) && !isCompareSupported(key)).length,
+      onDismiss: () => setCompareTipDismissed(true),
+    }
+    : null;
   const layerHint = useLayerVisibilityHint({
     map: mapPrepared ? mapRef.current : null,
     enabled: !isMobile && !captureMode && !chatOpen && !agentActivityVisible,
@@ -3395,7 +3404,7 @@ export default function App() {
           rightOffset={topRightOffset}
         />
       {/* ── 視野提示（§5.42）：視野停在他國時提示切換國家主體（不自動切換）＋開著卻看不到的圖層（§5.42.1）；手機不做 ── */}
-      {(viewportHint.target || layerHint.rows.length > 0 || historicalLabelTip) && (
+      {(viewportHint.target || layerHint.rows.length > 0 || historicalLabelTip || compareTip) && (
         <CountryViewportHint
           target={viewportHint.target}
           current={country}
@@ -3403,6 +3412,7 @@ export default function App() {
           onKeep={viewportHint.keep}
           layers={{ rows: layerHint.rows, more: layerHint.more, total: layerHint.total, onZoomIn: layerHint.zoomIn, onGoTo: layerHint.goTo, onDismiss: layerHint.dismiss }}
           labelsTip={historicalLabelTip}
+          compareTip={compareTip}
           isDarkTheme={isDarkTheme}
           rightOffset={topRightOffset}
         />
