@@ -44,6 +44,7 @@ MVP-B（W4）施工區塊 `roadwork`（只有 S3，不需要 SUPABASE_DB_URL）�
 用法（repo 根目錄）：
   SUPABASE_DB_URL=… AWS_PROFILE=… python3 scripts/preprocess/build-sound-scenes.py [--scene ID ...] [--out DIR]
   python3 scripts/preprocess/build-sound-scenes.py --list
+  AWS_PROFILE=… python3 -I scripts/preprocess/build-sound-scenes.py --merge-w5 [--scene ID ...] [--public-dir DIR] [--coast-geojson PATH]
   AWS_PROFILE=… python3 -I scripts/preprocess/build-sound-scenes.py --merge-mvp-b [--scene ID ...]
 只用標準函式庫（可用 python3 -I 執行）。
 """
@@ -56,9 +57,12 @@ import io
 import json
 import math
 import os
+import struct
 import subprocess
 import sys
 import tarfile
+import tempfile
+import zlib
 
 SCHEMA = "pulse-sound-scene-v1"
 BUCKET = "migu-gis-data-collector"
@@ -617,6 +621,622 @@ def build_roadwork(scene: dict, _scene_bbox: list[float], notes: list[str]) -> d
     return {"origin": f"s3:{ROADWORK_ARCHIVE}", "health": health, "bbox": bbox, "per_city": per_city, "per_city_roadwork": per_city_roadwork, "events": rows}
 
 
+# ── W5 自然聲源區塊 `natural`（風×植被、海浪×海岸、河川水位）──────────────
+#
+# 全部 S3 正本＋本機靜態檔，不需要 SUPABASE_DB_URL（--merge-w5）。
+#   wind   ：s3 weather/archives/<D>.tar.gz（CWA O-A0001-001，每小時一個 json；obs_time＝整點，座標、風速、陣風）
+#   wave   ：s3 cwa_marine_observation/archives/<D+1>.tar.gz 的**第一個** json（滾動 48h，涵蓋 D 全天）；
+#            用 range GET 只讀檔頭，不下載整包（每包約 40 MB）
+#   river  ：s3 river_water_level/archives/<D>,<D+1>.tar.gz（10 分鐘讀數，以 observed_at 的臺北日過濾、每小時取最後一筆）；
+#            分位數用 D 之前 RIVER_HISTORY_DAYS 天（不含 D）的每小時水位；座標 join public/geo/water_monitor_stations.geojson
+#   canopy ：public/forestry/canopy_height_rgb_taiwan.pmtiles（R＝公尺、A＝遮罩）取樣成格網，-1＝遮罩／缺磚
+#   coast  ：analytics coastal_area_extents.geojson 的「近岸海域」面（海岸線 proxy，不是現行海岸線），DP 簡化
+#   river_network：public/geo/water_rivers.geojson，裁到接收點 ±RIVER_NET_HALF_KM、DP 簡化
+# 參數與前端 soundProfiles 對齊：WIND 8 km、WAVE 40 km、RIVER 5 km、樹冠 100 m（只用來決定要收多大範圍）。
+
+NATURAL_SCHEMA = "pulse-sound-natural-v1"
+WIND_STATION_PAD_KM = 8.0
+RIVER_STATION_PAD_KM = 5.0
+RIVER_HISTORY_DAYS = 60
+RIVER_QUANT_PROBS = [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99]
+CANOPY_HALF_M = 3000.0
+CANOPY_CELL_M = 30.0
+CANOPY_ZOOM = (6, 12)
+COAST_PAD_KM = 2.0
+RIVER_NET_HALF_KM = 10.0
+SIMPLIFY_COAST_M = 20.0
+SIMPLIFY_RIVER_M = 10.0
+GIS_ROOT = os.path.abspath(os.path.join(REPO, "..")) if os.path.basename(os.path.dirname(REPO)) != ".worktrees" else os.path.abspath(os.path.join(REPO, "..", "..", ".."))
+# public 大檔（樹冠 PMTiles、河道、水位站）不在 git：worktree 沒有時退回主 checkout
+DEFAULT_PUBLIC = os.path.join(REPO, "public") if os.path.exists(os.path.join(REPO, "public", "forestry", "canopy_height_rgb_taiwan.pmtiles")) else os.path.join(GIS_ROOT, "mini-taiwan-pulse", "public")
+DEFAULT_COAST = os.path.join(GIS_ROOT, "taipei-gis-analytics", "data", "processed", "marine", "coastal_area_extents", "coastal_area_extents.geojson")
+CACHE_DIR = os.path.join(tempfile.gettempdir(), "pulse-sound-scenes-cache")
+
+
+def expand_bbox(b: list[float], km: float) -> list[float]:
+    lat = (b[1] + b[3]) / 2
+    dlat = km / 111.32
+    dlon = km / (111.32 * math.cos(math.radians(lat)))
+    return [round(b[0] - dlon, 5), round(b[1] - dlat, 5), round(b[2] + dlon, 5), round(b[3] + dlat, 5)]
+
+
+def s3_cached(key: str) -> bytes | None:
+    """整包下載（小檔）並快取；缺檔回 None"""
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    p = os.path.join(CACHE_DIR, key.replace("/", "__"))
+    if os.path.exists(p):
+        with open(p, "rb") as f:
+            b = f.read()
+        return b or None
+    try:
+        b = s3_bytes(key)
+    except RuntimeError:
+        return None
+    with open(p + ".part", "wb") as f:
+        f.write(b)
+    os.replace(p + ".part", p)
+    return b
+
+
+def s3_prefetch(keys: list[str]) -> None:
+    """小檔批次預取（最多 3 路平行，避免壓垮本機與網路）"""
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        list(ex.map(s3_cached, keys))
+
+
+def s3_range(key: str, start: int, end: int) -> bytes:
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        path = tmp.name
+    try:
+        res = subprocess.run(
+            ["aws", "s3api", "get-object", "--bucket", BUCKET, "--key", key, "--range", f"bytes={start}-{end}", path],
+            capture_output=True,
+            check=False,
+        )
+        if res.returncode != 0:
+            raise RuntimeError(f"s3 range failed {key}: {res.stderr.decode(errors='replace')[:200]}")
+        with open(path, "rb") as f:
+            return f.read()
+    finally:
+        os.unlink(path)
+
+
+def first_json_member_from_targz(key: str, max_bytes: int = 64 * 1024 * 1024) -> dict:
+    """range GET 檔頭、串流解 gzip，拿到第一個完整的 .json tar member 就停"""
+    d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+    buf = b""
+    pos = 0
+    step = 4 * 1024 * 1024
+    while pos < max_bytes:
+        chunk = s3_range(key, pos, pos + step - 1)
+        pos += len(chunk)
+        buf += d.decompress(chunk)
+        i = 0
+        while i + 512 <= len(buf):
+            h = buf[i : i + 512]
+            if h == b"\0" * 512:
+                break
+            name = h[:100].rstrip(b"\0").decode(errors="replace")
+            size = int(h[124:136].rstrip(b"\0 ") or b"0", 8)
+            end = i + 512 + size
+            if end > len(buf):
+                break
+            if name.endswith(".json"):
+                return json.loads(buf[i + 512 : end])
+            i = end + ((-size) % 512)
+        if len(chunk) < step:
+            break
+    raise RuntimeError(f"no complete json member in first {pos} bytes of {key}")
+
+
+def _num(v):
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return None
+    return x if math.isfinite(x) else None
+
+
+def _unix(s: str) -> int:
+    return int(dt.datetime.fromisoformat(s).timestamp())
+
+
+# ── 風 ──
+
+
+def build_wind(date: str, bbox: list[float], notes: list[str]) -> dict:
+    key = f"weather/archives/{date}.tar.gz"
+    origin = f"s3://{BUCKET}/{key}"
+    sb = expand_bbox(bbox, WIND_STATION_PAD_KM)
+    start, end = day_window(date)
+    raw = s3_cached(key)
+    if raw is None:
+        notes.append(f"風：{origin} 缺檔 → health=error（前端 unknown）。")
+        return {"origin": origin, "health": "error", "bbox": bbox, "stations": [], "obs": []}
+    stations: dict[str, int] = {}
+    st_list: list[dict] = []
+    obs: dict[tuple[int, int], list] = {}
+    total = 0
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as tf:
+        for m in tf.getmembers():
+            if not m.name.endswith(".json"):
+                continue
+            for r in json.load(tf.extractfile(m)).get("data", []):
+                lon, lat = _num(r.get("longitude")), _num(r.get("latitude"))
+                if lon is None or lat is None or not r.get("obs_time"):
+                    continue
+                t = _unix(r["obs_time"])
+                if not (start <= t < end):
+                    continue
+                total += 1
+                if not in_bbox(lon, lat, sb):
+                    continue
+                sid = r["station_id"]
+                if sid not in stations:
+                    stations[sid] = len(st_list)
+                    st_list.append({"id": sid, "name": r.get("station_name"), "lon": lon, "lat": lat, "alt_m": _num(r.get("altitude"))})
+                ws = _num(r.get("wind_speed"))
+                gust = _num(r.get("gust_speed"))
+                # CWA 缺測代碼（-99 等）為負值 → null，不當 0
+                obs[(stations[sid], t)] = [stations[sid], t, ws if ws is None or ws >= 0 else None, gust if gust is None or gust >= 0 else None]
+    health = "ok" if total else "empty"
+    notes.append(f"風：{origin}，全台 {total} 筆整點觀測；收 bbox 外擴 {WIND_STATION_PAD_KM:g} km 內 {len(st_list)} 站。風速≠聲級；Supabase live.weather_observations 只留 21 天且無 public RPC，所以只有快照有風。")
+    return {"origin": origin, "health": health, "bbox": bbox, "stations": st_list, "obs": sorted(obs.values(), key=lambda x: (x[0], x[1]))}
+
+
+# ── 浪 ──
+
+
+def build_wave(date: str, bbox: list[float], notes: list[str]) -> dict:
+    key = f"cwa_marine_observation/archives/{shift(date, 1)}.tar.gz"
+    origin = f"s3://{BUCKET}/{key}#first-member"
+    start, end = day_window(date)
+    try:
+        doc = first_json_member_from_targz(key)
+    except RuntimeError as e:
+        notes.append(f"浪：{origin} 讀取失敗（{str(e)[:80]}）→ health=error。")
+        return {"origin": origin, "health": "error", "bbox": bbox, "stations": [], "obs": []}
+    st_meta = {s["source_station_id"]: s for s in doc.get("data", []) if s.get("_type") == "station"}
+    vals: dict[tuple[str, int], dict] = {}
+    for r in doc.get("data", []):
+        if r.get("_type") != "reading" or r.get("metric_code") not in ("wave_height", "wave_period"):
+            continue
+        t = _unix(r["observed_at"])
+        if not (start <= t < end):
+            continue
+        v = _num(r.get("value_numeric"))
+        if r.get("is_missing") or r.get("is_valid") is False or (v is not None and v < 0):
+            v = None
+        vals.setdefault((r["source_station_id"], t), {})[r["metric_code"]] = v
+    idx: dict[str, int] = {}
+    st_list: list[dict] = []
+    obs = []
+    for (sid, t), m in sorted(vals.items()):
+        meta = st_meta.get(sid)
+        if not meta:
+            continue
+        if sid not in idx:
+            idx[sid] = len(st_list)
+            st_list.append({"id": sid, "name": meta.get("name_zh"), "type": meta.get("station_type"), "lon": meta["longitude"], "lat": meta["latitude"]})
+        obs.append([idx[sid], t, m.get("wave_height"), m.get("wave_period")])
+    health = "ok" if obs else "empty"
+    notes.append(f"浪：{origin}（CWA O-B0075 滾動 48h，取 D+1 第一個檔即涵蓋 D 全天），{len(st_list)} 個有浪高的浮標／測站全收（共 {len(obs)} 小時列）；浪高或週期缺值保持 null。")
+    return {"origin": origin, "health": health, "bbox": bbox, "stations": st_list, "obs": obs}
+
+
+# ── 河川水位 ──
+
+
+def _river_rows(date: str) -> list[dict] | None:
+    raw = s3_cached(f"river_water_level/archives/{date}.tar.gz")
+    if raw is None:
+        return None
+    out = []
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as tf:
+        for m in tf.getmembers():
+            if m.name.endswith(".json"):
+                out.extend(json.load(tf.extractfile(m)).get("data", []))
+    return out
+
+
+def _hourly_last(rows: list[dict], start: int, end: int) -> dict[tuple[str, int], float | None]:
+    best: dict[tuple[str, int], tuple[int, float | None]] = {}
+    for r in rows:
+        if not r.get("observed_at"):
+            continue
+        t = _unix(r["observed_at"])
+        if not (start <= t < end):
+            continue
+        k = (r["station_id"], t - (t - start) % 3600)
+        if k not in best or best[k][0] < t:
+            best[k] = (t, _num(r.get("water_level_m")))
+    return {k: v for k, (_, v) in best.items()}
+
+
+def _quantiles(values: list[float]) -> dict | None:
+    if len(values) < 2:
+        return None
+    v = sorted(values)
+    out = []
+    for p in RIVER_QUANT_PROBS:
+        x = p * (len(v) - 1)
+        lo = int(math.floor(x))
+        hi = min(lo + 1, len(v) - 1)
+        out.append(round(v[lo] + (v[hi] - v[lo]) * (x - lo), 4))
+    return {"probs": RIVER_QUANT_PROBS, "values": out, "n": len(v)}
+
+
+def build_river(date: str, bbox: list[float], public_dir: str, notes: list[str]) -> dict:
+    origin = f"s3://{BUCKET}/river_water_level/archives/{{{date},{shift(date, 1)}}}.tar.gz"
+    sb = expand_bbox(bbox, RIVER_STATION_PAD_KM)
+    with open(os.path.join(public_dir, "geo", "water_monitor_stations.geojson"), encoding="utf-8") as f:
+        coords = {ft["id"]: (ft["geometry"]["coordinates"], ft["properties"].get("name")) for ft in json.load(f)["features"] if ft["properties"].get("station_type") == "river_level"}
+    start, end = day_window(date)
+    s3_prefetch([f"river_water_level/archives/{shift(date, k)}.tar.gz" for k in range(-RIVER_HISTORY_DAYS, 2)])
+    day_rows = []
+    missing = []
+    for d in (date, shift(date, 1)):
+        rows = _river_rows(d)
+        if rows is None:
+            missing.append(d)
+        else:
+            day_rows.extend(rows)
+    if date in missing:
+        notes.append(f"河川：{date} 水位 archive 缺檔 → health=error。")
+        return {"origin": origin, "health": "error", "bbox": bbox, "stations": [], "obs": []}
+    today = _hourly_last(day_rows, start, end)
+    ids_all = {sid for sid, _ in today}
+    unplaced = sorted(i for i in ids_all if i not in coords)
+    ids = sorted(i for i in ids_all if i in coords and in_bbox(coords[i][0][0], coords[i][0][1], sb))
+    # 歷史：D 之前 N 天（不含 D）
+    hist: dict[str, list[float]] = {i: [] for i in ids}
+    hist_days = 0
+    h_from = shift(date, -RIVER_HISTORY_DAYS)
+    for k in range(RIVER_HISTORY_DAYS, 0, -1):
+        d = shift(date, -k)
+        rows = _river_rows(d)
+        nxt = _river_rows(shift(d, 1)) if k > 1 else None
+        if rows is None:
+            continue
+        hist_days += 1
+        s0, e0 = day_window(d)
+        hv = _hourly_last(rows + (nxt or []), s0, e0)
+        for (sid, _), v in hv.items():
+            if sid in hist and v is not None:
+                hist[sid].append(v)
+    idx = {sid: n for n, sid in enumerate(ids)}
+    st_list = [{"id": sid, "name": coords[sid][1], "lon": coords[sid][0][0], "lat": coords[sid][0][1], "q": _quantiles(hist[sid])} for sid in ids]
+    obs = sorted([[idx[sid], t, v] for (sid, t), v in today.items() if sid in idx], key=lambda x: (x[0], x[1]))
+    basis = f"{h_from}..{shift(date, -1)}（{hist_days}/{RIVER_HISTORY_DAYS} 天有 archive），每小時最後一筆"
+    notes.append(
+        f"河川：{origin}；收 bbox 外擴 {RIVER_STATION_PAD_KM:g} km 內 {len(ids)} 站（全台 {len(ids_all)} 站中 {len(unplaced)} 站在 water_monitor_stations 找不到座標、不放）。"
+        f"分位基準 {basis}。水位≠流量≠聲音；感潮河段反映潮汐。"
+    )
+    return {"origin": origin, "health": "ok" if obs else "empty", "bbox": bbox, "history_basis": basis, "stations": st_list, "obs": obs}
+
+
+# ── 樹冠格網（PMTiles PNG，stdlib 解碼）──
+
+
+def _varint(b: bytes, i: int):
+    shift_ = 0
+    res = 0
+    while True:
+        c = b[i]
+        i += 1
+        res |= (c & 0x7F) << shift_
+        if not c & 0x80:
+            return res, i
+        shift_ += 7
+
+
+def _pmt_dir(buf: bytes):
+    i = 0
+    n, i = _varint(buf, i)
+    ids, last = [], 0
+    for _ in range(n):
+        v, i = _varint(buf, i)
+        last += v
+        ids.append(last)
+    rl, ln, off = [], [], []
+    for _ in range(n):
+        v, i = _varint(buf, i)
+        rl.append(v)
+    for _ in range(n):
+        v, i = _varint(buf, i)
+        ln.append(v)
+    for k in range(n):
+        v, i = _varint(buf, i)
+        off.append(off[k - 1] + ln[k - 1] if (v == 0 and k > 0) else v - 1)
+    return list(zip(ids, off, ln, rl))
+
+
+def _zxy_to_id(z: int, x: int, y: int) -> int:
+    acc = sum(4**k for k in range(z))
+    n = 2**z
+    d = 0
+    s = n // 2
+    while s > 0:
+        rx = 1 if (x & s) > 0 else 0
+        ry = 1 if (y & s) > 0 else 0
+        d += s * s * ((3 * rx) ^ ry)
+        if ry == 0:
+            if rx == 1:
+                x = s - 1 - x
+                y = s - 1 - y
+            x, y = y, x
+        s //= 2
+    return acc + d
+
+
+class _PMTiles:
+    def __init__(self, path: str):
+        self.f = open(path, "rb")
+        h = self.f.read(127)
+        if h[:7] != b"PMTiles" or h[7] != 3:
+            raise RuntimeError(f"{path}: not PMTiles v3")
+        (self.root_off, self.root_len, _, _, self.leaf_off, _, self.data_off, _, _, _, _) = struct.unpack("<QQQQQQQQQQQ", h[8:96])
+        self.icomp = h[97]
+        self.cache: dict = {}
+
+    def get(self, z: int, x: int, y: int) -> bytes | None:
+        tid = _zxy_to_id(z, x, y)
+        off, ln = self.root_off, self.root_len
+        for _ in range(4):
+            if (off, ln) not in self.cache:
+                self.f.seek(off)
+                b = self.f.read(ln)
+                self.cache[(off, ln)] = _pmt_dir(gzip.decompress(b) if self.icomp == 2 else b)
+            entries = self.cache[(off, ln)]
+            lo, hi, hit = 0, len(entries) - 1, None
+            while lo <= hi:
+                m = (lo + hi) // 2
+                if entries[m][0] <= tid:
+                    hit = entries[m]
+                    lo = m + 1
+                else:
+                    hi = m - 1
+            if hit is None:
+                return None
+            eid, eoff, eln, erl = hit
+            if erl == 0:
+                off, ln = self.leaf_off + eoff, eln
+                continue
+            if tid < eid + erl:
+                self.f.seek(self.data_off + eoff)
+                return self.f.read(eln)
+            return None
+        return None
+
+
+def _png_rgba(data: bytes):
+    """回 (w, h, 取像素函式)；只支援 8-bit RGBA（canopy 磚實測為 color type 6）"""
+    i, idat, w, h, bd, ct = 8, b"", 0, 0, 0, 0
+    while i < len(data):
+        ln = struct.unpack(">I", data[i : i + 4])[0]
+        typ = data[i + 4 : i + 8]
+        body = data[i + 8 : i + 8 + ln]
+        i += 12 + ln
+        if typ == b"IHDR":
+            w, h, bd, ct = struct.unpack(">IIBB", body[:10])
+        elif typ == b"IDAT":
+            idat += body
+        elif typ == b"IEND":
+            break
+    if bd != 8 or ct != 6:
+        raise RuntimeError(f"unsupported PNG bd={bd} ct={ct}")
+    ch = 4
+    stride = w * ch
+    raw = zlib.decompress(idat)
+    out = bytearray(h * stride)
+    prev = bytearray(stride)
+    p = 0
+    for r in range(h):
+        ft = raw[p]
+        p += 1
+        line = bytearray(raw[p : p + stride])
+        p += stride
+        if ft == 1:
+            for k in range(ch, stride):
+                line[k] = (line[k] + line[k - ch]) & 255
+        elif ft == 2:
+            for k in range(stride):
+                line[k] = (line[k] + prev[k]) & 255
+        elif ft == 3:
+            for k in range(stride):
+                a = line[k - ch] if k >= ch else 0
+                line[k] = (line[k] + ((a + prev[k]) >> 1)) & 255
+        elif ft == 4:
+            for k in range(stride):
+                a = line[k - ch] if k >= ch else 0
+                b = prev[k]
+                c = prev[k - ch] if k >= ch else 0
+                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
+                line[k] = (line[k] + (a if pa <= pb and pa <= pc else (b if pb <= pc else c))) & 255
+        out[r * stride : (r + 1) * stride] = line
+        prev = line
+    return w, h, lambda x, y: (out[y * stride + x * ch], out[y * stride + x * ch + 3])
+
+
+def build_canopy(lon: float, lat: float, public_dir: str, notes: list[str]) -> dict | None:
+    path = os.path.join(public_dir, "forestry", "canopy_height_rgb_taiwan.pmtiles")
+    if not os.path.exists(path):
+        notes.append(f"樹冠：{path} 不存在 → 不放 canopy（前端風×植被 unknown）。")
+        return None
+    pm = _PMTiles(path)
+    half_dlat = CANOPY_HALF_M / 111_195
+    half_dlon = CANOPY_HALF_M / (111_195 * math.cos(math.radians(lat)))
+    n = int(round(2 * CANOPY_HALF_M / CANOPY_CELL_M))
+    w, s, e, nn = lon - half_dlon, lat - half_dlat, lon + half_dlon, lat + half_dlat
+    dx, dy = (e - w) / n, (nn - s) / n
+    tiles: dict = {}
+
+    def tile(z, x, y):
+        k = (z, x, y)
+        if k not in tiles:
+            b = pm.get(z, x, y)
+            tiles[k] = _png_rgba(b) if b else None
+        return tiles[k]
+
+    heights = []
+    for j in range(n):
+        clat = nn - (j + 0.5) * dy
+        for i in range(n):
+            clon = w + (i + 0.5) * dx
+            val = -1
+            for z in range(CANOPY_ZOOM[1], CANOPY_ZOOM[0] - 1, -1):
+                N = 2**z
+                fx = (clon + 180) / 360 * N
+                lr = math.radians(clat)
+                fy = (1 - math.log(math.tan(lr) + 1 / math.cos(lr)) / math.pi) / 2 * N
+                t = tile(z, int(fx), int(fy))
+                if t is None:
+                    continue
+                tw, th, px = t
+                r, a = px(min(tw - 1, int((fx % 1) * tw)), min(th - 1, int((fy % 1) * th)))
+                val = r if a >= 128 else -1
+                break
+            heights.append(val)
+    with_data = sum(1 for v in heights if v >= 0)
+    notes.append(
+        f"樹冠：Meta/WRI 2020 樹冠高度（canopy_height_rgb_taiwan.pmtiles，z{CANOPY_ZOOM[1]} 約 35 m 像素）取樣成接收點 ±{CANOPY_HALF_M / 1000:g} km、"
+        f"{CANOPY_CELL_M:g} m 格網（{n}×{n}，有值 {with_data} 格）；-1＝遮罩（無 ≥1 m 樹冠、海或無資料，分不出來）。"
+    )
+    return {"origin": "public/forestry/canopy_height_rgb_taiwan.pmtiles (Meta/WRI 2020)", "bbox": [round(w, 6), round(s, 6), round(e, 6), round(nn, 6)], "nx": n, "ny": n, "heights": heights}
+
+
+# ── 海岸（近岸海域面）與河道（線）──
+
+
+def _dp(points: list, tol_m: float) -> list:
+    if len(points) < 3:
+        return points
+    lat0 = points[0][1]
+    kx = 111_195 * math.cos(math.radians(lat0))
+    ky = 111_195
+    keep = [False] * len(points)
+    keep[0] = keep[-1] = True
+    stack = [(0, len(points) - 1)]
+    while stack:
+        a, b = stack.pop()
+        ax, ay = points[a][0] * kx, points[a][1] * ky
+        bx, by = points[b][0] * kx, points[b][1] * ky
+        L = (bx - ax) ** 2 + (by - ay) ** 2
+        best, bi = -1.0, -1
+        for k in range(a + 1, b):
+            px, py = points[k][0] * kx, points[k][1] * ky
+            t = 0 if L == 0 else max(0, min(1, ((px - ax) * (bx - ax) + (py - ay) * (by - ay)) / L))
+            d = math.hypot(px - (ax + t * (bx - ax)), py - (ay + t * (by - ay)))
+            if d > best:
+                best, bi = d, k
+        if best > tol_m:
+            keep[bi] = True
+            stack.extend([(a, bi), (bi, b)])
+    return [[round(p[0], 6), round(p[1], 6)] for p, k in zip(points, keep) if k]
+
+
+def _geom_bbox(coords) -> list[float]:
+    xs, ys = [], []
+
+    def walk(c):
+        if isinstance(c[0], (int, float)):
+            xs.append(c[0])
+            ys.append(c[1])
+        else:
+            for cc in c:
+                walk(cc)
+
+    walk(coords)
+    return [min(xs), min(ys), max(xs), max(ys)]
+
+
+def _bbox_hit(a: list[float], b: list[float]) -> bool:
+    return a[0] <= b[2] and a[2] >= b[0] and a[1] <= b[3] and a[3] >= b[1]
+
+
+def build_coast(bbox: list[float], coast_path: str, notes: list[str]) -> dict | None:
+    if not os.path.exists(coast_path):
+        notes.append(f"海岸：{coast_path} 不存在 → 不放 coast（前端海浪 unknown）。")
+        return None
+    with open(coast_path, encoding="utf-8") as f:
+        feats = json.load(f)["features"]
+    sb = expand_bbox(bbox, COAST_PAD_KM)
+    polys = []
+    for ft in feats:
+        if ft["properties"].get("area_type") != "近岸海域":
+            continue
+        g = ft["geometry"]
+        for poly in [g["coordinates"]] if g["type"] == "Polygon" else g["coordinates"]:
+            if not _bbox_hit(_geom_bbox(poly), sb):
+                continue
+            rings = [_dp([[p[0], p[1]] for p in r], SIMPLIFY_COAST_M) for r in poly]
+            if len(rings[0]) >= 4:
+                polys.append(rings)
+    notes.append(
+        f"海岸：國家公園署 111 年海岸地區範圍的『近岸海域』面（自平均低潮線起算，**不是現行海岸線**）當海岸線 proxy；"
+        f"範圍內 {len(polys)} 個面，DP 簡化 {SIMPLIFY_COAST_M:g} m。政府資料開放授權條款第 1 版，需標示出處。"
+    )
+    return {"origin": "analytics coastal_area_extents (NLMA 111, data.gov.tw 20821) area_type=近岸海域", "bbox": bbox, "geometry": {"type": "MultiPolygon", "coordinates": polys}}
+
+
+def build_river_network(lon: float, lat: float, public_dir: str, notes: list[str]) -> dict | None:
+    path = os.path.join(public_dir, "geo", "water_rivers.geojson")
+    if not os.path.exists(path):
+        notes.append(f"河道：{path} 不存在 → 不放 river_network（前端河川 unknown）。")
+        return None
+    nb = bbox_around(lon, lat, RIVER_NET_HALF_KM)
+    sb = expand_bbox(nb, 0.5)
+    with open(path, encoding="utf-8") as f:
+        feats = json.load(f)["features"]
+    lines = []
+    for ft in feats:
+        g = ft.get("geometry") or {}
+        parts = [g.get("coordinates")] if g.get("type") == "LineString" else (g.get("coordinates") or [] if g.get("type") == "MultiLineString" else [])
+        for ln in parts:
+            if ln and len(ln) >= 2 and _bbox_hit(_geom_bbox(ln), sb):
+                s = _dp([[p[0], p[1]] for p in ln], SIMPLIFY_RIVER_M)
+                if len(s) >= 2:
+                    lines.append(s)
+    notes.append(f"河道：public/geo/water_rivers.geojson 裁到接收點 ±{RIVER_NET_HALF_KM:g} km（{len(lines)} 條線，DP {SIMPLIFY_RIVER_M:g} m）；不含野溪、瀑布。")
+    return {"origin": "public/geo/water_rivers.geojson", "bbox": nb, "geometry": {"type": "MultiLineString", "coordinates": lines}}
+
+
+def build_natural(scene: dict, bbox: list[float], public_dir: str, coast_path: str, notes: list[str]) -> dict:
+    rc = scene["receiver"]
+    date = scene["date"]
+    out = {"schema": NATURAL_SCHEMA}
+    out["wind"] = build_wind(date, bbox, notes)
+    out["wave"] = build_wave(date, bbox, notes)
+    out["river"] = build_river(date, bbox, public_dir, notes)
+    for k, v in (
+        ("canopy", build_canopy(rc["lon"], rc["lat"], public_dir, notes)),
+        ("coast", build_coast(bbox, coast_path, notes)),
+        ("river_network", build_river_network(rc["lon"], rc["lat"], public_dir, notes)),
+    ):
+        if v is not None:
+            out[k] = v
+    return out
+
+
+def merge_w5(path: str, scene: dict, public_dir: str, coast_path: str) -> dict:
+    """既有場景檔只加 natural 區塊（其他區塊原樣）"""
+    with open(path, encoding="utf-8") as f:
+        doc = json.load(f)
+    if doc.get("schema") != SCHEMA or doc.get("id") != scene["id"]:
+        raise RuntimeError(f"{path}: schema/id mismatch")
+    prefixes = ("風：", "浪：", "河川：", "樹冠：", "海岸：", "河道：", "W5：")
+    notes = [n for n in doc.get("notes_zh", []) if not n.startswith(prefixes)]
+    nn: list[str] = []
+    doc["natural"] = build_natural(scene, doc["bbox"], public_dir, coast_path, nn)
+    notes += nn
+    notes.append("W5：風×植被、海浪×海岸、河川水位分位都是活動 proxy（風速≠聲級、浪高≠岸邊聲音、水位≠流量≠聲音），不是 dB。")
+    doc["notes_zh"] = notes
+    doc["generated_at"] = dt.datetime.now(TPE).replace(microsecond=0).isoformat()
+    return doc
+
+
 def merge_mvp_b(path: str, scene: dict) -> dict:
     """既有場景檔只加 roadwork 區塊（其他區塊原樣）；鐵道與車流不進快照"""
     with open(path, encoding="utf-8") as f:
@@ -675,6 +1295,9 @@ def main() -> int:
     ap.add_argument("--out", default=os.path.join(REPO, "public", "sound-atlas", "scenes"))
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--merge-mvp-b", action="store_true", help="只把 roadwork 區塊併進 --out 內既有場景檔（不需要資料庫）")
+    ap.add_argument("--merge-w5", action="store_true", help="只把 W5 natural 區塊（風、浪、河川、樹冠、海岸、河道）併進 --out 內既有場景檔（S3＋本機檔，不需要資料庫）")
+    ap.add_argument("--public-dir", default=DEFAULT_PUBLIC, help="讀樹冠 PMTiles、water_rivers、water_monitor_stations 的 public 目錄")
+    ap.add_argument("--coast-geojson", default=DEFAULT_COAST, help="analytics coastal_area_extents.geojson")
     args = ap.parse_args()
     if args.list:
         for s in SCENES:
@@ -688,6 +1311,21 @@ def main() -> int:
     rc = 0
     for s in targets:
         path = os.path.join(args.out, f"{s['id']}.json")
+        if args.merge_w5:
+            doc = merge_w5(path, s, args.public_dir, args.coast_geojson)
+            body = json.dumps(doc, ensure_ascii=False, separators=(",", ":"))
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(body)
+            size = len(body.encode())
+            nat = doc["natural"]
+            print(
+                f"{s['id']}: {size / 1024:.0f} KB  wind={nat['wind']['health']}/{len(nat['wind']['stations'])}st "
+                f"wave={nat['wave']['health']}/{len(nat['wave']['stations'])}st river={nat['river']['health']}/{len(nat['river']['stations'])}st "
+                f"canopy={'y' if 'canopy' in nat else 'n'} coast={'y' if 'coast' in nat else 'n'} river_net={'y' if 'river_network' in nat else 'n'}"
+                f"{'' if size <= MAX_BYTES else '  ⚠ 超過 2 MB'}"
+            )
+            rc |= 1 if size > MAX_BYTES else 0
+            continue
         if args.merge_mvp_b:
             doc = merge_mvp_b(path, s)
             body = json.dumps(doc, ensure_ascii=False, separators=(",", ":"))
