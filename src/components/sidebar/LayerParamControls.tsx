@@ -7,7 +7,7 @@
  * 色盤選單（R7）是獨立元件 `PaletteControl`＋`paletteControl.css`。
  */
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, LayoutGrid } from "lucide-react";
 import type { LinkedSelectConfig, ParamControl, SliderConfig, ToggleConfig } from "../../state/layerParamsControls";
 import { Slider } from "../controls/Slider";
 import { useLocale } from "../../state/localeStore";
@@ -129,6 +129,12 @@ function LinkedSelectControl({ ctrl }: { ctrl: LinkedSelectConfig }) {
       </select>
       {ctrl.onRetry && <button type="button" className="lpc-link" onClick={ctrl.onRetry}>{t("paramsPanel.retry")}</button>}
       {failed && !ctrl.onRetry && <span role="alert" className="lpc-note">{t("paramsPanel.optionUnavailable")}</span>}
+      {ctrl.action && (
+        <button type="button" className="lpc-btn lpc-action" aria-haspopup="dialog" onClick={ctrl.action.onClick}>
+          <LayoutGrid size={11} strokeWidth={2} aria-hidden="true" />
+          {ctrl.action.label}
+        </button>
+      )}
     </ControlRow>
   );
 }

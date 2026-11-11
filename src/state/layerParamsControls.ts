@@ -27,6 +27,8 @@ import {
 import "./statisticsLinkedSelect";
 import { statisticsPresentationNote } from "./statisticsPresentationStore";
 import "./transitReachOriginSelect";
+import { STATISTICS_LINKED_PROVIDER } from "../data/statisticsParamsSpec";
+import { statisticsSmallMultiplesStore, statisticsSmallMultiplesYearCount } from "./statisticsSmallMultiplesStore";
 
 // ══════════════════════════════════════════════════════════════════
 //  控件型別（AR-22 P3-3）
@@ -119,6 +121,11 @@ export interface LinkedSelectConfig {
   onChange: (v: string) => void | Promise<void>;
   /** 錯誤時的重試（只在 statusText 那一列） */
   onRetry?: () => void;
+  /**
+   * 掛在選單下方的動作鈕（spec §5.37「多年份並排」）：只在面板（有傳 i18n）、統計連動選單最後一列、
+   * 可並排 ≥2 年時出現；不是參數（沒有值、不進場景存檔與 Agent 控件）。
+   */
+  action?: { label: string; onClick: () => void };
 }
 
 /**
@@ -178,6 +185,10 @@ export function buildParamControls(
     seenProviders.add(s.provider);
     statusCarriers.add(s.name);
   }
+  // 「多年份並排」鈕掛在統計連動選單最後一個可見列下方（只給面板；Agent／黃金快照不傳 i18n，不受影響）
+  const statisticsSelects = i18n ? visible.filter((s) => s.kind === "linkedSelect" && s.provider === STATISTICS_LINKED_PROVIDER) : [];
+  const lastStatisticsSelect = statisticsSelects[statisticsSelects.length - 1]?.name;
+  const smallMultiplesYears = lastStatisticsSelect ? statisticsSmallMultiplesYearCount(key) : 0;
   // `showWhen` 的控件在條件不成立時整個不渲染（等價於手寫版的 `...(cond ? [x] : [])`）；
   // `resolved` 讓 showWhen / disableRule 一定查得到值（傳入的快照可能只有部分欄位）。
   const resolved = resolveParamValues(spec, values);
@@ -301,6 +312,9 @@ export function buildParamControls(
           ...(statusText ? { statusText } : {}),
           onChange: (next: string) => setLinkedSelect(key, s, next),
           ...(carrier && snap.status === "error" && canRetryLinkedSelect(s.provider) ? { onRetry: () => retryLinkedSelects(key, s.provider) } : {}),
+          ...(i18n && s.name === lastStatisticsSelect && smallMultiplesYears >= 2
+            ? { action: { label: i18n.t("smallMultiples.open", { count: smallMultiplesYears }), onClick: () => statisticsSmallMultiplesStore.open(key) } }
+            : {}),
         };
       }
     }

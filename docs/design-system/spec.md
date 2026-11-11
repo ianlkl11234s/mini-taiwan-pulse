@@ -692,6 +692,15 @@
 - **規則**：任何「文字會在兩種長度間切換」的按鈕（複製／已複製、開始／停止）都給固定寬度或最小寬度。
 - **實作**：`src/components/InfoModal.tsx`、`src/components/ShareModal.tsx`。
 
+**統計多年份並排**（`StatisticsSmallMultiples`，2026-11-11）
+
+- **尺寸與標頭**：同說明視窗（桌機 `min(920px, 92vw) × min(680px, 88vh)`、手機 `100vw × 92vh` 由下緣出現）；eyebrow「多年份並排」＋圖層標題。
+- **版面**：左側小圖格（`repeat(auto-fill, minmax(128px, 1fr))`，手機固定 2 欄、整窗捲動），右側 180px 共用圖例（手機移到小圖上方）；小圖是 canvas（簡化邊界），**不另開 Mapbox 地圖**。
+- **小圖卡**：C2 卡片底（`--control-bg`／`--control-border`、`RADIUS.lg`）；目前期別用 accent 框＋`accentFaint` 底並標「目前」；期別跨度不同、邊界版本不同用 `--status-warn` 小字標示；缺值／遮蔽區數寫在卡片下方。
+- **狀態**：每張卡片各自顯示「載入中…」「載入失敗：原因」＋「重試」，不擋其他年份；載入走 loadingRegistry。
+- **圖例**：只在視窗內放一份共用圖例（色階、門檻、透明度與主地圖相同），主地圖圖例不增加任何項目。
+- **鍵盤**：開窗聚焦關閉鈕、Tab 鎖在視窗內、Esc 關閉（不連帶關 popup）、關窗焦點還給開啟按鈕；點卡片＝主地圖切到該期並關窗。
+
 ### 5.28 共用滑桿（controls/Slider）
 
 - **唯一的原生 range 元件**：`src/components/controls/Slider.tsx`，樣式 `slider.css` `.ctl-range`（規格同 §5.13 S1）。其他檔案不得寫 `type="range"`（guard `native-range` 白名單只剩本元件）。
@@ -895,6 +904,7 @@
 - **狀態**：狀態文字只放在同一 provider 第一個可見的那一列的數值欄（中文用 `FONT_CJK`、`--lpc-muted`）：「載入中…」「載入失敗：原因」＋選單下「重試」（`.lpc-link`）；改值後資料載入期間顯示「切換中…」、選單暫停操作（`aria-busy`）。選項還沒有時選單停用、只有一個「載入中…」選項。載入本身走 loadingRegistry（配方明細、統計數值）。
 - **Agent**：`research/layerControls.ts` 列出連動選單時帶當下選項、`linked.status`、`linked.dependsOn`；設定時值必須在當下選項內（停用的也不行），選項未載入回 `LAYER_CONTROL_OPTIONS_NOT_READY`，非同步改值等資料載入後才讀回。
 - **場景存檔**：存 provider 的目前值（群組「指標」`persist: false` 不存，由可見圖層表達）；還原時等圖層開啟、選項就緒後逐列驗證套用，不合法或逾時的列列進「略過項目」。
+- **選單下動作鈕**（`LinkedSelectConfig.action`，2026-11-11）：連動選單可帶一顆選單下方的 C2 一般按鈕（`.lpc-btn lpc-action`，左側 lucide `LayoutGrid` 11px、靠左不撐滿），開啟與該選單相關的視窗（`aria-haspopup="dialog"`）。目前只有統計「多年份並排」：掛在同一圖層最後一個可見的統計連動選單下，可並排年份 ≥2 才出現；只在面板（有 i18n）掛上，Agent 控制清單與 golden 快照不含此鈕。
 - **禁止**：在 `ExpandedControls` 或統計元件裡另寫期別／指標 select；把值複製進 layerParamsStore（兩個寫入者會互相蓋）；載入中把整列藏起來造成版面跳動（用保底列）。
 - **實作**：`src/state/{linkedSelect.ts,statisticsLinkedSelect.ts}`、`src/data/statisticsParamsSpec.ts`、`LayerParamControls.tsx` `LinkedSelectControl`、`layerParamsControls.ts` `LinkedSelectConfig`／`visibleControlSpecs`。
 

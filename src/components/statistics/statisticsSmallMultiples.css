@@ -1,0 +1,281 @@
+/*
+ * 統計「多年份並排」視窗（spec §5.27 置中視窗；桌機 min(920px, 92vw)、手機由下緣出現 100vw × 92vh）。
+ * 顏色只用 tokens（暗色預設、.sm-dialog--light 改指 --light-*）。
+ */
+.sm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.sm-dialog {
+  --sm-surface: var(--surface-solid);
+  --sm-border: var(--border-panel);
+  --sm-text-strong: var(--text-strong);
+  --sm-text: var(--text-default);
+  --sm-muted: var(--text-muted);
+  --sm-dim: var(--text-dim);
+  --sm-card: var(--control-bg);
+  --sm-card-hover: var(--control-bg-hover);
+  --sm-card-border: var(--control-border);
+  --sm-accent: var(--accent);
+  --sm-accent-faint: var(--accent-faint);
+  --sm-warn: var(--status-warn);
+  --sm-err: var(--status-err);
+  display: flex;
+  flex-direction: column;
+  width: min(920px, 92vw);
+  height: min(680px, 88vh);
+  overflow: hidden;
+  border: 1px solid var(--sm-border);
+  border-radius: var(--radius-xl);
+  background: var(--sm-surface);
+  color: var(--sm-text);
+  font-family: var(--font-cjk);
+  box-shadow: var(--elevation-lg);
+}
+
+.sm-dialog--light {
+  --sm-surface: var(--light-surface-solid);
+  --sm-border: var(--light-border);
+  --sm-text-strong: var(--light-text-strong);
+  --sm-text: var(--light-text-default);
+  --sm-muted: var(--light-text-muted);
+  --sm-dim: var(--light-text-dim);
+  --sm-card: var(--light-control-bg);
+  --sm-card-hover: var(--light-control-bg-hover);
+  --sm-card-border: var(--light-control-border);
+  --sm-accent: var(--light-accent);
+  --sm-accent-faint: var(--light-accent-faint);
+  --sm-warn: var(--light-status-warn);
+  --sm-err: var(--light-status-err);
+  box-shadow: var(--light-elevation-lg);
+}
+
+.sm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--sm-border);
+}
+
+.sm-eyebrow {
+  font-size: var(--font-xs);
+  letter-spacing: 1.4px;
+  color: var(--sm-dim);
+}
+
+.sm-title {
+  margin: 1px 0 0;
+  font-size: var(--font-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--sm-text-strong);
+}
+
+.sm-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--sm-dim);
+  cursor: pointer;
+}
+
+.sm-close:hover {
+  background: var(--sm-card-hover);
+}
+
+.sm-close:focus-visible,
+.sm-tile:focus-visible,
+.sm-retry:focus-visible {
+  outline: 2px solid var(--sm-accent);
+  outline-offset: 2px;
+}
+
+.sm-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  flex: 1;
+  min-height: 0;
+}
+
+.sm-grid-wrap {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+
+.sm-notes {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 10px;
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  color: var(--sm-muted);
+}
+
+.sm-notes p {
+  margin: 0;
+}
+
+.sm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 10px;
+}
+
+.sm-tile {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--sm-card-border);
+  border-radius: var(--radius-lg);
+  background: var(--sm-card);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sm-tile:hover:not(:disabled) {
+  background: var(--sm-card-hover);
+}
+
+.sm-tile--failed {
+  cursor: default;
+}
+
+.sm-tile[aria-current="true"] {
+  border-color: var(--sm-accent);
+  background: var(--sm-accent-faint);
+}
+
+.sm-canvas-box {
+  position: relative;
+  width: 100%;
+}
+
+.sm-canvas-box canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sm-tile-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  font-size: var(--font-sm);
+  line-height: 1.4;
+  text-align: center;
+  color: var(--sm-dim);
+}
+
+.sm-tile-state--error {
+  color: var(--sm-err);
+}
+
+.sm-retry {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sm-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sm-retry:hover {
+  text-decoration: underline;
+}
+
+.sm-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  font-size: var(--font-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--sm-text-strong);
+}
+
+.sm-flag {
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--sm-accent);
+}
+
+.sm-flag--warn {
+  color: var(--sm-warn);
+}
+
+.sm-meta {
+  font-size: var(--font-xs);
+  color: var(--sm-dim);
+}
+
+.sm-legend {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-left: 1px solid var(--sm-border);
+}
+
+@media (max-width: 640px) {
+  .sm-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .sm-dialog {
+    width: 100vw;
+    height: 92vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .sm-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  /* 整窗一起捲動：子區塊不可被 flex 壓扁（否則圖例會疊到說明文字上） */
+  .sm-grid-wrap,
+  .sm-legend {
+    flex-shrink: 0;
+  }
+
+  .sm-grid-wrap {
+    overflow: visible;
+  }
+
+  .sm-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sm-legend {
+    order: -1;
+    overflow: visible;
+    border-left: 0;
+    border-bottom: 1px solid var(--sm-border);
+  }
+}
