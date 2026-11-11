@@ -122,7 +122,13 @@ import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
+import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2, UserRound } from "lucide-react";
+import { CompareMapView } from "./map/CompareMapView";
+import { CompareDivider } from "./components/compare/CompareDivider";
+import { compareStore, useCompareState } from "./state/compareStore";
+import { compareSelectionsForUrl, restoreCompareSelections } from "./state/compareStatistics";
+import { regionalStatisticsStore } from "./state/regionalStatisticsStore";
+import { STATISTICS_RENDER_KEYS } from "./data/regionalStatisticsRecipes";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingStatus } from "./components/LoadingStatus";
 import { CountryViewportHint } from "./components/CountryViewportHint";
@@ -519,6 +525,12 @@ export default function App() {
   const [showInfo, setShowInfo] = useState(false);
   const i18n = useLocale();
   const { t, locale } = i18n;
+  // 比較模式（docs/features/compare-mode/DESIGN.md）：桌機才有入口；手機（Q3 (b)）退回單地圖
+  const compare = useCompareState();
+  const compareActive = compare.enabled && !isMobile;
+  useEffect(() => {
+    if (isMobile && compareStore.getSnapshot().enabled) compareStore.setEnabled(false);
+  }, [isMobile]);
   const [chatOpen, setChatOpen] = useState(false);
   /** Agent 活動卡（右上）是否在畫面上：出現時隱藏視野提示（§5.42） */
   const [agentActivityVisible, setAgentActivityVisible] = useState(false);
@@ -1904,9 +1916,18 @@ export default function App() {
   useEffect(() => {
     if (urlStateAppliedRef.current) return;
     urlStateAppliedRef.current = true;
-    const { layers, date, hour, statisticsMode: urlStatisticsMode, presentation } = urlStateRef.current;
+    const { layers, date, hour, statisticsMode: urlStatisticsMode, presentation, compare: urlCompare } = urlStateRef.current;
     // 呈現方式（pm=）先套，圖層開啟時第一次畫就是比例圓
     applyPresentationUrlEntries(presentation);
+    // 比較模式（cmp=）：桌機還原開關、把手、側別；手機不提供，退回單地圖並提示（Q3 (b)）
+    if (urlCompare) {
+      if (isMobile) showTransientNotice(t("compare.mobileFallback"));
+      else compareStore.hydrate({
+        enabled: true,
+        ...(urlCompare.split !== undefined ? { split: urlCompare.split } : {}),
+        sides: Object.fromEntries([...(urlCompare.left ?? []).map((key) => [key, "left"] as const), ...(urlCompare.right ?? []).map((key) => [key, "right"] as const)]),
+      });
+    }
     // URL 明示模式優先於 localStorage；舊連結若列出統計面卻沒有 sm，安全地以單一
     // 模式收斂（layers 原始順序的最後一個統計面保留），避免舊多色階重疊難以閱讀。
     const hydratedStatisticsMode = resolveStatisticsModeForUrl(urlStatisticsMode, layers?.some(isStatisticsChoropleth) ?? false);
@@ -1914,6 +1935,12 @@ export default function App() {
       setLayerVisibility((prev) => statisticsDisplayModeStore.setMode(hydratedStatisticsMode, prev));
     }
     if (layers?.length) handleBulkSetVisibility(layers, true);
+    // 左右期別與細項等選項載入後逐列驗證再套用（不存在的值保留目前選擇）
+    if (urlCompare && !isMobile && (urlCompare.leftSelection || urlCompare.rightSelection)) {
+      void restoreCompareSelections(urlCompare.leftSelection, urlCompare.rightSelection).then((skipped) => {
+        if (skipped.length) console.warn("[compare] 分享網址的期別／細項略過：", skipped);
+      });
+    }
     if (date) {
       // 先切換 timeline 的日期視窗，再寫 hh:00。若直接呼叫舊視窗的 seek，
       // deep link 會被今天的 window clamp 回去，網址日期看似有效但資料層永遠空白。
@@ -1936,6 +1963,23 @@ export default function App() {
   //    有頻率保護（Safari 特別嚴），會直接拋錯或忽略。
   // 3. **不寫進任何 React state** —— 只改網址列，不觸發 re-render，故成本趨近於零、
   //    不產生任何網路請求（Mapbox map load 只在 Map 初始化時計費，與此無關）。
+  /** 分享網址的比較狀態（只記非預設；比較關閉或手機＝不寫） */
+  const compareUrlState = (): UrlState["compare"] => {
+    const snapshot = compareStore.getSnapshot();
+    if (!snapshot.enabled || isMobile) return undefined;
+    const sides = Object.entries(snapshot.sides);
+    const visible = (key: string) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility]);
+    const left = sides.filter(([key, side]) => side === "left" && visible(key)).map(([key]) => key);
+    const right = sides.filter(([key, side]) => side === "right" && visible(key)).map(([key]) => key);
+    const selections = compareSelectionsForUrl();
+    return {
+      split: snapshot.split,
+      ...(left.length ? { left } : {}),
+      ...(right.length ? { right } : {}),
+      ...(selections.left ? { leftSelection: selections.left } : {}),
+      ...(selections.right ? { rightSelection: selections.right } : {}),
+    };
+  };
   const syncUrlRef = useRef<() => void>(() => {});
   syncUrlRef.current = () => {
     if (privateViewRef.current) return;
@@ -1973,6 +2017,7 @@ export default function App() {
         layers: keys,
         statisticsMode: statisticsDisplayMode,
         presentation: presentationUrlEntries((key) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility])),
+        compare: compareUrlState(),
         style: mapStyleId,
         date,
         hour,
@@ -1994,8 +2039,15 @@ export default function App() {
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
     // 呈現方式（pm=）在 layerParamsStore：切換、或被「同時一層比例圓」自動改回時也要更新網址
     const offParams = layerParamsStore.subscribe(() => syncUrlRef.current());
-    return () => { map.off("moveend", onMoveEnd); offParams(); };
-  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country]);
+    // 比較模式：開關、把手、側別，以及比較中統計層的左右期別／細項（只在比較開著時訂；rAF 合併）
+    let frame = 0;
+    const scheduleSync = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; syncUrlRef.current(); }); };
+    const offCompare = compareStore.subscribe(scheduleSync);
+    const offStatistics = compare.enabled
+      ? STATISTICS_RENDER_KEYS.flatMap((key) => [regionalStatisticsStore.subscribe(key, scheduleSync), regionalStatisticsStore.subscribe(`${key}::R`, scheduleSync)])
+      : [];
+    return () => { map.off("moveend", onMoveEnd); offParams(); offCompare(); offStatistics.forEach((off) => off()); if (frame) cancelAnimationFrame(frame); };
+  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country, compare.enabled]);
 
   // 量測（§5.44）：主題、觸控（不顯示游標提示）、標籤文案；拍攝模式暫停加點（量測線保留）
   useEffect(() => {
@@ -2238,6 +2290,21 @@ export default function App() {
         showBasemapLabels={showBasemapLabels}
         onMapReady={handleMapReady}
       />
+      {/* 比較模式右圖（開才建、關就銷毀）＋把手；主地圖＝左側，Agent 只操作主地圖（右圖靠鏡頭同步跟著動） */}
+      {compareActive && mapPrepared && mapRef.current && (
+        <>
+          <CompareMapView
+            mainMap={mapRef.current}
+            styleUrl={styleUrl}
+            pureBlack={mapStyleId === "black"}
+            isDarkTheme={isDarkTheme}
+            showBasemapLabels={showBasemapLabels}
+            featureInfo={featureInfo}
+            onFeatureInfo={setFeatureInfo}
+          />
+          <CompareDivider isDarkTheme={isDarkTheme} captureMode={captureMode} />
+        </>
+      )}
       {agentEnabled && <MainMapConnection
         bridge={chatBridge}
         map={mapPrepared ? mapRef.current : null}
@@ -2462,6 +2529,15 @@ export default function App() {
                 onToggleLabels={() => setShowBasemapLabels((visible) => !visible)}
               />
               {toolbarDivider}
+              <ToolbarButton
+                palette={toolbarPalette}
+                icon
+                pressed={compare.enabled}
+                title={t(compare.enabled ? "compare.toolbarOn" : "compare.toolbar")}
+                onClick={() => compareStore.setEnabled(!compareStore.getSnapshot().enabled)}
+              >
+                <Columns2 size={13} />
+              </ToolbarButton>
               <ToolbarButton
                 palette={toolbarPalette}
                 icon

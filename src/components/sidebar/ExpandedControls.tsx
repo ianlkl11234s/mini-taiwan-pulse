@@ -2,7 +2,11 @@ import type { DisplayMode, ExpandableLayerKey } from "../../types";
 // AR-22 P4：控件不再由 App 經 4 層 props 傳下來（getControls drilling 已拆除）。
 // 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
 import { useEffect, useReducer } from "react";
-import { buildParamControls } from "../../state/layerParamsControls";
+import { buildParamControls, visibleControlSpecs } from "../../state/layerParamsControls";
+import { buildCompareControls, prefixLeftStatisticsLabels } from "../../state/compareControls";
+import { useCompareState } from "../../state/compareStore";
+import { STATISTICS_RIGHT_PROVIDER } from "../../state/statisticsLinkedSelect";
+import { linkedSelectProvider } from "../../state/linkedSelect";
 import { useLayerParams } from "../../state/layerParamsStore";
 import { useLocale } from "../../state/localeStore";
 import { ensureLinkedSelects, subscribeLinkedSelects } from "../../state/linkedSelect";
@@ -34,6 +38,15 @@ function useLinkedSelects(layerKey: string): void {
   }, [layerKey]);
 }
 
+/** 比較中：右側期別／細項（`statisticsRight` provider）變動也要重繪 */
+function useRightStatistics(layerKey: string, enabled: boolean): void {
+  const [, rerender] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    if (!enabled || !isStatisticsRenderLayer(layerKey)) return;
+    return linkedSelectProvider(STATISTICS_RIGHT_PROVIDER)?.subscribe(layerKey, rerender);
+  }, [layerKey, enabled]);
+}
+
 /**
  * 圖層展開區（spec §5.11 V2）：桌機四入口與手機共用同一份。
  * 順序：航班模式鈕 → 實價統計 → 歷史航跡 → 共用控制項（`ParamControlList`：資料篩選含統計連動選單 →
@@ -47,7 +60,13 @@ export function ExpandedControls({
   const paramValues = useLayerParams(layerKey);
   useLinkedSelects(layerKey);
   const i18n = useLocale();
-  const controls = buildParamControls(layerKey, paramValues, i18n) ?? [];
+  // 比較模式（DESIGN §4）：「顯示在」與右側期別／細項排最前；統計左側列改名「左側 …」（只在面板，規格不變）
+  const compare = useCompareState();
+  useRightStatistics(layerKey, compare.enabled);
+  const controls = [
+    ...buildCompareControls(layerKey, compare, i18n),
+    ...prefixLeftStatisticsLabels(layerKey, compare, buildParamControls(layerKey, paramValues, i18n) ?? [], visibleControlSpecs(layerKey, paramValues), i18n),
+  ];
   const { TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const isDarkTheme = COLOR_SCHEME === "dark";
 
