@@ -2160,6 +2160,27 @@
    "s3_key": "deploy-assets/religion/top100.geojson"
   },
   {
+   "path": "public/sound-atlas/scenes/taichung-heping-1108.json",
+   "bytes": 168936,
+   "sha256": "0d3f68a3b2deb5c501ba2db210c831fd8482a13d29c2fafcce490ef958dedf75",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/scenes/taichung-heping-1108.json"
+  },
+  {
+   "path": "public/sound-atlas/scenes/taipei-1109.json",
+   "bytes": 1545909,
+   "sha256": "db84cd56f105e1eb68e3dfcf3d5900392fa7f497ad667bbdb9f311e2ca6b541f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/scenes/taipei-1109.json"
+  },
+  {
+   "path": "public/sound-atlas/scenes/taipei-typhoon-1024.json",
+   "bytes": 1084194,
+   "sha256": "cb5b6d9e4020f37adb5bd9517a7ed21cba5c52e6fae760f01ab3733f9c653727",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/scenes/taipei-typhoon-1024.json"
+  },
+  {
    "path": "public/state_assets/state_property_tender_listings.geojson",
    "bytes": 1082309,
    "sha256": "997d7c42c4f58c0af9b9f89930dadfaafe4678d64bfd264a4d1175134d7a5ee7",

@@ -34,7 +34,9 @@ const familyCc = (seg, path) => /^\/(jp-heights\/assets|jp-medical\/releases|fli
 // nginx L284-542：先 /data 再 dist
 const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urban', 'culture', 'civic_facilities', 'religion', 'funeral', 'welfare', 'hazards', 'indigenous_rural', 'marine', 'environment', 'public_life', 'poi', 'harm_reduction', 'world', 'tourism', 'coverage',
   // CI-4（2026-11-08）：原本只在 dist 的 git 大檔目錄，改成先 R2 再 dist，之後可移出 git
-  'finance', 'energy', 'mapchallenge', 'statistics', 'state_assets', 'statistics-accessibility'];
+  'finance', 'energy', 'mapchallenge', 'statistics', 'state_assets', 'statistics-accessibility',
+  // City Sound Atlas 場景快照（2026-11-11，資料檔只在 lock／R2，不進 git）
+  'sound-atlas'];
 // CI-4：移出 git 的資料檔裡，落在特殊路由的少數檔（.png 副檔名規則、根目錄）也先讀 R2 再退 dist
 const LOCKED_DATA_FILES = ['/base_map/hillshade.png', '/station_pillars.json', '/mapchallenge/day08_plan1955.jpg'];
 // 純 /data（非 ^~），值為固定 Cache-Control，null = map
