@@ -6,7 +6,8 @@ import {
   aviationPositionAt,
   flightsToAviationRecords,
 } from "../sourceAdapters/aviationAdapter";
-import { queryFamilyInterval } from "../engines/receiverQuery";
+import { dayProfile, queryFamilyInterval } from "../engines/receiverQuery";
+import { loadAviation } from "../sourceAdapters/aviationAdapter";
 import type { SoundSourceSet } from "../types";
 import { DATE, DAY_START, RECV, latNorth } from "./fixtures";
 
@@ -83,6 +84,7 @@ describe("aviationAdapter", () => {
     const r = queryFamilyInterval("aviation", [set], RECV, mid, mid);
     expect(r.status).toBe("unknown");
     expect(r.relativePotential).toBeNull();
+    expect(r.reason).toBe("trail_gap_over_30min_between_segments");
     expect(r.contributions[0]!.notes.join(" ")).toContain("trail_incomplete");
   });
 
@@ -96,6 +98,7 @@ describe("aviationAdapter", () => {
     const r = queryFamilyInterval("aviation", [set], RECV, T + 30, T + 30);
     expect(r.status).toBe("unknown");
     expect(r.relativePotential).toBeNull();
+    expect(r.reason).toBe("altitude_unit_unknown");
     const c = r.contributions[0]!;
     expect(c.propagationApproximation).toBe("2d");
     expect(c.relativePotential).toBeNull();
@@ -110,5 +113,20 @@ describe("aviationAdapter", () => {
     const r = queryFamilyInterval("aviation", [far], RECV, T + 30, T + 30);
     expect(r.status).toBe("inactive");
     expect(r.relativePotential).toBe(0);
+  });
+
+  it("T18：查今天時，最後一筆航跡之後的時段是 null（unavailable），不是 0", async () => {
+    const noon = DAY_START + 12 * 3600;
+    const flights = flightRowsToFlights([row("abc123", [[LAT, LON, 1000, noon - 120], [LAT, LON, 1000, noon]])]).flights;
+    const set = await loadAviation({ date: DATE, nowUnix: DAY_START + 18 * 3600 }, async () => ({ flights }));
+    expect(set.coverage[0]!.windowEnd).toBe(noon);
+    const p = dayProfile(RECV, DATE, 60, [set], ["aviation"]);
+    const a = p.families[0]!;
+    expect(a.values[10]).toBe(0); // 上午有資料、附近沒飛機
+    expect(a.statuses[11]).toBe("active");
+    for (let h = 13; h < 24; h++) {
+      expect(a.values[h]).toBeNull();
+      expect(a.statuses[h]).toBe("unavailable");
+    }
   });
 });

@@ -71,6 +71,7 @@ describe("wasteAdapter", () => {
     const r = queryFamilyInterval("waste_collection", [set], RECV, at(20 * 3600 + 60), at(20 * 3600 + 60));
     expect(r.status).toBe("unknown");
     expect(r.relativePotential).toBeNull();
+    expect(r.reason).toBe("calendar_weekday_unknown");
     const c = r.contributions[0]!;
     expect(c.evidence).toBe("inferred");
     expect(c.notes).toContain("calendar_confidence:weekday_unknown");
@@ -85,6 +86,23 @@ describe("wasteAdapter", () => {
     const c2 = queryFamilyInterval("waste_collection", [inferred], RECV, at(20 * 3600 + 60), at(20 * 3600 + 60)).contributions[0]!;
     expect(c2.evidence).toBe("inferred");
     expect(c2.temporalPrecision).toBe("schedule_inferred_times");
+  });
+
+  it("星期欄位未查證的城市：顯示候選但 evidence=inferred，不標 scheduled", () => {
+    const set = setOf([route("臺中市", [[20 * 3600, 20 * 3600 + 120]])]);
+    const r = queryFamilyInterval("waste_collection", [set], RECV, at(20 * 3600 + 60), at(20 * 3600 + 60));
+    expect(r.status).toBe("active");
+    expect(r.contributions[0]!.evidence).toBe("inferred");
+    expect(r.contributions[0]!.notes).toContain("calendar_confidence:weekday_unverified");
+  });
+
+  it("多日 sets 一起傳入時，跨午夜停點不重複計", () => {
+    const stop: [number, number] = [24 * 3600 + 11 * 60, 24 * 3600 + 13 * 60];
+    const mon = { ...setOf([route("新北市", [stop], false, "MON")]), dateKey: "2026-07-13" };
+    mon.records = wasteRecordsForDate("2026-07-13", [route("新北市", [stop], false, "MON")], []);
+    const tue = setOf([], [route("新北市", [stop], false, "MON")]);
+    const r = queryFamilyInterval("waste_collection", [mon, tue], RECV, at(11 * 60 + 30), at(11 * 60 + 30));
+    expect(r.contributions).toHaveLength(1);
   });
 
   it("只在停點位置發聲：兩停點之間的路段不產生來源", () => {

@@ -19,6 +19,7 @@ import { haversineM } from "../engines/geometryDistance";
 import { proximityPotential, thunderEnvelope } from "../engines/relativePotentialKernel";
 import { thunderTiming } from "../engines/thunderDelayKernel";
 import { taipeiMidnightMs } from "../../lib/taipeiDay";
+import { clipCoverageEnd } from "../engines/coverageWindow";
 import type {
   IntervalQuery,
   SoundSourceAdapter,
@@ -69,9 +70,20 @@ export function dedupeAndLinkStrikes(
   bySource: ReadonlyArray<{ source: LightningSource; strikes: readonly LightningStrike[] }>,
 ): ThunderRecord[] {
   const seen = new Set<string>();
-  const kept: ThunderRecord[] = [];
+  // kept 永遠依 flashTime 排序；跨源比對只看 ±maxDt 視窗（雷雨季單源可達數萬筆，避免 O(n×m)）
+  let kept: ThunderRecord[] = [];
   const maxDt = THUNDER.possibleLinkMaxDtS.value;
   const maxD = THUNDER.possibleLinkMaxDistanceM.value;
+  const lowerBound = (ts: number) => {
+    let lo = 0;
+    let hi = kept.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (kept[mid]!.payload.flashTime < ts) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo;
+  };
   for (const { source, strikes } of bySource) {
     const fromThisSource: ThunderRecord[] = [];
     for (const s of strikes) {
@@ -79,18 +91,21 @@ export function dedupeAndLinkStrikes(
       if (seen.has(key)) continue;
       seen.add(key);
       const rec = strikeToRecord(source, s);
-      const link = kept.find(
-        (k) =>
-          k.payload.source !== source &&
-          Math.abs(k.payload.flashTime - rec.payload.flashTime) <= maxDt &&
-          haversineM(k.payload.lon, k.payload.lat, rec.payload.lon, rec.payload.lat) < maxD,
-      );
+      let link: ThunderRecord | undefined;
+      for (let i = lowerBound(rec.payload.flashTime - maxDt); i < kept.length; i++) {
+        const k = kept[i]!;
+        if (k.payload.flashTime > rec.payload.flashTime + maxDt) break;
+        if (k.payload.source !== source && haversineM(k.payload.lon, k.payload.lat, rec.payload.lon, rec.payload.lat) < maxD) {
+          link = k;
+          break;
+        }
+      }
       if (link) link.payload.linkedRecordIds.push(rec.id);
       else fromThisSource.push(rec);
     }
-    kept.push(...fromThisSource);
+    kept = [...kept, ...fromThisSource].sort((a, b) => a.payload.flashTime - b.payload.flashTime);
   }
-  return kept.sort((a, b) => a.payload.flashTime - b.payload.flashTime);
+  return kept;
 }
 
 export function evaluateThunder(record: ThunderRecord, t: number): SourceEvaluation {
@@ -146,17 +161,19 @@ export const queryThunderInterval: IntervalQuery<ThunderPayload> = (records, rec
 
 /** 讀多源；每源各自 coverage（ok／empty／error）。fetcher 可注入以便測試。 */
 export async function loadThunder(
-  ctx: { date: string },
+  ctx: { date: string; nowUnix?: number },
   fetcher: (date: string, source: LightningSource) => Promise<LightningStrike[]> = fetchLightningDay,
   sources: readonly LightningSource[] = THUNDER.sources.value,
 ): Promise<SoundSourceSet<ThunderPayload>> {
   const start = taipeiMidnightMs(ctx.date) / 1000;
+  // 今天：涵蓋窗只到現在；落雷稀疏，無法以最後一筆判斷收集進度
+  const windowEnd = clipCoverageEnd(start, ctx.nowUnix ?? Date.now() / 1000);
   const settled = await Promise.allSettled(sources.map((s) => fetcher(ctx.date, s)));
   const coverage: SourceCoverage[] = [];
   const bySource: { source: LightningSource; strikes: LightningStrike[] }[] = [];
   settled.forEach((res, i) => {
     const source = sources[i]!;
-    const base = { family: "thunder" as const, provider: source, dateKey: ctx.date, windowStart: start, windowEnd: start + 86_400, temporalKind: "day_series" as const };
+    const base = { family: "thunder" as const, provider: source, dateKey: ctx.date, windowStart: start, windowEnd, temporalKind: "day_series" as const };
     if (res.status === "rejected") {
       coverage.push({ ...base, status: "error", reason: String(res.reason) });
       return;

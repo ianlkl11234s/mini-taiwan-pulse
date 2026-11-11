@@ -10,8 +10,9 @@
  * - dow 以 Asia/Taipei 計算（不用執行環境時區的 getDay）。
  *
  * 星期可信度（T02）：RPC 端把「星期欄位為空」當每日，輸出看不出哪些停點缺星期。
- * 以 WASTE.weekdayUnknownCities（城市層級假設，至少臺北市）標 calendar_confidence=weekday_unknown，
- * 預設 policy=unknown：不顯示成確定收運。scheduleInferred=true 的時刻也只算 inferred。
+ * 以城市層級白名單判斷：WASTE.weekdayListedCities（已查證 4 城）→ weekday_listed；
+ * WASTE.weekdayUnknownCities（臺北市）→ weekday_unknown（預設回 unknown）；其餘 → weekday_unverified
+ * （預設顯示候選但 evidence=inferred）。只有 weekday_listed 且非推算時刻才算 scheduled。
  */
 import {
   ALL_22_CITIES,
@@ -32,7 +33,7 @@ import type {
   SourceEvaluation,
 } from "../types";
 
-export type CalendarConfidence = "weekday_listed" | "weekday_unknown";
+export type CalendarConfidence = "weekday_listed" | "weekday_unknown" | "weekday_unverified";
 
 export interface WastePayload {
   city: string;
@@ -66,8 +67,17 @@ export function shiftTaipeiDateKey(dateKey: string, days: number): string {
   return new Date(Date.parse(`${dateKey}T00:00:00Z`) + days * MS_PER_DAY).toISOString().slice(0, 10);
 }
 
+/** 白名單：只有已查證有星期欄位的城市才是 weekday_listed */
 export function calendarConfidenceForCity(city: string): CalendarConfidence {
-  return WASTE.weekdayUnknownCities.value.includes(city) ? "weekday_unknown" : "weekday_listed";
+  if (WASTE.weekdayUnknownCities.value.includes(city)) return "weekday_unknown";
+  if (WASTE.weekdayListedCities.value.includes(city)) return "weekday_listed";
+  return "weekday_unverified";
+}
+
+function calendarPolicy(c: CalendarConfidence): "unknown" | "candidate" | "confirmed" {
+  if (c === "weekday_unknown") return WASTE.weekdayUnknownPolicy.value;
+  if (c === "weekday_unverified") return WASTE.weekdayUnverifiedPolicy.value;
+  return "confirmed";
 }
 
 /** 某服務日的表定路線 → 停點 records（純函式） */
@@ -136,8 +146,8 @@ function isConfirmed(p: WastePayload): boolean {
 
 export function evaluateWaste(record: WasteRecord, t: number): SourceEvaluation {
   if (t < record.validFrom || t > record.validUntil) return { status: "inactive" };
-  if (record.payload.calendarConfidence === "weekday_unknown" && WASTE.weekdayUnknownPolicy.value === "unknown") {
-    return { status: "unknown", reason: "weekday_unknown_calendar" };
+  if (calendarPolicy(record.payload.calendarConfidence) === "unknown") {
+    return { status: "unknown", reason: `calendar_${record.payload.calendarConfidence}` };
   }
   return { status: "active", geometry: { lon: record.payload.lon, lat: record.payload.lat, altitudeM: null }, relativeActivity: 1 };
 }
@@ -160,11 +170,12 @@ export const queryWasteInterval: IntervalQuery<WastePayload> = (records, receive
       `service_date:${p.serviceDateKey}`,
       "scheduled_stop_only_no_gps_no_inter_stop_line",
     ];
-    const unknownByCalendar = p.calendarConfidence === "weekday_unknown" && WASTE.weekdayUnknownPolicy.value === "unknown";
+    const unknownByCalendar = calendarPolicy(p.calendarConfidence) === "unknown";
     contributions.push({
       sourceId: r.id,
       family: "waste_collection",
       status: unknownByCalendar ? "unknown" : "active",
+      ...(unknownByCalendar ? { unknownReason: `calendar_${p.calendarConfidence}` } : {}),
       sourceTime: iso(p.stopStart),
       spatialDistanceM: d,
       relativePotential: unknownByCalendar ? null : proximityPotential(d, WASTE.halfPotentialDistanceM.value),
@@ -179,7 +190,8 @@ export const queryWasteInterval: IntervalQuery<WastePayload> = (records, receive
   return { contributions, notes: [] };
 };
 
-/** 讀 D 與 D−1 的 dow 表定。fetcher 可注入以便測試。 */
+/** 讀 D 與 D−1 的 dow 表定。fetcher 可注入以便測試。
+ *  ⚠️ 預設讀 22 城 × 2 個 dow（16 個分組檔）；UI 應依視野傳 cities。 */
 export async function loadWaste(
   ctx: { date: string; cities?: string[] },
   fetcher: (cities: string[], dow: number) => Promise<WasteScheduleRoute[]> = fetchWasteScheduleDay,

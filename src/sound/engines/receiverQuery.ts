@@ -65,13 +65,20 @@ export function queryFamilyInterval(
   }
   const okProviders = new Set(ok.map((c) => c.provider));
   const records: SoundSourceRecord[] = [];
+  const seenIds = new Set<string>();
+  const push = (r: SoundSourceRecord) => {
+    // 多日 sets 一起傳入時，跨午夜的停點等可能以同一 id 出現兩次
+    if (seenIds.has(r.id)) return;
+    seenIds.add(r.id);
+    records.push(r);
+  };
   for (const s of familySets) {
     // 單一 coverage 的集合：整組依該 coverage 判定；多源集合（落雷）：依 record 的 provider 判定
     if (s.coverage.length === 1) {
-      if (okProviders.has(s.coverage[0]!.provider) && s.coverage[0]!.status === "ok") records.push(...s.records);
+      if (okProviders.has(s.coverage[0]!.provider) && s.coverage[0]!.status === "ok") s.records.forEach(push);
       continue;
     }
-    for (const r of s.records) if (okProviders.has(r.provenance.provider)) records.push(r);
+    for (const r of s.records) if (okProviders.has(r.provenance.provider)) push(r);
   }
   const { contributions, notes } = QUERIES[family](records as never[], receiver, t0, t1);
   contributions.sort((a, b) => (b.relativePotential ?? -1) - (a.relativePotential ?? -1));
@@ -93,7 +100,7 @@ export function queryFamilyInterval(
     ...base,
     status,
     relativePotential,
-    reason: status === "unknown" ? contributions.find((c) => c.status === "unknown")?.notes[0] : undefined,
+    reason: status === "unknown" ? contributions.find((c) => c.status === "unknown")?.unknownReason ?? "unknown_candidate" : undefined,
     contributions,
     notes: [...base.notes, ...extraNotes],
   };

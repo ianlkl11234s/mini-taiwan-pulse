@@ -20,6 +20,7 @@ import { AVIATION, COMMON, MODEL_VERSION } from "../model/soundProfiles";
 import { haversineM, slantDistanceM } from "../engines/geometryDistance";
 import { proximityPotential } from "../engines/relativePotentialKernel";
 import { taipeiMidnightMs } from "../../lib/taipeiDay";
+import { clipCoverageEnd } from "../engines/coverageWindow";
 import type {
   IntervalQuery,
   Receiver,
@@ -35,7 +36,7 @@ export type AltitudeUnit = "unknown" | "ft" | "m";
 export interface AviationPayload {
   flightId: string;
   callsign: string;
-  /** 每段內相鄰點間隔 ≤ AVIATION.segmentSplitGapS；段已按時間排序 */
+  /** 每段內相鄰點間隔 ≤30 分鐘（loader 的 splitTrailByGap 寫死預設 1800 s，本 adapter 不另設）；段已按時間排序 */
   segments: TrailPoint[][];
   coverageStart: number;
   coverageEnd: number;
@@ -167,7 +168,7 @@ export const queryAviationInterval: IntervalQuery<AviationPayload> = (records, r
       if (pos.status === "unknown") {
         // 缺口期間位置未知：只有在缺口兩端任一端落在候選半徑內才當候選 unknown
         if (!unknownCandidate && gapTouchesRadius(r.payload, t, receiver, radius)) {
-          unknownCandidate = baseContribution(r, t, null, null, "unknown", [`position_unknown:${pos.reason}`, "trail_incomplete"]);
+          unknownCandidate = baseContribution(r, t, null, null, "unknown", [`position_unknown:${pos.reason}`, "trail_incomplete"], pos.reason);
         }
         continue;
       }
@@ -176,7 +177,7 @@ export const queryAviationInterval: IntervalQuery<AviationPayload> = (records, r
       if (pos.altitudeM == null) {
         const c = baseContribution(r, t, dh, null, "unknown", [
           "blocker:T05 altitude unit unconfirmed — 3D attenuation blocked, 2D distance only",
-        ]);
+        ], "altitude_unit_unknown");
         c.propagationApproximation = "2d";
         if (!unknownCandidate) unknownCandidate = c;
         continue;
@@ -219,8 +220,10 @@ function baseContribution(
   potential: number | null,
   status: "active" | "unknown",
   notes: string[],
+  unknownReason?: string,
 ): SourceContribution {
   return {
+    ...(unknownReason ? { unknownReason } : {}),
     sourceId: r.id,
     family: "aviation",
     status,
@@ -236,17 +239,24 @@ function baseContribution(
   };
 }
 
-export async function loadAviation(ctx: { date: string }): Promise<SoundSourceSet<AviationPayload>> {
+export async function loadAviation(
+  ctx: { date: string; nowUnix?: number },
+  fetcher: (date: string) => Promise<{ flights: Flight[] }> = fetchAirspaceDayArrow,
+): Promise<SoundSourceSet<AviationPayload>> {
   const start = taipeiMidnightMs(ctx.date) / 1000;
+  const now = ctx.nowUnix ?? Date.now() / 1000;
   const base = { family: "aviation" as const, provider: "flight_trails", dateKey: ctx.date, windowStart: start, windowEnd: start + 86_400, temporalKind: "day_series" as const };
   try {
-    const data = await fetchAirspaceDayArrow(ctx.date);
+    const data = await fetcher(ctx.date);
     const records = flightsToAviationRecords(data.flights);
+    // 今天：涵蓋窗只到最後一筆航跡（且不超過現在），之後的時段 unavailable 而非 0
+    const lastTs = records.reduce((m, r) => Math.max(m, r.payload.coverageEnd), -Infinity);
+    const windowEnd = clipCoverageEnd(start, now, Number.isFinite(lastTs) ? lastTs : null);
     return {
       family: "aviation",
       dateKey: ctx.date,
       records,
-      coverage: [{ ...base, status: records.length ? "ok" : "empty", reason: records.length ? undefined : "no_flight_trails_for_date" }],
+      coverage: [{ ...base, windowEnd, status: records.length ? "ok" : "empty", reason: records.length ? undefined : "no_flight_trails_for_date" }],
     };
   } catch (e) {
     return { family: "aviation", dateKey: ctx.date, records: [], coverage: [{ ...base, status: "error", reason: String(e) }] };

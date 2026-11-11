@@ -111,6 +111,8 @@ export interface SourceContribution {
   spatialPrecision: string;
   temporalPrecision: string;
   acousticConfidence: "unmeasured" | "proxy" | "calibrated";
+  /** status=unknown 時的機器可讀原因（不依賴 notes 順序） */
+  unknownReason?: string;
   propagationApproximation?: "2d" | "3d";
   thunderTiming?: ThunderTiming;
   notes: string[];
@@ -139,6 +141,8 @@ export type IntervalQuery<P> = (
 export interface SoundLoadContext {
   /** 臺灣日期 YYYY-MM-DD */
   date: string;
+  /** 牆鐘 unix 秒（可注入測試）；查「今天」時用來截斷涵蓋窗，未發生的時段不算 0 */
+  nowUnix?: number;
 }
 
 export interface SoundSourceAdapter<P = unknown> {

@@ -29,7 +29,6 @@ export const COMMON = {
 
 export const AVIATION = {
   candidateRadiusM: p(20_000, "只查接收者水平 20 km 內的航機；更遠的飛機在相對潛勢上可忽略。純候選篩選，非可聽距離宣稱。"),
-  segmentSplitGapS: p(1_800, "與既有 splitTrailByGap 預設一致：相鄰軌跡點 >30 分鐘視為不同段；段與段之間的時間回 unknown，不插值。"),
   maxInterpolationGapS: p(600, "段內兩點間隔 ≤10 分鐘才線性插值位置；更長的間隔直線插值偏離實際航路的風險太高，回 unknown。"),
   intervalSampleStepS: p(30, "24h 區間查詢時，每 30 秒細取樣一次航機位置再取最大值，避免 5–15 分鐘格點漏掉一兩分鐘的飛越。"),
   halfPotentialDistanceM: p(2_000, "斜距 2 km 時相對潛勢為 0.5 的距離衰減尺度（啟發式，未經機型噪音資料校準）。"),
@@ -58,15 +57,17 @@ export const RAIN = {
 
 // ── 垃圾車（W01，表定停點）──────────────────────────────────
 
-export type WeekdayUnknownPolicy = "unknown" | "candidate";
+export type CalendarPolicy = "unknown" | "candidate";
 
 export const WASTE = {
   candidateRadiusM: p(500, "只查接收者 500 m 內的表定停點。"),
   halfPotentialDistanceM: p(150, "距停點 150 m 時相對潛勢為 0.5（啟發式；音樂車聲未量測）。"),
   approachBufferS: p(120, "到站前 2 分鐘起算可能聽到（車輛接近）；只在停點位置計算，不沿停點間直線發聲。"),
   minAudibleDwellS: p(60, "arrival == departure 的停點給 1 分鐘最小停靠窗。"),
-  weekdayUnknownCities: p(["臺北市"] as readonly string[], "這些城市來源沒有星期欄位，RPC 端把空值當每日；adapter 無法從輸出分辨，故以城市層級標 calendar_confidence=weekday_unknown。其他城市個別停點是否缺星期無法判斷。"),
-  weekdayUnknownPolicy: p<WeekdayUnknownPolicy>("unknown", "星期未知的停點預設回 unknown（不顯示成確定收運）；改 candidate 則以 evidence=inferred 顯示候選。"),
+  weekdayListedCities: p(["高雄市", "新北市", "宜蘭縣", "基隆市"] as readonly string[], "gis-platform 079 檔頭與 docs/features/waste-collection/research/schedule-data-quirks.md 證實這 4 城有星期欄位 → calendar_confidence=weekday_listed。個別停點仍可能缺值（RPC 輸出看不出來）。"),
+  weekdayUnknownCities: p(["臺北市"] as readonly string[], "來源沒有星期欄位，RPC 端把空值當每日 → calendar_confidence=weekday_unknown。"),
+  weekdayUnknownPolicy: p<CalendarPolicy>("unknown", "weekday_unknown 的停點預設回 unknown（不顯示成確定收運）；改 candidate 則以 evidence=inferred 顯示候選。"),
+  weekdayUnverifiedPolicy: p<CalendarPolicy>("candidate", "其餘城市（星期欄位現況未查證）→ calendar_confidence=weekday_unverified，以 evidence=inferred 顯示候選，不標 scheduled。"),
 } as const;
 
 // ── 24h profile ─────────────────────────────────────────────

@@ -42,6 +42,14 @@ describe("thunderAdapter", () => {
     expect(r.reason).toContain("taipower:empty");
   });
 
+  it("查今天：現在之後的時段 unavailable，不是「無雷」", async () => {
+    const set = await loadThunder({ date: DATE, nowUnix: T }, fetcherOf({ cwa: [strike(1, T - 7200, latNorth(343))] }));
+    expect(queryFamilyInterval("thunder", [set], RECV, T - 60, T - 60).status).toBe("inactive");
+    const later = queryFamilyInterval("thunder", [set], RECV, T + 3600, T + 3600);
+    expect(later.status).toBe("unavailable");
+    expect(later.relativePotential).toBeNull();
+  });
+
   it("T07：一源錯誤、另一源健康 → 以健康源判斷並標 degraded", async () => {
     const set = await loadThunder({ date: DATE }, fetcherOf({ cwa: new Error("boom"), taipower: [strike(9, T - 3600, latNorth(50_000))] }));
     const r = queryFamilyInterval("thunder", [set], RECV, T, T);

@@ -121,6 +121,7 @@ export const queryRainInterval: IntervalQuery<RainPayload> = (records, receiver,
     spatialPrecision: "nearest_gauge",
     temporalPrecision: "hourly",
     acousticConfidence: "proxy",
+    unknownReason: reason,
     notes: [reason, ...extra],
   });
   if (!nearest || nearest.distanceM > maxD) {
