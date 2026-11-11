@@ -32,7 +32,10 @@ export const ANIM_LAYERS = {
 const NOTE_IMAGE = "sound-atlas-note";
 
 /** 同時動畫實例上限（超過就只畫潛勢最高的前幾個） */
-export const ANIM_CAPS = { planes: 8, ripplesPerPlane: 3, rainDrops: 28, flashes: 12, notes: 16 } as const;
+export const ANIM_CAPS = { planes: 8, ripplesPerPlane: 3, rainDrops: 28, flashes: 12, notes: 16, trains: 12, ripplesPerTrain: 2 } as const;
+
+/** 接收點外圈的家族順序（環的相位錯開、unknown 環大小依此排） */
+const RING_ORDER: readonly SoundSourceFamily[] = ["aviation", "rain", "thunder", "waste_collection", "rail", "road_traffic", "roadwork"];
 
 const FRAME_MIN_MS = 33;
 const FLASH_MS = 300;
@@ -165,7 +168,7 @@ export function createReceiverElements(): ReceiverElements {
   root.setAttribute("aria-label", "接收點（聆聽位置）");
   Object.assign(root.style, { position: "relative", width: "34px", height: "34px", cursor: "grab" });
   const rings = {} as Record<SoundSourceFamily, HTMLDivElement>;
-  for (const fam of ["aviation", "rain", "thunder", "waste_collection"] as const) {
+  for (const fam of RING_ORDER) {
     const ring = document.createElement("div");
     Object.assign(ring.style, {
       position: "absolute", left: "0", top: "0", width: "34px", height: "34px", borderRadius: "50%",
@@ -328,6 +331,33 @@ export class SoundAtlasAnimator {
       });
     }
 
+    // 鐵道：列車沿軌道移動（班表推算，每幀依時間軸重算位置）＋淡波紋；地下段不是貢獻、不畫；
+    // 結構不明段列車＝灰點、無波紋（不當地面）
+    const trains = result.contributions
+      .filter((c) => c.family === "rail" && flags.rail && (c.status === "active" || c.unknownReason === "rail_structure_unknown"))
+      .sort((a, b) => (b.relativePotential ?? 0) - (a.relativePotential ?? 0))
+      .slice(0, ANIM_CAPS.trains);
+    for (const c of trains) {
+      const place = contributionPlace(records.get(c.sourceId), t);
+      if (!place) continue;
+      const o = op("rail");
+      if (c.status !== "active") {
+        out.push(circle(place.lon, place.lat, { r: 4.5, fill: SOUND_UNKNOWN_COLOR, fillOpacity: 0.8 * o, stroke: SOUND_FLASH_COLOR, strokeWidth: 1, opacity: 0.6 * o }));
+        continue;
+      }
+      const p = c.relativePotential ?? 0;
+      out.push({
+        type: "Feature",
+        geometry: { type: "LineString", coordinates: [[receiver.longitude, receiver.latitude], [place.lon, place.lat]] },
+        properties: { kind: "link", color: SOUND_FAMILY_COLORS.rail, width: 1 + 2 * p, opacity: (0.2 + 0.6 * p) * o },
+      });
+      for (let i = 0; i < ANIM_CAPS.ripplesPerTrain; i++) {
+        const ph = ripplePhase(nowMs, p, i, ANIM_CAPS.ripplesPerTrain);
+        out.push(circle(place.lon, place.lat, { r: 6 + ph * (10 + 26 * p), stroke: SOUND_FAMILY_COLORS.rail, strokeWidth: 1.2, opacity: (1 - ph) * (0.15 + 0.45 * p) * o }));
+      }
+      out.push(circle(place.lon, place.lat, { r: 5 + 3 * p, fill: SOUND_FAMILY_COLORS.rail, fillOpacity: o, stroke: SOUND_FLASH_COLOR, strokeWidth: 1.5, opacity: o }));
+    }
+
     // 垃圾車：活躍停點的音符脈動
     const notes = active.filter((c) => c.family === "waste_collection").slice(0, ANIM_CAPS.notes);
     for (const c of notes) {
@@ -345,24 +375,23 @@ export class SoundAtlasAnimator {
     const els = this.receiverEls();
     if (!els) return;
     const { result, flags } = this.state;
-    for (const fam of ["aviation", "rain", "thunder", "waste_collection"] as const) {
+    RING_ORDER.forEach((fam, idx) => {
       const ring = els.rings[fam];
       const fr = flags[fam] ? result?.families.find((f) => f.family === fam) : undefined;
       if (fr?.status === "active" && fr.relativePotential != null && fr.relativePotential > 0) {
         const p = fr.relativePotential;
-        const idx = ["aviation", "rain", "thunder", "waste_collection"].indexOf(fam);
-        const ph = ripplePhase(nowMs, p, idx, 4);
+        const ph = ripplePhase(nowMs, p, idx, RING_ORDER.length);
         ring.style.border = `${(1.5 + 2 * p).toFixed(1)}px solid ${SOUND_FAMILY_COLORS[fam]}`;
         ring.style.transform = `scale(${(1 + ph * (0.8 + 1.6 * p)).toFixed(3)})`;
         ring.style.opacity = ((1 - ph) * (0.35 + 0.65 * p)).toFixed(3);
       } else if (fr?.status === "unknown") {
         ring.style.border = `1.5px dashed ${SOUND_UNKNOWN_COLOR}`;
-        ring.style.transform = `scale(${(1.25 + 0.18 * ["aviation", "rain", "thunder", "waste_collection"].indexOf(fam)).toFixed(2)})`;
+        ring.style.transform = `scale(${(1.25 + 0.12 * idx).toFixed(2)})`;
         ring.style.opacity = "0.75";
       } else {
         ring.style.opacity = "0";
       }
-    }
+    });
     const flashing = nowMs < this.receiverFlashUntil;
     els.core.style.boxShadow = flashing
       ? `0 0 0 3px ${SOUND_FAMILY_COLORS.thunder}, 0 0 26px 10px ${SOUND_FAMILY_COLORS.thunder}`

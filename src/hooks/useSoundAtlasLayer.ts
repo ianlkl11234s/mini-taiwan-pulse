@@ -1,5 +1,5 @@
 /**
- * City Sound Atlas 聲景（實驗）圖層 hook：四個來源家族（飛機／雨／雷／垃圾車）共用一支。
+ * City Sound Atlas 聲景（實驗）圖層 hook：七個來源家族（飛機／雨／雷／垃圾車／鐵道／道路類型 proxy／施工許可）共用一支。
  *
  * - 資料：只載入開著的家族；日期跟 timeStore.subscribeDate，場景快照有區塊就用快照（src/sound/scenes.ts）。
  * - 「當下」：timeStore.subscribeThrottled(250) → queryReceiver → 寫 soundAtlasStore（面板訂閱）＋ setData 標記與連線。
@@ -13,10 +13,10 @@ import mapboxgl, { type GeoJSONSource, type Map as MapboxMap } from "mapbox-gl";
 import type { FeatureCollection } from "geojson";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { dayProfile, queryReceiver, SOUND_FAMILIES } from "../sound/engines/receiverQuery";
+import { dayProfile, queryReceiver, SOUND_FAMILIES_ALL as SOUND_FAMILIES } from "../sound/engines/receiverQuery";
 import { activeWavefronts, geodesicRing, WAVEFRONT_DEFAULT_CAP } from "../sound/engines/wavefronts";
 import {
-  contributionPlace, familyLoadKey, indexRecords, loadSoundFamily, prefilterSetsForReceiver, type LoadedFamily,
+  contributionPlace, familyLoadKey, indexRecords, loadSoundFamily, nearestPointOnLine, prefilterSetsForReceiver, type LoadedFamily,
 } from "../sound/soundAtlasData";
 import { makeReceiver, setSoundAtlasMap, soundAtlasStore, type SoundAtlasState } from "../sound/soundAtlasStore";
 import { SOUND_FAMILY_COLORS, SOUND_UNKNOWN_COLOR } from "../sound/soundAtlasColors";
@@ -25,6 +25,7 @@ import {
 } from "../sound/soundAtlasAnimator";
 import { AVIATION } from "../sound/model/soundProfiles";
 import type { ThunderPayload } from "../sound/sourceAdapters/thunderAdapter";
+import type { RoadTrafficPayload } from "../sound/sourceAdapters/roadTrafficAdapter";
 import type { SoundSourceFamily, SoundSourceSet } from "../sound/types";
 
 export type SoundFamilyFlags = Record<SoundSourceFamily, boolean>;
@@ -33,6 +34,12 @@ const SRC_POINTS = "sound-atlas-sources";
 const SRC_LINKS = "sound-atlas-links";
 const SRC_WAVES = "sound-atlas-wavefronts";
 const WAVE_LAYER = "sound-atlas-wavefront-line";
+/** 道路類型 proxy：附近國道路段淡光暈（不是車流量） */
+const SRC_ROADS = "sound-atlas-road-glow";
+const ROAD_GLOW_LAYER = "sound-atlas-road-glow-line";
+/** 施工許可：小三角錐圖示（活躍許可；未涵蓋／不明仍是點圖層灰圈） */
+const ROADWORK_ICON_LAYER = "sound-atlas-roadwork-icon";
+const CONE_IMAGE = "sound-atlas-cone";
 
 /** 每個家族一個點圖層（popup 由 gisClickRegistry 登記，型別 soundSource） */
 export const SOUND_ATLAS_POINT_LAYERS: Record<SoundSourceFamily, string> = {
@@ -40,13 +47,44 @@ export const SOUND_ATLAS_POINT_LAYERS: Record<SoundSourceFamily, string> = {
   rain: "sound-atlas-src-rain",
   thunder: "sound-atlas-src-thunder",
   waste_collection: "sound-atlas-src-waste",
+  rail: "sound-atlas-src-rail",
+  road_traffic: "sound-atlas-src-road",
+  roadwork: "sound-atlas-src-roadwork",
 };
 const LINK_LAYERS: Record<SoundSourceFamily, string> = {
   aviation: "sound-atlas-link-aviation",
   rain: "sound-atlas-link-rain",
   thunder: "sound-atlas-link-thunder",
   waste_collection: "sound-atlas-link-waste",
+  rail: "sound-atlas-link-rail",
+  road_traffic: "sound-atlas-link-road",
+  roadwork: "sound-atlas-link-roadwork",
 };
+
+/** 動畫器自己畫（位置每幀依時間軸重算）的家族：點圖層只留可點選的近透明點、hook 不畫連線 */
+const ANIMATED_FAMILIES = new Set<SoundSourceFamily>(["aviation", "rail"]);
+
+function makeConeImage(): ImageData | null {
+  const size = 32;
+  const c = document.createElement("canvas");
+  c.width = size;
+  c.height = size;
+  const ctx = c.getContext("2d");
+  if (!ctx) return null;
+  ctx.fillStyle = SOUND_FAMILY_COLORS.roadwork;
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(16, 3);
+  ctx.lineTo(28, 27);
+  ctx.lineTo(4, 27);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(10, 17, 12, 3);
+  return ctx.getImageData(0, 0, size, size);
+}
 
 const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -77,8 +115,20 @@ function setSourceData(map: MapboxMap, id: string, fc: FeatureCollection): void 
 }
 
 function ensureLayers(map: MapboxMap): void {
-  for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES]) {
+  for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES, SRC_ROADS]) {
     if (!map.getSource(id)) map.addSource(id, { type: "geojson", data: EMPTY });
+  }
+  if (!map.getLayer(ROAD_GLOW_LAYER)) {
+    map.addLayer({
+      id: ROAD_GLOW_LAYER, type: "line", source: SRC_ROADS,
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-color": SOUND_FAMILY_COLORS.road_traffic,
+        "line-width": ["+", 5, ["*", 8, ["coalesce", ["get", "potential"], 0]]],
+        "line-blur": 5,
+        "line-opacity": ["+", 0.15, ["*", 0.4, ["coalesce", ["get", "potential"], 0]]],
+      },
+    });
   }
   if (!map.getLayer(WAVE_LAYER)) {
     map.addLayer({
@@ -116,21 +166,34 @@ function ensureLayers(map: MapboxMap): void {
       });
     }
   }
+  if (!map.hasImage(CONE_IMAGE)) {
+    const img = makeConeImage();
+    if (img) map.addImage(CONE_IMAGE, img, { pixelRatio: 2 });
+  }
+  if (!map.getLayer(ROADWORK_ICON_LAYER)) {
+    map.addLayer({
+      id: ROADWORK_ICON_LAYER, type: "symbol", source: SRC_POINTS,
+      filter: ["all", ["==", ["get", "family"], "roadwork"], ["==", ["get", "status"], "active"]],
+      layout: { "icon-image": CONE_IMAGE, "icon-size": ["+", 0.75, ["*", 0.5, ["coalesce", ["get", "potential"], 0]]], "icon-allow-overlap": true, "icon-ignore-placement": true },
+    });
+  }
   ensureAnimLayers(map);
 }
 
 function removeLayers(map: MapboxMap): void {
   removeAnimLayers(map);
-  const layers = [...Object.values(SOUND_ATLAS_POINT_LAYERS), ...Object.values(LINK_LAYERS), WAVE_LAYER];
+  const layers = [ROADWORK_ICON_LAYER, ...Object.values(SOUND_ATLAS_POINT_LAYERS), ...Object.values(LINK_LAYERS), WAVE_LAYER, ROAD_GLOW_LAYER];
   for (const id of layers) if (map.getLayer(id)) map.removeLayer(id);
-  for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES]) if (map.getSource(id)) map.removeSource(id);
+  for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES, SRC_ROADS]) if (map.getSource(id)) map.removeSource(id);
+  if (map.hasImage(CONE_IMAGE)) map.removeImage(CONE_IMAGE);
 }
 
 /**
- * 點圖層逐點透明度：活躍且達顯示門檻的航機由動畫器畫（這裡幾乎透明但仍可點選開 popup）；
- * 低於門檻的遠方航機只畫淡點；其他照常。
+ * 點圖層逐點透明度：活躍且達顯示門檻的航機、活躍列車由動畫器畫，活躍施工許可由圖示畫
+ * （這裡幾乎透明但仍可點選開 popup）；低於門檻的遠方航機只畫淡點；其他照常（不明＝灰色空心）。
  */
 function pointOpacityExpr(fam: SoundSourceFamily, o: number): mapboxgl.ExpressionSpecification | number {
+  if (fam === "rail" || fam === "roadwork") return ["case", ["==", ["get", "status"], "active"], 0.01, o];
   if (fam !== "aviation") return o;
   const thr = AVIATION.displayMinPotential.value;
   return [
@@ -159,6 +222,14 @@ function applyVisibility(map: MapboxMap, flags: SoundFamilyFlags, opacity: Recor
       map.setLayoutProperty(LINK_LAYERS[fam], "visibility", vis);
       map.setPaintProperty(LINK_LAYERS[fam], "line-opacity", linkOpacityExpr(o));
     }
+  }
+  if (map.getLayer(ROAD_GLOW_LAYER)) {
+    map.setLayoutProperty(ROAD_GLOW_LAYER, "visibility", flags.road_traffic ? "visible" : "none");
+    map.setPaintProperty(ROAD_GLOW_LAYER, "line-opacity", ["*", Math.max(0, Math.min(1, opacity.road_traffic)), ["+", 0.15, ["*", 0.4, ["coalesce", ["get", "potential"], 0]]]]);
+  }
+  if (map.getLayer(ROADWORK_ICON_LAYER)) {
+    map.setLayoutProperty(ROADWORK_ICON_LAYER, "visibility", flags.roadwork ? "visible" : "none");
+    map.setPaintProperty(ROADWORK_ICON_LAYER, "icon-opacity", Math.max(0, Math.min(1, opacity.roadwork)));
   }
   if (map.getLayer(WAVE_LAYER)) {
     map.setLayoutProperty(WAVE_LAYER, "visibility", flags.thunder ? "visible" : "none");
@@ -207,8 +278,8 @@ export function useSoundAtlasLayer(
     if (!map || !anyOn) return;
     const anim = new SoundAtlasAnimator(map, () => receiverElsRef.current, {
       receiver: null, result: null, records: new Map(), thunderStrikes: [],
-      flags: { aviation: false, rain: false, thunder: false, waste_collection: false },
-      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1 },
+      flags: { aviation: false, rain: false, thunder: false, waste_collection: false, rail: false, road_traffic: false, roadwork: false },
+      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1, rail: 1, road_traffic: 1, roadwork: 1 },
     });
     animatorRef.current = anim;
     setSoundAtlasAnimator(anim);
@@ -220,19 +291,19 @@ export function useSoundAtlasLayer(
   }, [mapRef, anyOn, mapTick]);
 
   // flags／opacity 以純量比較，避免物件身分每次 render 都變
-  const { aviation: fA, rain: fR, thunder: fT, waste_collection: fW } = flags;
-  const { aviation: oA, rain: oR, thunder: oT, waste_collection: oW } = opacity;
+  const { aviation: fA, rain: fR, thunder: fT, waste_collection: fW, rail: fL, road_traffic: fD, roadwork: fK } = flags;
+  const { aviation: oA, rain: oR, thunder: oT, waste_collection: oW, rail: oL, road_traffic: oD, roadwork: oK } = opacity;
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !anyOn) return;
-    const f = { aviation: fA, rain: fR, thunder: fT, waste_collection: fW };
-    const o = { aviation: oA, rain: oR, thunder: oT, waste_collection: oW };
+    const f = { aviation: fA, rain: fR, thunder: fT, waste_collection: fW, rail: fL, road_traffic: fD, roadwork: fK };
+    const o = { aviation: oA, rain: oR, thunder: oT, waste_collection: oW, rail: oL, road_traffic: oD, roadwork: oK };
     animatorRef.current?.update({ flags: f, opacity: o });
     const apply = () => applyVisibility(map, f, o);
     apply();
     map.on("style.load", apply);
     return () => { map.off("style.load", apply); };
-  }, [mapRef, anyOn, mapTick, fA, fR, fT, fW, oA, oR, oT, oW]);
+  }, [mapRef, anyOn, mapTick, fA, fR, fT, fW, fL, fD, fK, oA, oR, oT, oW, oL, oD, oK]);
 
   // ── 接收點標記（可拖曳）──
   const markerRef = useRef<mapboxgl.Marker | null>(null);
@@ -339,6 +410,7 @@ export function useSoundAtlasLayer(
     if (!receiver) {
       setSourceData(map, SRC_POINTS, EMPTY);
       setSourceData(map, SRC_LINKS, EMPTY);
+      setSourceData(map, SRC_ROADS, EMPTY);
       animatorRef.current?.update({ receiver: null, result: null });
       if (soundAtlasStore.get().current) soundAtlasStore.set({ current: null });
       return;
@@ -351,18 +423,29 @@ export function useSoundAtlasLayer(
       const ms = performance.now() - t0;
       const points: FeatureCollection = { type: "FeatureCollection", features: [] };
       const links: FeatureCollection = { type: "FeatureCollection", features: [] };
+      const roads: FeatureCollection = { type: "FeatureCollection", features: [] };
       for (const c of result.contributions) {
-        const place = contributionPlace(index.get(c.sourceId), t);
+        const rec = index.get(c.sourceId);
+        let place = contributionPlace(rec, t);
         if (!place) continue;
+        if (c.family === "road_traffic" && rec) {
+          // 道路 proxy：連線接到路段上離接收點最近處；路段本身畫淡光暈（不是流量）
+          const coords = (rec.payload as RoadTrafficPayload).coords;
+          const near = nearestPointOnLine(coords, receiver.longitude, receiver.latitude);
+          if (near) place = { ...place, lon: near[0], lat: near[1] };
+          if (c.status === "active") {
+            roads.features.push({ type: "Feature", geometry: { type: "LineString", coordinates: coords }, properties: { potential: c.relativePotential } });
+          }
+        }
         const props = {
           family: c.family, status: c.status, potential: c.relativePotential, distanceM: c.spatialDistanceM,
           evidence: c.evidence, spatialPrecision: c.spatialPrecision, temporalPrecision: c.temporalPrecision,
           sourceTime: c.sourceTime, label: place.label, altitudeM: place.altitudeM,
           unknownReason: c.unknownReason ?? null, delayS: c.thunderTiming?.delayS ?? null,
-          origin: origins[c.family] ?? "live",
+          origin: origins[c.family] ?? "live", railStructure: c.railStructure ?? null,
         };
         points.features.push({ type: "Feature", geometry: { type: "Point", coordinates: [place.lon, place.lat] }, properties: props });
-        if (c.status === "active" && c.family !== "aviation") {
+        if (c.status === "active" && !ANIMATED_FAMILIES.has(c.family)) {
           links.features.push({
             type: "Feature",
             geometry: { type: "LineString", coordinates: [[receiver.longitude, receiver.latitude], [place.lon, place.lat]] },
@@ -372,6 +455,7 @@ export function useSoundAtlasLayer(
       }
       setSourceData(map, SRC_POINTS, points);
       setSourceData(map, SRC_LINKS, links);
+      setSourceData(map, SRC_ROADS, roads);
       animatorRef.current?.update({ receiver, result, records: index });
       soundAtlasStore.set({ current: result, perf: { ...soundAtlasStore.get().perf, lastQueryMs: ms } });
     };

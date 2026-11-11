@@ -21,7 +21,7 @@ import { SOUND_FAMILY_COLORS } from "../../sound/soundAtlasColors";
 import type { SoundSourceFamily, SourceContribution, SourceCoverage } from "../../sound/types";
 import { SoundDayProfile } from "./SoundDayProfile";
 import {
-  EVIDENCE_KEYS, FAMILY_KEYS, HEALTH_KEYS, SCENE_KEYS, STATUS_KEYS,
+  EVIDENCE_KEYS, FAMILY_KEYS, HEALTH_KEYS, SCENE_KEYS, STATUS_KEYS, STRUCTURE_KEYS,
   formatDistanceM, formatPotential, formatTaipeiTime, providerKey, reasonKey, spatialPrecisionKey, temporalPrecisionKey,
 } from "./soundAtlasText";
 
@@ -30,6 +30,9 @@ const FAMILY_LAYER_KEYS = {
   rain: "soundRain",
   thunder: "soundThunder",
   waste_collection: "soundWaste",
+  rail: "soundRail",
+  road_traffic: "soundRoadTraffic",
+  roadwork: "soundRoadwork",
 } as const satisfies Record<SoundSourceFamily, string>;
 
 const TOP_N = 5;
@@ -60,12 +63,15 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
     borderRadius: RADIUS.md, padding: "3px 8px", cursor: "pointer",
   };
 
-  const closeAll = () => layerVisibilityStore.setBulk({ soundAviation: false, soundRain: false, soundThunder: false, soundWaste: false });
+  const closeAll = () => layerVisibilityStore.setBulk({ soundAviation: false, soundRain: false, soundThunder: false, soundWaste: false, soundRail: false, soundRoadTraffic: false, soundRoadwork: false });
   const vis: Record<SoundSourceFamily, boolean> = {
     aviation: useLayerVisible(FAMILY_LAYER_KEYS.aviation),
     rain: useLayerVisible(FAMILY_LAYER_KEYS.rain),
     thunder: useLayerVisible(FAMILY_LAYER_KEYS.thunder),
     waste_collection: useLayerVisible(FAMILY_LAYER_KEYS.waste_collection),
+    rail: useLayerVisible(FAMILY_LAYER_KEYS.rail),
+    road_traffic: useLayerVisible(FAMILY_LAYER_KEYS.road_traffic),
+    roadwork: useLayerVisible(FAMILY_LAYER_KEYS.roadwork),
   };
   const enabledFamilies = (Object.keys(FAMILY_LAYER_KEYS) as SoundSourceFamily[]).filter((f) => vis[f]);
 
@@ -231,11 +237,15 @@ function ContributionRow({ c: cb, origin, colors }: {
         {t("soundAtlas.row.evidence")} {t(EVIDENCE_KEYS[cb.evidence])}
         {" · "}{t("soundAtlas.row.spatial")} {t(spatialPrecisionKey(cb.spatialPrecision))}
         {" · "}{t("soundAtlas.row.temporal")} {t(temporalPrecisionKey(cb.temporalPrecision))}
+        {cb.family === "rail" && cb.railStructure && <> · {t("soundAtlas.row.railStructure")} {t(STRUCTURE_KEYS[cb.railStructure])}</>}
         {cb.thunderTiming && <> · {t("soundAtlas.row.delay")} <span style={{ fontFamily: FONT_DATA }}>{cb.thunderTiming.delayS.toFixed(1)} s</span></>}
         {cb.status === "unknown" && <> · {t("soundAtlas.row.reason")} {t(reasonKey(cb.unknownReason))}</>}
         {" · "}{t("soundAtlas.row.source")} {t(origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}
         {" · "}<span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(cb.sourceTime, true)}</span>
       </div>
+      {/* 道路只有類型 proxy（無車流量）、施工只有許可期間（不是機具運轉）：固定標明 */}
+      {cb.family === "road_traffic" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.roadProxyNote")}</div>}
+      {cb.family === "roadwork" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.permitNote")}</div>}
     </div>
   );
 }

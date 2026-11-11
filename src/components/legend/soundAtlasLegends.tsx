@@ -1,5 +1,5 @@
 /**
- * City Sound Atlas 聲景（實驗）圖例：四個家族共用一份（legend id "soundAtlas"）。
+ * City Sound Atlas 聲景（實驗）圖例：七個家族共用一份（legend id "soundAtlas"）。
  * 家族色、接收點、無法判斷（灰色空心）、連線與雷聲波前（示意）；固定註明非 dB。
  */
 import { LegendNote, LegendRow, LegendTitle, SwatchDot } from "./legendKit";
@@ -8,7 +8,7 @@ import { SOUND_FAMILY_COLORS, SOUND_RECEIVER_COLOR, SOUND_UNKNOWN_COLOR } from "
 import { FAMILY_KEYS } from "../sound/soundAtlasText";
 import type { SoundSourceFamily } from "../../sound/types";
 
-const FAMILIES: SoundSourceFamily[] = ["aviation", "rain", "thunder", "waste_collection"];
+const FAMILIES: SoundSourceFamily[] = ["aviation", "rain", "thunder", "waste_collection", "rail", "road_traffic", "roadwork"];
 
 export function SoundAtlasLegend() {
   const { t } = useLocale();
@@ -23,6 +23,10 @@ export function SoundAtlasLegend() {
     <LegendNote>{t("legend.soundAtlas.link")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.wavefront")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.animation")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.rail")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.roadTraffic")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.roadwork")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.attribution")}</LegendNote>
     <LegendNote>{t("soundAtlas.disclaimer")}</LegendNote>
   </div>;
 }

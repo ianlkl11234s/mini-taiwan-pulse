@@ -65,8 +65,8 @@ describe("SoundAtlasAnimator（假地圖，手動推影格）", () => {
     const map = { getSource: (id: string) => (id === ANIM_SOURCE ? { setData } : undefined) } as unknown as MapboxMap;
     const anim = new SoundAtlasAnimator(map, () => null, {
       receiver: RECV, result: null, records: new Map(), thunderStrikes: [],
-      flags: { aviation: true, rain: true, thunder: true, waste_collection: true },
-      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1 },
+      flags: { aviation: true, rain: true, thunder: true, waste_collection: true, rail: true, road_traffic: true, roadwork: true },
+      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1, rail: 1, road_traffic: 1, roadwork: 1 },
       ...state,
     });
     let now = 0;
