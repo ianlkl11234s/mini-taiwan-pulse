@@ -16,7 +16,7 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { dayProfile, queryReceiver, SOUND_FAMILIES_ALL as SOUND_FAMILIES } from "../sound/engines/receiverQuery";
 import { activeWavefronts, geodesicRing, WAVEFRONT_DEFAULT_CAP } from "../sound/engines/wavefronts";
 import {
-  contributionPlace, familyLoadKey, indexRecords, loadSoundFamily, nearestPointOnLine, prefilterSetsForReceiver, type LoadedFamily,
+  contributionPlace, familyLoadKey, indexRecords, loadSoundFamily, nearestPointOnGeometry, nearestPointOnLine, prefilterSetsForReceiver, type LoadedFamily,
 } from "../sound/soundAtlasData";
 import { makeReceiver, setSoundAtlasMap, soundAtlasStore, type SoundAtlasState } from "../sound/soundAtlasStore";
 import { SOUND_FAMILY_COLORS, SOUND_UNKNOWN_COLOR } from "../sound/soundAtlasColors";
@@ -26,6 +26,7 @@ import {
 import { AVIATION } from "../sound/model/soundProfiles";
 import type { ThunderPayload } from "../sound/sourceAdapters/thunderAdapter";
 import type { RoadTrafficPayload } from "../sound/sourceAdapters/roadTrafficAdapter";
+import type { RoadworkPayload } from "../sound/sourceAdapters/roadworkAdapter";
 import type { SoundSourceFamily, SoundSourceSet } from "../sound/types";
 
 export type SoundFamilyFlags = Record<SoundSourceFamily, boolean>;
@@ -436,6 +437,12 @@ export function useSoundAtlasLayer(
           if (c.status === "active") {
             roads.features.push({ type: "Feature", geometry: { type: "LineString", coordinates: coords }, properties: { potential: c.relativePotential } });
           }
+        }
+        if (c.family === "roadwork" && rec) {
+          // 施工許可：圖示與連線放在許可幾何上離接收點最近處（與引擎距離一致）
+          const rp = rec.payload as RoadworkPayload;
+          const near = rp.kind === "permit" ? nearestPointOnGeometry(rp.event.geometry, receiver.longitude, receiver.latitude) : null;
+          if (near) place = { ...place, lon: near[0], lat: near[1] };
         }
         const props = {
           family: c.family, status: c.status, potential: c.relativePotential, distanceM: c.spatialDistanceM,

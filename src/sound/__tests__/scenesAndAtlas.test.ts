@@ -9,7 +9,7 @@ import {
   sceneFallbackFocusUnix,
   snapshotApplies,
 } from "../scenes";
-import { citiesNearReceiver, prefilterSetsForReceiver, snapshotSet, topContributionsForDisplay } from "../soundAtlasData";
+import { citiesNearReceiver, nearestPointOnGeometry, prefilterSetsForReceiver, snapshotSet, topContributionsForDisplay } from "../soundAtlasData";
 import { activeWavefronts, geodesicRing } from "../engines/wavefronts";
 import { haversineM } from "../engines/geometryDistance";
 import { dayProfile, queryReceiver } from "../engines/receiverQuery";
@@ -236,5 +236,18 @@ describe("topContributionsForDisplay（只影響面板列表）", () => {
     expect(out.rows).toHaveLength(2);
     expect(out.farAviation.count).toBe(5);
     expect(list).toHaveLength(8);
+  });
+});
+
+describe("nearestPointOnGeometry（施工／道路連線端點）", () => {
+  it("長線段取離接收點最近處，不取第一個頂點", () => {
+    const line: GeoJSON.LineString = { type: "LineString", coordinates: [[121.0, 25.0], [121.1, 25.0]] };
+    const p = nearestPointOnGeometry(line, 121.05, 25.001)!;
+    expect(p[0]).toBeCloseTo(121.05, 6);
+    expect(p[1]).toBeCloseTo(25.0, 6);
+  });
+  it("點幾何回傳自身；無幾何回 null（不補座標）", () => {
+    expect(nearestPointOnGeometry({ type: "Point", coordinates: [121.2, 25.1] }, 121.0, 25.0)).toEqual([121.2, 25.1]);
+    expect(nearestPointOnGeometry(null, 121.0, 25.0)).toBeNull();
   });
 });

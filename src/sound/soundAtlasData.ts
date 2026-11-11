@@ -384,6 +384,33 @@ function firstCoordinate(g: GeoJSON.Geometry | null | undefined): [number, numbe
   return Array.isArray(c) && typeof c[0] === "number" && typeof c[1] === "number" ? [c[0], c[1]] : null;
 }
 
+/** 接收點到任意幾何最近點（線／面逐段、點取自身）；施工許可的連線端點用——許可常是長線段，第一個頂點可能在數公里外 */
+export function nearestPointOnGeometry(g: GeoJSON.Geometry | null | undefined, lon: number, lat: number): [number, number] | null {
+  if (!g) return null;
+  const lines: [number, number][][] = [];
+  const collect = (geom: GeoJSON.Geometry) => {
+    switch (geom.type) {
+      case "Point": lines.push([geom.coordinates as [number, number]]); break;
+      case "MultiPoint": for (const c of geom.coordinates) lines.push([c as [number, number]]); break;
+      case "LineString": lines.push(geom.coordinates as [number, number][]); break;
+      case "MultiLineString": case "Polygon": for (const l of geom.coordinates) lines.push(l as [number, number][]); break;
+      case "MultiPolygon": for (const poly of geom.coordinates) for (const l of poly) lines.push(l as [number, number][]); break;
+      case "GeometryCollection": for (const x of geom.geometries) collect(x); break;
+    }
+  };
+  collect(g);
+  const kx = M_PER_DEG_LAT * Math.cos(lat * (Math.PI / 180));
+  let best: [number, number] | null = null;
+  let bestD = Infinity;
+  for (const l of lines) {
+    const p = nearestPointOnLine(l, lon, lat);
+    if (!p) continue;
+    const d = ((p[0] - lon) * kx) ** 2 + ((p[1] - lat) * M_PER_DEG_LAT) ** 2;
+    if (d < bestD) { bestD = d; best = p; }
+  }
+  return best;
+}
+
 /** 接收點到折線最近點（局部等距投影；道路 proxy 的連線端點用） */
 export function nearestPointOnLine(coords: readonly [number, number][], lon: number, lat: number): [number, number] | null {
   if (!coords.length) return null;

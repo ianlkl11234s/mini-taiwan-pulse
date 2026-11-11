@@ -186,7 +186,7 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
                   <span style={{ color: c.dim }}>
                     {coverage.length === 0
                       ? t("soundAtlas.health.unavailable")
-                      : coverage.map((cv) => `${t(providerKey(cv.provider))} ${t(HEALTH_KEYS[cv.status])}`).join("、")}
+                      : [...new Set(coverage.map((cv) => `${t(providerKey(cv.provider))} ${t(HEALTH_KEYS[cv.status])}`))].join("、")}
                     {" · "}{t(st.origins[family] === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}
                     {updated && <> · {t("soundAtlas.row.updated")} <span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(updated, true)}</span></>}
                   </span>
