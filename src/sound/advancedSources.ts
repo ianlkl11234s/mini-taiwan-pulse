@@ -77,6 +77,13 @@ function coverage<F extends AdvancedSoundFamily>(family: F, provider: string, da
   return { family, provider, dateKey: date, status, windowStart: start, windowEnd: start + 86_400, temporalKind: "day_series" as const, reason: `snapshot:${origin ?? ""}` };
 }
 
+/** 快照有沒有某一族的時變子區塊（快取鍵／面板來源說明用） */
+export function naturalBlockFor(json: unknown, family: AdvancedSoundFamily): { origin?: string } | null {
+  const b = parseNaturalBlock(json);
+  if (!b) return null;
+  return (family === "wind_vegetation" ? b.wind : family === "coastal_wave" ? b.wave : b.river) ?? null;
+}
+
 const num = (v: number | null | undefined) => (v == null || !Number.isFinite(v) ? null : v);
 
 /** 快照 → 某一族的 SoundSourceSet；該族時變子區塊不存在 → null（呼叫端改走即時） */

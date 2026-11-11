@@ -12,6 +12,10 @@ export const SOUND_FAMILY_COLORS = {
   rail: "#818cf8",
   road_traffic: "#f87171",
   roadwork: "#e879f9",
+  // W5 自然聲源（ADVANCED_SOURCES §6.2 草案色調亮到 400 階，暗底可辨；資料色，§3.16）
+  wind_vegetation: "#a3e635",
+  coastal_wave: "#67e8f9",
+  river_water: "#3b82f6",
 } as const;
 
 /** 接收點標記（白底＋粉紅外框）與「無法判斷」斜線色 */

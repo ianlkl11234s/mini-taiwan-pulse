@@ -23,6 +23,10 @@ import {
 import { loadWaste, type WasteRecord } from "./sourceAdapters/wasteAdapter";
 import { snapshotApplies, type SnapshotHealth, type SoundSceneSnapshot } from "./scenes";
 import { loadMvpBFamily, parseMvpBSceneBlocks } from "./mvpBSources";
+import { loadAdvancedFamily, naturalBlockFor } from "./advancedSources";
+import type { WindVegetationRecord } from "./sourceAdapters/windVegetationAdapter";
+import type { CoastalWaveRecord } from "./sourceAdapters/coastalWaveAdapter";
+import type { RiverWaterRecord } from "./sourceAdapters/riverWaterAdapter";
 import { evaluateRail, railProgressAt, type RailRecord } from "./sourceAdapters/railAdapter";
 import { interpolateOnLineString } from "../engines/railUtils";
 import type { RoadTrafficRecord } from "./sourceAdapters/roadTrafficAdapter";
@@ -113,6 +117,7 @@ function sceneHasBlock(snapshot: SoundSceneSnapshot, family: SoundSourceFamily):
   if (family === "aviation") return !!snapshot.aviation;
   if (family === "thunder") return !!snapshot.thunder;
   if (family === "rain") return !!snapshot.rain;
+  if (family === "wind_vegetation" || family === "coastal_wave" || family === "river_water") return naturalBlockFor(snapshot.raw, family) != null;
   return false;
 }
 
@@ -195,6 +200,11 @@ export async function loadSoundFamily(
     const r = await loadMvpBFamily(family, date, applies ? snapshot!.raw : null);
     return { set: r.set as SoundSourceSet, origin: r.origin };
   }
+  if (family === "wind_vegetation" || family === "coastal_wave" || family === "river_water") {
+    // W5 自然三族：時變觀測只在場景快照（S3 正本裁切）；即時：風、浪 unavailable，河川讀 RPC 但缺河道與分位 → unknown
+    const r = await loadAdvancedFamily(family, date, applies ? snapshot!.raw : null);
+    return { set: r.set as SoundSourceSet, origin: r.origin };
+  }
   if (applies) {
     const set = await snapshotSet(snapshot!, family, nowUnix);
     if (set) return { set, origin: "scene" };
@@ -207,6 +217,7 @@ export async function loadSoundFamily(
     case "thunder":
       return { set: await loadThunder({ date, nowUnix }, fetchLightningDay), origin: "live" };
   }
+  return null;
 }
 
 // ── 面板「此刻主要來源」列表 ─────────────────────────────
@@ -378,7 +389,21 @@ export function contributionPlace(record: SoundSourceRecord | undefined, t: numb
       const pt = firstCoordinate(p.event.geometry);
       return pt ? { lon: pt[0], lat: pt[1], altitudeM: null, label: p.event.title ?? p.event.road_name ?? p.event.event_id } : null;
     }
+    // W5 自然三族：位置＝測站原座標（氣象站／浮標／水位站）；靜態脈絡（樹冠格、海岸、河道、範圍）不是來源點 → null
+    case "wind_vegetation": {
+      const p = (record as unknown as WindVegetationRecord).payload;
+      return p.kind === "wind_obs" ? { lon: p.lon, lat: p.lat, altitudeM: null, label: p.stationName ?? p.stationId } : null;
+    }
+    case "coastal_wave": {
+      const p = (record as unknown as CoastalWaveRecord).payload;
+      return p.kind === "wave_obs" ? { lon: p.lon, lat: p.lat, altitudeM: null, label: p.stationName ?? p.stationId } : null;
+    }
+    case "river_water": {
+      const p = (record as unknown as RiverWaterRecord).payload;
+      return p.kind === "river_obs" ? { lon: p.lon, lat: p.lat, altitudeM: null, label: p.stationName ?? p.stationId } : null;
+    }
   }
+  return null;
 }
 
 /** 幾何的代表點（Point 本身；線／面取第一個頂點）——只用來源原座標，不合成 */

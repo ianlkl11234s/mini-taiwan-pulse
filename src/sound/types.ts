@@ -8,14 +8,14 @@
 /** MVP-B 三族（W4 引擎；鐵道、道路類型 proxy、施工許可） */
 export type MvpBSoundFamily = "rail" | "road_traffic" | "roadwork";
 
-/** UI 與引擎共用的家族（MVP-A 四族＋MVP-B 三族；components／hooks 以 Record<SoundSourceFamily, …> 窮舉） */
-export type SoundSourceFamily = "aviation" | "rain" | "thunder" | "waste_collection" | MvpBSoundFamily;
-
 /**
- * W5 自然聲源三族（引擎與 adapter 已接，UI 尚未接線；暫不併入 SoundSourceFamily）。
+ * W5 自然聲源三族（風×植被、海浪×海岸、河川水聲）。
  * 口徑與接線規格見 docs/features/city-sound-atlas/ADVANCED_SOURCES.md。
  */
 export type AdvancedSoundFamily = "wind_vegetation" | "coastal_wave" | "river_water";
+
+/** UI 與引擎共用的家族（MVP-A 四族＋MVP-B 三族＋W5 三族；components／hooks 以 Record<SoundSourceFamily, …> 窮舉） */
+export type SoundSourceFamily = "aviation" | "rain" | "thunder" | "waste_collection" | MvpBSoundFamily | AdvancedSoundFamily;
 
 /** 引擎層通用的家族全集 */
 export type AnySoundFamily = SoundSourceFamily | AdvancedSoundFamily;

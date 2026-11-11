@@ -663,5 +663,5 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   // 30 天地圖挑戰 Day 8：1955 中和鄉都市計畫圖（單張 image source）
   { id: "useMapchallengeDay08PlanLayer", keys: ["mapchallengeDay08Plan1955"], Host: MapchallengeDay08PlanHost },
   // City Sound Atlas 聲景（實驗）：四個家族共用一支（接收點、來源標記、雷聲波前）
-  { id: "useSoundAtlasLayer", keys: ["soundAviation", "soundRain", "soundThunder", "soundWaste", "soundRail", "soundRoadTraffic", "soundRoadwork"], Host: SoundAtlasHost },
+  { id: "useSoundAtlasLayer", keys: ["soundAviation", "soundRain", "soundThunder", "soundWaste", "soundRail", "soundRoadTraffic", "soundRoadwork", "soundWindFoliage", "soundCoastalWave", "soundRiverWater"], Host: SoundAtlasHost },
 ];

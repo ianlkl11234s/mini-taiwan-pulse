@@ -5,6 +5,7 @@
  * React 端只訂閱這個 store（useSyncExternalStore），不把 currentTime 放進 deps。
  */
 import type { DayProfile, ReceiverQueryResult } from "./engines/receiverQuery";
+import type { RouteProfile } from "./engines/routeProfile";
 import type { SoundSceneId, SoundSceneSnapshot } from "./scenes";
 import type { SetOrigin } from "./soundAtlasData";
 import type { Receiver, SoundSourceFamily, SoundSourceSet } from "./types";
@@ -17,6 +18,15 @@ export interface SoundAtlasPerf {
   /** 本次開啟以來同時波前峰值（未套上限前的活躍數）與實際畫出的峰值 */
   wavefrontActivePeak: number;
   wavefrontDrawnPeak: number;
+}
+
+/** 路線剖面（沿途主要聲源；不是噪音暴露量）。出發時間在按「完成」時讀一次時間軸 */
+export interface SoundRouteState {
+  drawing: boolean;
+  points: [number, number][];
+  mode: "walk" | "bike";
+  departUnix: number | null;
+  result: RouteProfile<SoundSourceFamily> | null;
 }
 
 export interface SoundAtlasState {
@@ -35,7 +45,10 @@ export interface SoundAtlasState {
   current: ReceiverQueryResult | null;
   profile: DayProfile | null;
   perf: SoundAtlasPerf;
+  route: SoundRouteState;
 }
+
+export const EMPTY_ROUTE: SoundRouteState = { drawing: false, points: [], mode: "walk", departUnix: null, result: null };
 
 const INITIAL: SoundAtlasState = {
   receiver: null,
@@ -50,6 +63,7 @@ const INITIAL: SoundAtlasState = {
   current: null,
   profile: null,
   perf: { lastQueryMs: null, lastProfileMs: null, wavefrontActivePeak: 0, wavefrontDrawnPeak: 0 },
+  route: EMPTY_ROUTE,
 };
 
 let state: SoundAtlasState = INITIAL;

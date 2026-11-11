@@ -10,5 +10,10 @@
   "legend.soundAtlas.roadTraffic": "道路種別による代理指標（国道のみ・交通量なし）：その他の道路はデータなし",
   "legend.soundAtlas.roadwork": "道路工事の許可期間（工事の可能性。許可＝機械稼働ではない）。台北市など未公開の自治体：対象外",
   "legend.soundAtlas.attribution": "出典：鉄道構造 © OpenStreetMap contributors（ODbL）、工事 TDX 自治体予告イベント、道路 TDX 国道路況（渋滞レベル、交通量ではない）",
-  "legend.soundAtlas.roadTypical": "台北市の道路交通：VD平日典型値（2025/12–2026/01、約8日分、当日の観測ではない）；週末・祝日・台風などの異常日は判断不可"
+  "legend.soundAtlas.roadTypical": "台北市の道路交通：VD平日典型値（2025/12–2026/01、約8日分、当日の観測ではない）；週末・祝日・台風などの異常日は判断不可",
+  "legend.soundAtlas.wind": "風と木の葉：観測所の風速×周辺の樹冠による活動ポテンシャル（音量ではありません。市街地の風切り音は推定しません）",
+  "legend.soundAtlas.wave": "打ち寄せる波：沖合ブイの波高・周期×海岸からの距離（1 km 以上離れると対象外）",
+  "legend.soundAtlas.river": "川の水音（研究中）：観測所の過去60日に対する水位の高さ×河道からの距離（水位≠流量≠音、河口は潮汐の影響あり）",
+  "legend.soundAtlas.naturalSnapshot": "風・波・川はシーンのスナップショットのみにデータがあり、リアルタイムでは「シーンのスナップショットのみ」と表示します",
+  "legend.soundAtlas.naturalAttribution": "出典：気象署の観測所とブイ、水利署の水位（S3 アーカイブ）、樹冠高 Meta/WRI 2020、国家公園署の海岸地区範囲（政府データ開放ライセンス第1版）"
 }

@@ -14,6 +14,9 @@ export const FAMILY_KEYS: Record<SoundSourceFamily, MessageKey> = {
   rail: "soundAtlas.family.rail",
   road_traffic: "soundAtlas.family.roadTraffic",
   roadwork: "soundAtlas.family.roadwork",
+  wind_vegetation: "soundAtlas.family.wind",
+  coastal_wave: "soundAtlas.family.wave",
+  river_water: "soundAtlas.family.river",
 };
 
 export const STRUCTURE_KEYS: Record<"elevated" | "at_grade" | "surface" | "unknown", MessageKey> = {
@@ -50,6 +53,8 @@ export const SCENE_KEYS: Record<SoundSceneId, { title: MessageKey }> = {
   "taipei-1109": { title: "soundAtlas.scene.taipei1109" },
   "taichung-heping-1108": { title: "soundAtlas.scene.heping1108" },
   "taipei-typhoon-1024": { title: "soundAtlas.scene.typhoon1024" },
+  "taipei-typhoon-1024-jinshan": { title: "soundAtlas.scene.typhoon1024Jinshan" },
+  "taipei-typhoon-1024-zhonghe": { title: "soundAtlas.scene.typhoon1024Zhonghe" },
 };
 
 export function providerKey(provider: string): MessageKey {
@@ -62,6 +67,9 @@ export function providerKey(provider: string): MessageKey {
     case "freeway_sections": return "soundAtlas.provider.freeway";
     case "tdx_road_event_city": return "soundAtlas.provider.roadwork";
     case "vd_typical_taipei": return "soundAtlas.provider.vdTypical";
+    case "cwa_weather_obs": return "soundAtlas.provider.windObs";
+    case "cwa_marine_obs": return "soundAtlas.provider.waveObs";
+    case "wra_river_water_level": return "soundAtlas.provider.riverLevel";
     default: return provider.startsWith("rail_") ? "soundAtlas.provider.rail" : "soundAtlas.precision.other";
   }
 }
@@ -75,6 +83,9 @@ export function spatialPrecisionKey(code: string): MessageKey {
   if (code === "freeway_section_line") return "soundAtlas.precision.roadLine";
   if (code === "vd_point") return "soundAtlas.precision.vdPoint";
   if (code.startsWith("permit_")) return "soundAtlas.precision.permit";
+  if (code === "nearest_station_wind_x_receiver_canopy") return "soundAtlas.precision.windCanopy";
+  if (code === "offshore_station_x_coast_distance_proxy") return "soundAtlas.precision.waveCoast";
+  if (code === "nearest_level_station_x_channel_distance") return "soundAtlas.precision.riverChannel";
   return "soundAtlas.precision.other";
 }
 
@@ -99,6 +110,15 @@ export function reasonKey(reason: string | null | undefined): MessageKey {
   if (r.startsWith("no_rain_station_within")) return "soundAtlas.reason.noStation";
   if (r === "station_hour_missing") return "soundAtlas.reason.hourMissing";
   if (r === "precipitation_1hr_null") return "soundAtlas.reason.valueNull";
+  // W5 自然三族：風、浪即時沒有讀取路徑（coverage unavailable）→「僅場景快照提供」
+  if (r.endsWith("(snapshot_only)") || (r.startsWith("no_healthy_source") && /(cwa_weather_obs|cwa_marine_obs):unavailable/.test(r))) return "soundAtlas.reason.snapshotOnly";
+  if (r === "vegetation_not_sampled") return "soundAtlas.reason.noVegetation";
+  if (r === "canopy_masked_ambiguous") return "soundAtlas.reason.canopyAmbiguous";
+  if (r.startsWith("coastline_") || r.startsWith("river_network_")) return "soundAtlas.reason.naturalNotLoaded";
+  if (/^outside_(wind|wave|river)_station_extent$/.test(r)) return "soundAtlas.reason.outsideStations";
+  if (/^no_(wind|wave|water_level)_station_within/.test(r)) return "soundAtlas.reason.noNearbyStation";
+  if (r === "no_station_history_quantiles") return "soundAtlas.reason.noQuantiles";
+  if (r === "wind_speed_null" || r === "wave_height_or_period_null" || r === "water_level_null") return "soundAtlas.reason.naturalValueNull";
   if (r.startsWith("no_healthy_source")) return "soundAtlas.reason.noHealthy";
   if (r === "source_not_loaded") return "soundAtlas.reason.notLoaded";
   if (r === "outside_source_time_coverage") return "soundAtlas.reason.outsideWindow";

@@ -1814,5 +1814,8 @@
   "layer.soundWaste": "ごみ収集車の音楽",
   "layer.soundRail": "列車",
   "layer.soundRoadTraffic": "道路交通（推定）",
-  "layer.soundRoadwork": "道路工事の許可"
+  "layer.soundRoadwork": "道路工事の許可",
+  "layer.soundWindFoliage": "風と木の葉",
+  "layer.soundCoastalWave": "打ち寄せる波",
+  "layer.soundRiverWater": "川の水音（研究中）"
 }

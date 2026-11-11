@@ -3,7 +3,9 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import type { Feature } from "geojson";
 import { timeStore } from "../../state/timeStore";
 import { areaPaths } from "../../components/sound/SoundDayProfile";
-import { ANIM_CAPS, ANIM_SOURCE, SoundAtlasAnimator, hash01, rainDropCount, ripplePhase, type AnimatorState } from "../soundAtlasAnimator";
+import { ANIM_CAPS, ANIM_SOURCE, SoundAtlasAnimator, arcLine, hash01, nearbyPath, pointAlong, rainDropCount, ripplePhase, type AnimatorState } from "../soundAtlasAnimator";
+import { reasonKey } from "../../components/sound/soundAtlasText";
+import { applySceneView, SOUND_SCENES, type SoundSceneSnapshot } from "../scenes";
 import type { ReceiverQueryResult } from "../engines/receiverQuery";
 import { flightRowsToFlights, type FlightTrailRow } from "../../data/flightTrails";
 import { flightsToAviationRecords } from "../sourceAdapters/aviationAdapter";
@@ -65,8 +67,8 @@ describe("SoundAtlasAnimator（假地圖，手動推影格）", () => {
     const map = { getSource: (id: string) => (id === ANIM_SOURCE ? { setData } : undefined) } as unknown as MapboxMap;
     const anim = new SoundAtlasAnimator(map, () => null, {
       receiver: RECV, result: null, records: new Map(), thunderStrikes: [],
-      flags: { aviation: true, rain: true, thunder: true, waste_collection: true, rail: true, road_traffic: true, roadwork: true },
-      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1, rail: 1, road_traffic: 1, roadwork: 1 },
+      flags: { aviation: true, rain: true, thunder: true, waste_collection: true, rail: true, road_traffic: true, roadwork: true, wind_vegetation: true, coastal_wave: true, river_water: true },
+      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1, rail: 1, road_traffic: 1, roadwork: 1, wind_vegetation: 1, coastal_wave: 1, river_water: 1 },
       ...state,
     });
     let now = 0;
@@ -131,5 +133,47 @@ describe("SoundAtlasAnimator（假地圖，手動推影格）", () => {
     expect(lastFeatures()).toHaveLength(0);
     anim.dispose();
     expect(rafCb).toBeNull();
+  });
+});
+
+describe("自然三族示意幾何（W5 接 UI）", () => {
+  it("nearbyPath：取最近那條線、沿線前後各約 halfM，且包含最近點", () => {
+    const far: [number, number][] = [[121.0, 25.5], [121.01, 25.5]];
+    const near: [number, number][] = [[121.5, 25.0], [121.505, 25.0], [121.51, 25.0], [121.515, 25.0], [121.52, 25.0]];
+    const path = nearbyPath({ type: "MultiLineString", coordinates: [far, near] }, 121.51, 25.001, 600)!;
+    expect(path.every(([, lat]) => lat === 25.0)).toBe(true);
+    const lons = path.map(([lon]) => lon);
+    expect(Math.min(...lons)).toBeGreaterThanOrEqual(121.5);
+    expect(lons).toContain(121.51);
+    expect(nearbyPath({ type: "Point", coordinates: [121, 25] }, 121, 25, 100)).toBeNull();
+  });
+
+  it("pointAlong 端點與中點；arcLine 每點離圓心等距", () => {
+    const path: [number, number][] = [[121.5, 25], [121.52, 25]];
+    expect(pointAlong(path, 0)).toEqual([121.5, 25]);
+    expect(pointAlong(path, 1)[0]).toBeCloseTo(121.52, 9);
+    expect(pointAlong(path, 0.5)[0]).toBeCloseTo(121.51, 9);
+    const arc = arcLine(121.5, 25, 500, 0, 0.5, 8);
+    expect(arc).toHaveLength(9);
+    const kx = 111_195 * Math.cos(25 * Math.PI / 180);
+    for (const [lon, lat] of arc) expect(Math.hypot((lon - 121.5) * kx, (lat - 25) * 111_195)).toBeCloseTo(500, 3);
+  });
+
+  it("即時模式風、浪 coverage unavailable →「僅場景快照提供」，不是 0 也不是一般無資料", () => {
+    expect(reasonKey("no_healthy_source(cwa_weather_obs:unavailable)")).toBe("soundAtlas.reason.snapshotOnly");
+    expect(reasonKey("no_healthy_source(cwa_marine_obs:unavailable)")).toBe("soundAtlas.reason.snapshotOnly");
+    expect(reasonKey("no_healthy_source(rain_gauge:error)")).toBe("soundAtlas.reason.noHealthy");
+    expect(reasonKey("no_wind_station_within_15000m")).toBe("soundAtlas.reason.noNearbyStation");
+    expect(reasonKey("river_network_not_loaded_here")).toBe("soundAtlas.reason.naturalNotLoaded");
+  });
+
+  it("颱風子場景只換接收點與焦點，快照資料區塊不動", () => {
+    const def = SOUND_SCENES.find((s) => s.id === "taipei-typhoon-1024-jinshan")!;
+    const snap = { schema: "pulse-sound-scene-v1", id: "taipei-typhoon-1024", date: "2026-10-24", bbox: [121, 24, 122, 26], receiver: { lon: 121.542, lat: 25.18, height_m: 1.5 }, raw: { k: 1 } } as SoundSceneSnapshot;
+    const out = applySceneView(snap, def.view);
+    expect(out.receiver).toMatchObject({ lon: 121.64, lat: 25.232, height_m: 1.5 });
+    expect(out.id).toBe("taipei-typhoon-1024");
+    expect(out.raw).toBe(snap.raw);
+    expect(applySceneView(snap, undefined)).toBe(snap);
   });
 });

@@ -14,7 +14,8 @@ import { useLocale } from "../../state/localeStore";
 import { layerVisibilityStore, useLayerVisible } from "../../state/layerVisibilityStore";
 import { soundAtlasStore } from "../../sound/soundAtlasStore";
 import { SOUND_SCENES, snapshotApplies, type SoundSceneId } from "../../sound/scenes";
-import { clearReceiver, playSoundScene, selectSoundScene, startPlacingReceiver } from "../../sound/soundAtlasActions";
+import { clearReceiver, clearRoute, finishRoute, playSoundScene, selectSoundScene, setRouteMode, startPlacingReceiver, startRouteDrawing } from "../../sound/soundAtlasActions";
+import { dominantFamilies, SoundRouteProfile } from "./SoundRouteProfile";
 import { topContributionsForDisplay } from "../../sound/soundAtlasData";
 import { AVIATION } from "../../sound/model/soundProfiles";
 import { SOUND_FAMILY_COLORS } from "../../sound/soundAtlasColors";
@@ -33,6 +34,9 @@ const FAMILY_LAYER_KEYS = {
   rail: "soundRail",
   road_traffic: "soundRoadTraffic",
   roadwork: "soundRoadwork",
+  wind_vegetation: "soundWindFoliage",
+  coastal_wave: "soundCoastalWave",
+  river_water: "soundRiverWater",
 } as const satisfies Record<SoundSourceFamily, string>;
 
 const TOP_N = 5;
@@ -63,7 +67,7 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
     borderRadius: RADIUS.md, padding: "3px 8px", cursor: "pointer",
   };
 
-  const closeAll = () => layerVisibilityStore.setBulk({ soundAviation: false, soundRain: false, soundThunder: false, soundWaste: false, soundRail: false, soundRoadTraffic: false, soundRoadwork: false });
+  const closeAll = () => layerVisibilityStore.setBulk({ soundAviation: false, soundRain: false, soundThunder: false, soundWaste: false, soundRail: false, soundRoadTraffic: false, soundRoadwork: false, soundWindFoliage: false, soundCoastalWave: false, soundRiverWater: false });
   const vis: Record<SoundSourceFamily, boolean> = {
     aviation: useLayerVisible(FAMILY_LAYER_KEYS.aviation),
     rain: useLayerVisible(FAMILY_LAYER_KEYS.rain),
@@ -72,6 +76,9 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
     rail: useLayerVisible(FAMILY_LAYER_KEYS.rail),
     road_traffic: useLayerVisible(FAMILY_LAYER_KEYS.road_traffic),
     roadwork: useLayerVisible(FAMILY_LAYER_KEYS.roadwork),
+    wind_vegetation: useLayerVisible(FAMILY_LAYER_KEYS.wind_vegetation),
+    coastal_wave: useLayerVisible(FAMILY_LAYER_KEYS.coastal_wave),
+    river_water: useLayerVisible(FAMILY_LAYER_KEYS.river_water),
   };
   const enabledFamilies = (Object.keys(FAMILY_LAYER_KEYS) as SoundSourceFamily[]).filter((f) => vis[f]);
 
@@ -200,6 +207,42 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
             })}
             {thunderNoHealthy && <div role="note" style={{ ...note, color: c.warn }}>{t("soundAtlas.health.thunderUnknown")}</div>}
           </>
+        )}
+
+        {/* 路線剖面：沿途主要聲源（不是噪音暴露量） */}
+        <div style={sectionTitle}>{t("soundAtlas.route.title")}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <button type="button" style={{ ...btn, borderColor: st.route.drawing ? SOUND_FAMILY_COLORS.aviation : c.ctrlBorder }} aria-pressed={st.route.drawing} onClick={startRouteDrawing}>
+            {st.route.drawing ? t("soundAtlas.route.drawing", { n: st.route.points.length }) : t("soundAtlas.route.draw")}
+          </button>
+          {st.route.drawing && <button type="button" style={btn} disabled={st.route.points.length < 2} onClick={finishRoute}>{t("soundAtlas.route.finish")}</button>}
+          {(st.route.points.length > 0 || st.route.result) && !st.route.drawing && <button type="button" style={btn} onClick={clearRoute}>{t("soundAtlas.route.clear")}</button>}
+          <div role="group" aria-label={t("soundAtlas.route.modeLabel")} style={{ display: "flex", gap: 2, marginLeft: "auto" }}>
+            {(["walk", "bike"] as const).map((m) => (
+              <button key={m} type="button" aria-pressed={st.route.mode === m} onClick={() => setRouteMode(m)}
+                style={{ ...btn, padding: "2px 6px", borderColor: st.route.mode === m ? c.text : c.ctrlBorder, color: st.route.mode === m ? c.text : c.muted }}>
+                {t(m === "walk" ? "soundAtlas.route.walk" : "soundAtlas.route.bike")}
+              </button>
+            ))}
+          </div>
+        </div>
+        {st.route.result ? (
+          <>
+            <div style={note}>
+              <span style={{ fontFamily: FONT_DATA }}>
+                {formatTaipeiTime(st.route.result.departUnix, true)}–{formatTaipeiTime(st.route.result.arriveUnix)}
+              </span>
+              {" · "}{formatDistanceM(st.route.result.totalDistanceM)}
+              {" · "}{t("soundAtlas.route.main")}{dominantFamilies(st.route.result).length === 0
+                ? t("soundAtlas.route.noneActive")
+                : dominantFamilies(st.route.result).map((d) => `${t(FAMILY_KEYS[d.family])} ${Math.round(d.share * 100)}%`).join("、")}
+            </div>
+            <SoundRouteProfile profile={st.route.result} mutedColor={c.muted} dimColor={c.dim} axisColor={c.ctrlBorder} />
+            <div style={note}>{t("soundAtlas.route.notExposure")}</div>
+            <div style={note}>{t("soundAtlas.route.limits")}</div>
+          </>
+        ) : (
+          <div style={note}>{t("soundAtlas.route.hint")}</div>
         )}
 
         {/* 24 小時 */}

@@ -1767,6 +1767,9 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("soundRail"),
           fromManifest("soundRoadTraffic"),
           fromManifest("soundRoadwork"),
+          fromManifest("soundWindFoliage"),
+          fromManifest("soundCoastalWave"),
+          fromManifest("soundRiverWater"),
         ],
       },
       {

@@ -117,9 +117,17 @@ describe("場景快照契約 pulse-sound-scene-v1", () => {
     expect(set.records).toHaveLength(0);
   });
 
-  it("內建場景只有 id／日期／鏡頭：接收點與焦點時刻不寫死（讀快照）", () => {
-    expect(SOUND_SCENES.map((s) => s.id)).toEqual(["taipei-1109", "taichung-heping-1108", "taipei-typhoon-1024"]);
+  it("內建場景只有 id／日期／鏡頭：接收點與焦點時刻不寫死（讀快照）；子場景 view 只在共用快照的同日場景", () => {
+    expect(SOUND_SCENES.map((s) => s.id)).toEqual([
+      "taipei-1109", "taichung-heping-1108", "taipei-typhoon-1024", "taipei-typhoon-1024-jinshan", "taipei-typhoon-1024-zhonghe",
+    ]);
     for (const s of SOUND_SCENES) {
+      if (s.view) {
+        const parent = SOUND_SCENES.find((p) => p.id === s.snapshotId);
+        expect(parent?.date).toBe(s.date);
+        expect(parent?.view).toBeUndefined();
+        expect(s.view.focus_time.startsWith(s.date)).toBe(true);
+      }
       expect(s).not.toHaveProperty("receiver");
       expect(s).not.toHaveProperty("focusTime");
       expect(new Date(sceneFallbackFocusUnix(s) * 1000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" })).toBe(s.date);

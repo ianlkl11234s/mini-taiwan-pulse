@@ -1,10 +1,11 @@
 /**
- * City Sound Atlas 來源 popup（layerType "soundSource"，七家族共用）：
+ * City Sound Atlas 來源 popup（layerType "soundSource"，十家族共用）：
  * 類別、名稱、距離、相對潛勢（非 dB）、證據、空間／時間精度、來源時間與資料出處。
  * 無法判斷時寫白話原因，不寫 0。
  */
 import { useLocale } from "../../state/localeStore";
 import { SOUND_FAMILY_COLORS } from "../../sound/soundAtlasColors";
+import { SOUND_FAMILIES_ALL } from "../../sound/engines/receiverQuery";
 import type { ContributionEvidence, SoundSourceFamily } from "../../sound/types";
 import {
   EVIDENCE_KEYS, FAMILY_KEYS, STATUS_KEYS, STRUCTURE_KEYS,
@@ -14,13 +15,15 @@ import { Row, SourceFooter, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
 
-const FAMILIES = new Set<SoundSourceFamily>(["aviation", "rain", "thunder", "waste_collection", "rail", "road_traffic", "roadwork"]);
+const FAMILIES = new Set<SoundSourceFamily>(SOUND_FAMILIES_ALL);
 const STRUCTURES = new Set(Object.keys(STRUCTURE_KEYS));
 const EVIDENCE = new Set<ContributionEvidence>(["observed", "scheduled", "modeled", "inferred", "estimated"]);
 const FAMILY_PROVIDER: Record<SoundSourceFamily, string> = {
   aviation: "flight_trails", rain: "cwa_rain_gauge", thunder: "", waste_collection: "waste_schedule_static",
   rail: "rail_", road_traffic: "freeway_sections", roadwork: "tdx_road_event_city",
+  wind_vegetation: "cwa_weather_obs", coastal_wave: "cwa_marine_obs", river_water: "wra_river_water_level",
 };
+const NATURAL = new Set<SoundSourceFamily>(["wind_vegetation", "coastal_wave", "river_water"]);
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
@@ -54,6 +57,7 @@ export function SoundSourcePanel({ props }: { props: Record<string, unknown> }) 
           : t("soundAtlas.row.roadProxyNote")}
       </div>
     )}
+    {family && NATURAL.has(family) && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.naturalNote")}</div>}
     {family === "roadwork" && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.permitNote")}</div>}
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
     <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : family === "road_traffic" && props.proxyKind === "typical_weekday_volume" ? "vd_typical_taipei" : FAMILY_PROVIDER[family ?? "aviation"]))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />

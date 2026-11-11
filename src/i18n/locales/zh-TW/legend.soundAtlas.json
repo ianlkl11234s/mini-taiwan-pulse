@@ -10,5 +10,10 @@
   "legend.soundAtlas.roadTraffic": "道路類型 proxy（只有國道，無車流量）：離國道越近越高；其他道路無資料",
   "legend.soundAtlas.roadwork": "道路施工許可期間（可能施工，許可≠機具運轉）；臺北市等未發布施工的縣市：未涵蓋",
   "legend.soundAtlas.attribution": "出處：鐵道結構 © OpenStreetMap contributors（ODbL）；施工 TDX 縣市預告事件；道路 TDX 國道路況（壅塞等級，非流量）",
-  "legend.soundAtlas.roadTypical": "臺北市道路車流：VD 平日典型值（2025/12–2026/01，約 8 天樣本，非當日觀測）；週末、國定假日、颱風等異常日無法判斷"
+  "legend.soundAtlas.roadTypical": "臺北市道路車流：VD 平日典型值（2025/12–2026/01，約 8 天樣本，非當日觀測）；週末、國定假日、颱風等異常日無法判斷",
+  "legend.soundAtlas.wind": "風吹樹葉：測站風速 × 附近樹冠覆蓋的活動潛勢；風速不等於音量，市區不推估風切聲",
+  "legend.soundAtlas.wave": "海浪拍岸：外海浮標浪高與週期 × 離海岸距離；離岸超過 1 公里不計",
+  "legend.soundAtlas.river": "河川水聲（研究）：水位相對該站過去 60 天的高低 × 離河道距離；水位不等於流量或聲音，河口可能是潮汐",
+  "legend.soundAtlas.naturalSnapshot": "風、海浪、河川只在場景快照有資料；即時模式顯示「僅場景快照提供」",
+  "legend.soundAtlas.naturalAttribution": "出處：氣象署測站與浮標、水利署水位（S3 歸檔）；樹冠高度 Meta／WRI 2020；國家公園署海岸地區範圍（政府資料開放授權第 1 版）"
 }

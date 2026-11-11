@@ -16,11 +16,23 @@ import type { LightningSource } from "../data/lightningLoader";
 import type { RainGaugeDayRow } from "../data/rainGaugeLoader";
 import { withLoading } from "../lib/loadingRegistry";
 import { parseMvpBSceneBlocks } from "./mvpBSources";
+import { naturalBlockFor } from "./advancedSources";
 import type { SoundSourceFamily } from "./types";
 
 export const SOUND_SCENE_SCHEMA = "pulse-sound-scene-v1";
 
-export type SoundSceneId = "taipei-1109" | "taichung-heping-1108" | "taipei-typhoon-1024";
+export type SoundSceneId =
+  | "taipei-1109" | "taichung-heping-1108" | "taipei-typhoon-1024"
+  | "taipei-typhoon-1024-jinshan" | "taipei-typhoon-1024-zhonghe";
+
+/** 子場景：沿用另一個場景的快照（同日、同 bbox），只換接收點與選點理由（W5 自然聲源選點，2026-11-11） */
+export interface SoundSceneView {
+  lon: number;
+  lat: number;
+  label_zh: string;
+  reason_zh: string;
+  focus_time: string;
+}
 
 export interface SoundSceneDef {
   id: SoundSceneId;
@@ -28,14 +40,19 @@ export interface SoundSceneDef {
   date: string;
   zoom: number;
   /** 場景建議同時開的既有圖層（例：颱風路徑） */
-  companionLayers?: readonly "typhoonTracks"[];
+  companionLayers?: readonly ("typhoonTracks" | "soundWindFoliage" | "soundCoastalWave" | "soundRiverWater")[];
+  /** 子場景讀哪個場景的快照檔（不另存一份 1.5 MB 的複本） */
+  snapshotId?: SoundSceneId;
+  /** 子場景的接收點與理由（覆寫快照的 receiver／focus_time；快照資料本身不變） */
+  view?: SoundSceneView;
   /** 「播放此場景」：從焦點時刻前 leadS 秒開始，以 speed 倍（模擬秒／牆鐘秒）播放 */
   playback: { leadS: number; speed: number };
 }
 
 /**
  * 內建場景清單：只放 id、日期、鏡頭與搭配圖層。
- * 接收點、焦點時刻、選點理由一律以快照（W3 實查產出）為準，這裡不寫死，避免兩邊說法不一致。
+ * 主場景的接收點、焦點時刻、選點理由一律以快照（W3 實查產出）為準，這裡不寫死，避免兩邊說法不一致。
+ * 例外：颱風子場景（view）共用 10/24 快照，只換接收點；數字出自 W5 對同一份快照的實算（ADVANCED_SOURCES.md）。
  */
 export const SOUND_SCENES: readonly SoundSceneDef[] = [
   // 一般場景：焦點前 2 分鐘、10 倍速（約 12 秒看完）
@@ -43,7 +60,35 @@ export const SOUND_SCENES: readonly SoundSceneDef[] = [
   // 雷場景放慢到 2 倍速：落雷在焦點前約 8 秒，雷聲約 6.5 秒後抵達，畫面上看得出延遲
   { id: "taichung-heping-1108", date: "2026-11-08", zoom: 11, playback: { leadS: 20, speed: 2 } },
   { id: "taipei-typhoon-1024", date: "2026-10-24", zoom: 12, companionLayers: ["typhoonTracks"], playback: { leadS: 120, speed: 10 } },
+  {
+    id: "taipei-typhoon-1024-jinshan", date: "2026-10-24", zoom: 13.5, snapshotId: "taipei-typhoon-1024",
+    companionLayers: ["typhoonTracks", "soundCoastalWave"], playback: { leadS: 120, speed: 10 },
+    view: {
+      lon: 121.640, lat: 25.232, label_zh: "金山磺溪口沙灘", focus_time: "2026-10-24T14:03:00+08:00",
+      reason_zh: "離近岸海域邊界約 73 公尺；Champi 颱風 10/24 14 時，富貴角浮標（C6AH2）浪高 5.1 公尺、週期 8.3 秒，"
+        + "海浪相對潛勢約 0.92（浮標在外海，浪高不等於岸邊聽到的浪聲）。這裡在樹冠與河道資料範圍外，風與河川顯示無法判斷。",
+    },
+  },
+  {
+    id: "taipei-typhoon-1024-zhonghe", date: "2026-10-24", zoom: 14, snapshotId: "taipei-typhoon-1024",
+    companionLayers: ["typhoonTracks", "soundRiverWater"], playback: { leadS: 120, speed: 10 },
+    view: {
+      lon: 121.502, lat: 25.1387, label_zh: "中和橋水位站旁", focus_time: "2026-10-24T14:03:00+08:00",
+      reason_zh: "緊鄰中和橋水位站（1140H180），離河道約 13 公尺；10/24 14 時水位 13.14 公尺，高於該站前 60 天 99% 的時段，"
+        + "河川相對潛勢約 0.97（水位不等於流量或聲音）。這裡在樹冠資料範圍外，風顯示無法判斷。",
+    },
+  },
 ];
+
+/** 子場景：把快照的接收點與焦點時刻換成 view（資料區塊不動） */
+export function applySceneView(snap: SoundSceneSnapshot, view: SoundSceneView | undefined): SoundSceneSnapshot {
+  if (!view) return snap;
+  return {
+    ...snap,
+    focus_time: view.focus_time,
+    receiver: { lon: view.lon, lat: view.lat, height_m: snap.receiver?.height_m, label_zh: view.label_zh, reason_zh: view.reason_zh },
+  };
+}
 
 export function findScene(id: string | null | undefined): SoundSceneDef | null {
   return SOUND_SCENES.find((s) => s.id === id) ?? null;
@@ -183,6 +228,10 @@ export function snapshotOrigin(snapshot: SoundSceneSnapshot, family: SoundSource
   if (family === "roadwork") {
     const rw = parseMvpBSceneBlocks(snapshot.raw).roadwork;
     return rw ? rw.origin ?? "" : null;
+  }
+  if (family === "wind_vegetation" || family === "coastal_wave" || family === "river_water") {
+    const nb = naturalBlockFor(snapshot.raw, family);
+    return nb ? nb.origin ?? "" : null;
   }
   return null;
 }

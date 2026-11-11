@@ -1814,5 +1814,8 @@
   "layer.soundWaste": "Garbage Truck Music",
   "layer.soundRail": "Trains",
   "layer.soundRoadTraffic": "Road Traffic (Estimated)",
-  "layer.soundRoadwork": "Roadwork Permits"
+  "layer.soundRoadwork": "Roadwork Permits",
+  "layer.soundWindFoliage": "Wind in Foliage",
+  "layer.soundCoastalWave": "Surf",
+  "layer.soundRiverWater": "River Water (Experimental)"
 }

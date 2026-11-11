@@ -292,7 +292,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-10: +6 愛爾蘭第 11 波（AED、監獄、pNHA、郡議會淹水分區、GSI 地下水淹水、泥炭開採沼地）。
     // 2026-11-11: +4 City Sound Atlas 聲景（實驗）soundAviation／soundRain／soundThunder／soundWaste。
     // 2026-11-11: +3 City Sound Atlas MVP-B soundRail／soundRoadTraffic／soundRoadwork。
-    expect(keys.length).toBe(1824);
+    // 2026-11-11: +3 City Sound Atlas 自然聲源 soundWindFoliage／soundCoastalWave／soundRiverWater。
+    expect(keys.length).toBe(1827);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

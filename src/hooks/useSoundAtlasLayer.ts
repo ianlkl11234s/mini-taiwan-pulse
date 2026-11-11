@@ -19,6 +19,7 @@ import {
   contributionPlace, familyLoadKey, indexRecords, loadSoundFamily, nearestPointOnGeometry, nearestPointOnLine, prefilterSetsForReceiver, type LoadedFamily,
 } from "../sound/soundAtlasData";
 import { makeReceiver, setSoundAtlasMap, soundAtlasStore, type SoundAtlasState } from "../sound/soundAtlasStore";
+import { addRoutePoint } from "../sound/soundAtlasActions";
 import { SOUND_FAMILY_COLORS, SOUND_UNKNOWN_COLOR } from "../sound/soundAtlasColors";
 import {
   createReceiverElements, ensureAnimLayers, removeAnimLayers, setSoundAtlasAnimator, SoundAtlasAnimator, type ReceiverElements,
@@ -56,6 +57,9 @@ export const SOUND_ATLAS_POINT_LAYERS: Record<SoundSourceFamily, string> = {
   rail: "sound-atlas-src-rail",
   road_traffic: "sound-atlas-src-road",
   roadwork: "sound-atlas-src-roadwork",
+  wind_vegetation: "sound-atlas-src-wind",
+  coastal_wave: "sound-atlas-src-wave",
+  river_water: "sound-atlas-src-river",
 };
 const LINK_LAYERS: Record<SoundSourceFamily, string> = {
   aviation: "sound-atlas-link-aviation",
@@ -65,10 +69,14 @@ const LINK_LAYERS: Record<SoundSourceFamily, string> = {
   rail: "sound-atlas-link-rail",
   road_traffic: "sound-atlas-link-road",
   roadwork: "sound-atlas-link-roadwork",
+  wind_vegetation: "sound-atlas-link-wind",
+  coastal_wave: "sound-atlas-link-wave",
+  river_water: "sound-atlas-link-river",
 };
 
-/** 動畫器自己畫（位置每幀依時間軸重算）的家族：點圖層只留可點選的近透明點、hook 不畫連線 */
-const ANIMATED_FAMILIES = new Set<SoundSourceFamily>(["aviation", "rail"]);
+/** 動畫器自己畫連線或示意的家族：hook 不畫接收點→來源的直線（飛機、列車點圖層另見 pointOpacityExpr）。
+ *  自然三族的點＝測站原座標（浮標可能遠在外海），直線會誤導，改由動畫器畫葉子／浪弧／河道光點 */
+const ANIMATED_FAMILIES = new Set<SoundSourceFamily>(["aviation", "rail", "wind_vegetation", "coastal_wave", "river_water"]);
 
 function makeConeImage(): ImageData | null {
   const size = 32;
@@ -93,6 +101,11 @@ function makeConeImage(): ImageData | null {
 }
 
 const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
+
+/** 路線剖面：路線線段＋樣本點（依該點最高的活躍聲源上色；沒有活躍聲源＝灰） */
+const SRC_ROUTE = "sound-atlas-route";
+const ROUTE_LINE_LAYER = "sound-atlas-route-line";
+const ROUTE_POINT_LAYER = "sound-atlas-route-point";
 
 /** 「當下」重算節流（UI 4 Hz）與波前節流（20 fps） */
 const CURRENT_THROTTLE_MS = 250;
@@ -121,8 +134,26 @@ function setSourceData(map: MapboxMap, id: string, fc: FeatureCollection): void 
 }
 
 function ensureLayers(map: MapboxMap): void {
-  for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES, SRC_ROADS]) {
+  for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES, SRC_ROADS, SRC_ROUTE]) {
     if (!map.getSource(id)) map.addSource(id, { type: "geojson", data: EMPTY });
+  }
+  if (!map.getLayer(ROUTE_LINE_LAYER)) {
+    map.addLayer({
+      id: ROUTE_LINE_LAYER, type: "line", source: SRC_ROUTE, filter: ["==", ["geometry-type"], "LineString"],
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: { "line-color": "#ffffff", "line-width": 2.5, "line-opacity": 0.85, "line-dasharray": [2, 1.5] },
+    });
+  }
+  if (!map.getLayer(ROUTE_POINT_LAYER)) {
+    map.addLayer({
+      id: ROUTE_POINT_LAYER, type: "circle", source: SRC_ROUTE, filter: ["==", ["geometry-type"], "Point"],
+      paint: {
+        "circle-radius": ["case", ["==", ["get", "kind"], "vertex"], 5, 3.5],
+        "circle-color": ["coalesce", ["get", "color"], "#ffffff"],
+        "circle-stroke-color": "#0f172a",
+        "circle-stroke-width": 1,
+      },
+    });
   }
   if (!map.getLayer(ROAD_GLOW_LAYER)) {
     map.addLayer({
@@ -200,9 +231,9 @@ function ensureLayers(map: MapboxMap): void {
 
 function removeLayers(map: MapboxMap): void {
   removeAnimLayers(map);
-  const layers = [ROADWORK_ICON_LAYER, VD_GLOW_LAYER, ...Object.values(SOUND_ATLAS_POINT_LAYERS), ...Object.values(LINK_LAYERS), WAVE_LAYER, ROAD_GLOW_LAYER];
+  const layers = [ROUTE_POINT_LAYER, ROUTE_LINE_LAYER, ROADWORK_ICON_LAYER, VD_GLOW_LAYER, ...Object.values(SOUND_ATLAS_POINT_LAYERS), ...Object.values(LINK_LAYERS), WAVE_LAYER, ROAD_GLOW_LAYER];
   for (const id of layers) if (map.getLayer(id)) map.removeLayer(id);
-  for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES, SRC_ROADS]) if (map.getSource(id)) map.removeSource(id);
+  for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES, SRC_ROADS, SRC_ROUTE]) if (map.getSource(id)) map.removeSource(id);
   if (map.hasImage(CONE_IMAGE)) map.removeImage(CONE_IMAGE);
 }
 
@@ -274,6 +305,7 @@ export function useSoundAtlasLayer(
   const sets = useStoreSlice((s) => s.sets);
   const dateKey = useStoreSlice((s) => s.dateKey);
   const placing = useStoreSlice((s) => s.placing);
+  const route = useStoreSlice((s) => s.route);
 
   // ── 掛載／卸載 ──
   useEffect(() => {
@@ -300,8 +332,8 @@ export function useSoundAtlasLayer(
     if (!map || !anyOn) return;
     const anim = new SoundAtlasAnimator(map, () => receiverElsRef.current, {
       receiver: null, result: null, records: new Map(), thunderStrikes: [],
-      flags: { aviation: false, rain: false, thunder: false, waste_collection: false, rail: false, road_traffic: false, roadwork: false },
-      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1, rail: 1, road_traffic: 1, roadwork: 1 },
+      flags: { aviation: false, rain: false, thunder: false, waste_collection: false, rail: false, road_traffic: false, roadwork: false, wind_vegetation: false, coastal_wave: false, river_water: false },
+      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1, rail: 1, road_traffic: 1, roadwork: 1, wind_vegetation: 1, coastal_wave: 1, river_water: 1 },
     });
     animatorRef.current = anim;
     setSoundAtlasAnimator(anim);
@@ -313,19 +345,19 @@ export function useSoundAtlasLayer(
   }, [mapRef, anyOn, mapTick]);
 
   // flags／opacity 以純量比較，避免物件身分每次 render 都變
-  const { aviation: fA, rain: fR, thunder: fT, waste_collection: fW, rail: fL, road_traffic: fD, roadwork: fK } = flags;
-  const { aviation: oA, rain: oR, thunder: oT, waste_collection: oW, rail: oL, road_traffic: oD, roadwork: oK } = opacity;
+  const { aviation: fA, rain: fR, thunder: fT, waste_collection: fW, rail: fL, road_traffic: fD, roadwork: fK, wind_vegetation: fV, coastal_wave: fC, river_water: fI } = flags;
+  const { aviation: oA, rain: oR, thunder: oT, waste_collection: oW, rail: oL, road_traffic: oD, roadwork: oK, wind_vegetation: oV, coastal_wave: oC, river_water: oI } = opacity;
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !anyOn) return;
-    const f = { aviation: fA, rain: fR, thunder: fT, waste_collection: fW, rail: fL, road_traffic: fD, roadwork: fK };
-    const o = { aviation: oA, rain: oR, thunder: oT, waste_collection: oW, rail: oL, road_traffic: oD, roadwork: oK };
+    const f = { aviation: fA, rain: fR, thunder: fT, waste_collection: fW, rail: fL, road_traffic: fD, roadwork: fK, wind_vegetation: fV, coastal_wave: fC, river_water: fI };
+    const o = { aviation: oA, rain: oR, thunder: oT, waste_collection: oW, rail: oL, road_traffic: oD, roadwork: oK, wind_vegetation: oV, coastal_wave: oC, river_water: oI };
     animatorRef.current?.update({ flags: f, opacity: o });
     const apply = () => applyVisibility(map, f, o);
     apply();
     map.on("style.load", apply);
     return () => { map.off("style.load", apply); };
-  }, [mapRef, anyOn, mapTick, fA, fR, fT, fW, fL, fD, fK, oA, oR, oT, oW, oL, oD, oK]);
+  }, [mapRef, anyOn, mapTick, fA, fR, fT, fW, fL, fD, fK, fV, fC, fI, oA, oR, oT, oW, oL, oD, oK, oV, oC, oI]);
 
   // ── 接收點標記（可拖曳）──
   const markerRef = useRef<mapboxgl.Marker | null>(null);
@@ -372,6 +404,41 @@ export function useSoundAtlasLayer(
       canvas.style.cursor = prevCursor;
     };
   }, [mapRef, anyOn, placing, mapTick]);
+
+  // ── 畫路線模式：每次點地圖加一個節點；Esc 結束畫線（不計算）──
+  const drawingRoute = route.drawing;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !anyOn || !drawingRoute) return;
+    const canvas = map.getCanvas();
+    const prevCursor = canvas.style.cursor;
+    canvas.style.cursor = "crosshair";
+    const onClick = (e: mapboxgl.MapMouseEvent) => addRoutePoint(e.lngLat.lng, e.lngLat.lat);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") soundAtlasStore.set({ route: { ...soundAtlasStore.get().route, drawing: false } }); };
+    map.on("click", onClick);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      map.off("click", onClick);
+      window.removeEventListener("keydown", onKey);
+      canvas.style.cursor = prevCursor;
+    };
+  }, [mapRef, anyOn, drawingRoute, mapTick]);
+
+  // ── 路線與樣本點（依主要聲源上色）──
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !anyOn) return;
+    const fc: FeatureCollection = { type: "FeatureCollection", features: [] };
+    if (route.points.length >= 2) fc.features.push({ type: "Feature", geometry: { type: "LineString", coordinates: route.points }, properties: {} });
+    if (route.result) {
+      for (const s of route.result.samples) {
+        const color = s.dominant ? SOUND_FAMILY_COLORS[s.dominant.family] : SOUND_UNKNOWN_COLOR;
+        fc.features.push({ type: "Feature", geometry: { type: "Point", coordinates: [s.lon, s.lat] }, properties: { kind: "sample", color } });
+      }
+    }
+    for (const p of route.points) fc.features.push({ type: "Feature", geometry: { type: "Point", coordinates: p }, properties: { kind: "vertex", color: "#ffffff" } });
+    setSourceData(map, SRC_ROUTE, fc);
+  }, [mapRef, anyOn, route, mapTick]);
 
   // ── 載入資料（跟日期；只載開著的家族）──
   useEffect(() => {
