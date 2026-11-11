@@ -28,6 +28,8 @@ export interface SoundSceneDef {
   zoom: number;
   /** 場景建議同時開的既有圖層（例：颱風路徑） */
   companionLayers?: readonly "typhoonTracks"[];
+  /** 「播放此場景」：從焦點時刻前 leadS 秒開始，以 speed 倍（模擬秒／牆鐘秒）播放 */
+  playback: { leadS: number; speed: number };
 }
 
 /**
@@ -35,9 +37,11 @@ export interface SoundSceneDef {
  * 接收點、焦點時刻、選點理由一律以快照（W3 實查產出）為準，這裡不寫死，避免兩邊說法不一致。
  */
 export const SOUND_SCENES: readonly SoundSceneDef[] = [
-  { id: "taipei-1109", date: "2026-11-09", zoom: 12.5 },
-  { id: "taichung-heping-1108", date: "2026-11-08", zoom: 11 },
-  { id: "taipei-typhoon-1024", date: "2026-10-24", zoom: 12, companionLayers: ["typhoonTracks"] },
+  // 一般場景：焦點前 2 分鐘、10 倍速（約 12 秒看完）
+  { id: "taipei-1109", date: "2026-11-09", zoom: 12.5, playback: { leadS: 120, speed: 10 } },
+  // 雷場景放慢到 2 倍速：落雷在焦點前約 8 秒，雷聲約 6.5 秒後抵達，畫面上看得出延遲
+  { id: "taichung-heping-1108", date: "2026-11-08", zoom: 11, playback: { leadS: 20, speed: 2 } },
+  { id: "taipei-typhoon-1024", date: "2026-10-24", zoom: 12, companionLayers: ["typhoonTracks"], playback: { leadS: 120, speed: 10 } },
 ];
 
 export function findScene(id: string | null | undefined): SoundSceneDef | null {

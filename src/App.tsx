@@ -107,7 +107,7 @@ import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
 import { LanguageMenu } from "./components/toolbar/LanguageMenu";
 import { useLocale, localeStore } from "./state/localeStore";
 import { parseUrlState, buildUrl, cleanUrl, type UrlState } from "./lib/urlState";
-import { setTimelineJumpHandler } from "./state/timelineJumpBridge";
+import { setTimelineJumpHandler, setTimelinePlayHandler } from "./state/timelineJumpBridge";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
@@ -569,6 +569,18 @@ export default function App() {
     setTimelineJumpHandler(timeline.jumpToTime);
     return () => setTimelineJumpHandler(null);
   }, [timeline.jumpToTime]);
+  // 「播放此場景」：jumpToTime 會切到 replay 並暫停；play 的 closure 要等下一次 render 拿到 replay 模式，
+  // 所以經 ref 在下一個 frame 才呼叫（timeStore 仍只由 useTimeline 寫入）。
+  const timelinePlayRef = useRef(timeline);
+  timelinePlayRef.current = timeline;
+  useEffect(() => {
+    setTimelinePlayHandler((startUnix, speed) => {
+      timelinePlayRef.current.jumpToTime(startUnix);
+      timelinePlayRef.current.setSpeed(speed);
+      requestAnimationFrame(() => requestAnimationFrame(() => timelinePlayRef.current.play()));
+    });
+    return () => setTimelinePlayHandler(null);
+  }, []);
   const researchShipDatesRef = useRef<ShipDateAvailability>({ state: "not_loaded", dates: [] });
   researchShipDatesRef.current = {
     state: !layerVisibility.ships

@@ -14,7 +14,7 @@ import { useLocale } from "../../state/localeStore";
 import { layerVisibilityStore, useLayerVisible } from "../../state/layerVisibilityStore";
 import { soundAtlasStore } from "../../sound/soundAtlasStore";
 import { SOUND_SCENES, snapshotApplies, type SoundSceneId } from "../../sound/scenes";
-import { clearReceiver, selectSoundScene, startPlacingReceiver } from "../../sound/soundAtlasActions";
+import { clearReceiver, playSoundScene, selectSoundScene, startPlacingReceiver } from "../../sound/soundAtlasActions";
 import { topContributionsForDisplay } from "../../sound/soundAtlasData";
 import { AVIATION } from "../../sound/model/soundProfiles";
 import { SOUND_FAMILY_COLORS } from "../../sound/soundAtlasColors";
@@ -46,7 +46,7 @@ function latestSourceTime(contribs: readonly SourceContribution[]): string | nul
 }
 
 export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
-  const { t } = useLocale();
+  const { t, active: activeLocale } = useLocale();
   const st = useSoundAtlasState();
   const c = isDark
     ? { bg: SURFACE.strong, border: BORDER.panel, text: COLORS.textStrong, muted: COLORS.textMuted, dim: COLORS.textDim, ctrlBg: CONTROL.bg, ctrlBorder: CONTROL.border, optionBg: CONTROL.optionBg, warn: COLORS.statusWarn, shadow: ELEVATION.lg }
@@ -103,10 +103,21 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
             <option value="" style={{ background: c.optionBg }}>{t("soundAtlas.scene.none")}</option>
             {SOUND_SCENES.map((s) => <option key={s.id} value={s.id} style={{ background: c.optionBg }}>{t(SCENE_KEYS[s.id].title)}</option>)}
           </select>
+          {st.sceneId && (
+            <button
+              type="button"
+              style={{ ...btn, flexShrink: 0 }}
+              disabled={!st.snapshot?.focus_time}
+              onClick={() => { playSoundScene(); }}
+            >
+              {t("soundAtlas.scene.play")}
+            </button>
+          )}
         </div>
         {st.sceneId && (
           <div style={note}>
-            {st.snapshot?.receiver?.reason_zh && (
+            {/* 快照的選點理由只有中文；英日介面先不顯示（使用者 2026-11-11 同意） */}
+            {activeLocale === "zh-TW" && st.snapshot?.receiver?.reason_zh && (
               <>
                 {t("soundAtlas.scene.reason")}：{st.snapshot.receiver.reason_zh}
                 <br />
@@ -207,6 +218,11 @@ function ContributionRow({ c: cb, origin, colors }: {
       <div style={{ display: "flex", gap: 6, alignItems: "baseline", color: colors.text }}>
         <strong>{t(FAMILY_KEYS[cb.family])}</strong>
         <span style={{ color: colors.muted }}>{t(STATUS_KEYS[status])}</span>
+        {cb.family === "thunder" && cb.status === "active" && cb.thunderTiming && (
+          <span style={{ color: SOUND_FAMILY_COLORS.thunder, fontWeight: 600 }}>
+            {t("soundAtlas.row.thunderArrived", { delay: cb.thunderTiming.delayS.toFixed(1) })}
+          </span>
+        )}
         <span style={{ marginLeft: "auto", fontFamily: FONT_DATA }}>
           {formatDistanceM(cb.spatialDistanceM)} · {formatPotential(cb.relativePotential)}
         </span>

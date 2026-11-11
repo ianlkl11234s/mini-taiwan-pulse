@@ -3,7 +3,7 @@
  * 時間只經 timelineJumpBridge 寫入（timeStore 只有 useTimeline 能寫）。
  */
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
-import { requestTimelineJump } from "../state/timelineJumpBridge";
+import { requestTimelineJump, requestTimelinePlay } from "../state/timelineJumpBridge";
 import { fetchSceneSnapshot, findScene, sceneFallbackFocusUnix, type SoundSceneId } from "./scenes";
 import { DEFAULT_RECEIVER_HEIGHT_M, getSoundAtlasMap, makeReceiver, soundAtlasStore } from "./soundAtlasStore";
 
@@ -36,6 +36,14 @@ export function selectSoundScene(id: SoundSceneId | null): void {
     if (r) getSoundAtlasMap()?.flyTo({ center: [r.lon, r.lat], zoom: def.zoom, essential: true });
     requestTimelineJump(snap.focus_time ? Date.parse(snap.focus_time) / 1000 : sceneFallbackFocusUnix(def));
   });
+}
+
+/** 播放目前場景：從快照焦點時刻前 leadS 秒，以場景設定倍速播放（時間仍走 timeStore） */
+export function playSoundScene(): boolean {
+  const st = soundAtlasStore.get();
+  const def = findScene(st.sceneId);
+  if (!def || !st.snapshot?.focus_time) return false;
+  return requestTimelinePlay(Date.parse(st.snapshot.focus_time) / 1000 - def.playback.leadS, def.playback.speed);
 }
 
 export function startPlacingReceiver(): void {
