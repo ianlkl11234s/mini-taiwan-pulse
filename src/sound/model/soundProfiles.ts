@@ -11,8 +11,9 @@
 /**
  * 0.2.0（W4）：新增 MVP-B 三族（RAIL／ROAD_TRAFFIC／ROADWORK）參數；MVP-A 四族參數不變。
  * 0.3.0（W5）：新增自然聲源三族（WIND_VEGETATION／COASTAL_WAVE／RIVER_WATER）與路線剖面（ROUTE）參數；既有七族參數不變。
+ * 0.3.1（W2）：臺北市 VD 平日典型車流（TYPICAL_TRAFFIC）流量換算尺度 1500 → 600 輛／小時（使用者 2026-11-11 決定）。
  */
-export const MODEL_VERSION = "sound-atlas-mvp-b-0.3.0";
+export const MODEL_VERSION = "sound-atlas-mvp-b-0.3.1";
 
 export interface AssumedParam<T> {
   value: T;
@@ -190,7 +191,7 @@ export const TYPICAL_TRAFFIC = {
   assetUrl: p("/sound-atlas/vd-baseline-taipei.json", "scripts/preprocess/build-sound-vd-baseline.py 產出（public-assets lock 登記）。"),
   candidateRadiusM: p(300, "只查接收者 300 m 內的 VD（VD 是單向斷面點，不是路段；300 m 約市區兩三個街廓）。候選篩選，非可聽距離宣稱。"),
   halfPotentialDistanceM: p(100, "距 VD 100 m 時距離項為 0.5（啟發式；與國道 proxy 同尺度，未依車道數、車速、建物遮蔽校準）。"),
-  volumeScaleVehPerHour: p(1_500, "潛勢流量項 = 1 − exp(−Q/1500)，Q＝典型每小時車輛數（與 ROAD_TRAFFIC.volumeScaleVehPerHour 同值；單調啟發式，非聲功率公式）。"),
+  volumeScaleVehPerHour: p(600, "潛勢流量項 = 1 − exp(−Q/600)，Q＝典型每小時車輛數。使用者 2026-11-11 決定（原 1500）；滿格約對應大馬路尖峰的持續車聲，非 dB。單調啟發式，非聲功率公式；國道 ROAD_TRAFFIC.volumeScaleVehPerHour 不受影響。"),
   minFlowDays: p(3, "某小時的典型流量有效天數 <3 → unknown「樣本不足」（不當 0）。基準期間平日有效流量最多 9 天、中位 8 天。"),
   baselinePeriod: p({ start: "2025-12-26", end: "2026-01-14" } as const, "基準期間（VD S3 只保留這 20 天）；UI 必須寫明是此期間平日典型值、非當日觀測。"),
   nonWorkdays: p(

@@ -36,8 +36,8 @@ describe("typicalTrafficAdapter（臺北市 VD 平日典型值）", () => {
     expect(c.proxyKind).toBe("typical_weekday_volume");
     expect(c.notes).toContain("flow_days:8");
     expect(c.notes).toContain("typical_value_not_same_day_observation");
-    // 100 m（距離項 0.5）× (1 − e^(−600/1500))
-    expect(c.relativePotential!).toBeCloseTo(0.5 * (1 - Math.exp(-0.4)), 2);
+    // 100 m（距離項 0.5）× (1 − e^(−600/600))；換算尺度 600 輛／小時（使用者 2026-11-11 決定）
+    expect(c.relativePotential!).toBeCloseTo(0.5 * (1 - Math.exp(-1)), 2);
   });
 
   it("週末、國定假日 → unknown「無可靠典型值」，不當 0", async () => {
