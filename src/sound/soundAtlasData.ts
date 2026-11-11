@@ -202,11 +202,14 @@ export interface TopContributions {
   rows: SourceContribution[];
   /** 低於顯示門檻、併成一行的遠方航機（count=0 → 不顯示） */
   farAviation: { count: number; maxPotential: number };
+  /** 逐筆只列第一架「無法判斷」航機，其餘併成計數（count=0 → 不顯示） */
+  unknownAviation: { count: number };
 }
 
 /**
  * 只為顯示：相對潛勢低於 AVIATION.displayMinPotential 的 active 航機不逐筆列，併成「遠方航機」。
- * unknown（潛勢 null）照常列出，不被當成「遠」；其他家族不受影響。
+ * unknown（潛勢 null）不被當成「遠」：第一架照常逐筆列，其餘併成「另有 N 架無法判斷」，
+ * 避免航跡缺口的航機把雨、雷、垃圾車擠出列表。其他家族不受影響。
  */
 export function topContributionsForDisplay(
   contributions: readonly SourceContribution[],
@@ -216,15 +219,24 @@ export function topContributionsForDisplay(
   const rows: SourceContribution[] = [];
   let count = 0;
   let maxPotential = 0;
+  let unknownListed = false;
+  let unknownMore = 0;
   for (const c of contributions) {
     if (c.family === "aviation" && c.status === "active" && c.relativePotential != null && c.relativePotential < minAviation) {
       count++;
       maxPotential = Math.max(maxPotential, c.relativePotential);
       continue;
     }
+    if (c.family === "aviation" && c.status === "unknown") {
+      if (unknownListed) {
+        unknownMore++;
+        continue;
+      }
+      unknownListed = true;
+    }
     if (rows.length < limit) rows.push(c);
   }
-  return { rows, farAviation: { count, maxPotential } };
+  return { rows, farAviation: { count, maxPotential }, unknownAviation: { count: unknownMore } };
 }
 
 // ── 接收點周邊預篩（只為效能；結果必須與不篩相同）──────────

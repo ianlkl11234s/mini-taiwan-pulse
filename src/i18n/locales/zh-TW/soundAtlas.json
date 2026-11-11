@@ -20,6 +20,7 @@
   "soundAtlas.current.title": "此刻主要來源",
   "soundAtlas.current.empty": "此刻接收點附近沒有活躍來源",
   "soundAtlas.current.farAviation": "另有遠方航機 {count} 架（相對潛勢都低於 {min}，最高 {max}）；24 小時圖仍照實畫出",
+  "soundAtlas.current.unknownAviation": "另有 {count} 架航機航跡有缺口，無法判斷此刻位置（不是安靜）",
   "soundAtlas.current.loading": "載入來源資料中…",
   "soundAtlas.family.aviation": "飛機",
   "soundAtlas.family.rain": "雨",

@@ -20,6 +20,7 @@
   "soundAtlas.current.title": "Main sources right now",
   "soundAtlas.current.empty": "No active sources near the listening point right now",
   "soundAtlas.current.farAviation": "Plus {count} distant aircraft (each below {min} relative potential, max {max}); the 24-hour chart still plots them",
+  "soundAtlas.current.unknownAviation": "{count} more aircraft have track gaps; their position now is unknown (not silence)",
   "soundAtlas.current.loading": "Loading source data…",
   "soundAtlas.family.aviation": "Aircraft",
   "soundAtlas.family.rain": "Rain",

@@ -20,6 +20,7 @@
   "soundAtlas.current.title": "現在の主な音源",
   "soundAtlas.current.empty": "現在、受音点付近に活動中の音源はありません",
   "soundAtlas.current.farAviation": "ほかに遠方の航空機 {count} 機（相対ポテンシャルはいずれも {min} 未満、最大 {max}）。24 時間グラフには実際の値を描画",
+  "soundAtlas.current.unknownAviation": "ほかに航跡の欠落で現在位置を判断できない航空機 {count} 機（静かという意味ではありません）",
   "soundAtlas.current.loading": "音源データを読み込み中…",
   "soundAtlas.family.aviation": "航空機",
   "soundAtlas.family.rain": "雨",

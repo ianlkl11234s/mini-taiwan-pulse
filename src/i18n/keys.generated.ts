@@ -7908,6 +7908,7 @@ export type GeneratedStaticKey =
   | "soundAtlas.current.farAviation"
   | "soundAtlas.current.loading"
   | "soundAtlas.current.title"
+  | "soundAtlas.current.unknownAviation"
   | "soundAtlas.disclaimer"
   | "soundAtlas.evidence.inferred"
   | "soundAtlas.evidence.modeled"

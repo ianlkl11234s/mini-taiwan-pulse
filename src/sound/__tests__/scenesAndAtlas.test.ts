@@ -219,11 +219,15 @@ describe("topContributionsForDisplay（只影響面板列表）", () => {
   const mk = (family: SourceContribution["family"], potential: number | null, id: string): SourceContribution =>
     ({ family, sourceId: id, status: potential == null ? "unknown" : "active", relativePotential: potential }) as SourceContribution;
 
-  it("低於門檻的 active 航機併成遠方一行；unknown 航機與其他家族照列", () => {
-    const list = [mk("aviation", 0.55, "a1"), mk("rain", 0.22, "r1"), mk("aviation", 0.04, "a2"), mk("aviation", 0.02, "a3"), mk("aviation", null, "a4"), mk("thunder", 0.01, "t1")];
+  it("低於門檻的 active 航機併成遠方一行；unknown 航機只列第一架、其餘計數；其他家族照列", () => {
+    const list = [
+      mk("aviation", 0.55, "a1"), mk("aviation", null, "u1"), mk("aviation", null, "u2"), mk("aviation", null, "u3"),
+      mk("rain", 0.22, "r1"), mk("aviation", 0.04, "a2"), mk("aviation", 0.02, "a3"), mk("thunder", 0.01, "t1"), mk("rain", null, "r2"),
+    ];
     const out = topContributionsForDisplay(list, 5, 0.1);
-    expect(out.rows.map((c) => c.sourceId)).toEqual(["a1", "r1", "a4", "t1"]);
+    expect(out.rows.map((c) => c.sourceId)).toEqual(["a1", "u1", "r1", "t1", "r2"]);
     expect(out.farAviation).toEqual({ count: 2, maxPotential: 0.04 });
+    expect(out.unknownAviation).toEqual({ count: 2 });
   });
 
   it("limit 只算逐筆列出的列；門檻不改原陣列", () => {

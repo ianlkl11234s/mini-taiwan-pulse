@@ -71,7 +71,7 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
 
   const receiver = st.receiver;
   const current = st.current;
-  const { rows: top, farAviation } = topContributionsForDisplay(current?.contributions ?? [], TOP_N);
+  const { rows: top, farAviation, unknownAviation } = topContributionsForDisplay(current?.contributions ?? [], TOP_N);
   const sceneApplies = snapshotApplies(st.snapshot, st.dateKey ?? "", receiver);
 
   // 各家族的來源健康：直接列 coverage 的 provider × status
@@ -142,8 +142,9 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
               {current && <span style={{ fontFamily: FONT_DATA, fontWeight: 400, marginLeft: 6 }}>{formatTaipeiTime(current.unixSeconds, true)}</span>}
             </div>
             {st.loading.length > 0 && <div style={note}>{t("soundAtlas.current.loading")}</div>}
-            {current && top.length === 0 && farAviation.count === 0 && st.loading.length === 0 && <div style={note}>{t("soundAtlas.current.empty")}</div>}
+            {current && top.length === 0 && farAviation.count === 0 && unknownAviation.count === 0 && st.loading.length === 0 && <div style={note}>{t("soundAtlas.current.empty")}</div>}
             {top.map((cb) => <ContributionRow key={cb.sourceId} c={cb} origin={st.origins[cb.family] ?? "live"} colors={c} />)}
+            {unknownAviation.count > 0 && <div style={note}>{t("soundAtlas.current.unknownAviation", { count: unknownAviation.count })}</div>}
             {/* 最高值無條件捨去：0.0999 不可顯示成與門檻相同的 0.10 */}
             {farAviation.count > 0 && (
               <div style={note}>
