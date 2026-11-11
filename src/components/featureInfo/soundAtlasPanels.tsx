@@ -16,7 +16,7 @@ import { FONT_SIZE } from "../../styles/designTokens";
 
 const FAMILIES = new Set<SoundSourceFamily>(["aviation", "rain", "thunder", "waste_collection", "rail", "road_traffic", "roadwork"]);
 const STRUCTURES = new Set(Object.keys(STRUCTURE_KEYS));
-const EVIDENCE = new Set<ContributionEvidence>(["observed", "scheduled", "modeled", "inferred"]);
+const EVIDENCE = new Set<ContributionEvidence>(["observed", "scheduled", "modeled", "inferred", "estimated"]);
 const FAMILY_PROVIDER: Record<SoundSourceFamily, string> = {
   aviation: "flight_trails", rain: "cwa_rain_gauge", thunder: "", waste_collection: "waste_schedule_static",
   rail: "rail_", road_traffic: "freeway_sections", roadwork: "tdx_road_event_city",
@@ -47,9 +47,15 @@ export function SoundSourcePanel({ props }: { props: Record<string, unknown> }) 
     <Row label={t("soundAtlas.row.spatial")} value={t(spatialPrecisionKey(str(props.spatialPrecision)))} />
     <Row label={t("soundAtlas.row.temporal")} value={t(temporalPrecisionKey(str(props.temporalPrecision)))} />
     <Row label={t("soundAtlas.row.updated")} value={str(props.sourceTime) ? formatTaipeiTime(str(props.sourceTime), true) : "—"} mono />
-    {family === "road_traffic" && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.roadProxyNote")}</div>}
+    {family === "road_traffic" && (
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>
+        {props.proxyKind === "typical_weekday_volume"
+          ? t("soundAtlas.row.typicalNote", { days: str(props.flowDays) || "—" })
+          : t("soundAtlas.row.roadProxyNote")}
+      </div>
+    )}
     {family === "roadwork" && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.permitNote")}</div>}
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
-    <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : FAMILY_PROVIDER[family ?? "aviation"]))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
+    <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : family === "road_traffic" && props.proxyKind === "typical_weekday_volume" ? "vd_typical_taipei" : FAMILY_PROVIDER[family ?? "aviation"]))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
   </div>;
 }

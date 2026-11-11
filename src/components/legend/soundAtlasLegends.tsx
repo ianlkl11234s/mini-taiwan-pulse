@@ -24,6 +24,7 @@ export function SoundAtlasLegend() {
     <LegendNote>{t("legend.soundAtlas.wavefront")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.animation")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.rail")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.roadTypical")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.roadTraffic")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.roadwork")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.attribution")}</LegendNote>

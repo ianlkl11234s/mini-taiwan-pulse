@@ -26,6 +26,7 @@ import { loadMvpBFamily, parseMvpBSceneBlocks } from "./mvpBSources";
 import { evaluateRail, railProgressAt, type RailRecord } from "./sourceAdapters/railAdapter";
 import { interpolateOnLineString } from "../engines/railUtils";
 import type { RoadTrafficRecord } from "./sourceAdapters/roadTrafficAdapter";
+import { isTypicalTrafficRecord, type TypicalTrafficRecord } from "./sourceAdapters/typicalTrafficAdapter";
 import type { RoadworkRecord } from "./sourceAdapters/roadworkAdapter";
 import type { Receiver, SoundSourceFamily, SoundSourceRecord, SoundSourceSet, SourceContribution, SourceCoverage } from "./types";
 
@@ -362,7 +363,12 @@ export function contributionPlace(record: SoundSourceRecord | undefined, t: numb
       return null;
     }
     case "road_traffic": {
-      const p = (record as unknown as RoadTrafficRecord).payload;
+      const rec = record as unknown as RoadTrafficRecord | TypicalTrafficRecord;
+      if (isTypicalTrafficRecord(rec)) {
+        const v = rec.payload;
+        return { lon: v.lon, lat: v.lat, altitudeM: null, label: v.road ? `${v.road}（VD ${v.vdId}）` : `VD ${v.vdId}` };
+      }
+      const p = rec.payload;
       const mid = p.coords[Math.floor(p.coords.length / 2)];
       return mid ? { lon: mid[0], lat: mid[1], altitudeM: null, label: p.roadName ?? p.name ?? p.sectionId } : null;
     }

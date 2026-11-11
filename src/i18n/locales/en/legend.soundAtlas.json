@@ -9,5 +9,6 @@
   "legend.soundAtlas.rail": "Trains (surface/elevated, scheduled): underground sections are silent; sections of unknown structure show as unknown",
   "legend.soundAtlas.roadTraffic": "Road-type proxy (national freeways only, no traffic volume); other roads: no data",
   "legend.soundAtlas.roadwork": "Roadwork permit period (possible activity; a permit is not machinery running); Taipei City and other non-publishing cities: not covered",
-  "legend.soundAtlas.attribution": "Sources: rail structure © OpenStreetMap contributors (ODbL); roadwork TDX city planned events; roads TDX freeway conditions (congestion level, not volume)"
+  "legend.soundAtlas.attribution": "Sources: rail structure © OpenStreetMap contributors (ODbL); roadwork TDX city planned events; roads TDX freeway conditions (congestion level, not volume)",
+  "legend.soundAtlas.roadTypical": "Taipei road traffic: VD weekday typical values (Dec 2025–Jan 2026, about 8 sample days; not same-day observations); weekends, public holidays and anomalous days such as typhoons: unknown"
 }

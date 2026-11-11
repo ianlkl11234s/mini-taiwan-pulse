@@ -186,7 +186,12 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
                   <span style={{ color: c.dim }}>
                     {coverage.length === 0
                       ? t("soundAtlas.health.unavailable")
-                      : [...new Set(coverage.map((cv) => `${t(providerKey(cv.provider))} ${t(HEALTH_KEYS[cv.status])}`))].join("、")}
+                      : [...new Set(coverage.map((cv) => `${t(providerKey(cv.provider))} ${t(
+                        // 施工：資料正常但本縣市沒有發布施工 → 寫明，不讓「正常」看起來像「確認沒施工」
+                        cv.status === "ok" && family === "roadwork" && fam?.contributions.some((x) => x.unknownReason === "roadwork_city_not_covered")
+                          ? "soundAtlas.health.okNotPublished"
+                          : HEALTH_KEYS[cv.status],
+                      )}`))].join("、")}
                     {" · "}{t(st.origins[family] === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}
                     {updated && <> · {t("soundAtlas.row.updated")} <span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(updated, true)}</span></>}
                   </span>
@@ -210,6 +215,12 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
       </div>
     </section>
   );
+}
+
+/** notes 裡 `key:value` 的值（例：flow_days:8）；沒有回 null */
+function noteValue(notes: readonly string[], key: string): string | null {
+  const n = notes.find((x) => x.startsWith(`${key}:`));
+  return n ? n.slice(key.length + 1) : null;
 }
 
 function ContributionRow({ c: cb, origin, colors }: {
@@ -244,7 +255,10 @@ function ContributionRow({ c: cb, origin, colors }: {
         {" · "}<span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(cb.sourceTime, true)}</span>
       </div>
       {/* 道路只有類型 proxy（無車流量）、施工只有許可期間（不是機具運轉）：固定標明 */}
-      {cb.family === "road_traffic" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.roadProxyNote")}</div>}
+      {cb.family === "road_traffic" && cb.proxyKind === "typical_weekday_volume" && (
+        <div style={{ color: colors.muted }}>{t("soundAtlas.row.typicalNote", { days: noteValue(cb.notes, "flow_days") ?? "—" })}</div>
+      )}
+      {cb.family === "road_traffic" && cb.proxyKind !== "typical_weekday_volume" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.roadProxyNote")}</div>}
       {cb.family === "roadwork" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.permitNote")}</div>}
     </div>
   );

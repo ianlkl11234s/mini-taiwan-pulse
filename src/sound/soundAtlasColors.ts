@@ -8,7 +8,8 @@ export const SOUND_FAMILY_COLORS = {
   thunder: "#facc15",
   waste_collection: "#fb923c",
   // MVP-B（W4 建議色，避開黃橙系以免和雷、垃圾車混淆；資料色，design-system §3.16 不進 token）
-  rail: "#a78bfa",
+  // 鐵道原用 #a78bfa，與 COLORS.statusDerived 同值易混淆 → 改 indigo-400（2026-11-11 使用者預設）
+  rail: "#818cf8",
   road_traffic: "#f87171",
   roadwork: "#e879f9",
 } as const;

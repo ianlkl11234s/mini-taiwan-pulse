@@ -26,8 +26,9 @@ import {
 import { AVIATION } from "../sound/model/soundProfiles";
 import type { ThunderPayload } from "../sound/sourceAdapters/thunderAdapter";
 import type { RoadTrafficPayload } from "../sound/sourceAdapters/roadTrafficAdapter";
+import { isTypicalTrafficRecord } from "../sound/sourceAdapters/typicalTrafficAdapter";
 import type { RoadworkPayload } from "../sound/sourceAdapters/roadworkAdapter";
-import type { SoundSourceFamily, SoundSourceSet } from "../sound/types";
+import type { SoundSourceFamily, SoundSourceRecord, SoundSourceSet } from "../sound/types";
 
 export type SoundFamilyFlags = Record<SoundSourceFamily, boolean>;
 
@@ -38,6 +39,10 @@ const WAVE_LAYER = "sound-atlas-wavefront-line";
 /** 道路類型 proxy：附近國道路段淡光暈（不是車流量） */
 const SRC_ROADS = "sound-atlas-road-glow";
 const ROAD_GLOW_LAYER = "sound-atlas-road-glow-line";
+/** 臺北市 VD 典型車流：VD 點下方的淡光暈（典型值活躍時；不是當日流量） */
+const VD_GLOW_LAYER = "sound-atlas-road-vd-glow";
+const VD_GLOW_FILTER: mapboxgl.FilterSpecification = ["all", ["==", ["get", "family"], "road_traffic"], ["==", ["get", "status"], "active"], ["==", ["get", "proxyKind"], "typical_weekday_volume"]];
+const vdGlowOpacity = (o: number): mapboxgl.ExpressionSpecification => ["*", o, ["+", 0.18, ["*", 0.5, ["coalesce", ["get", "potential"], 0]]]];
 /** 施工許可：小三角錐圖示（活躍許可；未涵蓋／不明仍是點圖層灰圈） */
 const ROADWORK_ICON_LAYER = "sound-atlas-roadwork-icon";
 const CONE_IMAGE = "sound-atlas-cone";
@@ -167,6 +172,18 @@ function ensureLayers(map: MapboxMap): void {
       });
     }
   }
+  if (!map.getLayer(VD_GLOW_LAYER)) {
+    map.addLayer({
+      id: VD_GLOW_LAYER, type: "circle", source: SRC_POINTS, filter: VD_GLOW_FILTER,
+      paint: {
+        "circle-radius": ["+", 12, ["*", 22, ["coalesce", ["get", "potential"], 0]]],
+        "circle-color": SOUND_FAMILY_COLORS.road_traffic,
+        "circle-blur": 1,
+        "circle-opacity": vdGlowOpacity(1),
+        "circle-pitch-alignment": "map",
+      },
+    }, SOUND_ATLAS_POINT_LAYERS.aviation);
+  }
   if (!map.hasImage(CONE_IMAGE)) {
     const img = makeConeImage();
     if (img) map.addImage(CONE_IMAGE, img, { pixelRatio: 2 });
@@ -183,7 +200,7 @@ function ensureLayers(map: MapboxMap): void {
 
 function removeLayers(map: MapboxMap): void {
   removeAnimLayers(map);
-  const layers = [ROADWORK_ICON_LAYER, ...Object.values(SOUND_ATLAS_POINT_LAYERS), ...Object.values(LINK_LAYERS), WAVE_LAYER, ROAD_GLOW_LAYER];
+  const layers = [ROADWORK_ICON_LAYER, VD_GLOW_LAYER, ...Object.values(SOUND_ATLAS_POINT_LAYERS), ...Object.values(LINK_LAYERS), WAVE_LAYER, ROAD_GLOW_LAYER];
   for (const id of layers) if (map.getLayer(id)) map.removeLayer(id);
   for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES, SRC_ROADS]) if (map.getSource(id)) map.removeSource(id);
   if (map.hasImage(CONE_IMAGE)) map.removeImage(CONE_IMAGE);
@@ -227,6 +244,10 @@ function applyVisibility(map: MapboxMap, flags: SoundFamilyFlags, opacity: Recor
   if (map.getLayer(ROAD_GLOW_LAYER)) {
     map.setLayoutProperty(ROAD_GLOW_LAYER, "visibility", flags.road_traffic ? "visible" : "none");
     map.setPaintProperty(ROAD_GLOW_LAYER, "line-opacity", ["*", Math.max(0, Math.min(1, opacity.road_traffic)), ["+", 0.15, ["*", 0.4, ["coalesce", ["get", "potential"], 0]]]]);
+  }
+  if (map.getLayer(VD_GLOW_LAYER)) {
+    map.setLayoutProperty(VD_GLOW_LAYER, "visibility", flags.road_traffic ? "visible" : "none");
+    map.setPaintProperty(VD_GLOW_LAYER, "circle-opacity", vdGlowOpacity(Math.max(0, Math.min(1, opacity.road_traffic))));
   }
   if (map.getLayer(ROADWORK_ICON_LAYER)) {
     map.setLayoutProperty(ROADWORK_ICON_LAYER, "visibility", flags.roadwork ? "visible" : "none");
@@ -429,7 +450,7 @@ export function useSoundAtlasLayer(
         const rec = index.get(c.sourceId);
         let place = contributionPlace(rec, t);
         if (!place) continue;
-        if (c.family === "road_traffic" && rec) {
+        if (c.family === "road_traffic" && rec && !isTypicalTrafficRecord(rec as SoundSourceRecord<unknown, "road_traffic">)) {
           // 道路 proxy：連線接到路段上離接收點最近處；路段本身畫淡光暈（不是流量）
           const coords = (rec.payload as RoadTrafficPayload).coords;
           const near = nearestPointOnLine(coords, receiver.longitude, receiver.latitude);
@@ -450,6 +471,7 @@ export function useSoundAtlasLayer(
           sourceTime: c.sourceTime, label: place.label, altitudeM: place.altitudeM,
           unknownReason: c.unknownReason ?? null, delayS: c.thunderTiming?.delayS ?? null,
           origin: origins[c.family] ?? "live", railStructure: c.railStructure ?? null,
+          proxyKind: c.proxyKind ?? null, flowDays: c.notes.find((n) => n.startsWith("flow_days:"))?.slice(10) ?? null,
         };
         points.features.push({ type: "Feature", geometry: { type: "Point", coordinates: [place.lon, place.lat] }, properties: props });
         if (c.status === "active" && !ANIMATED_FAMILIES.has(c.family)) {

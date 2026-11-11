@@ -85,7 +85,7 @@
   "soundAtlas.profile.chartLabel": "{family} の 24 時間相対ポテンシャル",
   "soundAtlas.profile.none": "受音点を置くと表示",
   "soundAtlas.family.rail": "鉄道",
-  "soundAtlas.family.roadTraffic": "道路種別の代理",
+  "soundAtlas.family.roadTraffic": "道路交通（推定）",
   "soundAtlas.family.roadwork": "道路工事",
   "soundAtlas.precision.trackProgress": "軌道形状＋駅間補間",
   "soundAtlas.precision.roadLine": "国道の区間線",
@@ -109,5 +109,16 @@
   "soundAtlas.structure.elevated": "高架",
   "soundAtlas.structure.atGrade": "地上",
   "soundAtlas.structure.surface": "地上・高架混在",
-  "soundAtlas.structure.unknown": "不明"
+  "soundAtlas.structure.unknown": "不明",
+  "soundAtlas.evidence.estimated": "典型値による推定",
+  "soundAtlas.provider.vdTypical": "台北市VD平日典型値",
+  "soundAtlas.precision.vdPoint": "VD検知点",
+  "soundAtlas.timePrecision.typicalHourly": "平日典型（毎時）",
+  "soundAtlas.reason.typicalWeekend": "週末・祝日：信頼できる典型値なし",
+  "soundAtlas.reason.typicalAnomaly": "異常日（台風など）：当日の観測なし、典型値は適用不可",
+  "soundAtlas.reason.typicalCalendar": "休日表の対象外の日付のため平日か判断できません",
+  "soundAtlas.reason.typicalMissing": "この時間帯の有効な典型交通量なし",
+  "soundAtlas.reason.typicalSample": "この時間帯の典型交通量はサンプル日数不足",
+  "soundAtlas.row.typicalNote": "推定：2025/12–2026/01 平日典型値（{days} 日分のサンプル）、当日の観測ではありません",
+  "soundAtlas.health.okNotPublished": "正常（この自治体は工事情報を未公開）"
 }

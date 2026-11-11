@@ -13201,7 +13201,7 @@ export const LAYER_MANIFEST = {
   soundRoadTraffic: {
     key: "soundRoadTraffic",
     country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
-    ...layerName({ zh: "道路類型 proxy", alt: "Road-type proxy", qualifier: "推估・實驗" }),
+    ...layerName({ zh: "道路車流", alt: "Road traffic", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.road_traffic,
     icon: Car,
@@ -13210,7 +13210,7 @@ export const LAYER_MANIFEST = {
       datasets: [],
       derivedFromLayers: ["freewayCongestion"],
       derivationType: "custom",
-      processing: "只用國道路段幾何（get_freeway_congestion_day）做道路類型 proxy：離國道越近越高；沒有任何車流量資料，壅塞等級不當流量。其他道路無資料（無法判斷）。",
+      processing: "臺北市：VD 平日典型流量（public/sound-atlas/vd-baseline-taipei.json，2025-12-26～2026-01-14 平日、有效流量約 8 天；scripts/preprocess/build-sound-vd-baseline.py），週末、國定假日、異常日無法判斷。其他縣市：只用國道路段幾何（get_freeway_congestion_day）做道路類型 proxy，沒有車流量，壅塞等級不當流量。",
       note: "DISPLAY_ONLY（尚未入分析倉庫）；推估，非流量、非 dB。",
     },
     dataClass: "D",
@@ -13218,7 +13218,7 @@ export const LAYER_MANIFEST = {
     legend: "soundAtlas",
     popup: "soundSource",
     params: { count: 1, kinds: ["slider"] },
-    description: "道路類型 proxy（只有國道、沒有車流量）：接收點 500 m 內有國道路段時依距離推估；其他道路無資料，顯示無法判斷。",
+    description: "臺北市用 VD 平日典型車流推估（2025/12–2026/01，約 8 天樣本，非當日觀測；週末與假日無法判斷）；其他縣市只有國道道路類型 proxy（沒有車流量）。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "國道"],
   },
   soundRoadwork: {

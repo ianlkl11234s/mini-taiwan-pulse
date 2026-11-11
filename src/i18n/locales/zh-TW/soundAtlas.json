@@ -85,7 +85,7 @@
   "soundAtlas.profile.chartLabel": "{family} 24 小時相對潛勢",
   "soundAtlas.profile.none": "放置接收點後顯示",
   "soundAtlas.family.rail": "鐵道",
-  "soundAtlas.family.roadTraffic": "道路類型 proxy",
+  "soundAtlas.family.roadTraffic": "道路車流（推估）",
   "soundAtlas.family.roadwork": "施工",
   "soundAtlas.precision.trackProgress": "軌道幾何＋站間內插",
   "soundAtlas.precision.roadLine": "國道路段線",
@@ -109,5 +109,16 @@
   "soundAtlas.structure.elevated": "高架",
   "soundAtlas.structure.atGrade": "地面",
   "soundAtlas.structure.surface": "地面／高架混合",
-  "soundAtlas.structure.unknown": "不明"
+  "soundAtlas.structure.unknown": "不明",
+  "soundAtlas.evidence.estimated": "典型值推估",
+  "soundAtlas.provider.vdTypical": "臺北市 VD 平日典型值",
+  "soundAtlas.precision.vdPoint": "VD 偵測點",
+  "soundAtlas.timePrecision.typicalHourly": "平日典型（每小時）",
+  "soundAtlas.reason.typicalWeekend": "週末或國定假日：無可靠典型值",
+  "soundAtlas.reason.typicalAnomaly": "異常日（如颱風）：當日無觀測，典型值不適用",
+  "soundAtlas.reason.typicalCalendar": "假日表未涵蓋此日期，無法判斷是否平日",
+  "soundAtlas.reason.typicalMissing": "該小時沒有有效的典型流量",
+  "soundAtlas.reason.typicalSample": "該小時典型流量樣本天數不足",
+  "soundAtlas.row.typicalNote": "推估：2025/12–2026/01 平日典型值（{days} 天樣本），非當日觀測",
+  "soundAtlas.health.okNotPublished": "正常（本縣市未發布施工）"
 }

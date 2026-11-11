@@ -9,5 +9,6 @@
   "legend.soundAtlas.rail": "列車（地上・高架、時刻表ベース）：地下区間は対象外、構造不明の区間は判定不能",
   "legend.soundAtlas.roadTraffic": "道路種別による代理指標（国道のみ・交通量なし）：その他の道路はデータなし",
   "legend.soundAtlas.roadwork": "道路工事の許可期間（工事の可能性。許可＝機械稼働ではない）。台北市など未公開の自治体：対象外",
-  "legend.soundAtlas.attribution": "出典：鉄道構造 © OpenStreetMap contributors（ODbL）、工事 TDX 自治体予告イベント、道路 TDX 国道路況（渋滞レベル、交通量ではない）"
+  "legend.soundAtlas.attribution": "出典：鉄道構造 © OpenStreetMap contributors（ODbL）、工事 TDX 自治体予告イベント、道路 TDX 国道路況（渋滞レベル、交通量ではない）",
+  "legend.soundAtlas.roadTypical": "台北市の道路交通：VD平日典型値（2025/12–2026/01、約8日分、当日の観測ではない）；週末・祝日・台風などの異常日は判断不可"
 }

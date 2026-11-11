@@ -35,6 +35,7 @@ export const EVIDENCE_KEYS: Record<ContributionEvidence, MessageKey> = {
   scheduled: "soundAtlas.evidence.scheduled",
   modeled: "soundAtlas.evidence.modeled",
   inferred: "soundAtlas.evidence.inferred",
+  estimated: "soundAtlas.evidence.estimated",
 };
 
 export const HEALTH_KEYS: Record<SourceHealth, MessageKey> = {
@@ -60,6 +61,7 @@ export function providerKey(provider: string): MessageKey {
     case "waste_schedule_static": return "soundAtlas.provider.waste";
     case "freeway_sections": return "soundAtlas.provider.freeway";
     case "tdx_road_event_city": return "soundAtlas.provider.roadwork";
+    case "vd_typical_taipei": return "soundAtlas.provider.vdTypical";
     default: return provider.startsWith("rail_") ? "soundAtlas.provider.rail" : "soundAtlas.precision.other";
   }
 }
@@ -71,6 +73,7 @@ export function spatialPrecisionKey(code: string): MessageKey {
   if (code === "scheduled_stop_point") return "soundAtlas.precision.stop";
   if (code === "track_geometry_progress_interpolation") return "soundAtlas.precision.trackProgress";
   if (code === "freeway_section_line") return "soundAtlas.precision.roadLine";
+  if (code === "vd_point") return "soundAtlas.precision.vdPoint";
   if (code.startsWith("permit_")) return "soundAtlas.precision.permit";
   return "soundAtlas.precision.other";
 }
@@ -81,6 +84,7 @@ export function temporalPrecisionKey(code: string): MessageKey {
   if (code === "strike_ts_plus_modeled_delay") return "soundAtlas.timePrecision.strike";
   if (code === "timetable" || code.startsWith("timetable(")) return "soundAtlas.timePrecision.timetable";
   if (code === "none(road_type_static)") return "soundAtlas.timePrecision.static";
+  if (code === "typical_weekday_hourly") return "soundAtlas.timePrecision.typicalHourly";
   if (code.startsWith("permit_window")) return "soundAtlas.timePrecision.permit";
   if (code === "schedule_inferred_times") return "soundAtlas.timePrecision.inferred";
   return "soundAtlas.precision.other";
@@ -103,6 +107,11 @@ export function reasonKey(reason: string | null | undefined): MessageKey {
   if (r === "rail_schedule_unavailable" || r.endsWith("_schedule_not_found")) return "soundAtlas.reason.railSchedule";
   if (r.startsWith("road_network_not_covered")) return "soundAtlas.reason.roadNotCovered";
   if (r === "volume_sample_gap") return "soundAtlas.reason.volumeGap";
+  if (r === "typical_not_applicable(anomaly_day)") return "soundAtlas.reason.typicalAnomaly";
+  if (r === "typical_not_applicable(calendar_not_covered)") return "soundAtlas.reason.typicalCalendar";
+  if (r.startsWith("typical_not_applicable(")) return "soundAtlas.reason.typicalWeekend";
+  if (r === "typical_flow_null") return "soundAtlas.reason.typicalMissing";
+  if (r === "typical_sample_insufficient") return "soundAtlas.reason.typicalSample";
   if (r === "roadwork_city_not_covered") return "soundAtlas.reason.roadworkNotCovered";
   if (r === "outside_snapshot_bbox") return "soundAtlas.reason.outsideSnapshot";
   if (r === "permit_window_work_hours_unknown") return "soundAtlas.reason.workHours";

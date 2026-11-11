@@ -85,7 +85,7 @@
   "soundAtlas.profile.chartLabel": "{family} 24-hour relative potential",
   "soundAtlas.profile.none": "Shown after placing a listening point",
   "soundAtlas.family.rail": "Trains",
-  "soundAtlas.family.roadTraffic": "Road-type proxy",
+  "soundAtlas.family.roadTraffic": "Road traffic (estimated)",
   "soundAtlas.family.roadwork": "Roadwork",
   "soundAtlas.precision.trackProgress": "Track geometry + station interpolation",
   "soundAtlas.precision.roadLine": "Freeway section line",
@@ -109,5 +109,16 @@
   "soundAtlas.structure.elevated": "Elevated",
   "soundAtlas.structure.atGrade": "At grade",
   "soundAtlas.structure.surface": "Mixed surface/elevated",
-  "soundAtlas.structure.unknown": "Unknown"
+  "soundAtlas.structure.unknown": "Unknown",
+  "soundAtlas.evidence.estimated": "Typical-value estimate",
+  "soundAtlas.provider.vdTypical": "Taipei VD weekday typical values",
+  "soundAtlas.precision.vdPoint": "VD detector point",
+  "soundAtlas.timePrecision.typicalHourly": "Weekday typical (hourly)",
+  "soundAtlas.reason.typicalWeekend": "Weekend or public holiday: no reliable typical value",
+  "soundAtlas.reason.typicalAnomaly": "Anomalous day (e.g. typhoon): no same-day observation, typical value not applicable",
+  "soundAtlas.reason.typicalCalendar": "Holiday calendar does not cover this date; cannot tell if it is a weekday",
+  "soundAtlas.reason.typicalMissing": "No valid typical volume for this hour",
+  "soundAtlas.reason.typicalSample": "Too few sample days for this hour",
+  "soundAtlas.row.typicalNote": "Estimate: Dec 2025–Jan 2026 weekday typical value ({days}-day sample), not a same-day observation",
+  "soundAtlas.health.okNotPublished": "OK (this city publishes no roadwork)"
 }

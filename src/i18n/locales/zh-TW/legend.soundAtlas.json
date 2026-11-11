@@ -9,5 +9,6 @@
   "legend.soundAtlas.rail": "列車（地面／高架，依班表）：地下段不發聲；結構不明的路段顯示無法判斷",
   "legend.soundAtlas.roadTraffic": "道路類型 proxy（只有國道，無車流量）：離國道越近越高；其他道路無資料",
   "legend.soundAtlas.roadwork": "道路施工許可期間（可能施工，許可≠機具運轉）；臺北市等未發布施工的縣市：未涵蓋",
-  "legend.soundAtlas.attribution": "出處：鐵道結構 © OpenStreetMap contributors（ODbL）；施工 TDX 縣市預告事件；道路 TDX 國道路況（壅塞等級，非流量）"
+  "legend.soundAtlas.attribution": "出處：鐵道結構 © OpenStreetMap contributors（ODbL）；施工 TDX 縣市預告事件；道路 TDX 國道路況（壅塞等級，非流量）",
+  "legend.soundAtlas.roadTypical": "臺北市道路車流：VD 平日典型值（2025/12–2026/01，約 8 天樣本，非當日觀測）；週末、國定假日、颱風等異常日無法判斷"
 }
