@@ -643,9 +643,9 @@ CANOPY_HALF_M = 3000.0
 CANOPY_CELL_M = 30.0
 CANOPY_ZOOM = (6, 12)
 COAST_PAD_KM = 2.0
-RIVER_NET_HALF_KM = 10.0
+RIVER_NET_HALF_KM = 6.0
 SIMPLIFY_COAST_M = 20.0
-SIMPLIFY_RIVER_M = 10.0
+SIMPLIFY_RIVER_M = 15.0
 GIS_ROOT = os.path.abspath(os.path.join(REPO, "..")) if os.path.basename(os.path.dirname(REPO)) != ".worktrees" else os.path.abspath(os.path.join(REPO, "..", "..", ".."))
 # public 大檔（樹冠 PMTiles、河道、水位站）不在 git：worktree 沒有時退回主 checkout
 DEFAULT_PUBLIC = os.path.join(REPO, "public") if os.path.exists(os.path.join(REPO, "public", "forestry", "canopy_height_rgb_taiwan.pmtiles")) else os.path.join(GIS_ROOT, "mini-taiwan-pulse", "public")

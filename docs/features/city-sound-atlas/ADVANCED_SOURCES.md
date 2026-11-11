@@ -61,7 +61,7 @@
 | `river` | `stations[{id,name,lon,lat,q:{probs,values,n}}]`、`obs[[站序, unix, 水位]]`、`history_basis`、health | 站：bbox 外擴 5 km |
 | `canopy` | `bbox,nx,ny,heights[]`（row 0 最北，-1＝遮罩） | 接收點 ±3 km、30 m 格網（200×200，約 140 KB） |
 | `coast` | 近岸海域 MultiPolygon（DP 20 m） | 與 bbox 外擴 2 km 相交的面 |
-| `river_network` | MultiLineString（DP 10 m） | 接收點 ±10 km |
+| `river_network` | MultiLineString（DP 15 m） | 接收點 ±6 km（±10 km 時臺北場景逼近 2 MB） |
 
 health：時變子區塊的 archive 存在且有資料＝ok、存在但 0 筆＝empty、缺檔／讀取失敗＝error；前端 coverage 直接取 health，不以 bbox 內筆數重判。
 **場景檔是 gitignored 的 public 資產**：合併 W5 分支後，要在有場景檔的 checkout 重跑上面的指令（或從 W5 worktree 複製），再 `build-public-assets-lock.py add` 登記 lock。
