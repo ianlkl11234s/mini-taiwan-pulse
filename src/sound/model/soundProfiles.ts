@@ -12,7 +12,7 @@
  * 0.2.0（W4）：新增 MVP-B 三族（RAIL／ROAD_TRAFFIC／ROADWORK）參數；MVP-A 四族參數不變。
  * 0.3.0（W5）：新增自然聲源三族（WIND_VEGETATION／COASTAL_WAVE／RIVER_WATER）與路線剖面（ROUTE）參數；既有七族參數不變。
  */
-export const MODEL_VERSION = "sound-atlas-w5-0.3.0";
+export const MODEL_VERSION = "sound-atlas-mvp-b-0.3.0";
 
 export interface AssumedParam<T> {
   value: T;
@@ -156,6 +156,10 @@ export const RIVER_WATER = {
   halfPotentialDistanceM: p(80, "離河道 80 m 時距離係數 0.5（啟發式；不分堤防、河寬、落差）。"),
   maxStationDistanceM: p(5_000, "最近水位站超過 5 km → unknown。未驗證測站與河道是否同一條河（station_river_match_unverified）。"),
   minHistorySamples: p(24 * 14, "分位數至少要 14 天×24 小時的歷史；不足 → unknown（no_station_history_quantiles）。"),
+  liveStationExtent: p(
+    [118, 21.5, 123, 26.5] as readonly [number, number, number, number],
+    "即時 RPC 回全台水位站：站點清單的完整範圍＝臺灣本島與離島外框（接收點在外 → unknown）。",
+  ),
   historyWindowDays: p(60, "分位數用場景日之前 60 天（不含當天）的每小時水位；當天不進基準，避免自我比較。"),
   bucketDurationS: p(3_600, "水位每站每小時取最後一筆（與 get_river_water_level_day 同口徑），代表該小時。"),
 } as const;

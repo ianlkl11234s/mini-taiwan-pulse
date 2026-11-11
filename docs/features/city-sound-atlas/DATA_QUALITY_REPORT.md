@@ -145,18 +145,18 @@ focus_time：臺北 07:39:30 鐵道 0.074（881 m，elevated）；和平 10:25:3
 
 ## 9. W5（2026-11-11）：自然聲源 `natural` 區塊與三族引擎實跑
 
-模型 `sound-atlas-w5-0.3.0`。查核與口徑見 [ADVANCED_SOURCES.md](./ADVANCED_SOURCES.md)。
+模型 `sound-atlas-mvp-b-0.3.0`。查核與口徑見 [ADVANCED_SOURCES.md](./ADVANCED_SOURCES.md)。
 
 **快照變更**：`build-sound-scenes.py --merge-w5`（只讀 S3 與本機檔，不需資料庫）在三個場景檔加 `natural` 區塊。
-⚠️ 本次是在 W5 worktree 用 UI worktree 的場景檔（**沒有** W4 的 `roadwork` 區塊）重跑的；合併後要在同一份檔案上依序跑 `--merge-mvp-b` 與 `--merge-w5`，再重登記 lock。
+本次在 W5 worktree 用 UI worktree 的場景檔（當時沒有 `roadwork`）跑 `--merge-w5`，之後再跑 `--merge-mvp-b`；兩區塊都在、互不覆蓋。場景檔只存在 W5 worktree（gitignored），lock 未改。
 
-| id | 檔案（含 natural，未含 roadwork） | 風 health／站 | 浪 health／站 | 河川 health／站（分位基準） | 樹冠格網 | 海岸面 | 河道 |
+| id | 檔案（含 natural，未含 roadwork；加 roadwork 後實測：1,870／374／1,457 KB） | 風 health／站 | 浪 health／站 | 河川 health／站（分位基準） | 樹冠格網 | 海岸面 | 河道 |
 |---|---|---|---|---|---|---|---|
 | taipei-1109 | 1,867 KB | ok／128 | ok／32 | ok／87（09-10..11-08，60 天） | ±3 km、200×200 | 有 | ±6 km |
 | taichung-heping-1108 | 373 KB | ok／66 | ok／32 | ok／7 | 同上 | 有 | ±6 km |
 | taipei-typhoon-1024 | 1,456 KB | ok／117 | ok／32 | ok／82（08-25..10-23，60 天） | 同上 | 有（5 面） | ±6 km |
 
-taipei-1109 已接近 2 MB 上限（再加 roadwork 約 +數 KB～數十 KB，要實測）；河道原本裁 ±10 km（1,957 KB），已縮到 ±6 km、DP 15 m。
+taipei-1109 加 roadwork 後 1,870 KB（<2 MB）；河道原本裁 ±10 km（1,957 KB），已縮到 ±6 km、DP 15 m。
 
 **引擎實跑**（場景接收點，10 分鐘格 ×144）：
 

@@ -38,9 +38,12 @@ import type {
 export const SOUND_FAMILIES: readonly SoundSourceFamily[] = ["aviation", "rain", "thunder", "waste_collection"];
 /** MVP-B 三族（W4；UI 接線前呼叫端要明確傳入 families 才會查） */
 export const SOUND_FAMILIES_MVP_B: readonly MvpBSoundFamily[] = ["rail", "road_traffic", "roadwork"];
-/** W5 自然聲源三族（UI 接線前呼叫端要明確傳入 families 才會查） */
+export const SOUND_FAMILIES_ALL: readonly AnySoundFamily[] = [...SOUND_FAMILIES, ...SOUND_FAMILIES_MVP_B];
+/**
+ * W5 自然聲源三族：**刻意不併入 SOUND_FAMILIES_ALL**（UI 以它當家族清單，併入會讓未接線的 UI 收到不認得的家族）。
+ * 要查時明確傳入，例：[...SOUND_FAMILIES_ALL, ...SOUND_FAMILIES_ADVANCED]。
+ */
 export const SOUND_FAMILIES_ADVANCED: readonly AdvancedSoundFamily[] = ["wind_vegetation", "coastal_wave", "river_water"];
-export const SOUND_FAMILIES_ALL: readonly AnySoundFamily[] = [...SOUND_FAMILIES, ...SOUND_FAMILIES_MVP_B, ...SOUND_FAMILIES_ADVANCED];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyQuery = IntervalQuery<never, any>;

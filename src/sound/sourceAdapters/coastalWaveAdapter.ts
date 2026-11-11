@@ -116,7 +116,9 @@ export const queryCoastalWaveInterval: IntervalQuery<CoastalWavePayload, typeof 
   if (!extents.some((b) => insideBbox(lon, lat, b))) return unknown("outside_wave_station_extent", coastD, t0, [coastNote]);
   const obs = records.flatMap((r) => (r.payload.kind === "wave_obs" ? [r.payload] : []));
   const maxD = COASTAL_WAVE.maxStationDistanceM.value;
-  const nearest = nearestStation(obs, lon, lat);
+  // 只考慮當日至少有一筆浪高與週期的站
+  const reporting = new Set(obs.filter((o) => o.waveHeightM != null && o.wavePeriodS != null).map((o) => o.stationId));
+  const nearest = nearestStation(obs.filter((o) => reporting.has(o.stationId)), lon, lat);
   if (!nearest || nearest.distanceM > maxD) {
     return unknown(`no_wave_station_within_${maxD}m`, coastD, t0, [coastNote, ...(nearest ? [stationLabel(nearest.station, nearest.distanceM)] : [])]);
   }

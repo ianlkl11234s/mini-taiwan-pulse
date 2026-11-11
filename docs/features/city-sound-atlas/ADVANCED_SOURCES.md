@@ -1,6 +1,6 @@
 # ADVANCED_SOURCES — W5 自然聲源（N03 風×植被、N04 海浪×海岸、N05 河川水聲）與路線剖面
 
-> W5（2026-11-11），模型版本 `sound-atlas-w5-0.3.0`。引擎與 adapter 已接，**UI 尚未接線**。
+> W5（2026-11-11），模型版本 `sound-atlas-mvp-b-0.3.0`（只升 minor；前綴沿用）。引擎與 adapter 已接，**UI 尚未接線**。
 > 三族都是**活動 proxy**：風速≠聲級、浪高≠岸邊聽到的浪聲、水位≠流量≠聲音。輸出仍是無單位 0–1 相對潛勢，不是 dB。
 > 遮蔽、校準、四種產品語意、N06 雨打材質見 [ADVANCED_RESEARCH.md](./ADVANCED_RESEARCH.md)。
 
@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 | N03 風×植被 | CWA O-A0001-001 全測站逐時（collector `weather.py`）。Supabase `live.weather_observations` 保留 21 天、**沒有 public RPC**。S3 正本 `weather/archives/<D>.tar.gz`：每小時一個 json（`weather_HH58.json`，obs_time＝整點），每檔約 876 站，含座標、海拔、`wind_speed`、`gust_speed` | 10-24 全台 21,024 筆整點觀測；風速缺值 41 站／小時左右，沒有負值缺測碼（仍防呆：負值 → null） | Meta/WRI 2020 10 m 樹冠高度 `public/forestry/canopy_height_rgb_taiwan.pmtiles`（PNG RGBA、z6–12；R＝公尺、A＝遮罩）。**實測 A=0 同時代表「無 ≥1 m 樹冠」「海」「無資料」**：所有 A=255 的像素 R≥1，從不出現 R=0 | 無 → coverage `unavailable`（no_public_rpc_for_weather_observations），家族 unknown |
 | N04 海浪×海岸 | CWA O-B0075 浮標／潮位站逐時（collector `cwa_marine_observation.py`）。S3 `cwa_marine_observation/archives/<D>.tar.gz` 約 40 MB／天，每 15 分鐘一個 json，**每個 json 含滾動 48 小時**讀數 → D+1 包的第一個 json 涵蓋 D 全天，用 range GET 只讀檔頭約 4 MB | 10-24：32 個有浪高的站、768 小時列；`wave_height` 有 402 筆 null（保持 null）、最大 12.4 m | 國家公園署 111 年「海岸地區範圍」（analytics `coastal_area_extents.geojson`，data.gov.tw 20821，政府資料開放授權第 1 版）的 **近岸海域** 面當海岸線 proxy（自平均低潮線起算，**不是現行海岸線**） | 即時 RPC 只有逐站逐指標 history（一天要數十次呼叫）→ 本版 `unavailable`（live_marine_loader_not_wired） |
-| N05 河川水聲 | 水利署河川水位（collector `river_water_level.py`，10 分鐘）。即時 `get_river_water_level_day`（每站每小時最後一筆，含座標）；S3 `river_water_level/archives/<D>.tar.gz`（約 0.5 MB／天，**沒有座標**），2026-04-19 起有歸檔 | 10-24 全台 374 站；與 `public/geo/water_monitor_stations.geojson`（station_type=river_level）join 359／374（15 站無座標、不放） | 河道線 `public/geo/water_rivers.geojson`（2,015 條 MultiLineString，河名欄位空白）；歷史分位＝場景日前 60 天（不含當天）每小時水位 | 讀 RPC；分位檔 `/sound-atlas/river-level-quantiles.json` 與河道幾何**尚未產出** → unknown |
+| N05 河川水聲 | 水利署河川水位（collector `river_water_level.py`，10 分鐘）。即時 `get_river_water_level_day`（每站每小時最後一筆，含座標）；S3 `river_water_level/archives/<D>.tar.gz`（約 0.5 MB／天，**沒有座標**），2026-04-19 起有歸檔 | 10-24 當日全台 370 站有讀數（archive 檔另含前一日 23:50 讀數時為 374）；與 `public/geo/water_monitor_stations.geojson`（station_type=river_level）join 後 15 站無座標、不放 | 河道線 `public/geo/water_rivers.geojson`（2,015 條 MultiLineString，河名欄位空白）；歷史分位＝場景日前 60 天（不含當天）每小時水位 | 讀 RPC；分位檔 `/sound-atlas/river-level-quantiles.json` 與河道幾何**尚未產出** → unknown |
 
 **時效提醒**：`live.weather_observations` 只留 21 天，但 S3 `weather/archives/` 是完整正本，所以風不受 Supabase 保留期影響（本版完全不需要 `SUPABASE_DB_URL`）。
 
@@ -21,7 +21,7 @@
 - 潛勢 = `windPotential(v) × vegetationFactor(cover)`。
   - `windPotential = 1 − exp(−(v − 1.5)/6)`，v≤1.5 m/s → 0（5 m/s ≈ 0.44、10 m/s ≈ 0.76）。
   - `cover` = 接收點 100 m 內樹冠 ≥3 m 的格點比例；`vegetationFactor = min(1, cover/0.5)`。
-- 最近有風速的站 ≤8 km；整點觀測代表其後 1 小時；該小時缺列或風速 null → unknown。
+- 最近「當日至少有一筆風速」的站 ≤8 km（整天沒回報的站不參與挑選）；整點觀測代表其後 1 小時；該小時缺列或風速 null → unknown。
 - 植被判定順序：沒有樹冠格網／接收點不在格網內 → `unknown(vegetation_not_sampled)`；100 m 內**全部** A=0 → `unknown(canopy_masked_ambiguous)`；有任一格點有值時，其餘 A=0 才視為「沒有 ≥1 m 樹冠」；覆蓋 0 → **inactive**。
 - **不推論建築區紊流／風切聲**（`WIND_VEGETATION.urbanTurbulence=false`）。
 - 已知限制：測站高度（陽明山站 607 m）與接收點高度差、山谷風、樹種（針葉／闊葉聲音不同）都沒處理；陣風只進 notes。
@@ -29,14 +29,14 @@
 ### 2.2 N04 海浪×海岸（family `coastal_wave`，proxyKind `wave_height_period_x_coast_distance`）
 
 - 海岸距離 = 接收點到近岸海域面的最短距離（點在面內＝0）。**> 1 km → inactive**（不論浪資料健康與否）。
-- 最近有浪高的站 ≤40 km；該小時浪高或週期任一 null → unknown。
+- 最近「當日至少有一筆浪高＋週期」的站 ≤40 km；該小時浪高或週期任一 null → unknown。
 - 潛勢 = `(1 − exp(−Hs²·T/18)) × proximity(海岸距離, 250 m)`。Hs²T 正比於深水波能通量，只取單調性。
 - 不推近岸衰減、岸型（沙灘／礁岩／消波塊）、地形遮蔽、波向；浮標在外海，代表的是「該海域浪況」。
 
 ### 2.3 N05 河川水聲（family `river_water`，proxyKind `water_level_percentile`）
 
 - 河道距離 > 300 m → inactive；沒有河道幾何 → unknown。
-- 最近水位站 ≤5 km；**沒有自身歷史分位或樣本 <336 小時（14 天）→ unknown(no_station_history_quantiles)**。
+- 最近「當日至少有一筆水位」的站 ≤5 km；**沒有自身歷史分位或樣本 <336 小時（14 天）→ unknown(no_station_history_quantiles)**。
 - 分位 = 當小時水位在該站 60 天歷史分位表（p05…p99）中的線性內插位置；潛勢 = 分位 × proximity(河道距離, 80 m)。
 - 每筆貢獻固定帶 `water_level_is_not_flow_or_sound`、`station_river_match_unverified`、`tidal_influence_unverified`。
   實例：10-24 `磺溪河口`（1010H007）p99 1.04 m、當日最高 1.06 m——河口站的水位高點很可能是潮汐，不是流量。
@@ -45,13 +45,13 @@
 
 - 沿 LineString 每 50 m 取樣（含終點），超過 2,000 點時加大間距、不截斷。
 - 每點時間 = 出發 + 累積距離 ÷ 速度；步行 1.3 m/s、自行車 4 m/s、custom 由呼叫端給（等速，不含停等，標 assumption）。
-- 每點 `queryReceiver`（瞬時）；`families` 要明確傳（預設只有 MVP-A 四族）。
+- 每點 `queryReceiver`（**瞬時**）：落在兩個樣本之間的短事件（例：8 秒的雷聲 envelope、1 分鐘的垃圾車停靠）會漏掉，剖面不保證捕捉短於「取樣間距÷速度」（步行約 38 秒、自行車約 12 秒）的事件；`families` 要明確傳（預設只有 MVP-A 四族）。
 - 跨午夜：呼叫端要把兩天的來源集合都傳進來；只給一天 → 過午夜的點 `unavailable`（測試已釘）。
 - 輸出 `samples[]`（距離、時間、各族結果、dominant）、各族序列與 unknownRatio、`activeSampleCount`。**措辭只能說「沿途主要接觸哪些聲源」，不可叫噪音暴露量**。
 
 ## 3. 場景快照區塊 `natural`（schema `pulse-sound-natural-v1`）
 
-產生：`AWS_PROFILE=pulse-personal python3 -I scripts/preprocess/build-sound-scenes.py --merge-w5 [--scene ID]`
+產生：`AWS_PROFILE=… python3 -I scripts/preprocess/build-sound-scenes.py --merge-w5 [--scene ID]`
 （只用 S3 與本機檔；`--public-dir` 預設 worktree 的 public，沒有樹冠檔時退回主 checkout；`--coast-geojson` 預設 analytics processed 路徑）。
 
 | 子區塊 | 內容 | 範圍 |
@@ -83,7 +83,8 @@ health：時變子區塊的 archive 存在且有資料＝ok、存在但 0 筆＝
 ### 6.1 型別與載入
 
 - `AdvancedSoundFamily = "wind_vegetation" | "coastal_wave" | "river_water"`（`types.ts`），已併入 `AnySoundFamily`，**未**併入 `SoundSourceFamily`。接 UI 時把它併入 `SoundSourceFamily`，並補齊所有 `Record<SoundSourceFamily, …>`（清單同 MVP_B_SOURCES.md §6）。
-- `SOUND_FAMILIES_ADVANCED`（`engines/receiverQuery.ts`）；`SOUND_FAMILIES_ALL` 已包含。
+- `SOUND_FAMILIES_ADVANCED`（`engines/receiverQuery.ts`）；**刻意不併入 `SOUND_FAMILIES_ALL`**（UI 的 `useSoundAtlasLayer` 以它當家族清單）。UI 接線時再把三族加進去。
+- **合併注意**：UI 分支把 `AnySoundFamily` 改成 `= SoundSourceFamily`，與本分支 `types.ts` 同一行衝突；解法是 `export type AnySoundFamily = SoundSourceFamily | AdvancedSoundFamily;`（保留本分支的 `AdvancedSoundFamily` 宣告與 `proxyKind` 三個新值）。
 - 載入：`loadAdvancedFamily(family, date, snapshotJson | null)`（`src/sound/advancedSources.ts`）；`snapshotJson` 只在 `snapshotApplies` 為真時傳。
 - 路線：`routeProfile(line, departUnix, sets, { mode, speedMps?, families })`；`sets` 要含出發日與抵達日。
 

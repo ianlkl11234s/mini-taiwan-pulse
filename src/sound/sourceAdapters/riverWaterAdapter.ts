@@ -136,7 +136,9 @@ export const queryRiverWaterInterval: IntervalQuery<RiverWaterPayload, typeof FA
   // 2. 水位站與分位
   const extents = records.flatMap((r) => (r.payload.kind === "station_extent" ? [r.payload.bbox] : []));
   if (!extents.some((b) => insideBbox(lon, lat, b))) return unknown("outside_river_station_extent", chD, t0, [chNote]);
-  const stations = records.flatMap((r) => (r.payload.kind === "river_station" ? [r.payload] : []));
+  // 只考慮當日至少有一筆水位的站（整天沒回報的站不該擋住範圍內正常的站）
+  const reporting = new Set(records.flatMap((r) => (r.payload.kind === "river_obs" && r.payload.levelM != null ? [r.payload.stationId] : [])));
+  const stations = records.flatMap((r) => (r.payload.kind === "river_station" && reporting.has(r.payload.stationId) ? [r.payload] : []));
   const maxD = RIVER_WATER.maxStationDistanceM.value;
   const nearest = nearestStation(stations, lon, lat);
   if (!nearest || nearest.distanceM > maxD) {
@@ -240,7 +242,7 @@ export async function loadRiverWater(ctx: { date: string }, fetchers: RiverFetch
       ...riverObsToRecords(obs),
       ...riverStationRecords([...stations.values()], ctx.date),
       // 即時 RPC 是全台：站點範圍＝全台
-      riverExtentRecord([118, 21.5, 123, 26.5], ctx.date),
+      riverExtentRecord(RIVER_WATER.liveStationExtent.value, ctx.date),
       ...(net ? [riverNetworkRecord(net.bbox, net.geometry, ctx.date)] : []),
     ];
     return { family: FAMILY, dateKey: ctx.date, records, coverage: [{ ...base, status: obs.length ? "ok" : "empty", reason: obs.length ? undefined : "no_river_level_rows_for_date" }] };

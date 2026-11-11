@@ -93,8 +93,15 @@ describe("advanced families via receiverQuery", () => {
     b.wind!.obs = b.wind!.obs.filter(([, t]) => t !== T10);
     expect(queryFamilyInterval("wind_vegetation", setsOf(b), RECV, T10, T10)).toMatchObject({ status: "unknown", reason: "station_hour_missing" });
     const n = block();
-    n.wind!.obs = n.wind!.obs.map(([i, t]) => [i, t, null, null]);
+    n.wind!.obs = n.wind!.obs.map(([i, t, ws, g]) => (t === T10 ? [i, t, null, null] : [i, t, ws, g]));
     expect(queryFamilyInterval("wind_vegetation", setsOf(n), RECV, T10, T10)).toMatchObject({ status: "unknown", reason: "wind_speed_null", relativePotential: null });
+  });
+
+  it("wind: a never-reporting nearer station does not shadow a reporting one", () => {
+    const b = block();
+    b.wind!.stations.push({ id: "W0", name: "壞站", lon: RECV.longitude, lat: RECV.latitude, alt_m: 0 });
+    b.wind!.obs.push(...b.wind!.obs.map(([, t]) => [1, t, null, null] as [number, number, null, null]));
+    expect(queryFamilyInterval("wind_vegetation", setsOf(b), RECV, T10, T10).status).toBe("active");
   });
 
   it("wind: station too far → unknown", () => {
@@ -123,7 +130,7 @@ describe("advanced families via receiverQuery", () => {
 
   it("wave: near coast but height/period missing → unknown; no coastline → unknown", () => {
     const b = block();
-    b.wave!.obs = b.wave!.obs.map(([i, t, hs]) => [i, t, hs, null]);
+    b.wave!.obs = b.wave!.obs.map(([i, t, hs, tp]) => [i, t, hs, t === T10 ? null : tp]);
     expect(queryFamilyInterval("coastal_wave", setsOf(b), RECV, T10, T10)).toMatchObject({ status: "unknown", reason: "wave_height_or_period_null", relativePotential: null });
     expect(queryFamilyInterval("coastal_wave", setsOf(block({ coast: undefined })), RECV, T10, T10)).toMatchObject({ status: "unknown", reason: "coastline_not_loaded_here" });
   });

@@ -172,7 +172,9 @@ export const queryWindVegetationInterval: IntervalQuery<WindVegetationPayload, t
   // 2. 風（時變）
   if (!extents.some((b) => insideBbox(lon, lat, b))) return unknown("outside_wind_station_extent", null, t0, [coverNote]);
   const maxD = WIND_VEGETATION.maxStationDistanceM.value;
-  const nearest = nearestStation(obs, lon, lat);
+  // 只考慮當日至少有一筆風速的站（整天沒回報的站不該擋住範圍內正常的站）
+  const reporting = new Set(obs.filter((o) => o.windSpeedMs != null).map((o) => o.stationId));
+  const nearest = nearestStation(obs.filter((o) => reporting.has(o.stationId)), lon, lat);
   if (!nearest || nearest.distanceM > maxD) {
     return unknown(`no_wind_station_within_${maxD}m`, nearest?.distanceM ?? null, t0, [coverNote, ...(nearest ? [stationLabel(nearest.station, nearest.distanceM)] : [])]);
   }
