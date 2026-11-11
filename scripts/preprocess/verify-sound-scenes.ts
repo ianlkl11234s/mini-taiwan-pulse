@@ -14,6 +14,8 @@
  *     結果只代表「這套班表下」的可能列車，不可當場景日的實際列車。
  *   - 道路車流：只能即時讀 get_freeway_congestion_day，node 讀不到 → 不載入（unavailable／source_not_loaded）。
  *
+ * W5：自然聲源三族讀快照 `natural` 區塊（advancedSources.naturalSnapshotSet）；沒有區塊 → 不載入（unavailable）。
+ *
  * 不是 vitest 測試（CI 沒有 public 資料檔）。用法：
  *   npx vite-node scripts/preprocess/verify-sound-scenes.ts [--scene ID] [--receiver lon,lat] [--json OUT] [--rail-dir DIR]
  */
@@ -30,6 +32,8 @@ import { dayProfile, queryReceiver } from "../../src/sound/engines/receiverQuery
 import { taipeiMidnightMs } from "../../src/lib/taipeiDay";
 import type { AnySoundFamily, Receiver, SoundSourceFamily, SoundSourceSet, SourceCoverage, SourceHealth } from "../../src/sound/types";
 import { parseMvpBSceneBlocks, parseSystemSchedule, parseTraSchedule, roadworkSnapshotSet } from "../../src/sound/mvpBSources";
+import { naturalSnapshotSet, parseNaturalBlock } from "../../src/sound/advancedSources";
+import { SOUND_FAMILIES_ADVANCED } from "../../src/sound/engines/receiverQuery";
 import { loadRail, RAIL_SYSTEMS, type RailFetchers, type RailTrackInput } from "../../src/sound/sourceAdapters/railAdapter";
 
 type Health = "ok" | "empty" | "error";
@@ -49,7 +53,7 @@ interface Scene {
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const DIR = path.join(ROOT, "public/sound-atlas/scenes");
-const FAMILIES: AnySoundFamily[] = ["aviation", "rain", "thunder", "rail", "road_traffic", "roadwork"];
+const FAMILIES: AnySoundFamily[] = ["aviation", "rain", "thunder", "rail", "road_traffic", "roadwork", "wind_vegetation", "coastal_wave", "river_water"];
 
 // ── 鐵道：本機固定時刻表範本（node 端，不經 Supabase） ─────────────
 function readJson(p: string): unknown {
@@ -104,6 +108,12 @@ export async function sceneToSetsWithMvpB(s: Scene): Promise<SoundSourceSet<unkn
   const rw = parseMvpBSceneBlocks(s).roadwork;
   if (rw) sets.push(roadworkSnapshotSet(rw, s.date) as SoundSourceSet<unknown, AnySoundFamily>);
   if (existsSync(RAIL_DIR)) sets.push(await railSet(s.date));
+  // W5：natural 區塊（風、浪、河川）；沒有區塊 → 不載入（unavailable／source_not_loaded）
+  const nat = parseNaturalBlock(s);
+  if (nat) for (const f of SOUND_FAMILIES_ADVANCED) {
+    const set = naturalSnapshotSet(nat, f, s.date);
+    if (set) sets.push(set as SoundSourceSet<unknown, AnySoundFamily>);
+  }
   return sets;
 }
 

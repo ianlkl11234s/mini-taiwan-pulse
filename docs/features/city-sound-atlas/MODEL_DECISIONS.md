@@ -1,6 +1,6 @@
 # MODEL_DECISIONS — 聲源 kernel、單位與假設
 
-> 模型版本：`sound-atlas-mvp-b-0.2.0`（`src/sound/model/soundProfiles.ts` 的 `MODEL_VERSION`；§0–§4 為 MVP-A `0.1.0` 的決定，參數未變）。
+> 模型版本：`sound-atlas-mvp-b-0.3.0`（`src/sound/model/soundProfiles.ts` 的 `MODEL_VERSION`；§0–§4 為 MVP-A `0.1.0` 的決定、§5 為 `0.2.0`、§6 為 `0.3.0`，既有參數未變）。
 > 依據：使用者提供的擴充計畫（2026-11-11）§5–§7。**主計劃 01（前一次交付的 `01_CITY_SOUND_ATLAS_HANDOFF.md`）不在手上**，凡兩者可能衝突處，一律以擴充計畫為準。
 
 ## 0. 總原則
@@ -157,3 +157,13 @@ ADR-0025 的情境推演模式是「analytics 預先算好固定情境 → `outp
 - 缺值：該小時流量 null → unknown `typical_flow_null`；樣本天數 < `minFlowDays`（3）→ unknown `typical_sample_insufficient`；典型流量為 0（夜間無車）→ 不產生貢獻（有效的 0）。
 - 資料：`public/sound-atlas/vd-baseline-taipei.json`（`scripts/preprocess/build-sound-vd-baseline.py`；public-assets lock 登記）。基準表 679 支 VD，設備檔沒有座標的 8 支剔除（不合成座標），輸出 671 支。週末流量不輸出（上游 TotalVolume 凍結）。
 - UI 必寫：「推估：2025/12–2026/01 平日典型值（N 天樣本），非當日觀測」。
+
+## 6. W5（2026-11-11）：自然聲源三族與路線剖面
+
+> 模型版本升為 `sound-atlas-mvp-b-0.3.0`（只新增 WIND_VEGETATION／COASTAL_WAVE／RIVER_WATER／ROUTE 參數，既有七族不變）。口徑、查核、UI 接線規格見 [ADVANCED_SOURCES.md](./ADVANCED_SOURCES.md)；遮蔽與校準研究見 [ADVANCED_RESEARCH.md](./ADVANCED_RESEARCH.md)。
+
+- 型別：`AdvancedSoundFamily` 併入 `AnySoundFamily`、不併入 `SoundSourceFamily`（同 §5.1 理由）；`proxyKind` 新增 `wind_speed_x_canopy`、`wave_height_period_x_coast_distance`、`water_level_percentile`。
+- 三族都先判「靜態脈絡」（樹冠／海岸／河道）：脈絡缺 → unknown；脈絡在但沒有候選（無樹、離海 >1 km、離河 >300 m）→ inactive；之後才看時變資料，缺 → unknown。
+- 樹冠 A=0 同時代表無樹／海／無資料：範圍內全部 A=0 → unknown；有任一格有值才把其餘 A=0 當無樹。
+- 河川活動＝水位在該站前 60 天（不含當天）分位表中的位置；沒有分位或樣本 <336 小時 → unknown。
+- 路線剖面：等距取樣、每點時間＝出發＋距離÷速度、逐點瞬時查詢；跨日由 coverage 時間窗挑對的那天。
