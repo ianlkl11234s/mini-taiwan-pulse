@@ -89,12 +89,15 @@ const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
 type LngLat = [number, number];
 
-/** 線／多線幾何上離 (lon,lat) 最近的那條線，沿線前後各 halfM 公尺的子折線（局部等距投影） */
-export function nearbyPath(g: GeoJSON.Geometry | null | undefined, lon: number, lat: number, halfM: number): LngLat[] | null {
+/**
+ * 線／多線幾何在 (lon,lat) 附近的河道片段：先找最近點，再取所有頂點落在最近點 halfM 公尺內的連續片段
+ * （河道線被切成很多短段，只取「那一條」會只剩一小截）。回傳多條折線；沒有線 → null。
+ */
+export function nearbyPaths(g: GeoJSON.Geometry | null | undefined, lon: number, lat: number, halfM: number): LngLat[][] | null {
   if (!g) return null;
   const lines: LngLat[][] = g.type === "LineString" ? [g.coordinates as LngLat[]] : g.type === "MultiLineString" ? (g.coordinates as LngLat[][]) : [];
   const kx = M_PER_DEG * Math.cos(lat * (Math.PI / 180));
-  let best: { line: LngLat[]; i: number; u: number; d: number } | null = null;
+  let best: { x: number; y: number; d: number } | null = null;
   for (const line of lines) {
     for (let i = 0; i + 1 < line.length; i++) {
       const a = line[i]!, b = line[i + 1]!;
@@ -102,25 +105,32 @@ export function nearbyPath(g: GeoJSON.Geometry | null | undefined, lon: number, 
       const dx = (b[0] - a[0]) * kx, dy = (b[1] - a[1]) * M_PER_DEG;
       const len2 = dx * dx + dy * dy;
       const u = len2 > 0 ? clamp01(-(ax * dx + ay * dy) / len2) : 0;
-      const d = (ax + u * dx) ** 2 + (ay + u * dy) ** 2;
-      if (!best || d < best.d) best = { line, i, u, d };
+      const x = ax + u * dx, y = ay + u * dy;
+      const d = x * x + y * y;
+      if (!best || d < best.d) best = { x, y, d };
     }
   }
   if (!best) return null;
-  const { line, i, u } = best;
-  const segM = (p: LngLat, q: LngLat) => Math.hypot((q[0] - p[0]) * kx, (q[1] - p[1]) * M_PER_DEG);
-  const a = line[i]!, b = line[i + 1]!;
-  const mid: LngLat = [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
-  const back: LngLat[] = [];
-  let acc = segM(a, mid);
-  back.push(a);
-  for (let j = i - 1; j >= 0 && acc < halfM; j--) { acc += segM(line[j]!, line[j + 1]!); back.push(line[j]!); }
-  const fwd: LngLat[] = [];
-  acc = segM(mid, b);
-  fwd.push(b);
-  for (let j = i + 2; j < line.length && acc < halfM; j++) { acc += segM(line[j - 1]!, line[j]!); fwd.push(line[j]!); }
-  return [...back.reverse(), mid, ...fwd];
+  const { x: cx, y: cy } = best;
+  const inside = (c: LngLat) => Math.hypot((c[0] - lon) * kx - cx, (c[1] - lat) * M_PER_DEG - cy) <= halfM;
+  const out: LngLat[][] = [];
+  for (const line of lines) {
+    let cur: LngLat[] = [];
+    for (const c of line) {
+      if (inside(c)) cur.push(c);
+      else { if (cur.length >= 2) out.push(cur); cur = []; }
+    }
+    if (cur.length >= 2) out.push(cur);
+  }
+  return out.length ? out : null;
 }
+
+const pathLenDeg = (path: readonly LngLat[]) => {
+  const kx = Math.cos((path[0]?.[1] ?? 0) * (Math.PI / 180));
+  let L = 0;
+  for (let i = 0; i + 1 < path.length; i++) L += Math.hypot((path[i + 1]![0] - path[i]![0]) * kx, path[i + 1]![1] - path[i]![1]);
+  return L;
+};
 
 /** 折線上依比例（0–1，以長度計）取點 */
 export function pointAlong(path: readonly LngLat[], frac: number): LngLat {
@@ -332,7 +342,7 @@ export class SoundAtlasAnimator {
   private receiverFlashUntil = 0;
   private state: AnimatorState;
   /** 自然脈絡（海岸最近點、河道子折線）快取：records 或接收點換了才重算 */
-  private natural: { records: Map<string, SoundSourceRecord>; lon: number; lat: number; coast: LngLat | null; river: LngLat[] | null } | null = null;
+  private natural: { records: Map<string, SoundSourceRecord>; lon: number; lat: number; coast: LngLat | null; river: LngLat[][] | null } | null = null;
   /** 播放時的影格耗時（ms）：最近 120 幀，給效能紀錄用 */
   readonly frameMs: number[] = [];
 
@@ -501,18 +511,18 @@ export class SoundAtlasAnimator {
     return out;
   }
 
-  private naturalContext(): { coast: LngLat | null; river: LngLat[] | null } {
+  private naturalContext(): { coast: LngLat | null; river: LngLat[][] | null } {
     const { records, receiver } = this.state;
     if (!receiver) return { coast: null, river: null };
     const n = this.natural;
     if (n && n.records === records && n.lon === receiver.longitude && n.lat === receiver.latitude) return n;
     let coast: LngLat | null = null;
-    let river: LngLat[] | null = null;
+    let river: LngLat[][] | null = null;
     for (const r of records.values()) {
       if (r.family !== "coastal_wave" && r.family !== "river_water") continue;
       const p = r.payload as { kind?: string; geometry?: GeoJSON.Geometry };
       if (p.kind === "coast") coast = nearestPointOnGeometry(p.geometry, receiver.longitude, receiver.latitude);
-      else if (p.kind === "river_network") river = nearbyPath(p.geometry, receiver.longitude, receiver.latitude, RIVER_HALF_PATH_M);
+      else if (p.kind === "river_network") river = nearbyPaths(p.geometry, receiver.longitude, receiver.latitude, RIVER_HALF_PATH_M);
     }
     this.natural = { records, lon: receiver.longitude, lat: receiver.latitude, coast, river };
     return this.natural;
@@ -529,18 +539,18 @@ export class SoundAtlasAnimator {
     if (wind == null && wave == null && river == null) return;
     const cosLat = Math.cos(receiver.latitude * (Math.PI / 180));
 
-    // 風：接收點周圍 60–260 m 的葉子，數量∝潛勢，搖擺幅度與速度∝潛勢
+    // 風：接收點周圍 100–700 m 的葉子，數量∝潛勢，搖擺幅度與速度∝潛勢
     if (wind != null && wind > 0) {
       const o = clamp01(opacity.wind_vegetation);
       const n = Math.max(2, Math.round(wind * ANIM_CAPS.leaves));
       for (let i = 0; i < n; i++) {
         const ang = hash01(i, 7) * Math.PI * 2;
-        const dist = 60 + Math.sqrt(hash01(i, 13)) * 200;
+        const dist = 100 + Math.sqrt(hash01(i, 13)) * 600;
         const sway = Math.sin(nowMs / (900 - 450 * wind) + i * 1.7);
-        const drift = 12 * wind * sway;
+        const drift = 30 * wind * sway;
         const lon = receiver.longitude + (Math.cos(ang) * dist + drift) / (M_PER_DEG * cosLat);
         const lat = receiver.latitude + (Math.sin(ang) * dist + drift * 0.4) / M_PER_DEG;
-        out.push(pt(lon, lat, { kind: "leaf", size: 0.7 + 0.5 * hash01(i, 29), rot: hash01(i, 3) * 360 + sway * (15 + 35 * wind), opacity: (0.55 + 0.4 * wind) * o }));
+        out.push(pt(lon, lat, { kind: "leaf", size: 1.0 + 0.6 * hash01(i, 29), rot: hash01(i, 3) * 360 + sway * (15 + 35 * wind), opacity: (0.55 + 0.4 * wind) * o }));
       }
     }
 
@@ -554,29 +564,37 @@ export class SoundAtlasAnimator {
       const dy = (receiver.latitude - cy) * M_PER_DEG;
       const d = Math.hypot(dx, dy);
       const bearing = d > 1 ? Math.atan2(dy, dx) : Math.PI / 2;
-      const back = 260;
+      // 弧心放在海側 700 m，弧線一路推過接收點約 200 m（示意浪從海上湧來；不是傳播範圍）
+      const back = 700;
       const ox = cx - (Math.cos(bearing) * back) / (M_PER_DEG * cosLat);
       const oy = cy - (Math.sin(bearing) * back) / M_PER_DEG;
-      const reach = back + d + 60;
+      const reach = back + d + 200;
       const period = 4200 - 2200 * wave;
       for (let i = 0; i < ANIM_CAPS.waveArcs; i++) {
         const ph = ((nowMs / period + i / ANIM_CAPS.waveArcs) % 1 + 1) % 1;
-        const r = back * 0.6 + ph * (reach - back * 0.6);
-        out.push(strokeLine(arcLine(ox, oy, r, bearing, 0.55 + 0.2 * wave), SOUND_FAMILY_COLORS.coastal_wave, 2 + 3 * wave * (1 - ph), (1 - ph) * (0.35 + 0.6 * wave) * o, 0.6));
+        const r = back * 0.4 + ph * (reach - back * 0.4);
+        const fade = Math.min(1, ph * 4) * (1 - ph);
+        out.push(strokeLine(arcLine(ox, oy, r, bearing, 0.45 + 0.2 * wave, 24), SOUND_FAMILY_COLORS.coastal_wave, 2.5 + 3.5 * wave, fade * (0.5 + 0.9 * wave) * o, 0.8));
       }
     }
 
     // 河川：最近河道線淡底＋沿線移動的光點（數化方向，不代表流向）
-    if (river != null && river > 0 && ctx.river && ctx.river.length >= 2) {
+    if (river != null && river > 0 && ctx.river) {
       const o = clamp01(opacity.river_water);
-      out.push(strokeLine(ctx.river, SOUND_FAMILY_COLORS.river_water, 4 + 4 * river, (0.2 + 0.3 * river) * o, 2));
-      const n = Math.max(3, Math.round(river * ANIM_CAPS.riverDots));
-      const period = 6000 - 3500 * river;
-      for (let i = 0; i < n; i++) {
-        const f = ((nowMs / period + i / n) % 1 + 1) % 1;
-        const [lon, lat] = pointAlong(ctx.river, f);
-        out.push(circle(lon, lat, { r: 2.5 + 2.5 * river, fill: SOUND_FAMILY_COLORS.river_water, fillOpacity: (0.5 + 0.5 * river) * o, stroke: SOUND_FLASH_COLOR, strokeWidth: 0.8, opacity: 0.6 * o, blur: 0.3 }));
-      }
+      const lens = ctx.river.map(pathLenDeg);
+      const total = lens.reduce((a, b) => a + b, 0) || 1;
+      const nAll = Math.max(4, Math.round(river * ANIM_CAPS.riverDots));
+      // 每段一個週期：光點以相同速度沿線前進（段長不同→點數依長度分配）
+      ctx.river.forEach((path, k) => {
+        out.push(strokeLine(path, SOUND_FAMILY_COLORS.river_water, 5 + 5 * river, (0.25 + 0.35 * river) * o, 2));
+        const n = Math.max(1, Math.round((nAll * lens[k]!) / total));
+        const period = Math.max(800, ((lens[k]! / total) * (9000 - 5000 * river)));
+        for (let i = 0; i < n; i++) {
+          const f = ((nowMs / period + i / n) % 1 + 1) % 1;
+          const [lon, lat] = pointAlong(path, f);
+          out.push(circle(lon, lat, { r: 2.5 + 2.5 * river, fill: SOUND_FAMILY_COLORS.river_water, fillOpacity: (0.55 + 0.45 * river) * o, stroke: SOUND_FLASH_COLOR, strokeWidth: 0.8, opacity: 0.6 * o, blur: 0.3 }));
+        }
+      });
     }
   }
 

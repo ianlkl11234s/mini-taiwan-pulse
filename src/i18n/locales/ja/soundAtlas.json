@@ -126,12 +126,12 @@
   "soundAtlas.family.river": "川の水音（研究中）",
   "soundAtlas.provider.windObs": "気象署観測所の毎時風速（S3 アーカイブ）",
   "soundAtlas.provider.waveObs": "気象署ブイ・潮位観測所の毎時波高（S3 アーカイブ）",
-  "soundAtlas.provider.riverLevel": "水利署の河川水位（S3 アーカイブ）",
+  "soundAtlas.provider.riverLevel": "水利署の河川水位",
   "soundAtlas.precision.windCanopy": "最寄り観測所の風速×地点周辺の樹冠",
   "soundAtlas.precision.waveCoast": "沖合ブイ×沿岸海域までの距離（現在の海岸線ではありません）",
   "soundAtlas.precision.riverChannel": "最寄り水位観測所×河道までの距離",
   "soundAtlas.reason.snapshotOnly": "シーンのスナップショットのみ",
-  "soundAtlas.reason.noVegetation": "周辺に十分な樹冠がありません（市街地の風切り音は推定しません）",
+  "soundAtlas.reason.noVegetation": "この場所の樹冠データは読み込んでいません（スナップショットは元の地点周辺のみ）",
   "soundAtlas.reason.canopyAmbiguous": "樹冠データでは空き地・海・欠測を区別できません",
   "soundAtlas.reason.naturalNotLoaded": "この場所では海岸・河道データを読み込んでいません",
   "soundAtlas.reason.outsideStations": "シーンのスナップショットの観測所範囲外です",
@@ -154,5 +154,6 @@
   "soundAtlas.route.chartLabel": "経路沿いの音源ごとの相対的な活動（dB ではない）",
   "soundAtlas.route.notExposure": "経路沿いで接する音源の活動で、騒音曝露量ではありません。等速・停止なしの仮定。右の％＝その音源が活動中の区間の割合。",
   "soundAtlas.route.limits": "制限：出発時刻＝「完了」を押した時点のタイムライン。ごみ収集車は受音点付近の市県のみ。シーンのスナップショットはシーン範囲のみ。当日のデータのみで、日付をまたぐ区間は判定不可。",
-  "soundAtlas.route.hint": "「経路を描く」を押して地図上で2点以上クリックし、「完了」を押します。出発時刻は現在のタイムライン。"
+  "soundAtlas.route.hint": "「経路を描く」を押して地図上で2点以上クリックし、「完了」を押します。出発時刻は現在のタイムライン。",
+  "soundAtlas.precision.nearestStation": "最寄りの観測所"
 }

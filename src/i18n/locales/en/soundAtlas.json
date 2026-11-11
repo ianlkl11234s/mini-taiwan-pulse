@@ -126,12 +126,12 @@
   "soundAtlas.family.river": "River water (experimental)",
   "soundAtlas.provider.windObs": "CWA hourly station wind (S3 archive)",
   "soundAtlas.provider.waveObs": "CWA hourly buoy / tide-station waves (S3 archive)",
-  "soundAtlas.provider.riverLevel": "WRA river water level (S3 archive)",
+  "soundAtlas.provider.riverLevel": "WRA river water level",
   "soundAtlas.precision.windCanopy": "Nearest weather station wind × canopy around the point",
   "soundAtlas.precision.waveCoast": "Offshore buoy × distance to nearshore zone (not the current shoreline)",
   "soundAtlas.precision.riverChannel": "Nearest water-level station × distance to channel",
   "soundAtlas.reason.snapshotOnly": "Scene snapshots only",
-  "soundAtlas.reason.noVegetation": "Not enough tree canopy nearby (urban wind noise not inferred)",
+  "soundAtlas.reason.noVegetation": "No canopy data loaded here (the snapshot only covers the original point's surroundings)",
   "soundAtlas.reason.canopyAmbiguous": "Canopy data cannot tell open ground, sea or missing data apart",
   "soundAtlas.reason.naturalNotLoaded": "No coast or river-channel data loaded here",
   "soundAtlas.reason.outsideStations": "Outside the station area of the scene snapshot",
@@ -154,5 +154,6 @@
   "soundAtlas.route.chartLabel": "Relative source activity along the route (not dB)",
   "soundAtlas.route.notExposure": "Source activity met along the route, not noise exposure; constant speed, no stops. Right-hand % = share of the route where the source is active.",
   "soundAtlas.route.limits": "Limits: departure = timeline time when you press Done; garbage trucks only for cities near the listening point; scene snapshots cover the scene area only; same-day data only, segments after midnight cannot be judged.",
-  "soundAtlas.route.hint": "Press Draw route, click two or more points on the map, then Done; departure uses the current timeline time."
+  "soundAtlas.route.hint": "Press Draw route, click two or more points on the map, then Done; departure uses the current timeline time.",
+  "soundAtlas.precision.nearestStation": "Nearest station"
 }

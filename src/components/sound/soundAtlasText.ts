@@ -86,6 +86,7 @@ export function spatialPrecisionKey(code: string): MessageKey {
   if (code === "nearest_station_wind_x_receiver_canopy") return "soundAtlas.precision.windCanopy";
   if (code === "offshore_station_x_coast_distance_proxy") return "soundAtlas.precision.waveCoast";
   if (code === "nearest_level_station_x_channel_distance") return "soundAtlas.precision.riverChannel";
+  if (code === "nearest_station") return "soundAtlas.precision.nearestStation";
   return "soundAtlas.precision.other";
 }
 

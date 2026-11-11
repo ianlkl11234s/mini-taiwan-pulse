@@ -126,12 +126,12 @@
   "soundAtlas.family.river": "河川水聲（研究）",
   "soundAtlas.provider.windObs": "氣象署測站逐時風速（S3 歸檔）",
   "soundAtlas.provider.waveObs": "氣象署浮標／潮位站逐時浪高（S3 歸檔）",
-  "soundAtlas.provider.riverLevel": "水利署河川水位（S3 歸檔）",
+  "soundAtlas.provider.riverLevel": "水利署河川水位",
   "soundAtlas.precision.windCanopy": "最近氣象站風速 × 接收點附近樹冠",
   "soundAtlas.precision.waveCoast": "外海浮標 × 離近岸海域距離（非現行海岸線）",
   "soundAtlas.precision.riverChannel": "最近水位站 × 離河道距離",
   "soundAtlas.reason.snapshotOnly": "僅場景快照提供",
-  "soundAtlas.reason.noVegetation": "附近沒有足夠樹冠（市區不推估風切聲）",
+  "soundAtlas.reason.noVegetation": "這裡沒有載入樹冠資料（場景快照只含原接收點附近）",
   "soundAtlas.reason.canopyAmbiguous": "樹冠資料分不出是空地、海或缺資料",
   "soundAtlas.reason.naturalNotLoaded": "這裡沒有載入海岸或河道資料",
   "soundAtlas.reason.outsideStations": "不在場景快照的測站範圍內",
@@ -154,5 +154,6 @@
   "soundAtlas.route.chartLabel": "沿線各類聲源相對活動（非 dB）",
   "soundAtlas.route.notExposure": "沿線接觸的聲源活動，非噪音暴露量；等速移動、不含停等。右側百分比＝該聲源活躍的路段比例。",
   "soundAtlas.route.limits": "限制：出發時間＝按「完成」時的時間軸；垃圾車只算接收點附近縣市；場景快照只涵蓋場景範圍；只有當天資料，過午夜的路段無法判斷。",
-  "soundAtlas.route.hint": "按「畫路線」後在地圖上點兩個以上的點，再按「完成」：出發時間取目前時間軸。"
+  "soundAtlas.route.hint": "按「畫路線」後在地圖上點兩個以上的點，再按「完成」：出發時間取目前時間軸。",
+  "soundAtlas.precision.nearestStation": "最近測站"
 }

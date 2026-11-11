@@ -7947,6 +7947,7 @@ export type GeneratedStaticKey =
   | "soundAtlas.origin.live"
   | "soundAtlas.origin.scene"
   | "soundAtlas.precision.gauge"
+  | "soundAtlas.precision.nearestStation"
   | "soundAtlas.precision.other"
   | "soundAtlas.precision.permit"
   | "soundAtlas.precision.riverChannel"

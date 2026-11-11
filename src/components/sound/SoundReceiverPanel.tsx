@@ -197,7 +197,10 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
                         // 施工：資料正常但本縣市沒有發布施工 → 寫明，不讓「正常」看起來像「確認沒施工」
                         cv.status === "ok" && family === "roadwork" && fam?.contributions.some((x) => x.unknownReason === "roadwork_city_not_covered")
                           ? "soundAtlas.health.okNotPublished"
-                          : HEALTH_KEYS[cv.status],
+                          // 風、浪即時沒有讀取路徑：寫「僅場景快照提供」，不寫「未載入」
+                          : cv.status === "unavailable" && cv.reason?.endsWith("(snapshot_only)")
+                            ? "soundAtlas.reason.snapshotOnly"
+                            : HEALTH_KEYS[cv.status],
                       )}`))].join("、")}
                     {" · "}{t(st.origins[family] === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}
                     {updated && <> · {t("soundAtlas.row.updated")} <span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(updated, true)}</span></>}

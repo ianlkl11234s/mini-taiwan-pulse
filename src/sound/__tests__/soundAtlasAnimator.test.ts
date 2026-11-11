@@ -3,7 +3,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import type { Feature } from "geojson";
 import { timeStore } from "../../state/timeStore";
 import { areaPaths } from "../../components/sound/SoundDayProfile";
-import { ANIM_CAPS, ANIM_SOURCE, SoundAtlasAnimator, arcLine, hash01, nearbyPath, pointAlong, rainDropCount, ripplePhase, type AnimatorState } from "../soundAtlasAnimator";
+import { ANIM_CAPS, ANIM_SOURCE, SoundAtlasAnimator, arcLine, hash01, nearbyPaths, pointAlong, rainDropCount, ripplePhase, type AnimatorState } from "../soundAtlasAnimator";
 import { reasonKey } from "../../components/sound/soundAtlasText";
 import { applySceneView, SOUND_SCENES, type SoundSceneSnapshot } from "../scenes";
 import type { ReceiverQueryResult } from "../engines/receiverQuery";
@@ -137,15 +137,16 @@ describe("SoundAtlasAnimator（假地圖，手動推影格）", () => {
 });
 
 describe("自然三族示意幾何（W5 接 UI）", () => {
-  it("nearbyPath：取最近那條線、沿線前後各約 halfM，且包含最近點", () => {
+  it("nearbyPaths：以最近點為中心取 halfM 內的所有河道片段（河道被切成很多短段也接得起來）", () => {
     const far: [number, number][] = [[121.0, 25.5], [121.01, 25.5]];
-    const near: [number, number][] = [[121.5, 25.0], [121.505, 25.0], [121.51, 25.0], [121.515, 25.0], [121.52, 25.0]];
-    const path = nearbyPath({ type: "MultiLineString", coordinates: [far, near] }, 121.51, 25.001, 600)!;
-    expect(path.every(([, lat]) => lat === 25.0)).toBe(true);
-    const lons = path.map(([lon]) => lon);
-    expect(Math.min(...lons)).toBeGreaterThanOrEqual(121.5);
-    expect(lons).toContain(121.51);
-    expect(nearbyPath({ type: "Point", coordinates: [121, 25] }, 121, 25, 100)).toBeNull();
+    const a: [number, number][] = [[121.5, 25.0], [121.505, 25.0], [121.51, 25.0]];
+    const b: [number, number][] = [[121.51, 25.0], [121.515, 25.0], [121.52, 25.0]];
+    const paths = nearbyPaths({ type: "MultiLineString", coordinates: [far, a, b] }, 121.51, 25.001, 600)!;
+    expect(paths).toHaveLength(2);
+    expect(paths.flat().every(([, lat]) => lat === 25.0)).toBe(true);
+    expect(paths.flat().some(([lon]) => lon === 121.505)).toBe(true);
+    expect(paths.flat().some(([lon]) => lon === 121.5)).toBe(false);
+    expect(nearbyPaths({ type: "Point", coordinates: [121, 25] }, 121, 25, 100)).toBeNull();
   });
 
   it("pointAlong 端點與中點；arcLine 每點離圓心等距", () => {
