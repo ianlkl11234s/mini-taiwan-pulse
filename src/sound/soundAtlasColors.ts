@@ -12,3 +12,6 @@ export const SOUND_FAMILY_COLORS = {
 /** 接收點標記（白底＋粉紅外框）與「無法判斷」斜線色 */
 export const SOUND_RECEIVER_COLOR = "#f472b6";
 export const SOUND_UNKNOWN_COLOR = "#94a3b8";
+
+/** 雷閃光、接收點核心底色（中性白） */
+export const SOUND_FLASH_COLOR = "#ffffff";

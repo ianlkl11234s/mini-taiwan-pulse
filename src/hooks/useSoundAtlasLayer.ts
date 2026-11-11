@@ -19,7 +19,11 @@ import {
   contributionPlace, familyLoadKey, indexRecords, loadSoundFamily, prefilterSetsForReceiver, type LoadedFamily,
 } from "../sound/soundAtlasData";
 import { makeReceiver, setSoundAtlasMap, soundAtlasStore, type SoundAtlasState } from "../sound/soundAtlasStore";
-import { SOUND_FAMILY_COLORS, SOUND_RECEIVER_COLOR, SOUND_UNKNOWN_COLOR } from "../sound/soundAtlasColors";
+import { SOUND_FAMILY_COLORS, SOUND_UNKNOWN_COLOR } from "../sound/soundAtlasColors";
+import {
+  createReceiverElements, ensureAnimLayers, removeAnimLayers, setSoundAtlasAnimator, SoundAtlasAnimator, type ReceiverElements,
+} from "../sound/soundAtlasAnimator";
+import { AVIATION } from "../sound/model/soundProfiles";
 import type { ThunderPayload } from "../sound/sourceAdapters/thunderAdapter";
 import type { SoundSourceFamily, SoundSourceSet } from "../sound/types";
 
@@ -49,6 +53,8 @@ const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
 /** 「當下」重算節流（UI 4 Hz）與波前節流（20 fps） */
 const CURRENT_THROTTLE_MS = 250;
 const WAVE_THROTTLE_MS = 50;
+/** 24h 構成重算延遲（拖曳／切換後穩定才算） */
+const PROFILE_DEBOUNCE_MS = 250;
 
 const loadCache = new Map<string, Promise<LoadedFamily | null>>();
 function cachedLoad(key: string, run: () => Promise<LoadedFamily | null>): Promise<LoadedFamily | null> {
@@ -77,7 +83,7 @@ function ensureLayers(map: MapboxMap): void {
   if (!map.getLayer(WAVE_LAYER)) {
     map.addLayer({
       id: WAVE_LAYER, type: "line", source: SRC_WAVES,
-      paint: { "line-color": SOUND_FAMILY_COLORS.thunder, "line-width": 1.5, "line-opacity": ["*", ["get", "fade"], 0.9] },
+      paint: { "line-color": SOUND_FAMILY_COLORS.thunder, "line-width": 2.5, "line-blur": 1, "line-opacity": ["*", ["get", "fade"], 0.9] },
     });
   }
   for (const fam of SOUND_FAMILIES) {
@@ -87,10 +93,10 @@ function ensureLayers(map: MapboxMap): void {
         filter: ["==", ["get", "family"], fam],
         paint: {
           "line-color": SOUND_FAMILY_COLORS[fam],
-          "line-width": 1.5,
           // 飛機是地面投影連線（虛線），其他是接收點到來源點
           "line-dasharray": fam === "aviation" ? [2, 2] : [1, 0],
           "line-opacity": 0.8,
+          "line-width": ["+", 1, ["*", 2.5, ["coalesce", ["get", "potential"], 0]]],
         },
       });
     }
@@ -110,12 +116,34 @@ function ensureLayers(map: MapboxMap): void {
       });
     }
   }
+  ensureAnimLayers(map);
 }
 
 function removeLayers(map: MapboxMap): void {
+  removeAnimLayers(map);
   const layers = [...Object.values(SOUND_ATLAS_POINT_LAYERS), ...Object.values(LINK_LAYERS), WAVE_LAYER];
   for (const id of layers) if (map.getLayer(id)) map.removeLayer(id);
   for (const id of [SRC_POINTS, SRC_LINKS, SRC_WAVES]) if (map.getSource(id)) map.removeSource(id);
+}
+
+/**
+ * 點圖層逐點透明度：活躍且達顯示門檻的航機由動畫器畫（這裡幾乎透明但仍可點選開 popup）；
+ * 低於門檻的遠方航機只畫淡點；其他照常。
+ */
+function pointOpacityExpr(fam: SoundSourceFamily, o: number): mapboxgl.ExpressionSpecification | number {
+  if (fam !== "aviation") return o;
+  const thr = AVIATION.displayMinPotential.value;
+  return [
+    "case",
+    ["all", ["==", ["get", "status"], "active"], [">=", ["coalesce", ["get", "potential"], 0], thr]], 0.01,
+    ["==", ["get", "status"], "active"], 0.35 * o,
+    o,
+  ];
+}
+
+/** 連線透明度隨潛勢（越近越亮）；航機連線由動畫器畫 */
+function linkOpacityExpr(o: number): mapboxgl.ExpressionSpecification {
+  return ["*", o, ["+", 0.25, ["*", 0.75, ["coalesce", ["get", "potential"], 0]]]];
 }
 
 function applyVisibility(map: MapboxMap, flags: SoundFamilyFlags, opacity: Record<SoundSourceFamily, number>): void {
@@ -124,30 +152,18 @@ function applyVisibility(map: MapboxMap, flags: SoundFamilyFlags, opacity: Recor
     const o = Math.max(0, Math.min(1, opacity[fam]));
     if (map.getLayer(SOUND_ATLAS_POINT_LAYERS[fam])) {
       map.setLayoutProperty(SOUND_ATLAS_POINT_LAYERS[fam], "visibility", vis);
-      map.setPaintProperty(SOUND_ATLAS_POINT_LAYERS[fam], "circle-opacity", o);
-      map.setPaintProperty(SOUND_ATLAS_POINT_LAYERS[fam], "circle-stroke-opacity", o);
+      map.setPaintProperty(SOUND_ATLAS_POINT_LAYERS[fam], "circle-opacity", pointOpacityExpr(fam, o));
+      map.setPaintProperty(SOUND_ATLAS_POINT_LAYERS[fam], "circle-stroke-opacity", pointOpacityExpr(fam, o));
     }
     if (map.getLayer(LINK_LAYERS[fam])) {
       map.setLayoutProperty(LINK_LAYERS[fam], "visibility", vis);
-      map.setPaintProperty(LINK_LAYERS[fam], "line-opacity", 0.8 * o);
+      map.setPaintProperty(LINK_LAYERS[fam], "line-opacity", linkOpacityExpr(o));
     }
   }
   if (map.getLayer(WAVE_LAYER)) {
     map.setLayoutProperty(WAVE_LAYER, "visibility", flags.thunder ? "visible" : "none");
     map.setPaintProperty(WAVE_LAYER, "line-opacity", ["*", ["get", "fade"], 0.9 * Math.max(0, Math.min(1, opacity.thunder))]);
   }
-}
-
-function receiverElement(): HTMLDivElement {
-  const el = document.createElement("div");
-  el.setAttribute("role", "img");
-  el.setAttribute("aria-label", "接收點");
-  Object.assign(el.style, {
-    width: "18px", height: "18px", borderRadius: "50%", boxSizing: "border-box",
-    background: "#ffffff", border: `4px solid ${SOUND_RECEIVER_COLOR}`, cursor: "grab",
-    boxShadow: "0 0 0 2px rgba(0,0,0,0.35)",
-  });
-  return el;
 }
 
 export function useSoundAtlasLayer(
@@ -183,17 +199,36 @@ export function useSoundAtlasLayer(
     return () => { map.off("style.load", mount); };
   }, [mapRef, anyOn, mapTick]);
 
+  // ── 動畫器（rAF，不經 React）：圖層全關時停止並釋放 ──
+  const animatorRef = useRef<SoundAtlasAnimator | null>(null);
+  const receiverElsRef = useRef<ReceiverElements | null>(null);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !anyOn) return;
+    const anim = new SoundAtlasAnimator(map, () => receiverElsRef.current, {
+      receiver: null, result: null, records: new Map(), thunderStrikes: [],
+      flags: { aviation: false, rain: false, thunder: false, waste_collection: false },
+      opacity: { aviation: 1, rain: 1, thunder: 1, waste_collection: 1 },
+    });
+    animatorRef.current = anim;
+    setSoundAtlasAnimator(anim);
+    return () => {
+      anim.dispose();
+      animatorRef.current = null;
+      setSoundAtlasAnimator(null);
+    };
+  }, [mapRef, anyOn, mapTick]);
+
   // flags／opacity 以純量比較，避免物件身分每次 render 都變
   const { aviation: fA, rain: fR, thunder: fT, waste_collection: fW } = flags;
   const { aviation: oA, rain: oR, thunder: oT, waste_collection: oW } = opacity;
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !anyOn) return;
-    const apply = () => applyVisibility(
-      map,
-      { aviation: fA, rain: fR, thunder: fT, waste_collection: fW },
-      { aviation: oA, rain: oR, thunder: oT, waste_collection: oW },
-    );
+    const f = { aviation: fA, rain: fR, thunder: fT, waste_collection: fW };
+    const o = { aviation: oA, rain: oR, thunder: oT, waste_collection: oW };
+    animatorRef.current?.update({ flags: f, opacity: o });
+    const apply = () => applyVisibility(map, f, o);
     apply();
     map.on("style.load", apply);
     return () => { map.off("style.load", apply); };
@@ -206,10 +241,13 @@ export function useSoundAtlasLayer(
     if (!map || !anyOn || !receiver) {
       markerRef.current?.remove();
       markerRef.current = null;
+      receiverElsRef.current = null;
       return;
     }
     if (!markerRef.current) {
-      const marker = new mapboxgl.Marker({ element: receiverElement(), draggable: true });
+      const els = createReceiverElements();
+      receiverElsRef.current = els;
+      const marker = new mapboxgl.Marker({ element: els.root, draggable: true });
       marker.on("dragend", () => {
         const { lng, lat } = marker.getLngLat();
         const prev = soundAtlasStore.get().receiver;
@@ -219,7 +257,7 @@ export function useSoundAtlasLayer(
     }
     markerRef.current.setLngLat([receiver.longitude, receiver.latitude]).addTo(map);
   }, [mapRef, anyOn, receiver, mapTick]);
-  useEffect(() => () => { markerRef.current?.remove(); markerRef.current = null; }, []);
+  useEffect(() => () => { markerRef.current?.remove(); markerRef.current = null; receiverElsRef.current = null; }, []);
 
   // ── 放置模式：下一次點地圖放接收點；Esc 取消 ──
   useEffect(() => {
@@ -283,10 +321,15 @@ export function useSoundAtlasLayer(
       if (soundAtlasStore.get().profile) soundAtlasStore.set({ profile: null });
       return;
     }
-    const t0 = performance.now();
-    const profile = dayProfile(receiver, dateKey, undefined, filtered, enabled);
-    const ms = performance.now() - t0;
-    soundAtlasStore.set({ profile, perf: { ...soundAtlasStore.get().perf, lastProfileMs: ms } });
+    // 颱風場景約 270 ms（970 架航班）：延後到接收點／資料穩定後再算，
+    // 讓拖曳放開、選場景、播放起步的那一幀不被整日構成卡住；期間又變動就取消重排。
+    const timer = window.setTimeout(() => {
+      const t0 = performance.now();
+      const profile = dayProfile(receiver, dateKey, undefined, filtered, enabled);
+      const ms = performance.now() - t0;
+      soundAtlasStore.set({ profile, perf: { ...soundAtlasStore.get().perf, lastProfileMs: ms } });
+    }, PROFILE_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
   }, [anyOn, receiver, dateKey, filtered, enabled]);
 
   // ── 當下：接收點查詢＋地圖標記／連線（節流）──
@@ -296,6 +339,7 @@ export function useSoundAtlasLayer(
     if (!receiver) {
       setSourceData(map, SRC_POINTS, EMPTY);
       setSourceData(map, SRC_LINKS, EMPTY);
+      animatorRef.current?.update({ receiver: null, result: null });
       if (soundAtlasStore.get().current) soundAtlasStore.set({ current: null });
       return;
     }
@@ -318,16 +362,17 @@ export function useSoundAtlasLayer(
           origin: origins[c.family] ?? "live",
         };
         points.features.push({ type: "Feature", geometry: { type: "Point", coordinates: [place.lon, place.lat] }, properties: props });
-        if (c.status === "active") {
+        if (c.status === "active" && c.family !== "aviation") {
           links.features.push({
             type: "Feature",
             geometry: { type: "LineString", coordinates: [[receiver.longitude, receiver.latitude], [place.lon, place.lat]] },
-            properties: { family: c.family },
+            properties: { family: c.family, potential: c.relativePotential },
           });
         }
       }
       setSourceData(map, SRC_POINTS, points);
       setSourceData(map, SRC_LINKS, links);
+      animatorRef.current?.update({ receiver, result, records: index });
       soundAtlasStore.set({ current: result, perf: { ...soundAtlasStore.get().perf, lastQueryMs: ms } });
     };
     apply(timeStore.getTime());
@@ -341,12 +386,14 @@ export function useSoundAtlasLayer(
     if (!map || !anyOn) return;
     if (!thunderSet || thunderSet.records.length === 0) {
       setSourceData(map, SRC_WAVES, EMPTY);
+      animatorRef.current?.update({ thunderStrikes: [] });
       return;
     }
     const strikes = thunderSet.records.map((r) => {
       const p = r.payload as ThunderPayload;
       return { id: r.id, lon: p.lon, lat: p.lat, flashTime: p.flashTime };
     });
+    animatorRef.current?.update({ thunderStrikes: strikes });
     let lastCount = -1;
     const tick = (t: number) => {
       const c = receiver ? { lon: receiver.longitude, lat: receiver.latitude } : (() => { const m = map.getCenter(); return { lon: m.lng, lat: m.lat }; })();
