@@ -19,16 +19,47 @@ const CIRCLE_SUFFIXES = ['circle-halo', 'circle'] as const;
 const circleSourceId = (key: string) => `${key}-circles`;
 /** 比例圓的 map layer id（點擊開 popup 用；gisClickRegistry） */
 export const statisticsCircleLayerId = (key: string) => `${key}-circle`;
+/** 右側期別／細項與左側不同時，右圖用的 store key 後綴（`regionalStatisticsStore` 不寫 localStorage） */
+export const RIGHT_STORE_SUFFIX = '::R';
+
+/**
+ * 多地圖共存（比較模式，docs/features/compare-mode/DESIGN.md §3）：同一份統計 store 可同時掛主地圖與比較用的右圖。
+ *
+ * - **主地圖**（`primary`，預設）：擁有每個 key 本身的資料——註冊 recipe、依圖層開關載入／清除、管透明度預設；
+ *   `isShown` 只決定這張圖畫不畫（側別＝只在右側時主地圖不畫，但資料照樣留著給右圖與圖例用）。
+ * - **右圖**（`primary: false`）：對 key 本身只讀；只擁有 `storeKey(key) !== key` 的那份（`key::R`，右側期別／細項不同時才有），
+ *   載入、清除、關閉時的 cleanup 都只碰自己擁有的 key——關右圖不會清掉主地圖的統計資料。
+ */
+export interface StatisticsAttachOptions {
+  /** 這張圖讀哪個 store key（預設＝key） */
+  storeKey?: (key: StatisticsRenderKey) => string;
+  /** 這張圖畫不畫（預設＝圖層開關） */
+  isShown?: (key: StatisticsRenderKey) => boolean;
+  /** 是否為主地圖（預設 true） */
+  primary?: boolean;
+  /** 額外的重畫觸發（例：比較模式的側別改變）；回傳取消訂閱 */
+  subscribe?: (callback: () => void) => () => void;
+  /** 比例圓參考值覆寫（左右期別不同時兩張圖共用較大者）；回 undefined＝用本圖資料自己的參考值 */
+  circleReference?: (key: StatisticsRenderKey, own: number | null) => number | null | undefined;
+  /** loadingRegistry 任務 id 前綴（兩張圖同時載入同一層時不互相結束） */
+  loadingPrefix?: string;
+}
 
 /**
  * Owns only statistics sources/layers; other GIS visibility is untouched.
  * @param getIsDark 目前底圖是否暗色（色階、填色透明度、細縫與斜線顏色依底圖切換；換底圖會觸發 style.load 重畫）。
  */
-export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boolean = () => true): () => void {
-  const shown = new Map<StatisticsRenderKey, boolean>();
+export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boolean = () => true, options: StatisticsAttachOptions = {}): () => void {
+  const primary = options.primary ?? true;
+  const storeKey = (key: StatisticsRenderKey) => options.storeKey?.(key) ?? key;
+  const isShown = (key: StatisticsRenderKey) => options.isShown ? options.isShown(key) : layerVisibilityStore.getVisibility(key);
+  /** 這張圖負責載入／清除的 store key：主地圖＝key 本身；右圖＝與 key 不同的那份 */
+  const ownedKey = (key: StatisticsRenderKey): string | null => primary ? key : storeKey(key) !== key ? storeKey(key) : null;
+  const loadingPrefix = options.loadingPrefix ?? '';
+  const shown = new Map<string, boolean>();
   const rendered = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
   const renderedCircles = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
-  for (const key of STATISTICS_RENDER_KEYS) {
+  if (primary) for (const key of STATISTICS_RENDER_KEYS) {
     const recipe = statisticsRenderRecipe(key);
     const fallback = statisticsReleaseFallback(key);
     regionalStatisticsStore.registerRecipe(key, { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}) });
@@ -63,7 +94,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
   function render(fromStyleLoad = false) {
     if (!fromStyleLoad && !map.isStyleLoaded()) return;
     const isDark = getIsDark();
-    syncOpacityDefaults(isDark);
+    if (primary) syncOpacityDefaults(isDark);
     for (const kind of ['missing', 'suppressed'] as HatchKind[]) {
       for (const dark of [true, false]) {
         const id = hatchImageId(kind, dark);
@@ -72,10 +103,10 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     }
     const seam = gradedSeamPaint(isDark, HAS_VALUE);
     for (const key of STATISTICS_RENDER_KEYS) {
-      const visible = layerVisibilityStore.getVisibility(key);
-      const state = regionalStatisticsStore.getSnapshot(key);
+      const visible = isShown(key);
+      const state = regionalStatisticsStore.getSnapshot(storeKey(key));
+      if (!visible && !map.getSource(key)) continue;
       const recipe = statisticsRenderRecipe(key, state.selection?.indicatorId, state.selection?.dimensions, { isDark });
-      if (!layerVisibilityStore.getAll()[key] && !map.getSource(key)) continue;
       if (!map.getSource(key)) {
         rendered.delete(key);
         renderedCircles.delete(key);
@@ -101,7 +132,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       if (data && rendered.get(key) !== data) {
         rendered.set(key, data);
         (map.getSource(key) as mapboxgl.GeoJSONSource).setData(data);
-        keepLoadingUntilMapIdle(map, `statistics-render:${key}`, recipe.label, key);
+        keepLoadingUntilMapIdle(map, `statistics-render:${loadingPrefix}${key}`, recipe.label, key);
       } else if (!data && rendered.has(key)) {
         rendered.delete(key);
         (map.getSource(key) as mapboxgl.GeoJSONSource).setData({ type: 'FeatureCollection', features: [] });
@@ -122,7 +153,8 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
   function renderCircles(key: StatisticsRenderKey, layerShown: boolean, data: GeoJSON.FeatureCollection | null | undefined, color: string, level: string, opacity: number, isDark: boolean) {
     const circle = layerShown && statisticsPresentationMode(key) === 'circle';
     const circles = circle && data ? statisticsCircleData(data) : null;
-    if (!circles?.reference) {
+    const reference = circles ? options.circleReference?.(key, circles.reference) ?? circles.reference : null;
+    if (!circles || !reference) {
       if (circle) map.setLayoutProperty(`${key}-fill`, 'visibility', 'none');
       for (const suffix of CIRCLE_SUFFIXES) if (map.getLayer(`${key}-${suffix}`)) map.setLayoutProperty(`${key}-${suffix}`, 'visibility', 'none');
       return;
@@ -141,7 +173,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     }
     const theme = isDark ? 'dark' : 'light';
     const hollow = statisticsCircleHollow(key);
-    const radius = proportionalCircleRadiusExpression(circles.reference, level) as mapboxgl.ExpressionSpecification;
+    const radius = proportionalCircleRadiusExpression(reference, level) as mapboxgl.ExpressionSpecification;
     const halo = `${key}-circle-halo`;
     const main = statisticsCircleLayerId(key);
     map.setPaintProperty(halo, 'circle-radius', radius);
@@ -163,25 +195,45 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     for (const key of renderedCircles.keys()) if (map.getLayer(`${key}-circle-halo`)) return `${key}-circle-halo`;
     return undefined;
   }
+  /** 擁有的 key 要不要有資料：主地圖看圖層開關（不看側別）；右圖看自己畫不畫 */
+  const wanted = (key: StatisticsRenderKey) => primary ? layerVisibilityStore.getVisibility(key) : isShown(key);
   function visibilityChanged() {
+    const owned = new Set<string>();
     for (const key of STATISTICS_RENDER_KEYS) {
-      const visible = layerVisibilityStore.getVisibility(key);
-      if (shown.get(key) === visible) continue;
-      shown.set(key, visible);
-      if (visible) void regionalStatisticsStore.load(key);
-      else regionalStatisticsStore.disable(key);
+      const own = ownedKey(key);
+      if (!own) continue;
+      owned.add(own);
+      const want = wanted(key);
+      if (shown.get(own) === want) continue;
+      shown.set(own, want);
+      if (want) void regionalStatisticsStore.load(own);
+      else regionalStatisticsStore.disable(own);
+    }
+    // 右圖：不再擁有的 key（右側選擇改回與左側相同）→ 清掉那份資料
+    for (const own of [...shown.keys()]) {
+      if (owned.has(own)) continue;
+      if (shown.get(own)) regionalStatisticsStore.disable(own);
+      shown.delete(own);
     }
     render();
   }
   const rerender = () => { if (!syncingOpacity) render(); };
-  const dispose = [layerVisibilityStore.subscribe(visibilityChanged), layerParamsStore.subscribe(rerender), ...STATISTICS_RENDER_KEYS.map(key => regionalStatisticsStore.subscribe(key, rerender))];
+  const storeChanged = () => { if (primary) rerender(); else visibilityChanged(); };
+  /** 右圖讀的 store key 會在 key 與 key::R 之間換：兩份都訂 */
+  const watched = STATISTICS_RENDER_KEYS.flatMap(key => primary ? [key] : [...new Set([key, storeKey(key), `${key}${RIGHT_STORE_SUFFIX}`])]);
+  const dispose = [layerVisibilityStore.subscribe(visibilityChanged), layerParamsStore.subscribe(rerender), ...watched.map(key => regionalStatisticsStore.subscribe(key, storeChanged)), ...(options.subscribe ? [options.subscribe(visibilityChanged)] : [])];
   const onStyleLoad = () => render(true);
   map.on('style.load', onStyleLoad);
   // Data may finish during a Mapbox source update; idle retries rendering that state.
   const onIdle = () => {
-    if (STATISTICS_RENDER_KEYS.some(key => regionalStatisticsStore.getSnapshot(key).data !== (rendered.get(key) ?? null))) render();
+    if (STATISTICS_RENDER_KEYS.some(key => (isShown(key) || map.getSource(key)) && regionalStatisticsStore.getSnapshot(storeKey(key)).data !== (rendered.get(key) ?? null))) render();
   };
   map.on('idle', onIdle);
   visibilityChanged();
-  return () => { dispose.forEach(fn => fn()); map.off('style.load', onStyleLoad); map.off('idle', onIdle); STATISTICS_RENDER_KEYS.forEach(key => regionalStatisticsStore.disable(key)); };
+  return () => {
+    dispose.forEach(fn => fn()); map.off('style.load', onStyleLoad); map.off('idle', onIdle);
+    // 只清自己擁有的資料：主地圖＝全部 key（同原本行為）；右圖＝只有 key::R
+    if (primary) STATISTICS_RENDER_KEYS.forEach(key => regionalStatisticsStore.disable(key));
+    else for (const own of shown.keys()) regionalStatisticsStore.disable(own);
+  };
 }

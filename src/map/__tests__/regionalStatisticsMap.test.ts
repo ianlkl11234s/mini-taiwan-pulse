@@ -270,4 +270,76 @@ describe('attachRegionalStatistics', () => {
     expect(mock.layers.get(`${VIEW}-circle`)?.layout?.visibility).toBe('none');
     dispose();
   });
+
+  describe('多地圖共存（比較模式）', () => {
+    const RIGHT = `${VIEW}::R`;
+
+    it('主地圖只在側別＝只在右側時不畫，資料不清；右圖讀左側資料、關閉時不清左側', async () => {
+      const { regionalStatisticsStore } = await import('../../state/regionalStatisticsStore');
+      const data = feature(2);
+      state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data });
+      state.visibility[VIEW] = true;
+      let side: 'left' | 'right' | 'both' = 'both';
+      const listeners = new Set<() => void>();
+      const subscribe = (cb: () => void) => { listeners.add(cb); return () => listeners.delete(cb); };
+      const left = mapMock();
+      const right = mapMock();
+      const disposeLeft = attachRegionalStatistics(left.map as never, () => true, { isShown: key => state.visibility[key] === true && side !== 'right', subscribe });
+      const disposeRight = attachRegionalStatistics(right.map as never, () => true, {
+        primary: false, isShown: key => state.visibility[key] === true && side !== 'left', subscribe,
+        storeKey: key => state.snapshots.get(`${key}::R`)?.selection ? `${key}::R` : key, loadingPrefix: 'R:',
+      });
+      vi.mocked(regionalStatisticsStore.disable).mockClear();
+      vi.mocked(regionalStatisticsStore.load).mockClear();
+      expect(right.sources.get(VIEW)?.setData).toHaveBeenCalledWith(data);
+
+      side = 'right';
+      listeners.forEach(cb => cb());
+      expect(left.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('none');
+      expect(right.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('visible');
+      expect(regionalStatisticsStore.disable).not.toHaveBeenCalled();
+
+      disposeRight();
+      expect(regionalStatisticsStore.disable).not.toHaveBeenCalledWith(VIEW);
+      disposeLeft();
+      expect(regionalStatisticsStore.disable).toHaveBeenCalledWith(VIEW);
+    });
+
+    it('右側選了不同期別：右圖載入並畫 key::R，關閉只清 key::R', async () => {
+      const { regionalStatisticsStore } = await import('../../state/regionalStatisticsStore');
+      state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: feature(2) });
+      state.visibility[VIEW] = true;
+      const right = mapMock();
+      const dispose = attachRegionalStatistics(right.map as never, () => true, {
+        primary: false, isShown: key => state.visibility[key] === true,
+        storeKey: key => state.snapshots.get(`${key}::R`)?.selection ? `${key}::R` : key,
+      });
+      vi.mocked(regionalStatisticsStore.disable).mockClear();
+      vi.mocked(regionalStatisticsStore.load).mockClear();
+
+      const rightData = feature(9);
+      state.snapshots.set(RIGHT, { selection: { indicatorId: DERIVED }, data: rightData });
+      state.statisticsListeners.get(RIGHT)?.forEach(listener => listener());
+      expect(regionalStatisticsStore.load).toHaveBeenCalledWith(RIGHT);
+      expect(regionalStatisticsStore.load).not.toHaveBeenCalledWith(VIEW);
+      expect(right.sources.get(VIEW)?.setData).toHaveBeenLastCalledWith(rightData);
+
+      dispose();
+      expect(regionalStatisticsStore.disable).toHaveBeenCalledWith(RIGHT);
+      expect(regionalStatisticsStore.disable).not.toHaveBeenCalledWith(VIEW);
+    });
+
+    it('比例圓參考值可由外部覆寫（左右共用較大者）', () => {
+      const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+        { type: 'Feature', properties: { area_code: 'A', value: 430, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+      ] };
+      state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+      state.visibility[VIEW] = true;
+      state.presentation[VIEW] = 'circle';
+      const mock = mapMock();
+      const dispose = attachRegionalStatistics(mock.map as never, () => true, { circleReference: () => 1000 });
+      expect(mock.layers.get(`${VIEW}-circle`)!.paint!['circle-radius']).toEqual(['*', 28, ['sqrt', ['/', ['max', ['to-number', ['get', 'value'], 0], 0], 1000]]]);
+      dispose();
+    });
+  });
 });
