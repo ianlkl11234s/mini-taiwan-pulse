@@ -22,6 +22,11 @@ import {
 } from "./sourceAdapters/thunderAdapter";
 import { loadWaste, type WasteRecord } from "./sourceAdapters/wasteAdapter";
 import { snapshotApplies, type SnapshotHealth, type SoundSceneSnapshot } from "./scenes";
+import { loadMvpBFamily, parseMvpBSceneBlocks } from "./mvpBSources";
+import { evaluateRail, railProgressAt, type RailRecord } from "./sourceAdapters/railAdapter";
+import { interpolateOnLineString } from "../engines/railUtils";
+import type { RoadTrafficRecord } from "./sourceAdapters/roadTrafficAdapter";
+import type { RoadworkRecord } from "./sourceAdapters/roadworkAdapter";
 import type { Receiver, SoundSourceFamily, SoundSourceRecord, SoundSourceSet, SourceContribution, SourceCoverage } from "./types";
 
 // ── 垃圾車：只讀接收點所在（含附近）縣市 ───────────────────
@@ -103,6 +108,7 @@ export function familyLoadKey(
 }
 
 function sceneHasBlock(snapshot: SoundSceneSnapshot, family: SoundSourceFamily): boolean {
+  if (family === "roadwork") return !!parseMvpBSceneBlocks(snapshot.raw).roadwork;
   if (family === "aviation") return !!snapshot.aviation;
   if (family === "thunder") return !!snapshot.thunder;
   if (family === "rain") return !!snapshot.rain;
@@ -182,8 +188,14 @@ export async function loadSoundFamily(
     if (!receiver) return null;
     return { set: await loadWaste({ date, cities: citiesNearReceiver(receiver) }), origin: "live" };
   }
-  if (snapshot && snapshotApplies(snapshot, date, receiver)) {
-    const set = await snapshotSet(snapshot, family, nowUnix);
+  const applies = !!snapshot && snapshotApplies(snapshot, date, receiver);
+  if (family === "rail" || family === "road_traffic" || family === "roadwork") {
+    // MVP-B（W4）：鐵道依班表即時算、道路類型不進快照、施工快照適用才傳原始 JSON
+    const r = await loadMvpBFamily(family, date, applies ? snapshot!.raw : null);
+    return { set: r.set as SoundSourceSet, origin: r.origin };
+  }
+  if (applies) {
+    const set = await snapshotSet(snapshot!, family, nowUnix);
     if (set) return { set, origin: "scene" };
   }
   switch (family) {
@@ -334,5 +346,63 @@ export function contributionPlace(record: SoundSourceRecord | undefined, t: numb
       const route = p.routeName ?? p.routeId;
       return { lon: p.lon, lat: p.lat, altitudeM: null, label: p.stopName ? `${route}・${p.stopName}` : route };
     }
+    case "rail": {
+      // 班表推算的軌道上位置；結構不明段也有位置（畫灰點），地下段 inactive 不畫；班表缺 → null
+      const r = record as unknown as RailRecord;
+      const p = r.payload;
+      if (p.kind !== "train") return null;
+      const ev = evaluateRail(r, t);
+      const label = `${p.system.toUpperCase()} ${p.trainId}`;
+      if (ev.status === "active") return { lon: ev.geometry.lon, lat: ev.geometry.lat, altitudeM: null, label };
+      const st = railProgressAt(r, t);
+      if (ev.status === "unknown" && st.status === "on_track") {
+        const [lon, lat] = interpolateOnLineString(p.track.coords, st.progress);
+        return { lon, lat, altitudeM: null, label };
+      }
+      return null;
+    }
+    case "road_traffic": {
+      const p = (record as unknown as RoadTrafficRecord).payload;
+      const mid = p.coords[Math.floor(p.coords.length / 2)];
+      return mid ? { lon: mid[0], lat: mid[1], altitudeM: null, label: p.roadName ?? p.name ?? p.sectionId } : null;
+    }
+    case "roadwork": {
+      const p = (record as unknown as RoadworkRecord).payload;
+      if (p.kind !== "permit") return null;
+      const pt = firstCoordinate(p.event.geometry);
+      return pt ? { lon: pt[0], lat: pt[1], altitudeM: null, label: p.event.title ?? p.event.road_name ?? p.event.event_id } : null;
+    }
   }
+}
+
+/** 幾何的代表點（Point 本身；線／面取第一個頂點）——只用來源原座標，不合成 */
+function firstCoordinate(g: GeoJSON.Geometry | null | undefined): [number, number] | null {
+  if (!g) return null;
+  if (g.type === "GeometryCollection") return g.geometries.length ? firstCoordinate(g.geometries[0]) : null;
+  let c: unknown = g.coordinates;
+  while (Array.isArray(c) && Array.isArray(c[0])) c = c[0];
+  return Array.isArray(c) && typeof c[0] === "number" && typeof c[1] === "number" ? [c[0], c[1]] : null;
+}
+
+/** 接收點到折線最近點（局部等距投影；道路 proxy 的連線端點用） */
+export function nearestPointOnLine(coords: readonly [number, number][], lon: number, lat: number): [number, number] | null {
+  if (!coords.length) return null;
+  const kx = M_PER_DEG_LAT * Math.cos(lat * (Math.PI / 180));
+  let best: [number, number] = coords[0]!;
+  let bestD = Infinity;
+  for (let i = 0; i < coords.length; i++) {
+    const a = coords[i]!;
+    const b = coords[i + 1] ?? a;
+    const ax = (a[0] - lon) * kx, ay = (a[1] - lat) * M_PER_DEG_LAT;
+    const dx = (b[0] - a[0]) * kx, dy = (b[1] - a[1]) * M_PER_DEG_LAT;
+    const len2 = dx * dx + dy * dy;
+    const u = len2 > 0 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / len2)) : 0;
+    const px = ax + u * dx, py = ay + u * dy;
+    const d = px * px + py * py;
+    if (d < bestD) {
+      bestD = d;
+      best = [lon + px / kx, lat + py / M_PER_DEG_LAT];
+    }
+  }
+  return best;
 }

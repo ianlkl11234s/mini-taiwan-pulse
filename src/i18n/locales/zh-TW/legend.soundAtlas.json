@@ -5,5 +5,9 @@
   "legend.soundAtlas.size": "圓越大＝相對潛勢越高（0–1）",
   "legend.soundAtlas.link": "連線：接收點到來源（飛機為地面投影，虛線）",
   "legend.soundAtlas.wavefront": "雷聲波前：每秒擴散 343 m（示意，非聲壓範圍）",
-  "legend.soundAtlas.animation": "波紋、接收點脈動環、雨滴漣漪、音符都是示意「此刻有活動」，大小與快慢只跟相對潛勢成比例，不是聲壓範圍；灰色虛線環＝該來源無法判斷"
+  "legend.soundAtlas.animation": "波紋、接收點脈動環、雨滴漣漪、音符都是示意「此刻有活動」，大小與快慢只跟相對潛勢成比例，不是聲壓範圍；灰色虛線環＝該來源無法判斷",
+  "legend.soundAtlas.rail": "列車（地面／高架，依班表）：地下段不發聲；結構不明的路段顯示無法判斷",
+  "legend.soundAtlas.roadTraffic": "道路類型 proxy（只有國道，無車流量）：離國道越近越高；其他道路無資料",
+  "legend.soundAtlas.roadwork": "道路施工許可期間（可能施工，許可≠機具運轉）；臺北市等未發布施工的縣市：未涵蓋",
+  "legend.soundAtlas.attribution": "出處：鐵道結構 © OpenStreetMap contributors（ODbL）；施工 TDX 縣市預告事件；道路 TDX 國道路況（壅塞等級，非流量）"
 }

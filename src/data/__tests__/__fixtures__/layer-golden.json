@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1821,
+    "keyCount": 1824,
     "sections": [
       "gisLayers",
       "overlays",
@@ -736,7 +736,11 @@
         "sound-atlas-src-aviation",
         "sound-atlas-src-rain",
         "sound-atlas-src-thunder",
-        "sound-atlas-src-waste"
+        "sound-atlas-src-waste",
+        "sound-atlas-src-rail",
+        "sound-atlas-src-road",
+        "sound-atlas-src-roadwork",
+        "sound-atlas-roadwork-icon"
       ],
       "type": "soundSource"
     },
@@ -154598,7 +154602,40 @@
         "valueText": "0.90"
       }
     ],
+    "soundRail": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
     "soundRain": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "soundRoadTraffic": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
+    "soundRoadwork": [
       {
         "label": "透明度 0.90",
         "max": 1,

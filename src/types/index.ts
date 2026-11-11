@@ -449,6 +449,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites" | "mapchallengeDay08Plan1955"
   | "mapchallengeDay09UrbanRural"
   | "soundAviation" | "soundRain" | "soundThunder" | "soundWaste"
+  | "soundRail" | "soundRoadTraffic" | "soundRoadwork"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -1419,6 +1420,9 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   soundRain: boolean;
   soundThunder: boolean;
   soundWaste: boolean;
+  soundRail: boolean;
+  soundRoadTraffic: boolean;
+  soundRoadwork: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */

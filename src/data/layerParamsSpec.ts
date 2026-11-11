@@ -1703,6 +1703,9 @@ export const LAYER_PARAMS_SPEC = {
   soundRain: [opacitySlider("soundRainOpacity", 0.9)],
   soundThunder: [opacitySlider("soundThunderOpacity", 0.9)],
   soundWaste: [opacitySlider("soundWasteOpacity", 0.9)],
+  soundRail: [opacitySlider("soundRailOpacity", 0.9)],
+  soundRoadTraffic: [opacitySlider("soundRoadTrafficOpacity", 0.9)],
+  soundRoadwork: [opacitySlider("soundRoadworkOpacity", 0.9)],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

@@ -15,6 +15,7 @@ import type { FlightTrailRow } from "../data/flightTrails";
 import type { LightningSource } from "../data/lightningLoader";
 import type { RainGaugeDayRow } from "../data/rainGaugeLoader";
 import { withLoading } from "../lib/loadingRegistry";
+import { parseMvpBSceneBlocks } from "./mvpBSources";
 import type { SoundSourceFamily } from "./types";
 
 export const SOUND_SCENE_SCHEMA = "pulse-sound-scene-v1";
@@ -88,6 +89,8 @@ export interface SoundSceneSnapshot {
   rain?: { origin?: string; health?: SnapshotHealth; rows: RainGaugeDayRow[] };
   notes_zh?: string[];
   generated_at?: string;
+  /** 原始 JSON（MVP-B 施工區塊由 mvpBSources.parseMvpBSceneBlocks 自行驗證） */
+  raw?: unknown;
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -102,7 +105,7 @@ export function parseSceneSnapshot(json: unknown): SoundSceneSnapshot | null {
   if (!isObj(json) || json.schema !== SOUND_SCENE_SCHEMA) return null;
   if (typeof json.id !== "string" || typeof json.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(json.date)) return null;
   if (!isBbox(json.bbox)) return null;
-  const out: SoundSceneSnapshot = { schema: SOUND_SCENE_SCHEMA, id: json.id, date: json.date, bbox: json.bbox };
+  const out: SoundSceneSnapshot = { schema: SOUND_SCENE_SCHEMA, id: json.id, date: json.date, bbox: json.bbox, raw: json };
   if (typeof json.title_zh === "string") out.title_zh = json.title_zh;
   if (typeof json.focus_time === "string" && Number.isFinite(Date.parse(json.focus_time))) out.focus_time = json.focus_time;
   const r = json.receiver;
@@ -177,5 +180,9 @@ export function snapshotOrigin(snapshot: SoundSceneSnapshot, family: SoundSource
   if (family === "aviation") return snapshot.aviation ? snapshot.aviation.origin ?? "" : null;
   if (family === "thunder") return snapshot.thunder ? snapshot.thunder.origin ?? "" : null;
   if (family === "rain") return snapshot.rain ? snapshot.rain.origin ?? "" : null;
+  if (family === "roadwork") {
+    const rw = parseMvpBSceneBlocks(snapshot.raw).roadwork;
+    return rw ? rw.origin ?? "" : null;
+  }
   return null;
 }

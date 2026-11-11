@@ -7,6 +7,10 @@ export const SOUND_FAMILY_COLORS = {
   rain: "#2dd4bf",
   thunder: "#facc15",
   waste_collection: "#fb923c",
+  // MVP-B（W4 建議色，避開黃橙系以免和雷、垃圾車混淆；資料色，design-system §3.16 不進 token）
+  rail: "#a78bfa",
+  road_traffic: "#f87171",
+  roadwork: "#e879f9",
 } as const;
 
 /** 接收點標記（白底＋粉紅外框）與「無法判斷」斜線色 */

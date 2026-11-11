@@ -5,5 +5,9 @@
   "legend.soundAtlas.size": "Larger circle = higher relative potential (0–1)",
   "legend.soundAtlas.link": "Lines: listening point to source (aircraft = ground projection, dashed)",
   "legend.soundAtlas.wavefront": "Thunder wavefront: grows 343 m per second (illustrative, not a sound-pressure extent)",
-  "legend.soundAtlas.animation": "Ripples, receiver pulse rings, raindrop rings and music notes only illustrate that a source is active now; their size and speed scale with relative potential, not sound-pressure range. Grey dashed ring = cannot determine"
+  "legend.soundAtlas.animation": "Ripples, receiver pulse rings, raindrop rings and music notes only illustrate that a source is active now; their size and speed scale with relative potential, not sound-pressure range. Grey dashed ring = cannot determine",
+  "legend.soundAtlas.rail": "Trains (surface/elevated, scheduled): underground sections are silent; sections of unknown structure show as unknown",
+  "legend.soundAtlas.roadTraffic": "Road-type proxy (national freeways only, no traffic volume); other roads: no data",
+  "legend.soundAtlas.roadwork": "Roadwork permit period (possible activity; a permit is not machinery running); Taipei City and other non-publishing cities: not covered",
+  "legend.soundAtlas.attribution": "Sources: rail structure © OpenStreetMap contributors (ODbL); roadwork TDX city planned events; roads TDX freeway conditions (congestion level, not volume)"
 }

@@ -5,18 +5,14 @@
  * relativePotential 是無單位 0–1 的「類別活躍潛勢」，**不是 dB**；null = unknown。
  */
 
-/** MVP-A 四族（已接 UI；components／hooks 以 Record<SoundSourceFamily, …> 窮舉） */
-export type SoundSourceFamily = "aviation" | "rain" | "thunder" | "waste_collection";
-
-/**
- * MVP-B 三族（W4：引擎與 adapter 已接，**UI 尚未接線**）。
- * 刻意不併入 SoundSourceFamily：併入後 UI 的 Record<SoundSourceFamily, …> 會缺 key。
- * 主 agent 接 UI 時把這三個併入 SoundSourceFamily，並補齊各 Record（清單見 MVP_B_SOURCES.md §6）。
- */
+/** MVP-B 三族（W4 引擎；鐵道、道路類型 proxy、施工許可） */
 export type MvpBSoundFamily = "rail" | "road_traffic" | "roadwork";
 
-/** 引擎層通用的家族全集 */
-export type AnySoundFamily = SoundSourceFamily | MvpBSoundFamily;
+/** UI 與引擎共用的全部家族（MVP-A 四族＋MVP-B 三族；components／hooks 以 Record<SoundSourceFamily, …> 窮舉） */
+export type SoundSourceFamily = "aviation" | "rain" | "thunder" | "waste_collection" | MvpBSoundFamily;
+
+/** 引擎層通用的家族全集（與 SoundSourceFamily 相同，保留別名給 W4 程式） */
+export type AnySoundFamily = SoundSourceFamily;
 
 export type SoundGeometryKind =
   | "point"

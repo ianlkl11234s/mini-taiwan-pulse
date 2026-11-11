@@ -1811,5 +1811,8 @@
   "layer.soundAviation": "Aircraft Sound",
   "layer.soundRain": "Rain Sound",
   "layer.soundThunder": "Thunder",
-  "layer.soundWaste": "Garbage Truck Music"
+  "layer.soundWaste": "Garbage Truck Music",
+  "layer.soundRail": "Trains",
+  "layer.soundRoadTraffic": "Road-type Proxy",
+  "layer.soundRoadwork": "Roadwork Permits"
 }

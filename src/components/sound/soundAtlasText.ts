@@ -11,6 +11,16 @@ export const FAMILY_KEYS: Record<SoundSourceFamily, MessageKey> = {
   rain: "soundAtlas.family.rain",
   thunder: "soundAtlas.family.thunder",
   waste_collection: "soundAtlas.family.waste",
+  rail: "soundAtlas.family.rail",
+  road_traffic: "soundAtlas.family.roadTraffic",
+  roadwork: "soundAtlas.family.roadwork",
+};
+
+export const STRUCTURE_KEYS: Record<"elevated" | "at_grade" | "surface" | "unknown", MessageKey> = {
+  elevated: "soundAtlas.structure.elevated",
+  at_grade: "soundAtlas.structure.atGrade",
+  surface: "soundAtlas.structure.surface",
+  unknown: "soundAtlas.structure.unknown",
 };
 
 export const STATUS_KEYS: Record<FamilyStatus, MessageKey> = {
@@ -48,7 +58,9 @@ export function providerKey(provider: string): MessageKey {
     case "cwa": return "soundAtlas.provider.cwa";
     case "taipower": return "soundAtlas.provider.taipower";
     case "waste_schedule_static": return "soundAtlas.provider.waste";
-    default: return "soundAtlas.precision.other";
+    case "freeway_sections": return "soundAtlas.provider.freeway";
+    case "tdx_road_event_city": return "soundAtlas.provider.roadwork";
+    default: return provider.startsWith("rail_") ? "soundAtlas.provider.rail" : "soundAtlas.precision.other";
   }
 }
 
@@ -57,6 +69,9 @@ export function spatialPrecisionKey(code: string): MessageKey {
   if (code.startsWith("nearest_gauge")) return "soundAtlas.precision.gauge";
   if (code === "strike_point_2d") return "soundAtlas.precision.strike";
   if (code === "scheduled_stop_point") return "soundAtlas.precision.stop";
+  if (code === "track_geometry_progress_interpolation") return "soundAtlas.precision.trackProgress";
+  if (code === "freeway_section_line") return "soundAtlas.precision.roadLine";
+  if (code.startsWith("permit_")) return "soundAtlas.precision.permit";
   return "soundAtlas.precision.other";
 }
 
@@ -64,7 +79,9 @@ export function temporalPrecisionKey(code: string): MessageKey {
   if (code === "trail_point_or_linear_interpolation") return "soundAtlas.timePrecision.track";
   if (code === "hourly") return "soundAtlas.timePrecision.hourly";
   if (code === "strike_ts_plus_modeled_delay") return "soundAtlas.timePrecision.strike";
-  if (code === "timetable") return "soundAtlas.timePrecision.timetable";
+  if (code === "timetable" || code.startsWith("timetable(")) return "soundAtlas.timePrecision.timetable";
+  if (code === "none(road_type_static)") return "soundAtlas.timePrecision.static";
+  if (code.startsWith("permit_window")) return "soundAtlas.timePrecision.permit";
   if (code === "schedule_inferred_times") return "soundAtlas.timePrecision.inferred";
   return "soundAtlas.precision.other";
 }
@@ -81,6 +98,14 @@ export function reasonKey(reason: string | null | undefined): MessageKey {
   if (r.startsWith("no_healthy_source")) return "soundAtlas.reason.noHealthy";
   if (r === "source_not_loaded") return "soundAtlas.reason.notLoaded";
   if (r === "outside_source_time_coverage") return "soundAtlas.reason.outsideWindow";
+  if (r.startsWith("rail_structure_unknown")) return "soundAtlas.reason.railStructure";
+  if (r === "station_not_in_track_progress") return "soundAtlas.reason.railStation";
+  if (r === "rail_schedule_unavailable" || r.endsWith("_schedule_not_found")) return "soundAtlas.reason.railSchedule";
+  if (r.startsWith("road_network_not_covered")) return "soundAtlas.reason.roadNotCovered";
+  if (r === "volume_sample_gap") return "soundAtlas.reason.volumeGap";
+  if (r === "roadwork_city_not_covered") return "soundAtlas.reason.roadworkNotCovered";
+  if (r === "outside_snapshot_bbox") return "soundAtlas.reason.outsideSnapshot";
+  if (r === "permit_window_work_hours_unknown") return "soundAtlas.reason.workHours";
   return "soundAtlas.reason.other";
 }
 

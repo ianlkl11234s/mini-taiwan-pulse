@@ -5,5 +5,9 @@
   "legend.soundAtlas.size": "円が大きいほど相対ポテンシャルが高い（0〜1）",
   "legend.soundAtlas.link": "線：受音点から音源（航空機は地上投影・破線）",
   "legend.soundAtlas.wavefront": "雷鳴の波面：毎秒 343 m 拡大（イメージ、音圧範囲ではない）",
-  "legend.soundAtlas.animation": "波紋・受信点の脈動リング・雨滴の波紋・音符は「いま活動がある」ことを示す模式表現で、大きさと速さは相対ポテンシャルに比例するだけで音圧範囲ではありません。灰色の破線リング＝判断不可"
+  "legend.soundAtlas.animation": "波紋・受信点の脈動リング・雨滴の波紋・音符は「いま活動がある」ことを示す模式表現で、大きさと速さは相対ポテンシャルに比例するだけで音圧範囲ではありません。灰色の破線リング＝判断不可",
+  "legend.soundAtlas.rail": "列車（地上・高架、時刻表ベース）：地下区間は対象外、構造不明の区間は判定不能",
+  "legend.soundAtlas.roadTraffic": "道路種別による代理指標（国道のみ・交通量なし）：その他の道路はデータなし",
+  "legend.soundAtlas.roadwork": "道路工事の許可期間（工事の可能性。許可＝機械稼働ではない）。台北市など未公開の自治体：対象外",
+  "legend.soundAtlas.attribution": "出典：鉄道構造 © OpenStreetMap contributors（ODbL）、工事 TDX 自治体予告イベント、道路 TDX 国道路況（渋滞レベル、交通量ではない）"
 }
