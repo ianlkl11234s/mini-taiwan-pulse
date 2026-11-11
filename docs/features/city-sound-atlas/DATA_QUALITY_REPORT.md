@@ -1,6 +1,6 @@
 # DATA_QUALITY_REPORT — 場景快照的涵蓋、品質與引擎實跑
 
-> 產生：2026-11-11。產生器 `scripts/preprocess/build-sound-scenes.py`；驗算 `scripts/preprocess/verify-sound-scenes.ts`（vite-node）。模型 `sound-atlas-mvp-a-0.1.0`。
+> 產生：2026-11-11。產生器 `scripts/preprocess/build-sound-scenes.py`；驗算 `scripts/preprocess/verify-sound-scenes.ts`（vite-node）。模型 `sound-atlas-mvp-a-0.1.0`（§8 起為 `sound-atlas-mvp-b-0.2.0`）。
 > 重現：
 > ```bash
 > SUPABASE_DB_URL=… AWS_PROFILE=<可讀 migu-gis-data-collector 的 profile> python3 -I scripts/preprocess/build-sound-scenes.py
@@ -115,12 +115,13 @@ focus_time 瞬時查詢：
 
 **快照變更**：三個場景檔加 `roadwork` 區塊（`build-sound-scenes.py --merge-mvp-b`，只讀 S3、不需資料庫；其他區塊原樣）。
 
-| id | 檔案 | 施工 health | 全台施工事件（EventType 2） | 接收點 ±5 km 且許可與當日重疊 | per_city=0（視為未涵蓋） |
+| id | 檔案 | 施工 health | 全台施工事件（EventType 2） | 接收點 ±5 km 且許可與當日重疊 | `per_city_roadwork`（EventType 2 筆數；0＝未涵蓋） |
 |---|---|---|---|---|---|
-| taipei-1109 | 1,513 KB | ok | 1,644 | 2 | 臺南、高雄、宜蘭、金門 |
-| taichung-heping-1108 | 166 KB | ok | 2,037 | 0 | 臺南、高雄、金門 |
-| taipei-typhoon-1024 | 1,060 KB | ok | 2,686 | 0 | 臺南、高雄 |
+| taipei-1109 | 1,513 KB | ok | 1,644 | 2 | 新北 531、桃園 347、臺中 105、基隆 80、嘉義縣 36；臺北、臺南、高雄、宜蘭、金門 0 |
+| taichung-heping-1108 | 166 KB | ok | 2,037 | 0 | 新北 523、桃園 310、臺中 92、基隆 80、嘉義縣 27、宜蘭 20；臺北、臺南、高雄、金門 0 |
+| taipei-typhoon-1024 | 1,060 KB | ok | 2,686 | 0 | 新北 510、桃園 233、臺中 194、基隆 129、嘉義縣 54、宜蘭 13、金門 3；臺北、臺南、高雄 0 |
 
+- 臺北市三天都是 0 筆 EventType 2（只發布 EventType 7 挖掘管制區）→ 兩個臺北場景施工一律 unknown，不是「沒有施工」。
 - 施工只裁切接收點 ±5 km（第一次用 ±30 km，兩個臺北場景到 2.3 MB 超標）；區塊帶 `bbox`，接收點移出 → unknown。
 - 鐵道（班表，即時算）與道路車流（只有道路類型 proxy）不進快照。
 - 三檔 sha 已變，`deploy/public-assets.lock.json` 未改（共用登記檔），要重登記並上傳。
@@ -131,12 +132,12 @@ focus_time 瞬時查詢：
 |---|---|---|---|---|---|---|---|
 | taipei-1109 | 鐵道 | 111 | 33 | 0 | 0 | 0.083＠00:00 格 | 文湖線內湖段高架，最近約 0.9 km；01–06 時無車 |
 | | 道路車流 | 0 | 0 | 0 | 144 | — | source_not_loaded |
-| | 施工 | 0 | 144 | 0 | 0 | — | 2 筆許可都在 300 m 外 |
+| | 施工 | 0 | 0 | 144 | 0 | — | roadwork_city_not_covered（臺北市未涵蓋） |
 | taichung-heping-1108 | 鐵道 | 0 | 144 | 0 | 0 | — | 1.5 km 內無軌道 |
 | | 道路車流 | 0 | 0 | 0 | 144 | — | |
 | | 施工 | 0 | 0 | 144 | 0 | — | 外框同時落在花蓮縣（未涵蓋）→ roadwork_city_not_covered |
 | taipei-typhoon-1024 | 鐵道 | 0 | 144 | 0 | 0 | — | 1.5 km 內無軌道；颱風停駛不反映（班表） |
 | | 道路車流 | 0 | 0 | 0 | 144 | — | |
-| | 施工 | 0 | 144 | 0 | 0 | — | |
+| | 施工 | 0 | 0 | 144 | 0 | — | roadwork_city_not_covered（臺北市未涵蓋） |
 
-focus_time：臺北 07:39:30 鐵道 0.074（881 m，elevated）；和平 10:25:34 施工 unknown；颱風 14:03 鐵道、施工 inactive。MVP-A 四族數值與 §5 相同（未改）。
+focus_time：臺北 07:39:30 鐵道 0.074（881 m，elevated）；和平 10:25:34 施工 unknown；颱風 14:03 鐵道 inactive、施工 unknown；臺北 07:39:30 施工 unknown。MVP-A 四族數值與 §5 相同（未改）。

@@ -48,9 +48,9 @@
 
 ### 2.3 口徑
 
-- 列車位置與 `RailEngine`／`TraTrainEngine` 同規則（測試逐秒對照 `RailEngine.update`）。站不在 progress 表 → unknown（引擎用索引比例猜，聲景不猜）。
+- 列車位置與 `RailEngine`／`TraTrainEngine` 同規則（測試在 6 個時刻對照 `RailEngine.update`）。站不在 progress 表 → unknown（引擎用索引比例猜，聲景不猜）。
 - 地下段不產生貢獻；unknown 段 → `status=unknown`、潛勢 null；車站點前後結構不同 → unknown。
-- 查 D 日讀 D−1、D 兩個營運日（延長日制 05:50 分界）。取不到 → 該（系統、營運日）unavailable，該系統地上段附近回 unknown；不拿今天班表回填（T12）。
+- 查 D 日讀 D−1、D 兩個營運日。捷運類（trtc、krtc、tmrt、klrt…）沿用引擎的延長日制（05:50 前算前一營運日，`timeToSeconds`）；台鐵、高鐵沿用 `TraTrainEngine` 的日曆日制（班表 D 的 04:57 就是 D 日 04:57）。D−1 營運日的查詢窗延到最後一班的結束時間（延長日制至少到 05:50），05:50 前發車、之後仍在跑的列車不會消失。取不到 → 該（系統、營運日）unavailable，該系統地上段附近回 unknown；不拿今天班表回填（T12）。
 - 區間查詢解析求最短距離，不取樣（高鐵不漏）。
 - 已知不做：隔音牆、車種、速度、結構噪音、誤點與停駛（颱風停駛日班表照樣跑——10/24 場景鐵道結果只代表「照班表」）。
 
@@ -63,7 +63,7 @@
 | 國道路段壅塞 | `get_freeway_congestion_day` → 路段幾何＋`ts,level,speed` | 否（等級、旅行速率） | 是 | `cleanup_freeway_congestion_daily(7)` | 用作道路類型 proxy 的幾何 |
 | 省道路段壅塞 | `get_road_congestion_day`（timeline 字串，幾何在 `public/road/road_congestion_highway.pmtiles`） | 否 | 是（幾何要讀 PMTiles） | 7 天 | 本版不接（要解 PMTiles，且仍無流量） |
 | 國道 VD 車流 | `live.freeway_vd_traffic`（mig 011 原 `realtime`，21 天）；S3 `freeway_vd/archives/<D>.tar.gz`（每 10 分鐘，3,285 VD） | **是** | **否**：沒有 public RPC；歸檔只有 `VDID` 字串（例 `VD-N3-N-25-O-SE-1-木柵休息站`），沒有座標 | 21 天／S3 永久 | 要用需新 RPC 或 VD 靜態座標表（本版禁止新增） |
-| 市區 VD（臺北、新北） | collector `vd`；S3 `vd/` | 是 | 否 | — | S3 最後一筆 `vd/2026/01/14`、`latest.json` 2026-01-14，之後沒有歸檔（collector 現況未查主機） |
+| 市區 VD（臺北、新北） | collector `vd`；S3 `vd/` | 是 | 否 | — | S3 最後一筆 `vd/2026/01/14`、`latest.json` 2026-01-14，之後沒有歸檔；data-collectors `config.py` `_COLLECTOR_TOGGLES` 的 `('VD', False, 5)` 預設停用（主機上的實際設定未查） |
 | 國道逐車模擬 | `freewayTdcsSim*`（ADR-0025 sim bundle） | 模擬值 | 是 | — | 是模擬不是觀測，且只涵蓋雙北國道，不接 |
 
 ### 3.2 口徑
@@ -80,7 +80,9 @@
 
 - Pulse 已有 `roadEventsLoader`（`get_road_events_day`）＝TDX RoadEvent 四來源；施工在 `event_city`（縣市預告事件，collector `road_event_planned` 每 12 小時抓 10 縣市）。保留：`road_events` 分區 21 天（mig 282）；`road_events_current` 的 event_city 3 天（mig 455）。S3 `road_event_planned/archives/<D>.tar.gz` 有完整歷史（場景三天都在）。
 - 2026-11-08 歸檔（1,100 筆）：EventType 2（施工，子類 205／206／207／298／299）1,052 筆；EventType 7／798 48 筆，標題多為「挖掘管制」區（例：臺北「雙效標線試辦作業…納入挖掘管制區域」）——**是管制區不是施工，不納入**。
-- per_city：臺北 41、新北 523、桃園 310、臺中 99、基隆 80、嘉義縣 27、宜蘭 20；**臺南、高雄、金門 0**（collector 有查，視為沒有發布）；其餘縣市 collector 沒查。
+- per_city（全部事件）：臺北 41、新北 523、桃園 310、臺中 99、基隆 80、嘉義縣 27、宜蘭 20；**臺南、高雄、金門 0**（collector 有查，視為沒有發布）；其餘縣市 collector 沒查。
+- **只算 EventType 2**：新北 523、桃園 310、臺中 92、基隆 80、嘉義縣 27、宜蘭 20；**臺北 0——臺北 41 筆全是 EventType 7（挖掘管制區）**。所以臺北市不算涵蓋（unknown），不是「臺北沒有施工」。快照因此另記 `per_city_roadwork`（各縣市 EventType 2 筆數），涵蓋判斷只看它；舊的 `per_city` 含非施工事件，只供參考。
+- RPC 語意（mig 312）：`get_road_events_day(D)` 回「臺北日 D 收集到的列」中每個事件的最新版；event_city 每 12 小時整包重抓，所以跨年許可每天都會出現。
 - 許可時段：多為跨月甚至跨年（例：新北污水下水道 2022-12-12～2027-01-13）；1,100 筆只有 1 筆描述含「HH:MM–HH:MM」→ **沒有每日工時**。
 - `EventStep` 的語意未查證 TDX 規格，只原樣保留在快照列，不使用。
 
@@ -89,7 +91,7 @@
 - 許可期間判定重用 `isRoadEventActive`（缺生效時間不算進行中、沒有到期時間依來源新鮮度 36 小時）。
 - 許可期間內：`active`、`evidence=scheduled`、`proxyKind=permit_window_possible_activity`、潛勢＝距離 kernel（half 80 m，候選 300 m，多邊形內＝0 m）×0.5；notes 帶 `permit_is_not_machinery_operation`、`daily_work_hours_unknown`、`permit_span_days`。可切 `permitWindowPolicy='unknown'`。
 - 許可期間外 → 不產生貢獻；涵蓋縣市內＋來源健康 → inactive（0）。
-- 接收點所在外框有任一非涵蓋縣市（即時：`ROADWORK.coveredCities`；快照：per_city>0）→ unknown（`roadwork_city_not_covered`）。
+- 接收點所在外框有任一非涵蓋縣市（即時：`ROADWORK.coveredCities`，臺北市已移除；快照：`per_city_roadwork`>0，沒有這欄＝全部未涵蓋）→ unknown（`roadwork_city_not_covered`）。副作用：臺北市外框蓋到板橋、三重、汐止等新北地點，這些地點也是 unknown。
 - 快照區塊只裁切接收點 ±5 km（±30 km 會讓兩個臺北場景超過 2 MB），區塊自帶 `bbox`；接收點（含 300 m 候選半徑）移出 → unknown（`outside_snapshot_bbox`）。
 
 ## 5. 三場景結果（`verify-sound-scenes.ts`，10 分鐘格 ×144）
@@ -98,9 +100,9 @@
 
 | 場景 | 鐵道 | 道路車流 | 施工 |
 |---|---|---|---|
-| taipei-1109（內湖碧湖） | active 111／inactive 33；最近文湖線高架段約 0.9 km，最強 0.083；07:39:30 為 0.074（881 m，elevated） | unavailable | ±5 km 內 2 筆許可，都不在 300 m 內 → inactive 144 |
+| taipei-1109（內湖碧湖） | active 111／inactive 33；最近文湖線高架段約 0.9 km，最強 0.083；07:39:30 為 0.074（881 m，elevated） | unavailable | unknown 144（`roadwork_city_not_covered`：臺北市當日 0 筆 EventType 2；±5 km 內有 2 筆新北許可） |
 | taichung-heping-1108（南湖大山南側） | inactive 144（1.5 km 內無軌道） | unavailable | unknown 144（外框同時落在花蓮縣，未涵蓋） |
-| taipei-typhoon-1024（小油坑） | inactive 144 | unavailable | ±5 km 內 0 筆 → inactive 144 |
+| taipei-typhoon-1024（小油坑） | inactive 144 | unavailable | unknown 144（臺北市未涵蓋） |
 
 ## 6. 給 UI 的接線規格（主 agent 接）
 
@@ -117,7 +119,9 @@
 
 ## 7. 未解
 
-- 道路車流量：要有國道 VD 座標（TDX `VD/Freeway` 靜態表）＋ public RPC 或 R2 快照，才能從 proxy 升為 observed（需使用者拍板：新 RPC／collector）。市區 VD 收集停在 2026-01-14，原因未查。
+- 道路車流量：要有國道 VD 座標（TDX `VD/Freeway` 靜態表）＋ public RPC 或 R2 快照，才能從 proxy 升為 observed（需使用者拍板：新 RPC／collector）。市區 VD 收集停在 2026-01-14，collector 預設停用（`VD` toggle false）。
+- 臺北市只發布挖掘管制區（EventType 7），施工族在臺北與周邊重疊區一律 unknown；要涵蓋需另找臺北市道路挖掘資料來源（使用者決定）。
+- 結構屬性在 mini-taipei-v3、gis-wiki 都沒有（已查），所以改用 OSM。
 - 鐵道結構表的 ODbL 標示與分享方式要確認；表外與洞口段 unknown 比例高（台鐵 81／257），若要細化可改存「軌道 progress 子區間」而非站間。
 - 台鐵每日班表的 O-D 軌道若不在 `master_schedule.json`，前端沒載幾何 → 這些班次被略過（計數寫在 coverage reason）。
 - 施工快照已併入本 worktree 的三個場景檔（gitignored），sha 已變；**lock 未改**，主 agent 要重登記 `build-public-assets-lock.py add` 並上傳。
