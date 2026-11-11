@@ -1,0 +1,154 @@
+import { describe, expect, it } from "vitest";
+import type { FreewaySection } from "../../data/freewayLoader";
+import type { RoadEvent } from "../../data/roadEventsLoader";
+import { queryReceiver } from "../engines/receiverQuery";
+import { roadworkSnapshotSet, coveredCitiesFromPerCity, parseMvpBSceneBlocks } from "../mvpBSources";
+import { freewaySectionsToRecords, loadRoadTraffic, ROAD_TRAFFIC_PROVIDER } from "../sourceAdapters/roadTrafficAdapter";
+import { roadEventsToRecords, ROADWORK_PROVIDER } from "../sourceAdapters/roadworkAdapter";
+import type { SoundSourceSet } from "../types";
+import { DATE, DAY_START, RECV, latNorth } from "./fixtures";
+
+// 臺北市內的接收點（RECV 121.5,25.0 也在臺北市與新北市外框內）
+const NOON = DAY_START + 12 * 3600;
+
+function okSet<F extends "road_traffic" | "roadwork">(family: F, provider: string, records: unknown[]): SoundSourceSet<unknown, F> {
+  return {
+    family,
+    dateKey: DATE,
+    records: records as never,
+    coverage: [{ family, provider, dateKey: DATE, status: "ok", windowStart: DAY_START, windowEnd: DAY_START + 86_400, temporalKind: "day_series" }],
+  };
+}
+
+const SECTION: FreewaySection = {
+  section_id: "0001",
+  section_name: "測試路段",
+  road_name: "國道1號",
+  direction_label: "北向",
+  coords: [
+    [121.49, latNorth(100)],
+    [121.51, latNorth(100)],
+  ],
+  timeline: [{ ts: NOON - 60, level: 1, speed: 90 }],
+};
+
+describe("roadTrafficAdapter（T01）", () => {
+  it("無車流資料時只顯示道路類型 proxy：evidence=inferred、proxyKind=road_type_no_volume，不出現流量數字", () => {
+    const set = okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, freewaySectionsToRecords([SECTION], DATE));
+    const r = queryReceiver(RECV, NOON, [set], ["road_traffic"]);
+    const c = r.contributions[0]!;
+    expect(r.families[0]!.status).toBe("active");
+    expect(c.proxyKind).toBe("road_type_no_volume");
+    expect(c.evidence).toBe("inferred");
+    expect(c.acousticConfidence).toBe("unmeasured");
+    expect(c.notes.some((n) => n.startsWith("volume_veh_per_hour"))).toBe(false);
+    expect(c.notes.join()).toContain("not_volume"); // 壅塞等級只當註記
+    expect(c.relativePotential!).toBeCloseTo(0.5, 2); // 100 m、half=100 m
+  });
+
+  it("附近沒有已載入路段 → unknown（市區街道未涵蓋），不是 0", () => {
+    const far: FreewaySection = { ...SECTION, coords: [[121.6, 25.1], [121.62, 25.1]] };
+    const set = okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, freewaySectionsToRecords([far], DATE));
+    const r = queryReceiver(RECV, NOON, [set], ["road_traffic"]);
+    expect(r.families[0]!.status).toBe("unknown");
+    expect(r.families[0]!.relativePotential).toBeNull();
+    expect(r.families[0]!.reason).toContain("road_network_not_covered");
+  });
+
+  it("注入觀測流量 → observed_volume；樣本缺口或 null 流量 → unknown（null 不變 0）", () => {
+    const withVol = freewaySectionsToRecords([SECTION], DATE, new Map([["0001", [{ ts: NOON - 300, vehPerHour: 3000 }]]]));
+    const a = queryReceiver(RECV, NOON, [okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, withVol)], ["road_traffic"]);
+    expect(a.contributions[0]!.proxyKind).toBe("observed_volume");
+    expect(a.contributions[0]!.evidence).toBe("observed");
+    expect(a.contributions[0]!.status).toBe("active");
+
+    const stale = freewaySectionsToRecords([SECTION], DATE, new Map([["0001", [{ ts: NOON - 3600, vehPerHour: 3000 }]]]));
+    const b = queryReceiver(RECV, NOON, [okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, stale)], ["road_traffic"]);
+    expect(b.families[0]!.status).toBe("unknown");
+    expect(b.families[0]!.relativePotential).toBeNull();
+
+    const nullVol = freewaySectionsToRecords([SECTION], DATE, new Map([["0001", [{ ts: NOON - 60, vehPerHour: null }]]]));
+    const c = queryReceiver(RECV, NOON, [okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, nullVol)], ["road_traffic"]);
+    expect(c.families[0]!.status).toBe("unknown");
+    expect(c.families[0]!.relativePotential).toBeNull();
+  });
+
+  it("RPC 失敗 → coverage error → 家族 unknown", async () => {
+    const set = await loadRoadTraffic({ date: DATE }, () => Promise.reject(new Error("boom")));
+    expect(set.coverage[0]!.status).toBe("error");
+    const r = queryReceiver(RECV, NOON, [set], ["road_traffic"]);
+    expect(r.families[0]!.status).toBe("unknown");
+  });
+});
+
+const PERMIT: RoadEvent = {
+  event_id: "E1",
+  source: "event_city",
+  event_type: 2,
+  severity: null,
+  road_name: null,
+  direction: null,
+  start_km: null,
+  end_km: null,
+  title: "管線工程",
+  description: null,
+  location_other: null,
+  blocked_lanes: null,
+  geometry: {
+    type: "Polygon",
+    coordinates: [[[121.4995, 24.9995], [121.5005, 24.9995], [121.5005, 25.0005], [121.4995, 25.0005], [121.4995, 24.9995]]],
+  },
+  matched_section_id: null,
+  enrich_status: null,
+  start_ts: DAY_START + 9 * 3600,
+  end_ts: DAY_START + 17 * 3600,
+  last_updated_ts: DAY_START,
+};
+const COVERED = ["臺北市", "新北市"];
+
+describe("roadworkAdapter（C01）", () => {
+  it("許可期間內 → possible activity：active、evidence=scheduled、註明許可≠機具運轉", () => {
+    const { records } = roadEventsToRecords([PERMIT], DATE, COVERED);
+    const r = queryReceiver(RECV, NOON, [okSet("roadwork", ROADWORK_PROVIDER, records)], ["roadwork"]);
+    const c = r.contributions[0]!;
+    expect(r.families[0]!.status).toBe("active");
+    expect(c.spatialDistanceM).toBe(0); // 在施工範圍內
+    expect(c.evidence).toBe("scheduled");
+    expect(c.proxyKind).toBe("permit_window_possible_activity");
+    expect(c.notes).toContain("permit_is_not_machinery_operation");
+    expect(c.relativePotential!).toBeLessThan(1); // 乘 possibleActivityWeight
+  });
+
+  it("施工許可時段外 → inactive（涵蓋縣市內 0）", () => {
+    const { records } = roadEventsToRecords([PERMIT], DATE, COVERED);
+    const r = queryReceiver(RECV, DAY_START + 20 * 3600, [okSet("roadwork", ROADWORK_PROVIDER, records)], ["roadwork"]);
+    expect(r.families[0]!.status).toBe("inactive");
+    expect(r.families[0]!.relativePotential).toBe(0);
+  });
+
+  it("EventType 7（挖掘管制區）與缺生效時間的事件不當施工", () => {
+    const { records, skipped } = roadEventsToRecords([{ ...PERMIT, event_id: "E7", event_type: 7 }, { ...PERMIT, event_id: "E0", start_ts: 0 }], DATE, COVERED);
+    expect(records.filter((r) => r.payload.kind === "permit")).toHaveLength(0);
+    expect(skipped).toMatchObject({ notRoadwork: 1, noStart: 1 });
+  });
+
+  it("接收者所在縣市沒有施工資料 → unknown，不是 0", () => {
+    const { records } = roadEventsToRecords([], DATE, ["臺中市"]);
+    const r = queryReceiver(RECV, NOON, [okSet("roadwork", ROADWORK_PROVIDER, records)], ["roadwork"]);
+    expect(r.families[0]!.status).toBe("unknown");
+    expect(r.families[0]!.reason).toBe("roadwork_city_not_covered");
+    expect(r.families[0]!.relativePotential).toBeNull();
+  });
+
+  it("快照區塊：coverage 取 health；per_city=0 的縣市不算涵蓋；形狀不對的區塊丟掉", () => {
+    expect(coveredCitiesFromPerCity({ Taipei: 41, NewTaipei: 523, Kaohsiung: 0 })).toEqual(["新北市", "臺北市"]);
+    const block = parseMvpBSceneBlocks({ roadwork: { health: "ok", per_city: { Taipei: 3, NewTaipei: 5 }, events: [] } }).roadwork!;
+    const set = roadworkSnapshotSet(block, DATE);
+    expect(set.coverage[0]!.status).toBe("ok");
+    const r = queryReceiver(RECV, NOON, [set], ["roadwork"]);
+    expect(r.families[0]!.status).toBe("inactive"); // bbox 內 0 筆＋health ok＝真的沒有
+    expect(parseMvpBSceneBlocks({ roadwork: { health: "weird", events: [] } }).roadwork).toBeUndefined();
+    const empty = roadworkSnapshotSet({ ...block, health: "empty" }, DATE);
+    expect(queryReceiver(RECV, NOON, [empty], ["roadwork"]).families[0]!.status).toBe("unknown");
+  });
+});

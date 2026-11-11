@@ -8,7 +8,8 @@
  *   modeledDbA 在通過聲學校準 gate 之前一律為 null。
  */
 
-export const MODEL_VERSION = "sound-atlas-mvp-a-0.1.0";
+/** 0.2.0（W4）：新增 MVP-B 三族（RAIL／ROAD_TRAFFIC／ROADWORK）參數；MVP-A 四族參數不變。 */
+export const MODEL_VERSION = "sound-atlas-mvp-b-0.2.0";
 
 export interface AssumedParam<T> {
   value: T;
@@ -72,6 +73,50 @@ export const WASTE = {
   weekdayUnknownCities: p(["臺北市"] as readonly string[], "來源沒有星期欄位，RPC 端把空值當每日 → calendar_confidence=weekday_unknown。"),
   weekdayUnknownPolicy: p<CalendarPolicy>("unknown", "weekday_unknown 的停點預設回 unknown（不顯示成確定收運）；改 candidate 則以 evidence=inferred 顯示候選。"),
   weekdayUnverifiedPolicy: p<CalendarPolicy>("candidate", "其餘城市（星期欄位現況未查證）→ calendar_confidence=weekday_unverified，以 evidence=inferred 顯示候選，不標 scheduled。"),
+} as const;
+
+// ── 鐵道 R01（移動點；地面／高架，排除地下段）─────────────────
+
+export const RAIL = {
+  candidateRadiusM: p(1_500, "只查接收者 1.5 km 內的軌道；純候選篩選，非可聽距離宣稱。"),
+  halfPotentialDistanceM: p(250, "與列車水平距離 250 m 時相對潛勢為 0.5（啟發式；未依車種、速度、軌道結構、隔音牆校準）。"),
+  structureWeight: p(
+    { elevated: 1, at_grade: 1, surface: 1 } as const,
+    "高架與地面目前不分輕重（都 1）：兩者聲學差異（結構噪音 vs 輪軌、隔音牆）未量測，先只區分『會不會直接傳到戶外』。地下段不產生貢獻；結構不明（unknown）→ 潛勢 null。",
+  ),
+  scheduleIsObservation: p(false, "班表是 scheduled 證據，不是觀測：列車實際位置、誤點、停駛都不反映。"),
+} as const;
+
+// ── 道路車流 T01（線聲源；只有道路類型時只給 proxy）────────────
+
+export const ROAD_TRAFFIC = {
+  candidateRadiusM: p(500, "只查接收者 500 m 內的已載入路段（目前只有國道路段幾何）。"),
+  halfPotentialDistanceM: p(100, "距路段 100 m 時相對潛勢為 0.5（啟發式；未依車道數、車速、路面、隔音牆校準）。"),
+  roadTypeProxyWeight: p(
+    { freeway: 1 } as const,
+    "只有道路類型時的 proxy 權重：目前只有國道路段（freeway）一種，權重 1。這不是流量，UI 必須標『道路類型 proxy』。",
+  ),
+  volumeMaxAgeS: p(900, "注入的車流量樣本只代表其後 15 分鐘；更久沒有樣本 → unknown（不沿用舊值、不退回 proxy）。"),
+  volumeScaleVehPerHour: p(1_500, "有觀測車流量時：volumePotential = 1 − exp(−Q/1500)，Q＝每小時車輛數（單調遞增啟發式，非聲功率公式）。目前前端沒有車流量來源，此參數只在注入流量時使用。"),
+} as const;
+
+// ── 道路施工 C01（點／線／面；許可期間＝可能活動）───────────────
+
+export type PermitWindowPolicy = "possible_activity" | "unknown";
+
+export const ROADWORK = {
+  candidateRadiusM: p(300, "只查接收者 300 m 內的施工範圍（多邊形內＝距離 0）。"),
+  halfPotentialDistanceM: p(80, "距施工範圍 80 m 時相對潛勢為 0.5（啟發式；機具種類、工時未知）。"),
+  eventTypes: p([2] as readonly number[], "TDX RoadEvent EventType=2（施工）。EventType=7（樣本中 EventSubType=798，標題多為『挖掘管制』）是管制區不是施工，不納入。"),
+  permitWindowPolicy: p<PermitWindowPolicy>(
+    "possible_activity",
+    "許可（EffectiveTime～ExpireTime）期間內視為『可能有施工活動』（evidence=scheduled）。許可≠機具運轉：多數許可跨月甚至跨年、沒有每日工時，不自行假設工時。改 'unknown' 則許可期間內一律回 unknown。",
+  ),
+  possibleActivityWeight: p(0.5, "許可期間內只是『可能』施工：潛勢乘 0.5，避免與有觀測證據的來源同級（啟發式）。"),
+  coveredCities: p(
+    ["臺北市", "新北市", "桃園市", "臺中市", "基隆市", "嘉義縣", "宜蘭縣"] as readonly string[],
+    "即時路徑（沒有 per_city 計數時）視為有施工資料的縣市：2026-11-08 S3 road_event_planned 歸檔 per_city>0 的 7 城。collector 也查臺南、高雄、金門，但回 0 筆，視為『沒有發布』而非『沒有施工』→ unknown。其餘縣市 collector 沒查。",
+  ),
 } as const;
 
 // ── 24h profile ─────────────────────────────────────────────
