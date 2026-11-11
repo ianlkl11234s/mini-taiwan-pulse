@@ -16,8 +16,12 @@ import { wasteAdapter } from "../sourceAdapters/wasteAdapter";
 import { railAdapter } from "../sourceAdapters/railAdapter";
 import { roadTrafficAdapter } from "../sourceAdapters/roadTrafficAdapter";
 import { roadworkAdapter } from "../sourceAdapters/roadworkAdapter";
+import { windVegetationAdapter } from "../sourceAdapters/windVegetationAdapter";
+import { coastalWaveAdapter } from "../sourceAdapters/coastalWaveAdapter";
+import { riverWaterAdapter } from "../sourceAdapters/riverWaterAdapter";
 import { taipeiMidnightMs } from "../../lib/taipeiDay";
 import type {
+  AdvancedSoundFamily,
   AnySoundFamily,
   FamilyResult,
   FamilyStatus,
@@ -34,7 +38,9 @@ import type {
 export const SOUND_FAMILIES: readonly SoundSourceFamily[] = ["aviation", "rain", "thunder", "waste_collection"];
 /** MVP-B 三族（W4；UI 接線前呼叫端要明確傳入 families 才會查） */
 export const SOUND_FAMILIES_MVP_B: readonly MvpBSoundFamily[] = ["rail", "road_traffic", "roadwork"];
-export const SOUND_FAMILIES_ALL: readonly AnySoundFamily[] = [...SOUND_FAMILIES, ...SOUND_FAMILIES_MVP_B];
+/** W5 自然聲源三族（UI 接線前呼叫端要明確傳入 families 才會查） */
+export const SOUND_FAMILIES_ADVANCED: readonly AdvancedSoundFamily[] = ["wind_vegetation", "coastal_wave", "river_water"];
+export const SOUND_FAMILIES_ALL: readonly AnySoundFamily[] = [...SOUND_FAMILIES, ...SOUND_FAMILIES_MVP_B, ...SOUND_FAMILIES_ADVANCED];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyQuery = IntervalQuery<never, any>;
@@ -46,6 +52,9 @@ const QUERIES: Record<AnySoundFamily, AnyQuery> = {
   rail: railAdapter.queryInterval as AnyQuery,
   road_traffic: roadTrafficAdapter.queryInterval as AnyQuery,
   roadwork: roadworkAdapter.queryInterval as AnyQuery,
+  wind_vegetation: windVegetationAdapter.queryInterval as AnyQuery,
+  coastal_wave: coastalWaveAdapter.queryInterval as AnyQuery,
+  river_water: riverWaterAdapter.queryInterval as AnyQuery,
 };
 
 /** 引擎接受任何家族的來源集合（MVP-A 呼叫端傳的窄型別也相容） */

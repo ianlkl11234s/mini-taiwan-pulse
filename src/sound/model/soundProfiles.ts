@@ -8,8 +8,11 @@
  *   modeledDbA 在通過聲學校準 gate 之前一律為 null。
  */
 
-/** 0.2.0（W4）：新增 MVP-B 三族（RAIL／ROAD_TRAFFIC／ROADWORK）參數；MVP-A 四族參數不變。 */
-export const MODEL_VERSION = "sound-atlas-mvp-b-0.2.0";
+/**
+ * 0.2.0（W4）：新增 MVP-B 三族（RAIL／ROAD_TRAFFIC／ROADWORK）參數；MVP-A 四族參數不變。
+ * 0.3.0（W5）：新增自然聲源三族（WIND_VEGETATION／COASTAL_WAVE／RIVER_WATER）與路線剖面（ROUTE）參數；既有七族參數不變。
+ */
+export const MODEL_VERSION = "sound-atlas-w5-0.3.0";
 
 export interface AssumedParam<T> {
   value: T;
@@ -121,6 +124,53 @@ export const ROADWORK = {
     ["新北市", "桃園市", "臺中市", "基隆市", "嘉義縣", "宜蘭縣"] as readonly string[],
     "即時路徑視為有施工資料的縣市：2026-11-08 S3 road_event_planned 歸檔中 EventType=2 筆數 >0 的 6 城。**臺北市只發布 EventType 7（挖掘管制區）、0 筆施工 → 不涵蓋（unknown）**；臺南、高雄、金門回 0 筆，視為沒有發布而非沒有施工。其餘縣市 collector 沒查。外框重疊：臺北市外框蓋住板橋、三重、汐止等新北地點，這些地點也會是 unknown。",
   ),
+} as const;
+
+// ── W5 風×植被 N03（站點風速 × 接收點周圍樹冠）───────────────────
+
+export const WIND_VEGETATION = {
+  maxStationDistanceM: p(8_000, "接收者到最近有風速的氣象站超過 8 km → unknown；風受地形、建物影響大，不把遠站外推。"),
+  windOnsetMs: p(1.5, "平均風速 ≤1.5 m/s（蒲福 1 級以下）視為葉片幾乎不動 → 0。啟發式門檻，非量測。"),
+  windScaleMs: p(6, "windPotential = 1 − exp(−(v − onset)/6)：5 m/s ≈ 0.44、10 m/s ≈ 0.76、20 m/s ≈ 0.96。單調遞增啟發式，**風速不直接等於聲級**。"),
+  canopyRadiusM: p(100, "只看接收點 100 m 內的樹冠覆蓋（樹葉沙沙聲是近場聲音）。"),
+  minCanopyHeightM: p(3, "樹冠高度 ≥3 m 才算『有樹』（Meta/WRI 2020 10 m 樹冠高度；矮灌叢、草地不算）。"),
+  coverSaturation: p(0.5, "100 m 內樹冠覆蓋達 50% 起植被係數＝1，以下線性；啟發式。"),
+  bucketDurationS: p(3_600, "CWA O-A0001-001 每站整點一筆；整點觀測代表其後 1 小時。"),
+  urbanTurbulence: p(false, "不推論建築區紊流／風切聲：樹冠覆蓋 0 → inactive，不因風大就給潛勢。"),
+} as const;
+
+// ── W5 海浪×海岸 N04（浮標浪高週期 × 離海岸距離）───────────────────
+
+export const COASTAL_WAVE = {
+  coastMaxDistanceM: p(1_000, "接收者離『近岸海域』邊界超過 1 km → inactive（不在海浪可能聽見的帶狀範圍內）。海岸線用國家公園署海岸地區範圍的近岸海域面當 proxy，不是現行海岸線。"),
+  halfPotentialDistanceM: p(250, "離近岸海域邊界 250 m 時距離係數 0.5（啟發式；不推近岸衰減、地形遮蔽、岸型）。"),
+  maxStationDistanceM: p(40_000, "最近有浪高的浮標／測站超過 40 km → unknown；浮標稀疏，同一海域才勉強代表。"),
+  powerScaleM2S: p(18, "wavePotential = 1 − exp(−Hs²·T / 18)：Hs 1.5 m、T 8 s → 0.63。Hs²T 正比於波浪能通量（深水近似），只取其單調性，不換算聲壓。"),
+  bucketDurationS: p(3_600, "CWA O-B0075 逐時一筆；代表其後 1 小時。"),
+} as const;
+
+// ── W5 河川水聲 N05（水位相對自身歷史分位 × 離河道距離）─────────────
+
+export const RIVER_WATER = {
+  channelMaxDistanceM: p(300, "接收者離河道線超過 300 m → inactive。河道線是水利署河川線（public/geo/water_rivers.geojson），不含野溪、瀑布。"),
+  halfPotentialDistanceM: p(80, "離河道 80 m 時距離係數 0.5（啟發式；不分堤防、河寬、落差）。"),
+  maxStationDistanceM: p(5_000, "最近水位站超過 5 km → unknown。未驗證測站與河道是否同一條河（station_river_match_unverified）。"),
+  minHistorySamples: p(24 * 14, "分位數至少要 14 天×24 小時的歷史；不足 → unknown（no_station_history_quantiles）。"),
+  historyWindowDays: p(60, "分位數用場景日之前 60 天（不含當天）的每小時水位；當天不進基準，避免自我比較。"),
+  bucketDurationS: p(3_600, "水位每站每小時取最後一筆（與 get_river_water_level_day 同口徑），代表該小時。"),
+} as const;
+
+// ── W5 路線剖面（移動接收者）───────────────────────────────────
+
+export type RouteMode = "walk" | "bike" | "custom";
+
+export const ROUTE = {
+  speedMps: p(
+    { walk: 1.3, bike: 4 } as const,
+    "步行 1.3 m/s（約 4.7 km/h）、自行車 4 m/s（約 14 km/h）：等速假設，不含停等紅燈、坡度、上下車。custom 模式由呼叫端給速度。",
+  ),
+  sampleSpacingM: p(50, "沿路線每 50 m 取一個樣本（含終點）；每點時間＝出發時間＋累積距離÷速度。"),
+  maxSamples: p(2_000, "單次剖面最多 2,000 點（約 100 km @50 m）；超過就加大間距，不截斷路線。"),
 } as const;
 
 // ── 24h profile ─────────────────────────────────────────────
