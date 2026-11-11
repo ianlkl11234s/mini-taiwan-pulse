@@ -36,6 +36,8 @@ export const ANIM_CAPS = { planes: 8, ripplesPerPlane: 3, rainDrops: 28, flashes
 
 const FRAME_MIN_MS = 33;
 const FLASH_MS = 300;
+/** 落雷點標記保留時間（模擬秒；與波前淡出同量級，示意） */
+const STRIKE_MARK_S = 60;
 const RECEIVER_FLASH_MS = 450;
 /** 時間軸一次跳太遠（拖曳、選場景）不觸發閃光，只在連續播放時觸發 */
 const MAX_CROSSING_STEP_S = 120;
@@ -265,6 +267,17 @@ export class SoundAtlasAnimator {
     for (const f of this.flashes) {
       const k = (nowMs - f.startMs) / FLASH_MS;
       out.push(circle(f.lon, f.lat, { r: 8 + 34 * k, fill: SOUND_FLASH_COLOR, fillOpacity: (1 - k) * op("thunder"), stroke: SOUND_FLASH_COLOR, strokeWidth: 0, opacity: 0, blur: 0.6 }));
+    }
+
+    // 雷：閃光後到雷聲抵達前，落雷點本身還不在引擎結果（尚未聽到），標一個小點讓波前有起點
+    if (flags.thunder) {
+      let n = 0;
+      for (const s of this.state.thunderStrikes) {
+        const dt = t - s.flashTime;
+        if (dt < 0 || dt > STRIKE_MARK_S) continue;
+        out.push(circle(s.lon, s.lat, { r: 4, fill: SOUND_FAMILY_COLORS.thunder, fillOpacity: (1 - dt / STRIKE_MARK_S) * op("thunder"), stroke: SOUND_FLASH_COLOR, strokeWidth: 1, opacity: (1 - dt / STRIKE_MARK_S) * op("thunder") }));
+        if (++n >= ANIM_CAPS.flashes) break;
+      }
     }
 
     if (!receiver || !result) return out;

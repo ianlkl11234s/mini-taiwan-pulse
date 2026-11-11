@@ -2006,6 +2006,7 @@ export type GeneratedStaticKey =
   | "legend.registry.visitorCentres"
   | "legend.registry.wasteBaskets"
   | "legend.registry.wasteStopsStatic"
+  | "legend.soundAtlas.animation"
   | "legend.soundAtlas.link"
   | "legend.soundAtlas.receiver"
   | "legend.soundAtlas.size"

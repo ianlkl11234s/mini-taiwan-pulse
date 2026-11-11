@@ -106,20 +106,28 @@ describe("SoundAtlasAnimator（假地圖，手動推影格）", () => {
     expect(setData).not.toHaveBeenCalled();
   });
 
-  it("雷：連續播放跨過 flashTime 才閃光；時間軸大跳（>120 s）不觸發；dispose 停止迴圈", () => {
+  it("雷：連續播放跨過 flashTime 才閃白光；時間軸大跳（>120 s）不觸發；閃光後落雷點留小點；dispose 停止迴圈", () => {
     const flash = DAY_START + 1000;
     const { anim, step, lastFeatures, setData } = setup({ thunderStrikes: [{ lon: RECV.longitude, lat: latNorth(2000), flashTime: flash }] });
+    const flashes = () => lastFeatures().filter((f) => f.properties?.fill === "#ffffff" && (f.properties?.r as number) >= 8);
+    const marks = () => lastFeatures().filter((f) => f.properties?.r === 4);
     timeStore.setTime(flash - 500);
     step();
-    timeStore.setTime(flash + 1); // 跳 501 s：不閃
+    expect(setData).not.toHaveBeenCalled(); // 閃光前：什麼都沒有
+    timeStore.setTime(flash + 1); // 跳 501 s：不閃，但落雷點小點出現
     step();
-    expect(setData).not.toHaveBeenCalled();
+    expect(flashes()).toHaveLength(0);
+    expect(marks()).toHaveLength(1);
     timeStore.setTime(flash - 1);
     step();
     timeStore.setTime(flash + 0.1);
     step();
-    expect(lastFeatures().some((f) => f.properties?.kind === "circle")).toBe(true);
-    step(400); // 閃光 0.3 s 牆鐘後消失 → 寫一次空集合
+    expect(flashes()).toHaveLength(1);
+    step(400); // 閃光 0.3 s 牆鐘後消失，小點還在
+    expect(flashes()).toHaveLength(0);
+    expect(marks()).toHaveLength(1);
+    timeStore.setTime(flash + 61); // 超過保留時間 → 清空
+    step();
     expect(lastFeatures()).toHaveLength(0);
     anim.dispose();
     expect(rafCb).toBeNull();

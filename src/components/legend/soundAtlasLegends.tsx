@@ -22,6 +22,7 @@ export function SoundAtlasLegend() {
     <LegendNote>{t("legend.soundAtlas.size")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.link")}</LegendNote>
     <LegendNote>{t("legend.soundAtlas.wavefront")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.animation")}</LegendNote>
     <LegendNote>{t("soundAtlas.disclaimer")}</LegendNote>
   </div>;
 }

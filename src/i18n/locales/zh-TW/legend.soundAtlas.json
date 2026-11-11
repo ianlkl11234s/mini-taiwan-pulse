@@ -4,5 +4,6 @@
   "legend.soundAtlas.unknown": "灰色空心＝無法判斷",
   "legend.soundAtlas.size": "圓越大＝相對潛勢越高（0–1）",
   "legend.soundAtlas.link": "連線：接收點到來源（飛機為地面投影，虛線）",
-  "legend.soundAtlas.wavefront": "雷聲波前：每秒擴散 343 m（示意，非聲壓範圍）"
+  "legend.soundAtlas.wavefront": "雷聲波前：每秒擴散 343 m（示意，非聲壓範圍）",
+  "legend.soundAtlas.animation": "波紋、接收點脈動環、雨滴漣漪、音符都是示意「此刻有活動」，大小與快慢只跟相對潛勢成比例，不是聲壓範圍；灰色虛線環＝該來源無法判斷"
 }
