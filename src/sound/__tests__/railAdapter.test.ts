@@ -152,6 +152,32 @@ describe("railAdapter", () => {
     expect(r.contributions[0]!.notes).toContain(`op_day:${prevDay}`);
   });
 
+  it("05:50 前發車、之後還在跑的 D−1 營運日列車不會在 05:50 後消失", async () => {
+    const early: RailDepartureInput = { ...DEP, trainId: "E-1", departureTime: "05:30:00", totalTravelTime: 3600, stations: [{ station_id: "A", arrival: 0, departure: 0 }, { station_id: "D", arrival: 3600, departure: 3600 }] };
+    const prevDay = "2026-07-13";
+    const fetchers: RailFetchers = {
+      network: async () => [TRACK],
+      schedule: async (_s, opDay) => ({ departures: opDay === prevDay ? [early] : [], basis: "local_template" }),
+    };
+    const set = await loadRail({ date: DATE, systems: ["trtc"], structureLookup: ALL_ELEVATED }, fetchers);
+    // 延長日制：D−1 營運日 05:30 ＝ D 05:30，行駛到 06:30；06:10 約在 2/3 處（距接收者約 1.3 km 內）
+    const r = queryReceiver(RECV, DAY_START + 6 * 3600 + 600, [set], ["rail"]);
+    expect(r.families[0]!.status).toBe("active");
+    expect(r.contributions[0]!.notes).toContain(`op_day:${prevDay}`);
+  });
+
+  it("台鐵（日曆日制）：班表 D 的 04:57 班就是 D 日 04:57，不延到 D+1", async () => {
+    const dawn: RailDepartureInput = { ...DEP, trainId: "TRA-1", departureTime: "04:57:00" };
+    const fetchers: RailFetchers = {
+      network: async () => [{ ...TRACK, system: "tra" }],
+      schedule: async (_s, opDay) => ({ departures: opDay === DATE ? [dawn] : [], basis: "local_template" }),
+    };
+    const set = await loadRail({ date: DATE, systems: ["tra"], structureLookup: ALL_ELEVATED }, fetchers);
+    expect(set.records.map((x) => x.id)).toContain(`rail:tra:${DATE}:TRA-1`);
+    const r = queryReceiver(RECV, DAY_START + 4 * 3600 + 57 * 60 + 210, [set], ["rail"]);
+    expect(r.families[0]!.status).toBe("active");
+  });
+
   it("D−1 營運日班表取不到 → D 凌晨軌道附近 unknown（不拿今天班表回填）；白天照常", async () => {
     const fetchers: RailFetchers = {
       network: async () => [TRACK],

@@ -84,6 +84,10 @@ export const RAIL = {
     { elevated: 1, at_grade: 1, surface: 1 } as const,
     "高架與地面目前不分輕重（都 1）：兩者聲學差異（結構噪音 vs 輪軌、隔音牆）未量測，先只區分『會不會直接傳到戶外』。地下段不產生貢獻；結構不明（unknown）→ 潛勢 null。",
   ),
+  calendarDaySystems: p(
+    ["tra", "thsr"] as readonly string[],
+    "台鐵、高鐵的每日班表來自 TDX DailyTimetable，以日曆日（TrainDate）編列：班表 D 的 04:57 班是 D 日 04:57。捷運類用 RailEngine 的延長日制（05:50 前算前一營運日的末班車）。此分界依資料來源慣例判斷，未逐班驗證；地圖上的 RailEngine 一律用延長日制。",
+  ),
   scheduleIsObservation: p(false, "班表是 scheduled 證據，不是觀測：列車實際位置、誤點、停駛都不反映。"),
 } as const;
 
@@ -114,8 +118,8 @@ export const ROADWORK = {
   ),
   possibleActivityWeight: p(0.5, "許可期間內只是『可能』施工：潛勢乘 0.5，避免與有觀測證據的來源同級（啟發式）。"),
   coveredCities: p(
-    ["臺北市", "新北市", "桃園市", "臺中市", "基隆市", "嘉義縣", "宜蘭縣"] as readonly string[],
-    "即時路徑（沒有 per_city 計數時）視為有施工資料的縣市：2026-11-08 S3 road_event_planned 歸檔 per_city>0 的 7 城。collector 也查臺南、高雄、金門，但回 0 筆，視為『沒有發布』而非『沒有施工』→ unknown。其餘縣市 collector 沒查。",
+    ["新北市", "桃園市", "臺中市", "基隆市", "嘉義縣", "宜蘭縣"] as readonly string[],
+    "即時路徑視為有施工資料的縣市：2026-11-08 S3 road_event_planned 歸檔中 EventType=2 筆數 >0 的 6 城。**臺北市只發布 EventType 7（挖掘管制區）、0 筆施工 → 不涵蓋（unknown）**；臺南、高雄、金門回 0 筆，視為沒有發布而非沒有施工。其餘縣市 collector 沒查。外框重疊：臺北市外框蓋住板橋、三重、汐止等新北地點，這些地點也會是 unknown。",
   ),
 } as const;
 

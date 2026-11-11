@@ -36,7 +36,8 @@ MVP-B（W4）施工區塊 `roadwork`（只有 S3，不需要 SUPABASE_DB_URL）�
     （區塊自帶 bbox；接收點移出該範圍時前端回 unknown）；
     幾何取 Geometry，沒有時取 Positions（與 data-collectors supabase_writer._transform_road_event 相同），WKT 轉 GeoJSON。
   - 列形狀＝前端 RoadEvent（src/data/roadEventsLoader.ts），前端與即時 RPC 共用 roadEventsToRecords。
-  - health：D 包存在且有資料＝ok、D 包存在但 0 筆＝empty、缺檔／讀取失敗＝error。per_city 取 D 包最後一個檔。
+  - health：D 包存在且有資料＝ok、D 包存在但 0 筆＝empty、缺檔／讀取失敗＝error。per_city 取 D 包最後一個檔；
+    per_city_roadwork＝該檔各縣市 EventType=2 筆數（前端以此判斷縣市涵蓋；臺北市只發布 EventType 7 挖掘管制區 → 0）。
   - 鐵道（班表類，即時算）與道路車流（只有道路類型 proxy，無流量來源）不進快照。
   --merge-mvp-b：只把 roadwork 區塊併進既有場景檔（其他區塊原樣保留），不需要資料庫。
 
@@ -571,8 +572,13 @@ def build_roadwork(scene: dict, _scene_bbox: list[float], notes: list[str]) -> d
     prev = _planned_archive(shift(date, -1)) or []
     if today is None:
         notes.append(f"施工：S3 {ROADWORK_ARCHIVE}/{date}.tar.gz 缺檔 → health=error（前端回 unknown）。")
-        return {"origin": f"s3:{ROADWORK_ARCHIVE}", "health": "error", "bbox": bbox, "per_city": {}, "events": []}
+        return {"origin": f"s3:{ROADWORK_ARCHIVE}", "health": "error", "bbox": bbox, "per_city": {}, "per_city_roadwork": {}, "events": []}
     per_city = (today[-1].get("per_city") if today else None) or {}
+    # 涵蓋判定用「施工事件」筆數，不用 per_city（含 EventType 7 挖掘管制區；臺北市全部是 7）
+    per_city_roadwork = {c: 0 for c in per_city}
+    for ev in (today[-1].get("data") or []) if today else []:
+        if ev.get("EventType") in ROADWORK_EVENT_TYPES and ev.get("_city"):
+            per_city_roadwork[ev["_city"]] = per_city_roadwork.get(ev["_city"], 0) + 1
     latest: dict[str, dict] = {}
     total_type2 = 0
     for doc in prev + today:
@@ -604,10 +610,11 @@ def build_roadwork(scene: dict, _scene_bbox: list[float], notes: list[str]) -> d
     health = "ok" if total_type2 > 0 else "empty"
     notes.append(
         f"施工：S3 {ROADWORK_ARCHIVE} {shift(date, -1)}＋{date}（{len(today)} 個檔），全台施工事件 {total_type2} 筆，"
-        f"接收點 ±{ROADWORK_HALF_KM:g} km 內且許可期間與當日重疊 {len(rows)} 筆（移出此範圍前端回 unknown）；per_city＝{json.dumps(per_city, ensure_ascii=False)}（0 筆的縣市視為沒發布 → unknown）。"
+        f"接收點 ±{ROADWORK_HALF_KM:g} km 內且許可期間與當日重疊 {len(rows)} 筆（移出此範圍前端回 unknown）；"
+        f"各縣市施工筆數＝{json.dumps(per_city_roadwork, ensure_ascii=False)}（0 筆的縣市視為沒發布施工 → unknown；臺北市只發布挖掘管制區）。"
         "許可期間≠機具運轉，沒有每日工時。"
     )
-    return {"origin": f"s3:{ROADWORK_ARCHIVE}", "health": health, "bbox": bbox, "per_city": per_city, "events": rows}
+    return {"origin": f"s3:{ROADWORK_ARCHIVE}", "health": health, "bbox": bbox, "per_city": per_city, "per_city_roadwork": per_city_roadwork, "events": rows}
 
 
 def merge_mvp_b(path: str, scene: dict) -> dict:

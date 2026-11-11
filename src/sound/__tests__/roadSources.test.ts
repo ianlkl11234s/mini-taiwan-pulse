@@ -142,7 +142,10 @@ describe("roadworkAdapter（C01）", () => {
 
   it("快照區塊：coverage 取 health；per_city=0 的縣市不算涵蓋；形狀不對的區塊丟掉", () => {
     expect(coveredCitiesFromPerCity({ Taipei: 41, NewTaipei: 523, Kaohsiung: 0 })).toEqual(["新北市", "臺北市"]);
-    const block = parseMvpBSceneBlocks({ roadwork: { health: "ok", per_city: { Taipei: 3, NewTaipei: 5 }, events: [] } }).roadwork!;
+    // 涵蓋看施工筆數（per_city_roadwork），不看含挖掘管制區的 per_city
+    const taipeiOnlyType7 = roadworkSnapshotSet({ health: "ok", per_city: { Taipei: 41, NewTaipei: 5 }, per_city_roadwork: { Taipei: 0, NewTaipei: 5 }, events: [] }, DATE);
+    expect(queryReceiver(RECV, NOON, [taipeiOnlyType7], ["roadwork"]).families[0]!.reason).toBe("roadwork_city_not_covered");
+    const block = parseMvpBSceneBlocks({ roadwork: { health: "ok", per_city: { Taipei: 3, NewTaipei: 5 }, per_city_roadwork: { Taipei: 3, NewTaipei: 5 }, events: [] } }).roadwork!;
     const set = roadworkSnapshotSet(block, DATE);
     expect(set.coverage[0]!.status).toBe("ok");
     const r = queryReceiver(RECV, NOON, [set], ["roadwork"]);

@@ -25,6 +25,7 @@ import { MODEL_VERSION, RAIL } from "../model/soundProfiles";
 import { structureAtProgress, trackStructureIntervals, type RailStructure, type StructureInterval } from "../model/railSegments";
 import { proximityPotential } from "../engines/relativePotentialKernel";
 import { MS_PER_DAY, taipeiMidnightMs } from "../../lib/taipeiDay";
+import { liveRailFetchers } from "./railLiveFetchers";
 import type {
   IntervalQuery,
   Receiver,
@@ -374,6 +375,12 @@ export function shiftDateKey(dateKey: string, days: number): string {
   return new Date(Date.parse(`${dateKey}T00:00:00Z`) + days * MS_PER_DAY).toISOString().slice(0, 10);
 }
 
+/** "HH:MM:SS" → 當日秒數（不做延長日位移） */
+function clockSeconds(timeStr: string): number {
+  const [h = "0", m = "0", s = "0"] = timeStr.split(":");
+  return Number(h) * 3600 + Number(m) * 60 + Number(s);
+}
+
 export const railProvider = (system: RailSystemId, opDay: string) => `rail_${system}@${opDay}`;
 export const RAIL_NETWORK_PROVIDER = "rail_network_static";
 
@@ -384,6 +391,7 @@ export function departuresToRecords(
   departures: readonly RailDepartureInput[],
   tracks: ReadonlyMap<string, PreparedTrack>,
   basis: RailScheduleBasis,
+  calendarDay: boolean = RAIL.calendarDaySystems.value.includes(system),
 ): { records: RailRecord[]; missingTrack: number } {
   const midnight = taipeiMidnightMs(opDay) / 1000;
   const records: RailRecord[] = [];
@@ -394,7 +402,8 @@ export function departuresToRecords(
       missingTrack++;
       continue;
     }
-    const depUnix = midnight + timeToSeconds(d.departureTime);
+    // 日曆日系統（台鐵、高鐵）：班表時刻就是 opDay 當天時刻；捷運類：延長日制（05:50 前 +24h）
+    const depUnix = midnight + (calendarDay ? clockSeconds(d.departureTime) : timeToSeconds(d.departureTime));
     const last = d.stations[d.stations.length - 1]!;
     records.push({
       id: `rail:${system}:${opDay}:${d.trainId}`,
@@ -421,7 +430,9 @@ export interface RailFetchers {
 
 /**
  * 查 D 日：讀 D−1、D 兩個營運日。每個（系統、營運日）一筆 coverage：
- *   D−1 營運日代表 [D 00:00, D 05:50)，D 營運日代表 [D 05:50, D+1 00:00)。
+ *   延長日制（捷運類）：D−1 營運日從 D 00:00 起、D 營運日從 D 05:50 起；
+ *   日曆日制（台鐵、高鐵，RAIL.calendarDaySystems）：兩者都從 D 00:00 起（D−1 只剩跨午夜的車）。
+ *   D−1 營運日的窗尾延到它最後一班車的結束時間（05:50 前發車、之後還在跑的車不會被丟掉）。
  * 班表取不到的（系統、營運日）→ 該系統軌道放 schedule_unavailable 佔位（provider=rail_network_static），
  * 接收者在軌道附近時回 unknown，不會因為「沒有列車 record」被算成 0。
  */
@@ -432,10 +443,7 @@ export async function loadRail(
   const systems = ctx.systems ?? RAIL_SYSTEMS;
   const dayStart = taipeiMidnightMs(ctx.date) / 1000;
   const split = dayStart + DAY_START_SECONDS;
-  const windows = [
-    { opDay: shiftDateKey(ctx.date, -1), start: dayStart, end: split },
-    { opDay: ctx.date, start: split, end: dayStart + 86_400 },
-  ];
+  const dayEnd = dayStart + 86_400;
   const cov = (provider: string, status: SourceCoverage["status"], start: number, end: number, reason?: string): SourceCoverage<"rail"> => ({
     family: "rail",
     provider,
@@ -463,6 +471,12 @@ export async function loadRail(
   const coverage: SourceCoverage<"rail">[] = [cov(RAIL_NETWORK_PROVIDER, network.length ? "ok" : "empty", dayStart, dayStart + 86_400)];
   for (const system of systems) {
     const tracks = bySystem.get(system) ?? new Map<string, PreparedTrack>();
+    const calendarDay = RAIL.calendarDaySystems.value.includes(system);
+    const windows = [
+      // 班表取不到時 D−1 的佔位窗用到 05:50（跨午夜列車的實際結束時間無從得知，保守以 unknown 蓋住）
+      { opDay: shiftDateKey(ctx.date, -1), start: dayStart, end: split, prev: true },
+      { opDay: ctx.date, start: calendarDay ? dayStart : split, end: dayEnd, prev: false },
+    ];
     for (const w of windows) {
       const provider = railProvider(system, w.opDay);
       let sched: RailDaySchedule;
@@ -490,12 +504,15 @@ export async function loadRail(
         }
         continue;
       }
-      const { records: rs, missingTrack } = departuresToRecords(system, w.opDay, sched.departures, tracks, sched.basis);
+      const { records: rs, missingTrack } = departuresToRecords(system, w.opDay, sched.departures, tracks, sched.basis, calendarDay);
       // 營運日的列車可能跨進 D+1；只保留與查詢日有重疊者
-      const kept = rs.filter((r) => r.validUntil >= dayStart && r.validFrom < dayStart + 86_400);
+      const kept = rs.filter((r) => r.validUntil >= dayStart && r.validFrom < dayEnd);
       records.push(...kept);
+      const lastEnd = kept.reduce((m, r) => Math.max(m, r.validUntil), -Infinity);
+      // D−1：窗尾＝最後一班結束（延長日制至少到 05:50）；D：到 D+1 00:00
+      const end = w.prev ? Math.min(dayEnd, Math.max(calendarDay ? dayStart : split, lastEnd)) : w.end;
       coverage.push(
-        cov(provider, kept.length ? "ok" : "empty", w.start, w.end, [`basis:${sched.basis}`, missingTrack ? `departures_without_track_geometry:${missingTrack}` : ""].filter(Boolean).join(";")),
+        cov(provider, kept.length ? "ok" : "empty", w.start, end, [`basis:${sched.basis}`, missingTrack ? `departures_without_track_geometry:${missingTrack}` : ""].filter(Boolean).join(";")),
       );
     }
   }
@@ -504,7 +521,7 @@ export async function loadRail(
 
 export const railAdapter: SoundSourceAdapter<RailPayload, "rail"> & { loadWith: typeof loadRail } = {
   family: "rail",
-  load: () => Promise.reject(new Error("railAdapter.load needs fetchers: use loadRail(ctx, fetchers) or mvpBSources.loadRailLive")),
+  load: (c) => loadRail(c, liveRailFetchers),
   loadWith: loadRail,
   evaluate: evaluateRail,
   queryInterval: queryRailInterval,
