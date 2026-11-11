@@ -10,7 +10,7 @@ import { formatNumber } from "../../i18n/format";
 import { localizeLayerName } from "../../i18n/layerText";
 import { LayerToggleSwitch } from "./LayerToggleSwitch";
 import { useRailTheme } from "./railTheme";
-import { compareSideOf, isCompareSupported, useCompareState } from "../../state/compareStore";
+import { compareSideOf, isCompareSupported, useCompareSelector } from "../../state/compareStore";
 import "./layerRow.css";
 
 /** 列開關（spec §5.10 列開關）：顏色跟 rail palette，暗／淡自動切換。 */
@@ -53,12 +53,12 @@ export function LayerNameLine({ name, layerKey }: { name: LayerName; layerKey?: 
  * 使用者 2026-11-11 Q1 (a)）；支援的圖層只有不是「兩側」時標「左」或「右」。
  */
 function CompareSideTag({ layerKey }: { layerKey: string }) {
-  const compare = useCompareState();
+  // 只訂這層的側別（拖把手不重繪）；null＝沒在比較
+  const side = useCompareSelector((state) => (state.enabled ? compareSideOf(layerKey, state) : null));
   const { DIM, BORDER } = useRailTheme();
   const { t } = useLocale();
-  if (!compare.enabled) return null;
+  if (!side) return null;
   const supported = isCompareSupported(layerKey);
-  const side = compareSideOf(layerKey, compare);
   if (supported && side === "both") return null;
   const text = !supported ? t("compare.unsupportedShort") : t(side === "left" ? "compare.sideLeft" : "compare.sideRight");
   return <span title={supported ? undefined : t("compare.unsupported")} style={{ flexShrink: 0, alignSelf: "center", marginLeft: 5, padding: "0 4px", border: `1px solid ${BORDER}`, borderRadius: RADIUS.md, fontSize: FONT_SIZE.xs, lineHeight: "13px", color: DIM, whiteSpace: "nowrap" }}>{text}</span>;

@@ -19,7 +19,7 @@ import { basemapLabelLanguage, bindBasemapLanguage } from "./basemapLanguage";
 import { applyPureBlackTheme, setBasemapLabelsVisible, setupTerrain } from "./MapView";
 import { syncMaps, cameraOf, type SyncableMap } from "./compareSync";
 import { attachRegionalStatistics } from "./regionalStatisticsMap";
-import { compareStore, shownOnRight, useCompareState, type CompareState } from "../state/compareStore";
+import { COMPARE_DEFAULT_SPLIT, compareStore, shownOnRight, useCompareSelector, useCompareState, type CompareState } from "../state/compareStore";
 import { compareCircleReference, rightReadKey, startRightSelectionSync } from "../state/compareStatistics";
 import { layerVisibilityStore, useLayerVisibilityAll } from "../state/layerVisibilityStore";
 import { STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
@@ -130,6 +130,8 @@ export function CompareMapView({ mainMap, styleUrl, pureBlack, isDarkTheme, show
     map.on("load", () => {
       mapRef.current = map;
       compareRightMap.set(map);
+      // debug handle（同主地圖 `__map`：dev 一律、production 帶 ?debug）
+      if (import.meta.env.DEV || window.location.search.includes("debug")) (window as unknown as { __compareMap?: mapboxgl.Map | null }).__compareMap = map;
       setReady(true);
     });
     return () => {
@@ -138,6 +140,7 @@ export function CompareMapView({ mainMap, styleUrl, pureBlack, isDarkTheme, show
       offSync();
       unbindLanguage();
       compareRightMap.set(null);
+      if ((window as unknown as { __compareMap?: mapboxgl.Map | null }).__compareMap === map) (window as unknown as { __compareMap?: mapboxgl.Map | null }).__compareMap = null;
       mapRef.current = null;
       setReady(false);
       map.remove();
@@ -183,7 +186,10 @@ export function CompareMapView({ mainMap, styleUrl, pureBlack, isDarkTheme, show
 
 /** 右圖的 hook 型圖層（P1：古地圖六層）＋選取圈；右圖 load 之後才掛，hook 一定拿得到地圖 */
 function CompareRightLayers({ mapRef, featureInfo }: { mapRef: React.RefObject<mapboxgl.Map | null>; featureInfo: FeatureInfo | null }) {
-  const compare = useCompareState();
+  // 只訂開關與側別（拖把手不重繪這些 hook）
+  const enabled = useCompareSelector((state) => state.enabled);
+  const sides = useCompareSelector((state) => state.sides);
+  const compare: CompareState = { enabled, sides, split: COMPARE_DEFAULT_SPLIT };
   const visibility = useLayerVisibilityAll() as unknown as Record<string, boolean>;
   // 固定順序呼叫（每個 key 一次），不在迴圈裡以免違反 hooks 規則
   useRightHistorical(mapRef, "historicalMapSinica", Boolean(visibility.historicalMapSinica), compare);

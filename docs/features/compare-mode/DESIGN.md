@@ -325,6 +325,9 @@ UI 規格正本：`docs/design-system/spec.md` §5.45（並改 §5.11 比較類�
 
 **分享網址**（`src/lib/urlState.ts`，不升 `v`）：`cmp=1`、`cmpx=<0.05–0.95>`（0.5 不寫）、`cmpl`／`cmpr=<key>,…`、`cmpdl`／`cmpdr=<key>:<後綴>=<值>;…`（逗號分隔多層；後綴＝連動選單 name 去掉 layerKey，例 `Period`、`DimCause`）。左側一律記（看網址的人 localStorage 可能記著別的期別），右側只在與左側不同時記。舊網址沒有 `cmp` 時輸出逐位元組不變（測試）。
 
+**與 §4 表格的差異**：§4 寫「顯示在」由 `layerParamsSpec` 派生並在 `layerParamsOrder.test.ts` 詞彙表補一列；實作改成**不進** `LAYER_PARAMS_SPEC`（`src/state/compareControls.ts` 只給面板用），理由是進規格會讓 Agent、場景存檔、黃金快照都看到一個只在比較模式有意義的參數。所以沒有詞彙表那一列，排序由 `withCompareControls` 固定：「顯示在」→ 左側期別／細項 → 右側期別／細項 → 其餘。
+**拖把手的成本**：App、圖層列標籤、展開區、統計圖例只訂開關與側別（`useCompareSelector`），拖把手只重繪右圖裁切與把手；網址停 250ms 才寫（避免 Safari replaceState 次數上限）。
+
 **點擊**：右半由右圖另綁 click（統計面／比例圓）→ 同一個停靠 popup，properties 帶 `compare_side: "right"`，popup 第一列「比較：右側」。
 
 **Agent（MCP）**：鏡頭與圖層控制照單地圖行為，作用在主地圖（左）；右圖靠鏡頭同步跟著動。Agent 不能設側別或右側期別（P1 不做，列 BACKLOG）。

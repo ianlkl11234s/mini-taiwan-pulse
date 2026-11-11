@@ -125,7 +125,7 @@ import type { MapBridge } from "./chat/types";
 import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2, UserRound } from "lucide-react";
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
-import { compareStore, isCompareSupported, useCompareState } from "./state/compareStore";
+import { compareStore, isCompareSupported, useCompareSelector } from "./state/compareStore";
 import { compareSelectionsForUrl, restoreCompareSelections } from "./state/compareStatistics";
 import { regionalStatisticsStore } from "./state/regionalStatisticsStore";
 import { STATISTICS_RENDER_KEYS } from "./data/regionalStatisticsRecipes";
@@ -526,8 +526,9 @@ export default function App() {
   const i18n = useLocale();
   const { t, locale } = i18n;
   // 比較模式（docs/features/compare-mode/DESIGN.md）：桌機才有入口；手機（Q3 (b)）退回單地圖
-  const compare = useCompareState();
-  const compareActive = compare.enabled && !isMobile;
+  // 只訂開關：拖把手（split 每幀變）不重繪 App
+  const compareEnabled = useCompareSelector((state) => state.enabled);
+  const compareActive = compareEnabled && !isMobile;
   useEffect(() => {
     if (isMobile && compareStore.getSnapshot().enabled) compareStore.setEnabled(false);
   }, [isMobile]);
@@ -2039,15 +2040,16 @@ export default function App() {
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
     // 呈現方式（pm=）在 layerParamsStore：切換、或被「同時一層比例圓」自動改回時也要更新網址
     const offParams = layerParamsStore.subscribe(() => syncUrlRef.current());
-    // 比較模式：開關、把手、側別，以及比較中統計層的左右期別／細項（只在比較開著時訂；rAF 合併）
-    let frame = 0;
-    const scheduleSync = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; syncUrlRef.current(); }); };
+    // 比較模式：開關、把手、側別，以及比較中統計層的左右期別／細項（只在比較開著時訂）。
+    // 停 250ms 才寫網址：拖把手每幀都變，逐幀 replaceState 會撞到 Safari 的次數上限
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const scheduleSync = () => { clearTimeout(timer); timer = setTimeout(() => syncUrlRef.current(), 250); };
     const offCompare = compareStore.subscribe(scheduleSync);
-    const offStatistics = compare.enabled
+    const offStatistics = compareEnabled
       ? STATISTICS_RENDER_KEYS.flatMap((key) => [regionalStatisticsStore.subscribe(key, scheduleSync), regionalStatisticsStore.subscribe(`${key}::R`, scheduleSync)])
       : [];
-    return () => { map.off("moveend", onMoveEnd); offParams(); offCompare(); offStatistics.forEach((off) => off()); if (frame) cancelAnimationFrame(frame); };
-  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country, compare.enabled]);
+    return () => { map.off("moveend", onMoveEnd); offParams(); offCompare(); offStatistics.forEach((off) => off()); clearTimeout(timer); };
+  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country, compareEnabled]);
 
   // 量測（§5.44）：主題、觸控（不顯示游標提示）、標籤文案；拍攝模式暫停加點（量測線保留）
   useEffect(() => {
@@ -2541,8 +2543,8 @@ export default function App() {
               <ToolbarButton
                 palette={toolbarPalette}
                 icon
-                pressed={compare.enabled}
-                title={t(compare.enabled ? "compare.toolbarOn" : "compare.toolbar")}
+                pressed={compareEnabled}
+                title={t(compareEnabled ? "compare.toolbarOn" : "compare.toolbar")}
                 onClick={() => compareStore.setEnabled(!compareStore.getSnapshot().enabled)}
               >
                 <Columns2 size={13} />

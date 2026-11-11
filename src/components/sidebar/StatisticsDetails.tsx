@@ -218,9 +218,10 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
 /**
  * 比較模式（`compare/CompareStatisticsLegend.tsx`）另外兩個用法：`storeKey` 讀右側那份（`key::R`）；
  * `compareRightKey` 給了就把期別列拆成「左側 …」「右側 …」兩行（左右色階相同、只差期別／細項時用同一份圖例）；
- * `showSelection` 讓期別列帶細項（左右拆兩份圖例時分辨用）。
+ * `showSelection` 讓期別列帶細項（左右拆兩份圖例時分辨用）；`part` 只畫標題＋期別＋色階（`scale`）或只畫狀態列與註記（`notes`），
+ * 拆兩份時讓左右色階相鄰、註記只出現一次。
  */
-export function StatisticsLegendView({ layerKey, storeKey = layerKey, compareRightKey, showSelection = false }: { layerKey: StatisticsRenderKey; storeKey?: string; compareRightKey?: string; showSelection?: boolean }) {
+export function StatisticsLegendView({ layerKey, storeKey = layerKey, compareRightKey, showSelection = false, part }: { layerKey: StatisticsRenderKey; storeKey?: string; compareRightKey?: string; showSelection?: boolean; part?: 'scale' | 'notes' }) {
   const i18n = useLocale();
   const { t: tr } = i18n;
   const state = useStatisticsSnapshot(storeKey);
@@ -255,19 +256,26 @@ export function StatisticsLegendView({ layerKey, storeKey = layerKey, compareRig
   };
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <LegendFillOpacityCtx.Provider value={fillOpacity}><div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
+    {part !== 'notes' && <>
     <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n, 'valueTransform' in recipe && Boolean(recipe.valueTransform))} style={{ marginBottom: 0 }} />
     {compareRightKey ? <>
       <span>{tr('compare.legendLeft')} {legendPeriod(state)}</span>
       <span>{tr('compare.legendRight')} {legendPeriod(rightState, true)} · {statisticsUnit(recipe.unit, i18n)}</span>
     </> : <span>{legendPeriod(state)} · {statisticsUnit(recipe.unit, i18n)}</span>}
+    </>}
+    {part !== 'scale' && <>
     {'freshness' in recipe && <span>{tr('statistics.legend.freshness', { value: String(recipe.freshness), frequency: statisticsFrequency(recipe.frequency, i18n) })}</span>}
     {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
     {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
+    </>}
+    {part !== 'notes' && <>
     {state.loading && <span>{tr('statistics.legend.loading')}</span>}{state.error && <span role="alert" title={i18n.active === 'zh-TW' ? undefined : state.error}>{i18n.active === 'zh-TW' ? state.error : tr('statistics.loadFailed')}</span>}
     {circle ? <StatisticsCircleLegend layerKey={layerKey} data={state.data} level={recipe.level} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} isDark={t.isDark} /> : <>
       {!binaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
       {(binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>)}
     </>}
+    </>}
+    {part !== 'scale' && <>
     {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
     {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
     {addiction && addictionStatusLegendRows(addiction).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}
@@ -289,6 +297,7 @@ export function StatisticsLegendView({ layerKey, storeKey = layerKey, compareRig
     {!circle && addiction && <span>{tr('statistics.legend.fixedAddiction', { value: statisticsLocationBasis(addiction.location_semantics, i18n) })}</span>}
     {!circle && landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
     {!circle && atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length && atlas.legend.by_dimension ? tr('statistics.legend.perDimensionThresholds') : '', value: statisticsLocationBasis(atlas.location_semantics, i18n) })}</span>}
+    </>}
   </div></LegendFillOpacityCtx.Provider>;
 }
 

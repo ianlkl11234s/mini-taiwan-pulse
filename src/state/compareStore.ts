@@ -103,3 +103,11 @@ export const compareStore = {
 export function useCompareState(): CompareState {
   return useSyncExternalStore(compareStore.subscribe, compareStore.getSnapshot, compareStore.getSnapshot);
 }
+
+/**
+ * 只取一部分（回傳值要是原始值或穩定參照）：拖把手時 `split` 每幀變，只看開關／側別的元件不必跟著重繪。
+ */
+export function useCompareSelector<T>(select: (state: CompareState) => T): T {
+  const get = () => select(state);
+  return useSyncExternalStore(compareStore.subscribe, get, get);
+}

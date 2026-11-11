@@ -4,7 +4,7 @@ import type { DisplayMode, ExpandableLayerKey } from "../../types";
 import { useEffect, useReducer } from "react";
 import { buildParamControls, visibleControlSpecs } from "../../state/layerParamsControls";
 import { withCompareControls } from "../../state/compareControls";
-import { useCompareState } from "../../state/compareStore";
+import { COMPARE_DEFAULT_SPLIT, useCompareSelector } from "../../state/compareStore";
 import { STATISTICS_RIGHT_PROVIDER } from "../../state/statisticsLinkedSelect";
 import { linkedSelectProvider } from "../../state/linkedSelect";
 import { useLayerParams } from "../../state/layerParamsStore";
@@ -61,7 +61,10 @@ export function ExpandedControls({
   useLinkedSelects(layerKey);
   const i18n = useLocale();
   // 比較模式（DESIGN §4）：「顯示在」排最前；統計左側列改名「左側 …」、右側列接在其後（只在面板，規格不變）
-  const compare = useCompareState();
+  // 只訂開關與側別（sides 參照在拖把手時不變），拖把手不重繪展開區
+  const enabled = useCompareSelector((state) => state.enabled);
+  const sides = useCompareSelector((state) => state.sides);
+  const compare = { enabled, sides, split: COMPARE_DEFAULT_SPLIT };
   useRightStatistics(layerKey, compare.enabled);
   const controls = withCompareControls(layerKey, compare, buildParamControls(layerKey, paramValues, i18n) ?? [], visibleControlSpecs(layerKey, paramValues), i18n);
   const { TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
