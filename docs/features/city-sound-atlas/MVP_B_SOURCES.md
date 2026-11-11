@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 | R01 鐵道 | `railLoader.loadAllRail`（軌道幾何、station_progress）＋`fetchTraDailySchedule`／`fetchSupabaseSchedule(system, 營運日)` | **可做**：列車＝移動點，地下段排除 | scheduled（班表，不是觀測） | 否（班表即時算） |
 | T01 車流 | `freewayLoader.fetchFreewayDay`（`get_freeway_congestion_day`） | **只能做道路類型 proxy**：前端沒有任何車流量來源 | inferred（`proxyKind=road_type_no_volume`） | 否 |
-| C01 施工 | `roadEventsLoader.fetchRoadEventsDay`（`get_road_events_day`，event_city、EventType=2） | **可做**：許可期間＝可能活動 | scheduled（`proxyKind=permit_window_possible_activity`） | **是**（S3 歸檔，接收點 ±5 km） |
+| C01 施工 | `roadEventsLoader.fetchRoadEventsDay`（`get_road_events_day`，event_city、EventType=2） | **可做（部分縣市）**：許可期間＝可能活動；臺北市只發布挖掘管制區 → 未涵蓋 | scheduled（`proxyKind=permit_window_possible_activity`） | **是**（S3 歸檔，接收點 ±5 km） |
 
 ## 2. R01 鐵道
 
@@ -91,6 +91,7 @@
 - 許可期間判定重用 `isRoadEventActive`（缺生效時間不算進行中、沒有到期時間依來源新鮮度 36 小時）。
 - 許可期間內：`active`、`evidence=scheduled`、`proxyKind=permit_window_possible_activity`、潛勢＝距離 kernel（half 80 m，候選 300 m，多邊形內＝0 m）×0.5；notes 帶 `permit_is_not_machinery_operation`、`daily_work_hours_unknown`、`permit_span_days`。可切 `permitWindowPolicy='unknown'`。
 - 許可期間外 → 不產生貢獻；涵蓋縣市內＋來源健康 → inactive（0）。
+- 外框重疊處（例：新北地點落在臺北外框內）有許可期間內的施工 → active（可能施工的下限），另留一筆 `roadwork_city_not_covered` 的 unknown 貢獻；沒有許可在範圍內 → unknown，不說「沒施工」（測試 `roadSources.test.ts` 固定）。
 - 接收點所在外框有任一非涵蓋縣市（即時：`ROADWORK.coveredCities`，臺北市已移除；快照：`per_city_roadwork`>0，沒有這欄＝全部未涵蓋）→ unknown（`roadwork_city_not_covered`）。副作用：臺北市外框蓋到板橋、三重、汐止等新北地點，這些地點也是 unknown。
 - 快照區塊只裁切接收點 ±5 km（±30 km 會讓兩個臺北場景超過 2 MB），區塊自帶 `bbox`；接收點（含 300 m 候選半徑）移出 → unknown（`outside_snapshot_bbox`）。
 
@@ -113,7 +114,7 @@
 5. **圖例文字三語草稿**：
    - 鐵道｜zh：「列車（地面／高架，依班表）：地下段不發聲；結構不明的路段顯示無法判斷」｜en: "Trains (surface/elevated, scheduled): underground sections are silent; sections of unknown structure show as unknown"｜ja: 「列車（地上・高架、時刻表ベース）：地下区間は対象外、構造不明の区間は判定不能」
    - 道路車流｜zh：「道路類型 proxy（只有國道，無車流量）：離國道越近越高；其他道路無資料」｜en: "Road-type proxy (national freeways only, no traffic volume); other roads: no data"｜ja: 「道路種別による代理指標（国道のみ・交通量なし）：その他の道路はデータなし」
-   - 施工｜zh：「道路施工許可期間（可能施工，許可≠機具運轉）」｜en: "Roadwork permit period (possible activity; a permit is not machinery running)"｜ja: 「道路工事の許可期間（工事の可能性。許可＝機械稼働ではない）」
+   - 施工｜zh：「道路施工許可期間（可能施工，許可≠機具運轉）；臺北市等未發布施工的縣市：無資料」｜en: "Roadwork permit period (possible activity; a permit is not machinery running); Taipei City and other non-publishing cities: no data"｜ja: 「道路工事の許可期間（工事の可能性。許可＝機械稼働ではない）。台北市など未公開の自治体：データなし」
    - 出處：鐵道結構「© OpenStreetMap contributors」；施工「TDX 縣市預告事件」；車流「TDX 國道路況（壅塞等級，非流量）」。
 6. **面板措辭**：依 `contribution.proxyKind`／`railStructure` 決定字樣；`road_type_no_volume` 不可出現「車流量」數字或「車多」語意。
 
@@ -125,4 +126,5 @@
 - 鐵道結構表的 ODbL 標示與分享方式要確認；表外與洞口段 unknown 比例高（台鐵 81／257），若要細化可改存「軌道 progress 子區間」而非站間。
 - 台鐵每日班表的 O-D 軌道若不在 `master_schedule.json`，前端沒載幾何 → 這些班次被略過（計數寫在 coverage reason）。
 - 施工快照已併入本 worktree 的三個場景檔（gitignored），sha 已變；**lock 未改**，主 agent 要重登記 `build-public-assets-lock.py add` 並上傳。
+- 即時路徑用固定 6 城清單，但各縣市每天發布與否會變（11-09 宜蘭 0 筆、10-24 金門 3 筆）；快照路徑已依當日 `per_city_roadwork` 判斷。縣市判斷用外框（重疊處保守 unknown），精確做法是改用縣市界多邊形。
 - 施工 `EventStep` 語意、新北／桃園事件是否含已完工但未下架者，未查。

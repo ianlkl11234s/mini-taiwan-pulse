@@ -114,7 +114,7 @@ ADR-0025 的情境推演模式是「analytics 預先算好固定情境 → `outp
 | `halfPotentialDistanceM` | 250 m | 水平距離 250 m → 0.5；未依車種、速度、結構、隔音牆校準 |
 | `structureWeight` | elevated 1、at_grade 1、surface 1 | 高架與地面暫不分輕重，只分「會不會直接傳到戶外」 |
 
-- **位置**：與 `RailEngine`／`TraTrainEngine` 同規則（延長日制 05:50、站間線性推進 progress、`interpolateOnLineString`、環狀線終點修正）。兩個引擎不輸出所在站間，所以 adapter 照同規則重算；測試在 6 個時刻對照 `RailEngine.update` 位置一致。站不在軌道 progress 表 → unknown（引擎用索引比例猜，聲景不猜）。
+- **位置**：與 `RailEngine`／`TraTrainEngine` 同規則（捷運類延長日制 05:50、台鐵／高鐵日曆日制，見 MVP_B_SOURCES §2.3；站間線性推進 progress、`interpolateOnLineString`、環狀線終點修正）。兩個引擎不輸出所在站間，所以 adapter 照同規則重算；測試在 6 個時刻對照 `RailEngine.update` 位置一致。站不在軌道 progress 表 → unknown（引擎用索引比例猜，聲景不猜）。
 - **地下段**：`model/railSegments.ts` 依站間結構表（OSM 衍生，見 MVP_B_SOURCES §2）。地下段不產生貢獻；unknown 段（表外、洞口過渡、比對不到 OSM、多軌道結果衝突）→ `status=unknown`、潛勢 null，不當地面。車站點前後兩段結構不同 → unknown。
 - **區間查詢不取樣**：求「該時段列車走過的軌道子段」到接收者的最短距離（解析），高鐵 30 秒走 2.5 km 也不會漏。
 - **營運日**：查 D 讀 D−1 與 D 兩個營運日（D 00:00–05:50 屬 D−1）。每個（系統、營運日）一筆 coverage；取不到班表 → 該窗 unavailable，並在該系統軌道放 `schedule_unavailable` 佔位（provider `rail_network_static`），接收者在地上段附近回 unknown，不會因「沒有列車」變成 0。**不拿今天班表回填**。

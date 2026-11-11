@@ -145,6 +145,12 @@ describe("roadworkAdapter（C01）", () => {
     // 涵蓋看施工筆數（per_city_roadwork），不看含挖掘管制區的 per_city
     const taipeiOnlyType7 = roadworkSnapshotSet({ health: "ok", per_city: { Taipei: 41, NewTaipei: 5 }, per_city_roadwork: { Taipei: 0, NewTaipei: 5 }, events: [] }, DATE);
     expect(queryReceiver(RECV, NOON, [taipeiOnlyType7], ["roadwork"]).families[0]!.reason).toBe("roadwork_city_not_covered");
+    // 外框重疊處（臺北外框蓋到新北）有實際施工許可時：active 勝過 unknown（下限），未涵蓋仍留一筆 unknown 貢獻
+    const overlap = roadworkSnapshotSet({ health: "ok", per_city_roadwork: { Taipei: 0, NewTaipei: 5 }, events: [PERMIT] }, DATE);
+    const ov = queryReceiver(RECV, NOON, [overlap], ["roadwork"]);
+    expect(ov.families[0]!.status).toBe("active");
+    expect(ov.contributions.some((c) => c.status === "unknown" && c.unknownReason === "roadwork_city_not_covered")).toBe(true);
+    expect(queryReceiver(RECV, DAY_START + 20 * 3600, [overlap], ["roadwork"]).families[0]!.status).toBe("unknown"); // 許可外不能說「沒施工」
     const block = parseMvpBSceneBlocks({ roadwork: { health: "ok", per_city: { Taipei: 3, NewTaipei: 5 }, per_city_roadwork: { Taipei: 3, NewTaipei: 5 }, events: [] } }).roadwork!;
     const set = roadworkSnapshotSet(block, DATE);
     expect(set.coverage[0]!.status).toBe("ok");
