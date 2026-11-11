@@ -5,14 +5,28 @@
  * relativePotential 是無單位 0–1 的「類別活躍潛勢」，**不是 dB**；null = unknown。
  */
 
+/** MVP-A 四族（已接 UI；components／hooks 以 Record<SoundSourceFamily, …> 窮舉） */
 export type SoundSourceFamily = "aviation" | "rain" | "thunder" | "waste_collection";
+
+/**
+ * MVP-B 三族（W4：引擎與 adapter 已接，**UI 尚未接線**）。
+ * 刻意不併入 SoundSourceFamily：併入後 UI 的 Record<SoundSourceFamily, …> 會缺 key。
+ * 主 agent 接 UI 時把這三個併入 SoundSourceFamily，並補齊各 Record（清單見 MVP_B_SOURCES.md §6）。
+ */
+export type MvpBSoundFamily = "rail" | "road_traffic" | "roadwork";
+
+/** 引擎層通用的家族全集 */
+export type AnySoundFamily = SoundSourceFamily | MvpBSoundFamily;
 
 export type SoundGeometryKind =
   | "point"
   | "moving_point_2d"
   | "moving_point_3d"
   | "distributed_field"
-  | "impulse_event";
+  | "impulse_event"
+  /** MVP-B：線聲源（道路路段）與面狀範圍（施工區） */
+  | "line"
+  | "area";
 
 export type TimeEvidence = "observed" | "scheduled" | "estimated";
 export type ContributionEvidence = "observed" | "scheduled" | "modeled" | "inferred";
@@ -33,9 +47,9 @@ export interface SoundPosition {
   altitudeM: number | null;
 }
 
-export interface SoundSourceRecord<P = unknown> {
+export interface SoundSourceRecord<P = unknown, F extends AnySoundFamily = SoundSourceFamily> {
   id: string;
-  family: SoundSourceFamily;
+  family: F;
   geometryKind: SoundGeometryKind;
   /** 依家族而定的原始資料（adapter 內部型別） */
   payload: P;
@@ -68,8 +82,8 @@ export type SourceHealth = "ok" | "empty" | "error" | "unavailable";
  * 一個來源提供者在某日的涵蓋情況。零筆資料時仍靠它表達 unknown／unavailable，
  * 而不是被當成「安靜」。
  */
-export interface SourceCoverage {
-  family: SoundSourceFamily;
+export interface SourceCoverage<F extends AnySoundFamily = SoundSourceFamily> {
+  family: F;
   provider: string;
   dateKey: string;
   status: SourceHealth;
@@ -80,11 +94,11 @@ export interface SourceCoverage {
   reason?: string;
 }
 
-export interface SoundSourceSet<P = unknown> {
-  family: SoundSourceFamily;
+export interface SoundSourceSet<P = unknown, F extends AnySoundFamily = SoundSourceFamily> {
+  family: F;
   dateKey: string;
-  records: SoundSourceRecord<P>[];
-  coverage: SourceCoverage[];
+  records: SoundSourceRecord<P, F>[];
+  coverage: SourceCoverage<F>[];
 }
 
 export interface ThunderTiming {
@@ -95,9 +109,9 @@ export interface ThunderTiming {
   propagationApproximation: "2d" | "3d";
 }
 
-export interface SourceContribution {
+export interface SourceContribution<F extends AnySoundFamily = SoundSourceFamily> {
   sourceId: string;
-  family: SoundSourceFamily;
+  family: F;
   /** 'active' 有證據且潛勢 > 0；'unknown' 為候選但無法估（relativePotential=null） */
   status: "active" | "unknown";
   /** ISO-8601 UTC：此貢獻所依據的來源時間（觀測／表定／內插時刻） */
@@ -115,28 +129,37 @@ export interface SourceContribution {
   unknownReason?: string;
   propagationApproximation?: "2d" | "3d";
   thunderTiming?: ThunderTiming;
+  /**
+   * MVP-B：潛勢的依據種類（UI 必須照此措辭，不可把 proxy 說成流量或施工中）。
+   * - road_type_no_volume：只有道路類型，沒有車流量（不可宣稱流量）
+   * - observed_volume：有觀測車流量（VD 等）
+   * - permit_window_possible_activity：在施工許可期間內＝可能有施工，許可≠機具運轉
+   */
+  proxyKind?: "road_type_no_volume" | "observed_volume" | "permit_window_possible_activity";
+  /** MVP-B 鐵道：發聲位置的結構分類（地下段不產生貢獻，所以不會出現 underground） */
+  railStructure?: "elevated" | "at_grade" | "surface" | "unknown";
   notes: string[];
 }
 
 export type FamilyStatus = "active" | "inactive" | "unknown" | "unavailable";
 
-export interface FamilyResult {
-  family: SoundSourceFamily;
+export interface FamilyResult<F extends AnySoundFamily = SoundSourceFamily> {
+  family: F;
   status: FamilyStatus;
   /** active → 最大潛勢；inactive → 0（資料健康且無候選）；unknown/unavailable → null */
   relativePotential: number | null;
   reason?: string;
-  contributions: SourceContribution[];
+  contributions: SourceContribution<F>[];
   notes: string[];
 }
 
 /** adapter 的接收者區間查詢（純函式）：只回半徑內候選的貢獻 */
-export type IntervalQuery<P> = (
-  records: readonly SoundSourceRecord<P>[],
+export type IntervalQuery<P, F extends AnySoundFamily = SoundSourceFamily> = (
+  records: readonly SoundSourceRecord<P, F>[],
   receiver: Receiver,
   t0: number,
   t1: number,
-) => { contributions: SourceContribution[]; notes: string[] };
+) => { contributions: SourceContribution<F>[]; notes: string[] };
 
 export interface SoundLoadContext {
   /** 臺灣日期 YYYY-MM-DD */
@@ -145,9 +168,9 @@ export interface SoundLoadContext {
   nowUnix?: number;
 }
 
-export interface SoundSourceAdapter<P = unknown> {
-  family: SoundSourceFamily;
-  load(context: SoundLoadContext): Promise<SoundSourceSet<P>>;
-  evaluate(source: SoundSourceRecord<P>, unixSeconds: number): SourceEvaluation;
-  queryInterval: IntervalQuery<P>;
+export interface SoundSourceAdapter<P = unknown, F extends AnySoundFamily = SoundSourceFamily> {
+  family: F;
+  load(context: SoundLoadContext): Promise<SoundSourceSet<P, F>>;
+  evaluate(source: SoundSourceRecord<P, F>, unixSeconds: number): SourceEvaluation;
+  queryInterval: IntervalQuery<P, F>;
 }

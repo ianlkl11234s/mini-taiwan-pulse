@@ -1,6 +1,6 @@
 # MODEL_DECISIONS — 聲源 kernel、單位與假設
 
-> 模型版本：`sound-atlas-mvp-a-0.1.0`（`src/sound/model/soundProfiles.ts` 的 `MODEL_VERSION`）。
+> 模型版本：`sound-atlas-mvp-b-0.2.0`（`src/sound/model/soundProfiles.ts` 的 `MODEL_VERSION`；§0–§4 為 MVP-A `0.1.0` 的決定，參數未變）。
 > 依據：使用者提供的擴充計畫（2026-11-11）§5–§7。**主計劃 01（前一次交付的 `01_CITY_SOUND_ATLAS_HANDOFF.md`）不在手上**，凡兩者可能衝突處，一律以擴充計畫為準。
 
 ## 0. 總原則
@@ -92,3 +92,58 @@ ADR-0025 的情境推演模式是「analytics 預先算好固定情境 → `outp
 ## 4. 已知不做（MVP-A 範圍外）
 
 聲壓／dB 換算、跨家族能量加總、遮蔽與反射、機型噪音資料、雷達數值雨場、移動接收者／路線剖面（計畫 §8C）、鐵道與車流（MVP-B）。
+
+## 5. MVP-B（W4，2026-11-11）：鐵道、道路車流、施工
+
+> 模型版本升為 `sound-atlas-mvp-b-0.2.0`（只新增三族參數，MVP-A 四族參數與行為不變）。查核與口徑細節見 [MVP_B_SOURCES.md](./MVP_B_SOURCES.md)。
+
+### 5.1 型別：三族先不併入 `SoundSourceFamily`
+
+`components`／`hooks`／`layers` 有多處 `Record<SoundSourceFamily, …>` 窮舉（實測直接擴 union 會讓 9 個檔案 tsc 失敗）。W4 不碰 UI，所以：
+
+- `SoundSourceFamily` 維持四族；新增 `MvpBSoundFamily`、`AnySoundFamily`。
+- 引擎型別（`SoundSourceRecord`、`SoundSourceSet`、`SourceCoverage`、`SourceContribution`、`FamilyResult`、`IntervalQuery`、`SoundSourceAdapter`）加第二個泛型參數 `F`，預設仍是四族，UI 不受影響。
+- `queryReceiver`／`dayProfile`／`queryFamilyInterval` 改泛型；預設 families 仍是 `SOUND_FAMILIES`（四族）。要查新三族要明確傳 `SOUND_FAMILIES_MVP_B` 或 `SOUND_FAMILIES_ALL`。
+- `SourceContribution` 新增兩個可選欄位：`proxyKind`（潛勢依據：`road_type_no_volume`／`observed_volume`／`permit_window_possible_activity`）與 `railStructure`（elevated／at_grade／surface／unknown）。UI 措辭必須照 `proxyKind`。
+
+### 5.2 鐵道 R01（移動點）
+
+| 參數 | 值 | assumption |
+|---|---|---|
+| `candidateRadiusM` | 1,500 m | 純候選篩選 |
+| `halfPotentialDistanceM` | 250 m | 水平距離 250 m → 0.5；未依車種、速度、結構、隔音牆校準 |
+| `structureWeight` | elevated 1、at_grade 1、surface 1 | 高架與地面暫不分輕重，只分「會不會直接傳到戶外」 |
+
+- **位置**：與 `RailEngine`／`TraTrainEngine` 同規則（捷運類延長日制 05:50、台鐵／高鐵日曆日制，見 MVP_B_SOURCES §2.3；站間線性推進 progress、`interpolateOnLineString`、環狀線終點修正）。兩個引擎不輸出所在站間，所以 adapter 照同規則重算；測試在 6 個時刻對照 `RailEngine.update` 位置一致。站不在軌道 progress 表 → unknown（引擎用索引比例猜，聲景不猜）。
+- **地下段**：`model/railSegments.ts` 依站間結構表（OSM 衍生，見 MVP_B_SOURCES §2）。地下段不產生貢獻；unknown 段（表外、洞口過渡、比對不到 OSM、多軌道結果衝突）→ `status=unknown`、潛勢 null，不當地面。車站點前後兩段結構不同 → unknown。
+- **區間查詢不取樣**：求「該時段列車走過的軌道子段」到接收者的最短距離（解析），高鐵 30 秒走 2.5 km 也不會漏。
+- **營運日**：查 D 讀 D−1 與 D 兩個營運日（D 00:00–05:50 屬 D−1）。每個（系統、營運日）一筆 coverage；取不到班表 → 該窗 unavailable，並在該系統軌道放 `schedule_unavailable` 佔位（provider `rail_network_static`），接收者在地上段附近回 unknown，不會因「沒有列車」變成 0。**不拿今天班表回填**。
+- 班表是 scheduled，不是觀測（誤點、停駛、加班車不反映）。`fetchSupabaseSchedule` 無 `_daily` 時退回 `_fixed`，前端分不出 → `basis=daily_or_fixed_unverified`。
+
+### 5.3 道路車流 T01（線聲源，只有道路類型 proxy）
+
+| 參數 | 值 | assumption |
+|---|---|---|
+| `candidateRadiusM` | 500 m | 只查已載入路段（目前只有國道） |
+| `halfPotentialDistanceM` | 100 m | 距路段 100 m → 0.5 |
+| `roadTypeProxyWeight` | freeway 1 | 不是流量 |
+| `volumeMaxAgeS`／`volumeScaleVehPerHour` | 900 s／1,500 輛/時 | 只在注入觀測流量時使用（目前沒有來源） |
+
+- 預設 `proxyKind=road_type_no_volume`、`evidence=inferred`。壅塞等級、旅行速率只進 notes（等級不是流量）。
+- 接收者 500 m 內沒有任何已載入路段 → 一筆 unknown（`road_network_not_covered`）。市區街道沒有資料 ≠ 安靜。
+- 有注入流量時：樣本超過 15 分鐘或 null → unknown，不沿用舊值，也不退回 proxy。
+
+### 5.4 道路施工 C01（點／線／面，許可期間＝可能活動）
+
+| 參數 | 值 | assumption |
+|---|---|---|
+| `candidateRadiusM` | 300 m | 多邊形內＝距離 0 |
+| `halfPotentialDistanceM` | 80 m | 機具、工時未知 |
+| `eventTypes` | [2] | EventType 7（挖掘管制區）不納入 |
+| `permitWindowPolicy` | possible_activity | 改 `unknown` 則許可期間內一律 unknown |
+| `possibleActivityWeight` | 0.5 | 「可能」施工，不與有觀測證據者同級 |
+| `coveredCities` | 新北、桃園、臺中、基隆、嘉義縣、宜蘭 | 即時路徑的空間涵蓋；快照改用歸檔 `per_city_roadwork`>0。臺北只發布 EventType 7 → 不涵蓋 |
+
+- 許可期間判定重用 `roadEventsLoader.isRoadEventActive`（缺生效時間不算進行中；沒有到期時間依來源新鮮度）。
+- 許可多為跨月／跨年、沒有每日工時（2026-11-08 歸檔 1,100 筆只有 1 筆描述含時段），**不自行假設工時**；contribution 帶 `permit_is_not_machinery_operation`、`daily_work_hours_unknown`、`permit_span_days`。
+- 接收者落在任一非涵蓋縣市外框內 → unknown（`roadwork_city_not_covered`），外框重疊處保守處理。
