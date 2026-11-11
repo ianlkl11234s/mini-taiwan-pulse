@@ -20,6 +20,10 @@ import { distanceToGeometryM } from "../engines/geometryShapes";
 import { proximityPotential } from "../engines/relativePotentialKernel";
 import { taipeiMidnightMs } from "../../lib/taipeiDay";
 import type { IntervalQuery, SoundSourceAdapter, SoundSourceRecord, SoundSourceSet, SourceContribution, SourceEvaluation } from "../types";
+import {
+  isTypicalTrafficRecord, queryTypicalTrafficInterval, typicalFlowAt, typicalVolumePotential, vdWithinRadius,
+  type TypicalTrafficPayload, type TypicalTrafficRecord,
+} from "./typicalTrafficAdapter";
 
 export type RoadType = keyof typeof ROAD_TRAFFIC.roadTypeProxyWeight.value;
 
@@ -95,8 +99,16 @@ function congestionNote(p: RoadTrafficPayload, t: number): string {
   return snap ? `congestion_level:${snap.level},speed_kmh:${snap.speed ?? "null"}@${new Date(snap.ts * 1000).toISOString()}(not_volume)` : "congestion:none";
 }
 
-export function evaluateRoadTraffic(record: RoadTrafficRecord, t: number): SourceEvaluation {
+export function evaluateRoadTraffic(record: RoadTrafficRecord | TypicalTrafficRecord, t: number): SourceEvaluation {
   if (t < record.validFrom || t > record.validUntil) return { status: "inactive" };
+  if (isTypicalTrafficRecord(record)) {
+    const p = record.payload;
+    if (p.kind === "vd_not_applicable") return { status: "unknown", reason: `typical_not_applicable(${p.reason})` };
+    const v = typicalFlowAt(p, t);
+    if ("missing" in v) return { status: "unknown", reason: `typical_${v.missing}` };
+    if (v.vehPerHour <= 0) return { status: "inactive" };
+    return { status: "active", geometry: { lon: p.lon, lat: p.lat, altitudeM: null }, relativeActivity: typicalVolumePotential(v.vehPerHour) };
+  }
   const [lon, lat] = record.payload.coords[0]!;
   if (record.payload.volume) {
     const v = volumeAt(record.payload.volume, t);
@@ -183,6 +195,21 @@ export const queryRoadTrafficInterval: IntervalQuery<RoadTrafficPayload, "road_t
   return { contributions, notes: [] };
 };
 
+/**
+ * 道路族合併查詢：接收者 VD 候選半徑內有臺北市 VD → 只用 VD 平日典型值（取代國道類型 proxy，
+ * 週末／假日／異常日為 unknown，不退回 proxy）；否則維持國道類型 proxy（其他縣市）。
+ */
+export const queryRoadTrafficCombined: IntervalQuery<RoadTrafficPayload | TypicalTrafficPayload, "road_traffic"> = (records, receiver, t0, t1) => {
+  const vd: TypicalTrafficRecord[] = [];
+  const fw: RoadTrafficRecord[] = [];
+  for (const r of records) (isTypicalTrafficRecord(r) ? vd.push(r) : fw.push(r as RoadTrafficRecord));
+  if (vd.some((r) => vdWithinRadius(r, receiver) != null)) {
+    const res = queryTypicalTrafficInterval(vd, receiver, t0, t1);
+    return { contributions: res.contributions, notes: [...res.notes, "freeway_type_proxy_replaced_by_vd_typical"] };
+  }
+  return queryRoadTrafficInterval(fw, receiver, t0, t1);
+};
+
 export async function loadRoadTraffic(
   ctx: { date: string },
   fetcher: (date: string) => Promise<{ sections: FreewaySection[] }> = fetchFreewayDay,
@@ -203,9 +230,9 @@ export async function loadRoadTraffic(
   }
 }
 
-export const roadTrafficAdapter: SoundSourceAdapter<RoadTrafficPayload, "road_traffic"> = {
+export const roadTrafficAdapter: SoundSourceAdapter<RoadTrafficPayload | TypicalTrafficPayload, "road_traffic"> = {
   family: "road_traffic",
   load: (c) => loadRoadTraffic(c),
-  evaluate: evaluateRoadTraffic,
-  queryInterval: queryRoadTrafficInterval,
+  evaluate: (r, t) => evaluateRoadTraffic(r as RoadTrafficRecord | TypicalTrafficRecord, t),
+  queryInterval: queryRoadTrafficCombined,
 };

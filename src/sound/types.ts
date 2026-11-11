@@ -25,7 +25,8 @@ export type SoundGeometryKind =
   | "area";
 
 export type TimeEvidence = "observed" | "scheduled" | "estimated";
-export type ContributionEvidence = "observed" | "scheduled" | "modeled" | "inferred";
+/** estimated：歷史期間統計推估（例：VD 平日典型值），不是當日觀測 */
+export type ContributionEvidence = "observed" | "scheduled" | "modeled" | "inferred" | "estimated";
 
 export interface Receiver {
   id: string;
@@ -130,8 +131,9 @@ export interface SourceContribution<F extends AnySoundFamily = SoundSourceFamily
    * - road_type_no_volume：只有道路類型，沒有車流量（不可宣稱流量）
    * - observed_volume：有觀測車流量（VD 等）
    * - permit_window_possible_activity：在施工許可期間內＝可能有施工，許可≠機具運轉
+   * - typical_weekday_volume：歷史期間平日典型流量（非當日觀測）
    */
-  proxyKind?: "road_type_no_volume" | "observed_volume" | "permit_window_possible_activity";
+  proxyKind?: "road_type_no_volume" | "observed_volume" | "permit_window_possible_activity" | "typical_weekday_volume";
   /** MVP-B 鐵道：發聲位置的結構分類（地下段不產生貢獻，所以不會出現 underground） */
   railStructure?: "elevated" | "at_grade" | "surface" | "unknown";
   notes: string[];

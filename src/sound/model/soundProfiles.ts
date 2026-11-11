@@ -129,3 +129,30 @@ export const PROFILE = {
   defaultStepMinutes: p(10, "24h 構成圖預設 10 分鐘一格；格內用區間重疊／細取樣聚合，不做瞬時取樣。"),
   binRule: p("active>unknown>inactive", "格內只要有任一 active 證據即 active（值取最大）；否則有任何 unknown 即 unknown（值 null）；否則 inactive（值 0）。"),
 } as const;
+
+// ── 道路車流：臺北市 VD 平日典型值（W2，2026-11-11 新增；只新增區塊，不改上方參數）────────
+
+export const TYPICAL_TRAFFIC = {
+  assetUrl: p("/sound-atlas/vd-baseline-taipei.json", "scripts/preprocess/build-sound-vd-baseline.py 產出（public-assets lock 登記）。"),
+  candidateRadiusM: p(300, "只查接收者 300 m 內的 VD（VD 是單向斷面點，不是路段；300 m 約市區兩三個街廓）。候選篩選，非可聽距離宣稱。"),
+  halfPotentialDistanceM: p(100, "距 VD 100 m 時距離項為 0.5（啟發式；與國道 proxy 同尺度，未依車道數、車速、建物遮蔽校準）。"),
+  volumeScaleVehPerHour: p(1_500, "潛勢流量項 = 1 − exp(−Q/1500)，Q＝典型每小時車輛數（與 ROAD_TRAFFIC.volumeScaleVehPerHour 同值；單調啟發式，非聲功率公式）。"),
+  minFlowDays: p(3, "某小時的典型流量有效天數 <3 → unknown「樣本不足」（不當 0）。基準期間平日有效流量最多 9 天、中位 8 天。"),
+  baselinePeriod: p({ start: "2025-12-26", end: "2026-01-14" } as const, "基準期間（VD S3 只保留這 20 天）；UI 必須寫明是此期間平日典型值、非當日觀測。"),
+  nonWorkdays: p(
+    [
+      "2025-01-01", "2025-01-27", "2025-01-28", "2025-01-29", "2025-01-30", "2025-01-31", "2025-02-28", "2025-04-03", "2025-04-04",
+      "2025-05-30", "2025-09-29", "2025-10-06", "2025-10-10", "2025-10-24", "2025-12-25",
+      "2026-01-01", "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-27", "2026-04-03", "2026-04-06",
+      "2026-05-01", "2026-06-19", "2026-09-25", "2026-09-28", "2026-10-09", "2026-10-26", "2026-12-25",
+    ] as readonly string[],
+    "週一～五的放假日：人事行政總處 114 年（1141020 更新）、115 年政府行政機關辦公日曆表（data.gov.tw 資料集 14718）中「是否放假=2」且為平日者。週末一律非平日；補行上班的週六不當平日（基準沒有這種日子）。",
+  ),
+  calendarCoverage: p({ start: "2025-01-01", end: "2026-12-31" } as const, "放假日表只涵蓋 114–115 年；範圍外日期無法判斷是否平日 → unknown（不猜）。"),
+  anomalyDays: p(
+    {
+      "2026-10-24": "Champi 颱風（場景 taipei-typhoon-1024）：當日無 VD 觀測，颱風日交通型態不能套用典型值",
+    } as Readonly<Record<string, string>>,
+    "異常日清單：即使是平日也不套典型值（颱風、重大事件等）。新增日期要附理由；邏輯只讀這張表，不在程式寫死日期。",
+  ),
+} as const;

@@ -147,3 +147,13 @@ ADR-0025 的情境推演模式是「analytics 預先算好固定情境 → `outp
 - 許可期間判定重用 `roadEventsLoader.isRoadEventActive`（缺生效時間不算進行中；沒有到期時間依來源新鮮度）。
 - 許可多為跨月／跨年、沒有每日工時（2026-11-08 歸檔 1,100 筆只有 1 筆描述含時段），**不自行假設工時**；contribution 帶 `permit_is_not_machinery_operation`、`daily_work_hours_unknown`、`permit_span_days`。
 - 接收者落在任一非涵蓋縣市外框內 → unknown（`roadwork_city_not_covered`），外框重疊處保守處理。
+
+### 5.5 道路車流：臺北市 VD 平日典型值（W2，2026-11-11，使用者同意）
+
+- **family 沿用 `road_traffic`，不新增 `road_traffic_typical`**：新增 family 要改引擎的 `QUERIES` 表（W5 正在改 `receiverQuery.ts`），也會讓面板、圖例、圖層 key 多一層。改在 adapter 層分流：`queryRoadTrafficCombined` 依 record payload 的 `kind` 拆成「VD 典型值」與「國道路段」兩組。
+- **取代規則**：接收者在 `TYPICAL_TRAFFIC.candidateRadiusM`（300 m）內有任何臺北市 VD → 只用 VD 典型值（國道類型 proxy 不出現，註記 `freeway_type_proxy_replaced_by_vd_typical`）；否則維持國道類型 proxy（其他縣市、臺北市沒有 VD 的地方）。
+- **只有臺北市平日套用**：週末、國定假日（`nonWorkdays`，取自人事行政總處 114／115 年辦公日曆表）、異常日（`anomalyDays`，目前只有 2026-10-24 Champi 颱風，理由寫在表裡）、放假日表範圍外 → 一筆 unknown（`typical_not_applicable(<reason>)`），**不退回國道 proxy、不當 0**。異常日只讀設定表，程式不寫死日期。
+- 潛勢 = `proximityPotential(d, 100 m) × (1 − e^(−Q/1500))`，Q 為該小時典型流量（輛／小時）；區間查詢取區間涵蓋各小時的最大值。`evidence=estimated`、`proxyKind=typical_weekday_volume`、`acousticConfidence=proxy`。
+- 缺值：該小時流量 null → unknown `typical_flow_null`；樣本天數 < `minFlowDays`（3）→ unknown `typical_sample_insufficient`；典型流量為 0（夜間無車）→ 不產生貢獻（有效的 0）。
+- 資料：`public/sound-atlas/vd-baseline-taipei.json`（`scripts/preprocess/build-sound-vd-baseline.py`；public-assets lock 登記）。基準表 679 支 VD，設備檔沒有座標的 8 支剔除（不合成座標），輸出 671 支。週末流量不輸出（上游 TotalVolume 凍結）。
+- UI 必寫：「推估：2025/12–2026/01 平日典型值（N 天樣本），非當日觀測」。

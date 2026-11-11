@@ -6,6 +6,7 @@
  *
  * - 鐵道：班表類，一律即時算（不進快照）；不拿今天的班表回填歷史日。
  * - 道路車流：即時讀 get_freeway_congestion_day（只有國道道路類型 proxy，無流量）；不進快照（理由見 MVP_B_SOURCES.md §3）。
+ *   另併臺北市 VD 平日典型值（public/sound-atlas/vd-baseline-taipei.json，W2 2026-11-11）。
  * - 施工：有快照區塊 `roadwork` 就用快照（coverage 取快照 health，不以 bbox 內筆數重判），否則讀 get_road_events_day。
  */
 import type { RoadEvent } from "../data/roadEventsLoader";
@@ -16,12 +17,13 @@ import { liveRailFetchers } from "./sourceAdapters/railLiveFetchers";
 
 export { liveRailFetchers, parseSystemSchedule, parseTraSchedule } from "./sourceAdapters/railLiveFetchers";
 import { loadRoadTraffic, type RoadTrafficPayload } from "./sourceAdapters/roadTrafficAdapter";
+import { loadTypicalTraffic, type TypicalTrafficPayload } from "./sourceAdapters/typicalTrafficAdapter";
 import { loadRoadwork, roadEventsToRecords, ROADWORK_PROVIDER, type RoadworkPayload } from "./sourceAdapters/roadworkAdapter";
 import type { MvpBSoundFamily, SoundSourceSet } from "./types";
 
 export type MvpBSet =
   | SoundSourceSet<RailPayload, "rail">
-  | SoundSourceSet<RoadTrafficPayload, "road_traffic">
+  | SoundSourceSet<RoadTrafficPayload | TypicalTrafficPayload, "road_traffic">
   | SoundSourceSet<RoadworkPayload, "roadwork">;
 
 // ── 場景快照區塊（施工） ─────────────────────────────────────
@@ -87,7 +89,17 @@ export async function loadMvpBFamily(
   snapshotJson: unknown | null = null,
 ): Promise<{ set: MvpBSet; origin: "scene" | "live" }> {
   if (family === "rail") return { set: await loadRail({ date }, liveRailFetchers), origin: "live" };
-  if (family === "road_traffic") return { set: await loadRoadTraffic({ date }), origin: "live" };
+  if (family === "road_traffic") {
+    // 國道類型 proxy（全台）＋臺北市 VD 平日典型值（靜態小檔）合成一個集合；查詢時由 queryRoadTrafficCombined 分流
+    const [fw, vd] = await Promise.all([loadRoadTraffic({ date }), loadTypicalTraffic({ date })]);
+    const set: SoundSourceSet<RoadTrafficPayload | TypicalTrafficPayload, "road_traffic"> = {
+      family: "road_traffic",
+      dateKey: date,
+      records: [...fw.records, ...vd.records],
+      coverage: [...fw.coverage, ...vd.coverage],
+    };
+    return { set, origin: "live" };
+  }
   const block = snapshotJson ? parseMvpBSceneBlocks(snapshotJson).roadwork : undefined;
   if (block) return { set: roadworkSnapshotSet(block, date), origin: "scene" };
   return { set: await loadRoadwork({ date }), origin: "live" };
