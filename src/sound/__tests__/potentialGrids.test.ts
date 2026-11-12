@@ -13,11 +13,13 @@ import {
 } from "../grid/potentialCode";
 import { AVIATION_GRID_GATES, AVIATION_PACK_EDGES, aviationGateFromSearch, aviationGatePotential, DEFAULT_AVIATION_GATE } from "../grid/aviationGates";
 import { decodePotentialPack, potentialPackFrame, POTENTIAL_PACK_SCHEMA } from "../grid/potentialPack";
-import { gridSourceApplies, gridSourceSha, loadAviationGridSource, loadNaturalGridSource } from "../grid/gridSources";
+import { gridSourceApplies, gridSourceSha, loadAviationGridSource, loadNaturalGridSource, loadRainGridSource } from "../grid/gridSources";
+import { decodeRadarRainPack } from "../grid/radarRainPack";
+import { buildRainGaugeField, rainGridFrame } from "../grid/rainGrid";
 import { cellReceiver } from "../grid/potentialGridState";
 import { buildNaturalField, naturalGridFrame, type NaturalFamily } from "../grid/naturalGrid";
 import { railGridFrame } from "../grid/railGrid";
-import { prefilterAviation } from "../soundAtlasData";
+import { prefilterAviation, withRadarRain } from "../soundAtlasData";
 import { loadRail } from "../sourceAdapters/railAdapter";
 import type { AviationRecord } from "../sourceAdapters/aviationAdapter";
 import type { SoundSourceSet } from "../types";
@@ -246,6 +248,46 @@ describe.each(DATES)("自然三族網格（真實 %s）", (date) => {
     expect(mismatches, examples.join("; ")).toBe(0);
     expect(activeN).toBeGreaterThanOrEqual(50);
     expect(Math.max(...frameMs)).toBeLessThan(50);
+  }, 120_000);
+});
+
+
+// 雨（W6-1 網格）改讀全北北雨量站來源檔：場景快照只有接收點附近的站，遠處的格以前只靠雷達
+const RAIN_REAL = [
+  { date: "2026-11-09", hours: [7.67, 9.2, 14.05, 20.05] } /* 09:10、20:00 缺雷達幀 */,
+  { date: "2026-10-24", hours: [3.1, 10.05, 14.05, 22.9] } /* 10:00 缺雷達幀 */,
+];
+describe.each(RAIN_REAL)("雨網格全範圍雨量站（真實 $date）", ({ date, hours }) => {
+  const have = existsSync(`${GRID_DIR}/rain-gauge-${date}.json`) && existsSync(`${GRID_DIR}/radar-rain-${date}.class.bin`);
+  it.skipIf(!have)("網格分級＝queryReceiver 分級：≥200 格 × 4 時刻（含缺雷達幀時刻）", async () => {
+    const gauge = (await loadRainGridSource(date, localFetch))!;
+    expect(gauge).not.toBeNull();
+    const meta = JSON.parse(readFileSync(`${GRID_DIR}/radar-rain-${date}.meta.json`, "utf8"));
+    const pack = await decodeRadarRainPack(meta, new Uint8Array(readFileSync(`${GRID_DIR}/radar-rain-${date}.class.bin`)), date);
+    const set = await withRadarRain(gauge, date, async () => pack);
+    const field = buildRainGaugeField(set.records as never);
+    const stations = new Set((set.records as { payload: { stationId?: string } }[]).map((r) => r.payload.stationId).filter(Boolean));
+    // 亂數格＋遠離小油坑／碧湖（舊快照範圍外）的格
+    const cells = [...new Set([...sampleCells(220, 13), ...cellsAround(121.75, 24.9, 3), ...cellsAround(121.4, 24.85, 3)])];
+    let mismatches = 0, checked = 0, gaugeOnly = 0;
+    const hist: Record<string, number> = {};
+    for (const h of hours) {
+      const t = at(date, h);
+      const b = binOf(t);
+      const frame = rainGridFrame(set, field, b, b + 600 - 1e-6).values;
+      for (const c of cells) {
+        const r = queryFamilyInterval("rain", [set], cellReceiver(c), t, t);
+        const want = r.status === "inactive" ? 0 : r.status !== "active" ? U : r.contributions[0]!.rainEstimate!.rainClass;
+        if (r.status === "active" && r.contributions[0]!.rainEstimate!.source === "gauge") gaugeOnly++;
+        checked++;
+        hist[String(want)] = (hist[String(want)] ?? 0) + 1;
+        if (frame[c] !== want) mismatches++;
+      }
+    }
+    console.info(`[rainGrid full-area ${date}] stations=${stations.size} cells=${cells.length} checked=${checked} mismatches=${mismatches} gaugeSource=${gaugeOnly} hist=${JSON.stringify(hist)}`);
+    expect(stations.size).toBeGreaterThan(200);
+    expect(cells.length).toBeGreaterThanOrEqual(200);
+    expect(mismatches).toBe(0);
   }, 120_000);
 });
 
