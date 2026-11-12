@@ -22,9 +22,8 @@ const SLICE_MS = 12;
 /** 一點取樣最多試幾次（落在洞裡或面外就重試）；用完退回面內代表點 */
 const MAX_TRIES = 64;
 
-/** 點密度樣式：點的大小隨縮放微調；底下淡淡的行政區邊界線（顏色用 `BOUNDARY_GRAY`）。 */
+/** 點密度底下淡淡的行政區邊界線（顏色用 `BOUNDARY_GRAY`）。點的樣式見 `statisticsDotPaint`。 */
 export const DOT_STYLE = {
-  radius: [[5, 0.6], [8, 1], [11, 1.6], [14, 2.4]] as const,
   boundaryOpacity: { dark: 0.28, light: 0.22 },
   boundaryWidth: 0.6,
 } as const;
@@ -311,9 +310,14 @@ export function statisticsDotData(data: GeoJSON.FeatureCollection, unit: number)
 }
 
 /**
- * Mapbox circle-radius：隨縮放微調（R2「點半徑固定」的明文例外，map-layers.md §3.10）：點密度的點是「量」不是地點，
- * 全國視角好幾萬點要小到不糊成一片、拉近時要大到看得見；一般點圖層仍照 R2 固定分階。
+ * 點密度的 circle paint。半徑隨縮放變化是 R2「點半徑固定」的正式例外（使用者 2026-11-12 決定；
+ * map-layers.md §3.10、eslint.config.js `ZOOM_RADIUS_EXCEPTIONS`）：點密度的點不是資料點位，
+ * 全國視角好幾萬點要小到不糊成一片、拉近時要大到看得見。一般點圖層仍照 R2 固定分階。
  */
-export function statisticsDotRadius(): unknown[] {
-  return ['interpolate', ['linear'], ['zoom'], ...DOT_STYLE.radius.flat()];
+export function statisticsDotPaint(color: string, opacity: number) {
+  return {
+    'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 0.6, 8, 1, 11, 1.6, 14, 2.4],
+    'circle-color': color,
+    'circle-opacity': opacity,
+  };
 }

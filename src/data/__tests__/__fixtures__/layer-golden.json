@@ -170025,10 +170025,6 @@
           {
             "label": "比例圓",
             "value": "circle"
-          },
-          {
-            "label": "點密度",
-            "value": "dots"
           }
         ],
         "type": "select",

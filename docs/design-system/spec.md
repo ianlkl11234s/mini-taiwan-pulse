@@ -769,7 +769,7 @@
 - **尺寸常數**：`LEGEND_SWATCH`（點、方塊、線、分級、漸層、斜線、icon 14、間距 6）。`SwatchDot`／`SwatchSquare` 預設不透明度 0.9。
 - **合成色（LG-14，2026-11-10）**：面圖層的 `SwatchSquare`（實心、呼叫端未傳 `opacity`）與 `SwatchSteps` 在 `LegendFillOpacityCtx` 內時，畫「色 × 圖層目前填色透明度 × 底圖陸地色」的不透明合成色，加 1px `border`，跟透明度滑桿與底圖即時變；`LegendPanel` 依 overlayRegistry 自動提供透明度，統計圖例自己提供。查不到透明度（表達式、hook 自建、3D）維持原色票。規格 `map-layers.md` §4.2 LG-14、§3.9。
 - **暗底提亮同步（C-4，2026-11-10）**：registry 點／線在暗底被 `darkContrast` 提亮過的顏色，`LegendPanel` 以 `LegendLiftCtx` 提供「原色 → 地圖色」對照，`SwatchDot`／`SwatchLine` 自動換色；手寫色票改用 `useLegendColorMapper()`。點色票外環用 `LegendPalette.pointRing`（同地圖點描邊 P-2：暗 `#e5e7eb` 0.45、淡白）。類別無語意的新配色取 `MAP_CATEGORICAL`（map-layers §3.9 C-5）。
-- **大小（LG-5）**：`LegendSizeRow`（點大小三圓並排＋標籤）、`LegendNestedCircles`（三圓底邊對齊套疊、圓頂細線拉到右側數值；`fill` 實心／`ring` 空心圈，直徑＝地圖實際直徑；統計比例圓用，`map-layers.md` §3.10）。統計點密度的圖例不畫大小：一列 `SwatchDot`（該指標色階最深一級）＋「一點＝N 單位」，下面兩行說明「點的位置為區內隨機，不代表實際地點」「不足一點的餘數依區代碼固定機率進位…；觀測值 0 不撒點」，固定門檻說明換成「一點代表的數量依本期全圖總量取 1／2／5×10ⁿ」。數值用 `LegendNum`，量級與單位用 CJK 字型。
+- **大小（LG-5）**：`LegendSizeRow`（點大小三圓並排＋標籤）、`LegendNestedCircles`（三圓底邊對齊套疊、圓頂細線拉到右側數值；`fill` 實心／`ring` 空心圈，直徑＝地圖實際直徑；統計比例圓用，`map-layers.md` §3.10）。統計點密度的圖例不畫大小：一列 `SwatchDot`（該指標色階最深一級）＋「一點＝N 單位」，下面兩行說明「點的位置為區內隨機，不代表實際地點」「不足一點的餘數依區代碼固定機率進位…；觀測值 0 不撒點」，固定門檻說明換成「一點代表的數量依本期全圖總量取 1／2／5×10ⁿ」。點密度的點不是資料點位，地圖上的點半徑隨縮放變化屬 R2 例外（使用者 2026-11-12 決定；`map-layers.md` §3.10），圖例的點樣本維持 `SwatchDot` 固定尺寸。數值用 `LegendNum`，量級與單位用 CJK 字型。
 - **尚無元件**：LG-6 icon（除方向箭頭）還沒有共用元件，逐層做時補。
 - **字型**（LG-10）：面板容器 `FONT_CJK`；數字、分界、單位用 `LegendNum`（`FONT_DATA`＋tabular-nums）。
 - **精簡版**（LG-9）：`LegendPanel` 的 `compact`（停靠 popup 開著時）會讓 `LegendNote` 不顯示；色階、分界、單位不可收。

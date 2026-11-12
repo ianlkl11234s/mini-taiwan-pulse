@@ -68,11 +68,11 @@ describe('statistics presentation derivation', () => {
     // 點密度已露出：推導可用、而且沒被覆寫隱藏的層才可選
     const hidden = new Set(Object.entries(PRESENTATION_OVERRIDES).filter(([, o]) => o.hide?.includes('dots')).map(([key]) => key));
     for (const key of STATISTICS_RENDER_KEYS) expect(statisticsPresentationOptions(key).includes('dots'), key).toBe(dots.includes(key) && !hidden.has(key));
-    expect(dots.filter((key) => !hidden.has(key)).length).toBe(43);
+    expect(dots.filter((key) => !hidden.has(key)).length).toBe(42);
   });
 
-  it('sensitive counts (infectious-disease cases, deaths, sexual assault) never offer dots; ordinary crime keeps them', () => {
-    for (const key of ['statsHivCasesTownship', 'statsHealthTbNewCasesTownship', 'statsCrimeSexualAssaultCasesTownship', 'statsDemographicsTownshipDeaths', 'statsDemographicsTownshipDeathsYtd', 'statsMortalityDeathsTownship', 'statsMortalityDeaths5yrTownship']) {
+  it('sensitive counts (infectious-disease cases, deaths, sexual assault, drug cases) never offer dots; ordinary crime keeps them', () => {
+    for (const key of ['statsHivCasesTownship', 'statsHealthTbNewCasesTownship', 'statsCrimeSexualAssaultCasesTownship', 'statsCrimeDrugCasesTownship', 'statsDemographicsTownshipDeaths', 'statsDemographicsTownshipDeathsYtd', 'statsMortalityDeathsTownship', 'statsMortalityDeaths5yrTownship']) {
       expect(derivedPresentationModes(key), key).toContain('dots');
       expect(statisticsPresentationOptions(key), key).toEqual(['choropleth', 'circle']);
     }

@@ -8,7 +8,7 @@ import { STATISTICS_FILL_OPACITY, statisticsDefaultOpacity } from '../data/stati
 import { BOUNDARY_GRAY, gradedSeamPaint, hatchImageData, hatchImageId, type HatchKind } from './mapStyleScale';
 import { isPresentationKey, statisticsCircleHollow, statisticsPresentationMode } from '../state/statisticsPresentationStore';
 import { PROPORTIONAL_CIRCLE, proportionalCircleRadiusExpression, statisticsCircleData } from './statisticsCircles';
-import { DOT_STYLE, dataDotUnit, statisticsDotRadius, statisticsDotData, statisticsDotDataReady } from './statisticsDots';
+import { DOT_STYLE, dataDotUnit, statisticsDotData, statisticsDotDataReady, statisticsDotPaint } from './statisticsDots';
 
 /** 有數值才上色；缺值、未發布、遮蔽一律透明底，由 hatch 子圖層表示（F-3 A）。 */
 const NO_FILL = 'rgba(0,0,0,0)';
@@ -253,9 +253,10 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       (map.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(ready.dots);
       keepLoadingUntilMapIdle(map, `statistics-dots-render:${loadingPrefix}${key}`, label, sourceId);
     }
-    map.setPaintProperty(layerId, 'circle-radius', statisticsDotRadius() as mapboxgl.ExpressionSpecification);
-    map.setPaintProperty(layerId, 'circle-color', color);
-    map.setPaintProperty(layerId, 'circle-opacity', opacity);
+    const paint = statisticsDotPaint(color, opacity);
+    map.setPaintProperty(layerId, 'circle-radius', paint['circle-radius'] as mapboxgl.ExpressionSpecification);
+    map.setPaintProperty(layerId, 'circle-color', paint['circle-color']);
+    map.setPaintProperty(layerId, 'circle-opacity', paint['circle-opacity']);
     map.setLayoutProperty(layerId, 'visibility', renderedDots.has(key) ? 'visible' : 'none');
   }
   /** 比例圓／點密度永遠在所有統計面之上：之後才建立的統計面插在第一個比例圓／點層之前（不然後開的面量圖會疊到上面） */
