@@ -7,6 +7,7 @@ import {
 } from "../data/jpNatureR2Types";
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
+import { SPREAD_FADE, SPREAD_MINZOOM } from "./electionSpread";
 import { ELECTION_APPROX_PRECISIONS, ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_RING_FILL_OPACITY, ELECTION_RING_OFFSET, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
 import { IE_COILLTE_ATTRIBUTION, IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteColorExpr, ieCoillteKindFilter } from "../data/ieCoillteTypes";
 import { GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_SOURCE_ID, GB_ENV_HOLLOW_STROKE, GB_POLLUTION_COLOR } from "../data/gbEnvPlanningTypes";
@@ -3747,7 +3748,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "precision",
         type: "circle",
         minzoom: 5,
-        filter: ["all", ["!=", ["coalesce", ["get", "_grp"], 0], 1], ["in", ["get", "location_precision"], ["literal", [...ELECTION_APPROX_PRECISIONS]]]],
+        filter: ["all", ["!=", ["coalesce", ["get", "_grp"], 0], 1], ["!=", ["coalesce", ["get", "_sp"], 0], 1], ["in", ["get", "location_precision"], ["literal", [...ELECTION_APPROX_PRECISIONS]]]],
         layout: { "circle-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]] as unknown as number },
         paint: (_isDark, p) => {
           const { base, campColor, past } = electionPointExpr(p);
@@ -3767,7 +3768,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         minzoom: 5,
-        filter: ["!=", ["coalesce", ["get", "_grp"], 0], 1],
+        filter: ["all", ["!=", ["coalesce", ["get", "_grp"], 0], 1], ["!=", ["coalesce", ["get", "_sp"], 0], 1]],
         layout: { "circle-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]] as unknown as number },
         paint: (isDark, p) => {
           const op = p?.electionEvents2026Opacity ?? 0.9;
@@ -3786,6 +3787,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         // 同一代表點 2 場以上：圖示已含陣營比例與已舉辦淡化；陣營篩選由 hook 在分組前套用
+        // 確切地點多場（_spr＝1）在 z13 附近淡出、改由 spread 子圖層畫各場（map/electionSpread.ts）
         suffix: "group",
         type: "symbol",
         minzoom: 5,
@@ -3801,7 +3803,37 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "symbol-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]],
           };
         },
-        paint: (_isDark, p) => ({ "icon-opacity": p?.electionEvents2026Opacity ?? 0.9 }),
+        paint: (_isDark, p) => {
+          const op = p?.electionEvents2026Opacity ?? 0.9;
+          const spr = ["==", ["coalesce", ["get", "_spr"], 0], 1];
+          return {
+            "icon-opacity": ["interpolate", ["linear"], ["zoom"],
+              SPREAD_MINZOOM - SPREAD_FADE, op,
+              SPREAD_MINZOOM + SPREAD_FADE, ["case", spr, 0, op]] as unknown as number,
+          };
+        },
+      },
+      {
+        // 確切地點多場拉近展開（z≥13）：各場自己的點緊密排成一簇，固定 px 位移（icon-offset），點各點開該場
+        suffix: "spread",
+        type: "symbol",
+        minzoom: SPREAD_MINZOOM - SPREAD_FADE,
+        filter: ["==", ["coalesce", ["get", "_sp"], 0], 1],
+        skipCategoryFilter: true,
+        layout: (isDark, p) => ({
+          "icon-image": ["concat", ["get", "_img"], isDark ? "-d" : "-l"],
+          "icon-size": p?.electionEvents2026Scale ?? 1,
+          "icon-offset": ["get", "_ofs"],
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+          "symbol-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]],
+        }),
+        paint: (_isDark, p) => {
+          const op = p?.electionEvents2026Opacity ?? 0.9;
+          return {
+            "icon-opacity": ["interpolate", ["linear"], ["zoom"], SPREAD_MINZOOM - SPREAD_FADE, 0, SPREAD_MINZOOM + SPREAD_FADE, op] as unknown as number,
+          };
+        },
       },
     ],
   },
