@@ -19,6 +19,9 @@ const reactHarness = vi.hoisted(() => {
   };
 });
 vi.mock("react", () => ({ useEffect: reactHarness.useEffect }));
+// map 就緒通知：真實版用 useState + 輪詢；這裡改成可控的值（map 就緒時 +1）
+const readyTick = vi.hoisted(() => ({ value: 0 }));
+vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => readyTick.value }));
 
 import { usePollutionLayers, type PollutionFilterState } from "../usePollutionLayers";
 import { FACILITY_MEDIA, type PollutionMedium } from "../../data/pollutionTypes";
@@ -52,7 +55,7 @@ const vis = { pollutionFacility: false, pollutionPenaltyCritical: true, pollutio
 const BASE = ["==", ["get", "severity_event"], "critical"];
 
 describe("usePollutionLayers 預設年份篩選 (R5-2)", () => {
-  afterEach(() => reactHarness.cleanup());
+  afterEach(() => { reactHarness.cleanup(); readyTick.value = 0; });
 
   it("layer 在 hook 套用之後才加入：加入時（styledata）立即套上預設年份，點與熱區一致", () => {
     const { map, addLayer, filterOf } = createMap();
@@ -91,5 +94,24 @@ describe("usePollutionLayers 預設年份篩選 (R5-2)", () => {
     const n = raw.setFilter.mock.calls.length;
     addLayer("unrelated", null);
     expect(raw.setFilter.mock.calls.length).toBe(n);
+  });
+
+  it("分享網址還原：圖層一開始就是開的、map 晚於 hook 就緒 → 就緒後仍套上預設年份", () => {
+    const { map, addLayer, filterOf } = createMap();
+    const ref = { current: null } as RefObject<MapboxMap | null>;
+    // 首次 render：visibility 已是 true（網址帶入），但 map 尚未 load
+    reactHarness.begin();
+    usePollutionLayers(ref, vis, state(2026));
+    // map load 完成：mapRef 填入、tick +1 → App 重渲（visibility 與參數都沒變）
+    (ref as { current: MapboxMap | null }).current = map;
+    readyTick.value = 1;
+    reactHarness.begin();
+    usePollutionLayers(ref, vis, state(2026));
+    // overlayManager 之後才非同步加入 layer
+    addLayer(POINT, BASE);
+    addLayer(HEAT, BASE);
+    const expected = ["all", BASE, ["all", ["==", ["coalesce", ["to-number", ["get", "penalty_year"]], 0], 2026]]];
+    expect(filterOf(POINT)).toEqual(expected);
+    expect(filterOf(HEAT)).toEqual(expected);
   });
 });
