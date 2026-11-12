@@ -92,12 +92,29 @@ function tupleValues(specs: readonly LinkedSelectParamSpec[], option: Statistics
   return values;
 }
 
-function buildModel(key: string): StatisticsModel {
+/** 比較模式右側的 store key（`regionalStatisticsMap.RIGHT_STORE_SUFFIX`；不寫 localStorage） */
+export const statisticsRightStoreKey = (key: string) => `${key}::R`;
+
+/**
+ * 讀哪一份 store：左側＝key；右側＝已有 `key::R`（右側選過不同期別／細項）就讀它，否則讀左側（預設同左）。
+ * 右側還沒載入期別清單時借左側的清單（同一指標的期別清單相同），選單不會閃空。
+ */
+function statisticsState(key: string, side: 'left' | 'right') {
+  const left = regionalStatisticsStore.getSnapshot(key);
+  if (side === 'left') return left;
+  const right = regionalStatisticsStore.getSnapshot(statisticsRightStoreKey(key));
+  if (!right.selection) return left;
+  return right.releases.length ? right : { ...right, releases: left.releases, catalog: right.catalog.length ? right.catalog : left.catalog };
+}
+
+function buildModel(key: string, side: 'left' | 'right' = 'left'): StatisticsModel {
   const specs = statisticsSpecs(key);
   const empty: StatisticsModel = { status: 'idle', tuples: [], current: {}, label: (_spec, value) => value };
   if (!specs.length || !isStatisticsRenderLayer(key)) return empty;
   const layerKey = key as StatisticsRenderKey;
-  const state = regionalStatisticsStore.getSnapshot(layerKey);
+  /** 寫入目標：右側一律寫 `key::R`（第一次選就建立） */
+  const storeKey = side === 'left' ? layerKey : statisticsRightStoreKey(layerKey);
+  const state = statisticsState(layerKey, side);
   const indicator = state.selection?.indicatorId;
   const activeBaseKey = statisticsBaseKey(layerKey, indicator);
   const family = detailsFamily(layerKey, activeBaseKey);
@@ -138,8 +155,8 @@ function buildModel(key: string): StatisticsModel {
                 : atlas ? (release ? resolveAtlasRelease(activeBaseKey, release, option.dimensions) : null)
                   : option;
     if (!resolved) return false;
-    regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, indicator), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
-    void regionalStatisticsStore.load(layerKey);
+    regionalStatisticsStore.setSelection(storeKey, { ...statisticsRecipe(layerKey, indicator), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
+    void regionalStatisticsStore.load(storeKey);
     return true;
   };
 
@@ -158,8 +175,8 @@ function buildModel(key: string): StatisticsModel {
     tuples = state.releases.map((release) => ({
       values: tupleValues(specs, { releaseId: release.release_id, dimensions: {} }),
       apply: () => {
-        regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: release.release_id, allowReleaseFallback: false });
-        void regionalStatisticsStore.load(layerKey);
+        regionalStatisticsStore.setSelection(storeKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: release.release_id, allowReleaseFallback: false });
+        void regionalStatisticsStore.load(storeKey);
         return true;
       },
     }));
@@ -177,7 +194,8 @@ function buildModel(key: string): StatisticsModel {
     }
     tuples = selectable.map((option) => ({ values: tupleValues(specs, option, currentMetric), apply: () => writeOption(option), period: periodOf(option.releaseId) }));
     // 其他指標：只有目前指標已有組合時才列（否則資料未載入時就會冒出半套選單）。
-    if (tuples.length && view) {
+    // 右側不列：比較模式左右只能差期別與細項，不能換指標（使用者 2026-11-11 Q2 (b)）。
+    if (side === 'right') { /* 只留目前指標 */ } else if (tuples.length && view) {
       for (const metric of view.metrics) {
         if (metric.layerKey === currentMetric) continue;
         const source = (getSocialRecipeDetails(metric.layerKey) ?? getComparisonRecipe(metric.layerKey))?.release_options ?? [];
@@ -302,6 +320,55 @@ registerLinkedSelectProvider(STATISTICS_LINKED_PROVIDER, {
   },
   ensure: ensureStatistics,
   retry: ensureStatistics,
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  statisticsRight：比較模式右側的期別／細項（docs/features/compare-mode/DESIGN.md §3）
+// ══════════════════════════════════════════════════════════════════
+//
+// 規格由 `compareStatistics.ts` 從左側的連動選單派生（同 field、不含指標列）；這裡用同一個 model，
+// 只是讀寫 `key::R`。右側值只在比較模式的圖層展開區出現，不進 `LAYER_PARAMS_SPEC`（Agent、黃金快照不受影響）。
+
+export const STATISTICS_RIGHT_PROVIDER = 'statisticsRight';
+
+/** 右側規格 → 左側同 field 的規格（model 的 tuple 以左側 name 為鍵） */
+function leftSpecOf(layerKey: string, spec: LinkedSelectParamSpec): LinkedSelectParamSpec | undefined {
+  return statisticsSpecs(layerKey).find((candidate) => candidate.field === spec.field);
+}
+
+registerLinkedSelectProvider(STATISTICS_RIGHT_PROVIDER, {
+  snapshot(layerKey, spec) {
+    const left = leftSpecOf(layerKey, spec);
+    if (!left) return { status: 'idle', options: [], value: '' };
+    const model = buildModel(layerKey, 'right');
+    const values = linkedSelectValues({ name: left.name, dependsOn: left.dependsOn }, model.tuples, model.current);
+    return {
+      status: model.status,
+      ...(model.error ? { error: model.error } : {}),
+      options: values.map((value) => ({ label: model.label(left, value), value, localize: (i18n: I18nContext) => model.label(left, value, i18n) })),
+      value: model.current[left.name] ?? '',
+    };
+  },
+  set(layerKey, spec, value) {
+    const left = leftSpecOf(layerKey, spec);
+    const model = buildModel(layerKey, 'right');
+    if (!left || !model.tuples.length) throw new Error(LINKED_SELECT_NOT_READY);
+    if (model.current[left.name] === value) return;
+    const tuple = resolveLinkedSelectChange(fieldsOf(statisticsSpecs(layerKey)), model.tuples, model.current, left.name, value);
+    if (!tuple || !tuple.apply()) throw new Error(LINKED_SELECT_VALUE_INVALID);
+    return regionalStatisticsStore.load(statisticsRightStoreKey(layerKey));
+  },
+  subscribe(layerKey, callback) {
+    const offLeft = regionalStatisticsStore.subscribe(layerKey, callback);
+    const offRight = regionalStatisticsStore.subscribe(statisticsRightStoreKey(layerKey), callback);
+    const offDetails = subscribeStatisticsRecipeDetails(callback);
+    return () => { offLeft(); offRight(); offDetails(); };
+  },
+  ensure: ensureStatistics,
+  retry(layerKey) {
+    ensureStatistics(layerKey);
+    if (regionalStatisticsStore.getSnapshot(statisticsRightStoreKey(layerKey)).selection) void regionalStatisticsStore.load(statisticsRightStoreKey(layerKey));
+  },
 });
 
 // ══════════════════════════════════════════════════════════════════

@@ -20,6 +20,8 @@ function readSelections(): Record<string, StatisticsRecipe> {
   try { const value: unknown = JSON.parse(localStorage.getItem(STORAGE) ?? '{}'); return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, StatisticsRecipe> : {}; } catch { return {}; }
 }
 const persisted = readSelections();
+/** 含 `::` 的 key 是命名空間 key（比較模式右側），不讀寫 localStorage */
+const isEphemeralKey = (key: string) => key.includes('::');
 function getSnapshot(key: string): RegionalStatisticsSnapshot {
   if (!snapshots.has(key)) snapshots.set(key, { loading: false, error: null, selection: null, catalog: [], releases: [], data: null, source: null, release: null, health: null });
   return snapshots.get(key)!;
@@ -53,7 +55,7 @@ export const regionalStatisticsStore = {
       return source?.dataset_id === candidate?.datasetId && source?.indicator_id === candidate?.indicatorId;
     }));
     if (validViewSelection(current) || validLaborSelection(current) || (current?.datasetId === recipe.datasetId && current.indicatorId === recipe.indicatorId)) return;
-    const saved = persisted[key];
+    const saved = isEphemeralKey(key) ? undefined : persisted[key];
     const matching = validViewSelection(saved) || validLaborSelection(saved) || (saved?.datasetId === recipe.datasetId && saved.indicatorId === recipe.indicatorId);
     const selection = matching && saved ? { ...recipe, ...saved, ...(saved.releaseId && saved.releaseId !== recipe.releaseId ? { allowReleaseFallback: false } : {}) } : recipe;
     const changedMetric = current?.indicatorId !== selection.indicatorId;
@@ -63,8 +65,11 @@ export const regionalStatisticsStore = {
     const previous = getSnapshot(key).selection;
     cancel(key);
     loadedFingerprints.delete(key);
-    if (recipe) persisted[key] = recipe; else delete persisted[key];
-    try { localStorage.setItem(STORAGE, JSON.stringify(persisted)); } catch { /* Optional browser persistence. */ }
+    // 命名空間 key（比較模式右側 `key::R`）只活在這次瀏覽，不寫 localStorage
+    if (!isEphemeralKey(key)) {
+      if (recipe) persisted[key] = recipe; else delete persisted[key];
+      try { localStorage.setItem(STORAGE, JSON.stringify(persisted)); } catch { /* Optional browser persistence. */ }
+    }
     const changedMetric = previous?.datasetId !== recipe?.datasetId || previous?.indicatorId !== recipe?.indicatorId;
     update(key, { ...(changedMetric ? { releases: [], catalog: [] } : {}), selection: recipe, data: null, source: null, release: null, health: null, loading: false, error: null });
   },

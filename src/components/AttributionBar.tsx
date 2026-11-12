@@ -10,7 +10,8 @@
  *
  * 來源收集與底圖分流見 src/map/attribution/mapAttribution.ts；字串解析見 attributionParse.ts。
  */
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { compareRightMap } from "../map/compareRightMap";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronUp, ExternalLink, X } from "lucide-react";
 import type { Map as MapboxMap } from "mapbox-gl";
@@ -66,7 +67,11 @@ interface AttributionBarProps {
 
 export function AttributionBar({ map, host, isDark }: AttributionBarProps) {
   const { t, active } = useLocale();
-  const raws = useLayerAttributions(map);
+  const leftRaws = useLayerAttributions(map);
+  // 比較模式：右圖的圖層（例：只在右側的古地圖）也要列來源；兩張圖去重合併
+  const rightMap = useSyncExternalStore(compareRightMap.subscribe, compareRightMap.get, compareRightMap.get);
+  const rightRaws = useLayerAttributions(rightMap);
+  const raws = useMemo(() => [...new Set([...leftRaws, ...rightRaws])], [leftRaws, rightRaws]);
   const entries = useMemo(() => parseAttributions(raws), [raws]);
   const groups = useMemo(() => groupAttributions(entries), [entries]);
   const [open, setOpen] = useState(false);

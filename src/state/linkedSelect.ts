@@ -201,7 +201,12 @@ function waitUntilSettled(layerKey: string, specs: readonly LinkedSelectParamSpe
   return new Promise((resolve) => {
     let done = false;
     const finish = (ok: boolean) => { if (done) return; done = true; off(); clearTimeout(timer); resolve(ok); };
-    const off = subscribeLinkedSelects(layerKey, () => { if (settled()) finish(true); });
+    const ids = [...new Set(specs.map((spec) => spec.provider))];
+    const offs = ids.flatMap((id) => {
+      const provider = providers.get(id);
+      return provider ? [provider.subscribe(layerKey, () => { if (settled()) finish(true); })] : [];
+    });
+    const off = () => offs.forEach((fn) => fn());
     const timer = setTimeout(() => finish(settled()), timeoutMs);
   });
 }
@@ -213,12 +218,14 @@ function waitUntilSettled(layerKey: string, specs: readonly LinkedSelectParamSpe
 export async function restoreLinkedSelects(
   linked: Readonly<Record<string, Readonly<Record<string, string>>>>,
   timeoutMs = 20_000,
+  /** 規格來源（預設＝圖層規格；比較模式右側傳派生規格） */
+  specsOf: (layerKey: string) => LinkedSelectParamSpec[] = linkedSelectSpecs,
 ): Promise<string[]> {
   const skipped: string[] = [];
   for (const [layerKey, values] of Object.entries(linked)) {
-    const specs = linkedSelectSpecs(layerKey).filter((spec) => spec.persist !== false);
+    const specs = specsOf(layerKey).filter((spec) => spec.persist !== false);
     if (!specs.length) continue;
-    ensureLinkedSelects(layerKey);
+    for (const id of new Set(specs.map((spec) => spec.provider))) providers.get(id)?.ensure?.(layerKey);
     for (const spec of specs) {
       const wanted = values[spec.name];
       if (wanted === undefined) continue;

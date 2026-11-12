@@ -23,6 +23,8 @@ import { PROPORTIONAL_CIRCLE, proportionalCircleRadius, proportionalLegendValues
 import { statisticsCircleHollow, statisticsPresentationMode } from '../../state/statisticsPresentationStore';
 import { statisticsFillOpacity } from '../../data/statisticsVisuals';
 import { useLayerParams } from '../../state/layerParamsStore';
+import { compareCircleReference } from '../../state/compareStatistics';
+import { CompareStatisticsLegend, type StatisticsLegendPart } from '../compare/CompareStatisticsLegend';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
 import { enumLabel } from '../../i18n/dataText';
 import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsLocationBasis, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
@@ -66,7 +68,7 @@ function coverageLine(health: NonNullable<ReturnType<typeof useStatisticsSnapsho
     unallocated: statisticsValueLabel(health.unallocated_total, statisticsUnit(String(health.currency ?? recipe.unit), i18n), i18n),
   });
 }
-export function useStatisticsSnapshot(key: StatisticsRenderKey) {
+export function useStatisticsSnapshot(key: string) {
   return useSyncExternalStore(cb => regionalStatisticsStore.subscribe(key, cb), () => regionalStatisticsStore.getSnapshot(key));
 }
 function publicLink(value: unknown): string | undefined {
@@ -209,10 +211,19 @@ function manifestLayerName(key: string, i18n: LocaleSnapshot): string {
   const label = (LAYER_MANIFEST[key as keyof LayerVisibility] as LayerManifestEntry).label ?? key;
   return i18n.active === 'zh-TW' ? label : i18n.lookup(`layer.${key}`) ?? label;
 }
+/** 統計圖例入口：比較模式時由 `CompareStatisticsLegend` 決定畫一份或左右兩份（spec §5.32）；平常＝`StatisticsLegendView` */
 export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }) {
+  return <CompareStatisticsLegend layerKey={layerKey} View={StatisticsLegendView}><StatisticsLegendView layerKey={layerKey} /></CompareStatisticsLegend>;
+}
+/**
+ * 比較模式合成圖例（`compare/CompareStatisticsLegend.tsx`，spec §5.32）用的零件：`storeKey` 讀右側那份（`key::R`）；
+ * `part` 只畫其中一塊——`title`（指標名＋單位＋色階說明）、`period`（一行期別＋細項摘要）、`rows`（色票或比例圓）、
+ * `notes`（狀態列、出典與註記）。沒給 `part`＝一般的完整圖例（非比較模式照舊）。
+ */
+export function StatisticsLegendView({ layerKey, storeKey = layerKey, part }: { layerKey: StatisticsRenderKey; storeKey?: string; part?: StatisticsLegendPart }) {
   const i18n = useLocale();
   const { t: tr } = i18n;
-  const state = useStatisticsSnapshot(layerKey);
+  const state = useStatisticsSnapshot(storeKey);
   const baseKey = statisticsBaseKey(layerKey, state.selection?.indicatorId);
   const t = useLegendTheme();
   // 同地圖（regionalStatisticsMap）：色階依底圖換暗底版，色票畫「滑桿值（＝實際填色透明度）× 底圖陸地色」合成色（LG-14）。
@@ -236,17 +247,32 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows ?? atlasCategoryLegend;
   // 呈現方式＝比例圓：色階列換成三圓套疊（圖例只負責顯示，切換在圖層控制區）；缺值斜線等狀態列照舊
   const circle = statisticsPresentationMode(layerKey) === 'circle';
+  // 比較模式的期別行用「期間＋細項」摘要（期別可能在 roc_year 細項裡，只看 release 會左右一樣）
+  const period = state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release, i18n) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded');
+  const title = <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n, 'valueTransform' in recipe && Boolean(recipe.valueTransform))} style={{ marginBottom: 0 }} />;
+  const scaleNote = binaryRows || circle ? null : atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential');
+  const loadState = <>{state.loading && <span>{tr('statistics.legend.loading')}</span>}{state.error && <span role="alert" title={i18n.active === 'zh-TW' ? undefined : state.error}>{i18n.active === 'zh-TW' ? state.error : tr('statistics.loadFailed')}</span>}</>;
+  const rows = circle ? <StatisticsCircleLegend layerKey={layerKey} data={state.data} level={recipe.level} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} isDark={t.isDark} />
+    : (binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>);
+  if (part === 'period') return <span>{(state.release ? statisticsDimensionSummary(state.selection?.dimensions, state.release, recipe.dataset_id, i18n) : '') || period}</span>;
+  if (part === 'title' || part === 'rows') {
+    return <LegendFillOpacityCtx.Provider value={fillOpacity}><div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
+      {part === 'title' ? <>{title}<span>{statisticsUnit(recipe.unit, i18n)}{scaleNote ? ` · ${scaleNote}` : ''}</span></> : <>{loadState}{rows}</>}
+    </div></LegendFillOpacityCtx.Provider>;
+  }
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <LegendFillOpacityCtx.Provider value={fillOpacity}><div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
-    <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n, 'valueTransform' in recipe && Boolean(recipe.valueTransform))} style={{ marginBottom: 0 }} />
-    <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release, i18n) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded')} · {statisticsUnit(recipe.unit, i18n)}</span>
+    {!part && <>
+    {title}
+    <span>{period} · {statisticsUnit(recipe.unit, i18n)}</span>
+    </>}
     {'freshness' in recipe && <span>{tr('statistics.legend.freshness', { value: String(recipe.freshness), frequency: statisticsFrequency(recipe.frequency, i18n) })}</span>}
     {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
     {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
-    {state.loading && <span>{tr('statistics.legend.loading')}</span>}{state.error && <span role="alert" title={i18n.active === 'zh-TW' ? undefined : state.error}>{i18n.active === 'zh-TW' ? state.error : tr('statistics.loadFailed')}</span>}
-    {circle ? <StatisticsCircleLegend layerKey={layerKey} data={state.data} level={recipe.level} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} isDark={t.isDark} /> : <>
-      {!binaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
-      {(binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>)}
+    {!part && <>
+    {loadState}
+    {!circle && scaleNote && <span>{scaleNote}</span>}
+    {rows}
     </>}
     {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
     {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
@@ -285,7 +311,9 @@ function compactParts(value: number, locale: string): { value: string; compact: 
 function StatisticsCircleLegend({ layerKey, data, level, unit, color, isDark }: { layerKey: StatisticsRenderKey; data: GeoJSON.FeatureCollection | null | undefined; level: string; unit: string; color: string; isDark: boolean }) {
   const i18n = useLocale();
   if (!data) return null;
-  const reference = statisticsCircleData(data).reference;
+  const own = statisticsCircleData(data).reference;
+  // 比較中左右期別不同：與兩張地圖共用較大的參考值（同一個圓大小在左右代表同一數量）
+  const reference = compareCircleReference(layerKey, own) ?? own;
   if (!reference) return <span>{i18n.t('statistics.legend.circleNoPositive')}</span>;
   const hollow = statisticsCircleHollow(layerKey);
   const items = proportionalLegendValues(reference).map((value) => {

@@ -1,0 +1,74 @@
+/* 比較把手（design-system §5.45）：2px 分隔線＋28px 圓形把手；淡色底圖用 --light-*。
+ * 位置（left）由元件 inline style 決定；這裡只管外觀。 */
+.compare-divider {
+  --cd-line: rgba(255, 255, 255, 0.8);
+  --cd-knob: var(--surface-strong);
+  --cd-border: var(--border-strong);
+  --cd-text: var(--text-strong);
+  --cd-accent: var(--accent);
+  --cd-elevation: var(--elevation-sm);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  z-index: var(--z-map-overlay);
+  pointer-events: none;
+}
+.compare-divider--light {
+  /* 淡底線色 #111827 0.6：token 沒有這一階，刻意保留（同 §5.11 淡色左線） */
+  --cd-line: rgba(17, 24, 39, 0.6);
+  --cd-knob: var(--light-surface-strong);
+  --cd-border: var(--light-border-strong);
+  --cd-text: var(--light-text-strong);
+  --cd-accent: var(--light-accent);
+  --cd-elevation: var(--light-elevation-lg);
+}
+.compare-divider__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: var(--cd-line);
+}
+/* 線兩側各 5px 的拖曳熱區（不畫東西） */
+.compare-divider__hit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  width: 12px;
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+.compare-divider__knob {
+  position: absolute;
+  top: 50%;
+  left: -14px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-top: -14px;
+  padding: 0;
+  border: 1px solid var(--cd-border);
+  border-radius: var(--radius-full);
+  background: var(--cd-knob);
+  color: var(--cd-text);
+  box-shadow: var(--cd-elevation);
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+.compare-divider__knob:focus-visible {
+  outline: 2px solid var(--cd-accent);
+  outline-offset: 2px;
+}
+/* 拍攝模式：保留分割線、隱藏圓鈕 */
+.compare-divider--capture .compare-divider__knob,
+.compare-divider--capture .compare-divider__hit {
+  display: none;
+}

@@ -1,6 +1,6 @@
 # 通用「比較模式」（Q-E 方案 2）技術調查與分期設計
 
-> **狀態**：設計已定案（五題已決定，見下節）；P0 試驗進行中（分支 `spike/compare-mode-p0`，結果寫在該分支的 `docs/features/compare-mode/P0-SPIKE.md`），P1 尚未開工。
+> **狀態**：設計已定案（五題已決定，見下節）；P0 試驗在分支 `spike/compare-mode-p0`（`docs/features/compare-mode/P0-SPIKE.md`）；**P1 已實作**（分支 `feat/compare-mode-p1`，實作紀錄與已知限制見文末「P1 實作紀錄」）。Q5 的〔待確認〕：P1 照推論一併記細項（`cmpdl`／`cmpdr`）。
 > **行號基準**：本文所有路徑與行號以調查當時的 **`origin/develop` @ `dda9caa0`**（2026-11-11）為準；之後程式改動不回頭更新行號，引用前請用 `git show dda9caa0:<path>` 對照。
 
 ## 使用者決定（2026-11-11）
@@ -310,3 +310,34 @@ UI 草案（文字）：
 - Swipe between maps 範例：https://docs.mapbox.com/mapbox-gl-js/example/mapbox-gl-compare/
 - Map load 定義：https://docs.mapbox.com/help/glossary/map-loads/
 - repo（origin/develop dda9caa0）：`src/map/MapView.tsx`、`src/map/regionalStatisticsMap.ts`、`src/state/regionalStatisticsStore.ts`、`src/data/statisticsFillColor.ts`、`src/map/overlayManager.ts`、`src/layers/LayerHost.tsx`、`src/layers/layerHostDeps.ts`、`src/layers/layerHookRegistry.tsx`、`src/hooks/useMapInteraction.ts`、`src/hooks/useHistoricalMapSinicaLayer.ts`、`src/state/timeStore.ts`、`src/lib/urlState.ts`、`src/embed/embedWhitelist.ts`、`src/research/MainMapConnection.tsx`、`src/research/layerControls.ts`、`docs/design-system/spec.md`
+
+---
+
+## P1 實作紀錄（2026-11-11，分支 `feat/compare-mode-p1`）
+
+UI 規格正本：`docs/design-system/spec.md` §5.45（並改 §5.11 比較類、§5.17、§5.32、§5.42.3）；樣式：`map-layers.md` §3.11。
+
+**狀態模型**
+- `src/state/compareStore.ts`：`{ enabled, split, sides }`，只活在這次瀏覽（不寫 localStorage）。`sides` 缺省＝兩側；不支援的層一律「左」。
+- 統計左右選擇只在 `regionalStatisticsStore`：左＝`key`、右側另選才建 `key::R`（含 `::` 的 key 不寫 localStorage）；左側換指標丟掉 `key::R`；改成「只在右側」先把右側選擇搬回左側（`src/state/compareStatistics.ts`）。
+- 統計多地圖共存：`attachRegionalStatistics(map, getIsDark, { storeKey, isShown, primary, … })`。主地圖（primary）擁有 `key` 的載入／停用；右圖只擁有 `key::R`，關右圖不會清掉左側資料（`regionalStatisticsMap.test.ts` 多地圖段）。
+- 右側期別／細項控制項：由左側統計連動選單規格派生（`rightStatisticsSpecs`，provider `statisticsRight`），不進 `LAYER_PARAMS_SPEC`；Agent、場景存檔、黃金快照不受影響。
+
+**分享網址**（`src/lib/urlState.ts`，不升 `v`）：`cmp=1`、`cmpx=<0.05–0.95>`（0.5 不寫）、`cmpl`／`cmpr=<key>,…`、`cmpdl`／`cmpdr=<key>:<後綴>=<值>;…`（逗號分隔多層；後綴＝連動選單 name 去掉 layerKey，例 `Period`、`DimCause`）。左側一律記（看網址的人 localStorage 可能記著別的期別），右側只在與左側不同時記。舊網址沒有 `cmp` 時輸出逐位元組不變（測試）。
+
+**與 §4 表格的差異**：§4 寫「顯示在」由 `layerParamsSpec` 派生並在 `layerParamsOrder.test.ts` 詞彙表補一列；實作改成**不進** `LAYER_PARAMS_SPEC`（`src/state/compareControls.ts` 只給面板用），理由是進規格會讓 Agent、場景存檔、黃金快照都看到一個只在比較模式有意義的參數。所以沒有詞彙表那一列，排序由 `withCompareControls` 固定：「顯示在」→ 左側期別／細項 → 右側期別／細項 → 其餘。
+**拖把手的成本**：App、圖層列標籤、展開區、統計圖例只訂開關與側別（`useCompareSelector`），拖把手只重繪右圖裁切與把手；網址停 250ms 才寫（避免 Safari replaceState 次數上限）。
+
+**圖例**（2026-11-12 使用者在預覽頁比過三個方案後選定「合成一份」，取代原本「門檻不同就拆兩份完整圖例」）：統計層兩側且右側另選了期別或細項時，只畫**一份**——指標名與單位一次；「左：期別・細項」「右：期別・細項」各一行；門檻與配色相同只畫一組色票，不同就「左側」「右側」兩排並列；狀態列、出典與註記只出現一次，預設收合成「說明 ›」（`aria-expanded`）。實作 `MergedCompareLegend`（`src/components/compare/CompareStatisticsLegend.tsx`）用 `StatisticsLegendView` 的 `part`（`title`／`period`／`rows`／`notes`）拼起來；非比較模式的一般圖例不變。測試 `src/components/compare/__tests__/CompareStatisticsLegend.test.ts`。
+
+**點擊**：右半由右圖另綁 click（統計面／比例圓）→ 同一個停靠 popup，properties 帶 `compare_side: "right"`，popup 第一列「比較：右側」。
+
+**Agent（MCP）**：鏡頭與圖層控制照單地圖行為，作用在主地圖（左）；右圖靠鏡頭同步跟著動。Agent 不能設側別或右側期別（P1 不做，列 BACKLOG）。
+
+**已知限制（P1 不處理）**
+- 量測、右鍵選單、游標座標、定位標記、Agent 畫上的分析結果只在左（主）地圖；3D 地形照主地圖鏡像，3D／Three.js 圖層只在左側。
+- 右半的 hover／點擊只處理統計層；古地圖沒有 popup（同單地圖）。
+- `clip-path` 裁切與把手指標行為只在 Chromium（agent-browser）驗過；Safari／Firefox、手機實機未測。
+- Esc 結束比較只在焦點在把手時有效（不攔全域 Esc，避免和量測、popup 衝突）。
+- 手機 URL 改寫會去掉比較參數（退回單地圖後再分享不帶比較）。
+

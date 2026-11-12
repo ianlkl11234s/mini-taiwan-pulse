@@ -503,6 +503,7 @@
   - `linkedSelect` 一律歸資料篩選（不必進詞彙表）。
   - 「立體效果」toggle（R6，2026-10-05）歸顏色組：排在資料篩選之後、透明度之前，每個有 Three.js 效果的非移動物件圖層一個，預設關。
   - 統計「呈現方式」（面量圖／比例圓，2026-11-11）`category: 'color'`：同樣排在資料篩選之後、透明度之前；由 `statisticsPresentation.ts` 依 recipe 推導產生，≥2 個選項才出現。被「同時只能一層比例圓」改回的層，在新比例圓層這一列下方顯示一行說明（`SelectConfig.note`，`.lpc-note`，`role="status"`）。圖例不放這個切換。
+  - **比較類**（2026-11-11，比較模式 P1，§5.45）：只在比較模式出現，排在**最前**：「顯示在」左／右／兩側分段控制（§5.8）；不支援的圖層三個選項都停用、下方 `.lpc-note`「比較模式暫不支援，只顯示在左側」。統計層兩側時，原本的期別／細項列標籤改「左側 …」，緊接著是派生的「右側 …」連動選單（同 §5.37 元件，不含指標列）。這些列由 `src/state/compareControls.ts` 從規格派生、只給面板用，**不進 `LAYER_PARAMS_SPEC`／`buildParamControls`**，所以不參與上面的類別排序、詞彙表與 Agent 控制（Agent 照單地圖行為作用在左側）。
   - 護欄：`src/state/__tests__/layerParamsOrder.test.ts`——分不出類（新標籤）就紅：在詞彙表補一列或寫 `category`；輸出名次必須單調不減。
 - **禁止**：手寫圖層控制 JSX（一律 `layerParamsSpec.ts` 規格 → `ParamControlList`）；標籤與數值擠在同一字串；為了順序去搬 spec 陣列（排序由類別決定）。
 - **實作**：`src/components/sidebar/{LayerParamControls.tsx,layerParamControls.css}`、`src/state/layerParamsControls.ts`。
@@ -541,7 +542,8 @@
 
 - **位置**：右上，單一底板；左上為品牌字標＋座標 HUD（§5.18）。
 - **底板**：`SURFACE.strong`（淡 `LIGHT.surfacePanel`）、`1px BORDER.panel`、`borderRadius 7`、padding 3、gap 4、`ELEVATION.lg`；窄寬度整條換行並維持靠右（`marginLeft: auto`）。
-- **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 語言（圖示）、帳號。
+- **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 左右比較（圖示，桌機才有）、分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 語言（圖示）、帳號。
+- **左右比較**（2026-11-11，§5.45）：lucide `Columns2` 13px 一般圖示按鈕，開啟時 accentFaint 底（`ToolbarButton` `pressed`、`aria-pressed`）；title「左右比較」／「結束左右比較」。窄螢幕（手機）不放（第一期只做桌機）。
 - **語言**（2026-10-12）：lucide `Languages` 13px 圖示按鈕，點開 popover 列出「中文／EN／日本語」，目前語系用 accentFaint 底、accent 字標示；popover 樣式同底圖選單（§5.19）。手機不放工具列，收在 ⋯ 選單（§5.29）。實作 `src/components/toolbar/LanguageMenu.tsx`。`｜` 為 1px×16 直線，色 `palette.controlBorder`（暗 `CONTROL.border`／淡 `LIGHT.controlBorder`）。
 - **項目**：高 26、圓角 4、icon 13px（§5.7）。
 - **拿掉的東西**：Monitor BETA 按鈕（左側 rail「監測模式」保留）、第二排、計數列「flights · ships · 台灣好行」；操作提示移進「說明」。
@@ -771,6 +773,7 @@
 - **尚無元件**：LG-6 icon（除方向箭頭）還沒有共用元件，逐層做時補。
 - **字型**（LG-10）：面板容器 `FONT_CJK`；數字、分界、單位用 `LegendNum`（`FONT_DATA`＋tabular-nums）。
 - **精簡版**（LG-9）：`LegendPanel` 的 `compact`（停靠 popup 開著時）會讓 `LegendNote` 不顯示；色階、分界、單位不可收。
+- **比較模式**（2026-11-11，§5.45）：圖例仍只有一個面板。統計層兩側且右側另選了期別／細項 → **合成一份圖例**（2026-11-12 使用者選定）：指標名＋單位＋色階說明一次；「左：期別・細項」「右：期別・細項」各一行（側別小標 10px 600 `textStrong`）；色階門檻與配色相同只畫一組色票，不同就「左側」「右側」兩排色票並列（兩欄等寬，各帶同款小標）；狀態列、出典與註記只出現一次，預設收合成「說明 ›」——`<button aria-expanded>`，11px `textMuted`，lucide `ChevronRight` 10px 展開時轉 90°（同 §5.5 圖層展開區「說明・來源」那顆）。只畫一側的**統計層**在圖例末加 `LegendNote`「只顯示在左側／右側」（古地圖等其他圖例不加，側別看圖層列標籤）。比例圓左右期別不同時，兩張地圖與圖例共用較大的參考值。其他圖層圖例照舊。實作 `src/components/compare/CompareStatisticsLegend.tsx`（`StatisticsLegend` 包著用；`MergedCompareLegend` 用 `StatisticsLegendView` 的 `part` 拼成）。
 - **禁止**：手寫 `width／height` 色票（ratchet 只准減少）；英文大寫標題；在圖例裡用 `FONT_DATA` 包中文。
 - **實作**：`src/components/legend/legendKit.tsx`；地圖側缺值斜線 `src/map/mapStyleScale.ts` `hatchImageData()`，圖例與地圖同一組顏色。
 
@@ -1027,6 +1030,10 @@
 - **禁止**：依視野**自動**切換國家主體；在手機顯示；與 AI 對話框或 Agent 活動卡同時出現；另做一個右上提示元件。
 - **實作**：`src/components/CountryViewportHint.tsx`＋`countryViewportHint.css`、`src/hooks/useViewportCountry.ts`；掛在 `App.tsx` 載入狀態條旁。
 
+#### 5.42.3 「左右比較」段（2026-11-11，§5.45）
+
+同一張視野提示卡的另一段（放在「現代地名可以關」之上）：比較模式剛開時說明「拖中間的把手比較左右；在圖層展開區設定每層『顯示在』左、右或兩側」，開著的圖層有比較模式不支援的就加一行「N 個圖層在比較模式只顯示在左側」。lucide `Columns2` 13px＋標題「左右比較」12px 600；按鈕只有 C2 一般「知道了」。按了本次比較不再顯示，關掉比較再開會重新出現。條件同 §5.42（手機、拍攝模式、AI 對話框或 Agent 活動卡開著時不顯示）。文案 `compare.hint*`。不另做元件。
+
 #### 5.42.2 「現代地名可以關」段（2026-11-05，古地圖）
 
 同一張視野提示卡的第三段（置於「圖層看不到」之上）：**古地圖系列五個不透明圖層（`historicalMapSinica`／`historicalMapPostwar`／`historicalImagery`／`historicalLandUse`／`historicalThematic`，界線路網疊加層不算）任一開著、底圖地名還開著時**提示現代地名會疊在古地圖上、可以關。外觀沿用本卡（lucide `Type` 13px＋標題 12px 600＋說明 11px `textMuted`）；按鈕＝C2 主要「關閉地名」（與工具列底圖選單「顯示地名」同一個 `showBasemapLabels`）＋C2 一般「知道了」。按鈕或「知道了」後本次不再顯示，古地圖關掉再開才重新提示。條件同 §5.42（手機、拍攝模式、AI 對話框或 Agent 活動卡開著時不顯示）。不另做元件。文案 `layerHint.labels*`。
@@ -1099,6 +1106,22 @@
 - **文案**：`camera.cursor`、`contextMenu.*`、`measure.*`（三語）。
 - **禁止**：用 Mapbox 預設 popup 或第三方 draw 套件外觀；量測中讓圖層 popup 跳出；把量測寫進網址。
 - **實作**：`src/components/MapContextMenu.tsx`、`MeasureToolbar.tsx`、`mapMeasure.css`、`src/map/measureController.ts`、`measureMath.ts`、`coordinates.ts`（測試 `src/map/__tests__/measureMath.test.ts`、`coordinates.test.ts`）；`CameraHud.tsx`（游標行）；掛在 `App.tsx`。
+
+### 5.45 比較把手（2026-11-11，比較模式 P1）
+
+使用者 2026-11-11 拍板（`docs/features/compare-mode/DESIGN.md` 文首 Q1–Q5）：同一個網址左右兩張地圖，中間把手拖曳比較。
+
+- **地圖**：主地圖＝左側；開比較才另建右圖（同底圖、語系、地名開關、地形），疊在主地圖上、`clip-path: inset(0 0 0 X%)` 只露出把手右邊；鏡頭雙向同步。關比較就 `map.remove()`。
+- **把手**：2px 直線（暗 `#fff` 0.8／淡 `#111827` 0.6，token 沒有這一階，刻意保留）貫穿地圖高度；中間 28px 圓鈕（暗 `SURFACE.strong`／淡 `--light-surface-strong`、1px `BORDER.strong`、`ELEVATION.sm`／淡 `--light-elevation-lg`），內含 lucide `ChevronsLeftRight` 13px。線兩側各 5px 拖曳熱區（`ew-resize`）。層級 `Z_INDEX.mapOverlay`（與時間軸同層）。
+- **操作**：拖曳（pointer capture）；圓鈕 `role="slider"`、`aria-valuenow` 5–95（%）、←→ 一次 5%、Esc 結束比較（焦點在圓鈕時）。位置限 5%–95%。focus-visible 2px accent 外框。
+- **拍攝模式**：保留分割線、隱藏圓鈕與熱區（§5.20）。
+- **哪些圖層能分左右（P1）**：古地圖六層（`historicalMapSinica.ts`）與統計圖層（面量圖、比例圓）。其他圖層照畫在左側，圖層列標「只在左側」（滑過看「比較模式暫不支援，只顯示在左側」，§5.11 比較類）。支援的層設成只在一側時列尾標「左」或「右」。
+- **點擊**：右半的點擊由右圖處理；統計面或比例圓 → 同一個停靠 popup，第一列「比較：右側」（左半為「左側」）。
+- **分享網址**：`cmp=1`、`cmpx`（把手，預設 0.5 不寫）、`cmpl`／`cmpr`（只在左／右的層）、`cmpdl`／`cmpdr`（比較中統計層的左／右期別與細項，右側只在與左側不同時寫）；不升 `v`（`src/lib/urlState.ts`）。
+- **手機**：沒有入口；帶比較參數的網址在窄螢幕用單一地圖開，並提示「左右比較目前只支援桌機，已改用單一地圖顯示。」
+- **文案**：`compare.*`（三語）。
+- **禁止**：在右圖另做一套圖層控制或圖例面板；把比較狀態寫進 localStorage；讓不支援的層靜默消失（一律畫在左側並標示）。
+- **實作**：`src/components/compare/{CompareDivider.tsx,compareDivider.css,CompareStatisticsLegend.tsx}`、`src/map/{CompareMapView.tsx,compareSync.ts,compareRightMap.ts}`、`src/state/{compareStore.ts,compareStatistics.ts,compareControls.ts}`；掛在 `App.tsx`。
 
 ## 6. 文案規則
 

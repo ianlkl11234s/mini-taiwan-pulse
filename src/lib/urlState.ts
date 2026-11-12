@@ -48,6 +48,13 @@ export interface UrlState {
    * 這裡只驗格式；key 與模式是否合法由主站套用時對推導出的可選清單驗（`statisticsPresentationStore`）。
    */
   presentation?: Record<string, string>;
+  /**
+   * 比較模式（雙地圖＋把手，docs/features/compare-mode/DESIGN.md §3；選填欄位不升版）。
+   * `cmp=1` 開比較；`cmpx=` 把手位置（0.05–0.95，預設 0.5 不寫）；`cmpl=`／`cmpr=` 只在左側／只在右側的圖層（兩側＝預設不寫）；
+   * `cmpdl=`／`cmpdr=` 比較中統計層左／右側的期別與細項：`<layerKey>:<控制項後綴>=<值>;…`，多層以 `,` 分隔
+   * （後綴＝統計連動選單的 name 去掉 layerKey，例 `Period`、`DimSex`）。這裡只驗格式；圖層是否支援、值是否還存在由主站套用時驗。
+   */
+  compare?: UrlCompareState;
   /** overlayParams 覆寫。**僅 `/embed` 消費**，主站忽略（見 impl §1-1） */
   params?: Record<string, number>;
   /** 凍結歷史畫面的日期 YYYY-MM-DD */
@@ -86,6 +93,15 @@ export interface UrlState {
    * 未給時主站依相機中心所屬國決定（`countryStore.resolveInitialCountry`）。
    */
   country?: CountryCode;
+}
+
+export interface UrlCompareState {
+  split?: number;
+  left?: string[];
+  right?: string[];
+  /** layerKey → { 控制項後綴 → 值 } */
+  leftSelection?: Record<string, Record<string, string>>;
+  rightSelection?: Record<string, Record<string, string>>;
 }
 
 export interface ParseOptions {
@@ -206,6 +222,67 @@ function parsePresentation(q: URLSearchParams): Record<string, string> | undefin
   return Object.keys(out).length ? out : undefined;
 }
 
+const COMPARE_KEY_RE = /^[A-Za-z][A-Za-z0-9]{0,95}$/;
+const COMPARE_SUFFIX_RE = /^[A-Za-z][A-Za-z0-9]{0,47}$/;
+/** 值不得含分隔字元 `;` `,` `:` `=`（實際 release id 與細項值都是英數、連字號或中文） */
+const COMPARE_VALUE_RE = /^[^;,:=]{1,160}$/u;
+
+function parseCompareKeys(raw: string | null): string[] | undefined {
+  if (!raw) return undefined;
+  const out = [...new Set(raw.split(",").map((s) => s.trim()).filter((k) => COMPARE_KEY_RE.test(k)))].slice(0, 64);
+  return out.length ? out : undefined;
+}
+
+function parseCompareSelection(raw: string | null): Record<string, Record<string, string>> | undefined {
+  if (!raw) return undefined;
+  const out: Record<string, Record<string, string>> = {};
+  for (const item of raw.split(",").slice(0, 32)) {
+    const at = item.indexOf(":");
+    if (at <= 0) continue;
+    const key = item.slice(0, at).trim();
+    if (!COMPARE_KEY_RE.test(key)) continue;
+    const values: Record<string, string> = {};
+    for (const pair of item.slice(at + 1).split(";").slice(0, 16)) {
+      const eq = pair.indexOf("=");
+      if (eq <= 0) continue;
+      const suffix = pair.slice(0, eq);
+      const value = pair.slice(eq + 1);
+      if (COMPARE_SUFFIX_RE.test(suffix) && COMPARE_VALUE_RE.test(value)) values[suffix] = value;
+    }
+    if (Object.keys(values).length) out[key] = values;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** `cmp*`：沒有 `cmp=1` 時其他比較參數一律不採用（只記開著的比較） */
+function parseCompare(q: URLSearchParams): UrlCompareState | undefined {
+  if (q.get("cmp") !== "1") return undefined;
+  const compare: UrlCompareState = {};
+  const split = inRange(finiteNum(q.get("cmpx")), 0.05, 0.95);
+  if (split != null) compare.split = split;
+  const left = parseCompareKeys(q.get("cmpl"));
+  if (left) compare.left = left;
+  const right = parseCompareKeys(q.get("cmpr"))?.filter((k) => !left?.includes(k));
+  if (right?.length) compare.right = right;
+  const leftSelection = parseCompareSelection(q.get("cmpdl"));
+  if (leftSelection) compare.leftSelection = leftSelection;
+  const rightSelection = parseCompareSelection(q.get("cmpdr"));
+  if (rightSelection) compare.rightSelection = rightSelection;
+  return compare;
+}
+
+function buildCompareSelection(selection: Record<string, Record<string, string>> | undefined): string | undefined {
+  if (!selection) return undefined;
+  const items = Object.entries(selection)
+    .filter(([key]) => COMPARE_KEY_RE.test(key))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .flatMap(([key, values]) => {
+      const pairs = Object.entries(values).filter(([suffix, value]) => COMPARE_SUFFIX_RE.test(suffix) && COMPARE_VALUE_RE.test(value));
+      return pairs.length ? [`${key}:${pairs.map(([suffix, value]) => `${suffix}=${value}`).join(";")}`] : [];
+    });
+  return items.length ? items.join(",") : undefined;
+}
+
 function parseParams(q: URLSearchParams): Record<string, number> | undefined {
   const out: Record<string, number> = {};
   let has = false;
@@ -249,6 +326,9 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
 
   const presentation = parsePresentation(q);
   if (presentation) state.presentation = presentation;
+
+  const compare = parseCompare(q);
+  if (compare) state.compare = compare;
 
   const params = parseParams(q);
   if (params) state.params = params;
@@ -312,6 +392,19 @@ export function buildUrl(state: UrlState, base: string): string {
   if (state.presentation) {
     const entries = Object.entries(state.presentation).filter(([key, mode]) => PRESENTATION_ENTRY_RE.test(`${key}:${mode}`)).sort(([a], [b]) => a.localeCompare(b));
     if (entries.length) q.set("pm", entries.map(([key, mode]) => `${key}:${mode}`).join(","));
+  }
+  if (state.compare) {
+    const { split, left, right, leftSelection, rightSelection } = state.compare;
+    q.set("cmp", "1");
+    if (split != null && Number.isFinite(split) && Math.abs(split - 0.5) > 0.004) q.set("cmpx", String(round(Math.min(0.95, Math.max(0.05, split)), 2)));
+    const leftKeys = left?.filter((k) => COMPARE_KEY_RE.test(k));
+    if (leftKeys?.length) q.set("cmpl", leftKeys.join(","));
+    const rightKeys = right?.filter((k) => COMPARE_KEY_RE.test(k) && !leftKeys?.includes(k));
+    if (rightKeys?.length) q.set("cmpr", rightKeys.join(","));
+    const dl = buildCompareSelection(leftSelection);
+    if (dl) q.set("cmpdl", dl);
+    const dr = buildCompareSelection(rightSelection);
+    if (dr) q.set("cmpdr", dr);
   }
   if (state.params) {
     for (const [k, v] of Object.entries(state.params)) {
