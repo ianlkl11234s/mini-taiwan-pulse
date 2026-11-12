@@ -174,7 +174,7 @@
   "soundAtlas.rainCell.gauge": "最寄りの雨量計",
   "soundAtlas.rainCell.gaugeNone": "5 km 以内に雨量計なし",
   "soundAtlas.rainCell.bin": "グリッドの時間帯",
-  "soundAtlas.rainCell.note": "レーダーエコーと雨量計から推定し、強い方を採用。Z-R 換算と階級の閾値は仮定です。雨量計は毎時 1 件のため、その 1 時間内の 10 分枠は同じ値を使います。",
+  "soundAtlas.rainCell.note": "レーダーエコーと雨量計から推定し、強い方を採用。Z-R 換算と階級の閾値は仮定です。雨量計は毎時 1 件のため、その 1 時間内の 10 分枠は同じ値を使います。雨量計の時刻は観測時刻で、値はその前 60 分の累積。そのためグリッド時間帯より遅いことがある（時間帯はたいてい累積区間内）。",
   "soundAtlas.reason.radarFrame": "この時間帯はレーダー画像の欠落またはクラッタの疑いがあり、5 km 以内に雨量計もありません",
   "soundAtlas.precision.radarGrid": "レーダーグリッド 250 m",
   "soundAtlas.precision.radarGauge": "レーダーグリッド＋最寄り雨量計",
@@ -221,5 +221,6 @@
   "soundAtlas.precision.roadClass": "OSM 道路等級",
   "soundAtlas.precision.gridCell": "250 m グリッド",
   "soundAtlas.timePrecision.vd1min": "10 分ごとに 1 分間サンプル 1 つ",
-  "soundAtlas.row.freewayObservedNote": "当日実測：国道 VD 1 分間交通量 ×60（10 分ごとに 1 件）"
+  "soundAtlas.row.freewayObservedNote": "当日実測：国道 VD 1 分間交通量 ×60（10 分ごとに 1 件）",
+  "soundAtlas.rainCell.gaugeWindow": "{from}–{to} の 1 時間累積"
 }

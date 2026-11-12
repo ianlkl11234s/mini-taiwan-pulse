@@ -90,7 +90,7 @@ export function SoundRainCellPanel({ props }: { props: Record<string, unknown> }
   const station = str(props.stationName);
   const gaugeText = gaugeClass == null
     ? t("soundAtlas.rainCell.gaugeNone")
-    : `${station || "—"}・${formatDistanceM(num(props.stationDistanceM))}・${t(rainClassKey(gaugeClass))}${gaugeMm != null ? `（${gaugeMm} mm/h）` : ""}${gaugeAt != null ? `・${formatTaipeiTime(gaugeAt)}` : ""}`;
+    : `${station || "—"}・${formatDistanceM(num(props.stationDistanceM))}・${t(rainClassKey(gaugeClass))}${gaugeMm != null ? `（${gaugeMm} mm/h）` : ""}${gaugeAt != null ? `・${t("soundAtlas.rainCell.gaugeWindow", { from: formatTaipeiTime(gaugeAt - 3600), to: formatTaipeiTime(gaugeAt) })}` : ""}`;
   const radarText = radarNone ? t("soundAtlas.rainCell.radarNone") : `${t(rainClassKey(radarClass))}${radarSlot != null ? `・${formatTaipeiTime(radarSlot)}` : ""}`;
   return <div>
     <Title color={known ? SOUND_RAIN_GRID_COLORS[k as 0 | 1 | 2 | 3 | 4] : theme.textDefault}>{t("soundAtlas.rainCell.title")}</Title>

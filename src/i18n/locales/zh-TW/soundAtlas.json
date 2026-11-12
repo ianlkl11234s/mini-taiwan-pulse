@@ -174,7 +174,7 @@
   "soundAtlas.rainCell.gauge": "最近雨量站",
   "soundAtlas.rainCell.gaugeNone": "5 公里內沒有雨量站",
   "soundAtlas.rainCell.bin": "網格時段",
-  "soundAtlas.rainCell.note": "由雷達回波與雨量站推估、兩者取較高者；Z-R 換算與分級門檻為假設。雨量站每小時一筆，該小時內各 10 分格沿用同一筆。",
+  "soundAtlas.rainCell.note": "由雷達回波與雨量站推估、兩者取較高者；Z-R 換算與分級門檻為假設。雨量站每小時一筆，該小時內各 10 分格沿用同一筆。雨量站時刻是該筆觀測時刻，雨量為其前 60 分鐘的累積，所以可能晚於格子時段（格子時段多半落在累積區間內）。",
   "soundAtlas.reason.radarFrame": "這個時段雷達缺圖或疑似雜波，5 公里內也沒有雨量站",
   "soundAtlas.precision.radarGrid": "雷達網格 250 m",
   "soundAtlas.precision.radarGauge": "雷達網格＋最近雨量站",
@@ -221,5 +221,6 @@
   "soundAtlas.precision.roadClass": "OSM 道路等級",
   "soundAtlas.precision.gridCell": "250 m 網格",
   "soundAtlas.timePrecision.vd1min": "每 10 分一個 1 分鐘樣本",
-  "soundAtlas.row.freewayObservedNote": "當日實測：國道 VD 1 分鐘流量 ×60（每 10 分一筆）"
+  "soundAtlas.row.freewayObservedNote": "當日實測：國道 VD 1 分鐘流量 ×60（每 10 分一筆）",
+  "soundAtlas.rainCell.gaugeWindow": "{from}–{to} 的 1 小時累積"
 }

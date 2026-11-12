@@ -8005,6 +8005,7 @@ export type GeneratedStaticKey =
   | "soundAtlas.rainCell.class"
   | "soundAtlas.rainCell.gauge"
   | "soundAtlas.rainCell.gaugeNone"
+  | "soundAtlas.rainCell.gaugeWindow"
   | "soundAtlas.rainCell.note"
   | "soundAtlas.rainCell.radar"
   | "soundAtlas.rainCell.radarNone"

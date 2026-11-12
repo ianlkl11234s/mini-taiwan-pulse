@@ -174,7 +174,7 @@
   "soundAtlas.rainCell.gauge": "Nearest rain gauge",
   "soundAtlas.rainCell.gaugeNone": "No rain gauge within 5 km",
   "soundAtlas.rainCell.bin": "Grid time",
-  "soundAtlas.rainCell.note": "Estimated from radar echo and rain gauges, taking the higher of the two; the Z-R conversion and class thresholds are assumptions. Gauges report hourly, so every 10-minute slot in that hour reuses the same reading.",
+  "soundAtlas.rainCell.note": "Estimated from radar echo and rain gauges, taking the higher of the two; the Z-R conversion and class thresholds are assumptions. Gauges report hourly, so every 10-minute slot in that hour reuses the same reading. The gauge time is the observation time; the value is the 60-minute total before it, so it can be later than the grid slot (the slot usually lies inside the accumulation window).",
   "soundAtlas.reason.radarFrame": "Radar image missing or suspected clutter for this slot, and no rain gauge within 5 km",
   "soundAtlas.precision.radarGrid": "Radar grid, 250 m",
   "soundAtlas.precision.radarGauge": "Radar grid + nearest gauge",
@@ -221,5 +221,6 @@
   "soundAtlas.precision.roadClass": "OSM road class",
   "soundAtlas.precision.gridCell": "250 m grid cell",
   "soundAtlas.timePrecision.vd1min": "One 1-minute sample per 10 minutes",
-  "soundAtlas.row.freewayObservedNote": "Same-day observation: freeway VD 1-minute volume ×60 (one per 10 minutes)"
+  "soundAtlas.row.freewayObservedNote": "Same-day observation: freeway VD 1-minute volume ×60 (one per 10 minutes)",
+  "soundAtlas.rainCell.gaugeWindow": "1-h total {from}–{to}"
 }
