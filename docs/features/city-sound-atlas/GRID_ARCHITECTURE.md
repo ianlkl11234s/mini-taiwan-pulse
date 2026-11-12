@@ -28,7 +28,20 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 - 255 一律是螢幕座標斜線（不是色表的一格），所以「無法判斷」在所有族長相一致。
 - zoom < 6（地球模式）不畫。
 
-## 3. 新增一族網格的步驟
+## 3. 每日包格式（以雷達雨 `pulse-sound-radar-rain-v1` 為例）
+
+- `radar-rain-<D>.class.bin`：gzip 後的 uint8 陣列，長度 `144 × 83,220`（幀數 × GRID_CELLS），幀主序，`frame k` 的第 `row·292+col` 格。值＝分級碼 0–4，255＝無法判斷（缺幀整幀 255、雜波格 255）。
+- 讀取端先看前兩個 byte 是否 `1f 8b`：是才解壓（dev server／CDN 可能已解過）；解完長度必須等於 meta 的 `raw_bytes`。
+- `radar-rain-<D>.meta.json` 主要欄位：
+  - `schema`、`date_taiwan`、`product`（O-A0058-005）、`generated_at`
+  - `grid`：`id`、`west`、`north`、`dLon`、`dLat`、`cols`、`rows`、`sha256`（gridSpec.json 的雜湊，前端不符就拒用）
+  - `payload`：`file`、`encoding`、`dtype`、`layout`、`bytes`、`raw_bytes`、`sha256`
+  - `frames`：`count`、`step_s`=600、`first_slot_utc`、`slot_rule`（frame k＝[first_slot + 600k, +600)）；`frames_missing`：缺幀索引
+  - `classes`（分級版本與門檻）、`zr`、`palette`（色表版本）、`transparent_rule`
+  - `clutter`：`rule`=clutter-v1、`min_dbz`、`jump_db`、`neighbor_cells`、被標的格數（bbox／北北內）與各幀明細
+- 其他族沿用同樣的 bin＋meta 形狀，`schema` 改成 `pulse-sound-<family>-v1`。
+
+## 4. 新增一族網格的步驟
 
 1. 若需要預算（影像、大量測站）：寫 `build-sound-<family>.py --publish`，輸出 `<family>-<D>.class.bin`＋`.meta.json`，用 `build-public-assets-lock.py add` 登記；`.gitignore` 已含 `public/sound-atlas/grid/`。
 2. 在該族 adapter 抽出 `<family>EstimateAt(records, lon, lat, t0, t1)`，讓 contribution 與網格共用。
@@ -37,7 +50,8 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 5. hook 仿 `useSoundRainGridLayer`；layer id `sound-atlas-grid-<family>`，放在 `sound-atlas-route-line` 之前。
 6. manifest 的 popup 陣列加 `sound<Family>Cell`、params 若有新開關一併登記；重產 layer-golden 與樣式盤點。
 
-## 4. 量測（W6-1，dev server、SwiftShader、taipei-1109）
+## 5. 量測（W6-1，dev server、SwiftShader、taipei-1109）
 
 - 切 30 個不同 10 分格：算幀中位 3.4 ms、最大 14.3 ms；上傳貼圖中位 0.1 ms、最大 1 ms（需求 < 50 ms）。
+- 淺色底圖：斜線清楚；但「無雨」（透明度 0.14 的灰）在淺底幾乎看不出來，和範圍外難分（未調整，待決）。
 - 包大小：11-09 92,688 B（128/144 幀）、10-24 153,499 B（139/144 幀）。
