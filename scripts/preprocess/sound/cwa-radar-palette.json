@@ -1,0 +1,543 @@
+{
+ "schema": "pulse-cwa-radar-palette-v1",
+ "product": "O-A0058-005（雷達整合回波圖，無地形）",
+ "source": {
+  "url": "https://www.cwa.gov.tw/V8/assets/img/radar/colorbar_n.png",
+  "page": "https://www.cwa.gov.tw/V8/C/W/OBS_Radar.html（「雷達回波顏色說明(無地形)」）",
+  "retrieved": "2026-11-12",
+  "image": "1241×120 RGB"
+ },
+ "method": "沿色條 y=35 掃描，得 66 個等寬色塊（約 17 px），刻度 0、5、…、65 dBZ 對齊色塊左緣 → 第 k 塊 = k dBZ（代表 [k, k+1) dBZ）。逐色與 11-09、10-24 實際圖檔顏色比對見 W6_GRID_SPIKE.md。",
+ "transparent": "alpha=0 視為「無回波（< 0 dBZ）」；這是假設：氣象署圖例沒有說明透明的意義，北北位於多座雷達重疊涵蓋區內，不視為「沒涵蓋」。",
+ "frameBorder": "10-24 部分圖檔外框 1 px 有半透明黑（alpha 119／128／136／187／196，RGB 0,0,0），位於整張圖最外圈（115.0／126.5°E、17.75／29.25°N），不在北北裁切範圍；裁切範圍內若出現則視為表外顏色報錯。",
+ "entries": [
+  {
+   "dbz": 0,
+   "rgb": "#00ffff",
+   "colorbarX": [
+    10,
+    26
+   ]
+  },
+  {
+   "dbz": 1,
+   "rgb": "#00ecff",
+   "colorbarX": [
+    27,
+    43
+   ]
+  },
+  {
+   "dbz": 2,
+   "rgb": "#00daff",
+   "colorbarX": [
+    44,
+    60
+   ]
+  },
+  {
+   "dbz": 3,
+   "rgb": "#00c8ff",
+   "colorbarX": [
+    61,
+    77
+   ]
+  },
+  {
+   "dbz": 4,
+   "rgb": "#00b6ff",
+   "colorbarX": [
+    78,
+    94
+   ]
+  },
+  {
+   "dbz": 5,
+   "rgb": "#00a3ff",
+   "colorbarX": [
+    95,
+    110
+   ]
+  },
+  {
+   "dbz": 6,
+   "rgb": "#0091ff",
+   "colorbarX": [
+    111,
+    127
+   ]
+  },
+  {
+   "dbz": 7,
+   "rgb": "#007fff",
+   "colorbarX": [
+    128,
+    144
+   ]
+  },
+  {
+   "dbz": 8,
+   "rgb": "#006dff",
+   "colorbarX": [
+    145,
+    161
+   ]
+  },
+  {
+   "dbz": 9,
+   "rgb": "#005bff",
+   "colorbarX": [
+    162,
+    178
+   ]
+  },
+  {
+   "dbz": 10,
+   "rgb": "#0048ff",
+   "colorbarX": [
+    179,
+    195
+   ]
+  },
+  {
+   "dbz": 11,
+   "rgb": "#0036ff",
+   "colorbarX": [
+    196,
+    212
+   ]
+  },
+  {
+   "dbz": 12,
+   "rgb": "#0024ff",
+   "colorbarX": [
+    213,
+    229
+   ]
+  },
+  {
+   "dbz": 13,
+   "rgb": "#0012ff",
+   "colorbarX": [
+    230,
+    245
+   ]
+  },
+  {
+   "dbz": 14,
+   "rgb": "#0000ff",
+   "colorbarX": [
+    246,
+    262
+   ]
+  },
+  {
+   "dbz": 15,
+   "rgb": "#00ff00",
+   "colorbarX": [
+    263,
+    279
+   ]
+  },
+  {
+   "dbz": 16,
+   "rgb": "#00f400",
+   "colorbarX": [
+    280,
+    296
+   ]
+  },
+  {
+   "dbz": 17,
+   "rgb": "#00e900",
+   "colorbarX": [
+    297,
+    313
+   ]
+  },
+  {
+   "dbz": 18,
+   "rgb": "#00de00",
+   "colorbarX": [
+    314,
+    330
+   ]
+  },
+  {
+   "dbz": 19,
+   "rgb": "#00d300",
+   "colorbarX": [
+    331,
+    347
+   ]
+  },
+  {
+   "dbz": 20,
+   "rgb": "#00c800",
+   "colorbarX": [
+    348,
+    363
+   ]
+  },
+  {
+   "dbz": 21,
+   "rgb": "#00be00",
+   "colorbarX": [
+    364,
+    380
+   ]
+  },
+  {
+   "dbz": 22,
+   "rgb": "#00b400",
+   "colorbarX": [
+    381,
+    397
+   ]
+  },
+  {
+   "dbz": 23,
+   "rgb": "#00aa00",
+   "colorbarX": [
+    398,
+    414
+   ]
+  },
+  {
+   "dbz": 24,
+   "rgb": "#00a000",
+   "colorbarX": [
+    415,
+    431
+   ]
+  },
+  {
+   "dbz": 25,
+   "rgb": "#009600",
+   "colorbarX": [
+    432,
+    448
+   ]
+  },
+  {
+   "dbz": 26,
+   "rgb": "#33ab00",
+   "colorbarX": [
+    449,
+    465
+   ]
+  },
+  {
+   "dbz": 27,
+   "rgb": "#66c000",
+   "colorbarX": [
+    466,
+    482
+   ]
+  },
+  {
+   "dbz": 28,
+   "rgb": "#99d500",
+   "colorbarX": [
+    483,
+    498
+   ]
+  },
+  {
+   "dbz": 29,
+   "rgb": "#ccea00",
+   "colorbarX": [
+    499,
+    515
+   ]
+  },
+  {
+   "dbz": 30,
+   "rgb": "#ffff00",
+   "colorbarX": [
+    516,
+    532
+   ]
+  },
+  {
+   "dbz": 31,
+   "rgb": "#fff400",
+   "colorbarX": [
+    533,
+    549
+   ]
+  },
+  {
+   "dbz": 32,
+   "rgb": "#ffe900",
+   "colorbarX": [
+    550,
+    566
+   ]
+  },
+  {
+   "dbz": 33,
+   "rgb": "#ffde00",
+   "colorbarX": [
+    567,
+    583
+   ]
+  },
+  {
+   "dbz": 34,
+   "rgb": "#ffd300",
+   "colorbarX": [
+    584,
+    600
+   ]
+  },
+  {
+   "dbz": 35,
+   "rgb": "#ffc800",
+   "colorbarX": [
+    601,
+    616
+   ]
+  },
+  {
+   "dbz": 36,
+   "rgb": "#ffb800",
+   "colorbarX": [
+    617,
+    633
+   ]
+  },
+  {
+   "dbz": 37,
+   "rgb": "#ffa800",
+   "colorbarX": [
+    634,
+    650
+   ]
+  },
+  {
+   "dbz": 38,
+   "rgb": "#ff9800",
+   "colorbarX": [
+    651,
+    667
+   ]
+  },
+  {
+   "dbz": 39,
+   "rgb": "#ff8800",
+   "colorbarX": [
+    668,
+    684
+   ]
+  },
+  {
+   "dbz": 40,
+   "rgb": "#ff7800",
+   "colorbarX": [
+    685,
+    701
+   ]
+  },
+  {
+   "dbz": 41,
+   "rgb": "#ff6000",
+   "colorbarX": [
+    702,
+    718
+   ]
+  },
+  {
+   "dbz": 42,
+   "rgb": "#ff4800",
+   "colorbarX": [
+    719,
+    735
+   ]
+  },
+  {
+   "dbz": 43,
+   "rgb": "#ff3000",
+   "colorbarX": [
+    736,
+    751
+   ]
+  },
+  {
+   "dbz": 44,
+   "rgb": "#ff1800",
+   "colorbarX": [
+    752,
+    768
+   ]
+  },
+  {
+   "dbz": 45,
+   "rgb": "#ff0000",
+   "colorbarX": [
+    769,
+    785
+   ]
+  },
+  {
+   "dbz": 46,
+   "rgb": "#f40000",
+   "colorbarX": [
+    786,
+    802
+   ]
+  },
+  {
+   "dbz": 47,
+   "rgb": "#e90000",
+   "colorbarX": [
+    803,
+    819
+   ]
+  },
+  {
+   "dbz": 48,
+   "rgb": "#de0000",
+   "colorbarX": [
+    820,
+    836
+   ]
+  },
+  {
+   "dbz": 49,
+   "rgb": "#d30000",
+   "colorbarX": [
+    837,
+    853
+   ]
+  },
+  {
+   "dbz": 50,
+   "rgb": "#c80000",
+   "colorbarX": [
+    854,
+    870
+   ]
+  },
+  {
+   "dbz": 51,
+   "rgb": "#be0000",
+   "colorbarX": [
+    871,
+    886
+   ]
+  },
+  {
+   "dbz": 52,
+   "rgb": "#b40000",
+   "colorbarX": [
+    887,
+    903
+   ]
+  },
+  {
+   "dbz": 53,
+   "rgb": "#aa0000",
+   "colorbarX": [
+    904,
+    920
+   ]
+  },
+  {
+   "dbz": 54,
+   "rgb": "#a00000",
+   "colorbarX": [
+    921,
+    937
+   ]
+  },
+  {
+   "dbz": 55,
+   "rgb": "#960000",
+   "colorbarX": [
+    938,
+    954
+   ]
+  },
+  {
+   "dbz": 56,
+   "rgb": "#ab0033",
+   "colorbarX": [
+    955,
+    971
+   ]
+  },
+  {
+   "dbz": 57,
+   "rgb": "#c00066",
+   "colorbarX": [
+    972,
+    988
+   ]
+  },
+  {
+   "dbz": 58,
+   "rgb": "#d50099",
+   "colorbarX": [
+    989,
+    1004
+   ]
+  },
+  {
+   "dbz": 59,
+   "rgb": "#ea00cc",
+   "colorbarX": [
+    1005,
+    1021
+   ]
+  },
+  {
+   "dbz": 60,
+   "rgb": "#ff00ff",
+   "colorbarX": [
+    1022,
+    1038
+   ]
+  },
+  {
+   "dbz": 61,
+   "rgb": "#ea00ff",
+   "colorbarX": [
+    1039,
+    1055
+   ]
+  },
+  {
+   "dbz": 62,
+   "rgb": "#d500ff",
+   "colorbarX": [
+    1056,
+    1072
+   ]
+  },
+  {
+   "dbz": 63,
+   "rgb": "#c000ff",
+   "colorbarX": [
+    1073,
+    1089
+   ]
+  },
+  {
+   "dbz": 64,
+   "rgb": "#ab00ff",
+   "colorbarX": [
+    1090,
+    1106
+   ]
+  },
+  {
+   "dbz": 65,
+   "rgb": "#9600ff",
+   "colorbarX": [
+    1107,
+    1123
+   ]
+  }
+ ]
+}
