@@ -166,7 +166,22 @@ def psql_json(sql: str):
     return json.loads(out) if out else None
 
 
+# W6-3：本機原始檔目錄（檔名＝S3 key 的 "/" 換成 "__"，同 s3_cached 快取規則）。設了就只讀本機、不呼叫 aws；
+# build-sound-grid-sources.py 用它從唯讀抓下來的原始檔重建全範圍來源，不需要任何憑證。
+LOCAL_S3_DIR: str | None = os.environ.get("SOUND_S3_LOCAL_DIR") or None
+
+
+def _local_s3_path(key: str) -> str:
+    return os.path.join(LOCAL_S3_DIR or "", key.replace("/", "__"))
+
+
 def s3_bytes(key: str) -> bytes:
+    if LOCAL_S3_DIR:
+        p = _local_s3_path(key)
+        if not os.path.exists(p):
+            raise RuntimeError(f"local raw missing {key}")
+        with open(p, "rb") as f:
+            return f.read()
     res = subprocess.run(
         ["aws", "s3", "cp", "--only-show-errors", f"s3://{BUCKET}/{key}", "-"],
         capture_output=True,
@@ -213,7 +228,9 @@ def hits(row: dict, bbox: list[float], window: tuple[int, int] | None = None) ->
     return False
 
 
-def build_aviation(scene: dict, bbox: list[float], notes: list[str]) -> dict:
+def build_aviation(scene: dict, bbox: list[float], notes: list[str], hit=None) -> dict:
+    """hit(row, bbox, window)：判定航班是否「飛經」bbox；預設 hits（任一航跡點落在 bbox）"""
+    hit = hit or hits
     date = scene["date"]
     mode = scene["sources"]["aviation"]
     fetch = flight_rows_rpc if mode == "rpc" else flight_rows_s3
@@ -230,7 +247,7 @@ def build_aviation(scene: dict, bbox: list[float], notes: list[str]) -> dict:
     if not rows:
         notes.append(f"航跡：{origin} 回 0 筆（該日無資料或已過保留），飛機聲源整日 unknown。")
         return {"origin": origin, "health": "empty", "rows": []}
-    kept = {r["flight_id"]: {k: r.get(k) for k in FLIGHT_COLS} for r in rows if hits(r, bbox)}
+    kept = {r["flight_id"]: {k: r.get(k) for k in FLIGHT_COLS} for r in rows if hit(r, bbox)}
     # 跨午夜檢查：D±1 檔裡、時間落在臺北日 D 且在 bbox 內、但 D 檔沒有的 flight_id
     window = day_window(date)
     merged: list[str] = []
@@ -245,7 +262,7 @@ def build_aviation(scene: dict, bbox: list[float], notes: list[str]) -> dict:
         for r in nrows:
             if r["flight_id"] in all_ids or r["flight_id"] in kept:
                 continue
-            if hits(r, bbox, window):
+            if hit(r, bbox, window):
                 kept[r["flight_id"]] = {k: r.get(k) for k in FLIGHT_COLS}
                 merged.append(f"{nd}:{r['flight_id']}")
     if merged:
@@ -687,6 +704,13 @@ def s3_prefetch(keys: list[str]) -> None:
 
 
 def s3_range(key: str, start: int, end: int) -> bytes:
+    if LOCAL_S3_DIR:
+        p = _local_s3_path(key)
+        if not os.path.exists(p):
+            raise RuntimeError(f"local raw missing {key}")
+        with open(p, "rb") as f:
+            f.seek(start)
+            return f.read(end - start + 1)
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         path = tmp.name
     try:
@@ -1060,17 +1084,11 @@ def _png_rgba(data: bytes):
     return w, h, lambda x, y: (out[y * stride + x * ch], out[y * stride + x * ch + 3])
 
 
-def build_canopy(lon: float, lat: float, public_dir: str, notes: list[str]) -> dict | None:
-    path = os.path.join(public_dir, "forestry", "canopy_height_rgb_taiwan.pmtiles")
-    if not os.path.exists(path):
-        notes.append(f"樹冠：{path} 不存在 → 不放 canopy（前端風×植被 unknown）。")
-        return None
+def sample_canopy_grid(path: str, w: float, s: float, e: float, nn: float, nx: int, ny: int) -> list[int]:
+    """樹冠 PMTiles 取樣成 nx×ny 格網（row 0 在北，格心取樣）；值＝公尺，-1＝遮罩（A<128）或缺磚。
+    W6-3 全北北樹冠係數與場景快照共用同一支取樣。"""
     pm = _PMTiles(path)
-    half_dlat = CANOPY_HALF_M / 111_195
-    half_dlon = CANOPY_HALF_M / (111_195 * math.cos(math.radians(lat)))
-    n = int(round(2 * CANOPY_HALF_M / CANOPY_CELL_M))
-    w, s, e, nn = lon - half_dlon, lat - half_dlat, lon + half_dlon, lat + half_dlat
-    dx, dy = (e - w) / n, (nn - s) / n
+    dx, dy = (e - w) / nx, (nn - s) / ny
     tiles: dict = {}
 
     def tile(z, x, y):
@@ -1081,9 +1099,9 @@ def build_canopy(lon: float, lat: float, public_dir: str, notes: list[str]) -> d
         return tiles[k]
 
     heights = []
-    for j in range(n):
+    for j in range(ny):
         clat = nn - (j + 0.5) * dy
-        for i in range(n):
+        for i in range(nx):
             clon = w + (i + 0.5) * dx
             val = -1
             for z in range(CANOPY_ZOOM[1], CANOPY_ZOOM[0] - 1, -1):
@@ -1099,6 +1117,19 @@ def build_canopy(lon: float, lat: float, public_dir: str, notes: list[str]) -> d
                 val = r if a >= 128 else -1
                 break
             heights.append(val)
+    return heights
+
+
+def build_canopy(lon: float, lat: float, public_dir: str, notes: list[str]) -> dict | None:
+    path = os.path.join(public_dir, "forestry", "canopy_height_rgb_taiwan.pmtiles")
+    if not os.path.exists(path):
+        notes.append(f"樹冠：{path} 不存在 → 不放 canopy（前端風×植被 unknown）。")
+        return None
+    half_dlat = CANOPY_HALF_M / 111_195
+    half_dlon = CANOPY_HALF_M / (111_195 * math.cos(math.radians(lat)))
+    n = int(round(2 * CANOPY_HALF_M / CANOPY_CELL_M))
+    w, s, e, nn = lon - half_dlon, lat - half_dlat, lon + half_dlon, lat + half_dlat
+    heights = sample_canopy_grid(path, w, s, e, nn, n, n)
     with_data = sum(1 for v in heights if v >= 0)
     notes.append(
         f"樹冠：Meta/WRI 2020 樹冠高度（canopy_height_rgb_taiwan.pmtiles，z{CANOPY_ZOOM[1]} 約 35 m 像素）取樣成接收點 ±{CANOPY_HALF_M / 1000:g} km、"
@@ -1187,6 +1218,13 @@ def build_river_network(lon: float, lat: float, public_dir: str, notes: list[str
         notes.append(f"河道：{path} 不存在 → 不放 river_network（前端河川 unknown）。")
         return None
     nb = bbox_around(lon, lat, RIVER_NET_HALF_KM)
+    lines = river_lines_in_bbox(path, nb)
+    notes.append(f"河道：public/geo/water_rivers.geojson 裁到接收點 ±{RIVER_NET_HALF_KM:g} km（{len(lines)} 條線，DP {SIMPLIFY_RIVER_M:g} m）；不含野溪、瀑布。")
+    return {"origin": "public/geo/water_rivers.geojson", "bbox": nb, "geometry": {"type": "MultiLineString", "coordinates": lines}}
+
+
+def river_lines_in_bbox(path: str, nb: list[float]) -> list:
+    """water_rivers 中外框碰到 nb（外擴 0.5 km）的線，整條保留、DP 簡化（W6-3 全北北與快照共用）"""
     sb = expand_bbox(nb, 0.5)
     with open(path, encoding="utf-8") as f:
         feats = json.load(f)["features"]
@@ -1199,8 +1237,7 @@ def build_river_network(lon: float, lat: float, public_dir: str, notes: list[str
                 s = _dp([[p[0], p[1]] for p in ln], SIMPLIFY_RIVER_M)
                 if len(s) >= 2:
                     lines.append(s)
-    notes.append(f"河道：public/geo/water_rivers.geojson 裁到接收點 ±{RIVER_NET_HALF_KM:g} km（{len(lines)} 條線，DP {SIMPLIFY_RIVER_M:g} m）；不含野溪、瀑布。")
-    return {"origin": "public/geo/water_rivers.geojson", "bbox": nb, "geometry": {"type": "MultiLineString", "coordinates": lines}}
+    return lines
 
 
 def build_natural(scene: dict, bbox: list[float], public_dir: str, coast_path: str, notes: list[str]) -> dict:

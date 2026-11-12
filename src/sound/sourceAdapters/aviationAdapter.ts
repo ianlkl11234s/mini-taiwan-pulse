@@ -143,7 +143,8 @@ export function evaluateAviation(record: AviationRecord, t: number): SourceEvalu
   return { status: "active", geometry: { lon: pos.lon, lat: pos.lat, altitudeM: pos.altitudeM }, relativeActivity: 1 };
 }
 
-function sampleTimes(t0: number, t1: number, step: number): number[] {
+/** 區間細取樣時刻（W6-3 飛機網格預算共用：網格與接收點用同一組時刻） */
+export function sampleTimes(t0: number, t1: number, step: number): number[] {
   if (t1 <= t0) return [t0];
   const out: number[] = [];
   for (let t = t0; t < t1; t += step) out.push(t);
@@ -199,7 +200,8 @@ export const queryAviationInterval: IntervalQuery<AviationPayload> = (records, r
   return { contributions, notes: [] };
 };
 
-function gapTouchesRadius(payload: AviationPayload, t: number, receiver: Receiver, radius: number): boolean {
+/** 缺口時刻 t 前後的實測點（W6-3 飛機網格共用：缺口任一端在候選半徑內＝無法判斷候選） */
+export function gapEnds(payload: AviationPayload, t: number): [TrailPoint | null, TrailPoint | null] {
   let before: TrailPoint | null = null;
   let after: TrailPoint | null = null;
   for (const seg of payload.segments) {
@@ -208,7 +210,11 @@ function gapTouchesRadius(payload: AviationPayload, t: number, receiver: Receive
       else if (!after) after = pt;
     }
   }
-  return [before, after].some(
+  return [before, after];
+}
+
+function gapTouchesRadius(payload: AviationPayload, t: number, receiver: Receiver, radius: number): boolean {
+  return gapEnds(payload, t).some(
     (pt) => pt != null && haversineM(receiver.longitude, receiver.latitude, pt[1], pt[0]) <= radius,
   );
 }

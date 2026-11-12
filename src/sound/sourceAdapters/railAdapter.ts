@@ -149,25 +149,32 @@ export function nearestOnTrack(track: PreparedTrack, receiver: Receiver, pa: num
   const dHi = hi * total;
   let best = { distanceM: Infinity, progress: lo };
   for (let i = 0; i + 1 < track.coords.length; i++) {
-    const c0 = track.cum[i]!;
-    const c1 = track.cum[i + 1]!;
-    if (c1 < dLo || c0 > dHi || c1 === c0) continue;
-    const t0 = Math.max(0, (dLo - c0) / (c1 - c0));
-    const t1 = Math.min(1, (dHi - c0) / (c1 - c0));
-    const [x1, y1] = track.coords[i]!;
-    const [x2, y2] = track.coords[i + 1]!;
-    const ax = (x1 + (x2 - x1) * t0) * kx, ay = (y1 + (y2 - y1) * t0) * M_PER_DEG;
-    const bx = (x1 + (x2 - x1) * t1) * kx, by = (y1 + (y2 - y1) * t1) * M_PER_DEG;
-    const dx = bx - ax, dy = by - ay;
-    const L = dx * dx + dy * dy;
-    const u = L === 0 ? 0 : Math.max(0, Math.min(1, ((rx - ax) * dx + (ry - ay) * dy) / L));
-    const d = Math.hypot(rx - (ax + u * dx), ry - (ay + u * dy));
-    if (d < best.distanceM) {
-      const along = c0 + (c1 - c0) * (t0 + (t1 - t0) * u);
-      best = { distanceM: d, progress: along / total };
-    }
+    const hit = segmentNearest(track, i, dLo, dHi, rx, ry, kx);
+    if (hit && hit.distanceM < best.distanceM) best = hit;
   }
   return best;
+}
+
+/**
+ * 第 i 段（coords[i]→coords[i+1]）裁到累積長度 [dLo, dHi] 之後，到 (rx, ry)（已投影：lon·kx、lat·M）的最短距離；
+ * 這段不在範圍內或長度 0 → null。nearestOnTrack 與鐵道網格（W6-3 railGrid）共用，逐位相同。
+ */
+export function segmentNearest(track: PreparedTrack, i: number, dLo: number, dHi: number, rx: number, ry: number, kx: number): { distanceM: number; progress: number } | null {
+  const c0 = track.cum[i]!;
+  const c1 = track.cum[i + 1]!;
+  if (c1 < dLo || c0 > dHi || c1 === c0) return null;
+  const t0 = Math.max(0, (dLo - c0) / (c1 - c0));
+  const t1 = Math.min(1, (dHi - c0) / (c1 - c0));
+  const [x1, y1] = track.coords[i]!;
+  const [x2, y2] = track.coords[i + 1]!;
+  const ax = (x1 + (x2 - x1) * t0) * kx, ay = (y1 + (y2 - y1) * t0) * M_PER_DEG;
+  const bx = (x1 + (x2 - x1) * t1) * kx, by = (y1 + (y2 - y1) * t1) * M_PER_DEG;
+  const dx = bx - ax, dy = by - ay;
+  const L = dx * dx + dy * dy;
+  const u = L === 0 ? 0 : Math.max(0, Math.min(1, ((rx - ax) * dx + (ry - ay) * dy) / L));
+  const d = Math.hypot(rx - (ax + u * dx), ry - (ay + u * dy));
+  const along = c0 + (c1 - c0) * (t0 + (t1 - t0) * u);
+  return { distanceM: d, progress: along / track.total };
 }
 
 function trackNearReceiver(track: PreparedTrack, receiver: Receiver, radiusM: number): boolean {
@@ -288,6 +295,26 @@ function baseContribution(
   };
 }
 
+/** 列車這段區間走過的 progress [lo, hi] 依站間結構切段（缺口＝unknown）；鐵道網格（W6-3）共用 */
+export function railPieces(track: PreparedTrack, lo: number, hi: number): { a: number; b: number; structure: RailStructure }[] {
+  const pieces: { a: number; b: number; structure: RailStructure }[] = [];
+  if (hi - lo < 1e-12) {
+    pieces.push({ a: lo, b: lo, structure: structureAtProgress(track.intervals, lo) });
+    return pieces;
+  }
+  let covered = lo;
+  for (const iv of track.intervals) {
+    const a = Math.max(lo, iv.pStart);
+    const b = Math.min(hi, iv.pEnd);
+    if (b < a) continue;
+    if (a > covered + 1e-9) pieces.push({ a: covered, b: a, structure: "unknown" }); // 區間缺口
+    pieces.push({ a, b, structure: iv.structure });
+    covered = Math.max(covered, b);
+  }
+  if (covered < hi - 1e-9) pieces.push({ a: covered, b: hi, structure: "unknown" });
+  return pieces;
+}
+
 export const queryRailInterval: IntervalQuery<RailPayload, "rail"> = (records, receiver, t0, t1) => {
   const contributions: SourceContribution<"rail">[] = [];
   const radius = RAIL.candidateRadiusM.value;
@@ -329,21 +356,7 @@ export const queryRailInterval: IntervalQuery<RailPayload, "rail"> = (records, r
 
     let best: SourceContribution<"rail"> | null = null;
     let unknownCand: SourceContribution<"rail"> | null = null;
-    const pieces: { a: number; b: number; structure: RailStructure }[] = [];
-    if (hi - lo < 1e-12) {
-      pieces.push({ a: lo, b: lo, structure: structureAtProgress(track.intervals, lo) });
-    } else {
-      let covered = lo;
-      for (const iv of track.intervals) {
-        const a = Math.max(lo, iv.pStart);
-        const b = Math.min(hi, iv.pEnd);
-        if (b < a) continue;
-        if (a > covered + 1e-9) pieces.push({ a: covered, b: a, structure: "unknown" }); // 區間缺口
-        pieces.push({ a, b, structure: iv.structure });
-        covered = Math.max(covered, b);
-      }
-      if (covered < hi - 1e-9) pieces.push({ a: covered, b: hi, structure: "unknown" });
-    }
+    const pieces = railPieces(track, lo, hi);
     for (const piece of pieces) {
       const near = nearestOnTrack(track, receiver, piece.a, piece.b);
       if (near.distanceM > radius) continue;

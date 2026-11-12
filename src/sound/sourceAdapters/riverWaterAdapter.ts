@@ -21,7 +21,7 @@ import { withLoading } from "../../lib/loadingRegistry";
 import { MODEL_VERSION, RIVER_WATER } from "../model/soundProfiles";
 import { percentileRank, type QuantileTable } from "../engines/naturalKernels";
 import { proximityPotential } from "../engines/relativePotentialKernel";
-import { distanceToGeometryM } from "../engines/geometryShapes";
+import { distanceToGeometryWithinM } from "../engines/geometryShapes";
 import { taipeiMidnightMs } from "../../lib/taipeiDay";
 import { insideBbox, iso, nearestStation, scanHours, stationLabel, unknownContribution, type Bbox, type StationPoint } from "./naturalShared";
 import type { IntervalQuery, SoundSourceAdapter, SoundSourceRecord, SoundSourceSet, SourceContribution, SourceEvaluation } from "../types";
@@ -117,30 +117,49 @@ export function evaluateRiverWater(record: RiverWaterRecord, t: number): SourceE
   return { status: "unknown", reason: "needs_station_quantiles(use_queryInterval)" };
 }
 
-export const queryRiverWaterInterval: IntervalQuery<RiverWaterPayload, typeof FAMILY> = (records, receiver, t0, t1) => {
-  const { longitude: lon, latitude: lat } = receiver;
-  const unknown = (reason: string, d: number | null, t: number, notes: string[] = []) =>
-    ({ contributions: [unknownContribution(FAMILY, "river_water:receiver", reason, t, d, { proxyKind: "water_level_percentile", notes })], notes: [] });
+/** 空間脈絡（W6-3 網格一次建好、每格共用） */
+export interface RiverSpatialContext {
+  nets: { bbox: Bbox; geometry: GeoJSON.LineString | GeoJSON.MultiLineString }[];
+  extents: Bbox[];
+  /** 當日至少有一筆水位的站（river_station record 順序） */
+  stations: RiverStationInfo[];
+}
 
-  // 1. 河道距離（靜態）
+export function riverSpatialContext(records: readonly RiverWaterRecord[]): RiverSpatialContext {
+  const reporting = new Set(records.flatMap((r) => (r.payload.kind === "river_obs" && r.payload.levelM != null ? [r.payload.stationId] : [])));
+  return {
+    nets: records.flatMap((r) => (r.payload.kind === "river_network" ? [r.payload] : [])),
+    extents: records.flatMap((r) => (r.payload.kind === "station_extent" ? [r.payload.bbox] : [])),
+    stations: records.flatMap((r) => (r.payload.kind === "river_station" && reporting.has(r.payload.stationId) ? [r.payload] : [])),
+  };
+}
+
+type QueryOut = { contributions: SourceContribution<typeof FAMILY>[]; notes: string[] };
+
+export type RiverSpatial =
+  | { kind: "done"; out: QueryOut }
+  | { kind: "station"; station: RiverStationInfo; quantiles: QuantileTable; chD: number; distFactor: number; chNote: string; label: string; caveats: string[] };
+
+/** 空間項：河道距離（300 m 外＝0）→ 站點範圍 → 最近有回報的水位站（5 km）→ 該站分位表要可用 */
+export function riverSpatialAt(ctx: RiverSpatialContext, lon: number, lat: number, t0: number): RiverSpatial {
+  const unknown = (reason: string, d: number | null, t: number, notes: string[] = []): RiverSpatial =>
+    ({ kind: "done", out: { contributions: [unknownContribution(FAMILY, "river_water:receiver", reason, t, d, { proxyKind: "water_level_percentile", notes })], notes: [] } });
+
+  // 1. 河道距離（靜態）；距離只在 300 m 內精確（外面一律 >300 m＝0）
   const maxCh = RIVER_WATER.channelMaxDistanceM.value;
-  const nets = records.flatMap((r) => (r.payload.kind === "river_network" && insideBbox(lon, lat, r.payload.bbox, maxCh) ? [r.payload] : []));
+  const nets = ctx.nets.filter((n) => insideBbox(lon, lat, n.bbox, maxCh));
   if (!nets.length) return unknown("river_network_not_loaded_here", null, t0);
-  const ds = nets.map((n) => distanceToGeometryM(n.geometry, lon, lat)).filter((d): d is number => d != null);
+  const ds = nets.map((n) => distanceToGeometryWithinM(n.geometry, lon, lat, maxCh)).filter((d): d is number => d != null);
   if (!ds.length) return unknown("river_network_geometry_invalid", null, t0);
   const chD = Math.min(...ds);
+  if (chD > maxCh) return { kind: "done", out: { contributions: [], notes: [`distance_to_river_line_m:>${maxCh}`, `beyond_${maxCh}m:inactive`] } };
   const chNote = `distance_to_river_line_m:${Math.round(chD)}`;
-  if (chD > maxCh) return { contributions: [], notes: [chNote, `beyond_${maxCh}m:inactive`] };
   const distFactor = proximityPotential(chD, RIVER_WATER.halfPotentialDistanceM.value);
 
   // 2. 水位站與分位
-  const extents = records.flatMap((r) => (r.payload.kind === "station_extent" ? [r.payload.bbox] : []));
-  if (!extents.some((b) => insideBbox(lon, lat, b))) return unknown("outside_river_station_extent", chD, t0, [chNote]);
-  // 只考慮當日至少有一筆水位的站（整天沒回報的站不該擋住範圍內正常的站）
-  const reporting = new Set(records.flatMap((r) => (r.payload.kind === "river_obs" && r.payload.levelM != null ? [r.payload.stationId] : [])));
-  const stations = records.flatMap((r) => (r.payload.kind === "river_station" && reporting.has(r.payload.stationId) ? [r.payload] : []));
+  if (!ctx.extents.some((b) => insideBbox(lon, lat, b))) return unknown("outside_river_station_extent", chD, t0, [chNote]);
   const maxD = RIVER_WATER.maxStationDistanceM.value;
-  const nearest = nearestStation(stations, lon, lat);
+  const nearest = nearestStation(ctx.stations, lon, lat);
   if (!nearest || nearest.distanceM > maxD) {
     return unknown(`no_water_level_station_within_${maxD}m`, chD, t0, [chNote, ...(nearest ? [stationLabel(nearest.station, nearest.distanceM)] : [])]);
   }
@@ -150,19 +169,30 @@ export const queryRiverWaterInterval: IntervalQuery<RiverWaterPayload, typeof FA
   if (!quantilesUsable(st.quantiles)) {
     return unknown("no_station_history_quantiles", chD, t0, [label, chNote, `history_samples:${(st.quantiles as QuantileTable | null)?.n ?? 0}`]);
   }
-  const q = st.quantiles;
-  const obs = records.flatMap((r) => (r.payload.kind === "river_obs" && r.payload.stationId === st.stationId ? [r.payload] : []));
-  const scan = scanHours(
+  return { kind: "station", station: st, quantiles: st.quantiles, chD, distFactor, chNote, label, caveats };
+}
+
+/** 時間項：該站 [t0, t1] 逐小時；潛勢＝水位在該站歷史的分位 × 河道距離係數 */
+export function riverStationScan(stationObs: readonly RiverObs[], q: QuantileTable, distFactor: number, t0: number, t1: number) {
+  return scanHours(
     t0,
     t1,
     RIVER_WATER.bucketDurationS.value,
-    (h) => obs.find((o) => o.bucketStart === h),
+    (h) => stationObs.find((o) => o.bucketStart === h),
     (o) => {
       const rank = percentileRank(o.levelM, q);
       return rank == null ? { reason: "water_level_null" } : { potential: rank * distFactor };
     },
     "station_hour_missing",
   );
+}
+
+export const queryRiverWaterInterval: IntervalQuery<RiverWaterPayload, typeof FAMILY> = (records, receiver, t0, t1) => {
+  const sp = riverSpatialAt(riverSpatialContext(records), receiver.longitude, receiver.latitude, t0);
+  if (sp.kind === "done") return sp.out;
+  const { station: st, quantiles: q, chD, distFactor, chNote, label, caveats } = sp;
+  const obs = records.flatMap((r) => (r.payload.kind === "river_obs" && r.payload.stationId === st.stationId ? [r.payload] : []));
+  const scan = riverStationScan(obs, q, distFactor, t0, t1);
   const contributions: SourceContribution<typeof FAMILY>[] = [];
   if (scan.best) {
     const o = scan.best.row;

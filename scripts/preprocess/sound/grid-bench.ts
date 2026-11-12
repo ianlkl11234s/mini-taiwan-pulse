@@ -32,13 +32,14 @@ import { distanceToGeometryM } from "../../../src/sound/engines/geometryShapes";
 import { aviationPositionAt, flightsToAviationRecords, type AviationRecord } from "../../../src/sound/sourceAdapters/aviationAdapter";
 import { dedupeAndLinkStrikes } from "../../../src/sound/sourceAdapters/thunderAdapter";
 import { nearestRainStation, rainRowsToRecords, type RainRecord } from "../../../src/sound/sourceAdapters/rainFieldAdapter";
-import { loadRail, nearestOnTrack, railProgressAt, RAIL_SYSTEMS, type RailFetchers, type RailRecord, type RailTrackInput } from "../../../src/sound/sourceAdapters/railAdapter";
+import { localRailFetchers } from "./railLocalFetchers";
+import { loadRail, nearestOnTrack, railProgressAt, type RailRecord } from "../../../src/sound/sourceAdapters/railAdapter";
 import { structureAtProgress } from "../../../src/sound/model/railSegments";
 import { canopyCover } from "../../../src/sound/sourceAdapters/windVegetationAdapter";
 import { insideBbox, nearestStation } from "../../../src/sound/sourceAdapters/naturalShared";
 import { isTypicalTrafficRecord, loadTypicalTraffic, typicalFlowAt, typicalVolumePotential, vdWithinRadius, type TypicalTrafficRecord } from "../../../src/sound/sourceAdapters/typicalTrafficAdapter";
 import { queryRoadTrafficInterval, type RoadTrafficRecord } from "../../../src/sound/sourceAdapters/roadTrafficAdapter";
-import { parseMvpBSceneBlocks, parseSystemSchedule, parseTraSchedule, roadworkSnapshotSet } from "../../../src/sound/mvpBSources";
+import { parseMvpBSceneBlocks, roadworkSnapshotSet } from "../../../src/sound/mvpBSources";
 import { naturalSnapshotSet, parseNaturalBlock } from "../../../src/sound/advancedSources";
 import { GRID_SPEC, cellCenter, inScopeCells } from "../../../src/sound/grid/gridSpec";
 import type { AnySoundFamily, FamilyStatus, Receiver, SoundSourceSet, SourceCoverage, SourceHealth } from "../../../src/sound/types";
@@ -70,37 +71,6 @@ function cov(family: AnySoundFamily, provider: string, date: string, status: Sou
 }
 function readJson(p: string): unknown {
   return existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null;
-}
-function localRailFetchers(railDir: string): RailFetchers {
-  const lineOf = (p: string): [number, number][] | null => {
-    const d = readJson(p) as { type?: string; features?: GeoJSON.Feature[] } | GeoJSON.Feature | null;
-    const f = d && (d as { type?: string }).type === "FeatureCollection" ? (d as { features: GeoJSON.Feature[] }).features[0] : (d as GeoJSON.Feature | null);
-    return f?.geometry?.type === "LineString" ? (f.geometry.coordinates as [number, number][]) : null;
-  };
-  return {
-    async network() {
-      const out: RailTrackInput[] = [];
-      for (const sys of RAIL_SYSTEMS) {
-        const progress = (readJson(path.join(railDir, sys, "station_progress.json")) ?? {}) as Record<string, Record<string, number>>;
-        for (const [trackId, sp] of Object.entries(progress)) {
-          if (sys === "trtc" && trackId.startsWith("MK-")) continue;
-          const coords = lineOf(path.join(railDir, sys, "tracks", `${trackId}.geojson`));
-          if (coords && coords.length >= 2) out.push({ system: sys, trackId, coords, stationProgress: sp });
-        }
-      }
-      return out;
-    },
-    async schedule(system) {
-      if (system === "tra") return { departures: parseTraSchedule(readJson(path.join(railDir, "tra", "master_schedule.json")) as { schedules?: unknown[] } | null), basis: "local_template" };
-      if (system === "trtc") {
-        const progress = (readJson(path.join(railDir, "trtc", "station_progress.json")) ?? {}) as Record<string, unknown>;
-        const arr = Object.keys(progress).filter((k) => !k.startsWith("MK-")).map((k) => readJson(path.join(railDir, "trtc", "schedules", `${k}.json`))).filter(Boolean);
-        return { departures: parseSystemSchedule(arr), basis: "local_template" };
-      }
-      const file = system === "thsr" ? path.join(railDir, "thsr", "schedules", "thsr_schedules.json") : path.join(railDir, system, `${system}_schedules.json`);
-      return { departures: parseSystemSchedule(readJson(file)), basis: "local_template" };
-    },
-  };
 }
 async function sceneSets(s: Scene): Promise<AnySet[]> {
   const avHealth = s.aviation.health ?? (s.aviation.rows.length ? "ok" : "empty");

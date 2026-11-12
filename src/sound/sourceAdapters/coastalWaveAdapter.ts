@@ -18,7 +18,7 @@
 import { COASTAL_WAVE, MODEL_VERSION } from "../model/soundProfiles";
 import { wavePotential } from "../engines/naturalKernels";
 import { proximityPotential } from "../engines/relativePotentialKernel";
-import { distanceToGeometryM } from "../engines/geometryShapes";
+import { distanceToGeometryWithinM } from "../engines/geometryShapes";
 import { taipeiMidnightMs } from "../../lib/taipeiDay";
 import { insideBbox, iso, nearestStation, scanHours, stationLabel, unknownContribution, type Bbox, type StationPoint } from "./naturalShared";
 import type { IntervalQuery, SoundSourceAdapter, SoundSourceRecord, SoundSourceSet, SourceContribution, SourceEvaluation } from "../types";
@@ -95,36 +95,66 @@ export function evaluateCoastalWave(record: CoastalWaveRecord, t: number): Sourc
   return { status: "active", geometry: { lon: p.lon, lat: p.lat, altitudeM: 0 }, relativeActivity: pot };
 }
 
-export const queryCoastalWaveInterval: IntervalQuery<CoastalWavePayload, typeof FAMILY> = (records, receiver, t0, t1) => {
-  const { longitude: lon, latitude: lat } = receiver;
-  const unknown = (reason: string, d: number | null, t: number, notes: string[] = []) =>
-    ({ contributions: [unknownContribution(FAMILY, "coastal_wave:receiver", reason, t, d, { proxyKind: "wave_height_period_x_coast_distance", notes })], notes: [] });
+/** 空間脈絡（W6-3 網格一次建好、每格共用） */
+export interface WaveSpatialContext {
+  coasts: { bbox: Bbox; geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon }[];
+  extents: Bbox[];
+  /** 當日至少有一筆浪高與週期的站，每站一列（obs 中第一次出現的那列） */
+  stations: WaveObs[];
+}
 
-  // 1. 海岸距離（靜態）
+export function waveSpatialContext(records: readonly CoastalWaveRecord[]): WaveSpatialContext {
+  const obs = records.flatMap((r) => (r.payload.kind === "wave_obs" ? [r.payload] : []));
+  const reporting = new Set(obs.filter((o) => o.waveHeightM != null && o.wavePeriodS != null).map((o) => o.stationId));
+  const seen = new Set<string>();
+  const stations: WaveObs[] = [];
+  for (const o of obs) {
+    if (!reporting.has(o.stationId) || seen.has(o.stationId)) continue;
+    seen.add(o.stationId);
+    stations.push(o);
+  }
+  return {
+    coasts: records.flatMap((r) => (r.payload.kind === "coast" ? [r.payload] : [])),
+    extents: records.flatMap((r) => (r.payload.kind === "station_extent" ? [r.payload.bbox] : [])),
+    stations,
+  };
+}
+
+type QueryOut = { contributions: SourceContribution<typeof FAMILY>[]; notes: string[] };
+
+export type WaveSpatial =
+  | { kind: "done"; out: QueryOut }
+  | { kind: "station"; station: WaveObs; coastD: number; distFactor: number; coastNote: string; label: string };
+
+/** 空間項：近岸海域距離（1 km 外＝0）→ 站點範圍 → 最近有回報的浮標（40 km） */
+export function waveSpatialAt(ctx: WaveSpatialContext, lon: number, lat: number, t0: number): WaveSpatial {
+  const unknown = (reason: string, d: number | null, t: number, notes: string[] = []): WaveSpatial =>
+    ({ kind: "done", out: { contributions: [unknownContribution(FAMILY, "coastal_wave:receiver", reason, t, d, { proxyKind: "wave_height_period_x_coast_distance", notes })], notes: [] } });
+
+  // 1. 海岸距離（靜態）；距離只在 1 km 內精確（外面一律 >1 km＝0）
   const maxCoast = COASTAL_WAVE.coastMaxDistanceM.value;
-  const coasts = records.flatMap((r) => (r.payload.kind === "coast" && insideBbox(lon, lat, r.payload.bbox, maxCoast) ? [r.payload] : []));
+  const coasts = ctx.coasts.filter((c) => insideBbox(lon, lat, c.bbox, maxCoast));
   if (!coasts.length) return unknown("coastline_not_loaded_here", null, t0);
-  const ds = coasts.map((c) => distanceToGeometryM(c.geometry, lon, lat)).filter((d): d is number => d != null);
+  const ds = coasts.map((c) => distanceToGeometryWithinM(c.geometry, lon, lat, maxCoast)).filter((d): d is number => d != null);
   if (!ds.length) return unknown("coastline_geometry_invalid", null, t0);
   const coastD = Math.min(...ds);
+  if (coastD > maxCoast) return { kind: "done", out: { contributions: [], notes: [`distance_to_nearshore_zone_m:>${maxCoast}(coastline_proxy_not_shoreline)`, `beyond_${maxCoast}m:inactive`] } };
   const coastNote = `distance_to_nearshore_zone_m:${Math.round(coastD)}(coastline_proxy_not_shoreline)`;
-  if (coastD > maxCoast) return { contributions: [], notes: [coastNote, `beyond_${maxCoast}m:inactive`] };
   const distFactor = proximityPotential(coastD, COASTAL_WAVE.halfPotentialDistanceM.value);
 
-  // 2. 浪（時變）
-  const extents = records.flatMap((r) => (r.payload.kind === "station_extent" ? [r.payload.bbox] : []));
-  if (!extents.some((b) => insideBbox(lon, lat, b))) return unknown("outside_wave_station_extent", coastD, t0, [coastNote]);
-  const obs = records.flatMap((r) => (r.payload.kind === "wave_obs" ? [r.payload] : []));
+  // 2. 浪（時變）的空間部分
+  if (!ctx.extents.some((b) => insideBbox(lon, lat, b))) return unknown("outside_wave_station_extent", coastD, t0, [coastNote]);
   const maxD = COASTAL_WAVE.maxStationDistanceM.value;
-  // 只考慮當日至少有一筆浪高與週期的站
-  const reporting = new Set(obs.filter((o) => o.waveHeightM != null && o.wavePeriodS != null).map((o) => o.stationId));
-  const nearest = nearestStation(obs.filter((o) => reporting.has(o.stationId)), lon, lat);
+  const nearest = nearestStation(ctx.stations, lon, lat);
   if (!nearest || nearest.distanceM > maxD) {
     return unknown(`no_wave_station_within_${maxD}m`, coastD, t0, [coastNote, ...(nearest ? [stationLabel(nearest.station, nearest.distanceM)] : [])]);
   }
-  const label = stationLabel(nearest.station, nearest.distanceM);
-  const stationObs = obs.filter((o) => o.stationId === nearest.station.stationId);
-  const scan = scanHours(
+  return { kind: "station", station: nearest.station, coastD, distFactor, coastNote, label: stationLabel(nearest.station, nearest.distanceM) };
+}
+
+/** 時間項：該站 [t0, t1] 逐小時；潛勢＝wavePotential × 距離係數 */
+export function waveStationScan(stationObs: readonly WaveObs[], distFactor: number, t0: number, t1: number) {
+  return scanHours(
     t0,
     t1,
     COASTAL_WAVE.bucketDurationS.value,
@@ -135,6 +165,14 @@ export const queryCoastalWaveInterval: IntervalQuery<CoastalWavePayload, typeof 
     },
     "station_hour_missing",
   );
+}
+
+export const queryCoastalWaveInterval: IntervalQuery<CoastalWavePayload, typeof FAMILY> = (records, receiver, t0, t1) => {
+  const sp = waveSpatialAt(waveSpatialContext(records), receiver.longitude, receiver.latitude, t0);
+  if (sp.kind === "done") return sp.out;
+  const { station, coastD, distFactor, coastNote, label } = sp;
+  const stationObs = records.flatMap((r) => (r.payload.kind === "wave_obs" && r.payload.stationId === station.stationId ? [r.payload] : []));
+  const scan = waveStationScan(stationObs, distFactor, t0, t1);
   const contributions: SourceContribution<typeof FAMILY>[] = [];
   if (scan.best) {
     const o = scan.best.row;
@@ -154,7 +192,7 @@ export const queryCoastalWaveInterval: IntervalQuery<CoastalWavePayload, typeof 
       notes: [label, `wave_height_m:${o.waveHeightM}`, `wave_period_s:${o.wavePeriodS}`, coastNote, "nearshore_attenuation_not_modeled"],
     });
   } else if (scan.firstUnknown) {
-    contributions.push(unknownContribution(FAMILY, `wave:${nearest.station.stationId}`, scan.firstUnknown.reason, scan.firstUnknown.hour, coastD, { proxyKind: "wave_height_period_x_coast_distance", notes: [label, coastNote] }));
+    contributions.push(unknownContribution(FAMILY, `wave:${station.stationId}`, scan.firstUnknown.reason, scan.firstUnknown.hour, coastD, { proxyKind: "wave_height_period_x_coast_distance", notes: [label, coastNote] }));
   }
   return { contributions, notes: [label, coastNote] };
 };
