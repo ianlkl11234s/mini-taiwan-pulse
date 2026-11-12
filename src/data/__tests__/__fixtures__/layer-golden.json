@@ -3539,6 +3539,7 @@
     },
     {
       "layers": [
+        "election-events-2026-spread",
         "election-events-2026-group",
         "election-events-2026-circle",
         "election-events-2026-precision"
@@ -15610,6 +15611,18 @@
               1
             ],
             [
+              "!=",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_sp"
+                ],
+                0
+              ],
+              1
+            ],
+            [
               "in",
               [
                 "get",
@@ -16049,16 +16062,31 @@
         },
         {
           "filter": [
-            "!=",
+            "all",
             [
-              "coalesce",
+              "!=",
               [
-                "get",
-                "_grp"
+                "coalesce",
+                [
+                  "get",
+                  "_grp"
+                ],
+                0
               ],
-              0
+              1
             ],
-            1
+            [
+              "!=",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_sp"
+                ],
+                0
+              ],
+              1
+            ]
           ],
           "layout": {
             "circle-sort-key": [
@@ -16574,13 +16602,178 @@
           "minzoom": 5,
           "paint": {
             "dark": {
-              "icon-opacity": 0.9
+              "icon-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12.85,
+                0.9,
+                13.15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "_spr"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  0,
+                  0.9
+                ]
+              ]
             },
             "light": {
-              "icon-opacity": 0.9
+              "icon-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12.85,
+                0.9,
+                13.15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "_spr"
+                      ],
+                      0
+                    ],
+                    1
+                  ],
+                  0,
+                  0.9
+                ]
+              ]
             }
           },
           "suffix": "group",
+          "type": "symbol"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "coalesce",
+              [
+                "get",
+                "_sp"
+              ],
+              0
+            ],
+            1
+          ],
+          "layout": {
+            "dark": {
+              "icon-allow-overlap": true,
+              "icon-ignore-placement": true,
+              "icon-image": [
+                "concat",
+                [
+                  "get",
+                  "_img"
+                ],
+                "-d"
+              ],
+              "icon-offset": [
+                "get",
+                "_ofs"
+              ],
+              "icon-size": 1,
+              "symbol-sort-key": [
+                "-",
+                1,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "_past"
+                  ],
+                  0
+                ]
+              ]
+            },
+            "light": {
+              "icon-allow-overlap": true,
+              "icon-ignore-placement": true,
+              "icon-image": [
+                "concat",
+                [
+                  "get",
+                  "_img"
+                ],
+                "-l"
+              ],
+              "icon-offset": [
+                "get",
+                "_ofs"
+              ],
+              "icon-size": 1,
+              "symbol-sort-key": [
+                "-",
+                1,
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "_past"
+                  ],
+                  0
+                ]
+              ]
+            }
+          },
+          "minzoom": 12.85,
+          "paint": {
+            "dark": {
+              "icon-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12.85,
+                0,
+                13.15,
+                0.9
+              ]
+            },
+            "light": {
+              "icon-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12.85,
+                0,
+                13.15,
+                0.9
+              ]
+            }
+          },
+          "suffix": "spread",
           "type": "symbol"
         }
       ],
