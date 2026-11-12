@@ -18,6 +18,6 @@
   "legend.soundAtlas.roadEstimated": "臺北市區（平日典型）",
   "legend.soundAtlas.roadInferred": "新北市區（道路等級推估）",
   "legend.soundAtlas.attributionLine": "出處：{parts}",
-  "legend.soundAtlas.attrOsm": "© OpenStreetMap contributors（ODbL）",
-  "legend.soundAtlas.attrNatural": "氣象署、水利署、國家公園署（政府資料開放授權第 1 版）；樹冠 Meta／WRI"
+  "legend.soundAtlas.attrOsm": "© OpenStreetMap contributors",
+  "legend.soundAtlas.attrNatural": "氣象署、水利署、國家公園署、樹冠 Meta／WRI"
 }

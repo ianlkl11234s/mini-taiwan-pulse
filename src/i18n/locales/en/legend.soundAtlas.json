@@ -18,6 +18,6 @@
   "legend.soundAtlas.roadEstimated": "Taipei streets (typical weekday)",
   "legend.soundAtlas.roadInferred": "New Taipei streets (road class)",
   "legend.soundAtlas.attributionLine": "Sources: {parts}",
-  "legend.soundAtlas.attrOsm": "© OpenStreetMap contributors (ODbL)",
-  "legend.soundAtlas.attrNatural": "CWA, WRA, NLMA (Open Government Data License v1); canopy Meta/WRI"
+  "legend.soundAtlas.attrOsm": "© OpenStreetMap contributors",
+  "legend.soundAtlas.attrNatural": "CWA, WRA, NLMA, canopy Meta/WRI"
 }
