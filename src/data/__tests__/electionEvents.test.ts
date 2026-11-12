@@ -325,6 +325,12 @@ describe("2026 選舉活動：確切地點多場拉近展開", () => {
     const pair = [mk("near", { _sp: 1, _dx: 0, _dy: 10 }), mk("far", { _sp: 1, _dx: 0, _dy: 20 })];
     expect(pickElectionHits(map(14), pair, { x: 100, y: 120 })[0]!.properties?.event_id).toBe("far");
     expect(pickElectionHits(map(14), pair, { x: 100, y: 120 }, 2)[0]!.properties?.event_id).toBe("near");
+    // 拉遠：數字圖示旁的單點畫在上層、先被查到，但點在數字圖示正中央時要開清單
+    const mkAt = (id: string, xy: [number, number], props: Record<string, unknown>) => ({ type: "Feature", geometry: { type: "Point", coordinates: xy }, properties: { event_id: id, ...props } }) as unknown as MapboxGeoJSONFeature;
+    const proj = { project: ([x, y]: [number, number]) => ({ x: 100 + x, y: 100 + y }), getZoom: () => 12.5 } as unknown as Parameters<typeof pickElectionHits>[0];
+    const zoomedOut = [mkAt("single", [-8, 0], {}), mkAt("grp", [0, 0], { _grp: 1, _spr: 1 })];
+    expect(pickElectionHits(proj, zoomedOut, { x: 100, y: 100 })[0]!.properties?.event_id).toBe("grp");
+    expect(pickElectionHits(proj, zoomedOut, { x: 92, y: 100 })[0]!.properties?.event_id).toBe("single");
     // 位移不受舊查表 ±32 px 限制
     expect(spreadOffsetOf({ _dx: 40, _dy: -45 })).toEqual([40, -45]);
     expect(spreadOffsetOf({ _dx: "1", _dy: 2 })).toBeNull();

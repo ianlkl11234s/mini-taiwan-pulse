@@ -153,8 +153,9 @@ export function pickElectionHits(
 }
 
 /**
- * 點擊命中：展開點彼此相切、容差框會同時框到隔壁場。展開點依「點中心（錨點＋位移×大小滑桿）到游標的距離」排序，
- * 最近的優先；其他命中（數字圖示、單點）排在展開點之後，維持原順序。
+ * 點擊命中：依「點中心到游標的距離」排序，最近的優先（同距離維持原順序）。展開點的中心＝錨點＋位移×大小滑桿；
+ * 其他點（數字圖示、單點）就是錨點。展開點彼此相切、容差框會同時框到隔壁場；拉遠時數字圖示旁 30 m 外的
+ * 單點也會被框到，而且單點畫在數字圖示上層，不排序會搶走點擊。
  */
 export function sortElectionHitsByDistance(
   map: Pick<MapboxMap, "project">,
@@ -163,9 +164,9 @@ export function sortElectionHitsByDistance(
   scale = 1,
 ): MapboxGeoJSONFeature[] {
   const dist = (f: MapboxGeoJSONFeature): number => {
-    const off = spreadOffsetOf(f.properties);
+    const off = spreadOffsetOf(f.properties) ?? [0, 0];
     const g = f.geometry;
-    if (!off || g?.type !== "Point") return Number.POSITIVE_INFINITY;
+    if (g?.type !== "Point") return Number.POSITIVE_INFINITY;
     const p = map.project(g.coordinates as [number, number]);
     return Math.hypot(p.x + off[0] * scale - point.x, p.y + off[1] * scale - point.y);
   };
