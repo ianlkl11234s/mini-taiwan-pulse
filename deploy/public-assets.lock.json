@@ -2160,6 +2160,20 @@
    "s3_key": "deploy-assets/religion/top100.geojson"
   },
   {
+   "path": "public/sound-atlas/grid/freeway-vd-2026-10-24.json",
+   "bytes": 185450,
+   "sha256": "35698bb840fc3687530126e9e643a144568ba0c5234fe858ac7e16c4d40adb31",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/freeway-vd-2026-10-24.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/freeway-vd-2026-11-09.json",
+   "bytes": 189776,
+   "sha256": "79db6c0280d91397c2d1f05a92d7d1aa3ac4dea1e910509578caa0344724d97e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/freeway-vd-2026-11-09.json"
+  },
+  {
    "path": "public/sound-atlas/grid/radar-rain-2026-10-24.class.bin",
    "bytes": 153499,
    "sha256": "749bbfd7257190c642a8780668ccbbc5f95363e361e072482eac53fccca18a2e",
@@ -2186,6 +2200,13 @@
    "sha256": "15e33fe514189db3ab4ab301a8f460168ac3ebe2f411ea4f7fef998abbfd0d32",
    "delivery": "r2",
    "s3_key": "deploy-assets/sound-atlas/grid/radar-rain-2026-11-09.meta.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/road-network-v1.json",
+   "bytes": 1389342,
+   "sha256": "5e2f74d571253c62c0652771ad1872a712f83cbb6938187074a5357aaa4a458f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/road-network-v1.json"
   },
   {
    "path": "public/sound-atlas/scenes/taichung-heping-1108.json",
