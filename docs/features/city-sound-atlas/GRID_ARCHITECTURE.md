@@ -1,13 +1,13 @@
 # 聲景全範圍網格架構（W6-1 起）
 
-> 第一個上網格的是雨（W6-1，2026-11-12）。網格定義與量測見 [W6_GRID_SPIKE.md](./W6_GRID_SPIKE.md)；雨的模型決定見 [MODEL_DECISIONS.md](./MODEL_DECISIONS.md) §7。
+> 第一個上網格的是雨（W6-1，2026-11-12），第二個是道路車流（W6-2，同日）。網格定義與量測見 [W6_GRID_SPIKE.md](./W6_GRID_SPIKE.md)；模型決定見 [MODEL_DECISIONS.md](./MODEL_DECISIONS.md) §7（雨）、§8（道路）。
 
 ## 1. 分層
 
 | 層 | 檔案 | 職責 |
 |---|---|---|
 | 網格定義 | `src/sound/grid/gridSpec.json`／`gridSpec.ts` | 北北 250 m 網格（292×285、row 0＝北）、縣市遮罩、`GRID_UNKNOWN=255`；Python 與 TS 共讀 |
-| 分級表 | `src/sound/grid/rainClasses.json`／`rainClass.ts` | 分級門檻、Z-R、未知碼；分級規則只在這裡 |
+| 分級表 | `src/sound/grid/rainClasses.json`／`rainClass.ts`；道路 `soundProfiles.ROAD_GRID.potentialClassEdges`＋`roadNetwork.roadGridCode` | 分級門檻、Z-R、未知碼；分級規則只在這裡 |
 | 預算包（需要時） | `scripts/preprocess/sound/build-sound-*.py --publish` → `public/sound-atlas/grid/*.class.bin`＋`.meta.json` | 每日一包，gzip 的 uint8（幀主序：`frame * cells + cell`）；meta 記網格參數＋sha256、幀時刻、缺幀、分級版本 |
 | 包讀取 | `src/sound/grid/*Pack.ts` | fetch＋loadingRegistry、驗 meta（網格 sha 不符就拒用）、解壓、查某格某區間 |
 | 估計（單點） | `sourceAdapters/*Adapter.ts` 的 `*EstimateAt` | **網格、接收點查詢、格 popup 共用的同一支**（網格值＝queryReceiver 值） |
@@ -50,8 +50,17 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 5. hook 仿 `useSoundRainGridLayer`；layer id `sound-atlas-grid-<family>`，放在 `sound-atlas-route-line` 之前。
 6. manifest 的 popup 陣列加 `sound<Family>Cell`、params 若有新開關一併登記；重產 layer-golden 與樣式盤點。
 
+## 4a. 道路車流的差異（W6-2）
+
+- **不預算整幀**：網格值在前端算（kernel 只在 TS）。靜態路網 `road-network-v1.json`（路段折線、證據種類、VD 對應、等級）＋每日 `freeway-vd-<D>.json`（每支 VD 144 格的 1 分鐘流量，null＝QA 剔除或缺）。都在 `public/sound-atlas/grid/`、lock 登記、gitignore。
+- **集合形狀**：`sets.road_traffic.records` 只有**一筆** `road_network` record（payload＝編譯後路網＋當日脈絡），不是每條路一筆；coverage 一筆 provider `sound_road_network`。國道包缺、臺北非平日只讓對應候選變無法判斷，不讓 coverage 變 error。
+- **整幀**：`buildRoadGridField` 預先算每格的近鄰道路（只跟路網有關，換日不重建，約 100–135 ms）；`roadGridFrame` 每格呼叫同一支 `roadEstimateFromNear`，同一來源同一格只算一次流量項（每幀 3–11 ms）。
+- **碼**：證據基底＋五級（國道 0–4、臺北典型 10–14、新北推估 20–24），255＝無法判斷；色表由 `roadGridPalette()` 依 `ROAD_EVIDENCE_BASE` 組。0 同時代表「很低」與「離路遠」（都不是缺資料）。
+- **Python 測試**：`python3 -m unittest scripts/preprocess/sound/test_road_grid_lib.py`（QA、里程切段、路名、延伸規則）。
+
 ## 5. 量測（W6-1，dev server、SwiftShader、taipei-1109）
 
 - 切 30 個不同 10 分格：算幀中位 3.4 ms、最大 14.3 ms；上傳貼圖中位 0.1 ms、最大 1 ms（需求 < 50 ms）。
 - 淺色底圖：斜線清楚；但「無雨」（透明度 0.14 的灰）在淺底幾乎看不出來，和範圍外難分（未調整，待決）。
 - 包大小：11-09 92,688 B（128/144 幀）、10-24 153,499 B（139/144 幀）。
+- W6-2 道路（dev server、SwiftShader）：建近鄰 96 ms（瀏覽器）／135 ms（node）；整幀 3–11 ms（瀏覽器實測 11.2 ms），上傳 0.1 ms。淺色底圖斜線與分級都清楚。資產：路網 1,389,342 B（gzip 348,831）、11-09 包 189,776 B（gzip 49,660）、10-24 包 185,450 B（gzip 42,917）。
