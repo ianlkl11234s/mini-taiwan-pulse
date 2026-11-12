@@ -65,5 +65,20 @@
   "popup.politics.council.seats": "Seats",
   "popup.politics.council.members": "Made up of",
   "popup.politics.council.area": "Area",
-  "popup.politics.council.source": "CEC {basis} council district notice (OGDL-1.0); boundary built from MOI village boundaries"
+  "popup.politics.council.source": "CEC {basis} council district notice (OGDL-1.0); boundary built from MOI village boundaries",
+  "popup.politics.group.upcomingSuffix": " (upcoming)",
+  "popup.politics.group.venueNote": "All events below are at this exact location in {place}",
+  "popup.politics.layerSource": "Compiled from campaigns' public schedules, candidates' public posts, CNA, National Police Agency assembly permits, etc. (research prototype, owner only)",
+  "popup.politics.sourceName.cna": "Central News Agency",
+  "popup.politics.sourceName.observe": "Mayor Observatory",
+  "popup.politics.sourceName.permits": "NPA assembly permits",
+  "popup.politics.sourceName.trafficNotice": "Traffic control notice",
+  "popup.politics.sourceName.kmtPress": "KMT press release",
+  "popup.politics.sourceName.dppPress": "DPP press release",
+  "popup.politics.sourceName.campaignSite": "Candidate website schedule",
+  "popup.politics.sourceName.kmtks": "KMT Kaohsiung schedule page",
+  "popup.politics.sourceName.kmtKnowledge": "KMT knowledge base",
+  "popup.politics.sourceName.manual": "Manual verification",
+  "popup.politics.sourceName.early": "Early manual compilation",
+  "popup.politics.sourceName.other": "Other source"
 }

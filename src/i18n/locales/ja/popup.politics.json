@@ -65,5 +65,20 @@
   "popup.politics.council.seats": "定数",
   "popup.politics.council.members": "構成単位",
   "popup.politics.council.area": "面積",
-  "popup.politics.council.source": "中央選挙委員会 {basis} 議員選挙区公告（OGDL-1.0）；範囲は内政部の村里境界から作成"
+  "popup.politics.council.source": "中央選挙委員会 {basis} 議員選挙区公告（OGDL-1.0）；範囲は内政部の村里境界から作成",
+  "popup.politics.group.upcomingSuffix": "（予定）",
+  "popup.politics.group.venueNote": "以下の活動はすべて{place}の同じ場所",
+  "popup.politics.layerSource": "各陣営の公開日程、候補者の公開投稿、中央社、警政署の集会申請などを統合（研究プロトタイプ・管理者限定）",
+  "popup.politics.sourceName.cna": "中央社",
+  "popup.politics.sourceName.observe": "市長観測站",
+  "popup.politics.sourceName.permits": "警政署集会申請",
+  "popup.politics.sourceName.trafficNotice": "交通規制のお知らせ",
+  "popup.politics.sourceName.kmtPress": "国民党プレスリリース",
+  "popup.politics.sourceName.dppPress": "民進党プレスリリース",
+  "popup.politics.sourceName.campaignSite": "候補者公式サイトの日程",
+  "popup.politics.sourceName.kmtks": "国民党高雄日程ページ",
+  "popup.politics.sourceName.kmtKnowledge": "国民党ナレッジベース",
+  "popup.politics.sourceName.manual": "手動確認",
+  "popup.politics.sourceName.early": "初期の手動整理",
+  "popup.politics.sourceName.other": "その他の出典"
 }

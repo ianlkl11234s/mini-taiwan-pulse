@@ -14,6 +14,7 @@ import {
   electionCampKey,
   electionClaimantKey,
   electionSettlementName,
+  electionSourceNameKey,
   electionSources,
   formatCrowdNumber,
   parseJsonArray,
@@ -136,7 +137,8 @@ function shortDate(props: Record<string, unknown>, formatDateTime: (d: Date, o: 
 }
 
 /**
- * 同一代表點 2 場以上（hook 合成的 `_grp` 圖徵）：標題「地名・N 場」＋定位說明＋場次清單；點一場切到單場內容。
+ * 同一地點 2 場以上（hook 合成的 `_grp` 圖徵；代表點與確切地點共用）：標題「地名・N 場」＋定位說明＋場次清單；
+ * 點一場切到單場內容，可返回清單。每列：日期、陣營色點、名稱（過長截斷）、主角、狀態、大型標記。
  */
 function ElectionGroupPanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
@@ -160,48 +162,58 @@ function ElectionGroupPanel({ props }: { props: Record<string, unknown> }) {
         >
           {t("popup.politics.group.back", { count: events.length })}
         </button>
-        <ElectionEventPanel props={current} />
+        <ElectionEventSinglePanel props={current} />
       </>
     );
   }
 
   const area = approx ? approxPlace(approx, props, i18n) : placeName(`${str(props.city)}${str(props.town)}`, i18n);
   const settlement = electionSettlementName(props);
-  const place = settlement ? t("popup.politics.group.placeWithSettlement", { place: area, name: settlement }) : area;
+  // 確切地點：標題用地點名（hook 取各場最常見的 location_text），沒有才退回縣市區
+  const venueName = approx ? "" : str(props.location_text);
+  const place = settlement
+    ? t("popup.politics.group.placeWithSettlement", { place: area, name: settlement })
+    : venueName || area;
+  const title = t("popup.politics.group.title", { place, count: events.length });
   return (
     <>
-      <Title color={ELECTION_CAMP_COLOR.other}>{t("popup.politics.group.title", { place, count: events.length })}</Title>
-      {approx && <PrecisionRow precision={approx} note={electionPrecisionNote(approx, props, i18n, "group")} />}
-      <div style={{ display: "flex", flexDirection: "column", marginTop: 4 }}>
+      <Title color={ELECTION_CAMP_COLOR.other}>{title}</Title>
+      {approx
+        ? <PrecisionRow precision={approx} note={electionPrecisionNote(approx, props, i18n, "group")} />
+        : <div className="fi-row" style={{ padding: "2px 0", fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("popup.politics.group.venueNote", { place: area })}</div>}
+      <div role="list" aria-label={title} style={{ display: "flex", flexDirection: "column", marginTop: 4 }}>
         {events.map((e, i) => {
           const past = e._past === 1 || e._past === "1";
-          // 取消／延期照實際狀態標示；已過時間但未標已舉辦的用中性字樣（review F044）
+          // 取消／延期照實際狀態標示；已過時間但未標已舉辦的用中性字樣（review F044）；未到的標「預告」
           const status = oneOf(e.event_status, ELECTION_STATUSES);
           const suffix = status === "cancelled" || status === "postponed"
             ? t("popup.politics.group.statusSuffix", { status: t(STATUS_KEY[status]) })
-            : !past ? ""
+            : !past ? t("popup.politics.group.upcomingSuffix")
               : status === "held" ? t("popup.politics.group.pastSuffix") : t("popup.politics.group.pastTimeSuffix");
           const tier = oneOf(e.scale_tier, ["L", "M", "S"] as const);
           const name = str(e.event_name) || t("popup.politics.fallbackTitle");
+          const host = str(e.host_name);
+          const date = shortDate(e, formatDateTime);
           return (
-            <button
-              key={`${str(e.event_id)}:${i}`}
-              type="button"
-              onClick={() => setSelected({ signature, id: str(e.event_id) })}
-              style={{
-                display: "flex", alignItems: "center", gap: 6, padding: "3px 0", background: "none", border: "none",
-                borderTop: i > 0 ? `1px solid ${theme.border}` : "none", cursor: "pointer", textAlign: "left",
-                color: theme.textStrong, fontSize: FONT_SIZE.base, opacity: past ? 0.5 : 1,
-              }}
-            >
-              <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{shortDate(e, formatDateTime)}</span>
-              <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: ELECTION_CAMP_COLOR[electionCampKey(e.camp)], flexShrink: 0 }} />
-              <span style={{ minWidth: 0, flex: "1 1 auto" }}>
-                {name}
-                {suffix}
-              </span>
-              {tier && <span style={{ color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{t(TIER_KEY[tier])}</span>}
-            </button>
+            <div role="listitem" key={`${str(e.event_id)}:${i}`} style={{ borderTop: i > 0 ? `1px solid ${theme.border}` : "none" }}>
+              <button
+                type="button"
+                onClick={() => setSelected({ signature, id: str(e.event_id) })}
+                aria-label={[date, name, host, suffix, tier === "L" ? t(TIER_KEY.L) : ""].filter(Boolean).join(" ")}
+                title={name}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "3px 0", background: "none", border: "none",
+                  cursor: "pointer", textAlign: "left", color: theme.textStrong, fontSize: FONT_SIZE.base, opacity: past ? 0.5 : 1,
+                }}
+              >
+                <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{date}</span>
+                <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: ELECTION_CAMP_COLOR[electionCampKey(e.camp)], flexShrink: 0 }} />
+                <span style={{ minWidth: 0, flex: "1 1 auto", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+                {host && <span style={{ color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{host}</span>}
+                {suffix && <span style={{ color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{suffix}</span>}
+                {tier === "L" && <span style={{ color: theme.textDim, fontSize: FONT_SIZE.sm, flexShrink: 0 }}>{t(TIER_KEY.L)}</span>}
+              </button>
+            </div>
           );
         })}
       </div>
@@ -210,9 +222,19 @@ function ElectionGroupPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+/**
+ * 選舉活動 popup 入口：多場清單或單場內容，下面自掛一次 SourceFooter
+ * （RPC feature 沒有圖層層級的來源欄；FeatureInfoPanel 把 electionEvents2026 列為 FOOTER_SELF_MANAGED）。
+ */
 export function ElectionEventPanel({ props }: { props: Record<string, unknown> }) {
-  if (props._grp === 1 || props._grp === "1") return <ElectionGroupPanel props={props} />;
-  return <ElectionEventSinglePanel props={props} />;
+  const { t } = useLocale();
+  const grouped = props._grp === 1 || props._grp === "1";
+  return (
+    <>
+      {grouped ? <ElectionGroupPanel props={props} /> : <ElectionEventSinglePanel props={props} />}
+      <SourceFooter props={{ source: t("popup.politics.layerSource") }} />
+    </>
+  );
 }
 
 function ElectionEventSinglePanel({ props }: { props: Record<string, unknown> }) {
@@ -293,7 +315,7 @@ function ElectionEventSinglePanel({ props }: { props: Record<string, unknown> })
                 rel="noopener noreferrer"
                 style={{ color: theme.link, wordBreak: "break-all" }}
               >
-                {s.source || t("popup.politics.sourceLink", { index: i + 1 })}
+                {s.source ? t(electionSourceNameKey(s.source)) : t("popup.politics.sourceLink", { index: i + 1 })}
               </a>
             ))}
           </span>

@@ -48,6 +48,9 @@ import {
  *   不隨縮放；同一代表點只剩 1 場照常畫（overlay 另畫精度外環），2 場以上合成一個 `_grp` 圖徵，
  *   圖示由 map/electionGroupIcon.ts 依陣營比例畫。分組在「時間範圍、位置、陣營篩選」之後做，
  *   所以篩到只剩 1 場的代表點會回到單點。陣營篩選因此也在這裡套一次（overlay 的 group 子圖層不吃 V-4 filter）。
+ * - 確切地點（地址／地標／路口）座標完全相同的 2 場以上也合成 `_grp`（2026-11-12：否則只點得到最上面那場）。
+ *   key＝`venue|座標`，不分 address／landmark／intersection；座標用原始數值字串，與代表點分組同精度（不四捨五入）。
+ *   圖示是不帶精度外環的實心分色圓（precision＝"venue"），和代表點看得出差別。
  */
 
 const SOURCE_ID = "election-events-2026";
@@ -117,6 +120,20 @@ export interface ElectionDisplay {
   icons: Map<string, ElectionGroupIconSpec>;
 }
 
+/** 同一地點多場的地名：取出現最多次的非空 location_text（同票取先出現者）；都沒有回 null */
+function commonLocationText(list: GeoJSON.Feature[]): string | null {
+  const counts = new Map<string, number>();
+  for (const f of list) {
+    const v = f.properties?.location_text;
+    const s = typeof v === "string" ? v.trim() : "";
+    if (s) counts.set(s, (counts.get(s) ?? 0) + 1);
+  }
+  let best: string | null = null;
+  let bestN = 0;
+  for (const [s, n] of counts) if (n > bestN) { best = s; bestN = n; }
+  return best;
+}
+
 /** 依時間軸時間 t 產生要上圖的 FeatureCollection（純函式，測試用） */
 export function buildElectionDisplay(
   fc: GeoJSON.FeatureCollection,
@@ -137,8 +154,9 @@ export function buildElectionDisplay(
     const past = span.end < t ? 1 : 0;
     const out: GeoJSON.Feature = { ...f, properties: { ...p, _past: past } };
     sig.push(`${String(p.event_id ?? sig.length)}:${past}`);
-    if (isElectionApproxPrecision(p.location_precision) && f.geometry?.type === "Point") {
-      const k = `${p.location_precision}|${f.geometry.coordinates.join(",")}`;
+    if (f.geometry?.type === "Point") {
+      const approx = isElectionApproxPrecision(p.location_precision);
+      const k = `${approx ? p.location_precision : "venue"}|${f.geometry.coordinates.join(",")}`;
       const list = groups.get(k);
       if (list) list.push(out); else groups.set(k, [out]);
     } else {
@@ -156,7 +174,8 @@ export function buildElectionDisplay(
     }
     const allPast = list.every((f) => f.properties?._past === 1);
     const p0 = list[0]!.properties ?? {};
-    const spec: ElectionGroupIconSpec = { counts, precision: p0.location_precision as ElectionApproxPrecision, allPast };
+    const approx = isElectionApproxPrecision(p0.location_precision);
+    const spec: ElectionGroupIconSpec = { counts, precision: approx ? (p0.location_precision as ElectionApproxPrecision) : "venue", allPast };
     const img = electionGroupIconId(spec);
     icons.set(img, spec);
     const events = list
@@ -174,6 +193,8 @@ export function buildElectionDisplay(
         city: p0.city ?? null,
         town: p0.town ?? null,
         settlement_name: p0.settlement_name ?? null,
+        // 確切地點：清單標題用的地名（各場最常見的地點寫法）
+        location_text: approx ? null : commonLocationText(list),
         // Mapbox 會把巢狀陣列轉成字串，這裡直接存 JSON，popup 端解析
         events: JSON.stringify(events),
       },

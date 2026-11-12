@@ -1,6 +1,8 @@
 /**
  * 2026 選舉活動：同一代表點 2 場以上的圖示（中心深色圓＋白字場次數，外環依各陣營場次比例分段上色）。
  * 使用者 2026-11-08 核准設計稿「A＋B 版」；畫法照設計原型 donutImage。
+ * 同一確切地點 2 場以上（precision＝"venue"，2026-11-12）：不畫精度外環與範圍面（外環＝不是活動地點），
+ * 改畫實心分色圓（各陣營場次比例的扇形）＋中間場次數，沿用場館點「實心」的語意；大小規則與代表點相同（依場次數）。
  * 圖示依「陣營計數＋精度＋是否全已舉辦」做 key，同 key 只畫一次（map.addImage，pixelRatio 2）。
  */
 import type { Map as MapboxMap } from "mapbox-gl";
@@ -15,7 +17,8 @@ import {
 
 export interface ElectionGroupIconSpec {
   counts: Partial<Record<ElectionCampKey, number>>;
-  precision: ElectionApproxPrecision;
+  /** 代表點精度；"venue"＝確切地點多場 */
+  precision: ElectionApproxPrecision | "venue";
   allPast: boolean;
 }
 
@@ -72,7 +75,7 @@ function drawIcon(spec: ElectionGroupIconSpec): { width: number; height: number;
   if (n === 0) return null;
   const isCity = spec.precision === "city_centroid";
   const rc = (isCity ? 7 : 6) + Math.min(4, 1.1 * Math.sqrt(n));
-  const R = rc + ELECTION_RING_OFFSET[spec.precision];
+  const R = spec.precision === "venue" ? rc : rc + ELECTION_RING_OFFSET[spec.precision];
   const size = Math.ceil(2 * (R + 3)) * PIXEL_RATIO;
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -82,7 +85,49 @@ function drawIcon(spec: ElectionGroupIconSpec): { width: number; height: number;
   g.scale(PIXEL_RATIO, PIXEL_RATIO);
   const C = size / PIXEL_RATIO / 2;
   const alpha = spec.allPast ? PAST_ALPHA : 1;
-  const dominant = order.slice().sort((a, b) => (spec.counts[b] ?? 0) - (spec.counts[a] ?? 0))[0]!;
+  if (spec.precision === "venue") {
+    drawVenuePie(g, C, rc, spec.counts, order, n, alpha);
+  } else {
+    drawApproxDonut(g, C, rc, R, spec.counts, order, n, alpha, isCity);
+  }
+
+  const img = g.getImageData(0, 0, size, size);
+  return { width: size, height: size, data: new Uint8Array(img.data.buffer) };
+}
+
+function drawCount(g: CanvasRenderingContext2D, C: number, n: number): void {
+  g.fillStyle = LABEL_COLOR;
+  g.font = `600 ${n >= 10 ? 9.5 : 10.5}px Menlo, monospace`;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.fillText(String(n), C, C + 0.5);
+}
+
+/** 確切地點多場：實心扇形（陣營比例）＋深色描邊＋中間深色小圓底的場次數（淺色陣營色上也讀得到） */
+function drawVenuePie(
+  g: CanvasRenderingContext2D, C: number, r: number,
+  counts: Partial<Record<ElectionCampKey, number>>, order: readonly ElectionCampKey[], n: number, alpha: number,
+): void {
+  g.globalAlpha = alpha;
+  let a0 = -Math.PI / 2;
+  for (const key of order) {
+    const a1 = a0 + (2 * Math.PI * (counts[key] ?? 0)) / n;
+    g.beginPath(); g.moveTo(C, C); g.arc(C, C, r, a0, a1); g.closePath();
+    g.fillStyle = ELECTION_CAMP_COLOR[key]; g.fill();
+    a0 = a1;
+  }
+  g.beginPath(); g.arc(C, C, r, 0, 2 * Math.PI);
+  g.lineWidth = 1.2; g.strokeStyle = CENTER_FILL; g.stroke();
+  g.beginPath(); g.arc(C, C, r * 0.62, 0, 2 * Math.PI); g.fillStyle = CENTER_FILL; g.fill();
+  drawCount(g, C, n);
+}
+
+/** 代表點多場：淡範圍面＋分段外環（與中心留間距）＋中心深色圓與場次數 */
+function drawApproxDonut(
+  g: CanvasRenderingContext2D, C: number, rc: number, R: number,
+  counts: Partial<Record<ElectionCampKey, number>>, order: readonly ElectionCampKey[], n: number, alpha: number, isCity: boolean,
+): void {
+  const dominant = order.slice().sort((a, b) => (counts[b] ?? 0) - (counts[a] ?? 0))[0]!;
 
   // 很淡的範圍面（主陣營色）：「大約在這一圈裡」
   g.globalAlpha = alpha * ELECTION_RING_FILL_OPACITY.upcoming;
@@ -91,21 +136,14 @@ function drawIcon(spec: ElectionGroupIconSpec): { width: number; height: number;
   // 外環：依陣營場次比例分段
   g.globalAlpha = alpha;
   g.lineWidth = isCity ? 2.4 : 2;
-  for (const { key, start, end } of electionRingSegments(spec.counts, order)) {
+  for (const { key, start, end } of electionRingSegments(counts, order)) {
     g.beginPath(); g.arc(C, C, R, start, end); g.strokeStyle = ELECTION_CAMP_COLOR[key]; g.stroke();
   }
 
   // 中心深色圓＋場次數
   g.beginPath(); g.arc(C, C, rc, 0, 2 * Math.PI); g.fillStyle = CENTER_FILL; g.fill();
   g.lineWidth = 1; g.strokeStyle = CENTER_STROKE; g.stroke();
-  g.fillStyle = LABEL_COLOR;
-  g.font = `600 ${n >= 10 ? 9.5 : 10.5}px Menlo, monospace`;
-  g.textAlign = "center";
-  g.textBaseline = "middle";
-  g.fillText(String(n), C, C + 0.5);
-
-  const img = g.getImageData(0, 0, size, size);
-  return { width: size, height: size, data: new Uint8Array(img.data.buffer) };
+  drawCount(g, C, n);
 }
 
 /** 確保圖示已加到地圖（換底圖後 style 會清空 image，所以每次 setData 前與 styleimagemissing 都會呼叫） */
