@@ -78,6 +78,7 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 | 自然三族換幀 | 1.0–4.9 ms | 0.7–2.8 ms |
 | 鐵道冷算一幀（班表範本） | 68–279 ms（閒置）；verify 平行跑時 141–770 ms | — |
 
+- 瀏覽器（dev server、SwiftShader、11-09）：鐵道冷算一幀 64–101 ms、快取或預算過的格 0.6 ms（**冷跳轉未達 50 ms 目標**）；自然三族與飛機換幀都在 5 ms 內。
 - 比 W6 spike 估計大：飛機包 358 KB（估 236 KB，因多存三個門檻箱界）；鐵道沒有做每日包（估 109 KB/日），改前端算。
 
 ## 5. 量測（W6-1，dev server、SwiftShader、taipei-1109）
