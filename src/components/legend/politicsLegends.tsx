@@ -74,6 +74,30 @@ function SwatchGroup() {
   );
 }
 
+/** 同一確切地點多場示意：實心分色圓（陣營比例，不帶精度外環）＋中心場次數（同 electionGroupIcon 的 venue 畫法） */
+function SwatchVenueGroup() {
+  const c = PRECISION_SWATCH / 2;
+  const R = 8;
+  const segs: [string, number][] = [[ELECTION_CAMP_COLOR.kmt, 0.6], [ELECTION_CAMP_COLOR.dpp, 0.4]];
+  let a0 = -90;
+  const pt = (d: number) => [c + R * Math.cos((d * Math.PI) / 180), c + R * Math.sin((d * Math.PI) / 180)] as const;
+  const wedges = segs.map(([col, f]) => {
+    const a1 = a0 + 360 * f;
+    const [x0, y0] = pt(a0);
+    const [x1, y1] = pt(a1);
+    a0 = a1;
+    return <path key={col} d={`M${c},${c} L${x0},${y0} A${R},${R} 0 ${f > 0.5 ? 1 : 0} 1 ${x1},${y1} Z`} fill={col} />;
+  });
+  return (
+    <svg aria-hidden="true" width={PRECISION_SWATCH} height={PRECISION_SWATCH} style={{ flexShrink: 0 }}>
+      {wedges}
+      <circle cx={c} cy={c} r={R} fill="none" stroke={ELECTION_GROUP_ICON_COLORS.centerFill} strokeWidth={1.2} />
+      <circle cx={c} cy={c} r={R * 0.62} fill={ELECTION_GROUP_ICON_COLORS.centerFill} />
+      <text x={c} y={c + 3} textAnchor="middle" fontSize={8} fill={ELECTION_GROUP_ICON_COLORS.label} fontFamily={FONT_DATA}>3</text>
+    </svg>
+  );
+}
+
 export function ElectionEventsLegend() {
   const i18n = useLocale();
   const { t, formatDateTime } = i18n;
@@ -100,6 +124,7 @@ export function ElectionEventsLegend() {
         <LegendTitle zh={t("legend.politics.precision.title")} />
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <LegendRow swatch={<SwatchPrecision precision="venue" color={grey} />}>{t("legend.politics.precision.venue")}</LegendRow>
+          <LegendRow swatch={<SwatchVenueGroup />}>{t("legend.politics.precision.venueGroup")}</LegendRow>
           <LegendRow swatch={<SwatchPrecision precision="settlement" color={grey} />}>{t("legend.politics.precision.settlement")}</LegendRow>
           <LegendRow swatch={<SwatchPrecision precision="town_centroid" color={grey} />}>{t("legend.politics.precision.town")}</LegendRow>
           <LegendRow swatch={<SwatchPrecision precision="city_centroid" color={grey} />}>{t("legend.politics.precision.city")}</LegendRow>

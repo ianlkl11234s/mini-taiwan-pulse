@@ -65,5 +65,20 @@
   "popup.politics.council.seats": "應選席次",
   "popup.politics.council.members": "組成單位",
   "popup.politics.council.area": "面積",
-  "popup.politics.council.source": "中選會 {basis} 議員選舉區公告（OGDL-1.0）；範圍依內政部村里界自建"
+  "popup.politics.council.source": "中選會 {basis} 議員選舉區公告（OGDL-1.0）；範圍依內政部村里界自建",
+  "popup.politics.group.upcomingSuffix": "（預告）",
+  "popup.politics.group.venueNote": "以下活動都在{place}這個確切地點",
+  "popup.politics.layerSource": "整合各陣營公開行程、候選人公開貼文、中央社、警政署集會申請等（研究原型・站主限定）",
+  "popup.politics.sourceName.cna": "中央社",
+  "popup.politics.sourceName.observe": "市長觀測站",
+  "popup.politics.sourceName.permits": "警政署集會申請",
+  "popup.politics.sourceName.trafficNotice": "交通管制公告",
+  "popup.politics.sourceName.kmtPress": "國民黨新聞稿",
+  "popup.politics.sourceName.dppPress": "民進黨新聞稿",
+  "popup.politics.sourceName.campaignSite": "候選人官網行程",
+  "popup.politics.sourceName.kmtks": "國民黨高雄行程頁",
+  "popup.politics.sourceName.kmtKnowledge": "國民黨知識庫",
+  "popup.politics.sourceName.manual": "人工查證",
+  "popup.politics.sourceName.early": "早期人工整理",
+  "popup.politics.sourceName.other": "其他來源"
 }

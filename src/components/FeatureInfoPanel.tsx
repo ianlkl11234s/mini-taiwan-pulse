@@ -39,6 +39,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "pollingStations2024",
   // 2026 議員選區：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
   "councilDistricts2026",
+  // 2026 選舉活動（站主限定）：RPC feature 只有逐場來源連結，panel 補圖層層級的來源說明並自掛 SourceFooter
+  "electionEvents2026",
   "chatHighlight",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter

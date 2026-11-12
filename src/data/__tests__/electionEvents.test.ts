@@ -152,13 +152,16 @@ describe("2026 選舉活動：位置精度（代表點分組）", () => {
   });
   const grp = (f: GeoJSON.Feature) => f.properties?._grp === 1;
 
-  it("場館點永遠個別；同精度同座標 2 場以上合成一個 _grp，1 場維持單點", () => {
+  it("同精度同座標 2 場以上合成一個 _grp，1 場維持單點；場館點與代表點同座標也不混在一起", () => {
     const out = buildElectionDisplay(fc, t, "all");
     const singles = out.fc.features.filter((f) => !grp(f)).map((f) => f.properties?.event_id).sort();
-    expect(singles).toEqual(["c1", "s1", "v1", "v2"]);
+    expect(singles).toEqual(["c1", "s1"]);
     const groups = out.fc.features.filter(grp);
-    expect(groups).toHaveLength(1);
-    const g = groups[0]!.properties!;
+    expect(groups).toHaveLength(2);
+    // 場館級（address＋landmark 同座標）另成一組，precision＝venue
+    const v = groups.find((f) => f.properties?.n === 2)!.properties!;
+    expect(out.icons.get(v._img as string)?.precision).toBe("venue");
+    const g = groups.find((f) => f.properties?.n === 3)!.properties!;
     expect(g.n).toBe(3);
     expect(g._past).toBe(0);
     // 清單依日期新到舊
@@ -168,7 +171,7 @@ describe("2026 選舉活動：位置精度（代表點分組）", () => {
 
   it("全部已舉辦的代表點：_past=1、圖示 key 不同", () => {
     const late = buildElectionDisplay(fc, sec("2026-11-30T00:00:00+08:00"), "all");
-    const g = late.fc.features.find(grp)!.properties!;
+    const g = late.fc.features.find((f) => grp(f) && f.properties?.n === 3)!.properties!;
     expect(g._past).toBe(1);
     expect(String(g._img)).toContain("town_centroid-1-");
   });
@@ -176,7 +179,7 @@ describe("2026 選舉活動：位置精度（代表點分組）", () => {
   it("位置篩選：只看確切地點／只看代表點", () => {
     const ids = (location: "exact" | "approx") => buildElectionDisplay(fc, t, "all", { location }).fc.features
       .map((f) => (grp(f) ? `grp${f.properties?.n}` : f.properties?.event_id)).sort();
-    expect(ids("exact")).toEqual(["v1", "v2"]);
+    expect(ids("exact")).toEqual(["grp2"]);
     expect(ids("approx")).toEqual(["c1", "grp3", "s1"]);
   });
 
@@ -195,6 +198,79 @@ describe("2026 選舉活動：位置精度（代表點分組）", () => {
     const otherOnly = electionCampPredicate(0b10000)!;
     expect(otherOnly("other")).toBe(true);
     expect(otherOnly("dpp")).toBe(false);
+  });
+});
+
+describe("2026 選舉活動：確切地點同座標合成", () => {
+  const t = sec("2026-11-10T12:00:00+08:00");
+  const PARK = [121.5, 25.03];
+  const ev = (id: string, camp: string, date: string, extra: Record<string, unknown> = {}, coords = PARK) => ({
+    type: "Feature",
+    geometry: { type: "Point", coordinates: coords },
+    properties: { event_id: id, event_name: id, event_date: date, camp, scale_tier: "M", location_precision: "landmark", city: "臺北市", town: "大安區", ...extra },
+  });
+  const { fc } = normalizeElectionEvents({
+    features: [
+      ev("a", "民主進步黨", "2026-08-03", { location_text: "某公園" }),
+      ev("b", "民主進步黨", "2026-11-01", { location_text: "某公園露天舞台", scale_tier: "L" }),
+      ev("c", "中國國民黨", "2026-11-02", { location_text: "某公園", location_precision: "address" }),
+      ev("d", "中國國民黨", "2026-11-20", {}, [121.5, 25.031]),
+      ev("z", "台灣民眾黨", "2026-11-20", { location_precision: "town_centroid" }),
+    ],
+  });
+  const grp = (f: GeoJSON.Feature) => f.properties?._grp === 1;
+
+  it("同座標 3 場合成一個 _grp：場次數、陣營比例、地名、清單新到舊", () => {
+    // 時間軸在 11-01 中午：a 已過、b 進行中、c 未到 → 不是全部已過
+    const out = buildElectionDisplay(fc, sec("2026-11-01T12:00:00+08:00"), "all");
+    const groups = out.fc.features.filter(grp);
+    expect(groups).toHaveLength(1);
+    const g = groups[0]!.properties!;
+    expect(g.n).toBe(3);
+    expect(g.location_text).toBe("某公園");
+    expect(g._past).toBe(0);
+    expect(JSON.parse(g.events as string).map((e: { event_id: string }) => e.event_id)).toEqual(["c", "b", "a"]);
+    expect(out.icons.get(g._img as string)).toEqual({ counts: { dpp: 2, kmt: 1 }, precision: "venue", allPast: false });
+    expect(String(g._img)).toContain("venue-0-dpp2_kmt1");
+  });
+
+  it("不同座標不合成；同座標的代表點不併進場館組", () => {
+    const out = buildElectionDisplay(fc, t, "all");
+    const singles = out.fc.features.filter((f) => !grp(f)).map((f) => f.properties?.event_id).sort();
+    expect(singles).toEqual(["d", "z"]);
+  });
+
+  it("篩到只剩 1 場回到單點（陣營／時間／位置）", () => {
+    const onlyKmt = electionCampPredicate(0b00010);
+    expect(buildElectionDisplay(fc, t, "all", { camp: onlyKmt }).fc.features.some(grp)).toBe(false);
+    // 11-01 23:59 之後才算已過：時間軸 11-02 中午時只有 a、b 已舉辦
+    const held = buildElectionDisplay(fc, sec("2026-11-02T12:00:00+08:00"), "held");
+    const hg = held.fc.features.filter(grp);
+    expect(hg).toHaveLength(1);
+    expect(hg[0]!.properties!.n).toBe(2);
+    expect(hg[0]!.properties!._past).toBe(1);
+    expect(buildElectionDisplay(fc, t, "next7").fc.features.some(grp)).toBe(false);
+    expect(buildElectionDisplay(fc, t, "all", { location: "approx" }).fc.features.map((f) => f.properties?.event_id)).toEqual(["z"]);
+  });
+
+  it("全部已過：_past=1、圖示 key 帶已過旗標", () => {
+    const g = buildElectionDisplay(fc, sec("2026-11-30T00:00:00+08:00"), "all").fc.features.find(grp)!.properties!;
+    expect(g._past).toBe(1);
+    expect(String(g._img)).toContain("venue-1-");
+  });
+});
+
+describe("2026 選舉活動：來源名稱", () => {
+  it("內部代碼 → 白話名稱 key；未知代碼歸「其他來源」", async () => {
+    const { electionSourceNameKey } = await import("../electionEventsTypes");
+    const { localeStore } = await import("../../state/localeStore");
+    const { t } = localeStore.getSnapshot();
+    expect(t(electionSourceNameKey("cna_mcp"))).toBe("中央社");
+    expect(t(electionSourceNameKey("observe"))).toBe("市長觀測站");
+    expect(t(electionSourceNameKey("permits_npa"))).toBe(t(electionSourceNameKey("permits")));
+    expect(t(electionSourceNameKey("manual"))).toBe("人工查證");
+    expect(electionSourceNameKey("toString")).toBe("popup.politics.sourceName.other");
+    expect(t(electionSourceNameKey("whatever_new"))).toBe("其他來源");
   });
 });
 

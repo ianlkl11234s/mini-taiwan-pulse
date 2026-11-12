@@ -168,6 +168,36 @@ export function electionSources(v: unknown): { source: string; url: string }[] {
     .slice(0, 5);
 }
 
+/**
+ * 來源代碼（intel.election_event_sources.source）→ 白話名稱的 i18n key（popup.politics.sourceName.*）。
+ * 代碼以 analytics pipelines/analysis/election_events_2026 實際寫入的值為準；不認得的代碼顯示「其他來源」，不露內部代碼。
+ * key 寫成字面值（localeParity 測試靠字面值判斷 key 有人用）。
+ */
+const ELECTION_SOURCE_NAME_KEY = {
+  cna_mcp: "popup.politics.sourceName.cna",
+  observe: "popup.politics.sourceName.observe",
+  permits_npa: "popup.politics.sourceName.permits",
+  permits: "popup.politics.sourceName.permits",
+  traffic_notice: "popup.politics.sourceName.trafficNotice",
+  kmt_press: "popup.politics.sourceName.kmtPress",
+  dpp_press: "popup.politics.sourceName.dppPress",
+  puma: "popup.politics.sourceName.campaignSite",
+  kmtks: "popup.politics.sourceName.kmtks",
+  kmt_knowledge: "popup.politics.sourceName.kmtKnowledge",
+  manual_search: "popup.politics.sourceName.manual",
+  manual: "popup.politics.sourceName.manual",
+  poc_v01: "popup.politics.sourceName.early",
+} as const;
+
+export type ElectionSourceNameKey = (typeof ELECTION_SOURCE_NAME_KEY)[keyof typeof ELECTION_SOURCE_NAME_KEY] | "popup.politics.sourceName.other";
+
+export function electionSourceNameKey(code: unknown): ElectionSourceNameKey {
+  const k = String(code ?? "").trim();
+  return Object.prototype.hasOwnProperty.call(ELECTION_SOURCE_NAME_KEY, k)
+    ? ELECTION_SOURCE_NAME_KEY[k as keyof typeof ELECTION_SOURCE_NAME_KEY]
+    : "popup.politics.sourceName.other";
+}
+
 /** 宣稱人數的數字部分：中文介面用「萬」，其他語系用千分位 */
 export function formatCrowdNumber(n: number, locale: string, formatNumber: (v: number) => string): string {
   if (locale === "zh-TW" && n >= 10_000) {
