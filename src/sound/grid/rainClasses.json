@@ -1,0 +1,8 @@
+{
+  "version": "rain-class-v1",
+  "description": "City Sound Atlas 雨勢分級（W6-1）。Python 雷達每日包（scripts/preprocess/build-sound-radar-rain.py）與前端（src/sound/grid/rainClass.ts）共讀本檔，不可各寫一份。門檻 mm/h、左閉右開：<0.5 無雨／0.5–2.5 小雨／2.5–10 中雨／10–40 大雨／≥40 豪雨。全部是聲景用的假設分級，不是氣象署警特報用語。",
+  "edgesMmPerHour": [0.5, 2.5, 10.0, 40.0],
+  "names": { "zh": ["無雨", "小雨", "中雨", "大雨", "豪雨"] },
+  "zr": { "a": 200.0, "b": 1.6, "note": "Marshall-Palmer Z = a·R^b（假設；未以本地雨滴譜校正）。雷達色塊 k 代表 [k, k+1) 的回波強度，換雨率時取色塊中點 k+0.5。" },
+  "unknown": 255
+}

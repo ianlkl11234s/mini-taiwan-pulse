@@ -2160,6 +2160,34 @@
    "s3_key": "deploy-assets/religion/top100.geojson"
   },
   {
+   "path": "public/sound-atlas/grid/radar-rain-2026-10-24.class.bin",
+   "bytes": 153499,
+   "sha256": "749bbfd7257190c642a8780668ccbbc5f95363e361e072482eac53fccca18a2e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/radar-rain-2026-10-24.class.bin"
+  },
+  {
+   "path": "public/sound-atlas/grid/radar-rain-2026-10-24.meta.json",
+   "bytes": 3162,
+   "sha256": "db8331d3b2dd712a5bd0e26663029807fe3bb2150600ddab8924ec79da409a0e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/radar-rain-2026-10-24.meta.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/radar-rain-2026-11-09.class.bin",
+   "bytes": 92688,
+   "sha256": "5a863f35c5aa864682b2b2f5124e2c6bf66cecd0fbff72e6dfc8e6b08849d43d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/radar-rain-2026-11-09.class.bin"
+  },
+  {
+   "path": "public/sound-atlas/grid/radar-rain-2026-11-09.meta.json",
+   "bytes": 3579,
+   "sha256": "15e33fe514189db3ab4ab301a8f460168ac3ebe2f411ea4f7fef998abbfd0d32",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/radar-rain-2026-11-09.meta.json"
+  },
+  {
    "path": "public/sound-atlas/scenes/taichung-heping-1108.json",
    "bytes": 383419,
    "sha256": "e54b82baa7d4b382f5cbc2bd956ac3cb379cbb742f9b952a4678bd666ae36692",

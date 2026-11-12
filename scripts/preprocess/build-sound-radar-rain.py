@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""City Sound Atlas W6-0：氣象署雷達整合回波（O-A0058-005）→ 北北 250 m 網格雨勢每日包（量測 spike）。
+"""City Sound Atlas W6-0／W6-1：氣象署雷達整合回波（O-A0058-005）→ 北北 250 m 網格雨勢每日包。
+
+W6-1 正式包（--publish）：public/sound-atlas/grid/radar-rain-<D>.class.bin（gzip 分級碼 0–4／255）＋ .meta.json
+  （schema pulse-sound-radar-rain-v1；含網格定義與雜湊、幀時刻、缺幀、色表版本、Z-R、分級門檻、雜波濾波規則與濾掉格數）。
+  雜波濾波與分級的純函式在 scripts/preprocess/sound/radar_rain_lib.py（單元測試 test_radar_rain_lib.py）。
+  產出後用 scripts/deploy/build-public-assets-lock.py add 登記；不 git add。
+以下是 W6-0 量測 spike 的原說明（不加 --publish 時的行為）。
 
 輸入（公開，免金鑰）：
   https://data.itsmigu.com/imagery/cwa/manifest-<UTC日 YYYY-MM-DD>.json
@@ -39,6 +45,7 @@ from __future__ import annotations
 
 import argparse
 import gzip
+import hashlib
 import io
 import json
 import math
@@ -66,23 +73,16 @@ UNKNOWN = 255
 BROTLI = "/opt/homebrew/bin/brotli"
 USER_AGENT = "pulse-sound-atlas-spike/0.1"
 
-# ── 假設參數（W6-0；之後要搬進 soundProfiles 並標 assumption） ─────────
-ZR_A, ZR_B = 200.0, 1.6  # Marshall-Palmer：Z = a·R^b（Z 單位 mm^6/m^3）
-# 分級門檻（mm/h，左閉右開）：<0.5 無雨／0.5–2.5 小／2.5–10 中／10–40 大／≥40 豪雨級。
-# 40 mm/h 與氣象署「大雨」的時雨量門檻同值；此處「豪雨級」只是聲景分級名稱，不是氣象署警特報用語。
-RAIN_CLASS_EDGES_MM_H = (0.5, 2.5, 10.0, 40.0)
-RAIN_CLASS_NAMES = ("無雨", "小雨", "中雨", "大雨", "豪雨級")
-# 色塊 k 代表 [k, k+1) dBZ；換雨率時取色塊中點
-DBZ_BIN_OFFSET = 0.5
+# 假設參數（Z-R、分級門檻）與雜波濾波：scripts/preprocess/sound/radar_rain_lib.py（門檻正本 src/sound/grid/rainClasses.json）
+import sys  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "sound"))
+from radar_rain_lib import (  # noqa: E402
+    CLUTTER_JUMP_DB, CLUTTER_MIN_DBZ, CLUTTER_NEIGHBOR_CELLS, CLUTTER_RULE_VERSION, DBZ_BIN_OFFSET, RAIN_CLASSES,
+    RAIN_CLASS_EDGES_MM_H, RAIN_CLASS_NAMES, ZR_A, ZR_B, clutter_mask, codes_to_class, dbz_to_rate, rate_to_class,
+)
 
-def dbz_to_rate(dbz: np.ndarray) -> np.ndarray:
-    z = np.power(10.0, dbz / 10.0)
-    return np.power(z / ZR_A, 1.0 / ZR_B)
-
-
-def rate_to_class(rate: np.ndarray) -> np.ndarray:
-    return np.searchsorted(np.asarray(RAIN_CLASS_EDGES_MM_H), rate, side="right").astype(np.uint8)
+SCHEMA = "pulse-sound-radar-rain-v1"
 
 
 # ── 下載 ────────────────────────────────────────────────
@@ -310,6 +310,58 @@ def crosscheck(scene_path: Path, day: str, frames_meta: list[dict], dbz_frames: 
     return {"scene": scene_path.name, "confusion_gauge_rows_radar_cols": conf.tolist(), "stats": stats, "worst_mismatches": mismatches[:15]}
 
 
+def publish(args, frames_meta: list[dict], dbz: np.ndarray, cls: np.ndarray, in_scope: np.ndarray, pal: dict,
+            missing: list[int], seen_codes: set[int]) -> None:
+    """W6-1 正式每日包：radar-rain-<D>.class.bin（gzip -9 的分級碼）＋ radar-rain-<D>.meta.json。
+
+    封裝選 gzip uint8（不選 8-bit PNG 圖集）：位元組精確、Node 測試可直接解、瀏覽器用原生 DecompressionStream；
+    PNG 經 canvas 讀回有色彩管理／預乘風險，且傳輸大小相近（W6-0：93 K／153 K 對 104 K／153 K）。
+    正式站對 .bin（application/octet-stream）不自動壓縮，所以預先 gzip；前端以 1f 8b 魔數判斷要不要解壓。
+    """
+    n = dbz.shape[0]
+    rows, cols = SPEC["rows"], SPEC["cols"]
+    frame_ok = np.array([f["status"] == "ok" for f in frames_meta])
+    flag = clutter_mask(dbz, frame_ok, rows, cols)
+    out_cls = cls.copy()
+    out_cls[flag] = UNKNOWN
+    per_frame = []
+    for i in range(n):
+        k_all = int(flag[i].sum())
+        if k_all:
+            k_in = int((flag[i] & in_scope).sum())
+            per_frame.append({"utc": frames_meta[i]["utc"], "cells_bbox": k_all, "cells_in_scope": k_in,
+                              "max_dbz": int(dbz[i][flag[i]].max()) - 1})
+    payload = gzip.compress(out_cls.tobytes(), compresslevel=9, mtime=0)
+    stem = f"radar-rain-{args.date}"
+    (args.out_dir / f"{stem}.class.bin").write_bytes(payload)
+    spec_bytes = (ROOT / "src/sound/grid/gridSpec.json").read_bytes()
+    slot0 = slots_for_taiwan_day(args.date)[0]
+    meta = {
+        "schema": SCHEMA,
+        "date_taiwan": args.date,
+        "product": PRODUCT,
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "grid": {k: SPEC[k] for k in ("id", "west", "north", "dLon", "dLat", "cols", "rows")} | {"sha256": hashlib.sha256(spec_bytes).hexdigest()},
+        "payload": {"file": f"{stem}.class.bin", "encoding": "gzip", "dtype": "uint8", "layout": "frame-major, frame k = cells row·cols+col",
+                    "bytes": len(payload), "raw_bytes": int(out_cls.size), "sha256": hashlib.sha256(payload).hexdigest()},
+        "frames": {"count": n, "step_s": 600, "first_slot_utc": slot0.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                   "slot_rule": "frame k 代表 [first_slot + k·600 s, +600 s)；雷達圖時刻＝該槽起點"},
+        "frames_missing": [{"index": i, "utc": frames_meta[i]["utc"], "status": frames_meta[i]["status"]} for i in missing],
+        "classes": {"version": RAIN_CLASSES["version"], "edges_mm_h": list(RAIN_CLASS_EDGES_MM_H), "names_zh": list(RAIN_CLASS_NAMES), "unknown": UNKNOWN},
+        "zr": {"a": ZR_A, "b": ZR_B, "note": "Marshall-Palmer，假設"},
+        "palette": {"path": str(PALETTE_PATH.relative_to(ROOT)), "retrieved": pal["source"]["retrieved"]},
+        "transparent_rule": "透明像素＝無回波（假設；官方圖例未說明）",
+        "clutter": {"rule": CLUTTER_RULE_VERSION, "min_dbz": CLUTTER_MIN_DBZ, "jump_db": CLUTTER_JUMP_DB, "neighbor_cells": CLUTTER_NEIGHBOR_CELLS,
+                    "description": "回波 ≥ min_dbz 且前、後一幀在 ±neighbor_cells 格內最大回波都低 jump_db 以上 → 255；前或後一幀缺（含當日首末幀）不判定",
+                    "cells_flagged_bbox": int(flag.sum()), "cells_flagged_in_scope": int((flag & in_scope[None, :]).sum()), "frames": per_frame},
+        "dbz_codes_seen_in_window": sorted(seen_codes),
+    }
+    (args.out_dir / f"{stem}.meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({"date": args.date, "frames_ok": n - len(missing), "missing": len(missing), "bytes": len(payload),
+                      "clutter_bbox": meta["clutter"]["cells_flagged_bbox"], "clutter_in_scope": meta["clutter"]["cells_flagged_in_scope"],
+                      "clutter_frames": per_frame}, ensure_ascii=False))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True, help="臺灣日 YYYY-MM-DD")
@@ -317,7 +369,11 @@ def main() -> None:
     ap.add_argument("--out-dir", type=Path, default=ROOT / "public/sound-atlas/grid-spike")
     ap.add_argument("--crosscheck", type=Path, help="場景快照（取雨量站）")
     ap.add_argument("--allow-unknown-colors", action="store_true")
+    ap.add_argument("--publish", action="store_true",
+                    help="正式每日包（W6-1）：雜波濾波後的分級碼 gzip＋meta，輸出到 public/sound-atlas/grid/（不產 spike 比較檔）")
     args = ap.parse_args()
+    if args.publish and args.out_dir == ROOT / "public/sound-atlas/grid-spike":
+        args.out_dir = ROOT / "public/sound-atlas/grid"
     args.cache_dir.mkdir(parents=True, exist_ok=True)
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -366,6 +422,10 @@ def main() -> None:
     for row, rs in enumerate(spans):
         for c_a, c_b, _ in rs:
             in_scope[row * SPEC["cols"] + c_a: row * SPEC["cols"] + c_b + 1] = True
+
+    if args.publish:
+        publish(args, frames_meta, dbz, cls, in_scope, pal, missing, seen_codes)
+        return
 
     xor = cls.copy()
     prev = None

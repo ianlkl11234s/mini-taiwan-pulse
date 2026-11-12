@@ -15,6 +15,9 @@ public/ship_data.json
 public/gfw_hourly_tracks_poc.geojson
 public/gfw_hourly_tracks_poc/
 public/gfw_hourly_grid_poc/
+# City Sound Atlas 網格每日包（W6-1）與 W6-0 量測檔：本機產生，正式供應走 deploy/public-assets.lock.json（比照 scenes/）
+public/sound-atlas/grid/
+public/sound-atlas/grid-spike/
 # GFW East Asia v4 shadow POC runtime aliases/artifacts (local-only, often symlinks into /private/tmp)
 public/gfw-v4-poc
 public/gfw-v4-browser-assets/
