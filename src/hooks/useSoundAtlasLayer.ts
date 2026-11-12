@@ -451,15 +451,18 @@ export function useSoundAtlasLayer(
   useEffect(() => {
     if (!anyOn) return;
     let cancelled = false;
+    // 只採用最後一次要求的日期：快速跳日時，較慢的前一天（例如即時 RPC）晚回來不可蓋掉新一天（W6-1 實測）
+    let latestReq = 0;
     const load = (date: string) => {
       if (!date) return;
+      const req = ++latestReq;
       const keyed = enabled
         .map((f) => ({ f, key: familyLoadKey(f, date, receiver, snapshot) }))
         .filter((x): x is { f: SoundSourceFamily; key: string } => x.key != null);
       soundAtlasStore.set({ loading: keyed.map((x) => x.f) });
       Promise.all(keyed.map(({ f, key }) => cachedLoad(key, () => loadSoundFamily(f, date, receiver, snapshot)).then((r) => [f, r] as const)))
         .then((results) => {
-          if (cancelled) return;
+          if (cancelled || req !== latestReq) return;
           const nextSets: Partial<Record<SoundSourceFamily, SoundSourceSet>> = {};
           const origins: SoundAtlasState["origins"] = {};
           for (const [f, r] of results) if (r) { nextSets[f] = r.set; origins[f] = r.origin; }
@@ -467,7 +470,7 @@ export function useSoundAtlasLayer(
         })
         .catch((e) => {
           console.error("[SoundAtlas] load failed", e);
-          if (!cancelled) soundAtlasStore.set({ loading: [] });
+          if (!cancelled && req === latestReq) soundAtlasStore.set({ loading: [] });
         });
     };
     load(timeStore.getDateKey());

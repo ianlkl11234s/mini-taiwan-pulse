@@ -105,3 +105,15 @@ export function useSoundRainGridLayer(mapRef: React.RefObject<MapboxMap | null>,
     return timeStore.subscribeThrottled(GRID_THROTTLE_MS, apply);
   }, [mapRef, visible, set, field, origin, mapTick]);
 }
+
+// 開發用量測／驗收把手（同 __transitReachPerf）：讀目前格狀態、跳時間、選場景、點格查詢
+if (import.meta.env.DEV && typeof window !== "undefined") {
+  void Promise.all([import("../state/timelineJumpBridge"), import("../sound/soundAtlasActions"), import("../sound/grid/rainGridState")]).then(([bridge, actions, grid]) => {
+    (window as unknown as Record<string, unknown>).__soundRainGrid = {
+      state: grid.rainGridState,
+      jump: (unix: number) => bridge.requestTimelineJump(unix),
+      scene: (id: Parameters<typeof actions.selectSoundScene>[0]) => actions.selectSoundScene(id),
+      pick: grid.pickSoundRainCell,
+    };
+  });
+}
