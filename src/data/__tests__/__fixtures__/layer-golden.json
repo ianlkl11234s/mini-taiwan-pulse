@@ -154901,6 +154901,25 @@
     ],
     "soundAviation": [
       {
+        "label": "網格門檻",
+        "options": [
+          {
+            "label": "寬（潛勢 ≥0.1）",
+            "value": "current"
+          },
+          {
+            "label": "中（≥0.2）",
+            "value": "strict"
+          },
+          {
+            "label": "嚴（≥0.4）",
+            "value": "very_strict"
+          }
+        ],
+        "type": "select",
+        "value": "strict"
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -154908,6 +154927,11 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "飛機波紋動畫",
+        "type": "toggle",
+        "value": false
       }
     ],
     "soundCameraLocations": [
@@ -154953,6 +154977,11 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "浪花動畫",
+        "type": "toggle",
+        "value": false
       }
     ],
     "soundRail": [
@@ -154964,6 +154993,11 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "列車波紋動畫",
+        "type": "toggle",
+        "value": false
       }
     ],
     "soundRain": [
@@ -154991,6 +155025,11 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "水流動畫",
+        "type": "toggle",
+        "value": false
       }
     ],
     "soundRoadTraffic": [
@@ -155046,6 +155085,11 @@
         "step": 0.05,
         "value": 0.9,
         "valueText": "0.90"
+      },
+      {
+        "label": "樹葉動畫",
+        "type": "toggle",
+        "value": false
       }
     ],
     "spatialEconomy": [
