@@ -2568,5 +2568,6 @@
   "param.里民會館（마을회관）": "Village hall (maeul hoegwan)",
   "param.呈現方式": "Display as",
   "param.面量圖": "Choropleth",
-  "param.比例圓": "Circles"
+  "param.比例圓": "Circles",
+  "param.點密度": "Dots"
 }

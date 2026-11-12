@@ -26,7 +26,7 @@ describe('statistics presentation store', () => {
     layerParamsStore.setParam(B, presentationParamName(B), 'circle');
     expect(statisticsPresentationMode(B)).toBe('circle');
     expect(statisticsPresentationMode(A)).toBe('choropleth');
-    expect(statisticsPresentationNote(B, presentationParamName(B))).toBe('已把「戶籍人口數」改回面量圖（同時只能有一層比例圓）');
+    expect(statisticsPresentationNote(B, presentationParamName(B))).toBe('已把「戶籍人口數」改回面量圖（比例圓與點密度同時只能有一層）');
     // 說明只出現在新比例圓層的「呈現方式」那一列
     const control = buildParamControls(B)!.find((c) => c.type === 'select' && c.label === '呈現方式');
     expect(control).toMatchObject({ value: 'circle', note: expect.stringContaining('戶籍人口數') });
@@ -34,6 +34,19 @@ describe('statistics presentation store', () => {
     // 切回面量圖，說明消失
     layerParamsStore.setParam(B, presentationParamName(B), 'choropleth');
     expect(statisticsPresentationNote(B, presentationParamName(B))).toBeUndefined();
+  });
+
+  it('circles and dot density share the one-layer rule: switching another layer to dots demotes the circle layer', () => {
+    layerVisibilityStore.setVisibility(A as never, true);
+    layerVisibilityStore.setVisibility(B as never, true);
+    layerParamsStore.setParam(A, presentationParamName(A), 'circle');
+    layerParamsStore.setParam(B, presentationParamName(B), 'dots');
+    expect(statisticsPresentationMode(B)).toBe('dots');
+    expect(statisticsPresentationMode(A)).toBe('choropleth');
+    expect(statisticsPresentationNote(B, presentationParamName(B))).toContain('戶籍人口數');
+    layerParamsStore.setParam(A, presentationParamName(A), 'dots');
+    expect(statisticsPresentationMode(A)).toBe('dots');
+    expect(statisticsPresentationMode(B)).toBe('choropleth');
   });
 
   it('hidden losers are demoted silently (no note)', () => {
@@ -50,11 +63,23 @@ describe('statistics presentation store', () => {
   });
 
   it('pm= round trip: only visible non-default layers are written; invalid entries are ignored on apply', () => {
-    applyPresentationUrlEntries({ [A]: 'circle', [RATIO]: 'circle', notALayer: 'circle', [B]: 'dots' });
+    applyPresentationUrlEntries({ [A]: 'circle', [RATIO]: 'circle', notALayer: 'circle', [B]: 'bogus' });
     expect(statisticsPresentationMode(A)).toBe('circle');
     expect(statisticsPresentationMode(RATIO)).toBe('choropleth');
     expect(statisticsPresentationMode(B)).toBe('choropleth');
     expect(presentationUrlEntries(() => false)).toBeUndefined();
     expect(presentationUrlEntries((key) => key === A)).toEqual({ [A]: 'circle' });
+    // 點密度：pm=<key>:dots 可還原、也會寫回網址；比率層不給點密度
+    applyPresentationUrlEntries({ [B]: 'dots', [RATIO]: 'dots' });
+    expect(statisticsPresentationMode(B)).toBe('dots');
+    expect(statisticsPresentationMode(RATIO)).toBe('choropleth');
+    expect(presentationUrlEntries((key) => key === B)).toEqual({ [B]: 'dots' });
+    // 敏感層藏掉點密度：舊網址帶 pm=<key>:dots 安靜退回面量圖，也不寫回網址
+    const HIV = 'statsHivCasesTownship';
+    applyPresentationUrlEntries({ [HIV]: 'dots' });
+    expect(statisticsPresentationMode(HIV)).toBe('choropleth');
+    layerParamsStore.setParam(HIV, presentationParamName(HIV), 'dots');
+    expect(statisticsPresentationMode(HIV)).toBe('choropleth');
+    expect(presentationUrlEntries((key) => key === HIV)).toBeUndefined();
   });
 });

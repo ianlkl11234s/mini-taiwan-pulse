@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({ loadRegionalStatistics: vi.fn() }));
 vi.mock('../../data/regionalStatisticsLoader', () => ({ loadRegionalStatistics: mocks.loadRegionalStatistics }));
 import { regionalStatisticsStore } from '../regionalStatisticsStore';
 import { compareStore } from '../compareStore';
-import { compareSplitActive, legendScaleDiffers, rightReadKey, setCompareSide, startRightSelectionSync, statisticsRightStoreKey } from '../compareStatistics';
+import { compareDotUnit, compareSplitActive, legendScaleDiffers, rightReadKey, setCompareSide, startRightSelectionSync, statisticsRightStoreKey } from '../compareStatistics';
 
 const KEY = 'statsBirthsTownship';
 const RIGHT = statisticsRightStoreKey(KEY);
@@ -30,6 +30,20 @@ describe('比較模式統計：左右選擇', () => {
     compareStore.setSide(KEY, 'left');
     expect(rightReadKey(KEY)).toBe(KEY);
     expect(compareSplitActive(KEY)).toBe(false);
+  });
+
+  it('點密度「一點＝N」：左右期別不同時兩側共用較大的 N；沒分左右回 undefined', async () => {
+    const result = (total: number) => ({ catalog: [], releases: [], values: { release: null }, sources: {}, health: null,
+      features: [{ type: 'Feature', geometry: null, properties: { area_code: 'A', status: 'observed', value: total } }] });
+    mocks.loadRegionalStatistics.mockImplementation(async (recipe: { releaseId?: string }) => result(recipe.releaseId === 'R' ? 600_000 : 23_000_000));
+    compareStore.setEnabled(true);
+    await regionalStatisticsStore.load(KEY);
+    expect(compareDotUnit(KEY, 500)).toBeUndefined();
+    regionalStatisticsStore.setSelection(RIGHT, { ...base, releaseId: 'R' });
+    await regionalStatisticsStore.load(RIGHT);
+    // 左 2,300 萬→500、右 60 萬→10：兩側都用 500
+    expect(compareDotUnit(KEY, 10)).toBe(500);
+    expect(compareDotUnit(KEY, 500)).toBe(500);
   });
 
   it('改成「只在右側」時右側的期別搬回左側，畫面不跳期別', () => {

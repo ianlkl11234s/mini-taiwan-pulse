@@ -67,5 +67,5 @@
   "paramsPanel.hf.status.mismatch": "歷史軌跡樣本與目錄不一致",
   "paramsPanel.hf.status.loadFailed": "歷史軌跡載入失敗",
   "paramsPanel.hf.status.manifestFailed": "無法讀取機場目錄，請重試。",
-  "paramsPanel.presentationDemoted": "已把「{names}」改回面量圖（同時只能有一層比例圓）"
+  "paramsPanel.presentationDemoted": "已把「{names}」改回面量圖（比例圓與點密度同時只能有一層）"
 }

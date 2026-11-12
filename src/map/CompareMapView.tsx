@@ -20,7 +20,7 @@ import { applyPureBlackTheme, setBasemapLabelsVisible, setupTerrain } from "./Ma
 import { syncMaps, cameraOf, type SyncableMap } from "./compareSync";
 import { attachRegionalStatistics } from "./regionalStatisticsMap";
 import { COMPARE_DEFAULT_SPLIT, compareStore, shownOnRight, useCompareSelector, useCompareState, type CompareState } from "../state/compareStore";
-import { compareCircleReference, rightReadKey, startRightSelectionSync } from "../state/compareStatistics";
+import { compareCircleReference, compareDotUnit, rightReadKey, startRightSelectionSync } from "../state/compareStatistics";
 import { layerVisibilityStore, useLayerVisibilityAll } from "../state/layerVisibilityStore";
 import { STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { GIS_LAYERS } from "./gisClickRegistry";
@@ -33,7 +33,7 @@ import { compareRightMap } from "./compareRightMap";
 import { sessionTracker } from "../lib/sessionTracker";
 
 const LOADING_PREFIX = "compare-right:";
-/** 右圖可點的圖層＝統計那一條登記（與主地圖同一份 layer id：`<key>-fill`、`<key>-circle`） */
+/** 右圖可點的圖層＝統計那一條登記（與主地圖同一份 layer id：`<key>-fill`、`<key>-circle`；點密度的點不可點，點區域命中透明的 fill） */
 const STATISTICS_CLICK_LAYERS = GIS_LAYERS.find((entry) => entry.type === "regionalStatistic")?.layers ?? [];
 
 interface CompareMapViewProps {
@@ -108,6 +108,7 @@ export function CompareMapView({ mainMap, styleUrl, pureBlack, isDarkTheme, show
       storeKey: (key) => rightReadKey(key),
       subscribe: (callback) => compareStore.subscribe(callback),
       circleReference: compareCircleReference,
+      dotUnit: compareDotUnit,
       loadingPrefix: LOADING_PREFIX,
     });
     const offRightSync = startRightSelectionSync();

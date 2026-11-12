@@ -67,5 +67,5 @@
   "paramsPanel.hf.status.mismatch": "履歴航跡サンプルがカタログと一致しません",
   "paramsPanel.hf.status.loadFailed": "履歴航跡の読み込みに失敗しました",
   "paramsPanel.hf.status.manifestFailed": "空港カタログを読み込めませんでした。再試行してください。",
-  "paramsPanel.presentationDemoted": "「{names}」を塗り分けに戻しました（比例円は同時に 1 レイヤーまで）"
+  "paramsPanel.presentationDemoted": "「{names}」を塗り分けに戻しました（比例円とドット密度は同時に 1 レイヤーまで）"
 }

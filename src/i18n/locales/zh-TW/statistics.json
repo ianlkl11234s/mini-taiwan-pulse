@@ -102,5 +102,12 @@
   "statistics.legend.circleArea": "圓面積代表數量（半徑不是）；圓大小固定、不隨縮放；觀測值 0 不畫圓",
   "statistics.legend.circleReference": "最大圓對應本期最大值往上取整，換期別可能改變",
   "statistics.legend.circleReferenceSource": "最大圓對應本期最大值往上取整，換期別可能改變；來源：{provider}",
-  "statistics.legend.circleNoPositive": "本期沒有大於 0 的觀測值，不畫比例圓"
+  "statistics.legend.circleNoPositive": "本期沒有大於 0 的觀測值，不畫比例圓",
+  "statistics.legend.dotUnit": "一點＝{value} {unit}",
+  "statistics.legend.dotRandom": "點的位置為區內隨機，不代表實際地點",
+  "statistics.legend.dotRemainder": "不足一點的餘數依區代碼固定機率進位，小區也可能有一點；觀測值 0 不撒點",
+  "statistics.legend.dotReference": "一點代表的數量依本期全圖總量取 1／2／5×10ⁿ，換期別跨級距才會改變",
+  "statistics.legend.dotReferenceSource": "一點代表的數量依本期全圖總量取 1／2／5×10ⁿ，換期別跨級距才會改變；來源：{provider}",
+  "statistics.legend.dotNoPositive": "本期沒有大於 0 的觀測值，不撒點",
+  "statistics.legend.hatchDots": "斜線：missing／來源未涵蓋，不等於 0（不撒點）"
 }

@@ -239,7 +239,7 @@ function SmallMultiplesDialog({ layerKey, isDark }: { layerKey: StatisticsRender
   }, [close, layerKey]);
 
   const currentPeriod = periods.find(period => period.current);
-  const circle = statisticsPresentationMode(layerKey) === 'circle';
+  const presentation = statisticsPresentationMode(layerKey);
   const total = statisticsPresentationOptions(layerKey).includes('circle');
   const level = plan?.level ?? 'county';
   const firstReady = selected.map(index => tiles[index]).find((tile): tile is ReadyTile => tile?.status === 'ready');
@@ -300,7 +300,8 @@ function SmallMultiplesDialog({ layerKey, isDark }: { layerKey: StatisticsRender
           <div className="sm-notes">
             {sentence && <p>{sentence}</p>}
             {total && <p>{t('smallMultiples.totalNote')}</p>}
-            {circle && <p>{t('smallMultiples.circleNote')}</p>}
+            {presentation === 'circle' && <p>{t('smallMultiples.circleNote')}</p>}
+            {presentation === 'dots' && <p>{t('smallMultiples.dotsNote')}</p>}
             {TW_LEVELS.has(level) && <p>{t('smallMultiples.insetNote')}{undrawnNames.length > 0 ? ` ${t('smallMultiples.undrawn', { names: undrawnNames.join('、') })}` : ''}</p>}
           </div>
           <div className="sm-legend">

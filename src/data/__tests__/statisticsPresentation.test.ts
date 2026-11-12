@@ -27,10 +27,12 @@ const FIRST_BATCH = [
 ] as const;
 
 describe('statistics presentation derivation', () => {
-  it('first batch township totals offer circles (choropleth stays the default)', () => {
+  it('first batch township totals offer circles (choropleth stays the default); person／case counts also offer dots', () => {
     for (const key of FIRST_BATCH) {
       expect(STATISTICS_RENDER_KEYS, key).toContain(key);
-      expect(statisticsPresentationOptions(key), `${key} ${label(key)}`).toEqual(['choropleth', 'circle']);
+      // 作物種植面積（公頃）不是一個一個數得出來的 → 沒有點密度
+      const expected = key === 'statsCropPlantedAreaTownship' ? ['choropleth', 'circle'] : ['choropleth', 'circle', 'dots'];
+      expect(statisticsPresentationOptions(key), `${key} ${label(key)}`).toEqual(expected);
       expect(statisticsPresentationDefault(key)).toBe('choropleth');
     }
   });
@@ -63,8 +65,18 @@ describe('statistics presentation derivation', () => {
     const servicePoints = STATISTICS_RENDER_KEYS.filter((key) => /據點/u.test(label(key)));
     expect(servicePoints.length).toBeGreaterThan(0);
     for (const key of servicePoints) expect(derivedPresentationModes(key), key).not.toContain('dots');
-    // 點密度尚未實作：不露出
-    for (const key of STATISTICS_RENDER_KEYS) expect(statisticsPresentationOptions(key), key).not.toContain('dots');
+    // 點密度已露出：推導可用、而且沒被覆寫隱藏的層才可選
+    const hidden = new Set(Object.entries(PRESENTATION_OVERRIDES).filter(([, o]) => o.hide?.includes('dots')).map(([key]) => key));
+    for (const key of STATISTICS_RENDER_KEYS) expect(statisticsPresentationOptions(key).includes('dots'), key).toBe(dots.includes(key) && !hidden.has(key));
+    expect(dots.filter((key) => !hidden.has(key)).length).toBe(42);
+  });
+
+  it('sensitive counts (infectious-disease cases, deaths, sexual assault, drug cases) never offer dots; ordinary crime keeps them', () => {
+    for (const key of ['statsHivCasesTownship', 'statsHealthTbNewCasesTownship', 'statsCrimeSexualAssaultCasesTownship', 'statsCrimeDrugCasesTownship', 'statsDemographicsTownshipDeaths', 'statsDemographicsTownshipDeathsYtd', 'statsMortalityDeathsTownship', 'statsMortalityDeaths5yrTownship']) {
+      expect(derivedPresentationModes(key), key).toContain('dots');
+      expect(statisticsPresentationOptions(key), key).toEqual(['choropleth', 'circle']);
+    }
+    for (const key of ['statsCrimeResidentialBurglaryCasesTownship', 'statsTelecomFraudCasesTownship', 'statsCrimeRobberyCasesTownship']) expect(statisticsPresentationOptions(key), key).toContain('dots');
   });
 
   it('every layer defaults to a listed option, choropleth first, at most 3 options (segmented control)', () => {

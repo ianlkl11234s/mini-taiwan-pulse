@@ -1,6 +1,6 @@
 import { attachRegionalStatistics } from "./regionalStatisticsMap";
 import { compareStore, shownOnLeft } from "../state/compareStore";
-import { compareCircleReference } from "../state/compareStatistics";
+import { compareCircleReference, compareDotUnit } from "../state/compareStatistics";
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -473,11 +473,12 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     });
 
     // 比較模式（DESIGN §3）：主地圖＝左側。側別＝只在右側的統計層左圖不畫（資料照樣留著給右圖與圖例）；
-    // 比例圓左右期別不同時與右圖共用參考值。比較關閉時兩者都等於原本行為。
+    // 比例圓參考值、點密度的「一點＝N」左右期別不同時與右圖共用。比較關閉時兩者都等於原本行為。
     const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current, {
       isShown: (key) => shownOnLeft(key, layerVisibilityStore.getVisibility(key)),
       subscribe: (callback) => compareStore.subscribe(callback),
       circleReference: compareCircleReference,
+      dotUnit: compareDotUnit,
     });
     return () => {
       offLayerAssetIndexReady?.();
