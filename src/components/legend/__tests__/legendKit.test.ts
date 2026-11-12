@@ -1,7 +1,8 @@
-import { createElement, Fragment } from "react";
+import { createElement, Fragment, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { LEGEND_SWATCH, LegendCompactCtx, LegendNote, LegendThemeCtx, LegendTitle, LIGHT_LEGEND, SwatchDot, SwatchHatch } from "../legendKit";
+import { DARK_LEGEND, LEGEND_SWATCH, LegendCompactCtx, LegendFillOpacityCtx, LegendNote, LegendThemeCtx, LegendTitle, LIGHT_LEGEND, SwatchDot, SwatchHatch, SwatchSquare, SwatchSteps } from "../legendKit";
+import { overlayFillOpacity } from "../../../map/legendLayerOpacity";
 import { UrbanDotRow } from "../legendShared";
 import { LEGEND_REGISTRY } from "../../LegendPanel";
 import { legendKeys } from "../../../data/legendGroups";
@@ -31,6 +32,51 @@ describe("legendKit", () => {
     expect(suppressed.match(/repeating-linear-gradient/g)).toHaveLength(2);
     const lit = (kind: "missing" | "suppressed") => hatchImageData(kind, true).data.filter((_, i) => i % 4 === 3 && _ > 0).length;
     expect(lit("suppressed")).toBeGreaterThan(lit("missing"));
+  });
+
+  it("LG-14：面色票畫「色 × 圖層透明度疊在底圖陸地色」的合成色，加 1px 面板邊框；沒有透明度資訊時維持原色票", () => {
+    const render = (alpha: number | null, theme = DARK_LEGEND, el: ReactElement = createElement(SwatchSquare, { color: "#3182bd" })) =>
+      renderToStaticMarkup(createElement(LegendThemeCtx.Provider, { value: theme }, createElement(LegendFillOpacityCtx.Provider, { value: alpha }, el)));
+    // 稽核像素驗證：#3182bd@0.55 疊暗陸 #292828 → #2d5a7a
+    expect(render(0.55)).toContain("background:#2d5a7a");
+    expect(render(0.55)).toContain(`1px solid ${DARK_LEGEND.border}`);
+    expect(render(0.55)).toContain("opacity:1");
+    // 淡底：疊 #f8f8fa
+    expect(render(0.55, LIGHT_LEGEND)).not.toContain("background:#3182bd");
+    // 透明度很低時仍有邊框可辨位置
+    expect(render(0.05)).toContain(`1px solid ${DARK_LEGEND.border}`);
+    // 不知道透明度／呼叫端自己指定 opacity／只有外框的面：原畫法
+    expect(render(null)).toContain("background:#3182bd");
+    expect(render(0.55, DARK_LEGEND, createElement(SwatchSquare, { color: "#3182bd", opacity: 0.6 }))).toContain("background:#3182bd");
+    expect(render(0.55, DARK_LEGEND, createElement(SwatchSquare, { color: "#3182bd", outline: true }))).toContain("2px solid #3182bd");
+    const steps = render(0.55, DARK_LEGEND, createElement(SwatchSteps, { colors: ["#3182bd", "#08519c"] }));
+    expect(steps).toContain("background:#2d5a7a");
+    expect(steps).not.toContain("#08519c");
+  });
+
+  it("LG-14：圖層透明度與地圖同一路徑求值（fill-opacity 數值，隨滑桿變）", () => {
+    const base = encodeParamsToOverlay(layerParamsStore.getAll());
+    const def = overlayFillOpacity("aviationNoiseZones", true, base);
+    expect(def).toBeGreaterThan(0);
+    const lower = overlayFillOpacity("aviationNoiseZones", true, { ...base, aviationNoiseZonesOpacity: 0.2 });
+    expect(lower).toBeLessThan(def!);
+    expect(overlayFillOpacity("notAnOverlayKey", true, base)).toBeUndefined();
+  });
+
+  it("LG-14：滑桿拉到 0 回 0（不當查不到）；不論參數都是 0 的點擊用面仍查不到", () => {
+    const base = encodeParamsToOverlay(layerParamsStore.getAll());
+    // 切到面模式（V-5 點／面切換；哪個索引是面不寫死）
+    const polyIdx = [0, 1, 2].find((i) => overlayFillOpacity("lakesPondsOsm", true, { ...base, lakesPondsOsmDisplayModeIdx: i }) !== undefined);
+    expect(polyIdx).toBeDefined();
+    expect(overlayFillOpacity("lakesPondsOsm", true, { ...base, lakesPondsOsmDisplayModeIdx: polyIdx!, lakesPondsOsmOpacity: 0 })).toBe(0);
+    expect(overlayFillOpacity("countyBoundary", true, base)).toBeUndefined();
+  });
+
+  it("LG-14：只認目前畫著的面（V-5 點模式時面隱藏 → 不合成）", () => {
+    const base = encodeParamsToOverlay(layerParamsStore.getAll());
+    const modes = [0, 1, 2].map((i) => overlayFillOpacity("cemeteryOsm", true, { ...base, cemeteryOsmDisplayModeIdx: i }));
+    expect(modes.filter((v) => v === undefined).length).toBeGreaterThan(0);
+    expect(modes.filter((v) => v !== undefined).length).toBe(1);
   });
 
   it("LG-9：compact 時註記不顯示", () => {

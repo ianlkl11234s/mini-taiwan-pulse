@@ -6,7 +6,7 @@
  *   - frames[] = { product, observed_at(UTC Z), key, mime_type, image_size, bbox:[lonMin,latMin,lonMax,latMax] }
  *   - 影像 URL = `${IMAGERY_CDN_BASE}/${key}`
  *
- * 過渡期：時間窗涵蓋的 manifest 一份都讀不到（collector 還沒上線／還沒 bootstrap／R2 讀取失敗）時回 null，
+ * 過渡期：時間窗涵蓋的 manifest 一份都沒有（collector 還沒上線／還沒 bootstrap），或任一日讀取失敗時回 null，
  * 呼叫端退回原本的 Supabase RPC。DB 影像表退役時再拿掉退路。
  */
 
@@ -111,7 +111,7 @@ export interface ImageryManifestQuery {
 
 /**
  * 依時間窗讀 1–N 份 UTC 日 manifest，過濾 product 與 [since, until)，依 product、時間升序回傳。
- * 回 null = 時間窗內一份 manifest 都沒有 → 呼叫端退回 RPC。
+ * 回 null = 時間窗內一份 manifest 都沒有，或任一日讀取失敗 → 呼叫端退回 RPC。
  */
 export async function loadImageryManifestFrames(q: ImageryManifestQuery): Promise<ImageryManifestFrame[] | null> {
   const sinceMs = new Date(q.sinceIso).getTime();
@@ -119,12 +119,16 @@ export async function loadImageryManifestFrames(q: ImageryManifestQuery): Promis
   const days = utcDaysInWindow(sinceMs, untilMs);
   if (days.length === 0) return [];
 
-  // 單日讀取失敗（網路、5xx、格式）當成該日沒有 manifest 並記警告；全部讀不到才退回 RPC。
-  const task = Promise.all(days.map((day) => fetchManifest(q.source, day).catch((err: unknown) => {
+  // 404／403＝當天還沒有 manifest（null）；讀取失敗（網路、5xx、格式）另記為 FAILED。
+  // 任一日失敗就整段退回 RPC：殘缺的 R2 結果會被呼叫端以整個日期快取、不再重試（review F023）。
+  const FAILED = Symbol("failed");
+  const task = Promise.all(days.map((day) => fetchManifest(q.source, day).catch((err: unknown): typeof FAILED => {
     console.warn(`[imageryManifest] ${q.source}/${day} 讀取失敗`, err);
-    return null;
+    return FAILED;
   })));
-  const manifests = await (q.silent ? task : withLoading(q.loadingKey, q.loadingLabel, task));
+  const results = await (q.silent ? task : withLoading(q.loadingKey, q.loadingLabel, task));
+  if (results.some((m) => m === FAILED)) return null;
+  const manifests = results as (RawManifest | null)[];
   if (manifests.every((m) => m === null)) return null;
 
   const wanted = new Set(q.products);

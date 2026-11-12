@@ -502,6 +502,8 @@
   - 寫死在 `ExpandedControls` 的區塊不參與排序：航班模式鈕、`PropertyValueStatisticsDetails`、歷史航跡在控制項之前；「說明・來源」固定最後。統計的期別、指標、細項（C 段）已改成連動選單（§5.37），照類別排在資料篩選；統計的來源與處理紀錄放在「說明・來源」裡。
   - `linkedSelect` 一律歸資料篩選（不必進詞彙表）。
   - 「立體效果」toggle（R6，2026-10-05）歸顏色組：排在資料篩選之後、透明度之前，每個有 Three.js 效果的非移動物件圖層一個，預設關。
+  - 統計「呈現方式」（面量圖／比例圓／點密度，2026-11-11；點密度 2026-11-12）`category: 'color'`：同樣排在資料篩選之後、透明度之前；由 `statisticsPresentation.ts` 依 recipe 推導產生，≥2 個選項才出現。被「比例圓與點密度同時只能有一層」改回的層，在新的那一層這一列下方顯示一行說明（`SelectConfig.note`，`.lpc-note`，`role="status"`）。圖例不放這個切換。
+  - **比較類**（2026-11-11，比較模式 P1，§5.45）：只在比較模式出現，排在**最前**：「顯示在」左／右／兩側分段控制（§5.8）；不支援的圖層三個選項都停用、下方 `.lpc-note`「比較模式暫不支援，只顯示在左側」。統計層兩側時，原本的期別／細項列標籤改「左側 …」，緊接著是派生的「右側 …」連動選單（同 §5.37 元件，不含指標列）。這些列由 `src/state/compareControls.ts` 從規格派生、只給面板用，**不進 `LAYER_PARAMS_SPEC`／`buildParamControls`**，所以不參與上面的類別排序、詞彙表與 Agent 控制（Agent 照單地圖行為作用在左側）。
   - 護欄：`src/state/__tests__/layerParamsOrder.test.ts`——分不出類（新標籤）就紅：在詞彙表補一列或寫 `category`；輸出名次必須單調不減。
 - **禁止**：手寫圖層控制 JSX（一律 `layerParamsSpec.ts` 規格 → `ParamControlList`）；標籤與數值擠在同一字串；為了順序去搬 spec 陣列（排序由類別決定）。
 - **實作**：`src/components/sidebar/{LayerParamControls.tsx,layerParamControls.css}`、`src/state/layerParamsControls.ts`。
@@ -517,7 +519,7 @@
 - **尺寸**：input 高 14、2px 軌道、10px 圓點（`margin-top: -4px`）、圓點外 3px 12% 光暈；已拖段較亮（`--p` 由元件 inline 更新）。
 - **色**：`--slider-track`／`--slider-fill`／`--slider-thumb`（淡色 `--light-slider-*`）。
 - **狀態**：focus-visible → 圓點 `0 0 0 2px accent`。
-- **數值**：`valueText` 由 `splitSliderLabel()` 產生（§6.2）。
+- **數值**：`valueText` 由 `splitSliderLabel()` 產生（§6.2）。透明度滑桿顯示的就是實際套用的透明度，不在背後換算（2026-11-10 使用者決定）。預設值依底圖不同時（統計 choropleth 淡 0.55／暗 0.75），使用者沒動過滑桿則換底圖跟著換預設值，動過就保留（`map-layers.md` §3.6 K-4 統計例外）。
 - **禁止**：在共用元件以外寫原生 `type="range"`（guard `native-range`）；粗軌道、系統預設藍色滑桿。
 - **實作**：全站唯一元件 `src/components/controls/Slider.tsx`＋`slider.css`（`.ctl-range`），見 §5.28；圖層控制 `LayerParamControls.tsx` `SliderControl` 也用它（Phase Q 收斂，舊 `.lpc-range` 已刪）。
 
@@ -540,7 +542,8 @@
 
 - **位置**：右上，單一底板；左上為品牌字標＋座標 HUD（§5.18）。
 - **底板**：`SURFACE.strong`（淡 `LIGHT.surfacePanel`）、`1px BORDER.panel`、`borderRadius 7`、padding 3、gap 4、`ELEVATION.lg`；窄寬度整條換行並維持靠右（`marginLeft: auto`）。
-- **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 語言（圖示）、帳號。
+- **組成順序**（固定）：即時／歷史分段 ｜ 底圖 ｜ 左右比較（圖示，桌機才有）、分享（圖示）、說明（圖示）、AI（一般，開啟時主要）、**拍攝模式**（主要按鈕）｜ 語言（圖示）、帳號。
+- **左右比較**（2026-11-11，§5.45）：lucide `Columns2` 13px 一般圖示按鈕，開啟時 accentFaint 底（`ToolbarButton` `pressed`、`aria-pressed`）；title「左右比較」／「結束左右比較」。窄螢幕（手機）不放（第一期只做桌機）。
 - **語言**（2026-10-12）：lucide `Languages` 13px 圖示按鈕，點開 popover 列出「中文／EN／日本語」，目前語系用 accentFaint 底、accent 字標示；popover 樣式同底圖選單（§5.19）。手機不放工具列，收在 ⋯ 選單（§5.29）。實作 `src/components/toolbar/LanguageMenu.tsx`。`｜` 為 1px×16 直線，色 `palette.controlBorder`（暗 `CONTROL.border`／淡 `LIGHT.controlBorder`）。
 - **項目**：高 26、圓角 4、icon 13px（§5.7）。
 - **拿掉的東西**：Monitor BETA 按鈕（左側 rail「監測模式」保留）、第二排、計數列「flights · ships · 台灣好行」；操作提示移進「說明」。
@@ -691,6 +694,17 @@
 - **規則**：任何「文字會在兩種長度間切換」的按鈕（複製／已複製、開始／停止）都給固定寬度或最小寬度。
 - **實作**：`src/components/InfoModal.tsx`、`src/components/ShareModal.tsx`。
 
+**統計多年份並排**（`StatisticsSmallMultiples`，2026-11-11；2026-11-12 改版面 b：年份勾選列＋最多 4 張大圖）
+
+- **尺寸與標頭**：桌機 `96vw × 92vh`、手機（≤640px）`100vw × 92vh` 由下緣出現；eyebrow「多年份並排」＋圖層標題。
+- **年份勾選列**：標頭下一列年份 chip（C2 底、`--font-data`；選中＝accent 框＋`accentFaint` 底＋勾號），右側「已選 n／4」＋「清除」。最多 4 期，滿了其餘 chip `aria-disabled`、點了出現 `--status-warn` 提示（`role="status"`，3 秒消失）。預設＝最早、最新與平均分布的中間兩年（不足 4 年全選）。年份多（最多 45 年）時 chip 換行、超過約三列在列內捲動；手機改單列橫向捲動。chip 文字只寫年份，完整期別放 `title`／`aria-label`。
+- **說明與圖例**：勾選列下一句由實際期別產生的說明（例「最新一期為 8 月底，其餘為各年年底。」；各期一致就不顯示），不在個別圖上標「期別不同」；之後一列橫排共用圖例（色階、門檻、透明度與主地圖相同；手機在大圖上方）。主地圖圖例不增加任何項目。
+- **大圖**：canvas（邊界簡化基準寬 1000），**不另開 Mapbox 地圖**；依可用空間比較排列取圖最大者（4 期比 4×1 與 2×2、3 期比 3×1 與 2×2）。1440×900 時 4 期為 4×1、每張約 329×441。手機 1 欄全寬、整窗捲動。金門、馬祖以同比例尺細框移到左上角海面。
+- **圖標頭**：只寫年份（完整期別放 `title`）；目前期別標「目前」；邊界版本不同用 `--status-warn` 小字；非目前期別右側「切到主地圖」小鈕（lucide `MapPinned`），點圖本身不切換。
+- **同步描邊與數值**：滑鼠移到任一張圖，所有圖同一區以 accent 描邊（外圈 `--sm-halo` 暈）；點一下固定、再點同一區取消。每張圖下方顯示區名、數值＋單位、與最早一期的差（最早一期寫「比較基準」）；缺值、未發布、不適用一律寫明，不寫 0、不留空，任一端無值時寫「無法與 {年} 年比較（原因）」。區名只用邊界的區名（現有資料沒有鄉鎮→縣市對照，不顯示縣市）。
+- **狀態**：每張圖各自顯示「載入中…」「載入失敗：原因」＋「重試」，不擋其他年份；只載勾選的期別、同時最多 2 份，走 loadingRegistry。
+- **鍵盤**：開窗聚焦關閉鈕、Tab 鎖在視窗內、Esc 關閉（不連帶關 popup）、關窗（含「切到主地圖」）焦點還給開啟鈕；開啟鈕重繪或開窗時沒拿到焦點（Safari）則依 `data-small-multiples-open` 找回。地圖區目前只支援滑鼠／觸控選區。
+
 ### 5.28 共用滑桿（controls/Slider）
 
 - **唯一的原生 range 元件**：`src/components/controls/Slider.tsx`，樣式 `slider.css` `.ctl-range`（規格同 §5.13 S1）。其他檔案不得寫 `type="range"`（guard `native-range` 白名單只剩本元件）。
@@ -753,9 +767,13 @@
 - **色票同源**（R4）：色票顏色一律 import 與地圖 paint **同一個常數**（`src/map/layerPaintColors.ts`、各 `src/data/*Types.ts`），不在 `LegendPanel.tsx` 重抄色號；地圖暗淡不同色時，圖例依 `isDark` 取同一邊。
 - **主題**（LG-12）：文字色只用 `useLegendTheme()`（`DARK_LEGEND`／`LIGHT_LEGEND`），不直接用 `COLORS.*`。文字色取 `COLORS`／`LIGHT`；暗色 `bgSubtle`、`border` 目前是 inline rgba（§10.3）。
 - **尺寸常數**：`LEGEND_SWATCH`（點、方塊、線、分級、漸層、斜線、icon 14、間距 6）。`SwatchDot`／`SwatchSquare` 預設不透明度 0.9。
-- **尚無元件**：LG-5 大小（三圓）、LG-6 icon 還沒有共用元件，逐層做時補。
+- **合成色（LG-14，2026-11-10）**：面圖層的 `SwatchSquare`（實心、呼叫端未傳 `opacity`）與 `SwatchSteps` 在 `LegendFillOpacityCtx` 內時，畫「色 × 圖層目前填色透明度 × 底圖陸地色」的不透明合成色，加 1px `border`，跟透明度滑桿與底圖即時變；`LegendPanel` 依 overlayRegistry 自動提供透明度，統計圖例自己提供。查不到透明度（表達式、hook 自建、3D）維持原色票。規格 `map-layers.md` §4.2 LG-14、§3.9。
+- **暗底提亮同步（C-4，2026-11-10）**：registry 點／線在暗底被 `darkContrast` 提亮過的顏色，`LegendPanel` 以 `LegendLiftCtx` 提供「原色 → 地圖色」對照，`SwatchDot`／`SwatchLine` 自動換色；手寫色票改用 `useLegendColorMapper()`。點色票外環用 `LegendPalette.pointRing`（同地圖點描邊 P-2：暗 `#e5e7eb` 0.45、淡白）。類別無語意的新配色取 `MAP_CATEGORICAL`（map-layers §3.9 C-5）。
+- **大小（LG-5）**：`LegendSizeRow`（點大小三圓並排＋標籤）、`LegendNestedCircles`（三圓底邊對齊套疊、圓頂細線拉到右側數值；`fill` 實心／`ring` 空心圈，直徑＝地圖實際直徑；統計比例圓用，`map-layers.md` §3.10）。統計點密度的圖例不畫大小：一列 `SwatchDot`（該指標色階最深一級）＋「一點＝N 單位」，下面兩行說明「點的位置為區內隨機，不代表實際地點」「不足一點的餘數依區代碼固定機率進位…；觀測值 0 不撒點」，固定門檻說明換成「一點代表的數量依本期全圖總量取 1／2／5×10ⁿ」。點密度的點不是資料點位，地圖上的點半徑隨縮放變化屬 R2 例外（使用者 2026-11-12 決定；`map-layers.md` §3.10），圖例的點樣本維持 `SwatchDot` 固定尺寸。數值用 `LegendNum`，量級與單位用 CJK 字型。
+- **尚無元件**：LG-6 icon（除方向箭頭）還沒有共用元件，逐層做時補。
 - **字型**（LG-10）：面板容器 `FONT_CJK`；數字、分界、單位用 `LegendNum`（`FONT_DATA`＋tabular-nums）。
 - **精簡版**（LG-9）：`LegendPanel` 的 `compact`（停靠 popup 開著時）會讓 `LegendNote` 不顯示；色階、分界、單位不可收。
+- **比較模式**（2026-11-11，§5.45）：圖例仍只有一個面板。統計層兩側且右側另選了期別／細項 → **合成一份圖例**（2026-11-12 使用者選定）：指標名＋單位＋色階說明一次；「左：期別・細項」「右：期別・細項」各一行（側別小標 10px 600 `textStrong`）；色階門檻與配色相同只畫一組色票，不同就「左側」「右側」兩排色票並列（兩欄等寬，各帶同款小標）；狀態列、出典與註記只出現一次，預設收合成「說明 ›」——`<button aria-expanded>`，11px `textMuted`，lucide `ChevronRight` 10px 展開時轉 90°（同 §5.5 圖層展開區「說明・來源」那顆）。只畫一側的**統計層**在圖例末加 `LegendNote`「只顯示在左側／右側」（古地圖等其他圖例不加，側別看圖層列標籤）。比例圓左右期別不同時，兩張地圖與圖例共用較大的參考值；點密度同理共用較大的「一點＝N」。其他圖層圖例照舊。實作 `src/components/compare/CompareStatisticsLegend.tsx`（`StatisticsLegend` 包著用；`MergedCompareLegend` 用 `StatisticsLegendView` 的 `part` 拼成）。
 - **禁止**：手寫 `width／height` 色票（ratchet 只准減少）；英文大寫標題；在圖例裡用 `FONT_DATA` 包中文。
 - **實作**：`src/components/legend/legendKit.tsx`；地圖側缺值斜線 `src/map/mapStyleScale.ts` `hatchImageData()`，圖例與地圖同一組顏色。
 
@@ -891,6 +909,7 @@
 - **狀態**：狀態文字只放在同一 provider 第一個可見的那一列的數值欄（中文用 `FONT_CJK`、`--lpc-muted`）：「載入中…」「載入失敗：原因」＋選單下「重試」（`.lpc-link`）；改值後資料載入期間顯示「切換中…」、選單暫停操作（`aria-busy`）。選項還沒有時選單停用、只有一個「載入中…」選項。載入本身走 loadingRegistry（配方明細、統計數值）。
 - **Agent**：`research/layerControls.ts` 列出連動選單時帶當下選項、`linked.status`、`linked.dependsOn`；設定時值必須在當下選項內（停用的也不行），選項未載入回 `LAYER_CONTROL_OPTIONS_NOT_READY`，非同步改值等資料載入後才讀回。
 - **場景存檔**：存 provider 的目前值（群組「指標」`persist: false` 不存，由可見圖層表達）；還原時等圖層開啟、選項就緒後逐列驗證套用，不合法或逾時的列列進「略過項目」。
+- **選單旁動作鈕**（`LinkedSelectConfig.action`，2026-11-11；2026-11-12 改成選單右側小圖示鈕）：連動選單可在右側帶一顆 C2 小圖示鈕（`.lpc-select-with-action` 包住選單與 `.lpc-btn.lpc-icon-action`，22×20px、lucide `LayoutGrid` 13px），開啟與該選單相關的視窗；鈕上必有 `aria-label`、`title`（同文字）與 `aria-haspopup="dialog"`，可帶額外 `attributes`（例 `data-small-multiples-open`，供關窗找回焦點）。目前只有統計「多年份並排」：掛在同一圖層的資料期別（`field: 'release'`）選單旁，沒有就掛最後一個可見的統計連動選單；文字「多年份並排（N 年）」；可並排年份 ≥2 才出現；只在面板（有 i18n）掛上，Agent 控制清單與 golden 快照不含此鈕。
 - **禁止**：在 `ExpandedControls` 或統計元件裡另寫期別／指標 select；把值複製進 layerParamsStore（兩個寫入者會互相蓋）；載入中把整列藏起來造成版面跳動（用保底列）。
 - **實作**：`src/state/{linkedSelect.ts,statisticsLinkedSelect.ts}`、`src/data/statisticsParamsSpec.ts`、`LayerParamControls.tsx` `LinkedSelectControl`、`layerParamsControls.ts` `LinkedSelectConfig`／`visibleControlSpecs`。
 
@@ -1011,6 +1030,10 @@
 - **禁止**：依視野**自動**切換國家主體；在手機顯示；與 AI 對話框或 Agent 活動卡同時出現；另做一個右上提示元件。
 - **實作**：`src/components/CountryViewportHint.tsx`＋`countryViewportHint.css`、`src/hooks/useViewportCountry.ts`；掛在 `App.tsx` 載入狀態條旁。
 
+#### 5.42.3 「左右比較」段（2026-11-11，§5.45）
+
+同一張視野提示卡的另一段（放在「現代地名可以關」之上）：比較模式剛開時說明「拖中間的把手比較左右；在圖層展開區設定每層『顯示在』左、右或兩側」，開著的圖層有比較模式不支援的就加一行「N 個圖層在比較模式只顯示在左側」。lucide `Columns2` 13px＋標題「左右比較」12px 600；按鈕只有 C2 一般「知道了」。按了本次比較不再顯示，關掉比較再開會重新出現。條件同 §5.42（手機、拍攝模式、AI 對話框或 Agent 活動卡開著時不顯示）。文案 `compare.hint*`。不另做元件。
+
 #### 5.42.2 「現代地名可以關」段（2026-11-05，古地圖）
 
 同一張視野提示卡的第三段（置於「圖層看不到」之上）：**古地圖系列五個不透明圖層（`historicalMapSinica`／`historicalMapPostwar`／`historicalImagery`／`historicalLandUse`／`historicalThematic`，界線路網疊加層不算）任一開著、底圖地名還開著時**提示現代地名會疊在古地圖上、可以關。外觀沿用本卡（lucide `Type` 13px＋標題 12px 600＋說明 11px `textMuted`）；按鈕＝C2 主要「關閉地名」（與工具列底圖選單「顯示地名」同一個 `showBasemapLabels`）＋C2 一般「知道了」。按鈕或「知道了」後本次不再顯示，古地圖關掉再開才重新提示。條件同 §5.42（手機、拍攝模式、AI 對話框或 Agent 活動卡開著時不顯示）。不另做元件。文案 `layerHint.labels*`。
@@ -1083,6 +1106,22 @@
 - **文案**：`camera.cursor`、`contextMenu.*`、`measure.*`（三語）。
 - **禁止**：用 Mapbox 預設 popup 或第三方 draw 套件外觀；量測中讓圖層 popup 跳出；把量測寫進網址。
 - **實作**：`src/components/MapContextMenu.tsx`、`MeasureToolbar.tsx`、`mapMeasure.css`、`src/map/measureController.ts`、`measureMath.ts`、`coordinates.ts`（測試 `src/map/__tests__/measureMath.test.ts`、`coordinates.test.ts`）；`CameraHud.tsx`（游標行）；掛在 `App.tsx`。
+
+### 5.45 比較把手（2026-11-11，比較模式 P1）
+
+使用者 2026-11-11 拍板（`docs/features/compare-mode/DESIGN.md` 文首 Q1–Q5）：同一個網址左右兩張地圖，中間把手拖曳比較。
+
+- **地圖**：主地圖＝左側；開比較才另建右圖（同底圖、語系、地名開關、地形），疊在主地圖上、`clip-path: inset(0 0 0 X%)` 只露出把手右邊；鏡頭雙向同步。關比較就 `map.remove()`。
+- **把手**：2px 直線（暗 `#fff` 0.8／淡 `#111827` 0.6，token 沒有這一階，刻意保留）貫穿地圖高度；中間 28px 圓鈕（暗 `SURFACE.strong`／淡 `--light-surface-strong`、1px `BORDER.strong`、`ELEVATION.sm`／淡 `--light-elevation-lg`），內含 lucide `ChevronsLeftRight` 13px。線兩側各 5px 拖曳熱區（`ew-resize`）。層級 `Z_INDEX.mapOverlay`（與時間軸同層）。
+- **操作**：拖曳（pointer capture）；圓鈕 `role="slider"`、`aria-valuenow` 5–95（%）、←→ 一次 5%、Esc 結束比較（焦點在圓鈕時）。位置限 5%–95%。focus-visible 2px accent 外框。
+- **拍攝模式**：保留分割線、隱藏圓鈕與熱區（§5.20）。
+- **哪些圖層能分左右（P1）**：古地圖六層（`historicalMapSinica.ts`）與統計圖層（面量圖、比例圓、點密度）。其他圖層照畫在左側，圖層列標「只在左側」（滑過看「比較模式暫不支援，只顯示在左側」，§5.11 比較類）。支援的層設成只在一側時列尾標「左」或「右」。
+- **點擊**：右半的點擊由右圖處理；統計面、比例圓或點密度的區域（點本身不可點，點到的是透明的面） → 同一個停靠 popup，第一列「比較：右側」（左半為「左側」）。
+- **分享網址**：`cmp=1`、`cmpx`（把手，預設 0.5 不寫）、`cmpl`／`cmpr`（只在左／右的層）、`cmpdl`／`cmpdr`（比較中統計層的左／右期別與細項，右側只在與左側不同時寫）；不升 `v`（`src/lib/urlState.ts`）。
+- **手機**：沒有入口；帶比較參數的網址在窄螢幕用單一地圖開，並提示「左右比較目前只支援桌機，已改用單一地圖顯示。」
+- **文案**：`compare.*`（三語）。
+- **禁止**：在右圖另做一套圖層控制或圖例面板；把比較狀態寫進 localStorage；讓不支援的層靜默消失（一律畫在左側並標示）。
+- **實作**：`src/components/compare/{CompareDivider.tsx,compareDivider.css,CompareStatisticsLegend.tsx}`、`src/map/{CompareMapView.tsx,compareSync.ts,compareRightMap.ts}`、`src/state/{compareStore.ts,compareStatistics.ts,compareControls.ts}`；掛在 `App.tsx`。
 
 ## 6. 文案規則
 

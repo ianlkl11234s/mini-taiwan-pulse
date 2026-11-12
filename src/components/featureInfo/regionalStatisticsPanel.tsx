@@ -8,6 +8,7 @@ import type { LocaleSnapshot } from "../../state/localeStore";
 import { boundaryVersionLabel, humanizeStatisticsText, statisticsAvailabilityLabel, statisticsDisclosure, statisticsLocationBasis, statisticsPeriodLabel } from '../../data/statisticsLabels';
 import { demographicsYtdText, type DemographicsYtdParts } from '../../data/demographicsStatisticsRecipes';
 import { atlasCategoryLabel } from '../../data/atlasStatisticsRecipes';
+import { useCompareState } from '../../state/compareStore';
 
 const INPUT_LABELS: Record<string, string> = {
   official_complete_county_sum: '22縣市同類合計', numerator: '分子', denominator: '分母', numerator_hectares: '同類面積（公頃）',
@@ -51,6 +52,9 @@ function periodText(props: Record<string, unknown>, i18n: LocaleSnapshot): strin
 export function RegionalStatisticsPanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
   const { t } = i18n;
+  // 比較模式：標出點的是哪一側（右圖點擊會帶 compare_side: "right"；DESIGN §4）
+  const compare = useCompareState();
+  const compareSide = compare.enabled ? t(props.compare_side === 'right' ? 'compare.popupRight' : 'compare.popupLeft') : undefined;
   // 非勞動力率（loader 以 complement_100 換算）：公式與說明在 loader 寫中文，外文由這裡翻
   const complement = props.value_transform === 'complement_100';
   let format = props.format;
@@ -74,6 +78,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     : props.source_status === 'not_reported' ? t('popup.regionalStatistics.notReported')
       : t('popup.regionalStatistics.missingData', { status: String(props.status ?? 'missing') });
   return <>
+    {compareSide && <Row label={t('compare.popupSide')} value={compareSide} />}
     <Row label={prosecutorDistrict ? t('popup.regionalStatistics.prosecutorDistrict') : t('popup.field.region')} value={prosecutorDistrict || props.area_name == null ? String(props.area_name ?? props.area_code ?? '—') : placeName(String(props.area_name), i18n, props.area_code as string | number | null | undefined)} />
     {prosecutorDistrict && <Row label={t('popup.regionalStatistics.coveredCounties')} value={`${props.counties == null ? '—' : placeNameList(String(props.counties), i18n)}${typeof props.township_count === 'number' ? t('popup.regionalStatistics.townshipCount', { count: props.township_count }) : ''}`} />}
     {prosecutorDistrict && <Row field="caution" value={t('popup.regionalStatistics.prosecutorCaution')} />}

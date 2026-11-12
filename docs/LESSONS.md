@@ -94,6 +94,7 @@
 6. **Jev 只做候選分類**，schema、權限、資料健康與執行一律由 deterministic code 決定。→ [jev-routing-accelerator](./features/agent-research-workbench/jev-routing-accelerator.md)
 7. **倉庫資料有已知坑，回答時要提醒**：再生能源許可一列是一筆地號不是一座電廠；A1 事故一列是一個當事人；北北基市區公車要用另一張站牌表；WRA 河道線沒有河名。→ [DATA_SCOPE](../.claude/memory/DATA_SCOPE.md)（部分）；完整清單目前在 MCP repo 題庫與個人 memory，待整理成 repo 內文件
 8. **回答分清楚五種狀態**：找資料、授權、回讀、結果、呈現；地址內插點不稱精確門牌，直線距離不稱路網距離。→ [REFLECTIONS 2026-09-20～21 Layer Discovery](../.claude/memory/REFLECTIONS.md)
+9. **入倉後用筆數對照原始資料驗，不能只看「查得到」**：代表點被 UNION 曾讓 10 份資料重複計算；派工寫明用 python3.14（DuckDB 1.5.3），系統 python 會寫出 2.0 版包。→ [REFLECTIONS 2026-11-09～10 多國跨夜](../.claude/memory/REFLECTIONS.md)
 
 ## 6. 網站哲學與產品原則
 
@@ -199,6 +200,7 @@
 6. **平行派工先分檔案所有權＋禁改清單**；長跑子代理每個子階段先 commit；派工附可量化的驗收關卡。→ [PB-37](../.claude/memory/PLAYBOOKS.md#pb-37-多-agent-worktree-平行開發-wave2026-08-10-定型稽核執行-8-批-7-pr-一次成型)、[PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)；用 agent-browser 的 worker 要給唯一 session 名＋每呼叫 60 秒上限，同名 daemon 會互卡 → [INCIDENTS 2026-10-02](../.claude/memory/INCIDENTS.md#2026-10-02-r5-校正子代理兩度停滯-600-秒同名-agent-browser-daemon-互卡)
 7. **「沒有」的證據先驗量測手段看不看得到**：Resource Timing 只留 250 筆、lazy chunk、本機 `grep` 是會吞輸出的 shell function（否定結論用 `/usr/bin/grep` 或 `rg` 複驗）。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 8. **migration 取號前 `git fetch` 看 origin 最大號**。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
+9. **派工前先查 BACKLOG 項目是否其實已完成**（`git log -S`、PR 搜尋）；worker 卡住或斷線時先存 WIP commit 再用 SendMessage 接續；和平行 session 分工時發版只由一方發。→ [REFLECTIONS 2026-11-09～10 多國跨夜](../.claude/memory/REFLECTIONS.md)
 
 ## 10. 過時文件索引（2026-10-16）
 

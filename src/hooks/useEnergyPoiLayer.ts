@@ -404,13 +404,28 @@ export function useEnergyPoiLayer(
   const facSecondaryRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const facOsmSupplementRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
-  // 撤權（review F088）：module cache 由 energyLoader 自己清；這裡清 hook 暫存的站主限定資料
-  useEffect(() => registerOwnerGateReset(OWNER_GATED_ENERGY_LAYER_KEYS, () => {
-    for (const ref of [
-      plantsFcRef, subsFcRef, subsEhvFcRef, linesFcRef, towersFcRef, osmPlantsFcRef, fossilFcRef,
-      facPrimaryRef, facOffshoreRef, facPlannedRef, facHistoricalRef, facSecondaryRef, facOsmSupplementRef,
-    ]) ref.current = null;
-  }), []);
+  // 撤權（review F088）：module cache 由 energyLoader 自己清；這裡只清被撤權 key 對應的 hook 暫存資料
+  // （review F005：仍授權且開著的層保留資料，不會因別層撤權變空）
+  useEffect(() => {
+    const refsByKey: Partial<Record<(typeof OWNER_GATED_ENERGY_LAYER_KEYS)[number], React.MutableRefObject<GeoJSON.FeatureCollection | null>>> = {
+      powerPlants: plantsFcRef,
+      osmSubstations: subsFcRef,
+      osmSubstationsEhv: subsEhvFcRef,
+      osmPowerLines: linesFcRef,
+      osmPowerTowers: towersFcRef,
+      osmPowerPlantsStatic: osmPlantsFcRef,
+      fossilFuelInfra: fossilFcRef,
+      facPrimary: facPrimaryRef,
+      facOffshore: facOffshoreRef,
+      facPlanned: facPlannedRef,
+      facHistorical: facHistoricalRef,
+      facSecondary: facSecondaryRef,
+      facOsmSupplement: facOsmSupplementRef,
+    };
+    return registerOwnerGateReset(OWNER_GATED_ENERGY_LAYER_KEYS, (revoked) => {
+      for (const [key, ref] of Object.entries(refsByKey)) if (revoked.has(key) && ref) ref.current = null;
+    });
+  }, []);
 
   const feedPlants = useSourceFeed(mapRef, showPlants, SRC_PLANTS, plantsFcRef);
   const feedSubs = useSourceFeed(mapRef, showSubstations, SRC_SUBSTATIONS, subsFcRef);

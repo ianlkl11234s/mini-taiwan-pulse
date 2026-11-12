@@ -94,12 +94,15 @@ describe("imageryManifestLoader", () => {
     expect((await loadImageryManifestFrames(q))!.map((f) => f.product)).toEqual(["ch1"]);
   });
 
-  it("讀取失敗（5xx）當成該日沒有：全部失敗 → null 退回 RPC，其他日照用", async () => {
+  it("讀取失敗（5xx）：任一日失敗就 null 整段退回 RPC，不回殘缺結果（review F023）", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const q = { source: "aqi" as const, products: ["AQI"], sinceIso: "2026-11-06T12:00:00Z", untilIso: "2026-11-07T12:00:00Z", loadingKey: "t", loadingLabel: "t", silent: true };
     stubManifests({ "2026-11-06": 500, "2026-11-07": 503 });
     expect(await loadImageryManifestFrames(q)).toBeNull();
     stubManifests({ "2026-11-06": 500, "2026-11-07": [frame("AQI", "2026-11-07T08:00:00Z")] });
+    expect(await loadImageryManifestFrames(q)).toBeNull();
+    // 404（當天還沒有 manifest）不算失敗，其他日照用
+    stubManifests({ "2026-11-07": [frame("AQI", "2026-11-07T08:00:00Z")] });
     expect((await loadImageryManifestFrames(q))!).toHaveLength(1);
   });
 });

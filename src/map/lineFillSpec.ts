@@ -18,9 +18,9 @@ import type { ExpressionSpecification } from "mapbox-gl";
 import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { getParamsSpec, specOutKey } from "../data/layerParamsSpec";
 import {
-  BOUNDARY_GRAY, FILL_OPACITY, FILL_OUTLINE, GRADED_SEAM, LINE_DASH, LINE_OPACITY, lineWidthExpr, mapSeamColor,
+  BOUNDARY_GRAY, FILL_OPACITY, FILL_OPACITY_DARK, FILL_OUTLINE, GRADED_SEAM, LINE_DASH, LINE_OPACITY, lineWidthExpr, mapSeamColor,
 } from "./mapStyleScale";
-import { FILL_TIERS, LINE_TIERS, HOOK_LINE_TIERS, HOOK_FILL_TIERS, type FillTier, type LineTierSpec } from "./lineFillTiers";
+import { FILL_DARK_OPACITY_OVERRIDE, FILL_TIERS, LINE_TIERS, HOOK_LINE_TIERS, HOOK_FILL_TIERS, type FillTier, type LineTierSpec } from "./lineFillTiers";
 import { DECORATION_SUFFIX_RE, isDataDriven } from "./pointSpec";
 
 type Paint = Record<string, unknown>;
@@ -146,12 +146,13 @@ function scaleZoomExpr(v: unknown, target: number): unknown | null {
   return next;
 }
 
-/** 面（F-1）。 */
-function fillWrap(tier: FillTier): Wrap {
-  return (base, def, _isDark, opDiv) => {
+/** 面（F-1）。darkTable：暗底改用 FILL_OPACITY_DARK（只給 registry 路徑）；darkOverride：個別圖層暗底值。 */
+function fillWrap(tier: FillTier, darkTable = false, darkOverride?: number): Wrap {
+  return (base, def, isDark, opDiv) => {
     const o = base["fill-opacity"];
     if (isDataDriven(o) || isHidden(def["fill-opacity"])) return base;
-    const target = clamp01(FILL_OPACITY[tier] * ratio(o, def["fill-opacity"]) / opDiv);
+    const base0 = darkTable && isDark ? darkOverride ?? FILL_OPACITY_DARK[tier] : FILL_OPACITY[tier];
+    const target = clamp01(base0 * ratio(o, def["fill-opacity"]) / opDiv);
     const out: Paint = { ...base, "fill-opacity": scaleZoomExpr(o, target) ?? target };
     delete out["fill-outline-color"];
     return out;
@@ -204,7 +205,7 @@ export function withLineFillSpec(config: OverlayConfig): OverlayConfig {
   const layers = config.layers.map((layer): OverlayLayerSpec => {
     if (DECORATION_SUFFIX_RE.test(layer.suffix)) return layer;
     if (layer.type === "fill" && fillTier && fillTier !== "keep") {
-      return { ...layer, paint: wrapPaint(config, layer, fillWrap(fillTier)) };
+      return { ...layer, paint: wrapPaint(config, layer, fillWrap(fillTier, true, FILL_DARK_OPACITY_OVERRIDE[config.id])) };
     }
     if (layer.type !== "line") return layer;
     const lineTier = boundary ? LINE_TIERS[config.id] : LINE_TIERS[`${config.id}/${layer.suffix}`];

@@ -5,6 +5,11 @@ import tsParser from "@typescript-eslint/parser";
 import pulse from "./eslint-rules/index.js";
 
 const HOOKS_AND_MAP = ["src/hooks/**/*.{ts,tsx}", "src/map/**/*.{ts,tsx}"];
+/**
+ * R2「點半徑不隨 zoom」的正式例外（只列檔名，不放寬規則）：
+ * - statisticsDots.ts：統計點密度的點不是資料點位，半徑隨縮放變化（使用者 2026-11-12 決定；map-layers.md §3.10）。
+ */
+const ZOOM_RADIUS_EXCEPTIONS = ["src/map/statisticsDots.ts"];
 
 // 站主限定（owner-only）圖層的資料存取檔：資料只走同源 /api/private-research/*。
 // 範圍由 eslint-rules/__tests__/ownerOnlyScope.test.js 釘住：src/data、src/hooks 裡含 /api/private-research/
@@ -169,7 +174,7 @@ export default [
   { files: ["src/hooks/use*Layer.ts", "src/hooks/factories/timelineSliceLayer.ts"], rules: { "pulse/map-ready-tick-deps": "error" } },
 
   // 點圖層 R2（docs/design-system/map-layers.md）
-  { files: HOOKS_AND_MAP, ignores: ["src/map/overlayRegistry.ts"], rules: { "pulse/no-zoom-circle-radius": "error" } },
+  { files: HOOKS_AND_MAP, ignores: ["src/map/overlayRegistry.ts", ...ZOOM_RADIUS_EXCEPTIONS], rules: { "pulse/no-zoom-circle-radius": "error" } },
   {
     files: HOOKS_AND_MAP,
     ignores: ["src/map/pointSpec.ts", "src/map/mapStyleScale.ts"],
@@ -232,6 +237,8 @@ export default [
   // day prefetch（AU-3）：CWA 不走共享 queue
   // currentTime 不進 hook deps（CLAUDE.md §6）：全站
   { files: ["src/**/*.{ts,tsx}"], rules: { "pulse/no-current-time-deps": "error" } },
+  // 前端只讀 public RPC 與 reference／spatial（development-rules §1 Schema 分工，LINT-1）：全站
+  { files: ["src/**/*.{ts,tsx}"], rules: { "pulse/no-nonpublic-schema": "error" } },
   {
     files: ["src/hooks/useCwaImageryLayer.ts"],
     rules: {

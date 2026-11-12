@@ -8,6 +8,8 @@ interface Props {
   icon?: boolean;
   /** 主要按鈕（C2）：淡 accent 底 + accent 框 + accent 字，semibold */
   primary?: boolean;
+  /** 開關類圖示按鈕的開啟狀態（例：左右比較）：accentFaint 底＋accent 字，`aria-pressed` */
+  pressed?: boolean;
   title?: string;
   ariaLabel?: string;
   onClick?: () => void;
@@ -16,10 +18,10 @@ interface Props {
 }
 
 /** 右上角工具列共用按鈕（T2 規格）：高 26、圓角 4、中文字型；hover 淡入底色。 */
-export function ToolbarButton({ palette, icon = false, primary = false, title, ariaLabel, onClick, children, style }: Props) {
+export function ToolbarButton({ palette, icon = false, primary = false, pressed, title, ariaLabel, onClick, children, style }: Props) {
   const [hover, setHover] = useState(false);
 
-  const background = primary
+  const background = primary || pressed
     ? palette.accentFaint
     : hover
     ? palette.controlBgHover
@@ -30,6 +32,7 @@ export function ToolbarButton({ palette, icon = false, primary = false, title, a
       type="button"
       title={title}
       aria-label={ariaLabel ?? title}
+      aria-pressed={pressed}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -44,7 +47,7 @@ export function ToolbarButton({ palette, icon = false, primary = false, title, a
         borderRadius: RADIUS.md,
         border: `1px solid ${primary ? palette.accent : "transparent"}`,
         background,
-        color: primary ? palette.accent : palette.textStrong,
+        color: primary || pressed ? palette.accent : palette.textStrong,
         fontFamily: FONT_CJK,
         fontSize: 11,
         fontWeight: primary ? 600 : 500,

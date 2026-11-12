@@ -402,5 +402,5 @@
   "popup.atlas.vioParent": "所屬監理所",
   "popup.atlas.vioFax": "傳真",
   "popup.atlas.vioJurisdiction": "轄區（原文）",
-  "popup.atlas.vioOsm": "位置依 OpenStreetMap 同名地物"
+  "popup.atlas.vioOsm": "位置依 OpenStreetMap 同名地物（© OpenStreetMap contributors，ODbL）"
 }

@@ -35,6 +35,8 @@ export function useHistoricalMapLayer(
   visible: boolean,
   opacity: number,
   eraIdx: number | undefined,
+  /** loadingRegistry 任務 id 前綴：比較模式右圖同時載入同一層時不互相結束 */
+  loadingPrefix = "",
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
 
@@ -78,12 +80,12 @@ export function useHistoricalMapLayer(
       map.setLayoutProperty(LAYER_ID, "visibility", "visible");
       map.setPaintProperty(LAYER_ID, "raster-opacity", clampOpacity(opacity));
       if (!wasVisible || !current || current.source !== sourceId) {
-        keepLoadingUntilMapIdle(map, `${sourceId}:render`, "古地圖載入中", sourceId, 8000);
+        keepLoadingUntilMapIdle(map, `${loadingPrefix}${sourceId}:render`, "古地圖載入中", sourceId, 8000);
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, key, visible, opacity, eraIdx, mapTick]);
+  }, [mapRef, key, visible, opacity, eraIdx, mapTick, loadingPrefix]);
 }

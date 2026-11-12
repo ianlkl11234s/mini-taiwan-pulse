@@ -1,12 +1,21 @@
 import { Row } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { useFeatureTheme } from "./featureTheme";
+import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
+import { categoricalColor, categoricalNeutral } from "../../map/mapStyleScale";
+import { COURT_TIER_COLOR_KEYS, POLICE_TIER_COLOR_KEYS, PROSECUTOR_TIER_COLOR_KEYS, tierColorIndex } from "../../map/justiceTierColors";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { placeName, placeTown } from "../../i18n/placeText";
 import type { StaticMessageKey } from "../../i18n/keys";
 
 type PanelProps = { props: Record<string, unknown> };
+
+/** C-5：popup 色點與地圖同色（依底圖、依階層）；查不到階層用 fallback 索引（警察為中性灰）。 */
+function useTierColor(keys: ReadonlyArray<readonly [string, number]>, value: string, fallback: number | null): string {
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const index = tierColorIndex(keys, value) ?? fallback;
+  return index === null ? categoricalNeutral(isDark) : categoricalColor(index, isDark);
+}
 
 function Header({ color, name }: { color: string; name: string }) {
   const t = useFeatureTheme();
@@ -75,9 +84,10 @@ export function PoliceStationPanel({ props }: PanelProps) {
   const i18n = useLocale();
   const { t } = i18n;
   const sub = String(props.facility_subtype ?? "");
+  const color = useTierColor(POLICE_TIER_COLOR_KEYS, sub, null);
   return (
     <>
-      <Header color="#1e40af" name={String(props.name ?? t("popup.policeJustice.policeDefault"))} />
+      <Header color={color} name={String(props.name ?? t("popup.policeJustice.policeDefault"))} />
       <Row field="type" value={POLICE_SUBTYPE_ZH[sub] ? enumLabel("policeSubtype", sub, POLICE_SUBTYPE_ZH[sub], i18n) : sub} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
@@ -133,9 +143,10 @@ export function CourtPanel({ props }: PanelProps) {
   const i18n = useLocale();
   const { t } = i18n;
   const ct = String(props.court_type ?? "");
+  const color = useTierColor(COURT_TIER_COLOR_KEYS, ct, 7);
   return (
     <>
-      <Header color="#7c3aed" name={String(props.name ?? t("popup.policeJustice.courtDefault"))} />
+      <Header color={color} name={String(props.name ?? t("popup.policeJustice.courtDefault"))} />
       <Row field="type" value={COURT_TYPE_ZH[ct] ? enumLabel("courtType", ct, COURT_TYPE_ZH[ct], i18n) : ct} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
@@ -148,9 +159,10 @@ export function ProsecutorsOfficePanel({ props }: PanelProps) {
   const i18n = useLocale();
   const { t } = i18n;
   const pt = String(props.pros_type ?? "");
+  const color = useTierColor(PROSECUTOR_TIER_COLOR_KEYS, pt, 7);
   return (
     <>
-      <Header color="#a855f7" name={String(props.name ?? t("popup.policeJustice.prosecutorDefault"))} />
+      <Header color={color} name={String(props.name ?? t("popup.policeJustice.prosecutorDefault"))} />
       <Row field="type" value={PROS_TYPE_ZH[pt] ? enumLabel("prosecutorType", pt, PROS_TYPE_ZH[pt], i18n) : pt} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />

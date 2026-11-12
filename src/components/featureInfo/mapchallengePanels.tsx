@@ -238,11 +238,15 @@ export function MapchallengeDay06LighthousesPanel({ props }: Props) {
 }
 
 // ── Day 8 烏托邦 ─────────────────────────────────────────────
-function Day08Footer() {
-  const { t } = useLocale();
+/** historical：方案 D／Dfull 的用地由 1955 計畫圖數化而來，來源要帶上該圖與 CC BY-NC 授權（不依賴另開原圖層） */
+function Day08Footer({ historical = false }: { historical?: boolean }) {
+  const { t, active } = useLocale();
+  const source = historical
+    ? `${t("legend.mapchallenge.day08.source")}${active === "en" ? "; " : "；"}${t("legend.mapchallenge.day08.planLicense")}`
+    : t("legend.mapchallenge.day08.source");
   return <>
     <Row label={t("popup.mapchallenge.day08.caveatLabel")} value={t("legend.mapchallenge.day08.caveat")} />
-    <SourceFooter props={{ source: t("legend.mapchallenge.day08.source") }} />
+    <SourceFooter props={{ source }} />
   </>;
 }
 
@@ -279,7 +283,7 @@ export function MapchallengeDay08AccessPanel({ props }: Props) {
       ? <Row label={t(MAPCHALLENGE_DAY08_SCENARIO_KEYS.base)} value={mins(before)} mono />
       : <Row label={t("popup.mapchallenge.day08.beforeAfter", { scenario: t(MAPCHALLENGE_DAY08_SCENARIO_KEYS[scenario]) })}
           value={t("popup.mapchallenge.day08.arrow", { a: mins(before), b: mins(after) })} mono />}
-    <Day08Footer />
+    <Day08Footer historical={scenario === "D" || scenario === "Dfull"} />
   </div>;
 }
 
@@ -340,7 +344,7 @@ export function MapchallengeDay08SitesPanel({ props }: Props) {
     {cLow !== null && cBase !== null && cHigh !== null && <Row label={t("popup.mapchallenge.day08.cost")} value={t("popup.mapchallenge.day08.costValue", {
       low: yi(cLow), base: yi(cBase), high: yi(cHigh),
     })} mono />}
-    <Day08Footer />
+    <Day08Footer historical={historical} />
   </div>;
 }
 
@@ -351,8 +355,9 @@ export function MapchallengeDay09UrbanRuralPanel({ props }: Props) {
   const metric = mapchallengeDay09MetricByKey(paramStr(values, "mapchallengeDay09UrbanRural", "mapchallengeDay09UrbanRuralMetric"));
   const pop = num(props.pop);
   const q = Math.min(4, Math.max(0, Math.trunc(num(props.q)) || 0));
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
   return <div>
-    <Title color={mapchallengeDay09FeatureColor(metric, props)}>{str(props.name)}</Title>
+    <Title color={mapchallengeDay09FeatureColor(metric, props, isDark)}>{str(props.name)}</Title>
     <Row label={t("popup.mapchallenge.day09.pop")} value={t("popup.mapchallenge.day09.people", { n: formatNumber(pop) })} mono />
     <Row label={t("popup.mapchallenge.day09.density")} value={t("popup.mapchallenge.day09.perKm2", { n: formatNumber(num(props.density)) })} mono />
     <Row label={t("popup.mapchallenge.day09.group")} value={t(MAPCHALLENGE_DAY09_QUINTILE_KEYS[q]!)} />
@@ -361,7 +366,7 @@ export function MapchallengeDay09UrbanRuralPanel({ props }: Props) {
       const per = pop > 0 ? (c / pop) * 1e4 : 0;
       return <Row key={f.key} label={t(MAPCHALLENGE_DAY09_METRIC_KEYS[f.key])}
         value={t("popup.mapchallenge.day09.countPer", { n: formatNumber(c), per: per.toFixed(2) })}
-        color={f.key === metric ? mapchallengeDay09FeatureColor(metric, props) : undefined} mono />;
+        color={f.key === metric ? mapchallengeDay09FeatureColor(metric, props, isDark) : undefined} mono />;
     })}
     <SourceFooter props={{ source: t("legend.mapchallenge.day09.source") }} />
   </div>;

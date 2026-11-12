@@ -1,0 +1,449 @@
+/*
+ * 統計「多年份並排」視窗（spec §5.27；版面 b：上方年份勾選列＋大圖，2026-11-12 使用者選定）。
+ * 桌機 96vw × 92vh；手機（≤640px）由下緣出現 100vw × 92vh、整窗捲動、大圖上下堆疊。
+ * 顏色只用 tokens（暗色預設、.sm-dialog--light 改指 --light-*）。
+ */
+.sm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.sm-dialog {
+  --sm-surface: var(--surface-solid);
+  --sm-border: var(--border-panel);
+  --sm-text-strong: var(--text-strong);
+  --sm-text: var(--text-default);
+  --sm-muted: var(--text-muted);
+  --sm-dim: var(--text-dim);
+  --sm-card: var(--control-bg);
+  --sm-card-hover: var(--control-bg-hover);
+  --sm-card-border: var(--control-border);
+  --sm-accent: var(--accent);
+  --sm-accent-faint: var(--accent-faint);
+  --sm-warn: var(--status-warn);
+  --sm-err: var(--status-err);
+  /* 同步描邊的外暈（讓 accent 描邊在任何填色上都看得到） */
+  --sm-halo: var(--surface-solid);
+  display: flex;
+  flex-direction: column;
+  width: 96vw;
+  height: 92vh;
+  overflow: hidden;
+  border: 1px solid var(--sm-border);
+  border-radius: var(--radius-xl);
+  background: var(--sm-surface);
+  color: var(--sm-text);
+  font-family: var(--font-cjk);
+  box-shadow: var(--elevation-lg);
+}
+
+.sm-dialog--light {
+  --sm-surface: var(--light-surface-solid);
+  --sm-border: var(--light-border);
+  --sm-text-strong: var(--light-text-strong);
+  --sm-text: var(--light-text-default);
+  --sm-muted: var(--light-text-muted);
+  --sm-dim: var(--light-text-dim);
+  --sm-card: var(--light-control-bg);
+  --sm-card-hover: var(--light-control-bg-hover);
+  --sm-card-border: var(--light-control-border);
+  --sm-accent: var(--light-accent);
+  --sm-accent-faint: var(--light-accent-faint);
+  --sm-warn: var(--light-status-warn);
+  --sm-err: var(--light-status-err);
+  --sm-halo: var(--light-surface-solid);
+  box-shadow: var(--light-elevation-lg);
+}
+
+.sm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--sm-border);
+}
+
+.sm-eyebrow {
+  font-size: var(--font-xs);
+  letter-spacing: 1.4px;
+  color: var(--sm-dim);
+}
+
+.sm-title {
+  margin: 1px 0 0;
+  font-size: var(--font-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--sm-text-strong);
+}
+
+.sm-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--sm-dim);
+  cursor: pointer;
+}
+
+.sm-close:hover {
+  background: var(--sm-card-hover);
+}
+
+.sm-close:focus-visible,
+.sm-chip:focus-visible,
+.sm-link:focus-visible,
+.sm-switch:focus-visible,
+.sm-retry:focus-visible {
+  outline: 2px solid var(--sm-accent);
+  outline-offset: 2px;
+}
+
+.sm-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 10px 14px 12px;
+}
+
+/* ── 年份勾選列 ── */
+.sm-picker {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sm-chips {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  /* 年份很多（最多 45 年）時最多約三列，其餘在列內捲動，不撐破視窗 */
+  max-height: 90px;
+  overflow-y: auto;
+}
+
+.sm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--sm-card-border);
+  border-radius: var(--radius-md);
+  background: var(--sm-card);
+  color: var(--sm-text);
+  font: var(--font-weight-semibold) var(--font-sm) / 1 var(--font-data);
+  cursor: pointer;
+}
+
+.sm-chip:hover {
+  background: var(--sm-card-hover);
+}
+
+.sm-chip.is-on {
+  border-color: var(--sm-accent);
+  background: var(--sm-accent-faint);
+  color: var(--sm-accent);
+}
+
+.sm-chip[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sm-picker-tools {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  height: 24px;
+}
+
+.sm-count {
+  font-size: var(--font-sm);
+  color: var(--sm-muted);
+  white-space: nowrap;
+}
+
+.sm-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sm-accent);
+  font: inherit;
+  font-size: var(--font-sm);
+  cursor: pointer;
+}
+
+.sm-link:disabled {
+  color: var(--sm-dim);
+  cursor: default;
+}
+
+.sm-hint {
+  min-height: 15px;
+  margin: 2px 0 0;
+  font-size: var(--font-sm);
+  color: var(--sm-warn);
+}
+
+.sm-notes {
+  display: grid;
+  gap: 1px;
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  color: var(--sm-muted);
+}
+
+.sm-notes p {
+  margin: 0;
+}
+
+/* ── 共用圖例（橫排一列，不佔大圖寬度） ── */
+.sm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin-top: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--sm-border);
+  border-bottom: 1px solid var(--sm-border);
+  font-size: var(--font-sm);
+}
+
+.sm-legend-note {
+  font-size: var(--font-xs);
+  color: var(--sm-muted);
+}
+
+/* ── 大圖 ── */
+.sm-area {
+  flex: 1;
+  min-height: 0;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.sm-maps {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  gap: 12px;
+  height: 100%;
+}
+
+.sm-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: var(--font-base);
+  color: var(--sm-dim);
+}
+
+.sm-map {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.sm-map-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+}
+
+.sm-map-year {
+  font-size: var(--font-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--sm-text-strong);
+}
+
+.sm-flag {
+  font-size: var(--font-xs);
+  color: var(--sm-accent);
+}
+
+.sm-flag--warn {
+  color: var(--sm-warn);
+}
+
+.sm-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 22px;
+  margin-left: auto;
+  padding: 0 7px;
+  border: 1px solid var(--sm-card-border);
+  border-radius: var(--radius-md);
+  background: var(--sm-card);
+  color: var(--sm-text);
+  font: inherit;
+  font-size: var(--font-xs);
+  cursor: pointer;
+}
+
+.sm-switch:hover {
+  background: var(--sm-card-hover);
+}
+
+.sm-canvas {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: var(--sm-card);
+}
+
+.sm-canvas canvas {
+  display: block;
+}
+
+.sm-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sm-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  padding: 8px;
+  font-size: var(--font-sm);
+  text-align: center;
+  color: var(--sm-dim);
+}
+
+.sm-state--error {
+  color: var(--sm-err);
+}
+
+.sm-retry {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sm-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sm-retry:hover {
+  text-decoration: underline;
+}
+
+.sm-readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+  min-height: 38px;
+  align-content: flex-start;
+  font-size: var(--font-sm);
+  color: var(--sm-text);
+}
+
+.sm-readout-idle {
+  color: var(--sm-dim);
+}
+
+.sm-readout-name {
+  color: var(--sm-muted);
+}
+
+.sm-pin {
+  margin-left: 4px;
+  font-size: var(--font-xs);
+  color: var(--sm-accent);
+}
+
+.sm-readout-value {
+  font: var(--font-weight-bold) var(--font-lg) / 1.3 var(--font-data);
+  color: var(--sm-text-strong);
+}
+
+.sm-readout-value small {
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--sm-muted);
+}
+
+.sm-delta {
+  font-size: var(--font-xs);
+  color: var(--sm-muted);
+}
+
+.sm-delta.is-up {
+  color: var(--sm-warn);
+}
+
+.sm-delta.is-down {
+  color: var(--sm-accent);
+}
+
+@media (max-width: 640px) {
+  .sm-backdrop {
+    align-items: flex-end;
+  }
+
+  .sm-dialog {
+    width: 100vw;
+    height: 92vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  /* 整窗一起捲動；子區塊不可被 flex 壓扁 */
+  .sm-body {
+    overflow-y: auto;
+  }
+
+  .sm-body > * {
+    flex-shrink: 0;
+  }
+
+  .sm-picker {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sm-chips {
+    flex-wrap: nowrap;
+    width: 100%;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 2px;
+  }
+
+  .sm-chip {
+    flex-shrink: 0;
+  }
+
+  .sm-area {
+    flex: none;
+    overflow: visible;
+  }
+
+  .sm-maps {
+    height: auto;
+  }
+}

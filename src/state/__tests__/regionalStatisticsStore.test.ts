@@ -13,6 +13,24 @@ function deferred<T>() { let resolve!: (value: T) => void; const promise = new P
 describe('regionalStatisticsStore selection snapshots', () => {
   beforeEach(() => { mocks.loadRegionalStatistics.mockReset(); });
 
+  it('比較模式右側 key（含 ::）不寫 localStorage，disable 也不影響同名左側 key', async () => {
+    const left = 'stats-test-compare'; const right = `${left}::R`;
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', { getItem: (k: string) => storage.get(k) ?? null, setItem: (k: string, v: string) => { storage.set(k, v); }, removeItem: (k: string) => { storage.delete(k); } });
+    regionalStatisticsStore.setSelection(left, { datasetId: 'waste', indicatorId: 'total', level: 'county', releaseId: 'L' });
+    regionalStatisticsStore.setSelection(right, { datasetId: 'waste', indicatorId: 'total', level: 'county', releaseId: 'R' });
+    const saved = JSON.parse(localStorage.getItem('mini-taiwan:regional-statistics:v1') ?? '{}') as Record<string, unknown>;
+    expect(Object.keys(saved)).toContain(left);
+    expect(Object.keys(saved)).not.toContain(right);
+    mocks.loadRegionalStatistics.mockResolvedValueOnce(result('L')).mockResolvedValueOnce(result('R'));
+    await Promise.all([regionalStatisticsStore.load(left), regionalStatisticsStore.load(right)]);
+    regionalStatisticsStore.disable(right);
+    expect(regionalStatisticsStore.getSnapshot(right).data).toBeNull();
+    expect(regionalStatisticsStore.getSnapshot(left)).toMatchObject({ release: { release_id: 'L' } });
+    expect(regionalStatisticsStore.getSnapshot(left).data).not.toBeNull();
+    vi.unstubAllGlobals();
+  });
+
   it('keeps independent keyed selections and stable completed snapshots', async () => {
     const a = 'stats-test-a'; const b = 'stats-test-b';
     regionalStatisticsStore.setSelection(a, { datasetId: 'waste', indicatorId: 'total', level: 'county' });

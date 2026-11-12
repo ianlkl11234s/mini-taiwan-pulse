@@ -30,7 +30,7 @@ import {
   type MapchallengeDay08Scenario, type MapchallengeDay08SiteClass,
 } from "../../data/mapchallengeDay08Types";
 import {
-  MAPCHALLENGE_DAY09_DENSITY_COLORS, MAPCHALLENGE_DAY09_DENSITY_RANGES, MAPCHALLENGE_DAY09_RATIO_COLORS, MAPCHALLENGE_DAY09_ZERO_COLOR,
+  mapchallengeDay09DensityColors, MAPCHALLENGE_DAY09_DENSITY_RANGES, mapchallengeDay09RatioColors, MAPCHALLENGE_DAY09_ZERO_COLOR,
   mapchallengeDay09Facility, mapchallengeDay09MetricByKey, type MapchallengeDay09Metric,
 } from "../../data/mapchallengeDay09Types";
 
@@ -297,11 +297,13 @@ const MAPCHALLENGE_DAY08_BIN_KEYS = [
   "legend.mapchallenge.day08.bin0", "legend.mapchallenge.day08.bin1", "legend.mapchallenge.day08.bin2", "legend.mapchallenge.day08.bin3",
 ] as const;
 
-function Day08Footer() {
+/** historical：方案 D／Dfull 的用地由 1955 計畫圖數化而來，補列該圖來源與 CC BY-NC 授權 */
+function Day08Footer({ historical = false }: { historical?: boolean }) {
   const { t } = useLocale();
   return <>
     <LegendNote>{t("legend.mapchallenge.day08.caveat")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day08.source")}</LegendNote>
+    {historical && <LegendNote>{t("legend.mapchallenge.day08.planLicense")}</LegendNote>}
   </>;
 }
 
@@ -322,7 +324,7 @@ export function MapchallengeDay08AccessLegend({ isDark }: { isDark: boolean }) {
       : t(speed === "slow" ? "legend.mapchallenge.day08.coveredRateSlow" : "legend.mapchallenge.day08.coveredRate", { pct, base: basePct })}</OverlapRate>
     {MAPCHALLENGE_DAY08_BIN_KEYS.map((k, i) => <LegendRow key={k} swatch={<SwatchSquare color={colors[i]!} />}>{t(k)}</LegendRow>)}
     <LegendNote>{t("legend.mapchallenge.day08.accessNote")}</LegendNote>
-    <Day08Footer />
+    <Day08Footer historical={scenario.value === "D" || scenario.value === "Dfull"} />
   </div>;
 }
 
@@ -361,7 +363,7 @@ export function MapchallengeDay08SitesLegend({ isDark }: { isDark: boolean }) {
       {t(MAPCHALLENGE_DAY08_SITE_CLASS_KEYS[c.value])}
     </LegendRow>)}
     <LegendNote>{t(historical ? "legend.mapchallenge.day08.sitesNoteHist" : "legend.mapchallenge.day08.sitesNote")}</LegendNote>
-    <Day08Footer />
+    <Day08Footer historical={historical} />
   </div>;
 }
 
@@ -405,7 +407,7 @@ export function MapchallengeDay09UrbanRuralLegend() {
     return <div>
       <LegendTitle zh={t(MAPCHALLENGE_DAY09_METRIC_KEYS.density)} />
       <LegendNote>{t("legend.mapchallenge.day09.densityUnit")}</LegendNote>
-      {[4, 3, 2, 1, 0].map((q) => <LegendRow key={q} swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_DENSITY_COLORS[q]!} stroke={theme.seam} />}>
+      {[4, 3, 2, 1, 0].map((q) => <LegendRow key={q} swatch={<SwatchSquare color={mapchallengeDay09DensityColors(theme.isDark)[q]!} stroke={theme.seam} />}>
         {t(MAPCHALLENGE_DAY09_QUINTILE_KEYS[q]!)} <LegendNum>{MAPCHALLENGE_DAY09_DENSITY_RANGES[q]}</LegendNum>
       </LegendRow>)}
       <LegendNote>{t("legend.mapchallenge.day09.groupNote")}</LegendNote>
@@ -416,7 +418,7 @@ export function MapchallengeDay09UrbanRuralLegend() {
   return <div>
     <LegendTitle zh={t(MAPCHALLENGE_DAY09_METRIC_KEYS[metric])} />
     <LegendNote>{t("legend.mapchallenge.day09.ratioSub", { n: f.national.toFixed(2) })}</LegendNote>
-    {[6, 5, 4, 3, 2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_RATIO_COLORS[i]!} stroke={theme.seam} />}>
+    {[6, 5, 4, 3, 2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchSquare color={mapchallengeDay09RatioColors(theme.isDark)[i]!} stroke={theme.seam} />}>
       {t(MAPCHALLENGE_DAY09_BIN_KEYS[i]!)}
     </LegendRow>)}
     <LegendRow swatch={<SwatchSquare color={MAPCHALLENGE_DAY09_ZERO_COLOR} stroke={theme.seam} />}>{t("legend.mapchallenge.day09.zero")}</LegendRow>

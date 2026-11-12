@@ -9,8 +9,10 @@ const state = vi.hoisted(() => {
   let paramsListener: (() => void) | undefined;
   const visibility: Record<string, boolean> = {};
   const params: Record<string, unknown> = {};
+  const presentation: Record<string, string> = {};
+  const hollow = { value: false };
   return {
-    snapshots, statisticsListeners, visibility, params,
+    snapshots, statisticsListeners, visibility, params, presentation, hollow,
     get visibilityListener() { return visibilityListener; },
     set visibilityListener(value: (() => void) | undefined) { visibilityListener = value; },
     get paramsListener() { return paramsListener; },
@@ -26,10 +28,10 @@ const SHORT_PALETTE = 'short_palette';
 vi.mock('../../data/regionalStatisticsRecipes', () => ({
   STATISTICS_RENDER_KEYS: ['statsEducationElementarySchool'],
   statisticsBaseKey: (_key: string, indicator?: string) => indicator === 'institution_count' ? 'statsEducationCountyInstitutionCount' : 'statsComparisonEducationInstitutionCountPer10000Residents',
-  statisticsRenderRecipe: (_key: string, indicator?: string) => indicator === 'institution_count'
+  statisticsRenderRecipe: (_key: string, indicator?: string, _dims?: unknown, basemap?: { isDark?: boolean }) => indicator === 'institution_count'
     ? { dataset_id: 'education_statistics', indicator_id: 'institution_count', label: '機構數', level: 'county', unit: '所', dimensions: { education_stage: 'elementary' }, releaseId: 'social-114', colors: ['#200', '#201', '#202', '#203', '#204'], breaks: [10, 20, 30, 40] }
     : indicator === 'short_palette'
-      ? { dataset_id: 'comparison_statistics', indicator_id: 'short_palette', label: '短色盤', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: ['#300', '#301', '#302'], breaks: [1, 2] }
+      ? { dataset_id: 'comparison_statistics', indicator_id: 'short_palette', label: '短色盤', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: basemap?.isDark ? ['#d00', '#d01', '#d02'] : ['#300', '#301', '#302'], breaks: [1, 2] }
     : { dataset_id: 'comparison_statistics', indicator_id: 'education_institution_count_per_10000_residents', label: '每萬居民機構數', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: ['#100', '#101', '#102', '#103', '#104'], breaks: [1, 2, 3, 4] },
   statisticsReleaseFallback: () => undefined,
 }));
@@ -62,10 +64,16 @@ vi.mock('../../state/layerVisibilityStore', () => ({
 vi.mock('../../state/layerParamsStore', () => ({
   layerParamsStore: {
     getParam: (_key: string, name: string) => state.params[name],
+    setManyDirect: (writes: { name: string; value: number }[]) => { for (const w of writes) state.params[w.name] = w.value; if (writes.length) state.paramsListener?.(); },
     subscribe: (listener: () => void) => { state.paramsListener = listener; return () => { state.paramsListener = undefined; }; },
   },
 }));
-vi.mock('../../lib/loadingRegistry', () => ({ keepLoadingUntilMapIdle: vi.fn() }));
+vi.mock('../../lib/loadingRegistry', () => ({ keepLoadingUntilMapIdle: vi.fn(), withLoading: vi.fn((_id: string, _label: string, promise: Promise<unknown>) => promise) }));
+vi.mock('../../state/statisticsPresentationStore', () => ({
+  isPresentationKey: (key: string) => key in state.presentation,
+  statisticsPresentationMode: (key: string) => state.presentation[key] ?? 'choropleth',
+  statisticsCircleHollow: () => state.hollow.value,
+}));
 
 import { attachRegionalStatistics } from '../regionalStatisticsMap';
 
@@ -76,14 +84,16 @@ function mapMock() {
   const paintCalls: Array<[string, string, unknown]> = [];
   const layoutCalls: Array<[string, string, unknown]> = [];
   const events = new Map<string, (() => void)>();
+  const addedBefore: Array<[string, string]> = [];
   let styleLoaded = true;
   const map = {
     isStyleLoaded: () => styleLoaded,
     hasImage: () => false,
     addImage: vi.fn(),
     getSource: (id: string) => sources.get(id),
+    getLayer: (id: string) => layers.get(id),
     addSource: (id: string) => sources.set(id, { setData: vi.fn() }),
-    addLayer: (layer: Layer) => layers.set(layer.id, { ...layer, layout: { ...layer.layout }, paint: { ...layer.paint } }),
+    addLayer: (layer: Layer, before?: string) => { layers.set(layer.id, { ...layer, layout: { ...layer.layout }, paint: { ...layer.paint } }); if (before) addedBefore.push([layer.id, before]); },
     setPaintProperty: (id: string, property: string, value: unknown) => { paintCalls.push([id, property, value]); layers.get(id)?.paint && (layers.get(id)!.paint![property] = value); },
     setLayoutProperty: (id: string, property: string, value: unknown) => { layoutCalls.push([id, property, value]); layers.get(id)?.layout && (layers.get(id)!.layout![property] = value); },
     setFilter: (id: string, filter: unknown) => { const layer = layers.get(id) as (Layer & { filter?: unknown }) | undefined; if (layer) layer.filter = filter; },
@@ -97,7 +107,8 @@ function mapMock() {
     events.get('style.load')?.();
     styleLoaded = true;
   };
-  return { map, sources, layers, paintCalls, layoutCalls, events, switchStyle };
+  const setStyleLoaded = (value: boolean) => { styleLoaded = value; };
+  return { map, sources, layers, paintCalls, layoutCalls, events, switchStyle, addedBefore, setStyleLoaded };
 }
 function feature(value: number): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { area_code: 'A', value, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [] } }] };
@@ -111,6 +122,8 @@ describe('attachRegionalStatistics', () => {
     state.snapshots.clear(); state.statisticsListeners.clear();
     Object.keys(state.visibility).forEach(key => delete state.visibility[key]);
     Object.keys(state.params).forEach(key => delete state.params[key]);
+    Object.keys(state.presentation).forEach(key => delete state.presentation[key]);
+    state.hollow.value = false;
     state.visibilityListener = undefined; state.paramsListener = undefined;
   });
 
@@ -145,6 +158,7 @@ describe('attachRegionalStatistics', () => {
 
     state.params[`${VIEW}Opacity`] = 0.41;
     state.paramsListener?.();
+    // 滑桿值＝實際透明度（填色與斜線同值，不再依底圖換算）
     expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.41);
     // F-2：細縫不綁透明度滑桿
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.6, 0.5]);
@@ -162,6 +176,7 @@ describe('attachRegionalStatistics', () => {
   it('F-2／F-3：外框是 1px 底圖色細縫、缺值與遮蔽用不同斜線，並隨底圖切換', () => {
     state.snapshots.set(VIEW, { selection: { indicatorId: SHORT_PALETTE }, data: feature(2) });
     state.visibility[VIEW] = true;
+    state.params[`${VIEW}Opacity`] = 0.55;   // 規格預設（淡底）
     let dark = true;
     const mock = mapMock();
     const dispose = attachRegionalStatistics(mock.map as never, () => dark);
@@ -173,12 +188,29 @@ describe('attachRegionalStatistics', () => {
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-dark');
     expect(mock.map.addImage).toHaveBeenCalledWith('map-hatch-missing-light', expect.objectContaining({ width: 8, height: 8 }));
 
+    // Q7：暗底版色階、填色 0.75；使用者沒動過滑桿 → 滑桿本身換成暗底預設 0.75（顯示＝實際）
+    expect(fillColorSteps(mock, VIEW)).toEqual(['step', ['get', 'value'], '#d00', 1, '#d01', 2, '#d02']);
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.75);
+    expect(state.params[`${VIEW}Opacity`]).toBe(0.75);
+
     dark = false;
     mock.events.get('style.load')?.();
+    // 換淡底：已開啟的統計圖層即時換回淡底色階與 0.55
+    expect(fillColorSteps(mock, VIEW)).toEqual(['step', ['get', 'value'], '#300', 1, '#301', 2, '#302']);
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.55);
+    expect(state.params[`${VIEW}Opacity`]).toBe(0.55);
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-color'] as unknown[]).slice(2)).toEqual(['#ffffff', '#374151']);
     expect((mock.layers.get(`${VIEW}-line`)?.paint?.['line-opacity'] as unknown[]).slice(2)).toEqual([0.8, 0.5]);
     expect(mock.layers.get(`${VIEW}-missing`)?.paint?.['fill-pattern']).toBe('map-hatch-missing-light');
     expect(mock.layers.get(`${VIEW}-suppressed`)?.paint?.['fill-pattern']).toBe('map-hatch-suppressed-light');
+
+    // 使用者動過滑桿 → 換底圖保留他的值
+    state.params[`${VIEW}Opacity`] = 0.4;
+    state.paramsListener?.();
+    dark = true;
+    mock.events.get('style.load')?.();
+    expect(state.params[`${VIEW}Opacity`]).toBe(0.4);
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.4);
     dispose();
   });
 
@@ -201,5 +233,161 @@ describe('attachRegionalStatistics', () => {
     }
     expect(vi.mocked(regionalStatisticsStore.load).mock.calls.length).toBe(loads);
     dispose();
+  });
+  it('比例圓：關掉面量填色、保留缺值斜線與細縫，圓在面內代表點、實心／空心依是否疊在其他面量圖上', () => {
+    const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+      { type: 'Feature', properties: { area_code: 'A', value: 430, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'B', value: 100, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[4, 0], [6, 0], [6, 2], [4, 2], [4, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'C', value: null, status: 'missing' }, geometry: { type: 'Polygon', coordinates: [[[8, 0], [9, 0], [9, 1], [8, 1], [8, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'D', value: 0, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[10, 0], [11, 0], [11, 1], [10, 1], [10, 0]]] } },
+    ] };
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+    state.visibility[VIEW] = true;
+    state.params[`${VIEW}Opacity`] = 0.6;
+    state.presentation[VIEW] = 'circle';
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => true);
+
+    expect(mock.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('none');
+    for (const suffix of ['missing', 'suppressed', 'line']) expect(mock.layers.get(`${VIEW}-${suffix}`)?.layout?.visibility).toBe('visible');
+    const points = mock.sources.get(`${VIEW}-circles`)?.setData.mock.calls[0]?.[0] as GeoJSON.FeatureCollection<GeoJSON.Point>;
+    // 只畫有觀測值且 > 0 的區（缺值、0 不畫圓）；大的先畫、properties 與面相同（popup 一致）
+    expect(points.features.map((f) => f.properties?.area_code)).toEqual(['A', 'B']);
+    expect(points.features[0]!.geometry.coordinates).toEqual([1, 1]);
+    const circle = mock.layers.get(`${VIEW}-circle`)!;
+    expect(circle).toMatchObject({ layout: { visibility: 'visible' }, paint: { 'circle-color': '#104', 'circle-opacity': 0.6 } });
+    // 半徑 ∝ √值：最大值 430 取整到參考值 500 → 縣市最大半徑 28 px
+    expect(circle.paint!['circle-radius']).toEqual(['*', 28, ['sqrt', ['/', ['max', ['to-number', ['get', 'value'], 0], 0], 500]]]);
+    expect(mock.layers.get(`${VIEW}-circle-halo`)?.layout?.visibility).toBe('none');
+
+    state.hollow.value = true;
+    state.paramsListener?.();
+    expect(mock.layers.get(`${VIEW}-circle`)?.paint).toMatchObject({ 'circle-opacity': 0, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 });
+    expect(mock.layers.get(`${VIEW}-circle-halo`)?.layout?.visibility).toBe('visible');
+
+    state.presentation[VIEW] = 'choropleth';
+    state.paramsListener?.();
+    expect(mock.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('visible');
+    expect(mock.layers.get(`${VIEW}-circle`)?.layout?.visibility).toBe('none');
+    dispose();
+  });
+
+  it('點密度：填色透明但仍可點、斜線照舊、邊界換淡灰線；點分批算好才畫，缺值與 0 不撒點；切回面量圖還原', async () => {
+    const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+      { type: 'Feature', properties: { area_code: 'A', value: 430, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'B', value: 100, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[4, 0], [6, 0], [6, 2], [4, 2], [4, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'C', value: null, status: 'missing' }, geometry: { type: 'Polygon', coordinates: [[[8, 0], [9, 0], [9, 1], [8, 1], [8, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'D', value: 0, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[10, 0], [11, 0], [11, 1], [10, 1], [10, 0]]] } },
+    ] };
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+    state.visibility[VIEW] = true;
+    state.params[`${VIEW}Opacity`] = 0.6;
+    state.presentation[VIEW] = 'dots';
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => true, { dotUnit: () => 10 });
+
+    expect(mock.layers.get(`${VIEW}-fill`)).toMatchObject({ layout: { visibility: 'visible' }, paint: { 'fill-opacity': 0 } });
+    for (const suffix of ['missing', 'suppressed', 'line']) expect(mock.layers.get(`${VIEW}-${suffix}`)?.layout?.visibility).toBe('visible');
+    expect(mock.layers.get(`${VIEW}-line`)?.paint).toMatchObject({ 'line-color': '#9ca3af' });
+    // 還沒算好：不畫（也不畫 0 點的空層）
+    expect(mock.layers.get(`${VIEW}-dots`)?.layout?.visibility).toBe('none');
+    await vi.waitFor(() => expect(mock.sources.get(`${VIEW}-dot-points`)?.setData).toHaveBeenCalled());
+    const dots = mock.sources.get(`${VIEW}-dot-points`)!.setData.mock.calls[0]![0] as GeoJSON.FeatureCollection<GeoJSON.MultiPoint>;
+    // N 由外部覆寫成 10：A 43 點、B 10 點；缺值與 0 不撒點；點只帶區代碼
+    expect(dots.features.map((f) => [f.properties?.area_code, f.geometry.coordinates.length])).toEqual([['A', 43], ['B', 10]]);
+    expect(mock.layers.get(`${VIEW}-dots`)).toMatchObject({ layout: { visibility: 'visible' }, paint: { 'circle-color': '#104', 'circle-opacity': 0.6 } });
+
+    state.presentation[VIEW] = 'choropleth';
+    state.paramsListener?.();
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.6);
+    expect(mock.layers.get(`${VIEW}-dots`)?.layout?.visibility).toBe('none');
+    dispose();
+  });
+
+  it('點密度：點算好時地圖仍在載入圖磚（isStyleLoaded() 為 false）也要畫出來', async () => {
+    const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+      { type: 'Feature', properties: { area_code: 'A', value: 120, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+    ] };
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+    state.visibility[VIEW] = true;
+    state.presentation[VIEW] = 'dots';
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => true);
+    mock.setStyleLoaded(false);
+    await vi.waitFor(() => expect(mock.sources.get(`${VIEW}-dot-points`)?.setData).toHaveBeenCalled());
+    expect(mock.layers.get(`${VIEW}-dots`)?.layout?.visibility).toBe('visible');
+    dispose();
+  });
+
+  describe('多地圖共存（比較模式）', () => {
+    const RIGHT = `${VIEW}::R`;
+
+    it('主地圖只在側別＝只在右側時不畫，資料不清；右圖讀左側資料、關閉時不清左側', async () => {
+      const { regionalStatisticsStore } = await import('../../state/regionalStatisticsStore');
+      const data = feature(2);
+      state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data });
+      state.visibility[VIEW] = true;
+      let side: 'left' | 'right' | 'both' = 'both';
+      const listeners = new Set<() => void>();
+      const subscribe = (cb: () => void) => { listeners.add(cb); return () => listeners.delete(cb); };
+      const left = mapMock();
+      const right = mapMock();
+      const disposeLeft = attachRegionalStatistics(left.map as never, () => true, { isShown: key => state.visibility[key] === true && side !== 'right', subscribe });
+      const disposeRight = attachRegionalStatistics(right.map as never, () => true, {
+        primary: false, isShown: key => state.visibility[key] === true && side !== 'left', subscribe,
+        storeKey: key => state.snapshots.get(`${key}::R`)?.selection ? `${key}::R` : key, loadingPrefix: 'R:',
+      });
+      vi.mocked(regionalStatisticsStore.disable).mockClear();
+      vi.mocked(regionalStatisticsStore.load).mockClear();
+      expect(right.sources.get(VIEW)?.setData).toHaveBeenCalledWith(data);
+
+      side = 'right';
+      listeners.forEach(cb => cb());
+      expect(left.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('none');
+      expect(right.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('visible');
+      expect(regionalStatisticsStore.disable).not.toHaveBeenCalled();
+
+      disposeRight();
+      expect(regionalStatisticsStore.disable).not.toHaveBeenCalledWith(VIEW);
+      disposeLeft();
+      expect(regionalStatisticsStore.disable).toHaveBeenCalledWith(VIEW);
+    });
+
+    it('右側選了不同期別：右圖載入並畫 key::R，關閉只清 key::R', async () => {
+      const { regionalStatisticsStore } = await import('../../state/regionalStatisticsStore');
+      state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: feature(2) });
+      state.visibility[VIEW] = true;
+      const right = mapMock();
+      const dispose = attachRegionalStatistics(right.map as never, () => true, {
+        primary: false, isShown: key => state.visibility[key] === true,
+        storeKey: key => state.snapshots.get(`${key}::R`)?.selection ? `${key}::R` : key,
+      });
+      vi.mocked(regionalStatisticsStore.disable).mockClear();
+      vi.mocked(regionalStatisticsStore.load).mockClear();
+
+      const rightData = feature(9);
+      state.snapshots.set(RIGHT, { selection: { indicatorId: DERIVED }, data: rightData });
+      state.statisticsListeners.get(RIGHT)?.forEach(listener => listener());
+      expect(regionalStatisticsStore.load).toHaveBeenCalledWith(RIGHT);
+      expect(regionalStatisticsStore.load).not.toHaveBeenCalledWith(VIEW);
+      expect(right.sources.get(VIEW)?.setData).toHaveBeenLastCalledWith(rightData);
+
+      dispose();
+      expect(regionalStatisticsStore.disable).toHaveBeenCalledWith(RIGHT);
+      expect(regionalStatisticsStore.disable).not.toHaveBeenCalledWith(VIEW);
+    });
+
+    it('比例圓參考值可由外部覆寫（左右共用較大者）', () => {
+      const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+        { type: 'Feature', properties: { area_code: 'A', value: 430, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+      ] };
+      state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+      state.visibility[VIEW] = true;
+      state.presentation[VIEW] = 'circle';
+      const mock = mapMock();
+      const dispose = attachRegionalStatistics(mock.map as never, () => true, { circleReference: () => 1000 });
+      expect(mock.layers.get(`${VIEW}-circle`)!.paint!['circle-radius']).toEqual(['*', 28, ['sqrt', ['/', ['max', ['to-number', ['get', 'value'], 0], 0], 1000]]]);
+      dispose();
+    });
   });
 });

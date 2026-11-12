@@ -1,4 +1,6 @@
 import { attachRegionalStatistics } from "./regionalStatisticsMap";
+import { compareStore, shownOnLeft } from "../state/compareStore";
+import { compareCircleReference, compareDotUnit } from "../state/compareStatistics";
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -139,7 +141,7 @@ function calc2dTrailOpacity(zoom: number, isDark: boolean) {
   };
 }
 
-function setupTerrain(map: mapboxgl.Map) {
+export function setupTerrain(map: mapboxgl.Map) {
   if (!map.getSource("mapbox-dem")) {
     map.addSource("mapbox-dem", {
       type: "raster-dem",
@@ -171,7 +173,7 @@ function ensureTerrainIfTilted(map: mapboxgl.Map) {
  *  - symbol（地名）→ 暗灰 + 黑色 halo
  *  注：只動 Mapbox 原生底圖層；自家 overlay（id 含 "-overlay" 等）不受影響。
  */
-function applyPureBlackTheme(map: mapboxgl.Map): void {
+export function applyPureBlackTheme(map: mapboxgl.Map): void {
   const style = map.getStyle();
   if (!style?.layers) return;
   for (const layer of style.layers) {
@@ -210,7 +212,7 @@ function applyPureBlackTheme(map: mapboxgl.Map): void {
  * 不以 layer id 猜測，避免誤傷自家 overlay；也不碰 style 原本設為 none 的 layer，
  * 因此開回標籤時不會改寫各底圖既有的顯示決策。
  */
-function setBasemapLabelsVisible(
+export function setBasemapLabelsVisible(
   map: mapboxgl.Map,
   visible: boolean,
   hiddenLayerIds: Set<string>,
@@ -470,7 +472,14 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       onMapReadyRef.current?.(map);
     });
 
-    const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current);
+    // 比較模式（DESIGN §3）：主地圖＝左側。側別＝只在右側的統計層左圖不畫（資料照樣留著給右圖與圖例）；
+    // 比例圓參考值、點密度的「一點＝N」左右期別不同時與右圖共用。比較關閉時兩者都等於原本行為。
+    const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current, {
+      isShown: (key) => shownOnLeft(key, layerVisibilityStore.getVisibility(key)),
+      subscribe: (callback) => compareStore.subscribe(callback),
+      circleReference: compareCircleReference,
+      dotUnit: compareDotUnit,
+    });
     return () => {
       offLayerAssetIndexReady?.();
       setAttribution(null);

@@ -11,6 +11,7 @@
   "statistics.legend.sequential": "淡 → 濃：値が低 → 高。この指標の数値区間で比較",
   "statistics.legend.hatchSocial": "斜線：missing／出典の対象外。0 ではない。観測値 0 は段階色で表示",
   "statistics.legend.hatchDefault": "斜線：データなし／未公表",
+  "statistics.legend.hatchCircle": "斜線：missing／出典の対象外。0 ではない（円は描かない）",
   "statistics.legend.hatchLabel": "斜線：{label}",
   "statistics.legend.crossHatch": "交差斜線：秘匿 suppressed（*）",
   "statistics.legend.notReported": "{label} not_reported（-）：0 ではない。真の 0 は段階色で表示",
@@ -97,5 +98,16 @@
   "statistics.level.ca_pr": "州・準州",
   "statistics.level.ca_cd": "国勢調査区（センサス・ディビジョン）",
   "statistics.level.ie_la": "地方自治体",
-  "statistics.level.ie_ed": "選挙区（ED）"
+  "statistics.level.ie_ed": "選挙区（ED）",
+  "statistics.legend.circleArea": "円の面積（半径ではなく）が量を表します。円の大きさはズームしても変わりません。観測値 0 は円を描きません",
+  "statistics.legend.circleReference": "最大の円は今期の最大値を切り上げた値に対応し、期によって変わることがあります",
+  "statistics.legend.circleReferenceSource": "最大の円は今期の最大値を切り上げた値に対応し、期によって変わることがあります；出典：{provider}",
+  "statistics.legend.circleNoPositive": "この期間は 0 を超える観測値がないため、比例円を描きません",
+  "statistics.legend.dotUnit": "1 点＝{value} {unit}",
+  "statistics.legend.dotRandom": "点の位置は区域内のランダムな位置で、実際の場所ではありません",
+  "statistics.legend.dotRemainder": "1 点に満たない端数は区域コードごとに固定した確率で切り上げます（小さな区域にも点が付くことがあります）。観測値 0 には点を打ちません",
+  "statistics.legend.dotReference": "1 点あたりの量は今期の全体合計から 1／2／5×10ⁿ で決め、期を切り替えても合計が段階をまたぐときだけ変わります",
+  "statistics.legend.dotReferenceSource": "1 点あたりの量は今期の全体合計から 1／2／5×10ⁿ で決め、期を切り替えても合計が段階をまたぐときだけ変わります；出典：{provider}",
+  "statistics.legend.dotNoPositive": "この期間は 0 を超える観測値がないため、点を打ちません",
+  "statistics.legend.hatchDots": "斜線：missing／出典の対象外。0 ではない（点を打たない）"
 }

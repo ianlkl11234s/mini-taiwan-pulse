@@ -25,7 +25,10 @@ import {
 } from "./linkedSelect";
 // provider 以 import 副作用註冊（統計＋統計群組）；控件、Agent、場景存檔都經本檔或 linkedSelect 讀取
 import "./statisticsLinkedSelect";
+import { statisticsPresentationNote } from "./statisticsPresentationStore";
 import "./transitReachOriginSelect";
+import { STATISTICS_LINKED_PROVIDER } from "../data/statisticsParamsSpec";
+import { statisticsSmallMultiplesStore, statisticsSmallMultiplesYearCount } from "./statisticsSmallMultiplesStore";
 
 // ══════════════════════════════════════════════════════════════════
 //  控件型別（AR-22 P3-3）
@@ -71,6 +74,8 @@ export interface SelectConfig {
   /** disabled：該選項當下不可選（如 propertyValueGrid 人均模式在 150m 尺度）；label 自帶原因說明 */
   options: { label: string; value: string; disabled?: boolean }[];
   onChange: (v: string) => void;
+  /** 控件下方的一行說明（例：統計「呈現方式」切到比例圓時，另一層被自動改回面量圖）；沒有就省略 */
+  note?: string;
 }
 
 export interface MultiSelectConfig {
@@ -116,6 +121,12 @@ export interface LinkedSelectConfig {
   onChange: (v: string) => void | Promise<void>;
   /** 錯誤時的重試（只在 statusText 那一列） */
   onRetry?: () => void;
+  /**
+   * 選單右側的小圖示鈕（spec §5.37「多年份並排」）：只在面板（有傳 i18n）、統計的「資料期別」列
+   * （沒有期別列時掛最後一個統計連動選單）、可並排 ≥2 年時出現；不是參數（沒有值、不進場景存檔與 Agent 控件）。
+   * `label` 同時當 aria-label 與 title；`attributes` 給關窗時找回按鈕還焦點用。
+   */
+  action?: { label: string; onClick: () => void; attributes?: Record<string, string> };
 }
 
 /**
@@ -175,6 +186,11 @@ export function buildParamControls(
     seenProviders.add(s.provider);
     statusCarriers.add(s.name);
   }
+  // 「多年份並排」鈕掛在統計「資料期別」選單右側（沒有期別列就掛最後一個可見的統計連動選單；
+  // 只給面板，Agent／黃金快照不傳 i18n，不受影響）
+  const statisticsSelects = i18n ? visible.filter((s) => s.kind === "linkedSelect" && s.provider === STATISTICS_LINKED_PROVIDER) : [];
+  const lastStatisticsSelect = (statisticsSelects.find((s) => s.kind === "linkedSelect" && s.field === "release") ?? statisticsSelects[statisticsSelects.length - 1])?.name;
+  const smallMultiplesYears = lastStatisticsSelect ? statisticsSmallMultiplesYearCount(key) : 0;
   // `showWhen` 的控件在條件不成立時整個不渲染（等價於手寫版的 `...(cond ? [x] : [])`）；
   // `resolved` 讓 showWhen / disableRule 一定查得到值（傳入的快照可能只有部分欄位）。
   const resolved = resolveParamValues(spec, values);
@@ -236,6 +252,7 @@ export function buildParamControls(
           // `disableRule` 會依別的參數當下的值算出每個選項的 disabled ＋ 原因後綴
           options: resolveSelectOptions(s, resolved, i18n ? tx : undefined),
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
+          ...((note) => note ? { note } : {})(statisticsPresentationNote(key, s.name, i18n)),
         };
       }
       case "multiSelect": {
@@ -297,6 +314,9 @@ export function buildParamControls(
           ...(statusText ? { statusText } : {}),
           onChange: (next: string) => setLinkedSelect(key, s, next),
           ...(carrier && snap.status === "error" && canRetryLinkedSelect(s.provider) ? { onRetry: () => retryLinkedSelects(key, s.provider) } : {}),
+          ...(i18n && s.name === lastStatisticsSelect && smallMultiplesYears >= 2
+            ? { action: { label: i18n.t("smallMultiples.open", { count: smallMultiplesYears }), onClick: () => statisticsSmallMultiplesStore.open(key), attributes: { "data-small-multiples-open": key } } }
+            : {}),
         };
       }
     }

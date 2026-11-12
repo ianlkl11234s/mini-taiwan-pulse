@@ -402,5 +402,5 @@
   "popup.atlas.vioParent": "所属監理所",
   "popup.atlas.vioFax": "FAX",
   "popup.atlas.vioJurisdiction": "管轄（原文）",
-  "popup.atlas.vioOsm": "位置は OpenStreetMap の同名地物による"
+  "popup.atlas.vioOsm": "位置は OpenStreetMap の同名地物による（© OpenStreetMap contributors、ODbL）"
 }

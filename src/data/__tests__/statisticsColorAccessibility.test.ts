@@ -87,3 +87,26 @@ it('covers the signed demographics PuOr scales (natural increase / net migration
     }
   }
 });
+
+// 暗底版（K-4 統計例外）：方向與淡底相同（2026-11-10 使用者決定：越深越多），色覺模擬下仍要逐級分得開。
+for (const [vision, matrix] of Object.entries(matrices)) {
+  it(`${vision}: dark-basemap ramps keep the light-basemap ordering in color-vision simulation`, () => {
+    for (const key of STATISTICS_KEYS) {
+      const recipe = statisticsRenderRecipe(key, undefined, undefined, { isDark: true });
+      const values = recipe.colors.map(color => lightness(color, matrix));
+      const atlasLegend = getAtlasRecipe(key)?.legend;
+      const declared = atlasLegend?.direction;
+      // 政黨色（partisan、依政黨 sequential）與類別型不分底圖：暗底輸出＝淡底輸出，上面那組已驗。
+      if (atlasLegend?.method === 'categorical' || recipe.colors.join() === statisticsRenderRecipe(key).colors.join()) continue;
+      if (declared && declared !== 'diverging') {
+        for (let i = 1; i < values.length; i++) expect(declared === 'descending' ? values[i]! - values[i - 1]! : values[i - 1]! - values[i]!, key).toBeGreaterThan(5);
+      } else if (declared === 'diverging' || recipe.breaks.some(v => v < 0)) {
+        const zeroIndex = (recipe.breaks as readonly number[]).indexOf(0);
+        for (let i = 1; i <= zeroIndex; i++) expect(values[i]! - values[i - 1]!, key).toBeGreaterThan(5);
+        for (let i = zeroIndex + 2; i < values.length; i++) expect(values[i - 1]! - values[i]!, key).toBeGreaterThan(5);
+      } else {
+        for (let i = 1; i < values.length; i++) expect(values[i - 1]! - values[i]!, key).toBeGreaterThan(5);
+      }
+    }
+  });
+}

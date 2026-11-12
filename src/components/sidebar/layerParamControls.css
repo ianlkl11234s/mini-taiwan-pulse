@@ -106,6 +106,24 @@
   margin-top: 2px;
 }
 
+/* 選單右側的小圖示鈕（統計「多年份並排」，spec §5.37）：與選單同高、正方形 */
+.lpc-select-with-action {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.lpc-select-with-action > select.lpc-select {
+  flex: 1;
+}
+
+button.lpc-btn.lpc-icon-action {
+  flex: none;
+  width: 22px;
+  height: 20px;
+  padding: 0;
+}
+
 .lpc-note {
   font: 10px/1.35 var(--font-cjk);
   color: var(--lpc-muted);

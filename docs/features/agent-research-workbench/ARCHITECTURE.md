@@ -247,7 +247,8 @@ flowchart LR
 - **清單 SSOT 是 pulse-data `registry/`**（ADR-0019／0023）；不在清單上的資料不進倉庫。發包程式先上傳資料包，全部成功才改 registry，所以 registry 不會指向不存在的包。
 - **三種發包**：`--dataset <id>`（點線面表，必須剛好對到一份 manifest，狀態 OK／WARN）、`--stats-cdn`（統計長表，只增不減，要下架才加 `--allow-shrink`）、`--aliases`（一律讀 analytics `origin/master`）。`wh_catalog`／`wh_coverage` 在發包時一併更新。
 - **防落後**：發包前檢查 analytics checkout 是否落後 origin、dataset 目錄是否有未提交改動；`--allow-stale` 才放行並記錄。
-- **組裝比對**：`assemble_store.py --reference-manifest <上一版>` 列出新增、移除、內容差異；新增表要 `--allow-add`、核心表（如 `wh_catalog`）要 `--allow-change`，移除與非預期差異 exit 1、不切 `latest.json`。
+- **組裝比對**：`assemble_store.py --reference-manifest <上一版>` 列出新增、移除、內容差異；新增表要 `--allow-add`、內容有變的表（如 `wh_catalog`）要 `--allow-change '<表>=<理由>'`（一表一理由、可重複，理由寫進 manifest `acceptedChanges`；舊的 `--allow-change t1,t2` 逗號寫法已不適用），移除與非預期差異 exit 1、不切本機 `latest.json`。
+- **發版關卡**（MCP #108／#109／#111，2026-11-10）：`npm run warehouse:gate` 跑 DuckDB 釘版檢查、27 題固定驗算題、逐表差異（表消失、列數 ±20%、幾何有效比例下降、欄位消失或型別改變）；例外一律 `--accept '<表>=<理由>'`。通過才寫 `release-gate-proof.json`，`upload-store execute` 沒有有效證明就拒絕切 R2 `latest.json`。
 - 舊流程（`update_store.py` 增量、`build_warehouse.py` 全量掃描）**已停用**，寫正式 store 要 `--legacy`；根因與取捨見 ADR-0023。
 - 「資料上線完成」的定義包含入倉並實測答得出來（`ai-mcp.md` 開頭）。**L2 可分析的判定**：在 pulse-data registry 有 `warehouse` 區塊，且已組裝上線（本 repo `CLAUDE.md` §5b 的「能自動入倉」以此為準）。
 - 每個 dataset 的狀態碼與 issues 見 MCP `warehouse/README.md`。

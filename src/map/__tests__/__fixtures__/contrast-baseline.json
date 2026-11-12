@@ -1,0 +1,179 @@
+{
+ "note": "對比契約基準（map-layers §3.9 C-3）：只准減少。重產：npm run contrast:baseline",
+ "thresholds": {
+  "registryDarkMin": 3,
+  "statisticsDeepestMin": 2.2,
+  "statisticsDeepestChroma": 0.1,
+  "statisticsLightest": [
+   6,
+   9
+  ],
+  "darkLand": "#292828"
+ },
+ "violations": {
+  "aviationNoiseZones": {
+   "contrast": 1.5,
+   "type": "fill"
+  },
+  "industrialPowerPlant": {
+   "contrast": 2,
+   "type": "fill"
+  },
+  "industrialRefinery": {
+   "contrast": 2.31,
+   "type": "fill"
+  },
+  "industrialStorageTank": {
+   "contrast": 2.53,
+   "type": "fill"
+  },
+  "mapchallengeDay04Overlap": {
+   "contrast": 2.99,
+   "type": "fill"
+  },
+  "mapchallengeDay04ScaleTcCh": {
+   "contrast": 2.99,
+   "type": "fill"
+  },
+  "mapchallengeDay06Taipei1932": {
+   "contrast": 1.82,
+   "type": "fill"
+  },
+  "mapchallengeDay08Sites": {
+   "contrast": 1.98,
+   "type": "fill"
+  },
+  "noiseCaptureGrid": {
+   "contrast": 1.85,
+   "type": "fill"
+  },
+  "noiseControlZones": {
+   "contrast": 1.39,
+   "type": "fill"
+  },
+  "policeIsoCityDept": {
+   "contrast": 2,
+   "type": "fill"
+  },
+  "policeIsoPrecinct": {
+   "contrast": 2.18,
+   "type": "fill"
+  },
+  "policeIsoSubstation": {
+   "contrast": 2.37,
+   "type": "fill"
+  },
+  "pollutionPenaltyGeneral": {
+   "contrast": 1.42,
+   "type": "circle"
+  },
+  "pollutionPenaltyMobile": {
+   "contrast": 1.87,
+   "type": "circle"
+  },
+  "slopelandSwcAct": {
+   "contrast": 2.74,
+   "type": "fill"
+  },
+  "statsElectionCouncilorPartyKmtMinusDppCounty": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionCouncilorPartyKmtMinusDppTownship": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionCouncilorPartyKmtMinusDppVillage": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionCouncilorPartyVoteShareCounty": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionCouncilorPartyVoteShareTownship": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionCouncilorPartyVoteShareVillage": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionLegislatorPartyKmtMinusDppCounty": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionLegislatorPartyKmtMinusDppTownship": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionLegislatorPartyKmtMinusDppVillage": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionLegislatorPartyVoteShareCounty": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionLegislatorPartyVoteShareTownship": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionLegislatorPartyVoteShareVillage": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionMayorKmtMinusDppCounty": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionMayorKmtMinusDppTownship": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionMayorKmtMinusDppVillage": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionMayorVoteShareCounty": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionMayorVoteShareTownship": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionMayorVoteShareVillage": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionPresidentKmtMinusDppCounty": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionPresidentKmtMinusDppTownship": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionPresidentKmtMinusDppVillage": {
+   "contrast": 1.36,
+   "type": "statistics-party"
+  },
+  "statsElectionPresidentVoteShareCounty": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionPresidentVoteShareTownship": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "statsElectionPresidentVoteShareVillage": {
+   "contrast": 1.38,
+   "type": "statistics-party"
+  },
+  "vegetationForestTypes": {
+   "contrast": 1.76,
+   "type": "fill"
+  }
+ }
+}

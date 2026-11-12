@@ -1,5 +1,6 @@
 // Legend sub-components (civicServiceLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
-import { BOUNDARY_GRAY, mapSeamColor } from "../../map/mapStyleScale";
+import { BOUNDARY_GRAY, categoricalColor, mapSeamColor } from "../../map/mapStyleScale";
+import { COURT_TIER_COLOR_KEYS, POLICE_ISO_OVERLAP_COLORS, POLICE_TIER_COLOR_KEYS, PROSECUTOR_TIER_COLOR_KEYS, tierColorIndex } from "../../map/justiceTierColors";
 import { usePaletteRamp } from "../../state/layerPalette";
 import { THEMED_PAINT_COLORS, GOV_SERVICE_PAINT_COLORS } from "../../map/layerPaintColors";
 import { JpMedicalStatus } from "../JpMedicalStatus";
@@ -13,7 +14,7 @@ import { JP_ZONING_CLASSES, JP_ZONING_ATTRIBUTION, JP_ZONING_FEATURE_COUNT } fro
 import { JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR, JP_FOREST_ATTRIBUTION } from "../../data/jpNationalForestTypes";
 import { JP_WELFARE_ATTRIBUTION, JP_WELFARE_LAYER_MAJOR, jpWelfareCategoriesOf, jpWelfareGroupsOf, type JpWelfareLayerKey } from "../../data/jpWelfareFacilityTypes";
 import { JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_STEPS } from "../../data/jpInlandFloodTypes";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendColorMapper, useLegendTheme } from "./legendKit";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
 import { MEDICAL_POI_TYPES, medicalPoiColor } from "../../data/medicalPOITypes";
@@ -584,13 +585,17 @@ export function MedicalLegend({ visibility, isDark = true }: { visibility: Layer
 }
 
 // ── 警政司法民防 17 layer 共用圖例 ──
+// `@…`＝C-5 類別色盤（依底圖），取量最多那一階的顏色（派出所、地方法院、地檢署）
+const tierColor = (keys: ReadonlyArray<readonly [string, number]>, value: string, isDark: boolean) => categoricalColor(tierColorIndex(keys, value) ?? 0, isDark);
+const PJ_THEMED_COLOR: Record<string, number> = { "@police": 0, "@court": 7, "@prosecutor": 7 };
+const pjColor = (color: string, isDark: boolean) => (color in PJ_THEMED_COLOR ? categoricalColor(PJ_THEMED_COLOR[color]!, isDark) : color);
 const POLICE_JUSTICE_LEGEND: { key: keyof LayerVisibility; color: string; labelKey: MessageKey; shape: "circle" | "line" | "square" }[] = [
-  { key: "policeStation", color: "#1e40af", labelKey: "legend.civic.pjPoliceStation", shape: "circle" },
+  { key: "policeStation", color: "@police", labelKey: "legend.civic.pjPoliceStation", shape: "circle" },
   { key: "womenChildWarning", color: "#ec4899", labelKey: "legend.civic.pjWomenChildWarning", shape: "circle" },
   { key: "speedCamera", color: "#dc2626", labelKey: "legend.civic.pjSpeedCamera", shape: "circle" },
   { key: "speedZoneSegment", color: "#b91c1c", labelKey: "legend.civic.pjSpeedZoneSegment", shape: "line" },
-  { key: "court", color: "#7c3aed", labelKey: "legend.civic.pjCourt", shape: "circle" },
-  { key: "prosecutorsOffice", color: "#a855f7", labelKey: "legend.civic.pjProsecutorsOffice", shape: "circle" },
+  { key: "court", color: "@court", labelKey: "legend.civic.pjCourt", shape: "circle" },
+  { key: "prosecutorsOffice", color: "@prosecutor", labelKey: "legend.civic.pjProsecutorsOffice", shape: "circle" },
   { key: "correctionalFacility", color: "#374151", labelKey: "legend.civic.pjCorrectionalFacility", shape: "circle" },
   { key: "courtJurisdiction", color: "#c4b5fd", labelKey: "legend.civic.pjCourtJurisdiction", shape: "square" },
   { key: "theftTaoyuan", color: "#f59e0b", labelKey: "legend.civic.pjTheftTaoyuan", shape: "circle" },
@@ -605,14 +610,9 @@ const POLICE_JUSTICE_LEGEND: { key: keyof LayerVisibility; color: string; labelK
 ];
 
 // ── 警察覆蓋分析 isochrone — overlap_count 色階 ──
-const ISO_OVERLAP_BANDS: { c: string; l: MessageKey }[] = [
-  { c: "#fee2e2", l: "legend.civic.pjIso1" },
-  { c: "#fca5a5", l: "legend.civic.pjIso2" },
-  { c: "#f87171", l: "legend.civic.pjIso3" },
-  { c: "#ef4444", l: "legend.civic.pjIso4" },
-  { c: "#dc2626", l: "legend.civic.pjIso5" },
-  { c: "#991b1b", l: "legend.civic.pjIso6" },
-  { c: "#7f1d1d", l: "legend.civic.pjIso7" },
+const ISO_OVERLAP_LABELS: MessageKey[] = [
+  "legend.civic.pjIso1", "legend.civic.pjIso2", "legend.civic.pjIso3", "legend.civic.pjIso4",
+  "legend.civic.pjIso5", "legend.civic.pjIso6", "legend.civic.pjIso7",
 ];
 
 export function PoliceIsochroneLegend({ visibility }: { visibility: LayerVisibility }) {
@@ -624,10 +624,11 @@ export function PoliceIsochroneLegend({ visibility }: { visibility: LayerVisibil
     <div>
       <LegendTitle zh={i18n.t("legend.civic.pjIsoTitle")} />
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        {ISO_OVERLAP_BANDS.map((b) => (
-          <div key={b.l} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <SwatchSquare color={b.c} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t(b.l)}</span>
+        {ISO_OVERLAP_LABELS.map((label, i) => (
+          <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {/* 原圖例 7 列對應色階第 2–8 色（step 第 1 色＝0 站） */}
+            <SwatchSquare color={POLICE_ISO_OVERLAP_COLORS[t.isDark ? "dark" : "light"][i + 1]!} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t(label)}</span>
           </div>
         ))}
       </div>
@@ -642,6 +643,7 @@ export function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibilit
   const t = useLegendTheme();
   const i18n = useLocale();
   const active = POLICE_JUSTICE_LEGEND.filter((r) => visibility[r.key]);
+  const lift = useLegendColorMapper();
   if (active.length === 0) return null;
   return (
     <div>
@@ -653,7 +655,7 @@ export function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibilit
               style={{
                 width: r.shape === "line" ? 18 : 10,
                 height: r.shape === "line" ? 3 : 10,
-                background: r.color,
+                background: lift(pjColor(r.color, t.isDark)),
                 borderRadius: r.shape === "circle" ? RADIUS.full : r.shape === "square" ? RADIUS.sm : 0,
                 border: "1px solid rgba(255,255,255,0.4)",
                 boxSizing: "border-box",
@@ -673,11 +675,11 @@ export function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibilit
         <div style={{ marginTop: 6, paddingTop: 4, borderTop: `1px solid ${t.border}` }}>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 3 }}>{i18n.t("legend.civic.pjPoliceTier")}</div>
           {[
-            { c: "#0a1e6b", s: 14, l: "legend.civic.pjPoliceHq" as const },
-            { c: "#1e3a8a", s: 11, l: "legend.civic.pjPoliceCity" as const },
-            { c: "#1e40af", s: 9, l: "legend.civic.pjPrecinct" as const },
-            { c: "#3b82f6", s: 6, l: "legend.civic.pjSubstation" as const },
-            { c: "#dc2626", s: 8, l: "legend.civic.pjSpecialized" as const },
+            { c: tierColor(POLICE_TIER_COLOR_KEYS, "headquarters", t.isDark), s: 14, l: "legend.civic.pjPoliceHq" as const },
+            { c: tierColor(POLICE_TIER_COLOR_KEYS, "police_dept", t.isDark), s: 11, l: "legend.civic.pjPoliceCity" as const },
+            { c: tierColor(POLICE_TIER_COLOR_KEYS, "precinct", t.isDark), s: 9, l: "legend.civic.pjPrecinct" as const },
+            { c: tierColor(POLICE_TIER_COLOR_KEYS, "substation", t.isDark), s: 6, l: "legend.civic.pjSubstation" as const },
+            { c: tierColor(POLICE_TIER_COLOR_KEYS, "specialized", t.isDark), s: 8, l: "legend.civic.pjSpecialized" as const },
           ].map((r) => (
             <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
               <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
@@ -763,11 +765,11 @@ export function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibilit
         <div style={{ marginTop: 6, paddingTop: 4, borderTop: `1px solid ${t.border}` }}>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 3 }}>{i18n.t("legend.civic.pjCourtTier")}</div>
           {[
-            { c: "#4c1d95", s: 14, l: "legend.civic.pjCourtSupreme" as const },
-            { c: "#6d28d9", s: 11, l: "legend.civic.pjCourtHigh" as const },
-            { c: "#7c3aed", s: 10, l: "legend.civic.pjCourtAdmin" as const },
-            { c: "#a855f7", s: 9, l: "legend.civic.pjCourtIpc" as const },
-            { c: "#c4b5fd", s: 7, l: "legend.civic.pjCourtDistrict" as const },
+            { c: tierColor(COURT_TIER_COLOR_KEYS, "supreme", t.isDark), s: 14, l: "legend.civic.pjCourtSupreme" as const },
+            { c: tierColor(COURT_TIER_COLOR_KEYS, "high", t.isDark), s: 11, l: "legend.civic.pjCourtHigh" as const },
+            { c: tierColor(COURT_TIER_COLOR_KEYS, "admin", t.isDark), s: 10, l: "legend.civic.pjCourtAdmin" as const },
+            { c: tierColor(COURT_TIER_COLOR_KEYS, "ipc", t.isDark), s: 9, l: "legend.civic.pjCourtIpc" as const },
+            { c: tierColor(COURT_TIER_COLOR_KEYS, "district", t.isDark), s: 7, l: "legend.civic.pjCourtDistrict" as const },
           ].map((r) => (
             <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
               <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
@@ -782,9 +784,9 @@ export function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibilit
         <div style={{ marginTop: 6, paddingTop: 4, borderTop: `1px solid ${t.border}` }}>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 3 }}>{i18n.t("legend.civic.pjProsTier")}</div>
           {[
-            { c: "#581c87", s: 13, l: "legend.civic.pjProsSupreme" as const },
-            { c: "#7e22ce", s: 10, l: "legend.civic.pjProsHigh" as const },
-            { c: "#c084fc", s: 7, l: "legend.civic.pjProsDistrict" as const },
+            { c: tierColor(PROSECUTOR_TIER_COLOR_KEYS, "supreme", t.isDark), s: 13, l: "legend.civic.pjProsSupreme" as const },
+            { c: tierColor(PROSECUTOR_TIER_COLOR_KEYS, "high", t.isDark), s: 10, l: "legend.civic.pjProsHigh" as const },
+            { c: tierColor(PROSECUTOR_TIER_COLOR_KEYS, "district", t.isDark), s: 7, l: "legend.civic.pjProsDistrict" as const },
           ].map((r) => (
             <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
               <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />

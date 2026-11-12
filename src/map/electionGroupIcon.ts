@@ -43,6 +43,28 @@ export function isElectionGroupIconId(id: string): boolean {
   return id.startsWith(ICON_PREFIX);
 }
 
+/**
+ * 外環各陣營弧段（從正上方順時針）。段間留 0.06 rad 縫，但縫不超過該段寬的一半：
+ * 場次很多（n≥105）時某陣營只 1 場，段寬 2π/n 小於縫，否則 start>end 會讓 arc 繞近整圈蓋掉其他段（review F043）。
+ */
+export function electionRingSegments(
+  counts: Partial<Record<ElectionCampKey, number>>,
+  order: readonly ElectionCampKey[],
+): { key: ElectionCampKey; start: number; end: number }[] {
+  const n = order.reduce((s, k) => s + (counts[k] ?? 0), 0);
+  if (n === 0) return [];
+  const baseGap = order.length > 1 ? 0.06 : 0;
+  const out: { key: ElectionCampKey; start: number; end: number }[] = [];
+  let a0 = -Math.PI / 2;
+  for (const key of order) {
+    const a1 = a0 + (2 * Math.PI * (counts[key] ?? 0)) / n;
+    const gap = Math.min(baseGap, (a1 - a0) * 0.5);
+    out.push({ key, start: a0 + gap / 2, end: a1 - gap / 2 });
+    a0 = a1;
+  }
+  return out;
+}
+
 function drawIcon(spec: ElectionGroupIconSpec): { width: number; height: number; data: Uint8Array } | null {
   if (typeof document === "undefined") return null;
   const order = ELECTION_CAMPS.map((c) => c.key).filter((k) => (spec.counts[k] ?? 0) > 0);
@@ -69,12 +91,8 @@ function drawIcon(spec: ElectionGroupIconSpec): { width: number; height: number;
   // 外環：依陣營場次比例分段
   g.globalAlpha = alpha;
   g.lineWidth = isCity ? 2.4 : 2;
-  const gap = order.length > 1 ? 0.06 : 0;
-  let a0 = -Math.PI / 2;
-  for (const k of order) {
-    const a1 = a0 + (2 * Math.PI * (spec.counts[k] ?? 0)) / n;
-    g.beginPath(); g.arc(C, C, R, a0 + gap / 2, a1 - gap / 2); g.strokeStyle = ELECTION_CAMP_COLOR[k]; g.stroke();
-    a0 = a1;
+  for (const { key, start, end } of electionRingSegments(spec.counts, order)) {
+    g.beginPath(); g.arc(C, C, R, start, end); g.strokeStyle = ELECTION_CAMP_COLOR[key]; g.stroke();
   }
 
   // 中心深色圓＋場次數

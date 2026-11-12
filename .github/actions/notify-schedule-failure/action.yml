@@ -1,5 +1,5 @@
 name: notify-schedule-failure
-description: 排程 workflow 連續失敗第 2 次送 Telegram 🔴，連續失敗後恢復送 ✅（狀態取自 GitHub run 歷史，不另存）
+description: 排程 workflow 連續失敗第 N 次（預設 2）送 Telegram 🔴，連續失敗後恢復送 ✅（狀態取自 GitHub run 歷史，不另存）
 inputs:
   token:
     description: Telegram bot token（空值則略過）
@@ -24,6 +24,14 @@ inputs:
   run-url:
     description: 本次 workflow_run 的網址
     required: true
+  run-attempt:
+    description: 本次 workflow_run 的 run_attempt（>1 表示重跑，會查上一個 attempt 的結果）
+    required: false
+    default: '1'
+  threshold:
+    description: 連續失敗幾次才通知（1＝第一次失敗就通知）
+    required: false
+    default: '2'
 runs:
   using: composite
   steps:
@@ -37,6 +45,8 @@ runs:
         RUN_ID: ${{ inputs.run-id }}
         CONCLUSION: ${{ inputs.conclusion }}
         RUN_URL: ${{ inputs.run-url }}
+        RUN_ATTEMPT: ${{ inputs.run-attempt }}
+        THRESHOLD: ${{ inputs.threshold }}
         ACTION_PATH: ${{ github.action_path }}
       run: |
         set -euo pipefail
@@ -45,9 +55,13 @@ runs:
           exit 0
         fi
         hist="$(gh run list -R "$REPO" -w "$WORKFLOW" --event schedule -L 10 --json databaseId,conclusion)"
-        verdict="$(printf '%s' "$hist" | bash "$ACTION_PATH/decide.sh" "$RUN_ID" "$CONCLUSION")"
+        prev_attempt=""
+        if [ "${RUN_ATTEMPT:-1}" -gt 1 ] 2>/dev/null; then
+          prev_attempt="$(gh api "repos/$REPO/actions/runs/$RUN_ID/attempts/$((RUN_ATTEMPT - 1))" --jq '.conclusion // ""')"
+        fi
+        verdict="$(printf '%s' "$hist" | bash "$ACTION_PATH/decide.sh" "$RUN_ID" "$CONCLUSION" "$THRESHOLD" "$prev_attempt")"
         case "$verdict" in
-          fail2)   msg="🔴 排程連續失敗 2 次：${REPO}/${WORKFLOW} ${RUN_URL}" ;;
+          fail)    if [ "$THRESHOLD" = 1 ]; then msg="🔴 排程檢查失敗：${REPO}/${WORKFLOW} ${RUN_URL}"; else msg="🔴 排程連續失敗 ${THRESHOLD} 次：${REPO}/${WORKFLOW} ${RUN_URL}"; fi ;;
           recover) msg="✅ 排程恢復：${REPO}/${WORKFLOW} ${RUN_URL}" ;;
           *) echo "判斷=none，不送"; exit 0 ;;
         esac

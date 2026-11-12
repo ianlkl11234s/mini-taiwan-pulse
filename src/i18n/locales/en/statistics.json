@@ -11,6 +11,7 @@
   "statistics.legend.sequential": "Light → dark: low → high values. Compare using this indicator's value ranges",
   "statistics.legend.hatchSocial": "Hatched: missing / not covered by the source, not 0. An observed 0 uses the color scale",
   "statistics.legend.hatchDefault": "Hatched: no data / value not published",
+  "statistics.legend.hatchCircle": "Hatched: missing / not covered by the source, not 0 (no circle)",
   "statistics.legend.hatchLabel": "Hatched: {label}",
   "statistics.legend.crossHatch": "Cross-hatched: suppressed (*)",
   "statistics.legend.notReported": "{label} not_reported (-): not 0. A true 0 uses the color scale",
@@ -97,5 +98,16 @@
   "statistics.level.ca_pr": "Province / territory",
   "statistics.level.ca_cd": "Census division",
   "statistics.level.ie_la": "Local authority",
-  "statistics.level.ie_ed": "Electoral division"
+  "statistics.level.ie_ed": "Electoral division",
+  "statistics.legend.circleArea": "Circle area (not radius) shows the amount; circles keep their size when zooming; observed zeros have no circle",
+  "statistics.legend.circleReference": "The largest circle matches this period's maximum rounded up, so it may change between periods",
+  "statistics.legend.circleReferenceSource": "The largest circle matches this period's maximum rounded up, so it may change between periods; source: {provider}",
+  "statistics.legend.circleNoPositive": "No observed values above 0 in this period, so no circles are drawn",
+  "statistics.legend.dotUnit": "1 dot = {value} {unit}",
+  "statistics.legend.dotRandom": "Dots are placed at random inside each area; they are not actual locations",
+  "statistics.legend.dotRemainder": "Remainders below one dot round up with a fixed per-area probability, so small areas can still get a dot; observed zeros get no dots",
+  "statistics.legend.dotReference": "The amount per dot follows this period's map total rounded to 1 / 2 / 5 × 10ⁿ; it only changes between periods when the total crosses a step",
+  "statistics.legend.dotReferenceSource": "The amount per dot follows this period's map total rounded to 1 / 2 / 5 × 10ⁿ; it only changes between periods when the total crosses a step; source: {provider}",
+  "statistics.legend.dotNoPositive": "No observed values above 0 in this period, so no dots are drawn",
+  "statistics.legend.hatchDots": "Hatched: missing / not covered by the source, not 0 (no dots)"
 }

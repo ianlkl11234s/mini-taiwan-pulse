@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import type { LayerVisibility } from "../types";
 import { fetchLivestockFarms, fetchLivestockSlaughterhouses } from "../data/livestockLoader";
@@ -38,14 +38,20 @@ let slaughterCache: GeoJSON.FeatureCollection | null = null;
 let slaughterCachedAt = 0;
 let slaughterInflight: Promise<GeoJSON.FeatureCollection> | null = null;
 
-/** 撤權時遞增：撤權前發出、撤權後才回來的請求不得寫回 cache */
-let generation = 0;
+/** 撤權時遞增（飼養場／屠宰場各自一個）：撤權前發出、撤權後才回來的請求不得寫回 cache */
+let farmsGeneration = 0;
+let slaughterGeneration = 0;
 
-/** 撤權（登出／失去站主權限，review F088）：清 module cache */
-export function clearLivestockCache(): void {
-  generation += 1;
-  farmsCache = null; farmsCachedAt = 0; farmsInflight = null;
-  slaughterCache = null; slaughterCachedAt = 0; slaughterInflight = null;
+/** 撤權（登出／失去站主權限，review F088）：清 module cache；可只清其中一個資料集（review F004） */
+export function clearLivestockCache(which: { farms?: boolean; slaughter?: boolean } = { farms: true, slaughter: true }): void {
+  if (which.farms) {
+    farmsGeneration += 1;
+    farmsCache = null; farmsCachedAt = 0; farmsInflight = null;
+  }
+  if (which.slaughter) {
+    slaughterGeneration += 1;
+    slaughterCache = null; slaughterCachedAt = 0; slaughterInflight = null;
+  }
 }
 
 function loadCached(
@@ -55,22 +61,23 @@ function loadCached(
   setCache: (d: GeoJSON.FeatureCollection) => void,
   setInflight: (p: Promise<GeoJSON.FeatureCollection> | null) => void,
   fetcher: () => Promise<GeoJSON.FeatureCollection>,
+  getGeneration: () => number,
 ): Promise<GeoJSON.FeatureCollection> {
   const now = Date.now();
   const cached = getCache();
   if (cached && now - getAt() < CACHE_TTL_MS) return Promise.resolve(cached);
   const inflight = getInflight();
   if (inflight) return inflight;
-  const gen = generation;
+  const gen = getGeneration();
   const p = fetcher()
     .then((d) => {
-      if (gen !== generation) throw new Error("[Livestock] access revoked");
+      if (gen !== getGeneration()) throw new Error("[Livestock] access revoked");
       setCache(d);
       setInflight(null);
       return d;
     })
     .catch((err) => {
-      if (gen === generation) setInflight(null);
+      if (gen === getGeneration()) setInflight(null);
       throw err;
     });
   setInflight(p);
@@ -83,6 +90,7 @@ const loadFarms = () =>
     (d) => { farmsCache = d; farmsCachedAt = Date.now(); },
     (p) => { farmsInflight = p; },
     fetchLivestockFarms,
+    () => farmsGeneration,
   );
 const loadSlaughter = () =>
   loadCached(
@@ -90,6 +98,7 @@ const loadSlaughter = () =>
     (d) => { slaughterCache = d; slaughterCachedAt = Date.now(); },
     (p) => { slaughterInflight = p; },
     fetchLivestockSlaughterhouses,
+    () => slaughterGeneration,
   );
 
 export interface UseLivestockLayersOpts {
@@ -101,12 +110,25 @@ export function useLivestockLayers({ mapRef, visibility }: UseLivestockLayersOpt
   const farmsDataRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const slaughterDataRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
-  useEffect(() => registerOwnerGateReset([...FARM_KEYS, "livestockSlaughter"], () => {
-    clearLivestockCache();
-    ownerDataStatus.reset("livestock-farms");
-    ownerDataStatus.reset("livestock-slaughterhouses");
-    farmsDataRef.current = null;
-    slaughterDataRef.current = null;
+  const visibilityRef = useRef(visibility);
+  visibilityRef.current = visibility;
+  // 撤權後仍授權且開著的飼養場 layer（7 個共用同一份資料）要重抓：遞增觸發 farms effect
+  const [farmsReloadTick, setFarmsReloadTick] = useState(0);
+
+  // 只清被撤權的資料集（review F004；POLICIES G3）
+  useEffect(() => registerOwnerGateReset([...FARM_KEYS, "livestockSlaughter"], (revoked) => {
+    const farmsRevoked = FARM_KEYS.some((k) => revoked.has(k));
+    const slaughterRevoked = revoked.has("livestockSlaughter");
+    clearLivestockCache({ farms: farmsRevoked, slaughter: slaughterRevoked });
+    if (farmsRevoked) {
+      ownerDataStatus.reset("livestock-farms");
+      farmsDataRef.current = null;
+      if (FARM_KEYS.some((k) => !revoked.has(k) && visibilityRef.current[k])) setFarmsReloadTick((n) => n + 1);
+    }
+    if (slaughterRevoked) {
+      ownerDataStatus.reset("livestock-slaughterhouses");
+      slaughterDataRef.current = null;
+    }
   }), []);
 
   const anyFarmVisible = FARM_KEYS.some((k) => visibility[k]);
@@ -129,7 +151,7 @@ export function useLivestockLayers({ mapRef, visibility }: UseLivestockLayersOpt
       .then((d) => { if (cancelled) return; farmsDataRef.current = d; feedAll(); })
       .catch((err) => { if (!cancelled && !isAccessDenied(err)) console.warn("[Livestock] farms load failed:", err); });
     return () => { cancelled = true; };
-  }, [anyFarmVisible, feedAll]);
+  }, [anyFarmVisible, feedAll, farmsReloadTick]);
 
   // slaughterhouses：livestockSlaughter visible 才拉
   useEffect(() => {

@@ -1,0 +1,70 @@
+# Cloudflare Workers 每日用量告警（CFW-1）：當日（UTC）請求數超過免費額度 10 萬的 6 成時發 Telegram，每個 UTC 日只發一次。
+# 使用者 2026-11-10 決定：不升級付費、不改圖磚直連；除非這裡告警，不再提議升級或直連。
+# 需要 secrets：CF_ANALYTICS_API_TOKEN（只給 Account > Account Analytics > Read）、CLOUDFLARE_ACCOUNT_ID（沿用部署用的）。
+# 未設定時 step 顯示 ::warning:: 並在 summary 寫「未設定、已跳過」。查詢失敗 job 會紅，由 schedule-watch（連續 2 次）通知。
+name: workers-usage
+
+on:
+  schedule:
+    - cron: '23 */2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: workers-usage
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/monitor
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      # 同一 UTC 日較早的 run 是否已實際送出 Telegram（看該 run 的 Telegram step 成功與否，不從用量推斷；review F089）
+      - name: Notified today
+        id: notified
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          today=$(date -u +%F)
+          ids=$(gh run list -R "$GITHUB_REPOSITORY" -w workers-usage -L 30 --json databaseId,createdAt \
+            -q ".[] | select(.databaseId < $RUN_ID and (.createdAt | startswith(\"$today\"))) | .databaseId")
+          notified=""
+          for id in $ids; do
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id/jobs" \
+              --jq '[.jobs[].steps[]? | select((.name | startswith("Telegram")) and .conclusion == "success")] | length')
+            if [ "$n" -gt 0 ]; then notified=1; break; fi
+          done
+          echo "today=$notified" >> "$GITHUB_OUTPUT"
+      - name: Query usage
+        id: usage
+        env:
+          CF_ANALYTICS_API_TOKEN: ${{ secrets.CF_ANALYTICS_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          NOTIFIED: ${{ steps.notified.outputs.today }}
+        run: |
+          if [ -n "$NOTIFIED" ]; then node scripts/monitor/workers-usage.mjs --notified-today; else node scripts/monitor/workers-usage.mjs; fi
+      - name: Telegram（當日第一次超過門檻）
+        if: steps.usage.outputs.status == 'over-new'
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MSG: ${{ steps.usage.outputs.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$TG_TOKEN" ] || [ -z "$TG_CHAT" ]; then echo "::error::超過門檻但未設定 Telegram secrets，無法通知"; exit 1; fi
+          curl -fsS --max-time 20 -o /dev/null \
+            "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TG_CHAT}" \
+            --data-urlencode "text=🟡 ${MSG}（超過時整站含 /blog 會在 UTC 00:00／台灣 08:00 前回錯誤）${RUN_URL}" \
+            --data-urlencode "disable_web_page_preview=true"

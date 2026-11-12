@@ -1,0 +1,54 @@
+# 資產清單全量核對（ASSET-1）：lock 全部條目 HEAD 比 bytes、每天輪流抽 6 筆整檔比 sha256、
+# 反向列出「前端引用、R2 供應中、但不在 lock」的檔。邏輯在 scripts/monitor/audit_asset_lock.py（本機可跑）。
+# lock 與前端引用以正式分支 master 為準（R2 同步看 master；develop 才有的新條目還沒上 R2，不該誤報）；
+# 腳本取自觸發分支（develop）。只讀公開網址 data.itsmigu.com（直連 R2、不經 Worker），並行 ≤4、不用 secret。
+# 失敗 exit 1，通知由 schedule-watch.yml（門檻 1：每天只跑一次，第一次失敗就通知）。
+name: asset-lock-audit
+
+on:
+  schedule:
+    - cron: '17 21 * * *' # 台灣 05:17（deploy-workers 03:40 同步之後）
+  workflow_dispatch:
+    inputs:
+      sha_all:
+        description: '全部條目整檔比 sha256（約 3 GB 下載）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: asset-lock-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/monitor
+            deploy/cloudflare
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: master
+          path: master-tree
+          # 與 sync-assets 掃前端引用的範圍相同（根目錄 *.html 在 cone 模式會自動帶入）
+          sparse-checkout: |
+            deploy
+            src
+            lab
+      - name: Unit tests
+        run: python3 -I scripts/monitor/test_audit_asset_lock.py
+      - name: Audit
+        env:
+          SHA_ALL: ${{ inputs.sha_all }}
+        run: |
+          if [ "$SHA_ALL" = "true" ]; then mode=--sha-all; else mode="--sha-sample 6"; fi
+          # shellcheck disable=SC2086
+          python3 -I scripts/monitor/audit_asset_lock.py --lock master-tree/deploy/public-assets.lock.json --tree master-tree $mode --out "$RUNNER_TEMP/asset-audit.tsv"

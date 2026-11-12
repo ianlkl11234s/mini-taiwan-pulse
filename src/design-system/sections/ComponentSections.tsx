@@ -26,12 +26,15 @@ import { LOADING_STATUS_TIMING, type LoadingStatusView } from "../../lib/loading
 import { GLOW_LINGER_MS, ResearchActivity } from "../../research/ResearchActivityCard";
 import type { Activity } from "../../research/researchActivity";
 import {
-  DARK_LEGEND, LEGEND_SIZE_RING_WIDTH, LEGEND_SWATCH, LIGHT_LEGEND, LegendCompactCtx, LegendNote, LegendNum, LegendRow, LegendSizeRow, LegendThemeCtx, LegendTitle,
+  DARK_LEGEND, LEGEND_SIZE_RING_WIDTH, LEGEND_SWATCH, LIGHT_LEGEND, LegendCompactCtx, LegendNestedCircles, LegendNote, LegendNum, LegendRow, LegendSizeRow, LegendThemeCtx, LegendTitle,
   SwatchArrow, SwatchDot, SwatchGradient, SwatchHatch, SwatchLine, SwatchSquare, SwatchSteps,
 } from "../../components/legend/legendKit";
 import { LINE_DASH } from "../../map/mapStyleScale";
+import { PROPORTIONAL_CIRCLE, proportionalCircleRadius, proportionalLegendValues } from "../../map/statisticsCircles";
 import { POWER_OUTPUT_LEGEND_MW, powerOutputRadius, RESERVOIR_CAPACITY_LEGEND_WAN, RESERVOIR_NODATA_COLOR, RESERVOIR_WATER_COLOR, reservoirCapacityRadius } from "../../map/r6FlatEncodings";
 import { Kv, Pair, Section, Spec, Sub, Tag, objRows, type SectionDef } from "../kit";
+
+const NESTED_CIRCLE_DEMO = proportionalLegendValues(1_000_000).map((value) => ({ r: proportionalCircleRadius(value, 1_000_000, "township"), value: String(value / 10_000), suffix: "萬人" }));
 
 // ── §3 面板外殼＋H2 ────────────────────────────────────────
 const shellFor = (isDark: boolean) => isDark
@@ -394,6 +397,17 @@ export function LegendSection() {
               <LegendSizeRow fill={RESERVOIR_NODATA_COLOR} title="fill：即時出力（機組圓點大小）" items={POWER_OUTPUT_LEGEND_MW.map((mw) => ({ r: powerOutputRadius(mw), label: `${mw.toLocaleString()} MW` }))} />
               <LegendSizeRow ring={isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light} title="ring：有效容量（水庫圓點大小）" items={RESERVOIR_CAPACITY_LEGEND_WAN.map((wan) => ({ r: reservoirCapacityRadius(wan), label: `${(wan / 10_000).toLocaleString()} 億 m³` }))} />
               <LegendRow swatch={<SwatchDot color={RESERVOIR_NODATA_COLOR} />}>無資料（維持灰實心點）</LegendRow>
+            </div>
+          </LegendThemeCtx.Provider>
+        )} />
+      </Sub>
+      <Sub title="LegendNestedCircles 三圓套疊（LG-5）：統計比例圓" kind="real">
+        <p className="ds-note">統計「呈現方式＝比例圓」的圖例（map-layers §3.10）：參考值、約 1/4、約 1/20 三個圓底邊對齊套疊，圓頂細線拉到右側數值；半徑與地圖同一個公式（<code>proportionalCircleRadius</code>，固定 px）。單獨顯示＝<code>fill</code> 實心（色階最深一級）；疊在其他面量圖上＝<code>ring</code> 空心圈（<span className="ds-mono">PROPORTIONAL_CIRCLE.ring</span>）。示例：鄉鎮層、參考值 100 萬人。</p>
+        <Pair render={(isDark) => (
+          <LegendThemeCtx.Provider value={isDark ? DARK_LEGEND : LIGHT_LEGEND}>
+            <div style={{ width: 230, boxSizing: "border-box", padding: "8px 10px", fontFamily: FONT_CJK, background: isDark ? SURFACE.strong : LIGHT.surfacePanel, border: `1px solid ${isDark ? BORDER.panel : LIGHT.border}`, borderRadius: RADIUS.xl, display: "grid", gap: 8 }}>
+              <LegendNestedCircles fill={SEQUENTIAL_PALETTES[0].light[4]} items={NESTED_CIRCLE_DEMO} />
+              <LegendNestedCircles ring={PROPORTIONAL_CIRCLE.ring.color[isDark ? "dark" : "light"]} items={NESTED_CIRCLE_DEMO} />
             </div>
           </LegendThemeCtx.Provider>
         )} />
