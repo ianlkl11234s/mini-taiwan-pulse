@@ -294,6 +294,8 @@ export function useSoundAtlasLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   flags: SoundFamilyFlags,
   opacity: Record<SoundSourceFamily, number>,
+  /** W6-1 動畫開關（沒給的家族照舊畫）；雨預設關 */
+  animate: Partial<Record<SoundSourceFamily, boolean>> = {},
 ): void {
   const anyOn = SOUND_FAMILIES.some((f) => flags[f]);
   const enabledKey = SOUND_FAMILIES.filter((f) => flags[f]).join(",");
@@ -346,6 +348,8 @@ export function useSoundAtlasLayer(
 
   // flags／opacity 以純量比較，避免物件身分每次 render 都變
   const { aviation: fA, rain: fR, thunder: fT, waste_collection: fW, rail: fL, road_traffic: fD, roadwork: fK, wind_vegetation: fV, coastal_wave: fC, river_water: fI } = flags;
+  const animRain = animate.rain;
+  useEffect(() => { animatorRef.current?.update({ animate: { rain: animRain } }); }, [animRain, anyOn, mapTick]);
   const { aviation: oA, rain: oR, thunder: oT, waste_collection: oW, rail: oL, road_traffic: oD, roadwork: oK, wind_vegetation: oV, coastal_wave: oC, river_water: oI } = opacity;
   useEffect(() => {
     const map = mapRef.current;

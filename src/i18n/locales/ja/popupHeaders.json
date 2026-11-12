@@ -125,5 +125,6 @@
   "popupHeader.mapchallengeDay08Sites": "新しい公園の候補地とコスト",
   "popupHeader.mapchallengeDay08Parks": "既存の公園と河川敷の出入口",
   "popupHeader.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設",
-  "popupHeader.soundSource": "音源（推計）"
+  "popupHeader.soundSource": "音源（推計）",
+  "popupHeader.soundRainCell": "雨の強さグリッド（推定）"
 }

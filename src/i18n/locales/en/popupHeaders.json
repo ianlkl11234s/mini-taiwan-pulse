@@ -125,5 +125,6 @@
   "popupHeader.mapchallengeDay08Sites": "New Park Sites and Their Cost",
   "popupHeader.mapchallengeDay08Parks": "Existing Parks and Riverside Entrances",
   "popupHeader.mapchallengeDay09UrbanRural": "Which Services Stay Where People Are Few",
-  "popupHeader.soundSource": "Sound Source (estimated)"
+  "popupHeader.soundSource": "Sound Source (estimated)",
+  "popupHeader.soundRainCell": "Rain Grid Cell (estimated)"
 }

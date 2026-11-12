@@ -63,6 +63,11 @@ export interface AnimatorState {
   thunderStrikes: { lon: number; lat: number; flashTime: number }[];
   flags: Record<SoundSourceFamily, boolean>;
   opacity: Record<SoundSourceFamily, number>;
+  /**
+   * W6-1 動畫開關（圖層展開區 `sound<Family>Animation`）：false＝不畫該族示意動畫。
+   * 沒給的家族視為 true（W6-1 只有雨改成預設關，其他族之後網格化時再接）。
+   */
+  animate?: Partial<Record<SoundSourceFamily, boolean>>;
 }
 
 /** 0–1 的小型決定性雜湊（雨滴位置用；同一格同一週期位置固定，避免閃爍） */
@@ -450,7 +455,7 @@ export class SoundAtlasAnimator {
     }
 
     // 雨：接收點周圍＋雨量站周圍的雨滴漣漪；密度只跟雨的潛勢成比例；unknown 不畫
-    const rain = active.find((c) => c.family === "rain");
+    const rain = this.state.animate?.rain === false ? undefined : active.find((c) => c.family === "rain");
     if (rain) {
       const station = contributionPlace(records.get(rain.sourceId), t);
       const centres = [{ lon: receiver.longitude, lat: receiver.latitude }, ...(station ? [{ lon: station.lon, lat: station.lat }] : [])];

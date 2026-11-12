@@ -61,6 +61,7 @@ export function providerKey(provider: string): MessageKey {
   switch (provider) {
     case "flight_trails": return "soundAtlas.provider.flightTrails";
     case "cwa_rain_gauge": return "soundAtlas.provider.rainGauge";
+    case "cwa_radar_grid": return "soundAtlas.provider.radar";
     case "cwa": return "soundAtlas.provider.cwa";
     case "taipower": return "soundAtlas.provider.taipower";
     case "waste_schedule_static": return "soundAtlas.provider.waste";
@@ -76,6 +77,8 @@ export function providerKey(provider: string): MessageKey {
 
 export function spatialPrecisionKey(code: string): MessageKey {
   if (code === "adsb_track_point") return "soundAtlas.precision.track";
+  if (code === "radar_grid_250m") return "soundAtlas.precision.radarGrid";
+  if (code === "radar_grid_250m+nearest_gauge") return "soundAtlas.precision.radarGauge";
   if (code.startsWith("nearest_gauge")) return "soundAtlas.precision.gauge";
   if (code === "strike_point_2d") return "soundAtlas.precision.strike";
   if (code === "scheduled_stop_point") return "soundAtlas.precision.stop";
@@ -93,6 +96,8 @@ export function spatialPrecisionKey(code: string): MessageKey {
 export function temporalPrecisionKey(code: string): MessageKey {
   if (code === "trail_point_or_linear_interpolation") return "soundAtlas.timePrecision.track";
   if (code === "hourly") return "soundAtlas.timePrecision.hourly";
+  if (code === "radar_10min") return "soundAtlas.timePrecision.radar10min";
+  if (code === "radar_10min+hourly") return "soundAtlas.timePrecision.radarHourly";
   if (code === "strike_ts_plus_modeled_delay") return "soundAtlas.timePrecision.strike";
   if (code === "timetable" || code.startsWith("timetable(")) return "soundAtlas.timePrecision.timetable";
   if (code === "none(road_type_static)") return "soundAtlas.timePrecision.static";
@@ -111,6 +116,7 @@ export function reasonKey(reason: string | null | undefined): MessageKey {
   if (r.startsWith("no_rain_station_within")) return "soundAtlas.reason.noStation";
   if (r === "station_hour_missing") return "soundAtlas.reason.hourMissing";
   if (r === "precipitation_1hr_null") return "soundAtlas.reason.valueNull";
+  if (r === "radar_frame_unavailable") return "soundAtlas.reason.radarFrame";
   // W5 自然三族：風、浪即時沒有讀取路徑（coverage unavailable）→「僅場景快照提供」
   if (r.endsWith("(snapshot_only)") || (r.startsWith("no_healthy_source") && /(cwa_weather_obs|cwa_marine_obs|wra_river_water_level):unavailable/.test(r))) return "soundAtlas.reason.snapshotOnly";
   if (r === "vegetation_not_sampled") return "soundAtlas.reason.noVegetation";
@@ -155,4 +161,12 @@ export function formatTaipeiTime(iso: string | number, withDate = false): string
   if (!Number.isFinite(d.getTime())) return "—";
   const s = d.toLocaleString("sv-SE", { timeZone: "Asia/Taipei" });
   return withDate ? `${s.slice(5, 10).replace("-", "/")} ${s.slice(11, 16)}` : s.slice(11, 16);
+}
+
+/** W6-1 雨勢分級碼（0–4、255）→ 文字 key */
+const RAIN_CLASS_KEYS: readonly MessageKey[] = [
+  "soundAtlas.rain.class.0", "soundAtlas.rain.class.1", "soundAtlas.rain.class.2", "soundAtlas.rain.class.3", "soundAtlas.rain.class.4",
+];
+export function rainClassKey(code: number | null | undefined): MessageKey {
+  return (code != null && RAIN_CLASS_KEYS[code]) || "soundAtlas.rain.class.unknown";
 }

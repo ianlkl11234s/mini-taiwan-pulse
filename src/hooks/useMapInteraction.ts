@@ -32,6 +32,7 @@ import { selectBridgeResilienceOrigin } from "../state/bridgeResilienceDestinati
 import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
 import { isDrawn as isBusCrowdingDrawn } from "../data/busCrowdingSimTypes";
 import { soundAtlasStore } from "../sound/soundAtlasStore";
+import { pickSoundRainCell } from "../sound/grid/rainGridState";
 
 interface TooltipInfo {
   flight: Flight;
@@ -573,6 +574,15 @@ export function useMapInteraction(
           if (picked) {
             setFeatureInfo({ layerType: "transitAccessPlayback", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
             sessionTracker.log("feature_click", { layerType: "transitAccessPlayback" });
+            found = true;
+          }
+        }
+        // City Sound Atlas 雨網格（W6-1）是自訂 WebGL 圖層：沒命中向量 feature 時以網格索引查格（北北範圍外不命中）
+        if (!found && vis?.soundRain) {
+          const picked = pickSoundRainCell(e.lngLat.lng, e.lngLat.lat);
+          if (picked) {
+            setFeatureInfo({ layerType: "soundRainCell", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
+            sessionTracker.log("feature_click", { layerType: "soundRainCell" });
             found = true;
           }
         }

@@ -1,5 +1,6 @@
 // City Sound Atlas 聲景（實驗）Layer Host：十個家族（飛機／雨／雷／垃圾車／鐵道／道路車流／施工／風吹樹葉／海浪／河川）共用一支 hook；透明度各自一支。
 import { useSoundAtlasLayer } from "../../hooks/useSoundAtlasLayer";
+import { useSoundRainGridLayer } from "../../hooks/useSoundRainGridLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -35,6 +36,10 @@ export const SoundAtlasHost: LayerHostComponent = ({ deps }) => {
       coastal_wave: pc.soundCoastalWaveOpacity ?? 0.9,
       river_water: pi.soundRiverWaterOpacity ?? 0.9,
     },
+    // W6-1：示意動畫開關（圖層展開區）；雨預設關
+    { rain: !!pr.soundRainAnimation },
   );
+  // W6-1：雨網格（北北 250 m；雷達 ∨ 雨量站）
+  useSoundRainGridLayer(deps.mapRef, !!v.soundRain, pr.soundRainOpacity ?? 0.9);
   return null;
 };

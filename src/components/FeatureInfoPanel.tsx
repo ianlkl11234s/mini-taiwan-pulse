@@ -197,6 +197,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "freewayTdcsSim",
   // City Sound Atlas 來源：panel 自掛資料來源（即時／場景快照）。
   "soundSource",
+  // W6-1 雨網格格子：panel 自掛雷達／雨量站來源。
+  "soundRainCell",
   // 30 天地圖挑戰 Day 4 群聚：panel 自掛 GHSL／設施來源。
   "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh",
   // 30 天地圖挑戰 Day 5 視野：panel 自掛路線線形／視線推估出處。

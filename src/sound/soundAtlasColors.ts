@@ -24,3 +24,12 @@ export const SOUND_UNKNOWN_COLOR = "#94a3b8";
 
 /** 雷閃光、接收點核心底色（中性白） */
 export const SOUND_FLASH_COLOR = "#ffffff";
+
+/**
+ * W6-1 雨網格五級（資料色，§3.16）：0 無雨＝淡中性色（看得出「已判斷、沒雨」，和範圍外的透明區分），
+ * 1–4 由淺藍到洋紅，越強越深越飽和；暗底、亮底都要辨識得出（洋紅在兩種底圖都不會和底色混）。
+ * 無法判斷（255）不在這裡：渲染器畫斜線（SOUND_UNKNOWN_COLOR），不畫淺色。
+ */
+export const SOUND_RAIN_GRID_COLORS = ["#94a3b8", "#7dd3fc", "#3b82f6", "#6d28d9", "#d946ef"] as const;
+/** 各級不透明度（乘上圖層透明度滑桿）：無雨很淡，雨越大越實 */
+export const SOUND_RAIN_GRID_ALPHA = [0.14, 0.5, 0.62, 0.74, 0.85] as const;

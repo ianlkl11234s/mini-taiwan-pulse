@@ -15,5 +15,9 @@
   "legend.soundAtlas.wave": "Surf: offshore buoy wave height & period × distance to coast; beyond 1 km not counted",
   "legend.soundAtlas.river": "River water (experimental): level relative to the station's past 60 days × distance to channel; level ≠ flow ≠ sound, estuaries may reflect tides",
   "legend.soundAtlas.naturalSnapshot": "Wind, surf and river have data only in scene snapshots; live mode shows “Scene snapshots only”",
-  "legend.soundAtlas.naturalAttribution": "Sources: CWA stations and buoys, WRA water levels (S3 archive); canopy height Meta/WRI 2020; NLMA coastal area extents (Open Government Data License v1)"
+  "legend.soundAtlas.naturalAttribution": "Sources: CWA stations and buoys, WRA water levels (S3 archive); canopy height Meta/WRI 2020; NLMA coastal area extents (Open Government Data License v1)",
+  "legend.soundAtlas.rainGridTitle": "Rain grid (Taipei + New Taipei, 250 m, every 10 min)",
+  "legend.soundAtlas.rainGridUnknown": "Hatched = cannot tell (missing image, suspected clutter, no nearby gauge)",
+  "legend.soundAtlas.rainGridNote": "Estimated from radar echo and rain gauges, taking the higher; the Z-R conversion and class thresholds are assumptions.",
+  "legend.soundAtlas.rainGridAnimation": "Raindrop ripples are off by default; turn them on in the layer panel"
 }

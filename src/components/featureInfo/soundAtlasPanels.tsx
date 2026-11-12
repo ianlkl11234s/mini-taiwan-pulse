@@ -9,8 +9,9 @@ import { SOUND_FAMILIES_ALL } from "../../sound/engines/receiverQuery";
 import type { ContributionEvidence, SoundSourceFamily } from "../../sound/types";
 import {
   EVIDENCE_KEYS, FAMILY_KEYS, STATUS_KEYS, STRUCTURE_KEYS,
-  formatDistanceM, formatPotential, formatTaipeiTime, providerKey, reasonKey, spatialPrecisionKey, temporalPrecisionKey,
+  formatDistanceM, formatPotential, formatTaipeiTime, providerKey, rainClassKey, reasonKey, spatialPrecisionKey, temporalPrecisionKey,
 } from "../sound/soundAtlasText";
+import { SOUND_RAIN_GRID_COLORS } from "../../sound/soundAtlasColors";
 import { Row, SourceFooter, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
@@ -60,6 +61,46 @@ export function SoundSourcePanel({ props }: { props: Record<string, unknown> }) 
     {family && NATURAL.has(family) && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.naturalNote")}</div>}
     {family === "roadwork" && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.permitNote")}</div>}
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
-    <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : family === "road_traffic" && props.proxyKind === "typical_weekday_volume" ? "vd_typical_taipei" : FAMILY_PROVIDER[family ?? "aviation"]))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
+    <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : family === "road_traffic" && props.proxyKind === "typical_weekday_volume" ? "vd_typical_taipei" : FAMILY_PROVIDER[family ?? "aviation"]))}${family === "rain" && str(props.temporalPrecision).startsWith("radar") ? ` ＋ ${t(providerKey("cwa_radar_grid"))}` : ""} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
+  </div>;
+}
+
+/**
+ * W6-1 雨勢網格格子 popup（layerType "soundRainCell"；useMapInteraction 以網格索引查格）。
+ * 數值由 rainEstimateAt 對格心即時算（和網格、接收點查詢同一套規則）：分級、依據（雷達／雨量站／同級）、
+ * 雷達幀時刻、最近雨量站與其每小時資料時刻。無法判斷寫白話原因，不寫 0。
+ */
+export function SoundRainCellPanel({ props }: { props: Record<string, unknown> }) {
+  const theme = useFeatureTheme();
+  const { t } = useLocale();
+  const k = num(props.rainClass);
+  const known = k != null && k >= 0 && k <= 4;
+  const source = str(props.source);
+  const radarNone = props.radarPack !== "ok";
+  const radarClass = num(props.radarClass);
+  const radarSlot = num(props.radarSlotStart);
+  const gaugeClass = num(props.gaugeClass);
+  const gaugeAt = num(props.gaugeObservedAt);
+  const gaugeMm = num(props.gaugeMm);
+  const bin = num(props.binStart);
+  const sourceKey = source === "radar" ? "soundAtlas.rainCell.source.radar"
+    : source === "gauge" ? (radarNone ? "soundAtlas.rainCell.source.gaugeOnly" : "soundAtlas.rainCell.source.gauge")
+    : source === "both" ? "soundAtlas.rainCell.source.both" : null;
+  const station = str(props.stationName);
+  const gaugeText = gaugeClass == null
+    ? t("soundAtlas.rainCell.gaugeNone")
+    : `${station || "—"}・${formatDistanceM(num(props.stationDistanceM))}・${t(rainClassKey(gaugeClass))}${gaugeMm != null ? `（${gaugeMm} mm/h）` : ""}${gaugeAt != null ? `・${formatTaipeiTime(gaugeAt)}` : ""}`;
+  const radarText = radarNone ? t("soundAtlas.rainCell.radarNone") : `${t(rainClassKey(radarClass))}${radarSlot != null ? `・${formatTaipeiTime(radarSlot)}` : ""}`;
+  return <div>
+    <Title color={known ? SOUND_RAIN_GRID_COLORS[k as 0 | 1 | 2 | 3 | 4] : theme.textDefault}>{t("soundAtlas.rainCell.title")}</Title>
+    <Row label={t("soundAtlas.rainCell.class")} value={t(rainClassKey(k))} />
+    {!known && <Row label={t("soundAtlas.row.reason")} value={t(reasonKey(str(props.unknownReason)))} />}
+    {sourceKey && <Row label={t("soundAtlas.rainCell.source")} value={t(sourceKey)} />}
+    <Row label={t("soundAtlas.rainCell.radar")} value={radarText} />
+    <Row label={t("soundAtlas.rainCell.gauge")} value={gaugeText} />
+    <Row label={t("soundAtlas.rainCell.bin")} value={bin != null ? `${formatTaipeiTime(bin, true)}–${formatTaipeiTime(bin + 600)}` : "—"} mono />
+    <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.rainCell.note")}</div>
+    <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
+    <SourceFooter props={{ source: `${t(providerKey("cwa_radar_grid"))} ＋ ${t(providerKey("cwa_rain_gauge"))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
   </div>;
 }

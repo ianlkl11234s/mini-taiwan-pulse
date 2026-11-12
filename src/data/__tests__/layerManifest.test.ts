@@ -292,9 +292,12 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
       //    大面積面層刻意置末（earthquakeReplay 兩筆相隔近 200 列）。宣告順序必須與
       //    GIS_LAYERS 的出現順序一致，重排會靜默改掉「點下去命中哪一層」。
       if (types.length > 1) {
-        const at = types.map((t) => gisRows.findIndex((r) => r.type === t));
+        // 不經 GIS_LAYERS 的接線（useMapInteraction 直接 setFeatureInfo、圖層自掛 handler；例：W6-1 雨網格查格
+        // soundRainCell 在 GIS_LAYERS 迴圈沒命中後才跑）不在 first-hit-wins 鏈裡 → 只比對有 GIS_LAYERS 條目的那幾個的相對順序
+        // （上面已斷言每個 type 都有接線）。
+        const at = types.map((t) => gisRows.findIndex((r) => r.type === t)).filter((i) => i >= 0);
         expect(
-          at.every((i, n) => n === 0 || (i > (at[n - 1] as number) && i >= 0)),
+          at.every((i, n) => n === 0 || i > (at[n - 1] as number)),
           `${k} 的 popup 陣列順序與 GIS_LAYERS 出現順序不符（實際位置 ${at.join(",")}）`,
         ).toBe(true);
       }
