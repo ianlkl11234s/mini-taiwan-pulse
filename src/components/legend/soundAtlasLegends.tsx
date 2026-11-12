@@ -5,7 +5,12 @@
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchHatch, SwatchSquare } from "./legendKit";
 import { useLayerVisible } from "../../state/layerVisibilityStore";
 import { useLocale } from "../../state/localeStore";
-import { SOUND_POTENTIAL_GRID_ALPHA, SOUND_POTENTIAL_GRID_COLORS, SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
+import { useSyncExternalStore } from "react";
+import { compositePreviewStore } from "../../sound/grid/compositePreview";
+import { COMPOSITE } from "../../sound/model/soundProfiles";
+import { compositeBColorAt } from "../../hooks/useSoundCompositeGridLayer";
+import { COMPOSITE_B_SCALE } from "../../sound/grid/compositeGrid";
+import { SOUND_COMPOSITE_A_ALPHA, SOUND_COMPOSITE_A_COLORS, SOUND_POTENTIAL_GRID_ALPHA, SOUND_POTENTIAL_GRID_COLORS, SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
 import { FAMILY_KEYS, formatPotential, rainClassKey, ROAD_EVIDENCE_KEYS } from "../sound/soundAtlasText";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { aviationGatePotential } from "../../sound/grid/aviationGates";
@@ -76,8 +81,40 @@ function SoundPotentialGridLegend({ family }: { family: PotentialGridFamily }) {
   </div>;
 }
 
+/** W6-4/5 綜合網格（預覽）：依目前甲／乙版本顯示色階；斜線、納入／不納入、非實測音量 */
+function SoundCompositeLegend() {
+  const { t } = useLocale();
+  const variant = useSyncExternalStore(compositePreviewStore.subscribe, () => compositePreviewStore.get().variant);
+  const max = COMPOSITE.displayMaxIndex.value;
+  const a = ["legend.soundAtlas.compositeA0", "legend.soundAtlas.compositeA1", "legend.soundAtlas.compositeA2"] as const;
+  return <div style={{ marginBottom: 8 }}>
+    <LegendTitle zh={t("legend.soundAtlas.compositeTitle", { v: t(variant === "a" ? "soundAtlas.composite.previewA" : "soundAtlas.composite.previewB") })} />
+    {variant === "a" ? (
+      <>
+        <LegendNote>{t("legend.soundAtlas.compositeA")}</LegendNote>
+        {SOUND_COMPOSITE_A_COLORS.map((c, k) => (
+          <LegendRow key={c} swatch={<SwatchSquare color={c} opacity={Math.max(0.3, SOUND_COMPOSITE_A_ALPHA[k]!)} />}>{t(a[k as 0 | 1 | 2])}</LegendRow>
+        ))}
+      </>
+    ) : (
+      <>
+        <LegendNote>{t("legend.soundAtlas.compositeB", { max: max.toFixed(1) })}</LegendNote>
+        <LegendRow swatch={<span style={{ display: "inline-flex", gap: 1 }}>
+          {[0, 0.25, 0.5, 0.75, 1].map((x) => { const c = compositeBColorAt(Math.round(x * max * COMPOSITE_B_SCALE)); return <SwatchSquare key={x} color={c.color} opacity={Math.max(0.3, c.alpha)} />; })}
+        </span>}>{t("legend.soundAtlas.compositeBLow")} → {t("legend.soundAtlas.compositeBHigh", { max: max.toFixed(1) })}</LegendRow>
+      </>
+    )}
+    <LegendRow swatch={<SwatchHatch />}>{t("legend.soundAtlas.compositeUnknown")}</LegendRow>
+    <LegendNote>{t("legend.soundAtlas.compositeIncluded")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.compositeExcluded")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.compositeNoSource")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.compositeNote")}</LegendNote>
+  </div>;
+}
+
 export function SoundAtlasLegend() {
   const { t } = useLocale();
+  const compositeOn = useLayerVisible("soundComposite");
   const rainOn = useLayerVisible("soundRain");
   const roadOn = useLayerVisible("soundRoadTraffic");
   const potentialOn: [PotentialGridFamily, boolean][] = [
@@ -86,6 +123,7 @@ export function SoundAtlasLegend() {
     ["river_water", useLayerVisible("soundRiverWater")],
   ];
   return <div>
+    {compositeOn && <SoundCompositeLegend />}
     {potentialOn.map(([f, on]) => on && <SoundPotentialGridLegend key={f} family={f} />)}
     {rainOn && <SoundRainGridLegend />}
     {roadOn && <SoundRoadGridLegend />}

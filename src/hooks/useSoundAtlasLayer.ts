@@ -29,6 +29,11 @@ import type { ThunderPayload } from "../sound/sourceAdapters/thunderAdapter";
 import { roadContributionLine } from "../sound/sourceAdapters/roadTrafficAdapter";
 import type { RoadworkPayload } from "../sound/sourceAdapters/roadworkAdapter";
 import type { SoundSourceFamily, SoundSourceRecord, SoundSourceSet } from "../sound/types";
+import { cellIndexOf, countyOf } from "../sound/grid/gridSpec";
+import { gridSourceApplies } from "../sound/grid/gridSources";
+import { pointCellInfos } from "../sound/grid/pointQuery";
+import { createLatestGate, soundGridClient } from "../sound/grid/soundGridClient";
+import { soundGridBin } from "./useSoundGridLayer";
 
 export type SoundFamilyFlags = Record<SoundSourceFamily, boolean>;
 
@@ -111,6 +116,8 @@ const CURRENT_THROTTLE_MS = 250;
 const WAVE_THROTTLE_MS = 50;
 /** 24h 構成重算延遲（拖曳／切換後穩定才算） */
 const PROFILE_DEBOUNCE_MS = 250;
+
+const noopSubscribe = () => () => {};
 
 const loadCache = new Map<string, Promise<LoadedFamily | null>>();
 function cachedLoad(key: string, run: () => Promise<LoadedFamily | null>): Promise<LoadedFamily | null> {
@@ -295,9 +302,15 @@ export function useSoundAtlasLayer(
   opacity: Record<SoundSourceFamily, number>,
   /** W6-1 動畫開關（沒給的家族照舊畫）；雨預設關 */
   animate: Partial<Record<SoundSourceFamily, boolean>> = {},
+  /** W6-4/5：只在背景載入的家族（綜合網格要七族；單族圖層維持關閉、不畫點與連線，但接收點面板會列出） */
+  background: readonly SoundSourceFamily[] = [],
+  /** W6-5 點選查詢：飛機網格顯示門檻（格資訊與綜合列用）；綜合網格開著時另向 Worker 要該格七族碼 */
+  cellQuery: { gate: number; composite: boolean } = { gate: 0, composite: false },
 ): void {
-  const anyOn = SOUND_FAMILIES.some((f) => flags[f]);
-  const enabledKey = SOUND_FAMILIES.filter((f) => flags[f]).join(",");
+  const backgroundKey = background.join(",");
+  const anyOn = SOUND_FAMILIES.some((f) => flags[f]) || background.length > 0;
+  // enabled＝要載入、接收點查詢與面板列出的家族（開著的圖層 ∪ 背景）；地圖點／連線仍只畫開著的（flags）
+  const enabledKey = SOUND_FAMILIES.filter((f) => flags[f] || backgroundKey.split(",").includes(f)).join(",");
   const enabled = useMemo(() => (enabledKey ? (enabledKey.split(",") as SoundSourceFamily[]) : []), [enabledKey]);
   const mapTick = useMapReadyTick(mapRef, anyOn);
 
@@ -305,8 +318,12 @@ export function useSoundAtlasLayer(
   const snapshot = useStoreSlice((s) => s.snapshot);
   const sets = useStoreSlice((s) => s.sets);
   const dateKey = useStoreSlice((s) => s.dateKey);
-  const placing = useStoreSlice((s) => s.placing);
   const route = useStoreSlice((s) => s.route);
+  // 綜合網格開著時：Worker 各族版次換了（新日期、飛機包抓完）就重查該格
+  const gridVersions = useSyncExternalStore(
+    cellQuery.composite ? soundGridClient().subscribe : noopSubscribe,
+    () => (cellQuery.composite ? Object.values(soundGridClient().getSync()).map((x) => `${x.version}${x.ready ? "r" : ""}`).join(",") : ""),
+  );
 
   // ── 掛載／卸載 ──
   useEffect(() => {
@@ -389,26 +406,20 @@ export function useSoundAtlasLayer(
   }, [mapRef, anyOn, receiver, mapTick]);
   useEffect(() => () => { markerRef.current?.remove(); markerRef.current = null; receiverElsRef.current = null; }, []);
 
-  // ── 放置模式：下一次點地圖放接收點；Esc 取消 ──
+  // ── 點選查詢（W6-5）：點地圖放／移接收點由 useMapInteraction 統一仲裁（畫路線 > 點選查詢 > 其他 popup），這裡只換游標 ──
+  const queryTool = useStoreSlice((s) => s.queryTool);
+  // 聲景圖層從全關變成有開 → 工具預設開（使用者在面板關掉後，下一次重新開圖層才恢復）
+  useEffect(() => {
+    if (anyOn && !soundAtlasStore.get().queryTool) soundAtlasStore.set({ queryTool: true });
+  }, [anyOn]);
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !anyOn || !placing) return;
+    if (!map || !anyOn || !queryTool) return;
     const canvas = map.getCanvas();
     const prevCursor = canvas.style.cursor;
     canvas.style.cursor = "crosshair";
-    const onClick = (e: mapboxgl.MapMouseEvent) => {
-      const prev = soundAtlasStore.get().receiver;
-      soundAtlasStore.set({ receiver: makeReceiver(e.lngLat.lng, e.lngLat.lat, prev?.heightM), placing: false });
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") soundAtlasStore.set({ placing: false }); };
-    map.once("click", onClick);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      map.off("click", onClick);
-      window.removeEventListener("keydown", onKey);
-      canvas.style.cursor = prevCursor;
-    };
-  }, [mapRef, anyOn, placing, mapTick]);
+    return () => { canvas.style.cursor = prevCursor; };
+  }, [mapRef, anyOn, queryTool, mapTick]);
 
   // ── 畫路線模式：每次點地圖加一個節點；Esc 取消（清掉節點）；畫線期間停用雙擊縮放（否則一次雙擊加兩點又縮放）──
   const drawingRoute = route.drawing;
@@ -571,6 +582,40 @@ export function useSoundAtlasLayer(
     apply(timeStore.getTime());
     return timeStore.subscribeThrottled(CURRENT_THROTTLE_MS, apply);
   }, [mapRef, anyOn, receiver, filtered, enabled, mapTick]);
+
+  // ── W6-5 點選查詢：接收點所在格、此 10 分格的各族網格值（同原格子 popup 的欄位）＋綜合（Worker 回該格七族碼）──
+  const { gate: cellGate, composite: cellComposite } = cellQuery;
+  useEffect(() => {
+    if (!anyOn || !receiver) {
+      if (soundAtlasStore.get().cell) soundAtlasStore.set({ cell: null });
+      return;
+    }
+    const lon = receiver.longitude, lat = receiver.latitude;
+    const idx = gridSourceApplies(receiver) ? cellIndexOf(lon, lat) : -1;
+    const cell = idx >= 0 && countyOf(idx) !== 0 ? idx : -1;
+    const gateSeq = createLatestGate();
+    let lastBin: number | null = null;
+    let alive = true;
+    const apply = (t: number) => {
+      const bin = soundGridBin(t);
+      if (bin === lastBin) return;
+      lastBin = bin;
+      if (cell < 0) { soundAtlasStore.set({ cell: { bin, cell: -1, infos: {}, codes: null, notes: null, gate: cellGate } }); return; }
+      const seq = gateSeq.next();
+      const finish = (codes: number[] | null, notes: Partial<Record<string, string | null>> | null) => {
+        if (!alive || !gateSeq.isLatest(seq)) return;
+        const st = soundAtlasStore.get();
+        soundAtlasStore.set({ cell: { bin, cell, infos: pointCellInfos(st.sets, st.origins, bin, cellGate, notes, lon, lat), codes, notes, gate: cellGate } });
+      };
+      if (!cellComposite) { finish(null, null); return; }
+      // 綜合：該格七族碼由 Worker 回（和地圖顏色同一份網格）；回來前先寫各族資訊
+      finish(null, null);
+      void soundGridClient().cell("point-query", bin, cell).then((r) => { if (r) finish(r.codes, r.notes); }, () => {});
+    };
+    apply(timeStore.getTime());
+    const unsub = timeStore.subscribeThrottled(CURRENT_THROTTLE_MS, apply);
+    return () => { alive = false; unsub(); };
+  }, [anyOn, receiver, sets, cellGate, cellComposite, gridVersions]);
 
   // ── 雷聲波前（示意；有上限）──
   const thunderSet = fT ? sets.thunder : undefined;

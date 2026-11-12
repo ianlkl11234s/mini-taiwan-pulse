@@ -32,5 +32,18 @@
   "legend.soundAtlas.potentialGrid.rail": "時刻表から列車位置を推定。地下区間は除外、構造不明は斜線。当日の運休・遅延は反映しません。軌道構造 © OpenStreetMap contributors（ODbL）。",
   "legend.soundAtlas.potentialGrid.wind": "最寄り観測所の風速 × 100 m 内の樹冠被覆（Meta/WRI）。樹冠なし＝なし。",
   "legend.soundAtlas.potentialGrid.wave": "最寄りブイの波高・周期 × 沿岸域からの距離。1 km 超の内陸＝なし。",
-  "legend.soundAtlas.potentialGrid.river": "最寄り水位観測所の過去 60 日分位 × 河道からの距離。水位≠流量≠音。"
+  "legend.soundAtlas.potentialGrid.river": "最寄り水位観測所の過去 60 日分位 × 河道からの距離。水位≠流量≠音。",
+  "legend.soundAtlas.compositeTitle": "総合サウンドスケープグリッド（プレビュー：{v}）",
+  "legend.soundAtlas.compositeA": "甲：いまやや活発（各音源 5 段階の「中」以上）な音源の種数",
+  "legend.soundAtlas.compositeB": "乙：各音源のポテンシャル × 仮定の重みの加重平均（0–1、{max} 以上は最も濃い色）",
+  "legend.soundAtlas.compositeBLow": "0（活動なし）",
+  "legend.soundAtlas.compositeBHigh": "≥ {max}",
+  "legend.soundAtlas.compositeA0": "静か（0 種）",
+  "legend.soundAtlas.compositeA1": "ふつう（1 種）",
+  "legend.soundAtlas.compositeA2": "にぎやか（2 種以上）",
+  "legend.soundAtlas.compositeUnknown": "斜線＝判断できる音源が半分未満（4／7 種）",
+  "legend.soundAtlas.compositeIncluded": "対象：雨、道路交通、航空機（航空機レイヤーのグリッド閾値）、鉄道、木々の風音、波、河川",
+  "legend.soundAtlas.compositeExcluded": "対象外：雷、ごみ収集車、道路工事（点／イベント表示のまま）",
+  "legend.soundAtlas.compositeNote": "データから推定した音源の活動で、実測の音量・dB ではありません。甲は種数を数えるだけで足し合わせません。乙の重みは仮定で、異なる音源を足し合わせることに等しく、未校正です。",
+  "legend.soundAtlas.compositeNoSource": "全域のソースファイルがない日（現在は 11/09・10/24 のみ）は判断できる音源が足りず、全面斜線になります。"
 }

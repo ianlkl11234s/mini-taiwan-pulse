@@ -31,10 +31,8 @@ import { bridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { selectBridgeResilienceOrigin } from "../state/bridgeResilienceDestinationRetry";
 import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
 import { isDrawn as isBusCrowdingDrawn } from "../data/busCrowdingSimTypes";
-import { soundAtlasStore } from "../sound/soundAtlasStore";
-import { pickSoundRainCell } from "../sound/grid/rainGridState";
-import { pickSoundRoadCell } from "../sound/grid/roadGridState";
-import { pickSoundPotentialCell, type PotentialGridFamily } from "../sound/grid/potentialGridState";
+import { getSoundAtlasMap, soundAtlasStore } from "../sound/soundAtlasStore";
+import { placeSoundReceiverAt } from "../sound/soundAtlasActions";
 
 interface TooltipInfo {
   flight: Flight;
@@ -135,9 +133,16 @@ export function useMapInteraction(
     clickBoundRef.current = true;
 
     map.on("click", (e) => {
-      // 聲景放接收點／畫路線時，這一下點擊是在放點，不開 popup
+      // 聲景點擊仲裁（W6-5）：畫路線（useSoundAtlasLayer 自己加節點）> 點選查詢（放／移接收點，面板列出此點所有聲源）> 其他 popup
       const sa = soundAtlasStore.get();
-      if (sa.placing || sa.route.drawing) return;
+      if (sa.route.drawing) return;
+      if (sa.queryTool && getSoundAtlasMap() === map) {
+        placeSoundReceiverAt(e.lngLat.lng, e.lngLat.lat);
+        ++featureRequestRef.current;
+        setFeatureInfo(null);
+        sessionTracker.log("feature_click", { layerType: "soundPointQuery" });
+        return;
+      }
       const featureRequest = ++featureRequestRef.current;
       const container = map.getContainer();
       const w = container.clientWidth;
@@ -579,38 +584,7 @@ export function useMapInteraction(
             found = true;
           }
         }
-        // City Sound Atlas 雨網格（W6-1）是自訂 WebGL 圖層：沒命中向量 feature 時以網格索引查格（北北範圍外不命中）
-        if (!found && vis?.soundRain) {
-          const picked = pickSoundRainCell(e.lngLat.lng, e.lngLat.lat);
-          if (picked) {
-            setFeatureInfo({ layerType: "soundRainCell", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
-            sessionTracker.log("feature_click", { layerType: "soundRainCell" });
-            found = true;
-          }
-        }
-        // W6-2 道路網格：同上（雨網格開著時雨優先；兩個都要看時關掉其中一個再點）
-        if (!found && vis?.soundRoadTraffic) {
-          const picked = pickSoundRoadCell(e.lngLat.lng, e.lngLat.lat);
-          if (picked) {
-            setFeatureInfo({ layerType: "soundRoadCell", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
-            sessionTracker.log("feature_click", { layerType: "soundRoadCell" });
-            found = true;
-          }
-        }
-        // W6-3 連續潛勢網格（飛機／鐵道／風／浪／河川）：同上，依此順序第一個開著且有格的家族
-        const potentialLayers: [PotentialGridFamily, boolean | undefined][] = [
-          ["aviation", vis?.soundAviation], ["rail", vis?.soundRail], ["wind_vegetation", vis?.soundWindFoliage],
-          ["coastal_wave", vis?.soundCoastalWave], ["river_water", vis?.soundRiverWater],
-        ];
-        for (const [fam, on] of potentialLayers) {
-          if (found || !on) continue;
-          const picked = pickSoundPotentialCell(fam, e.lngLat.lng, e.lngLat.lat);
-          if (picked) {
-            setFeatureInfo({ layerType: "soundPotentialCell", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
-            sessionTracker.log("feature_click", { layerType: "soundPotentialCell" });
-            found = true;
-          }
-        }
+        // City Sound Atlas 網格（W6-1～W6-5）不再各自彈格子 popup：點選查詢工具（上方仲裁）統一列在聲景面板
         const sampleClimateFallback = (lng: number, lat: number) => {
           if (!vis?.windField && !vis?.oceanCurrents) { setFeatureInfo(null); return; }
           void sampleClimateFields(

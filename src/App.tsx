@@ -125,6 +125,8 @@ import type { MapBridge } from "./chat/types";
 import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 const SoundReceiverPanel = lazy(() => import("./components/sound/SoundReceiverPanel").then(({ SoundReceiverPanel }) => ({ default: SoundReceiverPanel })));
+// PREVIEW（綜合聲景甲／乙）：選定版本後移除，見 docs/features/city-sound-atlas/GRID_ARCHITECTURE.md §6
+const SoundCompositePreviewBar = lazy(() => import("./components/sound/SoundCompositePreviewBar").then(({ SoundCompositePreviewBar }) => ({ default: SoundCompositePreviewBar })));
 import { LoadingStatus } from "./components/LoadingStatus";
 import { CountryViewportHint } from "./components/CountryViewportHint";
 import { useViewportCountry } from "./hooks/useViewportCountry";
@@ -3292,12 +3294,17 @@ export default function App() {
           </div>
         )}
         {/* City Sound Atlas 接收點面板：任一聲景（實驗）圖層開著才掛；可縮、自行捲動 */}
-        {(layerVisibility.soundAviation || layerVisibility.soundRain || layerVisibility.soundThunder || layerVisibility.soundWaste || layerVisibility.soundRail || layerVisibility.soundRoadTraffic || layerVisibility.soundRoadwork || layerVisibility.soundWindFoliage || layerVisibility.soundCoastalWave || layerVisibility.soundRiverWater) && (
+        {(layerVisibility.soundComposite || layerVisibility.soundAviation || layerVisibility.soundRain || layerVisibility.soundThunder || layerVisibility.soundWaste || layerVisibility.soundRail || layerVisibility.soundRoadTraffic || layerVisibility.soundRoadwork || layerVisibility.soundWindFoliage || layerVisibility.soundCoastalWave || layerVisibility.soundRiverWater) && (
           <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 2, minHeight: 0 }}>
             <Suspense fallback={null}>
               <SoundReceiverPanel isDark={isDarkTheme} />
             </Suspense>
           </div>
+        )}
+        {layerVisibility.soundComposite && (
+          <Suspense fallback={null}>
+            <SoundCompositePreviewBar isDark={isDarkTheme} />
+          </Suspense>
         )}
         <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", minHeight: 0, flexShrink: 8 }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，

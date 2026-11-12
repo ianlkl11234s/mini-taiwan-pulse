@@ -11,10 +11,13 @@ import { useSyncExternalStore, type CSSProperties } from "react";
 import { BORDER, COLORS, CONTROL, ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE } from "../../styles/designTokens";
 import { PanelHeader } from "../sidebar/PanelHeader";
 import { useLocale } from "../../state/localeStore";
-import { layerVisibilityStore, useLayerVisible } from "../../state/layerVisibilityStore";
+import { useLayerVisible } from "../../state/layerVisibilityStore";
 import { soundAtlasStore } from "../../sound/soundAtlasStore";
 import { SOUND_SCENES, snapshotApplies, type SoundSceneId } from "../../sound/scenes";
-import { clearReceiver, clearRoute, finishRoute, playSoundScene, selectSoundScene, setRouteMode, startPlacingReceiver, startRouteDrawing } from "../../sound/soundAtlasActions";
+import { clearReceiver, clearRoute, finishRoute, playSoundScene, selectSoundScene, setRouteMode, setSoundQueryTool, startRouteDrawing } from "../../sound/soundAtlasActions";
+import { COMPOSITE_FAMILIES } from "../../sound/grid/compositeGrid";
+import { DARK_FEATURE, FeatureThemeProvider, LIGHT_FEATURE } from "../featureInfo/featureTheme";
+import { SoundCellSection } from "./SoundCellSection";
 import { dominantFamilies, SoundRouteProfile } from "./SoundRouteProfile";
 import { topContributionsForDisplay, type SetOrigin } from "../../sound/soundAtlasData";
 import { AVIATION } from "../../sound/model/soundProfiles";
@@ -67,7 +70,9 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
     borderRadius: RADIUS.md, padding: "3px 8px", cursor: "pointer",
   };
 
-  const closeAll = () => layerVisibilityStore.setBulk({ soundAviation: false, soundRain: false, soundThunder: false, soundWaste: false, soundRail: false, soundRoadTraffic: false, soundRoadwork: false, soundWindFoliage: false, soundCoastalWave: false, soundRiverWater: false });
+  // 關面板＝關點選查詢工具（圖層不動；W6-5 修正：原本會把十個聲景圖層全關）
+  const closeTool = () => setSoundQueryTool(false);
+  const compositeOn = useLayerVisible("soundComposite");
   const vis: Record<SoundSourceFamily, boolean> = {
     aviation: useLayerVisible(FAMILY_LAYER_KEYS.aviation),
     rain: useLayerVisible(FAMILY_LAYER_KEYS.rain),
@@ -80,7 +85,8 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
     coastal_wave: useLayerVisible(FAMILY_LAYER_KEYS.coastal_wave),
     river_water: useLayerVisible(FAMILY_LAYER_KEYS.river_water),
   };
-  const enabledFamilies = (Object.keys(FAMILY_LAYER_KEYS) as SoundSourceFamily[]).filter((f) => vis[f]);
+  // 綜合網格開著時七族在背景載入 → 來源健康也列這七族
+  const enabledFamilies = (Object.keys(FAMILY_LAYER_KEYS) as SoundSourceFamily[]).filter((f) => vis[f] || (compositeOn && (COMPOSITE_FAMILIES as readonly string[]).includes(f)));
 
   const receiver = st.receiver;
   const current = st.current;
@@ -100,7 +106,13 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
         borderRadius: RADIUS.xl, boxShadow: c.shadow, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", fontFamily: FONT_CJK,
       }}
     >
-      <PanelHeader eyebrow={t("soundAtlas.eyebrow")} title={title} onClose={closeAll} borderColor={c.border} mutedColor={c.muted} textColor={c.text} />
+      <PanelHeader eyebrow={t("soundAtlas.eyebrow")} title={title} onClose={closeTool} borderColor={c.border} mutedColor={c.muted} textColor={c.text} />
+      {!st.queryTool ? (
+        <div style={{ padding: "8px 12px 10px", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: FONT_SIZE.sm, color: c.text }}>
+          <span style={note}>{t("soundAtlas.tool.closed")}</span>
+          <button type="button" style={{ ...btn, marginLeft: "auto" }} onClick={() => setSoundQueryTool(true)}>{t("soundAtlas.tool.reopen")}</button>
+        </div>
+      ) : (
       <div style={{ padding: "8px 12px 10px", display: "flex", flexDirection: "column", gap: 6, fontSize: FONT_SIZE.sm, color: c.text }}>
         <div role="note" style={{ ...note, color: c.warn }}>{t("soundAtlas.disclaimer")}</div>
 
@@ -144,8 +156,8 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
 
         {/* 接收點 */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-          <button type="button" style={{ ...btn, borderColor: st.placing ? SOUND_FAMILY_COLORS.aviation : c.ctrlBorder }} aria-pressed={st.placing} onClick={startPlacingReceiver}>
-            {st.placing ? t("soundAtlas.receiver.placing") : t("soundAtlas.receiver.place")}
+          <button type="button" style={{ ...btn, borderColor: SOUND_FAMILY_COLORS.aviation }} aria-pressed={st.queryTool} onClick={() => setSoundQueryTool(!st.queryTool)}>
+            {t(st.queryTool ? "soundAtlas.tool.on" : "soundAtlas.tool.off")}
           </button>
           {receiver && <button type="button" style={btn} onClick={clearReceiver}>{t("soundAtlas.receiver.clear")}</button>}
         </div>
@@ -156,6 +168,14 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
           </div>
         ) : (
           <div style={note}>{t("soundAtlas.receiver.none")}</div>
+        )}
+        <div style={note}>{t("soundAtlas.tool.hint")}</div>
+
+        {/* 此格網格值＋綜合（原本各族格子 popup） */}
+        {receiver && (
+          <FeatureThemeProvider palette={isDark ? DARK_FEATURE : LIGHT_FEATURE}>
+            <SoundCellSection />
+          </FeatureThemeProvider>
         )}
 
         {/* 此刻來源 */}
@@ -259,6 +279,7 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
           <div style={note}>{receiver ? t("soundAtlas.current.loading") : t("soundAtlas.profile.none")}</div>
         )}
       </div>
+      )}
     </section>
   );
 }

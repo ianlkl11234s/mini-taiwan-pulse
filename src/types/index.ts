@@ -448,7 +448,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites" | "mapchallengeDay08Plan1955"
   | "mapchallengeDay09UrbanRural"
-  | "soundAviation" | "soundRain" | "soundThunder" | "soundWaste"
+  | "soundComposite" | "soundAviation" | "soundRain" | "soundThunder" | "soundWaste"
   | "soundRail" | "soundRoadTraffic" | "soundRoadwork"
   | "soundWindFoliage" | "soundCoastalWave" | "soundRiverWater"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
@@ -1025,9 +1025,7 @@ export interface FeatureInfo {
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites"
   | "mapchallengeDay09UrbanRural"
   | "soundSource"
-  | "soundRainCell"
-  | "soundRoadCell"
-  | "soundPotentialCell"
+  | "soundPointQuery"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1420,6 +1418,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | Comparis
   /** 30 天地圖挑戰 Day 9 城鄉（模擬面板，公開）：368 鄉鎮人口密度五等份與 9 類設施每萬人數 */
   mapchallengeDay09UrbanRural: boolean;
   /** City Sound Atlas 聲景（實驗）：飛機／雨／雷／垃圾車四個來源的相對聲源活動推估（非 dB），接收點查詢 */
+  /** W6-4/5 綜合聲景網格（預覽）：七族即時合成，甲乙兩版 */
+  soundComposite: boolean;
   soundAviation: boolean;
   soundRain: boolean;
   soundThunder: boolean;

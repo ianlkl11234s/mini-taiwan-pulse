@@ -36,6 +36,11 @@ export const roadGridBin = (t: number): number => Math.floor(t / ROAD_GRID_STEP_
 /** 點地圖查格：不在北北範圍或圖層沒資料 → null。回傳 popup 屬性（FeatureInfo layerType "soundRoadCell"）。 */
 export function pickSoundRoadCell(lng: number, lat: number): Record<string, unknown> | null {
   const { set, binStart, origin } = state;
+  return roadCellInfo(set, origin, binStart, lng, lat);
+}
+
+/** 點選查詢（W6-5）：給定 set 與 10 分格，查 (lng, lat) 所在格；不在北北範圍 → null */
+export function roadCellInfo(set: SoundSourceSet | null, origin: SetOrigin | null, binStart: number | null, lng: number, lat: number): Record<string, unknown> | null {
   if (!set || binStart == null) return null;
   const cell = cellIndexOf(lng, lat);
   if (cell < 0 || countyOf(cell) === 0) return null;

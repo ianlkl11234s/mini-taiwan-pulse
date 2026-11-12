@@ -1701,6 +1701,8 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // City Sound Atlas 聲景（實驗）：四個來源家族各自一支透明度（標記、連線、波前一起淡）
   // W6-3：飛機網格顯示門檻（三選一，只影響網格分級，不改接收點數值；網址 ?soundAviationGate=）＋示意動畫（預設關）
+  // W6-4/5 綜合網格（預覽）：只有透明度；甲乙版本切換是暫時的底部預覽列（不放展開區）
+  soundComposite: [opacitySlider("soundCompositeOpacity", 0.85)],
   soundAviation: [
     opacitySlider("soundAviationOpacity", 0.9),
     {

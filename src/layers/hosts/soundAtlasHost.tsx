@@ -1,9 +1,11 @@
-// City Sound Atlas 聲景（實驗）Layer Host：十個家族（飛機／雨／雷／垃圾車／鐵道／道路車流／施工／風吹樹葉／海浪／河川）共用一支 hook；透明度各自一支。
+// City Sound Atlas 聲景（實驗）Layer Host：綜合網格＋十個家族（飛機／雨／雷／垃圾車／鐵道／道路車流／施工／風吹樹葉／海浪／河川）共用一支 hook；透明度各自一支。
 import { useEffect } from "react";
 import { useSoundAtlasLayer } from "../../hooks/useSoundAtlasLayer";
 import { useSoundRainGridLayer } from "../../hooks/useSoundRainGridLayer";
 import { useSoundRoadGridLayer } from "../../hooks/useSoundRoadGridLayer";
 import { useSoundPotentialGridLayer } from "../../hooks/useSoundPotentialGridLayer";
+import { useSoundCompositeGridLayer } from "../../hooks/useSoundCompositeGridLayer";
+import { COMPOSITE_FAMILIES } from "../../sound/grid/compositeGrid";
 import { aviationGateFromSearch, aviationGatePotential } from "../../sound/grid/aviationGates";
 import { layerParamsStore } from "../../state/layerParamsStore";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
@@ -18,12 +20,15 @@ function applyUrlAviationGate(): void {
   if (g) layerParamsStore.setParam("soundAviation", "soundAviationGate", g);
 }
 
+const NONE: readonly never[] = [];
+
 export const SoundAtlasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useSoundAtlasLayer");
   const v = deps.layerVisibility;
   useEffect(applyUrlAviationGate, []);
   const gate = aviationGatePotential(paramStr(useLayerParams("soundAviation"), "soundAviation", "soundAviationGate"));
   const pa = useKeyOverlayParams("soundAviation");
+  const pz = useKeyOverlayParams("soundComposite");
   const pr = useKeyOverlayParams("soundRain");
   const pt = useKeyOverlayParams("soundThunder");
   const pw = useKeyOverlayParams("soundWaste");
@@ -57,7 +62,12 @@ export const SoundAtlasHost: LayerHostComponent = ({ deps }) => {
       rain: !!pr.soundRainAnimation, aviation: !!pa.soundAviationAnimation, rail: !!pl.soundRailAnimation,
       wind_vegetation: !!pv.soundWindFoliageAnimation, coastal_wave: !!pc.soundCoastalWaveAnimation, river_water: !!pi.soundRiverWaterAnimation,
     },
+    // W6-4/5：綜合網格開著時，七族在背景載入（單族圖層不必打開）
+    v.soundComposite ? COMPOSITE_FAMILIES : NONE,
+    { gate, composite: !!v.soundComposite },
   );
+  // W6-4/5：綜合網格（預覽；甲乙由底部預覽列切換）。放在單族網格之前呼叫，圖層疊在最上面由掛載順序決定（見 hook）
+  useSoundCompositeGridLayer(deps.mapRef, !!v.soundComposite, pz.soundCompositeOpacity ?? 0.85, gate);
   // W6-1：雨網格（北北 250 m；雷達 ∨ 雨量站）
   useSoundRainGridLayer(deps.mapRef, !!v.soundRain, pr.soundRainOpacity ?? 0.9);
   // W6-2：道路車流網格（國道當日實測／臺北典型延伸／新北等級推估）

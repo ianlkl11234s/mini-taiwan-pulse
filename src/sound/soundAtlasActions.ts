@@ -1,5 +1,5 @@
 /**
- * City Sound Atlas 使用者動作（面板呼叫）：選場景、放置／清除接收點。
+ * City Sound Atlas 使用者動作（面板呼叫）：選場景、點選查詢工具（放置／移動接收點）、清除接收點、路線。
  * 時間只經 timelineJumpBridge 寫入（timeStore 只有 useTimeline 能寫）。
  */
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
@@ -17,7 +17,7 @@ export function selectSoundScene(id: SoundSceneId | null): void {
   }
   const def = findScene(id);
   if (!def) return;
-  soundAtlasStore.set({ sceneId: id, snapshot: null, snapshotStatus: "loading", placing: false, route: { ...EMPTY_ROUTE, mode: soundAtlasStore.get().route.mode } });
+  soundAtlasStore.set({ sceneId: id, snapshot: null, snapshotStatus: "loading", route: { ...EMPTY_ROUTE, mode: soundAtlasStore.get().route.mode } });
   for (const key of def.companionLayers ?? []) layerVisibilityStore.setVisibility(key, true);
 
   // 接收點與焦點時刻只看快照（子場景以 def.view 覆寫，見 scenes.ts）。先寫快照與接收點、再撥時間軸：
@@ -50,10 +50,16 @@ export function playSoundScene(): boolean {
   return requestTimelinePlay(Date.parse(st.snapshot.focus_time) / 1000 - def.playback.leadS, def.playback.speed);
 }
 
-export function startPlacingReceiver(): void {
+/** W6-5 點選查詢工具開關（關掉不動圖層、不清接收點；畫路線中會先結束畫線） */
+export function setSoundQueryTool(on: boolean): void {
   const st = soundAtlasStore.get();
-  // 放接收點與畫路線互斥
-  soundAtlasStore.set({ placing: !st.placing, route: { ...st.route, drawing: false } });
+  soundAtlasStore.set({ queryTool: on, route: on ? { ...st.route, drawing: false } : st.route });
+}
+
+/** 點選查詢：點地圖 → 放置／移動接收點（高度沿用） */
+export function placeSoundReceiverAt(lon: number, lat: number): void {
+  const prev = soundAtlasStore.get().receiver;
+  soundAtlasStore.set({ receiver: makeReceiver(lon, lat, prev?.heightM) });
 }
 
 // ── 路線剖面（沿途主要聲源，不是噪音暴露量）────────────────────
@@ -61,7 +67,7 @@ export function startPlacingReceiver(): void {
 /** 開始畫路線：清掉舊路線，之後每次點地圖加一個節點；畫線中再按一次＝取消（同 Esc） */
 export function startRouteDrawing(): void {
   const st = soundAtlasStore.get();
-  soundAtlasStore.set({ placing: false, route: { ...EMPTY_ROUTE, mode: st.route.mode, drawing: !st.route.drawing } });
+  soundAtlasStore.set({ route: { ...EMPTY_ROUTE, mode: st.route.mode, drawing: !st.route.drawing } });
 }
 
 export function addRoutePoint(lon: number, lat: number): void {
@@ -101,5 +107,5 @@ export function setRouteMode(mode: "walk" | "bike"): void {
 }
 
 export function clearReceiver(): void {
-  soundAtlasStore.set({ receiver: null, placing: false, sceneId: null, snapshot: null, snapshotStatus: "none", current: null, profile: null, route: EMPTY_ROUTE });
+  soundAtlasStore.set({ receiver: null, sceneId: null, snapshot: null, snapshotStatus: "none", current: null, profile: null, route: EMPTY_ROUTE });
 }

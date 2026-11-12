@@ -1817,5 +1817,6 @@
   "layer.soundRoadwork": "Roadwork Permits",
   "layer.soundWindFoliage": "Wind in Foliage",
   "layer.soundCoastalWave": "Surf",
-  "layer.soundRiverWater": "River Water (Experimental)"
+  "layer.soundRiverWater": "River Water (Experimental)",
+  "layer.soundComposite": "Combined Soundscape (Preview)"
 }

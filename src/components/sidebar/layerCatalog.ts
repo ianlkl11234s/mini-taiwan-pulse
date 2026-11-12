@@ -1760,6 +1760,7 @@ const THEME_CATALOG: ThemeDef[] = [
         // City Sound Atlas（2026-11-11 MVP）：時空資料推估的相對聲源活動，非實測噪音、非 dB
         title: "聲景（實驗）",
         layers: [
+          fromManifest("soundComposite"),
           fromManifest("soundAviation"),
           fromManifest("soundRain"),
           fromManifest("soundThunder"),

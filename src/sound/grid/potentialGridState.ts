@@ -56,6 +56,16 @@ export function cellReceiver(cell: number): Receiver {
  */
 export function pickSoundPotentialCell(family: PotentialGridFamily, lng: number, lat: number): Record<string, unknown> | null {
   const { set, binStart, origin, gate, frameNote } = states[family];
+  return potentialCellInfo(family, set, origin, binStart, gate, frameNote, lng, lat);
+}
+
+/**
+ * 點選查詢（W6-5）：給定 set、10 分格、門檻與整幀說明，查 (lng, lat) 所在格；不在北北範圍 → null。
+ * frameNote：整幀無法判斷的原因（沒有全範圍來源檔等），由 Worker 回報；有就不另外算。
+ */
+export function potentialCellInfo(
+  family: PotentialGridFamily, set: SoundSourceSet | null, origin: SetOrigin | null, binStart: number | null, gate: number, frameNote: string | null, lng: number, lat: number,
+): Record<string, unknown> | null {
   if (!set || binStart == null || frameNote === "receiver_outside_grid") return null;
   const cell = cellIndexOf(lng, lat);
   if (cell < 0 || countyOf(cell) === 0) return null;

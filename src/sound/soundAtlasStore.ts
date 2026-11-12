@@ -31,8 +31,11 @@ export interface SoundRouteState {
 
 export interface SoundAtlasState {
   receiver: Receiver | null;
-  /** 「放置接收點」模式：下一次點地圖放點 */
-  placing: boolean;
+  /**
+   * W6-5「點選查詢」工具開關：開著時點地圖任一處＝放置／移動接收點（點擊由 useMapInteraction 統一仲裁：畫路線 > 本工具 > 其他 popup）。
+   * 任一聲景圖層開啟時預設開；關掉面板＝關工具（圖層不動）。
+   */
+  queryTool: boolean;
   sceneId: SoundSceneId | null;
   /** 場景快照（null = 沒有或讀不到；來源全走即時） */
   snapshot: SoundSceneSnapshot | null;
@@ -46,13 +49,28 @@ export interface SoundAtlasState {
   profile: DayProfile | null;
   perf: SoundAtlasPerf;
   route: SoundRouteState;
+  /** W6-5 點選查詢：接收點所在格、此 10 分格的各族網格值與綜合（Host 隨時間算好寫入；網格範圍外 cell＝-1） */
+  cell: SoundCellQuery | null;
+}
+
+export interface SoundCellQuery {
+  bin: number;
+  /** 網格索引；-1＝網格範圍外（臺中和平等） */
+  cell: number;
+  /** 各族格資訊（同原本格子 popup 的欄位；null＝這族沒載入或範圍外） */
+  infos: Partial<Record<string, Record<string, unknown> | null>>;
+  /** Worker 回報的七族網格碼（依 COMPOSITE_FAMILIES；null＝還沒回來或沒開 Worker） */
+  codes: number[] | null;
+  notes: Partial<Record<string, string | null>> | null;
+  gate: number;
 }
 
 export const EMPTY_ROUTE: SoundRouteState = { drawing: false, points: [], mode: "walk", departUnix: null, result: null };
 
 const INITIAL: SoundAtlasState = {
   receiver: null,
-  placing: false,
+  queryTool: true,
+  cell: null,
   sceneId: null,
   snapshot: null,
   snapshotStatus: "none",

@@ -198,7 +198,7 @@ import { HARM_REDUCTION_COLORS } from "./harmReductionTypes";
 import { LANDSLIDE_LAYER_COLORS } from "./landslideTypes";
 import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
 import { BUS_CROWDING_REPRESENTATIVE_COLOR } from "./busCrowdingSimTypes";
-import { SOUND_FAMILY_COLORS } from "../sound/soundAtlasColors";
+import { SOUND_COMPOSITE_A_COLORS, SOUND_FAMILY_COLORS } from "../sound/soundAtlasColors";
 import { BUS_CROWDING_SIM_ASSETS } from "./busCrowdingSimAssets";
 import { TRANSIT_REACH_COLOR } from "./transitReachTypes";
 import { FREEWAY_TDCS_SIM_COLOR } from "./freewayTdcsSimTypes";
@@ -13071,6 +13071,33 @@ export const LAYER_MANIFEST = {
   },
 
   // 🔊 City Sound Atlas 聲景（實驗，2026-11-11）：四個來源家族各一個開關，共用接收點面板／圖例／popup。
+  // W6-4/5 綜合網格（預覽）：七族當下網格即時合成，甲（活躍種數分級）／乙（假設權重指數）由底部預覽列切換，使用者選定後移除另一版。
+  soundComposite: {
+    key: "soundComposite",
+    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    ...layerName({ zh: "綜合聲景", alt: "Combined soundscape", qualifier: "推估・預覽" }),
+    expandable: true,
+    color: SOUND_COMPOSITE_A_COLORS[1],
+    icon: Grid3x3,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["soundRain", "soundRoadTraffic", "soundAviation", "soundRail", "soundWindFoliage", "soundCoastalWave", "soundRiverWater"],
+      derivationType: "custom",
+      processing: "W6-4/5：臺北市＋新北市 250 m、每 10 分一格，由雨、道路、飛機、鐵道、風吹樹葉、海浪、河川七族當下的網格碼即時合成（前端 Web Worker，不另出檔）。甲：數「偏活躍」（各族五級的中以上）的聲源種數，分平靜／一般／熱鬧（不相加）；乙：各族潛勢下緣 × 自訂權重的加權平均（0–1，只用可判斷的族並重新正規化）。可判斷的族不足一半＝斜線。雷、垃圾車、施工不納入。常數與假設正本 soundProfiles.COMPOSITE；文件 MODEL_DECISIONS §10。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）；依資料推估的聲源活動，非實測音量、非 dB；乙的權重是自訂假設、未經校準。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useSoundAtlasLayer（背景載入七族，單族圖層維持關閉）＋useSoundCompositeGridLayer（layers/hosts/soundAtlasHost）：Worker（src/sound/grid/soundGrid.worker.ts）用同一個 10 分格的七族網格算 compositeFrames；甲乙版本由網址 ?soundComposite=a|b 與底部預覽列切換（預覽用，選定後移除）。",
+    },
+    legend: "soundAtlas",
+    popup: "soundPointQuery",
+    params: { count: 1, kinds: ["slider"] },
+    description: "臺北市＋新北市 250 m 網格的綜合聲景（預覽）：甲＝此刻偏活躍的聲源有幾種（平靜／一般／熱鬧），乙＝假設權重的綜合指數（0–1）。依資料推估的聲源活動，非實測音量、非 dB；可判斷的聲源不足一半時畫斜線（沒有全範圍資料的日子大多是斜線）。",
+    topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "綜合"],
+  },
   soundAviation: {
     key: "soundAviation",
     country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
@@ -13092,7 +13119,7 @@ export const LAYER_MANIFEST = {
       note: "useSoundAtlasLayer＋useSoundPotentialGridLayer（layers/hosts/soundAtlasHost）：有全北北來源檔的日子（public/sound-atlas/grid/aviation-src-<日>.json，pulse-sound-aviation-src-v1）網格、接收點、popup 都讀這一份；網格讀每日包 aviation-<日>.{meta.json,class.bin}（pulse-sound-potential-v1，來源雜湊不符就不用）。沒有來源檔的日子接收點照舊讀快照或即時 RPC、網格整片無法判斷。時間跟全站時間軸（timeStore 節流）。",
     },
     legend: "soundAtlas",
-    popup: ["soundSource", "soundPotentialCell"],
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 3, kinds: ["slider", "select", "toggle"] },
     description: "臺北市＋新北市 250 m 網格的飛機聲源潛勢（每 10 分一格，距離越近越高，非 dB），網格門檻可在展開區切換（寬／中／嚴）；接收點面板列出 20 km 內航機。高度基準未與地形校正；軌跡缺口與沒有全範圍資料的日子為斜線（無法判斷）。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "航班"],
@@ -13118,7 +13145,7 @@ export const LAYER_MANIFEST = {
       note: "useSoundAtlasLayer＋useSoundRainGridLayer（layers/hosts/soundAtlasHost）：雨量站重用 rainGauge 同一支 RPC（有場景快照時讀快照）；雷達每日包 public/sound-atlas/grid/radar-rain-<日>.{meta.json,class.bin}（pulse-sound-radar-rain-v1，沒有包的日子只用雨量站）。網格：自訂 WebGL 圖層 soundGridCustomLayer（每幀一張 292×285 貼圖）；接收點、網格、popup 都走 rainEstimateAt 同一套規則。時間跟全站時間軸（timeStore 節流）。",
     },
     legend: "soundAtlas",
-    popup: ["soundSource", "soundRainCell"],
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "臺北市＋新北市 250 m 網格的雨勢分級（無雨／小雨／中雨／大雨／豪雨），每 10 分一格，由雷達回波與雨量站推估、兩者取較高者；Z-R 換算與分級門檻為假設，非 dB。斜線＝無法判斷（缺幀、雜波、附近無站）。點格子看來源與資料時刻；接收點面板沿用同一套數值。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "雨量"],
@@ -13144,7 +13171,7 @@ export const LAYER_MANIFEST = {
       note: "useSoundAtlasLayer（layers/hosts/soundAtlasHost）：重用既有 loader（lightning 同一支 RPC／靜態檔），由 src/sound 引擎算接收點的相對潛勢；選了真實場景且有場景快照（public/sound-atlas/scenes/<id>.json，pulse-sound-scene-v1）時，快照有的區塊優先、缺的走即時。地圖：GeoJSON 標記（接收點附近活躍來源）＋連線，雷另畫波前；時間跟全站時間軸（timeStore 節流）。",
     },
     legend: "soundAtlas",
-    popup: "soundSource",
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 1, kinds: ["slider"] },
     description: "落雷到接收點的雷聲延遲與相對活動（非 dB）；兩個來源都空或錯誤時是「無法判斷是否有雷」，不是安靜。地圖波前為示意。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "落雷"],
@@ -13170,7 +13197,7 @@ export const LAYER_MANIFEST = {
       note: "useSoundAtlasLayer（layers/hosts/soundAtlasHost）：重用既有 loader（wasteSchedule 同一支 RPC／靜態檔），由 src/sound 引擎算接收點的相對潛勢；選了真實場景且有場景快照（public/sound-atlas/scenes/<id>.json，pulse-sound-scene-v1）時，快照有的區塊優先、缺的走即時。地圖：GeoJSON 標記（接收點附近活躍來源）＋連線，雷另畫波前；時間跟全站時間軸（timeStore 節流）。",
     },
     legend: "soundAtlas",
-    popup: "soundSource",
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 1, kinds: ["slider"] },
     description: "接收點 500 m 內垃圾車表定停點的相對活動（表定，非 GPS、非 dB）；沒有星期欄位的城市標為無法判斷，不當成每天確定收運。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "垃圾車"],
@@ -13193,7 +13220,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: { kind: "custom", note: "useSoundAtlasLayer＋useSoundPotentialGridLayer（layers/hosts/soundAtlasHost）：重用既有 loader，由 src/sound 引擎（MVP-B adapter，W4）算接收點的相對潛勢；網格（src/sound/grid/railGrid.ts）每 10 分在瀏覽器即時算，每班車只掃它走過的軌道子段 1.5 km 內的格。時間跟全站時間軸（timeStore 節流）。規格正本 docs/features/city-sound-atlas/MVP_B_SOURCES.md。" },
     legend: "soundAtlas",
-    popup: ["soundSource", "soundPotentialCell"],
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "臺北市＋新北市 250 m 網格的列車聲源潛勢（依班表，每 10 分一格，非 dB）；地下段不計，結構不明的站間與班表缺為斜線（無法判斷）。班表不反映當天停駛或誤點。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "鐵道"],
@@ -13216,7 +13243,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: { kind: "custom", note: "useSoundAtlasLayer＋useSoundRoadGridLayer（layers/hosts/soundAtlasHost）：靜態路網 public/sound-atlas/grid/road-network-v1.json（pulse-sound-road-network-v1；國道路段配 VD、臺北 VD 延伸、OSM 等級道路與小路格，OSM © OpenStreetMap contributors ODbL）＋國道 VD 每日包 freeway-vd-<日>.json（pulse-sound-freeway-vd-v1，沒有包的日子國道無法判斷）＋臺北 VD 典型值 vd-baseline-taipei.json。網格、接收點、popup 都走 src/sound/grid/roadNetwork.ts 同一套規則。規格正本 docs/features/city-sound-atlas/MODEL_DECISIONS.md §8。" },
     legend: "soundAtlas",
-    popup: ["soundSource", "soundRoadCell"],
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 1, kinds: ["slider"] },
     description: "臺北市＋新北市 250 m 網格的道路車流聲潛勢（很低／低／中／高／很高），每 10 分一格，非 dB。國道用當日 VD 實測、臺北市區用 VD 平日典型值沿路延伸（假設；週末假日無法判斷）、新北市區只依道路等級推估。斜線＝有路但沒資料。點格子看證據等級、來源 VD 或道路等級與資料時刻。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "國道"],
@@ -13239,7 +13266,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: { kind: "custom", note: "useSoundAtlasLayer（layers/hosts/soundAtlasHost）：重用既有 loader，由 src/sound 引擎（MVP-B adapter，W4）算接收點的相對潛勢；地圖只畫接收點附近的來源，時間跟全站時間軸（timeStore 節流）。規格正本 docs/features/city-sound-atlas/MVP_B_SOURCES.md。" },
     legend: "soundAtlas",
-    popup: "soundSource",
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 1, kinds: ["slider"] },
     description: "接收點 300 m 內道路施工許可期間的可能活動（許可≠機具運轉、非 dB）；臺北市等未發布施工的縣市顯示未涵蓋。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "施工"],
@@ -13262,7 +13289,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: { kind: "custom", note: "useSoundAtlasLayer＋useSoundPotentialGridLayer（layers/hosts/soundAtlasHost）：W5 自然聲源 adapter；有全北北來源檔的日子（public/sound-atlas/grid/natural-<日>.json，pulse-sound-natural-grid-v1，S3 正本裁切；風另讀每格樹冠 canopy-cells-v1.{meta.json,bin}）網格、接收點、popup 都讀這一份，其他日子只有場景快照、即時模式顯示「僅場景快照提供」。網格（src/sound/grid/naturalGrid.ts）每格空間項算一次、每 10 分只算每站時間項；示意動畫預設關。規格正本 docs/features/city-sound-atlas/ADVANCED_SOURCES.md。" },
     legend: "soundAtlas",
-    popup: ["soundSource", "soundPotentialCell"],
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "臺北市＋新北市 250 m 網格的風吹樹葉潛勢＝最近測站風速 × 該格 100 m 內樹冠覆蓋（每 10 分一格，風速不等於音量、非 dB）；有全範圍來源檔的日子整片可看，其他日子只有場景快照附近、網格為斜線。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "風"],
@@ -13285,7 +13312,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: { kind: "custom", note: "useSoundAtlasLayer＋useSoundPotentialGridLayer（layers/hosts/soundAtlasHost）：W5 自然聲源 adapter；有全北北來源檔的日子（public/sound-atlas/grid/natural-<日>.json，pulse-sound-natural-grid-v1，S3 正本裁切；風另讀每格樹冠 canopy-cells-v1.{meta.json,bin}）網格、接收點、popup 都讀這一份，其他日子只有場景快照、即時模式顯示「僅場景快照提供」。網格（src/sound/grid/naturalGrid.ts）每格空間項算一次、每 10 分只算每站時間項；示意動畫預設關。規格正本 docs/features/city-sound-atlas/ADVANCED_SOURCES.md。" },
     legend: "soundAtlas",
-    popup: ["soundSource", "soundPotentialCell"],
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "臺北市＋新北市 250 m 網格的海浪拍岸潛勢＝最近浮標浪高與週期 × 離近岸海域距離（每 10 分一格，浪高不等於岸邊浪聲、非 dB）；離岸 1 km 外為「沒有」。沒有全範圍來源檔的日子網格為斜線。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "海浪"],
@@ -13308,7 +13335,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: { kind: "custom", note: "useSoundAtlasLayer＋useSoundPotentialGridLayer（layers/hosts/soundAtlasHost）：W5 自然聲源 adapter；有全北北來源檔的日子（public/sound-atlas/grid/natural-<日>.json，pulse-sound-natural-grid-v1，S3 正本裁切；風另讀每格樹冠 canopy-cells-v1.{meta.json,bin}）網格、接收點、popup 都讀這一份，其他日子只有場景快照、即時模式顯示「僅場景快照提供」。網格（src/sound/grid/naturalGrid.ts）每格空間項算一次、每 10 分只算每站時間項；示意動畫預設關。規格正本 docs/features/city-sound-atlas/ADVANCED_SOURCES.md。" },
     legend: "soundAtlas",
-    popup: ["soundSource", "soundPotentialCell"],
+    popup: ["soundSource", "soundPointQuery"],
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "臺北市＋新北市 250 m 網格的河川水聲潛勢＝最近水位站相對過去 60 天的分位 × 離河道距離（每 10 分一格，水位≠流量≠聲音、非 dB）。沒有全範圍來源檔的日子網格為斜線。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "河川"],

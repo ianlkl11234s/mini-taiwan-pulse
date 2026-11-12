@@ -88,7 +88,8 @@ import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
-import { SoundPotentialCellPanel, SoundRainCellPanel, SoundRoadCellPanel, SoundSourcePanel } from "./soundAtlasPanels";
+import { SoundSourcePanel } from "./soundAtlasPanels";
+import { SoundPointQueryPanel } from "../sound/SoundCellSection";
 import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
@@ -644,9 +645,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   transitReachPlayback: TransitReachPlaybackPanel,
   freewayTdcsSim: FreewayTdcsSimPanel,
   soundSource: SoundSourcePanel,
-  soundRainCell: SoundRainCellPanel,
-  soundRoadCell: SoundRoadCellPanel,
-  soundPotentialCell: SoundPotentialCellPanel,
+  soundPointQuery: SoundPointQueryPanel,
   mapchallengeDay04Population: MapchallengeDay04PopulationPanel,
   mapchallengeDay04Facility: MapchallengeDay04FacilityPanel,
   mapchallengeDay04Overlap: MapchallengeDay04OverlapPanel,
@@ -1318,9 +1317,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   transitReachPlayback: "單一起點到達時間（情境推演）",
   freewayTdcsSim: "國道逐車模擬（推算）",
   soundSource: "聲源（推估）",
-  soundRainCell: "雨勢網格（推估）",
-  soundRoadCell: "道路車流網格（推估）",
-  soundPotentialCell: "聲源潛勢網格（推估）",
+  soundPointQuery: "聲景點選查詢（推估）",
   mapchallengeDay04Population: "人口密度基準",
   mapchallengeDay04Facility: "設施群聚",
   mapchallengeDay04Overlap: "熱區重疊",

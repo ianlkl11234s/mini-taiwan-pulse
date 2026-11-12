@@ -32,5 +32,18 @@
   "legend.soundAtlas.potentialGrid.rail": "Train positions from timetables; underground sections excluded, unknown structure hatched; same-day suspensions or delays not reflected. Track structure © OpenStreetMap contributors (ODbL).",
   "legend.soundAtlas.potentialGrid.wind": "Nearest station wind speed × canopy cover within 100 m (Meta/WRI); no canopy = none.",
   "legend.soundAtlas.potentialGrid.wave": "Nearest buoy wave height and period × distance to the nearshore zone; more than 1 km inland = none.",
-  "legend.soundAtlas.potentialGrid.river": "Nearest gauge's level percentile over the past 60 days × distance to the channel; water level ≠ flow ≠ sound."
+  "legend.soundAtlas.potentialGrid.river": "Nearest gauge's level percentile over the past 60 days × distance to the channel; water level ≠ flow ≠ sound.",
+  "legend.soundAtlas.compositeTitle": "Combined soundscape grid (preview: {v})",
+  "legend.soundAtlas.compositeA": "A: how many sources are fairly active now (\"medium\" or above on each source's five levels)",
+  "legend.soundAtlas.compositeB": "B: weighted mean of source potentials × assumed weights (0–1; darkest at {max} and above)",
+  "legend.soundAtlas.compositeBLow": "0 (no activity)",
+  "legend.soundAtlas.compositeBHigh": "≥ {max}",
+  "legend.soundAtlas.compositeA0": "Calm (0)",
+  "legend.soundAtlas.compositeA1": "Moderate (1)",
+  "legend.soundAtlas.compositeA2": "Busy (2 or more)",
+  "legend.soundAtlas.compositeUnknown": "Hatched = fewer than half of the sources (4/7) can be judged",
+  "legend.soundAtlas.compositeIncluded": "Included: rain, road traffic, aircraft (using the aircraft layer's grid threshold), rail, wind in trees, waves, rivers",
+  "legend.soundAtlas.compositeExcluded": "Not included: thunder, garbage trucks, roadworks (kept as points/events)",
+  "legend.soundAtlas.compositeNote": "Estimated source activity from data, not measured loudness, not dB. A only counts sources and never adds them; B's weights are assumptions and effectively add different sources together, uncalibrated.",
+  "legend.soundAtlas.compositeNoSource": "Days without full-area source files (only 11/09 and 10/24 for now) have too few judgeable sources and are hatched."
 }
