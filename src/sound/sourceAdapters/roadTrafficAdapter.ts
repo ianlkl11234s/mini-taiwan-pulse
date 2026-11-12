@@ -1,238 +1,209 @@
 /**
- * 道路車流 adapter（T01，線聲源）。
+ * 道路車流 adapter（T01，線聲源；W6-2 起改為「路網＋當日國道 VD」單一 record）。
  *
- * 查核結論（2026-11-11，詳見 docs/features/city-sound-atlas/MVP_B_SOURCES.md §3）：
- * - 前端可讀的道路資料只有 `get_freeway_congestion_day`（國道路段幾何＋壅塞等級＋旅行速率）與
- *   `get_road_congestion_day`（省道壅塞等級 timeline，幾何在 PMTiles）。**兩者都沒有車流量**。
- * - 國道 VD 車流量（realtime/live.freeway_vd_traffic、S3 freeway_vd/archives）沒有 public RPC，
- *   歸檔也沒有 VD 座標；市區 VD（collector `vd`）S3 只到 2026-01-14。
- * → 預設只給「道路類型 proxy」：國道路段附近 active，潛勢＝距離 kernel × 道路類型權重，
- *   `proxyKind=road_type_no_volume`、`evidence=inferred`，**不宣稱流量**。壅塞等級與速率只放 notes
- *   （凌晨三點與下午三點都可能是「順暢」，等級不能當流量）。
- * - payload 保留可選 volume 序列（日後有 VD 流量來源時注入）：有樣本 → `observed_volume`、evidence=observed。
+ * 估計規則全部在 src/sound/grid/roadNetwork.ts（網格、接收點、格 popup 共用同一支）：
+ * 國道當日實測／臺北 VD 典型沿路延伸（假設）／新北等級推估三級，有路但沒資料＝無法判斷，離道路遠＝0。
+ * 決策與假設見 docs/features/city-sound-atlas/MODEL_DECISIONS.md §8。
  *
- * 空間涵蓋：目前只有國道路段。接收者 candidateRadius 內沒有任何已載入路段 → 回一筆 unknown（市區街道未涵蓋），
- * 不會被算成 inactive＝0（T18）。
+ * 集合形狀：records＝[一筆 road_network record]（payload 帶編譯後路網與當日流量脈絡）；
+ * coverage＝一筆 provider sound_road_network（路網讀不到 → error → 家族無法判斷）。
+ * 國道每日包缺、臺北非平日等「部分來源不可用」不影響 coverage，而是在估計裡變成無法判斷的候選。
  */
-import { fetchFreewayDay, type FreewaySection, type FreewaySnapshot } from "../../data/freewayLoader";
-import { MODEL_VERSION, ROAD_TRAFFIC } from "../model/soundProfiles";
-import { distanceToGeometryM } from "../engines/geometryShapes";
-import { proximityPotential } from "../engines/relativePotentialKernel";
 import { taipeiMidnightMs } from "../../lib/taipeiDay";
-import type { IntervalQuery, SoundSourceAdapter, SoundSourceRecord, SoundSourceSet, SourceContribution, SourceEvaluation } from "../types";
+import { MODEL_VERSION } from "../model/soundProfiles";
 import {
-  isTypicalTrafficRecord, queryTypicalTrafficInterval, typicalFlowAt, typicalVolumePotential, vdWithinRadius,
-  type TypicalTrafficPayload, type TypicalTrafficRecord,
-} from "./typicalTrafficAdapter";
+  fetchFreewayVdPack, fetchRoadNetwork, makeRoadDayContext, nearRoadSources, roadEstimateFromNear,
+  type FreewayVdPack, type NearRoads, type RoadDayContext, type RoadEstimate, type RoadNetwork, type RoadSource,
+} from "../grid/roadNetwork";
+import type { IntervalQuery, SoundSourceAdapter, SoundSourceRecord, SoundSourceSet, SourceContribution } from "../types";
+import { fetchVdBaseline, type VdBaselineFile } from "./typicalTrafficAdapter";
 
-export type RoadType = keyof typeof ROAD_TRAFFIC.roadTypeProxyWeight.value;
-
-export interface VolumeSample {
-  ts: number;
-  vehPerHour: number | null;
+export interface RoadNetworkPayload {
+  kind: "road_network";
+  net: RoadNetwork;
+  ctx: RoadDayContext;
 }
 
-export interface RoadTrafficPayload {
-  sectionId: string;
-  name: string | null;
-  roadName: string | null;
-  direction: string | null;
-  roadType: RoadType;
-  coords: [number, number][];
-  /** 壅塞等級／速率（只放 notes，不當流量） */
-  congestion: FreewaySnapshot[];
-  /** 觀測車流量（每小時車輛數）；null＝沒有流量來源（目前一律 null） */
-  volume: VolumeSample[] | null;
+export type RoadNetworkRecord = SoundSourceRecord<RoadNetworkPayload, "road_traffic">;
+/** 舊名保留給既有呼叫端（型別即路網 record） */
+export type RoadTrafficPayload = RoadNetworkPayload;
+
+export const ROAD_TRAFFIC_PROVIDER = "sound_road_network";
+const SOURCE_PREFIX = "road_traffic:";
+
+export function isRoadNetworkRecord(r: SoundSourceRecord<unknown, "road_traffic">): r is RoadNetworkRecord {
+  return (r.payload as { kind?: unknown } | null)?.kind === "road_network";
 }
 
-export type RoadTrafficRecord = SoundSourceRecord<RoadTrafficPayload, "road_traffic">;
-
-export const ROAD_TRAFFIC_PROVIDER = "freeway_sections";
-export const ROAD_TRAFFIC_GAP_ID = "road_traffic:network_not_covered";
-
-export function freewaySectionsToRecords(
-  sections: readonly FreewaySection[],
-  dateKey: string,
-  volumeBySection: ReadonlyMap<string, VolumeSample[]> | null = null,
-): RoadTrafficRecord[] {
-  const start = taipeiMidnightMs(dateKey) / 1000;
-  return sections
-    .filter((s) => s.coords.length >= 2)
-    .map((s) => ({
-      id: `road_traffic:freeway:${s.section_id}`,
-      family: "road_traffic" as const,
-      geometryKind: "line" as const,
-      payload: {
-        sectionId: s.section_id,
-        name: s.section_name,
-        roadName: s.road_name,
-        direction: s.direction_label,
-        roadType: "freeway" as const,
-        coords: s.coords,
-        congestion: s.timeline,
-        volume: volumeBySection?.get(s.section_id) ?? null,
-      },
-      validFrom: start,
-      validUntil: start + 86_400,
-      modelVersion: MODEL_VERSION,
-      provenance: { provider: ROAD_TRAFFIC_PROVIDER, originalId: s.section_id },
-      quality: { location: "exact_observed" as const, time: "estimated" as const, emission: "proxy" as const },
-      visibility: "public" as const,
-    }));
+export function roadNetworkRecord(net: RoadNetwork, ctx: RoadDayContext): RoadNetworkRecord {
+  return {
+    id: `${SOURCE_PREFIX}network:${ctx.dateKey}`,
+    family: "road_traffic",
+    geometryKind: "line",
+    payload: { kind: "road_network", net, ctx },
+    validFrom: ctx.dayStart,
+    validUntil: ctx.dayStart + 86_400,
+    modelVersion: MODEL_VERSION,
+    provenance: { provider: ROAD_TRAFFIC_PROVIDER, originalId: ctx.dateKey },
+    quality: { location: "exact_observed", time: "estimated", emission: "proxy" },
+    visibility: "public",
+  };
 }
 
-/** 時間 t 的流量：取 t 之前最近一筆且不超過 volumeMaxAgeS；否則 null */
-export function volumeAt(samples: readonly VolumeSample[], t: number): VolumeSample | null {
-  let best: VolumeSample | null = null;
-  for (const s of samples) if (s.ts <= t && (!best || s.ts > best.ts)) best = s;
-  if (!best || t - best.ts > ROAD_TRAFFIC.volumeMaxAgeS.value || best.vehPerHour == null || !(best.vehPerHour >= 0)) return null;
-  return best;
-}
-
-export function volumePotential(vehPerHour: number): number {
-  return 1 - Math.exp(-vehPerHour / ROAD_TRAFFIC.volumeScaleVehPerHour.value);
-}
-
-function congestionNote(p: RoadTrafficPayload, t: number): string {
-  let snap: FreewaySnapshot | null = null;
-  for (const s of p.congestion) if (s.ts <= t && (!snap || s.ts > snap.ts)) snap = s;
-  return snap ? `congestion_level:${snap.level},speed_kmh:${snap.speed ?? "null"}@${new Date(snap.ts * 1000).toISOString()}(not_volume)` : "congestion:none";
-}
-
-export function evaluateRoadTraffic(record: RoadTrafficRecord | TypicalTrafficRecord, t: number): SourceEvaluation {
-  if (t < record.validFrom || t > record.validUntil) return { status: "inactive" };
-  if (isTypicalTrafficRecord(record)) {
-    const p = record.payload;
-    if (p.kind === "vd_not_applicable") return { status: "unknown", reason: `typical_not_applicable(${p.reason})` };
-    const v = typicalFlowAt(p, t);
-    if ("missing" in v) return { status: "unknown", reason: `typical_${v.missing}` };
-    if (v.vehPerHour <= 0) return { status: "inactive" };
-    return { status: "active", geometry: { lon: p.lon, lat: p.lat, altitudeM: null }, relativeActivity: typicalVolumePotential(v.vehPerHour) };
+// 同一點反覆查（24h 構成 144 格）只算一次候選
+const nearCache = new WeakMap<RoadNetwork, Map<string, NearRoads>>();
+export function nearRoadsCached(net: RoadNetwork, lon: number, lat: number): NearRoads {
+  let m = nearCache.get(net);
+  if (!m) nearCache.set(net, (m = new Map()));
+  const k = `${lon},${lat}`;
+  let v = m.get(k);
+  if (!v) {
+    if (m.size > 256) m.clear();
+    v = nearRoadSources(net, lon, lat);
+    m.set(k, v);
   }
-  const [lon, lat] = record.payload.coords[0]!;
-  if (record.payload.volume) {
-    const v = volumeAt(record.payload.volume, t);
-    if (!v) return { status: "unknown", reason: "volume_sample_gap" };
-    return { status: "active", geometry: { lon, lat, altitudeM: null }, relativeActivity: volumePotential(v.vehPerHour!) };
-  }
-  return { status: "active", geometry: { lon, lat, altitudeM: null }, relativeActivity: ROAD_TRAFFIC.roadTypeProxyWeight.value[record.payload.roadType] };
+  return v;
+}
+
+/** 單點估計（網格點格 popup 與 queryInterval 共用） */
+export function roadTrafficEstimateAt(rec: RoadNetworkRecord, lon: number, lat: number, t0: number, t1: number): RoadEstimate {
+  const { net, ctx } = rec.payload;
+  return roadEstimateFromNear(net, ctx, nearRoadsCached(net, lon, lat), t0, t1);
 }
 
 const iso = (t: number) => new Date(t * 1000).toISOString();
 
-export const queryRoadTrafficInterval: IntervalQuery<RoadTrafficPayload, "road_traffic"> = (records, receiver, t0, t1) => {
-  const contributions: SourceContribution<"road_traffic">[] = [];
-  const radius = ROAD_TRAFFIC.candidateRadiusM.value;
-  for (const r of records) {
-    if (r.validUntil < t0 || r.validFrom > t1) continue;
-    const p = r.payload;
-    const d = distanceToGeometryM({ type: "LineString", coordinates: p.coords }, receiver.longitude, receiver.latitude);
-    if (d == null || d > radius) continue;
-    const prox = proximityPotential(d, ROAD_TRAFFIC.halfPotentialDistanceM.value);
+const PROXY_KIND = { observed: "observed_volume", estimated: "typical_weekday_volume", inferred: "road_type_no_volume" } as const;
+const SPATIAL = { freeway: "freeway_section_by_vd_mileage", taipei: "vd_extended_along_road(assumption)", taipei_uncovered: "road_without_vd", estimate: "osm_road_class" } as const;
+const TEMPORAL = { observed: "vd_1min_sample_per_10min", estimated: "typical_weekday_hourly", inferred: "none(road_class_static)" } as const;
+
+function sourceNotes(s: RoadSource): string[] {
+  const n: string[] = [`road_kind:${s.kind}`];
+  if (s.name) n.push(`road:${s.name}${s.dir ? `(${s.dir})` : ""}`);
+  if (s.vdId) n.push(`vd:${s.vdId}`);
+  if (s.cls) n.push(`road_class:${s.cls}`);
+  return n;
+}
+
+/** 估計 → 引擎的貢獻清單（潛勢 >0 的已知來源、各無法判斷候選；潛勢 0 的已知來源不列＝有效的 0） */
+export function roadEstimateContributions(net: RoadNetwork, est: RoadEstimate, t0: number): SourceContribution<"road_traffic">[] {
+  const out: SourceContribution<"road_traffic">[] = [];
+  for (const p of est.parts) {
+    const s = net.sources[p.source]!;
     const base = {
-      sourceId: r.id,
+      sourceId: `${SOURCE_PREFIX}${p.source}`,
       family: "road_traffic" as const,
-      spatialDistanceM: d,
+      spatialDistanceM: p.distanceM,
       modeledDbA: null,
-      spatialPrecision: "freeway_section_line",
-      notes: [`road_type:${p.roadType}`, `road:${p.roadName ?? ""}${p.direction ?? ""}`, `section:${p.name ?? p.sectionId}`, congestionNote(p, t1)],
+      spatialPrecision: SPATIAL[s.kind],
     };
-    if (p.volume) {
-      // 區間內取最大流量樣本；沒有任何有效樣本 → unknown
-      let bestV: VolumeSample | null = null;
-      for (const s of p.volume) {
-        const v = s.ts >= t0 && s.ts <= t1 ? s : null;
-        if (v && v.vehPerHour != null && v.vehPerHour >= 0 && (!bestV || v.vehPerHour > bestV.vehPerHour!)) bestV = v;
-      }
-      if (!bestV) bestV = volumeAt(p.volume, t0);
-      if (!bestV) {
-        contributions.push({ ...base, status: "unknown", unknownReason: "volume_sample_gap", sourceTime: iso(t0), relativePotential: null, evidence: "observed", temporalPrecision: "vd_sample_gap", acousticConfidence: "unmeasured", proxyKind: "observed_volume" });
-        continue;
-      }
-      contributions.push({
+    if (p.flow.known) {
+      if (!(p.potential! > 0)) continue;
+      out.push({
         ...base,
         status: "active",
-        sourceTime: iso(bestV.ts),
-        relativePotential: prox * volumePotential(bestV.vehPerHour!),
-        evidence: "observed",
-        temporalPrecision: "vd_sample",
+        sourceTime: iso(p.flow.sampleT ?? t0),
+        relativePotential: p.potential,
+        evidence: p.flow.evidence,
+        temporalPrecision: TEMPORAL[p.flow.evidence],
         acousticConfidence: "proxy",
-        proxyKind: "observed_volume",
-        notes: [...base.notes, `volume_veh_per_hour:${bestV.vehPerHour}`],
+        proxyKind: PROXY_KIND[p.flow.evidence],
+        notes: [...sourceNotes(s), `veh_per_hour:${p.flow.vehPerHour ?? ""}`, ...(p.flow.flowDays != null ? [`flow_days:${p.flow.flowDays}`] : [])],
       });
-      continue;
+    } else {
+      out.push({
+        ...base,
+        status: "unknown",
+        unknownReason: p.flow.reason,
+        sourceTime: iso(t0),
+        relativePotential: null,
+        evidence: p.flow.evidence ?? "inferred",
+        temporalPrecision: "none",
+        acousticConfidence: "unmeasured",
+        ...(p.flow.evidence ? { proxyKind: PROXY_KIND[p.flow.evidence] } : {}),
+        notes: sourceNotes(s),
+      });
     }
-    contributions.push({
-      ...base,
-      status: "active",
-      sourceTime: iso(Math.max(t0, r.validFrom)),
-      relativePotential: prox * ROAD_TRAFFIC.roadTypeProxyWeight.value[p.roadType],
-      evidence: "inferred",
-      temporalPrecision: "none(road_type_static)",
-      acousticConfidence: "unmeasured",
-      proxyKind: "road_type_no_volume",
-      notes: [...base.notes, "road_type_proxy_only:no_traffic_volume"],
-    });
   }
-  if (contributions.length === 0) {
-    // 只有國道路段：附近沒有已載入路段 ≠ 附近沒有車（市區街道未涵蓋）
-    contributions.push({
-      sourceId: ROAD_TRAFFIC_GAP_ID,
+  if (est.minor) {
+    out.push({
+      sourceId: `${SOURCE_PREFIX}minor_roads`,
       family: "road_traffic",
       status: "unknown",
-      unknownReason: "road_network_not_covered(only_freeway_sections_loaded)",
+      unknownReason: "minor_road_no_data",
       sourceTime: iso(t0),
       spatialDistanceM: null,
       relativePotential: null,
       modeledDbA: null,
       evidence: "inferred",
-      spatialPrecision: "none",
+      spatialPrecision: "grid_cell_250m",
       temporalPrecision: "none",
       acousticConfidence: "unmeasured",
-      notes: ["no_loaded_road_within_candidate_radius", "local_streets_not_covered"],
+      notes: ["minor_streets_in_cell_no_volume_data"],
     });
+  }
+  return out;
+}
+
+export const queryRoadTrafficInterval: IntervalQuery<RoadNetworkPayload, "road_traffic"> = (records, receiver, t0, t1) => {
+  const contributions: SourceContribution<"road_traffic">[] = [];
+  for (const r of records) {
+    if (!isRoadNetworkRecord(r) || r.validUntil < t0 || r.validFrom > t1) continue;
+    const est = roadTrafficEstimateAt(r, receiver.longitude, receiver.latitude, t0, t1);
+    contributions.push(...roadEstimateContributions(r.payload.net, est, t0));
   }
   return { contributions, notes: [] };
 };
 
-/**
- * 道路族合併查詢：接收者 VD 候選半徑內有臺北市 VD → 只用 VD 平日典型值（取代國道類型 proxy，
- * 週末／假日／異常日為 unknown，不退回 proxy）；否則維持國道類型 proxy（其他縣市）。
- */
-export const queryRoadTrafficCombined: IntervalQuery<RoadTrafficPayload | TypicalTrafficPayload, "road_traffic"> = (records, receiver, t0, t1) => {
-  const vd: TypicalTrafficRecord[] = [];
-  const fw: RoadTrafficRecord[] = [];
-  for (const r of records) (isTypicalTrafficRecord(r) ? vd.push(r) : fw.push(r as RoadTrafficRecord));
-  if (vd.some((r) => vdWithinRadius(r, receiver) != null)) {
-    const res = queryTypicalTrafficInterval(vd, receiver, t0, t1);
-    return { contributions: res.contributions, notes: [...res.notes, "freeway_type_proxy_replaced_by_vd_typical"] };
-  }
-  return queryRoadTrafficInterval(fw, receiver, t0, t1);
+/** 貢獻 sourceId → 路段座標（接收點連線／路段光暈用）；不是路段 → null */
+export function roadContributionLine(records: readonly SoundSourceRecord<unknown, "road_traffic">[], sourceId: string): { coords: [number, number][]; label: string } | null {
+  const m = /^road_traffic:(\d+)$/.exec(sourceId);
+  if (!m) return null;
+  const rec = records.find(isRoadNetworkRecord);
+  const s = rec?.payload.net.sources[Number(m[1])];
+  if (!s) return null;
+  const coords: [number, number][] = [];
+  for (let i = 0; i < s.flat.length; i += 2) coords.push([s.flat[i]!, s.flat[i + 1]!]);
+  return { coords, label: s.name ?? s.vdId ?? s.cls ?? s.kind };
+}
+
+export interface RoadTrafficFetchers {
+  network: () => Promise<RoadNetwork>;
+  pack: (date: string) => Promise<FreewayVdPack | null>;
+  baseline: () => Promise<VdBaselineFile>;
+}
+
+const liveFetchers: RoadTrafficFetchers = {
+  network: () => fetchRoadNetwork(),
+  pack: (d) => fetchFreewayVdPack(d),
+  baseline: () => fetchVdBaseline(),
 };
 
-export async function loadRoadTraffic(
-  ctx: { date: string },
-  fetcher: (date: string) => Promise<{ sections: FreewaySection[] }> = fetchFreewayDay,
-): Promise<SoundSourceSet<RoadTrafficPayload, "road_traffic">> {
+export async function loadRoadTraffic(ctx: { date: string }, f: RoadTrafficFetchers = liveFetchers): Promise<SoundSourceSet<RoadNetworkPayload, "road_traffic">> {
   const start = taipeiMidnightMs(ctx.date) / 1000;
   const base = { family: "road_traffic" as const, provider: ROAD_TRAFFIC_PROVIDER, dateKey: ctx.date, windowStart: start, windowEnd: start + 86_400, temporalKind: "day_series" as const };
   try {
-    const { sections } = await fetcher(ctx.date);
-    const records = freewaySectionsToRecords(sections, ctx.date);
-    return {
-      family: "road_traffic",
-      dateKey: ctx.date,
-      records,
-      coverage: [{ ...base, status: records.length ? "ok" : "empty", reason: records.length ? "road_type_proxy_only(no_volume_source)" : "no_freeway_sections_for_date" }],
-    };
+    const [net, pack, baseline] = await Promise.all([
+      f.network(),
+      f.pack(ctx.date),
+      f.baseline().catch(() => ({ meta: {}, vds: [] }) as VdBaselineFile),
+    ]);
+    const dctx = makeRoadDayContext(ctx.date, start, pack, baseline.vds);
+    const reason = [
+      pack ? "freeway_vd_day_ok" : "freeway_vd_day_missing",
+      dctx.typical.applies ? "taipei_typical_applies" : `taipei_typical_not_applicable:${dctx.typical.reason}`,
+      baseline.vds.length ? "" : "taipei_baseline_missing",
+    ].filter(Boolean).join(";");
+    return { family: "road_traffic", dateKey: ctx.date, records: [roadNetworkRecord(net, dctx)], coverage: [{ ...base, status: "ok", reason }] };
   } catch (e) {
     return { family: "road_traffic", dateKey: ctx.date, records: [], coverage: [{ ...base, status: "error", reason: String(e) }] };
   }
 }
 
-export const roadTrafficAdapter: SoundSourceAdapter<RoadTrafficPayload | TypicalTrafficPayload, "road_traffic"> = {
+export const roadTrafficAdapter: SoundSourceAdapter<RoadNetworkPayload, "road_traffic"> = {
   family: "road_traffic",
   load: (c) => loadRoadTraffic(c),
-  evaluate: (r, t) => evaluateRoadTraffic(r as RoadTrafficRecord | TypicalTrafficRecord, t),
-  queryInterval: queryRoadTrafficCombined,
+  // 路網是整片線聲源的集合，沒有單一位置；位置與潛勢只經 queryInterval（接收點）或網格
+  evaluate: () => ({ status: "inactive" }),
+  queryInterval: queryRoadTrafficInterval,
 };

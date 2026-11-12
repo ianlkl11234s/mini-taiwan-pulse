@@ -17,13 +17,12 @@ import { liveRailFetchers } from "./sourceAdapters/railLiveFetchers";
 
 export { liveRailFetchers, parseSystemSchedule, parseTraSchedule } from "./sourceAdapters/railLiveFetchers";
 import { loadRoadTraffic, type RoadTrafficPayload } from "./sourceAdapters/roadTrafficAdapter";
-import { loadTypicalTraffic, type TypicalTrafficPayload } from "./sourceAdapters/typicalTrafficAdapter";
 import { loadRoadwork, roadEventsToRecords, ROADWORK_PROVIDER, type RoadworkPayload } from "./sourceAdapters/roadworkAdapter";
 import type { MvpBSoundFamily, SoundSourceSet } from "./types";
 
 export type MvpBSet =
   | SoundSourceSet<RailPayload, "rail">
-  | SoundSourceSet<RoadTrafficPayload | TypicalTrafficPayload, "road_traffic">
+  | SoundSourceSet<RoadTrafficPayload, "road_traffic">
   | SoundSourceSet<RoadworkPayload, "roadwork">;
 
 // ── 場景快照區塊（施工） ─────────────────────────────────────
@@ -90,15 +89,8 @@ export async function loadMvpBFamily(
 ): Promise<{ set: MvpBSet; origin: "scene" | "live" }> {
   if (family === "rail") return { set: await loadRail({ date }, liveRailFetchers), origin: "live" };
   if (family === "road_traffic") {
-    // 國道類型 proxy（全台）＋臺北市 VD 平日典型值（靜態小檔）合成一個集合；查詢時由 queryRoadTrafficCombined 分流
-    const [fw, vd] = await Promise.all([loadRoadTraffic({ date }), loadTypicalTraffic({ date })]);
-    const set: SoundSourceSet<RoadTrafficPayload | TypicalTrafficPayload, "road_traffic"> = {
-      family: "road_traffic",
-      dateKey: date,
-      records: [...fw.records, ...vd.records],
-      coverage: [...fw.coverage, ...vd.coverage],
-    };
-    return { set, origin: "live" };
+    // W6-2：路網（國道路段配 VD、臺北 VD 延伸、OSM 等級）＋當日國道 VD 包＋臺北典型值 → 一筆路網 record
+    return { set: await loadRoadTraffic({ date }), origin: "live" };
   }
   const block = snapshotJson ? parseMvpBSceneBlocks(snapshotJson).roadwork : undefined;
   if (block) return { set: roadworkSnapshotSet(block, date), origin: "scene" };

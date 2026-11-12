@@ -33,6 +33,7 @@ import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
 import { isDrawn as isBusCrowdingDrawn } from "../data/busCrowdingSimTypes";
 import { soundAtlasStore } from "../sound/soundAtlasStore";
 import { pickSoundRainCell } from "../sound/grid/rainGridState";
+import { pickSoundRoadCell } from "../sound/grid/roadGridState";
 
 interface TooltipInfo {
   flight: Flight;
@@ -583,6 +584,15 @@ export function useMapInteraction(
           if (picked) {
             setFeatureInfo({ layerType: "soundRainCell", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
             sessionTracker.log("feature_click", { layerType: "soundRainCell" });
+            found = true;
+          }
+        }
+        // W6-2 道路網格：同上（雨網格開著時雨優先；兩個都要看時關掉其中一個再點）
+        if (!found && vis?.soundRoadTraffic) {
+          const picked = pickSoundRoadCell(e.lngLat.lng, e.lngLat.lat);
+          if (picked) {
+            setFeatureInfo({ layerType: "soundRoadCell", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
+            sessionTracker.log("feature_click", { layerType: "soundRoadCell" });
             found = true;
           }
         }

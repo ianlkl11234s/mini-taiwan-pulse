@@ -33,3 +33,20 @@ export const SOUND_FLASH_COLOR = "#ffffff";
 export const SOUND_RAIN_GRID_COLORS = ["#94a3b8", "#7dd3fc", "#3b82f6", "#6d28d9", "#d946ef"] as const;
 /** 各級不透明度（乘上圖層透明度滑桿）：無雨很淡，雨越大越實 */
 export const SOUND_RAIN_GRID_ALPHA = [0.14, 0.5, 0.62, 0.74, 0.85] as const;
+
+/**
+ * W6-2 道路車流網格五級（資料色，§3.16）：琥珀 → 橘 → 紅，和雨網格的藍紫系明顯不同（之後會疊看）。
+ * 0＝很低或離道路遠（淡暖灰）。三級證據用同一組級色、不同透明度與彩度區分：
+ * 國道當日實測最實、臺北典型稍淡、新北等級推估改用低彩度的土色（一眼看出「只是推估」）。
+ * 無法判斷（255）不在這裡：渲染器畫斜線。
+ */
+export const SOUND_ROAD_GRID_COLORS = {
+  observed: ["#a8a29e", "#fcd34d", "#f59e0b", "#ea580c", "#dc2626"],
+  estimated: ["#a8a29e", "#fcd34d", "#f59e0b", "#ea580c", "#dc2626"],
+  inferred: ["#a8a29e", "#d6c48f", "#c6a165", "#a9784a", "#8c5a3c"],
+} as const;
+export const SOUND_ROAD_GRID_ALPHA = {
+  observed: [0.12, 0.55, 0.66, 0.76, 0.86],
+  estimated: [0.12, 0.42, 0.52, 0.62, 0.72],
+  inferred: [0.12, 0.4, 0.48, 0.56, 0.64],
+} as const;

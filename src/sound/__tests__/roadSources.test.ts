@@ -1,12 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { FreewaySection } from "../../data/freewayLoader";
 import type { RoadEvent } from "../../data/roadEventsLoader";
 import { queryReceiver } from "../engines/receiverQuery";
 import { roadworkSnapshotSet, coveredCitiesFromPerCity, parseMvpBSceneBlocks } from "../mvpBSources";
-import { freewaySectionsToRecords, loadRoadTraffic, ROAD_TRAFFIC_PROVIDER } from "../sourceAdapters/roadTrafficAdapter";
 import { roadEventsToRecords, ROADWORK_PROVIDER } from "../sourceAdapters/roadworkAdapter";
 import type { SoundSourceSet } from "../types";
-import { DATE, DAY_START, RECV, latNorth } from "./fixtures";
+import { DATE, DAY_START, RECV } from "./fixtures";
 
 // 臺北市內的接收點（RECV 121.5,25.0 也在臺北市與新北市外框內）
 const NOON = DAY_START + 12 * 3600;
@@ -20,66 +18,7 @@ function okSet<F extends "road_traffic" | "roadwork">(family: F, provider: strin
   };
 }
 
-const SECTION: FreewaySection = {
-  section_id: "0001",
-  section_name: "測試路段",
-  road_name: "國道1號",
-  direction_label: "北向",
-  coords: [
-    [121.49, latNorth(100)],
-    [121.51, latNorth(100)],
-  ],
-  timeline: [{ ts: NOON - 60, level: 1, speed: 90 }],
-};
-
-describe("roadTrafficAdapter（T01）", () => {
-  it("無車流資料時只顯示道路類型 proxy：evidence=inferred、proxyKind=road_type_no_volume，不出現流量數字", () => {
-    const set = okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, freewaySectionsToRecords([SECTION], DATE));
-    const r = queryReceiver(RECV, NOON, [set], ["road_traffic"]);
-    const c = r.contributions[0]!;
-    expect(r.families[0]!.status).toBe("active");
-    expect(c.proxyKind).toBe("road_type_no_volume");
-    expect(c.evidence).toBe("inferred");
-    expect(c.acousticConfidence).toBe("unmeasured");
-    expect(c.notes.some((n) => n.startsWith("volume_veh_per_hour"))).toBe(false);
-    expect(c.notes.join()).toContain("not_volume"); // 壅塞等級只當註記
-    expect(c.relativePotential!).toBeCloseTo(0.5, 2); // 100 m、half=100 m
-  });
-
-  it("附近沒有已載入路段 → unknown（市區街道未涵蓋），不是 0", () => {
-    const far: FreewaySection = { ...SECTION, coords: [[121.6, 25.1], [121.62, 25.1]] };
-    const set = okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, freewaySectionsToRecords([far], DATE));
-    const r = queryReceiver(RECV, NOON, [set], ["road_traffic"]);
-    expect(r.families[0]!.status).toBe("unknown");
-    expect(r.families[0]!.relativePotential).toBeNull();
-    expect(r.families[0]!.reason).toContain("road_network_not_covered");
-  });
-
-  it("注入觀測流量 → observed_volume；樣本缺口或 null 流量 → unknown（null 不變 0）", () => {
-    const withVol = freewaySectionsToRecords([SECTION], DATE, new Map([["0001", [{ ts: NOON - 300, vehPerHour: 3000 }]]]));
-    const a = queryReceiver(RECV, NOON, [okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, withVol)], ["road_traffic"]);
-    expect(a.contributions[0]!.proxyKind).toBe("observed_volume");
-    expect(a.contributions[0]!.evidence).toBe("observed");
-    expect(a.contributions[0]!.status).toBe("active");
-
-    const stale = freewaySectionsToRecords([SECTION], DATE, new Map([["0001", [{ ts: NOON - 3600, vehPerHour: 3000 }]]]));
-    const b = queryReceiver(RECV, NOON, [okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, stale)], ["road_traffic"]);
-    expect(b.families[0]!.status).toBe("unknown");
-    expect(b.families[0]!.relativePotential).toBeNull();
-
-    const nullVol = freewaySectionsToRecords([SECTION], DATE, new Map([["0001", [{ ts: NOON - 60, vehPerHour: null }]]]));
-    const c = queryReceiver(RECV, NOON, [okSet("road_traffic", ROAD_TRAFFIC_PROVIDER, nullVol)], ["road_traffic"]);
-    expect(c.families[0]!.status).toBe("unknown");
-    expect(c.families[0]!.relativePotential).toBeNull();
-  });
-
-  it("RPC 失敗 → coverage error → 家族 unknown", async () => {
-    const set = await loadRoadTraffic({ date: DATE }, () => Promise.reject(new Error("boom")));
-    expect(set.coverage[0]!.status).toBe("error");
-    const r = queryReceiver(RECV, NOON, [set], ["road_traffic"]);
-    expect(r.families[0]!.status).toBe("unknown");
-  });
-});
+// 道路車流（T01）測試 W6-2 起移到 roadGrid.test.ts（路網＋國道 VD 每日包；舊的國道類型 proxy 與 RPC 路徑已移除）。
 
 const PERMIT: RoadEvent = {
   event_id: "E1",

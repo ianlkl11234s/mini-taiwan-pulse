@@ -5,8 +5,8 @@
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchHatch, SwatchSquare } from "./legendKit";
 import { useLayerVisible } from "../../state/layerVisibilityStore";
 import { useLocale } from "../../state/localeStore";
-import { SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
-import { FAMILY_KEYS, rainClassKey } from "../sound/soundAtlasText";
+import { SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
+import { FAMILY_KEYS, rainClassKey, ROAD_EVIDENCE_KEYS } from "../sound/soundAtlasText";
 import { SOUND_FAMILIES_ALL } from "../../sound/engines/receiverQuery";
 import type { SoundSourceFamily } from "../../sound/types";
 
@@ -26,11 +26,32 @@ function SoundRainGridLegend() {
   </div>;
 }
 
+/** W6-2 道路車流網格：三級證據各一列（很低→很高四格，色與透明度同地圖）＋很低＋斜線 */
+function SoundRoadGridLegend() {
+  const { t } = useLocale();
+  const evs = ["observed", "estimated", "inferred"] as const;
+  return <div style={{ marginBottom: 8 }}>
+    <LegendTitle zh={t("legend.soundAtlas.roadGridTitle")} />
+    {evs.map((ev) => (
+      <LegendRow key={ev} swatch={<span style={{ display: "inline-flex", gap: 1 }}>
+        {[1, 2, 3, 4].map((k) => <SwatchSquare key={k} color={SOUND_ROAD_GRID_COLORS[ev][k]!} opacity={Math.max(0.3, SOUND_ROAD_GRID_ALPHA[ev][k]!)} />)}
+      </span>}>{t(ROAD_EVIDENCE_KEYS[ev])}</LegendRow>
+    ))}
+    <LegendRow swatch={<SwatchSquare color={SOUND_ROAD_GRID_COLORS.observed[0]} opacity={0.3} />}>{t("soundAtlas.road.level.0")}</LegendRow>
+    <LegendRow swatch={<SwatchHatch />}>{t("legend.soundAtlas.roadGridUnknown")}</LegendRow>
+    <LegendNote>{t("legend.soundAtlas.roadGridLevels")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.roadGridNote")}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.roadGridAttribution")}</LegendNote>
+  </div>;
+}
+
 export function SoundAtlasLegend() {
   const { t } = useLocale();
   const rainOn = useLayerVisible("soundRain");
+  const roadOn = useLayerVisible("soundRoadTraffic");
   return <div>
     {rainOn && <SoundRainGridLegend />}
+    {roadOn && <SoundRoadGridLegend />}
     <LegendTitle zh={t("legend.soundAtlas.title")} />
     {FAMILIES.map((f) => (
       <LegendRow key={f} swatch={<SwatchDot color={SOUND_FAMILY_COLORS[f]} />}>{t(FAMILY_KEYS[f])}</LegendRow>

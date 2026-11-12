@@ -1026,6 +1026,7 @@ export interface FeatureInfo {
   | "mapchallengeDay09UrbanRural"
   | "soundSource"
   | "soundRainCell"
+  | "soundRoadCell"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"

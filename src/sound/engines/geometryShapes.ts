@@ -69,3 +69,30 @@ export function distanceToGeometryM(geometry: GeoJSON.Geometry | null | undefine
       return null;
   }
 }
+
+/**
+ * 同上的折線距離（同一投影與線段公式），但吃扁平座標 [lon0, lat0, lon1, lat1, …] 且不配置記憶體；
+ * 道路網格（W6-2）每格要算數十條路段，用這支避免大量暫存陣列。空陣列 → Infinity。
+ */
+export function distanceToFlatLineM(flat: ArrayLike<number>, lon: number, lat: number): number {
+  const n = flat.length >> 1;
+  if (n === 0) return Infinity;
+  const kx = M_PER_DEG * Math.cos((lat * Math.PI) / 180);
+  let ax = (flat[0]! - lon) * kx;
+  let ay = (flat[1]! - lat) * M_PER_DEG;
+  if (n === 1) return Math.hypot(ax, ay);
+  let d = Infinity;
+  for (let i = 1; i < n; i++) {
+    const bx = (flat[2 * i]! - lon) * kx;
+    const by = (flat[2 * i + 1]! - lat) * M_PER_DEG;
+    const dx = bx - ax;
+    const dy = by - ay;
+    const L = dx * dx + dy * dy;
+    const t = L === 0 ? 0 : Math.max(0, Math.min(1, (-ax * dx - ay * dy) / L));
+    const di = Math.hypot(ax + t * dx, ay + t * dy);
+    if (di < d) d = di;
+    ax = bx;
+    ay = by;
+  }
+  return d;
+}

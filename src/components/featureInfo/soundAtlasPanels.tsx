@@ -10,8 +10,9 @@ import type { ContributionEvidence, SoundSourceFamily } from "../../sound/types"
 import {
   EVIDENCE_KEYS, FAMILY_KEYS, STATUS_KEYS, STRUCTURE_KEYS,
   formatDistanceM, formatPotential, formatTaipeiTime, providerKey, rainClassKey, reasonKey, spatialPrecisionKey, temporalPrecisionKey,
+  ROAD_EVIDENCE_KEYS, roadClassKey, roadLevelKey, roadProviderOf,
 } from "../sound/soundAtlasText";
-import { SOUND_RAIN_GRID_COLORS } from "../../sound/soundAtlasColors";
+import { SOUND_RAIN_GRID_COLORS, SOUND_ROAD_GRID_COLORS } from "../../sound/soundAtlasColors";
 import { Row, SourceFooter, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
@@ -55,13 +56,13 @@ export function SoundSourcePanel({ props }: { props: Record<string, unknown> }) 
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>
         {props.proxyKind === "typical_weekday_volume"
           ? t("soundAtlas.row.typicalNote", { days: str(props.flowDays) || "—" })
-          : t("soundAtlas.row.roadProxyNote")}
+          : props.proxyKind === "observed_volume" ? t("soundAtlas.row.freewayObservedNote") : t("soundAtlas.row.roadProxyNote")}
       </div>
     )}
     {family && NATURAL.has(family) && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.naturalNote")}</div>}
     {family === "roadwork" && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.permitNote")}</div>}
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
-    <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : family === "road_traffic" && props.proxyKind === "typical_weekday_volume" ? "vd_typical_taipei" : FAMILY_PROVIDER[family ?? "aviation"]))}${family === "rain" && str(props.temporalPrecision).startsWith("radar") ? ` ＋ ${t(providerKey("cwa_radar_grid"))}` : ""} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
+    <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : family === "road_traffic" ? roadProviderOf(props.proxyKind) : FAMILY_PROVIDER[family ?? "aviation"]))}${family === "rain" && str(props.temporalPrecision).startsWith("radar") ? ` ＋ ${t(providerKey("cwa_radar_grid"))}` : ""} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
   </div>;
 }
 
@@ -102,5 +103,45 @@ export function SoundRainCellPanel({ props }: { props: Record<string, unknown> }
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.rainCell.note")}</div>
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
     <SourceFooter props={{ source: `${t(providerKey("cwa_radar_grid"))} ＋ ${t(providerKey("cwa_rain_gauge"))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
+  </div>;
+}
+
+/**
+ * W6-2 道路車流網格格子 popup（layerType "soundRoadCell"；useMapInteraction 以網格索引查格）。
+ * 分級、證據等級、主要來源（國道 VD／臺北 VD／道路等級）、流量與資料時刻；無法判斷寫白話原因。
+ */
+export function SoundRoadCellPanel({ props }: { props: Record<string, unknown> }) {
+  const theme = useFeatureTheme();
+  const { t } = useLocale();
+  const level = num(props.level);
+  const status = str(props.status);
+  const ev = str(props.evidence) as keyof typeof ROAD_EVIDENCE_KEYS;
+  const evKnown = ev in ROAD_EVIDENCE_KEYS;
+  const known = status === "active" || status === "inactive";
+  const veh = num(props.vehPerHour);
+  const sampleT = num(props.sampleT);
+  const bin = num(props.binStart);
+  const cls = roadClassKey(str(props.roadClass));
+  const roadName = str(props.roadName);
+  const vd = str(props.vdId);
+  const roadText = !evKnown ? "—"
+    : ev === "inferred" ? `${roadName || "—"}${cls ? `（${t(cls)}）` : ""}`
+    : `${roadName ? `${roadName}${str(props.roadDir) ? ` ${str(props.roadDir)}` : ""} · ` : ""}VD ${vd || "—"}`;
+  const color = known && level != null ? SOUND_ROAD_GRID_COLORS[evKnown ? ev : "observed"][level as 0 | 1 | 2 | 3 | 4] : theme.textDefault;
+  return <div>
+    <Title color={color}>{t("soundAtlas.roadCell.title")}</Title>
+    <Row label={t("soundAtlas.roadCell.level")} value={known ? t(roadLevelKey(level)) : t(roadLevelKey(null))} />
+    {!known && <Row label={t("soundAtlas.row.reason")} value={t(reasonKey(str(props.unknownReason)))} />}
+    {known && <Row label={t("soundAtlas.roadCell.evidence")} value={evKnown ? t(ROAD_EVIDENCE_KEYS[ev]) : t("soundAtlas.road.evidence.none")} />}
+    {evKnown && <Row label={t("soundAtlas.roadCell.road")} value={roadText} />}
+    {evKnown && <Row label={t("soundAtlas.row.distance")} value={formatDistanceM(num(props.distanceM))} mono />}
+    {evKnown && veh != null && <Row label={t("soundAtlas.roadCell.flow")} value={`${Math.round(veh).toLocaleString()} ${t("soundAtlas.roadCell.vehPerHour")}`} mono />}
+    {evKnown && sampleT != null && ev !== "inferred" && <Row label={t("soundAtlas.roadCell.dataTime")} value={formatTaipeiTime(sampleT, true)} mono />}
+    <Row label={t("soundAtlas.roadCell.bin")} value={bin != null ? `${formatTaipeiTime(bin, true)}–${formatTaipeiTime(bin + 600)}` : "—"} mono />
+    {evKnown && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t(ev === "observed" ? "soundAtlas.roadCell.flowNote.observed" : ev === "estimated" ? "soundAtlas.roadCell.flowNote.estimated" : "soundAtlas.roadCell.flowNote.inferred")}</div>}
+    {props.otherUnknown === true && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.roadCell.otherUnknown")}</div>}
+    <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.roadCell.note")}</div>
+    <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
+    <SourceFooter props={{ source: `${t(providerKey(evKnown ? roadProviderOf(ev === "observed" ? "observed_volume" : ev === "estimated" ? "typical_weekday_volume" : "road_type_no_volume") : "osm_road_class"))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
   </div>;
 }

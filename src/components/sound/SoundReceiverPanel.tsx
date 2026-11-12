@@ -300,11 +300,12 @@ function ContributionRow({ c: cb, origin, colors }: {
         {" · "}{t("soundAtlas.row.source")} {t(origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}
         {" · "}<span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(cb.sourceTime, true)}</span>
       </div>
-      {/* 道路只有類型 proxy（無車流量）、施工只有許可期間（不是機具運轉）：固定標明 */}
+      {/* 道路依證據等級標明（國道實測／臺北典型／新北等級推估）、施工只有許可期間（不是機具運轉）：固定標明 */}
       {cb.family === "road_traffic" && cb.proxyKind === "typical_weekday_volume" && (
         <div style={{ color: colors.muted }}>{t("soundAtlas.row.typicalNote", { days: noteValue(cb.notes, "flow_days") ?? "—" })}</div>
       )}
-      {cb.family === "road_traffic" && cb.proxyKind !== "typical_weekday_volume" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.roadProxyNote")}</div>}
+      {cb.family === "road_traffic" && cb.proxyKind === "observed_volume" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.freewayObservedNote")}</div>}
+      {cb.family === "road_traffic" && cb.proxyKind === "road_type_no_volume" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.roadProxyNote")}</div>}
       {cb.family === "roadwork" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.permitNote")}</div>}
     </div>
   );

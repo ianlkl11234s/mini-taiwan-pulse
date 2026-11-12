@@ -26,8 +26,7 @@ import {
 } from "../sound/soundAtlasAnimator";
 import { AVIATION } from "../sound/model/soundProfiles";
 import type { ThunderPayload } from "../sound/sourceAdapters/thunderAdapter";
-import type { RoadTrafficPayload } from "../sound/sourceAdapters/roadTrafficAdapter";
-import { isTypicalTrafficRecord } from "../sound/sourceAdapters/typicalTrafficAdapter";
+import { roadContributionLine } from "../sound/sourceAdapters/roadTrafficAdapter";
 import type { RoadworkPayload } from "../sound/sourceAdapters/roadworkAdapter";
 import type { SoundSourceFamily, SoundSourceRecord, SoundSourceSet } from "../sound/types";
 
@@ -526,16 +525,18 @@ export function useSoundAtlasLayer(
       for (const c of result.contributions) {
         const rec = index.get(c.sourceId);
         let place = contributionPlace(rec, t);
-        if (!place) continue;
-        if (c.family === "road_traffic" && rec && !isTypicalTrafficRecord(rec as SoundSourceRecord<unknown, "road_traffic">)) {
-          // 道路 proxy：連線接到路段上離接收點最近處；路段本身畫淡光暈（不是流量）
-          const coords = (rec.payload as RoadTrafficPayload).coords;
-          const near = nearestPointOnLine(coords, receiver.longitude, receiver.latitude);
-          if (near) place = { ...place, lon: near[0], lat: near[1] };
+        if (c.family === "road_traffic") {
+          // W6-2 路網：連線接到該路段離接收點最近處；有潛勢的路段畫淡光暈（網格是主要呈現）
+          const line = roadContributionLine((filtered.find((s) => s.family === "road_traffic")?.records ?? []) as SoundSourceRecord<unknown, "road_traffic">[], c.sourceId);
+          if (!line) continue;
+          const near = nearestPointOnLine(line.coords, receiver.longitude, receiver.latitude);
+          if (!near) continue;
+          place = { lon: near[0], lat: near[1], altitudeM: null, label: line.label };
           if (c.status === "active") {
-            roads.features.push({ type: "Feature", geometry: { type: "LineString", coordinates: coords }, properties: { potential: c.relativePotential } });
+            roads.features.push({ type: "Feature", geometry: { type: "LineString", coordinates: line.coords }, properties: { potential: c.relativePotential } });
           }
         }
+        if (!place) continue;
         if (c.family === "roadwork" && rec) {
           // 施工許可：圖示與連線放在許可幾何上離接收點最近處（與引擎距離一致）
           const rp = rec.payload as RoadworkPayload;

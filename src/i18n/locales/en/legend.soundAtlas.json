@@ -7,7 +7,7 @@
   "legend.soundAtlas.wavefront": "Thunder wavefront: grows 343 m per second (illustrative, not a sound-pressure extent)",
   "legend.soundAtlas.animation": "Ripples, receiver pulse rings, raindrop rings and music notes only illustrate that a source is active now; their size and speed scale with relative potential, not sound-pressure range. Grey dashed ring = cannot determine",
   "legend.soundAtlas.rail": "Trains (surface/elevated, scheduled): underground sections are silent; sections of unknown structure show as unknown",
-  "legend.soundAtlas.roadTraffic": "Road-type proxy (national freeways only, no traffic volume); other roads: no data",
+  "legend.soundAtlas.roadTraffic": "Road traffic: see the grid legend above; receiver links point to the strongest road",
   "legend.soundAtlas.roadwork": "Roadwork permit period (possible activity; a permit is not machinery running); Taipei City and other non-publishing cities: not covered",
   "legend.soundAtlas.attribution": "Sources: rail structure © OpenStreetMap contributors (ODbL); roadwork TDX city planned events; roads TDX freeway conditions (congestion level, not volume)",
   "legend.soundAtlas.roadTypical": "Taipei road traffic: VD weekday typical values (Dec 2025–Jan 2026, about 8 sample days; not same-day observations); weekends, public holidays and anomalous days such as typhoons: unknown",
@@ -19,5 +19,10 @@
   "legend.soundAtlas.rainGridTitle": "Rain grid (Taipei + New Taipei, 250 m, every 10 min)",
   "legend.soundAtlas.rainGridUnknown": "Hatched = cannot tell (missing image, suspected clutter, no nearby gauge)",
   "legend.soundAtlas.rainGridNote": "Estimated from radar echo and rain gauges, taking the higher; the Z-R conversion and class thresholds are assumptions.",
-  "legend.soundAtlas.rainGridAnimation": "Raindrop ripples are off by default; turn them on in the layer panel"
+  "legend.soundAtlas.rainGridAnimation": "Raindrop ripples are off by default; turn them on in the layer panel",
+  "legend.soundAtlas.roadGridTitle": "Road traffic grid (Taipei + New Taipei, 250 m, every 10 min)",
+  "legend.soundAtlas.roadGridLevels": "Light to dark: very low → very high (traffic sound potential, not dB)",
+  "legend.soundAtlas.roadGridUnknown": "Hatched = road present but no data (Taipei weekends/holidays, beyond VD extension, minor streets, missing freeway data)",
+  "legend.soundAtlas.roadGridNote": "Pale grey = very low or far from roads; the highest road in a cell wins; freeways are often near saturation in daytime.",
+  "legend.soundAtlas.roadGridAttribution": "Sources: TDX freeway sections and VD, Taipei City VD; roads © OpenStreetMap contributors (ODbL)"
 }

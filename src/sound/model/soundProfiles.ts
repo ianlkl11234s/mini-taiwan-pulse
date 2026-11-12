@@ -12,8 +12,10 @@
  * 0.2.0（W4）：新增 MVP-B 三族（RAIL／ROAD_TRAFFIC／ROADWORK）參數；MVP-A 四族參數不變。
  * 0.3.0（W5）：新增自然聲源三族（WIND_VEGETATION／COASTAL_WAVE／RIVER_WATER）與路線剖面（ROUTE）參數；既有七族參數不變。
  * 0.3.1（W2）：臺北市 VD 平日典型車流（TYPICAL_TRAFFIC）流量換算尺度 1500 → 600 輛／小時（使用者 2026-11-11 決定）。
+ * 0.4.0（W6-2）：道路車流改全範圍網格（ROAD_GRID）：國道當日 VD 實測／臺北 VD 典型沿路延伸／新北等級推估三級；
+ *   國道流量換算尺度 1500 → 600（與典型車流一致，使用者決定 3）；國道距離尺度 200 m（新參數）。
  */
-export const MODEL_VERSION = "sound-atlas-mvp-b-0.3.1";
+export const MODEL_VERSION = "sound-atlas-w6-0.4.0";
 
 export interface AssumedParam<T> {
   value: T;
@@ -105,7 +107,7 @@ export const ROAD_TRAFFIC = {
     "只有道路類型時的 proxy 權重：目前只有國道路段（freeway）一種，權重 1。這不是流量，UI 必須標『道路類型 proxy』。",
   ),
   volumeMaxAgeS: p(900, "注入的車流量樣本只代表其後 15 分鐘；更久沒有樣本 → unknown（不沿用舊值、不退回 proxy）。"),
-  volumeScaleVehPerHour: p(1_500, "有觀測車流量時：volumePotential = 1 − exp(−Q/1500)，Q＝每小時車輛數（單調遞增啟發式，非聲功率公式）。目前前端沒有車流量來源，此參數只在注入流量時使用。"),
+  volumeScaleVehPerHour: p(600, "有觀測車流量時：volumePotential = 1 − exp(−Q/600)，Q＝每小時車輛數（單調遞增啟發式，非聲功率公式）。W6-2 起與臺北典型車流同尺度（原 1500；使用者決定沿用 600）。"),
 } as const;
 
 // ── 道路施工 C01（點／線／面；許可期間＝可能活動）───────────────
@@ -210,4 +212,23 @@ export const TYPICAL_TRAFFIC = {
     } as Readonly<Record<string, string>>,
     "異常日清單：即使是平日也不套典型值（颱風、重大事件等）。新增日期要附理由；邏輯只讀這張表，不在程式寫死日期。",
   ),
+} as const;
+
+// ── 道路車流全範圍網格（W6-2，2026-11-12 新增）────────────────────────────────
+
+export const ROAD_GRID = {
+  networkUrl: p("/sound-atlas/grid/road-network-v1.json", "scripts/preprocess/build-sound-road-grid.py network 產出（public-assets lock 登記）：國道路段配 VD、臺北 VD 延伸路段、OSM 等級道路、小路格。"),
+  freewayVdUrlPrefix: p("/sound-atlas/grid/freeway-vd-", "每日包 freeway-vd-<臺灣日>.json（build-sound-road-grid.py vd）；沒有該日 → 國道無法判斷。"),
+  freewayHalfPotentialDistanceM: p(200, "國道距離尺度：距國道 200 m 時距離項 0.5（市區 100 m 的兩倍：國道車道多、車速高、車聲傳得較遠的啟發式；未依隔音牆、高架、地形校準）。假設。"),
+  freewayCandidateRadiusM: p(600, "只看 600 m 內的國道路段（距離項 ≈0.1）。候選篩選，非可聽距離宣稱。"),
+  urbanHalfPotentialDistanceM: p(100, "市區道路（臺北 VD 延伸、新北等級推估）距離尺度，同 TYPICAL_TRAFFIC.halfPotentialDistanceM。"),
+  urbanCandidateRadiusM: p(300, "只看 300 m 內的市區道路（距離項 0.1），同 TYPICAL_TRAFFIC.candidateRadiusM。"),
+  volumeScaleVehPerHour: p(600, "流量項 1 − exp(−Q/600)，三級共用（使用者 2026-11-11 決定的典型車流尺度）。國道雙向四到六車道白天 Q 常 >3,000 → 流量項近 1（照實飽和）。"),
+  freewaySampleToHourly: p(60, "國道 VD 值是每 10 分抓一次的 1 分鐘流量（上游 UpdateInterval=60）；輛/時＝值×60。只有一個 1 分鐘樣本，會比 10 分鐘平均跳動。"),
+  freewayDirectionRule: p("max", "國道兩方向是兩條分開的路段，接收點取潛勢較大的那條（取大，不相加）：較保守，且白天兩方向都已近飽和、差異小。"),
+  estimateClassVehPerHour: p(
+    { trunk: 279, primary: 394, secondary: 230, tertiary: 184 } as Readonly<Record<string, number>>,
+    "新北（及範圍外）只依 OSM 道路等級推估，**不隨時間變**（03:00 與 08:00 相同；沒有可借用的新北日變化）。數值＝臺北 VD 平日 07–19 時典型流量中位數、依吸附到的 OSM 等級分組（trunk n=198、primary 62、secondary 215、tertiary 168；build-sound-road-grid.py network 印出）。單支 VD 多為單向或部分車道，所以是保守值；trunk 低於 primary 是因臺北 trunk 多為高架、VD 只測部分車道。假設。",
+  ),
+  potentialClassEdges: p([0.1, 0.3, 0.5, 0.75] as readonly number[], "相對潛勢 → 五級（左閉右開）：<0.1 很低／0.1–0.3 低／0.3–0.5 中／0.5–0.75 高／≥0.75 很高。顯示用分級，不是 dB。"),
 } as const;

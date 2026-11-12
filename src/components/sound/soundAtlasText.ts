@@ -68,6 +68,8 @@ export function providerKey(provider: string): MessageKey {
     case "freeway_sections": return "soundAtlas.provider.freeway";
     case "tdx_road_event_city": return "soundAtlas.provider.roadwork";
     case "vd_typical_taipei": return "soundAtlas.provider.vdTypical";
+    case "freeway_vd": return "soundAtlas.provider.freewayVd";
+    case "osm_road_class": return "soundAtlas.provider.osmRoad";
     case "cwa_weather_obs": return "soundAtlas.provider.windObs";
     case "cwa_marine_obs": return "soundAtlas.provider.waveObs";
     case "wra_river_water_level": return "soundAtlas.provider.riverLevel";
@@ -85,6 +87,10 @@ export function spatialPrecisionKey(code: string): MessageKey {
   if (code === "track_geometry_progress_interpolation") return "soundAtlas.precision.trackProgress";
   if (code === "freeway_section_line") return "soundAtlas.precision.roadLine";
   if (code === "vd_point") return "soundAtlas.precision.vdPoint";
+  if (code === "freeway_section_by_vd_mileage") return "soundAtlas.precision.freewayVd";
+  if (code === "vd_extended_along_road(assumption)") return "soundAtlas.precision.vdExtended";
+  if (code === "osm_road_class") return "soundAtlas.precision.roadClass";
+  if (code === "grid_cell_250m") return "soundAtlas.precision.gridCell";
   if (code.startsWith("permit_")) return "soundAtlas.precision.permit";
   if (code === "nearest_station_wind_x_receiver_canopy") return "soundAtlas.precision.windCanopy";
   if (code === "offshore_station_x_coast_distance_proxy") return "soundAtlas.precision.waveCoast";
@@ -100,7 +106,8 @@ export function temporalPrecisionKey(code: string): MessageKey {
   if (code === "radar_10min+hourly") return "soundAtlas.timePrecision.radarHourly";
   if (code === "strike_ts_plus_modeled_delay") return "soundAtlas.timePrecision.strike";
   if (code === "timetable" || code.startsWith("timetable(")) return "soundAtlas.timePrecision.timetable";
-  if (code === "none(road_type_static)") return "soundAtlas.timePrecision.static";
+  if (code === "none(road_type_static)" || code === "none(road_class_static)") return "soundAtlas.timePrecision.static";
+  if (code === "vd_1min_sample_per_10min") return "soundAtlas.timePrecision.vd1min";
   if (code === "typical_weekday_hourly") return "soundAtlas.timePrecision.typicalHourly";
   if (code.startsWith("permit_window")) return "soundAtlas.timePrecision.permit";
   if (code === "schedule_inferred_times") return "soundAtlas.timePrecision.inferred";
@@ -134,6 +141,13 @@ export function reasonKey(reason: string | null | undefined): MessageKey {
   if (r === "rail_schedule_unavailable" || r.endsWith("_schedule_not_found")) return "soundAtlas.reason.railSchedule";
   if (r.startsWith("road_network_not_covered")) return "soundAtlas.reason.roadNotCovered";
   if (r === "volume_sample_gap") return "soundAtlas.reason.volumeGap";
+  if (r === "freeway_vd_pack_missing") return "soundAtlas.reason.freewayPackMissing";
+  if (r === "freeway_no_vd_within_gap") return "soundAtlas.reason.freewayNoVd";
+  if (r === "freeway_vd_sample_missing") return "soundAtlas.reason.freewaySample";
+  if (r.startsWith("freeway_vd_")) return "soundAtlas.reason.freewayVdFault";
+  if (r === "taipei_road_not_reached_by_vd") return "soundAtlas.reason.taipeiNoVd";
+  if (r === "minor_road_no_data") return "soundAtlas.reason.minorRoad";
+  if (r === "typical_vd_missing") return "soundAtlas.reason.typicalMissing";
   if (r === "typical_not_applicable(anomaly_day)") return "soundAtlas.reason.typicalAnomaly";
   if (r === "typical_not_applicable(calendar_not_covered)") return "soundAtlas.reason.typicalCalendar";
   if (r.startsWith("typical_not_applicable(")) return "soundAtlas.reason.typicalWeekend";
@@ -169,4 +183,33 @@ const RAIN_CLASS_KEYS: readonly MessageKey[] = [
 ];
 export function rainClassKey(code: number | null | undefined): MessageKey {
   return (code != null && RAIN_CLASS_KEYS[code]) || "soundAtlas.rain.class.unknown";
+}
+
+/** W6-2 道路網格分級（0–4、其他＝無法判斷）→ 文字 key */
+const ROAD_LEVEL_KEYS: readonly MessageKey[] = [
+  "soundAtlas.road.level.0", "soundAtlas.road.level.1", "soundAtlas.road.level.2", "soundAtlas.road.level.3", "soundAtlas.road.level.4",
+];
+export function roadLevelKey(level: number | null | undefined): MessageKey {
+  return (level != null && ROAD_LEVEL_KEYS[level]) || "soundAtlas.road.level.unknown";
+}
+
+export const ROAD_EVIDENCE_KEYS: Record<"observed" | "estimated" | "inferred", MessageKey> = {
+  observed: "soundAtlas.road.evidence.observed",
+  estimated: "soundAtlas.road.evidence.estimated",
+  inferred: "soundAtlas.road.evidence.inferred",
+};
+
+export function roadClassKey(cls: string | null | undefined): MessageKey | null {
+  switch (cls) {
+    case "trunk": return "soundAtlas.road.class.trunk";
+    case "primary": return "soundAtlas.road.class.primary";
+    case "secondary": return "soundAtlas.road.class.secondary";
+    case "tertiary": return "soundAtlas.road.class.tertiary";
+    default: return null;
+  }
+}
+
+/** 道路貢獻的出處（依 proxyKind）：國道 VD／臺北 VD 典型／OSM 等級 */
+export function roadProviderOf(proxyKind: unknown): string {
+  return proxyKind === "observed_volume" ? "freeway_vd" : proxyKind === "typical_weekday_volume" ? "vd_typical_taipei" : "osm_road_class";
 }
