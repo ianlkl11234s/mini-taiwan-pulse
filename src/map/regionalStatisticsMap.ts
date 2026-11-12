@@ -68,6 +68,8 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
   const renderedDots = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
   const pendingDots = new Set<Promise<unknown>>();
   let disposed = false;
+  /** 點算好時 style 可能正在載入（render 會略過）：留記號，idle 時補畫 */
+  let dotsDirty = false;
   if (primary) for (const key of STATISTICS_RENDER_KEYS) {
     const recipe = statisticsRenderRecipe(key);
     const fallback = statisticsReleaseFallback(key);
@@ -102,6 +104,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
   }
   function render(fromStyleLoad = false) {
     if (!fromStyleLoad && !map.isStyleLoaded()) return;
+    dotsDirty = false;
     const isDark = getIsDark();
     if (primary) syncOpacityDefaults(isDark);
     for (const kind of ['missing', 'suppressed'] as HatchKind[]) {
@@ -228,7 +231,14 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       const pending = statisticsDotData(data, unit);
       if (!pendingDots.has(pending)) {
         pendingDots.add(pending);
-        void withLoading(`statistics-dots:${loadingPrefix}${key}`, label, pending).finally(() => { pendingDots.delete(pending); if (!disposed) render(); }).catch(() => undefined);
+        void withLoading(`statistics-dots:${loadingPrefix}${key}`, label, pending).finally(() => {
+          pendingDots.delete(pending);
+          if (disposed) return;
+          // 地圖持續載入圖磚時 isStyleLoaded() 可能一直是 false（style 本身已可加圖層）：直接畫；
+          // 剛好在換底圖途中（style 還不能加 source）就留記號，style.load／idle 會補畫
+          dotsDirty = true;
+          try { render(true); } catch { /* 換底圖中 */ }
+        }).catch(() => undefined);
       }
     }
     const sourceId = dotSourceId(key);
@@ -284,6 +294,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
   map.on('style.load', onStyleLoad);
   // Data may finish during a Mapbox source update; idle retries rendering that state.
   const onIdle = () => {
+    if (dotsDirty) { render(); return; }
     if (STATISTICS_RENDER_KEYS.some(key => (isShown(key) || map.getSource(key)) && regionalStatisticsStore.getSnapshot(storeKey(key)).data !== (rendered.get(key) ?? null))) render();
   };
   map.on('idle', onIdle);

@@ -14,7 +14,7 @@
  */
 import { geometryInteriorPoint } from './interiorPoint';
 
-/** 全圖點數上限（每張地圖）；2026-11-12 量測：鄉鎮人口 ~4.7 萬點平移仍順（數字見 PR） */
+/** 全圖點數上限（每張地圖）；2026-11-12 量測：鄉鎮人口 4.6 萬點，計算約 180 ms（分批），平移幀率與不開點時相同 */
 export const DOT_BUDGET = 60_000;
 const DOT_STEPS = [1, 2, 5, 10] as const;
 /** 每片計算的時間上限（ms），超過就讓出主執行緒 */
@@ -24,7 +24,7 @@ const MAX_TRIES = 64;
 
 /** 點密度樣式：點的大小隨縮放微調；底下淡淡的行政區邊界線（顏色用 `BOUNDARY_GRAY`）。 */
 export const DOT_STYLE = {
-  radius: [[5, 0.9], [8, 1.3], [11, 1.8], [14, 2.6]] as const,
+  radius: [[5, 0.6], [8, 1], [11, 1.6], [14, 2.4]] as const,
   boundaryOpacity: { dark: 0.28, light: 0.22 },
   boundaryWidth: 0.6,
 } as const;
