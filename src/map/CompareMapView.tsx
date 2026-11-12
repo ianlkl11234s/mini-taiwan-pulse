@@ -11,7 +11,7 @@
  *   選取圈也畫在右圖（主圖的選取圈在右半會被右圖蓋住）。
  */
 import { useEffect, useRef, useState } from "react";
-import mapboxgl, { type PointLike } from "mapbox-gl";
+import mapboxgl from "mapbox-gl";
 import type { FeatureInfo } from "../types";
 import { resolvedCjkFont } from "../styles/designTokens";
 import { localeStore } from "../state/localeStore";
@@ -24,6 +24,7 @@ import { compareCircleReference, compareDotUnit, rightReadKey, startRightSelecti
 import { layerVisibilityStore, useLayerVisibilityAll } from "../state/layerVisibilityStore";
 import { STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { GIS_LAYERS } from "./gisClickRegistry";
+import { queryStatisticsHits } from "./statisticsClickHit";
 import { useHistoricalMapLayer } from "../hooks/useHistoricalMapSinicaLayer";
 import { HISTORICAL_MAP_GROUPS, type HistoricalMapGroupKey } from "../data/historicalMapSinica";
 import { useKeyOverlayParams } from "../layers/layerParamsAccess";
@@ -117,8 +118,8 @@ export function CompareMapView({ mainMap, styleUrl, pureBlack, isDarkTheme, show
     map.on("click", (e) => {
       recordSelectionClick([e.lngLat.lng, e.lngLat.lat]);
       const layers = shownStatisticsLayerIds(map);
-      const bbox: [PointLike, PointLike] = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
-      const hit = layers.length ? map.queryRenderedFeatures(bbox, { layers })[0] : undefined;
+      // 同主地圖：面以點擊點所在多邊形為準、比例圓保留容錯框（statisticsClickHit）
+      const hit = layers.length ? queryStatisticsHits(map, e.point, layers)[0] : undefined;
       if (!hit) { onFeatureInfoRef.current(null); return; }
       onFeatureInfoRef.current({ layerType: "regionalStatistic", properties: { ...(hit.properties ?? {}), compare_side: "right" }, coords: [e.lngLat.lng, e.lngLat.lat] });
       sessionTracker.log("feature_click", { layerType: "regionalStatistic" });

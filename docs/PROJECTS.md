@@ -50,7 +50,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - 資料保留期限：第 2 批 11-09 完成（gp #228／#229 mig 540–543、ADR-0026 #57），剩項目在 WA-3；靜態表搬遷乙組（WA-14，動前端前先給使用者看方案）；R2 獨有資料補 S3（ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
 - 30 天地圖挑戰：Day 9 城鄉圖層 mapchallengeDay09UrbanRural（#972）、Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
-- 正式站目視包：v2.22～v2.31 各版目視集中在 BACKLOG A 群（VP-1～VP-13），等 Claude 用瀏覽器一次截圖。
+- 正式站目視包：11-12 第一批（v2.36.1）通過 8 項已關閉；發現兩個 bug 由 VPB-1／VPB-2 修（待發版後複驗），低嚴重度問題記在 VPB-3～VPB-5；剩 VP-2、VP-10～VP-17 等（BACKLOG A 群）。
 - 配色與可見性：第一、二段隨 v2.36.0 上線（#998、#1002）；第三階段待做（VIZ-3）；視覺化提案 11-11 已拍板；比例圓 #1008、多年份並排 #1011、左右比較 P1 #1012、點密度 #1016 隨 v2.36.0 上線（VIZ-5／VIZ-8／VIZ-9／VIZ-6）；等值帶使用者決定先不做（VIZ-7）。
 - MCP 與倉庫：#107 已部署並冒煙通過；發版關卡（MCP #108～#111）上線；72 表以 DuckDB 1.5.3 重發為 `20261110T084641Z`（pulse-data #104），S3 歸檔與 R2 舊版清理等使用者驗收（WHDB-2）。
 
@@ -106,7 +106,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| 古地圖（臺灣百年歷史地圖） | 🟡 | 底線:授權 | 11-06 改公開（v2.26.0）；#882 拆成歷史底圖 6 層隨 v2.27.0 上線（85 張，CC BY-NC） | VP-7 目視；主站 CSP enforcing 時補 gis.sinica.edu.tw；HIST-1 授權信：**使用者 2026-11-08 決定暫不寄，不要再催**（研究成果搬進 git 已於 11-09 完成） | BACKLOG HIST-1；`src/data/historicalMapSinica.ts` | 2026-11-10 |
+| 古地圖（臺灣百年歷史地圖） | 🟡 | 底線:授權 | 11-06 改公開（v2.26.0）；#882 拆成歷史底圖 6 層隨 v2.27.0 上線（85 張，CC BY-NC）；11-12 正式站目視通過（v2.36.1） | 主站 CSP enforcing 時補 gis.sinica.edu.tw；HIST-1 授權信：**使用者 2026-11-08 決定暫不寄，不要再催**（研究成果搬進 git 已於 11-09 完成） | BACKLOG HIST-1；`src/data/historicalMapSinica.ts` | 2026-11-10 |
 | 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 圖層隨 v2.32.0（河濱口徑）、Day 8 文章 #957、Day 9 城鄉圖層 #972（下拉切 10 指標，素材 analytics docs/topic-research/mapchallenge_2026_day09_urban_rural/）已合 develop 待發版；所有文章文末有資料來源（#959）；analytics #330 已合 | 發版後正式站目視 Day 8 文章與 Day 9 圖層（圖例、popup、指標切換）；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.32.0；`src/blog/mapChallenge.ts`；`docs/features/blog/article-plan.md` | 2026-11-09 |
 | G27 臺北市局處公務統計 | 🟡 | 北極星:好用 | 部分隨 v2.13.0 上線 | BLOG-V 目視；PDF 獨有表 | candidates/G27；BACKLOG BLOG-V | 2026-10-24 |
 | G32 熱島與高溫曝露 | 🟡 | 北極星:好用 | queued；涼適點、熱傷害排進 TWL-5 第二批 | TWL-5 災害暴露組（使用者說晚點再處理） | candidates/G32；BACKLOG TWL-5 | 2026-10-29 |
@@ -115,7 +115,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
-| 雙北大眾運輸可及性（含臺中、臺南、高雄） | 🟡 | 北極星:AI | 雙北 #810 上正式站；三市 11-04 算完、analytics #323 已合；雙北重算 P1 完成、P2／P3 未跑 | VP-9 目視；TA-3 三市上網站形式（待決定）；TA-2 雙北雲端重算（TA-6 已併入，待使用者說跑） | `../taipei-gis-analytics/docs/topic-research/transit_access/_status.md`；BACKLOG N 群 | 2026-11-06 |
+| 雙北大眾運輸可及性（含臺中、臺南、高雄） | 🟡 | 北極星:AI | 雙北 #810 上正式站；三市 11-04 算完、analytics #323 已合；雙北重算 P1 完成、P2／P3 未跑；11-12 正式站目視通過（v2.36.1） | TA-3 三市上網站形式（待決定）；TA-2 雙北雲端重算（TA-6 已併入，待使用者說跑） | `../taipei-gis-analytics/docs/topic-research/transit_access/_status.md`；BACKLOG N 群 | 2026-11-06 |
 
 ## 已上線待收尾、暫停、構想
 
@@ -126,10 +126,10 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 |---|---|---|---|---|---|---|
 | 國內新聞圖層維運 | 🟢 | 底線:資料正確 | 2026-06 已上線 | NEWS-1：在 pulse-host（Linode 東京 IP）驗自由時報 RSS 是否可抓 | BACKLOG NEWS-1；[`features/news/`](./features/news/) | 2026-11-10 |
 | 衛星主控台改版收尾（#533） | 🟢 | 北極星:視覺 | 最早含在 v2.5.0 | VP-2 正式站目視暗／淡主題與手機版 | [`features/satellite-console-restyle/README.md`](./features/satellite-console-restyle/README.md) | 2026-10-16 |
-| 選舉圖層第二批（投開票所、2026 議員選區、歷屆統計） | 🟢 | 北極星:好用 | mini #807／#811／#816 隨 v2.22.0；gp #197 mig 496／498 已套用 | VP-1 正式站目視 | CHANGELOG v2.22.0 | 2026-11-04 |
+| 選舉圖層第二批（投開票所、2026 議員選區、歷屆統計） | 🟢 | 北極星:好用 | mini #807／#811／#816 隨 v2.22.0；gp #197 mig 496／498 已套用；11-12 正式站目視通過（v2.36.1） | — | CHANGELOG v2.22.0 | 2026-11-04 |
 | 會員區 v1（Google 登入、配額） | 🟢 | 北極星:好用 | 前端 #220、gp #98（mig 408）；v2.12.0 可自行刪帳號 | VP-11 真實 Google 登入／多裝置；BC-2 收藏＋chat_logs 未動工 | [`features/member-area/`](./features/member-area/) | 2026-10-23 |
 | 愛爾蘭 | 🟢 | 北極星:AI | 第 0–10 波＋統計＋Coillte 隨 v2.26.0／v2.27.0；11-10 夜：64 層入倉（倉庫 20261109T171745Z）、IEADD 6 層（#985）合 develop 待發版 | 統計 5 筆隨 AG-15 合併後進倉；IECOI-1 站主目視；Limerick 淹水分區憑證修好後重試 | analytics `ireland_opendata/waves/PLAN.md`；BACKLOG H2 群 | 2026-11-10 |
-| 加拿大第 0–3 波＋統計 | 🟢 | 北極星:好用 | 第 0–3 波＋統計＋即時地震隨 v2.22.0～v2.26.0；review 兩項（縮放範圍、衍生標示）11-10 查證後不用改 | VP-4 目視；第 2 波建物、C002 海域 HOLD；LODE 補座標前端未接 | analytics `canada_opendata/waves/PLAN.md` §4–5 | 2026-11-10 |
+| 加拿大第 0–3 波＋統計 | 🟢 | 北極星:好用 | 第 0–3 波＋統計＋即時地震隨 v2.22.0～v2.26.0；review 兩項（縮放範圍、衍生標示）11-10 查證後不用改；11-12 正式站目視通過（v2.36.1）（抽樣，第 0 波未抽） | 第 2 波建物、C002 海域 HOLD；LODE 補座標前端未接 | analytics `canada_opendata/waves/PLAN.md` §4–5 | 2026-11-10 |
 | 多國化議題 1 收尾 | 🟢 | 北極星:兼容 | 國家主體化隨 v2.16.0；主題識別名拆分查證已由 #733 完成（11-10 關閉） | MC-3 目視 | BACKLOG MC-3 | 2026-11-10 |
 | 多國化議題 2 收尾（MCP 跨國） | 🟢 | 北極星:AI | P0–P5 10-29 上線；countries.json 11-07 補 KR／CA／IE（MCP #98） | MC-6 補 name_en；MC-7 拆 airspace／coral 表；MC-8 觀察 eval 不穩點 | `../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic2-mcp.md` §5 | 2026-11-07 |
 | 主題分類統一（TWL-12） | 🟢 | 北極星:好用 | 6 題全部完成：#910（v2.28.0）、#912（v2.29.0）、MCP #100 | STAT-SYNC-1 稽核 parser 待選來源 | BACKLOG STAT-SYNC-1 | 2026-11-08 |
@@ -140,7 +140,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | G35–G37 第二輪補強 | 🟢 | 北極星:好用 | TWL-8／9／10 隨 v2.19.0 上線 | TWL-15 只剩 (3) 村里教育程度統計、(4) 地質敏感區／暴潮線；frontmatter 改 live | BACKLOG TWL-15 | 2026-11-01 |
 | 土壤液化（站主限定） | 🟢 | 底線:授權 | #407、#408 上線（09-29） | VP-10 站主目視；MCP 題庫 PR #27 保留（draft） | [`features/soil-liquefaction/handoff.md`](./features/soil-liquefaction/handoff.md) | 2026-09-29 |
 | 靜態資產版本化（R2 layers/v1） | 🟢 | 北極星:效率 | 讀取端 #700 隨 v2.14.0；試點 immigration_offices、dui_crash_points v1 | VP-13 目視；批 2 起遷移（DESIGN §4）；與 public 資料檔移出 git（已完成）的 R2 正本是否合流待決定 | `../.gis-agent-system/projects/2026-10-static-asset-versioning/` | 2026-10-25 |
-| 國道逐車模擬（G39） | 🟢 | 北極星:視覺 | #814 隨 v2.22.0；MCP #95 已部署 | VP-8 目視；跟車減速 wip 暫停中（決定續或封存） | `../taipei-gis-analytics/docs/topic-research/freeway_tdcs/_status.md` | 2026-11-04 |
+| 國道逐車模擬（G39） | 🟢 | 北極星:視覺 | #814 隨 v2.22.0；MCP #95 已部署；11-12 正式站目視通過（v2.36.1） | 跟車減速 wip 暫停中（決定續或封存） | `../taipei-gis-analytics/docs/topic-research/freeway_tdcs/_status.md` | 2026-11-04 |
 | 全台交通可及性 | 🟢 | 北極星:視覺 | v2.20.0 上線（#801），使用者確認效果 OK | 兩層同開時點擊只跳網格 popup（已知問題）；色階細分、雙北尺度方向未選 | `../taipei-gis-analytics/docs/topic-research/transit_reach/_status.md` | 2026-11-02 |
 | 公車擁擠模擬 | 🟢 | 北極星:AI | #701 隨 v2.14.0 上線（站主限定） | VP-10 站主目視 | `../taipei-gis-analytics/docs/topic-research/bus_crowding/` | 2026-10-25 |
 | AWS 雲端運算工具 cloud_run | 🟢 | 北極星:開發系統 | analytics `tools/cloud_run/`＋skill `cloud-run`；11-06 smoke 兩項通過；隨 analytics #323 合併 | TA-4 測 Spot 中斷接續（S3 測試檔去留已決定不追蹤） | analytics `tools/cloud_run/README.md` | 2026-11-10 |
