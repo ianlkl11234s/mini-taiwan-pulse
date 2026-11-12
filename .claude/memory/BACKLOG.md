@@ -214,7 +214,7 @@
 | DEV-10 | 北極星:開發系統 | P2 | ready | 收尾寫錯上線狀態：`where-is` 腳本（健檢自動化 A9；健檢記 9 次）。 | 健檢 A9：`scripts/release/where-is.sh <sha>` 回答「在 develop／master 嗎、哪個 tag、正式站 main-*.js 版號」，wrap-up skill 引用。 | wrap-up 寫上線狀態前一律跑這支。 |
 | DEV-11 | 北極星:開發系統 | P3 | ready | Codex 版 skill 與 Claude 版分歧（健檢自動化 A13）。 | `.agents/skills/supabase-optimize` 改成 adapter 指回 `.claude` 版，比照 wrap-up。 | 兩邊只剩一份內容。 |
 | DEV-12 | 北極星:開發系統 | P3 | ready | pulse-* skill 依附在 worktree（健檢自動化 A14）。 | `~/.claude-migu/skills` 的 pulse-* symlink 改指 `GIS/mini-pulse-gis-mcp/plugins/pulse-analyst/skills/*`（MCPD-1 部署時一併更新）。 | 刪掉任何 worktree 後 skill 仍可載入。 |
-| CI-8 | 底線:資安 | P2 | blocked | Dependabot：alerts 已開，剩回讀與 `dependabot.yml`。 | 2026-11-10：7 個 repo alerts 已開；gis-platform portal 135→1（gp #239）；analytics 預期 16→0（#358 升級 requirements、#359 移除未使用的 fiona；notebook 7.6.3），實際數待 Dependabot 重算後回讀。`dependabot.yml` 自動升版 PR 要不要開：Blocker owner decision。 | 各 repo alerts 數回讀並記錄；`dependabot.yml` 去留有決定。 |
+| CI-8 | 底線:資安 | P2 | blocked | Dependabot：alerts 已開、已回讀，剩 `dependabot.yml`。 | 2026-11-10：7 個 repo alerts 已開；gis-platform portal 135→1（gp #239）；analytics 16→0（#358 升級 requirements、#359 移除未使用的 fiona；notebook 7.6.3）。回讀（2026-11-10）：taipei-gis-analytics 開放中警示 0、gis-platform 1（low）。`dependabot.yml` 自動升版 PR 要不要開：Blocker owner decision。 | 各 repo alerts 數回讀並記錄；`dependabot.yml` 去留有決定。 |
 | ASSET-1 | 底線:資料正確 | P2 | ready | 被前端引用但不在 lock 的資料檔補進 lock。 | mini #999 已上 `asset-lock-audit.yml`（每日 lock 596 筆 HEAD、輪替抽 sha、反向列 lock 外被引用的檔）並手動跑過成功；lock 外被引用的 216 個列入只減不增基準 `deploy/public-assets-not-in-lock.txt`。剩：其中 R2 供應的 215 個（約 5.5 GB）用 `build-public-assets-lock.py add` 補進 lock。 | `public-assets-not-in-lock.txt` 清空。 |
 | SQLL-2 | 底線:期限 | P3 | ready | ADR-0026 §6 與 mini `docs/supabase-optimization.md` §0 補寫 sql-lint L3。 | gis-platform #238 已上 L3（編號 ≥550）；兩份文件還沒提。 | 兩份文件寫明 L3 規則與豁免寫法。 |
 
@@ -439,13 +439,28 @@
 | VIZ-1 | 北極星:視覺 | P1 | verifying | 配色第一段：統計色階暗底版＋圖例顯示合成色＋對比契約測試。 | mini #998 已合併、未發版。剩：發版後正式站目視。 | 正式站暗底圖統計圖層最高級可辨、圖例色＝畫面合成色。 |
 | VIZ-2 | 北極星:視覺 | P2 | verifying | 配色第二段：暗底圖點／線／面對比修正。 | mini #1002 已合併、未發版（使用者 11-10 同意重開 F-1／K-4／P-2／K-2 與 Day 9 維持 0.55 的決定）。剩：發版後正式站目視；未涵蓋的移到 VIZ-3。 | 正式站截圖前後對照。 |
 | VIZ-3 | 北極星:視覺 | P2 | ready | 配色第三階段：前兩段沒涵蓋的層。 | 剩 15 個面、2 個點、約 24 支 hook 寫死暗色、手寫圖例、淡底圖 44 個共用色層與約 73 個自繪點層；第一、二段截圖只驗過 4 層。 | 上述各類有處理或登記例外，暗／淡底圖抽樣截圖。 |
-| VIZ-5 | 北極星:視覺 | P2 | in_progress | 視覺化階段 1：統計「呈現方式」共用基礎＋比例圓（Q-A 2、Q-B 1、Q-C 照表）。 | mini #1008：推導 339 層可切比例圓（縣市 213／鄉鎮 114／村里 12，已扣覆寫的台糖公告列數）、`pm=` 網址、同時一層比例圓、空心疊加、LG-5 套疊圓。剩：合併、發版後正式站目視（暗／淡底、popup、手機）。 | 第一批 9 層（戶籍人口、0–14／65+ 人口、原住民、外籍、出生、住宅竊盜、電信詐欺、作物面積，皆鄉鎮）在正式站可切比例圓；比率層沒有選項。 |
-| VIZ-6 | 北極星:視覺 | P3 | ready | 視覺化：點密度呈現方式（Q-C 照表，提案階段 3）。 | 推導與測試已在 VIZ-5 寫好（人／件／戶、鄉鎮與村里、據點數不給），選項未露出。First action：決定點位隨機撒點的演算法（面內均勻、每點代表幾人）與效能上限，把 `dots` 加進 `IMPLEMENTED_PRESENTATION_MODES`。 | 人口類鄉鎮層可切點密度；圖例寫「一點＝N 人、位置隨機」。 |
-| VIZ-7 | 北極星:視覺 | P3 | ready | 視覺化：溫度網格「方格／等值帶」（Q-G 方案 2：溫度先做，其他場類另查）。 | 用氣象署 O-A0038-003 格點＋d3-contour 切等值帶，時間軸換時刻重切；雨量、空品等其他連續場另外查有沒有官方格點，再決定要不要走測站內插（Q-G 方案 1）。 | 溫度網格控制區可切等值帶，圖例寫「氣象署分析格點」。 |
-| VIZ-8 | 北極星:視覺 | P3 | ready | 視覺化：統計「多年份並排」視窗（Q-F 方案 1，小倍數）。 | 資料期別下加按鈕，開置中視窗（§5.27）畫 8 年 canvas 小圖、共用色階，點一張切主地圖；要先產簡化鄉鎮邊界放 R2。 | 有 5 年以上期別的統計層可開視窗，手機 2 欄捲動可用。 |
-| VIZ-9 | 北極星:視覺 | P3 | ready | 視覺化：通用比較模式（Q-E 方案 2，掃動對比）。 | 使用者選方案 2（不是建議的方案 1 今昔掃動）。First action：盤點哪些圖層種類能掛第二個地圖、`regionalStatisticsStore` 改成左右兩組選擇的範圍，先出設計稿給使用者看再動工。 | 工具列「比較」可把圖層放左／右／兩側，同一統計層左右可選不同年份；分享網址記得每層在哪邊。 |
+| VIZ-5 | 北極星:視覺 | P2 | verifying | 視覺化階段 1：統計「呈現方式」共用基礎＋比例圓（Q-A 2、Q-B 1、Q-C 照表）。 | mini #1008 已合 develop、未發布（merge `b9492d11b`）：推導 339 層可切比例圓（縣市 213／鄉鎮 114／村里 12，已扣覆寫的台糖公告列數）、`pm=` 網址、同時一層比例圓、空心疊加、LG-5 套疊圓。剩：發版後正式站目視（暗／淡底、popup、手機）。 | 第一批 9 層（戶籍人口、0–14／65+ 人口、原住民、外籍、出生、住宅竊盜、電信詐欺、作物面積，皆鄉鎮）在正式站可切比例圓；比率層沒有選項。 |
+| VIZ-6 | 北極星:視覺 | P3 | ready | 視覺化：點密度呈現方式（Q-C 照表，提案階段 3）。 | **下一項**（尚未開始）：排在比較模式（VIZ-9）之後；與統計程式同一批檔，要依序做、不和其他統計改動並行。推導與測試已在 VIZ-5 寫好（人／件／戶、鄉鎮與村里、據點數不給），選項未露出。First action：決定點位隨機撒點的演算法（面內均勻、每點代表幾人）與效能上限，把 `dots` 加進 `IMPLEMENTED_PRESENTATION_MODES`。 | 人口類鄉鎮層可切點密度；圖例寫「一點＝N 人、位置隨機」。 |
+| VIZ-7 | 北極星:視覺 | P3 | blocked | 視覺化：溫度網格「方格／等值帶」（Q-G 方案 2：溫度先做，其他場類另查）。 | Blocker：owner decision（使用者 2026-11-11 決定先不做，含氣溫）。設計與調查保留在 [isoband DESIGN](../../docs/features/isoband/DESIGN.md)（氣象署 O-A0038-003 格點＋d3-contour、溫度以外的盤點、未決題）。 | 使用者決定要做時改 ready。 |
+| VIZ-8 | 北極星:視覺 | P3 | verifying | 視覺化：統計「多年份並排」視窗（Q-F 方案 1，小倍數）。 | mini #1011 已合 develop、未發布（merge `a84d8f62e`）。使用者選定：大版面、上方年份勾選列、最多同時 4 期、勾選單位為「年」、小圖只寫年份＋上方一句期別說明、入口是資料期別選單右側小圖示鈕、滑鼠／點選同區同步描邊比數值；村里層先不提供。後續拆成 VIZ-12～VIZ-17。剩：發版後正式站目視。 | 正式站縣市／鄉鎮統計層可從期別選單旁小圖示開視窗、勾最多 4 年並排，同區同步描邊與數值正確。 |
+| VIZ-9 | 北極星:視覺 | P3 | verifying | 視覺化：通用比較模式（Q-E 方案 2，掃動對比）。 | P1：mini #1012 已合 develop、未發布（merge `9af1fa1bf`），設計與實作紀錄見 [compare-mode DESIGN](../../docs/features/compare-mode/DESIGN.md)。使用者決定：通用比較模式；不支援的層只畫左側並標示；左右可不同期別與細項、不可不同指標；手機不提供入口，比較網址在窄螢幕退回單地圖；分享網址記開關、把手、側別、左右期別與細項；統計圖例合成一份（左右各一行、門檻相同只畫一組色階、說明收合）。P0 試驗（draft PR #1010，不合併、留作紀錄）：雙地圖＋CSS 裁切可行，單地圖 scissor 作法放棄。後續拆成 VIZ-18～VIZ-26。剩：發版後正式站目視。 | 正式站桌機工具列「左右比較」可用：古地圖與統計層可放左／右／兩側，統計左右可選不同期別；分享網址還原比較狀態。 |
 | VIZ-10 | 北極星:視覺 | P3 | blocked | 視覺化：可信度紋理（Q-D）。 | Blocker：owner decision（使用者 11-11：「先記錄到 backlog」，目前不做）。提案規則：規則 1 比率背後件數 < 30 密點、30–99 疏點（要配同期件數快照）；規則 2 鄉鎮人口 < 1 萬加紋理，推估類資料整層在圖例標「推估」；建議 1＋2 合用、預設開、只在鄉鎮與村里層。限制：快照目前沒附分子分母。 | 使用者決定要做時改 ready。 |
 | VIZ-11 | 北極星:視覺 | P3 | blocked | 視覺化構想：聚焦＋脈絡、鏡頭腳本（導覽自動播放）。 | Blocker：owner decision（提案列為構想，使用者尚未表態）。 | 使用者表態後再拆列。 |
+| VIZ-12 | 北極星:視覺 | P3 | ready | 多年份並排：村里層開放。 | 需要簡化的村里邊界檔放 R2 後才能開放；目前村里層不提供並排。First action：產簡化村里邊界、量檔案大小與載入時間。 | 村里統計層可開多年份並排，載入時間可接受。 |
+| VIZ-13 | 北極星:視覺 | P3 | ready | 多年份並排：區名補縣市。 | 目前只顯示鄉鎮名，同名鄉鎮（例如兩個「東區」）分不出來；需要鄉鎮→縣市對照。 | 並排視窗的區名帶縣市，同名鄉鎮可分辨。 |
+| VIZ-14 | 北極星:視覺 | P3 | ready | 多年份並排：鍵盤逐區選取。 | 目前只能滑鼠移入或點選；補鍵盤逐區移動與選取。 | 只用鍵盤可逐區選取並看到各期數值。 |
+| VIZ-15 | 北極星:視覺 | P2 | ready | 統計資料目錄過期與逾時：高負載時小圖載入逾時。 | 目錄 60 秒過期重抓＋每檔 12 秒逾時，機器負載高時並排小圖會逾時，主地圖也受影響。First action：重現並量測，檢討過期時間與逾時設定。 | 高負載下並排小圖與主地圖不再逾時，或逾時有明確提示與重試。 |
+| VIZ-16 | 北極星:視覺 | P3 | ready | 多年份並排：存量型指標往年取月份規則檢討。 | 存量型指標（如人口占比）往年是否優先取與最新期同月份的資料，規則要檢討。 | 規則寫定並套用，圖上期別說明與取用月份一致。 |
+| VIZ-17 | 北極星:視覺 | P3 | ready | 多年份並排：4 期時視窗下方留白。 | 勾滿 4 期時視窗下方仍有留白，版面要調。 | 4 期時版面填滿、無多餘留白（暗／淡底截圖）。 |
+| VIZ-18 | 北極星:視覺 | P3 | ready | 比較模式 P2：靜態 PMTiles／GeoJSON 圖層分左右。 | 範圍與風險見 [compare-mode DESIGN](../../docs/features/compare-mode/DESIGN.md)「P2」。 | 靜態圖層可放左／右／兩側。 |
+| VIZ-19 | 北極星:視覺 | P2 | ready | 比較模式：手機實機、Safari／Firefox 驗證。 | 驗裁切與把手在 Safari、Firefox 的表現，以及手機實機打開比較網址會退回單地圖。 | 各瀏覽器截圖存檔，問題轉成新列。 |
+| VIZ-20 | 北極星:視覺 | P3 | ready | 比較模式：Agent（MCP）能設定側別與右側期別。 | P1 的 Agent 只作用在主地圖（左），不能設側別或右側期別。 | Agent 可把圖層放到指定側並設右側期別。 |
+| VIZ-21 | 北極星:視覺 | P3 | ready | 比較模式：右圖另選底圖。 | P1 右圖沿用主地圖底圖。 | 右圖可選不同底圖。 |
+| VIZ-22 | 北極星:視覺 | P3 | ready | 比較模式：古地圖左右不同年代。 | 目前古地圖只能放左／右／兩側，兩側同年代。 | 左右可各選不同年代的古地圖。 |
+| VIZ-23 | 北極星:視覺 | P3 | ready | 比較模式：量測、右鍵選單、定位、Agent 結果、3D 圖層只在左側的行為。 | 這些功能在比較模式只作用在左側，要決定是否支援右側或在 UI 明示。 | 各功能在比較模式的行為有決定並落實。 |
+| VIZ-24 | 北極星:視覺 | P3 | ready | 比較模式：只在一側的古地圖圖例加側別註記。 | 古地圖只放一側時，圖例沒寫是哪一側。 | 圖例標出左／右。 |
+| VIZ-25 | 北極星:視覺 | P3 | ready | 比較模式：Esc 結束比較。 | 目前只有焦點在把手上時按 Esc 才能結束比較。 | 焦點在地圖或其他地方時 Esc 也能結束（不和其他 Esc 行為衝突）。 |
+| VIZ-26 | 北極星:視覺 | P3 | ready | 比較模式：手機退回單地圖後網址去掉比較參數。 | 窄螢幕退回單地圖時，網址仍帶比較參數。 | 退回後網址不含比較參數，再分享不會帶出比較狀態。 |
 | RCM-1 | 北極星:視覺 | P3 | ready | 樹高圖層 raster-color 寫法與 PRINCIPLES 對齊，並清掉 urban-heat-lst 的過時說法（原在未合併的 PR #762，2026-11-10 搬入）。 | 2026-10-30 查證：canopy（`overlayRegistry.ts` canopy 段）把 `raster-color-mix` 輸出正規化到 0–1（係數 6.375＝255/40、range `[0,1]`），stop 不是物理值，和 `.claude/memory/PRINCIPLES.md`「stop 一律寫物理值」不一致；地表溫度圖層用物理值（係數 51＝0.2 K×255）是對的。另外 `docs/features/urban-heat-lst/changelog.md` 還留著已被推翻的早期係數說法。First action: 決定 canopy 改成物理值寫法（mix `[255/k,0,0,min]`、range `[min,max]`、stop 寫公尺）或在 PRINCIPLES 登記例外；changelog 舊說法加註「已推翻，見 handoff.md」。 | canopy 改完後像素取樣驗收顏色與舊版一致（golden 通過）；PRINCIPLES 與實作一致；changelog 不再誤導。公式：gis-map-kit 卡 05-11。 |
 | MVT-1 | 北極星:效率 | P3 | conditional | gis-platform 動態出磚函式 `get_mvt_tile` 修正座標系混用（原在未合併的 PR #762，2026-11-10 搬入）。 | Trigger：任何前端或服務要開始呼叫 `get_mvt_tile` 之前；owner：Claude。2026-10-30 讀 gis-platform origin/main migrations/473（前身 006、312）發現：各分支直接拿 `ST_TileEnvelope`（3857）與 4326 的 `geom` 做 `&&` 與 `ST_AsMVTGeom`，沒有 `ST_Transform`，依 PostGIS 文件會報 mixed SRID 或回空磚；目前沒有呼叫端所以沒人發現。只讀程式碼與官方文件，未在資料庫實測。First action: 用 `ST_Transform(ST_TileEnvelope(z,x,y),4326)` 篩選、`ST_AsMVTGeom(ST_Transform(geom,3857), ST_TileEnvelope(z,x,y))` 編碼，寫成新 migration（先跑 `scripts/check_migration_numbers.py`）。 | 對一個有資料的 z/x/y 呼叫回非空 MVT、無 SRID 錯誤；EXPLAIN 仍走 GiST 索引。做法說明：gis-map-kit 卡 06-13。 |
 
