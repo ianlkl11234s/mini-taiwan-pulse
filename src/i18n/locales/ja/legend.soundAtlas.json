@@ -24,5 +24,13 @@
   "legend.soundAtlas.roadGridLevels": "淡→濃：非常に低い → 非常に高い（交通音ポテンシャル、dB ではない）",
   "legend.soundAtlas.roadGridUnknown": "斜線＝道路はあるがデータなし（台北の週末・休日、VD 延長外、細街路、国道欠測）",
   "legend.soundAtlas.roadGridNote": "薄い灰色＝非常に低いか道路から遠い。セル内の最大を採用。国道は日中ほぼ飽和。",
-  "legend.soundAtlas.roadGridAttribution": "出典：TDX 国道区間と VD、台北市 VD；道路 © OpenStreetMap contributors（ODbL）"
+  "legend.soundAtlas.roadGridAttribution": "出典：TDX 国道区間と VD、台北市 VD；道路 © OpenStreetMap contributors（ODbL）",
+  "legend.soundAtlas.potentialGrid.levels": "低 → 非常に高（境界 0.25／0.5／0.75）",
+  "legend.soundAtlas.potentialGrid.noneGate": "なし・しきい値（{gate}）未満",
+  "legend.soundAtlas.potentialGrid.note": "各セル＝この 10 分間のセル中心での最大相対ポテンシャル（受信点パネルと同じ規則、dB ではない）。斜線＝判断不能（全域データがない日を含む）。",
+  "legend.soundAtlas.potentialGrid.aviation": "補間した航跡からの 3D 斜距離（2 km で 0.5）。グリッドしきい値はレイヤーパネルで切替（グリッド表示のみに影響）。",
+  "legend.soundAtlas.potentialGrid.rail": "時刻表から列車位置を推定。地下区間は除外、構造不明は斜線。当日の運休・遅延は反映しません。軌道構造 © OpenStreetMap contributors（ODbL）。",
+  "legend.soundAtlas.potentialGrid.wind": "最寄り観測所の風速 × 100 m 内の樹冠被覆（Meta/WRI）。樹冠なし＝なし。",
+  "legend.soundAtlas.potentialGrid.wave": "最寄りブイの波高・周期 × 沿岸域からの距離。1 km 超の内陸＝なし。",
+  "legend.soundAtlas.potentialGrid.river": "最寄り水位観測所の過去 60 日分位 × 河道からの距離。水位≠流量≠音。"
 }

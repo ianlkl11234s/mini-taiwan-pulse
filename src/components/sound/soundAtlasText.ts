@@ -57,6 +57,11 @@ export const SCENE_KEYS: Record<SoundSceneId, { title: MessageKey }> = {
   "taipei-typhoon-1024-zhonghe": { title: "soundAtlas.scene.typhoon1024Zhonghe" },
 };
 
+/** 資料來自哪一份（場景快照／W6-3 全範圍來源檔／即時） */
+export function originKey(origin: unknown): MessageKey {
+  return origin === "scene" ? "soundAtlas.origin.scene" : origin === "grid" ? "soundAtlas.origin.grid" : "soundAtlas.origin.live";
+}
+
 export function providerKey(provider: string): MessageKey {
   switch (provider) {
     case "flight_trails": return "soundAtlas.provider.flightTrails";
@@ -155,6 +160,12 @@ export function reasonKey(reason: string | null | undefined): MessageKey {
   if (r === "typical_sample_insufficient") return "soundAtlas.reason.typicalSample";
   if (r === "roadwork_city_not_covered") return "soundAtlas.reason.roadworkNotCovered";
   if (r === "outside_snapshot_bbox") return "soundAtlas.reason.outsideSnapshot";
+  // W6-3 連續潛勢網格：整幀沒有算的原因
+  if (r === "no_full_area_source") return "soundAtlas.reason.noFullAreaSource";
+  if (r === "no_pack_for_date") return "soundAtlas.reason.noPackForDate";
+  if (r === "pack_source_mismatch") return "soundAtlas.reason.packSourceMismatch";
+  if (r === "outside_pack_time") return "soundAtlas.reason.outsidePackTime";
+  if (r === "receiver_outside_grid") return "soundAtlas.reason.receiverOutsideGrid";
   if (r === "permit_window_work_hours_unknown") return "soundAtlas.reason.workHours";
   return "soundAtlas.reason.other";
 }

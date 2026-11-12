@@ -16,14 +16,14 @@ import { soundAtlasStore } from "../../sound/soundAtlasStore";
 import { SOUND_SCENES, snapshotApplies, type SoundSceneId } from "../../sound/scenes";
 import { clearReceiver, clearRoute, finishRoute, playSoundScene, selectSoundScene, setRouteMode, startPlacingReceiver, startRouteDrawing } from "../../sound/soundAtlasActions";
 import { dominantFamilies, SoundRouteProfile } from "./SoundRouteProfile";
-import { topContributionsForDisplay } from "../../sound/soundAtlasData";
+import { topContributionsForDisplay, type SetOrigin } from "../../sound/soundAtlasData";
 import { AVIATION } from "../../sound/model/soundProfiles";
 import { SOUND_FAMILY_COLORS } from "../../sound/soundAtlasColors";
 import type { SoundSourceFamily, SourceContribution, SourceCoverage } from "../../sound/types";
 import { SoundDayProfile } from "./SoundDayProfile";
 import {
   EVIDENCE_KEYS, FAMILY_KEYS, HEALTH_KEYS, SCENE_KEYS, STATUS_KEYS, STRUCTURE_KEYS,
-  formatDistanceM, formatPotential, formatTaipeiTime, providerKey, reasonKey, spatialPrecisionKey, temporalPrecisionKey,
+  formatDistanceM, formatPotential, formatTaipeiTime, originKey, providerKey, reasonKey, spatialPrecisionKey, temporalPrecisionKey,
 } from "./soundAtlasText";
 
 const FAMILY_LAYER_KEYS = {
@@ -202,7 +202,7 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
                             ? "soundAtlas.reason.snapshotOnly"
                             : HEALTH_KEYS[cv.status],
                       )}`))].join("、")}
-                    {" · "}{t(st.origins[family] === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}
+                    {" · "}{t(originKey(st.origins[family]))}
                     {updated && <> · {t("soundAtlas.row.updated")} <span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(updated, true)}</span></>}
                   </span>
                 </div>
@@ -271,7 +271,7 @@ function noteValue(notes: readonly string[], key: string): string | null {
 
 function ContributionRow({ c: cb, origin, colors }: {
   c: SourceContribution;
-  origin: "scene" | "live";
+  origin: SetOrigin;
   colors: { text: string; muted: string; dim: string; ctrlBorder: string };
 }) {
   const { t } = useLocale();
@@ -297,7 +297,7 @@ function ContributionRow({ c: cb, origin, colors }: {
         {cb.family === "rail" && cb.railStructure && <> · {t("soundAtlas.row.railStructure")} {t(STRUCTURE_KEYS[cb.railStructure])}</>}
         {cb.thunderTiming && <> · {t("soundAtlas.row.delay")} <span style={{ fontFamily: FONT_DATA }}>{cb.thunderTiming.delayS.toFixed(1)} s</span></>}
         {cb.status === "unknown" && <> · {t("soundAtlas.row.reason")} {t(reasonKey(cb.unknownReason))}</>}
-        {" · "}{t("soundAtlas.row.source")} {t(origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}
+        {" · "}{t("soundAtlas.row.source")} {t(originKey(origin))}
         {" · "}<span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(cb.sourceTime, true)}</span>
       </div>
       {/* 道路依證據等級標明（國道實測／臺北典型／新北等級推估）、施工只有許可期間（不是機具運轉）：固定標明 */}

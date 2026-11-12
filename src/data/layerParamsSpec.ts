@@ -1700,17 +1700,26 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   // City Sound Atlas 聲景（實驗）：四個來源家族各自一支透明度（標記、連線、波前一起淡）
-  soundAviation: [opacitySlider("soundAviationOpacity", 0.9)],
+  // W6-3：飛機網格顯示門檻（三選一，只影響網格分級，不改接收點數值；網址 ?soundAviationGate=）＋示意動畫（預設關）
+  soundAviation: [
+    opacitySlider("soundAviationOpacity", 0.9),
+    {
+      kind: "select", category: "data", name: "soundAviationGate", label: "網格門檻", default: "strict",
+      options: [{ label: "寬（潛勢 ≥0.1）", value: "current" }, { label: "中（≥0.2）", value: "strict" }, { label: "嚴（≥0.4）", value: "very_strict" }],
+      out: "soundAviationGateIdx", encode: ["current", "strict", "very_strict"],
+    },
+    { kind: "toggle", category: "look", name: "soundAviationAnimation", label: "飛機波紋動畫", default: false },
+  ],
   // W6-1 雨網格：示意動畫（雨滴漣漪）預設關；之後各族網格共用參數名 sound<Family>Animation
   soundRain: [opacitySlider("soundRainOpacity", 0.9), { kind: "toggle", category: "look", name: "soundRainAnimation", label: "雨滴動畫", default: false }],
   soundThunder: [opacitySlider("soundThunderOpacity", 0.9)],
   soundWaste: [opacitySlider("soundWasteOpacity", 0.9)],
-  soundRail: [opacitySlider("soundRailOpacity", 0.9)],
+  soundRail: [opacitySlider("soundRailOpacity", 0.9), { kind: "toggle", category: "look", name: "soundRailAnimation", label: "列車波紋動畫", default: false }],
   soundRoadTraffic: [opacitySlider("soundRoadTrafficOpacity", 0.9)],
   soundRoadwork: [opacitySlider("soundRoadworkOpacity", 0.9)],
-  soundWindFoliage: [opacitySlider("soundWindFoliageOpacity", 0.9)],
-  soundCoastalWave: [opacitySlider("soundCoastalWaveOpacity", 0.9)],
-  soundRiverWater: [opacitySlider("soundRiverWaterOpacity", 0.9)],
+  soundWindFoliage: [opacitySlider("soundWindFoliageOpacity", 0.9), { kind: "toggle", category: "look", name: "soundWindFoliageAnimation", label: "樹葉動畫", default: false }],
+  soundCoastalWave: [opacitySlider("soundCoastalWaveOpacity", 0.9), { kind: "toggle", category: "look", name: "soundCoastalWaveAnimation", label: "浪花動畫", default: false }],
+  soundRiverWater: [opacitySlider("soundRiverWaterOpacity", 0.9), { kind: "toggle", category: "look", name: "soundRiverWaterAnimation", label: "水流動畫", default: false }],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

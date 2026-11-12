@@ -24,5 +24,13 @@
   "legend.soundAtlas.roadGridLevels": "由淺到深：很低 → 很高（車流聲潛勢，非 dB）",
   "legend.soundAtlas.roadGridUnknown": "斜線＝有路但沒資料（臺北週末假日、VD 延伸不到、小路、國道缺資料）",
   "legend.soundAtlas.roadGridNote": "淡灰＝很低或離道路遠；同格多條路取最高；國道白天常接近飽和。",
-  "legend.soundAtlas.roadGridAttribution": "出處：TDX 國道路段與 VD、臺北市 VD；道路 © OpenStreetMap contributors（ODbL）"
+  "legend.soundAtlas.roadGridAttribution": "出處：TDX 國道路段與 VD、臺北市 VD；道路 © OpenStreetMap contributors（ODbL）",
+  "legend.soundAtlas.potentialGrid.levels": "低 → 很高（0.25／0.5／0.75 為界）",
+  "legend.soundAtlas.potentialGrid.noneGate": "沒有或低於門檻（{gate}）",
+  "legend.soundAtlas.potentialGrid.note": "每格＝格心在這 10 分鐘內的最大相對潛勢，和接收點面板同一套規則；非 dB。斜線＝無法判斷（含：這天沒有全範圍資料）。",
+  "legend.soundAtlas.potentialGrid.aviation": "航跡內插的 3D 斜距（2 km 處為 0.5）；網格門檻在圖層展開區切換，只影響網格顯示。",
+  "legend.soundAtlas.potentialGrid.rail": "依班表推算列車位置，地下段不計、結構不明為斜線；不反映當天停駛或誤點。軌道結構 © OpenStreetMap contributors（ODbL）。",
+  "legend.soundAtlas.potentialGrid.wind": "最近測站風速 × 格內 100 m 樹冠覆蓋（Meta/WRI）；沒有樹冠＝沒有。",
+  "legend.soundAtlas.potentialGrid.wave": "最近浮標浪高與週期 × 離近岸海域距離；離岸 1 km 外＝沒有。",
+  "legend.soundAtlas.potentialGrid.river": "最近水位站相對過去 60 天的分位 × 離河道距離；水位≠流量≠聲音。"
 }

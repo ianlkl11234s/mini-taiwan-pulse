@@ -430,6 +430,8 @@ export class SoundAtlasAnimator {
 
     if (!receiver || !result) return out;
     const active = result.contributions.filter((c) => c.status === "active" && c.relativePotential != null && flags[c.family]);
+    // W6-3：示意動畫開關（圖層展開區，預設關）；關掉時飛機／列車只留位置點與連線，自然三族不畫
+    const animOn = (f: SoundSourceFamily) => this.state.animate?.[f] !== false;
 
     // 飛機：沿航跡移動＋同心波紋（遠方 < 顯示門檻只由點圖層畫淡點）
     const planes = active
@@ -445,7 +447,7 @@ export class SoundAtlasAnimator {
         geometry: { type: "LineString", coordinates: [[receiver.longitude, receiver.latitude], [place.lon, place.lat]] },
         properties: { kind: "link", color: SOUND_FAMILY_COLORS.aviation, width: 1 + 2.5 * p, opacity: (0.25 + 0.75 * p) * o },
       });
-      for (let i = 0; i < ANIM_CAPS.ripplesPerPlane; i++) {
+      for (let i = 0; animOn("aviation") && i < ANIM_CAPS.ripplesPerPlane; i++) {
         const ph = ripplePhase(nowMs, p, i, ANIM_CAPS.ripplesPerPlane);
         out.push(circle(place.lon, place.lat, {
           r: 7 + ph * (16 + 44 * p), stroke: SOUND_FAMILY_COLORS.aviation, strokeWidth: 1.5 + p, opacity: (1 - ph) * (0.25 + 0.65 * p) * o,
@@ -496,14 +498,14 @@ export class SoundAtlasAnimator {
         geometry: { type: "LineString", coordinates: [[receiver.longitude, receiver.latitude], [place.lon, place.lat]] },
         properties: { kind: "link", color: SOUND_FAMILY_COLORS.rail, width: 1 + 2 * p, opacity: (0.2 + 0.6 * p) * o },
       });
-      for (let i = 0; i < ANIM_CAPS.ripplesPerTrain; i++) {
+      for (let i = 0; animOn("rail") && i < ANIM_CAPS.ripplesPerTrain; i++) {
         const ph = ripplePhase(nowMs, p, i, ANIM_CAPS.ripplesPerTrain);
         out.push(circle(place.lon, place.lat, { r: 6 + ph * (10 + 26 * p), stroke: SOUND_FAMILY_COLORS.rail, strokeWidth: 1.2, opacity: (1 - ph) * (0.15 + 0.45 * p) * o }));
       }
       out.push(circle(place.lon, place.lat, { r: 5 + 3 * p, fill: SOUND_FAMILY_COLORS.rail, fillOpacity: o, stroke: SOUND_FLASH_COLOR, strokeWidth: 1.5, opacity: o }));
     }
 
-    this.buildNatural(out, active, nowMs);
+    this.buildNatural(out, active.filter((c) => animOn(c.family)), nowMs);
 
     // 垃圾車：活躍停點的音符脈動
     const notes = active.filter((c) => c.family === "waste_collection").slice(0, ANIM_CAPS.notes);

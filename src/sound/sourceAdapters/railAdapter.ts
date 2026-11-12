@@ -160,9 +160,15 @@ export function nearestOnTrack(track: PreparedTrack, receiver: Receiver, pa: num
  * 這段不在範圍內或長度 0 → null。nearestOnTrack 與鐵道網格（W6-3 railGrid）共用，逐位相同。
  */
 export function segmentNearest(track: PreparedTrack, i: number, dLo: number, dHi: number, rx: number, ry: number, kx: number): { distanceM: number; progress: number } | null {
+  const out = { distanceM: 0, progress: 0 };
+  return segmentNearestInto(track, i, dLo, dHi, rx, ry, kx, out) ? out : null;
+}
+
+/** 同 segmentNearest，寫進 out（網格熱迴圈用，不配置物件）；段不在 [dLo, dHi] → false */
+export function segmentNearestInto(track: PreparedTrack, i: number, dLo: number, dHi: number, rx: number, ry: number, kx: number, out: { distanceM: number; progress: number }): boolean {
   const c0 = track.cum[i]!;
   const c1 = track.cum[i + 1]!;
-  if (c1 < dLo || c0 > dHi || c1 === c0) return null;
+  if (c1 < dLo || c0 > dHi || c1 === c0) return false;
   const t0 = Math.max(0, (dLo - c0) / (c1 - c0));
   const t1 = Math.min(1, (dHi - c0) / (c1 - c0));
   const [x1, y1] = track.coords[i]!;
@@ -172,9 +178,9 @@ export function segmentNearest(track: PreparedTrack, i: number, dLo: number, dHi
   const dx = bx - ax, dy = by - ay;
   const L = dx * dx + dy * dy;
   const u = L === 0 ? 0 : Math.max(0, Math.min(1, ((rx - ax) * dx + (ry - ay) * dy) / L));
-  const d = Math.hypot(rx - (ax + u * dx), ry - (ay + u * dy));
-  const along = c0 + (c1 - c0) * (t0 + (t1 - t0) * u);
-  return { distanceM: d, progress: along / track.total };
+  out.distanceM = Math.hypot(rx - (ax + u * dx), ry - (ay + u * dy));
+  out.progress = (c0 + (c1 - c0) * (t0 + (t1 - t0) * u)) / track.total;
+  return true;
 }
 
 function trackNearReceiver(track: PreparedTrack, receiver: Receiver, radiusM: number): boolean {

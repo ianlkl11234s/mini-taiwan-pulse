@@ -127,5 +127,6 @@
   "popupHeader.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設",
   "popupHeader.soundSource": "音源（推計）",
   "popupHeader.soundRoadCell": "道路交通グリッド（推定）",
-  "popupHeader.soundRainCell": "雨の強さグリッド（推定）"
+  "popupHeader.soundRainCell": "雨の強さグリッド（推定）",
+  "popupHeader.soundPotentialCell": "音源ポテンシャルグリッド（推定）"
 }

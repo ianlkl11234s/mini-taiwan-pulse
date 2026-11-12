@@ -34,6 +34,7 @@ import { evaluateRail, railProgressAt, type RailRecord } from "./sourceAdapters/
 import { interpolateOnLineString } from "../engines/railUtils";
 import type { RoadworkRecord } from "./sourceAdapters/roadworkAdapter";
 import type { Receiver, SoundSourceFamily, SoundSourceRecord, SoundSourceSet, SourceContribution, SourceCoverage } from "./types";
+import { GRID_SOURCE_FAMILIES, gridSourceApplies, loadGridSourceFamily } from "./grid/gridSources";
 
 // ── 垃圾車：只讀接收點所在（含附近）縣市 ───────────────────
 
@@ -107,7 +108,8 @@ export async function withRadarRain(
   };
 }
 
-export type SetOrigin = "scene" | "live";
+/** scene＝接收點附近的場景快照；grid＝W6-3 全北北來源檔（網格與接收點同一份）；live＝即時 RPC／靜態檔 */
+export type SetOrigin = "scene" | "grid" | "live";
 
 export interface LoadedFamily {
   set: SoundSourceSet;
@@ -140,6 +142,8 @@ export function familyLoadKey(
   }
   const applies = snapshotApplies(snapshot, date, receiver);
   const scenePart = applies && snapshot && sceneHasBlock(snapshot, family) ? `scene:${snapshot.id}` : "live";
+  // W6-3：全北北來源檔可能存在（讀不到才退回 scenePart）；接收點換位置不換資料
+  if (GRID_SOURCE_FAMILIES.has(family) && gridSourceApplies(receiver)) return `${family}|${date}|grid|${scenePart}`;
   return `${family}|${date}|${scenePart}`;
 }
 
@@ -226,6 +230,11 @@ export async function loadSoundFamily(
     return { set: await loadWaste({ date, cities: citiesNearReceiver(receiver) }), origin: "live" };
   }
   const applies = !!snapshot && snapshotApplies(snapshot, date, receiver);
+  // W6-3：這天有全北北來源檔、接收點在網格外框內 → 網格、接收點、popup 都讀這一份（比場景快照範圍大、同一來源）
+  if (GRID_SOURCE_FAMILIES.has(family) && gridSourceApplies(receiver)) {
+    const set = await loadGridSourceFamily(family, date, nowUnix);
+    if (set) return { set: family === "rain" ? await withRadarRain(set, date) : set, origin: "grid" };
+  }
   if (family === "rail" || family === "road_traffic" || family === "roadwork") {
     // MVP-B（W4）：鐵道依班表即時算、道路類型不進快照、施工快照適用才傳原始 JSON
     const r = await loadMvpBFamily(family, date, applies ? snapshot!.raw : null);

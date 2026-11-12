@@ -9,10 +9,11 @@ import { SOUND_FAMILIES_ALL } from "../../sound/engines/receiverQuery";
 import type { ContributionEvidence, SoundSourceFamily } from "../../sound/types";
 import {
   EVIDENCE_KEYS, FAMILY_KEYS, STATUS_KEYS, STRUCTURE_KEYS,
-  formatDistanceM, formatPotential, formatTaipeiTime, providerKey, rainClassKey, reasonKey, spatialPrecisionKey, temporalPrecisionKey,
+  formatDistanceM, formatPotential, originKey, formatTaipeiTime, providerKey, rainClassKey, reasonKey, spatialPrecisionKey, temporalPrecisionKey,
   ROAD_EVIDENCE_KEYS, roadClassKey, roadLevelKey, roadProviderOf,
 } from "../sound/soundAtlasText";
-import { SOUND_RAIN_GRID_COLORS, SOUND_ROAD_GRID_COLORS } from "../../sound/soundAtlasColors";
+import { SOUND_POTENTIAL_GRID_COLORS, SOUND_RAIN_GRID_COLORS, SOUND_ROAD_GRID_COLORS } from "../../sound/soundAtlasColors";
+import type { PotentialGridFamily } from "../../sound/grid/potentialGridState";
 import { Row, SourceFooter, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
@@ -62,7 +63,7 @@ export function SoundSourcePanel({ props }: { props: Record<string, unknown> }) 
     {family && NATURAL.has(family) && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.naturalNote")}</div>}
     {family === "roadwork" && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.permitNote")}</div>}
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
-    <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : family === "road_traffic" ? roadProviderOf(props.proxyKind) : FAMILY_PROVIDER[family ?? "aviation"]))}${family === "rain" && str(props.temporalPrecision).startsWith("radar") ? ` ＋ ${t(providerKey("cwa_radar_grid"))}` : ""} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
+    <SourceFooter props={{ source: `${t(providerKey(family === "thunder" ? str(props.label) : family === "road_traffic" ? roadProviderOf(props.proxyKind) : FAMILY_PROVIDER[family ?? "aviation"]))}${family === "rain" && str(props.temporalPrecision).startsWith("radar") ? ` ＋ ${t(providerKey("cwa_radar_grid"))}` : ""} · ${t(originKey(props.origin))}` }} />
   </div>;
 }
 
@@ -102,7 +103,7 @@ export function SoundRainCellPanel({ props }: { props: Record<string, unknown> }
     <Row label={t("soundAtlas.rainCell.bin")} value={bin != null ? `${formatTaipeiTime(bin, true)}–${formatTaipeiTime(bin + 600)}` : "—"} mono />
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.rainCell.note")}</div>
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
-    <SourceFooter props={{ source: `${t(providerKey("cwa_radar_grid"))} ＋ ${t(providerKey("cwa_rain_gauge"))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
+    <SourceFooter props={{ source: `${t(providerKey("cwa_radar_grid"))} ＋ ${t(providerKey("cwa_rain_gauge"))} · ${t(originKey(props.origin))}` }} />
   </div>;
 }
 
@@ -142,6 +143,51 @@ export function SoundRoadCellPanel({ props }: { props: Record<string, unknown> }
     {props.otherUnknown === true && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.roadCell.otherUnknown")}</div>}
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.roadCell.note")}</div>
     <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
-    <SourceFooter props={{ source: `${t(providerKey(evKnown ? roadProviderOf(ev === "observed" ? "observed_volume" : ev === "estimated" ? "typical_weekday_volume" : "road_type_no_volume") : "osm_road_class"))} · ${t(props.origin === "scene" ? "soundAtlas.origin.scene" : "soundAtlas.origin.live")}` }} />
+    <SourceFooter props={{ source: `${t(providerKey(evKnown ? roadProviderOf(ev === "observed" ? "observed_volume" : ev === "estimated" ? "typical_weekday_volume" : "road_type_no_volume") : "osm_road_class"))} · ${t(originKey(props.origin))}` }} />
+  </div>;
+}
+
+const POTENTIAL_FAMILIES = new Set<PotentialGridFamily>(["aviation", "rail", "wind_vegetation", "coastal_wave", "river_water"]);
+const LEVEL_KEYS = ["soundAtlas.level.0", "soundAtlas.level.1", "soundAtlas.level.2", "soundAtlas.level.3", "soundAtlas.level.4"] as const;
+
+/**
+ * W6-3 連續潛勢網格格子 popup（layerType "soundPotentialCell"，飛機／鐵道／風／浪／河川共用；useMapInteraction 以網格索引查格）。
+ * 數值由 queryFamilyInterval 對格心即時算（和網格、接收點查詢同一套規則）：分級、精確潛勢、主要來源與距離、來源時刻。
+ * 無法判斷寫白話原因，不寫 0。
+ */
+export function SoundPotentialCellPanel({ props }: { props: Record<string, unknown> }) {
+  const theme = useFeatureTheme();
+  const { t } = useLocale();
+  const family = POTENTIAL_FAMILIES.has(props.family as PotentialGridFamily) ? (props.family as PotentialGridFamily) : null;
+  const level = num(props.level);
+  const known = level != null && level >= 0 && level <= 4;
+  const potential = num(props.potential);
+  const gate = num(props.gate) ?? 0;
+  const bin = num(props.binStart);
+  const active = num(props.activeCount) ?? 0;
+  const unknown = num(props.unknownCount) ?? 0;
+  const label = str(props.topLabel);
+  const topTime = str(props.topSourceTime);
+  const belowGate = known && level === 0 && potential != null && potential > 0;
+  const color = family && known ? SOUND_POTENTIAL_GRID_COLORS[family][level as 0 | 1 | 2 | 3 | 4] : theme.textDefault;
+  const familyName = family ? t(FAMILY_KEYS[family]) : "—";
+  const provider = family === "rail" ? "rail_" : FAMILY_PROVIDER[family ?? "aviation"];
+  return <div>
+    <Title color={color}>{t("soundAtlas.potentialCell.title", { family: familyName })}</Title>
+    <Row label={t("soundAtlas.potentialCell.level")} value={known ? (belowGate ? t("soundAtlas.potentialCell.belowGate", { gate: formatPotential(gate) }) : t(LEVEL_KEYS[level as 0 | 1 | 2 | 3 | 4])) : t("soundAtlas.level.unknown")} />
+    {!known && <Row label={t("soundAtlas.row.reason")} value={t(reasonKey(str(props.unknownReason)))} />}
+    {known && <Row label={t("soundAtlas.potentialCell.potential")} value={formatPotential(potential)} mono />}
+    {family === "aviation" && <Row label={t("soundAtlas.potentialCell.gate")} value={formatPotential(gate)} mono />}
+    {(active > 0 || unknown > 0) && <Row label={t("soundAtlas.potentialCell.count")} value={t("soundAtlas.potentialCell.countValue", { active, unknown })} />}
+    {label && <Row label={t("soundAtlas.potentialCell.top")} value={`${label}・${formatDistanceM(num(props.topDistanceM))}`} />}
+    {str(props.topUnknownReason) && <Row label={t("soundAtlas.row.reason")} value={t(reasonKey(str(props.topUnknownReason)))} />}
+    {topTime && <Row label={t("soundAtlas.row.updated")} value={formatTaipeiTime(topTime, true)} mono />}
+    <Row label={t("soundAtlas.potentialCell.bin")} value={bin != null ? `${formatTaipeiTime(bin, true)}–${formatTaipeiTime(bin + 600)}` : "—"} mono />
+    <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.potentialCell.note")}</div>
+    {family === "aviation" && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.potentialCell.aviationNote")}</div>}
+    {family === "rail" && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.potentialCell.railNote")}</div>}
+    {family && NATURAL.has(family) && <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.row.naturalNote")}</div>}
+    <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: theme.textDim }}>{t("soundAtlas.disclaimer")}</div>
+    <SourceFooter props={{ source: `${t(providerKey(provider))}${family === "rail" ? " ＋ OpenStreetMap（ODbL）" : ""} · ${t(originKey(props.origin))}` }} />
   </div>;
 }

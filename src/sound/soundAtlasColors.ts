@@ -50,3 +50,17 @@ export const SOUND_ROAD_GRID_ALPHA = {
   estimated: [0.12, 0.42, 0.52, 0.62, 0.72],
   inferred: [0.12, 0.4, 0.48, 0.56, 0.64],
 } as const;
+
+/**
+ * W6-3 連續潛勢網格五級（資料色，§3.16）：0＝已判斷、沒有（或低於飛機顯示門檻）＝淡中性色；1–4＝低→很高。
+ * 每族一個色相，避開雨（藍紫洋紅）與道路（琥珀紅）：飛機粉紅、鐵道檸檬黃→橄欖、風吹樹葉萊姆→深綠、
+ * 海浪青→深青、河川翠綠→深綠青。末級都夠深，亮底圖也看得出。無法判斷（255）由渲染器畫斜線。
+ */
+export const SOUND_POTENTIAL_GRID_COLORS = {
+  aviation: ["#94a3b8", "#fbcfe8", "#f472b6", "#db2777", "#9d174d"],
+  rail: ["#94a3b8", "#fef08a", "#facc15", "#ca8a04", "#854d0e"],
+  wind_vegetation: ["#94a3b8", "#d9f99d", "#a3e635", "#65a30d", "#3f6212"],
+  coastal_wave: ["#94a3b8", "#a5f3fc", "#22d3ee", "#0891b2", "#155e75"],
+  river_water: ["#94a3b8", "#a7f3d0", "#34d399", "#059669", "#065f46"],
+} as const;
+export const SOUND_POTENTIAL_GRID_ALPHA = [0.1, 0.48, 0.6, 0.72, 0.84] as const;

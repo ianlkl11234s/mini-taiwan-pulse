@@ -2,7 +2,7 @@
  * W6-3 連續潛勢每日包（目前只有飛機需要預算；TS 預處理 scripts/preprocess/sound/build-sound-grid-packs.ts 產生）。
  *
  * - `public/sound-atlas/grid/<family>-<臺灣日>.meta.json`（schema pulse-sound-potential-v1）
- * - `public/sound-atlas/grid/<family>-<臺灣日>.class.bin`：gzip 的 uint8 潛勢碼（potentialCode：0／1–250／255），
+ * - `public/sound-atlas/grid/<family>-<臺灣日>.class.bin`：gzip 的 uint8 潛勢碼（potentialCode：0／1–200／255），
  *   frame-major，第 k 幀＝[first_slot + k·600 s, +600 s) 的區間最大值，格序同 gridSpec（全 bbox，範圍外 255）。
  * - meta.source.sha256＝產生這個包的來源檔（例：aviation-src-<D>.json）雜湊：前端 set 讀的來源檔雜湊不同就拒用，
  *   避免網格和接收點各用各的資料。

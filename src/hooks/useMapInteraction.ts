@@ -34,6 +34,7 @@ import { isDrawn as isBusCrowdingDrawn } from "../data/busCrowdingSimTypes";
 import { soundAtlasStore } from "../sound/soundAtlasStore";
 import { pickSoundRainCell } from "../sound/grid/rainGridState";
 import { pickSoundRoadCell } from "../sound/grid/roadGridState";
+import { pickSoundPotentialCell, type PotentialGridFamily } from "../sound/grid/potentialGridState";
 
 interface TooltipInfo {
   flight: Flight;
@@ -593,6 +594,20 @@ export function useMapInteraction(
           if (picked) {
             setFeatureInfo({ layerType: "soundRoadCell", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
             sessionTracker.log("feature_click", { layerType: "soundRoadCell" });
+            found = true;
+          }
+        }
+        // W6-3 連續潛勢網格（飛機／鐵道／風／浪／河川）：同上，依此順序第一個開著且有格的家族
+        const potentialLayers: [PotentialGridFamily, boolean | undefined][] = [
+          ["aviation", vis?.soundAviation], ["rail", vis?.soundRail], ["wind_vegetation", vis?.soundWindFoliage],
+          ["coastal_wave", vis?.soundCoastalWave], ["river_water", vis?.soundRiverWater],
+        ];
+        for (const [fam, on] of potentialLayers) {
+          if (found || !on) continue;
+          const picked = pickSoundPotentialCell(fam, e.lngLat.lng, e.lngLat.lat);
+          if (picked) {
+            setFeatureInfo({ layerType: "soundPotentialCell", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
+            sessionTracker.log("feature_click", { layerType: "soundPotentialCell" });
             found = true;
           }
         }

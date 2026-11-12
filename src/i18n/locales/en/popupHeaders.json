@@ -127,5 +127,6 @@
   "popupHeader.mapchallengeDay09UrbanRural": "Which Services Stay Where People Are Few",
   "popupHeader.soundSource": "Sound Source (estimated)",
   "popupHeader.soundRoadCell": "Road Traffic Grid Cell (estimated)",
-  "popupHeader.soundRainCell": "Rain Grid Cell (estimated)"
+  "popupHeader.soundRainCell": "Rain Grid Cell (estimated)",
+  "popupHeader.soundPotentialCell": "Sound-source Potential Grid Cell (estimated)"
 }

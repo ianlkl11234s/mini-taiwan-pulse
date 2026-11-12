@@ -5,8 +5,12 @@
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchHatch, SwatchSquare } from "./legendKit";
 import { useLayerVisible } from "../../state/layerVisibilityStore";
 import { useLocale } from "../../state/localeStore";
-import { SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
-import { FAMILY_KEYS, rainClassKey, ROAD_EVIDENCE_KEYS } from "../sound/soundAtlasText";
+import { SOUND_POTENTIAL_GRID_ALPHA, SOUND_POTENTIAL_GRID_COLORS, SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
+import { FAMILY_KEYS, formatPotential, rainClassKey, ROAD_EVIDENCE_KEYS } from "../sound/soundAtlasText";
+import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
+import { aviationGatePotential } from "../../sound/grid/aviationGates";
+import type { PotentialGridFamily } from "../../sound/grid/potentialGridState";
+import type { MessageKey } from "../../i18n/keys";
 import { SOUND_FAMILIES_ALL } from "../../sound/engines/receiverQuery";
 import type { SoundSourceFamily } from "../../sound/types";
 
@@ -45,11 +49,44 @@ function SoundRoadGridLegend() {
   </div>;
 }
 
+const POTENTIAL_NOTE_KEYS: Record<PotentialGridFamily, MessageKey> = {
+  aviation: "legend.soundAtlas.potentialGrid.aviation",
+  rail: "legend.soundAtlas.potentialGrid.rail",
+  wind_vegetation: "legend.soundAtlas.potentialGrid.wind",
+  coastal_wave: "legend.soundAtlas.potentialGrid.wave",
+  river_water: "legend.soundAtlas.potentialGrid.river",
+};
+
+/** W6-3 連續潛勢網格（飛機／鐵道／風／浪／河川）：低→很高四級＋沒有＋斜線；色與透明度同地圖（SOUND_POTENTIAL_GRID_*） */
+function SoundPotentialGridLegend({ family }: { family: PotentialGridFamily }) {
+  const { t } = useLocale();
+  const gate = aviationGatePotential(paramStr(useLayerParams("soundAviation"), "soundAviation", "soundAviationGate"));
+  const colors = SOUND_POTENTIAL_GRID_COLORS[family];
+  return <div style={{ marginBottom: 8 }}>
+    <LegendTitle zh={t("soundAtlas.potentialCell.title", { family: t(FAMILY_KEYS[family]) })} />
+    <LegendRow swatch={<span style={{ display: "inline-flex", gap: 1 }}>
+      {[1, 2, 3, 4].map((k) => <SwatchSquare key={k} color={colors[k]!} opacity={Math.max(0.3, SOUND_POTENTIAL_GRID_ALPHA[k]!)} />)}
+    </span>}>{t("legend.soundAtlas.potentialGrid.levels")}</LegendRow>
+    <LegendRow swatch={<SwatchSquare color={colors[0]} opacity={0.3} />}>
+      {family === "aviation" ? t("legend.soundAtlas.potentialGrid.noneGate", { gate: formatPotential(gate) }) : t("soundAtlas.level.0")}
+    </LegendRow>
+    <LegendRow swatch={<SwatchHatch />}>{t("soundAtlas.level.unknown")}</LegendRow>
+    <LegendNote>{t(POTENTIAL_NOTE_KEYS[family])}</LegendNote>
+    <LegendNote>{t("legend.soundAtlas.potentialGrid.note")}</LegendNote>
+  </div>;
+}
+
 export function SoundAtlasLegend() {
   const { t } = useLocale();
   const rainOn = useLayerVisible("soundRain");
   const roadOn = useLayerVisible("soundRoadTraffic");
+  const potentialOn: [PotentialGridFamily, boolean][] = [
+    ["aviation", useLayerVisible("soundAviation")], ["rail", useLayerVisible("soundRail")],
+    ["wind_vegetation", useLayerVisible("soundWindFoliage")], ["coastal_wave", useLayerVisible("soundCoastalWave")],
+    ["river_water", useLayerVisible("soundRiverWater")],
+  ];
   return <div>
+    {potentialOn.map(([f, on]) => on && <SoundPotentialGridLegend key={f} family={f} />)}
     {rainOn && <SoundRainGridLegend />}
     {roadOn && <SoundRoadGridLegend />}
     <LegendTitle zh={t("legend.soundAtlas.title")} />

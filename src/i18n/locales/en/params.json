@@ -2569,5 +2569,14 @@
   "param.呈現方式": "Display as",
   "param.面量圖": "Choropleth",
   "param.比例圓": "Circles",
-  "param.雨滴動畫": "Raindrop animation"
+  "param.雨滴動畫": "Raindrop animation",
+  "param.網格門檻": "Grid threshold",
+  "param.寬（潛勢 ≥0.1）": "Loose (potential ≥0.1)",
+  "param.中（≥0.2）": "Medium (≥0.2)",
+  "param.嚴（≥0.4）": "Strict (≥0.4)",
+  "param.飛機波紋動畫": "Aircraft ripple animation",
+  "param.列車波紋動畫": "Train ripple animation",
+  "param.樹葉動畫": "Leaf animation",
+  "param.浪花動畫": "Wave animation",
+  "param.水流動畫": "Water flow animation"
 }

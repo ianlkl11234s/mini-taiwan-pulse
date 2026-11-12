@@ -14,7 +14,7 @@ import { gateFamilyRecords } from "../engines/receiverQuery";
 import { proximityPotential } from "../engines/relativePotentialKernel";
 import { structureAtProgress } from "../model/railSegments";
 import { RAIL } from "../model/soundProfiles";
-import { nearestOnTrack, railPieces, railProgressAt, segmentNearest, type PreparedTrack, type RailRecord } from "../sourceAdapters/railAdapter";
+import { nearestOnTrack, railPieces, railProgressAt, segmentNearestInto, type PreparedTrack, type RailRecord } from "../sourceAdapters/railAdapter";
 import type { SoundSourceSet } from "../types";
 import { scopeMask } from "./aviationGrid";
 import { cellCenter, GRID_CELLS, GRID_COLS, GRID_ROWS, GRID_SPEC, GRID_UNKNOWN } from "./gridSpec";
@@ -94,21 +94,39 @@ function rasterPiece(track: PreparedTrack, pa: number, pb: number, radiusM: numb
     if (track.cum[m + 1]! < dLo) a = m + 1;
     else b = m;
   }
-  for (let i = a; i + 1 < track.coords.length; i++) {
-    if (track.cum[i]! > dHi) break;
-    const [x1, y1] = track.coords[i]!;
-    const [x2, y2] = track.coords[i + 1]!;
-    visitBox(Math.min(x1, x2), Math.min(y1, y2), Math.max(x1, x2), Math.max(y1, y2), (c) => {
-      const hit = segmentNearest(track, i, dLo, dHi, g.rx[c]!, g.ry[c]!, g.kx[c]!);
-      if (!hit) return;
-      if (dist[c] === Infinity) touched.push(c);
-      if (hit.distanceM < dist[c]!) {
-        dist[c] = hit.distanceM;
-        prog[c] = hit.progress;
+  // 段的範圍 [a, end)；每 CHUNK 段一組，先用該組外框到格心的距離下界剪枝：
+  // 下界 > 半徑、或 ≥ 目前最短（只有嚴格更短才會更新，同 nearestOnTrack 先到先贏）→ 整組跳過，結果不變。
+  let end = a;
+  while (end + 1 < track.coords.length && !(track.cum[end]! > dHi)) end++;
+  for (let i0 = a; i0 < end; i0 += CHUNK) {
+    const i1 = Math.min(end, i0 + CHUNK);
+    let w = Infinity, s = Infinity, e = -Infinity, n = -Infinity;
+    for (let i = i0; i <= i1; i++) {
+      const [x, y] = track.coords[i]!;
+      if (x < w) w = x; if (x > e) e = x; if (y < s) s = y; if (y > n) n = y;
+    }
+    const sy = s * M_PER_DEG, ny = n * M_PER_DEG;
+    visitBox(w, s, e, n, (c) => {
+      const kx = g.kx[c]!, rx = g.rx[c]!, ry = g.ry[c]!;
+      const dx = Math.max(0, w * kx - rx, rx - e * kx);
+      const dy = Math.max(0, sy - ry, ry - ny);
+      const lb = Math.hypot(dx, dy) - 1e-6;
+      if (lb > radiusM || lb >= dist[c]!) return;
+      for (let i = i0; i < i1; i++) {
+        if (!segmentNearestInto(track, i, dLo, dHi, rx, ry, kx, hit)) continue;
+        if (dist[c] === Infinity) touched.push(c);
+        if (hit.distanceM < dist[c]!) {
+          dist[c] = hit.distanceM;
+          prog[c] = hit.progress;
+        }
       }
     });
   }
 }
+
+/** 剪枝的段組大小（只影響速度，不影響結果） */
+const CHUNK = 16;
+const hit = { distanceM: 0, progress: 0 };
 
 interface WholeTrackNear { cells: Int32Array; dist: Float64Array; prog: Float64Array }
 const wholeTrackCache = new WeakMap<PreparedTrack, WholeTrackNear>();

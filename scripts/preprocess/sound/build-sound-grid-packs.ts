@@ -86,7 +86,7 @@ async function buildAviation(date: string): Promise<void> {
     grid: gridMeta(),
     payload: { file: `${name}.class.bin`, encoding: "gzip", dtype: "uint8", layout: "frame-major (frame*cells + row*cols + col)", bytes: gz.length, raw_bytes: raw.length, sha256: sha(gz) },
     frames: { count: frames, step_s: POTENTIAL_FRAME_STEP_S, first_slot_utc: new Date(day0 * 1000).toISOString(), rule: "frame k＝[first_slot+600k, +600)；值＝該區間 queryAviationInterval 規則的最大潛勢（每 30 秒取樣）" },
-    code: { scale: POTENTIAL_CODE_SCALE, max: POTENTIAL_CODE_MAX, unknown: GRID_UNKNOWN, bin_edges: [...AVIATION_PACK_EDGES], rule: "0＝候選半徑 20 km 內沒有航機；其餘＝潛勢所在箱的下緣碼（箱界 bin_edges；碼 k ↔ 潛勢 (k−1)/250；(0, 0.02) 記 1）；255＝無法判斷或範圍外" },
+    code: { scale: POTENTIAL_CODE_SCALE, max: POTENTIAL_CODE_MAX, unknown: GRID_UNKNOWN, bin_edges: [...AVIATION_PACK_EDGES], rule: "0＝候選半徑 20 km 內沒有航機；其餘＝潛勢所在箱的下緣碼（箱界 bin_edges；碼 k ↔ 潛勢 (k−1)/200；(0, 0.02) 記 1）；255＝無法判斷或範圍外" },
     source: { file: srcFile, sha256: sha(bytes), schema: src.schema, flights: src.rows.length },
     receiver_height_m: COMMON.receiverDefaultHeightM.value,
     stats: {

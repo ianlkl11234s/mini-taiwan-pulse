@@ -24,5 +24,13 @@
   "legend.soundAtlas.roadGridLevels": "Light to dark: very low → very high (traffic sound potential, not dB)",
   "legend.soundAtlas.roadGridUnknown": "Hatched = road present but no data (Taipei weekends/holidays, beyond VD extension, minor streets, missing freeway data)",
   "legend.soundAtlas.roadGridNote": "Pale grey = very low or far from roads; the highest road in a cell wins; freeways are often near saturation in daytime.",
-  "legend.soundAtlas.roadGridAttribution": "Sources: TDX freeway sections and VD, Taipei City VD; roads © OpenStreetMap contributors (ODbL)"
+  "legend.soundAtlas.roadGridAttribution": "Sources: TDX freeway sections and VD, Taipei City VD; roads © OpenStreetMap contributors (ODbL)",
+  "legend.soundAtlas.potentialGrid.levels": "Low → very high (breaks at 0.25 / 0.5 / 0.75)",
+  "legend.soundAtlas.potentialGrid.noneGate": "None or below threshold ({gate})",
+  "legend.soundAtlas.potentialGrid.note": "Each cell = the highest relative potential at its centre in these 10 minutes, same rules as the receiver panel; not dB. Hatching = undetermined (including days without full-area data).",
+  "legend.soundAtlas.potentialGrid.aviation": "3D slant distance from interpolated flight trails (0.5 at 2 km); switch the grid threshold in the layer panel — it only affects the grid.",
+  "legend.soundAtlas.potentialGrid.rail": "Train positions from timetables; underground sections excluded, unknown structure hatched; same-day suspensions or delays not reflected. Track structure © OpenStreetMap contributors (ODbL).",
+  "legend.soundAtlas.potentialGrid.wind": "Nearest station wind speed × canopy cover within 100 m (Meta/WRI); no canopy = none.",
+  "legend.soundAtlas.potentialGrid.wave": "Nearest buoy wave height and period × distance to the nearshore zone; more than 1 km inland = none.",
+  "legend.soundAtlas.potentialGrid.river": "Nearest gauge's level percentile over the past 60 days × distance to the channel; water level ≠ flow ≠ sound."
 }

@@ -1,17 +1,17 @@
 /**
  * W6-3 連續潛勢家族（飛機、列車、風吹樹葉、海浪、河川）的網格碼：
  *
- * - 0＝已判斷、沒有活動（inactive）；1–250＝相對潛勢 (0, 1]，碼 k ↔ 潛勢 ∈ [(k−1)/250, k/250)（k=250 含 1）；
- *   255＝無法判斷（unknown／unavailable，渲染器畫斜線）。251–254 不用。
- * - 刻度 1/250：常用門檻（0.04、0.1、0.2、0.25、0.5、0.75…）都是 1/250 的整數倍，所以「潛勢 ≥ 門檻」
- *   恰好等於「碼 ≥ 1 + 門檻×250」，切換顯示門檻只要換色表、不必重算幀。
+ * - 0＝已判斷、沒有活動（inactive）；1–200＝相對潛勢 (0, 1]，碼 k ↔ 潛勢 ∈ [(k−1)/200, k/200)（k=200 含 1）；
+ *   255＝無法判斷（unknown／unavailable，渲染器畫斜線）。201–254 不用。
+ * - 刻度 1/200：常用門檻（0.02、0.04、0.1、0.2、0.25、0.3、0.4、0.5、0.75…）都是 1/200 的整數倍（1/250 時 0.25、0.75 不是，W6-3 測試抓到後改），所以「潛勢 ≥ 門檻」
+ *   恰好等於「碼 ≥ 1 + 門檻×200」，切換顯示門檻只要換色表、不必重算幀。
  * - 網格值＝queryFamilyInterval(格心, 區間) 的 familyResultCode；顯示分級只在色表。
  */
 import type { FamilyResult } from "../types";
 import { GRID_UNKNOWN } from "./gridSpec";
 
-export const POTENTIAL_CODE_SCALE = 250;
-export const POTENTIAL_CODE_MAX = 250;
+export const POTENTIAL_CODE_SCALE = 200;
+export const POTENTIAL_CODE_MAX = 200;
 
 /** 潛勢 → 碼：≤0（或非有限）＝0；>0 一律 ≥1（有活動不會被量化成 0） */
 export function quantizePotential(p: number): number {
@@ -33,7 +33,7 @@ export function codePotentialRange(code: number): [number, number] | null {
   return [(code - 1) / POTENTIAL_CODE_SCALE, Math.min(1, code / POTENTIAL_CODE_SCALE)];
 }
 
-/** 潛勢門檻 → 最小碼（潛勢 ≥ t ⇔ 碼 ≥ 回傳值；t 須為 1/250 的整數倍才精確） */
+/** 潛勢門檻 → 最小碼（潛勢 ≥ t ⇔ 碼 ≥ 回傳值；t 須為 1/200 的整數倍才精確） */
 export function minCodeForPotential(t: number): number {
   return 1 + Math.round(t * POTENTIAL_CODE_SCALE);
 }
@@ -60,7 +60,7 @@ export function potentialLevelTable(gate = 0): Int8Array {
 }
 
 /**
- * 分箱：碼 → 所在箱下緣的碼（edges 為潛勢、遞增、1/250 整數倍）。(0, edges[0]) 的活動碼一律變 1；0、255 不變。
+ * 分箱：碼 → 所在箱下緣的碼（edges 為潛勢、遞增、1/200 整數倍）。(0, edges[0]) 的活動碼一律變 1；0、255 不變。
  * 預算包只存箱碼（例：飛機只需要門檻與顯示分級的邊界），壓縮後小很多；箱碼仍在同一碼空間，
  * 所以 potentialLevelOfCode 對任何「落在箱界上」的門檻與分級都和精確碼相同。
  */
