@@ -1977,7 +1977,7 @@ export default function App() {
     const isPastDay = cur.date !== today;
     const date = isPastDay ? cur.date : undefined;
     const hour = isPastDay && Number.isFinite(cur.hour) ? cur.hour % 24 : undefined;
-    const next = buildUrl(
+    const built = buildUrl(
       {
         camera: {
           center: [c.lng, c.lat],
@@ -1996,6 +1996,9 @@ export default function App() {
       },
       window.location.pathname,
     );
+    // PREVIEW（綜合聲景甲／乙）：保留 ?soundComposite=a|b 方便分享同一版；選定後刪這兩行（GRID_ARCHITECTURE §6）
+    const previewVariant = new URLSearchParams(window.location.search).get("soundComposite");
+    const next = previewVariant === "a" || previewVariant === "b" ? `${built}${built.includes("?") ? "&" : "?"}soundComposite=${previewVariant}` : built;
     if (next !== window.location.pathname + window.location.search) {
       window.history.replaceState(null, "", next);
     }

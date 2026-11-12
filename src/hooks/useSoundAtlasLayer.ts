@@ -13,7 +13,7 @@ import mapboxgl, { type GeoJSONSource, type Map as MapboxMap } from "mapbox-gl";
 import type { FeatureCollection } from "geojson";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { dayProfile, queryReceiver, SOUND_FAMILIES_ALL as SOUND_FAMILIES } from "../sound/engines/receiverQuery";
+import { dayProfileSteps, queryReceiver, SOUND_FAMILIES_ALL as SOUND_FAMILIES } from "../sound/engines/receiverQuery";
 import { activeWavefronts, geodesicRing, WAVEFRONT_DEFAULT_CAP } from "../sound/engines/wavefronts";
 import {
   contributionPlace, familyLoadKey, indexRecords, loadSoundFamily, nearestPointOnGeometry, nearestPointOnLine, prefilterSetsForReceiver, type LoadedFamily,
@@ -116,6 +116,8 @@ const CURRENT_THROTTLE_MS = 250;
 const WAVE_THROTTLE_MS = 50;
 /** 24h 構成重算延遲（拖曳／切換後穩定才算） */
 const PROFILE_DEBOUNCE_MS = 250;
+/** 24h 構成每個 task 最多算多久就讓出主執行緒（ms） */
+const PROFILE_SLICE_MS = 30;
 
 const noopSubscribe = () => () => {};
 
@@ -503,14 +505,32 @@ export function useSoundAtlasLayer(
       if (soundAtlasStore.get().profile) soundAtlasStore.set({ profile: null });
       return;
     }
-    // 颱風場景約 270 ms（970 架航班）：延後到接收點／資料穩定後再算，
-    // 讓拖曳放開、選場景、播放起步的那一幀不被整日構成卡住；期間又變動就取消重排。
-    const timer = window.setTimeout(() => {
+    // 延後到接收點／資料穩定後再算；期間又變動就取消重排。七族（含鐵道全日）一次算完約 2 s，
+    // W6-5 起分段：每個 task 最多算 PROFILE_SLICE_MS 就讓出主執行緒，算完才寫入（lastProfileMs＝純計算時間總和，maxSliceMs＝最長一段）。
+    // 舊接收點的構成不留著（避免顯示成新位置的）；算完前面板顯示載入中
+    if (soundAtlasStore.get().profile) soundAtlasStore.set({ profile: null });
+    let timer = 0;
+    const it = dayProfileSteps(receiver, dateKey, undefined, filtered, enabled);
+    let busy = 0, maxSlice = 0;
+    const run = () => {
       const t0 = performance.now();
-      const profile = dayProfile(receiver, dateKey, undefined, filtered, enabled);
-      const ms = performance.now() - t0;
-      soundAtlasStore.set({ profile, perf: { ...soundAtlasStore.get().perf, lastProfileMs: ms } });
-    }, PROFILE_DEBOUNCE_MS);
+      for (;;) {
+        const r = it.next();
+        if (r.done) {
+          const slice = performance.now() - t0;
+          busy += slice;
+          maxSlice = Math.max(maxSlice, slice);
+          soundAtlasStore.set({ profile: r.value, perf: { ...soundAtlasStore.get().perf, lastProfileMs: busy, profileMaxSliceMs: maxSlice } });
+          return;
+        }
+        if (performance.now() - t0 >= PROFILE_SLICE_MS) break;
+      }
+      const slice = performance.now() - t0;
+      busy += slice;
+      maxSlice = Math.max(maxSlice, slice);
+      timer = window.setTimeout(run, 0);
+    };
+    timer = window.setTimeout(run, PROFILE_DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
   }, [anyOn, receiver, dateKey, filtered, enabled]);
 
@@ -602,15 +622,15 @@ export function useSoundAtlasLayer(
       lastBin = bin;
       if (cell < 0) { soundAtlasStore.set({ cell: { bin, cell: -1, infos: {}, codes: null, notes: null, gate: cellGate } }); return; }
       const seq = gateSeq.next();
-      const finish = (codes: number[] | null, notes: Partial<Record<string, string | null>> | null) => {
-        if (!alive || !gateSeq.isLatest(seq)) return;
-        const st = soundAtlasStore.get();
-        soundAtlasStore.set({ cell: { bin, cell, infos: pointCellInfos(st.sets, st.origins, bin, cellGate, notes, lon, lat), codes, notes, gate: cellGate } });
-      };
-      if (!cellComposite) { finish(null, null); return; }
-      // 綜合：該格七族碼由 Worker 回（和地圖顏色同一份網格）；回來前先寫各族資訊
-      finish(null, null);
-      void soundGridClient().cell("point-query", bin, cell).then((r) => { if (r) finish(r.codes, r.notes); }, () => {});
+      // 各族格資訊在主執行緒對格心算一次（鐵道最慢，約 20–35 ms）；綜合的七個碼由 Worker 回（和地圖顏色同一份網格），回來後只補碼
+      const st = soundAtlasStore.get();
+      const infos = pointCellInfos(st.sets, st.origins, bin, cellGate, null, lon, lat);
+      soundAtlasStore.set({ cell: { bin, cell, infos, codes: null, notes: null, gate: cellGate } });
+      if (!cellComposite) return;
+      void soundGridClient().cell("point-query", bin, cell).then((r) => {
+        if (!r || !alive || !gateSeq.isLatest(seq)) return;
+        soundAtlasStore.set({ cell: { bin, cell, infos, codes: r.codes, notes: r.notes, gate: cellGate } });
+      }, () => {});
     };
     apply(timeStore.getTime());
     const unsub = timeStore.subscribeThrottled(CURRENT_THROTTLE_MS, apply);

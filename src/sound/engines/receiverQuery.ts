@@ -198,6 +198,24 @@ export function dayProfile<F extends AnySoundFamily = SoundSourceFamily>(
   sets: readonly AnySet[] = [],
   families: readonly F[] = SOUND_FAMILIES as readonly F[],
 ): DayProfile<F> {
+  const it = dayProfileSteps(receiver, dateKey, stepMinutes, sets, families);
+  for (;;) {
+    const r = it.next();
+    if (r.done) return r.value;
+  }
+}
+
+/**
+ * dayProfile 的分段版（W6-5）：每算完一個（族, 區間）就 yield 一次，呼叫端可依時間預算分到多個 task 跑完，
+ * 不讓整日構成一次卡住主執行緒（七族、鐵道全日約 2 s）。結果與 dayProfile 完全相同（dayProfile 就是一次跑完它）。
+ */
+export function* dayProfileSteps<F extends AnySoundFamily = SoundSourceFamily>(
+  receiver: Receiver,
+  dateKey: string,
+  stepMinutes: number = PROFILE.defaultStepMinutes.value,
+  sets: readonly AnySet[] = [],
+  families: readonly F[] = SOUND_FAMILIES as readonly F[],
+): Generator<void, DayProfile<F>> {
   if (!(stepMinutes > 0) || 1440 % stepMinutes !== 0) {
     throw new Error(`stepMinutes must divide 1440, got ${stepMinutes}`);
   }
@@ -205,16 +223,18 @@ export function dayProfile<F extends AnySoundFamily = SoundSourceFamily>(
   const step = stepMinutes * 60;
   const binStarts: number[] = [];
   for (let t = start; t < start + 86_400; t += step) binStarts.push(t);
-  const series = families.map((family): FamilyDaySeries<F> => {
+  const series: FamilyDaySeries<F>[] = [];
+  for (const family of families) {
     const statuses: FamilyStatus[] = [];
     const values: (number | null)[] = [];
     for (const b of binStarts) {
       const r = queryFamilyInterval(family, sets, receiver, b, b + step - 1e-6);
       statuses.push(r.status);
       values.push(r.relativePotential);
+      yield;
     }
     const unknownCount = statuses.filter((s) => s === "unknown" || s === "unavailable").length;
-    return { family, values, statuses, unknownRatio: unknownCount / binStarts.length };
-  });
+    series.push({ family, values, statuses, unknownRatio: unknownCount / binStarts.length });
+  }
   return { receiver, dateKey, stepMinutes, binStarts, modelVersion: MODEL_VERSION, binRule: PROFILE.binRule.value, families: series };
 }

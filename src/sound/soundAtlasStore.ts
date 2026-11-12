@@ -15,6 +15,8 @@ export interface SoundAtlasPerf {
   lastQueryMs: number | null;
   /** 最近一次 24h 構成計算耗時（ms） */
   lastProfileMs: number | null;
+  /** 24h 構成分段計算時最長的一段（ms；W6-5 起分段讓出主執行緒） */
+  profileMaxSliceMs?: number | null;
   /** 本次開啟以來同時波前峰值（未套上限前的活躍數）與實際畫出的峰值 */
   wavefrontActivePeak: number;
   wavefrontDrawnPeak: number;
@@ -120,3 +122,6 @@ export function getSoundAtlasMap(): import("mapbox-gl").Map | null {
 export function makeReceiver(lon: number, lat: number, heightM: number = DEFAULT_RECEIVER_HEIGHT_M): Receiver {
   return { id: "sound-receiver", longitude: lon, latitude: lat, heightM, environment: "outdoor" };
 }
+
+// 開發時量測用（瀏覽器驗收讀 perf）；正式版不掛
+if (import.meta.env?.DEV && typeof window !== "undefined") (window as unknown as Record<string, unknown>).__soundAtlasStore = soundAtlasStore;
