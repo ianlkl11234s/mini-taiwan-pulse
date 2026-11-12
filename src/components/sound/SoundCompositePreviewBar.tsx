@@ -6,6 +6,7 @@
 import { useSyncExternalStore } from "react";
 import { useLocale } from "../../state/localeStore";
 import { compositePreviewStore, NO_SOURCE_NOTES } from "../../sound/grid/compositePreview";
+import { selectSoundScene } from "../../sound/soundAtlasActions";
 import { BORDER, COLORS, CONTROL, ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, LAYOUT, LIGHT, RADIUS, SURFACE, Z_INDEX } from "../../styles/designTokens";
 
 export function SoundCompositePreviewBar({ isDark }: { isDark: boolean }) {
@@ -49,7 +50,19 @@ export function SoundCompositePreviewBar({ isDark }: { isDark: boolean }) {
           </span>
         )}
       </div>
-      {noSource && <div role="note" style={{ color: c.muted, fontSize: FONT_SIZE.xs, lineHeight: 1.5, textAlign: "center" }}>{t("soundAtlas.composite.noSource")}</div>}
+      {/* 沒有全範圍來源檔的日子：一句話＋直接跳到有資料的 11/09 場景（綜合圖層照開） */}
+      {noSource && (
+        <div role="note" style={{ display: "flex", alignItems: "center", gap: 6, color: c.muted, fontSize: FONT_SIZE.xs }}>
+          <span>{t("soundAtlas.composite.noSourceShort")}</span>
+          <button
+            type="button"
+            onClick={() => selectSoundScene("taipei-1109")}
+            style={{ fontSize: FONT_SIZE.xs, fontFamily: FONT_CJK, cursor: "pointer", padding: "2px 8px", borderRadius: RADIUS.md, background: "transparent", color: c.text, border: `1px solid ${c.ctrlBorder}` }}
+          >
+            {t("soundAtlas.composite.sampleDay")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,8 +2,8 @@
  * City Sound Atlas 接收點面板（計畫書 §6.2、§8 B）：任一聲景圖層開著時由 App 掛在右下停靠欄。
  * - 固定聲明：相對聲源活動推估，非實測噪音（非 dB）。
  * - 場景選單（原生 select）、放置／清除接收點（戶外 1.5 m 假設）。
- * - 此刻前 5 個來源：類別、距離、證據、空間／時間精度、資料來源與最後更新。
- * - 各家族來源健康（白話）；落雷兩源皆非 ok → 「無法判斷是否有雷」，不說安靜。
+ * - 此刻前 5 個來源：預設一行（類別、距離、相對潛勢；無法判斷照列），展開看證據、空間／時間精度、資料來源與最後更新。
+ * - 各家族來源健康：預設一行摘要（N 種正常・M 種無法判斷），展開看明細；落雷兩源皆非 ok → 「無法判斷是否有雷」，不收進展開、不說安靜。
  * - 24 小時構成（SoundDayProfile）。
  * 「此刻」由 Host 節流算好寫進 soundAtlasStore；本元件只訂閱 store，不碰 currentTime。
  */
@@ -100,6 +100,10 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
   const healthRows: { family: SoundSourceFamily; coverage: SourceCoverage[] }[] = enabledFamilies.map((f) => ({ family: f, coverage: st.sets[f]?.coverage ?? [] }));
   const thunderSet = st.sets.thunder;
   const thunderNoHealthy = !!thunderSet && thunderSet.coverage.length > 0 && thunderSet.coverage.every((cv) => cv.status !== "ok");
+  // 摘要只把「每個來源都 ok」算正常；空集合、讀取失敗、未載入、僅場景快照、施工未發布都算無法判斷（收合不可把 unknown 變成正常）
+  const healthOk = healthRows.filter(({ family, coverage }) => coverage.length > 0 && coverage.every((cv) => cv.status === "ok")
+    && !(family === "roadwork" && current?.families.find((f) => f.family === "roadwork")?.contributions.some((x) => x.unknownReason === "roadwork_city_not_covered"))).length;
+  const healthBad = healthRows.length - healthOk;
 
   return (
     <section
@@ -172,7 +176,6 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
         ) : (
           <div style={note}>{t("soundAtlas.receiver.none")}</div>
         )}
-        <div style={note}>{t("soundAtlas.tool.hint")}</div>
 
         {/* 此格網格值＋綜合（原本各族格子 popup） */}
         {receiver && (
@@ -204,7 +207,15 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
         {/* 來源健康 */}
         {healthRows.length > 0 && (
           <>
-            <div style={sectionTitle}>{t("soundAtlas.health.title")}</div>
+            <details style={{ fontSize: FONT_SIZE.xs }}>
+              <summary style={{ ...sectionTitle, cursor: "pointer" }}>
+                {st.loading.length > 0
+                  ? t("soundAtlas.health.summaryLoading")
+                  : healthBad === 0
+                    ? t("soundAtlas.health.summaryOk", { ok: healthOk })
+                    : t("soundAtlas.health.summaryMixed", { ok: healthOk, bad: healthBad })}
+              </summary>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingTop: 4 }}>
             {healthRows.map(({ family, coverage }) => {
               const fam = current?.families.find((f) => f.family === family);
               const updated = fam ? latestSourceTime(fam.contributions) : null;
@@ -231,6 +242,8 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
                 </div>
               );
             })}
+              </div>
+            </details>
             {thunderNoHealthy && <div role="note" style={{ ...note, color: c.warn }}>{t("soundAtlas.health.thunderUnknown")}</div>}
           </>
         )}
@@ -299,38 +312,41 @@ function ContributionRow({ c: cb, origin, colors }: {
   colors: { text: string; muted: string; dim: string; ctrlBorder: string };
 }) {
   const { t } = useLocale();
-  const status = cb.status === "active" ? "active" : "unknown";
+  const unknown = cb.status !== "active";
   return (
-    <div style={{ borderLeft: `3px solid ${SOUND_FAMILY_COLORS[cb.family]}`, paddingLeft: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.5 }}>
-      <div style={{ display: "flex", gap: 6, alignItems: "baseline", color: colors.text }}>
-        <strong>{t(FAMILY_KEYS[cb.family])}</strong>
-        <span style={{ color: colors.muted }}>{t(STATUS_KEYS[status])}</span>
-        {cb.family === "thunder" && cb.status === "active" && cb.thunderTiming && (
-          <span style={{ color: SOUND_FAMILY_COLORS.thunder, fontWeight: 600 }}>
-            {t("soundAtlas.row.thunderArrived", { delay: cb.thunderTiming.delayS.toFixed(1) })}
+    <details style={{ borderLeft: `3px solid ${SOUND_FAMILY_COLORS[cb.family]}`, paddingLeft: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.5 }}>
+      {/* 預設一行：名稱、距離、相對潛勢；無法判斷固定列出（不讓它看起來像安靜），施工固定標明許可≠機具運轉 */}
+      <summary style={{ cursor: "pointer", color: colors.text }}>
+        <span style={{ display: "inline-flex", gap: 6, alignItems: "baseline", width: "calc(100% - 14px)" }}>
+          <strong>{t(FAMILY_KEYS[cb.family])}</strong>
+          {unknown && <span style={{ color: colors.muted }}>{t(STATUS_KEYS.unknown)}</span>}
+          {cb.family === "roadwork" && <span style={{ color: colors.muted }}>{t("soundAtlas.row.permitNote")}</span>}
+          {cb.family === "thunder" && cb.status === "active" && cb.thunderTiming && (
+            <span style={{ color: SOUND_FAMILY_COLORS.thunder, fontWeight: 600 }}>
+              {t("soundAtlas.row.thunderArrived", { delay: cb.thunderTiming.delayS.toFixed(1) })}
+            </span>
+          )}
+          <span style={{ marginLeft: "auto", fontFamily: FONT_DATA }}>
+            {formatDistanceM(cb.spatialDistanceM)} · {formatPotential(cb.relativePotential)}
           </span>
-        )}
-        <span style={{ marginLeft: "auto", fontFamily: FONT_DATA }}>
-          {formatDistanceM(cb.spatialDistanceM)} · {formatPotential(cb.relativePotential)}
         </span>
-      </div>
+      </summary>
       <div style={{ color: colors.dim }}>
         {t("soundAtlas.row.evidence")} {t(EVIDENCE_KEYS[cb.evidence])}
         {" · "}{t("soundAtlas.row.spatial")} {t(spatialPrecisionKey(cb.spatialPrecision))}
         {" · "}{t("soundAtlas.row.temporal")} {t(temporalPrecisionKey(cb.temporalPrecision))}
         {cb.family === "rail" && cb.railStructure && <> · {t("soundAtlas.row.railStructure")} {t(STRUCTURE_KEYS[cb.railStructure])}</>}
         {cb.thunderTiming && <> · {t("soundAtlas.row.delay")} <span style={{ fontFamily: FONT_DATA }}>{cb.thunderTiming.delayS.toFixed(1)} s</span></>}
-        {cb.status === "unknown" && <> · {t("soundAtlas.row.reason")} {t(reasonKey(cb.unknownReason))}</>}
+        {unknown && <> · {t("soundAtlas.row.reason")} {t(reasonKey(cb.unknownReason))}</>}
         {" · "}{t("soundAtlas.row.source")} {t(originKey(origin))}
         {" · "}<span style={{ fontFamily: FONT_DATA }}>{formatTaipeiTime(cb.sourceTime, true)}</span>
       </div>
-      {/* 道路依證據等級標明（國道實測／臺北典型／新北等級推估）、施工只有許可期間（不是機具運轉）：固定標明 */}
+      {/* 道路依證據等級標明（國道實測／臺北典型／新北等級推估） */}
       {cb.family === "road_traffic" && cb.proxyKind === "typical_weekday_volume" && (
         <div style={{ color: colors.muted }}>{t("soundAtlas.row.typicalNote", { days: noteValue(cb.notes, "flow_days") ?? "—" })}</div>
       )}
       {cb.family === "road_traffic" && cb.proxyKind === "observed_volume" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.freewayObservedNote")}</div>}
       {cb.family === "road_traffic" && cb.proxyKind === "road_type_no_volume" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.roadProxyNote")}</div>}
-      {cb.family === "roadwork" && <div style={{ color: colors.muted }}>{t("soundAtlas.row.permitNote")}</div>}
-    </div>
+    </details>
   );
 }

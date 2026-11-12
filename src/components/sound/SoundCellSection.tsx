@@ -1,6 +1,6 @@
 /**
  * W6-5 點選查詢：接收點所在格、此 10 分格的網格值（原本各族格子 popup 的內容併到這裡）。
- * - 綜合列：用 Worker 回的七族網格碼（和地圖顏色同一份），經 compositeCell 算甲（偏活躍種數＋最明顯的族）與乙（指數、依 N／7 種）。
+ * - 綜合列：用 Worker 回的七族網格碼（和地圖顏色同一份），經 compositeCell 算甲（偏活躍種數＋最明顯的族）與乙（指數、依 N／7 種）；只列目前預覽版本一行（W6-7）。
  * - 各族列：一行摘要（族名＋分級），展開是原本的格子 popup 內容（雨／道路／連續潛勢三種）。
  * - 網格範圍外 → 「網格範圍外」，上方來源照常列。
  * 主題色讀 FeatureThemeProvider（接收點面板與 featureInfo 共用）。
@@ -42,30 +42,29 @@ export function SoundCellSection() {
   if (q.cell < 0) return <div style={note}>{t("soundAtlas.cell.outside")}</div>;
 
   const comp = q.codes && q.codes.length === COMPOSITE_FAMILY_COUNT ? compositeCell(q.codes, q.gate) : null;
-  const variantName = variant === "a" ? t("soundAtlas.composite.previewA") : t("soundAtlas.composite.previewB");
   const unknownA = comp && comp.codeA === 255;
   const unknownB = comp && comp.index == null;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <div style={{ fontSize: FONT_SIZE.xs, color: theme.textMuted, fontWeight: 600 }}>{t("soundAtlas.cell.title")}</div>
+      {/* 綜合：只列目前預覽版本那一行（另一版在預覽列切換）；乙才附「權重是假設」 */}
       {comp && (
         <div style={{ borderLeft: `3px solid ${SOUND_COMPOSITE_A_COLORS[2]}`, paddingLeft: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.6, color: theme.textDefault }}>
-          <div style={{ fontWeight: 600 }}>{t("soundAtlas.composite.title")}<span style={{ fontWeight: 400, color: theme.textDim }}>（{variantName}）</span></div>
-          <div style={{ fontWeight: variant === "a" ? 600 : 400 }}>
-            {unknownA
-              ? t("soundAtlas.composite.unknown", { v: t("soundAtlas.composite.previewA"), known: comp.known })
-              : t("soundAtlas.composite.a", {
-                level: t(A_LEVEL_KEYS[comp.codeA as 0 | 1 | 2]),
-                n: comp.activeCount,
-                dominant: comp.dominant ? t("soundAtlas.composite.aDominant", { family: t(FAMILY_KEYS[comp.dominant]) }) : "",
-              })}
+          <div>
+            <strong>{t("soundAtlas.composite.title")}</strong>{" "}
+            {variant === "a"
+              ? (unknownA
+                ? t("soundAtlas.composite.unknown", { v: t("soundAtlas.composite.previewA"), known: comp.known })
+                : t("soundAtlas.composite.a", {
+                  level: t(A_LEVEL_KEYS[comp.codeA as 0 | 1 | 2]),
+                  n: comp.activeCount,
+                  dominant: comp.dominant ? t("soundAtlas.composite.aDominant", { family: t(FAMILY_KEYS[comp.dominant]) }) : "",
+                }))
+              : (unknownB
+                ? t("soundAtlas.composite.unknown", { v: t("soundAtlas.composite.previewB"), known: comp.known })
+                : t("soundAtlas.composite.b", { index: (comp.index ?? 0).toFixed(2), known: comp.known }))}
           </div>
-          <div style={{ fontWeight: variant === "b" ? 600 : 400 }}>
-            {unknownB
-              ? t("soundAtlas.composite.unknown", { v: t("soundAtlas.composite.previewB"), known: comp.known })
-              : <>{t("soundAtlas.composite.b", { index: (comp.index ?? 0).toFixed(2), known: comp.known })}</>}
-          </div>
-          <div style={{ color: theme.textDim }}>{t("soundAtlas.composite.note")}</div>
+          {variant === "b" && <div style={{ color: theme.textDim }}>{t("soundAtlas.composite.note")}</div>}
         </div>
       )}
       {COMPOSITE_FAMILIES.map((f, i) => {
