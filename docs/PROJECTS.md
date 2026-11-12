@@ -19,10 +19,13 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 **有期限的事（日期排序）**
 
+> 跨時間才能確認的事（隔天重跑 migration 測試、等 cron 首輪、部署後看日報、N 天後查 pg_stat_statements）一律在這裡加一列，**不要只寫在對話、PR 或 BACKLOG 的 blocker 裡**。過期未處理時，開場 hook 會提醒；處理完寫〔結果 YYYY-MM-DD：…〕或刪列。
+
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
 | 2026-11-09 | 保留期限清理排程（mig 505–509）首跑、reconcile、備份 watchdog、日報 VM 欄位、日本雷達追上：白天唯讀驗。11-10 差異檢核：文件查無五項觀察紀錄〔待確認〕，待唯讀 DB 驗證 | Claude | ZB-V1 |
 | 2026-11-10 | 四件事：mig 532 測試、VM moa 00:53 log、pgss 查詢文字量、保留期限首次清理刪除量＋vacuum（避開 10:00–20:00） | Claude | CHK-1110（SBE-1／SBE-2／WA-3） |
+| 2026-11-13 | 06:15 後重跑 gis-platform `migrations/551_retention_batch2_catchup_hardening.test.psql`（新 cron 首輪後仍無缺日）；看 collector 日報正常（預期多出「從未有資料」🟡）與 HiCloud `/var/log/cdc-public-health/archive.log` 03:20 無錯。都過就關兩列 | Claude | GP-550／COL-199 |
 | ~2026-11-12～14 | pgss 乾淨慢查詢清單（11-09 15:27 重置）→ 先優化 >1s，再收 timeout 10–15s | Claude | SEC-5 |
 | ~2026-11-14 | 刪 Zeabur 最後兩個專案（mini-tw-pulse、data-collectors-gomn；其餘 11-09 已刪；主站網域已改 Worker，ZB-4 完成），須使用者同意；uk-trip DNS 要使用者在 Cloudflare 手動刪 | 使用者 | ZB-1／ZB-7 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
