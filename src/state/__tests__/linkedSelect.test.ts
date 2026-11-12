@@ -192,7 +192,8 @@ describe('場景存檔與還原', () => {
       time: { mode: 'realtime' as const, playback: 'live' as const, cursorISO: '2026-10-03T00:00:00.000Z', windowDays: 1 },
     };
     const resolved = resolveSceneRestore(scene as never, new Set([KEY]), new Set(), ['dark']);
-    expect(resolved.params[KEY]).toEqual({ [`${KEY}Opacity`]: 0.4 });
+    // 「呈現方式」是一般 select（不是連動選單）：場景沒存就補預設面量圖
+    expect(resolved.params[KEY]).toEqual({ [`${KEY}Opacity`]: 0.4, [`${KEY}Presentation`]: 'choropleth' });
     expect(resolved.linked[KEY]).toEqual({ [names.year]: '113', [names.month]: '03', [names.fund]: '不存在的基金' });
     expect(resolved.skipped).toEqual([]);
     seed();

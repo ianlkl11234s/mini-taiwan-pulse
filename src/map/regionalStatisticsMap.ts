@@ -6,12 +6,19 @@ import { layerParamsStore } from '../state/layerParamsStore';
 import { keepLoadingUntilMapIdle } from '../lib/loadingRegistry';
 import { STATISTICS_FILL_OPACITY, statisticsDefaultOpacity } from '../data/statisticsVisuals';
 import { gradedSeamPaint, hatchImageData, hatchImageId, type HatchKind } from './mapStyleScale';
+import { isPresentationKey, statisticsCircleHollow, statisticsPresentationMode } from '../state/statisticsPresentationStore';
+import { PROPORTIONAL_CIRCLE, proportionalCircleRadiusExpression, statisticsCircleData } from './statisticsCircles';
 
 /** 有數值才上色；缺值、未發布、遮蔽一律透明底，由 hatch 子圖層表示（F-3 A）。 */
 const NO_FILL = 'rgba(0,0,0,0)';
 const HAS_VALUE: unknown[] = ['all', ['==', ['get', 'status'], 'observed'], ['!=', ['get', 'value'], null]];
 const IS_MISSING: unknown[] = ['all', ['!', HAS_VALUE], ['!=', ['get', 'status'], 'suppressed']];
 const SUFFIXES = ['fill', 'missing', 'suppressed', 'line'] as const;
+/** 比例圓（呈現方式＝比例圓）：另一個點 source `<key>-circles`，halo＋circle 兩個子圖層，排在所有統計面之上 */
+const CIRCLE_SUFFIXES = ['circle-halo', 'circle'] as const;
+const circleSourceId = (key: string) => `${key}-circles`;
+/** 比例圓的 map layer id（點擊開 popup 用；gisClickRegistry） */
+export const statisticsCircleLayerId = (key: string) => `${key}-circle`;
 
 /**
  * Owns only statistics sources/layers; other GIS visibility is untouched.
@@ -20,6 +27,7 @@ const SUFFIXES = ['fill', 'missing', 'suppressed', 'line'] as const;
 export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boolean = () => true): () => void {
   const shown = new Map<StatisticsRenderKey, boolean>();
   const rendered = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
+  const renderedCircles = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
   for (const key of STATISTICS_RENDER_KEYS) {
     const recipe = statisticsRenderRecipe(key);
     const fallback = statisticsReleaseFallback(key);
@@ -70,15 +78,17 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       if (!layerVisibilityStore.getAll()[key] && !map.getSource(key)) continue;
       if (!map.getSource(key)) {
         rendered.delete(key);
+        renderedCircles.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
+        const before = beforeCircles();
         map.addLayer({ id: `${key}-fill`, type: 'fill', source: key, layout: { visibility: 'none' }, paint: {
           'fill-color': statisticsFillCase(recipe, HAS_VALUE, NO_FILL) as mapboxgl.ExpressionSpecification,
           'fill-opacity': statisticsDefaultOpacity(isDark),
-        } });
-        map.addLayer({ id: `${key}-missing`, type: 'fill', source: key, filter: IS_MISSING as mapboxgl.FilterSpecification, layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('missing', isDark), 'fill-opacity': 0.55 } });
-        map.addLayer({ id: `${key}-suppressed`, type: 'fill', source: key, filter: ['==', ['get', 'status'], 'suppressed'], layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('suppressed', isDark), 'fill-opacity': 0.55 } });
+        } }, before);
+        map.addLayer({ id: `${key}-missing`, type: 'fill', source: key, filter: IS_MISSING as mapboxgl.FilterSpecification, layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('missing', isDark), 'fill-opacity': 0.55 } }, before);
+        map.addLayer({ id: `${key}-suppressed`, type: 'fill', source: key, filter: ['==', ['get', 'status'], 'suppressed'], layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('suppressed', isDark), 'fill-opacity': 0.55 } }, before);
         // F-2：有值 1px 底圖色細縫、無值中性灰；不綁透明度滑桿
-        map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { ...seam } as mapboxgl.LinePaint });
+        map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { ...seam } as mapboxgl.LinePaint }, before);
       }
       // A presentation source survives metric switches; refresh the scale as well as values.
       map.setPaintProperty(`${key}-fill`, 'fill-color', statisticsFillCase(recipe, HAS_VALUE, NO_FILL) as mapboxgl.ExpressionSpecification);
@@ -102,7 +112,56 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       map.setPaintProperty(`${key}-fill`, 'fill-opacity', opacity);
       map.setPaintProperty(`${key}-missing`, 'fill-opacity', opacity);
       map.setPaintProperty(`${key}-suppressed`, 'fill-opacity', opacity);
+      if (isPresentationKey(key)) renderCircles(key, visible && Boolean(data), data, recipe.colors[recipe.colors.length - 1]!, recipe.level, opacity, isDark);
     }
+  }
+  /**
+   * 比例圓：面量圖的 fill 關掉（不攔下層面量圖的點擊）、缺值／遮蔽斜線與細縫保留；圓的 properties 與面相同，
+   * 點圓開同一個 popup。單獨顯示＝實心（最深一級色、透明度＝滑桿），疊在其他面量圖上＝空心圈（statisticsCircleHollow）。
+   */
+  function renderCircles(key: StatisticsRenderKey, layerShown: boolean, data: GeoJSON.FeatureCollection | null | undefined, color: string, level: string, opacity: number, isDark: boolean) {
+    const circle = layerShown && statisticsPresentationMode(key) === 'circle';
+    const circles = circle && data ? statisticsCircleData(data) : null;
+    if (!circles?.reference) {
+      if (circle) map.setLayoutProperty(`${key}-fill`, 'visibility', 'none');
+      for (const suffix of CIRCLE_SUFFIXES) if (map.getLayer(`${key}-${suffix}`)) map.setLayoutProperty(`${key}-${suffix}`, 'visibility', 'none');
+      return;
+    }
+    map.setLayoutProperty(`${key}-fill`, 'visibility', 'none');
+    const sourceId = circleSourceId(key);
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
+      for (const suffix of CIRCLE_SUFFIXES) {
+        map.addLayer({ id: `${key}-${suffix}`, type: 'circle', source: sourceId, layout: { visibility: 'none', 'circle-sort-key': ['-', 0, ['to-number', ['get', 'value'], 0]] }, paint: {} });
+      }
+    }
+    if (renderedCircles.get(key) !== circles.points) {
+      renderedCircles.set(key, circles.points);
+      (map.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(circles.points);
+    }
+    const theme = isDark ? 'dark' : 'light';
+    const hollow = statisticsCircleHollow(key);
+    const radius = proportionalCircleRadiusExpression(circles.reference, level) as mapboxgl.ExpressionSpecification;
+    const halo = `${key}-circle-halo`;
+    const main = statisticsCircleLayerId(key);
+    map.setPaintProperty(halo, 'circle-radius', radius);
+    map.setPaintProperty(halo, 'circle-opacity', 0);
+    map.setPaintProperty(halo, 'circle-stroke-width', PROPORTIONAL_CIRCLE.ringHalo.width);
+    map.setPaintProperty(halo, 'circle-stroke-color', PROPORTIONAL_CIRCLE.ringHalo.color[theme]);
+    map.setPaintProperty(halo, 'circle-stroke-opacity', opacity);
+    map.setPaintProperty(main, 'circle-radius', radius);
+    map.setPaintProperty(main, 'circle-color', color);
+    map.setPaintProperty(main, 'circle-opacity', hollow ? 0 : opacity);
+    map.setPaintProperty(main, 'circle-stroke-width', hollow ? PROPORTIONAL_CIRCLE.ring.width : PROPORTIONAL_CIRCLE.fillStroke.width);
+    map.setPaintProperty(main, 'circle-stroke-color', hollow ? PROPORTIONAL_CIRCLE.ring.color[theme] : PROPORTIONAL_CIRCLE.fillStroke.color[theme]);
+    map.setPaintProperty(main, 'circle-stroke-opacity', hollow ? 1 : Math.min(1, opacity + 0.15));
+    map.setLayoutProperty(halo, 'visibility', hollow ? 'visible' : 'none');
+    map.setLayoutProperty(main, 'visibility', 'visible');
+  }
+  /** 比例圓永遠在所有統計面之上：之後才建立的統計面插在第一個比例圓之前（不然後開的面量圖會疊到圓上） */
+  function beforeCircles(): string | undefined {
+    for (const key of renderedCircles.keys()) if (map.getLayer(`${key}-circle-halo`)) return `${key}-circle-halo`;
+    return undefined;
   }
   function visibilityChanged() {
     for (const key of STATISTICS_RENDER_KEYS) {

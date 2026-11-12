@@ -4542,6 +4542,345 @@
     },
     {
       "layers": [
+        "statsComparisonAgriculturalFacilityCountyTotalHectare-circle",
+        "statsComparisonAirportLandCountyTotalHectare-circle",
+        "statsComparisonAquacultureLandCountyTotalHectare-circle",
+        "statsComparisonBambooForestCountyTotalHectare-circle",
+        "statsComparisonBroadleafForestCountyTotalHectare-circle",
+        "statsComparisonConiferForestCountyTotalHectare-circle",
+        "statsComparisonDryFieldCountyTotalHectare-circle",
+        "statsComparisonLivestockBuildingCountyTotalHectare-circle",
+        "statsComparisonMixedForestCountyTotalHectare-circle",
+        "statsComparisonOrchardCountyTotalHectare-circle",
+        "statsComparisonPaddyLandCountyTotalHectare-circle",
+        "statsComparisonPastureCountyTotalHectare-circle",
+        "statsComparisonPortLandCountyTotalHectare-circle",
+        "statsComparisonRailLandCountyTotalHectare-circle",
+        "statsComparisonRoadLandCountyTotalHectare-circle",
+        "statsComparisonA2AccidentCount-circle",
+        "statsComparisonA2InjuryCount-circle",
+        "statsComparisonA1A2AccidentCount-circle",
+        "statsWasteCounty-circle",
+        "statsRecyclingCounty-circle",
+        "statsResidentialElectricity-circle",
+        "statsRiceHarvest-circle",
+        "statsBirthsTownship-circle",
+        "statsPigWaterCounty-circle",
+        "statsMaritimeSubsidyCounty-circle",
+        "statsCivilAeronauticsSubsidyCounty-circle",
+        "statsTaipeiTrafficViolationCitations-circle",
+        "statsTaichungRoadNoiseMonitoringStations-circle",
+        "statsBusOperatingRouteLengthKm-circle",
+        "statsBusApprovedRouteCount-circle",
+        "statsUrbanBusOperatorCount-circle",
+        "statsBusOperatingVehicleCount-circle",
+        "statsBusAccessibleVehicleCount-circle",
+        "statsBusElectricVehicleCount-circle",
+        "statsBusOperatingTripCount-circle",
+        "statsBusOperatingVehicleKm-circle",
+        "statsTmrtStationOutboundCounty-circle",
+        "statsTaipeiUrbanRentalStations-circle",
+        "statsTaipeiUrbanRentalTrips-circle",
+        "statsTaipeiRiversideRentalStations-circle",
+        "statsTaipeiRiversideBicycles-circle",
+        "statsTaipeiRiversideRentalTrips-circle",
+        "statsA1AccidentCount-circle",
+        "statsA1DeathCount-circle",
+        "statsA1InjuryCount-circle",
+        "statsAirportTakeoffsLandings-circle",
+        "statsAirportPassengerMovements-circle",
+        "statsAirportCargoTonnes-circle",
+        "statsTaoyuanAirportArrivals-circle",
+        "statsTaoyuanAirportDepartures-circle",
+        "statsTaoyuanAirportTransit-circle",
+        "statsTaoyuanAirportPassengerMovements-circle",
+        "statsOffstreetSmallCarParkingSpacesCount-circle",
+        "statsOnstreetSmallCarParkingSpacesCount-circle",
+        "statsMotorcycleRegisteredCount-circle",
+        "statsAutomobileRegisteredCount-circle",
+        "statsAutomobileLicenseHoldersCount-circle",
+        "statsMotorcycleLicenseHoldersCount-circle",
+        "statsPaddyLandAreaTownship-circle",
+        "statsDryFieldAreaTownship-circle",
+        "statsOrchardAreaTownship-circle",
+        "statsAgriculturalFacilityAreaTownship-circle",
+        "statsLivestockBuildingAreaTownship-circle",
+        "statsPastureAreaTownship-circle",
+        "statsAquacultureLandAreaTownship-circle",
+        "statsConiferForestAreaTownship-circle",
+        "statsBroadleafForestAreaTownship-circle",
+        "statsBambooForestAreaTownship-circle",
+        "statsMixedForestAreaTownship-circle",
+        "statsRoadLandAreaTownship-circle",
+        "statsRailLandAreaTownship-circle",
+        "statsAirportLandAreaTownship-circle",
+        "statsPortLandAreaTownship-circle",
+        "statsCropPlantedAreaTownship-circle",
+        "statsCropHarvestedAreaTownship-circle",
+        "statsCropProductionTownship-circle",
+        "statsFisheryProductionCounty-circle",
+        "statsFisheryProductionValueCounty-circle",
+        "statsAquacultureAreaCounty-circle",
+        "statsLivestockFarmCountTownship-circle",
+        "statsLivestockHeadCountTownship-circle",
+        "statsEducationCountyInstitutionCount-circle",
+        "statsEducationCountyTeacherCount-circle",
+        "statsEducationCountyStaffCount-circle",
+        "statsEducationCountyStudentCount-circle",
+        "statsEducationCountySmallSchoolCount-circle",
+        "statsHealthHospitalCount-circle",
+        "statsHealthHospitalBedTotal-circle",
+        "statsHealthAcuteBedTotal-circle",
+        "statsHealthIcuBedTotal-circle",
+        "statsHealthHospiceBedTotal-circle",
+        "statsHealthHealthProfessionalTotal-circle",
+        "statsHealthWesternPhysicianCount-circle",
+        "statsHealthRegisteredNurseCount-circle",
+        "statsHealthNursingStaffListedAgeSexSum-circle",
+        "statsHealthCareWorkerListedSexSum-circle",
+        "statsHealthGeneralNursingHomeOpenBeds-circle",
+        "statsHealthPostpartumNursingHomeOpenBeds-circle",
+        "statsHealthPostpartumNursingHomeOpenInfantBeds-circle",
+        "statsHousingTotalCounty-circle",
+        "statsHousingOccupiedCounty-circle",
+        "statsHousingUnoccupiedCounty-circle",
+        "statsHousingOccasionalCounty-circle",
+        "statsHousingOtherUseCounty-circle",
+        "statsHousingUnusedCounty-circle",
+        "statsHousingResidenceOnlyCounty-circle",
+        "statsHousingMixedUseCounty-circle",
+        "statsHousingTotalTownship-circle",
+        "statsHousingOccupiedTownship-circle",
+        "statsHousingUnoccupiedTownship-circle",
+        "statsHousingOccasionalTownship-circle",
+        "statsHousingOtherUseTownship-circle",
+        "statsHousingUnusedTownship-circle",
+        "statsLaborCountyLaborForce-circle",
+        "statsLaborCountyEmployment-circle",
+        "statsLaborCountyUnemployment-circle",
+        "statsLaborCountyEmploymentByIndustry-circle",
+        "statsComplaintsCounty-circle",
+        "statsComplaintTargetCounty-circle",
+        "statsComplaintCasesPndCounty-circle",
+        "statsComplaintPopulationCounty-circle",
+        "statsEnvInspectionsCounty-circle",
+        "statsEnvFineCasesCounty-circle",
+        "statsEnvFineAmountCounty-circle",
+        "statsEnvFineCollectedCounty-circle",
+        "statsSoilControlAreaCounty-circle",
+        "statsSoilRemediationAreaCounty-circle",
+        "statsWasteGeneratedCounty-circle",
+        "statsGeneralGarbageCounty-circle",
+        "statsFoodWasteCounty-circle",
+        "statsRecyclingAmountCounty-circle",
+        "statsResponsibleEnterprisesCounty-circle",
+        "statsTapWaterTestsCounty-circle",
+        "statsTapWaterFailuresCounty-circle",
+        "statsMotorNotifiedCounty-circle",
+        "statsMotorTestedCounty-circle",
+        "statsBurningComplaintsCounty-circle",
+        "statsDemographicsCountyPopulationTotal-circle",
+        "statsDemographicsCountyHouseholdCount-circle",
+        "statsDemographicsTownshipPopulationTotal-circle",
+        "statsDemographicsTownshipHouseholdCount-circle",
+        "statsDemographicsVillagePopulationTotal-circle",
+        "statsDemographicsVillageHouseholdCount-circle",
+        "statsDemographicsCountyPopAge0To14-circle",
+        "statsDemographicsCountyPopAge15To64-circle",
+        "statsDemographicsCountyPopAge65Plus-circle",
+        "statsDemographicsTownshipPopAge0To14-circle",
+        "statsDemographicsTownshipPopAge15To64-circle",
+        "statsDemographicsTownshipPopAge65Plus-circle",
+        "statsDemographicsVillagePopAge0To14-circle",
+        "statsDemographicsVillagePopAge15To64-circle",
+        "statsDemographicsVillagePopAge65Plus-circle",
+        "statsDemographicsCountyBirths-circle",
+        "statsDemographicsCountyDeaths-circle",
+        "statsDemographicsCountyMarriages-circle",
+        "statsDemographicsCountyDivorces-circle",
+        "statsDemographicsCountyBirthsYtd-circle",
+        "statsDemographicsCountyDeathsYtd-circle",
+        "statsDemographicsCountyMarriagesYtd-circle",
+        "statsDemographicsCountyDivorcesYtd-circle",
+        "statsDemographicsTownshipBirths-circle",
+        "statsDemographicsTownshipDeaths-circle",
+        "statsDemographicsTownshipMarriages-circle",
+        "statsDemographicsTownshipDivorces-circle",
+        "statsDemographicsTownshipBirthsYtd-circle",
+        "statsDemographicsTownshipDeathsYtd-circle",
+        "statsDemographicsTownshipMarriagesYtd-circle",
+        "statsDemographicsTownshipDivorcesYtd-circle",
+        "statsDemographicsCountyInMigration-circle",
+        "statsDemographicsCountyOutMigration-circle",
+        "statsDemographicsCountyInMigrationYtd-circle",
+        "statsDemographicsCountyOutMigrationYtd-circle",
+        "statsDemographicsTownshipInMigration-circle",
+        "statsDemographicsTownshipOutMigration-circle",
+        "statsDemographicsTownshipInMigrationYtd-circle",
+        "statsDemographicsTownshipOutMigrationYtd-circle",
+        "statsDemographicsCountyIndigenousPopulation-circle",
+        "statsDemographicsCountyIndigenousPlainPopulation-circle",
+        "statsDemographicsCountyIndigenousMountainPopulation-circle",
+        "statsDemographicsTownshipIndigenousPopulation-circle",
+        "statsDemographicsTownshipIndigenousPlainPopulation-circle",
+        "statsDemographicsTownshipIndigenousMountainPopulation-circle",
+        "statsDemographicsVillageIndigenousPopulation-circle",
+        "statsDemographicsVillageIndigenousPlainPopulation-circle",
+        "statsDemographicsVillageIndigenousMountainPopulation-circle",
+        "statsDemographicsCountyForeignOriginPopulation-circle",
+        "statsDemographicsCountyForeignOriginMainlandPopulation-circle",
+        "statsDemographicsCountyForeignOriginForeignNationalPopulation-circle",
+        "statsDemographicsCountyForeignOriginHkMacauPopulation-circle",
+        "statsDemographicsCountyForeignOriginNoHouseholdNationalPopulation-circle",
+        "statsDemographicsTownshipForeignOriginPopulation-circle",
+        "statsDemographicsTownshipForeignOriginMainlandPopulation-circle",
+        "statsDemographicsTownshipForeignOriginForeignNationalPopulation-circle",
+        "statsDemographicsTownshipForeignOriginHkMacauPopulation-circle",
+        "statsDemographicsTownshipForeignOriginNoHouseholdNationalPopulation-circle",
+        "statsDemographicsCountyNaturalizationCount-circle",
+        "statsHivNewCasesCounty-circle",
+        "statsHivCasesTownship-circle",
+        "statsDrugSuspectsCounty-circle",
+        "statsDrugUseSuspectsCounty-circle",
+        "statsDrugGrade1SuspectsCounty-circle",
+        "statsDuiCasesCounty-circle",
+        "statsDuiEnforcementCounty-circle",
+        "statsProsecutorDrugNewCasesCounty-circle",
+        "statsProsecutorDrugUseCounty-circle",
+        "statsProsecutorDrugGrade1County-circle",
+        "statsProsecutorDrugGrade2County-circle",
+        "statsProsecutorDeferredTreatmentCounty-circle",
+        "statsNeedleEducationStationsCounty-circle",
+        "statsNeedleEducationStationsTownship-circle",
+        "statsNeedleVendingMachinesCounty-circle",
+        "statsNeedleVendingMachinesTownship-circle",
+        "statsNeedleReturnBinsCounty-circle",
+        "statsNeedleReturnBinsTownship-circle",
+        "statsNeedleSitesTotalCounty-circle",
+        "statsNeedleSitesTotalTownship-circle",
+        "statsDrugTreatmentFacilitiesCounty-circle",
+        "statsDrugTreatmentFacilitiesTownship-circle",
+        "statsSubstitutionTreatmentSitesCounty-circle",
+        "statsSubstitutionTreatmentSitesTownship-circle",
+        "statsAlcoholTreatmentFacilitiesCounty-circle",
+        "statsAlcoholTreatmentFacilitiesTownship-circle",
+        "statsHivTestingSitesCounty-circle",
+        "statsHivTestingSitesTownship-circle",
+        "statsHivSelftestOutletsCounty-circle",
+        "statsHivSelftestOutletsTownship-circle",
+        "statsPrepServiceSitesCounty-circle",
+        "statsPrepServiceSitesTownship-circle",
+        "statsSmokingCessationProvidersCounty-circle",
+        "statsSmokingCessationProvidersTownship-circle",
+        "statsInternetAddictionServicesCounty-circle",
+        "statsInternetAddictionServicesTownship-circle",
+        "statsLandslideCountCounty-circle",
+        "statsLandslideAreaCounty-circle",
+        "statsSlopeWorksCostCounty-circle",
+        "statsSwcDisasterLossCounty-circle",
+        "statsHealthTbNewCases-circle",
+        "statsHealthTbNewCasesTownship-circle",
+        "statsHealthTbDeaths-circle",
+        "statsHealthCancerNewCases-circle",
+        "statsHealthLiveBirthsMotherResidence-circle",
+        "statsFiscalLocalRevenue-circle",
+        "statsFiscalLocalExpenditure-circle",
+        "statsIncomeTaxUnits-circle",
+        "statsIncomeTaxTotal-circle",
+        "statsVatDeclarers-circle",
+        "statsVatSales-circle",
+        "statsVatTaxPayable-circle",
+        "statsCreditCardResidentAmount-circle",
+        "statsCreditCardCrossCountyAmount-circle",
+        "statsCreditCardLocationAmount-circle",
+        "statsCensusPersonsEngaged-circle",
+        "statsCensusEmployeePayroll-circle",
+        "statsCensusEstablishments-circle",
+        "statsBankDeposits-circle",
+        "statsBankLoans-circle",
+        "statsIndigenousReservedLandParcels-circle",
+        "statsIndigenousReservedLandArea-circle",
+        "statsSportsBudgetTotal-circle",
+        "statsDebrisFlowAlertStreamsCounty-circle",
+        "statsDebrisFlowRedAlertStreamsCounty-circle",
+        "statsCetaceanStrandedCounty-circle",
+        "statsCetaceanStrandedAliveCounty-circle",
+        "statsCetaceanStrandedDeadCounty-circle",
+        "statsSeaTurtleStrandedCounty-circle",
+        "statsSeaTurtleStrandedAliveCounty-circle",
+        "statsSeaTurtleStrandedDeadCounty-circle",
+        "statsMarineDebrisCleanupOperationsCounty-circle",
+        "statsMarineDebrisCleanupParticipantsCounty-circle",
+        "statsCrimeDrugCasesTownship-circle",
+        "statsCrimeDrugCasesCounty-circle",
+        "statsCrimeResidentialBurglaryCasesTownship-circle",
+        "statsCrimeResidentialBurglaryCasesCounty-circle",
+        "statsCrimeMotorcycleTheftCasesTownship-circle",
+        "statsCrimeMotorcycleTheftCasesCounty-circle",
+        "statsCrimeCarTheftCasesTownship-circle",
+        "statsCrimeCarTheftCasesCounty-circle",
+        "statsCrimeRobberyCasesTownship-circle",
+        "statsCrimeRobberyCasesCounty-circle",
+        "statsCrimeSnatchingCasesTownship-circle",
+        "statsCrimeSnatchingCasesCounty-circle",
+        "statsCrimeSexualAssaultCasesTownship-circle",
+        "statsCrimeSexualAssaultCasesCounty-circle",
+        "statsCrimeOrganizedCrimeCasesTownship-circle",
+        "statsCrimeOrganizedCrimeCasesCounty-circle",
+        "statsTelecomFraudCasesTownship-circle",
+        "statsTelecomFraudCasesCounty-circle",
+        "statsTaipeiResourceRecyclingTownship-circle",
+        "statsTaipeiGarbageCollectedTownship-circle",
+        "statsTaipeiFactoryCountTownship-circle",
+        "statsTaipeiFactoryCountByIndustryTownship-circle",
+        "statsTaipeiUsagePermitCountTownship-circle",
+        "statsTaipeiUsagePermitCountByBuildTypeTownship-circle",
+        "statsTaipeiUsagePermitHouseholdCountTownship-circle",
+        "statsTaipeiUsagePermitBuildingAreaTownship-circle",
+        "statsMortalityDeaths5yrTownship-circle",
+        "statsMortalityDeathsTownship-circle",
+        "statsMortalityDeathsCounty-circle",
+        "statsCultureStreetPerformersTown-circle",
+        "statsCultureStreetPerformersCounty-circle",
+        "statsStateLandIdleArea-circle",
+        "statsStateLandIdleParcels-circle",
+        "statsStateLandArea-circle",
+        "statsStateLandParcels-circle",
+        "statsStatePropertyArea-circle",
+        "statsStatePropertyParcels-circle",
+        "statsStateLandRentalArea-circle",
+        "statsStateLandRentalParcels-circle",
+        "statsStateResidentialArea-circle",
+        "statsStateResidentialParcels-circle",
+        "statsTaisugarRentableArea-circle",
+        "statsTaisugarRentableParcels-circle",
+        "statsTaisugarAnnouncedArea-circle",
+        "statsTaisugarAnnouncedParcels-circle",
+        "statsMojAuctionItems-circle",
+        "statsMojAuctionItemsByCategory-circle",
+        "statsMojAuctionItemsTown-circle",
+        "statsFinancialInstitutions-circle",
+        "statsFinancialBranches-circle",
+        "statsFinancialBranchesTown-circle",
+        "statsAtmSitesTown-circle",
+        "statsFinanceEstablishments-circle",
+        "statsLifeInsurerBranches-circle",
+        "statsLifeInsurerAgencyOffices-circle",
+        "statsDebitMerchantsExclBulk-circle",
+        "statsDebitMerchants-circle",
+        "statsDebitMerchantAddresses-circle",
+        "statsElectionPresidentValidVotesCounty-circle",
+        "statsElectionPresidentValidVotesTownship-circle",
+        "statsElectionPresidentValidVotesVillage-circle",
+        "statsElectionLegislatorPartyValidVotesCounty-circle",
+        "statsElectionLegislatorPartyValidVotesTownship-circle",
+        "statsElectionLegislatorPartyValidVotesVillage-circle",
+        "statsElectionMayorValidVotesCounty-circle",
+        "statsElectionMayorValidVotesTownship-circle",
+        "statsElectionMayorValidVotesVillage-circle",
+        "statsElectionCouncilorPartyValidVotesCounty-circle",
+        "statsElectionCouncilorPartyValidVotesTownship-circle",
+        "statsElectionCouncilorPartyValidVotesVillage-circle",
         "statsComparisonBusAccessibleSharePct-fill",
         "statsComparisonBusElectricSharePct-fill",
         "statsComparisonHousingUnoccupiedSharePctCounty-fill",
@@ -155947,6 +156286,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -155986,6 +156340,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156023,6 +156392,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -156122,6 +156506,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156139,6 +156538,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -156200,6 +156614,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156219,6 +156648,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156236,6 +156680,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -156279,6 +156738,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -156410,6 +156884,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156446,6 +156935,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -156505,6 +157009,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -156647,6 +157166,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156682,6 +157216,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156715,6 +157264,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -156776,6 +157340,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156809,6 +157388,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -156846,6 +157440,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -156863,6 +157472,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -157013,6 +157637,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -157046,6 +157685,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -157126,6 +157780,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -157163,6 +157832,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -157208,6 +157892,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -157245,6 +157944,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -157286,6 +158000,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -157325,6 +158054,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -157362,6 +158106,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -158243,6 +159002,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -158280,6 +159054,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -158321,6 +159110,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -158358,6 +159162,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -158399,6 +159218,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -158438,6 +159272,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -158455,6 +159304,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -158494,6 +159358,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -158847,6 +159726,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -158962,6 +159856,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -159428,6 +160337,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -159841,6 +160765,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -160252,6 +161191,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -160737,6 +161691,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -161148,6 +162117,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -162246,6 +163230,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -162657,6 +163656,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -164318,6 +165332,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -164768,6 +165797,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -165323,6 +166367,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -165734,6 +166793,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -166149,6 +167223,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -166560,6 +167649,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -167043,6 +168147,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -167582,6 +168701,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -168160,6 +169294,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -168199,6 +169348,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -168216,6 +169380,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -168251,6 +169430,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -168386,6 +169580,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -168472,6 +169681,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -168534,6 +169758,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -168575,6 +169814,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -168620,6 +169874,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -168661,6 +169930,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -168792,6 +170076,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -168833,6 +170132,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -168964,6 +170278,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -169005,6 +170334,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -169136,6 +170480,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -169177,6 +170536,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -169308,6 +170682,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -169349,6 +170738,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -169480,6 +170884,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -169521,6 +170940,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -169652,6 +171086,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -169693,6 +171142,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -169824,6 +171288,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -169865,6 +171344,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -169972,6 +171466,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -169991,6 +171500,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -170008,6 +171532,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -170064,6 +171603,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -170097,6 +171651,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -170212,6 +171781,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -170255,6 +171839,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -170296,6 +171895,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -170376,6 +171990,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -170409,6 +172038,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -170545,6 +172189,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -170610,6 +172269,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -170982,6 +172656,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -171047,6 +172736,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -171183,6 +172887,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -171248,6 +172967,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -171317,6 +173051,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -171382,6 +173131,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -171451,6 +173215,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -171518,6 +173297,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -171583,6 +173377,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -171657,6 +173466,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -171741,6 +173565,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -171790,6 +173629,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -171855,6 +173709,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -171918,6 +173787,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -171979,6 +173863,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -172079,6 +173978,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -172144,6 +174058,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -172355,6 +174284,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -172612,6 +174556,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -172661,6 +174620,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -172726,6 +174700,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -172789,6 +174778,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -172850,6 +174854,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -172928,6 +174947,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -173292,6 +175326,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -173357,6 +175406,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -173729,6 +175793,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -173794,6 +175873,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -173930,6 +176024,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -173995,6 +176104,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -174064,6 +176188,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -174129,6 +176268,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -174198,6 +176352,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -174265,6 +176434,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -174330,6 +176514,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -174404,6 +176603,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -174488,6 +176702,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -174537,6 +176766,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -174602,6 +176846,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -174665,6 +176924,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -174726,6 +177000,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -174826,6 +177115,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -174891,6 +177195,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -175340,6 +177659,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -175389,6 +177723,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -175454,6 +177803,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -175517,6 +177881,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -175578,6 +177957,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -175656,6 +178050,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -176150,6 +178559,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -176252,6 +178676,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -176315,6 +178754,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -176376,6 +178830,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -176594,6 +179063,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -176657,6 +179141,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -176718,6 +179217,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -176796,6 +179310,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -177061,6 +179590,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -177129,6 +179673,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -177207,6 +179766,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -177338,6 +179912,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -177371,6 +179960,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -177467,6 +180071,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -177502,6 +180121,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -177535,6 +180169,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -177645,6 +180294,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -177662,6 +180326,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -177702,6 +180381,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -177719,6 +180413,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -177814,6 +180523,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -178933,6 +181657,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -179020,6 +181759,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -179105,6 +181859,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -180238,6 +183007,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -180325,6 +183109,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -180410,6 +183209,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -181543,6 +184357,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -181630,6 +184459,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -181715,6 +184559,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -182848,6 +185707,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -182935,6 +185809,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -183020,6 +185909,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -183608,6 +186512,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -183643,6 +186562,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -183660,6 +186594,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -183730,6 +186679,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -183835,6 +186799,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -183985,6 +186964,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -184114,6 +187108,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -184131,6 +187140,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -184168,6 +187192,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -184201,6 +187240,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -184238,6 +187292,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -184273,6 +187342,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -184290,6 +187374,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -185125,6 +188224,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -185233,6 +188347,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -185410,6 +188539,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -185427,6 +188571,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -185577,6 +188736,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -185638,6 +188812,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -185713,6 +188902,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -185809,6 +189013,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -185846,6 +189065,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -185923,6 +189157,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -185959,6 +189208,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -186037,6 +189301,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -186091,6 +189370,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -186124,6 +189418,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -186208,6 +189517,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -186276,6 +189600,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -186364,6 +189703,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -186450,6 +189804,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -186513,6 +189882,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -186548,6 +189932,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -186581,6 +189980,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -186694,6 +190108,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -186825,6 +190254,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -186866,6 +190310,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -186997,6 +190456,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187034,6 +190508,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -187079,6 +190568,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187122,6 +190626,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187163,6 +190682,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -187294,6 +190828,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187335,6 +190884,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -187380,6 +190944,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187419,6 +190998,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187454,6 +191048,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187487,6 +191096,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -187532,6 +191156,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187575,6 +191214,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -187616,6 +191270,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -187745,6 +191414,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -188937,6 +192621,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -188954,6 +192653,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -188991,6 +192705,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -189024,6 +192753,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -189067,6 +192811,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -189196,6 +192955,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191011,6 +194785,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191030,6 +194819,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191047,6 +194851,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191104,6 +194923,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191179,6 +195013,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191212,6 +195061,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191249,6 +195113,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191282,6 +195161,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191343,6 +195237,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191382,6 +195291,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191419,6 +195343,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191507,6 +195446,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191548,6 +195502,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191612,6 +195581,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191671,6 +195655,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191712,6 +195711,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191757,6 +195771,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -191798,6 +195827,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -191996,6 +196040,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -192047,6 +196106,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -192096,6 +196170,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -192187,6 +196276,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -192204,6 +196308,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -192241,6 +196360,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -192274,6 +196408,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -192317,6 +196466,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -192448,6 +196612,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -192489,6 +196668,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -192620,6 +196814,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -192661,6 +196870,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -192792,6 +197016,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -192833,6 +197072,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -192964,6 +197218,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -192999,6 +197268,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -193032,6 +197316,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -193093,6 +197392,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -193150,6 +197464,21 @@
         "statusText": "載入中…",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -193211,6 +197540,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -193228,6 +197572,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -193289,6 +197648,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -193330,6 +197704,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -193461,6 +197850,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -193506,6 +197910,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -193602,6 +198021,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -193694,6 +198128,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -193790,6 +198239,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -193882,6 +198346,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -193990,6 +198469,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -194023,6 +198517,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -194062,6 +198571,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -194153,6 +198677,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -194172,6 +198711,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -194189,6 +198743,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -194250,6 +198819,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -194308,6 +198892,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -194347,6 +198946,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -194384,6 +198998,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -194443,6 +199072,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -194484,6 +199128,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -194613,6 +199272,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -194888,6 +199562,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -194905,6 +199594,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -194977,6 +199681,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195014,6 +199733,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195055,6 +199789,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195092,6 +199841,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195172,6 +199936,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195207,6 +199986,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195240,6 +200034,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195339,6 +200148,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195376,6 +200200,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195452,6 +200291,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195485,6 +200339,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195528,6 +200397,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195659,6 +200543,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195678,6 +200577,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195695,6 +200609,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195732,6 +200661,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195767,6 +200711,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195784,6 +200743,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195805,6 +200779,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195822,6 +200811,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195843,6 +200847,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195860,6 +200879,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -195951,6 +200985,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195970,6 +201019,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -195987,6 +201051,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196034,6 +201113,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196130,6 +201224,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196175,6 +201284,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196224,6 +201348,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196261,6 +201400,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196341,6 +201495,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196374,6 +201543,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196411,6 +201595,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196428,6 +201627,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196449,6 +201663,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196468,6 +201697,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196485,6 +201729,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196525,6 +201784,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196542,6 +201816,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196587,6 +201876,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196628,6 +201932,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196735,6 +202054,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196772,6 +202106,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196813,6 +202162,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196850,6 +202214,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",
@@ -196891,6 +202270,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196930,6 +202324,21 @@
         "value": ""
       },
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -196963,6 +202372,21 @@
         "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
       },
       {
         "label": "透明度 0.55",

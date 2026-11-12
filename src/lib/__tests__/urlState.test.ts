@@ -525,3 +525,18 @@ describe("country（c=，國家主體）", () => {
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=ooklaMobileTaiwan").layers ?? [])).toBe("TW");
   });
 });
+
+describe("pm= 統計呈現方式", () => {
+  it("parses well-formed entries and drops malformed ones", () => {
+    expect(parseUrlState(`?${V}&pm=statsA:circle,bad,statsB:Circle,:circle,statsC:dots`).presentation).toEqual({ statsA: "circle", statsC: "dots" });
+    expect(parseUrlState(`?${V}&pm=,,`).presentation).toBeUndefined();
+    expect(parseUrlState(`?${V}`).presentation).toBeUndefined();
+  });
+
+  it("round-trips through buildUrl (sorted, only when present)", () => {
+    const url = buildUrl({ presentation: { statsB: "circle", statsA: "circle" } }, "/");
+    expect(parseUrlState(url.slice(url.indexOf("?"))).presentation).toEqual({ statsA: "circle", statsB: "circle" });
+    expect(decodeURIComponent(url)).toContain("pm=statsA:circle,statsB:circle");
+    expect(buildUrl({}, "/")).not.toContain("pm=");
+  });
+});

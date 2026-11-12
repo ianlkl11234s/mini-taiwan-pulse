@@ -31,6 +31,7 @@ import { getEducationPresentationView } from './statisticsPresentationViews';
 import { STATISTICS_RECIPES, isStatisticsLayer } from './regionalStatisticsRecipes';
 import { getMedicalStatisticsGroup } from './medicalStatisticsGroups';
 import { statisticsDimensionLabel } from './statisticsLabels';
+import { statisticsPresentationSpec } from './statisticsPresentation';
 
 export const STATISTICS_LINKED_PROVIDER = 'statistics';
 export const STATISTICS_VARIANT_PROVIDER = 'statisticsVariant';
@@ -113,13 +114,15 @@ export function statisticsLinkedSelects(key: string): LinkedSelectParamSpec[] {
 
 /**
  * manifest `params` 宣告（資料未載入時看得到的控件）：統計 provider 只剩保底那一列、
- * 群組「指標」在選項 ≥2 時可見，加上原本的透明度。與 `linkedSelectHiddenFor` 同一套規則。
+ * 群組「指標」在選項 ≥2 時可見、呈現方式（可切比例圓的總量層），加上原本的透明度。與 `linkedSelectHiddenFor` 同一套規則。
  */
 export function statisticsManifestParams(key: string, rest: readonly LayerParamSpec['kind'][] = ['slider']): { count: number; kinds: LayerParamSpec['kind'][] } {
   const kinds: LayerParamSpec['kind'][] = [];
   const group = getMedicalStatisticsGroup(key);
   if (group && group.options.length > 1) kinds.push('linkedSelect');
   if (statisticsFieldPlan(key).length) kinds.push('linkedSelect');
+  // 呈現方式（面量圖／比例圓）：推導出 ≥2 個選項才有（statisticsPresentation.ts）
+  if (statisticsPresentationSpec(key)) kinds.push('select');
   kinds.push(...rest);
   return { count: kinds.length, kinds };
 }

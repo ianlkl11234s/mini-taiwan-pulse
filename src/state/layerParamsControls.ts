@@ -25,6 +25,7 @@ import {
 } from "./linkedSelect";
 // provider 以 import 副作用註冊（統計＋統計群組）；控件、Agent、場景存檔都經本檔或 linkedSelect 讀取
 import "./statisticsLinkedSelect";
+import { statisticsPresentationNote } from "./statisticsPresentationStore";
 import "./transitReachOriginSelect";
 
 // ══════════════════════════════════════════════════════════════════
@@ -71,6 +72,8 @@ export interface SelectConfig {
   /** disabled：該選項當下不可選（如 propertyValueGrid 人均模式在 150m 尺度）；label 自帶原因說明 */
   options: { label: string; value: string; disabled?: boolean }[];
   onChange: (v: string) => void;
+  /** 控件下方的一行說明（例：統計「呈現方式」切到比例圓時，另一層被自動改回面量圖）；沒有就省略 */
+  note?: string;
 }
 
 export interface MultiSelectConfig {
@@ -236,6 +239,7 @@ export function buildParamControls(
           // `disableRule` 會依別的參數當下的值算出每個選項的 disabled ＋ 原因後綴
           options: resolveSelectOptions(s, resolved, i18n ? tx : undefined),
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
+          ...((note) => note ? { note } : {})(statisticsPresentationNote(key, s.name, i18n)),
         };
       }
       case "multiSelect": {
