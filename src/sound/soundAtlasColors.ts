@@ -64,3 +64,13 @@ export const SOUND_POTENTIAL_GRID_COLORS = {
   river_water: ["#94a3b8", "#a7f3d0", "#34d399", "#059669", "#065f46"],
 } as const;
 export const SOUND_POTENTIAL_GRID_ALPHA = [0.1, 0.48, 0.6, 0.72, 0.84] as const;
+
+/**
+ * W6-4/5 綜合網格（甲／乙預覽；資料色，§3.16）：單一色相（靛藍）由淺到深、越深越多，不用紅綠對立；
+ * 七族網格的色相是灰／藍紫洋紅（雨）、琥珀紅（道路）、粉紅（飛機）、黃（鐵道）、萊姆綠（風）、青（浪）、翠綠（河），靛藍最分得開。
+ * 末級停在 indigo-700（不用更深的 900）：暗底圖上仍看得出。無法判斷由渲染器畫斜線。
+ * 甲：平靜／一般／熱鬧；乙：指數 0 → displayMaxIndex 連續內插（色與透明度一起加深）。
+ */
+export const SOUND_COMPOSITE_A_COLORS = ["#c7d2fe", "#818cf8", "#4338ca"] as const;
+export const SOUND_COMPOSITE_A_ALPHA = [0.2, 0.55, 0.82] as const;
+export const SOUND_COMPOSITE_B_RAMP = { from: "#e0e7ff", to: "#4338ca", alphaFrom: 0.12, alphaTo: 0.84 } as const;

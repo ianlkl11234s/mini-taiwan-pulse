@@ -19,6 +19,7 @@ import { buildRainGaugeField, rainGridFrame } from "../grid/rainGrid";
 import { cellReceiver } from "../grid/potentialGridState";
 import { buildNaturalField, naturalGridFrame, type NaturalFamily } from "../grid/naturalGrid";
 import { railGridFrame } from "../grid/railGrid";
+import { SoundGridCore } from "../grid/gridComputeCore";
 import { prefilterAviation, withRadarRain } from "../soundAtlasData";
 import { loadRail } from "../sourceAdapters/railAdapter";
 import type { AviationRecord } from "../sourceAdapters/aviationAdapter";
@@ -186,19 +187,16 @@ describe.each(DATES)("飛機網格包（真實 %s）", (date) => {
 
 describe("鐵道網格（真實班表範本，2026-11-09）", () => {
   const have = existsSync("public/rail/trtc/station_progress.json");
-  it.skipIf(!have)("網格碼＝queryReceiver 碼：≥200 格 × 4 個 10 分區間；冷算時間只記錄（換幀靠 hook 的每格快取＋預算下一格）", async () => {
+  it.skipIf(!have)("網格碼＝queryReceiver 碼：≥200 格 × 4 個 10 分區間；冷算在 Worker、同格不重算（工作量計數）", async () => {
     const date = "2026-11-09";
     const set = (await loadRail({ date }, localRailFetchers(path.resolve("public/rail")))) as SoundSourceSet;
     const cells = [...new Set([...sampleCells(200, 5), ...cellsAround(121.517, 25.046, 5), ...cellsAround(121.463, 25.012, 4)])];
     const times = [7.6, 12.3, 17.9, 23.1].map((h) => binOf(at(date, h)));
     let mismatches = 0, checked = 0, activeN = 0;
     const examples: string[] = [];
-    const frameMs: number[] = [];
     const buf = new Uint8Array(GRID_CELLS);
     for (const b of times) {
-      const s = performance.now();
       const frame = railGridFrame(set, b, b + 600 - 1e-6, buf);
-      frameMs.push(performance.now() - s);
       for (const c of cells) {
         const want = familyResultCode(queryFamilyInterval("rail", [set], cellReceiver(c), b, b + 600 - 1e-6));
         checked++;
@@ -206,12 +204,15 @@ describe("鐵道網格（真實班表範本，2026-11-09）", () => {
         if (frame.values[c] !== want) { mismatches++; if (examples.length < 5) examples.push(`c=${c} t=${b} got=${frame.values[c]} want=${want}`); }
       }
     }
-    console.info(`[railGrid real] cells=${cells.length} checked=${checked} mismatches=${mismatches} active=${activeN} frameMs=${frameMs.map((x) => x.toFixed(1)).join(",")}`);
+    console.info(`[railGrid real] cells=${cells.length} checked=${checked} mismatches=${mismatches} active=${activeN}`);
     expect(mismatches, examples.join("; ")).toBe(0);
     expect(activeN).toBeGreaterThanOrEqual(50);
-    // 冷算一幀約 70–280 ms（node，閒置機器），受機器負載影響大，不在測試卡時間（verify 平行跑時量到 770 ms）；
-    // 換幀靠 hook 的 10 分格快取＋閒置預算前後格。這裡只確認算得出來。
-    expect(frameMs.every((x) => Number.isFinite(x))).toBe(true);
+    // W6-4：冷算一幀 70–280 ms（受機器負載影響，不看牆鐘）改在 Worker 算；這裡驗工作量：
+    // 同一格第二次是查表、主執行緒的 hook 不呼叫 railGridFrame（gridWorker.test.ts）。
+    const core = new SoundGridCore();
+    core.setFamily("rail", 1, "live", { kind: "plain", set });
+    for (const b of [...times, ...times]) expect(core.frame("rail", b).values).toEqual(railGridFrame(set, b, b + 600 - 1e-6).values);
+    expect(core.computeCount.rail).toBe(times.length);
   }, 120_000);
 });
 
