@@ -13,8 +13,9 @@
 | 估計（單點） | `sourceAdapters/*Adapter.ts` 的 `*EstimateAt` | **網格、接收點查詢、格 popup 共用的同一支**（網格值＝queryReceiver 值） |
 | 估計（整幀） | `src/sound/grid/*Grid.ts` | 只做預先計算（每格最近站等），每格結果必須與單點估計一致；測試逐格比對 |
 | 渲染 | `src/map/soundGridCustomLayer.ts` | 通用：分級碼 → 色表；255 畫斜線；遮罩外不畫；透明度 uniform |
-| 接線 | `src/hooks/useSound*GridLayer.ts` | 讀 `soundAtlasStore.sets[family]`（不另載）、timeStore 節流訂閱、10 分一格、同格不重算 |
-| 點格 | `src/sound/grid/*GridState.ts` | 模組狀態＋`pick*Cell`（對格心呼叫單點估計）；`useMapInteraction` fallback 進 FeatureInfo |
+| 計算（W6-4 起） | `src/sound/grid/soundGrid.worker.ts`＋`gridComputeCore.ts`／`gridWorkerHost.ts`；主執行緒端 `soundGridClient.ts` | 所有整幀計算（含建場、綜合）在 Web Worker；見 §6 |
+| 接線 | `src/hooks/useSoundGridLayer.ts`（各族 `useSound*GridLayer.ts` 是薄包裝） | timeStore 節流訂閱、10 分一格、向 Worker 要幀、只套最後一次請求、等待中註冊 loading |
+| 點選查詢（W6-5 起） | `src/sound/grid/pointQuery.ts`＋`*GridState.ts` 的 `*CellInfo`；面板 `components/sound/SoundCellSection.tsx` | 接收點所在格、此 10 分格：七族格資訊（對格心呼叫單點估計）＋Worker 回的七個碼（綜合）；各族格子 popup 已停用 |
 
 ## 2. 渲染器介面（`createSoundGridLayer`）
 
@@ -87,3 +88,50 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 - 淺色底圖：斜線清楚；但「無雨」（透明度 0.14 的灰）在淺底幾乎看不出來，和範圍外難分（未調整，待決）。
 - 包大小：11-09 92,688 B（128/144 幀）、10-24 153,499 B（139/144 幀）。
 - W6-2 道路（dev server、SwiftShader）：建近鄰 96 ms（瀏覽器）／135 ms（node）；整幀 3–11 ms（瀏覽器實測 11.2 ms），上傳 0.1 ms。淺色底圖斜線與分級都清楚。資產：路網 1,389,342 B（gzip 348,831）、11-09 包 189,776 B（gzip 49,660）、10-24 包 185,450 B（gzip 42,917）。
+
+## 6. Web Worker、綜合網格與點選查詢（W6-4／W6-5，2026-11-12）
+
+### 6.1 Worker
+
+- **主執行緒只送資料、收幀、上傳貼圖**。`soundGridClient()`（全站一個）訂閱 `soundAtlasStore`，七族 set 換了才送：鐵道軌道打包成 Float64Array（transfer，同一條軌道只送一次）＋班次 JSON；道路路網只送一次；飛機改送每日包（主執行緒抓、驗來源 sha）；其他族整個 set structured clone。
+- 送出佇列一個 task 只送一則，編碼也在那個 task 做 → 主執行緒單次阻塞＝單一族的編碼＋clone。
+- Worker 端（`gridComputeCore.ts`）：每族 36 格快取、建場（雨量站場、道路近鄰、自然三族空間項）延到第一次要幀才做；同 key 請求排隊中被新請求取代（回 `superseded`）；閒置時預算鐵道前後各一格。
+- hook（`useSoundGridLayer`）：以自己的序號只套用最後一次請求（跳時間時晚回來的舊格不蓋新格）；等待中註冊 `sound-grid:<layerId>` loading，沒回來前不畫（不會畫成全 0）；族版次一換先清幀。
+- 沒有 Worker（node 測試）或建立失敗 → 同執行緒後備（同一個 host）。
+- 測試：`gridWorker.test.ts`（編碼還原後幀相同、核心＝各族原函式、同格不重算（工作量計數）、請求取代、亂序回應只套最後一次、hook 不 import 算格函式）；`potentialGrids.test.ts` 的鐵道冷算改驗工作量（不看牆鐘）。
+
+### 6.2 綜合網格 `soundComposite`
+
+- 規則見 MODEL_DECISIONS §10。Worker 的 `composite(bin, gate)` 用同一個 10 分格的七幀算甲乙兩版（`compositeFrames`），一次回兩張；切版本只換色表與幀，不重算。
+- 開綜合不必開七個單族圖層：`soundAtlasHost` 把七族當背景族交給 `useSoundAtlasLayer` 載入；七族都載完、飛機包抓完才請求。
+- 色：靛藍單一色相、越深越多（`SOUND_COMPOSITE_A_COLORS`、`SOUND_COMPOSITE_B_RAMP`），和七族色分開；255 斜線同其他網格。
+
+### 6.3 點選查詢
+
+- 一個工具（面板「點選查詢：開／關」）：開著時點地圖任一處＝放／移接收點。點擊仲裁在 `useMapInteraction`：畫路線 > 點選查詢 > 其他 popup。
+- 面板列：此刻前 5 個來源（原本）、**此格網格值**（綜合甲乙＋七族各一列，展開是原本的格子 popup 內容）、來源健康、路線、24 小時。網格外 → 「網格範圍外」。
+- 關面板＝關工具，**不動圖層**（舊版 closeAll 會把十個聲景圖層全關，已修）；關掉後面板縮成一行，可再開。聲景圖層從全關到有開時，工具預設開。
+
+### 6.4 量測
+
+瀏覽器（dev server 3746、SwiftShader、11-09 08:00、只開綜合；機器 load 10–25）：
+
+| 項目 | 結果 |
+|---|---|
+| 主執行緒單次送出（編碼＋postMessage）最大 | 34–44 ms（鐵道 set）；雨 17–18、道路 7–9、河 6–8、風 3–4、浪 1、飛機 1 ms |
+| 綜合幀套用（收幀＋上傳貼圖）最大 | 2.4–7.9 ms |
+| 拖時間軸 08:00 → 10:28（套 7 幀） | 主執行緒 0 個 > 50 ms 長任務 |
+| 點地圖放接收點（改版前） | 24h 構成一次算完 2,082–2,100 ms 長任務（七族背景載入後鐵道全日最慢） |
+| 點地圖放接收點（`dayProfileSteps` 分段後） | 構成總計算 2.0–2.9 s 分成多段，最長一段 52–125 ms（單一鐵道 10 分區間無法再切）；放點當下 React 重繪＋當下查詢＋格資訊約 160–190 ms（dev 模式 StrictMode 會雙跑，格資訊鐵道 20–35 ms） |
+
+- node（Worker 核心，同資料）：鐵道冷算一幀 79–131 ms、其他族 ≤ 10 ms；第一次建場最多雨 792／風 363 ms（都在 Worker）；綜合一幀 11–14 ms。
+- **未達標**：放接收點當下約 160–190 ms、構成最長一段可到 125 ms，都在主執行緒（不是網格計算）；要再降需把 24h 構成與當下查詢也搬進 Worker（Worker 已有七族資料，但雷、垃圾車、施工不在 Worker），未做。
+
+### 6.5 選定甲或乙之後要移除什麼（PREVIEW 清單）
+
+1. 刪 `src/sound/grid/compositePreview.ts`；`useSoundCompositeGridLayer.ts`、`SoundCellSection.tsx`、`soundAtlasLegends.tsx` 的 `compositePreviewStore` 改成固定版本。
+2. 刪 `src/components/sound/SoundCompositePreviewBar.tsx` 與 `App.tsx` 的 lazy import＋掛載（標 PREVIEW）。
+3. `App.tsx` 網址同步保留 `?soundComposite=` 的兩行（標 PREVIEW）。
+4. 沒選的那版：`compositeGrid.ts` 的 codeA 或 codeB／index、`soundProfiles.COMPOSITE` 的對應常數（甲：activeMinLevel、levelCuts；乙：weights、minKnownWeightShare、displayMaxIndex）、`soundAtlasColors.ts` 的對應色表、Worker `composite` 回傳的另一張、三語 i18n（`soundAtlas.composite.preview*`、`unknownShare`、`legend.soundAtlas.compositeA*`／`compositeB*`）、圖例分支、`compositeGrid.test.ts` 對應題。
+5. MODEL_DECISIONS §10 改成「已選定」並刪掉沒選的那節；manifest `soundComposite` 的 processing／source 說明改寫。
+
