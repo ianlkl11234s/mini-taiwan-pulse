@@ -1,0 +1,13 @@
+{
+  "id": "nn-250m-v1",
+  "description": "City Sound Atlas 北北網格（臺北市＋新北市）。等經緯度格，列 0 在北、行 0 在西；格 [col,row] 覆蓋 lon ∈ [west+col·dLon, west+(col+1)·dLon)、lat ∈ (north−(row+1)·dLat, north−row·dLat]。cellIndex = row·cols + col。Python 預處理與前端共讀本檔，不可各寫一份。",
+  "crs": "EPSG:4326",
+  "west": 121.28,
+  "north": 25.31,
+  "dLon": 0.0025,
+  "dLat": 0.00225,
+  "cols": 292,
+  "rows": 285,
+  "nominalCellM": 250,
+  "cellSizeNote": "dLon 0.0025° 在 24.67–25.31°N ≈ 251.6–252.9 m；dLat 0.00225° ≈ 249 m（WGS84 子午線弧長）。"
+}
