@@ -27,7 +27,7 @@ const mobile = (extra: object) => renderToStaticMarkup(createElement(LayerSideba
 
 describe("模擬入口與實驗人人可見；站主限定實驗對非站主顯示鎖頭列、不濾掉（2026-11-06 統一）", () => {
   it("resolveLayerPanel：站主與非站主同一份清單", () => {
-    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses", "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites", "mapchallengeDay08Plan1955", "mapchallengeDay09UrbanRural"]);
+    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "soundComposite", "soundAviation", "soundRain", "soundThunder", "soundWaste", "soundRail", "soundRoadTraffic", "soundRoadwork", "soundWindFoliage", "soundCoastalWave", "soundRiverWater", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses", "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites", "mapchallengeDay08Plan1955", "mapchallengeDay09UrbanRural"]);
     expect(LAYER_PANELS[LAYER_PANELS.length - 1]!.id).toBe("simulation");
   });
 
@@ -51,7 +51,7 @@ describe("模擬入口與實驗人人可見；站主限定實驗對非站主顯�
 
 describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
   it("模擬面板是橋梁韌性＋公車擁擠；BSS 兩層留在台灣入口", () => {
-    expect([...panelLayerKeys("simulation", "TW")]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses", "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites", "mapchallengeDay08Plan1955", "mapchallengeDay09UrbanRural"]);
+    expect([...panelLayerKeys("simulation", "TW")]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "soundComposite", "soundAviation", "soundRain", "soundThunder", "soundWaste", "soundRail", "soundRoadTraffic", "soundRoadwork", "soundWindFoliage", "soundCoastalWave", "soundRiverWater", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses", "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites", "mapchallengeDay08Plan1955", "mapchallengeDay09UrbanRural"]);
     const main = new Set(getThemeLayerKeys(MAIN_THEMES));
     expect(main.has("bridgeResilienceTwinCity")).toBe(false);
     expect(main.has("bssNationalBridgePreview")).toBe(true);
@@ -95,6 +95,21 @@ describe("雙北國道逐車模擬（公開模擬）", () => {
     expect(GATED_LAYERS.has("freewayTdcsSim")).toBe(false);
     expect(panelForExplorationLayers(["freewayTdcsSim"]).panel).toBe("simulation");
     expect(getThemeLayerKeys(MAIN_THEMES)).not.toContain("freewayTdcsSim");
+  });
+});
+
+describe("雙北城市聲景（公開模擬，W6-6 從環境氣候搬來）", () => {
+  it("十一個聲景圖層都在模擬面板第六個主題同一群組（綜合在最上）；非站主看得到；Agent 開啟時導向模擬面板；圖層面板已沒有", () => {
+    const theme = layerPanelDef("simulation").themes[5]!;
+    const keys = ["soundComposite", "soundAviation", "soundRain", "soundThunder", "soundWaste", "soundRail", "soundRoadTraffic", "soundRoadwork", "soundWindFoliage", "soundCoastalWave", "soundRiverWater"] as const;
+    expect(theme.title).toBe("雙北城市聲景");
+    expect(theme.groups[0]!.layers.map((l) => l.key)).toEqual([...keys]);
+    for (const k of keys) {
+      expect(LAYER_MANIFEST[k].section, k).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
+      expect(GATED_LAYERS.has(k), k).toBe(false);
+      expect(getThemeLayerKeys(MAIN_THEMES), k).not.toContain(k);
+    }
+    expect(panelForExplorationLayers(["soundComposite"]).panel).toBe("simulation");
   });
 });
 

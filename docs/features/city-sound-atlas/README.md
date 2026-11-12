@@ -42,6 +42,7 @@
 | 場景快照產生器 | `scripts/preprocess/build-sound-scenes.py` |
 | 快照驗算（跑引擎） | `scripts/preprocess/verify-sound-scenes.ts` |
 | UI | W2 進行中（圖層群組、接收點、24h 構成圖） |
+| 圖層位置 | 左側燒瓶「模擬 Simulation」面板 › 雙北城市聲景 › 聲景（實驗）（W6-6，2026-11-12 從「圖層 › 環境氣候」搬來；`layerCatalog.ts` SIM 主題，人人可見） |
 
 ## 文件
 

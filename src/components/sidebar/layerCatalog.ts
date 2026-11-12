@@ -422,6 +422,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "全台交通可及性",
     "雙北大眾運輸可及性",
     "雙北國道逐車模擬",
+    "雙北城市聲景",
     "30 天地圖挑戰",
   ],
 };
@@ -1757,23 +1758,6 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
-        // City Sound Atlas（2026-11-11 MVP）：時空資料推估的相對聲源活動，非實測噪音、非 dB
-        title: "聲景（實驗）",
-        layers: [
-          fromManifest("soundComposite"),
-          fromManifest("soundAviation"),
-          fromManifest("soundRain"),
-          fromManifest("soundThunder"),
-          fromManifest("soundWaste"),
-          fromManifest("soundRail"),
-          fromManifest("soundRoadTraffic"),
-          fromManifest("soundRoadwork"),
-          fromManifest("soundWindFoliage"),
-          fromManifest("soundCoastalWave"),
-          fromManifest("soundRiverWater"),
-        ],
-      },
-      {
         title: "水質與污水 Water Quality",
         layers: [
           fromManifest("riverRpiStations"),
@@ -2394,6 +2378,29 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "SIM",
     defaultCollapsed: true,
     groups: [{ title: "國道逐車", layers: [fromManifest("freewayTdcsSim")] }],
+  },
+  {
+    // City Sound Atlas（2026-11-11 MVP；W6-6 2026-11-12 使用者決定從「環境氣候」搬到模擬面板，各聲源仍各自一列）：
+    // 時空資料推估的相對聲源活動，非實測噪音、非 dB；公開資料推估，人人可見（非站主限定）；跟全站時間軸。
+    title: "雙北城市聲景",
+    country: "SIM",
+    defaultCollapsed: true,
+    groups: [{
+      title: "聲景（實驗）",
+      layers: [
+        fromManifest("soundComposite"),
+        fromManifest("soundAviation"),
+        fromManifest("soundRain"),
+        fromManifest("soundThunder"),
+        fromManifest("soundWaste"),
+        fromManifest("soundRail"),
+        fromManifest("soundRoadTraffic"),
+        fromManifest("soundRoadwork"),
+        fromManifest("soundWindFoliage"),
+        fromManifest("soundCoastalWave"),
+        fromManifest("soundRiverWater"),
+      ],
+    }],
   },
   {
     // 30 天地圖挑戰（2026-11-04）：每日一題的地圖作品，Day 4 群聚四層；公開靜態 GeoJSON，人人可見。
@@ -3544,6 +3551,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "全台交通可及性": "city",
     "雙北大眾運輸可及性": "city",
     "雙北國道逐車模擬": "city",
+    "雙北城市聲景": "city",
     "30 天地圖挑戰": "city",
   },
 };
@@ -3760,6 +3768,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "全台交通可及性": { zh: "全台交通可及性", sub: "Transit Reach" },
     "雙北大眾運輸可及性": { zh: "雙北大眾運輸可及性", sub: "Taipei Transit Access" },
     "雙北國道逐車模擬": { zh: "雙北國道逐車模擬", sub: "Freeway Vehicles" },
+    "雙北城市聲景": { zh: "雙北城市聲景", sub: "Soundscape" },
     "30 天地圖挑戰": { zh: "30 天地圖挑戰", sub: "30-Day Map Challenge" },
   },
 };

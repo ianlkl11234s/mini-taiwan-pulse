@@ -13074,7 +13074,7 @@ export const LAYER_MANIFEST = {
   // W6-4/5 綜合網格（預覽）：七族當下網格即時合成，甲（活躍種數分級）／乙（假設權重指數）由底部預覽列切換，使用者選定後移除另一版。
   soundComposite: {
     key: "soundComposite",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "綜合聲景", alt: "Combined soundscape", qualifier: "推估・預覽" }),
     expandable: true,
     color: SOUND_COMPOSITE_A_COLORS[1],
@@ -13100,7 +13100,7 @@ export const LAYER_MANIFEST = {
   },
   soundAviation: {
     key: "soundAviation",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "飛機聲源", alt: "Aircraft", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.aviation,
@@ -13126,7 +13126,7 @@ export const LAYER_MANIFEST = {
   },
   soundRain: {
     key: "soundRain",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "雨聲", alt: "Rain", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.rain,
@@ -13152,7 +13152,7 @@ export const LAYER_MANIFEST = {
   },
   soundThunder: {
     key: "soundThunder",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "雷聲", alt: "Thunder", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.thunder,
@@ -13178,7 +13178,7 @@ export const LAYER_MANIFEST = {
   },
   soundWaste: {
     key: "soundWaste",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "垃圾車音樂", alt: "Waste Truck", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.waste_collection,
@@ -13204,7 +13204,7 @@ export const LAYER_MANIFEST = {
   },
   soundRail: {
     key: "soundRail",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "列車聲源", alt: "Trains", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.rail,
@@ -13227,7 +13227,7 @@ export const LAYER_MANIFEST = {
   },
   soundRoadTraffic: {
     key: "soundRoadTraffic",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "道路車流", alt: "Road traffic", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.road_traffic,
@@ -13250,7 +13250,7 @@ export const LAYER_MANIFEST = {
   },
   soundRoadwork: {
     key: "soundRoadwork",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "道路施工許可", alt: "Roadwork permits", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.roadwork,
@@ -13273,7 +13273,7 @@ export const LAYER_MANIFEST = {
   },
   soundWindFoliage: {
     key: "soundWindFoliage",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "風吹樹葉", alt: "Wind in foliage", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.wind_vegetation,
@@ -13296,7 +13296,7 @@ export const LAYER_MANIFEST = {
   },
   soundCoastalWave: {
     key: "soundCoastalWave",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "海浪拍岸", alt: "Surf", qualifier: "推估・實驗" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.coastal_wave,
@@ -13319,7 +13319,7 @@ export const LAYER_MANIFEST = {
   },
   soundRiverWater: {
     key: "soundRiverWater",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "聲景（實驗）" },
+    country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
     ...layerName({ zh: "河川水聲", alt: "River water", qualifier: "研究・推估" }),
     expandable: true,
     color: SOUND_FAMILY_COLORS.river_water,
