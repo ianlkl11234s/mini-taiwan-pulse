@@ -629,7 +629,11 @@ export function useSoundAtlasLayer(
       if (!cellComposite) return;
       void soundGridClient().cell("point-query", bin, cell).then((r) => {
         if (!r || !alive || !gateSeq.isLatest(seq)) return;
-        soundAtlasStore.set({ cell: { bin, cell, infos, codes: r.codes, notes: r.notes, gate: cellGate } });
+        // Worker 有整幀說明（例：飛機每日包缺／雜湊不符）→ 各族列也要照同一說明顯示無法判斷，和綜合列一致
+        const hasNote = Object.values(r.notes).some((n) => n != null);
+        const st2 = soundAtlasStore.get();
+        const infos2 = hasNote ? pointCellInfos(st2.sets, st2.origins, bin, cellGate, r.notes, lon, lat) : infos;
+        soundAtlasStore.set({ cell: { bin, cell, infos: infos2, codes: r.codes, notes: r.notes, gate: cellGate } });
       }, () => {});
     };
     apply(timeStore.getTime());

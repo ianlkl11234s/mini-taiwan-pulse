@@ -44,7 +44,7 @@ describe("點選查詢工具", () => {
     const code = strip(readFileSync("src/components/sound/SoundReceiverPanel.tsx", "utf8"));
     expect(code).not.toMatch(/layerVisibilityStore\.(setBulk|setVisibility)/);
     expect(code).toMatch(/onClose=\{closeTool\}/);
-    expect(code).toMatch(/closeTool = \(\) => setSoundQueryTool\(false\)/);
+    expect(code).toMatch(/closeTool = \(\) => \{ setSoundQueryTool\(false\); setCollapsed\(true\); \}/);
     // 關掉後仍有「開啟點選查詢」可按
     expect(code).toMatch(/soundAtlas\.tool\.reopen/);
   });

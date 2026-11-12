@@ -61,7 +61,7 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 
 ## 4b. 連續潛勢五族的差異（W6-3）
 
-- **共用**：碼 `src/sound/grid/potentialCode.ts`（0／1–200／255，刻度 1/200）；hook `useSoundPotentialGridLayer(map, family, visible, opacity, gate)`，layer id `sound-atlas-grid-<family>`；狀態與點格查詢 `potentialGridState.ts`（popup layerType `soundPotentialCell`，對格心即時呼叫 `queryFamilyInterval`）；色表 `SOUND_POTENTIAL_GRID_COLORS`（飛機粉紅、鐵道黃→橄欖、風萊姆→深綠、浪青、河川翠綠），0 級淡灰、斜線同雨。
+- **共用**：碼 `src/sound/grid/potentialCode.ts`（0／1–200／255，刻度 1/200）；hook `useSoundPotentialGridLayer(map, family, visible, opacity, gate)`，layer id `sound-atlas-grid-<family>`；狀態與點格查詢 `potentialGridState.ts`（W6-3 時是 popup layerType `soundPotentialCell`；W6-5 起改由點選查詢面板呼叫 `potentialCellInfo`，對格心即時呼叫 `queryFamilyInterval`）；色表 `SOUND_POTENTIAL_GRID_COLORS`（飛機粉紅、鐵道黃→橄欖、風萊姆→深綠、浪青、河川翠綠），0 級淡灰、斜線同雨。
 - **全北北來源檔**（`gridSources.ts`，Python `scripts/preprocess/build-sound-grid-sources.py` 產生，`SOUND_S3_LOCAL_DIR` 指本機 S3 快取）：`aviation-src-<D>.json`（航跡，網格外框外擴 23 km 內有段落的航班）、`rain-gauge-<D>.json`（雨量站逐時列）、`natural-<D>.json`（風、浪、河川觀測＋近岸海域面＋河道線，同場景快照 natural 區塊格式）。`loadSoundFamily` 在接收點不存在或在網格外框內時先讀這些檔（origin＝grid），讀不到才走快照／即時。
 - **飛機**：唯一要預算的。`scripts/preprocess/sound/build-sound-grid-packs.ts aviation <D…>`（vite-node，kernel 在 TS）→ `aviation-<D>.{class.bin,meta.json}`（`pulse-sound-potential-v1`，144 幀、frame-major、gzip，只存分箱碼），一天約 71 s。
 - **鐵道**：前端每幀即時算（`railGrid.ts`）。冷算一幀 node 量到 70–280 ms（尖峰時段最慢），超過 50 ms → hook 以 10 分格快取（36 格）＋閒置時預算前後各一格；播放與來回拖曳時換幀是查表。段組外框下界剪枝（每 16 段一組，下界 ≥ 目前最短或 > 1.5 km 就跳過），結果與逐段完全相同。
@@ -110,7 +110,8 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 
 - 一個工具（面板「點選查詢：開／關」）：開著時點地圖任一處＝放／移接收點。點擊仲裁在 `useMapInteraction`：畫路線 > 點選查詢 > 其他 popup。
 - 面板列：此刻前 5 個來源（原本）、**此格網格值**（綜合甲乙＋七族各一列，展開是原本的格子 popup 內容）、來源健康、路線、24 小時。網格外 → 「網格範圍外」。
-- 關面板＝關工具，**不動圖層**（舊版 closeAll 會把十個聲景圖層全關，已修）；關掉後面板縮成一行，可再開。聲景圖層從全關到有開時，工具預設開。
+- 關面板（X）＝關工具＋面板縮成一行，**不動圖層**（舊版 closeAll 會把十個聲景圖層全關，已修）；縮起後按「開啟點選查詢」恢復。面板內的開關只切工具、不縮面板（場景、畫路線、24 小時照常）。聲景圖層從全關到有開時，工具預設開。
+- **取捨（待使用者確認）**：工具開著時，點地圖一律放接收點，其他圖層與聲景點位的 popup 點不到；要看 popup 先把工具關掉。
 
 ### 6.4 量測
 
@@ -122,7 +123,7 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 | 綜合幀套用（收幀＋上傳貼圖）最大 | 2.4–7.9 ms |
 | 拖時間軸 08:00 → 10:28（套 7 幀） | 主執行緒 0 個 > 50 ms 長任務 |
 | 點地圖放接收點（改版前） | 24h 構成一次算完 2,082–2,100 ms 長任務（七族背景載入後鐵道全日最慢） |
-| 點地圖放接收點（`dayProfileSteps` 分段後） | 構成總計算 2.0–2.9 s 分成多段，最長一段 52–125 ms（單一鐵道 10 分區間無法再切）；放點當下 React 重繪＋當下查詢＋格資訊約 160–190 ms（dev 模式 StrictMode 會雙跑，格資訊鐵道 20–35 ms） |
+| 點地圖放接收點（`dayProfileSteps` 分段後） | 構成總計算 2.0–2.9 s 分成多段，最長一段 52–125 ms（單一鐵道 10 分區間無法再切）；放點當下單一 task 約 160–190 ms（未拆解；量到的只有：預篩 1–4 ms、當下查詢 5–14 ms、格資訊 20–35 ms 且一次放點跑了兩次，原因未查） |
 
 - node（Worker 核心，同資料）：鐵道冷算一幀 79–131 ms、其他族 ≤ 10 ms；第一次建場最多雨 792／風 363 ms（都在 Worker）；綜合一幀 11–14 ms。
 - **未達標**：放接收點當下約 160–190 ms、構成最長一段可到 125 ms，都在主執行緒（不是網格計算）；要再降需把 24h 構成與當下查詢也搬進 Worker（Worker 已有七族資料，但雷、垃圾車、施工不在 Worker），未做。
@@ -133,5 +134,5 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 2. 刪 `src/components/sound/SoundCompositePreviewBar.tsx` 與 `App.tsx` 的 lazy import＋掛載（標 PREVIEW）。
 3. `App.tsx` 網址同步保留 `?soundComposite=` 的兩行（標 PREVIEW）。
 4. 沒選的那版：`compositeGrid.ts` 的 codeA 或 codeB／index、`soundProfiles.COMPOSITE` 的對應常數（甲：activeMinLevel、levelCuts；乙：weights、minKnownWeightShare、displayMaxIndex）、`soundAtlasColors.ts` 的對應色表、Worker `composite` 回傳的另一張、三語 i18n（`soundAtlas.composite.preview*`、`unknownShare`、`legend.soundAtlas.compositeA*`／`compositeB*`）、圖例分支、`compositeGrid.test.ts` 對應題。
-5. MODEL_DECISIONS §10 改成「已選定」並刪掉沒選的那節；manifest `soundComposite` 的 processing／source 說明改寫。
+5. MODEL_DECISIONS §10 改成「已選定」並刪掉沒選的那節；manifest `soundComposite` 的 qualifier「推估・預覽」、description、processing／source 說明改寫；en／ja `layers.json` 的「(Preview)／（プレビュー）」、`layer-status.csv` 的標籤一起改；改完重跑 `dump-layer-golden.ts` 與 `design:audit-layers`。
 

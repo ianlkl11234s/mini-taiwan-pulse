@@ -7,7 +7,7 @@
  * - 24 小時構成（SoundDayProfile）。
  * 「此刻」由 Host 節流算好寫進 soundAtlasStore；本元件只訂閱 store，不碰 currentTime。
  */
-import { useSyncExternalStore, type CSSProperties } from "react";
+import { useState, useSyncExternalStore, type CSSProperties } from "react";
 import { BORDER, COLORS, CONTROL, ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE } from "../../styles/designTokens";
 import { PanelHeader } from "../sidebar/PanelHeader";
 import { useLocale } from "../../state/localeStore";
@@ -71,7 +71,10 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
   };
 
   // 關面板＝關點選查詢工具（圖層不動；W6-5 修正：原本會把十個聲景圖層全關）
-  const closeTool = () => setSoundQueryTool(false);
+  // 關面板＝關點選查詢工具＋面板縮成一行（圖層不動）；面板內的開關只切工具、不縮面板
+  const [collapsed, setCollapsed] = useState(false);
+  const closeTool = () => { setSoundQueryTool(false); setCollapsed(true); };
+  const reopen = () => { setSoundQueryTool(true); setCollapsed(false); };
   const compositeOn = useLayerVisible("soundComposite");
   const vis: Record<SoundSourceFamily, boolean> = {
     aviation: useLayerVisible(FAMILY_LAYER_KEYS.aviation),
@@ -107,10 +110,10 @@ export function SoundReceiverPanel({ isDark }: { isDark: boolean }) {
       }}
     >
       <PanelHeader eyebrow={t("soundAtlas.eyebrow")} title={title} onClose={closeTool} borderColor={c.border} mutedColor={c.muted} textColor={c.text} />
-      {!st.queryTool ? (
+      {collapsed ? (
         <div style={{ padding: "8px 12px 10px", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: FONT_SIZE.sm, color: c.text }}>
           <span style={note}>{t("soundAtlas.tool.closed")}</span>
-          <button type="button" style={{ ...btn, marginLeft: "auto" }} onClick={() => setSoundQueryTool(true)}>{t("soundAtlas.tool.reopen")}</button>
+          <button type="button" style={{ ...btn, marginLeft: "auto" }} onClick={reopen}>{t("soundAtlas.tool.reopen")}</button>
         </div>
       ) : (
       <div style={{ padding: "8px 12px 10px", display: "flex", flexDirection: "column", gap: 6, fontSize: FONT_SIZE.sm, color: c.text }}>
