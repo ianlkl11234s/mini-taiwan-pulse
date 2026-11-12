@@ -58,6 +58,28 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 - **碼**：證據基底＋五級（國道 0–4、臺北典型 10–14、新北推估 20–24），255＝無法判斷；色表由 `roadGridPalette()` 依 `ROAD_EVIDENCE_BASE` 組。0 同時代表「很低」與「離路遠」（都不是缺資料）。
 - **Python 測試**：`python3 -m unittest scripts/preprocess/sound/test_road_grid_lib.py`（QA、里程切段、路名、延伸規則）。
 
+## 4b. 連續潛勢五族的差異（W6-3）
+
+- **共用**：碼 `src/sound/grid/potentialCode.ts`（0／1–200／255，刻度 1/200）；hook `useSoundPotentialGridLayer(map, family, visible, opacity, gate)`，layer id `sound-atlas-grid-<family>`；狀態與點格查詢 `potentialGridState.ts`（popup layerType `soundPotentialCell`，對格心即時呼叫 `queryFamilyInterval`）；色表 `SOUND_POTENTIAL_GRID_COLORS`（飛機粉紅、鐵道黃→橄欖、風萊姆→深綠、浪青、河川翠綠），0 級淡灰、斜線同雨。
+- **全北北來源檔**（`gridSources.ts`，Python `scripts/preprocess/build-sound-grid-sources.py` 產生，`SOUND_S3_LOCAL_DIR` 指本機 S3 快取）：`aviation-src-<D>.json`（航跡，網格外框外擴 23 km 內有段落的航班）、`rain-gauge-<D>.json`（雨量站逐時列）、`natural-<D>.json`（風、浪、河川觀測＋近岸海域面＋河道線，同場景快照 natural 區塊格式）。`loadSoundFamily` 在接收點不存在或在網格外框內時先讀這些檔（origin＝grid），讀不到才走快照／即時。
+- **飛機**：唯一要預算的。`scripts/preprocess/sound/build-sound-grid-packs.ts aviation <D…>`（vite-node，kernel 在 TS）→ `aviation-<D>.{class.bin,meta.json}`（`pulse-sound-potential-v1`，144 幀、frame-major、gzip，只存分箱碼），一天約 71 s。
+- **鐵道**：前端每幀即時算（`railGrid.ts`）。冷算一幀 node 量到 70–280 ms（尖峰時段最慢），超過 50 ms → hook 以 10 分格快取（36 格）＋閒置時預算前後各一格；播放與來回拖曳時換幀是查表。段組外框下界剪枝（每 16 段一組，下界 ≥ 目前最短或 > 1.5 km 就跳過），結果與逐段完全相同。
+- **自然三族**（`naturalGrid.ts`）：每格空間項（樹冠／離岸／離河距離、最近站、站點範圍）建一次（node 190–650 ms），每幀只算每站時間項，換幀 1–5 ms。樹冠每格值 `canopy-cells-v1.{bin,meta.json}`（`build-sound-grid-packs.ts canopy <scratch 30 m 格網>`，19,968 B）。
+- **測試**：`src/sound/__tests__/potentialGrids.test.ts`（碼、分箱、門檻、包解碼；真實 11-09／10-24 五族各 ≥200 格 × 4 區間比對 queryReceiver，資產不在就略過）。
+
+### 4b.1 量測（node，2026-11-12）
+
+| 項目 | 11-09 | 10-24 |
+|---|---|---|
+| 飛機每日包（gzip） | 358,157 B | 295,129 B |
+| 飛機來源檔（原始／gzip） | 1,194,152／323,032 B | 683,004／189,044 B |
+| 雨量站來源檔（原始／gzip） | 1,929,611／53,255 B | 1,841,519／75,671 B |
+| 自然來源檔（原始／gzip） | 1,318,610／380,026 B | 1,317,848／383,553 B |
+| 自然三族換幀 | 1.0–4.9 ms | 0.7–2.8 ms |
+| 鐵道冷算一幀（班表範本） | 68–279 ms | — |
+
+- 比 W6 spike 估計大：飛機包 358 KB（估 236 KB，因多存三個門檻箱界）；鐵道沒有做每日包（估 109 KB/日），改前端算。
+
 ## 5. 量測（W6-1，dev server、SwiftShader、taipei-1109）
 
 - 切 30 個不同 10 分格：算幀中位 3.4 ms、最大 14.3 ms；上傳貼圖中位 0.1 ms、最大 1 ms（需求 < 50 ms）。
