@@ -52,7 +52,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - 2026 選舉活動地圖每日更新（到 11-28）。
 - 30 天地圖挑戰：Day 9 城鄉圖層 mapchallengeDay09UrbanRural（#972）、Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
 - 正式站目視包：v2.22～v2.31 各版目視集中在 BACKLOG A 群（VP-1～VP-13），等 Claude 用瀏覽器一次截圖。
-- 配色與可見性：第一、二段已合 develop 待發版（#998、#1002）；第三階段待做（VIZ-3）；視覺化提案 11-11 已拍板，階段 1 比例圓 #1008 待合併（VIZ-5），其餘拆成 VIZ-6～VIZ-11。
+- 配色與可見性：第一、二段已合 develop 待發版（#998、#1002）；第三階段待做（VIZ-3）；視覺化提案 11-11 已拍板；比例圓 #1008、多年份並排 #1011、左右比較 P1 #1012 已合 develop、未發布（VIZ-5／VIZ-8／VIZ-9）；下一項點密度（VIZ-6），等值帶使用者決定先不做（VIZ-7）。
 - MCP 與倉庫：#107 已部署並冒煙通過；發版關卡（MCP #108～#111）上線；72 表以 DuckDB 1.5.3 重發為 `20261110T084641Z`（pulse-data #104），S3 歸檔與 R2 舊版清理等使用者驗收（WHDB-2）。
 
 ## 進行中與待拍板
@@ -78,7 +78,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | 圖層配色與可見性 | 🟡 | 北極星:視覺 | 11-10 根因分析後，第一段（#998）、第二段（#1002）已合 develop、未發版；截圖只驗過 4 層 | VIZ-1／VIZ-2 發版後正式站目視；VIZ-3 第三階段（15 面、2 點、約 24 支 hook 寫死暗色、手寫圖例、淡底圖 44 共用色層、約 73 自繪點層） | BACKLOG VIZ-1～VIZ-3 | 2026-11-10 |
-| 視覺化功能設計提案 | 🟡 | 北極星:視覺 | 提案 https://claude.ai/artifact/G7qsxVy7Cy3qA1BfZqNs6y ；11-11 Q-A～Q-G 已拍板（VIZ-4 關閉）；階段 1 統計比例圓 #1008 待合併 | VIZ-5 合併＋發版目視；之後 VIZ-6 點密度、VIZ-7 溫度等值帶、VIZ-8 多年份並排、VIZ-9 通用比較模式；VIZ-10 可信度紋理先登記不做；VIZ-11 構想待表態 | BACKLOG VIZ-5～VIZ-11 | 2026-11-11 |
+| 視覺化功能設計提案 | 🟡 | 北極星:視覺 | 提案 https://claude.ai/artifact/G7qsxVy7Cy3qA1BfZqNs6y ；11-11 Q-A～Q-G 已拍板（VIZ-4 關閉）；統計比例圓 #1008、多年份並排 #1011、左右比較 P1 #1012 已合 develop、未發布（比較模式 P0 試驗 draft #1010 不合併、留作紀錄）；等值帶（含氣溫）使用者 11-11 決定先不做 | VIZ-5／VIZ-8／VIZ-9 發版後正式站目視；下一項 VIZ-6 點密度（與統計程式同批檔，依序做）；多年份並排後續 VIZ-12～VIZ-17、比較模式後續 VIZ-18～VIZ-26；VIZ-7 等值帶暫緩（使用者決定）；VIZ-10 可信度紋理只登記；待使用者：VIZ-11 構想待表態 | BACKLOG VIZ-5～VIZ-26 | 2026-11-12 |
 
 ### 資料新鮮度、collector 與平台維運
 
@@ -89,7 +89,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 資料保留期限（Supabase／R2／collector 最長 6 個月） | 🟡 | 底線:期限 | 使用者 2026-11-07 拍板；gp #208／#212 mig 505–510 已於 **11-07 晚套用**（510 drop 20 張冷存表，約少 3.77 GiB；冷存檔在 S3 `supabase-export/`） | 驗清理首跑（ZB-V1，11-09 到期、紀錄〔待確認〕）；第 2 群約 21＋22 張表（WA-3）；DB-1 晚間補表大小 | BACKLOG WA-3；ADR-0026 | 2026-11-08 |
 | R2 獨有資料補回 S3 | 🟡 | 底線:備份 | warehouse packages 約 6 GB、pulse-staging `_detect` 約 1.09 GB、`sim/v1` 只在 R2；補傳進行中 | ST-2：補完後在產生流程尾端加上傳 S3；ADR-1 補正 ADR-0026；還原演練 BKP-1（Supabase 還原到新專案，需使用者操作）、BKP-2（pulse-host 從零重建）、BKP-3（`auth.users` 進 S3 備份） | BACKLOG ST-2／ADR-1／BKP-1～3 | 2026-11-10 |
 | 站主資料改存法（owner-data） | 🟡 | 底線:授權 | 第 1 批畜牧（v2.28.0）、第 2 批能源與石化（v2.29.0）上線並經使用者驗收；mig 514／515 撤 14 支 RPC | OWD-4 第 3 批（EA、Coillte、water1944；選舉活動 11-28 後）；SR-1 撤 static RPC（~11-15）、SR-2 | `../.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`；BACKLOG F 群 | 2026-11-08 |
-| 開發系統與告警整併 | 🔵 | 北極星:開發系統 | 健檢完成（自動化清單 A1–A15）；11-09 branch protection、hook 修復；11-10：入口文件檢查（#997）、開場落後提示（#1003）、required `ci-ok`、7 repo Dependabot alerts、四個守門排程（#999）、pulse-data／MCP 補 CI、sql-lint L3（gp #238）、開場瘦身第一輪（52.9K→31.3K 字，模擬值） | ALERT-1 剩 aisstream／VM 接告警；CI-8 Dependabot 回讀與 `dependabot.yml` 待決；DEV-4 瘦身剩項；DEV-5 個人全域 CLAUDE.md 待決；DEV-7～12、CI-6、MCP-3；ASSET-1 215 檔補進 lock；SQLL-2 文件補寫 L3；DISK-1 package-cache 整併 | BACKLOG G 群 | 2026-11-10 |
+| 開發系統與告警整併 | 🔵 | 北極星:開發系統 | 健檢完成（自動化清單 A1–A15）；11-09 branch protection、hook 修復；11-10：入口文件檢查（#997）、開場落後提示（#1003）、required `ci-ok`、7 repo Dependabot alerts、四個守門排程（#999）、pulse-data／MCP 補 CI、sql-lint L3（gp #238）、開場瘦身第一輪（52.9K→31.3K 字，模擬值） | ALERT-1 剩 aisstream／VM 接告警；CI-8 Dependabot 已回讀（analytics 0、gis-platform 1 low），`dependabot.yml` 待決；DEV-4 瘦身剩項；DEV-5 個人全域 CLAUDE.md 待決；DEV-7～12、CI-6、MCP-3；ASSET-1 215 檔補進 lock；SQLL-2 文件補寫 L3；DISK-1 package-cache 整併 | BACKLOG G 群 | 2026-11-10 |
 | 資料來源追蹤一條龍（ADR-0018／0024） | 🟡 | 底線:資料正確 | pulse-data #45：606 筆偵測清單，`_detect/changes/` 開始累積；週一 03:00 routine＋VM 04:30 | Phase 2 等 2–4 週數據；61 筆 draft 欄位待補；確認 11/2 起 VM 每週自動清單有在跑（`update_list.py --pull`）；collector run receipt 未做 | `../.gis-agent-system/decisions/0024-source-tracking-and-change-log.md` | 2026-10-29 |
 
 ### 多國圖層
