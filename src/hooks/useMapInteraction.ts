@@ -5,6 +5,7 @@ import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS, dropHiddenLandUseHex } from "../map/gisClickRegistry";
 import { requireH3 } from "../map/h3Runtime";
 import { pickTransitReachCell } from "../data/transitReachStore";
+import { pickElectionHits } from "../map/electionSpread";
 import { pickFreewayTdcsCar } from "../data/freewayTdcsSimStore";
 import { pickTransitAccessCell } from "../data/transitAccessStore";
 import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
@@ -432,6 +433,11 @@ export function useMapInteraction(
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
           if (type === "landUseChangeMonitoring") features = dropHiddenLandUseHex(queried);
+          if (type === "electionEvents2026") {
+            // 確切地點多場展開後點與點相切：取離游標最近的那一場，並丟掉目前縮放下看不到的數字圖示／展開點
+            const scale = Number(encodeParamsToOverlay(layerParamsStore.getAll()).electionEvents2026Scale ?? 1) || 1;
+            features = pickElectionHits(map, queried, e.point, scale);
+          }
           if (type === "busCrowdingSim") {
             // 命中層與線同 filter（不畫的段點不到）；這裡再防一次。多條路線疊在同一條街時，
             // 優先回答超載比例最高的那條（與 line-sort-key 讓高值畫在上面一致）。
