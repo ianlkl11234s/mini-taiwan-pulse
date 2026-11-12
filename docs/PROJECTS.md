@@ -23,11 +23,10 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
-| 2026-11-09 | 保留期限清理排程（mig 505–509）首跑、reconcile、備份 watchdog、日報 VM 欄位、日本雷達追上：白天唯讀驗。11-10 差異檢核：文件查無五項觀察紀錄〔待確認〕，待唯讀 DB 驗證 | Claude | ZB-V1 |
-| 2026-11-10 | 四件事：mig 532 測試、VM moa 00:53 log、pgss 查詢文字量、保留期限首次清理刪除量＋vacuum（避開 10:00–20:00） | Claude | CHK-1110（SBE-1／SBE-2／WA-3） |
 | 2026-11-13 | 06:15 後重跑 gis-platform `migrations/551_retention_batch2_catchup_hardening.test.psql`（新 cron 首輪後仍無缺日）；看 collector 日報正常（預期多出「從未有資料」🟡）與 HiCloud `/var/log/cdc-public-health/archive.log` 03:20 無錯。都過就關兩列 | Claude | GP-550／COL-199 |
-| ~2026-11-12～14 | pgss 乾淨慢查詢清單（11-09 15:27 重置）→ 先優化 >1s，再收 timeout 10–15s | Claude | SEC-5 |
+| ~2026-11-12～14 | pgss 乾淨慢查詢清單（11-09 15:27 重置）→ 先優化 >1s，再收 timeout 10–15s〔結果 2026-11-12：清單已出，公開 RPC 最慢超過 1 秒的有 12 支、平均超過 1 秒的 5 支，細節在 BACKLOG SEC-5；優化 migration 與逾時調整等使用者拍板〕 | Claude→使用者拍板 | SEC-5 |
 | ~2026-11-14 | 刪 Zeabur 最後兩個專案（mini-tw-pulse、data-collectors-gomn；其餘 11-09 已刪；主站網域已改 Worker，ZB-4 完成），須使用者同意；uk-trip DNS 要使用者在 Cloudflare 手動刪 | 使用者 | ZB-1／ZB-7 |
+| 2026-11-15 | `live.iot_wra_measurements` 確認已降到 30 天內（11-12 還有約 307 萬列超期，每晚清 200 萬列） | Claude | WA-3 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
 | ~2026-11-16 | pulse-host 記憶體峰值檢視（collector-mem 觀察中）後決定 mem_limit | Claude | HOST-1 |
 | 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警，VM 版另存 `.vm.tar.gz` | Claude | ZB-2 |
@@ -46,7 +45,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 - Zeabur 收尾與金鑰：ZB-1／ZB-5、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
 - 告警分級 11-09 完成（GitHub 排程、主機看門狗、collector、healthchecks 3 個死人開關皆已設）；剩 aisstream／VM 接告警（G 群 ALERT-1）。
-- Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；11-09 晚第一批權限（gp #227 mig 536–539）與 VM 固定形狀寫入（collectors #194）也完成；剩 11-10 驗證（CHK-1110）、慢查詢清單（SEC-5）、預算表（SBE-5）、軌跡改讀每日檔方案（TRAIL-1）、新發現的 RLS／權限（SEC-11／SEC-12／HERMES-2）。
+- Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；11-09 晚第一批權限（gp #227 mig 536–539）與 VM 固定形狀寫入（collectors #194）也完成；11-10 驗證與慢查詢清單 11-12 完成（R5 升為必須；SEC-5 的優化等使用者拍板）；剩預算表（SBE-5）、軌跡改讀每日檔方案（TRAIL-1）、新發現的 RLS／權限（SEC-11／SEC-12／HERMES-2）。
 - 站主資料第 3 批（EA、Coillte、water1944）與撤舊 RPC（F 群 OWD-4、SR-1／SR-2）。
 - 資料保留期限：第 2 批 11-09 完成（gp #228／#229 mig 540–543、ADR-0026 #57），剩項目在 WA-3；靜態表搬遷乙組（WA-14，動前端前先給使用者看方案）；R2 獨有資料補 S3（ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
@@ -86,7 +85,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 |---|---|---|---|---|---|---|
 | Zeabur 停止營運搬遷收尾 | 🟡 | 底線:花費 | **搬遷全部完成**（11-09 已刪 13 個靜態站、不搬服務與 11 個空專案，只剩 mini-tw-pulse、data-collectors-gomn 兩專案留作回滾）：靜態站 10-29；主站、research-gateway、Valhalla 11-06（Cloudflare Worker＋Linode pulse-host）；collector 已搬 pulse-host（collectors #170／#171／#175–#180），correctional 移 HiCloud VM；Zeabur 26 服務已 suspend、變數已刪；zeabur README 11-08 已更新、flight-arc-graph #24 已合併 | ZB-1 刪最後兩個回滾專案（~11-14，須使用者同意）→ ZB-5 停約（12/1）→ SEC-6（12/3）；ZB-6 Zeabur 殘留根治剩餘項；ZB-7 uk-trip DNS（主站網域改 Worker 已於 11-09 完成） | BACKLOG B 群；`../.gis-agent-system/projects/2026-10-zeabur-migration/`；ADR-0026 | 2026-11-09 |
 | 資安稽核後續 | 🟡 | 底線:資安 | 10-17 稽核、多項 migration 已套（含 mig 502）；gp #170 已於 10-17 合併；11-09 第一批權限（gp #227 mig 536）與 iCHEF 客戶編號檔移出完成 | SEC-6 擴大版（12/3 前，計畫書 `.gis-agent-system/projects/2026-10-zeabur-migration/healthcheck-20261108/SEC-6-rotation-plan.md`）；SEC-7 只剩在 pulse-host 設 `PULSE_RESEARCH_TRUSTED_PROXY_IPS` 並驗證；SEC-4、SEC-5、SEC-9；SEC-11／SEC-12 | `../gis-platform/docs/research/2026-10-17-security-audit.md`；BACKLOG D 群 | 2026-11-08 |
-| 資料保留期限（Supabase／R2／collector 最長 6 個月） | 🟡 | 底線:期限 | 使用者 2026-11-07 拍板；gp #208／#212 mig 505–510 已於 **11-07 晚套用**（510 drop 20 張冷存表，約少 3.77 GiB；冷存檔在 S3 `supabase-export/`） | 驗清理首跑（ZB-V1，11-09 到期、紀錄〔待確認〕）；第 2 群約 21＋22 張表（WA-3）；DB-1 晚間補表大小 | BACKLOG WA-3；ADR-0026 | 2026-11-08 |
+| 資料保留期限（Supabase／R2／collector 最長 6 個月） | 🟡 | 底線:期限 | 使用者 2026-11-07 拍板；gp #208／#212 mig 505–510 已於 **11-07 晚套用**（510 drop 20 張冷存表，約少 3.77 GiB；冷存檔在 S3 `supabase-export/`） | 清理首跑 11-12 已驗（5 晚無失敗），iot_wra 約 11-14 追平；第 2 群約 21＋22 張表（WA-3）；DB-1 晚間補表大小 | BACKLOG WA-3；ADR-0026 | 2026-11-08 |
 | R2 獨有資料補回 S3 | 🟡 | 底線:備份 | warehouse packages 約 6 GB、pulse-staging `_detect` 約 1.09 GB、`sim/v1` 只在 R2；補傳進行中 | ST-2：補完後在產生流程尾端加上傳 S3；ADR-1 補正 ADR-0026；還原演練 BKP-1（Supabase 還原到新專案，需使用者操作）、BKP-2（pulse-host 從零重建）、BKP-3（`auth.users` 進 S3 備份） | BACKLOG ST-2／ADR-1／BKP-1～3 | 2026-11-10 |
 | 站主資料改存法（owner-data） | 🟡 | 底線:授權 | 第 1 批畜牧（v2.28.0）、第 2 批能源與石化（v2.29.0）上線並經使用者驗收；mig 514／515 撤 14 支 RPC | OWD-4 第 3 批（EA、Coillte、water1944；選舉活動 11-28 後）；SR-1 撤 static RPC（~11-15）、SR-2 | `../.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`；BACKLOG F 群 | 2026-11-08 |
 | 開發系統與告警整併 | 🔵 | 北極星:開發系統 | 健檢完成（自動化清單 A1–A15）；11-09 branch protection、hook 修復；11-10：入口文件檢查（#997）、開場落後提示（#1003）、required `ci-ok`、7 repo Dependabot alerts、四個守門排程（#999）、pulse-data／MCP 補 CI、sql-lint L3（gp #238）、開場瘦身第一輪（52.9K→31.3K 字，模擬值） | ALERT-1 剩 aisstream／VM 接告警；CI-8 Dependabot 已回讀（analytics 0、gis-platform 1 low），`dependabot.yml` 待決；DEV-4 瘦身剩項；DEV-5 個人全域 CLAUDE.md 待決；DEV-7～12、CI-6、MCP-3；ASSET-1 215 檔補進 lock；SQLL-2 文件補寫 L3；DISK-1 package-cache 整併 | BACKLOG G 群 | 2026-11-10 |
