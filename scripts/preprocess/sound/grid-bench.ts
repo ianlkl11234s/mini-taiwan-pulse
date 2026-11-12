@@ -22,12 +22,12 @@ import { flightRowsToFlights, type FlightTrailRow } from "../../../src/data/flig
 import type { LightningSource, LightningStrike } from "../../../src/data/lightningLoader";
 import type { RainGaugeDayRow } from "../../../src/data/rainGaugeLoader";
 import { taipeiMidnightMs } from "../../../src/lib/taipeiDay";
-import { COMMON, AVIATION, RAIL, RAIN, WIND_VEGETATION, COASTAL_WAVE } from "../../../src/sound/model/soundProfiles";
+import { COMMON, AVIATION, RAIL, RAIN, WIND_VEGETATION, COASTAL_WAVE, RIVER_WATER, TYPICAL_TRAFFIC } from "../../../src/sound/model/soundProfiles";
 import { queryFamilyInterval, queryReceiver, SOUND_FAMILIES_ADVANCED } from "../../../src/sound/engines/receiverQuery";
 import { haversineM, slantDistanceM } from "../../../src/sound/engines/geometryDistance";
 import { proximityPotential } from "../../../src/sound/engines/relativePotentialKernel";
 import { rainPotential } from "../../../src/sound/engines/relativePotentialKernel";
-import { vegetationFactor, wavePotential, windPotential } from "../../../src/sound/engines/naturalKernels";
+import { percentileRank, vegetationFactor, wavePotential, windPotential, type QuantileTable } from "../../../src/sound/engines/naturalKernels";
 import { distanceToGeometryM } from "../../../src/sound/engines/geometryShapes";
 import { aviationPositionAt, flightsToAviationRecords, type AviationRecord } from "../../../src/sound/sourceAdapters/aviationAdapter";
 import { dedupeAndLinkStrikes } from "../../../src/sound/sourceAdapters/thunderAdapter";
@@ -36,7 +36,8 @@ import { loadRail, nearestOnTrack, railProgressAt, RAIL_SYSTEMS, type RailFetche
 import { structureAtProgress } from "../../../src/sound/model/railSegments";
 import { canopyCover } from "../../../src/sound/sourceAdapters/windVegetationAdapter";
 import { insideBbox, nearestStation } from "../../../src/sound/sourceAdapters/naturalShared";
-import { loadTypicalTraffic } from "../../../src/sound/sourceAdapters/typicalTrafficAdapter";
+import { isTypicalTrafficRecord, loadTypicalTraffic, typicalFlowAt, typicalVolumePotential, vdWithinRadius, type TypicalTrafficRecord } from "../../../src/sound/sourceAdapters/typicalTrafficAdapter";
+import { queryRoadTrafficInterval, type RoadTrafficRecord } from "../../../src/sound/sourceAdapters/roadTrafficAdapter";
 import { parseMvpBSceneBlocks, parseSystemSchedule, parseTraSchedule, roadworkSnapshotSet } from "../../../src/sound/mvpBSources";
 import { naturalSnapshotSet, parseNaturalBlock } from "../../../src/sound/advancedSources";
 import { GRID_SPEC, cellCenter, inScopeCells } from "../../../src/sound/grid/gridSpec";
@@ -274,6 +275,120 @@ function frameNatural(p: ReturnType<typeof prepNatural>, t: number, out: FamilyG
   }
 }
 
+/** 河川：河道距離係數（靜態）× 最近水位站（≤5 km）× 該小時水位在自身歷史的分位 */
+function prepRiver(set: AnySet | undefined, cells: Uint32Array) {
+  const n = cells.length;
+  const staticStatus = new Uint8Array(n).fill(255);
+  const factor = new Float64Array(n);
+  const nearest = new Int32Array(n).fill(-1);
+  const records = (set?.records ?? []) as { payload: { kind: string } & Record<string, unknown> }[];
+  const maxCh = RIVER_WATER.channelMaxDistanceM.value;
+  const nets = records.flatMap((r) => (r.payload.kind === "river_network" ? [r.payload as unknown as { bbox: [number, number, number, number]; geometry: GeoJSON.Geometry }] : []));
+  const extents = records.flatMap((r) => (r.payload.kind === "station_extent" ? [r.payload.bbox as [number, number, number, number]] : []));
+  const reporting = new Set(records.flatMap((r) => (r.payload.kind === "river_obs" && r.payload.levelM != null ? [r.payload.stationId as string] : [])));
+  const stations = records.flatMap((r) => (r.payload.kind === "river_station" && reporting.has(r.payload.stationId as string) ? [r.payload as unknown as { stationId: string; stationName: string | null; lon: number; lat: number; quantiles: QuantileTable | null }] : []));
+  // 同 riverWaterAdapter.quantilesUsable（未匯出）
+  const usable = (q: QuantileTable | null | undefined): q is QuantileTable => !!q && q.n >= RIVER_WATER.minHistorySamples.value && q.probs.length >= 2 && q.probs.length === q.values.length;
+  const sts: { stationId: string; q: QuantileTable }[] = [];
+  const sIdx = new Map<string, number>();
+  cells.forEach((c, k) => {
+    const [lon, lat] = cellCenter(c);
+    const near = nets.filter((nt) => insideBbox(lon, lat, nt.bbox, maxCh));
+    if (!near.length) { staticStatus[k] = ST.unknown; return; }
+    const ds = near.map((nt) => distanceToGeometryM(nt.geometry, lon, lat)).filter((d): d is number => d != null);
+    if (!ds.length) { staticStatus[k] = ST.unknown; return; }
+    const chD = Math.min(...ds);
+    if (chD > maxCh) { staticStatus[k] = ST.inactive; return; }
+    factor[k] = proximityPotential(chD, RIVER_WATER.halfPotentialDistanceM.value);
+    if (!extents.some((b) => insideBbox(lon, lat, b))) { staticStatus[k] = ST.unknown; return; }
+    const ns = nearestStation(stations, lon, lat);
+    if (!ns || ns.distanceM > RIVER_WATER.maxStationDistanceM.value) { staticStatus[k] = ST.unknown; return; }
+    if (!usable(ns.station.quantiles)) { staticStatus[k] = ST.unknown; return; }
+    let i = sIdx.get(ns.station.stationId);
+    if (i == null) { i = sts.length; sts.push({ stationId: ns.station.stationId, q: ns.station.quantiles }); sIdx.set(ns.station.stationId, i); }
+    nearest[k] = i;
+  });
+  const obs = new Map<string, { levelM: number | null }>();
+  for (const r of records) if (r.payload.kind === "river_obs") {
+    const key = `${r.payload.stationId}|${r.payload.bucketStart}`;
+    if (!obs.has(key)) obs.set(key, r.payload as unknown as { levelM: number | null });
+  }
+  return { staticStatus, factor, nearest, sts, obs };
+}
+function frameRiver(p: ReturnType<typeof prepRiver>, t: number, out: FamilyGrid) {
+  const bucket = RIVER_WATER.bucketDurationS.value;
+  const h = Math.floor(t / bucket) * bucket;
+  const base = p.sts.map((s) => {
+    const o = p.obs.get(`${s.stationId}|${h}`);
+    return o ? percentileRank(o.levelM, s.q) : null;
+  });
+  for (let k = 0; k < p.nearest.length; k++) {
+    if (p.staticStatus[k] !== 255) { out.status[k] = p.staticStatus[k]!; continue; }
+    const b = base[p.nearest[k]!];
+    if (b == null) { out.status[k] = ST.unknown; continue; }
+    const v = b * p.factor[k]!;
+    if (v > 0) { out.status[k] = ST.active; out.value[k] = v; } else out.status[k] = ST.inactive;
+  }
+}
+
+/**
+ * 道路（臺北 VD 平日典型）：不是「最近站」，是每格 300 m 內**所有** VD 的 (VD, 距離) 稀疏清單，
+ * 每幀取 max(proximity(d) × typicalVolumePotential(該小時流量))。300 m 內沒有 VD 的格走國道 proxy 分支；
+ * node 讀不到國道路段（records 0 筆），該分支與時間無關，預算一次（呼叫 adapter 本身）。
+ */
+function prepTypical(set: AnySet | undefined, cells: Uint32Array, tRef: number) {
+  const recs = (set?.records ?? []) as (TypicalTrafficRecord | RoadTrafficRecord)[];
+  const vd = recs.filter((r) => isTypicalTrafficRecord(r as never)) as TypicalTrafficRecord[];
+  const fw = recs.filter((r) => !isTypicalTrafficRecord(r as never)) as RoadTrafficRecord[];
+  if (fw.length) throw new Error("國道路段已載入：fallback 分支會隨時間變，這個 spike 沒實作");
+  const offsets = new Uint32Array(cells.length + 1);
+  const list: { rec: number; d: number }[] = [];
+  const fallback = new Uint8Array(cells.length);
+  cells.forEach((c, k) => {
+    const rcv = recv(c);
+    vd.forEach((r, i) => {
+      const d = vdWithinRadius(r, rcv);
+      if (d != null) list.push({ rec: i, d });
+    });
+    offsets[k + 1] = list.length;
+    if (offsets[k + 1] === offsets[k]) {
+      const res = queryRoadTrafficInterval([], rcv, tRef, tRef);
+      fallback[k] = res.contributions.some((x) => x.status === "unknown") ? ST.unknown : ST.inactive;
+    }
+  });
+  return { vd, offsets, recIdx: Int32Array.from(list.map((x) => x.rec)), dist: Float64Array.from(list.map((x) => x.d)), fallback };
+}
+function frameTypical(p: ReturnType<typeof prepTypical>, t: number, out: FamilyGrid) {
+  // 每支 VD 該幀的狀態：0 不在有效窗、1 有流量、2 缺值（unknown）、3 not_applicable、4 流量 0
+  const st = new Uint8Array(p.vd.length);
+  const pot = new Float64Array(p.vd.length);
+  p.vd.forEach((r, i) => {
+    if (r.validUntil < t || r.validFrom > t) return;
+    const pl = r.payload;
+    if (pl.kind === "vd_not_applicable") { st[i] = 3; return; }
+    const v = typicalFlowAt(pl, t);
+    if ("missing" in v) { st[i] = 2; return; }
+    if (v.vehPerHour <= 0) { st[i] = 4; return; }
+    st[i] = 1;
+    pot[i] = typicalVolumePotential(v.vehPerHour);
+  });
+  const half = TYPICAL_TRAFFIC.halfPotentialDistanceM.value;
+  for (let k = 0; k + 1 < p.offsets.length; k++) {
+    const a = p.offsets[k]!, b = p.offsets[k + 1]!;
+    if (a === b) { out.status[k] = p.fallback[k]!; continue; }
+    let best = 0, act = false, unk = false, na = false;
+    for (let j = a; j < b; j++) {
+      const i = p.recIdx[j]!;
+      if (st[i] === 1) { const v = proximityPotential(p.dist[j]!, half) * pot[i]!; if (v > 0) { act = true; if (v > best) best = v; } }
+      else if (st[i] === 2) unk = true;
+      else if (st[i] === 3) na = true;
+    }
+    // adapter：active 以外，有 unknown 貢獻（缺值）→ unknown；只有 not_applicable 且無任何貢獻 → unknown
+    if (act) { out.status[k] = ST.active; out.value[k] = best; }
+    else out.status[k] = unk || na ? ST.unknown : ST.inactive;
+  }
+}
+
 /** 格心經緯 → 子集索引（只對抽樣／範圍內的格）；移動點用：找某點半徑內的格 */
 function cellLocator(cells: Uint32Array) {
   const pos = new Int32Array(GRID_SPEC.cols * GRID_SPEC.rows).fill(-1);
@@ -460,6 +575,10 @@ async function main() {
   pre.wind_vegetation = { prepMs: tw.medMs, bytes: `係數 uint8＋最近站 Int16＋靜態狀態 uint8 ≈ ${(all.length * 4 / 1024).toFixed(0)} KB` };
   const tv = timeIt(() => prepNatural(fam("coastal_wave")[0], "coastal_wave", all), 1);
   pre.coastal_wave = { prepMs: tv.medMs, bytes: `同上 ≈ ${(all.length * 4 / 1024).toFixed(0)} KB` };
+  const tRiv = timeIt(() => prepRiver(fam("river_water")[0], all), 1);
+  pre.river_water = { prepMs: tRiv.medMs, bytes: `係數＋最近站＋靜態狀態 ≈ ${(all.length * 4 / 1024).toFixed(0)} KB` };
+  const tTyp = timeIt(() => prepTypical(fam("road_traffic")[0], all, frameT), 1);
+  pre.road_traffic_vd_typical = { prepMs: tTyp.medMs, bytes: `每格 300 m 內 VD 清單：${tTyp.value.recIdx.length} 筆 (Int16 VD＋uint8 距離) ≈ ${((tTyp.value.recIdx.length * 3 + all.length * 4) / 1024).toFixed(0)} KB（含 offsets）` };
   const tm = timeIt(() => prepRailUnknownMasks(railRecs, all, locateAll), 1);
   const maskCells = [...tm.value.values()].reduce((a, m) => a + m.k.length, 0);
   pre.rail_unknown_masks = { prepMs: tm.medMs, bytes: `${tm.value.size} 條軌道、共 ${maskCells} 格索引（Int32）≈ ${(maskCells * 5 / 1024).toFixed(0)} KB` };
@@ -472,6 +591,8 @@ async function main() {
   fr("rain", () => frameRain(tr.value, frameT, g));
   fr("wind_vegetation", () => frameNatural(tw.value, frameT, g));
   fr("coastal_wave", () => frameNatural(tv.value, frameT, g));
+  fr("river_water", () => frameRiver(tRiv.value, frameT, g));
+  fr("road_traffic(vd_typical)", () => frameTypical(tTyp.value, frameT, g));
   fr("aviation", () => frameAviation(avRecs, frameT, locateAll, all.length, g));
   fr("rail", () => frameRail(railRecs, frameT, locateAll, tm.value, all.length, g));
   // 每幀耗時的分布：飛機與列車在尖峰／離峰差很多
@@ -492,10 +613,10 @@ async function main() {
 
   // B3 抽樣驗證：分類算法（只算抽樣格）vs queryReceiver(格心, t)
   const locateS = cellLocator(sample);
-  const preS = { rain: prepRain(rainRecs, sample), wind: prepNatural(fam("wind_vegetation")[0], "wind_vegetation", sample), wave: prepNatural(fam("coastal_wave")[0], "coastal_wave", sample), railMask: prepRailUnknownMasks(railRecs, sample, locateS) };
+  const preS = { rain: prepRain(rainRecs, sample), wind: prepNatural(fam("wind_vegetation")[0], "wind_vegetation", sample), wave: prepNatural(fam("coastal_wave")[0], "coastal_wave", sample), river: prepRiver(fam("river_water")[0], sample), typical: prepTypical(fam("road_traffic")[0], sample, frameT), railMask: prepRailUnknownMasks(railRecs, sample, locateS) };
   const checks: Record<string, { compared: number; statusMismatch: number; valueMismatch: number; maxAbsDiff: number; examples: string[]; byStatus: Record<string, number> }> = {};
   const names: Record<number, FamilyStatus> = { 0: "inactive", 1: "active", 2: "unknown", 3: "unavailable" };
-  for (const f of ["rain", "wind_vegetation", "coastal_wave", "aviation", "rail"] as const) {
+  for (const f of ["rain", "wind_vegetation", "coastal_wave", "river_water", "road_traffic", "aviation", "rail"] as const) {
     const c = (checks[f] = { compared: 0, statusMismatch: 0, valueMismatch: 0, maxAbsDiff: 0, examples: [] as string[], byStatus: {} as Record<string, number> });
     for (const t of times) {
       const gg = newGrid(sample.length);
@@ -503,6 +624,8 @@ async function main() {
       if (f === "rain") frameRain(preS.rain, t, gg);
       else if (f === "wind_vegetation") frameNatural(preS.wind, t, gg);
       else if (f === "coastal_wave") frameNatural(preS.wave, t, gg);
+      else if (f === "river_water") frameRiver(preS.river, t, gg);
+      else if (f === "road_traffic") frameTypical(preS.typical, t, gg);
       else if (f === "aviation") frameAviation(avRecs, t, locateS, sample.length, gg);
       else frameRail(railRecs, t, locateS, preS.railMask, sample.length, gg);
       sample.forEach((cell, k) => {
