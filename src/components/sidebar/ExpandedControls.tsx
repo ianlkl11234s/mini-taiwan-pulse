@@ -17,6 +17,7 @@ import { PropertyValueStatisticsDetails } from "./PropertyValueStatisticsDetails
 import { LayerControlArea, ParamControlList } from "./LayerParamControls";
 import { useRailTheme } from "./railTheme";
 import { LayerInfoLine } from "./LayerInfoLine";
+import { StatisticsSmallMultiplesHost } from "../statistics/StatisticsSmallMultiples";
 
 export interface ExpandedControlsProps {
   layerKey: ExpandableLayerKey;
@@ -88,6 +89,8 @@ export function ExpandedControls({
       {isStatisticsRenderLayer(layerKey)
         ? <LayerInfoLine layerKey={layerKey}><StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} /></LayerInfoLine>
         : <LayerInfoLine layerKey={layerKey} />}
+      {/* 「多年份並排」視窗（按鈕在統計連動選單下，spec §5.37）；portal 到 body */}
+      {isStatisticsRenderLayer(layerKey) && <StatisticsSmallMultiplesHost layerKey={layerKey} isDark={isDarkTheme} />}
     </LayerControlArea>
   );
 }
