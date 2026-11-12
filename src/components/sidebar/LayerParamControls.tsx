@@ -113,8 +113,7 @@ function LinkedSelectControl({ ctrl }: { ctrl: LinkedSelectConfig }) {
     }
   };
   const valueText = pending ? t("paramsPanel.switching") : ctrl.statusText;
-  return (
-    <ControlRow label={ctrl.label} value={valueText ? <span className="lpc-status" role="status">{valueText}</span> : undefined}>
+  const select = (
       <select
         className="lpc-select"
         aria-label={ctrl.label}
@@ -127,14 +126,28 @@ function LinkedSelectControl({ ctrl }: { ctrl: LinkedSelectConfig }) {
           ? ctrl.options.map((opt) => <option key={opt.value} value={opt.value} disabled={opt.disabled}>{opt.label}</option>)
           : <option value="">{ctrl.status === "error" ? t("paramsPanel.optionsLoadFailed") : t("paramsPanel.loading")}</option>}
       </select>
+  );
+  return (
+    <ControlRow label={ctrl.label} value={valueText ? <span className="lpc-status" role="status">{valueText}</span> : undefined}>
+      {ctrl.action ? (
+        // 選單右側的小圖示鈕（spec §5.37「選單旁動作鈕」：統計「多年份並排」）
+        <div className="lpc-select-with-action">
+          {select}
+          <button
+            type="button"
+            className="lpc-btn lpc-icon-action"
+            aria-haspopup="dialog"
+            aria-label={ctrl.action.label}
+            title={ctrl.action.label}
+            {...ctrl.action.attributes}
+            onClick={ctrl.action.onClick}
+          >
+            <LayoutGrid size={13} strokeWidth={2} aria-hidden="true" />
+          </button>
+        </div>
+      ) : select}
       {ctrl.onRetry && <button type="button" className="lpc-link" onClick={ctrl.onRetry}>{t("paramsPanel.retry")}</button>}
       {failed && !ctrl.onRetry && <span role="alert" className="lpc-note">{t("paramsPanel.optionUnavailable")}</span>}
-      {ctrl.action && (
-        <button type="button" className="lpc-btn lpc-action" aria-haspopup="dialog" onClick={ctrl.action.onClick}>
-          <LayoutGrid size={11} strokeWidth={2} aria-hidden="true" />
-          {ctrl.action.label}
-        </button>
-      )}
     </ControlRow>
   );
 }

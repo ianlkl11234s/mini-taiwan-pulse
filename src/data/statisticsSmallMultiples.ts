@@ -4,7 +4,7 @@
  * - 年份清單：與「資料期別」連動選單同一個來源（`statisticsReleaseOptions`／公開期別），只留**非時間維度**
  *   （性別、作物、癌別…）與目前選擇相同的組合，依期別結束年分組，每年挑一期。
  * - 每年挑哪一期：優先挑與目前期別**同跨度**（起訖月日相同，例：都是 9 月底、都是 1–8 月累計、都是全年）；
- *   該年沒有同跨度的期別才退回該年最後一期，並標「期別不同」。這樣流量型指標不會把今年的部分期間和往年全年並排
+ *   該年沒有同跨度的期別才退回該年最後一期（視窗上方說明句寫明哪幾年期別不同，見 `periodNote`）。這樣流量型指標不會把今年的部分期間和往年全年並排
  *   （統計規則 §1「同口徑、相容年份才可比較」）。
  * - 填色語意與主地圖（`map/regionalStatisticsMap.ts`）逐條相同：有值＝色階；缺值、未發布＝單向斜線；
  *   遮蔽＝交叉斜線；類別型的 not_applicable＝實心淺灰。缺值不畫成 0 或最低級色。
@@ -23,8 +23,8 @@ import { statisticsColorStops } from './statisticsColorScale';
 import { CATEGORY_FALLBACK_COLOR } from './atlasStatisticsRecipes';
 import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from './statisticsFillColor';
 
-/** 小圖一次最多先排幾年（再多就捲動、進入視野才載入）。 */
-export const SMALL_MULTIPLES_PAGE = 12;
+/** 同時最多比較幾期（使用者 2026-11-12 選定版面 b：上方年份勾選列＋大圖）。 */
+export const SMALL_MULTIPLES_MAX = 4;
 
 /**
  * 支援的地理層級。村里（7,700+ 區、參考邊界 80MB）先不開：小圖畫不出可辨識的村里，邊界也太重。
@@ -120,11 +120,87 @@ export function pickYearlyPeriods<C extends SmallMultipleCandidate>(candidates: 
   return out.sort((a, b) => a.year.localeCompare(b.year));
 }
 
-/** 年份很多時先顯示最近 `limit` 年（其餘捲動後再載）；回傳要先載入的索引集合。 */
-export function initialLoadIndexes(count: number, limit = SMALL_MULTIPLES_PAGE): Set<number> {
+/**
+ * 開窗預設勾選：最早、最新，加中間平均取兩年；不足 `max` 年就全選。回傳由舊到新的索引。
+ * 只載入勾選的期別（年份再多也只讀 ≤4 份統計檔）。
+ */
+export function defaultComparison(count: number, max = SMALL_MULTIPLES_MAX): number[] {
+  if (count <= max) return Array.from({ length: count }, (_, index) => index);
+  const last = count - 1;
   const out = new Set<number>();
-  for (let index = Math.max(0, count - limit); index < count; index += 1) out.add(index);
-  return out;
+  for (let step = 0; step < max; step += 1) out.add(Math.round((last * step) / (max - 1)));
+  return [...out].sort((a, b) => a - b);
+}
+
+/** 勾選／取消一年：已滿 `max` 時不加入並回報 `rejected`（畫面提示「最多 4 期，先取消一期」）。 */
+export function toggleComparison(selected: readonly number[], index: number, max = SMALL_MULTIPLES_MAX): { selected: number[]; rejected: boolean } {
+  if (selected.includes(index)) return { selected: selected.filter(item => item !== index), rejected: false };
+  if (selected.length >= max) return { selected: [...selected], rejected: true };
+  return { selected: [...selected, index].sort((a, b) => a - b), rejected: false };
+}
+
+/** 期別的「結束點」描述（給上方說明句用；顯示文字由元件依語系組）。 */
+export type PeriodPhrase =
+  | { kind: 'fullYear' }
+  | { kind: 'yearEnd' }
+  | { kind: 'monthEnd'; month: number }
+  | { kind: 'date'; month: number; day: number }
+  | { kind: 'range'; from: { month: number; day: number }; to: PeriodPhrase };
+
+const phraseKey = (phrase: PeriodPhrase): string => JSON.stringify(phrase);
+
+export function periodPhrase(release: { period_start: string; period_end: string }): PeriodPhrase {
+  const start = release.period_start.slice(5, 10), end = release.period_end.slice(5, 10);
+  if (start === '01-01' && end === '12-31') return { kind: 'fullYear' };
+  const [y, m, d] = release.period_end.slice(0, 10).split('-').map(Number) as [number, number, number];
+  const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const endPhrase: PeriodPhrase = end === '12-31' ? { kind: 'yearEnd' } : d === lastDay ? { kind: 'monthEnd', month: m } : { kind: 'date', month: m, day: d };
+  if (release.period_start === release.period_end) return endPhrase;
+  return { kind: 'range', from: { month: Number(start.slice(0, 2)), day: Number(start.slice(3)) }, to: endPhrase };
+}
+
+export interface PeriodNote {
+  /** 多數期別的描述（「其餘為各年…」） */
+  major: PeriodPhrase;
+  /** 與多數不同的期別：最新一期單獨標示，其他寫年份 */
+  exceptions: { year: string; latest: boolean; phrase: PeriodPhrase }[];
+}
+
+/**
+ * 上方說明句的內容：各期描述一致 → null（不顯示）；否則找出多數，列出例外。
+ * 例：人口月資料最新是 8 月底、往年是年底 →「最新一期為 8 月底，其餘為各年年底」。
+ */
+export function periodNote(periods: readonly { year: string; candidate: { release: { period_start: string; period_end: string } } }[]): PeriodNote | null {
+  if (periods.length < 2) return null;
+  const phrases = periods.map(period => periodPhrase(period.candidate.release));
+  const counts = new Map<string, { phrase: PeriodPhrase; count: number; first: number }>();
+  phrases.forEach((phrase, index) => {
+    const key = phraseKey(phrase);
+    const entry = counts.get(key);
+    if (entry) entry.count += 1; else counts.set(key, { phrase, count: 1, first: index });
+  });
+  if (counts.size < 2) return null;
+  const major = [...counts.values()].sort((a, b) => b.count - a.count || a.first - b.first)[0]!.phrase;
+  const latestYear = periods.reduce((acc, period) => period.year > acc ? period.year : acc, periods[0]!.year);
+  const exceptions = periods.flatMap((period, index) => phraseKey(phrases[index]!) === phraseKey(major) ? [] : [{ year: period.year, latest: period.year === latestYear, phrase: phrases[index]! }]);
+  return { major, exceptions };
+}
+
+/**
+ * 大圖排法：在可用寬高內，比較每種欄數（4 張比「一列四欄」與「2×2」）的地圖寬度，取最大者。
+ * `chrome`＝每張圖上方標題列＋下方數值列的高度；`aspect`＝地圖高／寬。手機（單欄捲動）不呼叫這裡。
+ */
+export function compareArrangement(count: number, width: number, height: number, aspect: number, chrome: number, gap: number): { cols: number; mapWidth: number } {
+  const options = count === 4 ? [4, 2] : count === 3 ? [3, 2] : [Math.max(count, 1)];
+  let best = { cols: options[0]!, mapWidth: 0 };
+  for (const cols of options) {
+    const rows = Math.ceil(count / cols);
+    const cellWidth = (width - gap * (cols - 1)) / cols;
+    const cellHeight = (height - gap * (rows - 1)) / rows - chrome;
+    const mapWidth = Math.floor(Math.max(0, Math.min(cellWidth, cellHeight / aspect)));
+    if (mapWidth > best.mapWidth) best = { cols, mapWidth };
+  }
+  return best;
 }
 
 export interface StatisticsSnapshotLike {

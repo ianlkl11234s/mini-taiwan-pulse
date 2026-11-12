@@ -122,10 +122,11 @@ export interface LinkedSelectConfig {
   /** 錯誤時的重試（只在 statusText 那一列） */
   onRetry?: () => void;
   /**
-   * 掛在選單下方的動作鈕（spec §5.37「多年份並排」）：只在面板（有傳 i18n）、統計連動選單最後一列、
-   * 可並排 ≥2 年時出現；不是參數（沒有值、不進場景存檔與 Agent 控件）。
+   * 選單右側的小圖示鈕（spec §5.37「多年份並排」）：只在面板（有傳 i18n）、統計的「資料期別」列
+   * （沒有期別列時掛最後一個統計連動選單）、可並排 ≥2 年時出現；不是參數（沒有值、不進場景存檔與 Agent 控件）。
+   * `label` 同時當 aria-label 與 title；`attributes` 給關窗時找回按鈕還焦點用。
    */
-  action?: { label: string; onClick: () => void };
+  action?: { label: string; onClick: () => void; attributes?: Record<string, string> };
 }
 
 /**
@@ -185,9 +186,10 @@ export function buildParamControls(
     seenProviders.add(s.provider);
     statusCarriers.add(s.name);
   }
-  // 「多年份並排」鈕掛在統計連動選單最後一個可見列下方（只給面板；Agent／黃金快照不傳 i18n，不受影響）
+  // 「多年份並排」鈕掛在統計「資料期別」選單右側（沒有期別列就掛最後一個可見的統計連動選單；
+  // 只給面板，Agent／黃金快照不傳 i18n，不受影響）
   const statisticsSelects = i18n ? visible.filter((s) => s.kind === "linkedSelect" && s.provider === STATISTICS_LINKED_PROVIDER) : [];
-  const lastStatisticsSelect = statisticsSelects[statisticsSelects.length - 1]?.name;
+  const lastStatisticsSelect = (statisticsSelects.find((s) => s.kind === "linkedSelect" && s.field === "release") ?? statisticsSelects[statisticsSelects.length - 1])?.name;
   const smallMultiplesYears = lastStatisticsSelect ? statisticsSmallMultiplesYearCount(key) : 0;
   // `showWhen` 的控件在條件不成立時整個不渲染（等價於手寫版的 `...(cond ? [x] : [])`）；
   // `resolved` 讓 showWhen / disableRule 一定查得到值（傳入的快照可能只有部分欄位）。
@@ -313,7 +315,7 @@ export function buildParamControls(
           onChange: (next: string) => setLinkedSelect(key, s, next),
           ...(carrier && snap.status === "error" && canRetryLinkedSelect(s.provider) ? { onRetry: () => retryLinkedSelects(key, s.provider) } : {}),
           ...(i18n && s.name === lastStatisticsSelect && smallMultiplesYears >= 2
-            ? { action: { label: i18n.t("smallMultiples.open", { count: smallMultiplesYears }), onClick: () => statisticsSmallMultiplesStore.open(key) } }
+            ? { action: { label: i18n.t("smallMultiples.open", { count: smallMultiplesYears }), onClick: () => statisticsSmallMultiplesStore.open(key), attributes: { "data-small-multiples-open": key } } }
             : {}),
         };
       }

@@ -106,9 +106,22 @@
   margin-top: 2px;
 }
 
-/* 選單下方的動作鈕（統計「多年份並排」，spec §5.37）：C2 小尺寸，靠左、不撐滿 */
-.lpc-row > .lpc-c > .lpc-action {
-  margin-top: 4px;
+/* 選單右側的小圖示鈕（統計「多年份並排」，spec §5.37）：與選單同高、正方形 */
+.lpc-select-with-action {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.lpc-select-with-action > select.lpc-select {
+  flex: 1;
+}
+
+button.lpc-btn.lpc-icon-action {
+  flex: none;
+  width: 22px;
+  height: 20px;
+  padding: 0;
 }
 
 .lpc-note {

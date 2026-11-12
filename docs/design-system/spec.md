@@ -692,14 +692,16 @@
 - **規則**：任何「文字會在兩種長度間切換」的按鈕（複製／已複製、開始／停止）都給固定寬度或最小寬度。
 - **實作**：`src/components/InfoModal.tsx`、`src/components/ShareModal.tsx`。
 
-**統計多年份並排**（`StatisticsSmallMultiples`，2026-11-11）
+**統計多年份並排**（`StatisticsSmallMultiples`，2026-11-11；2026-11-12 改版面 b：年份勾選列＋最多 4 張大圖）
 
-- **尺寸與標頭**：同說明視窗（桌機 `min(920px, 92vw) × min(680px, 88vh)`、手機 `100vw × 92vh` 由下緣出現）；eyebrow「多年份並排」＋圖層標題。
-- **版面**：左側小圖格（`repeat(auto-fill, minmax(128px, 1fr))`，手機固定 2 欄、整窗捲動），右側 180px 共用圖例（手機移到小圖上方）；小圖是 canvas（簡化邊界），**不另開 Mapbox 地圖**。
-- **小圖卡**：C2 卡片底（`--control-bg`／`--control-border`、`RADIUS.lg`）；目前期別用 accent 框＋`accentFaint` 底並標「目前」；期別跨度不同、邊界版本不同用 `--status-warn` 小字標示；缺值／遮蔽區數寫在卡片下方。
-- **狀態**：每張卡片各自顯示「載入中…」「載入失敗：原因」＋「重試」，不擋其他年份；載入走 loadingRegistry。
-- **圖例**：只在視窗內放一份共用圖例（色階、門檻、透明度與主地圖相同），主地圖圖例不增加任何項目。
-- **鍵盤**：開窗聚焦關閉鈕、Tab 鎖在視窗內、Esc 關閉（不連帶關 popup）、關窗焦點還給開啟按鈕；點卡片＝主地圖切到該期並關窗。
+- **尺寸與標頭**：桌機 `96vw × 92vh`、手機（≤640px）`100vw × 92vh` 由下緣出現；eyebrow「多年份並排」＋圖層標題。
+- **年份勾選列**：標頭下一列年份 chip（C2 底、`--font-data`；選中＝accent 框＋`accentFaint` 底＋勾號），右側「已選 n／4」＋「清除」。最多 4 期，滿了其餘 chip `aria-disabled`、點了出現 `--status-warn` 提示（`role="status"`，3 秒消失）。預設＝最早、最新與平均分布的中間兩年（不足 4 年全選）。年份多（最多 45 年）時 chip 換行、超過約三列在列內捲動；手機改單列橫向捲動。chip 文字只寫年份，完整期別放 `title`／`aria-label`。
+- **說明與圖例**：勾選列下一句由實際期別產生的說明（例「最新一期為 8 月底，其餘為各年年底。」；各期一致就不顯示），不在個別圖上標「期別不同」；之後一列橫排共用圖例（色階、門檻、透明度與主地圖相同；手機在大圖上方）。主地圖圖例不增加任何項目。
+- **大圖**：canvas（邊界簡化基準寬 1000），**不另開 Mapbox 地圖**；依可用空間比較排列取圖最大者（4 期比 4×1 與 2×2、3 期比 3×1 與 2×2）。1440×900 時 4 期為 4×1、每張約 329×441。手機 1 欄全寬、整窗捲動。金門、馬祖以同比例尺細框移到左上角海面。
+- **圖標頭**：只寫年份（完整期別放 `title`）；目前期別標「目前」；邊界版本不同用 `--status-warn` 小字；非目前期別右側「切到主地圖」小鈕（lucide `MapPinned`），點圖本身不切換。
+- **同步描邊與數值**：滑鼠移到任一張圖，所有圖同一區以 accent 描邊（外圈 `--sm-halo` 暈）；點一下固定、再點同一區取消。每張圖下方顯示區名、數值＋單位、與最早一期的差（最早一期寫「比較基準」）；缺值、未發布、不適用一律寫明，不寫 0、不留空，任一端無值時寫「無法與 {年} 年比較（原因）」。區名只用邊界的區名（現有資料沒有鄉鎮→縣市對照，不顯示縣市）。
+- **狀態**：每張圖各自顯示「載入中…」「載入失敗：原因」＋「重試」，不擋其他年份；只載勾選的期別、同時最多 2 份，走 loadingRegistry。
+- **鍵盤**：開窗聚焦關閉鈕、Tab 鎖在視窗內、Esc 關閉（不連帶關 popup）、關窗（含「切到主地圖」）焦點還給開啟鈕；開啟鈕重繪或開窗時沒拿到焦點（Safari）則依 `data-small-multiples-open` 找回。地圖區目前只支援滑鼠／觸控選區。
 
 ### 5.28 共用滑桿（controls/Slider）
 
@@ -904,7 +906,7 @@
 - **狀態**：狀態文字只放在同一 provider 第一個可見的那一列的數值欄（中文用 `FONT_CJK`、`--lpc-muted`）：「載入中…」「載入失敗：原因」＋選單下「重試」（`.lpc-link`）；改值後資料載入期間顯示「切換中…」、選單暫停操作（`aria-busy`）。選項還沒有時選單停用、只有一個「載入中…」選項。載入本身走 loadingRegistry（配方明細、統計數值）。
 - **Agent**：`research/layerControls.ts` 列出連動選單時帶當下選項、`linked.status`、`linked.dependsOn`；設定時值必須在當下選項內（停用的也不行），選項未載入回 `LAYER_CONTROL_OPTIONS_NOT_READY`，非同步改值等資料載入後才讀回。
 - **場景存檔**：存 provider 的目前值（群組「指標」`persist: false` 不存，由可見圖層表達）；還原時等圖層開啟、選項就緒後逐列驗證套用，不合法或逾時的列列進「略過項目」。
-- **選單下動作鈕**（`LinkedSelectConfig.action`，2026-11-11）：連動選單可帶一顆選單下方的 C2 一般按鈕（`.lpc-btn lpc-action`，左側 lucide `LayoutGrid` 11px、靠左不撐滿），開啟與該選單相關的視窗（`aria-haspopup="dialog"`）。目前只有統計「多年份並排」：掛在同一圖層最後一個可見的統計連動選單下，可並排年份 ≥2 才出現；只在面板（有 i18n）掛上，Agent 控制清單與 golden 快照不含此鈕。
+- **選單旁動作鈕**（`LinkedSelectConfig.action`，2026-11-11；2026-11-12 改成選單右側小圖示鈕）：連動選單可在右側帶一顆 C2 小圖示鈕（`.lpc-select-with-action` 包住選單與 `.lpc-btn.lpc-icon-action`，22×20px、lucide `LayoutGrid` 13px），開啟與該選單相關的視窗；鈕上必有 `aria-label`、`title`（同文字）與 `aria-haspopup="dialog"`，可帶額外 `attributes`（例 `data-small-multiples-open`，供關窗找回焦點）。目前只有統計「多年份並排」：掛在同一圖層的資料期別（`field: 'release'`）選單旁，沒有就掛最後一個可見的統計連動選單；文字「多年份並排（N 年）」；可並排年份 ≥2 才出現；只在面板（有 i18n）掛上，Agent 控制清單與 golden 快照不含此鈕。
 - **禁止**：在 `ExpandedControls` 或統計元件裡另寫期別／指標 select；把值複製進 layerParamsStore（兩個寫入者會互相蓋）；載入中把整列藏起來造成版面跳動（用保底列）。
 - **實作**：`src/state/{linkedSelect.ts,statisticsLinkedSelect.ts}`、`src/data/statisticsParamsSpec.ts`、`LayerParamControls.tsx` `LinkedSelectControl`、`layerParamsControls.ts` `LinkedSelectConfig`／`visibleControlSpecs`。
 

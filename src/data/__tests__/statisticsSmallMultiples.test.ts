@@ -2,7 +2,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  SERIES_DIMENSION_KEYS, TIME_DIMENSION_KEYS, initialLoadIndexes, pickYearlyPeriods, smallMultipleFill, smallMultiplesPlan, stepColor,
+  SERIES_DIMENSION_KEYS, TIME_DIMENSION_KEYS, compareArrangement, defaultComparison, periodNote, periodPhrase, pickYearlyPeriods,
+  smallMultipleFill, smallMultiplesPlan, stepColor, toggleComparison,
   type SmallMultipleCandidate,
 } from '../statisticsSmallMultiples';
 import { statisticsRenderRecipe } from '../regionalStatisticsRecipes';
@@ -52,9 +53,57 @@ describe('pickYearlyPeriods（年份挑選）', () => {
     expect(pickYearlyPeriods(list, list[2]!).map(p => p.candidate.releaseId)).toEqual(['a', 'cur']);
   });
 
-  it('年份很多時先載最近 12 年', () => {
-    expect([...initialLoadIndexes(20)]).toEqual([8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
-    expect([...initialLoadIndexes(3)]).toEqual([0, 1, 2]);
+});
+
+describe('勾選（最多 4 期）', () => {
+  it('預設：最早、最新加中間平均兩年；不足 4 年全選', () => {
+    expect(defaultComparison(9)).toEqual([0, 3, 5, 8]);
+    expect(defaultComparison(21)).toEqual([0, 7, 13, 20]);
+    expect(defaultComparison(45)).toEqual([0, 15, 29, 44]);
+    expect(defaultComparison(4)).toEqual([0, 1, 2, 3]);
+    expect(defaultComparison(2)).toEqual([0, 1]);
+  });
+
+  it('滿 4 期時再勾會被拒絕（不加入）；取消後可再勾；結果依年份排序', () => {
+    const full = toggleComparison([0, 3, 5, 8], 2);
+    expect(full).toEqual({ selected: [0, 3, 5, 8], rejected: true });
+    const removed = toggleComparison([0, 3, 5, 8], 5);
+    expect(removed).toEqual({ selected: [0, 3, 8], rejected: false });
+    expect(toggleComparison(removed.selected, 2)).toEqual({ selected: [0, 2, 3, 8], rejected: false });
+  });
+});
+
+describe('上方說明句（期別描述）', () => {
+  const p = (year: string, start: string, end: string) => ({ year, candidate: { release: { period_start: start, period_end: end } } });
+
+  it('各期一致（都是年底時點、都是全年）→ 不顯示', () => {
+    expect(periodNote([p('2024', '2024-12-31', '2024-12-31'), p('2025', '2025-12-31', '2025-12-31')])).toBeNull();
+    expect(periodNote([p('2024', '2024-01-01', '2024-12-31'), p('2025', '2025-01-01', '2025-12-31')])).toBeNull();
+  });
+
+  it('人口月資料：最新一期 8 月底、其餘年底', () => {
+    const note = periodNote([p('2024', '2024-12-31', '2024-12-31'), p('2025', '2025-12-31', '2025-12-31'), p('2026', '2026-08-31', '2026-08-31')]);
+    expect(note).toEqual({ major: { kind: 'yearEnd' }, exceptions: [{ year: '2026', latest: true, phrase: { kind: 'monthEnd', month: 8 } }] });
+  });
+
+  it('期別描述：全年、年底、月底、某日、累計區間', () => {
+    expect(periodPhrase({ period_start: '2024-01-01', period_end: '2024-12-31' })).toEqual({ kind: 'fullYear' });
+    expect(periodPhrase({ period_start: '2024-02-29', period_end: '2024-02-29' })).toEqual({ kind: 'monthEnd', month: 2 });
+    expect(periodPhrase({ period_start: '2024-03-15', period_end: '2024-03-15' })).toEqual({ kind: 'date', month: 3, day: 15 });
+    expect(periodPhrase({ period_start: '2025-01-01', period_end: '2025-08-31' })).toEqual({ kind: 'range', from: { month: 1, day: 1 }, to: { kind: 'monthEnd', month: 8 } });
+  });
+});
+
+describe('大圖排法', () => {
+  it('寬視窗 4 張取一列四欄；較方的區域取 2×2；取地圖較大者', () => {
+    expect(compareArrangement(4, 1350, 660, 1.3, 72, 12).cols).toBe(4);
+    expect(compareArrangement(4, 900, 1200, 1.3, 72, 12).cols).toBe(2);
+    const wide = compareArrangement(4, 1350, 660, 1.3, 72, 12);
+    expect(wide.mapWidth).toBe(Math.floor((1350 - 36) / 4));
+  });
+
+  it('地圖受高度限制時依高度縮', () => {
+    expect(compareArrangement(1, 1350, 600, 1.3, 72, 12)).toEqual({ cols: 1, mapWidth: Math.floor((600 - 72) / 1.3) });
   });
 });
 
