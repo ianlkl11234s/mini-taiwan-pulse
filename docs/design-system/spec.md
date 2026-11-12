@@ -762,7 +762,7 @@
 - **尚無元件**：LG-6 icon（除方向箭頭）還沒有共用元件，逐層做時補。
 - **字型**（LG-10）：面板容器 `FONT_CJK`；數字、分界、單位用 `LegendNum`（`FONT_DATA`＋tabular-nums）。
 - **精簡版**（LG-9）：`LegendPanel` 的 `compact`（停靠 popup 開著時）會讓 `LegendNote` 不顯示；色階、分界、單位不可收。
-- **比較模式**（2026-11-11，§5.45）：圖例仍只有一個面板。統計層兩側且右側另選了期別／細項、色階相同 → **一份圖例**，期別列拆兩行「左側 …」「右側 …」；細項讓色階門檻或配色不同 → 「左側」「右側」兩份色階相鄰（小標 10px 600 `textStrong`），狀態列與註記在下面只出現一次。只畫一側的**統計層**在圖例末加 `LegendNote`「只顯示在左側／右側」（古地圖等其他圖例不加，側別看圖層列標籤）。比例圓左右期別不同時，兩張地圖與圖例共用較大的參考值。其他圖層圖例照舊。實作 `src/components/compare/CompareStatisticsLegend.tsx`（`StatisticsLegend` 包著用）。
+- **比較模式**（2026-11-11，§5.45）：圖例仍只有一個面板。統計層兩側且右側另選了期別／細項 → **合成一份圖例**（2026-11-12 使用者選定）：指標名＋單位＋色階說明一次；「左：期別・細項」「右：期別・細項」各一行（側別小標 10px 600 `textStrong`）；色階門檻與配色相同只畫一組色票，不同就「左側」「右側」兩排色票並列（兩欄等寬，各帶同款小標）；狀態列、出典與註記只出現一次，預設收合成「說明 ›」——`<button aria-expanded>`，11px `textMuted`，lucide `ChevronRight` 10px 展開時轉 90°（同 §5.5 圖層展開區「說明・來源」那顆）。只畫一側的**統計層**在圖例末加 `LegendNote`「只顯示在左側／右側」（古地圖等其他圖例不加，側別看圖層列標籤）。比例圓左右期別不同時，兩張地圖與圖例共用較大的參考值。其他圖層圖例照舊。實作 `src/components/compare/CompareStatisticsLegend.tsx`（`StatisticsLegend` 包著用；`MergedCompareLegend` 用 `StatisticsLegendView` 的 `part` 拼成）。
 - **禁止**：手寫 `width／height` 色票（ratchet 只准減少）；英文大寫標題；在圖例裡用 `FONT_DATA` 包中文。
 - **實作**：`src/components/legend/legendKit.tsx`；地圖側缺值斜線 `src/map/mapStyleScale.ts` `hatchImageData()`，圖例與地圖同一組顏色。
 

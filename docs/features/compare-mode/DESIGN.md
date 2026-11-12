@@ -328,6 +328,8 @@ UI 規格正本：`docs/design-system/spec.md` §5.45（並改 §5.11 比較類�
 **與 §4 表格的差異**：§4 寫「顯示在」由 `layerParamsSpec` 派生並在 `layerParamsOrder.test.ts` 詞彙表補一列；實作改成**不進** `LAYER_PARAMS_SPEC`（`src/state/compareControls.ts` 只給面板用），理由是進規格會讓 Agent、場景存檔、黃金快照都看到一個只在比較模式有意義的參數。所以沒有詞彙表那一列，排序由 `withCompareControls` 固定：「顯示在」→ 左側期別／細項 → 右側期別／細項 → 其餘。
 **拖把手的成本**：App、圖層列標籤、展開區、統計圖例只訂開關與側別（`useCompareSelector`），拖把手只重繪右圖裁切與把手；網址停 250ms 才寫（避免 Safari replaceState 次數上限）。
 
+**圖例**（2026-11-12 使用者在預覽頁比過三個方案後選定「合成一份」，取代原本「門檻不同就拆兩份完整圖例」）：統計層兩側且右側另選了期別或細項時，只畫**一份**——指標名與單位一次；「左：期別・細項」「右：期別・細項」各一行；門檻與配色相同只畫一組色票，不同就「左側」「右側」兩排並列；狀態列、出典與註記只出現一次，預設收合成「說明 ›」（`aria-expanded`）。實作 `MergedCompareLegend`（`src/components/compare/CompareStatisticsLegend.tsx`）用 `StatisticsLegendView` 的 `part`（`title`／`period`／`rows`／`notes`）拼起來；非比較模式的一般圖例不變。測試 `src/components/compare/__tests__/CompareStatisticsLegend.test.ts`。
+
 **點擊**：右半由右圖另綁 click（統計面／比例圓）→ 同一個停靠 popup，properties 帶 `compare_side: "right"`，popup 第一列「比較：右側」。
 
 **Agent（MCP）**：鏡頭與圖層控制照單地圖行為，作用在主地圖（左）；右圖靠鏡頭同步跟著動。Agent 不能設側別或右側期別（P1 不做，列 BACKLOG）。
