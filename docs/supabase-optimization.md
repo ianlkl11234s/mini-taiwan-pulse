@@ -15,7 +15,7 @@
 | **R2** | 每張預算表都要有登記的讀者（哪支 RPC、哪個圖層）；沒有讀者就不准建，讀者撤掉就停排程 | gis-platform CI `lint_migration_efficiency.py` L2；每週體檢列「預算表沒人讀」 |
 | **R3** | 排程只算增量：比每小時密的 refresh 一律 `refresh_<x>_incremental`，整天全量只允許夜間一次（`refresh-<x>-yesterday`）當安全網；頻率不可快於資料實際更新 | gis-platform CI L1；每週體檢列「單一 SQL 每天磁碟讀 >1 GB」 |
 | **R4** | 監控不可掃資料表：用收集器自己記的時間或輕量狀態表 | data-collectors handbook `operations.md` §8；code review |
-| R5（建議） | 收集器批次寫入用固定形狀 SQL（每張表一種 queryid）；data-collectors 改完後升為必須 | data-collectors handbook `operations.md` §8 |
+| R5 | 收集器批次寫入用固定形狀 SQL（每張表一種 queryid）；2026-11-12 由建議升為必須 | data-collectors handbook `operations.md` §8 |
 
 ### R1 前端只讀預先算好的結果
 
@@ -53,10 +53,11 @@
 - **實例**：停更檢查每 15 分鐘呼叫 `health_snapshot`（對一百多張表各取 `max()`），重演了 2026-09-04 的 Disk IO 事故（每天約 1.7 GB 讀）。data-collectors #188／#189 改成零 DB 讀取。
 - **檢查**：data-collectors handbook `docs/handbook/operations.md` §8；code review。每週體檢本身也照 R4：數字用 `pg_stat_statements(false)`（約 7 ms、零 temp），查詢文字只在需要時取一次。
 
-### R5（建議）收集器寫入用固定形狀 SQL
+### R5 收集器寫入用固定形狀 SQL
 
 - `execute_values(..., page_size=1000)` 每批列數不同 → 每種列數一個 `queryid`。2026-11-09 pg_stat_statements 有 4,977 筆（上限 5,000），其中 4,371 筆、232 MB 是收集器的多列 INSERT；Supabase 的 exporter 每分鐘讀全文排序，每次約 230 MB temp，換算**每天約 400 GB temp 寫**，也把低頻語句的統計擠掉。
-- 做法：`INSERT ... SELECT * FROM unnest(%s::text[], ...)` 或 `json_populate_recordset`，每張表一種 SQL。data-collectors 改完、執行一次 `pg_stat_statements_reset()` 後本條改為必須。
+- 做法：`INSERT ... SELECT * FROM unnest(%s::text[], ...)` 或 `json_populate_recordset`，每張表一種 SQL。
+- **2026-11-12 升為必須**：pulse-host（data-collectors #192／#193）與 VM（#194）改完、11-09 重置後 78 小時實測，pg_stat_statements 查詢文字由 233 MB 降到 5 MB、2,929 筆、沒有再擠掉語句。還沒改的兩支低頻寫入見 BACKLOG SBE-6。
 
 ## 為什麼要做
 
