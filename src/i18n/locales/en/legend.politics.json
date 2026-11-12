@@ -16,7 +16,7 @@
   "legend.politics.precision.town": "District point",
   "legend.politics.precision.city": "County/city point",
   "legend.politics.precision.group": "2+ events at one point: number in the middle",
-  "legend.politics.precision.note": "Outer ring = not the venue location; the farther the ring, the coarser the location. Ring segments = share of events by camp.",
+  "legend.politics.precision.note": "Outer ring = not the venue location; the farther the ring, the coarser the location. Ring or solid-circle segments = share of events by camp.",
   "legend.politics.bias": "Only events publicly announced or reported, not all events; source coverage differs by camp and city, so event counts are not comparable.",
   "legend.politics.unmapped": "{count} more events could not be located and are not mapped",
   "legend.politics.updated": "Data updated: {time}",
@@ -40,5 +40,6 @@
   "legend.politics.polling.heatNone": "none (all three off)",
   "legend.politics.council.area": "Electoral district (outline + light fill)",
   "legend.politics.council.noIndigenous": "Indigenous constituencies (plains / mountain) are not shown: they have no mapped boundary",
-  "legend.politics.council.source": "Source: CEC A0046 council district notice (OGDL-1.0); boundaries built from MOI village boundaries"
+  "legend.politics.council.source": "Source: CEC A0046 council district notice (OGDL-1.0); boundaries built from MOI village boundaries",
+  "legend.politics.precision.venueGroup": "2+ events at one exact venue: solid split circle, number in the middle"
 }

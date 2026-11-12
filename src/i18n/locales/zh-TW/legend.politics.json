@@ -16,7 +16,7 @@
   "legend.politics.precision.town": "鄉鎮市區代表點",
   "legend.politics.precision.city": "縣市代表點",
   "legend.politics.precision.group": "同一代表點 2 場以上：中間是場次數",
-  "legend.politics.precision.note": "有外環＝不是場館位置，外環離點越遠越粗略；外環分段顏色＝各陣營場次比例。",
+  "legend.politics.precision.note": "有外環＝不是場館位置，外環離點越遠越粗略；外環或實心圓的分色＝各陣營場次比例。",
   "legend.politics.bias": "收錄的是公開預告或報導過的活動，不是全部；各陣營、各縣市來源完整度不同，不可比較活動量。",
   "legend.politics.unmapped": "另有 {count} 場未定位，未上圖",
   "legend.politics.updated": "資料更新：{time}",
@@ -40,5 +40,6 @@
   "legend.politics.polling.heatNone": "無（三層都關閉）",
   "legend.politics.council.area": "區域選舉區（外框＋淡填色）",
   "legend.politics.council.noIndigenous": "不含原住民選區（平地／山地原住民選區沒有對應範圍）",
-  "legend.politics.council.source": "來源：中選會 A0046 議員選舉區公告（OGDL-1.0），依內政部村里界自建範圍"
+  "legend.politics.council.source": "來源：中選會 A0046 議員選舉區公告（OGDL-1.0），依內政部村里界自建範圍",
+  "legend.politics.precision.venueGroup": "同一確切地點 2 場以上：實心分色圓，中間是場次數"
 }
