@@ -112,6 +112,17 @@ export interface ThunderTiming {
   propagationApproximation: "2d" | "3d";
 }
 
+export interface RainEstimateInfo {
+  rainClass: number;
+  source: "radar" | "gauge" | "both" | null;
+  radarClass: number | null;
+  /** 雷達該幀起點（unix 秒）；沒有雷達包 → null */
+  radarSlotStart: number | null;
+  gaugeClass: number | null;
+  /** 雨量站該筆觀測時刻（unix 秒；每小時一筆，該小時內各 10 分格沿用） */
+  gaugeObservedAt: number | null;
+}
+
 export interface SourceContribution<F extends AnySoundFamily = SoundSourceFamily> {
   sourceId: string;
   family: F;
@@ -152,6 +163,11 @@ export interface SourceContribution<F extends AnySoundFamily = SoundSourceFamily
     | "water_level_percentile";
   /** MVP-B 鐵道：發聲位置的結構分類（地下段不產生貢獻，所以不會出現 underground） */
   railStructure?: "elevated" | "at_grade" | "surface" | "unknown";
+  /**
+   * W6-1 雨：雷達 ∨ 雨量站取較高者的分級與來源（網格值＝這裡的 rainClass）。
+   * rainClass 0–4；255＝無法判斷。radarClass／gaugeClass 為 null＝該來源不存在（沒有雷達包／沒有 5 km 內雨量站）。
+   */
+  rainEstimate?: RainEstimateInfo;
   notes: string[];
 }
 

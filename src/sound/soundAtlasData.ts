@@ -12,7 +12,10 @@ import { AVIATION, RAIN, THUNDER } from "./model/soundProfiles";
 import { clipCoverageEnd } from "./engines/coverageWindow";
 import { haversineM } from "./engines/geometryDistance";
 import { aviationPositionAt, flightsToAviationRecords, loadAviation, type AviationRecord } from "./sourceAdapters/aviationAdapter";
-import { loadRain, nearestRainStation, rainRowsToRecords, type RainRecord } from "./sourceAdapters/rainFieldAdapter";
+import {
+  isRadarRainRecord, loadRain, nearestRainStation, radarRainRecord, rainRowsToRecords, type AnyRainRecord, type RainRecord,
+} from "./sourceAdapters/rainFieldAdapter";
+import { fetchRadarRainPack, RADAR_RAIN_PROVIDER, RADAR_FRAME_STEP_S, type RadarRainPack } from "./grid/radarRainPack";
 import {
   fetchThunderSourceResults,
   loadThunder,
@@ -75,6 +78,36 @@ export function citiesNearReceiver(receiver: { longitude: number; latitude: numb
 }
 
 // ── 載入 ─────────────────────────────────────────────────
+
+/**
+ * 雨 set 加上雷達每日包（W6-1）：有包 → 多一筆 radar record＋一筆 coverage（provider cwa_radar_grid）；
+ * 沒有包（即時、其他日期）→ coverage 記 unavailable（no_radar_pack_for_date），雨量站照常、來源只標雨量站。
+ */
+export async function withRadarRain(
+  set: SoundSourceSet,
+  date: string,
+  fetchPack: (date: string) => Promise<RadarRainPack | null> = fetchRadarRainPack,
+): Promise<SoundSourceSet> {
+  const pack = await fetchPack(date).catch(() => null);
+  const start = taipeiMidnightMs(date) / 1000;
+  if (!pack) {
+    return {
+      ...set,
+      coverage: [...set.coverage, {
+        family: "rain", provider: RADAR_RAIN_PROVIDER, dateKey: date, status: "unavailable",
+        windowStart: start, windowEnd: start + 86_400, temporalKind: "day_series", reason: "no_radar_pack_for_date",
+      }],
+    };
+  }
+  return {
+    ...set,
+    records: [...set.records, radarRainRecord(pack) as SoundSourceRecord],
+    coverage: [...set.coverage, {
+      family: "rain", provider: RADAR_RAIN_PROVIDER, dateKey: date, status: "ok",
+      windowStart: pack.firstSlot, windowEnd: pack.firstSlot + pack.frameCount * RADAR_FRAME_STEP_S, temporalKind: "day_series",
+    }],
+  };
+}
 
 export type SetOrigin = "scene" | "live";
 
@@ -218,13 +251,13 @@ export async function loadSoundFamily(
   }
   if (applies) {
     const set = await snapshotSet(snapshot!, family, nowUnix);
-    if (set) return { set, origin: "scene" };
+    if (set) return { set: family === "rain" ? await withRadarRain(set, date) : set, origin: "scene" };
   }
   switch (family) {
     case "aviation":
       return { set: await loadAviation({ date, nowUnix }, cachedAviationDay), origin: "live" };
     case "rain":
-      return { set: await loadRain({ date }, fetchRainGaugeDay), origin: "live" };
+      return { set: await withRadarRain(await loadRain({ date }, fetchRainGaugeDay) as SoundSourceSet, date), origin: "live" };
     case "thunder":
       return { set: await loadThunder({ date, nowUnix }, fetchLightningDay), origin: "live" };
   }
@@ -307,18 +340,17 @@ export function prefilterAviation(records: readonly AviationRecord[], receiver: 
   });
 }
 
-/** 雨只看最近一站：保留最近站的列（最近站超過門檻時也照樣保留，讓引擎回 unknown） */
-export function prefilterRain(records: readonly RainRecord[], receiver: Receiver): RainRecord[] {
+/** 雨只看最近一站：保留最近站的列（最近站超過門檻時也照樣保留，讓引擎回 unknown）；雷達包（整個網格一筆）一律保留 */
+export function prefilterRain(records: readonly AnyRainRecord[], receiver: Receiver): AnyRainRecord[] {
   const nearest = nearestRainStation(records, receiver.longitude, receiver.latitude);
-  if (!nearest) return [];
-  return records.filter((r) => r.payload.stationId === nearest.stationId);
+  return records.filter((r) => isRadarRainRecord(r) || (nearest != null && r.payload.stationId === nearest.stationId));
 }
 
 /** 對已載入的 sets 做接收點預篩；coverage 原封不動（健康狀態不受篩選影響） */
 export function prefilterSetsForReceiver(sets: readonly SoundSourceSet[], receiver: Receiver): SoundSourceSet[] {
   return sets.map((s) => {
     if (s.family === "aviation") return { ...s, records: prefilterAviation(s.records as AviationRecord[], receiver) };
-    if (s.family === "rain") return { ...s, records: prefilterRain(s.records as RainRecord[], receiver) };
+    if (s.family === "rain") return { ...s, records: prefilterRain(s.records as AnyRainRecord[], receiver) as SoundSourceRecord[] };
     return s;
   });
 }
@@ -357,6 +389,8 @@ export function contributionPlace(record: SoundSourceRecord | undefined, t: numb
       return { lon: pos.lon, lat: pos.lat, altitudeM: pos.altitudeM, label: p.callsign || p.flightId };
     }
     case "rain": {
+      // 雷達包是整個網格的場，沒有單一來源點 → 不畫
+      if (isRadarRainRecord(record)) return null;
       const p = (record as RainRecord).payload;
       return { lon: p.lon, lat: p.lat, altitudeM: null, label: p.stationName ?? p.stationId };
     }

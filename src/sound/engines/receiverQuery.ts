@@ -65,31 +65,26 @@ function receiverNotes(receiver: Receiver): string[] {
   return receiver.environment === "indoor_unknown" ? ["receiver:indoor_unknown(insulation unknown; outdoor proxy only)"] : [];
 }
 
-/** 單一家族在 [t0, t1] 區間的結果；t0 === t1 即瞬時查詢 */
-export function queryFamilyInterval<F extends AnySoundFamily = SoundSourceFamily>(
-  family: F,
-  sets: readonly AnySet[],
-  receiver: Receiver,
-  t0: number,
-  t1: number,
-): FamilyResult<F> {
+/**
+ * coverage gate（queryFamilyInterval 與網格共用，W6-1）：
+ * - 區間不在任何涵蓋窗 → unavailable；涵蓋窗內沒有 status=ok 的來源 → unknown；
+ * - 否則回 status=ok 來源的 records（單一 coverage 的集合整組依該 coverage；多源集合依 record 的 provider）。
+ */
+export type FamilyGate =
+  | { kind: "unavailable"; reason: string }
+  | { kind: "unknown"; reason: string }
+  | { kind: "ok"; records: SoundSourceRecord<unknown, AnySoundFamily>[]; okProviders: Set<string>; degraded: string[] };
+
+export function gateFamilyRecords(family: AnySoundFamily, sets: readonly AnySet[], t0: number, t1: number): FamilyGate {
   const familySets = sets.filter((s) => s.family === family);
   const coverages = familySets.flatMap((s) => s.coverage);
   const overlapping = coverages.filter((c) => c.windowStart <= t1 && t0 < c.windowEnd);
-  const base = { family, contributions: [] as SourceContribution<F>[], notes: receiverNotes(receiver) };
   if (overlapping.length === 0) {
-    return {
-      ...base,
-      status: "unavailable",
-      relativePotential: null,
-      reason: coverages.length === 0 ? "source_not_loaded" : "outside_source_time_coverage",
-    };
+    return { kind: "unavailable", reason: coverages.length === 0 ? "source_not_loaded" : "outside_source_time_coverage" };
   }
   const ok = overlapping.filter((c) => c.status === "ok");
   const degraded = overlapping.filter((c) => c.status !== "ok").map((c) => `${c.provider}:${c.status}`);
-  if (ok.length === 0) {
-    return { ...base, status: "unknown", relativePotential: null, reason: `no_healthy_source(${degraded.join(",")})` };
-  }
+  if (ok.length === 0) return { kind: "unknown", reason: `no_healthy_source(${degraded.join(",")})` };
   const okProviders = new Set(ok.map((c) => c.provider));
   const records: SoundSourceRecord<unknown, AnySoundFamily>[] = [];
   const seenIds = new Set<string>();
@@ -100,13 +95,29 @@ export function queryFamilyInterval<F extends AnySoundFamily = SoundSourceFamily
     records.push(r);
   };
   for (const s of familySets) {
-    // 單一 coverage 的集合：整組依該 coverage 判定；多源集合（落雷）：依 record 的 provider 判定
+    // 單一 coverage 的集合：整組依該 coverage 判定；多源集合（落雷、W6-1 雨＝雨量站＋雷達）：依 record 的 provider 判定
     if (s.coverage.length === 1) {
       if (okProviders.has(s.coverage[0]!.provider) && s.coverage[0]!.status === "ok") s.records.forEach(push);
       continue;
     }
     for (const r of s.records) if (okProviders.has(r.provenance.provider)) push(r);
   }
+  return { kind: "ok", records, okProviders, degraded };
+}
+
+/** 單一家族在 [t0, t1] 區間的結果；t0 === t1 即瞬時查詢 */
+export function queryFamilyInterval<F extends AnySoundFamily = SoundSourceFamily>(
+  family: F,
+  sets: readonly AnySet[],
+  receiver: Receiver,
+  t0: number,
+  t1: number,
+): FamilyResult<F> {
+  const base = { family, contributions: [] as SourceContribution<F>[], notes: receiverNotes(receiver) };
+  const gate = gateFamilyRecords(family, sets, t0, t1);
+  if (gate.kind === "unavailable") return { ...base, status: "unavailable", relativePotential: null, reason: gate.reason };
+  if (gate.kind === "unknown") return { ...base, status: "unknown", relativePotential: null, reason: gate.reason };
+  const { records, degraded } = gate;
   const { contributions, notes } = QUERIES[family](records as never[], receiver, t0, t1) as { contributions: SourceContribution<F>[]; notes: string[] };
   contributions.sort((a, b) => (b.relativePotential ?? -1) - (a.relativePotential ?? -1));
   const extraNotes = [...notes, ...degraded.map((d) => `degraded_source:${d}`)];
