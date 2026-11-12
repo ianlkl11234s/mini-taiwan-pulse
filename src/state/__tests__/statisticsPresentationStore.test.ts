@@ -74,5 +74,12 @@ describe('statistics presentation store', () => {
     expect(statisticsPresentationMode(B)).toBe('dots');
     expect(statisticsPresentationMode(RATIO)).toBe('choropleth');
     expect(presentationUrlEntries((key) => key === B)).toEqual({ [B]: 'dots' });
+    // 敏感層藏掉點密度：舊網址帶 pm=<key>:dots 安靜退回面量圖，也不寫回網址
+    const HIV = 'statsHivCasesTownship';
+    applyPresentationUrlEntries({ [HIV]: 'dots' });
+    expect(statisticsPresentationMode(HIV)).toBe('choropleth');
+    layerParamsStore.setParam(HIV, presentationParamName(HIV), 'dots');
+    expect(statisticsPresentationMode(HIV)).toBe('choropleth');
+    expect(presentationUrlEntries((key) => key === HIV)).toBeUndefined();
   });
 });
