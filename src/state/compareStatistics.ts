@@ -13,6 +13,7 @@
 import type { LinkedSelectParamSpec } from "../data/layerParamsSpec";
 import { STATISTICS_RENDER_KEYS, isStatisticsRenderLayer, statisticsRenderRecipe } from "../data/regionalStatisticsRecipes";
 import { statisticsCircleData } from "../map/statisticsCircles";
+import { dataDotUnit } from "../map/statisticsDots";
 import { regionalStatisticsStore } from "./regionalStatisticsStore";
 import { layerVisibilityStore } from "./layerVisibilityStore";
 import { compareSideOf, compareStore, type CompareSide, type CompareState } from "./compareStore";
@@ -56,6 +57,19 @@ export function compareCircleReference(key: string, own: number | null): number 
   });
   const values = [own, ...refs].filter((value): value is number => typeof value === "number" && value > 0);
   return values.length ? Math.max(...values) : own;
+}
+
+/**
+ * 點密度「一點＝N」：左右期別／細項不同時兩張圖與圖例共用較大的 N（同一個點左右代表同一數量，點數差才有意義）。
+ * 沒有分左右時回 undefined（＝用本圖自己的）。
+ */
+export function compareDotUnit(key: string, own: number): number | undefined {
+  if (!compareSplitActive(key)) return undefined;
+  const units = [key, statisticsRightStoreKey(key)].map((storeKey) => {
+    const data = regionalStatisticsStore.getSnapshot(storeKey).data;
+    return data ? dataDotUnit(data) : 0;
+  });
+  return Math.max(own, ...units);
 }
 
 /**

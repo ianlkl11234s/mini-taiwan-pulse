@@ -2,9 +2,10 @@
  * 統計圖層呈現方式的執行期規則（設計提案 Q-A「幾個統計圖層同時開時」）。
  *
  * 值本身在 layerParamsStore（`<key>Presentation`，由 `statisticsPresentation.ts` 規格產生），這裡只管：
- *   - **同時最多一層比例圓**：任何寫入來源（面板、`pm=` 分享網址、場景還原、Agent）把第二層切到比例圓時，
- *     其他比例圓層自動回面量圖；規則放在 store 訂閱，不放在面板 onChange，所有寫入者都一致。
- *   - 被改回的層若正開著，在「新的比例圓層」控制區顯示一行說明（`statisticsPresentationNote`）。
+ *   - **同時最多一層非面量圖（比例圓或點密度）**：任何寫入來源（面板、`pm=` 分享網址、場景還原、Agent）把第二層
+ *     切到比例圓／點密度時，其他比例圓／點密度層自動回面量圖；規則放在 store 訂閱，不放在面板 onChange，所有寫入者都一致。
+ *     （兩層點密度疊在一起分不出哪個點是哪一層；比例圓疊點密度同理。）
+ *   - 被改回的層若正開著，在「新的那一層」控制區顯示一行說明（`statisticsPresentationNote`）。
  * 每層各自選；面量圖可以同時好幾層（照「單一／可重疊」模式）。
  */
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe, type StatisticsRenderKey } from '../data/regionalStatisticsRecipes';
@@ -15,7 +16,7 @@ import { layerParamsStore } from './layerParamsStore';
 import { layerVisibilityStore } from './layerVisibilityStore';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
 
-/** 有「呈現方式」控制項的統計 key（可切比例圓） */
+/** 有「呈現方式」控制項的統計 key（可切比例圓／點密度） */
 export const PRESENTATION_KEYS: readonly StatisticsRenderKey[] = STATISTICS_RENDER_KEYS.filter((key) => statisticsPresentationSpec(key));
 const PRESENTATION_KEY_SET = new Set<string>(PRESENTATION_KEYS);
 
@@ -29,9 +30,10 @@ export function statisticsPresentationMode(key: string): StatisticsPresentationM
   return resolvePresentationMode(key, layerParamsStore.getParam(key, presentationParamName(key)));
 }
 
-const circleKeys = () => PRESENTATION_KEYS.filter((key) => statisticsPresentationMode(key) === 'circle');
+/** 用比例圓或點密度（非面量圖）的層 */
+const circleKeys = () => PRESENTATION_KEYS.filter((key) => statisticsPresentationMode(key) !== 'choropleth');
 
-/** 新的比例圓層 → 被改回面量圖、而且當時開著的層 */
+/** 新的比例圓／點密度層 → 被改回面量圖、而且當時開著的層 */
 const notes = new Map<string, readonly string[]>();
 let holder: string | null = circleKeys()[0] ?? null;
 let enforcing = false;
@@ -41,7 +43,7 @@ function enforceSingleCircle() {
   const circles = circleKeys();
   for (const key of [...notes.keys()]) if (!circles.includes(key as StatisticsRenderKey)) notes.delete(key);
   if (circles.length <= 1) { holder = circles[0] ?? null; return; }
-  // 剛切成比例圓的那一層（不是原本的持有者）留下；同時進來好幾層（網址、場景）時留第一個新的
+  // 剛切成比例圓／點密度的那一層（不是原本的持有者）留下；同時進來好幾層（網址、場景）時留第一個新的
   const winner = circles.find((key) => key !== holder) ?? circles[circles.length - 1]!;
   const losers = circles.filter((key) => key !== winner);
   const visible = losers.filter((key) => layerVisibilityStore.getVisibility(key));
@@ -56,7 +58,7 @@ function enforceSingleCircle() {
 layerParamsStore.subscribe(enforceSingleCircle);
 
 /**
- * 控制區說明列：「已把〇〇改回面量圖（同時只能有一層比例圓）」。只在新比例圓層的「呈現方式」那一列。
+ * 控制區說明列：「已把〇〇改回面量圖（比例圓與點密度同時只能有一層）」。只在新那一層的「呈現方式」那一列。
  * 不傳 i18n（Agent、黃金快照）時回中文。
  */
 export function statisticsPresentationNote(key: string, name: string, i18n?: Pick<LocaleSnapshot, 'active' | 'lookup' | 't'>): string | undefined {
@@ -67,7 +69,7 @@ export function statisticsPresentationNote(key: string, name: string, i18n?: Pic
     const zh = statisticsRenderRecipe(other as StatisticsRenderKey).label;
     return i18n ? statisticsTitle(other, zh, i18n) : zh;
   }).join('、');
-  return i18n ? i18n.t('paramsPanel.presentationDemoted', { names }) : `已把「${names}」改回面量圖（同時只能有一層比例圓）`;
+  return i18n ? i18n.t('paramsPanel.presentationDemoted', { names }) : `已把「${names}」改回面量圖（比例圓與點密度同時只能有一層）`;
 }
 
 /**

@@ -67,5 +67,5 @@
   "paramsPanel.hf.status.mismatch": "Historical track sample does not match the catalog",
   "paramsPanel.hf.status.loadFailed": "Failed to load historical tracks",
   "paramsPanel.hf.status.manifestFailed": "Could not read the airport catalog. Please retry.",
-  "paramsPanel.presentationDemoted": "Switched “{names}” back to choropleth (only one proportional-circle layer at a time)"
+  "paramsPanel.presentationDemoted": "Switched “{names}” back to choropleth (only one proportional-circle or dot-density layer at a time)"
 }

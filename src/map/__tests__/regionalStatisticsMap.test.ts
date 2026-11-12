@@ -68,7 +68,7 @@ vi.mock('../../state/layerParamsStore', () => ({
     subscribe: (listener: () => void) => { state.paramsListener = listener; return () => { state.paramsListener = undefined; }; },
   },
 }));
-vi.mock('../../lib/loadingRegistry', () => ({ keepLoadingUntilMapIdle: vi.fn() }));
+vi.mock('../../lib/loadingRegistry', () => ({ keepLoadingUntilMapIdle: vi.fn(), withLoading: vi.fn((_id: string, _label: string, promise: Promise<unknown>) => promise) }));
 vi.mock('../../state/statisticsPresentationStore', () => ({
   isPresentationKey: (key: string) => key in state.presentation,
   statisticsPresentationMode: (key: string) => state.presentation[key] ?? 'choropleth',
@@ -268,6 +268,38 @@ describe('attachRegionalStatistics', () => {
     state.paramsListener?.();
     expect(mock.layers.get(`${VIEW}-fill`)?.layout?.visibility).toBe('visible');
     expect(mock.layers.get(`${VIEW}-circle`)?.layout?.visibility).toBe('none');
+    dispose();
+  });
+
+  it('點密度：填色透明但仍可點、斜線照舊、邊界換淡灰線；點分批算好才畫，缺值與 0 不撒點；切回面量圖還原', async () => {
+    const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+      { type: 'Feature', properties: { area_code: 'A', value: 430, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'B', value: 100, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[4, 0], [6, 0], [6, 2], [4, 2], [4, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'C', value: null, status: 'missing' }, geometry: { type: 'Polygon', coordinates: [[[8, 0], [9, 0], [9, 1], [8, 1], [8, 0]]] } },
+      { type: 'Feature', properties: { area_code: 'D', value: 0, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[10, 0], [11, 0], [11, 1], [10, 1], [10, 0]]] } },
+    ] };
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+    state.visibility[VIEW] = true;
+    state.params[`${VIEW}Opacity`] = 0.6;
+    state.presentation[VIEW] = 'dots';
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => true, { dotUnit: () => 10 });
+
+    expect(mock.layers.get(`${VIEW}-fill`)).toMatchObject({ layout: { visibility: 'visible' }, paint: { 'fill-opacity': 0 } });
+    for (const suffix of ['missing', 'suppressed', 'line']) expect(mock.layers.get(`${VIEW}-${suffix}`)?.layout?.visibility).toBe('visible');
+    expect(mock.layers.get(`${VIEW}-line`)?.paint).toMatchObject({ 'line-color': '#9ca3af' });
+    // 還沒算好：不畫（也不畫 0 點的空層）
+    expect(mock.layers.get(`${VIEW}-dots`)?.layout?.visibility).toBe('none');
+    await vi.waitFor(() => expect(mock.sources.get(`${VIEW}-dot-points`)?.setData).toHaveBeenCalled());
+    const dots = mock.sources.get(`${VIEW}-dot-points`)!.setData.mock.calls[0]![0] as GeoJSON.FeatureCollection<GeoJSON.MultiPoint>;
+    // N 由外部覆寫成 10：A 43 點、B 10 點；缺值與 0 不撒點；點只帶區代碼
+    expect(dots.features.map((f) => [f.properties?.area_code, f.geometry.coordinates.length])).toEqual([['A', 43], ['B', 10]]);
+    expect(mock.layers.get(`${VIEW}-dots`)).toMatchObject({ layout: { visibility: 'visible' }, paint: { 'circle-color': '#104', 'circle-opacity': 0.6 } });
+
+    state.presentation[VIEW] = 'choropleth';
+    state.paramsListener?.();
+    expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.6);
+    expect(mock.layers.get(`${VIEW}-dots`)?.layout?.visibility).toBe('none');
     dispose();
   });
 

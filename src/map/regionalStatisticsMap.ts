@@ -3,11 +3,12 @@ import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe, statisticsReleaseFallba
 import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../state/layerVisibilityStore';
 import { layerParamsStore } from '../state/layerParamsStore';
-import { keepLoadingUntilMapIdle } from '../lib/loadingRegistry';
+import { keepLoadingUntilMapIdle, withLoading } from '../lib/loadingRegistry';
 import { STATISTICS_FILL_OPACITY, statisticsDefaultOpacity } from '../data/statisticsVisuals';
-import { gradedSeamPaint, hatchImageData, hatchImageId, type HatchKind } from './mapStyleScale';
+import { BOUNDARY_GRAY, gradedSeamPaint, hatchImageData, hatchImageId, type HatchKind } from './mapStyleScale';
 import { isPresentationKey, statisticsCircleHollow, statisticsPresentationMode } from '../state/statisticsPresentationStore';
 import { PROPORTIONAL_CIRCLE, proportionalCircleRadiusExpression, statisticsCircleData } from './statisticsCircles';
+import { DOT_STYLE, dataDotUnit, statisticsDotRadius, statisticsDotData, statisticsDotDataReady } from './statisticsDots';
 
 /** 有數值才上色；缺值、未發布、遮蔽一律透明底，由 hatch 子圖層表示（F-3 A）。 */
 const NO_FILL = 'rgba(0,0,0,0)';
@@ -19,6 +20,9 @@ const CIRCLE_SUFFIXES = ['circle-halo', 'circle'] as const;
 const circleSourceId = (key: string) => `${key}-circles`;
 /** 比例圓的 map layer id（點擊開 popup 用；gisClickRegistry） */
 export const statisticsCircleLayerId = (key: string) => `${key}-circle`;
+/** 點密度（呈現方式＝點密度）：點 source `<key>-dots`、一個 circle 子圖層（不進點擊登記：點不是實際地點，點區域開面的 popup） */
+const dotSourceId = (key: string) => `${key}-dot-points`;
+export const statisticsDotLayerId = (key: string) => `${key}-dots`;
 /** 右側期別／細項與左側不同時，右圖用的 store key 後綴（`regionalStatisticsStore` 不寫 localStorage） */
 export const RIGHT_STORE_SUFFIX = '::R';
 
@@ -41,6 +45,8 @@ export interface StatisticsAttachOptions {
   subscribe?: (callback: () => void) => () => void;
   /** 比例圓參考值覆寫（左右期別不同時兩張圖共用較大者）；回 undefined＝用本圖資料自己的參考值 */
   circleReference?: (key: StatisticsRenderKey, own: number | null) => number | null | undefined;
+  /** 點密度「一點＝N」覆寫（左右期別不同時兩張圖共用較大者）；回 undefined＝用本圖資料自己的 N */
+  dotUnit?: (key: StatisticsRenderKey, own: number) => number | undefined;
   /** loadingRegistry 任務 id 前綴（兩張圖同時載入同一層時不互相結束） */
   loadingPrefix?: string;
 }
@@ -59,6 +65,9 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
   const shown = new Map<string, boolean>();
   const rendered = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
   const renderedCircles = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
+  const renderedDots = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
+  const pendingDots = new Set<Promise<unknown>>();
+  let disposed = false;
   if (primary) for (const key of STATISTICS_RENDER_KEYS) {
     const recipe = statisticsRenderRecipe(key);
     const fallback = statisticsReleaseFallback(key);
@@ -110,6 +119,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       if (!map.getSource(key)) {
         rendered.delete(key);
         renderedCircles.delete(key);
+        renderedDots.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
         const before = beforeCircles();
         map.addLayer({ id: `${key}-fill`, type: 'fill', source: key, layout: { visibility: 'none' }, paint: {
@@ -128,6 +138,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       map.setPaintProperty(`${key}-suppressed`, 'fill-pattern', hatchImageId('suppressed', isDark));
       map.setPaintProperty(`${key}-line`, 'line-color', seam['line-color'] as mapboxgl.ExpressionSpecification);
       map.setPaintProperty(`${key}-line`, 'line-opacity', seam['line-opacity'] as mapboxgl.ExpressionSpecification);
+      map.setPaintProperty(`${key}-line`, 'line-width', seam['line-width']);
       const data = state.data;
       if (data && rendered.get(key) !== data) {
         rendered.set(key, data);
@@ -143,7 +154,10 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       map.setPaintProperty(`${key}-fill`, 'fill-opacity', opacity);
       map.setPaintProperty(`${key}-missing`, 'fill-opacity', opacity);
       map.setPaintProperty(`${key}-suppressed`, 'fill-opacity', opacity);
-      if (isPresentationKey(key)) renderCircles(key, visible && Boolean(data), data, recipe.colors[recipe.colors.length - 1]!, recipe.level, opacity, isDark);
+      if (isPresentationKey(key)) {
+        renderCircles(key, visible && Boolean(data), data, recipe.colors[recipe.colors.length - 1]!, recipe.level, opacity, isDark);
+        renderDots(key, visible && Boolean(data), data, recipe.colors[recipe.colors.length - 1]!, recipe.label, opacity, isDark);
+      }
     }
   }
   /**
@@ -190,9 +204,53 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     map.setLayoutProperty(halo, 'visibility', hollow ? 'visible' : 'none');
     map.setLayoutProperty(main, 'visibility', 'visible');
   }
-  /** 比例圓永遠在所有統計面之上：之後才建立的統計面插在第一個比例圓之前（不然後開的面量圖會疊到圓上） */
+  /**
+   * 點密度：面量圖填色關掉（fill 保持 visible、透明度 0 → 點區域內任何地方仍開原本的區 popup）；缺值／遮蔽斜線照舊、
+   * 不撒點；細縫換成淡淡的行政區界（關掉填色後底圖色細縫看不見）。點位分批計算（`statisticsDotData`），
+   * 算好前保留上一份點（換期別不閃白），算好再重畫；計算中註冊 loadingRegistry。
+   */
+  function renderDots(key: StatisticsRenderKey, layerShown: boolean, data: GeoJSON.FeatureCollection | null | undefined, color: string, label: string, opacity: number, isDark: boolean) {
+    const layerId = statisticsDotLayerId(key);
+    const dots = layerShown && statisticsPresentationMode(key) === 'dots' && data;
+    if (!dots) {
+      if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', 'none');
+      return;
+    }
+    const theme = isDark ? 'dark' : 'light';
+    map.setPaintProperty(`${key}-fill`, 'fill-opacity', 0);
+    map.setPaintProperty(`${key}-line`, 'line-color', BOUNDARY_GRAY[theme]);
+    map.setPaintProperty(`${key}-line`, 'line-opacity', DOT_STYLE.boundaryOpacity[theme]);
+    map.setPaintProperty(`${key}-line`, 'line-width', DOT_STYLE.boundaryWidth);
+    const own = dataDotUnit(data);
+    const unit = options.dotUnit?.(key, own) ?? own;
+    const ready = statisticsDotDataReady(data, unit);
+    if (!ready) {
+      const pending = statisticsDotData(data, unit);
+      if (!pendingDots.has(pending)) {
+        pendingDots.add(pending);
+        void withLoading(`statistics-dots:${loadingPrefix}${key}`, label, pending).finally(() => { pendingDots.delete(pending); if (!disposed) render(); }).catch(() => undefined);
+      }
+    }
+    const sourceId = dotSourceId(key);
+    if (!map.getSource(sourceId)) {
+      renderedDots.delete(key);
+      map.addSource(sourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+      map.addLayer({ id: layerId, type: 'circle', source: sourceId, layout: { visibility: 'none' }, paint: { 'circle-pitch-alignment': 'map' } });
+    }
+    if (ready && renderedDots.get(key) !== ready.dots) {
+      renderedDots.set(key, ready.dots);
+      (map.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(ready.dots);
+      keepLoadingUntilMapIdle(map, `statistics-dots-render:${loadingPrefix}${key}`, label, sourceId);
+    }
+    map.setPaintProperty(layerId, 'circle-radius', statisticsDotRadius() as mapboxgl.ExpressionSpecification);
+    map.setPaintProperty(layerId, 'circle-color', color);
+    map.setPaintProperty(layerId, 'circle-opacity', opacity);
+    map.setLayoutProperty(layerId, 'visibility', renderedDots.has(key) ? 'visible' : 'none');
+  }
+  /** 比例圓／點密度永遠在所有統計面之上：之後才建立的統計面插在第一個比例圓／點層之前（不然後開的面量圖會疊到上面） */
   function beforeCircles(): string | undefined {
     for (const key of renderedCircles.keys()) if (map.getLayer(`${key}-circle-halo`)) return `${key}-circle-halo`;
+    for (const key of renderedDots.keys()) if (map.getLayer(statisticsDotLayerId(key))) return statisticsDotLayerId(key);
     return undefined;
   }
   /** 擁有的 key 要不要有資料：主地圖看圖層開關（不看側別）；右圖看自己畫不畫 */
@@ -231,6 +289,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
   map.on('idle', onIdle);
   visibilityChanged();
   return () => {
+    disposed = true;
     dispose.forEach(fn => fn()); map.off('style.load', onStyleLoad); map.off('idle', onIdle);
     // 只清自己擁有的資料：主地圖＝全部 key（同原本行為）；右圖＝只有 key::R
     if (primary) STATISTICS_RENDER_KEYS.forEach(key => regionalStatisticsStore.disable(key));

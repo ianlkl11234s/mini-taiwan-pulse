@@ -19,6 +19,7 @@
   "smallMultiples.note.joiner": ", ",
   "smallMultiples.note.rest": "Note: {parts}; the others are {phrase} of each year.",
   "smallMultiples.circleNote": "The main map is showing proportional circles; these maps are always drawn as choropleths with the same class breaks.",
+  "smallMultiples.dotsNote": "The main map is showing dot density; these maps are always drawn as choropleths with the same class breaks.",
   "smallMultiples.totalNote": "These are totals: larger or more populous areas are darker by nature. Use this to follow one area across years rather than to compare areas.",
   "smallMultiples.insetNote": "Kinmen and Matsu are drawn in the top-left frames (same scale, moved); Dongsha, Nansha and Diaoyutai are outside the map.",
   "smallMultiples.undrawn": "Outside the map, not drawn: {names}.",

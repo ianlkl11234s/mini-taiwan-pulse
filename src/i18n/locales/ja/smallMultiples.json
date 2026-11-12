@@ -19,6 +19,7 @@
   "smallMultiples.note.joiner": "、",
   "smallMultiples.note.rest": "{parts}、ほかは各年の{phrase}です。",
   "smallMultiples.circleNote": "メイン地図は比例円で表示中です。ここでは常に同じ階級区分の塗り分け図で描きます。",
+  "smallMultiples.dotsNote": "メイン地図はドット密度で表示中です。ここでは常に同じ階級区分の塗り分け図で描きます。",
   "smallMultiples.totalNote": "これは総量です。面積や人口が大きい地区はもともと色が濃くなるため、地区どうしの比較ではなく、同じ地区の年ごとの変化を見るのに向いています。",
   "smallMultiples.insetNote": "金門・馬祖は左上の枠内に描いています（同縮尺で移動）。東沙・南沙・釣魚台は範囲外です。",
   "smallMultiples.undrawn": "範囲外のため未描画：{names}。",

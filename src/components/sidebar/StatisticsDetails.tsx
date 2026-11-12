@@ -18,12 +18,13 @@ import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, type Sta
 import type { StatisticsLevel, StatisticsRecipe } from '../../data/regionalStatisticsLoader';
 import { statisticsColorStops } from '../../data/statisticsColorScale';
 import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
-import { LegendFillOpacityCtx, LegendNestedCircles, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
+import { LegendFillOpacityCtx, LegendNestedCircles, LegendRow, LegendTitle, SwatchDot, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
 import { PROPORTIONAL_CIRCLE, proportionalCircleRadius, proportionalLegendValues, statisticsCircleData } from '../../map/statisticsCircles';
 import { statisticsCircleHollow, statisticsPresentationMode } from '../../state/statisticsPresentationStore';
 import { statisticsFillOpacity } from '../../data/statisticsVisuals';
 import { useLayerParams } from '../../state/layerParamsStore';
-import { compareCircleReference } from '../../state/compareStatistics';
+import { compareCircleReference, compareDotUnit } from '../../state/compareStatistics';
+import { dataDotUnit, dotTotal } from '../../map/statisticsDots';
 import { CompareStatisticsLegend, type StatisticsLegendPart } from '../compare/CompareStatisticsLegend';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
 import { enumLabel } from '../../i18n/dataText';
@@ -245,14 +246,19 @@ export function StatisticsLegendView({ layerKey, storeKey = layerKey, part }: { 
   // 類別型（最高黨）：每類一列、用類別名（不顯示門檻區間與「淺 → 深」）。
   const atlasCategoryLegend = atlas ? atlasCategoryRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
   const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows ?? atlasCategoryLegend;
-  // 呈現方式＝比例圓：色階列換成三圓套疊（圖例只負責顯示，切換在圖層控制區）；缺值斜線等狀態列照舊
-  const circle = statisticsPresentationMode(layerKey) === 'circle';
+  // 呈現方式＝比例圓：色階列換成三圓套疊；點密度：換成「一點＝N」（圖例只負責顯示，切換在圖層控制區）；缺值斜線等狀態列照舊
+  const presentation = statisticsPresentationMode(layerKey);
+  const circle = presentation === 'circle';
+  const dots = presentation === 'dots';
+  /** 比例圓或點密度：不用固定色階門檻 */
+  const sized = circle || dots;
   // 比較模式的期別行用「期間＋細項」摘要（期別可能在 roc_year 細項裡，只看 release 會左右一樣）
   const period = state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release, i18n) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded');
   const title = <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n, 'valueTransform' in recipe && Boolean(recipe.valueTransform))} style={{ marginBottom: 0 }} />;
-  const scaleNote = binaryRows || circle ? null : atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential');
+  const scaleNote = binaryRows || sized ? null : atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential');
   const loadState = <>{state.loading && <span>{tr('statistics.legend.loading')}</span>}{state.error && <span role="alert" title={i18n.active === 'zh-TW' ? undefined : state.error}>{i18n.active === 'zh-TW' ? state.error : tr('statistics.loadFailed')}</span>}</>;
-  const rows = circle ? <StatisticsCircleLegend layerKey={layerKey} data={state.data} level={recipe.level} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} isDark={t.isDark} />
+  const rows = dots ? <StatisticsDotLegend layerKey={layerKey} data={state.data} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} />
+    : circle ? <StatisticsCircleLegend layerKey={layerKey} data={state.data} level={recipe.level} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} isDark={t.isDark} />
     : (binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>);
   if (part === 'period') return <span>{(state.release ? statisticsDimensionSummary(state.selection?.dimensions, state.release, recipe.dataset_id, i18n) : '') || period}</span>;
   if (part === 'title' || part === 'rows') {
@@ -271,7 +277,7 @@ export function StatisticsLegendView({ layerKey, storeKey = layerKey, part }: { 
     {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
     {!part && <>
     {loadState}
-    {!circle && scaleNote && <span>{scaleNote}</span>}
+    {!sized && scaleNote && <span>{scaleNote}</span>}
     {rows}
     </>}
     {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
@@ -284,17 +290,18 @@ export function StatisticsLegendView({ layerKey, storeKey = layerKey, part }: { 
     {atlas?.legend.display_note && <span>{enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n)}</span>}
     {atlas?.legend.notes?.map((note) => <span key={note}>{enumLabel('statLegendNote', note, note, i18n)}</span>)}
     {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label, solid }) => <LegendRow key={kind} swatch={solid ? <SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} /> : <SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
-    {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(circle && (social || labor || environment || demographics) ? 'statistics.legend.hatchCircle' : social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
+    {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(dots && (social || labor || environment || demographics) ? 'statistics.legend.hatchDots' : circle && (social || labor || environment || demographics) ? 'statistics.legend.hatchCircle' : social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}
     {agri && <span>{tr('statistics.legend.notReported', { label: agri.legend.not_reported_label })}</span>}
     {labor && <><span>{tr('statistics.legend.locationBasis', { value: statisticsLocationBasis(laborLocationSemantics(labor), i18n) })}</span><span>{tr('statistics.legend.boundaryDisclosed', { boundary: boundaryVersionLabel(labor.boundary_version, i18n) })}</span></>}
     {/* 比例圓不用固定色階門檻：改說明最大圓的參考值會隨期別變（人口類照舊帶來源） */}
     {circle && <span>{demographics ? tr('statistics.legend.circleReferenceSource', { provider: demographicsSource(demographics).provider }) : tr('statistics.legend.circleReference')}</span>}
-    {circle && (addiction ?? atlas) && <span>{tr('statistics.legend.locationBasis', { value: statisticsLocationBasis((addiction ?? atlas)!.location_semantics, i18n) })}</span>}
-    {!circle && demographics && <span>{tr('statistics.legend.fixedDemographics', { provider: demographicsSource(demographics).provider })}</span>}
-    {!circle && addiction && <span>{tr('statistics.legend.fixedAddiction', { value: statisticsLocationBasis(addiction.location_semantics, i18n) })}</span>}
-    {!circle && landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
-    {!circle && atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length && atlas.legend.by_dimension ? tr('statistics.legend.perDimensionThresholds') : '', value: statisticsLocationBasis(atlas.location_semantics, i18n) })}</span>}
+    {dots && <span>{demographics ? tr('statistics.legend.dotReferenceSource', { provider: demographicsSource(demographics).provider }) : tr('statistics.legend.dotReference')}</span>}
+    {sized && (addiction ?? atlas) && <span>{tr('statistics.legend.locationBasis', { value: statisticsLocationBasis((addiction ?? atlas)!.location_semantics, i18n) })}</span>}
+    {!sized && demographics && <span>{tr('statistics.legend.fixedDemographics', { provider: demographicsSource(demographics).provider })}</span>}
+    {!sized && addiction && <span>{tr('statistics.legend.fixedAddiction', { value: statisticsLocationBasis(addiction.location_semantics, i18n) })}</span>}
+    {!sized && landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
+    {!sized && atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length && atlas.legend.by_dimension ? tr('statistics.legend.perDimensionThresholds') : '', value: statisticsLocationBasis(atlas.location_semantics, i18n) })}</span>}
   </div></LegendFillOpacityCtx.Provider>;
 }
 
@@ -324,6 +331,20 @@ function StatisticsCircleLegend({ layerKey, data, level, unit, color, isDark }: 
   return <>
     <LegendNestedCircles items={items} {...(hollow ? { ring: PROPORTIONAL_CIRCLE.ring.color[isDark ? 'dark' : 'light'] } : { fill: color })} />
     <span>{i18n.t('statistics.legend.circleArea')}</span>
+  </>;
+}
+
+/** 點密度圖例：一個點樣本＋「一點＝N 單位」＋位置隨機、餘數規則（N 與地圖同一支、比較時共用較大者） */
+function StatisticsDotLegend({ layerKey, data, unit, color }: { layerKey: StatisticsRenderKey; data: GeoJSON.FeatureCollection | null | undefined; unit: string; color: string }) {
+  const i18n = useLocale();
+  if (!data) return null;
+  if (!(dotTotal(data) > 0)) return <span>{i18n.t('statistics.legend.dotNoPositive')}</span>;
+  const own = dataDotUnit(data);
+  const value = compareDotUnit(layerKey, own) ?? own;
+  return <>
+    <LegendRow swatch={<SwatchDot color={color} />}>{i18n.t('statistics.legend.dotUnit', { value: new Intl.NumberFormat(i18n.active).format(value), unit })}</LegendRow>
+    <span>{i18n.t('statistics.legend.dotRandom')}</span>
+    <span>{i18n.t('statistics.legend.dotRemainder')}</span>
   </>;
 }
 

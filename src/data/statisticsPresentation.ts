@@ -9,7 +9,7 @@
  *   - 比例圓：總量（人、件、處、公頃、元…），而且不會有負值；比率、每十萬人、密度、中位數、平均、
  *     有正負號（自然增加、淨遷徙、變動）、類別碼一律不給。
  *   - 點密度：比例圓可用、而且是「一個一個數得出來」的人／件／戶，只在鄉鎮與村里層（縣市太大）；
- *     據點數（處、所、站…）已有真實點位圖層，不給。**本階段尚未實作**，推導與測試先寫好、選項不露出。
+ *     據點數（處、所、站…）已有真實點位圖層，不給。撒點規則見 `map/statisticsDots.ts`。
  *
  * 規則故意保守：判斷不了的一律只給面量圖（用錯呈現方式會讓地圖說錯話）。
  */
@@ -27,8 +27,8 @@ export type StatisticsPresentationMode = 'choropleth' | 'circle' | 'dots';
 
 /** 選項順序（＝控制項順序）。 */
 export const PRESENTATION_MODES: readonly StatisticsPresentationMode[] = ['choropleth', 'circle', 'dots'];
-/** 已實作、可以露出的呈現方式（點密度在階段 3）。 */
-export const IMPLEMENTED_PRESENTATION_MODES: ReadonlySet<StatisticsPresentationMode> = new Set(['choropleth', 'circle']);
+/** 已實作、可以露出的呈現方式（點密度 2026-11-12 階段 3 露出）。 */
+export const IMPLEMENTED_PRESENTATION_MODES: ReadonlySet<StatisticsPresentationMode> = new Set(['choropleth', 'circle', 'dots']);
 export const PRESENTATION_LABEL: Readonly<Record<StatisticsPresentationMode, string>> = { choropleth: '面量圖', circle: '比例圓', dots: '點密度' };
 export const DEFAULT_PRESENTATION: StatisticsPresentationMode = 'choropleth';
 
@@ -68,7 +68,7 @@ const SIGNED_LABEL = /增加|淨|增減|變動|差距|差額|成長|餘絀|盈�
 /** 單位帶「每／斜線／百分號」＝比率 */
 const RATIO_UNIT = /[%‰／/]|每|倍|歲|分數|百分點|指數|km²|類別碼/u;
 
-/** 依 Q-C 規則推導可選的呈現方式（含尚未實作的點密度）；順序固定 `PRESENTATION_MODES`。 */
+/** 依 Q-C 規則推導可選的呈現方式；順序固定 `PRESENTATION_MODES`。 */
 export function derivePresentationModes(traits: PresentationTraits): StatisticsPresentationMode[] {
   const out: StatisticsPresentationMode[] = ['choropleth'];
   if (traits.categorical || traits.diverging) return out;
