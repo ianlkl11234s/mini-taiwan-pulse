@@ -107,7 +107,8 @@ function mapMock() {
     events.get('style.load')?.();
     styleLoaded = true;
   };
-  return { map, sources, layers, paintCalls, layoutCalls, events, switchStyle, addedBefore };
+  const setStyleLoaded = (value: boolean) => { styleLoaded = value; };
+  return { map, sources, layers, paintCalls, layoutCalls, events, switchStyle, addedBefore, setStyleLoaded };
 }
 function feature(value: number): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { area_code: 'A', value, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [] } }] };
@@ -300,6 +301,21 @@ describe('attachRegionalStatistics', () => {
     state.paramsListener?.();
     expect(mock.layers.get(`${VIEW}-fill`)?.paint?.['fill-opacity']).toBe(0.6);
     expect(mock.layers.get(`${VIEW}-dots`)?.layout?.visibility).toBe('none');
+    dispose();
+  });
+
+  it('點密度：點算好時地圖仍在載入圖磚（isStyleLoaded() 為 false）也要畫出來', async () => {
+    const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+      { type: 'Feature', properties: { area_code: 'A', value: 120, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+    ] };
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+    state.visibility[VIEW] = true;
+    state.presentation[VIEW] = 'dots';
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => true);
+    mock.setStyleLoaded(false);
+    await vi.waitFor(() => expect(mock.sources.get(`${VIEW}-dot-points`)?.setData).toHaveBeenCalled());
+    expect(mock.layers.get(`${VIEW}-dots`)?.layout?.visibility).toBe('visible');
     dispose();
   });
 

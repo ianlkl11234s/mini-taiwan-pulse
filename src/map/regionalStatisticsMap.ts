@@ -231,14 +231,15 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       const pending = statisticsDotData(data, unit);
       if (!pendingDots.has(pending)) {
         pendingDots.add(pending);
-        void withLoading(`statistics-dots:${loadingPrefix}${key}`, label, pending).finally(() => {
+        // 失敗的計算留在 pendingDots：不重試（不然每次重畫都再開一個失敗的載入任務）
+        void withLoading(`statistics-dots:${loadingPrefix}${key}`, label, pending).then(() => {
           pendingDots.delete(pending);
           if (disposed) return;
           // 地圖持續載入圖磚時 isStyleLoaded() 可能一直是 false（style 本身已可加圖層）：直接畫；
           // 剛好在換底圖途中（style 還不能加 source）就留記號，style.load／idle 會補畫
           dotsDirty = true;
           try { render(true); } catch { /* 換底圖中 */ }
-        }).catch(() => undefined);
+        }, () => undefined);
       }
     }
     const sourceId = dotSourceId(key);
