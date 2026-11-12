@@ -2160,6 +2160,62 @@
    "s3_key": "deploy-assets/religion/top100.geojson"
   },
   {
+   "path": "public/sound-atlas/grid/aviation-2026-10-24.class.bin",
+   "bytes": 295129,
+   "sha256": "adf548ca5bebb7b37d9ea3e98db751aeff4002c22c28b078c9f1f0d425903bd5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/aviation-2026-10-24.class.bin"
+  },
+  {
+   "path": "public/sound-atlas/grid/aviation-2026-10-24.meta.json",
+   "bytes": 2321,
+   "sha256": "ea738ff1383cfa5e620d41c7afa70a412f9565cd95a75f476e26a28e2d8252f7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/aviation-2026-10-24.meta.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/aviation-2026-11-09.class.bin",
+   "bytes": 358157,
+   "sha256": "436c505845dca147545685b78449c42fc1163e68f38c35b6093c65c9c0796e97",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/aviation-2026-11-09.class.bin"
+  },
+  {
+   "path": "public/sound-atlas/grid/aviation-2026-11-09.meta.json",
+   "bytes": 2321,
+   "sha256": "657005e675b7d5a05f62bbe5c0702746e05466ad83ba4798571b6740a6641a5b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/aviation-2026-11-09.meta.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/aviation-src-2026-10-24.json",
+   "bytes": 683004,
+   "sha256": "966d957dd36678006ab3a103285cc6fa59b944991d57091e21ff7f35fca358af",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/aviation-src-2026-10-24.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/aviation-src-2026-11-09.json",
+   "bytes": 1194152,
+   "sha256": "44bf768f831709ffc2d6cf0f862a4d696d9301b5638a42355374fca9965de875",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/aviation-src-2026-11-09.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/canopy-cells-v1.bin",
+   "bytes": 19968,
+   "sha256": "b30f1a77179afa8deb6b47ac0a5de86d4a019723a86c56fdea9431405577bba9",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/canopy-cells-v1.bin"
+  },
+  {
+   "path": "public/sound-atlas/grid/canopy-cells-v1.meta.json",
+   "bytes": 964,
+   "sha256": "0b98e31615ff892b6b8ceb66886e8329d9ac77e3b7692f4c05247b925003aa91",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/canopy-cells-v1.meta.json"
+  },
+  {
    "path": "public/sound-atlas/grid/freeway-vd-2026-10-24.json",
    "bytes": 185450,
    "sha256": "35698bb840fc3687530126e9e643a144568ba0c5234fe858ac7e16c4d40adb31",
@@ -2172,6 +2228,20 @@
    "sha256": "79db6c0280d91397c2d1f05a92d7d1aa3ac4dea1e910509578caa0344724d97e",
    "delivery": "r2",
    "s3_key": "deploy-assets/sound-atlas/grid/freeway-vd-2026-11-09.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/natural-2026-10-24.json",
+   "bytes": 1317848,
+   "sha256": "1c7e699534c776beda8f9c73e933098a380e5661c756aca398b575479a6bf669",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/natural-2026-10-24.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/natural-2026-11-09.json",
+   "bytes": 1318610,
+   "sha256": "564fa6ab8247ae6b2f4773712fade42341b2c8a428b23b45464939ef43506874",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/natural-2026-11-09.json"
   },
   {
    "path": "public/sound-atlas/grid/radar-rain-2026-10-24.class.bin",
@@ -2200,6 +2270,20 @@
    "sha256": "15e33fe514189db3ab4ab301a8f460168ac3ebe2f411ea4f7fef998abbfd0d32",
    "delivery": "r2",
    "s3_key": "deploy-assets/sound-atlas/grid/radar-rain-2026-11-09.meta.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/rain-gauge-2026-10-24.json",
+   "bytes": 1841519,
+   "sha256": "db8571daf6bd6f978a6c14168cd87ee2c83523cb86ddaeb76966403c2cb8e73c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/rain-gauge-2026-10-24.json"
+  },
+  {
+   "path": "public/sound-atlas/grid/rain-gauge-2026-11-09.json",
+   "bytes": 1929611,
+   "sha256": "e6229a88d72a3c277a08712b94eef63f379056c47b1fbefaf30d192dc92c82a2",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/sound-atlas/grid/rain-gauge-2026-11-09.json"
   },
   {
    "path": "public/sound-atlas/grid/road-network-v1.json",
