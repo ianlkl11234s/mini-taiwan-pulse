@@ -13,6 +13,6 @@
 | 本版重點 | 統計圖層呈現方式：比例圓 #1008、點密度 #1016、多年份並排 #1011、左右比較 P1 #1012；暗底配色第一／二段 #998、#1002；review 修正 #1005、#1006。不需 migration／R2 發布／Worker 設定／env。 |
 
 - 卡點：無。
-- 下一步：依 PROJECTS「現在最該注意」；VIZ-1／VIZ-2 正式站目視；v2.36.2 上線後正式站複驗 R5-2／VPB-1／VPB-2。
+- 下一步：依 PROJECTS「現在最該注意」；VIZ-1／VIZ-2 正式站目視。v2.36.2 的兩個修正 11-13 已在正式站複驗通過。
 - 同日後端（不隨前端版號）：gis-platform mig 552／553 已套用（SEC-5）；data-collectors #200 已部署 pulse-host 與 HiCloud VM（BKP-4／VMH-1）。
 - 接手：從 origin/develop 開分支；進度文件用 `git show origin/develop:<path>` 讀。

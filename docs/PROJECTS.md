@@ -25,7 +25,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 |---|---|---|---|
 | 2026-11-14 | 兩項部署的隔日確認：03:39 備份 reconcile 的 warn 由 31 降到接近 0（collectors #200）；08:00 日報的 VM 區段三支收集器成功數仍正確（07:00 排程自己跑的快照） | Claude | BKP-4／VMH-1 |
 | 2026-11-15 | `live.iot_wra_measurements` 確認已降到 30 天內（11-12 約 307 萬列超期、11-13 早上剩約 125 萬列，每晚清 200 萬列） | Claude | WA-3 |
-| 2026-11-16 | 回看 pgss：`get_groundwater_latest`、`get_youbike_h3_snapshots` 套用 mig 552／553 後的平均耗時；v2.36.2 的 R5-2／VPB-1／VPB-2 正式站複驗結果 | Claude | SEC-5／VPB-1 |
+| 2026-11-16 | 回看 pgss：`get_groundwater_latest`、`get_youbike_h3_snapshots` 套用 mig 552／553 後的平均耗時 | Claude | SEC-5 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
 | ~2026-11-16 | pulse-host 記憶體峰值檢視（collector-mem 觀察中）後決定 mem_limit | Claude | HOST-1 |
 | 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警，VM 版另存 `.vm.tar.gz` | Claude | ZB-2 |
@@ -50,7 +50,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - 資料保留期限：第 2 批 11-09 完成（gp #228／#229 mig 540–543、ADR-0026 #57），剩項目在 WA-3；靜態表搬遷乙組（WA-14，動前端前先給使用者看方案）；R2 獨有資料補 S3（ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
 - 30 天地圖挑戰：Day 9 城鄉圖層 mapchallengeDay09UrbanRural（#972）、Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
-- 正式站目視包：11-12 第一批（v2.36.1）通過 8 項已關閉；發現兩個 bug 由 VPB-1／VPB-2 修（待發版後複驗），低嚴重度問題記在 VPB-3～VPB-5；剩 VP-2、VP-10～VP-17 等（BACKLOG A 群）。
+- 正式站目視包：11-12 第一批（v2.36.1）通過 8 項已關閉；發現的兩個 bug 已隨 v2.36.2 修正並於 11-13 正式站複驗通過，低嚴重度問題記在 VPB-3～VPB-6；剩 VP-2、VP-10～VP-17 等（BACKLOG A 群）。
 - 配色與可見性：第一、二段隨 v2.36.0 上線（#998、#1002）；第三階段待做（VIZ-3）；視覺化提案 11-11 已拍板；比例圓 #1008、多年份並排 #1011、左右比較 P1 #1012、點密度 #1016 隨 v2.36.0 上線（VIZ-5／VIZ-8／VIZ-9／VIZ-6）；等值帶使用者決定先不做（VIZ-7）。
 - MCP 與倉庫：#107 已部署並冒煙通過；發版關卡（MCP #108～#111）上線；72 表以 DuckDB 1.5.3 重發為 `20261110T084641Z`（pulse-data #104），S3 歸檔與 R2 舊版清理等使用者驗收（WHDB-2）。
 
