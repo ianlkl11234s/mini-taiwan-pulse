@@ -116,6 +116,10 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   krParkingLots: "cividis",
   krSpeedCameras: "rocket",
   krChildProtectionZones: "acton",
+  // 第 10 波自行車停放處錯開成 YlGnBu（公車站已佔 BuPu、公共自行車已佔 speed）
+  krBicycleParking: "YlGnBu",
+  // 南韓 環境氣候：行道樹拿主題色 viridis，第 10 波保護樹錯開成綠 speed
+  krProtectedTrees: "speed",
   // 南韓 災害：海岸侵蝕拿主題色 rocket，第 7 波民防避難設施錯開成綠
   krCivilDefenseShelters: "speed",
   // 南韓 觀光：第 8 波國家遺產拿主題色 Burg，住宿錯開成 acton（同日本住宿 OSM）
