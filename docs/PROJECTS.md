@@ -23,7 +23,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
-| 2026-11-14 | 兩項部署的隔日確認：03:39 備份 reconcile 的 warn 由 31 降到接近 0（collectors #200）；08:00 日報的 VM 區段三支收集器成功數仍正確（07:00 排程自己跑的快照） | Claude | BKP-4／VMH-1 |
+| 2026-11-14 | 兩項部署的隔日確認：03:39 備份 reconcile 的 warn 由 31 降到接近 0（collectors #200）；08:00 日報的 VM 區段三支收集器成功數仍正確（07:00 排程自己跑的快照）；同一份日報不再把事件型表（災害示警、落雷）標 DEAD，落雷與災害示警收集器連續錯誤維持 0（collectors #201，11-13 13:56 部署） | Claude | BKP-4／VMH-1／COL-ZERO-1 |
 | 2026-11-15 | `live.iot_wra_measurements` 確認已降到 30 天內（11-12 約 307 萬列超期、11-13 早上剩約 125 萬列，每晚清 200 萬列） | Claude | WA-3 |
 | 2026-11-16 | 回看 pgss：`get_groundwater_latest`、`get_youbike_h3_snapshots` 套用 mig 552／553 後的平均耗時 | Claude | SEC-5 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
