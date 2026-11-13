@@ -128,11 +128,13 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 - node（Worker 核心，同資料）：鐵道冷算一幀 79–131 ms、其他族 ≤ 10 ms；第一次建場最多雨 792／風 363 ms（都在 Worker）；綜合一幀 11–14 ms。
 - **未達標**：放接收點當下約 160–190 ms、構成最長一段可到 125 ms，都在主執行緒（不是網格計算）；要再降需把 24h 構成與當下查詢也搬進 Worker（Worker 已有七族資料，但雷、垃圾車、施工不在 Worker），未做。
 
-### 6.5 選定甲或乙之後要移除什麼（PREVIEW 清單）
+### 6.5 選定甲、乙或丙之後要移除什麼（PREVIEW 清單）
+
+> W6-8 加了丙「主因」（`?soundComposite=c`）。下列「沒選的那版」對丙指：`compositeGrid.ts` 的 top／codeC／`decodeCompositeC`／`COMPOSITE_C_LEVELS`、`compositeFrames` 的 `c` 輸出、Worker `composite` 回傳的 `c`、`soundAtlasColors.ts` 的 `SOUND_COMPOSITE_C_*`、調色盤與圖例的丙分支、三語 `soundAtlas.composite.previewC` 與 `legend.soundAtlas.compositeCDepth`、`compositeGrid.test.ts` 的丙題。**滑過提示與面板原因（`compositeReason`、七族分級打包 `lv`、`compositeFrameRef`）不論選哪版都保留**，只把它的 variant 參數固定成選定的那版；`compositeFrameRef` 目前寫在 `compositePreview.ts`，刪該檔前先搬到 `compositeGrid` 旁。
 
 1. 刪 `src/sound/grid/compositePreview.ts`；`useSoundCompositeGridLayer.ts`、`SoundCellSection.tsx`、`soundAtlasLegends.tsx` 的 `compositePreviewStore` 改成固定版本。
 2. 刪 `src/components/sound/SoundCompositePreviewBar.tsx` 與 `App.tsx` 的 lazy import＋掛載（標 PREVIEW）。
-3. `App.tsx` 網址同步保留 `?soundComposite=` 的兩行（標 PREVIEW）。
+3. `App.tsx` 網址同步保留 `?soundComposite=a|b|c` 的兩行（標 PREVIEW）。
 4. 沒選的那版：`compositeGrid.ts` 的 codeA 或 codeB／index、`soundProfiles.COMPOSITE` 的對應常數（甲：activeMinLevel、levelCuts；乙：weights、minKnownWeightShare、displayMaxIndex）、`soundAtlasColors.ts` 的對應色表、Worker `composite` 回傳的另一張、三語 i18n（`soundAtlas.composite.preview*`、`unknownShare`、`legend.soundAtlas.compositeA*`／`compositeB*`）、圖例分支、`compositeGrid.test.ts` 對應題。
 5. MODEL_DECISIONS §10 改成「已選定」並刪掉沒選的那節；manifest `soundComposite` 的 qualifier「推估・預覽」、description、processing／source 說明改寫；en／ja `layers.json` 的「(Preview)／（プレビュー）」、`layer-status.csv` 的標籤一起改；改完重跑 `dump-layer-golden.ts` 與 `design:audit-layers`。
 
