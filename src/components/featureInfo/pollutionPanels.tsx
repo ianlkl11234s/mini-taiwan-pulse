@@ -157,7 +157,7 @@ export function PollutionPenaltyPanel({ props }: PanelProps) {
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
         {t("popup.pollution.geocodeMethod", { value: enumLabel("pollutionPrecision", String(props.geocode_precision ?? "unknown"), PRECISION_LABELS[String(props.geocode_precision ?? "unknown")] ?? String(props.geocode_precision ?? ""), i18n) })}
       </div>
-      <SourceFooter props={{ source_org: t("popup.pollution.penaltySourceOrg"), source_url: "https://data.moenv.gov.tw/dataset/detail/EMS_P_46", license: "OGDL-1.0" }} />
+      <SourceFooter props={{ source_org: t("popup.pollution.penaltySourceOrg"), source_url: "https://data.moenv.gov.tw/dataset/detail/EMS_P_46" }} />
     </div>
   );
 }

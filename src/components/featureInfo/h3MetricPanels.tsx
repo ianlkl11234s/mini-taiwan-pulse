@@ -208,7 +208,7 @@ export function YoubikeFullnessCellPanel({ props }: { props: Record<string, unkn
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
         {tr("popup.h3Metric.youbikeNote")}
       </div>
-      <SourceFooter props={{ source_org: tr("popup.h3Metric.youbikeSourceOrg"), source_url: "https://tdx.transportdata.tw/", license: "OGDL-1.0" }} />
+      <SourceFooter props={{ source_org: tr("popup.h3Metric.youbikeSourceOrg") }} />
     </>
   );
 }

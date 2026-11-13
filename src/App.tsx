@@ -241,7 +241,8 @@ export default function App() {
     countryStore.set(resolveInitialCountry(urlCountry, urlCamera, countryForLayerKeys(urlLayers ?? [])));
   }
   const country = useCountry();
-  // 只有在國家選單選國家時才飛到該國（網址、場景快照、Agent 切國家都不飛）
+  // 國家選單選國家（含再選同一國）時飛到該國；場景快照、Agent 切國家不飛。
+  // 網址只帶 c= 不帶相機時，初始視角改用該國相機（見下方 preset，VPB-5）
   const handleCountryFly = useCallback((code: CountryCode) => {
     const { center, zoom, pitch, bearing } = countryDef(code).camera;
     mapRef.current?.flyTo({ center, zoom, pitch, bearing, speed: 1.0 });
