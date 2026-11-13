@@ -3063,6 +3063,13 @@
    "s3_key": "deploy-assets/world/ie_defibrillators.pmtiles"
   },
   {
+   "path": "public/world/ie_defibrillators_v2.pmtiles",
+   "bytes": 1903424,
+   "sha256": "52dae15e6038616603d365d7faf367d6ee289ea74f2abf917fd54d194e8046cb",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_defibrillators_v2.pmtiles"
+  },
+  {
    "path": "public/world/ie_dublinbikes_stations.pmtiles",
    "bytes": 41757,
    "sha256": "43a47c9d9d661b74c72b7156a1c472b133a87aa4389446dec544e48a3c5825bb",
