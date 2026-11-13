@@ -1,5 +1,5 @@
 /**
- * PREVIEW（W6-4/5）：綜合聲景甲／乙版本切換列，綜合圖層開著時掛在地圖底部中央。
+ * PREVIEW（W6-4/5，W6-8 加丙「主因」）：綜合聲景甲／乙／丙版本切換列，綜合圖層開著時掛在地圖底部中央。
  * 使用者選定一版後：刪掉本檔、App.tsx 的掛載、compositePreview.ts（固定版本）——移除清單見
  * docs/features/city-sound-atlas/GRID_ARCHITECTURE.md §6。
  */
@@ -8,6 +8,8 @@ import { useLocale } from "../../state/localeStore";
 import { compositePreviewStore, NO_SOURCE_NOTES } from "../../sound/grid/compositePreview";
 import { selectSoundScene } from "../../sound/soundAtlasActions";
 import { BORDER, COLORS, CONTROL, ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, LAYOUT, LIGHT, RADIUS, SURFACE, Z_INDEX } from "../../styles/designTokens";
+
+const PREVIEW_KEYS = { a: "soundAtlas.composite.previewA", b: "soundAtlas.composite.previewB", c: "soundAtlas.composite.previewC" } as const;
 
 export function SoundCompositePreviewBar({ isDark }: { isDark: boolean }) {
   const { t } = useLocale();
@@ -29,7 +31,7 @@ export function SoundCompositePreviewBar({ isDark }: { isDark: boolean }) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ color: c.muted }}>{t("soundAtlas.composite.preview")}</span>
-        {(["a", "b"] as const).map((v) => (
+        {(["a", "b", "c"] as const).map((v) => (
           <button
             key={v}
             type="button"
@@ -41,7 +43,7 @@ export function SoundCompositePreviewBar({ isDark }: { isDark: boolean }) {
               border: `1px solid ${st.variant === v ? c.text : c.ctrlBorder}`,
             }}
           >
-            {t(v === "a" ? "soundAtlas.composite.previewA" : "soundAtlas.composite.previewB")}
+            {t(PREVIEW_KEYS[v])}
           </button>
         ))}
         {st.unknownShare != null && (

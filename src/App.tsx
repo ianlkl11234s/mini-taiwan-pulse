@@ -1996,9 +1996,9 @@ export default function App() {
       },
       window.location.pathname,
     );
-    // PREVIEW（綜合聲景甲／乙）：保留 ?soundComposite=a|b 方便分享同一版；選定後刪這兩行（GRID_ARCHITECTURE §6）
+    // PREVIEW（綜合聲景甲／乙／丙）：保留 ?soundComposite=a|b|c 方便分享同一版；選定後刪這兩行（GRID_ARCHITECTURE §6）
     const previewVariant = new URLSearchParams(window.location.search).get("soundComposite");
-    const next = previewVariant === "a" || previewVariant === "b" ? `${built}${built.includes("?") ? "&" : "?"}soundComposite=${previewVariant}` : built;
+    const next = previewVariant === "a" || previewVariant === "b" || previewVariant === "c" ? `${built}${built.includes("?") ? "&" : "?"}soundComposite=${previewVariant}` : built;
     if (next !== window.location.pathname + window.location.search) {
       window.history.replaceState(null, "", next);
     }

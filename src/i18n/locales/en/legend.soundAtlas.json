@@ -19,5 +19,6 @@
   "legend.soundAtlas.roadInferred": "New Taipei streets (road class)",
   "legend.soundAtlas.attributionLine": "Sources: {parts}",
   "legend.soundAtlas.attrOsm": "© OpenStreetMap contributors",
-  "legend.soundAtlas.attrNatural": "CWA, WRA, NLMA, canopy Meta/WRI"
+  "legend.soundAtlas.attrNatural": "CWA, WRA, NLMA, canopy Meta/WRI",
+  "legend.soundAtlas.compositeCDepth": "Darker = stronger (low → very high)"
 }

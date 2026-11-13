@@ -10,8 +10,8 @@ import { useSyncExternalStore } from "react";
 import { compositePreviewStore } from "../../sound/grid/compositePreview";
 import { COMPOSITE } from "../../sound/model/soundProfiles";
 import { compositeBColorAt } from "../../hooks/useSoundCompositeGridLayer";
-import { COMPOSITE_B_SCALE } from "../../sound/grid/compositeGrid";
-import { SOUND_COMPOSITE_A_ALPHA, SOUND_COMPOSITE_A_COLORS, SOUND_POTENTIAL_GRID_ALPHA, SOUND_POTENTIAL_GRID_COLORS, SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
+import { COMPOSITE_B_SCALE, COMPOSITE_FAMILIES } from "../../sound/grid/compositeGrid";
+import { SOUND_COMPOSITE_A_ALPHA, SOUND_COMPOSITE_A_COLORS, SOUND_COMPOSITE_C_ALPHA, SOUND_COMPOSITE_C_CALM, SOUND_POTENTIAL_GRID_ALPHA, SOUND_POTENTIAL_GRID_COLORS, SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
 import { FAMILY_KEYS, formatPotential, rainClassKey } from "../sound/soundAtlasText";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { aviationGatePotential } from "../../sound/grid/aviationGates";
@@ -88,8 +88,18 @@ function SoundCompositeLegend() {
   const max = COMPOSITE.displayMaxIndex.value;
   const a = ["legend.soundAtlas.compositeA0", "legend.soundAtlas.compositeA1", "legend.soundAtlas.compositeA2"] as const;
   return <div style={{ marginBottom: 8 }}>
-    <LegendTitle zh={t("legend.soundAtlas.compositeTitle", { v: t(variant === "a" ? "soundAtlas.composite.previewA" : "soundAtlas.composite.previewB") })} />
-    {variant === "a" ? (
+    <LegendTitle zh={t("legend.soundAtlas.compositeTitle", { v: t(variant === "a" ? "soundAtlas.composite.previewA" : variant === "b" ? "soundAtlas.composite.previewB" : "soundAtlas.composite.previewC") })} />
+    {variant === "c" ? (
+      <>
+        {COMPOSITE_FAMILIES.map((f) => (
+          <LegendRow key={f} swatch={<SwatchSquare color={SOUND_FAMILY_COLORS[f]} opacity={SOUND_COMPOSITE_C_ALPHA[2]} />}>{t(FAMILY_KEYS[f])}</LegendRow>
+        ))}
+        <LegendRow swatch={<span style={{ display: "inline-flex", gap: 1 }}>
+          {SOUND_COMPOSITE_C_ALPHA.map((a) => <SwatchSquare key={a} color={SOUND_UNKNOWN_COLOR} opacity={a} />)}
+        </span>}>{t("legend.soundAtlas.compositeCDepth")}</LegendRow>
+        <LegendRow swatch={<SwatchSquare color={SOUND_COMPOSITE_C_CALM.color} opacity={0.3} />}>{t("soundAtlas.composite.level.0")}</LegendRow>
+      </>
+    ) : variant === "a" ? (
       SOUND_COMPOSITE_A_COLORS.map((c, k) => (
         <LegendRow key={c} swatch={<SwatchSquare color={c} opacity={Math.max(0.3, SOUND_COMPOSITE_A_ALPHA[k]!)} />}>{t(a[k as 0 | 1 | 2])}</LegendRow>
       ))

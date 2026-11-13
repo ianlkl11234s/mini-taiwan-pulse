@@ -19,5 +19,6 @@
   "legend.soundAtlas.roadInferred": "新北市街（道路種別から推定）",
   "legend.soundAtlas.attributionLine": "出典：{parts}",
   "legend.soundAtlas.attrOsm": "© OpenStreetMap contributors",
-  "legend.soundAtlas.attrNatural": "気象署、水利署、国家公園署、樹冠 Meta/WRI"
+  "legend.soundAtlas.attrNatural": "気象署、水利署、国家公園署、樹冠 Meta/WRI",
+  "legend.soundAtlas.compositeCDepth": "濃いほど強い（低 → 非常に高）"
 }

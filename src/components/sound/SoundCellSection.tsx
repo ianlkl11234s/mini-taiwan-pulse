@@ -15,11 +15,11 @@ import { FONT_SIZE } from "../../styles/designTokens";
 import { COMPOSITE } from "../../sound/model/soundProfiles";
 import { useFeatureTheme } from "../featureInfo/featureTheme";
 import { SoundPotentialCellPanel, SoundRainCellPanel, SoundRoadCellPanel } from "../featureInfo/soundAtlasPanels";
-import { FAMILY_KEYS, rainClassKey, roadLevelKey } from "./soundAtlasText";
+import { FAMILY_KEYS, formatDistanceM, rainClassKey, ROAD_EVIDENCE_KEYS, roadLevelKey } from "./soundAtlasText";
+import { activeFamilies, compositeReason, reasonFamilyName } from "./compositeReason";
 import type { MessageKey } from "../../i18n/keys";
 
 const LEVEL_KEYS = ["soundAtlas.level.0", "soundAtlas.level.1", "soundAtlas.level.2", "soundAtlas.level.3", "soundAtlas.level.4"] as const;
-const A_LEVEL_KEYS = ["soundAtlas.composite.level.0", "soundAtlas.composite.level.1", "soundAtlas.composite.level.2"] as const;
 const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
 function familyLevelKey(f: CompositeFamily, info: Record<string, unknown>): MessageKey {
@@ -32,6 +32,29 @@ function familyLevelKey(f: CompositeFamily, info: Record<string, unknown>): Mess
   return lv != null && lv >= 0 && lv <= 4 ? LEVEL_KEYS[lv as 0 | 1 | 2 | 3 | 4] : "soundAtlas.level.unknown";
 }
 
+type T = ReturnType<typeof useLocale>["t"];
+const str = (v: unknown) => (typeof v === "string" && v ? v : null);
+
+/** 一族在此格的具體依據（只讀點選查詢已算好的明細欄位，不新增計算） */
+function cellBasis(t: T, f: CompositeFamily, info: Record<string, unknown> | null): string {
+  if (!info) return t("soundAtlas.reason.basis.none");
+  if (f === "rain") {
+    const mm = num(info.gaugeMm), station = str(info.stationName);
+    return mm != null && station ? t("soundAtlas.reason.basis.rainGauge", { station, mm: mm.toFixed(1) }) : t("soundAtlas.reason.basis.rainRadar");
+  }
+  if (f === "road_traffic") {
+    const ev = str(info.evidence) as keyof typeof ROAD_EVIDENCE_KEYS | null;
+    const evidence = ev && ROAD_EVIDENCE_KEYS[ev] ? t(ROAD_EVIDENCE_KEYS[ev]) : t("soundAtlas.reason.basis.none");
+    const road = str(info.roadName) ?? t(FAMILY_KEYS.road_traffic);
+    const veh = num(info.vehPerHour);
+    return veh != null ? t("soundAtlas.reason.basis.roadFlow", { road, veh: Math.round(veh), evidence }) : t("soundAtlas.reason.basis.roadClass", { road, evidence });
+  }
+  const label = str(info.topLabel), dist = num(info.topDistanceM);
+  if (!label && dist == null) return t("soundAtlas.reason.basis.none");
+  const base = t("soundAtlas.reason.basis.near", { label: label ?? t(FAMILY_KEYS[f]), dist: formatDistanceM(dist) });
+  return f === "rail" && info.status === "active" ? base + t("soundAtlas.reason.basis.railNow") : base;
+}
+
 export function SoundCellSection() {
   const theme = useFeatureTheme();
   const { t } = useLocale();
@@ -42,28 +65,21 @@ export function SoundCellSection() {
   if (q.cell < 0) return <div style={note}>{t("soundAtlas.cell.outside")}</div>;
 
   const comp = q.codes && q.codes.length === COMPOSITE_FAMILY_COUNT ? compositeCell(q.codes, q.gate) : null;
-  const unknownA = comp && comp.codeA === 255;
-  const unknownB = comp && comp.index == null;
+  const levels = comp ? comp.terms.map((x) => x?.level ?? null) : null;
+  const reason = comp && levels ? compositeReason(t, levels, variant, { a: comp.codeA, b: comp.codeB, c: comp.codeC }) : null;
+  const basis = levels ? activeFamilies(levels).slice(0, 3).map(({ family }) => ({ family, text: cellBasis(t, family, q.infos[family] ?? null) })) : [];
+  const unknownFams = levels ? COMPOSITE_FAMILIES.filter((_, i) => levels[i] == null) : [];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <div style={{ fontSize: FONT_SIZE.xs, color: theme.textMuted, fontWeight: 600 }}>{t("soundAtlas.cell.title")}</div>
-      {/* 綜合：只列目前預覽版本那一行（另一版在預覽列切換）；乙才附「權重是假設」 */}
-      {comp && (
+      {/* 綜合：白話原因一句（和滑過提示同一支 compositeReason）＋偏活躍族各一小段依據（數字取自下方各族明細，最多 3 個） */}
+      {comp && reason && (
         <div style={{ borderLeft: `3px solid ${SOUND_COMPOSITE_A_COLORS[2]}`, paddingLeft: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.6, color: theme.textDefault }}>
-          <div>
-            <strong>{t("soundAtlas.composite.title")}</strong>{" "}
-            {variant === "a"
-              ? (unknownA
-                ? t("soundAtlas.composite.unknown", { v: t("soundAtlas.composite.previewA"), known: comp.known })
-                : t("soundAtlas.composite.a", {
-                  level: t(A_LEVEL_KEYS[comp.codeA as 0 | 1 | 2]),
-                  n: comp.activeCount,
-                  dominant: comp.dominant ? t("soundAtlas.composite.aDominant", { family: t(FAMILY_KEYS[comp.dominant]) }) : "",
-                }))
-              : (unknownB
-                ? t("soundAtlas.composite.unknown", { v: t("soundAtlas.composite.previewB"), known: comp.known })
-                : t("soundAtlas.composite.b", { index: (comp.index ?? 0).toFixed(2), known: comp.known }))}
-          </div>
+          <div><strong>{reason.head}</strong>{t("soundAtlas.reason.colon")}{reason.detail}</div>
+          {basis.map(({ family, text }) => (
+            <div key={family} style={{ color: theme.textMuted }}>{reasonFamilyName(t, family)}{t("soundAtlas.reason.colon")}{text}</div>
+          ))}
+          {unknownFams.length > 0 && <div style={{ color: theme.textMuted }}>{t("soundAtlas.reason.basisUnknown", { list: unknownFams.map((f) => reasonFamilyName(t, f)).join(t("soundAtlas.reason.sep")) })}</div>}
           {variant === "b" && <div style={{ color: theme.textDim }}>{t("soundAtlas.composite.note")}</div>}
         </div>
       )}

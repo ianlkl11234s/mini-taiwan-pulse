@@ -67,7 +67,7 @@ export const SoundAtlasHost: LayerHostComponent = ({ deps }) => {
     { gate, composite: !!v.soundComposite },
   );
   // W6-4/5：綜合網格（預覽；甲乙由底部預覽列切換）。放在單族網格之前呼叫，圖層疊在最上面由掛載順序決定（見 hook）
-  useSoundCompositeGridLayer(deps.mapRef, !!v.soundComposite, pz.soundCompositeOpacity ?? 0.85, gate);
+  useSoundCompositeGridLayer(deps.mapRef, !!v.soundComposite, pz.soundCompositeOpacity ?? 0.85, gate, deps.isDarkTheme);
   // W6-1：雨網格（北北 250 m；雷達 ∨ 雨量站）
   useSoundRainGridLayer(deps.mapRef, !!v.soundRain, pr.soundRainOpacity ?? 0.9);
   // W6-2：道路車流網格（國道當日實測／臺北典型延伸／新北等級推估）

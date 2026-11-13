@@ -74,3 +74,9 @@ export const SOUND_POTENTIAL_GRID_ALPHA = [0.1, 0.48, 0.6, 0.72, 0.84] as const;
 export const SOUND_COMPOSITE_A_COLORS = ["#c7d2fe", "#818cf8", "#4338ca"] as const;
 export const SOUND_COMPOSITE_A_ALPHA = [0.2, 0.55, 0.82] as const;
 export const SOUND_COMPOSITE_B_RAMP = { from: "#e0e7ff", to: "#4338ca", alphaFrom: 0.12, alphaTo: 0.84 } as const;
+/**
+ * W6-8 丙「主因」（預覽；資料色，§3.16）：色相＝主因族的家族色（SOUND_FAMILY_COLORS），深淺＝該族分級 低→很高
+ * （沿用連續潛勢網格的透明度階 SOUND_POTENTIAL_GRID_ALPHA 1–4）；平靜＝中性灰淡色。無法判斷由渲染器畫斜線。
+ */
+export const SOUND_COMPOSITE_C_ALPHA = SOUND_POTENTIAL_GRID_ALPHA.slice(1) as readonly number[];
+export const SOUND_COMPOSITE_C_CALM = { color: "#94a3b8", alpha: 0.14 } as const;
