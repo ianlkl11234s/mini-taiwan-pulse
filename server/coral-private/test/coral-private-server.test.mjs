@@ -1321,7 +1321,7 @@ test("owner-data allowlist is fixed: lowercase keys without slashes or dots", ()
     assert.match(name, /^[a-z0-9-]+$/);
     const asset = OWNER_DATA_ASSETS[name];
     assert.ok(Object.isFrozen(asset));
-    assert.match(asset.filename, /^[a-z0-9_]+\.(geo)?json$/);
+    assert.match(asset.filename, /^[a-z0-9_]+\.((geo)?json|pmtiles)$/);
     assert.match(asset.sha256, /^[0-9a-f]{64}$/);
     assert.ok(asset.size > 0);
   }

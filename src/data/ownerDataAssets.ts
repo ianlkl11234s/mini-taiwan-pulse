@@ -18,6 +18,15 @@ export const OWNER_DATA_ASSETS = {
   "fac-secondary": { filename: "fac_secondary.json", size: 105925, sha256: "79a50993954402eecb9a55f2ffad7d45610fd5f2c90eb1efeb2f1693b1d4cc72" },
   "fac-osm-supplement": { filename: "fac_osm_supplement.json", size: 161885, sha256: "3e1c7c08bb21c32a4fa000e6063c13916f56d970001eaee8bb422b9fff0ddd72" },
   "osm-power-plants-static": { filename: "osm_power_plants_static.json", size: 103409, sha256: "887809b2a043903efebd870dc78f3b39eda64ec005d34596f2541bda3828f719" },
+  "cn-admin-boundaries": { filename: "cn_admin_boundaries.pmtiles", size: 8035001, sha256: "930b5dcefcb1e8b7bd3b0ab5383bd867138a9c45b4bf5ce2be329ae84907bd6b" },
+  "cn-population": { filename: "cn_population.pmtiles", size: 5164691, sha256: "2dcd85c60b99556064cf18d52caea9561b96383f08dbba6ae2abb71446b0a158" },
+  "cn-population-grid": { filename: "cn_population_grid.pmtiles", size: 9298095, sha256: "2bb4a2dff102ff099290fc1a4ad48e64cef1681ca7f5ad1ad1067f6d042fd678" },
+  "cn-bus-stops": { filename: "cn_bus_stops.pmtiles", size: 10782841, sha256: "4750977d73eb93a415b9aa9cfcd020689a9044c00d0afaa3a426ac5e290a2359" },
+  "cn-power-plants": { filename: "cn_power_plants.pmtiles", size: 8737832, sha256: "26059e16166146dba5baff7272b580d660abf4590abb88900bebc22ac81451c6" },
+  "cn-pipelines": { filename: "cn_pipelines.pmtiles", size: 6458511, sha256: "c18afcce7f00c1bb027e473a67f9ae50fbc08646afef65a7112ce167c5c1c89a" },
+  "cn-transport-hubs": { filename: "cn_transport_hubs.pmtiles", size: 2787937, sha256: "42c4ed85899beebf69a56b8e50bb39f64f2b2ded1781334a212691e74b482812" },
+  "cn-major-roads": { filename: "cn_major_roads.pmtiles", size: 27769071, sha256: "301bb1bb1cf485632982b69e583ea552dc4401e815526f754eb2707f752955a8" },
+  "cn-power-grid": { filename: "cn_power_grid.pmtiles", size: 19270244, sha256: "d89e67c2fd6b57ead2cb51fcb3398d0f130482c6c49e23affdb5e6da9e16475c" },
 } as const;
 
 export type OwnerDataAssetName = keyof typeof OWNER_DATA_ASSETS;
