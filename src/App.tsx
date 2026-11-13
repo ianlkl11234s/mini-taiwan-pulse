@@ -78,7 +78,7 @@ import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
-import { countryDef, type CountryCode } from "./constants/countries";
+import { DEFAULT_COUNTRY, countryDef, type CountryCode } from "./constants/countries";
 import { countryStore, resolveInitialCountry, useCountry } from "./state/countryStore";
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
@@ -1424,6 +1424,12 @@ export default function App() {
         center: urlCam.center, zoom: urlCam.zoom,
         pitch: urlCam.pitch, bearing: urlCam.bearing,
       };
+    }
+    // 分享網址只帶 c=<國碼>、不帶相機時，初始視角用該國預設相機（VPB-5：c=ie 原本停在臺北）
+    const urlCountry = urlStateRef.current.country;
+    if (urlCountry && urlCountry !== DEFAULT_COUNTRY && !selectedAirport) {
+      const { center, zoom, pitch, bearing } = countryDef(urlCountry).camera;
+      return { ...DEFAULT_CAMERA, id: "url", name: "URL", category: "city" as const, center, zoom, pitch, bearing };
     }
     return getPresetById(selectedAirport) ?? DEFAULT_CAMERA;
   }, [selectedAirport]);

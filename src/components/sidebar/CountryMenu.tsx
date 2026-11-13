@@ -118,7 +118,8 @@ export function CountryMenu({ country, onSelect, trailing }: { country: CountryC
                 aria-checked={selected}
                 onClick={() => {
                   setOpen(false);
-                  if (!selected) onSelect(code);
+                  // 選同一國也交給呼叫端（重新飛回該國，VPB-5）；countryStore.set 同值不會通知
+                  onSelect(code);
                 }}
                 onMouseEnter={() => setHover(code)}
                 onMouseLeave={() => setHover((current) => (current === code ? null : current))}
