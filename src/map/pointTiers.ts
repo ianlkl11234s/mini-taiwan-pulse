@@ -334,6 +334,9 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts
   gbSubstations: "B", // 英國變電所：半徑＝電壓 5 級（59k 點，z5 起、z4–9 只有 ≥132kV） · src/hooks/useGbEnergyLayers.ts
   gbSchools: "M", // 英國學校（30k 點，z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
+  gbRoadFacilities: "M", // 英國道路設施（1,757 點，z5 起） · src/hooks/useGbOsmLayers.ts
+  gbPublicFacilities: "M", // 英國公共設施（41k 點，z<10 熱區、z10 起畫點） · src/hooks/useGbOsmLayers.ts
+  gbPlacesOfWorship: "M", // 英國宗教場所（42k 點，z<10 熱區、z10 起畫點） · src/hooks/useGbOsmLayers.ts
   gbHealthFacilities: "M", // 英國醫院（z5 起）、GP／藥局（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
   gbCareHomes: "M", // 英國照護之家（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
   gbCareServices: "M", // 英國長照服務（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts

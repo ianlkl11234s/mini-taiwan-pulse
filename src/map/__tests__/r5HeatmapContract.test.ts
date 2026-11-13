@@ -163,6 +163,9 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["gbBrownfield", "useGbEnvPlanningLayers.ts", 30_303],
   ["gbRecyclingCentres", "useGbEnvPlanningLayers.ts", 12_959], // 熱區只算回收桶 11,412 點，回收中心維持畫點
   ["gbLandslide", "useGbHazardLayers.ts", 18_699],
+  // 英國第 13 波 OSM（2026-11-13）：公共設施、宗教場所 z<10 熱區、z10 起畫點
+  ["gbPublicFacilities", "useGbOsmLayers.ts", 41_333],
+  ["gbPlacesOfWorship", "useGbOsmLayers.ts", 42_113],
   // 綠地三層：細節是面（z9／z10 起）或代表點（§3.8 V-5 點／面切換），熱區用 representative_point 檔；
   // 熱區由 useGbWaterLayers 的共用 useGbRepPointLayers 建（2026-10-31）；運動場地不含高爾夫球場（獨立圖層 gbGolfCourses，< 1 萬點不畫熱區）
   ["gbGreenspace", "useGbWaterLayers.ts", 80_918],

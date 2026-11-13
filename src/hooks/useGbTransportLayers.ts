@@ -281,10 +281,11 @@ export function useGbLondonChargingZonesLayer(mapRef: MapRef, visible: boolean, 
   ], [opacity, isDark]);
 }
 
-// ─────────────────────────── 第 10 波：主要路網（gb_major_roads.pmtiles） ───────────────────────────
+// ─────────────────────────── 第 10 波：主要路網（gb_major_roads_v2.pmtiles） ───────────────────────────
 
 const ROADS_SOURCE: SourceSpec = {
-  id: "gb-major-roads", file: "gb_major_roads.pmtiles", minzoom: 4, maxzoom: 12, attribution: GB_ROADS_MAP_ATTRIBUTION, loading: "英國主要路網載入中",
+  // 2026-11-13 換新版（補大不列顛 B 級 OSM，134,824 段）：`_v2`；舊檔已在 S3、上傳腳本拒絕同 key 換內容，不覆寫
+  id: "gb-major-roads", file: "gb_major_roads_v2.pmtiles", minzoom: 4, maxzoom: 12, attribution: GB_ROADS_MAP_ATTRIBUTION, loading: "英國主要路網載入中",
 };
 
 function roadClassMatch(pick: (c: (typeof GB_ROAD_CLASSES)[number]) => unknown, fallback: unknown): Expr {

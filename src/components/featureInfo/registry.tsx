@@ -70,6 +70,7 @@ import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPa
 import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbPollutionInventoryEnglandPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
+import { GbBridgesTunnelsPanel, GbPlacesOfWorshipPanel, GbPublicFacilitiesPanel, GbRoadFacilitiesPanel } from "./ukPanels";
 import { KR_DATA_SPECS } from "../../data/krDataLayers";
 import type { KrDataKey } from "../../data/krDataKeys";
 
@@ -525,6 +526,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbLondonJamCams: GbLondonJamCamsPanel,
   gbLondonChargingZones: GbLondonChargingZonesPanel,
   gbMajorRoads: GbMajorRoadsPanel,
+  gbBridgesTunnels: GbBridgesTunnelsPanel,
+  gbRoadFacilities: GbRoadFacilitiesPanel,
+  gbPublicFacilities: GbPublicFacilitiesPanel,
+  gbPlacesOfWorship: GbPlacesOfWorshipPanel,
   gbCompanies: GbCompaniesPanel,
   gbManufacturing: GbManufacturingPanel,
   gbFuneral: GbFuneralPanel,
@@ -1212,6 +1217,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbLondonJamCams: "倫敦道路攝影機 TfL JamCams",
   gbLondonChargingZones: "倫敦收費與低排放區 Charging Zones",
   gbMajorRoads: "主要路網 Major Roads",
+  gbBridgesTunnels: "橋梁與隧道 Road Bridges & Tunnels",
+  gbRoadFacilities: "道路設施 Road Facilities",
+  gbPublicFacilities: "公共設施 Public Facilities",
+  gbPlacesOfWorship: "宗教場所 Places of Worship",
   gbCompanies: "公司登記 Registered Companies",
   gbManufacturing: "製造業公司 Manufacturing Companies",
   gbFuneral: "火葬場與葬儀社 Crematoria & Funeral Directors",

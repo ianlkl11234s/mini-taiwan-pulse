@@ -245,5 +245,22 @@
   "legend.civic.pjTheftHouse": "Residential burglary",
   "legend.civic.pjTheftCar": "Car theft",
   "legend.civic.pjTheftMoto": "Scooter theft",
-  "legend.civic.pjTheftBike": "Bicycle theft"
+  "legend.civic.pjTheftBike": "Bicycle theft",
+  "legend.civic.gbPfCommunityCentre": "Community centre ({{n}})",
+  "legend.civic.gbPfToilets": "Public toilets ({{n}})",
+  "legend.civic.gbPfPostOffice": "Post office ({{n}})",
+  "legend.civic.gbPfMarketplace": "Marketplace ({{n}})",
+  "legend.civic.gbPowChristian": "Christian ({{n}})",
+  "legend.civic.gbPowMuslim": "Muslim ({{n}})",
+  "legend.civic.gbPowJewish": "Jewish ({{n}})",
+  "legend.civic.gbPowSikh": "Sikh ({{n}})",
+  "legend.civic.gbPowHindu": "Hindu ({{n}})",
+  "legend.civic.gbPowBuddhist": "Buddhist ({{n}})",
+  "legend.civic.gbPowOther": "Other religion ({{n}})",
+  "legend.civic.gbPowUnknown": "Not tagged ({{n}}; OSM religion not tagged, not inferred)",
+  "legend.civic.gbOsmPointsZoom10": "Individual points from zoom 10; heatmap below",
+  "legend.civic.gbOsmTileZoom": "Shown from zoom {{z}}",
+  "legend.civic.gbOsmNations": "England {{e}} / Scotland {{s}} / Wales {{w}} / Northern Ireland {{ni}}",
+  "legend.civic.gbOsmSnapshot": "OpenStreetMap snapshot {{date}} (volunteer data; completeness varies by area)",
+  "legend.civic.gbPfNote": "Post offices include in-store counters (post_partner); courts and libraries are separate layers"
 }

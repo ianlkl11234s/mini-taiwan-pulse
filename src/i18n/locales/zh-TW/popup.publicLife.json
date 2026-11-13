@@ -98,5 +98,17 @@
   "popup.publicLife.gbCourtKind": "類別",
   "popup.publicLife.gbCourtTypes": "法院類型",
   "popup.publicLife.gbCourtAreasOfLaw": "法律領域",
-  "popup.publicLife.gbCourtFact": "FaCT 頁面"
+  "popup.publicLife.gbCourtFact": "FaCT 頁面",
+  "popup.publicLife.gbPfKind": "類型",
+  "popup.publicLife.gbPfSubtype": "細項",
+  "popup.publicLife.gbPfFee": "收費",
+  "popup.publicLife.gbPfFeeYes": "收費",
+  "popup.publicLife.gbPfFeeNo": "免費",
+  "popup.publicLife.gbHours": "開放時間",
+  "popup.publicLife.gbWheelchair": "輪椅可通行",
+  "popup.publicLife.gbPostcode": "郵遞區號",
+  "popup.publicLife.gbAccess": "開放對象",
+  "popup.publicLife.gbNotStated": "未標示",
+  "popup.publicLife.gbUnnamed": "（未命名）",
+  "popup.publicLife.gbOsmNote": "OpenStreetMap 志願者資料；面以中心點表示"
 }

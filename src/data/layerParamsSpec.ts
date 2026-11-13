@@ -2368,6 +2368,11 @@ export const LAYER_PARAMS_SPEC = {
   gbLondonChargingZones: [opacitySlider("gbLondonChargingZonesOpacity", 0.7)],
   // 英國第 10 波：主要路網（線透明度）、AADF 計數點（點透明度＋大小＋「資料方式」選單）
   gbMajorRoads: [opacitySlider("gbMajorRoadsOpacity", 0.85)],
+  // 英國第 13 波 OSM（2026-11-13）：四層都依類別多選（§3.8 V-4）；公共設施、宗教場所 ≥1 萬點畫熱區（R5）
+  gbBridgesTunnels: [opacitySlider("gbBridgesTunnelsOpacity", 0.85), categoryMultiSelect("gbBridgesTunnels", [{ label: "橋梁", value: "bridge" }, { label: "隧道", value: "tunnel" }])],
+  gbRoadFacilities: [opacitySlider("gbRoadFacilitiesOpacity", densePointOpacity(1_757)), scaleSlider("gbRoadFacilitiesScale", 1), categoryMultiSelect("gbRoadFacilities", [{ label: "服務區", value: "services" }, { label: "休息區", value: "rest_area" }, { label: "收費站", value: "toll_booth" }, { label: "緊急停車區", value: "emergency_area" }])],
+  gbPublicFacilities: [heatmapPalette("gbPublicFacilities"), opacitySlider("gbPublicFacilitiesOpacity", densePointOpacity(41_333)), scaleSlider("gbPublicFacilitiesScale", 1), categoryMultiSelect("gbPublicFacilities", [{ label: "社區活動中心", value: "community_centre" }, { label: "公共廁所", value: "toilets" }, { label: "郵局", value: "post_office" }, { label: "市場", value: "marketplace" }])],
+  gbPlacesOfWorship: [heatmapPalette("gbPlacesOfWorship"), opacitySlider("gbPlacesOfWorshipOpacity", densePointOpacity(42_113)), scaleSlider("gbPlacesOfWorshipScale", 1), categoryMultiSelect("gbPlacesOfWorship", [{ label: "基督宗教", value: "christian" }, { label: "伊斯蘭教", value: "muslim" }, { label: "猶太教", value: "jewish" }, { label: "錫克教", value: "sikh" }, { label: "印度教", value: "hindu" }, { label: "佛教", value: "buddhist" }, { label: "其他宗教", value: "other" }, { label: "未標示宗教", value: "unknown" }])],
   gbTrafficCountsAadf: [
     heatmapPalette("gbTrafficCountsAadf"),
     opacitySlider("gbTrafficCountsAadfOpacity", densePointOpacity(22_334)),

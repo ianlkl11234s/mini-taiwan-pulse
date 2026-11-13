@@ -93,6 +93,11 @@ import {
 } from "../../data/gbBusinessAgriTypes";
 import { GB_AQUACULTURE_KIND_KEYS, GB_AQUACULTURE_STATUS_KEYS, GB_FUNERAL_KIND_KEYS, GB_SIC_SECTION_KEYS, GB_SOIL_DEPTH_KEYS } from "../legend/gbBusinessAgriLegends";
 import type { MessageKey } from "../../i18n/keys";
+import {
+  GB_NH_ATTRIBUTION, GB_NH_OGL_V3, GB_NH_URL, GB_OSM13_ATTRIBUTION, GB_OSM13_ODBL, GB_OSM13_SNAPSHOT, GB_OSM13_URL,
+  gbOsmKindColor, gbPublicFacilityKind, gbRoadFacilityKind, gbStructure, gbWorshipKind,
+} from "../../data/gbOsmTypes";
+import { GB_PUBLIC_FACILITY_KEYS, GB_ROAD_FACILITY_KEYS, GB_STRUCTURE_KEYS, GB_WORSHIP_KEYS } from "../legend/gbOsmLegends";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
 
@@ -612,9 +617,9 @@ export function GbMajorRoadsPanel({ props }: { props: Record<string, unknown> })
     <Row label={t("popup.transport.gbNation")} value={place} />
     <Row label={t("popup.transport.gbRoadSource")} value={t(isOsm ? "popup.transport.gbRoadSourceOsm" : "popup.transport.gbRoadSourceMrdb")} />
     {!isOsm ? <Row label="" value={t("popup.transport.gbRoadMrdbNote")} /> : null}
-    <Row label={t("popup.transport.gbCoverage")} value={t("popup.transport.gbRoadBNotCovered")} />
+    <Row label={t("popup.transport.gbCoverage")} value={t("popup.transport.gbRoadCoverageAll")} />
     {isOsm
-      ? <SourceFooter props={{ source_org: GB_ROADS_OSM_ATTRIBUTION, source_url: GB_ROADS_OSM_URL, license: GB_ROADS_ODBL, fetched_at: GB_TRANSPORT_FETCHED_AT }} />
+      ? <SourceFooter props={{ source_org: GB_ROADS_OSM_ATTRIBUTION, source_url: GB_ROADS_OSM_URL, license: GB_ROADS_ODBL, fetched_at: GB_OSM13_SNAPSHOT }} />
       : <SourceFooter props={{ source_org: GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, source_url: GB_DFT_ROAD_TRAFFIC_URL, license: GB_TRANSPORT_OGL_V3, fetched_at: GB_TRANSPORT_FETCHED_AT }} />}
   </>;
 }
@@ -1739,5 +1744,125 @@ export function GbSoilParentMaterialPanel({ props }: { props: Record<string, unk
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
     <Row label={t("popup.baseMap.gbNotes")} value={t("popup.agri.gbSoilModelNote")} />
     <SourceFooter props={{ source_org: GB_SOIL_ATTRIBUTION, source_url: GB_SOIL_URL, license: GB_W12_OGL_V3, fetched_at: GB_W12_FETCHED_AT }} />
+  </>;
+}
+
+// ─────────────────────────── 第 13 波 OSM（2026-11-13）：橋梁與隧道、道路設施、公共設施、宗教場所 ───────────────────────────
+// 類別名沿用圖例 key，去掉尾端「（筆數…）」括號（stripCount）；空值列由 Row 自動隱藏，不寫 0。
+
+/** 圖例 key 帶「（{{n}}）」筆數；popup 只要類別名 → 去掉尾端括號。 */
+function stripCount(label: string): string {
+  return label.replace(/\s*[（(][^（）()]*[）)]\s*$/u, "");
+}
+const yesNo = (t: (k: MessageKey) => string, v: unknown, yes: MessageKey, no: MessageKey) => {
+  const s = text(v);
+  return s === "yes" ? t(yes) : s === "no" ? t(no) : s;
+};
+const osmFooter = { source_org: GB_OSM13_ATTRIBUTION, source_url: GB_OSM13_URL, license: GB_OSM13_ODBL, fetched_at: GB_OSM13_SNAPSHOT };
+
+/** 主要道路橋梁與隧道：道路編號／名稱、結構（橋／隧道＋OSM 原值）、橋隧名、橋型、限高限重、路段長。 */
+export function GbBridgesTunnelsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const nation = useNationLabel();
+  const s = gbStructure(props.structure);
+  const cls = gbRoadClass(props.road_class);
+  const structName = text(props.structure) === "tunnel" ? text(props.tunnel_name) : text(props.bridge_name);
+  const osmValue = text(props.structure) === "tunnel" ? text(props.tunnel) : text(props.bridge);
+  const len = num(props.length_m);
+  const structLabel = s ? stripCount(t(GB_STRUCTURE_KEYS[s.value], { n: "" })) : text(props.structure);
+  return <>
+    <Title color={s ? gbOsmKindColor(s, isDark) : GB_MAJOR_ROADS_COLOR}>{structName || [text(props.ref), text(props.name)].filter(Boolean).join(" ") || structLabel}</Title>
+    <Row label={t("popup.transport.gbBtStructure")} value={structLabel} />
+    <Row label={t("popup.transport.gbBtOsmValue")} value={osmValue} mono />
+    <Row label={t("popup.transport.gbBtStructureName")} value={structName} />
+    <Row label={t("popup.transport.gbRoadRef")} value={text(props.ref)} mono />
+    <Row label={t("popup.transport.gbRoadName")} value={text(props.name)} />
+    <Row label={t("popup.transport.gbRoadClass")} value={cls ? t(GB_ROAD_CLASS_KEYS[cls.value]) : text(props.road_class)} />
+    <Row label={t("popup.transport.gbBtBridgeStructure")} value={text(props.bridge_structure)} />
+    <Row label={t("popup.transport.gbBtLayer")} value={text(props.layer)} mono />
+    <Row label={t("popup.transport.gbBtMaxheight")} value={text(props.maxheight)} />
+    <Row label={t("popup.transport.gbBtMaxweight")} value={text(props.maxweight)} />
+    <Row label={t("popup.transport.gbBtLength")} value={len == null ? "" : t("popup.transport.gbBtMeters", { n: i18n.formatNumber(len, { maximumFractionDigits: 0 }) })} />
+    <Row label={t("popup.transport.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label="" value={t("popup.transport.gbBtSegmentNote")} />
+    <SourceFooter props={osmFooter} />
+  </>;
+}
+
+/** 道路設施：類型、名稱、編號、開放時間、收費、廁所、郵遞區號、通行限制；緊急停車區為 National Highways（路段中點）。 */
+export function GbRoadFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const nation = useNationLabel();
+  const kind = gbRoadFacilityKind(props.kind);
+  const isNh = props.source === "national_highways";
+  const kindLabel = kind ? stripCount(t(GB_ROAD_FACILITY_KEYS[kind.value], { n: "" })) : text(props.kind);
+  return <>
+    <Title color={kind ? gbOsmKindColor(kind, isDark) : GB_MAJOR_ROADS_COLOR}>{text(props.name) || kindLabel || t("popup.transport.gbUnnamed")}</Title>
+    <Row label={t("popup.transport.gbRfKind")} value={kindLabel} />
+    <Row label={t("popup.transport.gbRoadRef")} value={text(props.ref)} mono />
+    <Row label={t("popup.transport.gbRfHours")} value={text(props.opening_hours)} />
+    <Row label={t("popup.transport.gbRfFee")} value={yesNo(t, props.fee, "popup.transport.gbYes", "popup.transport.gbNo")} />
+    <Row label={t("popup.transport.gbRfToilets")} value={yesNo(t, props.toilets, "popup.transport.gbYes", "popup.transport.gbNo")} />
+    <Row label={t("popup.transport.gbRfPostcode")} value={text(props.postcode)} />
+    <Row label={t("popup.transport.gbRfAccess")} value={text(props.access)} />
+    <Row label={t("popup.transport.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.transport.gbRoadSource")} value={t(isNh ? "popup.transport.gbRfSourceNh" : "popup.transport.gbRfSourceOsm")} />
+    <Row label="" value={t(isNh ? "popup.transport.gbRfPrecisionMidpoint" : "popup.transport.gbRfPrecisionCenter")} />
+    {isNh
+      ? <SourceFooter props={{ source_org: GB_NH_ATTRIBUTION, source_url: GB_NH_URL, license: GB_NH_OGL_V3, fetched_at: GB_OSM13_SNAPSHOT }} />
+      : <SourceFooter props={osmFooter} />}
+  </>;
+}
+
+/** 公共設施：類型、細項（公廁為收費／免費；活動中心為 OSM 細類原值）、開放時間、輪椅、郵遞區號、開放對象。 */
+export function GbPublicFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const nation = useNationLabel();
+  const kind = gbPublicFacilityKind(props.kind);
+  const kindLabel = kind ? stripCount(t(GB_PUBLIC_FACILITY_KEYS[kind.value], { n: "" })) : text(props.kind);
+  const isToilet = props.kind === "toilets";
+  const wc = text(props.wheelchair);
+  return <>
+    <Title color={kind ? gbOsmKindColor(kind, isDark) : GB_MAJOR_ROADS_COLOR}>{text(props.name) || t("popup.publicLife.gbUnnamed")}</Title>
+    <Row label={t("popup.publicLife.gbPfKind")} value={kindLabel} />
+    {isToilet
+      ? <Row label={t("popup.publicLife.gbPfFee")} value={yesNo(t, props.fee, "popup.publicLife.gbPfFeeYes", "popup.publicLife.gbPfFeeNo") || t("popup.publicLife.gbNotStated")} />
+      : <Row label={t("popup.publicLife.gbPfSubtype")} value={text(props.subtype)} mono />}
+    <Row label={t("popup.publicLife.gbHours")} value={text(props.opening_hours)} />
+    <Row label={t("popup.publicLife.gbWheelchair")} value={GB_W12_YES_NO_KEYS[wc] ? t(GB_W12_YES_NO_KEYS[wc]!) : wc} />
+    <Row label={t("popup.publicLife.gbPostcode")} value={text(props.postcode)} />
+    <Row label={t("popup.publicLife.gbAccess")} value={text(props.access)} />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.publicLife.gbOsmNote")} />
+    <SourceFooter props={osmFooter} />
+  </>;
+}
+
+/** 宗教場所：宗教（8 類）、宗派（基督宗教）或 OSM religion 原值（其他宗教）；未標示明寫不推測。 */
+export function GbPlacesOfWorshipPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const nation = useNationLabel();
+  const kind = gbWorshipKind(props.kind);
+  const kindLabel = kind ? stripCount(t(GB_WORSHIP_KEYS[kind.value], { n: "" })) : text(props.kind);
+  const wc = text(props.wheelchair);
+  return <>
+    <Title color={kind ? gbOsmKindColor(kind, isDark) : GB_MAJOR_ROADS_COLOR}>{text(props.name) || t("popup.publicLife.gbUnnamed")}</Title>
+    <Row label={t("popup.religion.gbPowReligion")} value={kindLabel} />
+    {props.kind === "christian"
+      ? <Row label={t("popup.religion.gbPowDenomination")} value={text(props.subtype)} mono />
+      : props.kind === "other" ? <Row label={t("popup.religion.gbPowOsmReligion")} value={text(props.subtype)} mono /> : null}
+    {props.kind === "unknown" ? <Row label="" value={t("popup.religion.gbUnknownNote")} /> : null}
+    <Row label={t("popup.publicLife.gbHours")} value={text(props.opening_hours)} />
+    <Row label={t("popup.publicLife.gbWheelchair")} value={GB_W12_YES_NO_KEYS[wc] ? t(GB_W12_YES_NO_KEYS[wc]!) : wc} />
+    <Row label={t("popup.publicLife.gbPostcode")} value={text(props.postcode)} />
+    <Row label="Wikidata" value={text(props.wikidata)} mono />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.publicLife.gbOsmNote")} />
+    <SourceFooter props={osmFooter} />
   </>;
 }
