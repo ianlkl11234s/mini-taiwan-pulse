@@ -78,7 +78,7 @@ import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
-import { countryDef, type CountryCode } from "./constants/countries";
+import { DEFAULT_COUNTRY, countryDef, type CountryCode } from "./constants/countries";
 import { countryStore, resolveInitialCountry, useCountry } from "./state/countryStore";
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
@@ -241,7 +241,8 @@ export default function App() {
     countryStore.set(resolveInitialCountry(urlCountry, urlCamera, countryForLayerKeys(urlLayers ?? [])));
   }
   const country = useCountry();
-  // 只有在國家選單選國家時才飛到該國（網址、場景快照、Agent 切國家都不飛）
+  // 國家選單選國家（含再選同一國）時飛到該國；場景快照、Agent 切國家不飛。
+  // 網址只帶 c= 不帶相機時，初始視角改用該國相機（見下方 preset，VPB-5）
   const handleCountryFly = useCallback((code: CountryCode) => {
     const { center, zoom, pitch, bearing } = countryDef(code).camera;
     mapRef.current?.flyTo({ center, zoom, pitch, bearing, speed: 1.0 });
@@ -1424,6 +1425,12 @@ export default function App() {
         center: urlCam.center, zoom: urlCam.zoom,
         pitch: urlCam.pitch, bearing: urlCam.bearing,
       };
+    }
+    // 分享網址只帶 c=<國碼>、不帶相機時，初始視角用該國預設相機（VPB-5：c=ie 原本停在臺北）
+    const urlCountry = urlStateRef.current.country;
+    if (urlCountry && urlCountry !== DEFAULT_COUNTRY && !selectedAirport) {
+      const { center, zoom, pitch, bearing } = countryDef(urlCountry).camera;
+      return { ...DEFAULT_CAMERA, id: "url", name: "URL", category: "city" as const, center, zoom, pitch, bearing };
     }
     return getPresetById(selectedAirport) ?? DEFAULT_CAMERA;
   }, [selectedAirport]);

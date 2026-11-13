@@ -198,7 +198,7 @@ export function CaRentsPanel({ props }: P) {
       const v = fmtNum(props[u.prop]);
       return <Row key={u.value} label={pick(u.label)} value={v ? `CAD ${v}` : pick(CA_RENTS_NOT_PUBLISHED)} />;
     })}
-    {caText(props.ref_year) ? <Row label={pick({ zh: "資料年", en: "Year", ja: "データ年" })} value={`${caText(props.ref_year)}（10 月）`} /> : null}
+    {caText(props.ref_year) ? <Row label={pick({ zh: "資料年", en: "Year", ja: "データ年" })} value={pick({ zh: `${caText(props.ref_year)}（10 月）`, en: `October ${caText(props.ref_year)}`, ja: `${caText(props.ref_year)}年10月` })} /> : null}
     {cmhc && !cmhc.startsWith(name) ? <Row label={pick({ zh: "CMHC 地區名", en: "CMHC area name", ja: "CMHC 地域名" })} value={cmhc} /> : null}
     <Footer source={CA_RENTS_SOURCE} />
   </>;

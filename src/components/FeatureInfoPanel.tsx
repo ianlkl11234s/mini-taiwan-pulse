@@ -44,6 +44,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 2026 選舉活動（站主限定）：RPC feature 只有逐場來源連結，panel 補圖層層級的來源說明並自掛 SourceFooter
   "electionEvents2026",
   "chatHighlight",
+  // VPB-4：feature／tile 無來源欄，panel 補官方出處並自掛 SourceFooter（原本顯示「來源資訊待補」）
+  "immigrationOffice", "pollutionPenalty", "youbikeFullness", "groundwater",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
   // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter

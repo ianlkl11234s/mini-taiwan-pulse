@@ -3,7 +3,7 @@ import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl"
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS, dropHiddenLandUseHex } from "../map/gisClickRegistry";
-import { queryStatisticsHits } from "../map/statisticsClickHit";
+import { gisHitTarget, queryStatisticsHits } from "../map/statisticsClickHit";
 import { requireH3 } from "../map/h3Runtime";
 import { pickTransitReachCell } from "../data/transitReachStore";
 import { pickElectionHits } from "../map/electionSpread";
@@ -422,8 +422,8 @@ export function useMapInteraction(
             return true;
           });
           if (existingIds.length === 0) continue;
-          // Small density cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
-          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" || type === "jpAccommodationDensity" ? e.point : bbox;
+          // 小格網面只查點擊點，不讓 POI 容錯框內的鄰格搶走（清單見 EXACT_POINT_HIT_TYPES）
+          const hitTarget = gisHitTarget<PointLike>(type, e.point, bbox);
           // 統計面以點擊點落在哪個多邊形為準（低縮放時容錯框會先命中鄰區）；比例圓保留容錯框
           const queried = type === "regionalStatistic"
             ? queryStatisticsHits(map, e.point, existingIds)

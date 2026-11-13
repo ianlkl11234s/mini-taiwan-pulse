@@ -193,6 +193,9 @@ const BOUNDARY_VERSION_LABELS: Record<string, string> = {
 };
 const BOUNDARY_CODE = /\b(?:ONS_LAD_202405|ONS_LAD_202605|KR_SIDO_ADMDONGKOR_20261001|KR_SGG_ADMDONGKOR_20261001|CA_PR_CBF2021|CA_CD_CBF2021|IE_LA_TAILTE2026|IE_ED_CSO2022|COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|VILLAGE_NLSC_1150817|VILLAGE_SEGIS_112|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only|PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1)\b/g;
 
+/** 類別型統計（最高黨等）的單位：值是類別碼，不是可加總的數量。 */
+export const STATISTICS_CATEGORY_CODE_UNIT = '類別碼';
+
 /** 單一邊界版本代碼的中文描述；查無對照時不印代碼。 */
 export function boundaryVersionLabel(code: unknown, i18n?: I18nContext): string {
   if (typeof code !== 'string' || !code) return ui(i18n, 'statisticsSelect.boundaryNotProvided', '未提供');

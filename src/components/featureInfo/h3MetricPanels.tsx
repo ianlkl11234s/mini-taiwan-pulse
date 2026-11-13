@@ -27,7 +27,7 @@
  * 絕不會印出錯的中文。
  */
 import { useMemo } from "react";
-import { Row } from "./shared";
+import { Row, SourceFooter } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { layerParamsStore } from "../../state/layerParamsStore";
@@ -208,6 +208,7 @@ export function YoubikeFullnessCellPanel({ props }: { props: Record<string, unkn
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
         {tr("popup.h3Metric.youbikeNote")}
       </div>
+      <SourceFooter props={{ source_org: tr("popup.h3Metric.youbikeSourceOrg") }} />
     </>
   );
 }

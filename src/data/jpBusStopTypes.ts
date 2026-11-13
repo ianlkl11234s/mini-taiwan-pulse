@@ -44,3 +44,22 @@ export const JP_PREFECTURE_NAMES: Readonly<Record<string, string>> = {
   "36": "徳島県", "37": "香川県", "38": "愛媛県", "39": "高知県", "40": "福岡県", "41": "佐賀県", "42": "長崎県",
   "43": "熊本県", "44": "大分県", "45": "宮崎県", "46": "鹿児島県", "47": "沖縄県",
 };
+
+/** 都道府縣代碼 → 英文名（英文介面用；JIS X 0401）。 */
+export const JP_PREFECTURE_NAMES_EN: Readonly<Record<string, string>> = {
+  "01": "Hokkaido", "02": "Aomori", "03": "Iwate", "04": "Miyagi", "05": "Akita", "06": "Yamagata", "07": "Fukushima",
+  "08": "Ibaraki", "09": "Tochigi", "10": "Gunma", "11": "Saitama", "12": "Chiba", "13": "Tokyo", "14": "Kanagawa",
+  "15": "Niigata", "16": "Toyama", "17": "Ishikawa", "18": "Fukui", "19": "Yamanashi", "20": "Nagano", "21": "Gifu",
+  "22": "Shizuoka", "23": "Aichi", "24": "Mie", "25": "Shiga", "26": "Kyoto", "27": "Osaka", "28": "Hyogo",
+  "29": "Nara", "30": "Wakayama", "31": "Tottori", "32": "Shimane", "33": "Okayama", "34": "Hiroshima", "35": "Yamaguchi",
+  "36": "Tokushima", "37": "Kagawa", "38": "Ehime", "39": "Kochi", "40": "Fukuoka", "41": "Saga", "42": "Nagasaki",
+  "43": "Kumamoto", "44": "Oita", "45": "Miyazaki", "46": "Kagoshima", "47": "Okinawa",
+};
+
+/** 都道府縣代碼 → 依語系的人讀名稱；查無對照回 undefined（呼叫端不印代碼）。 */
+export function jpPrefectureName(code: unknown, locale: string): string | undefined {
+  const raw = code == null ? "" : String(code).trim();
+  if (!/^\d{1,2}$/.test(raw)) return undefined;
+  const key = raw.padStart(2, "0");
+  return locale === "en" ? JP_PREFECTURE_NAMES_EN[key] : JP_PREFECTURE_NAMES[key];
+}

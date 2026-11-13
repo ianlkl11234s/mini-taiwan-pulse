@@ -27,6 +27,7 @@
   "statistics.coverageStatus": "カバー状況",
   "statistics.coverageStatusAgri": "データセット全体のカバー状況",
   "statistics.coverageLine": "{label}：{status}（{numerator}／{denominator} {area}）；未配分 {unallocated}",
+  "statistics.coverageLineCategorical": "{label}：{status}（{numerator}／{denominator} {area}）",
   "statistics.area.livestockTownshipRows": "郷鎮×家畜の件数",
   "statistics.tuple.livestockTownship": "郷鎮の統計値",
   "statistics.tuple.region": "地域の統計値",
