@@ -10,8 +10,9 @@ import { useUser } from "../lib/auth";
 import { supabase } from "../lib/supabase";
 import {
   CN_ADMIN_COLOR, CN_ADMIN_LEVELS, CN_DENSITY_BREAKS, CN_DENSITY_FIELD, CN_NOT_COVERED_COLOR, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT,
-  asPhSpec, cnOwnerUrl, type CnAdminLevel, type CnLayerSpec, type CnOwnerAsset, type CnPart,
+  asPhSpec, type CnAdminLevel, type CnLayerSpec, type CnOwnerAsset, type CnPart,
 } from "../data/cnDataLayers";
+import { OWNER_DATA_ENDPOINT } from "../data/ownerDataAssets";
 import { phColorExpr, phPartCatFilter } from "./usePhLayers";
 import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
 
@@ -31,6 +32,7 @@ const opacityDefault = (key: string, fallback: number) => Number(paramDefault(ke
 const scaleDefault = (key: string) => Number(paramDefault(key, `${key}Scale`) ?? 1);
 const sig = (v: unknown) => JSON.stringify(v);
 const NONE: Expr = ["==", ["literal", "__cn_none__"], "__cn_part__"];
+const cnOwnerUrl = (asset: CnOwnerAsset) => `${OWNER_DATA_ENDPOINT}/${asset}`;
 const levelAt = (idx: number | undefined, fallback: CnAdminLevel): CnAdminLevel => CN_ADMIN_LEVELS[idx ?? -1]?.value ?? fallback;
 
 function setPaint(map: MapboxMap, id: string, paint: Record<string, unknown>) {

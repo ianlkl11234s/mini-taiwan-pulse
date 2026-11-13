@@ -1,6 +1,6 @@
 /**
  * 中國第 0–1 波（2026-11-13）圖層規格 SSOT：hook paint、圖例、popup、參數規格共用。**9 層全部站主限定**（使用者 2026-11-10），
- * 圖磚只放私人 owner-data（同源 `/api/private-research/owner-data/<asset>`，sidecar 驗站主 JWT 後回 Range），不進公開 CDN、不入倉。
+ * 圖磚只放私人 owner-data（同源 Range API，sidecar 驗站主 JWT 後回 Range；網址組在 hooks/useCnLayers.ts），不進公開 CDN、不入倉。
  * - 行政邊界（C001）、人口（C023）：省 31／地級 357（332 地級＋4 直轄市＋21 省直轄縣級），兩層級 select 切換；人口網格（GHS-POP）是已上色 PNG raster。
  * - 交通 3 層、能源 3 層：規格驅動（`CN_DATA_SPECS`＋`useCnDataLayer`），型別與 popup／類別篩選沿用菲律賓（`phDataLayers.ts`）。
  *   瘦身圖磚各 tile layer 最大縮放不同（甲案，analytics FRONTEND_SPEC §3a）：子圖層各自一個 source（`srcMaxzoom`），超過靠 overzoom。
@@ -9,7 +9,6 @@
  */
 import type { CnDataKey } from "./cnDataKeys";
 import { CN_PREFECTURE_NAMES } from "./cnPrefectureNames";
-import { OWNER_DATA_ENDPOINT } from "./ownerDataAssets";
 import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./phDataLayers";
 
 export type { L3 } from "./krDataLayers";
@@ -37,7 +36,6 @@ export const CN_OWNER_ASSETS = {
   "cn-power-grid": "cn_power_grid.pmtiles",
 } as const;
 export type CnOwnerAsset = keyof typeof CN_OWNER_ASSETS;
-export const cnOwnerUrl = (asset: CnOwnerAsset) => `${OWNER_DATA_ENDPOINT}/${asset}`;
 
 export const CN_SIMPLIFIED_NOTE = l3("高縮放細節已簡化（圖磚瘦身；完整資料在分析端）", "High-zoom detail simplified (slimmed tiles; full data kept upstream)", "高ズームの詳細は簡略化（タイル軽量化、完全版は分析側）");
 export const CN_NO_POSITION_NOTE = l3("邊界依 OCHA 資料，不代表任何立場", "Boundaries follow OCHA data and do not imply any position", "境界は OCHA データによるもので、いかなる立場も示さない");
