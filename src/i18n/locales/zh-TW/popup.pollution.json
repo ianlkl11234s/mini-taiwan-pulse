@@ -1,4 +1,5 @@
 {
+  "popup.pollution.penaltySourceOrg": "環境部環境資料開放平臺（列管事業污染源裁處）",
   "popup.pollution.maxSeverity": "最高嚴重度",
   "popup.pollution.facilityNote": "「環保列管對象」× 裁處紀錄推得之污染潛勢；列管 ≠ 污染。",
   "popup.pollution.penalized": "受罰對象",

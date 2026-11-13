@@ -93,7 +93,7 @@ export function FreewayTdcsSimLegend() {
     requestTimelineJump((D?.dayStartUnix ?? DAY_START_UNIX) + (D?.winStart ?? FREEWAY_TDCS_SIM_DEFAULT_WINDOW[0]));
   };
   return <div>
-    <LegendTitle zh="雙北國道逐車模擬" en="Freeway Vehicles (Estimated)" />
+    <LegendTitle zh={t("legend.freewayTdcsSim.title")} en="Freeway Vehicles (Estimated)" />
     {status.state === "error" && <LegendRow swatch={<SwatchHatch />}>{t("legend.freewayTdcsSim.loadError")}</LegendRow>}
     {status.state === "loading" && <LegendNote>{t("legend.freewayTdcsSim.loading")}</LegendNote>}
     <LegendNote>{t("legend.freewayTdcsSim.dataWindow")}</LegendNote>

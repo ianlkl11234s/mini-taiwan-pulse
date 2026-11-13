@@ -2,7 +2,7 @@
 // 語意紅線：EMS_S_01 列管 ≠ 污染源 → 標題與敘述皆用「污染潛勢設施」。
 import { useEffect, useState } from "react";
 import type { PanelProps } from "./registry";
-import { Row, Badge } from "./shared";
+import { Row, Badge, SourceFooter } from "./shared";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
@@ -157,6 +157,7 @@ export function PollutionPenaltyPanel({ props }: PanelProps) {
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
         {t("popup.pollution.geocodeMethod", { value: enumLabel("pollutionPrecision", String(props.geocode_precision ?? "unknown"), PRECISION_LABELS[String(props.geocode_precision ?? "unknown")] ?? String(props.geocode_precision ?? ""), i18n) })}
       </div>
+      <SourceFooter props={{ source_org: t("popup.pollution.penaltySourceOrg"), source_url: "https://data.moenv.gov.tw/dataset/detail/EMS_P_46", license: "OGDL-1.0" }} />
     </div>
   );
 }

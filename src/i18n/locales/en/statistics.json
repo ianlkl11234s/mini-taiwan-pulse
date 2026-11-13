@@ -27,6 +27,7 @@
   "statistics.coverageStatus": "Coverage status",
   "statistics.coverageStatusAgri": "Dataset coverage status",
   "statistics.coverageLine": "{label}: {status} ({numerator}/{denominator} {area}); unallocated {unallocated}",
+  "statistics.coverageLineCategorical": "{label}: {status} ({numerator}/{denominator} {area})",
   "statistics.area.livestockTownshipRows": "township × livestock records",
   "statistics.tuple.livestockTownship": "township values",
   "statistics.tuple.region": "area values",

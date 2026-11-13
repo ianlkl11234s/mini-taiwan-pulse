@@ -1,4 +1,5 @@
 {
+  "popup.pollution.penaltySourceOrg": "環境部 環境データオープンプラットフォーム（規制対象事業の汚染源処分）",
   "popup.pollution.maxSeverity": "最高重大度",
   "popup.pollution.facilityNote": "「環境保護当局の管理対象」×処分記録から推定した汚染ポテンシャル。管理対象であることは汚染を意味しません。",
   "popup.pollution.penalized": "処分対象",

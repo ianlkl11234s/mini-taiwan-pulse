@@ -1,4 +1,5 @@
 {
+  "popup.h3Metric.youbikeSourceOrg": "交通部 TDX 交通データ（公共自転車のリアルタイム空き状況）",
   "popup.h3Metric.cellNote": "H3 六角形グリッドセル · 値はセルの集計値",
   "popup.h3Metric.popCount": "人口グリッド",
   "popup.h3Metric.dayNight": "昼夜間人口グリッド",
