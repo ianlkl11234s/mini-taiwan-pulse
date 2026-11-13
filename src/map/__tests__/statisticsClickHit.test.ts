@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { MapboxGeoJSONFeature, PointLike } from "mapbox-gl";
-import { queryStatisticsHits } from "../statisticsClickHit";
+import { gisHitTarget, queryStatisticsHits } from "../statisticsClickHit";
 
 // 模擬低縮放的大邱：點擊點落在 중구，但 ±5px 框同時碰到 달서구 等鄰區，且 Mapbox 回傳鄰區在前。
 const feature = (name: string, layer: string) => ({ properties: { area_name: name }, layer: { id: layer } }) as unknown as MapboxGeoJSONFeature;
@@ -42,5 +42,22 @@ describe("queryStatisticsHits（統計 popup 取點擊點所在的區）", () =>
     const { map, query } = createMap();
     expect(queryStatisticsHits(map, point, [])).toEqual([]);
     expect(query).not.toHaveBeenCalled();
+  });
+});
+
+describe("gisHitTarget（一般點擊登記的小格網面只查點擊點）", () => {
+  const bbox: [{ x: number; y: number }, { x: number; y: number }] = [{ x: 841, y: 439 }, { x: 851, y: 449 }];
+
+  it("南韓人口六角格：只查點擊點，拉遠時不會命中鄰格（VPB-6）", () => {
+    expect(gisHitTarget("krPopulationH3", point, bbox)).toBe(point);
+  });
+
+  it("既有密度格網維持只查點擊點", () => {
+    expect(gisHitTarget("factoryDensityGrid", point, bbox)).toBe(point);
+    expect(gisHitTarget("jpAccommodationDensity", point, bbox)).toBe(point);
+  });
+
+  it("其他點位圖層保留 ±5px 容錯框", () => {
+    expect(gisHitTarget("krPoliceBoxes", point, bbox)).toBe(bbox);
   });
 });

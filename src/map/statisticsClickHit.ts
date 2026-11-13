@@ -33,3 +33,22 @@ export function queryStatisticsHits(
   const fillHits = fills.length ? map.queryRenderedFeatures([point.x, point.y], { layers: fills }) : [];
   return [...circleHits, ...fillHits];
 }
+
+/**
+ * 一般 GIS 點擊登記（`GIS_LAYERS`）中，命中「小格網面」的 layerType：只查點擊點，不用 ±5px 容錯框。
+ * 低縮放時格子只有幾個像素寬，容錯框會同時涵蓋鄰格，Mapbox 回傳順序又與「誰包含點擊點」無關
+ * → popup 顯示隔壁那一格（VPB-6：南韓人口六角格拉遠點擊顯示鄰格）。
+ */
+export const EXACT_POINT_HIT_TYPES: ReadonlySet<string> = new Set([
+  "companyIndustryDistribution",
+  "companyAgeStructure",
+  "factoryDensityGrid",
+  "manufacturingCompanyDensityGrid",
+  "regulatedFacilityDensityGrid",
+  "jpAccommodationDensity",
+  "krPopulationH3",
+]);
+
+export function gisHitTarget<T>(type: string, point: T, bbox: [T, T]): T | [T, T] {
+  return EXACT_POINT_HIT_TYPES.has(type) ? point : bbox;
+}
