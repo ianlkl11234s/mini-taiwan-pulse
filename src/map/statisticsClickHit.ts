@@ -51,6 +51,21 @@ export const EXACT_POINT_HIT_TYPES: ReadonlySet<string> = new Set([
   "jpMedicalAreasPrimary",
   "jpMedicalAreasSecondary",
   "jpMedicalAreasTertiary",
+  // 同型小格網（登記的 layer 全是 fill／fill-extrusion，或格線 outline）：
+  // H3 人口／指標／社經／空間經濟／YouBike、日本 1 km 網格、加拿大人口 H3、都市型態、溫度、交通可及、噪音捕捉格網
+  "popCount",
+  "h3Population",
+  "indicators",
+  "socioeconomic",
+  "spatialEconomy",
+  "youbikeFullness",
+  "jpPopulationMesh1km",
+  "caPopulationGrid",
+  "urbanFormGrid",
+  "temperatureGrid",
+  "transitReachGrid",
+  "noiseCaptureGrid",
+  // 不加 tedsGridEmissions：同一筆登記含點源工廠 circle，只查點擊點會讓小點變難點
 ]);
 
 export function gisHitTarget<T>(type: string, point: T, bbox: [T, T]): T | [T, T] {
