@@ -597,7 +597,6 @@ for f in \
   public/world/kr_emergency_bells.pmtiles \
   public/world/kr_rural_experience_villages.pmtiles \
   public/world/kr_slaughterhouses.pmtiles \
-  public/world/kr_seoul_zoning.pmtiles \
   public/world/gb_rivers.pmtiles \
   public/world/gb_flood_defences.pmtiles \
   public/world/gb_protected_areas.pmtiles \

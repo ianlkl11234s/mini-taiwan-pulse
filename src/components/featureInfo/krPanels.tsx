@@ -370,7 +370,6 @@ function formatField(f: KrField, props: Record<string, unknown>, locale: string,
   const s = text(raw);
   if (!s) return "";
   // 地址只留門牌：去掉逗號後的附註與括號內的建物名（民防給水：私人水井的附註可能帶出人名）
-  if (f.kind === "addrBase") return s.split(",")[0]!.replace(/\s*\(.*$/, "").trim();
   if (f.map?.[s]) return pickL3(f.map[s]!, locale);
   return s.replace(/\|/g, "、");
 }

@@ -182,4 +182,3 @@ export const KrCivilDefenseWaterHost = makeKrDataHost("krCivilDefenseWater", 0.8
 export const KrEmergencyBellsHost = makeKrDataHost("krEmergencyBells", 0.85);
 export const KrRuralExperienceVillagesHost = makeKrDataHost("krRuralExperienceVillages", 0.85);
 export const KrSlaughterhousesHost = makeKrDataHost("krSlaughterhouses", 0.85);
-export const KrSeoulZoningHost = makeKrDataHost("krSeoulZoning", 0.55);

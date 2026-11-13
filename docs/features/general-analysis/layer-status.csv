@@ -49,7 +49,6 @@ krCivilDefenseWater,民防緊急給水設施 Civil Defence Emergency Water,KR,�
 krEmergencyBells,安全緊急鈴 Emergency Bells,KR,南韓,執法治安,custom,verified,kr_emergency_bells,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）"
 krRuralExperienceVillages,農漁村體驗休養村 Rural Experience Villages,KR,南韓,觀光,custom,verified,kr_rural_experience_villages,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）"
 krSlaughterhouses,屠宰場 Slaughterhouses,KR,南韓,農業,custom,verified,kr_slaughterhouses,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,南韓營業中屠宰場 111 處（LOCALDATA 도축업）
-krSeoulZoning,首爾用途地域 Seoul Zoning Districts,KR,南韓,底圖,custom,verified,kr_seoul_zoning,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"首爾用途地域 8,318 面（住宅、商業、工業、綠地等 7 大類）"
 ieMaritimeBoundaries,海域界線 Maritime Boundaries,IE,愛爾蘭,底圖,custom,verified,ie_maritime_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭海域界線 17 段（領海 12 浬 13、鄰接區 24 浬 1、專屬經濟區 3）
 iePlaceNames,地名 Place Names,IE,愛爾蘭,底圖,custom,verified,ie_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭官方地名 52,402 筆（人口中心 2,022、townland 50,046、島嶼 334；英文＋愛爾蘭語名）"
 ieGaeltacht,Gaeltacht 語言規劃區 Gaeltacht Language Planning Areas,IE,愛爾蘭,原民與農村,custom,verified,ie_gaeltacht_lpa,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭 Gaeltacht 語言規劃區 26 區＋2022 普查愛爾蘭語使用（每天在教育體系外說的比例 2.4%–68.9%）

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1838,
+    "keyCount": 1837,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2163,12 +2163,6 @@
         "kr-fishing-grounds-fill"
       ],
       "type": "krFishingGrounds"
-    },
-    {
-      "layers": [
-        "kr-seoul-zoning-fill"
-      ],
-      "type": "krSeoulZoning"
     },
     {
       "layers": [
@@ -144942,60 +144936,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      }
-    ],
-    "krSeoulZoning": [
-      {
-        "label": "類別",
-        "options": [
-          {
-            "label": "專用住宅（전용주거）",
-            "value": "exclusive"
-          },
-          {
-            "label": "一般住宅（일반주거）",
-            "value": "general"
-          },
-          {
-            "label": "準住宅（준주거）",
-            "value": "semi"
-          },
-          {
-            "label": "商業（상업）",
-            "value": "commercial"
-          },
-          {
-            "label": "工業（공업）",
-            "value": "industrial"
-          },
-          {
-            "label": "綠地（녹지）",
-            "value": "green"
-          },
-          {
-            "label": "其他都市地域（기타）",
-            "value": "etc"
-          }
-        ],
-        "type": "multiSelect",
-        "value": [
-          "exclusive",
-          "general",
-          "semi",
-          "commercial",
-          "industrial",
-          "green",
-          "etc"
-        ]
-      },
-      {
-        "label": "透明度 0.70",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
       }
     ],
     "krSlaughterhouses": [

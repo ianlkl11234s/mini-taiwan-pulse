@@ -447,7 +447,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-cemeteries-osm-fill"], type: "krCemeteriesOsm" },
   { layers: ["kr-industrial-complexes-fill"], type: "krIndustrialComplexes" },
   { layers: ["kr-fishing-grounds-fill"], type: "krFishingGrounds" },
-  { layers: ["kr-seoul-zoning-fill"], type: "krSeoulZoning" },
   // 南韓第 1 波：點（機場 → 電廠 → 再生能源 → 變電所 → 燃料站 → 鐵道站 → 公車站 → 鐵塔）→ 線（電網、國道、鐵道）→ 面（油氣、港灣）
   { layers: ["kr-airports-circle"], type: "krAirports" },
   { layers: ["kr-power-plants-circle", "kr-power-plants-minor-circle"], type: "krPowerPlants" },

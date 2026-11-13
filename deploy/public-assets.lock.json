@@ -3869,8 +3869,8 @@
   },
   {
    "path": "public/world/kr_civil_defense_water.pmtiles",
-   "bytes": 4346238,
-   "sha256": "e7bbee472c0318dc752f6538cd4f3dc91dd402e14290adb93e8827f57e32b293",
+   "bytes": 3593965,
+   "sha256": "5a3bdd9d93d81605ce3d89268dcf6ca94e17e50d53c7a4d578acd4bef3dcd061",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_civil_defense_water.pmtiles"
   },
@@ -4188,13 +4188,6 @@
    "sha256": "f33301b6c1251cecfa97bfaae5096a67a694c0e14c43f6c852b41ca89b0242f1",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_seoul_subway_congestion.pmtiles"
-  },
-  {
-   "path": "public/world/kr_seoul_zoning.pmtiles",
-   "bytes": 7364833,
-   "sha256": "3fd6df7db523d0b3ef7e8d078e2ed18b45ea9fbb73ef02782f263a57db6efe62",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/world/kr_seoul_zoning.pmtiles"
   },
   {
    "path": "public/world/kr_slaughterhouses.pmtiles",

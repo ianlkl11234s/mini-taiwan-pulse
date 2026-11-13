@@ -14,8 +14,8 @@ export interface L3 { zh: string; en: string; ja: string }
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 
 export interface KrCat { id: string; values: readonly string[]; color: string; label: L3; faded?: boolean }
-/** `permit`：許可期間（`lcns_bgng_`～本欄，YYYYMMDD）＋快照日判斷的許可狀態；`addrBase`：地址只留到門牌（去掉逗號後與括號內的附註建物名）。 */
-export type KrFieldKind = "text" | "num" | "year" | "measure" | "peak" | "code" | "permit" | "addrBase";
+/** `permit`：許可期間（`lcns_bgng_`～本欄，YYYYMMDD）＋快照日判斷的許可狀態。 */
+export type KrFieldKind = "text" | "num" | "year" | "measure" | "peak" | "code" | "permit";
 export interface KrField { prop: string; label: L3; kind?: KrFieldKind; unit?: string; digits?: number; map?: Readonly<Record<string, L3>> }
 export interface KrLayerSpec {
   key: KrDataKey;
@@ -839,7 +839,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "각 시·군·구 의류수거함 위치 (공공데이터포털 파일데이터 57건)", sourceUrl: "https://www.data.go.kr/tcs/dss/selectDataSetList.do?keyword=%EC%9D%98%EB%A5%98%EC%88%98%EA%B1%B0%ED%95%A8", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W9_FETCHED_AT,
     loading: l3("南韓舊衣回收箱載入中", "Loading South Korea clothing collection bins", "韓国の古着回収ボックスを読み込み中"),
-  },  // ───────────── 第 10 波：動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場、首爾用途地域 ─────────────
+  },  // ───────────── 第 10 波：動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場 ─────────────
   {
     key: "krAnimalHospitals", file: "kr_animal_hospitals.pmtiles", sourceLayer: "kr_animal_hospitals", geom: "point", layerId: "kr-animal-hospitals-circle",
     srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#fb923c", tier: "M", count: 5255,
@@ -964,7 +964,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     ],
     title: { props: [], fallback: l3("民防緊急給水設施", "Civil defence emergency water", "民防緊急給水施設") },
     fields: [{ prop: "facility_type", label: l3("設施類別", "Facility type", "施設区分") }, { prop: "status", label: l3("使用狀態", "Status", "使用状態"), map: { "사용중": l3("使用中", "In use", "使用中") } },
-             { prop: "address", label: l3("地址", "Address", "住所"), kind: "addrBase" }, { prop: "licensed", label: l3("許可日", "Licensed", "許可日") }],
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "licensed", label: l3("許可日", "Licensed", "許可日") }],
     legendNotes: [l3("使用中 5,464 處；停用 5,296 處不收，無座標 321 處未上圖", "5,464 facilities in use; 5,296 decommissioned excluded, 321 without coordinates not shown", "使用中の5,464か所。使用中止5,296か所は除外、座標なし321か所は非表示"),
                   l3("設施名稱不顯示（原資料含私人水井所有人姓名）；地址只顯示到門牌", "Facility names are not shown (the source includes private well owners' names); addresses shown to street number only", "施設名は表示しない（原データに私有井戸の所有者名を含むため）。住所は番地まで")],
     popupNotes: [],
@@ -1020,31 +1020,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 도축업 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/slaughterhouses/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
     loading: l3("南韓屠宰場載入中", "Loading South Korea slaughterhouses", "韓国のと畜場を読み込み中"),
   },
-  {
-    // DISPLAY_ONLY（pulse-data registry/_display_only.yaml）：data.go.kr 註「제3자 권리 포함」，不入分析倉庫
-    key: "krSeoulZoning", file: "kr_seoul_zoning.pmtiles", sourceLayer: "kr_seoul_zoning", geom: "polygon",
-    layerId: "kr-seoul-zoning-fill", outlineId: "kr-seoul-zoning-line",
-    srcMinzoom: 8, srcMaxzoom: 14, minzoom: 8, color: "#facc15", count: 8318,
-    catProp: "zone_group",
-    cats: [
-      { id: "exclusive", values: ["전용주거"], color: "#fde68a", label: l3("專用住宅（전용주거）", "Exclusive residential", "専用住居") },
-      { id: "general", values: ["일반주거"], color: "#facc15", label: l3("一般住宅（일반주거）", "General residential", "一般住居") },
-      { id: "semi", values: ["준주거"], color: "#fb923c", label: l3("準住宅（준주거）", "Semi-residential", "準住居") },
-      { id: "commercial", values: ["상업"], color: "#f43f5e", label: l3("商業（상업）", "Commercial", "商業") },
-      { id: "industrial", values: ["공업"], color: "#a78bfa", label: l3("工業（공업）", "Industrial", "工業") },
-      { id: "green", values: ["녹지"], color: "#22c55e", label: l3("綠地（녹지）", "Green", "緑地") },
-      { id: "etc", values: ["기타"], color: "#64748b", label: l3("其他都市地域（기타）", "Other urban area", "その他の都市地域") },
-    ],
-    title: { props: ["DGM_NM"], fallback: l3("用途地域", "Zoning district", "用途地域") },
-    fields: [{ prop: "zone_group", label: l3("大類", "Group", "大分類") }, { prop: "DGM_AR", label: l3("面積", "Area", "面積"), kind: "num", unit: "m²" },
-             { prop: "WTNNC_SN", label: l3("決定編號", "Decision no.", "決定番号"), kind: "code" }, { prop: "CREATE_DAT", label: l3("建立日", "Created", "作成日") }],
-    legendNotes: [l3("只涵蓋首爾（1/16 個市道，示範）；其他市道未涵蓋", "Seoul only (1 of 16 provinces, demonstration); other provinces not covered", "ソウルのみ（16広域のうち1、試行）。他の広域は未収録"),
-                  l3("首爾平台標公共著作物第 1 類（KOGL 1），data.go.kr 註明含第三方權利：本層只做展示，不進分析倉庫", "Seoul's portal marks it KOGL Type 1, but data.go.kr notes third-party rights: display only, not in the analysis warehouse", "ソウル市のポータルは公共ヌリ第1類型だが、data.go.krは第三者の権利を含むと注記。表示のみで分析倉庫には入れない"),
-                  l3("用途地域名照原值（60 多種寫法），大類由本站歸併", "District names are shown as published (60+ spellings); groups are assigned by this site", "用途地域名は原データのまま（60種以上の表記）、大分類は本サイトで集約")],
-    popupNotes: [l3("只做展示，不進分析倉庫（含第三方權利）", "Display only, not in the analysis warehouse (third-party rights)", "表示のみ（第三者の権利を含むため分析倉庫に入れない）")],
-    sourceOrg: "서울특별시 도시계획 용도지역 (서울 열린데이터광장 OA-21136)", sourceUrl: "https://data.seoul.go.kr/dataList/OA-21136/S/65/datasetView.do", license: "공공누리 제1유형（출처표시）；data.go.kr 註「제3자 권리 포함」", fetchedAt: KR_W10_FETCHED_AT,
-    loading: l3("首爾用途地域載入中", "Loading Seoul zoning districts", "ソウルの用途地域を読み込み中"),
-  },
+
 ];
 
 export const KR_SPEC_BY_KEY: Readonly<Record<KrDataKey, KrLayerSpec>> = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, s])) as Record<KrDataKey, KrLayerSpec>;

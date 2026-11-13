@@ -2620,8 +2620,6 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "行政邊界", layers: [fromManifest("krAdminBoundaries")] },
       // 第 6 波：比照台灣「底圖 › 海域界線」（陸域行政界之外的海域法定界線）
       { title: "海域界線", layers: [fromManifest("krTerritorialSea")] },
-      // 第 10 波 C005：首爾用途地域比照台灣 urbanZoning*、日本 jpZoningUseDistricts 的「底圖 › 土地使用分區 Zoning」（DISPLAY_ONLY）
-      { title: "土地使用分區 Zoning", layers: [fromManifest("krSeoulZoning")] },
     ],
   },
   // 第 6 波：人口網格（GHSL），比照台灣、日本「人口社經 › 人口分布」

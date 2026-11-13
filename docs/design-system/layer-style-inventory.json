@@ -18,13 +18,13 @@
   ]
  },
  "summary": {
-  "layerKeys": 1838,
+  "layerKeys": 1837,
   "overlayConfigs": 543,
   "runtimeSublayers": 1031,
   "byResolution": {
    "runtime": 447,
    "static-scan": 312,
-   "unresolved": 168,
+   "unresolved": 167,
    "shared-renderer": 911
   },
   "byGeometry": {
@@ -41,11 +41,11 @@
   "unresolvedReasons": {
    "有渲染檔但無 paint 字面值": 20,
    "Three.js／WebGL CustomLayer": 11,
-   "無 hook／factory（App 掛載或尚無實作）": 137
+   "無 hook／factory（App 掛載或尚無實作）": 136
   },
-  "legendEntries": 1586,
+  "legendEntries": 1585,
   "legendTypes": {
-   "square-swatch": 136,
+   "square-swatch": 135,
    "svg-icon": 55,
    "dot-swatch": 266,
    "gradient+dot-swatch": 83,
@@ -75,7 +75,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 635,
+   "ssr": 634,
    "static": 951
   },
   "legendsWithIssues": 159,
@@ -1093,7 +1093,6 @@
   {"id":"krSchools","members":["krSchools"],"components":["KrDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":10,"paintComparable":false},
   {"id":"krSeniorCenters","members":["krSeniorCenters"],"components":["KrDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":10,"paintComparable":false},
   {"id":"krSeoulSubwayCongestion","members":["krSeoulSubwayCongestion"],"components":["KrDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":false},
-  {"id":"krSeoulZoning","members":["krSeoulZoning"],"components":["KrDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":7,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":7,"paintComparable":false},
   {"id":"krSlaughterhouses","members":["krSlaughterhouses"],"components":["KrDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":false},
   {"id":"krSluiceGates","members":["krSluiceGates"],"components":["KrDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":false},
   {"id":"krSpeedCameras","members":["krSpeedCameras"],"components":["KrDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":12,"paintComparable":false},
@@ -2800,7 +2799,6 @@
   "krSchools": {"label":"學校 Schools","theme":"教育","dataClass":"D","color":"#f59e0b","legend":"krSchools","legendType":"gradient+dot-swatch","popup":"krSchools","params":{"opacity":{"name":"krSchoolsOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"krSchoolsScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useKrSchoolsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "krSeniorCenters": {"label":"敬老堂與里民會館 Senior Centres & Village Halls","theme":"社福長照","dataClass":"D","color":"#a78bfa","legend":"krSeniorCenters","legendType":"gradient+dot-swatch","popup":"krSeniorCenters","params":{"opacity":{"name":"krSeniorCentersOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"krSeniorCentersScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useKrSeniorCentersLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "krSeoulSubwayCongestion": {"label":"首爾地鐵擁擠度 Seoul Subway Congestion","theme":"交通","dataClass":"D","color":"#f97316","legend":"krSeoulSubwayCongestion","legendType":"dot-swatch","popup":"krSeoulSubwayCongestion","params":{"opacity":{"name":"krSeoulSubwayCongestionOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"krSeoulSubwayCongestionScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useKrSeoulSubwayCongestionLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
-  "krSeoulZoning": {"label":"首爾用途地域 Seoul Zoning Districts","theme":"底圖","dataClass":"D","color":"#facc15","legend":"krSeoulZoning","legendType":"square-swatch","popup":"krSeoulZoning","params":{"opacity":{"name":"krSeoulZoningOpacity","default":0.7,"min":0.1,"max":1},"controls":2},"hooks":["useKrSeoulZoningLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "krSlaughterhouses": {"label":"屠宰場 Slaughterhouses","theme":"農業","dataClass":"D","color":"#f87171","legend":"krSlaughterhouses","legendType":"dot-swatch","popup":"krSlaughterhouses","params":{"opacity":{"name":"krSlaughterhousesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"krSlaughterhousesScale","default":1,"min":0.3,"max":3},"controls":2},"hooks":["useKrSlaughterhousesLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "krSluiceGates": {"label":"農業水門 Agricultural Sluice Gates","theme":"水資源","dataClass":"D","color":"#f59e0b","legend":"krSluiceGates","legendType":"dot-swatch","popup":"krSluiceGates","params":{"opacity":{"name":"krSluiceGatesOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"krSluiceGatesScale","default":1,"min":0.3,"max":3},"controls":2},"hooks":["useKrSluiceGatesLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "krSpeedCameras": {"label":"無人交通取締攝影機 Automated Enforcement Cameras","theme":"交通","dataClass":"D","color":"#ef4444","legend":"krSpeedCameras","legendType":"gradient+dot-swatch","popup":"krSpeedCameras","params":{"opacity":{"name":"krSpeedCamerasOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"krSpeedCamerasScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useKrSpeedCamerasLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

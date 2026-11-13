@@ -782,8 +782,6 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）", processing: "CSV WGS84；座標與 시·도不符 2 剔除；代表者姓名與電話排除；PMTiles z0–14", note: "平台標籤；13/16 시·도（首爾、釜山、大邱未涵蓋）" },
   krSlaughterhouses: { theme: "農業", group: "畜牧 Livestock", zh: "屠宰場", alt: "Slaughterhouses", icon: Factory, dataset: "kr_slaughterhouses", topics: ["南韓", "屠宰場", "도축업", "畜牧"],
     description: "南韓營業中屠宰場 111 處（LOCALDATA 도축업）", processing: "LOCALDATA 202 列：剔除歇業／停業 68、無座標 23；EPSG:5174 → 4326；電話、職員數、面積排除；PMTiles z0–14", note: "平台標籤；12/16 시·도（首爾、釜山、大田、世宗未涵蓋）" },
-  krSeoulZoning: { theme: "底圖", group: "土地使用分區 Zoning", zh: "首爾用途地域", alt: "Seoul Zoning Districts", icon: Grid3x3, dataset: "kr_seoul_zoning", topics: ["南韓", "首爾", "用途地域", "용도지역", "都市計畫", "土地使用分區"],
-    description: "首爾用途地域 8,318 面（住宅、商業、工業、綠地等 7 大類）", processing: "SHP EPSG:5174 → 4326；52 個無效面 make_valid、<0.01 m² 碎面 16 剔除；加 zone_group 大類；PMTiles z8–14", note: "KOGL 1，data.go.kr 註含第三方權利；只涵蓋首爾；DISPLAY_ONLY 不入倉" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];
