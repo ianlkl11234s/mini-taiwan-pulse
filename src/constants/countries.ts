@@ -9,7 +9,7 @@
  */
 import { ALL_PRESETS } from "../map/cameraPresets";
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH";
 
 export interface CountryCamera {
   center: [number, number];
@@ -53,6 +53,9 @@ export const CANADA_CAMERA: CountryCamera = { center: [-96, 60], zoom: 3.5, pitc
 
 /** 愛爾蘭（26 郡、31 地方政府；國家全覽 z6，map-layers §3.8 V-1；2026-11-07 愛爾蘭第 0 波）。 */
 export const IRELAND_CAMERA: CountryCamera = { center: [-8.0, 53.4], zoom: 6, pitch: 0, bearing: 0 };
+
+/** 菲律賓（18 region，Batanes 到 Tawi-Tawi；國家全覽 z5，map-layers §3.8 V-1；2026-11-13 菲律賓第 0–1 波）。 */
+export const PHILIPPINES_CAMERA: CountryCamera = { center: [121.8, 12.8], zoom: 5, pitch: 0, bearing: 0 };
 
 /** 全台總覽（同 cameraPresets「全台總覽」；開站預設鏡頭 `DEFAULT_CAMERA` 仍是台北，2026-10-28 使用者要求選台灣時看全台）。 */
 const TAIWAN_CAMERA: CountryCamera = (() => {
@@ -224,6 +227,28 @@ export const COUNTRIES: readonly CountryDef[] = [
       [-10.75, 54.75, -7.47, 54.95],  // Letterkenny、Lifford、Ballybofey（東緣避開 Strabane）
       [-10.75, 54.95, -7.42, 55.05],  // Donegal 北部（東緣避開 Derry）
       [-10.75, 55.05, -6.97, 55.45],  // Inishowen（Buncrana、Moville、Malin Head）、Tory 島（東緣避開 Magilligan）
+    ],
+  },
+  {
+    code: "PH",
+    chip: "PH",
+    labelKey: "country.PH",
+    camera: PHILIPPINES_CAMERA,
+    // 2026-11-13 菲律賓第 0–1 波：外框 116.6–126.9E、4.3–21.2N（不含卡拉延群島）。外框南緣框到沙巴東北角（Sandakan），
+    // 不能只用一個框：依 OCHA COD-AB v03 的 42,048 個 barangay 代表點切矩形（卡拉延以外全中），沙巴、蘇拉威西北端、
+    // 塔勞群島以矩形邊界避開。刻意排除：卡拉延群島（Pag-asa 一帶）、黃岩島（117.76E 15.15N，呂宋矩形西緣 119.5）、
+    // 西菲律賓海與任何海域主張範圍（只判陸地與近岸）。北緣 21.2 以下，與台灣（蘭嶼 22.0N）不相鄰。
+    // 矩形近似：Turtle Islands 西側的 Lihiman、Great Bakkungan 與馬來西亞的 Selingan 等小島交錯，西緣 118.15 以西判不到。
+    bboxes: [
+      [119.5, 12.0, 124.6, 21.2],     // 呂宋、Batanes、民都洛、比科爾（西緣 119.5 避開黃岩島）
+      [117.1, 8.3, 121.2, 12.0],      // 巴拉望、Calamian、Cuyo、Tubbataha（西緣 117.1 避開卡拉延群島）
+      [121.2, 9.0, 126.2, 12.8],      // 米沙鄢（班乃、內格羅斯、宿霧、薄荷、萊特、薩馬）
+      [121.8, 5.8, 126.7, 9.9],       // 民答那峨、Basilan、Siargao（南緣 5.8；東南 Miangas 屬印尼）
+      [125.1, 5.3, 125.6, 5.8],       // Sarangani 群島（Balut；Marore 屬印尼在框外）
+      [119.25, 4.4, 121.8, 6.9],      // 蘇祿群島：Jolo、Tawi-Tawi、Sibutu（西緣 119.25 避開仙本那外島）
+      [118.3, 6.85, 118.65, 7.15],    // Cagayan de Tawi-Tawi（Mapun）
+      [118.15, 6.0, 118.55, 6.35],    // Turtle Islands（Taganak、Baguan；西緣避開 Sandakan 外海的馬來西亞島嶼）
+      [116.9, 7.45, 117.6, 8.3],      // Balabac、Bugsuk、Mangsee（南緣 7.45 避開沙巴 Banggi 島）
     ],
   },
 ];

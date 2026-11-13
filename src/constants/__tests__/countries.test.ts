@@ -127,8 +127,45 @@ describe("countries", () => {
     ["Achill 島", -10.0, 53.96, "IE"],
     ["Inis Mór（Aran）", -9.71, 53.12, "IE"],
     ["Mizen Head", -9.82, 51.45, "IE"],
+    // 菲律賓（2026-11-13 第 0–1 波；FRONTEND_SPEC 城市樣本）
+    ["Manila", 120.9842, 14.5995, "PH"],
+    ["Cebu City", 123.8854, 10.3157, "PH"],
+    ["Davao City", 125.6128, 7.0731, "PH"],
+    ["Basco（Batanes）", 121.9702, 20.4487, "PH"],
+    ["Itbayat", 121.8418, 20.7867, "PH"],
+    ["Jolo（Sulu）", 121.0019, 6.0535, "PH"],
+    ["Bongao（Tawi-Tawi）", 119.7731, 5.0292, "PH"],
+    ["Puerto Princesa", 118.7384, 9.7392, "PH"],
+    ["Balabac", 117.05, 7.98, "PH"],
+    ["Taganak（Turtle Islands）", 118.31, 6.08, "PH"],
+    ["Mapun", 118.52, 6.98, "PH"],
+    ["Sibutu", 119.45, 4.76, "PH"],
+    ["Balut 島", 125.38, 5.4, "PH"],
+    ["Laoag", 120.59, 18.2, "PH"],
+    ["Catarman", 124.64, 12.5, "PH"],
   ] as const)("%s → %s", (_name, lng, lat, code) => {
     expect(countryForPoint(lng, lat)).toBe(code);
+  });
+
+  it.each([
+    ["蘭嶼", 121.548, 22.045],
+    ["高雄", 120.3014, 22.6273],
+    ["Sandakan", 118.073, 5.8402],
+    ["Kota Kinabalu", 116.0735, 5.9804],
+    ["Manado", 124.8421, 1.4748],
+  ] as const)("%s 不判為菲律賓", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).not.toBe("PH");
+  });
+
+  it("菲律賓矩形北緣不超過 21.2、不與台灣矩形重疊", () => {
+    const ph = COUNTRIES.find((c) => c.code === "PH")!.bboxes;
+    const tw = COUNTRIES.find((c) => c.code === "TW")!.bboxes;
+    for (const [w1, s1, e1, n1] of ph) {
+      expect(n1).toBeLessThanOrEqual(21.2);
+      for (const [w2, s2, e2, n2] of tw) {
+        expect(w1 < e2 && w2 < e1 && s1 < n2 && s2 < n1, `PH ${[w1, s1, e1, n1]} × TW ${[w2, s2, e2, n2]}`).toBe(false);
+      }
+    }
   });
 
   it("愛爾蘭矩形與英國（北愛）矩形互不重疊（只可共用邊）", () => {
@@ -189,6 +226,19 @@ describe("countries", () => {
     ["St Peter Port（根西）", -2.54, 49.46],
     ["Alderney", -2.2, 49.71],
     ["Tórshavn（法羅群島）", -6.77, 62.01],
+    ["Kota Kinabalu（馬來西亞）", 116.0735, 5.9804],
+    ["Sandakan（馬來西亞，在菲律賓外框內）", 118.073, 5.8402],
+    ["Kudat（馬來西亞）", 116.84, 6.88],
+    ["Banggi 島北端（馬來西亞）", 117.1, 7.3],
+    ["Semporna（馬來西亞）", 118.61, 4.48],
+    ["Mataking 島（馬來西亞）", 118.95, 4.58],
+    ["Lahad Datu（馬來西亞）", 118.33, 5.03],
+    ["Selingan 島（馬來西亞）", 118.06, 6.18],
+    ["Manado（印尼）", 124.8421, 1.4748],
+    ["Miangas（印尼）", 126.59, 5.56],
+    ["Marore（印尼）", 125.47, 4.73],
+    ["黃岩島", 117.76, 15.15],
+    ["Pag-asa（卡拉延群島）", 114.28, 11.05],
     ["太平洋", 150, 20],
   ] as const)("%s 不屬於任何國家（鄰國或爭議海域）", (_name, lng, lat) => {
     expect(countryForPoint(lng, lat)).toBeUndefined();

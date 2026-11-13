@@ -1807,5 +1807,15 @@
   "layer.iOceanSightings": "iOcean 海洋生物目撃",
   "layer.iOceanFishing": "iOcean 釣果報告",
   "layer.fireworksSites": "花火製造・貯蔵場所",
-  "layer.vehicleInspectionOffices": "監理所・監理站と管轄区域"
+  "layer.vehicleInspectionOffices": "監理所・監理站と管轄区域",
+  "layer.phAdminBoundaries": "行政区域界（フィリピン）",
+  "layer.phPopulation": "人口密度（フィリピン、2024 年国勢調査）",
+  "layer.phTransportHubs": "空港・港（フィリピン）",
+  "layer.phStations": "鉄道駅・フェリーターミナル（フィリピン）",
+  "layer.phMajorRoads": "主要道路・鉄道（フィリピン）",
+  "layer.phPowerPlants": "発電所（フィリピン）",
+  "layer.phPowerGrid": "送電線・変電所（フィリピン）",
+  "layer.phRenewables": "家庭用太陽光補助・オフグリッドマイクログリッド（フィリピン）",
+  "layer.phFuelStations": "ガソリンスタンド（フィリピン）",
+  "layer.phPipelines": "パイプライン・貯蔵タンク（フィリピン）"
 }

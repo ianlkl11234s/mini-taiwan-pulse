@@ -630,6 +630,16 @@ for f in \
   public/world/ie_planning_applications.pmtiles \
   public/world/ie_noise_maps_lden.pmtiles \
   public/world/ie_noise_maps_lnight.pmtiles \
+  public/world/ph_admin_boundaries.pmtiles \
+  public/world/ph_population.pmtiles \
+  public/world/ph_transport_hubs.pmtiles \
+  public/world/ph_stations.pmtiles \
+  public/world/ph_major_roads.pmtiles \
+  public/world/ph_power_plants.pmtiles \
+  public/world/ph_power_grid.pmtiles \
+  public/world/ph_renewables.pmtiles \
+  public/world/ph_fuel_stations.pmtiles \
+  public/world/ph_pipelines.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \
