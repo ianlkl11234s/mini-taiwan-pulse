@@ -98,7 +98,8 @@ export interface PhPart {
   /** layer id（literal；gisClickRegistry 以此比對） */
   id: string;
   sourceLayer: string;
-  geom: "point" | "line";
+  /** fill＝面（越南安江工業群；2026-11-13 起） */
+  geom: "point" | "line" | "fill";
   minzoom: number;
   cat: PhCatGetter;
   /** 固定 filter（例：只畫電纜、排除卡拉延群島的點） */
@@ -110,10 +111,13 @@ export interface PhPart {
   lineWidth?: Readonly<Record<string, readonly [number, number]>>;
   /** 點描邊編碼：符合條件者白框 2px（例：Climate TRACE 補缺） */
   ring?: { when: Expr; js: (p: Record<string, unknown>) => boolean; label: L3 };
+  /** 點用小號半徑（S；密集點、附屬設施） */
+  small?: boolean;
 }
 export interface PhNote { text: L3; /** 只在符合條件的 feature 顯示 */ when?: (p: Record<string, unknown>) => boolean }
-export interface PhLayerSpec {
-  key: PhDataKey;
+/** `K`：圖層 key 型別（越南等他國重用本引擎時放寬，2026-11-13）。 */
+export interface PhLayerSpec<K extends string = PhDataKey> {
+  key: K;
   file: string;
   sourceId: string;
   srcMinzoom: number;
@@ -126,6 +130,8 @@ export interface PhLayerSpec {
   otherLabel?: L3;
   /** 圖例標題後綴（例：C090「補助安裝地點，非全國光電」） */
   legendTitleNote?: L3;
+  /** 虛線子圖層的圖例文字（省略＝「地下、海底電纜」） */
+  dashLabel?: L3;
   sizeLegend?: readonly PhSizeBands[];
   title: { props: readonly string[]; fallback: L3; fallbackBy?: { prop: string; map: Readonly<Record<string, L3>> } };
   fields: readonly PhField[];
@@ -512,14 +518,14 @@ export const PH_SPEC_BY_KEY: Readonly<Record<PhDataKey, PhLayerSpec>> = Object.f
 /** 多選「其他」選項的固定 id（有 `otherLabel` 的層才有）。 */
 export const PH_CAT_OTHER_ID = "other_brand";
 /** 類別多選選項 id（宣告順序＝bitmask；有 `otherLabel` 者最後加「其他」）。 */
-export const phCatOptionIds = (spec: Pick<PhLayerSpec, "cats" | "otherLabel">): string[] =>
+export const phCatOptionIds = (spec: Pick<PhLayerSpec<string>, "cats" | "otherLabel">): string[] =>
   [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [PH_CAT_OTHER_ID] : [])];
 /** 類別多選選項（zh 標籤；layerParamsSpec 用）。 */
-export const phCatOptions = (spec: PhLayerSpec): { value: string; label: string }[] =>
+export const phCatOptions = (spec: PhLayerSpec<string>): { value: string; label: string }[] =>
   [...spec.cats.map((c) => ({ value: c.id, label: c.label.zh })), ...(spec.otherLabel ? [{ value: PH_CAT_OTHER_ID, label: spec.otherLabel.zh }] : [])];
 
 /** feature 屬於哪個類別（popup 配色）；不屬於任何已列類別回 undefined。 */
-export function phCatOf(spec: PhLayerSpec, props: Record<string, unknown>): PhCat | undefined {
+export function phCatOf(spec: PhLayerSpec<string>, props: Record<string, unknown>): PhCat | undefined {
   for (const part of spec.parts) {
     const v = part.cat.js(props);
     const hit = spec.cats.find((c) => (!c.parts || c.parts.includes(part.id)) && c.values.includes(v));
