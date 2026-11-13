@@ -3054,6 +3054,17 @@ export default function App() {
               />
             </div>
           )}
+
+          {/* 衛星百科卡：手機沒有主控台面板（open 固定 false，不提供入口），
+              但地圖衛星 popup 的「查看衛星百科」要能開卡（VP-2：原本按了沒反應） */}
+          <SatelliteConsole
+            maneuvers={satManeuvers}
+            open={false}
+            onClose={() => satelliteConsoleStore.setOpen(false)}
+            layerVisibility={layerVisibility}
+            setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
+            isDarkTheme={isDarkTheme}
+          />
         </>
       )}
 

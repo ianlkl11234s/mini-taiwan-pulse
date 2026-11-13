@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { MapboxGeoJSONFeature, PointLike } from "mapbox-gl";
-import { gisHitTarget, queryStatisticsHits } from "../statisticsClickHit";
+import { EXACT_POINT_HIT_TYPES, gisHitTarget, queryStatisticsHits } from "../statisticsClickHit";
+import { GIS_LAYERS } from "../gisClickRegistry";
 
 // 模擬低縮放的大邱：點擊點落在 중구，但 ±5px 框同時碰到 달서구 等鄰區，且 Mapbox 回傳鄰區在前。
 const feature = (name: string, layer: string) => ({ properties: { area_name: name }, layer: { id: layer } }) as unknown as MapboxGeoJSONFeature;
@@ -57,7 +58,34 @@ describe("gisHitTarget（一般點擊登記的小格網面只查點擊點）", (
     expect(gisHitTarget("jpAccommodationDensity", point, bbox)).toBe(point);
   });
 
+  it("日本醫療圈：只查點擊點，z8 不會顯示鄰圈（VP-15）", () => {
+    for (const type of ["jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary"]) {
+      expect(gisHitTarget(type, point, bbox), type).toBe(point);
+    }
+  });
+
+  it("同型小格網（純面）只查點擊點", () => {
+    for (const type of [
+      "popCount", "h3Population", "indicators", "socioeconomic", "spatialEconomy", "youbikeFullness",
+      "jpPopulationMesh1km", "caPopulationGrid", "urbanFormGrid", "temperatureGrid", "transitReachGrid", "noiseCaptureGrid",
+    ]) {
+      expect(gisHitTarget(type, point, bbox), type).toBe(point);
+    }
+  });
+
   it("其他點位圖層保留 ±5px 容錯框", () => {
     expect(gisHitTarget("krPoliceBoxes", point, bbox)).toBe(bbox);
+    // TEDS 同一筆登記混了點源工廠 circle → 保留容錯框
+    expect(gisHitTarget("tedsGridEmissions", point, bbox)).toBe(bbox);
+  });
+
+  it("只查點擊點的 layerType，其點擊登記只含面（fill／extrusion）或格線 outline，沒有點圖層", () => {
+    for (const type of EXACT_POINT_HIT_TYPES) {
+      const entries = GIS_LAYERS.filter((entry) => entry.type === type);
+      expect(entries.length, `${type} 有點擊登記`).toBeGreaterThan(0);
+      for (const id of entries.flatMap((entry) => entry.layers)) {
+        expect(id, `${type}: ${id}`).toMatch(/-(fill|ext|outline)$/);
+      }
+    }
   });
 });
