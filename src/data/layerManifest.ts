@@ -1033,7 +1033,7 @@ const VN_DATA_ENTRY_META: Record<VnDataKey, { theme: string; group: string; zh: 
   vnOilGas: { theme: "能源", group: "石化 · 油氣", zh: "油氣設施", alt: "Oil & Gas Facilities", icon: Spline, dataset: "vn_oil_gas", topics: ["越南", "能源", "油氣", "LNG", "管線", "煉油廠", "儲槽", "GEM", "OSM"],
     description: "越南 LNG 接收站 33、煤炭碼頭 5、油氣管線 12（GEM，含提案與取消）＋煉油廠 2、儲槽 75、天然氣管線 65（OSM）", processing: "GEM GGIT／GOIT／Coal Terminals 濾越南；OSM 煉油廠、儲槽、管線；GEM 與 OSM 分兩支 PMTiles", note: "CC BY 4.0（GEM）；OSM ODbL；GEM 狀態含提案、取消（狀態篩選）" },
   vnEnvisoftStations: { theme: "環境氣候", group: "環境監測站", zh: "環境自動監測站位置", alt: "Environmental Monitoring Stations", icon: Activity, dataset: "vn_envisoft_stations", topics: ["越南", "環境", "空氣品質", "水質", "排放", "監測站", "envisoft"],
-    description: "越南環境自動監測站 2,178 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）", processing: "envisoft.gov.vn 站點清單 → 4326；站名後綴判定類型；34 省空間判定；PMTiles stations z4–14", note: "來源 envisoft.gov.vn，授權未明示；只上位置、不上數值（使用者 2026-11-10）" },
+    description: "越南環境自動監測站 2,177 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）", processing: "envisoft.gov.vn 站點清單 → 4326；站名後綴判定類型；34 省空間判定；PMTiles stations z4–14", note: "來源 envisoft.gov.vn，授權未明示；只上位置、不上數值（使用者 2026-11-10）" },
   vnAngiangDemo: { theme: "工商登記", group: "安江示範", zh: "安江工業群與避洪居民點", alt: "An Giang Industrial Clusters & Flood Resettlement", icon: Building2, dataset: "vn_angiang_demo", topics: ["越南", "安江", "工業群", "避洪", "示範"],
     description: "越南安江省工業群 13 處（面）＋避洪居民點 59 處（只涵蓋安江省，原堅江範圍）", processing: "安江省開放資料入口 GIS 圖層 → 4326；行政代碼為舊制、不換算新社；PMTiles industrial_clusters、flood_resettlement z6–14", note: "授權未明示；只涵蓋安江省，其他 33 省是未涵蓋" },
 };

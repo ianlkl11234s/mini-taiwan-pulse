@@ -651,9 +651,9 @@ for f in \
   public/world/vn_renewables_osm.pmtiles \
   public/world/vn_power_grid.pmtiles \
   public/world/vn_fuel_stations.pmtiles \
-  public/world/vn_oil_gas_gem.pmtiles \
+  public/world/vn_oil_gas_gem_v2.pmtiles \
   public/world/vn_oil_gas_osm.pmtiles \
-  public/world/vn_envisoft_stations.pmtiles \
+  public/world/vn_envisoft_stations_v2.pmtiles \
   public/world/vn_angiang_demo.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \

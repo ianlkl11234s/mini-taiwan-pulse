@@ -2977,6 +2977,7 @@
     {
       "layers": [
         "vn-angiang-flood-circle",
+        "vn-angiang-clusters-outline",
         "vn-angiang-clusters-fill"
       ],
       "type": "vnAngiangDemo"

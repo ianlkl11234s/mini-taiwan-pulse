@@ -595,7 +595,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["vn-fuel-stations-circle"], type: "vnFuelStations" },
   { layers: ["vn-lng-terminals-circle", "vn-coal-terminals-circle", "vn-refineries-circle", "vn-tanks-circle", "vn-pipelines-gem-line", "vn-pipelines-osm-line"], type: "vnOilGas" },
   { layers: ["vn-envisoft-stations-circle"], type: "vnEnvisoftStations" },
-  { layers: ["vn-angiang-flood-circle", "vn-angiang-clusters-fill"], type: "vnAngiangDemo" },
+  { layers: ["vn-angiang-flood-circle", "vn-angiang-clusters-outline", "vn-angiang-clusters-fill"], type: "vnAngiangDemo" },
   { layers: ["vn-major-roads-line", "vn-major-rail-line", "vn-major-rail-construction-line"], type: "vnMajorRoads" },
   { layers: ["vn-population-province-fill"], type: "vnPopulation" },
   { layers: ["vn-admin-province-fill"], type: "vnAdminBoundaries" },

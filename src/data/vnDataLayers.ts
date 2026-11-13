@@ -176,8 +176,9 @@ const KV_CATS: readonly PhCat[] = [
   { id: "kv500", values: [">=500"], color: "#1AB6D9", label: l3("500 kV 以上", "500 kV and above", "500 kV 以上") },
   { id: "kv220", values: ["220-499"], color: "#62D9AD", label: l3("220–499 kV", "220–499 kV", "220–499 kV") },
   { id: "kv110", values: ["110-219"], color: "#c084fc", label: l3("110–219 kV", "110–219 kV", "110–219 kV") },
-  { id: "kvlt110", values: ["<110"], color: "#7c8a99", label: l3("110 kV 以下", "Below 110 kV", "110 kV 未満") },
-  { id: "unknown", values: ["unknown"], color: "#DFE0DC", label: l3("電壓未標", "Voltage not tagged", "電圧未記載") },
+  // 110 kV 以下用 C-5 類別色的琥珀（與青、綠、紫三級分得開）；未標電壓用 C-5 中性灰（不是一個電壓等級）
+  { id: "kvlt110", values: ["<110"], color: "#ffa41b", label: l3("110 kV 以下", "Below 110 kV", "110 kV 未満") },
+  { id: "unknown", values: ["unknown"], color: "#94a3b8", label: l3("電壓未標", "Voltage not tagged", "電圧未記載") },
 ];
 const KV_WIDTH: Record<string, readonly [number, number]> = { ">=500": [2, 3.5], "220-499": [1.5, 2.8], "110-219": [1, 2], "<110": [0.5, 1], unknown: [0.5, 1] };
 
@@ -218,9 +219,9 @@ const ANGIANG_STATUS: Record<string, L3> = {
   chuaxd: l3("尚未興建", "Not yet built", "未着工"), dangxd: l3("興建中", "Under construction", "建設中"), hoatdong: l3("已營運", "Operating", "稼働中"),
 };
 const ANGIANG_CATS: readonly PhCat[] = [
-  { id: "hoatdong", values: ["hoatdong"], color: "#f97316", parts: ["vn-angiang-clusters-fill"], label: l3("工業群：已營運", "Industrial cluster: operating", "工業団地：稼働中") },
-  { id: "dangxd", values: ["dangxd"], color: "#facc15", parts: ["vn-angiang-clusters-fill"], label: l3("工業群：興建中", "Industrial cluster: under construction", "工業団地：建設中") },
-  { id: "chuaxd", values: ["chuaxd"], color: "#94a3b8", parts: ["vn-angiang-clusters-fill"], label: l3("工業群：尚未興建", "Industrial cluster: not yet built", "工業団地：未着工") },
+  { id: "hoatdong", values: ["hoatdong"], color: "#f97316", parts: ["vn-angiang-clusters-fill", "vn-angiang-clusters-outline"], label: l3("工業群：已營運", "Industrial cluster: operating", "工業団地：稼働中") },
+  { id: "dangxd", values: ["dangxd"], color: "#facc15", parts: ["vn-angiang-clusters-fill", "vn-angiang-clusters-outline"], label: l3("工業群：興建中", "Industrial cluster: under construction", "工業団地：建設中") },
+  { id: "chuaxd", values: ["chuaxd"], color: "#94a3b8", parts: ["vn-angiang-clusters-fill", "vn-angiang-clusters-outline"], label: l3("工業群：尚未興建", "Industrial cluster: not yet built", "工業団地：未着工") },
   { id: "flood", values: ["angiang_opendata"], color: "#38bdf8", parts: ["vn-angiang-flood-circle"], label: l3("避洪居民點", "Flood resettlement site", "洪水避難居住地") },
 ];
 
@@ -290,7 +291,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       { id: "vn-major-rail-construction-line", sourceLayer: "rail", geom: "line", minzoom: 4, cat: propGetter("status"), filter: ["==", ["get", "status"], "construction"], lineWidth: { construction: [1, 2] }, dashed: true },
     ],
     cats: ROAD_CATS,
-    dashLabel: l3("虛線：興建中鐵道", "Dashed: railway under construction", "破線：建設中の鉄道"),
+    dashLabel: null, // 興建中鐵道已有自己的分類列（虛線色票），不再多一列虛線說明
     title: { props: ["name", "ref", "name_en"], fallback: l3("道路、鐵道", "Road / railway", "道路・鉄道"), fallbackBy: { prop: "rail_type", map: RAIL_TYPE_MAP } },
     fields: [
       { prop: "ref", label: l3("路線編號", "Route number", "路線番号"), kind: "code" },
@@ -409,7 +410,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     loading: l3("越南加油站載入中", "Loading Vietnam fuel stations", "ベトナムのガソリンスタンドを読み込み中"),
   },
   {
-    key: "vnOilGas", file: "vn_oil_gas_gem.pmtiles", sourceId: "vn-oil-gas-gem", srcMinzoom: 3, srcMaxzoom: 14, color: "#f97316", count: 192,
+    key: "vnOilGas", file: "vn_oil_gas_gem_v2.pmtiles", sourceId: "vn-oil-gas-gem", srcMinzoom: 3, srcMaxzoom: 14, color: "#f97316", count: 192,
     parts: [
       { id: "vn-pipelines-gem-line", sourceLayer: "pipelines_gem", geom: "line", minzoom: 3, cat: propGetter("kind"), lineWidth: { gas: [1.5, 2.5], oil: [1.5, 2.5] } },
       { id: "vn-lng-terminals-circle", sourceLayer: "lng_terminals", geom: "point", minzoom: 3, cat: propGetter("source") },
@@ -445,7 +446,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       PROVINCE_FIELD,
     ],
     legendNotes: [
-      l3("GEM：LNG 接收站 33（提案 20、取消 8）、煤炭碼頭 5、管線 12；預設顯示運轉中、興建中、提案，擱置與取消在「狀態」篩選", "GEM: 33 LNG terminals (20 proposed, 8 cancelled), 5 coal terminals, 12 pipelines; operating, under construction and proposed shown by default, shelved and cancelled in the status filter", "GEM：LNG 基地 33（提案 20・中止 8）、石炭ターミナル 5、パイプライン 12。既定は運転中・建設中・提案、保留と中止は「状態」で表示"),
+      l3("GEM：LNG 接收站 33（提案 20、取消 8；1 筆取消案上游座標錯誤，不畫）、煤炭碼頭 5、管線 12；預設顯示運轉中、興建中、提案，擱置與取消在「狀態」篩選", "GEM: 33 LNG terminals (20 proposed, 8 cancelled; 1 cancelled with a wrong upstream coordinate is not drawn), 5 coal terminals, 12 pipelines; operating, under construction and proposed shown by default, shelved and cancelled in the status filter", "GEM：LNG 基地 33（提案 20・中止 8。中止 1 件は上流座標の誤りで描画しない）、石炭ターミナル 5、パイプライン 12。既定は運転中・建設中・提案、保留と中止は「状態」で表示"),
       l3("OSM：煉油廠 2、油氣儲槽 75、天然氣管線 65（ODbL）", "OSM: 2 refineries, 75 oil/gas storage tanks, 65 gas pipelines (ODbL)", "OSM：製油所 2・石油ガス貯蔵タンク 75・ガスパイプライン 65（ODbL）"),
       COVERAGE_NOTE(18),
     ],
@@ -455,7 +456,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     loading: l3("越南油氣設施載入中", "Loading Vietnam oil & gas facilities", "ベトナムの石油・ガス施設を読み込み中"),
   },
   {
-    key: "vnEnvisoftStations", file: "vn_envisoft_stations.pmtiles", sourceId: "vn-envisoft-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#a78bfa", count: 2178,
+    key: "vnEnvisoftStations", file: "vn_envisoft_stations_v2.pmtiles", sourceId: "vn-envisoft-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#a78bfa", count: 2177,
     parts: [{ id: "vn-envisoft-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: propGetter("station_type") }],
     cats: ENVISOFT_CATS,
     otherColor: "#94a3b8",
@@ -469,7 +470,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     ],
     legendNotes: [
       l3("只有站點位置，沒有任何監測數值", "Station locations only, no measurements", "局の位置のみで、測定値は含まない"),
-      l3("2,178 站：廢水排放口 1,044、煙道 822、空品 147、地面水 144、海水 17；類型由站名後綴判定", "2,178 stations: 1,044 wastewater discharge, 822 stack, 147 air, 144 surface water, 17 sea water; type from the station-name suffix", "2,178 局：排水口 1,044・煙突 822・大気 147・地表水 144・海水 17。種別は局名の接尾辞で判定"),
+      l3("2,177 站：廢水排放口 1,043、煙道 822、空品 147、地面水 144、海水 17；類型由站名後綴判定；另 1 站上游座標錯誤（落在別省），不畫", "2,177 stations: 1,043 wastewater discharge, 822 stack, 147 air, 144 surface water, 17 sea water; type from the station-name suffix; 1 more station with a wrong upstream coordinate is not drawn", "2,177 局：排水口 1,043・煙突 822・大気 147・地表水 144・海水 17。種別は局名の接尾辞で判定。上流座標の誤り 1 局は描画しない"),
       VN_ENVISOFT_NOTE,
       COVERAGE_NOTE(33),
     ],
@@ -481,6 +482,8 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     key: "vnAngiangDemo", file: "vn_angiang_demo.pmtiles", sourceId: "vn-angiang-demo", srcMinzoom: 6, srcMaxzoom: 14, color: "#f97316", count: 72,
     parts: [
       { id: "vn-angiang-clusters-fill", sourceLayer: "industrial_clusters", geom: "fill", minzoom: 6, cat: propGetter("status_code") },
+      // 工業群面積多在 1 km² 以下，z8 只剩小點：加同色外框，低縮放（z10 以下）2.5 px，放大後收到 1.5 px
+      { id: "vn-angiang-clusters-outline", sourceLayer: "industrial_clusters", geom: "line", minzoom: 6, cat: propGetter("status_code"), lineWidth: { hoatdong: [2.5, 1.5], dangxd: [2.5, 1.5], chuaxd: [2.5, 1.5] } },
       { id: "vn-angiang-flood-circle", sourceLayer: "flood_resettlement", geom: "point", minzoom: 6, cat: propGetter("source") },
     ],
     cats: ANGIANG_CATS,

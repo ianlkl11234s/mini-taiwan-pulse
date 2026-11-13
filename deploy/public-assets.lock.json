@@ -4274,11 +4274,11 @@
    "s3_key": "deploy-assets/world/vn_angiang_demo.pmtiles"
   },
   {
-   "path": "public/world/vn_envisoft_stations.pmtiles",
-   "bytes": 2692666,
-   "sha256": "af76c2a831a0021df42b3c96a996b670fb790dd9b3d636c69bb5b1403cd5f8f7",
+   "path": "public/world/vn_envisoft_stations_v2.pmtiles",
+   "bytes": 2691857,
+   "sha256": "13f087e5577d1a4fd12f69355419081902b6c716684c99c49e49776a2a132bd4",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_envisoft_stations.pmtiles"
+   "s3_key": "deploy-assets/world/vn_envisoft_stations_v2.pmtiles"
   },
   {
    "path": "public/world/vn_fuel_stations.pmtiles",
@@ -4295,11 +4295,11 @@
    "s3_key": "deploy-assets/world/vn_major_roads.pmtiles"
   },
   {
-   "path": "public/world/vn_oil_gas_gem.pmtiles",
-   "bytes": 653630,
-   "sha256": "befcc2db7d014c79af8efba2f172c22d1df4488440584950a3d9d2ab8d602269",
+   "path": "public/world/vn_oil_gas_gem_v2.pmtiles",
+   "bytes": 650326,
+   "sha256": "3086327d48a8d4dc9dba3a559d31186cde65c2ca0b37a50d0e159ec83951e117",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_oil_gas_gem.pmtiles"
+   "s3_key": "deploy-assets/world/vn_oil_gas_gem_v2.pmtiles"
   },
   {
    "path": "public/world/vn_oil_gas_osm.pmtiles",

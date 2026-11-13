@@ -130,8 +130,8 @@ export interface PhLayerSpec<K extends string = PhDataKey> {
   otherLabel?: L3;
   /** 圖例標題後綴（例：C090「補助安裝地點，非全國光電」） */
   legendTitleNote?: L3;
-  /** 虛線子圖層的圖例文字（省略＝「地下、海底電纜」） */
-  dashLabel?: L3;
+  /** 虛線子圖層的圖例文字（省略＝「地下、海底電纜」；null＝虛線已有自己的分類列，不另列） */
+  dashLabel?: L3 | null;
   sizeLegend?: readonly PhSizeBands[];
   title: { props: readonly string[]; fallback: L3; fallbackBy?: { prop: string; map: Readonly<Record<string, L3>> } };
   fields: readonly PhField[];

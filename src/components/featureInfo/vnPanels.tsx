@@ -50,7 +50,7 @@ export function VnPopulationPanel({ props }: P) {
     <Title color="#f59e0b">{name || pick({ zh: "省", en: "Province", ja: "省" })}</Title>
     <Row label={pick({ zh: "2025 人口", en: "Population 2025", ja: "2025 年人口" })} value={fmtNum(props.population) || noData} />
     <Row label={pick({ zh: "人口密度", en: "Density", ja: "人口密度" })} value={density ? `${density} ${pick({ zh: "人／km²", en: "people/km²", ja: "人／km²" })}` : noData} />
-    {points.length > 1 ? <TrendChart points={points} color="#f59e0b" unit={pick({ zh: "人口（2011–2025）", en: "Population (2011–2025)", ja: "人口（2011–2025）" })} /> : null}
+    {points.length > 1 ? <TrendChart points={points} color="#f59e0b" leftPad={62} unit={pick({ zh: "人口（2011–2025）", en: "Population (2011–2025)", ja: "人口（2011–2025）" })} /> : null}
     <Row label={pick({ zh: "歷年說明", en: "History note", ja: "経年の注記" })} value={caText(props.history_note)} />
     <SourceFooter props={{ source_org: VN_POPULATION_SOURCE.org, source_url: VN_POPULATION_SOURCE.url, license: VN_POPULATION_SOURCE.license, fetched_at: VN_FETCHED_AT }} />
   </>;

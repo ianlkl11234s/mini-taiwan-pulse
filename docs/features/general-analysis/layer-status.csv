@@ -125,7 +125,7 @@ vnRenewables,"風電、太陽能與充電站 Wind, Solar & EV Charging",VN,越�
 vnPowerGrid,輸電線與變電所 Power Lines & Substations,VN,越南,能源,custom,verified,vn_power_grid,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南輸電線 11,656 段（依電壓分級，電纜虛線）＋變電所 1,431 處（OpenStreetMap）"
 vnFuelStations,加油站 Fuel Stations,VN,越南,能源,custom,verified,vn_fuel_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南加油站 4,902 處（OpenStreetMap；Petrolimex、PVOIL 等品牌分色）"
 vnOilGas,油氣設施 Oil & Gas Facilities,VN,越南,能源,custom,verified,vn_oil_gas,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 LNG 接收站 33、煤炭碼頭 5、油氣管線 12（GEM，含提案與取消）＋煉油廠 2、儲槽 75、天然氣管線 65（OSM）
-vnEnvisoftStations,環境自動監測站位置 Environmental Monitoring Stations,VN,越南,環境氣候,custom,verified,vn_envisoft_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南環境自動監測站 2,178 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）"
+vnEnvisoftStations,環境自動監測站位置 Environmental Monitoring Stations,VN,越南,環境氣候,custom,verified,vn_envisoft_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南環境自動監測站 2,177 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）"
 vnAngiangDemo,安江工業群與避洪居民點 An Giang Industrial Clusters & Flood Resettlement,VN,越南,工商登記,custom,verified,vn_angiang_demo,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南安江省工業群 13 處（面）＋避洪居民點 59 處（只涵蓋安江省，原堅江範圍）
 statsComparisonBusAccessibleSharePct,無障礙公車占營業車比,TW,統計,公共運輸 Public Transport,custom,catalog_missing,comparison_statistics,,,,2025-12-31,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。
 statsComparisonBusElectricSharePct,電動公車占營業車比,TW,統計,公共運輸 Public Transport,custom,catalog_missing,comparison_statistics,,,,2025-12-31,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。
