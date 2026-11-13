@@ -51,7 +51,7 @@ export function JpMedicalCarePanel({ props }: { props: Record<string, unknown> }
 /**
  * 国土数値情報 A38（医療圏 v2.0）屬性定義（KsjTmplt-A38-v2_0）：
  * - 一次 A38a：_002 市区町村名、_004 所屬二次医療圏名
- * - 二次 A38b：_002 該 part 的市区町村名、_004 二次医療圏名、_008 総人口（住民基本台帳）、_011 65才以上人口
+ * - 二次 A38b：_002 圈內市区町村（逗號列出全部，正式資料例：豊島区,北区,板橋区,練馬区）、_004 二次医療圏名、_008 総人口（住民基本台帳）、_011 65才以上人口
  *   人口是整個醫療圈的合計、每個 polygon part 重複附著 → 只顯示、不可加總
  * - 三次 A38c：_001 都道府県名、_002 三次医療圏名（只有北海道分區，其餘為空＝以都道府県為範圍）
  */
@@ -80,7 +80,7 @@ export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> 
     <Title color="#f59e0b">{area?.name || t("popup.jpMedical.areasTitle")}</Title>
     {area?.level === "a" && <Row label={t("popup.jpMedical.secondaryArea")} value={area.s("A38a_004")} />}
     {area?.level === "b" && <>
-      <Row label={t("popup.jpMedical.partMunicipality")} value={area.s("A38b_002")} />
+      <Row label={t("popup.jpMedical.areaMunicipalities")} value={area.s("A38b_002")} />
       <Row label={t("popup.jpMedical.populationTotal")} value={count("A38b_008")} />
       <Row label={t("popup.jpMedical.population65")} value={count("A38b_011")} />
     </>}

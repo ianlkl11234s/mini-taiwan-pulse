@@ -16,7 +16,7 @@
   "popup.jpMedical.geometryGrainText": "來源 polygon part；不可依此加總人口、面積或圈數",
   "popup.jpMedical.sourceFields": "來源欄位",
   "popup.jpMedical.secondaryArea": "所屬二次醫療圈",
-  "popup.jpMedical.partMunicipality": "此區塊所在市區町村",
+  "popup.jpMedical.areaMunicipalities": "圈內市區町村",
   "popup.jpMedical.populationTotal": "醫療圈總人口（住民基本台帳）",
   "popup.jpMedical.population65": "65 歲以上人口（住民基本台帳）",
   "popup.jpMedical.prefecture": "都道府縣"
