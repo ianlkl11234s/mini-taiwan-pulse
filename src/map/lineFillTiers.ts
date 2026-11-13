@@ -315,6 +315,15 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/usePhLayers.ts
   "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/hooks/usePhLayers.ts
   "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/hooks/usePhLayers.ts
+  "cnAdminBoundaries/cn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/hooks/useCnLayers.ts
+  "cnAdminBoundaries/cn-admin-prefecture-line": {"width": "standard", "opacity": "standard"}, // L-5：地級比照鄉鎮市區 · src/hooks/useCnLayers.ts
+  "cnPopulation/cn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useCnLayers.ts
+  "cnPopulation/cn-population-prefecture-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useCnLayers.ts
+  "cnMajorRoads/cn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/useCnLayers.ts
+  "cnMajorRoads/cn-major-rail-line": {"width": "keep", "opacity": "standard"}, // 寬依鐵路類型（高鐵較粗）· src/hooks/useCnLayers.ts
+  "cnPowerGrid/cn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/useCnLayers.ts
+  "cnPipelines/cn-pipelines-line": {"width": "standard", "opacity": "standard"}, // 運轉中實線，依輸送物分色；路線精度低者淡化 · src/hooks/useCnLayers.ts
+  "cnPipelines/cn-pipelines-planned-line": {"width": "standard", "opacity": "standard"}, // 非運轉中虛線 · src/hooks/useCnLayers.ts
 };
 
 export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
@@ -454,6 +463,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "phPopulation/ph-population-province-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
   "phPopulation/ph-population-municipality-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
   "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
+  "cnPopulation/cn-population-province-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/hooks/useCnLayers.ts
+  "cnPopulation/cn-population-prefecture-fill": "graded", // 同上（GHS 模型值）· src/hooks/useCnLayers.ts
 };
 /**
  * 暗底面透明度的個別例外（F-1 暗底，2026-11-10）：值＝暗底預設透明度，取代 FILL_OPACITY_DARK 的階。

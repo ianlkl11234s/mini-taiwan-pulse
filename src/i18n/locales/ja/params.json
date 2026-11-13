@@ -2604,5 +2604,22 @@
   "param.區域（Region，18）": "地方（Region、18）",
   "param.省（Province，82 省＋6 個非省單位）": "州（Province、82 州＋州以外の 6 単位）",
   "param.市鎮（City／Municipality，1,642）": "市・町（City／Municipality、1,642）",
-  "param.村里（Barangay，42,048）": "バランガイ（Barangay、42,048）"
+  "param.村里（Barangay，42,048）": "バランガイ（Barangay、42,048）",
+  "param.直升機場（含水上機場、熱氣球場）": "ヘリポート（水上飛行場・気球場を含む）",
+  "param.港區（OSM）": "港湾区域（OSM）",
+  "param.港灣（OSM，含漁港、遊艇港）": "港（OSM、漁港・マリーナを含む）",
+  "param.國道級幹道（trunk）": "幹線道路（trunk）",
+  "param.窄軌": "狭軌",
+  "param.≥1000 kV（特高壓）": "≥1000 kV（特別高圧）",
+  "param.石油管線": "石油パイプライン",
+  "param.天然氣凝液（NGL）管線": "天然ガス液（NGL）パイプライン",
+  "param.LNG 接收站：運轉中": "LNG 基地：運転中",
+  "param.LNG 接收站：興建中": "LNG 基地：建設中",
+  "param.LNG 接收站：規劃中": "LNG 基地：計画中",
+  "param.LNG 接收站：擱置、取消、退役": "LNG 基地：保留・中止・廃止",
+  "param.省級（31）": "省級（31）",
+  "param.地級（357，含直轄市、省直轄縣級）": "地級（357、直轄市・省直轄県級を含む）",
+  "param.封存": "休止",
+  "param.全部電廠": "すべての発電所",
+  "param.只看再生能源（C090）": "再生可能エネルギーのみ（C090）"
 }

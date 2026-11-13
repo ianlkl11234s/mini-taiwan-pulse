@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1827,
+    "keyCount": 1836,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2914,6 +2914,61 @@
         "ph-admin-region-fill"
       ],
       "type": "phAdminBoundaries"
+    },
+    {
+      "layers": [
+        "cn-airports-circle",
+        "cn-ports-circle"
+      ],
+      "type": "cnTransportHubs"
+    },
+    {
+      "layers": [
+        "cn-power-plants-circle"
+      ],
+      "type": "cnPowerPlants"
+    },
+    {
+      "layers": [
+        "cn-lng-terminals-circle",
+        "cn-pipelines-line",
+        "cn-pipelines-planned-line"
+      ],
+      "type": "cnPipelines"
+    },
+    {
+      "layers": [
+        "cn-power-substations-circle",
+        "cn-power-lines-line"
+      ],
+      "type": "cnPowerGrid"
+    },
+    {
+      "layers": [
+        "cn-bus-stops-circle"
+      ],
+      "type": "cnBusStops"
+    },
+    {
+      "layers": [
+        "cn-major-rail-line",
+        "cn-major-roads-line"
+      ],
+      "type": "cnMajorRoads"
+    },
+    {
+      "layers": [
+        "cn-population-prefecture-fill",
+        "cn-population-province-fill"
+      ],
+      "type": "cnPopulation"
+    },
+    {
+      "layers": [
+        "cn-admin-prefecture-fill",
+        "cn-admin-province-fill"
+      ],
+      "type": "cnAdminBoundaries"
     },
     {
       "layers": [
@@ -118496,6 +118551,530 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnAdminBoundaries": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "省級（31）",
+            "value": "province"
+          },
+          {
+            "label": "地級（357，含直轄市、省直轄縣級）",
+            "value": "prefecture"
+          }
+        ],
+        "type": "select",
+        "value": "province"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "cnBusStops": [
+      {
+        "defaultValue": "BuPu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "BuPu"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnMajorRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（motorway）",
+            "value": "motorway"
+          },
+          {
+            "label": "國道級幹道（trunk）",
+            "value": "trunk"
+          },
+          {
+            "label": "高鐵",
+            "value": "high_speed_rail"
+          },
+          {
+            "label": "鐵路",
+            "value": "rail"
+          },
+          {
+            "label": "地鐵",
+            "value": "subway"
+          },
+          {
+            "label": "輕軌",
+            "value": "light_rail"
+          },
+          {
+            "label": "窄軌",
+            "value": "narrow_gauge"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "trunk",
+          "high_speed_rail",
+          "rail",
+          "subway",
+          "light_rail",
+          "narrow_gauge"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "cnPipelines": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "天然氣管線",
+            "value": "gas"
+          },
+          {
+            "label": "石油管線",
+            "value": "oil"
+          },
+          {
+            "label": "天然氣凝液（NGL）管線",
+            "value": "ngl"
+          },
+          {
+            "label": "LNG 接收站：運轉中",
+            "value": "lng_operating"
+          },
+          {
+            "label": "LNG 接收站：興建中",
+            "value": "lng_construction"
+          },
+          {
+            "label": "LNG 接收站：規劃中",
+            "value": "lng_proposed"
+          },
+          {
+            "label": "LNG 接收站：擱置、取消、退役",
+            "value": "lng_other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "gas",
+          "oil",
+          "ngl",
+          "lng_operating",
+          "lng_construction",
+          "lng_proposed",
+          "lng_other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnPopulation": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "省級（31）",
+            "value": "province"
+          },
+          {
+            "label": "地級（357，含直轄市、省直轄縣級）",
+            "value": "prefecture"
+          }
+        ],
+        "type": "select",
+        "value": "province"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "cnPopulationGrid": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      }
+    ],
+    "cnPowerGrid": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "≥1000 kV（特高壓）",
+            "value": "kv1000"
+          },
+          {
+            "label": "500–999 kV",
+            "value": "kv500"
+          },
+          {
+            "label": "330–499 kV",
+            "value": "kv330"
+          },
+          {
+            "label": "220–329 kV",
+            "value": "kv220"
+          },
+          {
+            "label": "110–219 kV",
+            "value": "kv110"
+          },
+          {
+            "label": "<110 kV",
+            "value": "kvlt110"
+          },
+          {
+            "label": "電壓未知",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv1000",
+          "kv500",
+          "kv330",
+          "kv220",
+          "kv110",
+          "kvlt110",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnPowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃氣",
+            "value": "gas"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "生質能",
+            "value": "bioenergy"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "gas",
+          "oil",
+          "nuclear",
+          "hydro",
+          "bioenergy",
+          "solar",
+          "wind",
+          "geothermal"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction"
+        ]
+      },
+      {
+        "label": "範圍",
+        "options": [
+          {
+            "label": "全部電廠",
+            "value": "all"
+          },
+          {
+            "label": "只看再生能源（C090）",
+            "value": "renewable"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnTransportHubs": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "大型機場",
+            "value": "large"
+          },
+          {
+            "label": "中型機場",
+            "value": "medium"
+          },
+          {
+            "label": "小型機場",
+            "value": "small"
+          },
+          {
+            "label": "直升機場（含水上機場、熱氣球場）",
+            "value": "heliport"
+          },
+          {
+            "label": "港區（OSM）",
+            "value": "port"
+          },
+          {
+            "label": "港灣（OSM，含漁港、遊艇港）",
+            "value": "harbour"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "large",
+          "medium",
+          "small",
+          "heliport",
+          "port",
+          "harbour"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",

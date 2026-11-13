@@ -5,7 +5,7 @@
 // 截圖在 PR）。Mapbox 原生 custom source 由 Mapbox 自己排程、上傳貼圖與處理 globe 投影，
 // 我們只負責把 PMTiles 裡的圖磚位元組解成 ImageBitmap。Mapbox 3.18 沒有 addProtocol，這是不加 server 的原生路徑。
 import type { CustomSourceInterface } from "mapbox-gl";
-import { PMTiles } from "pmtiles";
+import { PMTiles, type Source } from "pmtiles";
 
 export interface PmtilesRasterSourceOptions {
   id: string;
@@ -16,10 +16,12 @@ export interface PmtilesRasterSourceOptions {
   tileSize?: number;
   attribution?: string;
   contentType?: "image/png" | "image/jpeg" | "image/webp";
+  /** 自訂讀取來源（站主限定圖磚：帶授權的 PrivateCoralFetchSource）；不給＝依 url 公開讀取 */
+  source?: Source;
 }
 
 export function pmtilesRasterCustomSource(o: PmtilesRasterSourceOptions): CustomSourceInterface<ImageBitmap> {
-  const archive = new PMTiles(o.url);
+  const archive = new PMTiles(o.source ?? o.url);
   return {
     id: o.id,
     type: "custom",

@@ -40,6 +40,8 @@ import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRIC
 import type { IeDataKey } from "./ieDataKeys";
 import { PH_DATA_SPECS } from "./phDataLayers";
 import type { PhDataKey } from "./phDataKeys";
+import { CN_DATA_SPECS, CN_OWNER_ASSETS } from "./cnDataLayers";
+import type { CnDataKey } from "./cnDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -1012,10 +1014,58 @@ const PH_DATA_MANIFEST_ENTRIES = Object.fromEntries(PH_DATA_SPECS.map((spec) => 
   }];
 })) as Record<PhDataKey, LayerManifestEntry>;
 
+/**
+ * 中國第 0–1 波（2026-11-13）：9 層全部站主限定（使用者 2026-11-10；topics OWNER_ONLY，gis-platform public.gated_layers 同名單）。
+ * 圖磚只在私人 owner-data（同源 `/api/private-research/owner-data/<asset>`），不進公開 CDN；pulse-data 標 DISPLAY_ONLY、不入倉。
+ */
+const CN_OWNER_NOTE = "OWNER_ONLY：使用者 2026-11-10 決定中國圖層先鎖站主限定，公開與否之後再議；不入分析倉庫（DISPLAY_ONLY）";
+const cnPrivateSource = (asset: keyof typeof CN_OWNER_ASSETS, note: string) => ({
+  kind: "custom" as const,
+  note: `Owner-only same-origin Range API /api/private-research/owner-data/${asset}（coral-private sidecar 驗站主 JWT）；${note}`,
+  staticAssets: [`PRIVATE_OWNER_ONLY: ${CN_OWNER_ASSETS[asset]}`],
+});
+const CN_DATA_ENTRY_META: Record<CnDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  cnBusStops: { theme: "交通", group: "場站", zh: "公交站", alt: "Bus Stops", icon: Bus, dataset: "cn_bus_stops", topics: ["中國", "交通", "公車", "公交站"],
+    description: "中國 299 個城市公交站 859,061 處（2024；大小依經過路線數；自治州、盟、地區未涵蓋）", processing: "figshare 28323971（Wang et al. 2024）simplified net stop 檔去重 → 4326；台港澳排除；PMTiles bus_stops z6–11（瘦身：只留 n_lines、prefecture_code）", note: "CC BY 4.0（上游高德、百度地圖 API 條款未另行審視）；地級 291/333" },
+  cnTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "cn_transport_hubs", topics: ["中國", "交通", "機場", "港口", "OurAirports", "OSM"],
+    description: "中國機場 709（OurAirports，有定期航班白框）＋港口 765（OSM 港區、港灣）", processing: "OurAirports CSV 濾 CN、OSM landuse=port／harbour 代表點；南沙島礁 9 處不上圖；PMTiles airports、ports z3–13", note: "Public Domain（機場）＋ODbL 1.0（港口）；內蒙古、青海、寧夏內陸無港口" },
+  cnMajorRoads: { theme: "交通", group: "路網", zh: "主要道路與鐵路", alt: "Major Roads & Railways", icon: Route, dataset: "cn_major_roads", topics: ["中國", "交通", "道路", "高速公路", "鐵路", "高鐵", "OSM"],
+    description: "中國高速公路與國道級幹道 697,980 段＋鐵路 256,080 段（含高鐵、地鐵、輕軌；OpenStreetMap）", processing: "Geofabrik china-261112.osm.pbf 抽 motorway／trunk 與 railway → 台港澳與鄰國裁切；PMTiles roads z4–10、rail z3–10（瘦身：同屬性線段合併、降 maxzoom）", note: "ODbL 1.0；OSM 非官方里程，河南、貴州、雲南稀疏" },
+  cnPowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "cn_power_plants", topics: ["中國", "能源", "電廠", "發電", "燃煤", "太陽能", "風電", "GEM"],
+    description: "中國電廠 31,700 處（Global Energy Monitor 9 種技術；預設運轉中＋興建中；可切只看再生能源 C090 子集）", processing: "GEM 各 tracker xlsx 濾中國 → 依廠合併機組；PMTiles plants z3–9（瘦身：精簡屬性、降 maxzoom，31,700 廠全留）", note: "CC BY 4.0（GEM）；63 筆 TransitionZero 光電 CC BY-NC 4.0（非商用，popup 標示）" },
+  cnPowerGrid: { theme: "能源", group: "電力 · 電網", zh: "輸電線與變電所", alt: "Power Lines & Substations", icon: Zap, dataset: "cn_power_grid", topics: ["中國", "能源", "電網", "輸電線", "變電所", "特高壓", "OSM"],
+    description: "中國輸電線 216,960 段（依電壓 7 級，含特高壓）＋變電所 38,753 處（OpenStreetMap；完整度有限、非官方）", processing: "Geofabrik china-261112.osm.pbf 抽 power=line／cable／substation → 依 voltage 分 kv_class；PMTiles lines z3–10、substations z6–11（瘦身）", note: "ODbL 1.0；電壓未知：線約 29%、變電所約 51%" },
+  cnPipelines: { theme: "能源", group: "石化 · 油氣", zh: "油氣管線與 LNG 接收站", alt: "Oil & Gas Pipelines & LNG Terminals", icon: Spline, dataset: "cn_pipelines", topics: ["中國", "能源", "管線", "天然氣", "石油", "LNG", "GEM"],
+    description: "中國油氣管線 1,124 條（天然氣、石油、NGL；運轉中實線、其他虛線）＋LNG 接收站 152 處（GEM）", processing: "GEM GGIT／GOIT 管線與 LNG terminal 濾中國 → 4326；PMTiles pipelines、lng_terminals z3–10", note: "CC BY 4.0；路線精度低者為示意路線（淡化）" },
+};
+const CN_DATA_MANIFEST_ENTRIES = Object.fromEntries(CN_DATA_SPECS.map((spec) => {
+  const m = CN_DATA_ENTRY_META[spec.key];
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
+  const kinds = [...(spec.cats.length >= 2 ? ["multiSelect"] : []), ...(spec.key === "cnPowerPlants" ? ["multiSelect", "select"] : []), ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "select" | "palette" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "CN", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: `${m.note}；${CN_OWNER_NOTE}` },
+    dataClass: "D",
+    source: cnPrivateSource(spec.asset, `useCnDataLayer；source-layer=${layers}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}`),
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: [...m.topics, "OWNER_ONLY"],
+  }];
+})) as Record<CnDataKey, LayerManifestEntry>;
+
 export const LAYER_MANIFEST = {
   ...KR_DATA_MANIFEST_ENTRIES,
   ...IE_DATA_MANIFEST_ENTRIES,
   ...PH_DATA_MANIFEST_ENTRIES,
+  ...CN_DATA_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
@@ -4947,6 +4997,72 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["select", "slider"] },
     description: "菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）",
     topics: ["菲律賓", "人口", "人口密度", "普查", "PSA", "barangay"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  // 🇨🇳 中國 China（2026-11-13 第 0–1 波，站主限定：C001 行政邊界、C023 人口＋人口網格；其餘 6 層由 CN_DATA_MANIFEST_ENTRIES 派生）
+  // ══════════════════════════════════════════════════════════════
+  cnAdminBoundaries: {
+    key: "cnAdminBoundaries",
+    country: "CN", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cn_admin_boundaries", confidence: "HIGH" }],
+      processing: "OCHA COD-AB China 2020（HDX）省 31、地級 357（332 地級＋4 直轄市＋21 省直轄縣級）接民政部 2024 代碼 → 4326；台港澳面移除，金門、馬祖、澎湖、東沙、太平島、烏坵、大膽二膽依實際管轄屬台灣；PMTiles province z2–10、prefecture z4–11",
+      note: `CC BY-IGO 3.0（幾何，unofficial）；邊界依 OCHA 資料，不代表任何立場；不畫九段線或海域主張線；三沙市無幾何；${CN_OWNER_NOTE}`,
+    },
+    dataClass: "D",
+    source: cnPrivateSource("cn-admin-boundaries", "useCnAdminLayers；source-layer=province／prefecture（select 擇一）"),
+    legend: "cnAdminBoundaries",
+    popup: "cnAdminBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "中國行政區界（省 31、地級 357；OCHA COD-AB，邊界不代表任何立場）",
+    topics: ["中國", "行政區", "邊界", "OWNER_ONLY"],
+  },
+  cnPopulation: {
+    key: "cnPopulation",
+    country: "CN", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口密度", alt: "Population Density", qualifier: "2020 Census／GHS 2025" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cn_population", confidence: "HIGH" }],
+      processing: "國家統計局第七次普查年鉴表 1-1（省 31）＋GHS-POP R2023A E2025 依地級面加總（模型值）→ 人口密度（人／km²）；PMTiles province z2–9、prefecture z4–10",
+      note: `普查：國家統計局網站條款（註明出處）；GHS-POP CC BY 4.0；地級值為模型推估、非統計，縣級未涵蓋；${CN_OWNER_NOTE}`,
+    },
+    dataClass: "D",
+    source: cnPrivateSource("cn-population", "useCnPopulationLayers；source-layer=province／prefecture（select 擇一）"),
+    legend: "cnPopulation",
+    popup: "cnPopulation",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "中國人口密度（省級 2020 普查、地級 GHS 2025 模型值；未涵蓋畫灰）",
+    topics: ["中國", "人口", "人口密度", "普查", "GHS-POP", "OWNER_ONLY"],
+  },
+  cnPopulationGrid: {
+    key: "cnPopulationGrid",
+    country: "CN", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口網格", alt: "Population Grid", qualifier: "GHS-POP 2025" }),
+    expandable: true,
+    color: "#e6550d",
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cn_population", confidence: "HIGH" }],
+      processing: "GHS-POP R2023A E2025 30 arc-sec（約 1 km）裁到 31 省面 → 7 級上色 PNG raster PMTiles z2–8（<1 人／km² 透明）",
+      note: `CC BY 4.0（© European Union，JRC）；模型值，不是普查；沒有 feature 屬性與 popup；${CN_OWNER_NOTE}`,
+    },
+    dataClass: "D",
+    source: cnPrivateSource("cn-population-grid", "useCnPopulationGridLayer（pmtilesRasterCustomSource＋私人 Range 讀取）；minzoom=2 maxzoom=8，插在底圖第一個 symbol 下"),
+    legend: "cnPopulationGrid",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "中國人口網格（GHS-POP 2025 模型值，約 1 km；7 級人口密度）",
+    topics: ["中國", "人口", "人口密度", "網格", "GHS-POP", "OWNER_ONLY"],
   },
   // 🇮🇪 愛爾蘭第 1 波（2026-11-07）：海床地形 raster；其餘 6 層由 IE_DATA_MANIFEST_ENTRIES 派生
   ieBathymetry: {

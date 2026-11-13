@@ -2607,5 +2607,22 @@
   "param.區域（Region，18）": "Region (18)",
   "param.省（Province，82 省＋6 個非省單位）": "Province (82 provinces + 6 non-province units)",
   "param.市鎮（City／Municipality，1,642）": "City / municipality (1,642)",
-  "param.村里（Barangay，42,048）": "Barangay (42,048)"
+  "param.村里（Barangay，42,048）": "Barangay (42,048)",
+  "param.直升機場（含水上機場、熱氣球場）": "Heliport (incl. seaplane base, balloonport)",
+  "param.港區（OSM）": "Port area (OSM)",
+  "param.港灣（OSM，含漁港、遊艇港）": "Harbour (OSM, incl. fishing and marinas)",
+  "param.國道級幹道（trunk）": "Trunk road",
+  "param.窄軌": "Narrow gauge",
+  "param.≥1000 kV（特高壓）": "≥1000 kV (UHV)",
+  "param.石油管線": "Oil pipeline",
+  "param.天然氣凝液（NGL）管線": "Natural gas liquids (NGL) pipeline",
+  "param.LNG 接收站：運轉中": "LNG terminal: operating",
+  "param.LNG 接收站：興建中": "LNG terminal: under construction",
+  "param.LNG 接收站：規劃中": "LNG terminal: proposed",
+  "param.LNG 接收站：擱置、取消、退役": "LNG terminal: shelved, cancelled, retired",
+  "param.省級（31）": "Province level (31)",
+  "param.地級（357，含直轄市、省直轄縣級）": "Prefecture level (357, incl. municipalities and province-administered counties)",
+  "param.封存": "Mothballed",
+  "param.全部電廠": "All power plants",
+  "param.只看再生能源（C090）": "Renewables only (C090)"
 }

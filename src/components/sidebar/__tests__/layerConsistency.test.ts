@@ -256,6 +256,7 @@ const NO_POPUP_LEDGER = new Set([
   "caHillshade",
   // 愛爾蘭第 1 波：INFOMAR 海床地形 raster（已著色 PNG，無 feature 屬性）
   "ieBathymetry",
+  "cnPopulationGrid", // 中國人口網格：已上色 raster，沒有 feature 屬性
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -615,6 +616,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ieAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("PH")].sort()).toEqual(["phAdminBoundaries", "phFuelStations", "phMajorRoads", "phPipelines", "phPopulation", "phPowerGrid", "phPowerPlants", "phRenewables", "phStations", "phTransportHubs"]);
     expect(tw.has("phAdminBoundaries")).toBe(false);
+    expect([...countryLayerKeys("CN")].sort()).toEqual(["cnAdminBoundaries", "cnBusStops", "cnMajorRoads", "cnPipelines", "cnPopulation", "cnPopulationGrid", "cnPowerGrid", "cnPowerPlants", "cnTransportHubs"]);
+    expect(tw.has("cnAdminBoundaries")).toBe(false);
   });
 
   it("日本大分類沿用台灣共用的 5 類（2026-10-26 使用者決定），且與 THEME_MACRO_GROUPS 一致", () => {
