@@ -2,7 +2,7 @@
 import { useSyncExternalStore } from "react";
 import { LEGEND_SWATCH, LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
 import { FireCatRows } from "./legendShared";
-import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_PAST_OPACITY, ELECTION_RING_FILL_OPACITY, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS, type ElectionApproxPrecision } from "../../data/electionEventsTypes";
+import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_GROUP_ICON_SCALE, ELECTION_PAST_OPACITY, ELECTION_RING_FILL_OPACITY, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS, type ElectionApproxPrecision } from "../../data/electionEventsTypes";
 import { electionEventsMetaStore } from "../../data/electionEventsLoader";
 import { ELECTION_GROUP_ICON_COLORS } from "../../map/electionGroupIcon";
 import { FONT_DATA } from "../../styles/designTokens";
@@ -32,7 +32,8 @@ const LEGEND_RING: Record<ElectionApproxPrecision, { r: number; gap: number }> =
   town_centroid: { r: 3, gap: 5.5 },
   city_centroid: { r: 2.5, gap: 7.5 },
 };
-const PRECISION_SWATCH = 22;
+/** 精度示意框：要裝得下放大 ELECTION_GROUP_ICON_SCALE 倍的多場示意（外環半徑 13＋描邊） */
+const PRECISION_SWATCH = 28;
 
 /** 位置精度示意：主點＋精度外環（同地圖 precision 子圖層的填色／描邊透明度） */
 function SwatchPrecision({ precision, color }: { precision: ElectionApproxPrecision | "venue"; color: string }) {
@@ -54,7 +55,7 @@ function SwatchPrecision({ precision, color }: { precision: ElectionApproxPrecis
 /** 同一代表點多場示意：分段外環（兩陣營）＋中心場次數 */
 function SwatchGroup() {
   const c = PRECISION_SWATCH / 2;
-  const R = 10;
+  const R = 10 * ELECTION_GROUP_ICON_SCALE;
   const segs: [string, number][] = [[ELECTION_CAMP_COLOR.kmt, 0.6], [ELECTION_CAMP_COLOR.dpp, 0.4]];
   let a0 = -90;
   const arcs = segs.map(([col, f]) => {
@@ -68,8 +69,8 @@ function SwatchGroup() {
   return (
     <svg aria-hidden="true" width={PRECISION_SWATCH} height={PRECISION_SWATCH} style={{ flexShrink: 0 }}>
       {arcs}
-      <circle cx={c} cy={c} r={6} fill={ELECTION_GROUP_ICON_COLORS.centerFill} stroke={ELECTION_GROUP_ICON_COLORS.centerStroke} />
-      <text x={c} y={c + 3} textAnchor="middle" fontSize={8} fill={ELECTION_GROUP_ICON_COLORS.label} fontFamily={FONT_DATA}>5</text>
+      <circle cx={c} cy={c} r={6 * ELECTION_GROUP_ICON_SCALE} fill={ELECTION_GROUP_ICON_COLORS.centerFill} stroke={ELECTION_GROUP_ICON_COLORS.centerStroke} />
+      <text x={c} y={c + 4} textAnchor="middle" fontSize={8 * ELECTION_GROUP_ICON_SCALE} fill={ELECTION_GROUP_ICON_COLORS.label} fontFamily={FONT_DATA}>5</text>
     </svg>
   );
 }
@@ -77,7 +78,7 @@ function SwatchGroup() {
 /** 同一確切地點多場示意：實心分色圓（陣營比例，不帶精度外環）＋中心場次數（同 electionGroupIcon 的 venue 畫法） */
 function SwatchVenueGroup() {
   const c = PRECISION_SWATCH / 2;
-  const R = 8;
+  const R = 8 * ELECTION_GROUP_ICON_SCALE;
   const segs: [string, number][] = [[ELECTION_CAMP_COLOR.kmt, 0.6], [ELECTION_CAMP_COLOR.dpp, 0.4]];
   let a0 = -90;
   const pt = (d: number) => [c + R * Math.cos((d * Math.PI) / 180), c + R * Math.sin((d * Math.PI) / 180)] as const;
@@ -93,7 +94,7 @@ function SwatchVenueGroup() {
       {wedges}
       <circle cx={c} cy={c} r={R} fill="none" stroke={ELECTION_GROUP_ICON_COLORS.centerFill} strokeWidth={1.2} />
       <circle cx={c} cy={c} r={R * 0.62} fill={ELECTION_GROUP_ICON_COLORS.centerFill} />
-      <text x={c} y={c + 3} textAnchor="middle" fontSize={8} fill={ELECTION_GROUP_ICON_COLORS.label} fontFamily={FONT_DATA}>3</text>
+      <text x={c} y={c + 4} textAnchor="middle" fontSize={8 * ELECTION_GROUP_ICON_SCALE} fill={ELECTION_GROUP_ICON_COLORS.label} fontFamily={FONT_DATA}>3</text>
     </svg>
   );
 }

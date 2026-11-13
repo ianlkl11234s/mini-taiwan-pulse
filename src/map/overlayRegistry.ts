@@ -8,7 +8,7 @@ import {
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { SPREAD_FADE, SPREAD_MINZOOM } from "./electionSpread";
-import { ELECTION_APPROX_PRECISIONS, ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_RING_FILL_OPACITY, ELECTION_RING_OFFSET, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
+import { ELECTION_APPROX_PRECISIONS, ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_GROUP_ICON_SCALE, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_RING_FILL_OPACITY, ELECTION_RING_OFFSET, ELECTION_RING_STROKE, ELECTION_RING_STROKE_OPACITY, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
 import { IE_COILLTE_ATTRIBUTION, IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION, IE_COILLTE_ROADS_MIN_ZOOM, ieCoillteColorExpr, ieCoillteKindFilter } from "../data/ieCoillteTypes";
 import { GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_SOURCE_ID, GB_ENV_HOLLOW_STROKE, GB_POLLUTION_COLOR } from "../data/gbEnvPlanningTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
@@ -3797,7 +3797,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = p?.electionEvents2026Scale ?? 1;
           return {
             "icon-image": ["get", "_img"],
-            "icon-size": ["interpolate", ["linear"], ["zoom"], 6, 0.8 * scale, 12, 1.15 * scale],
+            "icon-size": ["interpolate", ["linear"], ["zoom"], 6, 0.8 * ELECTION_GROUP_ICON_SCALE * scale, 12, 1.15 * ELECTION_GROUP_ICON_SCALE * scale],
             "icon-allow-overlap": true,
             "icon-ignore-placement": true,
             "symbol-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]],
