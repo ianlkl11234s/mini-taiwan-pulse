@@ -12,6 +12,8 @@ import {
 } from "../electionEventsTypes";
 import { buildElectionDisplay, electionCampPredicate } from "../../hooks/useElectionEventsLayer";
 import { isAccessDenied } from "../../lib/layerGates";
+import type { MapboxGeoJSONFeature } from "mapbox-gl";
+import { SPREAD_GAP, pickElectionHits, spreadOffsetOf, spreadLayout } from "../../map/electionSpread";
 
 const RAW = {
   type: "FeatureCollection",
@@ -154,7 +156,7 @@ describe("2026 選舉活動：位置精度（代表點分組）", () => {
 
   it("同精度同座標 2 場以上合成一個 _grp，1 場維持單點；場館點與代表點同座標也不混在一起", () => {
     const out = buildElectionDisplay(fc, t, "all");
-    const singles = out.fc.features.filter((f) => !grp(f)).map((f) => f.properties?.event_id).sort();
+    const singles = out.fc.features.filter((f) => !grp(f) && f.properties?._sp !== 1).map((f) => f.properties?.event_id).sort();
     expect(singles).toEqual(["c1", "s1"]);
     const groups = out.fc.features.filter(grp);
     expect(groups).toHaveLength(2);
@@ -178,6 +180,7 @@ describe("2026 選舉活動：位置精度（代表點分組）", () => {
 
   it("位置篩選：只看確切地點／只看代表點", () => {
     const ids = (location: "exact" | "approx") => buildElectionDisplay(fc, t, "all", { location }).fc.features
+      .filter((f) => f.properties?._sp !== 1)
       .map((f) => (grp(f) ? `grp${f.properties?.n}` : f.properties?.event_id)).sort();
     expect(ids("exact")).toEqual(["grp2"]);
     expect(ids("approx")).toEqual(["c1", "grp3", "s1"]);
@@ -236,7 +239,7 @@ describe("2026 選舉活動：確切地點同座標合成", () => {
 
   it("不同座標不合成；同座標的代表點不併進場館組", () => {
     const out = buildElectionDisplay(fc, t, "all");
-    const singles = out.fc.features.filter((f) => !grp(f)).map((f) => f.properties?.event_id).sort();
+    const singles = out.fc.features.filter((f) => !grp(f) && f.properties?._sp !== 1).map((f) => f.properties?.event_id).sort();
     expect(singles).toEqual(["d", "z"]);
   });
 
@@ -257,6 +260,81 @@ describe("2026 選舉活動：確切地點同座標合成", () => {
     const g = buildElectionDisplay(fc, sec("2026-11-30T00:00:00+08:00"), "all").fc.features.find(grp)!.properties!;
     expect(g._past).toBe(1);
     expect(String(g._img)).toContain("venue-1-");
+  });
+});
+
+describe("2026 選舉活動：確切地點多場拉近展開", () => {
+  const t = sec("2026-11-10T12:00:00+08:00");
+  const at = (id: string, tier: string, coords: number[], extra: Record<string, unknown> = {}) => ({
+    type: "Feature",
+    geometry: { type: "Point", coordinates: coords },
+    properties: { event_id: id, event_name: id, event_date: "2026-11-20", camp: "民主進步黨", scale_tier: tier, location_precision: "address", city: "臺中市", town: "南屯區", ...extra },
+  });
+  const sp = (f: GeoJSON.Feature) => f.properties?._sp === 1;
+
+  it("相鄰兩點相切：中心距≈兩半徑和＋間距（整數 px 取整誤差內）", () => {
+    const radii = [11.25, 5, 5, 5, 5, 5, 5];
+    const off = spreadLayout(radii);
+    for (let i = 0; i < radii.length; i++) {
+      const j = (i + 1) % radii.length;
+      const d = Math.hypot(off[i]![0] - off[j]![0], off[i]![1] - off[j]![1]);
+      expect(d).toBeGreaterThanOrEqual(radii[i]! + radii[j]! + SPREAD_GAP - 1.5);
+      expect(d).toBeLessThanOrEqual(radii[i]! + radii[j]! + SPREAD_GAP + 1.5);
+    }
+  });
+
+  it("一個大點不把整圈撐開：1 大 6 小的圈半徑比 7 個大點小很多", () => {
+    const R = (radii: number[]) => Math.max(...spreadLayout(radii).map(([x, y]) => Math.hypot(x, y)));
+    expect(R([11.25, 5, 5, 5, 5, 5, 5])).toBeLessThan(R(Array(7).fill(11.25)) * 0.65);
+    // 2 場：上下相切
+    expect(spreadLayout([5, 5])).toEqual([[0, -6], [0, 6]]);
+  });
+
+  it("同座標 3 場：輸出 3 個展開點＋合成圖示帶 _spr；位移各不相同、在表內", () => {
+    const { fc } = normalizeElectionEvents({ features: [at("a", "L", [120.6, 24.1]), at("b", "S", [120.6, 24.1]), at("c", "M", [120.6, 24.1])] });
+    const out = buildElectionDisplay(fc, t, "all");
+    const pts = out.fc.features.filter(sp);
+    expect(pts.map((f) => f.properties?.event_id).sort()).toEqual(["a", "b", "c"]);
+    const offs = pts.map((f) => spreadOffsetOf(f.properties));
+    expect(offs.every(Boolean)).toBe(true);
+    expect(new Set(offs.map(String)).size).toBe(3);
+    const g = out.fc.features.find((f) => f.properties?._grp === 1)!.properties!;
+    expect(g._spr).toBe(1);
+    expect(out.dotIcons.size).toBeGreaterThan(0);
+  });
+
+  it("退回規則：超過 8 場不展開；代表點不展開；只剩 1 場沒有展開點", () => {
+    const many = normalizeElectionEvents({ features: Array.from({ length: 9 }, (_, i) => at(`m${i}`, "S", [121, 24])) }).fc;
+    const o9 = buildElectionDisplay(many, t, "all");
+    expect(o9.fc.features.some(sp)).toBe(false);
+    expect(o9.fc.features.find((f) => f.properties?._grp === 1)!.properties!._spr).toBeUndefined();
+    const approx = normalizeElectionEvents({ features: [at("x", "S", [121, 24], { location_precision: "town_centroid" }), at("y", "S", [121, 24], { location_precision: "town_centroid" })] }).fc;
+    expect(buildElectionDisplay(approx, t, "all").fc.features.some(sp)).toBe(false);
+    const one = normalizeElectionEvents({ features: [at("solo", "S", [121, 24])] }).fc;
+    expect(buildElectionDisplay(one, t, "all").fc.features.some(sp)).toBe(false);
+  });
+
+  it("命中：取離游標最近的展開點；z<13 丟掉展開點、z≥13 丟掉已淡出的數字圖示", () => {
+    const mk = (id: string, props: Record<string, unknown>) => ({ type: "Feature", geometry: { type: "Point", coordinates: [0, 0] }, properties: { event_id: id, ...props } }) as unknown as MapboxGeoJSONFeature;
+    const feats = [mk("grp", { _grp: 1, _spr: 1 }), mk("up", { _sp: 1, _dx: 0, _dy: -10 }), mk("down", { _sp: 1, _dx: 0, _dy: 10 })];
+    const map = (z: number) => ({ project: () => ({ x: 100, y: 100 }), getZoom: () => z }) as unknown as Parameters<typeof pickElectionHits>[0];
+    expect(pickElectionHits(map(14), feats, { x: 101, y: 108 }).map((f) => f.properties?.event_id)).toEqual(["down", "up"]);
+    expect(pickElectionHits(map(14), feats, { x: 100, y: 93 })[0]!.properties?.event_id).toBe("up");
+    // 大小滑桿 2 倍：位移也 2 倍
+    expect(pickElectionHits(map(14), feats, { x: 100, y: 121 }, 2)[0]!.properties?.event_id).toBe("down");
+    const pair = [mk("near", { _sp: 1, _dx: 0, _dy: 10 }), mk("far", { _sp: 1, _dx: 0, _dy: 20 })];
+    expect(pickElectionHits(map(14), pair, { x: 100, y: 120 })[0]!.properties?.event_id).toBe("far");
+    expect(pickElectionHits(map(14), pair, { x: 100, y: 120 }, 2)[0]!.properties?.event_id).toBe("near");
+    // 拉遠：數字圖示旁的單點畫在上層、先被查到，但點在數字圖示正中央時要開清單
+    const mkAt = (id: string, xy: [number, number], props: Record<string, unknown>) => ({ type: "Feature", geometry: { type: "Point", coordinates: xy }, properties: { event_id: id, ...props } }) as unknown as MapboxGeoJSONFeature;
+    const proj = { project: ([x, y]: [number, number]) => ({ x: 100 + x, y: 100 + y }), getZoom: () => 12.5 } as unknown as Parameters<typeof pickElectionHits>[0];
+    const zoomedOut = [mkAt("single", [-8, 0], {}), mkAt("grp", [0, 0], { _grp: 1, _spr: 1 })];
+    expect(pickElectionHits(proj, zoomedOut, { x: 100, y: 100 })[0]!.properties?.event_id).toBe("grp");
+    expect(pickElectionHits(proj, zoomedOut, { x: 92, y: 100 })[0]!.properties?.event_id).toBe("single");
+    // 位移不受舊查表 ±32 px 限制
+    expect(spreadOffsetOf({ _dx: 40, _dy: -45 })).toEqual([40, -45]);
+    expect(spreadOffsetOf({ _dx: "1", _dy: 2 })).toBeNull();
+    expect(pickElectionHits(map(12.5), feats, { x: 100, y: 108 }).map((f) => f.properties?.event_id)).toEqual(["grp"]);
   });
 });
 

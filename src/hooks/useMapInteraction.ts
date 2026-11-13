@@ -3,8 +3,10 @@ import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl"
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS, dropHiddenLandUseHex } from "../map/gisClickRegistry";
+import { queryStatisticsHits } from "../map/statisticsClickHit";
 import { requireH3 } from "../map/h3Runtime";
 import { pickTransitReachCell } from "../data/transitReachStore";
+import { pickElectionHits } from "../map/electionSpread";
 import { pickFreewayTdcsCar } from "../data/freewayTdcsSimStore";
 import { pickTransitAccessCell } from "../data/transitAccessStore";
 import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
@@ -422,7 +424,10 @@ export function useMapInteraction(
           if (existingIds.length === 0) continue;
           // Small density cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
           const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" || type === "jpAccommodationDensity" ? e.point : bbox;
-          const queried = map.queryRenderedFeatures(hitTarget, { layers: existingIds });
+          // 統計面以點擊點落在哪個多邊形為準（低縮放時容錯框會先命中鄰區）；比例圓保留容錯框
+          const queried = type === "regionalStatistic"
+            ? queryStatisticsHits(map, e.point, existingIds)
+            : map.queryRenderedFeatures(hitTarget, { layers: existingIds });
           // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
           // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：
           // v4 tile 沒有 observed_at，popup 一律以 dominant hour 去 hydrate，放非 dominant 的
@@ -432,6 +437,11 @@ export function useMapInteraction(
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
           if (type === "landUseChangeMonitoring") features = dropHiddenLandUseHex(queried);
+          if (type === "electionEvents2026") {
+            // 確切地點多場展開後點與點相切：取離游標最近的那一場，並丟掉目前縮放下看不到的數字圖示／展開點
+            const scale = Number(encodeParamsToOverlay(layerParamsStore.getAll()).electionEvents2026Scale ?? 1) || 1;
+            features = pickElectionHits(map, queried, e.point, scale);
+          }
           if (type === "busCrowdingSim") {
             // 命中層與線同 filter（不畫的段點不到）；這裡再防一次。多條路線疊在同一條街時，
             // 優先回答超載比例最高的那條（與 line-sort-key 讓高值畫在上面一致）。

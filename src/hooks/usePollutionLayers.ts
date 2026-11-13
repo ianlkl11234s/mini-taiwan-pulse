@@ -8,6 +8,7 @@ import {
   PENALTY_MOBILE_FILTER,
   type PollutionMedium,
 } from "../data/pollutionTypes";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 環境污染三層的 filter 套用（介質 / 嚴重度 / 年份 / 模式 / 列管中）。
@@ -20,6 +21,8 @@ import {
  * - style.load 後 layer 會重建 → 監聽重新套用（比照 useRealEstateTimeline）。
  * - layer 是開啟圖層後才非同步加入 → 另監聽 styledata 補套（apply 冪等，R5-2）。
  * - 圖層關閉時不需套 filter（overlayManager 已設 visibility none）。
+ * - 分享網址／重新整理還原圖層時，visibility 在 map load 前就是 true，effect 當下 mapRef 還是 null
+ *   而提早 return，之後 deps 不再變 → 從沒掛上 styledata，預設年份不生效。用 useMapReadyTick 在 map 就緒時重跑。
  */
 
 const FACILITY_LAYER = "pollution-facility-circle";
@@ -102,6 +105,10 @@ export function usePollutionLayers(
     siteActiveOnly,
   } = state;
 
+  const anyVisible = visibility.pollutionFacility || visibility.pollutionPenaltyCritical
+    || visibility.pollutionPenaltyGeneral || visibility.pollutionPenaltyMobile || visibility.pollutionSite;
+  const mapTick = useMapReadyTick(mapRef, anyVisible);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -135,6 +142,7 @@ export function usePollutionLayers(
     };
   }, [
     mapRef,
+    mapTick,
     // 圖層開關變動 → layer 會被建立/顯示，需重套 filter
     visibility.pollutionFacility,
     visibility.pollutionPenaltyCritical,

@@ -3,6 +3,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import { timeStore } from "../state/timeStore";
 import { startThrottledRaf } from "../utils/throttledRaf";
 import { hookCategoryFilter } from "../data/categoryFilters";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 新聞事件時間軸動態顯示 + ripple 脈衝動畫
@@ -40,6 +41,8 @@ export function useNewsTimeline(
   catMask?: number,
 ) {
   const rippleReadyRef = useRef(false);
+  // 分享網址還原時 visible 在 map load 前就是 true：mapRef 就緒後要重跑下方 effect，否則時間篩選不會套上
+  const mapTick = useMapReadyTick(mapRef, visible);
 
   /** 確保 ripple layers 存在（style 切換後需重建） */
   const ensureRippleLayers = useCallback((map: MapboxMap): boolean => {
@@ -137,7 +140,7 @@ export function useNewsTimeline(
 
     applyFilter(timeStore.getTime()); // 初始化
     return timeStore.subscribeThrottled(200, applyFilter);
-  }, [visible, timeBased, rippleEnabled, catMask, mapRef]);
+  }, [visible, timeBased, rippleEnabled, catMask, mapRef, mapTick]);
 
   // ── Ripple 動畫 rAF loop ──
   useEffect(() => {
@@ -209,5 +212,5 @@ export function useNewsTimeline(
         map.setLayoutProperty(id, "visibility", v);
       }
     }
-  }, [visible, rippleEnabled, mapRef]);
+  }, [visible, rippleEnabled, mapRef, mapTick]);
 }

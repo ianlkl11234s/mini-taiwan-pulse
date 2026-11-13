@@ -41,5 +41,5 @@
   "legend.politics.council.area": "區域選舉區（外框＋淡填色）",
   "legend.politics.council.noIndigenous": "不含原住民選區（平地／山地原住民選區沒有對應範圍）",
   "legend.politics.council.source": "來源：中選會 A0046 議員選舉區公告（OGDL-1.0），依內政部村里界自建範圍",
-  "legend.politics.precision.venueGroup": "同一確切地點 2 場以上：實心分色圓，中間是場次數"
+  "legend.politics.precision.venueGroup": "同一確切地點 2 場以上：拉遠是實心分色圓＋場次數，拉近（z13 起）展開成各場的點"
 }

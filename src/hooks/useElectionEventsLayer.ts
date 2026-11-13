@@ -34,6 +34,17 @@ import {
   isElectionGroupIconId,
   type ElectionGroupIconSpec,
 } from "../map/electionGroupIcon";
+import { ELECTION_HOLLOW_STATUSES } from "../data/electionEventsTypes";
+import {
+  SPREAD_MAX_N,
+  electionTier,
+  ensureSpreadDotIcon,
+  isSpreadDotIconId,
+  spreadDotIconId,
+  spreadDotRadius,
+  spreadLayout,
+  type SpreadDotSpec,
+} from "../map/electionSpread";
 
 /**
  * 2026 選舉活動（owner-only）資料供應 hook。
@@ -51,6 +62,8 @@ import {
  * - 確切地點（地址／地標／路口）座標完全相同的 2 場以上也合成 `_grp`（2026-11-12：否則只點得到最上面那場）。
  *   key＝`venue|座標`，不分 address／landmark／intersection；座標用原始數值字串，與代表點分組同精度（不四捨五入）。
  *   圖示是不帶精度外環的實心分色圓（precision＝"venue"），和代表點看得出差別。
+ * - 確切地點多場（≤ SPREAD_MAX_N 場）另外輸出各場的展開點（`_sp`＝1，`_ofs`／`_dx`／`_dy`＝螢幕 px 位移），
+ *   overlay 在 z≥13 畫展開點、z<13 畫數字圖示（合成圖徵帶 `_spr`＝1）；排法見 map/electionSpread.ts。
  */
 
 const SOURCE_ID = "election-events-2026";
@@ -118,6 +131,8 @@ export interface ElectionDisplay {
   signature: string;
   /** 本次要用到的多場代表點圖示（id → 畫法） */
   icons: Map<string, ElectionGroupIconSpec>;
+  /** 本次要用到的展開點圖示（id → 畫法；實際圖片另接底圖後綴） */
+  dotIcons: Map<string, SpreadDotSpec>;
 }
 
 /** 同一地點多場的地名：取出現最多次的非空 location_text（同票取先出現者）；都沒有回 null */
@@ -165,6 +180,7 @@ export function buildElectionDisplay(
   }
   const features: GeoJSON.Feature[] = [...venues];
   const icons = new Map<string, ElectionGroupIconSpec>();
+  const dotIcons = new Map<string, SpreadDotSpec>();
   for (const list of groups.values()) {
     if (list.length === 1) { features.push(list[0]!); continue; }
     const counts: Partial<Record<ElectionCampKey, number>> = {};
@@ -181,11 +197,32 @@ export function buildElectionDisplay(
     const events = list
       .map((f) => f.properties ?? {})
       .sort((a, b) => Number(b.start_ts) - Number(a.start_ts));
+    const spread = !approx && list.length <= SPREAD_MAX_N;
+    if (spread) {
+      // 由新到舊從正上方順時針；同一份 events 順序也是清單順序
+      const dots = events.map((e): SpreadDotSpec => ({
+        camp: String(e.camp_key ?? "other") as ElectionCampKey,
+        tier: electionTier(e.scale_tier),
+        past: e._past === 1,
+        hollow: (ELECTION_HOLLOW_STATUSES as readonly unknown[]).includes(e.event_status),
+      }));
+      const offsets = spreadLayout(dots.map((d) => spreadDotRadius(d.tier, d.past)));
+      events.forEach((e, i) => {
+        const id = spreadDotIconId(dots[i]!);
+        dotIcons.set(id, dots[i]!);
+        features.push({
+          type: "Feature",
+          geometry: list[0]!.geometry,
+          properties: { ...e, _sp: 1, _img: id, _ofs: offsets[i]!, _dx: offsets[i]![0], _dy: offsets[i]![1] },
+        });
+      });
+    }
     features.push({
       type: "Feature",
       geometry: list[0]!.geometry,
       properties: {
         _grp: 1,
+        ...(spread ? { _spr: 1 } : {}),
         _img: img,
         _past: allPast ? 1 : 0,
         n: list.length,
@@ -200,7 +237,7 @@ export function buildElectionDisplay(
       },
     });
   }
-  return { fc: { type: "FeatureCollection", features }, signature: sig.join(","), icons };
+  return { fc: { type: "FeatureCollection", features }, signature: sig.join(","), icons, dotIcons };
 }
 
 export function useElectionEventsLayer(
@@ -242,9 +279,15 @@ export function useElectionEventsLayer(
     const camp = electionCampPredicate(campMask);
     // 已畫過的多場圖示（換底圖後 style 清空 image → styleimagemissing 依此重畫）
     const iconSpecs = new Map<string, ElectionGroupIconSpec>();
+    const dotSpecs = new Map<string, SpreadDotSpec>();
     const onMissing = (e: { id: string }) => {
       const spec = iconSpecs.get(e.id);
       if (spec && isElectionGroupIconId(e.id)) ensureElectionGroupIcon(map, e.id, spec);
+      if (isSpreadDotIconId(e.id)) {
+        const base = e.id.replace(/-[dl]$/, "");
+        const dot = dotSpecs.get(base);
+        if (dot) ensureSpreadDotIcon(map, base, dot);
+      }
     };
     map.on("styleimagemissing", onMissing);
     let lastSig: string | null = null;
@@ -255,6 +298,10 @@ export function useElectionEventsLayer(
       for (const [id, spec] of next.icons) {
         iconSpecs.set(id, spec);
         ensureElectionGroupIcon(map, id, spec);
+      }
+      for (const [id, spec] of next.dotIcons) {
+        dotSpecs.set(id, spec);
+        ensureSpreadDotIcon(map, id, spec);
       }
       feed.set(next.fc);
     };

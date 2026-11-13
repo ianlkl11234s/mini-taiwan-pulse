@@ -12,6 +12,8 @@ import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
 import type { FeatureInfo } from "../types";
 import { lastSelectionClick, selectionRingPosition } from "../map/selectionRing";
 import "../map/selectionRing.css";
+import { spreadOffsetOf } from "../map/electionSpread";
+import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
 
 function createRingElement(): HTMLElement {
   const root = document.createElement("div");
@@ -42,11 +44,15 @@ export function useSelectionRing(
       markerRef.current.marker.remove();
       markerRef.current = null;
     }
+    // 選舉活動確切地點多場展開後，各場畫在錨點外的固定 px 位移：外框跟著被點的那場（大小滑桿同 icon-size 等比）
+    const off = featureInfo?.layerType === "electionEvents2026" ? spreadOffsetOf(featureInfo.properties) : null;
+    const scale = off ? Number(encodeParamsToOverlay(layerParamsStore.getAll()).electionEvents2026Scale ?? 1) || 1 : 1;
+    const offset: [number, number] = off ? [off[0] * scale, off[1] * scale] : [0, 0];
     if (markerRef.current) {
-      markerRef.current.marker.setLngLat(position);
+      markerRef.current.marker.setLngLat(position).setOffset(offset);
       return;
     }
-    const marker = new mapboxgl.Marker({ element: createRingElement(), anchor: "center" }).setLngLat(position).addTo(map);
+    const marker = new mapboxgl.Marker({ element: createRingElement(), anchor: "center", offset }).setLngLat(position).addTo(map);
     markerRef.current = { marker, map };
   }, [mapRef, featureInfo]);
 

@@ -41,5 +41,5 @@
   "legend.politics.council.area": "Electoral district (outline + light fill)",
   "legend.politics.council.noIndigenous": "Indigenous constituencies (plains / mountain) are not shown: they have no mapped boundary",
   "legend.politics.council.source": "Source: CEC A0046 council district notice (OGDL-1.0); boundaries built from MOI village boundaries",
-  "legend.politics.precision.venueGroup": "2+ events at one exact venue: solid split circle, number in the middle"
+  "legend.politics.precision.venueGroup": "2+ events at one exact venue: zoomed out, a split circle with the count; from z13, each event as its own dot"
 }
