@@ -1,5 +1,5 @@
 /**
- * W6-4/5 綜合網格（甲／乙預覽）：
+ * W6-4/5 綜合網格（甲／乙預覽；W6-8 加丙「主因」）：
  * - 依 MODEL_DECISIONS §10 的文字公式在測試裡**另寫一份**（不呼叫 compositeCell／familyTerm），對真實兩天各 4 個時刻、每次 ≥200 格逐格比對 Worker 核心的輸出。
  * - 斜線門檻（可判斷族數、權重占比）、乙的權重重新正規化、飛機顯示門檻連動。
  * 真實資料需要本機 public/sound-atlas/grid 與 public/rail（CI 沒有 → skip）；單元部分 CI 也跑。
@@ -7,7 +7,7 @@
 import { describe, expect, it } from "vitest";
 import { COMPOSITE, ROAD_GRID } from "../model/soundProfiles";
 import { rainPotential } from "../engines/relativePotentialKernel";
-import { COMPOSITE_B_SCALE, COMPOSITE_FAMILIES, compositeCell, compositeFrames } from "../grid/compositeGrid";
+import { COMPOSITE_B_SCALE, COMPOSITE_FAMILIES, compositeCell, compositeFrames, decodeCompositeC, packLevels, unpackLevels } from "../grid/compositeGrid";
 import { GRID_STEP_S, SoundGridCore } from "../grid/gridComputeCore";
 import { GRID_UNKNOWN, inScopeCells } from "../grid/gridSpec";
 import { encodeRailSet, encodeRoadSet, NetRegistry, TrackRegistry } from "../grid/gridWire";
@@ -38,11 +38,14 @@ function docTerm(f: Fam, code: number, gate: number): { L: number; s: number } |
   return { L, s: lo };
 }
 
-function docCell(codes: ArrayLike<number>, gate: number): { a: number; b: number } {
+function docCell(codes: ArrayLike<number>, gate: number): { a: number; b: number; c: number } {
   let known = 0, active = 0, kw = 0, ws = 0;
+  // 丙（文件公式）：分級 ≥1 的族取分級最高、同級潛勢最高、再同取族序在前
+  let best: { i: number; L: number; s: number } | null = null;
   COMPOSITE_FAMILIES.forEach((f, i) => {
     const t = docTerm(f, codes[i]!, gate);
     if (!t) return;
+    if (t.L >= 1 && (!best || t.L > best.L || (t.L === best.L && t.s > best.s))) best = { i, L: t.L, s: t.s };
     known++;
     kw += W[f]!;
     ws += W[f]! * t.s;
@@ -52,7 +55,9 @@ function docCell(codes: ArrayLike<number>, gate: number): { a: number; b: number
   const [c1, c2] = COMPOSITE.levelCuts.value;
   const a = !enough ? 255 : active < c1! ? 0 : active < c2! ? 1 : 2;
   const b = !enough || kw / W_SUM < COMPOSITE.minKnownWeightShare.value ? 255 : Math.round((ws / kw) * COMPOSITE_B_SCALE);
-  return { a, b };
+  const top = best as { i: number; L: number; s: number } | null;
+  const c = !enough ? 255 : !top ? 0 : 1 + top.i * 4 + (top.L - 1);
+  return { a, b, c };
 }
 
 function codesOf(m: Partial<Record<Fam, number>>): number[] {
@@ -114,22 +119,38 @@ describe("綜合網格規則（單元）", () => {
       const codes = COMPOSITE_FAMILIES.map(pick);
       const gate = [0, 0.1, 0.2, 0.4][k % 4]!;
       const r = compositeCell(codes, gate);
-      expect({ a: r.codeA, b: r.codeB }, codes.join(",")).toEqual(docCell(codes, gate));
+      expect({ a: r.codeA, b: r.codeB, c: r.codeC }, codes.join(",")).toEqual(docCell(codes, gate));
+      expect(unpackLevels(packLevels(r.terms))).toEqual(r.terms.map((x) => x?.level ?? null));
     }
+  });
+
+  it("丙：主因＝分級 ≥1 裡最明顯的族（同甲的比較）；沒有達「低」＝0；可判斷不足＝255", () => {
+    const r = compositeCell(codesOf({ rain: 1, road_traffic: 13, aviation: 0, rail: 160 }));
+    expect(r.top).toBe("rail"); // 鐵道潛勢 ≥0.75 → 很高（4）
+    expect(decodeCompositeC(r.codeC)).toEqual({ family: "rail", level: 4 });
+    const low = compositeCell(codesOf({ rain: 1, road_traffic: 0, aviation: 0, rail: 0 }));
+    expect(low.dominant).toBeNull(); // 甲：沒有「中」以上
+    expect(decodeCompositeC(low.codeC)).toEqual({ family: "rain", level: 1 }); // 丙：小雨仍是主因
+    expect(compositeCell(codesOf({ rain: 0, road_traffic: 0, aviation: 0, rail: 0 })).codeC).toBe(0);
+    expect(compositeCell(codesOf({ rain: 4, road_traffic: 4, rail: 200 })).codeC).toBe(GRID_UNKNOWN);
+    // 同級比潛勢：道路「高」下緣 0.5、飛機潛勢 0.6（高）→ 飛機
+    expect(compositeCell(codesOf({ rain: 0, road_traffic: 3, aviation: 121, rail: 0 })).top).toBe("aviation");
   });
 
   it("整幀：缺幀的族＝整族無法判斷；範圍外＝255", () => {
     const cells = new Uint32Array([0, 1]);
     const f = (v: number) => new Uint8Array(4).fill(v);
-    const { a, b } = compositeFrames([f(0), f(4), f(0), f(0), null, null, null], 0, new Uint8Array(4), new Uint8Array(4), cells);
+    const { a, b, c, lv } = compositeFrames([f(0), f(4), f(0), f(0), null, null, null], 0, new Uint8Array(4), new Uint8Array(4), cells);
     expect([a[0], a[1], a[2]]).toEqual([1, 1, 255]);
+    expect([c[0], c[2]]).toEqual([1 + 1 * 4 + 3, 255]); // 道路很高
+    expect(unpackLevels(lv[0]!)).toEqual([0, 4, 0, 0, null, null, null]);
     expect(b[0]).toBe(Math.round(((W.road_traffic! * 0.75) / (W.rain! + W.road_traffic! + W.aviation! + W.rail!)) * COMPOSITE_B_SCALE));
   });
 });
 
 for (const DATE of ["2026-11-09", "2026-10-24"]) {
   describe.skipIf(!hasRealGridAssets(DATE))(`綜合網格＝文件公式逐格重算（真實 ${DATE}）`, () => {
-    it("4 個 10 分格 × 每格 ≥200 格、兩個飛機門檻：甲乙都與獨立實作相同", async () => {
+    it("4 個 10 分格 × 每格 ≥200 格、兩個飛機門檻：甲乙丙都與獨立實作相同", async () => {
       const real = await loadRealGridSets(DATE);
       const core = new SoundGridCore();
       const tr = new TrackRegistry(), nr = new NetRegistry();
@@ -142,7 +163,7 @@ for (const DATE of ["2026-11-09", "2026-10-24"]) {
       const scope = inScopeCells();
       const stride = Math.floor(scope.length / 250);
       const day0 = Date.parse(`${DATE}T00:00:00+08:00`) / 1000;
-      let checked = 0, nonTrivialA = 0;
+      let checked = 0, nonTrivialA = 0, nonTrivialC = 0;
       for (const h of [3, 8, 14, 18.5]) {
         const bin = Math.floor((day0 + h * 3600) / GRID_STEP_S) * GRID_STEP_S;
         for (const gate of [0, 0.2]) {
@@ -153,8 +174,9 @@ for (const DATE of ["2026-11-09", "2026-10-24"]) {
             const c = scope[k]!;
             const codes = frames.map((fr) => fr[c]!);
             const want = docCell(codes, gate);
-            expect({ a: out.a[c], b: out.b[c] }, `${h}h gate ${gate} cell ${c} codes ${codes.join(",")}`).toEqual(want);
+            expect({ a: out.a[c], b: out.b[c], c: out.c[c] }, `${h}h gate ${gate} cell ${c} codes ${codes.join(",")}`).toEqual(want);
             if (want.a === 1 || want.a === 2) nonTrivialA++;
+            if (want.c !== 0 && want.c !== 255) nonTrivialC++;
             n++;
           }
           expect(n).toBeGreaterThanOrEqual(200);
@@ -163,6 +185,7 @@ for (const DATE of ["2026-11-09", "2026-10-24"]) {
       }
       expect(checked).toBeGreaterThanOrEqual(200 * 8);
       expect(nonTrivialA).toBeGreaterThan(0); // 比對不是全為平靜／斜線的空測
+      expect(nonTrivialC).toBeGreaterThan(0);
     }, 300_000);
   });
 }

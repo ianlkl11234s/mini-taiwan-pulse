@@ -30,8 +30,8 @@ export function createGridHost(post: (msg: FromWorker, transfer: Transferable[])
         if (r.family === "rail") for (const b of [r.bin + GRID_STEP_S, r.bin - GRID_STEP_S]) if (!core.cached("rail", b) && !prefetch.includes(b)) prefetch.push(b);
       } else if (r.type === "composite") {
         const c = core.composite(r.bin, r.gate);
-        const a = c.a.slice(), b = c.b.slice();
-        post({ type: "composite", id: r.id, bin: r.bin, gate: r.gate, a, b, notes: c.notes, ms: performance.now() - s }, [a.buffer, b.buffer]);
+        const a = c.a.slice(), b = c.b.slice(), cc = c.c.slice(), lv = c.lv.slice();
+        post({ type: "composite", id: r.id, bin: r.bin, gate: r.gate, a, b, c: cc, lv, notes: c.notes, ms: performance.now() - s }, [a.buffer, b.buffer, cc.buffer, lv.buffer]);
         if (core.has("rail")) for (const b2 of [r.bin + GRID_STEP_S, r.bin - GRID_STEP_S]) if (!core.cached("rail", b2) && !prefetch.includes(b2)) prefetch.push(b2);
       } else {
         const c = core.cell(r.bin, r.cell);

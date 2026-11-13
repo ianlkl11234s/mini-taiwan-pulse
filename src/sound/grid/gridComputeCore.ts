@@ -5,7 +5,7 @@
  *   空間場在這裡建（node 量 100–650 ms，以前在主執行緒 useMemo）；每族換 set 時清快取與場。
  * - 幀：與舊 hook 相同的函式（rainGridFrame／roadGridFrame／potentialPackFrame／railGridFrame／naturalGridFrame），
  *   整幀判定（no_full_area_source、no_pack_for_date…）也從舊 hook 搬來，規則不變。
- * - 綜合：同一個 10 分格的七幀 → compositeFrames（甲、乙一起算，切版本不重算）。
+ * - 綜合：同一個 10 分格的七幀 → compositeFrames（甲、乙、丙＋七族分級打包一起算，切版本不重算）。
  */
 import type { SetOrigin } from "../soundAtlasData";
 import type { PreparedTrack } from "../sourceAdapters/railAdapter";
@@ -48,7 +48,7 @@ export class SoundGridCore {
   private fams = new Map<GridFamily, FamState>(COMPOSITE_FAMILIES.map((f) => [f, blank()]));
   private tracks = new Map<number, PreparedTrack>();
   private nets = new Map<number, RoadNetwork>();
-  private compositeCache = new Map<string, { a: Uint8Array; b: Uint8Array; notes: Record<GridFamily, string | null> }>();
+  private compositeCache = new Map<string, { a: Uint8Array; b: Uint8Array; c: Uint8Array; lv: Uint32Array; notes: Record<GridFamily, string | null> }>();
   /** 量測：每族實際重算（非查表）的次數，測試用來確認「換幀不重算」 */
   readonly computeCount: Record<GridFamily, number> = Object.fromEntries(COMPOSITE_FAMILIES.map((f) => [f, 0])) as Record<GridFamily, number>;
   private cells = inScopeCells();
@@ -123,7 +123,7 @@ export class SoundGridCore {
     return r;
   }
 
-  composite(bin: number, gate: number): { a: Uint8Array; b: Uint8Array; notes: Record<GridFamily, string | null> } {
+  composite(bin: number, gate: number): { a: Uint8Array; b: Uint8Array; c: Uint8Array; lv: Uint32Array; notes: Record<GridFamily, string | null> } {
     const key = `${bin}|${gate}`;
     const hit = this.compositeCache.get(key);
     if (hit) return hit;

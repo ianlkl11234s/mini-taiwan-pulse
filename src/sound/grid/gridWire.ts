@@ -152,7 +152,7 @@ export type ToWorker =
 
 export type FromWorker =
   | { type: "frame"; id: number; family: GridFamily; bin: number; version: number; values: Uint8Array; note: string | null; ms: number }
-  | { type: "composite"; id: number; bin: number; gate: number; a: Uint8Array; b: Uint8Array; notes: Record<GridFamily, string | null>; ms: number }
+  | { type: "composite"; id: number; bin: number; gate: number; a: Uint8Array; b: Uint8Array; c: Uint8Array; lv: Uint32Array; notes: Record<GridFamily, string | null>; ms: number }
   | { type: "cell"; id: number; bin: number; cell: number; codes: number[]; notes: Record<GridFamily, string | null> }
   | { type: "superseded"; id: number }
   | { type: "error"; id: number; message: string };
