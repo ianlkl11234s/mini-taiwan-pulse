@@ -39,6 +39,7 @@
   "country.KR": "South Korea",
   "country.CA": "Canada",
   "country.IE": "Ireland",
+  "country.VN": "Vietnam",
   "country.PH": "Philippines",
   "country.menuAria": "Switch country (current: {country})",
   "statistics.uncovered": "No statistics for {country} yet",

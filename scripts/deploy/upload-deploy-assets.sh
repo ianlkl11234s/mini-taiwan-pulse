@@ -640,6 +640,21 @@ for f in \
   public/world/ph_renewables.pmtiles \
   public/world/ph_fuel_stations.pmtiles \
   public/world/ph_pipelines.pmtiles \
+  public/world/vn_admin_boundaries.pmtiles \
+  public/world/vn_population.pmtiles \
+  public/world/vn_stations.pmtiles \
+  public/world/vn_transport_hubs_odm.pmtiles \
+  public/world/vn_transport_hubs_osm.pmtiles \
+  public/world/vn_major_roads.pmtiles \
+  public/world/vn_power_plants.pmtiles \
+  public/world/vn_renewables_gem.pmtiles \
+  public/world/vn_renewables_osm.pmtiles \
+  public/world/vn_power_grid.pmtiles \
+  public/world/vn_fuel_stations.pmtiles \
+  public/world/vn_oil_gas_gem.pmtiles \
+  public/world/vn_oil_gas_osm.pmtiles \
+  public/world/vn_envisoft_stations.pmtiles \
+  public/world/vn_angiang_demo.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

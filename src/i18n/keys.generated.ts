@@ -221,6 +221,7 @@ export type GeneratedStaticKey =
   | "country.KR"
   | "country.PH"
   | "country.TW"
+  | "country.VN"
   | "country.menuAria"
   | "countryHint.aria"
   | "countryHint.detail"
