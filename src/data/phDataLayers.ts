@@ -1,6 +1,6 @@
 /**
  * 菲律賓第 0–1 波（2026-11-13）圖層規格 SSOT：hook paint、圖例、popup、參數規格共用。
- * - 行政邊界（C001）與人口（C023）：同一套 18 region／88 province／1,642 municipality／42,048 barangay 面，四層級 select 切換
+ * - 行政邊界（C001）與人口（C023）：同一套 18 region／88 province 級單位（82 省＋6 個非省單位）／1,642 municipality／42,048 barangay 面，四層級 select 切換
  *   （`usePhAdminLayers`、`usePhPopulationLayers`）。
  * - 交通 3 層、能源 5 層：規格驅動（`PH_DATA_SPECS`＋`usePhDataLayer`）。一個 key 可有多個子圖層（線＋點、架空＋電纜），
  *   類別多選一個 mask 涵蓋全部子圖層（`PhCat.parts` 指定類別屬於哪些子圖層）。
@@ -30,7 +30,7 @@ const NO_LICENSE_TEXT = "來源未附授權條文（Geoportal 盤點表 Conditio
 /** 四層級＝PMTiles tile layer 名（select encode 順序）；minzoom／maxzoom＝檔內該層實際縮放範圍。 */
 export const PH_ADMIN_LEVELS = [
   { value: "region", label: "區域（Region，18）", srcMinzoom: 3, srcMaxzoom: 10 },
-  { value: "province", label: "省（Province，88）", srcMinzoom: 4, srcMaxzoom: 11 },
+  { value: "province", label: "省（Province，82 省＋6 個非省單位）", srcMinzoom: 4, srcMaxzoom: 11 },
   { value: "municipality", label: "市鎮（City／Municipality，1,642）", srcMinzoom: 6, srcMaxzoom: 12 },
   { value: "barangay", label: "村里（Barangay，42,048）", srcMinzoom: 9, srcMaxzoom: 13 },
 ] as const;

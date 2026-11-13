@@ -150136,7 +150136,7 @@
             "value": "region"
           },
           {
-            "label": "省（Province，88）",
+            "label": "省（Province，82 省＋6 個非省單位）",
             "value": "province"
           },
           {
@@ -150417,7 +150417,7 @@
             "value": "region"
           },
           {
-            "label": "省（Province，88）",
+            "label": "省（Province，82 省＋6 個非省單位）",
             "value": "province"
           },
           {

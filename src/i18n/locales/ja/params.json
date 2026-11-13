@@ -2601,7 +2601,7 @@
   "param.取消": "中止",
   "param.退役": "廃止",
   "param.區域（Region，18）": "地方（Region、18）",
-  "param.省（Province，88）": "州（Province、88）",
+  "param.省（Province，82 省＋6 個非省單位）": "州（Province、82 州＋州以外の 6 単位）",
   "param.市鎮（City／Municipality，1,642）": "市・町（City／Municipality、1,642）",
   "param.村里（Barangay，42,048）": "バランガイ（Barangay、42,048）"
 }

@@ -4908,7 +4908,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "ph_admin_boundaries", confidence: "HIGH" }],
-      processing: "OCHA／PSA／NAMRIA COD-AB（HDX）region 18、province 88、municipality 1,642、barangay 42,048 → 4326；PMTiles tile layer region z3–10／province z4–11／municipality z6–12／barangay z9–13；卡拉延群島（Kalayaan）市鎮與 barangay 不畫",
+      processing: "OCHA／PSA／NAMRIA COD-AB（HDX）region 18、province 級 88（82 省＋NCR 4 district、Isabela 市、BARMM 特別地理區）、municipality 1,642、barangay 42,048 → 4326；PMTiles tile layer region z3–10／province z4–11／municipality z6–12／barangay z9–13；卡拉延群島（Kalayaan）市鎮與 barangay 不畫",
       note: "CC BY-IGO 3.0（© OCHA、PSA、NAMRIA）；不畫海域主張線；region、province 面含卡拉延群島碎片（來源合併，無法分開）",
     },
     dataClass: "D",
