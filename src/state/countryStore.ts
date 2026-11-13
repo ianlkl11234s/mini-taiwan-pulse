@@ -2,8 +2,8 @@
  * 目前的國家主體（議題 1「國家主體化」）。圖層面板與統計面板共用同一份，桌機 rail 與手機底部面板也共用；
  * 任一處改國家，其他訂閱者跟著變。刻意不存 localStorage：初始值只看網址（`resolveInitialCountry`）。
  */
-import { useSyncExternalStore } from "react";
-import { DEFAULT_COUNTRY, countryForPoint, type CountryCode } from "../constants/countries";
+import { useEffect, useSyncExternalStore } from "react";
+import { DEFAULT_COUNTRY, countryForPoint, countryForViewer, visibleCountries, type CountryCode, type CountryDef } from "../constants/countries";
 
 type Listener = () => void;
 
@@ -48,4 +48,44 @@ export const countryStore = {
 
 export function useCountry(): CountryCode {
   return useSyncExternalStore(countryStore.subscribe, countryStore.getSnapshot, countryStore.getSnapshot);
+}
+
+// ── 站主限定國家（2026-11-13 中國）────────────────────────────
+// App 依 tier 回報「目前是不是站主」；國家選單與圖層面板的國家清單只列看得到的國家。
+// tier 載入完成前（loading）不退回，避免站主開中國網址時先被踢回台灣。
+let viewerIsOwner = false;
+const viewerListeners = new Set<Listener>();
+
+export const countryViewer = {
+  getSnapshot(): boolean {
+    return viewerIsOwner;
+  },
+  subscribe(listener: Listener): () => void {
+    viewerListeners.add(listener);
+    return () => viewerListeners.delete(listener);
+  },
+  set(isOwner: boolean): void {
+    if (isOwner === viewerIsOwner) return;
+    viewerIsOwner = isOwner;
+    for (const listener of viewerListeners) listener();
+  },
+};
+
+/** 目前身分看得到的國家（國家選單、面板跨國搜尋用）。 */
+export function useVisibleCountries(): readonly CountryDef[] {
+  const isOwner = useSyncExternalStore(countryViewer.subscribe, countryViewer.getSnapshot, countryViewer.getSnapshot);
+  return visibleCountries(isOwner);
+}
+
+/** App 呼叫：同步站主身分；非站主（tier 已載入）停在站主限定國家時退回台灣（網址 `c=cn`、鏡頭中心在中國）。 */
+export function useOwnerOnlyCountryGuard(isOwner: boolean, loading: boolean): void {
+  const current = useCountry();
+  useEffect(() => {
+    countryViewer.set(isOwner);
+  }, [isOwner]);
+  useEffect(() => {
+    if (loading) return;
+    const next = countryForViewer(current, isOwner);
+    if (next !== current) countryStore.set(next);
+  }, [current, isOwner, loading]);
 }

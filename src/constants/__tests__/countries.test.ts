@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COUNTRIES, countryForPoint, isCountryCode } from "../countries";
+import { COUNTRIES, countryForPoint, countryForViewer, isCountryCode, visibleCountries } from "../countries";
 
 describe("countries", () => {
   it("國碼與 chip 一致、bbox 都是合法矩形", () => {
@@ -168,6 +168,42 @@ describe("countries", () => {
     }
   });
 
+  // 中國（2026-11-13 第 0–1 波，站主限定；analytics FRONTEND_SPEC §1 的 37 個城市樣本，qa_08.json）
+  it.each([
+    ["北京", 116.397, 39.907], ["上海", 121.473, 31.23], ["廈門", 118.089, 24.479], ["福州", 119.296, 26.074],
+    ["烏魯木齊", 87.617, 43.826], ["拉薩", 91.117, 29.647], ["三亞", 109.512, 18.252], ["哈爾濱", 126.535, 45.803],
+    ["深圳福田", 114.055, 22.541], ["深圳蛇口", 113.915, 22.485], ["珠海拱北", 113.553, 22.222], ["丹東", 124.383, 40.125], ["喀什", 75.99, 39.47],
+  ] as const)("%s → CN", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).toBe("CN");
+  });
+
+  it("珠海橫琴（貼澳門 1 km 內）框判不到：已知限制，要判到需改用省面點在多邊形", () => {
+    expect(countryForPoint(113.52, 22.12)).toBeUndefined();
+  });
+
+  it.each([
+    ["台北", 121.565, 25.033], ["金門金城", 118.317, 24.432], ["馬祖南竿", 119.944, 26.159], ["澎湖馬公", 119.566, 23.567],
+    ["東沙", 116.725, 20.7], ["太平島", 114.366, 10.377], ["烏坵", 119.453, 24.985], ["東引", 120.493, 26.366], ["大膽", 118.145, 24.38],
+  ] as const)("%s 依實際管轄判台灣", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).toBe("TW");
+  });
+
+  it.each([
+    ["香港", 114.17, 22.3], ["澳門", 113.544, 22.199], ["首爾", 126.978, 37.567], ["烏蘭巴托", 106.917, 47.919], ["河內", 105.834, 21.028],
+    ["平壤", 125.754, 39.039], ["海參崴", 131.886, 43.116], ["新義州", 124.4, 40.1], ["加德滿都", 85.324, 27.717], ["廷布", 89.639, 27.472],
+    ["阿拉木圖", 76.946, 43.238], ["比斯凱克", 74.59, 42.875], ["永珍", 102.633, 17.975], ["諒山", 106.761, 21.853], ["芒街", 107.966, 21.524],
+  ] as const)("%s 不判為中國", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).not.toBe("CN");
+  });
+
+  it("中國站主限定：非站主的國家選單不列、網址帶 CN 退回台灣", () => {
+    expect(visibleCountries(false).map((c) => c.code)).not.toContain("CN");
+    expect(visibleCountries(true).map((c) => c.code)).toContain("CN");
+    expect(countryForViewer("CN", false)).toBe("TW");
+    expect(countryForViewer("CN", true)).toBe("CN");
+    expect(countryForViewer("PH", false)).toBe("PH");
+  });
+
   it("愛爾蘭矩形與英國（北愛）矩形互不重疊（只可共用邊）", () => {
     const ie = COUNTRIES.find((c) => c.code === "IE")!.bboxes;
     const gb = COUNTRIES.find((c) => c.code === "GB")!.bboxes;
@@ -184,7 +220,6 @@ describe("countries", () => {
     ["平壤", 125.75, 39.02],
     ["開城", 126.55, 37.97],
     ["海州", 125.72, 38.04],
-    ["丹東", 124.39, 40.13],
     ["西雅圖", -122.33, 47.61],
     ["貝靈漢", -122.48, 48.75],
     ["朱諾（阿拉斯加）", -134.42, 58.3],
@@ -201,9 +236,6 @@ describe("countries", () => {
     ["努克（格陵蘭）", -51.72, 64.18],
     ["Thule（格陵蘭）", -68.7, 76.53],
     ["聖皮耶（法屬）", -56.18, 46.78],
-    ["上海", 121.47, 31.23],
-    ["廈門", 118.09, 24.48],
-    ["福州", 119.3, 26.08],
     ["黃岐半島", 119.9, 26.33],
     ["日內瓦", 6.14, 46.2],
     ["洛桑", 6.63, 46.52],

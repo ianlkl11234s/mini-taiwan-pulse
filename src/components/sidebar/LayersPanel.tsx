@@ -9,6 +9,7 @@ import { localizeMacroTitle, localizeThemeTitle } from "./sectionText";
 import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeKey, themeName, type ThemeDef } from "./layerCatalog";
 import { LAYER_PANELS, PANEL_COUNTRIES, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
 import { CountryMenu } from "./CountryMenu";
+import { useVisibleCountries } from "../../state/countryStore";
 import { countryDef, DEFAULT_COUNTRY, type CountryCode } from "../../constants/countries";
 import { PanelHeader as SharedPanelHeader } from "./PanelHeader";
 import { StatisticsModeControl } from "./StatisticsModeControl";
@@ -126,6 +127,8 @@ export function LayersPanel({
   });
   const visibleSearchResults = searchResults.slice(0, 50);
   // 其他入口（同一國家；統計不涵蓋目前國家時算台灣的統計）＋其他國家的「圖層」入口（顯示國名）
+  // 跨國命中只列看得到的國家（站主限定的中國不對非站主列出）
+  const visibleCountryCodes = new Set(useVisibleCountries().map((c) => c.code));
   const otherPanelHits = q && panelId
     ? [
       ...LAYER_PANELS.filter((panel) => panel.id !== panelId && (!availablePanelIds || availablePanelIds.includes(panel.id))).map((panel) => {
@@ -138,7 +141,7 @@ export function LayersPanel({
           count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id, hitCountry), excludeLocked: false }).length,
         };
       }),
-      ...PANEL_COUNTRIES.filter((code) => code !== country).map((code) => ({
+      ...PANEL_COUNTRIES.filter((code) => code !== country && visibleCountryCodes.has(code)).map((code) => ({
         key: `layers:${code}`,
         id: "layers" as LayerPanelId,
         country: code as CountryCode | undefined,

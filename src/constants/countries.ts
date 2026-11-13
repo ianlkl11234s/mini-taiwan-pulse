@@ -9,7 +9,7 @@
  */
 import { ALL_PRESETS } from "../map/cameraPresets";
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "CN";
 
 export interface CountryCamera {
   center: [number, number];
@@ -29,6 +29,8 @@ export interface CountryDef {
   labelKey: `country.${CountryCode}`;
   camera: CountryCamera;
   bboxes: readonly CountryBbox[];
+  /** 站主限定國家（2026-11-13 中國）：非站主的國家選單、圖層面板國家清單不列；網址或鏡頭落在這國時退回台灣（`countryStore`）。 */
+  ownerOnly?: true;
 }
 
 export const DEFAULT_COUNTRY: CountryCode = "TW";
@@ -57,6 +59,9 @@ export const IRELAND_CAMERA: CountryCamera = { center: [-8.0, 53.4], zoom: 6, pi
 /** 菲律賓（18 region，Batanes 到 Tawi-Tawi；國家全覽 z5，map-layers §3.8 V-1；2026-11-13 菲律賓第 0–1 波）。 */
 export const PHILIPPINES_CAMERA: CountryCamera = { center: [121.8, 12.8], zoom: 5, pitch: 0, bearing: 0 };
 
+/** 中國大陸（31 省；國家全覽 z3.4，FRONTEND_SPEC §1；2026-11-13 中國第 0–1 波，站主限定）。 */
+export const CHINA_CAMERA: CountryCamera = { center: [104.5, 35.8], zoom: 3.4, pitch: 0, bearing: 0 };
+
 /** 全台總覽（同 cameraPresets「全台總覽」；開站預設鏡頭 `DEFAULT_CAMERA` 仍是台北，2026-10-28 使用者要求選台灣時看全台）。 */
 const TAIWAN_CAMERA: CountryCamera = (() => {
   const overview = ALL_PRESETS.find((preset) => preset.id === "overview")!;
@@ -76,6 +81,11 @@ export const COUNTRIES: readonly CountryDef[] = [
       [118.2, 24.35, 118.5, 24.55], // 金門（西緣 118.2 避開廈門島）
       [119.9, 25.93, 120.1, 26.3],  // 馬祖南竿、北竿、莒光（北緣 26.3 避開黃岐半島）
       [120.4, 26.33, 120.55, 26.42], // 東引
+      // 2026-11-13 中國第 0–1 波：依實際管轄補判台灣（FRONTEND_SPEC §1，使用者 2026-11-10）
+      [116.65, 20.55, 116.95, 20.85], // 東沙
+      [114.30, 10.33, 114.45, 10.42], // 太平島
+      [119.42, 24.96, 119.48, 25.01], // 烏坵
+      [118.12, 24.36, 118.17, 24.395], // 大膽、二膽
     ],
   },
   {
@@ -251,9 +261,83 @@ export const COUNTRIES: readonly CountryDef[] = [
       [116.9, 7.45, 117.6, 8.3],      // Balabac、Bugsuk、Mangsee（南緣 7.45 避開沙巴 Banggi 島）
     ],
   },
+  {
+    code: "CN",
+    chip: "CN",
+    labelKey: "country.CN",
+    camera: CHINA_CAMERA,
+    ownerOnly: true,
+    // 2026-11-13 中國第 0–1 波（站主限定）：51 個矩形由 analytics pipelines/base_map/cn/admin_boundaries/08_country_boxes.py 產生，
+    // 不與鄰國陸地（Natural Earth 10m）、既有國家框、台灣與澳門排除框、香港面相交；覆蓋 31 省面積 95.17%，333 地級代表點全中。
+    // 台灣（含金馬、澎湖、東沙、太平島、烏坵、大膽二膽）排在陣列前面先判；港澳本輪判「非 CN」。不含任何海域線。
+    // 已知限制：珠海橫琴（貼澳門 1 km 內）框判不到。
+    bboxes: [
+      [83.4, 29.4, 117.8, 41.55],
+      [98.9, 23.55, 118.1, 38.05],
+      [80.8, 30.45, 93.5, 44.95],
+      [119.95, 42.45, 129.7, 49.25],
+      [111.95, 40.95, 126.05, 44.7],
+      [76.05, 36.0, 80.8, 40.3],
+      [98.8, 26.35, 119.95, 37.3],
+      [120.8, 40.95, 125.85, 52.85],
+      [85.7, 28.4, 90.3, 47.65],
+      [107.05, 21.8, 113.2, 42.3],
+      [80.3, 30.6, 101.65, 42.5],
+      [116.6, 43.05, 130.9, 46.3],
+      [119.95, 45.6, 133.4, 47.65],
+      [82.9, 29.7, 90.65, 46.8],
+      [116.5, 48.05, 128.75, 49.5],
+      [96.6, 28.55, 120.55, 34.45],
+      [76.8, 39.85, 120.5, 40.95],
+      [84.45, 28.75, 93.95, 44.65],
+      [121.85, 39.3, 124.2, 53.35],
+      [99.55, 22.85, 104.45, 41.75],
+      [120.0, 41.75, 126.75, 51.5],
+      [110.9, 22.6, 116.85, 43.25],
+      [74.0, 38.7, 118.45, 40.05],
+      [109.25, 18.0, 110.45, 42.4],
+      [79.65, 31.0, 120.75, 34.45],
+      [82.25, 30.05, 95.3, 44.25],
+      [85.8, 28.2, 88.55, 48.35],
+      [97.95, 28.3, 121.8, 30.15],
+      [119.3, 36.35, 122.6, 37.8],
+      [114.55, 42.05, 128.9, 45.35],
+      [98.75, 24.6, 119.4, 26.55],
+      [75.2, 36.95, 76.05, 40.25],
+      [112.37, 22.3, 113.61, 22.6],
+      [108.18, 21.1, 110.18, 21.8],
+      [121.99, 29.85, 122.27, 30.32],
+      [97.79, 24.15, 99.04, 25.2],
+      [99.97, 21.77, 101.51, 22.85],
+      [93.56, 29.32, 95.56, 29.4],
+      [123.32, 40.41, 124.82, 40.95],
+      [129.47, 46.66, 130.61, 48.57],
+      [119.3, 26.98, 120.96, 28.3],
+      [119.83, 30.35, 121.58, 31.68],
+      [119.83, 31.81, 121.39, 32.78],
+      [119.27, 35.61, 120.72, 36.35],
+      [118.08, 36.52, 118.89, 38.06],
+      [109.81, 18.75, 111.01, 20.56],
+      [108.61, 17.99, 110.05, 19.65],
+      [113.64, 22.54, 114.13, 22.6],
+      [112.92, 22.48, 113.99, 22.54],
+      [113.55, 22.22, 113.83, 22.3],
+      [123.38, 40.12, 124.39, 40.41],
+    ],
+  },
 ];
 
 const COUNTRY_CODES = new Set<string>(COUNTRIES.map((country) => country.code));
+
+/** 某身分看得到的國家（陣列順序不變）：非站主不列 `ownerOnly` 國家。 */
+export function visibleCountries(isOwner: boolean): readonly CountryDef[] {
+  return isOwner ? COUNTRIES : COUNTRIES.filter((country) => !country.ownerOnly);
+}
+
+/** 非站主不可停在站主限定國家：回傳應顯示的國家（`ownerOnly` 國退回預設國）。 */
+export function countryForViewer(code: CountryCode, isOwner: boolean): CountryCode {
+  return !isOwner && countryDef(code).ownerOnly ? DEFAULT_COUNTRY : code;
+}
 
 export function isCountryCode(value: unknown): value is CountryCode {
   return typeof value === "string" && COUNTRY_CODES.has(value);
