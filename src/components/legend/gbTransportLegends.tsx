@@ -140,13 +140,13 @@ const ROAD_CLASS_KEYS: Record<GbRoadClass, MessageKey> = {
   motorway: "legend.transport.gbRoadMotorway", a_road: "legend.transport.gbRoadA", b_road: "legend.transport.gbRoadB",
 };
 
-/** 英國主要路網：依等級 3 類（線寬強調／標準／細）；B 級只有北愛，大不列顛 B 級明寫未涵蓋；來源分官方 MRDB 與 OSM 補缺兩項。 */
+/** 英國主要路網：依等級 3 類（線寬強調／標準／細）；B 級為 2026-11-13 新增（OSM）；來源分官方 MRDB 與 OSM 兩項。 */
 export function GbMajorRoadsLegend() {
   const i18n = useLocale();
   return <div>
     <LegendTitle zh={layerTitle("gbMajorRoads", i18n)} en="Major Roads" />
     {GB_ROAD_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchLine color={c.color} width={LINE_WIDTH[c.width][1]} />}>{i18n.t(ROAD_CLASS_KEYS[c.value])}</LegendRow>)}
-    <LegendNote>{i18n.t("legend.transport.gbRoadsBNotCovered")}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbRoadsBAdded")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbRoadsSourceMrdb")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbRoadsSourceOsm")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbRoadsBZoom")}</LegendNote>

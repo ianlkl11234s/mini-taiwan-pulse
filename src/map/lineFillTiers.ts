@@ -247,6 +247,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/hooks/useGbTransportLayers.ts
   "gbPlanningConstraints/gb-planning-constraints-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 規劃限制區外框（依類別色）· src/hooks/useGbEnvPlanningLayers.ts
   "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/hooks/useGbTransportLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-bridge-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class（同主要路網 L-5）· src/hooks/useGbOsmLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-tunnel-line": {"width": "keep", "opacity": "standard"}, // 隧道虛線，寬依 road_class · src/hooks/useGbOsmLayers.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
   "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
   "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts

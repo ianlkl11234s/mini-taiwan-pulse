@@ -1272,8 +1272,12 @@ gbLondonStations,倫敦軌道車站 London Rail Stations,GB,英國,交通,custom
 gbLondonBikePoints,倫敦公共自行車 Santander Cycles,GB,英國,交通,custom,verified,gb_london_bikepoints,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 Santander Cycles 公共自行車站點與樁數（TfL BikePoint，不含即時空位）
 gbLondonJamCams,倫敦道路攝影機 TfL JamCams,GB,英國,交通,custom,verified,gb_london_jamcams,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 TfL 道路攝影機位置與鏡頭朝向，彈窗可外連即時影像
 gbLondonChargingZones,倫敦收費與低排放區 London Charging Zones,GB,英國,交通,custom,verified,gb_london_charging_zones,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦塞車費區（Congestion Charge）與超低排放區／低排放區（ULEZ／LEZ，同一邊界）範圍
-gbMajorRoads,主要路網 Major Roads,GB,英國,交通,custom,verified,gb_major_roads,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國高速公路與 A 級道路（大不列顛 DfT 主要道路資料庫、北愛 OpenStreetMap），北愛另含 B 級道路；大不列顛 B 級道路未涵蓋
+gbMajorRoads,主要路網 Major Roads,GB,英國,交通,custom,verified,gb_major_roads,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國高速公路、A 級與 B 級道路（大不列顛高速與 A 級為 DfT 主要道路資料庫；北愛全部與大不列顛 B 級為 OpenStreetMap 2026-11-13）
 gbTrafficCountsAadf,年平均日交通量 Traffic Counts (AADF),GB,英國,交通,custom,verified,gb_traffic_counts_aadf,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,大不列顛 2025 年道路交通計數點的年平均日交通量（DfT AADF），依車輛數分 5 級，可只看當年實測或估算點；北愛未涵蓋
+gbBridgesTunnels,橋梁與隧道 Road Bridges & Tunnels（OSM）,GB,英國,交通,custom,verified,gb_bridges_tunnels,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國主要道路（高速、A 級、B 級）上的橋梁與隧道路段（OpenStreetMap 2026-11-13），線寬依道路等級
+gbRoadFacilities,道路設施 Road Facilities,GB,英國,交通,custom,verified,gb_road_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國高速公路服務區、休息區、收費站（OpenStreetMap）與英格蘭智慧高速公路緊急停車區（National Highways）
+gbPublicFacilities,公共設施 Public Facilities（OSM）,GB,英國,基礎建設,custom,verified,gb_public_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國郵局、公共廁所、市場與社區活動中心（OpenStreetMap 2026-11-13，志願者資料，完整度依地區而異）
+gbPlacesOfWorship,宗教場所 Places of Worship（OSM）,GB,英國,宗教,custom,verified,gb_places_of_worship,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國教堂、清真寺、猶太會堂、錫克廟、印度廟、佛寺等宗教場所（OpenStreetMap 2026-11-13，依 religion 分類；未標示者不推測）
 gbProtectedAreas,保護區 Protected Areas,GB,英國,環境氣候,custom,verified,gb_protected_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國自然保護與景觀指定：國家公園、AONB／NSA、SSSI／ASSI、NNR，以及 SAC、SPA、拉姆薩濕地
 gbMarineProtectedAreas,海洋保護區 Marine Protected Areas,GB,英國,海洋,custom,verified,gb_marine_protected_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國海洋保護區：英格蘭與北愛 MCZ、蘇格蘭自然保育 MPA 與 Fair Isle 示範研究 MPA
 gbWoodland,林地 Woodland,GB,英國,林業,custom,verified,gb_woodland_nfi,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國林地範圍與林型：大不列顛國家森林清冊 NFI 2025，北愛為 DAERA 優先棲地林地

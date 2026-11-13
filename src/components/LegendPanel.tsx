@@ -51,6 +51,7 @@ import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalEro
 import { GbArtsVenuesLegend, GbCulturalFacilitiesLegend, GbVisitorExperienceLegend } from "./legend/gbCultureLegends";
 import { GbSurplusLandLegend, GbTerrainHillshadeLegend, GbTerrainReliefLegend } from "./legend/gbLandLegends";
 import { GbAquacultureLegend, GbCompaniesLegend, GbFuneralLegend, GbManufacturingLegend, GbSoilParentMaterialLegend } from "./legend/gbBusinessAgriLegends";
+import { GbBridgesTunnelsLegend, GbPlacesOfWorshipLegend, GbPublicFacilitiesLegend, GbRoadFacilitiesLegend } from "./legend/gbOsmLegends";
 import { GbBrownfieldLegend, GbNoiseLegend, GbPlanningConstraintsLegend, GbPollutionInventoryLegend, GbPollutionInventoryEnglandLegend, GbRecyclingCentresLegend, GbWastePermitsLegend } from "./legend/gbEnvPlanningLegends";
 import { GbEarthquakesLegend, GbGroundStabilityLegend, GbLandslideLegend, GbRadiationLegend, GbRadonLegend } from "./legend/gbHazardLegends";
 import { GbCareHomesLegend, GbCareServicesLegend, GbCourtsLegend, GbFireStationsLegend, GbHealthFacilitiesLegend, GbSchoolsLegend } from "./legend/gbCivicLegends";
@@ -401,6 +402,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gbLondonJamCams", render: () => <GbLondonJamCamsLegend /> },
   { id: "gbLondonChargingZones", render: () => <GbLondonChargingZonesLegend /> },
   { id: "gbMajorRoads", render: () => <GbMajorRoadsLegend /> },
+  { id: "gbBridgesTunnels", render: () => <GbBridgesTunnelsLegend /> },
+  { id: "gbRoadFacilities", render: () => <GbRoadFacilitiesLegend /> },
+  { id: "gbPublicFacilities", render: () => <GbPublicFacilitiesLegend /> },
+  { id: "gbPlacesOfWorship", render: () => <GbPlacesOfWorshipLegend /> },
   { id: "gbCompanies", render: () => <GbCompaniesLegend /> },
   { id: "gbManufacturing", render: () => <GbManufacturingLegend /> },
   { id: "gbFuneral", render: () => <GbFuneralLegend /> },

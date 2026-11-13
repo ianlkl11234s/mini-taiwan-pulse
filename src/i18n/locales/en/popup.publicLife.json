@@ -98,5 +98,17 @@
   "popup.publicLife.gbCourtKind": "Category",
   "popup.publicLife.gbCourtTypes": "Court types",
   "popup.publicLife.gbCourtAreasOfLaw": "Areas of law",
-  "popup.publicLife.gbCourtFact": "FaCT page"
+  "popup.publicLife.gbCourtFact": "FaCT page",
+  "popup.publicLife.gbPfKind": "Type",
+  "popup.publicLife.gbPfSubtype": "Subtype",
+  "popup.publicLife.gbPfFee": "Fee",
+  "popup.publicLife.gbPfFeeYes": "Paid",
+  "popup.publicLife.gbPfFeeNo": "Free",
+  "popup.publicLife.gbHours": "Opening hours",
+  "popup.publicLife.gbWheelchair": "Wheelchair access",
+  "popup.publicLife.gbPostcode": "Postcode",
+  "popup.publicLife.gbAccess": "Access",
+  "popup.publicLife.gbNotStated": "Not stated",
+  "popup.publicLife.gbUnnamed": "(Unnamed)",
+  "popup.publicLife.gbOsmNote": "OpenStreetMap volunteer data; areas shown at their centre point"
 }

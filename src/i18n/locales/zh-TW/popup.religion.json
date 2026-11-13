@@ -17,5 +17,9 @@
   "popup.religion.denomination": "教派",
   "popup.religion.religiousSite": "宗教景點",
   "popup.religion.mapSymbolNote": "此點來自地圖符號，官方未提供名稱。",
-  "popup.religion.openWikidata": "開啟 Wikidata ↗"
+  "popup.religion.openWikidata": "開啟 Wikidata ↗",
+  "popup.religion.gbPowReligion": "宗教",
+  "popup.religion.gbPowDenomination": "宗派",
+  "popup.religion.gbPowOsmReligion": "OSM religion 原值",
+  "popup.religion.gbUnknownNote": "OSM 未標 religion，不推測"
 }

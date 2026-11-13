@@ -8,6 +8,7 @@ import { GB_RECYCLING_KINDS } from "../gbEnvPlanningTypes";
 import { GB_AQUACULTURE_KINDS, GB_FUNERAL_KINDS } from "../gbBusinessAgriTypes";
 import { GB_ACCESS_TYPES, GB_MPA_TYPES, GB_RECREATION_CATEGORIES, GB_TREE_CATEGORIES } from "../gbNatureTypes";
 import { GB_GREENSPACE_CATEGORIES } from "../gbOpenSpaceTypes";
+import { GB_PUBLIC_FACILITY_KINDS, GB_ROAD_FACILITY_KINDS, GB_STRUCTURES, GB_WORSHIP_KINDS } from "../gbOsmTypes";
 
 /**
  * §3.8 V-4 英國類別多選：mask 的 bit 順序＝spec options 順序，hook 用同一份資料陣列解碼（gbMaskFilter）。
@@ -36,6 +37,10 @@ const HOOK_VALUES: Readonly<Record<string, readonly string[]>> = {
   gbGreenspace: GB_GREENSPACE_CATEGORIES.gbGreenspace.functions.map((f) => f.value),
   gbSportsFacilities: GB_GREENSPACE_CATEGORIES.gbSportsFacilities.functions.map((f) => f.value),
   gbCemeteries: GB_GREENSPACE_CATEGORIES.gbCemeteries.functions.map((f) => f.value),
+  gbBridgesTunnels: GB_STRUCTURES.map((k) => k.value),
+  gbRoadFacilities: GB_ROAD_FACILITY_KINDS.map((k) => k.value),
+  gbPublicFacilities: GB_PUBLIC_FACILITY_KINDS.map((k) => k.value),
+  gbPlacesOfWorship: GB_WORSHIP_KINDS.map((k) => k.value),
 };
 
 type Spec = { kind: string; name: string; options?: { value: string }[] };

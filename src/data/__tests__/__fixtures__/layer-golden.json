@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1827,
+    "keyCount": 1831,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1480,6 +1480,18 @@
     },
     {
       "layers": [
+        "gb-public-facilities-circle"
+      ],
+      "type": "gbPublicFacilities"
+    },
+    {
+      "layers": [
+        "gb-places-of-worship-circle"
+      ],
+      "type": "gbPlacesOfWorship"
+    },
+    {
+      "layers": [
         "gb-care-homes-circle"
       ],
       "type": "gbCareHomes"
@@ -1715,6 +1727,19 @@
         "gb-traffic-counts-aadf-minor-circle"
       ],
       "type": "gbTrafficCountsAadf"
+    },
+    {
+      "layers": [
+        "gb-road-facilities-circle"
+      ],
+      "type": "gbRoadFacilities"
+    },
+    {
+      "layers": [
+        "gb-bridges-tunnels-bridge-line",
+        "gb-bridges-tunnels-tunnel-line"
+      ],
+      "type": "gbBridgesTunnels"
     },
     {
       "layers": [
@@ -124762,6 +124787,35 @@
         "valueText": "1.0"
       }
     ],
+    "gbBridgesTunnels": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "橋梁",
+            "value": "bridge"
+          },
+          {
+            "label": "隧道",
+            "value": "tunnel"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bridge",
+          "tunnel"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "gbBrownfield": [
       {
         "label": "許可狀態",
@@ -126669,6 +126723,151 @@
         "value": "polygon"
       }
     ],
+    "gbPlacesOfWorship": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "基督宗教",
+            "value": "christian"
+          },
+          {
+            "label": "伊斯蘭教",
+            "value": "muslim"
+          },
+          {
+            "label": "猶太教",
+            "value": "jewish"
+          },
+          {
+            "label": "錫克教",
+            "value": "sikh"
+          },
+          {
+            "label": "印度教",
+            "value": "hindu"
+          },
+          {
+            "label": "佛教",
+            "value": "buddhist"
+          },
+          {
+            "label": "其他宗教",
+            "value": "other"
+          },
+          {
+            "label": "未標示宗教",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "christian",
+          "muslim",
+          "jewish",
+          "sikh",
+          "hindu",
+          "buddhist",
+          "other",
+          "unknown"
+        ]
+      },
+      {
+        "defaultValue": "batlow",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "batlow"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbPlanningConstraints": [
       {
         "label": "類別",
@@ -126986,6 +127185,131 @@
         "value": "point"
       }
     ],
+    "gbPublicFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "社區活動中心",
+            "value": "community_centre"
+          },
+          {
+            "label": "公共廁所",
+            "value": "toilets"
+          },
+          {
+            "label": "郵局",
+            "value": "post_office"
+          },
+          {
+            "label": "市場",
+            "value": "marketplace"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "community_centre",
+          "toilets",
+          "post_office",
+          "marketplace"
+        ]
+      },
+      {
+        "defaultValue": "cividis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "cividis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbRadiation": [
       {
         "label": "透明度 0.90",
@@ -127188,6 +127512,54 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "gbRoadFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "服務區",
+            "value": "services"
+          },
+          {
+            "label": "休息區",
+            "value": "rest_area"
+          },
+          {
+            "label": "收費站",
+            "value": "toll_booth"
+          },
+          {
+            "label": "緊急停車區",
+            "value": "emergency_area"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "services",
+          "rest_area",
+          "toll_booth",
+          "emergency_area"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "gbSchools": [

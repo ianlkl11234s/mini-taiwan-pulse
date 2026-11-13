@@ -630,6 +630,11 @@ for f in \
   public/world/ie_planning_applications.pmtiles \
   public/world/ie_noise_maps_lden.pmtiles \
   public/world/ie_noise_maps_lnight.pmtiles \
+  public/world/gb_major_roads_v2.pmtiles \
+  public/world/gb_bridges_tunnels.pmtiles \
+  public/world/gb_road_facilities.pmtiles \
+  public/world/gb_public_facilities.pmtiles \
+  public/world/gb_places_of_worship.pmtiles \
   public/world/ph_admin_boundaries.pmtiles \
   public/world/ph_population.pmtiles \
   public/world/ph_transport_hubs.pmtiles \

@@ -409,6 +409,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "房地產",
     // 第 12 波：工商登記（公司、製造業）、殯葬（火葬場、葬儀社）、農業（養殖、土壤；比照台灣同名主題）
     "工商登記",
+    // 第 13 波 OSM：基礎建設（公共設施）、宗教（宗教場所；比照台灣同名主題）
+    "基礎建設",
+    "宗教",
     "殯葬",
     "農業",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
@@ -3206,12 +3209,13 @@ const THEME_CATALOG: ThemeDef[] = [
     // 第 4 波：群組比照台灣「交通 Move」——stationsMetro／bikeStations（場站）、railRoutes／cctv（路網）、ports／airports（樞紐節點）；
     // 收費區台灣無同類，自成「收費與低排放區」
     // 第 10 波：主要路網比照台灣 highways／provincialRoads、AADF 計數點比照 etcGantry（路側計數設施），都在「路網」
+    // 第 13 波（OSM 2026-11-13）：橋梁與隧道、道路設施（服務區／休息區／收費站／緊急停車區）同屬「路網」
     title: "交通",
     country: "GB",
     defaultCollapsed: true,
     groups: [
       { title: "場站", layers: [fromManifest("gbLondonStations"), fromManifest("gbStationUsage"), fromManifest("gbLondonBikePoints")] },
-      { title: "路網", layers: [fromManifest("gbMajorRoads"), fromManifest("gbTrafficCountsAadf"), fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
+      { title: "路網", layers: [fromManifest("gbMajorRoads"), fromManifest("gbBridgesTunnels"), fromManifest("gbRoadFacilities"), fromManifest("gbTrafficCountsAadf"), fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
       { title: "樞紐節點", layers: [fromManifest("gbTransportHubs")] },
       { title: "收費與低排放區", layers: [fromManifest("gbLondonChargingZones")] },
     ],
@@ -3339,6 +3343,20 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "整體公司", layers: [fromManifest("gbCompanies")] },
       { title: "製造業", layers: [fromManifest("gbManufacturing")] },
     ],
+  },
+  {
+    // 第 13 波（OSM 2026-11-13）：郵局、公廁、市場、社區活動中心比照台灣 publicToilets 等「基礎建設 › 公共生活」
+    title: "基礎建設",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "公共生活", layers: [fromManifest("gbPublicFacilities")] }],
+  },
+  {
+    // 第 13 波（OSM 2026-11-13）：比照台灣 religionTemples／日本 jpReligionOsm 的「宗教 › 點位」
+    title: "宗教",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("gbPlacesOfWorship")] }],
   },
   {
     // 第 12 波 C051：比照台灣「殯葬 Funeral › 點位」（funeralFacilities 火化場、funeralOperators 禮儀業者）；墓園另在「底圖 › 綠地」
@@ -3558,6 +3576,9 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "房地產": "city",
     // 第 12 波：同台灣「工商登記」「殯葬」「農業」
     "工商登記": "city",
+    // 第 13 波 OSM：同台灣「基礎建設」「宗教」
+    "基礎建設": "publicLife",
+    "宗教": "publicLife",
     "殯葬": "publicLife",
     "農業": "environment",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
@@ -3779,6 +3800,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "觀光": { zh: "觀光", sub: "Tourism" },
     "房地產": { zh: "房地產", sub: "Real Estate" },
     "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "宗教": { zh: "宗教", sub: "Religion" },
     "殯葬": { zh: "殯葬", sub: "Funeral" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },

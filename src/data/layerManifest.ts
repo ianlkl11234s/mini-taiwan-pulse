@@ -6136,7 +6136,8 @@ export const LAYER_MANIFEST = {
 
   // 🇬🇧 英國第 10 波（2026-10-29：C012 主要路網、C016 交通計數點 AADF）
   // 位置對齊台灣「交通 Move › 路網」：highways／provincialRoads／osmExpressway（道路）、etcGantry（路側計數設施）。
-  // 台灣沒有年度交通量計數點圖層；國道壅塞／省道路況是即時、在「即時監控」，不對照。C014 橋隧、C018 道路設施 HOLD。
+  // 台灣沒有年度交通量計數點圖層；國道壅塞／省道路況是即時、在「即時監控」，不對照。
+  // 2026-11-13：主要路網換新版（補大不列顛 B 級，OSM），C014 橋隧、C018 道路設施解除 HOLD（第 13 波，見下方）。
   gbMajorRoads: {
     key: "gbMajorRoads",
     country: "GB", section: { theme: "交通", group: "路網" },
@@ -6147,20 +6148,20 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_major_roads", confidence: "HIGH" }],
-      processing: "大不列顛 DfT Major Roads Database 2025（高速公路 1,274＋A 級 16,667 段，計數點間概化直線，對 2025 AADF 補道路類別與交通量）＋北愛 OpenStreetMap（高速 250／A 級 8,716／B 級 6,278 段，實際線形）；33,185 段；PMTiles z4–12（z8 起才有 B 級）",
-      note: "OGL v3.0（DfT）＋ODbL 1.0（OSM）；高速公路與 A 級 4/4；B 級 1/4（僅北愛，大不列顛 B 級 HOLD：2026-10-29 Overpass 降級）",
+      processing: "大不列顛 DfT Major Roads Database 2025（高速公路 1,274＋A 級 16,667 段，計數點間概化直線，對 2025 AADF 補道路類別與交通量）＋OpenStreetMap 2026-11-13 快照（北愛高速／A／B 級全部、大不列顛 B 級，共 B 級 107,911 段，實際線形）；134,824 段；PMTiles z4–12（z8 起才有 B 級）",
+      note: "OGL v3.0（DfT）＋ODbL 1.0（OSM）；高速公路、A 級、B 級皆 4/4（2026-11-13 補上大不列顛 B 級）",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbTransportLayers 自建 mapbox-pmtiles source；source-layer=gb_major_roads，minzoom=4 maxzoom=12（layer minzoom 5）；11.0MB git-track",
-      staticAssets: ["./world/gb_major_roads.pmtiles"],
+      note: "useGbTransportLayers 自建 mapbox-pmtiles source；gb_major_roads_v2.pmtiles（27.5MB，舊檔 gb_major_roads.pmtiles 已在 S3、不覆寫）；source-layer=gb_major_roads，minzoom=4 maxzoom=12（layer minzoom 5）；deploy-assets（lock）",
+      staticAssets: ["./world/gb_major_roads_v2.pmtiles"],
     },
     legend: "gbMajorRoads",
     popup: "gbMajorRoads",
     params: { count: 1, kinds: ["slider"] },
-    description: "英國高速公路與 A 級道路（大不列顛 DfT 主要道路資料庫、北愛 OpenStreetMap），北愛另含 B 級道路；大不列顛 B 級道路未涵蓋",
-    topics: ["英國", "道路", "高速公路", "路網", "交通"],
+    description: "英國高速公路、A 級與 B 級道路（大不列顛高速與 A 級為 DfT 主要道路資料庫；北愛全部與大不列顛 B 級為 OpenStreetMap 2026-11-13）",
+    topics: ["英國", "道路", "高速公路", "B 級道路", "路網", "交通"],
   },
 
   gbTrafficCountsAadf: {
@@ -6187,6 +6188,109 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["palette", "slider", "slider", "select"] },
     description: "大不列顛 2025 年道路交通計數點的年平均日交通量（DfT AADF），依車輛數分 5 級，可只看當年實測或估算點；北愛未涵蓋",
     topics: ["英國", "交通量", "車流", "計數點", "道路", "交通"],
+  },
+
+  // 🇬🇧 英國第 13 波 OSM（2026-11-13 快照）：C014 主要道路橋梁與隧道、C018 道路設施（交通 › 路網，比照台灣 freewayBridges／serviceAreas 同群）、
+  // 公共設施（比照台灣 publicToilets 等「基礎建設 › 公共生活」）、宗教場所（比照台灣／日本「宗教 › 點位」）。
+  gbBridgesTunnels: {
+    key: "gbBridgesTunnels",
+    country: "GB", section: { theme: "交通", group: "路網" },
+    ...layerName({ zh: "橋梁與隧道", alt: "Road Bridges & Tunnels", qualifier: "OSM" }),
+    expandable: true,
+    color: "#2d82ff",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_bridges_tunnels", confidence: "MED" }],
+      processing: "OpenStreetMap 2026-11-13 快照：主要道路（motorway／trunk／primary／secondary 含 link）且 bridge／tunnel 的路段，橋 29,009＋隧道 484＝29,493 段；一筆＝一段 OSM way，不等於一座橋；PMTiles z5–13",
+      note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料）；英國無全國道路橋梁開放清冊",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_bridges_tunnels.pmtiles（11.9MB）；source-layer=gb_bridges_tunnels，minzoom=5 maxzoom=13；橋實線、隧道虛線兩個 line 子圖層；deploy-assets（lock）",
+      staticAssets: ["./world/gb_bridges_tunnels.pmtiles"],
+    },
+    legend: "gbBridgesTunnels",
+    popup: "gbBridgesTunnels",
+    params: { count: 2, kinds: ["slider", "multiSelect"] },
+    description: "英國主要道路（高速、A 級、B 級）上的橋梁與隧道路段（OpenStreetMap 2026-11-13），線寬依道路等級",
+    topics: ["英國", "橋梁", "隧道", "道路", "OSM", "交通"],
+  },
+  gbRoadFacilities: {
+    key: "gbRoadFacilities",
+    country: "GB", section: { theme: "交通", group: "路網" },
+    ...layerName({ zh: "道路設施", alt: "Road Facilities" }),
+    expandable: true,
+    color: "#2d82ff",
+    icon: Coffee,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_road_facilities", confidence: "MED" }],
+      processing: "National Highways 緊急停車區 438（英格蘭智慧高速公路，線段中點）＋OpenStreetMap 2026-11-13 服務區 585／休息區 610／收費站 124（面以中心點表示），共 1,757 點；PMTiles z5–13",
+      note: "OGL v3.0（National Highways）＋ODbL 1.0（OSM）；服務區、休息區、收費站 4/4；緊急停車區只有英格蘭（蘇格蘭、威爾斯、北愛未涵蓋）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_road_facilities.pmtiles（1.1MB）；source-layer=gb_road_facilities，minzoom=5 maxzoom=13；deploy-assets（lock）",
+      staticAssets: ["./world/gb_road_facilities.pmtiles"],
+    },
+    legend: "gbRoadFacilities",
+    popup: "gbRoadFacilities",
+    params: { count: 3, kinds: ["slider", "slider", "multiSelect"] },
+    description: "英國高速公路服務區、休息區、收費站（OpenStreetMap）與英格蘭智慧高速公路緊急停車區（National Highways）",
+    topics: ["英國", "服務區", "休息區", "收費站", "緊急停車區", "道路", "交通"],
+  },
+  gbPublicFacilities: {
+    key: "gbPublicFacilities",
+    country: "GB", section: { theme: "基礎建設", group: "公共生活" },
+    ...layerName({ zh: "公共設施", alt: "Public Facilities", qualifier: "OSM" }),
+    expandable: true,
+    color: "#2d82ff",
+    icon: Mail,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_public_facilities", confidence: "MED" }],
+      processing: "OpenStreetMap 2026-11-13 快照：社區活動中心 16,750／公共廁所 14,320／郵局 9,416／市場 847，共 41,333 點（面以中心點表示）；PMTiles z5–13",
+      note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料，完整度依地區而異）；無可用官方全國名錄",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_public_facilities.pmtiles（18.0MB）；source-layer=gb_public_facilities，minzoom=5 maxzoom=13（z<10 熱區、z10 起畫點）；deploy-assets（lock）",
+      staticAssets: ["./world/gb_public_facilities.pmtiles"],
+    },
+    legend: "gbPublicFacilities",
+    popup: "gbPublicFacilities",
+    params: { count: 4, kinds: ["palette", "slider", "slider", "multiSelect"] },
+    description: "英國郵局、公共廁所、市場與社區活動中心（OpenStreetMap 2026-11-13，志願者資料，完整度依地區而異）",
+    topics: ["英國", "郵局", "公廁", "市場", "社區活動中心", "OSM"],
+  },
+  gbPlacesOfWorship: {
+    key: "gbPlacesOfWorship",
+    country: "GB", section: { theme: "宗教", group: "點位" },
+    ...layerName({ zh: "宗教場所", alt: "Places of Worship", qualifier: "OSM" }),
+    expandable: true,
+    color: "#0c9743",
+    icon: Church,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_places_of_worship", confidence: "MED" }],
+      processing: "OpenStreetMap 2026-11-13 快照 amenity=place_of_worship，依 religion 分 8 類：基督宗教 38,850／伊斯蘭教 1,421／猶太教 229／錫克教 209／印度教 164／佛教 120／其他宗教 258／未標示 862，共 42,113 點；PMTiles z5–13",
+      note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料）；religion 未標者歸「未標示」，不推測",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_places_of_worship.pmtiles（19.5MB）；source-layer=gb_places_of_worship，minzoom=5 maxzoom=13（z<10 熱區、z10 起畫點）；deploy-assets（lock）",
+      staticAssets: ["./world/gb_places_of_worship.pmtiles"],
+    },
+    legend: "gbPlacesOfWorship",
+    popup: "gbPlacesOfWorship",
+    params: { count: 4, kinds: ["palette", "slider", "slider", "multiSelect"] },
+    description: "英國教堂、清真寺、猶太會堂、錫克廟、印度廟、佛寺等宗教場所（OpenStreetMap 2026-11-13，依 religion 分類；未標示者不推測）",
+    topics: ["英國", "宗教", "教堂", "清真寺", "OSM"],
   },
 
   // 🇬🇧 英國第 5 波（2026-10-29：C054 保護區、C097 海洋保護區、C113 林地 NFI、C114 森林遊憩、C115 步道、X002 開放進入地、C093 樹木保護）
