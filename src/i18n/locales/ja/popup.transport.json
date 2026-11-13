@@ -159,7 +159,7 @@
   "popup.transport.gbBtMaxheight": "高さ制限",
   "popup.transport.gbBtMaxweight": "重量制限",
   "popup.transport.gbBtLength": "区間長",
-  "popup.transport.gbBtMeters": "{{n}} m",
+  "popup.transport.gbBtMeters": "{n} m",
   "popup.transport.gbBtSegmentNote": "1 件＝OSM の 1 区間で、橋 1 本ではない",
   "popup.transport.gbUnnamed": "（名称なし）",
   "popup.transport.gbRfKind": "種別",

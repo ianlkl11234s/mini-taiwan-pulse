@@ -159,7 +159,7 @@
   "popup.transport.gbBtMaxheight": "Max height",
   "popup.transport.gbBtMaxweight": "Max weight",
   "popup.transport.gbBtLength": "Segment length",
-  "popup.transport.gbBtMeters": "{{n}} m",
+  "popup.transport.gbBtMeters": "{n} m",
   "popup.transport.gbBtSegmentNote": "One record = one OSM way segment, not one bridge",
   "popup.transport.gbUnnamed": "(Unnamed)",
   "popup.transport.gbRfKind": "Type",

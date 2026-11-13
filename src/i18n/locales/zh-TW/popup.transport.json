@@ -159,7 +159,7 @@
   "popup.transport.gbBtMaxheight": "限高",
   "popup.transport.gbBtMaxweight": "限重",
   "popup.transport.gbBtLength": "路段長度",
-  "popup.transport.gbBtMeters": "{{n}} 公尺",
+  "popup.transport.gbBtMeters": "{n} 公尺",
   "popup.transport.gbBtSegmentNote": "一筆＝一段 OSM 路段，不等於一座橋",
   "popup.transport.gbUnnamed": "（未命名）",
   "popup.transport.gbRfKind": "類型",

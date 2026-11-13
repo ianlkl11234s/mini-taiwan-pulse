@@ -1750,7 +1750,7 @@ export function GbSoilParentMaterialPanel({ props }: { props: Record<string, unk
 // ─────────────────────────── 第 13 波 OSM（2026-11-13）：橋梁與隧道、道路設施、公共設施、宗教場所 ───────────────────────────
 // 類別名沿用圖例 key，去掉尾端「（筆數…）」括號（stripCount）；空值列由 Row 自動隱藏，不寫 0。
 
-/** 圖例 key 帶「（{{n}}）」筆數；popup 只要類別名 → 去掉尾端括號。 */
+/** 圖例 key 帶「（{n}）」筆數；popup 只要類別名 → 去掉尾端括號。 */
 function stripCount(label: string): string {
   return label.replace(/\s*[（(][^（）()]*[）)]\s*$/u, "");
 }
