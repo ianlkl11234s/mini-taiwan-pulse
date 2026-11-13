@@ -38,6 +38,8 @@ import type { KrDataKey } from "./krDataKeys";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRICS, ieNoiseMetricFile, IE_GW_FLOOD_PRODUCTS, ieGwFloodFile } from "./ieDataLayers";
 import type { IeDataKey } from "./ieDataKeys";
+import { PH_DATA_SPECS } from "./phDataLayers";
+import type { PhDataKey } from "./phDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -968,9 +970,52 @@ const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => 
   }];
 })) as Record<IeDataKey, LayerManifestEntry>;
 
+/** 菲律賓第 1 波規格驅動 8 層（規格 SSOT 在 phDataLayers.ts；畫法 usePhDataLayer；主題與群組比照加拿大、愛爾蘭）。 */
+const PH_DATA_ENTRY_META: Record<PhDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  phTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "ph_transport_hubs", topics: ["菲律賓", "交通", "機場", "港口", "DOTr", "PPA", "OSM"],
+    description: "菲律賓機場與港口 581 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）", processing: "Geoportal Philippines（NAMRIA）WMS GetFeatureInfo 取 DOTr／PPA 圖層 → 4326；HOT／HDX OSM 補缺；PMTiles hubs z4–14；卡拉延群島 1 處不畫", note: "Geoportal 未附授權條文（標來源）＋OSM ODbL；官方機場座標多為城鎮近似位置" },
+  phStations: { theme: "交通", group: "場站", zh: "鐵路車站與渡輪碼頭", alt: "Rail Stations & Ferry Terminals", icon: TrainFront, dataset: "ph_stations", topics: ["菲律賓", "交通", "車站", "鐵路", "PNR", "LRT", "MRT", "渡輪", "OSM"],
+    description: "菲律賓鐵路車站與渡輪碼頭 562 處（官方 PNR 站；LRT／MRT 等與渡輪碼頭由 OpenStreetMap 補缺）", processing: "Geoportal Philippines WMS 取 PNR 車站 → 4326；HOT／HDX OSM 補缺；PMTiles stations z4–14", note: "Geoportal 未附授權條文＋OSM ODbL；巴士站不在本層" },
+  phMajorRoads: { theme: "交通", group: "路網", zh: "主要道路與鐵道", alt: "Major Roads & Railways", icon: Route, dataset: "ph_major_roads", topics: ["菲律賓", "交通", "道路", "高速公路", "鐵道", "OSM"],
+    description: "菲律賓主要道路 46,794 段（motorway／trunk／primary）＋鐵道 635 段（OpenStreetMap）", processing: "HOT Export Tool／HDX OSM 道路與鐵道分類檔 → 4326；_link 併入同級；PMTiles roads、rail z4–13", note: "ODbL 1.0；LRT／MRT 路線不在、DPWH 官方高速公路未出圖" },
+  phPowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "ph_power_plants", topics: ["菲律賓", "能源", "電廠", "發電", "燃煤", "地熱", "GEM", "Climate TRACE"],
+    description: "菲律賓電廠 1,051 處（Global Energy Monitor 9 種技術，Climate TRACE 補缺；預設只顯示運轉中＋興建中）", processing: "GEM 各 tracker xlsx 濾菲律賓 → 依技術合併；Climate TRACE（HDX）補缺；PMTiles plants z3–14", note: "CC BY 4.0（GEM）；6 筆光電來自 TransitionZero（CC BY-NC 4.0，非商業授權，popup 標示）" },
+  phPowerGrid: { theme: "能源", group: "電力 · 電網", zh: "輸電線與變電所", alt: "Power Lines & Substations", icon: Zap, dataset: "ph_power_grid", topics: ["菲律賓", "能源", "電網", "輸電線", "變電所", "海底電纜", "OSM"],
+    description: "菲律賓輸電線 5,693 段（依電壓分級，地下與海底電纜虛線）＋變電所 904 處（OpenStreetMap）", processing: "Overture Maps（OSM 衍生）infrastructure power line／cable／substation → 4326；依 voltage 分 kv_class；PMTiles lines、substations z4–14", note: "ODbL 1.0；OSM 覆蓋不均，非官方電網圖" },
+  phRenewables: { theme: "能源", group: "再生能源", zh: "家用太陽能補助與離網微電網", alt: "Solar Home System Subsidies & Off-grid Microgrids", icon: Sun, dataset: "ph_renewables", topics: ["菲律賓", "能源", "再生能源", "太陽能", "微電網", "離網", "DOE"],
+    description: "菲律賓 DOE 家用太陽能系統補助安裝地點 708 處（PVM，依鄉鎮彙整）＋離網微電網 96 處；補助安裝地點，非全國光電", processing: "Department of Energy Open Data API → 4326；PVM 依鄉鎮合併筆數與台數；PMTiles renewables z4–14", note: "DOE 公有領域；沒有點的省份是未涵蓋，不是沒有太陽能" },
+  phFuelStations: { theme: "能源", group: "石化 · 加油站", zh: "加油站", alt: "Fuel Stations", icon: Fuel, dataset: "ph_fuel_stations", topics: ["菲律賓", "能源", "加油站", "OSM", "Petron", "Shell", "Caltex"],
+    description: "菲律賓加油站 10,100 處（OpenStreetMap；依品牌 8 色，其餘併「其他／未知品牌」）", processing: "HOT Export Tool／HDX OSM amenity=fuel → 代表點；品牌正規化；PMTiles fuel z5–14", note: "ODbL 1.0；OSM 覆蓋不均" },
+  phPipelines: { theme: "能源", group: "管線與儲槽", zh: "管線與儲槽", alt: "Pipelines & Storage Tanks", icon: Spline, dataset: "ph_pipelines", topics: ["菲律賓", "能源", "管線", "儲槽", "油氣", "地熱", "OSM"],
+    description: "菲律賓管線 825 段＋儲槽 2,241 處（OpenStreetMap；依內容物分油氣、水、污水、地熱蒸汽、其他、未標示）", processing: "Overture Maps（OSM 衍生）man_made=pipeline／storage_tank → 4326；依 substance／content 分 content_group；PMTiles pipelines、tanks z5–14", note: "ODbL 1.0；多數未標示內容物，不是油氣管線全圖" },
+};
+const PH_DATA_MANIFEST_ENTRIES = Object.fromEntries(PH_DATA_SPECS.map((spec) => {
+  const m = PH_DATA_ENTRY_META[spec.key];
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = spec.parts.map((x) => `${x.sourceLayer}`).join("／");
+  const kinds = ["multiSelect", ...(spec.key === "phPowerPlants" ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "PH", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer 自建 mapbox-pmtiles source；source-layer=${layers}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<PhDataKey, LayerManifestEntry>;
+
 export const LAYER_MANIFEST = {
   ...KR_DATA_MANIFEST_ENTRIES,
   ...IE_DATA_MANIFEST_ENTRIES,
+  ...PH_DATA_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
@@ -4849,6 +4894,59 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "愛爾蘭行政區界（地方政府 31、CSO 選舉分區 3,420、統計小區 18,919；Tailte Éireann 2026／CSO Census 2022）",
     topics: ["愛爾蘭", "行政區", "邊界", "普查"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  // 🇵🇭 菲律賓 Philippines（2026-11-13 第 0–1 波：C001 行政邊界、C023 人口；其餘 8 層由 PH_DATA_MANIFEST_ENTRIES 派生）
+  // ══════════════════════════════════════════════════════════════
+  phAdminBoundaries: {
+    key: "phAdminBoundaries",
+    country: "PH", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ph_admin_boundaries", confidence: "HIGH" }],
+      processing: "OCHA／PSA／NAMRIA COD-AB（HDX）region 18、province 88、municipality 1,642、barangay 42,048 → 4326；PMTiles tile layer region z3–10／province z4–11／municipality z6–12／barangay z9–13；卡拉延群島（Kalayaan）市鎮與 barangay 不畫",
+      note: "CC BY-IGO 3.0（© OCHA、PSA、NAMRIA）；不畫海域主張線；region、province 面含卡拉延群島碎片（來源合併，無法分開）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePhAdminLayers 自建 mapbox-pmtiles source；source-layer=region／province／municipality／barangay（select 擇一）",
+      staticAssets: ["./world/ph_admin_boundaries.pmtiles"],
+    },
+    legend: "phAdminBoundaries",
+    popup: "phAdminBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "菲律賓行政區界（區域 18、省 88、市鎮 1,642、barangay 42,048；OCHA／PSA／NAMRIA COD-AB）",
+    topics: ["菲律賓", "行政區", "邊界", "barangay", "PSGC"],
+  },
+  phPopulation: {
+    key: "phPopulation",
+    country: "PH", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口密度", alt: "Population Density", qualifier: "2024 Census" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ph_population", confidence: "HIGH" }],
+      processing: "PSA 2024 Census of Population（OpenSTAT 0231A6DPUP0）依 PSGC 接 COD-AB 四層級面 → 人口密度（人／km²）；市鎮以上缺值以 barangay 加總；PMTiles 同行政區界四層",
+      note: "PSA OpenSTAT 未附授權條文（註明發布機關）；未對上的 barangay 等標「未涵蓋」畫灰，不是 0",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePhPopulationLayers 自建 mapbox-pmtiles source；source-layer=region／province／municipality／barangay（select 擇一）",
+      staticAssets: ["./world/ph_population.pmtiles"],
+    },
+    legend: "phPopulation",
+    popup: "phPopulation",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）",
+    topics: ["菲律賓", "人口", "人口密度", "普查", "PSA", "barangay"],
   },
   // 🇮🇪 愛爾蘭第 1 波（2026-11-07）：海床地形 raster；其餘 6 層由 IE_DATA_MANIFEST_ENTRIES 派生
   ieBathymetry: {

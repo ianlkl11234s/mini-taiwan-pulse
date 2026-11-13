@@ -1807,5 +1807,15 @@
   "layer.iOceanSightings": "iOcean Marine Wildlife Sightings",
   "layer.iOceanFishing": "iOcean Recreational Fishing Reports",
   "layer.fireworksSites": "Fireworks Manufacturing & Storage Sites",
-  "layer.vehicleInspectionOffices": "Motor Vehicle Offices & Jurisdictions"
+  "layer.vehicleInspectionOffices": "Motor Vehicle Offices & Jurisdictions",
+  "layer.phAdminBoundaries": "Administrative Boundaries (Philippines)",
+  "layer.phPopulation": "Population Density (Philippines, 2024 Census)",
+  "layer.phTransportHubs": "Airports & Ports (Philippines)",
+  "layer.phStations": "Rail Stations & Ferry Terminals (Philippines)",
+  "layer.phMajorRoads": "Major Roads & Railways (Philippines)",
+  "layer.phPowerPlants": "Power Plants (Philippines)",
+  "layer.phPowerGrid": "Power Lines & Substations (Philippines)",
+  "layer.phRenewables": "Solar Home System Subsidies & Off-grid Microgrids (Philippines)",
+  "layer.phFuelStations": "Fuel Stations (Philippines)",
+  "layer.phPipelines": "Pipelines & Storage Tanks (Philippines)"
 }

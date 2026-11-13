@@ -219,6 +219,7 @@ export type GeneratedStaticKey =
   | "country.IE"
   | "country.JP"
   | "country.KR"
+  | "country.PH"
   | "country.TW"
   | "country.menuAria"
   | "countryHint.aria"

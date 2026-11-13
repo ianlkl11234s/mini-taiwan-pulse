@@ -302,6 +302,19 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "typhoonTracks/typhoon-tracks-line-observed": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useTyphoonTracksLayer.ts
   "vesselWatch/vessel-watch-trail-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useVesselWatchLayer.ts
   "weatherAlerts/weatherAlerts-line": {"width": "standard", "opacity": "standard"}, // src/hooks/useDisasterAlertLayer.ts
+  "phAdminBoundaries/ph-admin-region-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：region 比照縣市 · src/hooks/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/hooks/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-municipality-line": {"width": "standard", "opacity": "standard"}, // L-5：市鎮比照鄉鎮市區 · src/hooks/usePhLayers.ts
+  "phAdminBoundaries/ph-admin-barangay-line": {"width": "thin", "opacity": "standard"}, // L-5：barangay 比照村里 · src/hooks/usePhLayers.ts
+  "phPopulation/ph-population-region-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
+  "phPopulation/ph-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
+  "phPopulation/ph-population-municipality-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
+  "phPopulation/ph-population-barangay-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/usePhLayers.ts
+  "phMajorRoads/ph-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts
+  "phMajorRoads/ph-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道單一類 · src/hooks/usePhLayers.ts
+  "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/usePhLayers.ts
+  "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/hooks/usePhLayers.ts
+  "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/hooks/usePhLayers.ts
 };
 
 export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
@@ -437,6 +450,10 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "weakSoilSand5To10/soil-liquefaction-weakSoilSand5To10-missing": "coverage", // src/hooks/useSoilLiquefactionLayers.ts
   "weatherAlerts/weatherAlerts-fill": "keep", // src/hooks/useDisasterAlertLayer.ts
   "youbikeFullness/h3-youbike-fill": "graded", // src/map/youbikeLayerFactory.ts
+  "phPopulation/ph-population-region-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/hooks/usePhLayers.ts
+  "phPopulation/ph-population-province-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
+  "phPopulation/ph-population-municipality-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
+  "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
 };
 /**
  * 暗底面透明度的個別例外（F-1 暗底，2026-11-10）：值＝暗底預設透明度，取代 FILL_OPACITY_DARK 的階。
