@@ -1,15 +1,18 @@
-import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
+import { useEffect } from "react";
+import type { AnyLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 import { BOUNDARY_GRAY, LABEL, MAP_SEAM, labelHaloPaint } from "../map/mapStyleScale";
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { VN_ADMIN_COLOR, VN_DENSITY_BREAKS, VN_NOT_COVERED_COLOR } from "../data/vnDataLayers";
 import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 越南第 0–1 波（2026-11-13）：行政邊界（34 省面＋省名）與人口密度（34 省）。靜態 PMTiles、不訂閱時間。
  * 其餘 10 層重用菲律賓規格引擎（`usePhDataLayer`，規格在 `data/vnDataLayers.ts`）。
- * - 行政界照台灣（map-layers L-5）：中性灰線、面透明度 0 只當點擊熱區；省名用 `province_label` 點。
+ * - 行政界照台灣（map-layers L-5）：中性灰線、面透明度 0 只當點擊熱區；省名讀 `province_label` 點，
+ *   但另放進 GeoJSON source 畫（見 useVnAdminLabels：PMTiles 自訂 source 不能掛 symbol layer）。
  * - 人口密度：序列色階（YlOrBr）依固定斷點分 5 級；沒有密度的面畫灰色「未涵蓋」，不畫成 0。
  * 只有省一級（縣級已取消、社沒有幾何），不需要層級 select。
  */
@@ -51,17 +54,68 @@ export function useVnAdminLayers(mapRef: MapRef, visible: boolean, opacity: numb
         layout: { visibility: "none", ...hookLineLayout(VN_ADMIN_KEY, ids.line) }, paint: linePaint() } as unknown as AnyLayer),
       update: (map) => setPaint(map, ids.line, linePaint()),
     },
-    {
-      id: ids.label,
-      layer: () => ({ id: ids.label, type: "symbol", source: ADMIN_SOURCE.id, "source-layer": "province_label", minzoom: 5,
-        layout: {
-          visibility: "none", "text-field": ["get", "name"], "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
-          "text-size": ["interpolate", ["linear"], ["zoom"], 5, LABEL.badge[0], 9, LABEL.badge[1]], "text-allow-overlap": false,
-        },
-        paint: labelPaint() } as unknown as AnyLayer),
-      update: (map) => setPaint(map, ids.label, labelPaint()),
-    },
   ], [opacity, isDark]);
+  useVnAdminLabels(mapRef, visible, labelPaint, [opacity, isDark]);
+}
+
+const LABEL_SOURCE_ID = "vn-admin-labels";
+const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+
+/**
+ * 省名標籤。Mapbox GL v3 只替 type 為 vector／geojson 的 source 建 symbol 用的 source cache，
+ * PMTiles 自訂 source type（pmtile-source）沒有 → symbol layer 一掛上去，放置標籤時讀不到圖磚，
+ * 整個繪製迴圈拋錯停擺（2026-11-14 實測：z5 以上整張地圖凍住）。
+ * 所以從已載入的 `province_label` 點（querySourceFeatures 走一般 source cache）抄進 GeoJSON source 再畫。
+ */
+function useVnAdminLabels(mapRef: MapRef, visible: boolean, labelPaint: () => Record<string, unknown>, deps: readonly unknown[]) {
+  const mapTick = useMapReadyTick(mapRef, visible);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const id = VN_ADMIN_LAYER_IDS.label;
+    if (!visible) {
+      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
+      return;
+    }
+    // 跨次累積：只抄得到已載入圖磚裡的點，平移後再補，湊滿 34 省就停。
+    const byCode = new Map<string, GeoJSON.Feature>();
+    let filled = false;
+    const fill = () => {
+      const src = map.getSource(LABEL_SOURCE_ID) as GeoJSONSource | undefined;
+      if (filled || !src || !map.getSource(ADMIN_SOURCE.id)) return;
+      const before = byCode.size;
+      for (const f of map.querySourceFeatures(ADMIN_SOURCE.id, { sourceLayer: "province_label" })) {
+        const code = String(f.properties?.province_code ?? f.properties?.name ?? "");
+        if (code && !byCode.has(code) && f.geometry.type === "Point") {
+          byCode.set(code, { type: "Feature", properties: { name: f.properties?.name }, geometry: f.geometry });
+        }
+      }
+      if (byCode.size === before) return;
+      src.setData({ type: "FeatureCollection", features: [...byCode.values()] });
+      filled = byCode.size >= 34;
+    };
+    const mount = () => {
+      if (!map.getSource(LABEL_SOURCE_ID)) map.addSource(LABEL_SOURCE_ID, { type: "geojson", data: EMPTY_FC });
+      if (!map.getLayer(id)) {
+        map.addLayer({ id, type: "symbol", source: LABEL_SOURCE_ID, minzoom: 5,
+          layout: {
+            visibility: "visible", "text-field": ["get", "name"], "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+            "text-size": ["interpolate", ["linear"], ["zoom"], 5, LABEL.badge[0], 9, LABEL.badge[1]], "text-allow-overlap": false,
+          },
+          paint: labelPaint() } as unknown as AnyLayer);
+      }
+      map.setLayoutProperty(id, "visibility", "visible");
+      setPaint(map, id, labelPaint());
+      if (byCode.size > 0) (map.getSource(LABEL_SOURCE_ID) as GeoJSONSource).setData({ type: "FeatureCollection", features: [...byCode.values()] });
+      fill();
+    };
+    mount();
+    map.on("style.load", mount);
+    map.on("sourcedata", fill);
+    map.on("moveend", fill);
+    return () => { map.off("style.load", mount); map.off("sourcedata", fill); map.off("moveend", fill); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapRef, visible, mapTick, ...deps]);
 }
 
 // ═════════════════════════ 人口 ═════════════════════════
