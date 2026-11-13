@@ -261,7 +261,7 @@ export const CN_DATA_SPECS: readonly CnLayerSpec[] = [
     ],
     popupNotes: [{ text: l3("站名不在瘦身圖磚（英文機器翻譯，完整資料在分析端）", "Stop name not in slimmed tiles (machine-translated; full data kept upstream)", "停留所名は軽量タイルに含まない（機械翻訳、完全版は分析側）") }],
     sourceOrg: "Wang et al. (2024), A Comprehensive Vector Dataset of Bus Networks Across China for the Year 2024, figshare（上游高德、百度地圖 API）",
-    sourceUrl: "https://doi.org/10.6084/m9.figshare.28323971", license: "CC BY 4.0（上游地圖 API 條款未另行審視）", fetchedAt: CN_FETCHED_AT,
+    sourceUrl: "https://doi.org/10.6084/m9.figshare.28323971", license: "CC BY 4.0（figshare）；上游為高德／百度地圖 API，條款未查證", fetchedAt: CN_FETCHED_AT,
     loading: l3("中國公交站載入中", "Loading China bus stops", "中国のバス停を読み込み中"),
   },
   {

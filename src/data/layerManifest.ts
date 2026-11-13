@@ -1026,7 +1026,7 @@ const cnPrivateSource = (asset: keyof typeof CN_OWNER_ASSETS, note: string) => (
 });
 const CN_DATA_ENTRY_META: Record<CnDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
   cnBusStops: { theme: "交通", group: "場站", zh: "公交站", alt: "Bus Stops", icon: Bus, dataset: "cn_bus_stops", topics: ["中國", "交通", "公車", "公交站"],
-    description: "中國 299 個城市公交站 859,061 處（2024；大小依經過路線數；自治州、盟、地區未涵蓋）", processing: "figshare 28323971（Wang et al. 2024）simplified net stop 檔去重 → 4326；台港澳排除；PMTiles bus_stops z6–11（瘦身：只留 n_lines、prefecture_code）", note: "CC BY 4.0（上游高德、百度地圖 API 條款未另行審視）；地級 291/333" },
+    description: "中國 299 個城市公交站 859,061 處（2024；大小依經過路線數；自治州、盟、地區未涵蓋）", processing: "figshare 28323971（Wang et al. 2024）simplified net stop 檔去重 → 4326；台港澳排除；PMTiles bus_stops z6–11（瘦身：只留 n_lines、prefecture_code）", note: "CC BY 4.0（figshare）；上游為高德／百度地圖 API，條款未查證；地級 291/333" },
   cnTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "cn_transport_hubs", topics: ["中國", "交通", "機場", "港口", "OurAirports", "OSM"],
     description: "中國機場 709（OurAirports，有定期航班白框）＋港口 765（OSM 港區、港灣）", processing: "OurAirports CSV 濾 CN、OSM landuse=port／harbour 代表點；南沙島礁 9 處不上圖；PMTiles airports、ports z3–13", note: "Public Domain（機場）＋ODbL 1.0（港口）；內蒙古、青海、寧夏內陸無港口" },
   cnMajorRoads: { theme: "交通", group: "路網", zh: "主要道路與鐵路", alt: "Major Roads & Railways", icon: Route, dataset: "cn_major_roads", topics: ["中國", "交通", "道路", "高速公路", "鐵路", "高鐵", "OSM"],
