@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > **現況入口（單一入口）**：開場先讀本檔上半部（現在最該注意＋進行中／待拍板），需要細節再查 BACKLOG 對應主題群。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-12 v2.36.1 發布（選舉活動同地點多場合成，#1020）。同日稍早：v2.36.0 發布（統計圖層呈現方式：比例圓、點密度、多年份並排、左右比較；暗底配色第一／二段；review 修正）。之前：2026-11-10 差異檢核收尾（當天完成並登記：MCP 發版關卡與倉庫 1.5.3 重發、四個守門排程、Dependabot 與 required `ci-ok`、開場提示與瘦身第一輪、配色第一／二段；之前：對 11-08 健檢逐項比對：PROJECTS 引用已關閉 ID、過期期限、封存連結全數修正，新增 `npm run check:entry-docs` 自動檢查；使用者同日拍板的決定登記進 BACKLOG，決策清單 https://claude.ai/artifact/5jeCEF7zwwCWbgAWveLtWd ）。同日稍早：v2.35.0 發布（台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表）。
+> 最後盤點：2026-11-13 v2.36.2 發布（分享網址預設篩選、統計說明框錯位修正；選舉活動同地點各場展開，#1024／#1025）。前一日：2026-11-12 v2.36.1 發布（選舉活動同地點多場合成，#1020）。同日稍早：v2.36.0 發布（統計圖層呈現方式：比例圓、點密度、多年份並排、左右比較；暗底配色第一／二段；review 修正）。之前：2026-11-10 差異檢核收尾（當天完成並登記：MCP 發版關卡與倉庫 1.5.3 重發、四個守門排程、Dependabot 與 required `ci-ok`、開場提示與瘦身第一輪、配色第一／二段；之前：對 11-08 健檢逐項比對：PROJECTS 引用已關閉 ID、過期期限、封存連結全數修正，新增 `npm run check:entry-docs` 自動檢查；使用者同日拍板的決定登記進 BACKLOG，決策清單 https://claude.ai/artifact/5jeCEF7zwwCWbgAWveLtWd ）。同日稍早：v2.35.0 發布（台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表）。
 > 自動檢查：`npm run check:entry-docs`（規則與標記寫法見 [memory README](../.claude/memory/README.md)「入口文件自動檢查」）；期限過了要寫〔結果 YYYY-MM-DD：…〕或刪列（過期只警告、不讓 CI 紅；開場 hook 會提醒）。
 
 與其他文件的分工（mini-taiwan-pulse 是整個 Pulse 生態系的總 PM）：
@@ -23,15 +23,15 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
-| 2026-11-13 | 06:15 後重跑 gis-platform `migrations/551_retention_batch2_catchup_hardening.test.psql`（新 cron 首輪後仍無缺日）；看 collector 日報正常（預期多出「從未有資料」🟡）與 HiCloud `/var/log/cdc-public-health/archive.log` 03:20 無錯。都過就關兩列 | Claude | GP-550／COL-199 |
-| ~2026-11-12～14 | pgss 乾淨慢查詢清單（11-09 15:27 重置）→ 先優化 >1s，再收 timeout 10–15s〔結果 2026-11-12：清單已出，公開 RPC 最慢超過 1 秒的有 12 支、平均超過 1 秒的 5 支，細節在 BACKLOG SEC-5；優化 migration 與逾時調整等使用者拍板〕 | Claude→使用者拍板 | SEC-5 |
-| ~2026-11-14 | 刪 Zeabur 最後兩個專案（mini-tw-pulse、data-collectors-gomn；其餘 11-09 已刪；主站網域已改 Worker，ZB-4 完成），須使用者同意；uk-trip DNS 要使用者在 Cloudflare 手動刪 | 使用者 | ZB-1／ZB-7 |
-| 2026-11-15 | `live.iot_wra_measurements` 確認已降到 30 天內（11-12 還有約 307 萬列超期，每晚清 200 萬列） | Claude | WA-3 |
+| 2026-11-14 | 兩項部署的隔日確認：03:39 備份 reconcile 的 warn 由 31 降到接近 0（collectors #200）；08:00 日報的 VM 區段三支收集器成功數仍正確（07:00 排程自己跑的快照） | Claude | BKP-4／VMH-1 |
+| 2026-11-15 | `live.iot_wra_measurements` 確認已降到 30 天內（11-12 約 307 萬列超期、11-13 早上剩約 125 萬列，每晚清 200 萬列） | Claude | WA-3 |
+| 2026-11-16 | 回看 pgss：`get_groundwater_latest`、`get_youbike_h3_snapshots` 套用 mig 552／553 後的平均耗時；v2.36.2 的 R5-2／VPB-1／VPB-2 正式站複驗結果 | Claude | SEC-5／VPB-1 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
 | ~2026-11-16 | pulse-host 記憶體峰值檢視（collector-mem 觀察中）後決定 mem_limit | Claude | HOST-1 |
 | 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警，VM 版另存 `.vm.tar.gz` | Claude | ZB-2 |
 | ~2026-11-20 | 動物收容成果收集器確認有新 run（設計低頻，不是故障） | Claude | COL-ANIMAL-1 |
 | 2026-11-28 | 選舉投票日：之前每日更新活動地圖；選後匯出最後一版轉站主資料 | Claude＋使用者 | OWD-4 |
+| 2026-11-28 後 | 選後一起做：選舉活動兩張表登記保留期限、清 22 筆已刪除表的備份狀態紀錄（使用者 2026-11-13 同意；動手前先給清單） | Claude＋使用者 | ELEC-RET-1 |
 | 2026-12-01 前 | 使用者取消 Zeabur 專用主機續約 | 使用者 | ZB-5 |
 | 2026-12-03 前 | SEC-6 金鑰輪換（22 把換、9 項刪；Claude 前置 C1–C8） | 使用者＋Claude | SEC-6 |
 | 2027-03 前 | intel 三表每月匯出 S3 排程（另一 worker 進行中） | Claude | WA-13 |
@@ -43,7 +43,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 **本週進行中**
 
-- Zeabur 收尾與金鑰：ZB-1／ZB-5、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
+- Zeabur 收尾與金鑰：最後兩個專案使用者 11-13 回報已刪（ZB-1）；剩 ZB-5 停約、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
 - 告警分級 11-09 完成（GitHub 排程、主機看門狗、collector、healthchecks 3 個死人開關皆已設）；剩 aisstream／VM 接告警（G 群 ALERT-1）。
 - Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；11-09 晚第一批權限（gp #227 mig 536–539）與 VM 固定形狀寫入（collectors #194）也完成；11-10 驗證與慢查詢清單 11-12 完成（R5 升為必須；SEC-5 的優化等使用者拍板）；剩預算表（SBE-5）、軌跡改讀每日檔方案（TRAIL-1）、新發現的 RLS／權限（SEC-11／SEC-12／HERMES-2）。
 - 站主資料第 3 批（EA、Coillte、water1944）與撤舊 RPC（F 群 OWD-4、SR-1／SR-2）。
