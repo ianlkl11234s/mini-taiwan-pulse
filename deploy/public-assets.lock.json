@@ -2587,6 +2587,13 @@
    "s3_key": "deploy-assets/world/gb_bathing_waters.pmtiles"
   },
   {
+   "path": "public/world/gb_bridges_tunnels.pmtiles",
+   "bytes": 11634399,
+   "sha256": "d3be348dec4cc36759d48c8ca82064266c29fd09ba1410bf07221b1770d165cb",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_bridges_tunnels.pmtiles"
+  },
+  {
    "path": "public/world/gb_brownfield.pmtiles",
    "bytes": 18896494,
    "sha256": "b6fe05da911a5d43f03a206018b9fb478e3db7c9964276fc695daef99cb508a2",
@@ -2797,6 +2804,13 @@
    "s3_key": "deploy-assets/world/gb_major_roads.pmtiles"
   },
   {
+   "path": "public/world/gb_major_roads_v2.pmtiles",
+   "bytes": 27538607,
+   "sha256": "37294c0b93b44aeb793d667731beaf628e59b832e77fed4df22f46d3389c5c0c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_major_roads_v2.pmtiles"
+  },
+  {
    "path": "public/world/gb_marine_protected_areas.pmtiles",
    "bytes": 3451450,
    "sha256": "08c4a023120573ebe9a109497149455f5abfe2f98c1efc6e07cc45f4bbe92ab3",
@@ -2846,6 +2860,13 @@
    "s3_key": "deploy-assets/world/gb_open_access_land_z5.pmtiles"
   },
   {
+   "path": "public/world/gb_places_of_worship.pmtiles",
+   "bytes": 16992253,
+   "sha256": "7f84a0b61a1b215346488099647a321528dccbc81ac443c341125e1df90a8ca1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_places_of_worship.pmtiles"
+  },
+  {
    "path": "public/world/gb_planning_constraints_points.pmtiles",
    "bytes": 3874941,
    "sha256": "a35ce39d809364a219772beb8dddf3a87517a03300997e56a840dc6aa6aa7dad",
@@ -2874,6 +2895,13 @@
    "s3_key": "deploy-assets/world/gb_protected_areas_points.pmtiles"
   },
   {
+   "path": "public/world/gb_public_facilities.pmtiles",
+   "bytes": 16863484,
+   "sha256": "6b58b2886158101c8adaf0623a645fe66a43906b730844fae0c123f7c03dfc50",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_public_facilities.pmtiles"
+  },
+  {
    "path": "public/world/gb_radon_atlas.pmtiles",
    "bytes": 18137691,
    "sha256": "faa161840f3f91ff7999eacaa8d65cbf7c9163cc596d5299d55d2e1bf61a557c",
@@ -2893,6 +2921,13 @@
    "sha256": "e4b8c7ffaf11614bf758f36e48ff83ce56be5927559096875110f58699397fbb",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_renewables.pmtiles"
+  },
+  {
+   "path": "public/world/gb_road_facilities.pmtiles",
+   "bytes": 1096634,
+   "sha256": "514552e1319b82be5be40de9db27198808bd4aeba98816146e3a0ca72073fb7d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_road_facilities.pmtiles"
   },
   {
    "path": "public/world/gb_schools.pmtiles",
