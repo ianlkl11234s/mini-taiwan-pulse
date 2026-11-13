@@ -284,12 +284,12 @@
   "soundAtlas.reason.basisUnknown": "判断不能：{list}",
   "soundAtlas.reason.basis.rainGauge": "雨量計 {station} {mm} mm／時",
   "soundAtlas.reason.basis.rainRadar": "レーダーエコーから推定",
-  "soundAtlas.reason.basis.roadFlow": "{road} 約 {veh} 台／時（{evidence}）",
-  "soundAtlas.reason.basis.roadClass": "{road}（{evidence}）",
+  "soundAtlas.reason.basis.roadFlow": "約 {veh} 台／時・{evidence}",
   "soundAtlas.reason.basis.near": "{label}、距離 {dist}",
   "soundAtlas.reason.basis.railNow": "、いま列車が通過中",
   "soundAtlas.reason.basis.none": "詳細なし",
   "soundAtlas.reason.colon": "：",
   "soundAtlas.reason.family.roadTraffic": "道路交通",
-  "soundAtlas.reason.family.river": "川の水音"
+  "soundAtlas.reason.family.river": "川の水音",
+  "soundAtlas.reason.basis.roadNamed": "{road}：{body}"
 }

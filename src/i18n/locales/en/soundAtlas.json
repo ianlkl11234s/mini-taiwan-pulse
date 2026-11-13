@@ -284,12 +284,12 @@
   "soundAtlas.reason.basisUnknown": "Cannot tell: {list}",
   "soundAtlas.reason.basis.rainGauge": "Rain gauge {station} {mm} mm/h",
   "soundAtlas.reason.basis.rainRadar": "Estimated from radar echo",
-  "soundAtlas.reason.basis.roadFlow": "{road} about {veh} veh/h ({evidence})",
-  "soundAtlas.reason.basis.roadClass": "{road} ({evidence})",
+  "soundAtlas.reason.basis.roadFlow": "about {veh} veh/h · {evidence}",
   "soundAtlas.reason.basis.near": "{label}, {dist} away",
   "soundAtlas.reason.basis.railNow": ", a train is passing now",
   "soundAtlas.reason.basis.none": "no details",
   "soundAtlas.reason.colon": ": ",
   "soundAtlas.reason.family.roadTraffic": "Road traffic",
-  "soundAtlas.reason.family.river": "River water"
+  "soundAtlas.reason.family.river": "River water",
+  "soundAtlas.reason.basis.roadNamed": "{road}: {body}"
 }

@@ -284,12 +284,12 @@
   "soundAtlas.reason.basisUnknown": "無法判斷：{list}",
   "soundAtlas.reason.basis.rainGauge": "雨量站 {station} {mm} mm／時",
   "soundAtlas.reason.basis.rainRadar": "雷達回波推估",
-  "soundAtlas.reason.basis.roadFlow": "{road} 約 {veh} 輛／時（{evidence}）",
-  "soundAtlas.reason.basis.roadClass": "{road}（{evidence}）",
+  "soundAtlas.reason.basis.roadFlow": "約 {veh} 輛／時・{evidence}",
   "soundAtlas.reason.basis.near": "{label}，距 {dist}",
   "soundAtlas.reason.basis.railNow": "，此刻有列車",
   "soundAtlas.reason.basis.none": "沒有細項",
   "soundAtlas.reason.colon": "：",
   "soundAtlas.reason.family.roadTraffic": "道路車流",
-  "soundAtlas.reason.family.river": "河川水聲"
+  "soundAtlas.reason.family.river": "河川水聲",
+  "soundAtlas.reason.basis.roadNamed": "{road}：{body}"
 }

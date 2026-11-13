@@ -15,7 +15,7 @@ import { FONT_SIZE } from "../../styles/designTokens";
 import { COMPOSITE } from "../../sound/model/soundProfiles";
 import { useFeatureTheme } from "../featureInfo/featureTheme";
 import { SoundPotentialCellPanel, SoundRainCellPanel, SoundRoadCellPanel } from "../featureInfo/soundAtlasPanels";
-import { FAMILY_KEYS, formatDistanceM, rainClassKey, ROAD_EVIDENCE_KEYS, roadLevelKey } from "./soundAtlasText";
+import { FAMILY_KEYS, formatDistanceM, rainClassKey, roadLevelKey } from "./soundAtlasText";
 import { activeFamilies, compositeReason, reasonFamilyName } from "./compositeReason";
 import type { MessageKey } from "../../i18n/keys";
 
@@ -33,6 +33,8 @@ function familyLevelKey(f: CompositeFamily, info: Record<string, unknown>): Mess
 }
 
 type T = ReturnType<typeof useLocale>["t"];
+/** 依據段用圖例的短證據名（國道（當日實測）／臺北市區（平日典型）／新北市區（道路等級推估）） */
+const ROAD_EVIDENCE_SHORT = { observed: "legend.soundAtlas.roadObserved", estimated: "legend.soundAtlas.roadEstimated", inferred: "legend.soundAtlas.roadInferred" } as const;
 const str = (v: unknown) => (typeof v === "string" && v ? v : null);
 
 /** 一族在此格的具體依據（只讀點選查詢已算好的明細欄位，不新增計算） */
@@ -43,11 +45,12 @@ function cellBasis(t: T, f: CompositeFamily, info: Record<string, unknown> | nul
     return mm != null && station ? t("soundAtlas.reason.basis.rainGauge", { station, mm: mm.toFixed(1) }) : t("soundAtlas.reason.basis.rainRadar");
   }
   if (f === "road_traffic") {
-    const ev = str(info.evidence) as keyof typeof ROAD_EVIDENCE_KEYS | null;
-    const evidence = ev && ROAD_EVIDENCE_KEYS[ev] ? t(ROAD_EVIDENCE_KEYS[ev]) : t("soundAtlas.reason.basis.none");
-    const road = str(info.roadName) ?? t(FAMILY_KEYS.road_traffic);
+    const ev = str(info.evidence) as keyof typeof ROAD_EVIDENCE_SHORT | null;
+    const evidence = ev && ROAD_EVIDENCE_SHORT[ev] ? t(ROAD_EVIDENCE_SHORT[ev]) : t("soundAtlas.reason.basis.none");
+    const road = str(info.roadName);
     const veh = num(info.vehPerHour);
-    return veh != null ? t("soundAtlas.reason.basis.roadFlow", { road, veh: Math.round(veh), evidence }) : t("soundAtlas.reason.basis.roadClass", { road, evidence });
+    const body = veh != null ? t("soundAtlas.reason.basis.roadFlow", { veh: Math.round(veh), evidence }) : evidence;
+    return road ? t("soundAtlas.reason.basis.roadNamed", { road, body }) : body;
   }
   const label = str(info.topLabel), dist = num(info.topDistanceM);
   if (!label && dist == null) return t("soundAtlas.reason.basis.none");
