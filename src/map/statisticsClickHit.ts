@@ -47,6 +47,10 @@ export const EXACT_POINT_HIT_TYPES: ReadonlySet<string> = new Set([
   "regulatedFacilityDensityGrid",
   "jpAccommodationDensity",
   "krPopulationH3",
+  // 日本醫療圈（純 fill）：z8 點川口一帶卻顯示東京「区西北部」（VP-15）
+  "jpMedicalAreasPrimary",
+  "jpMedicalAreasSecondary",
+  "jpMedicalAreasTertiary",
 ]);
 
 export function gisHitTarget<T>(type: string, point: T, bbox: [T, T]): T | [T, T] {

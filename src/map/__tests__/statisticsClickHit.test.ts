@@ -57,6 +57,12 @@ describe("gisHitTarget（一般點擊登記的小格網面只查點擊點）", (
     expect(gisHitTarget("jpAccommodationDensity", point, bbox)).toBe(point);
   });
 
+  it("日本醫療圈：只查點擊點，z8 不會顯示鄰圈（VP-15）", () => {
+    for (const type of ["jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary"]) {
+      expect(gisHitTarget(type, point, bbox), type).toBe(point);
+    }
+  });
+
   it("其他點位圖層保留 ±5px 容錯框", () => {
     expect(gisHitTarget("krPoliceBoxes", point, bbox)).toBe(bbox);
   });
