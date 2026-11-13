@@ -30,8 +30,8 @@ export const GB_STRUCTURES: readonly GbOsmKindDef<GbStructure>[] = [
 ];
 export const GB_BRIDGES_TUNNELS_COUNT = 29_493;
 export const GB_BRIDGES_TUNNELS_BY_NATION = { England: 20_337, Scotland: 5_259, Wales: 2_555, "Northern Ireland": 1_342 } as const;
-/** 圖磚 z6–13（analytics 07_export.py `-Z 6`）。 */
-export const GB_BRIDGES_TUNNELS_TILE_ZOOM = { minzoom: 6, maxzoom: 13 } as const;
+/** 圖磚 z5–13（analytics 07_export.py `-Z 5`，2026-11-14 由 z6 重切）。 */
+export const GB_BRIDGES_TUNNELS_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
 export const gbStructure = (value: unknown) => GB_STRUCTURES.find((s) => s.value === value);
 
 // ─────────────────────────── 道路設施 gbRoadFacilities（點） ───────────────────────────
@@ -59,8 +59,8 @@ export const GB_PUBLIC_FACILITY_KINDS: readonly GbOsmKindDef<GbPublicFacilityKin
 ];
 export const GB_PUBLIC_FACILITIES_COUNT = 41_333;
 export const GB_PUBLIC_FACILITIES_BY_NATION = { England: 32_361, Scotland: 4_452, Wales: 2_644, "Northern Ireland": 1_876 } as const;
-/** 圖磚 z6–13（analytics `-Z 6`）。 */
-export const GB_PUBLIC_FACILITIES_TILE_ZOOM = { minzoom: 6, maxzoom: 13 } as const;
+/** 圖磚 z5–13（analytics `-Z 5`，2026-11-14 由 z6 重切）。 */
+export const GB_PUBLIC_FACILITIES_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
 export const gbPublicFacilityKind = (value: unknown) => GB_PUBLIC_FACILITY_KINDS.find((k) => k.value === value);
 
 // ─────────────────────────── 宗教場所 gbPlacesOfWorship（點，≥1 萬點熱區） ───────────────────────────
@@ -79,8 +79,8 @@ export const GB_WORSHIP_KINDS: readonly GbOsmKindDef<GbWorshipKind>[] = [
 ];
 export const GB_PLACES_OF_WORSHIP_COUNT = 42_113;
 export const GB_PLACES_OF_WORSHIP_BY_NATION = { England: 33_366, Scotland: 3_497, Wales: 3_361, "Northern Ireland": 1_889 } as const;
-/** 圖磚 z7–13（analytics `-Z 7`）。 */
-export const GB_PLACES_OF_WORSHIP_TILE_ZOOM = { minzoom: 7, maxzoom: 13 } as const;
+/** 圖磚 z5–13（analytics `-Z 5`，2026-11-14 由 z7 重切）。 */
+export const GB_PLACES_OF_WORSHIP_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
 export const gbWorshipKind = (value: unknown) => GB_WORSHIP_KINDS.find((k) => k.value === value);
 
 /** 圖層代表色（manifest／popup 標題後備色）：取各層第一類的暗底色。 */

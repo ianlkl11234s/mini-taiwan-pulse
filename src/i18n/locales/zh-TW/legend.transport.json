@@ -143,7 +143,7 @@
   "legend.transport.gbRoadMotorway": "高速公路（M）",
   "legend.transport.gbRoadA": "A 級道路",
   "legend.transport.gbRoadB": "B 級道路（2026-11-13 新增，OSM）",
-  "legend.transport.gbRoadsSourceMrdb": "官方：DfT 主要道路資料庫（大不列顛）：計數點之間的概化直線段，放大後不貼合實際道路",
+  "legend.transport.gbRoadsSourceMrdb": "官方：大不列顛高速公路與 A 級來自 DfT 主要道路資料庫，是計數點之間的概化直線段，放大後不貼合實際道路；B 級為 OSM 實際線形",
   "legend.transport.gbRoadsSourceOsm": "OSM：北愛爾蘭全部與大不列顛 B 級（OpenStreetMap 2026-11-13 快照，實際線形）",
   "legend.transport.gbRoadsBZoom": "B 級道路放大到縮放 8 起才顯示",
   "legend.transport.gbAadfTitleNote": "2025 年平均每日機動車輛數（輛／日）",

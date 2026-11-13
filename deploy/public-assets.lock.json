@@ -2588,8 +2588,8 @@
   },
   {
    "path": "public/world/gb_bridges_tunnels.pmtiles",
-   "bytes": 11634399,
-   "sha256": "d3be348dec4cc36759d48c8ca82064266c29fd09ba1410bf07221b1770d165cb",
+   "bytes": 11861743,
+   "sha256": "69adc70e77c6684683d64be9aeaa539b2344cffe60d27285ae34d9eeabe67fbe",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_bridges_tunnels.pmtiles"
   },
@@ -2861,8 +2861,8 @@
   },
   {
    "path": "public/world/gb_places_of_worship.pmtiles",
-   "bytes": 16992253,
-   "sha256": "7f84a0b61a1b215346488099647a321528dccbc81ac443c341125e1df90a8ca1",
+   "bytes": 19542395,
+   "sha256": "f3205609e3a32158f862b143c81978129b11de4584263426309801ebe9a2dabb",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_places_of_worship.pmtiles"
   },
@@ -2896,8 +2896,8 @@
   },
   {
    "path": "public/world/gb_public_facilities.pmtiles",
-   "bytes": 16863484,
-   "sha256": "6b58b2886158101c8adaf0623a645fe66a43906b730844fae0c123f7c03dfc50",
+   "bytes": 18002492,
+   "sha256": "e55be10d7ffed95e8ff5067493d444939ddb8ad7f31bd260075e350c452ff8e1",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_public_facilities.pmtiles"
   },

@@ -143,7 +143,7 @@
   "legend.transport.gbRoadMotorway": "Motorway (M)",
   "legend.transport.gbRoadA": "A road",
   "legend.transport.gbRoadB": "B road (added 2026-11-13, OSM)",
-  "legend.transport.gbRoadsSourceMrdb": "Official: DfT Major Roads Database (Great Britain): generalised straight segments between count points, not aligned with the actual road when zoomed in",
+  "legend.transport.gbRoadsSourceMrdb": "Official: Great Britain motorways and A roads come from the DfT Major Roads Database as generalised straight segments between count points, not aligned with the actual road when zoomed in; B roads follow the actual OSM alignment",
   "legend.transport.gbRoadsSourceOsm": "OSM: all of Northern Ireland and Great Britain B roads (OpenStreetMap snapshot 2026-11-13, actual alignment)",
   "legend.transport.gbRoadsBZoom": "B roads appear from zoom 8",
   "legend.transport.gbAadfTitleNote": "2025 annual average daily motor vehicles (vehicles/day)",

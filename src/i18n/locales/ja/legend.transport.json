@@ -143,7 +143,7 @@
   "legend.transport.gbRoadMotorway": "高速道路（M）",
   "legend.transport.gbRoadA": "A 級道路",
   "legend.transport.gbRoadB": "B 級道路（2026-11-13 追加、OSM）",
-  "legend.transport.gbRoadsSourceMrdb": "公式：DfT 主要道路データベース（グレートブリテン）：計測地点間を結ぶ概略の直線区間で、拡大すると実際の道路と一致しない",
+  "legend.transport.gbRoadsSourceMrdb": "公式：グレートブリテンの高速道路と A 級は DfT 主要道路データベースの計測地点間を結ぶ概略の直線区間で、拡大すると実際の道路と一致しない。B 級は OSM の実際の線形",
   "legend.transport.gbRoadsSourceOsm": "OSM：北アイルランド全体とグレートブリテンの B 級道路（OpenStreetMap 2026-11-13 スナップショット、実際の線形）",
   "legend.transport.gbRoadsBZoom": "B 級道路はズーム 8 以上で表示",
   "legend.transport.gbAadfTitleNote": "2025 年 年平均日交通量（自動車、台／日）",

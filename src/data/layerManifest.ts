@@ -6202,13 +6202,13 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_bridges_tunnels", confidence: "MED" }],
-      processing: "OpenStreetMap 2026-11-13 快照：主要道路（motorway／trunk／primary／secondary 含 link）且 bridge／tunnel 的路段，橋 29,009＋隧道 484＝29,493 段；一筆＝一段 OSM way，不等於一座橋；PMTiles z6–13",
+      processing: "OpenStreetMap 2026-11-13 快照：主要道路（motorway／trunk／primary／secondary 含 link）且 bridge／tunnel 的路段，橋 29,009＋隧道 484＝29,493 段；一筆＝一段 OSM way，不等於一座橋；PMTiles z5–13",
       note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料）；英國無全國道路橋梁開放清冊",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_bridges_tunnels.pmtiles（11.6MB）；source-layer=gb_bridges_tunnels，minzoom=6 maxzoom=13；橋實線、隧道虛線兩個 line 子圖層；deploy-assets（lock）",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_bridges_tunnels.pmtiles（11.9MB）；source-layer=gb_bridges_tunnels，minzoom=5 maxzoom=13；橋實線、隧道虛線兩個 line 子圖層；deploy-assets（lock）",
       staticAssets: ["./world/gb_bridges_tunnels.pmtiles"],
     },
     legend: "gbBridgesTunnels",
@@ -6252,13 +6252,13 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_public_facilities", confidence: "MED" }],
-      processing: "OpenStreetMap 2026-11-13 快照：社區活動中心 16,750／公共廁所 14,320／郵局 9,416／市場 847，共 41,333 點（面以中心點表示）；PMTiles z6–13",
+      processing: "OpenStreetMap 2026-11-13 快照：社區活動中心 16,750／公共廁所 14,320／郵局 9,416／市場 847，共 41,333 點（面以中心點表示）；PMTiles z5–13",
       note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料，完整度依地區而異）；無可用官方全國名錄",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_public_facilities.pmtiles（16.9MB）；source-layer=gb_public_facilities，minzoom=6 maxzoom=13（z<10 熱區、z10 起畫點）；deploy-assets（lock）",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_public_facilities.pmtiles（18.0MB）；source-layer=gb_public_facilities，minzoom=5 maxzoom=13（z<10 熱區、z10 起畫點）；deploy-assets（lock）",
       staticAssets: ["./world/gb_public_facilities.pmtiles"],
     },
     legend: "gbPublicFacilities",
@@ -6277,13 +6277,13 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_places_of_worship", confidence: "MED" }],
-      processing: "OpenStreetMap 2026-11-13 快照 amenity=place_of_worship，依 religion 分 8 類：基督宗教 38,850／伊斯蘭教 1,421／猶太教 229／錫克教 209／印度教 164／佛教 120／其他宗教 258／未標示 862，共 42,113 點；PMTiles z7–13",
+      processing: "OpenStreetMap 2026-11-13 快照 amenity=place_of_worship，依 religion 分 8 類：基督宗教 38,850／伊斯蘭教 1,421／猶太教 229／錫克教 209／印度教 164／佛教 120／其他宗教 258／未標示 862，共 42,113 點；PMTiles z5–13",
       note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料）；religion 未標者歸「未標示」，不推測",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_places_of_worship.pmtiles（17.0MB）；source-layer=gb_places_of_worship，minzoom=7 maxzoom=13（z<10 熱區、z10 起畫點）；deploy-assets（lock）",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_places_of_worship.pmtiles（19.5MB）；source-layer=gb_places_of_worship，minzoom=5 maxzoom=13（z<10 熱區、z10 起畫點）；deploy-assets（lock）",
       staticAssets: ["./world/gb_places_of_worship.pmtiles"],
     },
     legend: "gbPlacesOfWorship",

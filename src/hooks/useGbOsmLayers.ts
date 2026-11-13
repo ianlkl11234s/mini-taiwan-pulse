@@ -15,7 +15,7 @@ import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type So
  * 英國第 13 波 OSM 4 層（2026-11-13 快照）：主要道路橋梁與隧道（線，橋實線、隧道虛線，寬依道路等級）、
  * 道路設施（點，<1 萬點 z5 起直接畫）、公共設施與宗教場所（點，≥1 萬點 R5：低縮放熱區、z10 起畫點）。
  * 四層都依類別多選篩選（§3.8 V-4），熱區跟著篩。靜態資料、不訂閱時間。
- * 圖磚 minzoom 照 analytics 成品（橋隧與公共設施 z6、宗教場所 z7）：英國全覽 z5.5 這三層畫不出東西，待上游重切（回報未解事項）。
+ * 圖磚 minzoom 照 analytics 成品：四層都是 z5 起（2026-11-14 橋隧、公共設施、宗教場所由 z6／z7 重切成 z5），英國全覽 z5.5 都畫得出來。
  */
 export const GB_BRIDGES_LINE_ID = "gb-bridges-tunnels-bridge-line";
 export const GB_TUNNELS_LINE_ID = "gb-bridges-tunnels-tunnel-line";
