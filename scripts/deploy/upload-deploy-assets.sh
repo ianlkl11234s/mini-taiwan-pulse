@@ -745,9 +745,9 @@ done
 # 觀光圖層：上傳到 deploy-assets/tourism/ 子前綴（鏡像結構，pull 端整夾 sync）
 # 只上傳 D 類 3 大檔（景點 4.4MB + 旅宿 6.7MB + 餐飲 2.1MB）；其餘 9 檔 C 類進 git/dist，不上傳。
 TOURISM_FILES=(
-  "public/tourism/attractions_national.geojson"
+  "public/tourism/attractions_national_v2.geojson"
   "public/tourism/hotels_national.geojson"
-  "public/tourism/restaurants_national.geojson"
+  "public/tourism/restaurants_national_v2.geojson"
 )
 for f in "${TOURISM_FILES[@]}"; do
   name=$(basename "$f")

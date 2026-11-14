@@ -165,7 +165,7 @@ public/hazards/major_occupational_accidents.geojson
 public/hazards/mountain_rescue_incidents.geojson
 public/hazards/nuclear_epz_evacuation.geojson
 public/hazards/seawall_zones.geojson
-public/hazards/swcb_disaster_photo_points.pmtiles
+public/hazards/swcb_disaster_photo_points_v2.pmtiles
 public/hazards/taipei_waterlogging_history.geojson
 public/hazards/toxic_chemical_facilities.pmtiles
 public/hazards/tsunami_sirens.geojson
@@ -225,7 +225,7 @@ public/state_assets/state_property_tender_listings.geojson
 public/state_assets/taisugar_sugar_mills.geojson
 public/state_assets/twc_service_offices.geojson
 public/state_assets/twc_water_facilities.geojson
-public/tourism/activities_national.geojson
+public/tourism/activities_national_v2.geojson
 public/tourism/amusement_parks_national.geojson
 public/tourism/camping_national.geojson
 public/tourism/heritage_national.geojson

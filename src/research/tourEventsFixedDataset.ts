@@ -3,8 +3,8 @@ import { loadPointDataset } from "./pointDatasetAdapter";
 import type { AdapterSnapshot } from "./queryAdapters";
 import type { QueryAdapter } from "./queryExecutor";
 
-const SOURCE_URL = "/tourism/activities_national.geojson";
-const SOURCE_SHA256 = "0e51aea0298b1eb60c60990f2ff326efa30e0367925e2405271ba94e7de1ea3c";
+const SOURCE_URL = "/tourism/activities_national_v2.geojson";
+const SOURCE_SHA256 = "39f24e94fbb7540887d93a4d139ef6b5b303546ae978265f34a7c6af5a1dddfb";
 const fields: readonly DatasetField[] = [
   { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
   { name: "id", type: "string", nullable: false, nullMeaning: null, unit: null },
@@ -35,7 +35,7 @@ export const tourEventsFixedDescriptor: DatasetDescriptor = {
   license: "政府資料開放授權條款-第1版（OGDL-Taiwan-1.0）。",
   valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, null: "本版發布欄位沒有 null；organizer 的 685 筆空字串是來源未提供，不能補值或推論沒有主辦。", zero: "is_free=0 是上游轉換後的來源值，不能當成缺值、免費與否的重新判定，或目前售票狀態。", stale: "2026-07-22 固定快照不是目前活動、取消、延期、開放、售票或可達性狀態；不可宣稱 current events。" },
   versions: [{ versionId: `sha256:${SOURCE_SHA256}`, observedAt: null, availableAt: "2026-07-22T14:31:16+08:00", checksumSha256: SOURCE_SHA256, mutable: false }],
-  source: { publisher: "交通部觀光署（data.gov.tw 7778）", reference: SOURCE_URL, lineage: "觀光署 V2.1 Event-json_v2.1.zip SHA-256 99791d95f089757dec509aa2a029cededc0625480567e55bb6a206aa82ec2bf6 (830 Events, UpdateTime 2026-07-22T14:31:16+08:00) -> taipei-gis-analytics activity_20260722.geojson SHA-256 a30dab62f49891cc31caa9d1eeb01653f677c1e4b06cbcb88f8ecf5f0d028ac4 (828 Taiwan-scope Point) -> Mini activities_national.geojson SHA-256 0e51aea0298b1eb60c60990f2ff326efa30e0367925e2405271ba94e7de1ea3c; Mini is identical ordered features after dropping redundant processed lat/lon properties." },
+  source: { publisher: "交通部觀光署（data.gov.tw 7778）", reference: SOURCE_URL, lineage: "觀光署 V2.1 Event-json_v2.1.zip SHA-256 99791d95f089757dec509aa2a029cededc0625480567e55bb6a206aa82ec2bf6 (830 Events, UpdateTime 2026-07-22T14:31:16+08:00) -> taipei-gis-analytics activity_20260722.geojson SHA-256 a30dab62f49891cc31caa9d1eeb01653f677c1e4b06cbcb88f8ecf5f0d028ac4 (828 Taiwan-scope Point) -> Mini activities_national_v2.geojson SHA-256 39f24e94fbb7540887d93a4d139ef6b5b303546ae978265f34a7c6af5a1dddfb; Mini is identical ordered features after dropping redundant processed lat/lon properties, except 4 description texts with personal contact details removed (2026-11-14)." },
   access: boundedAccess({ mode: "public", method: "static_asset", fields: fields.map(field => field.name), filters: fields.filter(field => !["record_id", "geometry"].includes(field.name)).map(field => field.name), timeFields: ["start_time", "end_time"], supportsBbox: true, maxRowsPerQuery: 100, maxScanRows: 828, maxSourceBytes: 1024 * 1024 }),
   supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "tour-events-fixed-point-v1",
 };
