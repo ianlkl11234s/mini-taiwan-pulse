@@ -31,4 +31,6 @@ export const OWNER_DATA_ASSETS = Object.freeze({
   "fac-osm-supplement": Object.freeze({ filename: "fac_osm_supplement.json", size: 161885, sha256: "3e1c7c08bb21c32a4fa000e6063c13916f56d970001eaee8bb422b9fff0ddd72" }),
   // public.get_osm_power_plants_static() 的輸出 513 筆，2026-11-08 匯出
   "osm-power-plants-static": Object.freeze({ filename: "osm_power_plants_static.json", size: 103409, sha256: "887809b2a043903efebd870dc78f3b39eda64ec005d34596f2541bda3828f719" }),
+  // ── 南韓首爾用途地域（2026-11-14，站主限定；data.go.kr 註含第三方權利，不入倉；analytics data/processed/urban_composite/kr/seoul_zoning）──
+  "kr-seoul-zoning": Object.freeze({ filename: "kr_seoul_zoning.pmtiles", size: 7364833, sha256: "3fd6df7db523d0b3ef7e8d078e2ed18b45ea9fbb73ef02782f263a57db6efe62" }),
 });

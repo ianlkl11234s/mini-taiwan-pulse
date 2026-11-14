@@ -281,6 +281,8 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "PRIVATE_OWNER_ONLY: decay_village_impacts.json",
   "PRIVATE_OWNER_ONLY: decay_summary.json",
   "PRIVATE_OWNER_ONLY: bridge_fingerprint.json",
+  // 南韓首爾用途地域（data.go.kr 註含第三方權利；站主 2026-11-14 決定站主限定）：只走 owner-data 私人 Range sidecar
+  "PRIVATE_OWNER_ONLY: kr_seoul_zoning.pmtiles",
   // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，只走 owner-authenticated Range sidecar
   // （私人 S3 private-research/bus-crowding/，scripts/deploy/upload-bus-crowding-private.mjs 手動上傳）。
   ...Object.values(BUS_CROWDING_SIM_ASSETS).map((a) => `PRIVATE_OWNER_ONLY: ${a.filename}`),

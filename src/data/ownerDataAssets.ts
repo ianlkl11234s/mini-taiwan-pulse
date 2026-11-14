@@ -18,6 +18,7 @@ export const OWNER_DATA_ASSETS = {
   "fac-secondary": { filename: "fac_secondary.json", size: 105925, sha256: "79a50993954402eecb9a55f2ffad7d45610fd5f2c90eb1efeb2f1693b1d4cc72" },
   "fac-osm-supplement": { filename: "fac_osm_supplement.json", size: 161885, sha256: "3e1c7c08bb21c32a4fa000e6063c13916f56d970001eaee8bb422b9fff0ddd72" },
   "osm-power-plants-static": { filename: "osm_power_plants_static.json", size: 103409, sha256: "887809b2a043903efebd870dc78f3b39eda64ec005d34596f2541bda3828f719" },
+  "kr-seoul-zoning": { filename: "kr_seoul_zoning.pmtiles", size: 7364833, sha256: "3fd6df7db523d0b3ef7e8d078e2ed18b45ea9fbb73ef02782f263a57db6efe62" },
 } as const;
 
 export type OwnerDataAssetName = keyof typeof OWNER_DATA_ASSETS;

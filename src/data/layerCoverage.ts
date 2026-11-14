@@ -55,6 +55,7 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   gbLondonChargingZones: "london",
   // 南韓：首爾
   krSeoulSubwayCongestion: "seoul",
+  krSeoulZoning: "seoul",
   statsKrSeoulLivingPopSgg: "seoul",
   statsKrSeoulLivingPopDaySgg: "seoul",
   statsKrSeoulLivingPopNightSgg: "seoul",
