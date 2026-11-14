@@ -1829,5 +1829,8 @@
   "layer.vnFuelStations": "Fuel Stations (Vietnam)",
   "layer.vnOilGas": "Oil & Gas Facilities (Vietnam)",
   "layer.vnEnvisoftStations": "Environmental Monitoring Stations (Vietnam, locations only)",
-  "layer.vnAngiangDemo": "An Giang Industrial Clusters & Flood Resettlement (Vietnam)"
+  "layer.vnAngiangDemo": "An Giang Industrial Clusters & Flood Resettlement (Vietnam)",
+  "layer.phBusStops": "Bus Stops (Philippines)",
+  "layer.phUrbanRail": "LRT / MRT Lines & Stations (Philippines)",
+  "layer.phExpressways": "Expressways & Toll Roads (Philippines)"
 }

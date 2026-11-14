@@ -3133,9 +3133,9 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "PH",
     defaultCollapsed: true,
     groups: [
-      { title: "場站", layers: [fromManifest("phStations")] },
+      { title: "場站", layers: [fromManifest("phStations"), fromManifest("phBusStops")] },
       { title: "樞紐節點", layers: [fromManifest("phTransportHubs")] },
-      { title: "路網", layers: [fromManifest("phMajorRoads")] },
+      { title: "路網", layers: [fromManifest("phMajorRoads"), fromManifest("phUrbanRail"), fromManifest("phExpressways")] },
     ],
   },
   {

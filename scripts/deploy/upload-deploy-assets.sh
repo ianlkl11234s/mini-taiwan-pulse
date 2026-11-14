@@ -632,8 +632,8 @@ for f in \
   public/world/ie_noise_maps_lnight.pmtiles \
   public/world/ph_admin_boundaries.pmtiles \
   public/world/ph_population.pmtiles \
-  public/world/ph_transport_hubs.pmtiles \
-  public/world/ph_stations.pmtiles \
+  public/world/ph_transport_hubs_v2.pmtiles \
+  public/world/ph_stations_v2.pmtiles \
   public/world/ph_major_roads.pmtiles \
   public/world/ph_power_plants.pmtiles \
   public/world/ph_power_grid.pmtiles \
@@ -655,6 +655,9 @@ for f in \
   public/world/vn_oil_gas_osm.pmtiles \
   public/world/vn_envisoft_stations_v2.pmtiles \
   public/world/vn_angiang_demo.pmtiles \
+  public/world/ph_bus_stops.pmtiles \
+  public/world/ph_urban_rail.pmtiles \
+  public/world/ph_expressways.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

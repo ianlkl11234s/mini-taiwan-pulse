@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1839,
+    "keyCount": 1842,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2844,6 +2844,25 @@
         "ie-admin-la-fill"
       ],
       "type": "ieAdminBoundaries"
+    },
+    {
+      "layers": [
+        "ph-urban-rail-stations-circle",
+        "ph-urban-rail-line"
+      ],
+      "type": "phUrbanRail"
+    },
+    {
+      "layers": [
+        "ph-bus-stops-circle"
+      ],
+      "type": "phBusStops"
+    },
+    {
+      "layers": [
+        "ph-expressways-line"
+      ],
+      "type": "phExpressways"
     },
     {
       "layers": [
@@ -150248,6 +150267,78 @@
         "valueText": "0.85"
       }
     ],
+    "phBusStops": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公車站",
+            "value": "named"
+          },
+          {
+            "label": "公車站（OSM 未標站名）",
+            "value": "unnamed"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "named",
+          "unnamed"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phExpressways": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "收費（OSM toll=yes）",
+            "value": "toll"
+          },
+          {
+            "label": "不收費（OSM toll=no）",
+            "value": "free"
+          },
+          {
+            "label": "未標示是否收費（不等於免費）",
+            "value": "untagged"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "toll",
+          "free",
+          "untagged"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "phFuelStations": [
       {
         "label": "類別",
@@ -150757,23 +150848,28 @@
         "label": "類別",
         "options": [
           {
-            "label": "鐵路站（官方 PNR）",
+            "label": "鐵路站（官方 PNR，營運狀態未查證）",
             "value": "rail_official"
           },
           {
-            "label": "鐵路站（OSM 補缺：LRT、MRT 等）",
+            "label": "鐵路站（OSM 補缺，營運狀態未查證）",
             "value": "rail_osm"
           },
           {
-            "label": "渡輪碼頭（OSM 補缺）",
+            "label": "渡輪碼頭（OSM 補缺，營運狀態未查證）",
             "value": "ferry_osm"
+          },
+          {
+            "label": "鐵路站：停駛中（PNR，讓路給 NSCR 施工）",
+            "value": "suspended"
           }
         ],
         "type": "multiSelect",
         "value": [
           "rail_official",
           "rail_osm",
-          "ferry_osm"
+          "ferry_osm",
+          "suspended"
         ]
       },
       {
@@ -150842,6 +150938,54 @@
           "pmo",
           "osm_airport",
           "osm_port"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phUrbanRail": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "LRT-1（綠線）",
+            "value": "lrt1"
+          },
+          {
+            "label": "LRT-2（紫線）",
+            "value": "lrt2"
+          },
+          {
+            "label": "MRT-3（黃線）",
+            "value": "mrt3"
+          },
+          {
+            "label": "其他軌道（渡線、側線等未標線名）",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lrt1",
+          "lrt2",
+          "mrt3",
+          "other_brand"
         ]
       },
       {

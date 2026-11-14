@@ -325,6 +325,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "vnOilGas/vn-pipelines-gem-line": {"width": "keep", "opacity": "standard"}, // GEM 油氣管線 · src/hooks/usePhLayers.ts（越南規格）
   "vnOilGas/vn-pipelines-osm-line": {"width": "standard", "opacity": "standard"}, // OSM 天然氣管線 · src/hooks/usePhLayers.ts（越南規格）
   "vnAngiangDemo/vn-angiang-clusters-outline": {"width": "keep", "opacity": "standard"}, // 安江工業群外框，低縮放加粗 · src/hooks/usePhLayers.ts（越南規格）
+  "phUrbanRail/ph-urban-rail-line": {"width": "keep", "opacity": "standard"}, // 依線別分色，營運線比渡線粗 · src/hooks/usePhLayers.ts
+  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/hooks/usePhLayers.ts
 };
 
 export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {

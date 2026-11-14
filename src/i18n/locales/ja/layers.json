@@ -1829,5 +1829,8 @@
   "layer.vnFuelStations": "ガソリンスタンド（ベトナム）",
   "layer.vnOilGas": "石油・ガス施設（ベトナム）",
   "layer.vnEnvisoftStations": "環境モニタリング局（ベトナム、位置のみ）",
-  "layer.vnAngiangDemo": "An Giang 工業団地・洪水避難居住地（ベトナム）"
+  "layer.vnAngiangDemo": "An Giang 工業団地・洪水避難居住地（ベトナム）",
+  "layer.phBusStops": "バス停（フィリピン）",
+  "layer.phUrbanRail": "LRT／MRT 路線と駅（フィリピン）",
+  "layer.phExpressways": "高速道路・有料道路（フィリピン）"
 }
