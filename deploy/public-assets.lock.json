@@ -3890,8 +3890,8 @@
   },
   {
    "path": "public/world/kr_emergency_bells.pmtiles",
-   "bytes": 48216896,
-   "sha256": "d94bcfdd5c8b8ebd6e3c530e6ab11bffe3dea0ccb25cf4493323f838db059197",
+   "bytes": 48216577,
+   "sha256": "d48ad25bfb42917b94b3e59793056fc3b6f55527dfdced79d9d9c78c6fb99c62",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_emergency_bells.pmtiles"
   },
