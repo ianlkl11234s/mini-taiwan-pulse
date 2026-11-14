@@ -2713,11 +2713,11 @@
    "s3_key": "deploy-assets/world/gb_greenspace_points.pmtiles"
   },
   {
-   "path": "public/world/gb_health_facilities.pmtiles",
-   "bytes": 7204041,
-   "sha256": "0dd7c09bcbc52db578e6ab4d1b3db4c1ae5c8a69cf1c4f3d929e6ac6de6750fb",
+   "path": "public/world/gb_health_facilities_v2.pmtiles",
+   "bytes": 7203882,
+   "sha256": "5ff3da0c3849adfd0d2092b2683c4d1d8af3035c1d4ad4b007332a530081fac3",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/gb_health_facilities.pmtiles"
+   "s3_key": "deploy-assets/world/gb_health_facilities_v2.pmtiles"
   },
   {
    "path": "public/world/gb_hydro_stations.pmtiles",
@@ -2979,11 +2979,11 @@
    "s3_key": "deploy-assets/world/gb_woodland_nfi_points.pmtiles"
   },
   {
-   "path": "public/world/ie_activity_locations.pmtiles",
-   "bytes": 6087966,
-   "sha256": "da8e2fe733f591afbd760feec8d8a2acd653b9548a55276c9008a852bfe39ca2",
+   "path": "public/world/ie_activity_locations_v2.pmtiles",
+   "bytes": 6086473,
+   "sha256": "dd92180f6d9d47cf9443ae5a4a6711594819d4859caf252cb095421157b2cc2a",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/ie_activity_locations.pmtiles"
+   "s3_key": "deploy-assets/world/ie_activity_locations_v2.pmtiles"
   },
   {
    "path": "public/world/ie_airports_ports.pmtiles",
@@ -3047,6 +3047,13 @@
    "sha256": "ad370c86beda812fd61737180d9c45d403c60451514bf4706116e912da76fa06",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/ie_coastal_erosion.pmtiles"
+  },
+  {
+   "path": "public/world/ie_commercial_valuations_v2.pmtiles",
+   "bytes": 31925476,
+   "sha256": "893e741a55bd38852f86a9bd83ff2d7252e6187e1938466b1429667a0b719739",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_commercial_valuations_v2.pmtiles"
   },
   {
    "path": "public/world/ie_courts.pmtiles",
