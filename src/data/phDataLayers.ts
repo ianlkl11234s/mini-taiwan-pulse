@@ -56,7 +56,7 @@ export const PH_ADMIN_SOURCE = {
 } as const;
 export const PH_ADMIN_NOTES: readonly L3[] = [
   l3("18 個 region（PSGC 2 碼，沒有 15；含 2024 新設的 Negros Island Region，Sulu 歸 Region IX）", "18 regions (PSGC codes, no 15; includes the 2024 Negros Island Region; Sulu is under Region IX)", "18 地方（PSGC 2 桁、15 はない。2024 年新設の Negros Island Region を含み、Sulu は Region IX）"),
-  l3("卡拉延群島（Kalayaan）的市鎮與村里不畫；不含任何海域界線", "Kalayaan Island Group municipality and barangay not drawn; no maritime boundaries shown", "カラヤン諸島の市町・バランガイは描画しない。海域の境界線は含まない"),
+  l3("邊界依 OCHA 資料，不代表任何立場；卡拉延群島（Kalayaan）的市鎮與村里不畫；不含任何海域界線", "Boundaries follow OCHA data and imply no position; Kalayaan Island Group municipality and barangay not drawn; no maritime boundaries shown", "境界は OCHA データに基づき、いかなる立場も示さない。カラヤン諸島の市町・バランガイは描画しない。海域の境界線は含まない"),
 ];
 
 export const PH_POPULATION_KEY = "phPopulation";
