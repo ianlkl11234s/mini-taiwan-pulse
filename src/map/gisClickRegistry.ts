@@ -576,6 +576,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ie-noise-maps-fill"], type: "ieNoiseMaps" },
   { layers: ["ie-admin-sa-fill", "ie-admin-ed-fill", "ie-admin-la-fill"], type: "ieAdminBoundaries" },
   // 菲律賓（2026-11-13 第 0–1 波）：點、線在前，人口面、行政界最後
+  // 第 2 波（2026-11-14）：車站點在線之前；高速公路排在主要道路之前（兩層同開時點到收費資訊）
+  { layers: ["ph-urban-rail-stations-circle", "ph-urban-rail-line"], type: "phUrbanRail" },
+  { layers: ["ph-bus-stops-circle"], type: "phBusStops" },
+  { layers: ["ph-expressways-line"], type: "phExpressways" },
   { layers: ["ph-transport-hubs-circle"], type: "phTransportHubs" },
   { layers: ["ph-stations-circle"], type: "phStations" },
   { layers: ["ph-power-plants-circle"], type: "phPowerPlants" },

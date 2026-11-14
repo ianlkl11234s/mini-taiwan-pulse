@@ -2577,7 +2577,6 @@
   "param.OSM 補缺：機場、跑道": "OSM 補完：空港・飛行場",
   "param.OSM 補缺：港口、碼頭": "OSM 補完：港",
   "param.鐵路站（官方 PNR）": "鉄道駅（公式・PNR）",
-  "param.鐵路站（OSM 補缺：LRT、MRT 等）": "鉄道駅（OSM 補完：LRT・MRT など）",
   "param.渡輪碼頭（OSM 補缺）": "フェリーターミナル（OSM 補完）",
   "param.高速公路（motorway）": "高速道路（motorway）",
   "param.幹道（trunk）": "幹線道路（trunk）",
@@ -2604,5 +2603,15 @@
   "param.區域（Region，18）": "地方（Region、18）",
   "param.省（Province，82 省＋6 個非省單位）": "州（Province、82 州＋州以外の 6 単位）",
   "param.市鎮（City／Municipality，1,642）": "市・町（City／Municipality、1,642）",
-  "param.村里（Barangay，42,048）": "バランガイ（Barangay、42,048）"
+  "param.村里（Barangay，42,048）": "バランガイ（Barangay、42,048）",
+  "param.鐵路站（OSM 補缺）": "鉄道駅（OSM 補完）",
+  "param.公車站": "バス停",
+  "param.公車站（OSM 未標站名）": "バス停（OSM に名称なし）",
+  "param.LRT-1（綠線）": "LRT-1（グリーンライン）",
+  "param.LRT-2（紫線）": "LRT-2（パープルライン）",
+  "param.MRT-3（黃線）": "MRT-3（イエローライン）",
+  "param.其他軌道（渡線、側線等未標線名）": "その他の線路（渡り線・側線など線名なし）",
+  "param.收費（OSM toll=yes）": "有料（OSM toll=yes）",
+  "param.不收費（OSM toll=no）": "無料（OSM toll=no）",
+  "param.未標示是否收費（不等於免費）": "有料・無料の記載なし（無料とは限らない）"
 }

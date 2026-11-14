@@ -200,7 +200,7 @@ function pointRadiusExpr(spec: PhLayerSpec, part: PhPart, scale: number): Expr |
     m.push(pointRadius("S"));
     return ["*", m, k];
   }
-  return pointRadius(spec.key === "phFuelStations" || part.id === "ph-tanks-circle" || part.id === "ph-power-substations-circle" ? "S" : "M", k);
+  return pointRadius(spec.key === "phFuelStations" || spec.key === "phBusStops" || part.id === "ph-tanks-circle" || part.id === "ph-power-substations-circle" ? "S" : "M", k);
 }
 
 function pointPaint(spec: PhLayerSpec, part: PhPart, isDark: boolean, opacity: number, scale: number) {

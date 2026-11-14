@@ -640,6 +640,9 @@ for f in \
   public/world/ph_renewables.pmtiles \
   public/world/ph_fuel_stations.pmtiles \
   public/world/ph_pipelines.pmtiles \
+  public/world/ph_bus_stops.pmtiles \
+  public/world/ph_urban_rail.pmtiles \
+  public/world/ph_expressways.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

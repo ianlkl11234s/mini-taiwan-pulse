@@ -1817,5 +1817,8 @@
   "layer.phPowerGrid": "Power Lines & Substations (Philippines)",
   "layer.phRenewables": "Solar Home System Subsidies & Off-grid Microgrids (Philippines)",
   "layer.phFuelStations": "Fuel Stations (Philippines)",
-  "layer.phPipelines": "Pipelines & Storage Tanks (Philippines)"
+  "layer.phPipelines": "Pipelines & Storage Tanks (Philippines)",
+  "layer.phBusStops": "Bus Stops (Philippines)",
+  "layer.phUrbanRail": "LRT / MRT Lines & Stations (Philippines)",
+  "layer.phExpressways": "Expressways & Toll Roads (Philippines)"
 }

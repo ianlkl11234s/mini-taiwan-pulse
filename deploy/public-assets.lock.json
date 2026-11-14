@@ -4190,6 +4190,20 @@
    "s3_key": "deploy-assets/world/ph_admin_boundaries.pmtiles"
   },
   {
+   "path": "public/world/ph_bus_stops.pmtiles",
+   "bytes": 3307498,
+   "sha256": "694a07d754d70de681d75b08021612409f42c389af73674a2334e290412a1ac8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_bus_stops.pmtiles"
+  },
+  {
+   "path": "public/world/ph_expressways.pmtiles",
+   "bytes": 1464009,
+   "sha256": "9cc4f50ea9174884cd4a868d20f634dcd6af9bc762549c48986e6a507d96ba36",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_expressways.pmtiles"
+  },
+  {
    "path": "public/world/ph_fuel_stations.pmtiles",
    "bytes": 4051402,
    "sha256": "afa9bb67fdfad362e5e836042a8debca94f18c2f8ee2e601a8209573c2d79df8",
@@ -4251,6 +4265,13 @@
    "sha256": "7f64ebe7c0e699ee1bc323b42288f45c6cfe5453840c55f53ad015f53219c6a3",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/ph_transport_hubs.pmtiles"
+  },
+  {
+   "path": "public/world/ph_urban_rail.pmtiles",
+   "bytes": 164890,
+   "sha256": "20732ee61f144f913a0b850aeb869718425bc6eeadedc28551a49a27ffc83427",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_urban_rail.pmtiles"
   },
   {
    "path": "public/world/trash_debris.geojson",

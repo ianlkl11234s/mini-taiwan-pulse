@@ -1,5 +1,5 @@
 /**
- * 菲律賓第 0–1 波（2026-11-13）圖層規格 SSOT：hook paint、圖例、popup、參數規格共用。
+ * 菲律賓第 0–2 波圖層規格 SSOT（第 0–1 波 2026-11-13、第 2 波補充 2026-11-14）：hook paint、圖例、popup、參數規格共用。
  * - 行政邊界（C001）與人口（C023）：同一套 18 region／88 province 級單位（82 省＋6 個非省單位）／1,642 municipality／42,048 barangay 面，四層級 select 切換
  *   （`usePhAdminLayers`、`usePhPopulationLayers`）。
  * - 交通 3 層、能源 5 層：規格驅動（`PH_DATA_SPECS`＋`usePhDataLayer`）。一個 key 可有多個子圖層（線＋點、架空＋電纜），
@@ -170,13 +170,30 @@ const HUB_CATS: readonly PhCat[] = [
 export const PH_KIG_EXCLUDED_SRC_IDS = ["osm:relation/12651735"] as const;
 
 // ───────────── 車站與渡輪碼頭（C010） ─────────────
+/**
+ * 第 2 波甲案（PM 2026-11-14）：LRT／MRT 車站改由 phUrbanRail 提供（帶線別），本層濾掉重複的 OSM 站。
+ * 根據：第 1 波 `ph_stations_20261113.geojson` 中 kind=rail_station 且 source=osm 的點，
+ * 距第 2 波 `ph_urban_rail_stations_20261114.geojson` 任一站 ≤300 m 者（49 站；門檻 100 m 為 48、200 m 起即 49）。
+ * PNR 官方站（src_id 以 `pnrstation_` 開頭）即使在 300 m 內也保留（Blumentritt 96 m、EDSA 283 m 是 PNR 自己的站）。
+ * 第 1 波 PMTiles 沒有站別欄位且不重切，所以用 src_id 清單在前端濾。
+ */
+export const PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS = [
+  "osm:node/11329697351", "osm:node/11329697352", "osm:node/13478815690", "osm:node/5377269277", "osm:relation/12480558", "osm:relation/14288640",
+  "osm:way/112320439", "osm:way/112644274", "osm:way/113358959", "osm:way/128196488", "osm:way/179240108", "osm:way/179251377", "osm:way/184582280",
+  "osm:way/187134601", "osm:way/188168853", "osm:way/188168854", "osm:way/188169761", "osm:way/222628889", "osm:way/222628891", "osm:way/222628892",
+  "osm:way/27663063", "osm:way/28788659", "osm:way/288010747", "osm:way/288085512", "osm:way/288086563", "osm:way/288086841", "osm:way/288087278",
+  "osm:way/288089644", "osm:way/288126517", "osm:way/288126518", "osm:way/288126519", "osm:way/288127159", "osm:way/290088413", "osm:way/290189159",
+  "osm:way/30262758", "osm:way/30411347", "osm:way/402882917", "osm:way/402882918", "osm:way/513224845", "osm:way/576938325", "osm:way/586033800",
+  "osm:way/60194145", "osm:way/60198083", "osm:way/60618740", "osm:way/797744977", "osm:way/798212098", "osm:way/900558095", "osm:way/923624587",
+  "osm:way/95496202",
+] as const;
 const stationsCat: PhCatGetter = {
   expr: ["concat", ["to-string", ["coalesce", ["get", "kind"], ""]], ":", ["to-string", ["coalesce", ["get", "source"], ""]]],
   js: (p) => `${str(p.kind)}:${str(p.source)}`,
 };
 const STATION_CATS: readonly PhCat[] = [
   { id: "rail_official", values: ["rail_station:official"], color: "#f59e0b", label: l3("鐵路站（官方 PNR）", "Railway station (official, PNR)", "鉄道駅（公式・PNR）") },
-  { id: "rail_osm", values: ["rail_station:osm"], color: "#fde68a", label: l3("鐵路站（OSM 補缺：LRT、MRT 等）", "Railway station (OSM gap-fill: LRT, MRT…)", "鉄道駅（OSM 補完：LRT・MRT など）") },
+  { id: "rail_osm", values: ["rail_station:osm"], color: "#fde68a", label: l3("鐵路站（OSM 補缺）", "Railway station (OSM gap-fill)", "鉄道駅（OSM 補完）") },
   { id: "ferry_osm", values: ["ferry_terminal:osm"], color: "#7dd3fc", label: l3("渡輪碼頭（OSM 補缺）", "Ferry terminal (OSM gap-fill)", "フェリーターミナル（OSM 補完）") },
 ];
 
@@ -283,6 +300,53 @@ const CONTENT_MAP = Object.fromEntries(CONTENT_CATS.map((c) => [c.id, c.label]))
 
 const OSM_NOTE = l3("OSM 為志願者繪製，完整度未經官方核對", "OSM is volunteer-mapped; completeness not officially verified", "OSM はボランティアによる作図で、網羅性は公式に未確認");
 
+// ═════════════ 第 2 波補充（2026-11-14）：公車站、LRT／MRT、高速公路 ═════════════
+// 資料：taipei-gis-analytics `docs/topic-research/philippines_opendata/waves/w02/REPORT.md`、
+// `docs/data-catalog/transportation/ph_{bus_stops,urban_rail,expressways}.md`（各 `_manifest.json` provenance 2026-11-14 讀）。
+// 第 1 波常數（PH_FETCHED_AT、OSM_HOT）不動：本波來源是 Geofabrik 快照，取得日不同。
+export const PH_W2_FETCHED_AT = "2026-11-14";
+const OSM_GEOFABRIK = "© OpenStreetMap contributors（ODbL），via Geofabrik（philippines-261113，快照 2026-11-13）";
+
+// ───────────── 公車站 ─────────────
+const BUS_STOP_COLOR = "#34d399";
+const busStopCat: PhCatGetter = {
+  expr: ["case", ["==", ["to-string", ["coalesce", ["get", "name"], ""]], ""], "unnamed", "named"],
+  js: (p) => (str(p.name) ? "named" : "unnamed"),
+};
+const BUS_STOP_CATS: readonly PhCat[] = [
+  { id: "named", values: ["named"], color: BUS_STOP_COLOR, label: l3("公車站", "Bus stop", "バス停") },
+  { id: "unnamed", values: ["unnamed"], color: "#a7f3d0", label: l3("公車站（OSM 未標站名）", "Bus stop (no name in OSM)", "バス停（OSM に名称なし）") },
+];
+
+// ───────────── LRT／MRT ─────────────
+const LRT1_COLOR = "#22c55e";
+/** 軌道用 name、車站用 line_name（車站的 name 是站名）。 */
+const urbanRailCat: PhCatGetter = {
+  expr: ["to-string", ["coalesce", ["get", "line_name"], ["get", "name"], ""]],
+  js: (p) => str(p.line_name) || str(p.name),
+};
+/** 線色比照 OSM route relation `colour`（LRT-1 綠、LRT-2 紫、MRT-3 黃），調亮以適應暗底。 */
+const URBAN_RAIL_CATS: readonly PhCat[] = [
+  { id: "lrt1", values: ["LRT Line 1"], color: LRT1_COLOR, label: l3("LRT-1（綠線）", "LRT-1 (Green Line)", "LRT-1（グリーンライン）") },
+  { id: "lrt2", values: ["LRT Line 2"], color: "#c084fc", label: l3("LRT-2（紫線）", "LRT-2 (Purple Line)", "LRT-2（パープルライン）") },
+  { id: "mrt3", values: ["MRT Line 3"], color: "#facc15", label: l3("MRT-3（黃線）", "MRT-3 (Yellow Line)", "MRT-3（イエローライン）") },
+];
+/** 機廠軌（service=yard）預設不畫。 */
+export const PH_URBAN_RAIL_NO_YARD: Expr = ["!=", ["to-string", ["coalesce", ["get", "service"], ""]], "yard"];
+
+// ───────────── 高速公路與收費道路 ─────────────
+const TOLL_COLOR = "#ef4444";
+/** toll 未標＝`untagged`（不等於免費）。 */
+const tollCat: PhCatGetter = {
+  expr: ["match", ["to-string", ["coalesce", ["get", "toll"], ""]], "yes", "yes", "no", "no", "untagged"],
+  js: (p) => { const t = str(p.toll); return t === "yes" || t === "no" ? t : "untagged"; },
+};
+const TOLL_CATS: readonly PhCat[] = [
+  { id: "toll", values: ["yes"], color: TOLL_COLOR, label: l3("收費（OSM toll=yes）", "Toll road (OSM toll=yes)", "有料（OSM toll=yes）") },
+  { id: "free", values: ["no"], color: "#60a5fa", label: l3("不收費（OSM toll=no）", "Toll-free (OSM toll=no)", "無料（OSM toll=no）") },
+  { id: "untagged", values: ["untagged"], color: "#cbd5e1", label: l3("未標示是否收費（不等於免費）", "Toll not tagged (not necessarily free)", "有料・無料の記載なし（無料とは限らない）") },
+];
+
 export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
   {
     key: "phTransportHubs", file: "ph_transport_hubs.pmtiles", sourceId: "ph-transport-hubs", srcMinzoom: 4, srcMaxzoom: 14, color: AIRPORT_COLOR, count: 581,
@@ -312,8 +376,9 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     loading: l3("菲律賓機場港口載入中", "Loading Philippines airports and ports", "フィリピンの空港・港を読み込み中"),
   },
   {
-    key: "phStations", file: "ph_stations.pmtiles", sourceId: "ph-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 562,
-    parts: [{ id: "ph-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: stationsCat }],
+    key: "phStations", file: "ph_stations.pmtiles", sourceId: "ph-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 513,
+    parts: [{ id: "ph-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: stationsCat,
+      filter: ["!", ["in", ["get", "src_id"], ["literal", [...PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS]]]] }],
     cats: STATION_CATS,
     title: { props: ["name"], fallback: l3("車站", "Station", "駅"),
       fallbackBy: { prop: "kind", map: { ferry_terminal: l3("未命名渡輪碼頭", "Unnamed ferry terminal", "名称不明のフェリーターミナル"), rail_station: l3("未命名車站", "Unnamed station", "名称不明の駅") } } },
@@ -326,7 +391,8 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
       REGION_FIELD,
     ],
     legendNotes: [
-      l3("官方：PNR 車站 31（Geoportal WMS）；OSM 補缺：LRT、MRT 等鐵路站 118、渡輪碼頭 413（約一半沒有名稱）", "Official: 31 PNR stations (Geoportal WMS); OSM gap-fill: 118 LRT/MRT and other rail stations, 413 ferry terminals (about half unnamed)", "公式：PNR 駅 31（Geoportal WMS）。OSM 補完：LRT・MRT など鉄道駅 118、フェリーターミナル 413（約半数は名称なし）"),
+      l3("官方：PNR 車站 31（Geoportal WMS）；OSM 補缺：鐵路站 69、渡輪碼頭 413（約一半沒有名稱）", "Official: 31 PNR stations (Geoportal WMS); OSM gap-fill: 69 rail stations, 413 ferry terminals (about half unnamed)", "公式：PNR 駅 31（Geoportal WMS）。OSM 補完：鉄道駅 69、フェリーターミナル 413（約半数は名称なし）"),
+      l3("LRT、MRT 車站改由「LRT／MRT 軌道與車站」層提供（含線別），本層不重複畫（濾掉 49 站）", "LRT/MRT stations are shown in the 'LRT / MRT Lines & Stations' layer (with line names) and not repeated here (49 removed)", "LRT・MRT の駅は「LRT／MRT 路線と駅」レイヤーに線名付きで表示し、ここでは重ねて描かない（49 駅を除外）"),
       l3("巴士站不在本層；Tawi-Tawi 以外 17 個 region 有點", "Bus stops not included; points in 17 of 18 regions", "バス停は含まない。18 地方中 17 地方に点がある"),
     ],
     popupNotes: [],
@@ -504,6 +570,95 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     popupNotes: [],
     sourceOrg: OSM_OVERTURE, sourceUrl: OSM_COPYRIGHT, license: ODBL, fetchedAt: PH_FETCHED_AT,
     loading: l3("菲律賓管線與儲槽載入中", "Loading Philippines pipelines and tanks", "フィリピンのパイプラインとタンクを読み込み中"),
+  },
+  // ═════════════ 第 2 波補充（2026-11-14，OSM Geofabrik 快照 2026-11-13） ═════════════
+  {
+    key: "phBusStops", file: "ph_bus_stops.pmtiles", sourceId: "ph-bus-stops", srcMinzoom: 4, srcMaxzoom: 14, color: BUS_STOP_COLOR, count: 9313,
+    parts: [{ id: "ph-bus-stops-circle", sourceLayer: "bus_stops", geom: "point", minzoom: 4, cat: busStopCat }],
+    cats: BUS_STOP_CATS,
+    title: { props: ["name", "name_en"], fallback: l3("公車站", "Bus stop", "バス停") },
+    fields: [
+      { prop: "name_en", label: l3("英文名", "English name", "英語名") },
+      { prop: "ref", label: l3("站牌編號（OSM）", "Stop ref (OSM)", "停留所番号（OSM）"), kind: "code" },
+      { prop: "network", label: l3("路網（OSM）", "Network (OSM)", "路線網（OSM）") },
+      { prop: "operator", label: l3("營運者（OSM）", "Operator (OSM)", "事業者（OSM）") },
+      { prop: "public_transport", label: l3("站點類型（OSM 原文）", "Stop type (OSM tag)", "停留所の種別（OSM 原文）"), kind: "code" },
+      { prop: "province_name", label: l3("省", "Province", "州") },
+      REGION_FIELD,
+    ],
+    legendNotes: [
+      l3("OSM 標註的公車站（涵蓋不均，9 省未涵蓋）", "Bus stops mapped in OSM (uneven coverage; 9 provinces not covered)", "OSM に登録されたバス停（網羅性にばらつき、9 州は未収録）"),
+      l3("共 9,313 站（未命名 622）；18 個 region 都有點，82 省中 73 省有點，近 4 成在馬尼拉都會區", "9,313 stops (622 unnamed); points in all 18 regions and 73 of 82 provinces, nearly 40% in Metro Manila", "計 9,313 か所（名称なし 622）。18 地方すべて、82 州中 73 州に点があり、約 4 割がマニラ首都圏"),
+      l3("未涵蓋 9 省：Batanes、Guimaras、Biliran、Davao Oriental、Davao Occidental、Sarangani、Apayao、Dinagat Islands、Tawi-Tawi（OSM 沒有標註，不是沒有公車站）", "Not covered (9 provinces): Batanes, Guimaras, Biliran, Davao Oriental, Davao Occidental, Sarangani, Apayao, Dinagat Islands, Tawi-Tawi (not mapped in OSM, not necessarily without stops)", "未収録の 9 州：Batanes・Guimaras・Biliran・Davao Oriental・Davao Occidental・Sarangani・Apayao・Dinagat Islands・Tawi-Tawi（OSM 未登録で、バス停がないという意味ではない）"),
+      l3("吉普尼（jeepney）多半沒有固定站牌，不在本層", "Jeepneys mostly have no fixed stops and are not included", "ジプニーの多くは固定停留所がなく、含まない"),
+    ],
+    popupNotes: [],
+    sourceOrg: OSM_GEOFABRIK, sourceUrl: OSM_COPYRIGHT, license: ODBL, fetchedAt: PH_W2_FETCHED_AT,
+    loading: l3("菲律賓公車站載入中", "Loading Philippines bus stops", "フィリピンのバス停を読み込み中"),
+  },
+  {
+    key: "phUrbanRail", file: "ph_urban_rail.pmtiles", sourceId: "ph-urban-rail", srcMinzoom: 4, srcMaxzoom: 14, color: LRT1_COLOR, count: 574,
+    parts: [
+      // 機廠軌（service=yard，約 35 km）不畫：只畫營運線與渡線、側線；routes（路線 relation）與軌道重疊，不另畫
+      { id: "ph-urban-rail-line", sourceLayer: "tracks", geom: "line", minzoom: 4, cat: urbanRailCat, filter: PH_URBAN_RAIL_NO_YARD,
+        lineWidth: { "LRT Line 1": [1.5, 3], "LRT Line 2": [1.5, 3], "MRT Line 3": [1.5, 3] } },
+      { id: "ph-urban-rail-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 9, cat: urbanRailCat },
+    ],
+    cats: URBAN_RAIL_CATS,
+    otherColor: "#94a3b8",
+    otherLabel: l3("其他軌道（渡線、側線等未標線名）", "Other track (crossovers, sidings without a line name)", "その他の線路（渡り線・側線など線名なし）"),
+    title: { props: ["name"], fallback: l3("LRT／MRT", "LRT / MRT", "LRT／MRT"), fallbackBy: { prop: "service", map: { crossover: l3("渡線", "Crossover", "渡り線"), siding: l3("側線", "Siding", "側線") } } },
+    fields: [
+      { prop: "line_name", label: l3("路線", "Line", "路線") },
+      { prop: "station", label: l3("車站類型（OSM 原文）", "Station type (OSM tag)", "駅の種別（OSM 原文）"), kind: "code" },
+      { prop: "railway", label: l3("軌道類型（OSM 原文）", "Railway type (OSM tag)", "線路の種別（OSM 原文）"), kind: "code" },
+      { prop: "service", label: l3("用途", "Service", "用途"), map: { crossover: l3("渡線", "Crossover", "渡り線"), siding: l3("側線", "Siding", "側線") } },
+      { prop: "bridge", label: l3("高架（OSM 原文）", "Bridge (OSM tag)", "高架（OSM 原文）"), kind: "code" },
+      { prop: "tunnel", label: l3("地下（OSM 原文）", "Tunnel (OSM tag)", "地下（OSM 原文）"), kind: "code" },
+      { prop: "operator", label: l3("營運者", "Operator", "事業者") },
+      { prop: "network", label: l3("路網", "Network", "路線網") },
+      REGION_FIELD,
+    ],
+    legendNotes: [OSM_NOTE,
+      l3("營運中的 LRT-1、LRT-2、MRT-3：軌道 523 段（機廠軌不畫）、車站 51 站（LRT-1 25、LRT-2 13、MRT-3 13；z9 起顯示）", "Operating LRT-1, LRT-2 and MRT-3: 523 track segments (depot tracks not drawn) and 51 stations (LRT-1 25, LRT-2 13, MRT-3 13; shown from z9)", "営業中の LRT-1・LRT-2・MRT-3：線路 523 区間（車両基地の線路は描かない）と駅 51（LRT-1 25・LRT-2 13・MRT-3 13、z9 以上で表示）"),
+      l3("MRT-7 與 Metro Manila Subway 尚未通車、未納入（2026-11-14 查證：DOTr 目標 MRT-7 2027 年第 2 季、Subway 2028 年部分營運）；North Triangle Common Station 未開放，一併未納入", "MRT-7 and the Metro Manila Subway are not yet open and not included (checked 2026-11-14: DOTr targets MRT-7 in Q2 2027 and partial Subway operation in 2028); North Triangle Common Station is not open and also excluded", "MRT-7 とマニラ首都圏地下鉄は未開業のため含まない（2026-11-14 確認：DOTr の目標は MRT-7 が 2027 年第 2 四半期、地下鉄は 2028 年に一部開業）。North Triangle Common Station も未開業のため除外"),
+      l3("PNR 通勤鐵路在「主要道路與鐵道」與「鐵路車站與渡輪碼頭」層", "PNR commuter rail is in the 'Major Roads & Railways' and 'Rail Stations & Ferry Terminals' layers", "PNR 通勤鉄道は「主要道路と鉄道」「鉄道駅とフェリーターミナル」レイヤーにある"),
+    ],
+    popupNotes: [],
+    sourceOrg: OSM_GEOFABRIK, sourceUrl: OSM_COPYRIGHT, license: ODBL, fetchedAt: PH_W2_FETCHED_AT,
+    loading: l3("菲律賓 LRT／MRT 載入中", "Loading Philippines LRT / MRT", "フィリピンの LRT／MRT を読み込み中"),
+  },
+  {
+    key: "phExpressways", file: "ph_expressways.pmtiles", sourceId: "ph-expressways", srcMinzoom: 4, srcMaxzoom: 14, color: TOLL_COLOR, count: 5550,
+    parts: [{ id: "ph-expressways-line", sourceLayer: "expressways", geom: "line", minzoom: 4, cat: tollCat,
+      lineWidth: { yes: [2, 3.5], no: [1.5, 2.5], untagged: [1.5, 2.5] } }],
+    cats: TOLL_CATS,
+    title: { props: ["name", "ref"], fallback: l3("高速公路", "Expressway", "高速道路"),
+      fallbackBy: { prop: "highway", map: { motorway_link: l3("高速公路匝道", "Expressway ramp", "高速道路ランプ") } } },
+    fields: [
+      { prop: "ref", label: l3("路線編號", "Route number", "路線番号"), kind: "code" },
+      { prop: "toll", label: l3("收費", "Toll", "有料"), map: { yes: l3("收費", "Toll road", "有料"), no: l3("不收費（OSM 標 toll=no）", "Toll-free (OSM toll=no)", "無料（OSM toll=no）") } },
+      { prop: "highway", label: l3("道路等級（OSM）", "Road class (OSM)", "道路等級（OSM）"), map: {
+        motorway: l3("高速公路", "Motorway", "高速道路"), motorway_link: l3("高速公路匝道", "Motorway link", "高速道路ランプ"),
+        trunk: l3("幹道", "Trunk", "幹線道路"), primary_link: l3("主要道路連絡道", "Primary link", "主要道路連絡路"),
+        tertiary: l3("一般道路（tertiary）", "Tertiary road", "一般道路（tertiary）"), service: l3("服務道路（收費站、服務區）", "Service road (toll plaza, service area)", "サービス道路（料金所・SA）") } },
+      { prop: "operator", label: l3("營運者", "Operator", "事業者") },
+      { prop: "lanes", label: l3("車道數", "Lanes", "車線数"), kind: "code" },
+      { prop: "maxspeed", label: l3("速限（OSM 原文，km/h）", "Speed limit (OSM tag, km/h)", "制限速度（OSM 原文、km/h）"), kind: "code" },
+      { prop: "length_km", label: l3("本段長度", "Segment length", "区間長"), kind: "num", unit: "km", digits: 2 },
+      { prop: "province_name", label: l3("省", "Province", "州") },
+      REGION_FIELD,
+    ],
+    legendNotes: [OSM_NOTE,
+      l3("路線編號：E1 北呂宋（NLEX、SCTEX、TPLEX）、E2 南呂宋（SLEX、Skyway、STAR）、E3 甲米地（CAVITEX、CALAX）、E4 蘇比克（SCTEX、SFEX）、E5 NLEX 連絡線與 C-5 Link、E6 NAIA 高速公路；約 356 km 未標編號", "Route numbers: E1 North Luzon (NLEX, SCTEX, TPLEX), E2 South Luzon (SLEX, Skyway, STAR), E3 Cavite (CAVITEX, CALAX), E4 Subic (SCTEX, SFEX), E5 NLEX links and C-5 Link, E6 NAIA Expressway; about 356 km have no route number", "路線番号：E1 北ルソン（NLEX・SCTEX・TPLEX）、E2 南ルソン（SLEX・Skyway・STAR）、E3 カビテ（CAVITEX・CALAX）、E4 スービック（SCTEX・SFEX）、E5 NLEX 連絡線と C-5 Link、E6 NAIA 高速道路。約 356 km は番号なし"),
+      l3("motorway 與匝道全收，加上標 toll=yes 的其他道路；共 5,550 段、1,417 km（收費 1,239 km）", "All motorways and ramps plus other roads tagged toll=yes; 5,550 segments, 1,417 km (1,239 km toll)", "motorway とランプをすべて収録し、toll=yes の他の道路を追加。計 5,550 区間・1,417 km（有料 1,239 km）"),
+      l3("「未標示」是 OSM 沒標收費與否，不等於免費；規劃中的收費路不收", "'Not tagged' means OSM has no toll tag, not that the road is free; planned toll roads not included", "「未記載」は OSM に有料の記載がないだけで、無料という意味ではない。計画中の有料道路は含まない"),
+      l3("只有呂宋 4 個 region 與中米沙鄢（宿霧）有路段，其餘 13 個 region 未涵蓋", "Segments only in 4 Luzon regions and Central Visayas (Cebu); the other 13 regions are not covered", "ルソンの 4 地方と中部ビサヤ（セブ）のみ。ほかの 13 地方は未収録"),
+      l3("與「主要道路與鐵道」的高速公路約 98% 重疊，兩層同開會疊線", "About 98% overlaps the motorways in 'Major Roads & Railways'; lines stack when both are on", "「主要道路と鉄道」の高速道路と約 98% 重なり、両方表示すると線が重なる"),
+    ],
+    popupNotes: [{ text: l3("OSM 沒有標示是否收費，不等於免費", "OSM has no toll tag here; this does not mean the road is free", "OSM に有料の記載がないだけで、無料という意味ではない"), when: (p) => !str(p.toll) }],
+    sourceOrg: OSM_GEOFABRIK, sourceUrl: OSM_COPYRIGHT, license: ODBL, fetchedAt: PH_W2_FETCHED_AT,
+    loading: l3("菲律賓高速公路載入中", "Loading Philippines expressways", "フィリピンの高速道路を読み込み中"),
   },
 ];
 

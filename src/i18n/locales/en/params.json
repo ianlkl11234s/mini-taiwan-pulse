@@ -2580,7 +2580,6 @@
   "param.OSM 補缺：機場、跑道": "OSM gap-fill: aerodromes",
   "param.OSM 補缺：港口、碼頭": "OSM gap-fill: ports",
   "param.鐵路站（官方 PNR）": "Railway station (official, PNR)",
-  "param.鐵路站（OSM 補缺：LRT、MRT 等）": "Railway station (OSM gap-fill: LRT, MRT…)",
   "param.渡輪碼頭（OSM 補缺）": "Ferry terminal (OSM gap-fill)",
   "param.高速公路（motorway）": "Motorway",
   "param.幹道（trunk）": "Trunk road",
@@ -2607,5 +2606,15 @@
   "param.區域（Region，18）": "Region (18)",
   "param.省（Province，82 省＋6 個非省單位）": "Province (82 provinces + 6 non-province units)",
   "param.市鎮（City／Municipality，1,642）": "City / municipality (1,642)",
-  "param.村里（Barangay，42,048）": "Barangay (42,048)"
+  "param.村里（Barangay，42,048）": "Barangay (42,048)",
+  "param.鐵路站（OSM 補缺）": "Railway station (OSM gap-fill)",
+  "param.公車站": "Bus stop",
+  "param.公車站（OSM 未標站名）": "Bus stop (no name in OSM)",
+  "param.LRT-1（綠線）": "LRT-1 (Green Line)",
+  "param.LRT-2（紫線）": "LRT-2 (Purple Line)",
+  "param.MRT-3（黃線）": "MRT-3 (Yellow Line)",
+  "param.其他軌道（渡線、側線等未標線名）": "Other track (crossovers, sidings without a line name)",
+  "param.收費（OSM toll=yes）": "Toll road (OSM toll=yes)",
+  "param.不收費（OSM toll=no）": "Toll-free (OSM toll=no)",
+  "param.未標示是否收費（不等於免費）": "Toll not tagged (not necessarily free)"
 }

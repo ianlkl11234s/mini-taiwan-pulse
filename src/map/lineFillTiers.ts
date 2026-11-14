@@ -315,6 +315,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/usePhLayers.ts
   "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/hooks/usePhLayers.ts
   "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/hooks/usePhLayers.ts
+  "phUrbanRail/ph-urban-rail-line": {"width": "keep", "opacity": "standard"}, // 依線別分色，營運線比渡線粗 · src/hooks/usePhLayers.ts
+  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/hooks/usePhLayers.ts
 };
 
 export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
