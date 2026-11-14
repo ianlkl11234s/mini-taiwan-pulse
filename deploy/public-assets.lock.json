@@ -4275,24 +4275,24 @@
   },
   {
    "path": "public/world/vn_envisoft_stations_v2.pmtiles",
-   "bytes": 2691857,
-   "sha256": "13f087e5577d1a4fd12f69355419081902b6c716684c99c49e49776a2a132bd4",
+   "bytes": 2688444,
+   "sha256": "fbc2addd9a07f839b7eee1dc4379925f2c39a5a16908760b680eda8450278ca2",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/vn_envisoft_stations_v2.pmtiles"
   },
   {
-   "path": "public/world/vn_fuel_stations.pmtiles",
-   "bytes": 2665712,
-   "sha256": "b2fb68b981a22c9a759dd937f16c0876bb9a5f0879ceb1a50d4fd82e7f88f2e9",
+   "path": "public/world/vn_fuel_stations_v2.pmtiles",
+   "bytes": 2665228,
+   "sha256": "301acb490096108cde8cfe0a52b0e4a6f5fdd9349e0733c87a632a64eb6b4b5a",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_fuel_stations.pmtiles"
+   "s3_key": "deploy-assets/world/vn_fuel_stations_v2.pmtiles"
   },
   {
-   "path": "public/world/vn_major_roads.pmtiles",
-   "bytes": 17219483,
-   "sha256": "630d0a345cca461e250cea59ebd1395f5fe623848c5fe9a61b747197531480ce",
+   "path": "public/world/vn_major_roads_v2.pmtiles",
+   "bytes": 17215123,
+   "sha256": "01394e99e85d45694783d80fadf2d063962238e291cf88a10ea156e5a7ee965a",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_major_roads.pmtiles"
+   "s3_key": "deploy-assets/world/vn_major_roads_v2.pmtiles"
   },
   {
    "path": "public/world/vn_oil_gas_gem_v2.pmtiles",
@@ -4330,11 +4330,11 @@
    "s3_key": "deploy-assets/world/vn_power_plants.pmtiles"
   },
   {
-   "path": "public/world/vn_renewables_gem.pmtiles",
-   "bytes": 3564068,
-   "sha256": "9d9c2d3aecf8014924be81efb2c221fcf3a15cc966317e4fe7eb85c6365812af",
+   "path": "public/world/vn_renewables_gem_v2.pmtiles",
+   "bytes": 3563348,
+   "sha256": "1e65d2c833b5bf03bb736e13e71ca2addebb2be377ff8547b01abca35e579096",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_renewables_gem.pmtiles"
+   "s3_key": "deploy-assets/world/vn_renewables_gem_v2.pmtiles"
   },
   {
    "path": "public/world/vn_renewables_osm.pmtiles",
@@ -4344,11 +4344,11 @@
    "s3_key": "deploy-assets/world/vn_renewables_osm.pmtiles"
   },
   {
-   "path": "public/world/vn_stations.pmtiles",
-   "bytes": 870559,
-   "sha256": "4012b235cec3883795669d60718efb02e561d9016632f64b3482ba02968a3528",
+   "path": "public/world/vn_stations_v2.pmtiles",
+   "bytes": 870334,
+   "sha256": "0f5497510a0401a6ef2119ebbdf3bd969a51f1299e88a62591489532d6db05ed",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_stations.pmtiles"
+   "s3_key": "deploy-assets/world/vn_stations_v2.pmtiles"
   },
   {
    "path": "public/world/vn_transport_hubs_odm.pmtiles",

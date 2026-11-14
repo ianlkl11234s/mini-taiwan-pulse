@@ -227,7 +227,7 @@ const ANGIANG_CATS: readonly PhCat[] = [
 
 export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
   {
-    key: "vnStations", file: "vn_stations.pmtiles", sourceId: "vn-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 989,
+    key: "vnStations", file: "vn_stations_v2.pmtiles", sourceId: "vn-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 989,
     parts: [{ id: "vn-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: propGetter("kind") }],
     cats: STATION_CATS,
     title: { props: ["name", "name_en"], fallback: l3("車站", "Station", "駅") },
@@ -284,7 +284,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     loading: l3("越南機場港口載入中", "Loading Vietnam airports and ports", "ベトナムの空港・港を読み込み中"),
   },
   {
-    key: "vnMajorRoads", file: "vn_major_roads.pmtiles", sourceId: "vn-major-roads", srcMinzoom: 4, srcMaxzoom: 13, color: "#f59e0b", count: 52_272,
+    key: "vnMajorRoads", file: "vn_major_roads_v2.pmtiles", sourceId: "vn-major-roads", srcMinzoom: 4, srcMaxzoom: 13, color: "#f59e0b", count: 52_272,
     parts: [
       { id: "vn-major-roads-line", sourceLayer: "roads", geom: "line", minzoom: 4, cat: propGetter("road_class"), lineWidth: { motorway: [2, 3.5], trunk: [1, 2], primary: [0.5, 1] } },
       { id: "vn-major-rail-line", sourceLayer: "rail", geom: "line", minzoom: 4, cat: propGetter("status"), filter: ["!=", ["get", "status"], "construction"], lineWidth: { operating: [1, 2] } },
@@ -330,7 +330,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     loading: l3("越南電廠載入中", "Loading Vietnam power plants", "ベトナムの発電所を読み込み中"),
   },
   {
-    key: "vnRenewables", file: "vn_renewables_gem.pmtiles", sourceId: "vn-renewables-gem", srcMinzoom: 3, srcMaxzoom: 14, color: "#F2E085", count: 2235,
+    key: "vnRenewables", file: "vn_renewables_gem_v2.pmtiles", sourceId: "vn-renewables-gem", srcMinzoom: 3, srcMaxzoom: 14, color: "#F2E085", count: 2235,
     parts: [
       { id: "vn-renewables-wind-solar-circle", sourceLayer: "wind_solar", geom: "point", minzoom: 3, cat: propGetter("tech"), size: VN_CAPACITY_BANDS },
       { id: "vn-renewables-solar-tz-circle", sourceLayer: "solar_tz", geom: "point", minzoom: 3, cat: propGetter("tech"), size: VN_CAPACITY_BANDS },
@@ -390,7 +390,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     loading: l3("越南電網載入中", "Loading Vietnam power grid", "ベトナムの電力網を読み込み中"),
   },
   {
-    key: "vnFuelStations", file: "vn_fuel_stations.pmtiles", sourceId: "vn-fuel-stations", srcMinzoom: 5, srcMaxzoom: 14, color: "#f59e0b", count: 4902,
+    key: "vnFuelStations", file: "vn_fuel_stations_v2.pmtiles", sourceId: "vn-fuel-stations", srcMinzoom: 5, srcMaxzoom: 14, color: "#f59e0b", count: 4902,
     parts: [{ id: "vn-fuel-stations-circle", sourceLayer: "fuel", geom: "point", minzoom: 5, cat: propGetter("brand"), small: true }],
     cats: FUEL_CATS,
     otherColor: "#94a3b8",
