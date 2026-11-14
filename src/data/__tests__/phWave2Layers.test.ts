@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — style-spec 的 CJS 入口無型別宣告（mapbox-gl 未導出），僅測試用
 import { expression, featureFilter } from "mapbox-gl/dist/style-spec/index.cjs";
-import { PH_SPEC_BY_KEY, PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS, phCatOf } from "../phDataLayers";
+import { PH_SPEC_BY_KEY, PH_STATIONS_NOT_OPEN_SRC_IDS, PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS, phCatOf } from "../phDataLayers";
 
 type Props = Record<string, unknown>;
 const passes = (filter: unknown, properties: Props) =>
@@ -37,8 +37,27 @@ describe("phStations：濾掉 LRT／MRT 重複站（第 2 波甲案）", () => {
     expect(passes(part.filter, { kind: "ferry_terminal", source: "osm", src_id: "osm:node/1" })).toBe(true);
   });
 
-  it("圖層筆數＝562 − 49", () => {
-    expect(PH_SPEC_BY_KEY.phStations.count).toBe(562 - PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS.length);
+  it("未通車 27 站（analytics #390）全部被擋掉，與重複站清單只交集 Anonas 1 站", () => {
+    expect(PH_STATIONS_NOT_OPEN_SRC_IDS).toHaveLength(27);
+    expect(new Set(PH_STATIONS_NOT_OPEN_SRC_IDS).size).toBe(27);
+    for (const src_id of PH_STATIONS_NOT_OPEN_SRC_IDS) {
+      expect(src_id).toMatch(/^osm:(node|way|relation)\/\d+$/);
+      expect(passes(part.filter, { kind: "rail_station", source: "osm", src_id })).toBe(false);
+    }
+    const dup = new Set<string>(PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS);
+    expect(PH_STATIONS_NOT_OPEN_SRC_IDS.filter((id) => dup.has(id))).toEqual(["osm:node/13478815690"]);
+  });
+
+  it("PNR 官方站不受影響", () => {
+    for (const n of [1, 6, 9, 16, 31]) {
+      expect(passes(part.filter, { kind: "rail_station", source: "official", src_id: `pnrstation_20210201.${n}` })).toBe(true);
+    }
+  });
+
+  it("圖層筆數＝562 − 兩份清單聯集（49＋27−1＝75）＝487", () => {
+    const union = new Set<string>([...PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS, ...PH_STATIONS_NOT_OPEN_SRC_IDS]);
+    expect(union.size).toBe(75);
+    expect(PH_SPEC_BY_KEY.phStations.count).toBe(562 - union.size);
   });
 });
 

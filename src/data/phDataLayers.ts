@@ -187,6 +187,20 @@ export const PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS = [
   "osm:way/60194145", "osm:way/60198083", "osm:way/60618740", "osm:way/797744977", "osm:way/798212098", "osm:way/900558095", "osm:way/923624587",
   "osm:way/95496202",
 ] as const;
+/**
+ * 未通車車站（PM 2026-11-14 確認：第 1 波把它們畫成車站是錯誤）。來源：taipei-gis-analytics #390
+ * `docs/topic-research/philippines_opendata/waves/w02/ph_stations_not_open_src_ids.csv`，27 站：
+ * Metro Manila Subway 預定站 15、MRT-7 10、North Triangle Common Station 1、DOST AGT 試驗站 1。
+ * 與上面重複站清單交集 1 站（osm:node/13478815690 Anonas），兩份合計濾掉 75 站。
+ * ⚠️ 暫時性前端 filter：analytics 重切的 `ph_stations_v2.pmtiles` 上線（換檔、改 lock）後，本常數與上面的重複站清單都可以拿掉。
+ */
+export const PH_STATIONS_NOT_OPEN_SRC_IDS = [
+  "osm:node/12752311664", "osm:node/13478815689", "osm:node/13478815690", "osm:node/13564626500", "osm:node/13564639203", "osm:node/13564783062",
+  "osm:node/13564783063", "osm:node/13564783064", "osm:node/13565942041", "osm:node/13565942044", "osm:node/13565942045", "osm:node/13571995040",
+  "osm:node/13571995042", "osm:node/13571995044", "osm:node/13571995050", "osm:node/13571995052", "osm:node/13571995054", "osm:node/13571995056",
+  "osm:node/13571995058", "osm:node/13571995062", "osm:node/13686694948", "osm:node/5285111766", "osm:node/5525578965", "osm:node/5728168799",
+  "osm:node/6313750523", "osm:way/1109949377", "osm:way/564479403",
+] as const;
 const stationsCat: PhCatGetter = {
   expr: ["concat", ["to-string", ["coalesce", ["get", "kind"], ""]], ":", ["to-string", ["coalesce", ["get", "source"], ""]]],
   js: (p) => `${str(p.kind)}:${str(p.source)}`,
@@ -376,9 +390,9 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     loading: l3("菲律賓機場港口載入中", "Loading Philippines airports and ports", "フィリピンの空港・港を読み込み中"),
   },
   {
-    key: "phStations", file: "ph_stations.pmtiles", sourceId: "ph-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 513,
+    key: "phStations", file: "ph_stations.pmtiles", sourceId: "ph-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 487,
     parts: [{ id: "ph-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: stationsCat,
-      filter: ["!", ["in", ["get", "src_id"], ["literal", [...PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS]]]] }],
+      filter: ["!", ["in", ["get", "src_id"], ["literal", [...new Set([...PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS, ...PH_STATIONS_NOT_OPEN_SRC_IDS])]]]] }],
     cats: STATION_CATS,
     title: { props: ["name"], fallback: l3("車站", "Station", "駅"),
       fallbackBy: { prop: "kind", map: { ferry_terminal: l3("未命名渡輪碼頭", "Unnamed ferry terminal", "名称不明のフェリーターミナル"), rail_station: l3("未命名車站", "Unnamed station", "名称不明の駅") } } },
@@ -391,8 +405,9 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
       REGION_FIELD,
     ],
     legendNotes: [
-      l3("官方：PNR 車站 31（Geoportal WMS）；OSM 補缺：鐵路站 69、渡輪碼頭 413（約一半沒有名稱）", "Official: 31 PNR stations (Geoportal WMS); OSM gap-fill: 69 rail stations, 413 ferry terminals (about half unnamed)", "公式：PNR 駅 31（Geoportal WMS）。OSM 補完：鉄道駅 69、フェリーターミナル 413（約半数は名称なし）"),
+      l3("官方：PNR 車站 31（Geoportal WMS）；OSM 補缺：鐵路站 43、渡輪碼頭 413（約一半沒有名稱）", "Official: 31 PNR stations (Geoportal WMS); OSM gap-fill: 43 rail stations, 413 ferry terminals (about half unnamed)", "公式：PNR 駅 31（Geoportal WMS）。OSM 補完：鉄道駅 43、フェリーターミナル 413（約半数は名称なし）"),
       l3("LRT、MRT 車站改由「LRT／MRT 軌道與車站」層提供（含線別），本層不重複畫（濾掉 49 站）", "LRT/MRT stations are shown in the 'LRT / MRT Lines & Stations' layer (with line names) and not repeated here (49 removed)", "LRT・MRT の駅は「LRT／MRT 路線と駅」レイヤーに線名付きで表示し、ここでは重ねて描かない（49 駅を除外）"),
+      l3("尚未通車的 Metro Manila Subway、MRT-7 預定站與 North Triangle Common Station、DOST 試驗站不畫（27 站，與上項重複 1 站）", "Not-yet-open Metro Manila Subway and MRT-7 planned stations, North Triangle Common Station and the DOST test station are not drawn (27 stations, 1 overlapping the above)", "未開業の マニラ首都圏地下鉄・MRT-7 予定駅、North Triangle Common Station、DOST 試験駅は描かない（27 駅、上記と 1 駅重複）"),
       l3("巴士站不在本層；Tawi-Tawi 以外 17 個 region 有點", "Bus stops not included; points in 17 of 18 regions", "バス停は含まない。18 地方中 17 地方に点がある"),
     ],
     popupNotes: [],
