@@ -89,7 +89,7 @@ export function useGbSchoolsLayer(mapRef: MapRef, visible: boolean, opacity: num
 // ─────────────────────────── 醫療 ───────────────────────────
 
 const HEALTH_SOURCE: SourceSpec = {
-  id: "gb-health-facilities", file: "gb_health_facilities.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_HEALTH_ODS_ATTRIBUTION, loading: "英國醫療院所載入中",
+  id: "gb-health-facilities", file: "gb_health_facilities_v2.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_HEALTH_ODS_ATTRIBUTION, loading: "英國醫療院所載入中",
 };
 const healthColor = (isDark: boolean): Expr =>
   matchColor("kind", GB_HEALTH_KINDS.map((k) => [k.value, gbHealthColor(k.value, isDark)] as const), GB_CIVIC_FALLBACK_COLOR);

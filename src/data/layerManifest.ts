@@ -6574,8 +6574,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_health_facilities.pmtiles；source-layer=gb_health_facilities，minzoom=5 maxzoom=12（醫院 layer minzoom 7、GP／藥局 9）；7.2MB git-track",
-      staticAssets: ["./world/gb_health_facilities.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_health_facilities_v2.pmtiles（2026-11-14 個資清理版）；source-layer=gb_health_facilities，minzoom=5 maxzoom=12（醫院 layer minzoom 7、GP／藥局 9）；7.2MB git-track",
+      staticAssets: ["./world/gb_health_facilities_v2.pmtiles"],
     },
     legend: "gbHealthFacilities",
     popup: "gbHealthFacilities",
