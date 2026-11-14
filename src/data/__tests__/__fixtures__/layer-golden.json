@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1830,
+    "keyCount": 1842,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2933,6 +2933,93 @@
         "ph-admin-region-fill"
       ],
       "type": "phAdminBoundaries"
+    },
+    {
+      "layers": [
+        "vn-airports-circle",
+        "vn-ports-circle",
+        "vn-airports-osm-circle"
+      ],
+      "type": "vnTransportHubs"
+    },
+    {
+      "layers": [
+        "vn-stations-circle"
+      ],
+      "type": "vnStations"
+    },
+    {
+      "layers": [
+        "vn-power-plants-circle"
+      ],
+      "type": "vnPowerPlants"
+    },
+    {
+      "layers": [
+        "vn-renewables-wind-solar-circle",
+        "vn-renewables-solar-tz-circle",
+        "vn-charging-circle"
+      ],
+      "type": "vnRenewables"
+    },
+    {
+      "layers": [
+        "vn-power-substations-circle",
+        "vn-power-lines-line",
+        "vn-power-cables-line"
+      ],
+      "type": "vnPowerGrid"
+    },
+    {
+      "layers": [
+        "vn-fuel-stations-circle"
+      ],
+      "type": "vnFuelStations"
+    },
+    {
+      "layers": [
+        "vn-lng-terminals-circle",
+        "vn-coal-terminals-circle",
+        "vn-refineries-circle",
+        "vn-tanks-circle",
+        "vn-pipelines-gem-line",
+        "vn-pipelines-osm-line"
+      ],
+      "type": "vnOilGas"
+    },
+    {
+      "layers": [
+        "vn-envisoft-stations-circle"
+      ],
+      "type": "vnEnvisoftStations"
+    },
+    {
+      "layers": [
+        "vn-angiang-flood-circle",
+        "vn-angiang-clusters-outline",
+        "vn-angiang-clusters-fill"
+      ],
+      "type": "vnAngiangDemo"
+    },
+    {
+      "layers": [
+        "vn-major-roads-line",
+        "vn-major-rail-line",
+        "vn-major-rail-construction-line"
+      ],
+      "type": "vnMajorRoads"
+    },
+    {
+      "layers": [
+        "vn-population-province-fill"
+      ],
+      "type": "vnPopulation"
+    },
+    {
+      "layers": [
+        "vn-admin-province-fill"
+      ],
+      "type": "vnAdminBoundaries"
     },
     {
       "layers": [
@@ -207104,6 +207191,686 @@
       }
     ],
     "visitorCentres": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnAdminBoundaries": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnAngiangDemo": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "工業群：已營運",
+            "value": "hoatdong"
+          },
+          {
+            "label": "工業群：興建中",
+            "value": "dangxd"
+          },
+          {
+            "label": "工業群：尚未興建",
+            "value": "chuaxd"
+          },
+          {
+            "label": "避洪居民點",
+            "value": "flood"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hoatdong",
+          "dangxd",
+          "chuaxd",
+          "flood"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnEnvisoftStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "空氣品質（KK，C098）",
+            "value": "air"
+          },
+          {
+            "label": "地面水質（NM，C100）",
+            "value": "surface_water"
+          },
+          {
+            "label": "海水水質（NB，C100／C104）",
+            "value": "sea_water"
+          },
+          {
+            "label": "廢水排放口（NT，C033）",
+            "value": "wastewater"
+          },
+          {
+            "label": "煙道廢氣排放（KT，C101／C033）",
+            "value": "stack"
+          },
+          {
+            "label": "其他（低成本感測器、類型未知）",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "air",
+          "surface_water",
+          "sea_water",
+          "wastewater",
+          "stack",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnFuelStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Petrolimex",
+            "value": "petrolimex"
+          },
+          {
+            "label": "PVOIL",
+            "value": "pvoil"
+          },
+          {
+            "label": "Mipec",
+            "value": "mipec"
+          },
+          {
+            "label": "Saigon Petro",
+            "value": "saigon_petro"
+          },
+          {
+            "label": "品牌未知",
+            "value": "unknown"
+          },
+          {
+            "label": "其他品牌",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "petrolimex",
+          "pvoil",
+          "mipec",
+          "saigon_petro",
+          "unknown",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnMajorRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（motorway）",
+            "value": "motorway"
+          },
+          {
+            "label": "幹道（trunk）",
+            "value": "trunk"
+          },
+          {
+            "label": "主要道路（primary）",
+            "value": "primary"
+          },
+          {
+            "label": "鐵道（營運中）",
+            "value": "rail"
+          },
+          {
+            "label": "鐵道（興建中，虛線）",
+            "value": "rail_construction"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "trunk",
+          "primary",
+          "rail",
+          "rail_construction"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnOilGas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "LNG 接收站（GEM）",
+            "value": "lng"
+          },
+          {
+            "label": "煤炭碼頭（GEM）",
+            "value": "coal_terminal"
+          },
+          {
+            "label": "天然氣管線（GEM）",
+            "value": "gas_pipeline"
+          },
+          {
+            "label": "油管（GEM）",
+            "value": "oil_pipeline"
+          },
+          {
+            "label": "煉油廠（OSM）",
+            "value": "refinery"
+          },
+          {
+            "label": "油氣儲槽（OSM）",
+            "value": "tank"
+          },
+          {
+            "label": "天然氣管線（OSM）",
+            "value": "osm_pipeline"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lng",
+          "coal_terminal",
+          "gas_pipeline",
+          "oil_pipeline",
+          "refinery",
+          "tank",
+          "osm_pipeline"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction",
+          "proposed"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPopulation": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "vnPowerGrid": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "500 kV 以上",
+            "value": "kv500"
+          },
+          {
+            "label": "220–499 kV",
+            "value": "kv220"
+          },
+          {
+            "label": "110–219 kV",
+            "value": "kv110"
+          },
+          {
+            "label": "110 kV 以下",
+            "value": "kvlt110"
+          },
+          {
+            "label": "電壓未標",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv500",
+          "kv220",
+          "kv110",
+          "kvlt110",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃氣",
+            "value": "gas"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "生質能",
+            "value": "bioenergy"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "核能（規劃）",
+            "value": "nuclear"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "gas",
+          "oil",
+          "hydro",
+          "bioenergy",
+          "geothermal",
+          "nuclear"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnRenewables": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "風力（GEM）",
+            "value": "wind"
+          },
+          {
+            "label": "太陽光電（GEM）",
+            "value": "solar"
+          },
+          {
+            "label": "太陽光電（TransitionZero，CC BY-NC 4.0，非商用）",
+            "value": "solar_tz"
+          },
+          {
+            "label": "電動車充電站（OSM 補缺）",
+            "value": "charging"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "wind",
+          "solar",
+          "solar_tz",
+          "charging"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "鐵路車站",
+            "value": "rail"
+          },
+          {
+            "label": "都市鐵路（捷運）站",
+            "value": "metro"
+          },
+          {
+            "label": "公車總站、轉運站",
+            "value": "bus"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rail",
+          "metro",
+          "bus"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnTransportHubs": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國際機場（ODM）",
+            "value": "intl"
+          },
+          {
+            "label": "國內機場（ODM）",
+            "value": "domestic"
+          },
+          {
+            "label": "海港（ODM）",
+            "value": "seaport"
+          },
+          {
+            "label": "內河港（ODM）",
+            "value": "inland_port"
+          },
+          {
+            "label": "OSM 補缺：機場（2019 後新機場、軍用、停用等）",
+            "value": "osm_airport"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "intl",
+          "domestic",
+          "seaport",
+          "inland_port",
+          "osm_airport"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,

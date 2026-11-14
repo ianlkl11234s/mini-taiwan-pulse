@@ -9,7 +9,7 @@
  */
 import { ALL_PRESETS } from "../map/cameraPresets";
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN";
 
 export interface CountryCamera {
   center: [number, number];
@@ -56,6 +56,9 @@ export const IRELAND_CAMERA: CountryCamera = { center: [-8.0, 53.4], zoom: 6, pi
 
 /** 菲律賓（18 region，Batanes 到 Tawi-Tawi；國家全覽 z5，map-layers §3.8 V-1；2026-11-13 菲律賓第 0–1 波）。 */
 export const PHILIPPINES_CAMERA: CountryCamera = { center: [121.8, 12.8], zoom: 5, pitch: 0, bearing: 0 };
+
+/** 越南（2025-07 新制 34 省；國家全覽 z5，map-layers §3.8 V-1；2026-11-13 越南第 0–1 波）。 */
+export const VIETNAM_CAMERA: CountryCamera = { center: [106.0, 16.0], zoom: 5, pitch: 0, bearing: 0 };
 
 /** 全台總覽（同 cameraPresets「全台總覽」；開站預設鏡頭 `DEFAULT_CAMERA` 仍是台北，2026-10-28 使用者要求選台灣時看全台）。 */
 const TAIWAN_CAMERA: CountryCamera = (() => {
@@ -249,6 +252,34 @@ export const COUNTRIES: readonly CountryDef[] = [
       [118.3, 6.85, 118.65, 7.15],    // Cagayan de Tawi-Tawi（Mapun）
       [118.15, 6.0, 118.55, 6.35],    // Turtle Islands（Taganak、Baguan；西緣避開 Sandakan 外海的馬來西亞島嶼）
       [116.9, 7.45, 117.6, 8.3],      // Balabac、Bugsuk、Mangsee（南緣 7.45 避開沙巴 Banggi 島）
+    ],
+  },
+  {
+    code: "VN",
+    chip: "VN",
+    labelKey: "country.VN",
+    camera: VIETNAM_CAMERA,
+    // 2026-11-13 越南第 0–1 波：34 省面（OCHA COD-AB v02）外框 102.14–109.47E、8.41–23.39N。外框會框到海南西半（三亞）、
+    // 東興、河口、永珍、金邊，不能只用一個框：以 0.1° 格網貪婪切矩形（覆蓋越南面、懲罰 Natural Earth 的中寮柬泰陸地，
+    // 海口、三亞、東興、河口、永珍、琅勃拉邦、金邊、貢布為硬排除），越南車站、加油站、環境監測站約 99% 落在框內。
+    // 刻意排除：Hoàng Sa（西沙）、Trường Sa（南沙）與任何海域主張範圍（只判陸地與近岸島，Phú Quốc、Côn Đảo 在內）。
+    // 矩形近似：寮國 Houaphanh 一角、中越邊境北緣的中國側小片會判成越南；河口與老街（相距約 0.04°）、東興與芒街以框邊分開。
+    bboxes: [
+      [107.5, 8.2, 109.5, 16.7],      // 中南部沿海（Khánh Hòa、Gia Lai、Quảng Ngãi、Đà Nẵng 南）
+      [104.4, 18.8, 106.8, 22.9],     // 北部紅河三角洲、河內、Thanh Hóa、Nghệ An 北
+      [104.8, 8.2, 107.5, 10.9],      // 湄公河三角洲、胡志明市、Côn Đảo
+      [102.9, 20.9, 104.4, 22.5],     // 西北（Điện Biên、Sơn La、老街；北緣 22.5 避開河口）
+      [106.1, 10.9, 107.5, 12.0],     // Đồng Nai、Lâm Đồng 南
+      [105.6, 17.5, 107.9, 21.6],     // 北中部沿海、海防（東緣 107.9 避開東興）
+      [106.6, 16.4, 107.5, 21.7],     // Quảng Trị、Huế 北
+      [105.1, 18.3, 105.6, 23.4],     // Nghệ An 西到河江北端（Lũng Cú）
+      [102.4, 21.9, 103.9, 22.6],     // Lai Châu、Điện Biên 北（東緣 103.9 避開河口）
+      [106.3, 17.0, 107.0, 21.9],     // Quảng Bình 到 Lạng Sơn
+      [104.1, 19.1, 104.4, 19.7],     // Nghệ An 西部
+      [103.8, 8.2, 104.8, 10.5],      // 金甌、Phú Quốc（北緣 10.5 避開貢布）
+      [107.3, 15.5, 108.1, 21.5],     // Huế、Đà Nẵng、廣寧
+      [107.1, 8.2, 107.5, 12.3],      // Đồng Nai、Lâm Đồng 東
+      [107.6, 21.2, 108.1, 21.54],    // 芒街（Móng Cái；北緣 21.54 避開東興 21.547）
     ],
   },
 ];

@@ -615,6 +615,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ieAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("PH")].sort()).toEqual(["phAdminBoundaries", "phBusStops", "phExpressways", "phFuelStations", "phMajorRoads", "phPipelines", "phPopulation", "phPowerGrid", "phPowerPlants", "phRenewables", "phStations", "phTransportHubs", "phUrbanRail"]);
     expect(tw.has("phAdminBoundaries")).toBe(false);
+    expect([...countryLayerKeys("VN")].sort()).toEqual(["vnAdminBoundaries", "vnAngiangDemo", "vnEnvisoftStations", "vnFuelStations", "vnMajorRoads", "vnOilGas", "vnPopulation", "vnPowerGrid", "vnPowerPlants", "vnRenewables", "vnStations", "vnTransportHubs"]);
+    expect(tw.has("vnAdminBoundaries")).toBe(false);
   });
 
   it("日本大分類沿用台灣共用的 5 類（2026-10-26 使用者決定），且與 THEME_MACRO_GROUPS 一致", () => {

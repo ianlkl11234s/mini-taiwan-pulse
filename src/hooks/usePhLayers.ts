@@ -146,7 +146,7 @@ export function usePhPopulationLayers(mapRef: MapRef, visible: boolean, opacity:
 // ═════════════════════════ 規格驅動 8 層 ═════════════════════════
 
 /** 子圖層的類別色：match(類別值) → 色；不屬於已列類別 → otherColor（或主色）。 */
-export function phColorExpr(spec: PhLayerSpec, part: PhPart): Expr {
+export function phColorExpr(spec: PhLayerSpec<string>, part: PhPart): Expr {
   const expr: unknown[] = ["match", part.cat.expr];
   const seen = new Set<string>();
   for (const c of spec.cats) {
@@ -160,7 +160,7 @@ export function phColorExpr(spec: PhLayerSpec, part: PhPart): Expr {
 }
 
 /** 類別多選 → 子圖層 filter：全選／未給＝null；該子圖層的類別全關＝永假；選了「其他」補上「不屬於已列類別」。 */
-export function phPartCatFilter(spec: PhLayerSpec, part: PhPart, mask: number | undefined): Expr | null {
+export function phPartCatFilter(spec: PhLayerSpec<string>, part: PhPart, mask: number | undefined): Expr | null {
   if (mask === undefined || !Number.isFinite(mask)) return null;
   const ids = phCatOptionIds(spec);
   const selected = new Set(selectedMultiSelectValues(mask, ids));
@@ -184,7 +184,7 @@ export function phPlantStatusFilter(mask: number | undefined): Expr | null {
   return ["in", ["get", "status"], ["literal", selected]];
 }
 
-function pointRadiusExpr(spec: PhLayerSpec, part: PhPart, scale: number): Expr | number {
+function pointRadiusExpr(spec: PhLayerSpec<string>, part: PhPart, scale: number): Expr | number {
   const k = scale / scaleDefault(spec.key);
   if (part.size) {
     const bands = part.size.bands;
@@ -200,10 +200,10 @@ function pointRadiusExpr(spec: PhLayerSpec, part: PhPart, scale: number): Expr |
     m.push(pointRadius("S"));
     return ["*", m, k];
   }
-  return pointRadius(spec.key === "phFuelStations" || spec.key === "phBusStops" || part.id === "ph-tanks-circle" || part.id === "ph-power-substations-circle" ? "S" : "M", k);
+  return pointRadius(part.small || spec.key === "phFuelStations" || spec.key === "phBusStops" || part.id === "ph-tanks-circle" || part.id === "ph-power-substations-circle" ? "S" : "M", k);
 }
 
-function pointPaint(spec: PhLayerSpec, part: PhPart, isDark: boolean, opacity: number, scale: number) {
+function pointPaint(spec: PhLayerSpec<string>, part: PhPart, isDark: boolean, opacity: number, scale: number) {
   const op = clamp01(opacity);
   const def = opacityDefault(spec.key, 0.85);
   const base = { "circle-radius": pointRadiusExpr(spec, part, scale), "circle-color": phColorExpr(spec, part), "circle-opacity": op, ...pointStrokePaint(isDark, op / def) };
@@ -229,14 +229,14 @@ function lineWidthExpr(part: PhPart): Expr | number {
   return ["interpolate", ["linear"], ["zoom"], 10, at(0), 14, at(1)];
 }
 
-export const phHeatmapId = (spec: PhLayerSpec) => `${spec.parts[0]!.id.replace(/-circle$/, "")}-heatmap`;
+export const phHeatmapId = (spec: PhLayerSpec<string>) => `${spec.parts[0]!.id.replace(/-circle$/, "")}-heatmap`;
 
-export function phSourceSpec(spec: PhLayerSpec): SourceSpec {
+export function phSourceSpec(spec: PhLayerSpec<string>): SourceSpec {
   return { id: spec.sourceId, file: spec.file, minzoom: spec.srcMinzoom, maxzoom: spec.srcMaxzoom, attribution: spec.sourceOrg, loading: spec.loading.zh };
 }
 
 /** 規格驅動層：每個子圖層一個 layer（同一個 source）；`extraFilter`（電廠狀態）疊在所有子圖層上。 */
-export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec, visible: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number, extraFilter?: Expr | null) {
+export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec<string>, visible: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number, extraFilter?: Expr | null) {
   const source = phSourceSpec(spec);
   const heatStyle = useHeatmapStyleSignature(spec.heat ? [spec.key] : []);
   const filters = spec.parts.map((part) => gbAllOf(part.filter, phPartCatFilter(spec, part, catMask), extraFilter ?? null));
@@ -259,6 +259,16 @@ export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec, visible: boole
           layer: () => ({ id: part.id, type: "circle", ...base, layout: { visibility: "none", ...(part.size ? { "circle-sort-key": ["-", 0, ["to-number", ["get", part.size.prop], 0]] } : {}) },
             paint: pointPaint(spec, part, isDark, opacity, scale) } as unknown as AnyLayer),
           update: (map) => { map.setFilter(part.id, (filter ?? null) as any); setPaint(map, part.id, pointPaint(spec, part, isDark, opacity, scale)); },
+        });
+        return;
+      }
+      if (part.geom === "fill") {
+        const fillPaint = () => hookFillPaint(spec.key, part.id, { "fill-color": phColorExpr(spec, part), "fill-opacity": clamp01(opacity) },
+          { "fill-color": phColorExpr(spec, part), "fill-opacity": def }, isDark);
+        builds.push({
+          id: part.id,
+          layer: () => ({ id: part.id, type: "fill", ...base, layout: { visibility: "none" }, paint: fillPaint() } as unknown as AnyLayer),
+          update: (map) => { map.setFilter(part.id, (filter ?? null) as any); setPaint(map, part.id, fillPaint()); },
         });
         return;
       }
