@@ -171,3 +171,14 @@ export const KrSeniorCentersHost = makeKrDataHost("krSeniorCenters", 0.85);
 export const KrIndustrialComplexesHost = makeKrDataHost("krIndustrialComplexes", 0.7);
 export const KrNoiseSitesHost = makeKrDataHost("krNoiseSites", 0.85);
 export const KrClothingBinsHost = makeKrDataHost("krClothingBins", 0.85);
+// 第 10 波
+export const KrAnimalHospitalsHost = makeKrDataHost("krAnimalHospitals", 0.85);
+export const KrLocalCultureCentersHost = makeKrDataHost("krLocalCultureCenters", 0.85);
+export const KrTraditionalTemplesHost = makeKrDataHost("krTraditionalTemples", 0.85);
+export const KrProtectedTreesHost = makeKrDataHost("krProtectedTrees", 0.85);
+export const KrFishingGroundsHost = makeKrDataHost("krFishingGrounds", 0.6);
+export const KrBicycleParkingHost = makeKrDataHost("krBicycleParking", 0.85);
+export const KrCivilDefenseWaterHost = makeKrDataHost("krCivilDefenseWater", 0.85);
+export const KrEmergencyBellsHost = makeKrDataHost("krEmergencyBells", 0.85);
+export const KrRuralExperienceVillagesHost = makeKrDataHost("krRuralExperienceVillages", 0.85);
+export const KrSlaughterhousesHost = makeKrDataHost("krSlaughterhouses", 0.85);

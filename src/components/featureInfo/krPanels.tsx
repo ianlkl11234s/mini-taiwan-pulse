@@ -1,7 +1,7 @@
 // 南韓圖層 popup（2026-10-31 第 0 波起）。來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
 import type { FC } from "react";
 import { Row, SourceFooter, Title } from "./shared";
-import { KR_DATA_SPECS, KR_UNMEASURED, KR_UNNAMED, pickL3, type KrField, type KrLayerSpec } from "../../data/krDataLayers";
+import { KR_DATA_SPECS, KR_UNMEASURED, KR_UNNAMED, krFishingExpired, pickL3, type KrField, type KrLayerSpec } from "../../data/krDataLayers";
 import type { KrDataKey } from "../../data/krDataKeys";
 import type { MessageKey } from "../../i18n/keys";
 import { useLocale } from "../../state/localeStore";
@@ -325,6 +325,9 @@ export function KrOilGasPanel({ props: raw }: { props: Record<string, unknown> }
 }
 
 // ───────── 南韓第 3–5 波 18 層：規格驅動的共用 popup（規格見 data/krDataLayers.ts）─────────
+const KR_PERMIT_VALID = { zh: "快照日 2024-04-24 仍在許可期間", en: "Licence valid at the 2024-04-24 snapshot", ja: "2024-04-24時点で免許期間内" };
+const KR_PERMIT_EXPIRED = { zh: "快照日 2024-04-24 前已到期（是否續約不明）", en: "Ended before the 2024-04-24 snapshot (renewal unknown)", ja: "2024-04-24時点で期間終了（更新の有無は不明）" };
+const KR_PERMIT_UNKNOWN = { zh: "許可終止日未填", en: "Licence end date not recorded", ja: "免許終了日の記載なし" };
 const PEAK_DIR = { up: { zh: "上行", en: "up", ja: "上り" }, down: { zh: "下行", en: "down", ja: "下り" }, inner: { zh: "內環", en: "inner loop", ja: "内回り" }, outer: { zh: "外環", en: "outer loop", ja: "外回り" } } as const;
 
 /** 標題色：分類層取該筆分類色（與地圖一致），否則用圖層主色。 */
@@ -335,7 +338,7 @@ function catColor(spec: KrLayerSpec, props: Record<string, unknown>): string {
     return !Number.isFinite(v) ? spec.color : v < 34 ? cats[0]!.color : v < 80 ? cats[1]!.color : v < 130 ? cats[2]!.color : cats[3]!.color;
   }
   if (!spec.cats || !spec.catProp) return spec.color;
-  const v = text(props[spec.catProp]);
+  const v = spec.derivedCat ? spec.derivedCat.of(props) : text(props[spec.catProp]);
   return spec.cats.find((c) => c.values.includes(v))?.color ?? spec.otherColor ?? spec.color;
 }
 
@@ -357,8 +360,16 @@ function formatField(f: KrField, props: Record<string, unknown>, locale: string,
     if (raw == null || raw === "" || !Number.isFinite(v)) return "";
     return `${fmt(v, f.digits ?? 0)}${f.unit ? ` ${f.unit}` : ""}`;
   }
+  if (f.kind === "permit") {
+    const ymd = (v: unknown) => { const d = text(v); return /^\d{8}$/.test(d) ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}` : d; };
+    const period = [ymd(props.lcns_bgng_), ymd(raw)].filter(Boolean).join(" ～ ");
+    const expired = krFishingExpired(props);
+    const status = expired == null ? KR_PERMIT_UNKNOWN : expired ? KR_PERMIT_EXPIRED : KR_PERMIT_VALID;
+    return [period, pickL3(status, locale)].filter(Boolean).join(" · ");
+  }
   const s = text(raw);
   if (!s) return "";
+  // 地址只留門牌：去掉逗號後的附註與括號內的建物名（民防給水：私人水井的附註可能帶出人名）
   if (f.map?.[s]) return pickL3(f.map[s]!, locale);
   return s.replace(/\|/g, "、");
 }

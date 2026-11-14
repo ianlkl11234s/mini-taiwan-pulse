@@ -761,6 +761,27 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）", processing: "CSV（UTF-8 BOM）WGS84；0 筆剔除；PMTiles z0–14", note: "平台標籤；16/16 시·도；只有位置、沒有測值" },
   krClothingBins: { theme: "廢棄物", group: "投放點", zh: "舊衣回收箱", alt: "Clothing Collection Bins", icon: Shirt, dataset: "kr_clothing_bins", topics: ["南韓", "舊衣回收", "의류수거함", "回收", "廢棄物"],
     description: "南韓舊衣回收箱 20,931 處（57 個市郡區清單合併）", processing: "data.go.kr 各機關 fileData 93 份：有座標 CSV 59 份（58 份採用）、只有地址 19 份未上圖；剔除無座標 1,051、境外 5、座標落在提供機關轄區外 25、重複 2,103；管理團體與電話欄排除；PMTiles z0–14", note: "平台標籤；瑞草區 KOGL 4 不併入；11/16 시·도（釜山、大邱、蔚山、世宗、忠北無）" },
+  // 第 10 波（2026-11-14；analytics #373／#374）
+  krAnimalHospitals: { theme: "動物福利", group: "服務據點 Service Points", zh: "動物醫院", alt: "Animal Hospitals", icon: PawPrint, dataset: "kr_animal_hospitals", topics: ["南韓", "動物醫院", "동물병원", "獸醫", "寵物"],
+    description: "南韓營業中動物醫院 5,255 處（LOCALDATA 동물병원）", processing: "LOCALDATA CSV 10,670 列：只留영업/정상；EPSG:5174 → 4326；無座標 243 剔除；電話、面積排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；名稱為事業招牌名" },
+  krLocalCultureCenters: { theme: "文化", group: "設施 Facilities", zh: "地方文化院", alt: "Local Culture Centres", icon: Theater, dataset: "kr_local_culture_centers", topics: ["南韓", "地方文化院", "지방문화원", "文化設施"],
+    description: "南韓地方文化院 171 處（LOCALDATA 지방문화원）", processing: "LOCALDATA CSV 191 列（全營業中）；EPSG:5174 → 4326；無座標 20 剔除；電話、設立目的排除；PMTiles z0–14", note: "平台標籤；13/16 시·도（首爾、釜山、仁川未涵蓋）" },
+  krTraditionalTemples: { theme: "宗教", group: "點位", zh: "傳統寺剎", alt: "Traditional Temples", icon: Landmark, dataset: "kr_traditional_temples", topics: ["南韓", "寺廟", "傳統寺剎", "전통사찰", "佛教", "宗教"],
+    description: "南韓傳統寺剎保存法登錄的寺剎 1,599 處（指定 795、承認 46、未填 758）", processing: "LOCALDATA CSV 1,907 列：剔除登錄取消 1、無座標 307；EPSG:5174 → 4326；沿革全文與僧侶／信徒數排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；不含一般寺院與其他宗教" },
+  krProtectedTrees: { theme: "環境氣候", group: "都市樹木 Urban Trees", zh: "保護樹", alt: "Protected Trees", icon: TreeDeciduous, dataset: "kr_protected_trees", topics: ["南韓", "保護樹", "보호수", "老樹", "古樹"],
+    description: "南韓保護樹 12,308 株（道樹、市郡樹、面樹、村樹）", processing: "LOCALDATA 12,794 列：剔除解除指定 127、無座標 2、南韓外 30、座標與 시·도不符 327；地積、地目排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；寧越、河東、曾坪、洪川、靈岩整批座標偏移" },
+  krFishingGrounds: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries", zh: "漁場", alt: "Fishing Grounds", icon: Fish, dataset: "kr_fishing_grounds", topics: ["南韓", "漁場", "어장", "養殖", "定置網", "漁業權"],
+    description: "南韓漁場 14,858 面（養殖、村落、定置網；調查 2020–2023，快照 2024-04-24）", processing: "SHP EPSG:5179 → 4326；6 個自相交面 make_valid；許可已到期 3,010 面保留不篩；PMTiles z4–12", note: "KOGL 1（출처표시）；11/11 沿海 시·도；到期者以灰色另列" },
+  krBicycleParking: { theme: "交通", group: "場站", zh: "自行車停放處", alt: "Bicycle Parking", icon: Bike, dataset: "kr_bicycle_parking", topics: ["南韓", "自行車", "停車", "자전거보관소", "單車"],
+    description: "南韓自行車停放處 18,220 處（LOCALDATA 자전거보관소）", processing: "LOCALDATA 18,515 列：剔除無座標 124、南韓外 3、海上 6、座標與 시·도不符 162；機關電話排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；羅州、大邱壽城區整批座標偏移" },
+  krCivilDefenseWater: { theme: "災害", group: "避難設施", zh: "民防緊急給水設施", alt: "Civil Defence Emergency Water", icon: Droplets, dataset: "kr_civil_defense_water", topics: ["南韓", "民防", "給水", "민방위급수시설", "緊急用水"],
+    description: "南韓使用中民防緊急給水設施 5,464 處（公共用、政府支援、自治體）", processing: "LOCALDATA 11,081 列：剔除停用 5,296、無座標 321；EPSG:5174 → 4326；設施名稱整欄不輸出（含私人姓名）；PMTiles z0–14", note: "平台標籤；16/16 시·도；名稱不顯示，地址只到門牌" },
+  krEmergencyBells: { theme: "執法治安", group: "警政", zh: "安全緊急鈴", alt: "Emergency Bells", icon: Siren, dataset: "kr_emergency_bells", topics: ["南韓", "緊急鈴", "안전비상벨", "治安", "求救"],
+    description: "南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）", processing: "LOCALDATA 88,634 列：剔除無座標 13、南韓外 8、海上 5、座標與 시·도不符 897，經緯對調更正 10；機關電話排除；PMTiles z0–14（48.2MB 走 deploy-assets）", note: "平台標籤；16/16 시·도；泗川、沃川座標整批偏移或佔位" },
+  krRuralExperienceVillages: { theme: "觀光", group: "玩・體驗 Experience", zh: "農漁村體驗休養村", alt: "Rural Experience Villages", icon: Tent, dataset: "kr_rural_experience_villages", topics: ["南韓", "農村體驗", "체험휴양마을", "休閒農業", "觀光"],
+    description: "南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）", processing: "CSV WGS84；座標與 시·도不符 2 剔除；代表者姓名與電話排除；PMTiles z0–14", note: "平台標籤；13/16 시·도（首爾、釜山、大邱未涵蓋）" },
+  krSlaughterhouses: { theme: "農業", group: "畜牧 Livestock", zh: "屠宰場", alt: "Slaughterhouses", icon: Factory, dataset: "kr_slaughterhouses", topics: ["南韓", "屠宰場", "도축업", "畜牧"],
+    description: "南韓營業中屠宰場 111 處（LOCALDATA 도축업）", processing: "LOCALDATA 202 列：剔除歇業／停業 68、無座標 23；EPSG:5174 → 4326；電話、職員數、面積排除；PMTiles z0–14", note: "平台標籤；12/16 시·도（首爾、釜山、大田、世宗未涵蓋）" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];

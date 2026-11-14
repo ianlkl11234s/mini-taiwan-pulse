@@ -3819,6 +3819,20 @@
    "s3_key": "deploy-assets/world/kr_airports.pmtiles"
   },
   {
+   "path": "public/world/kr_animal_hospitals.pmtiles",
+   "bytes": 5002371,
+   "sha256": "6b9bef897853297c631cb040ed3b4b6e6b44ab3548406c38cd8c3565415bb868",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_animal_hospitals.pmtiles"
+  },
+  {
+   "path": "public/world/kr_bicycle_parking.pmtiles",
+   "bytes": 10004180,
+   "sha256": "e5ad9c15481e8d950589ae9e802a313ee4a4b389d2ce67b71fc55c09fbd3b38d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_bicycle_parking.pmtiles"
+  },
+  {
    "path": "public/world/kr_bus_stops.pmtiles",
    "bytes": 19066953,
    "sha256": "a8478c62bb81c2f4b2fe8bb6b3feafe4811dfe05758634b3f8297dbba73b65bd",
@@ -3854,6 +3868,13 @@
    "s3_key": "deploy-assets/world/kr_civil_defense_shelters.pmtiles"
   },
   {
+   "path": "public/world/kr_civil_defense_water.pmtiles",
+   "bytes": 3593965,
+   "sha256": "5a3bdd9d93d81605ce3d89268dcf6ca94e17e50d53c7a4d578acd4bef3dcd061",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_civil_defense_water.pmtiles"
+  },
+  {
    "path": "public/world/kr_clothing_bins.pmtiles",
    "bytes": 5017621,
    "sha256": "fe33f54e8689639c063317202ec165b48e3b06dfe2cc245e38354019284a9142",
@@ -3868,6 +3889,13 @@
    "s3_key": "deploy-assets/world/kr_coastal_erosion_facilities.pmtiles"
   },
   {
+   "path": "public/world/kr_emergency_bells.pmtiles",
+   "bytes": 48216577,
+   "sha256": "d48ad25bfb42917b94b3e59793056fc3b6f55527dfdced79d9d9c78c6fb99c62",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_emergency_bells.pmtiles"
+  },
+  {
    "path": "public/world/kr_festivals.pmtiles",
    "bytes": 2177519,
    "sha256": "7ec729ed19ea9897db53d947fe2b9e597b283d6ed13dec7d960dd012314f6049",
@@ -3880,6 +3908,13 @@
    "sha256": "1b9b9eb5f16b44a979174bd5894949a66858d49599f9626d2c1cd9c06ecf2825",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_fire_stations.pmtiles"
+  },
+  {
+   "path": "public/world/kr_fishing_grounds.pmtiles",
+   "bytes": 11965356,
+   "sha256": "b6bd12d7241448f0c68dcbb095a1f3ab240ff7c7bdbb73d7de54b119ab6b167b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_fishing_grounds.pmtiles"
   },
   {
    "path": "public/world/kr_fuel_stations.pmtiles",
@@ -3929,6 +3964,13 @@
    "sha256": "a98d8990726470035a885f876c9992107e2064b7802777d3f7250b31e63f06df",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_libraries.pmtiles"
+  },
+  {
+   "path": "public/world/kr_local_culture_centers.pmtiles",
+   "bytes": 342795,
+   "sha256": "6c5bf43e58638b6352b93d8663c1324e28f22ebb992eadd346c71c705b58348c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_local_culture_centers.pmtiles"
   },
   {
    "path": "public/world/kr_lodging.pmtiles",
@@ -4057,6 +4099,13 @@
    "s3_key": "deploy-assets/world/kr_power_plants.pmtiles"
   },
   {
+   "path": "public/world/kr_protected_trees.pmtiles",
+   "bytes": 12099167,
+   "sha256": "5ff8a8def0d374d80aafd0433f51ca3e13b6c1fb25e22f8d5d819fb7943ef9bd",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_protected_trees.pmtiles"
+  },
+  {
    "path": "public/world/kr_public_bicycle_stations.pmtiles",
    "bytes": 2949908,
    "sha256": "a32aa07c37ae887b7225bdf8bf8d6ce87a4dec2f6ea86d157806357149513aff",
@@ -4090,6 +4139,13 @@
    "sha256": "31746391951209f84f2fdd84c79021f46df48156181eae2c02a832b2fed98c99",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_rivers_osm.pmtiles"
+  },
+  {
+   "path": "public/world/kr_rural_experience_villages.pmtiles",
+   "bytes": 2803646,
+   "sha256": "2d6df6925bb1735f107659a2190f864bf0936c3555c0f87a7eb14460144521a8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_rural_experience_villages.pmtiles"
   },
   {
    "path": "public/world/kr_safe_delivery_boxes.pmtiles",
@@ -4134,6 +4190,13 @@
    "s3_key": "deploy-assets/world/kr_seoul_subway_congestion.pmtiles"
   },
   {
+   "path": "public/world/kr_slaughterhouses.pmtiles",
+   "bytes": 233695,
+   "sha256": "7735a6609b4b5f5fb2203c746d6bae9b43d363ce3fadd5f9f3cb72b390ab8ef5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_slaughterhouses.pmtiles"
+  },
+  {
    "path": "public/world/kr_sluice_gates.pmtiles",
    "bytes": 998486,
    "sha256": "fb03a5c6147acf545f0da9c75c192fb7ea8926199dea7206ec31e7b3b4977d4f",
@@ -4160,6 +4223,13 @@
    "sha256": "072c5f2b0eff936ff3d190d6a68d1a025c85ff1107d3a755485015720596aded",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_territorial_sea.pmtiles"
+  },
+  {
+   "path": "public/world/kr_traditional_temples.pmtiles",
+   "bytes": 1599383,
+   "sha256": "c2344095d0034eecfdc03ddda77df6558bc08ae052bf8fa06006ebd4bbcead83",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_traditional_temples.pmtiles"
   },
   {
    "path": "public/world/kr_urban_parks.pmtiles",

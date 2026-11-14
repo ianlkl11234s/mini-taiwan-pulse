@@ -40,7 +40,7 @@ export function krColorExpr(spec: KrLayerSpec, isDark = true): Expr | string {
     return ["case", ["has", "peak_wkd"], ["step", ["to-number", ["get", "peak_wkd"], 0], cats[0]!.color, a, cats[1]!.color, b, cats[2]!.color, c, cats[3]!.color], spec.otherColor ?? spec.color];
   }
   if (!spec.cats || !spec.catProp) return spec.color;
-  const expr: unknown[] = ["match", ["coalesce", ["get", spec.catProp], ""]];
+  const expr: unknown[] = ["match", spec.derivedCat ? spec.derivedCat.expr : ["coalesce", ["get", spec.catProp], ""]];
   for (const c of spec.cats) expr.push([...c.values], c.color);
   expr.push(spec.otherColor ?? spec.color);
   return expr;

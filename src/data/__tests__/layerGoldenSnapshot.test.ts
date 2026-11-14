@@ -291,7 +291,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-10: +8 南韓第 8 波（圖書館、博物館美術館、公演、文化祭、國家遺產、住宿、安心宅配櫃、敬老堂）。
     // 2026-11-10: +6 愛爾蘭第 11 波（AED、監獄、pNHA、郡議會淹水分區、GSI 地下水淹水、泥炭開採沼地）。
     // 2026-11-13: +10 菲律賓第 0–1 波（行政區界、人口密度、機場港口、車站碼頭、主要道路鐵道、電廠、電網、家用太陽能補助與微電網、加油站、管線與儲槽）。
-    expect(keys.length).toBe(1827);
+    // 2026-11-14: +10 南韓第 10 波（動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場）。
+    expect(keys.length).toBe(1837);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

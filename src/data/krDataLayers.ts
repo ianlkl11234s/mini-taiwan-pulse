@@ -14,7 +14,8 @@ export interface L3 { zh: string; en: string; ja: string }
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 
 export interface KrCat { id: string; values: readonly string[]; color: string; label: L3; faded?: boolean }
-export type KrFieldKind = "text" | "num" | "year" | "measure" | "peak" | "code";
+/** `permit`：許可期間（`lcns_bgng_`～本欄，YYYYMMDD）＋快照日判斷的許可狀態。 */
+export type KrFieldKind = "text" | "num" | "year" | "measure" | "peak" | "code" | "permit";
 export interface KrField { prop: string; label: L3; kind?: KrFieldKind; unit?: string; digits?: number; map?: Readonly<Record<string, L3>> }
 export interface KrLayerSpec {
   key: KrDataKey;
@@ -44,6 +45,8 @@ export interface KrLayerSpec {
   tier?: "S" | "M";
   count: number;
   catProp?: string;
+  /** 衍生分類（第 10 波漁場：許可到期另成一類）：`expr` 回傳分類值字串（hook 上色、類別多選共用），`of` 是 popup 標題色用的同一判斷。 */
+  derivedCat?: { expr: unknown[]; of: (props: Record<string, unknown>) => string };
   cats?: readonly KrCat[];
   otherColor?: string;
   otherLabel?: L3;
@@ -72,6 +75,22 @@ export const KR_W8_FETCHED_AT = "2026-11-10";
 /** 第 9 波（2026-11-10 重開授權頁）。 */
 export const KR_W9_FETCHED_AT = "2026-11-10";
 const KOGL4_LICENSE = "공공누리 제4유형（출처표시・상업적 이용금지・변경금지）";
+/** 第 10 波（2026-11-13 下載時重讀授權頁）。 */
+export const KR_W10_FETCHED_AT = "2026-11-13";
+const KR_YN: Readonly<Record<string, L3>> = { Y: { zh: "有", en: "Yes", ja: "あり" }, N: { zh: "無", en: "No", ja: "なし" } };
+/** 漁場資料快照日（rp_date 2024-04-24）：許可終止日 `lcns_end_y`（YYYYMMDD）早於此日＝快照時已到期（3,010 面）。用固定快照日、不用今天，筆數才與 manifest 一致。 */
+export const KR_FISHING_SNAPSHOT = "20240424";
+export const KR_FISHING_EXPIRED = "__expired_before_snapshot__";
+const KR_FISHING_END = ["to-string", ["coalesce", ["get", "lcns_end_y"], ""]];
+/** 已到期 → 固定值；否則回漁業區分原值（缺值＝""）。終止日缺值不算到期（"" < 任何日期會誤判）。 */
+export const KR_FISHING_CAT_EXPR: unknown[] = ["case", ["all", ["!=", KR_FISHING_END, ""], ["<", KR_FISHING_END, KR_FISHING_SNAPSHOT]], KR_FISHING_EXPIRED, ["to-string", ["coalesce", ["get", "fids_se"], ""]]];
+export function krFishingExpired(props: Record<string, unknown>): boolean | null {
+  const end = props.lcns_end_y == null ? "" : String(props.lcns_end_y).trim();
+  return end ? end < KR_FISHING_SNAPSHOT : null;
+}
+export function krFishingCat(props: Record<string, unknown>): string {
+  return krFishingExpired(props) ? KR_FISHING_EXPIRED : props.fids_se == null ? "" : String(props.fids_se);
+}
 
 export const KR_UNMEASURED = l3("未測", "Not measured", "未測定");
 const UNNAMED = l3("(未命名)", "(unnamed)", "(名称なし)");
@@ -820,7 +839,188 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     popupNotes: [],
     sourceOrg: "각 시·군·구 의류수거함 위치 (공공데이터포털 파일데이터 57건)", sourceUrl: "https://www.data.go.kr/tcs/dss/selectDataSetList.do?keyword=%EC%9D%98%EB%A5%98%EC%88%98%EA%B1%B0%ED%95%A8", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W9_FETCHED_AT,
     loading: l3("南韓舊衣回收箱載入中", "Loading South Korea clothing collection bins", "韓国の古着回収ボックスを読み込み中"),
+  },  // ───────────── 第 10 波：動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場 ─────────────
+  {
+    key: "krAnimalHospitals", file: "kr_animal_hospitals.pmtiles", sourceLayer: "kr_animal_hospitals", geom: "point", layerId: "kr-animal-hospitals-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#fb923c", tier: "M", count: 5255,
+    title: { props: ["name"], fallback: l3("動物醫院", "Animal hospital", "動物病院") },
+    fields: [{ prop: "address", label: l3("地址", "Address", "住所") }, { prop: "licensed", label: l3("許可日", "Licensed", "許可日") },
+             { prop: "updated", label: l3("資料更新日", "Record updated", "データ更新日") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("營業中 5,255 處（LOCALDATA 동물병원）；歇業、停業不收，無座標 243 處未上圖", "5,255 animal hospitals in business (LOCALDATA); closed or suspended ones excluded, 243 without coordinates not shown", "営業中の5,255か所（LOCALDATA）。廃業・休業は除外、座標なし243か所は非表示"),
+                  l3("名稱為事業登記的招牌名；電話不顯示", "Names are registered business names; phone numbers not shown", "名称は事業の登録名。電話番号は表示しない")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 동물병원 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/animal_hospitals/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓動物醫院載入中", "Loading South Korea animal hospitals", "韓国の動物病院を読み込み中"),
   },
+  {
+    key: "krLocalCultureCenters", file: "kr_local_culture_centers.pmtiles", sourceLayer: "kr_local_culture_centers", geom: "point", layerId: "kr-local-culture-centers-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#c084fc", tier: "M", count: 171,
+    title: { props: ["name"], fallback: l3("地方文化院", "Local culture centre", "地方文化院") },
+    fields: [{ prop: "kind", label: l3("法人類別", "Corporate type", "法人種別") }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "licensed", label: l3("許可日", "Licensed", "許可日") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("地方文化院 171 處（13/16 個市道）；名冊沒有首爾、釜山、仁川的資料（未涵蓋，不代表沒有）", "171 local culture centres (13 of 16 provinces); the register has no entries for Seoul, Busan or Incheon (not covered, not zero)", "地方文化院171か所（16広域のうち13）。名簿にソウル・釜山・仁川の記載なし（未収録であり、ゼロではない）"),
+                  l3("無座標 20 處未上圖", "20 entries without coordinates not shown", "座標なし20か所は非表示")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 지방문화원 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/local_culture_centers/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓地方文化院載入中", "Loading South Korea local culture centres", "韓国の地方文化院を読み込み中"),
+  },
+  {
+    key: "krTraditionalTemples", file: "kr_traditional_temples.pmtiles", sourceLayer: "kr_traditional_temples", geom: "point", layerId: "kr-traditional-temples-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#f59e0b", tier: "M", count: 1599,
+    catProp: "designation", otherColor: "#94a3b8", otherLabel: l3("未填", "Not recorded", "未記入"),
+    cats: [
+      { id: "designated", values: ["지정"], color: "#f59e0b", label: l3("指定（지정）", "Designated", "指定") },
+      { id: "approved", values: ["승인"], color: "#fb7185", label: l3("承認（승인）", "Approved", "承認") },
+    ],
+    title: { props: ["name"], fallback: l3("傳統寺剎", "Traditional temple", "伝統寺刹") },
+    fields: [{ prop: "designation", label: l3("指定類別", "Designation", "指定区分"), map: { "지정": l3("指定", "Designated", "指定"), "승인": l3("承認", "Approved", "承認") } },
+             { prop: "founded", label: l3("創立年代", "Founded", "創建") }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "licensed", label: l3("許可日", "Licensed", "許可日") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("傳統寺剎保存法登錄的 1,599 處；不含一般寺院與其他宗教", "1,599 temples registered under the Traditional Temples Preservation Act; ordinary temples and other religions not included", "伝統寺刹保存法に登録された1,599か所。一般の寺院や他宗教は含まない"),
+                  l3("無座標 307 處未上圖；沿革全文與僧侶人數不顯示", "307 without coordinates not shown; history text and monk counts not shown", "座標なし307か所は非表示。沿革全文・僧侶数は表示しない")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 전통사찰 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/traditional_temples/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓傳統寺剎載入中", "Loading South Korea traditional temples", "韓国の伝統寺刹を読み込み中"),
+  },
+  {
+    key: "krProtectedTrees", file: "kr_protected_trees.pmtiles", sourceLayer: "kr_protected_trees", geom: "point", layerId: "kr-protected-trees-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, heat: { intensity: 2.5 }, color: "#22c55e", tier: "M", count: 12308,
+    catProp: "grade", otherColor: "#94a3b8", otherLabel: l3("未填", "Not recorded", "未記入"),
+    cats: [
+      { id: "province", values: ["도나무"], color: "#16a34a", label: l3("道樹（도나무）", "Provincial tree", "道の木") },
+      { id: "city", values: ["시·군나무"], color: "#22c55e", label: l3("市郡樹（시·군나무）", "City/county tree", "市・郡の木") },
+      { id: "township", values: ["면나무"], color: "#84cc16", label: l3("面樹（면나무）", "Township tree", "面の木") },
+      { id: "village", values: ["마을나무"], color: "#facc15", label: l3("村樹（마을나무）", "Village tree", "村の木") },
+    ],
+    title: { props: ["species"], fallback: l3("保護樹", "Protected tree", "保護樹") },
+    fields: [{ prop: "sci_name", label: l3("學名", "Scientific name", "学名") }, { prop: "grade", label: l3("品格", "Grade", "品格") },
+             { prop: "age", label: l3("樹齡", "Age", "樹齢"), kind: "num", unit: "yr" }, { prop: "height_m", label: l3("樹高", "Height", "樹高"), kind: "num", unit: "m", digits: 1 },
+             { prop: "girth_cm", label: l3("胸圍", "Girth", "幹周"), kind: "num", unit: "cm" }, { prop: "count", label: l3("株數", "Trees", "本数"), kind: "num" },
+             { prop: "designated", label: l3("指定日", "Designated", "指定日") }, { prop: "designation_no", label: l3("指定編號", "Designation no.", "指定番号"), kind: "code" },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "agency", label: l3("管理機關", "Agency", "管理機関") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("保護樹 12,308 株；已解除指定 127、座標在南韓外 30、座標落在別的市道 327 筆未上圖", "12,308 protected trees; 127 de-designated, 30 outside South Korea and 327 placed in another province are not shown", "保護樹12,308本。指定解除127、韓国外30、別の広域に落ちる327件は非表示"),
+                  l3("以下機關提供的座標有整批偏移，位置僅供參考：寧越郡、河東郡、曾坪郡、洪川郡（落在別的市道者已剔除，留下的點也可能偏移）、靈岩郡（多數點落在珍島、海南）", "Coordinates from these agencies are shifted in bulk; positions are indicative only: Yeongwol, Hadong, Jeungpyeong, Hongcheon (points in other provinces removed; remaining ones may still be shifted) and Yeongam (most points fall in Jindo/Haenam)", "次の機関の座標は一括でずれており、位置は参考程度：寧越郡・河東郡・曽坪郡・洪川郡（別の広域に落ちる点は除外、残りもずれの可能性）、霊岩郡（多くが珍島・海南に落ちる）"),
+                  l3("所有者只有類別（個人／公共／團體），沒有姓名", "Ownership is recorded only as a category (private/public/group), no names", "所有者は区分（個人・公共・団体）のみで氏名なし")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 보호수 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/protected_tree_info/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓保護樹載入中", "Loading South Korea protected trees", "韓国の保護樹を読み込み中"),
+  },
+  {
+    // 許可狀態以資料快照日（rp_date 2024-04-24）判斷：lcns_end_y（YYYYMMDD）早於快照日＝「快照日前已到期」另成一類（灰），其餘依漁業區分上色
+    key: "krFishingGrounds", file: "kr_fishing_grounds.pmtiles", sourceLayer: "kr_fishing_grounds", geom: "polygon",
+    layerId: "kr-fishing-grounds-fill", outlineId: "kr-fishing-grounds-line",
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#2dd4bf", count: 14858,
+    catProp: "fids_se",
+    derivedCat: { expr: KR_FISHING_CAT_EXPR, of: krFishingCat },
+    cats: [
+      { id: "aquaculture", values: ["양식어업", "양식어업(한정)"], color: "#2dd4bf", label: l3("養殖漁業（양식어업）", "Aquaculture", "養殖漁業") },
+      { id: "village", values: ["마을어업", "마을어업(한정)"], color: "#38bdf8", label: l3("村落漁業（마을어업）", "Village fishery", "村落漁業") },
+      { id: "setnet", values: ["정치망어업"], color: "#a78bfa", label: l3("定置網漁業（정치망어업）", "Set-net fishery", "定置網漁業") },
+      { id: "expired", values: [KR_FISHING_EXPIRED], color: "#94a3b8", label: l3("快照日 2024-04-24 前許可已到期（是否續約不明）", "Licence ended before the 2024-04-24 snapshot (renewal unknown)", "2024-04-24の時点で許可期間終了（更新の有無は不明）") },
+    ],
+    title: { props: ["fids_knd", "fids_se"], fallback: l3("漁場", "Fishing ground", "漁場") },
+    fields: [{ prop: "lcns_end_y", label: l3("許可期間", "Licence period", "免許期間"), kind: "permit" },
+             { prop: "fids_se", label: l3("漁業區分", "Fishery class", "漁業区分") }, { prop: "fids_mthd", label: l3("漁法", "Method", "漁法") },
+             { prop: "farm_knd", label: l3("品種", "Species", "品種") }, { prop: "addr", label: l3("位置", "Location", "位置") },
+             { prop: "area", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 1 }, { prop: "rgn_nm", label: l3("市郡", "City/county", "市郡") },
+             { prop: "rvsn_yr", label: l3("調查年", "Survey year", "調査年") }, { prop: "lcns_no", label: l3("許可編號", "Licence no.", "免許番号"), kind: "code" }],
+    legendNotes: [l3("漁場 14,858 面（調查 2020–2023，資料快照 2024-04-24），涵蓋 11 個沿海市道；內陸的首爾、大邱、大田、世宗、忠北不適用", "14,858 fishing grounds (surveyed 2020–2023, snapshot 2024-04-24) in all 11 coastal provinces; inland Seoul, Daegu, Daejeon, Sejong and North Chungcheong not applicable", "漁場14,858面（調査2020–2023、スナップショット2024-04-24）。沿岸11広域をカバー。内陸のソウル・大邱・大田・世宗・忠清北道は対象外"),
+                  l3("快照日前許可已到期 3,010 面照原樣保留、以灰色顯示，不刪除", "3,010 grounds whose licence ended before the snapshot are kept and shown in grey, not removed", "スナップショット時点で免許期間が終了した3,010面はそのまま残し灰色で表示（削除しない）"),
+                  l3("拉遠時圖磚略去小面，放大到 8 級起完整顯示；許可人姓名不在資料中", "Small grounds are dropped when zoomed out; complete from zoom 8. No licensee names in the data", "縮小時は小さい面を省略、ズーム8から全件表示。免許者の氏名はデータに含まれない")],
+    popupNotes: [],
+    sourceOrg: "해양수산부 국립해양조사원 어장정보 (공공데이터포털)", sourceUrl: "https://www.data.go.kr/data/15130109/fileData.do", license: "공공누리 제1유형（출처표시）", fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓漁場載入中", "Loading South Korea fishing grounds", "韓国の漁場を読み込み中"),
+  },
+  {
+    key: "krBicycleParking", file: "kr_bicycle_parking.pmtiles", sourceLayer: "kr_bicycle_parking", geom: "point", layerId: "kr-bicycle-parking-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, heat: { intensity: 2 }, color: "#38bdf8", tier: "M", count: 18220,
+    catProp: "install_type", otherColor: "#94a3b8", otherLabel: l3("未填", "Not recorded", "未記入"),
+    cats: [
+      { id: "rack", values: ["거치형"], color: "#38bdf8", label: l3("車架式（거치형）", "Rack", "ラック式") },
+      { id: "standalone", values: ["단독형"], color: "#2dd4bf", label: l3("獨立式（단독형）", "Stand-alone", "単独型") },
+      { id: "fence", values: ["휀스형"], color: "#a78bfa", label: l3("圍欄式（휀스형）", "Fenced", "フェンス型") },
+      { id: "other", values: ["기타"], color: "#f472b6", label: l3("其他形式（기타）", "Other type", "その他の形式") },
+    ],
+    title: { props: ["name"], fallback: l3("自行車停放處", "Bicycle parking", "自転車駐輪場") },
+    fields: [{ prop: "racks", label: l3("保管台數", "Spaces", "収容台数"), kind: "num" }, { prop: "installed_year", label: l3("設置年", "Installed", "設置年") },
+             { prop: "shade", label: l3("遮陽", "Shelter", "日よけ"), map: KR_YN }, { prop: "air_pump", label: l3("打氣機", "Air pump", "空気入れ"), map: KR_YN },
+             { prop: "repair_stand", label: l3("修車台", "Repair stand", "修理台"), map: KR_YN }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "agency", label: l3("管理機關", "Agency", "管理機関") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("自行車停放處 18,220 處；無座標 124、南韓外或海上 9、座標落在別的市道 162 筆未上圖", "18,220 bicycle parking sites; 124 without coordinates, 9 outside South Korea or at sea and 162 placed in another province are not shown", "駐輪場18,220か所。座標なし124・韓国外または海上9・別の広域に落ちる162件は非表示"),
+                  l3("以下機關提供的座標有整批偏移，位置僅供參考：羅州市（110 筆落在首爾）、大邱壽城區（41 筆落在慶南）；落在別的市道者已剔除，留下的點也可能偏移", "Coordinates from these agencies are shifted in bulk; positions are indicative only: Naju (110 points fell in Seoul) and Suseong-gu, Daegu (41 fell in Gyeongnam); points in other provinces removed, remaining ones may still be shifted", "次の機関の座標は一括でずれており、位置は参考程度：羅州市（110件がソウルに）、大邱寿城区（41件が慶南に）。別の広域に落ちる点は除外、残りもずれの可能性")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 자전거보관소 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/bicycle_parking_info/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓自行車停放處載入中", "Loading South Korea bicycle parking", "韓国の駐輪場を読み込み中"),
+  },
+  {
+    // 設施名稱（含私人水井所有人姓名）資料端整欄不輸出；地址只顯示到門牌（去掉附註的建物名），避免帶出私人名稱
+    key: "krCivilDefenseWater", file: "kr_civil_defense_water.pmtiles", sourceLayer: "kr_civil_defense_water", geom: "point", layerId: "kr-civil-defense-water-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#22d3ee", tier: "M", count: 5464,
+    catProp: "facility_type", otherColor: "#94a3b8", otherLabel: l3("未填", "Not recorded", "未記入"),
+    cats: [
+      { id: "public", values: ["공공용시설"], color: "#22d3ee", label: l3("公共用設施（공공용시설）", "Public-use facility", "公共用施設") },
+      { id: "gov", values: ["정부지원시설"], color: "#3b82f6", label: l3("政府支援設施（정부지원시설）", "Government-funded facility", "政府支援施設") },
+      { id: "local", values: ["지자체시설"], color: "#a78bfa", label: l3("自治體設施（지자체시설）", "Local-government facility", "自治体施設") },
+    ],
+    title: { props: [], fallback: l3("民防緊急給水設施", "Civil defence emergency water", "民防緊急給水施設") },
+    fields: [{ prop: "facility_type", label: l3("設施類別", "Facility type", "施設区分") }, { prop: "status", label: l3("使用狀態", "Status", "使用状態"), map: { "사용중": l3("使用中", "In use", "使用中") } },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "licensed", label: l3("許可日", "Licensed", "許可日") }],
+    legendNotes: [l3("使用中 5,464 處；停用 5,296 處不收，無座標 321 處未上圖", "5,464 facilities in use; 5,296 decommissioned excluded, 321 without coordinates not shown", "使用中の5,464か所。使用中止5,296か所は除外、座標なし321か所は非表示"),
+                  l3("設施名稱不顯示（原資料含私人水井所有人姓名）；地址只顯示到門牌", "Facility names are not shown (the source includes private well owners' names); addresses shown to street number only", "施設名は表示しない（原データに私有井戸の所有者名を含むため）。住所は番地まで")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 민방위급수시설 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/civil_defense_water_facilities/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓民防給水設施載入中", "Loading South Korea civil defence water facilities", "韓国の民防給水施設を読み込み中"),
+  },
+  {
+    key: "krEmergencyBells", file: "kr_emergency_bells.pmtiles", sourceLayer: "kr_emergency_bells", geom: "point", layerId: "kr-emergency-bells-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 1.5 }, color: "#ef4444", tier: "M", count: 87711,
+    catProp: "place_type",
+    cats: [
+      { id: "street", values: ["가로변"], color: "#ef4444", label: l3("路邊（가로변）", "Roadside", "路側") },
+      { id: "park", values: ["공원"], color: "#22c55e", label: l3("公園（공원）", "Park", "公園") },
+      { id: "toilet", values: ["화장실"], color: "#38bdf8", label: l3("廁所（화장실）", "Toilet", "トイレ") },
+      { id: "building", values: ["건물"], color: "#a78bfa", label: l3("建物（건물）", "Building", "建物") },
+      { id: "parking", values: ["주차장"], color: "#f59e0b", label: l3("停車場（주차장）", "Car park", "駐車場") },
+      { id: "etc", values: ["기타"], color: "#f472b6", label: l3("其他場所（기타）", "Other place", "その他の場所") },
+    ],
+    title: { props: ["place", "bell_no"], fallback: l3("安全緊急鈴", "Emergency bell", "安全非常ベル") },
+    fields: [{ prop: "purpose", label: l3("設置目的", "Purpose", "設置目的"), map: { "방범용": l3("防範犯罪", "Crime prevention", "防犯"), "약자보호": l3("保護弱勢", "Protecting vulnerable people", "弱者保護"), "기타": l3("其他", "Other", "その他") } },
+             { prop: "police_link", label: l3("連動警方", "Linked to police", "警察連動"), map: KR_YN }, { prop: "security_link", label: l3("連動保全", "Linked to security firm", "警備会社連動"), map: KR_YN },
+             { prop: "office_link", label: l3("連動管理室", "Linked to management office", "管理室連動"), map: KR_YN }, { prop: "features", label: l3("功能", "Functions", "機能") },
+             { prop: "installed_year", label: l3("設置年", "Installed", "設置年") }, { prop: "last_check", label: l3("最近點檢", "Last inspected", "直近点検") },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "agency", label: l3("管理機關", "Agency", "管理機関") }, { prop: "bell_no", label: l3("鈴號", "Bell no.", "ベル番号"), kind: "code" }],
+    legendNotes: [l3("安全緊急鈴 87,711 支（同地點多支逐支保留）；無座標 13、南韓外或海上 13、座標落在別的市道 897 筆未上圖", "87,711 emergency bells (several at one spot are kept individually); 13 without coordinates, 13 outside South Korea or at sea and 897 placed in another province are not shown", "安全非常ベル87,711基（同一地点の複数基はそれぞれ残す）。座標なし13・韓国外または海上13・別の広域に落ちる897件は非表示"),
+                  l3("以下機關提供的座標有整批偏移或用佔位值，位置僅供參考：泗川市（249 筆落在仁川，已剔除）、沃川郡多個機關（36.0／127.0 一類整數座標，落在本道內者保留）", "Coordinates from these agencies are shifted in bulk or placeholders; positions are indicative only: Sacheon (249 fell in Incheon, removed) and several Okcheon agencies (round values such as 36.0/127.0; those inside the province are kept)", "次の機関の座標は一括でずれているか仮の値で、位置は参考程度：泗川市（249件が仁川に落ち除外）、沃川郡の複数機関（36.0／127.0 のような整数座標。道内に落ちるものは残す）")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 안전비상벨 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/emergency_call_box_info/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓安全緊急鈴載入中", "Loading South Korea emergency bells", "韓国の安全非常ベルを読み込み中"),
+  },
+  {
+    key: "krRuralExperienceVillages", file: "kr_rural_experience_villages.pmtiles", sourceLayer: "kr_rural_experience_villages", geom: "point", layerId: "kr-rural-experience-villages-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#84cc16", tier: "M", count: 1097,
+    title: { props: ["name"], fallback: l3("農漁村體驗休養村", "Rural experience village", "農漁村体験休養村") },
+    fields: [{ prop: "program_type", label: l3("體驗類別", "Programme types", "体験区分") }, { prop: "programs", label: l3("體驗項目", "Programmes", "体験内容") },
+             { prop: "designated", label: l3("指定日", "Designated", "指定日") }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "homepage", label: l3("網站", "Website", "ウェブサイト") }, { prop: "agency", label: l3("管理機關", "Agency", "管理機関") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }],
+    legendNotes: [l3("2023-05-12 名冊 1,097 村（13/16 個市道）；首爾、釜山、大邱未涵蓋（不代表沒有）", "1,097 villages from the 2023-05-12 register (13 of 16 provinces); Seoul, Busan and Daegu not covered (not zero)", "2023-05-12時点の名簿1,097村（16広域のうち13）。ソウル・釜山・大邱は未収録（ゼロではない）"),
+                  l3("代表者姓名與電話不顯示", "Representatives' names and phone numbers are not shown", "代表者名・電話番号は表示しない")],
+    popupNotes: [],
+    sourceOrg: "한국농어촌공사 농어촌체험휴양마을 (공공데이터포털)", sourceUrl: "https://www.data.go.kr/data/15132811/fileData.do", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓體驗休養村載入中", "Loading South Korea rural experience villages", "韓国の体験休養村を読み込み中"),
+  },
+  {
+    key: "krSlaughterhouses", file: "kr_slaughterhouses.pmtiles", sourceLayer: "kr_slaughterhouses", geom: "point", layerId: "kr-slaughterhouses-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#f87171", tier: "M", count: 111,
+    title: { props: ["name"], fallback: l3("屠宰場", "Slaughterhouse", "と畜場") },
+    fields: [{ prop: "address", label: l3("地址", "Address", "住所") }, { prop: "licensed", label: l3("許可日", "Licensed", "許可日") },
+             { prop: "updated", label: l3("資料更新日", "Record updated", "データ更新日") }, { prop: "manage_no", label: l3("管理編號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("營業中 111 處（LOCALDATA 도축업，12/16 個市道）；首爾、釜山、大田、世宗未涵蓋", "111 slaughterhouses in business (LOCALDATA, 12 of 16 provinces); Seoul, Busan, Daejeon and Sejong not covered", "営業中の111か所（LOCALDATA、16広域のうち12）。ソウル・釜山・大田・世宗は未収録"),
+                  l3("歇業、停業不收，無座標 23 處未上圖；畜禽飼養場不在本層", "Closed or suspended ones excluded, 23 without coordinates not shown; livestock farms not included", "廃業・休業は除外、座標なし23か所は非表示。畜産農場は含まない")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 도축업 (공공데이터포털)", sourceUrl: "https://file.localdata.go.kr/file/download/slaughterhouses/info", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W10_FETCHED_AT,
+    loading: l3("南韓屠宰場載入中", "Loading South Korea slaughterhouses", "韓国のと畜場を読み込み中"),
+  },
+
 ];
 
 export const KR_SPEC_BY_KEY: Readonly<Record<KrDataKey, KrLayerSpec>> = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, s])) as Record<KrDataKey, KrLayerSpec>;
@@ -875,6 +1075,6 @@ export function krSpecCatFilter(spec: KrLayerSpec, mask: number | undefined): un
   if (!spec.cats) return null;
   const getter = spec.key === "krSeoulSubwayCongestion"
     ? ["case", ["has", "peak_wkd"], ["step", ["to-number", ["get", "peak_wkd"], 0], "<34", KR_CONGESTION_BREAKS[0], "34-80", KR_CONGESTION_BREAKS[1], "80-130", KR_CONGESTION_BREAKS[2], ">=130"], ""]
-    : krStringProp(spec.catProp!);
+    : spec.derivedCat ? spec.derivedCat.expr : krStringProp(spec.catProp!);
   return krGroupFilter(getter, spec.cats, !!spec.otherLabel, mask);
 }
