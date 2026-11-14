@@ -611,7 +611,7 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     fields: [
       { prop: "line_name", label: l3("路線", "Line", "路線") },
       { prop: "station", label: l3("車站類型（OSM 原文）", "Station type (OSM tag)", "駅の種別（OSM 原文）"), kind: "code" },
-      { prop: "railway", label: l3("軌道類型（OSM 原文）", "Railway type (OSM tag)", "線路の種別（OSM 原文）"), kind: "code" },
+      { prop: "railway", label: l3("railway 標籤（OSM 原文）", "railway tag (OSM)", "railway タグ（OSM 原文）"), kind: "code" },
       { prop: "service", label: l3("用途", "Service", "用途"), map: { crossover: l3("渡線", "Crossover", "渡り線"), siding: l3("側線", "Siding", "側線") } },
       { prop: "bridge", label: l3("高架（OSM 原文）", "Bridge (OSM tag)", "高架（OSM 原文）"), kind: "code" },
       { prop: "tunnel", label: l3("地下（OSM 原文）", "Tunnel (OSM tag)", "地下（OSM 原文）"), kind: "code" },
