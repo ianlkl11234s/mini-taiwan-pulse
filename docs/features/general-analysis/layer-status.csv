@@ -117,6 +117,12 @@ phPowerGrid,輸電線與變電所 Power Lines & Substations,PH,菲律賓,能源,
 phRenewables,家用太陽能補助與離網微電網 Solar Home System Subsidies & Off-grid Microgrids,PH,菲律賓,能源,custom,verified,ph_renewables,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 DOE 家用太陽能系統補助安裝地點 708 處（PVM，依鄉鎮彙整）＋離網微電網 96 處；補助安裝地點，非全國光電
 phFuelStations,加油站 Fuel Stations,PH,菲律賓,能源,custom,verified,ph_fuel_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓加油站 10,100 處（OpenStreetMap；依品牌 8 色，其餘併「其他／未知品牌」）"
 phPipelines,管線與儲槽 Pipelines & Storage Tanks,PH,菲律賓,能源,custom,verified,ph_pipelines,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓管線 825 段＋儲槽 2,241 處（OpenStreetMap；依內容物分油氣、水、污水、地熱蒸汽、其他、未標示）"
+cnBusStops,公交站 Bus Stops,CN,中國,交通,custom,verified,cn_bus_stops,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國 299 個城市公交站 859,061 處（2024；大小依經過路線數；自治州、盟、地區未涵蓋）"
+cnTransportHubs,機場與港口 Airports & Ports,CN,中國,交通,custom,verified,cn_transport_hubs,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國機場 709（OurAirports，有定期航班白框）＋港口 765（OSM 港區、港灣）
+cnMajorRoads,主要道路與鐵路 Major Roads & Railways,CN,中國,交通,custom,verified,cn_major_roads,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國高速公路與國道級幹道 697,980 段＋鐵路 256,080 段（含高鐵、地鐵、輕軌；OpenStreetMap）"
+cnPowerPlants,電廠 Power Plants,CN,中國,能源,custom,verified,cn_power_plants,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國電廠 31,700 處（Global Energy Monitor 9 種技術；預設運轉中＋興建中；可切只看再生能源 C090 子集）"
+cnPowerGrid,輸電線與變電所 Power Lines & Substations,CN,中國,能源,custom,verified,cn_power_grid,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國輸電線 216,960 段（依電壓 7 級，含特高壓）＋變電所 38,753 處（OpenStreetMap；完整度有限、非官方）"
+cnPipelines,油氣管線與 LNG 接收站 Oil & Gas Pipelines & LNG Terminals,CN,中國,能源,custom,verified,cn_pipelines,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國油氣管線 1,124 條（天然氣、石油、NGL；運轉中實線、其他虛線）＋LNG 接收站 152 處（GEM）"
 statsComparisonBusAccessibleSharePct,無障礙公車占營業車比,TW,統計,公共運輸 Public Transport,custom,catalog_missing,comparison_statistics,,,,2025-12-31,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。
 statsComparisonBusElectricSharePct,電動公車占營業車比,TW,統計,公共運輸 Public Transport,custom,catalog_missing,comparison_statistics,,,,2025-12-31,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。
 statsComparisonHousingUnoccupiedSharePctCounty,無人經常居住住宅占總住宅比,TW,統計,住宅與不動產 Housing & Property,custom,catalog_missing,comparison_statistics,,,,2020-11-08,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。
@@ -1226,6 +1232,9 @@ krOilGas,油氣設施與管線 석유·가스 시설,KR,南韓,能源,custom,ver
 ieAdminBoundaries,行政區界 Administrative Boundaries,IE,愛爾蘭,底圖,custom,verified,ie_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭行政區界（地方政府 31、CSO 選舉分區 3,420、統計小區 18,919；Tailte Éireann 2026／CSO Census 2022）"
 phAdminBoundaries,行政區界 Administrative Boundaries,PH,菲律賓,底圖,custom,verified,ph_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓行政區界（區域 18、省 88、市鎮 1,642、barangay 42,048；OCHA／PSA／NAMRIA COD-AB）"
 phPopulation,人口密度 Population Density（2024 Census）,PH,菲律賓,人口社經,custom,verified,ph_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）
+cnAdminBoundaries,行政區界 Administrative Boundaries,CN,中國,底圖,custom,verified,cn_admin_boundaries,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國行政區界（省 31、地級 357；OCHA COD-AB，邊界不代表任何立場）
+cnPopulation,人口密度 Population Density（2020 Census／GHS 2025）,CN,中國,人口社經,custom,verified,cn_population,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國人口密度（省級 2020 普查、地級 GHS 2025 模型值；未涵蓋畫灰）
+cnPopulationGrid,人口網格 Population Grid（GHS-POP 2025）,CN,中國,人口社經,custom,verified,cn_population,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國人口網格（GHS-POP 2025 模型值，約 1 km；7 級人口密度）
 ieBathymetry,海床地形 Bathymetry（INFOMAR）,IE,愛爾蘭,底圖,custom,verified,ie_bathymetry,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"愛爾蘭海床地形（INFOMAR 測深，約 300 m；0–4,832 m 深度色階＋陰影）"
 ieCoillteRecreation,國有林遊憩點與森林入口 Coillte Recreation Sites & Forest Entrances（Coillte）,IE,愛爾蘭,林業,supabase,verified,ie_coillte_recreation,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。愛爾蘭國營林業公司 Coillte 遊憩點 153 處與森林入口 12,888 處；授權限私人研究，不公開"
 ieCoillteForestRoads,國有林林道與遊憩步道 Coillte Forest Roads & Recreation Trails（Coillte）,IE,愛爾蘭,林業,supabase,verified,ie_coillte_forest_roads,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。愛爾蘭 Coillte 國有林林道 15,877 條與遊憩步道 1,199 條；授權限私人研究，不公開"

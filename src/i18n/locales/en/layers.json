@@ -1817,5 +1817,14 @@
   "layer.phPowerGrid": "Power Lines & Substations (Philippines)",
   "layer.phRenewables": "Solar Home System Subsidies & Off-grid Microgrids (Philippines)",
   "layer.phFuelStations": "Fuel Stations (Philippines)",
-  "layer.phPipelines": "Pipelines & Storage Tanks (Philippines)"
+  "layer.phPipelines": "Pipelines & Storage Tanks (Philippines)",
+  "layer.cnAdminBoundaries": "Administrative Boundaries (China)",
+  "layer.cnPopulation": "Population Density (China, 2020 Census / GHS 2025)",
+  "layer.cnPopulationGrid": "Population Grid (China, GHS-POP 2025)",
+  "layer.cnBusStops": "Bus Stops (China)",
+  "layer.cnTransportHubs": "Airports & Ports (China)",
+  "layer.cnMajorRoads": "Major Roads & Railways (China)",
+  "layer.cnPowerPlants": "Power Plants (China)",
+  "layer.cnPowerGrid": "Power Lines & Substations (China)",
+  "layer.cnPipelines": "Oil & Gas Pipelines & LNG Terminals (China)"
 }

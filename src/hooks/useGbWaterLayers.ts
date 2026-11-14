@@ -4,6 +4,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { pmtilesRasterCustomSource } from "../map/pmtilesRasterCustomSource";
+import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, PrivateCoralFetchSource, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
 import { hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
 import { LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
@@ -53,7 +54,10 @@ export interface SourceSpec {
   id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string;
   /** 點陣 PMTiles 改走 Mapbox 原生 custom source（globe 投影正確；見 map/pmtilesRasterCustomSource.ts） */
   raster?: { tileSize: number };
+  /** 站主限定：改走同源私人 Range API（`url`），每次請求帶當下 token；不給＝公開 ./world/<file> */
+  private?: PrivatePmtilesSource;
 }
+export interface PrivatePmtilesSource { url: string; getToken: () => Promise<string>; onAccessDenied: () => void }
 /** `before`（選填）：addLayer 的 beforeId（地形 raster 插在底圖第一個 symbol 下）；不給＝疊在最上面。 */
 export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: MapboxMap) => void; before?: (map: MapboxMap) => string | undefined }
 
@@ -119,15 +123,21 @@ export function useGbPmtilesLayers(
       if (!map.getSource(source.id)) {
         files.set(source.id, source.file);
         sourceAdded = true;
+        const priv = source.private;
+        if (priv) registerPrivateCoralSourceOnce();
+        const url = priv ? new URL(priv.url, window.location.href).href : absoluteUrl(source.file);
         map.addSource(source.id, (source.raster
           ? pmtilesRasterCustomSource({
-            id: source.id, url: absoluteUrl(source.file), attribution: source.attribution,
+            id: source.id, url, attribution: source.attribution,
             minzoom: source.minzoom, maxzoom: source.maxzoom, tileSize: source.raster.tileSize,
+            ...(priv ? { source: new PrivateCoralFetchSource(url, priv.getToken, undefined, priv.onAccessDenied) } : {}),
           })
-          : {
-            type: PMTILES_SOURCE_TYPE, url: absoluteUrl(source.file), attribution: source.attribution,
-            minzoom: source.minzoom, maxzoom: source.maxzoom,
-          }) as any);
+          : priv
+            ? { type: PRIVATE_CORAL_PMTILES_SOURCE_TYPE, url, getToken: priv.getToken, onAccessDenied: priv.onAccessDenied, attribution: source.attribution, minzoom: source.minzoom, maxzoom: source.maxzoom }
+            : {
+              type: PMTILES_SOURCE_TYPE, url, attribution: source.attribution,
+              minzoom: source.minzoom, maxzoom: source.maxzoom,
+            }) as any);
       }
       for (const l of layers) {
         if (!map.getLayer(l.id)) map.addLayer(l.layer(), l.before?.(map));

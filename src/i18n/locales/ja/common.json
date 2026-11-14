@@ -40,6 +40,7 @@
   "country.CA": "カナダ",
   "country.IE": "アイルランド",
   "country.PH": "フィリピン",
+  "country.CN": "中国大陸",
   "country.menuAria": "国を切り替え（現在：{country}）",
   "statistics.uncovered": "{country}の統計データはまだありません",
   "statistics.backToTaiwan": "台湾に戻る",

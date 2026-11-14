@@ -1817,5 +1817,14 @@
   "layer.phPowerGrid": "送電線・変電所（フィリピン）",
   "layer.phRenewables": "家庭用太陽光補助・オフグリッドマイクログリッド（フィリピン）",
   "layer.phFuelStations": "ガソリンスタンド（フィリピン）",
-  "layer.phPipelines": "パイプライン・貯蔵タンク（フィリピン）"
+  "layer.phPipelines": "パイプライン・貯蔵タンク（フィリピン）",
+  "layer.cnAdminBoundaries": "行政区域界（中国）",
+  "layer.cnPopulation": "人口密度（中国、2020 年国勢調査／GHS 2025）",
+  "layer.cnPopulationGrid": "人口メッシュ（中国、GHS-POP 2025）",
+  "layer.cnBusStops": "バス停（中国）",
+  "layer.cnTransportHubs": "空港・港（中国）",
+  "layer.cnMajorRoads": "主要道路・鉄道（中国）",
+  "layer.cnPowerPlants": "発電所（中国）",
+  "layer.cnPowerGrid": "送電線・変電所（中国）",
+  "layer.cnPipelines": "石油・ガスパイプラインと LNG 基地（中国）"
 }

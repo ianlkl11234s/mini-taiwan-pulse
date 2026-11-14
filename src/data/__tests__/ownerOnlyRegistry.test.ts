@@ -31,6 +31,9 @@ const PINNED = [
   "water1944Taipei", "gbPollutionInventoryEngland", "allenCoralAtlas",
   // 愛爾蘭 Coillte 國有林（第 5c 波，條款限私人研究、不得轉供；gis-platform mig 512）
   "ieCoillteRecreation", "ieCoillteForestRoads",
+  // 中國第 0–1 波 9 層（使用者 2026-11-10 決定站主限定；私人 owner-data 圖磚）
+  "cnAdminBoundaries", "cnPopulation", "cnPopulationGrid", "cnBusStops", "cnTransportHubs", "cnMajorRoads",
+  "cnPowerPlants", "cnPowerGrid", "cnPipelines",
 ].sort();
 
 describe("站主限定名單（manifest OWNER_ONLY ⇔ GATED_LAYERS）", () => {

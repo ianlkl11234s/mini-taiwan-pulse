@@ -373,6 +373,13 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
+  CN: [
+    // 中國（2026-11-13 第 0–1 波，9 層全部站主限定：行政界、人口、交通、能源；title 沿用台灣主題中文短名，比照菲律賓）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+  ],
   PH: [
     // 菲律賓（2026-11-13 第 0–1 波：行政界、人口、交通、能源；title 沿用台灣主題中文短名，比照加拿大、愛爾蘭）
     "底圖",
@@ -3144,6 +3151,42 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇨🇳 中國（2026-11-13 第 0–1 波，站主限定：行政邊界、人口、交通、能源；群組比照菲律賓同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [{ title: "行政邊界", layers: [fromManifest("cnAdminBoundaries")] }],
+  },
+  {
+    title: "人口社經",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("cnPopulation"), fromManifest("cnPopulationGrid")] }],
+  },
+  {
+    title: "交通",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("cnBusStops")] },
+      { title: "樞紐節點", layers: [fromManifest("cnTransportHubs")] },
+      { title: "路網", layers: [fromManifest("cnMajorRoads")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("cnPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("cnPowerGrid")] },
+      { title: "石化 · 油氣", layers: [fromManifest("cnPipelines")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
   // ───────────────────────────────────────────────────────────────
   {
@@ -3517,6 +3560,13 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
+  CN: {
+    // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+  },
   PH: {
     // 菲律賓主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照加拿大、愛爾蘭）。
     "底圖": "baseline",
@@ -3736,6 +3786,13 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
     "人口": { zh: "人口", sub: "Population" },
     "社經": { zh: "社經", sub: "Socio-economic" },
+  },
+  CN: {
+    // 中國主題副標用英文（比照菲律賓）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
   },
   PH: {
     // 菲律賓主題副標用英文（比照英國、加拿大、愛爾蘭）

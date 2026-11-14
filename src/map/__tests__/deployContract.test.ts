@@ -34,6 +34,7 @@ import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimAssets";
 import { OWNER_DATA_ASSETS } from "../../data/ownerDataAssets";
+import { CN_OWNER_ASSETS } from "../../data/cnDataLayers";
 import { PUBLIC_ASSETS_LOCK as publicAssetsLock, lockedAsset } from "../../test/publicAssets";
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
@@ -284,6 +285,8 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，只走 owner-authenticated Range sidecar
   // （私人 S3 private-research/bus-crowding/，scripts/deploy/upload-bus-crowding-private.mjs 手動上傳）。
   ...Object.values(BUS_CROWDING_SIM_ASSETS).map((a) => `PRIVATE_OWNER_ONLY: ${a.filename}`),
+  // 中國第 0–1 波 9 檔（使用者 2026-11-10 拍板站主限定）：只走 owner-data 私人 Range sidecar，不進公開 CDN／upload allowlist
+  ...Object.values(CN_OWNER_ASSETS).map((filename) => `PRIVATE_OWNER_ONLY: ${filename}`),
 ]);
 
 /**
