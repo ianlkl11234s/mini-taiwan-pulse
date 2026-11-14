@@ -37,9 +37,9 @@ describe("phStations：濾掉 LRT／MRT 重複站（第 2 波甲案）", () => {
     expect(passes(part.filter, { kind: "ferry_terminal", source: "osm", src_id: "osm:node/1" })).toBe(true);
   });
 
-  it("未通車 27 站（analytics #390）全部被擋掉，與重複站清單只交集 Anonas 1 站", () => {
-    expect(PH_STATIONS_NOT_OPEN_SRC_IDS).toHaveLength(27);
-    expect(new Set(PH_STATIONS_NOT_OPEN_SRC_IDS).size).toBe(27);
+  it("未通車 37 站（analytics #390＋#391）全部被擋掉，與重複站清單只交集 Anonas 1 站", () => {
+    expect(PH_STATIONS_NOT_OPEN_SRC_IDS).toHaveLength(37);
+    expect(new Set(PH_STATIONS_NOT_OPEN_SRC_IDS).size).toBe(37);
     for (const src_id of PH_STATIONS_NOT_OPEN_SRC_IDS) {
       expect(src_id).toMatch(/^osm:(node|way|relation)\/\d+$/);
       expect(passes(part.filter, { kind: "rail_station", source: "osm", src_id })).toBe(false);
@@ -48,15 +48,24 @@ describe("phStations：濾掉 LRT／MRT 重複站（第 2 波甲案）", () => {
     expect(PH_STATIONS_NOT_OPEN_SRC_IDS.filter((id) => dup.has(id))).toEqual(["osm:node/13478815690"]);
   });
 
+  it("NSCR 北段 10 站（Valenzuela–San Fernando，analytics #391）被擋掉", () => {
+    const nscr = ["osm:way/801909052", "osm:way/992204947", "osm:way/801909044", "osm:way/802086692", "osm:way/802086688",
+      "osm:way/802086682", "osm:way/802086678", "osm:way/1488753262", "osm:way/1521984289", "osm:node/10542991478"];
+    for (const src_id of nscr) {
+      expect(PH_STATIONS_NOT_OPEN_SRC_IDS as readonly string[]).toContain(src_id);
+      expect(passes(part.filter, { kind: "rail_station", source: "osm", src_id })).toBe(false);
+    }
+  });
+
   it("PNR 官方站不受影響", () => {
     for (const n of [1, 6, 9, 16, 31]) {
       expect(passes(part.filter, { kind: "rail_station", source: "official", src_id: `pnrstation_20210201.${n}` })).toBe(true);
     }
   });
 
-  it("圖層筆數＝562 − 兩份清單聯集（49＋27−1＝75）＝487", () => {
+  it("圖層筆數＝562 − 兩份清單聯集（49＋37−1＝85）＝477", () => {
     const union = new Set<string>([...PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS, ...PH_STATIONS_NOT_OPEN_SRC_IDS]);
-    expect(union.size).toBe(75);
+    expect(union.size).toBe(85);
     expect(PH_SPEC_BY_KEY.phStations.count).toBe(562 - union.size);
   });
 });
