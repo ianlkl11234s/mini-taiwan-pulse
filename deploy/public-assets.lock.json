@@ -1177,6 +1177,20 @@
    "s3_key": "deploy-assets/geo/lighthouse.geojson"
   },
   {
+   "path": "public/geo/medical_aed_v2.pmtiles",
+   "bytes": 10025588,
+   "sha256": "a4663d7ce13829450a43503699be35da27bd1df1ebd8973a6998bea9382c8a61",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/medical_aed_v2.pmtiles"
+  },
+  {
+   "path": "public/geo/medical_ltc_v2.pmtiles",
+   "bytes": 6220409,
+   "sha256": "39be591788e3b08fe1ec39504e054deb3b08622d364a018c053539b9250a0b40",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/medical_ltc_v2.pmtiles"
+  },
+  {
    "path": "public/geo/news_events.geojson",
    "bytes": 18245,
    "sha256": "fa1608df08aa44a1826c2c10ca40919126d2b66a75c27dea30ddf0206e94655a",
@@ -1747,11 +1761,11 @@
    "s3_key": "deploy-assets/hazards/seawall_zones.geojson"
   },
   {
-   "path": "public/hazards/swcb_disaster_photo_points.pmtiles",
-   "bytes": 15937875,
-   "sha256": "0c0873a985933585d82eb744800b31bf75b22a0d60537c8c2f9eb56e2d9f6d99",
+   "path": "public/hazards/swcb_disaster_photo_points_v2.pmtiles",
+   "bytes": 15936069,
+   "sha256": "650c6a669b7cdd5916fc211e2ed87b633618545d10119b622655f19ffbeb20e4",
    "delivery": "r2",
-   "s3_key": "deploy-assets/hazards/swcb_disaster_photo_points.pmtiles"
+   "s3_key": "deploy-assets/hazards/swcb_disaster_photo_points_v2.pmtiles"
   },
   {
    "path": "public/hazards/taipei_waterlogging_history.geojson",
@@ -2076,6 +2090,13 @@
    "s3_key": "deploy-assets/poi/public_retail_markets_national.geojson"
   },
   {
+   "path": "public/police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson",
+   "bytes": 111162,
+   "sha256": "bbe8fb87102c9a96be11a79cd1693a9420c7d11699d5b16a5cf66aafcecc263f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson"
+  },
+  {
    "path": "public/police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson",
    "bytes": 10957,
    "sha256": "287b76c66affa9857721dfdff6d89f34f540a0955ea773c232c0497d9cd27af4",
@@ -2237,11 +2258,11 @@
    "s3_key": "deploy-assets/statistics/township-reference.geojson"
   },
   {
-   "path": "public/tourism/activities_national.geojson",
-   "bytes": 642962,
-   "sha256": "0e51aea0298b1eb60c60990f2ff326efa30e0367925e2405271ba94e7de1ea3c",
+   "path": "public/tourism/activities_national_v2.geojson",
+   "bytes": 642873,
+   "sha256": "39f24e94fbb7540887d93a4d139ef6b5b303546ae978265f34a7c6af5a1dddfb",
    "delivery": "r2",
-   "s3_key": "deploy-assets/tourism/activities_national.geojson"
+   "s3_key": "deploy-assets/tourism/activities_national_v2.geojson"
   },
   {
    "path": "public/tourism/amusement_parks_national.geojson",
@@ -2249,6 +2270,13 @@
    "sha256": "de8833f77f41a918e5128ecf0c9de3311cd5cea64a6cad309df2ebc253014021",
    "delivery": "r2",
    "s3_key": "deploy-assets/tourism/amusement_parks_national.geojson"
+  },
+  {
+   "path": "public/tourism/attractions_national_v2.geojson",
+   "bytes": 4577054,
+   "sha256": "bd0c95a433b570789089c50017c7b6d6fa7770cb10310fc0f2f35fe6b162d084",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/tourism/attractions_national_v2.geojson"
   },
   {
    "path": "public/tourism/camping_national.geojson",
@@ -2291,6 +2319,13 @@
    "sha256": "9910b7329a361247989b91f50ebda63762e557411eae13dda6f1ead997384e38",
    "delivery": "r2",
    "s3_key": "deploy-assets/tourism/national_scenic_areas_national.geojson"
+  },
+  {
+   "path": "public/tourism/restaurants_national_v2.geojson",
+   "bytes": 2159670,
+   "sha256": "18d2631dbfe69ce220281996d0808518c7854a40646d965fa73d63f6752d12b4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/tourism/restaurants_national_v2.geojson"
   },
   {
    "path": "public/tourism/tourism_factories_national.geojson",

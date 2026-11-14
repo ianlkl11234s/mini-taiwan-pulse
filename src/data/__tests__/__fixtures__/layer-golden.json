@@ -15436,7 +15436,7 @@
         "circle"
       ],
       "sourceId": "medical-aed",
-      "sourceUrl": "./geo/medical_aed.pmtiles"
+      "sourceUrl": "./geo/medical_aed_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -15658,7 +15658,7 @@
         "circle"
       ],
       "sourceId": "medical-ltc",
-      "sourceUrl": "./geo/medical_ltc.pmtiles"
+      "sourceUrl": "./geo/medical_ltc_v2.pmtiles"
     },
     {
       "dynamicData": true,
@@ -60377,7 +60377,7 @@
         "circle"
       ],
       "sourceId": "coast-guard-station",
-      "sourceUrl": "./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson"
+      "sourceUrl": "./police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson"
     },
     {
       "dynamicData": null,
@@ -69187,7 +69187,7 @@
         "circle"
       ],
       "sourceId": "tour-attractions",
-      "sourceUrl": "./tourism/attractions_national.geojson"
+      "sourceUrl": "./tourism/attractions_national_v2.geojson"
     },
     {
       "dynamicData": null,
@@ -75018,7 +75018,7 @@
         "circle"
       ],
       "sourceId": "tour-events",
-      "sourceUrl": "./tourism/activities_national.geojson"
+      "sourceUrl": "./tourism/activities_national_v2.geojson"
     },
     {
       "dynamicData": null,
@@ -75588,7 +75588,7 @@
         "circle"
       ],
       "sourceId": "tour-restaurants",
-      "sourceUrl": "./tourism/restaurants_national.geojson"
+      "sourceUrl": "./tourism/restaurants_national_v2.geojson"
     },
     {
       "dynamicData": null,
@@ -95041,7 +95041,7 @@
         "circle"
       ],
       "sourceId": "swcb-disaster-photo-points",
-      "sourceUrl": "./hazards/swcb_disaster_photo_points.pmtiles"
+      "sourceUrl": "./hazards/swcb_disaster_photo_points_v2.pmtiles"
     },
     {
       "dynamicData": null,

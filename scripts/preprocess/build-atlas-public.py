@@ -416,7 +416,7 @@ def build_waterlogging(m, feats):
     }) for f in feats]
 
 
-@layer("swcbDisasterPhotoPoints", "hazards", "swcb_disaster_photo_points", "hazards/swcb_disaster_photo_points.pmtiles",
+@layer("swcbDisasterPhotoPoints", "hazards", "swcb_disaster_photo_points", "hazards/swcb_disaster_photo_points_v2.pmtiles",
        pmtiles={"layer": "swcb_disaster_photo_points", "zmin": 5, "zmax": 12, "kind": "point"})
 def build_swcb(m, feats):
     out = []

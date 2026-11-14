@@ -39,7 +39,7 @@ export const DATASET_WHITELIST: Record<string, DatasetMeta> = {
       "全國矯正機關點位（監獄 / 看守所 / 少年觀護所等）。欄位 facility_type（機關類型）、county（縣市）。",
   },
   coastGuardStations: {
-    url: "./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson",
+    url: "./police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson",
     label: "海巡機關",
     description: "全國海巡機關點位。欄位 facility_subtype（機關類型）、county（縣市）。",
   },

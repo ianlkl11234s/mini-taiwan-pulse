@@ -3637,7 +3637,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Medical: AED (自動體外心臟去顫器，15,490 點) ──
   {
     id: "medAED",
-    sourceUrl: "./geo/medical_aed.pmtiles",
+    sourceUrl: "./geo/medical_aed_v2.pmtiles",
     sourceId: "medical-aed",
     pmtiles: { sourceLayer: "medical_aed", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
@@ -3686,7 +3686,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Medical: LTC (長照機構，30,764 點) ──
   {
     id: "medLTC",
-    sourceUrl: "./geo/medical_ltc.pmtiles",
+    sourceUrl: "./geo/medical_ltc_v2.pmtiles",
     sourceId: "medical-ltc",
     pmtiles: { sourceLayer: "medical_ltc", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
@@ -9788,7 +9788,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "coastGuardStation",
-    sourceUrl: "./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson",
+    sourceUrl: "./police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson",
     sourceId: "coast-guard-station",
     rebuildOnParamChange: ["coastGuardStationOpacity", "coastGuardStationScale"],
     // 252 巡防隊（密、小、淺）/ 17 海洋分署（稀、大、深）
@@ -10703,7 +10703,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // circle-color 依 tourAttractionsModeIdx：0=category 五值 match / 1=annual_visitors_2024 熱度 log10。
   {
     id: "tourAttractions",
-    sourceUrl: "./tourism/attractions_national.geojson",
+    sourceUrl: "./tourism/attractions_national_v2.geojson",
     sourceId: "tour-attractions",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -11845,7 +11845,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // start_time/end_time 是 ISO 時間戳 → slice 0..10 取 YYYY-MM-DD 對 tourTodayStr() 字串比。
   {
     id: "tourEvents",
-    sourceUrl: "./tourism/activities_national.geojson",
+    sourceUrl: "./tourism/activities_national_v2.geojson",
     sourceId: "tour-events",
     rebuildOnParamChange: ["circle"],
     layers: [
@@ -12033,7 +12033,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 12. 觀光餐飲 Restaurants（~3,688 點，circle only 省 overdraw，單色 #c62828，1k~10k 半徑 3→6）
   {
     id: "tourRestaurants",
-    sourceUrl: "./tourism/restaurants_national.geojson",
+    sourceUrl: "./tourism/restaurants_national_v2.geojson",
     sourceId: "tour-restaurants",
     rebuildOnParamChange: ["circle"],
     layers: [
@@ -12612,7 +12612,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     attribution: `臺北市政府工務局水利工程處 歷年積水範圍（data.gov.tw 143898）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("taipeiWaterloggingHistory", ATLAS_LAYER_COLORS.taipeiWaterloggingHistory, 0.5),
   },
-  publicLifePointOverlay("swcbDisasterPhotoPoints", "./hazards/swcb_disaster_photo_points.pmtiles", "swcb-disaster-photo-points", matchColorExpr("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS), { sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 }, `農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS, p?.swcbDisasterPhotoPointsCategoryMask), dense: { pointsFromZoom: DENSE_FROM.swcbDisasterPhotoPoints, intensity: 1 } }),
+  publicLifePointOverlay("swcbDisasterPhotoPoints", "./hazards/swcb_disaster_photo_points_v2.pmtiles", "swcb-disaster-photo-points", matchColorExpr("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS), { sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 }, `農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS, p?.swcbDisasterPhotoPointsCategoryMask), dense: { pointsFromZoom: DENSE_FROM.swcbDisasterPhotoPoints, intensity: 1 } }),
   // ── 海洋 ──
   publicLifePointOverlay("cetaceanStrandings", "./marine/cetacean_strandings.geojson", "cetacean-strandings", flaggedColorExpr(matchColorExpr("animal_status", ANIMAL_STATUS_OPTIONS)), undefined, `海洋委員會海洋保育署 MARN 鯨豚擱淺（data.gov.tw 157624）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", STRANDING_YEARS, p?.cetaceanStrandingsYearMask) }),
   publicLifePointOverlay("seaTurtleStrandings", "./marine/sea_turtle_strandings.geojson", "sea-turtle-strandings", flaggedColorExpr(matchColorExpr("species_zh", TURTLE_SPECIES_OPTIONS)), undefined, `海洋委員會海洋保育署 MARN 海龜擱淺（data.gov.tw）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", STRANDING_YEARS, p?.seaTurtleStrandingsYearMask) }),

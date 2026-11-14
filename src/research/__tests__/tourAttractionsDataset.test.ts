@@ -18,7 +18,7 @@ it.skipIf(!ownerAsset("../runtime/research-public/tour-attractions-source-202607
   const all = await executor.execute({ datasetId: "tw-tour-attractions-source-coordinates", select: ["id", "name", "annual_visitors_2024", "geometry"], limit: 1 });
   const missingVisitors = await executor.execute({ datasetId: "tw-tour-attractions-source-coordinates", filters: [{ field: "category", op: "eq", value: "Nature" }], select: ["id", "name", "category", "geometry"], limit: 1 });
   expect(all.totalMatched).toBe(6070);
-  expect(all.sourceRefs[0]?.checksumSha256).toBe("ccdff175dfce339bf68a6ae125da470de1b3f018df62f346d474ebffeb9f4b6d");
+  expect(all.sourceRefs[0]?.checksumSha256).toBe("4ec667c6807cb63e9a9bc29eaf433f4e555c7d8c9183f97447e6b874cccd5e4a");
   expect(all.rows[0]).toMatchObject({ id: "Attraction_345040000G_000001", name: "太平山國家森林遊樂區", geometry: { type: "Point" } });
   expect(missingVisitors.totalMatched).toBeGreaterThan(0);
   expect(tourAttractionsSourceCoordinatesAdapter.descriptor.fields.find(field => field.name === "annual_visitors_2024")?.nullable).toBe(true);
