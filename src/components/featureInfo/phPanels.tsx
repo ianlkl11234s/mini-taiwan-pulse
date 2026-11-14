@@ -73,7 +73,7 @@ function formatField(f: PhField, props: Record<string, unknown>, locale: string)
   return s;
 }
 
-export function makePhPanel(spec: PhLayerSpec): FC<P> {
+export function makePhPanel(spec: PhLayerSpec<string>): FC<P> {
   return function PhDataPanel({ props }) {
     const { locale } = useLocale();
     const cat = phCatOf(spec, props);

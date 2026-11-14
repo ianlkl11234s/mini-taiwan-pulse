@@ -45,28 +45,35 @@ export function PhPopulationLegend() {
   </div>;
 }
 
-function catSwatch(spec: PhLayerSpec, c: PhCat | null, color: string): ReactNode {
+function catSwatch(spec: PhLayerSpec<string>, c: PhCat | null, color: string): ReactNode {
   const parts = c?.parts ? spec.parts.filter((p) => c.parts!.includes(p.id)) : spec.parts;
   const part = parts[0]!;
+  if (part.geom === "fill") return <SwatchSquare color={color} />;
   if (part.geom === "line") return <SwatchLine color={color} width={LINE_WIDTH.standard[1]} dash={part.dashed ? [2, 1.5] : undefined} />;
   return <SwatchDot color={color} />;
 }
 
 /** 規格驅動 8 層：分類列（線／點依子圖層）、大小級距、白框補缺、備註、署名。 */
 export function PhDataLegend({ layerKey }: { layerKey: PhDataKey }) {
+  return <PhSpecLegend spec={PH_SPEC_BY_KEY[layerKey]} />;
+}
+
+/** 依規格畫圖例（他國重用，2026-11-13 越南）；`extraParts`／`extraSources`：同一層另有其他 PMTiles 的子圖層與署名。 */
+export function PhSpecLegend({ spec, extraParts = [], extraSources = [] }: { spec: PhLayerSpec<string>; extraParts?: PhLayerSpec<string>["parts"]; extraSources?: readonly string[] }) {
   const { locale } = useLocale();
-  const spec = PH_SPEC_BY_KEY[layerKey];
-  const title = useLayerTitle(layerKey);
-  const ring = spec.parts.find((p) => p.ring)?.ring;
-  const dashed = spec.parts.find((p) => p.dashed);
+  const title = useLayerTitle(spec.key);
+  const all = { ...spec, parts: [...spec.parts, ...extraParts] };
+  const ring = all.parts.find((p) => p.ring)?.ring;
+  const dashed = all.parts.find((p) => p.dashed);
   return <div>
     <LegendTitle zh={spec.legendTitleNote ? `${title}（${pickL3(spec.legendTitleNote, locale)}）` : title} />
-    {spec.cats.map((c) => <LegendRow key={c.id} swatch={catSwatch(spec, c, c.color)}>{pickL3(c.label, locale)}</LegendRow>)}
-    {spec.otherLabel ? <LegendRow swatch={catSwatch(spec, null, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
-    {dashed ? <LegendRow swatch={<SwatchLine color={spec.color} width={LINE_WIDTH.standard[1]} dash={[2, 1.5]} />}>{pickL3({ zh: "虛線：地下、海底電纜", en: "Dashed: underground / submarine cable", ja: "破線：地中・海底ケーブル" }, locale)}</LegendRow> : null}
+    {spec.cats.map((c) => <LegendRow key={c.id} swatch={catSwatch(all, c, c.color)}>{pickL3(c.label, locale)}</LegendRow>)}
+    {spec.otherLabel ? <LegendRow swatch={catSwatch(all, null, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
+    {dashed && spec.dashLabel !== null ? <LegendRow swatch={<SwatchLine color={spec.color} width={LINE_WIDTH.standard[1]} dash={[2, 1.5]} />}>{pickL3(spec.dashLabel ?? { zh: "虛線：地下、海底電纜", en: "Dashed: underground / submarine cable", ja: "破線：地中・海底ケーブル" }, locale)}</LegendRow> : null}
     {spec.sizeLegend?.map((s) => <LegendSizeRow key={s.prop} title={pickL3(s.title, locale)} items={s.bands.map((b) => ({ r: b.radius, label: b.label }))} fill={spec.color} />)}
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
     <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
+    {extraSources.map((s) => <LegendNote key={s}>{s}</LegendNote>)}
   </div>;
 }

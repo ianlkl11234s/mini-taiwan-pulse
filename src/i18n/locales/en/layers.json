@@ -1817,5 +1817,17 @@
   "layer.phPowerGrid": "Power Lines & Substations (Philippines)",
   "layer.phRenewables": "Solar Home System Subsidies & Off-grid Microgrids (Philippines)",
   "layer.phFuelStations": "Fuel Stations (Philippines)",
-  "layer.phPipelines": "Pipelines & Storage Tanks (Philippines)"
+  "layer.phPipelines": "Pipelines & Storage Tanks (Philippines)",
+  "layer.vnAdminBoundaries": "Administrative Boundaries (Vietnam)",
+  "layer.vnPopulation": "Population Density (Vietnam, 2025)",
+  "layer.vnStations": "Rail, Metro & Bus Stations (Vietnam)",
+  "layer.vnTransportHubs": "Airports & Ports (Vietnam)",
+  "layer.vnMajorRoads": "Major Roads & Railways (Vietnam)",
+  "layer.vnPowerPlants": "Power Plants (Vietnam)",
+  "layer.vnRenewables": "Wind, Solar & EV Charging (Vietnam)",
+  "layer.vnPowerGrid": "Power Lines & Substations (Vietnam)",
+  "layer.vnFuelStations": "Fuel Stations (Vietnam)",
+  "layer.vnOilGas": "Oil & Gas Facilities (Vietnam)",
+  "layer.vnEnvisoftStations": "Environmental Monitoring Stations (Vietnam, locations only)",
+  "layer.vnAngiangDemo": "An Giang Industrial Clusters & Flood Resettlement (Vietnam)"
 }

@@ -160,3 +160,11 @@
 :root:lang(ja) {
   --font-cjk: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans CJK JP", system-ui, sans-serif;
 }
+
+/* ── 越南文字串（popup 依內容加 lang="vi"，見 featureInfo/shared.tsx popupText）──
+ * PingFang TC 沒有 U+1EA0–1EF9 預組字形，會拆成「o + 組合點」自己畫、點跑到字後（Thọ → Tho,），
+ * 排在它後面的字族不會被用到，所以越南文改把含越南文字形的系統拉丁字放前面；只影響標了 lang 的節點。 */
+[lang="vi"] {
+  --font-cjk: system-ui, "Segoe UI", "Noto Sans", "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", sans-serif;
+  font-family: var(--font-cjk);
+}
