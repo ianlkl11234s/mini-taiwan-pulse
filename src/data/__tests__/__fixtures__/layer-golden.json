@@ -150761,23 +150761,28 @@
         "label": "類別",
         "options": [
           {
-            "label": "鐵路站（官方 PNR）",
+            "label": "鐵路站（官方 PNR，營運狀態未查證）",
             "value": "rail_official"
           },
           {
-            "label": "鐵路站（OSM 補缺）",
+            "label": "鐵路站（OSM 補缺，營運狀態未查證）",
             "value": "rail_osm"
           },
           {
-            "label": "渡輪碼頭（OSM 補缺）",
+            "label": "渡輪碼頭（OSM 補缺，營運狀態未查證）",
             "value": "ferry_osm"
+          },
+          {
+            "label": "鐵路站：停駛中（PNR，讓路給 NSCR 施工）",
+            "value": "suspended"
           }
         ],
         "type": "multiSelect",
         "value": [
           "rail_official",
           "rail_osm",
-          "ferry_osm"
+          "ferry_osm",
+          "suspended"
         ]
       },
       {

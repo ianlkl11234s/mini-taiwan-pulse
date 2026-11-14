@@ -175,7 +175,9 @@ export const PH_KIG_EXCLUDED_SRC_IDS = ["osm:relation/12651735"] as const;
  * 根據：第 1 波 `ph_stations_20261113.geojson` 中 kind=rail_station 且 source=osm 的點，
  * 距第 2 波 `ph_urban_rail_stations_20261114.geojson` 任一站 ≤300 m 者（49 站；門檻 100 m 為 48、200 m 起即 49）。
  * PNR 官方站（src_id 以 `pnrstation_` 開頭）即使在 300 m 內也保留（Blumentritt 96 m、EDSA 283 m 是 PNR 自己的站）。
- * 第 1 波 PMTiles 沒有站別欄位且不重切，所以用 src_id 清單在前端濾。
+ * 站別欄位沒有進 PMTiles，所以用 src_id 清單在前端濾（v2 檔仍保留這些站，status＝operating）。
+ * 未通車 37 站與誤標的 Mapaya 已在 v2 檔（analytics #390／#391／#393）排除，前端不再另濾；
+ * 清單中 osm:node/13478815690（Anonas）屬未通車、v2 已沒有，留在清單無害（實際濾掉 48 站）。
  */
 export const PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS = [
   "osm:node/11329697351", "osm:node/11329697352", "osm:node/13478815690", "osm:node/5377269277", "osm:relation/12480558", "osm:relation/14288640",
@@ -187,30 +189,30 @@ export const PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS = [
   "osm:way/60194145", "osm:way/60198083", "osm:way/60618740", "osm:way/797744977", "osm:way/798212098", "osm:way/900558095", "osm:way/923624587",
   "osm:way/95496202",
 ] as const;
-/**
- * 未通車車站（PM 2026-11-14 確認：第 1 波把它們畫成車站是錯誤）。來源：taipei-gis-analytics #390＋#391
- * `docs/topic-research/philippines_opendata/waves/w02/ph_stations_not_open_src_ids.csv`，37 站：
- * Metro Manila Subway 預定站 15、MRT-7 10、NSCR 北段 10（Valenzuela–San Fernando）、North Triangle Common Station 1、DOST AGT 試驗站 1。
- * 與上面重複站清單交集 1 站（osm:node/13478815690 Anonas），兩份合計濾掉 85 站。
- * ⚠️ 暫時性前端 filter：analytics 重切的 `ph_stations_v2.pmtiles` 上線（換檔、改 lock）後，本常數與上面的重複站清單都可以拿掉。
- */
-export const PH_STATIONS_NOT_OPEN_SRC_IDS = [
-  "osm:node/10542991478", "osm:node/12752311664", "osm:node/13478815689", "osm:node/13478815690", "osm:node/13564626500", "osm:node/13564639203",
-  "osm:node/13564783062", "osm:node/13564783063", "osm:node/13564783064", "osm:node/13565942041", "osm:node/13565942044", "osm:node/13565942045",
-  "osm:node/13571995040", "osm:node/13571995042", "osm:node/13571995044", "osm:node/13571995050", "osm:node/13571995052", "osm:node/13571995054",
-  "osm:node/13571995056", "osm:node/13571995058", "osm:node/13571995062", "osm:node/13686694948", "osm:node/5285111766", "osm:node/5525578965",
-  "osm:node/5728168799", "osm:node/6313750523", "osm:way/1109949377", "osm:way/1488753262", "osm:way/1521984289", "osm:way/564479403",
-  "osm:way/801909044", "osm:way/801909052", "osm:way/802086678", "osm:way/802086682", "osm:way/802086688", "osm:way/802086692",
-  "osm:way/992204947",
-] as const;
+/** 停駛中（status=suspended）另成灰色一類；其餘依類型與來源。 */
 const stationsCat: PhCatGetter = {
-  expr: ["concat", ["to-string", ["coalesce", ["get", "kind"], ""]], ":", ["to-string", ["coalesce", ["get", "source"], ""]]],
-  js: (p) => `${str(p.kind)}:${str(p.source)}`,
+  expr: ["case", ["==", ["get", "status"], "suspended"], "suspended",
+    ["concat", ["to-string", ["coalesce", ["get", "kind"], ""]], ":", ["to-string", ["coalesce", ["get", "source"], ""]]]],
+  js: (p) => (str(p.status) === "suspended" ? "suspended" : `${str(p.kind)}:${str(p.source)}`),
+};
+/** 營運狀態（analytics #393，2026-11-14 查證）；unverified 是「未查證」，不是停駛。 */
+export const PH_STATION_STATUS: Record<string, L3> = {
+  operating: l3("營運中", "Operating", "営業中"),
+  suspended: l3("停駛中", "Suspended", "運休中"),
+  unverified: l3("營運狀態未查證", "Operating status not verified", "営業状況は未確認"),
+};
+const PH_STATION_STATUS_BASIS: Record<string, L3> = {
+  lrt_mrt: l3("LRT-1／LRT-2／MRT-3 營運中（DOTr、LRTA 2025–2026 運量公告）", "LRT-1 / LRT-2 / MRT-3 in service (DOTr, LRTA ridership 2025–2026)", "LRT-1／LRT-2／MRT-3 営業中（DOTr・LRTA 2025–2026 年の利用者数）"),
+  pnr_metro: l3("PNR 都會段 Gov. Pascual–Tutuban–Alabang 2024-03-28 起停駛，讓路給 NSCR 施工", "PNR Metro Manila section (Gov. Pascual–Tutuban–Alabang) suspended since 2024-03-28 for NSCR construction", "PNR 首都圏区間（Gov. Pascual–Tutuban–Alabang）は NSCR 工事のため 2024-03-28 から運休"),
+  pnr_alabang_calamba: l3("PNR Alabang–Calamba 2023-06-02 起停駛，讓路給 NSCR 施工", "PNR Alabang–Calamba suspended since 2023-06-02 for NSCR construction", "PNR Alabang–Calamba は NSCR 工事のため 2023-06-02 から運休"),
+  unverified: l3("未查到 2026 年官方營運狀態（渡輪碼頭全部未逐一查證）", "No official 2026 operating status found (ferry terminals not individually checked)", "2026 年の公式な営業状況は見つからない（フェリーターミナルは個別未確認）"),
 };
 const STATION_CATS: readonly PhCat[] = [
-  { id: "rail_official", values: ["rail_station:official"], color: "#f59e0b", label: l3("鐵路站（官方 PNR）", "Railway station (official, PNR)", "鉄道駅（公式・PNR）") },
-  { id: "rail_osm", values: ["rail_station:osm"], color: "#fde68a", label: l3("鐵路站（OSM 補缺）", "Railway station (OSM gap-fill)", "鉄道駅（OSM 補完）") },
-  { id: "ferry_osm", values: ["ferry_terminal:osm"], color: "#7dd3fc", label: l3("渡輪碼頭（OSM 補缺）", "Ferry terminal (OSM gap-fill)", "フェリーターミナル（OSM 補完）") },
+  { id: "rail_official", values: ["rail_station:official"], color: "#f59e0b", label: l3("鐵路站（官方 PNR，營運狀態未查證）", "Railway station (official, PNR; status not verified)", "鉄道駅（公式・PNR、営業状況未確認）") },
+  { id: "rail_osm", values: ["rail_station:osm"], color: "#fde68a", label: l3("鐵路站（OSM 補缺，營運狀態未查證）", "Railway station (OSM gap-fill; status not verified)", "鉄道駅（OSM 補完、営業状況未確認）") },
+  { id: "ferry_osm", values: ["ferry_terminal:osm"], color: "#7dd3fc", label: l3("渡輪碼頭（OSM 補缺，營運狀態未查證）", "Ferry terminal (OSM gap-fill; status not verified)", "フェリーターミナル（OSM 補完、営業状況未確認）") },
+  // 加在最後：類別多選以宣告順序為 bitmask，舊分享網址的前三類不變
+  { id: "suspended", values: ["suspended"], color: "#6b7280", label: l3("鐵路站：停駛中（PNR，讓路給 NSCR 施工）", "Railway station: suspended (PNR, for NSCR construction)", "鉄道駅：運休中（PNR、NSCR 工事のため）"), radius: 3.5 },
 ];
 
 // ───────────── 主要道路與鐵道（C013） ─────────────
@@ -365,7 +367,7 @@ const TOLL_CATS: readonly PhCat[] = [
 
 export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
   {
-    key: "phTransportHubs", file: "ph_transport_hubs.pmtiles", sourceId: "ph-transport-hubs", srcMinzoom: 4, srcMaxzoom: 14, color: AIRPORT_COLOR, count: 581,
+    key: "phTransportHubs", file: "ph_transport_hubs_v2.pmtiles", sourceId: "ph-transport-hubs", srcMinzoom: 4, srcMaxzoom: 14, color: AIRPORT_COLOR, count: 580,
     parts: [{ id: "ph-transport-hubs-circle", sourceLayer: "hubs", geom: "point", minzoom: 4, cat: hubsCat, filter: ["!", ["in", ["get", "src_id"], ["literal", [...PH_KIG_EXCLUDED_SRC_IDS]]]] }],
     cats: HUB_CATS,
     title: { props: ["name", "location"], fallback: l3("機場、港口", "Airport / port", "空港・港"),
@@ -382,7 +384,7 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
       REGION_FIELD,
     ],
     legendNotes: [
-      l3("官方：DOTr 機場 85、PPA 港口 111（Geoportal Philippines WMS）；OSM 補缺 385（淡色小點）", "Official: 85 DOTr airports and 111 PPA ports (Geoportal Philippines WMS); 385 OSM gap-fill points (pale, small)", "公式：DOTr 空港 85・PPA 港 111（Geoportal Philippines WMS）。OSM 補完 385（淡色の小点）"),
+      l3("官方：DOTr 機場 85、PPA 港口 111（Geoportal Philippines WMS）；OSM 補缺 384（淡色小點；Region VII 一處填海工業用地不是港口，已排除）", "Official: 85 DOTr airports and 111 PPA ports (Geoportal Philippines WMS); 384 OSM gap-fill points (pale, small; a reclaimed industrial site in Region VII is not a port and is excluded)", "公式：DOTr 空港 85・PPA 港 111（Geoportal Philippines WMS）。OSM 補完 384（淡色の小点。Region VII の埋立工業用地は港ではないため除外）"),
       l3("官方機場座標多為城鎮近似位置（例：Clark 偏約 7.5 km），不是跑道位置", "Official airport coordinates are mostly approximate town locations (e.g. Clark is about 7.5 km off), not runway positions", "公式の空港座標は多くが町の概略位置（例：Clark は約 7.5 km ずれる）で滑走路の位置ではない"),
       l3("卡拉延群島的機場不畫", "Airfield in the Kalayaan Island Group not drawn", "カラヤン諸島の飛行場は描画しない"),
     ],
@@ -392,14 +394,16 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     loading: l3("菲律賓機場港口載入中", "Loading Philippines airports and ports", "フィリピンの空港・港を読み込み中"),
   },
   {
-    key: "phStations", file: "ph_stations.pmtiles", sourceId: "ph-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 477,
+    key: "phStations", file: "ph_stations_v2.pmtiles", sourceId: "ph-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 476,
     parts: [{ id: "ph-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: stationsCat,
-      filter: ["!", ["in", ["get", "src_id"], ["literal", [...new Set([...PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS, ...PH_STATIONS_NOT_OPEN_SRC_IDS])]]]] }],
+      filter: ["!", ["in", ["get", "src_id"], ["literal", [...PH_STATIONS_URBAN_RAIL_DUP_SRC_IDS]]]] }],
     cats: STATION_CATS,
     title: { props: ["name"], fallback: l3("車站", "Station", "駅"),
       fallbackBy: { prop: "kind", map: { ferry_terminal: l3("未命名渡輪碼頭", "Unnamed ferry terminal", "名称不明のフェリーターミナル"), rail_station: l3("未命名車站", "Unnamed station", "名称不明の駅") } } },
     fields: [
       { prop: "kind", label: l3("類型", "Type", "種別"), map: { rail_station: l3("鐵路站", "Railway station", "鉄道駅"), ferry_terminal: l3("渡輪碼頭", "Ferry terminal", "フェリーターミナル") } },
+      { prop: "status", label: l3("營運狀態", "Operating status", "営業状況"), map: PH_STATION_STATUS },
+      { prop: "status_basis", label: l3("狀態依據（2026-11-14 查證）", "Status basis (checked 2026-11-14)", "状況の根拠（2026-11-14 確認）"), map: PH_STATION_STATUS_BASIS },
       { prop: "line", label: l3("路線", "Line", "路線") },
       { prop: "direction", label: l3("方向", "Direction", "方面"), map: { Southbound: l3("南下", "Southbound", "南行き"), Northbound: l3("北上", "Northbound", "北行き") } },
       { prop: "source", label: l3("來源", "Source", "出典"), map: SOURCE_MAP },
@@ -407,10 +411,11 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
       REGION_FIELD,
     ],
     legendNotes: [
-      l3("官方：PNR 車站 31（Geoportal WMS）；OSM 補缺：鐵路站 33、渡輪碼頭 413（約一半沒有名稱）", "Official: 31 PNR stations (Geoportal WMS); OSM gap-fill: 33 rail stations, 413 ferry terminals (about half unnamed)", "公式：PNR 駅 31（Geoportal WMS）。OSM 補完：鉄道駅 33、フェリーターミナル 413（約半数は名称なし）"),
-      l3("LRT、MRT 車站改由「LRT／MRT 軌道與車站」層提供（含線別），本層不重複畫（濾掉 49 站）", "LRT/MRT stations are shown in the 'LRT / MRT Lines & Stations' layer (with line names) and not repeated here (49 removed)", "LRT・MRT の駅は「LRT／MRT 路線と駅」レイヤーに線名付きで表示し、ここでは重ねて描かない（49 駅を除外）"),
-      l3("尚未通車的 Metro Manila Subway、MRT-7、NSCR 北段預定站與 North Triangle Common Station、DOST 試驗站不畫（37 站，與上項重複 1 站）", "Not-yet-open Metro Manila Subway, MRT-7 and NSCR northern-section stations, North Triangle Common Station and the DOST test station are not drawn (37 stations, 1 overlapping the above)", "未開業のマニラ首都圏地下鉄・MRT-7・NSCR 北区間の予定駅、North Triangle Common Station、DOST 試験駅は描かない（37 駅、上記と 1 駅重複）"),
-      l3("巴士站不在本層；Tawi-Tawi 以外 17 個 region 有點（含渡輪碼頭）；鐵路站只在 4 個 region（NCR、CALABARZON、Bicol、MIMAROPA），Region III 的站都是未通車的 NSCR、已排除", "Bus stops not included; points in 17 of 18 regions (including ferry terminals); rail stations only in 4 regions (NCR, CALABARZON, Bicol, MIMAROPA) — all Region III stations are not-yet-open NSCR and excluded", "バス停は含まない。18 地方中 17 地方に点がある（フェリーターミナル含む）。鉄道駅は 4 地方（NCR・CALABARZON・Bicol・MIMAROPA）のみで、Region III の駅はすべて未開業の NSCR のため除外"),
+      l3("畫面 476 處：官方 PNR 車站 31（Geoportal WMS，2019 年資料）、OSM 補缺鐵路站 32、渡輪碼頭 413（約一半沒有名稱）", "476 points: 31 official PNR stations (Geoportal WMS, 2019 data), 32 OSM gap-fill rail stations, 413 ferry terminals (about half unnamed)", "表示 476 か所：公式 PNR 駅 31（Geoportal WMS、2019 年データ）、OSM 補完の鉄道駅 32、フェリーターミナル 413（約半数は名称なし）"),
+      l3("營運狀態查證於 2026-11-14：PNR 都會段（Gov. Pascual–Tutuban–Alabang）2024-03 起、Alabang–Calamba 2023-06 起停駛，讓路給 NSCR 施工（灰點，32 站）；其餘鐵路站與全部渡輪碼頭為「營運狀態未查證」，不代表停駛", "Operating status checked 2026-11-14: PNR Metro Manila (Gov. Pascual–Tutuban–Alabang) suspended since 2024-03 and Alabang–Calamba since 2023-06 for NSCR construction (grey, 32 stations); other rail stations and all ferry terminals are 'status not verified', not suspended", "営業状況は 2026-11-14 確認：PNR 首都圏区間（Gov. Pascual–Tutuban–Alabang）は 2024-03 から、Alabang–Calamba は 2023-06 から NSCR 工事のため運休（灰色、32 駅）。その他の鉄道駅と全フェリーターミナルは「営業状況未確認」で、運休という意味ではない"),
+      l3("LRT、MRT 車站改由「LRT／MRT 軌道與車站」層提供（含線別），本層不重複畫（濾掉 48 站）", "LRT/MRT stations are shown in the 'LRT / MRT Lines & Stations' layer (with line names) and not repeated here (48 removed)", "LRT・MRT の駅は「LRT／MRT 路線と駅」レイヤーに線名付きで表示し、ここでは重ねて描かない（48 駅を除外）"),
+      l3("尚未通車的 Metro Manila Subway、MRT-7、NSCR 預定站與 North Triangle Common Station、DOST 試驗站（37 站），以及 Mindoro 誤標的 Mapaya 不在本層", "Not-yet-open Metro Manila Subway, MRT-7 and NSCR stations, North Triangle Common Station and the DOST test station (37), and the mis-tagged Mapaya (Mindoro), are not included", "未開業のマニラ首都圏地下鉄・MRT-7・NSCR の予定駅、North Triangle Common Station、DOST 試験駅（37 駅）と、ミンドロの誤登録 Mapaya は含まない"),
+      l3("巴士站不在本層；CAR 以外 17 個 region 有點（含渡輪碼頭）；鐵路站只在 3 個 region（NCR、CALABARZON、Bicol），其餘 15 個 region 鐵路站未涵蓋", "Bus stops not included; points in 17 of 18 regions (all but CAR, including ferry terminals); rail stations only in 3 regions (NCR, CALABARZON, Bicol), rail not covered in the other 15", "バス停は含まない。CAR 以外の 17 地方に点がある（フェリーターミナル含む）。鉄道駅は 3 地方（NCR・CALABARZON・Bicol）のみで、ほかの 15 地方は鉄道駅未収録"),
     ],
     popupNotes: [],
     sourceOrg: "Philippine National Railways via Geoportal Philippines（NAMRIA）WMS；LRT／MRT 車站、渡輪碼頭 © OpenStreetMap contributors（ODbL），via HOT／HDX",

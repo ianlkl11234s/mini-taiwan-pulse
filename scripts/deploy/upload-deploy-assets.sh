@@ -632,8 +632,8 @@ for f in \
   public/world/ie_noise_maps_lnight.pmtiles \
   public/world/ph_admin_boundaries.pmtiles \
   public/world/ph_population.pmtiles \
-  public/world/ph_transport_hubs.pmtiles \
-  public/world/ph_stations.pmtiles \
+  public/world/ph_transport_hubs_v2.pmtiles \
+  public/world/ph_stations_v2.pmtiles \
   public/world/ph_major_roads.pmtiles \
   public/world/ph_power_plants.pmtiles \
   public/world/ph_power_grid.pmtiles \
