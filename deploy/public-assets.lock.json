@@ -4328,6 +4328,111 @@
    "sha256": "a3b314aae1ee4b51eb34fc1137bb1382530040fe237d76f570edeb7cb16b0499",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/trash_debris.geojson"
+  },
+  {
+   "path": "public/world/vn_admin_boundaries.pmtiles",
+   "bytes": 1951548,
+   "sha256": "b9ef5d6f3421615b4a5b80ad5ebd912d39a3ab366ecc57a434a4a19a3772d59a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_admin_boundaries.pmtiles"
+  },
+  {
+   "path": "public/world/vn_angiang_demo.pmtiles",
+   "bytes": 112439,
+   "sha256": "b88de8d3e182094b28e99189e1118fd6a594e60db68bc7debf035c3b3f4fd17a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_angiang_demo.pmtiles"
+  },
+  {
+   "path": "public/world/vn_envisoft_stations_v2.pmtiles",
+   "bytes": 2688444,
+   "sha256": "fbc2addd9a07f839b7eee1dc4379925f2c39a5a16908760b680eda8450278ca2",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_envisoft_stations_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_fuel_stations_v2.pmtiles",
+   "bytes": 2665228,
+   "sha256": "301acb490096108cde8cfe0a52b0e4a6f5fdd9349e0733c87a632a64eb6b4b5a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_fuel_stations_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_major_roads_v2.pmtiles",
+   "bytes": 17215123,
+   "sha256": "01394e99e85d45694783d80fadf2d063962238e291cf88a10ea156e5a7ee965a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_major_roads_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_oil_gas_gem_v2.pmtiles",
+   "bytes": 650326,
+   "sha256": "3086327d48a8d4dc9dba3a559d31186cde65c2ca0b37a50d0e159ec83951e117",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_oil_gas_gem_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_oil_gas_osm.pmtiles",
+   "bytes": 54225,
+   "sha256": "fa77338b6a814abb7480cfdead77d2c3202769fd1ed2d6c5c6b2910bafec6b89",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_oil_gas_osm.pmtiles"
+  },
+  {
+   "path": "public/world/vn_population.pmtiles",
+   "bytes": 829601,
+   "sha256": "a5ccba2b146d547535f0f671e3a585ea4e9f616187ebad947adb683ef0c24088",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_population.pmtiles"
+  },
+  {
+   "path": "public/world/vn_power_grid.pmtiles",
+   "bytes": 10056819,
+   "sha256": "13f9aeaeab64f42c95ba7312c4df053481315f5d178bc56212441defd28d7d69",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_power_grid.pmtiles"
+  },
+  {
+   "path": "public/world/vn_power_plants.pmtiles",
+   "bytes": 815474,
+   "sha256": "6742853c8caa627f85fe184b3739a23c603e3ed1952f88f55f369230798b329e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_power_plants.pmtiles"
+  },
+  {
+   "path": "public/world/vn_renewables_gem_v2.pmtiles",
+   "bytes": 3563348,
+   "sha256": "1e65d2c833b5bf03bb736e13e71ca2addebb2be377ff8547b01abca35e579096",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_renewables_gem_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_renewables_osm.pmtiles",
+   "bytes": 227364,
+   "sha256": "ecd52612ffdba099130c16f372dd37918aedd6a4fd473be81db1e67410065905",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_renewables_osm.pmtiles"
+  },
+  {
+   "path": "public/world/vn_stations_v2.pmtiles",
+   "bytes": 870334,
+   "sha256": "0f5497510a0401a6ef2119ebbdf3bd969a51f1299e88a62591489532d6db05ed",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_stations_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_transport_hubs_odm.pmtiles",
+   "bytes": 141671,
+   "sha256": "8ded5280d811d277703838e047b4ef372d13d434e8613a1fdca67a0336ffb70c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_transport_hubs_odm.pmtiles"
+  },
+  {
+   "path": "public/world/vn_transport_hubs_osm.pmtiles",
+   "bytes": 55237,
+   "sha256": "eea4c549e98e06744f70f63f019dd9c99dc0b263f4a1d930305985871a986622",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_transport_hubs_osm.pmtiles"
   }
  ]
 }

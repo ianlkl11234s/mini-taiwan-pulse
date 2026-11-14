@@ -98,7 +98,8 @@ export interface PhPart {
   /** layer id（literal；gisClickRegistry 以此比對） */
   id: string;
   sourceLayer: string;
-  geom: "point" | "line";
+  /** fill＝面（越南安江工業群；2026-11-13 起） */
+  geom: "point" | "line" | "fill";
   minzoom: number;
   cat: PhCatGetter;
   /** 固定 filter（例：只畫電纜、排除卡拉延群島的點） */
@@ -110,10 +111,13 @@ export interface PhPart {
   lineWidth?: Readonly<Record<string, readonly [number, number]>>;
   /** 點描邊編碼：符合條件者白框 2px（例：Climate TRACE 補缺） */
   ring?: { when: Expr; js: (p: Record<string, unknown>) => boolean; label: L3 };
+  /** 點用小號半徑（S；密集點、附屬設施） */
+  small?: boolean;
 }
 export interface PhNote { text: L3; /** 只在符合條件的 feature 顯示 */ when?: (p: Record<string, unknown>) => boolean }
-export interface PhLayerSpec {
-  key: PhDataKey;
+/** `K`：圖層 key 型別（越南等他國重用本引擎時放寬，2026-11-13）。 */
+export interface PhLayerSpec<K extends string = PhDataKey> {
+  key: K;
   file: string;
   sourceId: string;
   srcMinzoom: number;
@@ -126,6 +130,8 @@ export interface PhLayerSpec {
   otherLabel?: L3;
   /** 圖例標題後綴（例：C090「補助安裝地點，非全國光電」） */
   legendTitleNote?: L3;
+  /** 虛線子圖層的圖例文字（省略＝「地下、海底電纜」；null＝虛線已有自己的分類列，不另列） */
+  dashLabel?: L3 | null;
   sizeLegend?: readonly PhSizeBands[];
   title: { props: readonly string[]; fallback: L3; fallbackBy?: { prop: string; map: Readonly<Record<string, L3>> } };
   fields: readonly PhField[];
@@ -170,6 +176,21 @@ const HUB_CATS: readonly PhCat[] = [
 export const PH_KIG_EXCLUDED_SRC_IDS = ["osm:relation/12651735"] as const;
 
 // ───────────── 車站與渡輪碼頭（C010） ─────────────
+/**
+ * 未通車車站（PM 2026-11-14 確認：第 1 波把它們畫成車站是錯誤）。來源：taipei-gis-analytics #390＋#391
+ * `docs/topic-research/philippines_opendata/waves/w02/ph_stations_not_open_src_ids.csv`，37 站：
+ * Metro Manila Subway 預定站 15、MRT-7 10、NSCR 北段 10（Valenzuela–San Fernando）、North Triangle Common Station 1、DOST AGT 試驗站 1。
+ * ⚠️ 暫時性前端 filter：analytics 重切的 `ph_stations_v2.pmtiles`（已排除這 37 站）上線（換檔、改 lock）後，本常數可以拿掉。
+ */
+export const PH_STATIONS_NOT_OPEN_SRC_IDS = [
+  "osm:node/10542991478", "osm:node/12752311664", "osm:node/13478815689", "osm:node/13478815690", "osm:node/13564626500", "osm:node/13564639203",
+  "osm:node/13564783062", "osm:node/13564783063", "osm:node/13564783064", "osm:node/13565942041", "osm:node/13565942044", "osm:node/13565942045",
+  "osm:node/13571995040", "osm:node/13571995042", "osm:node/13571995044", "osm:node/13571995050", "osm:node/13571995052", "osm:node/13571995054",
+  "osm:node/13571995056", "osm:node/13571995058", "osm:node/13571995062", "osm:node/13686694948", "osm:node/5285111766", "osm:node/5525578965",
+  "osm:node/5728168799", "osm:node/6313750523", "osm:way/1109949377", "osm:way/1488753262", "osm:way/1521984289", "osm:way/564479403",
+  "osm:way/801909044", "osm:way/801909052", "osm:way/802086678", "osm:way/802086682", "osm:way/802086688", "osm:way/802086692",
+  "osm:way/992204947",
+] as const;
 const stationsCat: PhCatGetter = {
   expr: ["concat", ["to-string", ["coalesce", ["get", "kind"], ""]], ":", ["to-string", ["coalesce", ["get", "source"], ""]]],
   js: (p) => `${str(p.kind)}:${str(p.source)}`,
@@ -312,8 +333,9 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     loading: l3("菲律賓機場港口載入中", "Loading Philippines airports and ports", "フィリピンの空港・港を読み込み中"),
   },
   {
-    key: "phStations", file: "ph_stations.pmtiles", sourceId: "ph-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 562,
-    parts: [{ id: "ph-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: stationsCat }],
+    key: "phStations", file: "ph_stations.pmtiles", sourceId: "ph-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 525,
+    parts: [{ id: "ph-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: stationsCat,
+      filter: ["!", ["in", ["get", "src_id"], ["literal", [...PH_STATIONS_NOT_OPEN_SRC_IDS]]]] }],
     cats: STATION_CATS,
     title: { props: ["name"], fallback: l3("車站", "Station", "駅"),
       fallbackBy: { prop: "kind", map: { ferry_terminal: l3("未命名渡輪碼頭", "Unnamed ferry terminal", "名称不明のフェリーターミナル"), rail_station: l3("未命名車站", "Unnamed station", "名称不明の駅") } } },
@@ -326,7 +348,8 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
       REGION_FIELD,
     ],
     legendNotes: [
-      l3("官方：PNR 車站 31（Geoportal WMS）；OSM 補缺：LRT、MRT 等鐵路站 118、渡輪碼頭 413（約一半沒有名稱）", "Official: 31 PNR stations (Geoportal WMS); OSM gap-fill: 118 LRT/MRT and other rail stations, 413 ferry terminals (about half unnamed)", "公式：PNR 駅 31（Geoportal WMS）。OSM 補完：LRT・MRT など鉄道駅 118、フェリーターミナル 413（約半数は名称なし）"),
+      l3("官方：PNR 車站 31（Geoportal WMS）；OSM 補缺：LRT、MRT 等鐵路站 81、渡輪碼頭 413（約一半沒有名稱）", "Official: 31 PNR stations (Geoportal WMS); OSM gap-fill: 81 LRT/MRT and other rail stations, 413 ferry terminals (about half unnamed)", "公式：PNR 駅 31（Geoportal WMS）。OSM 補完：LRT・MRT など鉄道駅 81、フェリーターミナル 413（約半数は名称なし）"),
+      l3("尚未通車的 Metro Manila Subway、MRT-7、NSCR 北段預定站與 North Triangle Common Station、DOST 試驗站不畫（37 站）", "Not-yet-open Metro Manila Subway, MRT-7 and NSCR northern-section stations, North Triangle Common Station and the DOST test station are not drawn (37 stations)", "未開業のマニラ首都圏地下鉄・MRT-7・NSCR 北区間の予定駅、North Triangle Common Station、DOST 試験駅は描かない（37 駅）"),
       l3("巴士站不在本層；Tawi-Tawi 以外 17 個 region 有點", "Bus stops not included; points in 17 of 18 regions", "バス停は含まない。18 地方中 17 地方に点がある"),
     ],
     popupNotes: [],
@@ -512,14 +535,14 @@ export const PH_SPEC_BY_KEY: Readonly<Record<PhDataKey, PhLayerSpec>> = Object.f
 /** 多選「其他」選項的固定 id（有 `otherLabel` 的層才有）。 */
 export const PH_CAT_OTHER_ID = "other_brand";
 /** 類別多選選項 id（宣告順序＝bitmask；有 `otherLabel` 者最後加「其他」）。 */
-export const phCatOptionIds = (spec: Pick<PhLayerSpec, "cats" | "otherLabel">): string[] =>
+export const phCatOptionIds = (spec: Pick<PhLayerSpec<string>, "cats" | "otherLabel">): string[] =>
   [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [PH_CAT_OTHER_ID] : [])];
 /** 類別多選選項（zh 標籤；layerParamsSpec 用）。 */
-export const phCatOptions = (spec: PhLayerSpec): { value: string; label: string }[] =>
+export const phCatOptions = (spec: PhLayerSpec<string>): { value: string; label: string }[] =>
   [...spec.cats.map((c) => ({ value: c.id, label: c.label.zh })), ...(spec.otherLabel ? [{ value: PH_CAT_OTHER_ID, label: spec.otherLabel.zh }] : [])];
 
 /** feature 屬於哪個類別（popup 配色）；不屬於任何已列類別回 undefined。 */
-export function phCatOf(spec: PhLayerSpec, props: Record<string, unknown>): PhCat | undefined {
+export function phCatOf(spec: PhLayerSpec<string>, props: Record<string, unknown>): PhCat | undefined {
   for (const part of spec.parts) {
     const v = part.cat.js(props);
     const hit = spec.cats.find((c) => (!c.parts || c.parts.includes(part.id)) && c.values.includes(v));

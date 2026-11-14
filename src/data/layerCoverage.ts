@@ -25,6 +25,8 @@ export const COVERAGE_AREAS = {
   // gb_london_rail 西到 Reading（伊莉莎白線），其餘四檔都在大倫敦內
   london: { label: { zh: "倫敦", en: "London", ja: "ロンドン" }, bbox: [-0.98, 51.28, 0.34, 51.71], center: [-0.12, 51.51] },
   seoul: { label: { zh: "首爾", en: "Seoul", ja: "ソウル" }, bbox: [126.76, 37.41, 127.19, 37.72] },
+  // vn_angiang_demo.pmtiles header bounds 104.535–105.500E、9.466–10.520N 取整（2026-11-13 越南安江示範）
+  anGiang: { label: { zh: "越南安江省", en: "An Giang, Vietnam", ja: "ベトナム An Giang 省" }, bbox: [104.5, 9.45, 105.55, 10.55] },
   taipei: { label: { zh: "臺北市", en: "Taipei City", ja: "台北市" }, bbox: [121.44, 24.94, 121.69, 25.23] },
   newTaipei: { label: { zh: "新北市", en: "New Taipei City", ja: "新北市" }, bbox: [121.28, 24.67, 122.01, 25.30] },
   // 1944 水域：public/geo/historical_water_1944_taipei.geojson 外框（121.399–121.652, 24.946–25.155）取整，含板橋、新莊、汐止
@@ -115,6 +117,7 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   mapchallengeDay08Sites: "zhongheYonghe",
   mapchallengeDay08Plan1955: "zhongheYonghe",
   tainanRoadTunnels: "tainan",
+  vnAngiangDemo: "anGiang",
 };
 
 export function layerCoverage(key: string): { id: CoverageAreaId; area: CoverageArea } | null {

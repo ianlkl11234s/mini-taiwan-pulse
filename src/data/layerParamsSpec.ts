@@ -103,6 +103,7 @@ import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, cat
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
 import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phCatOptions } from "./phDataLayers";
+import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
@@ -2238,6 +2239,24 @@ export const LAYER_PARAMS_SPEC = {
         options: PH_PLANT_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: "phPowerPlantsStatusMask",
       }] : []),
       ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+      opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
+  // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）
+  vnAdminBoundaries: [opacitySlider("vnAdminBoundariesOpacity", 0.85)],
+  vnPopulation: [opacitySlider("vnPopulationOpacity", 0.7)],
+  // 越南規格驅動 10 層：類別多選（順序＝規格 cats＋「其他」＝bitmask）；GEM 電廠、風光、油氣另有狀態多選（預設見規格 statusDefault）
+  ...Object.fromEntries(VN_DATA_SPECS.map((spec) => {
+    const parts = [...spec.parts, ...(spec.more?.parts ?? [])];
+    const hasPoint = parts.some((p) => p.geom === "point");
+    const pointOnly = parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec)),
+      ...(spec.statusDefault ? [{
+        kind: "multiSelect" as const, name: `${spec.key}Status`, label: "狀態", default: serializeMultiSelectValues([...spec.statusDefault]),
+        options: VN_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: `${spec.key}StatusMask`,
+      }] : []),
       opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
       ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
     ]];

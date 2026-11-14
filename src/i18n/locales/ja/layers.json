@@ -1828,5 +1828,17 @@
   "layer.phPowerGrid": "送電線・変電所（フィリピン）",
   "layer.phRenewables": "家庭用太陽光補助・オフグリッドマイクログリッド（フィリピン）",
   "layer.phFuelStations": "ガソリンスタンド（フィリピン）",
-  "layer.phPipelines": "パイプライン・貯蔵タンク（フィリピン）"
+  "layer.phPipelines": "パイプライン・貯蔵タンク（フィリピン）",
+  "layer.vnAdminBoundaries": "行政区域界（ベトナム）",
+  "layer.vnPopulation": "人口密度（ベトナム、2025 年）",
+  "layer.vnStations": "鉄道・メトロ駅・バスターミナル（ベトナム）",
+  "layer.vnTransportHubs": "空港・港（ベトナム）",
+  "layer.vnMajorRoads": "主要道路・鉄道（ベトナム）",
+  "layer.vnPowerPlants": "発電所（ベトナム）",
+  "layer.vnRenewables": "風力・太陽光・EV 充電（ベトナム）",
+  "layer.vnPowerGrid": "送電線・変電所（ベトナム）",
+  "layer.vnFuelStations": "ガソリンスタンド（ベトナム）",
+  "layer.vnOilGas": "石油・ガス施設（ベトナム）",
+  "layer.vnEnvisoftStations": "環境モニタリング局（ベトナム、位置のみ）",
+  "layer.vnAngiangDemo": "An Giang 工業団地・洪水避難居住地（ベトナム）"
 }
