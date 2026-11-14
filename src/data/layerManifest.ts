@@ -9768,7 +9768,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "medical-ltc",
-      url: "./geo/medical_ltc.pmtiles",
+      url: "./geo/medical_ltc_v2.pmtiles",
       sourceLayer: "medical_ltc",
       minzoom: 0,
       maxzoom: 12,

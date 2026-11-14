@@ -77,7 +77,6 @@ public/geo/fire_hydrants_national_v2.pmtiles
 public/geo/fire_stations.geojson
 public/geo/medical_clinics.pmtiles
 public/geo/medical_hospitals.geojson
-public/geo/medical_ltc.pmtiles
 public/geo/medical_pharmacies.pmtiles
 public/geo/national_highway.pmtiles
 public/geo/pollution_facilities.pmtiles

@@ -1184,6 +1184,13 @@
    "s3_key": "deploy-assets/geo/medical_aed_v2.pmtiles"
   },
   {
+   "path": "public/geo/medical_ltc_v2.pmtiles",
+   "bytes": 6220409,
+   "sha256": "39be591788e3b08fe1ec39504e054deb3b08622d364a018c053539b9250a0b40",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/medical_ltc_v2.pmtiles"
+  },
+  {
    "path": "public/geo/news_events.geojson",
    "bytes": 18245,
    "sha256": "fa1608df08aa44a1826c2c10ca40919126d2b66a75c27dea30ddf0206e94655a",
@@ -2266,8 +2273,8 @@
   },
   {
    "path": "public/tourism/attractions_national_v2.geojson",
-   "bytes": 4577112,
-   "sha256": "2faf2a4f5065fb4e1ec3adb3b5c7865e3ab88bb92907c5299aac583aa5b62220",
+   "bytes": 4577054,
+   "sha256": "bd0c95a433b570789089c50017c7b6d6fa7770cb10310fc0f2f35fe6b162d084",
    "delivery": "r2",
    "s3_key": "deploy-assets/tourism/attractions_national_v2.geojson"
   },
