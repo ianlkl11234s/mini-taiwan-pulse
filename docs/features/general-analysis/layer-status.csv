@@ -46,6 +46,7 @@ krProtectedTrees,保護樹 Protected Trees,KR,南韓,環境氣候,custom,verifie
 krFishingGrounds,漁場 Fishing Grounds,KR,南韓,海洋,custom,verified,kr_fishing_grounds,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓漁場 14,858 面（養殖、村落、定置網；調查 2020–2023，快照 2024-04-24）"
 krBicycleParking,自行車停放處 Bicycle Parking,KR,南韓,交通,custom,verified,kr_bicycle_parking,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓自行車停放處 18,220 處（LOCALDATA 자전거보관소）"
 krCivilDefenseWater,民防緊急給水設施 Civil Defence Emergency Water,KR,南韓,災害,custom,verified,kr_civil_defense_water,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓使用中民防緊急給水設施 5,464 處（公共用、政府支援、自治體）"
+krSeoulZoning,首爾用途地域 Seoul Zoning Districts,KR,南韓,底圖,custom,verified,kr_seoul_zoning,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。首爾用途地域 8,318 面（住宅、商業、工業、綠地等 7 大類）；data.go.kr 註含第三方權利，不入倉"
 krEmergencyBells,安全緊急鈴 Emergency Bells,KR,南韓,執法治安,custom,verified,kr_emergency_bells,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）"
 krRuralExperienceVillages,農漁村體驗休養村 Rural Experience Villages,KR,南韓,觀光,custom,verified,kr_rural_experience_villages,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）"
 krSlaughterhouses,屠宰場 Slaughterhouses,KR,南韓,農業,custom,verified,kr_slaughterhouses,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,南韓營業中屠宰場 111 處（LOCALDATA 도축업）
