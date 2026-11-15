@@ -102,14 +102,14 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 
 ### 6.2 綜合網格 `soundComposite`
 
-- 規則見 MODEL_DECISIONS §10。Worker 的 `composite(bin, gate)` 用同一個 10 分格的七幀算甲乙兩版（`compositeFrames`），一次回兩張；切版本只換色表與幀，不重算。
+- 規則見 MODEL_DECISIONS §10。Worker 的 `composite(bin, gate)` 用同一個 10 分格的七幀算三種呈現方式（`compositeFrames`：主因、活躍種數、綜合指數＋七族分級打包），一次回齊；切換只換色表與幀，不重算（§6.5）。
 - 開綜合不必開七個單族圖層：`soundAtlasHost` 把七族當背景族交給 `useSoundAtlasLayer` 載入；七族都載完、飛機包抓完才請求。
-- 色：靛藍單一色相、越深越多（`SOUND_COMPOSITE_A_COLORS`、`SOUND_COMPOSITE_B_RAMP`），和七族色分開；255 斜線同其他網格。
+- 色：活躍種數與綜合指數用靛藍單一色相、越深越多（`SOUND_COMPOSITE_A_COLORS`、`SOUND_COMPOSITE_B_RAMP`）；主因用共用類別色盤（`SOUND_COMPOSITE_C_CATEGORICAL_INDEX`）；255 斜線同其他網格。
 
 ### 6.3 點選查詢
 
 - 一個工具（面板「點選查詢：開／關」）：開著時點地圖任一處＝放／移接收點。點擊仲裁在 `useMapInteraction`：畫路線 > 點選查詢 > 其他 popup。
-- 面板列：此刻前 5 個來源（原本）、**此格網格值**（綜合甲乙＋七族各一列，展開是原本的格子 popup 內容）、來源健康、路線、24 小時。網格外 → 「網格範圍外」。
+- 面板列：此刻前 5 個來源（原本）、**此格網格值**（綜合一行原因＋七族各一列，展開是原本的格子 popup 內容）、來源健康、路線、24 小時。網格外 → 「網格範圍外」。
 - 關面板（X）＝關工具＋面板縮成一行，**不動圖層**（舊版 closeAll 會把十個聲景圖層全關，已修）；縮起後按「開啟點選查詢」恢復。面板內的開關只切工具、不縮面板（場景、畫路線、24 小時照常）。聲景圖層從全關到有開時，工具預設開。
 - **取捨（待使用者確認）**：工具開著時，點地圖一律放接收點，其他圖層與聲景點位的 popup 點不到；要看 popup 先把工具關掉。
 
@@ -128,13 +128,13 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 - node（Worker 核心，同資料）：鐵道冷算一幀 79–131 ms、其他族 ≤ 10 ms；第一次建場最多雨 792／風 363 ms（都在 Worker）；綜合一幀 11–14 ms。
 - **未達標**：放接收點當下約 160–190 ms、構成最長一段可到 125 ms，都在主執行緒（不是網格計算）；要再降需把 24h 構成與當下查詢也搬進 Worker（Worker 已有七族資料，但雷、垃圾車、施工不在 Worker），未做。
 
-### 6.5 選定甲、乙或丙之後要移除什麼（PREVIEW 清單）
+### 6.5 三種呈現方式都保留（W6-10，2026-11-16）
 
-> W6-8 加了丙「主因」（`?soundComposite=c`）。下列「沒選的那版」對丙指：`compositeGrid.ts` 的 top／codeC／`decodeCompositeC`／`COMPOSITE_C_LEVELS`、`compositeFrames` 的 `c` 輸出、Worker `composite` 回傳的 `c`、`soundAtlasColors.ts` 的 `SOUND_COMPOSITE_C_*`（含 `SOUND_COMPOSITE_C_CATEGORICAL_INDEX`）、調色盤與圖例的丙分支、三語 `soundAtlas.composite.previewC` 與 `legend.soundAtlas.compositeCDepth`、`compositeGrid.test.ts` 的丙題。**滑過提示與面板原因（`compositeReason`、七族分級打包 `lv`、`compositeFrameRef`）不論選哪版都保留**，只把它的 variant 參數固定成選定的那版；`compositeFrameRef` 目前寫在 `compositePreview.ts`，刪該檔前先搬到 `compositeGrid` 旁。
+> 原本這節是「選定一版後要移除什麼」的清單；2026-11-16 使用者決定三種都保留、做成切換，清單作廢。現況：
 
-1. 刪 `src/sound/grid/compositePreview.ts`；`useSoundCompositeGridLayer.ts`、`SoundCellSection.tsx`、`soundAtlasLegends.tsx` 的 `compositePreviewStore` 改成固定版本。
-2. 刪 `src/components/sound/SoundCompositePreviewBar.tsx` 與 `App.tsx` 的 lazy import＋掛載（標 PREVIEW）。
-3. `App.tsx` 網址同步保留 `?soundComposite=a|b|c` 的兩行（標 PREVIEW）。
-4. 沒選的那版：`compositeGrid.ts` 的 codeA 或 codeB／index、`soundProfiles.COMPOSITE` 的對應常數（甲：activeMinLevel、levelCuts；乙：weights、minKnownWeightShare、displayMaxIndex）、`soundAtlasColors.ts` 的對應色表、Worker `composite` 回傳的另一張、三語 i18n（`soundAtlas.composite.preview*`、`unknownShare`、`legend.soundAtlas.compositeA*`／`compositeB*`）、圖例分支、`compositeGrid.test.ts` 對應題。
-5. MODEL_DECISIONS §10 改成「已選定」並刪掉沒選的那節；manifest `soundComposite` 的 qualifier「推估・預覽」、description、processing／source 說明改寫；en／ja `layers.json` 的「(Preview)／（プレビュー）」、`layer-status.csv` 的標籤一起改；改完重跑 `dump-layer-golden.ts` 與 `design:audit-layers`。
+- **切換**：圖層展開區「呈現方式」選單＝`layerParamsSpec` 的 `soundComposite.soundCompositeMode`（select，`out: null`，值 c／a／b，預設 c＝主因）。讀取一律經 `compositeModeOf(params)`（`src/sound/grid/compositeState.ts`）；圖層 hook 由 `soundAtlasHost` 傳入，圖例與點選面板各自 `useLayerParams("soundComposite")`。
+- **網址**：`?soundComposite=a|b|c`（W6-4 起的舊連結相容）。`soundAtlasHost` 載入時套一次到參數；綜合圖層開著時切換就寫回網址；`App.tsx` 網址同步保留這個參數（主站 `p.*` 只收數字，所以另開一個）。
+- **計算不變**：Worker 照舊一次回三種碼＋七族分級打包；切換只換色表與幀，不重算。
+- **資料不足提示**：`SoundCompositeDataHint`（展開區、選單下方），綜合圖層開著且最近一幀有族是「沒有全範圍來源檔」時出現，附「看 11/09 範例」按鈕。底部預覽列（`SoundCompositePreviewBar`）與「斜線 %」已移除——斜線意義圖例已寫，提示只留一句。
+- **假設權重標示**：綜合指數的選單文字與圖例標題都是「綜合指數（假設權重）」，點選面板另有一句「權重是假設、未經校準」。
 
