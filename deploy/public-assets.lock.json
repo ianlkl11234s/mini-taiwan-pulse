@@ -741,6 +741,13 @@
    "s3_key": "deploy-assets/finance/securities_futures_institutions.geojson"
   },
   {
+   "path": "public/fire/fire_isochrone_coverage.pmtiles",
+   "bytes": 9728954,
+   "sha256": "1517575d04db57f7e417e5258f9dbe10943a778f1b156fc43a7343a3bf909852",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/fire/fire_isochrone_coverage.pmtiles"
+  },
+  {
    "path": "public/fishery/aquaculture_cage_net.geojson",
    "bytes": 20001,
    "sha256": "56966411c994bf60de060e4d828d5e21226f4080d72047a939703320f21e108e",
