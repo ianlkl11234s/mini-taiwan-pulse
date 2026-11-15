@@ -1692,7 +1692,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   },
   // ───────────── 第 11 波（2026-11-10）：IEADD-1 補做 ─────────────
   {
-    key: "ieDefibrillators", file: "ie_defibrillators.pmtiles", sourceLayer: "ie_defibrillators", geom: "point", layerId: "ie-defibrillators-circle",
+    key: "ieDefibrillators", file: "ie_defibrillators_v2.pmtiles", sourceLayer: "ie_defibrillators", geom: "point", layerId: "ie-defibrillators-circle",
     srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#ef4444", tier: "S", count: 2463,
     catProp: "access", cats: AED_ACCESS_CATS,
     title: { props: ["name", "location"], fallback: l3("AED", "AED (defibrillator)", "AED") },
