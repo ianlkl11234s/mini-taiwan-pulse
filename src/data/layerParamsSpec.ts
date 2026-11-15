@@ -102,6 +102,8 @@ import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
+import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phCatOptions } from "./phDataLayers";
+import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
@@ -2209,6 +2211,56 @@ export const LAYER_PARAMS_SPEC = {
       out: "ieAdminBoundariesLevelIdx", encode: ["la", "ed", "sa"],
     },
   ],
+  // 菲律賓第 0–1 波（2026-11-13）：選項順序＝`data/phDataLayers.ts` PH_ADMIN_LEVELS；行政邊界預設 region、人口預設 province（國家全覽 z5 有圖磚）
+  phAdminBoundaries: [
+    opacitySlider("phAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "phAdminBoundariesLevel", label: "行政層級", default: "region",
+      options: PH_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "phAdminBoundariesLevelIdx", encode: PH_ADMIN_LEVELS.map((x) => x.value),
+    },
+  ],
+  phPopulation: [
+    {
+      kind: "select", category: "data", name: "phPopulationLevel", label: "行政層級", default: "province",
+      options: PH_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "phPopulationLevelIdx", encode: PH_ADMIN_LEVELS.map((x) => x.value),
+    },
+    opacitySlider("phPopulationOpacity", 0.7),
+  ],
+  // 菲律賓規格驅動 8 層：類別多選（順序＝規格 cats＋「其他」＝bitmask）；電廠另有狀態多選（預設運轉中＋興建中）；加油站（≥1 萬點）加熱區顏色
+  ...Object.fromEntries(PH_DATA_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec)),
+      ...(spec.key === "phPowerPlants" ? [{
+        kind: "multiSelect" as const, name: "phPowerPlantsStatus", label: "狀態", default: serializeMultiSelectValues([...PH_PLANT_STATUS_DEFAULT]),
+        options: PH_PLANT_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: "phPowerPlantsStatusMask",
+      }] : []),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+      opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
+  // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）
+  vnAdminBoundaries: [opacitySlider("vnAdminBoundariesOpacity", 0.85)],
+  vnPopulation: [opacitySlider("vnPopulationOpacity", 0.7)],
+  // 越南規格驅動 10 層：類別多選（順序＝規格 cats＋「其他」＝bitmask）；GEM 電廠、風光、油氣另有狀態多選（預設見規格 statusDefault）
+  ...Object.fromEntries(VN_DATA_SPECS.map((spec) => {
+    const parts = [...spec.parts, ...(spec.more?.parts ?? [])];
+    const hasPoint = parts.some((p) => p.geom === "point");
+    const pointOnly = parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec)),
+      ...(spec.statusDefault ? [{
+        kind: "multiSelect" as const, name: `${spec.key}Status`, label: "狀態", default: serializeMultiSelectValues([...spec.statusDefault]),
+        options: VN_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: `${spec.key}StatusMask`,
+      }] : []),
+      opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
   // 愛爾蘭第 1 波起（2026-11-07）：規格驅動層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選、有熱區者加熱區顏色）；公園、國有登記土地的點／面切換由 repPointLayers 補
   ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
     // 第 3a 波河川淹水（NIFM）：情境 × 重現期一組一支 PMTiles，host 依 ieRiverFloodExtentsScenarioIdx 換檔（同台灣淹水情境）

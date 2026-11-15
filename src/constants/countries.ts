@@ -9,7 +9,7 @@
  */
 import { ALL_PRESETS } from "../map/cameraPresets";
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA" | "IE" | "PH" | "VN";
 
 export interface CountryCamera {
   center: [number, number];
@@ -53,6 +53,12 @@ export const CANADA_CAMERA: CountryCamera = { center: [-96, 60], zoom: 3.5, pitc
 
 /** 愛爾蘭（26 郡、31 地方政府；國家全覽 z6，map-layers §3.8 V-1；2026-11-07 愛爾蘭第 0 波）。 */
 export const IRELAND_CAMERA: CountryCamera = { center: [-8.0, 53.4], zoom: 6, pitch: 0, bearing: 0 };
+
+/** 菲律賓（18 region，Batanes 到 Tawi-Tawi；國家全覽 z5，map-layers §3.8 V-1；2026-11-13 菲律賓第 0–1 波）。 */
+export const PHILIPPINES_CAMERA: CountryCamera = { center: [121.8, 12.8], zoom: 5, pitch: 0, bearing: 0 };
+
+/** 越南（2025-07 新制 34 省；國家全覽 z5，map-layers §3.8 V-1；2026-11-13 越南第 0–1 波）。 */
+export const VIETNAM_CAMERA: CountryCamera = { center: [106.0, 16.0], zoom: 5, pitch: 0, bearing: 0 };
 
 /** 全台總覽（同 cameraPresets「全台總覽」；開站預設鏡頭 `DEFAULT_CAMERA` 仍是台北，2026-10-28 使用者要求選台灣時看全台）。 */
 const TAIWAN_CAMERA: CountryCamera = (() => {
@@ -224,6 +230,56 @@ export const COUNTRIES: readonly CountryDef[] = [
       [-10.75, 54.75, -7.47, 54.95],  // Letterkenny、Lifford、Ballybofey（東緣避開 Strabane）
       [-10.75, 54.95, -7.42, 55.05],  // Donegal 北部（東緣避開 Derry）
       [-10.75, 55.05, -6.97, 55.45],  // Inishowen（Buncrana、Moville、Malin Head）、Tory 島（東緣避開 Magilligan）
+    ],
+  },
+  {
+    code: "PH",
+    chip: "PH",
+    labelKey: "country.PH",
+    camera: PHILIPPINES_CAMERA,
+    // 2026-11-13 菲律賓第 0–1 波：外框 116.6–126.9E、4.3–21.2N（不含卡拉延群島）。外框南緣框到沙巴東北角（Sandakan），
+    // 不能只用一個框：依 OCHA COD-AB v03 的 42,048 個 barangay 代表點切矩形（卡拉延以外全中），沙巴、蘇拉威西北端、
+    // 塔勞群島以矩形邊界避開。刻意排除：卡拉延群島（Pag-asa 一帶）、黃岩島（117.76E 15.15N，呂宋矩形西緣 119.5）、
+    // 西菲律賓海與任何海域主張範圍（只判陸地與近岸）。北緣 21.2 以下，與台灣（蘭嶼 22.0N）不相鄰。
+    // 矩形近似：Turtle Islands 西側的 Lihiman、Great Bakkungan 與馬來西亞的 Selingan 等小島交錯，西緣 118.15 以西判不到。
+    bboxes: [
+      [119.5, 12.0, 124.6, 21.2],     // 呂宋、Batanes、民都洛、比科爾（西緣 119.5 避開黃岩島）
+      [117.1, 8.3, 121.2, 12.0],      // 巴拉望、Calamian、Cuyo、Tubbataha（西緣 117.1 避開卡拉延群島）
+      [121.2, 9.0, 126.2, 12.8],      // 米沙鄢（班乃、內格羅斯、宿霧、薄荷、萊特、薩馬）
+      [121.8, 5.8, 126.7, 9.9],       // 民答那峨、Basilan、Siargao（南緣 5.8；東南 Miangas 屬印尼）
+      [125.1, 5.3, 125.6, 5.8],       // Sarangani 群島（Balut；Marore 屬印尼在框外）
+      [119.25, 4.4, 121.8, 6.9],      // 蘇祿群島：Jolo、Tawi-Tawi、Sibutu（西緣 119.25 避開仙本那外島）
+      [118.3, 6.85, 118.65, 7.15],    // Cagayan de Tawi-Tawi（Mapun）
+      [118.15, 6.0, 118.55, 6.35],    // Turtle Islands（Taganak、Baguan；西緣避開 Sandakan 外海的馬來西亞島嶼）
+      [116.9, 7.45, 117.6, 8.3],      // Balabac、Bugsuk、Mangsee（南緣 7.45 避開沙巴 Banggi 島）
+    ],
+  },
+  {
+    code: "VN",
+    chip: "VN",
+    labelKey: "country.VN",
+    camera: VIETNAM_CAMERA,
+    // 2026-11-13 越南第 0–1 波：34 省面（OCHA COD-AB v02）外框 102.14–109.47E、8.41–23.39N。外框會框到海南西半（三亞）、
+    // 東興、河口、永珍、金邊，不能只用一個框：以 0.1° 格網貪婪切矩形（覆蓋越南面、懲罰 Natural Earth 的中寮柬泰陸地，
+    // 海口、三亞、東興、河口、永珍、琅勃拉邦、金邊、貢布為硬排除），越南車站、加油站、環境監測站約 99% 落在框內。
+    // 刻意排除：Hoàng Sa（西沙）、Trường Sa（南沙）與任何海域主張範圍（只判陸地與近岸島，Phú Quốc、Côn Đảo 在內）。
+    // 矩形近似：寮國 Houaphanh 一角、中越邊境北緣的中國側小片會判成越南；河口與老街（相距約 0.04°）、東興與芒街以框邊分開。
+    bboxes: [
+      [107.5, 8.2, 109.5, 16.7],      // 中南部沿海（Khánh Hòa、Gia Lai、Quảng Ngãi、Đà Nẵng 南）
+      [104.4, 18.8, 106.8, 22.9],     // 北部紅河三角洲、河內、Thanh Hóa、Nghệ An 北
+      [104.8, 8.2, 107.5, 10.9],      // 湄公河三角洲、胡志明市、Côn Đảo
+      [102.9, 20.9, 104.4, 22.5],     // 西北（Điện Biên、Sơn La、老街；北緣 22.5 避開河口）
+      [106.1, 10.9, 107.5, 12.0],     // Đồng Nai、Lâm Đồng 南
+      [105.6, 17.5, 107.9, 21.6],     // 北中部沿海、海防（東緣 107.9 避開東興）
+      [106.6, 16.4, 107.5, 21.7],     // Quảng Trị、Huế 北
+      [105.1, 18.3, 105.6, 23.4],     // Nghệ An 西到河江北端（Lũng Cú）
+      [102.4, 21.9, 103.9, 22.6],     // Lai Châu、Điện Biên 北（東緣 103.9 避開河口）
+      [106.3, 17.0, 107.0, 21.9],     // Quảng Bình 到 Lạng Sơn
+      [104.1, 19.1, 104.4, 19.7],     // Nghệ An 西部
+      [103.8, 8.2, 104.8, 10.5],      // 金甌、Phú Quốc（北緣 10.5 避開貢布）
+      [107.3, 15.5, 108.1, 21.5],     // Huế、Đà Nẵng、廣寧
+      [107.1, 8.2, 107.5, 12.3],      // Đồng Nai、Lâm Đồng 東
+      [107.6, 21.2, 108.1, 21.54],    // 芒街（Móng Cái；北緣 21.54 避開東興 21.547）
     ],
   },
 ];

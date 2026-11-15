@@ -14,5 +14,10 @@
   "popup.jpMedical.purposeText": "行政計画上の境界であり、施設のサービス範囲やリアルタイムの受診圏ではありません",
   "popup.jpMedical.geometryGrain": "ジオメトリの粒度",
   "popup.jpMedical.geometryGrainText": "出典のポリゴンパーツ単位です。人口・面積・圏域数の合算には使えません",
-  "popup.jpMedical.sourceFields": "出典フィールド"
+  "popup.jpMedical.sourceFields": "出典フィールド",
+  "popup.jpMedical.secondaryArea": "所属する二次医療圏",
+  "popup.jpMedical.areaMunicipalities": "圏内の市区町村",
+  "popup.jpMedical.populationTotal": "医療圏の総人口（住民基本台帳）",
+  "popup.jpMedical.population65": "65歳以上人口（住民基本台帳）",
+  "popup.jpMedical.prefecture": "都道府県"
 }

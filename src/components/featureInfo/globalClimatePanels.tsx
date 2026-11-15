@@ -1,4 +1,5 @@
 import { Row } from "./shared";
+import { displayCountryCode } from "../../data/countryCodeFips";
 import { localeStore, useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { useFeatureTheme } from "./featureTheme";
@@ -234,7 +235,8 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
     } catch { /* Missing/invalid evidence links are not replaced with invented sources. */ }
   }
   const placeParts = [...new Set(
-    [props.place_name, props.admin2, props.admin1, props.country_code]
+    [props.place_name, props.admin2, props.admin1,
+      displayCountryCode(typeof props.country_code === "string" ? props.country_code : null, typeof props.country_code_scheme === "string" ? props.country_code_scheme : null)]
       .filter((value): value is string => typeof value === "string" && value.length > 0),
   )];
   return (

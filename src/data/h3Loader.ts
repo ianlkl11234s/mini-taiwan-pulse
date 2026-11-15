@@ -240,10 +240,30 @@ export async function loadH3SpatialEconomy(resolution: number): Promise<SpatialE
 // ── H3 Demographics Yearly（static-rpc 快照）──
 
 /**
+ * 實際要讀的解析度：res8 只有 104–108 年（109 年起沒有 res8 快照），拉近到 res8 時若年份清單沒有
+ * 該年 res8、但有 res7，就改讀 res7，避免每次打不存在的檔（404）並在右上角顯示「Failed to load」，
+ * 也避免歷史模式拉近後網格整片消失（VPB-3：歷史模式預設 113 年打 `…_113_r8.json` 回 404）。
+ * 年份清單讀不到時照原解析度讀，不猜。
+ */
+export function pickDemographicsYearlyResolution(
+  available: readonly { year: number; resolution: number }[] | null,
+  year: number,
+  resolution: number,
+): number {
+  if (!available || available.length === 0) return resolution;
+  const has = (r: number) => available.some((row) => row.year === year && row.resolution === r);
+  if (has(resolution)) return resolution;
+  for (let r = resolution - 1; r >= 7; r--) if (has(r)) return r;
+  return resolution;
+}
+
+let demographicsYearsPromise: Promise<{ year: number; resolution: number; cell_count: number }[]> | null = null;
+
+/**
  * Load H3 demographics for a specific year + resolution.
  * 2026-11-10 起讀靜態快照 `/static-rpc/get_h3_demographics_yearly_<年>_r<解析度>.json`
  *（內容＝RPC get_h3_demographics_yearly 原樣、**全量**；舊 RPC 經 PostgREST 會被截在 2 萬列，
- * res8 每年約 5.6 萬格只畫出一部分，使用者同意改為完整）。沒有該年／解析度的檔（例 res8 109 年起）→ 空陣列。
+ * res8 每年約 5.6 萬格只畫出一部分，使用者同意改為完整）。該年沒有所要解析度時改讀較粗一級（見上）。
  */
 export async function loadH3DemographicsYearly(
   year: number,
@@ -253,10 +273,19 @@ export async function loadH3DemographicsYearly(
   const cached = demographicsYearlyCache.get(cacheKey);
   if (cached) return cached;
 
+  demographicsYearsPromise ??= loadH3DemographicsYears();
+  const effectiveRes = pickDemographicsYearlyResolution(await demographicsYearsPromise, year, resolution);
+  const effectiveKey = `${effectiveRes}-${year}`;
+  const reused = demographicsYearlyCache.get(effectiveKey);
+  if (reused) {
+    demographicsYearlyCache.set(cacheKey, reused);
+    return reused;
+  }
+
   const { data, error } = await withLoading(
-    `h3-demo:${year}:r${resolution}`,
+    `h3-demo:${year}:r${effectiveRes}`,
     `H3 人口 ${year}`,
-    staticRpcFile<DemographicH3CellData[]>(`/static-rpc/get_h3_demographics_yearly_${year}_r${resolution}.json`),
+    staticRpcFile<DemographicH3CellData[]>(`/static-rpc/get_h3_demographics_yearly_${year}_r${effectiveRes}.json`),
   );
   if (error) {
     // 404＝該年／解析度沒有資料（RPC 時代回空陣列），其他錯誤照樣 warn
@@ -264,8 +293,10 @@ export async function loadH3DemographicsYearly(
     return [];
   }
   const cells = (data ?? []) as DemographicH3CellData[];
+  demographicsYearlyCache.set(effectiveKey, cells);
   demographicsYearlyCache.set(cacheKey, cells);
-  console.log(`[H3-DemoYearly] year=${year} res=${resolution}: ${cells.length} cells`);
+  const suffix = effectiveRes === resolution ? "" : ` (fallback from res${resolution})`;
+  console.log(`[H3-DemoYearly] year=${year} res=${effectiveRes}${suffix}: ${cells.length} cells`);
   return cells;
 }
 

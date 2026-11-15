@@ -28,10 +28,11 @@ const county = (value: unknown, i18n: LocaleSnapshot): string =>
 
 interface Point { t: number; v: number }
 
-export function TrendChart({ points, color, unit }: { points: Point[]; color: string; unit: string }) {
+/** `leftPad`：Y 軸數字的留白（預設 40，七位數以上的值要加寬，否則左邊被裁掉）。 */
+export function TrendChart({ points, color, unit, leftPad = 40 }: { points: Point[]; color: string; unit: string; leftPad?: number }) {
   const theme = useFeatureTheme();
   const { formatNumber } = useLocale();
-  const W = 280, H = 130, L = 40, R = 14, T = 8, B = 20;
+  const W = 280, H = 130, L = leftPad, R = 14, T = 8, B = 20;
   const view = useMemo(() => {
     if (points.length === 0) return null;
     const t0 = points[0]!.t, t1 = points[points.length - 1]!.t;
@@ -48,7 +49,7 @@ export function TrendChart({ points, color, unit }: { points: Point[]; color: st
     for (let yr = y0 + 1; yr <= y1; yr++) if (yr % step === 0) years.push(yr);
     const path = points.map((p, i) => `${i === 0 ? "M" : "L"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ");
     return { x, y, vMin, vMax, years, path };
-  }, [points]);
+  }, [points, L]);
   if (!view) return null;
   const fmt = (v: number) => formatNumber(v, { maximumFractionDigits: Math.abs(view.vMax - view.vMin) < 10 ? 1 : 0 });
   return (

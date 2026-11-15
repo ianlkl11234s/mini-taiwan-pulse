@@ -21,7 +21,7 @@
   "popup.transitReach.hoursMinutes": "{h} 時間 {m} 分",
   "popup.transitReach.popWan": "{n} 万人",
   "popup.transitReach.popPeople": "{n} 人",
-  "popup.transitReach.source": "OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、TDX 交通データ；taipei-gis-analytics 交通アクセス推計",
+  "popup.transitReach.source": "OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、TDX 交通データ；本サイトによる交通アクセス推計",
   "popup.transitReach.allModes": "全交通手段",
   "popup.transitReach.driveOnlyHeader": "車のみ（比較）",
   "popup.transitReach.reach1h": "1 時間以内の到達人口",

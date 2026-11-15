@@ -27,6 +27,7 @@
   "statistics.coverageStatus": "覆蓋狀態",
   "statistics.coverageStatusAgri": "整份資料覆蓋狀態",
   "statistics.coverageLine": "{label}：{status}（{numerator}／{denominator} {area}）；未分配 {unallocated}",
+  "statistics.coverageLineCategorical": "{label}：{status}（{numerator}／{denominator} {area}）",
   "statistics.area.livestockTownshipRows": "鄉鎮×畜種資料筆",
   "statistics.tuple.livestockTownship": "鄉鎮統計值",
   "statistics.tuple.region": "區域統計值",

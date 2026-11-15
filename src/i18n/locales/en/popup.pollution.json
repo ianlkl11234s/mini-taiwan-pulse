@@ -1,4 +1,5 @@
 {
+  "popup.pollution.penaltySourceOrg": "Ministry of Environment open data platform (penalties on regulated pollution sources)",
   "popup.pollution.maxSeverity": "Highest severity",
   "popup.pollution.facilityNote": "Pollution potential inferred from \"environmentally regulated entities\" × penalty records; being regulated does not mean polluting.",
   "popup.pollution.penalized": "Penalized entity",

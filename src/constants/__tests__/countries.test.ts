@@ -127,8 +127,58 @@ describe("countries", () => {
     ["Achill 島", -10.0, 53.96, "IE"],
     ["Inis Mór（Aran）", -9.71, 53.12, "IE"],
     ["Mizen Head", -9.82, 51.45, "IE"],
+    // 菲律賓（2026-11-13 第 0–1 波；FRONTEND_SPEC 城市樣本）
+    ["Manila", 120.9842, 14.5995, "PH"],
+    ["Cebu City", 123.8854, 10.3157, "PH"],
+    ["Davao City", 125.6128, 7.0731, "PH"],
+    ["Basco（Batanes）", 121.9702, 20.4487, "PH"],
+    ["Itbayat", 121.8418, 20.7867, "PH"],
+    ["Jolo（Sulu）", 121.0019, 6.0535, "PH"],
+    ["Bongao（Tawi-Tawi）", 119.7731, 5.0292, "PH"],
+    ["Puerto Princesa", 118.7384, 9.7392, "PH"],
+    ["Balabac", 117.05, 7.98, "PH"],
+    ["Taganak（Turtle Islands）", 118.31, 6.08, "PH"],
+    ["Mapun", 118.52, 6.98, "PH"],
+    ["Sibutu", 119.45, 4.76, "PH"],
+    ["Balut 島", 125.38, 5.4, "PH"],
+    ["Laoag", 120.59, 18.2, "PH"],
+    ["Catarman", 124.64, 12.5, "PH"],
+    // 越南（2026-11-13 第 0–1 波；FRONTEND_SPEC §1 城市樣本＋邊境）
+    ["Hà Nội", 105.8342, 21.0278, "VN"],
+    ["TP Hồ Chí Minh", 106.7009, 10.7769, "VN"],
+    ["Đà Nẵng", 108.2022, 16.0544, "VN"],
+    ["Hải Phòng", 106.6881, 20.8449, "VN"],
+    ["Huế", 107.5909, 16.4637, "VN"],
+    ["Cần Thơ", 105.7469, 10.0452, "VN"],
+    ["Lào Cai", 103.9707, 22.4856, "VN"],
+    ["Phú Quốc（島）", 103.984, 10.227, "VN"],
+    ["Côn Đảo（島）", 106.606, 8.683, "VN"],
+    ["Cà Mau", 105.1524, 9.1769, "VN"],
+    ["Móng Cái", 107.96, 21.52, "VN"],
+    ["Lũng Cú（最北端）", 105.32, 23.36, "VN"],
   ] as const)("%s → %s", (_name, lng, lat, code) => {
     expect(countryForPoint(lng, lat)).toBe(code);
+  });
+
+  it.each([
+    ["蘭嶼", 121.548, 22.045],
+    ["高雄", 120.3014, 22.6273],
+    ["Sandakan", 118.073, 5.8402],
+    ["Kota Kinabalu", 116.0735, 5.9804],
+    ["Manado", 124.8421, 1.4748],
+  ] as const)("%s 不判為菲律賓", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).not.toBe("PH");
+  });
+
+  it("菲律賓矩形北緣不超過 21.2、不與台灣矩形重疊", () => {
+    const ph = COUNTRIES.find((c) => c.code === "PH")!.bboxes;
+    const tw = COUNTRIES.find((c) => c.code === "TW")!.bboxes;
+    for (const [w1, s1, e1, n1] of ph) {
+      expect(n1).toBeLessThanOrEqual(21.2);
+      for (const [w2, s2, e2, n2] of tw) {
+        expect(w1 < e2 && w2 < e1 && s1 < n2 && s2 < n1, `PH ${[w1, s1, e1, n1]} × TW ${[w2, s2, e2, n2]}`).toBe(false);
+      }
+    }
   });
 
   it("愛爾蘭矩形與英國（北愛）矩形互不重疊（只可共用邊）", () => {
@@ -189,6 +239,31 @@ describe("countries", () => {
     ["St Peter Port（根西）", -2.54, 49.46],
     ["Alderney", -2.2, 49.71],
     ["Tórshavn（法羅群島）", -6.77, 62.01],
+    ["Kota Kinabalu（馬來西亞）", 116.0735, 5.9804],
+    ["Sandakan（馬來西亞，在菲律賓外框內）", 118.073, 5.8402],
+    ["Kudat（馬來西亞）", 116.84, 6.88],
+    ["Banggi 島北端（馬來西亞）", 117.1, 7.3],
+    ["Semporna（馬來西亞）", 118.61, 4.48],
+    ["Mataking 島（馬來西亞）", 118.95, 4.58],
+    ["Lahad Datu（馬來西亞）", 118.33, 5.03],
+    ["Selingan 島（馬來西亞）", 118.06, 6.18],
+    ["Manado（印尼）", 124.8421, 1.4748],
+    ["Miangas（印尼）", 126.59, 5.56],
+    ["Marore（印尼）", 125.47, 4.73],
+    ["黃岩島", 117.76, 15.15],
+    // 越南外框內的鄰國城市（FRONTEND_SPEC §1；國界面判定為非越南）與南海島礁
+    ["海口 Haikou", 110.3312, 20.0311],
+    ["三亞 Sanya（海南西半在越南外框內）", 109.5119, 18.2528],
+    ["東興 Dongxing（距國界約 0.7 km）", 107.972, 21.547],
+    ["河口 Hekou（距國界約 0.4 km）", 103.9393, 22.5296],
+    ["Vientiane（寮國）", 102.6331, 17.9757],
+    ["Luang Prabang（寮國）", 102.1347, 19.8856],
+    ["Phnom Penh（柬埔寨）", 104.9282, 11.5564],
+    ["Kampot（柬埔寨）", 104.181, 10.6104],
+    ["西沙 Hoàng Sa（永興島一帶）", 112.33, 16.83],
+    ["南沙 Trường Sa（太平島一帶）", 114.36, 10.38],
+    ["南沙 Trường Sa 西南礁群", 111.92, 8.64],
+    ["Pag-asa（卡拉延群島）", 114.28, 11.05],
     ["太平洋", 150, 20],
   ] as const)("%s 不屬於任何國家（鄰國或爭議海域）", (_name, lng, lat) => {
     expect(countryForPoint(lng, lat)).toBeUndefined();

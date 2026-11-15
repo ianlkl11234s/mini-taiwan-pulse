@@ -28,7 +28,7 @@ import { dataDotUnit, dotTotal } from '../../map/statisticsDots';
 import { CompareStatisticsLegend, type StatisticsLegendPart } from '../compare/CompareStatisticsLegend';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
 import { enumLabel } from '../../i18n/dataText';
-import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsLocationBasis, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
+import { STATISTICS_CATEGORY_CODE_UNIT, boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsLocationBasis, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
 import { unparseableStatisticsReleaseCount } from '../../data/statisticsSelection';
 import { localeStore, useLocale, type LocaleSnapshot } from '../../state/localeStore';
 import type { MessageKey } from '../../i18n/keys';
@@ -62,7 +62,9 @@ export function statisticsSelectedTupleAreaLabel(recipe: Pick<StatisticsRecipe, 
 }
 /** 覆蓋狀態整行（圖例與說明框共用） */
 function coverageLine(health: NonNullable<ReturnType<typeof useStatisticsSnapshot>['health']>, isAgri: boolean, recipe: Pick<StatisticsRecipe, 'level'> & { unit: string }, i18n: LocaleSnapshot): string {
-  return i18n.t('statistics.coverageLine', {
+  // 類別型（最高黨等，單位＝類別碼）把類別碼加總成「未分配」沒有意義，不顯示該段（VPB-4：英文出現 "unallocated 0 category code"）
+  const categorical = String(health.currency ?? recipe.unit) === STATISTICS_CATEGORY_CODE_UNIT;
+  return i18n.t(categorical ? 'statistics.coverageLineCategorical' : 'statistics.coverageLine', {
     label: statisticsCoverageStatusLabel(isAgri, i18n), status: String(health.coverage_status),
     numerator: String(health.coverage_numerator ?? '—'), denominator: String(health.coverage_denominator ?? '—'),
     area: statisticsCoverageAreaLabel(recipe, i18n),

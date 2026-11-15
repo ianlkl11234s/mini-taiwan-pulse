@@ -14,5 +14,10 @@
   "popup.jpMedical.purposeText": "Administrative planning boundaries; not facility service areas or real-time care-access zones",
   "popup.jpMedical.geometryGrain": "Geometry granularity",
   "popup.jpMedical.geometryGrainText": "Source polygon parts; do not sum population, area or number of areas from them",
-  "popup.jpMedical.sourceFields": "Source fields"
+  "popup.jpMedical.sourceFields": "Source fields",
+  "popup.jpMedical.secondaryArea": "Secondary medical area",
+  "popup.jpMedical.areaMunicipalities": "Municipalities in the area",
+  "popup.jpMedical.populationTotal": "Population of the area (resident register)",
+  "popup.jpMedical.population65": "Aged 65+ (resident register)",
+  "popup.jpMedical.prefecture": "Prefecture"
 }

@@ -88,17 +88,18 @@ export function FreewayTdcsSimLegend() {
     height: 20, padding: "0 6px", borderRadius: RADIUS.md, cursor: "pointer",
     border: `1px solid ${theme.border}`, background: theme.bgSubtle, color: theme.textDefault, fontSize: FONT_SIZE.xs,
   } as const;
+  // 時段外提示：說明文字至少 160px 寬，放不下時按鈕換到下一行（英文長句曾被擠成窄欄，VPB-5）
   const jump = () => {
     const D = freewayTdcsData();
     requestTimelineJump((D?.dayStartUnix ?? DAY_START_UNIX) + (D?.winStart ?? FREEWAY_TDCS_SIM_DEFAULT_WINDOW[0]));
   };
   return <div>
-    <LegendTitle zh="雙北國道逐車模擬" en="Freeway Vehicles (Estimated)" />
+    <LegendTitle zh={t("legend.freewayTdcsSim.title")} en="Freeway Vehicles (Estimated)" />
     {status.state === "error" && <LegendRow swatch={<SwatchHatch />}>{t("legend.freewayTdcsSim.loadError")}</LegendRow>}
     {status.state === "loading" && <LegendNote>{t("legend.freewayTdcsSim.loading")}</LegendNote>}
     <LegendNote>{t("legend.freewayTdcsSim.dataWindow")}</LegendNote>
-    {!inWindow && <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginTop: 4 }}>
-      <span style={{ fontSize: FONT_SIZE.sm, color: theme.textMuted }}>{t("legend.freewayTdcsSim.outsideWindow")}</span>
+    {!inWindow && <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 6, marginTop: 4 }}>
+      <span style={{ flex: "1 1 160px", fontSize: FONT_SIZE.sm, color: theme.textMuted }}>{t("legend.freewayTdcsSim.outsideWindow")}</span>
       <button
         type="button"
         onClick={jump}

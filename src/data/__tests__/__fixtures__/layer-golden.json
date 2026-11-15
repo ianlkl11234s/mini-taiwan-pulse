@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1817,
+    "keyCount": 1842,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2844,6 +2844,182 @@
         "ie-admin-la-fill"
       ],
       "type": "ieAdminBoundaries"
+    },
+    {
+      "layers": [
+        "ph-urban-rail-stations-circle",
+        "ph-urban-rail-line"
+      ],
+      "type": "phUrbanRail"
+    },
+    {
+      "layers": [
+        "ph-bus-stops-circle"
+      ],
+      "type": "phBusStops"
+    },
+    {
+      "layers": [
+        "ph-expressways-line"
+      ],
+      "type": "phExpressways"
+    },
+    {
+      "layers": [
+        "ph-transport-hubs-circle"
+      ],
+      "type": "phTransportHubs"
+    },
+    {
+      "layers": [
+        "ph-stations-circle"
+      ],
+      "type": "phStations"
+    },
+    {
+      "layers": [
+        "ph-power-plants-circle"
+      ],
+      "type": "phPowerPlants"
+    },
+    {
+      "layers": [
+        "ph-power-substations-circle",
+        "ph-power-lines-line",
+        "ph-power-cables-line"
+      ],
+      "type": "phPowerGrid"
+    },
+    {
+      "layers": [
+        "ph-renewables-circle"
+      ],
+      "type": "phRenewables"
+    },
+    {
+      "layers": [
+        "ph-fuel-stations-circle"
+      ],
+      "type": "phFuelStations"
+    },
+    {
+      "layers": [
+        "ph-tanks-circle",
+        "ph-pipelines-line"
+      ],
+      "type": "phPipelines"
+    },
+    {
+      "layers": [
+        "ph-major-roads-line",
+        "ph-major-rail-line"
+      ],
+      "type": "phMajorRoads"
+    },
+    {
+      "layers": [
+        "ph-population-barangay-fill",
+        "ph-population-municipality-fill",
+        "ph-population-province-fill",
+        "ph-population-region-fill"
+      ],
+      "type": "phPopulation"
+    },
+    {
+      "layers": [
+        "ph-admin-barangay-fill",
+        "ph-admin-municipality-fill",
+        "ph-admin-province-fill",
+        "ph-admin-region-fill"
+      ],
+      "type": "phAdminBoundaries"
+    },
+    {
+      "layers": [
+        "vn-airports-circle",
+        "vn-ports-circle",
+        "vn-airports-osm-circle"
+      ],
+      "type": "vnTransportHubs"
+    },
+    {
+      "layers": [
+        "vn-stations-circle"
+      ],
+      "type": "vnStations"
+    },
+    {
+      "layers": [
+        "vn-power-plants-circle"
+      ],
+      "type": "vnPowerPlants"
+    },
+    {
+      "layers": [
+        "vn-renewables-wind-solar-circle",
+        "vn-renewables-solar-tz-circle",
+        "vn-charging-circle"
+      ],
+      "type": "vnRenewables"
+    },
+    {
+      "layers": [
+        "vn-power-substations-circle",
+        "vn-power-lines-line",
+        "vn-power-cables-line"
+      ],
+      "type": "vnPowerGrid"
+    },
+    {
+      "layers": [
+        "vn-fuel-stations-circle"
+      ],
+      "type": "vnFuelStations"
+    },
+    {
+      "layers": [
+        "vn-lng-terminals-circle",
+        "vn-coal-terminals-circle",
+        "vn-refineries-circle",
+        "vn-tanks-circle",
+        "vn-pipelines-gem-line",
+        "vn-pipelines-osm-line"
+      ],
+      "type": "vnOilGas"
+    },
+    {
+      "layers": [
+        "vn-envisoft-stations-circle"
+      ],
+      "type": "vnEnvisoftStations"
+    },
+    {
+      "layers": [
+        "vn-angiang-flood-circle",
+        "vn-angiang-clusters-outline",
+        "vn-angiang-clusters-fill"
+      ],
+      "type": "vnAngiangDemo"
+    },
+    {
+      "layers": [
+        "vn-major-roads-line",
+        "vn-major-rail-line",
+        "vn-major-rail-construction-line"
+      ],
+      "type": "vnMajorRoads"
+    },
+    {
+      "layers": [
+        "vn-population-province-fill"
+      ],
+      "type": "vnPopulation"
+    },
+    {
+      "layers": [
+        "vn-admin-province-fill"
+      ],
+      "type": "vnAdminBoundaries"
     },
     {
       "layers": [
@@ -15710,10 +15886,10 @@
                           "scale_tier"
                         ],
                         "L",
-                        9,
+                        10,
                         "M",
-                        6,
-                        4
+                        8,
+                        6.5
                       ],
                       [
                         "case",
@@ -15729,7 +15905,7 @@
                           ],
                           1
                         ],
-                        0.7,
+                        1,
                         1
                       ],
                       1
@@ -15765,10 +15941,10 @@
                           "scale_tier"
                         ],
                         "L",
-                        9,
+                        10,
                         "M",
-                        6,
-                        4
+                        8,
+                        6.5
                       ],
                       [
                         "case",
@@ -15784,7 +15960,7 @@
                           ],
                           1
                         ],
-                        0.7,
+                        1,
                         1
                       ],
                       1
@@ -15911,10 +16087,10 @@
                           "scale_tier"
                         ],
                         "L",
-                        9,
+                        10,
                         "M",
-                        6,
-                        4
+                        8,
+                        6.5
                       ],
                       [
                         "case",
@@ -15930,7 +16106,7 @@
                           ],
                           1
                         ],
-                        0.7,
+                        1,
                         1
                       ],
                       1
@@ -15966,10 +16142,10 @@
                           "scale_tier"
                         ],
                         "L",
-                        9,
+                        10,
                         "M",
-                        6,
-                        4
+                        8,
+                        6.5
                       ],
                       [
                         "case",
@@ -15985,7 +16161,7 @@
                           ],
                           1
                         ],
-                        0.7,
+                        1,
                         1
                       ],
                       1
@@ -16150,7 +16326,7 @@
                   ],
                   1
                 ],
-                0.315,
+                0.54,
                 0.9
               ],
               "circle-radius": [
@@ -16173,10 +16349,10 @@
                         "scale_tier"
                       ],
                       "L",
-                      9,
+                      10,
                       "M",
-                      6,
-                      4
+                      8,
+                      6.5
                     ],
                     [
                       "case",
@@ -16192,7 +16368,7 @@
                         ],
                         1
                       ],
-                      0.7,
+                      1,
                       1
                     ],
                     1
@@ -16211,10 +16387,10 @@
                         "scale_tier"
                       ],
                       "L",
-                      9,
+                      10,
                       "M",
-                      6,
-                      4
+                      8,
+                      6.5
                     ],
                     [
                       "case",
@@ -16230,7 +16406,7 @@
                         ],
                         1
                       ],
-                      0.7,
+                      1,
                       1
                     ],
                     1
@@ -16286,7 +16462,7 @@
                   ],
                   1
                 ],
-                0.315,
+                0.54,
                 0.8
               ],
               "circle-stroke-width": [
@@ -16355,7 +16531,7 @@
                   ],
                   1
                 ],
-                0.315,
+                0.54,
                 0.9
               ],
               "circle-radius": [
@@ -16378,10 +16554,10 @@
                         "scale_tier"
                       ],
                       "L",
-                      9,
+                      10,
                       "M",
-                      6,
-                      4
+                      8,
+                      6.5
                     ],
                     [
                       "case",
@@ -16397,7 +16573,7 @@
                         ],
                         1
                       ],
-                      0.7,
+                      1,
                       1
                     ],
                     1
@@ -16416,10 +16592,10 @@
                         "scale_tier"
                       ],
                       "L",
-                      9,
+                      10,
                       "M",
-                      6,
-                      4
+                      8,
+                      6.5
                     ],
                     [
                       "case",
@@ -16435,7 +16611,7 @@
                         ],
                         1
                       ],
-                      0.7,
+                      1,
                       1
                     ],
                     1
@@ -16491,7 +16667,7 @@
                   ],
                   1
                 ],
-                0.315,
+                0.54,
                 0.9
               ],
               "circle-stroke-width": [
@@ -16548,9 +16724,9 @@
                   "zoom"
                 ],
                 6,
-                0.8,
+                1.04,
                 12,
-                1.15
+                1.4949999999999999
               ],
               "symbol-sort-key": [
                 "-",
@@ -16581,9 +16757,9 @@
                   "zoom"
                 ],
                 6,
-                0.8,
+                1.04,
                 12,
-                1.15
+                1.4949999999999999
               ],
               "symbol-sort-key": [
                 "-",
@@ -150057,6 +150233,780 @@
         "valueText": "1.00"
       }
     ],
+    "phAdminBoundaries": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "區域（Region，18）",
+            "value": "region"
+          },
+          {
+            "label": "省（Province，82 省＋6 個非省單位）",
+            "value": "province"
+          },
+          {
+            "label": "市鎮（City／Municipality，1,642）",
+            "value": "municipality"
+          },
+          {
+            "label": "村里（Barangay，42,048）",
+            "value": "barangay"
+          }
+        ],
+        "type": "select",
+        "value": "region"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "phBusStops": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公車站",
+            "value": "named"
+          },
+          {
+            "label": "公車站（OSM 未標站名）",
+            "value": "unnamed"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "named",
+          "unnamed"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phExpressways": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "收費（OSM toll=yes）",
+            "value": "toll"
+          },
+          {
+            "label": "不收費（OSM toll=no）",
+            "value": "free"
+          },
+          {
+            "label": "未標示是否收費（不等於免費）",
+            "value": "untagged"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "toll",
+          "free",
+          "untagged"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "phFuelStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Petron",
+            "value": "petron"
+          },
+          {
+            "label": "Shell",
+            "value": "shell"
+          },
+          {
+            "label": "Caltex",
+            "value": "caltex"
+          },
+          {
+            "label": "Seaoil",
+            "value": "seaoil"
+          },
+          {
+            "label": "Phoenix",
+            "value": "phoenix"
+          },
+          {
+            "label": "Flying V",
+            "value": "flying_v"
+          },
+          {
+            "label": "TotalEnergies",
+            "value": "total"
+          },
+          {
+            "label": "PTT",
+            "value": "ptt"
+          },
+          {
+            "label": "其他／未知品牌",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "petron",
+          "shell",
+          "caltex",
+          "seaoil",
+          "phoenix",
+          "flying_v",
+          "total",
+          "ptt",
+          "other_brand"
+        ]
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phMajorRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（motorway）",
+            "value": "motorway"
+          },
+          {
+            "label": "幹道（trunk）",
+            "value": "trunk"
+          },
+          {
+            "label": "主要道路（primary）",
+            "value": "primary"
+          },
+          {
+            "label": "鐵道",
+            "value": "rail"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "trunk",
+          "primary",
+          "rail"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "phPipelines": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "油氣",
+            "value": "oil_gas"
+          },
+          {
+            "label": "水",
+            "value": "water"
+          },
+          {
+            "label": "污水",
+            "value": "wastewater"
+          },
+          {
+            "label": "地熱蒸汽、熱水",
+            "value": "geothermal"
+          },
+          {
+            "label": "其他（水泥、電線等）",
+            "value": "other"
+          },
+          {
+            "label": "未標示內容物",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "oil_gas",
+          "water",
+          "wastewater",
+          "geothermal",
+          "other",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phPopulation": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "區域（Region，18）",
+            "value": "region"
+          },
+          {
+            "label": "省（Province，82 省＋6 個非省單位）",
+            "value": "province"
+          },
+          {
+            "label": "市鎮（City／Municipality，1,642）",
+            "value": "municipality"
+          },
+          {
+            "label": "村里（Barangay，42,048）",
+            "value": "barangay"
+          }
+        ],
+        "type": "select",
+        "value": "province"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "phPowerGrid": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "500 kV 以上",
+            "value": "kv500"
+          },
+          {
+            "label": "230 kV",
+            "value": "kv230"
+          },
+          {
+            "label": "115–138 kV",
+            "value": "kv115"
+          },
+          {
+            "label": "69 kV",
+            "value": "kv69"
+          },
+          {
+            "label": "69 kV 以下（配電）",
+            "value": "kvlt69"
+          },
+          {
+            "label": "電壓未知",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv500",
+          "kv230",
+          "kv115",
+          "kv69",
+          "kvlt69",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phPowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃氣",
+            "value": "gas"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "生質能",
+            "value": "bioenergy"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "核能（規劃、未運轉）",
+            "value": "nuclear"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "gas",
+          "oil",
+          "geothermal",
+          "hydro",
+          "bioenergy",
+          "solar",
+          "wind",
+          "nuclear"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phRenewables": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "家用太陽能系統補助點（PVM）",
+            "value": "pvm_shs"
+          },
+          {
+            "label": "微電網：太陽能",
+            "value": "mg_solar"
+          },
+          {
+            "label": "微電網：太陽能＋柴油混合",
+            "value": "mg_hybrid"
+          },
+          {
+            "label": "微電網：柴油",
+            "value": "mg_diesel"
+          },
+          {
+            "label": "微電網：水力（微型、小型）",
+            "value": "mg_hydro"
+          },
+          {
+            "label": "微電網：其他（風力、生質）",
+            "value": "mg_other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "pvm_shs",
+          "mg_solar",
+          "mg_hybrid",
+          "mg_diesel",
+          "mg_hydro",
+          "mg_other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "鐵路站（官方 PNR，營運狀態未查證）",
+            "value": "rail_official"
+          },
+          {
+            "label": "鐵路站（OSM 補缺，營運狀態未查證）",
+            "value": "rail_osm"
+          },
+          {
+            "label": "渡輪碼頭（OSM 補缺，營運狀態未查證）",
+            "value": "ferry_osm"
+          },
+          {
+            "label": "鐵路站：停駛中（PNR，讓路給 NSCR 施工）",
+            "value": "suspended"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rail_official",
+          "rail_osm",
+          "ferry_osm",
+          "suspended"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phTransportHubs": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國際機場（DOTr）",
+            "value": "intl"
+          },
+          {
+            "label": "主要機場 Class 1（DOTr）",
+            "value": "class1"
+          },
+          {
+            "label": "主要機場 Class 2（DOTr）",
+            "value": "class2"
+          },
+          {
+            "label": "社區機場（DOTr）",
+            "value": "community"
+          },
+          {
+            "label": "港口（PPA）",
+            "value": "ppa_port"
+          },
+          {
+            "label": "PPA 港務管理處",
+            "value": "pmo"
+          },
+          {
+            "label": "OSM 補缺：機場、跑道",
+            "value": "osm_airport"
+          },
+          {
+            "label": "OSM 補缺：港口、碼頭",
+            "value": "osm_port"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "intl",
+          "class1",
+          "class2",
+          "community",
+          "ppa_port",
+          "pmo",
+          "osm_airport",
+          "osm_port"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "phUrbanRail": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "LRT-1（綠線）",
+            "value": "lrt1"
+          },
+          {
+            "label": "LRT-2（紫線）",
+            "value": "lrt2"
+          },
+          {
+            "label": "MRT-3（黃線）",
+            "value": "mrt3"
+          },
+          {
+            "label": "其他軌道（渡線、側線等未標線名）",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lrt1",
+          "lrt2",
+          "mrt3",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "pipelineGas": [
       {
         "label": "透明度 0.80",
@@ -206241,6 +207191,686 @@
       }
     ],
     "visitorCentres": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnAdminBoundaries": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnAngiangDemo": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "工業群：已營運",
+            "value": "hoatdong"
+          },
+          {
+            "label": "工業群：興建中",
+            "value": "dangxd"
+          },
+          {
+            "label": "工業群：尚未興建",
+            "value": "chuaxd"
+          },
+          {
+            "label": "避洪居民點",
+            "value": "flood"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hoatdong",
+          "dangxd",
+          "chuaxd",
+          "flood"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnEnvisoftStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "空氣品質（KK，C098）",
+            "value": "air"
+          },
+          {
+            "label": "地面水質（NM，C100）",
+            "value": "surface_water"
+          },
+          {
+            "label": "海水水質（NB，C100／C104）",
+            "value": "sea_water"
+          },
+          {
+            "label": "廢水排放口（NT，C033）",
+            "value": "wastewater"
+          },
+          {
+            "label": "煙道廢氣排放（KT，C101／C033）",
+            "value": "stack"
+          },
+          {
+            "label": "其他（低成本感測器、類型未知）",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "air",
+          "surface_water",
+          "sea_water",
+          "wastewater",
+          "stack",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnFuelStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "Petrolimex",
+            "value": "petrolimex"
+          },
+          {
+            "label": "PVOIL",
+            "value": "pvoil"
+          },
+          {
+            "label": "Mipec",
+            "value": "mipec"
+          },
+          {
+            "label": "Saigon Petro",
+            "value": "saigon_petro"
+          },
+          {
+            "label": "品牌未知",
+            "value": "unknown"
+          },
+          {
+            "label": "其他品牌",
+            "value": "other_brand"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "petrolimex",
+          "pvoil",
+          "mipec",
+          "saigon_petro",
+          "unknown",
+          "other_brand"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnMajorRoads": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路（motorway）",
+            "value": "motorway"
+          },
+          {
+            "label": "幹道（trunk）",
+            "value": "trunk"
+          },
+          {
+            "label": "主要道路（primary）",
+            "value": "primary"
+          },
+          {
+            "label": "鐵道（營運中）",
+            "value": "rail"
+          },
+          {
+            "label": "鐵道（興建中，虛線）",
+            "value": "rail_construction"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "trunk",
+          "primary",
+          "rail",
+          "rail_construction"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "vnOilGas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "LNG 接收站（GEM）",
+            "value": "lng"
+          },
+          {
+            "label": "煤炭碼頭（GEM）",
+            "value": "coal_terminal"
+          },
+          {
+            "label": "天然氣管線（GEM）",
+            "value": "gas_pipeline"
+          },
+          {
+            "label": "油管（GEM）",
+            "value": "oil_pipeline"
+          },
+          {
+            "label": "煉油廠（OSM）",
+            "value": "refinery"
+          },
+          {
+            "label": "油氣儲槽（OSM）",
+            "value": "tank"
+          },
+          {
+            "label": "天然氣管線（OSM）",
+            "value": "osm_pipeline"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lng",
+          "coal_terminal",
+          "gas_pipeline",
+          "oil_pipeline",
+          "refinery",
+          "tank",
+          "osm_pipeline"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction",
+          "proposed"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPopulation": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "vnPowerGrid": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "500 kV 以上",
+            "value": "kv500"
+          },
+          {
+            "label": "220–499 kV",
+            "value": "kv220"
+          },
+          {
+            "label": "110–219 kV",
+            "value": "kv110"
+          },
+          {
+            "label": "110 kV 以下",
+            "value": "kvlt110"
+          },
+          {
+            "label": "電壓未標",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kv500",
+          "kv220",
+          "kv110",
+          "kvlt110",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnPowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃氣",
+            "value": "gas"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "生質能",
+            "value": "bioenergy"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "核能（規劃）",
+            "value": "nuclear"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "gas",
+          "oil",
+          "hydro",
+          "bioenergy",
+          "geothermal",
+          "nuclear"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnRenewables": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "風力（GEM）",
+            "value": "wind"
+          },
+          {
+            "label": "太陽光電（GEM）",
+            "value": "solar"
+          },
+          {
+            "label": "太陽光電（TransitionZero，CC BY-NC 4.0，非商用）",
+            "value": "solar_tz"
+          },
+          {
+            "label": "電動車充電站（OSM 補缺）",
+            "value": "charging"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "wind",
+          "solar",
+          "solar_tz",
+          "charging"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "planned"
+          },
+          {
+            "label": "提案",
+            "value": "proposed"
+          },
+          {
+            "label": "擱置",
+            "value": "shelved"
+          },
+          {
+            "label": "封存",
+            "value": "mothballed"
+          },
+          {
+            "label": "退役",
+            "value": "retired"
+          },
+          {
+            "label": "取消",
+            "value": "cancelled"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "鐵路車站",
+            "value": "rail"
+          },
+          {
+            "label": "都市鐵路（捷運）站",
+            "value": "metro"
+          },
+          {
+            "label": "公車總站、轉運站",
+            "value": "bus"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rail",
+          "metro",
+          "bus"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "vnTransportHubs": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國際機場（ODM）",
+            "value": "intl"
+          },
+          {
+            "label": "國內機場（ODM）",
+            "value": "domestic"
+          },
+          {
+            "label": "海港（ODM）",
+            "value": "seaport"
+          },
+          {
+            "label": "內河港（ODM）",
+            "value": "inland_port"
+          },
+          {
+            "label": "OSM 補缺：機場（2019 後新機場、軍用、停用等）",
+            "value": "osm_airport"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "intl",
+          "domestic",
+          "seaport",
+          "inland_port",
+          "osm_airport"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,

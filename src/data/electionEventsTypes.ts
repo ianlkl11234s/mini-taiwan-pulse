@@ -38,12 +38,18 @@ export function electionCampKey(camp: unknown): ElectionCampKey {
 /** 圖層識別色（側欄 icon 等）：刻意不用任何陣營色，避免整層看起來偏向某一方 */
 export const ELECTION_LAYER_COLOR = "#8b5cf6";
 
-/** 規模分級 → 基準半徑（px，再乘大小滑桿） */
-export const ELECTION_TIER_RADIUS: Record<"L" | "M" | "S", number> = { L: 9, M: 6, S: 4 };
+/**
+ * 規模分級 → 基準半徑（px，再乘大小滑桿）。2026-11-13 使用者在預覽選 E 版：
+ * 墊高下限、壓縮級距（原 9／6／4，小場次幾乎看不見），已過不縮小、較不透明。
+ */
+export const ELECTION_TIER_RADIUS: Record<"L" | "M" | "S", number> = { L: 10, M: 8, S: 6.5 };
 
-/** 已過時間軸時間的活動：透明度與半徑倍率 */
-export const ELECTION_PAST_OPACITY = 0.35;
-export const ELECTION_PAST_RADIUS = 0.7;
+/** 已過時間軸時間的活動：透明度與半徑倍率（原 0.35／0.7；半徑倍率保留常數，日後要再區分時只改這裡） */
+export const ELECTION_PAST_OPACITY = 0.6;
+export const ELECTION_PAST_RADIUS = 1;
+
+/** 同一地點多場的數字圖示放大倍率（與圓點加大一起調；地圖 icon-size 與圖例示意共用） */
+export const ELECTION_GROUP_ICON_SCALE = 1.3;
 
 /** 取消／延期：畫成空心圈 */
 export const ELECTION_HOLLOW_STATUSES = ["cancelled", "postponed"] as const;

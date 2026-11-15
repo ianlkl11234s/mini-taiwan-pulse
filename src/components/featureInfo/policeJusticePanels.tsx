@@ -1,4 +1,4 @@
-import { Row } from "./shared";
+import { Row, SourceFooter } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 import { categoricalColor, categoricalNeutral } from "../../map/mapStyleScale";
@@ -316,7 +316,6 @@ export function AntiCorruptionOfficePanel({ props }: PanelProps) {
 }
 
 export function ImmigrationOfficePanel({ props }: PanelProps) {
-  const t = useFeatureTheme();
   const { t: tr } = useLocale();
   return (
     <>
@@ -326,9 +325,7 @@ export function ImmigrationOfficePanel({ props }: PanelProps) {
       <Row field="phone" value={String(props.phone ?? "")} />
       <Row label={tr("popup.policeJustice.fax")} value={String(props.fax ?? "")} />
       <Row field="website" value={String(props.url ?? "")} />
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim }}>
-        {tr("popup.policeJustice.immigrationSource")}
-      </div>
+      <SourceFooter props={{ source_org: tr("popup.policeJustice.immigrationSource"), source_url: "https://data.gov.tw/dataset/73239", license: "OGDL-1.0" }} />
     </>
   );
 }

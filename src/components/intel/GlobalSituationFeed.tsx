@@ -5,6 +5,7 @@ import { localeStore, useLocale, type LocaleSnapshot } from "../../state/localeS
 import { useIntelTheme } from "./intelTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
 import type { GlobalSituationEntry } from "../../data/globalEventsLoader";
+import { displayCountryCode } from "../../data/countryCodeFips";
 import type { GlobalSituationFeedSnapshot } from "../../state/globalSituationFeedStore";
 
 /** 沒有座標的事件在卡片上的地點文字 */
@@ -66,7 +67,8 @@ export function toIntelCardEvent(entry: GlobalSituationEntry): IntelCardEvent | 
   if (publishedTs === null) return null;
   const published = isGlobalSituationPublished(entry);
   const url = entry.sourceUrls?.[0] ?? null;
-  const place = [entry.countryCode, entry.placeName].filter((value): value is string => !!value).join(" · ");
+  // GDELT 候選是 FIPS 10-4（CH＝中國、AS＝澳洲），顯示前轉 ISO
+  const place = [displayCountryCode(entry.countryCode, entry.countryCodeScheme), entry.placeName].filter((value): value is string => !!value).join(" · ");
   const title = entry.titleZhTw && entry.titleZhTw !== "未命名事件"
     ? entry.titleZhTw
     : entry.sourceHeadline ?? firstSentence(entry.summaryZhTw) ?? "未命名事件";

@@ -9,9 +9,10 @@ import {
   JP_NATIONAL_PARK_ZONES, JP_NATIONAL_PARKS_MOE_ATTRIBUTION, JP_NATIONAL_PARKS_MOE_SOURCE_URL, JP_NATIONAL_PARKS_MOE_COLOR,
   JP_MOE_GIS_LICENSE, JP_MOE_GIS_DATA_AS_OF,
   JP_WILDLIFE_CATEGORIES, JP_WILDLIFE_MOE_ATTRIBUTION, JP_WILDLIFE_MOE_SOURCE_URL, JP_WILDLIFE_MOE_COLOR,
-  JP_DID_COLOR, JP_DID_SOURCE_URL, JP_DID_LICENSE, jpDidAttribution,
+  JP_DID_COLOR, JP_DID_SOURCE_URL, JP_DID_LICENSE, jpDidAttribution, formatJpWildlifeDuration,
 } from "../../data/jpNatureR2Types";
 import { JP_NATIONAL_PARK_ZONE_KEYS, JP_NATURAL_PARK_LEVEL_KEYS, JP_WILDLIFE_CATEGORY_KEYS } from "../legend/jpNatureR2Legends";
+import { jpPrefectureName } from "../../data/jpBusStopTypes";
 import { Row, SourceFooter, Title } from "./shared";
 
 type Props = { props: Record<string, unknown> };
@@ -25,7 +26,7 @@ const numOrNull = (v: unknown): number | null => {
 };
 
 export function JpNaturalParkAreas2015Panel({ props }: Props) {
-  const { t, formatNumber } = useLocale();
+  const { t, formatNumber, locale } = useLocale();
   const na = t("popup.common.notProvided");
   const lv = JP_NATURAL_PARK_LEVELS.find((l) => l.value === text(props.level));
   const area = numOrNull(props.area_ha);
@@ -33,7 +34,7 @@ export function JpNaturalParkAreas2015Panel({ props }: Props) {
   return <>
     <Title color={lv?.color ?? JP_NATURAL_PARK_AREAS_COLOR}>{lv ? t(JP_NATURAL_PARK_LEVEL_KEYS[lv.value]) : t("popup.jpNature.parkAreaDefault")}</Title>
     <Row label={t("popup.jpNature.parkName")} value={t("popup.jpNature.parkNameMissing")} />
-    <Row label={t("popup.jpNature.prefecture")} value={text(props.prefecture_code) || na} mono />
+    <Row label={t("popup.jpNature.prefecture")} value={jpPrefectureName(props.prefecture_code, locale) ?? na} />
     <Row label={t("popup.jpNature.areaHa")} value={area === null ? na : `${formatNumber(area, { maximumFractionDigits: 1 })} ha`} mono />
     <Row label={t("popup.jpNature.sourceYear")} value={text(props.fis_year) || na} mono />
     {note ? <Row label={t("popup.jpNature.licenseNote")} value={note} /> : null}
@@ -63,7 +64,7 @@ export function JpWildlifeProtectionMoePanel({ props }: Props) {
     <Row label={t("popup.jpNature.wildlifeCategory")} value={cat ? t(JP_WILDLIFE_CATEGORY_KEYS[cat.value]) : na} color={cat?.color} />
     <Row label={t("popup.jpNature.protectionClass")} value={text(props.protection_class) || na} />
     <Row label={t("popup.jpNature.designated")} value={text(props.designated) || na} />
-    <Row label={t("popup.jpNature.duration")} value={text(props.duration) || na} />
+    <Row label={t("popup.jpNature.duration")} value={formatJpWildlifeDuration(text(props.duration)) || na} />
     <Row label={t("popup.jpNature.licenseNote")} value={text(props.license_note)} />
     <SourceFooter props={{ source_org: JP_WILDLIFE_MOE_ATTRIBUTION, source_url: JP_WILDLIFE_MOE_SOURCE_URL, license: JP_MOE_GIS_LICENSE, fetched_at: JP_MOE_GIS_DATA_AS_OF }} />
   </>;

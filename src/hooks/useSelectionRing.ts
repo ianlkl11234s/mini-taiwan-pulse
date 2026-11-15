@@ -12,7 +12,7 @@ import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
 import type { FeatureInfo } from "../types";
 import { lastSelectionClick, selectionRingPosition } from "../map/selectionRing";
 import "../map/selectionRing.css";
-import { spreadOffsetOf } from "../map/electionSpread";
+import { electionTier, spreadDotRadius, spreadOffsetOf } from "../map/electionSpread";
 import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
 
 function createRingElement(): HTMLElement {
@@ -45,14 +45,21 @@ export function useSelectionRing(
       markerRef.current = null;
     }
     // 選舉活動確切地點多場展開後，各場畫在錨點外的固定 px 位移：外框跟著被點的那場（大小滑桿同 icon-size 等比）
-    const off = featureInfo?.layerType === "electionEvents2026" ? spreadOffsetOf(featureInfo.properties) : null;
-    const scale = off ? Number(encodeParamsToOverlay(layerParamsStore.getAll()).electionEvents2026Scale ?? 1) || 1 : 1;
+    const election = featureInfo?.layerType === "electionEvents2026" ? featureInfo.properties : null;
+    const off = election ? spreadOffsetOf(election) : null;
+    const scale = election ? Number(encodeParamsToOverlay(layerParamsStore.getAll()).electionEvents2026Scale ?? 1) || 1 : 1;
     const offset: [number, number] = off ? [off[0] * scale, off[1] * scale] : [0, 0];
+    // 選舉活動單場（單點與展開點）：外框至少比點大一圈（L 級拉近時直徑約 25px，超過預設 24px）；多場數字圖示維持預設
+    const dotR = election && election._grp !== 1 ? spreadDotRadius(electionTier(election.scale_tier), election._past === 1) * scale : 0;
+    const ringSize = dotR > 0 ? `${Math.max(24, Math.ceil(2 * dotR) + 8)}px` : "";
     if (markerRef.current) {
       markerRef.current.marker.setLngLat(position).setOffset(offset);
+      markerRef.current.marker.getElement().style.setProperty("--selection-ring-size", ringSize);
       return;
     }
-    const marker = new mapboxgl.Marker({ element: createRingElement(), anchor: "center", offset }).setLngLat(position).addTo(map);
+    const el = createRingElement();
+    el.style.setProperty("--selection-ring-size", ringSize);
+    const marker = new mapboxgl.Marker({ element: el, anchor: "center", offset }).setLngLat(position).addTo(map);
     markerRef.current = { marker, map };
   }, [mapRef, featureInfo]);
 

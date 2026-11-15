@@ -87,3 +87,11 @@ export function jpDidDensityColorExpr(isDark: boolean): unknown[] {
   return expr;
 }
 
+
+/**
+ * 鳥獸保護區「存続期間」：來源把起訖兩個日期直接接在一起（例「2018年10月17日2038年10月16日」），
+ * 在兩個日期之間補「～」（VPB-5）。不是兩個完整日期相連時原樣回傳。
+ */
+export function formatJpWildlifeDuration(raw: string): string {
+  return raw.replace(/^(\d{4}年\d{1,2}月\d{1,2}日)\s*(\d{4}年\d{1,2}月\d{1,2}日)$/u, "$1～$2");
+}

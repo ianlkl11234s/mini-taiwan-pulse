@@ -33,3 +33,41 @@ export function queryStatisticsHits(
   const fillHits = fills.length ? map.queryRenderedFeatures([point.x, point.y], { layers: fills }) : [];
   return [...circleHits, ...fillHits];
 }
+
+/**
+ * 一般 GIS 點擊登記（`GIS_LAYERS`）中，命中「小格網面」的 layerType：只查點擊點，不用 ±5px 容錯框。
+ * 低縮放時格子只有幾個像素寬，容錯框會同時涵蓋鄰格，Mapbox 回傳順序又與「誰包含點擊點」無關
+ * → popup 顯示隔壁那一格（VPB-6：南韓人口六角格拉遠點擊顯示鄰格）。
+ */
+export const EXACT_POINT_HIT_TYPES: ReadonlySet<string> = new Set([
+  "companyIndustryDistribution",
+  "companyAgeStructure",
+  "factoryDensityGrid",
+  "manufacturingCompanyDensityGrid",
+  "regulatedFacilityDensityGrid",
+  "jpAccommodationDensity",
+  "krPopulationH3",
+  // 日本醫療圈（純 fill）：z8 點川口一帶卻顯示東京「区西北部」（VP-15）
+  "jpMedicalAreasPrimary",
+  "jpMedicalAreasSecondary",
+  "jpMedicalAreasTertiary",
+  // 同型小格網（登記的 layer 全是 fill／fill-extrusion，或格線 outline）：
+  // H3 人口／指標／社經／空間經濟／YouBike、日本 1 km 網格、加拿大人口 H3、都市型態、溫度、交通可及、噪音捕捉格網
+  "popCount",
+  "h3Population",
+  "indicators",
+  "socioeconomic",
+  "spatialEconomy",
+  "youbikeFullness",
+  "jpPopulationMesh1km",
+  "caPopulationGrid",
+  "urbanFormGrid",
+  "temperatureGrid",
+  "transitReachGrid",
+  "noiseCaptureGrid",
+  // 不加 tedsGridEmissions：同一筆登記含點源工廠 circle，只查點擊點會讓小點變難點
+]);
+
+export function gisHitTarget<T>(type: string, point: T, bbox: [T, T]): T | [T, T] {
+  return EXACT_POINT_HIT_TYPES.has(type) ? point : bbox;
+}

@@ -21,7 +21,7 @@
   "popup.transitReach.hoursMinutes": "{h} h {m} min",
   "popup.transitReach.popWan": "{n} × 10,000 people",
   "popup.transitReach.popPeople": "{n} people",
-  "popup.transitReach.source": "OpenStreetMap (ODbL), GHSL GHS-POP R2023A (CC BY 4.0), TDX Transport Data eXchange; taipei-gis-analytics transit-reach scenario",
+  "popup.transitReach.source": "OpenStreetMap (ODbL), GHSL GHS-POP R2023A (CC BY 4.0), TDX Transport Data eXchange; transit reach scenario estimated by this site",
   "popup.transitReach.allModes": "All modes",
   "popup.transitReach.driveOnlyHeader": "Driving only",
   "popup.transitReach.reach1h": "Reachable within 1 h",

@@ -142,6 +142,21 @@ describe("toIntelCardEvent", () => {
     expect(toIntelCardEvent(candidate("c", "drop_noise"))!.gis_relevance).toBe(1);
   });
 
+  it("GDELT 候選的 FIPS 10-4 國碼轉成 ISO；ISO 與對不到的代碼原樣（VP-14）", () => {
+    const fips = (code: string, name: string) => toIntelCardEvent(candidate(code, "keep_core", {
+      country_code: code, country_code_scheme: "fips10", name, location_kind: "country_center",
+    }))!.location_name;
+    expect(fips("IS", "Israel")).toBe("IL · Israel");
+    expect(fips("CH", "China")).toBe("CN · China");
+    expect(fips("AS", "Australia")).toBe("AU · Australia");
+    expect(fips("RS", "Russia")).toBe("RU · Russia");
+    expect(fips("UP", "Ukraine")).toBe("UA · Ukraine");
+    expect(fips("OD", "South Sudan")).toBe("SS · South Sudan");
+    expect(fips("ZZ", "Somewhere")).toBe("ZZ · Somewhere");
+    const iso = toIntelCardEvent(candidate("iso", "keep_core", { country_code: "IN", country_code_scheme: "iso2", name: "India" }))!;
+    expect(iso.location_name).toBe("IN · India");
+  });
+
   it("未定位事件標為待定位；沒有可用事件時間就丟棄", () => {
     const unlocated = toIntelCardEvent(candidate("u", "keep_core", { geometry: null, location_kind: "unknown" }))!;
     expect(unlocated.location_name).toBe(UNLOCATED_LABEL);

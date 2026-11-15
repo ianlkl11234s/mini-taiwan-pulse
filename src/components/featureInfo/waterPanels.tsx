@@ -359,6 +359,7 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
       ) : (
         <TimeseriesSparkline data={series} unit="m" lineColor="#38bdf8" height={120} />
       )}
+      <SourceFooter props={{ source_org: i18n.t("popup.water.groundwaterSourceOrg"), source_url: "https://data.gov.tw/dataset/161082", license: "OGDL-1.0" }} />
     </>
   );
 }

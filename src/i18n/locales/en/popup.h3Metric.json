@@ -1,4 +1,5 @@
 {
+  "popup.h3Metric.youbikeSourceOrg": "MOTC TDX Transport Data eXchange (public bike real-time availability)",
   "popup.h3Metric.cellNote": "H3 hexagonal grid cell · value is the aggregate for the cell",
   "popup.h3Metric.popCount": "Population grid",
   "popup.h3Metric.dayNight": "Day/night population grid",

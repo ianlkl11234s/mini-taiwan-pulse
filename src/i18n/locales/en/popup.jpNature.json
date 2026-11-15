@@ -2,7 +2,7 @@
   "popup.jpNature.parkAreaDefault": "Natural park area",
   "popup.jpNature.parkName": "Park name",
   "popup.jpNature.parkNameMissing": "Not in source (FY2015 edition has no names or park types)",
-  "popup.jpNature.prefecture": "Prefecture code",
+  "popup.jpNature.prefecture": "Prefecture",
   "popup.jpNature.areaHa": "Area",
   "popup.jpNature.sourceYear": "Source data year",
   "popup.jpNature.licenseNote": "License note",

@@ -21,7 +21,7 @@
   "popup.transitReach.hoursMinutes": "{h} 小時 {m} 分",
   "popup.transitReach.popWan": "{n} 萬人",
   "popup.transitReach.popPeople": "{n} 人",
-  "popup.transitReach.source": "OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、TDX 運輸資料流通服務；taipei-gis-analytics 交通可及性推演",
+  "popup.transitReach.source": "OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、TDX 運輸資料流通服務；本站交通可及性推演",
   "popup.transitReach.allModes": "全運具",
   "popup.transitReach.driveOnlyHeader": "純開車對照",
   "popup.transitReach.reach1h": "1 小時內可達人口",

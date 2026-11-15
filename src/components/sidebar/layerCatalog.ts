@@ -373,6 +373,22 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
+  PH: [
+    // 菲律賓（2026-11-13 第 0–1 波：行政界、人口、交通、能源；title 沿用台灣主題中文短名，比照加拿大、愛爾蘭）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+  ],
+  VN: [
+    // 越南（2026-11-13 第 0–1 波：行政界、人口、交通、能源、環境監測站、安江示範；title 沿用台灣主題中文短名，比照菲律賓）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+    "環境氣候",
+    "工商登記",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -3098,6 +3114,97 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇵🇭 菲律賓（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源；群組比照加拿大、愛爾蘭同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [{ title: "行政邊界", layers: [fromManifest("phAdminBoundaries")] }],
+  },
+  {
+    title: "人口社經",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("phPopulation")] }],
+  },
+  {
+    title: "交通",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("phStations"), fromManifest("phBusStops")] },
+      { title: "樞紐節點", layers: [fromManifest("phTransportHubs")] },
+      { title: "路網", layers: [fromManifest("phMajorRoads"), fromManifest("phUrbanRail"), fromManifest("phExpressways")] },
+    ],
+  },
+  {
+    // C092 名稱用「管線與儲槽」，不叫「油氣管線」（多數未標示內容物）
+    title: "能源",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("phPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("phPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("phRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("phFuelStations")] },
+      { title: "管線與儲槽", layers: [fromManifest("phPipelines")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🇻🇳 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源、環境監測站、安江示範；群組比照菲律賓）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [{ title: "行政邊界", layers: [fromManifest("vnAdminBoundaries")] }],
+  },
+  {
+    title: "人口社經",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("vnPopulation")] }],
+  },
+  {
+    title: "交通",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("vnStations")] },
+      { title: "樞紐節點", layers: [fromManifest("vnTransportHubs")] },
+      { title: "路網", layers: [fromManifest("vnMajorRoads")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("vnPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("vnPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("vnRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("vnFuelStations")] },
+      { title: "石化 · 油氣", layers: [fromManifest("vnOilGas")] },
+    ],
+  },
+  {
+    // envisoft 只有站點位置、沒有數值（使用者 2026-11-10）
+    title: "環境氣候",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [{ title: "環境監測站", layers: [fromManifest("vnEnvisoftStations")] }],
+  },
+  {
+    // 安江示範：只涵蓋安江省（原堅江範圍），其他 33 省未涵蓋
+    title: "工商登記",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [{ title: "安江示範", layers: [fromManifest("vnAngiangDemo")] }],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
   // ───────────────────────────────────────────────────────────────
   {
@@ -3471,6 +3578,22 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
+  PH: {
+    // 菲律賓主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照加拿大、愛爾蘭）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+  },
+  VN: {
+    // 越南主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+    "環境氣候": "environment",
+    "工商登記": "city",
+  },
   CA: {
     // 加拿大主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照南韓、英國）。
     "底圖": "baseline",
@@ -3683,6 +3806,22 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
     "人口": { zh: "人口", sub: "Population" },
     "社經": { zh: "社經", sub: "Socio-economic" },
+  },
+  PH: {
+    // 菲律賓主題副標用英文（比照英國、加拿大、愛爾蘭）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+  },
+  VN: {
+    // 越南主題副標用英文（比照菲律賓）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
   },
   CA: {
     // 加拿大主題副標用英文（官方雙語英法，介面先用英文；比照英國）

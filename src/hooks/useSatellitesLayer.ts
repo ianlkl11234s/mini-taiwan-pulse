@@ -138,6 +138,15 @@ interface UseSatellitesLayerOpts {
   isDarkTheme?: boolean;
 }
 
+/** style 已解析、可 addSource／addLayer（同 gridHosts 的 styleReady）。 */
+function styleParsed(map: MapboxMap): boolean {
+  try {
+    return !!map.getStyle();
+  } catch {
+    return false;
+  }
+}
+
 interface PropParsed {
   rec: SatelliteRecord;
   satrec: satellite.SatRec;
@@ -199,7 +208,10 @@ export function useSatellitesLayer(
 
   // ── 建立 sources + layers ──
   const ensureLayers = useCallback((map: MapboxMap): boolean => {
-    if (!map.isStyleLoaded()) return false;
+    // 不能用 isStyleLoaded()：換底圖的 style.load 當下圖磚仍在載入、它回 false，
+    // 而開站預設暫停時 timeStore 不發 tick、動態圖層持續重繪時 idle 也不一定來 →
+    // 換底圖後永遠建不回來（VP-2）。改看 style 是否已解析（setStyle 進行中 getStyle() 會 throw）。
+    if (!styleParsed(map)) return false;
     if (!map.getSource(SAT_SRC_FOOTPRINT)) {
       map.addSource(SAT_SRC_FOOTPRINT, { type: "geojson", data: EMPTY_FC });
     }

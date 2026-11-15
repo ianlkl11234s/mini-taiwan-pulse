@@ -33,7 +33,8 @@ export const ELECTION_GROUP_ICON_COLORS = {
 const CENTER_FILL = ELECTION_GROUP_ICON_COLORS.centerFill;
 const CENTER_STROKE = ELECTION_GROUP_ICON_COLORS.centerStroke;
 const LABEL_COLOR = ELECTION_GROUP_ICON_COLORS.label;
-const PAST_ALPHA = 0.5;
+/** 全部已過的淡化：與單點已過透明度等比（原 0.5 配單點 0.35；單點改 0.6 後約 0.86） */
+const PAST_ALPHA = 0.86;
 
 /** 圖示 id：同樣的陣營組合、精度、已舉辦狀態共用一張 */
 export function electionGroupIconId(spec: ElectionGroupIconSpec): string {

@@ -505,6 +505,8 @@ describe("country（c=，國家主體）", () => {
       ["KR", ["krAdminBoundaries"], "/?v=1&layers=krAdminBoundaries&c=kr"],
       ["CA", ["caAdminBoundaries"], "/?v=1&layers=caAdminBoundaries&c=ca"],
       ["IE", ["ieAdminBoundaries"], "/?v=1&layers=ieAdminBoundaries&c=ie"],
+      ["PH", ["phAdminBoundaries"], "/?v=1&layers=phAdminBoundaries&c=ph"],
+      ["VN", ["vnAdminBoundaries"], "/?v=1&layers=vnAdminBoundaries&c=vn"],
       ["TW", ["ooklaMobileTaiwan"], "/?v=1&layers=ooklaMobileTaiwan"],
     ] as const) {
       const url = buildUrl({ country, layers: [...layers] }, "/");
