@@ -154986,6 +154986,25 @@
     ],
     "soundComposite": [
       {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "主因",
+            "value": "c"
+          },
+          {
+            "label": "活躍種數",
+            "value": "a"
+          },
+          {
+            "label": "綜合指數（假設權重）",
+            "value": "b"
+          }
+        ],
+        "type": "select",
+        "value": "c"
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
