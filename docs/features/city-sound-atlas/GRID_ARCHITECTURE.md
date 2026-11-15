@@ -130,7 +130,7 @@ layer.setFrame(values | null)                         // 長度 GRID_CELLS 的 u
 
 ### 6.5 選定甲、乙或丙之後要移除什麼（PREVIEW 清單）
 
-> W6-8 加了丙「主因」（`?soundComposite=c`）。下列「沒選的那版」對丙指：`compositeGrid.ts` 的 top／codeC／`decodeCompositeC`／`COMPOSITE_C_LEVELS`、`compositeFrames` 的 `c` 輸出、Worker `composite` 回傳的 `c`、`soundAtlasColors.ts` 的 `SOUND_COMPOSITE_C_*`、調色盤與圖例的丙分支、三語 `soundAtlas.composite.previewC` 與 `legend.soundAtlas.compositeCDepth`、`compositeGrid.test.ts` 的丙題。**滑過提示與面板原因（`compositeReason`、七族分級打包 `lv`、`compositeFrameRef`）不論選哪版都保留**，只把它的 variant 參數固定成選定的那版；`compositeFrameRef` 目前寫在 `compositePreview.ts`，刪該檔前先搬到 `compositeGrid` 旁。
+> W6-8 加了丙「主因」（`?soundComposite=c`）。下列「沒選的那版」對丙指：`compositeGrid.ts` 的 top／codeC／`decodeCompositeC`／`COMPOSITE_C_LEVELS`、`compositeFrames` 的 `c` 輸出、Worker `composite` 回傳的 `c`、`soundAtlasColors.ts` 的 `SOUND_COMPOSITE_C_*`（含 `SOUND_COMPOSITE_C_CATEGORICAL_INDEX`）、調色盤與圖例的丙分支、三語 `soundAtlas.composite.previewC` 與 `legend.soundAtlas.compositeCDepth`、`compositeGrid.test.ts` 的丙題。**滑過提示與面板原因（`compositeReason`、七族分級打包 `lv`、`compositeFrameRef`）不論選哪版都保留**，只把它的 variant 參數固定成選定的那版；`compositeFrameRef` 目前寫在 `compositePreview.ts`，刪該檔前先搬到 `compositeGrid` 旁。
 
 1. 刪 `src/sound/grid/compositePreview.ts`；`useSoundCompositeGridLayer.ts`、`SoundCellSection.tsx`、`soundAtlasLegends.tsx` 的 `compositePreviewStore` 改成固定版本。
 2. 刪 `src/components/sound/SoundCompositePreviewBar.tsx` 與 `App.tsx` 的 lazy import＋掛載（標 PREVIEW）。
