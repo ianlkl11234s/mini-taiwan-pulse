@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > **現況入口（單一入口）**：開場先讀本檔上半部（現在最該注意＋進行中／待拍板），需要細節再查 BACKLOG 對應主題群。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-16 多國圖層與個資清理收尾登記（PII-1～5、REL-NEXT、WHREORG-1；各 PR 狀態以 gh 查證）。前一次：2026-11-14 多國進度補記（菲律賓、中國、越南、南韓第 10 波、英國 OSM、加拿大 LODE、日本事故口徑，各 repo origin 實況查證）。再前一次：2026-11-13 v2.36.2 發布（分享網址預設篩選、統計說明框錯位修正；選舉活動同地點各場展開，#1024／#1025）。前一日：2026-11-12 v2.36.1 發布（選舉活動同地點多場合成，#1020）。同日稍早：v2.36.0 發布（統計圖層呈現方式：比例圓、點密度、多年份並排、左右比較；暗底配色第一／二段；review 修正）。之前：2026-11-10 差異檢核收尾（當天完成並登記：MCP 發版關卡與倉庫 1.5.3 重發、四個守門排程、Dependabot 與 required `ci-ok`、開場提示與瘦身第一輪、配色第一／二段；之前：對 11-08 健檢逐項比對：PROJECTS 引用已關閉 ID、過期期限、封存連結全數修正，新增 `npm run check:entry-docs` 自動檢查；使用者同日拍板的決定登記進 BACKLOG，決策清單 https://claude.ai/artifact/5jeCEF7zwwCWbgAWveLtWd ）。同日稍早：v2.35.0 發布（台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表）。
+> 最後盤點：2026-11-16 v2.37.0 發版準備（release PR base develop；菲律賓第 0–2 波、越南 12 層、目視包第二批、個資止血第一批 #1043／#1046；「有期限的事」結果回寫）。同日稍早：多國圖層與個資清理收尾登記（PII-1～5、REL-NEXT、WHREORG-1；各 PR 狀態以 gh 查證）。前一次：2026-11-14 多國進度補記（菲律賓、中國、越南、南韓第 10 波、英國 OSM、加拿大 LODE、日本事故口徑，各 repo origin 實況查證）。再前一次：2026-11-13 v2.36.2 發布（分享網址預設篩選、統計說明框錯位修正；選舉活動同地點各場展開，#1024／#1025）。前一日：2026-11-12 v2.36.1 發布（選舉活動同地點多場合成，#1020）。同日稍早：v2.36.0 發布（統計圖層呈現方式：比例圓、點密度、多年份並排、左右比較；暗底配色第一／二段；review 修正）。之前：2026-11-10 差異檢核收尾（當天完成並登記：MCP 發版關卡與倉庫 1.5.3 重發、四個守門排程、Dependabot 與 required `ci-ok`、開場提示與瘦身第一輪、配色第一／二段；之前：對 11-08 健檢逐項比對：PROJECTS 引用已關閉 ID、過期期限、封存連結全數修正，新增 `npm run check:entry-docs` 自動檢查；使用者同日拍板的決定登記進 BACKLOG，決策清單 https://claude.ai/artifact/5jeCEF7zwwCWbgAWveLtWd ）。同日稍早：v2.35.0 發布（台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表）。
 > 自動檢查：`npm run check:entry-docs`（規則與標記寫法見 [memory README](../.claude/memory/README.md)「入口文件自動檢查」）；期限過了要寫〔結果 YYYY-MM-DD：…〕或刪列（過期只警告、不讓 CI 紅；開場 hook 會提醒）。
 
 與其他文件的分工（mini-taiwan-pulse 是整個 Pulse 生態系的總 PM）：
@@ -19,7 +19,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 **最高優先：正式站個資仍公開（PII-1，卡在站主確認）**——愛爾蘭 AED、台灣山崩照片／AED／舊衣回收箱／觀光、長照圖磚、實價登錄備註等公開檔含個資（只記筆數，細節見 BACKLOG D 群 PII-1）。清理 pipeline 已合；清理後檔案未上傳、改讀 `_v2` 的 mini #1043／#1044／#1046／#1048 未合。後續：PII-2 刪舊檔、PII-3 倉庫重發、PII-4 S3 實價登錄封存重做、PII-5 站主清空垃圾桶。
 
-**下次接手入口（2026-11-16）**：第一步＝站主在執行 session 視窗直接確認 → 上傳 `_v2` 檔、更新 `spatial.waste_disposal_points` 並同步 R2 → 依序合 #1043／#1044／#1046／#1048 → 發版（REL-NEXT）。驗收＝正式站 `main-*.js` 為新版號、各 `_v2` 檔回 200、圖層正常顯示；清理報告 analytics `output/tw_pii_scrub_20261114/REPORT-round5.md`。
+**2026-11-16 更新**：v2.37.0 只帶 #1043、#1046；#1044、#1048 未進，正式站個資仍未完全解決，需再發一版。**下次接手入口（2026-11-16）**：第一步＝站主在執行 session 視窗直接確認 → 上傳 `_v2` 檔、更新 `spatial.waste_disposal_points` 並同步 R2 → 依序合 #1043／#1044／#1046／#1048 → 發版（REL-NEXT）。驗收＝正式站 `main-*.js` 為新版號、各 `_v2` 檔回 200、圖層正常顯示；清理報告 analytics `output/tw_pii_scrub_20261114/REPORT-round5.md`。
 
 **有期限的事（日期排序）**
 
@@ -27,14 +27,17 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 期限 | 事項 | 誰 | BACKLOG |
 |---|---|---|---|
-| 2026-11-14 | 兩項部署的隔日確認：03:39 備份 reconcile 的 warn 由 31 降到接近 0（collectors #200）；08:00 日報的 VM 區段三支收集器成功數仍正確（07:00 排程自己跑的快照）；同一份日報不再把事件型表（災害示警、落雷）標 DEAD，落雷與災害示警收集器連續錯誤維持 0（collectors #201，11-13 13:56 部署） | Claude | BKP-4／VMH-1／COL-ZERO-1 |
-| 主 checkout pull 後隔天 | 菜價指數與選舉活動匯入改固定形狀 SQL 後的首輪確認：菜價指數 06:00 排程 log 第一次用新寫法是否成功、下一次選舉活動每日更新試跑是否通過，之後回看 pgss 沒有超過 100 KB 的查詢文字（gp #242、analytics #372；主 checkout 由誰 pull 待使用者決定） | Claude | SBE-6 |
-| 2026-11-15 | `live.iot_wra_measurements` 確認已降到 30 天內（11-12 約 307 萬列超期、11-13 早上剩約 125 萬列，每晚清 200 萬列） | Claude | WA-3 |
-| 2026-11-16 | 回看 pgss：`get_groundwater_latest`、`get_youbike_h3_snapshots` 套用 mig 552／553 後的平均耗時 | Claude | SEC-5 |
+| 2026-11-14 | 兩項部署的隔日確認：03:39 備份 reconcile 的 warn 由 31 降到接近 0（collectors #200）；08:00 日報的 VM 區段三支收集器成功數仍正確（07:00 排程自己跑的快照）；同一份日報不再把事件型表（災害示警、落雷）標 DEAD，落雷與災害示警收集器連續錯誤維持 0（collectors #201，11-13 13:56 部署）〔結果 2026-11-16：對帳 warn 11-13、11-14 兩天都是 0；11-15 日報 0 DEAD（11-14 那份仍列災害示警）；落雷與災害示警連續錯誤 0，每天仍有 1–3 次零星錯誤；VM 區段成功數正常。另：針對 11-14 的對帳出現 critical=2，調查中〕 | Claude | BKP-4／VMH-1／COL-ZERO-1 |
+| 2026-11-15 | `live.iot_wra_measurements` 確認已降到 30 天內（11-12 約 307 萬列超期、11-13 早上剩約 125 萬列，每晚清 200 萬列）〔結果 2026-11-16：observed_at 超過 31 天的只剩 529 列，都是來源帶舊觀測時間、每輪會再抓進來的資料；collected_at 超期 0 列〕 | Claude | WA-3 |
 | ~2026-11-15 | 舊 static layer RPC 觀察 7 天後撤除 | 使用者拍板 | SR-1 |
-| ~2026-11-16 | pulse-host 記憶體峰值檢視（collector-mem 觀察中）後決定 mem_limit | Claude | HOST-1 |
+| ~2026-11-16 | pulse-host 記憶體峰值檢視（collector-mem 觀察中）後決定 mem_limit〔2026-11-16：collector-mem 的 peak 每次重啟後數小時內就到約 2,800 MB（容器上限 2.734 GiB），平常約 1.7 GB；是否為檔案快取調查中〕 | Claude | HOST-1 |
+| 2026-11-17 | 菜價指數與選舉活動匯入改固定形狀 SQL 後的首輪確認：菜價指數 06:00 排程 log 第一次用新寫法是否成功、下一次選舉活動每日更新是否通過，之後回看 pgss 沒有超過 100 KB 的查詢文字（gp #242、analytics #372；gis-platform 與 analytics 主 checkout 已於 2026-11-16 快轉，使用者同意） | Claude | SBE-6 |
+| 2026-11-17 | data-collectors `3e801d63` 已於 2026-11-16 部署 pulse-host（COL-ZERO-1 尾段：19 支收集器「0 筆且來源拋例外」改記失敗；VM 補寫隔離同日部署到 HiCloud VM 四個 app）。看 11-17 08:00 日報新冒出的失敗收集器並逐支分類；HiCloud VM 的 waste-positions 06:00 後首輪寫入正常 | Claude | COL-ZERO-1／COL-GE-2 |
 | 2026-11-17 | correctional VM 版與 S3 不同，會觸發滯留告警，VM 版另存 `.vm.tar.gz` | Claude | ZB-2 |
+| 2026-11-19 | HiCloud VM cdc-public-health 週四 11:00 首輪（新版 vm_buffer）log 正常 | Claude | COL-GE-2 |
+| 2026-11-20 | 回看 pgss：`get_groundwater_latest`、`get_youbike_h3_snapshots` 套用 mig 552／553 後的平均耗時〔結果 2026-11-16：無法判定——pgss 自 11-09 累計，混了 mig 552／553 前後；`get_groundwater_latest` 平均約 0.8 秒（14 次）、`get_youbike_h3_snapshots` 平均 1.7–2.1 秒（19 次）。要判定需重置統計或另做 EXPLAIN；改期到 11-20 再看一次〕 | Claude | SEC-5 |
 | ~2026-11-20 | 動物收容成果收集器確認有新 run（設計低頻，不是故障） | Claude | COL-ANIMAL-1 |
+| v2.37.0 發版後 | 正式站確認：救援等時圈 `/fire/fire_isochrone_coverage.pmtiles` 200 且圖層有畫面；`world/ie_defibrillators_v2.pmtiles` 200、愛爾蘭 AED 圖層正常；舊衣回收箱快照 `get_waste_disposal_points.json` 公開版回讀為 13,751 筆、業者欄手機 0 筆；越南目視清單（mini `.worktrees/vn-w01/.preview-keep/vn_prod_visual_checklist.md`）；#1036 未在瀏覽器驗過的三項（日本醫療圈 popup、小網格點擊、手機衛星百科卡） | Claude | REL-NEXT／VPB-7～14／PII-1 |
 | 2026-11-28 | 選舉投票日：之前每日更新活動地圖；選後匯出最後一版轉站主資料 | Claude＋使用者 | OWD-4 |
 | 2026-11-28 後 | 選後一起做：選舉活動兩張表登記保留期限、清 22 筆已刪除表的備份狀態紀錄（使用者 2026-11-13 同意；動手前先給清單） | Claude＋使用者 | ELEC-RET-1 |
 | 2026-12-01 前 | 使用者取消 Zeabur 專用主機續約 | 使用者 | ZB-5 |
@@ -48,7 +51,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 **本週進行中**
 
-- 發版 REL-NEXT：develop（`3969aba5`）領先 master（v2.36.2）未發布，含菲律賓第 0–2 波、越南 12 層、日本事故圖例、文件與其他 session 的 #1030／#1034／#1036；等站主回答範圍外三個 PR 能否隨版，且 PII-1 止血 PR 要先進。
+- 發版 REL-NEXT：使用者 11-16 同意 develop 全部發版；v2.37.0 release 準備 PR 已開（base develop），含菲律賓第 0–2 波、越南 12 層、日本事故圖例、目視包第二批 #1034／#1036、選舉活動 #1030、個資止血 #1043／#1046、救援等時圈 #1052；#1044、#1048 未進，個資需再發一版。
 - Zeabur 收尾與金鑰：最後兩個專案使用者 11-13 回報已刪（ZB-1）；剩 ZB-5 停約、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
 - 告警分級 11-09 完成（GitHub 排程、主機看門狗、collector、healthchecks 3 個死人開關皆已設）；剩 aisstream／VM 接告警（G 群 ALERT-1）。
 - Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；11-09 晚第一批權限（gp #227 mig 536–539）與 VM 固定形狀寫入（collectors #194）也完成；11-10 驗證與慢查詢清單 11-12 完成（R5 升為必須；SEC-5 的優化等使用者拍板）；剩預算表（SBE-5）、軌跡改讀每日檔方案（TRAIL-1）、新發現的 RLS／權限（SEC-11／SEC-12／HERMES-2）。
@@ -56,7 +59,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 - 資料保留期限：第 2 批 11-09 完成（gp #228／#229 mig 540–543、ADR-0026 #57），剩項目在 WA-3；靜態表搬遷乙組（WA-14，動前端前先給使用者看方案）；R2 獨有資料補 S3（ST-2）。
 - 2026 選舉活動地圖每日更新（到 11-28）。
 - 30 天地圖挑戰：Day 9 城鄉圖層 mapchallengeDay09UrbanRural（#972）、Day 8 文章（#957）與 10 篇舊文補資料來源（#959）已合 develop、待發版；Day 6 正式站重拍（HIST-4）。
-- 正式站目視包：11-12 第一批（v2.36.1）通過 8 項已關閉；發現的兩個 bug 已隨 v2.36.2 修正並於 11-13 正式站複驗通過，低嚴重度問題記在 VPB-3～VPB-6（11-13 mini #1034 已修大部分、已合 develop 未發版）；11-13 第二批（v2.36.2）關閉 VP-13～VP-17，新問題開 VPB-7～VPB-13（衛星切底圖消失 VPB-7 最嚴重）；剩 VP-2、VP-10～VP-12 等（BACKLOG A 群）。
+- 正式站目視包：11-12 第一批（v2.36.1）通過 8 項已關閉；發現的兩個 bug 已隨 v2.36.2 修正並於 11-13 正式站複驗通過，低嚴重度問題記在 VPB-3～VPB-6（11-13 mini #1034 已修大部分、已合 develop 未發版）；11-13 第二批（v2.36.2）關閉 VP-13～VP-17，新問題開 VPB-7～VPB-13（衛星切底圖消失 VPB-7 最嚴重；mini #1036 修 VPB-7／9／10／14，隨 v2.37.0）；剩 VP-2、VP-10～VP-12 等（BACKLOG A 群）。
 - 配色與可見性：第一、二段隨 v2.36.0 上線（#998、#1002）；第三階段待做（VIZ-3）；視覺化提案 11-11 已拍板；比例圓 #1008、多年份並排 #1011、左右比較 P1 #1012、點密度 #1016 隨 v2.36.0 上線（VIZ-5／VIZ-8／VIZ-9／VIZ-6）；等值帶使用者決定先不做（VIZ-7）。
 - MCP 與倉庫：#107 已部署並冒煙通過；發版關卡（MCP #108～#111）上線；72 表以 DuckDB 1.5.3 重發為 `20261110T084641Z`（pulse-data #104），S3 歸檔與 R2 舊版清理等使用者驗收（WHDB-2）。
 
@@ -103,11 +106,11 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | 南韓後續 | 🟡 | 北極星:好用 | 第 0–7 波＋統計已上線；第 8 波 8 層（#983）、第 9 波 3 層（#987）、每萬人火災／交通事故（#978）隨 v2.35.0 上線；第 0–9 波 52 層已在倉庫 20261110T084641Z；第 10 波 11 層資料與 registry 已合（analytics #371、#373、#374、#380；pulse-data #111），前端 mini #1042 與首爾用途地域站主限定 #1050 未合（皆與 develop 衝突）；站主已決定名稱、過期許可、偏移座標照現況保留並加註 | KRW-6：站主同意後上傳 10 個圖磚約 96 MB、發布 10 層 → #1042 解衝突合併 → #1050 解衝突並上傳私有圖磚（mini `.worktrees/kr-seoul-owner/owner-data.local/`）；第 11 波等 data.go.kr key；KRH-1、C086 尚無實作 PR | BACKLOG KRW-6／KRH-1；`../.gis-agent-system/projects/2026-11-multi-country-night/PLAN.md` | 2026-11-16 |
-| 日本後續 | 🔵 | 北極星:好用 | P1 第 1–4 波隨 v2.15.0；第二輪隨 v2.24.0；交通事故 2025、DID z5 隨 v2.25.0；市町村道 jpMunicipalRoads（#988，6 地區分檔）、事故期間口徑改字（#986）隨 v2.35.0 上線；11-14 JPACC-1 查證：本票＝當年計入統計口徑（與警察庁年度件數一致），圖例改字 mini #1040 已合 develop，待發版後正式站目視 | JPACC-1 #1040 已合 develop、未發布，隨 REL-NEXT 上線後正式站目視再結案；JPW4-1 等填 WAM NET 表單；第二輪重掃待選落地波次 | BACKLOG JPACC-1／JPW4-1；`../taipei-gis-analytics/docs/topic-research/japan_opendata/_status.md` | 2026-11-16 |
+| 日本後續 | 🔵 | 北極星:好用 | P1 第 1–4 波隨 v2.15.0；第二輪隨 v2.24.0；交通事故 2025、DID z5 隨 v2.25.0；市町村道 jpMunicipalRoads（#988，6 地區分檔）、事故期間口徑改字（#986）隨 v2.35.0 上線；11-14 JPACC-1 查證：本票＝當年計入統計口徑（與警察庁年度件數一致），圖例改字 mini #1040 隨 v2.37.0 發版（待正式站驗證） | JPACC-1 v2.37.0 上線後正式站目視再結案；JPW4-1 等填 WAM NET 表單；第二輪重掃待選落地波次 | BACKLOG JPACC-1／JPW4-1；`../taipei-gis-analytics/docs/topic-research/japan_opendata/_status.md` | 2026-11-16 |
 | 英國後續 | 🔵 | 北極星:好用 | 第 0–12 波隨 v2.18.0；UKLZ-1／2 熱區實為 #784 隨 v2.19.0；11-10 夜 UKD-1 各項結案（analytics #339）、補測試 #979；高爾夫點蓋熱區使用者 11-10 決定維持現狀；11-13～14 UKOSM-1 資料（analytics #378、#379，PBF 快照 2026-11-13）已合 | UKOSM-1：mini #1039（與 develop 衝突、Warehouse gate 紅）、pulse-data #109 未合；待上傳 5 個圖磚約 78 MB（含 `gb_major_roads_v2.pmtiles`）、發布 4 層；B 級線寬站主選 C（z10 1.5px／z14 2.5px）；UKFLOOD-1 擴英國時做；UKW13-1 第 13 波四把 key（使用者申請）；AG-15 國家面板 64 層尚未入倉；EA-1 授權 2027-10-29 到期 | BACKLOG UKFLOOD-1／UKOSM-1／EA-1 | 2026-11-16 |
 | 中國 | 🟡 | 北極星:好用 | 11-10 跨夜盤點：系統盤點排進第 0–7 波 33 層、暫緩 90；第 0–1 波資料端已合（analytics #370、#377；pulse-data #107、#108）；gis-platform #243 mig 554 已套用正式站（`gated_layers` 10 列＝9 個 cn key＋krSeoulZoning）；9 個私有圖磚上傳狀態未查證（兩份紀錄矛盾，下次接手先唯讀確認） | CNW-0：mini #1037（與 develop 衝突）解衝突、站主本機截圖檢查後合 → 發版（重建 coral-private 映像）→ pulse-host 重建容器並調 `mem_limit`（現 768m，建議 1024m，站主未定 1GB 或 1.5GB；Access token 過期需站主登入）→ 站主開 9 層＋珊瑚／日本水／BSS 確認；不含台港澳、爭議區不畫、不入倉 | BACKLOG CNW-0／HKMO-0；`../taipei-gis-analytics/docs/topic-research/china_opendata/waves/PLAN.md` | 2026-11-16 |
-| 菲律賓 | 🟡 | 北極星:好用 | 11-10 跨夜盤點＋系統盤點 → P1 22、排進第 0–11 波 70 層；第 0–1 波 10 層（mini #1033、analytics #369、pulse-data #105、MCP #112）與第 2 波（analytics #387／#390／#391／#393、pulse-data #113、mini #1047、#1049）已合 develop、未發布；5 個圖磚與 3 個資料包已上 R2；phStations 476 站（未通車 37 站已排除） | 隨 REL-NEXT 發版後正式站目視；WHREORG-1 倉庫重組後驗收；analytics `layer-mapping/outcomes.csv` 補第 2 波；C117、C123 等使用者填表（PHGEO-1） | BACKLOG PHW-0／PHGEO-1；`../taipei-gis-analytics/docs/topic-research/philippines_opendata/waves/PLAN.md` | 2026-11-16 |
-| 越南 | 🟡 | 北極星:好用 | 11-10 跨夜盤點＋系統盤點：分母新制 34 省／3,321 社；排進第 0–8 波 50 層、暫緩 76；第 0–1 波 12 層已合 develop、未發布（analytics #375、#382／#383／#389；pulse-data #110；MCP #114；mini #1038）；12 個資料包＋圖磚已上 R2（6 個為 `_v2`） | 隨 REL-NEXT 發版後照 mini worktree `.worktrees/vn-w01/.preview-keep/vn_prod_visual_checklist.md` 目視；WHREORG-1 倉庫重組；主權爭議改做全球版 WDISP-1 | BACKLOG VNW-0／WDISP-1；`../taipei-gis-analytics/docs/topic-research/vietnam_opendata/waves/PLAN.md` | 2026-11-16 |
+| 菲律賓 | 🟡 | 北極星:好用 | 11-10 跨夜盤點＋系統盤點 → P1 22、排進第 0–11 波 70 層；第 0–1 波 10 層（mini #1033、analytics #369、pulse-data #105、MCP #112）與第 2 波（analytics #387／#390／#391／#393、pulse-data #113、mini #1047、#1049）已合 develop，隨 v2.37.0 發版（待正式站驗證）；5 個圖磚與 3 個資料包已上 R2；phStations 476 站（未通車 37 站已排除） | 隨 REL-NEXT 發版後正式站目視；WHREORG-1 倉庫重組後驗收；analytics `layer-mapping/outcomes.csv` 補第 2 波；C117、C123 等使用者填表（PHGEO-1） | BACKLOG PHW-0／PHGEO-1；`../taipei-gis-analytics/docs/topic-research/philippines_opendata/waves/PLAN.md` | 2026-11-16 |
+| 越南 | 🟡 | 北極星:好用 | 11-10 跨夜盤點＋系統盤點：分母新制 34 省／3,321 社；排進第 0–8 波 50 層、暫緩 76；第 0–1 波 12 層隨 v2.37.0 發版（待正式站驗證）（analytics #375、#382／#383／#389；pulse-data #110；MCP #114；mini #1038）；12 個資料包＋圖磚已上 R2（6 個為 `_v2`） | 隨 REL-NEXT 發版後照 mini worktree `.worktrees/vn-w01/.preview-keep/vn_prod_visual_checklist.md` 目視；WHREORG-1 倉庫重組；主權爭議改做全球版 WDISP-1 | BACKLOG VNW-0／WDISP-1；`../taipei-gis-analytics/docs/topic-research/vietnam_opendata/waves/PLAN.md` | 2026-11-16 |
 
 ### 台灣圖層
 
