@@ -75,8 +75,16 @@ export const SOUND_COMPOSITE_A_COLORS = ["#c7d2fe", "#818cf8", "#4338ca"] as con
 export const SOUND_COMPOSITE_A_ALPHA = [0.2, 0.55, 0.82] as const;
 export const SOUND_COMPOSITE_B_RAMP = { from: "#e0e7ff", to: "#4338ca", alphaFrom: 0.12, alphaTo: 0.84 } as const;
 /**
- * W6-8 丙「主因」（預覽；資料色，§3.16）：色相＝主因族的家族色（SOUND_FAMILY_COLORS），深淺＝該族分級 低→很高
- * （沿用連續潛勢網格的透明度階 SOUND_POTENTIAL_GRID_ALPHA 1–4）；平靜＝中性灰淡色。無法判斷由渲染器畫斜線。
+ * W6-8 丙「主因」（預覽；資料色，§3.16）：深淺＝該族分級 低→很高（沿用連續潛勢網格的透明度階 SOUND_POTENTIAL_GRID_ALPHA 1–4）；
+ * 平靜＝中性灰淡色。無法判斷由渲染器畫斜線。
+ * W6-9（使用者 11-16 同意）：色相**不用**家族色（雨、飛機、浪、河同屬青藍系，全區圖分不出），改取共用類別色盤
+ * `MAP_CATEGORICAL`（mapStyleScale.ts C-5，暗／淡底各一套、已驗色弱模擬）的第 0–6 色，對應如下。**只供主因網格與其圖例用**；
+ * 單族圖層、面板色條、甲乙仍用 SOUND_FAMILY_COLORS／各自色表。
+ *   雨→0 藍、道路→1 橘紅、海浪→2 青（淡底深海藍）、飛機→3 琥珀（淡底深褐）、鐵道→4 洋紅、河川→5 藍綠、風吹樹葉→6 綠。
  */
+export const SOUND_COMPOSITE_C_CATEGORICAL_INDEX = {
+  rain: 0, road_traffic: 1, coastal_wave: 2, aviation: 3, rail: 4, river_water: 5, wind_vegetation: 6,
+} as const;
 export const SOUND_COMPOSITE_C_ALPHA = SOUND_POTENTIAL_GRID_ALPHA.slice(1) as readonly number[];
-export const SOUND_COMPOSITE_C_CALM = { color: "#94a3b8", alpha: 0.14 } as const;
+/** 平靜：色用 MAP_CATEGORICAL.neutral（暗／淡各一），這裡只定透明度 */
+export const SOUND_COMPOSITE_C_CALM = { alpha: 0.14 } as const;

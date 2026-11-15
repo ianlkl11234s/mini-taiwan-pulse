@@ -22,7 +22,8 @@ import { compositeReason } from "../components/sound/compositeReason";
 import { useLocale } from "../state/localeStore";
 import { COMPOSITE } from "../sound/model/soundProfiles";
 import { paletteFromClasses } from "../map/soundGridCustomLayer";
-import { SOUND_COMPOSITE_A_ALPHA, SOUND_COMPOSITE_A_COLORS, SOUND_COMPOSITE_B_RAMP, SOUND_COMPOSITE_C_ALPHA, SOUND_COMPOSITE_C_CALM, SOUND_FAMILY_COLORS } from "../sound/soundAtlasColors";
+import { SOUND_COMPOSITE_A_ALPHA, SOUND_COMPOSITE_A_COLORS, SOUND_COMPOSITE_B_RAMP, SOUND_COMPOSITE_C_ALPHA, SOUND_COMPOSITE_C_CALM, SOUND_COMPOSITE_C_CATEGORICAL_INDEX } from "../sound/soundAtlasColors";
+import { categoricalColor, categoricalNeutral } from "../map/mapStyleScale";
 
 export const SOUND_COMPOSITE_GRID_LAYER_ID = "sound-atlas-grid-composite";
 
@@ -39,15 +40,15 @@ export function compositeBColorAt(code: number): { color: string; alpha: number 
   };
 }
 
-export function compositePalette(variant: CompositeVariant): Uint8Array {
+export function compositePalette(variant: CompositeVariant, isDark = true): Uint8Array {
   const colors: string[] = [];
   const alphas: number[] = [];
   for (let c = 0; c < 256; c++) {
     if (variant === "a" && c < SOUND_COMPOSITE_A_COLORS.length) { colors[c] = SOUND_COMPOSITE_A_COLORS[c]!; alphas[c] = SOUND_COMPOSITE_A_ALPHA[c]!; continue; }
     if (variant === "b" && c <= COMPOSITE_B_SCALE) { const x = compositeBColorAt(c); colors[c] = x.color; alphas[c] = x.alpha; continue; }
-    if (variant === "c" && c === 0) { colors[c] = SOUND_COMPOSITE_C_CALM.color; alphas[c] = SOUND_COMPOSITE_C_CALM.alpha; continue; }
+    if (variant === "c" && c === 0) { colors[c] = categoricalNeutral(isDark); alphas[c] = SOUND_COMPOSITE_C_CALM.alpha; continue; }
     if (variant === "c" && c <= COMPOSITE_FAMILIES.length * COMPOSITE_C_LEVELS) {
-      colors[c] = SOUND_FAMILY_COLORS[COMPOSITE_FAMILIES[Math.floor((c - 1) / COMPOSITE_C_LEVELS)]!];
+      colors[c] = categoricalColor(SOUND_COMPOSITE_C_CATEGORICAL_INDEX[COMPOSITE_FAMILIES[Math.floor((c - 1) / COMPOSITE_C_LEVELS)]!], isDark);
       alphas[c] = SOUND_COMPOSITE_C_ALPHA[(c - 1) % COMPOSITE_C_LEVELS]!;
       continue;
     }
@@ -81,7 +82,7 @@ export function useSoundCompositeGridLayer(
   const receiver = useSyncExternalStore(soundAtlasStore.subscribe, () => soundAtlasStore.get().receiver);
   const loadingCount = useSyncExternalStore(soundAtlasStore.subscribe, () => soundAtlasStore.get().loading.length);
   const outside = !!receiver && !gridSourceApplies(receiver);
-  const palette = useMemo(() => compositePalette(variant), [variant]);
+  const palette = useMemo(() => compositePalette(variant, isDarkTheme), [variant, isDarkTheme]);
   const pick = useCallback((r: GridLayerResult) => {
     return variantFrame(r as CompositeResult, compositePreviewStore.get().variant);
   }, []);

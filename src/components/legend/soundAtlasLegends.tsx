@@ -3,7 +3,8 @@
  * W6-7 精簡（使用者：「圖例單純一點」）：每層只有標題、色階、斜線＝無法判斷；
  * 整份圖例只放一句「依資料推估，非實測音量」與必要出處。定義、納入範圍與限制放圖層展開區的說明（manifest description）。
  */
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchHatch, SwatchSquare } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchHatch, SwatchSquare, useLegendTheme } from "./legendKit";
+import { categoricalColor, categoricalNeutral } from "../../map/mapStyleScale";
 import { useLayerVisible } from "../../state/layerVisibilityStore";
 import { useLocale } from "../../state/localeStore";
 import { useSyncExternalStore } from "react";
@@ -11,7 +12,7 @@ import { compositePreviewStore } from "../../sound/grid/compositePreview";
 import { COMPOSITE } from "../../sound/model/soundProfiles";
 import { compositeBColorAt } from "../../hooks/useSoundCompositeGridLayer";
 import { COMPOSITE_B_SCALE, COMPOSITE_FAMILIES } from "../../sound/grid/compositeGrid";
-import { SOUND_COMPOSITE_A_ALPHA, SOUND_COMPOSITE_A_COLORS, SOUND_COMPOSITE_C_ALPHA, SOUND_COMPOSITE_C_CALM, SOUND_POTENTIAL_GRID_ALPHA, SOUND_POTENTIAL_GRID_COLORS, SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
+import { SOUND_COMPOSITE_A_ALPHA, SOUND_COMPOSITE_A_COLORS, SOUND_COMPOSITE_C_ALPHA, SOUND_COMPOSITE_C_CATEGORICAL_INDEX, SOUND_POTENTIAL_GRID_ALPHA, SOUND_POTENTIAL_GRID_COLORS, SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
 import { FAMILY_KEYS, formatPotential, rainClassKey } from "../sound/soundAtlasText";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { aviationGatePotential } from "../../sound/grid/aviationGates";
@@ -84,6 +85,7 @@ function SoundPotentialGridLegend({ family }: { family: PotentialGridFamily }) {
 /** W6-4/5 綜合網格（預覽）：依目前甲／乙版本顯示色階＋斜線；定義與納入範圍在圖層說明 */
 function SoundCompositeLegend() {
   const { t } = useLocale();
+  const { isDark } = useLegendTheme();
   const variant = useSyncExternalStore(compositePreviewStore.subscribe, () => compositePreviewStore.get().variant);
   const max = COMPOSITE.displayMaxIndex.value;
   const a = ["legend.soundAtlas.compositeA0", "legend.soundAtlas.compositeA1", "legend.soundAtlas.compositeA2"] as const;
@@ -92,12 +94,12 @@ function SoundCompositeLegend() {
     {variant === "c" ? (
       <>
         {COMPOSITE_FAMILIES.map((f) => (
-          <LegendRow key={f} swatch={<SwatchSquare color={SOUND_FAMILY_COLORS[f]} opacity={SOUND_COMPOSITE_C_ALPHA[2]} />}>{t(FAMILY_KEYS[f])}</LegendRow>
+          <LegendRow key={f} swatch={<SwatchSquare color={categoricalColor(SOUND_COMPOSITE_C_CATEGORICAL_INDEX[f], isDark)} opacity={SOUND_COMPOSITE_C_ALPHA[2]} />}>{t(FAMILY_KEYS[f])}</LegendRow>
         ))}
         <LegendRow swatch={<span style={{ display: "inline-flex", gap: 1 }}>
           {SOUND_COMPOSITE_C_ALPHA.map((a) => <SwatchSquare key={a} color={SOUND_UNKNOWN_COLOR} opacity={a} />)}
         </span>}>{t("legend.soundAtlas.compositeCDepth")}</LegendRow>
-        <LegendRow swatch={<SwatchSquare color={SOUND_COMPOSITE_C_CALM.color} opacity={0.3} />}>{t("soundAtlas.composite.level.0")}</LegendRow>
+        <LegendRow swatch={<SwatchSquare color={categoricalNeutral(isDark)} opacity={0.3} />}>{t("soundAtlas.composite.level.0")}</LegendRow>
       </>
     ) : variant === "a" ? (
       SOUND_COMPOSITE_A_COLORS.map((c, k) => (

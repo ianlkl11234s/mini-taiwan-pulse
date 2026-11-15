@@ -69,7 +69,7 @@ export function SoundCellSection() {
 
   const comp = q.codes && q.codes.length === COMPOSITE_FAMILY_COUNT ? compositeCell(q.codes, q.gate) : null;
   const levels = comp ? comp.terms.map((x) => x?.level ?? null) : null;
-  const reason = comp && levels ? compositeReason(t, levels, variant, { a: comp.codeA, b: comp.codeB, c: comp.codeC }) : null;
+  const reason = comp && levels ? compositeReason(t, levels, variant, { a: comp.codeA, b: comp.codeB, c: comp.codeC }, false) : null;
   const basis = levels ? activeFamilies(levels).slice(0, 3).map(({ family }) => ({ family, text: cellBasis(t, family, q.infos[family] ?? null) })) : [];
   const unknownFams = levels ? COMPOSITE_FAMILIES.filter((_, i) => levels[i] == null) : [];
   return (

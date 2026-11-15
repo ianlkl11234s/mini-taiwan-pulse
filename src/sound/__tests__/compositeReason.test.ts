@@ -23,6 +23,9 @@ describe("綜合聲景白話原因", () => {
   it("平靜：七種都偏低；有無法判斷的族要寫出來（不當成沒有）", () => {
     expect(reason({ rain: 0, road_traffic: 0, aviation: 0, rail: 0, wind_vegetation: 0, coastal_wave: 0, river_water: 0 }, "a")).toBe("平靜：七種聲源都偏低");
     expect(reason({ rain: 0, road_traffic: 0, aviation: 0, rail: 0, wind_vegetation: 0 }, "a")).toBe("平靜：有資料的 5 種都偏低（2 種無法判斷）");
+    // 點選面板（另有「無法判斷：…」一行）不帶括號
+    const r = compositeCell(COMPOSITE_FAMILIES.map((f) => ({ rain: 0, road_traffic: 0, aviation: 0, rail: 0, wind_vegetation: 0 } as Record<string, number>)[f] ?? 255));
+    expect(compositeReason(t, r.terms.map((x) => x?.level ?? null), "a", { a: r.codeA, b: r.codeB, c: r.codeC }, false).detail).toBe("有資料的 5 種都偏低");
   });
   it("無法判斷：可判斷族不足", () => {
     expect(reason({ rain: 0, road_traffic: 0, rail: 0 }, "a")).toBe("無法判斷：只有 3／7 種有資料");

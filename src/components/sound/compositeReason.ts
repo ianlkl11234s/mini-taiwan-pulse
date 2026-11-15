@@ -53,12 +53,14 @@ export function compositeReason(
   levels: readonly (number | null)[],
   variant: CompositeVariant,
   codes: { a: number; b: number; c: number },
+  /** 句尾帶「（N 種無法判斷）」：滑過提示要（沒有別處寫）；點選面板另有「無法判斷：…」一行，傳 false 避免重複 */
+  withUnknownSuffix = true,
 ): CompositeReason {
   const known = levels.filter((l) => l != null).length;
   const unknown = COMPOSITE_FAMILY_COUNT - known;
   const whole = variant === "b" ? codes.b === GRID_UNKNOWN : variant === "c" ? codes.c === GRID_UNKNOWN : codes.a === GRID_UNKNOWN;
   if (whole) return { head: t("soundAtlas.reason.unknownHead"), detail: t("soundAtlas.reason.onlyKnown", { known, total: COMPOSITE_FAMILY_COUNT }) };
-  const suffix = unknown > 0 ? t("soundAtlas.reason.unknownSuffix", { n: unknown }) : "";
+  const suffix = withUnknownSuffix && unknown > 0 ? t("soundAtlas.reason.unknownSuffix", { n: unknown }) : "";
   const list = (items: { family: CompositeFamily; level: number }[]) => {
     const shown = items.slice(0, MAX_LISTED).map((x) => t("soundAtlas.reason.item", { family: reasonFamilyName(t, x.family), level: familyLevelText(t, x.family, x.level) }));
     const more = items.length > MAX_LISTED ? t("soundAtlas.reason.more", { n: items.length - MAX_LISTED }) : "";
