@@ -125,8 +125,6 @@ import type { MapBridge } from "./chat/types";
 import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 const SoundReceiverPanel = lazy(() => import("./components/sound/SoundReceiverPanel").then(({ SoundReceiverPanel }) => ({ default: SoundReceiverPanel })));
-// PREVIEW（綜合聲景甲／乙）：選定版本後移除，見 docs/features/city-sound-atlas/GRID_ARCHITECTURE.md §6
-const SoundCompositePreviewBar = lazy(() => import("./components/sound/SoundCompositePreviewBar").then(({ SoundCompositePreviewBar }) => ({ default: SoundCompositePreviewBar })));
 import { LoadingStatus } from "./components/LoadingStatus";
 import { CountryViewportHint } from "./components/CountryViewportHint";
 import { useViewportCountry } from "./hooks/useViewportCountry";
@@ -1996,9 +1994,9 @@ export default function App() {
       },
       window.location.pathname,
     );
-    // PREVIEW（綜合聲景甲／乙／丙）：保留 ?soundComposite=a|b|c 方便分享同一版；選定後刪這兩行（GRID_ARCHITECTURE §6）
-    const previewVariant = new URLSearchParams(window.location.search).get("soundComposite");
-    const next = previewVariant === "a" || previewVariant === "b" || previewVariant === "c" ? `${built}${built.includes("?") ? "&" : "?"}soundComposite=${previewVariant}` : built;
+    // 綜合聲景呈現方式（W6-10）：保留 ?soundComposite=a|b|c，分享連結記住選項（寫入在 soundAtlasHost；主站 p.* 只收數字）
+    const compositeMode = new URLSearchParams(window.location.search).get("soundComposite");
+    const next = compositeMode === "a" || compositeMode === "b" || compositeMode === "c" ? `${built}${built.includes("?") ? "&" : "?"}soundComposite=${compositeMode}` : built;
     if (next !== window.location.pathname + window.location.search) {
       window.history.replaceState(null, "", next);
     }
@@ -3303,11 +3301,6 @@ export default function App() {
               <SoundReceiverPanel isDark={isDarkTheme} />
             </Suspense>
           </div>
-        )}
-        {layerVisibility.soundComposite && (
-          <Suspense fallback={null}>
-            <SoundCompositePreviewBar isDark={isDarkTheme} />
-          </Suspense>
         )}
         <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", minHeight: 0, flexShrink: 8 }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，

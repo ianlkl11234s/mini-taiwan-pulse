@@ -13071,11 +13071,11 @@ export const LAYER_MANIFEST = {
   },
 
   // 🔊 City Sound Atlas 聲景（實驗，2026-11-11）：四個來源家族各一個開關，共用接收點面板／圖例／popup。
-  // W6-4/5 綜合網格（預覽）：七族當下網格即時合成，甲（活躍種數分級）／乙（假設權重指數）由底部預覽列切換，使用者選定後移除另一版。
+  // W6-4/5 綜合網格：七族當下網格即時合成；W6-10（2026-11-16 使用者決定三種並存）呈現方式在圖層展開區切換：主因（預設）／活躍種數／綜合指數（假設權重）。
   soundComposite: {
     key: "soundComposite",
     country: "SIM", section: { theme: "雙北城市聲景", group: "聲景（實驗）" },
-    ...layerName({ zh: "綜合聲景（預覽）", alt: "Combined soundscape", qualifier: "推估" }),
+    ...layerName({ zh: "綜合聲景", alt: "Combined soundscape", qualifier: "推估" }),
     expandable: true,
     color: SOUND_COMPOSITE_A_COLORS[1],
     icon: Grid3x3,
@@ -13084,18 +13084,18 @@ export const LAYER_MANIFEST = {
       datasets: [],
       derivedFromLayers: ["soundRain", "soundRoadTraffic", "soundAviation", "soundRail", "soundWindFoliage", "soundCoastalWave", "soundRiverWater"],
       derivationType: "custom",
-      processing: "W6-4/5：臺北市＋新北市 250 m、每 10 分一格，由雨、道路、飛機、鐵道、風吹樹葉、海浪、河川七族當下的網格碼即時合成（前端 Web Worker，不另出檔）。甲：數「偏活躍」（各族五級的中以上）的聲源種數，分平靜／一般／熱鬧（不相加）；乙：各族潛勢下緣 × 自訂權重的加權平均（0–1，只用可判斷的族並重新正規化）。可判斷的族不足一半＝斜線。雷、垃圾車、施工不納入。常數與假設正本 soundProfiles.COMPOSITE；文件 MODEL_DECISIONS §10。",
-      note: "DISPLAY_ONLY（尚未入分析倉庫）；依資料推估的聲源活動，非實測音量、非 dB；乙的權重是自訂假設、未經校準。",
+      processing: "W6-4/5：臺北市＋新北市 250 m、每 10 分一格，由雨、道路、飛機、鐵道、風吹樹葉、海浪、河川七族當下的網格碼即時合成（前端 Web Worker，不另出檔）。三種呈現方式：主因（預設）＝分級達「低」以上的族裡最明顯的一族，深淺＝該族分級（不相加）；活躍種數＝數「偏活躍」（各族五級的中以上）的聲源種數，分平靜／一般／熱鬧（不相加）；綜合指數＝各族潛勢下緣 × 假設權重的加權平均（0–1，只用可判斷的族並重新正規化）。可判斷的族不足一半＝斜線。雷、垃圾車、施工不納入。常數與假設正本 soundProfiles.COMPOSITE；文件 MODEL_DECISIONS §10。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）；依資料推估的聲源活動，非實測音量、非 dB；綜合指數的權重是假設、未經校準。",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useSoundAtlasLayer（背景載入七族，單族圖層維持關閉）＋useSoundCompositeGridLayer（layers/hosts/soundAtlasHost）：Worker（src/sound/grid/soundGrid.worker.ts）用同一個 10 分格的七族網格算 compositeFrames；甲乙版本由網址 ?soundComposite=a|b 與底部預覽列切換（預覽用，選定後移除）。",
+      note: "useSoundAtlasLayer（背景載入七族，單族圖層維持關閉）＋useSoundCompositeGridLayer（layers/hosts/soundAtlasHost）：Worker（src/sound/grid/soundGrid.worker.ts）用同一個 10 分格的七族網格算 compositeFrames；呈現方式是圖層參數 soundCompositeMode（展開區選單），網址 ?soundComposite=c|a|b 載入時套用、切換時寫回。",
     },
     legend: "soundAtlas",
     popup: "soundPointQuery",
-    params: { count: 1, kinds: ["slider"] },
-    description: "臺北市＋新北市 250 m 網格的綜合聲景（預覽，每 10 分一格）。甲＝此刻偏活躍（各族五級的「中」以上）的聲源有幾種：平靜 0 種、一般 1 種、熱鬧 2 種以上，只數種數、各族不相加；乙＝各族潛勢 × 自訂權重的加權平均（0–1），權重是假設、等同把不同聲源相加，未經校準。納入：雨、道路車流、飛機（用飛機圖層的網格門檻）、鐵道、風吹樹葉、海浪、河川；不納入：雷、垃圾車、道路施工（維持點／事件呈現）。可判斷的聲源不到一半（4／7 種）畫斜線；沒有全範圍來源檔的日子（目前只有 11/09、10/24 有）大多是斜線。依資料推估的聲源活動，非實測音量、非 dB。",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "臺北市＋新北市 250 m 網格的綜合聲景（每 10 分一格），呈現方式三選一。主因（預設）＝此刻最明顯的是哪一種聲源，顏色＝該聲源、越深越強，各族不相加；活躍種數＝此刻偏活躍（各族五級的「中」以上）的聲源有幾種：平靜 0 種、一般 1 種、熱鬧 2 種以上，只數種數、各族不相加；綜合指數（假設權重）＝各族潛勢 × 假設權重的加權平均（0–1），等同把不同聲源相加，權重未經校準。納入：雨、道路車流、飛機（用飛機圖層的網格門檻）、鐵道、風吹樹葉、海浪、河川；不納入：雷、垃圾車、道路施工（維持點／事件呈現）。可判斷的聲源不到一半（4／7 種）畫斜線；沒有全範圍來源檔的日子（目前只有 11/09、10/24 有）大多是斜線。依資料推估的聲源活動，非實測音量、非 dB。",
     topics: ["環境", "聲景", "噪音", "推估", "實驗", "非 dB", "綜合"],
   },
   soundAviation: {

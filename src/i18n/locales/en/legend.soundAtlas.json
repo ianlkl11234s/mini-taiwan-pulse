@@ -7,7 +7,7 @@
   "legend.soundAtlas.roadGridUnknown": "Road but no data",
   "legend.soundAtlas.potentialGrid.levels": "Low → very high",
   "legend.soundAtlas.potentialGrid.noneGate": "None or below threshold ({gate})",
-  "legend.soundAtlas.compositeTitle": "Combined soundscape ({v})",
+  "legend.soundAtlas.compositeTitle": "Combined soundscape · {v}",
   "legend.soundAtlas.compositeBLow": "0",
   "legend.soundAtlas.compositeBHigh": "≥ {max}",
   "legend.soundAtlas.compositeA0": "Calm (0)",

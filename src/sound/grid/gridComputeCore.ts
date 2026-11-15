@@ -5,7 +5,7 @@
  *   空間場在這裡建（node 量 100–650 ms，以前在主執行緒 useMemo）；每族換 set 時清快取與場。
  * - 幀：與舊 hook 相同的函式（rainGridFrame／roadGridFrame／potentialPackFrame／railGridFrame／naturalGridFrame），
  *   整幀判定（no_full_area_source、no_pack_for_date…）也從舊 hook 搬來，規則不變。
- * - 綜合：同一個 10 分格的七幀 → compositeFrames（甲、乙、丙＋七族分級打包一起算，切版本不重算）。
+ * - 綜合：同一個 10 分格的七幀 → compositeFrames（三種呈現方式＋七族分級打包一起算，切換不重算）。
  */
 import type { SetOrigin } from "../soundAtlasData";
 import type { PreparedTrack } from "../sourceAdapters/railAdapter";

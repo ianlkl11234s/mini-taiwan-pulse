@@ -66,20 +66,20 @@ export const SOUND_POTENTIAL_GRID_COLORS = {
 export const SOUND_POTENTIAL_GRID_ALPHA = [0.1, 0.48, 0.6, 0.72, 0.84] as const;
 
 /**
- * W6-4/5 綜合網格（甲／乙預覽；資料色，§3.16）：單一色相（靛藍）由淺到深、越深越多，不用紅綠對立；
+ * W6-4/5 綜合網格（活躍種數／綜合指數；資料色，§3.16）：單一色相（靛藍）由淺到深、越深越多，不用紅綠對立；
  * 七族網格的色相是灰／藍紫洋紅（雨）、琥珀紅（道路）、粉紅（飛機）、黃（鐵道）、萊姆綠（風）、青（浪）、翠綠（河），靛藍最分得開。
  * 末級停在 indigo-700（不用更深的 900）：暗底圖上仍看得出。無法判斷由渲染器畫斜線。
- * 甲：平靜／一般／熱鬧；乙：指數 0 → displayMaxIndex 連續內插（色與透明度一起加深）。
+ * 活躍種數：平靜／一般／熱鬧；綜合指數：指數 0 → displayMaxIndex 連續內插（色與透明度一起加深）。
  */
 export const SOUND_COMPOSITE_A_COLORS = ["#c7d2fe", "#818cf8", "#4338ca"] as const;
 export const SOUND_COMPOSITE_A_ALPHA = [0.2, 0.55, 0.82] as const;
 export const SOUND_COMPOSITE_B_RAMP = { from: "#e0e7ff", to: "#4338ca", alphaFrom: 0.12, alphaTo: 0.84 } as const;
 /**
- * W6-8 丙「主因」（預覽；資料色，§3.16）：深淺＝該族分級 低→很高（沿用連續潛勢網格的透明度階 SOUND_POTENTIAL_GRID_ALPHA 1–4）；
+ * W6-8 主因（資料色，§3.16）：深淺＝該族分級 低→很高（沿用連續潛勢網格的透明度階 SOUND_POTENTIAL_GRID_ALPHA 1–4）；
  * 平靜＝中性灰淡色。無法判斷由渲染器畫斜線。
  * W6-9（使用者 11-16 同意）：色相**不用**家族色（雨、飛機、浪、河同屬青藍系，全區圖分不出），改取共用類別色盤
  * `MAP_CATEGORICAL`（mapStyleScale.ts C-5，暗／淡底各一套、已驗色弱模擬）的第 0–6 色，對應如下。**只供主因網格與其圖例用**；
- * 單族圖層、面板色條、甲乙仍用 SOUND_FAMILY_COLORS／各自色表。
+ * 單族圖層、面板色條、活躍種數與綜合指數仍用 SOUND_FAMILY_COLORS／各自色表。
  *   雨→0 藍、道路→1 橘紅、海浪→2 青（淡底深海藍）、飛機→3 琥珀（淡底深褐）、鐵道→4 洋紅、河川→5 藍綠、風吹樹葉→6 綠。
  */
 export const SOUND_COMPOSITE_C_CATEGORICAL_INDEX = {

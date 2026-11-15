@@ -5,6 +5,14 @@
 import type { MessageKey } from "../../i18n/keys";
 import type { ContributionEvidence, FamilyStatus, SoundSourceFamily, SourceHealth } from "../../sound/types";
 import type { SoundSceneId } from "../../sound/scenes";
+import type { CompositeVariant } from "../../sound/grid/compositeState";
+
+/** 綜合聲景三種呈現方式的白話名稱（W6-10；圖例標題用，選單文字在 layerParamsSpec） */
+export const COMPOSITE_MODE_KEYS: Record<CompositeVariant, MessageKey> = {
+  c: "soundAtlas.composite.modeCause",
+  a: "soundAtlas.composite.modeActive",
+  b: "soundAtlas.composite.modeIndex",
+};
 
 export const FAMILY_KEYS: Record<SoundSourceFamily, MessageKey> = {
   aviation: "soundAtlas.family.aviation",

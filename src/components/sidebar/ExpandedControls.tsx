@@ -13,6 +13,7 @@ import { PropertyValueStatisticsDetails } from "./PropertyValueStatisticsDetails
 import { LayerControlArea, ParamControlList } from "./LayerParamControls";
 import { useRailTheme } from "./railTheme";
 import { LayerInfoLine } from "./LayerInfoLine";
+import { SoundCompositeDataHint } from "../sound/SoundCompositeDataHint";
 
 export interface ExpandedControlsProps {
   layerKey: ExpandableLayerKey;
@@ -37,7 +38,7 @@ function useLinkedSelects(layerKey: string): void {
 /**
  * 圖層展開區（spec §5.11 V2）：桌機四入口與手機共用同一份。
  * 順序：航班模式鈕 → 實價統計 → 歷史航跡 → 共用控制項（`ParamControlList`：資料篩選含統計連動選單 →
- * 顏色 → 透明度 → 大小 → 其他外觀）→ 說明・來源（統計圖層的來源與處理紀錄也在這裡，C 段）。
+ * 顏色 → 透明度 → 大小 → 其他外觀）→ 綜合聲景資料不足提示 → 說明・來源（統計圖層的來源與處理紀錄也在這裡，C 段）。
  */
 export function ExpandedControls({
   layerKey, isTransport, displayMode,
@@ -66,6 +67,7 @@ export function ExpandedControls({
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
       {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={isDarkTheme} />}
       <ParamControlList controls={controls} />
+      {layerKey === "soundComposite" && <SoundCompositeDataHint />}
       {isStatisticsRenderLayer(layerKey)
         ? <LayerInfoLine layerKey={layerKey}><StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} /></LayerInfoLine>
         : <LayerInfoLine layerKey={layerKey} />}

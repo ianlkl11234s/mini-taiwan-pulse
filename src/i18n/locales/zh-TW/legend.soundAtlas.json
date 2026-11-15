@@ -7,7 +7,7 @@
   "legend.soundAtlas.roadGridUnknown": "有路但沒資料",
   "legend.soundAtlas.potentialGrid.levels": "低 → 很高",
   "legend.soundAtlas.potentialGrid.noneGate": "沒有或低於門檻（{gate}）",
-  "legend.soundAtlas.compositeTitle": "綜合聲景（{v}）",
+  "legend.soundAtlas.compositeTitle": "綜合聲景・{v}",
   "legend.soundAtlas.compositeBLow": "0",
   "legend.soundAtlas.compositeBHigh": "≥ {max}",
   "legend.soundAtlas.compositeA0": "平靜（0 種）",

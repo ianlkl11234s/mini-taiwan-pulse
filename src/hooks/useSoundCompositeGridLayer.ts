@@ -1,6 +1,7 @@
 /**
- * City Sound Atlas 綜合網格（W6-4/5，`soundComposite`，預覽）：七族當下的網格在 Web Worker 即時合成，甲乙丙一起算，切版本只換色表與幀。
- * - 丙「主因」（W6-8）：每格＝最明顯那一族的家族色，深淺＝該族分級；平靜＝中性灰。
+ * City Sound Atlas 綜合網格（W6-4/5，`soundComposite`）：七族當下的網格在 Web Worker 即時合成，三種呈現方式一起算，切換只換色表與幀。
+ * - 呈現方式（W6-10，圖層展開區 `soundCompositeMode`）：主因（預設）／活躍種數／綜合指數（假設權重）。
+ * - 主因（W6-8）：每格＝最明顯那一族的家族色，深淺＝該族分級；平靜＝中性灰。
  * - 滑過提示（W6-8，只限滑鼠）：讀主執行緒持有的當前幀（Worker 回的三版碼＋七族分級打包），一行白話原因；不重算、不呼叫 queryReceiver。
  *
  * - 七族資料由 useSoundAtlasLayer 在背景載入（單族圖層維持關閉）；要等七族都載完、飛機每日包抓完才請求（之前註冊的 loading 會顯示）。
@@ -15,8 +16,8 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { soundAtlasStore } from "../sound/soundAtlasStore";
 import { gridSourceApplies } from "../sound/grid/gridSources";
 import { COMPOSITE_B_SCALE, COMPOSITE_C_LEVELS, COMPOSITE_FAMILIES, unpackLevels } from "../sound/grid/compositeGrid";
-import { compositeFrameRef, compositePreviewStore, type CompositeVariant } from "../sound/grid/compositePreview";
-import { cellIndexOf, countyOf, inScopeCells, GRID_UNKNOWN } from "../sound/grid/gridSpec";
+import { compositeFrameRef, compositeFrameStore, type CompositeVariant } from "../sound/grid/compositeState";
+import { cellIndexOf, countyOf } from "../sound/grid/gridSpec";
 import { createAnalysisHoverTip, supportsAnalysisHover } from "../research/analysisResultHover";
 import { compositeReason } from "../components/sound/compositeReason";
 import { useLocale } from "../state/localeStore";
@@ -30,7 +31,7 @@ export const SOUND_COMPOSITE_GRID_LAYER_ID = "sound-atlas-grid-composite";
 const hex = (h: string): [number, number, number] => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const toHex = (c: number[]) => `#${c.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")}`;
 
-/** 乙：指數碼 0–200 → 由淺到深內插到 displayMaxIndex（之上同色） */
+/** 綜合指數：指數碼 0–200 → 由淺到深內插到 displayMaxIndex（之上同色） */
 export function compositeBColorAt(code: number): { color: string; alpha: number } {
   const t = Math.min(1, code / COMPOSITE_B_SCALE / COMPOSITE.displayMaxIndex.value);
   const a = hex(SOUND_COMPOSITE_B_RAMP.from), b = hex(SOUND_COMPOSITE_B_RAMP.to);
@@ -57,8 +58,6 @@ export function compositePalette(variant: CompositeVariant, isDark = true): Uint
   return paletteFromClasses(colors, alphas);
 }
 
-let scopeCells: Uint32Array | null = null;
-
 type CompositeResult = Extract<GridLayerResult, { type: "composite" }>;
 const variantFrame = (c: CompositeResult, v: CompositeVariant) => (v === "a" ? c.a : v === "b" ? c.b : c.c);
 
@@ -71,6 +70,7 @@ export function useSoundCompositeGridLayer(
   visible: boolean,
   opacity: number,
   gate: number,
+  variant: CompositeVariant,
   isDarkTheme = true,
 ): void {
   const { t } = useLocale();
@@ -78,22 +78,19 @@ export function useSoundCompositeGridLayer(
   tRef.current = t;
   const darkRef = useRef(isDarkTheme);
   darkRef.current = isDarkTheme;
-  const variant = useSyncExternalStore(compositePreviewStore.subscribe, () => compositePreviewStore.get().variant);
+  const variantRef = useRef(variant);
+  variantRef.current = variant;
   const receiver = useSyncExternalStore(soundAtlasStore.subscribe, () => soundAtlasStore.get().receiver);
   const loadingCount = useSyncExternalStore(soundAtlasStore.subscribe, () => soundAtlasStore.get().loading.length);
   const outside = !!receiver && !gridSourceApplies(receiver);
   const palette = useMemo(() => compositePalette(variant, isDarkTheme), [variant, isDarkTheme]);
   const pick = useCallback((r: GridLayerResult) => {
-    return variantFrame(r as CompositeResult, compositePreviewStore.get().variant);
+    return variantFrame(r as CompositeResult, variantRef.current);
   }, []);
   const onFrame = useCallback((r: GridLayerResult) => {
     const c = r as CompositeResult;
-    scopeCells ??= inScopeCells();
     compositeFrameRef.set({ bin: c.bin, a: c.a, b: c.b, c: c.c, lv: c.lv });
-    const v = variantFrame(c, compositePreviewStore.get().variant);
-    let unk = 0;
-    for (let k = 0; k < scopeCells.length; k++) if (v[scopeCells[k]!] === GRID_UNKNOWN) unk++;
-    compositePreviewStore.set({ notes: c.notes, unknownShare: unk / scopeCells.length, bin: c.bin });
+    compositeFrameStore.set({ notes: c.notes, bin: c.bin });
   }, []);
   useSoundGridLayer({
     mapRef, layerId: SOUND_COMPOSITE_GRID_LAYER_ID, target: "composite", visible, suppressed: outside, ready: loadingCount === 0,
@@ -114,7 +111,7 @@ export function useSoundCompositeGridLayer(
       const f = compositeFrameRef.get();
       const cell = cellIndexOf(e.lngLat.lng, e.lngLat.lat);
       if (!f || cell < 0 || countyOf(cell) === 0) { hide(); return; }
-      const variant = compositePreviewStore.get().variant;
+      const variant = variantRef.current;
       const key = `${f.bin}|${cell}|${variant}`;
       // 同一格只重新定位，不重組文字
       if (key !== lastKey) {

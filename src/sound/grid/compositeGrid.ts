@@ -1,15 +1,15 @@
 /**
- * 綜合網格（W6-4/5，`soundComposite`）：由七族「當下的網格碼」逐格算出甲、乙兩版（預覽，使用者看過再選一個）。
+ * 綜合網格（W6-4/5，`soundComposite`）：由七族「當下的網格碼」逐格算出三種呈現方式（2026-11-16 使用者決定三種並存：主因〔預設〕／活躍種數／綜合指數）。
  *
  * 規則（正本 docs/features/city-sound-atlas/MODEL_DECISIONS.md §10；常數在 soundProfiles.COMPOSITE）：
  * - 每族先把格碼換成「顯示分級 L（0–4）」與「潛勢下緣 s（0–1）」；255＝該族在該格無法判斷（unknown ≠ 0）。
  *   雨：L＝雨分級，s＝rainPotential(該級雨量下緣)；道路：L＝五級，s＝該級潛勢下緣（0／0.1／0.3／0.5／0.75）；
  *   飛機／鐵道／風／浪／河：L＝potentialLevelOfCode(碼, 門檻)，s＝碼的潛勢下緣 (碼−1)/200；飛機低於顯示門檻 → L＝0、s＝0。
- * - 甲（活躍種數分級）：數 L ≥ activeMinLevel 的族（不相加），依 levelCuts 分平靜／一般／熱鬧；可判斷族 < minKnownFamilies → 255。
- * - 乙（假設權重指數）：Σ w·s ／ Σ w（只算可判斷的族，權重重新正規化）；可判斷權重占比 < minKnownWeightShare 或可判斷族 < minKnownFamilies → 255。
+ * - 活躍種數：數 L ≥ activeMinLevel 的族（不相加），依 levelCuts 分平靜／一般／熱鬧；可判斷族 < minKnownFamilies → 255。
+ * - 綜合指數（假設權重指數）：Σ w·s ／ Σ w（只算可判斷的族，權重重新正規化）；可判斷權重占比 < minKnownWeightShare 或可判斷族 < minKnownFamilies → 255。
  *   碼＝round(指數 × 200)（0–200）。
- * - 丙（主因，W6-8 預覽）：分級 ≥ 1（「低」以上）的族裡最明顯的一族（和甲的「最明顯」同一個比較：分級高者、同級比潛勢、再同依族序），
- *   碼＝1 + 族序 × 4 + (分級 − 1)（1–28）；沒有任何族達「低」→ 0（平靜）；可判斷族 < minKnownFamilies → 255（同甲）。
+ * - 主因（W6-8）：分級 ≥ 1（「低」以上）的族裡最明顯的一族（和活躍種數的「最明顯」同一個比較：分級高者、同級比潛勢、再同依族序），
+ *   碼＝1 + 族序 × 4 + (分級 − 1)（1–28）；沒有任何族達「低」→ 0（平靜）；可判斷族 < minKnownFamilies → 255（同活躍種數）。
  * - 另回每格七族分級的打包（3 bit／族，7＝無法判斷），給主執行緒滑過提示直接查，不必重算。
  * 綜合網格不另出檔：Worker 用同一個 10 分格的七幀即時算；點選查詢面板對該格七個碼呼叫同一支 compositeCell。
  */
@@ -24,7 +24,7 @@ export type CompositeFamily = (typeof COMPOSITE.families.value)[number];
 export const COMPOSITE_FAMILIES: readonly CompositeFamily[] = COMPOSITE.families.value;
 export const COMPOSITE_FAMILY_COUNT = COMPOSITE_FAMILIES.length;
 
-/** 甲的三級碼（0 平靜、1 一般、2 熱鬧；255 無法判斷） */
+/** 活躍種數的三級碼（0 平靜、1 一般、2 熱鬧；255 無法判斷） */
 export type CompositeLevelA = 0 | 1 | 2;
 export const COMPOSITE_B_SCALE = 200;
 
@@ -55,7 +55,7 @@ export function familyTerm(family: CompositeFamily, code: number, gate = 0): Fam
   return { level: potentialLevelOfCode(code, g)!, s: (code - 1) / POTENTIAL_CODE_SCALE };
 }
 
-/** 丙：每族 4 級（低→很高） */
+/** 主因：每族 4 級（低→很高） */
 export const COMPOSITE_C_LEVELS = 4;
 const C_UNKNOWN_LEVEL = 7;
 
@@ -66,17 +66,17 @@ export interface CompositeCell {
   activeCount: number;
   /** 偏活躍族裡最強的（分級高者、同級比潛勢、再同依族序）；沒有偏活躍族 → null */
   dominant: CompositeFamily | null;
-  /** 丙：分級 ≥ 1 的族裡最強的（同一個比較）；沒有 → null */
+  /** 主因：分級 ≥ 1 的族裡最強的（同一個比較）；沒有 → null */
   top: CompositeFamily | null;
-  /** 丙：0 平靜／1–28 族×分級／255 無法判斷 */
+  /** 主因：0 平靜／1–28 族×分級／255 無法判斷 */
   codeC: number;
-  /** 甲：0 平靜／1 一般／2 熱鬧／255 無法判斷 */
+  /** 活躍種數：0 平靜／1 一般／2 熱鬧／255 無法判斷 */
   codeA: number;
-  /** 乙：可判斷權重占比（0–1） */
+  /** 綜合指數：可判斷權重占比（0–1） */
   knownWeightShare: number;
-  /** 乙：指數 0–1（無法判斷 → null） */
+  /** 綜合指數：指數 0–1（無法判斷 → null） */
   index: number | null;
-  /** 乙：碼 0–200／255 */
+  /** 綜合指數：碼 0–200／255 */
   codeB: number;
   /** 各族分級與潛勢（依 COMPOSITE_FAMILIES 順序；null＝無法判斷） */
   terms: (FamilyTerm | null)[];
@@ -86,7 +86,7 @@ const WEIGHTS = COMPOSITE_FAMILIES.map((f) => COMPOSITE.weights.value[f]!);
 const WEIGHT_SUM = WEIGHTS.reduce((a, b) => a + b, 0);
 const ACTIVE_MIN = COMPOSITE_FAMILIES.map((f) => COMPOSITE.activeMinLevel.value[f]!);
 
-/** 偏活躍種數 → 甲的分級 */
+/** 偏活躍種數 → 活躍種數的分級 */
 export function levelAOfCount(n: number): CompositeLevelA {
   const [c1, c2] = COMPOSITE.levelCuts.value;
   return n < c1! ? 0 : n < c2! ? 1 : 2;
@@ -97,7 +97,7 @@ export function compositeCell(codes: ArrayLike<number>, gate = 0): CompositeCell
   const terms: (FamilyTerm | null)[] = [];
   let known = 0, activeCount = 0, kw = 0, ws = 0;
   let dom = -1, top = -1;
-  // 「最明顯」：分級高者、同級比潛勢、再同依族序（先到者）——甲的 dominant 與丙的 top 共用
+  // 「最明顯」：分級高者、同級比潛勢、再同依族序（先到者）——活躍種數的 dominant 與主因的 top 共用
   const stronger = (t: FamilyTerm, j: number) => j < 0 || t.level > terms[j]!.level || (t.level === terms[j]!.level && t.s > terms[j]!.s);
   for (let i = 0; i < COMPOSITE_FAMILY_COUNT; i++) {
     const t = familyTerm(COMPOSITE_FAMILIES[i]!, codes[i]!, gate);
@@ -123,7 +123,7 @@ export function compositeCell(codes: ArrayLike<number>, gate = 0): CompositeCell
   };
 }
 
-/** 丙的碼 → 主因族與分級（1–4）；0 平靜、255 無法判斷 → null */
+/** 主因的碼 → 主因族與分級（1–4）；0 平靜、255 無法判斷 → null */
 export function decodeCompositeC(code: number): { family: CompositeFamily; level: number } | null {
   if (code < 1 || code > COMPOSITE_FAMILY_COUNT * COMPOSITE_C_LEVELS) return null;
   return { family: COMPOSITE_FAMILIES[Math.floor((code - 1) / COMPOSITE_C_LEVELS)]!, level: ((code - 1) % COMPOSITE_C_LEVELS) + 1 };
@@ -143,7 +143,7 @@ export function unpackLevels(v: number): (number | null)[] {
   return out;
 }
 
-/** 碼 → 乙的指數下緣（popup 顯示用） */
+/** 碼 → 綜合指數的指數下緣（popup 顯示用） */
 export const compositeIndexOfCode = (code: number): number | null => (code === GRID_UNKNOWN || code > COMPOSITE_B_SCALE ? null : code / COMPOSITE_B_SCALE);
 
 /**

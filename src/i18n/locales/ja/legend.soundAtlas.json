@@ -7,7 +7,7 @@
   "legend.soundAtlas.roadGridUnknown": "道路はあるがデータなし",
   "legend.soundAtlas.potentialGrid.levels": "低 → 非常に高",
   "legend.soundAtlas.potentialGrid.noneGate": "なし・しきい値（{gate}）未満",
-  "legend.soundAtlas.compositeTitle": "総合サウンドスケープ（{v}）",
+  "legend.soundAtlas.compositeTitle": "総合サウンドスケープ・{v}",
   "legend.soundAtlas.compositeBLow": "0",
   "legend.soundAtlas.compositeBHigh": "≥ {max}",
   "legend.soundAtlas.compositeA0": "静か（0 種）",

@@ -7,17 +7,32 @@ import { useSoundPotentialGridLayer } from "../../hooks/useSoundPotentialGridLay
 import { useSoundCompositeGridLayer } from "../../hooks/useSoundCompositeGridLayer";
 import { COMPOSITE_FAMILIES } from "../../sound/grid/compositeGrid";
 import { aviationGateFromSearch, aviationGatePotential } from "../../sound/grid/aviationGates";
+import { compositeModeOf, compositeVariantFromSearch, type CompositeVariant } from "../../sound/grid/compositeState";
 import { layerParamsStore } from "../../state/layerParamsStore";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { paramStr, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 
-// W6-3：網址指定的飛機網格門檻只在載入時套一次（之後以圖層展開區為準）
+// W6-3：網址指定的飛機網格門檻（W6-10 加綜合聲景呈現方式）只在載入時套一次（之後以圖層展開區為準）
 let urlGateApplied = false;
 function applyUrlAviationGate(): void {
   if (urlGateApplied || typeof window === "undefined") return;
   urlGateApplied = true;
   const g = aviationGateFromSearch(window.location.search);
   if (g) layerParamsStore.setParam("soundAviation", "soundAviationGate", g);
+  // W6-10：綜合聲景呈現方式 ?soundComposite=a|b|c（W6-4 起的舊連結相容）
+  const m = compositeVariantFromSearch(window.location.search);
+  if (m) layerParamsStore.setParam("soundComposite", "soundCompositeMode", m);
+}
+
+/** W6-10：綜合聲景開著時，把目前的呈現方式寫回網址（分享連結記住選項；App 的網址同步會保留這個參數） */
+function useCompositeModeUrl(on: boolean, mode: CompositeVariant): void {
+  useEffect(() => {
+    if (!on || !urlGateApplied) return;
+    const u = new URL(window.location.href);
+    if (u.searchParams.get("soundComposite") === mode) return;
+    u.searchParams.set("soundComposite", mode);
+    window.history.replaceState(window.history.state, "", u);
+  }, [on, mode]);
 }
 
 const NONE: readonly never[] = [];
@@ -29,6 +44,8 @@ export const SoundAtlasHost: LayerHostComponent = ({ deps }) => {
   const gate = aviationGatePotential(paramStr(useLayerParams("soundAviation"), "soundAviation", "soundAviationGate"));
   const pa = useKeyOverlayParams("soundAviation");
   const pz = useKeyOverlayParams("soundComposite");
+  const compositeMode = compositeModeOf(useLayerParams("soundComposite"));
+  useCompositeModeUrl(!!v.soundComposite, compositeMode);
   const pr = useKeyOverlayParams("soundRain");
   const pt = useKeyOverlayParams("soundThunder");
   const pw = useKeyOverlayParams("soundWaste");
@@ -66,8 +83,8 @@ export const SoundAtlasHost: LayerHostComponent = ({ deps }) => {
     v.soundComposite ? COMPOSITE_FAMILIES : NONE,
     { gate, composite: !!v.soundComposite },
   );
-  // W6-4/5：綜合網格（預覽；甲乙由底部預覽列切換）。放在單族網格之前呼叫，圖層疊在最上面由掛載順序決定（見 hook）
-  useSoundCompositeGridLayer(deps.mapRef, !!v.soundComposite, pz.soundCompositeOpacity ?? 0.85, gate, deps.isDarkTheme);
+  // W6-4/5：綜合網格（W6-10 呈現方式由圖層展開區切換）。放在單族網格之前呼叫，圖層疊在最上面由掛載順序決定（見 hook）
+  useSoundCompositeGridLayer(deps.mapRef, !!v.soundComposite, pz.soundCompositeOpacity ?? 0.85, gate, compositeMode, deps.isDarkTheme);
   // W6-1：雨網格（北北 250 m；雷達 ∨ 雨量站）
   useSoundRainGridLayer(deps.mapRef, !!v.soundRain, pr.soundRainOpacity ?? 0.9);
   // W6-2：道路車流網格（國道當日實測／臺北典型延伸／新北等級推估）

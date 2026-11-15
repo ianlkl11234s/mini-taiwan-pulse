@@ -8,12 +8,12 @@ import { categoricalColor, categoricalNeutral } from "../../map/mapStyleScale";
 import { useLayerVisible } from "../../state/layerVisibilityStore";
 import { useLocale } from "../../state/localeStore";
 import { useSyncExternalStore } from "react";
-import { compositePreviewStore } from "../../sound/grid/compositePreview";
+import { compositeModeOf } from "../../sound/grid/compositeState";
 import { COMPOSITE } from "../../sound/model/soundProfiles";
 import { compositeBColorAt } from "../../hooks/useSoundCompositeGridLayer";
 import { COMPOSITE_B_SCALE, COMPOSITE_FAMILIES } from "../../sound/grid/compositeGrid";
 import { SOUND_COMPOSITE_A_ALPHA, SOUND_COMPOSITE_A_COLORS, SOUND_COMPOSITE_C_ALPHA, SOUND_COMPOSITE_C_CATEGORICAL_INDEX, SOUND_POTENTIAL_GRID_ALPHA, SOUND_POTENTIAL_GRID_COLORS, SOUND_FAMILY_COLORS, SOUND_RAIN_GRID_ALPHA, SOUND_RAIN_GRID_COLORS, SOUND_RECEIVER_COLOR, SOUND_ROAD_GRID_ALPHA, SOUND_ROAD_GRID_COLORS, SOUND_UNKNOWN_COLOR } from "../../sound/soundAtlasColors";
-import { FAMILY_KEYS, formatPotential, rainClassKey } from "../sound/soundAtlasText";
+import { COMPOSITE_MODE_KEYS, FAMILY_KEYS, formatPotential, rainClassKey } from "../sound/soundAtlasText";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { aviationGatePotential } from "../../sound/grid/aviationGates";
 import type { PotentialGridFamily } from "../../sound/grid/potentialGridState";
@@ -82,15 +82,15 @@ function SoundPotentialGridLegend({ family }: { family: PotentialGridFamily }) {
   </div>;
 }
 
-/** W6-4/5 綜合網格（預覽）：依目前甲／乙版本顯示色階＋斜線；定義與納入範圍在圖層說明 */
+/** W6-4/5 綜合網格：依目前呈現方式（W6-10 圖層展開區）顯示色階＋斜線；定義與納入範圍在圖層說明 */
 function SoundCompositeLegend() {
   const { t } = useLocale();
   const { isDark } = useLegendTheme();
-  const variant = useSyncExternalStore(compositePreviewStore.subscribe, () => compositePreviewStore.get().variant);
+  const variant = compositeModeOf(useLayerParams("soundComposite"));
   const max = COMPOSITE.displayMaxIndex.value;
   const a = ["legend.soundAtlas.compositeA0", "legend.soundAtlas.compositeA1", "legend.soundAtlas.compositeA2"] as const;
   return <div style={{ marginBottom: 8 }}>
-    <LegendTitle zh={t("legend.soundAtlas.compositeTitle", { v: t(variant === "a" ? "soundAtlas.composite.previewA" : variant === "b" ? "soundAtlas.composite.previewB" : "soundAtlas.composite.previewC") })} />
+    <LegendTitle zh={t("legend.soundAtlas.compositeTitle", { v: t(COMPOSITE_MODE_KEYS[variant]) })} />
     {variant === "c" ? (
       <>
         {COMPOSITE_FAMILIES.map((f) => (

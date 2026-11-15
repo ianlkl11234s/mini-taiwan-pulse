@@ -6,7 +6,7 @@
  */
 import type { MessageKey } from "../../i18n/keys";
 import { COMPOSITE_FAMILIES, COMPOSITE_FAMILY_COUNT, compositeIndexOfCode, decodeCompositeC, type CompositeFamily } from "../../sound/grid/compositeGrid";
-import type { CompositeVariant } from "../../sound/grid/compositePreview";
+import type { CompositeVariant } from "../../sound/grid/compositeState";
 import { GRID_UNKNOWN } from "../../sound/grid/gridSpec";
 import { COMPOSITE } from "../../sound/model/soundProfiles";
 import { FAMILY_KEYS, rainClassKey, roadLevelKey } from "./soundAtlasText";
@@ -31,7 +31,7 @@ export function familyLevelText(t: T, f: CompositeFamily, level: number): string
   return t(LEVEL_KEYS[level as 0 | 1 | 2 | 3 | 4] ?? "soundAtlas.level.unknown");
 }
 
-/** 「偏活躍」（甲的門檻，各族「中」以上）的族，分級高者在前、同級依族序；面板的依據段也用這個順序 */
+/** 「偏活躍」（活躍種數的門檻，各族「中」以上）的族，分級高者在前、同級依族序；面板的依據段也用這個順序 */
 export function activeFamilies(levels: readonly (number | null)[]): { family: CompositeFamily; level: number }[] {
   const out: { family: CompositeFamily; level: number }[] = [];
   levels.forEach((l, i) => {

@@ -1,6 +1,6 @@
 /**
  * W6-5 點選查詢：接收點所在格、此 10 分格的網格值（原本各族格子 popup 的內容併到這裡）。
- * - 綜合列：用 Worker 回的七族網格碼（和地圖顏色同一份），經 compositeCell 算甲（偏活躍種數＋最明顯的族）與乙（指數、依 N／7 種）；只列目前預覽版本一行（W6-7）。
+ * - 綜合列：用 Worker 回的七族網格碼（和地圖顏色同一份），經 compositeCell 算三種呈現方式（主因／活躍種數／綜合指數）；只列目前選的那一種一行（W6-7，W6-10 由圖層展開區切換）。
  * - 各族列：一行摘要（族名＋分級），展開是原本的格子 popup 內容（雨／道路／連續潛勢三種）。
  * - 網格範圍外 → 「網格範圍外」，上方來源照常列。
  * 主題色讀 FeatureThemeProvider（接收點面板與 featureInfo 共用）。
@@ -9,7 +9,8 @@ import { useSyncExternalStore } from "react";
 import { useLocale } from "../../state/localeStore";
 import { soundAtlasStore } from "../../sound/soundAtlasStore";
 import { COMPOSITE_FAMILIES, COMPOSITE_FAMILY_COUNT, compositeCell, type CompositeFamily } from "../../sound/grid/compositeGrid";
-import { compositePreviewStore } from "../../sound/grid/compositePreview";
+import { compositeModeOf } from "../../sound/grid/compositeState";
+import { useLayerParams } from "../../layers/layerParamsAccess";
 import { SOUND_COMPOSITE_A_COLORS, SOUND_FAMILY_COLORS } from "../../sound/soundAtlasColors";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { COMPOSITE } from "../../sound/model/soundProfiles";
@@ -62,7 +63,7 @@ export function SoundCellSection() {
   const theme = useFeatureTheme();
   const { t } = useLocale();
   const q = useSyncExternalStore(soundAtlasStore.subscribe, () => soundAtlasStore.get().cell);
-  const variant = useSyncExternalStore(compositePreviewStore.subscribe, () => compositePreviewStore.get().variant);
+  const variant = compositeModeOf(useLayerParams("soundComposite"));
   const note = { fontSize: FONT_SIZE.xs, color: theme.textDim, lineHeight: 1.5 };
   if (!q) return null;
   if (q.cell < 0) return <div style={note}>{t("soundAtlas.cell.outside")}</div>;
