@@ -123,13 +123,15 @@ function formatValue(v: number, g: Gloss | undefined, i18n: LocaleSnapshot): str
 }
 
 function H3CellBody({
-  props, layerKey, metricParam, title, accent,
+  props, layerKey, metricParam, title, accent, sourceOrg,
 }: {
   props: Record<string, unknown>;
   layerKey: string;
   metricParam: string;
   title: string;
   accent: string;
+  /** 有依據的固定出處（feature 只有 color/value/height）；有給才自掛 SourceFooter，該層須列入 FOOTER_SELF_MANAGED_LAYER_TYPES */
+  sourceOrg?: string;
 }) {
   const t = useFeatureTheme();
   const i18n = useLocale();
@@ -156,18 +158,19 @@ function H3CellBody({
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
         {i18n.t("popup.h3Metric.cellNote")}
       </div>
+      {sourceOrg && <SourceFooter props={{ source_org: sourceOrg }} />}
     </>
   );
 }
 
 export function PopCountCellPanel({ props }: { props: Record<string, unknown> }) {
   const { t: tr } = useLocale();
-  return <H3CellBody props={props} layerKey="popCount" metricParam="" title={tr("popup.h3Metric.popCount")} accent="#ff7043" />;
+  return <H3CellBody props={props} layerKey="popCount" metricParam="" title={tr("popup.h3Metric.popCount")} accent="#ff7043" sourceOrg={tr("popup.h3Metric.popCountSourceOrg")} />;
 }
 
 export function H3PopulationCellPanel({ props }: { props: Record<string, unknown> }) {
   const { t: tr } = useLocale();
-  return <H3CellBody props={props} layerKey="h3Population" metricParam="h3Metric" title={tr("popup.h3Metric.dayNight")} accent="#42a5f5" />;
+  return <H3CellBody props={props} layerKey="h3Population" metricParam="h3Metric" title={tr("popup.h3Metric.dayNight")} accent="#42a5f5" sourceOrg={tr("popup.h3Metric.dayNightSourceOrg")} />;
 }
 
 export function IndicatorsCellPanel({ props }: { props: Record<string, unknown> }) {

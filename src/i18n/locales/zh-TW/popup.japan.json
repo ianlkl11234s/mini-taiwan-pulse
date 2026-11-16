@@ -142,5 +142,6 @@
   "popup.japan.expresswayJunctionType": "接合部種別",
   "popup.japan.expresswayRoutes": "所屬路線（空間推導）",
   "popup.japan.expresswaySaPa": "名稱含 SA/PA（附設於服務區／停車區）",
-  "popup.japan.expresswayJunctionNote": "所屬路線由最近的路線段推得，非官方屬性；接合部種別沒有 SA/PA，不能據此數服務區"
+  "popup.japan.expresswayJunctionNote": "所屬路線由最近的路線段推得，非官方屬性；接合部種別沒有 SA/PA，不能據此數服務區",
+  "popup.japan.meshSourceOrg": "国土交通省 国土数値情報 1km メッシュ別将来推計人口（令和6年推計）"
 }

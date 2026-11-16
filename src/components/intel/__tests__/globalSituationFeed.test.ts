@@ -152,6 +152,8 @@ describe("toIntelCardEvent", () => {
     expect(fips("RS", "Russia")).toBe("RU · Russia");
     expect(fips("UP", "Ukraine")).toBe("UA · Ukraine");
     expect(fips("OD", "South Sudan")).toBe("SS · South Sudan");
+    expect(fips("GZ", "Gaza")).toBe("PS · Gaza");
+    expect(fips("WE", "West Bank")).toBe("PS · West Bank");
     expect(fips("ZZ", "Somewhere")).toBe("ZZ · Somewhere");
     const iso = toIntelCardEvent(candidate("iso", "keep_core", { country_code: "IN", country_code_scheme: "iso2", name: "India" }))!;
     expect(iso.location_name).toBe("IN · India");
