@@ -178,7 +178,8 @@ describe("buildEmbedVisibility", () => {
   it("🔒 即使被硬塞 gated key 也不會開啟（第二道防線）", () => {
     const gated = [...GATED_LAYERS][0]! as keyof LayerVisibility;
     const v = buildEmbedVisibility([gated, "aquaculturePonds"]);
-    expect(v[gated]).toBe(false);
+    // 第一個 gated key 可能是自建 hook 圖層（2026-11-13 起是中國站主限定層），不在 overlay 預設表裡＝undefined；兩者都是「沒開」
+    expect(v[gated]).toBeFalsy();
     expect(v.aquaculturePonds).toBe(true);
   });
 });

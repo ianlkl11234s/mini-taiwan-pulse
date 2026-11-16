@@ -12,8 +12,8 @@ export const KR_DATA_KEYS = [
   "krLibraries", "krMuseums", "krPerformances", "krFestivals", "krHeritage", "krLodging", "krSafeDeliveryBoxes", "krSeniorCenters",
   // 第 9 波（2026-11-10）：產業園區、環境噪音測點、舊衣回收箱
   "krIndustrialComplexes", "krNoiseSites", "krClothingBins",
-  // 第 10 波（2026-11-14）：動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場
+  // 第 10 波（2026-11-14）：動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場、首爾用途地域
   "krAnimalHospitals", "krLocalCultureCenters", "krTraditionalTemples", "krProtectedTrees", "krFishingGrounds",
-  "krBicycleParking", "krCivilDefenseWater", "krEmergencyBells", "krRuralExperienceVillages", "krSlaughterhouses",
+  "krBicycleParking", "krCivilDefenseWater", "krEmergencyBells", "krRuralExperienceVillages", "krSlaughterhouses", "krSeoulZoning",
 ] as const;
 export type KrDataKey = (typeof KR_DATA_KEYS)[number];

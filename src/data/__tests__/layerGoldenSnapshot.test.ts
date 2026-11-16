@@ -294,7 +294,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-13: +12 越南第 0–1 波（行政區界、人口密度、車站、機場港口、主要道路鐵道、電廠、風光與充電站、電網、加油站、油氣、環境監測站、安江示範）。
     // 2026-11-14: +3 菲律賓第 2 波補充（公車站、LRT／MRT 軌道與車站、高速公路與收費道路）。
     // 2026-11-14: +10 南韓第 10 波（動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場）。
-    expect(keys.length).toBe(1852);
+    // 2026-11-16: +1 南韓首爾用途地域（站主限定，#1050）。
+    expect(keys.length).toBe(1853);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

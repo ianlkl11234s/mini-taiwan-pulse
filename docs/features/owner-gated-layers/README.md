@@ -73,6 +73,7 @@
   - **保留 RPC**：`powerGenerationUnit`（`get_ssot_facility_output_24h`）、電廠 popup（`get_power_plant_output_24h`、`get_ssot_facility_units`、`get_ssot_facility_provenance`）、隱藏層 `powerPlants`（`get_ssot_power_plants_with_output`）。
   - 匯出：函式本體 SELECT 外包 `AS t(<RETURNS TABLE 欄位名>)`，否則 `ST_X(...)`、`CASE` 等無別名欄位名會跑掉；驗收逐支比對欄位集合與筆數。
   - 圖例「讀取失敗」提示只接了畜牧；能源／石化讀取失敗仍只寫 console（與舊 RPC 相同）。
+- 南韓首爾用途地域（2026-11-14）：`kr-seoul-zoning`＝`kr_seoul_zoning.pmtiles`（向量圖磚，`application/vnd.pmtiles`）。KR 規格 `ownerAsset` 標記後，`useKrDataLayer` 改掛 `PRIVATE_CORAL_PMTILES_SOURCE_TYPE`；存取判斷 `src/hooks/useOwnerPmtilesAccess.ts`（`?access=1` 探測、401／403／404 靜默、撤權移除 layer 與 source），沒驗證就不掛 source、不退回公開 `./world/`。
   - 舊 RPC 12 支待前端發布到 master、站主驗收後撤除（gis-platform PENDING migration）。
 
 ### 已知限制

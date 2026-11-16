@@ -1,7 +1,8 @@
 // 南韓 Layer Host（2026-10-31 第 0 波起）。clone hosts/ukHosts.tsx 的 GbAdminHost 慣例。
 
 import { useKrAdminLayers } from "../../hooks/useKrAdminLayers";
-import { useKrDataLayer } from "../../hooks/useKrDataLayers";
+import { krSourceSpec, useKrDataLayer } from "../../hooks/useKrDataLayers";
+import { useOwnerPmtilesSource, useOwnerRevokeCleanup } from "../../hooks/useOwnerPmtilesAccess";
 import { KR_SPEC_BY_KEY } from "../../data/krDataLayers";
 import type { KrDataKey } from "../../data/krDataKeys";
 import { useKrAirportsLayer, useKrBusStopsLayer, useKrNationalRoadsLayer, useKrPortsLayer, useKrRailLinesLayer, useKrRailStationsLayer } from "../../hooks/useKrTransportLayers";
@@ -182,3 +183,15 @@ export const KrCivilDefenseWaterHost = makeKrDataHost("krCivilDefenseWater", 0.8
 export const KrEmergencyBellsHost = makeKrDataHost("krEmergencyBells", 0.85);
 export const KrRuralExperienceVillagesHost = makeKrDataHost("krRuralExperienceVillages", 0.85);
 export const KrSlaughterhousesHost = makeKrDataHost("krSlaughterhouses", 0.85);
+/** 首爾用途地域（站主限定）：圖磚只走私人 owner-data；未驗證站主不掛 source，撤權時移除 layer 與 source。 */
+export const KrSeoulZoningHost: LayerHostComponent = ({ deps }) => {
+  const key = "krSeoulZoning";
+  const spec = KR_SPEC_BY_KEY[key];
+  bumpHostRender("useKrSeoulZoningLayer");
+  const p = useKeyOverlayParams(key);
+  const visible = deps.layerVisibility[key];
+  const priv = useOwnerPmtilesSource("kr-seoul-zoning", visible);
+  useOwnerRevokeCleanup(deps.mapRef, !!priv, [spec.layerId, spec.outlineId ?? ""], [krSourceSpec(spec).id]);
+  useKrDataLayer(deps.mapRef, spec, visible, p[`${key}Opacity`] ?? 0.32, p[`${key}Scale`] ?? 1, deps.isDarkTheme, p[`${key}CatMask`], p[`${key}DisplayModeIdx`], priv);
+  return null;
+};
