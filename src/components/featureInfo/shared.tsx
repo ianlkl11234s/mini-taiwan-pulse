@@ -8,6 +8,20 @@ import { localeStore, useLocale } from "../../state/localeStore";
 /** 共用欄位名（`popup.field.<名>`，見 locales/<語系>/popup.json）。新增常用欄位時加進 popup.json。 */
 export type PopupField = StaticMessageKey extends infer K ? (K extends `popup.field.${infer F}` ? F : never) : never;
 
+/** 含組合附加符號（U+0300–036F）的字串：上游常是 NFD（o + ̣），顯示前合成 NFC。只動顯示，不動 ID／篩選值。 */
+const COMBINING_MARK = /[\u0300-\u036f]/;
+/** 越南文專用字母（ơ ư đ 與 U+1EA0–1EF9 帶聲調字母）。PingFang TC 沒有 U+1Exx 預組字形，會拆成 o + ̣ 自己畫、點對錯位置。 */
+const VIETNAMESE_CHAR = /[\u01a0\u01a1\u01af\u01b0\u0110\u0111\u1ea0-\u1ef9]/;
+
+/**
+ * Popup 顯示用文字：NFD 轉 NFC，含越南文字母時回 `lang="vi"`，
+ * 讓 tokens.css 的 `[lang="vi"]` 改用拉丁字型在前的字族（spec §4.1）。
+ */
+export function popupText(value: string): { text: string; lang?: "vi" } {
+  const text = COMBINING_MARK.test(value) ? value.normalize("NFC") : value;
+  return VIETNAMESE_CHAR.test(text) ? { text, lang: "vi" } : { text };
+}
+
 /**
  * Popup 內容共用標題 — 前置分類色點 + 粗體標題 + 下方分隔線（B 版規格，
  * 見 docs/features/ui-consistency-audit-20260927/proposal.md §6.1）。
@@ -16,6 +30,7 @@ export type PopupField = StaticMessageKey extends infer K ? (K extends `popup.fi
  */
 export function Title({ color, children }: { color: string; children: string }) {
   const t = useFeatureTheme();
+  const shown = popupText(children);
   return (
     <div
       style={{
@@ -31,7 +46,7 @@ export function Title({ color, children }: { color: string; children: string }) 
       }}
     >
       <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      {children}
+      {shown.lang ? <span lang={shown.lang}>{shown.text}</span> : shown.text}
     </div>
   );
 }
@@ -75,18 +90,20 @@ export function Row({ label, field, value, color, mono, title }: { label?: strin
   const { t: tr } = useLocale();
   const shownLabel = field ? tr(`popup.field.${field}`) : label;
   if (!value || value === "null" || value === "undefined") return null;
+  const shown = popupText(value);
   return (
     <div className="fi-row" style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, lineHeight: 1.3 }}>
       <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56, fontSize: FONT_SIZE.sm }}>{shownLabel}</span>
       <span
         title={title}
+        lang={mono ? undefined : shown.lang}
         style={{
           color: color ?? t.textStrong,
           wordBreak: "break-word",
           ...(mono ? { fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" as const } : {}),
         }}
       >
-        {value}
+        {shown.text}
       </span>
     </div>
   );

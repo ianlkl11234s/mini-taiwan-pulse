@@ -313,6 +313,7 @@
 3. `FONT_CJK` 的值是 `var(--font-cjk, <中文 stack>)`，日文介面由 `tokens.css` 的 `:root:lang(ja)` 換成系統日文字型（Hiragino Sans、Yu Gothic、Meiryo、Noto Sans CJK JP），繁中字形不會混進日文。canvas、Mapbox 等吃不到 CSS 變數的地方改用解析後的實際字型字串，不直接塞 `FONT_CJK`。
 4. 所有文字節點都要能繼承到字型：新的根容器（portal、`document.createElement` 的 DOM、獨立頁）必須明確設 `fontFamily: FONT_CJK`／`font-family: var(--font-cjk)`，否則瀏覽器預設會落到襯線字。
 5. 不載入 web font；stack 裡只能出現系統內建字（guard `web-font`）。
+6. 越南文字串：PingFang TC 沒有越南文帶聲調字母（U+1EA0–1EF9）的預組字形，會拆成「o＋組合點」自己畫、點跑到字後（Thọ 變成 Tho,），排在它後面的字族不會被用到。Popup 共用 `Title`／`Row` 經 `popupText()`：含組合附加符號的字串先轉 NFC，含越南文字母的節點加 `lang="vi"`，`tokens.css` 的 `[lang="vi"]` 把 `--font-cjk` 換成系統拉丁字在前的字族（system-ui、Segoe UI、Noto Sans、Helvetica Neue，後接中文 stack）。不加 `@font-face`；只影響標了 lang 的節點。
 
 ### 4.2 刻意例外
 

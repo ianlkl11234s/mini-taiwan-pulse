@@ -4,7 +4,7 @@ import { LAYER_MANIFEST } from "../../../data/layerManifest";
 import { GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, CA_STATISTICS_TAB_THEMES, IE_STATISTICS_TAB_THEMES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
-import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, KOREA_THEMES, CANADA_THEMES, IRELAND_THEMES, PHILIPPINES_THEMES, WORLD_THEMES, resolveLayerPanel, STATISTICS_MACRO_GROUPS, GB_STATISTICS_MACRO_GROUPS, KR_STATISTICS_MACRO_GROUPS, CA_STATISTICS_MACRO_GROUPS, IE_STATISTICS_MACRO_GROUPS } from "../layerPanels";
+import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, KOREA_THEMES, CANADA_THEMES, IRELAND_THEMES, PHILIPPINES_THEMES, VIETNAM_THEMES, WORLD_THEMES, resolveLayerPanel, STATISTICS_MACRO_GROUPS, GB_STATISTICS_MACRO_GROUPS, KR_STATISTICS_MACRO_GROUPS, CA_STATISTICS_MACRO_GROUPS, IE_STATISTICS_MACRO_GROUPS } from "../layerPanels";
 import { THEMES, TW_STATISTICS_CATALOG_THEMES } from "../layerCatalog";
 import { EDUCATION_METRIC_KEYS, MARINE_STATISTICS_THEME_TITLE, TW_STATISTICS_PLACEMENT, TW_STATISTICS_THEME_TITLES } from "../../../data/statisticsTabThemes";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
@@ -176,7 +176,7 @@ describe("Layers 與 Statistics 分頁", () => {
     // 愛爾蘭統計的完整目錄主題（人口統計／社經統計）同樣只有統計面。
     const ieStatisticsDataTitles = new Set(THEMES.filter(theme => theme.country === "IE" && theme.groups.every(group => group.layers.every(layer => IE_KEYS.has(layer.key)))).map(theme => theme.title));
     const nonStatisticsTitles = THEMES.filter(theme => !(theme.country === "TW" ? statisticsDataTitles : theme.country === "KR" ? krStatisticsDataTitles : theme.country === "CA" ? caStatisticsDataTitles : theme.country === "IE" ? ieStatisticsDataTitles : gbStatisticsDataTitles).has(theme.title)).map(theme => theme.title).sort();
-    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...UK_THEMES, ...KOREA_THEMES, ...CANADA_THEMES, ...IRELAND_THEMES, ...PHILIPPINES_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
+    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...UK_THEMES, ...KOREA_THEMES, ...CANADA_THEMES, ...IRELAND_THEMES, ...PHILIPPINES_THEMES, ...VIETNAM_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
     expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...getThemeLayerKeys(GB_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(KR_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(CA_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(IE_STATISTICS_TAB_THEMES)]));
   });
 
@@ -225,6 +225,8 @@ describe("Layers 與 Statistics 分頁", () => {
     for (const key of CA_ENABLED_STATISTICS_KEYS) expect(getThemeLayerKeys(CANADA_THEMES)).not.toContain(key);
     // 菲律賓第 0–1 波沒有統計：統計入口不涵蓋
     expect(resolveLayerPanel("statistics", "PH").covered).toBe(false);
+    // 越南第 0–1 波同樣沒有統計
+    expect(resolveLayerPanel("statistics", "VN").covered).toBe(false);
     const ie = resolveLayerPanel("statistics", "IE");
     expect(ie.covered).toBe(true);
     expect(ie.macroGroups).toBe(IE_STATISTICS_MACRO_GROUPS);
