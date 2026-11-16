@@ -1000,9 +1000,9 @@ const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => 
 /** 菲律賓第 1 波規格驅動 8 層（規格 SSOT 在 phDataLayers.ts；畫法 usePhDataLayer；主題與群組比照加拿大、愛爾蘭）。 */
 const PH_DATA_ENTRY_META: Record<PhDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
   phTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "ph_transport_hubs", topics: ["菲律賓", "交通", "機場", "港口", "DOTr", "PPA", "OSM"],
-    description: "菲律賓機場與港口 581 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）", processing: "Geoportal Philippines（NAMRIA）WMS GetFeatureInfo 取 DOTr／PPA 圖層 → 4326；HOT／HDX OSM 補缺；PMTiles hubs z4–14；卡拉延群島 1 處不畫", note: "Geoportal 未附授權條文（標來源）＋OSM ODbL；官方機場座標多為城鎮近似位置" },
+    description: "菲律賓機場與港口 580 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）", processing: "Geoportal Philippines（NAMRIA）WMS GetFeatureInfo 取 DOTr／PPA 圖層 → 4326；HOT／HDX OSM 補缺；PMTiles hubs z4–14；卡拉延群島 1 處不畫；v2 排除 Region VII 填海工業用地 1 處（analytics #393）", note: "Geoportal 未附授權條文（標來源）＋OSM ODbL；官方機場座標多為城鎮近似位置" },
   phStations: { theme: "交通", group: "場站", zh: "鐵路車站與渡輪碼頭", alt: "Rail Stations & Ferry Terminals", icon: TrainFront, dataset: "ph_stations", topics: ["菲律賓", "交通", "車站", "鐵路", "PNR", "LRT", "MRT", "渡輪", "OSM"],
-    description: "菲律賓鐵路車站與渡輪碼頭 525 處（官方 PNR 站；LRT／MRT 等與渡輪碼頭由 OpenStreetMap 補缺；未通車站不畫）", processing: "Geoportal Philippines WMS 取 PNR 車站 → 4326；HOT／HDX OSM 補缺；PMTiles stations z4–14；前端濾掉未通車站 37 處（Subway、MRT-7、NSCR 北段、North Triangle、DOST 試驗站；analytics #390＋#391）", note: "Geoportal 未附授權條文＋OSM ODbL；巴士站不在本層" },
+    description: "菲律賓鐵路車站與渡輪碼頭 476 處（官方 PNR 站；其他鐵路站與渡輪碼頭由 OpenStreetMap 補缺；標示營運狀態，PNR 都會段與 Alabang–Calamba 停駛 32 站；LRT／MRT 車站改由 LRT／MRT 層提供；鐵路站涵蓋 3/18 region）", processing: "Geoportal Philippines WMS 取 PNR 車站 → 4326；HOT／HDX OSM 補缺；PMTiles stations z4–14；v2（analytics #393）加 status／status_basis，排除未通車 37 站與誤標 Mapaya；前端濾掉與第 2 波 LRT／MRT 車站重複的 OSM 鐵路站 48 處", note: "Geoportal 未附授權條文＋OSM ODbL；公車站另見公車站層" },
   phMajorRoads: { theme: "交通", group: "路網", zh: "主要道路與鐵道", alt: "Major Roads & Railways", icon: Route, dataset: "ph_major_roads", topics: ["菲律賓", "交通", "道路", "高速公路", "鐵道", "OSM"],
     description: "菲律賓主要道路 46,794 段（motorway／trunk／primary）＋鐵道 635 段（OpenStreetMap）", processing: "HOT Export Tool／HDX OSM 道路與鐵道分類檔 → 4326；_link 併入同級；PMTiles roads、rail z4–13", note: "ODbL 1.0；LRT／MRT 路線不在、DPWH 官方高速公路未出圖" },
   phPowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "ph_power_plants", topics: ["菲律賓", "能源", "電廠", "發電", "燃煤", "地熱", "GEM", "Climate TRACE"],
@@ -1015,6 +1015,13 @@ const PH_DATA_ENTRY_META: Record<PhDataKey, { theme: string; group: string; zh: 
     description: "菲律賓加油站 10,100 處（OpenStreetMap；依品牌 8 色，其餘併「其他／未知品牌」）", processing: "HOT Export Tool／HDX OSM amenity=fuel → 代表點；品牌正規化；PMTiles fuel z5–14", note: "ODbL 1.0；OSM 覆蓋不均" },
   phPipelines: { theme: "能源", group: "管線與儲槽", zh: "管線與儲槽", alt: "Pipelines & Storage Tanks", icon: Spline, dataset: "ph_pipelines", topics: ["菲律賓", "能源", "管線", "儲槽", "油氣", "地熱", "OSM"],
     description: "菲律賓管線 825 段＋儲槽 2,241 處（OpenStreetMap；依內容物分油氣、水、污水、地熱蒸汽、其他、未標示）", processing: "Overture Maps（OSM 衍生）man_made=pipeline／storage_tank → 4326；依 substance／content 分 content_group；PMTiles pipelines、tanks z5–14", note: "ODbL 1.0；多數未標示內容物，不是油氣管線全圖" },
+  // 第 2 波補充（2026-11-14）：Geofabrik philippines-261113 快照
+  phBusStops: { theme: "交通", group: "場站", zh: "公車站", alt: "Bus Stops", icon: Bus, dataset: "ph_bus_stops", topics: ["菲律賓", "交通", "公車", "巴士", "公車站", "OSM"],
+    description: "菲律賓 OpenStreetMap 標註的公車站 9,313 處（涵蓋不均，82 省中 9 省未涵蓋；近 4 成在馬尼拉都會區）", processing: "Geofabrik philippines-261113.osm.pbf（GDAL OSM driver）取 highway=bus_stop 或 public_transport=platform＋bus=yes；面與線取代表點；同名 ≤5 m 等明顯重複去除 108 筆；PMTiles bus_stops z4–14", note: "ODbL 1.0；OSM 志願者標註，涵蓋不均；吉普尼多無固定站牌" },
+  phUrbanRail: { theme: "交通", group: "路網", zh: "LRT／MRT 軌道與車站", alt: "LRT / MRT Lines & Stations", icon: TrainTrack, dataset: "ph_urban_rail", topics: ["菲律賓", "交通", "軌道", "捷運", "LRT", "MRT", "馬尼拉", "OSM"],
+    description: "馬尼拉營運中的 LRT-1、LRT-2、MRT-3：軌道 523 段（機廠軌不畫）＋車站 51 站（依線別分色；MRT-7 與 Metro Manila Subway 尚未通車、未納入）", processing: "Geofabrik philippines-261113.osm.pbf 取 railway=light_rail／subway 與 LRT／MRT 車站（顯式 tag＋60 m 內同類型營運軌道）；依官方狀態排除未通車的 MRT-7、Subway；PMTiles tracks、routes、stations z4–14（前端不畫 routes 與 service=yard）", note: "ODbL 1.0；未通車線 2026-11-14 依 DOTr 公開資訊查證" },
+  phExpressways: { theme: "交通", group: "路網", zh: "高速公路與收費道路", alt: "Expressways & Toll Roads", icon: Milestone, dataset: "ph_expressways", topics: ["菲律賓", "交通", "道路", "高速公路", "收費道路", "NLEX", "SLEX", "OSM"],
+    description: "菲律賓高速公路與收費道路 5,550 段、1,417 km（依收費分色，彈窗列路線編號 E1–E6；toll 未標不等於免費）", processing: "Geofabrik philippines-261113.osm.pbf 取 highway=motorway／motorway_link 全部，加上 toll=yes 的現役道路（排除 proposed、construction）；PMTiles expressways z4–14", note: "ODbL 1.0；與主要道路層的高速公路約 98% 重疊；僅 5／18 region 有路段" },
 };
 const PH_DATA_MANIFEST_ENTRIES = Object.fromEntries(PH_DATA_SPECS.map((spec) => {
   const m = PH_DATA_ENTRY_META[spec.key];
@@ -4985,7 +4992,7 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "ph_admin_boundaries", confidence: "HIGH" }],
       processing: "OCHA／PSA／NAMRIA COD-AB（HDX）region 18、province 級 88（82 省＋NCR 4 district、Isabela 市、BARMM 特別地理區）、municipality 1,642、barangay 42,048 → 4326；PMTiles tile layer region z3–10／province z4–11／municipality z6–12／barangay z9–13；卡拉延群島（Kalayaan）市鎮與 barangay 不畫",
-      note: "CC BY-IGO 3.0（© OCHA、PSA、NAMRIA）；不畫海域主張線；region、province 面含卡拉延群島碎片（來源合併，無法分開）",
+      note: "CC BY-IGO 3.0（© OCHA、PSA、NAMRIA）；不畫海域主張線；region、province 面含卡拉延群島碎片（來源合併，無法分開）；邊界依 OCHA 資料，不代表任何立場",
     },
     dataClass: "D",
     source: {
@@ -6703,8 +6710,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_health_facilities.pmtiles；source-layer=gb_health_facilities，minzoom=5 maxzoom=12（醫院 layer minzoom 7、GP／藥局 9）；7.2MB git-track",
-      staticAssets: ["./world/gb_health_facilities.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_health_facilities_v2.pmtiles（2026-11-14 個資清理版）；source-layer=gb_health_facilities，minzoom=5 maxzoom=12（醫院 layer minzoom 7、GP／藥局 9）；7.2MB git-track",
+      staticAssets: ["./world/gb_health_facilities_v2.pmtiles"],
     },
     legend: "gbHealthFacilities",
     popup: "gbHealthFacilities",
@@ -7972,7 +7979,7 @@ export const LAYER_MANIFEST = {
       note: "觀光景點全國 ~6,070 點（docs/data-catalog/tourism/attraction.md）",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "tour-attractions", url: "./tourism/attractions_national.geojson" },
+    source: { kind: "geojson", sourceId: "tour-attractions", url: "./tourism/attractions_national_v2.geojson" },
     legend: "tourAttractions",
     popup: "tourAttractions",
     params: { count: 4, kinds: ["multiSelect", "select", "slider", "slider"] },
@@ -8279,7 +8286,7 @@ export const LAYER_MANIFEST = {
       note: "觀光活動・節慶全國 ~828 點（docs/data-catalog/tourism/activity.md）",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "tour-events", url: "./tourism/activities_national.geojson" },
+    source: { kind: "geojson", sourceId: "tour-events", url: "./tourism/activities_national_v2.geojson" },
     legend: "tourEvents",
     popup: "tourEvents",
     params: { count: 3, kinds: ["select", "slider", "slider"] },
@@ -8384,7 +8391,7 @@ export const LAYER_MANIFEST = {
       note: "觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "tour-restaurants", url: "./tourism/restaurants_national.geojson" },
+    source: { kind: "geojson", sourceId: "tour-restaurants", url: "./tourism/restaurants_national_v2.geojson" },
     legend: null,
     popup: "tourRestaurants",
     params: { count: 2, kinds: ["slider", "slider"] },
@@ -9870,7 +9877,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "medical-aed",
-      url: "./geo/medical_aed.pmtiles",
+      url: "./geo/medical_aed_v2.pmtiles",
       sourceLayer: "medical_aed",
       minzoom: 0,
       maxzoom: 12,
@@ -9897,7 +9904,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "medical-ltc",
-      url: "./geo/medical_ltc.pmtiles",
+      url: "./geo/medical_ltc_v2.pmtiles",
       sourceLayer: "medical_ltc",
       minzoom: 0,
       maxzoom: 12,
@@ -10430,7 +10437,7 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "coast_guard_stations", confidence: "MED" }],
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "coast-guard-station", url: "./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson" },
+    source: { kind: "geojson", sourceId: "coast-guard-station", url: "./police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson" },
     legend: "policeStation",
     popup: "coastGuardStation",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
@@ -11971,7 +11978,7 @@ export const LAYER_MANIFEST = {
     key: "swcbDisasterPhotoPoints", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土砂災害照片點位", alt: "Sediment Disaster Photo Points" }), expandable: true,
     color: ATLAS_LAYER_COLORS.swcbDisasterPhotoPoints, icon: Camera,
     upstream: { status: "verified", datasets: [{ datasetId: "swcb_disaster_photo_points", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）；34,419 點，只放照片連結不嵌影像。PMTiles z5–12 逐 zoom 完整。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points_v2.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
     legend: "swcbDisasterPhotoPoints", popup: "swcbDisasterPhotoPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "水保署土砂災害事件照片與媒體報導的拍攝點，點開看事件、日期與照片連結。",
     topics: ["災害", "崩塌", "土石流", "照片"],

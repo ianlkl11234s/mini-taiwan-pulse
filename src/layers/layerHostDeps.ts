@@ -50,6 +50,11 @@ export interface LayerHostDeps {
    */
   layerVisibility: LayerVisibility;
   isDarkTheme: boolean;
+  /**
+   * 地圖首次 idle 後為 true（App `mapPrepared`）。mapRef 是 ref、設值不會觸發 re-render：
+   * 資料比底圖先到時 Host 的 effect 只會看到 null map，靠這個旗標在就緒時補跑一次。
+   */
+  mapPrepared: boolean;
   /** 底圖 id —— slope / aspect 兩層依底圖換色帶 */
   mapStyleId: string;
   /** 時間軸模式（replay / live）—— parking 等「當下快照」層據此切資料源 */

@@ -623,7 +623,7 @@ for f in \
   public/world/ca_population_grid.pmtiles \
   public/world/ie_admin_boundaries.pmtiles \
   public/world/ie_bathymetry.pmtiles \
-  public/world/ie_commercial_valuations.pmtiles \
+  public/world/ie_commercial_valuations_v2.pmtiles \
   public/world/ie_state_assets.pmtiles \
   public/world/ie_river_flood_extents_c_0020.pmtiles \
   public/world/ie_river_flood_extents_c_0100.pmtiles \
@@ -642,8 +642,8 @@ for f in \
   public/world/ie_noise_maps_lnight.pmtiles \
   public/world/ph_admin_boundaries.pmtiles \
   public/world/ph_population.pmtiles \
-  public/world/ph_transport_hubs.pmtiles \
-  public/world/ph_stations.pmtiles \
+  public/world/ph_transport_hubs_v2.pmtiles \
+  public/world/ph_stations_v2.pmtiles \
   public/world/ph_major_roads.pmtiles \
   public/world/ph_power_plants.pmtiles \
   public/world/ph_power_grid.pmtiles \
@@ -665,6 +665,9 @@ for f in \
   public/world/vn_oil_gas_osm.pmtiles \
   public/world/vn_envisoft_stations_v2.pmtiles \
   public/world/vn_angiang_demo.pmtiles \
+  public/world/ph_bus_stops.pmtiles \
+  public/world/ph_urban_rail.pmtiles \
+  public/world/ph_expressways.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \
@@ -770,9 +773,9 @@ done
 # 觀光圖層：上傳到 deploy-assets/tourism/ 子前綴（鏡像結構，pull 端整夾 sync）
 # 只上傳 D 類 3 大檔（景點 4.4MB + 旅宿 6.7MB + 餐飲 2.1MB）；其餘 9 檔 C 類進 git/dist，不上傳。
 TOURISM_FILES=(
-  "public/tourism/attractions_national.geojson"
+  "public/tourism/attractions_national_v2.geojson"
   "public/tourism/hotels_national.geojson"
-  "public/tourism/restaurants_national.geojson"
+  "public/tourism/restaurants_national_v2.geojson"
 )
 for f in "${TOURISM_FILES[@]}"; do
   name=$(basename "$f")

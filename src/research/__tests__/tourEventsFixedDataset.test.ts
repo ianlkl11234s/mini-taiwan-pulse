@@ -6,7 +6,7 @@ import { tourEventsFixedDescriptor, tourEventsFixedPointAdapter } from "../tourE
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/tourism/activities_national.geojson"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/tourism/activities_national_v2.geojson"), {
     headers: { "content-type": "application/geo+json" },
   })));
 });
@@ -23,7 +23,7 @@ it("reads the fixed stale event snapshot with source time, category, and cancell
     select: ["id", "name", "start_time", "end_time", "event_status", "geometry"], limit: 100,
   });
   const cancelled = await executor.execute({ datasetId: tourEventsFixedDescriptor.datasetId, filters: [{ field: "event_status", op: "eq", value: "EventCancelled" }], select: ["id", "name", "start_time", "end_time", "event_status"], limit: 1 });
-  expect(all).toMatchObject({ totalMatched: 828, freshness: "stale", sourceRefs: [expect.objectContaining({ checksumSha256: "0e51aea0298b1eb60c60990f2ff326efa30e0367925e2405271ba94e7de1ea3c" })] });
+  expect(all).toMatchObject({ totalMatched: 828, freshness: "stale", sourceRefs: [expect.objectContaining({ checksumSha256: "39f24e94fbb7540887d93a4d139ef6b5b303546ae978265f34a7c6af5a1dddfb" })] });
   expect(yinggeApril.totalMatched).toBe(6);
   expect(yinggeApril.rows).toContainEqual(expect.objectContaining({ id: "Event_382000000A_003768", name: "2026春遊三鶯", start_time: "2026-04-02T16:00:00+08:00", end_time: "2026-06-21T15:59:59+08:00", event_status: "EventScheduled", geometry: { type: "Point", coordinates: [121.35203, 24.94925] } }));
   expect(cancelled.rows).toEqual([expect.objectContaining({ id: "Event_A15010500H_000004", name: "在東引拼一座島", event_status: "EventCancelled" })]);

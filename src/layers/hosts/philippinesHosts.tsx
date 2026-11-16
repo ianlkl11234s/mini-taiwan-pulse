@@ -22,7 +22,7 @@ export const PhPopulationHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 規格驅動 8 層（規格見 data/phDataLayers.ts）。 */
+/** 規格驅動層（第 1 波 8 層＋第 2 波 3 層（規格見 data/phDataLayers.ts）。 */
 function makePhDataHost(key: PhDataKey, fallbackOpacity: number): LayerHostComponent {
   const spec = PH_SPEC_BY_KEY[key];
   const hookId = `usePh${key.slice(2)}Layer`;
@@ -44,3 +44,7 @@ export const PhPowerGridHost = makePhDataHost("phPowerGrid", 0.85);
 export const PhRenewablesHost = makePhDataHost("phRenewables", 0.85);
 export const PhFuelStationsHost = makePhDataHost("phFuelStations", 0.8);
 export const PhPipelinesHost = makePhDataHost("phPipelines", 0.85);
+// 第 2 波補充（2026-11-14）
+export const PhBusStopsHost = makePhDataHost("phBusStops", 0.8);
+export const PhUrbanRailHost = makePhDataHost("phUrbanRail", 0.85);
+export const PhExpresswaysHost = makePhDataHost("phExpressways", 0.85);

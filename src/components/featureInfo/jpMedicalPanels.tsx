@@ -1,7 +1,7 @@
 import { jpMedicalCategory, JP_MEDICAL_CARE_GROUPS } from "../../data/jpMedicalTypes";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
-import { Row, Title } from "./shared";
+import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 
@@ -66,6 +66,9 @@ function jpMedicalAreaSummary(props: Record<string, unknown>) {
   return null;
 }
 
+/** 出處：analytics docs/data-catalog/world/jp_medical_areas.md、pulse-data registry/jp_medical_areas.yaml */
+const JP_MEDICAL_AREAS_SOURCE_URL = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A38-v2_0.html";
+
 export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> }) {
   const theme = useFeatureTheme();
   const { t, formatNumber } = useLocale();
@@ -86,12 +89,13 @@ export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> 
     </>}
     {area?.level === "c" && <Row label={t("popup.jpMedical.prefecture")} value={area.s("A38c_001")} />}
     <Row label={t("popup.jpMedical.dataStatus")} value={t("popup.jpMedical.staleValue")} color="#f59e0b" />
-    <Row field="source" value={t("popup.jpMedical.sourceAreas")} />
     <Row label={t("popup.jpMedical.purpose")} value={t("popup.jpMedical.purposeText")} />
     <Row label={t("popup.jpMedical.geometryGrain")} value={t("popup.jpMedical.geometryGrainText")} />
     <details style={{ marginTop: 8, color: theme.textStrong }}><summary>{t("popup.jpMedical.sourceFields")}</summary>
       {Object.entries(props).filter(([key]) => /^A38[abc]_/.test(key)).map(([key, value]) => <Row key={key} label={key} value={text(value, na)} />)}
       <Row label="Feature ID" value={text(props.feature_id, na)} />
     </details>
+    {/* KSJ A38 頁未載明授權（pulse-data registry jp_medical_areas license: 未載明）→ 不放 license */}
+    <SourceFooter props={{ source_org: t("popup.jpMedical.sourceAreas"), source_url: JP_MEDICAL_AREAS_SOURCE_URL }} />
   </>;
 }

@@ -39,17 +39,17 @@ krSeniorCenters,敬老堂與里民會館 Senior Centres & Village Halls,KR,南�
 krIndustrialComplexes,產業園區 Industrial Complexes,KR,南韓,工商登記,custom,verified,kr_industrial_complexes,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓產業園區邊界 1,372 處（國家 65、一般 771、都市尖端 53、農工 483）"
 krNoiseSites,環境噪音測點 Noise Monitoring Sites,KR,南韓,環境氣候,custom,verified,kr_noise_sites,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）
 krClothingBins,舊衣回收箱 Clothing Collection Bins,KR,南韓,廢棄物,custom,verified,kr_clothing_bins,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓舊衣回收箱 20,931 處（57 個市郡區清單合併）"
-krAnimalHospitals,動物醫院 Animal Hospitals,KR,南韓,動物福利,custom,verified,kr_animal_hospitals,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓營業中動物醫院 5,255 處（LOCALDATA 동물병원）"
-krLocalCultureCenters,地方文化院 Local Culture Centres,KR,南韓,文化,custom,verified,kr_local_culture_centers,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,南韓地方文化院 171 處（LOCALDATA 지방문화원）
-krTraditionalTemples,傳統寺剎 Traditional Temples,KR,南韓,宗教,custom,verified,kr_traditional_temples,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓傳統寺剎保存法登錄的寺剎 1,599 處（指定 795、承認 46、未填 758）"
-krProtectedTrees,保護樹 Protected Trees,KR,南韓,環境氣候,custom,verified,kr_protected_trees,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓保護樹 12,308 株（道樹、市郡樹、面樹、村樹）"
-krFishingGrounds,漁場 Fishing Grounds,KR,南韓,海洋,custom,verified,kr_fishing_grounds,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓漁場 14,858 面（養殖、村落、定置網；調查 2020–2023，快照 2024-04-24）"
-krBicycleParking,自行車停放處 Bicycle Parking,KR,南韓,交通,custom,verified,kr_bicycle_parking,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓自行車停放處 18,220 處（LOCALDATA 자전거보관소）"
-krCivilDefenseWater,民防緊急給水設施 Civil Defence Emergency Water,KR,南韓,災害,custom,verified,kr_civil_defense_water,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓使用中民防緊急給水設施 5,464 處（公共用、政府支援、自治體）"
+krAnimalHospitals,動物醫院 Animal Hospitals,KR,南韓,動物福利,custom,verified,kr_animal_hospitals,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓營業中動物醫院 5,255 處（LOCALDATA 동물병원）"
+krLocalCultureCenters,地方文化院 Local Culture Centres,KR,南韓,文化,custom,verified,kr_local_culture_centers,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓地方文化院 171 處（LOCALDATA 지방문화원）
+krTraditionalTemples,傳統寺剎 Traditional Temples,KR,南韓,宗教,custom,verified,kr_traditional_temples,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓傳統寺剎保存法登錄的寺剎 1,599 處（指定 795、承認 46、未填 758）"
+krProtectedTrees,保護樹 Protected Trees,KR,南韓,環境氣候,custom,verified,kr_protected_trees,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓保護樹 12,308 株（道樹、市郡樹、面樹、村樹）"
+krFishingGrounds,漁場 Fishing Grounds,KR,南韓,海洋,custom,verified,kr_fishing_grounds,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓漁場 14,858 面（養殖、村落、定置網；調查 2020–2023，快照 2024-04-24）"
+krBicycleParking,自行車停放處 Bicycle Parking,KR,南韓,交通,custom,verified,kr_bicycle_parking,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓自行車停放處 18,220 處（LOCALDATA 자전거보관소）"
+krCivilDefenseWater,民防緊急給水設施 Civil Defence Emergency Water,KR,南韓,災害,custom,verified,kr_civil_defense_water,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓使用中民防緊急給水設施 5,464 處（公共用、政府支援、自治體）"
 krSeoulZoning,首爾用途地域 Seoul Zoning Districts,KR,南韓,底圖,custom,verified,kr_seoul_zoning,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。首爾用途地域 8,318 面（住宅、商業、工業、綠地等 7 大類）；data.go.kr 註含第三方權利，不入倉"
-krEmergencyBells,安全緊急鈴 Emergency Bells,KR,南韓,執法治安,custom,verified,kr_emergency_bells,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）"
-krRuralExperienceVillages,農漁村體驗休養村 Rural Experience Villages,KR,南韓,觀光,custom,verified,kr_rural_experience_villages,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）"
-krSlaughterhouses,屠宰場 Slaughterhouses,KR,南韓,農業,custom,verified,kr_slaughterhouses,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,南韓營業中屠宰場 111 處（LOCALDATA 도축업）
+krEmergencyBells,安全緊急鈴 Emergency Bells,KR,南韓,執法治安,custom,verified,kr_emergency_bells,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）"
+krRuralExperienceVillages,農漁村體驗休養村 Rural Experience Villages,KR,南韓,觀光,custom,verified,kr_rural_experience_villages,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）"
+krSlaughterhouses,屠宰場 Slaughterhouses,KR,南韓,農業,custom,verified,kr_slaughterhouses,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓營業中屠宰場 111 處（LOCALDATA 도축업）
 ieMaritimeBoundaries,海域界線 Maritime Boundaries,IE,愛爾蘭,底圖,custom,verified,ie_maritime_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭海域界線 17 段（領海 12 浬 13、鄰接區 24 浬 1、專屬經濟區 3）
 iePlaceNames,地名 Place Names,IE,愛爾蘭,底圖,custom,verified,ie_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭官方地名 52,402 筆（人口中心 2,022、townland 50,046、島嶼 334；英文＋愛爾蘭語名）"
 ieGaeltacht,Gaeltacht 語言規劃區 Gaeltacht Language Planning Areas,IE,愛爾蘭,原民與農村,custom,verified,ie_gaeltacht_lpa,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭 Gaeltacht 語言規劃區 26 區＋2022 普查愛爾蘭語使用（每天在教育體系外說的比例 2.4%–68.9%）
@@ -120,14 +120,17 @@ ieProposedNha,提議中自然遺產區（pNHA） Proposed Natural Heritage Areas
 ieGroundwaterFlooding,地下水淹水圖（GSI） Groundwater Flood Maps (GSI),IE,愛爾蘭,災害,custom,verified,ie_groundwater_flooding,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭 GSI 地下水淹水圖 1:20,000：高／中／低機率（554／485／466 面）、歷史最大範圍 3,598 面、2015/16 冬季地表水 15,967 面"
 iePeatExtractionBogs,Bord na Móna 泥炭開採沼地 Bord na Móna Peat Extraction Bogs,IE,愛爾蘭,農業,custom,verified,ie_peat_extraction_bogs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭 EPA 登錄的 Bord na Móna 持照泥炭開採沼地 162 面、約 7.9 萬公頃（13 個地方政府）
 ieFloodZones,郡議會淹水分區 Flood Zone A／B Council Flood Zones A/B,IE,愛爾蘭,災害,custom,verified,ie_flood_zones,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭 4 個郡議會發展計畫的 Flood Zone A／B（Cork County、Galway County、Roscommon、Wicklow；只涵蓋 4/31 地方政府）
-phTransportHubs,機場與港口 Airports & Ports,PH,菲律賓,交通,custom,verified,ph_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓機場與港口 581 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）
-phStations,鐵路車站與渡輪碼頭 Rail Stations & Ferry Terminals,PH,菲律賓,交通,custom,verified,ph_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓鐵路車站與渡輪碼頭 525 處（官方 PNR 站；LRT／MRT 等與渡輪碼頭由 OpenStreetMap 補缺；未通車站不畫）
+phTransportHubs,機場與港口 Airports & Ports,PH,菲律賓,交通,custom,verified,ph_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓機場與港口 580 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）
+phStations,鐵路車站與渡輪碼頭 Rail Stations & Ferry Terminals,PH,菲律賓,交通,custom,verified,ph_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓鐵路車站與渡輪碼頭 476 處（官方 PNR 站；其他鐵路站與渡輪碼頭由 OpenStreetMap 補缺；標示營運狀態，PNR 都會段與 Alabang–Calamba 停駛 32 站；LRT／MRT 車站改由 LRT／MRT 層提供；鐵路站涵蓋 3/18 region）
 phMajorRoads,主要道路與鐵道 Major Roads & Railways,PH,菲律賓,交通,custom,verified,ph_major_roads,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓主要道路 46,794 段（motorway／trunk／primary）＋鐵道 635 段（OpenStreetMap）"
 phPowerPlants,電廠 Power Plants,PH,菲律賓,能源,custom,verified,ph_power_plants,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓電廠 1,051 處（Global Energy Monitor 9 種技術，Climate TRACE 補缺；預設只顯示運轉中＋興建中）"
 phPowerGrid,輸電線與變電所 Power Lines & Substations,PH,菲律賓,能源,custom,verified,ph_power_grid,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓輸電線 5,693 段（依電壓分級，地下與海底電纜虛線）＋變電所 904 處（OpenStreetMap）"
 phRenewables,家用太陽能補助與離網微電網 Solar Home System Subsidies & Off-grid Microgrids,PH,菲律賓,能源,custom,verified,ph_renewables,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 DOE 家用太陽能系統補助安裝地點 708 處（PVM，依鄉鎮彙整）＋離網微電網 96 處；補助安裝地點，非全國光電
 phFuelStations,加油站 Fuel Stations,PH,菲律賓,能源,custom,verified,ph_fuel_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓加油站 10,100 處（OpenStreetMap；依品牌 8 色，其餘併「其他／未知品牌」）"
 phPipelines,管線與儲槽 Pipelines & Storage Tanks,PH,菲律賓,能源,custom,verified,ph_pipelines,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓管線 825 段＋儲槽 2,241 處（OpenStreetMap；依內容物分油氣、水、污水、地熱蒸汽、其他、未標示）"
+phBusStops,公車站 Bus Stops,PH,菲律賓,交通,custom,verified,ph_bus_stops,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓 OpenStreetMap 標註的公車站 9,313 處（涵蓋不均，82 省中 9 省未涵蓋；近 4 成在馬尼拉都會區）"
+phUrbanRail,LRT／MRT 軌道與車站 LRT / MRT Lines & Stations,PH,菲律賓,交通,custom,verified,ph_urban_rail,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,馬尼拉營運中的 LRT-1、LRT-2、MRT-3：軌道 523 段（機廠軌不畫）＋車站 51 站（依線別分色；MRT-7 與 Metro Manila Subway 尚未通車、未納入）
+phExpressways,高速公路與收費道路 Expressways & Toll Roads,PH,菲律賓,交通,custom,verified,ph_expressways,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓高速公路與收費道路 5,550 段、1,417 km（依收費分色，彈窗列路線編號 E1–E6；toll 未標不等於免費）"
 vnStations,"車站（鐵路、捷運、公車總站） Rail, Metro & Bus Stations",VN,越南,交通,custom,verified,vn_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南車站 989 處（鐵路站 293、捷運站 166、公車總站 530；OpenStreetMap 補缺，官方無全國站名冊）
 vnTransportHubs,機場與港口 Airports & Ports,VN,越南,交通,custom,verified,vn_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南機場 25、港口 54（Open Development Vietnam 2019／2021）＋OSM 補缺機場 19（另色）
 vnMajorRoads,主要道路與鐵道 Major Roads & Railways,VN,越南,交通,custom,verified,vn_major_roads,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南主要道路 49,830 段（motorway／trunk／primary）＋鐵道 2,442 段（興建中虛線；OpenStreetMap）"

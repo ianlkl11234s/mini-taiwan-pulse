@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
-const inputSha = "f10f820f74155ac7583c110f08b1f0068902b1bd076e52acfe0f497c3d86371f";
+const inputSha = "bd0c95a433b570789089c50017c7b6d6fa7770cb10310fc0f2f35fe6b162d084";
 const fields = ["id", "name", "attraction_class", "category", "city", "address", "open_time", "annual_visitors_2024", "yoy_pct"];
 const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 const fail = code => { throw new Error(code); };
