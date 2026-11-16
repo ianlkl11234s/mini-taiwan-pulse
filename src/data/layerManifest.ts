@@ -40,6 +40,8 @@ import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRIC
 import type { IeDataKey } from "./ieDataKeys";
 import { PH_DATA_SPECS } from "./phDataLayers";
 import type { PhDataKey } from "./phDataKeys";
+import { PH_WAVE_ENTRY_META } from "./phWavesMeta";
+import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
 import type { VnDataKey } from "./vnDataKeys";
 // ══════════════════════════════════════════════════════════════════
@@ -999,6 +1001,8 @@ const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => 
 
 /** 菲律賓第 1 波規格驅動 8 層（規格 SSOT 在 phDataLayers.ts；畫法 usePhDataLayer；主題與群組比照加拿大、愛爾蘭）。 */
 const PH_DATA_ENTRY_META: Record<PhDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  // 觀光波與第 2–9 波（2026-11-16）：中介資料在 phWavesMeta.ts
+  ...PH_WAVE_ENTRY_META,
   phTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "ph_transport_hubs", topics: ["菲律賓", "交通", "機場", "港口", "DOTr", "PPA", "OSM"],
     description: "菲律賓機場與港口 580 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）", processing: "Geoportal Philippines（NAMRIA）WMS GetFeatureInfo 取 DOTr／PPA 圖層 → 4326；HOT／HDX OSM 補缺；PMTiles hubs z4–14；卡拉延群島 1 處不畫；v2 排除 Region VII 填海工業用地 1 處（analytics #393）", note: "Geoportal 未附授權條文（標來源）＋OSM ODbL；官方機場座標多為城鎮近似位置" },
   phStations: { theme: "交通", group: "場站", zh: "鐵路車站與渡輪碼頭", alt: "Rail Stations & Ferry Terminals", icon: TrainFront, dataset: "ph_stations", topics: ["菲律賓", "交通", "車站", "鐵路", "PNR", "LRT", "MRT", "渡輪", "OSM"],
@@ -1037,7 +1041,8 @@ const PH_DATA_MANIFEST_ENTRIES = Object.fromEntries(PH_DATA_SPECS.map((spec) => 
     icon: m.icon,
     upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
     dataClass: "D",
-    source: { kind: "custom", note: `usePhDataLayer 自建 mapbox-pmtiles source；source-layer=${layers}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}`, staticAssets: [`./world/${spec.file}`] },
+    source: { kind: "custom", note: `usePhDataLayer 自建 mapbox-pmtiles source；source-layer=${layers}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}${spec.extraFiles ? `；依緯度分 ${spec.extraFiles.length + 1} 檔` : ""}`,
+      staticAssets: [`./world/${spec.file}`, ...(spec.extraFiles ?? []).map((f) => `./world/${f.file}`)] },
     legend: spec.key,
     popup: spec.key,
     params: { count: kinds.length, kinds },
@@ -1045,6 +1050,37 @@ const PH_DATA_MANIFEST_ENTRIES = Object.fromEntries(PH_DATA_SPECS.map((spec) => 
     topics: m.topics,
   }];
 })) as Record<PhDataKey, LayerManifestEntry>;
+
+/** 菲律賓 raster 4 層（2026-11-16 第 2、6 波）：PNG PMTiles，無 feature 屬性與 popup（同 caHillshade）。 */
+const PH_RASTER_META: Record<string, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  phTerrainHillshade: { theme: "底圖", group: "地形", zh: "山體陰影", alt: "Hillshade", icon: Mountain, dataset: "ph_terrain", topics: ["菲律賓", "底圖", "地形", "陰影", "Copernicus DEM"],
+    description: "菲律賓山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）", processing: "Copernicus DEM GLO-90（AWS Open Data，109 格）→ gdaldem hillshade（-z 2 -az 315 -alt 45）→ 18 region 陸域遮罩、扣卡拉延 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；22.4 MB 走 deploy-assets；沒有 feature 屬性與 popup" },
+  phTerrainRelief: { theme: "底圖", group: "地形", zh: "色別標高", alt: "Elevation Tint", icon: Mountain, dataset: "ph_terrain", topics: ["菲律賓", "底圖", "地形", "標高", "Copernicus DEM"],
+    description: "菲律賓色別標高（0–2,954 m 九段色帶，≤0 m 透明）", processing: "Copernicus DEM GLO-90 → gdaldem color-relief（≤0 m 透明）→ 陸域遮罩 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；沒有 feature 屬性與 popup" },
+  phBuiltSurface: { theme: "都市分析", group: "都市紋理", zh: "建成面積比例", alt: "Built-up Surface", icon: Building2, dataset: "ph_built_surface", topics: ["菲律賓", "都市", "建成區", "GHSL"],
+    description: "菲律賓建成面積比例（JRC GHSL 2025 推估，100 m；<1% 透明）", processing: "GHS-BUILT-S E2025 R2023A（HDX 菲律賓裁切）Mollweide → 4326 → 3857；color-relief → PNG raster PMTiles z5–11", note: "CC BY 4.0；衛星分類推估，不是建物普查；30.4 MB 走 deploy-assets" },
+  phForestLoss: { theme: "自然保育", group: "森林保育", zh: "樹冠流失年份", alt: "Tree Cover Loss Year", icon: Trees, dataset: "ph_forest_loss", topics: ["菲律賓", "自然保育", "森林", "毀林", "Hansen"],
+    description: "菲律賓樹冠流失年份 2001–2024（Hansen GFC，30 m；淡黃→深紅）", processing: "Hansen GFC v1.12 lossyear 菲律賓圖幅 → -r max 降採樣 → color-relief（0 透明）→ PNG raster PMTiles z5–12", note: "CC BY 4.0；樹冠流失≠毀林；59.8 MB 走 deploy-assets" },
+};
+const PH_RASTER_MANIFEST_ENTRIES = Object.fromEntries(PH_RASTER_SPECS.map((spec) => {
+  const m = PH_RASTER_META[spec.key]!;
+  return [spec.key, {
+    key: spec.key,
+    country: "PH", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.steps?.[spec.steps.length - 1]?.color ?? "#9ca3af",
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhRasterLayer 自建 mapbox-pmtiles raster source（pmtilesRasterCustomSource）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<(typeof PH_RASTER_SPECS)[number]["key"], LayerManifestEntry>;
 
 /** 越南第 1 波規格驅動 10 層（規格 SSOT 在 vnDataLayers.ts；畫法重用 usePhDataLayer；主題與群組比照菲律賓、愛爾蘭）。 */
 const VN_DATA_ENTRY_META: Record<VnDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
@@ -1098,6 +1134,7 @@ export const LAYER_MANIFEST = {
   ...KR_DATA_MANIFEST_ENTRIES,
   ...IE_DATA_MANIFEST_ENTRIES,
   ...PH_DATA_MANIFEST_ENTRIES,
+  ...PH_RASTER_MANIFEST_ENTRIES,
   ...VN_DATA_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,

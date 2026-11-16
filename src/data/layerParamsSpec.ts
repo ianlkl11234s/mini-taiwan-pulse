@@ -104,6 +104,7 @@ import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, cat
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
 import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phCatOptions } from "./phDataLayers";
+import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
@@ -2240,10 +2241,14 @@ export const LAYER_PARAMS_SPEC = {
         options: PH_PLANT_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: "phPowerPlantsStatusMask",
       }] : []),
       ...(spec.heat ? [heatmapPalette(spec.key)] : []),
-      opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
       ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
     ]];
   })),
+  // 菲律賓 raster 4 層（2026-11-16）：只有透明度（同 caHillshade）
+  ...Object.fromEntries(PH_RASTER_SPECS.map((spec) => [spec.key, [
+    { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ]])),
   // 越南第 0–1 波（2026-11-13）：行政邊界、人口只有 34 省一級（不需層級 select）
   vnAdminBoundaries: [opacitySlider("vnAdminBoundariesOpacity", 0.85)],
   vnPopulation: [opacitySlider("vnPopulationOpacity", 0.7)],
