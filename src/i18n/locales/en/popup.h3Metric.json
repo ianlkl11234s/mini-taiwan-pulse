@@ -12,5 +12,5 @@
   "popup.h3Metric.racksValue": "{value} racks",
   "popup.h3Metric.youbikeNote": "H3 hexagonal grid cell · average of all stations in the cell",
   "popup.h3Metric.dayNightSourceOrg": "Ministry of the Interior big-data simulated dataset (day/night population flow)",
-  "popup.h3Metric.popCountSourceOrg": "SEGIS (2025/06, 7,748 villages)"
+  "popup.h3Metric.popCountSourceOrg": "SEGIS (Socio-Economic Geographic Information System)"
 }
