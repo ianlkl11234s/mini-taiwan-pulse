@@ -174,6 +174,8 @@ export type ExpandableLayerKey =
   | "firingNoticeAreas"
   // 🗳 政治 Politics：2026 選舉活動（owner-only RPC）
   | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
+  // 即時 119 案件／警廣即時路況（owner-only RPC，mig 555）
+  | "fire119Live" | "pbsRoadEventsLive"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -849,6 +851,7 @@ export interface FeatureInfo {
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
+    | "fire119Live" | "pbsRoadEventsLive"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute" | "railRoutes"
@@ -1344,6 +1347,10 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   newsEvents: boolean;
   /** 2026 地方選舉活動（owner-only RPC get_election_events_2026；研究原型） */
   electionEvents2026: boolean;
+  /** 即時 119 案件（owner-only RPC get_fire119_live；mig 555） */
+  fire119Live: boolean;
+  /** 警廣即時路況（owner-only RPC get_pbs_road_events_live；mig 555） */
+  pbsRoadEventsLive: boolean;
   /** 2024 投開票所（CDN 靜態快照 /static-rpc/polling_stations_2024.json；來源表 gis-platform mig 495） */
   pollingStations2024: boolean;
   /** 2026 縣市議員選舉區（CDN 靜態快照 /static-rpc/get_council_districts_2026.json；來源 gis-platform mig 496） */

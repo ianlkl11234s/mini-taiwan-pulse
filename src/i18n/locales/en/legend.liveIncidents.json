@@ -1,0 +1,20 @@
+{
+  "legend.liveIncidents.cat.fire": "Fire",
+  "legend.liveIncidents.cat.ems": "Ambulance",
+  "legend.liveIncidents.cat.rescue": "Rescue",
+  "legend.liveIncidents.cat.other": "Other",
+  "legend.liveIncidents.status.active": "Received / dispatched / on scene (pulsing)",
+  "legend.liveIncidents.status.transporting": "To hospital (hollow)",
+  "legend.liveIncidents.status.returned": "Returned (grey, fades within 1 hour)",
+  "legend.liveIncidents.shape.point": "Dot = road midpoint or agency-provided location",
+  "legend.liveIncidents.shape.district": "Area = district only (number = incidents)",
+  "legend.liveIncidents.shape.hospital": "Hospital badge = New Taipei ambulances en route",
+  "legend.liveIncidents.note": "Locations are not exact incident sites; selecting a road-level incident lightly highlights the whole road.",
+  "legend.liveIncidents.counts": "{total} in range; {unmapped} without a location are not shown",
+  "legend.liveIncidents.truncated": "Over the row limit; some incidents were not loaded",
+  "legend.liveIncidents.pbs.incident": "Accident",
+  "legend.liveIncidents.pbs.other": "Other report",
+  "legend.liveIncidents.pbs.cleared": "Cleared (grey)",
+  "legend.liveIncidents.pbsNote": "Coordinate precision varies (some only to about 1 km); descriptions are not always updated.",
+  "legend.liveIncidents.pbsCounts": "{total} shown in range; {unmapped} without coordinates"
+}

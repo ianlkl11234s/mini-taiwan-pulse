@@ -2200,6 +2200,33 @@ export const LAYER_MANIFEST = {
     topics: ["消防", "災害"],
   },
 
+  // 即時 119 案件（owner-only RPC get_fire119_live；gis-platform mig 555 登記 gated_layers）
+  fire119Live: {
+    key: "fire119Live",
+    country: "TW", section: { theme: "消防 Fire & Rescue", group: "事件" },
+    ...layerName({ zh: "即時 119 案件", alt: "Live 119 Incidents" }),
+    expandable: true,
+    color: "#ff5722",
+    icon: Siren,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data-collectors external/fire119_vm（HiCloud VM，每分鐘）：18 個縣市 119 民眾版案件清單＋新北送醫中救護車，剔除隱私欄位後寫 Supabase live.fire119_incidents（mig 555，保留 14 天、S3 正本每日打包）；路名以 analytics road_gazetteer（OSM）對到路段中點與 road_key，鄉鎮只到 town_code。前端只經 owner-only RPC 讀取。",
+      note: "站主限定。點的位置不是事發精確地點：路段級為路段中點、臺北為站方模糊化位置；只到行政區的案件畫鄉鎮面量；新北只有送醫中救護車，畫在目的醫院。路段線 © OpenStreetMap contributors（ODbL）。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFire119LiveLayer 自建 source（點、徽章 geojson＋鄉鎮界與路段線兩個 PMTiles）：開著時每分鐘重抓 get_fire119_live，不接時間軸；鄉鎮代表點 src/data/townRepresentativePoints.json（lazy import）。",
+      staticAssets: ["./base_map/township_boundary.pmtiles", "./base_map/road_lines_20261116.pmtiles"],
+    },
+    legend: "fire119Live",
+    popup: "fire119Live",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "站主限定。各縣市 119 即時案件（每分鐘更新）：色＝類別（火災、救護、救援、其他），受理／出動／到達會脈動、送醫中空心、返隊變灰後淡出。點是路段中點或站方位置，不是事發精確地點；只到行政區的案件畫鄉鎮面量與件數；新北畫在送醫目的醫院。",
+    topics: ["消防", "119", "救護", "即時", "OWNER_ONLY"],
+  },
+
   fireIsochrone: {
     key: "fireIsochrone",
     country: "TW", section: { theme: "消防 Fire & Rescue", group: "分析" },
@@ -17103,6 +17130,32 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["multiSelect", "slider"] },
     description: "TDX 即時路況事件（事故／施工／壅塞／活動／災害分色，混合幾何）",
     topics: ["交通", "即時", "事件"],
+  },
+
+  // 警廣即時路況（owner-only RPC get_pbs_road_events_live；gis-platform mig 555 登記 gated_layers）
+  pbsRoadEventsLive: {
+    key: "pbsRoadEventsLive",
+    country: "TW", section: { theme: "交通 Move", group: "即時監控" },
+    ...layerName({ zh: "警廣即時路況", alt: "PBS Road Reports" }),
+    expandable: true,
+    color: "#facc15",
+    icon: Radio,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data-collectors external/fire119_vm（HiCloud VM，每 5 分鐘）：警廣路況 rtr.pbs.gov.tw（data.gov.tw 15221）寫 Supabase live.pbs_road_events（mig 555，保留 14 天、S3 正本每日打包）；狀態由說明文字推得（含「排除」＝已排除、「處理中」＝處理中）。前端只經 owner-only RPC 讀取。",
+      note: "站主限定。座標精度不一（約 2.6% 只到約 1 公里），無座標的不上圖；說明不一定會更新，「通報」不代表仍在進行。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePbsRoadEventsLiveLayer 自建 geojson source＋circle：開著時每分鐘重抓 get_pbs_road_events_live，不接時間軸。無靜態檔要部署。",
+    },
+    legend: "pbsRoadEventsLive",
+    popup: "pbsRoadEventsLive",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "站主限定。警廣即時路況（每分鐘重抓）：事故黃、其他灰，已排除變灰。",
+    topics: ["交通", "即時", "警廣", "事故", "OWNER_ONLY"],
   },
 
   // ── 停車 Parking ───────────────────────────────────────────────────

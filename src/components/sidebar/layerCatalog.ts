@@ -804,6 +804,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayCongestion"),
           fromManifest("roadCongestion"),
           fromManifest("roadEvents"),
+          fromManifest("pbsRoadEventsLive"),
         ],
       },
       {
@@ -1555,6 +1556,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("fireEvents"),
           fromManifest("fireLatest"),
+          fromManifest("fire119Live"),
         ],
       },
       {
