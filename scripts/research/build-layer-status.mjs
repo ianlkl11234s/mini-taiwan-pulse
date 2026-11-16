@@ -91,9 +91,9 @@ for (const key of MANIFEST_KEYS) {
 }
 const PANEL_LABEL = { statistics: "統計", world: "世界", simulation: "模擬" };
 /** 「圖層」入口依國家主體分欄（2026-10-28 國家主體化；舊「日本」入口併入圖層入口的日本）。 */
-const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國", GB: "英國", KR: "南韓", CA: "加拿大", IE: "愛爾蘭", PH: "菲律賓" };
+const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國", GB: "英國", KR: "南韓", CA: "加拿大", IE: "愛爾蘭", PH: "菲律賓", VN: "越南" };
 /** 國別順序（與 src/constants/countries.ts 的 COUNTRIES 相同），之後是跨國與模擬。 */
-const COUNTRY_ORDER = ["TW", "JP", "FR", "GB", "KR", "CA", "IE", "PH", "WORLD", "SIM"];
+const COUNTRY_ORDER = ["TW", "JP", "FR", "GB", "KR", "CA", "IE", "PH", "VN", "WORLD", "SIM"];
 function panelLabel(target) {
   if (target.panel === "layers") return COUNTRY_PANEL_LABEL[target.country ?? "TW"] ?? target.country;
   return PANEL_LABEL[target.panel] ?? target.panel;

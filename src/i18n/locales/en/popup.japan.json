@@ -142,5 +142,6 @@
   "popup.japan.expresswayJunctionType": "Junction type",
   "popup.japan.expresswayRoutes": "Route (spatially inferred)",
   "popup.japan.expresswaySaPa": "Name contains SA/PA (attached to a service or parking area)",
-  "popup.japan.expresswayJunctionNote": "The route is inferred from the nearest segment and is not an official attribute; junction types do not include SA/PA, so this cannot be used to count service areas"
+  "popup.japan.expresswayJunctionNote": "The route is inferred from the nearest segment and is not an official attribute; junction types do not include SA/PA, so this cannot be used to count service areas",
+  "popup.japan.meshSourceOrg": "MLIT National Land Numerical Information: 1 km mesh future population estimates (2024 edition)"
 }

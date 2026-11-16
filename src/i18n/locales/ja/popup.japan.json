@@ -142,5 +142,6 @@
   "popup.japan.expresswayJunctionType": "接合部種別",
   "popup.japan.expresswayRoutes": "路線（空間的に推定）",
   "popup.japan.expresswaySaPa": "名称にSA/PAを含む（SA・PA併設）",
-  "popup.japan.expresswayJunctionNote": "路線名は最寄りの路線区間から推定したもので、公式の属性ではありません。接合部種別にSA/PAはないため、SA/PAの数え上げには使えません"
+  "popup.japan.expresswayJunctionNote": "路線名は最寄りの路線区間から推定したもので、公式の属性ではありません。接合部種別にSA/PAはないため、SA/PAの数え上げには使えません",
+  "popup.japan.meshSourceOrg": "国土交通省 国土数値情報 1kmメッシュ別将来推計人口（令和6年推計）"
 }
