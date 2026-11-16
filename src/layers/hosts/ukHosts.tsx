@@ -14,6 +14,7 @@ import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFir
 import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "../../hooks/useGbEnergyLayers";
 import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "../../hooks/useGbNatureLayers";
 import { useGbEaPollutionInventoryLayer } from "../../hooks/useGbEaPollutionInventoryLayer";
+import { useGbBridgesTunnelsLayer, useGbPlacesOfWorshipLayer, useGbPublicFacilitiesLayer, useGbRoadFacilitiesLayer } from "../../hooks/useGbOsmLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -472,5 +473,34 @@ export const GbSoilParentMaterialHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbSoilParentMaterialLayer");
   const p = useKeyOverlayParams("gbSoilParentMaterial");
   useGbSoilParentMaterialLayer(deps.mapRef, deps.layerVisibility.gbSoilParentMaterial, p.gbSoilParentMaterialOpacity ?? 0.55, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 13 波 OSM（2026-11-13）：主要道路橋梁與隧道（線）、道路設施（點）、公共設施與宗教場所（≥1 萬點熱區）。四層都有類別多選。 */
+export const GbBridgesTunnelsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbBridgesTunnelsLayer");
+  const p = useKeyOverlayParams("gbBridgesTunnels");
+  useGbBridgesTunnelsLayer(deps.mapRef, deps.layerVisibility.gbBridgesTunnels, p.gbBridgesTunnelsOpacity ?? 0.85, p.gbBridgesTunnelsCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbRoadFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRoadFacilitiesLayer");
+  const p = useKeyOverlayParams("gbRoadFacilities");
+  useGbRoadFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbRoadFacilities, p.gbRoadFacilitiesOpacity ?? 0.8, p.gbRoadFacilitiesScale ?? 1, p.gbRoadFacilitiesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbPublicFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPublicFacilitiesLayer");
+  const p = useKeyOverlayParams("gbPublicFacilities");
+  useGbPublicFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbPublicFacilities, p.gbPublicFacilitiesOpacity ?? 0.75, p.gbPublicFacilitiesScale ?? 1, p.gbPublicFacilitiesCategoryMask, deps.isDarkTheme);
+  return null;
+};
+
+export const GbPlacesOfWorshipHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPlacesOfWorshipLayer");
+  const p = useKeyOverlayParams("gbPlacesOfWorship");
+  useGbPlacesOfWorshipLayer(deps.mapRef, deps.layerVisibility.gbPlacesOfWorship, p.gbPlacesOfWorshipOpacity ?? 0.75, p.gbPlacesOfWorshipScale ?? 1, p.gbPlacesOfWorshipCategoryMask, deps.isDarkTheme);
   return null;
 };

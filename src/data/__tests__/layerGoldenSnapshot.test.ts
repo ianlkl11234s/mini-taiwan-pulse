@@ -295,7 +295,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-14: +3 菲律賓第 2 波補充（公車站、LRT／MRT 軌道與車站、高速公路與收費道路）。
     // 2026-11-14: +10 南韓第 10 波（動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場）。
     // 2026-11-16: +1 南韓首爾用途地域（站主限定，#1050）。
-    expect(keys.length).toBe(1853);
+    // 2026-11-14: +4 英國第 13 波 OSM（橋梁與隧道 gbBridgesTunnels、道路設施 gbRoadFacilities、公共設施 gbPublicFacilities、宗教場所 gbPlacesOfWorship）。
+    expect(keys.length).toBe(1857);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

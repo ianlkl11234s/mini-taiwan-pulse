@@ -328,6 +328,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-courts-circle"], type: "gbCourts" },
   { layers: ["gb-health-hospital-circle", "gb-health-primary-circle"], type: "gbHealthFacilities" },
   { layers: ["gb-schools-circle"], type: "gbSchools" },
+  { layers: ["gb-public-facilities-circle"], type: "gbPublicFacilities" },
+  { layers: ["gb-places-of-worship-circle"], type: "gbPlacesOfWorship" },
   { layers: ["gb-care-homes-circle"], type: "gbCareHomes" },
   { layers: ["gb-care-services-circle"], type: "gbCareServices" },
   // 英國第 8 波：文化與觀光點（藝文場館 → 文化設施 → 觀光體驗非景點 → 景點）
@@ -373,6 +375,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-noise-fill"], type: "gbNoise" },
   // 英國第 10 波：計數點（點）排在主要路網（線）前面
   { layers: ["gb-traffic-counts-aadf-major-circle", "gb-traffic-counts-aadf-minor-circle"], type: "gbTrafficCountsAadf" },
+  { layers: ["gb-road-facilities-circle"], type: "gbRoadFacilities" },
+  { layers: ["gb-bridges-tunnels-bridge-line", "gb-bridges-tunnels-tunnel-line"], type: "gbBridgesTunnels" },
   { layers: ["gb-major-roads-line"], type: "gbMajorRoads" },
   { layers: ["gb-hydro-stations-circle"], type: "gbHydroStations" },
   { layers: ["gb-bathing-waters-circle"], type: "gbBathingWaters" },

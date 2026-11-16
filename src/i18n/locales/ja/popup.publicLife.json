@@ -98,5 +98,17 @@
   "popup.publicLife.gbCourtKind": "種別",
   "popup.publicLife.gbCourtTypes": "裁判所の種類",
   "popup.publicLife.gbCourtAreasOfLaw": "法分野",
-  "popup.publicLife.gbCourtFact": "FaCT ページ"
+  "popup.publicLife.gbCourtFact": "FaCT ページ",
+  "popup.publicLife.gbPfKind": "種別",
+  "popup.publicLife.gbPfSubtype": "細分類",
+  "popup.publicLife.gbPfFee": "料金",
+  "popup.publicLife.gbPfFeeYes": "有料",
+  "popup.publicLife.gbPfFeeNo": "無料",
+  "popup.publicLife.gbHours": "営業時間",
+  "popup.publicLife.gbWheelchair": "車椅子利用",
+  "popup.publicLife.gbPostcode": "郵便番号",
+  "popup.publicLife.gbAccess": "利用対象",
+  "popup.publicLife.gbNotStated": "記載なし",
+  "popup.publicLife.gbUnnamed": "（名称なし）",
+  "popup.publicLife.gbOsmNote": "OpenStreetMap ボランティアデータ。面は中心点で表示"
 }
