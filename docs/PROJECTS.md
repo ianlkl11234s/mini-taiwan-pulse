@@ -1,7 +1,7 @@
 # 專案追蹤總表
 
 > **現況入口（單一入口）**：開場先讀本檔上半部（現在最該注意＋進行中／待拍板），需要細節再查 BACKLOG 對應主題群。一列一專案，只放指標，不重抄細節。
-> 最後盤點：2026-11-16 v2.37.0 已發布（發版 PR #1054，master `3629f1b5`，19 個 PR）與正式站目視（11 項 9 通過、2 部分通過）；collectors #204 已合並於同日部署 pulse-host（站主同意）；HOST-1、對帳、S3 用量唯讀調查結論回寫。同日第二輪：PII-1 部分完成、PII-2／PII-3 查證結果、新增 PII-6／PII-7、REL-NEXT 下一版範圍。同日稍早：v2.37.0 發版準備；多國圖層與個資清理收尾登記（PII-1～5、REL-NEXT、WHREORG-1；各 PR 狀態以 gh 查證）。前一次：2026-11-14 多國進度補記（菲律賓、中國、越南、南韓第 10 波、英國 OSM、加拿大 LODE、日本事故口徑，各 repo origin 實況查證）。再前一次：2026-11-13 v2.36.2 發布（分享網址預設篩選、統計說明框錯位修正；選舉活動同地點各場展開，#1024／#1025）。前一日：2026-11-12 v2.36.1 發布（選舉活動同地點多場合成，#1020）。同日稍早：v2.36.0 發布（統計圖層呈現方式：比例圓、點密度、多年份並排、左右比較；暗底配色第一／二段；review 修正）。之前：2026-11-10 差異檢核收尾（當天完成並登記：MCP 發版關卡與倉庫 1.5.3 重發、四個守門排程、Dependabot 與 required `ci-ok`、開場提示與瘦身第一輪、配色第一／二段；之前：對 11-08 健檢逐項比對：PROJECTS 引用已關閉 ID、過期期限、封存連結全數修正，新增 `npm run check:entry-docs` 自動檢查；使用者同日拍板的決定登記進 BACKLOG，決策清單 https://claude.ai/artifact/5jeCEF7zwwCWbgAWveLtWd ）。同日稍早：v2.35.0 發布（台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表）。
+> 最後盤點：2026-11-16 第三輪：v2.37.1 發版準備（`release/v2.37.1` 直接 PR 到 master，帶 #1044、#1048、#1055、#1056、#1058）；data-collectors `efd4c2d6`（#205、#206）部署 pulse-host；新增城市聲景 SND-1～5、CI-10；三個 session 收尾。同日稍早：v2.37.0 已發布（發版 PR #1054，master `3629f1b5`，19 個 PR）與正式站目視（11 項 9 通過、2 部分通過）；collectors #204 已合並於同日部署 pulse-host（站主同意）；HOST-1、對帳、S3 用量唯讀調查結論回寫。同日第二輪：PII-1 部分完成、PII-2／PII-3 查證結果、新增 PII-6／PII-7、REL-NEXT 下一版範圍。同日稍早：v2.37.0 發版準備；多國圖層與個資清理收尾登記（PII-1～5、REL-NEXT、WHREORG-1；各 PR 狀態以 gh 查證）。前一次：2026-11-14 多國進度補記（菲律賓、中國、越南、南韓第 10 波、英國 OSM、加拿大 LODE、日本事故口徑，各 repo origin 實況查證）。再前一次：2026-11-13 v2.36.2 發布（分享網址預設篩選、統計說明框錯位修正；選舉活動同地點各場展開，#1024／#1025）。前一日：2026-11-12 v2.36.1 發布（選舉活動同地點多場合成，#1020）。同日稍早：v2.36.0 發布（統計圖層呈現方式：比例圓、點密度、多年份並排、左右比較；暗底配色第一／二段；review 修正）。之前：2026-11-10 差異檢核收尾（當天完成並登記：MCP 發版關卡與倉庫 1.5.3 重發、四個守門排程、Dependabot 與 required `ci-ok`、開場提示與瘦身第一輪、配色第一／二段；之前：對 11-08 健檢逐項比對：PROJECTS 引用已關閉 ID、過期期限、封存連結全數修正，新增 `npm run check:entry-docs` 自動檢查；使用者同日拍板的決定登記進 BACKLOG，決策清單 https://claude.ai/artifact/5jeCEF7zwwCWbgAWveLtWd ）。同日稍早：v2.35.0 發布（台灣圖層待辦池第二＋三批、南韓第 8–9 波、愛爾蘭第 11 波、日本市町村道、人口細網格補齊；AI 倉庫 611 表）。
 > 自動檢查：`npm run check:entry-docs`（規則與標記寫法見 [memory README](../.claude/memory/README.md)「入口文件自動檢查」）；期限過了要寫〔結果 YYYY-MM-DD：…〕或刪列（過期只警告、不讓 CI 紅；開場 hook 會提醒）。
 
 與其他文件的分工（mini-taiwan-pulse 是整個 Pulse 生態系的總 PM）：
@@ -17,11 +17,13 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 ## 現在最該注意
 
-**最高優先：正式站個資部分仍公開（PII-1 部分完成，卡在站主確認）**——愛爾蘭 AED、台灣山崩照片／AED／舊衣回收箱／觀光、長照圖磚、實價登錄備註等公開檔含個資（只記筆數，細節見 BACKLOG D 群 PII-1）。清理 pipeline 已合；清理後檔案未上傳；改讀 `_v2` 的 mini #1043、#1046 已隨 v2.37.0 上線，#1044、#1048 未合。後續：PII-2 刪舊檔、PII-3 倉庫重發、PII-4 S3 實價登錄封存重做、PII-5 站主清空垃圾桶。
+**最高優先：正式站個資部分仍公開（PII-1 部分完成，卡在站主確認）**——愛爾蘭 AED、台灣山崩照片／AED／舊衣回收箱／觀光、長照圖磚、實價登錄備註等公開檔含個資（只記筆數，細節見 BACKLOG D 群 PII-1）。清理 pipeline 已合；清理後檔案未上傳；改讀 `_v2` 的 mini #1043、#1046 已隨 v2.37.0 上線；#1044、#1048 已合 develop（#1044 以管理員權限合併），隨 v2.37.1 發版中。後續：PII-2 刪舊檔、PII-3 倉庫重發、PII-4 S3 實價登錄封存重做、PII-5 站主清空垃圾桶。
 
 **2026-11-16 更新**：v2.37.0 已發布（只帶 #1043、#1046；正式站目視 AED `_v2` 與舊衣回收箱快照的手機格式都是 0 筆）；#1044（台灣 7 層，CI 要 R2 先有檔、發版同步只帶 master 已引用的檔，卡循環，等站主在另一視窗決定）、#1048 未進，正式站個資仍未完全解決，需再發一版。**第二輪（11-16）**：已止血＝愛爾蘭 AED、舊衣回收箱（DB、S3 快照、R2 皆已換新）；8 個公開 `_v2` 檔已上 S3。未止血＝台灣 7 層（#1044，7 檔已在 S3、CI 與同步互卡，待站主同意發版前用管理員權限合併）、英愛 3 層（#1048，3 檔未上傳）。另 PII-2 愛爾蘭 AED 舊檔刪除清單已備妥（要等 #1055 進 master，需站主執行或授權）；PII-3 現行倉庫 AED 表仍含 11 筆電話；PII-6 站主限定長照未上雲；PII-7 日本 `raw_record` 欄待決；analytics #392 待審。
 
-**下次接手入口（2026-11-16 第二輪）**：第一步＝站主同意 #1044 用管理員權限合併、到執行 session 視窗確認 #1048 的 3 檔上傳 → 合 #1044／#1048 → 再發一版（帶 #1055、#1044、#1048；REL-NEXT）→ PII-2 依序刪 S3、R2 舊檔。驗收＝正式站 `main-*.js` 為新版號、各 `_v2` 檔回 200、圖層正常顯示；清理報告 analytics `output/tw_pii_scrub_20261114/REPORT-round5.md`。
+**第三輪（11-16）**：#1048 已合 develop `06a17f4a`（3 檔已上 S3）；#1044 以管理員權限合併（`d963d2b4`）；v2.37.1 發版 PR（`release/v2.37.1` → master）已開，`assets`／`ci-ok` 紅是預期（R2 尚未有 `_v2` 檔，CI-10），站主同意以管理員權限合併。
+
+**下次接手入口（2026-11-16 第三輪）**：v2.37.1 合 master 後打 tag、建 Release、開 master→develop 回合併 PR → 做「有期限的事」v2.37.1 發版後那列 → PII-2 依序刪 S3、R2 舊檔（愛爾蘭 AED 先，需站主執行或授權）。驗收＝正式站 `main-*.js` 為新版號、各 `_v2` 檔回 200、圖層正常顯示；清理報告 analytics `output/tw_pii_scrub_20261114/REPORT-round5.md`。
 
 **有期限的事（日期排序）**
 
@@ -42,7 +44,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | ~2026-11-20 | 動物收容成果收集器確認有新 run（設計低頻，不是故障） | Claude | COL-ANIMAL-1 |
 | 2026-12-10 | S3 用量回看：日報 136 GB、週增 +101% 是含舊版本（`warehouse-archive` 約 56.8 GiB、`r2-mirror` 約 8 GiB）；舊版本 30 天過期後應回到約 95 GiB；`r2-mirror` 用途未查 | Claude | ST-3 |
 | v2.37.0 發版後 | 正式站確認：救援等時圈 `/fire/fire_isochrone_coverage.pmtiles` 200 且圖層有畫面；`world/ie_defibrillators_v2.pmtiles` 200、愛爾蘭 AED 圖層正常；舊衣回收箱快照 `get_waste_disposal_points.json` 公開版回讀為 13,751 筆、業者欄手機 0 筆；越南目視清單（mini `.worktrees/vn-w01/.preview-keep/vn_prod_visual_checklist.md`）；#1036 未在瀏覽器驗過的三項（日本醫療圈 popup、小網格點擊、手機衛星百科卡） 〔結果 2026-11-16：v2.37.0 已發布，匿名唯讀目視 11 項：9 通過、2 部分通過、0 失敗（截圖 `.gis-agent-system/projects/2026-11-13-vis-pack-batch2/shots-v2370/`）。通過：衛星切底圖、日本醫療圈 popup（川口＝「南部」）、小格網點擊（台灣 H3 人口數、日本 1 km）、手機衛星百科卡可開可關、救援等時圈三段都在、愛爾蘭 AED 營運者欄電話格式 0 筆、舊衣回收箱快照 13,751 筆且業者／聯絡欄手機格式 0 筆、菲律賓 4 層＋越南 12 層冒煙、首頁無 4xx；歷史模式高縮放退回粗網格不報錯。部分通過：INTEL 國碼（Gaza 仍顯示 GZ，VPB-17，mini #1056 已合 develop、待發版）、分享網址（只帶 `?c=ie` 開在台灣，查明是刻意設計，只更正 CHANGELOG 說明，VPB-19 關閉）。新問題登記 VPB-17、VPB-18（修正中，部署待同意）、VPB-20～22、VNW-1，VPB-8 補版面；VP-2、VPB-3／7／9／10／14／19 關閉〕 | Claude | REL-NEXT／VPB-8／VPB-17／VPB-18／VPB-20～22／PII-1 |
-| 下一版發版後 | 正式站用 `?v=1&lng=121&lat=24&z=9&layers=h3Population` 與 `popCount` 重驗首次載入就有網格（mini #1058，已合 develop `814d365e`）；同版順看 7 層 popup 來源列不再是 pending | Claude | VPB-21／VPB-20 |
+| v2.37.1 發版後 | 10 個 `_v2` 檔（台灣 7、愛爾蘭 2、英國 1）公開網域 200／206；山崩照片、AED、長照、海巡、觀光三層、愛爾蘭商業估值與活動地點、英國醫療院所畫面正常且說明框不含電話；`?v=1&lng=121&lat=24&z=9&layers=h3Population` 與 popCount 首次載入有網格（mini #1058）、7 層 popup 來源列不再是 pending；Gaza 卡片顯示 PS；develop／master 的 assets 檢查轉綠 | Claude | PII-1／VPB-17／VPB-20／VPB-21／CI-10 |
 | 2026-11-28 | 選舉投票日：之前每日更新活動地圖；選後匯出最後一版轉站主資料 | Claude＋使用者 | OWD-4 |
 | 2026-11-28 後 | 選後一起做：選舉活動兩張表登記保留期限、清 22 筆已刪除表的備份狀態紀錄（使用者 2026-11-13 同意；動手前先給清單） | Claude＋使用者 | ELEC-RET-1 |
 | 2026-12-01 前 | 使用者取消 Zeabur 專用主機續約 | 使用者 | ZB-5 |
@@ -56,7 +58,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 **本週進行中**
 
-- 發版：v2.37.0 已於 11-16 發布（發版 PR #1054，master `3629f1b5`，tag／Release 已建，19 個 PR：#1028–#1036、#1038、#1040、#1041、#1043、#1045–#1047、#1049、#1051、#1052）；lock 新增 30 個資產在正式網域都取得到。REL-NEXT 改追下一版：#1044、#1048 未進，個資需再發一版。
+- 發版：v2.37.0 已於 11-16 發布（發版 PR #1054，master `3629f1b5`，tag／Release 已建，19 個 PR：#1028–#1036、#1038、#1040、#1041、#1043、#1045–#1047、#1049、#1051、#1052）；lock 新增 30 個資產在正式網域都取得到。REL-NEXT 改追下一版：v2.37.1 發版中（`release/v2.37.1` 直接 PR 到 master，帶 #1044、#1048、#1055、#1056、#1058 與文件 #1057、#1059–#1061；`assets`／`ci-ok` 預期紅，站主同意管理員合併）。再下一版待帶：#1037、#1039＋pulse-data #109、#1042、#1050、analytics #392。
 - Zeabur 收尾與金鑰：最後兩個專案使用者 11-13 回報已刪（ZB-1）；剩 ZB-5 停約、SEC-6（BACKLOG B 群）；ZB-4 網域與 ZB-6 主體 11-09 完成。
 - 告警分級 11-09 完成（GitHub 排程、主機看門狗、collector、healthchecks 3 個死人開關皆已設）；剩 aisstream／VM 接告警（G 群 ALERT-1）。
 - Supabase 效率大掃除 11-09 主體完成（R1–R5、mig 518–533、sql-lint、每週體檢）；11-09 晚第一批權限（gp #227 mig 536–539）與 VM 固定形狀寫入（collectors #194）也完成；11-10 驗證與慢查詢清單 11-12 完成（R5 升為必須；SEC-5 的優化等使用者拍板）；剩預算表（SBE-5）、軌跡改讀每日檔方案（TRAIL-1）、新發現的 RLS／權限（SEC-11／SEC-12／HERMES-2）。
@@ -98,9 +100,9 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | Zeabur 停止營運搬遷收尾 | 🟡 | 底線:花費 | **搬遷全部完成**（11-09 已刪 13 個靜態站、不搬服務與 11 個空專案，只剩 mini-tw-pulse、data-collectors-gomn 兩專案留作回滾）：靜態站 10-29；主站、research-gateway、Valhalla 11-06（Cloudflare Worker＋Linode pulse-host）；collector 已搬 pulse-host（collectors #170／#171／#175–#180），correctional 移 HiCloud VM；Zeabur 26 服務已 suspend、變數已刪；zeabur README 11-08 已更新、flight-arc-graph #24 已合併 | ZB-1 刪最後兩個回滾專案（~11-14，須使用者同意）→ ZB-5 停約（12/1）→ SEC-6（12/3）；ZB-6 Zeabur 殘留根治剩餘項；ZB-7 uk-trip DNS（主站網域改 Worker 已於 11-09 完成） | BACKLOG B 群；`../.gis-agent-system/projects/2026-10-zeabur-migration/`；ADR-0026 | 2026-11-09 |
-| collector 健康修正（data-collectors #203／#204） | 🟡 | 底線:資料正確 | #203（`3e801d63`）11-16 部署 pulse-host，HiCloud VM 四個 app 換新版 `vm_buffer.py`；#204 合 main `e4135c40`（首輪錯開 15 分、颱風閒置不檢查歸檔、補心跳、0 筆帶錯誤改記失敗、S3 用量改比 7／30 天前），站主同意後 11-16 10:50（台北）部署 pulse-host，容器 healthy、版本回讀一致 | COL-STAG-1 11-17 驗證（對帳 critical、`tra_static`、記憶體尖峰）；COL-ZERO-2、COL-TYPHOON-1、COL-PLA-1 剩餘項；HOST-1 #204 部署後重量記憶體 | BACKLOG E 群 COL-STAG-1 | 2026-11-16 |
+| collector 健康修正（data-collectors #203／#204） | 🟡 | 底線:資料正確 | #203（`3e801d63`）11-16 部署 pulse-host，HiCloud VM 四個 app 換新版 `vm_buffer.py`；#204 合 main `e4135c40`（首輪錯開 15 分、颱風閒置不檢查歸檔、補心跳、0 筆帶錯誤改記失敗、S3 用量改比 7／30 天前），站主同意後 11-16 10:50（台北）部署 pulse-host，容器 healthy、版本回讀一致；同日再部署 `efd4c2d6`（#206 剛果誤定位修正、#205 城市聲景即時管線開關全關），容器 healthy | COL-STAG-1 11-17 驗證（對帳 critical、`tra_static`、記憶體尖峰）；VPB-18 驗收新進伊波拉候選顯示 CD（VPB-27 blocked）；COL-ZERO-2、COL-TYPHOON-1、COL-PLA-1 剩餘項；HOST-1 #204 部署後重量記憶體 | BACKLOG E 群 COL-STAG-1 | 2026-11-16 |
 | 資安稽核後續 | 🟡 | 底線:資安 | 10-17 稽核、多項 migration 已套（含 mig 502）；gp #170 已於 10-17 合併；11-09 第一批權限（gp #227 mig 536）與 iCHEF 客戶編號檔移出完成 | SEC-6 擴大版（12/3 前，計畫書 `.gis-agent-system/projects/2026-10-zeabur-migration/healthcheck-20261108/SEC-6-rotation-plan.md`）；SEC-7 只剩在 pulse-host 設 `PULSE_RESEARCH_TRUSTED_PROXY_IPS` 並驗證；SEC-4、SEC-5、SEC-9；SEC-11／SEC-12 | `../gis-platform/docs/research/2026-10-17-security-audit.md`；BACKLOG D 群 | 2026-11-08 |
-| 正式站個資清理 | 🟡 | 底線:資安 | 11-14 掃描發現公開檔含個資；清理 pipeline 已合（analytics #381、#384、#385、#386、#388；mini #1045）；前端改讀 `_v2`：#1043、#1046 隨 v2.37.0 上線（11-16 正式站目視：AED 與舊衣回收箱手機格式 0 筆）；#1044（卡 CI 與發版同步的循環，等站主決定）、#1048 未合 | PII-1 站主確認後上傳、合併、再發一版 → PII-2 刪舊檔 → PII-3 倉庫重發；PII-4、PII-5 | BACKLOG PII-1～PII-5；analytics `output/tw_pii_scrub_20261114/REPORT-round5.md` | 2026-11-16 |
+| 正式站個資清理 | 🟡 | 底線:資安 | 11-14 掃描發現公開檔含個資；清理 pipeline 已合（analytics #381、#384、#385、#386、#388；mini #1045）；前端改讀 `_v2`：#1043、#1046 隨 v2.37.0 上線（11-16 正式站目視：AED 與舊衣回收箱手機格式 0 筆）；#1044（管理員權限合併）、#1048 已合 develop，隨 v2.37.1 發版中 | v2.37.1 發版後驗收 10 個 `_v2` 檔 → PII-2 刪舊檔（愛爾蘭 AED 先；其餘 10 個舊檔清單未做） → PII-3 倉庫重發；PII-4、PII-5 | BACKLOG PII-1～PII-5；analytics `output/tw_pii_scrub_20261114/REPORT-round5.md` | 2026-11-16 |
 | 資料保留期限（Supabase／R2／collector 最長 6 個月） | 🟡 | 底線:期限 | 使用者 2026-11-07 拍板；gp #208／#212 mig 505–510 已於 **11-07 晚套用**（510 drop 20 張冷存表，約少 3.77 GiB；冷存檔在 S3 `supabase-export/`） | 清理首跑 11-12 已驗（5 晚無失敗），iot_wra 約 11-14 追平；第 2 群約 21＋22 張表（WA-3）；DB-1 晚間補表大小 | BACKLOG WA-3；ADR-0026 | 2026-11-08 |
 | R2 獨有資料補回 S3 | 🟡 | 底線:備份 | warehouse packages 約 6 GB、pulse-staging `_detect` 約 1.09 GB、`sim/v1` 只在 R2；補傳進行中 | ST-2：補完後在產生流程尾端加上傳 S3；ADR-1 補正 ADR-0026；還原演練 BKP-1（Supabase 還原到新專案，需使用者操作）、BKP-2（pulse-host 從零重建）、BKP-3（`auth.users` 進 S3 備份） | BACKLOG ST-2／ADR-1／BKP-1～3 | 2026-11-10 |
 | 站主資料改存法（owner-data） | 🟡 | 底線:授權 | 第 1 批畜牧（v2.28.0）、第 2 批能源與石化（v2.29.0）上線並經使用者驗收；mig 514／515 撤 14 支 RPC | OWD-4 第 3 批（EA、Coillte、water1944；選舉活動 11-28 後）；SR-1 撤 static RPC（~11-20，原 11-15 未做）、SR-2 | `../.gis-agent-system/projects/2026-10-zeabur-migration/owner-only-storage-plan.md`；BACKLOG F 群 | 2026-11-08 |
@@ -131,6 +133,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
+| City Sound Atlas 城市聲景（實驗） | 🟡 | 內容:研究專題 | 前端在本機分支 `feat/city-sound-atlas-mvp`（未 push）；即時管線 data-collectors #205 已合併、已隨 `efd4c2d6` 部署、開關全關 | SND-1～SND-4 依序開 dry-run → 上傳 → 前端接線（每步站主在該 session 視窗確認）；SND-5 站主待決 | `../.gis-agent-system/projects/2026-11-11-city-sound-atlas/PLAN.md`；設計 data-collectors `docs/sound-atlas-live/DESIGN.md`；BACKLOG SND-1～5 | 2026-11-16 |
 | 雙北大眾運輸可及性（含臺中、臺南、高雄） | 🟡 | 北極星:AI | 雙北 #810 上正式站；三市 11-04 算完、analytics #323 已合；雙北重算 P1 完成、P2／P3 未跑；11-12 正式站目視通過（v2.36.1） | TA-3 三市上網站形式（待決定）；TA-2 雙北雲端重算（TA-6 已併入，待使用者說跑） | `../taipei-gis-analytics/docs/topic-research/transit_access/_status.md`；BACKLOG N 群 | 2026-11-06 |
 
 ## 已上線待收尾、暫停、構想
