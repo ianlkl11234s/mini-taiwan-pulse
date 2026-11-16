@@ -1847,5 +1847,7 @@
   "layer.vnAngiangDemo": "An Giang Industrial Clusters & Flood Resettlement (Vietnam)",
   "layer.phBusStops": "Bus Stops (Philippines)",
   "layer.phUrbanRail": "LRT / MRT Lines & Stations (Philippines)",
-  "layer.phExpressways": "Expressways & Toll Roads (Philippines)"
+  "layer.phExpressways": "Expressways & Toll Roads (Philippines)",
+  "layer.fire119Live": "Live 119 Incidents",
+  "layer.pbsRoadEventsLive": "PBS Live Road Reports"
 }

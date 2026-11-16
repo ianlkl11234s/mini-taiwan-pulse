@@ -11,6 +11,7 @@ import { statisticsPresentationSpec } from './statisticsPresentation';
 import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
 import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
+import { LIVE_INCIDENT_WINDOWS } from "./liveIncidentsTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -5229,6 +5230,17 @@ export const LAYER_PARAMS_SPEC = {
       ],
       out: null,
     },
+  ],
+  // 即時 119 案件／警廣即時路況（站主限定，mig 555）：時間範圍依受理／發生時間在前端篩，切換不重抓
+  fire119Live: [
+    opacitySlider("fire119LiveOpacity", 0.9),
+    scaleSlider("fire119LiveScale", 1),
+    { kind: "select", name: "fire119LiveWindow", label: "時間範圍", default: "180", category: "data", options: LIVE_INCIDENT_WINDOWS.map((o) => ({ ...o })), out: null },
+  ],
+  pbsRoadEventsLive: [
+    opacitySlider("pbsRoadEventsLiveOpacity", 0.9),
+    scaleSlider("pbsRoadEventsLiveScale", 1),
+    { kind: "select", name: "pbsRoadEventsLiveWindow", label: "時間範圍", default: "180", category: "data", options: LIVE_INCIDENT_WINDOWS.map((o) => ({ ...o })), out: null },
   ],
   newsEvents: [
     opacitySlider("newsEventsOpacity", 1),

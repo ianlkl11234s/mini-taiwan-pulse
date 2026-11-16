@@ -1847,5 +1847,7 @@
   "layer.vnAngiangDemo": "An Giang 工業団地・洪水避難居住地（ベトナム）",
   "layer.phBusStops": "バス停（フィリピン）",
   "layer.phUrbanRail": "LRT／MRT 路線と駅（フィリピン）",
-  "layer.phExpressways": "高速道路・有料道路（フィリピン）"
+  "layer.phExpressways": "高速道路・有料道路（フィリピン）",
+  "layer.fire119Live": "119 リアルタイム事案",
+  "layer.pbsRoadEventsLive": "警察広播 リアルタイム道路情報"
 }

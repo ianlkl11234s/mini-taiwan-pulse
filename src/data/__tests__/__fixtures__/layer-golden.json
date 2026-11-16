@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1857,
+    "keyCount": 1859,
     "sections": [
       "gisLayers",
       "overlays",
@@ -3872,6 +3872,19 @@
     },
     {
       "layers": [
+        "fire119-live-point",
+        "fire119-live-badge"
+      ],
+      "type": "fire119Live"
+    },
+    {
+      "layers": [
+        "pbs-road-events-live-point"
+      ],
+      "type": "pbsRoadEventsLive"
+    },
+    {
+      "layers": [
         "roadEvents-fill",
         "roadEvents-line",
         "roadEvents-point"
@@ -6931,6 +6944,12 @@
         "slopeland-swc-act-fill"
       ],
       "type": "slopelandSwcAct"
+    },
+    {
+      "layers": [
+        "fire119-live-district-fill"
+      ],
+      "type": "fire119Live"
     },
     {
       "layers": [
@@ -122809,6 +122828,45 @@
         "valueText": "1.0"
       }
     ],
+    "fire119Live": [
+      {
+        "label": "時間範圍",
+        "options": [
+          {
+            "label": "最近 1 小時",
+            "value": "60"
+          },
+          {
+            "label": "最近 3 小時",
+            "value": "180"
+          },
+          {
+            "label": "最近 6 小時",
+            "value": "360"
+          }
+        ],
+        "type": "select",
+        "value": "180"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "fireEvents": [
       {
         "label": "類別",
@@ -151308,6 +151366,45 @@
         "step": 0.25,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "pbsRoadEventsLive": [
+      {
+        "label": "時間範圍",
+        "options": [
+          {
+            "label": "最近 1 小時",
+            "value": "60"
+          },
+          {
+            "label": "最近 3 小時",
+            "value": "180"
+          },
+          {
+            "label": "最近 6 小時",
+            "value": "360"
+          }
+        ],
+        "type": "select",
+        "value": "180"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "performingVenues": [

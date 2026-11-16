@@ -62,6 +62,13 @@
    "s3_key": "deploy-assets/base_map/hillshade.png"
   },
   {
+   "path": "public/base_map/road_lines_20261116.pmtiles",
+   "bytes": 44963869,
+   "sha256": "f27417d12fdc8ada50aeeac4b1ac320527d2378cfdce1d34d19203429f519447",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/base_map/road_lines_20261116.pmtiles"
+  },
+  {
    "path": "public/bus/changhuacounty_bus_routes.json",
    "bytes": 1220937,
    "sha256": "9dd27e4abd0a0c3ba938a734465d56871646b8eb98485b6e87d43f3a92d86d2d",
