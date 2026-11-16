@@ -652,7 +652,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   },
   // ───────────── 運動休閒：活動地點、公園 ─────────────
   {
-    key: "ieActivityLocations", file: "ie_activity_locations.pmtiles", sourceLayer: "ie_activity_locations", geom: "point", layerId: "ie-activity-locations-circle",
+    key: "ieActivityLocations", file: "ie_activity_locations_v2.pmtiles", sourceLayer: "ie_activity_locations", geom: "point", layerId: "ie-activity-locations-circle",
     srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#ef6c00", tier: "M", count: 5318,
     catProp: "location_type",
     cats: [
@@ -715,7 +715,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
   // ───────────── 房地產（第 2 波）：商業房產估值、國有登記土地 ─────────────
   {
     // 15.6 萬點：z12 以下畫熱區（低縮放圖磚只帶 category），z12 起畫點
-    key: "ieCommercialValuations", file: "ie_commercial_valuations.pmtiles", sourceLayer: "ie_commercial_valuations", geom: "point", layerId: "ie-commercial-valuations-circle",
+    key: "ieCommercialValuations", file: "ie_commercial_valuations_v2.pmtiles", sourceLayer: "ie_commercial_valuations", geom: "point", layerId: "ie-commercial-valuations-circle",
     srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, heat: { intensity: 0.6 }, color: "#f472b6", tier: "S", count: 156089,
     catProp: "category", cats: VALUATION_CATS,
     title: { props: ["uses", "address"], fallback: l3("商業房產", "Commercial property", "商業用不動産") },

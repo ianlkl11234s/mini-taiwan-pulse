@@ -48,6 +48,10 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "chatHighlight",
   // VPB-4：feature／tile 無來源欄，panel 補官方出處並自掛 SourceFooter（原本顯示「來源資訊待補」）
   "immigrationOffice", "pollutionPenalty", "youbikeFullness", "groundwater",
+  // feature 無來源欄，panel 補有依據的固定出處並自掛 SourceFooter（原本顯示「來源資訊待補」）
+  "popCount", "h3Population",
+  "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
+  "jpPopulationMesh1km", "fireIsochrone",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
   // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
