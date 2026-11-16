@@ -257,6 +257,7 @@ const NO_POPUP_LEDGER = new Set([
   // 愛爾蘭第 1 波：INFOMAR 海床地形 raster（已著色 PNG，無 feature 屬性）
   "ieBathymetry",
   "cnPopulationGrid", // 中國人口網格：已上色 raster，沒有 feature 屬性
+  "cnTerrain", "cnAquaculture", "cnSoil", // 中國第 2–5 波 raster（地形山影、養殖、土壤）：已上色 PNG，沒有 feature 屬性
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -616,7 +617,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ieAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("PH")].sort()).toEqual(["phAdminBoundaries", "phFuelStations", "phMajorRoads", "phPipelines", "phPopulation", "phPowerGrid", "phPowerPlants", "phRenewables", "phStations", "phTransportHubs"]);
     expect(tw.has("phAdminBoundaries")).toBe(false);
-    expect([...countryLayerKeys("CN")].sort()).toEqual(["cnAdminBoundaries", "cnBusStops", "cnMajorRoads", "cnPipelines", "cnPopulation", "cnPopulationGrid", "cnPowerGrid", "cnPowerPlants", "cnTransportHubs"]);
+    expect([...countryLayerKeys("CN")].sort()).toEqual(["cnActiveFaults", "cnAdminBoundaries", "cnAquaculture", "cnBridgesTunnels", "cnBusStops", "cnDams", "cnEez", "cnEthnicAutonomy", "cnMajorRoads", "cnMedical", "cnNatureReserves", "cnNuclearPlants", "cnPipelines", "cnPlaceNames", "cnPopulation", "cnPopulationGrid", "cnPowerGrid", "cnPowerPlants", "cnRivers", "cnSchools", "cnSoil", "cnTerrain", "cnTransportHubs", "cnWdpa"]);
     expect(tw.has("cnAdminBoundaries")).toBe(false);
   });
 

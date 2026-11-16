@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1836,
+    "keyCount": 1851,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2955,6 +2955,81 @@
         "cn-major-roads-line"
       ],
       "type": "cnMajorRoads"
+    },
+    {
+      "layers": [
+        "cn-nuclear-plants-circle",
+        "cn-nuclear-reactors-circle"
+      ],
+      "type": "cnNuclearPlants"
+    },
+    {
+      "layers": [
+        "cn-medical-circle"
+      ],
+      "type": "cnMedical"
+    },
+    {
+      "layers": [
+        "cn-schools-circle"
+      ],
+      "type": "cnSchools"
+    },
+    {
+      "layers": [
+        "cn-bridges-tunnels-circle"
+      ],
+      "type": "cnBridgesTunnels"
+    },
+    {
+      "layers": [
+        "cn-place-names-circle"
+      ],
+      "type": "cnPlaceNames"
+    },
+    {
+      "layers": [
+        "cn-dams-circle",
+        "cn-reservoirs-fill"
+      ],
+      "type": "cnDams"
+    },
+    {
+      "layers": [
+        "cn-wdpa-circle",
+        "cn-wdpa-fill"
+      ],
+      "type": "cnWdpa"
+    },
+    {
+      "layers": [
+        "cn-active-faults-line"
+      ],
+      "type": "cnActiveFaults"
+    },
+    {
+      "layers": [
+        "cn-rivers-line"
+      ],
+      "type": "cnRivers"
+    },
+    {
+      "layers": [
+        "cn-nature-reserves-fill"
+      ],
+      "type": "cnNatureReserves"
+    },
+    {
+      "layers": [
+        "cn-ethnic-autonomy-fill"
+      ],
+      "type": "cnEthnicAutonomy"
+    },
+    {
+      "layers": [
+        "cn-eez-fill"
+      ],
+      "type": "cnEez"
     },
     {
       "layers": [
@@ -118562,6 +118637,50 @@
         "valueText": "1.0"
       }
     ],
+    "cnActiveFaults": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "逆斷層（含斜滑）",
+            "value": "reverse"
+          },
+          {
+            "label": "正斷層（含斜滑）",
+            "value": "normal"
+          },
+          {
+            "label": "走向滑移（右移、左移）",
+            "value": "strike"
+          },
+          {
+            "label": "褶皺（背斜、向斜）",
+            "value": "fold"
+          },
+          {
+            "label": "未標示",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "reverse",
+          "normal",
+          "strike",
+          "fold",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "cnAdminBoundaries": [
       {
         "label": "行政層級",
@@ -118586,6 +118705,55 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "cnAquaculture": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "cnBridgesTunnels": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "橋梁（含高架）",
+            "value": "bridge"
+          },
+          {
+            "label": "隧道",
+            "value": "tunnel"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "bridge",
+          "tunnel"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "cnBusStops": [
@@ -118685,6 +118853,94 @@
         "valueText": "1.0"
       }
     ],
+    "cnDams": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "壩（點）",
+            "value": "dam"
+          },
+          {
+            "label": "水庫水面",
+            "value": "reservoir"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "dam",
+          "reservoir"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnEez": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "cnEthnicAutonomy": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "自治區（5）",
+            "value": "region"
+          },
+          {
+            "label": "自治州（30）",
+            "value": "prefecture"
+          },
+          {
+            "label": "自治縣（117）",
+            "value": "county"
+          },
+          {
+            "label": "自治旗（3）",
+            "value": "banner"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "region",
+          "prefecture",
+          "county",
+          "banner"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "cnMajorRoads": [
       {
         "label": "類別",
@@ -118739,6 +118995,208 @@
         "valueText": "0.85"
       }
     ],
+    "cnMedical": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "醫院",
+            "value": "hospital"
+          },
+          {
+            "label": "診所（含醫師診間）",
+            "value": "clinic"
+          },
+          {
+            "label": "藥局",
+            "value": "pharmacy"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hospital",
+          "clinic",
+          "pharmacy"
+        ]
+      },
+      {
+        "defaultValue": "PuBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBu"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnNatureReserves": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "核心區",
+            "value": "core"
+          },
+          {
+            "label": "緩衝區",
+            "value": "buffer"
+          },
+          {
+            "label": "實驗區",
+            "value": "experimental"
+          },
+          {
+            "label": "未分區（整個保護區一個面）",
+            "value": "unzoned"
+          },
+          {
+            "label": "其他分區",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "core",
+          "buffer",
+          "experimental",
+          "unzoned",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "cnNuclearPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "核電廠（廠區）",
+            "value": "plant"
+          },
+          {
+            "label": "機組（z9 起）",
+            "value": "reactor"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "plant",
+          "reactor"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "cnPipelines": [
       {
         "label": "類別",
@@ -118791,6 +119249,49 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnPlaceNames": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "聚落（城市、鎮、村）",
+            "value": "settlement"
+          },
+          {
+            "label": "地形（山、山脈、山口）",
+            "value": "terrain"
+          },
+          {
+            "label": "水文（湖、河、水庫）",
+            "value": "water"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "settlement",
+          "terrain",
+          "water"
+        ]
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -119028,6 +119529,192 @@
         "valueText": "1.0"
       }
     ],
+    "cnRivers": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "流量等級 2（10,000–100,000 m³/s）",
+            "value": "o2"
+          },
+          {
+            "label": "流量等級 3（1,000–10,000 m³/s）",
+            "value": "o3"
+          },
+          {
+            "label": "流量等級 4（100–1,000 m³/s）",
+            "value": "o4"
+          },
+          {
+            "label": "流量等級 5（10–100 m³/s）",
+            "value": "o5"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "o2",
+          "o3",
+          "o4",
+          "o5"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "cnSchools": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "幼兒園",
+            "value": "kindergarten"
+          },
+          {
+            "label": "中小學",
+            "value": "school"
+          },
+          {
+            "label": "專科（college）",
+            "value": "college"
+          },
+          {
+            "label": "大學",
+            "value": "university"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "kindergarten",
+          "school",
+          "college",
+          "university"
+        ]
+      },
+      {
+        "defaultValue": "cividis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "cividis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnSoil": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "cnTerrain": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
     "cnTransportHubs": [
       {
         "label": "類別",
@@ -119075,6 +119762,59 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "cnWdpa": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國際重要濕地（Ramsar）",
+            "value": "ramsar"
+          },
+          {
+            "label": "生物圈保護區（UNESCO MAB）",
+            "value": "biosphere"
+          },
+          {
+            "label": "世界遺產（自然、複合）",
+            "value": "world_heritage"
+          },
+          {
+            "label": "風景名勝區",
+            "value": "scenic_area"
+          },
+          {
+            "label": "其他保護區",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ramsar",
+          "biosphere",
+          "world_heritage",
+          "scenic_area",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",

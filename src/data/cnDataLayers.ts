@@ -7,7 +7,7 @@
  * 資料、處理、授權原句見 taipei-gis-analytics `docs/topic-research/china_opendata/waves/w01/FRONTEND_SPEC.md` 與各 `_manifest.json`（2026-11-13 讀）。
  * 爭議地區依實際管轄：金門、馬祖、澎湖、東沙、太平島、烏坵、大膽二膽屬台灣，台港澳不在任何中國圖層；不畫九段線或任何海域主張線。
  */
-import type { CnDataKey } from "./cnDataKeys";
+import type { CnDataKey, CnRasterKey } from "./cnDataKeys";
 import { CN_PREFECTURE_NAMES } from "./cnPrefectureNames";
 import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./phDataLayers";
 
@@ -34,6 +34,22 @@ export const CN_OWNER_ASSETS = {
   "cn-transport-hubs": "cn_transport_hubs.pmtiles",
   "cn-major-roads": "cn_major_roads.pmtiles",
   "cn-power-grid": "cn_power_grid.pmtiles",
+  // 第 2–5 波（2026-11-16，taipei-gis-analytics #395）
+  "cn-eez": "cn_eez.pmtiles",
+  "cn-terrain": "cn_terrain.pmtiles",
+  "cn-place-names": "cn_place_names.pmtiles",
+  "cn-ethnic-autonomy": "cn_ethnic_autonomy.pmtiles",
+  "cn-dams": "cn_dams.pmtiles",
+  "cn-rivers": "cn_rivers.pmtiles",
+  "cn-active-faults": "cn_active_faults.pmtiles",
+  "cn-nature-reserves": "cn_nature_reserves.pmtiles",
+  "cn-wdpa": "cn_wdpa.pmtiles",
+  "cn-aquaculture": "cn_aquaculture.pmtiles",
+  "cn-soil": "cn_soil.pmtiles",
+  "cn-bridges-tunnels": "cn_bridges_tunnels.pmtiles",
+  "cn-schools": "cn_schools.pmtiles",
+  "cn-medical": "cn_medical.pmtiles",
+  "cn-nuclear-plants": "cn_nuclear_plants.pmtiles",
 } as const;
 export type CnOwnerAsset = keyof typeof CN_OWNER_ASSETS;
 
@@ -114,7 +130,9 @@ export const CN_GRID_NOTES: readonly L3[] = [
 // ═════════════════════════ 規格驅動 6 層 ═════════════════════════
 
 /** 子圖層：菲律賓規格＋瘦身圖磚的各層最大縮放（給定＝獨立 source）＋淡化條件。 */
-export interface CnPart extends PhPart {
+export interface CnPart extends Omit<PhPart, "geom"> {
+  /** fill＝面（第 2–5 波起；同時畫同色外框 `<id 去 -fill>-outline`） */
+  geom: "point" | "line" | "fill";
   /** 此 tile layer 的最大縮放（與 spec.srcMaxzoom 不同時，另開一個 source 才不會在高縮放消失） */
   srcMaxzoom?: number;
   /** 符合者透明度減半（例：油氣管線 route_accuracy=low 示意路線） */
@@ -129,6 +147,9 @@ export interface CnLayerSpec extends Omit<PhLayerSpec, "key" | "parts"> {
 }
 /** 型別與 popup／篩選函式沿用菲律賓（只讀 cats、parts、title、fields 等欄位，不讀 key 的字面值）。 */
 export const asPhSpec = (spec: CnLayerSpec) => spec as unknown as PhLayerSpec;
+export const asPhPart = (part: CnPart) => part as unknown as PhPart;
+/** 面子圖層的外框 layer id。 */
+export const cnOutlineId = (part: CnPart) => part.id.replace(/-fill$/, "-outline");
 
 const constCat = (v: string): PhCatGetter => ({ expr: ["literal", v], js: () => v });
 const propGetter = (prop: string): PhCatGetter => ({ expr: ["to-string", ["coalesce", ["get", prop], ""]], js: (p) => str(p[prop]) });
@@ -240,6 +261,468 @@ const GEM_STATUS_MAP: Record<string, L3> = {
   "mixed status": l3("狀態混合", "Mixed status", "状態混在"),
 };
 const LOCATION_ACCURACY_MAP: Record<string, L3> = { exact: l3("精確", "Exact", "正確"), approximate: l3("概略位置", "Approximate", "概略位置") };
+
+// ═════════════════════════ 第 2–5 波（2026-11-16，taipei-gis-analytics #395） ═════════════════════════
+
+const CN_W25_FETCHED_AT = "2026-11-16";
+const yesNo = { true: l3("是", "Yes", "はい"), false: l3("否", "No", "いいえ") } as const;
+const catMap = (cats: readonly PhCat[]) => Object.fromEntries(cats.flatMap((c) => c.values.map((v) => [v, c.label])));
+
+// ───────────── EEZ（C002） ─────────────
+const EEZ_CATS: readonly PhCat[] = [{ id: "eez", values: ["eez"], color: "#38bdf8", label: l3("專屬經濟區（200 浬，Marine Regions MRGID 8486）", "Exclusive economic zone (200 nm, Marine Regions MRGID 8486)", "排他的経済水域（200 海里、Marine Regions MRGID 8486）") }];
+
+// ───────────── 地名（C007） ─────────────
+const PLACE_CATS: readonly PhCat[] = [
+  { id: "settlement", values: ["settlement"], color: "#fbbf24", label: l3("聚落（城市、鎮、村）", "Settlement (city, town, village)", "集落（都市・町・村）") },
+  { id: "terrain", values: ["terrain"], color: "#a78bfa", label: l3("地形（山、山脈、山口）", "Terrain (peak, range, pass)", "地形（山・山脈・峠）") },
+  { id: "water", values: ["water"], color: "#38bdf8", label: l3("水文（湖、河、水庫）", "Water (lake, river, reservoir)", "水文（湖・川・ダム湖）") },
+];
+
+// ───────────── 民族自治地方（C020） ─────────────
+const ETHNIC_CATS: readonly PhCat[] = [
+  { id: "region", values: ["region"], color: "#ef4444", label: l3("自治區（5）", "Autonomous region (5)", "自治区（5）") },
+  { id: "prefecture", values: ["prefecture"], color: "#f59e0b", label: l3("自治州（30）", "Autonomous prefecture (30)", "自治州（30）") },
+  { id: "county", values: ["county"], color: "#22c55e", label: l3("自治縣（117）", "Autonomous county (117)", "自治県（117）") },
+  { id: "banner", values: ["banner"], color: "#14b8a6", label: l3("自治旗（3）", "Autonomous banner (3)", "自治旗（3）") },
+];
+
+// ───────────── 壩與水庫（C107＋C111） ─────────────
+const DAM_CATS: readonly PhCat[] = [
+  { id: "dam", values: ["dam"], color: "#38bdf8", parts: ["cn-dams-circle"], label: l3("壩（點）", "Dam (point)", "ダム（点）") },
+  { id: "reservoir", values: ["reservoir"], color: "#2563eb", parts: ["cn-reservoirs-fill"], label: l3("水庫水面", "Reservoir surface", "貯水池の水面") },
+];
+const CN_DAM_HEIGHT_BANDS: PhSizeBands = {
+  prop: "dam_hgt_m", title: l3("壩高（m）", "Dam height (m)", "堤高（m）"),
+  bands: [{ min: 0, radius: 2.5, label: "<15" }, { min: 15, radius: 3.5, label: "15–30" }, { min: 30, radius: 5, label: "30–100" }, { min: 100, radius: 7, label: "≥100" }],
+};
+const DAM_USE_MAP: Record<string, L3> = {
+  "Flood control": l3("防洪", "Flood control", "治水"), Hydroelectricity: l3("水力發電", "Hydroelectricity", "水力発電"),
+  Irrigation: l3("灌溉", "Irrigation", "灌漑"), "Water supply": l3("供水", "Water supply", "給水"),
+};
+const DAM_TYPE_MAP: Record<string, L3> = {
+  Dam: l3("壩", "Dam", "ダム"), "Lake Control Dam": l3("湖泊控制壩", "Lake control dam", "湖沼制御堰"),
+  Lock: l3("船閘", "Lock", "閘門"), "Low Permeable Dam": l3("低透水壩", "Low permeable dam", "低透水堰"),
+};
+
+// ───────────── 河川（C109） ─────────────
+const RIVER_CATS: readonly PhCat[] = [
+  { id: "o2", values: ["2"], color: "#38bdf8", label: l3("流量等級 2（10,000–100,000 m³/s）", "Flow order 2 (10,000–100,000 m³/s)", "流量等級 2（10,000–100,000 m³/s）") },
+  { id: "o3", values: ["3"], color: "#60a5fa", label: l3("流量等級 3（1,000–10,000 m³/s）", "Flow order 3 (1,000–10,000 m³/s)", "流量等級 3（1,000–10,000 m³/s）") },
+  { id: "o4", values: ["4"], color: "#7dd3fc", label: l3("流量等級 4（100–1,000 m³/s）", "Flow order 4 (100–1,000 m³/s)", "流量等級 4（100–1,000 m³/s）") },
+  { id: "o5", values: ["5"], color: "#a5d8ff", label: l3("流量等級 5（10–100 m³/s）", "Flow order 5 (10–100 m³/s)", "流量等級 5（10–100 m³/s）") },
+];
+
+// ───────────── 活動斷層（C071） ─────────────
+const FAULT_CATS: readonly PhCat[] = [
+  { id: "reverse", values: ["Reverse", "Dextral-Reverse", "Reverse-Dextral", "Sinistral-Reverse"], color: "#ef4444", label: l3("逆斷層（含斜滑）", "Reverse (incl. oblique)", "逆断層（斜めずれを含む）") },
+  { id: "normal", values: ["Normal", "Dextral-Normal"], color: "#22c55e", label: l3("正斷層（含斜滑）", "Normal (incl. oblique)", "正断層（斜めずれを含む）") },
+  { id: "strike", values: ["Dextral", "Sinistral"], color: "#f59e0b", label: l3("走向滑移（右移、左移）", "Strike-slip (dextral, sinistral)", "横ずれ（右・左）") },
+  { id: "fold", values: ["Anticline", "Syncline"], color: "#a78bfa", label: l3("褶皺（背斜、向斜）", "Fold (anticline, syncline)", "褶曲（背斜・向斜）") },
+  { id: "unknown", values: [""], color: "#94a3b8", label: l3("未標示", "Not specified", "未記載") },
+];
+
+// ───────────── 國家級自然保護區（C127） ─────────────
+const RESERVE_CATS: readonly PhCat[] = [
+  { id: "core", values: ["core"], color: "#15803d", label: l3("核心區", "Core zone", "核心区") },
+  { id: "buffer", values: ["buffer"], color: "#4ade80", label: l3("緩衝區", "Buffer zone", "緩衝区") },
+  { id: "experimental", values: ["experimental"], color: "#bef264", label: l3("實驗區", "Experimental zone", "実験区") },
+  { id: "unzoned", values: ["unzoned"], color: "#2dd4bf", label: l3("未分區（整個保護區一個面）", "Not zoned (one polygon per reserve)", "区分なし（保護区全体で 1 面）") },
+  { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他分區", "Other zone", "その他の区域") },
+];
+
+// ───────────── WDPA（C128＋C106） ─────────────
+const WDPA_CATS: readonly PhCat[] = [
+  { id: "ramsar", values: ["ramsar"], color: "#06b6d4", label: l3("國際重要濕地（Ramsar）", "Ramsar wetland", "ラムサール条約湿地") },
+  { id: "biosphere", values: ["biosphere"], color: "#22c55e", label: l3("生物圈保護區（UNESCO MAB）", "Biosphere reserve (UNESCO MAB)", "生物圏保存地域（UNESCO MAB）") },
+  { id: "world_heritage", values: ["world_heritage"], color: "#eab308", label: l3("世界遺產（自然、複合）", "World Heritage (natural, mixed)", "世界遺産（自然・複合）") },
+  { id: "scenic_area", values: ["scenic_area"], color: "#a855f7", label: l3("風景名勝區", "Scenic area", "風景名勝区") },
+  { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他保護區", "Other protected area", "その他の保護地域") },
+];
+const WDPA_NC_NOTE = l3("WDPA 使用條款：禁止商業使用（含衍生品）", "WDPA terms: no commercial use (including derived works)", "WDPA 利用規約：商用禁止（派生物を含む）");
+
+// ───────────── 長橋與長隧道（C015） ─────────────
+const STRUCT_CATS: readonly PhCat[] = [
+  { id: "bridge", values: ["bridge"], color: "#fb923c", label: l3("橋梁（含高架）", "Bridge (incl. viaduct)", "橋（高架を含む）") },
+  { id: "tunnel", values: ["tunnel"], color: "#a78bfa", label: l3("隧道", "Tunnel", "トンネル") },
+];
+const CN_STRUCT_LENGTH_BANDS: PhSizeBands = {
+  prop: "length_m", title: l3("單段長度", "Segment length", "区間の長さ"),
+  bands: [{ min: 0, radius: 2.5, label: "0.5–1 km" }, { min: 1000, radius: 3.5, label: "1–2 km" }, { min: 2000, radius: 5, label: "2–5 km" }, { min: 5000, radius: 7, label: "≥5 km" }],
+};
+const CARRIES_MAP: Record<string, L3> = {
+  motorway: l3("高速公路", "Motorway", "高速道路"), trunk: l3("國道級幹道", "Trunk road", "幹線道路"), primary: l3("一級幹道", "Primary road", "主要道路"),
+  rail_rail: l3("鐵路（含高鐵）", "Railway (incl. high-speed)", "鉄道（高速鉄道を含む）"), rail_subway: l3("地鐵", "Subway", "地下鉄"), rail_light_rail: l3("輕軌", "Light rail", "ライトレール"),
+};
+
+// ───────────── 學校（C039）、醫療（C063） ─────────────
+const SCHOOL_CATS: readonly PhCat[] = [
+  { id: "kindergarten", values: ["kindergarten"], color: "#f9a8d4", label: l3("幼兒園", "Kindergarten", "幼稚園") },
+  { id: "school", values: ["school"], color: "#60a5fa", label: l3("中小學", "School", "小中高校") },
+  { id: "college", values: ["college"], color: "#a78bfa", label: l3("專科（college）", "College", "専門学校（college）") },
+  { id: "university", values: ["university"], color: "#f59e0b", label: l3("大學", "University", "大学") },
+];
+const MEDICAL_CATS: readonly PhCat[] = [
+  { id: "hospital", values: ["hospital"], color: "#ef4444", label: l3("醫院", "Hospital", "病院") },
+  { id: "clinic", values: ["clinic"], color: "#f97316", label: l3("診所（含醫師診間）", "Clinic (incl. doctors)", "診療所（医院を含む）") },
+  { id: "pharmacy", values: ["pharmacy"], color: "#22c55e", label: l3("藥局", "Pharmacy", "薬局") },
+];
+
+// ───────────── 核電（C077） ─────────────
+const NUCLEAR_CATS: readonly PhCat[] = [
+  { id: "plant", values: ["plant"], color: "#d100ff", parts: ["cn-nuclear-plants-circle"], label: l3("核電廠（廠區）", "Nuclear power plant (site)", "原子力発電所（敷地）") },
+  { id: "reactor", values: ["reactor"], color: "#f0abfc", radius: 3, parts: ["cn-nuclear-reactors-circle"], label: l3("機組（z9 起）", "Reactor unit (from z9)", "号機（z9 から）") },
+];
+const CN_NUCLEAR_OUTPUT_BANDS: PhSizeBands = {
+  prop: "output_mw", title: l3("發電容量（OSM，MW）", "Capacity (OSM, MW)", "出力（OSM、MW）"),
+  bands: [{ min: 0, radius: 4.5, label: "未標示或 <1,000" }, { min: 1000, radius: 6.5, label: "1,000–4,000" }, { min: 4000, radius: 9, label: "≥4,000" }],
+};
+
+/** 第 2–5 波向量層（12 層；地形、養殖、土壤是 raster，見 CN_RASTER_SPECS）。 */
+const CN_W25_SPECS: readonly CnLayerSpec[] = [
+  {
+    key: "cnEez", asset: "cn-eez", file: "cn_eez.pmtiles", sourceId: "cn-eez", srcMinzoom: 2, srcMaxzoom: 8, color: "#38bdf8", count: 1,
+    parts: [{ id: "cn-eez-fill", sourceLayer: "eez", geom: "fill", minzoom: 2, cat: constCat("eez") }],
+    cats: EEZ_CATS,
+    title: { props: ["name_zh", "name"], fallback: l3("專屬經濟區", "Exclusive economic zone", "排他的経済水域") },
+    fields: [
+      { prop: "name", label: l3("名稱（Marine Regions）", "Name (Marine Regions)", "名称（Marine Regions）") },
+      { prop: "pol_type", label: l3("類型", "Type", "種別"), kind: "code" },
+      { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 0 },
+      { prop: "mrgid", label: l3("MRGID", "MRGID", "MRGID"), kind: "code" },
+    ],
+    legendNotes: [
+      l3("只畫 Marine Regions MRGID 8486（中國 200 浬 EEZ）；與鄰國、台灣的重疊或聯合主張區（8321、48954、49003）不畫，不畫九段線", "Only Marine Regions MRGID 8486 (China 200 nm EEZ); overlapping or joint claim areas with neighbours and Taiwan (8321, 48954, 49003) and the nine-dash line are not drawn", "Marine Regions MRGID 8486（中国 200 海里 EEZ）のみ。近隣国・台湾との重複・共同主張区域（8321、48954、49003）と九段線は描かない"),
+      l3("金門、馬祖周邊與港澳水域已切除；台灣本島判定框內約 0.5 平方度照來源原樣保留", "Waters around Kinmen, Matsu, Hong Kong and Macao removed; about 0.5 square degrees inside the Taiwan main-island box kept as in the source", "金門・馬祖周辺と香港・マカオの水域は除去。台湾本島の判定枠内の約 0.5 平方度は出典のまま"),
+      l3("海域界線依 Marine Regions，不代表任何立場；12／24 浬界未做", "Maritime limits follow Marine Regions and do not imply any position; 12/24 nm limits not included", "海域の境界は Marine Regions によるもので、いかなる立場も示さない。12／24 海里線は未収録"),
+    ],
+    popupNotes: [],
+    sourceOrg: "Flanders Marine Institute (2023), Maritime Boundaries Geodatabase v12（Marine Regions）", sourceUrl: "https://www.marineregions.org/gazetteer.php?p=details&id=8486",
+    license: "CC BY 4.0（請勿轉載原始檔）", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國專屬經濟區載入中", "Loading China EEZ", "中国の排他的経済水域を読み込み中"),
+  },
+  {
+    key: "cnPlaceNames", asset: "cn-place-names", file: "cn_place_names.pmtiles", sourceId: "cn-place-names", srcMinzoom: 3, srcMaxzoom: 9, color: "#fbbf24", count: 25_978,
+    parts: [{ id: "cn-place-names-circle", sourceLayer: "places", geom: "point", minzoom: 3, cat: propGetter("kind") }],
+    cats: PLACE_CATS,
+    minZoomNote: l3("依重要性分縮放出現：大城市、名山 z3 起，小村落 z8 起", "Shown by importance: major cities and peaks from z3, small villages from z8", "重要度順に表示：大都市・名山は z3 から、小さな村は z8 から"),
+    title: { props: ["name_zh", "name"], fallback: l3("地名", "Place name", "地名") },
+    fields: [
+      { prop: "name", label: l3("名稱（GeoNames）", "Name (GeoNames)", "名称（GeoNames）") },
+      { prop: "kind", label: l3("類別", "Category", "分類"), map: catMap(PLACE_CATS) },
+      { prop: "feature_code", label: l3("GeoNames 代碼", "GeoNames feature code", "GeoNames コード"), kind: "code" },
+      { prop: "population", label: l3("人口（GeoNames）", "Population (GeoNames)", "人口（GeoNames）"), kind: "num" },
+      PROVINCE_FIELD,
+    ],
+    legendNotes: [
+      l3("GeoNames 25,978 點（聚落 14,852、地形 5,622、水文 5,504）；23,395 筆有中文名，其餘顯示拼音", "25,978 GeoNames points (14,852 settlements, 5,622 terrain, 5,504 water); 23,395 have Chinese names, others show romanised names", "GeoNames 25,978 点（集落 14,852・地形 5,622・水文 5,504）。23,395 件に中国語名、その他はローマ字"),
+      l3("人口欄為 GeoNames 登錄值，不是普查", "Population is the GeoNames value, not a census", "人口は GeoNames の登録値で国勢調査ではない"),
+      JURISDICTION_NOTE,
+    ],
+    popupNotes: [],
+    sourceOrg: "GeoNames（geonames.org）", sourceUrl: "https://download.geonames.org/export/dump/", license: "CC BY 4.0", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國地名載入中", "Loading China place names", "中国の地名を読み込み中"),
+  },
+  {
+    key: "cnEthnicAutonomy", asset: "cn-ethnic-autonomy", file: "cn_ethnic_autonomy.pmtiles", sourceId: "cn-ethnic-autonomy", srcMinzoom: 2, srcMaxzoom: 9, color: "#f59e0b", count: 155,
+    parts: [{ id: "cn-ethnic-autonomy-fill", sourceLayer: "units", geom: "fill", minzoom: 2, cat: propGetter("kind") }],
+    cats: ETHNIC_CATS,
+    title: { props: ["name_zh", "name_en"], fallback: l3("民族自治地方", "Ethnic autonomous area", "民族自治地方") },
+    fields: [
+      { prop: "name_en", label: l3("英文名", "English name", "英語名") },
+      { prop: "kind", label: l3("層級", "Level", "階層"), map: catMap(ETHNIC_CATS) },
+      { prop: "ethnic_groups", label: l3("自治民族", "Autonomous ethnic groups", "自治民族") },
+      { prop: "code", label: l3("民政部代碼", "MCA code", "民政部コード"), kind: "code" },
+      PROVINCE_FIELD,
+    ],
+    legendNotes: [
+      l3("民政部 2024 名冊 155 個全上圖（自治區 5、自治州 30、自治縣 117、自治旗 3）；分布 20/31 省", "All 155 units in the 2024 MCA list (5 regions, 30 prefectures, 117 counties, 3 banners); in 20 of 31 provinces", "民政部 2024 名簿の 155 か所すべて（自治区 5・自治州 30・自治県 117・自治旗 3）。31 省中 20 省"),
+      l3("自治區、自治州用 OCHA 面；自治縣、旗用 geoBoundaries 2017（OSM 衍生、概化）依地級與民族組合配對", "Regions and prefectures use OCHA polygons; counties and banners use geoBoundaries 2017 (OSM-derived, generalised), matched by prefecture and ethnic groups", "自治区・自治州は OCHA の面、自治県・旗は geoBoundaries 2017（OSM 由来・概略化）を地級と民族の組み合わせで照合"),
+      l3("層級互相包含（自治區內有自治州、縣），可用類別篩選只看一級", "Levels nest (regions contain prefectures and counties); use the category filter to see one level", "階層は入れ子（自治区内に自治州・県）。分類フィルタで 1 階層だけ表示できる"),
+      CN_NO_POSITION_NOTE,
+    ],
+    popupNotes: [],
+    sourceOrg: "民政部 2024 行政區劃代碼（名冊）；OCHA COD-AB China（CC BY-IGO）；geoBoundaries CHN ADM3（ODbL）", sourceUrl: "https://www.mca.gov.cn/mzsj/xzqh/2025/202401xzqh.html",
+    license: "CC BY-IGO 3.0（省、地級面）＋ODbL 1.0（縣級面）；名冊未標示授權", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國民族自治地方載入中", "Loading China ethnic autonomous areas", "中国の民族自治地方を読み込み中"),
+  },
+  {
+    key: "cnDams", asset: "cn-dams", file: "cn_dams.pmtiles", sourceId: "cn-dams", srcMinzoom: 3, srcMaxzoom: 10, color: "#38bdf8", count: 14_778,
+    parts: [
+      { id: "cn-reservoirs-fill", sourceLayer: "reservoirs", geom: "fill", minzoom: 3, cat: constCat("reservoir") },
+      { id: "cn-dams-circle", sourceLayer: "dams", geom: "point", minzoom: 3, cat: constCat("dam"), size: CN_DAM_HEIGHT_BANDS },
+    ],
+    cats: DAM_CATS,
+    sizeLegend: [CN_DAM_HEIGHT_BANDS],
+    title: { props: ["dam_name", "res_name"], fallback: l3("壩、水庫", "Dam / reservoir", "ダム・貯水池") },
+    fields: [
+      { prop: "res_name", label: l3("水庫名", "Reservoir", "貯水池名") },
+      { prop: "river", label: l3("河川", "River", "河川") },
+      { prop: "year_dam", label: l3("完工年", "Year completed", "完成年"), kind: "year" },
+      { prop: "dam_hgt_m", label: l3("壩高", "Dam height", "堤高"), kind: "num", unit: "m", digits: 0 },
+      { prop: "cap_mcm", label: l3("庫容", "Storage capacity", "貯水容量"), kind: "num", unit: "百萬 m³", digits: 1 },
+      { prop: "area_skm", label: l3("水面面積", "Surface area", "水面積"), kind: "num", unit: "km²", digits: 1 },
+      { prop: "power_mw", label: l3("裝置容量", "Installed capacity", "設備容量"), kind: "num", unit: "MW", digits: 0 },
+      { prop: "main_use", label: l3("主要用途", "Main use", "主な用途"), map: DAM_USE_MAP },
+      { prop: "dam_type", label: l3("類型", "Type", "種別"), map: DAM_TYPE_MAP },
+      PROVINCE_FIELD,
+    ],
+    legendNotes: [
+      l3("Global Dam Watch：壩 8,238、水庫水面 6,540；30/31 省（上海無）", "Global Dam Watch: 8,238 dams, 6,540 reservoir surfaces; 30 of 31 provinces (none in Shanghai)", "Global Dam Watch：ダム 8,238・貯水池 6,540。31 省中 30 省（上海なし）"),
+      l3("學術整合資料（GRanD 等），不是水利部名冊；名稱多為英文或拼音", "Academic compilation (GRanD and others), not the Ministry of Water Resources register; names mostly English or pinyin", "学術的な統合データ（GRanD など）で水利部の名簿ではない。名称は英語・ピンイン中心"),
+      JURISDICTION_NOTE,
+    ],
+    popupNotes: [],
+    sourceOrg: "Global Dam Watch v1.0（Lehner et al. 2024, Scientific Data）", sourceUrl: "https://www.globaldamwatch.org/", license: "CC BY 4.0", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國壩與水庫載入中", "Loading China dams and reservoirs", "中国のダム・貯水池を読み込み中"),
+  },
+  {
+    key: "cnRivers", asset: "cn-rivers", file: "cn_rivers.pmtiles", sourceId: "cn-rivers", srcMinzoom: 3, srcMaxzoom: 8, color: "#60a5fa", count: 51_444,
+    parts: [{ id: "cn-rivers-line", sourceLayer: "rivers", geom: "line", minzoom: 3, cat: propGetter("ord_flow"),
+      lineWidth: { "2": [2.5, 4], "3": [1.8, 3], "4": [1.2, 2], "5": [0.7, 1.2] } }],
+    cats: RIVER_CATS,
+    title: { props: [], fallback: l3("河段（模型河網，無河名）", "River reach (modelled network, unnamed)", "河道区間（モデル河川網、名称なし）") },
+    fields: [
+      { prop: "ord_flow", label: l3("流量等級", "Flow order", "流量等級"), map: catMap(RIVER_CATS) },
+      { prop: "dis_av_cms", label: l3("平均流量（模型值）", "Mean discharge (modelled)", "平均流量（モデル値）"), kind: "num", unit: "m³/s", digits: 1 },
+      { prop: "upland_skm", label: l3("集水面積", "Upstream catchment", "集水面積"), kind: "num", unit: "km²", digits: 0 },
+    ],
+    legendNotes: [
+      l3("HydroRIVERS 模型河網 51,444 段（流量等級 2–5，平均流量 ≥10 m³/s）；31/31 省", "HydroRIVERS modelled network, 51,444 reaches (flow orders 2–5, mean discharge ≥10 m³/s); 31 of 31 provinces", "HydroRIVERS モデル河川網 51,444 区間（流量等級 2–5、平均流量 ≥10 m³/s）。31 省すべて"),
+      l3("由 15 秒 DEM 推導，沒有河名；平原區河道位置可能偏移，流量是模型值", "Derived from a 15-arc-second DEM, no names; channel positions may be off in plains, discharge is modelled", "15 秒 DEM から推定、名称なし。平野部では位置がずれることがあり、流量はモデル値"),
+      l3("HydroSHEDS 授權：只可放在衍生作品中散布，不可單獨轉發原始資料", "HydroSHEDS licence: may be distributed only within derived works, not as stand-alone data", "HydroSHEDS ライセンス：派生物に組み込んだ形でのみ配布可、単体での再配布は不可"),
+    ],
+    popupNotes: [],
+    sourceOrg: "HydroRIVERS v1.0（Lehner & Grill 2013），www.hydrosheds.org", sourceUrl: "https://www.hydrosheds.org/products/hydrorivers",
+    license: "HydroSHEDS License Agreement（只准以衍生作品散布）", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國河川載入中", "Loading China rivers", "中国の河川を読み込み中"),
+  },
+  {
+    key: "cnActiveFaults", asset: "cn-active-faults", file: "cn_active_faults.pmtiles", sourceId: "cn-active-faults", srcMinzoom: 3, srcMaxzoom: 10, color: "#ef4444", count: 671,
+    parts: [{ id: "cn-active-faults-line", sourceLayer: "faults", geom: "line", minzoom: 3, cat: propGetter("slip_type") }],
+    cats: FAULT_CATS,
+    title: { props: ["name"], fallback: l3("活動斷層（未命名）", "Active fault (unnamed)", "活断層（名称なし）") },
+    fields: [
+      { prop: "slip_type", label: l3("錯動型態（GEM 原文）", "Slip type (GEM)", "変位の型（GEM 原文）"), kind: "code" },
+      { prop: "average_dip", label: l3("平均傾角", "Average dip", "平均傾斜角"), kind: "num", unit: "°", digits: 0 },
+      { prop: "net_slip_rate_mm_yr", label: l3("淨滑移速率（mm／年，GEM 原文）", "Net slip rate (mm/yr, GEM)", "正味すべり速度（mm／年、GEM 原文）"), kind: "code" },
+      { prop: "catalog_name", label: l3("來源目錄", "Source catalogue", "出典カタログ"), kind: "code" },
+    ],
+    legendNotes: [
+      l3("GEM 全球活動斷層 671 條；16/31 省，華東、華北幾乎沒有，空白不代表沒有斷層", "671 faults from the GEM global database; 16 of 31 provinces, almost none in East and North China, so gaps do not mean no faults", "GEM 全球活断層 671 本。31 省中 16 省で華東・華北はほぼなく、空白は断層がないという意味ではない"),
+      l3("非中國官方斷層圖（中國活動斷層資料庫未公開下載）；各來源精度不一", "Not the official Chinese fault map (China's active fault database is not openly downloadable); accuracy varies by source catalogue", "中国の公式断層図ではない（中国活断層データベースは公開ダウンロードなし）。出典ごとに精度が異なる"),
+    ],
+    popupNotes: [],
+    sourceOrg: "GEM Global Active Faults Database（Styron & Pagani 2020）", sourceUrl: "https://github.com/GEMScienceTools/gem-global-active-faults",
+    license: "CC BY-SA 4.0", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國活動斷層載入中", "Loading China active faults", "中国の活断層を読み込み中"),
+  },
+  {
+    key: "cnNatureReserves", asset: "cn-nature-reserves", file: "cn_nature_reserves.pmtiles", sourceId: "cn-nature-reserves", srcMinzoom: 3, srcMaxzoom: 10, color: "#22c55e", count: 1225,
+    parts: [{ id: "cn-nature-reserves-fill", sourceLayer: "reserves", geom: "fill", minzoom: 3, cat: propGetter("zone") }],
+    cats: RESERVE_CATS,
+    title: { props: ["reserve_name"], fallback: l3("國家級自然保護區", "National nature reserve", "国家級自然保護区") },
+    fields: [
+      { prop: "unit_name", label: l3("分區面名稱", "Zone polygon", "区域ポリゴン名") },
+      { prop: "zone", label: l3("分區", "Zone", "区域"), map: catMap(RESERVE_CATS) },
+      { prop: "zone_raw", label: l3("分區（原文）", "Zone (source)", "区域（原文）"), kind: "code" },
+      { prop: "target", label: l3("保護對象（作者英譯）", "Protection target (author's translation)", "保護対象（著者英訳）") },
+      PROVINCE_FIELD,
+    ],
+    legendNotes: [
+      l3("國家級自然保護區 351 處、分區面 1,225；29/31 省（北京、天津無）", "351 national nature reserves, 1,225 zone polygons; 29 of 31 provinces (none in Beijing, Tianjin)", "国家級自然保護区 351 か所・区域ポリゴン 1,225。31 省中 29 省（北京・天津なし）"),
+      l3("只有國家級；名稱與保護對象為作者英譯（部分直譯）", "National level only; names and targets are the author's English translations (some literal)", "国家級のみ。名称と保護対象は著者の英訳（一部直訳）"),
+    ],
+    popupNotes: [],
+    sourceOrg: "Jia, X. List of National Nature Reserves in China（Zenodo 18226534）", sourceUrl: "https://zenodo.org/records/18226534", license: "CC BY 4.0", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國自然保護區載入中", "Loading China nature reserves", "中国の自然保護区を読み込み中"),
+  },
+  {
+    key: "cnWdpa", asset: "cn-wdpa", file: "cn_wdpa.pmtiles", sourceId: "cn-wdpa", srcMinzoom: 3, srcMaxzoom: 10, color: "#06b6d4", count: 149,
+    parts: [
+      { id: "cn-wdpa-fill", sourceLayer: "areas", geom: "fill", minzoom: 3, cat: propGetter("category") },
+      { id: "cn-wdpa-circle", sourceLayer: "points", geom: "point", minzoom: 3, cat: propGetter("category"),
+        ring: { when: ["==", ["get", "marine"], true], js: (p) => p.marine === true || str(p.marine) === "true", label: l3("白框：海洋保護區（只有中心點）", "White ring: marine site (centre point only)", "白枠：海洋保護地域（中心点のみ）") } },
+    ],
+    cats: WDPA_CATS,
+    title: { props: ["name", "name_eng"], fallback: l3("保護區（WDPA）", "Protected area (WDPA)", "保護地域（WDPA）") },
+    fields: [
+      { prop: "name_eng", label: l3("英文名", "English name", "英語名") },
+      { prop: "category", label: l3("類別", "Category", "分類"), map: catMap(WDPA_CATS) },
+      { prop: "desig_eng", label: l3("指定類型（WDPA 原文）", "Designation (WDPA)", "指定種別（WDPA 原文）"), kind: "code" },
+      { prop: "iucn_cat", label: l3("IUCN 類別", "IUCN category", "IUCN カテゴリ"), kind: "code" },
+      { prop: "marine", label: l3("海洋", "Marine", "海洋"), map: yesNo },
+      { prop: "status_yr", label: l3("指定年", "Year designated", "指定年"), kind: "year" },
+      { prop: "rep_area_km2", label: l3("申報面積", "Reported area", "報告面積"), kind: "num", unit: "km²", digits: 1 },
+      PROVINCE_FIELD,
+    ],
+    legendNotes: [
+      l3("WDPA 公開版中國 149 處（面 106、只有中心點者 43）；28/31 省", "149 sites in the public WDPA for China (106 polygons, 43 centre points only); 28 of 31 provinces", "WDPA 公開版の中国 149 か所（面 106・中心点のみ 43）。31 省中 28 省"),
+      l3("中國國家級、省級保護區多不在公開版（國家級自然保護區見另一層）；公開版沒有中國海洋保護區面", "Most national and provincial reserves are not in the public WDPA (see the national nature reserves layer); no Chinese marine protected area polygons in the public release", "国家級・省級保護区の多くは公開版にない（国家級自然保護区は別レイヤー）。公開版に中国の海洋保護区の面はない"),
+      WDPA_NC_NOTE,
+    ],
+    popupNotes: [{ text: WDPA_NC_NOTE }],
+    sourceOrg: "UNEP-WCMC and IUCN, Protected Planet：World Database on Protected Areas（Nov 2026）", sourceUrl: "https://www.protectedplanet.net/",
+    license: "WDPA Terms of Use（非商用，含衍生品）", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國保護區（WDPA）載入中", "Loading China protected areas (WDPA)", "中国の保護地域（WDPA）を読み込み中"),
+  },
+  {
+    key: "cnBridgesTunnels", asset: "cn-bridges-tunnels", file: "cn_bridges_tunnels.pmtiles", sourceId: "cn-bridges-tunnels", srcMinzoom: 5, srcMaxzoom: 10, color: "#fb923c", count: 108_778,
+    parts: [{ id: "cn-bridges-tunnels-circle", sourceLayer: "structures", geom: "point", minzoom: 5, cat: propGetter("kind"), size: CN_STRUCT_LENGTH_BANDS }],
+    cats: STRUCT_CATS,
+    sizeLegend: [CN_STRUCT_LENGTH_BANDS],
+    minZoomNote: l3("依長度分縮放出現：≥5 km z5 起、≥2 km z7 起、其餘 z9 起", "Shown by length: ≥5 km from z5, ≥2 km from z7, others from z9", "長さ順に表示：≥5 km は z5、≥2 km は z7、その他は z9 から"),
+    title: { props: ["name"], fallback: l3("橋梁、隧道", "Bridge / tunnel", "橋・トンネル"),
+      fallbackBy: { prop: "kind", map: { bridge: l3("未命名橋梁", "Unnamed bridge", "名称不明の橋"), tunnel: l3("未命名隧道", "Unnamed tunnel", "名称不明のトンネル") } } },
+    fields: [
+      { prop: "kind", label: l3("類型", "Type", "種別"), map: catMap(STRUCT_CATS) },
+      { prop: "carries", label: l3("所在路線", "Carries", "路線"), map: CARRIES_MAP },
+      { prop: "length_m", label: l3("單段長度（OSM way）", "Segment length (OSM way)", "区間の長さ（OSM way）"), kind: "num", unit: "m", digits: 0 },
+    ],
+    legendNotes: [
+      l3("OSM 高速公路、國道級與一級幹道、鐵路上單段 ≥500 m 的橋隧 108,778 處（橋 71,842、隧道 36,936），以線段中點表示", "108,778 bridges and tunnels ≥500 m per segment on OSM motorways, trunk and primary roads and railways (71,842 bridges, 36,936 tunnels), shown at segment midpoints", "OSM の高速道路・幹線・主要道路・鉄道で 1 区間 ≥500 m の橋とトンネル 108,778 か所（橋 71,842・トンネル 36,936）、区間の中点で表示"),
+      l3("同一座橋上下行或分段各有一點；不是官方橋梁清冊", "Each carriageway or segment of a bridge has its own point; not an official bridge register", "上下線や区間ごとに点がある。公式の橋梁台帳ではない"),
+      OSM_SPARSE_NOTE,
+    ],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR, sourceUrl: OSM_URL, license: "ODbL 1.0", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國長橋與長隧道載入中", "Loading China long bridges and tunnels", "中国の長大橋・長大トンネルを読み込み中"),
+  },
+  {
+    key: "cnSchools", asset: "cn-schools", file: "cn_schools.pmtiles", sourceId: "cn-schools", srcMinzoom: 6, srcMaxzoom: 10, color: "#60a5fa", count: 89_109,
+    parts: [{ id: "cn-schools-circle", sourceLayer: "schools", geom: "point", minzoom: 6, cat: propGetter("kind") }],
+    cats: SCHOOL_CATS,
+    heat: { intensity: 0.4 },
+    minZoomNote: l3("z6 起顯示（拉遠沒有圖磚）；低縮放抽稀", "Shown from z6 (no tiles when zoomed out); thinned at low zoom", "z6 から表示（縮小時はタイルなし）。低ズームは間引き"),
+    title: { props: ["name"], fallback: l3("學校", "School", "学校"),
+      fallbackBy: { prop: "kind", map: Object.fromEntries(SCHOOL_CATS.map((c) => [c.id, l3(`未命名${c.label.zh}`, `Unnamed ${c.label.en.toLowerCase()}`, `名称不明の${c.label.ja}`)])) } },
+    fields: [
+      { prop: "kind", label: l3("類型", "Type", "種別"), map: catMap(SCHOOL_CATS) },
+      PROVINCE_FIELD,
+    ],
+    legendNotes: [
+      l3("OSM 學校 89,109（中小學 68,233、幼兒園 13,882、專科 4,228、大學 2,766）；官方名冊沒有座標", "89,109 OSM schools (68,233 schools, 13,882 kindergartens, 4,228 colleges, 2,766 universities); official registers have no coordinates", "OSM の学校 89,109（小中高 68,233・幼稚園 13,882・専門 4,228・大学 2,766）。公式名簿に座標はない"),
+      OSM_SPARSE_NOTE,
+    ],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR, sourceUrl: OSM_URL, license: "ODbL 1.0", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國學校載入中", "Loading China schools", "中国の学校を読み込み中"),
+  },
+  {
+    key: "cnMedical", asset: "cn-medical", file: "cn_medical.pmtiles", sourceId: "cn-medical", srcMinzoom: 6, srcMaxzoom: 10, color: "#ef4444", count: 20_015,
+    parts: [{ id: "cn-medical-circle", sourceLayer: "medical", geom: "point", minzoom: 6, cat: propGetter("kind") }],
+    cats: MEDICAL_CATS,
+    heat: { intensity: 0.5 },
+    minZoomNote: l3("z6 起顯示（拉遠沒有圖磚）", "Shown from z6 (no tiles when zoomed out)", "z6 から表示（縮小時はタイルなし）"),
+    title: { props: ["name"], fallback: l3("醫療院所", "Health facility", "医療機関"),
+      fallbackBy: { prop: "kind", map: Object.fromEntries(MEDICAL_CATS.map((c) => [c.id, l3(`未命名${c.label.zh}`, `Unnamed ${c.label.en.toLowerCase()}`, `名称不明の${c.label.ja}`)])) } },
+    fields: [
+      { prop: "kind", label: l3("類型", "Type", "種別"), map: catMap(MEDICAL_CATS) },
+      PROVINCE_FIELD,
+    ],
+    legendNotes: [
+      l3("OSM 醫療 20,015（醫院 13,297、藥局 4,361、診所 2,357）；藥局、診所明顯少收", "20,015 OSM facilities (13,297 hospitals, 4,361 pharmacies, 2,357 clinics); pharmacies and clinics clearly under-mapped", "OSM の医療 20,015（病院 13,297・薬局 4,361・診療所 2,357）。薬局・診療所は明らかに少ない"),
+      OSM_SPARSE_NOTE,
+    ],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR, sourceUrl: OSM_URL, license: "ODbL 1.0", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國醫療院所載入中", "Loading China health facilities", "中国の医療機関を読み込み中"),
+  },
+  {
+    key: "cnNuclearPlants", asset: "cn-nuclear-plants", file: "cn_nuclear_plants.pmtiles", sourceId: "cn-nuclear-plants", srcMinzoom: 3, srcMaxzoom: 12, color: "#d100ff", count: 66,
+    parts: [
+      { id: "cn-nuclear-reactors-circle", sourceLayer: "reactors", geom: "point", minzoom: 9, cat: constCat("reactor") },
+      { id: "cn-nuclear-plants-circle", sourceLayer: "plants", geom: "point", minzoom: 3, cat: constCat("plant"), size: CN_NUCLEAR_OUTPUT_BANDS },
+    ],
+    cats: NUCLEAR_CATS,
+    sizeLegend: [CN_NUCLEAR_OUTPUT_BANDS],
+    title: { props: ["name", "name_en"], fallback: l3("核設施", "Nuclear facility", "原子力施設") },
+    fields: [
+      { prop: "name_en", label: l3("英文名", "English name", "英語名") },
+      { prop: "operator", label: l3("營運者", "Operator", "事業者") },
+      { prop: "output_raw", label: l3("發電容量（OSM 原文）", "Capacity (OSM tag)", "出力（OSM 原文）"), kind: "code" },
+      { prop: "start_date", label: l3("啟用（OSM）", "Start (OSM)", "運転開始（OSM）"), kind: "code" },
+      PROVINCE_FIELD, PREFECTURE_FIELD,
+    ],
+    legendNotes: [
+      l3("OSM 核電廠 27 處（10/31：沿海 9 省與北京實驗快堆）、機組 39 個；未區分運轉、興建、規劃", "27 OSM nuclear plants (10 of 31: nine coastal provinces and the Beijing experimental fast reactor), 39 reactor units; operating, under construction and planned not distinguished", "OSM の原子力発電所 27 か所（31 省中 10：沿岸 9 省と北京の実験高速炉）・号機 39。運転・建設・計画は区別しない"),
+      l3("運轉狀態請看「能源 › 電廠」的 GEM 核能；輻射監測站沒有公開 API，未做", "For operating status see GEM nuclear in Energy › Power plants; radiation monitoring has no public API and is not included", "運転状況は「エネルギー › 発電所」の GEM 原子力を参照。放射線モニタリングは公開 API がなく未収録"),
+    ],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR, sourceUrl: OSM_URL, license: "ODbL 1.0", fetchedAt: CN_W25_FETCHED_AT,
+    loading: l3("中國核電廠載入中", "Loading China nuclear power plants", "中国の原子力発電所を読み込み中"),
+  },
+];
+
+// ═════════════════════════ 第 2–5 波 raster（地形、養殖、土壤） ═════════════════════════
+
+export interface CnRasterSpec {
+  key: CnRasterKey;
+  asset: CnOwnerAsset;
+  minzoom: number;
+  maxzoom: number;
+  opacity: number;
+  color: string;
+  /** 插在底圖第一個 symbol 下（地形、土壤）；否則疊在最上層 */
+  belowSymbols: boolean;
+  legendTitle: L3;
+  legend: readonly { color: string; label: L3 }[];
+  notes: readonly L3[];
+  sourceOrg: string;
+  sourceUrl: string;
+  license: string;
+  loading: L3;
+}
+/** SoilGrids WRB 土類（佔 31 省面積 ≥1% 的 15 類，合計 98.3%；顏色＝ISRIC MostProbable.qml）。 */
+const SOIL_LEGEND: readonly { color: string; label: L3 }[] = [
+  ["#7ccd5f", "薄層土", "Leptosols", 16.8], ["#8e3a23", "雛形土", "Cambisols", 16.8], ["#ac4fc5", "淋溶土", "Luvisols", 10.9],
+  ["#9b1270", "強淋溶土", "Acrisols", 9.2], ["#e586f1", "石膏土", "Gypsisols", 8.4], ["#a2705c", "沖積土", "Fluvisols", 6.5],
+  ["#923deb", "栗鈣土", "Kastanozems", 5.8], ["#52da36", "鈣積土", "Calcisols", 4.9], ["#a91d99", "砂性土", "Arenosols", 4.9],
+  ["#e74c92", "黑土（Phaeozems）", "Phaeozems", 3.4], ["#13bb91", "黑鈣土", "Chernozems", 3.0], ["#bc1f47", "高活性強酸土", "Alisols", 2.4],
+  ["#28a1ac", "冰凍土", "Cryosols", 2.2], ["#691d84", "鹽土", "Solonchaks", 1.6], ["#158cb3", "疏鬆岩性土", "Regosols", 1.5],
+].map(([color, zh, en, pct]) => ({ color: color as string, label: l3(`${zh}（${en}）${pct}%`, `${en} ${pct}%`, `${en} ${pct}%`) }));
+
+export const CN_RASTER_SPECS: readonly CnRasterSpec[] = [
+  {
+    key: "cnTerrain", asset: "cn-terrain", minzoom: 2, maxzoom: 7, opacity: 0.6, color: "#9ca3af", belowSymbols: true,
+    legendTitle: l3("山影（高程推算）", "Hillshade (from elevation)", "陰影起伏（標高から算出）"),
+    legend: [
+      { color: "#f3f4f6", label: l3("向光坡", "Lit slope", "日向斜面") },
+      { color: "#374151", label: l3("背光坡", "Shaded slope", "日陰斜面") },
+    ],
+    notes: [
+      l3("AWS Terrain Tiles z7（約 1 km）高程算山影，只到 z7，放大會變模糊；31 省面內", "Hillshade from AWS Terrain Tiles z7 (~1 km); max z7, blurs when zoomed in; inside the 31 provinces", "AWS Terrain Tiles z7（約 1 km）の標高から算出。z7 まで、拡大するとぼやける。31 省の範囲内"),
+      l3("高程合成自 SRTM、GMTED2010、ETOPO1 等；只看大地形", "Elevation merged from SRTM, GMTED2010, ETOPO1 and others; for broad terrain only", "標高は SRTM・GMTED2010・ETOPO1 などの合成。大地形の把握用"),
+    ],
+    sourceOrg: "Terrain Tiles on AWS Open Data（Mapzen／Tilezen：SRTM、GMTED2010、ETOPO1 等）", sourceUrl: "https://registry.opendata.aws/terrain-tiles/",
+    license: "公有領域來源＋署名", loading: l3("中國地形載入中", "Loading China terrain", "中国の地形を読み込み中"),
+  },
+  {
+    key: "cnAquaculture", asset: "cn-aquaculture", minzoom: 4, maxzoom: 10, opacity: 0.85, color: "#26a69a", belowSymbols: false,
+    legendTitle: l3("2024 年養殖區（衛星判釋）", "Aquaculture areas, 2024 (satellite-derived)", "2024 年の養殖区域（衛星判読）"),
+    legend: [
+      { color: "#e69138", label: l3("陸上養殖（魚塭、池塘）", "Land-based (ponds)", "陸上養殖（養殖池）") },
+      { color: "#26a69a", label: l3("海上養殖（筏式、網箱）", "Marine (rafts, cages)", "海面養殖（筏・生け簀）") },
+    ],
+    notes: [
+      l3("中國沿海 11 省 2024 年養殖區 raster（衛星判釋，z4–10）；內陸省不在範圍內", "2024 aquaculture raster for 11 coastal provinces (satellite-derived, z4–10); inland provinces not covered", "沿岸 11 省の 2024 年養殖区域ラスター（衛星判読、z4–10）。内陸省は対象外"),
+      l3("遙測分類結果，不是登記資料；小型池塘可能漏判", "Remote-sensing classification, not registered farms; small ponds may be missed", "リモートセンシング分類で登録データではない。小さな池は漏れることがある"),
+    ],
+    sourceOrg: "Annual Spatial Distribution Dataset of Aquaculture Areas in the Coastal Zone of China (1986–2024)，Zenodo 19418704", sourceUrl: "https://zenodo.org/records/19418704",
+    license: "Apache-2.0", loading: l3("中國養殖區載入中", "Loading China aquaculture areas", "中国の養殖区域を読み込み中"),
+  },
+  {
+    key: "cnSoil", asset: "cn-soil", minzoom: 2, maxzoom: 8, opacity: 0.7, color: "#8e3a23", belowSymbols: true,
+    legendTitle: l3("WRB 最可能土類（約 1 km）", "Most probable WRB soil group (~1 km)", "WRB 最尤土壌群（約 1 km）"),
+    legend: SOIL_LEGEND,
+    notes: [
+      l3("列出佔 31 省面積 ≥1% 的 15 類（合計 98.3%）；其餘 15 類合計 1.7%", "15 groups covering ≥1% of the 31 provinces listed (98.3% in total); the other 15 groups total 1.7%", "31 省の面積の 1% 以上を占める 15 群（計 98.3%）を表示。残り 15 群は計 1.7%"),
+      l3("機器學習模型預測，不是土壤調查圖；SoilGrids 250 m 的約 1 km 金字塔層，只看大尺度", "Machine-learning prediction, not a soil survey; ~1 km overview of SoilGrids 250 m, for broad patterns only", "機械学習の予測で土壌調査図ではない。SoilGrids 250 m の約 1 km 概観レベルで、広域傾向の把握用"),
+    ],
+    sourceOrg: "SoilGrids 2.0（Poggio et al. 2021），ISRIC – World Soil Information", sourceUrl: "https://www.isric.org/explore/soilgrids",
+    license: "CC BY 4.0", loading: l3("中國土壤載入中", "Loading China soil", "中国の土壌を読み込み中"),
+  },
+];
+export const CN_RASTER_SPEC_BY_KEY: Readonly<Record<CnRasterKey, CnRasterSpec>> = Object.fromEntries(CN_RASTER_SPECS.map((s) => [s.key, s])) as Record<CnRasterKey, CnRasterSpec>;
 
 export const CN_DATA_SPECS: readonly CnLayerSpec[] = [
   {
@@ -412,6 +895,7 @@ export const CN_DATA_SPECS: readonly CnLayerSpec[] = [
     sourceUrl: "https://globalenergymonitor.org/projects/", license: "CC BY 4.0", fetchedAt: CN_FETCHED_AT,
     loading: l3("中國油氣管線載入中", "Loading China oil and gas pipelines", "中国の石油・ガスパイプラインを読み込み中"),
   },
+  ...CN_W25_SPECS,
 ];
 
 export const CN_SPEC_BY_KEY: Readonly<Record<CnDataKey, CnLayerSpec>> = Object.fromEntries(CN_DATA_SPECS.map((s) => [s.key, s])) as Record<CnDataKey, CnLayerSpec>;

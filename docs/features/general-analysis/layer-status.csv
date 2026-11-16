@@ -1235,6 +1235,21 @@ phPopulation,人口密度 Population Density（2024 Census）,PH,菲律賓,人�
 cnAdminBoundaries,行政區界 Administrative Boundaries,CN,中國,底圖,custom,verified,cn_admin_boundaries,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國行政區界（省 31、地級 357；OCHA COD-AB，邊界不代表任何立場）
 cnPopulation,人口密度 Population Density（2020 Census／GHS 2025）,CN,中國,人口社經,custom,verified,cn_population,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國人口密度（省級 2020 普查、地級 GHS 2025 模型值；未涵蓋畫灰）
 cnPopulationGrid,人口網格 Population Grid（GHS-POP 2025）,CN,中國,人口社經,custom,verified,cn_population,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國人口網格（GHS-POP 2025 模型值，約 1 km；7 級人口密度）
+cnEez,專屬經濟區 Exclusive Economic Zone,CN,中國,底圖,custom,verified,cn_eez,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國 200 浬專屬經濟區（Marine Regions MRGID 8486；重疊與聯合主張區不畫，不畫九段線）
+cnPlaceNames,地名 Place Names,CN,中國,底圖,custom,verified,cn_place_names,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國地名 25,978 點（GeoNames：聚落、地形、水文；依重要性分縮放出現）"
+cnEthnicAutonomy,民族自治地方 Ethnic Autonomous Areas,CN,中國,人口社經,custom,verified,cn_ethnic_autonomy,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國民族自治地方 155 個（自治區 5、自治州 30、自治縣 117、自治旗 3）
+cnDams,壩與水庫 Dams & Reservoirs,CN,中國,水資源,custom,verified,cn_dams,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國壩 8,238 座（大小依壩高）＋水庫水面 6,540（Global Dam Watch）"
+cnRivers,主要河川 Major Rivers,CN,中國,水資源,custom,verified,cn_rivers,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國主要河川 51,444 段（HydroRIVERS 流量等級 2–5；模型河網，無河名）"
+cnActiveFaults,活動斷層 Active Faults,CN,中國,災害,custom,verified,cn_active_faults,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國活動斷層 671 條（GEM 全球活動斷層；依錯動型態分色；華東、華北幾乎沒有）
+cnNatureReserves,國家級自然保護區 National Nature Reserves,CN,中國,環境氣候,custom,verified,cn_nature_reserves,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國國家級自然保護區 351 處（分區面 1,225：核心、緩衝、實驗區）"
+cnWdpa,國際保護區（WDPA） Protected Areas (WDPA),CN,中國,環境氣候,custom,verified,cn_wdpa,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國 WDPA 公開版保護區 149 處（Ramsar 濕地、生物圈保護區、世界遺產、風景名勝區）
+cnBridgesTunnels,長橋與長隧道 Long Bridges & Tunnels,CN,中國,交通,custom,verified,cn_bridges_tunnels,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國主要道路與鐵路上單段 ≥500 m 的橋隧 108,778 處（OSM；中點表示，大小依長度）"
+cnSchools,學校 Schools,CN,中國,教育,custom,verified,cn_schools,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國學校 89,109 處（OSM：中小學、幼兒園、專科、大學）"
+cnMedical,醫療院所 Health Facilities,CN,中國,醫療,custom,verified,cn_medical,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國醫療院所 20,015 處（OSM：醫院、診所、藥局）"
+cnNuclearPlants,核電廠 Nuclear Power Plants,CN,中國,災害,custom,verified,cn_nuclear_plants,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國核電廠 27 處＋機組 39 個（OSM；未區分運轉、興建、規劃）
+cnTerrain,地形山影 Hillshade,CN,中國,底圖,custom,verified,cn_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國地形山影（AWS Terrain Tiles z7 高程推算，約 1 km；只看大地形）
+cnAquaculture,養殖區 Aquaculture Areas,CN,中國,農業,custom,verified,cn_aquaculture,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國沿海 2024 年養殖區（衛星判釋：陸上魚塭、海上筏式網箱）
+cnSoil,土壤類型 Soil Types,CN,中國,農業,custom,verified,cn_soil,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國土壤類型（SoilGrids 2.0 WRB 最可能土類，約 1 km；模型預測）
 ieBathymetry,海床地形 Bathymetry（INFOMAR）,IE,愛爾蘭,底圖,custom,verified,ie_bathymetry,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"愛爾蘭海床地形（INFOMAR 測深，約 300 m；0–4,832 m 深度色階＋陰影）"
 ieCoillteRecreation,國有林遊憩點與森林入口 Coillte Recreation Sites & Forest Entrances（Coillte）,IE,愛爾蘭,林業,supabase,verified,ie_coillte_recreation,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。愛爾蘭國營林業公司 Coillte 遊憩點 153 處與森林入口 12,888 處；授權限私人研究，不公開"
 ieCoillteForestRoads,國有林林道與遊憩步道 Coillte Forest Roads & Recreation Trails（Coillte）,IE,愛爾蘭,林業,supabase,verified,ie_coillte_forest_roads,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。愛爾蘭 Coillte 國有林林道 15,877 條與遊憩步道 1,199 條；授權限私人研究，不公開"

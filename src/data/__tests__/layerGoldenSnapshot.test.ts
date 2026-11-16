@@ -292,7 +292,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-10: +6 愛爾蘭第 11 波（AED、監獄、pNHA、郡議會淹水分區、GSI 地下水淹水、泥炭開採沼地）。
     // 2026-11-13: +10 菲律賓第 0–1 波（行政區界、人口密度、機場港口、車站碼頭、主要道路鐵道、電廠、電網、家用太陽能補助與微電網、加油站、管線與儲槽）。
     // 2026-11-13: +9 中國第 0–1 波（站主限定：行政區界、人口密度、人口網格、公交站、機場港口、主要道路鐵路、電廠、電網、油氣管線）。
-    expect(keys.length).toBe(1836);
+    // 2026-11-16: +15 中國第 2–5 波（站主限定：EEZ、地形、地名、民族自治、壩與水庫、河川、斷層、自然保護區、WDPA、養殖、土壤、長橋隧道、學校、醫療、核電）。
+    expect(keys.length).toBe(1851);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
