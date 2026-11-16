@@ -14,7 +14,7 @@
 | 正式站目視 | 匿名、唯讀，11 項：9 通過、2 部分通過、0 失敗；截圖 `.gis-agent-system/projects/2026-11-13-vis-pack-batch2/shots-v2370/`。部分通過：INTEL 國碼 Gaza 仍顯示 GZ（VPB-17，mini #1056 已合 develop `0d6441c5`、待發版）；分享網址只帶 `?c=ie` 開在台灣（查明是刻意設計，#1056 只更正 CHANGELOG 說明，VPB-19 關閉）。新問題 VPB-18（待拍板）、VPB-20～22、VNW-1；VPB-8 補版面。 |
 
 - 卡點：#1044（台灣 7 層 `_v2`；CI 要 R2 先有檔、發版同步只帶 master 已引用的檔，卡循環，等站主在另一視窗決定）與 #1048（英愛 3 層）未進本版，正式站個資尚未完全處理，需再發一版（REL-NEXT／PII-1）。
-- 同日後端（不隨前端版號）：data-collectors #203（`3e801d63`）部署 pulse-host（容器 11-15 18:06 UTC 重建），HiCloud VM 四個 app 換新版 `vm_buffer.py`（COL-ZERO-1／COL-GE-2）；#204 合 main `e4135c40`、**未部署，等站主同意**（COL-STAG-1）。gis-platform、analytics 主 checkout 已 pull 到最新；兩個擋路的未追蹤 manifest 移到 `GIS/_worktree-backups/2026-11-16/analytics-untracked-manifests/`。
+- 同日後端（不隨前端版號）：data-collectors #203（`3e801d63`）部署 pulse-host（容器 11-15 18:06 UTC 重建），HiCloud VM 四個 app 換新版 `vm_buffer.py`（COL-ZERO-1／COL-GE-2）；#204 合 main `e4135c40`，站主同意後 11-16 10:50（台北）部署 pulse-host（COL-STAG-1，11-17 驗證）。gis-platform、analytics 主 checkout 已 pull 到最新；兩個擋路的未追蹤 manifest 移到 `GIS/_worktree-backups/2026-11-16/analytics-untracked-manifests/`。
 - 唯讀調查結論：HOST-1 記憶體先不調上限、#204 部署後再量；對帳 critical=2 是颱風收集器沒颱風時的誤報（#204 修）；S3 週增 +101% 含舊版本，12-10 回看（ST-3）。
 - 下一步：PROJECTS「有期限的事」11-17～11-20 各項；SR-1 改期 11-20（11-15 那輪沒做）。
 - 接手：從 origin/develop 開分支；進度文件用 `git show origin/develop:<path>` 讀。
