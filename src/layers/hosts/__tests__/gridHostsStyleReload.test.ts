@@ -8,7 +8,7 @@ import { loadH3 } from "../../../map/h3Runtime";
 // h3-js 改為按需載入：同步斷言前先把（mock 的）模組載好。
 beforeAll(() => loadH3());
 
-import { bindGridStyleRehydration } from "../gridHosts";
+import { bindGridStyleRehydration, catchUpGridHostOnReady } from "../gridHosts";
 import { updateH3Layer } from "../../../map/h3LayerFactory";
 import { setRailTracksVisible, updateRailTracks } from "../../../map/railTracks";
 import {
@@ -96,5 +96,32 @@ describe("grid host style reload lifecycle", () => {
       expect(state.map.setLayoutProperty).toHaveBeenLastCalledWith("rail-tracks-line", "visibility", "visible");
     }
     stop();
+  });
+});
+
+describe("grid host 地圖就緒補跑（h3Population／popCount 在 z<9.5 首載空白）", () => {
+  it("資料先到、地圖後就緒：就緒時補跑一次 rehydrate 填入資料，之後不重複", () => {
+    const state = styleMap();
+    const population = [{ h: "8928308280fffff", d: 12, n: 8 }];
+    const rehydrate = vi.fn((map: never) => {
+      updateH3Layer(map, population, { metric: "day", opacity: 0.6, extruded: false, elevationScale: 1, contrast: 1 }, true);
+    });
+    const ready = { done: false };
+
+    // 地圖尚未 idle：不跑
+    catchUpGridHostOnReady(state.map as never, false, ready, rehydrate as never);
+    expect(rehydrate).not.toHaveBeenCalled();
+    expect(state.source("h3-population-src")).toBeUndefined();
+
+    // 就緒：補跑一次，source 有資料
+    catchUpGridHostOnReady(state.map as never, true, ready, rehydrate as never);
+    expect(rehydrate).toHaveBeenCalledTimes(1);
+    const calls = state.source("h3-population-src")!.setData.mock.calls;
+    const fc = calls[calls.length - 1]?.[0] as GeoJSON.FeatureCollection;
+    expect(fc.features).toHaveLength(1);
+
+    // 之後 rehydrate 換身分（參數變動）不再由此補跑，交給 Host 自己的 effect
+    catchUpGridHostOnReady(state.map as never, true, ready, rehydrate as never);
+    expect(rehydrate).toHaveBeenCalledTimes(1);
   });
 });

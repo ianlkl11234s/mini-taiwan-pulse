@@ -363,6 +363,8 @@ export function JpPopulationMeshPanel({ props }: { props: Record<string, unknown
       {JP_POPULATION_MESH_MODES.filter((m) => m.metric === "ratio65").map((m) => (
         <Row key={m.field} label={t("popup.japan.meshAgedRatio", { year: yearOf(m.field) })} value={meshRatioText(props[m.field], i18n)} />
       ))}
+      {/* 出處：pulse-data registry/jp_population_mesh_1km.yaml、analytics data-catalog/world/jp_population_mesh_1km.md */}
+      <SourceFooter props={{ source_org: t("popup.japan.meshSourceOrg"), source_url: "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-mesh1000r6.html", license: "CC BY 4.0" }} />
     </>
   );
 }
