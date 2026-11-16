@@ -3063,13 +3063,6 @@
    "s3_key": "deploy-assets/world/ie_courts.pmtiles"
   },
   {
-   "path": "public/world/ie_defibrillators.pmtiles",
-   "bytes": 1904563,
-   "sha256": "f436309ad65fbdd9f255ba6b7c87e1c09a5783df133b2bfdb5b8bbb5a5ef020b",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/world/ie_defibrillators.pmtiles"
-  },
-  {
    "path": "public/world/ie_defibrillators_v2.pmtiles",
    "bytes": 1903424,
    "sha256": "52dae15e6038616603d365d7faf367d6ee289ea74f2abf917fd54d194e8046cb",
