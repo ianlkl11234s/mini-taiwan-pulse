@@ -15,6 +15,11 @@ localeStore.init();
 // 靜態圖層資產索引（ADR-0024 §4）：開站載入一次，之後 resolver 同步查表。失敗時遷移清單內的圖層退回部署時版本。
 void loadLayerAssetIndex();
 
+// P0 比較模式試驗（spike，不合併）：只在 dev 且 ?compareSpike=1 時載入
+if (import.meta.env.DEV && new URLSearchParams(window.location.search).has("compareSpike")) {
+  void import("./spike/compareSpike").then((m) => m.startCompareSpike());
+}
+
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root element not found");
 
