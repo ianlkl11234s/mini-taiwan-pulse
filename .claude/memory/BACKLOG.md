@@ -565,14 +565,17 @@
 | TA-4 | 北極星:開發系統 | P3 | ready | 雲端工具未測項：Spot（約半價）中途被收回後的接續流程。 | Trigger：下次要跑長任務且想用 Spot。First action：用 smoke.job.env 開 Spot 跑一次，手動中斷後驗證接續。 | 中斷後能從斷點接續，結果與 On-Demand 一致。 |
 | FB-179 | 內容:研究專題 | P3 | ready | 〔cctv-finetune-roadmap-2026-09-29〕階段 2–6：r2 標註批次（約 144 張）→ 切分 → 訓練 → 評估 → 主動學習 | 原檔：[cctv-finetune-roadmap-2026-09-29](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)。依據：PROJECTS.md 列 ⏸️ 保留、待討論「本機訓練或封存」；BACKLOG 無 ID；需使用者決定 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
 | FB-180 | 底線:資料正確 | P2 | ready | 〔cctv-finetune-roadmap-2026-09-29〕白天資料取得後重檢驗證集 | 原檔：[cctv-finetune-roadmap-2026-09-29](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)。依據：驗證集目前全是夜間與傍晚 | 原檔所寫的驗收條件；未寫則完成後附 PR／正式站證據。 |
-| SND-1 | 內容:研究專題 | P3 | ready | 城市聲景：開 `SOUND_ATLAS_DAILY_ENABLED` dry-run 一晚，核對 manifest 與前端 11-09 檔格式（DESIGN §8 步驟 1–2）。〔原「部署 collector」部分已完成：data-collectors #205 隨 `efd4c2d6` 於 2026-11-16 部署，開關全關〕 | First action：先在主機放 natural-static 檔，再開 dry-run。站主要在該 session 視窗確認。 | dry-run 產出的 manifest 與每日檔格式和前端 11-09 檔一致。 |
-| SND-2 | 內容:研究專題 | P3 | blocked | 城市聲景：開 `SOUND_ATLAS_LIVE_ENABLED`＋`AVIATION_LIVE` dry-run 一天。 | Blocked on SND-1。看主程序 RSS、每次耗時、停更與單族告警是否會觸發。站主要在該 session 視窗確認。 | 一天 dry-run 內記憶體與耗時在預算內，告警行為符合設計。 |
+| SND-2 | 內容:研究專題 | P3 | ready | 城市聲景：開 `SOUND_ATLAS_LIVE_ENABLED`＋`SOUND_ATLAS_AVIATION_LIVE_ENABLED` dry-run 一天。 | SND-1 已完成。First action（2026-11-17）：核對 pulse-host 02:40 產出的 11-16 聲景每日檔與 log，沒問題才開；步驟與現況見 `.gis-agent-system/projects/2026-11-11-city-sound-atlas/PLAN.md` W7 列。看主程序 RSS、每次耗時、停更與單族告警是否會觸發。站主要在該 session 視窗確認。 | 一天 dry-run 內記憶體與耗時在預算內，告警行為符合設計。 |
 | SND-3 | 內容:研究專題 | P3 | blocked | 城市聲景：開 `SOUND_ATLAS_UPLOAD_ENABLED`（先每日後即時）。 | Blocked on SND-2。確認 R2 物件標頭與過期清理。站主要在該 session 視窗確認。 | R2 上每日與即時物件標頭正確、過期物件會被清掉。 |
 | SND-4 | 內容:研究專題 | P3 | blocked | 城市聲景前端接線：讀 R2 live／daily（經 manifest 取檔名、aviation-src 改讀 R2），再處理發布前置：pulse-data `_display_only` 登記、OSM ODbL 標示、CHANGELOG、PR 到 develop。 | Blocked on SND-3。前端在 mini 本機分支 `feat/city-sound-atlas-mvp`（未 push）；契約檔若前端再改要重跑 data-collectors `scripts/sound_atlas_build_contract.py`。站主要在該 session 視窗確認。 | 前端讀 R2 正常、發布前置齊全、PR 進 develop。 |
 | SND-5 | 待討論 | P3 | blocked | 城市聲景站主待決（不擋）：點選查詢工具預設開關、航空門檻寬／中／嚴、道路斜線調整、淺色底圖「無雨」色、主題與群組名稱；另保留期解讀（即時 14 天／每日 180 天只放 R2、不另存 S3）待站主確認。 | Blocked on owner decision。 | 各題站主決定已記錄。 |
 
 > CCTV 長期目標（**保留中的長期目標，非放棄**，不排時程）：目標 2 衛星圖＋道路模型、目標 3 路口還原、緊急車輛裁切分類器，正本在 [cctv-finetune-roadmap §5、§6、§10.5](../../docs/research/cctv-finetune-roadmap-2026-09-29.md)；依賴標註累積，排入時再開列。
 
+
+## 已關閉（2026-11-16 城市聲景：附證據）
+
+- **SND-1**：城市聲景每日 dry-run。證據：2026-11-16 已部署（data-collectors `efd4c2d6`）並開每日 dry-run：聲景 session 回報站主在該視窗同意後，於 pulse-host 設 `SOUND_ATLAS_DAILY_ENABLED=true`（UPLOAD 仍關，只寫主機本機目錄）；手動試跑 11-15 六檔全出、88 秒、約 180 MB。後續 SND-2。
 
 ## 已關閉（2026-11-16 v2.37.0 正式站目視：附證據）
 
