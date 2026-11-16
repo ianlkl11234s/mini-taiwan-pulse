@@ -145,7 +145,7 @@ export function GbMajorRoadsLegend() {
   const i18n = useLocale();
   return <div>
     <LegendTitle zh={layerTitle("gbMajorRoads", i18n)} en="Major Roads" />
-    {GB_ROAD_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchLine color={c.color} width={LINE_WIDTH[c.width][1]} />}>{i18n.t(ROAD_CLASS_KEYS[c.value])}</LegendRow>)}
+    {GB_ROAD_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchLine color={c.color} width={c.widthPx?.[1] ?? LINE_WIDTH[c.width][1]} />}>{i18n.t(ROAD_CLASS_KEYS[c.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.transport.gbRoadsBAdded")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbRoadsSourceMrdb")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbRoadsSourceOsm")}</LegendNote>

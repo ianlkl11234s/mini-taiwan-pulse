@@ -294,11 +294,11 @@ function roadClassMatch(pick: (c: (typeof GB_ROAD_CLASSES)[number]) => unknown, 
   expr.push(fallback);
   return expr;
 }
-/** L-5：寬度依等級對應 L-1 三階（高速公路強調、A 級標準、B 級細），z10／z14 兩點插值。 */
+/** L-5：寬度依等級對應 L-1 三階（高速公路強調、A 級標準）；B 級用站主指定 widthPx。z10／z14 兩點插值。 */
 export function gbMajorRoadsWidthExpr(): Expr {
   return ["interpolate", ["linear"], ["zoom"],
-    10, roadClassMatch((c) => LINE_WIDTH[c.width][0], LINE_WIDTH.thin[0]),
-    14, roadClassMatch((c) => LINE_WIDTH[c.width][1], LINE_WIDTH.thin[1])];
+    10, roadClassMatch((c) => c.widthPx?.[0] ?? LINE_WIDTH[c.width][0], LINE_WIDTH.thin[0]),
+    14, roadClassMatch((c) => c.widthPx?.[1] ?? LINE_WIDTH[c.width][1], LINE_WIDTH.thin[1])];
 }
 /** 高速公路畫在 A 級上、A 級畫在 B 級上。 */
 const ROAD_SORT: Expr = ["match", ["get", "road_class"], "motorway", 2, "a_road", 1, 0];
