@@ -10,5 +10,7 @@
   "popup.h3Metric.bikeAvailability": "有車率",
   "popup.h3Metric.avgRacks": "平均車柱數",
   "popup.h3Metric.racksValue": "{value} 柱",
-  "popup.h3Metric.youbikeNote": "H3 六邊形網格單元 · 該格所有站點平均"
+  "popup.h3Metric.youbikeNote": "H3 六邊形網格單元 · 該格所有站點平均",
+  "popup.h3Metric.dayNightSourceOrg": "內政部大數據模擬資料（日夜人流）",
+  "popup.h3Metric.popCountSourceOrg": "SEGIS 社會經濟統計地理資訊網（114 年 6 月，7,748 村里）"
 }

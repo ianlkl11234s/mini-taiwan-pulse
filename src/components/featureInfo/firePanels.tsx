@@ -116,6 +116,8 @@ export function FireIsochronePanel({ props }: { props: Record<string, unknown> }
       <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
         {tr("popup.fire.isochroneNote")}
       </div>
+      {/* 出處：scripts/fetch/fetch-fire-isochrones.py、pulse-data registry/fire_isochrone.yaml（授權為衍生＋Mapbox 條款，不簡化成單一 license） */}
+      <SourceFooter props={{ source_org: tr("popup.fire.isochroneSourceOrg") }} />
     </>
   );
 }
