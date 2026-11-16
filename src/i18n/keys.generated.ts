@@ -5955,6 +5955,7 @@ export type GeneratedStaticKey =
   | "popup.landslide.yearVersion"
   | "popup.liveIncidents.area"
   | "popup.liveIncidents.caseCount"
+  | "popup.liveIncidents.cases"
   | "popup.liveIncidents.category"
   | "popup.liveIncidents.description"
   | "popup.liveIncidents.direction"

@@ -56,6 +56,13 @@ function PrecisionRow({ props }: { props: Record<string, unknown> }) {
   return <Row label={t("popup.liveIncidents.precision")} value={value} />;
 }
 
+/** 原始類別字串：新北帶「AmbulanceBack||即時救護」這類內部前綴，只留最後一段 */
+function rawLabel(v: unknown): string | null {
+  if (typeof v !== "string" || !v) return null;
+  const last = v.split("||").pop()?.trim() ?? "";
+  return last || null;
+}
+
 function categoryText(cat: unknown, i18n: ReturnType<typeof useLocale>): string {
   const c = asFire119Category(cat);
   return enumLabel("fire119Category", c, FIRE119_CATEGORY_LABEL[c], i18n);
@@ -76,7 +83,7 @@ function CaseDetail({ props }: { props: Record<string, unknown> }) {
   const color = status === "returned" ? FIRE119_RETURNED_COLOR : FIRE119_CATEGORY_COLOR[cat];
   const units = parseJson<string[]>(props.units, []);
   const history = parseJson<[string, string][]>(props.status_history, []);
-  const title = typeof props.category_raw === "string" && props.category_raw ? props.category_raw : categoryText(cat, i18n);
+  const title = rawLabel(props.category_raw) ?? categoryText(cat, i18n);
   return (
     <>
       <Title color={color}>{title}</Title>
@@ -118,7 +125,7 @@ function CaseList({ cases, withLocation }: { cases: Fire119Case[]; withLocation:
             {formatTaiwanShort(msIso(c.receivedMs ?? c.updatedMs))}
           </span>
           <span>
-            {c.categoryRaw ?? categoryText(c.category, i18n)}・{statusText(c.status, null, i18n)}
+            {rawLabel(c.categoryRaw) ?? categoryText(c.category, i18n)}・{statusText(c.status, null, i18n)}
             {withLocation && c.locationText ? `・${c.locationText}` : ""}
           </span>
         </div>
@@ -156,7 +163,7 @@ function Fire119LiveBody({ props }: { props: Record<string, unknown> }) {
       <>
         <Title color={FIRE119_DISTRICT_COLORS[2]}>{name || townCode}</Title>
         <Row label={t("popup.liveIncidents.precision")} value={t("popup.liveIncidents.precisionDistrict")} />
-        <Row label={t("popup.liveIncidents.category")} value={t("popup.liveIncidents.caseCount", { count: cases.length })} />
+        <Row label={t("popup.liveIncidents.cases")} value={t("popup.liveIncidents.caseCount", { count: cases.length })} />
         <CaseList cases={cases} withLocation />
       </>
     );

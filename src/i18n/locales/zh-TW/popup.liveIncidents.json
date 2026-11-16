@@ -23,5 +23,6 @@
   "popup.liveIncidents.description": "說明",
   "popup.liveIncidents.pbsPrecision": "警廣提供的座標（精度不一）",
   "popup.liveIncidents.sourceFire": "各縣市消防局 119 即時案件（民眾版）",
-  "popup.liveIncidents.sourcePbs": "警察廣播電臺 即時路況"
+  "popup.liveIncidents.sourcePbs": "警察廣播電臺 即時路況",
+  "popup.liveIncidents.cases": "件數"
 }

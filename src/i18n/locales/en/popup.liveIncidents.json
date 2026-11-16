@@ -23,5 +23,6 @@
   "popup.liveIncidents.description": "Description",
   "popup.liveIncidents.pbsPrecision": "Coordinates from PBS (precision varies)",
   "popup.liveIncidents.sourceFire": "City/county fire departments, live 119 incidents (public pages)",
-  "popup.liveIncidents.sourcePbs": "Police Broadcasting Service live road reports"
+  "popup.liveIncidents.sourcePbs": "Police Broadcasting Service live road reports",
+  "popup.liveIncidents.cases": "Incidents"
 }

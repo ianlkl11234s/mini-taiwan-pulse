@@ -25,7 +25,7 @@ const CAT_KEY = {
 
 /** 空心圓（送醫中）＝描邊色票 */
 function SwatchHollow({ color }: { color: string }) {
-  return <SwatchDot color={color} opacity={0} stroke={color} strokeWidth={2} />;
+  return <SwatchDot color="transparent" opacity={1} stroke={color} strokeWidth={2} />;
 }
 
 export function Fire119LiveLegend() {
