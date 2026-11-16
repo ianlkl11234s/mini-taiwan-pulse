@@ -101,6 +101,8 @@ public/geo/historical_water_1944_taipei.geojson
 public/geo/internet_exchange_points.geojson
 public/geo/landing_stations.geojson
 public/geo/lighthouse.geojson
+public/geo/medical_aed_v2.pmtiles
+public/geo/medical_ltc_v2.pmtiles
 public/geo/ookla_fixed_global.geojson
 public/geo/ookla_fixed_global_20260930.pmtiles
 public/geo/ookla_mobile_global.geojson
@@ -165,7 +167,7 @@ public/hazards/major_occupational_accidents.geojson
 public/hazards/mountain_rescue_incidents.geojson
 public/hazards/nuclear_epz_evacuation.geojson
 public/hazards/seawall_zones.geojson
-public/hazards/swcb_disaster_photo_points.pmtiles
+public/hazards/swcb_disaster_photo_points_v2.pmtiles
 public/hazards/taipei_waterlogging_history.geojson
 public/hazards/toxic_chemical_facilities.pmtiles
 public/hazards/tsunami_sirens.geojson
@@ -211,6 +213,7 @@ public/marine/sea_turtle_strandings.geojson
 public/marine/set_net_fishing_areas.geojson
 public/marine/wildlife_protected_areas.geojson
 public/poi/public_retail_markets_national.geojson
+public/police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson
 public/police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson
 public/public_life/national_parks_points.pmtiles
 public/rail/routes_static.geojson
@@ -225,14 +228,16 @@ public/state_assets/state_property_tender_listings.geojson
 public/state_assets/taisugar_sugar_mills.geojson
 public/state_assets/twc_service_offices.geojson
 public/state_assets/twc_water_facilities.geojson
-public/tourism/activities_national.geojson
+public/tourism/activities_national_v2.geojson
 public/tourism/amusement_parks_national.geojson
+public/tourism/attractions_national_v2.geojson
 public/tourism/camping_national.geojson
 public/tourism/heritage_national.geojson
 public/tourism/heritage_national_v2.geojson
 public/tourism/hot_spring_zones_national.geojson
 public/tourism/hot_springs_national.geojson
 public/tourism/national_scenic_areas_national.geojson
+public/tourism/restaurants_national_v2.geojson
 public/tourism/tourism_factories_national.geojson
 public/tourism/tourism_service_sites.geojson
 public/tourism/visitor_spot_stats.geojson

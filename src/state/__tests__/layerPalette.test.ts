@@ -108,8 +108,9 @@ describe("R7 顏色解析器", () => {
     // 2026-11-10 +1 G53 批 2／3：iOcean 垂釣回報格網彙總熱區
     // 2026-11-10 +3 南韓第 8 波：國家遺產、住宿、敬老堂
     // 2026-11-13 +1 菲律賓第 1 波：加油站
+    // 2026-11-14 +3 南韓第 10 波：保護樹、自行車停放處、安全緊急鈴
     // 2026-11-14 +2 英國第 13 波 OSM：公共設施、宗教場所
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(128);
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(131);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

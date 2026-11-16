@@ -587,6 +587,16 @@ for f in \
   public/world/kr_bridges.pmtiles \
   public/world/kr_speed_cameras.pmtiles \
   public/world/kr_street_trees.pmtiles \
+  public/world/kr_animal_hospitals.pmtiles \
+  public/world/kr_local_culture_centers.pmtiles \
+  public/world/kr_traditional_temples.pmtiles \
+  public/world/kr_protected_trees.pmtiles \
+  public/world/kr_fishing_grounds.pmtiles \
+  public/world/kr_bicycle_parking.pmtiles \
+  public/world/kr_civil_defense_water.pmtiles \
+  public/world/kr_emergency_bells.pmtiles \
+  public/world/kr_rural_experience_villages.pmtiles \
+  public/world/kr_slaughterhouses.pmtiles \
   public/world/gb_rivers.pmtiles \
   public/world/gb_flood_defences.pmtiles \
   public/world/gb_protected_areas.pmtiles \
@@ -613,7 +623,7 @@ for f in \
   public/world/ca_population_grid.pmtiles \
   public/world/ie_admin_boundaries.pmtiles \
   public/world/ie_bathymetry.pmtiles \
-  public/world/ie_commercial_valuations.pmtiles \
+  public/world/ie_commercial_valuations_v2.pmtiles \
   public/world/ie_state_assets.pmtiles \
   public/world/ie_river_flood_extents_c_0020.pmtiles \
   public/world/ie_river_flood_extents_c_0100.pmtiles \
@@ -637,14 +647,32 @@ for f in \
   public/world/gb_places_of_worship.pmtiles \
   public/world/ph_admin_boundaries.pmtiles \
   public/world/ph_population.pmtiles \
-  public/world/ph_transport_hubs.pmtiles \
-  public/world/ph_stations.pmtiles \
+  public/world/ph_transport_hubs_v2.pmtiles \
+  public/world/ph_stations_v2.pmtiles \
   public/world/ph_major_roads.pmtiles \
   public/world/ph_power_plants.pmtiles \
   public/world/ph_power_grid.pmtiles \
   public/world/ph_renewables.pmtiles \
   public/world/ph_fuel_stations.pmtiles \
   public/world/ph_pipelines.pmtiles \
+  public/world/vn_admin_boundaries.pmtiles \
+  public/world/vn_population.pmtiles \
+  public/world/vn_stations_v2.pmtiles \
+  public/world/vn_transport_hubs_odm.pmtiles \
+  public/world/vn_transport_hubs_osm.pmtiles \
+  public/world/vn_major_roads_v2.pmtiles \
+  public/world/vn_power_plants.pmtiles \
+  public/world/vn_renewables_gem_v2.pmtiles \
+  public/world/vn_renewables_osm.pmtiles \
+  public/world/vn_power_grid.pmtiles \
+  public/world/vn_fuel_stations_v2.pmtiles \
+  public/world/vn_oil_gas_gem_v2.pmtiles \
+  public/world/vn_oil_gas_osm.pmtiles \
+  public/world/vn_envisoft_stations_v2.pmtiles \
+  public/world/vn_angiang_demo.pmtiles \
+  public/world/ph_bus_stops.pmtiles \
+  public/world/ph_urban_rail.pmtiles \
+  public/world/ph_expressways.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \
@@ -750,9 +778,9 @@ done
 # 觀光圖層：上傳到 deploy-assets/tourism/ 子前綴（鏡像結構，pull 端整夾 sync）
 # 只上傳 D 類 3 大檔（景點 4.4MB + 旅宿 6.7MB + 餐飲 2.1MB）；其餘 9 檔 C 類進 git/dist，不上傳。
 TOURISM_FILES=(
-  "public/tourism/attractions_national.geojson"
+  "public/tourism/attractions_national_v2.geojson"
   "public/tourism/hotels_national.geojson"
-  "public/tourism/restaurants_national.geojson"
+  "public/tourism/restaurants_national_v2.geojson"
 )
 for f in "${TOURISM_FILES[@]}"; do
   name=$(basename "$f")

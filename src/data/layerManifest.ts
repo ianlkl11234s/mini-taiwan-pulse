@@ -40,6 +40,8 @@ import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, ieFloodScenarioFile, IE_NOISE_METRIC
 import type { IeDataKey } from "./ieDataKeys";
 import { PH_DATA_SPECS } from "./phDataLayers";
 import type { PhDataKey } from "./phDataKeys";
+import { VN_DATA_SPECS } from "./vnDataLayers";
+import type { VnDataKey } from "./vnDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -761,6 +763,29 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）", processing: "CSV（UTF-8 BOM）WGS84；0 筆剔除；PMTiles z0–14", note: "平台標籤；16/16 시·도；只有位置、沒有測值" },
   krClothingBins: { theme: "廢棄物", group: "投放點", zh: "舊衣回收箱", alt: "Clothing Collection Bins", icon: Shirt, dataset: "kr_clothing_bins", topics: ["南韓", "舊衣回收", "의류수거함", "回收", "廢棄物"],
     description: "南韓舊衣回收箱 20,931 處（57 個市郡區清單合併）", processing: "data.go.kr 各機關 fileData 93 份：有座標 CSV 59 份（58 份採用）、只有地址 19 份未上圖；剔除無座標 1,051、境外 5、座標落在提供機關轄區外 25、重複 2,103；管理團體與電話欄排除；PMTiles z0–14", note: "平台標籤；瑞草區 KOGL 4 不併入；11/16 시·도（釜山、大邱、蔚山、世宗、忠北無）" },
+  // 第 10 波（2026-11-14；analytics #373／#374）
+  krAnimalHospitals: { theme: "動物福利", group: "服務據點 Service Points", zh: "動物醫院", alt: "Animal Hospitals", icon: PawPrint, dataset: "kr_animal_hospitals", topics: ["南韓", "動物醫院", "동물병원", "獸醫", "寵物"],
+    description: "南韓營業中動物醫院 5,255 處（LOCALDATA 동물병원）", processing: "LOCALDATA CSV 10,670 列：只留영업/정상；EPSG:5174 → 4326；無座標 243 剔除；電話、面積排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；名稱為事業招牌名" },
+  krLocalCultureCenters: { theme: "文化", group: "設施 Facilities", zh: "地方文化院", alt: "Local Culture Centres", icon: Theater, dataset: "kr_local_culture_centers", topics: ["南韓", "地方文化院", "지방문화원", "文化設施"],
+    description: "南韓地方文化院 171 處（LOCALDATA 지방문화원）", processing: "LOCALDATA CSV 191 列（全營業中）；EPSG:5174 → 4326；無座標 20 剔除；電話、設立目的排除；PMTiles z0–14", note: "平台標籤；13/16 시·도（首爾、釜山、仁川未涵蓋）" },
+  krTraditionalTemples: { theme: "宗教", group: "點位", zh: "傳統寺剎", alt: "Traditional Temples", icon: Landmark, dataset: "kr_traditional_temples", topics: ["南韓", "寺廟", "傳統寺剎", "전통사찰", "佛教", "宗教"],
+    description: "南韓傳統寺剎保存法登錄的寺剎 1,599 處（指定 795、承認 46、未填 758）", processing: "LOCALDATA CSV 1,907 列：剔除登錄取消 1、無座標 307；EPSG:5174 → 4326；沿革全文與僧侶／信徒數排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；不含一般寺院與其他宗教" },
+  krProtectedTrees: { theme: "環境氣候", group: "都市樹木 Urban Trees", zh: "保護樹", alt: "Protected Trees", icon: TreeDeciduous, dataset: "kr_protected_trees", topics: ["南韓", "保護樹", "보호수", "老樹", "古樹"],
+    description: "南韓保護樹 12,308 株（道樹、市郡樹、面樹、村樹）", processing: "LOCALDATA 12,794 列：剔除解除指定 127、無座標 2、南韓外 30、座標與 시·도不符 327；地積、地目排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；寧越、河東、曾坪、洪川、靈岩整批座標偏移" },
+  krFishingGrounds: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries", zh: "漁場", alt: "Fishing Grounds", icon: Fish, dataset: "kr_fishing_grounds", topics: ["南韓", "漁場", "어장", "養殖", "定置網", "漁業權"],
+    description: "南韓漁場 14,858 面（養殖、村落、定置網；調查 2020–2023，快照 2024-04-24）", processing: "SHP EPSG:5179 → 4326；6 個自相交面 make_valid；許可已到期 3,010 面保留不篩；PMTiles z4–12", note: "KOGL 1（출처표시）；11/11 沿海 시·도；到期者以灰色另列" },
+  krBicycleParking: { theme: "交通", group: "場站", zh: "自行車停放處", alt: "Bicycle Parking", icon: Bike, dataset: "kr_bicycle_parking", topics: ["南韓", "自行車", "停車", "자전거보관소", "單車"],
+    description: "南韓自行車停放處 18,220 處（LOCALDATA 자전거보관소）", processing: "LOCALDATA 18,515 列：剔除無座標 124、南韓外 3、海上 6、座標與 시·도不符 162；機關電話排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；羅州、大邱壽城區整批座標偏移" },
+  krCivilDefenseWater: { theme: "災害", group: "避難設施", zh: "民防緊急給水設施", alt: "Civil Defence Emergency Water", icon: Droplets, dataset: "kr_civil_defense_water", topics: ["南韓", "民防", "給水", "민방위급수시설", "緊急用水"],
+    description: "南韓使用中民防緊急給水設施 5,464 處（公共用、政府支援、自治體）", processing: "LOCALDATA 11,081 列：剔除停用 5,296、無座標 321；EPSG:5174 → 4326；設施名稱整欄不輸出（含私人姓名）；PMTiles z0–14", note: "平台標籤；16/16 시·도；名稱不顯示，地址只到門牌" },
+  krEmergencyBells: { theme: "執法治安", group: "警政", zh: "安全緊急鈴", alt: "Emergency Bells", icon: Siren, dataset: "kr_emergency_bells", topics: ["南韓", "緊急鈴", "안전비상벨", "治安", "求救"],
+    description: "南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）", processing: "LOCALDATA 88,634 列：剔除無座標 13、南韓外 8、海上 5、座標與 시·도不符 897，經緯對調更正 10；機關電話排除；PMTiles z0–14（48.2MB 走 deploy-assets）", note: "平台標籤；16/16 시·도；泗川、沃川座標整批偏移或佔位" },
+  krRuralExperienceVillages: { theme: "觀光", group: "玩・體驗 Experience", zh: "農漁村體驗休養村", alt: "Rural Experience Villages", icon: Tent, dataset: "kr_rural_experience_villages", topics: ["南韓", "農村體驗", "체험휴양마을", "休閒農業", "觀光"],
+    description: "南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）", processing: "CSV WGS84；座標與 시·도不符 2 剔除；代表者姓名與電話排除；PMTiles z0–14", note: "平台標籤；13/16 시·도（首爾、釜山、大邱未涵蓋）" },
+  krSlaughterhouses: { theme: "農業", group: "畜牧 Livestock", zh: "屠宰場", alt: "Slaughterhouses", icon: Factory, dataset: "kr_slaughterhouses", topics: ["南韓", "屠宰場", "도축업", "畜牧"],
+    description: "南韓營業中屠宰場 111 處（LOCALDATA 도축업）", processing: "LOCALDATA 202 列：剔除歇業／停業 68、無座標 23；EPSG:5174 → 4326；電話、職員數、面積排除；PMTiles z0–14", note: "平台標籤；12/16 시·도（首爾、釜山、大田、世宗未涵蓋）" },
+  krSeoulZoning: { theme: "底圖", group: "土地使用分區 Zoning", zh: "首爾用途地域", alt: "Seoul Zoning Districts", icon: Grid3x3, dataset: "kr_seoul_zoning", topics: ["南韓", "首爾", "用途地域", "용도지역", "都市計畫", "土地使用分區", "OWNER_ONLY"],
+    description: "首爾用途地域 8,318 面（住宅、商業、工業、綠地等 7 大類）", processing: "SHP EPSG:5174 → 4326；52 個無效面 make_valid、<0.01 m² 碎面 16 剔除；加 zone_group 大類；PMTiles z8–14", note: "KOGL 1，data.go.kr 註含第三方權利；只涵蓋首爾；站主限定（私人 owner-data 圖磚）、DISPLAY_ONLY 不入倉" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];
@@ -774,7 +799,9 @@ const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => 
     icon: m.icon,
     upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
     dataClass: "D",
-    source: { kind: "custom", note: `useKrDataLayers 自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`./world/${spec.file}`] },
+    source: spec.ownerAsset
+      ? { kind: "custom", note: `Owner-only same-origin Range API（owner-data ${spec.ownerAsset}）；私人 PMTiles，不公開轉供；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`PRIVATE_OWNER_ONLY: ${spec.file}`] }
+      : { kind: "custom", note: `useKrDataLayers 自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`./world/${spec.file}`] },
     legend: spec.key,
     popup: spec.key,
     params: (() => {
@@ -973,9 +1000,9 @@ const IE_DATA_MANIFEST_ENTRIES = Object.fromEntries(IE_DATA_SPECS.map((spec) => 
 /** 菲律賓第 1 波規格驅動 8 層（規格 SSOT 在 phDataLayers.ts；畫法 usePhDataLayer；主題與群組比照加拿大、愛爾蘭）。 */
 const PH_DATA_ENTRY_META: Record<PhDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
   phTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "ph_transport_hubs", topics: ["菲律賓", "交通", "機場", "港口", "DOTr", "PPA", "OSM"],
-    description: "菲律賓機場與港口 581 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）", processing: "Geoportal Philippines（NAMRIA）WMS GetFeatureInfo 取 DOTr／PPA 圖層 → 4326；HOT／HDX OSM 補缺；PMTiles hubs z4–14；卡拉延群島 1 處不畫", note: "Geoportal 未附授權條文（標來源）＋OSM ODbL；官方機場座標多為城鎮近似位置" },
+    description: "菲律賓機場與港口 580 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）", processing: "Geoportal Philippines（NAMRIA）WMS GetFeatureInfo 取 DOTr／PPA 圖層 → 4326；HOT／HDX OSM 補缺；PMTiles hubs z4–14；卡拉延群島 1 處不畫；v2 排除 Region VII 填海工業用地 1 處（analytics #393）", note: "Geoportal 未附授權條文（標來源）＋OSM ODbL；官方機場座標多為城鎮近似位置" },
   phStations: { theme: "交通", group: "場站", zh: "鐵路車站與渡輪碼頭", alt: "Rail Stations & Ferry Terminals", icon: TrainFront, dataset: "ph_stations", topics: ["菲律賓", "交通", "車站", "鐵路", "PNR", "LRT", "MRT", "渡輪", "OSM"],
-    description: "菲律賓鐵路車站與渡輪碼頭 562 處（官方 PNR 站；LRT／MRT 等與渡輪碼頭由 OpenStreetMap 補缺）", processing: "Geoportal Philippines WMS 取 PNR 車站 → 4326；HOT／HDX OSM 補缺；PMTiles stations z4–14", note: "Geoportal 未附授權條文＋OSM ODbL；巴士站不在本層" },
+    description: "菲律賓鐵路車站與渡輪碼頭 476 處（官方 PNR 站；其他鐵路站與渡輪碼頭由 OpenStreetMap 補缺；標示營運狀態，PNR 都會段與 Alabang–Calamba 停駛 32 站；LRT／MRT 車站改由 LRT／MRT 層提供；鐵路站涵蓋 3/18 region）", processing: "Geoportal Philippines WMS 取 PNR 車站 → 4326；HOT／HDX OSM 補缺；PMTiles stations z4–14；v2（analytics #393）加 status／status_basis，排除未通車 37 站與誤標 Mapaya；前端濾掉與第 2 波 LRT／MRT 車站重複的 OSM 鐵路站 48 處", note: "Geoportal 未附授權條文＋OSM ODbL；公車站另見公車站層" },
   phMajorRoads: { theme: "交通", group: "路網", zh: "主要道路與鐵道", alt: "Major Roads & Railways", icon: Route, dataset: "ph_major_roads", topics: ["菲律賓", "交通", "道路", "高速公路", "鐵道", "OSM"],
     description: "菲律賓主要道路 46,794 段（motorway／trunk／primary）＋鐵道 635 段（OpenStreetMap）", processing: "HOT Export Tool／HDX OSM 道路與鐵道分類檔 → 4326；_link 併入同級；PMTiles roads、rail z4–13", note: "ODbL 1.0；LRT／MRT 路線不在、DPWH 官方高速公路未出圖" },
   phPowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "ph_power_plants", topics: ["菲律賓", "能源", "電廠", "發電", "燃煤", "地熱", "GEM", "Climate TRACE"],
@@ -988,6 +1015,13 @@ const PH_DATA_ENTRY_META: Record<PhDataKey, { theme: string; group: string; zh: 
     description: "菲律賓加油站 10,100 處（OpenStreetMap；依品牌 8 色，其餘併「其他／未知品牌」）", processing: "HOT Export Tool／HDX OSM amenity=fuel → 代表點；品牌正規化；PMTiles fuel z5–14", note: "ODbL 1.0；OSM 覆蓋不均" },
   phPipelines: { theme: "能源", group: "管線與儲槽", zh: "管線與儲槽", alt: "Pipelines & Storage Tanks", icon: Spline, dataset: "ph_pipelines", topics: ["菲律賓", "能源", "管線", "儲槽", "油氣", "地熱", "OSM"],
     description: "菲律賓管線 825 段＋儲槽 2,241 處（OpenStreetMap；依內容物分油氣、水、污水、地熱蒸汽、其他、未標示）", processing: "Overture Maps（OSM 衍生）man_made=pipeline／storage_tank → 4326；依 substance／content 分 content_group；PMTiles pipelines、tanks z5–14", note: "ODbL 1.0；多數未標示內容物，不是油氣管線全圖" },
+  // 第 2 波補充（2026-11-14）：Geofabrik philippines-261113 快照
+  phBusStops: { theme: "交通", group: "場站", zh: "公車站", alt: "Bus Stops", icon: Bus, dataset: "ph_bus_stops", topics: ["菲律賓", "交通", "公車", "巴士", "公車站", "OSM"],
+    description: "菲律賓 OpenStreetMap 標註的公車站 9,313 處（涵蓋不均，82 省中 9 省未涵蓋；近 4 成在馬尼拉都會區）", processing: "Geofabrik philippines-261113.osm.pbf（GDAL OSM driver）取 highway=bus_stop 或 public_transport=platform＋bus=yes；面與線取代表點；同名 ≤5 m 等明顯重複去除 108 筆；PMTiles bus_stops z4–14", note: "ODbL 1.0；OSM 志願者標註，涵蓋不均；吉普尼多無固定站牌" },
+  phUrbanRail: { theme: "交通", group: "路網", zh: "LRT／MRT 軌道與車站", alt: "LRT / MRT Lines & Stations", icon: TrainTrack, dataset: "ph_urban_rail", topics: ["菲律賓", "交通", "軌道", "捷運", "LRT", "MRT", "馬尼拉", "OSM"],
+    description: "馬尼拉營運中的 LRT-1、LRT-2、MRT-3：軌道 523 段（機廠軌不畫）＋車站 51 站（依線別分色；MRT-7 與 Metro Manila Subway 尚未通車、未納入）", processing: "Geofabrik philippines-261113.osm.pbf 取 railway=light_rail／subway 與 LRT／MRT 車站（顯式 tag＋60 m 內同類型營運軌道）；依官方狀態排除未通車的 MRT-7、Subway；PMTiles tracks、routes、stations z4–14（前端不畫 routes 與 service=yard）", note: "ODbL 1.0；未通車線 2026-11-14 依 DOTr 公開資訊查證" },
+  phExpressways: { theme: "交通", group: "路網", zh: "高速公路與收費道路", alt: "Expressways & Toll Roads", icon: Milestone, dataset: "ph_expressways", topics: ["菲律賓", "交通", "道路", "高速公路", "收費道路", "NLEX", "SLEX", "OSM"],
+    description: "菲律賓高速公路與收費道路 5,550 段、1,417 km（依收費分色，彈窗列路線編號 E1–E6；toll 未標不等於免費）", processing: "Geofabrik philippines-261113.osm.pbf 取 highway=motorway／motorway_link 全部，加上 toll=yes 的現役道路（排除 proposed、construction）；PMTiles expressways z4–14", note: "ODbL 1.0；與主要道路層的高速公路約 98% 重疊；僅 5／18 region 有路段" },
 };
 const PH_DATA_MANIFEST_ENTRIES = Object.fromEntries(PH_DATA_SPECS.map((spec) => {
   const m = PH_DATA_ENTRY_META[spec.key];
@@ -1012,10 +1046,59 @@ const PH_DATA_MANIFEST_ENTRIES = Object.fromEntries(PH_DATA_SPECS.map((spec) => 
   }];
 })) as Record<PhDataKey, LayerManifestEntry>;
 
+/** 越南第 1 波規格驅動 10 層（規格 SSOT 在 vnDataLayers.ts；畫法重用 usePhDataLayer；主題與群組比照菲律賓、愛爾蘭）。 */
+const VN_DATA_ENTRY_META: Record<VnDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  vnStations: { theme: "交通", group: "場站", zh: "車站（鐵路、捷運、公車總站）", alt: "Rail, Metro & Bus Stations", icon: TrainFront, dataset: "vn_stations", topics: ["越南", "交通", "車站", "鐵路", "捷運", "公車", "OSM"],
+    description: "越南車站 989 處（鐵路站 293、捷運站 166、公車總站 530；OpenStreetMap 補缺，官方無全國站名冊）", processing: "Geofabrik vietnam-latest.osm.pbf 抽 railway=station／public_transport=station 等 → 代表點；34 省空間判定；PMTiles stations z4–14", note: "ODbL 1.0；官方無全國站名冊" },
+  vnTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "vn_transport_hubs", topics: ["越南", "交通", "機場", "港口", "ODM", "OSM"],
+    description: "越南機場 25、港口 54（Open Development Vietnam 2019／2021）＋OSM 補缺機場 19（另色）", processing: "ODM CKAN 機場、港口 → 4326；OSM 補缺機場與 ODM 距離 >5 km 者；ODM 與 OSM 分兩支 PMTiles（airports、ports／airports_osm z3–14）", note: "ODM 標 CC BY-SA 4.0 但 copyright To be determined（授權未明示）；OSM ODbL；資料年 2019／2021" },
+  vnMajorRoads: { theme: "交通", group: "路網", zh: "主要道路與鐵道", alt: "Major Roads & Railways", icon: Route, dataset: "vn_major_roads", topics: ["越南", "交通", "道路", "高速公路", "國道", "鐵道", "OSM"],
+    description: "越南主要道路 49,830 段（motorway／trunk／primary）＋鐵道 2,442 段（興建中虛線；OpenStreetMap）", processing: "Geofabrik PBF 抽 highway motorway／trunk／primary（_link 併入同級）與 railway → 4326；PMTiles roads、rail z4–13", note: "ODbL 1.0；道路等級是 OSM 類別，不是法定分級" },
+  vnPowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "vn_power_plants", topics: ["越南", "能源", "電廠", "發電", "水力", "燃煤", "GEM"],
+    description: "越南電廠 253 處（Global Energy Monitor：水力、燃煤、燃氣、生質、核能、地熱；預設只顯示運轉中＋興建中；風光在再生能源層）", processing: "GEM 各 tracker xlsx 濾越南 → 依技術、狀態合併；34 省空間判定；PMTiles plants z3–14", note: "CC BY 4.0（GEM）；風電與太陽能不在本層，兩層不要合計" },
+  vnRenewables: { theme: "能源", group: "再生能源", zh: "風電、太陽能與充電站", alt: "Wind, Solar & EV Charging", icon: Sun, dataset: "vn_renewables", topics: ["越南", "能源", "再生能源", "風電", "太陽能", "充電站", "GEM", "TransitionZero", "OSM"],
+    description: "越南風電與太陽能 842 處（GEM）＋TransitionZero 光電 1,017 處（CC BY-NC，非商用）＋電動車充電站 376 處（OSM）", processing: "GEM Wind／Solar tracker 濾越南；Solar 的 TransitionZero 子集另成 solar_tz 子圖層；OSM amenity=charging_station；GEM 與 OSM 分兩支 PMTiles", note: "CC BY 4.0（GEM）；solar_tz CC BY-NC 4.0（非商用，popup 逐筆標示）；OSM ODbL" },
+  vnPowerGrid: { theme: "能源", group: "電力 · 電網", zh: "輸電線與變電所", alt: "Power Lines & Substations", icon: Zap, dataset: "vn_power_grid", topics: ["越南", "能源", "電網", "輸電線", "變電所", "OSM"],
+    description: "越南輸電線 11,656 段（依電壓分級，電纜虛線）＋變電所 1,431 處（OpenStreetMap）", processing: "Geofabrik PBF 抽 power=line／cable／substation → 4326；依 voltage 最大值分 kv_class；PMTiles lines、substations z4–14", note: "ODbL 1.0；OSM 覆蓋不均，非官方電網圖" },
+  vnFuelStations: { theme: "能源", group: "石化 · 加油站", zh: "加油站", alt: "Fuel Stations", icon: Fuel, dataset: "vn_fuel_stations", topics: ["越南", "能源", "加油站", "OSM", "Petrolimex", "PVOIL"],
+    description: "越南加油站 4,902 處（OpenStreetMap；Petrolimex、PVOIL 等品牌分色）", processing: "Geofabrik PBF 抽 amenity=fuel → 代表點；品牌正規化；PMTiles fuel z5–14", note: "ODbL 1.0；品牌未知 2,040 站" },
+  vnOilGas: { theme: "能源", group: "石化 · 油氣", zh: "油氣設施", alt: "Oil & Gas Facilities", icon: Spline, dataset: "vn_oil_gas", topics: ["越南", "能源", "油氣", "LNG", "管線", "煉油廠", "儲槽", "GEM", "OSM"],
+    description: "越南 LNG 接收站 33、煤炭碼頭 5、油氣管線 12（GEM，含提案與取消）＋煉油廠 2、儲槽 75、天然氣管線 65（OSM）", processing: "GEM GGIT／GOIT／Coal Terminals 濾越南；OSM 煉油廠、儲槽、管線；GEM 與 OSM 分兩支 PMTiles", note: "CC BY 4.0（GEM）；OSM ODbL；GEM 狀態含提案、取消（狀態篩選）" },
+  vnEnvisoftStations: { theme: "環境氣候", group: "環境監測站", zh: "環境自動監測站位置", alt: "Environmental Monitoring Stations", icon: Activity, dataset: "vn_envisoft_stations", topics: ["越南", "環境", "空氣品質", "水質", "排放", "監測站", "envisoft"],
+    description: "越南環境自動監測站 2,177 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）", processing: "envisoft.gov.vn 站點清單 → 4326；站名後綴判定類型；34 省空間判定；PMTiles stations z4–14", note: "來源 envisoft.gov.vn，授權未明示；只上位置、不上數值（使用者 2026-11-10）" },
+  vnAngiangDemo: { theme: "工商登記", group: "安江示範", zh: "安江工業群與避洪居民點", alt: "An Giang Industrial Clusters & Flood Resettlement", icon: Building2, dataset: "vn_angiang_demo", topics: ["越南", "安江", "工業群", "避洪", "示範"],
+    description: "越南安江省工業群 13 處（面）＋避洪居民點 59 處（只涵蓋安江省，原堅江範圍）", processing: "安江省開放資料入口 GIS 圖層 → 4326；行政代碼為舊制、不換算新社；PMTiles industrial_clusters、flood_resettlement z6–14", note: "授權未明示；只涵蓋安江省，其他 33 省是未涵蓋" },
+};
+const VN_DATA_MANIFEST_ENTRIES = Object.fromEntries(VN_DATA_SPECS.map((spec) => {
+  const m = VN_DATA_ENTRY_META[spec.key];
+  const parts = [...spec.parts, ...(spec.more?.parts ?? [])];
+  const hasPoint = parts.some((x) => x.geom === "point");
+  const layers = parts.map((x) => `${x.sourceLayer}`).join("／");
+  const files = [spec.file, ...(spec.more ? [spec.more.file] : [])];
+  const kinds = ["multiSelect", ...(spec.statusDefault ? ["multiSelect"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "VN", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer（越南規格）自建 mapbox-pmtiles source；source-layer=${layers}`, staticAssets: files.map((f) => `./world/${f}`) },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<VnDataKey, LayerManifestEntry>;
+
 export const LAYER_MANIFEST = {
   ...KR_DATA_MANIFEST_ENTRIES,
   ...IE_DATA_MANIFEST_ENTRIES,
   ...PH_DATA_MANIFEST_ENTRIES,
+  ...VN_DATA_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
@@ -3118,14 +3201,14 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "jp_traffic_accidents_2025", confidence: "HIGH" }],
       processing: "analytics pipelines/world/jp_traffic_accidents_2025：本票 287,023 件，度分秒×1000 換十進位，缺座標 3 件剔除 → 287,020 點；PMTiles z5–12（z12 全點，以下抽稀只供熱區）",
-      note: "警察庁 2025 年本票（約 97% 發生於 2025 年，另約 3% 發生於 2024 年以前；2026-10-01 公開）；物損事故不在本票，未涵蓋；年齢等當事者屬性不收；PDL1.0",
+      note: "警察庁 2025 年本票＝2025 年計入統計的人身事故（約 97% 發生於 2025 年，約 3% 為 2024 年以前發生、2025 年才計入；2026-10-01 公開）；物損事故不在本票，未涵蓋；年齢等當事者屬性不收；PDL1.0",
     },
     dataClass: "B",
     source: { kind: "pmtiles", sourceId: "jp-traffic-accidents-2025", url: "./world/jp_traffic_accidents_2025.pmtiles", sourceLayer: "jp_traffic_accidents_2025", minzoom: 5, maxzoom: 12 },
     legend: "jpTrafficAccidents2025",
     popup: "jpTrafficAccidents2025",
     params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
-    description: "警察庁 2025 年本票全日本人身交通事故 28.7 萬件（死亡 2,495 件、負傷 28.5 萬件），可依事故內容與事故類型篩選；物損事故未納入",
+    description: "警察庁 2025 年本票（2025 年計入統計）全日本人身交通事故 28.7 萬件（死亡 2,495 件、負傷 28.5 萬件），可依事故內容與事故類型篩選；物損事故未納入",
     topics: ["世界", "日本", "治安", "交通事故", "傷亡", "道路安全"],
   },
   jpEvacuationSites: {
@@ -4909,7 +4992,7 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "ph_admin_boundaries", confidence: "HIGH" }],
       processing: "OCHA／PSA／NAMRIA COD-AB（HDX）region 18、province 級 88（82 省＋NCR 4 district、Isabela 市、BARMM 特別地理區）、municipality 1,642、barangay 42,048 → 4326；PMTiles tile layer region z3–10／province z4–11／municipality z6–12／barangay z9–13；卡拉延群島（Kalayaan）市鎮與 barangay 不畫",
-      note: "CC BY-IGO 3.0（© OCHA、PSA、NAMRIA）；不畫海域主張線；region、province 面含卡拉延群島碎片（來源合併，無法分開）",
+      note: "CC BY-IGO 3.0（© OCHA、PSA、NAMRIA）；不畫海域主張線；region、province 面含卡拉延群島碎片（來源合併，無法分開）；邊界依 OCHA 資料，不代表任何立場",
     },
     dataClass: "D",
     source: {
@@ -4947,6 +5030,59 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["select", "slider"] },
     description: "菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）",
     topics: ["菲律賓", "人口", "人口密度", "普查", "PSA", "barangay"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  // 🇻🇳 越南 Vietnam（2026-11-13 第 0–1 波：C001 行政邊界、C023 人口；其餘 10 層由 VN_DATA_MANIFEST_ENTRIES 派生）
+  // ══════════════════════════════════════════════════════════════
+  vnAdminBoundaries: {
+    key: "vnAdminBoundaries",
+    country: "VN", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "vn_admin_boundaries", confidence: "HIGH" }],
+      processing: "OCHA COD-AB Viet Nam v02（HDX）2025-07 新制 34 省面＋NSO 3,321 社代碼表（沒有社界幾何）→ 4326；移除 Hoàng Sa／Trường Sa 特區 part；PMTiles province、province_label z3–12",
+      note: "CC BY-IGO 3.0（面）；NSO 代碼表授權未明示；不畫海上界線、西沙南沙；邊界依 OCHA 資料，不代表任何立場",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useVnAdminLayers 自建 mapbox-pmtiles source；source-layer=province（線＋點擊面）／province_label（省名）",
+      staticAssets: ["./world/vn_admin_boundaries.pmtiles"],
+    },
+    legend: "vnAdminBoundaries",
+    popup: "vnAdminBoundaries",
+    params: { count: 1, kinds: ["slider"] },
+    description: "越南行政區界（2025-07 新制 34 省；3,321 社只有代碼表、沒有社界；OCHA COD-AB v02）",
+    topics: ["越南", "行政區", "邊界", "34 省", "COD-AB"],
+  },
+  vnPopulation: {
+    key: "vnPopulation",
+    country: "VN", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口密度", alt: "Population Density", qualifier: "2025" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "vn_population", confidence: "HIGH" }],
+      processing: "NSO PL.V02.01（2025，34 省）人口與密度；2011–2024 由 V02.01 舊 63 省加總成新省（Tiền Giang 整省計入 Đồng Tháp）；接 COD-AB 34 省面；PMTiles province z3–10",
+      note: "Cục Thống kê（NSO）授權未明示；邊界依 OCHA 資料，不代表任何立場",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useVnPopulationLayers 自建 mapbox-pmtiles source；source-layer=province",
+      staticAssets: ["./world/vn_population.pmtiles"],
+    },
+    legend: "vnPopulation",
+    popup: "vnPopulation",
+    params: { count: 1, kinds: ["slider"] },
+    description: "越南 2025 年人口與人口密度（34 省；2011–2025 歷年人口折線）",
+    topics: ["越南", "人口", "人口密度", "NSO", "34 省"],
   },
   // 🇮🇪 愛爾蘭第 1 波（2026-11-07）：海床地形 raster；其餘 6 層由 IE_DATA_MANIFEST_ENTRIES 派生
   ieBathymetry: {
@@ -6678,8 +6814,8 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_health_facilities.pmtiles；source-layer=gb_health_facilities，minzoom=5 maxzoom=12（醫院 layer minzoom 7、GP／藥局 9）；7.2MB git-track",
-      staticAssets: ["./world/gb_health_facilities.pmtiles"],
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_health_facilities_v2.pmtiles（2026-11-14 個資清理版）；source-layer=gb_health_facilities，minzoom=5 maxzoom=12（醫院 layer minzoom 7、GP／藥局 9）；7.2MB git-track",
+      staticAssets: ["./world/gb_health_facilities_v2.pmtiles"],
     },
     legend: "gbHealthFacilities",
     popup: "gbHealthFacilities",
@@ -7947,7 +8083,7 @@ export const LAYER_MANIFEST = {
       note: "觀光景點全國 ~6,070 點（docs/data-catalog/tourism/attraction.md）",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "tour-attractions", url: "./tourism/attractions_national.geojson" },
+    source: { kind: "geojson", sourceId: "tour-attractions", url: "./tourism/attractions_national_v2.geojson" },
     legend: "tourAttractions",
     popup: "tourAttractions",
     params: { count: 4, kinds: ["multiSelect", "select", "slider", "slider"] },
@@ -8254,7 +8390,7 @@ export const LAYER_MANIFEST = {
       note: "觀光活動・節慶全國 ~828 點（docs/data-catalog/tourism/activity.md）",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "tour-events", url: "./tourism/activities_national.geojson" },
+    source: { kind: "geojson", sourceId: "tour-events", url: "./tourism/activities_national_v2.geojson" },
     legend: "tourEvents",
     popup: "tourEvents",
     params: { count: 3, kinds: ["select", "slider", "slider"] },
@@ -8359,7 +8495,7 @@ export const LAYER_MANIFEST = {
       note: "觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "tour-restaurants", url: "./tourism/restaurants_national.geojson" },
+    source: { kind: "geojson", sourceId: "tour-restaurants", url: "./tourism/restaurants_national_v2.geojson" },
     legend: null,
     popup: "tourRestaurants",
     params: { count: 2, kinds: ["slider", "slider"] },
@@ -9845,7 +9981,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "medical-aed",
-      url: "./geo/medical_aed.pmtiles",
+      url: "./geo/medical_aed_v2.pmtiles",
       sourceLayer: "medical_aed",
       minzoom: 0,
       maxzoom: 12,
@@ -9872,7 +10008,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "medical-ltc",
-      url: "./geo/medical_ltc.pmtiles",
+      url: "./geo/medical_ltc_v2.pmtiles",
       sourceLayer: "medical_ltc",
       minzoom: 0,
       maxzoom: 12,
@@ -10405,7 +10541,7 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "coast_guard_stations", confidence: "MED" }],
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "coast-guard-station", url: "./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson" },
+    source: { kind: "geojson", sourceId: "coast-guard-station", url: "./police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson" },
     legend: "policeStation",
     popup: "coastGuardStation",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
@@ -11946,7 +12082,7 @@ export const LAYER_MANIFEST = {
     key: "swcbDisasterPhotoPoints", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土砂災害照片點位", alt: "Sediment Disaster Photo Points" }), expandable: true,
     color: ATLAS_LAYER_COLORS.swcbDisasterPhotoPoints, icon: Camera,
     upstream: { status: "verified", datasets: [{ datasetId: "swcb_disaster_photo_points", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）；34,419 點，只放照片連結不嵌影像。PMTiles z5–12 逐 zoom 完整。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points_v2.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
     legend: "swcbDisasterPhotoPoints", popup: "swcbDisasterPhotoPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "水保署土砂災害事件照片與媒體報導的拍攝點，點開看事件、日期與照片連結。",
     topics: ["災害", "崩塌", "土石流", "照片"],

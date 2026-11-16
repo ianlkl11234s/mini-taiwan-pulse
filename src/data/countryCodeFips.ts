@@ -6,7 +6,7 @@
  * AS＝澳洲（ISO 是美屬薩摩亞）、IS＝以色列（ISO 是冰島）。
  *
  * 對照表由 GeoNames `countryInfo.txt`（https://download.geonames.org/export/dump/countryInfo.txt，
- * CC BY 4.0，2026-11-13 取得）的 ISO 與 fips 欄位機械產生，不手編；表外的代碼原樣顯示、不猜。
+ * CC BY 4.0，2026-11-13 取得）的 ISO 與 fips 欄位機械產生，不手編（唯一例外 GZ，見該行）；表外的代碼原樣顯示、不猜。
  */
 export const FIPS10_TO_ISO2: Readonly<Record<string, string>> = {
   AA: "AW", // Aruba
@@ -102,6 +102,8 @@ export const FIPS10_TO_ISO2: Readonly<Record<string, string>> = {
   GT: "GT", // Guatemala
   GV: "GN", // Guinea
   GY: "GY", // Guyana
+  // GZ 不在 GeoNames（ISO PS 只對到 WE），依 FIPS 10-4：GZ＝Gaza Strip、WE＝West Bank，ISO 合為 PS
+  GZ: "PS", // Gaza Strip
   HA: "HT", // Haiti
   HK: "HK", // Hong Kong
   HM: "HM", // Heard Island and McDonald Islands

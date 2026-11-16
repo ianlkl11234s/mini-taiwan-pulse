@@ -234,6 +234,7 @@
   "theme.地質災害": "Geological Hazards",
   "theme.廢棄物": "Waste",
   "theme.工商登記": "Business Registry",
+  "theme.動物福利": "Animal Welfare",
   "theme.殯葬": "Funeral",
   "theme.濕地 Wetlands": "Wetlands",
   "theme.都市熱島 Urban Heat": "Urban Heat",
@@ -315,5 +316,7 @@
   "theme.Day 8 烏托邦 Utopia": "Day 8 Utopia",
   "theme.Day 9 城鄉 Urban-rural": "Day 9 Urban-rural",
   "theme.管線與儲槽": "Pipelines & Storage Tanks",
+  "theme.環境監測站": "Environmental monitoring stations",
+  "theme.安江示範": "An Giang demo",
   "theme.公共生活": "Public Life"
 }
