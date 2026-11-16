@@ -119706,13 +119706,13 @@
     ],
     "cnTerrain": [
       {
-        "label": "透明度 0.60",
+        "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.6,
-        "valueText": "0.60"
+        "value": 0.8,
+        "valueText": "0.80"
       }
     ],
     "cnTransportHubs": [

@@ -1089,9 +1089,9 @@ const CN_DATA_MANIFEST_ENTRIES = Object.fromEntries(CN_DATA_SPECS.map((spec) => 
 /** 中國第 2–5 波 raster（地形、養殖、土壤）：已上色 PNG，沒有 popup，只有透明度。 */
 const CN_RASTER_ENTRY_META: Record<CnRasterKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
   cnTerrain: { theme: "底圖", group: "地形", zh: "地形山影", alt: "Hillshade", icon: Mountain, dataset: "cn_terrain", topics: ["中國", "地形", "山影", "高程"],
-    description: "中國地形山影（AWS Terrain Tiles z7 高程推算，約 1 km；只看大地形）", processing: "AWS Terrain Tiles terrarium z7 391 張 → 高斯平滑、z-factor 4 山影 → 31 省面內灰階＋alpha PNG raster PMTiles z2–7", note: "公有領域來源＋署名（SRTM、GMTED2010、ETOPO1 等）；GLO-30 為 GB 級未用" },
+    description: "中國地形山影（AWS Terrain Tiles z7 高程推算，約 1 km；只看大地形）", processing: "AWS Terrain Tiles terrarium z7 391 張 → 高斯平滑、z-factor 4 山影 → 平地透明（背光坡黑、向光坡白，alpha 依偏離平地程度）、31 省面外透明的灰階＋alpha PNG raster PMTiles z2–7", note: "公有領域來源＋署名（SRTM、GMTED2010、ETOPO1 等）；GLO-30 為 GB 級未用" },
   cnAquaculture: { theme: "農業", group: "養殖", zh: "養殖區", alt: "Aquaculture Areas", icon: Fish, dataset: "cn_aquaculture", topics: ["中國", "農業", "養殖", "漁業", "遙測"],
-    description: "中國沿海 2024 年養殖區（衛星判釋：陸上魚塭、海上筏式網箱）", processing: "Zenodo 19418704 以 HTTP Range 只取 Land2024／MarineAqua2024 → 兩色 PNG8 raster PMTiles z4–10", note: "Apache-2.0；沿海 11 省；遙測分類，非登記資料" },
+    description: "中國沿海 2024 年養殖區（衛星判釋：陸上魚塭、海上筏式網箱）", processing: "Zenodo 19418704 以 HTTP Range 只取 Land2024／MarineAqua2024 → 兩色 PNG8 raster PMTiles z2–10（z2–6 粗格有養殖即上色並外擴 1 像素，拉遠看得到沿海分布）", note: "Apache-2.0；沿海 11 省；遙測分類，非登記資料" },
   cnSoil: { theme: "農業", group: "土壤", zh: "土壤類型", alt: "Soil Types", icon: Sprout, dataset: "cn_soil", topics: ["中國", "農業", "土壤", "SoilGrids", "WRB"],
     description: "中國土壤類型（SoilGrids 2.0 WRB 最可能土類，約 1 km；模型預測）", processing: "SoilGrids wrb/MostProbable.vrt.ovr 第一層 overview（約 1 km）→ 31 省面內 ISRIC 調色盤 PNG8 raster PMTiles z2–8", note: "CC BY 4.0；機器學習預測，非土壤調查圖" },
 };

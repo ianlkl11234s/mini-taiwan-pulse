@@ -391,6 +391,7 @@ const CN_W25_SPECS: readonly CnLayerSpec[] = [
       { prop: "mrgid", label: l3("MRGID", "MRGID", "MRGID"), kind: "code" },
     ],
     legendNotes: [
+      l3("不含南海重疊主張區，也不畫九段線", "South China Sea overlapping claim areas are not included, and the nine-dash line is not drawn", "南シナ海の重複主張区域は含まず、九段線も描かない"),
       l3("只畫 Marine Regions MRGID 8486（中國 200 浬 EEZ）；與鄰國、台灣的重疊或聯合主張區（8321、48954、49003）不畫，不畫九段線", "Only Marine Regions MRGID 8486 (China 200 nm EEZ); overlapping or joint claim areas with neighbours and Taiwan (8321, 48954, 49003) and the nine-dash line are not drawn", "Marine Regions MRGID 8486（中国 200 海里 EEZ）のみ。近隣国・台湾との重複・共同主張区域（8321、48954、49003）と九段線は描かない"),
       l3("金門、馬祖周邊與港澳水域已切除；台灣本島判定框內約 0.5 平方度照來源原樣保留", "Waters around Kinmen, Matsu, Hong Kong and Macao removed; about 0.5 square degrees inside the Taiwan main-island box kept as in the source", "金門・馬祖周辺と香港・マカオの水域は除去。台湾本島の判定枠内の約 0.5 平方度は出典のまま"),
       l3("海域界線依 Marine Regions，不代表任何立場；12／24 浬界未做", "Maritime limits follow Marine Regions and do not imply any position; 12/24 nm limits not included", "海域の境界は Marine Regions によるもので、いかなる立場も示さない。12／24 海里線は未収録"),
@@ -683,28 +684,30 @@ const SOIL_LEGEND: readonly { color: string; label: L3 }[] = [
 
 export const CN_RASTER_SPECS: readonly CnRasterSpec[] = [
   {
-    key: "cnTerrain", asset: "cn-terrain", minzoom: 2, maxzoom: 7, opacity: 0.6, color: "#9ca3af", belowSymbols: true,
+    key: "cnTerrain", asset: "cn-terrain", minzoom: 2, maxzoom: 7, opacity: 0.8, color: "#9ca3af", belowSymbols: true,
     legendTitle: l3("山影（高程推算）", "Hillshade (from elevation)", "陰影起伏（標高から算出）"),
     legend: [
-      { color: "#f3f4f6", label: l3("向光坡", "Lit slope", "日向斜面") },
-      { color: "#374151", label: l3("背光坡", "Shaded slope", "日陰斜面") },
+      { color: "#f3f4f6", label: l3("向光坡（淡白）", "Lit slope (faint white)", "日向斜面（淡い白）") },
+      { color: "#374151", label: l3("背光坡（越陡越暗）", "Shaded slope (darker = steeper)", "日陰斜面（急なほど暗い）") },
     ],
     notes: [
       l3("AWS Terrain Tiles z7（約 1 km）高程算山影，只到 z7，放大會變模糊；31 省面內", "Hillshade from AWS Terrain Tiles z7 (~1 km); max z7, blurs when zoomed in; inside the 31 provinces", "AWS Terrain Tiles z7（約 1 km）の標高から算出。z7 まで、拡大するとぼやける。31 省の範囲内"),
+      l3("平地透明，只畫坡面明暗，不蓋住底圖", "Flat ground is transparent; only slope light and shade are drawn, so the basemap stays visible", "平地は透明で、斜面の明暗だけを描くため下の地図が見える"),
       l3("高程合成自 SRTM、GMTED2010、ETOPO1 等；只看大地形", "Elevation merged from SRTM, GMTED2010, ETOPO1 and others; for broad terrain only", "標高は SRTM・GMTED2010・ETOPO1 などの合成。大地形の把握用"),
     ],
     sourceOrg: "Terrain Tiles on AWS Open Data（Mapzen／Tilezen：SRTM、GMTED2010、ETOPO1 等）", sourceUrl: "https://registry.opendata.aws/terrain-tiles/",
     license: "公有領域來源＋署名", loading: l3("中國地形載入中", "Loading China terrain", "中国の地形を読み込み中"),
   },
   {
-    key: "cnAquaculture", asset: "cn-aquaculture", minzoom: 4, maxzoom: 10, opacity: 0.85, color: "#26a69a", belowSymbols: false,
+    key: "cnAquaculture", asset: "cn-aquaculture", minzoom: 2, maxzoom: 10, opacity: 0.85, color: "#26a69a", belowSymbols: false,
     legendTitle: l3("2024 年養殖區（衛星判釋）", "Aquaculture areas, 2024 (satellite-derived)", "2024 年の養殖区域（衛星判読）"),
     legend: [
       { color: "#e69138", label: l3("陸上養殖（魚塭、池塘）", "Land-based (ponds)", "陸上養殖（養殖池）") },
       { color: "#26a69a", label: l3("海上養殖（筏式、網箱）", "Marine (rafts, cages)", "海面養殖（筏・生け簀）") },
     ],
     notes: [
-      l3("中國沿海 11 省 2024 年養殖區 raster（衛星判釋，z4–10）；內陸省不在範圍內", "2024 aquaculture raster for 11 coastal provinces (satellite-derived, z4–10); inland provinces not covered", "沿岸 11 省の 2024 年養殖区域ラスター（衛星判読、z4–10）。内陸省は対象外"),
+      l3("中國沿海 11 省 2024 年養殖區 raster（衛星判釋，z2–10）；內陸省不在範圍內", "2024 aquaculture raster for 11 coastal provinces (satellite-derived, z2–10); inland provinces not covered", "沿岸 11 省の 2024 年養殖区域ラスター（衛星判読、z2–10）。内陸省は対象外"),
+      l3("拉遠（z6 以下）是放大示意：粗格內有養殖就上色並外擴，會誇大範圍；放大到 z7 以上才是約 150 m 網格", "Zoomed out (z6 and below) is an enlarged sketch: coarse cells with any aquaculture are coloured and widened, overstating extent; z7 and above show the ~150 m grid", "縮小時（z6 以下）は拡大表示：粗いセルに養殖があれば着色して広げるため範囲を誇張する。z7 以上で約 150 m 格子"),
       l3("遙測分類結果，不是登記資料；小型池塘可能漏判", "Remote-sensing classification, not registered farms; small ponds may be missed", "リモートセンシング分類で登録データではない。小さな池は漏れることがある"),
     ],
     sourceOrg: "Annual Spatial Distribution Dataset of Aquaculture Areas in the Coastal Zone of China (1986–2024)，Zenodo 19418704", sourceUrl: "https://zenodo.org/records/19418704",
