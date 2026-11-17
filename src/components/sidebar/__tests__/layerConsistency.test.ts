@@ -258,6 +258,8 @@ const NO_POPUP_LEDGER = new Set([
   "ieBathymetry",
   // 菲律賓第 2、6 波：Copernicus DEM 山體陰影／色別標高、GHSL 建成面積、Hansen 樹冠流失（PNG raster，無 feature 屬性；2026-11-16）
   "phTerrainHillshade", "phTerrainRelief", "phBuiltSurface", "phForestLoss",
+  // 越南第 2、3、6 波：Copernicus DEM 山體陰影／色別標高、崩塌潛勢、WDPCA 保護區（站主限定）（raster，無 feature 屬性；2026-11-17）
+  "vnTerrainHillshade", "vnTerrainRelief", "vnLandslideSusceptibility", "vnWdpca",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -617,7 +619,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ieAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("PH")].sort()).toEqual(["phAdminBoundaries", "phAquaculture", "phArtsVenues", "phBridges", "phBuiltSurface", "phBusStops", "phCemeteries", "phCoastIslands", "phCoastalResources", "phDams", "phEarthquakes", "phEcozones", "phExpressways", "phFinancialServices", "phFireStations", "phFishPorts", "phForestLoss", "phForestryPrograms", "phFuelStations", "phHealthFacilities", "phJails", "phKba", "phKmPosts", "phLakes", "phMajorRoads", "phMarineStations", "phNatureSpots", "phNcrSafeOpenSpaces", "phNoahFlood100yr", "phNoahLandslide", "phParking", "phParks", "phPipelines", "phPlaceNames", "phPlacesOfWorship", "phPoliceStations", "phPollutionSources", "phPopulation", "phPostOffices", "phPoverty", "phPowerGrid", "phPowerPlants", "phPublicFacilities", "phReclamation", "phRenewables", "phSchoolCampuses", "phSchools", "phSportsVenues", "phStations", "phTerrainHillshade", "phTerrainRelief", "phTourismDevelopmentAreas", "phTourismServices", "phTouristAttractions", "phTrails", "phTransportHubs", "phTrees", "phUrbanRail", "phWasteFacilities", "phWaterPermits", "phWdpca", "phWetlands"]);
     expect(tw.has("phAdminBoundaries")).toBe(false);
-    expect([...countryLayerKeys("VN")].sort()).toEqual(["vnAdminBoundaries", "vnAngiangDemo", "vnEnvisoftStations", "vnFuelStations", "vnMajorRoads", "vnOilGas", "vnPopulation", "vnPowerGrid", "vnPowerPlants", "vnRenewables", "vnStations", "vnTransportHubs"]);
+    expect([...countryLayerKeys("VN")].sort()).toEqual(["vnAdminBoundaries", "vnAngiangAquaculture", "vnAngiangDemo", "vnBicycleRental", "vnBridges", "vnCoalMines", "vnCourtsPrisons", "vnDams", "vnEnvisoftStations", "vnFarmTracks", "vnFieldBoundaries", "vnFinancialServices", "vnFuelStations", "vnGlideEvents", "vnHealthFacilities", "vnKindergartens", "vnLandslideSusceptibility", "vnMajorRoads", "vnNationalTouristAreas", "vnOilGas", "vnParking", "vnParks", "vnPlaceNames", "vnPlacesOfWorship", "vnPolice", "vnPopulation", "vnPostalServices", "vnPowerGrid", "vnPowerPlants", "vnProtectedAreasOdm", "vnPublicAmenities", "vnRenewables", "vnRiverbankErosion", "vnRivers", "vnSchoolCampuses", "vnSchools", "vnSoil", "vnStations", "vnTerrainHillshade", "vnTerrainRelief", "vnTourAttractions", "vnTourNature", "vnTourServices", "vnTransportHubs", "vnWaterStructures", "vnWaterSupply", "vnWdpca"]);
     expect(tw.has("vnAdminBoundaries")).toBe(false);
   });
 

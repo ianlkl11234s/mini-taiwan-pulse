@@ -106,6 +106,7 @@ import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes
 import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phCatOptions } from "./phDataLayers";
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
+import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
@@ -2263,10 +2264,14 @@ export const LAYER_PARAMS_SPEC = {
         kind: "multiSelect" as const, name: `${spec.key}Status`, label: "狀態", default: serializeMultiSelectValues([...spec.statusDefault]),
         options: VN_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: `${spec.key}StatusMask`,
       }] : []),
-      opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
       ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
     ]];
   })),
+  // 越南 raster 4 層（2026-11-17）：只有透明度（同 caHillshade、菲律賓 raster）
+  ...Object.fromEntries(VN_RASTER_SPECS.map((spec) => [spec.key, [
+    { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ]])),
   // 愛爾蘭第 1 波起（2026-11-07）：規格驅動層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選、有熱區者加熱區顏色）；公園、國有登記土地的點／面切換由 repPointLayers 補
   ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
     // 第 3a 波河川淹水（NIFM）：情境 × 重現期一組一支 PMTiles，host 依 ieRiverFloodExtentsScenarioIdx 換檔（同台灣淹水情境）

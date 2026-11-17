@@ -110,7 +110,8 @@ import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualit
 import { GbBridgesTunnelsHost, GbPlacesOfWorshipHost, GbPublicFacilitiesHost, GbRoadFacilitiesHost } from "./hosts/ukHosts";
 import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost, CaClimateStationsHost, CaAqhiStationsHost, CaRadiationStationsHost, CaNpriFacilitiesHost, CaWastewaterSystemsHost, CaEarthquakesHost, CaEarthquakesLiveHost, CaPopulationGridHost } from "./hosts/canadaHosts";
 import { IeAdminHost, IeMaritimeBoundariesHost, IePlaceNamesHost, IeGaeltachtHost, IeActivityLocationsHost, IeParksHost, IeGraveyardsHost, IeBathymetryHost, IeCommercialValuationsHost, IeStateAssetsHost, IeHydrometricStationsHost, IeWaterMonitoringHost, IeRiverWaterBodiesHost, IeLakeWaterBodiesHost, IeArterialDrainageHost, IeRiverFloodExtentsHost, IeCoastalErosionHost, IeBathingWatersHost, IeMarineSurveyStationsHost, IeSeabedSurveyCoverageHost, IeProtectedMarineSitesHost, IeOffshoreRenewablesHost, IeTransitStopsHost, IeDublinbikesStationsHost, IeRoadRailNetworkHost, IeRoadMarkersHost, IeTrafficCountersHost, IeAirportsPortsHost, IeNationalParksHost, IeWildAtlanticWayHost, IeProtectedSitesHost, IeNationalTrailsHost, IeStreetTreesHost, IeRadiationStationsHost, IeLandslideEventsHost, IeLandslideExtentsHost, IeRadonRiskHost, IePowerPlantsHost, IePowerLinesHost, IeSubstationsHost, IeWindFarmsHost, IeEvChargingHost, IeFuelStationsHost, IeSchoolsHost, IeSchoolPlanningAreasHost, IeChildcareServicesHost, IeHeritageSitesHost, IeMuseumsHost, IeArtsVenuesHost, IePublicFacilitiesHost, IeReligiousSitesHost, IeHealthFacilitiesHost, IeCareHomesHost, IeFireStationsHost, IeGardaStationsHost, IeCourtsHost, IeIndustrialFacilitiesHost, IeSoilsHost, IePeatSoilsHost, IeAquacultureHost, IeZoningHost, IePlanningApplicationsHost, IeNoiseMapsHost, IeRecyclingPointsHost, IeWasteFacilitiesHost, IePrtrFacilitiesHost, IeCoillteRecreationHost, IeCoillteForestRoadsHost, IeDefibrillatorsHost, IePrisonsHost, IeProposedNhaHost, IeFloodZonesHost, IeGroundwaterFloodingHost, IePeatExtractionBogsHost } from "./hosts/irelandHosts";
-import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnMajorRoadsHost, VnPowerPlantsHost, VnRenewablesHost, VnPowerGridHost, VnFuelStationsHost, VnOilGasHost, VnEnvisoftStationsHost, VnAngiangDemoHost } from "./hosts/vietnamHosts";
+import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnMajorRoadsHost, VnPowerPlantsHost, VnRenewablesHost, VnPowerGridHost, VnFuelStationsHost, VnOilGasHost, VnEnvisoftStationsHost, VnAngiangDemoHost,
+  VnTourAttractionsHost, VnTourNatureHost, VnTourServicesHost, VnNationalTouristAreasHost, VnPlaceNamesHost, VnBicycleRentalHost, VnBridgesHost, VnParkingHost, VnGlideEventsHost, VnDamsHost, VnRiversHost, VnWaterSupplyHost, VnWaterStructuresHost, VnRiverbankErosionHost, VnSchoolsHost, VnSchoolCampusesHost, VnKindergartensHost, VnHealthFacilitiesHost, VnPoliceHost, VnCourtsPrisonsHost, VnPostalServicesHost, VnPublicAmenitiesHost, VnFinancialServicesHost, VnPlacesOfWorshipHost, VnParksHost, VnProtectedAreasOdmHost, VnAngiangAquacultureHost, VnFieldBoundariesHost, VnSoilHost, VnFarmTracksHost, VnCoalMinesHost, VnTerrainHillshadeHost, VnTerrainReliefHost, VnLandslideSusceptibilityHost, VnWdpcaHost } from "./hosts/vietnamHosts";
 import { PhAdminHost, PhPopulationHost, PhTransportHubsHost, PhStationsHost, PhMajorRoadsHost, PhPowerPlantsHost, PhPowerGridHost, PhRenewablesHost, PhFuelStationsHost, PhPipelinesHost, PhBusStopsHost, PhUrbanRailHost, PhExpresswaysHost,
   PhTouristAttractionsHost, PhCoastIslandsHost, PhNatureSpotsHost, PhTourismServicesHost, PhTourismDevelopmentAreasHost, PhPlaceNamesHost, PhPovertyHost, PhEarthquakesHost, PhNoahFlood100yrHost, PhNoahLandslideHost, PhWaterPermitsHost, PhLakesHost, PhDamsHost, PhBridgesHost, PhParkingHost, PhKmPostsHost, PhEcozonesHost, PhReclamationHost, PhSchoolsHost, PhSchoolCampusesHost, PhHealthFacilitiesHost, PhFireStationsHost, PhNcrSafeOpenSpacesHost, PhPoliceStationsHost, PhJailsHost, PhTreesHost, PhTrailsHost, PhKbaHost, PhWetlandsHost, PhForestryProgramsHost, PhCoastalResourcesHost, PhMarineStationsHost, PhWdpcaHost, PhWasteFacilitiesHost, PhPollutionSourcesHost, PhArtsVenuesHost, PhPostOfficesHost, PhPublicFacilitiesHost, PhFinancialServicesHost, PhPlacesOfWorshipHost, PhSportsVenuesHost, PhParksHost, PhCemeteriesHost, PhFishPortsHost, PhAquacultureHost, PhTerrainHillshadeHost, PhTerrainReliefHost, PhBuiltSurfaceHost, PhForestLossHost } from "./hosts/philippinesHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
@@ -486,6 +487,42 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useVnOilGasLayer", keys: ["vnOilGas"], Host: VnOilGasHost },
   { id: "useVnEnvisoftStationsLayer", keys: ["vnEnvisoftStations"], Host: VnEnvisoftStationsHost },
   { id: "useVnAngiangDemoLayer", keys: ["vnAngiangDemo"], Host: VnAngiangDemoHost },
+  // 越南觀光波與第 2–7 波＋raster 4 層（2026-11-17）
+  { id: "useVnTourAttractionsLayer", keys: ["vnTourAttractions"], Host: VnTourAttractionsHost },
+  { id: "useVnTourNatureLayer", keys: ["vnTourNature"], Host: VnTourNatureHost },
+  { id: "useVnTourServicesLayer", keys: ["vnTourServices"], Host: VnTourServicesHost },
+  { id: "useVnNationalTouristAreasLayer", keys: ["vnNationalTouristAreas"], Host: VnNationalTouristAreasHost },
+  { id: "useVnPlaceNamesLayer", keys: ["vnPlaceNames"], Host: VnPlaceNamesHost },
+  { id: "useVnBicycleRentalLayer", keys: ["vnBicycleRental"], Host: VnBicycleRentalHost },
+  { id: "useVnBridgesLayer", keys: ["vnBridges"], Host: VnBridgesHost },
+  { id: "useVnParkingLayer", keys: ["vnParking"], Host: VnParkingHost },
+  { id: "useVnGlideEventsLayer", keys: ["vnGlideEvents"], Host: VnGlideEventsHost },
+  { id: "useVnDamsLayer", keys: ["vnDams"], Host: VnDamsHost },
+  { id: "useVnRiversLayer", keys: ["vnRivers"], Host: VnRiversHost },
+  { id: "useVnWaterSupplyLayer", keys: ["vnWaterSupply"], Host: VnWaterSupplyHost },
+  { id: "useVnWaterStructuresLayer", keys: ["vnWaterStructures"], Host: VnWaterStructuresHost },
+  { id: "useVnRiverbankErosionLayer", keys: ["vnRiverbankErosion"], Host: VnRiverbankErosionHost },
+  { id: "useVnSchoolsLayer", keys: ["vnSchools"], Host: VnSchoolsHost },
+  { id: "useVnSchoolCampusesLayer", keys: ["vnSchoolCampuses"], Host: VnSchoolCampusesHost },
+  { id: "useVnKindergartensLayer", keys: ["vnKindergartens"], Host: VnKindergartensHost },
+  { id: "useVnHealthFacilitiesLayer", keys: ["vnHealthFacilities"], Host: VnHealthFacilitiesHost },
+  { id: "useVnPoliceLayer", keys: ["vnPolice"], Host: VnPoliceHost },
+  { id: "useVnCourtsPrisonsLayer", keys: ["vnCourtsPrisons"], Host: VnCourtsPrisonsHost },
+  { id: "useVnPostalServicesLayer", keys: ["vnPostalServices"], Host: VnPostalServicesHost },
+  { id: "useVnPublicAmenitiesLayer", keys: ["vnPublicAmenities"], Host: VnPublicAmenitiesHost },
+  { id: "useVnFinancialServicesLayer", keys: ["vnFinancialServices"], Host: VnFinancialServicesHost },
+  { id: "useVnPlacesOfWorshipLayer", keys: ["vnPlacesOfWorship"], Host: VnPlacesOfWorshipHost },
+  { id: "useVnParksLayer", keys: ["vnParks"], Host: VnParksHost },
+  { id: "useVnProtectedAreasOdmLayer", keys: ["vnProtectedAreasOdm"], Host: VnProtectedAreasOdmHost },
+  { id: "useVnAngiangAquacultureLayer", keys: ["vnAngiangAquaculture"], Host: VnAngiangAquacultureHost },
+  { id: "useVnFieldBoundariesLayer", keys: ["vnFieldBoundaries"], Host: VnFieldBoundariesHost },
+  { id: "useVnSoilLayer", keys: ["vnSoil"], Host: VnSoilHost },
+  { id: "useVnFarmTracksLayer", keys: ["vnFarmTracks"], Host: VnFarmTracksHost },
+  { id: "useVnCoalMinesLayer", keys: ["vnCoalMines"], Host: VnCoalMinesHost },
+  { id: "useVnTerrainHillshadeLayer", keys: ["vnTerrainHillshade"], Host: VnTerrainHillshadeHost },
+  { id: "useVnTerrainReliefLayer", keys: ["vnTerrainRelief"], Host: VnTerrainReliefHost },
+  { id: "useVnLandslideSusceptibilityLayer", keys: ["vnLandslideSusceptibility"], Host: VnLandslideSusceptibilityHost },
+  { id: "useVnWdpcaLayer", keys: ["vnWdpca"], Host: VnWdpcaHost },
   // 菲律賓第 2 波補充（2026-11-14：公車站、LRT／MRT、高速公路）
   { id: "usePhBusStopsLayer", keys: ["phBusStops"], Host: PhBusStopsHost },
   { id: "usePhUrbanRailLayer", keys: ["phUrbanRail"], Host: PhUrbanRailHost },

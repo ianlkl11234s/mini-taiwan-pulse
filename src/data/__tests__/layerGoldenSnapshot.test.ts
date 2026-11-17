@@ -298,7 +298,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-14: +4 英國第 13 波 OSM（橋梁與隧道 gbBridgesTunnels、道路設施 gbRoadFacilities、公共設施 gbPublicFacilities、宗教場所 gbPlacesOfWorship）。
     // 2026-11-16: +2 即時 119 案件 fire119Live、警廣即時路況 pbsRoadEventsLive（站主限定，mig 555）。
     // 2026-11-16: +49 菲律賓觀光波（5）與第 2–9 波（44：含 raster 4 層）。
-    expect(keys.length).toBe(1908);
+    // 2026-11-17: +35 越南觀光波與第 2–7 波（31 層規格驅動＋山體陰影、色別標高、崩塌潛勢、WDPCA 站主限定 4 層 raster）。
+    expect(keys.length).toBe(1943);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
