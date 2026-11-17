@@ -13,6 +13,9 @@ import {
 } from "../../hooks/useCaEnvLayers";
 import { useCaLiveEarthquakesLayer } from "../../hooks/useCaLiveEarthquakesLayer";
 import { gbDisplayModeFromIdx } from "../../hooks/useGbWaterLayers";
+import { usePhDataLayer } from "../../hooks/usePhLayers";
+import { CA_WAVE_SPEC_BY_KEY, caWaveDefaultCatMask } from "../../data/caWavesLayers";
+import type { CaWaveKey } from "../../data/caWavesKeys";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -206,3 +209,54 @@ export const CaPopulationGridHost: LayerHostComponent = ({ deps }) => {
   useCaPopulationGridLayer(deps.mapRef, deps.layerVisibility.caPopulationGrid, p.caPopulationGridOpacity ?? 0.6, deps.isDarkTheme);
   return null;
 };
+
+// ── 第 3–8 波（2026-11-17）：規格驅動 36 層，規格在 data/caWavesLayers.ts；畫法重用菲律賓 usePhDataLayer
+function makeCaWaveHost(key: CaWaveKey): LayerHostComponent {
+  const spec = CA_WAVE_SPEC_BY_KEY[key];
+  const defMask = caWaveDefaultCatMask(spec);
+  const CaWaveHost: LayerHostComponent = ({ deps }) => {
+    bumpHostRender(`useCa${key.slice(2)}Layer`);
+    const p = useKeyOverlayParams(key);
+    const mask = p[`${key}CategoryMask`];
+    usePhDataLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? spec.opacity ?? 0.85, p[`${key}Scale`] ?? 1, deps.isDarkTheme,
+      mask === undefined || !Number.isFinite(mask) ? defMask : mask);
+    return null;
+  };
+  return CaWaveHost;
+}
+export const CaMaritimeZonesHost = makeCaWaveHost("caMaritimeZones");
+export const CaPermafrostHost = makeCaWaveHost("caPermafrost");
+export const CaDamsHost = makeCaWaveHost("caDams");
+export const CaRecyclingDepotsHost = makeCaWaveHost("caRecyclingDepots");
+export const CaFloodMapInventoryHost = makeCaWaveHost("caFloodMapInventory");
+export const CaAbFloodHazardHost = makeCaWaveHost("caAbFloodHazard");
+export const CaGlaciersHost = makeCaWaveHost("caGlaciers");
+export const CaRiversLakesHost = makeCaWaveHost("caRiversLakes");
+export const CaProtectedAreasHost = makeCaWaveHost("caProtectedAreas");
+export const CaCriticalHabitatHost = makeCaWaveHost("caCriticalHabitat");
+export const CaMarineConservationHost = makeCaWaveHost("caMarineConservation");
+export const CaTideStationsHost = makeCaWaveHost("caTideStations");
+export const CaEcozonesHost = makeCaWaveHost("caEcozones");
+export const CaForestManagementHost = makeCaWaveHost("caForestManagement");
+export const CaBridgesTunnelsHost = makeCaWaveHost("caBridgesTunnels");
+export const CaFerryRoutesHost = makeCaWaveHost("caFerryRoutes");
+export const CaTorontoKsiHost = makeCaWaveHost("caTorontoKsi");
+export const CaLodeHealthHost = makeCaWaveHost("caLodeHealth");
+export const CaLodeSchoolsHost = makeCaWaveHost("caLodeSchools");
+export const CaLodeSportsHost = makeCaWaveHost("caLodeSports");
+export const CaBcChildcareHost = makeCaWaveHost("caBcChildcare");
+export const CaLodeCultureHost = makeCaWaveHost("caLodeCulture");
+export const CaCbsaOfficesHost = makeCaWaveHost("caCbsaOffices");
+export const CaParksCanadaAccommodationHost = makeCaWaveHost("caParksCanadaAccommodation");
+export const CaCourtsCorrectionsHost = makeCaWaveHost("caCourtsCorrections");
+export const CaTorontoTheftFromVehicleHost = makeCaWaveHost("caTorontoTheftFromVehicle");
+export const CaWildfirePointsHost = makeCaWaveHost("caWildfirePoints");
+export const CaBroadbandHexHost = makeCaWaveHost("caBroadbandHex");
+export const CaMinesHost = makeCaWaveHost("caMines");
+export const CaGrainElevatorsHost = makeCaWaveHost("caGrainElevators");
+export const CaDroughtMonitorHost = makeCaWaveHost("caDroughtMonitor");
+export const CaSoilLandscapesHost = makeCaWaveHost("caSoilLandscapes");
+export const CaNsAquacultureHost = makeCaWaveHost("caNsAquaculture");
+export const CaAbattoirsHost = makeCaWaveHost("caAbattoirs");
+export const CaOdbusHost = makeCaWaveHost("caOdbus");
+export const CaTorontoDevApplicationsHost = makeCaWaveHost("caTorontoDevApplications");

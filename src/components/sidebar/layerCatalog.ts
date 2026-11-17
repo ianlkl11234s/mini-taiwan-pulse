@@ -334,6 +334,20 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 第 3 波：環境氣候、災害
     "環境氣候",
     "災害",
+    // 第 3–8 波（2026-11-17，analytics #402）
+    "水資源",
+    "自然保育",
+    "林業",
+    "海洋",
+    "教育",
+    "醫療",
+    "運動休閒",
+    "文化",
+    "觀光",
+    "執法治安",
+    "基礎建設",
+    "工商登記",
+    "農業",
     // 加拿大統計（完整目錄；統計分頁另有「人口／社經」，見 CA_STATISTICS_TAB_THEMES）
     ...CA_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2903,6 +2917,10 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "地形", layers: [fromManifest("caHillshade")] },
       // 第 2 波：比照台灣 placeNames 的「底圖 › 地名 Gazetteer」
       { title: "地名 Gazetteer", layers: [fromManifest("caPlaceNames")] },
+      // 第 2 波 C002（2026-11-17 補上）：比照台灣、愛爾蘭「底圖 › 海域界線」
+      { title: "海域界線", layers: [fromManifest("caMaritimeZones")] },
+      // 第 8 波 X012：比照愛爾蘭 iePlanningApplications 的「底圖 › 土地使用分區 Zoning」
+      { title: "土地使用分區 Zoning", layers: [fromManifest("caTorontoDevApplications")] },
     ],
   },
   {
@@ -2913,6 +2931,10 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "場站", layers: [fromManifest("caTransitStops")] },
       { title: "路網", layers: [fromManifest("caMajorRoads"), fromManifest("caRailways")] },
       { title: "樞紐節點", layers: [fromManifest("caAirportsPorts")] },
+      // 第 4 波：比照越南、菲律賓「交通 › 路網結構」；渡輪、交通事故比照台灣
+      { title: "路網結構", layers: [fromManifest("caBridgesTunnels")] },
+      { title: "渡輪", layers: [fromManifest("caFerryRoutes")] },
+      { title: "交通事故", layers: [fromManifest("caTorontoKsi")] },
     ],
   },
   {
@@ -2924,6 +2946,8 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "電力 · 電網", layers: [fromManifest("caPowerGrid")] },
       { title: "再生能源", layers: [fromManifest("caWindTurbines")] },
       { title: "石化 · 油氣", layers: [fromManifest("caOilGas")] },
+      // 第 7 波 X005：比照越南「能源 › 礦業」
+      { title: "礦業", layers: [fromManifest("caMines")] },
     ],
   },
   {
@@ -2956,6 +2980,8 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "空品", layers: [fromManifest("caAqhiStations")] },
       { title: "環境污染", layers: [fromManifest("caNpriFacilities"), fromManifest("caRadiationStations")] },
       { title: "水質與污水 Water Quality", layers: [fromManifest("caWastewaterSystems")] },
+      // 第 3 波 C093
+      { title: "廢棄物", layers: [fromManifest("caRecyclingDepots")] },
     ],
   },
   {
@@ -2963,7 +2989,112 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "災害",
     country: "CA",
     defaultCollapsed: true,
-    groups: [{ title: "地震 / 斷層", layers: [fromManifest("caEarthquakesLive"), fromManifest("caEarthquakes")] }],
+    groups: [
+      { title: "地震 / 斷層", layers: [fromManifest("caEarthquakesLive"), fromManifest("caEarthquakes")] },
+      // 第 3、6 波（2026-11-17）
+      { title: "淹水", layers: [fromManifest("caFloodMapInventory"), fromManifest("caAbFloodHazard")] },
+      { title: "野火", layers: [fromManifest("caWildfirePoints")] },
+      { title: "永凍土與冰川", layers: [fromManifest("caPermafrost"), fromManifest("caGlaciers")] },
+    ],
+  },
+  // ── 加拿大第 3–8 波（2026-11-17，analytics #402）：主題與群組比照越南、菲律賓與台灣同主題
+  {
+    title: "水資源",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "水利設施", layers: [fromManifest("caDams")] },
+      { title: "面／線", layers: [fromManifest("caRiversLakes")] },
+    ],
+  },
+  {
+    title: "自然保育",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "保護區", layers: [fromManifest("caProtectedAreas"), fromManifest("caMarineConservation")] },
+      { title: "關鍵棲地", layers: [fromManifest("caCriticalHabitat")] },
+      { title: "生態分區", layers: [fromManifest("caEcozones")] },
+    ],
+  },
+  {
+    title: "林業",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "分區", layers: [fromManifest("caForestManagement")] }],
+  },
+  {
+    title: "海洋",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "潮位站", layers: [fromManifest("caTideStations")] }],
+  },
+  {
+    title: "教育",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校 Schools", layers: [fromManifest("caLodeSchools")] },
+      { title: "托育", layers: [fromManifest("caBcChildcare")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("caLodeHealth")] }],
+  },
+  {
+    title: "運動休閒",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "運動場館", layers: [fromManifest("caLodeSports")] }],
+  },
+  {
+    title: "文化",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "設施", layers: [fromManifest("caLodeCulture")] }],
+  },
+  {
+    title: "觀光",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "住・食", layers: [fromManifest("caParksCanadaAccommodation")] }],
+  },
+  {
+    title: "執法治安",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "司法矯正", layers: [fromManifest("caCourtsCorrections")] },
+      { title: "竊盜", layers: [fromManifest("caTorontoTheftFromVehicle")] },
+      { title: "邊境", layers: [fromManifest("caCbsaOffices")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "通訊", layers: [fromManifest("caBroadbandHex")] }],
+  },
+  {
+    title: "工商登記",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "營業登記", layers: [fromManifest("caOdbus")] }],
+  },
+  {
+    title: "農業",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "倉儲", layers: [fromManifest("caGrainElevators")] },
+      { title: "乾旱", layers: [fromManifest("caDroughtMonitor")] },
+      { title: "土壤", layers: [fromManifest("caSoilLandscapes")] },
+      { title: "養殖漁業", layers: [fromManifest("caNsAquaculture")] },
+      { title: "畜牧 Livestock", layers: [fromManifest("caAbattoirs")] },
+    ],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -4156,6 +4287,20 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "原民與農村": "city",
     "環境氣候": "environment",
     "災害": "safety",
+    // 第 3–8 波（2026-11-17）：大分類同台灣、越南對應主題
+    "水資源": "environment",
+    "自然保育": "environment",
+    "林業": "environment",
+    "海洋": "environment",
+    "農業": "environment",
+    "教育": "publicLife",
+    "運動休閒": "publicLife",
+    "文化": "publicLife",
+    "觀光": "publicLife",
+    "基礎建設": "publicLife",
+    "醫療": "safety",
+    "執法治安": "safety",
+    "工商登記": "city",
     // 加拿大統計（完整目錄）：同英國、南韓歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -4436,6 +4581,20 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "原民與農村": { zh: "原民與農村", sub: "Indigenous & Rural" },
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "災害": { zh: "災害", sub: "Hazard" },
+    // 第 3–8 波（2026-11-17）
+    "水資源": { zh: "水資源", sub: "Water" },
+    "自然保育": { zh: "自然保育", sub: "Conservation" },
+    "林業": { zh: "林業", sub: "Forestry" },
+    "海洋": { zh: "海洋", sub: "Marine" },
+    "農業": { zh: "農業", sub: "Agriculture" },
+    "教育": { zh: "教育", sub: "Education" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
     // 加拿大統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
