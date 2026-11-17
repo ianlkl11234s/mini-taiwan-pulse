@@ -1841,7 +1841,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("incineratorEmissions"),
           fromManifest("cemsStackLive"),
           fromManifest("nuscGammaRadiation"),
-          fromManifest("gibsNightLights"),
         ],
       },
       {
@@ -2369,6 +2368,12 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "廢棄物觀測 Waste Observations",
         layers: [
           fromManifest("worldTrashDebris"),
+        ],
+      },
+      {
+        title: "夜間燈光 Night Lights",
+        layers: [
+          fromManifest("gibsNightLights"),
         ],
       },
       {

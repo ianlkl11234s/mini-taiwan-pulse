@@ -13717,7 +13717,7 @@ export const LAYER_MANIFEST = {
   },
   gibsNightLights: {
     key: "gibsNightLights",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "WORLD", section: { theme: "全球環境 Global Environment", group: "夜間燈光 Night Lights" },
     ...layerName({ zh: "衛星夜光", alt: "Night Lights", qualifier: "NASA GIBS" }),
     expandable: true,
     color: GIBS_NIGHT_LIGHTS_LAYER_COLOR,
@@ -13737,7 +13737,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "select"] },
     description: "NASA 衛星夜間燈光（VIIRS；2012／2016 年合成影像，只能看不能量化；不是逐時開燈）",
-    topics: ["環境", "光害", "夜光", "衛星"],
+    topics: ["世界", "環境", "光害", "夜光", "衛星"],
   },
   waterEffluentLive: {
     key: "waterEffluentLive",
