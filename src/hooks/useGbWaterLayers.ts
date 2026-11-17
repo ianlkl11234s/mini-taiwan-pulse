@@ -140,7 +140,13 @@ export function useGbPmtilesLayers(
             }) as any);
       }
       for (const l of layers) {
-        if (!map.getLayer(l.id)) map.addLayer(l.layer(), l.before?.(map));
+        if (!map.getLayer(l.id)) {
+          const spec = l.layer();
+          // Mapbox GL v3 不替自訂 source type 建 symbol 用的 source cache：symbol layer 掛在 PMTiles 上，
+          // 標籤放置會拋錯讓整張地圖停止繪製（越南省名 2026-11-14）。改用 GeoJSON source 畫標籤。
+          if (spec.type === "symbol") { console.error(`[pmtiles] ${l.id}: symbol layer 不可掛在 PMTiles source（${source.id}）`); continue; }
+          map.addLayer(spec, l.before?.(map));
+        }
         map.setLayoutProperty(l.id, "visibility", "visible");
         l.update(map);
       }

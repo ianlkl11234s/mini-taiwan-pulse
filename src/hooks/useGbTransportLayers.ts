@@ -281,10 +281,11 @@ export function useGbLondonChargingZonesLayer(mapRef: MapRef, visible: boolean, 
   ], [opacity, isDark]);
 }
 
-// ─────────────────────────── 第 10 波：主要路網（gb_major_roads.pmtiles） ───────────────────────────
+// ─────────────────────────── 第 10 波：主要路網（gb_major_roads_v2.pmtiles） ───────────────────────────
 
 const ROADS_SOURCE: SourceSpec = {
-  id: "gb-major-roads", file: "gb_major_roads.pmtiles", minzoom: 4, maxzoom: 12, attribution: GB_ROADS_MAP_ATTRIBUTION, loading: "英國主要路網載入中",
+  // 2026-11-13 換新版（補大不列顛 B 級 OSM，134,824 段）：`_v2`；舊檔已在 S3、上傳腳本拒絕同 key 換內容，不覆寫
+  id: "gb-major-roads", file: "gb_major_roads_v2.pmtiles", minzoom: 4, maxzoom: 12, attribution: GB_ROADS_MAP_ATTRIBUTION, loading: "英國主要路網載入中",
 };
 
 function roadClassMatch(pick: (c: (typeof GB_ROAD_CLASSES)[number]) => unknown, fallback: unknown): Expr {
@@ -293,11 +294,11 @@ function roadClassMatch(pick: (c: (typeof GB_ROAD_CLASSES)[number]) => unknown, 
   expr.push(fallback);
   return expr;
 }
-/** L-5：寬度依等級對應 L-1 三階（高速公路強調、A 級標準、B 級細），z10／z14 兩點插值。 */
+/** L-5：寬度依等級對應 L-1 三階（高速公路強調、A 級標準）；B 級用站主指定 widthPx。z10／z14 兩點插值。 */
 export function gbMajorRoadsWidthExpr(): Expr {
   return ["interpolate", ["linear"], ["zoom"],
-    10, roadClassMatch((c) => LINE_WIDTH[c.width][0], LINE_WIDTH.thin[0]),
-    14, roadClassMatch((c) => LINE_WIDTH[c.width][1], LINE_WIDTH.thin[1])];
+    10, roadClassMatch((c) => c.widthPx?.[0] ?? LINE_WIDTH[c.width][0], LINE_WIDTH.thin[0]),
+    14, roadClassMatch((c) => c.widthPx?.[1] ?? LINE_WIDTH[c.width][1], LINE_WIDTH.thin[1])];
 }
 /** 高速公路畫在 A 級上、A 級畫在 B 級上。 */
 const ROAD_SORT: Expr = ["match", ["get", "road_class"], "motorway", 2, "a_road", 1, 0];

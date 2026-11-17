@@ -75,10 +75,8 @@ public/geo/convenience_stores.geojson
 public/geo/cycling_routes.geojson
 public/geo/fire_hydrants_national_v2.pmtiles
 public/geo/fire_stations.geojson
-public/geo/medical_aed.pmtiles
 public/geo/medical_clinics.pmtiles
 public/geo/medical_hospitals.geojson
-public/geo/medical_ltc.pmtiles
 public/geo/medical_pharmacies.pmtiles
 public/geo/national_highway.pmtiles
 public/geo/pollution_facilities.pmtiles
@@ -120,7 +118,6 @@ public/network_structures/taipei_road_tunnels_20260924.pmtiles
 public/police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson
 public/police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson
 public/police_justice/civil_defense_shelters/civil_defense_shelters_v2.pmtiles
-public/police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson
 public/police_justice/correctional_facilities/correctional_facilities_20260626.geojson
 public/police_justice/court_jurisdictions/court_jurisdictions.pmtiles
 public/police_justice/courts/courts_20260626.geojson
@@ -153,9 +150,7 @@ public/rail/trtc/station_progress.json
 public/road/road_congestion_highway.pmtiles
 public/sports/all_venues.geojson
 public/static-rpc/polling_stations_2024.json
-public/tourism/attractions_national.geojson
 public/tourism/hotels_national.geojson
-public/tourism/restaurants_national.geojson
 public/urban/buildings_value_taiwan.pmtiles
 public/urban/non_urban_zoning.pmtiles
 public/urban/parks_taipei.geojson

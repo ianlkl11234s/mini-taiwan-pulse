@@ -291,8 +291,16 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-10: +8 南韓第 8 波（圖書館、博物館美術館、公演、文化祭、國家遺產、住宿、安心宅配櫃、敬老堂）。
     // 2026-11-10: +6 愛爾蘭第 11 波（AED、監獄、pNHA、郡議會淹水分區、GSI 地下水淹水、泥炭開採沼地）。
     // 2026-11-13: +10 菲律賓第 0–1 波（行政區界、人口密度、機場港口、車站碼頭、主要道路鐵道、電廠、電網、家用太陽能補助與微電網、加油站、管線與儲槽）。
+    // 2026-11-13: +12 越南第 0–1 波（行政區界、人口密度、車站、機場港口、主要道路鐵道、電廠、風光與充電站、電網、加油站、油氣、環境監測站、安江示範）。
+    // 2026-11-14: +3 菲律賓第 2 波補充（公車站、LRT／MRT 軌道與車站、高速公路與收費道路）。
+    // 2026-11-14: +10 南韓第 10 波（動物醫院、地方文化院、傳統寺剎、保護樹、漁場、自行車停放處、民防給水、安全緊急鈴、體驗休養村、屠宰場）。
+    // 2026-11-16: +1 南韓首爾用途地域（站主限定，#1050）。
+    // 2026-11-14: +4 英國第 13 波 OSM（橋梁與隧道 gbBridgesTunnels、道路設施 gbRoadFacilities、公共設施 gbPublicFacilities、宗教場所 gbPlacesOfWorship）。
+    // 2026-11-16: +2 即時 119 案件 fire119Live、警廣即時路況 pbsRoadEventsLive（站主限定，mig 555）。
+    // 2026-11-16: +49 菲律賓觀光波（5）與第 2–9 波（44：含 raster 4 層）。
+    // 2026-11-17: +35 越南觀光波與第 2–7 波（31 層規格驅動＋山體陰影、色別標高、崩塌潛勢、WDPCA 站主限定 4 層 raster）。
     // 2026-11-13: +9 中國第 0–1 波（站主限定：行政區界、人口密度、人口網格、公交站、機場港口、主要道路鐵路、電廠、電網、油氣管線）。
-    expect(keys.length).toBe(1836);
+    expect(keys.length).toBe(1952);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

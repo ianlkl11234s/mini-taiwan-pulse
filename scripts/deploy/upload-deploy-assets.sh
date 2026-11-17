@@ -587,6 +587,16 @@ for f in \
   public/world/kr_bridges.pmtiles \
   public/world/kr_speed_cameras.pmtiles \
   public/world/kr_street_trees.pmtiles \
+  public/world/kr_animal_hospitals.pmtiles \
+  public/world/kr_local_culture_centers.pmtiles \
+  public/world/kr_traditional_temples.pmtiles \
+  public/world/kr_protected_trees.pmtiles \
+  public/world/kr_fishing_grounds.pmtiles \
+  public/world/kr_bicycle_parking.pmtiles \
+  public/world/kr_civil_defense_water.pmtiles \
+  public/world/kr_emergency_bells.pmtiles \
+  public/world/kr_rural_experience_villages.pmtiles \
+  public/world/kr_slaughterhouses.pmtiles \
   public/world/gb_rivers.pmtiles \
   public/world/gb_flood_defences.pmtiles \
   public/world/gb_protected_areas.pmtiles \
@@ -613,7 +623,7 @@ for f in \
   public/world/ca_population_grid.pmtiles \
   public/world/ie_admin_boundaries.pmtiles \
   public/world/ie_bathymetry.pmtiles \
-  public/world/ie_commercial_valuations.pmtiles \
+  public/world/ie_commercial_valuations_v2.pmtiles \
   public/world/ie_state_assets.pmtiles \
   public/world/ie_river_flood_extents_c_0020.pmtiles \
   public/world/ie_river_flood_extents_c_0100.pmtiles \
@@ -630,16 +640,126 @@ for f in \
   public/world/ie_planning_applications.pmtiles \
   public/world/ie_noise_maps_lden.pmtiles \
   public/world/ie_noise_maps_lnight.pmtiles \
+  public/world/gb_major_roads_v2.pmtiles \
+  public/world/gb_bridges_tunnels.pmtiles \
+  public/world/gb_road_facilities.pmtiles \
+  public/world/gb_public_facilities.pmtiles \
+  public/world/gb_places_of_worship.pmtiles \
   public/world/ph_admin_boundaries.pmtiles \
   public/world/ph_population.pmtiles \
-  public/world/ph_transport_hubs.pmtiles \
-  public/world/ph_stations.pmtiles \
+  public/world/ph_transport_hubs_v2.pmtiles \
+  public/world/ph_stations_v2.pmtiles \
   public/world/ph_major_roads.pmtiles \
   public/world/ph_power_plants.pmtiles \
   public/world/ph_power_grid.pmtiles \
   public/world/ph_renewables.pmtiles \
   public/world/ph_fuel_stations.pmtiles \
   public/world/ph_pipelines.pmtiles \
+  public/world/vn_admin_boundaries.pmtiles \
+  public/world/vn_population.pmtiles \
+  public/world/vn_stations_v2.pmtiles \
+  public/world/vn_transport_hubs_odm.pmtiles \
+  public/world/vn_transport_hubs_osm.pmtiles \
+  public/world/vn_major_roads_v2.pmtiles \
+  public/world/vn_power_plants.pmtiles \
+  public/world/vn_renewables_gem_v2.pmtiles \
+  public/world/vn_renewables_osm.pmtiles \
+  public/world/vn_power_grid.pmtiles \
+  public/world/vn_fuel_stations_v2.pmtiles \
+  public/world/vn_oil_gas_gem_v2.pmtiles \
+  public/world/vn_oil_gas_osm.pmtiles \
+  public/world/vn_envisoft_stations_v3.pmtiles \
+  public/world/vn_angiang_demo_v2.pmtiles \
+  public/world/vn_angiang_aquaculture_v3.pmtiles \
+  public/world/vn_landslide_susceptibility.pmtiles \
+  public/world/vn_bicycle_rental.pmtiles \
+  public/world/vn_bridges.pmtiles \
+  public/world/vn_coal_mines.pmtiles \
+  public/world/vn_courts_prisons.pmtiles \
+  public/world/vn_dams.pmtiles \
+  public/world/vn_farm_tracks.pmtiles \
+  public/world/vn_field_boundaries.pmtiles \
+  public/world/vn_financial_services.pmtiles \
+  public/world/vn_glide_events.pmtiles \
+  public/world/vn_health_facilities.pmtiles \
+  public/world/vn_kindergartens.pmtiles \
+  public/world/vn_national_tourist_areas.pmtiles \
+  public/world/vn_nature_spots.pmtiles \
+  public/world/vn_parking.pmtiles \
+  public/world/vn_parks.pmtiles \
+  public/world/vn_place_names.pmtiles \
+  public/world/vn_places_of_worship.pmtiles \
+  public/world/vn_police.pmtiles \
+  public/world/vn_postal_services.pmtiles \
+  public/world/vn_protected_areas_odm.pmtiles \
+  public/world/vn_public_amenities.pmtiles \
+  public/world/vn_riverbank_erosion.pmtiles \
+  public/world/vn_rivers.pmtiles \
+  public/world/vn_school_campuses.pmtiles \
+  public/world/vn_schools.pmtiles \
+  public/world/vn_soil.pmtiles \
+  public/world/vn_terrain_hillshade.pmtiles \
+  public/world/vn_terrain_relief.pmtiles \
+  public/world/vn_tourism_services.pmtiles \
+  public/world/vn_tourist_attractions.pmtiles \
+  public/world/vn_water_structures.pmtiles \
+  public/world/vn_water_supply.pmtiles \
+  public/world/ph_bus_stops.pmtiles \
+  public/world/ph_urban_rail.pmtiles \
+  public/world/ph_expressways.pmtiles \
+  public/world/ph_aquaculture.pmtiles \
+  public/world/ph_arts_venues.pmtiles \
+  public/world/ph_bridges.pmtiles \
+  public/world/ph_built_surface.pmtiles \
+  public/world/ph_cemeteries.pmtiles \
+  public/world/ph_coast_islands.pmtiles \
+  public/world/ph_coastal_resources.pmtiles \
+  public/world/ph_dams.pmtiles \
+  public/world/ph_earthquakes.pmtiles \
+  public/world/ph_ecozones.pmtiles \
+  public/world/ph_financial_services.pmtiles \
+  public/world/ph_fire_stations.pmtiles \
+  public/world/ph_fish_ports.pmtiles \
+  public/world/ph_forest_loss.pmtiles \
+  public/world/ph_forestry_programs.pmtiles \
+  public/world/ph_health_facilities.pmtiles \
+  public/world/ph_jails.pmtiles \
+  public/world/ph_kba.pmtiles \
+  public/world/ph_km_posts.pmtiles \
+  public/world/ph_lakes.pmtiles \
+  public/world/ph_marine_stations.pmtiles \
+  public/world/ph_nature_spots.pmtiles \
+  public/world/ph_ncr_safe_open_spaces.pmtiles \
+  public/world/ph_noah_flood_100yr_central.pmtiles \
+  public/world/ph_noah_flood_100yr_north.pmtiles \
+  public/world/ph_noah_flood_100yr_south.pmtiles \
+  public/world/ph_noah_landslide_central.pmtiles \
+  public/world/ph_noah_landslide_north.pmtiles \
+  public/world/ph_noah_landslide_south.pmtiles \
+  public/world/ph_parking.pmtiles \
+  public/world/ph_parks.pmtiles \
+  public/world/ph_place_names.pmtiles \
+  public/world/ph_places_of_worship.pmtiles \
+  public/world/ph_police_stations.pmtiles \
+  public/world/ph_pollution_sources.pmtiles \
+  public/world/ph_post_offices.pmtiles \
+  public/world/ph_poverty.pmtiles \
+  public/world/ph_public_facilities.pmtiles \
+  public/world/ph_reclamation.pmtiles \
+  public/world/ph_school_campuses.pmtiles \
+  public/world/ph_schools.pmtiles \
+  public/world/ph_sports_venues.pmtiles \
+  public/world/ph_terrain_hillshade.pmtiles \
+  public/world/ph_terrain_relief.pmtiles \
+  public/world/ph_tourism_development_areas.pmtiles \
+  public/world/ph_tourism_services.pmtiles \
+  public/world/ph_tourist_attractions.pmtiles \
+  public/world/ph_trails.pmtiles \
+  public/world/ph_trees.pmtiles \
+  public/world/ph_waste_facilities.pmtiles \
+  public/world/ph_water_permits.pmtiles \
+  public/world/ph_wdpca.pmtiles \
+  public/world/ph_wetlands.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \
@@ -745,9 +865,9 @@ done
 # 觀光圖層：上傳到 deploy-assets/tourism/ 子前綴（鏡像結構，pull 端整夾 sync）
 # 只上傳 D 類 3 大檔（景點 4.4MB + 旅宿 6.7MB + 餐飲 2.1MB）；其餘 9 檔 C 類進 git/dist，不上傳。
 TOURISM_FILES=(
-  "public/tourism/attractions_national.geojson"
+  "public/tourism/attractions_national_v2.geojson"
   "public/tourism/hotels_national.geojson"
-  "public/tourism/restaurants_national.geojson"
+  "public/tourism/restaurants_national_v2.geojson"
 )
 for f in "${TOURISM_FILES[@]}"; do
   name=$(basename "$f")

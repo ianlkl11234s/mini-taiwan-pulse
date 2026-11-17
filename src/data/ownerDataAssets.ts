@@ -18,6 +18,8 @@ export const OWNER_DATA_ASSETS = {
   "fac-secondary": { filename: "fac_secondary.json", size: 105925, sha256: "79a50993954402eecb9a55f2ffad7d45610fd5f2c90eb1efeb2f1693b1d4cc72" },
   "fac-osm-supplement": { filename: "fac_osm_supplement.json", size: 161885, sha256: "3e1c7c08bb21c32a4fa000e6063c13916f56d970001eaee8bb422b9fff0ddd72" },
   "osm-power-plants-static": { filename: "osm_power_plants_static.json", size: 103409, sha256: "887809b2a043903efebd870dc78f3b39eda64ec005d34596f2541bda3828f719" },
+  "kr-seoul-zoning": { filename: "kr_seoul_zoning.pmtiles", size: 7364833, sha256: "3fd6df7db523d0b3ef7e8d078e2ed18b45ea9fbb73ef02782f263a57db6efe62" },
+  "vn-wdpca-raster": { filename: "vn_wdpca_raster.pmtiles", size: 2457302, sha256: "6b68fc2f64387b2f1d3ea1658c2c553e9e2b17d5f0ea3e98457e7487d074b771" },
   "cn-admin-boundaries": { filename: "cn_admin_boundaries.pmtiles", size: 8035001, sha256: "930b5dcefcb1e8b7bd3b0ab5383bd867138a9c45b4bf5ce2be329ae84907bd6b" },
   "cn-population": { filename: "cn_population.pmtiles", size: 5164691, sha256: "2dcd85c60b99556064cf18d52caea9561b96383f08dbba6ae2abb71446b0a158" },
   "cn-population-grid": { filename: "cn_population_grid.pmtiles", size: 9298095, sha256: "2bb4a2dff102ff099290fc1a4ad48e64cef1681ca7f5ad1ad1067f6d042fd678" },

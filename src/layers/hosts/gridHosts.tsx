@@ -53,15 +53,33 @@ export function bindGridStyleRehydration(map: MapboxMap, rehydrate: (map: Mapbox
   return () => map.off("style.load", onStyleLoad);
 }
 
+/**
+ * 地圖就緒時補跑一次（只跑一次，`state.done` 記錄）。資料比地圖 load 先到時，Host 自己的 effect
+ * 看到 null map 而略過；mapRef 設值不會 re-render → 參數都沒變時（z<9.5 解析度維持 7）圖層一直空白。
+ */
+export function catchUpGridHostOnReady(
+  map: MapboxMap,
+  mapReady: boolean,
+  state: { done: boolean },
+  rehydrate: (map: MapboxMap) => void,
+): void {
+  if (!mapReady || state.done) return;
+  state.done = true;
+  if (styleReady(map)) rehydrate(map);
+}
+
 function useGridStyleRehydration(
   mapRef: RefObject<MapboxMap | null>,
   rehydrate: (map: MapboxMap) => void,
+  mapReady: boolean,
 ): void {
+  const caughtUpRef = useRef({ done: false });
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+    catchUpGridHostOnReady(map, mapReady, caughtUpRef.current, rehydrate);
     return bindGridStyleRehydration(map, rehydrate);
-  }, [mapRef, rehydrate]);
+  }, [mapRef, rehydrate, mapReady]);
 }
 
 /** 軌道靜態線（2D Mapbox）—— `railTrackMode` 是 select（2d / 3d） */
@@ -90,7 +108,7 @@ export const RailTracksHost: LayerHostComponent = ({ deps }) => {
     if (!styleReady(map)) return;
     rehydrate(map);
   }, [mapRef, rehydrate]);
-  useGridStyleRehydration(mapRef, rehydrate);
+  useGridStyleRehydration(mapRef, rehydrate, deps.mapPrepared);
   return null;
 };
 
@@ -122,7 +140,7 @@ export const H3PopulationHost: LayerHostComponent = ({ deps }) => {
     if (!styleReady(map)) return;
     rehydrate(map);
   }, [mapRef, rehydrate]);
-  useGridStyleRehydration(mapRef, rehydrate);
+  useGridStyleRehydration(mapRef, rehydrate, deps.mapPrepared);
   return null;
 };
 
@@ -151,7 +169,7 @@ export const PopCountHost: LayerHostComponent = ({ deps }) => {
     if (!styleReady(map)) return;
     rehydrate(map);
   }, [mapRef, rehydrate]);
-  useGridStyleRehydration(mapRef, rehydrate);
+  useGridStyleRehydration(mapRef, rehydrate, deps.mapPrepared);
   return null;
 };
 
@@ -182,7 +200,7 @@ export const IndicatorsHost: LayerHostComponent = ({ deps }) => {
     if (!styleReady(map)) return;
     rehydrate(map);
   }, [mapRef, rehydrate]);
-  useGridStyleRehydration(mapRef, rehydrate);
+  useGridStyleRehydration(mapRef, rehydrate, deps.mapPrepared);
   return null;
 };
 
@@ -209,7 +227,7 @@ export const SocioeconomicHost: LayerHostComponent = ({ deps }) => {
     if (!styleReady(map)) return;
     rehydrate(map);
   }, [mapRef, rehydrate]);
-  useGridStyleRehydration(mapRef, rehydrate);
+  useGridStyleRehydration(mapRef, rehydrate, deps.mapPrepared);
   return null;
 };
 
@@ -236,7 +254,7 @@ export const SpatialEconomyHost: LayerHostComponent = ({ deps }) => {
     if (!styleReady(map)) return;
     rehydrate(map);
   }, [mapRef, rehydrate]);
-  useGridStyleRehydration(mapRef, rehydrate);
+  useGridStyleRehydration(mapRef, rehydrate, deps.mapPrepared);
   return null;
 };
 
@@ -282,7 +300,7 @@ export const YoubikeHost: LayerHostComponent = ({ deps }) => {
     if (!styleReady(map)) return;
     rehydrate(map);
   }, [mapRef, rehydrate, youbikeTimeKey]);
-  useGridStyleRehydration(mapRef, rehydrate);
+  useGridStyleRehydration(mapRef, rehydrate, deps.mapPrepared);
   // Agent 畫面摘要（AG-1）：H3 多邊形由前端自建 source，改用當下時刻的 cell 資料統計（不打網路）
   const getCellsRef = useRef(getYoubikeCellsForTime);
   getCellsRef.current = getYoubikeCellsForTime;

@@ -9,6 +9,7 @@ import {
   PH_ADMIN_COLOR, PH_ADMIN_LEVELS, PH_CAT_OTHER_ID, PH_DENSITY_BREAKS, PH_NOT_COVERED_COLOR, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT,
   phCatOptionIds, phKigExcludeFilter, type PhAdminLevel, type PhLayerSpec, type PhPart,
 } from "../data/phDataLayers";
+import type { PhRasterSpec } from "../data/phWavesLayers";
 import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
 
 /**
@@ -146,7 +147,7 @@ export function usePhPopulationLayers(mapRef: MapRef, visible: boolean, opacity:
 // ═════════════════════════ 規格驅動 8 層 ═════════════════════════
 
 /** 子圖層的類別色：match(類別值) → 色；不屬於已列類別 → otherColor（或主色）。 */
-export function phColorExpr(spec: PhLayerSpec, part: PhPart): Expr {
+export function phColorExpr(spec: PhLayerSpec<string>, part: PhPart): Expr {
   const expr: unknown[] = ["match", part.cat.expr];
   const seen = new Set<string>();
   for (const c of spec.cats) {
@@ -160,7 +161,7 @@ export function phColorExpr(spec: PhLayerSpec, part: PhPart): Expr {
 }
 
 /** 類別多選 → 子圖層 filter：全選／未給＝null；該子圖層的類別全關＝永假；選了「其他」補上「不屬於已列類別」。 */
-export function phPartCatFilter(spec: PhLayerSpec, part: PhPart, mask: number | undefined): Expr | null {
+export function phPartCatFilter(spec: PhLayerSpec<string>, part: PhPart, mask: number | undefined): Expr | null {
   if (mask === undefined || !Number.isFinite(mask)) return null;
   const ids = phCatOptionIds(spec);
   const selected = new Set(selectedMultiSelectValues(mask, ids));
@@ -184,7 +185,7 @@ export function phPlantStatusFilter(mask: number | undefined): Expr | null {
   return ["in", ["get", "status"], ["literal", selected]];
 }
 
-function pointRadiusExpr(spec: PhLayerSpec, part: PhPart, scale: number): Expr | number {
+function pointRadiusExpr(spec: PhLayerSpec<string>, part: PhPart, scale: number): Expr | number {
   const k = scale / scaleDefault(spec.key);
   if (part.size) {
     const bands = part.size.bands;
@@ -200,13 +201,24 @@ function pointRadiusExpr(spec: PhLayerSpec, part: PhPart, scale: number): Expr |
     m.push(pointRadius("S"));
     return ["*", m, k];
   }
-  return pointRadius(spec.key === "phFuelStations" || part.id === "ph-tanks-circle" || part.id === "ph-power-substations-circle" ? "S" : "M", k);
+  return pointRadius(part.small || spec.key === "phFuelStations" || spec.key === "phBusStops" || part.id === "ph-tanks-circle" || part.id === "ph-power-substations-circle" ? "S" : "M", k);
 }
 
-function pointPaint(spec: PhLayerSpec, part: PhPart, isDark: boolean, opacity: number, scale: number) {
+function pointPaint(spec: PhLayerSpec<string>, part: PhPart, isDark: boolean, opacity: number, scale: number) {
   const op = clamp01(opacity);
   const def = opacityDefault(spec.key, 0.85);
   const base = { "circle-radius": pointRadiusExpr(spec, part, scale), "circle-color": phColorExpr(spec, part), "circle-opacity": op, ...pointStrokePaint(isDark, op / def) };
+  if (part.hollow) {
+    // 空心＝填色透明、外框用類別色（第 3–9 波：OSM 補缺、DOT 近似座標、里程牌）
+    const when = part.hollow.when ?? true;
+    return {
+      ...base,
+      "circle-opacity": ["case", when, 0, op],
+      "circle-stroke-color": ["case", when, phColorExpr(spec, part), base["circle-stroke-color"]],
+      "circle-stroke-width": ["case", when, 1.5, base["circle-stroke-width"]],
+      "circle-stroke-opacity": ["case", when, op, base["circle-stroke-opacity"]],
+    };
+  }
   if (!part.ring) return base;
   // 描邊＝資料編碼（mapStyleScale POINT_STROKE_DATA_ENCODED）：符合者白框 2px，其餘底圖色細縫
   const theme = isDark ? "dark" : "light";
@@ -229,14 +241,14 @@ function lineWidthExpr(part: PhPart): Expr | number {
   return ["interpolate", ["linear"], ["zoom"], 10, at(0), 14, at(1)];
 }
 
-export const phHeatmapId = (spec: PhLayerSpec) => `${spec.parts[0]!.id.replace(/-circle$/, "")}-heatmap`;
+export const phHeatmapId = (spec: PhLayerSpec<string>) => `${spec.parts[0]!.id.replace(/-circle$/, "")}-heatmap`;
 
-export function phSourceSpec(spec: PhLayerSpec): SourceSpec {
+export function phSourceSpec(spec: PhLayerSpec<string>): SourceSpec {
   return { id: spec.sourceId, file: spec.file, minzoom: spec.srcMinzoom, maxzoom: spec.srcMaxzoom, attribution: spec.sourceOrg, loading: spec.loading.zh };
 }
 
 /** 規格驅動層：每個子圖層一個 layer（同一個 source）；`extraFilter`（電廠狀態）疊在所有子圖層上。 */
-export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec, visible: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number, extraFilter?: Expr | null) {
+export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec<string>, visible: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number, extraFilter?: Expr | null) {
   const source = phSourceSpec(spec);
   const heatStyle = useHeatmapStyleSignature(spec.heat ? [spec.key] : []);
   const filters = spec.parts.map((part) => gbAllOf(part.filter, phPartCatFilter(spec, part, catMask), extraFilter ?? null));
@@ -262,6 +274,17 @@ export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec, visible: boole
         });
         return;
       }
+      if (part.geom === "fill") {
+        const k = part.fillOpacity ?? 1;
+        const fillPaint = () => hookFillPaint(spec.key, part.id, { "fill-color": phColorExpr(spec, part), "fill-opacity": clamp01(opacity) * k },
+          { "fill-color": phColorExpr(spec, part), "fill-opacity": def * k }, isDark);
+        builds.push({
+          id: part.id,
+          layer: () => ({ id: part.id, type: "fill", ...base, layout: { visibility: "none" }, paint: fillPaint() } as unknown as AnyLayer),
+          update: (map) => { map.setFilter(part.id, (filter ?? null) as any); setPaint(map, part.id, fillPaint()); },
+        });
+        return;
+      }
       const paint = () => hookLinePaint(spec.key, part.id,
         { "line-color": phColorExpr(spec, part), "line-width": lineWidthExpr(part), "line-opacity": clamp01(opacity), ...(part.dashed ? { "line-dasharray": [...LINE_DASH.general] } : {}) },
         { "line-color": phColorExpr(spec, part), "line-width": lineWidthExpr(part), "line-opacity": def, ...(part.dashed ? { "line-dasharray": [...LINE_DASH.general] } : {}) }, isDark);
@@ -273,4 +296,24 @@ export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec, visible: boole
     });
     return builds;
   }, [spec.key, opacity, scale, isDark, heatStyle, sig(filters)]);
+}
+
+// ═════════════════════════ Raster 4 層（2026-11-16） ═════════════════════════
+
+function firstSymbolLayerId(map: MapboxMap): string | undefined {
+  try { return map.getStyle()?.layers?.find((layer) => layer.type === "symbol")?.id; } catch { return undefined; }
+}
+
+/** 山體陰影、色別標高、建成面積、樹冠流失：PNG raster PMTiles，比照 useCaHillshadeLayer 插在底圖第一個 symbol 下、地球儀走 pmtilesRasterCustomSource。 */
+export function usePhRasterLayer(mapRef: MapRef, spec: PhRasterSpec, visible: boolean, opacity: number) {
+  const source: SourceSpec = { id: spec.sourceId, file: spec.file, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort, loading: spec.loading, raster: { tileSize: 256 } };
+  useGbPmtilesLayers(mapRef, source, visible, () => [{
+    id: spec.layerId,
+    layer: () => ({
+      id: spec.layerId, type: "raster", source: source.id, minzoom: spec.minzoom,
+      layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacity), "raster-fade-duration": 0 },
+    } as unknown as AnyLayer),
+    update: (map) => map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity)),
+    before: firstSymbolLayerId,
+  }], [spec.key, opacity]);
 }

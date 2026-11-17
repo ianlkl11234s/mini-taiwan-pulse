@@ -4,7 +4,7 @@ import { LINE_WIDTH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStro
 import { paramDefault } from "../data/layerParamsSpec";
 import { KR_CONGESTION_BREAKS, krRampColors, krSpecCatFilter, type KrLayerSpec } from "../data/krDataLayers";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
-import { gbHeatmapBuild, repPointSpecFor, useGbPmtilesLayers, useGbRepPointLayers, type GbRepPointsSpec, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, repPointSpecFor, useGbPmtilesLayers, useGbRepPointLayers, type GbRepPointsSpec, type LayerBuild, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
 import { repPointLayer, repPointModeFromIdx } from "../data/repPointLayers";
 
 /**
@@ -40,7 +40,7 @@ export function krColorExpr(spec: KrLayerSpec, isDark = true): Expr | string {
     return ["case", ["has", "peak_wkd"], ["step", ["to-number", ["get", "peak_wkd"], 0], cats[0]!.color, a, cats[1]!.color, b, cats[2]!.color, c, cats[3]!.color], spec.otherColor ?? spec.color];
   }
   if (!spec.cats || !spec.catProp) return spec.color;
-  const expr: unknown[] = ["match", ["coalesce", ["get", spec.catProp], ""]];
+  const expr: unknown[] = ["match", spec.derivedCat ? spec.derivedCat.expr : ["coalesce", ["get", spec.catProp], ""]];
   for (const c of spec.cats) expr.push([...c.values], c.color);
   expr.push(spec.otherColor ?? spec.color);
   return expr;
@@ -92,13 +92,15 @@ function krRepPointSpec(spec: KrLayerSpec): { rep: GbRepPointsSpec; enabled: boo
   };
 }
 
-export function useKrDataLayer(mapRef: React.RefObject<MapboxMap | null>, spec: KrLayerSpec, visibleIn: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number, displayModeIdx?: number) {
+/** `priv`：站主限定層（`spec.ownerAsset`）的私人圖磚來源；這類層沒給（未驗證站主）就一律不顯示、不掛 source，不退回公開檔。 */
+export function useKrDataLayer(mapRef: React.RefObject<MapboxMap | null>, spec: KrLayerSpec, visibleIn: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number, displayModeIdx?: number, priv?: PrivatePmtilesSource | null) {
   const { rep, enabled: hasRep } = krRepPointSpec(spec);
   const mode = hasRep ? repPointModeFromIdx(displayModeIdx, repPointLayer(spec.key)!.def) : "polygon";
   const repHeatStyle = useHeatmapStyleSignature(hasRep ? [spec.key] : []);
   useGbRepPointLayers(mapRef, rep, { visible: visibleIn && hasRep, mode, opacity, scale, isDark, color: krColorExpr(spec, isDark), filter: krSpecCatFilter(spec, catMask) }, repHeatStyle);
-  const visible = visibleIn && mode === "polygon";
-  const source = krSourceSpec(spec);
+  const ownerBlocked = !!spec.ownerAsset && !priv;
+  const visible = visibleIn && mode === "polygon" && !ownerBlocked;
+  const source: SourceSpec = spec.ownerAsset && priv ? { ...krSourceSpec(spec), private: priv } : krSourceSpec(spec);
   const heatStyle = useHeatmapStyleSignature(spec.heat ? [spec.key] : []);
   const filter = krSpecCatFilter(spec, catMask);
   const filterSig = JSON.stringify(filter);

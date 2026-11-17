@@ -17,5 +17,9 @@
   "popup.religion.denomination": "Denomination",
   "popup.religion.religiousSite": "Religious site",
   "popup.religion.mapSymbolNote": "This point comes from a map symbol; no official name is provided.",
-  "popup.religion.openWikidata": "Open Wikidata ↗"
+  "popup.religion.openWikidata": "Open Wikidata ↗",
+  "popup.religion.gbPowReligion": "Religion",
+  "popup.religion.gbPowDenomination": "Denomination",
+  "popup.religion.gbPowOsmReligion": "OSM religion value",
+  "popup.religion.gbUnknownNote": "OSM religion not tagged; not inferred"
 }

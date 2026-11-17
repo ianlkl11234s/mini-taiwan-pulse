@@ -99,8 +99,10 @@ describe("Layer UX policy baseline", () => {
     // 2026-11-07：+5 臺灣百年歷史地圖拆六層（戰後地形圖、航照衛星、界線路網、土地利用、主題圖，同古地圖：外部掃描 raster，無 feature 屬性）。
     // 2026-11-07：+1 愛爾蘭 INFOMAR 海床地形 ieBathymetry（已著色 raster PMTiles，無 feature 屬性）。
     // 2026-11-08：+1 30 天地圖挑戰 Day 8 1955 中和鄉都市計畫圖 mapchallengeDay08Plan1955（單張 image source 掃描圖，無 feature 屬性）。
+    // 2026-11-16：+4 菲律賓 raster（山體陰影、色別標高、建成面積、樹冠流失；PNG PMTiles，無 feature 屬性）。
+    // 2026-11-17：+4 越南 raster（山體陰影、色別標高、崩塌潛勢、WDPCA；無 feature 屬性）。
     // 2026-11-13：+1 中國人口網格 cnPopulationGrid（GHS-POP 已上色 raster PMTiles，無 feature 屬性；站主限定）。
-    expect(missing).toHaveLength(61); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
+    expect(missing).toHaveLength(69); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {
