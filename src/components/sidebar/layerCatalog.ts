@@ -383,6 +383,28 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "人口社經",
     "交通",
     "能源",
+    // 觀光波與第 2–9 波（2026-11-16）
+    "都市分析",
+    "觀光",
+    "災害",
+    "水資源",
+    "工商登記",
+    "教育",
+    "醫療",
+    "消防",
+    "民防避難",
+    "執法治安",
+    "環境氣候",
+    "自然保育",
+    "林業",
+    "海洋",
+    "廢棄物",
+    "文化",
+    "基礎建設",
+    "宗教",
+    "運動休閒",
+    "殯葬",
+    "農業",
   ],
   VN: [
     // 越南（2026-11-13 第 0–1 波：行政界、人口、交通、能源、環境監測站、安江示範；title 沿用台灣主題中文短名，比照菲律賓）
@@ -3151,13 +3173,35 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "底圖",
     country: "PH",
     defaultCollapsed: true,
-    groups: [{ title: "行政邊界", layers: [fromManifest("phAdminBoundaries")] }],
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("phAdminBoundaries")] },
+      { title: "地形", layers: [fromManifest("phTerrainHillshade"), fromManifest("phTerrainRelief")] },
+      { title: "地名 Gazetteer", layers: [fromManifest("phPlaceNames")] },
+    ],
   },
   {
     title: "人口社經",
     country: "PH",
     defaultCollapsed: true,
-    groups: [{ title: "人口分布", layers: [fromManifest("phPopulation")] }],
+    groups: [{ title: "人口分布", layers: [fromManifest("phPopulation")] }, { title: "社經", layers: [fromManifest("phPoverty")] }],
+  },
+  {
+    title: "都市分析",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [{ title: "都市紋理", layers: [fromManifest("phBuiltSurface")] }],
+  },
+  {
+    // 觀光波（2026-11-16）：點層低縮放只顯示 UNESCO／國家公園與 Wikidata 熱門
+    title: "觀光",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・人文", layers: [fromManifest("phTouristAttractions")] },
+      { title: "玩・自然", layers: [fromManifest("phCoastIslands"), fromManifest("phNatureSpots")] },
+      { title: "玩・體驗", layers: [fromManifest("phTourismDevelopmentAreas")] },
+      { title: "住・食", layers: [fromManifest("phTourismServices")] },
+    ],
   },
   {
     title: "交通",
@@ -3167,6 +3211,9 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "場站", layers: [fromManifest("phStations"), fromManifest("phBusStops")] },
       { title: "樞紐節點", layers: [fromManifest("phTransportHubs")] },
       { title: "路網", layers: [fromManifest("phMajorRoads"), fromManifest("phUrbanRail"), fromManifest("phExpressways")] },
+      { title: "路網結構", layers: [fromManifest("phBridges")] },
+      { title: "停車", layers: [fromManifest("phParking")] },
+      { title: "道路設施", layers: [fromManifest("phKmPosts")] },
     ],
   },
   {
@@ -3180,6 +3227,175 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "再生能源", layers: [fromManifest("phRenewables")] },
       { title: "石化 · 加油站", layers: [fromManifest("phFuelStations")] },
       { title: "管線與儲槽", layers: [fromManifest("phPipelines")] },
+    ],
+  },
+  // 菲律賓第 3–9 波（2026-11-16）
+  {
+    title: "災害",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "地震", layers: [fromManifest("phEarthquakes")] },
+      { title: "淹水", layers: [fromManifest("phNoahFlood100yr")] },
+      { title: "崩塌", layers: [fromManifest("phNoahLandslide")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("phWaterPermits")] },
+      { title: "面／線", layers: [fromManifest("phLakes")] },
+      { title: "水利設施", layers: [fromManifest("phDams")] },
+    ],
+  },
+  {
+    title: "工商登記",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "園區", layers: [fromManifest("phEcozones"), fromManifest("phReclamation")] },
+    ],
+  },
+  {
+    title: "教育",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校 Schools", layers: [fromManifest("phSchools")] },
+      { title: "校地 Campus", layers: [fromManifest("phSchoolCampuses")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("phHealthFacilities")] },
+    ],
+  },
+  {
+    title: "消防",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("phFireStations")] },
+    ],
+  },
+  {
+    title: "民防避難",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "避難設施", layers: [fromManifest("phNcrSafeOpenSpaces")] },
+    ],
+  },
+  {
+    title: "執法治安",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "警政", layers: [fromManifest("phPoliceStations")] },
+      { title: "司法矯正", layers: [fromManifest("phJails")] },
+    ],
+  },
+  {
+    title: "環境氣候",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "都市樹木", layers: [fromManifest("phTrees")] },
+      { title: "環境污染", layers: [fromManifest("phPollutionSources")] },
+    ],
+  },
+  {
+    title: "自然保育",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "保護區", layers: [fromManifest("phWdpca")] },
+      { title: "綠網與生態", layers: [fromManifest("phKba")] },
+      { title: "森林保育", layers: [fromManifest("phForestLoss")] },
+      { title: "濕地", layers: [fromManifest("phWetlands")] },
+    ],
+  },
+  {
+    title: "林業",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "分區", layers: [fromManifest("phForestryPrograms")] },
+      { title: "線", layers: [fromManifest("phTrails")] },
+    ],
+  },
+  {
+    title: "海洋",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "海域環境", layers: [fromManifest("phCoastalResources")] },
+      { title: "調查站網", layers: [fromManifest("phMarineStations")] },
+    ],
+  },
+  {
+    title: "廢棄物",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "處理設施", layers: [fromManifest("phWasteFacilities")] },
+    ],
+  },
+  {
+    title: "文化",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "藝文活動", layers: [fromManifest("phArtsVenues")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "郵政與便民", layers: [fromManifest("phPostOffices")] },
+      { title: "公共生活", layers: [fromManifest("phPublicFacilities")] },
+      { title: "金融據點", layers: [fromManifest("phFinancialServices")] },
+    ],
+  },
+  {
+    title: "宗教",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("phPlacesOfWorship")] },
+    ],
+  },
+  {
+    title: "運動休閒",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "運動場館", layers: [fromManifest("phSportsVenues")] },
+      { title: "公園", layers: [fromManifest("phParks")] },
+    ],
+  },
+  {
+    title: "殯葬",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "墓區範圍", layers: [fromManifest("phCemeteries")] },
+    ],
+  },
+  {
+    title: "農業",
+    country: "PH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("phFishPorts")] },
+      { title: "養殖漁業", layers: [fromManifest("phAquaculture")] },
     ],
   },
 
@@ -3634,6 +3850,28 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口社經": "city",
     "交通": "city",
     "能源": "environment",
+    // 觀光波與第 2–9 波（2026-11-16）
+    "都市分析": "city",
+    "觀光": "publicLife",
+    "災害": "safety",
+    "水資源": "environment",
+    "工商登記": "city",
+    "教育": "publicLife",
+    "醫療": "safety",
+    "消防": "safety",
+    "民防避難": "safety",
+    "執法治安": "safety",
+    "環境氣候": "environment",
+    "自然保育": "environment",
+    "林業": "environment",
+    "海洋": "environment",
+    "廢棄物": "environment",
+    "文化": "publicLife",
+    "基礎建設": "publicLife",
+    "宗教": "publicLife",
+    "運動休閒": "publicLife",
+    "殯葬": "publicLife",
+    "農業": "environment",
   },
   VN: {
     // 越南主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
@@ -3869,6 +4107,27 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口社經": { zh: "人口社經", sub: "People" },
     "交通": { zh: "交通", sub: "Transport" },
     "能源": { zh: "能源", sub: "Energy" },
+    "都市分析": { zh: "都市分析", sub: "Urban Analysis" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
+    "災害": { zh: "災害", sub: "Hazard" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "教育": { zh: "教育", sub: "Education" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "消防": { zh: "消防", sub: "Fire & Rescue" },
+    "民防避難": { zh: "民防避難", sub: "Civil Defense" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "自然保育": { zh: "自然保育", sub: "Conservation" },
+    "林業": { zh: "林業", sub: "Forestry" },
+    "海洋": { zh: "海洋", sub: "Marine" },
+    "廢棄物": { zh: "廢棄物", sub: "Waste" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "宗教": { zh: "宗教", sub: "Religion" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "殯葬": { zh: "殯葬", sub: "Funeral" },
+    "農業": { zh: "農業", sub: "Agriculture" },
   },
   VN: {
     // 越南主題副標用英文（比照菲律賓）
