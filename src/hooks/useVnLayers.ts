@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { AnyLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 import { BOUNDARY_GRAY, LABEL, MAP_SEAM, labelHaloPaint } from "../map/mapStyleScale";
@@ -189,12 +189,17 @@ export function useVnRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible: bo
   }], [spec.key, opacity, priv]);
 }
 
-/** 崩塌潛勢：外部 WMS（ODM GeoServer）raster tiles 由瀏覽器直連，`{bbox-epsg-3857}` 由 Mapbox 代入；不訂閱時間。 */
+/** 崩塌潛勢：外部 WMS（ODM GeoServer）raster tiles 由瀏覽器直連，`{bbox-epsg-3857}` 由 Mapbox 代入；不訂閱時間。換底圖（style.load）重掛，unmount 拆掉。 */
 export function useVnWmsRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible: boolean, opacity: number) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
+  const mapInstRef = useRef<MapboxMap | null>(null);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !spec.wmsUrl) return;
+    mapInstRef.current = map;
     const apply = () => {
       if (!visible) {
         if (map.getLayer(spec.layerId)) map.setLayoutProperty(spec.layerId, "visibility", "none");
@@ -207,12 +212,39 @@ export function useVnWmsRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible:
       if (!map.getLayer(spec.layerId)) {
         map.addLayer({
           id: spec.layerId, type: "raster", source: spec.sourceId, minzoom: spec.minzoom,
-          layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacity), "raster-fade-duration": 0 },
+          layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacityRef.current), "raster-fade-duration": 0 },
         } as unknown as AnyLayer, firstSymbolLayerId(map));
       }
-      map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity));
       map.setLayoutProperty(spec.layerId, "visibility", "visible");
     };
-    try { apply(); } catch { map.once("idle", () => { try { apply(); } catch { /* style 轉換中 */ } }); }
-  }, [mapRef, spec, visible, opacity, mapTick]);
+    let disposed = false;
+    let retryPending = false;
+    const retry = () => { retryPending = false; if (!disposed) safeApply(); };
+    const safeApply = () => {
+      try { apply(); } catch {
+        if (!disposed && !retryPending) { retryPending = true; map.once("idle", retry); }
+      }
+    };
+    safeApply();
+    map.on("style.load", safeApply);
+    return () => {
+      disposed = true;
+      map.off("style.load", safeApply);
+      if (retryPending) map.off("idle", retry);
+    };
+  }, [mapRef, spec, visible, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!visible || !map) return;
+    try { if (map.getLayer(spec.layerId)) map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity)); } catch { /* style 轉換中 */ }
+  }, [mapRef, spec.layerId, opacity, visible, mapTick]);
+
+  useEffect(() => () => {
+    const map = mapInstRef.current;
+    try {
+      if (map?.getLayer(spec.layerId)) map.removeLayer(spec.layerId);
+      if (map?.getSource(spec.sourceId)) map.removeSource(spec.sourceId);
+    } catch { /* map 可能已銷毀 */ }
+  }, [spec.layerId, spec.sourceId]);
 }

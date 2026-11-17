@@ -141,7 +141,7 @@ vnFuelStations,加油站 Fuel Stations,VN,越南,能源,custom,verified,vn_fuel_
 vnOilGas,油氣設施 Oil & Gas Facilities,VN,越南,能源,custom,verified,vn_oil_gas,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 LNG 接收站 33、煤炭碼頭 5、油氣管線 12（GEM，含提案與取消）＋煉油廠 2、儲槽 75、天然氣管線 65（OSM）
 vnEnvisoftStations,環境自動監測站位置 Environmental Monitoring Stations,VN,越南,環境氣候,custom,verified,vn_envisoft_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南環境自動監測站 2,176 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）"
 vnAngiangDemo,安江工業群與避洪居民點 An Giang Industrial Clusters & Flood Resettlement,VN,越南,工商登記,custom,verified,vn_angiang_demo,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南安江省工業群 13 處（面）＋避洪居民點 59 處（只涵蓋安江省，原堅江範圍）
-vnTourAttractions,景點與世界遺產 Attractions & World Heritage,VN,越南,觀光,custom,verified,vn_tourist_attractions,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南景點 2,886 處（UNESCO 世界遺產 9 處、國家公園與保護區、古蹟寺廟、博物館、觀景點；低縮放只顯示重要條目）"
+vnTourAttractions,景點與世界遺產 Attractions & World Heritage,VN,越南,觀光,custom,verified,vn_tourist_attractions,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南景點 2,885 處（UNESCO 世界遺產 9 處、國家公園與保護區、古蹟寺廟、博物館、觀景點；低縮放只顯示重要條目）"
 vnTourNature,"海灘、島嶼、瀑布與洞穴 Beaches, Islands, Waterfalls & Caves",VN,越南,觀光,custom,verified,vn_nature_spots,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南自然景點 1,967 處（海灘 649、小島 402、瀑布 333、島 271、洞穴 256 等）"
 vnTourServices,住宿與觀光服務 Lodging & Tourism Services,VN,越南,觀光,custom,verified,vn_tourism_services,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南住宿、度假村、樂園動物園、露營地與遊客中心 8,490 處（OSM；餐飲不在本層）"
 vnNationalTouristAreas,國家級旅遊區 National Tourist Areas,VN,越南,觀光,custom,verified,vn_national_tourist_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南國家級旅遊區 63 處（已認證 9、規劃潛力 54 空心；清單 70 處中 7 處未定位）

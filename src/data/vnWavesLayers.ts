@@ -142,7 +142,7 @@ function tourismSpec(key: VnDataKey, id: string, file: string, layer: string, co
 }
 
 const TOURISM_SPECS: Spec[] = [
-  tourismSpec("vnTourAttractions", "vn-tour-attractions-circle", "vn_tourist_attractions.pmtiles", "tourist_attractions", "#f472b6", 2886, ATTRACTION_CATS, attractionCat,
+  tourismSpec("vnTourAttractions", "vn-tour-attractions-circle", "vn_tourist_attractions.pmtiles", "tourist_attractions", "#f472b6", 2885, ATTRACTION_CATS, attractionCat,
     l3("未命名景點", "Unnamed attraction", "名称不明の観光スポット"),
     [l3("UNESCO 世界遺產 9 處（34 個構成點）：併回 OSM 時優先古蹟，美山對到聖地本體；世界遺產一律畫金色", "9 UNESCO World Heritage sites (34 components); merged into OSM features preferring heritage (Mỹ Sơn matched to the sanctuary itself); all drawn in gold", "UNESCO 世界遺産 9 件（構成資産 34）。OSM へ統合する際は史跡を優先（ミーソンは聖域本体）。世界遺産は金色"),
       l3("國家級旅遊區（含規劃潛力）5 km 內同名的要素也列第 1 級", "Features with the same name within 5 km of a national tourist area (including planned ones) are also tier 1", "国家観光区（計画候補を含む）から 5 km 以内の同名要素も第 1 級"),

@@ -20,7 +20,7 @@ type W = Exclude<VnDataKey, "vnStations" | "vnTransportHubs" | "vnMajorRoads" | 
 export const VN_WAVE_ENTRY_META: Record<W, VnEntryMeta> = {
   // ── 觀光波
   vnTourAttractions: { theme: "觀光", group: "玩・人文", zh: "景點與世界遺產", alt: "Attractions & World Heritage", icon: Landmark, dataset: "vn_tourist_attractions", topics: T("觀光", "景點", "世界遺產", "UNESCO", "古蹟", "寺廟", "博物館", "OSM", "Wikidata"),
-    description: "越南景點 2,886 處（UNESCO 世界遺產 9 處、國家公園與保護區、古蹟寺廟、博物館、觀景點；低縮放只顯示重要條目）", processing: TOUR_PROC("tourist_attractions z4–14"), note: "ODbL＋CC BY-SA 4.0＋CC0；知名度分級不代表遊客量" },
+    description: "越南景點 2,885 處（UNESCO 世界遺產 9 處、國家公園與保護區、古蹟寺廟、博物館、觀景點；低縮放只顯示重要條目）", processing: TOUR_PROC("tourist_attractions z4–14"), note: "ODbL＋CC BY-SA 4.0＋CC0；知名度分級不代表遊客量" },
   vnTourNature: { theme: "觀光", group: "玩・自然", zh: "海灘、島嶼、瀑布與洞穴", alt: "Beaches, Islands, Waterfalls & Caves", icon: TreePalm, dataset: "vn_nature_spots", topics: T("觀光", "海灘", "島嶼", "瀑布", "洞穴", "潛水", "OSM", "Wikidata"),
     description: "越南自然景點 1,967 處（海灘 649、小島 402、瀑布 333、島 271、洞穴 256 等）", processing: TOUR_PROC("nature_spots z4–14"), note: "ODbL＋CC0；未命名海灘與小島放大後才出現" },
   vnTourServices: { theme: "觀光", group: "住・食", zh: "住宿與觀光服務", alt: "Lodging & Tourism Services", icon: BedDouble, dataset: "vn_tourism_services", topics: T("觀光", "住宿", "旅館", "度假村", "露營", "遊客中心", "OSM"),
