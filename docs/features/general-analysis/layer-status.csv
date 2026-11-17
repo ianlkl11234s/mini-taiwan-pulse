@@ -1376,6 +1376,8 @@ anfrWirelessSites,法國 ANFR 5G 3500 無線站點概覽 France ANFR 5G 3500 Ove
 gbAdminBoundaries,地方政府區 LAD Local Authority Districts,GB,英國,底圖,custom,verified,gb_admin_lad,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國四地地方政府區界（ONS LAD May 2026，361 區）
 gbSmallAreaBoundaries,統計小區 Statistical Small Areas,GB,英國,底圖,custom,verified,gb_admin_small_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國四地普查統計小區界（英格蘭／威爾斯 LSOA 2021、蘇格蘭 Data Zone 2022、北愛 Data Zone／Super Data Zone 2021）
 krAdminBoundaries,行政區界 Administrative Boundaries,KR,南韓,底圖,custom,verified,kr_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓行政區界（시·도 16、시군구 256、행정동 3,559；admdongkor ver20261001，上游統計廳 SGIS）"
+krEcologyNaturalness,生態自然圖 Ecological Naturalness Map,KR,南韓,林業,custom,verified,kr_ecology_naturalness,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"南韓生態自然圖（국립생태원，1／2／3 等級＋별도관리지역；依 시·도 17 檔，放大到 z10 起顯示）"
+krWasteDisposalRules,垃圾排出規則 Household Waste Disposal Rules,KR,南韓,廢棄物,custom,verified,kr_waste_disposal_rules,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"南韓各 시군구 生活垃圾排出規則（排出日、時段、地點；245/256 區）"
 krBusStops,公車站 버스정류장,KR,南韓,交通,custom,verified,kr_bus_stops,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓全國公車站（國土交通部彙整各地 BIS，22.7 萬站）；12 級以上單點、之下熱區
 krRailStations,鐵道車站 철도역,KR,南韓,交通,custom,verified,kr_rail_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓鐵道車站：KORAIL 幹線與都市鐵道，依營運網分 3 色
 krAirports,機場 공항,KR,南韓,交通,custom,verified,kr_airports,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓機場：한국공항공사 14 座＋仁川（OSM 補缺）
