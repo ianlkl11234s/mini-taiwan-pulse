@@ -1,7 +1,7 @@
 // 越南 Layer Host（2026-11-13 第 0–1 波）。比照 hosts/philippinesHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
 
 import { usePhDataLayer } from "../../hooks/usePhLayers";
-import { useVnAdminLayers, useVnPopulationLayers, useVnRasterLayer, useVnWmsRasterLayer } from "../../hooks/useVnLayers";
+import { useVnAdminLayers, useVnPopulationLayers, useVnRasterLayer } from "../../hooks/useVnLayers";
 import { useOwnerPmtilesSource, useOwnerRevokeCleanup } from "../../hooks/useOwnerPmtilesAccess";
 import { VN_RASTER_BY_KEY } from "../../data/vnWavesLayers";
 import { selectedMultiSelectValues } from "../../data/multiSelectMapbox";
@@ -105,7 +105,7 @@ export const VnFarmTracksHost = W("vnFarmTracks");
 export const VnCoalMinesHost = W("vnCoalMines");
 
 // ── raster 4 層：只有透明度
-function makeVnRasterHost(key: "vnTerrainHillshade" | "vnTerrainRelief"): LayerHostComponent {
+function makeVnRasterHost(key: "vnTerrainHillshade" | "vnTerrainRelief" | "vnLandslideSusceptibility"): LayerHostComponent {
   const spec = VN_RASTER_BY_KEY[key];
   const VnRasterHost: LayerHostComponent = ({ deps }) => {
     bumpHostRender(`useVn${key.slice(2)}Layer`);
@@ -117,15 +117,8 @@ function makeVnRasterHost(key: "vnTerrainHillshade" | "vnTerrainRelief"): LayerH
 }
 export const VnTerrainHillshadeHost = makeVnRasterHost("vnTerrainHillshade");
 export const VnTerrainReliefHost = makeVnRasterHost("vnTerrainRelief");
-/** 崩塌潛勢（W3-1）：外部 WMS 直連，GeoServer clip 遮掉鄰國。 */
-export const VnLandslideSusceptibilityHost: LayerHostComponent = ({ deps }) => {
-  const key = "vnLandslideSusceptibility";
-  const spec = VN_RASTER_BY_KEY[key];
-  bumpHostRender("useVnLandslideSusceptibilityLayer");
-  const p = useKeyOverlayParams(key);
-  useVnWmsRasterLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? spec.opacity);
-  return null;
-};
+/** 崩塌潛勢（W3-1）：ODM WMS 預渲染的自有 PNG PMTiles。 */
+export const VnLandslideSusceptibilityHost = makeVnRasterHost("vnLandslideSusceptibility");
 /** WDPCA 保護區（站主限定，W6-1）：圖磚只走私人 owner-data；未驗證站主不掛 source，撤權時移除 layer 與 source。 */
 export const VnWdpcaHost: LayerHostComponent = ({ deps }) => {
   const key = "vnWdpca";

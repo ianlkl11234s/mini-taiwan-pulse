@@ -174,7 +174,7 @@ vnFarmTracks,農林道 Farm & Forest Tracks,VN,越南,農業,custom,verified,vn_
 vnCoalMines,煤礦 Coal Mines,VN,越南,能源,custom,verified,vn_coal_mines,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南煤礦 32 處（Global Energy Monitor；運轉中、提案、封存、取消；6/34 省）
 vnTerrainHillshade,山體陰影 Hillshade,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）
 vnTerrainRelief,色別標高 Elevation Tint,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南色別標高（0–3,147 m 九段色帶，≤0 m 透明）"
-vnLandslideSusceptibility,崩塌潛勢（區域模型圖） Landslide Susceptibility (regional model),VN,越南,災害,custom,verified,vn_landslide_susceptibility,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南崩塌潛勢四級（極低、低、中、高；區域模型圖，只有圖、不能分析）
+vnLandslideSusceptibility,崩塌潛勢（區域模型圖） Landslide Susceptibility (regional model),VN,越南,災害,custom,verified,vn_landslide_susceptibility,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南崩塌潛勢（低、中、高三級；極低不畫；區域模型圖，只有圖、不能分析）
 vnWdpca,"保護區（WDPCA，站主限定） Protected Areas (WDPCA, owner only)",VN,越南,自然保育,custom,verified,vn_wdpca,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南 WDPCA 保護區 188 面＋Ramsar 點 3（raster 圖片，依類別上色；站主限定）
 statsComparisonBusAccessibleSharePct,無障礙公車占營業車比,TW,統計,公共運輸 Public Transport,custom,catalog_missing,comparison_statistics,,,,2025-12-31,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。
 statsComparisonBusElectricSharePct,電動公車占營業車比,TW,統計,公共運輸 Public Transport,custom,catalog_missing,comparison_statistics,,,,2025-12-31,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。

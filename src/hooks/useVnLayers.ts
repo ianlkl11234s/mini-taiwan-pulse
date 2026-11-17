@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import type { AnyLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 import { BOUNDARY_GRAY, LABEL, MAP_SEAM, labelHaloPaint } from "../map/mapStyleScale";
@@ -7,7 +7,6 @@ import { paramDefault } from "../data/layerParamsSpec";
 import { VN_ADMIN_COLOR, VN_DENSITY_BREAKS, VN_NOT_COVERED_COLOR } from "../data/vnDataLayers";
 import { useGbPmtilesLayers, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
 import type { VnRasterSpec } from "../data/vnWavesLayers";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -175,7 +174,7 @@ function firstSymbolLayerId(map: MapboxMap): string | undefined {
 export function useVnRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible: boolean, opacity: number, priv?: PrivatePmtilesSource | null) {
   const owner = spec.kind === "owner";
   const source: SourceSpec = {
-    id: spec.sourceId, file: spec.file ?? "", minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort, loading: spec.loading,
+    id: spec.sourceId, file: spec.file, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort, loading: spec.loading,
     raster: { tileSize: 256 }, ...(owner && priv ? { private: priv } : {}),
   };
   useGbPmtilesLayers(mapRef, source, visible && (!owner || !!priv), () => [{
@@ -187,64 +186,4 @@ export function useVnRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible: bo
     update: (map) => map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity)),
     before: firstSymbolLayerId,
   }], [spec.key, opacity, priv]);
-}
-
-/** 崩塌潛勢：外部 WMS（ODM GeoServer）raster tiles 由瀏覽器直連，`{bbox-epsg-3857}` 由 Mapbox 代入；不訂閱時間。換底圖（style.load）重掛，unmount 拆掉。 */
-export function useVnWmsRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible: boolean, opacity: number) {
-  const mapTick = useMapReadyTick(mapRef, visible);
-  const opacityRef = useRef(opacity);
-  opacityRef.current = opacity;
-  const mapInstRef = useRef<MapboxMap | null>(null);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !spec.wmsUrl) return;
-    mapInstRef.current = map;
-    const apply = () => {
-      if (!visible) {
-        if (map.getLayer(spec.layerId)) map.setLayoutProperty(spec.layerId, "visibility", "none");
-        return;
-      }
-      if (!map.getSource(spec.sourceId)) {
-        map.addSource(spec.sourceId, { type: "raster", tiles: [spec.wmsUrl!], tileSize: 256, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort });
-        keepLoadingUntilMapIdle(map, `${spec.sourceId}:render`, spec.loading, spec.sourceId, 15000);
-      }
-      if (!map.getLayer(spec.layerId)) {
-        map.addLayer({
-          id: spec.layerId, type: "raster", source: spec.sourceId, minzoom: spec.minzoom,
-          layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacityRef.current), "raster-fade-duration": 0 },
-        } as unknown as AnyLayer, firstSymbolLayerId(map));
-      }
-      map.setLayoutProperty(spec.layerId, "visibility", "visible");
-    };
-    let disposed = false;
-    let retryPending = false;
-    const retry = () => { retryPending = false; if (!disposed) safeApply(); };
-    const safeApply = () => {
-      try { apply(); } catch {
-        if (!disposed && !retryPending) { retryPending = true; map.once("idle", retry); }
-      }
-    };
-    safeApply();
-    map.on("style.load", safeApply);
-    return () => {
-      disposed = true;
-      map.off("style.load", safeApply);
-      if (retryPending) map.off("idle", retry);
-    };
-  }, [mapRef, spec, visible, mapTick]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!visible || !map) return;
-    try { if (map.getLayer(spec.layerId)) map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity)); } catch { /* style 轉換中 */ }
-  }, [mapRef, spec.layerId, opacity, visible, mapTick]);
-
-  useEffect(() => () => {
-    const map = mapInstRef.current;
-    try {
-      if (map?.getLayer(spec.layerId)) map.removeLayer(spec.layerId);
-      if (map?.getSource(spec.sourceId)) map.removeSource(spec.sourceId);
-    } catch { /* map 可能已銷毀 */ }
-  }, [spec.layerId, spec.sourceId]);
 }

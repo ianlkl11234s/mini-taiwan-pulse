@@ -96,7 +96,7 @@ export const VN_RASTER_META: Record<VnRasterKey, VnEntryMeta> = {
   vnTerrainRelief: { theme: "底圖", group: "地形", zh: "色別標高", alt: "Elevation Tint", icon: Mountain, dataset: "vn_terrain", topics: T("底圖", "地形", "標高", "Copernicus DEM"),
     description: "越南色別標高（0–3,147 m 九段色帶，≤0 m 透明）", processing: "Copernicus DEM GLO-90 → gdaldem color-relief（≤0 m 透明）→ 陸域遮罩 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；沒有 feature 屬性與 popup" },
   vnLandslideSusceptibility: { theme: "災害", group: "崩塌", zh: "崩塌潛勢（區域模型圖）", alt: "Landslide Susceptibility (regional model)", icon: Activity, dataset: "vn_landslide_susceptibility", topics: T("災害", "崩塌", "山崩", "潛勢", "ODM"),
-    description: "越南崩塌潛勢四級（極低、低、中、高；區域模型圖，只有圖、不能分析）", processing: "ODM GeoServer WMS ODVietnam:landslide_level_vn 由瀏覽器直連（EPSG:3857 256 px）；GeoServer clip 參數以 34 省外框裁切、遮掉鄰國", note: "授權未明示（ODM 標 CC BY-SA 4.0）；外部服務，不穩時空白；不入倉" },
+    description: "越南崩塌潛勢（低、中、高三級；極低不畫；區域模型圖，只有圖、不能分析）", processing: "ODM GeoServer WMS ODVietnam:landslide_level_vn（無 CORS）→ 2026-11-17 預渲染 PNG raster PMTiles z5–9（34 省遮罩、極低透明；analytics pipelines/misc/vn/09_landslide_raster.py）", note: "授權未明示（ODM 標 CC BY-SA 4.0）；只有圖、不入倉" },
   vnWdpca: { theme: "自然保育", group: "保護區", zh: "保護區（WDPCA，站主限定）", alt: "Protected Areas (WDPCA, owner only)", icon: Leaf, dataset: "vn_wdpca", topics: T("自然保育", "保護區", "WDPCA", "Ramsar", "世界遺產", "生物圈保留區"),
     description: "越南 WDPCA 保護區 188 面＋Ramsar 點 3（raster 圖片，依類別上色；站主限定）", processing: "WDPCA 2026 越南子集 → 3857 gdal_rasterize（z11 ≈76 m/px，生物圈保留區與世界遺產只畫外框）→ PNG raster PMTiles z5–12（analytics pipelines/misc/vn/08_wdpca_raster.py）", note: "WDPCA 條款禁再散布與可下載地圖（W6-1 站主 2026-11-17 選 A＋B）：只發 raster＋署名、站主限定；非商用；圖磚走私有 owner-data，不進公開上傳清單" },
 };

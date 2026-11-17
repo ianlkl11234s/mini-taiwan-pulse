@@ -4449,11 +4449,11 @@
    "s3_key": "deploy-assets/world/vn_admin_boundaries.pmtiles"
   },
   {
-   "path": "public/world/vn_angiang_aquaculture.pmtiles",
-   "bytes": 4035337,
-   "sha256": "66ae1a8f73e7ea87357fbb6d6a6592b06a69bde2b715dd9f260e1888a110b51f",
+   "path": "public/world/vn_angiang_aquaculture_v2.pmtiles",
+   "bytes": 3398581,
+   "sha256": "7a7c1c0fa5bb53acc8b35af5082a6cd1b66d5c11e261677c8fce6fcedddfbf81",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_angiang_aquaculture.pmtiles"
+   "s3_key": "deploy-assets/world/vn_angiang_aquaculture_v2.pmtiles"
   },
   {
    "path": "public/world/vn_angiang_demo.pmtiles",
@@ -4461,6 +4461,13 @@
    "sha256": "b88de8d3e182094b28e99189e1118fd6a594e60db68bc7debf035c3b3f4fd17a",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/vn_angiang_demo.pmtiles"
+  },
+  {
+   "path": "public/world/vn_angiang_demo_v2.pmtiles",
+   "bytes": 110584,
+   "sha256": "6fa25688215a1ae5cd2e15014150efeb2dc23456368f7f4b8551e0be2351e1fe",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_angiang_demo_v2.pmtiles"
   },
   {
    "path": "public/world/vn_bicycle_rental.pmtiles",
@@ -4559,6 +4566,13 @@
    "sha256": "4934887e98d0394bb17f2ef39f8b2d3899c965f595ff2e556563d963b3d59197",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/vn_kindergartens.pmtiles"
+  },
+  {
+   "path": "public/world/vn_landslide_susceptibility.pmtiles",
+   "bytes": 564785,
+   "sha256": "76436ec7d8516c93bf24bcafd43b1e731e169cd0dcf9fe067f0d22a949ad5b01",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_landslide_susceptibility.pmtiles"
   },
   {
    "path": "public/world/vn_major_roads_v2.pmtiles",

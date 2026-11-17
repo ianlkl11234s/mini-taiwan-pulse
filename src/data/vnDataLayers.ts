@@ -480,7 +480,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     loading: l3("越南環境監測站載入中", "Loading Vietnam environmental monitoring stations", "ベトナムの環境モニタリング局を読み込み中"),
   },
   {
-    key: "vnAngiangDemo", file: "vn_angiang_demo.pmtiles", sourceId: "vn-angiang-demo", srcMinzoom: 6, srcMaxzoom: 14, color: "#f97316", count: 72,
+    key: "vnAngiangDemo", file: "vn_angiang_demo_v2.pmtiles", sourceId: "vn-angiang-demo", srcMinzoom: 6, srcMaxzoom: 14, color: "#f97316", count: 72,
     parts: [
       { id: "vn-angiang-clusters-fill", sourceLayer: "industrial_clusters", geom: "fill", minzoom: 6, cat: propGetter("status_code") },
       // 工業群面積多在 1 km² 以下，z8 只剩小點：加同色外框，低縮放（z10 以下）2.5 px，放大後收到 1.5 px

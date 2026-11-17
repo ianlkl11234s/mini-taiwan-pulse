@@ -1098,14 +1098,12 @@ const VN_DATA_MANIFEST_ENTRIES = Object.fromEntries(VN_DATA_SPECS.map((spec) => 
   }];
 })) as Record<VnDataKey, LayerManifestEntry>;
 
-/** 越南 raster 4 層（2026-11-17 第 2、3、6 波）：PNG PMTiles／外部 WMS，無 feature 屬性與 popup（同 caHillshade）。WDPCA 站主限定（OWNER_ONLY，圖磚走私有 owner-data）。 */
+/** 越南 raster 4 層（2026-11-17 第 2、3、6 波）：PNG PMTiles，無 feature 屬性與 popup（同 caHillshade）。WDPCA 站主限定（OWNER_ONLY，圖磚走私有 owner-data）。 */
 const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec) => {
   const m = VN_RASTER_META[spec.key];
-  const sourceNote = spec.kind === "wms"
-    ? `useVnWmsRasterLayer 掛外部 WMS raster source（ODM GeoServer，瀏覽器直連，clip 以 34 省外框裁切）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`
-    : spec.kind === "owner"
-      ? `useVnRasterLayer 自建 mapbox-pmtiles raster source（站主限定：useOwnerPmtilesSource 取私有 owner-data 簽名網址，無公開 fallback）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}`
-      : `useVnRasterLayer 自建 mapbox-pmtiles raster source（pmtilesRasterCustomSource）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`;
+  const sourceNote = spec.kind === "owner"
+    ? `useVnRasterLayer 自建 mapbox-pmtiles raster source（站主限定：useOwnerPmtilesSource 取私有 owner-data 簽名網址，無公開 fallback）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}`
+    : `useVnRasterLayer 自建 mapbox-pmtiles raster source（pmtilesRasterCustomSource）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`;
   return [spec.key, {
     key: spec.key,
     country: "VN", section: { theme: m.theme, group: m.group },
@@ -1115,7 +1113,7 @@ const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec)
     icon: m.icon,
     upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
     dataClass: "D",
-    source: { kind: "custom", note: sourceNote, staticAssets: spec.kind === "pmtiles" ? [`./world/${spec.file}`] : spec.kind === "owner" ? [`PRIVATE_OWNER_ONLY: ${spec.file}`] : [] },
+    source: { kind: "custom", note: sourceNote, staticAssets: spec.kind === "pmtiles" ? [`./world/${spec.file}`] : [`PRIVATE_OWNER_ONLY: ${spec.file}`] },
     legend: spec.key,
     popup: null,
     params: { count: 1, kinds: ["slider"] },

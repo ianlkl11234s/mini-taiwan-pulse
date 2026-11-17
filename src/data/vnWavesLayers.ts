@@ -7,12 +7,11 @@
  * - 觀光點依類別上色；tier1 z4、tier2 z7、有名稱 z10、無名稱 z12（逐筆 minzoom 已烤進圖磚）；圖例寫「不代表遊客量」。
  * - W6-1 WDPCA：只上 raster（不可下載向量）＋署名，且站主限定；ODM 保護區照常公開、圖例標非商用。
  * - W7-1 安江省門戶資料只標位置與分區類別（養殖不輸出面積、更新時間）。
- * - W3-1 崩塌潛勢直接掛 ODM GeoServer WMS，以 GeoServer `clip`（34 省外框簡化）遮掉鄰國。
+ * - W3-1 崩塌潛勢：ODM GeoServer WMS 沒有 CORS，改由 analytics 預渲染成自有 PNG PMTiles（z5–9，34 省遮罩、極低透明）。
  * GeoJSON 數值欄有字串（'137660'、'5'）：popup 一律 `kind: "num"／"year"` 轉數字。南海兩特區不畫、不歸任何省。
  */
 import type { VnDataKey, VnRasterKey } from "./vnDataKeys";
 import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./phDataLayers";
-import { VN_LANDSLIDE_CLIP_WKT } from "./vnLandslideClip";
 
 type Spec = PhLayerSpec<VnDataKey>;
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
@@ -550,7 +549,7 @@ const COAL_CATS: readonly PhCat[] = [
 
 const W7_SPECS: Spec[] = [
   {
-    key: "vnAngiangAquaculture", file: "vn_angiang_aquaculture.pmtiles", sourceId: "vn-angiang-aquaculture", srcMinzoom: 8, srcMaxzoom: 14, color: "#f472b6", count: 9504, opacity: 0.7,
+    key: "vnAngiangAquaculture", file: "vn_angiang_aquaculture_v2.pmtiles", sourceId: "vn-angiang-aquaculture", srcMinzoom: 8, srcMaxzoom: 14, color: "#f472b6", count: 9504, opacity: 0.7,
     parts: [{ id: "vn-angiang-aquaculture-fill", sourceLayer: "aquaculture", geom: "fill", minzoom: 8, cat: propGetter("type_code") }],
     cats: AQUA_CATS, title: { props: ["land_use"], fallback: l3("養殖用地", "Aquaculture land", "養殖用地") },
     fields: [
@@ -652,10 +651,9 @@ export const VN_WAVE_SPECS: readonly Spec[] = [...TOURISM_SPECS, ...W2_SPECS, ..
 
 export interface VnRasterSpec {
   key: VnRasterKey;
-  /** pmtiles＝公開 PNG PMTiles；owner＝站主限定 owner-data PNG PMTiles；wms＝外部 WMS（瀏覽器直連） */
-  kind: "pmtiles" | "owner" | "wms";
-  file?: string;
-  wmsUrl?: string;
+  /** pmtiles＝公開 PNG PMTiles；owner＝站主限定 owner-data PNG PMTiles */
+  kind: "pmtiles" | "owner";
+  file: string;
   sourceId: string;
   layerId: string;
   minzoom: number;
@@ -668,11 +666,6 @@ export interface VnRasterSpec {
   sourceShort: string;
   loading: string;
 }
-
-/** 崩塌潛勢 WMS：GeoServer 依 34 省外框（簡化、外擴約 2 km）裁切，遮掉鄰國與海面（W3-1）。 */
-const LANDSLIDE_WMS = "https://data.vietnam.opendevelopmentmekong.net/geoserver/ODVietnam/landslide_level_vn/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap"
-  + "&LAYERS=ODVietnam:landslide_level_vn&STYLES=&FORMAT=image/png&TRANSPARENT=true&SRS=EPSG:3857&WIDTH=256&HEIGHT=256&BBOX={bbox-epsg-3857}"
-  + `&clip=${encodeURIComponent(`srid=4326;${VN_LANDSLIDE_CLIP_WKT}`).replace(/%2C/g, ",").replace(/%28/g, "(").replace(/%29/g, ")")}`;
 
 /** WDPCA raster 類別色（與 analytics pipelines/misc/vn/08_wdpca_raster.py 的 FILLS／OUTLINES 同步）。 */
 export const VN_WDPCA_RASTER_SWATCHES: NonNullable<VnRasterSpec["swatches"]> = [
@@ -703,17 +696,18 @@ export const VN_RASTER_SPECS: readonly VnRasterSpec[] = [
     sourceShort: COPERNICUS, loading: "越南色別標高載入中",
   },
   {
-    key: "vnLandslideSusceptibility", kind: "wms", wmsUrl: LANDSLIDE_WMS, sourceId: "vn-landslide-wms", layerId: "vn-landslide-wms-raster", minzoom: 5, maxzoom: 14, opacity: 0.6,
+    key: "vnLandslideSusceptibility", kind: "pmtiles", file: "vn_landslide_susceptibility.pmtiles", sourceId: "vn-landslide-susceptibility", layerId: "vn-landslide-susceptibility-raster", minzoom: 5, maxzoom: 9, opacity: 0.6,
     swatches: [
-      { color: "#1a9641", label: l3("極低", "Very low", "非常に低い") }, { color: "#c3e586", label: l3("低", "Low", "低い") },
+      { color: "#c3e586", label: l3("低", "Low", "低い") },
       { color: "#fdc980", label: l3("中", "Medium", "中") }, { color: "#d7191c", label: l3("高", "High", "高い") },
     ],
     notes: [
       l3("區域模型圖，只有圖、不能分析；資料年不明", "Regional model map, image only and not analysable; data year unknown", "地域モデル図で画像のみ、分析不可。データ年不明"),
-      l3("外部 WMS 直連，服務不穩時會空白；以 34 省外框裁切（鄰國不畫）", "Live external WMS — blank when the service is down; clipped to the 34-province outline (neighbours not drawn)", "外部 WMS に直接接続、停止時は空白。34 省の外枠で切り抜き（隣国は描画しない）"),
+      l3("原生格網約 1 km；「極低」（多為平地）不畫；只畫越南 34 省（鄰國不畫）", "Native grid about 1 km; \"very low\" (mostly flat land) not drawn; Vietnam's 34 provinces only (neighbours not drawn)", "元の格子は約 1 km。「非常に低い」（主に平地）は描画しない。ベトナム 34 省のみ（隣国は描画しない）"),
+      l3("ODM GeoServer WMS 於 2026-11-17 擷取並轉成圖磚", "Rendered from the ODM GeoServer WMS on 2026-11-17", "ODM GeoServer WMS から 2026-11-17 に取得・タイル化"),
       l3("授權未明示（ODM 標 CC BY-SA 4.0）", "Licence not stated (ODM lists CC BY-SA 4.0)", "ライセンス未明示（ODM 表記は CC BY-SA 4.0）"),
     ],
-    sourceShort: "Open Development Vietnam 彙編（NGO），原始機關未載明；Land slide hazard map in Vietnam（GeoServer WMS）", loading: "越南崩塌潛勢載入中",
+    sourceShort: "Open Development Vietnam 彙編（NGO），原始機關未載明；Land slide hazard map in Vietnam（ODM GeoServer WMS，2026-11-17 渲染）", loading: "越南崩塌潛勢載入中",
   },
   {
     key: "vnWdpca", kind: "owner", file: "vn_wdpca_raster.pmtiles", sourceId: "vn-wdpca-raster", layerId: "vn-wdpca-raster", minzoom: 5, maxzoom: 12, opacity: 0.6,
