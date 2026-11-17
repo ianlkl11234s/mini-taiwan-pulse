@@ -1937,5 +1937,6 @@
   "layer.gibsNightLights": "Satellite Night Lights",
   "layer.mapchallengeDay17DarkSky": "Where Real Darkness Remains",
   "layer.mapchallengeDay17DarkRoads": "Roads Where Satellites See No Light",
-  "layer.mapchallengeDay17NightFall": "Lights Come On at Dusk"
+  "layer.mapchallengeDay17NightFall": "Lights Come On at Dusk",
+  "layer.mapchallengeDay17LedShare": "Streetlight LED Share by County"
 }

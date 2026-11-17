@@ -36,6 +36,7 @@ import {
 import {
   MAPCHALLENGE_DAY17_GROUND_MAX_NW, MAPCHALLENGE_DAY17_INFERNO, MAPCHALLENGE_DAY17_LOW_OPACITY, MAPCHALLENGE_DAY17_LOW_SWATCH, MAPCHALLENGE_DAY17_MAGMA, MAPCHALLENGE_DAY17_PRODUCTS,
   MAPCHALLENGE_DAY17_SKY_BREAKS, mapchallengeDay17Gradient, mapchallengeDay17GlowColor, mapchallengeDay17ProtectedLineColor, mapchallengeDay17SkyPos, mapchallengeDay17ZeroColor,
+  MAPCHALLENGE_DAY17_LED_NATIONAL, mapchallengeDay17LedColors, mapchallengeDay17LedYearByKey,
 } from "../../data/mapchallengeDay17Types";
 import { RADIUS } from "../../styles/designTokens";
 
@@ -499,5 +500,29 @@ export function MapchallengeDay17NightFallLegend() {
     <LegendNote>{t("legend.mapchallenge.day17.nightFallRule")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day17.nightFallTip")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day17.nightFallSource")}</LegendNote>
+  </div>;
+}
+
+/** LED 化 5 級標籤（高 → 低列在圖例由上而下） */
+const MAPCHALLENGE_DAY17_LED_BIN_KEYS = [
+  "legend.mapchallenge.day17.ledBin0", "legend.mapchallenge.day17.ledBin1", "legend.mapchallenge.day17.ledBin2",
+  "legend.mapchallenge.day17.ledBin3", "legend.mapchallenge.day17.ledBin4",
+] as const;
+
+export function MapchallengeDay17LedShareLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  const theme = useLegendTheme();
+  const values = useLayerParams("mapchallengeDay17LedShare");
+  const year = mapchallengeDay17LedYearByKey(paramStr(values, "mapchallengeDay17LedShare", "mapchallengeDay17LedShareYear"));
+  const colors = mapchallengeDay17LedColors(isDark);
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day17.ledTitle", { year })} />
+    <LegendNote>{t("legend.mapchallenge.day17.ledSub")}</LegendNote>
+    {[4, 3, 2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchSquare color={colors[i]!} stroke={theme.seam} />}>
+      {t(MAPCHALLENGE_DAY17_LED_BIN_KEYS[i]!)}
+    </LegendRow>)}
+    <LegendNote>{t("legend.mapchallenge.day17.ledNational", { a: (MAPCHALLENGE_DAY17_LED_NATIONAL[2021] * 100).toFixed(1), b: (MAPCHALLENGE_DAY17_LED_NATIONAL[2025] * 100).toFixed(1), y: (MAPCHALLENGE_DAY17_LED_NATIONAL[year] * 100).toFixed(1), year })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.ledNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.ledSource")}</LegendNote>
   </div>;
 }

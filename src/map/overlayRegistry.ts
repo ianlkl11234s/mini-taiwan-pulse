@@ -48,6 +48,7 @@ import { MAPCHALLENGE_DAY09_URL, mapchallengeDay09ColorExpr, mapchallengeDay09Me
 import {
   MAPCHALLENGE_DAY17_GLOW, MAPCHALLENGE_DAY17_GLOW_LIGHT_FACTOR, MAPCHALLENGE_DAY17_LOW_COLOR, MAPCHALLENGE_DAY17_ROADS_ATTRIBUTION, MAPCHALLENGE_DAY17_RUNS_URL,
   MAPCHALLENGE_DAY17_SEGMENTS_URL, MAPCHALLENGE_DAY17_TOP_RANK, mapchallengeDay17GlowColor, mapchallengeDay17ScopeAt, mapchallengeDay17ZeroColor,
+  MAPCHALLENGE_DAY17_LED_ATTRIBUTION, MAPCHALLENGE_DAY17_LED_URL, mapchallengeDay17LedColorExpr, mapchallengeDay17LedYearAt,
 } from "../data/mapchallengeDay17Types";
 import { mapchallengeDay17RunWidthExpr, mapchallengeDay17SegmentWidthExpr, mapchallengeDay17TopWidthExpr } from "../data/mapchallengeDay17Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
@@ -13169,6 +13170,23 @@ OVERLAY_REGISTRY.push(
     }],
   },
 );
+
+// ── 30 天地圖挑戰 Day 17「縣市路燈 LED 化」（模擬面板，公開，2026-11-17）：22 縣市面，年份 select 只換 paint 讀的
+// led_share_<year>；5 級（20／40／60／80%）琥珀→冷白。G-3 色格縫外框（比照 Day 9）。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay17LedShare", sourceUrl: MAPCHALLENGE_DAY17_LED_URL, sourceId: "mapchallenge-day17-led-share",
+  attribution: MAPCHALLENGE_DAY17_LED_ATTRIBUTION,
+  layers: [{
+    suffix: "fill", type: "fill",
+    paint: (isDark, p) => ({
+      "fill-color": mapchallengeDay17LedColorExpr(mapchallengeDay17LedYearAt(p?.mapchallengeDay17LedShareYearIdx), isDark),
+      "fill-opacity": p?.mapchallengeDay17LedShareOpacity ?? 0.7,
+    }),
+  }, {
+    suffix: "outline", type: "line",
+    paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay17LedShareOpacity ?? 0.7 }),
+  }],
+});
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。

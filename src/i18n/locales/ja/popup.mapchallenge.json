@@ -140,5 +140,12 @@
   "popup.mapchallenge.day17.segKm": "区間の長さ",
   "popup.mapchallenge.day17.rad25": "2025 年平均輝度",
   "popup.mapchallenge.day17.pixelNote": "1 画素は約 460 m で街灯 1 本は見えず、街灯がないという意味ではありません",
-  "popup.mapchallenge.day17.lowNote": "衛星から見える光が弱い区間。新北市の校正では低輝度の 84% の近くに街灯あり"
+  "popup.mapchallenge.day17.lowNote": "衛星から見える光が弱い区間。新北市の校正では低輝度の 84% の近くに街灯あり",
+  "popup.mapchallenge.day17.ledShare": "{year} 年 LED 電力量比率",
+  "popup.mapchallenge.day17.ledKwh": "LED／総電力量",
+  "popup.mapchallenge.day17.ledAccounts": "LED／総契約数",
+  "popup.mapchallenge.day17.ledOfTotal": "{a}／{b} {unit}",
+  "popup.mapchallenge.day17.ledAcctUnit": "件",
+  "popup.mapchallenge.day17.ledNoData": "データなし",
+  "popup.mapchallenge.day17.ledNote": "台湾電力の街路灯契約単位で、1 契約に複数の灯具を含むことがあります。LED は省電力のため電力量比率は灯数比率より低く出ます。私設街路灯は含みません"
 }

@@ -1971,6 +1971,13 @@
    "s3_key": "deploy-assets/mapchallenge/day17_ground_radiance_2025.png"
   },
   {
+   "path": "public/mapchallenge/day17_led_share_by_county.geojson",
+   "bytes": 158095,
+   "sha256": "702a07f798f977b3e79935d717265d2b36d6b969f1350df8ea1c254eac819953",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day17_led_share_by_county.geojson"
+  },
+  {
    "path": "public/mapchallenge/day17_protected_area_dark_rank.geojson",
    "bytes": 248238,
    "sha256": "b573ad2fd0ccd6192c31e2348839a1c43816882895296db225d323bf5345338d",

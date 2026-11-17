@@ -3,6 +3,7 @@
  * 人口欄位＋依圖層列設施數／熱區分類。設施層讀目前選的設施（同圖例）。
  */
 import { useLocale } from "../../state/localeStore";
+import { placeName } from "../../i18n/placeText";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import {
   MAPCHALLENGE_DAY04_COLOR, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_ZERO_SWATCH,
@@ -24,6 +25,7 @@ import {
 import { MAPCHALLENGE_DAY09_METRIC_KEYS, MAPCHALLENGE_DAY09_QUINTILE_KEYS } from "../legend/mapchallengeLegends";
 import {
   MAPCHALLENGE_DAY17_LOW_SWATCH, MAPCHALLENGE_DAY17_PROTECTED_TOTAL, MAPCHALLENGE_DAY17_TOP_RANK, mapchallengeDay17GlowColor, mapchallengeDay17ProtectedLineColor, mapchallengeDay17ZeroColor,
+  mapchallengeDay17LedFeatureColor, mapchallengeDay17LedYearByKey,
 } from "../../data/mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import { Row, SourceFooter, Title } from "./shared";
@@ -426,5 +428,24 @@ export function MapchallengeDay17DarkRoadsPanel({ props }: Props) {
     {!zero && <Row label={t("popup.mapchallenge.day17.rad25")} value={t("popup.mapchallenge.day17.nw", { n: formatNumber(num(props.rad25_mean)) })} mono />}
     <Row label={t("popup.mapchallenge.day17.note")} value={t(zero ? "popup.mapchallenge.day17.pixelNote" : "popup.mapchallenge.day17.lowNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day17.roadsSource") }} />
+  </div>;
+}
+
+export function MapchallengeDay17LedSharePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const values = useLayerParams("mapchallengeDay17LedShare");
+  const year = mapchallengeDay17LedYearByKey(paramStr(values, "mapchallengeDay17LedShare", "mapchallengeDay17LedShareYear"));
+  const share = props[`led_share_${year}`];
+  const has = (v: unknown) => v !== null && v !== undefined && v !== "" && Number.isFinite(num(v));
+  const fmt = (v: unknown) => (has(v) ? formatNumber(num(v)) : t("popup.mapchallenge.day17.ledNoData"));
+  return <div>
+    <Title color={mapchallengeDay17LedFeatureColor(has(share) ? num(share) : null, isDark)}>{placeName(str(props.county), i18n, str(props.code) || null)}</Title>
+    <Row label={t("popup.mapchallenge.day17.ledShare", { year })} value={has(share) ? `${(num(share) * 100).toFixed(1)}%` : t("popup.mapchallenge.day17.ledNoData")} mono />
+    <Row label={t("popup.mapchallenge.day17.ledKwh")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_kwh_${year}`]), b: fmt(props[`total_kwh_${year}`]), unit: "kWh" })} mono />
+    <Row label={t("popup.mapchallenge.day17.ledAccounts")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_count_${year}`]), b: fmt(props[`total_${year}`]), unit: t("popup.mapchallenge.day17.ledAcctUnit") })} mono />
+    <Row label={t("popup.mapchallenge.day17.note")} value={t("popup.mapchallenge.day17.ledNote")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day17.ledSource") }} />
   </div>;
 }

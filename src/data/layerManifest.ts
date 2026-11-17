@@ -216,7 +216,7 @@ import { MAPCHALLENGE_DAY05_COLOR } from "./mapchallengeDay05Types";
 import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
-import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -17249,6 +17249,28 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "30 天地圖挑戰 Day 17 光與暗：跟著時間軸看台灣入夜亮燈。2025 年衛星地面亮度依當下太陽高度逐地亮起：太陽還在地平線上是透明，降到地平線下 8° 全亮；東邊先暗先亮，金門比花蓮晚十幾分鐘。可同時開船舶的「漁火模擬」看海上漁船燈火。依太陽高度模擬入夜亮燈，亮度是 2025 年平均，不是逐時觀測。來源：NASA Black Marble VNP46A4（2025）。",
     topics: ["光害", "夜光", "入夜", "太陽高度", "時間軸", "衛星", "30 天地圖挑戰"],
+  },
+  mapchallengeDay17LedShare: {
+    key: "mapchallengeDay17LedShare",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：靜態 GeoJSON（22 縣市），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗" },
+    ...layerName({ zh: "縣市路燈 LED 化", alt: "Streetlight LED Share by County" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY17_LED_COLOR,
+    icon: Lightbulb,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（09）。台灣電力公司各縣市路燈用電量統計（data.gov.tw 152419）2021–2025 年，依縣市彙總包制、表制、LED 三類路燈契約；LED 用電占比＝LED 用電度數 ÷（包制＋表制＋LED）用電度數；另附 LED 契約戶數占比。縣市界：內政部國土測繪中心直轄市、縣市界線。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。台電路燈用電契約戶，一戶可含多盞燈；LED 較省電，用電占比會低估燈數占比；不含私設路燈。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day17-led-share", url: "./mapchallenge/day17_led_share_by_county.geojson" },
+    legend: "mapchallengeDay17LedShare",
+    popup: "mapchallengeDay17LedShare",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 17 光與暗：各縣市路燈的 LED 用電占比（LED 用電 ÷ 路燈總用電）。全台從 2021 年 42.1% 升到 2025 年 52.2%；2025 年最高金門 95.3%、臺北 89.0%，最低連江 5.2%、花蓮 12.6%；5 年增幅最大是臺南（29.8% → 72.5%）。可切 2021–2025 年；琥珀＝LED 少（鈉燈色）、冷白＝LED 多。點縣市看 LED 用電量、總用電量、LED 契約戶數與總戶數。台電契約戶一戶可含多盞燈，LED 較省電，用電占比會低估燈數占比；不含私設路燈。來源：台灣電力公司各縣市路燈用電量統計（data.gov.tw 152419，政府資料開放授權條款第 1 版）。",
+    topics: ["路燈", "LED", "節能", "光害", "台電", "縣市", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

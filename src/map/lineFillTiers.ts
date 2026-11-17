@@ -64,6 +64,7 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   mapchallengeDay04Population: "grid", // 30 天地圖挑戰 Day 4 人口密度基準 Population Density Baseline
   mapchallengeDay06Taipei1932: "coverage", // 30 天地圖挑戰 Day 6 1932 臺北市町界（面＋類別色）
   mapchallengeDay09UrbanRural: "graded", // 30 天地圖挑戰 Day 9 城鄉（鄉鎮 choropleth，密度五等份／設施 7 階）
+  mapchallengeDay17LedShare: "graded", // 30 天地圖挑戰 Day 17 縣市路燈 LED 化（縣市 choropleth，LED 用電占比 5 級）
   mapchallengeDay08Access: "graded", // 30 天地圖挑戰 Day 8 走到大公園要幾分鐘（viridis 四級）
   mapchallengeDay08Parks: "coverage", // 30 天地圖挑戰 Day 8 現有公園（面＋類別色；入口點另見 POINT_TIERS）
   mapchallengeDay08Sites: "coverage", // 30 天地圖挑戰 Day 8 新公園選址與代價（面＋類別色，外框用反差中性色）
@@ -476,9 +477,11 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
 };
 /**
  * 暗底面透明度的個別例外（F-1 暗底，2026-11-10）：值＝暗底預設透明度，取代 FILL_OPACITY_DARK 的階。
- * Day 9 城鄉的最高階是亮黃，0.7 疊暗陸會變橄欖色；0.85 才讀得出「最亮＝最多」。
+ * Day 9 城鄉的最高階是亮黃，0.7 疊暗陸會變橄欖色；0.85 才讀得出「最亮＝最多」。Day 17 LED 化最高級近白，同理。
  */
 export const FILL_DARK_OPACITY_OVERRIDE: Readonly<Record<string, number>> = {
   mapchallengeDay09UrbanRural: 0.85,
+  // Day 17 LED 化最高級近白（冷白＝LED 多），0.7 疊暗陸會變灰；同 Day 9 理由用 0.85
+  mapchallengeDay17LedShare: 0.85,
 };
 

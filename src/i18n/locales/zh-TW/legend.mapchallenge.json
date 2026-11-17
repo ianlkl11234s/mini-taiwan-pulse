@@ -165,5 +165,15 @@
   "legend.mapchallenge.day17.nightFallNote": "依太陽高度模擬入夜亮燈，亮度是 2025 年平均，不是逐時觀測。",
   "legend.mapchallenge.day17.nightFallRule": "太陽在地平線上透明，降到地平線下 8° 全亮；每個地方依自己的經緯度亮起，東邊先亮。",
   "legend.mapchallenge.day17.nightFallTip": "可同時開船舶圖層的「漁火模擬」看海上漁船燈火。",
-  "legend.mapchallenge.day17.nightFallSource": "NASA Black Marble VNP46A4（2025 年合成）；太陽高度為天文公式計算"
+  "legend.mapchallenge.day17.nightFallSource": "NASA Black Marble VNP46A4（2025 年合成）；太陽高度為天文公式計算",
+  "legend.mapchallenge.day17.ledTitle": "縣市路燈 LED 化（{year} 年）",
+  "legend.mapchallenge.day17.ledSub": "LED 用電占比＝LED 用電 ÷ 路燈總用電（包制＋表制＋LED）",
+  "legend.mapchallenge.day17.ledBin0": "< 20%（鈉燈琥珀，LED 少）",
+  "legend.mapchallenge.day17.ledBin1": "20–40%",
+  "legend.mapchallenge.day17.ledBin2": "40–60%",
+  "legend.mapchallenge.day17.ledBin3": "60–80%",
+  "legend.mapchallenge.day17.ledBin4": "≥ 80%（冷白，LED 多）",
+  "legend.mapchallenge.day17.ledNational": "全台 LED 用電占比：2021 年 {a}% → 2025 年 {b}%（{year} 年 {y}%）。",
+  "legend.mapchallenge.day17.ledNote": "台電路燈用電契約戶，一戶可含多盞燈；LED 較省電，用電占比會低估燈數占比；不含私設路燈。",
+  "legend.mapchallenge.day17.ledSource": "台灣電力公司各縣市路燈用電量統計（data.gov.tw 152419，政府資料開放授權條款第 1 版）"
 }

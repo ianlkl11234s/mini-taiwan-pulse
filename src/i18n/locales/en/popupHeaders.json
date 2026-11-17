@@ -126,5 +126,6 @@
   "popupHeader.mapchallengeDay08Parks": "Existing Parks and Riverside Entrances",
   "popupHeader.mapchallengeDay09UrbanRural": "Which Services Stay Where People Are Few",
   "popupHeader.mapchallengeDay17DarkSky": "Real Darkness: Protected Area Ranking",
-  "popupHeader.mapchallengeDay17DarkRoads": "Roads Where Satellites See No Light"
+  "popupHeader.mapchallengeDay17DarkRoads": "Roads Where Satellites See No Light",
+  "popupHeader.mapchallengeDay17LedShare": "Streetlight LED Share by County"
 }

@@ -2682,5 +2682,9 @@
   "param.2025 地面亮度": "2025 ground radiance",
   "param.顯示等級": "Display level",
   "param.只顯示偵測不到（0）": "Not detected (0) only",
-  "param.偵測不到＋低亮度": "Not detected + low radiance"
+  "param.偵測不到＋低亮度": "Not detected + low radiance",
+  "param.2021 年": "2021",
+  "param.2022 年": "2022",
+  "param.2023 年": "2023",
+  "param.2024 年": "2024"
 }

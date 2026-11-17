@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1947,
+    "keyCount": 1948,
     "sections": [
       "gisLayers",
       "overlays",
@@ -7367,6 +7367,12 @@
         "mapchallenge-day17-protected-fill"
       ],
       "type": "mapchallengeDay17DarkSky"
+    },
+    {
+      "layers": [
+        "mapchallenge-day17-led-share-fill"
+      ],
+      "type": "mapchallengeDay17LedShare"
     },
     {
       "layers": [
@@ -113645,6 +113651,119 @@
       "rebuildOnParamChange": null,
       "sourceId": "mapchallenge-day17-dark-road-runs",
       "sourceUrl": "./mapchallenge/day17_dark_road_runs.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay17LedShare",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "led_share_2025"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "led_share_2025"
+                    ]
+                  ],
+                  "#b0500a",
+                  0.2,
+                  "#e3922b",
+                  0.4,
+                  "#f2c97a",
+                  0.6,
+                  "#94b8e0",
+                  0.8,
+                  "#f4f8ff"
+                ],
+                "#6b7280"
+              ],
+              "fill-opacity": 0.85
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "led_share_2025"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "led_share_2025"
+                    ]
+                  ],
+                  "#a3470a",
+                  0.2,
+                  "#d98a2b",
+                  0.4,
+                  "#ecc777",
+                  0.6,
+                  "#9cc0dd",
+                  0.8,
+                  "#4d82b3"
+                ],
+                "#6b7280"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day17-led-share",
+      "sourceUrl": "./mapchallenge/day17_led_share_by_county.geojson"
     }
   ],
   "params": {
@@ -150060,6 +150179,44 @@
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay17LedShare": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2021 年",
+            "value": "2021"
+          },
+          {
+            "label": "2022 年",
+            "value": "2022"
+          },
+          {
+            "label": "2023 年",
+            "value": "2023"
+          },
+          {
+            "label": "2024 年",
+            "value": "2024"
+          },
+          {
+            "label": "2025 年",
+            "value": "2025"
+          }
+        ],
+        "type": "select",
+        "value": "2025"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
         "name": "透明度",
         "step": 0.05,
         "value": 0.7,

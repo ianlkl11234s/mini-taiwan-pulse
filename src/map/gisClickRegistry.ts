@@ -1214,6 +1214,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day09-urban-rural-fill"], type: "mapchallengeDay09UrbanRural" },
   // 🌙 30 天地圖挑戰 Day 17 真正的黑夜：48 處保護區面（hook 自建、透明填色當點擊範圍；國家公園含大片海域）
   { layers: ["mapchallenge-day17-protected-fill"], type: "mapchallengeDay17DarkSky" },
+  // 💡 30 天地圖挑戰 Day 17 縣市路燈 LED 化：22 縣市面（鋪滿全台，排在保護區之後）
+  { layers: ["mapchallenge-day17-led-share-fill"], type: "mapchallengeDay17LedShare" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

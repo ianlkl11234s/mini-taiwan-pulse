@@ -140,5 +140,12 @@
   "popup.mapchallenge.day17.segKm": "Segment length",
   "popup.mapchallenge.day17.rad25": "2025 mean radiance",
   "popup.mapchallenge.day17.pixelNote": "One pixel is about 460 m, too coarse for a single streetlight; this does not mean there are no streetlights",
-  "popup.mapchallenge.day17.lowNote": "The satellite sees weak light; in New Taipei, 84% of low-radiance samples had a streetlight nearby"
+  "popup.mapchallenge.day17.lowNote": "The satellite sees weak light; in New Taipei, 84% of low-radiance samples had a streetlight nearby",
+  "popup.mapchallenge.day17.ledShare": "LED share of electricity, {year}",
+  "popup.mapchallenge.day17.ledKwh": "LED / total electricity",
+  "popup.mapchallenge.day17.ledAccounts": "LED / total contracts",
+  "popup.mapchallenge.day17.ledOfTotal": "{a} / {b} {unit}",
+  "popup.mapchallenge.day17.ledAcctUnit": "contracts",
+  "popup.mapchallenge.day17.ledNoData": "No data",
+  "popup.mapchallenge.day17.ledNote": "Taipower streetlight contracts; one contract can cover many lamps. LEDs use less power, so the electricity share understates the lamp share. Private streetlights excluded"
 }

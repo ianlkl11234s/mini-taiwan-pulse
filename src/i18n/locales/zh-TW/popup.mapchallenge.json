@@ -140,5 +140,12 @@
   "popup.mapchallenge.day17.segKm": "路段長度",
   "popup.mapchallenge.day17.rad25": "2025 平均亮度",
   "popup.mapchallenge.day17.pixelNote": "衛星一個像素約 460 m，看不到單盞路燈，不代表沒有路燈",
-  "popup.mapchallenge.day17.lowNote": "衛星看到的光很弱；新北校正中低亮度路段 84% 附近仍有路燈"
+  "popup.mapchallenge.day17.lowNote": "衛星看到的光很弱；新北校正中低亮度路段 84% 附近仍有路燈",
+  "popup.mapchallenge.day17.ledShare": "{year} 年 LED 用電占比",
+  "popup.mapchallenge.day17.ledKwh": "LED／總用電量",
+  "popup.mapchallenge.day17.ledAccounts": "LED／總契約戶數",
+  "popup.mapchallenge.day17.ledOfTotal": "{a}／{b} {unit}",
+  "popup.mapchallenge.day17.ledAcctUnit": "戶",
+  "popup.mapchallenge.day17.ledNoData": "無資料",
+  "popup.mapchallenge.day17.ledNote": "台電路燈用電契約戶，一戶可含多盞燈；LED 較省電，用電占比會低估燈數占比；不含私設路燈"
 }

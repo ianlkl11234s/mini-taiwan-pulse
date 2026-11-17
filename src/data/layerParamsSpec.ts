@@ -101,7 +101,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
-import { MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
@@ -1725,6 +1725,15 @@ export const LAYER_PARAMS_SPEC = {
   ],
   mapchallengeDay17NightFall: [
     { kind: "slider", name: "mapchallengeDay17NightFallOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ],
+  // 年份 select 只換 paint 讀的欄位 led_share_<year>
+  mapchallengeDay17LedShare: [
+    opacitySlider("mapchallengeDay17LedShareOpacity", 0.7),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17LedShareYear", label: "年份", default: String(MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR),
+      options: MAPCHALLENGE_DAY17_LED_YEARS.map((y) => ({ label: `${y} 年`, value: String(y) })),
+      out: "mapchallengeDay17LedShareYearIdx", encode: MAPCHALLENGE_DAY17_LED_YEARS.map(String),
+    },
   ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
