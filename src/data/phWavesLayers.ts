@@ -52,10 +52,10 @@ function pointPart(id: string, sourceLayer: string, minzoom: number, getter: PhC
 const TOURISM_TIER: PhSizeBands = {
   prop: "tier", title: l3("圖示大小：重要程度", "Symbol size: prominence", "記号の大きさ：重要度"),
   bands: [
-    { min: 0, radius: 6.5, label: "UNESCO／國家公園" },
-    { min: 2, radius: 5, label: "Wikidata 熱門" },
-    { min: 3, radius: 3.5, label: "一般" },
-    { min: 4, radius: 2.5, label: "未命名" },
+    { min: 0, radius: 6.5, label: l3("UNESCO／國家公園", "UNESCO / national park", "UNESCO・国立公園") },
+    { min: 2, radius: 5, label: l3("Wikidata 熱門", "Popular on Wikidata", "Wikidata 人気") },
+    { min: 3, radius: 3.5, label: l3("一般", "Other", "一般") },
+    { min: 4, radius: 2.5, label: l3("未命名", "Unnamed", "名称なし") },
   ],
 };
 const DOT_APPROX: Expr = ["==", ["to-string", ["coalesce", ["get", "coord_quality"], ""]], "dot_approximate"];
@@ -348,7 +348,7 @@ const W3_SPECS: PhLayerSpec[] = [
     loading: loading("地震", "earthquakes"),
   },
   {
-    key: "phNoahFlood100yr", file: "ph_noah_flood_100yr_north.pmtiles", sourceId: "ph-noah-flood", srcMinzoom: 0, srcMaxzoom: 10, color: "#f97316", count: 0, opacity: 0.6,
+    key: "phNoahFlood100yr", file: "ph_noah_flood_100yr_north.pmtiles", sourceId: "ph-noah-flood", srcMinzoom: 0, srcMaxzoom: 10, color: "#f97316", count: 0, opacity: 0.45,
     extraFiles: [{ suffix: "central", file: "ph_noah_flood_100yr_central.pmtiles", partIds: ["ph-noah-flood-fill-central"] }, { suffix: "south", file: "ph_noah_flood_100yr_south.pmtiles", partIds: ["ph-noah-flood-fill-south"] }],
     parts: [{ id: "ph-noah-flood-fill", sourceLayer: "flood_100yr", geom: "fill", minzoom: 5, cat: propGetter("Var") }],
     cats: FLOOD_CATS,
@@ -366,7 +366,13 @@ const W3_SPECS: PhLayerSpec[] = [
     cats: LANDSLIDE_CATS,
     title: { props: [], fallback: l3("崩塌危害", "Landslide hazard", "崩壊ハザード"), fallbackBy: { prop: "HAZ", map: catMap(LANDSLIDE_CATS) } },
     fields: [{ prop: "HAZ", label: l3("危害等級", "Hazard level", "ハザード等級"), map: catMap(LANDSLIDE_CATS) }],
-    legendNotes: [l3("淺層崩塌危害", "Shallow landslide hazard", "表層崩壊ハザード"), ...NOAH_NOTES],
+    legendNotes: [
+      l3("淺層崩塌危害", "Shallow landslide hazard", "表層崩壊ハザード"),
+      l3("z9 以下來源抽稀，圖磚邊界可能出現直線缺口，放大到 z10 以上才完整；Benguet 一帶的高危害面與省界吻合，是來源分省評估的結果，不是切檔造成",
+        "At z9 and below the source thins features, so straight gaps can appear along tile edges; zoom to z10+ for full detail. The high-hazard area matching the Benguet provincial boundary comes from the source's province-by-province assessment, not from our file split",
+        "z9 以下は元データが間引かれ、タイル境界に直線状の欠けが出ることがある。z10 以上で完全表示。Benguet 周辺の高ハザード域が州境と一致するのは元データの州別評価によるもので、ファイル分割のせいではない"),
+      ...NOAH_NOTES,
+    ],
     popupNotes: [],
     sourceOrg: NOAH_SOURCE, sourceUrl: "https://noah.up.edu.ph/", license: ODBL, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("崩塌危害", "landslide hazard"),

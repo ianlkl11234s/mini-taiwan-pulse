@@ -52,14 +52,14 @@ export const PhExpresswaysHost = makePhDataHost("phExpressways", 0.85);
 
 // 觀光波與第 2–9 波（2026-11-16）
 /** NOAH 淹水、崩塌：同一層依緯度分北中南三檔（範圍重疊、同一樣式），host 固定畫三次。 */
-function makePhTripleFileHost(key: PhDataKey, fallbackOpacity: number): LayerHostComponent {
+function makePhTripleFileHost(key: PhDataKey): LayerHostComponent {
   const [a, b, c] = phFileSpecs(PH_SPEC_BY_KEY[key]);
   const hookId = `usePh${key.slice(2)}Layer`;
   const PhTripleHost: LayerHostComponent = ({ deps }) => {
     bumpHostRender(hookId);
     const p = useKeyOverlayParams(key);
     const visible = deps.layerVisibility[key];
-    const opacity = p[`${key}Opacity`] ?? fallbackOpacity;
+    const opacity = p[`${key}Opacity`] ?? PH_SPEC_BY_KEY[key].opacity ?? 0.6;
     const mask = p[`${key}CategoryMask`];
     usePhDataLayer(deps.mapRef, a!, visible, opacity, 1, deps.isDarkTheme, mask);
     usePhDataLayer(deps.mapRef, b!, visible, opacity, 1, deps.isDarkTheme, mask);
@@ -89,8 +89,8 @@ export const PhTourismDevelopmentAreasHost = W("phTourismDevelopmentAreas");
 export const PhPlaceNamesHost = W("phPlaceNames");
 export const PhPovertyHost = W("phPoverty");
 export const PhEarthquakesHost = W("phEarthquakes");
-export const PhNoahFlood100yrHost = makePhTripleFileHost("phNoahFlood100yr", 0.6);
-export const PhNoahLandslideHost = makePhTripleFileHost("phNoahLandslide", 0.6);
+export const PhNoahFlood100yrHost = makePhTripleFileHost("phNoahFlood100yr");
+export const PhNoahLandslideHost = makePhTripleFileHost("phNoahLandslide");
 export const PhWaterPermitsHost = W("phWaterPermits");
 export const PhLakesHost = W("phLakes");
 export const PhDamsHost = W("phDams");

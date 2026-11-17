@@ -296,7 +296,8 @@ export function LegendNestedCircles({ items, fill, ring }: { items: readonly { r
   );
 }
 
-export function LegendSizeRow({ title, items, fill, ring }: { title: string; items: readonly { r: number; label: string }[]; fill?: string; ring?: string }) {
+/** `numeric=false`：標籤是文字分級（不用等寬數字字型）。 */
+export function LegendSizeRow({ title, items, fill, ring, numeric = true }: { title: string; items: readonly { r: number; label: string }[]; fill?: string; ring?: string; numeric?: boolean }) {
   const t = useLegendTheme();
   return (
     <div style={{ marginTop: 6 }}>
@@ -313,7 +314,7 @@ export function LegendSizeRow({ title, items, fill, ring }: { title: string; ite
                   : { background: fill, boxShadow: `0 0 0 1px ${t.pointRing}` }),
               }}
             />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}><LegendNum>{x.label}</LegendNum></span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{numeric ? <LegendNum>{x.label}</LegendNum> : x.label}</span>
           </div>
         ))}
       </div>

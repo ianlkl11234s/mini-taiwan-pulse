@@ -92,7 +92,8 @@ export const PH_URBAN_CLASS: Record<string, L3> = {
 
 export interface PhCat { id: string; values: readonly string[]; color: string; label: L3; /** 屬於哪些子圖層；省略＝全部 */ parts?: readonly string[]; /** 依類別的點半徑（px，乘大小滑桿） */ radius?: number }
 export interface PhField { prop: string; label: L3; kind?: "text" | "num" | "code" | "year"; unit?: string; digits?: number; map?: Readonly<Record<string, L3>>; /** 與此欄同值時不顯示（例：name_en 與 name 相同） */ unlessSameAs?: string }
-export interface PhSizeBands { prop: string; title: L3; bands: readonly { min: number; radius: number; label: string }[] }
+/** label：數值級距寫字串（等寬數字），文字分級寫 L3（隨語系、一般字型）。 */
+export interface PhSizeBands { prop: string; title: L3; bands: readonly { min: number; radius: number; label: string | L3 }[] }
 /** 類別取值：Mapbox 表達式（回傳字串）與同義的 JS 版（popup 配色用）。 */
 export interface PhCatGetter { expr: Expr; js: (p: Record<string, unknown>) => string }
 export interface PhPart {
