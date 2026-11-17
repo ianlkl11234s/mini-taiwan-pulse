@@ -8,9 +8,9 @@
 export const GIBS_NIGHT_LIGHTS_LAYER_COLOR = "#fde68a";
 
 export const GIBS_NIGHT_LIGHTS_PRODUCTS = [
-  { value: "viirs_2012", label: "2012 夜光", layer: "VIIRS_Night_Lights", date: "2012-01-01" },
-  { value: "viirs_2016", label: "2016 夜光", layer: "VIIRS_Night_Lights", date: "2016-01-01" },
-  { value: "black_marble_2016", label: "2016 Black Marble", layer: "VIIRS_Black_Marble", date: "2016-01-01" },
+  { value: "viirs_2012", label: "2012 夜光", layer: "VIIRS_Night_Lights", date: "2012-01-01", tint: true },
+  { value: "viirs_2016", label: "2016 夜光", layer: "VIIRS_Night_Lights", date: "2016-01-01", tint: true },
+  { value: "black_marble_2016", label: "2016 Black Marble", layer: "VIIRS_Black_Marble", date: "2016-01-01", tint: false },
 ] as const;
 export type GibsNightLightsProduct = (typeof GIBS_NIGHT_LIGHTS_PRODUCTS)[number];
 
@@ -26,5 +26,20 @@ export function gibsNightLightsTileUrl(product: GibsNightLightsProduct): string 
   return `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${product.layer}/default/${product.date}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png`;
 }
 
-/** 圖例色帶（示意暗→亮，對齊 VIIRS_Night_Lights 的灰白燈光；影像本身是上游已上色成品，沒有數值通道） */
-export const GIBS_NIGHT_LIGHTS_GRADIENT = "linear-gradient(90deg, #111111, #4b4b4b, #9a9a9a, #d9d9d9, #ffffff)";
+/**
+ * 燈光色（只套在 VIIRS_Night_Lights，Black Marble 保留上游原色）：
+ * 上游是灰階亮度（VIIRS 日夜波段是全色態、沒有顏色資訊），這裡用 raster-color 把亮度映成
+ * 「暗處鈉燈琥珀 → 亮處暖白」的示意色，讓它看起來像燈光；顏色不代表各地實際燈種。
+ * 停點：[亮度 0–1, 顏色]；0 透明。
+ */
+export const GIBS_NIGHT_LIGHTS_LAMP_STOPS: readonly (readonly [number, string])[] = [
+  [0, "rgba(0, 0, 0, 0)"],
+  [0.06, "rgba(122, 52, 8, 0.55)"],
+  [0.25, "#e8781e"],
+  [0.5, "#ffb347"],
+  [0.75, "#ffdc96"],
+  [1, "#fff7e6"],
+];
+
+/** 圖例色帶（與 GIBS_NIGHT_LIGHTS_LAMP_STOPS 同色；示意暗→亮，影像本身沒有數值通道） */
+export const GIBS_NIGHT_LIGHTS_GRADIENT = `linear-gradient(90deg, ${GIBS_NIGHT_LIGHTS_LAMP_STOPS.slice(1).map(([v, c]) => `${c} ${Math.round(v * 100)}%`).join(", ")})`;

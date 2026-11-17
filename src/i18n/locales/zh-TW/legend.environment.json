@@ -207,6 +207,6 @@
   "legend.environment.gbNoiseRounds": "英格蘭、蘇格蘭為 Round 4（2022，以 50 m 網格向量化）；威爾斯為 2017（Round 3），不可直接比較",
   "legend.environment.nightLightsDark": "暗",
   "legend.environment.nightLightsBright": "亮",
-  "legend.environment.nightLightsNote": "VIIRS 衛星 2012／2016 年合成影像：只能看、不能量化，也不是逐時開燈；Black Marble 含藍色地表。最細約 500 m，放大到 z8 以上會變粗。",
+  "legend.environment.nightLightsNote": "VIIRS 衛星 2012／2016 年合成影像：只能看、不能量化，也不是逐時開燈；Black Marble 含藍色地表。最細約 500 m，放大到 z8 以上會變粗。琥珀到暖白是依亮度上的示意色，衛星只量亮度、看不出燈的顏色，不代表各地實際燈種。",
   "legend.environment.nightLightsAttribution": "We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS)."
 }

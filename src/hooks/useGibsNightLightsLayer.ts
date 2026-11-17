@@ -7,9 +7,9 @@
  */
 
 import { useEffect, useRef } from "react";
-import type { Map as MapboxMap, RasterLayerSpecification, RasterTileSource } from "mapbox-gl";
+import type { ExpressionSpecification, Map as MapboxMap, RasterLayerSpecification, RasterTileSource } from "mapbox-gl";
 import { GIBS_ATTRIBUTION, GIBS_MAX_ZOOM } from "../data/gibsSnowTypes";
-import { gibsNightLightsProduct, gibsNightLightsTileUrl } from "../data/gibsNightLightsTypes";
+import { GIBS_NIGHT_LIGHTS_LAMP_STOPS, gibsNightLightsProduct, gibsNightLightsTileUrl } from "../data/gibsNightLightsTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -22,6 +22,9 @@ interface Options {
   opacity: number;
   productIdx: number;
 }
+
+/** 灰階亮度 → 燈光色（raster-color；預設 raster-color-mix 取亮度、範圍 0–1） */
+const LAMP_RASTER_COLOR = ["interpolate", ["linear"], ["raster-value"], ...GIBS_NIGHT_LIGHTS_LAMP_STOPS.flat()] as ExpressionSpecification;
 
 function firstSymbolLayerId(map: MapboxMap): string | undefined {
   try { return map.getStyle()?.layers?.find((layer) => layer.type === "symbol")?.id; } catch { return undefined; }
@@ -38,7 +41,8 @@ export function useGibsNightLightsLayer({ mapRef, visible, opacity, productIdx }
     const map = mapRef.current;
     if (!map) return;
     mapInstRef.current = map;
-    const url = gibsNightLightsTileUrl(gibsNightLightsProduct(productIdx));
+    const product = gibsNightLightsProduct(productIdx);
+    const url = gibsNightLightsTileUrl(product);
 
     const run = () => {
       if (!visible) {
@@ -64,6 +68,8 @@ export function useGibsNightLightsLayer({ mapRef, visible, opacity, productIdx }
           paint: { "raster-opacity": opacityRef.current, "raster-resampling": "linear", "raster-fade-duration": 0 },
         } as RasterLayerSpecification, firstSymbolLayerId(map));
       }
+      // 夜光灰階改燈光色；Black Marble 是已上色的成品照，保留原色（null＝移除 raster-color）
+      map.setPaintProperty(GIBS_NIGHT_LIGHTS_LAYER_ID, "raster-color", product.tint ? LAMP_RASTER_COLOR : undefined);
       map.setLayoutProperty(GIBS_NIGHT_LIGHTS_LAYER_ID, "visibility", "visible");
     };
 

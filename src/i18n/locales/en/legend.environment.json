@@ -207,6 +207,6 @@
   "legend.environment.gbNoiseRounds": "England and Scotland are Round 4 (2022, vectorised from a 50 m grid); Wales is 2017 (Round 3) and not directly comparable",
   "legend.environment.nightLightsDark": "Dark",
   "legend.environment.nightLightsBright": "Bright",
-  "legend.environment.nightLightsNote": "VIIRS composites of 2012 / 2016: for viewing only, not measurement, and not hourly lights; Black Marble includes blue land surface. About 500 m at best; looks coarse beyond z8.",
+  "legend.environment.nightLightsNote": "VIIRS composites of 2012 / 2016: for viewing only, not measurement, and not hourly lights; Black Marble includes blue land surface. About 500 m at best; looks coarse beyond z8. The amber-to-warm-white colours are an illustrative ramp by brightness; the satellite measures brightness only, not lamp colour, so they do not show actual lamp types.",
   "legend.environment.nightLightsAttribution": "We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS)."
 }
