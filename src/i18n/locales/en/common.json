@@ -41,6 +41,7 @@
   "country.IE": "Ireland",
   "country.VN": "Vietnam",
   "country.PH": "Philippines",
+  "country.CN": "Mainland China",
   "country.menuAria": "Switch country (current: {country})",
   "statistics.uncovered": "No statistics for {country} yet",
   "statistics.backToTaiwan": "Back to Taiwan",

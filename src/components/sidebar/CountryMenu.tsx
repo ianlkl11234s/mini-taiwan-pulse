@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE, Z_INDEX } from "../../styles/designTokens";
 import { chipOutline } from "../intel/intelTokens";
-import { COUNTRIES, countryDef, type CountryCode } from "../../constants/countries";
+import { countryDef, type CountryCode } from "../../constants/countries";
+import { useVisibleCountries } from "../../state/countryStore";
 import { useLocale } from "../../state/localeStore";
 import { useRailTheme } from "./railTheme";
 
@@ -40,6 +41,8 @@ export function CountryMenu({ country, onSelect, trailing }: { country: CountryC
   const [hover, setHover] = useState<CountryCode | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const countryName = t(countryDef(country).labelKey);
+  // 站主限定國家（中國）只對站主列出
+  const countries = useVisibleCountries();
 
   useEffect(() => {
     if (!open) return;
@@ -108,7 +111,7 @@ export function CountryMenu({ country, onSelect, trailing }: { country: CountryC
             fontFamily: FONT_CJK,
           }}
         >
-          {COUNTRIES.map(({ code, labelKey }) => {
+          {countries.map(({ code, labelKey }) => {
             const selected = code === country;
             return (
               <button

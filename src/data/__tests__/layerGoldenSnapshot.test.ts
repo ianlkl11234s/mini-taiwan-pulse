@@ -302,7 +302,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-17: +1 NASA GIBS 衛星夜光（gibsNightLights，30 天地圖挑戰 Light & dark）。
     // 2026-11-17: +3 30 天地圖挑戰 Day 17 光與暗（mapchallengeDay17DarkSky／DarkRoads／NightFall）。
     // 2026-11-17: +1 Day 17 縣市路燈 LED 化 mapchallengeDay17LedShare。
-    expect(keys.length).toBe(1948);
+    // 2026-11-13: +9 中國第 0–1 波（站主限定：行政區界、人口密度、人口網格、公交站、機場港口、主要道路鐵路、電廠、電網、油氣管線）。
+    // 2026-11-16: +15 中國第 2–5 波（站主限定：EEZ、地形、地名、民族自治、壩與水庫、河川、斷層、自然保護區、WDPA、養殖、土壤、長橋隧道、學校、醫療、核電）。
+    expect(keys.length).toBe(1972);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

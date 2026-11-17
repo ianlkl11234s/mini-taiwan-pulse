@@ -109,6 +109,7 @@ import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFA
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
+import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
@@ -2303,6 +2304,44 @@ export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(VN_RASTER_SPECS.map((spec) => [spec.key, [
     { kind: "slider" as const, name: `${spec.key}Opacity`, labelPrefix: "透明度", digits: 2, default: spec.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ]])),
+  // 中國第 0–1 波（2026-11-13，站主限定）：選項順序＝`data/cnDataLayers.ts` CN_ADMIN_LEVELS；行政邊界、人口預設省級（國家全覽 z3.4 有圖磚）
+  cnAdminBoundaries: [
+    opacitySlider("cnAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "cnAdminBoundariesLevel", label: "行政層級", default: "province",
+      options: CN_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "cnAdminBoundariesLevelIdx", encode: CN_ADMIN_LEVELS.map((x) => x.value),
+    },
+  ],
+  cnPopulation: [
+    {
+      kind: "select", category: "data", name: "cnPopulationLevel", label: "行政層級", default: "province",
+      options: CN_ADMIN_LEVELS.map((x) => ({ label: x.label, value: x.value })),
+      out: "cnPopulationLevelIdx", encode: CN_ADMIN_LEVELS.map((x) => x.value),
+    },
+    opacitySlider("cnPopulationOpacity", 0.7),
+  ],
+  cnPopulationGrid: [opacitySlider("cnPopulationGridOpacity", 0.75)],
+  // 中國第 2–5 波 raster（地形、養殖、土壤）：只有透明度
+  ...Object.fromEntries(CN_RASTER_SPECS.map((spec) => [spec.key, [opacitySlider(`${spec.key}Opacity`, spec.opacity)]])),
+  // 中國規格驅動 6 層：≥2 類者加類別多選（順序＝規格 cats＝bitmask）；電廠另有狀態多選（預設運轉中＋興建中）與範圍（C090 再生能源子集）；公交站（85 萬點）加熱區顏色
+  ...Object.fromEntries(CN_DATA_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      ...(spec.cats.length >= 2 ? [categoryMultiSelect(spec.key, cnCatOptions(spec))] : []),
+      ...(spec.key === "cnPowerPlants" ? [{
+        kind: "multiSelect" as const, name: "cnPowerPlantsStatus", label: "狀態", default: serializeMultiSelectValues([...CN_PLANT_STATUS_DEFAULT]),
+        options: CN_PLANT_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: "cnPowerPlantsStatusMask",
+      }, {
+        kind: "select" as const, category: "data" as const, name: "cnPowerPlantsScope", label: "範圍", default: "all",
+        options: CN_PLANT_SCOPES.map((x) => ({ label: x.label, value: x.id })), out: "cnPowerPlantsScopeIdx", encode: CN_PLANT_SCOPES.map((x) => x.id),
+      }] : []),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+      opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
   // 愛爾蘭第 1 波起（2026-11-07）：規格驅動層同南韓（點＝透明度＋大小、線／面＝透明度、有分類者加類別多選、有熱區者加熱區顏色）；公園、國有登記土地的點／面切換由 repPointLayers 補
   ...Object.fromEntries(IE_DATA_SPECS.map((spec) => [spec.key, [
     // 第 3a 波河川淹水（NIFM）：情境 × 重現期一組一支 PMTiles，host 依 ieRiverFloodExtentsScenarioIdx 換檔（同台灣淹水情境）

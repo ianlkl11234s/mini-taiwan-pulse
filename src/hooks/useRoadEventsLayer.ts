@@ -9,8 +9,9 @@ import type {
 } from "mapbox-gl";
 import {
   fetchRoadEventsDay,
-  isRoadEventActive,
+  roadEventsDisplayKey,
   roadEventsToGeoJSON,
+  EVENT_TYPE_COLORS,
   type RoadEvent,
 } from "../data/roadEventsLoader";
 import { timeStore } from "../state/timeStore";
@@ -35,6 +36,27 @@ const SOURCE_ID = "road-events";
 const LAYER_FILL  = "roadEvents-fill";
 const LAYER_LINE  = "roadEvents-line";
 const LAYER_POINT = "roadEvents-point";
+/** 進行中事故的脈動光圈（不可點選；gisClickRegistry 不登記） */
+const LAYER_PULSE = "roadEvents-pulse";
+const ALL_LAYERS = [LAYER_FILL, LAYER_LINE, LAYER_PULSE, LAYER_POINT];
+
+const PULSE_CYCLE_MS = 2000;
+/** 公開層事故光圈刻意比即時光暈上限（LIVE_DECORATION_CAP 0.35／×2／blur 0.6）更醒目（站主驗收 2026-11-17） */
+const PULSE_PEAK_OPACITY = 0.65;
+const PULSE_MAX_RADIUS_FACTOR = 3;
+const PULSE_BLUR = 0.25;
+/** 已排除事故（灰）的點不透明度係數 */
+const CLEARED_OPACITY = 0.5;
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function"
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** 點的 circle-opacity：已排除事故（acc_state 2）較淡 */
+function pointOpacity(o: number): ExpressionSpecification {
+  return ["case", ["==", ["get", "acc_state"], 2], CLEARED_OPACITY * o, 0.9 * o] as unknown as ExpressionSpecification;
+}
 
 const CACHE_MAX = 7;
 
@@ -43,25 +65,21 @@ interface CachedDay {
   accessedAt: number;
 }
 
-function activeSetKey(events: RoadEvent[], currentTime: number): string {
-  let key = "";
-  for (const event of events) {
-    if (isRoadEventActive(event, currentTime)) key += event.event_id + event.source + "|";
-  }
-  return key;
-}
+const activeSetKey = roadEventsDisplayKey;
 
 const OPACITY_DEFAULT = Number(paramDefault("roadEvents", "reOpacity"));
 
 /** V-4 類別篩選（event_type）：併進三個子圖層的 filter；全選＝不加 */
 function roadEventsFilters(catMask?: number) {
   const cat = hookCategoryFilter("roadEvents", catMask === undefined ? undefined : { roadEventsCatMask: catMask });
-  const active = (["==", ["get", "active"], 1] as unknown[]);
+  // show＝進行中，或事故剛排除 30 分內（灰點）
+  const active = (["==", ["get", "show"], 1] as unknown[]);
   const base = cat ? ["all", active, cat] : active;
   return {
     fill: ["all", base, ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]] as unknown as FilterSpecification,
     line: ["all", base, ["match", ["geometry-type"], ["LineString", "MultiLineString", "Polygon", "MultiPolygon"], true, false]] as unknown as FilterSpecification,
     point: ["all", base, ["==", ["geometry-type"], "Point"]] as unknown as FilterSpecification,
+    pulse: ["all", base, ["==", ["get", "pulse"], 1], ["==", ["geometry-type"], "Point"]] as unknown as FilterSpecification,
   };
 }
 
@@ -98,6 +116,23 @@ function buildLayers(map: MapboxMap, isDark: boolean, catMask?: number): boolean
     } as LineLayer);
   }
 
+  if (!map.getLayer(LAYER_PULSE)) {
+    map.addLayer({
+      id: LAYER_PULSE,
+      type: "circle",
+      source: SOURCE_ID,
+      filter: filters.pulse,
+      paint: {
+        "circle-radius": pointRadius("M"),
+        "circle-color": "transparent",
+        "circle-stroke-color": EVENT_TYPE_COLORS[3],
+        "circle-stroke-width": 2,
+        "circle-stroke-opacity": PULSE_PEAK_OPACITY,
+        "circle-blur": PULSE_BLUR,
+      },
+    } as CircleLayer);
+  }
+
   if (!map.getLayer(LAYER_POINT)) {
     map.addLayer({
       id: LAYER_POINT,
@@ -115,7 +150,7 @@ function buildLayers(map: MapboxMap, isDark: boolean, catMask?: number): boolean
         ] as unknown as ExpressionSpecification,
         "circle-color": ["get", "color"] as unknown as ExpressionSpecification,
         ...pointStrokePaint(isDark),
-        "circle-opacity": 0.9,
+        "circle-opacity": pointOpacity(1),
       },
     } as CircleLayer);
   }
@@ -145,6 +180,8 @@ export function useRoadEventsLayer(
   const catAppliedRef = useRef(false);
   const fetchingRef = useRef<string>("");
   const lastActiveSetRef = useRef<string>("");
+  /** 目前 source 裡有沒有脈動事故（脈動動畫沒事故時不跑 setPaintProperty） */
+  const hasPulseRef = useRef(false);
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
 
@@ -181,7 +218,9 @@ export function useRoadEventsLayer(
     const src = map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource | undefined;
     if (!src) return;
     const day = activeDayRef.current ?? [];
-    src.setData(roadEventsToGeoJSON(day, t));
+    const fc = roadEventsToGeoJSON(day, t);
+    hasPulseRef.current = fc.features.some((f) => f.properties?.pulse === 1);
+    src.setData(fc);
   }, []);
 
   const loadDay = useCallback(
@@ -245,13 +284,13 @@ export function useRoadEventsLayer(
     if (!map) return;
 
     if (!visible) {
-      for (const id of [LAYER_FILL, LAYER_LINE, LAYER_POINT]) {
+      for (const id of ALL_LAYERS) {
         if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
       }
       return;
     }
     if (!ensureLayers(map)) return;
-    for (const id of [LAYER_FILL, LAYER_LINE, LAYER_POINT]) {
+    for (const id of ALL_LAYERS) {
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
     }
 
@@ -286,7 +325,34 @@ export function useRoadEventsLayer(
     if (map.getLayer(LAYER_FILL)) map.setFilter(LAYER_FILL, f.fill);
     if (map.getLayer(LAYER_LINE)) map.setFilter(LAYER_LINE, f.line);
     if (map.getLayer(LAYER_POINT)) map.setFilter(LAYER_POINT, f.point);
+    if (map.getLayer(LAYER_PULSE)) map.setFilter(LAYER_PULSE, f.pulse);
   }, [catMask, visible, mapRef, mapTick]);
+
+  // ── 事故脈動：rAF 只動 paint（半徑 ×1→×3、不透明度 ≤0.65 遞減），不碰 timeStore／deps 無 currentTime。
+  //    脈動對象（最新 20 個進行中事故）由上面的 timeStore 訂閱寫進 source 的 pulse 屬性，filter 自動篩出。
+  //    prefers-reduced-motion 時只畫靜態外環。 ──
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !layersReadyRef.current || !map.getLayer(LAYER_PULSE)) return;
+    const o = Math.max(0, Math.min(1, opacity));
+    if (prefersReducedMotion()) {
+      map.setPaintProperty(LAYER_PULSE, "circle-stroke-opacity", PULSE_PEAK_OPACITY * o);
+      return;
+    }
+    let raf = 0;
+    const t0 = performance.now();
+    const frame = (now: number) => {
+      const m = mapRef.current;
+      if (m && hasPulseRef.current && m.getLayer(LAYER_PULSE)) {
+        const ph = ((now - t0) % PULSE_CYCLE_MS) / PULSE_CYCLE_MS;
+        m.setPaintProperty(LAYER_PULSE, "circle-radius", pointRadius("M") * (1 + (PULSE_MAX_RADIUS_FACTOR - 1) * ph));
+        m.setPaintProperty(LAYER_PULSE, "circle-stroke-opacity", PULSE_PEAK_OPACITY * (1 - ph) * o);
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [visible, opacity, mapRef, mapTick]);
 
   // ── 套用 opacity ──
   useEffect(() => {
@@ -301,7 +367,7 @@ export function useRoadEventsLayer(
       map.setPaintProperty(LAYER_LINE, "line-opacity", hookLineOpacity("roadEvents", LAYER_LINE, 0.9 * o, 0.9 * OPACITY_DEFAULT, isDark));
     }
     if (map.getLayer(LAYER_POINT)) {
-      map.setPaintProperty(LAYER_POINT, "circle-opacity", 0.9 * o);
+      map.setPaintProperty(LAYER_POINT, "circle-opacity", pointOpacity(o));
       {
         const stroke = pointStrokePaint(isDark, o / OPACITY_DEFAULT);
         map.setPaintProperty(LAYER_POINT, "circle-stroke-color", stroke["circle-stroke-color"]);

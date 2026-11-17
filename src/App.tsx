@@ -79,7 +79,7 @@ import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { DEFAULT_COUNTRY, countryDef, type CountryCode } from "./constants/countries";
-import { countryStore, resolveInitialCountry, useCountry } from "./state/countryStore";
+import { countryStore, resolveInitialCountry, useCountry, useOwnerOnlyCountryGuard } from "./state/countryStore";
 import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
@@ -259,6 +259,8 @@ export default function App() {
   // owner-only 私人圖層閘門（見 docs/features/owner-gated-layers）：
   // tier 載入完成前 isOwner=false（顯示鎖）。非 owner 點鎖層 → 未登入導 Google 登入 / 已登入顯示提示。
   const { user: memberUser, tier: memberTier, isOwner, loading: memberAuthLoading } = useMemberGate();
+  // 站主限定國家（中國，2026-11-13）：非站主不列在國家選單；網址或鏡頭落在中國時退回台灣
+  useOwnerOnlyCountryGuard(isOwner, memberAuthLoading);
   // Agent 面板：開發版全開；正式站只給站主（gateway 另有 email 白名單與研究登入）。
   const agentEnabled = import.meta.env.DEV || isOwner;
   const [memberOpen, setMemberOpen] = useState(false);

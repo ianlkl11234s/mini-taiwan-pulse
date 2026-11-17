@@ -377,6 +377,20 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 愛爾蘭統計（完整目錄；統計分頁另有「人口／社經」，見 IE_STATISTICS_TAB_THEMES）
     ...IE_STATISTICS_DATA_THEME_TITLES,
   ],
+  CN: [
+    // 中國（2026-11-13 第 0–1 波，9 層全部站主限定：行政界、人口、交通、能源；title 沿用台灣主題中文短名，比照菲律賓）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+    // 第 2–5 波（2026-11-16，15 層站主限定）：水資源、災害、環境氣候、農業、教育、醫療
+    "水資源",
+    "災害",
+    "環境氣候",
+    "農業",
+    "教育",
+    "醫療",
+  ],
   PH: [
     // 菲律賓（2026-11-13 第 0–1 波：行政界、人口、交通、能源；title 沿用台灣主題中文短名，比照加拿大、愛爾蘭）
     "底圖",
@@ -3586,6 +3600,97 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇨🇳 中國（2026-11-13 第 0–1 波，站主限定：行政邊界、人口、交通、能源；群組比照菲律賓同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("cnAdminBoundaries")] },
+      { title: "海域", layers: [fromManifest("cnEez")] },
+      { title: "地形", layers: [fromManifest("cnTerrain")] },
+      { title: "地名", layers: [fromManifest("cnPlaceNames")] },
+    ],
+  },
+  {
+    title: "人口社經",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "人口分布", layers: [fromManifest("cnPopulation"), fromManifest("cnPopulationGrid")] },
+      { title: "民族自治地方", layers: [fromManifest("cnEthnicAutonomy")] },
+    ],
+  },
+  {
+    title: "交通",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("cnBusStops")] },
+      { title: "樞紐節點", layers: [fromManifest("cnTransportHubs")] },
+      { title: "路網", layers: [fromManifest("cnMajorRoads")] },
+      { title: "橋梁隧道", layers: [fromManifest("cnBridgesTunnels")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("cnPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("cnPowerGrid")] },
+      { title: "石化 · 油氣", layers: [fromManifest("cnPipelines")] },
+    ],
+  },
+  // 中國第 2–5 波（2026-11-16，站主限定）
+  {
+    title: "水資源",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "水庫 · 壩", layers: [fromManifest("cnDams")] },
+      { title: "河川", layers: [fromManifest("cnRivers")] },
+    ],
+  },
+  {
+    title: "災害",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "活動斷層", layers: [fromManifest("cnActiveFaults")] },
+      { title: "核安", layers: [fromManifest("cnNuclearPlants")] },
+    ],
+  },
+  {
+    title: "環境氣候",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [{ title: "保護區", layers: [fromManifest("cnNatureReserves"), fromManifest("cnWdpa")] }],
+  },
+  {
+    title: "農業",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "養殖", layers: [fromManifest("cnAquaculture")] },
+      { title: "土壤", layers: [fromManifest("cnSoil")] },
+    ],
+  },
+  {
+    title: "教育",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [{ title: "學校", layers: [fromManifest("cnSchools")] }],
+  },
+  {
+    title: "醫療",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [{ title: "醫療院所", layers: [fromManifest("cnMedical")] }],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
   // ───────────────────────────────────────────────────────────────
   {
@@ -3978,6 +4083,20 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
+  CN: {
+    // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+    // 第 2–5 波（同南韓）
+    "水資源": "environment",
+    "災害": "safety",
+    "環境氣候": "environment",
+    "農業": "environment",
+    "教育": "publicLife",
+    "醫療": "safety",
+  },
   PH: {
     // 菲律賓主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照加拿大、愛爾蘭）。
     "底圖": "baseline",
@@ -4246,6 +4365,19 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
     "人口": { zh: "人口", sub: "Population" },
     "社經": { zh: "社經", sub: "Socio-economic" },
+  },
+  CN: {
+    // 中國主題副標用英文（比照菲律賓）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "災害": { zh: "災害", sub: "Hazards" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "農業": { zh: "農業", sub: "Agriculture" },
+    "教育": { zh: "教育", sub: "Education" },
+    "醫療": { zh: "醫療", sub: "Health" },
   },
   PH: {
     // 菲律賓主題副標用英文（比照英國、加拿大、愛爾蘭）
