@@ -670,7 +670,7 @@ for f in \
   public/world/vn_oil_gas_osm.pmtiles \
   public/world/vn_envisoft_stations_v3.pmtiles \
   public/world/vn_angiang_demo_v2.pmtiles \
-  public/world/vn_angiang_aquaculture_v2.pmtiles \
+  public/world/vn_angiang_aquaculture_v3.pmtiles \
   public/world/vn_landslide_susceptibility.pmtiles \
   public/world/vn_bicycle_rental.pmtiles \
   public/world/vn_bridges.pmtiles \

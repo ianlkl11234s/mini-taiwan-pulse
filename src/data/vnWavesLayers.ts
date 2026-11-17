@@ -549,7 +549,7 @@ const COAL_CATS: readonly PhCat[] = [
 
 const W7_SPECS: Spec[] = [
   {
-    key: "vnAngiangAquaculture", file: "vn_angiang_aquaculture_v2.pmtiles", sourceId: "vn-angiang-aquaculture", srcMinzoom: 8, srcMaxzoom: 14, color: "#f472b6", count: 9504, opacity: 0.7,
+    key: "vnAngiangAquaculture", file: "vn_angiang_aquaculture_v3.pmtiles", sourceId: "vn-angiang-aquaculture", srcMinzoom: 8, srcMaxzoom: 14, color: "#f472b6", count: 9504, opacity: 0.7,
     parts: [{ id: "vn-angiang-aquaculture-fill", sourceLayer: "aquaculture", geom: "fill", minzoom: 8, cat: propGetter("type_code") }],
     cats: AQUA_CATS, title: { props: ["land_use"], fallback: l3("養殖用地", "Aquaculture land", "養殖用地") },
     fields: [

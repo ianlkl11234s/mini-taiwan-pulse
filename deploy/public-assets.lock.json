@@ -4820,11 +4820,11 @@
    "s3_key": "deploy-assets/world/vn_admin_boundaries.pmtiles"
   },
   {
-   "path": "public/world/vn_angiang_aquaculture_v2.pmtiles",
-   "bytes": 3398581,
-   "sha256": "7a7c1c0fa5bb53acc8b35af5082a6cd1b66d5c11e261677c8fce6fcedddfbf81",
+   "path": "public/world/vn_angiang_aquaculture_v3.pmtiles",
+   "bytes": 3397953,
+   "sha256": "6703b59c39cc78ebc63285296909a4c76509439fd8c1140781108d49805e23cd",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_angiang_aquaculture_v2.pmtiles"
+   "s3_key": "deploy-assets/world/vn_angiang_aquaculture_v3.pmtiles"
   },
   {
    "path": "public/world/vn_angiang_demo.pmtiles",
