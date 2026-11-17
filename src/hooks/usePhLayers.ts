@@ -207,6 +207,17 @@ function pointPaint(spec: PhLayerSpec<string>, part: PhPart, isDark: boolean, op
   const op = clamp01(opacity);
   const def = opacityDefault(spec.key, 0.85);
   const base = { "circle-radius": pointRadiusExpr(spec, part, scale), "circle-color": phColorExpr(spec, part), "circle-opacity": op, ...pointStrokePaint(isDark, op / def) };
+  if (part.hollow) {
+    // 空心＝填色透明、外框用類別色（第 3–9 波：OSM 補缺、DOT 近似座標、里程牌）
+    const when = part.hollow.when ?? true;
+    return {
+      ...base,
+      "circle-opacity": ["case", when, 0, op],
+      "circle-stroke-color": ["case", when, phColorExpr(spec, part), base["circle-stroke-color"]],
+      "circle-stroke-width": ["case", when, 1.5, base["circle-stroke-width"]],
+      "circle-stroke-opacity": ["case", when, op, base["circle-stroke-opacity"]],
+    };
+  }
   if (!part.ring) return base;
   // 描邊＝資料編碼（mapStyleScale POINT_STROKE_DATA_ENCODED）：符合者白框 2px，其餘底圖色細縫
   const theme = isDark ? "dark" : "light";
@@ -263,8 +274,9 @@ export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec<string>, visibl
         return;
       }
       if (part.geom === "fill") {
-        const fillPaint = () => hookFillPaint(spec.key, part.id, { "fill-color": phColorExpr(spec, part), "fill-opacity": clamp01(opacity) },
-          { "fill-color": phColorExpr(spec, part), "fill-opacity": def }, isDark);
+        const k = part.fillOpacity ?? 1;
+        const fillPaint = () => hookFillPaint(spec.key, part.id, { "fill-color": phColorExpr(spec, part), "fill-opacity": clamp01(opacity) * k },
+          { "fill-color": phColorExpr(spec, part), "fill-opacity": def * k }, isDark);
         builds.push({
           id: part.id,
           layer: () => ({ id: part.id, type: "fill", ...base, layout: { visibility: "none" }, paint: fillPaint() } as unknown as AnyLayer),

@@ -2240,7 +2240,7 @@ export const LAYER_PARAMS_SPEC = {
         options: PH_PLANT_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: "phPowerPlantsStatusMask",
       }] : []),
       ...(spec.heat ? [heatmapPalette(spec.key)] : []),
-      opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
       ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
     ]];
   })),
@@ -2258,7 +2258,7 @@ export const LAYER_PARAMS_SPEC = {
         kind: "multiSelect" as const, name: `${spec.key}Status`, label: "狀態", default: serializeMultiSelectValues([...spec.statusDefault]),
         options: VN_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: `${spec.key}StatusMask`,
       }] : []),
-      opacitySlider(`${spec.key}Opacity`, pointOnly ? densePointOpacity(spec.count) : 0.85),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
       ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
     ]];
   })),

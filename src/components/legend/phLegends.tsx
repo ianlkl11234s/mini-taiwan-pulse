@@ -48,7 +48,8 @@ export function PhPopulationLegend() {
 function catSwatch(spec: PhLayerSpec<string>, c: PhCat | null, color: string): ReactNode {
   const parts = c?.parts ? spec.parts.filter((p) => c.parts!.includes(p.id)) : spec.parts;
   const part = parts[0]!;
-  if (part.geom === "fill") return <SwatchSquare color={color} />;
+  if (part.geom === "fill") return <SwatchSquare color={color} outline={part.fillOpacity === 0} />;
+  if (part.geom === "point" && part.hollow && !part.hollow.when) return <SwatchDot color={color} opacity={0} stroke={color} strokeWidth={1.5} />;
   if (part.geom === "line") return <SwatchLine color={color} width={LINE_WIDTH.standard[1]} dash={part.dashed ? [2, 1.5] : undefined} />;
   return <SwatchDot color={color} />;
 }
@@ -65,12 +66,15 @@ export function PhSpecLegend({ spec, extraParts = [], extraSources = [] }: { spe
   const all = { ...spec, parts: [...spec.parts, ...extraParts] };
   const ring = all.parts.find((p) => p.ring)?.ring;
   const dashed = all.parts.find((p) => p.dashed);
+  // 部分空心（`when` 條件）另列一行說明；整層空心已由分類列的 swatch 表示
+  const hollow = all.parts.find((p) => p.hollow?.when)?.hollow;
   return <div>
     <LegendTitle zh={spec.legendTitleNote ? `${title}（${pickL3(spec.legendTitleNote, locale)}）` : title} />
     {spec.cats.map((c) => <LegendRow key={c.id} swatch={catSwatch(all, c, c.color)}>{pickL3(c.label, locale)}</LegendRow>)}
     {spec.otherLabel ? <LegendRow swatch={catSwatch(all, null, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
     {dashed && spec.dashLabel !== null ? <LegendRow swatch={<SwatchLine color={spec.color} width={LINE_WIDTH.standard[1]} dash={[2, 1.5]} />}>{pickL3(spec.dashLabel ?? { zh: "虛線：地下、海底電纜", en: "Dashed: underground / submarine cable", ja: "破線：地中・海底ケーブル" }, locale)}</LegendRow> : null}
     {spec.sizeLegend?.map((s) => <LegendSizeRow key={s.prop} title={pickL3(s.title, locale)} items={s.bands.map((b) => ({ r: b.radius, label: b.label }))} fill={spec.color} />)}
+    {hollow ? <LegendRow swatch={<SwatchDot color={spec.color} opacity={0} stroke={spec.color} strokeWidth={1.5} />}>{pickL3(hollow.label, locale)}</LegendRow> : null}
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
     <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
