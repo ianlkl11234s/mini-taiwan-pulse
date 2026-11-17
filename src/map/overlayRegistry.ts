@@ -13125,7 +13125,7 @@ OVERLAY_REGISTRY.push({
 // ── 30 天地圖挑戰 Day 17 光與暗「衛星看不到光的路段」（模擬面板，公開，2026-11-17）：同一 key 兩份 geojson。
 // 路段（0＋低）在下，顯示等級 select 改 filter；連續暗路段（353 段，全是 0）在上，帶完整說明欄位：前 10 名加粗＋兩層靜態光暈，
 // 其餘只當點擊範圍（透明）
-// （P-6 例外，pointSpec POINT_SPEC_EXEMPT 登記，待使用者確認）。寬依等級／名次（資料編碼，LINE_TIERS keep）。
+// （P-6 例外，pointSpec POINT_SPEC_EXEMPT 登記，使用者 2026-11-17 確認）。寬依等級／名次（資料編碼，LINE_TIERS keep）。
 const MAPCHALLENGE_DAY17_LINE_LAYOUT = { "line-cap": "round", "line-join": "round" } as const;
 const mapchallengeDay17ZeroOnly = (idx: number | undefined) => mapchallengeDay17ScopeAt(idx) === "zero";
 

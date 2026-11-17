@@ -2464,7 +2464,7 @@ const THEME_CATALOG: ThemeDef[] = [
       title: "Day 9 城鄉 Urban-rural",
       layers: [fromManifest("mapchallengeDay09UrbanRural")],
     }, {
-      title: "Day 17 光與暗",
+      title: "Day 17 光與暗 Light & dark",
       layers: [fromManifest("mapchallengeDay17DarkSky"), fromManifest("mapchallengeDay17DarkRoads"), fromManifest("mapchallengeDay17NightFall"), fromManifest("mapchallengeDay17LedShare")],
     }],
   },

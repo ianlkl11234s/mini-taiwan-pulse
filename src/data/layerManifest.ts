@@ -17176,7 +17176,7 @@ export const LAYER_MANIFEST = {
   mapchallengeDay17DarkSky: {
     key: "mapchallengeDay17DarkSky",
     // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：image source＋保護區 geojson（useMapchallengeDay17DarkSkyLayer），不在 GATED_LAYERS。
-    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗" },
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗 Light & dark" },
     ...layerName({ zh: "真正的黑夜", alt: "Where Real Darkness Remains" }),
     expandable: true,
     color: MAPCHALLENGE_DAY17_DARK_SKY_COLOR,
@@ -17202,7 +17202,7 @@ export const LAYER_MANIFEST = {
   mapchallengeDay17DarkRoads: {
     key: "mapchallengeDay17DarkRoads",
     // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：靜態 GeoJSON 兩份（路段＋連續暗路段），不在 GATED_LAYERS。
-    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗" },
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗 Light & dark" },
     ...layerName({ zh: "衛星看不到光的路段", alt: "Roads Where Satellites See No Light" }),
     expandable: true,
     color: MAPCHALLENGE_DAY17_ROADS_COLOR,
@@ -17227,7 +17227,7 @@ export const LAYER_MANIFEST = {
   mapchallengeDay17NightFall: {
     key: "mapchallengeDay17NightFall",
     // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：canvas source 依時間軸逐地亮起（useMapchallengeDay17NightFallLayer），不在 GATED_LAYERS。
-    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗" },
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗 Light & dark" },
     ...layerName({ zh: "入夜變亮", alt: "Lights Come On at Dusk" }),
     expandable: true,
     color: MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR,
@@ -17253,7 +17253,7 @@ export const LAYER_MANIFEST = {
   mapchallengeDay17LedShare: {
     key: "mapchallengeDay17LedShare",
     // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：靜態 GeoJSON（22 縣市），不在 GATED_LAYERS。
-    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗" },
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗 Light & dark" },
     ...layerName({ zh: "縣市路燈 LED 化", alt: "Streetlight LED Share by County" }),
     expandable: true,
     color: MAPCHALLENGE_DAY17_LED_COLOR,

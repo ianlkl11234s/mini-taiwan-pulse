@@ -93,7 +93,7 @@ export const MAPCHALLENGE_DAY17_LOW_OPACITY = 0.6;
 export const MAPCHALLENGE_DAY17_LOW_COLOR = `rgba(107,114,128,${MAPCHALLENGE_DAY17_LOW_OPACITY})`;
 
 /**
- * 前 10 長路段的光暈（P-6 例外，待使用者確認）：比照 Day 5 海景發光的兩層靜態線光暈，
+ * 前 10 長路段的光暈（P-6 例外，使用者 2026-11-17 確認）：比照 Day 5 海景發光的兩層靜態線光暈，
  * 寬為主體 ×8／×3、blur ×6／×2、透明度 0.35／0.7×圖層透明度；淡底圖光暈透明度再減半。
  */
 export const MAPCHALLENGE_DAY17_GLOW = [
