@@ -151,6 +151,8 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   // 第三輪（I 軌）：河川同「水資源」主題錯開湖泊埤塘、魚塭同「農業」主題錯開零售
   waterRivers: "PuBu",
   aquaculturePonds: "acton",
+  // 菲律賓第 8 波（2026-11-16）：同「基礎建設」主題，金融據點錯開公共設施
+  phFinancialServices: "viridis",
 };
 
 /**

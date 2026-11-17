@@ -110,7 +110,8 @@ describe("R7 顏色解析器", () => {
     // 2026-11-13 +1 菲律賓第 1 波：加油站
     // 2026-11-14 +3 南韓第 10 波：保護樹、自行車停放處、安全緊急鈴
     // 2026-11-14 +2 英國第 13 波 OSM：公共設施、宗教場所
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(131);
+    // 2026-11-16 +7 菲律賓第 3–9 波：取水許可、學校、醫療院所、公共設施、金融據點、宗教場所、運動場館
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(138);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

@@ -9,6 +9,7 @@ import {
   PH_ADMIN_COLOR, PH_ADMIN_LEVELS, PH_CAT_OTHER_ID, PH_DENSITY_BREAKS, PH_NOT_COVERED_COLOR, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT,
   phCatOptionIds, phKigExcludeFilter, type PhAdminLevel, type PhLayerSpec, type PhPart,
 } from "../data/phDataLayers";
+import type { PhRasterSpec } from "../data/phWavesLayers";
 import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
 
 /**
@@ -295,4 +296,24 @@ export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec<string>, visibl
     });
     return builds;
   }, [spec.key, opacity, scale, isDark, heatStyle, sig(filters)]);
+}
+
+// ═════════════════════════ Raster 4 層（2026-11-16） ═════════════════════════
+
+function firstSymbolLayerId(map: MapboxMap): string | undefined {
+  try { return map.getStyle()?.layers?.find((layer) => layer.type === "symbol")?.id; } catch { return undefined; }
+}
+
+/** 山體陰影、色別標高、建成面積、樹冠流失：PNG raster PMTiles，比照 useCaHillshadeLayer 插在底圖第一個 symbol 下、地球儀走 pmtilesRasterCustomSource。 */
+export function usePhRasterLayer(mapRef: MapRef, spec: PhRasterSpec, visible: boolean, opacity: number) {
+  const source: SourceSpec = { id: spec.sourceId, file: spec.file, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort, loading: spec.loading, raster: { tileSize: 256 } };
+  useGbPmtilesLayers(mapRef, source, visible, () => [{
+    id: spec.layerId,
+    layer: () => ({
+      id: spec.layerId, type: "raster", source: source.id, minzoom: spec.minzoom,
+      layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacity), "raster-fade-duration": 0 },
+    } as unknown as AnyLayer),
+    update: (map) => map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity)),
+    before: firstSymbolLayerId,
+  }], [spec.key, opacity]);
 }

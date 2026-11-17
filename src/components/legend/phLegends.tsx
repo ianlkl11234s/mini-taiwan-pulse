@@ -1,6 +1,6 @@
 // 菲律賓圖例（2026-11-13 第 0–1 波）：行政邊界、人口密度（未涵蓋＝灰）、規格驅動 8 層。SSOT：data/phDataLayers.ts。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
@@ -9,7 +9,8 @@ import {
   PH_ADMIN_NOTES, PH_ADMIN_SOURCE, PH_DENSITY_LABELS, PH_NOT_COVERED_COLOR, PH_POPULATION_NOTES, PH_POPULATION_SOURCE,
   PH_SPEC_BY_KEY, pickL3, type PhCat, type PhLayerSpec,
 } from "../../data/phDataLayers";
-import type { PhDataKey } from "../../data/phDataKeys";
+import type { PhDataKey, PhRasterKey } from "../../data/phDataKeys";
+import { PH_RASTER_BY_KEY } from "../../data/phWavesLayers";
 import { phDensityColors } from "../../hooks/usePhLayers";
 
 function useLayerTitle(key: string): string {
@@ -73,11 +74,26 @@ export function PhSpecLegend({ spec, extraParts = [], extraSources = [] }: { spe
     {spec.cats.map((c) => <LegendRow key={c.id} swatch={catSwatch(all, c, c.color)}>{pickL3(c.label, locale)}</LegendRow>)}
     {spec.otherLabel ? <LegendRow swatch={catSwatch(all, null, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
     {dashed && spec.dashLabel !== null ? <LegendRow swatch={<SwatchLine color={spec.color} width={LINE_WIDTH.standard[1]} dash={[2, 1.5]} />}>{pickL3(spec.dashLabel ?? { zh: "虛線：地下、海底電纜", en: "Dashed: underground / submarine cable", ja: "破線：地中・海底ケーブル" }, locale)}</LegendRow> : null}
-    {spec.sizeLegend?.map((s) => <LegendSizeRow key={s.prop} title={pickL3(s.title, locale)} items={s.bands.map((b) => ({ r: b.radius, label: b.label }))} fill={spec.color} />)}
+    {spec.sizeLegend?.map((s) => <LegendSizeRow key={s.prop} title={pickL3(s.title, locale)} items={s.bands.map((b) => ({ r: b.radius, label: typeof b.label === "string" ? b.label : pickL3(b.label, locale) }))} fill={spec.color} numeric={s.bands.every((b) => typeof b.label === "string")} />)}
     {hollow ? <LegendRow swatch={<SwatchDot color={spec.color} opacity={0} stroke={spec.color} strokeWidth={1.5} />}>{pickL3(hollow.label, locale)}</LegendRow> : null}
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
     <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
     {extraSources.map((s) => <LegendNote key={s}>{s}</LegendNote>)}
+  </div>;
+}
+
+/** Raster 4 層（2026-11-16）：山體陰影畫明暗漸層，其餘照上游 color-relief 色帶分段。 */
+export function PhRasterLegend({ layerKey }: { layerKey: PhRasterKey }) {
+  const { locale } = useLocale();
+  const spec = PH_RASTER_BY_KEY[layerKey];
+  const title = useLayerTitle(layerKey);
+  return <div>
+    <LegendTitle zh={title} />
+    {spec.steps
+      ? <SwatchSteps colors={spec.steps.map((x) => x.color)} breaks={spec.steps.map((x) => x.label)} />
+      : <SwatchGradient gradient="linear-gradient(90deg, #000000, #ffffff)" labels={[pickL3({ zh: "背光坡", en: "Shaded", ja: "陰" }, locale), pickL3({ zh: "向光坡", en: "Lit", ja: "陽" }, locale)]} />}
+    {spec.notes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
+    <LegendNote>{spec.sourceShort}</LegendNote>
   </div>;
 }
