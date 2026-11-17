@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1944,
+    "keyCount": 1947,
     "sections": [
       "gisLayers",
       "overlays",
@@ -7316,6 +7316,18 @@
     },
     {
       "layers": [
+        "mapchallenge-day17-dark-road-runs-line"
+      ],
+      "type": "mapchallengeDay17DarkRoads"
+    },
+    {
+      "layers": [
+        "mapchallenge-day17-dark-road-segments-line"
+      ],
+      "type": "mapchallengeDay17DarkRoads"
+    },
+    {
+      "layers": [
         "mapchallenge-day06-taipei-1932-fill"
       ],
       "type": "mapchallengeDay06Taipei1932"
@@ -7349,6 +7361,12 @@
         "mapchallenge-day09-urban-rural-fill"
       ],
       "type": "mapchallengeDay09UrbanRural"
+    },
+    {
+      "layers": [
+        "mapchallenge-day17-protected-fill"
+      ],
+      "type": "mapchallengeDay17DarkSky"
     },
     {
       "layers": [
@@ -113145,6 +113163,488 @@
       "rebuildOnParamChange": null,
       "sourceId": "mapchallenge-day09-urban-rural",
       "sourceUrl": "./mapchallenge/day09_urban_rural.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay17DarkRoads",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "cls"
+            ],
+            "0"
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "case",
+              [
+                "==",
+                [
+                  "get",
+                  "cls"
+                ],
+                "0"
+              ],
+              1,
+              0
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "cls"
+                  ],
+                  "0"
+                ],
+                "#dbeafe",
+                "rgba(182, 189, 205, 0.6)"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "cls"
+                    ],
+                    "0"
+                  ],
+                  1,
+                  0.5
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "cls"
+                    ],
+                    "0"
+                  ],
+                  2,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "cls"
+                  ],
+                  "0"
+                ],
+                "#1e3a8a",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "cls"
+                    ],
+                    "0"
+                  ],
+                  1,
+                  0.5
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "cls"
+                    ],
+                    "0"
+                  ],
+                  2,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "mapchallenge-day17-dark-road-segments",
+      "sourceUrl": "./mapchallenge/day17_dark_road_segments.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay17DarkRoads",
+      "layers": [
+        {
+          "filter": [
+            "<=",
+            [
+              "to-number",
+              [
+                "get",
+                "rank"
+              ],
+              999
+            ],
+            10
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-blur": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                18,
+                14,
+                30
+              ],
+              "line-color": "#93c5fd",
+              "line-opacity": 0.2975,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                24,
+                14,
+                40
+              ]
+            },
+            "light": {
+              "line-blur": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                18,
+                14,
+                30
+              ],
+              "line-color": "#1d4ed8",
+              "line-opacity": 0.14875,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                24,
+                14,
+                40
+              ]
+            }
+          },
+          "suffix": "glow-outer",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "<=",
+            [
+              "to-number",
+              [
+                "get",
+                "rank"
+              ],
+              999
+            ],
+            10
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-blur": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                6,
+                14,
+                10
+              ],
+              "line-color": "#93c5fd",
+              "line-opacity": 0.595,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                9,
+                14,
+                15
+              ]
+            },
+            "light": {
+              "line-blur": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                6,
+                14,
+                10
+              ],
+              "line-color": "#1d4ed8",
+              "line-opacity": 0.2975,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                9,
+                14,
+                15
+              ]
+            }
+          },
+          "suffix": "glow-inner",
+          "type": "line"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "rank"
+                ],
+                999
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#dbeafe",
+              "line-opacity": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "rank"
+                    ],
+                    999
+                  ],
+                  10
+                ],
+                0.85,
+                0
+              ],
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      999
+                    ],
+                    10
+                  ],
+                  3,
+                  1
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      999
+                    ],
+                    10
+                  ],
+                  5,
+                  2
+                ]
+              ]
+            },
+            "light": {
+              "line-color": "#1e3a8a",
+              "line-opacity": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "rank"
+                    ],
+                    999
+                  ],
+                  10
+                ],
+                0.85,
+                0
+              ],
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      999
+                    ],
+                    10
+                  ],
+                  3,
+                  1
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      999
+                    ],
+                    10
+                  ],
+                  5,
+                  2
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day17-dark-road-runs",
+      "sourceUrl": "./mapchallenge/day17_dark_road_runs.geojson"
     }
   ],
   "params": {
@@ -149508,6 +150008,69 @@
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay17DarkRoads": [
+      {
+        "label": "顯示等級",
+        "options": [
+          {
+            "label": "只顯示偵測不到（0）",
+            "value": "zero"
+          },
+          {
+            "label": "偵測不到＋低亮度",
+            "value": "zeroLow"
+          }
+        ],
+        "type": "select",
+        "value": "zero"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay17DarkSky": [
+      {
+        "label": "影像",
+        "options": [
+          {
+            "label": "天空光害推估",
+            "value": "skyglow"
+          },
+          {
+            "label": "2025 地面亮度",
+            "value": "ground"
+          }
+        ],
+        "type": "select",
+        "value": "skyglow"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay17NightFall": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
         "name": "透明度",
         "step": 0.05,
         "value": 0.7,

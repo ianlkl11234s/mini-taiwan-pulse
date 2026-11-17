@@ -300,7 +300,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-16: +49 菲律賓觀光波（5）與第 2–9 波（44：含 raster 4 層）。
     // 2026-11-17: +35 越南觀光波與第 2–7 波（31 層規格驅動＋山體陰影、色別標高、崩塌潛勢、WDPCA 站主限定 4 層 raster）。
     // 2026-11-17: +1 NASA GIBS 衛星夜光（gibsNightLights，30 天地圖挑戰 Light & dark）。
-    expect(keys.length).toBe(1944);
+    // 2026-11-17: +3 30 天地圖挑戰 Day 17 光與暗（mapchallengeDay17DarkSky／DarkRoads／NightFall）。
+    expect(keys.length).toBe(1947);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
