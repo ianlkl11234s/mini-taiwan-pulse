@@ -43,6 +43,8 @@
   "legend.transport.roadEvConstruction": "Roadwork",
   "legend.transport.roadEvControlled": "Event / traffic control",
   "legend.transport.roadEvDisaster": "Disaster / obstruction",
+  "legend.transport.roadEvPulse": "Accident (pulsing)",
+  "legend.transport.roadEvCleared": "Cleared (grey)",
   "legend.transport.roadEvNote": "⚠ live_city is skewed toward Keelung; Kaohsiung has no TDX source",
   "legend.transport.roadCongTitle": "Provincial highway traffic",
   "legend.transport.roadCongSmooth": "Smooth",

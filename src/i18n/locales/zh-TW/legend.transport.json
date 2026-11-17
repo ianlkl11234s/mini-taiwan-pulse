@@ -43,6 +43,8 @@
   "legend.transport.roadEvConstruction": "施工 Construction",
   "legend.transport.roadEvControlled": "活動/管制 Controlled",
   "legend.transport.roadEvDisaster": "災害/障礙 Disaster",
+  "legend.transport.roadEvPulse": "事故（脈動）",
+  "legend.transport.roadEvCleared": "已排除（灰）",
   "legend.transport.roadEvNote": "⚠ live_city 偏基隆；高雄缺 TDX 來源",
   "legend.transport.roadCongTitle": "省道路況",
   "legend.transport.roadCongSmooth": "順暢",
