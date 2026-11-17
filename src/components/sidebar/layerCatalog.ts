@@ -383,6 +383,13 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "人口社經",
     "交通",
     "能源",
+    // 第 2–5 波（2026-11-16，15 層站主限定）：水資源、災害、環境氣候、農業、教育、醫療
+    "水資源",
+    "災害",
+    "環境氣候",
+    "農業",
+    "教育",
+    "醫療",
   ],
   PH: [
     // 菲律賓（2026-11-13 第 0–1 波：行政界、人口、交通、能源；title 沿用台灣主題中文短名，比照加拿大、愛爾蘭）
@@ -3590,13 +3597,21 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "底圖",
     country: "CN",
     defaultCollapsed: true,
-    groups: [{ title: "行政邊界", layers: [fromManifest("cnAdminBoundaries")] }],
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("cnAdminBoundaries")] },
+      { title: "海域", layers: [fromManifest("cnEez")] },
+      { title: "地形", layers: [fromManifest("cnTerrain")] },
+      { title: "地名", layers: [fromManifest("cnPlaceNames")] },
+    ],
   },
   {
     title: "人口社經",
     country: "CN",
     defaultCollapsed: true,
-    groups: [{ title: "人口分布", layers: [fromManifest("cnPopulation"), fromManifest("cnPopulationGrid")] }],
+    groups: [
+      { title: "人口分布", layers: [fromManifest("cnPopulation"), fromManifest("cnPopulationGrid")] },
+      { title: "民族自治地方", layers: [fromManifest("cnEthnicAutonomy")] },
+    ],
   },
   {
     title: "交通",
@@ -3606,6 +3621,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "場站", layers: [fromManifest("cnBusStops")] },
       { title: "樞紐節點", layers: [fromManifest("cnTransportHubs")] },
       { title: "路網", layers: [fromManifest("cnMajorRoads")] },
+      { title: "橋梁隧道", layers: [fromManifest("cnBridgesTunnels")] },
     ],
   },
   {
@@ -3617,6 +3633,52 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "電力 · 電網", layers: [fromManifest("cnPowerGrid")] },
       { title: "石化 · 油氣", layers: [fromManifest("cnPipelines")] },
     ],
+  },
+  // 中國第 2–5 波（2026-11-16，站主限定）
+  {
+    title: "水資源",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "水庫 · 壩", layers: [fromManifest("cnDams")] },
+      { title: "河川", layers: [fromManifest("cnRivers")] },
+    ],
+  },
+  {
+    title: "災害",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "活動斷層", layers: [fromManifest("cnActiveFaults")] },
+      { title: "核安", layers: [fromManifest("cnNuclearPlants")] },
+    ],
+  },
+  {
+    title: "環境氣候",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [{ title: "保護區", layers: [fromManifest("cnNatureReserves"), fromManifest("cnWdpa")] }],
+  },
+  {
+    title: "農業",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "養殖", layers: [fromManifest("cnAquaculture")] },
+      { title: "土壤", layers: [fromManifest("cnSoil")] },
+    ],
+  },
+  {
+    title: "教育",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [{ title: "學校", layers: [fromManifest("cnSchools")] }],
+  },
+  {
+    title: "醫療",
+    country: "CN",
+    defaultCollapsed: true,
+    groups: [{ title: "醫療院所", layers: [fromManifest("cnMedical")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -4018,6 +4080,13 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口社經": "city",
     "交通": "city",
     "能源": "environment",
+    // 第 2–5 波（同南韓）
+    "水資源": "environment",
+    "災害": "safety",
+    "環境氣候": "environment",
+    "農業": "environment",
+    "教育": "publicLife",
+    "醫療": "safety",
   },
   PH: {
     // 菲律賓主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照加拿大、愛爾蘭）。
@@ -4294,6 +4363,12 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口社經": { zh: "人口社經", sub: "People" },
     "交通": { zh: "交通", sub: "Transport" },
     "能源": { zh: "能源", sub: "Energy" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "災害": { zh: "災害", sub: "Hazards" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "農業": { zh: "農業", sub: "Agriculture" },
+    "教育": { zh: "教育", sub: "Education" },
+    "醫療": { zh: "醫療", sub: "Health" },
   },
   PH: {
     // 菲律賓主題副標用英文（比照英國、加拿大、愛爾蘭）

@@ -102,7 +102,8 @@ describe("Layer UX policy baseline", () => {
     // 2026-11-16：+4 菲律賓 raster（山體陰影、色別標高、建成面積、樹冠流失；PNG PMTiles，無 feature 屬性）。
     // 2026-11-17：+4 越南 raster（山體陰影、色別標高、崩塌潛勢、WDPCA；無 feature 屬性）。
     // 2026-11-13：+1 中國人口網格 cnPopulationGrid（GHS-POP 已上色 raster PMTiles，無 feature 屬性；站主限定）。
-    expect(missing).toHaveLength(69); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
+    // 2026-11-16：+3 中國第 2–5 波 raster（cnTerrain、cnAquaculture、cnSoil；已上色 PNG，無 feature 屬性；站主限定）。
+    expect(missing).toHaveLength(72); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {

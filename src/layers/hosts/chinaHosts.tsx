@@ -1,9 +1,9 @@
 // 中國 Layer Host（2026-11-13 第 0–1 波，站主限定）。比照 hosts/philippinesHosts.tsx：一個 key 一個 Host；
 // 私人圖磚的存取判斷在 hook 內（useCnPrivateAccess），沒有權限就不掛 source。
 
-import { cnPlantScopeFilter, cnPlantStatusFilter, useCnAdminLayers, useCnDataLayer, useCnPopulationGridLayer, useCnPopulationLayers } from "../../hooks/useCnLayers";
-import { CN_SPEC_BY_KEY } from "../../data/cnDataLayers";
-import type { CnDataKey } from "../../data/cnDataKeys";
+import { cnPlantScopeFilter, cnPlantStatusFilter, useCnAdminLayers, useCnDataLayer, useCnPopulationGridLayer, useCnPopulationLayers, useCnRasterLayer } from "../../hooks/useCnLayers";
+import { CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY } from "../../data/cnDataLayers";
+import type { CnDataKey, CnRasterKey } from "../../data/cnDataKeys";
 import { gbAllOf } from "../../hooks/useGbWaterLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -52,3 +52,33 @@ export const CnMajorRoadsHost = makeCnDataHost("cnMajorRoads", 0.85);
 export const CnPowerPlantsHost = makeCnDataHost("cnPowerPlants", 0.85);
 export const CnPowerGridHost = makeCnDataHost("cnPowerGrid", 0.85);
 export const CnPipelinesHost = makeCnDataHost("cnPipelines", 0.85);
+
+// 第 2–5 波（2026-11-16）：向量 12 層
+export const CnEezHost = makeCnDataHost("cnEez", 0.85);
+export const CnPlaceNamesHost = makeCnDataHost("cnPlaceNames", 0.85);
+export const CnEthnicAutonomyHost = makeCnDataHost("cnEthnicAutonomy", 0.85);
+export const CnDamsHost = makeCnDataHost("cnDams", 0.85);
+export const CnRiversHost = makeCnDataHost("cnRivers", 0.85);
+export const CnActiveFaultsHost = makeCnDataHost("cnActiveFaults", 0.85);
+export const CnNatureReservesHost = makeCnDataHost("cnNatureReserves", 0.85);
+export const CnWdpaHost = makeCnDataHost("cnWdpa", 0.85);
+export const CnBridgesTunnelsHost = makeCnDataHost("cnBridgesTunnels", 0.85);
+export const CnSchoolsHost = makeCnDataHost("cnSchools", 0.85);
+export const CnMedicalHost = makeCnDataHost("cnMedical", 0.85);
+export const CnNuclearPlantsHost = makeCnDataHost("cnNuclearPlants", 0.85);
+
+/** 第 2–5 波 raster（地形、養殖、土壤；已上色 PNG）。 */
+function makeCnRasterHost(key: CnRasterKey): LayerHostComponent {
+  const spec = CN_RASTER_SPEC_BY_KEY[key];
+  const hookId = `useCn${key.slice(2)}Layer`;
+  const CnRasterHost: LayerHostComponent = ({ deps }) => {
+    bumpHostRender(hookId);
+    const p = useKeyOverlayParams(key);
+    useCnRasterLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? spec.opacity);
+    return null;
+  };
+  return CnRasterHost;
+}
+export const CnTerrainHost = makeCnRasterHost("cnTerrain");
+export const CnAquacultureHost = makeCnRasterHost("cnAquaculture");
+export const CnSoilHost = makeCnRasterHost("cnSoil");

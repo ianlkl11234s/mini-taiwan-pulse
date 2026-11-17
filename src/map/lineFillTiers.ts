@@ -337,6 +337,13 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "cnMajorRoads/cn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/useCnLayers.ts
   "cnMajorRoads/cn-major-rail-line": {"width": "keep", "opacity": "standard"}, // 寬依鐵路類型（高鐵較粗）· src/hooks/useCnLayers.ts
   "cnPowerGrid/cn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/useCnLayers.ts
+  "cnRivers/cn-rivers-line": {"width": "keep", "opacity": "standard"}, // 寬依流量等級 · src/hooks/useCnLayers.ts
+  "cnActiveFaults/cn-active-faults-line": {"width": "standard", "opacity": "standard"}, // 依錯動型態分色 · src/hooks/useCnLayers.ts
+  "cnEez/cn-eez-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
+  "cnEthnicAutonomy/cn-ethnic-autonomy-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
+  "cnDams/cn-reservoirs-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
+  "cnNatureReserves/cn-nature-reserves-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
+  "cnWdpa/cn-wdpa-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useCnLayers.ts
   "cnPipelines/cn-pipelines-line": {"width": "standard", "opacity": "standard"}, // 運轉中實線，依輸送物分色；路線精度低者淡化 · src/hooks/useCnLayers.ts
   "cnPipelines/cn-pipelines-planned-line": {"width": "standard", "opacity": "standard"}, // 非運轉中虛線 · src/hooks/useCnLayers.ts
 };
@@ -483,6 +490,11 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "vnAngiangDemo/vn-angiang-clusters-fill": "coverage", // 安江工業群依狀態分色 · src/hooks/usePhLayers.ts（越南規格）
   "cnPopulation/cn-population-province-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/hooks/useCnLayers.ts
   "cnPopulation/cn-population-prefecture-fill": "graded", // 同上（GHS 模型值）· src/hooks/useCnLayers.ts
+  "cnEez/cn-eez-fill": "coverage", // src/hooks/useCnLayers.ts
+  "cnEthnicAutonomy/cn-ethnic-autonomy-fill": "coverage", // 依層級分色 · src/hooks/useCnLayers.ts
+  "cnDams/cn-reservoirs-fill": "coverage", // src/hooks/useCnLayers.ts
+  "cnNatureReserves/cn-nature-reserves-fill": "coverage", // 依分區分色 · src/hooks/useCnLayers.ts
+  "cnWdpa/cn-wdpa-fill": "coverage", // 依類別分色 · src/hooks/useCnLayers.ts
 };
 /**
  * 暗底面透明度的個別例外（F-1 暗底，2026-11-10）：值＝暗底預設透明度，取代 FILL_OPACITY_DARK 的階。

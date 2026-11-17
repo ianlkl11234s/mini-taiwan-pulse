@@ -10,7 +10,7 @@ import { useUser } from "../lib/auth";
 import { supabase } from "../lib/supabase";
 import {
   CN_ADMIN_COLOR, CN_ADMIN_LEVELS, CN_DENSITY_BREAKS, CN_DENSITY_FIELD, CN_NOT_COVERED_COLOR, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT,
-  asPhSpec, type CnAdminLevel, type CnLayerSpec, type CnOwnerAsset, type CnPart,
+  asPhPart, asPhSpec, cnOutlineId, type CnAdminLevel, type CnLayerSpec, type CnOwnerAsset, type CnPart, type CnRasterSpec,
 } from "../data/cnDataLayers";
 import { OWNER_DATA_ENDPOINT } from "../data/ownerDataAssets";
 import { phColorExpr, phPartCatFilter } from "./usePhLayers";
@@ -302,7 +302,7 @@ function pointRadiusExpr(spec: CnLayerSpec, part: CnPart, scale: number): Expr |
 function pointPaint(spec: CnLayerSpec, part: CnPart, isDark: boolean, opacity: number, scale: number) {
   const op = clamp01(opacity);
   const def = opacityDefault(spec.key, 0.85);
-  const base = { "circle-radius": pointRadiusExpr(spec, part, scale), "circle-color": phColorExpr(asPhSpec(spec), part), "circle-opacity": op, ...pointStrokePaint(isDark, op / def) };
+  const base = { "circle-radius": pointRadiusExpr(spec, part, scale), "circle-color": phColorExpr(asPhSpec(spec), asPhPart(part)), "circle-opacity": op, ...pointStrokePaint(isDark, op / def) };
   if (!part.ring) return base;
   // 描邊＝資料編碼（mapStyleScale POINT_STROKE_DATA_ENCODED）：符合者白框 2px，其餘底圖色細縫
   const theme = isDark ? "dark" : "light";
@@ -329,12 +329,30 @@ function linePaint(spec: CnLayerSpec, part: CnPart, isDark: boolean, opacity: nu
   const def = opacityDefault(spec.key, 0.85);
   const dash = part.dashed ? { "line-dasharray": [...LINE_DASH.general] } : {};
   const paint = hookLinePaint(spec.key, part.id,
-    { "line-color": phColorExpr(asPhSpec(spec), part), "line-width": lineWidthExpr(part), "line-opacity": clamp01(opacity), ...dash },
-    { "line-color": phColorExpr(asPhSpec(spec), part), "line-width": lineWidthExpr(part), "line-opacity": def, ...dash }, isDark);
+    { "line-color": phColorExpr(asPhSpec(spec), asPhPart(part)), "line-width": lineWidthExpr(part), "line-opacity": clamp01(opacity), ...dash },
+    { "line-color": phColorExpr(asPhSpec(spec), asPhPart(part)), "line-width": lineWidthExpr(part), "line-opacity": def, ...dash }, isDark);
   const lineOpacity = paint["line-opacity"];
   if (part.fadeWhen && typeof lineOpacity === "number") paint["line-opacity"] = ["case", part.fadeWhen, lineOpacity * 0.45, lineOpacity];
   return paint;
 }
+
+/** 面：分類色、coverage 階（F-1）；外框同色細線（F-2 outline）。 */
+function fillPaint(spec: CnLayerSpec, part: CnPart, isDark: boolean, opacity: number) {
+  const def = opacityDefault(spec.key, 0.85);
+  const color = phColorExpr(asPhSpec(spec), asPhPart(part));
+  return hookFillPaint(spec.key, part.id, { "fill-color": color, "fill-opacity": clamp01(opacity) }, { "fill-color": color, "fill-opacity": def }, isDark);
+}
+function outlinePaint(spec: CnLayerSpec, part: CnPart, isDark: boolean, opacity: number) {
+  const def = opacityDefault(spec.key, 0.85);
+  const color = phColorExpr(asPhSpec(spec), asPhPart(part));
+  return hookLinePaint(spec.key, cnOutlineId(part), { "line-color": color, "line-width": 1, "line-opacity": clamp01(opacity) },
+    { "line-color": color, "line-width": 1, "line-opacity": def }, isDark);
+}
+/** 本層所有 layer id（含熱區、面外框）；撤權清理用。 */
+export const cnSpecLayerIds = (spec: CnLayerSpec) => [
+  ...(spec.heat ? [cnHeatmapId(spec)] : []),
+  ...spec.parts.flatMap((p) => (p.geom === "fill" ? [p.id, cnOutlineId(p)] : [p.id])),
+];
 
 export const cnHeatmapId = (spec: CnLayerSpec) => `${spec.parts[0]!.id.replace(/-circle$/, "")}-heatmap`;
 /** 子圖層所屬 source：有自己的 srcMaxzoom 者另開 `<sourceId>-z<maxzoom>`。 */
@@ -354,6 +372,20 @@ function buildParts(spec: CnLayerSpec, parts: readonly CnPart[], sourceId: strin
       }));
     }
     const base = { source: sourceId, "source-layer": part.sourceLayer, minzoom: pointsFrom, ...(filter ? { filter } : {}) };
+    if (part.geom === "fill") {
+      const outline = cnOutlineId(part);
+      builds.push({
+        id: part.id,
+        layer: () => ({ id: part.id, type: "fill", ...base, layout: { visibility: "none" }, paint: fillPaint(spec, part, o.isDark, o.opacity) } as unknown as AnyLayer),
+        update: (map) => { map.setFilter(part.id, (filter ?? null) as any); setPaint(map, part.id, fillPaint(spec, part, o.isDark, o.opacity)); },
+      });
+      builds.push({
+        id: outline,
+        layer: () => ({ id: outline, type: "line", ...base, layout: { visibility: "none", ...hookLineLayout(spec.key, outline) }, paint: outlinePaint(spec, part, o.isDark, o.opacity) } as unknown as AnyLayer),
+        update: (map) => { map.setFilter(outline, (filter ?? null) as any); setPaint(map, outline, outlinePaint(spec, part, o.isDark, o.opacity)); },
+      });
+      return;
+    }
     if (part.geom === "point") {
       builds.push({
         id: part.id,
@@ -378,7 +410,7 @@ export function useCnDataLayer(mapRef: MapRef, spec: CnLayerSpec, visible: boole
   const priv = access.allowed && access.userId ? privateSource(spec.asset, access.userId) : UNMOUNTED;
   const on = visible && access.allowed;
   const heatStyle = useHeatmapStyleSignature(spec.heat ? [spec.key] : []);
-  const filters = spec.parts.map((part) => gbAllOf(part.filter, phPartCatFilter(asPhSpec(spec), part, catMask), extraFilter ?? null));
+  const filters = spec.parts.map((part) => gbAllOf(part.filter, phPartCatFilter(asPhSpec(spec), asPhPart(part), catMask), extraFilter ?? null));
   const mainParts = spec.parts.filter((p) => cnPartSourceId(spec, p) === spec.sourceId);
   const extraParts = spec.parts.filter((p) => cnPartSourceId(spec, p) !== spec.sourceId);
   const extra = extraParts[0];
@@ -390,5 +422,30 @@ export function useCnDataLayer(mapRef: MapRef, spec: CnLayerSpec, visible: boole
   const deps = [spec.key, opacity, scale, isDark, heatStyle, sig(filters)];
   useGbPmtilesLayers(mapRef, mainSource, on, () => buildParts(spec, mainParts, mainSource.id, filters, o), deps);
   useGbPmtilesLayers(mapRef, extraSource, on && !!extra, () => buildParts(spec, extraParts, extraSource.id, filters, o), deps);
-  useRevokeCleanup(mapRef, access.allowed, [...(spec.heat ? [cnHeatmapId(spec)] : []), ...spec.parts.map((p) => p.id)], cnSpecSourceIds(spec));
+  useRevokeCleanup(mapRef, access.allowed, cnSpecLayerIds(spec), cnSpecSourceIds(spec));
+}
+
+// ═════════════════════════ 第 2–5 波 raster（地形、養殖、土壤） ═════════════════════════
+
+export const cnRasterLayerId = (spec: CnRasterSpec) => `${spec.asset}-raster`;
+
+/** 已上色 PNG raster（比照人口網格）；地形、土壤插在底圖第一個 symbol 下，養殖疊在上層。 */
+export function useCnRasterLayer(mapRef: MapRef, spec: CnRasterSpec, visible: boolean, opacity: number) {
+  const access = useCnPrivateAccess(visible);
+  const priv = access.allowed && access.userId ? privateSource(spec.asset, access.userId) : UNMOUNTED;
+  const id = cnRasterLayerId(spec);
+  const source: SourceSpec = {
+    id: spec.asset, file: spec.asset, minzoom: spec.minzoom, maxzoom: spec.maxzoom, raster: { tileSize: 256 }, private: priv,
+    attribution: spec.sourceOrg, loading: spec.loading.zh,
+  };
+  useGbPmtilesLayers(mapRef, source, visible && access.allowed, () => [{
+    id,
+    layer: () => ({
+      id, type: "raster", source: spec.asset, minzoom: spec.minzoom,
+      layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacity), "raster-fade-duration": 0 },
+    } as unknown as AnyLayer),
+    update: (map) => map.setPaintProperty(id, "raster-opacity", clamp01(opacity)),
+    ...(spec.belowSymbols ? { before: firstSymbolLayerId } : {}),
+  }], [opacity]);
+  useRevokeCleanup(mapRef, access.allowed, [id], [spec.asset]);
 }

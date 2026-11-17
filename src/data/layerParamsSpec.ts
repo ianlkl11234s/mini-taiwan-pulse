@@ -107,7 +107,7 @@ import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFA
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
-import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, cnCatOptions } from "./cnDataLayers";
+import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
@@ -2291,6 +2291,8 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("cnPopulationOpacity", 0.7),
   ],
   cnPopulationGrid: [opacitySlider("cnPopulationGridOpacity", 0.75)],
+  // 中國第 2–5 波 raster（地形、養殖、土壤）：只有透明度
+  ...Object.fromEntries(CN_RASTER_SPECS.map((spec) => [spec.key, [opacitySlider(`${spec.key}Opacity`, spec.opacity)]])),
   // 中國規格驅動 6 層：≥2 類者加類別多選（順序＝規格 cats＝bitmask）；電廠另有狀態多選（預設運轉中＋興建中）與範圍（C090 再生能源子集）；公交站（85 萬點）加熱區顏色
   ...Object.fromEntries(CN_DATA_SPECS.map((spec) => {
     const hasPoint = spec.parts.some((p) => p.geom === "point");

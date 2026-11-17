@@ -1,4 +1,4 @@
-// 中國圖例（2026-11-13 第 0–1 波，站主限定）：行政邊界、人口密度（未涵蓋＝灰）、人口網格（模型值）、規格驅動 6 層。SSOT：data/cnDataLayers.ts。
+// 中國圖例（2026-11-13 第 0–1 波、11-16 第 2–5 波，站主限定）：行政邊界、人口密度（未涵蓋＝灰）、人口網格（模型值）、規格驅動 6 層。SSOT：data/cnDataLayers.ts。
 import type { ReactNode } from "react";
 import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
@@ -8,10 +8,10 @@ import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import {
   CN_ADMIN_NOTES, CN_ADMIN_SOURCE, CN_DENSITY_LABELS, CN_GRID_LEGEND, CN_GRID_NOTES, CN_GRID_SOURCE, CN_NOT_COVERED_COLOR, CN_POPULATION_NOTES,
-  CN_POPULATION_SOURCE, CN_SPEC_BY_KEY, pickL3, type CnLayerSpec,
+  CN_POPULATION_SOURCE, CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY, pickL3, type CnLayerSpec,
 } from "../../data/cnDataLayers";
 import type { PhCat } from "../../data/phDataLayers";
-import type { CnDataKey } from "../../data/cnDataKeys";
+import type { CnDataKey, CnRasterKey } from "../../data/cnDataKeys";
 import { cnDensityColors } from "../../hooks/useCnLayers";
 
 function useLayerTitle(key: string): string {
@@ -63,6 +63,7 @@ function catSwatch(spec: CnLayerSpec, c: PhCat): ReactNode {
   const parts = c.parts ? spec.parts.filter((p) => c.parts!.includes(p.id)) : spec.parts;
   const part = parts[0]!;
   if (part.geom === "line") return <SwatchLine color={c.color} width={LINE_WIDTH.standard[1]} />;
+  if (part.geom === "fill") return <SwatchSquare color={c.color} />;
   return <SwatchDot color={c.color} />;
 }
 
@@ -84,6 +85,20 @@ export function CnDataLegend({ layerKey }: { layerKey: CnDataKey }) {
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.minZoomNote ? <LegendNote>{pickL3(spec.minZoomNote, locale)}</LegendNote> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
+    <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
+  </div>;
+}
+
+/** 第 2–5 波 raster（地形、養殖、土壤）：色塊列、備註、署名。 */
+export function CnRasterLegend({ layerKey }: { layerKey: CnRasterKey }) {
+  const { locale } = useLocale();
+  const spec = CN_RASTER_SPEC_BY_KEY[layerKey];
+  const title = useLayerTitle(layerKey);
+  return <div>
+    <LegendTitle zh={title} />
+    <LegendNote>{pickL3(spec.legendTitle, locale)}</LegendNote>
+    {spec.legend.map((c) => <LegendRow key={c.label.en} swatch={<SwatchSquare color={c.color} />}>{pickL3(c.label, locale)}</LegendRow>)}
+    {spec.notes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
     <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
   </div>;
 }
