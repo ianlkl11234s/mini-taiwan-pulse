@@ -152272,7 +152272,7 @@
         ]
       },
       {
-        "defaultValue": "cividis",
+        "defaultValue": "viridis",
         "label": "熱區顏色",
         "options": [
           {
@@ -152346,7 +152346,7 @@
         ],
         "role": "heatmap",
         "type": "palette",
-        "value": "cividis"
+        "value": "viridis"
       },
       {
         "label": "透明度 0.75",
