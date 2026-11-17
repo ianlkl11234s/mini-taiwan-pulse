@@ -1,7 +1,8 @@
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 import type { KrDataKey } from '../data/krDataKeys';
 import type { IeDataKey } from '../data/ieDataKeys';
-import type { PhDataKey } from '../data/phDataKeys';
+import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
+import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
 import type { CnDataKey, CnRasterKey } from '../data/cnDataKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
 import type { EnvironmentStatisticsLayerKey } from '../data/environmentStatisticsRecipes';
@@ -174,6 +175,8 @@ export type ExpandableLayerKey =
   | "firingNoticeAreas"
   // 🗳 政治 Politics：2026 選舉活動（owner-only RPC）
   | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
+  // 即時 119 案件／警廣即時路況（owner-only RPC，mig 555）
+  | "fire119Live" | "pbsRoadEventsLive"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -467,7 +470,8 @@ export type ExpandableLayerKey =
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
   | "ieAdminBoundaries" | IeDataKey | "ieBathymetry" | "ieCoillteRecreation" | "ieCoillteForestRoads"
-  | "phAdminBoundaries" | "phPopulation" | PhDataKey
+  | "phAdminBoundaries" | "phPopulation" | PhDataKey | PhRasterKey
+  | "vnAdminBoundaries" | "vnPopulation" | VnDataKey | VnRasterKey
   | "cnAdminBoundaries" | "cnPopulation" | "cnPopulationGrid" | CnDataKey | CnRasterKey
   | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid"
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
@@ -475,6 +479,7 @@ export type ExpandableLayerKey =
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbMajorRoads" | "gbTrafficCountsAadf"
+  | "gbBridgesTunnels" | "gbRoadFacilities" | "gbPublicFacilities" | "gbPlacesOfWorship"
   | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
   | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
@@ -848,6 +853,7 @@ export interface FeatureInfo {
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
+    | "fire119Live" | "pbsRoadEventsLive"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute" | "railRoutes"
@@ -1058,6 +1064,8 @@ export interface FeatureInfo {
     | "ieAdminBoundaries" | IeDataKey | "ieCoillteRecreation" | "ieCoillteForestRoads"
     // 菲律賓第 0–1 波
     | "phAdminBoundaries" | "phPopulation" | PhDataKey
+    // 越南第 0–1 波
+    | "vnAdminBoundaries" | "vnPopulation" | VnDataKey
     // 中國第 0–1 波（站主限定；人口網格是 raster，沒有 popup）
     | "cnAdminBoundaries" | "cnPopulation" | CnDataKey
     // 南韓第 1 波：交通 6 層、能源 7 個 key
@@ -1070,6 +1078,8 @@ export interface FeatureInfo {
     | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
     // 英國第 10 波：主要路網、AADF 交通計數點
     | "gbMajorRoads" | "gbTrafficCountsAadf"
+    // 英國第 13 波 OSM：橋梁與隧道、道路設施、公共設施、宗教場所
+    | "gbBridgesTunnels" | "gbRoadFacilities" | "gbPublicFacilities" | "gbPlacesOfWorship"
     // 英國第 11 波：規劃限制區、棕地、回收點、廢棄物許可、污染排放（蘇格蘭）、噪音
     | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
     // 英國第 12 波：公司登記、製造業、殯葬、養殖、土壤母質
@@ -1109,7 +1119,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | CnDataKey | CnRasterKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | CnDataKey | CnRasterKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -1341,6 +1351,10 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   newsEvents: boolean;
   /** 2026 地方選舉活動（owner-only RPC get_election_events_2026；研究原型） */
   electionEvents2026: boolean;
+  /** 即時 119 案件（owner-only RPC get_fire119_live；mig 555） */
+  fire119Live: boolean;
+  /** 警廣即時路況（owner-only RPC get_pbs_road_events_live；mig 555） */
+  pbsRoadEventsLive: boolean;
   /** 2024 投開票所（CDN 靜態快照 /static-rpc/polling_stations_2024.json；來源表 gis-platform mig 495） */
   pollingStations2024: boolean;
   /** 2026 縣市議員選舉區（CDN 靜態快照 /static-rpc/get_council_districts_2026.json；來源 gis-platform mig 496） */
@@ -2004,6 +2018,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   ieBathymetry: boolean;   // 愛爾蘭海床地形（INFOMAR raster PMTiles z4–10；2026-11-07 第 1 波；其餘 6 層走 IeDataKey）
   phAdminBoundaries: boolean;   // 菲律賓行政邊界（PMTiles polygon，region 18／province 88／municipality 1,642／barangay 42,048；2026-11-13 第 0 波）
   phPopulation: boolean;   // 菲律賓人口（2024 普查，四層級人口密度；其餘 8 層走 PhDataKey）
+  vnAdminBoundaries: boolean;   // 越南行政邊界（PMTiles polygon，2025-07 新制 34 省；2026-11-13 第 0 波）
+  vnPopulation: boolean;   // 越南人口（NSO 2025，34 省人口密度；其餘 10 層走 VnDataKey）
   cnAdminBoundaries: boolean;   // 中國行政邊界（站主限定私人 PMTiles，省 31／地級 357；2026-11-13 第 0 波）
   cnPopulation: boolean;   // 中國人口（省 2020 普查、地級 GHS 模型值；站主限定）
   cnPopulationGrid: boolean;   // 中國人口網格（GHS-POP 2025 模型值 raster；站主限定；其餘 6 層走 CnDataKey）
@@ -2065,7 +2081,11 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   gbLondonBikePoints: boolean;  // 倫敦 Santander Cycles 站（TfL，798）
   gbLondonJamCams: boolean;     // 倫敦道路攝影機（TfL JamCams，890）
   gbLondonChargingZones: boolean; // 倫敦塞車費區＋ULEZ／LEZ（TfL，2 面）
-  gbMajorRoads: boolean;        // 英國主要路網（DfT MRDB＋北愛 OSM，33,185 段）
+  gbMajorRoads: boolean;        // 英國主要路網（DfT MRDB 高速＋A 級＋OSM 北愛全部與大不列顛 B 級，134,824 段；_v2 檔）
+  gbBridgesTunnels: boolean;    // 英國主要道路橋梁與隧道路段（OSM 2026-11-13，29,493 段）
+  gbRoadFacilities: boolean;    // 英國道路設施：服務區、休息區、收費站（OSM）＋緊急停車區（National Highways，僅英格蘭），1,757 點
+  gbPublicFacilities: boolean;  // 英國公共設施：郵局、公廁、市場、社區活動中心（OSM 2026-11-13，41,333 點）
+  gbPlacesOfWorship: boolean;   // 英國宗教場所（OSM place_of_worship 依 religion 分 8 類，42,113 點）
   gbTrafficCountsAadf: boolean; // 英國 AADF 交通計數點（DfT 2025，22,334 點）
   gbPlanningConstraints: boolean; // 英國規劃限制區（保育區／Article 4／綠帶，18,727 面）
   gbBrownfield: boolean;        // 英格蘭棕地登記冊（Planning Data，30,303 點）

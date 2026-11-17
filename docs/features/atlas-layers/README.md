@@ -25,7 +25,7 @@
 | 省道緊急避車彎（`provincialRoadEmergencyBays`） | 點＋線 | `geo/provincial_road_emergency_bays.geojson` | 交通 › 道路設施 |
 | 淹水災點（`floodDisasterPointsNcdr`） | 點 | `hazards/flood_disaster_points_ncdr.pmtiles`（1.5MB，z5–12） | 災害 › 淹水 |
 | 臺北市歷年積水範圍（`taipeiWaterloggingHistory`） | 面 | `hazards/taipei_waterlogging_history.geojson` | 災害 › 淹水 |
-| 土砂災害照片點位（`swcbDisasterPhotoPoints`） | 點 | `hazards/swcb_disaster_photo_points.pmtiles`（15.9MB，z5–12） | 災害 › 崩塌 |
+| 土砂災害照片點位（`swcbDisasterPhotoPoints`） | 點 | `hazards/swcb_disaster_photo_points_v2.pmtiles`（15.9MB，z5–12） | 災害 › 崩塌 |
 | 鯨豚擱淺（`cetaceanStrandings`） | 點 | `marine/cetacean_strandings.geojson` | 海洋 › 擱淺 |
 | 海龜擱淺（`seaTurtleStrandings`） | 點 | `marine/sea_turtle_strandings.geojson` | 海洋 › 擱淺 |
 | 海水浴場水質（`beachWaterQuality`） | 點 | `marine/beach_water_quality.geojson` | 海洋 › 海域環境 |

@@ -62,6 +62,13 @@
    "s3_key": "deploy-assets/base_map/hillshade.png"
   },
   {
+   "path": "public/base_map/road_lines_20261116.pmtiles",
+   "bytes": 44963869,
+   "sha256": "f27417d12fdc8ada50aeeac4b1ac320527d2378cfdce1d34d19203429f519447",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/base_map/road_lines_20261116.pmtiles"
+  },
+  {
    "path": "public/bus/changhuacounty_bus_routes.json",
    "bytes": 1220937,
    "sha256": "9dd27e4abd0a0c3ba938a734465d56871646b8eb98485b6e87d43f3a92d86d2d",
@@ -741,6 +748,13 @@
    "s3_key": "deploy-assets/finance/securities_futures_institutions.geojson"
   },
   {
+   "path": "public/fire/fire_isochrone_coverage.pmtiles",
+   "bytes": 9728954,
+   "sha256": "1517575d04db57f7e417e5258f9dbe10943a778f1b156fc43a7343a3bf909852",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/fire/fire_isochrone_coverage.pmtiles"
+  },
+  {
    "path": "public/fishery/aquaculture_cage_net.geojson",
    "bytes": 20001,
    "sha256": "56966411c994bf60de060e4d828d5e21226f4080d72047a939703320f21e108e",
@@ -1175,6 +1189,20 @@
    "sha256": "83d159331d1a8b0e4251f9460894d0192d2538b90710d3186525c75ca6f96a00",
    "delivery": "r2",
    "s3_key": "deploy-assets/geo/lighthouse.geojson"
+  },
+  {
+   "path": "public/geo/medical_aed_v2.pmtiles",
+   "bytes": 10025588,
+   "sha256": "a4663d7ce13829450a43503699be35da27bd1df1ebd8973a6998bea9382c8a61",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/medical_aed_v2.pmtiles"
+  },
+  {
+   "path": "public/geo/medical_ltc_v2.pmtiles",
+   "bytes": 6220409,
+   "sha256": "39be591788e3b08fe1ec39504e054deb3b08622d364a018c053539b9250a0b40",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/medical_ltc_v2.pmtiles"
   },
   {
    "path": "public/geo/news_events.geojson",
@@ -1747,11 +1775,11 @@
    "s3_key": "deploy-assets/hazards/seawall_zones.geojson"
   },
   {
-   "path": "public/hazards/swcb_disaster_photo_points.pmtiles",
-   "bytes": 15937875,
-   "sha256": "0c0873a985933585d82eb744800b31bf75b22a0d60537c8c2f9eb56e2d9f6d99",
+   "path": "public/hazards/swcb_disaster_photo_points_v2.pmtiles",
+   "bytes": 15936069,
+   "sha256": "650c6a669b7cdd5916fc211e2ed87b633618545d10119b622655f19ffbeb20e4",
    "delivery": "r2",
-   "s3_key": "deploy-assets/hazards/swcb_disaster_photo_points.pmtiles"
+   "s3_key": "deploy-assets/hazards/swcb_disaster_photo_points_v2.pmtiles"
   },
   {
    "path": "public/hazards/taipei_waterlogging_history.geojson",
@@ -2076,6 +2104,13 @@
    "s3_key": "deploy-assets/poi/public_retail_markets_national.geojson"
   },
   {
+   "path": "public/police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson",
+   "bytes": 111162,
+   "sha256": "bbe8fb87102c9a96be11a79cd1693a9420c7d11699d5b16a5cf66aafcecc263f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/police_justice/coast_guard_stations/coast_guard_stations_20260626_v2.geojson"
+  },
+  {
    "path": "public/police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson",
    "bytes": 10957,
    "sha256": "287b76c66affa9857721dfdff6d89f34f540a0955ea773c232c0497d9cd27af4",
@@ -2237,11 +2272,11 @@
    "s3_key": "deploy-assets/statistics/township-reference.geojson"
   },
   {
-   "path": "public/tourism/activities_national.geojson",
-   "bytes": 642962,
-   "sha256": "0e51aea0298b1eb60c60990f2ff326efa30e0367925e2405271ba94e7de1ea3c",
+   "path": "public/tourism/activities_national_v2.geojson",
+   "bytes": 642873,
+   "sha256": "39f24e94fbb7540887d93a4d139ef6b5b303546ae978265f34a7c6af5a1dddfb",
    "delivery": "r2",
-   "s3_key": "deploy-assets/tourism/activities_national.geojson"
+   "s3_key": "deploy-assets/tourism/activities_national_v2.geojson"
   },
   {
    "path": "public/tourism/amusement_parks_national.geojson",
@@ -2249,6 +2284,13 @@
    "sha256": "de8833f77f41a918e5128ecf0c9de3311cd5cea64a6cad309df2ebc253014021",
    "delivery": "r2",
    "s3_key": "deploy-assets/tourism/amusement_parks_national.geojson"
+  },
+  {
+   "path": "public/tourism/attractions_national_v2.geojson",
+   "bytes": 4577054,
+   "sha256": "bd0c95a433b570789089c50017c7b6d6fa7770cb10310fc0f2f35fe6b162d084",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/tourism/attractions_national_v2.geojson"
   },
   {
    "path": "public/tourism/camping_national.geojson",
@@ -2291,6 +2333,13 @@
    "sha256": "9910b7329a361247989b91f50ebda63762e557411eae13dda6f1ead997384e38",
    "delivery": "r2",
    "s3_key": "deploy-assets/tourism/national_scenic_areas_national.geojson"
+  },
+  {
+   "path": "public/tourism/restaurants_national_v2.geojson",
+   "bytes": 2159670,
+   "sha256": "18d2631dbfe69ce220281996d0808518c7854a40646d965fa73d63f6752d12b4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/tourism/restaurants_national_v2.geojson"
   },
   {
    "path": "public/tourism/tourism_factories_national.geojson",
@@ -2587,6 +2636,13 @@
    "s3_key": "deploy-assets/world/gb_bathing_waters.pmtiles"
   },
   {
+   "path": "public/world/gb_bridges_tunnels.pmtiles",
+   "bytes": 11861743,
+   "sha256": "69adc70e77c6684683d64be9aeaa539b2344cffe60d27285ae34d9eeabe67fbe",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_bridges_tunnels.pmtiles"
+  },
+  {
    "path": "public/world/gb_brownfield.pmtiles",
    "bytes": 18896494,
    "sha256": "b6fe05da911a5d43f03a206018b9fb478e3db7c9964276fc695daef99cb508a2",
@@ -2713,11 +2769,11 @@
    "s3_key": "deploy-assets/world/gb_greenspace_points.pmtiles"
   },
   {
-   "path": "public/world/gb_health_facilities.pmtiles",
-   "bytes": 7204041,
-   "sha256": "0dd7c09bcbc52db578e6ab4d1b3db4c1ae5c8a69cf1c4f3d929e6ac6de6750fb",
+   "path": "public/world/gb_health_facilities_v2.pmtiles",
+   "bytes": 7203882,
+   "sha256": "5ff3da0c3849adfd0d2092b2683c4d1d8af3035c1d4ad4b007332a530081fac3",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/gb_health_facilities.pmtiles"
+   "s3_key": "deploy-assets/world/gb_health_facilities_v2.pmtiles"
   },
   {
    "path": "public/world/gb_hydro_stations.pmtiles",
@@ -2797,6 +2853,13 @@
    "s3_key": "deploy-assets/world/gb_major_roads.pmtiles"
   },
   {
+   "path": "public/world/gb_major_roads_v2.pmtiles",
+   "bytes": 27538607,
+   "sha256": "37294c0b93b44aeb793d667731beaf628e59b832e77fed4df22f46d3389c5c0c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_major_roads_v2.pmtiles"
+  },
+  {
    "path": "public/world/gb_marine_protected_areas.pmtiles",
    "bytes": 3451450,
    "sha256": "08c4a023120573ebe9a109497149455f5abfe2f98c1efc6e07cc45f4bbe92ab3",
@@ -2846,6 +2909,13 @@
    "s3_key": "deploy-assets/world/gb_open_access_land_z5.pmtiles"
   },
   {
+   "path": "public/world/gb_places_of_worship.pmtiles",
+   "bytes": 19542395,
+   "sha256": "f3205609e3a32158f862b143c81978129b11de4584263426309801ebe9a2dabb",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_places_of_worship.pmtiles"
+  },
+  {
    "path": "public/world/gb_planning_constraints_points.pmtiles",
    "bytes": 3874941,
    "sha256": "a35ce39d809364a219772beb8dddf3a87517a03300997e56a840dc6aa6aa7dad",
@@ -2874,6 +2944,13 @@
    "s3_key": "deploy-assets/world/gb_protected_areas_points.pmtiles"
   },
   {
+   "path": "public/world/gb_public_facilities.pmtiles",
+   "bytes": 18002492,
+   "sha256": "e55be10d7ffed95e8ff5067493d444939ddb8ad7f31bd260075e350c452ff8e1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_public_facilities.pmtiles"
+  },
+  {
    "path": "public/world/gb_radon_atlas.pmtiles",
    "bytes": 18137691,
    "sha256": "faa161840f3f91ff7999eacaa8d65cbf7c9163cc596d5299d55d2e1bf61a557c",
@@ -2893,6 +2970,13 @@
    "sha256": "e4b8c7ffaf11614bf758f36e48ff83ce56be5927559096875110f58699397fbb",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_renewables.pmtiles"
+  },
+  {
+   "path": "public/world/gb_road_facilities.pmtiles",
+   "bytes": 1096634,
+   "sha256": "514552e1319b82be5be40de9db27198808bd4aeba98816146e3a0ca72073fb7d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_road_facilities.pmtiles"
   },
   {
    "path": "public/world/gb_schools.pmtiles",
@@ -2979,11 +3063,11 @@
    "s3_key": "deploy-assets/world/gb_woodland_nfi_points.pmtiles"
   },
   {
-   "path": "public/world/ie_activity_locations.pmtiles",
-   "bytes": 6087966,
-   "sha256": "da8e2fe733f591afbd760feec8d8a2acd653b9548a55276c9008a852bfe39ca2",
+   "path": "public/world/ie_activity_locations_v2.pmtiles",
+   "bytes": 6086473,
+   "sha256": "dd92180f6d9d47cf9443ae5a4a6711594819d4859caf252cb095421157b2cc2a",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/ie_activity_locations.pmtiles"
+   "s3_key": "deploy-assets/world/ie_activity_locations_v2.pmtiles"
   },
   {
    "path": "public/world/ie_airports_ports.pmtiles",
@@ -3049,6 +3133,13 @@
    "s3_key": "deploy-assets/world/ie_coastal_erosion.pmtiles"
   },
   {
+   "path": "public/world/ie_commercial_valuations_v2.pmtiles",
+   "bytes": 31925476,
+   "sha256": "893e741a55bd38852f86a9bd83ff2d7252e6187e1938466b1429667a0b719739",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ie_commercial_valuations_v2.pmtiles"
+  },
+  {
    "path": "public/world/ie_courts.pmtiles",
    "bytes": 170423,
    "sha256": "f5756b5941c57667ff1aad4ec9fafcf176630488cb356188f1529d78b1b7438a",
@@ -3056,11 +3147,11 @@
    "s3_key": "deploy-assets/world/ie_courts.pmtiles"
   },
   {
-   "path": "public/world/ie_defibrillators.pmtiles",
-   "bytes": 1904563,
-   "sha256": "f436309ad65fbdd9f255ba6b7c87e1c09a5783df133b2bfdb5b8bbb5a5ef020b",
+   "path": "public/world/ie_defibrillators_v2.pmtiles",
+   "bytes": 1903424,
+   "sha256": "52dae15e6038616603d365d7faf367d6ee289ea74f2abf917fd54d194e8046cb",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/ie_defibrillators.pmtiles"
+   "s3_key": "deploy-assets/world/ie_defibrillators_v2.pmtiles"
   },
   {
    "path": "public/world/ie_dublinbikes_stations.pmtiles",
@@ -3819,6 +3910,20 @@
    "s3_key": "deploy-assets/world/kr_airports.pmtiles"
   },
   {
+   "path": "public/world/kr_animal_hospitals.pmtiles",
+   "bytes": 5002371,
+   "sha256": "6b9bef897853297c631cb040ed3b4b6e6b44ab3548406c38cd8c3565415bb868",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_animal_hospitals.pmtiles"
+  },
+  {
+   "path": "public/world/kr_bicycle_parking.pmtiles",
+   "bytes": 10004180,
+   "sha256": "e5ad9c15481e8d950589ae9e802a313ee4a4b389d2ce67b71fc55c09fbd3b38d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_bicycle_parking.pmtiles"
+  },
+  {
    "path": "public/world/kr_bus_stops.pmtiles",
    "bytes": 19066953,
    "sha256": "a8478c62bb81c2f4b2fe8bb6b3feafe4811dfe05758634b3f8297dbba73b65bd",
@@ -3854,6 +3959,13 @@
    "s3_key": "deploy-assets/world/kr_civil_defense_shelters.pmtiles"
   },
   {
+   "path": "public/world/kr_civil_defense_water.pmtiles",
+   "bytes": 3593965,
+   "sha256": "5a3bdd9d93d81605ce3d89268dcf6ca94e17e50d53c7a4d578acd4bef3dcd061",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_civil_defense_water.pmtiles"
+  },
+  {
    "path": "public/world/kr_clothing_bins.pmtiles",
    "bytes": 5017621,
    "sha256": "fe33f54e8689639c063317202ec165b48e3b06dfe2cc245e38354019284a9142",
@@ -3868,6 +3980,13 @@
    "s3_key": "deploy-assets/world/kr_coastal_erosion_facilities.pmtiles"
   },
   {
+   "path": "public/world/kr_emergency_bells.pmtiles",
+   "bytes": 48216577,
+   "sha256": "d48ad25bfb42917b94b3e59793056fc3b6f55527dfdced79d9d9c78c6fb99c62",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_emergency_bells.pmtiles"
+  },
+  {
    "path": "public/world/kr_festivals.pmtiles",
    "bytes": 2177519,
    "sha256": "7ec729ed19ea9897db53d947fe2b9e597b283d6ed13dec7d960dd012314f6049",
@@ -3880,6 +3999,13 @@
    "sha256": "1b9b9eb5f16b44a979174bd5894949a66858d49599f9626d2c1cd9c06ecf2825",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_fire_stations.pmtiles"
+  },
+  {
+   "path": "public/world/kr_fishing_grounds.pmtiles",
+   "bytes": 11965356,
+   "sha256": "b6bd12d7241448f0c68dcbb095a1f3ab240ff7c7bdbb73d7de54b119ab6b167b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_fishing_grounds.pmtiles"
   },
   {
    "path": "public/world/kr_fuel_stations.pmtiles",
@@ -3929,6 +4055,13 @@
    "sha256": "a98d8990726470035a885f876c9992107e2064b7802777d3f7250b31e63f06df",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_libraries.pmtiles"
+  },
+  {
+   "path": "public/world/kr_local_culture_centers.pmtiles",
+   "bytes": 342795,
+   "sha256": "6c5bf43e58638b6352b93d8663c1324e28f22ebb992eadd346c71c705b58348c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_local_culture_centers.pmtiles"
   },
   {
    "path": "public/world/kr_lodging.pmtiles",
@@ -4057,6 +4190,13 @@
    "s3_key": "deploy-assets/world/kr_power_plants.pmtiles"
   },
   {
+   "path": "public/world/kr_protected_trees.pmtiles",
+   "bytes": 12099167,
+   "sha256": "5ff8a8def0d374d80aafd0433f51ca3e13b6c1fb25e22f8d5d819fb7943ef9bd",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_protected_trees.pmtiles"
+  },
+  {
    "path": "public/world/kr_public_bicycle_stations.pmtiles",
    "bytes": 2949908,
    "sha256": "a32aa07c37ae887b7225bdf8bf8d6ce87a4dec2f6ea86d157806357149513aff",
@@ -4090,6 +4230,13 @@
    "sha256": "31746391951209f84f2fdd84c79021f46df48156181eae2c02a832b2fed98c99",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_rivers_osm.pmtiles"
+  },
+  {
+   "path": "public/world/kr_rural_experience_villages.pmtiles",
+   "bytes": 2803646,
+   "sha256": "2d6df6925bb1735f107659a2190f864bf0936c3555c0f87a7eb14460144521a8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_rural_experience_villages.pmtiles"
   },
   {
    "path": "public/world/kr_safe_delivery_boxes.pmtiles",
@@ -4134,6 +4281,13 @@
    "s3_key": "deploy-assets/world/kr_seoul_subway_congestion.pmtiles"
   },
   {
+   "path": "public/world/kr_slaughterhouses.pmtiles",
+   "bytes": 233695,
+   "sha256": "7735a6609b4b5f5fb2203c746d6bae9b43d363ce3fadd5f9f3cb72b390ab8ef5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_slaughterhouses.pmtiles"
+  },
+  {
    "path": "public/world/kr_sluice_gates.pmtiles",
    "bytes": 998486,
    "sha256": "fb03a5c6147acf545f0da9c75c192fb7ea8926199dea7206ec31e7b3b4977d4f",
@@ -4160,6 +4314,13 @@
    "sha256": "072c5f2b0eff936ff3d190d6a68d1a025c85ff1107d3a755485015720596aded",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_territorial_sea.pmtiles"
+  },
+  {
+   "path": "public/world/kr_traditional_temples.pmtiles",
+   "bytes": 1599383,
+   "sha256": "c2344095d0034eecfdc03ddda77df6558bc08ae052bf8fa06006ebd4bbcead83",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_traditional_temples.pmtiles"
   },
   {
    "path": "public/world/kr_urban_parks.pmtiles",
@@ -4190,11 +4351,165 @@
    "s3_key": "deploy-assets/world/ph_admin_boundaries.pmtiles"
   },
   {
+   "path": "public/world/ph_aquaculture.pmtiles",
+   "bytes": 4790605,
+   "sha256": "41c2dc4a8f6cca07f3c5ca5163f594350977daa3ffee8e061284f3b35123bb9b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_aquaculture.pmtiles"
+  },
+  {
+   "path": "public/world/ph_arts_venues.pmtiles",
+   "bytes": 820050,
+   "sha256": "74f05cae5045990390de2e9bcafc12e2edd24fc265aaf28f9d080bc8314cd004",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_arts_venues.pmtiles"
+  },
+  {
+   "path": "public/world/ph_bridges.pmtiles",
+   "bytes": 8980300,
+   "sha256": "efc06f483f4a4ca77bf2049fca8f6e46e0cd855d7fa8eb5831a180d1a097eba5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_bridges.pmtiles"
+  },
+  {
+   "path": "public/world/ph_built_surface.pmtiles",
+   "bytes": 30386054,
+   "sha256": "872b1e456aa1bb1213ede7ea46d4d72faf57eb0244dcda78fe67f33d4114efd3",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_built_surface.pmtiles"
+  },
+  {
+   "path": "public/world/ph_bus_stops.pmtiles",
+   "bytes": 3307498,
+   "sha256": "694a07d754d70de681d75b08021612409f42c389af73674a2334e290412a1ac8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_bus_stops.pmtiles"
+  },
+  {
+   "path": "public/world/ph_cemeteries.pmtiles",
+   "bytes": 4909041,
+   "sha256": "652ebde6fad1f1b46677c9df9a85435aeb6b0ce063e6454f172e7298f1751e4d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_cemeteries.pmtiles"
+  },
+  {
+   "path": "public/world/ph_coast_islands.pmtiles",
+   "bytes": 3769578,
+   "sha256": "edd1126df7a71c0ae0210e928324eecceec17d41931c159183f14474e6c59070",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_coast_islands.pmtiles"
+  },
+  {
+   "path": "public/world/ph_coastal_resources.pmtiles",
+   "bytes": 20481072,
+   "sha256": "12698a7c6b28a2735cb5dfb9c2f147a09bcbda41afcd1c2dd5b6ec7d59a305af",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_coastal_resources.pmtiles"
+  },
+  {
+   "path": "public/world/ph_dams.pmtiles",
+   "bytes": 262927,
+   "sha256": "dfd199e532ded7802f0ce5660139d8059204ca4511b5a6048b90389d9484e843",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_dams.pmtiles"
+  },
+  {
+   "path": "public/world/ph_earthquakes.pmtiles",
+   "bytes": 19662946,
+   "sha256": "43e2e3d6de86d31b2f0fdf4650298f26ae1b898f0ac695ca9853659f1a797801",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_earthquakes.pmtiles"
+  },
+  {
+   "path": "public/world/ph_ecozones.pmtiles",
+   "bytes": 535849,
+   "sha256": "64d35505cd417fe7e84df4d3a16cab9d9cf75bc2299d29b195b72c6f85f838a0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_ecozones.pmtiles"
+  },
+  {
+   "path": "public/world/ph_expressways.pmtiles",
+   "bytes": 1464009,
+   "sha256": "9cc4f50ea9174884cd4a868d20f634dcd6af9bc762549c48986e6a507d96ba36",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_expressways.pmtiles"
+  },
+  {
+   "path": "public/world/ph_financial_services.pmtiles",
+   "bytes": 3939189,
+   "sha256": "ea00fb31cabe32b38527399a957cebf8798ef244a7f18ba80b8be55e6bedacb8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_financial_services.pmtiles"
+  },
+  {
+   "path": "public/world/ph_fire_stations.pmtiles",
+   "bytes": 2252576,
+   "sha256": "4c406350d598b95806ea6e4462d5759d0a5b330b39c78f8bf4646b130a503ecc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_fire_stations.pmtiles"
+  },
+  {
+   "path": "public/world/ph_fish_ports.pmtiles",
+   "bytes": 91342,
+   "sha256": "c29f436407d499cd52d4fc35e05432172ebdbc5f54331ec04e1f1d4577978ead",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_fish_ports.pmtiles"
+  },
+  {
+   "path": "public/world/ph_forest_loss.pmtiles",
+   "bytes": 59765126,
+   "sha256": "947f00feb59965173914b9ac42f79ef27ff7044e2b24b91728d3f18cba951476",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_forest_loss.pmtiles"
+  },
+  {
+   "path": "public/world/ph_forestry_programs.pmtiles",
+   "bytes": 17581113,
+   "sha256": "0252907283b0d72a25b4bd32e30c68c44c62fca4b17bae61a3e9dedb4249fe5d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_forestry_programs.pmtiles"
+  },
+  {
    "path": "public/world/ph_fuel_stations.pmtiles",
    "bytes": 4051402,
    "sha256": "afa9bb67fdfad362e5e836042a8debca94f18c2f8ee2e601a8209573c2d79df8",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/ph_fuel_stations.pmtiles"
+  },
+  {
+   "path": "public/world/ph_health_facilities.pmtiles",
+   "bytes": 7305053,
+   "sha256": "32b443a991de770261248bec9d3ec98a24f4756b4befcb5e31d39e08a89e6c6d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_health_facilities.pmtiles"
+  },
+  {
+   "path": "public/world/ph_jails.pmtiles",
+   "bytes": 785494,
+   "sha256": "5aee62dd89f2f388557bae6ccd0dab96f9bf3214fc151e4f3ccfbf99028840af",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_jails.pmtiles"
+  },
+  {
+   "path": "public/world/ph_kba.pmtiles",
+   "bytes": 4282127,
+   "sha256": "979a9bec436f9047dbeb3dba666b5e67ab569455a15c11716522ff461122dfe6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_kba.pmtiles"
+  },
+  {
+   "path": "public/world/ph_km_posts.pmtiles",
+   "bytes": 17146548,
+   "sha256": "51cbcb7e6a9a6d1e67426d20c3bca3440c3de6a6b80f2be70dc422489cc9fe00",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_km_posts.pmtiles"
+  },
+  {
+   "path": "public/world/ph_lakes.pmtiles",
+   "bytes": 204713,
+   "sha256": "2909d5c4768e4cc990b014452f1884a424a87e4019bc8ee24993987882f9107a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_lakes.pmtiles"
   },
   {
    "path": "public/world/ph_major_roads.pmtiles",
@@ -4204,6 +4519,83 @@
    "s3_key": "deploy-assets/world/ph_major_roads.pmtiles"
   },
   {
+   "path": "public/world/ph_marine_stations.pmtiles",
+   "bytes": 1265504,
+   "sha256": "24814cba1e82b39ec9b9816bcd4ea9c2d9b09545ea794e6aeeea24c51a37a1c9",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_marine_stations.pmtiles"
+  },
+  {
+   "path": "public/world/ph_nature_spots.pmtiles",
+   "bytes": 1680022,
+   "sha256": "e10a6564c3643482dc9cd634eb0d8d41ba21cf009668c3b00b1126a0fc9eb81a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_nature_spots.pmtiles"
+  },
+  {
+   "path": "public/world/ph_ncr_safe_open_spaces.pmtiles",
+   "bytes": 2123169,
+   "sha256": "2f7666db68e54f6dc4564545e088cfd2457bd06385eae2de80908f348d14aeb6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_ncr_safe_open_spaces.pmtiles"
+  },
+  {
+   "path": "public/world/ph_noah_flood_100yr_central.pmtiles",
+   "bytes": 70742221,
+   "sha256": "0001a8e6331a6a38dddefe8da64705744981c315105013d6d64bd2736fe57743",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_noah_flood_100yr_central.pmtiles"
+  },
+  {
+   "path": "public/world/ph_noah_flood_100yr_north.pmtiles",
+   "bytes": 78094759,
+   "sha256": "8a0489532367f29cb58fc4ed236783bbc762f29fc1c981d5793e0abc1c41e4e7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_noah_flood_100yr_north.pmtiles"
+  },
+  {
+   "path": "public/world/ph_noah_flood_100yr_south.pmtiles",
+   "bytes": 47851014,
+   "sha256": "befe0c8c93703557b8b3b23ce570c51b7319f974b4dacaa68335302695508a47",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_noah_flood_100yr_south.pmtiles"
+  },
+  {
+   "path": "public/world/ph_noah_landslide_central.pmtiles",
+   "bytes": 137169421,
+   "sha256": "7c8ea76a9585a5cb33d4a50672115b733986537f3224b2b956002f34009684ae",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_noah_landslide_central.pmtiles"
+  },
+  {
+   "path": "public/world/ph_noah_landslide_north.pmtiles",
+   "bytes": 125416330,
+   "sha256": "d62af0ff28865618bd4fafde6730230a26ed8951a34d2fbd9789dd3717bd5283",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_noah_landslide_north.pmtiles"
+  },
+  {
+   "path": "public/world/ph_noah_landslide_south.pmtiles",
+   "bytes": 134680511,
+   "sha256": "065ce92c8abee127dcb8d46c9bcfd3ec29fcca9173e38f3bf1490b7c0a733afd",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_noah_landslide_south.pmtiles"
+  },
+  {
+   "path": "public/world/ph_parking.pmtiles",
+   "bytes": 2818894,
+   "sha256": "c93f6b526af00612d31c9c0bcea57f1811ea618ade3c4fd8189c785b6af85741",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_parking.pmtiles"
+  },
+  {
+   "path": "public/world/ph_parks.pmtiles",
+   "bytes": 4258428,
+   "sha256": "6fe3b582ae259fbdf56966e030e6e6d02cac3b975d00283bd5a3c6cbf126c54e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_parks.pmtiles"
+  },
+  {
    "path": "public/world/ph_pipelines.pmtiles",
    "bytes": 1168688,
    "sha256": "c6e5656fa87397ceec0eff5548ca4419aeccee6e4fcab3d722140f61801e0fb2",
@@ -4211,11 +4603,53 @@
    "s3_key": "deploy-assets/world/ph_pipelines.pmtiles"
   },
   {
+   "path": "public/world/ph_place_names.pmtiles",
+   "bytes": 22183272,
+   "sha256": "4de7f87b235e96ab03360f3db7b574ccb2982ea9583ef9a1723afe219db48cae",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_place_names.pmtiles"
+  },
+  {
+   "path": "public/world/ph_places_of_worship.pmtiles",
+   "bytes": 8676152,
+   "sha256": "01d2cb6688e7e1fb2604ce6bea0ff6d9540489942cb9b925957db82a78b9fada",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_places_of_worship.pmtiles"
+  },
+  {
+   "path": "public/world/ph_police_stations.pmtiles",
+   "bytes": 1987027,
+   "sha256": "ebe9f553a98397e25c70a3b452f9e06120e679cb97b00d6075c383a5c1a8311b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_police_stations.pmtiles"
+  },
+  {
+   "path": "public/world/ph_pollution_sources.pmtiles",
+   "bytes": 168834,
+   "sha256": "8e6df25437001d8d782af21922942e7140773e4100555e373273cee06d84dfd1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_pollution_sources.pmtiles"
+  },
+  {
    "path": "public/world/ph_population.pmtiles",
    "bytes": 46544662,
    "sha256": "1d7e853182b633203b7c182369014daca5033aa77271051ccf54c30ce92269f1",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/ph_population.pmtiles"
+  },
+  {
+   "path": "public/world/ph_post_offices.pmtiles",
+   "bytes": 795173,
+   "sha256": "fff51f97a389e596b0cd970323c8ba448ee990738d6f2291daa3bf44f2f07e9d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_post_offices.pmtiles"
+  },
+  {
+   "path": "public/world/ph_poverty.pmtiles",
+   "bytes": 2697911,
+   "sha256": "f10bf1ff0c7e1e58fa11aab4dfb863138c3dcdfe09bfa48d19d7a324f9d1148b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_poverty.pmtiles"
   },
   {
    "path": "public/world/ph_power_grid.pmtiles",
@@ -4232,6 +4666,20 @@
    "s3_key": "deploy-assets/world/ph_power_plants.pmtiles"
   },
   {
+   "path": "public/world/ph_public_facilities.pmtiles",
+   "bytes": 8769091,
+   "sha256": "64d9ba0c3e4b2bbd3192ee40cfd0d53168a5727ab609c2c05f18a71b01725fa7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_public_facilities.pmtiles"
+  },
+  {
+   "path": "public/world/ph_reclamation.pmtiles",
+   "bytes": 252651,
+   "sha256": "ee2509869be489b7b985ab12dd78af29dbfb7eb134246764f82ee8512b7af706",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_reclamation.pmtiles"
+  },
+  {
    "path": "public/world/ph_renewables.pmtiles",
    "bytes": 1297674,
    "sha256": "23184bc38fa014aa0a036d096bc3494f07a48a3b8643bd648c488bb8f357c8bd",
@@ -4239,18 +4687,123 @@
    "s3_key": "deploy-assets/world/ph_renewables.pmtiles"
   },
   {
-   "path": "public/world/ph_stations.pmtiles",
-   "bytes": 516138,
-   "sha256": "caa2200f176ac8f75c0fa4f94821547b6cffd3b90febfa6df1340cabc9f8fcb6",
+   "path": "public/world/ph_school_campuses.pmtiles",
+   "bytes": 40061551,
+   "sha256": "bbd98f71f935dd02e539cc8c1e0f5b45892d2d46236e2e15efe058208fc4f225",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/ph_stations.pmtiles"
+   "s3_key": "deploy-assets/world/ph_school_campuses.pmtiles"
   },
   {
-   "path": "public/world/ph_transport_hubs.pmtiles",
-   "bytes": 816049,
-   "sha256": "7f64ebe7c0e699ee1bc323b42288f45c6cfe5453840c55f53ad015f53219c6a3",
+   "path": "public/world/ph_schools.pmtiles",
+   "bytes": 28222813,
+   "sha256": "982030f32cd9cebaa394d3427914434e8c381aa0b9e10d59dcf5c31a38b29a46",
    "delivery": "r2",
-   "s3_key": "deploy-assets/world/ph_transport_hubs.pmtiles"
+   "s3_key": "deploy-assets/world/ph_schools.pmtiles"
+  },
+  {
+   "path": "public/world/ph_sports_venues.pmtiles",
+   "bytes": 12091306,
+   "sha256": "787f291a0c6f5eae487569638f7514bceb39be5b2f583a3388260212ef62d543",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_sports_venues.pmtiles"
+  },
+  {
+   "path": "public/world/ph_stations_v2.pmtiles",
+   "bytes": 537874,
+   "sha256": "1211c586a50e9f28720fb96d4ecf6d4bc5477774e1fa71fc65f7911cf8c24a62",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_stations_v2.pmtiles"
+  },
+  {
+   "path": "public/world/ph_terrain_hillshade.pmtiles",
+   "bytes": 22431985,
+   "sha256": "79b0996aa4282251a7e44ce239b3921ca0efd0c12a0bc99112cb66d2f017a0c6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_terrain_hillshade.pmtiles"
+  },
+  {
+   "path": "public/world/ph_terrain_relief.pmtiles",
+   "bytes": 14822571,
+   "sha256": "826874e19f906d538066f523d9eea1530f273ae32f3847649f0fb987f27fcc76",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_terrain_relief.pmtiles"
+  },
+  {
+   "path": "public/world/ph_tourism_development_areas.pmtiles",
+   "bytes": 4697414,
+   "sha256": "fe26cdae83630df4017ab16712d7aa1b3ac666e717e88bdbbc81788d4a525cf7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_tourism_development_areas.pmtiles"
+  },
+  {
+   "path": "public/world/ph_tourism_services.pmtiles",
+   "bytes": 5921404,
+   "sha256": "bb8fba24d97e1895b05b938e0e4b8b2c7ead7e920bb6123c5b19c827c2e70adb",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_tourism_services.pmtiles"
+  },
+  {
+   "path": "public/world/ph_tourist_attractions.pmtiles",
+   "bytes": 4355130,
+   "sha256": "a0601a3042b93988222b2147fcacbfe4cf93b13b8831a1e54b075e34565debb4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_tourist_attractions.pmtiles"
+  },
+  {
+   "path": "public/world/ph_trails.pmtiles",
+   "bytes": 41834608,
+   "sha256": "c3cfceacf1fcad38b31b5faee5eddffeeb4b4dd0973276317d31eeea841d3f2a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_trails.pmtiles"
+  },
+  {
+   "path": "public/world/ph_transport_hubs_v2.pmtiles",
+   "bytes": 815625,
+   "sha256": "c3e2a740bed8d1841ab8edda61c7ee19c70e0dbbd724f0b0cb8fe25e4547d4e0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_transport_hubs_v2.pmtiles"
+  },
+  {
+   "path": "public/world/ph_trees.pmtiles",
+   "bytes": 15194163,
+   "sha256": "647f7b62763348fdb398e2fb1f756d0744e437841d01873f0d5dee57db53361e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_trees.pmtiles"
+  },
+  {
+   "path": "public/world/ph_urban_rail.pmtiles",
+   "bytes": 164890,
+   "sha256": "20732ee61f144f913a0b850aeb869718425bc6eeadedc28551a49a27ffc83427",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_urban_rail.pmtiles"
+  },
+  {
+   "path": "public/world/ph_waste_facilities.pmtiles",
+   "bytes": 325206,
+   "sha256": "d231a5b19755c5e444ef88a5d4a74b42373cd6c0c220111d3417f0e864be5ebb",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_waste_facilities.pmtiles"
+  },
+  {
+   "path": "public/world/ph_water_permits.pmtiles",
+   "bytes": 10197194,
+   "sha256": "30cedbf118f1ab8ee0660dc9d245c3a6c01e4c16fbd14e2953d345be6c76449a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_water_permits.pmtiles"
+  },
+  {
+   "path": "public/world/ph_wdpca.pmtiles",
+   "bytes": 3821917,
+   "sha256": "2b030bace3cd1442e01531371ed47ae54878a1a47ed50fe8e90449bd629447fa",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_wdpca.pmtiles"
+  },
+  {
+   "path": "public/world/ph_wetlands.pmtiles",
+   "bytes": 9280497,
+   "sha256": "84f3972eace4542efcde49a386cf9a22128249ed144503f483f53bdb17c96318",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/ph_wetlands.pmtiles"
   },
   {
    "path": "public/world/trash_debris.geojson",
@@ -4258,6 +4811,363 @@
    "sha256": "a3b314aae1ee4b51eb34fc1137bb1382530040fe237d76f570edeb7cb16b0499",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/trash_debris.geojson"
+  },
+  {
+   "path": "public/world/vn_admin_boundaries.pmtiles",
+   "bytes": 1951548,
+   "sha256": "b9ef5d6f3421615b4a5b80ad5ebd912d39a3ab366ecc57a434a4a19a3772d59a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_admin_boundaries.pmtiles"
+  },
+  {
+   "path": "public/world/vn_angiang_aquaculture_v3.pmtiles",
+   "bytes": 3397953,
+   "sha256": "6703b59c39cc78ebc63285296909a4c76509439fd8c1140781108d49805e23cd",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_angiang_aquaculture_v3.pmtiles"
+  },
+  {
+   "path": "public/world/vn_angiang_demo.pmtiles",
+   "bytes": 112439,
+   "sha256": "b88de8d3e182094b28e99189e1118fd6a594e60db68bc7debf035c3b3f4fd17a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_angiang_demo.pmtiles"
+  },
+  {
+   "path": "public/world/vn_angiang_demo_v2.pmtiles",
+   "bytes": 110584,
+   "sha256": "6fa25688215a1ae5cd2e15014150efeb2dc23456368f7f4b8551e0be2351e1fe",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_angiang_demo_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_bicycle_rental.pmtiles",
+   "bytes": 96079,
+   "sha256": "849b9ef0b5817075c5d0f8e162277811021c14ee3bdfd9fa5ff03e27eb2177ec",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_bicycle_rental.pmtiles"
+  },
+  {
+   "path": "public/world/vn_bridges.pmtiles",
+   "bytes": 23731529,
+   "sha256": "d73f4a3c397db7ef4b4d5a07d1d558fd0739ddda41c11081a0a7e21cc60aa6d8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_bridges.pmtiles"
+  },
+  {
+   "path": "public/world/vn_coal_mines.pmtiles",
+   "bytes": 65339,
+   "sha256": "30ae482d4aa08dd60bc1fb880a4c00acf218bb2389ff8f8711074837d944c74c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_coal_mines.pmtiles"
+  },
+  {
+   "path": "public/world/vn_courts_prisons.pmtiles",
+   "bytes": 343876,
+   "sha256": "4f9a7a70d4adea1154b7411c49cd8e070e40e37df0c065b78f81468ef881d8f0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_courts_prisons.pmtiles"
+  },
+  {
+   "path": "public/world/vn_dams.pmtiles",
+   "bytes": 1685756,
+   "sha256": "70ac14030a1d7b4c7c332a5ed845d1af80b75eaa6aada688907a78846aff68f6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_dams.pmtiles"
+  },
+  {
+   "path": "public/world/vn_envisoft_stations_v2.pmtiles",
+   "bytes": 2688444,
+   "sha256": "fbc2addd9a07f839b7eee1dc4379925f2c39a5a16908760b680eda8450278ca2",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_envisoft_stations_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_envisoft_stations_v3.pmtiles",
+   "bytes": 2687765,
+   "sha256": "730915d9bb4bedd8c3b73ca742491ea9f139bf574f90e4b0300b91e26dc315ae",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_envisoft_stations_v3.pmtiles"
+  },
+  {
+   "path": "public/world/vn_farm_tracks.pmtiles",
+   "bytes": 32395305,
+   "sha256": "4ab2e74ca16a29a588e4c3abe4664ff655e92dada59eb3ef17f019a6242c996b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_farm_tracks.pmtiles"
+  },
+  {
+   "path": "public/world/vn_field_boundaries.pmtiles",
+   "bytes": 20475595,
+   "sha256": "29f98a93081dd94b9bf1b1742e8034a9dafd2695afc0b20f7676e3e83bc464dd",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_field_boundaries.pmtiles"
+  },
+  {
+   "path": "public/world/vn_financial_services.pmtiles",
+   "bytes": 1403567,
+   "sha256": "2583563b339eebf26843dd362810a2af093f415afa378bf6d3d10be2d9d77506",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_financial_services.pmtiles"
+  },
+  {
+   "path": "public/world/vn_fuel_stations_v2.pmtiles",
+   "bytes": 2665228,
+   "sha256": "301acb490096108cde8cfe0a52b0e4a6f5fdd9349e0733c87a632a64eb6b4b5a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_fuel_stations_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_glide_events.pmtiles",
+   "bytes": 415376,
+   "sha256": "e7815aba8b714a11dafc75a9fef8efaf96c8029a352602efe09719956714b30e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_glide_events.pmtiles"
+  },
+  {
+   "path": "public/world/vn_health_facilities.pmtiles",
+   "bytes": 3252035,
+   "sha256": "95eeee718c22ed9c2810f192a4adecfa1fc8136abc96189f2bb1bee7835f294f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_health_facilities.pmtiles"
+  },
+  {
+   "path": "public/world/vn_kindergartens.pmtiles",
+   "bytes": 852480,
+   "sha256": "4934887e98d0394bb17f2ef39f8b2d3899c965f595ff2e556563d963b3d59197",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_kindergartens.pmtiles"
+  },
+  {
+   "path": "public/world/vn_landslide_susceptibility.pmtiles",
+   "bytes": 564785,
+   "sha256": "76436ec7d8516c93bf24bcafd43b1e731e169cd0dcf9fe067f0d22a949ad5b01",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_landslide_susceptibility.pmtiles"
+  },
+  {
+   "path": "public/world/vn_major_roads_v2.pmtiles",
+   "bytes": 17215123,
+   "sha256": "01394e99e85d45694783d80fadf2d063962238e291cf88a10ea156e5a7ee965a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_major_roads_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_national_tourist_areas.pmtiles",
+   "bytes": 199687,
+   "sha256": "8ebc7b1d10489112eb8acb6d46b28196aab4d90dba45ef148e09e798f5e597b7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_national_tourist_areas.pmtiles"
+  },
+  {
+   "path": "public/world/vn_nature_spots.pmtiles",
+   "bytes": 1147889,
+   "sha256": "6caf841be439d6fdeccdae9fc57b1f018930cef7303678fecd25a5aa667f3adc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_nature_spots.pmtiles"
+  },
+  {
+   "path": "public/world/vn_oil_gas_gem_v2.pmtiles",
+   "bytes": 650326,
+   "sha256": "3086327d48a8d4dc9dba3a559d31186cde65c2ca0b37a50d0e159ec83951e117",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_oil_gas_gem_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_oil_gas_osm.pmtiles",
+   "bytes": 54225,
+   "sha256": "fa77338b6a814abb7480cfdead77d2c3202769fd1ed2d6c5c6b2910bafec6b89",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_oil_gas_osm.pmtiles"
+  },
+  {
+   "path": "public/world/vn_parking.pmtiles",
+   "bytes": 901161,
+   "sha256": "ee1b024787715d723f90d6109ef5a4ef29515e056d1389d59079fd7e5ff3184b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_parking.pmtiles"
+  },
+  {
+   "path": "public/world/vn_parks.pmtiles",
+   "bytes": 2943607,
+   "sha256": "ce03115ee35b8a6ecc5c1fa01f0e564a2c3973c65602d16f2b38de9f8b99819d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_parks.pmtiles"
+  },
+  {
+   "path": "public/world/vn_place_names.pmtiles",
+   "bytes": 7682179,
+   "sha256": "f9d3221b8ed40395460a1f56cf3834da8333f44563c466aeda5e24d68c66ce04",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_place_names.pmtiles"
+  },
+  {
+   "path": "public/world/vn_places_of_worship.pmtiles",
+   "bytes": 3295513,
+   "sha256": "5dee0277e118e97d859c7b9d8533d75152cc3574d70b42e767c3ae5781d5897f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_places_of_worship.pmtiles"
+  },
+  {
+   "path": "public/world/vn_police.pmtiles",
+   "bytes": 730737,
+   "sha256": "806d7f4a1eedc26471d707c81269e12f92b621ac88a631464c4b1a746c8f2818",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_police.pmtiles"
+  },
+  {
+   "path": "public/world/vn_population.pmtiles",
+   "bytes": 829601,
+   "sha256": "a5ccba2b146d547535f0f671e3a585ea4e9f616187ebad947adb683ef0c24088",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_population.pmtiles"
+  },
+  {
+   "path": "public/world/vn_postal_services.pmtiles",
+   "bytes": 3754968,
+   "sha256": "ad0fc790814c9dbb4ea1038335a00057e7e2c2016363eba79e675abb560d0837",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_postal_services.pmtiles"
+  },
+  {
+   "path": "public/world/vn_power_grid.pmtiles",
+   "bytes": 10056819,
+   "sha256": "13f9aeaeab64f42c95ba7312c4df053481315f5d178bc56212441defd28d7d69",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_power_grid.pmtiles"
+  },
+  {
+   "path": "public/world/vn_power_plants.pmtiles",
+   "bytes": 815474,
+   "sha256": "6742853c8caa627f85fe184b3739a23c603e3ed1952f88f55f369230798b329e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_power_plants.pmtiles"
+  },
+  {
+   "path": "public/world/vn_protected_areas_odm.pmtiles",
+   "bytes": 1241112,
+   "sha256": "f952205652eaa9c70d2b3f5b89bd8f4d2b52550afddf45641d908dc4af193eab",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_protected_areas_odm.pmtiles"
+  },
+  {
+   "path": "public/world/vn_public_amenities.pmtiles",
+   "bytes": 515999,
+   "sha256": "7bb12190032d11a20cc40c7580149e703aba10b8233ceaf0d38dbc74d01b39d1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_public_amenities.pmtiles"
+  },
+  {
+   "path": "public/world/vn_renewables_gem_v2.pmtiles",
+   "bytes": 3563348,
+   "sha256": "1e65d2c833b5bf03bb736e13e71ca2addebb2be377ff8547b01abca35e579096",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_renewables_gem_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_renewables_osm.pmtiles",
+   "bytes": 227364,
+   "sha256": "ecd52612ffdba099130c16f372dd37918aedd6a4fd473be81db1e67410065905",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_renewables_osm.pmtiles"
+  },
+  {
+   "path": "public/world/vn_riverbank_erosion.pmtiles",
+   "bytes": 390365,
+   "sha256": "942977f5d82a1c38fb2959b3357ffb50215f34040989f2250bbadbf2361f7709",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_riverbank_erosion.pmtiles"
+  },
+  {
+   "path": "public/world/vn_rivers.pmtiles",
+   "bytes": 2065189,
+   "sha256": "94cbeccaf6897457cd711b6f1f78a38245d8d62c7bfb3d50bdd3c2cbd956cfcd",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_rivers.pmtiles"
+  },
+  {
+   "path": "public/world/vn_school_campuses.pmtiles",
+   "bytes": 6098165,
+   "sha256": "1591e7a96f62525e73aab09a8793e9a339ce114e424e6b170fd6318d6255610e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_school_campuses.pmtiles"
+  },
+  {
+   "path": "public/world/vn_schools.pmtiles",
+   "bytes": 4529518,
+   "sha256": "fd241f56ec4f76c3d7f422b41c38d975afd16f0ff932635ee68f5c65b53a0559",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_schools.pmtiles"
+  },
+  {
+   "path": "public/world/vn_soil.pmtiles",
+   "bytes": 786387,
+   "sha256": "0740f54bfb21b875318e6c523e83966552030056c3ed934dba4f5c1b33cd0dea",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_soil.pmtiles"
+  },
+  {
+   "path": "public/world/vn_stations_v2.pmtiles",
+   "bytes": 870334,
+   "sha256": "0f5497510a0401a6ef2119ebbdf3bd969a51f1299e88a62591489532d6db05ed",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_stations_v2.pmtiles"
+  },
+  {
+   "path": "public/world/vn_terrain_hillshade.pmtiles",
+   "bytes": 22230967,
+   "sha256": "b80c49b08aa932d50fd2e885454c63ddb43d95ba517d6eedd9a27897d675df52",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_terrain_hillshade.pmtiles"
+  },
+  {
+   "path": "public/world/vn_terrain_relief.pmtiles",
+   "bytes": 13683274,
+   "sha256": "a90d260a0a9735f6a3362162c2968a85b17a996e75f4bce6bc8c03cf600f94c5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_terrain_relief.pmtiles"
+  },
+  {
+   "path": "public/world/vn_tourism_services.pmtiles",
+   "bytes": 2722296,
+   "sha256": "6fb7168bc41d770d716cbf67833c430859bf255be9cc5a7fbdd3265b2ec46525",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_tourism_services.pmtiles"
+  },
+  {
+   "path": "public/world/vn_tourist_attractions.pmtiles",
+   "bytes": 2028596,
+   "sha256": "55021b88cdaad35dc06614e814c977acc4e2253985f3e9212c3a87a4bdd401bc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_tourist_attractions.pmtiles"
+  },
+  {
+   "path": "public/world/vn_transport_hubs_odm.pmtiles",
+   "bytes": 141671,
+   "sha256": "8ded5280d811d277703838e047b4ef372d13d434e8613a1fdca67a0336ffb70c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_transport_hubs_odm.pmtiles"
+  },
+  {
+   "path": "public/world/vn_transport_hubs_osm.pmtiles",
+   "bytes": 55237,
+   "sha256": "eea4c549e98e06744f70f63f019dd9c99dc0b263f4a1d930305985871a986622",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_transport_hubs_osm.pmtiles"
+  },
+  {
+   "path": "public/world/vn_water_structures.pmtiles",
+   "bytes": 1128526,
+   "sha256": "27a9d75f608f229c8f295d87fd96aad9ddbf465f2bb88e4e3bf67077f139f76d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_water_structures.pmtiles"
+  },
+  {
+   "path": "public/world/vn_water_supply.pmtiles",
+   "bytes": 200122,
+   "sha256": "b9a8b6e0fa151f766c0c3ec71589a3c21ab89c3253124b4cc59d9b06c792c227",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/vn_water_supply.pmtiles"
   }
  ]
 }

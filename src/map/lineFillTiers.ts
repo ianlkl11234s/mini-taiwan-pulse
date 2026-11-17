@@ -247,6 +247,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/hooks/useGbTransportLayers.ts
   "gbPlanningConstraints/gb-planning-constraints-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 規劃限制區外框（依類別色）· src/hooks/useGbEnvPlanningLayers.ts
   "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/hooks/useGbTransportLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-bridge-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class（同主要路網 L-5）· src/hooks/useGbOsmLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-tunnel-line": {"width": "keep", "opacity": "standard"}, // 隧道虛線，寬依 road_class · src/hooks/useGbOsmLayers.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
   "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
   "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
@@ -315,6 +317,19 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "phPowerGrid/ph-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓（比照 osmPowerLines）· src/hooks/usePhLayers.ts
   "phPowerGrid/ph-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線，寬依電壓 · src/hooks/usePhLayers.ts
   "phPipelines/ph-pipelines-line": {"width": "standard", "opacity": "standard"}, // 依內容物分色 · src/hooks/usePhLayers.ts
+  "vnAdminBoundaries/vn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：34 省比照縣市 · src/hooks/useVnLayers.ts
+  "vnPopulation/vn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useVnLayers.ts
+  "vnMajorRoads/vn-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依道路等級 · src/hooks/usePhLayers.ts（越南規格）
+  "vnMajorRoads/vn-major-rail-line": {"width": "standard", "opacity": "standard"}, // 鐵道營運中 · src/hooks/usePhLayers.ts（越南規格）
+  "vnMajorRoads/vn-major-rail-construction-line": {"width": "standard", "opacity": "standard"}, // 鐵道興建中虛線 · src/hooks/usePhLayers.ts（越南規格）
+  "vnPowerGrid/vn-power-lines-line": {"width": "keep", "opacity": "standard"}, // 寬依電壓 · src/hooks/usePhLayers.ts（越南規格）
+  "vnPowerGrid/vn-power-cables-line": {"width": "keep", "opacity": "standard"}, // 地下／海底電纜虛線 · src/hooks/usePhLayers.ts（越南規格）
+  "vnOilGas/vn-pipelines-gem-line": {"width": "keep", "opacity": "standard"}, // GEM 油氣管線 · src/hooks/usePhLayers.ts（越南規格）
+  "vnOilGas/vn-pipelines-osm-line": {"width": "standard", "opacity": "standard"}, // OSM 天然氣管線 · src/hooks/usePhLayers.ts（越南規格）
+  "vnAngiangDemo/vn-angiang-clusters-outline": {"width": "keep", "opacity": "standard"}, // 安江工業群外框，低縮放加粗 · src/hooks/usePhLayers.ts（越南規格）
+  "phUrbanRail/ph-urban-rail-line": {"width": "keep", "opacity": "standard"}, // 依線別分色，營運線比渡線粗 · src/hooks/usePhLayers.ts
+  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/hooks/usePhLayers.ts  "fire119Live/fire119-live-district-line": {"width": "thin", "opacity": "reference", "outline": "graded"}, // 只到行政區的案件鄉鎮外框 · src/hooks/useFire119LiveLayer.ts
+  "fire119Live/fire119-live-road": {"width": "emphasis", "opacity": "reference"}, // 點開／滑過路段級案件時淡淡高亮整條路 · src/hooks/useFire119LiveLayer.ts
   "cnAdminBoundaries/cn-admin-province-line": {"width": "emphasis", "opacity": "standard"}, // L-5：省比照縣市 · src/hooks/useCnLayers.ts
   "cnAdminBoundaries/cn-admin-prefecture-line": {"width": "standard", "opacity": "standard"}, // L-5：地級比照鄉鎮市區 · src/hooks/useCnLayers.ts
   "cnPopulation/cn-population-province-line": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2）· src/hooks/useCnLayers.ts
@@ -334,6 +349,7 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
 };
 
 export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
+  "fire119Live/fire119-live-district-fill": "graded", // 只到行政區的案件件數面量 · src/hooks/useFire119LiveLayer.ts
   "agriCropSuitability/agri-crop-suitability-fill": "graded", // src/map/agricultureLayerFactory.ts
   "agriLeisureFarmZones/agri-leisure-farm-zones-fill": "coverage", // src/map/agricultureLayerFactory.ts
   "agriRuralRegen/agri-rural-regen-fill": "coverage", // src/map/agricultureLayerFactory.ts
@@ -470,6 +486,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "phPopulation/ph-population-province-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
   "phPopulation/ph-population-municipality-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
   "phPopulation/ph-population-barangay-fill": "graded", // 同上 · src/hooks/usePhLayers.ts
+  "vnPopulation/vn-population-province-fill": "graded", // 人口密度 5 級 · src/hooks/useVnLayers.ts
+  "vnAngiangDemo/vn-angiang-clusters-fill": "coverage", // 安江工業群依狀態分色 · src/hooks/usePhLayers.ts（越南規格）
   "cnPopulation/cn-population-province-fill": "graded", // 人口密度 6 級＋未涵蓋灰 · src/hooks/useCnLayers.ts
   "cnPopulation/cn-population-prefecture-fill": "graded", // 同上（GHS 模型值）· src/hooks/useCnLayers.ts
   "cnEez/cn-eez-fill": "coverage", // src/hooks/useCnLayers.ts

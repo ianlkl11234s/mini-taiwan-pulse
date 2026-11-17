@@ -8,5 +8,20 @@
   "enum.railSystem.trtc": "台北メトロ",
   "enum.railSystem.krtc": "高雄MRT",
   "enum.railSystem.klrt": "高雄ライトレール",
-  "enum.railSystem.tmrt": "台中MRT"
+  "enum.railSystem.tmrt": "台中MRT",
+  "enum.fire119Category.fire": "火災",
+  "enum.fire119Category.ems": "救急",
+  "enum.fire119Category.rescue": "救助",
+  "enum.fire119Category.other": "その他",
+  "enum.fire119Status.received": "受理",
+  "enum.fire119Status.dispatched": "出動",
+  "enum.fire119Status.arrived": "現着",
+  "enum.fire119Status.transporting": "搬送中",
+  "enum.fire119Status.returned": "帰署",
+  "enum.fire119Status.other": "状態不明",
+  "enum.pbsCategory.traffic_incident": "事故",
+  "enum.pbsCategory.other": "その他の道路情報",
+  "enum.pbsStatus.reported": "通報",
+  "enum.pbsStatus.ongoing": "対応中",
+  "enum.pbsStatus.cleared": "解除済み"
 }

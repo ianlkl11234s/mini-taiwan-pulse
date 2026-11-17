@@ -8,5 +8,20 @@
   "enum.railSystem.trtc": "Taipei Metro",
   "enum.railSystem.krtc": "Kaohsiung MRT",
   "enum.railSystem.klrt": "Kaohsiung Light Rail",
-  "enum.railSystem.tmrt": "Taichung MRT"
+  "enum.railSystem.tmrt": "Taichung MRT",
+  "enum.fire119Category.fire": "Fire",
+  "enum.fire119Category.ems": "Ambulance",
+  "enum.fire119Category.rescue": "Rescue",
+  "enum.fire119Category.other": "Other",
+  "enum.fire119Status.received": "Received",
+  "enum.fire119Status.dispatched": "Dispatched",
+  "enum.fire119Status.arrived": "On scene",
+  "enum.fire119Status.transporting": "To hospital",
+  "enum.fire119Status.returned": "Returned",
+  "enum.fire119Status.other": "Unknown status",
+  "enum.pbsCategory.traffic_incident": "Accident",
+  "enum.pbsCategory.other": "Other report",
+  "enum.pbsStatus.reported": "Reported",
+  "enum.pbsStatus.ongoing": "In progress",
+  "enum.pbsStatus.cleared": "Cleared"
 }

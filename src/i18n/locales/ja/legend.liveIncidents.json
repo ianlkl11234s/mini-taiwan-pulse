@@ -1,0 +1,20 @@
+{
+  "legend.liveIncidents.cat.fire": "火災",
+  "legend.liveIncidents.cat.ems": "救急",
+  "legend.liveIncidents.cat.rescue": "救助",
+  "legend.liveIncidents.cat.other": "その他",
+  "legend.liveIncidents.status.active": "受理／出動／現着（点滅）",
+  "legend.liveIncidents.status.transporting": "搬送中（中空）",
+  "legend.liveIncidents.status.returned": "帰署（灰色、1 時間以内に消える）",
+  "legend.liveIncidents.shape.point": "点＝路線の中間点または機関提供の位置",
+  "legend.liveIncidents.shape.district": "面＝行政区までのみ（数字＝件数）",
+  "legend.liveIncidents.shape.hospital": "病院バッジ＝新北市の搬送中（搬送先病院）",
+  "legend.liveIncidents.note": "位置は発生地点そのものではありません。路線レベルの事案を選ぶと路線全体を薄く強調します。",
+  "legend.liveIncidents.counts": "範囲内 {total} 件、うち位置なし {unmapped} 件は非表示",
+  "legend.liveIncidents.truncated": "上限を超えたため一部の事案は未読み込み",
+  "legend.liveIncidents.pbs.incident": "事故",
+  "legend.liveIncidents.pbs.other": "その他の道路情報",
+  "legend.liveIncidents.pbs.cleared": "解除済み（灰色）",
+  "legend.liveIncidents.pbsNote": "座標の精度はまちまち（約 1 km 単位のものあり）。説明は更新されないことがあります。",
+  "legend.liveIncidents.pbsCounts": "範囲内 {total} 件を表示、座標なし {unmapped} 件"
+}

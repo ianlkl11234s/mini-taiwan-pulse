@@ -1,8 +1,48 @@
-# STATUS 歷史段落（2026-10-28～11-08）
+# STATUS 歷史段落（2026-10-28～11-16）
 
 > 2026-11-08 單一入口整理時從 `.claude/memory/STATUS.md` 移出，原文不改。更早的段落在 [`../2026-10-27/STATUS-history.md`](../2026-10-27/STATUS-history.md)。現況入口：[`docs/PROJECTS.md`](../../PROJECTS.md)。
 >
 > 注意：以下各段的「未發版／not run」是當時狀態；v2.27.0～v2.31.3 已於 2026-11-08 全部發布。
+
+## 2026-11-16：v2.37.1
+
+| 項目 | 現況 |
+|---|---|
+| 正式版號 | **v2.37.1**（2026-11-16 發布：發版 PR #1062 從 `release/v2.37.1` 合 master，merge `8f0cdd39`；站主同意在 assets／ci-ok 紅燈下以管理員權限合併；tag `v2.37.1`、GitHub Release 已建；deploy 與 sync-assets 成功；正式站版號 2.37.1）。回合併 #1064 合 develop `67a08418`（取代已關閉的 #1063）。內容見 `CHANGELOG.md`。 |
+| 本版範圍 | 個資清理第二批：台灣 7 層 `_v2`（#1044，發版前以管理員權限合併 `d963d2b4`）、英愛 3 層 `_v2`（#1048，develop `06a17f4a`，3 檔已上 S3）、lock 移除愛爾蘭 AED 舊檔（#1055）；正式站目視修正：Gaza 國碼 PS（#1056）、7 層 popup 出處與網格低縮放首載空白（#1058）；文件 #1057、#1059、#1060、#1061。不需 migration／Worker 設定／env。 |
+| 已知紅燈 | **master 的 CI 在 `8f0cdd39` 上 assets 仍紅**：修正（#1064 補 `deploy/asset-test-files.txt` 漏列的 5 檔）只在 develop，下次發版後轉綠；正式站不受影響。develop CI 全綠含 assets。兩層根因見 CI-10。 |
+| 正式站目視 | 匿名唯讀，A–E 全過（截圖 `.gis-agent-system/projects/2026-11-13-vis-pack-batch2/shots-v2371/`）：10 個 `_v2` 檔公開網域全 206（發版前 S3 回讀 sha256 與 lock 一致）、10 層都改讀 `_v2`；身分證格式與 email 0 筆，手機格式只在官方電話欄；`h3Population`／`popCount` z9 首次載入有網格；Gaza 卡片皆 PS；伊波拉 1 張 CD、約 10 張 CG（舊資料）。關閉 PII-1、VPB-17／20／21；新問題 VPB-28（AED／長照 popup 沒欄位，P2）、VPB-29（海巡資料品質），觀光三層來源列併入 VPB-23。 |
+
+- 同日後端（不隨前端版號）：data-collectors `efd4c2d6`（#206 剛果誤定位修正、#205 城市聲景即時管線開關全關）部署 pulse-host，容器 healthy、log 顯示聲景已停用（VPB-18 verifying、VPB-27 blocked）。之後站主同意開聲景每日 dry-run（`SOUND_ATLAS_DAILY_ENABLED=true`，UPLOAD 仍關；SND-1 已完成），當天 collector 容器共重建 3 次；城市聲景後續 SND-2～5（SND-2 11-17）。
+- 收尾註記（2026-11-16 三個 session 收尾）：待清理的已合併 worktree：mini `.worktrees/{fix-fire-isochrone-asset,release-v2.37.0,release-v2.37.1,fix-v2370-visual,memory-v2370-results,wrapup-20261116}`（`release-v2.37.1` 的分支 `fix/asset-test-files-v2`、`release/v2.37.1` 已合併）、data-collectors `.worktrees/{fix-monitor-false-alarms,fix-ge-congo-ambiguity}`；保留不清：mini `.worktrees/sound-atlas`（未 push 分支，dev server port 3745 站主在看）、data-collectors `.worktrees/sound-atlas-live`。
+- 下一步：PROJECTS「有期限的事」11-17～11-20 各項；PII-2 刪舊檔（愛爾蘭 AED 先，需站主執行或授權）；REL-NEXT 下一版（#1037、#1039＋pulse-data #109、#1042、#1050、analytics #392）。
+- 接手：從 origin/develop 開分支；進度文件用 `git show origin/develop:<path>` 讀。
+
+## 2026-11-16：v2.37.0
+
+| 項目 | 現況 |
+|---|---|
+| 正式版號 | **v2.37.0**（2026-11-16 發布：發版 PR #1054 合 master `3629f1b5`，tag `v2.37.0`、GitHub Release 已建，部署與 CI 綠，正式站版號已是 2.37.0）。內容見 `CHANGELOG.md`。 |
+| 本版範圍 | 19 個 PR：#1028–#1036、#1038、#1040、#1041、#1043、#1045、#1046、#1047、#1049、#1051、#1052。重點：菲律賓第 0–2 波（#1033、#1047、#1049）、越南第 0–1 波 12 層（#1038）；正式站目視修正第二批（#1036）與 VPB-3～6（#1034）；日本事故口徑（#1040）；選舉活動圓點（#1030）；個資止血第一批：愛爾蘭 AED `_v2`（#1043）、站主限定長照來源（#1046）；救援等時圈（#1052：根因是同步腳本對照表沒這個檔，補 lock 一筆與 S3 鏡像 key，舊的扁平 key 保留）。lock 新增 30 個資產（菲 13、越 15、救援等時圈、愛爾蘭 AED `_v2`）在正式網域都取得到。不需 migration／Worker 設定／env。 |
+| 正式站目視 | 匿名、唯讀，11 項：9 通過、2 部分通過、0 失敗；截圖 `.gis-agent-system/projects/2026-11-13-vis-pack-batch2/shots-v2370/`。部分通過：INTEL 國碼 Gaza 仍顯示 GZ（VPB-17，mini #1056 已合 develop `0d6441c5`、待發版）；分享網址只帶 `?c=ie` 開在台灣（查明是刻意設計，#1056 只更正 CHANGELOG 說明，VPB-19 關閉）。新問題 VPB-18（修正中，部署待同意）、VPB-20～22、VNW-1；VPB-8 補版面。 |
+
+- 卡點：#1044（台灣 7 層 `_v2`；CI 要 R2 先有檔、發版同步只帶 master 已引用的檔，卡循環，等站主在另一視窗決定）與 #1048（英愛 3 層）未進本版，正式站個資尚未完全處理，需再發一版（REL-NEXT／PII-1）。
+- 同日後端（不隨前端版號）：data-collectors #203（`3e801d63`）部署 pulse-host（容器 11-15 18:06 UTC 重建），HiCloud VM 四個 app 換新版 `vm_buffer.py`（COL-ZERO-1／COL-GE-2）；#204 合 main `e4135c40`，站主同意後 11-16 10:50（台北）部署 pulse-host（COL-STAG-1，11-17 驗證）。gis-platform、analytics 主 checkout 已 pull 到最新；兩個擋路的未追蹤 manifest 移到 `GIS/_worktree-backups/2026-11-16/analytics-untracked-manifests/`。
+- 唯讀調查結論：HOST-1 記憶體先不調上限、#204 部署後再量；對帳 critical=2 是颱風收集器沒颱風時的誤報（#204 修）；S3 週增 +101% 含舊版本，12-10 回看（ST-3）。
+- 下一步：PROJECTS「有期限的事」11-17～11-20 各項；SR-1 改期 11-20（11-15 那輪沒做）。
+- 接手：從 origin/develop 開分支；進度文件用 `git show origin/develop:<path>` 讀。
+
+## 2026-11-12～11-13：v2.36.0～v2.36.2
+
+| 項目 | 現況 |
+|---|---|
+| 正式版號 | **v2.36.2**（v2.36.1 加兩個修正 #1025 與選舉活動同地點各場展開 #1024；v2.36.1＝v2.36.0 加 #1020）。內容見 `CHANGELOG.md`。 |
+| 本版重點 | 統計圖層呈現方式：比例圓 #1008、點密度 #1016、多年份並排 #1011、左右比較 P1 #1012；暗底配色第一／二段 #998、#1002；review 修正 #1005、#1006。不需 migration／R2 發布／Worker 設定／env。 |
+
+- 卡點：無。
+- 下一步：依 PROJECTS「現在最該注意」；VIZ-1／VIZ-2 正式站目視。v2.36.2 的兩個修正 11-13 已在正式站複驗通過。
+- 同日後端（不隨前端版號）：gis-platform mig 552／553 已套用（SEC-5）；data-collectors #200 已部署 pulse-host 與 HiCloud VM（BKP-4／VMH-1）。
+- 接手：從 origin/develop 開分支；進度文件用 `git show origin/develop:<path>` 讀。
 
 ## 2026-11-07～11-08：愛爾蘭全波次、南韓第 7 波與統計（develop，#874 起未發版）
 

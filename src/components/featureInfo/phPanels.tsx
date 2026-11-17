@@ -61,8 +61,17 @@ export function PhPopulationPanel({ props }: P) {
   </>;
 }
 
+/** 上游的空值字樣（GFI 的 'nan'、'None'、NAMRIA 的 '..'）一律當空值，不顯示。 */
+const EMPTY_TOKENS = new Set(["nan", "NaN", "None", "null", "..", "…"]);
+
 function formatField(f: PhField, props: Record<string, unknown>, locale: string): string {
-  const raw = props[f.prop];
+  const raw = EMPTY_TOKENS.has(caText(props[f.prop])) ? "" : props[f.prop];
+  if (f.unlessSameAs && caText(raw) === caText(props[f.unlessSameAs])) return "";
+  if (f.kind === "year") {
+    // GFI 數值欄是字串（'2004.0'）：轉數字後取整，不加千分位
+    const n = Number(caText(raw));
+    return caText(raw) !== "" && Number.isFinite(n) && n > 0 ? String(Math.round(n)) : "";
+  }
   if (f.kind === "num") {
     const s = fmtNum(raw, f.digits ?? 0);
     return s ? `${s}${f.unit ? ` ${f.unit}` : ""}` : "";
@@ -73,7 +82,7 @@ function formatField(f: PhField, props: Record<string, unknown>, locale: string)
   return s;
 }
 
-export function makePhPanel(spec: PhLayerSpec): FC<P> {
+export function makePhPanel(spec: PhLayerSpec<string>): FC<P> {
   return function PhDataPanel({ props }) {
     const { locale } = useLocale();
     const cat = phCatOf(spec, props);

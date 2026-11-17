@@ -81,7 +81,7 @@ export function CnDataLegend({ layerKey }: { layerKey: CnDataKey }) {
     {spec.cats.map((c) => <LegendRow key={c.id} swatch={catSwatch(spec, c)}>{pickL3(c.label, locale)}</LegendRow>)}
     {dashed ? <LegendRow swatch={<SwatchLine color={spec.color} width={LINE_WIDTH.standard[1]} dash={[2, 1.5]} />}>{pickL3({ zh: "虛線：興建、規劃、擱置等（非運轉中）", en: "Dashed: under construction, proposed, shelved, etc.", ja: "破線：建設中・計画中・保留など" }, locale)}</LegendRow> : null}
     {faded ? <LegendRow swatch={<SwatchLine color={spec.color} width={LINE_WIDTH.standard[1]} opacity={0.4} />}>{pickL3({ zh: "淡色：路線精度低（示意路線）", en: "Faded: low route accuracy (schematic)", ja: "淡色：ルート精度が低い（模式的）" }, locale)}</LegendRow> : null}
-    {spec.sizeLegend?.map((s) => <LegendSizeRow key={s.prop} title={pickL3(s.title, locale)} items={s.bands.map((b) => ({ r: b.radius, label: b.label }))} fill={spec.color} />)}
+    {spec.sizeLegend?.map((s) => <LegendSizeRow key={s.prop} title={pickL3(s.title, locale)} items={s.bands.map((b) => ({ r: b.radius, label: typeof b.label === "string" ? b.label : pickL3(b.label, locale) }))} fill={spec.color} />)}
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.minZoomNote ? <LegendNote>{pickL3(spec.minZoomNote, locale)}</LegendNote> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}

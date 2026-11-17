@@ -6,6 +6,7 @@
 import { KR_DATA_KEYS } from "../data/krDataKeys";
 import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS } from "../data/phDataKeys";
+import { VN_DATA_KEYS } from "../data/vnDataKeys";
 import { CN_DATA_KEYS } from "../data/cnDataKeys";
 import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";
 import { useEffect, useRef, type CSSProperties } from "react";
@@ -36,6 +37,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   ...KR_DATA_KEYS,
   ...IE_DATA_KEYS,
   ...PH_DATA_KEYS,
+  ...VN_DATA_KEYS,
   ...CN_DATA_KEYS,
   ...G53_SELF_FOOTER_KEYS, // G53 批 1：analytics PMTiles 無來源欄，atlasPanels withG53Footer 自掛
   "ieCoillteRecreation", "ieCoillteForestRoads", // 站主限定 Coillte：panel 自掛 SourceFooter（makeIePanel）
@@ -43,11 +45,17 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "pollingStations2024",
   // 2026 議員選區：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
   "councilDistricts2026",
+  // 即時 119 案件／警廣即時路況（站主限定）：RPC feature 無來源欄，panel 自掛 SourceFooter
+  "fire119Live", "pbsRoadEventsLive",
   // 2026 選舉活動（站主限定）：RPC feature 只有逐場來源連結，panel 補圖層層級的來源說明並自掛 SourceFooter
   "electionEvents2026",
   "chatHighlight",
   // VPB-4：feature／tile 無來源欄，panel 補官方出處並自掛 SourceFooter（原本顯示「來源資訊待補」）
   "immigrationOffice", "pollutionPenalty", "youbikeFullness", "groundwater",
+  // feature 無來源欄，panel 補有依據的固定出處並自掛 SourceFooter（原本顯示「來源資訊待補」）
+  "popCount", "h3Population",
+  "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
+  "jpPopulationMesh1km", "fireIsochrone",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
   // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
@@ -98,6 +106,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "ieAdminBoundaries",
   "phAdminBoundaries",
   "phPopulation",
+  "vnAdminBoundaries",
+  "vnPopulation",
   "cnAdminBoundaries",
   "cnPopulation",
   "caTransitStops",
@@ -143,6 +153,10 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbLondonJamCams",
   "gbLondonChargingZones",
   "gbMajorRoads",
+  "gbBridgesTunnels",
+  "gbRoadFacilities",
+  "gbPublicFacilities",
+  "gbPlacesOfWorship",
   "gbCompanies",
   "gbManufacturing",
   "gbFuneral",

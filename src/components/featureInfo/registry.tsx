@@ -70,6 +70,7 @@ import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPa
 import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbPollutionInventoryEnglandPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
+import { GbBridgesTunnelsPanel, GbPlacesOfWorshipPanel, GbPublicFacilitiesPanel, GbRoadFacilitiesPanel } from "./ukPanels";
 import { KR_DATA_SPECS } from "../../data/krDataLayers";
 import type { KrDataKey } from "../../data/krDataKeys";
 
@@ -84,12 +85,16 @@ import { CN_DATA_SPECS } from "../../data/cnDataLayers";
 import type { CnDataKey } from "../../data/cnDataKeys";
 import { PH_DATA_SPECS } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
+import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
+import { VN_DATA_SPECS } from "../../data/vnDataLayers";
+import type { VnDataKey } from "../../data/vnDataKeys";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../../data/ieCoillteTypes";
 import { IE_DATA_SPECS } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 const IE_HEADER_LABELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IeDataKey, string>;
 const CN_HEADER_LABELS = Object.fromEntries(CN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CnDataKey, string>;
 const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<PhDataKey, string>;
+const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
 import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
@@ -119,6 +124,7 @@ import {
   IndustrialParkComparisonPanel,
 } from "./businessRegistryPanels";
 import { CouncilDistrictPanel, ElectionEventPanel, PollingStationPanel } from "./politicsPanels";
+import { Fire119LivePanel, PbsRoadEventsLivePanel } from "./liveIncidentsPanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
@@ -291,6 +297,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   activeFault: ActiveFaultPanel,
   newsEvent: NewsEventPanel,
   electionEvents2026: ElectionEventPanel,
+  fire119Live: Fire119LivePanel,
+  pbsRoadEventsLive: PbsRoadEventsLivePanel,
   pollingStations2024: PollingStationPanel,
   councilDistricts2026: CouncilDistrictPanel,
   disasterAlert: DisasterAlertPanel,
@@ -484,6 +492,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   phAdminBoundaries: PhAdminBoundariesPanel,
   phPopulation: PhPopulationPanel,
   ...PH_DATA_PANELS,
+  vnAdminBoundaries: VnAdminBoundariesPanel,
+  vnPopulation: VnPopulationPanel,
+  ...VN_DATA_PANELS,
   cnAdminBoundaries: CnAdminBoundariesPanel,
   cnPopulation: CnPopulationPanel,
   ...CN_DATA_PANELS,
@@ -532,6 +543,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbLondonJamCams: GbLondonJamCamsPanel,
   gbLondonChargingZones: GbLondonChargingZonesPanel,
   gbMajorRoads: GbMajorRoadsPanel,
+  gbBridgesTunnels: GbBridgesTunnelsPanel,
+  gbRoadFacilities: GbRoadFacilitiesPanel,
+  gbPublicFacilities: GbPublicFacilitiesPanel,
+  gbPlacesOfWorship: GbPlacesOfWorshipPanel,
   gbCompanies: GbCompaniesPanel,
   gbManufacturing: GbManufacturingPanel,
   gbFuneral: GbFuneralPanel,
@@ -915,6 +930,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   activeFault: "活動斷層",
   newsEvent: "新聞事件",
   electionEvents2026: "2026 選舉活動",
+  fire119Live: "即時 119 案件",
+  pbsRoadEventsLive: "警廣即時路況",
   pollingStations2024: "2024 投開票所",
   councilDistricts2026: "2026 議員選區",
   disasterAlert: "災害示警",
@@ -1174,6 +1191,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   phAdminBoundaries: "行政邊界 Administrative Boundaries",
   phPopulation: "人口密度 Population Density",
   ...PH_HEADER_LABELS,
+  vnAdminBoundaries: "行政邊界 Administrative Boundaries",
+  vnPopulation: "人口密度 Population Density",
+  ...VN_HEADER_LABELS,
   cnAdminBoundaries: "行政邊界 Administrative Boundaries",
   cnPopulation: "人口密度 Population Density",
   ...CN_HEADER_LABELS,
@@ -1222,6 +1242,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbLondonJamCams: "倫敦道路攝影機 TfL JamCams",
   gbLondonChargingZones: "倫敦收費與低排放區 Charging Zones",
   gbMajorRoads: "主要路網 Major Roads",
+  gbBridgesTunnels: "橋梁與隧道 Road Bridges & Tunnels",
+  gbRoadFacilities: "道路設施 Road Facilities",
+  gbPublicFacilities: "公共設施 Public Facilities",
+  gbPlacesOfWorship: "宗教場所 Places of Worship",
   gbCompanies: "公司登記 Registered Companies",
   gbManufacturing: "製造業公司 Manufacturing Companies",
   gbFuneral: "火葬場與葬儀社 Crematoria & Funeral Directors",

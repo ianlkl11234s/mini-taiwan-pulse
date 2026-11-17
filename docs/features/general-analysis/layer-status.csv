@@ -39,6 +39,17 @@ krSeniorCenters,敬老堂與里民會館 Senior Centres & Village Halls,KR,南�
 krIndustrialComplexes,產業園區 Industrial Complexes,KR,南韓,工商登記,custom,verified,kr_industrial_complexes,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓產業園區邊界 1,372 處（國家 65、一般 771、都市尖端 53、農工 483）"
 krNoiseSites,環境噪音測點 Noise Monitoring Sites,KR,南韓,環境氣候,custom,verified,kr_noise_sites,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）
 krClothingBins,舊衣回收箱 Clothing Collection Bins,KR,南韓,廢棄物,custom,verified,kr_clothing_bins,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓舊衣回收箱 20,931 處（57 個市郡區清單合併）"
+krAnimalHospitals,動物醫院 Animal Hospitals,KR,南韓,動物福利,custom,verified,kr_animal_hospitals,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓營業中動物醫院 5,255 處（LOCALDATA 동물병원）"
+krLocalCultureCenters,地方文化院 Local Culture Centres,KR,南韓,文化,custom,verified,kr_local_culture_centers,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓地方文化院 171 處（LOCALDATA 지방문화원）
+krTraditionalTemples,傳統寺剎 Traditional Temples,KR,南韓,宗教,custom,verified,kr_traditional_temples,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓傳統寺剎保存法登錄的寺剎 1,599 處（指定 795、承認 46、未填 758）"
+krProtectedTrees,保護樹 Protected Trees,KR,南韓,環境氣候,custom,verified,kr_protected_trees,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓保護樹 12,308 株（道樹、市郡樹、面樹、村樹）"
+krFishingGrounds,漁場 Fishing Grounds,KR,南韓,海洋,custom,verified,kr_fishing_grounds,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓漁場 14,858 面（養殖、村落、定置網；調查 2020–2023，快照 2024-04-24）"
+krBicycleParking,自行車停放處 Bicycle Parking,KR,南韓,交通,custom,verified,kr_bicycle_parking,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓自行車停放處 18,220 處（LOCALDATA 자전거보관소）"
+krCivilDefenseWater,民防緊急給水設施 Civil Defence Emergency Water,KR,南韓,災害,custom,verified,kr_civil_defense_water,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓使用中民防緊急給水設施 5,464 處（公共用、政府支援、自治體）"
+krSeoulZoning,首爾用途地域 Seoul Zoning Districts,KR,南韓,底圖,custom,verified,kr_seoul_zoning,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。首爾用途地域 8,318 面（住宅、商業、工業、綠地等 7 大類）；data.go.kr 註含第三方權利，不入倉"
+krEmergencyBells,安全緊急鈴 Emergency Bells,KR,南韓,執法治安,custom,verified,kr_emergency_bells,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）"
+krRuralExperienceVillages,農漁村體驗休養村 Rural Experience Villages,KR,南韓,觀光,custom,verified,kr_rural_experience_villages,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）"
+krSlaughterhouses,屠宰場 Slaughterhouses,KR,南韓,農業,custom,verified,kr_slaughterhouses,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓營業中屠宰場 111 處（LOCALDATA 도축업）
 ieMaritimeBoundaries,海域界線 Maritime Boundaries,IE,愛爾蘭,底圖,custom,verified,ie_maritime_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭海域界線 17 段（領海 12 浬 13、鄰接區 24 浬 1、專屬經濟區 3）
 iePlaceNames,地名 Place Names,IE,愛爾蘭,底圖,custom,verified,ie_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭官方地名 52,402 筆（人口中心 2,022、townland 50,046、島嶼 334；英文＋愛爾蘭語名）"
 ieGaeltacht,Gaeltacht 語言規劃區 Gaeltacht Language Planning Areas,IE,愛爾蘭,原民與農村,custom,verified,ie_gaeltacht_lpa,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭 Gaeltacht 語言規劃區 26 區＋2022 普查愛爾蘭語使用（每天在教育體系外說的比例 2.4%–68.9%）
@@ -109,14 +120,62 @@ ieProposedNha,提議中自然遺產區（pNHA） Proposed Natural Heritage Areas
 ieGroundwaterFlooding,地下水淹水圖（GSI） Groundwater Flood Maps (GSI),IE,愛爾蘭,災害,custom,verified,ie_groundwater_flooding,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭 GSI 地下水淹水圖 1:20,000：高／中／低機率（554／485／466 面）、歷史最大範圍 3,598 面、2015/16 冬季地表水 15,967 面"
 iePeatExtractionBogs,Bord na Móna 泥炭開採沼地 Bord na Móna Peat Extraction Bogs,IE,愛爾蘭,農業,custom,verified,ie_peat_extraction_bogs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭 EPA 登錄的 Bord na Móna 持照泥炭開採沼地 162 面、約 7.9 萬公頃（13 個地方政府）
 ieFloodZones,郡議會淹水分區 Flood Zone A／B Council Flood Zones A/B,IE,愛爾蘭,災害,custom,verified,ie_flood_zones,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭 4 個郡議會發展計畫的 Flood Zone A／B（Cork County、Galway County、Roscommon、Wicklow；只涵蓋 4/31 地方政府）
-phTransportHubs,機場與港口 Airports & Ports,PH,菲律賓,交通,custom,verified,ph_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓機場與港口 581 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）
-phStations,鐵路車站與渡輪碼頭 Rail Stations & Ferry Terminals,PH,菲律賓,交通,custom,verified,ph_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓鐵路車站與渡輪碼頭 562 處（官方 PNR 站；LRT／MRT 等與渡輪碼頭由 OpenStreetMap 補缺）
+phTransportHubs,機場與港口 Airports & Ports,PH,菲律賓,交通,custom,verified,ph_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓機場與港口 580 處（DOTr 機場、PPA 港口與港務管理處；OpenStreetMap 補缺另色）
+phStations,鐵路車站與渡輪碼頭 Rail Stations & Ferry Terminals,PH,菲律賓,交通,custom,verified,ph_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓鐵路車站與渡輪碼頭 476 處（官方 PNR 站；其他鐵路站與渡輪碼頭由 OpenStreetMap 補缺；標示營運狀態，PNR 都會段與 Alabang–Calamba 停駛 32 站；LRT／MRT 車站改由 LRT／MRT 層提供；鐵路站涵蓋 3/18 region）
 phMajorRoads,主要道路與鐵道 Major Roads & Railways,PH,菲律賓,交通,custom,verified,ph_major_roads,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓主要道路 46,794 段（motorway／trunk／primary）＋鐵道 635 段（OpenStreetMap）"
 phPowerPlants,電廠 Power Plants,PH,菲律賓,能源,custom,verified,ph_power_plants,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓電廠 1,051 處（Global Energy Monitor 9 種技術，Climate TRACE 補缺；預設只顯示運轉中＋興建中）"
 phPowerGrid,輸電線與變電所 Power Lines & Substations,PH,菲律賓,能源,custom,verified,ph_power_grid,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓輸電線 5,693 段（依電壓分級，地下與海底電纜虛線）＋變電所 904 處（OpenStreetMap）"
 phRenewables,家用太陽能補助與離網微電網 Solar Home System Subsidies & Off-grid Microgrids,PH,菲律賓,能源,custom,verified,ph_renewables,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 DOE 家用太陽能系統補助安裝地點 708 處（PVM，依鄉鎮彙整）＋離網微電網 96 處；補助安裝地點，非全國光電
 phFuelStations,加油站 Fuel Stations,PH,菲律賓,能源,custom,verified,ph_fuel_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓加油站 10,100 處（OpenStreetMap；依品牌 8 色，其餘併「其他／未知品牌」）"
 phPipelines,管線與儲槽 Pipelines & Storage Tanks,PH,菲律賓,能源,custom,verified,ph_pipelines,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓管線 825 段＋儲槽 2,241 處（OpenStreetMap；依內容物分油氣、水、污水、地熱蒸汽、其他、未標示）"
+phBusStops,公車站 Bus Stops,PH,菲律賓,交通,custom,verified,ph_bus_stops,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓 OpenStreetMap 標註的公車站 9,313 處（涵蓋不均，82 省中 9 省未涵蓋；近 4 成在馬尼拉都會區）"
+phUrbanRail,LRT／MRT 軌道與車站 LRT / MRT Lines & Stations,PH,菲律賓,交通,custom,verified,ph_urban_rail,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,馬尼拉營運中的 LRT-1、LRT-2、MRT-3：軌道 523 段（機廠軌不畫）＋車站 51 站（依線別分色；MRT-7 與 Metro Manila Subway 尚未通車、未納入）
+phExpressways,高速公路與收費道路 Expressways & Toll Roads,PH,菲律賓,交通,custom,verified,ph_expressways,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓高速公路與收費道路 5,550 段、1,417 km（依收費分色，彈窗列路線編號 E1–E6；toll 未標不等於免費）"
+vnStations,"車站（鐵路、捷運、公車總站） Rail, Metro & Bus Stations",VN,越南,交通,custom,verified,vn_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南車站 989 處（鐵路站 293、捷運站 166、公車總站 530；OpenStreetMap 補缺，官方無全國站名冊）
+vnTransportHubs,機場與港口 Airports & Ports,VN,越南,交通,custom,verified,vn_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南機場 25、港口 54（Open Development Vietnam 2019／2021）＋OSM 補缺機場 19（另色）
+vnMajorRoads,主要道路與鐵道 Major Roads & Railways,VN,越南,交通,custom,verified,vn_major_roads,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南主要道路 49,830 段（motorway／trunk／primary）＋鐵道 2,442 段（興建中虛線；OpenStreetMap）"
+vnPowerPlants,電廠 Power Plants,VN,越南,能源,custom,verified,vn_power_plants,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南電廠 253 處（Global Energy Monitor：水力、燃煤、燃氣、生質、核能、地熱；預設只顯示運轉中＋興建中；風光在再生能源層）
+vnRenewables,"風電、太陽能與充電站 Wind, Solar & EV Charging",VN,越南,能源,custom,verified,vn_renewables,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南風電與太陽能 842 處（GEM）＋TransitionZero 光電 1,017 處（CC BY-NC，非商用）＋電動車充電站 376 處（OSM）"
+vnPowerGrid,輸電線與變電所 Power Lines & Substations,VN,越南,能源,custom,verified,vn_power_grid,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南輸電線 11,656 段（依電壓分級，電纜虛線）＋變電所 1,431 處（OpenStreetMap）"
+vnFuelStations,加油站 Fuel Stations,VN,越南,能源,custom,verified,vn_fuel_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南加油站 4,902 處（OpenStreetMap；Petrolimex、PVOIL 等品牌分色）"
+vnOilGas,油氣設施 Oil & Gas Facilities,VN,越南,能源,custom,verified,vn_oil_gas,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 LNG 接收站 33、煤炭碼頭 5、油氣管線 12（GEM，含提案與取消）＋煉油廠 2、儲槽 75、天然氣管線 65（OSM）
+vnEnvisoftStations,環境自動監測站位置 Environmental Monitoring Stations,VN,越南,環境氣候,custom,verified,vn_envisoft_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南環境自動監測站 2,176 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）"
+vnAngiangDemo,安江工業群與避洪居民點 An Giang Industrial Clusters & Flood Resettlement,VN,越南,工商登記,custom,verified,vn_angiang_demo,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南安江省工業群 13 處（面）＋避洪居民點 59 處（只涵蓋安江省，原堅江範圍）
+vnTourAttractions,景點與世界遺產 Attractions & World Heritage,VN,越南,觀光,custom,verified,vn_tourist_attractions,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南景點 2,885 處（UNESCO 世界遺產 9 處、國家公園與保護區、古蹟寺廟、博物館、觀景點；低縮放只顯示重要條目）"
+vnTourNature,"海灘、島嶼、瀑布與洞穴 Beaches, Islands, Waterfalls & Caves",VN,越南,觀光,custom,verified,vn_nature_spots,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南自然景點 1,967 處（海灘 649、小島 402、瀑布 333、島 271、洞穴 256 等）"
+vnTourServices,住宿與觀光服務 Lodging & Tourism Services,VN,越南,觀光,custom,verified,vn_tourism_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南住宿、度假村、樂園動物園、露營地與遊客中心 8,490 處（OSM；餐飲不在本層）"
+vnNationalTouristAreas,國家級旅遊區 National Tourist Areas,VN,越南,觀光,custom,verified,vn_national_tourist_areas,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南國家級旅遊區 63 處（已認證 9、規劃潛力 54 空心；清單 70 處中 7 處未定位）
+vnPlaceNames,地名 Place Names,VN,越南,底圖,custom,verified,vn_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南地名 22,509 筆（城市、市鎮、城區、村、小聚落等；依等級逐級出現，名稱在彈窗）"
+vnBicycleRental,自行車租借 Bicycle Rental,VN,越南,交通,custom,verified,vn_bicycle_rental,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南自行車租借點 177 處（OSM；17/34 省有資料）
+vnBridges,橋梁 Bridges,VN,越南,交通,custom,verified,vn_bridges,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南橋梁 138,439 段（主要道路、一般道路、步道、鐵路四色；OSM bridge=*）"
+vnParking,停車場 Car Parks,VN,越南,交通,custom,verified,vn_parking,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南停車場 3,149 處（汽車、機車兩色；74% 沒標停車型態）"
+vnGlideEvents,重大災害事件（GLIDE） Disaster Events (GLIDE),VN,越南,災害,custom,verified,vn_glide_events,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 GLIDE 災害事件 181 筆（洪水、颱風、山洪、崩塌、乾旱、疫情等；省級代表點，不是受災範圍）
+vnDams,壩與水庫 Dams & Reservoirs,VN,越南,水資源,custom,verified,vn_dams,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,Global Dam Watch 越南壩 558 座＋水庫面 491 個（九成壩沒標用途）
+vnRivers,河川 Rivers,VN,越南,水資源,custom,verified,vn_rivers,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南河川 2,013 段（依河川級序 1–6 分粗細）"
+vnWaterSupply,自來水設施 Water Supply Facilities,VN,越南,水資源,custom,verified,vn_water_supply,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南淨水場、抽水站、水塔與配水池 241 處（OSM；25/34 省有資料）
+vnWaterStructures,"堰、閘門與水門 Weirs, Locks & Sluices",VN,越南,水資源,custom,verified,vn_water_structures,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南壩、堰、船閘與水門 1,529 處（OSM；線與面取代表點）"
+vnRiverbankErosion,河岸與海岸侵蝕點 Riverbank & Coastal Erosion Points,VN,越南,災害,custom,verified,vn_riverbank_erosion,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南河岸與海岸侵蝕點 190 處（依警戒等級分色；約 2016–2020 舊資料）
+vnSchools,學校 Schools,VN,越南,教育,custom,verified,vn_schools,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南學校 9,879 處（中小學、學院專科、大學三色；OSM）"
+vnSchoolCampuses,校地範圍 School Campuses,VN,越南,教育,custom,verified,vn_school_campuses,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南校地面 9,695 個（中小學、幼兒園、學院、大學；z11 起顯示）"
+vnKindergartens,幼兒園與托育 Kindergartens & Childcare,VN,越南,教育,custom,verified,vn_kindergartens,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南幼兒園與托育 1,729 處（OSM；33/34 省有資料）"
+vnHealthFacilities,醫療院所 Health Facilities,VN,越南,醫療,custom,verified,vn_health_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南醫院、診所、藥局與牙科 6,117 處（OSM；官方醫院名冊未公開）"
+vnPolice,警察據點 Police,VN,越南,執法治安,custom,verified,vn_police,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南警察據點 1,135 處（OSM；33/34 省有資料）"
+vnCourtsPrisons,法院與監所 Courts & Prisons,VN,越南,執法治安,custom,verified,vn_courts_prisons,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南法院與監所 289 處（OSM；31/34 省有資料）
+vnPostalServices,"郵局、市場與便民據點 Post Offices, Markets & Services",VN,越南,基礎建設,custom,verified,vn_postal_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南郵局、便利商店、市場、超市、購物中心與廳舍 12,081 處（OSM）"
+vnPublicAmenities,"公廁、飲水與回收點 Toilets, Drinking Water & Recycling",VN,越南,基礎建設,custom,verified,vn_public_amenities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南公廁、飲水機、垃圾收集與回收點 1,316 處（OSM；33/34 省有資料）"
+vnFinancialServices,銀行與 ATM Banks & ATMs,VN,越南,基礎建設,custom,verified,vn_financial_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南銀行、ATM 與外幣兌換 5,962 處（OSM）"
+vnPlacesOfWorship,宗教場所 Places of Worship,VN,越南,宗教,custom,verified,vn_places_of_worship,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南宗教場所 7,449 處（佛教、基督宗教、高台教、民間信仰等；1,884 處未標宗教）"
+vnParks,"公園、庭園與遊戲場 Parks, Gardens & Playgrounds",VN,越南,運動休閒,custom,verified,vn_parks,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南公園、庭園與遊戲場面 5,669 個＋只有點的 392 處（OSM）"
+vnProtectedAreasOdm,"保護區（ODM，非商用） Protected Areas (ODM, non-commercial)",VN,越南,自然保育,custom,verified,vn_protected_areas_odm,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南保護區 171 區（國家公園、自然保護區、物種與棲地、景觀保護區、濕地、特用林；上游 WDPA 2016）
+vnAngiangAquaculture,安江養殖用地 An Giang Aquaculture Land,VN,越南,農業,custom,verified,vn_angiang_aquaculture,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南安江省養殖用地分區 9,504 面（稻蝦、稻魚、專業養蝦、海上養殖等；只涵蓋安江省）"
+vnFieldBoundaries,農田邊界樣本（AI 判讀） Field Boundary Samples (AI-detected),VN,越南,農業,custom,verified,vn_field_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南農田邊界 120,913 塊（Fields of The World 30 個樣本圖磚，約 5×5 km；不是全國）"
+vnSoil,土壤類型 Soil Types,VN,越南,農業,custom,verified,vn_soil,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南土壤類型 230 面（FAO 九大類；小比例尺參考圖）
+vnFarmTracks,農林道 Farm & Forest Tracks,VN,越南,農業,custom,verified,vn_farm_tracks,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南農林道 145,862 段（highway=track，依 tracktype 1–5 級分色；96% 未標等級）"
+vnCoalMines,煤礦 Coal Mines,VN,越南,能源,custom,verified,vn_coal_mines,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南煤礦 32 處（Global Energy Monitor；運轉中、提案、封存、取消；6/34 省）
+vnTerrainHillshade,山體陰影 Hillshade,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）
+vnTerrainRelief,色別標高 Elevation Tint,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"越南色別標高（0–3,147 m 九段色帶，≤0 m 透明）"
+vnLandslideSusceptibility,崩塌潛勢（區域模型圖） Landslide Susceptibility (regional model),VN,越南,災害,custom,verified,vn_landslide_susceptibility,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南崩塌潛勢（低、中、高三級；極低不畫；區域模型圖，只有圖、不能分析）
+vnWdpca,"保護區（WDPCA，站主限定） Protected Areas (WDPCA, owner only)",VN,越南,自然保育,custom,verified,vn_wdpca,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南 WDPCA 保護區 188 面＋Ramsar 點 3（raster 圖片，依類別上色；站主限定）
 cnBusStops,公交站 Bus Stops,CN,中國,交通,custom,verified,cn_bus_stops,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國 299 個城市公交站 859,061 處（2024；大小依經過路線數；自治州、盟、地區未涵蓋）"
 cnTransportHubs,機場與港口 Airports & Ports,CN,中國,交通,custom,verified,cn_transport_hubs,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國機場 709（OurAirports，有定期航班白框）＋港口 765（OSM 港區、港灣）
 cnMajorRoads,主要道路與鐵路 Major Roads & Railways,CN,中國,交通,custom,verified,cn_major_roads,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"中國高速公路與國道級幹道 697,980 段＋鐵路 256,080 段（含高鐵、地鐵、輕軌；OpenStreetMap）"
@@ -1088,6 +1147,7 @@ fireHydrants,消防栓 Hydrant,TW,臺灣圖層,消防 Fire & Rescue,pmtiles,veri
 disasterResourceSites,救災資源據點 Disaster Resource Sites,TW,臺灣圖層,消防 Fire & Rescue,geojson,catalog_missing,,,,,,,yes,none,,missing,,,upstream_catalog_missing,,,,消防署救災資源資料庫登錄的機具與物資保管場所（消防分隊、公所、派出所、清潔隊、學校等），popup 列出有登錄數量的品項
 fireEvents,火災歷史 Fire History,TW,臺灣圖層,消防 Fire & Rescue,custom,verified,fire_incidents,,ds_fire_fire_incidents,POINT,2026-05-19,national,yes,spatial,warehouse,warehouse,address_geocode,,,,,,歷史火災點位（需進歷史模式選年／月／日）
 fireLatest,火災最新年度 Latest,TW,臺灣圖層,消防 Fire & Rescue,custom,verified,fire_incidents,,ds_fire_fire_incidents,POINT,2026-05-19,national,yes,spatial,warehouse,warehouse,address_geocode,,,,,,資料庫最新年度火災快照（不需切歷史模式，任何模式都可開）
+fire119Live,即時 119 案件 Live 119 Incidents,TW,臺灣圖層,消防 Fire & Rescue,custom,catalog_missing,,,,,,,yes,none,,display_only,,,upstream_catalog_missing,,,,站主限定。各縣市 119 即時案件（每分鐘更新）：色＝類別（火災、救護、救援、其他），受理／出動／到達會脈動、送醫中空心、返隊變灰後淡出。點是路段中點或站方位置，不是事發精確地點；只到行政區的案件畫鄉鎮面量與件數；新北畫在送醫目的醫院。
 fireIsochrone,救援等時圈 Isochrone,TW,臺灣圖層,消防 Fire & Rescue,custom,pulse_only,,,,,,,yes,none,,missing,,,derived_layer,,fireStations,,消防分隊路網救援等時圈（5／10／15 分鐘環差，21 縣市＋全國聚合）
 urbanFormGrid,都市紋理網格 Urban Form,TW,臺灣圖層,都市分析 Urban Analysis,pmtiles,verified,urban_form_grid,,ds_urban_composite_urban_form_grid,POLYGON,2026-07-27,19 counties,yes,spatial,warehouse,warehouse,unknown,,,,,,"全台 500m 都市紋理網格 145,119 格（建物密度 × 樹冠覆蓋合成指標）"
 civilDefenseShelter,防空避難 Civil Defense Shelters,TW,臺灣圖層,民防避難 Civil Defense,pmtiles,verified,civil_defense_shelters,,ds_police_justice_civil_defense_shelters,POINT,2026-08-24,national,yes,spatial,warehouse+browser,warehouse,address_geocode,,,,,,全台防空避難處所（z7 起載入；低縮放為抽稀圖磚）
@@ -1232,6 +1292,57 @@ krOilGas,油氣設施與管線 석유·가스 시설,KR,南韓,能源,custom,ver
 ieAdminBoundaries,行政區界 Administrative Boundaries,IE,愛爾蘭,底圖,custom,verified,ie_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭行政區界（地方政府 31、CSO 選舉分區 3,420、統計小區 18,919；Tailte Éireann 2026／CSO Census 2022）"
 phAdminBoundaries,行政區界 Administrative Boundaries,PH,菲律賓,底圖,custom,verified,ph_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓行政區界（區域 18、省 88、市鎮 1,642、barangay 42,048；OCHA／PSA／NAMRIA COD-AB）"
 phPopulation,人口密度 Population Density（2024 Census）,PH,菲律賓,人口社經,custom,verified,ph_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）
+phTouristAttractions,景點與世界遺產 Attractions & World Heritage,PH,菲律賓,觀光,custom,verified,ph_tourist_attractions,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓景點 7,029 處（UNESCO 6 處 13 構成點、保護區與國家公園、古蹟、博物館、觀景點；低縮放只顯示重要條目，空心＝DOT 近似位置）"
+phCoastIslands,"海灘、島嶼與潛水點 Beaches, Islands & Dive Sites",PH,菲律賓,觀光,custom,verified,ph_coast_islands,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓海灘、島嶼、潛水點與潟湖 7,033 處（Boracay、Alona Beach 等；未命名放大後才出現）"
+phNatureSpots,"瀑布、洞穴、火山與溫泉 Waterfalls, Caves, Volcanoes & Hot Springs",PH,菲律賓,觀光,custom,verified,ph_nature_spots,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓自然景觀 1,949 處（瀑布 1,094、洞穴 435、火山 327、溫泉 61 等）"
+phTourismServices,住宿與觀光服務 Lodging & Tourism Services,PH,菲律賓,觀光,custom,verified,ph_tourism_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓住宿、度假村、樂園動物園、露營地與遊客中心 15,276 處（OSM；餐飲不在本層）"
+phTourismDevelopmentAreas,觀光發展區（TDA） Tourism Development Areas,PH,菲律賓,觀光,custom,verified,ph_tourism_development_areas,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,DOT 國家觀光發展計畫 2023–2028 的 50 個觀光發展區（20 群，依北／中／南三色）
+phPlaceNames,地名 Place Names,PH,菲律賓,底圖,custom,verified,ph_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓 GeoNames 地名 68,597 筆（聚落、地形、水文、區域四色；依重要性逐級出現，名稱在彈窗）"
+phPoverty,貧窮率 Poverty Incidence,PH,菲律賓,人口社經,custom,verified,ph_poverty,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 2023 年貧窮人口比率（PSA，82 省＋36 個高度都市化／獨立市；彈窗另列 2018、2021；BARMM SGA 未涵蓋）
+phEarthquakes,地震目錄 Earthquake Catalogue,PH,菲律賓,災害,custom,verified,ph_earthquakes,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"PHIVOLCS 地震目錄 2018-01～2026-10 共 137,230 筆（依深度分色、規模定大小；含海上與卡拉延群島周邊海域）"
+phNoahFlood100yr,淹水危害（100 年重現期） Flood Hazard (100-year),PH,菲律賓,災害,custom,verified,ph_noah_flood_100yr,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,UP NOAH 100 年重現期降雨淹水危害（低 0–0.5 m、中 0.5–1.5 m、高 >1.5 m）
+phNoahLandslide,崩塌危害 Landslide Hazard,PH,菲律賓,災害,custom,verified,ph_noah_landslide,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,UP NOAH 淺層崩塌危害（低、中、高；HAZ=4 來源未說明，另列灰色）
+phWaterPermits,取水許可 Water Permits,PH,菲律賓,水資源,custom,verified,ph_water_permits,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"NWRB 取水許可 17,411 筆（地下水、地表水兩色；許可人姓名已排除）"
+phLakes,主要湖泊 Major Lakes,PH,菲律賓,水資源,custom,verified,ph_lakes,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,HDX 菲律賓主要湖泊 37 個（10/18 region）
+phDams,壩與水庫 Dams & Reservoirs,PH,菲律賓,水資源,custom,verified,ph_dams,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,Global Dam Watch 菲律賓壩 52 座＋水庫面 27 個（14/18 region）
+phBridges,國道橋梁 National Road Bridges,PH,菲律賓,交通,custom,verified,ph_bridges,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"DPWH 國道橋梁清冊（2021）8,410 座（依 DPWH 狀況評等分色）"
+phParking,停車場 Car Parks,PH,菲律賓,交通,custom,verified,ph_parking,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 停車場 14,514 處（平面、立體、地下、路邊四色；52% 沒標類型）"
+phKmPosts,國道里程牌 Kilometre Posts,PH,菲律賓,交通,custom,verified,ph_km_posts,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"DPWH 國道里程牌 31,017 支（空心小圓，只當參考座標；km 自馬尼拉 Rizal Park 起算）"
+phEcozones,經濟特區（PEZA） PEZA Ecozones,PH,菲律賓,工商登記,custom,verified,ph_ecozones,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,PEZA 經濟特區 391 處（IT、製造、農工、觀光、醫療五色；點位為登記位置）
+phReclamation,填海造地 Reclamation Projects,PH,菲律賓,工商登記,custom,verified,ph_reclamation,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,PRA 填海造地專案點位 219 處（含已完成與提案中；狀態代碼 A／D 照原文）
+phSchools,學校 Schools,PH,菲律賓,教育,custom,verified,ph_schools,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 學校 53,825 處（中小學、學院、大學、幼兒園；拉遠為熱區）"
+phSchoolCampuses,校地 School Campuses,PH,菲律賓,教育,custom,verified,ph_school_campuses,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 校地面 49,456 個（z11 起顯示）"
+phHealthFacilities,醫療院所 Health Facilities,PH,菲律賓,醫療,custom,verified,ph_health_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 醫療院所 17,766 處（醫院、診所、衛生站、藥局、牙科；拉遠為熱區）"
+phFireStations,消防站 Fire Stations,PH,菲律賓,消防,custom,verified,ph_fire_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"BFP 消防站 1,316 處＋OSM 補缺 742 處（空心）"
+phNcrSafeOpenSpaces,避難空地（Metro Manila） Safe Open Spaces (Metro Manila),PH,菲律賓,民防避難,custom,verified,ph_ncr_safe_open_spaces,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"Metro Manila 地震避難空地 5,211 面（只涵蓋 NCR；依規模三色；完整性未驗證）"
+phPoliceStations,警察據點 Police Stations,PH,菲律賓,執法治安,custom,verified,ph_police_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"警察據點 2,629 處（NCR 為 MMDA 2003 地標 191 處；其他地區只有 OSM，空心）"
+phJails,監所 Jails & Prisons,PH,菲律賓,執法治安,custom,verified,ph_jails,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,BJMP 監所 462 處（2020，含在押人數）＋OSM 96 處（含 BuCor 監獄，空心）
+phTrees,樹木（OSM） Trees (OSM),PH,菲律賓,環境氣候,custom,verified,ph_trees,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 樹木 228,210 株＋行道樹 3,415 段（零星標註；z12 起顯示）"
+phTrails,農林道與步道 Tracks & Paths,PH,菲律賓,林業,custom,verified,ph_trails,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 農林道 116,128 段＋步道 104,471 段（z10 起顯示）"
+phKba,生物多樣性重要地域（KBA） Key Biodiversity Areas,PH,菲律賓,自然保育,custom,verified,ph_kba,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,Key Biodiversity Areas 310 處（已認定 120 實線框、提案 190 虛線框）
+phWetlands,濕地 Wetlands,PH,菲律賓,自然保育,custom,verified,ph_wetlands,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"BMB 內陸濕地 384 面（部分）＋OSM 濕地 8,293 面（含紅樹林，淡色）"
+phForestryPrograms,林業計畫區 Forestry Programme Areas,PH,菲律賓,林業,custom,verified,ph_forestry_programs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"DENR-FMB 林業計畫區 17,943 面（NGP 造林、投資區、集水區兩類（部分）、FLAg；完整性未驗證）"
+phCoastalResources,海岸資源（珊瑚、海草、紅樹林） Coastal Resources,PH,菲律賓,海洋,custom,verified,ph_coastal_resources,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,NAMRIA 2020 海岸資源圖 195 面（珊瑚、海草海藻、紅樹林；依省聚合）
+phMarineStations,潮位站與航標 Tide Stations & Navigation Aids,PH,菲律賓,海洋,custom,verified,ph_marine_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,NAMRIA 潮位站 82（一級 62、二級 20 空心）、燈浮標 617、燈塔 609
+phWdpca,保護區（WDPA） Protected Areas (WDPA),PH,菲律賓,自然保育,custom,verified,ph_wdpca,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,WDPA 菲律賓保護區 302 處（陸域、海域、陸海混合三色；非商用，只供顯示）
+phWasteFacilities,掩埋場與轉運站 Landfills & Transfer Stations,PH,菲律賓,廢棄物,custom,verified,ph_waste_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,DENR 衛生掩埋場 23 處＋OSM 掩埋場 181、轉運站 51（OSM 空心，不分衛生或開放傾倒）
+phPollutionSources,推估排放源（Climate TRACE） Modelled Emission Sources,PH,菲律賓,環境氣候,custom,verified,ph_pollution_sources,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,Climate TRACE 2025 推估排放源 85 處（製造業、礦業；大小依推估 CO₂e；不是官方許可名冊）
+phArtsVenues,表演場館與電影院 Arts Venues & Cinemas,PH,菲律賓,文化,custom,verified,ph_arts_venues,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 表演場館 1,107 處（活動場地、劇場、電影院、藝文中心、展覽館）"
+phPostOffices,郵局與快遞據點 Post Offices & Couriers,PH,菲律賓,基礎建設,custom,verified,ph_post_offices,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 郵局與快遞據點 1,006 處（含 LBC、J&T）"
+phPublicFacilities,"廳舍、市場與公共設施 Halls, Markets & Public Facilities",PH,菲律賓,基礎建設,custom,verified,ph_public_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 公共生活設施 19,711 處（廳舍、公廁、市場、社區中心、社福、圖書館；拉遠為熱區）"
+phFinancialServices,"銀行、當鋪與 ATM Banks, Pawnshops & ATMs",PH,菲律賓,基礎建設,custom,verified,ph_financial_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 金融據點 17,506 處（銀行、當鋪、ATM、匯款、外幣兌換；拉遠為熱區）"
+phPlacesOfWorship,宗教場所 Places of Worship,PH,菲律賓,宗教,custom,verified,ph_places_of_worship,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 宗教場所 18,341 處（基督宗教、伊斯蘭、佛教、道教、未標宗教；拉遠為熱區）"
+phSportsVenues,運動場館 Sports Venues,PH,菲律賓,運動休閒,custom,verified,ph_sports_venues,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 運動場館 36,709 處（球場、室內場館、運動中心、跑道、體育場；拉遠為熱區）"
+phParks,公園與庭園 Parks & Gardens,PH,菲律賓,運動休閒,custom,verified,ph_parks,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 公園、庭園面 6,570＋點 454"
+phCemeteries,墓園 Cemeteries,PH,菲律賓,殯葬,custom,verified,ph_cemeteries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 墓區面 4,263＋點 110（墓園、教堂墓地）"
+phFishPorts,漁港 Fish Ports,PH,菲律賓,農業,custom,verified,ph_fish_ports,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,DA 漁港 47 處（營運 39、興建中 8）
+phAquaculture,養殖用地（OSM） Aquaculture (OSM),PH,菲律賓,農業,custom,verified,ph_aquaculture,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 養殖面 16,629 個（多數未標物種；z9 起顯示）"
+phTerrainHillshade,山體陰影 Hillshade,PH,菲律賓,底圖,custom,verified,ph_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,菲律賓山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）
+phTerrainRelief,色別標高 Elevation Tint,PH,菲律賓,底圖,custom,verified,ph_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"菲律賓色別標高（0–2,954 m 九段色帶，≤0 m 透明）"
+phBuiltSurface,建成面積比例 Built-up Surface,PH,菲律賓,都市分析,custom,verified,ph_built_surface,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,菲律賓建成面積比例（JRC GHSL 2025 推估，100 m；<1% 透明）
+phForestLoss,樹冠流失年份 Tree Cover Loss Year,PH,菲律賓,自然保育,custom,verified,ph_forest_loss,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,菲律賓樹冠流失年份 2001–2024（Hansen GFC，30 m；淡黃→深紅）
+vnAdminBoundaries,行政區界 Administrative Boundaries,VN,越南,底圖,custom,verified,vn_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南行政區界（2025-07 新制 34 省；3,321 社只有代碼表、沒有社界；OCHA COD-AB v02）"
+vnPopulation,人口密度 Population Density（2025）,VN,越南,人口社經,custom,verified,vn_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 2025 年人口與人口密度（34 省；2011–2025 歷年人口折線）
 cnAdminBoundaries,行政區界 Administrative Boundaries,CN,中國,底圖,custom,verified,cn_admin_boundaries,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國行政區界（省 31、地級 357；OCHA COD-AB，邊界不代表任何立場）
 cnPopulation,人口密度 Population Density（2020 Census／GHS 2025）,CN,中國,人口社經,custom,verified,cn_population,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國人口密度（省級 2020 普查、地級 GHS 2025 模型值；未涵蓋畫灰）
 cnPopulationGrid,人口網格 Population Grid（GHS-POP 2025）,CN,中國,人口社經,custom,verified,cn_population,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國人口網格（GHS-POP 2025 模型值，約 1 km；7 級人口密度）
@@ -1296,8 +1407,12 @@ gbLondonStations,倫敦軌道車站 London Rail Stations,GB,英國,交通,custom
 gbLondonBikePoints,倫敦公共自行車 Santander Cycles,GB,英國,交通,custom,verified,gb_london_bikepoints,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 Santander Cycles 公共自行車站點與樁數（TfL BikePoint，不含即時空位）
 gbLondonJamCams,倫敦道路攝影機 TfL JamCams,GB,英國,交通,custom,verified,gb_london_jamcams,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 TfL 道路攝影機位置與鏡頭朝向，彈窗可外連即時影像
 gbLondonChargingZones,倫敦收費與低排放區 London Charging Zones,GB,英國,交通,custom,verified,gb_london_charging_zones,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦塞車費區（Congestion Charge）與超低排放區／低排放區（ULEZ／LEZ，同一邊界）範圍
-gbMajorRoads,主要路網 Major Roads,GB,英國,交通,custom,verified,gb_major_roads,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國高速公路與 A 級道路（大不列顛 DfT 主要道路資料庫、北愛 OpenStreetMap），北愛另含 B 級道路；大不列顛 B 級道路未涵蓋
+gbMajorRoads,主要路網 Major Roads,GB,英國,交通,custom,verified,gb_major_roads,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國高速公路、A 級與 B 級道路（大不列顛高速與 A 級為 DfT 主要道路資料庫；北愛全部與大不列顛 B 級為 OpenStreetMap 2026-11-13）
 gbTrafficCountsAadf,年平均日交通量 Traffic Counts (AADF),GB,英國,交通,custom,verified,gb_traffic_counts_aadf,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,大不列顛 2025 年道路交通計數點的年平均日交通量（DfT AADF），依車輛數分 5 級，可只看當年實測或估算點；北愛未涵蓋
+gbBridgesTunnels,橋梁與隧道 Road Bridges & Tunnels（OSM）,GB,英國,交通,custom,verified,gb_bridges_tunnels,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國主要道路（高速、A 級、B 級）上的橋梁與隧道路段（OpenStreetMap 2026-11-13），線寬依道路等級
+gbRoadFacilities,道路設施 Road Facilities,GB,英國,交通,custom,verified,gb_road_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國高速公路服務區、休息區、收費站（OpenStreetMap）與英格蘭智慧高速公路緊急停車區（National Highways）
+gbPublicFacilities,公共設施 Public Facilities（OSM）,GB,英國,基礎建設,custom,verified,gb_public_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國郵局、公共廁所、市場與社區活動中心（OpenStreetMap 2026-11-13，志願者資料，完整度依地區而異）
+gbPlacesOfWorship,宗教場所 Places of Worship（OSM）,GB,英國,宗教,custom,verified,gb_places_of_worship,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國教堂、清真寺、猶太會堂、錫克廟、印度廟、佛寺等宗教場所（OpenStreetMap 2026-11-13，依 religion 分類；未標示者不推測）
 gbProtectedAreas,保護區 Protected Areas,GB,英國,環境氣候,custom,verified,gb_protected_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國自然保護與景觀指定：國家公園、AONB／NSA、SSSI／ASSI、NNR，以及 SAC、SPA、拉姆薩濕地
 gbMarineProtectedAreas,海洋保護區 Marine Protected Areas,GB,英國,海洋,custom,verified,gb_marine_protected_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國海洋保護區：英格蘭與北愛 MCZ、蘇格蘭自然保育 MPA 與 Fair Isle 示範研究 MPA
 gbWoodland,林地 Woodland,GB,英國,林業,custom,verified,gb_woodland_nfi,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國林地範圍與林型：大不列顛國家森林清冊 NFI 2025，北愛為 DAERA 優先棲地林地
@@ -1773,6 +1888,7 @@ mapchallengeDay08Plan1955,1955 中和鄉都市計畫圖 1955 Zhonghe Town Plan M
 mapchallengeDay09UrbanRural,人口變少時，哪些設施還留著 Which Services Stay Where People Are Few,SIM,模擬,30 天地圖挑戰,geojson,catalog_missing,,,,,,,yes,none,,display_only,,,upstream_catalog_missing,,,,30 天地圖挑戰 Day 9 城鄉：全台 368 鄉鎮依人口密度分五等份，比較 9 類設施每萬人分到幾處。公共服務（國小、派出所、郵局、衛生所）越偏遠每人分到越多：派出所每萬人從最稀疏組 5.37 到最密集組 0.34；市場服務（補習班、診所、藥局、銀行）跟著人走：補習班 0.8
 roadCongestion,省道路況 Provincial（v1）,TW,臺灣圖層,交通 Move,custom,verified,road_congestion,,ds_transportation_road,LINESTRING,2026-07-10,19 counties,yes,spatial,warehouse,warehouse,unknown,,,,,,省道 TDX live_highway 路況（5 分鐘槽，feature-state 染色）
 roadEvents,即時路況 Road Events,TW,臺灣圖層,交通 Move,custom,verified,road_event,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,TDX 即時路況事件（事故／施工／壅塞／活動／災害分色，混合幾何）
+pbsRoadEventsLive,警廣即時路況 PBS Road Reports,TW,臺灣圖層,交通 Move,custom,catalog_missing,,,,,,,yes,none,,display_only,,,upstream_catalog_missing,,,,站主限定。警廣即時路況（每分鐘重抓）：事故黃、其他灰，已排除變灰。
 parkingOnstreet,路邊停車 On-street,TW,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,,yes,none,,missing,,,override: snapshot_candidate: 停車 hybrid v1 路邊 RPC；台北為 POLYGON 幾何但『無即時空位』本身就是純靜態設施面，新北/台中為點位含即時空位率——可快照全部路邊停車格 geometry，僅排除即時空位率欄位。,,,snapshot_candidate: 停車 hybrid v1 路邊 RPC；台北為 POLYGON 幾何但『無即時空位』本身就是純靜態設施面，新北/台中為點位含即時空位率——可快照全部路邊停車格 geometry，僅排除即時空位率欄位。,路邊停車格（台北面／新北・台中點含空位率）
 parkingOffstreet,場外停車場 Off-street,TW,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,,yes,none,,missing,,,override: snapshot_candidate: 停車場外 RPC（市區／觀光／國道服務區三源）；停車場點位是穩定設施，可快照位置與類別，排除即時空位率。,,,snapshot_candidate: 停車場外 RPC（市區／觀光／國道服務區三源）；停車場點位是穩定設施，可快照位置與類別，排除即時空位率。,場外停車場點位（市區／觀光／國道服務區三源，含即時空位率）
 facPrimary,發電廠 主要・運轉中 Primary,TW,臺灣圖層,能源 Energy,supabase,verified,power_plants,,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,warehouse,google_geocode,,,,,,SSOT 運轉中發電廠（大廠與其他廠分別控大小，即時出力資料驅動）

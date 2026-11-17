@@ -2189,6 +2189,7 @@ export default function App() {
   //    開關一層不會讓 LayerHosts 整批重跑。
   const hostDeps: AppLayerHostDeps = {
     mapRef,
+    mapPrepared,
     isDarkTheme,
     mapStyleId,
     timeMode: timeline.timeMode,
