@@ -1,0 +1,20 @@
+{
+  "legend.liveIncidents.cat.fire": "火災",
+  "legend.liveIncidents.cat.ems": "救護",
+  "legend.liveIncidents.cat.rescue": "救援",
+  "legend.liveIncidents.cat.other": "其他",
+  "legend.liveIncidents.status.active": "受理／出動／到達（脈動）",
+  "legend.liveIncidents.status.transporting": "送醫中（空心）",
+  "legend.liveIncidents.status.returned": "返隊（變灰，1 小時內淡出）",
+  "legend.liveIncidents.shape.point": "點＝路段中點或站方位置",
+  "legend.liveIncidents.shape.district": "面＝只到行政區（數字＝件數）",
+  "legend.liveIncidents.shape.hospital": "醫院徽章＝新北送醫中（目的醫院）",
+  "legend.liveIncidents.note": "位置不是事發精確地點；點開路段級案件會淡淡標出整條路。",
+  "legend.liveIncidents.counts": "範圍內 {total} 件，其中 {unmapped} 件沒有位置未上圖",
+  "legend.liveIncidents.truncated": "資料超過上限，部分案件未載入",
+  "legend.liveIncidents.pbs.incident": "事故",
+  "legend.liveIncidents.pbs.other": "其他路況",
+  "legend.liveIncidents.pbs.cleared": "已排除（變灰）",
+  "legend.liveIncidents.pbsNote": "座標精度不一，部分只到約 1 公里；說明不一定會更新。",
+  "legend.liveIncidents.pbsCounts": "範圍內 {total} 則上圖，{unmapped} 則沒有座標"
+}

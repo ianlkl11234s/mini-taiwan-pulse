@@ -328,6 +328,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-courts-circle"], type: "gbCourts" },
   { layers: ["gb-health-hospital-circle", "gb-health-primary-circle"], type: "gbHealthFacilities" },
   { layers: ["gb-schools-circle"], type: "gbSchools" },
+  { layers: ["gb-public-facilities-circle"], type: "gbPublicFacilities" },
+  { layers: ["gb-places-of-worship-circle"], type: "gbPlacesOfWorship" },
   { layers: ["gb-care-homes-circle"], type: "gbCareHomes" },
   { layers: ["gb-care-services-circle"], type: "gbCareServices" },
   // 英國第 8 波：文化與觀光點（藝文場館 → 文化設施 → 觀光體驗非景點 → 景點）
@@ -373,6 +375,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-noise-fill"], type: "gbNoise" },
   // 英國第 10 波：計數點（點）排在主要路網（線）前面
   { layers: ["gb-traffic-counts-aadf-major-circle", "gb-traffic-counts-aadf-minor-circle"], type: "gbTrafficCountsAadf" },
+  { layers: ["gb-road-facilities-circle"], type: "gbRoadFacilities" },
+  { layers: ["gb-bridges-tunnels-bridge-line", "gb-bridges-tunnels-tunnel-line"], type: "gbBridgesTunnels" },
   { layers: ["gb-major-roads-line"], type: "gbMajorRoads" },
   { layers: ["gb-hydro-stations-circle"], type: "gbHydroStations" },
   { layers: ["gb-bathing-waters-circle"], type: "gbBathingWaters" },
@@ -430,6 +434,15 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-senior-centers-circle"], type: "krSeniorCenters" },
   { layers: ["kr-noise-sites-circle"], type: "krNoiseSites" },
   { layers: ["kr-clothing-bins-circle"], type: "krClothingBins" },
+  { layers: ["kr-animal-hospitals-circle"], type: "krAnimalHospitals" },
+  { layers: ["kr-local-culture-centers-circle"], type: "krLocalCultureCenters" },
+  { layers: ["kr-traditional-temples-circle"], type: "krTraditionalTemples" },
+  { layers: ["kr-protected-trees-circle"], type: "krProtectedTrees" },
+  { layers: ["kr-bicycle-parking-circle"], type: "krBicycleParking" },
+  { layers: ["kr-civil-defense-water-circle"], type: "krCivilDefenseWater" },
+  { layers: ["kr-emergency-bells-circle"], type: "krEmergencyBells" },
+  { layers: ["kr-rural-experience-villages-circle"], type: "krRuralExperienceVillages" },
+  { layers: ["kr-slaughterhouses-circle"], type: "krSlaughterhouses" },
   { layers: ["kr-np-trails-line"], type: "krNpTrails" },
   { layers: ["kr-territorial-sea-line"], type: "krTerritorialSea" },
   { layers: ["kr-rivers-osm-line", "kr-rivers-osm-major-line"], type: "krRiversOsm" },
@@ -437,6 +450,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-national-parks-fill"], type: "krNationalParks" },
   { layers: ["kr-cemeteries-osm-fill"], type: "krCemeteriesOsm" },
   { layers: ["kr-industrial-complexes-fill"], type: "krIndustrialComplexes" },
+  { layers: ["kr-fishing-grounds-fill"], type: "krFishingGrounds" },
+  { layers: ["kr-seoul-zoning-fill"], type: "krSeoulZoning" },
   // 南韓第 1 波：點（機場 → 電廠 → 再生能源 → 變電所 → 燃料站 → 鐵道站 → 公車站 → 鐵塔）→ 線（電網、國道、鐵道）→ 面（油氣、港灣）
   { layers: ["kr-airports-circle"], type: "krAirports" },
   { layers: ["kr-power-plants-circle", "kr-power-plants-minor-circle"], type: "krPowerPlants" },
@@ -732,6 +747,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: VESSEL_WATCH_CLICK_LAYERS, type: "vesselWatch" },
   { layers: ["firing-notice-areas-fill"], type: "firingNoticeAreas" },
   { layers: PLA_ACTIVITY_CLICK_LAYERS, type: "plaActivity" },
+  // 即時 119：點與徽章（鄉鎮面量是大面積 fill，放面層段）；警廣點
+  { layers: ["fire119-live-point", "fire119-live-badge"], type: "fire119Live" },
+  { layers: ["pbs-road-events-live-point"], type: "pbsRoadEventsLive" },
   { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
   { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
   { layers: ["aqi-micro-circle"], type: "microSensor" },
@@ -1128,6 +1146,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["land-use-change-points-circle", "land-use-change-fill", "land-use-change-grid-hex"], type: "landUseChangeMonitoring" },
   // G53 批 1（2026-11-09）山坡地範圍：每縣市一個大面，排在其他點線面之後，不搶細節命中
   { layers: ["slopeland-swc-act-fill"], type: "slopelandSwcAct" },
+  // 即時 119 只到行政區的案件：鄉鎮面量（只畫有案件的鄉鎮），排在點線面之後
+  { layers: ["fire119-live-district-fill"], type: "fire119Live" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。

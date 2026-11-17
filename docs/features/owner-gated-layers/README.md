@@ -18,10 +18,11 @@
 
 - **唯一來源＝manifest `topics` 的 `"OWNER_ONLY"` 標記**（`src/data/layerManifest.ts`）。
   `layerCatalog.ts` 的 `GATED_LAYERS` 由它派生（名稱、型別不變，urlState／embedWhitelist／layerGates／搜尋等消費端照舊）。
-- 釘死清單測試 `src/data/__tests__/ownerOnlyRegistry.test.ts`：manifest 標記與 `GATED_LAYERS` 都必須等於表內 58 個 key（2026-11-06 古地圖改公開，59→58）；
+- 釘死清單測試 `src/data/__tests__/ownerOnlyRegistry.test.ts`：manifest 標記與 `GATED_LAYERS` 都必須等於表內的 key（2026-11-06 古地圖改公開，59→58；之後陸續加入，完整清單以該測試為準）；
   少一個標記（＝私人圖層對外開放）或多一個都會紅。新增站主限定圖層時三處一起改：manifest topics、該測試、gis-platform `public.gated_layers`。
   **改回公開**同樣三處反向：拿掉 `OWNER_ONLY`、測試移除 key、gated_layers 刪列（只改前端的話，`get_layer_gates()` 回來的 full 列仍會把非站主鎖住）；hook 若 `registerOwnerGateReset` 一併拿掉。前例：古地圖（見下表）。
 - DB `public.gated_layers`：mig 276（34 列）＋494（electionEvents2026）＋499（gbPollutionInventoryEngland）＋512（ieCoillteRecreation、ieCoillteForestRoads，愛爾蘭 Coillte 條款不得轉供；2026-11-08 已套用＋匯入）＋**500**（補前端獨有的 22 個 key 與 allenCoralAtlas，共 23 列，`rpc_name` NULL、`required_tier='owner'`、`lock_type='full'`）。
+  另 **555**（2026-11-16）：`fire119Live`（`get_fire119_live`）、`pbsRoadEventsLive`（`get_pbs_road_events_live`）兩列，即時 119 案件與警廣即時路況；前端 hook 每分鐘重抓、撤權時 `registerOwnerGateReset` 清快取並移除 source。
   DB 另有 `info_medical_ltc`（member tier，mig 281）不屬站主限定，不在前端名單。
 - 舊的 manifest 第三套名單（`OWNER_ONLY` 標記執行時沒人讀）與 `OWNER_ONLY_THEME_TITLES` 已併入／移除。
 
@@ -63,7 +64,8 @@
 
 - 路徑 `/api/private-research/owner-data/<key>`；白名單 `server/coral-private/owner-data-assets.mjs`（key、filename、size、sha256），前端鏡像 `src/data/ownerDataAssets.ts`（`src/lib/__tests__/ownerData.test.ts` 逐一比對）。
 - 儲存：私有 S3 `migu-private-research-ap-southeast-2/private-research/owner-data/<sha256>/<filename>`（內容定址，舊版並存＝回滾只要改回舊常數）；正本另放 `migu-gis-data-collector/supabase-export/owner-data/<sha256>/<filename>`（ADR-0026），底層表另有 `supabase-export/<schema>.<table>/full-YYYYMMDD.csv.gz`。
-- sidecar **不暖機**：第一次請求某檔才從 S3 抓並驗 sha256，之後留在記憶體；其他家族暖機失敗不影響它。
+- sidecar **不暖機**：第一次請求某檔才對 S3 做 HeadObject 驗大小與 ChecksumSHA256；其他家族暖機失敗不影響它。
+- **按需讀取（2026-11-17 起，所有私有家族共用）**：sidecar 不再把整檔載進記憶體，每個 Range 請求只向 S3 讀那一段。完整性在第一次用到某檔時驗一次：大小要符合，S3 存的整檔 ChecksumSHA256 要等於白名單 sha256；沒有整檔 checksum（例如 multipart 上傳）時改成串流算一次 sha256，記憶體用量固定。之後每次讀取都帶 If-Match。全程序共用一個 LRU 快取，上限 64 MiB（`PRIVATE_RESEARCH_CACHE_MAX_BYTES`）。2 MiB 以下的檔整檔快取，並在本機再驗一次 sha256；其他 2 MiB 以下的 range 也進同一個快取；更大的 range 直接串流，不留在快取裡（單筆上限用 `PRIVATE_RESEARCH_CACHE_MAX_ENTRY_BYTES` 調整）。新增私有檔只要加白名單列，不用改 sidecar。
 - 路由：Caddy（pulse-host `Caddyfile`）、`nginx.conf`、`vite.config.ts` 都用前綴式 `owner-data/[a-z0-9-]+`，**之後加檔不用再改路由**；未知 key 由 sidecar 回 404。
 - 前端：`fetchOwnerJson(asset, taskId, label)`（`src/lib/ownerData.ts`）帶站主 token、分段 Range、註冊 loadingRegistry；非 401／403 的失敗寫進 `ownerDataStatus`，圖例用它顯示「讀取失敗（原因）」。loader 只把 `supabase.rpc` 換成它，回傳形狀不變。
 - 新增一支檔：匯出（RPC 函式本體 SELECT，形狀與 RPC 相同）→ `owner-data.local/` 寫檔與 `local_validation.json` → 兩份 assets 常數加一列 → `node scripts/deploy/upload-owner-data-private.mjs <repo>/owner-data.local`（set -a 載入 .env）→ PR → 主機重建 coral-private → 前端發版後才撤舊 RPC。
@@ -73,6 +75,7 @@
   - **保留 RPC**：`powerGenerationUnit`（`get_ssot_facility_output_24h`）、電廠 popup（`get_power_plant_output_24h`、`get_ssot_facility_units`、`get_ssot_facility_provenance`）、隱藏層 `powerPlants`（`get_ssot_power_plants_with_output`）。
   - 匯出：函式本體 SELECT 外包 `AS t(<RETURNS TABLE 欄位名>)`，否則 `ST_X(...)`、`CASE` 等無別名欄位名會跑掉；驗收逐支比對欄位集合與筆數。
   - 圖例「讀取失敗」提示只接了畜牧；能源／石化讀取失敗仍只寫 console（與舊 RPC 相同）。
+- 南韓首爾用途地域（2026-11-14）：`kr-seoul-zoning`＝`kr_seoul_zoning.pmtiles`（向量圖磚，`application/vnd.pmtiles`）。KR 規格 `ownerAsset` 標記後，`useKrDataLayer` 改掛 `PRIVATE_CORAL_PMTILES_SOURCE_TYPE`；存取判斷 `src/hooks/useOwnerPmtilesAccess.ts`（`?access=1` 探測、401／403／404 靜默、撤權移除 layer 與 source），沒驗證就不掛 source、不退回公開 `./world/`。
   - 舊 RPC 12 支待前端發布到 master、站主驗收後撤除（gis-platform PENDING migration）。
 
 ### 已知限制

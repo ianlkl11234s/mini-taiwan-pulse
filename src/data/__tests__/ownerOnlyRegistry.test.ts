@@ -31,6 +31,10 @@ const PINNED = [
   "water1944Taipei", "gbPollutionInventoryEngland", "allenCoralAtlas",
   // 愛爾蘭 Coillte 國有林（第 5c 波，條款限私人研究、不得轉供；gis-platform mig 512）
   "ieCoillteRecreation", "ieCoillteForestRoads",
+  // 南韓首爾用途地域（data.go.kr 註含第三方權利；站主 2026-11-14 決定站主限定；gis-platform mig 554）
+  "krSeoulZoning",
+  // 即時 119 案件／警廣即時路況（站主 2026-11-16 決策 4 全部站主限定；gis-platform mig 555）
+  "fire119Live", "pbsRoadEventsLive",
 ].sort();
 
 describe("站主限定名單（manifest OWNER_ONLY ⇔ GATED_LAYERS）", () => {

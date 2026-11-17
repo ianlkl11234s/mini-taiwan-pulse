@@ -247,6 +247,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/hooks/useGbTransportLayers.ts
   "gbPlanningConstraints/gb-planning-constraints-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 規劃限制區外框（依類別色）· src/hooks/useGbEnvPlanningLayers.ts
   "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/hooks/useGbTransportLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-bridge-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class（同主要路網 L-5）· src/hooks/useGbOsmLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-tunnel-line": {"width": "keep", "opacity": "standard"}, // 隧道虛線，寬依 road_class · src/hooks/useGbOsmLayers.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
   "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
   "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
@@ -326,10 +328,12 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "vnOilGas/vn-pipelines-osm-line": {"width": "standard", "opacity": "standard"}, // OSM 天然氣管線 · src/hooks/usePhLayers.ts（越南規格）
   "vnAngiangDemo/vn-angiang-clusters-outline": {"width": "keep", "opacity": "standard"}, // 安江工業群外框，低縮放加粗 · src/hooks/usePhLayers.ts（越南規格）
   "phUrbanRail/ph-urban-rail-line": {"width": "keep", "opacity": "standard"}, // 依線別分色，營運線比渡線粗 · src/hooks/usePhLayers.ts
-  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/hooks/usePhLayers.ts
+  "phExpressways/ph-expressways-line": {"width": "keep", "opacity": "standard"}, // 依收費分色，收費路較粗 · src/hooks/usePhLayers.ts  "fire119Live/fire119-live-district-line": {"width": "thin", "opacity": "reference", "outline": "graded"}, // 只到行政區的案件鄉鎮外框 · src/hooks/useFire119LiveLayer.ts
+  "fire119Live/fire119-live-road": {"width": "emphasis", "opacity": "reference"}, // 點開／滑過路段級案件時淡淡高亮整條路 · src/hooks/useFire119LiveLayer.ts
 };
 
 export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
+  "fire119Live/fire119-live-district-fill": "graded", // 只到行政區的案件件數面量 · src/hooks/useFire119LiveLayer.ts
   "agriCropSuitability/agri-crop-suitability-fill": "graded", // src/map/agricultureLayerFactory.ts
   "agriLeisureFarmZones/agri-leisure-farm-zones-fill": "coverage", // src/map/agricultureLayerFactory.ts
   "agriRuralRegen/agri-rural-regen-fill": "coverage", // src/map/agricultureLayerFactory.ts

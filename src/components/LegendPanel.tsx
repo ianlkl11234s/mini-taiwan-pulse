@@ -46,11 +46,13 @@ import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/t
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { CouncilDistrictsLegend, ElectionEventsLegend, PollingStationsLegend } from "./legend/politicsLegends";
+import { Fire119LiveLegend, PbsRoadEventsLiveLegend } from "./legend/liveIncidentsLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
 import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalErosionRiskLegend, GbFloodDefenceAssetsLegend, GbHydroStationsLegend, GbRiversLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { GbArtsVenuesLegend, GbCulturalFacilitiesLegend, GbVisitorExperienceLegend } from "./legend/gbCultureLegends";
 import { GbSurplusLandLegend, GbTerrainHillshadeLegend, GbTerrainReliefLegend } from "./legend/gbLandLegends";
 import { GbAquacultureLegend, GbCompaniesLegend, GbFuneralLegend, GbManufacturingLegend, GbSoilParentMaterialLegend } from "./legend/gbBusinessAgriLegends";
+import { GbBridgesTunnelsLegend, GbPlacesOfWorshipLegend, GbPublicFacilitiesLegend, GbRoadFacilitiesLegend } from "./legend/gbOsmLegends";
 import { GbBrownfieldLegend, GbNoiseLegend, GbPlanningConstraintsLegend, GbPollutionInventoryLegend, GbPollutionInventoryEnglandLegend, GbRecyclingCentresLegend, GbWastePermitsLegend } from "./legend/gbEnvPlanningLegends";
 import { GbEarthquakesLegend, GbGroundStabilityLegend, GbLandslideLegend, GbRadiationLegend, GbRadonLegend } from "./legend/gbHazardLegends";
 import { GbCareHomesLegend, GbCareServicesLegend, GbCourtsLegend, GbFireStationsLegend, GbHealthFacilitiesLegend, GbSchoolsLegend } from "./legend/gbCivicLegends";
@@ -406,6 +408,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gbLondonJamCams", render: () => <GbLondonJamCamsLegend /> },
   { id: "gbLondonChargingZones", render: () => <GbLondonChargingZonesLegend /> },
   { id: "gbMajorRoads", render: () => <GbMajorRoadsLegend /> },
+  { id: "gbBridgesTunnels", render: () => <GbBridgesTunnelsLegend /> },
+  { id: "gbRoadFacilities", render: () => <GbRoadFacilitiesLegend /> },
+  { id: "gbPublicFacilities", render: () => <GbPublicFacilitiesLegend /> },
+  { id: "gbPlacesOfWorship", render: () => <GbPlacesOfWorshipLegend /> },
   { id: "gbCompanies", render: () => <GbCompaniesLegend /> },
   { id: "gbManufacturing", render: () => <GbManufacturingLegend /> },
   { id: "gbFuneral", render: () => <GbFuneralLegend /> },
@@ -513,6 +519,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "ports", render: () => <PortsLegend /> },
   { id: "newsEvents", render: ({ isDark }) => <NewsEventsLegend  isDark={isDark} /> },
   { id: "electionEvents2026", render: () => <ElectionEventsLegend /> },
+  { id: "fire119Live", render: () => <Fire119LiveLegend /> },
+  { id: "pbsRoadEventsLive", render: () => <PbsRoadEventsLiveLegend /> },
   { id: "pollingStations2024", render: () => <PollingStationsLegend /> },
   { id: "councilDistricts2026", render: () => <CouncilDistrictsLegend /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },

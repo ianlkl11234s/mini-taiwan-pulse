@@ -138,12 +138,16 @@ export const GB_AADF_YEAR = 2025;
 
 export type GbRoadClass = "motorway" | "a_road" | "b_road";
 export type GbRoadWidthTier = "emphasis" | "standard" | "thin";
-export interface GbRoadClassDef { value: GbRoadClass; color: string; width: GbRoadWidthTier; segments: number }
-/** 宣告順序＝圖例順序。線寬依 L-5「等級對應 L-1」：高速公路強調、A 級標準、B 級細。 */
+export interface GbRoadClassDef {
+  value: GbRoadClass; color: string; width: GbRoadWidthTier; segments: number;
+  /** 站主指定的 z10／z14 線寬（px），有填就取代 width 三階。 */
+  widthPx?: readonly [number, number];
+}
+/** 宣告順序＝圖例順序。線寬依 L-5「等級對應 L-1」：高速公路強調、A 級標準；B 級站主 2026-11-16 選 C 案（z10 1.5px／z14 2.5px），暗底才看得到。 */
 export const GB_ROAD_CLASSES: readonly GbRoadClassDef[] = [
   { value: "motorway", color: "#fb923c", width: "emphasis", segments: 1_524 },
-  { value: "a_road", color: "#fcd34d", width: "standard", segments: 25_383 },
-  { value: "b_road", color: "#9ca3af", width: "thin", segments: 6_278 },
+  { value: "a_road", color: "#fcd34d", width: "standard", segments: 25_389 },
+  { value: "b_road", color: "#9ca3af", width: "thin", widthPx: [1.5, 2.5], segments: 107_911 }, // 2026-11-13 補大不列顛 B 級（OSM）
 ];
 export const GB_ROAD_FALLBACK_COLOR = "#e5e7eb";
 export const GB_MAJOR_ROADS_COLOR = "#fb923c";

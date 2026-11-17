@@ -28,6 +28,8 @@ import {
   handleBusCrowdingRequest,
   createOwnerDataGateway,
   createOwnerDataS3Gateway,
+  createPrivateByteCache,
+  getPrivateCacheConfig,
   OWNER_DATA_ASSETS,
   handleOwnerDataRequest,
   SOIL_LIQUEFACTION_ASSETS,
@@ -77,6 +79,30 @@ function gateway(overrides = {}) {
         contentType: "application/octet-stream",
         etag: '"coral-etag"',
         ...overrides.get,
+      };
+    },
+  };
+}
+
+/** S3 stand-in: answers HeadObject with size/ETag/ChecksumSHA256 and GetObject with exact byte ranges. */
+function fakeS3Client(bytes, calls = [], { checksum = true, checksumOf = bytes, etag = '"s3-etag"' } = {}) {
+  const digest = createHash("sha256").update(checksumOf).digest("base64");
+  return {
+    async send(command) {
+      calls.push(command.input);
+      if (command.input.ChecksumMode) {
+        return {
+          ContentLength: bytes.length, ETag: etag,
+          ...(checksum === "composite" ? { ChecksumSHA256: `${digest}-3`, ChecksumType: "COMPOSITE" } : checksum ? { ChecksumSHA256: digest, ChecksumType: "FULL_OBJECT" } : {}),
+        };
+      }
+      const match = /^bytes=(\d+)-(\d+)$/.exec(command.input.Range ?? "");
+      const start = match ? Number(match[1]) : 0;
+      const end = match ? Number(match[2]) : bytes.length - 1;
+      const slice = bytes.subarray(start, end + 1);
+      return {
+        ContentLength: slice.length, ETag: etag, Body: Readable.from([slice]),
+        ...(match ? { ContentRange: `bytes ${start}-${end}/${bytes.length}` } : {}),
       };
     },
   };
@@ -243,46 +269,217 @@ test("Allen audit rotation settings are bounded and reject invalid values", () =
   assert.equal(getAllenCoralAtlasConfig({ ...base, ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES: "0" }).error, "configuration unavailable");
 });
 
-test("Allen S3 gateway fully verifies immutable snapshots before serving ranges", async () => {
-  const bytes = Buffer.from("verified-s3-snapshot");
-  const asset = Object.freeze({
-    filename: "asset.pmtiles",
-    size: bytes.length,
-    sha256: createHash("sha256").update(bytes).digest("hex"),
-  });
+function testAsset(bytes, filename = "asset.pmtiles") {
+  return Object.freeze({ filename, size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
+}
+
+function rangeCalls(calls) {
+  return calls.filter((input) => !("ChecksumMode" in input)).map((input) => input.Range ?? "FULL");
+}
+
+test("Allen S3 gateway HEAD-verifies the S3 SHA-256 and never downloads the whole object", async () => {
+  const bytes = Buffer.alloc(3 * 1024 * 1024, 7);
+  bytes.write("PMTiles", 0);
+  const asset = testAsset(bytes);
   const calls = [];
-  const client = {
-    async send(command) {
-      calls.push(command.input);
-      return { ContentLength: bytes.length, Body: Readable.from([bytes]) };
-    },
-  };
+  const cache = createPrivateByteCache({ maxBytes: 1024 * 1024, maxEntryBytes: 256 * 1024 });
   const gateway = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
-    client,
-    assets: { benthic: asset },
+    client: fakeS3Client(bytes, calls), assets: { benthic: asset }, cache,
   });
   const metadata = await gateway.head(asset);
-  const object = await gateway.get(asset, { start: 0, end: 7, length: 8 });
   assert.equal(metadata.etag, `\"${asset.sha256}\"`);
-  assert.equal(object.body.toString(), "verified");
   assert.deepEqual(calls, [{
     Bucket: "migu-gis-data-collector",
     Key: `private-research/allen-coral-atlas/${asset.sha256}/asset.pmtiles`,
     ChecksumMode: "ENABLED",
   }]);
+  const first = await gateway.get(asset, { start: 0, end: 6, length: 7 });
+  const again = await gateway.get(asset, { start: 0, end: 6, length: 7 });
+  assert.equal(first.body.toString(), "PMTiles");
+  assert.equal(again.body.toString(), "PMTiles");
+  assert.equal(first.contentRange, `bytes 0-6/${bytes.length}`);
+  // One HEAD for both calls (verification is memoized) and one ranged GET (second read is a cache hit).
+  assert.equal(calls.filter((input) => "ChecksumMode" in input).length, 1);
+  assert.deepEqual(rangeCalls(calls), ["bytes=0-6"]);
+  assert.equal(calls.find((input) => input.Range).IfMatch, '"s3-etag"');
+  assert.equal(cache.bytes, 7);
 });
 
-test("Allen S3 gateway rejects a complete read with a wrong immutable digest", async () => {
-  const asset = Object.freeze({
-    filename: "asset.pmtiles",
-    size: 4,
-    sha256: createHash("sha256").update("good").digest("hex"),
-  });
+test("Allen S3 gateway streams large ranges without retaining them", async () => {
+  const bytes = Buffer.from(Array.from({ length: 600 * 1024 }, (_, index) => index % 251));
+  const asset = testAsset(bytes);
+  const calls = [];
+  const cache = createPrivateByteCache({ maxBytes: 1024 * 1024, maxEntryBytes: 64 * 1024 });
   const gateway = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
-    client: { async send() { return { ContentLength: 4, Body: Readable.from([Buffer.from("evil")]) }; } },
-    assets: { benthic: asset },
+    client: fakeS3Client(bytes, calls), assets: { benthic: asset }, cache,
+  });
+  const object = await gateway.get(asset, { start: 1000, end: 300_999, length: 300_000 });
+  assert.ok(object.body instanceof ReadableStream);
+  const received = Buffer.from(await new Response(object.body).arrayBuffer());
+  assert.ok(received.equals(bytes.subarray(1000, 301_000)));
+  assert.equal(cache.bytes, 0);
+  assert.deepEqual(rangeCalls(calls), ["bytes=1000-300999"]);
+});
+
+test("Allen S3 gateway caches small objects whole after a local SHA-256 check", async () => {
+  const bytes = Buffer.from("{\"type\":\"FeatureCollection\"}");
+  const asset = testAsset(bytes, "small.json");
+  const calls = [];
+  const cache = createPrivateByteCache({ maxBytes: 1024, maxEntryBytes: 512 });
+  const gateway = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: fakeS3Client(bytes, calls), assets: { benthic: asset }, cache,
+  });
+  assert.equal((await gateway.get(asset, { start: 0, end: 6, length: 7 })).body.toString(), "{\"type\"");
+  assert.equal((await gateway.get(asset, { start: 9, end: 25, length: 17 })).body.toString(), "FeatureCollection");
+  assert.deepEqual(rangeCalls(calls), [`bytes=0-${bytes.length - 1}`]);
+  assert.equal(cache.bytes, bytes.length);
+
+  const evil = Buffer.from("{\"type\":\"FeatureCollectioX\"}");
+  const tampered = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: fakeS3Client(evil, [], { checksumOf: bytes }), assets: { benthic: asset }, cache: createPrivateByteCache({ maxBytes: 1024, maxEntryBytes: 512 }),
+  });
+  await assert.rejects(() => tampered.get(asset, { start: 0, end: 6, length: 7 }), /checksum mismatch/);
+});
+
+test("Allen S3 gateway rejects a wrong size or S3 SHA-256 and does not cache the failure", async () => {
+  const good = Buffer.from("good-bytes");
+  const asset = testAsset(good);
+  const wrongChecksum = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: fakeS3Client(good, [], { checksumOf: Buffer.from("other-byte") }), assets: { benthic: asset }, cache: createPrivateByteCache(),
+  });
+  await assert.rejects(() => wrongChecksum.head(asset), /checksum mismatch/);
+  const wrongSize = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: fakeS3Client(Buffer.from("short"), []), assets: { benthic: asset }, cache: createPrivateByteCache(),
+  });
+  await assert.rejects(() => wrongSize.head(asset), /size mismatch/);
+
+  let failures = 1;
+  const calls = [];
+  const flaky = fakeS3Client(good, calls);
+  const recovering = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: { async send(command) { if (failures-- > 0) throw new Error("network"); return flaky.send(command); } },
+    assets: { benthic: asset }, cache: createPrivateByteCache(),
+  });
+  await assert.rejects(() => recovering.head(asset), /network/);
+  assert.equal((await recovering.head(asset)).contentLength, good.length);
+});
+
+test("Allen S3 gateway hashes objects without a full-object S3 checksum by streaming once", async () => {
+  const good = Buffer.alloc(200_000, 3);
+  const asset = testAsset(good);
+  for (const checksum of [false, "composite"]) {
+    const calls = [];
+    const gateway = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+      client: fakeS3Client(good, calls, { checksum }), assets: { benthic: asset }, cache: createPrivateByteCache(),
+    });
+    await gateway.head(asset);
+    await gateway.head(asset);
+    assert.deepEqual(rangeCalls(calls), ["FULL"]);
+    assert.equal(calls.find((input) => !("ChecksumMode" in input)).IfMatch, '"s3-etag"');
+  }
+  const evil = Buffer.alloc(200_000, 4);
+  const gateway = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: fakeS3Client(evil, [], { checksum: false }), assets: { benthic: asset }, cache: createPrivateByteCache(),
   });
   await assert.rejects(() => gateway.head(asset), /checksum mismatch/);
+});
+
+test("private byte cache evicts least recently used entries and never exceeds its limit", async () => {
+  const cache = createPrivateByteCache({ maxBytes: 100, maxEntryBytes: 40 });
+  for (const key of ["a", "b", "c"]) await cache.load(key, async () => Buffer.alloc(30));
+  assert.equal(cache.bytes, 90);
+  cache.get("a"); // a becomes most recently used
+  await cache.load("d", async () => Buffer.alloc(30));
+  assert.equal(cache.bytes, 90);
+  assert.ok(cache.get("a"));
+  assert.equal(cache.get("b"), undefined);
+  const big = await cache.load("big", async () => Buffer.alloc(50));
+  assert.equal(big.length, 50);
+  assert.equal(cache.get("big"), undefined);
+  assert.ok(cache.bytes <= 100);
+  let loads = 0;
+  const loader = async () => { loads += 1; await new Promise((resolve) => setTimeout(resolve, 5)); return Buffer.alloc(10); };
+  await Promise.all([cache.load("same", loader), cache.load("same", loader)]);
+  assert.equal(loads, 1);
+  await assert.rejects(() => cache.load("boom", async () => { throw new Error("s3"); }), /s3/);
+  assert.equal((await cache.load("boom", async () => Buffer.alloc(1))).length, 1);
+
+  // Through the gateway: many distinct tile ranges keep the retained bytes under the limit.
+  const bytes = Buffer.alloc(3 * 1024 * 1024, 1);
+  const asset = testAsset(bytes);
+  const bounded = createPrivateByteCache({ maxBytes: 64 * 1024, maxEntryBytes: 16 * 1024 });
+  const gateway = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: fakeS3Client(bytes, []), assets: { benthic: asset }, cache: bounded,
+  });
+  for (let index = 0; index < 50; index += 1) {
+    const start = index * 10_000;
+    await gateway.get(asset, { start, end: start + 9_999, length: 10_000 });
+    assert.ok(bounded.bytes <= 64 * 1024);
+  }
+  assert.equal(bounded.count, 6);
+});
+
+test("cache limits come from environment with safe fallbacks", () => {
+  assert.deepEqual(getPrivateCacheConfig({}), { maxBytes: 64 * 1024 * 1024, maxEntryBytes: 2 * 1024 * 1024 });
+  assert.deepEqual(getPrivateCacheConfig({ PRIVATE_RESEARCH_CACHE_MAX_BYTES: "33554432", PRIVATE_RESEARCH_CACHE_MAX_ENTRY_BYTES: "1048576" }), { maxBytes: 33554432, maxEntryBytes: 1048576 });
+  assert.deepEqual(getPrivateCacheConfig({ PRIVATE_RESEARCH_CACHE_MAX_BYTES: "lots", PRIVATE_RESEARCH_CACHE_MAX_ENTRY_BYTES: "1" }), { maxBytes: 64 * 1024 * 1024, maxEntryBytes: 2 * 1024 * 1024 });
+});
+
+test("owner-data handler over the on-demand S3 gateway: 206, auth, allowlist, and opaque 502", async () => {
+  const asset = OWNER_DATA_ASSETS["livestock-farms"];
+  const calls = [];
+  const s3 = {
+    async send(command) {
+      calls.push(command.input);
+      if (command.input.ChecksumMode) {
+        return { ContentLength: asset.size, ETag: '"s3-etag"', ChecksumSHA256: Buffer.from(asset.sha256, "hex").toString("base64"), ChecksumType: "FULL_OBJECT" };
+      }
+      const [, start, end] = /^bytes=(\d+)-(\d+)$/.exec(command.input.Range);
+      const length = Number(end) - Number(start) + 1;
+      return { ContentLength: length, ContentRange: `bytes ${start}-${end}/${asset.size}`, ETag: '"s3-etag"', Body: Readable.from([Buffer.alloc(length, 9)]) };
+    },
+  };
+  const gateway = createOwnerDataS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: s3, cache: createPrivateByteCache(),
+  });
+  const deps = (authenticate, gw = gateway) => ({ config: allenConfig, authenticate, gateway: gw, revokedSessions: new Set() });
+  const ownerRequest = (name, range = "bytes=100-115") => request(`/api/private-research/owner-data/${name}`, { headers: { Range: range } });
+
+  const ok = await handleOwnerDataRequest(ownerRequest("livestock-farms"), deps(allenOwner));
+  assert.equal(ok.status, 206);
+  assert.equal(ok.headers.get("content-range"), `bytes 100-115/${asset.size}`);
+  assert.equal(ok.headers.get("content-length"), "16");
+  assert.equal(ok.headers.get("etag"), `\"${asset.sha256}\"`);
+  assert.deepEqual([...new Uint8Array(await ok.arrayBuffer())], Array(16).fill(9));
+  const streamed = await handleOwnerDataRequest(ownerRequest("livestock-farms", `bytes=0-${asset.size - 1}`), deps(allenOwner));
+  assert.equal(streamed.status, 206);
+  assert.equal((await streamed.arrayBuffer()).byteLength, asset.size);
+
+  const before = calls.length;
+  assert.equal((await handleOwnerDataRequest(ownerRequest("livestock-farms"), deps(async () => ({ status: 401 })))).status, 401);
+  assert.equal((await handleOwnerDataRequest(ownerRequest("livestock-farms"), deps(async () => ({ status: 403 })))).status, 403);
+  assert.equal((await handleOwnerDataRequest(ownerRequest("not-listed"), deps(allenOwner))).status, 404);
+  assert.equal((await handleOwnerDataRequest(ownerRequest("..%2Fjp-water%2Fwater"), deps(allenOwner))).status, 404);
+  assert.equal((await handleOwnerDataRequest(ownerRequest("livestock-farms/extra"), deps(allenOwner))).status, 404);
+  assert.equal(calls.length, before, "rejected requests never reach S3");
+
+  const broken = createOwnerDataS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: { async send() { throw new Error("AccessDenied migu-private-research-ap-southeast-2/private-research/owner-data/x"); } },
+    cache: createPrivateByteCache(),
+  });
+  const failed = await handleOwnerDataRequest(ownerRequest("livestock-farms"), deps(allenOwner, broken));
+  assert.equal(failed.status, 502);
+  const body = await failed.text();
+  assert.doesNotMatch(body, /private-research\/|migu-|AccessDenied|sha|\.geojson/);
+
+  let headed = false;
+  const rangeFails = createOwnerDataS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: { async send(command) { if (!headed && command.input.ChecksumMode) { headed = true; return s3.send(command); } throw new Error("timeout private-research/owner-data"); } },
+    cache: createPrivateByteCache(),
+  });
+  const rangeFailed = await handleOwnerDataRequest(ownerRequest("livestock-farms"), deps(allenOwner, rangeFails));
+  assert.equal(rangeFailed.status, 502);
+  assert.doesNotMatch(await rangeFailed.text(), /private-research\//);
 });
 
 test("Allen exact allowlist authenticates GET, HEAD, and access probe before data", async () => {
@@ -386,7 +583,7 @@ test("Japan water S3 gateway uses immutable private keys", async () => {
   });
   const calls = [];
   const gateway = createJpWaterS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
-    client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+    client: fakeS3Client(bytes, calls),
     assets: { water: asset },
   });
   await gateway.head(asset);
@@ -480,7 +677,7 @@ test("soil liquefaction S3 gateway uses immutable private keys", async () => {
   });
   const calls = [];
   const gateway = createSoilLiquefactionS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
-    client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+    client: fakeS3Client(bytes, calls),
     assets: { tiles: asset },
   });
   await gateway.head(asset);
@@ -597,7 +794,7 @@ test("bss bridge S3 gateway uses immutable private keys", async () => {
   });
   const calls = [];
   const gateway = createBssBridgeS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
-    client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+    client: fakeS3Client(bytes, calls),
     assets: { tiles: asset },
   });
   await gateway.head(asset);
@@ -728,7 +925,7 @@ test("bridge resilience S3 gateway uses immutable private keys", async () => {
     });
     const calls = [];
     const gateway = createBridgeResilienceS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
-      client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+      client: fakeS3Client(bytes, calls),
       assets: { [name]: asset },
     });
     await gateway.head(asset);
@@ -1239,7 +1436,7 @@ test("bus crowding S3 gateway uses immutable private keys", async () => {
     const asset = Object.freeze({ filename, size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
     const calls = [];
     const gateway = createBusCrowdingS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
-      client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+      client: fakeS3Client(bytes, calls),
       assets: { [name]: asset },
     });
     await gateway.head(asset);
@@ -1321,7 +1518,7 @@ test("owner-data allowlist is fixed: lowercase keys without slashes or dots", ()
     assert.match(name, /^[a-z0-9-]+$/);
     const asset = OWNER_DATA_ASSETS[name];
     assert.ok(Object.isFrozen(asset));
-    assert.match(asset.filename, /^[a-z0-9_]+\.(geo)?json$/);
+    assert.match(asset.filename, /^[a-z0-9_]+\.((geo)?json|pmtiles)$/);
     assert.match(asset.sha256, /^[0-9a-f]{64}$/);
     assert.ok(asset.size > 0);
   }
@@ -1391,7 +1588,7 @@ test("owner-data S3 gateway uses immutable private keys", async () => {
     const asset = Object.freeze({ filename, size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
     const calls = [];
     const gateway = createOwnerDataS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
-      client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+      client: fakeS3Client(bytes, calls),
       assets: { [name]: asset },
     });
     await gateway.head(asset);

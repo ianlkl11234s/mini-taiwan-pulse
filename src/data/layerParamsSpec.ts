@@ -11,6 +11,7 @@ import { statisticsPresentationSpec } from './statisticsPresentation';
 import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
 import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
+import { LIVE_INCIDENT_WINDOWS } from "./liveIncidentsTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -2178,7 +2179,7 @@ export const LAYER_PARAMS_SPEC = {
     ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : spec.key === "krPopulationH3" ? 0.6 : spec.key === "krSchoolDistricts" ? 0.35 : 0.7) : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : spec.key === "krPopulationH3" ? 0.6 : spec.key === "krSchoolDistricts" ? 0.35 : spec.key === "krSeoulZoning" ? 0.32 : 0.7) : 0.85)]),
   ]])),
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
@@ -2387,6 +2388,11 @@ export const LAYER_PARAMS_SPEC = {
   gbLondonChargingZones: [opacitySlider("gbLondonChargingZonesOpacity", 0.7)],
   // 英國第 10 波：主要路網（線透明度）、AADF 計數點（點透明度＋大小＋「資料方式」選單）
   gbMajorRoads: [opacitySlider("gbMajorRoadsOpacity", 0.85)],
+  // 英國第 13 波 OSM（2026-11-13）：四層都依類別多選（§3.8 V-4）；公共設施、宗教場所 ≥1 萬點畫熱區（R5）
+  gbBridgesTunnels: [opacitySlider("gbBridgesTunnelsOpacity", 0.85), categoryMultiSelect("gbBridgesTunnels", [{ label: "橋梁", value: "bridge" }, { label: "隧道", value: "tunnel" }])],
+  gbRoadFacilities: [opacitySlider("gbRoadFacilitiesOpacity", densePointOpacity(1_757)), scaleSlider("gbRoadFacilitiesScale", 1), categoryMultiSelect("gbRoadFacilities", [{ label: "服務區", value: "services" }, { label: "休息區", value: "rest_area" }, { label: "收費站", value: "toll_booth" }, { label: "緊急停車區", value: "emergency_area" }])],
+  gbPublicFacilities: [heatmapPalette("gbPublicFacilities"), opacitySlider("gbPublicFacilitiesOpacity", densePointOpacity(41_333)), scaleSlider("gbPublicFacilitiesScale", 1), categoryMultiSelect("gbPublicFacilities", [{ label: "社區活動中心", value: "community_centre" }, { label: "公共廁所", value: "toilets" }, { label: "郵局", value: "post_office" }, { label: "市場", value: "marketplace" }])],
+  gbPlacesOfWorship: [heatmapPalette("gbPlacesOfWorship"), opacitySlider("gbPlacesOfWorshipOpacity", densePointOpacity(42_113)), scaleSlider("gbPlacesOfWorshipScale", 1), categoryMultiSelect("gbPlacesOfWorship", [{ label: "基督宗教", value: "christian" }, { label: "伊斯蘭教", value: "muslim" }, { label: "猶太教", value: "jewish" }, { label: "錫克教", value: "sikh" }, { label: "印度教", value: "hindu" }, { label: "佛教", value: "buddhist" }, { label: "其他宗教", value: "other" }, { label: "未標示宗教", value: "unknown" }])],
   gbTrafficCountsAadf: [
     heatmapPalette("gbTrafficCountsAadf"),
     opacitySlider("gbTrafficCountsAadfOpacity", densePointOpacity(22_334)),
@@ -5224,6 +5230,17 @@ export const LAYER_PARAMS_SPEC = {
       ],
       out: null,
     },
+  ],
+  // 即時 119 案件／警廣即時路況（站主限定，mig 555）：時間範圍依受理／發生時間在前端篩，切換不重抓
+  fire119Live: [
+    opacitySlider("fire119LiveOpacity", 0.9),
+    scaleSlider("fire119LiveScale", 1),
+    { kind: "select", name: "fire119LiveWindow", label: "時間範圍", default: "180", category: "data", options: LIVE_INCIDENT_WINDOWS.map((o) => ({ ...o })), out: null },
+  ],
+  pbsRoadEventsLive: [
+    opacitySlider("pbsRoadEventsLiveOpacity", 0.9),
+    scaleSlider("pbsRoadEventsLiveScale", 1),
+    { kind: "select", name: "pbsRoadEventsLiveWindow", label: "時間範圍", default: "180", category: "data", options: LIVE_INCIDENT_WINDOWS.map((o) => ({ ...o })), out: null },
   ],
   newsEvents: [
     opacitySlider("newsEventsOpacity", 1),

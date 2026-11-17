@@ -763,6 +763,29 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）", processing: "CSV（UTF-8 BOM）WGS84；0 筆剔除；PMTiles z0–14", note: "平台標籤；16/16 시·도；只有位置、沒有測值" },
   krClothingBins: { theme: "廢棄物", group: "投放點", zh: "舊衣回收箱", alt: "Clothing Collection Bins", icon: Shirt, dataset: "kr_clothing_bins", topics: ["南韓", "舊衣回收", "의류수거함", "回收", "廢棄物"],
     description: "南韓舊衣回收箱 20,931 處（57 個市郡區清單合併）", processing: "data.go.kr 各機關 fileData 93 份：有座標 CSV 59 份（58 份採用）、只有地址 19 份未上圖；剔除無座標 1,051、境外 5、座標落在提供機關轄區外 25、重複 2,103；管理團體與電話欄排除；PMTiles z0–14", note: "平台標籤；瑞草區 KOGL 4 不併入；11/16 시·도（釜山、大邱、蔚山、世宗、忠北無）" },
+  // 第 10 波（2026-11-14；analytics #373／#374）
+  krAnimalHospitals: { theme: "動物福利", group: "服務據點 Service Points", zh: "動物醫院", alt: "Animal Hospitals", icon: PawPrint, dataset: "kr_animal_hospitals", topics: ["南韓", "動物醫院", "동물병원", "獸醫", "寵物"],
+    description: "南韓營業中動物醫院 5,255 處（LOCALDATA 동물병원）", processing: "LOCALDATA CSV 10,670 列：只留영업/정상；EPSG:5174 → 4326；無座標 243 剔除；電話、面積排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；名稱為事業招牌名" },
+  krLocalCultureCenters: { theme: "文化", group: "設施 Facilities", zh: "地方文化院", alt: "Local Culture Centres", icon: Theater, dataset: "kr_local_culture_centers", topics: ["南韓", "地方文化院", "지방문화원", "文化設施"],
+    description: "南韓地方文化院 171 處（LOCALDATA 지방문화원）", processing: "LOCALDATA CSV 191 列（全營業中）；EPSG:5174 → 4326；無座標 20 剔除；電話、設立目的排除；PMTiles z0–14", note: "平台標籤；13/16 시·도（首爾、釜山、仁川未涵蓋）" },
+  krTraditionalTemples: { theme: "宗教", group: "點位", zh: "傳統寺剎", alt: "Traditional Temples", icon: Landmark, dataset: "kr_traditional_temples", topics: ["南韓", "寺廟", "傳統寺剎", "전통사찰", "佛教", "宗教"],
+    description: "南韓傳統寺剎保存法登錄的寺剎 1,599 處（指定 795、承認 46、未填 758）", processing: "LOCALDATA CSV 1,907 列：剔除登錄取消 1、無座標 307；EPSG:5174 → 4326；沿革全文與僧侶／信徒數排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；不含一般寺院與其他宗教" },
+  krProtectedTrees: { theme: "環境氣候", group: "都市樹木 Urban Trees", zh: "保護樹", alt: "Protected Trees", icon: TreeDeciduous, dataset: "kr_protected_trees", topics: ["南韓", "保護樹", "보호수", "老樹", "古樹"],
+    description: "南韓保護樹 12,308 株（道樹、市郡樹、面樹、村樹）", processing: "LOCALDATA 12,794 列：剔除解除指定 127、無座標 2、南韓外 30、座標與 시·도不符 327；地積、地目排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；寧越、河東、曾坪、洪川、靈岩整批座標偏移" },
+  krFishingGrounds: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries", zh: "漁場", alt: "Fishing Grounds", icon: Fish, dataset: "kr_fishing_grounds", topics: ["南韓", "漁場", "어장", "養殖", "定置網", "漁業權"],
+    description: "南韓漁場 14,858 面（養殖、村落、定置網；調查 2020–2023，快照 2024-04-24）", processing: "SHP EPSG:5179 → 4326；6 個自相交面 make_valid；許可已到期 3,010 面保留不篩；PMTiles z4–12", note: "KOGL 1（출처표시）；11/11 沿海 시·도；到期者以灰色另列" },
+  krBicycleParking: { theme: "交通", group: "場站", zh: "自行車停放處", alt: "Bicycle Parking", icon: Bike, dataset: "kr_bicycle_parking", topics: ["南韓", "自行車", "停車", "자전거보관소", "單車"],
+    description: "南韓自行車停放處 18,220 處（LOCALDATA 자전거보관소）", processing: "LOCALDATA 18,515 列：剔除無座標 124、南韓外 3、海上 6、座標與 시·도不符 162；機關電話排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；羅州、大邱壽城區整批座標偏移" },
+  krCivilDefenseWater: { theme: "災害", group: "避難設施", zh: "民防緊急給水設施", alt: "Civil Defence Emergency Water", icon: Droplets, dataset: "kr_civil_defense_water", topics: ["南韓", "民防", "給水", "민방위급수시설", "緊急用水"],
+    description: "南韓使用中民防緊急給水設施 5,464 處（公共用、政府支援、自治體）", processing: "LOCALDATA 11,081 列：剔除停用 5,296、無座標 321；EPSG:5174 → 4326；設施名稱整欄不輸出（含私人姓名）；PMTiles z0–14", note: "平台標籤；16/16 시·도；名稱不顯示，地址只到門牌" },
+  krEmergencyBells: { theme: "執法治安", group: "警政", zh: "安全緊急鈴", alt: "Emergency Bells", icon: Siren, dataset: "kr_emergency_bells", topics: ["南韓", "緊急鈴", "안전비상벨", "治安", "求救"],
+    description: "南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）", processing: "LOCALDATA 88,634 列：剔除無座標 13、南韓外 8、海上 5、座標與 시·도不符 897，經緯對調更正 10；機關電話排除；PMTiles z0–14（48.2MB 走 deploy-assets）", note: "平台標籤；16/16 시·도；泗川、沃川座標整批偏移或佔位" },
+  krRuralExperienceVillages: { theme: "觀光", group: "玩・體驗 Experience", zh: "農漁村體驗休養村", alt: "Rural Experience Villages", icon: Tent, dataset: "kr_rural_experience_villages", topics: ["南韓", "農村體驗", "체험휴양마을", "休閒農業", "觀光"],
+    description: "南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）", processing: "CSV WGS84；座標與 시·도不符 2 剔除；代表者姓名與電話排除；PMTiles z0–14", note: "平台標籤；13/16 시·도（首爾、釜山、大邱未涵蓋）" },
+  krSlaughterhouses: { theme: "農業", group: "畜牧 Livestock", zh: "屠宰場", alt: "Slaughterhouses", icon: Factory, dataset: "kr_slaughterhouses", topics: ["南韓", "屠宰場", "도축업", "畜牧"],
+    description: "南韓營業中屠宰場 111 處（LOCALDATA 도축업）", processing: "LOCALDATA 202 列：剔除歇業／停業 68、無座標 23；EPSG:5174 → 4326；電話、職員數、面積排除；PMTiles z0–14", note: "平台標籤；12/16 시·도（首爾、釜山、大田、世宗未涵蓋）" },
+  krSeoulZoning: { theme: "底圖", group: "土地使用分區 Zoning", zh: "首爾用途地域", alt: "Seoul Zoning Districts", icon: Grid3x3, dataset: "kr_seoul_zoning", topics: ["南韓", "首爾", "用途地域", "용도지역", "都市計畫", "土地使用分區", "OWNER_ONLY"],
+    description: "首爾用途地域 8,318 面（住宅、商業、工業、綠地等 7 大類）", processing: "SHP EPSG:5174 → 4326；52 個無效面 make_valid、<0.01 m² 碎面 16 剔除；加 zone_group 大類；PMTiles z8–14", note: "KOGL 1，data.go.kr 註含第三方權利；只涵蓋首爾；站主限定（私人 owner-data 圖磚）、DISPLAY_ONLY 不入倉" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];
@@ -776,7 +799,9 @@ const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => 
     icon: m.icon,
     upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
     dataClass: "D",
-    source: { kind: "custom", note: `useKrDataLayers 自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`./world/${spec.file}`] },
+    source: spec.ownerAsset
+      ? { kind: "custom", note: `Owner-only same-origin Range API（owner-data ${spec.ownerAsset}）；私人 PMTiles，不公開轉供；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`PRIVATE_OWNER_ONLY: ${spec.file}`] }
+      : { kind: "custom", note: `useKrDataLayers 自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`./world/${spec.file}`] },
     legend: spec.key,
     popup: spec.key,
     params: (() => {
@@ -2173,6 +2198,33 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
     description: "資料庫最新年度火災快照（不需切歷史模式，任何模式都可開）",
     topics: ["消防", "災害"],
+  },
+
+  // 即時 119 案件（owner-only RPC get_fire119_live；gis-platform mig 555 登記 gated_layers）
+  fire119Live: {
+    key: "fire119Live",
+    country: "TW", section: { theme: "消防 Fire & Rescue", group: "事件" },
+    ...layerName({ zh: "即時 119 案件", alt: "Live 119 Incidents" }),
+    expandable: true,
+    color: "#ff5722",
+    icon: Siren,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data-collectors external/fire119_vm（HiCloud VM，每分鐘）：18 個縣市 119 民眾版案件清單＋新北送醫中救護車，剔除隱私欄位後寫 Supabase live.fire119_incidents（mig 555，保留 14 天、S3 正本每日打包）；路名以 analytics road_gazetteer（OSM）對到路段中點與 road_key，鄉鎮只到 town_code。前端只經 owner-only RPC 讀取。",
+      note: "站主限定。點的位置不是事發精確地點：路段級為路段中點、臺北為站方模糊化位置；只到行政區的案件畫鄉鎮面量；新北只有送醫中救護車，畫在目的醫院。路段線 © OpenStreetMap contributors（ODbL）。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFire119LiveLayer 自建 source（點、徽章 geojson＋鄉鎮界與路段線兩個 PMTiles）：開著時每分鐘重抓 get_fire119_live，不接時間軸；鄉鎮代表點 src/data/townRepresentativePoints.json（lazy import）。",
+      staticAssets: ["./base_map/township_boundary.pmtiles", "./base_map/road_lines_20261116.pmtiles"],
+    },
+    legend: "fire119Live",
+    popup: "fire119Live",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "站主限定。各縣市 119 即時案件（每分鐘更新）：色＝類別（火災、救護、救援、其他），受理／出動／到達會脈動、送醫中空心、返隊變灰後淡出。點是路段中點或站方位置，不是事發精確地點；只到行政區的案件畫鄉鎮面量與件數；新北畫在送醫目的醫院。",
+    topics: ["消防", "119", "救護", "即時", "OWNER_ONLY"],
   },
 
   fireIsochrone: {
@@ -6247,7 +6299,8 @@ export const LAYER_MANIFEST = {
 
   // 🇬🇧 英國第 10 波（2026-10-29：C012 主要路網、C016 交通計數點 AADF）
   // 位置對齊台灣「交通 Move › 路網」：highways／provincialRoads／osmExpressway（道路）、etcGantry（路側計數設施）。
-  // 台灣沒有年度交通量計數點圖層；國道壅塞／省道路況是即時、在「即時監控」，不對照。C014 橋隧、C018 道路設施 HOLD。
+  // 台灣沒有年度交通量計數點圖層；國道壅塞／省道路況是即時、在「即時監控」，不對照。
+  // 2026-11-13：主要路網換新版（補大不列顛 B 級，OSM），C014 橋隧、C018 道路設施解除 HOLD（第 13 波，見下方）。
   gbMajorRoads: {
     key: "gbMajorRoads",
     country: "GB", section: { theme: "交通", group: "路網" },
@@ -6258,20 +6311,20 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_major_roads", confidence: "HIGH" }],
-      processing: "大不列顛 DfT Major Roads Database 2025（高速公路 1,274＋A 級 16,667 段，計數點間概化直線，對 2025 AADF 補道路類別與交通量）＋北愛 OpenStreetMap（高速 250／A 級 8,716／B 級 6,278 段，實際線形）；33,185 段；PMTiles z4–12（z8 起才有 B 級）",
-      note: "OGL v3.0（DfT）＋ODbL 1.0（OSM）；高速公路與 A 級 4/4；B 級 1/4（僅北愛，大不列顛 B 級 HOLD：2026-10-29 Overpass 降級）",
+      processing: "大不列顛 DfT Major Roads Database 2025（高速公路 1,274＋A 級 16,667 段，計數點間概化直線，對 2025 AADF 補道路類別與交通量）＋OpenStreetMap 2026-11-13 快照（北愛高速／A／B 級全部、大不列顛 B 級，共 B 級 107,911 段，實際線形）；134,824 段；PMTiles z4–12（z8 起才有 B 級）",
+      note: "OGL v3.0（DfT）＋ODbL 1.0（OSM）；高速公路、A 級、B 級皆 4/4（2026-11-13 補上大不列顛 B 級）",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbTransportLayers 自建 mapbox-pmtiles source；source-layer=gb_major_roads，minzoom=4 maxzoom=12（layer minzoom 5）；11.0MB git-track",
-      staticAssets: ["./world/gb_major_roads.pmtiles"],
+      note: "useGbTransportLayers 自建 mapbox-pmtiles source；gb_major_roads_v2.pmtiles（27.5MB，舊檔 gb_major_roads.pmtiles 已在 S3、不覆寫）；source-layer=gb_major_roads，minzoom=4 maxzoom=12（layer minzoom 5）；deploy-assets（lock）",
+      staticAssets: ["./world/gb_major_roads_v2.pmtiles"],
     },
     legend: "gbMajorRoads",
     popup: "gbMajorRoads",
     params: { count: 1, kinds: ["slider"] },
-    description: "英國高速公路與 A 級道路（大不列顛 DfT 主要道路資料庫、北愛 OpenStreetMap），北愛另含 B 級道路；大不列顛 B 級道路未涵蓋",
-    topics: ["英國", "道路", "高速公路", "路網", "交通"],
+    description: "英國高速公路、A 級與 B 級道路（大不列顛高速與 A 級為 DfT 主要道路資料庫；北愛全部與大不列顛 B 級為 OpenStreetMap 2026-11-13）",
+    topics: ["英國", "道路", "高速公路", "B 級道路", "路網", "交通"],
   },
 
   gbTrafficCountsAadf: {
@@ -6298,6 +6351,109 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["palette", "slider", "slider", "select"] },
     description: "大不列顛 2025 年道路交通計數點的年平均日交通量（DfT AADF），依車輛數分 5 級，可只看當年實測或估算點；北愛未涵蓋",
     topics: ["英國", "交通量", "車流", "計數點", "道路", "交通"],
+  },
+
+  // 🇬🇧 英國第 13 波 OSM（2026-11-13 快照）：C014 主要道路橋梁與隧道、C018 道路設施（交通 › 路網，比照台灣 freewayBridges／serviceAreas 同群）、
+  // 公共設施（比照台灣 publicToilets 等「基礎建設 › 公共生活」）、宗教場所（比照台灣／日本「宗教 › 點位」）。
+  gbBridgesTunnels: {
+    key: "gbBridgesTunnels",
+    country: "GB", section: { theme: "交通", group: "路網" },
+    ...layerName({ zh: "橋梁與隧道", alt: "Road Bridges & Tunnels", qualifier: "OSM" }),
+    expandable: true,
+    color: "#2d82ff",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_bridges_tunnels", confidence: "MED" }],
+      processing: "OpenStreetMap 2026-11-13 快照：主要道路（motorway／trunk／primary／secondary 含 link）且 bridge／tunnel 的路段，橋 29,009＋隧道 484＝29,493 段；一筆＝一段 OSM way，不等於一座橋；PMTiles z5–13",
+      note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料）；英國無全國道路橋梁開放清冊",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_bridges_tunnels.pmtiles（11.9MB）；source-layer=gb_bridges_tunnels，minzoom=5 maxzoom=13；橋實線、隧道虛線兩個 line 子圖層；deploy-assets（lock）",
+      staticAssets: ["./world/gb_bridges_tunnels.pmtiles"],
+    },
+    legend: "gbBridgesTunnels",
+    popup: "gbBridgesTunnels",
+    params: { count: 2, kinds: ["slider", "multiSelect"] },
+    description: "英國主要道路（高速、A 級、B 級）上的橋梁與隧道路段（OpenStreetMap 2026-11-13），線寬依道路等級",
+    topics: ["英國", "橋梁", "隧道", "道路", "OSM", "交通"],
+  },
+  gbRoadFacilities: {
+    key: "gbRoadFacilities",
+    country: "GB", section: { theme: "交通", group: "路網" },
+    ...layerName({ zh: "道路設施", alt: "Road Facilities" }),
+    expandable: true,
+    color: "#2d82ff",
+    icon: Coffee,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_road_facilities", confidence: "MED" }],
+      processing: "National Highways 緊急停車區 438（英格蘭智慧高速公路，線段中點）＋OpenStreetMap 2026-11-13 服務區 585／休息區 610／收費站 124（面以中心點表示），共 1,757 點；PMTiles z5–13",
+      note: "OGL v3.0（National Highways）＋ODbL 1.0（OSM）；服務區、休息區、收費站 4/4；緊急停車區只有英格蘭（蘇格蘭、威爾斯、北愛未涵蓋）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_road_facilities.pmtiles（1.1MB）；source-layer=gb_road_facilities，minzoom=5 maxzoom=13；deploy-assets（lock）",
+      staticAssets: ["./world/gb_road_facilities.pmtiles"],
+    },
+    legend: "gbRoadFacilities",
+    popup: "gbRoadFacilities",
+    params: { count: 3, kinds: ["slider", "slider", "multiSelect"] },
+    description: "英國高速公路服務區、休息區、收費站（OpenStreetMap）與英格蘭智慧高速公路緊急停車區（National Highways）",
+    topics: ["英國", "服務區", "休息區", "收費站", "緊急停車區", "道路", "交通"],
+  },
+  gbPublicFacilities: {
+    key: "gbPublicFacilities",
+    country: "GB", section: { theme: "基礎建設", group: "公共生活" },
+    ...layerName({ zh: "公共設施", alt: "Public Facilities", qualifier: "OSM" }),
+    expandable: true,
+    color: "#2d82ff",
+    icon: Mail,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_public_facilities", confidence: "MED" }],
+      processing: "OpenStreetMap 2026-11-13 快照：社區活動中心 16,750／公共廁所 14,320／郵局 9,416／市場 847，共 41,333 點（面以中心點表示）；PMTiles z5–13",
+      note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料，完整度依地區而異）；無可用官方全國名錄",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_public_facilities.pmtiles（18.0MB）；source-layer=gb_public_facilities，minzoom=5 maxzoom=13（z<10 熱區、z10 起畫點）；deploy-assets（lock）",
+      staticAssets: ["./world/gb_public_facilities.pmtiles"],
+    },
+    legend: "gbPublicFacilities",
+    popup: "gbPublicFacilities",
+    params: { count: 4, kinds: ["palette", "slider", "slider", "multiSelect"] },
+    description: "英國郵局、公共廁所、市場與社區活動中心（OpenStreetMap 2026-11-13，志願者資料，完整度依地區而異）",
+    topics: ["英國", "郵局", "公廁", "市場", "社區活動中心", "OSM"],
+  },
+  gbPlacesOfWorship: {
+    key: "gbPlacesOfWorship",
+    country: "GB", section: { theme: "宗教", group: "點位" },
+    ...layerName({ zh: "宗教場所", alt: "Places of Worship", qualifier: "OSM" }),
+    expandable: true,
+    color: "#0c9743",
+    icon: Church,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_places_of_worship", confidence: "MED" }],
+      processing: "OpenStreetMap 2026-11-13 快照 amenity=place_of_worship，依 religion 分 8 類：基督宗教 38,850／伊斯蘭教 1,421／猶太教 229／錫克教 209／印度教 164／佛教 120／其他宗教 258／未標示 862，共 42,113 點；PMTiles z5–13",
+      note: "ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（OSM 志願者資料）；religion 未標者歸「未標示」，不推測",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbOsmLayers 自建 mapbox-pmtiles source；gb_places_of_worship.pmtiles（19.5MB）；source-layer=gb_places_of_worship，minzoom=5 maxzoom=13（z<10 熱區、z10 起畫點）；deploy-assets（lock）",
+      staticAssets: ["./world/gb_places_of_worship.pmtiles"],
+    },
+    legend: "gbPlacesOfWorship",
+    popup: "gbPlacesOfWorship",
+    params: { count: 4, kinds: ["palette", "slider", "slider", "multiSelect"] },
+    description: "英國教堂、清真寺、猶太會堂、錫克廟、印度廟、佛寺等宗教場所（OpenStreetMap 2026-11-13，依 religion 分類；未標示者不推測）",
+    topics: ["英國", "宗教", "教堂", "清真寺", "OSM"],
   },
 
   // 🇬🇧 英國第 5 波（2026-10-29：C054 保護區、C097 海洋保護區、C113 林地 NFI、C114 森林遊憩、C115 步道、X002 開放進入地、C093 樹木保護）
@@ -16974,6 +17130,32 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["multiSelect", "slider"] },
     description: "TDX 即時路況事件（事故／施工／壅塞／活動／災害分色，混合幾何）",
     topics: ["交通", "即時", "事件"],
+  },
+
+  // 警廣即時路況（owner-only RPC get_pbs_road_events_live；gis-platform mig 555 登記 gated_layers）
+  pbsRoadEventsLive: {
+    key: "pbsRoadEventsLive",
+    country: "TW", section: { theme: "交通 Move", group: "即時監控" },
+    ...layerName({ zh: "警廣即時路況", alt: "PBS Road Reports" }),
+    expandable: true,
+    color: "#facc15",
+    icon: Radio,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data-collectors external/fire119_vm（HiCloud VM，每 5 分鐘）：警廣路況 rtr.pbs.gov.tw（data.gov.tw 15221）寫 Supabase live.pbs_road_events（mig 555，保留 14 天、S3 正本每日打包）；狀態由說明文字推得（含「排除」＝已排除、「處理中」＝處理中）。前端只經 owner-only RPC 讀取。",
+      note: "站主限定。座標精度不一（約 2.6% 只到約 1 公里），無座標的不上圖；說明不一定會更新，「通報」不代表仍在進行。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePbsRoadEventsLiveLayer 自建 geojson source＋circle：開著時每分鐘重抓 get_pbs_road_events_live，不接時間軸。無靜態檔要部署。",
+    },
+    legend: "pbsRoadEventsLive",
+    popup: "pbsRoadEventsLive",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "站主限定。警廣即時路況（每分鐘重抓）：事故黃、其他灰，已排除變灰。",
+    topics: ["交通", "即時", "警廣", "事故", "OWNER_ONLY"],
   },
 
   // ── 停車 Parking ───────────────────────────────────────────────────

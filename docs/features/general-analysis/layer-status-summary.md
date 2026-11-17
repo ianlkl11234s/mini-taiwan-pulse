@@ -4,10 +4,10 @@
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 > L2 欄來自倉庫 catalog（`catalog.json 2026-10-17`）；入倉狀態欄來自 pulse-data 登記簿（ADR-0023 成員清單 SSOT），兩者口徑不同時以入倉狀態為準。
 
-- 圖層總數：**1842**；L1 可操作：**1842/1842**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**1007/1842**（54.7%）
+- 圖層總數：**1857**；L1 可操作：**1857/1857**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**1007/1857**（54.2%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：27
-- 只有舊瀏覽器 reader：6；尚不可分析：797
+- 只有舊瀏覽器 reader：6；尚不可分析：812
 
 ## 各國入倉狀態（AG-14；以 pulse-data 登記簿為準）
 
@@ -16,8 +16,8 @@
 | TW | 1320 | 482 | 659 | 6 | 1 | 172 | 86.4% |
 | JP | 106 | 24 | 0 | 5 | 1 | 76 | 22.6% |
 | FR | 1 | 0 | 0 | 0 | 0 | 1 | 0.0% |
-| GB | 86 | 1 | 22 | 0 | 0 | 63 | 26.7% |
-| KR | 107 | 54 | 53 | 0 | 0 | 0 | 100.0% |
+| GB | 90 | 6 | 22 | 0 | 0 | 62 | 31.1% |
+| KR | 118 | 64 | 53 | 0 | 1 | 0 | 99.2% |
 | CA | 49 | 0 | 24 | 0 | 0 | 25 | 49.0% |
 | IE | 103 | 70 | 29 | 0 | 3 | 1 | 96.1% |
 | PH | 13 | 13 | 0 | 0 | 0 | 0 | 100.0% |
@@ -25,7 +25,7 @@
 | WORLD | 23 | 5 | 0 | 0 | 0 | 18 | 21.7% |
 | SIM | 22 | 0 | 0 | 0 | 1 | 21 | 0.0% |
 
-- 合計：入倉 1448/1842（warehouse 661、statistics 787）；DISPLAY_ONLY 6；外部圖磚等無上游 11；未入倉（在只減不增基準）377
+- 合計：入倉 1463/1857（warehouse 676、statistics 787）；DISPLAY_ONLY 7；外部圖磚等無上游 11；未入倉（在只減不增基準）376
 - `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
 - WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
@@ -36,8 +36,8 @@
 | 臺灣圖層 | 623 | 358 | 21 | 4 | 5 | 231 | 4 |
 | 日本 | 106 | 15 | 0 | 2 | 0 | 88 | 1 |
 | 法國 | 1 | 0 | 0 | 0 | 0 | 1 | 0 |
-| 英國 | 64 | 0 | 0 | 0 | 0 | 64 | 0 |
-| 南韓 | 54 | 0 | 0 | 0 | 0 | 54 | 0 |
+| 英國 | 68 | 0 | 0 | 0 | 0 | 68 | 0 |
+| 南韓 | 65 | 0 | 0 | 0 | 0 | 65 | 0 |
 | 加拿大 | 25 | 0 | 0 | 0 | 0 | 25 | 0 |
 | 愛爾蘭 | 74 | 0 | 0 | 0 | 0 | 74 | 0 |
 | 菲律賓 | 13 | 0 | 0 | 0 | 0 | 13 | 0 |
@@ -50,7 +50,7 @@
 
 | 原因 | 圖層數 |
 |---|---|
-| dataset_not_in_warehouse | 638 |
+| dataset_not_in_warehouse | 653 |
 | upstream_catalog_missing | 76 |
 | unfiltered_shared_table | 27 |
 | warehouse_SKIPPED_FORMAT | 15 |

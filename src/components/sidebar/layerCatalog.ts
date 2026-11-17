@@ -317,6 +317,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 第 9 波：工商登記（產業園區）、廢棄物（舊衣回收箱），比照台灣與愛爾蘭；噪音測點併入既有「環境氣候」
     "工商登記",
     "廢棄物",
+    // 第 10 波：動物福利（動物醫院）、宗教（傳統寺剎）、農業（屠宰場），比照台灣同名主題
+    "動物福利",
+    "宗教",
+    "農業",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經／公共安全」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -418,6 +422,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "房地產",
     // 第 12 波：工商登記（公司、製造業）、殯葬（火葬場、葬儀社）、農業（養殖、土壤；比照台灣同名主題）
     "工商登記",
+    // 第 13 波 OSM：基礎建設（公共設施）、宗教（宗教場所；比照台灣同名主題）
+    "基礎建設",
+    "宗教",
     "殯葬",
     "農業",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
@@ -797,6 +804,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayCongestion"),
           fromManifest("roadCongestion"),
           fromManifest("roadEvents"),
+          fromManifest("pbsRoadEventsLive"),
         ],
       },
       {
@@ -1548,6 +1556,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("fireEvents"),
           fromManifest("fireLatest"),
+          fromManifest("fire119Live"),
         ],
       },
       {
@@ -2625,6 +2634,8 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "行政邊界", layers: [fromManifest("krAdminBoundaries")] },
       // 第 6 波：比照台灣「底圖 › 海域界線」（陸域行政界之外的海域法定界線）
       { title: "海域界線", layers: [fromManifest("krTerritorialSea")] },
+      // 第 10 波 C005：首爾用途地域比照台灣 urbanZoning*、日本 jpZoningUseDistricts 的「底圖 › 土地使用分區 Zoning」（DISPLAY_ONLY）
+      { title: "土地使用分區 Zoning", layers: [fromManifest("krSeoulZoning")] },
     ],
   },
   // 第 6 波：人口網格（GHSL），比照台灣、日本「人口社經 › 人口分布」
@@ -2643,7 +2654,7 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "海岸侵蝕", layers: [fromManifest("krCoastalErosionFacilities")] },
       // 第 7 波 C074：比照日本 jpEvacuationSites 的「災害 › 避難設施」
-      { title: "避難設施", layers: [fromManifest("krCivilDefenseShelters")] },
+      { title: "避難設施", layers: [fromManifest("krCivilDefenseShelters"), fromManifest("krCivilDefenseWater")] },
     ],
   },
   {
@@ -2652,7 +2663,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "海域環境", layers: [fromManifest("krMarinePollutionIncidents"), fromManifest("krMarineEnvSites")] },
-      { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [fromManifest("krMarineProtectedAreas")] },
+      { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [fromManifest("krMarineProtectedAreas"), fromManifest("krFishingGrounds")] },
     ],
   },
   {
@@ -2670,7 +2681,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     groups: [
-      { title: "場站", layers: [fromManifest("krBusStops"), fromManifest("krRailStations"), fromManifest("krPublicBicycleStations"), fromManifest("krSeoulSubwayCongestion"), fromManifest("krParkingLots")] },
+      { title: "場站", layers: [fromManifest("krBusStops"), fromManifest("krRailStations"), fromManifest("krPublicBicycleStations"), fromManifest("krSeoulSubwayCongestion"), fromManifest("krParkingLots"), fromManifest("krBicycleParking")] },
       { title: "路網", layers: [fromManifest("krNationalRoads"), fromManifest("krRailLines"), fromManifest("krBridges"), fromManifest("krSpeedCameras"), fromManifest("krChildProtectionZones")] },
       { title: "樞紐節點", layers: [fromManifest("krAirports"), fromManifest("krPorts")] },
     ],
@@ -2693,7 +2704,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     groups: [
-      { title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] },
+      { title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees"), fromManifest("krProtectedTrees")] },
       // 第 9 波 C091：比照台灣、英國、愛爾蘭「噪音／聲響 Noise」
       { title: "噪音／聲響 Noise", layers: [fromManifest("krNoiseSites")] },
     ],
@@ -2741,7 +2752,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     // 第 7 波 C075：比照日本 jpPoliceFacilities 的「執法治安 › 警政」
-    groups: [{ title: "警政", layers: [fromManifest("krPoliceBoxes")] }],
+    groups: [{ title: "警政", layers: [fromManifest("krPoliceBoxes"), fromManifest("krEmergencyBells")] }],
   },
   // 第 8 波：比照台灣 culturalMuseums／publicLibraries（文化 › 設施 Facilities）、artsEvents（文化 › 藝文活動 Arts & Events）、
   // tourHeritage（觀光 › 玩・人文 Heritage）、tourEvents（觀光 › 玩・體驗 Experience）、tourHotels（觀光 › 住・食 Stay & Eat）、
@@ -2751,7 +2762,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     groups: [
-      { title: "設施 Facilities", layers: [fromManifest("krMuseums"), fromManifest("krLibraries")] },
+      { title: "設施 Facilities", layers: [fromManifest("krMuseums"), fromManifest("krLibraries"), fromManifest("krLocalCultureCenters")] },
       { title: "藝文活動 Arts & Events", layers: [fromManifest("krPerformances")] },
     ],
   },
@@ -2761,7 +2772,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "玩・人文 Heritage", layers: [fromManifest("krHeritage")] },
-      { title: "玩・體驗 Experience", layers: [fromManifest("krFestivals")] },
+      { title: "玩・體驗 Experience", layers: [fromManifest("krFestivals"), fromManifest("krRuralExperienceVillages")] },
       { title: "住・食 Stay & Eat", layers: [fromManifest("krLodging")] },
     ],
   },
@@ -2789,6 +2800,26 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     groups: [{ title: "投放點", layers: [fromManifest("krClothingBins")] }],
+  },
+  // 第 10 波：C113 動物醫院比照台灣 animalWelfarePoints（動物福利 › 服務據點）；C049 傳統寺剎比照台灣 religionTemples（宗教 › 點位）；
+  // C106 屠宰場比照台灣 livestockSlaughter（農業 › 畜牧 Livestock）
+  {
+    title: "動物福利",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "服務據點 Service Points", layers: [fromManifest("krAnimalHospitals")] }],
+  },
+  {
+    title: "宗教",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("krTraditionalTemples")] }],
+  },
+  {
+    title: "農業",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "畜牧 Livestock", layers: [fromManifest("krSlaughterhouses")] }],
   },
   {
     title: "林業",
@@ -3267,12 +3298,13 @@ const THEME_CATALOG: ThemeDef[] = [
     // 第 4 波：群組比照台灣「交通 Move」——stationsMetro／bikeStations（場站）、railRoutes／cctv（路網）、ports／airports（樞紐節點）；
     // 收費區台灣無同類，自成「收費與低排放區」
     // 第 10 波：主要路網比照台灣 highways／provincialRoads、AADF 計數點比照 etcGantry（路側計數設施），都在「路網」
+    // 第 13 波（OSM 2026-11-13）：橋梁與隧道、道路設施（服務區／休息區／收費站／緊急停車區）同屬「路網」
     title: "交通",
     country: "GB",
     defaultCollapsed: true,
     groups: [
       { title: "場站", layers: [fromManifest("gbLondonStations"), fromManifest("gbStationUsage"), fromManifest("gbLondonBikePoints")] },
-      { title: "路網", layers: [fromManifest("gbMajorRoads"), fromManifest("gbTrafficCountsAadf"), fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
+      { title: "路網", layers: [fromManifest("gbMajorRoads"), fromManifest("gbBridgesTunnels"), fromManifest("gbRoadFacilities"), fromManifest("gbTrafficCountsAadf"), fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
       { title: "樞紐節點", layers: [fromManifest("gbTransportHubs")] },
       { title: "收費與低排放區", layers: [fromManifest("gbLondonChargingZones")] },
     ],
@@ -3400,6 +3432,20 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "整體公司", layers: [fromManifest("gbCompanies")] },
       { title: "製造業", layers: [fromManifest("gbManufacturing")] },
     ],
+  },
+  {
+    // 第 13 波（OSM 2026-11-13）：郵局、公廁、市場、社區活動中心比照台灣 publicToilets 等「基礎建設 › 公共生活」
+    title: "基礎建設",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "公共生活", layers: [fromManifest("gbPublicFacilities")] }],
+  },
+  {
+    // 第 13 波（OSM 2026-11-13）：比照台灣 religionTemples／日本 jpReligionOsm 的「宗教 › 點位」
+    title: "宗教",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("gbPlacesOfWorship")] }],
   },
   {
     // 第 12 波 C051：比照台灣「殯葬 Funeral › 點位」（funeralFacilities 火化場、funeralOperators 禮儀業者）；墓園另在「底圖 › 綠地」
@@ -3542,6 +3588,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     // 第 9 波（同台灣、愛爾蘭）
     "工商登記": "city",
     "廢棄物": "environment",
+    // 第 10 波（同台灣）
+    "動物福利": "environment",
+    "宗教": "publicLife",
+    "農業": "environment",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3628,6 +3678,9 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "房地產": "city",
     // 第 12 波：同台灣「工商登記」「殯葬」「農業」
     "工商登記": "city",
+    // 第 13 波 OSM：同台灣「基礎建設」「宗教」
+    "基礎建設": "publicLife",
+    "宗教": "publicLife",
     "殯葬": "publicLife",
     "農業": "environment",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
@@ -3767,6 +3820,9 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "社福長照": { zh: "社福長照", sub: "사회복지" },
     "工商登記": { zh: "工商登記", sub: "산업" },
     "廢棄物": { zh: "廢棄物", sub: "폐기물" },
+    "動物福利": { zh: "動物福利", sub: "동물복지" },
+    "宗教": { zh: "宗教", sub: "종교" },
+    "農業": { zh: "農業", sub: "농업" },
     // 南韓統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
@@ -3858,6 +3914,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "觀光": { zh: "觀光", sub: "Tourism" },
     "房地產": { zh: "房地產", sub: "Real Estate" },
     "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "宗教": { zh: "宗教", sub: "Religion" },
     "殯葬": { zh: "殯葬", sub: "Funeral" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },

@@ -39,6 +39,17 @@ krSeniorCenters,敬老堂與里民會館 Senior Centres & Village Halls,KR,南�
 krIndustrialComplexes,產業園區 Industrial Complexes,KR,南韓,工商登記,custom,verified,kr_industrial_complexes,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓產業園區邊界 1,372 處（國家 65、一般 771、都市尖端 53、農工 483）"
 krNoiseSites,環境噪音測點 Noise Monitoring Sites,KR,南韓,環境氣候,custom,verified,kr_noise_sites,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,韓國環境公團環境噪音測定網 546 個測點（道路 331、一般 215）
 krClothingBins,舊衣回收箱 Clothing Collection Bins,KR,南韓,廢棄物,custom,verified,kr_clothing_bins,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓舊衣回收箱 20,931 處（57 個市郡區清單合併）"
+krAnimalHospitals,動物醫院 Animal Hospitals,KR,南韓,動物福利,custom,verified,kr_animal_hospitals,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓營業中動物醫院 5,255 處（LOCALDATA 동물병원）"
+krLocalCultureCenters,地方文化院 Local Culture Centres,KR,南韓,文化,custom,verified,kr_local_culture_centers,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓地方文化院 171 處（LOCALDATA 지방문화원）
+krTraditionalTemples,傳統寺剎 Traditional Temples,KR,南韓,宗教,custom,verified,kr_traditional_temples,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓傳統寺剎保存法登錄的寺剎 1,599 處（指定 795、承認 46、未填 758）"
+krProtectedTrees,保護樹 Protected Trees,KR,南韓,環境氣候,custom,verified,kr_protected_trees,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓保護樹 12,308 株（道樹、市郡樹、面樹、村樹）"
+krFishingGrounds,漁場 Fishing Grounds,KR,南韓,海洋,custom,verified,kr_fishing_grounds,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓漁場 14,858 面（養殖、村落、定置網；調查 2020–2023，快照 2024-04-24）"
+krBicycleParking,自行車停放處 Bicycle Parking,KR,南韓,交通,custom,verified,kr_bicycle_parking,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓自行車停放處 18,220 處（LOCALDATA 자전거보관소）"
+krCivilDefenseWater,民防緊急給水設施 Civil Defence Emergency Water,KR,南韓,災害,custom,verified,kr_civil_defense_water,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓使用中民防緊急給水設施 5,464 處（公共用、政府支援、自治體）"
+krSeoulZoning,首爾用途地域 Seoul Zoning Districts,KR,南韓,底圖,custom,verified,kr_seoul_zoning,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。首爾用途地域 8,318 面（住宅、商業、工業、綠地等 7 大類）；data.go.kr 註含第三方權利，不入倉"
+krEmergencyBells,安全緊急鈴 Emergency Bells,KR,南韓,執法治安,custom,verified,kr_emergency_bells,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓安全緊急鈴 87,711 支（路邊、公園、廁所、建物、停車場）"
+krRuralExperienceVillages,農漁村體驗休養村 Rural Experience Villages,KR,南韓,觀光,custom,verified,kr_rural_experience_villages,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"南韓農漁村體驗休養村 1,097 村（2023-05-12 名冊）"
+krSlaughterhouses,屠宰場 Slaughterhouses,KR,南韓,農業,custom,verified,kr_slaughterhouses,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,南韓營業中屠宰場 111 處（LOCALDATA 도축업）
 ieMaritimeBoundaries,海域界線 Maritime Boundaries,IE,愛爾蘭,底圖,custom,verified,ie_maritime_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭海域界線 17 段（領海 12 浬 13、鄰接區 24 浬 1、專屬經濟區 3）
 iePlaceNames,地名 Place Names,IE,愛爾蘭,底圖,custom,verified,ie_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭官方地名 52,402 筆（人口中心 2,022、townland 50,046、島嶼 334；英文＋愛爾蘭語名）"
 ieGaeltacht,Gaeltacht 語言規劃區 Gaeltacht Language Planning Areas,IE,愛爾蘭,原民與農村,custom,verified,ie_gaeltacht_lpa,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,愛爾蘭 Gaeltacht 語言規劃區 26 區＋2022 普查愛爾蘭語使用（每天在教育體系外說的比例 2.4%–68.9%）
@@ -1095,6 +1106,7 @@ fireHydrants,消防栓 Hydrant,TW,臺灣圖層,消防 Fire & Rescue,pmtiles,veri
 disasterResourceSites,救災資源據點 Disaster Resource Sites,TW,臺灣圖層,消防 Fire & Rescue,geojson,catalog_missing,,,,,,,yes,none,,missing,,,upstream_catalog_missing,,,,消防署救災資源資料庫登錄的機具與物資保管場所（消防分隊、公所、派出所、清潔隊、學校等），popup 列出有登錄數量的品項
 fireEvents,火災歷史 Fire History,TW,臺灣圖層,消防 Fire & Rescue,custom,verified,fire_incidents,,ds_fire_fire_incidents,POINT,2026-05-19,national,yes,spatial,warehouse,warehouse,address_geocode,,,,,,歷史火災點位（需進歷史模式選年／月／日）
 fireLatest,火災最新年度 Latest,TW,臺灣圖層,消防 Fire & Rescue,custom,verified,fire_incidents,,ds_fire_fire_incidents,POINT,2026-05-19,national,yes,spatial,warehouse,warehouse,address_geocode,,,,,,資料庫最新年度火災快照（不需切歷史模式，任何模式都可開）
+fire119Live,即時 119 案件 Live 119 Incidents,TW,臺灣圖層,消防 Fire & Rescue,custom,catalog_missing,,,,,,,yes,none,,display_only,,,upstream_catalog_missing,,,,站主限定。各縣市 119 即時案件（每分鐘更新）：色＝類別（火災、救護、救援、其他），受理／出動／到達會脈動、送醫中空心、返隊變灰後淡出。點是路段中點或站方位置，不是事發精確地點；只到行政區的案件畫鄉鎮面量與件數；新北畫在送醫目的醫院。
 fireIsochrone,救援等時圈 Isochrone,TW,臺灣圖層,消防 Fire & Rescue,custom,pulse_only,,,,,,,yes,none,,missing,,,derived_layer,,fireStations,,消防分隊路網救援等時圈（5／10／15 分鐘環差，21 縣市＋全國聚合）
 urbanFormGrid,都市紋理網格 Urban Form,TW,臺灣圖層,都市分析 Urban Analysis,pmtiles,verified,urban_form_grid,,ds_urban_composite_urban_form_grid,POLYGON,2026-07-27,19 counties,yes,spatial,warehouse,warehouse,unknown,,,,,,"全台 500m 都市紋理網格 145,119 格（建物密度 × 樹冠覆蓋合成指標）"
 civilDefenseShelter,防空避難 Civil Defense Shelters,TW,臺灣圖層,民防避難 Civil Defense,pmtiles,verified,civil_defense_shelters,,ds_police_justice_civil_defense_shelters,POINT,2026-08-24,national,yes,spatial,warehouse+browser,warehouse,address_geocode,,,,,,全台防空避難處所（z7 起載入；低縮放為抽稀圖磚）
@@ -1287,8 +1299,12 @@ gbLondonStations,倫敦軌道車站 London Rail Stations,GB,英國,交通,custom
 gbLondonBikePoints,倫敦公共自行車 Santander Cycles,GB,英國,交通,custom,verified,gb_london_bikepoints,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 Santander Cycles 公共自行車站點與樁數（TfL BikePoint，不含即時空位）
 gbLondonJamCams,倫敦道路攝影機 TfL JamCams,GB,英國,交通,custom,verified,gb_london_jamcams,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 TfL 道路攝影機位置與鏡頭朝向，彈窗可外連即時影像
 gbLondonChargingZones,倫敦收費與低排放區 London Charging Zones,GB,英國,交通,custom,verified,gb_london_charging_zones,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦塞車費區（Congestion Charge）與超低排放區／低排放區（ULEZ／LEZ，同一邊界）範圍
-gbMajorRoads,主要路網 Major Roads,GB,英國,交通,custom,verified,gb_major_roads,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國高速公路與 A 級道路（大不列顛 DfT 主要道路資料庫、北愛 OpenStreetMap），北愛另含 B 級道路；大不列顛 B 級道路未涵蓋
+gbMajorRoads,主要路網 Major Roads,GB,英國,交通,custom,verified,gb_major_roads,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國高速公路、A 級與 B 級道路（大不列顛高速與 A 級為 DfT 主要道路資料庫；北愛全部與大不列顛 B 級為 OpenStreetMap 2026-11-13）
 gbTrafficCountsAadf,年平均日交通量 Traffic Counts (AADF),GB,英國,交通,custom,verified,gb_traffic_counts_aadf,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,大不列顛 2025 年道路交通計數點的年平均日交通量（DfT AADF），依車輛數分 5 級，可只看當年實測或估算點；北愛未涵蓋
+gbBridgesTunnels,橋梁與隧道 Road Bridges & Tunnels（OSM）,GB,英國,交通,custom,verified,gb_bridges_tunnels,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國主要道路（高速、A 級、B 級）上的橋梁與隧道路段（OpenStreetMap 2026-11-13），線寬依道路等級
+gbRoadFacilities,道路設施 Road Facilities,GB,英國,交通,custom,verified,gb_road_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國高速公路服務區、休息區、收費站（OpenStreetMap）與英格蘭智慧高速公路緊急停車區（National Highways）
+gbPublicFacilities,公共設施 Public Facilities（OSM）,GB,英國,基礎建設,custom,verified,gb_public_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國郵局、公共廁所、市場與社區活動中心（OpenStreetMap 2026-11-13，志願者資料，完整度依地區而異）
+gbPlacesOfWorship,宗教場所 Places of Worship（OSM）,GB,英國,宗教,custom,verified,gb_places_of_worship,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國教堂、清真寺、猶太會堂、錫克廟、印度廟、佛寺等宗教場所（OpenStreetMap 2026-11-13，依 religion 分類；未標示者不推測）
 gbProtectedAreas,保護區 Protected Areas,GB,英國,環境氣候,custom,verified,gb_protected_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國自然保護與景觀指定：國家公園、AONB／NSA、SSSI／ASSI、NNR，以及 SAC、SPA、拉姆薩濕地
 gbMarineProtectedAreas,海洋保護區 Marine Protected Areas,GB,英國,海洋,custom,verified,gb_marine_protected_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國海洋保護區：英格蘭與北愛 MCZ、蘇格蘭自然保育 MPA 與 Fair Isle 示範研究 MPA
 gbWoodland,林地 Woodland,GB,英國,林業,custom,verified,gb_woodland_nfi,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國林地範圍與林型：大不列顛國家森林清冊 NFI 2025，北愛為 DAERA 優先棲地林地
@@ -1764,6 +1780,7 @@ mapchallengeDay08Plan1955,1955 中和鄉都市計畫圖 1955 Zhonghe Town Plan M
 mapchallengeDay09UrbanRural,人口變少時，哪些設施還留著 Which Services Stay Where People Are Few,SIM,模擬,30 天地圖挑戰,geojson,catalog_missing,,,,,,,yes,none,,display_only,,,upstream_catalog_missing,,,,30 天地圖挑戰 Day 9 城鄉：全台 368 鄉鎮依人口密度分五等份，比較 9 類設施每萬人分到幾處。公共服務（國小、派出所、郵局、衛生所）越偏遠每人分到越多：派出所每萬人從最稀疏組 5.37 到最密集組 0.34；市場服務（補習班、診所、藥局、銀行）跟著人走：補習班 0.8
 roadCongestion,省道路況 Provincial（v1）,TW,臺灣圖層,交通 Move,custom,verified,road_congestion,,ds_transportation_road,LINESTRING,2026-07-10,19 counties,yes,spatial,warehouse,warehouse,unknown,,,,,,省道 TDX live_highway 路況（5 分鐘槽，feature-state 染色）
 roadEvents,即時路況 Road Events,TW,臺灣圖層,交通 Move,custom,verified,road_event,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,TDX 即時路況事件（事故／施工／壅塞／活動／災害分色，混合幾何）
+pbsRoadEventsLive,警廣即時路況 PBS Road Reports,TW,臺灣圖層,交通 Move,custom,catalog_missing,,,,,,,yes,none,,display_only,,,upstream_catalog_missing,,,,站主限定。警廣即時路況（每分鐘重抓）：事故黃、其他灰，已排除變灰。
 parkingOnstreet,路邊停車 On-street,TW,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,,yes,none,,missing,,,override: snapshot_candidate: 停車 hybrid v1 路邊 RPC；台北為 POLYGON 幾何但『無即時空位』本身就是純靜態設施面，新北/台中為點位含即時空位率——可快照全部路邊停車格 geometry，僅排除即時空位率欄位。,,,snapshot_candidate: 停車 hybrid v1 路邊 RPC；台北為 POLYGON 幾何但『無即時空位』本身就是純靜態設施面，新北/台中為點位含即時空位率——可快照全部路邊停車格 geometry，僅排除即時空位率欄位。,路邊停車格（台北面／新北・台中點含空位率）
 parkingOffstreet,場外停車場 Off-street,TW,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,,yes,none,,missing,,,override: snapshot_candidate: 停車場外 RPC（市區／觀光／國道服務區三源）；停車場點位是穩定設施，可快照位置與類別，排除即時空位率。,,,snapshot_candidate: 停車場外 RPC（市區／觀光／國道服務區三源）；停車場點位是穩定設施，可快照位置與類別，排除即時空位率。,場外停車場點位（市區／觀光／國道服務區三源，含即時空位率）
 facPrimary,發電廠 主要・運轉中 Primary,TW,臺灣圖層,能源 Energy,supabase,verified,power_plants,,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,warehouse,google_geocode,,,,,,SSOT 運轉中發電廠（大廠與其他廠分別控大小，即時出力資料驅動）

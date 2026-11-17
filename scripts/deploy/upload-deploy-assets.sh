@@ -587,6 +587,16 @@ for f in \
   public/world/kr_bridges.pmtiles \
   public/world/kr_speed_cameras.pmtiles \
   public/world/kr_street_trees.pmtiles \
+  public/world/kr_animal_hospitals.pmtiles \
+  public/world/kr_local_culture_centers.pmtiles \
+  public/world/kr_traditional_temples.pmtiles \
+  public/world/kr_protected_trees.pmtiles \
+  public/world/kr_fishing_grounds.pmtiles \
+  public/world/kr_bicycle_parking.pmtiles \
+  public/world/kr_civil_defense_water.pmtiles \
+  public/world/kr_emergency_bells.pmtiles \
+  public/world/kr_rural_experience_villages.pmtiles \
+  public/world/kr_slaughterhouses.pmtiles \
   public/world/gb_rivers.pmtiles \
   public/world/gb_flood_defences.pmtiles \
   public/world/gb_protected_areas.pmtiles \
@@ -630,6 +640,11 @@ for f in \
   public/world/ie_planning_applications.pmtiles \
   public/world/ie_noise_maps_lden.pmtiles \
   public/world/ie_noise_maps_lnight.pmtiles \
+  public/world/gb_major_roads_v2.pmtiles \
+  public/world/gb_bridges_tunnels.pmtiles \
+  public/world/gb_road_facilities.pmtiles \
+  public/world/gb_public_facilities.pmtiles \
+  public/world/gb_places_of_worship.pmtiles \
   public/world/ph_admin_boundaries.pmtiles \
   public/world/ph_population.pmtiles \
   public/world/ph_transport_hubs_v2.pmtiles \

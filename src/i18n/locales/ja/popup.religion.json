@@ -17,5 +17,9 @@
   "popup.religion.denomination": "宗派",
   "popup.religion.religiousSite": "宗教スポット",
   "popup.religion.mapSymbolNote": "この地点は地図記号に由来し、公式の名称はありません。",
-  "popup.religion.openWikidata": "Wikidata を開く ↗"
+  "popup.religion.openWikidata": "Wikidata を開く ↗",
+  "popup.religion.gbPowReligion": "宗教",
+  "popup.religion.gbPowDenomination": "宗派",
+  "popup.religion.gbPowOsmReligion": "OSM religion の値",
+  "popup.religion.gbUnknownNote": "OSM で religion 未記載。推測しない"
 }
