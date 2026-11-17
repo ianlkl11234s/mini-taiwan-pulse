@@ -37,6 +37,9 @@ const PINNED = [
   "vnWdpca",
   // 即時 119 案件／警廣即時路況（站主 2026-11-16 決策 4 全部站主限定；gis-platform mig 555）
   "fire119Live", "pbsRoadEventsLive",
+  // 中國第 0–1 波 9 層（使用者 2026-11-10 決定站主限定；私人 owner-data 圖磚）
+  "cnAdminBoundaries", "cnPopulation", "cnPopulationGrid", "cnBusStops", "cnTransportHubs", "cnMajorRoads",
+  "cnPowerPlants", "cnPowerGrid", "cnPipelines",
 ].sort();
 
 describe("站主限定名單（manifest OWNER_ONLY ⇔ GATED_LAYERS）", () => {
