@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { Ship } from "../types";
 import { toMercator } from "../utils/coordinates";
+import { createGlobeProjector, type GlobeProjector } from "./globeProjector";
 import { interpolatePosition, getTrailUpToTime } from "../utils/interpolation";
 // 色票與分桶規則的單一出處（three-free，故 LegendPanel 也能吃 —— 見 shipTrails.ts 檔頭）
 import {
@@ -140,6 +141,11 @@ export class ShipScene {
   // 視口剔除用
   private viewBounds: { minLng: number; maxLng: number; minLat: number; maxLat: number } | null = null;
   private _dummy = new THREE.Matrix4();
+  private _proj = { x: 0, y: 0, z: 0 };
+
+  // 地球儀投影（zoom < 6）：null = 平面 mercator，維持原本 toMercator 路徑
+  private globe: GlobeProjector | null = null;
+  private lastGlobeKey: number[] | null = null;
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -277,6 +283,32 @@ export class ShipScene {
     this.viewBounds = bounds;
   }
 
+  /**
+   * Mapbox 地球儀投影參數（custom layer render 的 projection / projectionToMercatorMatrix /
+   * projectionToMercatorTransition + 相機 mercator 位置）。介面同 HistoricalFlightTrailsScene.setGlobe。
+   * globe 期間相機一動矩陣就變 → 觸發 rebuild；transition ≥ 1（平面）時不影響早退判斷。
+   */
+  setGlobe(globeToMercator: ArrayLike<number> | null | undefined, transition: number | undefined, cameraMercator: { x: number; y: number; z: number } | null) {
+    const active = !!globeToMercator && globeToMercator.length >= 16 && (transition ?? 1) < 1;
+    if (!active) {
+      if (this.globe) { this.globe = null; this.lastGlobeKey = null; this.forceRebuild = true; }
+      return;
+    }
+    const key = [...Array.from(globeToMercator).slice(0, 16), transition ?? 0, cameraMercator?.x ?? 0, cameraMercator?.y ?? 0, cameraMercator?.z ?? 0];
+    const prev = this.lastGlobeKey;
+    if (prev && this.globe && prev.every((v, i) => v === key[i])) return;
+    this.lastGlobeKey = key;
+    this.globe = createGlobeProjector(globeToMercator, transition, cameraMercator);
+    this.forceRebuild = true;
+  }
+
+  /** 平面 mercator 或 globe 過渡期位置；地球背面回傳 null。回傳物件為共用暫存，用完即丟。 */
+  private project(lat: number, lng: number): { x: number; y: number; z: number } | null {
+    const mc = toMercator(lat, lng, 0);
+    if (!this.globe) return mc;
+    return this.globe.project(lat, lng, mc, this._proj) ? this._proj : null;
+  }
+
   update(ships: Ship[], currentTime: number) {
     if (!this.instancedMesh || !this.trailGeo) return;
 
@@ -352,8 +384,10 @@ export class ShipScene {
         }
       }
 
-      // 主光球
-      const mc = toMercator(lat, lng, 0);
+      // 主光球（地球背面剔除）
+      const p = this.project(lat, lng);
+      if (!p) continue;
+      const mc = { x: p.x, y: p.y, z: p.z };
       const s = baseScale * breathFactor;
       dummy.makeScale(s, s, s);
       dummy.setPosition(mc.x, mc.y, mc.z);
@@ -388,8 +422,12 @@ export class ShipScene {
           const progressA = i / (trail.length - 1); // 0=oldest → 1=newest
           const progressB = (i + 1) / (trail.length - 1);
 
-          const mcA = toMercator(ptA[0], ptA[1], 0);
-          const mcB = toMercator(ptB[0], ptB[1], 0);
+          const pA = this.project(ptA[0], ptA[1]);
+          if (!pA) continue;
+          const ax = pA.x, ay = pA.y, az = pA.z;
+          const mcB = this.project(ptB[0], ptB[1]);
+          if (!mcB) continue;
+          const mcA = { x: ax, y: ay, z: az };
 
           // 頂點 A
           positions[vi * 3] = mcA.x;
