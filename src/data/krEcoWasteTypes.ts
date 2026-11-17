@@ -27,7 +27,6 @@ export const KR_ECO_MIN_ZOOM = 10;
 export const KR_ECO_SRC_MAXZOOM = 14;
 export const krEcoSourceId = (code: string) => `kr-eco-nature-${code}`;
 export const krEcoFillId = (code: string) => `kr-eco-nature-${code}-fill`;
-export const krEcoLineId = (code: string) => `kr-eco-nature-${code}-line`;
 /** 常駐空錨點（GeoJSON 空集合）：讓視野提示卡找得到可見起點；不畫任何東西。 */
 export const KR_ECO_ANCHOR_SOURCE = "kr-eco-nature-anchor";
 export const KR_ECO_ANCHOR_FILL = "kr-eco-nature-anchor-fill";
@@ -106,7 +105,7 @@ export const KR_WASTE_HATCH = "kr-waste-rules-uncovered-hatch";
 export const KR_WASTE_LINE = "kr-waste-rules-line";
 export const KR_WASTE_CLICK_LAYER_IDS: readonly string[] = [KR_WASTE_FILL, KR_WASTE_HATCH];
 export const KR_WASTE_COLOR = "#60a5fa";
-export const KR_WASTE_OPACITY = 0.45;
+export const KR_WASTE_OPACITY = 0.3;
 /** sgg 層 minzoom（kr_admin_boundaries：sgg z4–12）。 */
 export const KR_WASTE_MIN_ZOOM = 4;
 
@@ -148,6 +147,7 @@ export const KR_WASTE_TEXT = {
     "One colour only marks areas with data; not coloured by day or time (many areas have several zone rules)",
     "単色はデータの有無のみで、曜日・時間帯では塗り分けない（1 区域に複数の分区ルールがあることが多い）"),
   legendClick: l3("點選各區看依排出日分組的規則", "Click an area to see rules grouped by collection day", "区域をクリックすると排出日別のルールを表示"),
+  scope: l3("適用範圍", "Scope", "適用範囲"),
   placeType: l3("排出方式", "Collection method", "排出方式"),
   dept: l3("負責部門", "Department", "担当部署"),
   noCollection: l3("不收日", "No collection", "収集なし"),

@@ -136,7 +136,7 @@ export function KrWasteDisposalRulesPanel({ props }: { props: Record<string, unk
   const dates = rule.data_date ? (rule.data_date[0] === rule.data_date[1] ? rule.data_date[0] : `${rule.data_date[0]}～${rule.data_date[1]}`) : "";
   return <>
     <Title color={KR_WASTE_COLOR}>{name || rule.sgg_name}</Title>
-    {rule.scope === "city" ? <Row label={L(KR_WASTE_TEXT.title)} value={fill(L(KR_WASTE_TEXT.cityScope), { city: rule.applies_from ?? "" })} /> : null}
+    {rule.scope === "city" ? <Row label={L(KR_WASTE_TEXT.scope)} value={fill(L(KR_WASTE_TEXT.cityScope), { city: rule.applies_from ?? "" })} /> : null}
     <Row label={L(KR_WASTE_TEXT.placeType)} value={places} />
     <Row label={L(KR_WASTE_TEXT.dept)} value={(rule.dept ?? []).join("、")} />
     <Row label={L(KR_WASTE_TEXT.noCollection)} value={(rule.no_collection ?? []).join("；")} />

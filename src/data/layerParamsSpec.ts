@@ -2218,7 +2218,7 @@ export const LAYER_PARAMS_SPEC = {
   ]])),
   // 南韓 KRH-1：生態自然圖（拍板透明度 0.55）、垃圾排出規則（淡色面）
   krEcologyNaturalness: [opacitySlider("krEcologyNaturalnessOpacity", 0.55)],
-  krWasteDisposalRules: [opacitySlider("krWasteDisposalRulesOpacity", 0.45)],
+  krWasteDisposalRules: [opacitySlider("krWasteDisposalRulesOpacity", 0.3)],
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
     {

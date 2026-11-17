@@ -1,6 +1,7 @@
 // 南韓 Layer Host（2026-10-31 第 0 波起）。clone hosts/ukHosts.tsx 的 GbAdminHost 慣例。
 
 import { useKrAdminLayers } from "../../hooks/useKrAdminLayers";
+import { KR_ECO_OPACITY, KR_WASTE_OPACITY } from "../../data/krEcoWasteTypes";
 import { useKrEcologyNaturalnessLayer, useKrWasteDisposalRulesLayer } from "../../hooks/useKrEcoWasteLayers";
 import { krSourceSpec, useKrDataLayer } from "../../hooks/useKrDataLayers";
 import { useOwnerPmtilesSource, useOwnerRevokeCleanup } from "../../hooks/useOwnerPmtilesAccess";
@@ -201,7 +202,7 @@ export const KrSeoulZoningHost: LayerHostComponent = ({ deps }) => {
 export const KrEcologyNaturalnessHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrEcologyNaturalnessLayer");
   const p = useKeyOverlayParams("krEcologyNaturalness");
-  useKrEcologyNaturalnessLayer(deps.mapRef, deps.layerVisibility.krEcologyNaturalness, p.krEcologyNaturalnessOpacity ?? 0.55, deps.isDarkTheme);
+  useKrEcologyNaturalnessLayer(deps.mapRef, deps.layerVisibility.krEcologyNaturalness, p.krEcologyNaturalnessOpacity ?? KR_ECO_OPACITY, deps.isDarkTheme);
   return null;
 };
 
@@ -209,6 +210,6 @@ export const KrEcologyNaturalnessHost: LayerHostComponent = ({ deps }) => {
 export const KrWasteDisposalRulesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrWasteDisposalRulesLayer");
   const p = useKeyOverlayParams("krWasteDisposalRules");
-  useKrWasteDisposalRulesLayer(deps.mapRef, deps.layerVisibility.krWasteDisposalRules, p.krWasteDisposalRulesOpacity ?? 0.45, deps.isDarkTheme);
+  useKrWasteDisposalRulesLayer(deps.mapRef, deps.layerVisibility.krWasteDisposalRules, p.krWasteDisposalRulesOpacity ?? KR_WASTE_OPACITY, deps.isDarkTheme);
   return null;
 };

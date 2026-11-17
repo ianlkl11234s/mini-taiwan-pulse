@@ -10,7 +10,7 @@ import type { LayerBuild } from "./useGbWaterLayers";
  * 「一層多檔」：同一個圖層的資料依地區分成多個 PMTiles（分片），只掛視窗看得到的那幾個。
  * 第一個使用者是南韓生態自然圖（依 시·도 17 檔，合計 1.7 GB，2026-11-17 KRH-1）。
  *
- * - 縮放 ≥ `minzoom` 且分片 bbox 與視窗（外擴半個視窗，減少平移時反覆拆裝）相交才掛 source＋layer；
+ * - 縮放 ≥ `minzoom` 且分片 bbox 與視窗（外擴 0.2 個視窗，減少平移時反覆拆裝）相交才掛 source＋layer；
  *   離開就把 layer 與 source 一起移除（只隱藏的話已載入的 tile 仍佔記憶體）。
  * - 低於 `minzoom` 不掛任何分片。另掛一個常駐的空 GeoJSON 錨點 layer（`anchor`，minzoom＝`minzoom`），
  *   讓視野提示卡（spec §5.42.1）找得到可見起點並提示「放大到 zN」。
@@ -55,7 +55,7 @@ export function padBounds(b: Bounds, pad: number): Bounds {
 }
 
 /** 該掛哪些分片：縮放不到回空陣列；否則回 bbox 與（外擴後）視窗相交者。純函式，單元測試直接打。 */
-export function shardsInView(shards: readonly PmtilesShard[], zoom: number, view: Bounds, minzoom: number, pad = 0.5): PmtilesShard[] {
+export function shardsInView(shards: readonly PmtilesShard[], zoom: number, view: Bounds, minzoom: number, pad = 0.2): PmtilesShard[] {
   if (zoom < minzoom) return [];
   const v = padBounds(view, pad);
   return shards.filter((s) => v[0] <= s.bbox[2] && v[2] >= s.bbox[0] && v[1] <= s.bbox[3] && v[3] >= s.bbox[1]);

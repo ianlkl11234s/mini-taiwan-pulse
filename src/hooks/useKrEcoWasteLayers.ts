@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hatchImageData, hatchImageId, mapSeamColor } from "../map/mapStyleScale";
-import { hookLinePaint } from "../map/lineFillSpec";
 import { loadKrEcoIndex, loadKrWasteRules } from "../data/krEcoWasteLoader";
 import {
   KR_ECO_ANCHOR_FILL, KR_ECO_ANCHOR_SOURCE, KR_ECO_ATTRIBUTION, KR_ECO_CODES, KR_ECO_GRADES, KR_ECO_MIN_ZOOM, KR_ECO_SRC_MAXZOOM, KR_ECO_TEXT,
   KR_ECO_UNKNOWN_COLOR, KR_WASTE_ADMIN_FILE, KR_WASTE_ADMIN_SOURCE, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_FILL, KR_WASTE_HATCH,
-  KR_WASTE_LINE, KR_WASTE_MIN_ZOOM, KR_WASTE_TEXT, krEcoFillId, krEcoLineId, krEcoSourceId, KR_ECO_SOURCE_LAYER, type KrEcoIndexFile,
+  KR_WASTE_LINE, KR_WASTE_MIN_ZOOM, KR_WASTE_TEXT, krEcoFillId, krEcoSourceId, KR_ECO_SOURCE_LAYER, type KrEcoIndexFile,
 } from "../data/krEcoWasteTypes";
 import { useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
 import { useViewportPmtilesShards, type PmtilesShard } from "./useViewportPmtilesShards";
@@ -24,7 +23,7 @@ export function krEcoColorExpr(): Expr {
 
 /**
  * C117 南韓生態自然圖：17 個 시·도 PMTiles 依視窗載入（`useViewportPmtilesShards`），z10 起顯示。
- * 面之間 1 px 底圖色細縫（fill-outline-color），透明度＝滑桿（預設 0.55）。空白＝未評價，不畫任何顏色。
+ * 透明度＝滑桿（預設 0.55）。空白＝未評價，不畫任何顏色。
  */
 export function useKrEcologyNaturalnessLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, isDark: boolean) {
   const [index, setIndex] = useState<KrEcoIndexFile[] | null>(null);
@@ -43,22 +42,15 @@ export function useKrEcologyNaturalnessLayer(mapRef: React.RefObject<MapboxMap |
     anchor: { sourceId: KR_ECO_ANCHOR_SOURCE, layerId: KR_ECO_ANCHOR_FILL },
     build: (s, sourceId): LayerBuild[] => {
       const id = krEcoFillId(s.id);
-      const lineId = krEcoLineId(s.id);
       const op = clamp01(opacity);
       const base = { source: sourceId, "source-layer": KR_ECO_SOURCE_LAYER, minzoom: KR_ECO_MIN_ZOOM };
-      // 面之間 1 px 底圖色細縫（F-2：獨立 line 子圖層，不用 fill-outline-color）
-      const seam = hookLinePaint("krEcologyNaturalness", lineId, { "line-color": mapSeamColor(isDark), "line-width": 1, "line-opacity": Math.min(1, op + 0.25) },
-        { "line-color": mapSeamColor(isDark), "line-width": 1, "line-opacity": 0.8 }, isDark);
+      // 半透明面開抗鋸齒會在圖磚邊界疊出直線（2026-11-17 濟州實測）→ 關 antialias（比照 gbSoilParentMaterial）；
+      // 也不畫面外框細縫：line 會沿被裁切的圖磚邊畫出直線
       return [
         {
           id,
-          layer: () => ({ id, type: "fill", ...base, layout: { visibility: "none" }, paint: { "fill-color": krEcoColorExpr(), "fill-opacity": op } } as unknown as AnyLayer),
+          layer: () => ({ id, type: "fill", ...base, layout: { visibility: "none" }, paint: { "fill-color": krEcoColorExpr(), "fill-opacity": op, "fill-antialias": false } } as unknown as AnyLayer),
           update: (map) => { map.setPaintProperty(id, "fill-opacity", op); },
-        },
-        {
-          id: lineId,
-          layer: () => ({ id: lineId, type: "line", ...base, layout: { visibility: "none" }, paint: seam } as unknown as AnyLayer),
-          update: (map) => { for (const [k, v] of Object.entries(seam)) map.setPaintProperty(lineId, k as any, v as any); },
         },
       ];
     },
