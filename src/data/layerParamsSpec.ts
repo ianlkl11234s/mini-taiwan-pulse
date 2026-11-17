@@ -2276,6 +2276,7 @@ export const LAYER_PARAMS_SPEC = {
     const pointOnly = spec.parts.every((p) => p.geom === "point");
     return [spec.key, [
       categoryMultiSelect(spec.key, phCatOptions(spec), spec.catDefault ? serializeMultiSelectValues([...spec.catDefault]) : undefined),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
       opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
       ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
     ]];

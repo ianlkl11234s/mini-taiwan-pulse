@@ -1168,7 +1168,7 @@ const CA_WAVE_MANIFEST_ENTRIES = Object.fromEntries(CA_WAVE_SPECS.map((spec) => 
   const m = CA_WAVE_ENTRY_META[spec.key];
   const hasPoint = spec.parts.some((x) => x.geom === "point");
   const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
-  const kinds = ["multiSelect", "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "slider")[];
+  const kinds = ["multiSelect", ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
   return [spec.key, {
     key: spec.key,
     country: "CA", section: { theme: m.theme, group: m.group },

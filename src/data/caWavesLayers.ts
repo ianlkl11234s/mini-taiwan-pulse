@@ -381,7 +381,7 @@ const W4: CaWaveSpec[] = [
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("森林經營型態", "forest management"),
   },
   {
-    key: "caBridgesTunnels", file: "ca_bridges_tunnels.pmtiles", sourceId: "ca-bridges-tunnels", srcMinzoom: 4, srcMaxzoom: 12, color: "#f59e0b", count: 99209, heat: { intensity: 0.6 },
+    key: "caBridgesTunnels", file: "ca_bridges_tunnels.pmtiles", sourceId: "ca-bridges-tunnels", srcMinzoom: 4, srcMaxzoom: 12, color: "#f59e0b", count: 99209,
     parts: [pt("ca-bridges-tunnels-circle", "ca_bridges_tunnels", 4, propGetter("kind"), { small: true })],
     cats: BRIDGE_CATS,
     title: { props: ["name"], fallback: l3("橋梁或隧道", "Bridge or tunnel", "橋・トンネル"), fallbackBy: { prop: "kind", map: catMap(BRIDGE_CATS) } },
@@ -504,7 +504,7 @@ const W56: CaWaveSpec[] = [
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("醫療設施", "healthcare facilities"),
   },
   {
-    key: "caLodeSchools", file: "ca_lode_schools.pmtiles", sourceId: "ca-lode-schools", srcMinzoom: 3, srcMaxzoom: 12, color: "#38bdf8", count: 17161, heat: { intensity: 0.6 },
+    key: "caLodeSchools", file: "ca_lode_schools.pmtiles", sourceId: "ca-lode-schools", srcMinzoom: 3, srcMaxzoom: 12, color: "#38bdf8", count: 17161,
     parts: [pt("ca-lode-schools-circle", "ca_lode_schools", 3, propGetter("level"), { hollow: LODE_HOLLOW })],
     cats: SCHOOL_LEVEL_CATS, otherColor: "#9ca3af", otherLabel: l3("學制未標", "Level not stated", "段階不明"),
     title: { props: ["name"], fallback: l3("學校", "School", "学校") },
@@ -516,7 +516,7 @@ const W56: CaWaveSpec[] = [
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("學校", "schools"),
   },
   {
-    key: "caLodeSports", file: "ca_lode_sports.pmtiles", sourceId: "ca-lode-sports", srcMinzoom: 3, srcMaxzoom: 12, color: "#22c55e", count: 181849, heat: { intensity: 0.6 },
+    key: "caLodeSports", file: "ca_lode_sports.pmtiles", sourceId: "ca-lode-sports", srcMinzoom: 3, srcMaxzoom: 12, color: "#22c55e", count: 181849,
     catDefault: ["park", "field", "playground", "aquatic", "indoor", "misc"],
     parts: [pt("ca-lode-sports-circle", "ca_lode_sports", 3, propGetter("facility_type"), { hollow: LODE_HOLLOW, small: true })],
     cats: SPORT_CATS,
@@ -566,7 +566,7 @@ const W56: CaWaveSpec[] = [
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("邊境服務署據點", "CBSA offices"),
   },
   {
-    key: "caParksCanadaAccommodation", file: "ca_parks_canada_accommodation.pmtiles", sourceId: "ca-parks-canada-accommodation", srcMinzoom: 4, srcMaxzoom: 13, color: "#22c55e", count: 11741, heat: { intensity: 0.6 },
+    key: "caParksCanadaAccommodation", file: "ca_parks_canada_accommodation.pmtiles", sourceId: "ca-parks-canada-accommodation", srcMinzoom: 4, srcMaxzoom: 13, color: "#22c55e", count: 11741,
     parts: [pt("ca-parks-canada-accommodation-circle", "ca_parks_canada_accommodation", 4, propGetter("kind"), { small: true })],
     cats: PARKS_ACC_CATS, otherColor: "#9ca3af", otherLabel: l3("類型未標", "Type not stated", "種別不明"),
     title: { props: ["name"], fallback: l3("國家公園營位", "Parks Canada site", "国立公園のサイト"), fallbackBy: { prop: "kind", map: catMap(PARKS_ACC_CATS) } },
@@ -588,7 +588,7 @@ const W56: CaWaveSpec[] = [
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("法院與矯正設施", "courts and corrections"),
   },
   {
-    key: "caTorontoTheftFromVehicle", file: "ca_toronto_theft_from_vehicle.pmtiles", sourceId: "ca-toronto-theft-from-vehicle", srcMinzoom: 9, srcMaxzoom: 14, color: "#f59e0b", count: 107088, heat: { intensity: 0.6 },
+    key: "caTorontoTheftFromVehicle", file: "ca_toronto_theft_from_vehicle.pmtiles", sourceId: "ca-toronto-theft-from-vehicle", srcMinzoom: 9, srcMaxzoom: 14, color: "#f59e0b", count: 107088,
     parts: [pt("ca-toronto-theft-from-vehicle-circle", "ca_toronto_theft_from_vehicle", 9, propGetter("offence"), { small: true })],
     cats: THEFT_CATS,
     title: { props: [], fallback: l3("車內竊盜", "Theft from vehicle", "車上荒らし"), fallbackBy: { prop: "offence", map: catMap(THEFT_CATS) } },
@@ -600,7 +600,7 @@ const W56: CaWaveSpec[] = [
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("多倫多車內竊盜", "Toronto theft from vehicle"),
   },
   {
-    key: "caWildfirePoints", file: "ca_wildfire_points.pmtiles", sourceId: "ca-wildfire-points", srcMinzoom: 3, srcMaxzoom: 11, color: "#f97316", count: 15204, heat: { intensity: 0.6 },
+    key: "caWildfirePoints", file: "ca_wildfire_points.pmtiles", sourceId: "ca-wildfire-points", srcMinzoom: 3, srcMaxzoom: 11, color: "#f97316", count: 15204,
     parts: [pt("ca-wildfire-points-circle", "ca_wildfire_points", 3, WILDFIRE_DECADE, { small: true })],
     cats: WILDFIRE_CATS,
     title: { props: [], fallback: l3("野火點", "Wildfire point", "林野火災地点") },
@@ -766,7 +766,7 @@ const W78: CaWaveSpec[] = [
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("屠宰場", "abattoirs"),
   },
   {
-    key: "caOdbus", file: "ca_odbus.pmtiles", sourceId: "ca-odbus", srcMinzoom: 6, srcMaxzoom: 13, color: "#a78bfa", count: 312097, heat: { intensity: 0.6 },
+    key: "caOdbus", file: "ca_odbus.pmtiles", sourceId: "ca-odbus", srcMinzoom: 6, srcMaxzoom: 13, color: "#a78bfa", count: 312097,
     parts: [pt("ca-odbus-circle", "ca_odbus", 6, propGetter("naics"), { small: true })],
     cats: NAICS,
     title: { props: ["naics_descr"], fallback: l3("營業登記", "Business licence", "営業登録"), fallbackBy: { prop: "naics", map: catMap(NAICS) } },
