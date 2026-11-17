@@ -45,6 +45,9 @@ import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
 import type { VnDataKey } from "./vnDataKeys";
 import { VN_RASTER_META, VN_WAVE_ENTRY_META } from "./vnWavesMeta";
+import { CA_WAVE_SPECS } from "./caWavesLayers";
+import { CA_WAVE_ENTRY_META } from "./caWavesMeta";
+import type { CaWaveKey } from "./caWavesKeys";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_DATA_SPECS, CN_OWNER_ASSETS, CN_RASTER_SPECS } from "./cnDataLayers";
 import type { CnDataKey, CnRasterKey } from "./cnDataKeys";
@@ -1160,6 +1163,30 @@ const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec)
   }];
 })) as Record<(typeof VN_RASTER_SPECS)[number]["key"], LayerManifestEntry>;
 
+/** 加拿大第 3–8 波（2026-11-17）規格驅動 36 層（規格 SSOT 在 caWavesLayers.ts、中介資料在 caWavesMeta.ts；畫法重用 usePhDataLayer）。 */
+const CA_WAVE_MANIFEST_ENTRIES = Object.fromEntries(CA_WAVE_SPECS.map((spec) => {
+  const m = CA_WAVE_ENTRY_META[spec.key];
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
+  const kinds = ["multiSelect", ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "CA", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer（加拿大規格）自建 mapbox-pmtiles source；source-layer=${layers}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<CaWaveKey, LayerManifestEntry>;
+
 /**
  * 中國第 0–1 波（2026-11-13）：9 層全部站主限定（使用者 2026-11-10；topics OWNER_ONLY，gis-platform public.gated_layers 同名單）。
  * 圖磚只在私人 owner-data（同源 `/api/private-research/owner-data/<asset>`），不進公開 CDN；pulse-data 標 DISPLAY_ONLY、不入倉。
@@ -1268,6 +1295,7 @@ export const LAYER_MANIFEST = {
   ...PH_RASTER_MANIFEST_ENTRIES,
   ...VN_DATA_MANIFEST_ENTRIES,
   ...VN_RASTER_MANIFEST_ENTRIES,
+  ...CA_WAVE_MANIFEST_ENTRIES,
   ...CN_DATA_MANIFEST_ENTRIES,
   ...CN_RASTER_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
