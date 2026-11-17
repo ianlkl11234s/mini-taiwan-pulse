@@ -41,9 +41,13 @@ function shipTypeColor(vesselType: number, isDark: boolean): THREE.Color {
 // 只對 AIS 船種碼 30（漁船）畫；疏浚 33、遊艇／帆船 36 雖同桶但不畫。
 // 外圈大而淡、內核小而亮；強度＝船位的太陽高度（solarElevation.nightLightIntensity）。
 const FISHING_VESSEL_TYPE = 30;
-/** 外圈半徑：取「光點 × 倍率」與「視口寬 × 比例」較大者 → 拉遠時仍有固定螢幕大小的光暈 */
+/**
+ * 外圈半徑＝「光點 × 倍率」夾在「視口寬 × 下限比例」與「視口寬 × 上限比例」之間：
+ * 拉遠時仍有固定螢幕大小的光暈，拉近時不會無限放大（1400px 寬約 7–35px）。
+ */
 const FISHING_GLOW_OUTER_ORB_MUL = 8;
 const FISHING_GLOW_OUTER_VIEW_FRAC = 0.005;
+const FISHING_GLOW_OUTER_VIEW_FRAC_MAX = 0.025;
 const FISHING_GLOW_CORE_RATIO = 0.3;
 /** 透明度（暗底 additive）；淡底改 normal blending 並乘 FISHING_GLOW_LIGHT_MUL，避免洗白 */
 const FISHING_GLOW_OUTER_OPACITY = 0.35;
@@ -315,10 +319,11 @@ export class ShipScene {
     const glowCore = this.fishingLights ? this.glowCore : null;
     const sun = glowOuter ? solarFrame(currentTime) : null;
     let glowCount = 0;
-    const outerR = Math.max(
-      baseScale * FISHING_GLOW_OUTER_ORB_MUL,
-      bounds ? ((bounds.maxLng - bounds.minLng) / 360) * FISHING_GLOW_OUTER_VIEW_FRAC : 0,
-    );
+    const viewSpan = bounds ? (bounds.maxLng - bounds.minLng) / 360 : 0;
+    const orbR = baseScale * FISHING_GLOW_OUTER_ORB_MUL;
+    const outerR = viewSpan > 0
+      ? Math.min(Math.max(orbR, viewSpan * FISHING_GLOW_OUTER_VIEW_FRAC), viewSpan * FISHING_GLOW_OUTER_VIEW_FRAC_MAX)
+      : orbR;
     const coreR = outerR * FISHING_GLOW_CORE_RATIO;
     const outerIntensity = glowOuter ? (glowOuter.geometry.getAttribute("aIntensity") as THREE.InstancedBufferAttribute) : null;
     const coreIntensity = glowCore ? (glowCore.geometry.getAttribute("aIntensity") as THREE.InstancedBufferAttribute) : null;
