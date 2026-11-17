@@ -141,40 +141,40 @@ vnFuelStations,加油站 Fuel Stations,VN,越南,能源,custom,verified,vn_fuel_
 vnOilGas,油氣設施 Oil & Gas Facilities,VN,越南,能源,custom,verified,vn_oil_gas,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 LNG 接收站 33、煤炭碼頭 5、油氣管線 12（GEM，含提案與取消）＋煉油廠 2、儲槽 75、天然氣管線 65（OSM）
 vnEnvisoftStations,環境自動監測站位置 Environmental Monitoring Stations,VN,越南,環境氣候,custom,verified,vn_envisoft_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南環境自動監測站 2,176 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）"
 vnAngiangDemo,安江工業群與避洪居民點 An Giang Industrial Clusters & Flood Resettlement,VN,越南,工商登記,custom,verified,vn_angiang_demo,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南安江省工業群 13 處（面）＋避洪居民點 59 處（只涵蓋安江省，原堅江範圍）
-vnTourAttractions,景點與世界遺產 Attractions & World Heritage,VN,越南,觀光,custom,verified,vn_tourist_attractions,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南景點 2,885 處（UNESCO 世界遺產 9 處、國家公園與保護區、古蹟寺廟、博物館、觀景點；低縮放只顯示重要條目）"
-vnTourNature,"海灘、島嶼、瀑布與洞穴 Beaches, Islands, Waterfalls & Caves",VN,越南,觀光,custom,verified,vn_nature_spots,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南自然景點 1,967 處（海灘 649、小島 402、瀑布 333、島 271、洞穴 256 等）"
-vnTourServices,住宿與觀光服務 Lodging & Tourism Services,VN,越南,觀光,custom,verified,vn_tourism_services,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南住宿、度假村、樂園動物園、露營地與遊客中心 8,490 處（OSM；餐飲不在本層）"
-vnNationalTouristAreas,國家級旅遊區 National Tourist Areas,VN,越南,觀光,custom,verified,vn_national_tourist_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南國家級旅遊區 63 處（已認證 9、規劃潛力 54 空心；清單 70 處中 7 處未定位）
-vnPlaceNames,地名 Place Names,VN,越南,底圖,custom,verified,vn_place_names,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南地名 22,509 筆（城市、市鎮、城區、村、小聚落等；依等級逐級出現，名稱在彈窗）"
-vnBicycleRental,自行車租借 Bicycle Rental,VN,越南,交通,custom,verified,vn_bicycle_rental,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南自行車租借點 177 處（OSM；17/34 省有資料）
-vnBridges,橋梁 Bridges,VN,越南,交通,custom,verified,vn_bridges,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南橋梁 138,439 段（主要道路、一般道路、步道、鐵路四色；OSM bridge=*）"
-vnParking,停車場 Car Parks,VN,越南,交通,custom,verified,vn_parking,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南停車場 3,149 處（汽車、機車兩色；74% 沒標停車型態）"
-vnGlideEvents,重大災害事件（GLIDE） Disaster Events (GLIDE),VN,越南,災害,custom,verified,vn_glide_events,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南 GLIDE 災害事件 181 筆（洪水、颱風、山洪、崩塌、乾旱、疫情等；省級代表點，不是受災範圍）
-vnDams,壩與水庫 Dams & Reservoirs,VN,越南,水資源,custom,verified,vn_dams,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,Global Dam Watch 越南壩 558 座＋水庫面 491 個（九成壩沒標用途）
-vnRivers,河川 Rivers,VN,越南,水資源,custom,verified,vn_rivers,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南河川 2,013 段（依河川級序 1–6 分粗細）"
-vnWaterSupply,自來水設施 Water Supply Facilities,VN,越南,水資源,custom,verified,vn_water_supply,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南淨水場、抽水站、水塔與配水池 241 處（OSM；25/34 省有資料）
-vnWaterStructures,"堰、閘門與水門 Weirs, Locks & Sluices",VN,越南,水資源,custom,verified,vn_water_structures,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南壩、堰、船閘與水門 1,529 處（OSM；線與面取代表點）"
-vnRiverbankErosion,河岸與海岸侵蝕點 Riverbank & Coastal Erosion Points,VN,越南,災害,custom,verified,vn_riverbank_erosion,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南河岸與海岸侵蝕點 190 處（依警戒等級分色；約 2016–2020 舊資料）
-vnSchools,學校 Schools,VN,越南,教育,custom,verified,vn_schools,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南學校 9,879 處（中小學、學院專科、大學三色；OSM）"
-vnSchoolCampuses,校地範圍 School Campuses,VN,越南,教育,custom,verified,vn_school_campuses,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南校地面 9,695 個（中小學、幼兒園、學院、大學；z11 起顯示）"
-vnKindergartens,幼兒園與托育 Kindergartens & Childcare,VN,越南,教育,custom,verified,vn_kindergartens,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南幼兒園與托育 1,729 處（OSM；33/34 省有資料）"
-vnHealthFacilities,醫療院所 Health Facilities,VN,越南,醫療,custom,verified,vn_health_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南醫院、診所、藥局與牙科 6,117 處（OSM；官方醫院名冊未公開）"
-vnPolice,警察據點 Police,VN,越南,執法治安,custom,verified,vn_police,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南警察據點 1,135 處（OSM；33/34 省有資料）"
-vnCourtsPrisons,法院與監所 Courts & Prisons,VN,越南,執法治安,custom,verified,vn_courts_prisons,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南法院與監所 289 處（OSM；31/34 省有資料）
-vnPostalServices,"郵局、市場與便民據點 Post Offices, Markets & Services",VN,越南,基礎建設,custom,verified,vn_postal_services,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南郵局、便利商店、市場、超市、購物中心與廳舍 12,081 處（OSM）"
-vnPublicAmenities,"公廁、飲水與回收點 Toilets, Drinking Water & Recycling",VN,越南,基礎建設,custom,verified,vn_public_amenities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南公廁、飲水機、垃圾收集與回收點 1,316 處（OSM；33/34 省有資料）"
-vnFinancialServices,銀行與 ATM Banks & ATMs,VN,越南,基礎建設,custom,verified,vn_financial_services,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南銀行、ATM 與外幣兌換 5,962 處（OSM）"
-vnPlacesOfWorship,宗教場所 Places of Worship,VN,越南,宗教,custom,verified,vn_places_of_worship,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南宗教場所 7,449 處（佛教、基督宗教、高台教、民間信仰等；1,884 處未標宗教）"
-vnParks,"公園、庭園與遊戲場 Parks, Gardens & Playgrounds",VN,越南,運動休閒,custom,verified,vn_parks,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南公園、庭園與遊戲場面 5,669 個＋只有點的 392 處（OSM）"
-vnProtectedAreasOdm,"保護區（ODM，非商用） Protected Areas (ODM, non-commercial)",VN,越南,自然保育,custom,verified,vn_protected_areas_odm,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南保護區 171 區（國家公園、自然保護區、物種與棲地、景觀保護區、濕地、特用林；上游 WDPA 2016）
-vnAngiangAquaculture,安江養殖用地 An Giang Aquaculture Land,VN,越南,農業,custom,verified,vn_angiang_aquaculture,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南安江省養殖用地分區 9,504 面（稻蝦、稻魚、專業養蝦、海上養殖等；只涵蓋安江省）"
-vnFieldBoundaries,農田邊界樣本（AI 判讀） Field Boundary Samples (AI-detected),VN,越南,農業,custom,verified,vn_field_boundaries,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南農田邊界 120,913 塊（Fields of The World 30 個樣本圖磚，約 5×5 km；不是全國）"
-vnSoil,土壤類型 Soil Types,VN,越南,農業,custom,verified,vn_soil,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南土壤類型 230 面（FAO 九大類；小比例尺參考圖）
-vnFarmTracks,農林道 Farm & Forest Tracks,VN,越南,農業,custom,verified,vn_farm_tracks,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南農林道 145,862 段（highway=track，依 tracktype 1–5 級分色；96% 未標等級）"
-vnCoalMines,煤礦 Coal Mines,VN,越南,能源,custom,verified,vn_coal_mines,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南煤礦 32 處（Global Energy Monitor；運轉中、提案、封存、取消；6/34 省）
-vnTerrainHillshade,山體陰影 Hillshade,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）
-vnTerrainRelief,色別標高 Elevation Tint,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"越南色別標高（0–3,147 m 九段色帶，≤0 m 透明）"
-vnLandslideSusceptibility,崩塌潛勢（區域模型圖） Landslide Susceptibility (regional model),VN,越南,災害,custom,verified,vn_landslide_susceptibility,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,越南崩塌潛勢（低、中、高三級；極低不畫；區域模型圖，只有圖、不能分析）
+vnTourAttractions,景點與世界遺產 Attractions & World Heritage,VN,越南,觀光,custom,verified,vn_tourist_attractions,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南景點 2,885 處（UNESCO 世界遺產 9 處、國家公園與保護區、古蹟寺廟、博物館、觀景點；低縮放只顯示重要條目）"
+vnTourNature,"海灘、島嶼、瀑布與洞穴 Beaches, Islands, Waterfalls & Caves",VN,越南,觀光,custom,verified,vn_nature_spots,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南自然景點 1,967 處（海灘 649、小島 402、瀑布 333、島 271、洞穴 256 等）"
+vnTourServices,住宿與觀光服務 Lodging & Tourism Services,VN,越南,觀光,custom,verified,vn_tourism_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南住宿、度假村、樂園動物園、露營地與遊客中心 8,490 處（OSM；餐飲不在本層）"
+vnNationalTouristAreas,國家級旅遊區 National Tourist Areas,VN,越南,觀光,custom,verified,vn_national_tourist_areas,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南國家級旅遊區 63 處（已認證 9、規劃潛力 54 空心；清單 70 處中 7 處未定位）
+vnPlaceNames,地名 Place Names,VN,越南,底圖,custom,verified,vn_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南地名 22,509 筆（城市、市鎮、城區、村、小聚落等；依等級逐級出現，名稱在彈窗）"
+vnBicycleRental,自行車租借 Bicycle Rental,VN,越南,交通,custom,verified,vn_bicycle_rental,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南自行車租借點 177 處（OSM；17/34 省有資料）
+vnBridges,橋梁 Bridges,VN,越南,交通,custom,verified,vn_bridges,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南橋梁 138,439 段（主要道路、一般道路、步道、鐵路四色；OSM bridge=*）"
+vnParking,停車場 Car Parks,VN,越南,交通,custom,verified,vn_parking,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南停車場 3,149 處（汽車、機車兩色；74% 沒標停車型態）"
+vnGlideEvents,重大災害事件（GLIDE） Disaster Events (GLIDE),VN,越南,災害,custom,verified,vn_glide_events,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 GLIDE 災害事件 181 筆（洪水、颱風、山洪、崩塌、乾旱、疫情等；省級代表點，不是受災範圍）
+vnDams,壩與水庫 Dams & Reservoirs,VN,越南,水資源,custom,verified,vn_dams,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,Global Dam Watch 越南壩 558 座＋水庫面 491 個（九成壩沒標用途）
+vnRivers,河川 Rivers,VN,越南,水資源,custom,verified,vn_rivers,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南河川 2,013 段（依河川級序 1–6 分粗細）"
+vnWaterSupply,自來水設施 Water Supply Facilities,VN,越南,水資源,custom,verified,vn_water_supply,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南淨水場、抽水站、水塔與配水池 241 處（OSM；25/34 省有資料）
+vnWaterStructures,"堰、閘門與水門 Weirs, Locks & Sluices",VN,越南,水資源,custom,verified,vn_water_structures,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南壩、堰、船閘與水門 1,529 處（OSM；線與面取代表點）"
+vnRiverbankErosion,河岸與海岸侵蝕點 Riverbank & Coastal Erosion Points,VN,越南,災害,custom,verified,vn_riverbank_erosion,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南河岸與海岸侵蝕點 190 處（依警戒等級分色；約 2016–2020 舊資料）
+vnSchools,學校 Schools,VN,越南,教育,custom,verified,vn_schools,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南學校 9,879 處（中小學、學院專科、大學三色；OSM）"
+vnSchoolCampuses,校地範圍 School Campuses,VN,越南,教育,custom,verified,vn_school_campuses,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南校地面 9,695 個（中小學、幼兒園、學院、大學；z11 起顯示）"
+vnKindergartens,幼兒園與托育 Kindergartens & Childcare,VN,越南,教育,custom,verified,vn_kindergartens,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南幼兒園與托育 1,729 處（OSM；33/34 省有資料）"
+vnHealthFacilities,醫療院所 Health Facilities,VN,越南,醫療,custom,verified,vn_health_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南醫院、診所、藥局與牙科 6,117 處（OSM；官方醫院名冊未公開）"
+vnPolice,警察據點 Police,VN,越南,執法治安,custom,verified,vn_police,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南警察據點 1,135 處（OSM；33/34 省有資料）"
+vnCourtsPrisons,法院與監所 Courts & Prisons,VN,越南,執法治安,custom,verified,vn_courts_prisons,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南法院與監所 289 處（OSM；31/34 省有資料）
+vnPostalServices,"郵局、市場與便民據點 Post Offices, Markets & Services",VN,越南,基礎建設,custom,verified,vn_postal_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南郵局、便利商店、市場、超市、購物中心與廳舍 12,081 處（OSM）"
+vnPublicAmenities,"公廁、飲水與回收點 Toilets, Drinking Water & Recycling",VN,越南,基礎建設,custom,verified,vn_public_amenities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南公廁、飲水機、垃圾收集與回收點 1,316 處（OSM；33/34 省有資料）"
+vnFinancialServices,銀行與 ATM Banks & ATMs,VN,越南,基礎建設,custom,verified,vn_financial_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南銀行、ATM 與外幣兌換 5,962 處（OSM）"
+vnPlacesOfWorship,宗教場所 Places of Worship,VN,越南,宗教,custom,verified,vn_places_of_worship,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南宗教場所 7,449 處（佛教、基督宗教、高台教、民間信仰等；1,884 處未標宗教）"
+vnParks,"公園、庭園與遊戲場 Parks, Gardens & Playgrounds",VN,越南,運動休閒,custom,verified,vn_parks,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南公園、庭園與遊戲場面 5,669 個＋只有點的 392 處（OSM）"
+vnProtectedAreasOdm,"保護區（ODM，非商用） Protected Areas (ODM, non-commercial)",VN,越南,自然保育,custom,verified,vn_protected_areas_odm,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南保護區 171 區（國家公園、自然保護區、物種與棲地、景觀保護區、濕地、特用林；上游 WDPA 2016）
+vnAngiangAquaculture,安江養殖用地 An Giang Aquaculture Land,VN,越南,農業,custom,verified,vn_angiang_aquaculture,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南安江省養殖用地分區 9,504 面（稻蝦、稻魚、專業養蝦、海上養殖等；只涵蓋安江省）"
+vnFieldBoundaries,農田邊界樣本（AI 判讀） Field Boundary Samples (AI-detected),VN,越南,農業,custom,verified,vn_field_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南農田邊界 120,913 塊（Fields of The World 30 個樣本圖磚，約 5×5 km；不是全國）"
+vnSoil,土壤類型 Soil Types,VN,越南,農業,custom,verified,vn_soil,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南土壤類型 230 面（FAO 九大類；小比例尺參考圖）
+vnFarmTracks,農林道 Farm & Forest Tracks,VN,越南,農業,custom,verified,vn_farm_tracks,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南農林道 145,862 段（highway=track，依 tracktype 1–5 級分色；96% 未標等級）"
+vnCoalMines,煤礦 Coal Mines,VN,越南,能源,custom,verified,vn_coal_mines,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南煤礦 32 處（Global Energy Monitor；運轉中、提案、封存、取消；6/34 省）
+vnTerrainHillshade,山體陰影 Hillshade,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）
+vnTerrainRelief,色別標高 Elevation Tint,VN,越南,底圖,custom,verified,vn_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"越南色別標高（0–3,147 m 九段色帶，≤0 m 透明）"
+vnLandslideSusceptibility,崩塌潛勢（區域模型圖） Landslide Susceptibility (regional model),VN,越南,災害,custom,verified,vn_landslide_susceptibility,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南崩塌潛勢（低、中、高三級；極低不畫；區域模型圖，只有圖、不能分析）
 vnWdpca,"保護區（WDPCA，站主限定） Protected Areas (WDPCA, owner only)",VN,越南,自然保育,custom,verified,vn_wdpca,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,越南 WDPCA 保護區 188 面＋Ramsar 點 3（raster 圖片，依類別上色；站主限定）
 statsComparisonBusAccessibleSharePct,無障礙公車占營業車比,TW,統計,公共運輸 Public Transport,custom,catalog_missing,comparison_statistics,,,,2025-12-31,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。
 statsComparisonBusElectricSharePct,電動公車占營業車比,TW,統計,公共運輸 Public Transport,custom,catalog_missing,comparison_statistics,,,,2025-12-31,,yes,statistics,warehouse,statistics,,,,,,,依來源口徑推算；缺值不補零。
