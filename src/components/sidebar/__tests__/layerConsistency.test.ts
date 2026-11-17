@@ -256,6 +256,8 @@ const NO_POPUP_LEDGER = new Set([
   "caHillshade",
   // 愛爾蘭第 1 波：INFOMAR 海床地形 raster（已著色 PNG，無 feature 屬性）
   "ieBathymetry",
+  // 越南第 2、3、6 波：Copernicus DEM 山體陰影／色別標高、崩塌潛勢 WMS、WDPCA 保護區（站主限定）（raster，無 feature 屬性；2026-11-17）
+  "vnTerrainHillshade", "vnTerrainRelief", "vnLandslideSusceptibility", "vnWdpca",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -615,7 +617,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ieAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("PH")].sort()).toEqual(["phAdminBoundaries", "phBusStops", "phExpressways", "phFuelStations", "phMajorRoads", "phPipelines", "phPopulation", "phPowerGrid", "phPowerPlants", "phRenewables", "phStations", "phTransportHubs", "phUrbanRail"]);
     expect(tw.has("phAdminBoundaries")).toBe(false);
-    expect([...countryLayerKeys("VN")].sort()).toEqual(["vnAdminBoundaries", "vnAngiangDemo", "vnEnvisoftStations", "vnFuelStations", "vnMajorRoads", "vnOilGas", "vnPopulation", "vnPowerGrid", "vnPowerPlants", "vnRenewables", "vnStations", "vnTransportHubs"]);
+    expect([...countryLayerKeys("VN")].sort()).toEqual(["vnAdminBoundaries", "vnAngiangAquaculture", "vnAngiangDemo", "vnBicycleRental", "vnBridges", "vnCoalMines", "vnCourtsPrisons", "vnDams", "vnEnvisoftStations", "vnFarmTracks", "vnFieldBoundaries", "vnFinancialServices", "vnFuelStations", "vnGlideEvents", "vnHealthFacilities", "vnKindergartens", "vnLandslideSusceptibility", "vnMajorRoads", "vnNationalTouristAreas", "vnOilGas", "vnParking", "vnParks", "vnPlaceNames", "vnPlacesOfWorship", "vnPolice", "vnPopulation", "vnPostalServices", "vnPowerGrid", "vnPowerPlants", "vnProtectedAreasOdm", "vnPublicAmenities", "vnRenewables", "vnRiverbankErosion", "vnRivers", "vnSchoolCampuses", "vnSchools", "vnSoil", "vnStations", "vnTerrainHillshade", "vnTerrainRelief", "vnTourAttractions", "vnTourNature", "vnTourServices", "vnTransportHubs", "vnWaterStructures", "vnWaterSupply", "vnWdpca"]);
     expect(tw.has("vnAdminBoundaries")).toBe(false);
   });
 

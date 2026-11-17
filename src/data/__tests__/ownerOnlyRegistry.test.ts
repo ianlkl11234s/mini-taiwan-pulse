@@ -33,6 +33,8 @@ const PINNED = [
   "ieCoillteRecreation", "ieCoillteForestRoads",
   // 南韓首爾用途地域（data.go.kr 註含第三方權利；站主 2026-11-14 決定站主限定；gis-platform mig 554）
   "krSeoulZoning",
+  // 越南 WDPCA 保護區 raster（WDPCA 條款禁再散布；站主 2026-11-17 W6-1 選 A＋B；gated_layers migration 待補）
+  "vnWdpca",
   // 即時 119 案件／警廣即時路況（站主 2026-11-16 決策 4 全部站主限定；gis-platform mig 555）
   "fire119Live", "pbsRoadEventsLive",
 ].sort();
