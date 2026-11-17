@@ -77,6 +77,7 @@ import type { KrDataKey } from "../../data/krDataKeys";
 /** 南韓第 3–5 波 18 層的標題列（中文＋韓文原名，與其他國家圖層一致）。 */
 const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
+import { KrEcologyNaturalnessPanel, KrWasteDisposalRulesPanel } from "./krEcoWastePanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
 import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhPopulationPanel, makePhPanel } from "./phPanels";
@@ -477,6 +478,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpAdminBoundaries: JpAdminBoundariesPanel,
   gbAdminBoundaries: GbAdminBoundariesPanel,
   krAdminBoundaries: KrAdminBoundariesPanel,
+  krEcologyNaturalness: KrEcologyNaturalnessPanel,
+  krWasteDisposalRules: KrWasteDisposalRulesPanel,
   ...KR_DATA_PANELS,
   krBusStops: KrBusStopsPanel,
   krRailStations: KrRailStationsPanel,
@@ -1180,6 +1183,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpAdminBoundaries: "市區町村界 市区町村境",
   gbAdminBoundaries: "地方政府區 LAD",
   krAdminBoundaries: "南韓行政區界",
+  krEcologyNaturalness: "生態自然圖 생태자연도",
+  krWasteDisposalRules: "垃圾排出規則 생활쓰레기 배출",
   ...KR_HEADER_LABELS,
   krBusStops: "公車站 버스정류장",
   krRailStations: "鐵道車站 철도역",

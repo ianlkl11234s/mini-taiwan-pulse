@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2008,
+    "keyCount": 2010,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2420,6 +2420,36 @@
         "kr-ports-fill"
       ],
       "type": "krPorts"
+    },
+    {
+      "layers": [
+        "kr-waste-rules-fill",
+        "kr-waste-rules-uncovered-hatch"
+      ],
+      "type": "krWasteDisposalRules"
+    },
+    {
+      "layers": [
+        "kr-eco-nature-11-fill",
+        "kr-eco-nature-26-fill",
+        "kr-eco-nature-27-fill",
+        "kr-eco-nature-28-fill",
+        "kr-eco-nature-29-fill",
+        "kr-eco-nature-30-fill",
+        "kr-eco-nature-31-fill",
+        "kr-eco-nature-36-fill",
+        "kr-eco-nature-41-fill",
+        "kr-eco-nature-43-fill",
+        "kr-eco-nature-44-fill",
+        "kr-eco-nature-46-fill",
+        "kr-eco-nature-47-fill",
+        "kr-eco-nature-48-fill",
+        "kr-eco-nature-50-fill",
+        "kr-eco-nature-51-fill",
+        "kr-eco-nature-52-fill",
+        "kr-eco-nature-anchor-fill"
+      ],
+      "type": "krEcologyNaturalness"
     },
     {
       "layers": [
@@ -147420,6 +147450,17 @@
         "valueText": "1.0"
       }
     ],
+    "krEcologyNaturalness": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "krEmergencyBells": [
       {
         "label": "類別",
@@ -150489,6 +150530,17 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "krWasteDisposalRules": [
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
       }
     ],
     "krWaterLevelStations": [

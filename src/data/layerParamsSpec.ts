@@ -2216,6 +2216,9 @@ export const LAYER_PARAMS_SPEC = {
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
       : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : spec.key === "krPopulationH3" ? 0.6 : spec.key === "krSchoolDistricts" ? 0.35 : spec.key === "krSeoulZoning" ? 0.32 : 0.7) : 0.85)]),
   ]])),
+  // 南韓 KRH-1：生態自然圖（拍板透明度 0.55）、垃圾排出規則（淡色面）
+  krEcologyNaturalness: [opacitySlider("krEcologyNaturalnessOpacity", 0.55)],
+  krWasteDisposalRules: [opacitySlider("krWasteDisposalRulesOpacity", 0.45)],
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
     {

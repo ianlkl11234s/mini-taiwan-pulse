@@ -1138,7 +1138,7 @@
   - 時段缺一端：寫「時段來源未填」，不補 00:00。
 - **淡色底圖**：沒有格用 `LIGHT.fillSubtle`、字 `LIGHT.textDim`（`useFeatureTheme()` 讀，不自行判斷）。
 - **禁止**：用 7 個 Badge 拼；把星期換算成「每週 N 次」取代格子；popup 內畫圖例色塊（§5.2）。
-- **實作**：`src/components/featureInfo/WeekdayGrid.tsx`；使用處 `src/components/featureInfo/krHabitatPanels.tsx`（`KrWasteDisposalRulesPanel`）。
+- **實作**：`src/components/featureInfo/WeekdayGrid.tsx`；使用處 `src/components/featureInfo/krEcoWastePanels.tsx`（`KrWasteDisposalRulesPanel`）。
 
 ## 6. 文案規則
 
