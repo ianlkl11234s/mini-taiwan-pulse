@@ -1251,55 +1251,55 @@ krOilGas,油氣設施與管線 석유·가스 시설,KR,南韓,能源,custom,ver
 ieAdminBoundaries,行政區界 Administrative Boundaries,IE,愛爾蘭,底圖,custom,verified,ie_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭行政區界（地方政府 31、CSO 選舉分區 3,420、統計小區 18,919；Tailte Éireann 2026／CSO Census 2022）"
 phAdminBoundaries,行政區界 Administrative Boundaries,PH,菲律賓,底圖,custom,verified,ph_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓行政區界（區域 18、省 88、市鎮 1,642、barangay 42,048；OCHA／PSA／NAMRIA COD-AB）"
 phPopulation,人口密度 Population Density（2024 Census）,PH,菲律賓,人口社經,custom,verified,ph_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）
-phTouristAttractions,景點與世界遺產 Attractions & World Heritage,PH,菲律賓,觀光,custom,verified,ph_tourist_attractions,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"菲律賓景點 7,029 處（UNESCO 6 處 13 構成點、保護區與國家公園、古蹟、博物館、觀景點；低縮放只顯示重要條目，空心＝DOT 近似位置）"
-phCoastIslands,"海灘、島嶼與潛水點 Beaches, Islands & Dive Sites",PH,菲律賓,觀光,custom,verified,ph_coast_islands,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"菲律賓海灘、島嶼、潛水點與潟湖 7,033 處（Boracay、Alona Beach 等；未命名放大後才出現）"
-phNatureSpots,"瀑布、洞穴、火山與溫泉 Waterfalls, Caves, Volcanoes & Hot Springs",PH,菲律賓,觀光,custom,verified,ph_nature_spots,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"菲律賓自然景觀 1,949 處（瀑布 1,094、洞穴 435、火山 327、溫泉 61 等）"
-phTourismServices,住宿與觀光服務 Lodging & Tourism Services,PH,菲律賓,觀光,custom,verified,ph_tourism_services,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"菲律賓住宿、度假村、樂園動物園、露營地與遊客中心 15,276 處（OSM；餐飲不在本層）"
-phTourismDevelopmentAreas,觀光發展區（TDA） Tourism Development Areas,PH,菲律賓,觀光,custom,verified,ph_tourism_development_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,DOT 國家觀光發展計畫 2023–2028 的 50 個觀光發展區（20 群，依北／中／南三色）
-phPlaceNames,地名 Place Names,PH,菲律賓,底圖,custom,verified,ph_place_names,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"菲律賓 GeoNames 地名 68,597 筆（聚落、地形、水文、區域四色；依重要性逐級出現，名稱在彈窗）"
-phPoverty,貧窮率 Poverty Incidence,PH,菲律賓,人口社經,custom,verified,ph_poverty,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,菲律賓 2023 年貧窮人口比率（PSA，82 省＋36 個高度都市化／獨立市；彈窗另列 2018、2021；BARMM SGA 未涵蓋）
-phEarthquakes,地震目錄 Earthquake Catalogue,PH,菲律賓,災害,custom,verified,ph_earthquakes,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"PHIVOLCS 地震目錄 2018-01～2026-10 共 137,230 筆（依深度分色、規模定大小；含海上與卡拉延群島周邊海域）"
-phNoahFlood100yr,淹水危害（100 年重現期） Flood Hazard (100-year),PH,菲律賓,災害,custom,verified,ph_noah_flood_100yr,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,UP NOAH 100 年重現期降雨淹水危害（低 0–0.5 m、中 0.5–1.5 m、高 >1.5 m）
-phNoahLandslide,崩塌危害 Landslide Hazard,PH,菲律賓,災害,custom,verified,ph_noah_landslide,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,UP NOAH 淺層崩塌危害（低、中、高；HAZ=4 來源未說明，另列灰色）
-phWaterPermits,取水許可 Water Permits,PH,菲律賓,水資源,custom,verified,ph_water_permits,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"NWRB 取水許可 17,411 筆（地下水、地表水兩色；許可人姓名已排除）"
-phLakes,主要湖泊 Major Lakes,PH,菲律賓,水資源,custom,verified,ph_lakes,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,HDX 菲律賓主要湖泊 37 個（10/18 region）
-phDams,壩與水庫 Dams & Reservoirs,PH,菲律賓,水資源,custom,verified,ph_dams,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,Global Dam Watch 菲律賓壩 52 座＋水庫面 27 個（14/18 region）
-phBridges,國道橋梁 National Road Bridges,PH,菲律賓,交通,custom,verified,ph_bridges,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"DPWH 國道橋梁清冊（2021）8,410 座（依 DPWH 狀況評等分色）"
-phParking,停車場 Car Parks,PH,菲律賓,交通,custom,verified,ph_parking,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 停車場 14,514 處（平面、立體、地下、路邊四色；52% 沒標類型）"
-phKmPosts,國道里程牌 Kilometre Posts,PH,菲律賓,交通,custom,verified,ph_km_posts,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"DPWH 國道里程牌 31,017 支（空心小圓，只當參考座標；km 自馬尼拉 Rizal Park 起算）"
-phEcozones,經濟特區（PEZA） PEZA Ecozones,PH,菲律賓,工商登記,custom,verified,ph_ecozones,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,PEZA 經濟特區 391 處（IT、製造、農工、觀光、醫療五色；點位為登記位置）
-phReclamation,填海造地 Reclamation Projects,PH,菲律賓,工商登記,custom,verified,ph_reclamation,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,PRA 填海造地專案點位 219 處（含已完成與提案中；狀態代碼 A／D 照原文）
-phSchools,學校 Schools,PH,菲律賓,教育,custom,verified,ph_schools,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 學校 53,825 處（中小學、學院、大學、幼兒園；拉遠為熱區）"
-phSchoolCampuses,校地 School Campuses,PH,菲律賓,教育,custom,verified,ph_school_campuses,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 校地面 49,456 個（z11 起顯示）"
-phHealthFacilities,醫療院所 Health Facilities,PH,菲律賓,醫療,custom,verified,ph_health_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 醫療院所 17,766 處（醫院、診所、衛生站、藥局、牙科；拉遠為熱區）"
-phFireStations,消防站 Fire Stations,PH,菲律賓,消防,custom,verified,ph_fire_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"BFP 消防站 1,316 處＋OSM 補缺 742 處（空心）"
-phNcrSafeOpenSpaces,避難空地（Metro Manila） Safe Open Spaces (Metro Manila),PH,菲律賓,民防避難,custom,verified,ph_ncr_safe_open_spaces,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"Metro Manila 地震避難空地 5,211 面（只涵蓋 NCR；依規模三色；完整性未驗證）"
-phPoliceStations,警察據點 Police Stations,PH,菲律賓,執法治安,custom,verified,ph_police_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"警察據點 2,629 處（NCR 為 MMDA 2003 地標 191 處；其他地區只有 OSM，空心）"
-phJails,監所 Jails & Prisons,PH,菲律賓,執法治安,custom,verified,ph_jails,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,BJMP 監所 462 處（2020，含在押人數）＋OSM 96 處（含 BuCor 監獄，空心）
-phTrees,樹木（OSM） Trees (OSM),PH,菲律賓,環境氣候,custom,verified,ph_trees,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 樹木 228,210 株＋行道樹 3,415 段（零星標註；z12 起顯示）"
-phTrails,農林道與步道 Tracks & Paths,PH,菲律賓,林業,custom,verified,ph_trails,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 農林道 116,128 段＋步道 104,471 段（z10 起顯示）"
-phKba,生物多樣性重要地域（KBA） Key Biodiversity Areas,PH,菲律賓,自然保育,custom,verified,ph_kba,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,Key Biodiversity Areas 310 處（已認定 120 實線框、提案 190 虛線框）
-phWetlands,濕地 Wetlands,PH,菲律賓,自然保育,custom,verified,ph_wetlands,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"BMB 內陸濕地 384 面（部分）＋OSM 濕地 8,293 面（含紅樹林，淡色）"
-phForestryPrograms,林業計畫區 Forestry Programme Areas,PH,菲律賓,林業,custom,verified,ph_forestry_programs,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"DENR-FMB 林業計畫區 17,943 面（NGP 造林、投資區、集水區兩類（部分）、FLAg；完整性未驗證）"
-phCoastalResources,海岸資源（珊瑚、海草、紅樹林） Coastal Resources,PH,菲律賓,海洋,custom,verified,ph_coastal_resources,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,NAMRIA 2020 海岸資源圖 195 面（珊瑚、海草海藻、紅樹林；依省聚合）
-phMarineStations,潮位站與航標 Tide Stations & Navigation Aids,PH,菲律賓,海洋,custom,verified,ph_marine_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,NAMRIA 潮位站 82（一級 62、二級 20 空心）、燈浮標 617、燈塔 609
-phWdpca,保護區（WDPA） Protected Areas (WDPA),PH,菲律賓,自然保育,custom,verified,ph_wdpca,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,WDPA 菲律賓保護區 302 處（陸域、海域、陸海混合三色；非商用，只供顯示）
-phWasteFacilities,掩埋場與轉運站 Landfills & Transfer Stations,PH,菲律賓,廢棄物,custom,verified,ph_waste_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,DENR 衛生掩埋場 23 處＋OSM 掩埋場 181、轉運站 51（OSM 空心，不分衛生或開放傾倒）
-phPollutionSources,推估排放源（Climate TRACE） Modelled Emission Sources,PH,菲律賓,環境氣候,custom,verified,ph_pollution_sources,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,Climate TRACE 2025 推估排放源 85 處（製造業、礦業；大小依推估 CO₂e；不是官方許可名冊）
-phArtsVenues,表演場館與電影院 Arts Venues & Cinemas,PH,菲律賓,文化,custom,verified,ph_arts_venues,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 表演場館 1,107 處（活動場地、劇場、電影院、藝文中心、展覽館）"
-phPostOffices,郵局與快遞據點 Post Offices & Couriers,PH,菲律賓,基礎建設,custom,verified,ph_post_offices,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 郵局與快遞據點 1,006 處（含 LBC、J&T）"
-phPublicFacilities,"廳舍、市場與公共設施 Halls, Markets & Public Facilities",PH,菲律賓,基礎建設,custom,verified,ph_public_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 公共生活設施 19,711 處（廳舍、公廁、市場、社區中心、社福、圖書館；拉遠為熱區）"
-phFinancialServices,"銀行、當鋪與 ATM Banks, Pawnshops & ATMs",PH,菲律賓,基礎建設,custom,verified,ph_financial_services,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 金融據點 17,506 處（銀行、當鋪、ATM、匯款、外幣兌換；拉遠為熱區）"
-phPlacesOfWorship,宗教場所 Places of Worship,PH,菲律賓,宗教,custom,verified,ph_places_of_worship,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 宗教場所 18,341 處（基督宗教、伊斯蘭、佛教、道教、未標宗教；拉遠為熱區）"
-phSportsVenues,運動場館 Sports Venues,PH,菲律賓,運動休閒,custom,verified,ph_sports_venues,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 運動場館 36,709 處（球場、室內場館、運動中心、跑道、體育場；拉遠為熱區）"
-phParks,公園與庭園 Parks & Gardens,PH,菲律賓,運動休閒,custom,verified,ph_parks,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 公園、庭園面 6,570＋點 454"
-phCemeteries,墓園 Cemeteries,PH,菲律賓,殯葬,custom,verified,ph_cemeteries,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 墓區面 4,263＋點 110（墓園、教堂墓地）"
-phFishPorts,漁港 Fish Ports,PH,菲律賓,農業,custom,verified,ph_fish_ports,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,DA 漁港 47 處（營運 39、興建中 8）
-phAquaculture,養殖用地（OSM） Aquaculture (OSM),PH,菲律賓,農業,custom,verified,ph_aquaculture,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"OpenStreetMap 養殖面 16,629 個（多數未標物種；z9 起顯示）"
-phTerrainHillshade,山體陰影 Hillshade,PH,菲律賓,底圖,custom,verified,ph_terrain,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,菲律賓山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）
-phTerrainRelief,色別標高 Elevation Tint,PH,菲律賓,底圖,custom,verified,ph_terrain,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"菲律賓色別標高（0–2,954 m 九段色帶，≤0 m 透明）"
-phBuiltSurface,建成面積比例 Built-up Surface,PH,菲律賓,都市分析,custom,verified,ph_built_surface,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,菲律賓建成面積比例（JRC GHSL 2025 推估，100 m；<1% 透明）
-phForestLoss,樹冠流失年份 Tree Cover Loss Year,PH,菲律賓,自然保育,custom,verified,ph_forest_loss,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,菲律賓樹冠流失年份 2001–2024（Hansen GFC，30 m；淡黃→深紅）
+phTouristAttractions,景點與世界遺產 Attractions & World Heritage,PH,菲律賓,觀光,custom,verified,ph_tourist_attractions,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓景點 7,029 處（UNESCO 6 處 13 構成點、保護區與國家公園、古蹟、博物館、觀景點；低縮放只顯示重要條目，空心＝DOT 近似位置）"
+phCoastIslands,"海灘、島嶼與潛水點 Beaches, Islands & Dive Sites",PH,菲律賓,觀光,custom,verified,ph_coast_islands,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓海灘、島嶼、潛水點與潟湖 7,033 處（Boracay、Alona Beach 等；未命名放大後才出現）"
+phNatureSpots,"瀑布、洞穴、火山與溫泉 Waterfalls, Caves, Volcanoes & Hot Springs",PH,菲律賓,觀光,custom,verified,ph_nature_spots,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓自然景觀 1,949 處（瀑布 1,094、洞穴 435、火山 327、溫泉 61 等）"
+phTourismServices,住宿與觀光服務 Lodging & Tourism Services,PH,菲律賓,觀光,custom,verified,ph_tourism_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓住宿、度假村、樂園動物園、露營地與遊客中心 15,276 處（OSM；餐飲不在本層）"
+phTourismDevelopmentAreas,觀光發展區（TDA） Tourism Development Areas,PH,菲律賓,觀光,custom,verified,ph_tourism_development_areas,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,DOT 國家觀光發展計畫 2023–2028 的 50 個觀光發展區（20 群，依北／中／南三色）
+phPlaceNames,地名 Place Names,PH,菲律賓,底圖,custom,verified,ph_place_names,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓 GeoNames 地名 68,597 筆（聚落、地形、水文、區域四色；依重要性逐級出現，名稱在彈窗）"
+phPoverty,貧窮率 Poverty Incidence,PH,菲律賓,人口社經,custom,verified,ph_poverty,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 2023 年貧窮人口比率（PSA，82 省＋36 個高度都市化／獨立市；彈窗另列 2018、2021；BARMM SGA 未涵蓋）
+phEarthquakes,地震目錄 Earthquake Catalogue,PH,菲律賓,災害,custom,verified,ph_earthquakes,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"PHIVOLCS 地震目錄 2018-01～2026-10 共 137,230 筆（依深度分色、規模定大小；含海上與卡拉延群島周邊海域）"
+phNoahFlood100yr,淹水危害（100 年重現期） Flood Hazard (100-year),PH,菲律賓,災害,custom,verified,ph_noah_flood_100yr,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,UP NOAH 100 年重現期降雨淹水危害（低 0–0.5 m、中 0.5–1.5 m、高 >1.5 m）
+phNoahLandslide,崩塌危害 Landslide Hazard,PH,菲律賓,災害,custom,verified,ph_noah_landslide,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,UP NOAH 淺層崩塌危害（低、中、高；HAZ=4 來源未說明，另列灰色）
+phWaterPermits,取水許可 Water Permits,PH,菲律賓,水資源,custom,verified,ph_water_permits,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"NWRB 取水許可 17,411 筆（地下水、地表水兩色；許可人姓名已排除）"
+phLakes,主要湖泊 Major Lakes,PH,菲律賓,水資源,custom,verified,ph_lakes,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,HDX 菲律賓主要湖泊 37 個（10/18 region）
+phDams,壩與水庫 Dams & Reservoirs,PH,菲律賓,水資源,custom,verified,ph_dams,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,Global Dam Watch 菲律賓壩 52 座＋水庫面 27 個（14/18 region）
+phBridges,國道橋梁 National Road Bridges,PH,菲律賓,交通,custom,verified,ph_bridges,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"DPWH 國道橋梁清冊（2021）8,410 座（依 DPWH 狀況評等分色）"
+phParking,停車場 Car Parks,PH,菲律賓,交通,custom,verified,ph_parking,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 停車場 14,514 處（平面、立體、地下、路邊四色；52% 沒標類型）"
+phKmPosts,國道里程牌 Kilometre Posts,PH,菲律賓,交通,custom,verified,ph_km_posts,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"DPWH 國道里程牌 31,017 支（空心小圓，只當參考座標；km 自馬尼拉 Rizal Park 起算）"
+phEcozones,經濟特區（PEZA） PEZA Ecozones,PH,菲律賓,工商登記,custom,verified,ph_ecozones,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,PEZA 經濟特區 391 處（IT、製造、農工、觀光、醫療五色；點位為登記位置）
+phReclamation,填海造地 Reclamation Projects,PH,菲律賓,工商登記,custom,verified,ph_reclamation,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,PRA 填海造地專案點位 219 處（含已完成與提案中；狀態代碼 A／D 照原文）
+phSchools,學校 Schools,PH,菲律賓,教育,custom,verified,ph_schools,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 學校 53,825 處（中小學、學院、大學、幼兒園；拉遠為熱區）"
+phSchoolCampuses,校地 School Campuses,PH,菲律賓,教育,custom,verified,ph_school_campuses,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 校地面 49,456 個（z11 起顯示）"
+phHealthFacilities,醫療院所 Health Facilities,PH,菲律賓,醫療,custom,verified,ph_health_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 醫療院所 17,766 處（醫院、診所、衛生站、藥局、牙科；拉遠為熱區）"
+phFireStations,消防站 Fire Stations,PH,菲律賓,消防,custom,verified,ph_fire_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"BFP 消防站 1,316 處＋OSM 補缺 742 處（空心）"
+phNcrSafeOpenSpaces,避難空地（Metro Manila） Safe Open Spaces (Metro Manila),PH,菲律賓,民防避難,custom,verified,ph_ncr_safe_open_spaces,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"Metro Manila 地震避難空地 5,211 面（只涵蓋 NCR；依規模三色；完整性未驗證）"
+phPoliceStations,警察據點 Police Stations,PH,菲律賓,執法治安,custom,verified,ph_police_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"警察據點 2,629 處（NCR 為 MMDA 2003 地標 191 處；其他地區只有 OSM，空心）"
+phJails,監所 Jails & Prisons,PH,菲律賓,執法治安,custom,verified,ph_jails,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,BJMP 監所 462 處（2020，含在押人數）＋OSM 96 處（含 BuCor 監獄，空心）
+phTrees,樹木（OSM） Trees (OSM),PH,菲律賓,環境氣候,custom,verified,ph_trees,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 樹木 228,210 株＋行道樹 3,415 段（零星標註；z12 起顯示）"
+phTrails,農林道與步道 Tracks & Paths,PH,菲律賓,林業,custom,verified,ph_trails,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 農林道 116,128 段＋步道 104,471 段（z10 起顯示）"
+phKba,生物多樣性重要地域（KBA） Key Biodiversity Areas,PH,菲律賓,自然保育,custom,verified,ph_kba,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,Key Biodiversity Areas 310 處（已認定 120 實線框、提案 190 虛線框）
+phWetlands,濕地 Wetlands,PH,菲律賓,自然保育,custom,verified,ph_wetlands,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"BMB 內陸濕地 384 面（部分）＋OSM 濕地 8,293 面（含紅樹林，淡色）"
+phForestryPrograms,林業計畫區 Forestry Programme Areas,PH,菲律賓,林業,custom,verified,ph_forestry_programs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"DENR-FMB 林業計畫區 17,943 面（NGP 造林、投資區、集水區兩類（部分）、FLAg；完整性未驗證）"
+phCoastalResources,海岸資源（珊瑚、海草、紅樹林） Coastal Resources,PH,菲律賓,海洋,custom,verified,ph_coastal_resources,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,NAMRIA 2020 海岸資源圖 195 面（珊瑚、海草海藻、紅樹林；依省聚合）
+phMarineStations,潮位站與航標 Tide Stations & Navigation Aids,PH,菲律賓,海洋,custom,verified,ph_marine_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,NAMRIA 潮位站 82（一級 62、二級 20 空心）、燈浮標 617、燈塔 609
+phWdpca,保護區（WDPA） Protected Areas (WDPA),PH,菲律賓,自然保育,custom,verified,ph_wdpca,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,WDPA 菲律賓保護區 302 處（陸域、海域、陸海混合三色；非商用，只供顯示）
+phWasteFacilities,掩埋場與轉運站 Landfills & Transfer Stations,PH,菲律賓,廢棄物,custom,verified,ph_waste_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,DENR 衛生掩埋場 23 處＋OSM 掩埋場 181、轉運站 51（OSM 空心，不分衛生或開放傾倒）
+phPollutionSources,推估排放源（Climate TRACE） Modelled Emission Sources,PH,菲律賓,環境氣候,custom,verified,ph_pollution_sources,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,Climate TRACE 2025 推估排放源 85 處（製造業、礦業；大小依推估 CO₂e；不是官方許可名冊）
+phArtsVenues,表演場館與電影院 Arts Venues & Cinemas,PH,菲律賓,文化,custom,verified,ph_arts_venues,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 表演場館 1,107 處（活動場地、劇場、電影院、藝文中心、展覽館）"
+phPostOffices,郵局與快遞據點 Post Offices & Couriers,PH,菲律賓,基礎建設,custom,verified,ph_post_offices,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 郵局與快遞據點 1,006 處（含 LBC、J&T）"
+phPublicFacilities,"廳舍、市場與公共設施 Halls, Markets & Public Facilities",PH,菲律賓,基礎建設,custom,verified,ph_public_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 公共生活設施 19,711 處（廳舍、公廁、市場、社區中心、社福、圖書館；拉遠為熱區）"
+phFinancialServices,"銀行、當鋪與 ATM Banks, Pawnshops & ATMs",PH,菲律賓,基礎建設,custom,verified,ph_financial_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 金融據點 17,506 處（銀行、當鋪、ATM、匯款、外幣兌換；拉遠為熱區）"
+phPlacesOfWorship,宗教場所 Places of Worship,PH,菲律賓,宗教,custom,verified,ph_places_of_worship,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 宗教場所 18,341 處（基督宗教、伊斯蘭、佛教、道教、未標宗教；拉遠為熱區）"
+phSportsVenues,運動場館 Sports Venues,PH,菲律賓,運動休閒,custom,verified,ph_sports_venues,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 運動場館 36,709 處（球場、室內場館、運動中心、跑道、體育場；拉遠為熱區）"
+phParks,公園與庭園 Parks & Gardens,PH,菲律賓,運動休閒,custom,verified,ph_parks,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 公園、庭園面 6,570＋點 454"
+phCemeteries,墓園 Cemeteries,PH,菲律賓,殯葬,custom,verified,ph_cemeteries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 墓區面 4,263＋點 110（墓園、教堂墓地）"
+phFishPorts,漁港 Fish Ports,PH,菲律賓,農業,custom,verified,ph_fish_ports,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,DA 漁港 47 處（營運 39、興建中 8）
+phAquaculture,養殖用地（OSM） Aquaculture (OSM),PH,菲律賓,農業,custom,verified,ph_aquaculture,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"OpenStreetMap 養殖面 16,629 個（多數未標物種；z9 起顯示）"
+phTerrainHillshade,山體陰影 Hillshade,PH,菲律賓,底圖,custom,verified,ph_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,菲律賓山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域）
+phTerrainRelief,色別標高 Elevation Tint,PH,菲律賓,底圖,custom,verified,ph_terrain,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"菲律賓色別標高（0–2,954 m 九段色帶，≤0 m 透明）"
+phBuiltSurface,建成面積比例 Built-up Surface,PH,菲律賓,都市分析,custom,verified,ph_built_surface,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,菲律賓建成面積比例（JRC GHSL 2025 推估，100 m；<1% 透明）
+phForestLoss,樹冠流失年份 Tree Cover Loss Year,PH,菲律賓,自然保育,custom,verified,ph_forest_loss,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,菲律賓樹冠流失年份 2001–2024（Hansen GFC，30 m；淡黃→深紅）
 vnAdminBoundaries,行政區界 Administrative Boundaries,VN,越南,底圖,custom,verified,vn_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南行政區界（2025-07 新制 34 省；3,321 社只有代碼表、沒有社界；OCHA COD-AB v02）"
 vnPopulation,人口密度 Population Density（2025）,VN,越南,人口社經,custom,verified,vn_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 2025 年人口與人口密度（34 省；2011–2025 歷年人口折線）
 ieBathymetry,海床地形 Bathymetry（INFOMAR）,IE,愛爾蘭,底圖,custom,verified,ie_bathymetry,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"愛爾蘭海床地形（INFOMAR 測深，約 300 m；0–4,832 m 深度色階＋陰影）"
