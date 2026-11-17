@@ -4936,7 +4936,7 @@ export const LAYER_PARAMS_SPEC = {
       default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
     },
     {
-      kind: "select", name: "gibsNightLightsProduct", label: "年份／樣式", default: "viirs_2016",
+      kind: "select", name: "gibsNightLightsProduct", label: "年份／樣式", default: "viirs_2016", category: "data",
       options: GIBS_NIGHT_LIGHTS_PRODUCTS.map(({ label, value }) => ({ label, value })),
       out: "gibsNightLightsProductIdx", encode: GIBS_NIGHT_LIGHTS_PRODUCTS.map((p) => p.value),
     },

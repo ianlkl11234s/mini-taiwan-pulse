@@ -129329,15 +129329,6 @@
     ],
     "gibsNightLights": [
       {
-        "label": "透明度 0.70",
-        "max": 1,
-        "min": 0.3,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
-      },
-      {
         "label": "年份／樣式",
         "options": [
           {
@@ -129355,6 +129346,15 @@
         ],
         "type": "select",
         "value": "viirs_2016"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "gibsSnowCover": [
