@@ -621,6 +621,42 @@ for f in \
   public/world/ca_terrain_hillshade.pmtiles \
   public/world/ca_earthquakes.pmtiles \
   public/world/ca_population_grid.pmtiles \
+  public/world/ca_maritime_zones.pmtiles \
+  public/world/ca_permafrost.pmtiles \
+  public/world/ca_dams.pmtiles \
+  public/world/ca_recycling_depots.pmtiles \
+  public/world/ca_flood_map_inventory.pmtiles \
+  public/world/ca_ab_flood_hazard.pmtiles \
+  public/world/ca_glaciers.pmtiles \
+  public/world/ca_rivers_lakes.pmtiles \
+  public/world/ca_protected_areas.pmtiles \
+  public/world/ca_critical_habitat.pmtiles \
+  public/world/ca_marine_conservation.pmtiles \
+  public/world/ca_tide_stations.pmtiles \
+  public/world/ca_ecozones.pmtiles \
+  public/world/ca_forest_management.pmtiles \
+  public/world/ca_bridges_tunnels.pmtiles \
+  public/world/ca_ferry_routes.pmtiles \
+  public/world/ca_toronto_ksi_collisions.pmtiles \
+  public/world/ca_lode_health.pmtiles \
+  public/world/ca_lode_schools.pmtiles \
+  public/world/ca_lode_sports.pmtiles \
+  public/world/ca_bc_childcare.pmtiles \
+  public/world/ca_lode_culture.pmtiles \
+  public/world/ca_cbsa_offices.pmtiles \
+  public/world/ca_parks_canada_accommodation.pmtiles \
+  public/world/ca_courts_corrections.pmtiles \
+  public/world/ca_toronto_theft_from_vehicle.pmtiles \
+  public/world/ca_wildfire_points.pmtiles \
+  public/world/ca_broadband_hex.pmtiles \
+  public/world/ca_mines.pmtiles \
+  public/world/ca_grain_elevators.pmtiles \
+  public/world/ca_drought_monitor.pmtiles \
+  public/world/ca_soil_landscapes.pmtiles \
+  public/world/ca_ns_aquaculture.pmtiles \
+  public/world/ca_abattoirs.pmtiles \
+  public/world/ca_odbus.pmtiles \
+  public/world/ca_toronto_dev_applications.pmtiles \
   public/world/ie_admin_boundaries.pmtiles \
   public/world/ie_bathymetry.pmtiles \
   public/world/ie_commercial_valuations_v2.pmtiles \

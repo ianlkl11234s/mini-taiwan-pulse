@@ -106,6 +106,7 @@ import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes
 import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phCatOptions } from "./phDataLayers";
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
+import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
@@ -2265,6 +2266,16 @@ export const LAYER_PARAMS_SPEC = {
         kind: "multiSelect" as const, name: `${spec.key}Status`, label: "狀態", default: serializeMultiSelectValues([...spec.statusDefault]),
         options: VN_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: `${spec.key}StatusMask`,
       }] : []),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
+  // 加拿大第 3–8 波（2026-11-17）：類別多選（順序＝規格 cats＋「其他」＝bitmask；catDefault 者預設部分勾選）、透明度、點層大小
+  ...Object.fromEntries(CA_WAVE_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec), spec.catDefault ? serializeMultiSelectValues([...spec.catDefault]) : undefined),
       opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
       ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
     ]];

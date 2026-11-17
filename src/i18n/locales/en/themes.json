@@ -354,5 +354,18 @@
   "theme.活動斷層": "Active Faults",
   "theme.海域": "Maritime Zones",
   "theme.醫療院所": "Health Facilities",
-  "theme.養殖": "Aquaculture"
+  "theme.養殖": "Aquaculture",
+  "theme.渡輪": "Ferries",
+  "theme.野火": "Wildfires",
+  "theme.永凍土與冰川": "Permafrost & Glaciers",
+  "theme.關鍵棲地": "Critical Habitat",
+  "theme.生態分區": "Ecological Zones",
+  "theme.潮位站": "Tide Stations",
+  "theme.托育": "Child Care",
+  "theme.設施": "Facilities",
+  "theme.邊境": "Border",
+  "theme.竊盜": "Theft",
+  "theme.營業登記": "Business Licences",
+  "theme.倉儲": "Storage",
+  "theme.乾旱": "Drought"
 }

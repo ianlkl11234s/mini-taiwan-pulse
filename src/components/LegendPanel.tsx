@@ -68,8 +68,10 @@ import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../data/ieCoillt
 import { DenseHeatmapLegendRow } from "./legend/legendShared";
 import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS, PH_RASTER_KEYS } from "../data/phDataKeys";
-import { PhAdminBoundariesLegend, PhDataLegend, PhPopulationLegend, PhRasterLegend } from "./legend/phLegends";
+import { PhAdminBoundariesLegend, PhDataLegend, PhPopulationLegend, PhRasterLegend, PhSpecLegend } from "./legend/phLegends";
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
+import { CA_WAVE_KEYS } from "../data/caWavesKeys";
+import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
 import { CN_DATA_KEYS, CN_RASTER_KEYS } from "../data/cnDataKeys";
 import { CnAdminBoundariesLegend, CnDataLegend, CnPopulationGridLegend, CnPopulationLegend, CnRasterLegend } from "./legend/cnLegends";
@@ -357,6 +359,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "vnPopulation", render: () => <VnPopulationLegend /> },
   ...VN_DATA_KEYS.map((key) => ({ id: key, render: () => <VnDataLegend layerKey={key} /> })),
   ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
+  // 加拿大第 3–8 波（2026-11-17）：規格驅動 36 層，重用菲律賓 PhSpecLegend
+  ...CA_WAVE_KEYS.map((key) => ({ id: key, render: () => <PhSpecLegend spec={CA_WAVE_SPEC_BY_KEY[key]} /> })),
   // 中國第 0–1 波（站主限定）
   { id: "cnAdminBoundaries", render: () => <CnAdminBoundariesLegend /> },
   { id: "cnPopulation", render: () => <CnPopulationLegend /> },

@@ -79,7 +79,7 @@ const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
-import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhPopulationPanel } from "./phPanels";
+import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhPopulationPanel, makePhPanel } from "./phPanels";
 import { CN_DATA_PANELS, CnAdminBoundariesPanel, CnPopulationPanel } from "./cnPanels";
 import { CN_DATA_SPECS } from "../../data/cnDataLayers";
 import type { CnDataKey } from "../../data/cnDataKeys";
@@ -87,6 +87,8 @@ import { PH_DATA_SPECS } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
 import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
 import { VN_DATA_SPECS } from "../../data/vnDataLayers";
+import { CA_WAVE_SPECS } from "../../data/caWavesLayers";
+import type { CaWaveKey } from "../../data/caWavesKeys";
 import type { VnDataKey } from "../../data/vnDataKeys";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../../data/ieCoillteTypes";
 import { IE_DATA_SPECS } from "../../data/ieDataLayers";
@@ -94,6 +96,9 @@ import type { IeDataKey } from "../../data/ieDataKeys";
 const IE_HEADER_LABELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IeDataKey, string>;
 const CN_HEADER_LABELS = Object.fromEntries(CN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CnDataKey, string>;
 const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<PhDataKey, string>;
+/** 加拿大第 3–8 波（2026-11-17）：規格驅動，popup 重用 makePhPanel（自掛 SourceFooter）。 */
+const CA_WAVE_PANELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, makePhPanel(s)])) as Record<CaWaveKey, ReturnType<typeof makePhPanel>>;
+const CA_WAVE_HEADER_LABELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CaWaveKey, string>;
 const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
 import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
@@ -495,6 +500,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   vnAdminBoundaries: VnAdminBoundariesPanel,
   vnPopulation: VnPopulationPanel,
   ...VN_DATA_PANELS,
+  ...CA_WAVE_PANELS,
   cnAdminBoundaries: CnAdminBoundariesPanel,
   cnPopulation: CnPopulationPanel,
   ...CN_DATA_PANELS,
@@ -1194,6 +1200,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   vnAdminBoundaries: "行政邊界 Administrative Boundaries",
   vnPopulation: "人口密度 Population Density",
   ...VN_HEADER_LABELS,
+  ...CA_WAVE_HEADER_LABELS,
   cnAdminBoundaries: "行政邊界 Administrative Boundaries",
   cnPopulation: "人口密度 Population Density",
   ...CN_HEADER_LABELS,

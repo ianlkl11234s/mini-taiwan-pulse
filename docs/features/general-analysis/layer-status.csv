@@ -1389,6 +1389,42 @@ caWastewaterSystems,污水處理系統 Wastewater Systems（WSER）,CA,加拿大
 caEarthquakes,歷史地震 Earthquakes 1985–2019（NRCan）,CA,加拿大,災害,custom,verified,ca_earthquakes,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大地震目錄 1985–2019 共 101,365 筆（NRCan；規模 ≥4 全國視角畫點，其餘拉遠畫熱區）"
 caEarthquakesLive,即時地震（近 30 天） Recent Earthquakes（NRCan）,CA,加拿大,災害,custom,verified,ca_earthquakes_fdsn,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大 NRCan 地震目錄最近 30 天（即時、每 5 分鐘更新；半徑＝規模，可依事件類型篩選）
 caPopulationGrid,人口網格 Population Grid（GHSL 2020）,CA,加拿大,人口社經,custom,verified,ghsl_pop_h3_ca,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大人口網格（GHSL 2020 模型推估，H3 六角格；拉遠第 5 級、放大到第 7 級）
+caMaritimeZones,海域界線（領海、鄰接區、EEZ） Maritime Zones,CA,加拿大,底圖,custom,verified,ca_maritime_zones,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大領海、鄰接區、專屬經濟區與加美重疊主張區 4 面＋海域界線（VLIZ Marine Regions，非官方界線）
+caPermafrost,永凍土分布 Permafrost,CA,加拿大,災害,custom,verified,ca_permafrost,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大永凍土分布 442 面（連續、廣泛不連續、零星、孤立、海底；1993 年地圖）
+caDams,"水壩（BC、ON） Dams (BC, ON)",CA,加拿大,水資源,custom,verified,ca_dams,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大水壩 4,377 座（卑詩 2,485、安大略 1,892；其他 11 省區未涵蓋）"
+caRecyclingDepots,"回收投放點（QC、MB） Recycling Depots (QC, MB)",CA,加拿大,環境氣候,custom,verified,ca_recycling_depots,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大回收投放點 2,466 處（曼尼托巴 2,103、魁北克 363；其他 11 省區未涵蓋）"
+caFloodMapInventory,洪水圖研究範圍 Flood Map Inventory,CA,加拿大,災害,custom,verified,ca_flood_map_inventory,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大洪水圖研究範圍 675 面（Canada Flood Map Inventory；面是研究範圍，不是淹水範圍）
+caAbFloodHazard,亞伯達洪水危險區 Alberta Flood Hazard Areas,CA,加拿大,災害,custom,verified,ca_ab_flood_hazard,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"亞伯達省法定洪水危險區 12,919 面（洪水道、高危險洪泛邊緣、洪泛邊緣等；只有亞伯達）"
+caGlaciers,冰川（RGI 7.0） Glaciers (RGI 7.0),CA,加拿大,災害,custom,verified,ca_glaciers,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大冰川 29,976 面（RGI 7.0，約 2000 年輪廓；依省界只留加拿大）"
+caRiversLakes,河湖水系（1:1M） Rivers & Lakes (1:1M),CA,加拿大,水資源,custom,verified,ca_rivers_lakes,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大水體 86,877 面（> 1 km²）＋河段 203,735 段（Atlas of Canada 1:1,000,000）"
+caProtectedAreas,保護區與 OECM（CPCAD） Protected & Conserved Areas (CPCAD),CA,加拿大,自然保育,custom,verified,ca_protected_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大保護區與其他有效保育地 22,438 面（CPCAD，含海域與原住民保護區）"
+caCriticalHabitat,瀕危物種關鍵棲地（SARA） Critical Habitat (SARA),CA,加拿大,自然保育,custom,verified,ca_critical_habitat,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大 SARA 物種關鍵棲地 25,180 筆（依類群上色；敏感物種位置已由官方概化）"
+caMarineConservation,海洋保護區與 OECM Marine Protected Areas & OECMs,CA,加拿大,自然保育,custom,verified,ca_marine_conservation,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大 Oceans Act 海洋保護區 49 面＋其他有效保育措施 61 面（DFO）
+caTideStations,潮位站名冊 Tide & Water Level Stations,CA,加拿大,海洋,custom,verified,ca_tide_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大潮位與水位站 1,839 處（含歷史站；不含即時水位）"
+caEcozones,生態帶與生態區 Ecozones & Ecoregions,CA,加拿大,自然保育,custom,verified,ca_ecozones,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大 15 個生態帶（面）＋生態區界（線；National Ecological Framework v2.2）
+caForestManagement,森林經營型態 Forest Management,CA,加拿大,林業,custom,verified,ca_forest_management,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大森林經營型態 958 面（皇家林林權、私有林、保護區、原住民土地等；CCFM 2020 低解析度版）
+caBridgesTunnels,"橋梁、涵洞與隧道 Bridges, Culverts & Tunnels",CA,加拿大,交通,custom,verified,ca_bridges_tunnels,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大橋梁、涵洞與隧道 99,209 處（StatCan ODI v2；線狀橋體取代表點）"
+caFerryRoutes,汽車渡輪航線 Road Ferry Routes,CA,加拿大,交通,custom,verified,ca_ferry_routes,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大汽車渡輪航線 182 段（Atlas of Canada 1:1M；沒有時刻）
+caTorontoKsi,多倫多重大交通事故（KSI） Toronto KSI Collisions,CA,加拿大,交通,custom,verified,ca_toronto_ksi_collisions,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"多倫多市死亡與重傷交通事故 7,677 起（2006 年起；只有多倫多市）"
+caLodeHealth,醫療設施（LODE ODHF） Healthcare Facilities (ODHF),CA,加拿大,醫療,custom,verified,ca_lode_health,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大醫療設施 6,663 處（醫院、診所與門診、護理與住宿照顧；ODHF 2020 版，OSM 補點空心）"
+caLodeSchools,學校（LODE ODEF） Schools (ODEF),CA,加拿大,教育,custom,verified,ca_lode_schools,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大學校與教育機構 17,161 處（ODEF 2022 版；依學制上色，OSM 補點空心）"
+caLodeSports,運動休閒設施（LODE ODRSF） Recreation & Sport Facilities (ODRSF),CA,加拿大,運動休閒,custom,verified,ca_lode_sports,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大運動休閒設施 181,849 處（公園、運動場、游泳池、冰場等；步道 14.3 萬點預設關）"
+caBcChildcare,BC 托育中心 BC Child Care Centres,CA,加拿大,教育,custom,verified,ca_bc_childcare,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"卑詩省群體式托育中心 3,807 處（含空位與育兒費補助；家庭式托育不上圖）"
+caLodeCulture,文化藝術設施（LODE ODCAF） Cultural & Art Facilities (ODCAF),CA,加拿大,文化,custom,verified,ca_lode_culture,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大文化藝術設施 7,305 處（圖書館、博物館、藝廊、劇院、古蹟等；個人藝術家不上圖）"
+caCbsaOffices,邊境服務署辦公室與口岸 CBSA Offices & Ports of Entry,CA,加拿大,執法治安,custom,verified,ca_cbsa_offices,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大邊境服務署辦公室與口岸 978 處（94 筆無座標未上圖）
+caParksCanadaAccommodation,國家公園營位與住宿 Parks Canada Campsites & Stays,CA,加拿大,觀光,custom,verified,ca_parks_canada_accommodation,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"Parks Canada 轄管地點的營位與住宿 11,741 處（營位、野營、oTENTik、小屋等）"
+caCourtsCorrections,"法院與矯正設施（BC、ON） Courts & Corrections (BC, ON)",CA,加拿大,執法治安,custom,verified,ca_courts_corrections,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,法院 166 處（BC、ON）＋矯正設施 28 處（只有 BC）；其他 11 省區未涵蓋
+caTorontoTheftFromVehicle,多倫多車內竊盜 Toronto Theft from Motor Vehicle,CA,加拿大,執法治安,custom,verified,ca_toronto_theft_from_vehicle,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"多倫多市車內竊盜 107,088 件（點位為警方偏移至路口；只有多倫多市）"
+caWildfirePoints,歷史大型野火點 Historical Wildfire Points,CA,加拿大,災害,custom,verified,ca_wildfire_points,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大大型野火點 15,204 處（1980–2023，依年代上色；授權未確認，只上位置與年份）"
+caBroadbandHex,寬頻覆蓋（50/10 Mbps） Broadband Coverage (50/10 Mbps),CA,加拿大,基礎建設,custom,verified,ca_broadband_hex,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大 25 km² 六角格寬頻覆蓋 77,765 格（住戶可用 50/10 Mbps 的比例分級；無住戶不畫）"
+caMines,"礦場、冶煉廠與探勘案 Mines, Smelters & Exploration",CA,加拿大,能源,custom,verified,ca_mines,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大生產礦場 183、冶金設施 96、前 100 大探勘案（NRCan 900A）
+caGrainElevators,穀物升降機 Grain Elevators,CA,加拿大,農業,custom,verified,ca_grain_elevators,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大持照穀物升降機 401 座（2015 年；大小依容量）
+caDroughtMonitor,乾旱監測（2026-10） Drought Monitor (Oct 2026),CA,加拿大,農業,custom,verified,ca_drought_monitor,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,加拿大乾旱監測 2026 年 10 月一期（D0–D4；沒有面＝無乾旱）
+caSoilLandscapes,土壤景觀（SLC 3.2） Soil Landscapes (SLC 3.2),CA,加拿大,農業,custom,verified,ca_soil_landscapes,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大土壤景觀 12,353 面（優勢組成的土綱；組成表只有十省南部 4,579 面，其餘未涵蓋）"
+caNsAquaculture,新斯科細亞養殖租約 Nova Scotia Aquaculture Leases,CA,加拿大,農業,custom,verified,ca_ns_aquaculture,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,新斯科細亞省養殖租約 202 面（貝類、魚類、混養；租約持有人不輸出）
+caAbattoirs,"屠宰場（ON、MB） Abattoirs (ON, MB)",CA,加拿大,農業,custom,verified,ca_abattoirs,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,省級持照屠宰場 135 處（安大略 113、曼尼托巴 22；聯邦 CFIA 肉品廠未收）
+caOdbus,營業登記點位（ODBus） Business Licences (ODBus),CA,加拿大,工商登記,custom,verified,ca_odbus,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"加拿大部分城市營業執照 312,097 筆（依 NAICS 大類上色；不含名稱與地址）"
+caTorontoDevApplications,多倫多開發申請 Toronto Development Applications,CA,加拿大,底圖,custom,verified,ca_toronto_dev_applications,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"多倫多市開發申請位置 8,592 筆（授權未明示，只上位置；快照 2026-11-17）"
 gbMaritimeLimits,海域界線 Maritime Limits and Boundaries,GB,英國,底圖,custom,verified,gb_maritime_limits,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國領海、6 浬線、直線基線、專屬經濟海域、大陸棚外界與鄰國分界線（UKHO）
 gbBuiltUpAreas,建成區 Built Up Areas,GB,英國,底圖,custom,verified,gb_built_up_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭、蘇格蘭、威爾斯 20 公頃以上的建成區範圍（OS Open Built Up Areas）
 gbGreenspace,公園綠地 Parks and Gardens,GB,英國,底圖,custom,verified,gb_greenspace,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭、蘇格蘭、威爾斯的公園、花園、遊戲場與市民農園範圍（OS Open Greenspace）
