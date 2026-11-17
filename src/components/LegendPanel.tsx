@@ -28,7 +28,7 @@ import { type StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
 import { INFERNO, VIRIDIS, MAGMA } from "../map/demographicsLayerFactory";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
-import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
+import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, GibsNightLightsLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
 import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend, HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend, HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend } from "./legend/harmReductionLegends";
 import { DisasterResourceSitesLegend, FiringNoticeAreasLegend, NuclearEpzEvacuationLegend, TrafficAccidents2025Legend, TsunamiSirensLegend } from "./legend/g36SafetyLegends";
 import { JpTrafficAccidents2025Legend } from "./legend/jpSafetyLegends";
@@ -732,6 +732,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "dioxinStations", render: () => <DioxinStationsLegend /> },
   { id: "incineratorEmissions", render: () => <IncineratorEmissionsLegend /> },
   { id: "nuscGammaRadiation", render: () => <NuscGammaRadiationLegend /> },
+  { id: "gibsNightLights", render: () => <GibsNightLightsLegend /> },
   { id: "waterEffluentLive", render: () => <WaterEffluentLiveLegend /> },
   { id: "cemsStackLive", render: () => <CemsStackLiveLegend /> },
   { id: "cwaUvDaily", render: () => <CwaUvDailyLegend /> },

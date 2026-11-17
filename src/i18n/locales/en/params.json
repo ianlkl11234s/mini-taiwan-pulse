@@ -2672,5 +2672,8 @@
   "param.gbPlacesOfWorship.印度教": "Hindu",
   "param.gbPlacesOfWorship.佛教": "Buddhist",
   "param.gbPlacesOfWorship.其他宗教": "Other religion",
-  "param.gbPlacesOfWorship.未標示宗教": "Religion not tagged"
+  "param.gbPlacesOfWorship.未標示宗教": "Religion not tagged",
+  "param.年份／樣式": "Year / style",
+  "param.2012 夜光": "2012 night lights",
+  "param.2016 夜光": "2016 night lights"
 }

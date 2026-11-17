@@ -10,6 +10,7 @@ import { statisticsLinkedSelects } from './statisticsParamsSpec';
 import { statisticsPresentationSpec } from './statisticsPresentation';
 import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
 import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
+import { GIBS_NIGHT_LIGHTS_PRODUCTS } from "./gibsNightLightsTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 import { LIVE_INCIDENT_WINDOWS } from "./liveIncidentsTypes";
 // ══════════════════════════════════════════════════════════════════
@@ -4926,6 +4927,18 @@ export const LAYER_PARAMS_SPEC = {
       kind: "select", name: "gibsSnowCoverProduct", label: "資料源", default: "modis_terra",
       options: GIBS_SNOW_PRODUCTS.map(({ label, value }) => ({ label, value })),
       out: "gibsSnowCoverProductIdx", encode: GIBS_SNOW_PRODUCTS.map((p) => p.value),
+    },
+  ],
+  // 上游直連：GIBS 衛星夜光 raster（2012／2016 年度合成）＋樣式切換
+  gibsNightLights: [
+    {
+      kind: "slider", name: "gibsNightLightsOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+    {
+      kind: "select", name: "gibsNightLightsProduct", label: "年份／樣式", default: "viirs_2016",
+      options: GIBS_NIGHT_LIGHTS_PRODUCTS.map(({ label, value }) => ({ label, value })),
+      out: "gibsNightLightsProductIdx", encode: GIBS_NIGHT_LIGHTS_PRODUCTS.map((p) => p.value),
     },
   ],
   jmaRiskFlood: [opacitySlider("jmaRiskFloodOpacity", JMA_FLOOD_OPACITY)],

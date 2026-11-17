@@ -8,6 +8,7 @@ import {
 } from "../../data/environmentLayerTypes";
 import { getEnvLiveStatus, subscribeEnvLiveStatus, type EnvLiveKey } from "../../data/environmentLiveLoaders";
 import { useKeyOverlayParams } from "../../layers/layerParamsAccess";
+import { GIBS_NIGHT_LIGHTS_GRADIENT } from "../../data/gibsNightLightsTypes";
 import { formatTaiwanTime } from "../featureInfo/shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useLocale } from "../../state/localeStore";
@@ -151,5 +152,17 @@ export function CwaUvDailyLegend() {
     <Hollow label={i18n.t("legend.environment.hollowUv")} />
     <LiveStatus layerKey="cwaUvDaily" timeLabel={i18n.t("legend.environment.timeDataDate")} />
     <LegendNote>{i18n.t("legend.environment.uvNote")}</LegendNote>
+  </div>;
+}
+
+/** 衛星夜光（NASA GIBS VIIRS 年度合成）：上游已上色成品，色帶只示意暗→亮，沒有數值 */
+export function GibsNightLightsLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={layerTitle("gibsNightLights", i18n)} en="Night Lights" />
+    <SwatchGradient gradient={GIBS_NIGHT_LIGHTS_GRADIENT}
+      labels={[i18n.t("legend.environment.nightLightsDark"), i18n.t("legend.environment.nightLightsBright")]} />
+    <LegendNote>{i18n.t("legend.environment.nightLightsNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.environment.nightLightsAttribution")}</LegendNote>
   </div>;
 }

@@ -1841,6 +1841,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("incineratorEmissions"),
           fromManifest("cemsStackLive"),
           fromManifest("nuscGammaRadiation"),
+          fromManifest("gibsNightLights"),
         ],
       },
       {

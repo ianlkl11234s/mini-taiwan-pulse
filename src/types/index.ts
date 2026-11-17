@@ -1591,6 +1591,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   dioxinStations: boolean;
   incineratorEmissions: boolean;
   nuscGammaRadiation: boolean;
+  gibsNightLights: boolean; // NASA GIBS 衛星夜光（VIIRS 2012／2016 年度合成，瀏覽器直連上游）
   waterEffluentLive: boolean;
   cemsStackLive: boolean;
   cwaUvDaily: boolean;

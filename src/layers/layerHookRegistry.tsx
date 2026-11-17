@@ -85,7 +85,7 @@ import {
   FuneralDensityHost, TemperatureGridHost,
 } from "./hosts/miscHosts";
 import {
-  HillshadeHost, SlopeVectorHost, AspectVectorHost, CwaImageryHost,
+  HillshadeHost, GibsNightLightsHost, SlopeVectorHost, AspectVectorHost, CwaImageryHost,
   AqiImageryHost, AqiStationsHost, MicroSensorsHost,
 } from "./hosts/imageryHosts";
 import {
@@ -756,6 +756,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
 
   // ── 地形 raster / 坡度坡向 / 氣象空品影像（L1264-1306）──
   { id: "useStaticRasterLayer:hillshade", keys: ["hillshade"], Host: HillshadeHost },
+  { id: "useGibsNightLightsLayer", keys: ["gibsNightLights"], Host: GibsNightLightsHost },
   { id: "useSlopeVectorLayer", keys: ["slopeVector"], Host: SlopeVectorHost },
   { id: "useAspectVectorLayer", keys: ["aspectVector"], Host: AspectVectorHost },
   {

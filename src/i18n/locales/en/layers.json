@@ -1933,5 +1933,6 @@
   "layer.phBuiltSurface": "Built-up Surface (Philippines)",
   "layer.phForestLoss": "Tree Cover Loss Year (Philippines)",
   "layer.fire119Live": "Live 119 Incidents",
-  "layer.pbsRoadEventsLive": "PBS Live Road Reports"
+  "layer.pbsRoadEventsLive": "PBS Live Road Reports",
+  "layer.gibsNightLights": "Satellite Night Lights"
 }

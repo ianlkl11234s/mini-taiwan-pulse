@@ -204,5 +204,9 @@
   "legend.environment.gbNoiseSourceNote": "「騒音源」メニューで道路（{road} 面）と鉄道（{rail} 面）を切替、ズーム 5 から表示",
   "legend.environment.gbNoiseNote": "戦略騒音モデルの推計値（地上 4 m の昼夕夜加重 Lden）で実測ではない。55 dB 未満は未掲載",
   "legend.environment.gbNoiseCoverage": "北アイルランド：対象外。ウェールズの鉄道：対象外",
-  "legend.environment.gbNoiseRounds": "イングランド・スコットランドは Round 4（2022、50 m グリッドをベクター化）、ウェールズは 2017（Round 3）で直接比較不可"
+  "legend.environment.gbNoiseRounds": "イングランド・スコットランドは Round 4（2022、50 m グリッドをベクター化）、ウェールズは 2017（Round 3）で直接比較不可",
+  "legend.environment.nightLightsDark": "暗い",
+  "legend.environment.nightLightsBright": "明るい",
+  "legend.environment.nightLightsNote": "VIIRS 衛星の 2012／2016 年合成画像：閲覧用で定量化はできず、時刻ごとの点灯でもありません。Black Marble は青い地表を含みます。最高約 500 m、z8 以上では粗くなります。",
+  "legend.environment.nightLightsAttribution": "We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS)."
 }

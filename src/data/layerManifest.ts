@@ -124,7 +124,7 @@ import {
   Satellite,
   // 🌤️ 環境氣候（Cloud / CloudRain / Grid3x3 / ThermometerSun / Wind / Activity /
   //    AlertTriangle / AlertCircle / TreePine / Sprout / Waves 已在上方 import 復用）
-  CloudSun, Thermometer, Snowflake, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
+  CloudSun, Thermometer, Snowflake, Moon, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
   // 💧 水資源（Droplet / Droplets / Waves / Shield / ShieldCheck / Factory / Timer /
   //    CloudRain / AlertTriangle 已在上方 import 復用）
   GitBranch, Dam, Gauge, Container,
@@ -177,6 +177,7 @@ import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
 import { JMA_LAYER_COLORS } from "./jmaTypes";
 import { JMA_POINT_LAYER_COLORS } from "./jmaPointTypes";
 import { GIBS_SNOW_LAYER_COLOR } from "./gibsSnowTypes";
+import { GIBS_NIGHT_LIGHTS_LAYER_COLOR } from "./gibsNightLightsTypes";
 import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
 import {
   JP_ACCOMMODATION_DENSITY_LAYER_COLOR,
@@ -13713,6 +13714,30 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "核安會全國環境輻射即時監測（μSv/h，15 分鐘）；與台電核電廠周界輻射（災害・核安）為不同測站網",
     topics: ["環境", "輻射", "核安會", "即時"],
+  },
+  gibsNightLights: {
+    key: "gibsNightLights",
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
+    ...layerName({ zh: "衛星夜光", alt: "Night Lights", qualifier: "NASA GIBS" }),
+    expandable: true,
+    color: GIBS_NIGHT_LIGHTS_LAYER_COLOR,
+    icon: Moon,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "瀏覽器直連 NASA GIBS WMTS（epsg3857/best，GoogleMapsCompatible_Level8，z0–8）：VIIRS_Night_Lights（2012-01-01／2016-01-01）／VIIRS_Black_Marble（2016-01-01）；日期固定、不接時間軸",
+      note: "NASA GIBS 致謝文（attribution 原文照登）；年度合成影像，只能看不能量化；不入我們的 DB／倉庫",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGibsNightLightsLayer：raster source（gibs-night-lights-src，tiles 模板 {z}/{y}/{x}，maxzoom 8）＋ raster layer（插在第一個 symbol 下方）；切樣式時 setTiles —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "gibsNightLights",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "NASA 衛星夜間燈光（VIIRS；2012／2016 年合成影像，只能看不能量化；不是逐時開燈）",
+    topics: ["環境", "光害", "夜光", "衛星"],
   },
   waterEffluentLive: {
     key: "waterEffluentLive",

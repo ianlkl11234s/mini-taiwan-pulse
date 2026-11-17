@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1943,
+    "keyCount": 1944,
     "sections": [
       "gisLayers",
       "overlays",
@@ -129325,6 +129325,36 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      }
+    ],
+    "gibsNightLights": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "年份／樣式",
+        "options": [
+          {
+            "label": "2012 夜光",
+            "value": "viirs_2012"
+          },
+          {
+            "label": "2016 夜光",
+            "value": "viirs_2016"
+          },
+          {
+            "label": "2016 Black Marble",
+            "value": "black_marble_2016"
+          }
+        ],
+        "type": "select",
+        "value": "viirs_2016"
       }
     ],
     "gibsSnowCover": [

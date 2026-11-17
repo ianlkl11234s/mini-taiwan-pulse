@@ -238,6 +238,8 @@ const NO_POPUP_LEDGER = new Set([
   // 上游直連（P5）：GIBS 雪覆蓋是上游已上色 raster（無數值通道）；洪水キキクル 線只帶 level，圖例已標示，
   // 實測當下全國無警戒、屬性待雨天抽驗再決定 popup；黃砂是圖片面板，沒有地圖 feature。
   "gibsSnowCover", "jmaRiskFlood", "jmaKosa",
+  // GIBS 衛星夜光：上游已上色的年度合成 raster（無數值通道、無 feature），只能看不能量化
+  "gibsNightLights",
   // 溫度波：不是 raster 而是 Three.js mesh（無 raycast）；同一份 RPC 的 2D 雙生層
   // temperature-grid-fill 已可點 → 「3D 模式是否也要能點」是 EDGE，待 owner 拍板
   "temperatureWave",
