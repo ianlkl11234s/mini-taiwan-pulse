@@ -454,6 +454,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites" | "mapchallengeDay08Plan1955"
   | "mapchallengeDay09UrbanRural"
+  | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17NightFall" | "mapchallengeDay17LedShare"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -1032,6 +1033,7 @@ export interface FeatureInfo {
   | "mapchallengeDay06Coast" | "mapchallengeDay06Taipei1932" | "mapchallengeDay06Temples1921" | "mapchallengeDay06Lighthouses"
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites"
   | "mapchallengeDay09UrbanRural"
+  | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17LedShare"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1435,6 +1437,14 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mapchallengeDay08Plan1955: boolean;
   /** 30 天地圖挑戰 Day 9 城鄉（模擬面板，公開）：368 鄉鎮人口密度五等份與 9 類設施每萬人數 */
   mapchallengeDay09UrbanRural: boolean;
+  /** 30 天地圖挑戰 Day 17 光與暗（模擬面板，公開）：天空光害推估／2025 地面亮度（image source）＋48 處保護區排名 */
+  mapchallengeDay17DarkSky: boolean;
+  /** 30 天地圖挑戰 Day 17 光與暗：衛星看不到光的路段（0／低路段＋連續 ≥1 km 暗路段 353 段） */
+  mapchallengeDay17DarkRoads: boolean;
+  /** 30 天地圖挑戰 Day 17 光與暗：入夜變亮（2025 地面亮度依太陽高度逐地亮起，canvas source） */
+  mapchallengeDay17NightFall: boolean;
+  /** 30 天地圖挑戰 Day 17 光與暗：縣市路燈 LED 化（22 縣市 2021–2025 LED 用電占比） */
+  mapchallengeDay17LedShare: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */
@@ -1596,6 +1606,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   dioxinStations: boolean;
   incineratorEmissions: boolean;
   nuscGammaRadiation: boolean;
+  gibsNightLights: boolean; // NASA GIBS 衛星夜光（VIIRS 2012／2016 年度合成，瀏覽器直連上游）
   waterEffluentLive: boolean;
   cemsStackLive: boolean;
   cwaUvDaily: boolean;

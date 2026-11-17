@@ -57,7 +57,7 @@ import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
 import { TransitReachGridHost, TransitReachPlaybackHost } from "./hosts/transitReachHosts";
 import { HistoricalMapSinicaHost } from "./hosts/historicalMapHosts";
-import { MapchallengeDay08PlanHost } from "./hosts/mapchallengeHosts";
+import { MapchallengeDay08PlanHost, MapchallengeDay17DarkSkyHost, MapchallengeDay17NightFallHost } from "./hosts/mapchallengeHosts";
 import { FreewayTdcsSimHost } from "./hosts/freewayTdcsSimHost";
 import { TransitAccessGridHost, TransitAccessPlaybackHost } from "./hosts/transitAccessHosts";
 import {
@@ -85,7 +85,7 @@ import {
   FuneralDensityHost, TemperatureGridHost,
 } from "./hosts/miscHosts";
 import {
-  HillshadeHost, SlopeVectorHost, AspectVectorHost, CwaImageryHost,
+  HillshadeHost, GibsNightLightsHost, SlopeVectorHost, AspectVectorHost, CwaImageryHost,
   AqiImageryHost, AqiStationsHost, MicroSensorsHost,
 } from "./hosts/imageryHosts";
 import {
@@ -822,6 +822,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
 
   // ── 地形 raster / 坡度坡向 / 氣象空品影像（L1264-1306）──
   { id: "useStaticRasterLayer:hillshade", keys: ["hillshade"], Host: HillshadeHost },
+  { id: "useGibsNightLightsLayer", keys: ["gibsNightLights"], Host: GibsNightLightsHost },
   { id: "useSlopeVectorLayer", keys: ["slopeVector"], Host: SlopeVectorHost },
   { id: "useAspectVectorLayer", keys: ["aspectVector"], Host: AspectVectorHost },
   {
@@ -867,4 +868,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "usePbsRoadEventsLiveLayer", keys: ["pbsRoadEventsLive"], Host: PbsRoadEventsLiveHost },
   // 30 天地圖挑戰 Day 8：1955 中和鄉都市計畫圖（單張 image source）
   { id: "useMapchallengeDay08PlanLayer", keys: ["mapchallengeDay08Plan1955"], Host: MapchallengeDay08PlanHost },
+  // 30 天地圖挑戰 Day 17 光與暗：真正的黑夜（image source＋保護區面）、入夜變亮（canvas source，timeStore 訂閱）
+  { id: "useMapchallengeDay17DarkSkyLayer", keys: ["mapchallengeDay17DarkSky"], Host: MapchallengeDay17DarkSkyHost },
+  { id: "useMapchallengeDay17NightFallLayer", keys: ["mapchallengeDay17NightFall"], Host: MapchallengeDay17NightFallHost },
 ];

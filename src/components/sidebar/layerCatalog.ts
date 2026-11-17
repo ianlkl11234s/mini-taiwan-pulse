@@ -2399,6 +2399,12 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "夜間燈光 Night Lights",
+        layers: [
+          fromManifest("gibsNightLights"),
+        ],
+      },
+      {
         title: "海洋生態 Marine Ecosystems",
         layers: [
           fromManifest("coralReefDistribution"),
@@ -2485,6 +2491,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 9 城鄉 Urban-rural",
       layers: [fromManifest("mapchallengeDay09UrbanRural")],
+    }, {
+      title: "Day 17 光與暗 Light & dark",
+      layers: [fromManifest("mapchallengeDay17DarkSky"), fromManifest("mapchallengeDay17DarkRoads"), fromManifest("mapchallengeDay17NightFall"), fromManifest("mapchallengeDay17LedShare")],
     }],
   },
 

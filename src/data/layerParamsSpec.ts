@@ -10,6 +10,7 @@ import { statisticsLinkedSelects } from './statisticsParamsSpec';
 import { statisticsPresentationSpec } from './statisticsPresentation';
 import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
 import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
+import { GIBS_NIGHT_LIGHTS_PRODUCTS } from "./gibsNightLightsTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 import { LIVE_INCIDENT_WINDOWS } from "./liveIncidentsTypes";
 // ══════════════════════════════════════════════════════════════════
@@ -100,6 +101,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
+import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
@@ -1704,6 +1706,35 @@ export const LAYER_PARAMS_SPEC = {
       kind: "select", category: "data", name: "mapchallengeDay09UrbanRuralMetric", label: "指標", default: MAPCHALLENGE_DAY09_DEFAULT_METRIC,
       options: MAPCHALLENGE_DAY09_METRIC_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
       out: "mapchallengeDay09UrbanRuralMetricIdx", encode: [...MAPCHALLENGE_DAY09_METRIC_ENCODE],
+    },
+  ],
+  // 30 天地圖挑戰 Day 17 光與暗（模擬面板，公開）：影像 raster 用 G-4 影像透明度；暗路段的顯示等級 select 由 overlayRegistry 的 filter 自己組。
+  mapchallengeDay17DarkSky: [
+    { kind: "slider", name: "mapchallengeDay17DarkSkyOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17DarkSkyProduct", label: "影像", default: "skyglow",
+      options: MAPCHALLENGE_DAY17_PRODUCTS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay17DarkSkyProductIdx", encode: MAPCHALLENGE_DAY17_PRODUCTS.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay17DarkRoads: [
+    opacitySlider("mapchallengeDay17DarkRoadsOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17DarkRoadsScope", label: "顯示等級", default: "zero",
+      options: MAPCHALLENGE_DAY17_ROAD_SCOPES.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay17DarkRoadsScopeIdx", encode: MAPCHALLENGE_DAY17_ROAD_SCOPES.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay17NightFall: [
+    { kind: "slider", name: "mapchallengeDay17NightFallOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ],
+  // 年份 select 只換 paint 讀的欄位 led_share_<year>
+  mapchallengeDay17LedShare: [
+    opacitySlider("mapchallengeDay17LedShareOpacity", 0.7),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17LedShareYear", label: "年份", default: String(MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR),
+      options: MAPCHALLENGE_DAY17_LED_YEARS.map((y) => ({ label: `${y} 年`, value: String(y) })),
+      out: "mapchallengeDay17LedShareYearIdx", encode: MAPCHALLENGE_DAY17_LED_YEARS.map(String),
     },
   ],
   freewayTdcsSim: [
@@ -4979,6 +5010,18 @@ export const LAYER_PARAMS_SPEC = {
       out: "gibsSnowCoverProductIdx", encode: GIBS_SNOW_PRODUCTS.map((p) => p.value),
     },
   ],
+  // 上游直連：GIBS 衛星夜光 raster（2012／2016 年度合成）＋樣式切換
+  gibsNightLights: [
+    {
+      kind: "slider", name: "gibsNightLightsOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+    {
+      kind: "select", name: "gibsNightLightsProduct", label: "年份／樣式", default: "viirs_2016", category: "data",
+      options: GIBS_NIGHT_LIGHTS_PRODUCTS.map(({ label, value }) => ({ label, value })),
+      out: "gibsNightLightsProductIdx", encode: GIBS_NIGHT_LIGHTS_PRODUCTS.map((p) => p.value),
+    },
+  ],
   jmaRiskFlood: [opacitySlider("jmaRiskFloodOpacity", JMA_FLOOD_OPACITY)],
   riverRpiSegments: [
     opacitySlider("riverRpiSegmentsOpacity", 0.85),
@@ -5061,6 +5104,8 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "shipTrailOpacity", labelPrefix: "航跡", digits: 2,
       default: 0.15, min: 0.05, max: 1, step: 0.05, out: null,
     },
+    // 漁火模擬（30 天地圖挑戰 Light & dark）：漁船依船位太陽高度畫暖白光暈；Three.js 直接讀 layerParamRefs
+    { kind: "toggle", name: "shipFishingLights", label: "漁火模擬", default: false, out: null, category: "look" },
   ],
   rail: [
     { kind: "toggle", name: "railTrainVisible", label: "列車", default: true, out: null },

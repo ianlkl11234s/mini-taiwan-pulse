@@ -255,6 +255,7 @@ export function useThreeJsLayers({
       getIsDarkTheme: () => isDarkThemeRef.current,
       getOrbScale: () => paramRefs.shipOrbScale.current,
       getTrailOpacity: () => paramRefs.shipTrailOpacity.current,
+      getFishingLights: () => paramRefs.shipFishingLights.current,
       getIsVisible: () => layerVisibilityRef.current.ships,
       getMapBounds: () => {
         const b = map.getBounds();

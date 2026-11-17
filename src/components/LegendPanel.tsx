@@ -28,7 +28,7 @@ import { type StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
 import { INFERNO, VIRIDIS, MAGMA } from "../map/demographicsLayerFactory";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
-import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
+import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, GibsNightLightsLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
 import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend, HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend, HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend } from "./legend/harmReductionLegends";
 import { DisasterResourceSitesLegend, FiringNoticeAreasLegend, NuclearEpzEvacuationLegend, TrafficAccidents2025Legend, TsunamiSirensLegend } from "./legend/g36SafetyLegends";
 import { JpTrafficAccidents2025Legend } from "./legend/jpSafetyLegends";
@@ -41,7 +41,7 @@ import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, 
 import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLegend, AquacultureLegend, AquacultureWaterSatelliteMoaLegend, AquacultureWaterUnionLegend, CoralReefDistributionLegend, GfwDarkVesselsLegend, GfwFishingEffortLegend, GfwHourlyGridLegend, GfwHourlyTracksLegend, GfwVesselPresenceLegend, IsobathLegend, MarineObservationLegend, MaritimeBoundaryLegend, PlaActivityLegend, ShipsLegend, VesselWatchLegend, WorldTrashDebrisLegend } from "./legend/maritimeLegends";
 import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/transitReachLegends";
 import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
-import { MapchallengeFacilityLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend } from "./legend/mapchallengeLegends";
+import { MapchallengeFacilityLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
@@ -310,6 +310,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "mapchallengeDay08Sites", render: ({ isDark }) => <MapchallengeDay08SitesLegend isDark={isDark} /> },
   { id: "mapchallengeDay08Plan1955", render: () => <MapchallengeDay08Plan1955Legend /> },
   { id: "mapchallengeDay09UrbanRural", render: () => <MapchallengeDay09UrbanRuralLegend /> },
+  { id: "mapchallengeDay17DarkSky", render: ({ isDark }) => <MapchallengeDay17DarkSkyLegend isDark={isDark} /> },
+  { id: "mapchallengeDay17DarkRoads", render: ({ isDark }) => <MapchallengeDay17DarkRoadsLegend isDark={isDark} /> },
+  { id: "mapchallengeDay17NightFall", render: () => <MapchallengeDay17NightFallLegend /> },
+  { id: "mapchallengeDay17LedShare", render: ({ isDark }) => <MapchallengeDay17LedShareLegend isDark={isDark} /> },
   { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
   { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },
   { id: "bridgeRainThresholds", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeRain")} rows={[{ label: i18n.t("legend.registry.bridgeRainRow1"), color: "#ef4444" }, { label: i18n.t("legend.registry.bridgeRainRow2"), color: "#3b82f6" }, { label: i18n.t("legend.registry.bridgeRainRow3"), color: "#94a3b8" }]} /> },
@@ -744,6 +748,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "dioxinStations", render: () => <DioxinStationsLegend /> },
   { id: "incineratorEmissions", render: () => <IncineratorEmissionsLegend /> },
   { id: "nuscGammaRadiation", render: () => <NuscGammaRadiationLegend /> },
+  { id: "gibsNightLights", render: () => <GibsNightLightsLegend /> },
   { id: "waterEffluentLive", render: () => <WaterEffluentLiveLegend /> },
   { id: "cemsStackLive", render: () => <CemsStackLiveLegend /> },
   { id: "cwaUvDaily", render: () => <CwaUvDailyLegend /> },

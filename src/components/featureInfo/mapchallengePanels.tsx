@@ -3,6 +3,7 @@
  * 人口欄位＋依圖層列設施數／熱區分類。設施層讀目前選的設施（同圖例）。
  */
 import { useLocale } from "../../state/localeStore";
+import { placeName } from "../../i18n/placeText";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import {
   MAPCHALLENGE_DAY04_COLOR, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_ZERO_SWATCH,
@@ -22,6 +23,10 @@ import {
   MAPCHALLENGE_DAY09_FACILITIES, mapchallengeDay09FeatureColor, mapchallengeDay09MetricByKey,
 } from "../../data/mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY09_METRIC_KEYS, MAPCHALLENGE_DAY09_QUINTILE_KEYS } from "../legend/mapchallengeLegends";
+import {
+  MAPCHALLENGE_DAY17_LOW_SWATCH, MAPCHALLENGE_DAY17_PROTECTED_TOTAL, MAPCHALLENGE_DAY17_TOP_RANK, mapchallengeDay17GlowColor, mapchallengeDay17ProtectedLineColor, mapchallengeDay17ZeroColor,
+  mapchallengeDay17LedFeatureColor, mapchallengeDay17LedYearByKey,
+} from "../../data/mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import { Row, SourceFooter, Title } from "./shared";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
@@ -369,5 +374,78 @@ export function MapchallengeDay09UrbanRuralPanel({ props }: Props) {
         color={f.key === metric ? mapchallengeDay09FeatureColor(metric, props, isDark) : undefined} mono />;
     })}
     <SourceFooter props={{ source: t("legend.mapchallenge.day09.source") }} />
+  </div>;
+}
+
+// ── Day 17 光與暗 ─────────────────────────────────────────────
+/** 天空推估相對值：小數 2 位有效數字（0.00001 這種地板值也看得出量級） */
+const relText = (v: unknown) => (Number.isFinite(num(v)) ? Number(num(v).toPrecision(2)).toString() : "");
+
+export function MapchallengeDay17DarkSkyPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const darkest = props.darkest_class_pct;
+  const hasLand = darkest !== null && darkest !== undefined && darkest !== "" && Number.isFinite(num(darkest));
+  const landPct = num(props.land_pixel_pct);
+  return <div>
+    <Title color={mapchallengeDay17ProtectedLineColor(isDark)}>{str(props.name)}</Title>
+    <Row label={t("popup.mapchallenge.day17.category")} value={str(props.category)} />
+    <Row label={t("popup.mapchallenge.day17.rank")} value={t("popup.mapchallenge.day17.rankValue", { rank: num(props.rank_all), total: MAPCHALLENGE_DAY17_PROTECTED_TOTAL })} mono />
+    <Row label={t("popup.mapchallenge.day17.skyMean")} value={t("popup.mapchallenge.day17.relValue", { n: relText(props.sky_rel_mean) })} mono />
+    <Row label={t("popup.mapchallenge.day17.darkestPct")} value={hasLand ? t("popup.mapchallenge.day17.pct", { n: formatNumber(num(darkest)) }) : t("popup.mapchallenge.day17.noLand")} mono={hasLand} />
+    <Row label={t("popup.mapchallenge.day17.groundMax")} value={t("popup.mapchallenge.day17.nw", { n: formatNumber(num(props.ground_max_nw)) })} mono />
+    {Number.isFinite(landPct) && landPct < 50 && <Row label={t("popup.mapchallenge.day17.note")} value={t("popup.mapchallenge.day17.mostlySea", { n: formatNumber(landPct) })} />}
+    <SourceFooter props={{ source: t("legend.mapchallenge.day17.source") }} />
+  </div>;
+}
+
+export function MapchallengeDay17DarkRoadsPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const route = [str(props.route), str(props.name)].filter(Boolean).join(" ") || t("popup.mapchallenge.day17.unnamed");
+  const isRun = Number.isFinite(num(props.rank)) && props.rank !== undefined;
+  if (isRun) {
+    const rank = num(props.rank);
+    const from = str(props.from_town);
+    const to = str(props.to_town);
+    const tunnel = num(props.tunnel_km);
+    return <div>
+      <Title color={rank <= MAPCHALLENGE_DAY17_TOP_RANK ? mapchallengeDay17GlowColor(isDark) : mapchallengeDay17ZeroColor(isDark)}>{route}</Title>
+      <Row label={t("popup.mapchallenge.day17.runRank")} value={t("popup.mapchallenge.day17.runRankValue", { rank })} mono />
+      <Row label={t("popup.mapchallenge.day17.darkKm")} value={t("popup.mapchallenge.day17.km", { n: formatNumber(num(props.dark_km)) })} mono />
+      {tunnel > 0 && <Row label={t("popup.mapchallenge.day17.span")} value={t("popup.mapchallenge.day17.spanValue", { n: formatNumber(num(props.span_km)), tunnel: formatNumber(tunnel) })} mono />}
+      {from && <Row label={t("popup.mapchallenge.day17.fromTo")} value={from === to || !to ? from : t("popup.mapchallenge.day17.fromToValue", { from, to })} />}
+      <Row label={t("popup.mapchallenge.day17.zero24")} value={t("popup.mapchallenge.day17.pct", { n: formatNumber(num(props.zero24_pct)) })} mono />
+      <Row label={t("popup.mapchallenge.day17.note")} value={t("popup.mapchallenge.day17.pixelNote")} />
+      <SourceFooter props={{ source: t("legend.mapchallenge.day17.roadsSource") }} />
+    </div>;
+  }
+  const zero = str(props.cls) === "0";
+  return <div>
+    <Title color={zero ? mapchallengeDay17ZeroColor(isDark) : MAPCHALLENGE_DAY17_LOW_SWATCH}>{route}</Title>
+    <Row label={t("popup.mapchallenge.day17.cls")} value={t(zero ? "popup.mapchallenge.day17.clsZero" : "popup.mapchallenge.day17.clsLow")} />
+    <Row label={t("popup.mapchallenge.day17.segKm")} value={t("popup.mapchallenge.day17.km", { n: formatNumber(num(props.length_km)) })} mono />
+    {!zero && <Row label={t("popup.mapchallenge.day17.rad25")} value={t("popup.mapchallenge.day17.nw", { n: formatNumber(num(props.rad25_mean)) })} mono />}
+    <Row label={t("popup.mapchallenge.day17.note")} value={t(zero ? "popup.mapchallenge.day17.pixelNote" : "popup.mapchallenge.day17.lowNote")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day17.roadsSource") }} />
+  </div>;
+}
+
+export function MapchallengeDay17LedSharePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const values = useLayerParams("mapchallengeDay17LedShare");
+  const year = mapchallengeDay17LedYearByKey(paramStr(values, "mapchallengeDay17LedShare", "mapchallengeDay17LedShareYear"));
+  const share = props[`led_share_${year}`];
+  const has = (v: unknown) => v !== null && v !== undefined && v !== "" && Number.isFinite(num(v));
+  const fmt = (v: unknown) => (has(v) ? formatNumber(num(v)) : t("popup.mapchallenge.day17.ledNoData"));
+  return <div>
+    <Title color={mapchallengeDay17LedFeatureColor(has(share) ? num(share) : null, isDark)}>{placeName(str(props.county), i18n, str(props.code) || null)}</Title>
+    <Row label={t("popup.mapchallenge.day17.ledShare", { year })} value={has(share) ? `${(num(share) * 100).toFixed(1)}%` : t("popup.mapchallenge.day17.ledNoData")} mono />
+    <Row label={t("popup.mapchallenge.day17.ledKwh")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_kwh_${year}`]), b: fmt(props[`total_kwh_${year}`]), unit: "kWh" })} mono />
+    <Row label={t("popup.mapchallenge.day17.ledAccounts")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_count_${year}`]), b: fmt(props[`total_${year}`]), unit: t("popup.mapchallenge.day17.ledAcctUnit") })} mono />
+    <Row label={t("popup.mapchallenge.day17.note")} value={t("popup.mapchallenge.day17.ledNote")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day17.ledSource") }} />
   </div>;
 }

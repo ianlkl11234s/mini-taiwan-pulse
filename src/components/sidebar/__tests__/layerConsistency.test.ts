@@ -238,6 +238,8 @@ const NO_POPUP_LEDGER = new Set([
   // 上游直連（P5）：GIBS 雪覆蓋是上游已上色 raster（無數值通道）；洪水キキクル 線只帶 level，圖例已標示，
   // 實測當下全國無警戒、屬性待雨天抽驗再決定 popup；黃砂是圖片面板，沒有地圖 feature。
   "gibsSnowCover", "jmaRiskFlood", "jmaKosa",
+  // GIBS 衛星夜光：上游已上色的年度合成 raster（無數值通道、無 feature），只能看不能量化
+  "gibsNightLights",
   // 溫度波：不是 raster 而是 Three.js mesh（無 raycast）；同一份 RPC 的 2D 雙生層
   // temperature-grid-fill 已可點 → 「3D 模式是否也要能點」是 EDGE，待 owner 拍板
   "temperatureWave",
@@ -250,6 +252,8 @@ const NO_POPUP_LEDGER = new Set([
   "historicalMapSinica", "historicalMapPostwar", "historicalImagery", "historicalBoundaries", "historicalLandUse", "historicalThematic",
   // 30 天地圖挑戰 Day 8：1955 中和鄉都市計畫圖（單張 image source 掃描圖，同古地圖無 feature 屬性；2026-11-08）
   "mapchallengeDay08Plan1955",
+  // 30 天地圖挑戰 Day 17 入夜變亮：2025 地面亮度 PNG 依太陽高度合成的 canvas raster（無 feature 屬性；保護區與暗路段兩層有 popup；2026-11-17）
+  "mapchallengeDay17NightFall",
   // 英國 C003：OS Terrain 50 地形 raster（上游烘好的 PNG，無 feature 屬性）
   "gbTerrainHillshade", "gbTerrainRelief",
   // 加拿大第 2 波：NRCan MRDEM-30 山體陰影 raster（PNG，無 feature 屬性）

@@ -169,6 +169,8 @@ export interface ShipLayerOptions {
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
   getTrailOpacity: () => number;
+  /** 漁火模擬開關（params ships.shipFishingLights） */
+  getFishingLights: () => boolean;
   getMapBounds: () => { minLng: number; maxLng: number; minLat: number; maxLat: number } | null;
   getIsVisible: () => boolean;
   onSceneReady?: (scene: ShipScene) => void;
@@ -225,6 +227,7 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
 
       shipScene.setOrbScale(opts.getOrbScale());
       shipScene.setTrailOpacity(opts.getTrailOpacity());
+      shipScene.setFishingLights(opts.getFishingLights());
       shipScene.setViewBounds(opts.getMapBounds());
       shipScene.update(opts.getShips(), opts.getCurrentTime());
       shipScene.render(matrix);

@@ -2,6 +2,9 @@
 // —— App.tsx 原 L1264-1306
 
 import { useStaticRasterLayer } from "../../hooks/useStaticRasterLayer";
+import { useGibsNightLightsLayer } from "../../hooks/useGibsNightLightsLayer";
+import { GIBS_NIGHT_LIGHTS_DEFAULT_IDX } from "../../data/gibsNightLightsTypes";
+import { RASTER } from "../../map/mapStyleScale";
 import { useSlopeVectorLayer } from "../../hooks/useSlopeVectorLayer";
 import { useAspectVectorLayer } from "../../hooks/useAspectVectorLayer";
 import { useCwaImageryLayer } from "../../hooks/useCwaImageryLayer";
@@ -109,5 +112,18 @@ export const MicroSensorsHost: LayerHostComponent = ({ deps }) => {
     paramNum(values, "aqiMicroSensors", "aqiMicroModeIdx"),
     paramNum(values, "aqiMicroSensors", "aqiMicroOpacity"),
   );
+  return null;
+};
+
+/** NASA GIBS 衛星夜光（上游直連 XYZ raster；2012／2016 年度合成，日期固定不接時間軸） */
+export const GibsNightLightsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGibsNightLightsLayer");
+  const p = useKeyOverlayParams("gibsNightLights");
+  useGibsNightLightsLayer({
+    mapRef: deps.mapRef,
+    visible: deps.layerVisibility.gibsNightLights,
+    opacity: p.gibsNightLightsOpacity ?? RASTER.opacity,
+    productIdx: p.gibsNightLightsProductIdx ?? GIBS_NIGHT_LIGHTS_DEFAULT_IDX,
+  });
   return null;
 };
