@@ -9,6 +9,7 @@
  * 官方來源（NSO、envisoft、安江省開放資料）授權未明示：NĐ 47/2020 第 18 條已由 NĐ 194/2025 廢止、NĐ 278/2025 整部取代（未取得官方原文）。
  */
 import type { VnDataKey } from "./vnDataKeys";
+import { VN_WAVE_SPECS } from "./vnWavesLayers";
 import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./phDataLayers";
 
 export type { L3 } from "./phDataLayers";
@@ -456,7 +457,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     loading: l3("越南油氣設施載入中", "Loading Vietnam oil & gas facilities", "ベトナムの石油・ガス施設を読み込み中"),
   },
   {
-    key: "vnEnvisoftStations", file: "vn_envisoft_stations_v2.pmtiles", sourceId: "vn-envisoft-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#a78bfa", count: 2177,
+    key: "vnEnvisoftStations", file: "vn_envisoft_stations_v3.pmtiles", sourceId: "vn-envisoft-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#a78bfa", count: 2176,
     parts: [{ id: "vn-envisoft-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: propGetter("station_type") }],
     cats: ENVISOFT_CATS,
     otherColor: "#94a3b8",
@@ -470,7 +471,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     ],
     legendNotes: [
       l3("只有站點位置，沒有任何監測數值", "Station locations only, no measurements", "局の位置のみで、測定値は含まない"),
-      l3("2,177 站：廢水排放口 1,043、煙道 822、空品 147、地面水 144、海水 17；類型由站名後綴判定；另 1 站上游座標錯誤（落在別省），不畫", "2,177 stations: 1,043 wastewater discharge, 822 stack, 147 air, 144 surface water, 17 sea water; type from the station-name suffix; 1 more station with a wrong upstream coordinate is not drawn", "2,177 局：排水口 1,043・煙突 822・大気 147・地表水 144・海水 17。種別は局名の接尾辞で判定。上流座標の誤り 1 局は描画しない"),
+      l3("2,176 站：廢水排放口 1,042、煙道 822、空品 147、地面水 144、海水 17；類型由站名後綴判定；另 2 站上游座標錯誤（落在別省），不畫", "2,176 stations: 1,042 wastewater discharge, 822 stack, 147 air, 144 surface water, 17 sea water; type from the station-name suffix; 2 more stations with wrong upstream coordinates are not drawn", "2,176 局：排水口 1,042・煙突 822・大気 147・地表水 144・海水 17。種別は局名の接尾辞で判定。上流座標の誤り 2 局は描画しない"),
       VN_ENVISOFT_NOTE,
       COVERAGE_NOTE(33),
     ],
@@ -479,7 +480,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     loading: l3("越南環境監測站載入中", "Loading Vietnam environmental monitoring stations", "ベトナムの環境モニタリング局を読み込み中"),
   },
   {
-    key: "vnAngiangDemo", file: "vn_angiang_demo.pmtiles", sourceId: "vn-angiang-demo", srcMinzoom: 6, srcMaxzoom: 14, color: "#f97316", count: 72,
+    key: "vnAngiangDemo", file: "vn_angiang_demo_v2.pmtiles", sourceId: "vn-angiang-demo", srcMinzoom: 6, srcMaxzoom: 14, color: "#f97316", count: 72,
     parts: [
       { id: "vn-angiang-clusters-fill", sourceLayer: "industrial_clusters", geom: "fill", minzoom: 6, cat: propGetter("status_code") },
       // 工業群面積多在 1 km² 以下，z8 只剩小點：加同色外框，低縮放（z10 以下）2.5 px，放大後收到 1.5 px
@@ -491,7 +492,6 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     fields: [
       { prop: "status_code", label: l3("狀態", "Status", "状態"), map: ANGIANG_STATUS },
       { prop: "status", label: l3("狀態（越南文原文）", "Status (Vietnamese)", "状態（ベトナム語原文）") },
-      { prop: "planned_area_ha", label: l3("規劃面積", "Planned area", "計画面積"), kind: "num", unit: "ha", digits: 1 },
       { prop: "industries", label: l3("產業", "Industries", "業種") },
       { prop: "investor", label: l3("投資者", "Investor", "投資者") },
       { prop: "plan_period", label: l3("規劃期程", "Plan period", "計画期間") },
@@ -509,6 +509,8 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     sourceOrg: "Cổng dữ liệu mở tỉnh An Giang（opendata.angiang.gov.vn）Dữ liệu GIS", sourceUrl: "https://opendata.angiang.gov.vn/", license: "授權未明示", fetchedAt: VN_FETCHED_AT,
     loading: l3("越南安江示範載入中", "Loading Vietnam An Giang demo", "ベトナム An Giang デモを読み込み中"),
   },
+  // 觀光波與第 2–7 波（2026-11-17）：規格在 vnWavesLayers.ts
+  ...VN_WAVE_SPECS,
 ];
 
 export const VN_SPEC_BY_KEY: Readonly<Record<VnDataKey, VnLayerSpec>> = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, s])) as Record<VnDataKey, VnLayerSpec>;

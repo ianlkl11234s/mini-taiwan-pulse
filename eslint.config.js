@@ -21,7 +21,9 @@ export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hoo
   // 第 2 批（能源與石化）：這兩支同時含公開／即時 RPC，但站主私人檔也從這裡讀
   "src/data/energyLoader.ts", "src/data/fossilFuelLoader.ts",
   // 站主限定 PMTiles 的通用存取（2026-11-14，首爾用途地域首用）
-  "src/hooks/useOwnerPmtilesAccess.ts"];
+  "src/hooks/useOwnerPmtilesAccess.ts",
+  // 中國第 0–1 波（2026-11-13）：全部站主限定，圖磚只走私人 owner-data
+  "src/hooks/useCnLayers.ts"];
 /** 不套 owner-only-no-external-source 的檔與理由（ownerOnlyScope.test.js 逐字釘住，新增要改測試並在 PR 說明）。 */
 export const OWNER_ONLY_EXEMPT = {
   "src/data/layerManifest.ts": "全站圖層登記簿，不是 owner-only 專屬檔",

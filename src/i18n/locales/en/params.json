@@ -2672,5 +2672,21 @@
   "param.gbPlacesOfWorship.印度教": "Hindu",
   "param.gbPlacesOfWorship.佛教": "Buddhist",
   "param.gbPlacesOfWorship.其他宗教": "Other religion",
-  "param.gbPlacesOfWorship.未標示宗教": "Religion not tagged"
+  "param.gbPlacesOfWorship.未標示宗教": "Religion not tagged",
+  "param.直升機場（含水上機場、熱氣球場）": "Heliport (incl. seaplane base, balloonport)",
+  "param.港區（OSM）": "Port area (OSM)",
+  "param.港灣（OSM，含漁港、遊艇港）": "Harbour (OSM, incl. fishing and marinas)",
+  "param.國道級幹道（trunk）": "Trunk road",
+  "param.窄軌": "Narrow gauge",
+  "param.≥1000 kV（特高壓）": "≥1000 kV (UHV)",
+  "param.石油管線": "Oil pipeline",
+  "param.天然氣凝液（NGL）管線": "Natural gas liquids (NGL) pipeline",
+  "param.LNG 接收站：運轉中": "LNG terminal: operating",
+  "param.LNG 接收站：興建中": "LNG terminal: under construction",
+  "param.LNG 接收站：規劃中": "LNG terminal: proposed",
+  "param.LNG 接收站：擱置、取消、退役": "LNG terminal: shelved, cancelled, retired",
+  "param.省級（31）": "Province level (31)",
+  "param.地級（357，含直轄市、省直轄縣級）": "Prefecture level (357, incl. municipalities and province-administered counties)",
+  "param.全部電廠": "All power plants",
+  "param.只看再生能源（C090）": "Renewables only (C090)"
 }

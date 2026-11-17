@@ -214,6 +214,7 @@ export type GeneratedStaticKey =
   | "contextMenu.share"
   | "contextMenu.thisLocation"
   | "country.CA"
+  | "country.CN"
   | "country.FR"
   | "country.GB"
   | "country.IE"

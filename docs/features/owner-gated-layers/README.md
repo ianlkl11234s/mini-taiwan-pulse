@@ -77,6 +77,8 @@
   - 圖例「讀取失敗」提示只接了畜牧；能源／石化讀取失敗仍只寫 console（與舊 RPC 相同）。
 - 南韓首爾用途地域（2026-11-14）：`kr-seoul-zoning`＝`kr_seoul_zoning.pmtiles`（向量圖磚，`application/vnd.pmtiles`）。KR 規格 `ownerAsset` 標記後，`useKrDataLayer` 改掛 `PRIVATE_CORAL_PMTILES_SOURCE_TYPE`；存取判斷 `src/hooks/useOwnerPmtilesAccess.ts`（`?access=1` 探測、401／403／404 靜默、撤權移除 layer 與 source），沒驗證就不掛 source、不退回公開 `./world/`。
   - 舊 RPC 12 支待前端發布到 master、站主驗收後撤除（gis-platform PENDING migration）。
+- 越南 WDPCA 保護區（2026-11-17）：`vn-wdpca-raster`＝`vn_wdpca_raster.pmtiles`（PNG raster 圖磚 z5–12，WDPCA 條款禁再散布與可下載地圖，站主 W6-1 選 A＋B）。`VnWdpcaHost` 以 `useOwnerPmtilesSource` 取私人來源後交給 `useVnRasterLayer`（raster＋`private`），沒驗證就不掛 source、不退回公開 `./world/`。
+  - 待辦：`upload-owner-data-private.mjs` 上傳、主機重建 coral-private、gis-platform `public.gated_layers` 補 `vnWdpca`（migration 須拍板）。
 
 ### 已知限制
 
