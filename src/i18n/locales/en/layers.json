@@ -1934,5 +1934,8 @@
   "layer.phForestLoss": "Tree Cover Loss Year (Philippines)",
   "layer.fire119Live": "Live 119 Incidents",
   "layer.pbsRoadEventsLive": "PBS Live Road Reports",
-  "layer.gibsNightLights": "Satellite Night Lights"
+  "layer.gibsNightLights": "Satellite Night Lights",
+  "layer.mapchallengeDay17DarkSky": "Where Real Darkness Remains",
+  "layer.mapchallengeDay17DarkRoads": "Roads Where Satellites See No Light",
+  "layer.mapchallengeDay17NightFall": "Lights Come On at Dusk"
 }

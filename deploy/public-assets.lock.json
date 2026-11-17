@@ -1950,6 +1950,41 @@
    "s3_key": "deploy-assets/mapchallenge/day09_urban_rural.geojson"
   },
   {
+   "path": "public/mapchallenge/day17_dark_road_runs.geojson",
+   "bytes": 484742,
+   "sha256": "0c5a76d9e9f38584d7cec96773f44d0d46c6f076aee6f1488cbf974e38940b1c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day17_dark_road_runs.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day17_dark_road_segments.geojson",
+   "bytes": 3199520,
+   "sha256": "1c0614baaadbb7957786c81c52dc7e3863ddf2d69020cf9710a4f37584a009a8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day17_dark_road_segments.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day17_ground_radiance_2025.png",
+   "bytes": 910125,
+   "sha256": "40325aba1d8eb5b2759d77c93b14e77484beaf876ea24e39b22f9a2df17490fa",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day17_ground_radiance_2025.png"
+  },
+  {
+   "path": "public/mapchallenge/day17_protected_area_dark_rank.geojson",
+   "bytes": 248238,
+   "sha256": "b573ad2fd0ccd6192c31e2348839a1c43816882895296db225d323bf5345338d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day17_protected_area_dark_rank.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day17_skyglow_2025.png",
+   "bytes": 196883,
+   "sha256": "e2b8d4654e64c90c67b750a09314fe1df2d2686c53873916693ddaced6440a00",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day17_skyglow_2025.png"
+  },
+  {
    "path": "public/marine/artificial_reef_areas.geojson",
    "bytes": 65643,
    "sha256": "d16a890d059b1f42b9b34c557998fb5c34e49a495d454ac917bbe6c62d4ef851",

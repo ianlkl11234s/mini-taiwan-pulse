@@ -2676,5 +2676,11 @@
   "param.年份／樣式": "Year / style",
   "param.2012 夜光": "2012 night lights",
   "param.2016 夜光": "2016 night lights",
-  "param.漁火模擬": "Fishing-light simulation"
+  "param.漁火模擬": "Fishing-light simulation",
+  "param.影像": "Image",
+  "param.天空光害推估": "Estimated sky glow",
+  "param.2025 地面亮度": "2025 ground radiance",
+  "param.顯示等級": "Display level",
+  "param.只顯示偵測不到（0）": "Not detected (0) only",
+  "param.偵測不到＋低亮度": "Not detected + low radiance"
 }

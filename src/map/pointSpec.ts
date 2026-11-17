@@ -48,6 +48,8 @@ export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
   stationsMetro: /^metro-pt-/,
   // 30 天地圖挑戰 Day 5 海景發光（靜態線光暈，2026-11-05 使用者選設計稿 G5；map-layers.md §3.1 P-6 例外）
   mapchallengeDay05SeaView: /^glow-/,
+  // 30 天地圖挑戰 Day 17「衛星看不到光的路段」前 10 長路段光暈（靜態線光暈，比照 Day 5；map-layers.md §3.1 P-6 例外，待使用者確認）
+  mapchallengeDay17DarkRoads: /^glow-/,
   // 30 天地圖挑戰 Day 6 祠廟「同名原址」外圈（資料編碼：14 處今天仍有同名寺廟，2026-11-06 使用者要求；map-layers.md §3.1 P-6 例外）
   mapchallengeDay06Temples1921: /^same-mark$/,
   // 2026 選舉活動「位置精度外環」：代表點（聚落／鄉鎮市區／縣市）外圈＝資料品質編碼，陣營色描邊、粗細依精度（2026-11-08 使用者核准設計稿 A＋B 版）

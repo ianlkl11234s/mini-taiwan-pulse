@@ -45,6 +45,11 @@ import {
   mapchallengeDay08SpeedAt, mapchallengeDay08TimeProp, MAPCHALLENGE_DAY08_PLAN_ATTRIBUTION,
 } from "../data/mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_URL, mapchallengeDay09ColorExpr, mapchallengeDay09MetricAt } from "../data/mapchallengeDay09Types";
+import {
+  MAPCHALLENGE_DAY17_GLOW, MAPCHALLENGE_DAY17_GLOW_LIGHT_FACTOR, MAPCHALLENGE_DAY17_LOW_COLOR, MAPCHALLENGE_DAY17_ROADS_ATTRIBUTION, MAPCHALLENGE_DAY17_RUNS_URL,
+  MAPCHALLENGE_DAY17_SEGMENTS_URL, MAPCHALLENGE_DAY17_TOP_RANK, mapchallengeDay17GlowColor, mapchallengeDay17ScopeAt, mapchallengeDay17ZeroColor,
+} from "../data/mapchallengeDay17Types";
+import { mapchallengeDay17RunWidthExpr, mapchallengeDay17SegmentWidthExpr, mapchallengeDay17TopWidthExpr } from "../data/mapchallengeDay17Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withDarkContrast } from "./darkContrast";
@@ -13115,6 +13120,55 @@ OVERLAY_REGISTRY.push({
     paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay09UrbanRuralOpacity ?? 0.7 }),
   }],
 });
+
+// ── 30 天地圖挑戰 Day 17 光與暗「衛星看不到光的路段」（模擬面板，公開，2026-11-17）：同一 key 兩份 geojson。
+// 路段（0＋低）在下，顯示等級 select 改 filter；連續暗路段（353 段，全是 0）在上，帶完整說明欄位：前 10 名加粗＋兩層靜態光暈，
+// 其餘只當點擊範圍（透明）
+// （P-6 例外，pointSpec POINT_SPEC_EXEMPT 登記，待使用者確認）。寬依等級／名次（資料編碼，LINE_TIERS keep）。
+const MAPCHALLENGE_DAY17_LINE_LAYOUT = { "line-cap": "round", "line-join": "round" } as const;
+const mapchallengeDay17ZeroOnly = (idx: number | undefined) => mapchallengeDay17ScopeAt(idx) === "zero";
+
+OVERLAY_REGISTRY.push(
+  {
+    id: "mapchallengeDay17DarkRoads", sourceUrl: MAPCHALLENGE_DAY17_SEGMENTS_URL, sourceId: "mapchallenge-day17-dark-road-segments",
+    attribution: MAPCHALLENGE_DAY17_ROADS_ATTRIBUTION,
+    rebuildOnParamChange: ["line"], rebuildOnParamKeys: ["mapchallengeDay17DarkRoadsScopeIdx"],
+    layers: [{
+      suffix: "line", type: "line",
+      layout: { ...MAPCHALLENGE_DAY17_LINE_LAYOUT, "line-sort-key": ["case", ["==", ["get", "cls"], "0"], 1, 0] },
+      filter: (p) => (mapchallengeDay17ZeroOnly(p?.mapchallengeDay17DarkRoadsScopeIdx) ? ["==", ["get", "cls"], "0"] : ["in", ["get", "cls"], ["literal", ["0", "低"]]]),
+      paint: (isDark, p) => ({
+        "line-color": ["case", ["==", ["get", "cls"], "0"], mapchallengeDay17ZeroColor(isDark), MAPCHALLENGE_DAY17_LOW_COLOR],
+        "line-width": mapchallengeDay17SegmentWidthExpr(),
+        "line-opacity": p?.mapchallengeDay17DarkRoadsOpacity ?? 0.85,
+      }),
+    }],
+  },
+  {
+    id: "mapchallengeDay17DarkRoads", sourceUrl: MAPCHALLENGE_DAY17_RUNS_URL, sourceId: "mapchallenge-day17-dark-road-runs",
+    attribution: MAPCHALLENGE_DAY17_ROADS_ATTRIBUTION,
+    layers: [...MAPCHALLENGE_DAY17_GLOW.map((g): OverlayLayerSpec => ({
+      suffix: g.suffix, type: "line",
+      layout: MAPCHALLENGE_DAY17_LINE_LAYOUT,
+      filter: ["<=", ["to-number", ["get", "rank"], 999], MAPCHALLENGE_DAY17_TOP_RANK],
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay17GlowColor(isDark),
+        "line-width": mapchallengeDay17TopWidthExpr(g.width),
+        "line-blur": mapchallengeDay17TopWidthExpr(g.blur),
+        "line-opacity": g.opacity * (isDark ? 1 : MAPCHALLENGE_DAY17_GLOW_LIGHT_FACTOR) * (p?.mapchallengeDay17DarkRoadsOpacity ?? 0.85),
+      }),
+    })), {
+      suffix: "line", type: "line",
+      layout: { ...MAPCHALLENGE_DAY17_LINE_LAYOUT, "line-sort-key": ["-", 0, ["to-number", ["get", "rank"], 999]] },
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay17ZeroColor(isDark),
+        "line-width": mapchallengeDay17RunWidthExpr(),
+        // 11 名以後與路段層的「0」重疊：只當點擊範圍（透明），避免重疊處變深
+        "line-opacity": ["case", ["<=", ["to-number", ["get", "rank"], 999], MAPCHALLENGE_DAY17_TOP_RANK], p?.mapchallengeDay17DarkRoadsOpacity ?? 0.85, 0],
+      }),
+    }],
+  },
+);
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。

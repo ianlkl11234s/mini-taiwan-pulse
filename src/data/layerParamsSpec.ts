@@ -101,6 +101,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
+import { MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
@@ -1704,6 +1705,26 @@ export const LAYER_PARAMS_SPEC = {
       options: MAPCHALLENGE_DAY09_METRIC_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
       out: "mapchallengeDay09UrbanRuralMetricIdx", encode: [...MAPCHALLENGE_DAY09_METRIC_ENCODE],
     },
+  ],
+  // 30 天地圖挑戰 Day 17 光與暗（模擬面板，公開）：影像 raster 用 G-4 影像透明度；暗路段的顯示等級 select 由 overlayRegistry 的 filter 自己組。
+  mapchallengeDay17DarkSky: [
+    { kind: "slider", name: "mapchallengeDay17DarkSkyOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17DarkSkyProduct", label: "影像", default: "skyglow",
+      options: MAPCHALLENGE_DAY17_PRODUCTS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay17DarkSkyProductIdx", encode: MAPCHALLENGE_DAY17_PRODUCTS.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay17DarkRoads: [
+    opacitySlider("mapchallengeDay17DarkRoadsOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17DarkRoadsScope", label: "顯示等級", default: "zero",
+      options: MAPCHALLENGE_DAY17_ROAD_SCOPES.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay17DarkRoadsScopeIdx", encode: MAPCHALLENGE_DAY17_ROAD_SCOPES.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay17NightFall: [
+    { kind: "slider", name: "mapchallengeDay17NightFallOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),

@@ -1199,6 +1199,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌊 30 天地圖挑戰 Day 5 視野（模擬面板，線；±5px bbox 命中）：最長連續海景在上、路段在下
   { layers: ["mapchallenge-day05-sea-view-runs-line"], type: "mapchallengeDay05SeaViewRuns" },
   { layers: ["mapchallenge-day05-sea-view-line"], type: "mapchallengeDay05SeaView" },
+  // 🌙 30 天地圖挑戰 Day 17 光與暗（模擬面板）：連續暗路段（帶名次與起訖）在上、路段在下；保護區面見下方面層段
+  { layers: ["mapchallenge-day17-dark-road-runs-line"], type: "mapchallengeDay17DarkRoads" },
+  { layers: ["mapchallenge-day17-dark-road-segments-line"], type: "mapchallengeDay17DarkRoads" },
   // 🏯 30 天地圖挑戰 Day 6 復古：町界面放大面積段（面會吞點擊）；點與線 entry 在陣列開頭（review F007）
   { layers: ["mapchallenge-day06-taipei-1932-fill"], type: "mapchallengeDay06Taipei1932" },
   // 🌳 30 天地圖挑戰 Day 8 烏托邦：選址面（小）在上、步行分鐘統計區面（鋪滿中永和）在下
@@ -1209,6 +1212,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day08-access-fill"], type: "mapchallengeDay08Access" },
   // 🏘️ 30 天地圖挑戰 Day 9 城鄉：全台鄉鎮面（大面積面層，排在 Day 8 之後）
   { layers: ["mapchallenge-day09-urban-rural-fill"], type: "mapchallengeDay09UrbanRural" },
+  // 🌙 30 天地圖挑戰 Day 17 真正的黑夜：48 處保護區面（hook 自建、透明填色當點擊範圍；國家公園含大片海域）
+  { layers: ["mapchallenge-day17-protected-fill"], type: "mapchallengeDay17DarkSky" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

@@ -124,7 +124,7 @@ import {
   Satellite,
   // 🌤️ 環境氣候（Cloud / CloudRain / Grid3x3 / ThermometerSun / Wind / Activity /
   //    AlertTriangle / AlertCircle / TreePine / Sprout / Waves 已在上方 import 復用）
-  CloudSun, Thermometer, Snowflake, Moon, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
+  CloudSun, Thermometer, Snowflake, Moon, Sunset, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
   // 💧 水資源（Droplet / Droplets / Waves / Shield / ShieldCheck / Factory / Timer /
   //    CloudRain / AlertTriangle 已在上方 import 復用）
   GitBranch, Dam, Gauge, Container,
@@ -216,6 +216,7 @@ import { MAPCHALLENGE_DAY05_COLOR } from "./mapchallengeDay05Types";
 import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
+import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -17171,6 +17172,83 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "30 天地圖挑戰 Day 9 城鄉：全台 368 鄉鎮依人口密度分五等份，比較 9 類設施每萬人分到幾處。公共服務（國小、派出所、郵局、衛生所）越偏遠每人分到越多：派出所每萬人從最稀疏組 5.37 到最密集組 0.34；市場服務（補習班、診所、藥局、銀行）跟著人走：補習班 0.82 → 9.10；超商是例外，4.43 → 6.18 幾乎持平。可切指標；顏色是相對全國平均（越亮每人分到越多），深灰＝鄉鎮內一個都沒有。點面看人口、密度、9 類設施數與每萬人數。城鄉分組自訂、非官方分類。來源：內政部、教育部、警政署、中華郵政、健保署、財金公司。",
     topics: ["城鄉", "人口密度", "公共服務", "派出所", "補習班", "超商", "鄉鎮", "30 天地圖挑戰"],
+  },
+  mapchallengeDay17DarkSky: {
+    key: "mapchallengeDay17DarkSky",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：image source＋保護區 geojson（useMapchallengeDay17DarkSkyLayer），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗" },
+    ...layerName({ zh: "真正的黑夜", alt: "Where Real Darkness Remains" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY17_DARK_SKY_COLOR,
+    icon: Moon,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（01–03、08）。NASA Black Marble VNP46A4（Collection 2，2025 年合成，AllAngle_Composite_Snow_Free，15″ 約 460 m）；品質旗標 ≠ 0 設缺值。天空光害推估 S(p)＝Σ L(q)·cos(lat)·max(d, 1 km)^−2.5（d ≤ 200 km，光源含福建沿海與海上），相對值 rel＝S／S(台北車站)；5 級＝台灣行政區陸地五分位（切點 0.0047／0.0120／0.0467／0.1327，1 級最暗）。保護區 48 處（國家公園 9＋壽山國家自然公園、自然保留區 22、野生動物保護區 16；國家重要濕地缺面檔未排名）依區內天空推估平均排名，另算最暗級陸地占比與區內地面亮度最大值。PNG 已轉 EPSG:3857，四角座標寫在 src/data/mapchallengeDay17Types.ts。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。天空光害是推估相對值，不是實測天空亮度（mag/arcsec²）；未計地形遮蔽、大氣與自然天光。5 級是台灣陸地的相對五分位，不是國際暗空標準。地面亮度 0 表示低於衛星偵測門檻，不是完全沒有光。國家公園界授權查無聲明；自然保留區、野生動物保護區為農業部林業及自然保育署 OGDL 1.0。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useMapchallengeDay17DarkSkyLayer：Mapbox image source（天空光害推估／2025 地面亮度兩張 PNG，切影像時 updateImage，四角 MAPCHALLENGE_DAY17_IMAGE_CORNERS），raster 插在底圖第一個 symbol 下；保護區 geojson 外框＋透明填色（點擊範圍）疊在最上",
+      staticAssets: ["./mapchallenge/day17_skyglow_2025.png", "./mapchallenge/day17_ground_radiance_2025.png", "./mapchallenge/day17_protected_area_dark_rank.geojson"],
+    },
+    legend: "mapchallengeDay17DarkSky",
+    popup: "mapchallengeDay17DarkSky",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 17 光與暗：台灣哪裡還有真正的黑夜。衛星量的是地面往上發的光，地面暗不代表天空暗（陽明山地面只有台北車站的 3.4%，天空推估卻有 7.4%），所以用光源擴散推估天空被人造光照亮的程度（相對值，台北車站＝1），分 5 級，1 級＝全台陸地最暗 20%；合歡山暗空公園（鳶峰）落在最暗級。可切天空光害推估或 2025 地面亮度。疊 48 處保護區排名：陸地為主最暗的是旭海－觀音鼻自然保留區、玉里野生動物保護區、玉山國家公園。點保護區看排名、天空推估平均、最暗級陸地占比、區內地面亮度最大值。推估值，不是實測天空亮度，未計地形遮蔽。來源：NASA Black Marble VNP46A4（2025）；保護區：各國家公園管理處、農業部林業及自然保育署（OGDL 1.0）。",
+    topics: ["光害", "夜空", "暗空", "夜光", "衛星", "國家公園", "保護區", "30 天地圖挑戰"],
+  },
+  mapchallengeDay17DarkRoads: {
+    key: "mapchallengeDay17DarkRoads",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：靜態 GeoJSON 兩份（路段＋連續暗路段），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗" },
+    ...layerName({ zh: "衛星看不到光的路段", alt: "Roads Where Satellites See No Light" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY17_ROADS_COLOR,
+    icon: Route,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（04–08）。OSM（Geofabrik taiwan-260905）motorway／trunk／primary／secondary／tertiary／unclassified（不含 *_link、residential、service、track、path），同編號 linemerge 後每 50 m 取一點查 NASA Black Marble VNP46A4 2025 年地面亮度：0＝衛星偵測不到、低＝0 < rad ≤ 3 nW/cm²/sr（門檻由新北市路燈 data.gov.tw 123962 校正，Youden J）、有光＝> 3。隧道樣點跳過不切斷；連續 0 的露天樣點 ≥ 1 km 合成暗路段（353 段，雙向車道與共線段去重），依長度排名；另算 2024 年同樣為 0 的樣點比例。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。一個像素約 460 m，單盞路燈看不到，所以只能說「衛星看不到光」，不代表沒有路燈。新北校正：「0」的 46 點只有 2 點 230 m 內有市管路燈，「低」有 84% 230 m 內有市管路燈（只有市管路燈，不含公路局與私人照明），所以預設只畫「0」。暗路段長度對年份敏感（2024 年偵測不到 1,218 km，2025 年 1,520 km）。道路等級與路名來自 OSM，可能和官方不同。",
+    },
+    dataClass: "A",
+    source: [
+      { kind: "geojson", sourceId: "mapchallenge-day17-dark-road-segments", url: "./mapchallenge/day17_dark_road_segments.geojson" },
+      { kind: "geojson", sourceId: "mapchallenge-day17-dark-road-runs", url: "./mapchallenge/day17_dark_road_runs.geojson" },
+    ],
+    legend: "mapchallengeDay17DarkRoads",
+    popup: "mapchallengeDay17DarkRoads",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 17 光與暗：全台省道、縣道、鄉道等級道路每 50 m 查 2025 年衛星地面亮度，衛星偵測不到（0）的有 1,520 km（3.34%），連續 ≥ 1 km 的 353 段；最長的是台8 中部橫貫公路 49.9 km（南投仁愛到花蓮秀林），前 10 長加光暈。可切加顯示「低亮度」，但低亮度在新北校正中 84% 附近仍有路燈，所以預設不顯示。點線段看道路編號與名稱、偵測不到長度、起訖鄉鎮、2024 年也偵測不到的比例。一個像素約 460 m，看不到單盞路燈，不代表沒有路燈。來源：NASA Black Marble VNP46A4（2025）、OpenStreetMap（ODbL）、新北市路燈（data.gov.tw 123962，校正用）。",
+    topics: ["光害", "夜光", "道路", "山區道路", "橫貫公路", "衛星", "30 天地圖挑戰"],
+  },
+  mapchallengeDay17NightFall: {
+    key: "mapchallengeDay17NightFall",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：canvas source 依時間軸逐地亮起（useMapchallengeDay17NightFallLayer），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗" },
+    ...layerName({ zh: "入夜變亮", alt: "Lights Come On at Dusk" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR,
+    icon: Sunset,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（08）的 2025 地面亮度 PNG（NASA Black Marble VNP46A4 年合成，log10(1+nW/cm²/sr)，0–150 nW 套 inferno，0 或缺值透明，EPSG:3857）。前端依時間軸算 48×48 經緯格的太陽高度（src/utils/solarElevation.ts），太陽 ≥ 0° 透明、降到 −8° 全亮（smoothstep），平滑放大成遮罩疊到影像上。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。亮度是 2025 年平均，不是逐時觀測；亮起時間是依太陽高度的模擬，不是實際開燈時間。沒有 feature 屬性，所以沒有 popup。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useMapchallengeDay17NightFallLayer：Mapbox canvas source（animate:false，四角 MAPCHALLENGE_DAY17_IMAGE_CORNERS），把 2025 地面亮度 PNG 與太陽高度遮罩用 destination-in 合成；timeStore.subscribeThrottled(500) 驅動，遮罩不變不重畫、白天隱藏；raster 插在底圖第一個 symbol 下",
+      staticAssets: ["./mapchallenge/day17_ground_radiance_2025.png"],
+    },
+    legend: "mapchallengeDay17NightFall",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "30 天地圖挑戰 Day 17 光與暗：跟著時間軸看台灣入夜亮燈。2025 年衛星地面亮度依當下太陽高度逐地亮起：太陽還在地平線上是透明，降到地平線下 8° 全亮；東邊先暗先亮，金門比花蓮晚十幾分鐘。可同時開船舶的「漁火模擬」看海上漁船燈火。依太陽高度模擬入夜亮燈，亮度是 2025 年平均，不是逐時觀測。來源：NASA Black Marble VNP46A4（2025）。",
+    topics: ["光害", "夜光", "入夜", "太陽高度", "時間軸", "衛星", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

@@ -124,5 +124,7 @@
   "popupHeader.mapchallengeDay08Access": "大きな公園まで徒歩何分",
   "popupHeader.mapchallengeDay08Sites": "新しい公園の候補地とコスト",
   "popupHeader.mapchallengeDay08Parks": "既存の公園と河川敷の出入口",
-  "popupHeader.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設"
+  "popupHeader.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設",
+  "popupHeader.mapchallengeDay17DarkSky": "本当の闇：保護区の暗さ順位",
+  "popupHeader.mapchallengeDay17DarkRoads": "衛星から光が見えない道路区間"
 }
