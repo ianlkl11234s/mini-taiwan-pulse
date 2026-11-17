@@ -18,7 +18,6 @@ import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
-import { LIVE_DECORATION_CAP } from "../map/pointSpec";
 import { paramDefault } from "../data/layerParamsSpec";
 import { hookCategoryFilter } from "../data/categoryFilters";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
@@ -42,7 +41,10 @@ const LAYER_PULSE = "roadEvents-pulse";
 const ALL_LAYERS = [LAYER_FILL, LAYER_LINE, LAYER_PULSE, LAYER_POINT];
 
 const PULSE_CYCLE_MS = 2000;
-const PULSE_PEAK_OPACITY = LIVE_DECORATION_CAP.opacity;
+/** 公開層事故光圈刻意比即時光暈上限（LIVE_DECORATION_CAP 0.35／×2／blur 0.6）更醒目（站主驗收 2026-11-17） */
+const PULSE_PEAK_OPACITY = 0.65;
+const PULSE_MAX_RADIUS_FACTOR = 3;
+const PULSE_BLUR = 0.25;
 /** 已排除事故（灰）的點不透明度係數 */
 const CLEARED_OPACITY = 0.5;
 
@@ -126,7 +128,7 @@ function buildLayers(map: MapboxMap, isDark: boolean, catMask?: number): boolean
         "circle-stroke-color": EVENT_TYPE_COLORS[3],
         "circle-stroke-width": 2,
         "circle-stroke-opacity": PULSE_PEAK_OPACITY,
-        "circle-blur": LIVE_DECORATION_CAP.minBlur,
+        "circle-blur": PULSE_BLUR,
       },
     } as CircleLayer);
   }
@@ -326,7 +328,7 @@ export function useRoadEventsLayer(
     if (map.getLayer(LAYER_PULSE)) map.setFilter(LAYER_PULSE, f.pulse);
   }, [catMask, visible, mapRef, mapTick]);
 
-  // ── 事故脈動：rAF 只動 paint（半徑 ×1→×2、不透明度 ≤0.35 遞減），不碰 timeStore／deps 無 currentTime。
+  // ── 事故脈動：rAF 只動 paint（半徑 ×1→×3、不透明度 ≤0.65 遞減），不碰 timeStore／deps 無 currentTime。
   //    脈動對象（最新 20 個進行中事故）由上面的 timeStore 訂閱寫進 source 的 pulse 屬性，filter 自動篩出。
   //    prefers-reduced-motion 時只畫靜態外環。 ──
   useEffect(() => {
@@ -343,7 +345,7 @@ export function useRoadEventsLayer(
       const m = mapRef.current;
       if (m && hasPulseRef.current && m.getLayer(LAYER_PULSE)) {
         const ph = ((now - t0) % PULSE_CYCLE_MS) / PULSE_CYCLE_MS;
-        m.setPaintProperty(LAYER_PULSE, "circle-radius", pointRadius("M") * (1 + (LIVE_DECORATION_CAP.radiusFactor - 1) * ph));
+        m.setPaintProperty(LAYER_PULSE, "circle-radius", pointRadius("M") * (1 + (PULSE_MAX_RADIUS_FACTOR - 1) * ph));
         m.setPaintProperty(LAYER_PULSE, "circle-stroke-opacity", PULSE_PEAK_OPACITY * (1 - ph) * o);
       }
       raf = requestAnimationFrame(frame);
