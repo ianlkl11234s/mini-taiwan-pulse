@@ -186,3 +186,9 @@ export function shipRowsToShips(rows: readonly ShipTrailRow[]): ShipRowsResult {
     filteredPoints,
   };
 }
+
+/**
+ * 漁火模擬光暈色（ShipScene 與 ShipsLegend 的單一出處）：暗底暖白（additive）、
+ * 淡底琥珀（normal blending；暖白在淡底看不見）。見 design-system map-layers §3.1 例外。
+ */
+export const SHIP_FISHING_GLOW_LEGEND = { dark: "#ffe8b0", light: "#d97706" } as const;

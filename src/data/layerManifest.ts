@@ -16479,8 +16479,8 @@ export const LAYER_MANIFEST = {
     // 本段唯一真的 setFeatureInfo：ShipScene.pickShip 命中 → layerType "ship"。
     // 不經 GIS_LAYERS，由批 4 的 extractNonGisFeatureTypes 涵蓋。
     popup: "ship",
-    params: { count: 2, kinds: ["slider", "slider"] },
-    description: "AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾）",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾；可開「漁火模擬」：依 AIS 位置與太陽高度模擬的漁船燈光，不是衛星觀測）",
     topics: ["交通", "海運", "即時"],
   },
 

@@ -1834,7 +1834,7 @@ busStationsIntercity,公路客運站 Intercity,TW,臺灣圖層,交通 Move,geojs
 bikeStations,公共自行車 Bike Station,TW,臺灣圖層,交通 Move,geojson,verified,bike,,ds_transportation_bike,GEOMETRYCOLLECTION+MULTILINESTRING+POINT,2026-05-19,national,yes,spatial,warehouse+browser,warehouse,unknown,,unfiltered_shared_table,,,,YouBike／公共自行車站點位（雙圓 glow）
 flights,航班 Flight,TW,臺灣圖層,交通 Move,custom,verified,opensky_flights,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,即時／回放航班軌跡（高度誇張倍率 ＋ 光暈球）
 historicalFlightTrails,歷史航班軌跡 Taiwan,TW,臺灣圖層,交通 Move,custom,catalog_missing,,,,,,,yes,none,,missing,,,override: snapshot_candidate: 台灣機場歷史航班樣本軌跡，已是靜態 manifest+GeoJSON 資產（同 jpHistoricalFlightTrails 模式），可入倉做航線廊道分析；coverage 以 manifest 為準、非完整航班或即時軌跡。,,,snapshot_candidate: 台灣機場歷史航班樣本軌跡，已是靜態 manifest+GeoJSON 資產（同 jpHistoricalFlightTrails 模式），可入倉做航線廊道分析；coverage 以 manifest 為準、非完整航班或即時軌跡。,台灣機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。
-ships,船舶 Ship,TW,臺灣圖層,交通 Move,custom,verified,ship,,ds_transportation_ship,POINT,2026-05-19,14 counties,yes,spatial,warehouse,warehouse,unknown,,,,,,AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾）
+ships,船舶 Ship,TW,臺灣圖層,交通 Move,custom,verified,ship,,ds_transportation_ship,POINT,2026-05-19,14 counties,yes,spatial,warehouse,warehouse,unknown,,,,,,AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾；可開「漁火模擬」：依 AIS 位置與太陽高度模擬的漁船燈光，不是衛星觀測）
 busLive,公車 Bus,TW,臺灣圖層,交通 Move,custom,verified,bus_realtime,,,,,,yes,browser_reader,browser,missing,,,dataset_not_in_warehouse,,,,市區公車即時／回放位置（八大區域可多選，依路線 progress 插值）
 busIntercityLive,公路客運 Intercity,TW,臺灣圖層,交通 Move,custom,verified,bus_realtime,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,公路客運即時／回放位置（全國單一資料源）
 touristShuttleLive,台灣好行 Tourist Shuttle,TW,臺灣圖層,交通 Move,custom,verified,bus_realtime,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,台灣好行觀光巴士即時／回放位置

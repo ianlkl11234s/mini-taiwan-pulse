@@ -5023,6 +5023,8 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "shipTrailOpacity", labelPrefix: "航跡", digits: 2,
       default: 0.15, min: 0.05, max: 1, step: 0.05, out: null,
     },
+    // 漁火模擬（30 天地圖挑戰 Light & dark）：漁船依船位太陽高度畫暖白光暈；Three.js 直接讀 layerParamRefs
+    { kind: "toggle", name: "shipFishingLights", label: "漁火模擬", default: false, out: null, category: "look" },
   ],
   rail: [
     { kind: "toggle", name: "railTrainVisible", label: "列車", default: true, out: null },

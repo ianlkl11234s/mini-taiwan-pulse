@@ -172,5 +172,6 @@
   "popup.transport.gbRfPrecisionCenter": "面は中心点で表示",
   "popup.transport.gbRfSourceNh": "National Highways（イングランド）",
   "popup.transport.gbRfSourceOsm": "OpenStreetMap",
-  "popup.transport.gbNo": "なし"
+  "popup.transport.gbNo": "なし",
+  "popup.transport.fishingLightsNote": "漁火シミュレーション：AIS 位置と太陽高度から模擬した灯火で、衛星観測ではありません。AIS を積まない小型漁船も多く、実際の漁火はもっと多くなります。"
 }

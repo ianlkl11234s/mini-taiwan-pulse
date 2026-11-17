@@ -4,9 +4,10 @@ import { toMercator } from "../utils/coordinates";
 import { interpolatePosition, getTrailUpToTime } from "../utils/interpolation";
 // 色票與分桶規則的單一出處（three-free，故 LegendPanel 也能吃 —— 見 shipTrails.ts 檔頭）
 import {
-  shipTypeBucket, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT,
+  shipTypeBucket, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT, SHIP_FISHING_GLOW_LEGEND,
   type ShipTypeBucket,
 } from "../data/shipTrails";
+import { nightLightIntensity, solarElevationDeg, solarFrame } from "../utils/solarElevation";
 
 const SHIP_COLOR_DARK = new THREE.Color(0.1, 0.85, 0.9); // fallback 青藍
 const SHIP_COLOR_LIGHT = new THREE.Color(0.0, 0.3, 0.45); // fallback 深青
@@ -36,6 +37,66 @@ function shipTypeColor(vesselType: number, isDark: boolean): THREE.Color {
   return (isDark ? SHIP_COLORS_DARK : SHIP_COLORS_LIGHT)[bucket];
 }
 
+// ── 漁火模擬（30 天地圖挑戰 Light & dark；design-system map-layers §3.1 例外）──
+// 只對 AIS 船種碼 30（漁船）畫；疏浚 33、遊艇／帆船 36 雖同桶但不畫。
+// 外圈大而淡、內核小而亮；強度＝船位的太陽高度（solarElevation.nightLightIntensity）。
+const FISHING_VESSEL_TYPE = 30;
+/** 外圈半徑：取「光點 × 倍率」與「視口寬 × 比例」較大者 → 拉遠時仍有固定螢幕大小的光暈 */
+const FISHING_GLOW_OUTER_ORB_MUL = 8;
+const FISHING_GLOW_OUTER_VIEW_FRAC = 0.005;
+const FISHING_GLOW_CORE_RATIO = 0.3;
+/** 透明度（暗底 additive）；淡底改 normal blending 並乘 FISHING_GLOW_LIGHT_MUL，避免洗白 */
+const FISHING_GLOW_OUTER_OPACITY = 0.35;
+const FISHING_GLOW_CORE_OPACITY = 0.9;
+const FISHING_GLOW_LIGHT_MUL = 0.5;
+const FISHING_GLOW_COLOR_DARK = new THREE.Color(SHIP_FISHING_GLOW_LEGEND.dark); // 暖白
+const FISHING_GLOW_COLOR_LIGHT = new THREE.Color(SHIP_FISHING_GLOW_LEGEND.light); // 淡底琥珀（暖白在淡底看不見）
+
+const GLOW_VERTEX = /* glsl */ `
+attribute float aIntensity;
+varying vec2 vUv;
+varying float vIntensity;
+void main() {
+  vUv = uv;
+  vIntensity = aIntensity;
+  gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+}`;
+const GLOW_FRAGMENT = /* glsl */ `
+uniform vec3 uColor;
+uniform float uOpacity;
+uniform float uPower;
+varying vec2 vUv;
+varying float vIntensity;
+void main() {
+  float d = length(vUv - 0.5) * 2.0;
+  if (d > 1.0) discard;
+  float f = pow(1.0 - d, uPower);
+  gl_FragColor = vec4(uColor, f * vIntensity * uOpacity);
+}`;
+
+function createGlowMesh(maxInstances: number, power: number, opacity: number): THREE.InstancedMesh {
+  const geo = new THREE.PlaneGeometry(2, 2);
+  geo.setAttribute("aIntensity", new THREE.InstancedBufferAttribute(new Float32Array(maxInstances), 1));
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: GLOW_VERTEX,
+    fragmentShader: GLOW_FRAGMENT,
+    uniforms: {
+      uColor: { value: FISHING_GLOW_COLOR_DARK.clone() },
+      uOpacity: { value: opacity },
+      uPower: { value: power },
+    },
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    depthTest: false,
+    side: THREE.DoubleSide,
+  });
+  const mesh = new THREE.InstancedMesh(geo, mat, maxInstances);
+  mesh.frustumCulled = false;
+  mesh.count = 0;
+  return mesh;
+}
+
 const TRAIL_DURATION = 1800; // 0.5 小時 = 1800 秒
 const MAX_TRAIL_VERTICES = 200000; // LineSegments 頂點上限
 
@@ -60,6 +121,11 @@ export class ShipScene {
   private lastOrbScale = Number.NaN;
   private lastThemeDark = true;
   private forceRebuild = true;
+
+  // 漁火模擬（預設關；開啟才建 mesh）
+  private fishingLights = false;
+  private glowOuter: THREE.InstancedMesh | null = null;
+  private glowCore: THREE.InstancedMesh | null = null;
 
   // 拖尾線
   private trailGeo: THREE.BufferGeometry | null = null;
@@ -141,6 +207,47 @@ export class ShipScene {
       mat.blending = isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
       mat.opacity = isDark ? 0.8 : 0.5;
     }
+    this.applyGlowTheme();
+  }
+
+  /** 漁火模擬開關：開啟時才建光暈 mesh；關閉時釋放 */
+  setFishingLights(on: boolean) {
+    if (this.fishingLights === on) return;
+    this.fishingLights = on;
+    this.forceRebuild = true;
+    if (on && !this.glowOuter) {
+      // 外圈先加、內核後加：同為 additive，內核疊在外圈上
+      this.glowOuter = createGlowMesh(this.maxInstances, 2.0, FISHING_GLOW_OUTER_OPACITY);
+      this.glowCore = createGlowMesh(this.maxInstances, 1.2, FISHING_GLOW_CORE_OPACITY);
+      this.scene.add(this.glowOuter, this.glowCore);
+      this.applyGlowTheme();
+    } else if (!on) {
+      this.disposeGlow();
+    }
+  }
+
+  private applyGlowTheme() {
+    const dark = this.isDarkTheme;
+    for (const [mesh, opacity] of [[this.glowOuter, FISHING_GLOW_OUTER_OPACITY], [this.glowCore, FISHING_GLOW_CORE_OPACITY]] as const) {
+      if (!mesh) continue;
+      const mat = mesh.material as THREE.ShaderMaterial;
+      mat.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending;
+      (mat.uniforms.uColor!.value as THREE.Color).copy(dark ? FISHING_GLOW_COLOR_DARK : FISHING_GLOW_COLOR_LIGHT);
+      mat.uniforms.uOpacity!.value = dark ? opacity : opacity * FISHING_GLOW_LIGHT_MUL;
+      mat.needsUpdate = true;
+    }
+  }
+
+  private disposeGlow() {
+    for (const mesh of [this.glowOuter, this.glowCore]) {
+      if (!mesh) continue;
+      this.scene.remove(mesh);
+      mesh.geometry.dispose();
+      (mesh.material as THREE.Material).dispose();
+      mesh.dispose();
+    }
+    this.glowOuter = null;
+    this.glowCore = null;
   }
 
   setOrbScale(scale: number) {
@@ -203,6 +310,19 @@ export class ShipScene {
     const positions = this.trailPositions;
     const colors = this.trailColors;
 
+    // 漁火：同一時刻共用太陽赤緯／時角，每船只算一次高度角
+    const glowOuter = this.fishingLights ? this.glowOuter : null;
+    const glowCore = this.fishingLights ? this.glowCore : null;
+    const sun = glowOuter ? solarFrame(currentTime) : null;
+    let glowCount = 0;
+    const outerR = Math.max(
+      baseScale * FISHING_GLOW_OUTER_ORB_MUL,
+      bounds ? ((bounds.maxLng - bounds.minLng) / 360) * FISHING_GLOW_OUTER_VIEW_FRAC : 0,
+    );
+    const coreR = outerR * FISHING_GLOW_CORE_RATIO;
+    const outerIntensity = glowOuter ? (glowOuter.geometry.getAttribute("aIntensity") as THREE.InstancedBufferAttribute) : null;
+    const coreIntensity = glowCore ? (glowCore.geometry.getAttribute("aIntensity") as THREE.InstancedBufferAttribute) : null;
+
     for (const ship of ships) {
       if (headCount >= this.maxInstances) break;
 
@@ -237,6 +357,22 @@ export class ShipScene {
       this.instancedMesh.setColorAt(headCount, shipColor);
       this.shipPositions.set(headCount, { ship, lat, lng, timestamp: currentTime });
       headCount++;
+
+      // 漁火光暈（漁船仍留在主 mesh，pickShip 的 index 不變）
+      if (sun && glowOuter && glowCore && outerIntensity && coreIntensity && ship.vessel_type === FISHING_VESSEL_TYPE) {
+        const k = nightLightIntensity(solarElevationDeg(sun, lat, lng));
+        if (k > 0.01) {
+          dummy.makeScale(outerR, outerR, outerR);
+          dummy.setPosition(mc.x, mc.y, mc.z);
+          glowOuter.setMatrixAt(glowCount, dummy);
+          dummy.makeScale(coreR, coreR, coreR);
+          dummy.setPosition(mc.x, mc.y, mc.z);
+          glowCore.setMatrixAt(glowCount, dummy);
+          outerIntensity.setX(glowCount, k);
+          coreIntensity.setX(glowCount, k);
+          glowCount++;
+        }
+      }
 
       // 拖尾線段
       const trail = getTrailUpToTime(ship.path, currentTime, TRAIL_DURATION);
@@ -275,6 +411,12 @@ export class ShipScene {
     }
 
     this.instancedMesh.count = headCount;
+    for (const [mesh, attr] of [[glowOuter, outerIntensity], [glowCore, coreIntensity]] as const) {
+      if (!mesh || !attr) continue;
+      mesh.count = glowCount;
+      mesh.instanceMatrix.needsUpdate = true;
+      attr.needsUpdate = true;
+    }
     this.instancedMesh.instanceMatrix.needsUpdate = true;
     if (this.instancedMesh.instanceColor) {
       (this.instancedMesh.instanceColor as THREE.InstancedBufferAttribute).needsUpdate = true;
@@ -331,6 +473,8 @@ export class ShipScene {
   }
 
   dispose() {
+    this.disposeGlow();
+    this.fishingLights = false;
     if (this.instancedMesh) {
       this.scene.remove(this.instancedMesh);
       this.instancedMesh.geometry.dispose();

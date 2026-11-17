@@ -160159,6 +160159,11 @@
         "step": 0.000001,
         "value": 0.000003,
         "valueText": "0.3"
+      },
+      {
+        "label": "漁火模擬",
+        "type": "toggle",
+        "value": false
       }
     ],
     "slopeVector": [
