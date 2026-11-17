@@ -33,4 +33,6 @@ export const OWNER_DATA_ASSETS = Object.freeze({
   "osm-power-plants-static": Object.freeze({ filename: "osm_power_plants_static.json", size: 103409, sha256: "887809b2a043903efebd870dc78f3b39eda64ec005d34596f2541bda3828f719" }),
   // ── 南韓首爾用途地域（2026-11-14，站主限定；data.go.kr 註含第三方權利，不入倉；analytics data/processed/urban_composite/kr/seoul_zoning）──
   "kr-seoul-zoning": Object.freeze({ filename: "kr_seoul_zoning.pmtiles", size: 7364833, sha256: "3fd6df7db523d0b3ef7e8d078e2ed18b45ea9fbb73ef02782f263a57db6efe62" }),
+  // ── 越南 WDPCA 保護區 raster（2026-11-17，站主限定；WDPCA 條款禁再散布與可下載地圖，W6-1 站主選 A＋B；analytics data/processed/conservation/vn/wdpca）──
+  "vn-wdpca-raster": Object.freeze({ filename: "vn_wdpca_raster.pmtiles", size: 2457302, sha256: "6b68fc2f64387b2f1d3ea1658c2c553e9e2b17d5f0ea3e98457e7487d074b771" }),
 });

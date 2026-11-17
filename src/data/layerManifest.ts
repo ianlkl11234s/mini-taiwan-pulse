@@ -42,6 +42,8 @@ import { PH_DATA_SPECS } from "./phDataLayers";
 import type { PhDataKey } from "./phDataKeys";
 import { VN_DATA_SPECS } from "./vnDataLayers";
 import type { VnDataKey } from "./vnDataKeys";
+import { VN_RASTER_META, VN_WAVE_ENTRY_META } from "./vnWavesMeta";
+import { VN_RASTER_SPECS } from "./vnWavesLayers";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -1048,6 +1050,8 @@ const PH_DATA_MANIFEST_ENTRIES = Object.fromEntries(PH_DATA_SPECS.map((spec) => 
 
 /** 越南第 1 波規格驅動 10 層（規格 SSOT 在 vnDataLayers.ts；畫法重用 usePhDataLayer；主題與群組比照菲律賓、愛爾蘭）。 */
 const VN_DATA_ENTRY_META: Record<VnDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  // 觀光波與第 2–7 波（2026-11-17）：中介資料在 vnWavesMeta.ts
+  ...VN_WAVE_ENTRY_META,
   vnStations: { theme: "交通", group: "場站", zh: "車站（鐵路、捷運、公車總站）", alt: "Rail, Metro & Bus Stations", icon: TrainFront, dataset: "vn_stations", topics: ["越南", "交通", "車站", "鐵路", "捷運", "公車", "OSM"],
     description: "越南車站 989 處（鐵路站 293、捷運站 166、公車總站 530；OpenStreetMap 補缺，官方無全國站名冊）", processing: "Geofabrik vietnam-latest.osm.pbf 抽 railway=station／public_transport=station 等 → 代表點；34 省空間判定；PMTiles stations z4–14", note: "ODbL 1.0；官方無全國站名冊" },
   vnTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場與港口", alt: "Airports & Ports", icon: Plane, dataset: "vn_transport_hubs", topics: ["越南", "交通", "機場", "港口", "ODM", "OSM"],
@@ -1065,7 +1069,7 @@ const VN_DATA_ENTRY_META: Record<VnDataKey, { theme: string; group: string; zh: 
   vnOilGas: { theme: "能源", group: "石化 · 油氣", zh: "油氣設施", alt: "Oil & Gas Facilities", icon: Spline, dataset: "vn_oil_gas", topics: ["越南", "能源", "油氣", "LNG", "管線", "煉油廠", "儲槽", "GEM", "OSM"],
     description: "越南 LNG 接收站 33、煤炭碼頭 5、油氣管線 12（GEM，含提案與取消）＋煉油廠 2、儲槽 75、天然氣管線 65（OSM）", processing: "GEM GGIT／GOIT／Coal Terminals 濾越南；OSM 煉油廠、儲槽、管線；GEM 與 OSM 分兩支 PMTiles", note: "CC BY 4.0（GEM）；OSM ODbL；GEM 狀態含提案、取消（狀態篩選）" },
   vnEnvisoftStations: { theme: "環境氣候", group: "環境監測站", zh: "環境自動監測站位置", alt: "Environmental Monitoring Stations", icon: Activity, dataset: "vn_envisoft_stations", topics: ["越南", "環境", "空氣品質", "水質", "排放", "監測站", "envisoft"],
-    description: "越南環境自動監測站 2,177 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）", processing: "envisoft.gov.vn 站點清單 → 4326；站名後綴判定類型；34 省空間判定；PMTiles stations z4–14", note: "來源 envisoft.gov.vn，授權未明示；只上位置、不上數值（使用者 2026-11-10）" },
+    description: "越南環境自動監測站 2,176 處（envisoft：空品、地面水、海水、廢水排放口、煙道；只有位置、沒有數值）", processing: "envisoft.gov.vn 站點清單 → 4326；站名後綴判定類型；34 省空間判定；PMTiles stations z4–14", note: "來源 envisoft.gov.vn，授權未明示；只上位置、不上數值（使用者 2026-11-10）" },
   vnAngiangDemo: { theme: "工商登記", group: "安江示範", zh: "安江工業群與避洪居民點", alt: "An Giang Industrial Clusters & Flood Resettlement", icon: Building2, dataset: "vn_angiang_demo", topics: ["越南", "安江", "工業群", "避洪", "示範"],
     description: "越南安江省工業群 13 處（面）＋避洪居民點 59 處（只涵蓋安江省，原堅江範圍）", processing: "安江省開放資料入口 GIS 圖層 → 4326；行政代碼為舊制、不換算新社；PMTiles industrial_clusters、flood_resettlement z6–14", note: "授權未明示；只涵蓋安江省，其他 33 省是未涵蓋" },
 };
@@ -1094,11 +1098,38 @@ const VN_DATA_MANIFEST_ENTRIES = Object.fromEntries(VN_DATA_SPECS.map((spec) => 
   }];
 })) as Record<VnDataKey, LayerManifestEntry>;
 
+/** 越南 raster 4 層（2026-11-17 第 2、3、6 波）：PNG PMTiles／外部 WMS，無 feature 屬性與 popup（同 caHillshade）。WDPCA 站主限定（OWNER_ONLY，圖磚走私有 owner-data）。 */
+const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec) => {
+  const m = VN_RASTER_META[spec.key];
+  const sourceNote = spec.kind === "wms"
+    ? `useVnWmsRasterLayer 掛外部 WMS raster source（ODM GeoServer，瀏覽器直連，clip 以 34 省外框裁切）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`
+    : spec.kind === "owner"
+      ? `useVnRasterLayer 自建 mapbox-pmtiles raster source（站主限定：useOwnerPmtilesSource 取私有 owner-data 簽名網址，無公開 fallback）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}`
+      : `useVnRasterLayer 自建 mapbox-pmtiles raster source（pmtilesRasterCustomSource）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`;
+  return [spec.key, {
+    key: spec.key,
+    country: "VN", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.steps?.[spec.steps.length - 1]?.color ?? spec.swatches?.[0]?.color ?? "#9ca3af",
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: sourceNote, staticAssets: spec.kind === "pmtiles" ? [`./world/${spec.file}`] : spec.kind === "owner" ? [`PRIVATE_OWNER_ONLY: ${spec.file}`] : [] },
+    legend: spec.key,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: m.description,
+    topics: spec.kind === "owner" ? [...m.topics, "OWNER_ONLY"] : m.topics,
+  }];
+})) as Record<(typeof VN_RASTER_SPECS)[number]["key"], LayerManifestEntry>;
+
 export const LAYER_MANIFEST = {
   ...KR_DATA_MANIFEST_ENTRIES,
   ...IE_DATA_MANIFEST_ENTRIES,
   ...PH_DATA_MANIFEST_ENTRIES,
   ...VN_DATA_MANIFEST_ENTRIES,
+  ...VN_RASTER_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,

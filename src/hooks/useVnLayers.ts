@@ -5,7 +5,9 @@ import { BOUNDARY_GRAY, LABEL, MAP_SEAM, labelHaloPaint } from "../map/mapStyleS
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { VN_ADMIN_COLOR, VN_DENSITY_BREAKS, VN_NOT_COVERED_COLOR } from "../data/vnDataLayers";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { useGbPmtilesLayers, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
+import type { VnRasterSpec } from "../data/vnWavesLayers";
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -158,4 +160,59 @@ export function useVnPopulationLayers(mapRef: MapRef, visible: boolean, opacity:
       update: (map) => setPaint(map, ids.line, linePaint()),
     },
   ], [opacity, isDark]);
+}
+
+// ═════════════════════════ Raster 4 層（2026-11-17 第 2、3、6 波） ═════════════════════════
+
+function firstSymbolLayerId(map: MapboxMap): string | undefined {
+  try { return map.getStyle()?.layers?.find((layer) => layer.type === "symbol")?.id; } catch { return undefined; }
+}
+
+/**
+ * 山體陰影、色別標高（公開 PNG PMTiles）與 WDPCA（站主限定）：比照 usePhRasterLayer 插在底圖第一個 symbol 下、地球儀走 pmtilesRasterCustomSource。
+ * `priv`：站主限定層傳 useOwnerPmtilesSource 結果；為 null 時不掛 source（絕不退回公開 ./world/ 路徑）。
+ */
+export function useVnRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible: boolean, opacity: number, priv?: PrivatePmtilesSource | null) {
+  const owner = spec.kind === "owner";
+  const source: SourceSpec = {
+    id: spec.sourceId, file: spec.file ?? "", minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort, loading: spec.loading,
+    raster: { tileSize: 256 }, ...(owner && priv ? { private: priv } : {}),
+  };
+  useGbPmtilesLayers(mapRef, source, visible && (!owner || !!priv), () => [{
+    id: spec.layerId,
+    layer: () => ({
+      id: spec.layerId, type: "raster", source: source.id, minzoom: spec.minzoom,
+      layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacity), "raster-fade-duration": 0 },
+    } as unknown as AnyLayer),
+    update: (map) => map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity)),
+    before: firstSymbolLayerId,
+  }], [spec.key, opacity, priv]);
+}
+
+/** 崩塌潛勢：外部 WMS（ODM GeoServer）raster tiles 由瀏覽器直連，`{bbox-epsg-3857}` 由 Mapbox 代入；不訂閱時間。 */
+export function useVnWmsRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible: boolean, opacity: number) {
+  const mapTick = useMapReadyTick(mapRef, visible);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !spec.wmsUrl) return;
+    const apply = () => {
+      if (!visible) {
+        if (map.getLayer(spec.layerId)) map.setLayoutProperty(spec.layerId, "visibility", "none");
+        return;
+      }
+      if (!map.getSource(spec.sourceId)) {
+        map.addSource(spec.sourceId, { type: "raster", tiles: [spec.wmsUrl!], tileSize: 256, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort });
+        keepLoadingUntilMapIdle(map, `${spec.sourceId}:render`, spec.loading, spec.sourceId, 15000);
+      }
+      if (!map.getLayer(spec.layerId)) {
+        map.addLayer({
+          id: spec.layerId, type: "raster", source: spec.sourceId, minzoom: spec.minzoom,
+          layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacity), "raster-fade-duration": 0 },
+        } as unknown as AnyLayer, firstSymbolLayerId(map));
+      }
+      map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity));
+      map.setLayoutProperty(spec.layerId, "visibility", "visible");
+    };
+    try { apply(); } catch { map.once("idle", () => { try { apply(); } catch { /* style 轉換中 */ } }); }
+  }, [mapRef, spec, visible, opacity, mapTick]);
 }

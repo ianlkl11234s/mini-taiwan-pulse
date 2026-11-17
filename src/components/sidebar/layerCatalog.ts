@@ -392,6 +392,18 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "能源",
     "環境氣候",
     "工商登記",
+    // 觀光波與第 2–7 波（2026-11-17）
+    "觀光",
+    "災害",
+    "水資源",
+    "教育",
+    "醫療",
+    "執法治安",
+    "基礎建設",
+    "宗教",
+    "運動休閒",
+    "自然保育",
+    "農業",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -3190,13 +3202,29 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "底圖",
     country: "VN",
     defaultCollapsed: true,
-    groups: [{ title: "行政邊界", layers: [fromManifest("vnAdminBoundaries")] }],
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("vnAdminBoundaries")] },
+      { title: "地形", layers: [fromManifest("vnTerrainHillshade"), fromManifest("vnTerrainRelief")] },
+      { title: "地名 Gazetteer", layers: [fromManifest("vnPlaceNames")] },
+    ],
   },
   {
     title: "人口社經",
     country: "VN",
     defaultCollapsed: true,
     groups: [{ title: "人口分布", layers: [fromManifest("vnPopulation")] }],
+  },
+  {
+    // 觀光波（2026-11-17）：點層依知名度逐級出現（tier1 z4、tier2 z7、有名稱 z10、未命名 z12），不代表遊客量
+    title: "觀光",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・人文", layers: [fromManifest("vnTourAttractions")] },
+      { title: "玩・自然", layers: [fromManifest("vnTourNature")] },
+      { title: "玩・體驗", layers: [fromManifest("vnNationalTouristAreas")] },
+      { title: "住・食", layers: [fromManifest("vnTourServices")] },
+    ],
   },
   {
     title: "交通",
@@ -3206,6 +3234,9 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "場站", layers: [fromManifest("vnStations")] },
       { title: "樞紐節點", layers: [fromManifest("vnTransportHubs")] },
       { title: "路網", layers: [fromManifest("vnMajorRoads")] },
+      { title: "路網結構", layers: [fromManifest("vnBridges")] },
+      { title: "共享運具", layers: [fromManifest("vnBicycleRental")] },
+      { title: "停車", layers: [fromManifest("vnParking")] },
     ],
   },
   {
@@ -3218,6 +3249,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "再生能源", layers: [fromManifest("vnRenewables")] },
       { title: "石化 · 加油站", layers: [fromManifest("vnFuelStations")] },
       { title: "石化 · 油氣", layers: [fromManifest("vnOilGas")] },
+      { title: "礦業", layers: [fromManifest("vnCoalMines")] },
     ],
   },
   {
@@ -3233,6 +3265,99 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "VN",
     defaultCollapsed: true,
     groups: [{ title: "安江示範", layers: [fromManifest("vnAngiangDemo")] }],
+  },
+  // 越南第 2–7 波（2026-11-17）
+  {
+    title: "災害",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "災害事件", layers: [fromManifest("vnGlideEvents")] },
+      { title: "崩塌", layers: [fromManifest("vnLandslideSusceptibility")] },
+      { title: "河岸侵蝕", layers: [fromManifest("vnRiverbankErosion")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "水利設施", layers: [fromManifest("vnDams"), fromManifest("vnWaterStructures")] },
+      { title: "自來水", layers: [fromManifest("vnWaterSupply")] },
+      { title: "面／線", layers: [fromManifest("vnRivers")] },
+    ],
+  },
+  {
+    title: "教育",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校 Schools", layers: [fromManifest("vnSchools"), fromManifest("vnKindergartens")] },
+      { title: "校地 Campus", layers: [fromManifest("vnSchoolCampuses")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("vnHealthFacilities")] },
+    ],
+  },
+  {
+    title: "執法治安",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "警政", layers: [fromManifest("vnPolice")] },
+      { title: "司法矯正", layers: [fromManifest("vnCourtsPrisons")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "郵政與便民", layers: [fromManifest("vnPostalServices")] },
+      { title: "公共生活", layers: [fromManifest("vnPublicAmenities")] },
+      { title: "金融據點", layers: [fromManifest("vnFinancialServices")] },
+    ],
+  },
+  {
+    title: "宗教",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("vnPlacesOfWorship")] },
+    ],
+  },
+  {
+    title: "運動休閒",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "公園", layers: [fromManifest("vnParks")] },
+    ],
+  },
+  {
+    // WDPCA 站主限定（條款禁再散布，W6-1）；ODM 保護區公開但非商用
+    title: "自然保育",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "保護區", layers: [fromManifest("vnProtectedAreasOdm"), fromManifest("vnWdpca")] },
+    ],
+  },
+  {
+    // 安江養殖只涵蓋安江省；農田邊界是 30 個樣本圖磚
+    title: "農業",
+    country: "VN",
+    defaultCollapsed: true,
+    groups: [
+      { title: "養殖漁業", layers: [fromManifest("vnAngiangAquaculture")] },
+      { title: "農地與農路", layers: [fromManifest("vnFieldBoundaries"), fromManifest("vnFarmTracks")] },
+      { title: "土壤", layers: [fromManifest("vnSoil")] },
+    ],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3643,6 +3768,18 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "能源": "environment",
     "環境氣候": "environment",
     "工商登記": "city",
+    // 觀光波與第 2–7 波（2026-11-17）
+    "觀光": "publicLife",
+    "災害": "safety",
+    "水資源": "environment",
+    "教育": "publicLife",
+    "醫療": "safety",
+    "執法治安": "safety",
+    "基礎建設": "publicLife",
+    "宗教": "publicLife",
+    "運動休閒": "publicLife",
+    "自然保育": "environment",
+    "農業": "environment",
   },
   CA: {
     // 加拿大主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照南韓、英國）。
@@ -3878,6 +4015,17 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "能源": { zh: "能源", sub: "Energy" },
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
+    "災害": { zh: "災害", sub: "Hazard" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "教育": { zh: "教育", sub: "Education" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "宗教": { zh: "宗教", sub: "Religion" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "自然保育": { zh: "自然保育", sub: "Conservation" },
+    "農業": { zh: "農業", sub: "Agriculture" },
   },
   CA: {
     // 加拿大主題副標用英文（官方雙語英法，介面先用英文；比照英國）
