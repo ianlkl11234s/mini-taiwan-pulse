@@ -44,7 +44,7 @@ const BUS_CROWDING_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BUS_CROWDING_S3_PREFIX = "private-research/bus-crowding";
 // 站主限定靜態資料通用家族（2026-11-08 起取代 Supabase owner-only RPC 的靜態圖層；白名單在 owner-data-assets.mjs）。
 // 本機預設讀 repo 根目錄的 owner-data.local/（gitignored）；可用 OWNER_DATA_PRIVATE_ROOT 改指。
-// 與其他家族不同：不在啟動暖機，第一次請求某檔時才從 S3 抓並驗 sha256（之後留在記憶體）。
+// 與其他家族不同：不在啟動暖機，第一次請求某檔時才對 S3 驗大小與 sha256（不整檔載入，見 createAllenCoralAtlasS3Gateway）。
 const OWNER_DATA_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../owner-data.local");
 const OWNER_DATA_PATH = "/api/private-research/owner-data";
 const OWNER_DATA_S3_BUCKET = "migu-private-research-ap-southeast-2";
@@ -492,80 +492,244 @@ export function createJpWaterGateway(root = firstConfigured(process.env.JP_WATER
   return createAllenCoralAtlasGateway(root, assets);
 }
 
+const MIB = 1024 * 1024;
+export const DEFAULT_PRIVATE_CACHE_MAX_BYTES = 64 * MIB;
+export const DEFAULT_PRIVATE_CACHE_MAX_ENTRY_BYTES = 2 * MIB;
+const PRIVATE_FULL_VERIFY_TIMEOUT_MS = 5 * 60_000;
+
 /**
- * Downloads each allowlisted immutable S3 object once, then serves only the
- * verified process-local snapshot. This cache never includes authentication:
- * handleAllenCoralAtlasRequest authenticates every request before reaching it.
+ * Process-wide byte-bounded LRU for private S3 bytes. Entries are immutable
+ * Buffers keyed by content-addressed object key + byte range, so an entry can
+ * never be served for a different object version. Authentication never touches
+ * this cache: every handler authenticates before calling a gateway.
+ *
+ * - Total retained bytes never exceed maxBytes (oldest entries are evicted first).
+ * - Entries larger than maxEntryBytes are never retained (callers stream them).
+ * - Concurrent misses for the same key share one S3 read; failures are not cached.
+ */
+export function createPrivateByteCache({
+  maxBytes = DEFAULT_PRIVATE_CACHE_MAX_BYTES,
+  maxEntryBytes = DEFAULT_PRIVATE_CACHE_MAX_ENTRY_BYTES,
+} = {}) {
+  const limitEntry = Math.min(maxEntryBytes, maxBytes);
+  const entries = new Map();
+  const pending = new Map();
+  let bytes = 0;
+  function remember(key, value) {
+    if (value.length > limitEntry) return;
+    const previous = entries.get(key);
+    if (previous) { entries.delete(key); bytes -= previous.length; }
+    entries.set(key, value);
+    bytes += value.length;
+    for (const [oldestKey, oldest] of entries) {
+      if (bytes <= maxBytes) break;
+      entries.delete(oldestKey);
+      bytes -= oldest.length;
+    }
+  }
+  return {
+    maxBytes,
+    maxEntryBytes: limitEntry,
+    get bytes() { return bytes; },
+    get count() { return entries.size; },
+    get(key) {
+      const value = entries.get(key);
+      if (value) { entries.delete(key); entries.set(key, value); }
+      return value;
+    },
+    async load(key, loader) {
+      const hit = this.get(key);
+      if (hit) return hit;
+      let inflight = pending.get(key);
+      if (!inflight) {
+        inflight = (async () => {
+          const value = await loader();
+          remember(key, value);
+          return value;
+        })().finally(() => pending.delete(key));
+        pending.set(key, inflight);
+      }
+      return inflight;
+    },
+  };
+}
+
+export function getPrivateCacheConfig(env = process.env) {
+  const maxBytes = parseBoundedInteger(env.PRIVATE_RESEARCH_CACHE_MAX_BYTES, DEFAULT_PRIVATE_CACHE_MAX_BYTES, MIB, 4096 * MIB)
+    ?? DEFAULT_PRIVATE_CACHE_MAX_BYTES;
+  const maxEntryBytes = parseBoundedInteger(env.PRIVATE_RESEARCH_CACHE_MAX_ENTRY_BYTES, DEFAULT_PRIVATE_CACHE_MAX_ENTRY_BYTES, 64 * 1024, MAX_RANGE_BYTES)
+    ?? DEFAULT_PRIVATE_CACHE_MAX_ENTRY_BYTES;
+  return { maxBytes, maxEntryBytes };
+}
+
+let sharedPrivateByteCache;
+function getSharedPrivateByteCache() {
+  sharedPrivateByteCache ??= createPrivateByteCache(getPrivateCacheConfig());
+  return sharedPrivateByteCache;
+}
+
+async function readBodyExactly(body, expectedLength, label) {
+  if (!body || typeof body[Symbol.asyncIterator] !== "function") throw new Error("S3 returned no readable body");
+  const output = Buffer.allocUnsafe(expectedLength);
+  let length = 0;
+  try {
+    for await (const chunk of body) {
+      const bytes = Buffer.from(chunk);
+      if (length + bytes.length > expectedLength) throw new Error(`${label} length mismatch`);
+      bytes.copy(output, length);
+      length += bytes.length;
+    }
+  } finally {
+    if (typeof body.destroy === "function") body.destroy();
+  }
+  if (length !== expectedLength) throw new Error(`${label} length mismatch`);
+  return output;
+}
+
+/**
+ * Reads allowlisted immutable private S3 objects on demand (no full-object
+ * preload). Keys are always `<prefix>/<sha256>/<filename>` from the allowlist,
+ * so a request can never choose a path.
+ *
+ * Integrity (once per object, cached on success only):
+ *   HeadObject(ChecksumMode=ENABLED) must report the allowlisted size. When S3
+ *   holds a full-object ChecksumSHA256 (all upload-*-private.mjs scripts send
+ *   one with a single PutObject) it must equal the allowlisted sha256. If it is
+ *   missing or composite (multipart), the object is streamed once and hashed
+ *   chunk by chunk (constant memory) before any byte is served. Every later
+ *   ranged GET carries If-Match with the verified S3 ETag.
+ *
+ * Memory: objects no larger than the cache entry limit are cached whole (and
+ * re-hashed locally); other small ranges go into the shared LRU; ranges larger
+ * than the entry limit (up to 8 MiB) are streamed straight from S3.
  */
 export function createAllenCoralAtlasS3Gateway(config, {
   client,
   assets = ALLEN_CORAL_ATLAS_ASSETS,
   prefix = "private-research/allen-coral-atlas",
   bucket = ALLEN_CORAL_ATLAS_S3_BUCKET,
+  cache,
 } = {}) {
   const s3 = client ?? new S3Client({
     region: config.region,
     credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
   });
-  const snapshots = new Map();
+  const bytes = cache ?? getSharedPrivateByteCache();
+  const verified = new Map();
 
-  async function verifiedSnapshot(asset, signal) {
+  function objectKey(asset) {
     if (!Object.values(assets).includes(asset)) throw new Error("invalid S3 asset");
-    const key = `${prefix}/${asset.sha256}/${asset.filename}`;
-    let pending = snapshots.get(key);
+    return `${prefix}/${asset.sha256}/${asset.filename}`;
+  }
+
+  async function streamVerify(key, etag, asset) {
+    const timed = timedSignal(undefined, PRIVATE_FULL_VERIFY_TIMEOUT_MS);
+    let value;
+    try {
+      value = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: key, IfMatch: etag }), { abortSignal: timed.signal });
+      if (!value.Body || typeof value.Body[Symbol.asyncIterator] !== "function") throw new Error("S3 returned no readable body");
+      const hash = createHash("sha256");
+      let length = 0;
+      for await (const chunk of value.Body) {
+        length += chunk.length;
+        if (length > asset.size) throw new Error("S3 asset size mismatch");
+        hash.update(chunk);
+      }
+      if (length !== asset.size) throw new Error("S3 asset size mismatch");
+      if (hash.digest("hex") !== asset.sha256) throw new Error("S3 asset checksum mismatch");
+    } finally {
+      timed.dispose();
+      if (value?.Body?.destroy) value.Body.destroy();
+    }
+  }
+
+  function verify(asset) {
+    const key = objectKey(asset);
+    let pending = verified.get(key);
     if (!pending) {
+      // Shared by every caller, so it is deliberately not tied to any one request's abort signal.
       pending = (async () => {
-        const timed = timedSignal(signal);
-        let value;
+        const timed = timedSignal(undefined);
+        let head;
         try {
-          value = await s3.send(new GetObjectCommand({
-            Bucket: bucket,
-            Key: key,
-            ChecksumMode: "ENABLED",
-          }), { abortSignal: timed.signal });
-          if (!value.Body || typeof value.Body[Symbol.asyncIterator] !== "function") throw new Error("S3 returned no readable body");
-          if (value.ContentLength !== asset.size) throw new Error("S3 asset size mismatch");
-          const chunks = [];
-          let length = 0;
-          for await (const chunk of value.Body) {
-            const bytes = Buffer.from(chunk);
-            length += bytes.length;
-            if (length > asset.size) throw new Error("S3 asset size mismatch");
-            chunks.push(bytes);
-          }
-          const snapshot = Buffer.concat(chunks, length);
-          if (snapshot.length !== asset.size) throw new Error("S3 asset size mismatch");
-          if (createHash("sha256").update(snapshot).digest("hex") !== asset.sha256) throw new Error("S3 asset checksum mismatch");
-          return snapshot;
+          head = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key, ChecksumMode: "ENABLED" }), { abortSignal: timed.signal });
         } finally {
           timed.dispose();
-          if (value?.Body?.destroy) value.Body.destroy();
         }
+        if (head.ContentLength !== asset.size) throw new Error("S3 asset size mismatch");
+        if (typeof head.ETag !== "string" || !head.ETag) throw new Error("S3 asset has no ETag");
+        const checksum = head.ChecksumSHA256;
+        const fullObject = typeof checksum === "string" && !checksum.includes("-")
+          && (head.ChecksumType === undefined || head.ChecksumType === "FULL_OBJECT");
+        if (fullObject) {
+          if (Buffer.from(checksum, "base64").toString("hex") !== asset.sha256) throw new Error("S3 asset checksum mismatch");
+        } else {
+          await streamVerify(key, head.ETag, asset);
+        }
+        return { key, s3Etag: head.ETag };
       })();
-      snapshots.set(key, pending);
+      verified.set(key, pending);
+      pending.catch(() => { if (verified.get(key) === pending) verified.delete(key); });
     }
+    return pending;
+  }
+
+  async function readRange(key, s3Etag, start, end, label) {
+    const timed = timedSignal(undefined);
     try {
-      return await pending;
-    } catch (error) {
-      snapshots.delete(key);
-      throw error;
+      const value = await s3.send(new GetObjectCommand({
+        Bucket: bucket, Key: key, Range: `bytes=${start}-${end}`, IfMatch: s3Etag,
+      }), { abortSignal: timed.signal });
+      return await readBodyExactly(value.Body, end - start + 1, label);
+    } finally {
+      timed.dispose();
     }
   }
 
   return {
-    async head(asset, signal) {
-      await verifiedSnapshot(asset, signal);
+    async head(asset) {
+      await verify(asset);
       return { contentLength: asset.size, contentType: "application/octet-stream", etag: `\"${asset.sha256}\"` };
     },
     async get(asset, range, signal) {
-      const snapshot = await verifiedSnapshot(asset, signal);
-      return {
-        body: Buffer.from(snapshot.subarray(range.start, range.end + 1)),
+      const { key, s3Etag } = await verify(asset);
+      const meta = {
         contentLength: range.length,
         contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
         contentType: "application/octet-stream",
         etag: `\"${asset.sha256}\"`,
       };
+      if (asset.size <= bytes.maxEntryBytes) {
+        const whole = await bytes.load(`${key}#all`, async () => {
+          const value = await readRange(key, s3Etag, 0, asset.size - 1, "S3 asset");
+          if (createHash("sha256").update(value).digest("hex") !== asset.sha256) throw new Error("S3 asset checksum mismatch");
+          return value;
+        });
+        // Copy only the requested bytes; a Response must never expose a cache Buffer.
+        return { ...meta, body: Buffer.from(whole.subarray(range.start, range.end + 1)) };
+      }
+      if (range.length <= bytes.maxEntryBytes) {
+        const cached = await bytes.load(`${key}#${range.start}-${range.end}`, () => readRange(key, s3Etag, range.start, range.end, "S3 range"));
+        return { ...meta, body: Buffer.from(cached) };
+      }
+      // Large range: stream through without retaining it.
+      const timed = timedSignal(signal);
+      let value;
+      try {
+        value = await s3.send(new GetObjectCommand({
+          Bucket: bucket, Key: key, Range: `bytes=${range.start}-${range.end}`, IfMatch: s3Etag,
+        }), { abortSignal: timed.signal });
+      } catch (error) {
+        timed.dispose();
+        throw error;
+      }
+      if (!value.Body || typeof value.Body.pipe !== "function"
+        || value.ContentLength !== range.length || value.ContentRange !== meta.contentRange) {
+        timed.dispose();
+        value.Body?.destroy?.();
+        throw new Error("S3 range check failed");
+      }
+      return { ...meta, body: nodeBodyToWebStream(value.Body, timed.signal, timed.dispose) };
     },
   };
 }
@@ -1084,9 +1248,9 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const warmFamily = async (state, gateway, assets) => {
     for (let attempt = 0; attempt < warmupAttempts; attempt += 1) {
       try {
-        // S3 gateway.head() verifies and retains a complete immutable snapshot.
-        // Keep startup peak memory bounded to one archive instead of buffering
-        // every private PMTiles object concurrently.
+        // S3 gateway.head() is a HeadObject size/ChecksumSHA256 check (or a
+        // constant-memory streamed hash when S3 has no full-object checksum).
+        // Nothing is preloaded; bytes are read per Range request.
         for (const asset of Object.values(assets)) await gateway.head(asset);
         state.ready = true;
         return;

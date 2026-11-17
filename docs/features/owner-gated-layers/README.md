@@ -64,7 +64,8 @@
 
 - 路徑 `/api/private-research/owner-data/<key>`；白名單 `server/coral-private/owner-data-assets.mjs`（key、filename、size、sha256），前端鏡像 `src/data/ownerDataAssets.ts`（`src/lib/__tests__/ownerData.test.ts` 逐一比對）。
 - 儲存：私有 S3 `migu-private-research-ap-southeast-2/private-research/owner-data/<sha256>/<filename>`（內容定址，舊版並存＝回滾只要改回舊常數）；正本另放 `migu-gis-data-collector/supabase-export/owner-data/<sha256>/<filename>`（ADR-0026），底層表另有 `supabase-export/<schema>.<table>/full-YYYYMMDD.csv.gz`。
-- sidecar **不暖機**：第一次請求某檔才從 S3 抓並驗 sha256，之後留在記憶體；其他家族暖機失敗不影響它。
+- sidecar **不暖機**：第一次請求某檔才對 S3 做 HeadObject 驗大小與 ChecksumSHA256；其他家族暖機失敗不影響它。
+- **按需讀取（2026-11-17 起，所有私有家族共用）**：sidecar 不再把整檔載進記憶體，每個 Range 請求只向 S3 讀那一段。完整性在第一次用到某檔時驗一次：大小要符合，S3 存的整檔 ChecksumSHA256 要等於白名單 sha256；沒有整檔 checksum（例如 multipart 上傳）時改成串流算一次 sha256，記憶體用量固定。之後每次讀取都帶 If-Match。全程序共用一個 LRU 快取，上限 64 MiB（`PRIVATE_RESEARCH_CACHE_MAX_BYTES`）。2 MiB 以下的檔整檔快取，並在本機再驗一次 sha256；其他 2 MiB 以下的 range 也進同一個快取；更大的 range 直接串流，不留在快取裡（單筆上限用 `PRIVATE_RESEARCH_CACHE_MAX_ENTRY_BYTES` 調整）。新增私有檔只要加白名單列，不用改 sidecar。
 - 路由：Caddy（pulse-host `Caddyfile`）、`nginx.conf`、`vite.config.ts` 都用前綴式 `owner-data/[a-z0-9-]+`，**之後加檔不用再改路由**；未知 key 由 sidecar 回 404。
 - 前端：`fetchOwnerJson(asset, taskId, label)`（`src/lib/ownerData.ts`）帶站主 token、分段 Range、註冊 loadingRegistry；非 401／403 的失敗寫進 `ownerDataStatus`，圖例用它顯示「讀取失敗（原因）」。loader 只把 `supabase.rpc` 換成它，回傳形狀不變。
 - 新增一支檔：匯出（RPC 函式本體 SELECT，形狀與 RPC 相同）→ `owner-data.local/` 寫檔與 `local_validation.json` → 兩份 assets 常數加一列 → `node scripts/deploy/upload-owner-data-private.mjs <repo>/owner-data.local`（set -a 載入 .env）→ PR → 主機重建 coral-private → 前端發版後才撤舊 RPC。
