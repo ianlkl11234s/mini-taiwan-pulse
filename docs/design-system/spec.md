@@ -43,6 +43,7 @@
 | 圖層／統計面板的國家切換 | §5.41 |
 | 地圖視野在他國時的提示 | §5.42 |
 | 開著的圖層在目前畫面看不到（放大／前往資料範圍） | §5.42.1 |
+| popup 裡「一週哪幾天」的規則（清運日、開放日） | §5.46 |
 
 ## 1. 原則
 
@@ -1123,6 +1124,21 @@
 - **文案**：`compare.*`（三語）。
 - **禁止**：在右圖另做一套圖層控制或圖例面板；把比較狀態寫進 localStorage；讓不支援的層靜默消失（一律畫在左側並標示）。
 - **實作**：`src/components/compare/{CompareDivider.tsx,compareDivider.css,CompareStatisticsLegend.tsx}`、`src/map/{CompareMapView.tsx,compareSync.ts,compareRightMap.ts}`、`src/state/{compareStore.ts,compareStatistics.ts,compareControls.ts}`；掛在 `App.tsx`。
+
+### 5.46 星期格子（popup 內的每週排程，2026-11-17，南韓 KRH-1）
+
+- **用途**：停靠 popup（§5.2）裡「一週哪幾天」的規則，例如垃圾排出日、開放日。一列七格，一眼看出哪幾天有。第一個使用者是南韓生活垃圾排出規則（`krWasteDisposalRules`），之後其他國家的清運日、開放日沿用，不另做。
+- **結構**：一組規則＝一列：七格（日一二三四五六，週日在前，照來源 `sun`…`sat` 順序）→ 右側時段 `HH:MM–HH:MM`（`FONT_DATA`＋tabular-nums，跨夜照原文，不換算）。下面一行是適用分區（10px `textMuted`，最多列 3 組，其餘「還有 N 組」）。地點清單一律收進 `PopupDetails`（§5.2「收合區塊」）「排出地點 N 處」，展開最多列 20 筆，其餘「還有 N 處」。
+- **格子**：每格 16×14、gap 2、`RADIUS.sm`、字 `FONT_SIZE.xs`（9px）、置中。有＝底色用該分類的資料色（§3.16，資料色不進 token），字 `SURFACE.app`；沒有＝底 `bgSubtle`、字 `textDim`。只用顏色以外再加 `aria-label`（「週一、週三、週五」），不靠顏色單獨表意。
+- **分類**：同一個 popup 多類（例：一般垃圾、廚餘、資源回收、大型廢棄物）時，每類一個小標（色點 9px＋類名 11px 600＋組數 10px `textMuted`），底下列該類各組。超過 3 類**不用分段控制**（§5.8 上限 3），改成依序列出、整段放 `PopupScroll`（超過 320px 捲動）。
+- **狀態**（§6.5 null 不當 0）：
+  - 來源沒有星期（`null`、欄位不存在、空陣列且沒寫其他）：七格不畫，改一行「來源未填星期」（`textMuted`），**不可畫成七格全空或寫「不收」**。
+  - 來源寫「其他」（`days_other`）：照畫有值的格，後面加「＋其他（來源寫「기타」）」；沒有任何格時只寫這一句。
+  - 該類整組沒有星期欄（例：大型廢棄物採申請制）：不畫格子，只列時段與方法。
+  - 時段缺一端：寫「時段來源未填」，不補 00:00。
+- **淡色底圖**：沒有格用 `LIGHT.fillSubtle`、字 `LIGHT.textDim`（`useFeatureTheme()` 讀，不自行判斷）。
+- **禁止**：用 7 個 Badge 拼；把星期換算成「每週 N 次」取代格子；popup 內畫圖例色塊（§5.2）。
+- **實作**：`src/components/featureInfo/WeekdayGrid.tsx`；使用處 `src/components/featureInfo/krHabitatPanels.tsx`（`KrWasteDisposalRulesPanel`）。
 
 ## 6. 文案規則
 
