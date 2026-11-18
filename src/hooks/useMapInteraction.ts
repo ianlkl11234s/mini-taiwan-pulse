@@ -493,7 +493,10 @@ export function useMapInteraction(
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
                 : type === "jpBuildingHeight"
                   ? enrichJpHeightFeature(f.source ?? "", f.properties ?? {})
-                  : (f.properties ?? {});
+                  // 南韓生態自然圖：命中的 시·도 分片 source id（popup 依此查該檔고시번호）
+                  : type === "krEcologyNaturalness"
+                    ? { ...(f.properties ?? {}), _eco_source: f.source ?? "" }
+                    : (f.properties ?? {});
             const cellId = type === "gfwHourlyGrid" ? canonicalGfwGridCellId(queriedProperties, f.id) : null;
             // PMTiles may expose the immutable key as `grid_id` or feature.id.  Normalise it
             // before both popup rendering and detail-bucket SHA selection.

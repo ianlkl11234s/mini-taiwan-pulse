@@ -8,6 +8,7 @@ import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS } from "../data/phDataKeys";
 import { VN_DATA_KEYS } from "../data/vnDataKeys";
 import { CN_DATA_KEYS } from "../data/cnDataKeys";
+import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
@@ -39,6 +40,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   ...PH_DATA_KEYS,
   ...VN_DATA_KEYS,
   ...CN_DATA_KEYS,
+  ...CA_WAVE_KEYS, // 加拿大第 3–8 波：makePhPanel 自掛 SourceFooter
   ...G53_SELF_FOOTER_KEYS, // G53 批 1：analytics PMTiles 無來源欄，atlasPanels withG53Footer 自掛
   "ieCoillteRecreation", "ieCoillteForestRoads", // 站主限定 Coillte：panel 自掛 SourceFooter（makeIePanel）
   // 2024 投開票所：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
@@ -89,6 +91,9 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbAdminBoundaries",
   // 南韓第 0 波：panel 自掛 SGIS／admdongkor 署名
   "krAdminBoundaries",
+  // 南韓 KRH-1：panel 自掛 KOGL 3／平台標籤 footer
+  "krEcologyNaturalness",
+  "krWasteDisposalRules",
   "krBusStops",
   "krRailStations",
   "krAirports",
@@ -230,6 +235,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 30 天地圖挑戰 Day 8 烏托邦：panel 自掛研究推估口徑與來源。
   "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites",
   "mapchallengeDay09UrbanRural",
+  // 30 天地圖挑戰 Day 17 光與暗：panel 自掛 NASA Black Marble／OSM／保護區來源。
+  "mapchallengeDay17DarkSky", "mapchallengeDay17DarkRoads", "mapchallengeDay17LedShare",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

@@ -4,6 +4,7 @@ import { useLocale } from "../../state/localeStore";
 import { placeName } from "../../i18n/placeText";
 import { enumLabel, localizedField } from "../../i18n/dataText";
 import { useFeatureTheme } from "./featureTheme";
+import { paramBool, useLayerParams } from "../../layers/layerParamsAccess";
 import { RAIL_ROUTES_FALLBACK_COLOR, RAIL_ROUTES_SYSTEM_LABELS } from "../../data/railRoutesTypes";
 
 /** 氣象站類型對應色 */
@@ -171,6 +172,8 @@ export function ShipPanel({ props }: { props: Record<string, unknown> }) {
   const { t: tr, formatDateTime } = useLocale();
   const vesselType = Number(props.vessel_type ?? 0);
   const info = SHIP_TYPE_INFO(vesselType);
+  // 漁火模擬開啟時，漁船（AIS 30）附註：光暈是模擬，不是衛星觀測
+  const fishingLights = paramBool(useLayerParams("ships"), "ships", "shipFishingLights") && vesselType === 30;
   const ts = Number(props.timestamp ?? 0);
   const time = ts > 0 ? formatDateTime(ts * 1000, { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }) : "—";
   return (
@@ -186,6 +189,9 @@ export function ShipPanel({ props }: { props: Record<string, unknown> }) {
       <Row field="time" value={time} />
       <Row field="longitude" value={props.lon != null ? Number(props.lon).toFixed(5) : "—"} />
       <Row field="latitude" value={props.lat != null ? Number(props.lat).toFixed(5) : "—"} />
+      {fishingLights && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6, lineHeight: 1.5 }}>{tr("popup.transport.fishingLightsNote")}</div>
+      )}
     </>
   );
 }

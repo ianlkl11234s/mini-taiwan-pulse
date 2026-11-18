@@ -4,7 +4,7 @@
  * - 設施群聚：每種設施一組色階；標題旁放該色階代表色（第 4 階），切設施時標題、色塊、級距一起換。
  * - 熱區重疊（r7 與臺中彰化 r8）：四類固定色＋大字重疊率。
  */
-import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LEGEND_SWATCH, LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { useLocale } from "../../state/localeStore";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
@@ -33,6 +33,12 @@ import {
   mapchallengeDay09DensityColors, MAPCHALLENGE_DAY09_DENSITY_RANGES, mapchallengeDay09RatioColors, MAPCHALLENGE_DAY09_ZERO_COLOR,
   mapchallengeDay09Facility, mapchallengeDay09MetricByKey, type MapchallengeDay09Metric,
 } from "../../data/mapchallengeDay09Types";
+import {
+  MAPCHALLENGE_DAY17_GROUND_MAX_NW, MAPCHALLENGE_DAY17_INFERNO, MAPCHALLENGE_DAY17_LOW_OPACITY, MAPCHALLENGE_DAY17_LOW_SWATCH, MAPCHALLENGE_DAY17_MAGMA, MAPCHALLENGE_DAY17_PRODUCTS,
+  MAPCHALLENGE_DAY17_SKY_BREAKS, mapchallengeDay17Gradient, mapchallengeDay17GlowColor, mapchallengeDay17ProtectedLineColor, mapchallengeDay17SkyPos, mapchallengeDay17ZeroColor,
+  MAPCHALLENGE_DAY17_LED_NATIONAL, mapchallengeDay17LedColors, mapchallengeDay17LedYearByKey,
+} from "../../data/mapchallengeDay17Types";
+import { RADIUS } from "../../styles/designTokens";
 
 /** i18n key 寫成字面值（localeParity 靠字面值判斷 key 有沒有人用） */
 export const MAPCHALLENGE_FACILITY_NAME_KEYS: Record<MapchallengeFacilityKey, `legend.mapchallenge.facility.${MapchallengeFacilityKey}`> = {
@@ -426,5 +432,97 @@ export function MapchallengeDay09UrbanRuralLegend() {
     {metric === "hc" && <LegendNote>{t("legend.mapchallenge.day09.hcNote")}</LegendNote>}
     <LegendNote>{t("legend.mapchallenge.day09.groupNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day09.source")}</LegendNote>
+  </div>;
+}
+
+// ── Day 17 光與暗：真正的黑夜／衛星看不到光的路段／入夜變亮 ─────────────
+/** 天空推估 5 級：連續色帶（PNG 本身是連續 magma）上畫 4 條切點刻度，下方標級數（1 級在最暗端） */
+function Day17SkyClassBar() {
+  const { t } = useLocale();
+  const theme = useLegendTheme();
+  const cuts = [0, ...MAPCHALLENGE_DAY17_SKY_BREAKS.map(mapchallengeDay17SkyPos), 1];
+  return <div>
+    <div style={{ position: "relative", height: LEGEND_SWATCH.gradient.height, borderRadius: RADIUS.sm, background: mapchallengeDay17Gradient(MAPCHALLENGE_DAY17_MAGMA) }}>
+      {cuts.slice(1, -1).map((c) => <span key={c} style={{ position: "absolute", left: `${c * 100}%`, top: 0, bottom: 0, width: 1, background: theme.textStrong }} />)}
+    </div>
+    <div style={{ position: "relative", height: 12, fontSize: FONT_SIZE.xs, color: theme.textDim }}>
+      {cuts.slice(0, -1).map((c, i) => <span key={c} style={{ position: "absolute", left: `${((c + cuts[i + 1]!) / 2) * 100}%`, transform: "translateX(-50%)", fontFamily: FONT_DATA }}>{i + 1}</span>)}
+    </div>
+    <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: theme.textDim }}>
+      <span>{t("legend.mapchallenge.day17.darkest")}</span><span>{t("legend.mapchallenge.day17.brightest")}</span>
+    </div>
+  </div>;
+}
+
+export function MapchallengeDay17DarkSkyLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  const values = useLayerParams("mapchallengeDay17DarkSky");
+  const product = MAPCHALLENGE_DAY17_PRODUCTS.find((p) => p.value === paramStr(values, "mapchallengeDay17DarkSky", "mapchallengeDay17DarkSkyProduct")) ?? MAPCHALLENGE_DAY17_PRODUCTS[0];
+  const [a, b, c, d] = MAPCHALLENGE_DAY17_SKY_BREAKS.map((v) => Number(v.toPrecision(2)));
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day17.darkSkyTitle")} />
+    {product.value === "skyglow" ? <>
+      <LegendNote>{t("legend.mapchallenge.day17.skySub")}</LegendNote>
+      <Day17SkyClassBar />
+      <LegendNote>{t("legend.mapchallenge.day17.skyBreaks", { a: a ?? "", b: b ?? "", c: c ?? "", d: d ?? "" })}</LegendNote>
+      <LegendNote>{t("legend.mapchallenge.day17.skyNote")}</LegendNote>
+      <LegendNote>{t("legend.mapchallenge.day17.hehuan")}</LegendNote>
+    </> : <>
+      <LegendNote>{t("legend.mapchallenge.day17.groundSub")}</LegendNote>
+      <SwatchGradient gradient={mapchallengeDay17Gradient(MAPCHALLENGE_DAY17_INFERNO)} labels={["0", t("legend.mapchallenge.day17.groundMax", { n: MAPCHALLENGE_DAY17_GROUND_MAX_NW })]} />
+      <LegendNote>{t("legend.mapchallenge.day17.groundNote")}</LegendNote>
+    </>}
+    <LegendRow swatch={<SwatchSquare color={mapchallengeDay17ProtectedLineColor(isDark)} outline />}>{t("legend.mapchallenge.day17.protected")}</LegendRow>
+    <LegendNote>{t("legend.mapchallenge.day17.source")}</LegendNote>
+  </div>;
+}
+
+export function MapchallengeDay17DarkRoadsLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day17.roadsTitle")} />
+    <LegendRow swatch={<SwatchLine color={mapchallengeDay17ZeroColor(isDark)} width={2} />}>{t("legend.mapchallenge.day17.zero")}</LegendRow>
+    <LegendRow swatch={<SwatchLine color={mapchallengeDay17GlowColor(isDark)} width={3} />}>{t("legend.mapchallenge.day17.top10")}</LegendRow>
+    <LegendRow swatch={<SwatchLine color={MAPCHALLENGE_DAY17_LOW_SWATCH} opacity={MAPCHALLENGE_DAY17_LOW_OPACITY} width={1} />}>{t("legend.mapchallenge.day17.low")}</LegendRow>
+    <LegendNote>{t("legend.mapchallenge.day17.lowNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.roadsStats")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.pixelNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.roadsSource")}</LegendNote>
+  </div>;
+}
+
+export function MapchallengeDay17NightFallLegend() {
+  const { t } = useLocale();
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day17.nightFallTitle")} />
+    <SwatchGradient gradient={mapchallengeDay17Gradient(MAPCHALLENGE_DAY17_INFERNO)} labels={["0", t("legend.mapchallenge.day17.groundMax", { n: MAPCHALLENGE_DAY17_GROUND_MAX_NW })]} />
+    <LegendNote>{t("legend.mapchallenge.day17.nightFallNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.nightFallRule")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.nightFallTip")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.nightFallSource")}</LegendNote>
+  </div>;
+}
+
+/** LED 化 5 級標籤（高 → 低列在圖例由上而下） */
+const MAPCHALLENGE_DAY17_LED_BIN_KEYS = [
+  "legend.mapchallenge.day17.ledBin0", "legend.mapchallenge.day17.ledBin1", "legend.mapchallenge.day17.ledBin2",
+  "legend.mapchallenge.day17.ledBin3", "legend.mapchallenge.day17.ledBin4",
+] as const;
+
+export function MapchallengeDay17LedShareLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  const theme = useLegendTheme();
+  const values = useLayerParams("mapchallengeDay17LedShare");
+  const year = mapchallengeDay17LedYearByKey(paramStr(values, "mapchallengeDay17LedShare", "mapchallengeDay17LedShareYear"));
+  const colors = mapchallengeDay17LedColors(isDark);
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day17.ledTitle", { year })} />
+    <LegendNote>{t("legend.mapchallenge.day17.ledSub")}</LegendNote>
+    {[4, 3, 2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchSquare color={colors[i]!} stroke={theme.seam} />}>
+      {t(MAPCHALLENGE_DAY17_LED_BIN_KEYS[i]!)}
+    </LegendRow>)}
+    <LegendNote>{t("legend.mapchallenge.day17.ledNational", { a: (MAPCHALLENGE_DAY17_LED_NATIONAL[2021] * 100).toFixed(1), b: (MAPCHALLENGE_DAY17_LED_NATIONAL[2025] * 100).toFixed(1), y: (MAPCHALLENGE_DAY17_LED_NATIONAL[year] * 100).toFixed(1), year })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.ledNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day17.ledSource")}</LegendNote>
   </div>;
 }

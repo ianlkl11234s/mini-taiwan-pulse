@@ -36,6 +36,7 @@ import { repPointClickLayerIds } from './repPointOverlays';
  *   本表每個 type 也都要有 manifest key 宣告它。宣告與接線任一邊漂移 = 紅。
  */
 import type { FeatureInfo } from "../types";
+import { KR_ECO_CLICK_LAYER_IDS, KR_WASTE_CLICK_LAYER_IDS } from "../data/krEcoWasteTypes";
 import { DISASTER_ALERT_CLICK_LAYERS } from "../hooks/useDisasterAlertLayer";
 import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
@@ -487,11 +488,51 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-national-roads-line"], type: "krNationalRoads" },
   { layers: ["kr-rail-lines-line"], type: "krRailLines" },
   { layers: ["kr-ports-line", "kr-ports-fill"], type: "krPorts" },
+  // 南韓 KRH-1：垃圾排出規則（掛行政界 sgg 面）排在行政界之前，同開時先命中規則；生態自然圖 17 個 시·도 分片＋空錨點
+  { layers: [...KR_WASTE_CLICK_LAYER_IDS], type: "krWasteDisposalRules" },
+  { layers: [...KR_ECO_CLICK_LAYER_IDS], type: "krEcologyNaturalness" },
   // 南韓：三層級一次只開一層
   { layers: ["kr-admin-emd-fill", "kr-admin-sgg-fill", "kr-admin-sido-fill"], type: "krAdminBoundaries" },
   { layers: ["ca-indigenous-lands-fill"], type: "caIndigenousLands" },
   { layers: ["ca-population-centres-fill"], type: "caPopulationCentres" },
   { layers: ["ca-population-grid-r7-fill", "ca-population-grid-r6-fill", "ca-population-grid-r5-fill"], type: "caPopulationGrid" },
+  // 加拿大第 3–8 波（2026-11-17，規格驅動；點層在前，面層在後，避免大面吃掉點擊）
+  { layers: ["ca-dams-circle"], type: "caDams" },
+  { layers: ["ca-recycling-depots-circle"], type: "caRecyclingDepots" },
+  { layers: ["ca-critical-habitat-circle", "ca-critical-habitat-line", "ca-critical-habitat-fill"], type: "caCriticalHabitat" },
+  { layers: ["ca-tide-stations-circle"], type: "caTideStations" },
+  { layers: ["ca-bridges-tunnels-circle"], type: "caBridgesTunnels" },
+  { layers: ["ca-toronto-ksi-circle"], type: "caTorontoKsi" },
+  { layers: ["ca-lode-health-circle"], type: "caLodeHealth" },
+  { layers: ["ca-lode-schools-circle"], type: "caLodeSchools" },
+  { layers: ["ca-lode-sports-circle"], type: "caLodeSports" },
+  { layers: ["ca-bc-childcare-circle"], type: "caBcChildcare" },
+  { layers: ["ca-lode-culture-circle"], type: "caLodeCulture" },
+  { layers: ["ca-cbsa-offices-circle"], type: "caCbsaOffices" },
+  { layers: ["ca-parks-canada-accommodation-circle"], type: "caParksCanadaAccommodation" },
+  { layers: ["ca-courts-corrections-circle"], type: "caCourtsCorrections" },
+  { layers: ["ca-toronto-theft-from-vehicle-circle"], type: "caTorontoTheftFromVehicle" },
+  { layers: ["ca-wildfire-points-circle"], type: "caWildfirePoints" },
+  { layers: ["ca-mines-circle"], type: "caMines" },
+  { layers: ["ca-grain-elevators-circle"], type: "caGrainElevators" },
+  { layers: ["ca-abattoirs-circle"], type: "caAbattoirs" },
+  { layers: ["ca-odbus-circle"], type: "caOdbus" },
+  { layers: ["ca-toronto-dev-applications-circle"], type: "caTorontoDevApplications" },
+  { layers: ["ca-maritime-boundaries-line", "ca-maritime-zones-fill"], type: "caMaritimeZones" },
+  { layers: ["ca-rivers-line", "ca-rivers-lakes-fill"], type: "caRiversLakes" },
+  { layers: ["ca-ecoregions-line", "ca-ecozones-fill"], type: "caEcozones" },
+  { layers: ["ca-ferry-routes-line"], type: "caFerryRoutes" },
+  { layers: ["ca-soil-landscapes-uncovered-line", "ca-soil-landscapes-fill"], type: "caSoilLandscapes" },
+  { layers: ["ca-permafrost-fill"], type: "caPermafrost" },
+  { layers: ["ca-flood-map-inventory-fill"], type: "caFloodMapInventory" },
+  { layers: ["ca-ab-flood-hazard-fill"], type: "caAbFloodHazard" },
+  { layers: ["ca-glaciers-fill"], type: "caGlaciers" },
+  { layers: ["ca-protected-areas-fill"], type: "caProtectedAreas" },
+  { layers: ["ca-marine-conservation-fill"], type: "caMarineConservation" },
+  { layers: ["ca-forest-management-fill"], type: "caForestManagement" },
+  { layers: ["ca-broadband-hex-fill"], type: "caBroadbandHex" },
+  { layers: ["ca-drought-monitor-fill"], type: "caDroughtMonitor" },
+  { layers: ["ca-ns-aquaculture-fill"], type: "caNsAquaculture" },
   { layers: ["ca-rents-fill", "ca-rents-na-fill"], type: "caRents" },
   { layers: ["ca-cimd-fill", "ca-cimd-na-fill"], type: "caDeprivation" },
   { layers: ["ca-fsa-fill"], type: "caPostalFsa" },
@@ -1221,6 +1262,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌊 30 天地圖挑戰 Day 5 視野（模擬面板，線；±5px bbox 命中）：最長連續海景在上、路段在下
   { layers: ["mapchallenge-day05-sea-view-runs-line"], type: "mapchallengeDay05SeaViewRuns" },
   { layers: ["mapchallenge-day05-sea-view-line"], type: "mapchallengeDay05SeaView" },
+  // 🌙 30 天地圖挑戰 Day 17 光與暗（模擬面板）：連續暗路段（帶名次與起訖）在上、路段在下；保護區面見下方面層段
+  { layers: ["mapchallenge-day17-dark-road-runs-line"], type: "mapchallengeDay17DarkRoads" },
+  { layers: ["mapchallenge-day17-dark-road-segments-line"], type: "mapchallengeDay17DarkRoads" },
   // 🏯 30 天地圖挑戰 Day 6 復古：町界面放大面積段（面會吞點擊）；點與線 entry 在陣列開頭（review F007）
   { layers: ["mapchallenge-day06-taipei-1932-fill"], type: "mapchallengeDay06Taipei1932" },
   // 🌳 30 天地圖挑戰 Day 8 烏托邦：選址面（小）在上、步行分鐘統計區面（鋪滿中永和）在下
@@ -1231,6 +1275,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day08-access-fill"], type: "mapchallengeDay08Access" },
   // 🏘️ 30 天地圖挑戰 Day 9 城鄉：全台鄉鎮面（大面積面層，排在 Day 8 之後）
   { layers: ["mapchallenge-day09-urban-rural-fill"], type: "mapchallengeDay09UrbanRural" },
+  // 🌙 30 天地圖挑戰 Day 17 真正的黑夜：48 處保護區面（hook 自建、透明填色當點擊範圍；國家公園含大片海域）
+  { layers: ["mapchallenge-day17-protected-fill"], type: "mapchallengeDay17DarkSky" },
+  // 💡 30 天地圖挑戰 Day 17 縣市路燈 LED 化：22 縣市面（鋪滿全台，排在保護區之後）
+  { layers: ["mapchallenge-day17-led-share-fill"], type: "mapchallengeDay17LedShare" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

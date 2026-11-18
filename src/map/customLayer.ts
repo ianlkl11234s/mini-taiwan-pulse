@@ -169,6 +169,8 @@ export interface ShipLayerOptions {
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
   getTrailOpacity: () => number;
+  /** 漁火模擬開關（params ships.shipFishingLights） */
+  getFishingLights: () => boolean;
   getMapBounds: () => { minLng: number; maxLng: number; minLat: number; maxLat: number } | null;
   getIsVisible: () => boolean;
   onSceneReady?: (scene: ShipScene) => void;
@@ -195,7 +197,13 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
       unsubTime = subscribeTimeRepaint(() => map, opts.getIsVisible);
     },
 
-    render(_gl: WebGLRenderingContext, matrix: number[]) {
+    render(
+      _gl: WebGLRenderingContext,
+      matrix: number[],
+      projection?: { name?: string },
+      projectionToMercatorMatrix?: number[],
+      projectionToMercatorTransition?: number,
+    ) {
       if (!opts.getIsVisible()) {
         if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
         gate = "off";
@@ -225,7 +233,15 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
 
       shipScene.setOrbScale(opts.getOrbScale());
       shipScene.setTrailOpacity(opts.getTrailOpacity());
+      shipScene.setFishingLights(opts.getFishingLights());
       shipScene.setViewBounds(opts.getMapBounds());
+      // 地球儀投影（zoom < 6）：船點／拖尾／漁火要跟著 globe 轉換，否則離畫面中心越遠偏越多
+      if (projection?.name === "globe" && (projectionToMercatorTransition ?? 1) < 1 && map) {
+        const camera = map.getFreeCameraOptions().position;
+        shipScene.setGlobe(projectionToMercatorMatrix, projectionToMercatorTransition, camera ? { x: camera.x, y: camera.y, z: camera.z } : null);
+      } else {
+        shipScene.setGlobe(null, 1, null);
+      }
       shipScene.update(opts.getShips(), opts.getCurrentTime());
       shipScene.render(matrix);
 

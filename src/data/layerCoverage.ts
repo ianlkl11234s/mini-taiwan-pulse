@@ -25,6 +25,8 @@ export const COVERAGE_AREAS = {
   // gb_london_rail 西到 Reading（伊莉莎白線），其餘四檔都在大倫敦內
   london: { label: { zh: "倫敦", en: "London", ja: "ロンドン" }, bbox: [-0.98, 51.28, 0.34, 51.71], center: [-0.12, 51.51] },
   seoul: { label: { zh: "首爾", en: "Seoul", ja: "ソウル" }, bbox: [126.76, 37.41, 127.19, 37.72] },
+  // ca_toronto_{ksi_collisions,theft_from_vehicle,dev_applications}.pmtiles header bounds 聯集取整（2026-11-17 加拿大第 4、6、8 波）
+  toronto: { label: { zh: "多倫多市", en: "City of Toronto", ja: "トロント市" }, bbox: [-79.65, 43.57, -79.1, 43.87] },
   // vn_angiang_demo_v2.pmtiles 104.535–105.500E、9.466–10.520N 與 vn_angiang_aquaculture_v3.pmtiles 103.90–105.53E、9.38–10.50N（含富國島）header bounds 聯集取整（2026-11-17）
   anGiang: { label: { zh: "越南安江省", en: "An Giang, Vietnam", ja: "ベトナム An Giang 省" }, bbox: [103.85, 9.35, 105.55, 10.55] },
   taipei: { label: { zh: "臺北市", en: "Taipei City", ja: "台北市" }, bbox: [121.44, 24.94, 121.69, 25.23] },
@@ -119,6 +121,9 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   tainanRoadTunnels: "tainan",
   vnAngiangDemo: "anGiang",
   vnAngiangAquaculture: "anGiang",
+  caTorontoKsi: "toronto",
+  caTorontoTheftFromVehicle: "toronto",
+  caTorontoDevApplications: "toronto",
 };
 
 export function layerCoverage(key: string): { id: CoverageAreaId; area: CoverageArea } | null {

@@ -81,6 +81,9 @@ async function flush(): Promise<void> {
 describe("useRoadEventsLayer timeStore lifecycle", () => {
   beforeEach(() => {
     harness.reset();
+    // 事故脈動用 requestAnimationFrame；node 測試環境沒有，stub 成不執行 callback
+    vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
+    vi.stubGlobal("cancelAnimationFrame", vi.fn());
     loader.day.mockReset();
     vi.mocked(keepLoadingUntilMapIdle).mockClear();
     clock.current = 1_100;

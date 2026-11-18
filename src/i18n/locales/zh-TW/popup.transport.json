@@ -172,5 +172,6 @@
   "popup.transport.gbRfPrecisionCenter": "面以中心點表示",
   "popup.transport.gbRfSourceNh": "National Highways（英格蘭）",
   "popup.transport.gbRfSourceOsm": "OpenStreetMap",
-  "popup.transport.gbNo": "無"
+  "popup.transport.gbNo": "無",
+  "popup.transport.fishingLightsNote": "漁火模擬：依 AIS 位置與太陽高度模擬的燈光，不是衛星觀測；許多小漁船沒有 AIS，實際漁火更多。"
 }

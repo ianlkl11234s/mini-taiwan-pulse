@@ -33,6 +33,8 @@ import {
 import { movingStrokeColor } from "../../map/mapStyleScale";
 import { BUS_CROWDING_ZERO_LINE, busCrowdingColors, busCrowdingZeroOpacity } from "../../data/busCrowdingSimStyle";
 
+import { ROAD_EVENT_CLEARED_COLOR } from "../../data/roadEventsLoader";
+
 // ── Road Events event_type ──
 const ROAD_EVENT_TYPE_ITEMS = [
   { type: 3, color: "#ef4444", labelKey: "legend.transport.roadEvAccident" },
@@ -332,6 +334,14 @@ export function RoadEventsLegend() {
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t(item.labelKey)}</span>
           </div>
         ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <SwatchDot color={ROAD_EVENT_TYPE_ITEMS[0].color} opacity={0.85} glow={ROAD_EVENT_TYPE_ITEMS[0].color} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.transport.roadEvPulse")}</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <SwatchDot color={ROAD_EVENT_CLEARED_COLOR} opacity={0.5} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t("legend.transport.roadEvCleared")}</span>
+        </div>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         {i18n.t("legend.transport.roadEvNote")}

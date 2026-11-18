@@ -97,5 +97,7 @@
   "legend.maritime.gbMpaWales": "威爾斯：未涵蓋（Skomer MCZ 無開放圖層）",
   "legend.maritime.gbMpaHpma": "英格蘭高度保護海洋區（HPMA）：授權未確認，未收",
   "legend.maritime.gbMpaSacSpa": "含海域的 SAC／SPA 見「保護區」圖層",
-  "legend.maritime.gbMpaNav": "不可用於航行"
+  "legend.maritime.gbMpaNav": "不可用於航行",
+  "legend.maritime.fishingLightsRow": "漁火模擬（漁船，夜間才亮）",
+  "legend.maritime.fishingLightsNote": "依 AIS 位置與太陽高度模擬的燈光，不是衛星觀測；許多小漁船沒有 AIS，實際漁火更多。"
 }

@@ -4,29 +4,29 @@
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 > L2 欄來自倉庫 catalog（`catalog.json 2026-10-17`）；入倉狀態欄來自 pulse-data 登記簿（ADR-0023 成員清單 SSOT），兩者口徑不同時以入倉狀態為準。
 
-- 圖層總數：**1857**；L1 可操作：**1857/1857**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**1007/1857**（54.2%）
+- 圖層總數：**2008**；L1 可操作：**2008/2008**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**1007/2008**（50.1%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：27
-- 只有舊瀏覽器 reader：6；尚不可分析：812
+- 只有舊瀏覽器 reader：6；尚不可分析：963
 
 ## 各國入倉狀態（AG-14；以 pulse-data 登記簿為準）
 
 | 國別 | 圖層數 | warehouse | statistics | no_upstream | display_only | missing | 入倉率 |
 |---|---|---|---|---|---|---|---|
-| TW | 1320 | 482 | 659 | 6 | 1 | 172 | 86.4% |
+| TW | 1322 | 482 | 659 | 6 | 3 | 172 | 86.3% |
 | JP | 106 | 24 | 0 | 5 | 1 | 76 | 22.6% |
 | FR | 1 | 0 | 0 | 0 | 0 | 1 | 0.0% |
 | GB | 90 | 6 | 22 | 0 | 0 | 62 | 31.1% |
 | KR | 118 | 64 | 53 | 0 | 1 | 0 | 99.2% |
-| CA | 49 | 0 | 24 | 0 | 0 | 25 | 49.0% |
+| CA | 85 | 36 | 24 | 0 | 0 | 25 | 70.6% |
 | IE | 103 | 70 | 29 | 0 | 3 | 1 | 96.1% |
 | PH | 62 | 55 | 0 | 0 | 7 | 0 | 88.7% |
 | VN | 47 | 43 | 0 | 0 | 4 | 0 | 91.5% |
 | CN | 24 | 0 | 0 | 0 | 24 | 0 | 0.0% |
-| WORLD | 23 | 5 | 0 | 0 | 0 | 18 | 21.7% |
-| SIM | 22 | 0 | 0 | 0 | 1 | 21 | 0.0% |
+| WORLD | 24 | 5 | 0 | 1 | 0 | 18 | 20.8% |
+| SIM | 26 | 0 | 0 | 0 | 5 | 21 | 0.0% |
 
-- 合計：入倉 1463/1857（warehouse 676、statistics 787）；DISPLAY_ONLY 7；外部圖磚等無上游 11；未入倉（在只減不增基準）376
+- 合計：入倉 1572/2008（warehouse 785、statistics 787）；DISPLAY_ONLY 48；外部圖磚等無上游 12；未入倉（在只減不增基準）376
 - `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
 - WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
@@ -34,26 +34,26 @@
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 623 | 358 | 21 | 4 | 5 | 231 | 4 |
+| 臺灣圖層 | 625 | 358 | 21 | 4 | 5 | 233 | 4 |
 | 日本 | 106 | 15 | 0 | 2 | 0 | 88 | 1 |
 | 法國 | 1 | 0 | 0 | 0 | 0 | 1 | 0 |
 | 英國 | 68 | 0 | 0 | 0 | 0 | 68 | 0 |
 | 南韓 | 65 | 0 | 0 | 0 | 0 | 65 | 0 |
-| 加拿大 | 25 | 0 | 0 | 0 | 0 | 25 | 0 |
+| 加拿大 | 61 | 0 | 0 | 0 | 0 | 61 | 0 |
 | 愛爾蘭 | 74 | 0 | 0 | 0 | 0 | 74 | 0 |
 | 菲律賓 | 62 | 0 | 0 | 0 | 0 | 62 | 0 |
 | 越南 | 47 | 0 | 0 | 0 | 0 | 47 | 0 |
 | 中國 | 24 | 0 | 0 | 0 | 0 | 24 | 0 |
 | 統計 | 825 | 0 | 626 | 3 | 0 | 196 | 0 |
-| 世界 | 23 | 5 | 0 | 0 | 1 | 17 | 0 |
-| 模擬 | 22 | 0 | 0 | 0 | 0 | 22 | 0 |
+| 世界 | 24 | 5 | 0 | 0 | 1 | 18 | 0 |
+| 模擬 | 26 | 0 | 0 | 0 | 0 | 26 | 0 |
 
 ## 尚不可分析的原因
 
 | 原因 | 圖層數 |
 |---|---|
-| dataset_not_in_warehouse | 653 |
-| upstream_catalog_missing | 76 |
+| dataset_not_in_warehouse | 797 |
+| upstream_catalog_missing | 83 |
 | unfiltered_shared_table | 27 |
 | warehouse_SKIPPED_FORMAT | 15 |
 | derived_layer | 10 |

@@ -10,6 +10,7 @@ import { statisticsLinkedSelects } from './statisticsParamsSpec';
 import { statisticsPresentationSpec } from './statisticsPresentation';
 import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
 import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
+import { GIBS_NIGHT_LIGHTS_PRODUCTS } from "./gibsNightLightsTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 import { LIVE_INCIDENT_WINDOWS } from "./liveIncidentsTypes";
 // ══════════════════════════════════════════════════════════════════
@@ -100,12 +101,14 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
+import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
 import { PH_ADMIN_LEVELS, PH_DATA_SPECS, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT, phCatOptions } from "./phDataLayers";
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS, VN_STATUSES } from "./vnDataLayers";
+import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_ADMIN_LEVELS, CN_DATA_SPECS, CN_PLANT_SCOPES, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT, CN_RASTER_SPECS, cnCatOptions } from "./cnDataLayers";
 import { IE_DATA_SPECS, IE_FLOOD_SCENARIOS, IE_FLOOD_SCENARIO_DEFAULT, IE_NOISE_METRICS, IE_NOISE_METRIC_DEFAULT, IE_GW_FLOOD_PRODUCTS, IE_GW_FLOOD_DEFAULT, asKrSpec } from "./ieDataLayers";
@@ -1705,6 +1708,35 @@ export const LAYER_PARAMS_SPEC = {
       out: "mapchallengeDay09UrbanRuralMetricIdx", encode: [...MAPCHALLENGE_DAY09_METRIC_ENCODE],
     },
   ],
+  // 30 天地圖挑戰 Day 17 光與暗（模擬面板，公開）：影像 raster 用 G-4 影像透明度；暗路段的顯示等級 select 由 overlayRegistry 的 filter 自己組。
+  mapchallengeDay17DarkSky: [
+    { kind: "slider", name: "mapchallengeDay17DarkSkyOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17DarkSkyProduct", label: "影像", default: "skyglow",
+      options: MAPCHALLENGE_DAY17_PRODUCTS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay17DarkSkyProductIdx", encode: MAPCHALLENGE_DAY17_PRODUCTS.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay17DarkRoads: [
+    opacitySlider("mapchallengeDay17DarkRoadsOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17DarkRoadsScope", label: "顯示等級", default: "zero",
+      options: MAPCHALLENGE_DAY17_ROAD_SCOPES.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay17DarkRoadsScopeIdx", encode: MAPCHALLENGE_DAY17_ROAD_SCOPES.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay17NightFall: [
+    { kind: "slider", name: "mapchallengeDay17NightFallOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+  ],
+  // 年份 select 只換 paint 讀的欄位 led_share_<year>
+  mapchallengeDay17LedShare: [
+    opacitySlider("mapchallengeDay17LedShareOpacity", 0.7),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay17LedShareYear", label: "年份", default: String(MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR),
+      options: MAPCHALLENGE_DAY17_LED_YEARS.map((y) => ({ label: `${y} 年`, value: String(y) })),
+      out: "mapchallengeDay17LedShareYearIdx", encode: MAPCHALLENGE_DAY17_LED_YEARS.map(String),
+    },
+  ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {
@@ -2184,6 +2216,9 @@ export const LAYER_PARAMS_SPEC = {
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
       : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : spec.key === "krPopulationH3" ? 0.6 : spec.key === "krSchoolDistricts" ? 0.35 : spec.key === "krSeoulZoning" ? 0.32 : 0.7) : 0.85)]),
   ]])),
+  // 南韓 KRH-1：生態自然圖（拍板透明度 0.55）、垃圾排出規則（淡色面）
+  krEcologyNaturalness: [opacitySlider("krEcologyNaturalnessOpacity", 0.55)],
+  krWasteDisposalRules: [opacitySlider("krWasteDisposalRulesOpacity", 0.3)],
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
     {
@@ -2265,6 +2300,17 @@ export const LAYER_PARAMS_SPEC = {
         kind: "multiSelect" as const, name: `${spec.key}Status`, label: "狀態", default: serializeMultiSelectValues([...spec.statusDefault]),
         options: VN_STATUSES.map((x) => ({ label: x.label.zh, value: x.id })), out: `${spec.key}StatusMask`,
       }] : []),
+      opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
+      ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
+    ]];
+  })),
+  // 加拿大第 3–8 波（2026-11-17）：類別多選（順序＝規格 cats＋「其他」＝bitmask；catDefault 者預設部分勾選）、透明度、點層大小
+  ...Object.fromEntries(CA_WAVE_SPECS.map((spec) => {
+    const hasPoint = spec.parts.some((p) => p.geom === "point");
+    const pointOnly = spec.parts.every((p) => p.geom === "point");
+    return [spec.key, [
+      categoryMultiSelect(spec.key, phCatOptions(spec), spec.catDefault ? serializeMultiSelectValues([...spec.catDefault]) : undefined),
+      ...(spec.heat ? [heatmapPalette(spec.key)] : []),
       opacitySlider(`${spec.key}Opacity`, spec.opacity ?? (pointOnly ? densePointOpacity(spec.count) : 0.85)),
       ...(hasPoint ? [scaleSlider(`${spec.key}Scale`, 1)] : []),
     ]];
@@ -4967,6 +5013,18 @@ export const LAYER_PARAMS_SPEC = {
       out: "gibsSnowCoverProductIdx", encode: GIBS_SNOW_PRODUCTS.map((p) => p.value),
     },
   ],
+  // 上游直連：GIBS 衛星夜光 raster（2012／2016 年度合成）＋樣式切換
+  gibsNightLights: [
+    {
+      kind: "slider", name: "gibsNightLightsOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+    {
+      kind: "select", name: "gibsNightLightsProduct", label: "年份／樣式", default: "viirs_2016", category: "data",
+      options: GIBS_NIGHT_LIGHTS_PRODUCTS.map(({ label, value }) => ({ label, value })),
+      out: "gibsNightLightsProductIdx", encode: GIBS_NIGHT_LIGHTS_PRODUCTS.map((p) => p.value),
+    },
+  ],
   jmaRiskFlood: [opacitySlider("jmaRiskFloodOpacity", JMA_FLOOD_OPACITY)],
   riverRpiSegments: [
     opacitySlider("riverRpiSegmentsOpacity", 0.85),
@@ -5049,6 +5107,8 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "shipTrailOpacity", labelPrefix: "航跡", digits: 2,
       default: 0.15, min: 0.05, max: 1, step: 0.05, out: null,
     },
+    // 漁火模擬（30 天地圖挑戰 Light & dark）：漁船依船位太陽高度畫暖白光暈；Three.js 直接讀 layerParamRefs
+    { kind: "toggle", name: "shipFishingLights", label: "漁火模擬", default: false, out: null, category: "look" },
   ],
   rail: [
     { kind: "toggle", name: "railTrainVisible", label: "列車", default: true, out: null },

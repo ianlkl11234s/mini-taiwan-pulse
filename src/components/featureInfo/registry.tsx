@@ -77,9 +77,10 @@ import type { KrDataKey } from "../../data/krDataKeys";
 /** 南韓第 3–5 波 18 層的標題列（中文＋韓文原名，與其他國家圖層一致）。 */
 const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
+import { KrEcologyNaturalnessPanel, KrWasteDisposalRulesPanel } from "./krEcoWastePanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
-import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhPopulationPanel } from "./phPanels";
+import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhPopulationPanel, makePhPanel } from "./phPanels";
 import { CN_DATA_PANELS, CnAdminBoundariesPanel, CnPopulationPanel } from "./cnPanels";
 import { CN_DATA_SPECS } from "../../data/cnDataLayers";
 import type { CnDataKey } from "../../data/cnDataKeys";
@@ -87,6 +88,8 @@ import { PH_DATA_SPECS } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
 import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
 import { VN_DATA_SPECS } from "../../data/vnDataLayers";
+import { CA_WAVE_SPECS } from "../../data/caWavesLayers";
+import type { CaWaveKey } from "../../data/caWavesKeys";
 import type { VnDataKey } from "../../data/vnDataKeys";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../../data/ieCoillteTypes";
 import { IE_DATA_SPECS } from "../../data/ieDataLayers";
@@ -94,6 +97,9 @@ import type { IeDataKey } from "../../data/ieDataKeys";
 const IE_HEADER_LABELS = Object.fromEntries(IE_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<IeDataKey, string>;
 const CN_HEADER_LABELS = Object.fromEntries(CN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CnDataKey, string>;
 const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<PhDataKey, string>;
+/** 加拿大第 3–8 波（2026-11-17）：規格驅動，popup 重用 makePhPanel（自掛 SourceFooter）。 */
+const CA_WAVE_PANELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, makePhPanel(s)])) as Record<CaWaveKey, ReturnType<typeof makePhPanel>>;
+const CA_WAVE_HEADER_LABELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CaWaveKey, string>;
 const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
 import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
@@ -101,7 +107,7 @@ import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
-import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel } from "./mapchallengePanels";
+import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
@@ -472,6 +478,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpAdminBoundaries: JpAdminBoundariesPanel,
   gbAdminBoundaries: GbAdminBoundariesPanel,
   krAdminBoundaries: KrAdminBoundariesPanel,
+  krEcologyNaturalness: KrEcologyNaturalnessPanel,
+  krWasteDisposalRules: KrWasteDisposalRulesPanel,
   ...KR_DATA_PANELS,
   krBusStops: KrBusStopsPanel,
   krRailStations: KrRailStationsPanel,
@@ -495,6 +503,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   vnAdminBoundaries: VnAdminBoundariesPanel,
   vnPopulation: VnPopulationPanel,
   ...VN_DATA_PANELS,
+  ...CA_WAVE_PANELS,
   cnAdminBoundaries: CnAdminBoundariesPanel,
   cnPopulation: CnPopulationPanel,
   ...CN_DATA_PANELS,
@@ -685,6 +694,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   mapchallengeDay08Parks: MapchallengeDay08ParksPanel,
   mapchallengeDay08Sites: MapchallengeDay08SitesPanel,
   mapchallengeDay09UrbanRural: MapchallengeDay09UrbanRuralPanel,
+  mapchallengeDay17DarkSky: MapchallengeDay17DarkSkyPanel,
+  mapchallengeDay17DarkRoads: MapchallengeDay17DarkRoadsPanel,
+  mapchallengeDay17LedShare: MapchallengeDay17LedSharePanel,
   transitAccessGrid: TransitAccessGridPanel,
   transitAccessPlayback: TransitAccessPlaybackPanel,
   // Base map
@@ -1171,6 +1183,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpAdminBoundaries: "市區町村界 市区町村境",
   gbAdminBoundaries: "地方政府區 LAD",
   krAdminBoundaries: "南韓行政區界",
+  krEcologyNaturalness: "生態自然圖 생태자연도",
+  krWasteDisposalRules: "垃圾排出規則 생활쓰레기 배출",
   ...KR_HEADER_LABELS,
   krBusStops: "公車站 버스정류장",
   krRailStations: "鐵道車站 철도역",
@@ -1194,6 +1208,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   vnAdminBoundaries: "行政邊界 Administrative Boundaries",
   vnPopulation: "人口密度 Population Density",
   ...VN_HEADER_LABELS,
+  ...CA_WAVE_HEADER_LABELS,
   cnAdminBoundaries: "行政邊界 Administrative Boundaries",
   cnPopulation: "人口密度 Population Density",
   ...CN_HEADER_LABELS,
@@ -1370,6 +1385,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   mapchallengeDay08Parks: "現有公園與河濱入口",
   mapchallengeDay08Sites: "新公園選址與代價",
   mapchallengeDay09UrbanRural: "人口變少時，哪些設施還留著",
+  mapchallengeDay17DarkSky: "真正的黑夜：保護區暗度排名",
+  mapchallengeDay17DarkRoads: "衛星看不到光的路段",
+  mapchallengeDay17LedShare: "縣市路燈 LED 化",
   transitAccessGrid: "網格大眾運輸可及性（情境推演）",
   transitAccessPlayback: "單一起點大眾運輸擴張（情境推演）",
   // Base map

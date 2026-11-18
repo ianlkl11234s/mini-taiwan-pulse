@@ -80,6 +80,87 @@ export function isRoadEventActive(event: RoadEvent, currentTime: number): boolea
   return currentTime <= event.last_updated_ts + freshness;
 }
 
+// ── 事故強調（脈動／已排除變灰）──
+
+/** 同時脈動的事故上限（取最新）。與 fire119Live 一致 */
+export const ROAD_EVENT_PULSE_MAX = 20;
+/** 已排除事故保留灰點的時間（秒）：給使用者看到「剛排除」，之後從圖上消失 */
+export const ROAD_EVENT_CLEARED_GRACE_SEC = 30 * 60;
+/** 已排除事故的灰色（design token：與 liveIncidents 的 PBS_CLEARED_COLOR／返隊灰同值） */
+export const ROAD_EVENT_CLEARED_COLOR = "#6b7280";
+
+/** 這些 event_type 不可能是事故（施工、活動／管制、災害／障礙） */
+const NON_ACCIDENT_TYPES = new Set([2, 5, 7]);
+const ACCIDENT_TEXT_RE = /事故|車禍/;
+
+/**
+ * 是否為「事故」類事件（純函式）。
+ * - TDX EventType 3 ＝ 事故，直接算。
+ * - EventType 1（壅塞/事故）、4／6／8（其他）、無類別：只有標題／描述／其他位置文字含「事故」「車禍」才算；
+ *   純壅塞、道路障礙不算。
+ * - 救護類（臺南「緊急救護」等）不算：救護案件在站主限定層，公開層不凸顯（站主決定 2026-11-17）。
+ * - EventType 2／5／7（施工、災害、活動／管制）一律不算，即使文字提到事故。
+ */
+export function isAccidentEvent(
+  e: Pick<RoadEvent, "event_type" | "title" | "description" | "location_other">,
+): boolean {
+  if (e.event_type === 3) return true;
+  if (e.event_type != null && NON_ACCIDENT_TYPES.has(e.event_type)) return false;
+  return ACCIDENT_TEXT_RE.test(`${e.title ?? ""} ${e.description ?? ""} ${e.location_other ?? ""}`);
+}
+
+/**
+ * 事件被視為「結束」的時刻（UNIX 秒）。
+ * TDX 沒有「已排除」狀態欄：有 ExpireTime 就用它；沒有（即時來源常見）就用
+ * 最後更新時間 ＋ 該來源新鮮度上限（來源不再回報＝已排除）。判斷不了回 null。
+ */
+export function roadEventEndedAt(event: RoadEvent): number | null {
+  if (event.start_ts <= 0 || !Number.isFinite(event.start_ts)) return null;
+  if (event.end_ts != null) {
+    return Number.isFinite(event.end_ts) && event.end_ts > event.start_ts ? event.end_ts : null;
+  }
+  const freshness = SOURCE_FRESHNESS_SECONDS[event.source];
+  if (!freshness || event.last_updated_ts <= 0 || !Number.isFinite(event.last_updated_ts)) return null;
+  return event.last_updated_ts + freshness;
+}
+
+/** 事故狀態：active＝進行中、cleared＝已排除（結束後 30 分內）、null＝非事故或已過期不顯示 */
+export type RoadEventAccidentState = "active" | "cleared" | null;
+
+export function roadEventAccidentState(event: RoadEvent, currentTime: number): RoadEventAccidentState {
+  if (!isAccidentEvent(event) || !Number.isFinite(currentTime)) return null;
+  if (isRoadEventActive(event, currentTime)) return "active";
+  const endedAt = roadEventEndedAt(event);
+  if (endedAt == null || currentTime < event.start_ts) return null;
+  return currentTime >= endedAt && currentTime < endedAt + ROAD_EVENT_CLEARED_GRACE_SEC ? "cleared" : null;
+}
+
+function eventKey(e: RoadEvent): string {
+  return `${e.source}|${e.event_id}`;
+}
+
+/** 脈動對象：進行中的點狀事故，依開始時間取最新 max 個 */
+export function pickPulseEventKeys(events: RoadEvent[], currentTime: number, max = ROAD_EVENT_PULSE_MAX): Set<string> {
+  const live = events.filter((e) => e.geometry?.type === "Point" && roadEventAccidentState(e, currentTime) === "active");
+  live.sort((a, b) => b.start_ts - a.start_ts || eventKey(a).localeCompare(eventKey(b)));
+  return new Set(live.slice(0, max).map(eventKey));
+}
+
+/**
+ * 地圖上「顯示什麼」的簽章：進行中事件 ＋ 事故狀態（脈動／已排除）。
+ * 簽章不變就不重送 GeoJSON（timeStore 訂閱用）。
+ */
+export function roadEventsDisplayKey(events: RoadEvent[], currentTime: number): string {
+  const pulse = pickPulseEventKeys(events, currentTime);
+  let key = "";
+  for (const e of events) {
+    const acc = roadEventAccidentState(e, currentTime);
+    if (acc === "cleared") key += `${eventKey(e)}:c|`;
+    else if (isRoadEventActive(e, currentTime)) key += `${eventKey(e)}:${pulse.has(eventKey(e)) ? "p" : "a"}|`;
+  }
+  return key;
+}
+
 interface RawRow {
   event_id: string;
   source: string;
@@ -211,9 +292,12 @@ export function roadEventsToGeoJSON(
   currentTime: number,
 ): GeoJSON.FeatureCollection {
   const features: GeoJSON.Feature[] = [];
+  const pulse = pickPulseEventKeys(events, currentTime);
   for (const e of events) {
     if (!e.geometry) continue;
     const active = isRoadEventActive(e, currentTime);
+    const acc = roadEventAccidentState(e, currentTime);
+    const cleared = acc === "cleared";
     features.push({
       type: "Feature",
       geometry: e.geometry,
@@ -230,10 +314,14 @@ export function roadEventsToGeoJSON(
         description: e.description ?? "",
         location_other: e.location_other ?? "",
         blocked_lanes: e.blocked_lanes ?? "",
-        color: eventTypeColor(e.event_type),
+        color: cleared ? ROAD_EVENT_CLEARED_COLOR : eventTypeColor(e.event_type),
         start_ts: e.start_ts,
         end_ts: e.end_ts ?? -1,
         active: active ? 1 : 0,
+        // 事故強調：acc_state 0＝非事故／1＝進行中／2＝已排除；show＝地圖要畫（進行中或剛排除）；pulse＝脈動
+        acc_state: acc === "active" ? 1 : cleared ? 2 : 0,
+        show: active || cleared ? 1 : 0,
+        pulse: pulse.has(eventKey(e)) ? 1 : 0,
       },
     });
   }

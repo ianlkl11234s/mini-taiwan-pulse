@@ -45,6 +45,9 @@ import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
 import type { VnDataKey } from "./vnDataKeys";
 import { VN_RASTER_META, VN_WAVE_ENTRY_META } from "./vnWavesMeta";
+import { CA_WAVE_SPECS } from "./caWavesLayers";
+import { CA_WAVE_ENTRY_META } from "./caWavesMeta";
+import type { CaWaveKey } from "./caWavesKeys";
 import { VN_RASTER_SPECS } from "./vnWavesLayers";
 import { CN_DATA_SPECS, CN_OWNER_ASSETS, CN_RASTER_SPECS } from "./cnDataLayers";
 import type { CnDataKey, CnRasterKey } from "./cnDataKeys";
@@ -126,7 +129,7 @@ import {
   Satellite,
   // 🌤️ 環境氣候（Cloud / CloudRain / Grid3x3 / ThermometerSun / Wind / Activity /
   //    AlertTriangle / AlertCircle / TreePine / Sprout / Waves 已在上方 import 復用）
-  CloudSun, Thermometer, Snowflake, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
+  CloudSun, Thermometer, Snowflake, Moon, Sunset, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
   // 💧 水資源（Droplet / Droplets / Waves / Shield / ShieldCheck / Factory / Timer /
   //    CloudRain / AlertTriangle 已在上方 import 復用）
   GitBranch, Dam, Gauge, Container,
@@ -179,6 +182,7 @@ import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
 import { JMA_LAYER_COLORS } from "./jmaTypes";
 import { JMA_POINT_LAYER_COLORS } from "./jmaPointTypes";
 import { GIBS_SNOW_LAYER_COLOR } from "./gibsSnowTypes";
+import { GIBS_NIGHT_LIGHTS_LAYER_COLOR } from "./gibsNightLightsTypes";
 import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
 import {
   JP_ACCOMMODATION_DENSITY_LAYER_COLOR,
@@ -217,6 +221,7 @@ import { MAPCHALLENGE_DAY05_COLOR } from "./mapchallengeDay05Types";
 import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
+import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -1160,6 +1165,30 @@ const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec)
   }];
 })) as Record<(typeof VN_RASTER_SPECS)[number]["key"], LayerManifestEntry>;
 
+/** 加拿大第 3–8 波（2026-11-17）規格驅動 36 層（規格 SSOT 在 caWavesLayers.ts、中介資料在 caWavesMeta.ts；畫法重用 usePhDataLayer）。 */
+const CA_WAVE_MANIFEST_ENTRIES = Object.fromEntries(CA_WAVE_SPECS.map((spec) => {
+  const m = CA_WAVE_ENTRY_META[spec.key];
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
+  const kinds = ["multiSelect", ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "CA", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer（加拿大規格）自建 mapbox-pmtiles source；source-layer=${layers}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<CaWaveKey, LayerManifestEntry>;
+
 /**
  * 中國第 0–1 波（2026-11-13）：9 層全部站主限定（使用者 2026-11-10；topics OWNER_ONLY，gis-platform public.gated_layers 同名單）。
  * 圖磚只在私人 owner-data（同源 `/api/private-research/owner-data/<asset>`），不進公開 CDN；pulse-data 標 DISPLAY_ONLY、不入倉。
@@ -1268,6 +1297,7 @@ export const LAYER_MANIFEST = {
   ...PH_RASTER_MANIFEST_ENTRIES,
   ...VN_DATA_MANIFEST_ENTRIES,
   ...VN_RASTER_MANIFEST_ENTRIES,
+  ...CA_WAVE_MANIFEST_ENTRIES,
   ...CN_DATA_MANIFEST_ENTRIES,
   ...CN_RASTER_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
@@ -4816,6 +4846,77 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "南韓行政區界（시·도 16、시군구 256、행정동 3,559；admdongkor ver20261001，上游統計廳 SGIS）",
     topics: ["南韓", "行政區", "邊界"],
+  },
+
+  // 🇰🇷 南韓 KRH-1（2026-11-17）：生態自然圖（C117）、生活垃圾排出規則（C086）。規格與文案見 data/krEcoWasteTypes.ts
+  krEcologyNaturalness: {
+    key: "krEcologyNaturalness",
+    country: "KR", section: { theme: "林業", group: "分區" },
+    ...layerName({ zh: "生態自然圖", alt: "Ecological Naturalness Map" }),
+    expandable: true,
+    color: "#3f9d5c",
+    icon: Sprout,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "kr_ecology_naturalness", confidence: "HIGH" }],
+      processing: "EcoBank 행정구역(시도) SHP 17 檔 EPSG:5186→4326 只轉座標、不簡化不融合；依 시·도 17 個 PMTiles（z10–14）＋分片索引 JSON；全國 2,076,281 面（1 等級 20.4%、2 等級 49.5%、3 等級 27.0%、별도관리지역 3.1%）",
+      note: "公共누리 第 3 類（出處標示＋禁止變更）原樣；16/16 시·도；空白＝未評價；倉庫 DISPLAY_ONLY（合計 1.72 GB）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useKrEcologyNaturalnessLayer＋useViewportPmtilesShards：讀 kr_eco_nature_index.json，z≥10 且視窗與 시·도 bbox 相交才掛該檔 mapbox-pmtiles source（source-layer=eco_nature，z10–14）；z<10 只掛空錨點供視野提示卡",
+      staticAssets: [
+        "./world/kr_eco_nature_index.json",
+        "./world/kr_eco_nature_11.pmtiles",
+        "./world/kr_eco_nature_26.pmtiles",
+        "./world/kr_eco_nature_27.pmtiles",
+        "./world/kr_eco_nature_28.pmtiles",
+        "./world/kr_eco_nature_29.pmtiles",
+        "./world/kr_eco_nature_30.pmtiles",
+        "./world/kr_eco_nature_31.pmtiles",
+        "./world/kr_eco_nature_36.pmtiles",
+        "./world/kr_eco_nature_41.pmtiles",
+        "./world/kr_eco_nature_43.pmtiles",
+        "./world/kr_eco_nature_44.pmtiles",
+        "./world/kr_eco_nature_46.pmtiles",
+        "./world/kr_eco_nature_47.pmtiles",
+        "./world/kr_eco_nature_48.pmtiles",
+        "./world/kr_eco_nature_50.pmtiles",
+        "./world/kr_eco_nature_51.pmtiles",
+        "./world/kr_eco_nature_52.pmtiles",
+      ],
+    },
+    legend: "krEcologyNaturalness",
+    popup: "krEcologyNaturalness",
+    params: { count: 1, kinds: ["slider"] },
+    description: "南韓生態自然圖（국립생태원，1／2／3 等級＋별도관리지역；依 시·도 17 檔，放大到 z10 起顯示）",
+    topics: ["南韓", "生態自然圖", "생태자연도", "保育", "生態", "自然度"],
+  },
+  krWasteDisposalRules: {
+    key: "krWasteDisposalRules",
+    country: "KR", section: { theme: "廢棄物", group: "清運規則" },
+    ...layerName({ zh: "垃圾排出規則", alt: "Household Waste Disposal Rules" }),
+    expandable: true,
+    color: "#60a5fa",
+    icon: Trash2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "kr_waste_disposal_rules", confidence: "HIGH" }],
+      processing: "행정안전부 생활쓰레기배출정보（LOCALDATA）依 시군구 彙整成 JSON（sgg_code 索引，一般／廚餘／回收／大型四類，依排出日＋時段分組）；市級 12 機關展開到 35 個 일반구；負責部門電話欄不輸出；前端 join kr_admin_boundaries.pmtiles sgg 層",
+      note: "平台標籤；245/256 시군구（16/16 시·도），未涵蓋 11 區畫斜線；無幾何、倉庫 DISPLAY_ONLY",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useKrWasteDisposalRulesLayer：讀 kr_waste_disposal_rules.json，與行政界共用 kr-admin-boundaries source（sgg 層 z4–12），有 key 填淡色、沒有 key 畫缺值斜線",
+      staticAssets: ["./world/kr_waste_disposal_rules.json", "./world/kr_admin_boundaries.pmtiles"],
+    },
+    legend: "krWasteDisposalRules",
+    popup: "krWasteDisposalRules",
+    params: { count: 1, kinds: ["slider"] },
+    description: "南韓各 시군구 生活垃圾排出規則（排出日、時段、地點；245/256 區）",
+    topics: ["南韓", "垃圾", "쓰레기", "排出日", "資源回收", "廚餘", "廢棄物"],
   },
 
 
@@ -13885,6 +13986,30 @@ export const LAYER_MANIFEST = {
     description: "核安會全國環境輻射即時監測（μSv/h，15 分鐘）；與台電核電廠周界輻射（災害・核安）為不同測站網",
     topics: ["環境", "輻射", "核安會", "即時"],
   },
+  gibsNightLights: {
+    key: "gibsNightLights",
+    country: "WORLD", section: { theme: "全球環境 Global Environment", group: "夜間燈光 Night Lights" },
+    ...layerName({ zh: "衛星夜光", alt: "Night Lights", qualifier: "NASA GIBS" }),
+    expandable: true,
+    color: GIBS_NIGHT_LIGHTS_LAYER_COLOR,
+    icon: Moon,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "瀏覽器直連 NASA GIBS WMTS（epsg3857/best，GoogleMapsCompatible_Level8，z0–8）：VIIRS_Night_Lights（2012-01-01／2016-01-01）／VIIRS_Black_Marble（2016-01-01）；日期固定、不接時間軸",
+      note: "NASA GIBS 致謝文（attribution 原文照登）；年度合成影像，只能看不能量化；不入我們的 DB／倉庫",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGibsNightLightsLayer：raster source（gibs-night-lights-src，tiles 模板 {z}/{y}/{x}，maxzoom 8）＋ raster layer（插在第一個 symbol 下方）；切樣式時 setTiles —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "gibsNightLights",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "NASA 衛星夜間燈光（VIIRS；2012／2016 年合成影像，只能看不能量化；不是逐時開燈）",
+    topics: ["世界", "環境", "光害", "夜光", "衛星"],
+  },
   waterEffluentLive: {
     key: "waterEffluentLive",
     country: "TW", section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
@@ -16625,8 +16750,8 @@ export const LAYER_MANIFEST = {
     // 本段唯一真的 setFeatureInfo：ShipScene.pickShip 命中 → layerType "ship"。
     // 不經 GIS_LAYERS，由批 4 的 extractNonGisFeatureTypes 涵蓋。
     popup: "ship",
-    params: { count: 2, kinds: ["slider", "slider"] },
-    description: "AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾）",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾；可開「漁火模擬」：依 AIS 位置與太陽高度模擬的漁船燈光，不是衛星觀測）",
     topics: ["交通", "海運", "即時"],
   },
 
@@ -17317,6 +17442,105 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "30 天地圖挑戰 Day 9 城鄉：全台 368 鄉鎮依人口密度分五等份，比較 9 類設施每萬人分到幾處。公共服務（國小、派出所、郵局、衛生所）越偏遠每人分到越多：派出所每萬人從最稀疏組 5.37 到最密集組 0.34；市場服務（補習班、診所、藥局、銀行）跟著人走：補習班 0.82 → 9.10；超商是例外，4.43 → 6.18 幾乎持平。可切指標；顏色是相對全國平均（越亮每人分到越多），深灰＝鄉鎮內一個都沒有。點面看人口、密度、9 類設施數與每萬人數。城鄉分組自訂、非官方分類。來源：內政部、教育部、警政署、中華郵政、健保署、財金公司。",
     topics: ["城鄉", "人口密度", "公共服務", "派出所", "補習班", "超商", "鄉鎮", "30 天地圖挑戰"],
+  },
+  mapchallengeDay17DarkSky: {
+    key: "mapchallengeDay17DarkSky",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：image source＋保護區 geojson（useMapchallengeDay17DarkSkyLayer），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗 Light & dark" },
+    ...layerName({ zh: "真正的黑夜", alt: "Where Real Darkness Remains" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY17_DARK_SKY_COLOR,
+    icon: Moon,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（01–03、08）。NASA Black Marble VNP46A4（Collection 2，2025 年合成，AllAngle_Composite_Snow_Free，15″ 約 460 m）；品質旗標 ≠ 0 設缺值。天空光害推估 S(p)＝Σ L(q)·cos(lat)·max(d, 1 km)^−2.5（d ≤ 200 km，光源含福建沿海與海上），相對值 rel＝S／S(台北車站)；5 級＝台灣行政區陸地五分位（切點 0.0047／0.0120／0.0467／0.1327，1 級最暗）。保護區 48 處（國家公園 9＋壽山國家自然公園、自然保留區 22、野生動物保護區 16；國家重要濕地缺面檔未排名）依區內天空推估平均排名，另算最暗級陸地占比與區內地面亮度最大值。PNG 已轉 EPSG:3857，四角座標寫在 src/data/mapchallengeDay17Types.ts。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。天空光害是推估相對值，不是實測天空亮度（mag/arcsec²）；未計地形遮蔽、大氣與自然天光。5 級是台灣陸地的相對五分位，不是國際暗空標準。地面亮度 0 表示低於衛星偵測門檻，不是完全沒有光。國家公園界授權查無聲明；自然保留區、野生動物保護區為農業部林業及自然保育署 OGDL 1.0。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useMapchallengeDay17DarkSkyLayer：Mapbox image source（天空光害推估／2025 地面亮度兩張 PNG，切影像時 updateImage，四角 MAPCHALLENGE_DAY17_IMAGE_CORNERS），raster 插在底圖第一個 symbol 下；保護區 geojson 外框＋透明填色（點擊範圍）疊在最上",
+      staticAssets: ["./mapchallenge/day17_skyglow_2025.png", "./mapchallenge/day17_ground_radiance_2025.png", "./mapchallenge/day17_protected_area_dark_rank.geojson"],
+    },
+    legend: "mapchallengeDay17DarkSky",
+    popup: "mapchallengeDay17DarkSky",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 17 光與暗：台灣哪裡還有真正的黑夜。衛星量的是地面往上發的光，地面暗不代表天空暗（陽明山地面只有台北車站的 3.4%，天空推估卻有 7.4%），所以用光源擴散推估天空被人造光照亮的程度（相對值，台北車站＝1），分 5 級，1 級＝全台陸地最暗 20%；合歡山暗空公園（鳶峰）落在最暗級。可切天空光害推估或 2025 地面亮度。疊 48 處保護區排名：陸地為主最暗的是旭海－觀音鼻自然保留區、玉里野生動物保護區、玉山國家公園。點保護區看排名、天空推估平均、最暗級陸地占比、區內地面亮度最大值。推估值，不是實測天空亮度，未計地形遮蔽。來源：NASA Black Marble VNP46A4（2025）；保護區：各國家公園管理處、農業部林業及自然保育署（OGDL 1.0）。",
+    topics: ["光害", "夜空", "暗空", "夜光", "衛星", "國家公園", "保護區", "30 天地圖挑戰"],
+  },
+  mapchallengeDay17DarkRoads: {
+    key: "mapchallengeDay17DarkRoads",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：靜態 GeoJSON 兩份（路段＋連續暗路段），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗 Light & dark" },
+    ...layerName({ zh: "衛星看不到光的路段", alt: "Roads Where Satellites See No Light" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY17_ROADS_COLOR,
+    icon: Route,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（04–08）。OSM（Geofabrik taiwan-260905）motorway／trunk／primary／secondary／tertiary／unclassified（不含 *_link、residential、service、track、path），同編號 linemerge 後每 50 m 取一點查 NASA Black Marble VNP46A4 2025 年地面亮度：0＝衛星偵測不到、低＝0 < rad ≤ 3 nW/cm²/sr（門檻由新北市路燈 data.gov.tw 123962 校正，Youden J）、有光＝> 3。隧道樣點跳過不切斷；連續 0 的露天樣點 ≥ 1 km 合成暗路段（353 段，雙向車道與共線段去重），依長度排名；另算 2024 年同樣為 0 的樣點比例。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。一個像素約 460 m，單盞路燈看不到，所以只能說「衛星看不到光」，不代表沒有路燈。新北校正：「0」的 46 點只有 2 點 230 m 內有市管路燈，「低」有 84% 230 m 內有市管路燈（只有市管路燈，不含公路局與私人照明），所以預設只畫「0」。暗路段長度對年份敏感（2024 年偵測不到 1,218 km，2025 年 1,520 km）。道路等級與路名來自 OSM，可能和官方不同。",
+    },
+    dataClass: "A",
+    source: [
+      { kind: "geojson", sourceId: "mapchallenge-day17-dark-road-segments", url: "./mapchallenge/day17_dark_road_segments.geojson" },
+      { kind: "geojson", sourceId: "mapchallenge-day17-dark-road-runs", url: "./mapchallenge/day17_dark_road_runs.geojson" },
+    ],
+    legend: "mapchallengeDay17DarkRoads",
+    popup: "mapchallengeDay17DarkRoads",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 17 光與暗：全台省道、縣道、鄉道等級道路每 50 m 查 2025 年衛星地面亮度，衛星偵測不到（0）的有 1,520 km（3.34%），連續 ≥ 1 km 的 353 段；最長的是台8 中部橫貫公路 49.9 km（南投仁愛到花蓮秀林），前 10 長加光暈。可切加顯示「低亮度」，但低亮度在新北校正中 84% 附近仍有路燈，所以預設不顯示。點線段看道路編號與名稱、偵測不到長度、起訖鄉鎮、2024 年也偵測不到的比例。一個像素約 460 m，看不到單盞路燈，不代表沒有路燈。來源：NASA Black Marble VNP46A4（2025）、OpenStreetMap（ODbL）、新北市路燈（data.gov.tw 123962，校正用）。",
+    topics: ["光害", "夜光", "道路", "山區道路", "橫貫公路", "衛星", "30 天地圖挑戰"],
+  },
+  mapchallengeDay17NightFall: {
+    key: "mapchallengeDay17NightFall",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：canvas source 依時間軸逐地亮起（useMapchallengeDay17NightFallLayer），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗 Light & dark" },
+    ...layerName({ zh: "入夜變亮", alt: "Lights Come On at Dusk" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR,
+    icon: Sunset,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（08）的 2025 地面亮度 PNG（NASA Black Marble VNP46A4 年合成，log10(1+nW/cm²/sr)，0–150 nW 套 inferno，0 或缺值透明，EPSG:3857）。前端依時間軸算 48×48 經緯格的太陽高度（src/utils/solarElevation.ts），太陽 ≥ 0° 透明、降到 −8° 全亮（smoothstep），平滑放大成遮罩疊到影像上。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。亮度是 2025 年平均，不是逐時觀測；亮起時間是依太陽高度的模擬，不是實際開燈時間。沒有 feature 屬性，所以沒有 popup。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useMapchallengeDay17NightFallLayer：Mapbox canvas source（animate:false，四角 MAPCHALLENGE_DAY17_IMAGE_CORNERS），把 2025 地面亮度 PNG 與太陽高度遮罩用 destination-in 合成；timeStore.subscribeThrottled(500) 驅動，遮罩不變不重畫、白天隱藏；raster 插在底圖第一個 symbol 下",
+      staticAssets: ["./mapchallenge/day17_ground_radiance_2025.png"],
+    },
+    legend: "mapchallengeDay17NightFall",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "30 天地圖挑戰 Day 17 光與暗：跟著時間軸看台灣入夜亮燈。2025 年衛星地面亮度依當下太陽高度逐地亮起：太陽還在地平線上是透明，降到地平線下 8° 全亮；東邊先暗先亮，金門比花蓮晚十幾分鐘。可同時開船舶的「漁火模擬」看海上漁船燈火。依太陽高度模擬入夜亮燈，亮度是 2025 年平均，不是逐時觀測。來源：NASA Black Marble VNP46A4（2025）。",
+    topics: ["光害", "夜光", "入夜", "太陽高度", "時間軸", "衛星", "30 天地圖挑戰"],
+  },
+  mapchallengeDay17LedShare: {
+    key: "mapchallengeDay17LedShare",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-17）：靜態 GeoJSON（22 縣市），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 17 光與暗 Light & dark" },
+    ...layerName({ zh: "縣市路燈 LED 化", alt: "Streetlight LED Share by County" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY17_LED_COLOR,
+    icon: Lightbulb,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（09）。台灣電力公司各縣市路燈用電量統計（data.gov.tw 152419）2021–2025 年，依縣市彙總包制、表制、LED 三類路燈契約；LED 用電占比＝LED 用電度數 ÷（包制＋表制＋LED）用電度數；另附 LED 契約戶數占比。縣市界：內政部國土測繪中心直轄市、縣市界線。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。台電路燈用電契約戶，一戶可含多盞燈；LED 較省電，用電占比會低估燈數占比；不含私設路燈。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day17-led-share", url: "./mapchallenge/day17_led_share_by_county.geojson" },
+    legend: "mapchallengeDay17LedShare",
+    popup: "mapchallengeDay17LedShare",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 17 光與暗：各縣市路燈的 LED 用電占比（LED 用電 ÷ 路燈總用電）。全台從 2021 年 42.1% 升到 2025 年 52.2%；2025 年最高金門 95.3%、臺北 89.0%，最低連江 5.2%、花蓮 12.6%；5 年增幅最大是臺南（29.8% → 72.5%）。可切 2021–2025 年；琥珀＝LED 少（鈉燈色）、冷白＝LED 多。點縣市看 LED 用電量、總用電量、LED 契約戶數與總戶數。台電契約戶一戶可含多盞燈，LED 較省電，用電占比會低估燈數占比；不含私設路燈。來源：台灣電力公司各縣市路燈用電量統計（data.gov.tw 152419，政府資料開放授權條款第 1 版）。",
+    topics: ["路燈", "LED", "節能", "光害", "台電", "縣市", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

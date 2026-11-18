@@ -1,6 +1,8 @@
 // 南韓 Layer Host（2026-10-31 第 0 波起）。clone hosts/ukHosts.tsx 的 GbAdminHost 慣例。
 
 import { useKrAdminLayers } from "../../hooks/useKrAdminLayers";
+import { KR_ECO_OPACITY, KR_WASTE_OPACITY } from "../../data/krEcoWasteTypes";
+import { useKrEcologyNaturalnessLayer, useKrWasteDisposalRulesLayer } from "../../hooks/useKrEcoWasteLayers";
 import { krSourceSpec, useKrDataLayer } from "../../hooks/useKrDataLayers";
 import { useOwnerPmtilesSource, useOwnerRevokeCleanup } from "../../hooks/useOwnerPmtilesAccess";
 import { KR_SPEC_BY_KEY } from "../../data/krDataLayers";
@@ -193,5 +195,21 @@ export const KrSeoulZoningHost: LayerHostComponent = ({ deps }) => {
   const priv = useOwnerPmtilesSource("kr-seoul-zoning", visible);
   useOwnerRevokeCleanup(deps.mapRef, !!priv, [spec.layerId, spec.outlineId ?? ""], [krSourceSpec(spec).id]);
   useKrDataLayer(deps.mapRef, spec, visible, p[`${key}Opacity`] ?? 0.32, p[`${key}Scale`] ?? 1, deps.isDarkTheme, p[`${key}CatMask`], p[`${key}DisplayModeIdx`], priv);
+  return null;
+};
+
+/** KRH-1 C117 生態自然圖：17 個 시·도 PMTiles 依視窗載入（z10 起）。 */
+export const KrEcologyNaturalnessHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrEcologyNaturalnessLayer");
+  const p = useKeyOverlayParams("krEcologyNaturalness");
+  useKrEcologyNaturalnessLayer(deps.mapRef, deps.layerVisibility.krEcologyNaturalness, p.krEcologyNaturalnessOpacity ?? KR_ECO_OPACITY, deps.isDarkTheme);
+  return null;
+};
+
+/** KRH-1 C086 垃圾排出規則：JSON join 行政界 sgg 層。 */
+export const KrWasteDisposalRulesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useKrWasteDisposalRulesLayer");
+  const p = useKeyOverlayParams("krWasteDisposalRules");
+  useKrWasteDisposalRulesLayer(deps.mapRef, deps.layerVisibility.krWasteDisposalRules, p.krWasteDisposalRulesOpacity ?? KR_WASTE_OPACITY, deps.isDarkTheme);
   return null;
 };

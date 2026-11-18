@@ -97,5 +97,7 @@
   "legend.maritime.gbMpaWales": "ウェールズ：対象外（Skomer MCZ のオープンデータなし）",
   "legend.maritime.gbMpaHpma": "イングランドの高度保護海域（HPMA）：ライセンス未確認のため未収録",
   "legend.maritime.gbMpaSacSpa": "海域を含む SAC／SPA は「保護地域」レイヤーを参照",
-  "legend.maritime.gbMpaNav": "航海には使用できません"
+  "legend.maritime.gbMpaNav": "航海には使用できません",
+  "legend.maritime.fishingLightsRow": "漁火シミュレーション（漁船、夜間のみ）",
+  "legend.maritime.fishingLightsNote": "AIS 位置と太陽高度から模擬した灯火で、衛星観測ではありません。AIS を積まない小型漁船も多く、実際の漁火はもっと多くなります。"
 }

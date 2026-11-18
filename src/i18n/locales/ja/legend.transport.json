@@ -43,6 +43,8 @@
   "legend.transport.roadEvConstruction": "工事",
   "legend.transport.roadEvControlled": "イベント・交通規制",
   "legend.transport.roadEvDisaster": "災害・障害物",
+  "legend.transport.roadEvPulse": "事故（脈動）",
+  "legend.transport.roadEvCleared": "解消済み（灰）",
   "legend.transport.roadEvNote": "⚠ live_city は基隆に偏っています。高雄には TDX のデータ源がありません",
   "legend.transport.roadCongTitle": "省道の道路状況",
   "legend.transport.roadCongSmooth": "順調",

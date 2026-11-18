@@ -127,7 +127,7 @@ function ref<T>(initial: T): { current: T } {
  */
 export const layerParamRefs = {
   altExag: ref(0), altOffset: ref(0), staticOpacity: ref(0), orbScale: ref(0),
-  shipOrbScale: ref(0), shipTrailOpacity: ref(0),
+  shipOrbScale: ref(0), shipTrailOpacity: ref(0), shipFishingLights: ref(false),
   railAltOffset: ref(0), railOrbScale: ref(0), railTrackOpacity: ref(0),
   railTrainVisible: ref(false), railTrackMode: ref<string>("3d"),
   // R6 段 3：移動物件的「立體效果」，預設開（關＝Mapbox 平面點／箭頭）
@@ -172,6 +172,7 @@ function sync(): void {
 
   r.shipOrbScale.current = rNum(a, "ships", "shipOrbScale");
   r.shipTrailOpacity.current = rNum(a, "ships", "shipTrailOpacity");
+  r.shipFishingLights.current = rBool(a, "ships", "shipFishingLights");
 
   r.railAltOffset.current = rNum(a, "rail", "railAltOffset");
   r.railOrbScale.current = rNum(a, "rail", "railOrbScale");

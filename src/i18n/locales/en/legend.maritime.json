@@ -97,5 +97,7 @@
   "legend.maritime.gbMpaWales": "Wales: not covered (no open layer for Skomer MCZ)",
   "legend.maritime.gbMpaHpma": "England's Highly Protected Marine Areas: licence unconfirmed, not included",
   "legend.maritime.gbMpaSacSpa": "SACs/SPAs with marine parts are in the \"Protected Areas\" layer",
-  "legend.maritime.gbMpaNav": "Not to be used for navigation"
+  "legend.maritime.gbMpaNav": "Not to be used for navigation",
+  "legend.maritime.fishingLightsRow": "Simulated fishing lights (fishing boats, night only)",
+  "legend.maritime.fishingLightsNote": "Simulated lights from AIS positions and sun elevation, not satellite observation; many small fishing boats carry no AIS, so real fishing lights are more numerous."
 }

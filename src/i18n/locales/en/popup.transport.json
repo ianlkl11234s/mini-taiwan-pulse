@@ -172,5 +172,6 @@
   "popup.transport.gbRfPrecisionCenter": "Areas are shown at their centre point",
   "popup.transport.gbRfSourceNh": "National Highways (England)",
   "popup.transport.gbRfSourceOsm": "OpenStreetMap",
-  "popup.transport.gbNo": "No"
+  "popup.transport.gbNo": "No",
+  "popup.transport.fishingLightsNote": "Fishing-light simulation: Simulated lights from AIS positions and sun elevation, not satellite observation; many small fishing boats carry no AIS, so real fishing lights are more numerous."
 }

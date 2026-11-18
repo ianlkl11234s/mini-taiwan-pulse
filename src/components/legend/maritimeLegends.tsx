@@ -2,13 +2,13 @@
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../../data/coralReefTypes";
 import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALLEN_CORAL_WARNING, type AllenCoralAtlasView } from "../../data/allenCoralAtlasTypes";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { LegendNote, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
-import { oneOfParam, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
+import { oneOfParam, paramBool, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../../data/vesselWatchTypes";
-import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../../data/shipTrails";
+import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK, SHIP_FISHING_GLOW_LEGEND } from "../../data/shipTrails";
 import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../../data/gfwHourlyGridTypes";
 import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../../state/gfwHourlyGridDataWindowStore";
 import { useGfwV4TrackDataWindow } from "../../state/gfwV4TrackDataWindowStore";
@@ -38,12 +38,18 @@ import { enumLabel } from "../../i18n/dataText";
  */
 export function ShipsLegend() {
   const i18n = useLocale();
+  const t = useLegendTheme();
+  const fishingLights = paramBool(useLayerParams("ships"), "ships", "shipFishingLights");
   return (
     <div>
       <LegendTitle zh={i18n.t("legend.maritime.shipsTitle")} en="Ship" />
       <FireCatRows
         cats={SHIP_TYPE_LEGEND.map((s) => ({ color: SHIP_TYPE_COLORS_DARK[s.bucket], label: enumLabel("shipTypeBucket", s.bucket, s.label, i18n) }))}
       />
+      {fishingLights && <>
+        <LegendRow swatch={<SwatchDot color={t.isDark ? SHIP_FISHING_GLOW_LEGEND.dark : SHIP_FISHING_GLOW_LEGEND.light} glow={t.isDark ? SHIP_FISHING_GLOW_LEGEND.dark : SHIP_FISHING_GLOW_LEGEND.light} />}>{i18n.t("legend.maritime.fishingLightsRow")}</LegendRow>
+        <LegendNote>{i18n.t("legend.maritime.fishingLightsNote")}</LegendNote>
+      </>}
     </div>
   );
 }
