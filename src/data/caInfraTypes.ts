@@ -32,7 +32,8 @@ export interface CaField { prop: string; label: L3; kind?: "text" | "num" | "cod
 /** 一個 tile layer 的 popup 規格（標題欄位、列、備註）。 */
 export interface CaPopupSpec { title: { props: readonly string[]; fallback: L3 }; typeLabel?: L3; fields: readonly CaField[]; notes?: readonly L3[] }
 /** 一個 layer key 的來源（popup 底部 SourceFooter 與圖例署名共用）。 */
-export interface CaSource { org: string; url: string; license: string; short: string }
+/** `short`：中文署名（地圖 attribution 用）；含中文說明時另給 `shortL3`，圖例依語系顯示（2026-11-18）。 */
+export interface CaSource { org: string; url: string; license: string; short: string; shortL3?: L3 }
 
 export const caText = (value: unknown): string => {
   if (value == null) return "";
@@ -84,6 +85,7 @@ export const CA_TRANSIT_SOURCE: CaSource = {
   url: "https://mobilitydatabase.org/",
   license: "授權依各機構（多數未明示）",
   short: "GTFS：各交通機構（經 Mobility Database）；授權依各機構",
+  shortL3: { zh: "GTFS：各交通機構（經 Mobility Database）；授權依各機構", en: "GTFS: individual transit agencies (via Mobility Database); licence varies by agency", ja: "GTFS：各交通事業者（Mobility Database 経由）。ライセンスは事業者ごと" },
 };
 export const CA_TRANSIT_NOTES: readonly L3[] = [
   l3("135 個 GTFS feed 的站點；不同機構共站會重複", "Stops from 135 GTFS feeds; stops shared by several agencies are repeated", "135 の GTFS フィードの停留所。複数事業者の共用停留所は重複する"),
@@ -421,11 +423,11 @@ export const CA_POP_CLASSES: readonly CaCat[] = [
   { id: "small", values: ["small"], color: "#fecc61", label: l3("小型人口中心（1,000–29,999）", "Small (1,000–29,999)", "小規模人口中心（1,000–29,999）") },
 ];
 /** 代表點半徑依 2021 人口 4 級（B 階）。 */
-export const CA_POP_BANDS: readonly { min: number; radius: number; label: string }[] = [
-  { min: 0, radius: 3, label: "<1 萬" },
-  { min: 10_000, radius: 4.5, label: "1–10 萬" },
-  { min: 100_000, radius: 7, label: "10–100 萬" },
-  { min: 1_000_000, radius: 11, label: "≥100 萬" },
+export const CA_POP_BANDS: readonly { min: number; radius: number; label: L3 }[] = [
+  { min: 0, radius: 3, label: { zh: "<1 萬", en: "<10k", ja: "<1 万" } },
+  { min: 10_000, radius: 4.5, label: { zh: "1–10 萬", en: "10k–100k", ja: "1–10 万" } },
+  { min: 100_000, radius: 7, label: { zh: "10–100 萬", en: "100k–1M", ja: "10–100 万" } },
+  { min: 1_000_000, radius: 11, label: { zh: "≥100 萬", en: "≥1M", ja: "≥100 万" } },
 ];
 export const CA_POP_POLYGON_FROM_ZOOM = 6;
 export const CA_POP_SOURCE: CaSource = OGL_SOURCE("Statistics Canada, 2021 Census of Population（98-10-0011-01；Cartographic Boundary File, Population Centres）", "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=9810001101");

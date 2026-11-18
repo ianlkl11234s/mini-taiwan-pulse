@@ -28,7 +28,7 @@ function Cats({ cats, pick }: { cats: readonly CaCat[]; pick: (t: L3) => string 
 function Notes({ notes, source, pick }: { notes: readonly L3[]; source: CaSource; pick: (t: L3) => string }) {
   return <>
     {notes.map((n, i) => <LegendNote key={i}>{pick(n)}</LegendNote>)}
-    <LegendNote>{source.short}</LegendNote>
+    <LegendNote>{source.shortL3 ? pick(source.shortL3) : source.short}</LegendNote>
   </>;
 }
 

@@ -3,7 +3,7 @@
  * 資料端：taipei-gis-analytics #402（`docs/topic-research/canada_opendata/waves/w0{3…8}/layer-plan.md`、`HANDOFF-ca-3-8.md`）；
  * 類別與筆數以成品 GeoJSON 實際值為準（不照 layer-plan 草稿）。
  * 主 agent 決定（2026-11-17）：
- * - 野火點加回年份欄（依年代上色）；授權仍未確認，只上位置與年份。
+ * - 野火點加回年份欄（依年代上色）；授權 2026-11-18 查證為 OGL-Canada（無非商用限制），仍只上位置與年份。
  * - 多倫多開發申請：Toronto CKAN 授權欄仍是 notspecified，OGL-Toronto 條文沒寫適用全站 → 維持只上位置，圖例寫「授權未明示」。
  * - ODBus 不輸出名稱；BC 家庭式托育、LODE 個人藝術家不上圖。
  * - 土壤：沒有土綱的多邊形標「未涵蓋」（只畫外框），不畫成其他類。
@@ -41,12 +41,21 @@ const PROV: PhField = { prop: "province", label: l3("省區", "Province / territ
 const CITY: PhField = { prop: "city", label: l3("城市", "City", "都市") };
 const PROVIDER: PhField = { prop: "provider", label: l3("提供機關", "Provider", "提供機関") };
 const loading = (zh: string, en: string): L3 => l3(`加拿大${zh}載入中`, `Loading Canada ${en}`, `カナダの${zh}を読み込み中`);
-/** n／13 省區有資料；其餘是未涵蓋（不是沒有）。 */
-const COVER = (n: number, missing: string): L3 => l3(
-  `有資料的省區 ${n}／13；${missing} 未涵蓋，不代表沒有`,
-  `Data in ${n} of 13 provinces/territories; ${missing} not covered, not empty`,
-  `データがある州・準州は 13 中 ${n}。${missing} は未収録で、存在しないという意味ではない`,
+/** n／13 省區有資料；`missing`（省區代碼）未涵蓋（不是沒有）。代碼依語系用該語的分隔符，英／日介面不混中文（2026-11-18）。 */
+const COVER = (n: number, missing: readonly string[]): L3 => l3(
+  `有資料的省區 ${n}／13；${missing.join("、")} 未涵蓋，不代表沒有`,
+  `Data in ${n} of 13 provinces/territories; ${missing.join(", ")} not covered, not empty`,
+  `データがある州・準州は 13 中 ${n}。${missing.join("・")} は未収録で、存在しないという意味ではない`,
 );
+/** 只有 `present` 幾個省區有資料，其餘都未涵蓋。 */
+const COVER_ONLY = (present: readonly string[]): L3 => {
+  const n = present.length;
+  return l3(
+    `有資料的省區 ${n}／13；${present.join("、")} 以外 ${13 - n} 省區 未涵蓋，不代表沒有`,
+    `Data in ${n} of 13 provinces/territories; the other ${13 - n} (outside ${present.join(", ")}) not covered, not empty`,
+    `データがある州・準州は 13 中 ${n}。${present.join("・")} 以外の ${13 - n} 州・準州は未収録で、存在しないという意味ではない`,
+  );
+};
 const COVER_ALL = l3("13 省區都有資料", "All 13 provinces/territories covered", "13 州・準州すべて収録");
 const TORONTO_ONLY = l3("只有多倫多市（1／13），其他城市與省區未涵蓋", "City of Toronto only (1 of 13); other cities and provinces not covered", "トロント市のみ（13 中 1）。その他の都市・州は未収録");
 
@@ -59,8 +68,12 @@ const PRECISION: PhField = { prop: "geocode_precision", label: l3("定位方式"
 } };
 const PRECISION_NOTE: PhNote = { text: l3("位置為路段，不是門牌", "Location is a street segment, not the exact address", "位置は路線上で番地ではない"), when: (p) => str(p.geocode_precision) === "street" };
 const LODE_ODBL = l3("空心點是 OSM 補點：官方名冊只有地址，經 Nominatim 地理編碼（© OpenStreetMap contributors，ODbL）", "Hollow points are OSM gap-fills: addresses from the official list geocoded with Nominatim (© OpenStreetMap contributors, ODbL)", "白抜きは OSM 補完：公式名簿の住所を Nominatim でジオコーディング（© OpenStreetMap contributors、ODbL）");
-const lodeSrc = (db: string) => `Statistics Canada, ${db} (LODE)（${OGL_CA}）；OSM 補點：© OpenStreetMap contributors（ODbL），經 Nominatim 地理編碼`;
-const LODE_LICENSE = `${OGL_CA}（官方）＋ODbL 1.0（OSM 補點）`;
+const lodeSrc = (db: string): L3 => l3(
+  `Statistics Canada, ${db} (LODE)（${OGL_CA}）；OSM 補點：© OpenStreetMap contributors（ODbL），經 Nominatim 地理編碼`,
+  `Statistics Canada, ${db} (LODE) (${OGL_CA}); OSM gap-fill: © OpenStreetMap contributors (ODbL), geocoded with Nominatim`,
+  `Statistics Canada, ${db} (LODE)（${OGL_CA}）；OSM 補完：© OpenStreetMap contributors（ODbL）、Nominatim でジオコーディング`,
+);
+const LODE_LICENSE = l3(`${OGL_CA}（官方）＋ODbL 1.0（OSM 補點）`, `${OGL_CA} (official) + ODbL 1.0 (OSM gap-fill)`, `${OGL_CA}（公式）＋ODbL 1.0（OSM 補完）`);
 const LODE_URL = "https://www.statcan.gc.ca/en/lode/databases";
 
 // ═════════════════════════ 第 2 波 C002 ＋ 第 3 波 ═════════════════════════
@@ -127,7 +140,9 @@ const W3: CaWaveSpec[] = [
     legendNotes: [l3("來源：VLIZ Marine Regions，非加拿大官方界線（CHS 官方檔未開放）", "Source: VLIZ Marine Regions, not official Canadian boundaries (CHS files not open)", "出典：VLIZ Marine Regions。カナダ公式の境界ではない（CHS 公式データは非公開）"),
       l3("國家級海域，不依省區計", "National maritime zones, not counted by province", "国レベルの海域で州別には数えない")],
     popupNotes: [],
-    sourceOrg: "Flanders Marine Institute (2023), Maritime Boundaries Geodatabase v12（EEZ、界線）／v4（12、24 浬），marineregions.org", sourceUrl: "https://www.marineregions.org/", license: "CC BY 4.0",
+    sourceOrg: l3("Flanders Marine Institute (2023), Maritime Boundaries Geodatabase v12（EEZ、界線）／v4（12、24 浬），marineregions.org",
+      "Flanders Marine Institute (2023), Maritime Boundaries Geodatabase v12 (EEZ, boundaries) / v4 (12 and 24 NM), marineregions.org",
+      "Flanders Marine Institute (2023), Maritime Boundaries Geodatabase v12（EEZ・境界線）／v4（12・24 海里）、marineregions.org"), sourceUrl: "https://www.marineregions.org/", license: "CC BY 4.0",
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("海域界線", "maritime zones"),
   },
   {
@@ -153,7 +168,7 @@ const W3: CaWaveSpec[] = [
       { prop: "status", label: l3("狀態", "Status", "状態") }, { prop: "year", label: l3("完工年", "Year built", "完成年"), kind: "year" },
       { prop: "consequence", label: l3("失事後果等級", "Failure consequence", "決壊時の影響区分") },
       { prop: "ownership", label: l3("權屬", "Ownership", "所有者区分") }, { prop: "location_accuracy", label: l3("位置精度", "Location accuracy", "位置精度") }, PROV],
-    legendNotes: [COVER(2, "BC、ON 以外 11 省區"), l3("BC 欄位較完整（型式、用途、失事後果）；ON 只有名稱與權屬", "BC records are richer (type, function, consequence); Ontario has name and ownership only", "BC は項目が豊富（型式・用途・決壊影響）、ON は名称と所有者のみ")],
+    legendNotes: [COVER_ONLY(["BC", "ON"]), l3("BC 欄位較完整（型式、用途、失事後果）；ON 只有名稱與權屬", "BC records are richer (type, function, consequence); Ontario has name and ownership only", "BC は項目が豊富（型式・用途・決壊影響）、ON は名称と所有者のみ")],
     popupNotes: [],
     sourceOrg: "BC Dams（WRIS，OGL-BC）；Ontario Dam Inventory（LIO，OGL-Ontario）", sourceUrl: "https://catalogue.data.gov.bc.ca/dataset/bc-dams", license: `${OGL_BC}；${OGL_ON}`,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("水壩", "dams"),
@@ -164,7 +179,7 @@ const W3: CaWaveSpec[] = [
     cats: RECYCLE_CATS,
     title: { props: ["name"], fallback: l3("回收投放點", "Recycling depot", "リサイクル回収拠点") },
     fields: [CITY, { prop: "address", label: l3("地址", "Address", "住所") }, PROV],
-    legendNotes: [COVER(2, "QC、MB 以外 11 省區")],
+    legendNotes: [COVER_ONLY(["QC", "MB"])],
     popupNotes: [],
     sourceOrg: "QC：© Gouvernement du Québec（RECYC-QUÉBEC）／Données Québec；MB：Government of Manitoba, Recycling Depot Locations（OpenMB）",
     sourceUrl: "https://www.donneesquebec.ca/recherche/fr/dataset/00ec17f8-c7f1-414c-9860-a12bd0c91824", license: `CC BY 4.0（QC）；${MB_OD}（MB）`,
@@ -179,7 +194,7 @@ const W3: CaWaveSpec[] = [
       { prop: "availability", label: l3("成果公開", "Availability", "公開状況"), map: catMap(FLOOD_INV_CATS) }, { prop: "data_owner", label: l3("資料擁有者", "Data owner", "データ所有者") },
       { prop: "public_link", label: l3("成果連結", "Public link", "公開リンク"), kind: "code" }, PROV],
     legendNotes: [l3("面是洪水圖研究範圍，不是淹水範圍；面外是沒有研究，不代表不會淹", "Polygons are flood-mapping study areas, not flood extents; outside means no study, not no flood risk", "面は洪水マップの調査範囲で浸水範囲ではない。面の外は調査がないだけで浸水しないという意味ではない"),
-      COVER(12, "NU")],
+      COVER(12, ["NU"])],
     popupNotes: [],
     sourceOrg: "Natural Resources Canada, Canada Flood Map Inventory (CFM)", sourceUrl: "https://open.canada.ca/data/en/dataset/a13a2575-5bda-4bfd-a9b1-5bd2dd583f09", license: OGL_CA,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("洪水圖研究範圍", "flood map inventory"),
@@ -398,7 +413,7 @@ const W4: CaWaveSpec[] = [
     cats: [cat("ferry", "#22d3ee", "汽車渡輪航線", "Road ferry route", "カーフェリー航路")], dashLabel: null,
     title: { props: [], fallback: l3("渡輪航線", "Ferry route", "フェリー航路") },
     fields: [PROV],
-    legendNotes: [l3("Atlas of Canada 1:1M 汽車渡輪航線，沒有時刻", "Atlas of Canada 1:1M road ferries, no timetable", "Atlas of Canada 1:1M のカーフェリー航路。時刻表なし"), COVER(9, "AB、YT、NT、NU")],
+    legendNotes: [l3("Atlas of Canada 1:1M 汽車渡輪航線，沒有時刻", "Atlas of Canada 1:1M road ferries, no timetable", "Atlas of Canada 1:1M のカーフェリー航路。時刻表なし"), COVER(9, ["AB", "YT", "NT", "NU"])],
     popupNotes: [],
     sourceOrg: "Natural Resources Canada, Atlas of Canada National Scale Data 1:1,000,000 — Road Ferries", sourceUrl: "https://open.canada.ca/data/en/dataset/7cb17094-f1fb-591c-b8a9-9ace4bfef68c", license: OGL_CA,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("渡輪航線", "ferry routes"),
@@ -523,7 +538,7 @@ const W56: CaWaveSpec[] = [
     title: { props: ["name"], fallback: l3("運動休閒設施", "Recreation facility", "運動・レクリエーション施設"), fallbackBy: { prop: "facility_type", map: catMap(SPORT_CATS) } },
     fields: [{ prop: "facility_type", label: l3("類型", "Type", "種別"), map: catMap(SPORT_CATS) }, { prop: "source_type", label: l3("原始類型", "Source type", "元の種別") }, CITY, PROVIDER, PRECISION, PROV],
     legendNotes: [l3("步道 14.3 萬點預設關閉，可在類別勾選", "143k trail points are off by default; enable under categories", "トレイル 14.3 万点は既定でオフ、種別で表示可"), LODE_ODBL,
-      COVER(10, "NL、PE、NU"), l3("QC、NT 筆數偏少", "QC and NT are sparse", "QC・NT は件数が少ない")],
+      COVER(10, ["NL", "PE", "NU"]), l3("QC、NT 筆數偏少", "QC and NT are sparse", "QC・NT は件数が少ない")],
     popupNotes: [PRECISION_NOTE],
     sourceOrg: lodeSrc("Open Database of Recreational and Sport Facilities (ODRSF) v1.0"), sourceUrl: `${LODE_URL}/odrsf`, license: LODE_LICENSE,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("運動休閒設施", "recreation facilities"),
@@ -571,7 +586,7 @@ const W56: CaWaveSpec[] = [
     cats: PARKS_ACC_CATS, otherColor: "#9ca3af", otherLabel: l3("類型未標", "Type not stated", "種別不明"),
     title: { props: ["name"], fallback: l3("國家公園營位", "Parks Canada site", "国立公園のサイト"), fallbackBy: { prop: "kind", map: catMap(PARKS_ACC_CATS) } },
     fields: [{ prop: "kind", label: l3("類型", "Type", "種別") }, PROV],
-    legendNotes: [l3("Parks Canada 轄管地點的營位與住宿；省立公園未涵蓋", "Campsites and stays at Parks Canada places; provincial parks not covered", "Parks Canada 管轄地のキャンプサイト・宿泊。州立公園は未収録"), COVER(12, "NU")],
+    legendNotes: [l3("Parks Canada 轄管地點的營位與住宿；省立公園未涵蓋", "Campsites and stays at Parks Canada places; provincial parks not covered", "Parks Canada 管轄地のキャンプサイト・宿泊。州立公園は未収録"), COVER(12, ["NU"])],
     popupNotes: [],
     sourceOrg: "Parks Canada, Accommodation", sourceUrl: "https://open.canada.ca/data/en/dataset/74054d44-68cf-41af-8919-5f09f80dcd02", license: OGL_CA,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("國家公園營位", "Parks Canada sites"),
@@ -582,7 +597,7 @@ const W56: CaWaveSpec[] = [
     cats: COURT_CATS,
     title: { props: ["name"], fallback: l3("法院或矯正設施", "Court or correctional facility", "裁判所・矯正施設") },
     fields: [{ prop: "kind", label: l3("類型", "Type", "種別"), map: catMap(COURT_CATS) }, CITY, { prop: "detail", label: l3("層級／設施類型", "Level / facility type", "階層・施設種別") }, PROV],
-    legendNotes: [COVER(2, "BC、ON 以外 11 省區"), l3("聯邦矯正署機構未找到座標檔", "Federal (CSC) institutions: no coordinate file found", "連邦矯正局の施設は座標データ未入手")],
+    legendNotes: [COVER_ONLY(["BC", "ON"]), l3("聯邦矯正署機構未找到座標檔", "Federal (CSC) institutions: no coordinate file found", "連邦矯正局の施設は座標データ未入手")],
     popupNotes: [],
     sourceOrg: "BC Court Locations、BC Correctional Facilities（OGL-BC）；Ontario courthouses（OGL-Ontario）", sourceUrl: "https://catalogue.data.gov.bc.ca/dataset/court-locations", license: `${OGL_BC}；${OGL_ON}`,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("法院與矯正設施", "courts and corrections"),
@@ -606,9 +621,9 @@ const W56: CaWaveSpec[] = [
     title: { props: [], fallback: l3("野火點", "Wildfire point", "林野火災地点") },
     fields: [{ prop: "year", label: l3("年份", "Year", "年"), kind: "year" }, PROV],
     legendNotes: [l3("CWFIS 國家火災資料庫大型火災點（1980–2023），依年代上色", "CWFIS National Fire Database large-fire points (1980–2023), coloured by decade", "CWFIS 国家火災データベースの大規模火災点（1980–2023）、年代で色分け"),
-      l3("授權未確認，只上位置與年份", "Licence not confirmed: location and year only", "ライセンス未確認のため位置と年のみ"), COVER(12, "PE")],
+      l3("授權：OGL-Canada；只上位置與年份", "Licence: OGL-Canada; location and year only", "ライセンス：OGL-Canada。位置と年のみ"), COVER(12, ["PE"])],
     popupNotes: [],
-    sourceOrg: "Natural Resources Canada, Canadian Wildland Fire Information System — National Fire Database", sourceUrl: "https://cwfis.cfs.nrcan.gc.ca/datamart", license: "授權未確認（只上位置與年份）",
+    sourceOrg: "Natural Resources Canada, Canadian Wildland Fire Information System — National Fire Database", sourceUrl: "https://cwfis.cfs.nrcan.gc.ca/datamart", license: l3(`${OGL_CA}（只上位置與年份）`, `${OGL_CA} (location and year only)`, `${OGL_CA}（位置と年のみ）`),
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("野火點", "wildfire points"),
   },
   {
@@ -743,13 +758,14 @@ const W78: CaWaveSpec[] = [
   },
   {
     key: "caNsAquaculture", file: "ca_ns_aquaculture.pmtiles", sourceId: "ca-ns-aquaculture", srcMinzoom: 5, srcMaxzoom: 13, color: "#38bdf8", count: 202, opacity: 0.75,
-    parts: [fill("ca-ns-aquaculture-fill", "ca_ns_aquaculture", 5, propGetter("species_type"), 1)],
+    parts: [fill("ca-ns-aquaculture-fill", "ca_ns_aquaculture", 5, propGetter("species_type"), 1, { lowZoomHalo: { maxzoom: 10 } })],
     cats: NS_AQUA_CATS,
     title: { props: ["waterbody"], fallback: l3("養殖租約", "Aquaculture lease", "養殖リース") },
     fields: [{ prop: "license_no", label: l3("執照號", "Licence no.", "許可番号"), kind: "code" }, { prop: "species", label: l3("養殖物種", "Species", "養殖種") },
       { prop: "status", label: l3("狀態", "Status", "状態"), map: { Issued: l3("核發", "Issued", "発行済み"), "Issued Experimental": l3("核發（試驗）", "Issued (experimental)", "発行済み（試験）") } },
       { prop: "hectares", label: l3("面積", "Area", "面積"), kind: "num", digits: 2, unit: "ha" }, { prop: "county", label: l3("郡", "County", "郡") }],
-    legendNotes: [l3("只有新斯科細亞省（1／13）；NB、PE、NL 等未涵蓋", "Nova Scotia only (1 of 13); NB, PE, NL and others not covered", "ノバスコシア州のみ（13 中 1）。NB・PE・NL などは未収録"), l3("租約持有人不輸出", "Leaseholder names not shown", "リース保有者名は表示しない")],
+    legendNotes: [l3("只有新斯科細亞省（1／13）；NB、PE、NL 等未涵蓋", "Nova Scotia only (1 of 13); NB, PE, NL and others not covered", "ノバスコシア州のみ（13 中 1）。NB・PE・NL などは未収録"), l3("租約持有人不輸出", "Leaseholder names not shown", "リース保有者名は表示しない"),
+      l3("縮放 10 以下租約面太小，外圍加光暈標出位置；放大後畫實際範圍", "Below zoom 10 leases are too small to see, so a glow marks their location; zoom in for the actual extent", "ズーム 10 未満は区画が小さいため光彩で位置を示す。拡大すると実際の範囲を表示")],
     popupNotes: [],
     sourceOrg: "NS Department of Fisheries and Aquaculture", sourceUrl: "https://data.novascotia.ca/datasets/h57h-p9mm", license: "Open Government Licence – Nova Scotia",
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("新斯科細亞養殖", "Nova Scotia aquaculture"),
@@ -760,7 +776,7 @@ const W78: CaWaveSpec[] = [
     cats: [cat("ON", "#f87171", "安大略（省級持照）", "Ontario (provincially licensed)", "オンタリオ州（州認可）"), cat("MB", "#fb923c", "曼尼托巴（省級持照）", "Manitoba (provincially licensed)", "マニトバ州（州認可）")],
     title: { props: ["name"], fallback: l3("屠宰場", "Abattoir", "食肉処理場") },
     fields: [CITY, { prop: "species", label: l3("屠宰物種", "Species", "対象畜種") }, PROV],
-    legendNotes: [l3("省級持照屠宰場；聯邦 CFIA 肉品廠未收", "Provincially licensed abattoirs; federal CFIA plants not included", "州認可の食肉処理場。連邦 CFIA 施設は未収録"), COVER(2, "ON、MB 以外 11 省區")],
+    legendNotes: [l3("省級持照屠宰場；聯邦 CFIA 肉品廠未收", "Provincially licensed abattoirs; federal CFIA plants not included", "州認可の食肉処理場。連邦 CFIA 施設は未収録"), COVER_ONLY(["ON", "MB"])],
     popupNotes: [],
     sourceOrg: "Ontario provincially licensed abattoirs（OGL-Ontario）；Government of Manitoba, Abattoirs and Processing Facilities", sourceUrl: "https://data.ontario.ca/dataset/a763088c-018d-48b7-bf47-3027a8c725b8", license: `${OGL_ON}；${MB_OD}`,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("屠宰場", "abattoirs"),
@@ -773,7 +789,7 @@ const W78: CaWaveSpec[] = [
     fields: [{ prop: "naics", label: l3("NAICS 大類", "NAICS sector", "NAICS 大分類"), map: catMap(NAICS) }, { prop: "naics_descr", label: l3("產業細類", "Industry", "産業細分類") },
       { prop: "status", label: l3("執照狀態", "Licence status", "許可状態") }, CITY, PROVIDER, PROV],
     legendNotes: [l3("部分城市營業執照彙整（StatCan ODBus）；不含名稱、地址", "Compiled from some cities' business licences (StatCan ODBus); names and addresses not shown", "一部都市の営業許可を集約（StatCan ODBus）。名称・住所は表示しない"),
-      l3("另有 13.4 萬筆無座標未上圖", "Another 134k records without coordinates are not drawn", "座標のない 13.4 万件は描画しない"), COVER(7, "NL、PE、NS、MB、SK、NU")],
+      l3("另有 13.4 萬筆無座標未上圖", "Another 134k records without coordinates are not drawn", "座標のない 13.4 万件は描画しない"), COVER(7, ["NL", "PE", "NS", "MB", "SK", "NU"])],
     popupNotes: [],
     sourceOrg: "Statistics Canada, Open Database of Businesses (ODBus) v1.0", sourceUrl: "https://www150.statcan.gc.ca/n1/pub/21-26-0003/212600032023001-eng.htm", license: OGL_CA,
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("營業登記", "business licences"),
@@ -786,7 +802,7 @@ const W78: CaWaveSpec[] = [
     fields: [PROV],
     legendNotes: [TORONTO_ONLY, l3("授權未明示，只上位置（快照 2026-11-17）", "Licence not stated: locations only (snapshot 2026-11-17)", "ライセンス未明示のため位置のみ（2026-11-17 取得）")],
     popupNotes: [],
-    sourceOrg: "City of Toronto Open Data, Development Applications", sourceUrl: "https://open.toronto.ca/dataset/development-applications/", license: "授權未明示（Toronto CKAN：License not specified）",
+    sourceOrg: "City of Toronto Open Data, Development Applications", sourceUrl: "https://open.toronto.ca/dataset/development-applications/", license: l3("授權未明示（Toronto CKAN：License not specified）", "Licence not stated (Toronto CKAN: License not specified)", "ライセンス未明示（Toronto CKAN：License not specified）"),
     fetchedAt: CA_WAVES_FETCHED_AT, loading: loading("多倫多開發申請", "Toronto development applications"),
   },
 ];
