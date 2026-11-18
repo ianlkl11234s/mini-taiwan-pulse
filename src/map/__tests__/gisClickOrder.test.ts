@@ -26,3 +26,38 @@ describe("GIS_LAYERS 點擊順序（first-hit-wins）", () => {
     expect(dropHiddenLandUseHex([hex(0), hex(0.6), point])).toEqual([hex(0.6), point]);
   });
 });
+
+describe("GIS_LAYERS 廣域面排在點／線之後（review 2026-11-18 F028）", () => {
+  const order = (type: string) => GIS_LAYERS.findIndex((entry) => entry.type === type);
+  const lastIndexOf = (prefix: string, suffix: string) =>
+    GIS_LAYERS.reduce((acc, e, i) => (e.layers.every((l) => l.startsWith(prefix) && l.endsWith(suffix)) ? i : acc), -1);
+
+  it("PH 廣域面在所有 PH 點層（circle）之後", () => {
+    const lastPhPoint = lastIndexOf("ph-", "-circle");
+    for (const area of ["phPoverty", "phNoahFlood100yr", "phNoahLandslide", "phLakes", "phNcrSafeOpenSpaces"]) {
+      expect(order(area), area).toBeGreaterThan(lastPhPoint);
+    }
+    const tdaFill = GIS_LAYERS.findIndex((e) => e.layers.includes("ph-tda-fill"));
+    expect(tdaFill).toBeGreaterThan(lastPhPoint);
+  });
+
+  it("KR 面層在 KR 點層之後、CA 人口／原住民面在 CA 點層之後", () => {
+    const lastKrPoint = Math.max(lastIndexOf("kr-", "-circle"), order("krRailStations"), order("krBusStops"));
+    for (const area of ["krMarineProtectedAreas", "krNationalParks", "krFishingGrounds", "krSeoulZoning"]) {
+      expect(order(area), area).toBeGreaterThan(lastKrPoint);
+    }
+    const lastCaPoint = lastIndexOf("ca-", "-circle");
+    for (const l of ["ca-indigenous-lands-fill", "ca-population-centres-fill", "ca-population-grid-r7-fill"]) {
+      expect(GIS_LAYERS.findIndex((e) => e.layers.includes(l)), l).toBeGreaterThan(lastCaPoint);
+    }
+  });
+
+  it("統計圖層圓模式：缺值／遮蔽斜線層登記為點擊目標（F003）", () => {
+    const stat = GIS_LAYERS.find((e) => e.type === "regionalStatistic")!;
+    const missing = stat.layers.filter((l) => l.endsWith("-missing"));
+    expect(missing.length).toBeGreaterThan(0);
+    expect(stat.layers.filter((l) => l.endsWith("-suppressed")).length).toBe(missing.length);
+    const firstCircle = stat.layers.findIndex((l) => l.endsWith("-circle"));
+    expect(stat.layers.indexOf(missing[0]!)).toBeGreaterThan(firstCircle);
+  });
+});
