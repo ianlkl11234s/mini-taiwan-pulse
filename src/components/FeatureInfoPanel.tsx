@@ -91,6 +91,9 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbAdminBoundaries",
   // 南韓第 0 波：panel 自掛 SGIS／admdongkor 署名
   "krAdminBoundaries",
+  // 南韓 KRH-1：panel 自掛 KOGL 3／平台標籤 footer
+  "krEcologyNaturalness",
+  "krWasteDisposalRules",
   "krBusStops",
   "krRailStations",
   "krAirports",

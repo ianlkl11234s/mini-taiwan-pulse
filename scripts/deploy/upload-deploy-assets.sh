@@ -597,6 +597,25 @@ for f in \
   public/world/kr_emergency_bells.pmtiles \
   public/world/kr_rural_experience_villages.pmtiles \
   public/world/kr_slaughterhouses.pmtiles \
+  public/world/kr_eco_nature_11.pmtiles \
+  public/world/kr_eco_nature_26.pmtiles \
+  public/world/kr_eco_nature_27.pmtiles \
+  public/world/kr_eco_nature_28.pmtiles \
+  public/world/kr_eco_nature_29.pmtiles \
+  public/world/kr_eco_nature_30.pmtiles \
+  public/world/kr_eco_nature_31.pmtiles \
+  public/world/kr_eco_nature_36.pmtiles \
+  public/world/kr_eco_nature_41.pmtiles \
+  public/world/kr_eco_nature_43.pmtiles \
+  public/world/kr_eco_nature_44.pmtiles \
+  public/world/kr_eco_nature_46.pmtiles \
+  public/world/kr_eco_nature_47.pmtiles \
+  public/world/kr_eco_nature_48.pmtiles \
+  public/world/kr_eco_nature_50.pmtiles \
+  public/world/kr_eco_nature_51.pmtiles \
+  public/world/kr_eco_nature_52.pmtiles \
+  public/world/kr_eco_nature_index.json \
+  public/world/kr_waste_disposal_rules.json \
   public/world/gb_rivers.pmtiles \
   public/world/gb_flood_defences.pmtiles \
   public/world/gb_protected_areas.pmtiles \
