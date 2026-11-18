@@ -17539,7 +17539,7 @@ export const LAYER_MANIFEST = {
       datasets: [],
       derivedFromDatasets: ["taipower_streetlight_county"],
       derivationType: "custom",
-      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（09）。台灣電力公司各縣市路燈用電量統計（data.gov.tw 152419）2021–2025 年，依縣市彙總包制、表制、LED 三類路燈契約；LED 用電占比＝LED 用電度數 ÷（包制＋表制＋LED）用電度數；另附 LED 契約戶數占比。縣市界：內政部國土測繪中心直轄市、縣市界線。",
+      processing: "30 天地圖挑戰 Day 17 光與暗：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day17_light_dark（10_led_by_county.py）。台灣電力公司各縣市路燈用電量統計（data.gov.tw 152419）2021–2025 年，依縣市彙總包制、表制、LED 三類路燈契約；LED 用電占比＝LED 用電度數 ÷（包制＋表制＋LED）用電度數；另附 LED 契約戶數占比。縣市界：內政部國土測繪中心直轄市、縣市界線。",
       note: "DISPLAY_ONLY（不入分析倉庫）。台電路燈用電契約戶，一戶可含多盞燈；LED 較省電，用電占比會低估燈數占比；不含私設路燈。",
     },
     dataClass: "A",
