@@ -261,9 +261,13 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
   }
   /** 比例圓／點密度永遠在所有統計面之上：之後才建立的統計面插在第一個比例圓／點層之前（不然後開的面量圖會疊到上面） */
   function beforeCircles(): string | undefined {
-    for (const key of renderedCircles.keys()) if (map.getLayer(`${key}-circle-halo`)) return `${key}-circle-halo`;
-    for (const key of renderedDots.keys()) if (map.getLayer(statisticsDotLayerId(key))) return statisticsDotLayerId(key);
-    return undefined;
+    const presentation = new Set<string>();
+    for (const key of renderedCircles.keys()) if (map.getLayer(`${key}-circle-halo`)) presentation.add(`${key}-circle-halo`);
+    for (const key of renderedDots.keys()) if (map.getLayer(statisticsDotLayerId(key))) presentation.add(statisticsDotLayerId(key));
+    if (!presentation.size) return undefined;
+    // 看實際圖層順序（點→圓→點切換後 Map 的插入順序不等於堆疊順序）：取最早（最底）的 presentation 層
+    for (const layer of map.getStyle()?.layers ?? []) if (presentation.has(layer.id)) return layer.id;
+    return presentation.values().next().value;
   }
   /** 擁有的 key 要不要有資料：主地圖看圖層開關（不看側別）；右圖看自己畫不畫 */
   const wanted = (key: StatisticsRenderKey) => primary ? layerVisibilityStore.getVisibility(key) : isShown(key);
@@ -282,15 +286,17 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
     // 右圖：不再擁有的 key（右側選擇改回與左側相同）→ 清掉那份資料
     for (const own of [...shown.keys()]) {
       if (owned.has(own)) continue;
-      if (shown.get(own)) regionalStatisticsStore.disable(own);
+      // 先移除記錄再 disable：disable 會同步通知訂閱者，重入 visibilityChanged 時不能再看到這個 key（否則無限遞迴）
+      const wasShown = shown.get(own);
       shown.delete(own);
+      if (wasShown) regionalStatisticsStore.disable(own);
     }
     render();
   }
   const rerender = () => { if (!syncingOpacity) render(); };
   const storeChanged = () => { if (primary) rerender(); else visibilityChanged(); };
-  /** 右圖讀的 store key 會在 key 與 key::R 之間換：兩份都訂 */
-  const watched = STATISTICS_RENDER_KEYS.flatMap(key => primary ? [key] : [...new Set([key, storeKey(key), `${key}${RIGHT_STORE_SUFFIX}`])]);
+  /** 右圖讀的 store key 會在 key 與 key::R 之間換：兩份都訂；主地圖也要訂 key::R（圓參考值、點密度單位讀右側資料，右側變了左圖要重畫） */
+  const watched = STATISTICS_RENDER_KEYS.flatMap(key => primary ? [key, `${key}${RIGHT_STORE_SUFFIX}`] : [...new Set([key, storeKey(key), `${key}${RIGHT_STORE_SUFFIX}`])]);
   const dispose = [layerVisibilityStore.subscribe(visibilityChanged), layerParamsStore.subscribe(rerender), ...watched.map(key => regionalStatisticsStore.subscribe(key, storeChanged)), ...(options.subscribe ? [options.subscribe(visibilityChanged)] : [])];
   const onStyleLoad = () => render(true);
   map.on('style.load', onStyleLoad);
