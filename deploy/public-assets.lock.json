@@ -5254,13 +5254,6 @@
    "s3_key": "deploy-assets/world/vn_angiang_aquaculture_v3.pmtiles"
   },
   {
-   "path": "public/world/vn_angiang_demo.pmtiles",
-   "bytes": 112439,
-   "sha256": "b88de8d3e182094b28e99189e1118fd6a594e60db68bc7debf035c3b3f4fd17a",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_angiang_demo.pmtiles"
-  },
-  {
    "path": "public/world/vn_angiang_demo_v2.pmtiles",
    "bytes": 110584,
    "sha256": "6fa25688215a1ae5cd2e15014150efeb2dc23456368f7f4b8551e0be2351e1fe",

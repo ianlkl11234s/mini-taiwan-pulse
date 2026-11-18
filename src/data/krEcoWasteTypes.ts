@@ -35,14 +35,44 @@ export const KR_ECO_CLICK_LAYER_IDS: readonly string[] = [...KR_ECO_CODES.map(kr
 export const KR_ECO_COLOR = "#3f9d5c";
 export const KR_ECO_UNKNOWN_COLOR = "#9ca3af";
 export interface KrEcoGrade { value: string; color: string; label: L3 }
-/** 1→3 等級綠色由深到淺；9＝별도관리지역（另依其他法律管理的保護區，不是第 4 級）用獨立紫。 */
-export const KR_ECO_GRADES: readonly KrEcoGrade[] = [
-  { value: "1", color: "#1f8a4c", label: l3("1 等級（保全最優先）", "Grade 1 (top conservation priority)", "1 等級（保全最優先）") },
-  { value: "2", color: "#5cb87a", label: l3("2 等級", "Grade 2", "2 等級") },
-  { value: "3", color: "#b3dcb9", label: l3("3 等級", "Grade 3", "3 等級") },
-  { value: "9", color: "#9b7ae8", label: l3("별도관리지역（另依法律管理的保護區）", "별도관리지역 (protected areas managed under other laws)", "별도관리지역（他の法律で管理される保護区域）") },
+
+/**
+ * 1→3 等級配色候選（2026-11-18 站主反映首爾、濟州 1／2 等級幾乎同色；待站主選定，預覽用 `?krEcoPalette=A|B|C`）。
+ * 各選項分暗／淡底圖兩套（比照統計 colors／darkColors，map-layers §3.9 C-2）：透明度 0.55 疊暗陸，1 等級對比 ≥ 2.2、彩度 ≥ 0.10；
+ * 淡底 3 等級保留彩度，不淡成底色。1 最深（保全最優先），3 最淺。
+ * - A：同色相綠，拉大明度差
+ * - B：綠 → 黃綠 → 淺黃（靠色相分開，相鄰差最大）
+ * - C：深綠 → 青綠 → 淺灰綠
+ */
+export type KrEcoPaletteId = "A" | "B" | "C";
+export const KR_ECO_PALETTES: Record<KrEcoPaletteId, { dark: readonly [string, string, string]; light: readonly [string, string, string] }> = {
+  // 暗底 0.55 疊暗陸對比（1／2／3）：A 2.23／3.56／4.99、B 2.22／3.86／4.94、C 2.24／3.33／4.65；舊色 1.92／2.82／4.00
+  // 相鄰 OKLab ΔE（合成後，暗／淡）：A 11.4・11.1／10.8・9.0、B 16.1・10.0／14.3・12.0、C 11.7・11.2／10.6・11.5；舊色 9.2・9.7／8.4・9.1
+  A: { dark: ["#00a240", "#6fda75", "#cefcd6"], light: ["#00672d", "#2caa4e", "#75d78d"] },
+  B: { dark: ["#00a05b", "#c1da1d", "#fff0a6"], light: ["#006732", "#79ab1a", "#f7d644"] },
+  C: { dark: ["#20a04e", "#1ad1d1", "#caefdd"], light: ["#006738", "#00a59e", "#9acbb4"] },
+};
+export const KR_ECO_PALETTE_DEFAULT: KrEcoPaletteId = "B";
+/** 預覽切換：網址 `krEcoPalette=A|B|C`；其他值或沒給用預設。 */
+export function krEcoPaletteId(search: string = typeof location === "undefined" ? "" : location.search): KrEcoPaletteId {
+  const v = new URLSearchParams(search).get("krEcoPalette")?.toUpperCase();
+  return v === "A" || v === "B" || v === "C" ? v : KR_ECO_PALETTE_DEFAULT;
+}
+/** 開站時讀一次（App 同步網址會拿掉不認得的參數，之後再讀會退回預設）。 */
+const KR_ECO_PALETTE_ACTIVE: KrEcoPaletteId = krEcoPaletteId();
+/** 9＝별도관리지역（另依其他法律管理的保護區，不是第 4 級）用獨立紫，兩種底圖共用。 */
+export const KR_ECO_NINE_COLOR = "#9b7ae8";
+const KR_ECO_GRADE_LABELS: readonly { value: string; label: L3 }[] = [
+  { value: "1", label: l3("1 等級（保全最優先）", "Grade 1 (top conservation priority)", "1 等級（保全最優先）") },
+  { value: "2", label: l3("2 等級", "Grade 2", "2 等級") },
+  { value: "3", label: l3("3 等級", "Grade 3", "3 等級") },
+  { value: "9", label: l3("별도관리지역（另依法律管理的保護區）", "별도관리지역 (protected areas managed under other laws)", "별도관리지역（他の法律で管理される保護区域）") },
 ];
-export const krEcoGrade = (value: unknown) => KR_ECO_GRADES.find((g) => g.value === String(value ?? "").trim());
+export function krEcoGrades(isDark: boolean, palette: KrEcoPaletteId = KR_ECO_PALETTE_ACTIVE): readonly KrEcoGrade[] {
+  const ramp = KR_ECO_PALETTES[palette][isDark ? "dark" : "light"];
+  return KR_ECO_GRADE_LABELS.map((g, i) => ({ ...g, color: i < 3 ? ramp[i]! : KR_ECO_NINE_COLOR }));
+}
+export const krEcoGrade = (value: unknown, isDark = true) => krEcoGrades(isDark).find((g) => g.value === String(value ?? "").trim());
 export const KR_ECO_OPACITY = 0.55;
 
 export const KR_ECO_ATTRIBUTION = "출처: 국립생태원 생태자연도 (EcoBank／공공데이터포털 15050229, 공공누리 제3유형, 원본 변경 없음)";

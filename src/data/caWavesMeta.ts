@@ -71,7 +71,7 @@ export const CA_WAVE_ENTRY_META: Record<CaWaveKey, CaWaveEntryMeta> = {
   caTorontoTheftFromVehicle: { theme: "執法治安", group: "竊盜", zh: "多倫多車內竊盜", alt: "Toronto Theft from Motor Vehicle", icon: KeyRound, dataset: "ca_toronto_theft_from_vehicle", topics: T("竊盜", "治安", "多倫多", "犯罪"),
     description: "多倫多市車內竊盜 107,088 件（點位為警方偏移至路口；只有多倫多市）", processing: PROC("w06", "Toronto Police Theft from Motor Vehicle → 剔除經緯度 0；PMTiles z9–14"), note: "OGL-Toronto；1／13" },
   caWildfirePoints: { theme: "災害", group: "野火", zh: "歷史大型野火點", alt: "Historical Wildfire Points", icon: Flame, dataset: "ca_wildfire_points", topics: T("野火", "森林火災", "CWFIS", "NFDB"),
-    description: "加拿大大型野火點 15,204 處（1980–2023，依年代上色；授權未確認，只上位置與年份）", processing: PROC("w06", "CWFIS GeoServer NFDB_point → 只輸出 uid、year；PMTiles z3–11"), note: "授權未確認；只上位置與年份（主 agent 2026-11-17）" },
+    description: "加拿大大型野火點 15,204 處（1980–2023，依年代上色；OGL-Canada，只上位置與年份）", processing: PROC("w06", "CWFIS GeoServer NFDB_point → 只輸出 uid、year；PMTiles z3–11"), note: "Open Government Licence – Canada（2026-11-18 查證，無非商用限制）；只上位置與年份" },
   caBroadbandHex: { theme: "基礎建設", group: "通訊", zh: "寬頻覆蓋（50/10 Mbps）", alt: "Broadband Coverage (50/10 Mbps)", icon: Wifi, dataset: "ca_broadband_hex", topics: T("寬頻", "網路", "通訊", "ISED"),
     description: "加拿大 25 km² 六角格寬頻覆蓋 77,765 格（住戶可用 50/10 Mbps 的比例分級；無住戶不畫）", processing: PROC("w06", "ISED National Broadband Data 六角格 → 4326；PMTiles z3–10"), note: "OGL-Canada；無住戶的格留空，不是 0%" },
   // ── 第 7、8 波

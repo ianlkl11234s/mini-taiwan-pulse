@@ -10,7 +10,7 @@ import {
   CN_ADMIN_NOTES, CN_ADMIN_SOURCE, CN_DENSITY_LABELS, CN_GRID_LEGEND, CN_GRID_NOTES, CN_GRID_SOURCE, CN_NOT_COVERED_COLOR, CN_POPULATION_NOTES,
   CN_POPULATION_SOURCE, CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY, pickL3, type CnLayerSpec,
 } from "../../data/cnDataLayers";
-import type { PhCat } from "../../data/phDataLayers";
+import { phText, type PhCat } from "../../data/phDataLayers";
 import type { CnDataKey, CnRasterKey } from "../../data/cnDataKeys";
 import { cnDensityColors } from "../../hooks/useCnLayers";
 
@@ -85,7 +85,7 @@ export function CnDataLegend({ layerKey }: { layerKey: CnDataKey }) {
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.minZoomNote ? <LegendNote>{pickL3(spec.minZoomNote, locale)}</LegendNote> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
+    <LegendNote>{phText(spec.sourceOrg, locale)}（{phText(spec.license, locale)}）</LegendNote>
   </div>;
 }
 
@@ -99,6 +99,6 @@ export function CnRasterLegend({ layerKey }: { layerKey: CnRasterKey }) {
     <LegendNote>{pickL3(spec.legendTitle, locale)}</LegendNote>
     {spec.legend.map((c) => <LegendRow key={c.label.en} swatch={<SwatchSquare color={c.color} />}>{pickL3(c.label, locale)}</LegendRow>)}
     {spec.notes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
+    <LegendNote>{phText(spec.sourceOrg, locale)}（{phText(spec.license, locale)}）</LegendNote>
   </div>;
 }

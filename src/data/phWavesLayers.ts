@@ -558,8 +558,8 @@ const HEALTH_CATS: readonly PhCat[] = [
   cat("dentist", "#38bdf8", "牙科", "Dentist", "歯科"),
   cat("other", "#a78bfa", "其他（醫師診間等）", "Other (doctors etc.)", "その他（医院など）"),
 ];
-const SCHOOL_COMMON = (count: string): L3[] => [OSM_NOTE,
-  l3(`OSM 學校${count}；DepEd 官方名冊沒有現行可下載座標版`, `OSM schools: ${count}; no current downloadable DepEd register with coordinates`, `OSM の学校 ${count}。DepEd の公式名簿に現行のダウンロード可能な座標版はない`),
+const SCHOOL_COMMON = (count: L3): L3[] => [OSM_NOTE,
+  l3(`OSM 學校${count.zh}；DepEd 官方名冊沒有現行可下載座標版`, `OSM schools: ${count.en}; no current downloadable DepEd register with coordinates`, `OSM の学校 ${count.ja}。DepEd の公式名簿に現行のダウンロード可能な座標版はない`),
   l3("NCR：每 10 萬人筆數低（人口密度高的計算特性，不一定是缺漏）", "NCR: low count per 100,000 people (a density effect, not necessarily missing)", "NCR：10 万人あたり件数が少ない（人口密度による計算上の特性で、欠落とは限らない）")];
 
 const W5_SPECS: PhLayerSpec[] = [
@@ -569,7 +569,7 @@ const W5_SPECS: PhLayerSpec[] = [
     cats: SCHOOL_CATS, heat: { intensity: 0.6 },
     title: { props: ["name"], fallback: l3("未命名學校", "Unnamed school", "名称不明の学校") },
     fields: [NAME_EN, CATEGORY(SCHOOL_CATS), { prop: "operator_type", label: l3("公私立（OSM 原文）", "Operator type (OSM tag)", "設置者の種別（OSM 原文）"), kind: "code" }, OPERATOR, PROV, REGION],
-    legendNotes: [...SCHOOL_COMMON(" 53,825 處（校地面取代表點）"), l3("拉遠為熱區", "Heatmap when zoomed out", "縮小時はヒートマップ")],
+    legendNotes: [...SCHOOL_COMMON(l3(" 53,825 處（校地面取代表點）", "53,825 (campus polygons shown as representative points)", "53,825 件（校地の面は代表点で表示）")), l3("拉遠為熱區", "Heatmap when zoomed out", "縮小時はヒートマップ")],
     popupNotes: [],
     sourceOrg: OSM_1115, sourceUrl: OSM_URL, license: ODBL, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("學校", "schools"),
@@ -583,7 +583,7 @@ const W5_SPECS: PhLayerSpec[] = [
     cats: SCHOOL_CATS,
     title: { props: ["name"], fallback: l3("未命名校地", "Unnamed campus", "名称不明の校地") },
     fields: [NAME_EN, CATEGORY(SCHOOL_CATS), { prop: "operator_type", label: l3("公私立（OSM 原文）", "Operator type (OSM tag)", "設置者の種別（OSM 原文）"), kind: "code" }, OPERATOR, PROV, REGION],
-    legendNotes: [...SCHOOL_COMMON("校地面 49,456 個"), l3("z11 起顯示", "Shown from z11", "z11 から表示")],
+    legendNotes: [...SCHOOL_COMMON(l3("校地面 49,456 個", "49,456 campus polygons", "校地 49,456 面")), l3("z11 起顯示", "Shown from z11", "z11 から表示")],
     popupNotes: [],
     sourceOrg: OSM_1115, sourceUrl: OSM_URL, license: ODBL, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("校地", "school campuses"),

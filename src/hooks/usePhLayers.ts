@@ -7,7 +7,7 @@ import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
 import {
   PH_ADMIN_COLOR, PH_ADMIN_LEVELS, PH_CAT_OTHER_ID, PH_DENSITY_BREAKS, PH_NOT_COVERED_COLOR, PH_PLANT_STATUSES, PH_PLANT_STATUS_DEFAULT,
-  phCatOptionIds, phKigExcludeFilter, type PhAdminLevel, type PhLayerSpec, type PhPart,
+  phCatOptionIds, phKigExcludeFilter, phText, type PhAdminLevel, type PhLayerSpec, type PhPart,
 } from "../data/phDataLayers";
 import type { PhRasterSpec } from "../data/phWavesLayers";
 import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
@@ -244,7 +244,7 @@ function lineWidthExpr(part: PhPart): Expr | number {
 export const phHeatmapId = (spec: PhLayerSpec<string>) => `${spec.parts[0]!.id.replace(/-circle$/, "")}-heatmap`;
 
 export function phSourceSpec(spec: PhLayerSpec<string>): SourceSpec {
-  return { id: spec.sourceId, file: spec.file, minzoom: spec.srcMinzoom, maxzoom: spec.srcMaxzoom, attribution: spec.sourceOrg, loading: spec.loading.zh };
+  return { id: spec.sourceId, file: spec.file, minzoom: spec.srcMinzoom, maxzoom: spec.srcMaxzoom, attribution: phText(spec.sourceOrg), loading: spec.loading.zh };
 }
 
 /** 規格驅動層：每個子圖層一個 layer（同一個 source）；`extraFilter`（電廠狀態）疊在所有子圖層上。 */
@@ -283,6 +283,21 @@ export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec<string>, visibl
           layer: () => ({ id: part.id, type: "fill", ...base, layout: { visibility: "none" }, paint: fillPaint() } as unknown as AnyLayer),
           update: (map) => { map.setFilter(part.id, (filter ?? null) as any); setPaint(map, part.id, fillPaint()); },
         });
+        if (part.lowZoomHalo) {
+          const haloId = `${part.id}-halo`;
+          const { maxzoom } = part.lowZoomHalo;
+          const haloPaint = () => ({
+            "line-color": phColorExpr(spec, part),
+            "line-width": ["interpolate", ["linear"], ["zoom"], 5, 7, maxzoom, 3],
+            "line-blur": ["interpolate", ["linear"], ["zoom"], 5, 4, maxzoom, 1.5],
+            "line-opacity": clamp01(opacity),
+          });
+          builds.push({
+            id: haloId,
+            layer: () => ({ id: haloId, type: "line", ...base, maxzoom, layout: { visibility: "none", "line-join": "round" }, paint: haloPaint() } as unknown as AnyLayer),
+            update: (map) => { map.setFilter(haloId, (filter ?? null) as any); setPaint(map, haloId, haloPaint()); },
+          });
+        }
         return;
       }
       const paint = () => hookLinePaint(spec.key, part.id,
