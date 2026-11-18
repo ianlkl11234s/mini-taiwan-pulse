@@ -2870,7 +2870,11 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "廢棄物",
     country: "KR",
     defaultCollapsed: true,
-    groups: [{ title: "投放點", layers: [fromManifest("krClothingBins")] }],
+    groups: [
+      { title: "投放點", layers: [fromManifest("krClothingBins")] },
+      // KRH-1 C086：依 시군구 的排出日與時段（join 行政界）
+      { title: "清運規則", layers: [fromManifest("krWasteDisposalRules")] },
+    ],
   },
   // 第 10 波：C113 動物醫院比照台灣 animalWelfarePoints（動物福利 › 服務據點）；C049 傳統寺剎比照台灣 religionTemples（宗教 › 點位）；
   // C106 屠宰場比照台灣 livestockSlaughter（農業 › 畜牧 Livestock）
@@ -2897,7 +2901,8 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     groups: [
-      { title: "分區", layers: [fromManifest("krNationalParks")] },
+      // KRH-1 C117：生態自然圖（全國等級面，z10 起）
+      { title: "分區", layers: [fromManifest("krNationalParks"), fromManifest("krEcologyNaturalness")] },
       { title: "點位", layers: [fromManifest("krNpLocationSigns")] },
       { title: "線", layers: [fromManifest("krNpTrails")] },
     ],

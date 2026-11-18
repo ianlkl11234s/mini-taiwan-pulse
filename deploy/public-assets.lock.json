@@ -4274,6 +4274,132 @@
    "s3_key": "deploy-assets/world/kr_coastal_erosion_facilities.pmtiles"
   },
   {
+   "path": "public/world/kr_eco_nature_11.pmtiles",
+   "bytes": 3776928,
+   "sha256": "5490166a23528ce515c36a4b14bdb5818aeb4ea18c107b04966c71d95987d425",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_11.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_26.pmtiles",
+   "bytes": 11536315,
+   "sha256": "abb68ff816eca0b02cf517fff2e68ee4f2f6a278c66e595f85b672410fd56499",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_26.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_27.pmtiles",
+   "bytes": 10451363,
+   "sha256": "e04a6dbc2dbe00d5090643564ae4237c446dbfb9b2022a13a388376ae294e3c4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_27.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_28.pmtiles",
+   "bytes": 9833768,
+   "sha256": "8405d251a895f102342ed402ba6406ed257e3b27046ba5eb5135bac8beb8eb71",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_28.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_29.pmtiles",
+   "bytes": 5085066,
+   "sha256": "186c0562c2bc57a6dcd4b6d6b06ca02aa56e91c1f4d98d93ccc237c4be6b14cc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_29.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_30.pmtiles",
+   "bytes": 12117533,
+   "sha256": "20678a37bbede967e2364d2576d10a42d76ac990a533ed49b7de8c1daf91fc7c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_30.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_31.pmtiles",
+   "bytes": 23049638,
+   "sha256": "54c0ff44a09cff1d64c1adc7ed94275e29fbab41ee2dccc51fdb9113dc0b0431",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_31.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_36.pmtiles",
+   "bytes": 8679051,
+   "sha256": "474643e94d606e4c175c4eb5c76ef59f1e480b7c0e77335cf8e6926bf01454c2",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_36.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_41.pmtiles",
+   "bytes": 144998091,
+   "sha256": "fc47fa25711c4322f5057f25bdd0cd528089591c215b506dcb0609d4fed6d71b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_41.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_43.pmtiles",
+   "bytes": 138376821,
+   "sha256": "654060632d79daf5801087c2de799bc6ddcce0faf4a5ac229a11446173e442a6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_43.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_44.pmtiles",
+   "bytes": 129695262,
+   "sha256": "0b328b244650e19759384b386dfeb24f4eb9d2b56f43c5211c57230606c16c58",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_44.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_46.pmtiles",
+   "bytes": 176015639,
+   "sha256": "02b48f5af76b01c01a120d42b223d1f9534d50817c7fffd3598832e2d15ff50f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_46.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_47.pmtiles",
+   "bytes": 359746473,
+   "sha256": "efa208d66c356b9441c2ba6f807df397a95f84332e447981f7a2c2fa7e6c1dd7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_47.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_48.pmtiles",
+   "bytes": 193488272,
+   "sha256": "f4c3a4bf693e0748870e59d533093e5d94b3c08ee918465ea53fe4e66391a17b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_48.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_50.pmtiles",
+   "bytes": 16787000,
+   "sha256": "f27cb3028ca4ad21976191b5f1be0869bd7e1d1c3a74a8fd2619d6e5c47a5536",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_50.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_51.pmtiles",
+   "bytes": 374979979,
+   "sha256": "cbc6e367d183989dbe7f9ec0ea7f8035509129ec9f7c500f4e70d83229ce18a9",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_51.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_52.pmtiles",
+   "bytes": 98581313,
+   "sha256": "989735ed1e400eb94708e4033f9f658fb7c7c99712845c4bdded5f3a1e634dcf",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_52.pmtiles"
+  },
+  {
+   "path": "public/world/kr_eco_nature_index.json",
+   "bytes": 6648,
+   "sha256": "3af9929d9f46e975437e3b8b2c100f4cfb7b0b7beba0be20b315973fe3e8a110",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_eco_nature_index.json"
+  },
+  {
    "path": "public/world/kr_emergency_bells.pmtiles",
    "bytes": 48216577,
    "sha256": "d48ad25bfb42917b94b3e59793056fc3b6f55527dfdced79d9d9c78c6fb99c62",
@@ -4622,6 +4748,13 @@
    "sha256": "54a961709f865868835e10e5420ef0fcfe86333df5db414360f366eb4b17a817",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_urban_parks.pmtiles"
+  },
+  {
+   "path": "public/world/kr_waste_disposal_rules.json",
+   "bytes": 2737622,
+   "sha256": "93582f8eb5a5ce3e154c37f8df9e4003be560f60a5562391fc5b07a856dceb32",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_waste_disposal_rules.json"
   },
   {
    "path": "public/world/kr_water_level_stations.pmtiles",
@@ -5119,13 +5252,6 @@
    "sha256": "6703b59c39cc78ebc63285296909a4c76509439fd8c1140781108d49805e23cd",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/vn_angiang_aquaculture_v3.pmtiles"
-  },
-  {
-   "path": "public/world/vn_angiang_demo.pmtiles",
-   "bytes": 112439,
-   "sha256": "b88de8d3e182094b28e99189e1118fd6a594e60db68bc7debf035c3b3f4fd17a",
-   "delivery": "r2",
-   "s3_key": "deploy-assets/world/vn_angiang_demo.pmtiles"
   },
   {
    "path": "public/world/vn_angiang_demo_v2.pmtiles",

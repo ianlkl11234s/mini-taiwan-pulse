@@ -6,7 +6,7 @@ import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/caInfraTypes";
 import {
   PH_ADMIN_COLOR, PH_ADMIN_LEVEL_LABELS, PH_ADMIN_SOURCE, PH_DATA_SPECS, PH_FETCHED_AT, PH_NOT_COVERED_COLOR, PH_POP_STATUS,
-  PH_POPULATION_SOURCE, PH_URBAN_CLASS, phCatOf, pickL3, type L3, type PhField, type PhLayerSpec, type PhAdminLevel,
+  PH_POPULATION_SOURCE, PH_URBAN_CLASS, phCatOf, phText, pickL3, type L3, type PhField, type PhLayerSpec, type PhAdminLevel,
 } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
 
@@ -95,7 +95,7 @@ export function makePhPanel(spec: PhLayerSpec<string>): FC<P> {
       <Title color={cat?.color ?? spec.otherColor ?? spec.color}>{title || pickL3(spec.title.fallback, locale)}</Title>
       {spec.fields.map((f) => <Row key={f.prop} label={pickL3(f.label, locale)} value={formatField(f, props, locale)} mono={f.kind === "code"} />)}
       {spec.popupNotes.filter((n) => !n.when || n.when(props)).map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n.text, locale)} />)}
-      <SourceFooter props={{ source_org: spec.sourceOrg, source_url: spec.sourceUrl, license: spec.license, fetched_at: spec.fetchedAt }} />
+      <SourceFooter props={{ source_org: phText(spec.sourceOrg, locale), source_url: spec.sourceUrl, license: phText(spec.license, locale), fetched_at: spec.fetchedAt }} />
     </>;
   };
 }

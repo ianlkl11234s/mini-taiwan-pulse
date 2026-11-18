@@ -36,6 +36,7 @@ import { repPointClickLayerIds } from './repPointOverlays';
  *   本表每個 type 也都要有 manifest key 宣告它。宣告與接線任一邊漂移 = 紅。
  */
 import type { FeatureInfo } from "../types";
+import { KR_ECO_CLICK_LAYER_IDS, KR_WASTE_CLICK_LAYER_IDS } from "../data/krEcoWasteTypes";
 import { DISASTER_ALERT_CLICK_LAYERS } from "../hooks/useDisasterAlertLayer";
 import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
@@ -487,6 +488,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-national-roads-line"], type: "krNationalRoads" },
   { layers: ["kr-rail-lines-line"], type: "krRailLines" },
   { layers: ["kr-ports-line", "kr-ports-fill"], type: "krPorts" },
+  // 南韓 KRH-1：垃圾排出規則（掛行政界 sgg 面）排在行政界之前，同開時先命中規則；生態自然圖 17 個 시·도 分片＋空錨點
+  { layers: [...KR_WASTE_CLICK_LAYER_IDS], type: "krWasteDisposalRules" },
+  { layers: [...KR_ECO_CLICK_LAYER_IDS], type: "krEcologyNaturalness" },
   // 南韓：三層級一次只開一層
   { layers: ["kr-admin-emd-fill", "kr-admin-sgg-fill", "kr-admin-sido-fill"], type: "krAdminBoundaries" },
   { layers: ["ca-indigenous-lands-fill"], type: "caIndigenousLands" },

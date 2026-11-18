@@ -470,7 +470,7 @@ export type ExpandableLayerKey =
   | "jpZoningUseDistricts" | "jpNationalForests"
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpMunicipalRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief" | "historicalMapSinica" | "historicalMapPostwar" | "historicalImagery" | "historicalBoundaries" | "historicalLandUse" | "historicalThematic" | "water1944Taipei"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
-  | "krAdminBoundaries" | KrDataKey
+  | "krAdminBoundaries" | KrDataKey | "krEcologyNaturalness" | "krWasteDisposalRules"
   | "ieAdminBoundaries" | IeDataKey | "ieBathymetry" | "ieCoillteRecreation" | "ieCoillteForestRoads"
   | "phAdminBoundaries" | "phPopulation" | PhDataKey | PhRasterKey
   | "vnAdminBoundaries" | "vnPopulation" | VnDataKey | VnRasterKey
@@ -1060,7 +1060,7 @@ export interface FeatureInfo {
     // 英國第 0b 波：行政邊界（LAD、統計小區）
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
-    | "krAdminBoundaries" | KrDataKey
+    | "krAdminBoundaries" | KrDataKey | "krEcologyNaturalness" | "krWasteDisposalRules"
     // 加拿大第 0＋1 波
     | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid" | CaWaveKey
     // 愛爾蘭第 0 波：行政邊界（LA／ED／SA）
@@ -2024,6 +2024,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   historicalThematic: boolean;  // 同上：歷史主題圖（水利、地質、林務、測量）
   water1944Taipei: boolean; // 1944 水域（臺北盆地）：1944 美軍地形圖顏色抽取的水域面，依今日是否仍為河道分兩類（站主限定）
   gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
+  krEcologyNaturalness: boolean; // 南韓生態自然圖（KRH-1 C117，17 個 시·도 PMTiles 依視窗載入，z10 起）
+  krWasteDisposalRules: boolean; // 南韓生活垃圾排出規則（KRH-1 C086，JSON join kr_admin_boundaries sgg 層）
   krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
   caAdminBoundaries: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
   ieAdminBoundaries: boolean;   // 愛爾蘭行政邊界（PMTiles polygon，LA 31／CSO ED 3,420／SA 18,919；2026-11-07 第 0 波）

@@ -119,6 +119,15 @@ export interface PhPart {
   hollow?: { when?: Expr; js?: (p: Record<string, unknown>) => boolean; label: L3 };
   /** 面：填色透明度倍率（0＝空心面，只留點擊熱區；外框另用 line 子圖層畫） */
   fillOpacity?: number;
+  /**
+   * 面：小面拉遠只剩次像素時，在 `maxzoom` 以下加同色模糊外框光暈（layer id `<id>-halo`，不接點擊），標出位置；
+   * 放大到 `maxzoom` 起只畫面（比照 gbCoastalErosionRisk 低縮放加寬外框）。例：新斯科細亞養殖租約。
+   */
+  lowZoomHalo?: { maxzoom: number };
+}
+/** 規格文字取語系：字串原樣，L3 依 locale 取（`locale` 省略＝中文，給地圖署名、loading 等不隨語系的地方）。 */
+export function phText(v: string | L3, locale = "zh"): string {
+  return typeof v === "string" ? v : locale === "ja" ? v.ja : locale === "en" ? v.en : v.zh;
 }
 export interface PhNote { text: L3; /** 只在符合條件的 feature 顯示 */ when?: (p: Record<string, unknown>) => boolean }
 /** `K`：圖層 key 型別（越南等他國重用本引擎時放寬，2026-11-13）。 */
@@ -145,9 +154,10 @@ export interface PhLayerSpec<K extends string = PhDataKey> {
   popupNotes: readonly PhNote[];
   /** 低縮放熱區（≥1 萬點，map-layers §3.8 V-1／P-4） */
   heat?: { intensity: number };
-  sourceOrg: string;
+  /** 來源與授權：純字串＝各語系共用（原文名稱）；含中文說明時寫 L3，英／日介面才不會混中文（2026-11-18） */
+  sourceOrg: string | L3;
   sourceUrl: string;
-  license: string;
+  license: string | L3;
   fetchedAt: string;
   loading: L3;
   /** 預設透明度（省略＝全點層依密度、其餘 0.85） */

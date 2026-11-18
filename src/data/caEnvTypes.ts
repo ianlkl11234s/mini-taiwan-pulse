@@ -124,7 +124,7 @@ export const CA_WSER_STATUSES: readonly CaCat[] = [
 ];
 /** 日均放流量（m³）3 級 → 點大小。 */
 export const CA_WSER_BANDS: readonly { min: number; radius: number; label: string }[] = [
-  { min: 0, radius: 3, label: "<1,000 m³／日" },
+  { min: 0, radius: 3, label: "<1,000" },
   { min: 1_000, radius: 4.5, label: "1,000–50,000" },
   { min: 50_000, radius: 7, label: "≥50,000" },
 ];
@@ -203,6 +203,11 @@ export const CA_QUAKE_LIVE_SOURCE: CaSource = {
   url: CA_QUAKE_LIVE_PAGE_URL,
   license: "NRCan Terms and Conditions：非商業重製（商業轉散布須書面許可）",
   short: "資料來源：Natural Resources Canada（加拿大自然資源部）Earthquakes Canada 地震目錄（FDSN），非商業使用",
+  shortL3: {
+    zh: "資料來源：Natural Resources Canada（加拿大自然資源部）Earthquakes Canada 地震目錄（FDSN），非商業使用",
+    en: "Source: Natural Resources Canada, Earthquakes Canada earthquake database (FDSN); non-commercial use",
+    ja: "出典：Natural Resources Canada（カナダ天然資源省）Earthquakes Canada 地震カタログ（FDSN）、非商用利用",
+  },
 };
 /** 條款要求的「官方著作重製、非合作或背書」聲明：圖例、popup 都放。 */
 export const CA_QUAKE_LIVE_DISCLAIMER: L3 = l3(

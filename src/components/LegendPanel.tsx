@@ -77,6 +77,7 @@ import { CN_DATA_KEYS, CN_RASTER_KEYS } from "../data/cnDataKeys";
 import { CnAdminBoundariesLegend, CnDataLegend, CnPopulationGridLegend, CnPopulationLegend, CnRasterLegend } from "./legend/cnLegends";
 import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
 import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
+import { KrEcologyNaturalnessLegend, KrWasteDisposalRulesLegend } from "./legend/krEcoWasteLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
 import { DenseSingleColorLegend } from "./legend/legendShared";
 
@@ -344,6 +345,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "historicalThematic", render: ({ overlayParams }) => <HistoricalMapLegend groupKey="historicalThematic" eraIdx={overlayParams.historicalThematicEraIdx} /> },
   { id: "gbAdminBoundaries", render: () => <GbAdminBoundariesLegend /> },
   { id: "krAdminBoundaries", render: () => <KrAdminBoundariesLegend /> },
+  { id: "krEcologyNaturalness", render: () => <KrEcologyNaturalnessLegend /> },
+  { id: "krWasteDisposalRules", render: () => <KrWasteDisposalRulesLegend /> },
   // 南韓第 3–5 波 18 層：共用規格驅動圖例
   ...KR_DATA_KEYS.map((key) => ({ id: key, render: () => <KrDataLegend layerKey={key} /> })),
   { id: "krAirports", render: () => <KrAirportsLegend /> },

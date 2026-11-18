@@ -33,7 +33,7 @@ function Cats({ cats, pick, line }: { cats: readonly CaCat[]; pick: (t: L3) => s
 function Notes({ notes, source, pick }: { notes: readonly L3[]; source: CaSource; pick: (t: L3) => string }) {
   return <>
     {notes.map((n, i) => <LegendNote key={i}>{pick(n)}</LegendNote>)}
-    <LegendNote>{source.short}</LegendNote>
+    <LegendNote>{source.shortL3 ? pick(source.shortL3) : source.short}</LegendNote>
   </>;
 }
 
@@ -142,7 +142,7 @@ export function CaPopulationCentresLegend() {
   return <div>
     <LegendTitle zh={`${title}（2021）`} />
     <Cats cats={CA_POP_CLASSES} pick={pick} />
-    <LegendSizeRow fill={CA_POP_CLASSES[1]!.color} title={pick({ zh: "代表點大小：2021 人口", en: "Point size: population 2021", ja: "代表点の大きさ：2021 年人口" })} items={CA_POP_BANDS.map((b) => ({ r: b.radius, label: b.label }))} />
+    <LegendSizeRow fill={CA_POP_CLASSES[1]!.color} title={pick({ zh: "代表點大小：2021 人口", en: "Point size: population 2021", ja: "代表点の大きさ：2021 年人口" })} items={CA_POP_BANDS.map((b) => ({ r: b.radius, label: pick(b.label) }))} />
     <Notes notes={CA_POP_NOTES} source={CA_POP_SOURCE} pick={pick} />
   </div>;
 }

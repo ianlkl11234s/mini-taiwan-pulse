@@ -53,10 +53,10 @@
 | 原因 | 圖層數 |
 |---|---|
 | dataset_not_in_warehouse | 797 |
-| upstream_catalog_missing | 83 |
+| upstream_catalog_missing | 79 |
 | unfiltered_shared_table | 27 |
 | warehouse_SKIPPED_FORMAT | 15 |
-| derived_layer | 10 |
+| derived_layer | 14 |
 | warehouse_SKIPPED_DISPLAY_ONLY | 8 |
 | warehouse_FAILED | 7 |
 | override: snapshot_candidate: 同一 2025-04 PMTiles artifact 換 filter；LICENSE_UNVERIFIED。 | 2 |
