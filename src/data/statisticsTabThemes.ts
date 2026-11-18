@@ -106,6 +106,7 @@ function buildThemeSpecs(comparisons: readonly ComparisonRecipeLike[], includeEd
     atlasTheme(ATLAS_TAB_THEME_TITLES.crime),
     atlasTheme(ATLAS_TAB_THEME_TITLES.sports),
     atlasTheme(ATLAS_TAB_THEME_TITLES.culture),
+    atlasTheme(ATLAS_TAB_THEME_TITLES.openData),
     { title: "工作與所得 Work & Income", groups: [
       { title: "戶籍村里／申報戶", keys: ["statsLaborVillageIncomeMedian"] },
       { title: "實際工作所在地", keys: ["statsLaborCountyAnnualSalaryMedian"] },

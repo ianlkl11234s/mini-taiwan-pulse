@@ -183,8 +183,9 @@ describe('getStatisticsVisual', () => {
     // 2026-11-07: +16 南韓公共安全（火災 2021–2023、交通事故 2025 × 道級／市郡區）。
     // 2026-11-07: +29 愛爾蘭統計（地方政府、選舉分區：2022 普查人口 6、年齡 6、家戶與住宅 8、教育與勞動 8；RTB 租金 1）。
     // 2026-11-09: +4 南韓每萬人比率（火災 2021–2023、交通事故 2025 × 道級／市郡區，KRSTAT-1）。
-    expect(STATISTICS_KEYS).toHaveLength(899);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(911);
+    // 2026-11-18: +5 縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL）。
+    expect(STATISTICS_KEYS).toHaveLength(904);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(916);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

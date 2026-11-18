@@ -2000,5 +2000,10 @@
   "layer.caNsAquaculture": "ノバスコシア州養殖リース（カナダ）",
   "layer.caAbattoirs": "食肉処理場（ON・MB）（カナダ）",
   "layer.caOdbus": "営業登録地点（ODBus）（カナダ）",
-  "layer.caTorontoDevApplications": "トロント開発申請（カナダ）"
+  "layer.caTorontoDevApplications": "トロント開発申請（カナダ）",
+  "layer.statsOpenDataDatasets": "県市が公開したオープンデータ件数",
+  "layer.statsOpenDataCoordDatasets": "座標・ジオメトリ付きオープンデータ件数",
+  "layer.statsOpenDataCoordShare": "座標・ジオメトリ付きデータの割合",
+  "layer.statsOpenDataSpatialShare": "空間情報を含むデータの割合",
+  "layer.statsOpenDataThemesWithCoords": "座標データのあるテーマ数"
 }

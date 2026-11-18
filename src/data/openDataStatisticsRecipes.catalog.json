@@ -1,0 +1,1164 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "openData",
+  "generated_from": {
+    "recipes": "tw-opendata-completeness-recipes.json",
+    "bundles": "taipei-gis-analytics data/processed/open_data_monitor/<dataset_id>/releases/<release_id>.json"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "observed_zero": "status observed and value 0 (no dataset of that theme in the catalogue for that county; not proof that the county publishes none)",
+    "missing": "not used",
+    "suppressed": "not used"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsOpenDataDatasets",
+      "enabled": true,
+      "family": "openData",
+      "label": "縣市自己發布的開放資料集數",
+      "group": "openDataCompleteness",
+      "group_label": "縣市開放資料完整度",
+      "option_label": "資料集數",
+      "subgroup": "開放資料完整度（Day 18 NULL）",
+      "data_theme": "開放資料統計 Open Data Statistics",
+      "tab_theme": "政府與開放資料 Government & Open Data",
+      "visual_theme": "utilities",
+      "dataset_id": "tw_opendata_county_completeness",
+      "indicator_id": "opendata_datasets_count",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+      "dimensions": [
+        {
+          "key": "主題",
+          "label": "主題",
+          "default": "全部",
+          "options": [
+            {
+              "value": "全部",
+              "label": "全部"
+            },
+            {
+              "value": "交通運輸",
+              "label": "交通運輸"
+            },
+            {
+              "value": "人口戶政",
+              "label": "人口戶政"
+            },
+            {
+              "value": "勞動就業",
+              "label": "勞動就業"
+            },
+            {
+              "value": "土地建築與公共工程",
+              "label": "土地建築與公共工程"
+            },
+            {
+              "value": "政府行政民政",
+              "label": "政府行政民政"
+            },
+            {
+              "value": "教育",
+              "label": "教育"
+            },
+            {
+              "value": "氣象災害防救",
+              "label": "氣象災害防救"
+            },
+            {
+              "value": "水利海洋",
+              "label": "水利海洋"
+            },
+            {
+              "value": "治安司法",
+              "label": "治安司法"
+            },
+            {
+              "value": "消防",
+              "label": "消防"
+            },
+            {
+              "value": "環境品質",
+              "label": "環境品質"
+            },
+            {
+              "value": "產業工商",
+              "label": "產業工商"
+            },
+            {
+              "value": "社會福利",
+              "label": "社會福利"
+            },
+            {
+              "value": "能源",
+              "label": "能源"
+            },
+            {
+              "value": "觀光休閒文化",
+              "label": "觀光休閒文化"
+            },
+            {
+              "value": "財政經濟",
+              "label": "財政經濟"
+            },
+            {
+              "value": "農林漁牧",
+              "label": "農林漁牧"
+            },
+            {
+              "value": "醫療衛生",
+              "label": "醫療衛生"
+            },
+            {
+              "value": "未分類",
+              "label": "未分類"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "全部"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "交通運輸"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "人口戶政"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "勞動就業"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "土地建築與公共工程"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "政府行政民政"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "教育"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "氣象災害防救"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "水利海洋"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "治安司法"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "消防"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "環境品質"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "產業工商"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "社會福利"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "能源"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "觀光休閒文化"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "財政經濟"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "農林漁牧"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "醫療衛生"
+          }
+        },
+        {
+          "release_id": "2026-opendata_datasets_count-county-v1-703b479c863c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "未分類"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          400,
+          800,
+          1500,
+          2500
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（本目錄查無，不代表沒有公開）。",
+        "display_note": null,
+        "notes": [
+          "出典：本站整理的政府開放資料平台目錄（data.gov.tw＋14 縣市平台＋9 中央平台，2026-10-30 版）。",
+          "只算縣市自己發布、同名去重後的資料集；0 或偏少＝本目錄查無，不代表縣市沒有公開。",
+          "基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江只收幾十列：這 10 縣市的數字是下限。",
+          "資料集數不是資料量：同一報表逐月、逐區拆檔會讓數字膨脹。",
+          "主題沿用目錄既有分類，抽查錯誤約 12%；1–5 筆的小格子對分類很敏感。"
+        ],
+        "by_dimension": {
+          "交通運輸": {
+            "breaks": [
+              12,
+              18,
+              34,
+              120
+            ],
+            "direction": "ascending"
+          },
+          "人口戶政": {
+            "breaks": [
+              19,
+              41,
+              93,
+              130
+            ],
+            "direction": "ascending"
+          },
+          "勞動就業": {
+            "breaks": [
+              1,
+              2,
+              7,
+              18
+            ],
+            "direction": "ascending"
+          },
+          "土地建築與公共工程": {
+            "breaks": [
+              57,
+              91,
+              150,
+              260
+            ],
+            "direction": "ascending"
+          },
+          "政府行政民政": {
+            "breaks": [
+              1,
+              4,
+              11,
+              23
+            ],
+            "direction": "ascending"
+          },
+          "教育": {
+            "breaks": [
+              1,
+              15,
+              19,
+              44
+            ],
+            "direction": "ascending"
+          },
+          "未分類": {
+            "breaks": [
+              20,
+              29,
+              110,
+              170
+            ],
+            "direction": "ascending"
+          },
+          "氣象災害防救": {
+            "breaks": [
+              1,
+              4,
+              8,
+              28
+            ],
+            "direction": "ascending"
+          },
+          "水利海洋": {
+            "breaks": [
+              1,
+              2,
+              5,
+              19
+            ],
+            "direction": "ascending"
+          },
+          "治安司法": {
+            "breaks": [
+              1,
+              7,
+              13,
+              53
+            ],
+            "direction": "ascending"
+          },
+          "消防": {
+            "breaks": [
+              1,
+              7,
+              20,
+              58
+            ],
+            "direction": "ascending"
+          },
+          "環境品質": {
+            "breaks": [
+              1,
+              15,
+              54,
+              90
+            ],
+            "direction": "ascending"
+          },
+          "產業工商": {
+            "breaks": [
+              4,
+              5,
+              11,
+              29
+            ],
+            "direction": "ascending"
+          },
+          "社會福利": {
+            "breaks": [
+              31,
+              75,
+              110,
+              150
+            ],
+            "direction": "ascending"
+          },
+          "能源": {
+            "breaks": [
+              1,
+              4,
+              11
+            ],
+            "direction": "ascending"
+          },
+          "觀光休閒文化": {
+            "breaks": [
+              5,
+              17,
+              32,
+              81
+            ],
+            "direction": "ascending"
+          },
+          "財政經濟": {
+            "breaks": [
+              43,
+              130,
+              160,
+              350
+            ],
+            "direction": "ascending"
+          },
+          "農林漁牧": {
+            "breaks": [
+              1,
+              4,
+              7,
+              18
+            ],
+            "direction": "ascending"
+          },
+          "醫療衛生": {
+            "breaks": [
+              16,
+              36,
+              57,
+              110
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "發布機關所屬縣市（縣市政府、所屬機關、鄉鎮市公所）；不是資料涵蓋範圍",
+      "disclosure": "本站整理的政府開放資料目錄（data.gov.tw 加上 14 個縣市平台、9 個中央平台，2026-10-30 版，排除外國平台），同一縣市下標題正規化後相同者算一筆（去重後 22 縣市共 26,024 筆）。只算縣市政府、所屬機關與鄉鎮市公所自己發布的資料，依發布者判定，不是依資料涵蓋範圍；中央機關發布的在地資料不算進縣市。空間等級取最高：座標（有經緯度、座標欄或 SHP／KML／GeoJSON／WMS 等圖資格式）、地址、只到行政區、無空間，依目錄自動標籤與欄位預覽判定，沒有逐筆驗證。主題沿用目錄既有分類正規化成 18 類，另有未分類（約 8.6%）；抽查分類錯誤約 12%，小格子（1–5 筆）對分類很敏感。0 或偏少的意思是本目錄查無或較少，不代表縣市沒有公開，也不代表沒有這類業務。基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江的自有平台只收 30、17 列，這 10 個縣市的數字是下限。資料集數不是資料量：同一報表逐月、逐區拆成多個資料集會讓數字膨脹（例如新北地政局約 1,000 筆、花蓮稅務局約 800 筆）。本指標：依主題切換；「全部」＝18 類加未分類的合計。",
+      "publisher": "Mini Taiwan Pulse 整理（政府開放資料平台目錄）",
+      "license": "衍生統計；目錄 metadata 取自各政府開放資料平台（多為政府資料開放授權條款-第1版）",
+      "source_landing_url": "https://data.gov.tw/",
+      "source_download_url": "https://data.gov.tw/",
+      "source_title": "政府開放資料平台目錄（本站整理，2026-10-30 版）"
+    },
+    {
+      "layer_key": "statsOpenDataCoordDatasets",
+      "enabled": true,
+      "family": "openData",
+      "label": "有座標或幾何的開放資料集數",
+      "group": "openDataCompleteness",
+      "group_label": "縣市開放資料完整度",
+      "option_label": "有座標資料集數",
+      "subgroup": "開放資料完整度（Day 18 NULL）",
+      "data_theme": "開放資料統計 Open Data Statistics",
+      "tab_theme": "政府與開放資料 Government & Open Data",
+      "visual_theme": "utilities",
+      "dataset_id": "tw_opendata_county_completeness",
+      "indicator_id": "opendata_coord_datasets_count",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+      "dimensions": [
+        {
+          "key": "主題",
+          "label": "主題",
+          "default": "全部",
+          "options": [
+            {
+              "value": "全部",
+              "label": "全部"
+            },
+            {
+              "value": "交通運輸",
+              "label": "交通運輸"
+            },
+            {
+              "value": "人口戶政",
+              "label": "人口戶政"
+            },
+            {
+              "value": "勞動就業",
+              "label": "勞動就業"
+            },
+            {
+              "value": "土地建築與公共工程",
+              "label": "土地建築與公共工程"
+            },
+            {
+              "value": "政府行政民政",
+              "label": "政府行政民政"
+            },
+            {
+              "value": "教育",
+              "label": "教育"
+            },
+            {
+              "value": "氣象災害防救",
+              "label": "氣象災害防救"
+            },
+            {
+              "value": "水利海洋",
+              "label": "水利海洋"
+            },
+            {
+              "value": "治安司法",
+              "label": "治安司法"
+            },
+            {
+              "value": "消防",
+              "label": "消防"
+            },
+            {
+              "value": "環境品質",
+              "label": "環境品質"
+            },
+            {
+              "value": "產業工商",
+              "label": "產業工商"
+            },
+            {
+              "value": "社會福利",
+              "label": "社會福利"
+            },
+            {
+              "value": "能源",
+              "label": "能源"
+            },
+            {
+              "value": "觀光休閒文化",
+              "label": "觀光休閒文化"
+            },
+            {
+              "value": "財政經濟",
+              "label": "財政經濟"
+            },
+            {
+              "value": "農林漁牧",
+              "label": "農林漁牧"
+            },
+            {
+              "value": "醫療衛生",
+              "label": "醫療衛生"
+            },
+            {
+              "value": "未分類",
+              "label": "未分類"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "全部"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "交通運輸"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "人口戶政"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "勞動就業"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "土地建築與公共工程"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "政府行政民政"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "教育"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "氣象災害防救"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "水利海洋"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "治安司法"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "消防"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "環境品質"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "產業工商"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "社會福利"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "能源"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "觀光休閒文化"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "財政經濟"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "農林漁牧"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "醫療衛生"
+          }
+        },
+        {
+          "release_id": "2026-opendata_coord_datasets_count-county-v1-d7feef03129c",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {
+            "主題": "未分類"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          10,
+          50,
+          100,
+          300
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（本目錄查無，不代表沒有公開）。",
+        "display_note": null,
+        "notes": [
+          "出典：本站整理的政府開放資料平台目錄（data.gov.tw＋14 縣市平台＋9 中央平台，2026-10-30 版）。",
+          "只算縣市自己發布、同名去重後的資料集；0 或偏少＝本目錄查無，不代表縣市沒有公開。",
+          "基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江只收幾十列：這 10 縣市的數字是下限。",
+          "座標＝有經緯度、座標欄或圖資格式（SHP、KML、GeoJSON 等），依目錄標籤判定，未逐筆驗證。",
+          "資料集數不是資料量：同一報表逐月、逐區拆檔會讓數字膨脹。",
+          "主題沿用目錄既有分類，抽查錯誤約 12%；1–5 筆的小格子對分類很敏感。"
+        ],
+        "by_dimension": {
+          "交通運輸": {
+            "breaks": [
+              1,
+              3,
+              6,
+              20
+            ],
+            "direction": "ascending"
+          },
+          "人口戶政": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "勞動就業": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "土地建築與公共工程": {
+            "breaks": [
+              1,
+              2,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "政府行政民政": {
+            "breaks": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "教育": {
+            "breaks": [
+              1,
+              2,
+              4,
+              7
+            ],
+            "direction": "ascending"
+          },
+          "未分類": {
+            "breaks": [
+              1,
+              3,
+              4,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "氣象災害防救": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "水利海洋": {
+            "breaks": [
+              1,
+              2,
+              5,
+              9
+            ],
+            "direction": "ascending"
+          },
+          "治安司法": {
+            "breaks": [
+              1,
+              2,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "消防": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "環境品質": {
+            "breaks": [
+              1,
+              2,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "產業工商": {
+            "breaks": [
+              1,
+              4,
+              8
+            ],
+            "direction": "ascending"
+          },
+          "社會福利": {
+            "breaks": [
+              1,
+              7,
+              26,
+              59
+            ],
+            "direction": "ascending"
+          },
+          "能源": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "觀光休閒文化": {
+            "breaks": [
+              1,
+              2,
+              8,
+              15
+            ],
+            "direction": "ascending"
+          },
+          "財政經濟": {
+            "breaks": [
+              1,
+              2,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "農林漁牧": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "醫療衛生": {
+            "breaks": [
+              1,
+              2,
+              6,
+              18
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "發布機關所屬縣市（縣市政府、所屬機關、鄉鎮市公所）；不是資料涵蓋範圍",
+      "disclosure": "本站整理的政府開放資料目錄（data.gov.tw 加上 14 個縣市平台、9 個中央平台，2026-10-30 版，排除外國平台），同一縣市下標題正規化後相同者算一筆（去重後 22 縣市共 26,024 筆）。只算縣市政府、所屬機關與鄉鎮市公所自己發布的資料，依發布者判定，不是依資料涵蓋範圍；中央機關發布的在地資料不算進縣市。空間等級取最高：座標（有經緯度、座標欄或 SHP／KML／GeoJSON／WMS 等圖資格式）、地址、只到行政區、無空間，依目錄自動標籤與欄位預覽判定，沒有逐筆驗證。主題沿用目錄既有分類正規化成 18 類，另有未分類（約 8.6%）；抽查分類錯誤約 12%，小格子（1–5 筆）對分類很敏感。0 或偏少的意思是本目錄查無或較少，不代表縣市沒有公開，也不代表沒有這類業務。基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江的自有平台只收 30、17 列，這 10 個縣市的數字是下限。資料集數不是資料量：同一報表逐月、逐區拆成多個資料集會讓數字膨脹（例如新北地政局約 1,000 筆、花蓮稅務局約 800 筆）。本指標：空間等級為座標的資料集數，依主題切換；「全部」＝18 類加未分類的合計。",
+      "publisher": "Mini Taiwan Pulse 整理（政府開放資料平台目錄）",
+      "license": "衍生統計；目錄 metadata 取自各政府開放資料平台（多為政府資料開放授權條款-第1版）",
+      "source_landing_url": "https://data.gov.tw/",
+      "source_download_url": "https://data.gov.tw/",
+      "source_title": "政府開放資料平台目錄（本站整理，2026-10-30 版）"
+    },
+    {
+      "layer_key": "statsOpenDataCoordShare",
+      "enabled": true,
+      "family": "openData",
+      "label": "有座標或幾何的資料集比例",
+      "group": "openDataCompleteness",
+      "group_label": "縣市開放資料完整度",
+      "option_label": "有座標比例",
+      "subgroup": "開放資料完整度（Day 18 NULL）",
+      "data_theme": "開放資料統計 Open Data Statistics",
+      "tab_theme": "政府與開放資料 Government & Open Data",
+      "visual_theme": "utilities",
+      "dataset_id": "tw_opendata_county_completeness",
+      "indicator_id": "opendata_coord_share_pct",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "2026-opendata_coord_share_pct-county-v1-70409fcd0300",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2026-opendata_coord_share_pct-county-v1-70409fcd0300",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          3,
+          6,
+          10,
+          20
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：本站整理的政府開放資料平台目錄（data.gov.tw＋14 縣市平台＋9 中央平台，2026-10-30 版）。",
+          "只算縣市自己發布、同名去重後的資料集；0 或偏少＝本目錄查無，不代表縣市沒有公開。",
+          "基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江只收幾十列：這 10 縣市的數字是下限。",
+          "比例＝座標級資料集數 ÷ 該縣市資料集數。",
+          "座標＝有經緯度、座標欄或圖資格式（SHP、KML、GeoJSON 等），依目錄標籤判定，未逐筆驗證。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "發布機關所屬縣市（縣市政府、所屬機關、鄉鎮市公所）；不是資料涵蓋範圍",
+      "disclosure": "本站整理的政府開放資料目錄（data.gov.tw 加上 14 個縣市平台、9 個中央平台，2026-10-30 版，排除外國平台），同一縣市下標題正規化後相同者算一筆（去重後 22 縣市共 26,024 筆）。只算縣市政府、所屬機關與鄉鎮市公所自己發布的資料，依發布者判定，不是依資料涵蓋範圍；中央機關發布的在地資料不算進縣市。空間等級取最高：座標（有經緯度、座標欄或 SHP／KML／GeoJSON／WMS 等圖資格式）、地址、只到行政區、無空間，依目錄自動標籤與欄位預覽判定，沒有逐筆驗證。主題沿用目錄既有分類正規化成 18 類，另有未分類（約 8.6%）；抽查分類錯誤約 12%，小格子（1–5 筆）對分類很敏感。0 或偏少的意思是本目錄查無或較少，不代表縣市沒有公開，也不代表沒有這類業務。基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江的自有平台只收 30、17 列，這 10 個縣市的數字是下限。資料集數不是資料量：同一報表逐月、逐區拆成多個資料集會讓數字膨脹（例如新北地政局約 1,000 筆、花蓮稅務局約 800 筆）。本指標：座標級資料集數 ÷ 該縣市資料集數 ×100（分母為同縣市去重後資料集數，同一期）。",
+      "publisher": "Mini Taiwan Pulse 整理（政府開放資料平台目錄）",
+      "license": "衍生統計；目錄 metadata 取自各政府開放資料平台（多為政府資料開放授權條款-第1版）",
+      "source_landing_url": "https://data.gov.tw/",
+      "source_download_url": "https://data.gov.tw/",
+      "source_title": "政府開放資料平台目錄（本站整理，2026-10-30 版）"
+    },
+    {
+      "layer_key": "statsOpenDataSpatialShare",
+      "enabled": true,
+      "family": "openData",
+      "label": "有任何空間資訊的資料集比例",
+      "group": "openDataCompleteness",
+      "group_label": "縣市開放資料完整度",
+      "option_label": "有空間資訊比例",
+      "subgroup": "開放資料完整度（Day 18 NULL）",
+      "data_theme": "開放資料統計 Open Data Statistics",
+      "tab_theme": "政府與開放資料 Government & Open Data",
+      "visual_theme": "utilities",
+      "dataset_id": "tw_opendata_county_completeness",
+      "indicator_id": "opendata_spatial_share_pct",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "2026-opendata_spatial_share_pct-county-v1-c4a253316f83",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2026-opendata_spatial_share_pct-county-v1-c4a253316f83",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          20,
+          30,
+          45,
+          60
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：本站整理的政府開放資料平台目錄（data.gov.tw＋14 縣市平台＋9 中央平台，2026-10-30 版）。",
+          "只算縣市自己發布、同名去重後的資料集；0 或偏少＝本目錄查無，不代表縣市沒有公開。",
+          "基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江只收幾十列：這 10 縣市的數字是下限。",
+          "空間資訊＝座標、地址或只到行政區；地址與行政區要再定位，不能直接上地圖。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "發布機關所屬縣市（縣市政府、所屬機關、鄉鎮市公所）；不是資料涵蓋範圍",
+      "disclosure": "本站整理的政府開放資料目錄（data.gov.tw 加上 14 個縣市平台、9 個中央平台，2026-10-30 版，排除外國平台），同一縣市下標題正規化後相同者算一筆（去重後 22 縣市共 26,024 筆）。只算縣市政府、所屬機關與鄉鎮市公所自己發布的資料，依發布者判定，不是依資料涵蓋範圍；中央機關發布的在地資料不算進縣市。空間等級取最高：座標（有經緯度、座標欄或 SHP／KML／GeoJSON／WMS 等圖資格式）、地址、只到行政區、無空間，依目錄自動標籤與欄位預覽判定，沒有逐筆驗證。主題沿用目錄既有分類正規化成 18 類，另有未分類（約 8.6%）；抽查分類錯誤約 12%，小格子（1–5 筆）對分類很敏感。0 或偏少的意思是本目錄查無或較少，不代表縣市沒有公開，也不代表沒有這類業務。基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江的自有平台只收 30、17 列，這 10 個縣市的數字是下限。資料集數不是資料量：同一報表逐月、逐區拆成多個資料集會讓數字膨脹（例如新北地政局約 1,000 筆、花蓮稅務局約 800 筆）。本指標：（座標＋地址＋只到行政區）÷ 該縣市資料集數 ×100；地址與行政區需要再定位，不能直接上地圖。",
+      "publisher": "Mini Taiwan Pulse 整理（政府開放資料平台目錄）",
+      "license": "衍生統計；目錄 metadata 取自各政府開放資料平台（多為政府資料開放授權條款-第1版）",
+      "source_landing_url": "https://data.gov.tw/",
+      "source_download_url": "https://data.gov.tw/",
+      "source_title": "政府開放資料平台目錄（本站整理，2026-10-30 版）"
+    },
+    {
+      "layer_key": "statsOpenDataThemesWithCoords",
+      "enabled": true,
+      "family": "openData",
+      "label": "有座標資料的主題數",
+      "group": "openDataCompleteness",
+      "group_label": "縣市開放資料完整度",
+      "option_label": "有座標主題數",
+      "subgroup": "開放資料完整度（Day 18 NULL）",
+      "data_theme": "開放資料統計 Open Data Statistics",
+      "tab_theme": "政府與開放資料 Government & Open Data",
+      "visual_theme": "utilities",
+      "dataset_id": "tw_opendata_county_completeness",
+      "indicator_id": "opendata_themes_with_coords",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "類",
+      "aggregation": "source_defined",
+      "default_release_id": "2026-opendata_themes_with_coords-county-v1-2c1a8529f7d3",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2026-opendata_themes_with_coords-county-v1-2c1a8529f7d3",
+          "period_start": "2026-10-30",
+          "period_end": "2026-10-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5,
+          9,
+          13,
+          16
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：本站整理的政府開放資料平台目錄（data.gov.tw＋14 縣市平台＋9 中央平台，2026-10-30 版）。",
+          "只算縣市自己發布、同名去重後的資料集；0 或偏少＝本目錄查無，不代表縣市沒有公開。",
+          "基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江只收幾十列：這 10 縣市的數字是下限。",
+          "18 類主題中至少有 1 筆座標級資料的類數（不含未分類）；不受拆檔灌水影響。",
+          "主題沿用目錄既有分類，抽查錯誤約 12%；1–5 筆的小格子對分類很敏感。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "發布機關所屬縣市（縣市政府、所屬機關、鄉鎮市公所）；不是資料涵蓋範圍",
+      "disclosure": "本站整理的政府開放資料目錄（data.gov.tw 加上 14 個縣市平台、9 個中央平台，2026-10-30 版，排除外國平台），同一縣市下標題正規化後相同者算一筆（去重後 22 縣市共 26,024 筆）。只算縣市政府、所屬機關與鄉鎮市公所自己發布的資料，依發布者判定，不是依資料涵蓋範圍；中央機關發布的在地資料不算進縣市。空間等級取最高：座標（有經緯度、座標欄或 SHP／KML／GeoJSON／WMS 等圖資格式）、地址、只到行政區、無空間，依目錄自動標籤與欄位預覽判定，沒有逐筆驗證。主題沿用目錄既有分類正規化成 18 類，另有未分類（約 8.6%）；抽查分類錯誤約 12%，小格子（1–5 筆）對分類很敏感。0 或偏少的意思是本目錄查無或較少，不代表縣市沒有公開，也不代表沒有這類業務。基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江的自有平台只收 30、17 列，這 10 個縣市的數字是下限。資料集數不是資料量：同一報表逐月、逐區拆成多個資料集會讓數字膨脹（例如新北地政局約 1,000 筆、花蓮稅務局約 800 筆）。本指標：18 類主題中，該縣市至少有 1 筆座標級資料的類數（0–18，不含未分類）；不受同一報表拆檔灌水影響。",
+      "publisher": "Mini Taiwan Pulse 整理（政府開放資料平台目錄）",
+      "license": "衍生統計；目錄 metadata 取自各政府開放資料平台（多為政府資料開放授權條款-第1版）",
+      "source_landing_url": "https://data.gov.tw/",
+      "source_download_url": "https://data.gov.tw/",
+      "source_title": "政府開放資料平台目錄（本站整理，2026-10-30 版）"
+    }
+  ],
+  "catalog_generated_from": "openDataStatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}
