@@ -63,15 +63,15 @@
 | 6 | Vintage | mapchallenge-2026-day06-vintage | layers | 已合併（#883） | 2026-11-06 | 圖層隨 v2.26.0 上線；研究成果在 GIS/_worktree-backups/2026-11-06/thcts/ |
 | 7 | 10 minute map | mapchallenge-2026-day07-ten-minute-map | making | 已合併（#883） | 2026-11-07 | 文內附 95 秒計時剪輯影片；成果網頁 mapchallenge-mrt.itsmigu.com；以錄影 11 分 39 秒為準 |
 | 8 | Utopia | mapchallenge-2026-day08-utopia | analysis | 已合併（#957） | 2026-11-08 | 圖層隨 v2.32.0 上線（B 口徑）；成果小站 mapchallenge-utopia.itsmigu.com；方法分小節詳寫、約 3,900 字 |
-| 9 | Urban-rural | mapchallenge-2026-day09-urban-rural | analysis | 撰寫中 | 2026-11-09 | 圖層隨 v2.34.0 上線 |
-| 10 | Prompting only | mapchallenge-2026-day10-prompting-only | making | 撰寫中 | 2026-11-10 | 成果是 tw-gis-map-kit Plugin；示範地圖無公開網址，圖用 GitHub 頁 |
+| 9 | Urban-rural | mapchallenge-2026-day09-urban-rural | analysis | 已合併（#1101） | 2026-11-09 | 圖層隨 v2.34.0 上線 |
+| 10 | Prompting only | mapchallenge-2026-day10-prompting-only | making | 已合併（#1101） | 2026-11-10 | 成果是 tw-gis-map-kit Plugin；示範地圖無公開網址，圖用 GitHub 頁 |
 | 11 | Senses: Sound | mapchallenge-2026-day11-city-soundscape | analysis | 草稿（drafts/） | 2026-11-11 | 城市聲景前端未上線；發版後補拍再搬進 content/blog |
 | 12 | Power | mapchallenge-2026-day12-election-events | analysis | 草稿（drafts/） | 2026-11-12 | 選舉活動圖層站主限定；選後（11-28）決定開放再發 |
-| 13 | Interactions | mapchallenge-2026-day13-interactions | making | 撰寫中 | 2026-11-13 | 左右比較、多年份並排隨 v2.36.0 上線 |
+| 13 | Interactions | mapchallenge-2026-day13-interactions | making | 已合併（#1101） | 2026-11-13 | 左右比較、多年份並排隨 v2.36.0 上線 |
 | 14 | Borgesian map | — | — | — | — | 2026-11-17 同步結果中沒有對應貼文 |
 | 15 | Inside out | — | — | — | — | 2026-11-17 同步結果中沒有對應貼文 |
-| 16 | Collaborative map | mapchallenge-2026-day16-collaborative-map | making | 撰寫中 | 2026-11-16 | 英國旅行協作網站；截圖用去識別化示範版（假名），不放網址 |
-| 17 | Light & dark | mapchallenge-2026-day17-light-dark | analysis | 撰寫中 | 2026-11-17 | 圖層隨 v2.40.0 上線；漁火沒有截圖（需要 AIS 回放） |
+| 16 | Collaborative map | mapchallenge-2026-day16-collaborative-map | making | 已合併（#1101） | 2026-11-16 | 英國旅行協作網站；截圖用去識別化示範版（假名），不放網址 |
+| 17 | Light & dark | mapchallenge-2026-day17-light-dark | analysis | 已合併（#1101） | 2026-11-17 | 圖層隨 v2.40.0 上線；漁火沒有截圖（需要 AIS 回放） |
 
 ## 新文章要決定的事
 
@@ -89,3 +89,4 @@
 - 2026-11-09：Day 8 隨 #957 合併；所有文章文末加「資料來源」節（新規則寫進 blog-writing skill，10 篇舊文隨 #959 補齊）。
 - 2026-11-17：Day 9、10、13、16 開寫；Day 11、12、17 先寫草稿放 `docs/features/blog/drafts/`（圖層未公開，等發版或選後再發）。
 - 2026-11-18：Day 17 隨 v2.40.0 發版，補拍正式站截圖並從草稿搬進 content/blog。
+- 2026-11-18：Day 9、10、13、16、17 五篇合併到 develop（#1101），等下次發版上正式站；〔待確認〕項目要在發版前補完。
