@@ -15,6 +15,13 @@ const c = (releaseId: string, start: string, end: string, dimensions: Record<str
 });
 
 describe('pickYearlyPeriods（年份挑選）', () => {
+  it('F010：2 月底在閏年（02-29）與平年（02-28）視為同跨度，不退到 12 月', () => {
+    const list = [c('2024-02', '2024-02-29', '2024-02-29'), c('2024-12', '2024-12-31', '2024-12-31'), c('2025-02', '2025-02-28', '2025-02-28'), c('2025-12', '2025-12-31', '2025-12-31')];
+    const picked = pickYearlyPeriods(list, list[2]!);
+    expect(picked.map(p => p.candidate.releaseId)).toEqual(['2024-02', '2025-02']);
+    expect(picked.every(p => p.sameSpan)).toBe(true);
+  });
+
   it('每年一期、由舊到新，目前那年用目前期別', () => {
     const list = [c('2023', '2023-01-01', '2023-12-31'), c('2024', '2024-01-01', '2024-12-31'), c('2025', '2025-01-01', '2025-12-31')];
     const picked = pickYearlyPeriods(list, list[1]!);

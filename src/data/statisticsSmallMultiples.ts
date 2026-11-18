@@ -79,7 +79,12 @@ function seriesKey(dimensions: Record<string, unknown>): string {
     .sort(([a], [b]) => a!.localeCompare(b!)));
 }
 
-const monthDay = (date: string) => date.slice(5, 10);
+/** 月日；月底一律記成 `MM-EOM`（2 月 28／29 日各自是月底，閏年與平年的 2 月底要算同一跨度） */
+const monthDay = (date: string) => {
+  const [y, m, d] = date.slice(0, 10).split('-').map(Number) as [number, number, number];
+  if (Number.isFinite(y) && Number.isFinite(m) && Number.isFinite(d) && d === new Date(Date.UTC(y, m, 0)).getUTCDate()) return `${date.slice(5, 7)}-EOM`;
+  return date.slice(5, 10);
+};
 const spanKey = (release: SmallMultipleCandidate['release']) => `${monthDay(release.period_start)}|${monthDay(release.period_end)}`;
 const spanDays = (release: SmallMultipleCandidate['release']) => (Date.parse(release.period_end) - Date.parse(release.period_start)) / 86_400_000;
 
