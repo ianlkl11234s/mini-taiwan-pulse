@@ -47,8 +47,9 @@ export interface KrEcoGrade { value: string; color: string; label: L3 }
 export type KrEcoPaletteId = "A" | "B" | "C";
 export const KR_ECO_PALETTES: Record<KrEcoPaletteId, { dark: readonly [string, string, string]; light: readonly [string, string, string] }> = {
   // 暗底 0.55 疊暗陸對比（1／2／3）：A 2.23／3.56／4.99、B 2.22／3.86／4.94、C 2.24／3.33／4.65；舊色 1.92／2.82／4.00
+  // 相鄰 OKLab ΔE（合成後，暗／淡）：A 11.4・11.1／10.8・9.0、B 16.1・10.0／14.3・12.0、C 11.7・11.2／10.6・11.5；舊色 9.2・9.7／8.4・9.1
   A: { dark: ["#00a240", "#6fda75", "#cefcd6"], light: ["#00672d", "#2caa4e", "#75d78d"] },
-  B: { dark: ["#00a05b", "#c1da1d", "#fff0a6"], light: ["#006e35", "#9cbe0b", "#ead33f"] },
+  B: { dark: ["#00a05b", "#c1da1d", "#fff0a6"], light: ["#006732", "#79ab1a", "#f7d644"] },
   C: { dark: ["#20a04e", "#1ad1d1", "#caefdd"], light: ["#006738", "#00a59e", "#9acbb4"] },
 };
 export const KR_ECO_PALETTE_DEFAULT: KrEcoPaletteId = "B";
@@ -57,6 +58,8 @@ export function krEcoPaletteId(search: string = typeof location === "undefined" 
   const v = new URLSearchParams(search).get("krEcoPalette")?.toUpperCase();
   return v === "A" || v === "B" || v === "C" ? v : KR_ECO_PALETTE_DEFAULT;
 }
+/** 開站時讀一次（App 同步網址會拿掉不認得的參數，之後再讀會退回預設）。 */
+const KR_ECO_PALETTE_ACTIVE: KrEcoPaletteId = krEcoPaletteId();
 /** 9＝별도관리지역（另依其他法律管理的保護區，不是第 4 級）用獨立紫，兩種底圖共用。 */
 export const KR_ECO_NINE_COLOR = "#9b7ae8";
 const KR_ECO_GRADE_LABELS: readonly { value: string; label: L3 }[] = [
@@ -65,13 +68,11 @@ const KR_ECO_GRADE_LABELS: readonly { value: string; label: L3 }[] = [
   { value: "3", label: l3("3 等級", "Grade 3", "3 等級") },
   { value: "9", label: l3("별도관리지역（另依法律管理的保護區）", "별도관리지역 (protected areas managed under other laws)", "별도관리지역（他の法律で管理される保護区域）") },
 ];
-export function krEcoGrades(isDark: boolean, palette: KrEcoPaletteId = krEcoPaletteId()): readonly KrEcoGrade[] {
+export function krEcoGrades(isDark: boolean, palette: KrEcoPaletteId = KR_ECO_PALETTE_ACTIVE): readonly KrEcoGrade[] {
   const ramp = KR_ECO_PALETTES[palette][isDark ? "dark" : "light"];
   return KR_ECO_GRADE_LABELS.map((g, i) => ({ ...g, color: i < 3 ? ramp[i]! : KR_ECO_NINE_COLOR }));
 }
-/** 暗底版（popup 標題色等不分底圖的地方用）。 */
-export const KR_ECO_GRADES: readonly KrEcoGrade[] = krEcoGrades(true);
-export const krEcoGrade = (value: unknown) => KR_ECO_GRADES.find((g) => g.value === String(value ?? "").trim());
+export const krEcoGrade = (value: unknown, isDark = true) => krEcoGrades(isDark).find((g) => g.value === String(value ?? "").trim());
 export const KR_ECO_OPACITY = 0.55;
 
 export const KR_ECO_ATTRIBUTION = "출처: 국립생태원 생태자연도 (EcoBank／공공데이터포털 15050229, 공공누리 제3유형, 원본 변경 없음)";
