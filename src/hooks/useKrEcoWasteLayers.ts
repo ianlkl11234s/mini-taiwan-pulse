@@ -3,9 +3,9 @@ import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hatchImageData, hatchImageId, mapSeamColor } from "../map/mapStyleScale";
 import { loadKrEcoIndex, loadKrWasteRules } from "../data/krEcoWasteLoader";
 import {
-  KR_ECO_ANCHOR_FILL, KR_ECO_ANCHOR_SOURCE, KR_ECO_ATTRIBUTION, KR_ECO_CODES, KR_ECO_GRADES, KR_ECO_MIN_ZOOM, KR_ECO_SRC_MAXZOOM, KR_ECO_TEXT,
+  KR_ECO_ANCHOR_FILL, KR_ECO_ANCHOR_SOURCE, KR_ECO_ATTRIBUTION, KR_ECO_CODES, KR_ECO_MIN_ZOOM, KR_ECO_SRC_MAXZOOM, KR_ECO_TEXT,
   KR_ECO_UNKNOWN_COLOR, KR_WASTE_ADMIN_FILE, KR_WASTE_ADMIN_SOURCE, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_FILL, KR_WASTE_HATCH,
-  KR_WASTE_LINE, KR_WASTE_MIN_ZOOM, KR_WASTE_TEXT, krEcoFillId, krEcoSourceId, KR_ECO_SOURCE_LAYER, type KrEcoIndexFile,
+  KR_WASTE_LINE, KR_WASTE_MIN_ZOOM, KR_WASTE_TEXT, krEcoFillId, krEcoSourceId, KR_ECO_SOURCE_LAYER, krEcoGrades, type KrEcoIndexFile,
 } from "../data/krEcoWasteTypes";
 import { useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
 import { useViewportPmtilesShards, type PmtilesShard } from "./useViewportPmtilesShards";
@@ -13,10 +13,10 @@ import { useViewportPmtilesShards, type PmtilesShard } from "./useViewportPmtile
 type Expr = unknown[];
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
-/** 等級色：match(eczmGr)；意外值用中性灰，不落進任何等級。 */
-export function krEcoColorExpr(): Expr {
+/** 等級色：match(eczmGr)，依底圖取暗／淡套；意外值用中性灰，不落進任何等級。 */
+export function krEcoColorExpr(isDark = true): Expr {
   const expr: unknown[] = ["match", ["to-string", ["coalesce", ["get", "eczmGr"], ""]]];
-  for (const g of KR_ECO_GRADES) expr.push(g.value, g.color);
+  for (const g of krEcoGrades(isDark)) expr.push(g.value, g.color);
   expr.push(KR_ECO_UNKNOWN_COLOR);
   return expr;
 }
@@ -49,8 +49,8 @@ export function useKrEcologyNaturalnessLayer(mapRef: React.RefObject<MapboxMap |
       return [
         {
           id,
-          layer: () => ({ id, type: "fill", ...base, layout: { visibility: "none" }, paint: { "fill-color": krEcoColorExpr(), "fill-opacity": op, "fill-antialias": false } } as unknown as AnyLayer),
-          update: (map) => { map.setPaintProperty(id, "fill-opacity", op); },
+          layer: () => ({ id, type: "fill", ...base, layout: { visibility: "none" }, paint: { "fill-color": krEcoColorExpr(isDark), "fill-opacity": op, "fill-antialias": false } } as unknown as AnyLayer),
+          update: (map) => { map.setPaintProperty(id, "fill-color", krEcoColorExpr(isDark) as any); map.setPaintProperty(id, "fill-opacity", op); },
         },
       ];
     },

@@ -12,6 +12,7 @@ import {
   CN_ADMIN_COLOR, CN_ADMIN_LEVELS, CN_DENSITY_BREAKS, CN_DENSITY_FIELD, CN_NOT_COVERED_COLOR, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT,
   asPhPart, asPhSpec, cnOutlineId, type CnAdminLevel, type CnLayerSpec, type CnOwnerAsset, type CnPart, type CnRasterSpec,
 } from "../data/cnDataLayers";
+import { phText } from "../data/phDataLayers";
 import { OWNER_DATA_ENDPOINT } from "../data/ownerDataAssets";
 import { phColorExpr, phPartCatFilter } from "./usePhLayers";
 import { gbAllOf, gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
@@ -414,9 +415,9 @@ export function useCnDataLayer(mapRef: MapRef, spec: CnLayerSpec, visible: boole
   const mainParts = spec.parts.filter((p) => cnPartSourceId(spec, p) === spec.sourceId);
   const extraParts = spec.parts.filter((p) => cnPartSourceId(spec, p) !== spec.sourceId);
   const extra = extraParts[0];
-  const mainSource: SourceSpec = { id: spec.sourceId, file: spec.asset, minzoom: spec.srcMinzoom, maxzoom: spec.srcMaxzoom, attribution: spec.sourceOrg, loading: spec.loading.zh, private: priv };
+  const mainSource: SourceSpec = { id: spec.sourceId, file: spec.asset, minzoom: spec.srcMinzoom, maxzoom: spec.srcMaxzoom, attribution: phText(spec.sourceOrg), loading: spec.loading.zh, private: priv };
   const extraSource: SourceSpec = extra
-    ? { id: cnPartSourceId(spec, extra), file: spec.asset, minzoom: Math.min(...extraParts.map((p) => p.minzoom)), maxzoom: extra.srcMaxzoom!, attribution: spec.sourceOrg, loading: spec.loading.zh, private: priv }
+    ? { id: cnPartSourceId(spec, extra), file: spec.asset, minzoom: Math.min(...extraParts.map((p) => p.minzoom)), maxzoom: extra.srcMaxzoom!, attribution: phText(spec.sourceOrg), loading: spec.loading.zh, private: priv }
     : { ...mainSource, id: `${spec.sourceId}-unused` };
   const o = { isDark, opacity, scale };
   const deps = [spec.key, opacity, scale, isDark, heatStyle, sig(filters)];
@@ -436,7 +437,7 @@ export function useCnRasterLayer(mapRef: MapRef, spec: CnRasterSpec, visible: bo
   const id = cnRasterLayerId(spec);
   const source: SourceSpec = {
     id: spec.asset, file: spec.asset, minzoom: spec.minzoom, maxzoom: spec.maxzoom, raster: { tileSize: 256 }, private: priv,
-    attribution: spec.sourceOrg, loading: spec.loading.zh,
+    attribution: phText(spec.sourceOrg), loading: spec.loading.zh,
   };
   useGbPmtilesLayers(mapRef, source, visible && access.allowed, () => [{
     id,

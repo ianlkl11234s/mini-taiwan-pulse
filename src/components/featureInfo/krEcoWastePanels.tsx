@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { PopupDetails, PopupScroll, Row, SourceFooter, Title } from "./shared";
 import { WeekdayGrid } from "./WeekdayGrid";
-import { useFeatureTheme } from "./featureTheme";
+import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT, RADIUS } from "../../styles/designTokens";
 import { pickL3, type L3 } from "../../data/krDataLayers";
 import { useLocale } from "../../state/localeStore";
@@ -23,7 +23,7 @@ const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{
 export function KrEcologyNaturalnessPanel({ props }: { props: Record<string, unknown> }) {
   const { locale } = useLocale();
   const L = (x: L3) => pickL3(x, locale);
-  const grade = krEcoGrade(props.eczmGr);
+  const grade = krEcoGrade(props.eczmGr, useFeatureTheme() !== LIGHT_FEATURE);
   const code = text(props._eco_source).replace(/^kr-eco-nature-/, "");
   const file = krEcoIndexNow()?.find((f) => f.code === code);
   const age = text(props.frphAgclNm);

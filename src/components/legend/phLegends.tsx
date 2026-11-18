@@ -7,7 +7,7 @@ import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import {
   PH_ADMIN_NOTES, PH_ADMIN_SOURCE, PH_DENSITY_LABELS, PH_NOT_COVERED_COLOR, PH_POPULATION_NOTES, PH_POPULATION_SOURCE,
-  PH_SPEC_BY_KEY, pickL3, type PhCat, type PhLayerSpec,
+  PH_SPEC_BY_KEY, phText, pickL3, type PhCat, type PhLayerSpec,
 } from "../../data/phDataLayers";
 import type { PhDataKey, PhRasterKey } from "../../data/phDataKeys";
 import { PH_RASTER_BY_KEY } from "../../data/phWavesLayers";
@@ -78,7 +78,7 @@ export function PhSpecLegend({ spec, extraParts = [], extraSources = [] }: { spe
     {hollow ? <LegendRow swatch={<SwatchDot color={spec.color} opacity={0} stroke={spec.color} strokeWidth={1.5} />}>{pickL3(hollow.label, locale)}</LegendRow> : null}
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
+    <LegendNote>{phText(spec.sourceOrg, locale)}（{phText(spec.license, locale)}）</LegendNote>
     {extraSources.map((s) => <LegendNote key={s}>{s}</LegendNote>)}
   </div>;
 }

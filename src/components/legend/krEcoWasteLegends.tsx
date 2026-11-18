@@ -1,8 +1,8 @@
 // 南韓 KRH-1 圖例：生態自然圖（C117）、生活垃圾排出規則（C086）。文案與色票 SSOT 在 data/krEcoWasteTypes.ts。
-import { LegendNote, LegendRow, LegendTitle, SwatchHatch, SwatchSquare } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { pickL3 } from "../../data/krDataLayers";
-import { KR_ECO_ATTRIBUTION, KR_ECO_GRADES, KR_ECO_TEXT, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_LICENSE, KR_WASTE_TEXT } from "../../data/krEcoWasteTypes";
+import { KR_ECO_ATTRIBUTION, krEcoGrades, KR_ECO_TEXT, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_LICENSE, KR_WASTE_TEXT } from "../../data/krEcoWasteTypes";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
 
@@ -15,9 +15,10 @@ function useTitle(key: string): string {
 export function KrEcologyNaturalnessLegend() {
   const { locale } = useLocale();
   const title = useTitle("krEcologyNaturalness");
+  const t = useLegendTheme();
   return <div>
     <LegendTitle zh={title} />
-    {KR_ECO_GRADES.map((g) => <LegendRow key={g.value} swatch={<SwatchSquare color={g.color} />}>{pickL3(g.label, locale)}</LegendRow>)}
+    {krEcoGrades(t.isDark).map((g) => <LegendRow key={g.value} swatch={<SwatchSquare color={g.color} />}>{pickL3(g.label, locale)}</LegendRow>)}
     <LegendNote>{pickL3(KR_ECO_TEXT.legendBlank, locale)}</LegendNote>
     <LegendNote>{pickL3(KR_ECO_TEXT.legendNine, locale)}</LegendNote>
     <LegendNote>{pickL3(KR_ECO_TEXT.legendKogl, locale)}</LegendNote>
