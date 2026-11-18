@@ -272,6 +272,8 @@ export function StatisticsLegendView({ layerKey, storeKey = layerKey, part }: { 
   const rows = dots ? <StatisticsDotLegend layerKey={layerKey} data={state.data} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} />
     : circle ? <StatisticsCircleLegend layerKey={layerKey} data={state.data} level={recipe.level} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} isDark={t.isDark} />
     : (binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>);
+  // 比較合成圖例：右側載入中／失敗要單獨顯示（共用色階時只畫左側 rows，右側狀態不能被吞掉）
+  if (part === 'status') return state.loading || state.error ? <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>{loadState}</div> : null;
   if (part === 'period') return <span>{(state.release ? statisticsDimensionSummary(state.selection?.dimensions, state.release, recipe.dataset_id, i18n) : '') || period}</span>;
   if (part === 'title' || part === 'rows') {
     return <LegendFillOpacityCtx.Provider value={fillOpacity}><div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>

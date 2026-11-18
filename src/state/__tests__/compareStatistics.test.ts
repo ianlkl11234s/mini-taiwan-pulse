@@ -4,7 +4,8 @@ const mocks = vi.hoisted(() => ({ loadRegionalStatistics: vi.fn() }));
 vi.mock('../../data/regionalStatisticsLoader', () => ({ loadRegionalStatistics: mocks.loadRegionalStatistics }));
 import { regionalStatisticsStore } from '../regionalStatisticsStore';
 import { compareStore } from '../compareStore';
-import { compareDotUnit, compareSplitActive, legendScaleDiffers, rightReadKey, setCompareSide, startRightSelectionSync, statisticsRightStoreKey } from '../compareStatistics';
+import { STATISTICS_RENDER_KEYS } from '../../data/regionalStatisticsRecipes';
+import { leftStatisticsSpecs, leftUrlSpecs, rightStatisticsSpecs, compareDotUnit, compareSplitActive, legendScaleDiffers, rightReadKey, setCompareSide, startRightSelectionSync, statisticsRightStoreKey } from '../compareStatistics';
 
 const KEY = 'statsBirthsTownship';
 const RIGHT = statisticsRightStoreKey(KEY);
@@ -69,5 +70,13 @@ describe('比較模式統計：左右選擇', () => {
     expect(legendScaleDiffers(a, { ...a })).toBe(false);
     expect(legendScaleDiffers(a, { ...a, breaks: [1, 3] })).toBe(true);
     expect(legendScaleDiffers(a, { ...a, colors: ['#000', '#111', '#333'] })).toBe(true);
+  });
+
+  it('F008：網址記左側指標（presentation 層換指標 render key 不變），右側不記；舊網址無指標欄位照常', () => {
+    const withMetric = STATISTICS_RENDER_KEYS.find(key => leftUrlSpecs(key).some(spec => spec.field === 'metric'));
+    expect(withMetric).toBeDefined();
+    expect(leftUrlSpecs(withMetric!).some(spec => spec.field === 'metric')).toBe(true);
+    expect(leftStatisticsSpecs(withMetric!).some(spec => spec.field === 'metric')).toBe(false);
+    expect(rightStatisticsSpecs(withMetric!).some(spec => spec.name.startsWith(`${withMetric}Metric`))).toBe(false);
   });
 });
