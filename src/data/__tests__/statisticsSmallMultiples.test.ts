@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   SERIES_DIMENSION_KEYS, TIME_DIMENSION_KEYS, compareArrangement, defaultComparison, periodNote, periodPhrase, pickYearlyPeriods,
-  smallMultipleFill, smallMultiplesPlan, stepColor, toggleComparison,
+  isUncoveredStatus, smallMultipleFill, smallMultiplesPlan, stepColor, toggleComparison,
   type SmallMultipleCandidate,
 } from '../statisticsSmallMultiples';
 import { statisticsRenderRecipe } from '../regionalStatisticsRecipes';
@@ -176,5 +176,15 @@ describe('smallMultiplesPlan', () => {
     expect(smallMultiplesPlan(key, { selection, releases, release: releases[0]! })).toBeNull();
     const village = 'statsDemographicsVillageShareAge65Plus' as const;
     expect(smallMultiplesPlan(village, { selection: statisticsRecipe(village), releases, release: releases[0]! })).toBeNull();
+  });
+});
+
+describe('F005：未涵蓋（not_applicable）不當缺值', () => {
+  const recipe = { breaks: [1, 2], colors: ['#111', '#222', '#333'] };
+  it('非類別型 not_applicable 畫法同缺值斜線，但標為未涵蓋；一般缺值與數值不是', () => {
+    expect(smallMultipleFill({ status: 'not_applicable', value: null }, recipe).kind).toBe('missing');
+    expect(isUncoveredStatus({ status: 'not_applicable', value: null }, recipe)).toBe(true);
+    expect(isUncoveredStatus({ status: 'missing', value: null }, recipe)).toBe(false);
+    expect(isUncoveredStatus({ status: 'observed', value: 3 }, recipe)).toBe(false);
   });
 });

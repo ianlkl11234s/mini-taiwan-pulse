@@ -280,6 +280,14 @@ export function smallMultipleFill(
   return { kind: 'missing' };
 }
 
+/**
+ * 非類別型的 `not_applicable`（例：GB 租金蘇格蘭／北愛未涵蓋）畫法同缺值斜線，但語意是「未涵蓋」≠缺值（POLICIES A1）：
+ * 圖例與讀數要用 recipe 的狀態標籤，缺值計數也不能把它算進去。
+ */
+export function isUncoveredStatus(properties: { status?: unknown; value?: unknown } | null | undefined, recipe: Parameters<typeof smallMultipleFill>[1]): boolean {
+  return properties?.status === 'not_applicable' && smallMultipleFill(properties, recipe).kind === 'missing';
+}
+
 /** 與 Mapbox `step` 相同：值 ≥ 門檻就換下一色（`statisticsColorStops` 已處理重複門檻）。 */
 export function stepColor(value: number, breaks: readonly number[], colors: readonly string[]): string {
   let color = colors[0]!;
