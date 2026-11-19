@@ -15,7 +15,7 @@ import { Check, MapPinned, X } from 'lucide-react';
 import { loadRegionalStatistics, type StatisticsRecipe } from '../../data/regionalStatisticsLoader';
 import { statisticsBaseKey, statisticsRenderRecipe, type StatisticsRenderKey } from '../../data/regionalStatisticsRecipes';
 import {
-  compareArrangement, defaultComparison, periodNote, smallMultipleFill, smallMultiplesPlan, toggleComparison, SMALL_MULTIPLES_MAX,
+  compareArrangement, defaultComparison, periodNote, isUncoveredStatus, smallMultipleFill, smallMultiplesPlan, toggleComparison, SMALL_MULTIPLES_MAX,
   type PeriodPhrase, type SmallMultiplesPlan,
 } from '../../data/statisticsSmallMultiples';
 import type { PreparedBoundary, PreparedShape } from '../../map/smallMultiplesGeometry';
@@ -31,9 +31,9 @@ import { getSocialRecipe } from '../../data/socialStatisticsRecipes';
 import { getAgriRecipe } from '../../data/agriStatisticsRecipes';
 import { getLaborRecipe } from '../../data/laborStatisticsRecipes';
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
-import { getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
+import { addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
-import { atlasBinaryLegendRows, atlasCategoryRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
+import { atlasBinaryLegendRows, atlasCategoryRows, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from '../../data/statisticsFillColor';
 import { statisticsTitle, statisticsUnit } from '../../i18n/statisticsText';
 import { enumLabel } from '../../i18n/dataText';
@@ -114,6 +114,8 @@ interface LegendModel {
   rows: { color: string; label: string }[];
   special: boolean;
   categorical: boolean;
+  /** recipe 自己的非數值狀態列（未涵蓋／缺值／遮蔽）；有的話取代通用「缺值」說明（同主圖例） */
+  statusRows: { kind: string; hatch: 'missing' | 'suppressed'; label: string; solid?: boolean }[];
 }
 
 function legendModel(baseKey: string, recipe: RenderRecipe, i18n: LocaleSnapshot): LegendModel {
@@ -133,6 +135,10 @@ function legendModel(baseKey: string, recipe: RenderRecipe, i18n: LocaleSnapshot
     rows: special ?? statisticsLegendRows(recipe, format, i18n),
     special: Boolean(special),
     categorical: Boolean('categories' in recipe && recipe.categories?.length),
+    statusRows: addiction ? addictionStatusLegendRows(addiction)
+      : atlas ? atlasStatusLegendRows(atlas).map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) }))
+      : landslide?.status_labels.missing ? [{ kind: 'missing', hatch: 'missing' as const, label: i18n.t('statistics.legend.hatchLabel', { label: landslide.status_labels.missing }) }]
+      : [],
   };
 }
 
@@ -353,8 +359,12 @@ function SmallMultiplesLegend({ model, recipe, showSuppressed, i18n }: { model: 
       <LegendTitle zh={model.unit} style={{ marginBottom: 0 }} />
       {!model.special && <span className="sm-legend-note">{t(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
       {model.rows.map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>)}
-      {model.categorical ? <LegendRow swatch={<SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} />}>{t('smallMultiples.notApplicable')}</LegendRow> : null}
-      <LegendRow swatch={<SwatchHatch kind="missing" />}>{t('statistics.legend.hatchDefault')}</LegendRow>
+      {model.statusRows.length
+        ? model.statusRows.map(({ kind, hatch, label, solid }) => <LegendRow key={kind} swatch={solid ? <SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} /> : <SwatchHatch kind={hatch} />}>{label}</LegendRow>)
+        : <>
+          {model.categorical ? <LegendRow swatch={<SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} />}>{t('smallMultiples.notApplicable')}</LegendRow> : null}
+          <LegendRow swatch={<SwatchHatch kind="missing" />}>{t('statistics.legend.hatchDefault')}</LegendRow>
+        </>}
       {showSuppressed && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{t('statistics.legend.crossHatch')}</LegendRow>}
     </>
   );
@@ -467,7 +477,7 @@ type ValueState = { kind: 'value'; value: number } | { kind: 'category'; label: 
 function valueState(props: GeoJSON.GeoJsonProperties | undefined, recipe: RenderRecipe, legend: LegendModel): ValueState {
   const fill = smallMultipleFill(props, recipe);
   if (fill.kind === 'suppressed') return { kind: 'suppressed' };
-  if (fill.kind === 'missing') return { kind: 'missing' };
+  if (fill.kind === 'missing') return isUncoveredStatus(props, recipe) ? { kind: 'notApplicable' } : { kind: 'missing' };
   if (fill.kind === 'notApplicable') return { kind: 'notApplicable' };
   if (legend.categorical) return { kind: 'category', label: legend.rows.find(row => row.color === fill.color)?.label ?? String(props?.value) };
   return { kind: 'value', value: Number(props?.value) };
@@ -538,7 +548,7 @@ function BigMap({ index, period, state, prepared, mapWidth, aspect, activeCode, 
   const label = fullLabel(index);
   const counts = features ? features.reduce((acc, feature) => {
     const fill = smallMultipleFill(feature.properties, recipe);
-    if (fill.kind === 'missing') acc.missing += 1;
+    if (fill.kind === 'missing' && !isUncoveredStatus(feature.properties, recipe)) acc.missing += 1;
     if (fill.kind === 'suppressed') acc.suppressed += 1;
     return acc;
   }, { missing: 0, suppressed: 0 }) : null;

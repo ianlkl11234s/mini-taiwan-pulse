@@ -16,7 +16,7 @@ import { regionalStatisticsStore } from "../../state/regionalStatisticsStore";
 import { isStatisticsRenderLayer, type StatisticsRenderKey } from "../../data/regionalStatisticsRecipes";
 import { FONT_CJK, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
 
-export type StatisticsLegendPart = "title" | "period" | "rows" | "notes";
+export type StatisticsLegendPart = "title" | "period" | "rows" | "notes" | "status";
 
 export interface StatisticsLegendViewProps {
   layerKey: StatisticsRenderKey;
@@ -73,6 +73,8 @@ export function MergedCompareLegend({ layerKey, rightKey, View, splitRows }: { l
     <View layerKey={layerKey} part="title" />
     {sideLine(t("compare.legendLeftLabel"), layerKey)}
     {sideLine(t("compare.legendRightLabel"), rightKey)}
+    {/* 兩側共用色階時只畫左側 rows：右側的載入中／失敗狀態另外顯示（分兩排時各排 rows 已含自己的狀態） */}
+    {!splitRows && <View layerKey={layerKey} storeKey={rightKey} part="status" />}
     {splitRows
       ? <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>{column(t("compare.legendLeft"), layerKey)}{column(t("compare.legendRight"), rightKey)}</div>
       : <View layerKey={layerKey} part="rows" />}
@@ -86,7 +88,13 @@ export function MergedCompareLegend({ layerKey, rightKey, View, splitRows }: { l
         {t("compare.legendNotes")}
         <ChevronRight size={10} aria-hidden="true" style={{ transform: notesOpen ? "rotate(90deg)" : "none", transition: "transform 0.15s" }} />
       </button>
-      {notesOpen && <View layerKey={layerKey} part="notes" />}
+      {notesOpen && <div style={{ display: "grid", gap: 4 }}>
+        {/* 左右各自的出典／涵蓋註記（期別不同時健康度與來源可能不同） */}
+        <span style={heading}>{t("compare.legendLeftLabel")}</span>
+        <View layerKey={layerKey} part="notes" />
+        <span style={heading}>{t("compare.legendRightLabel")}</span>
+        <View layerKey={layerKey} storeKey={rightKey} part="notes" />
+      </div>}
     </div>
   </div>;
 }

@@ -76,6 +76,8 @@ vi.mock('../../state/statisticsPresentationStore', () => ({
 }));
 
 import { attachRegionalStatistics } from '../regionalStatisticsMap';
+import { STATISTICS_RENDER_KEYS } from '../../data/regionalStatisticsRecipes';
+import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 
 type Layer = { id: string; layout?: Record<string, unknown>; paint?: Record<string, unknown> };
 function mapMock() {
@@ -86,7 +88,9 @@ function mapMock() {
   const events = new Map<string, (() => void)>();
   const addedBefore: Array<[string, string]> = [];
   let styleLoaded = true;
+  let styleOrder: string[] | undefined;
   const map = {
+    getStyle: () => ({ layers: (styleOrder ?? [...layers.keys()]).map(id => ({ id })) }),
     isStyleLoaded: () => styleLoaded,
     hasImage: () => false,
     addImage: vi.fn(),
@@ -108,7 +112,8 @@ function mapMock() {
     styleLoaded = true;
   };
   const setStyleLoaded = (value: boolean) => { styleLoaded = value; };
-  return { map, sources, layers, paintCalls, layoutCalls, events, switchStyle, addedBefore, setStyleLoaded };
+  const setStyleOrder = (order: string[]) => { styleOrder = order; };
+  return { setStyleOrder, map, sources, layers, paintCalls, layoutCalls, events, switchStyle, addedBefore, setStyleLoaded };
 }
 function feature(value: number): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { area_code: 'A', value, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [] } }] };
@@ -389,5 +394,64 @@ describe('attachRegionalStatistics', () => {
       expect(mock.layers.get(`${VIEW}-circle`)!.paint!['circle-radius']).toEqual(['*', 28, ['sqrt', ['/', ['max', ['to-number', ['get', 'value'], 0], 0], 1000]]]);
       dispose();
     });
+  });
+
+  it('F006：右圖改回與左側相同的 key 時，disable 同步通知訂閱者不會無限遞迴', () => {
+    const R = `${VIEW}::R`;
+    state.visibility[VIEW] = true;
+    let useRight = true;
+    vi.mocked(regionalStatisticsStore.disable).mockClear();
+    vi.mocked(regionalStatisticsStore.load).mockClear();
+    vi.mocked(regionalStatisticsStore.disable).mockImplementation((key: string) => { state.statisticsListeners.get(key)?.forEach(listener => listener()); });
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => true, { primary: false, storeKey: key => useRight ? `${key}::R` : key, isShown: () => true });
+    expect(regionalStatisticsStore.load).toHaveBeenCalledWith(R);
+    useRight = false;
+    expect(() => state.visibilityListener?.()).not.toThrow();
+    expect(regionalStatisticsStore.disable).toHaveBeenCalledTimes(1);
+    expect(regionalStatisticsStore.disable).toHaveBeenCalledWith(R);
+    dispose();
+    vi.mocked(regionalStatisticsStore.disable).mockReset();
+  });
+
+  it('F007／F011：主地圖也訂右側 key::R，右側資料變了左圖重算比例圓參考值與點密度單位', () => {
+    const R = `${VIEW}::R`;
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: feature(100) });
+    state.visibility[VIEW] = true;
+    state.presentation[VIEW] = 'circle';
+    const circleReference = vi.fn(() => undefined);
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never, () => true, { circleReference });
+    expect(state.statisticsListeners.get(R)?.size).toBe(1);
+    circleReference.mockClear();
+    state.statisticsListeners.get(R)!.forEach(listener => listener());
+    expect(circleReference).toHaveBeenCalled();
+    dispose();
+  });
+
+  it('F012：新面層插在實際圖層順序中最早的比例圓／點層之下', async () => {
+    const OTHER = 'statsOtherDots'; const NEWER = 'statsNewer';
+    STATISTICS_RENDER_KEYS.push(OTHER as never, NEWER as never);
+    try {
+      const square: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [
+        { type: 'Feature', properties: { area_code: 'A', value: 120, status: 'observed' }, geometry: { type: 'Polygon', coordinates: [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] } },
+      ] };
+      state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: square });
+      state.snapshots.set(OTHER, { selection: { indicatorId: DERIVED }, data: square });
+      state.visibility[VIEW] = true; state.visibility[OTHER] = true;
+      state.presentation[VIEW] = 'circle'; state.presentation[OTHER] = 'dots';
+      state.hollow.value = true;
+      const mock = mapMock();
+      const dispose = attachRegionalStatistics(mock.map as never, () => true);
+      await vi.waitFor(() => expect(mock.sources.get(`${OTHER}-dot-points`)?.setData).toHaveBeenCalled());
+      // 實際堆疊：點層在圓 halo 之下（Map 插入順序 halo 先，舊程式會挑 halo）
+      mock.setStyleOrder([`${OTHER}-dots`, `${VIEW}-circle-halo`, `${VIEW}-circle`]);
+      state.visibility[NEWER] = true;
+      state.visibilityListener?.();
+      expect(mock.addedBefore.find(([id]) => id === `${NEWER}-fill`)?.[1]).toBe(`${OTHER}-dots`);
+      dispose();
+    } finally {
+      STATISTICS_RENDER_KEYS.splice(STATISTICS_RENDER_KEYS.length - 2, 2);
+    }
   });
 });
