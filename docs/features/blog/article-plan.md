@@ -72,6 +72,7 @@
 | 15 | Inside out | — | — | — | — | 2026-11-17 同步結果中沒有對應貼文 |
 | 16 | Collaborative map | mapchallenge-2026-day16-collaborative-map | making | 撰寫中 | 2026-11-16 | 英國旅行協作網站；截圖用去識別化示範版（假名），不放網址 |
 | 17 | Light & dark | mapchallenge-2026-day17-light-dark | analysis | 撰寫中 | 2026-11-17 | 圖層隨 v2.40.0 上線；漁火沒有截圖（需要 AIS 回放） |
+| 18 | NULL | mapchallenge-2026-day18-null | analysis | 撰寫中 | 2026-11-18 | 縣市開放資料完整度（目錄 2026-10-30 版）；圖用研究圖表（Threads 原圖），統計圖層上線後補連結與正式站截圖 |
 
 ## 新文章要決定的事
 
@@ -89,3 +90,4 @@
 - 2026-11-09：Day 8 隨 #957 合併；所有文章文末加「資料來源」節（新規則寫進 blog-writing skill，10 篇舊文隨 #959 補齊）。
 - 2026-11-17：Day 9、10、13、16 開寫；Day 11、12、17 先寫草稿放 `docs/features/blog/drafts/`（圖層未公開，等發版或選後再發）。
 - 2026-11-18：Day 17 隨 v2.40.0 發版，補拍正式站截圖並從草稿搬進 content/blog。
+- 2026-11-18：Day 18 開寫；圖層未上線，先用研究圖表。
