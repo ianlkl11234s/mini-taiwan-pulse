@@ -16,6 +16,14 @@ describe("一層多檔：依視窗挑分片（KRH-1 生態自然圖）", () => {
     expect(shardsInView(shards, 10, [126.9, 37.5, 127.1, 37.6], 10).map((s) => s.id)).toEqual(["11"]);
     expect(shardsInView(shards, 11, [126.4, 33.3, 126.6, 33.4], 10).map((s) => s.id)).toEqual(["50"]);
   });
+  it("平移到另一份世界（經度超出 ±180）仍挑得到分片（review 2026-11-18 F031）", () => {
+    expect(shardsInView(shards, 10, [126.9 + 360, 37.5, 127.1 + 360, 37.6], 10).map((s) => s.id)).toEqual(["11"]);
+    expect(shardsInView(shards, 11, [126.4 - 360, 33.3, 126.6 - 360, 33.4], 10).map((s) => s.id)).toEqual(["50"]);
+  });
+  it("視窗跨 ±180 時仍涵蓋兩側分片", () => {
+    const edge: PmtilesShard[] = [{ id: "w", file: "w.pmtiles", bbox: [-179.5, 0, -178, 1] }, { id: "e", file: "e.pmtiles", bbox: [178, 0, 179.5, 1] }];
+    expect(shardsInView(edge, 10, [179, 0, 181, 1], 10, 0).map((s) => s.id).sort()).toEqual(["e", "w"]);
+  });
 });
 
 describe("KRH-1 規格", () => {

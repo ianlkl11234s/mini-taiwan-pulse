@@ -61,3 +61,14 @@ describe("南韓 V-1：點層 minzoom 不比圖磚晚超過 1 級（熱區層除
     expect(spec.minzoom - Math.max(spec.srcMinzoom, 4)).toBeLessThanOrEqual(1);
   });
 });
+
+describe("KR 類別選項 id 不與保留的「其他」撞名（review 2026-11-18 F017）", () => {
+  it("有 otherLabel 的層，cats 不可含 id 'other'；選項 id 無重複", () => {
+    for (const spec of KR_DATA_SPECS) {
+      if (!spec.cats) continue;
+      const ids = krCatOptionIds(spec);
+      expect(new Set(ids).size, `${spec.key} 選項 id 重複`).toBe(ids.length);
+      if (spec.otherLabel) expect(spec.cats.map((c) => c.id), spec.key).not.toContain("other");
+    }
+  });
+});

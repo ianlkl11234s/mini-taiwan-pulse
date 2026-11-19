@@ -17,6 +17,7 @@ import { KR_DATA_SPECS } from "../data/krDataLayers";
 import { COVERAGE_AREAS, layerCoverage, type CoverageAreaId, type CoverageBbox } from "../data/layerCoverage";
 import { GIS_LAYERS } from "./gisClickRegistry";
 import { registryStyleLayerIds } from "../research/visibleSummary";
+import { viewLngRanges } from "../lib/viewLngRanges";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 
 export const LAYER_HINT_MAX_LAYERS = 4;
@@ -128,7 +129,8 @@ export function visibleRange(layers: readonly HintStyleLayer[], sourceMinzoom: (
 export type ViewBounds = readonly [number, number, number, number];
 
 export function bboxIntersects(a: ViewBounds, b: CoverageBbox): boolean {
-  return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
+  // 經度 wrap：平移到另一份世界時 getBounds 超出 ±180，涵蓋區不該因此被判為視窗外
+  return a[1] <= b[3] && a[3] >= b[1] && viewLngRanges(a[0], a[2]).some(([w, e]) => w <= b[2] && e >= b[0]);
 }
 
 export interface HiddenLayer {

@@ -76,14 +76,22 @@ export async function restoreWarehouseResults(collection: ResultCollection, deps
 function remapItems(collection: ResultCollection, has: (resultId: string) => boolean): { collection: ResultCollection | null; dropped: string[] } {
   const items: ResultCollection["items"] = [];
   const dropped: string[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<string, number>();
+  const hiddenGroups = new Set(collection.groups.filter(group => !group.visible).map(group => group.groupId));
+  const shown = (item: ResultCollection["items"][number]) => item.visible && (item.groupId === null || !hiddenGroups.has(item.groupId));
   let changed = false;
   for (const item of collection.items) {
     const resolved = warehouseBaseResultId(item.resultId) === null ? item.resultId : resolvePresentedId(item.resultId, has);
     if (resolved === null) { dropped.push(item.resultId); changed = true; continue; }
-    // Two legacy items (`:polygon` and `:multipolygon`) can now be the same result: keep the first.
-    if (seen.has(resolved)) { changed = true; continue; }
-    seen.add(resolved);
+    // Two legacy items (`:polygon` and `:multipolygon`) can now be the same result: keep one slot, but a
+    // visible duplicate must not be hidden by an earlier hidden one (visible wins; otherwise the first stays).
+    const at = seen.get(resolved);
+    if (at !== undefined) {
+      changed = true;
+      if (shown(item) && !shown(items[at]!)) items[at] = { ...item, resultId: resolved };
+      continue;
+    }
+    seen.set(resolved, items.length);
     if (resolved !== item.resultId) changed = true;
     items.push(resolved === item.resultId ? item : { ...item, resultId: resolved });
   }

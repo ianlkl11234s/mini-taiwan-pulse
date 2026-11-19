@@ -941,7 +941,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
       { id: "rack", values: ["거치형"], color: "#38bdf8", label: l3("車架式（거치형）", "Rack", "ラック式") },
       { id: "standalone", values: ["단독형"], color: "#2dd4bf", label: l3("獨立式（단독형）", "Stand-alone", "単独型") },
       { id: "fence", values: ["휀스형"], color: "#a78bfa", label: l3("圍欄式（휀스형）", "Fenced", "フェンス型") },
-      { id: "other", values: ["기타"], color: "#f472b6", label: l3("其他形式（기타）", "Other type", "その他の形式") },
+      { id: "etc", values: ["기타"], color: "#f472b6", label: l3("其他形式（기타）", "Other type", "その他の形式") },
     ],
     title: { props: ["name"], fallback: l3("自行車停放處", "Bicycle parking", "自転車駐輪場") },
     fields: [{ prop: "racks", label: l3("保管台數", "Spaces", "収容台数"), kind: "num" }, { prop: "installed_year", label: l3("設置年", "Installed", "設置年") },
