@@ -275,5 +275,10 @@
   "enum.statVariant.同意票比率・鄉鎮市區": "Approval share · township/district",
   "enum.statVariant.同意票比率・村里": "Approval share · village",
   "enum.statVariant.地方政府": "Local authority",
-  "enum.statVariant.選舉分區": "Electoral division"
+  "enum.statVariant.選舉分區": "Electoral division",
+  "enum.statVariant.資料集數": "Datasets",
+  "enum.statVariant.有座標資料集數": "Datasets with coordinates",
+  "enum.statVariant.有座標比例": "Share with coordinates",
+  "enum.statVariant.有空間資訊比例": "Share with spatial information",
+  "enum.statVariant.有座標主題數": "Themes with coordinates"
 }

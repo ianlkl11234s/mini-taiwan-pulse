@@ -275,5 +275,10 @@
   "enum.statVariant.同意票比率・鄉鎮市區": "賛成率・郷鎮市区",
   "enum.statVariant.同意票比率・村里": "賛成率・村・里",
   "enum.statVariant.地方政府": "地方自治体",
-  "enum.statVariant.選舉分區": "選挙区（ED）"
+  "enum.statVariant.選舉分區": "選挙区（ED）",
+  "enum.statVariant.資料集數": "データセット数",
+  "enum.statVariant.有座標資料集數": "座標付きデータセット数",
+  "enum.statVariant.有座標比例": "座標付きの割合",
+  "enum.statVariant.有空間資訊比例": "空間情報ありの割合",
+  "enum.statVariant.有座標主題數": "座標のあるテーマ数"
 }
