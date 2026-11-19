@@ -28,6 +28,8 @@ const LAYER_IDS = [RASTER_LAYER_ID, MAPCHALLENGE_DAY19_DUMPING_LAYER_ID, MAPCHAL
 
 /** 點與箭頭在滑桿預設（RASTER.opacity）時的透明度 */
 const VECTOR_OPACITY = { point: 0.9, wind: 0.85 } as const;
+/** 棄置場址比設施小一號（S 階 × 0.75）：只是疊看的參考點 */
+const DUMPING_SIZE = 0.75;
 
 function firstSymbolLayerId(map: MapboxMap): string | undefined {
   try { return map.getStyle()?.layers?.find((layer) => layer.type === "symbol")?.id; } catch { return undefined; }
@@ -102,16 +104,16 @@ export function useMapchallengeDay19PotentialLayer(
       show(MAPCHALLENGE_DAY19_WIND_LAYER_ID, showArrows && wind.season !== null);
       show(MAPCHALLENGE_DAY19_DUMPING_LAYER_ID, showDumping);
       map.setPaintProperty(RASTER_LAYER_ID, "raster-opacity", value);
-      // 點：P-1 M 階（設施）／S 階（棄置場址），P-2 描邊
+      // 點：P-1 S 階（661 個設施在全台視角用 M 階會蓋掉潛勢底色），P-2 描邊
       const stroke = { color: pointStrokeColor(isDark), opacity: POINT_STROKE.opacity[isDark ? "dark" : "light"] * factor };
       map.setPaintProperty(MAPCHALLENGE_DAY19_FACILITIES_LAYER_ID, "circle-color", mapchallengeDay19FacilityColorExpr(isDark) as never);
-      map.setPaintProperty(MAPCHALLENGE_DAY19_FACILITIES_LAYER_ID, "circle-radius", pointRadius("M"));
+      map.setPaintProperty(MAPCHALLENGE_DAY19_FACILITIES_LAYER_ID, "circle-radius", pointRadius("S"));
       map.setPaintProperty(MAPCHALLENGE_DAY19_FACILITIES_LAYER_ID, "circle-opacity", VECTOR_OPACITY.point * factor);
       map.setPaintProperty(MAPCHALLENGE_DAY19_FACILITIES_LAYER_ID, "circle-stroke-width", POINT_STROKE.width);
       map.setPaintProperty(MAPCHALLENGE_DAY19_FACILITIES_LAYER_ID, "circle-stroke-color", stroke.color);
       map.setPaintProperty(MAPCHALLENGE_DAY19_FACILITIES_LAYER_ID, "circle-stroke-opacity", Math.min(1, stroke.opacity));
       map.setPaintProperty(MAPCHALLENGE_DAY19_DUMPING_LAYER_ID, "circle-color", mapchallengeDay19DumpingColor(isDark));
-      map.setPaintProperty(MAPCHALLENGE_DAY19_DUMPING_LAYER_ID, "circle-radius", pointRadius("S"));
+      map.setPaintProperty(MAPCHALLENGE_DAY19_DUMPING_LAYER_ID, "circle-radius", pointRadius("S", DUMPING_SIZE));
       map.setPaintProperty(MAPCHALLENGE_DAY19_DUMPING_LAYER_ID, "circle-opacity", VECTOR_OPACITY.point * factor);
       map.setPaintProperty(MAPCHALLENGE_DAY19_DUMPING_LAYER_ID, "circle-stroke-width", POINT_STROKE.width);
       map.setPaintProperty(MAPCHALLENGE_DAY19_DUMPING_LAYER_ID, "circle-stroke-color", isDark ? "#0a0a14" : "#ffffff");
