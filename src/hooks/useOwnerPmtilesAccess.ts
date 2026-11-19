@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { useUser } from "../lib/auth";
 import { supabase } from "../lib/supabase";
+import { cachedAccessProbe, isDefinitiveAccessStatus } from "../lib/accessProbeCache";
+import { withLoading } from "../lib/loadingRegistry";
 import { OWNER_DATA_ENDPOINT, type OwnerDataAssetName } from "../data/ownerDataAssets";
 import type { PrivatePmtilesSource } from "./useGbWaterLayers";
 
@@ -13,29 +15,24 @@ import type { PrivatePmtilesSource } from "./useGbWaterLayers";
  * 401／403（非站主）與 404（sidecar 白名單尚未收錄該檔）一律靜默當成未開放；撤權事件清掉重探。
  */
 export const OWNER_PMTILES_ACCESS_DENIED_EVENT = "owner-pmtiles-access-denied";
-/** 每個帳號×檔只探一次；撤權事件清掉重探。 */
+/** 每個帳號×檔只探一次；撤權事件清掉重探；暫時性失敗不快取。 */
 const probes = new Map<string, Promise<boolean>>();
 const assetUrl = (asset: OwnerDataAssetName) => `${OWNER_DATA_ENDPOINT}/${asset}`;
 
 export function probeOwnerPmtilesAccess(asset: OwnerDataAssetName, userId: string, token: string, fetchFn: typeof fetch = fetch): Promise<boolean> {
-  const id = `${userId}:${asset}`;
-  const hit = probes.get(id);
-  if (hit) return hit;
-  const run = (async () => {
+  return cachedAccessProbe(probes, `${userId}:${asset}`, async () => {
     try {
       const response = await fetchFn(`${assetUrl(asset)}?access=1`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
       if (!response.ok) {
         if (![401, 403, 404].includes(response.status)) console.warn(`[owner-pmtiles] ${asset} access probe HTTP ${response.status}`);
-        return false;
+        return { allowed: false, definitive: isDefinitiveAccessStatus(response.status) };
       }
-      return ((await response.json()) as { allowed?: unknown }).allowed === true;
+      return { allowed: ((await response.json()) as { allowed?: unknown }).allowed === true, definitive: true };
     } catch (error) {
       console.warn(`[owner-pmtiles] ${asset} access probe failed`, error);
-      return false;
+      return { allowed: false, definitive: false };
     }
-  })();
-  probes.set(id, run);
-  return run;
+  });
 }
 export function resetOwnerPmtilesAccessProbes() { probes.clear(); }
 
@@ -59,13 +56,12 @@ export function useOwnerPmtilesSource(asset: OwnerDataAssetName, active: boolean
     setVerified(null);
     if (!user || !active) return;
     let cancelled = false;
-    void (async () => {
-      try {
-        const token = await accessToken(user.id);
-        const ok = await probeOwnerPmtilesAccess(asset, user.id, token);
-        if (!cancelled && ok) setVerified(user.id);
-      } catch { /* 未登入或 session 對不上：維持未開放 */ }
-    })();
+    void withLoading(`owner-pmtiles:access:${asset}`, "驗證站主私人圖層存取權", (async () => {
+      const token = await accessToken(user.id);
+      return probeOwnerPmtilesAccess(asset, user.id, token);
+    })()).then((ok) => {
+      if (!cancelled && ok) setVerified(user.id);
+    }).catch(() => { /* 未登入或 session 對不上：維持未開放 */ });
     return () => { cancelled = true; };
   }, [asset, user?.id, active, revision]);
   const userId = !loading && user && verified === user.id ? user.id : null;

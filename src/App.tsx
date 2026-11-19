@@ -4,6 +4,9 @@ import type { AnalysisResultPanelProperties } from "./research/researchResultPop
 import { recordSelectionClick, selectionRingAccent, SELECTION_RING_ACCENT_VAR } from "./map/selectionRing";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
+import { CN_ACCESS_DENIED_EVENT } from "./hooks/useCnLayers";
+import { OWNER_PMTILES_ACCESS_DENIED_EVENT } from "./hooks/useOwnerPmtilesAccess";
+import { CN_ALL_LAYER_KEYS } from "./data/cnDataKeys";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { useSoilLiquefactionPrivateAccess } from "./hooks/useSoilLiquefactionPrivateAccess";
@@ -1217,6 +1220,36 @@ export default function App() {
     setLayerVisibility((current) => current.busCrowdingSim ? { ...current, busCrowdingSim: false } : current);
     if (featureInfo && isBusCrowdingSimPrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
   }, [featureInfo, busCrowdingSimPrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
+
+  // 中國 24 層與站主限定 PMTiles（krSeoulZoning／vnWdpca）：Range／探測被拒 → 關層並清選取（G3；review 2026-11-18 F015）。
+  useEffect(() => {
+    const closeKeys = (keys: readonly (keyof LayerVisibility)[]) => {
+      const keySet = new Set<string>(keys);
+      setLayerVisibility((current) => {
+        let changed = false;
+        const next = { ...current };
+        for (const key of keys) {
+          if (next[key]) { next[key] = false; changed = true; }
+        }
+        return changed ? next : current;
+      });
+      setFeatureInfo((current) => current && keySet.has(current.layerType) ? null : current);
+    };
+    const onCnDenied = () => {
+      closeKeys(CN_ALL_LAYER_KEYS as readonly (keyof LayerVisibility)[]);
+      showTransientNotice("中國圖層為站主限定私人資料，存取失敗，已關閉圖層與選取結果。");
+    };
+    const onOwnerDenied = () => {
+      closeKeys(["krSeoulZoning", "vnWdpca"]);
+      showTransientNotice("站主限定私人圖層存取失敗，已關閉圖層與選取結果。");
+    };
+    window.addEventListener(CN_ACCESS_DENIED_EVENT, onCnDenied);
+    window.addEventListener(OWNER_PMTILES_ACCESS_DENIED_EVENT, onOwnerDenied);
+    return () => {
+      window.removeEventListener(CN_ACCESS_DENIED_EVENT, onCnDenied);
+      window.removeEventListener(OWNER_PMTILES_ACCESS_DENIED_EVENT, onOwnerDenied);
+    };
+  }, [setFeatureInfo, setLayerVisibility]);
 
   // 授權 HOLD 是全體使用者的 release gate，不能因 owner 或儲存的 scene/URL 繞過。
   useEffect(() => {

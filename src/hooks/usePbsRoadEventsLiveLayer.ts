@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CircleLayer, ExpressionSpecification, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { isAccessDenied } from "../lib/layerGates";
@@ -54,6 +54,9 @@ export function usePbsRoadEventsLiveLayer(
 ) {
   const { opacity, scale, windowMin, isDark } = opts;
   const mapTick = useMapReadyTick(mapRef, visible);
+  // 樣式走 ref：建層（含換底圖 style.load 重建）用當下值，不把樣式放進建層 effect deps
+  const styleRef = useRef({ opacity, scale, isDark });
+  styleRef.current = { opacity, scale, isDark };
   const [raw, setRaw] = useState<PbsRawData | null>(cache);
 
   useEffect(() => registerOwnerGateReset(["pbsRoadEventsLive"], () => {
@@ -101,12 +104,12 @@ export function usePbsRoadEventsLiveLayer(
       return;
     }
     if (!raw) return;
-    let lastSig = "";
+    let lastSig: string | null = null; // 哨兵：空結果的 signature 也是 ""，不能當初值
     let first = true;
     const apply = () => {
       if (!map.getSource(SRC)) map.addSource(SRC, { type: "geojson", data: EMPTY });
       if (!map.getLayer(PBS_LAYER_POINT)) {
-        map.addLayer({ id: PBS_LAYER_POINT, type: "circle", source: SRC, paint: paint(isDark, scale, opacity) } as CircleLayer);
+        map.addLayer({ id: PBS_LAYER_POINT, type: "circle", source: SRC, paint: paint(styleRef.current.isDark, styleRef.current.scale, Math.max(0, Math.min(1, styleRef.current.opacity))) } as CircleLayer);
       }
       map.setLayoutProperty(PBS_LAYER_POINT, "visibility", "visible");
       const d = buildPbsDisplay(raw, wallClock.getWallNow(), windowMin);
@@ -120,7 +123,7 @@ export function usePbsRoadEventsLiveLayer(
       }
     };
     apply();
-    const onStyleLoad = () => { lastSig = ""; setTimeout(apply, 0); };
+    const onStyleLoad = () => { lastSig = null; setTimeout(apply, 0); };
     map.on("style.load", onStyleLoad);
     const unsub = wallClock.subscribeWallClock(60_000, apply);
     return () => { unsub(); map.off("style.load", onStyleLoad); };

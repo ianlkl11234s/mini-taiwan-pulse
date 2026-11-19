@@ -8,6 +8,8 @@ import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
 import { useUser } from "../lib/auth";
 import { supabase } from "../lib/supabase";
+import { cachedAccessProbe, isDefinitiveAccessStatus } from "../lib/accessProbeCache";
+import { withLoading } from "../lib/loadingRegistry";
 import {
   CN_ADMIN_COLOR, CN_ADMIN_LEVELS, CN_DENSITY_BREAKS, CN_DENSITY_FIELD, CN_NOT_COVERED_COLOR, CN_PLANT_STATUSES, CN_PLANT_STATUS_DEFAULT,
   asPhPart, asPhSpec, cnOutlineId, type CnAdminLevel, type CnLayerSpec, type CnOwnerAsset, type CnPart, type CnRasterSpec,
@@ -46,7 +48,7 @@ function firstSymbolLayerId(map: MapboxMap): string | undefined {
 // ═════════════════════════ 站主存取（owner-data） ═════════════════════════
 
 export const CN_ACCESS_DENIED_EVENT = "cn-owner-data-access-denied";
-/** 每個帳號只探一次（同一頁 9 個 host 共用）；撤權事件清掉重探。 */
+/** 每個帳號只探一次（同一頁 9 個 host 共用）；撤權事件清掉重探；暫時性失敗不快取。 */
 const probes = new Map<string, Promise<boolean>>();
 
 /**
@@ -54,23 +56,19 @@ const probes = new Map<string, Promise<boolean>>();
  * 其他錯誤只記 console，不跳全站錯誤（使用者沒開的圖層不該報錯）。
  */
 export function probeCnAccess(userId: string, token: string, fetchFn: typeof fetch = fetch): Promise<boolean> {
-  const hit = probes.get(userId);
-  if (hit) return hit;
-  const run = (async () => {
+  return cachedAccessProbe(probes, userId, async () => {
     try {
       const response = await fetchFn(`${cnOwnerUrl("cn-admin-boundaries")}?access=1`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
       if (!response.ok) {
         if (![401, 403, 404].includes(response.status)) console.warn(`[cn] owner-data access probe HTTP ${response.status}`);
-        return false;
+        return { allowed: false, definitive: isDefinitiveAccessStatus(response.status) };
       }
-      return ((await response.json()) as { allowed?: unknown }).allowed === true;
+      return { allowed: ((await response.json()) as { allowed?: unknown }).allowed === true, definitive: true };
     } catch (error) {
       console.warn("[cn] owner-data access probe failed", error);
-      return false;
+      return { allowed: false, definitive: false };
     }
-  })();
-  probes.set(userId, run);
-  return run;
+  });
 }
 export function resetCnAccessProbe() { probes.clear(); }
 
@@ -94,13 +92,12 @@ export function useCnPrivateAccess(active: boolean): { allowed: boolean; userId:
     setVerified(null);
     if (!user || !active) return;
     let cancelled = false;
-    void (async () => {
-      try {
-        const token = await cnAccessToken(user.id);
-        const ok = await probeCnAccess(user.id, token);
-        if (!cancelled && ok) setVerified(user.id);
-      } catch { /* 未登入或 session 對不上：維持未開放 */ }
-    })();
+    void withLoading("cn:private-access", "驗證中國私人圖層存取權", (async () => {
+      const token = await cnAccessToken(user.id);
+      return probeCnAccess(user.id, token);
+    })()).then((ok) => {
+      if (!cancelled && ok) setVerified(user.id);
+    }).catch(() => { /* 未登入或 session 對不上：維持未開放 */ });
     return () => { cancelled = true; };
   }, [user?.id, active, revision]);
   return { allowed: !loading && !!user && verified === user.id, userId: user?.id ?? null };
