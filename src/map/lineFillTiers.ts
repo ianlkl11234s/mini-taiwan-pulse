@@ -65,6 +65,7 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   mapchallengeDay06Taipei1932: "coverage", // 30 天地圖挑戰 Day 6 1932 臺北市町界（面＋類別色）
   mapchallengeDay09UrbanRural: "graded", // 30 天地圖挑戰 Day 9 城鄉（鄉鎮 choropleth，密度五等份／設施 7 階）
   mapchallengeDay17LedShare: "graded", // 30 天地圖挑戰 Day 17 縣市路燈 LED 化（縣市 choropleth，LED 用電占比 5 級）
+  mapchallengeDay19Complaints: "keep", // 30 天地圖挑戰 Day 19 異味陳情網格（類別色＋透明度依密度 5 級＝資料編碼，無外框）
   mapchallengeDay08Access: "graded", // 30 天地圖挑戰 Day 8 走到大公園要幾分鐘（viridis 四級）
   mapchallengeDay08Parks: "coverage", // 30 天地圖挑戰 Day 8 現有公園（面＋類別色；入口點另見 POINT_TIERS）
   mapchallengeDay08Sites: "coverage", // 30 天地圖挑戰 Day 8 新公園選址與代價（面＋類別色，外框用反差中性色）

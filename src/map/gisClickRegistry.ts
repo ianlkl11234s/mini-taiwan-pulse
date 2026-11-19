@@ -53,6 +53,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day06-lighthouses-circle", "mapchallenge-day06-lighthouses-today-circle"], type: "mapchallengeDay06Lighthouses" },
   { layers: ["mapchallenge-day06-temples-1921-circle"], type: "mapchallengeDay06Temples1921" },
   { layers: ["mapchallenge-day06-coast-circle", "mapchallenge-day06-coast-line"], type: "mapchallengeDay06Coast" },
+  // 👃 30 天地圖挑戰 Day 19 氣味：裁罰設施泡泡、潛勢層的設施點／棄置場址（hook 自建）與盛行風箭頭在陣列開頭；陳情網格面見下方面層段
+  { layers: ["mapchallenge-day19-penalties-circle"], type: "mapchallengeDay19Penalties" },
+  { layers: ["mapchallenge-day19-facilities-circle", "mapchallenge-day19-dumping-circle", "mapchallenge-day19-wind-line"], type: "mapchallengeDay19Potential" },
   { layers: ["harm-reduction-prevention-centers-circle", "harm-reduction-prevention-centers-glow"], type: "harmReductionPreventionCenters" },
   { layers: ["harm-reduction-needle-circle", "harm-reduction-needle-glow"], type: "harmReductionNeedle" },
   { layers: ["harm-reduction-treatment-circle", "harm-reduction-treatment-glow"], type: "harmReductionTreatment" },
@@ -1284,6 +1287,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day17-protected-fill"], type: "mapchallengeDay17DarkSky" },
   // 💡 30 天地圖挑戰 Day 17 縣市路燈 LED 化：22 縣市面（鋪滿全台，排在保護區之後）
   { layers: ["mapchallenge-day17-led-share-fill"], type: "mapchallengeDay17LedShare" },
+  // 👃 30 天地圖挑戰 Day 19 異味陳情網格：自適應 H3 面（兩期兩份 source，同時只有一份有 feature）
+  { layers: ["mapchallenge-day19-complaints-2025-fill", "mapchallenge-day19-complaints-2026-fill"], type: "mapchallengeDay19Complaints" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

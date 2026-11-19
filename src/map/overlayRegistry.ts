@@ -51,6 +51,13 @@ import {
   MAPCHALLENGE_DAY17_LED_ATTRIBUTION, MAPCHALLENGE_DAY17_LED_URL, mapchallengeDay17LedColorExpr, mapchallengeDay17LedYearAt,
 } from "../data/mapchallengeDay17Types";
 import { mapchallengeDay17RunWidthExpr, mapchallengeDay17SegmentWidthExpr, mapchallengeDay17TopWidthExpr } from "../data/mapchallengeDay17Style";
+import {
+  MAPCHALLENGE_DAY19_COMPLAINTS_ATTRIBUTION, MAPCHALLENGE_DAY19_PENALTIES_ATTRIBUTION, MAPCHALLENGE_DAY19_PENALTIES_URL, MAPCHALLENGE_DAY19_PERIODS,
+  mapchallengeDay19CategoryAt, mapchallengeDay19PenaltyScopeAt, mapchallengeDay19PeriodAt,
+} from "../data/mapchallengeDay19Types";
+import {
+  mapchallengeDay19CategoryColor, mapchallengeDay19DensOpacityExpr, mapchallengeDay19PenaltyRadiusExpr, mapchallengeDay19RatioColorExpr, mapchallengeDay19TopColorExpr,
+} from "../data/mapchallengeDay19Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withDarkContrast } from "./darkContrast";
@@ -13185,6 +13192,55 @@ OVERLAY_REGISTRY.push({
   }, {
     suffix: "outline", type: "line",
     paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": p?.mapchallengeDay17LedShareOpacity ?? 0.7 }),
+  }],
+});
+
+// ── 30 天地圖挑戰 Day 19 氣味「異味陳情網格」（模擬面板，公開，2026-11-19）：同一 key 兩份 geojson（2025／2026），
+// 期間 select 把非所選那份 filter 成空（兩期不相加）；類別 select：全部＝依 top 類別色、單一類別＝該類色＋該類 0 的格不畫。
+// 透明度依密度 5 級（資料編碼，FILL_TIERS keep）；不畫外框（網格大小不一，低縮放外框會糊成一片）。
+const mapchallengeDay19ComplaintsConfig = (period: (typeof MAPCHALLENGE_DAY19_PERIODS)[number]): OverlayConfig => ({
+  id: "mapchallengeDay19Complaints", sourceUrl: period.url, sourceId: `mapchallenge-day19-complaints-${period.value}`,
+  attribution: MAPCHALLENGE_DAY19_COMPLAINTS_ATTRIBUTION,
+  rebuildOnParamChange: ["fill"], rebuildOnParamKeys: ["mapchallengeDay19ComplaintsPeriodIdx", "mapchallengeDay19ComplaintsCategoryIdx"],
+  layers: [{
+    suffix: "fill", type: "fill",
+    filter: (p) => {
+      if (mapchallengeDay19PeriodAt(p?.mapchallengeDay19ComplaintsPeriodIdx) !== period.value) return ["==", ["get", "lvl"], -1];
+      const cat = mapchallengeDay19CategoryAt(p?.mapchallengeDay19ComplaintsCategoryIdx);
+      return cat === "all" ? ["has", "n"] : [">", ["to-number", ["get", cat], 0], 0];
+    },
+    paint: (isDark, p) => {
+      const cat = mapchallengeDay19CategoryAt(p?.mapchallengeDay19ComplaintsCategoryIdx);
+      const factor = (p?.mapchallengeDay19ComplaintsOpacity ?? 0.85) / 0.85;
+      return {
+        "fill-color": cat === "all" ? mapchallengeDay19TopColorExpr(isDark) : mapchallengeDay19CategoryColor(cat, isDark),
+        "fill-opacity": mapchallengeDay19DensOpacityExpr(cat, factor),
+      };
+    },
+  }],
+});
+OVERLAY_REGISTRY.push(...MAPCHALLENGE_DAY19_PERIODS.map(mapchallengeDay19ComplaintsConfig));
+
+// ── 30 天地圖挑戰 Day 19「異味裁罰設施」（模擬面板，公開，2026-11-19）：505 處設施泡泡（POINT_TIERS B）：
+// 半徑依裁罰件數（√、上限）× 大小滑桿；色依最高超標倍數（null＝灰、不當 0）；顯示 select 改 filter。件數多的畫在下面。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay19Penalties", sourceUrl: MAPCHALLENGE_DAY19_PENALTIES_URL, sourceId: "mapchallenge-day19-penalties",
+  attribution: MAPCHALLENGE_DAY19_PENALTIES_ATTRIBUTION,
+  rebuildOnParamChange: ["circle"], rebuildOnParamKeys: ["mapchallengeDay19PenaltiesScopeIdx"],
+  layers: [{
+    suffix: "circle", type: "circle",
+    layout: { "circle-sort-key": ["-", 0, ["to-number", ["get", "n"], 0]] },
+    filter: (p) => {
+      const scope = mapchallengeDay19PenaltyScopeAt(p?.mapchallengeDay19PenaltiesScopeIdx);
+      if (scope === "ratio") return ["==", ["typeof", ["get", "max_ratio"]], "number"];
+      if (scope === "over5") return ["all", ["==", ["typeof", ["get", "max_ratio"]], "number"], [">", ["to-number", ["get", "max_ratio"]], 5]];
+      return ["has", "n"];
+    },
+    paint: (isDark, p) => ({
+      "circle-color": mapchallengeDay19RatioColorExpr(isDark),
+      "circle-radius": mapchallengeDay19PenaltyRadiusExpr(p?.mapchallengeDay19PenaltiesScale ?? 1),
+      "circle-opacity": p?.mapchallengeDay19PenaltiesOpacity ?? 0.85,
+    }),
   }],
 });
 

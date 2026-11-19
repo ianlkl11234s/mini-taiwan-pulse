@@ -57,7 +57,7 @@ import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
 import { TransitReachGridHost, TransitReachPlaybackHost } from "./hosts/transitReachHosts";
 import { HistoricalMapSinicaHost } from "./hosts/historicalMapHosts";
-import { MapchallengeDay08PlanHost, MapchallengeDay17DarkSkyHost, MapchallengeDay17NightFallHost } from "./hosts/mapchallengeHosts";
+import { MapchallengeDay08PlanHost, MapchallengeDay17DarkSkyHost, MapchallengeDay17NightFallHost, MapchallengeDay19PotentialHost } from "./hosts/mapchallengeHosts";
 import { FreewayTdcsSimHost } from "./hosts/freewayTdcsSimHost";
 import { TransitAccessGridHost, TransitAccessPlaybackHost } from "./hosts/transitAccessHosts";
 import {
@@ -873,4 +873,5 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   // 30 天地圖挑戰 Day 17 光與暗：真正的黑夜（image source＋保護區面）、入夜變亮（canvas source，timeStore 訂閱）
   { id: "useMapchallengeDay17DarkSkyLayer", keys: ["mapchallengeDay17DarkSky"], Host: MapchallengeDay17DarkSkyHost },
   { id: "useMapchallengeDay17NightFallLayer", keys: ["mapchallengeDay17NightFall"], Host: MapchallengeDay17NightFallHost },
+  { id: "useMapchallengeDay19PotentialLayer", keys: ["mapchallengeDay19Potential"], Host: MapchallengeDay19PotentialHost },
 ];

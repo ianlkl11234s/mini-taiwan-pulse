@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2015,
+    "keyCount": 2018,
     "sections": [
       "gisLayers",
       "overlays",
@@ -27,6 +27,20 @@
         "mapchallenge-day06-coast-line"
       ],
       "type": "mapchallengeDay06Coast"
+    },
+    {
+      "layers": [
+        "mapchallenge-day19-penalties-circle"
+      ],
+      "type": "mapchallengeDay19Penalties"
+    },
+    {
+      "layers": [
+        "mapchallenge-day19-facilities-circle",
+        "mapchallenge-day19-dumping-circle",
+        "mapchallenge-day19-wind-line"
+      ],
+      "type": "mapchallengeDay19Potential"
     },
     {
       "layers": [
@@ -8449,6 +8463,13 @@
         "mapchallenge-day17-led-share-fill"
       ],
       "type": "mapchallengeDay17LedShare"
+    },
+    {
+      "layers": [
+        "mapchallenge-day19-complaints-2025-fill",
+        "mapchallenge-day19-complaints-2026-fill"
+      ],
+      "type": "mapchallengeDay19Complaints"
     },
     {
       "layers": [
@@ -114840,6 +114861,392 @@
       "rebuildOnParamChange": null,
       "sourceId": "mapchallenge-day17-led-share",
       "sourceUrl": "./mapchallenge/day17_led_share_by_county.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay19Complaints",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "n"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "top"
+                ],
+                "cooking",
+                "#ffa41b",
+                "burning",
+                "#ef4614",
+                "industry",
+                "#2d82ff",
+                "farm",
+                "#0c9743",
+                "incense",
+                "#d749c7",
+                "#94a3b8"
+              ],
+              "fill-opacity": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "dens"
+                  ],
+                  0
+                ],
+                0.22,
+                31.7,
+                0.38,
+                63.3,
+                0.55,
+                108,
+                0.72,
+                212,
+                0.92
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "top"
+                ],
+                "cooking",
+                "#652800",
+                "burning",
+                "#d93c0f",
+                "industry",
+                "#216bff",
+                "farm",
+                "#07873a",
+                "incense",
+                "#c23fb4",
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "dens"
+                  ],
+                  0
+                ],
+                0.22,
+                31.7,
+                0.38,
+                63.3,
+                0.55,
+                108,
+                0.72,
+                212,
+                0.92
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "mapchallenge-day19-complaints-2025",
+      "sourceUrl": "./mapchallenge/day19_complaints_2025.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay19Complaints",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "lvl"
+            ],
+            -1
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "top"
+                ],
+                "cooking",
+                "#ffa41b",
+                "burning",
+                "#ef4614",
+                "industry",
+                "#2d82ff",
+                "farm",
+                "#0c9743",
+                "incense",
+                "#d749c7",
+                "#94a3b8"
+              ],
+              "fill-opacity": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "dens"
+                  ],
+                  0
+                ],
+                0.22,
+                31.7,
+                0.38,
+                63.3,
+                0.55,
+                108,
+                0.72,
+                212,
+                0.92
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "top"
+                ],
+                "cooking",
+                "#652800",
+                "burning",
+                "#d93c0f",
+                "industry",
+                "#216bff",
+                "farm",
+                "#07873a",
+                "incense",
+                "#c23fb4",
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "dens"
+                  ],
+                  0
+                ],
+                0.22,
+                31.7,
+                0.38,
+                63.3,
+                0.55,
+                108,
+                0.72,
+                212,
+                0.92
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill"
+      ],
+      "sourceId": "mapchallenge-day19-complaints-2026",
+      "sourceUrl": "./mapchallenge/day19_complaints_2026.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay19Penalties",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "n"
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "max_ratio"
+                    ]
+                  ],
+                  "number"
+                ],
+                "#9ca3af",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "max_ratio"
+                    ]
+                  ],
+                  "#fee391",
+                  2.000000001,
+                  "#fe9929",
+                  5.000000001,
+                  "#e8590c"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                [
+                  "+",
+                  2.5,
+                  [
+                    "*",
+                    2.2,
+                    [
+                      "sqrt",
+                      [
+                        "max",
+                        1,
+                        [
+                          "min",
+                          [
+                            "to-number",
+                            [
+                              "get",
+                              "n"
+                            ],
+                            1
+                          ],
+                          36
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                1
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "!=",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "max_ratio"
+                    ]
+                  ],
+                  "number"
+                ],
+                "#9ca3af",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "max_ratio"
+                    ]
+                  ],
+                  "#fec44f",
+                  2.000000001,
+                  "#ec7014",
+                  5.000000001,
+                  "#993404"
+                ]
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                [
+                  "+",
+                  2.5,
+                  [
+                    "*",
+                    2.2,
+                    [
+                      "sqrt",
+                      [
+                        "max",
+                        1,
+                        [
+                          "min",
+                          [
+                            "to-number",
+                            [
+                              "get",
+                              "n"
+                            ],
+                            1
+                          ],
+                          36
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                1
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "mapchallenge-day19-penalties",
+      "sourceUrl": "./mapchallenge/day19_odor_penalties.geojson"
     }
   ],
   "params": {
@@ -154218,6 +154625,151 @@
       }
     ],
     "mapchallengeDay17NightFall": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay19Complaints": [
+      {
+        "label": "期間",
+        "options": [
+          {
+            "label": "2025 全年",
+            "value": "2025"
+          },
+          {
+            "label": "2026 年 1–9 月（7 月官方未提供）",
+            "value": "2026"
+          }
+        ],
+        "type": "select",
+        "value": "2025"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "全部（依主因上色）",
+            "value": "all"
+          },
+          {
+            "label": "餐飲油煙",
+            "value": "cooking"
+          },
+          {
+            "label": "露天燃燒",
+            "value": "burning"
+          },
+          {
+            "label": "燒香紙錢",
+            "value": "incense"
+          },
+          {
+            "label": "工廠作業",
+            "value": "industry"
+          },
+          {
+            "label": "畜牧與堆肥",
+            "value": "farm"
+          },
+          {
+            "label": "其他或不明",
+            "value": "other"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay19Penalties": [
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "有載明超標倍數",
+            "value": "ratio"
+          },
+          {
+            "label": "超標 >5 倍",
+            "value": "over5"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay19Potential": [
+      {
+        "label": "風向",
+        "options": [
+          {
+            "label": "不計風",
+            "value": "iso"
+          },
+          {
+            "label": "冬季風（1–3、10–12 月）",
+            "value": "winter"
+          },
+          {
+            "label": "夏季風（6–8 月）",
+            "value": "summer"
+          }
+        ],
+        "type": "select",
+        "value": "iso"
+      },
+      {
+        "label": "設施點",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "盛行風箭頭",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "廢棄物棄置場址",
+        "type": "toggle",
+        "value": false
+      },
       {
         "label": "透明度 0.70",
         "max": 1,

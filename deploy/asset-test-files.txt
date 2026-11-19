@@ -195,6 +195,12 @@ public/mapchallenge/day17_dark_road_runs.geojson
 public/mapchallenge/day17_dark_road_segments.geojson
 public/mapchallenge/day17_led_share_by_county.geojson
 public/mapchallenge/day17_protected_area_dark_rank.geojson
+public/mapchallenge/day19_complaints_2025.geojson
+public/mapchallenge/day19_complaints_2026.geojson
+public/mapchallenge/day19_dumping_sites.geojson
+public/mapchallenge/day19_odor_facilities.geojson
+public/mapchallenge/day19_odor_penalties.geojson
+public/mapchallenge/day19_wind_arrows.geojson
 public/marine/artificial_reef_areas.geojson
 public/marine/beach_water_quality.geojson
 public/marine/cetacean_strandings.geojson

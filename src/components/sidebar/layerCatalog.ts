@@ -2494,6 +2494,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 17 光與暗 Light & dark",
       layers: [fromManifest("mapchallengeDay17DarkSky"), fromManifest("mapchallengeDay17DarkRoads"), fromManifest("mapchallengeDay17NightFall"), fromManifest("mapchallengeDay17LedShare")],
+    }, {
+      title: "Day 19 氣味 Smell",
+      layers: [fromManifest("mapchallengeDay19Complaints"), fromManifest("mapchallengeDay19Potential"), fromManifest("mapchallengeDay19Penalties")],
     }],
   },
 

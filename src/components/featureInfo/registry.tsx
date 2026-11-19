@@ -107,7 +107,7 @@ import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
-import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
+import { MapchallengeDay04FacilityPanel, MapchallengeDay19ComplaintsPanel, MapchallengeDay19PotentialPanel, MapchallengeDay19PenaltiesPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
@@ -697,6 +697,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   mapchallengeDay17DarkSky: MapchallengeDay17DarkSkyPanel,
   mapchallengeDay17DarkRoads: MapchallengeDay17DarkRoadsPanel,
   mapchallengeDay17LedShare: MapchallengeDay17LedSharePanel,
+  mapchallengeDay19Complaints: MapchallengeDay19ComplaintsPanel,
+  mapchallengeDay19Potential: MapchallengeDay19PotentialPanel,
+  mapchallengeDay19Penalties: MapchallengeDay19PenaltiesPanel,
   transitAccessGrid: TransitAccessGridPanel,
   transitAccessPlayback: TransitAccessPlaybackPanel,
   // Base map
@@ -1388,6 +1391,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   mapchallengeDay17DarkSky: "真正的黑夜：保護區暗度排名",
   mapchallengeDay17DarkRoads: "衛星看不到光的路段",
   mapchallengeDay17LedShare: "縣市路燈 LED 化",
+  mapchallengeDay19Complaints: "異味陳情網格",
+  mapchallengeDay19Potential: "設施氣味潛勢＋風",
+  mapchallengeDay19Penalties: "異味裁罰設施",
   transitAccessGrid: "網格大眾運輸可及性（情境推演）",
   transitAccessPlayback: "單一起點大眾運輸擴張（情境推演）",
   // Base map
