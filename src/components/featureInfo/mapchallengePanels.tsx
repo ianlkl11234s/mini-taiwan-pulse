@@ -3,7 +3,7 @@
  * 人口欄位＋依圖層列設施數／熱區分類。設施層讀目前選的設施（同圖例）。
  */
 import { useLocale } from "../../state/localeStore";
-import { placeName } from "../../i18n/placeText";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import {
   MAPCHALLENGE_DAY04_COLOR, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_ZERO_SWATCH,
@@ -27,6 +27,15 @@ import {
   MAPCHALLENGE_DAY17_LOW_SWATCH, MAPCHALLENGE_DAY17_PROTECTED_TOTAL, MAPCHALLENGE_DAY17_TOP_RANK, mapchallengeDay17GlowColor, mapchallengeDay17ProtectedLineColor, mapchallengeDay17ZeroColor,
   mapchallengeDay17LedFeatureColor, mapchallengeDay17LedYearByKey,
 } from "../../data/mapchallengeDay17Types";
+import {
+  MAPCHALLENGE_DAY19_CATEGORIES, mapchallengeDay19CategoryByKey, mapchallengeDay19CompassIdx, mapchallengeDay19DensBin, mapchallengeDay19PeriodByKey,
+  type MapchallengeDay19Category,
+} from "../../data/mapchallengeDay19Types";
+import {
+  mapchallengeDay19CategoryColor, mapchallengeDay19DumpingColor, mapchallengeDay19FacilityColor, mapchallengeDay19RatioColor, mapchallengeDay19WindColor,
+} from "../../data/mapchallengeDay19Style";
+import { MAPCHALLENGE_DAY19_CATEGORY_KEYS, MAPCHALLENGE_DAY19_FACILITY_KEYS, MAPCHALLENGE_DAY19_PERIOD_KEYS } from "../legend/mapchallengeLegends";
+import { FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import { Row, SourceFooter, Title } from "./shared";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
@@ -447,5 +456,107 @@ export function MapchallengeDay17LedSharePanel({ props }: Props) {
     <Row label={t("popup.mapchallenge.day17.ledAccounts")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_count_${year}`]), b: fmt(props[`total_${year}`]), unit: t("popup.mapchallenge.day17.ledAcctUnit") })} mono />
     <Row label={t("popup.mapchallenge.day17.note")} value={t("popup.mapchallenge.day17.ledNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day17.ledSource") }} />
+  </div>;
+}
+
+// ── Day 19 氣味 ───────────────────────────────────────────────
+const MAPCHALLENGE_DAY19_LEVEL_KEYS = { 9: "popup.mapchallenge.day19.lvl9", 8: "popup.mapchallenge.day19.lvl8", 7: "popup.mapchallenge.day19.lvl7" } as const;
+const MAPCHALLENGE_DAY19_DIR_KEYS = [
+  "popup.mapchallenge.day19.dir0", "popup.mapchallenge.day19.dir1", "popup.mapchallenge.day19.dir2", "popup.mapchallenge.day19.dir3",
+  "popup.mapchallenge.day19.dir4", "popup.mapchallenge.day19.dir5", "popup.mapchallenge.day19.dir6", "popup.mapchallenge.day19.dir7",
+  "popup.mapchallenge.day19.dir8", "popup.mapchallenge.day19.dir9", "popup.mapchallenge.day19.dir10", "popup.mapchallenge.day19.dir11",
+  "popup.mapchallenge.day19.dir12", "popup.mapchallenge.day19.dir13", "popup.mapchallenge.day19.dir14", "popup.mapchallenge.day19.dir15",
+] as const;
+const isCategory = (v: string): v is MapchallengeDay19Category => MAPCHALLENGE_DAY19_CATEGORIES.some((c) => c.key === v);
+
+export function MapchallengeDay19ComplaintsPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const theme = useFeatureTheme();
+  const isDark = theme !== LIGHT_FEATURE;
+  const values = useLayerParams("mapchallengeDay19Complaints");
+  const period = mapchallengeDay19PeriodByKey(paramStr(values, "mapchallengeDay19Complaints", "mapchallengeDay19ComplaintsPeriod"));
+  const selected = mapchallengeDay19CategoryByKey(paramStr(values, "mapchallengeDay19Complaints", "mapchallengeDay19ComplaintsCategory"));
+  const total = num(props.n);
+  const top = str(props.top);
+  const lvl = num(props.lvl);
+  const levelKey = MAPCHALLENGE_DAY19_LEVEL_KEYS[lvl as 9 | 8 | 7];
+  const counts = MAPCHALLENGE_DAY19_CATEGORIES.map((c) => ({ key: c.key, n: Number.isFinite(num(props[c.key])) ? num(props[c.key]) : 0 }));
+  const max = Math.max(1, ...counts.map((c) => c.n));
+  const titleColor = selected !== "all" ? mapchallengeDay19CategoryColor(selected, isDark) : isCategory(top) ? mapchallengeDay19CategoryColor(top, isDark) : mapchallengeDay19CategoryColor("other", isDark);
+  return <div>
+    <Title color={titleColor}>{t("popup.mapchallenge.day19.complaintsTitle")}</Title>
+    <Row label={t("popup.mapchallenge.day19.period")} value={t(MAPCHALLENGE_DAY19_PERIOD_KEYS[period])} />
+    {levelKey && <Row label={t("popup.mapchallenge.day19.grid")} value={t(levelKey)} />}
+    <Row label={t("popup.mapchallenge.day19.cases")} value={t("popup.mapchallenge.day19.casesValue", { n: formatNumber(total) })} mono />
+    <Row label={t("popup.mapchallenge.day19.dens")} value={t("popup.mapchallenge.day19.densValue", { n: formatNumber(num(props.dens)), bin: mapchallengeDay19DensBin(num(props.dens)) + 1 })} mono />
+    {isCategory(top) && <Row label={t("popup.mapchallenge.day19.top")} value={t(MAPCHALLENGE_DAY19_CATEGORY_KEYS[top])} color={mapchallengeDay19CategoryColor(top, isDark)} />}
+    <div style={{ marginTop: 4 }}>
+      {counts.map((c) => <div key={c.key} style={{ display: "grid", gridTemplateColumns: "76px 1fr 36px", alignItems: "center", columnGap: 6, padding: "2px 0", fontSize: FONT_SIZE.sm }}>
+        <span style={{ color: selected === c.key ? theme.textStrong : theme.textMuted }}>{t(MAPCHALLENGE_DAY19_CATEGORY_KEYS[c.key])}</span>
+        <span role="img" aria-label={t("popup.mapchallenge.day19.barAria", { name: t(MAPCHALLENGE_DAY19_CATEGORY_KEYS[c.key]), n: c.n })} style={{ height: 6, borderRadius: RADIUS.pill, background: theme.bgStrong, overflow: "hidden" }}>
+          <span style={{ display: "block", height: "100%", width: `${(c.n / max) * 100}%`, background: mapchallengeDay19CategoryColor(c.key, isDark), borderRadius: RADIUS.pill }} />
+        </span>
+        <span style={{ color: theme.textStrong, textAlign: "right", fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{formatNumber(c.n)}</span>
+      </div>)}
+    </div>
+    <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.complaintsNote")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day19.complaintsSource") }} />
+  </div>;
+}
+
+export function MapchallengeDay19PotentialPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  if (str(props.season)) {
+    const winter = str(props.season) === "winter";
+    const from = num(props.from);
+    return <div>
+      <Title color={mapchallengeDay19WindColor(isDark)}>{t(winter ? "popup.mapchallenge.day19.windWinter" : "popup.mapchallenge.day19.windSummer")}</Title>
+      <Row label={t("popup.mapchallenge.day19.windFrom")} value={Number.isFinite(from) ? t("popup.mapchallenge.day19.windFromValue", { dir: t(MAPCHALLENGE_DAY19_DIR_KEYS[mapchallengeDay19CompassIdx(from)]!), deg: Math.round(from) }) : ""} />
+      <Row label={t("popup.mapchallenge.day19.windSpeed")} value={t("popup.mapchallenge.day19.ms", { n: formatNumber(num(props.spd)) })} mono />
+      <Row label={t("popup.mapchallenge.day19.calm")} value={t("popup.mapchallenge.day19.pct", { n: formatNumber(Math.round(num(props.calm) * 1000) / 10) })} mono />
+      <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.windNote")} />
+      <SourceFooter props={{ source: t("popup.mapchallenge.day19.windSource") }} />
+    </div>;
+  }
+  if (str(props.soilwater) || str(props.dist)) {
+    return <div>
+      <Title color={mapchallengeDay19DumpingColor(isDark)}>{t("popup.mapchallenge.day19.dumpingTitle")}</Title>
+      <Row label={t("popup.mapchallenge.day19.county")} value={[placeName(str(props.county), i18n), str(props.dist) ? placeTown(str(props.county), str(props.dist), i18n) : ""].filter(Boolean).join(" ")} />
+      <Row label={t("popup.mapchallenge.day19.wasteKind")} value={str(props.kind) || t("popup.mapchallenge.day19.unknown")} />
+      <Row label={t("popup.mapchallenge.day19.updated")} value={str(props.updated)} mono />
+      <Row label={t("popup.mapchallenge.day19.soilwater")} value={str(props.soilwater)} />
+      <SourceFooter props={{ source: t("popup.mapchallenge.day19.dumpingSource") }} />
+    </div>;
+  }
+  const kind = str(props.kind) as keyof typeof MAPCHALLENGE_DAY19_FACILITY_KEYS;
+  const kindKey = MAPCHALLENGE_DAY19_FACILITY_KEYS[kind];
+  return <div>
+    <Title color={mapchallengeDay19FacilityColor(kind, isDark)}>{str(props.name) || (kindKey ? t(kindKey) : "")}</Title>
+    <Row label={t("popup.mapchallenge.day19.facKind")} value={kindKey ? t(kindKey) : str(props.label)} />
+    <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.facNote")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day19.potentialSource") }} />
+  </div>;
+}
+
+export function MapchallengeDay19PenaltiesPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const ratio = props.max_ratio;
+  const hasRatio = typeof ratio === "number" && Number.isFinite(ratio);
+  const y0 = num(props.y0);
+  const y1 = num(props.y1);
+  const money = num(props.money);
+  return <div>
+    <Title color={mapchallengeDay19RatioColor(hasRatio ? ratio : null, isDark)}>{str(props.fac)}</Title>
+    <Row label={t("popup.mapchallenge.day19.county")} value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.mapchallenge.day19.penaltyCount")} value={t("popup.mapchallenge.day19.penaltyCountValue", { n: formatNumber(num(props.n)), d: formatNumber(num(props.n_days)) })} mono />
+    {Number.isFinite(y0) && <Row label={t("popup.mapchallenge.day19.years")} value={y0 === y1 || !Number.isFinite(y1) ? String(y0) : `${y0}–${y1}`} mono />}
+    <Row label={t("popup.mapchallenge.day19.maxRatio")} value={hasRatio ? t("popup.mapchallenge.day19.ratioValue", { n: formatNumber(ratio) }) : t("popup.mapchallenge.day19.ratioNull")} mono={hasRatio} />
+    {Number.isFinite(money) && <Row label={t("popup.mapchallenge.day19.money")} value={t("popup.mapchallenge.day19.moneyValue", { n: formatNumber(money) })} mono />}
+    <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.penaltiesNote")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day19.penaltiesSource") }} />
   </div>;
 }

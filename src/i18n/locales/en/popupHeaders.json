@@ -127,5 +127,8 @@
   "popupHeader.mapchallengeDay09UrbanRural": "Which Services Stay Where People Are Few",
   "popupHeader.mapchallengeDay17DarkSky": "Real Darkness: Protected Area Ranking",
   "popupHeader.mapchallengeDay17DarkRoads": "Roads Where Satellites See No Light",
-  "popupHeader.mapchallengeDay17LedShare": "Streetlight LED Share by County"
+  "popupHeader.mapchallengeDay17LedShare": "Streetlight LED Share by County",
+  "popupHeader.mapchallengeDay19Complaints": "Odor Complaints Grid",
+  "popupHeader.mapchallengeDay19Potential": "Odor Potential & Wind",
+  "popupHeader.mapchallengeDay19Penalties": "Odor Penalties"
 }
