@@ -43,7 +43,7 @@ describe("即時 119 案件上圖規則", () => {
 
   it("沒有位置的案件計入未上圖，不當成 0", () => {
     expect(d.unmapped).toBe(1);
-    expect(d.total).toBe(8);
+    expect(d.total).toBe(7); // 返隊逾 60 分鐘的 tpe:old 不計入
   });
 
   it("進行中脈動、返隊依 updated_at 淡出", () => {
@@ -52,6 +52,19 @@ describe("即時 119 案件上圖規則", () => {
     expect(tpe.properties?._mark).toBe("pulse");
     const ret = raw.cases.find((c) => c.key === "tnn:1")!;
     expect(returnedFade(ret, NOW)).toBeCloseTo(1 - 25 / 60, 5);
+  });
+
+  it("返隊逾淡出時間的區級案件不計入區聚合與 total", () => {
+    const expired = normalizeFire119({
+      type: "FeatureCollection", meta: { truncated: false },
+      features: [
+        feat({ incident_key: "tnn:x", category: "ems", status: "returned", geom_precision: "district", town_code: "67000010", received_at: iso(100), updated_at: iso(90) }),
+        feat({ incident_key: "tnn:y", category: "ems", status: "dispatched", geom_precision: "district", town_code: "67000010", received_at: iso(10), updated_at: iso(5) }),
+      ],
+    });
+    const out = buildFire119Display(expired, NOW, 180);
+    expect(out.districts.get("67000010")?.map((c) => c.key)).toEqual(["tnn:y"]);
+    expect(out.total).toBe(1);
   });
 
   it("時間範圍縮到 1 小時就排除受理 150 分鐘前的案件", () => {

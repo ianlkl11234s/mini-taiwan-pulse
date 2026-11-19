@@ -145,7 +145,20 @@ function badgeFeatures(d: Fire119Display, towns: Record<string, [number, number,
   return out;
 }
 
-function ensureLayers(map: MapboxMap, isDark: boolean, scale: number): boolean {
+/** 點／徽章／區填色／路段的透明度與主題 paint（建層後與滑桿、換底圖共用）。 */
+function applyFire119Opacity(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
+  if (!map.getLayer(FIRE119_LAYERS.point)) return;
+  const o = Math.max(0, Math.min(1, opacity));
+    for (const [k, v] of Object.entries(pointPaint(isDark, scale, o))) map.setPaintProperty(FIRE119_LAYERS.point, k as never, v as never);
+    for (const [k, v] of Object.entries(badgePaint(isDark, o))) map.setPaintProperty(FIRE119_LAYERS.badge, k as never, v as never);
+    map.setPaintProperty(FIRE119_LAYERS.badgeText, "text-opacity", o);
+    map.setPaintProperty(FIRE119_LAYERS.districtFill, "fill-opacity", hookFillOpacity("fire119Live", FIRE119_LAYERS.districtFill, DISTRICT_FILL_OPACITY * o, DISTRICT_FILL_OPACITY));
+    map.setPaintProperty(FIRE119_LAYERS.districtLine, "line-opacity", hookLineOpacity("fire119Live", FIRE119_LAYERS.districtLine, 0.7 * o, 0.7, isDark));
+    map.setPaintProperty(FIRE119_LAYERS.road, "line-opacity", hookLineOpacity("fire119Live", FIRE119_LAYERS.road, ROAD_OPACITY * o, ROAD_OPACITY, isDark));
+    map.setPaintProperty(FIRE119_LAYERS.road, "line-color", isDark ? "#fde68a" : "#b45309");
+}
+
+function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity = 1): boolean {
   registerPmtilesSourceTypeOnce();
   if (!map.getSource(TOWN_SRC)) {
     map.addSource(TOWN_SRC, { type: PMTILES_SOURCE_TYPE, url: TOWN_URL, minzoom: 6, maxzoom: 14 } as never);
@@ -203,13 +216,13 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number): boolean {
   if (!map.getLayer(FIRE119_LAYERS.point)) {
     map.addLayer({
       id: FIRE119_LAYERS.point, type: "circle", source: PT_SRC,
-      paint: pointPaint(isDark, scale, 1),
+      paint: pointPaint(isDark, scale, Math.max(0, Math.min(1, opacity))),
     } as CircleLayer);
   }
   if (!map.getLayer(FIRE119_LAYERS.badge)) {
     map.addLayer({
       id: FIRE119_LAYERS.badge, type: "circle", source: BADGE_SRC,
-      paint: badgePaint(isDark, 1),
+      paint: badgePaint(isDark, Math.max(0, Math.min(1, opacity))),
     } as CircleLayer);
   }
   if (!map.getLayer(FIRE119_LAYERS.badgeText)) {
@@ -359,8 +372,8 @@ export function useFire119LiveLayer(mapRef: React.RefObject<MapboxMap | null>, v
     let lastSig = "";
     let firstRender = true;
     const apply = () => {
-      const { isDark: dark, scale: s } = styleRef.current;
-      if (!ensureLayers(map, dark, s)) return;
+      const { isDark: dark, scale: s, opacity: op } = styleRef.current;
+      if (!ensureLayers(map, dark, s, op)) return;
       setVisible(map, true);
       const d = buildFire119Display(raw, wallClock.getWallNow(), windowMin);
       displayRef.current = d;
@@ -381,7 +394,8 @@ export function useFire119LiveLayer(mapRef: React.RefObject<MapboxMap | null>, v
       }
     };
     apply();
-    const onStyleLoad = () => { lastSig = ""; setTimeout(apply, 0); };
+    // 換底圖重建後：用目前選定的透明度重套整組 paint（透明度 effect 不跟 style.load）
+    const onStyleLoad = () => { lastSig = ""; setTimeout(() => { apply(); applyFire119Opacity(map, styleRef.current.isDark, styleRef.current.scale, styleRef.current.opacity); }, 0); };
     map.on("style.load", onStyleLoad);
     const unsub = wallClock.subscribeWallClock(FADE_TICK_MS, apply);
     return () => { unsub(); map.off("style.load", onStyleLoad); };
@@ -391,14 +405,7 @@ export function useFire119LiveLayer(mapRef: React.RefObject<MapboxMap | null>, v
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible || !map.getLayer(FIRE119_LAYERS.point)) return;
-    const o = Math.max(0, Math.min(1, opacity));
-    for (const [k, v] of Object.entries(pointPaint(isDark, scale, o))) map.setPaintProperty(FIRE119_LAYERS.point, k as never, v as never);
-    for (const [k, v] of Object.entries(badgePaint(isDark, o))) map.setPaintProperty(FIRE119_LAYERS.badge, k as never, v as never);
-    map.setPaintProperty(FIRE119_LAYERS.badgeText, "text-opacity", o);
-    map.setPaintProperty(FIRE119_LAYERS.districtFill, "fill-opacity", hookFillOpacity("fire119Live", FIRE119_LAYERS.districtFill, DISTRICT_FILL_OPACITY * o, DISTRICT_FILL_OPACITY));
-    map.setPaintProperty(FIRE119_LAYERS.districtLine, "line-opacity", hookLineOpacity("fire119Live", FIRE119_LAYERS.districtLine, 0.7 * o, 0.7, isDark));
-    map.setPaintProperty(FIRE119_LAYERS.road, "line-opacity", hookLineOpacity("fire119Live", FIRE119_LAYERS.road, ROAD_OPACITY * o, ROAD_OPACITY, isDark));
-    map.setPaintProperty(FIRE119_LAYERS.road, "line-color", isDark ? "#fde68a" : "#b45309");
+    applyFire119Opacity(map, isDark, scale, opacity);
   }, [mapRef, mapTick, visible, raw, opacity, scale, isDark]);
 
   // ── 脈動（受理／出動／到達，最多 20 個；prefers-reduced-motion 時靜態外環）──

@@ -143,6 +143,14 @@ export function leftStatisticsSpecs(key: string): LinkedSelectParamSpec[] {
   return linkedSelectSpecs(key).filter((spec) => spec.provider === STATISTICS_LINKED_PROVIDER && spec.field !== "metric");
 }
 
+/**
+ * 網址記左側用的規格（export 供測試）：含指標列（presentation 層如教育／勞動換指標時 render key 不變，只記期別會讓收件人對到別的指標）。
+ * 右側不記指標（右側必須與左側同指標，還原時繼承左側）；舊網址沒有指標欄位＝略過、相容。
+ */
+export function leftUrlSpecs(key: string): LinkedSelectParamSpec[] {
+  return linkedSelectSpecs(key).filter((spec) => spec.provider === STATISTICS_LINKED_PROVIDER);
+}
+
 // ── 分享網址（cmpdl／cmpdr）──────────────────────────────────────────
 
 /** 控制項 name 去掉 layerKey 前綴（與 `Right` 後綴）＝網址裡的後綴 */
@@ -153,7 +161,7 @@ function urlSuffix(key: string, name: string): string {
 
 /** 某側目前的期別／細項值（{ 後綴 → 值 }）；沒有值的列略過 */
 export function compareSelectionValues(key: string, side: "left" | "right"): Record<string, string> {
-  const specs = side === "left" ? leftStatisticsSpecs(key) : rightStatisticsSpecs(key);
+  const specs = side === "left" ? leftUrlSpecs(key) : rightStatisticsSpecs(key);
   const out: Record<string, string> = {};
   for (const spec of specs) {
     const value = linkedSelectSnapshot(key, spec).value;
@@ -205,7 +213,7 @@ export async function restoreCompareSelections(
   const pick = (input: typeof left, specsOf: (key: string) => LinkedSelectParamSpec[]) => Object.fromEntries(
     Object.entries(input ?? {}).filter(([key]) => isStatisticsRenderLayer(key)).map(([key, values]) => [key, bySpecName(key, values, specsOf(key))]),
   );
-  skipped.push(...await restoreLinkedSelects(pick(left, leftStatisticsSpecs)));
+  skipped.push(...await restoreLinkedSelects(pick(left, leftUrlSpecs)));
   skipped.push(...await restoreLinkedSelects(pick(right, rightStatisticsSpecs), 20_000, rightStatisticsSpecs));
   return skipped;
 }

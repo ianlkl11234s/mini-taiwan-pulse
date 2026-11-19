@@ -45,3 +45,30 @@ describe("首爾用途地域：站主限定 owner-data", () => {
     await expect(probeOwnerPmtilesAccess("kr-seoul-zoning", "u2", "tok", fetchFn as unknown as typeof fetch)).resolves.toBe(false);
   });
 });
+
+describe("探測快取：暫時性失敗可重試（review F016／F019）", () => {
+  beforeEach(() => resetOwnerPmtilesAccessProbes());
+
+  it("503 與網路錯誤不快取，下次重探；明確 401 才快取", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const fetchFn = vi.fn()
+      .mockResolvedValueOnce(json({}, 503))
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce(json({ allowed: true }));
+    const f = fetchFn as unknown as typeof fetch;
+    await expect(probeOwnerPmtilesAccess("kr-seoul-zoning", "u9", "t", f)).resolves.toBe(false);
+    await expect(probeOwnerPmtilesAccess("kr-seoul-zoning", "u9", "t", f)).resolves.toBe(false);
+    await expect(probeOwnerPmtilesAccess("kr-seoul-zoning", "u9", "t", f)).resolves.toBe(true);
+    await expect(probeOwnerPmtilesAccess("kr-seoul-zoning", "u9", "t", f)).resolves.toBe(true);
+    expect(fetchFn).toHaveBeenCalledTimes(3);
+    warn.mockRestore();
+  });
+
+  it("401 為明確結果，會快取", async () => {
+    const fetchFn = vi.fn(async () => json({}, 401));
+    const f = fetchFn as unknown as typeof fetch;
+    await probeOwnerPmtilesAccess("kr-seoul-zoning", "u8", "t", f);
+    await probeOwnerPmtilesAccess("kr-seoul-zoning", "u8", "t", f);
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+});
