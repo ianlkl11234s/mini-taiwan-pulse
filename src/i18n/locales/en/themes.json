@@ -369,5 +369,8 @@
   "theme.竊盜": "Theft",
   "theme.營業登記": "Business Licences",
   "theme.倉儲": "Storage",
-  "theme.乾旱": "Drought"
+  "theme.乾旱": "Drought",
+  "theme.開放資料完整度（Day 18 NULL）": "Open-data completeness (Day 18 NULL)",
+  "theme.政府與開放資料 Government & Open Data": "Government & Open Data",
+  "theme.開放資料統計 Open Data Statistics": "Open Data Statistics"
 }

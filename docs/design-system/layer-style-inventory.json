@@ -18,20 +18,20 @@
   ]
  },
  "summary": {
-  "layerKeys": 2010,
+  "layerKeys": 2015,
   "overlayConfigs": 546,
   "runtimeSublayers": 1037,
   "byResolution": {
    "runtime": 449,
    "static-scan": 329,
    "unresolved": 321,
-   "shared-renderer": 911
+   "shared-renderer": 916
   },
   "byGeometry": {
    "point": 629,
    "heatmap": 234,
    "line": 399,
-   "polygon": 1266,
+   "polygon": 1271,
    "raster": 76,
    "label": 63,
    "3d": 35,
@@ -43,13 +43,13 @@
    "無 hook／factory（App 掛載或尚無實作）": 290,
    "Three.js／WebGL CustomLayer": 11
   },
-  "legendEntries": 1758,
+  "legendEntries": 1763,
   "legendTypes": {
    "square-swatch": 181,
    "svg-icon": 72,
    "dot-swatch": 333,
    "gradient+dot-swatch": 87,
-   "square-swatch+hatch(missing)": 917,
+   "square-swatch+hatch(missing)": 922,
    "gradient+size+dot-swatch": 5,
    "hatch(missing)": 3,
    "size+dot-swatch": 34,
@@ -77,7 +77,7 @@
   },
   "legendResolution": {
    "ssr": 807,
-   "static": 951
+   "static": 956
   },
   "legendsWithIssues": 159,
   "ironRules": {
@@ -645,7 +645,7 @@
    ],
    "themeDiff": "細縫顏色與透明度、斜線顏色隨底圖切換（F-2／F-3）"
   },
-  "statisticsLayers": 911
+  "statisticsLayers": 916
  },
  "legends": [
   {"id":"accessibleParkFacilities","members":["accessibleParkFacilities"],"components":["AccessibleParkLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":11,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
@@ -2177,6 +2177,11 @@
   {"id":"statsNeedleVendingMachinesTownship","members":["statsNeedleVendingMachinesTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsOffstreetSmallCarParkingSpacesCount","members":["statsOffstreetSmallCarParkingSpacesCount"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsOnstreetSmallCarParkingSpacesCount","members":["statsOnstreetSmallCarParkingSpacesCount"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsOpenDataCoordDatasets","members":["statsOpenDataCoordDatasets"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsOpenDataCoordShare","members":["statsOpenDataCoordShare"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsOpenDataDatasets","members":["statsOpenDataDatasets"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsOpenDataSpatialShare","members":["statsOpenDataSpatialShare"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsOpenDataThemesWithCoords","members":["statsOpenDataThemesWithCoords"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsOrchardAreaTownship","members":["statsOrchardAreaTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsPaddyLandAreaTownship","members":["statsPaddyLandAreaTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsPastureAreaTownship","members":["statsPastureAreaTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
@@ -4137,6 +4142,11 @@
   "statsNeedleVendingMachinesTownship": {"label":"清潔針具自動服務機據點數（鄉鎮市區）","theme":"成癮與減害 Addiction & Harm Reduction","dataClass":"D","color":"#66c2a4","legend":"statsNeedleVendingMachinesTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsNeedleVendingMachinesTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsOffstreetSmallCarParkingSpacesCount": {"label":"小型汽車路外停車位","theme":"道路與車輛 Roads & Vehicles","dataClass":"D","color":"#6baed6","legend":"statsOffstreetSmallCarParkingSpacesCount","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsOffstreetSmallCarParkingSpacesCountOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsOnstreetSmallCarParkingSpacesCount": {"label":"小型汽車路邊停車位","theme":"道路與車輛 Roads & Vehicles","dataClass":"D","color":"#6baed6","legend":"statsOnstreetSmallCarParkingSpacesCount","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsOnstreetSmallCarParkingSpacesCountOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsOpenDataCoordDatasets": {"label":"有座標或幾何的開放資料集數（縣市）","theme":"政府與開放資料 Government & Open Data","dataClass":"D","color":"#7bccc4","legend":"statsOpenDataCoordDatasets","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsOpenDataCoordDatasetsOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsOpenDataCoordShare": {"label":"有座標或幾何的資料集比例（縣市）","theme":"政府與開放資料 Government & Open Data","dataClass":"D","color":"#7bccc4","legend":"statsOpenDataCoordShare","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsOpenDataCoordShareOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsOpenDataDatasets": {"label":"縣市自己發布的開放資料集數（縣市）","theme":"政府與開放資料 Government & Open Data","dataClass":"D","color":"#7bccc4","legend":"statsOpenDataDatasets","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsOpenDataDatasetsOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsOpenDataSpatialShare": {"label":"有任何空間資訊的資料集比例（縣市）","theme":"政府與開放資料 Government & Open Data","dataClass":"D","color":"#7bccc4","legend":"statsOpenDataSpatialShare","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsOpenDataSpatialShareOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsOpenDataThemesWithCoords": {"label":"有座標資料的主題數（縣市）","theme":"政府與開放資料 Government & Open Data","dataClass":"D","color":"#7bccc4","legend":"statsOpenDataThemesWithCoords","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsOpenDataThemesWithCoordsOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsOrchardAreaTownship": {"label":"果園用地面積","theme":"農林漁牧 Agriculture, Forestry & Fisheries","dataClass":"D","color":"#78c679","legend":"statsOrchardAreaTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsOrchardAreaTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsPaddyLandAreaTownship": {"label":"水田用地面積","theme":"農林漁牧 Agriculture, Forestry & Fisheries","dataClass":"D","color":"#78c679","legend":"statsPaddyLandAreaTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsPaddyLandAreaTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsPastureAreaTownship": {"label":"牧場用地面積","theme":"農林漁牧 Agriculture, Forestry & Fisheries","dataClass":"D","color":"#fe9929","legend":"statsPastureAreaTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsPastureAreaTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
