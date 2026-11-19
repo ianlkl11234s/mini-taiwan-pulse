@@ -89,5 +89,6 @@
   "enum.statGroup.平均月租": "平均月額家賃",
   "enum.statGroup.學士以上學歷比例": "学士以上の学歴の比率",
   "enum.statGroup.每萬人火災件數": "人口1万人あたり火災件数",
-  "enum.statGroup.每萬人交通事故件數": "人口1万人あたり交通事故件数"
+  "enum.statGroup.每萬人交通事故件數": "人口1万人あたり交通事故件数",
+  "enum.statGroup.縣市開放資料完整度": "県市オープンデータの充実度"
 }
