@@ -6,6 +6,7 @@ Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsT
   stateAssets  國有資產與國營事業資產（G16；docs/handoff/state-assets-statistics-recipes.json，23 recipes）
   culture      街頭藝人登記人數（G23；docs/handoff/culture-coin-street-performers-recipes.json，2 recipes）
   financeAccessExt 金融服務可及性延伸（G10 延伸；docs/handoff/finance-access-ext-statistics-recipes.json，10 recipes）
+  openData     縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL；docs/handoff/tw-opendata-completeness-recipes.json，5 recipes）
 
 Inputs (taipei-gis-analytics, read-only):
   --root     analytics checkout. The handoff recipes are the trimmed R2 form (release_id／period／dimensions only),
@@ -252,6 +253,41 @@ FINANCE_ACCESS_EXT_LAYERS = [
 
 CULTURE_ZERO = "0 人自成最淺一級（名冊在該區無登記，不是無資料）。"
 
+# ── 縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL，2026-11-18）──────────────────────
+# 衍生統計：本站整理的開放資料平台目錄，不是單一 data.gov.tw 資料集，所以授權與來源名稱照實寫（family license／spec source_title）。
+OD_LICENSE = "衍生統計；目錄 metadata 取自各政府開放資料平台（多為政府資料開放授權條款-第1版）"
+OD_SOURCE_TITLE = "政府開放資料平台目錄（本站整理，2026-10-30 版）"
+OD_SRC = "出典：本站整理的政府開放資料平台目錄（data.gov.tw＋14 縣市平台＋9 中央平台，2026-10-30 版）。"
+OD_SCOPE = "只算縣市自己發布、同名去重後的資料集；0 或偏少＝本目錄查無，不代表縣市沒有公開。"
+OD_PORTAL = "基隆、新竹縣、彰化、嘉義縣、屏東、花蓮、臺東、金門的自有平台不在目錄內，新北、連江只收幾十列：這 10 縣市的筆數與主題數是下限，比例只代表目錄內收到的部分。"
+OD_SPLIT = "資料集數不是資料量：同一報表逐月、逐區拆檔會讓數字膨脹。"
+OD_COORD = "座標＝有經緯度、座標欄或圖資格式（SHP、KML、GeoJSON 等），依目錄標籤判定，未逐筆驗證。"
+OD_SHARE = "比例＝座標級資料集數 ÷ 該縣市資料集數。"
+OD_SPATIAL = "空間資訊＝座標、地址或只到行政區；地址與行政區要再定位，不能直接上地圖。"
+OD_THEMES = "18 類主題中至少有 1 筆座標級資料的類數（不含未分類）；不受拆檔灌水影響。"
+OD_CLASS = "主題沿用目錄既有分類，抽查錯誤約 12%；1–5 筆的小格子對分類很敏感。"
+OD_ZERO = "0 自成最淺一級（本目錄查無，不代表沒有公開）。"
+OD_GROUP = "openDataCompleteness"
+OD_GROUP_LABEL = "縣市開放資料完整度"
+OD_SUB = "開放資料完整度（Day 18 NULL）"
+OD_DIM = {"主題": "全部"}
+
+
+def od(key, option, digits, notes, **extra):
+    return dict(key=key, group=OD_GROUP, group_label=OD_GROUP_LABEL, option_label=option, subgroup=OD_SUB, visual="utilities",
+                digits=digits, notes=[OD_SRC, OD_SCOPE, OD_PORTAL, *notes], source_title=OD_SOURCE_TITLE, **extra)
+
+
+OPEN_DATA_LAYERS = [
+    od("statsOpenDataDatasets", "資料集數", 0, [OD_SPLIT, OD_CLASS], defaults=OD_DIM, dim_order="theme_order",
+       default_breaks=[400, 800, 1500, 2500], zero_note=OD_ZERO),
+    od("statsOpenDataCoordDatasets", "有座標資料集數", 0, [OD_COORD, OD_SPLIT, OD_CLASS], defaults=OD_DIM, dim_order="theme_order",
+       default_breaks=[10, 50, 100, 300], zero_note=OD_ZERO),
+    od("statsOpenDataCoordShare", "有座標比例", 1, [OD_SHARE, OD_COORD], breaks=[3, 6, 10, 20]),
+    od("statsOpenDataSpatialShare", "有空間資訊比例", 1, [OD_SPATIAL], breaks=[20, 30, 45, 60]),
+    od("statsOpenDataThemesWithCoords", "有座標主題數", 0, [OD_THEMES, OD_CLASS], breaks=[5, 9, 13, 16]),
+]
+
 FAMILIES: dict[str, dict] = {
     "financeAccess": {
         "file": "financeAccessStatisticsRecipes",
@@ -279,6 +315,16 @@ FAMILIES: dict[str, dict] = {
         "tab_theme": "住宅與不動產 Housing & Property",
         "observation_policy": {"observed_zero": "status observed and value 0 (source lists 0)", "missing": "value null; area not covered by the source list or source '-'; no zero fill", "not_applicable": "value null; per-sqm value where the area is 0", "suppressed": "not used"},
         "layers": STATE_ASSETS_LAYERS,
+    },
+    "openData": {
+        "file": "openDataStatisticsRecipes",
+        "handoff": "docs/handoff/tw-opendata-completeness-recipes.json",
+        "theme_dir": "open_data_monitor",
+        "data_theme": "開放資料統計 Open Data Statistics",
+        "tab_theme": "政府與開放資料 Government & Open Data",
+        "license": OD_LICENSE,
+        "observation_policy": {"observed_zero": "status observed and value 0 (no dataset of that theme in the catalogue for that county; not proof that the county publishes none)", "missing": "not used", "suppressed": "not used"},
+        "layers": OPEN_DATA_LAYERS,
     },
     "culture": {
         "file": "cultureStatisticsRecipes",
@@ -477,7 +523,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
                 raise SystemExit(f"{key}: binary layer needs 0/1 values only, no dimension scales or breaks; got {sorted(observed)}")
             breaks = [1]
         else:
-            breaks = spec.get("breaks") or make_breaks(values[basis_period][default_tuple], counts)
+            breaks = spec.get("default_breaks") or spec.get("breaks") or make_breaks(values[basis_period][default_tuple], counts)
         for scale in [{"breaks": breaks}, *by_dimension.values()]:
             b = scale["breaks"]
             if sorted(set(b)) != b or not (len(b) == 1 if binary else 2 <= len(b) <= 4) or b[0] <= 0:
@@ -491,7 +537,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
         if spec.get("nonphysical"):
             notes.append(nonphysical_note(key, layer, config, root, defaults))
         nid = release["provenance"]["source_dataset_id"]
-        if release["license"] != OGDL:
+        if release["license"] != config.get("license", OGDL):
             raise SystemExit(f"{key}: unexpected licence {release['license']}")
         recipes.append({
             "layer_key": key, "enabled": True, "family": name,
@@ -518,7 +564,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "disclosure": public_disclosure(key, layer["disclosure"]),
             "publisher": release["publisher"], "license": release["license"],
             "source_landing_url": release["source_landing_url"], "source_download_url": release["source_download_url"],
-            "source_title": f"{release['source_metadata']['dataset_title']}（data.gov.tw {nid}）",
+            "source_title": spec.get("source_title") or f"{release['source_metadata']['dataset_title']}（data.gov.tw {nid}）",
             "delivery": {"observed_statuses": dict(sorted(statuses.items())), "observed_zero": zero, "receipts": receipts,
                          "breaks_basis": BREAK_BASIS, "breaks_period": list(basis_period)},
         })
