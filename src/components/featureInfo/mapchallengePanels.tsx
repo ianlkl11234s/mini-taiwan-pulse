@@ -480,13 +480,15 @@ export function MapchallengeDay19ComplaintsPanel({ props }: Props) {
   const top = str(props.top);
   const lvl = num(props.lvl);
   const levelKey = MAPCHALLENGE_DAY19_LEVEL_KEYS[lvl as 9 | 8 | 7];
+  // area＝實際畫出的面積（父格扣掉已單獨畫的子格），件數 ÷ area＝每 km² 件數，三個數字才對得起來
+  const area = num(props.area);
   const counts = MAPCHALLENGE_DAY19_CATEGORIES.map((c) => ({ key: c.key, n: Number.isFinite(num(props[c.key])) ? num(props[c.key]) : 0 }));
   const max = Math.max(1, ...counts.map((c) => c.n));
   const titleColor = selected !== "all" ? mapchallengeDay19CategoryColor(selected, isDark) : isCategory(top) ? mapchallengeDay19CategoryColor(top, isDark) : mapchallengeDay19CategoryColor("other", isDark);
   return <div>
     <Title color={titleColor}>{t("popup.mapchallenge.day19.complaintsTitle")}</Title>
     <Row label={t("popup.mapchallenge.day19.period")} value={t(MAPCHALLENGE_DAY19_PERIOD_KEYS[period])} />
-    {levelKey && <Row label={t("popup.mapchallenge.day19.grid")} value={t(levelKey)} />}
+    {levelKey && <Row label={t("popup.mapchallenge.day19.grid")} value={t(levelKey, { area: Number.isFinite(area) ? formatNumber(area >= 1 ? Math.round(area * 10) / 10 : Math.round(area * 100) / 100) : "—" })} />}
     <Row label={t("popup.mapchallenge.day19.cases")} value={t("popup.mapchallenge.day19.casesValue", { n: formatNumber(total) })} mono />
     <Row label={t("popup.mapchallenge.day19.dens")} value={t("popup.mapchallenge.day19.densValue", { n: formatNumber(num(props.dens)), bin: mapchallengeDay19DensBin(num(props.dens)) + 1 })} mono />
     {isCategory(top) && <Row label={t("popup.mapchallenge.day19.top")} value={t(MAPCHALLENGE_DAY19_CATEGORY_KEYS[top])} color={mapchallengeDay19CategoryColor(top, isDark)} />}
