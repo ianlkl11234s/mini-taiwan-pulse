@@ -55,9 +55,10 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   mapchallengeDay08Parks: "M", // 30 天地圖挑戰 Day 8 河濱穿堤入口（63 點，疊在公園面上）
   mapchallengeDay06Lighthouses: "L", // 30 天地圖挑戰 Day 6 燈塔與測候所今昔（21 處，點少要醒目）
   serviceArea: "L", // 國道服務區 Service Area
-  // ── 泡泡（依資料） · 44 層
+  // ── 泡泡（依資料） · 45 層
   a1AccidentRealtime: "B", // A1 即時事故 A1 Realtime
   jmaQuakes: "B", // 半徑＝規模 · 日本地震 地震情報
+  mapchallengeDay19Penalties: "B", // 30 天地圖挑戰 Day 19 異味裁罰設施（505 處，半徑依裁罰件數＝泡泡）
   antiCorruptionOffice: "B", // 廉政署 AAC
   coastGuardStation: "B", // 海巡 Coast Guard
   commonRegistrationAddresses: "B", // 共同登記地址 Shared Address

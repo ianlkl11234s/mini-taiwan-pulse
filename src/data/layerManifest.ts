@@ -129,7 +129,7 @@ import {
   Satellite,
   // 🌤️ 環境氣候（Cloud / CloudRain / Grid3x3 / ThermometerSun / Wind / Activity /
   //    AlertTriangle / AlertCircle / TreePine / Sprout / Waves 已在上方 import 復用）
-  CloudSun, Thermometer, Snowflake, Moon, Sunset, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
+  CloudSun, Thermometer, Snowflake, Moon, Sunset, MessageSquareWarning, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
   // 💧 水資源（Droplet / Droplets / Waves / Shield / ShieldCheck / Factory / Timer /
   //    CloudRain / AlertTriangle 已在上方 import 復用）
   GitBranch, Dam, Gauge, Container,
@@ -222,6 +222,7 @@ import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY19_COMPLAINTS_COLOR, MAPCHALLENGE_DAY19_PENALTIES_COLOR, MAPCHALLENGE_DAY19_POTENTIAL_COLOR } from "./mapchallengeDay19Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -17549,6 +17550,88 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "30 天地圖挑戰 Day 17 光與暗：各縣市路燈的 LED 用電占比（LED 用電 ÷ 路燈總用電）。全台從 2021 年 42.1% 升到 2025 年 52.2%；2025 年最高金門 95.3%、臺北 89.0%，最低連江 5.2%、花蓮 12.6%；5 年增幅最大是臺南（29.8% → 72.5%）。可切 2021–2025 年；琥珀＝LED 少（鈉燈色）、冷白＝LED 多。點縣市看 LED 用電量、總用電量、LED 契約戶數與總戶數。台電契約戶一戶可含多盞燈，LED 較省電，用電占比會低估燈數占比；不含私設路燈。來源：台灣電力公司各縣市路燈用電量統計（data.gov.tw 152419，政府資料開放授權條款第 1 版）。",
     topics: ["路燈", "LED", "節能", "光害", "台電", "縣市", "30 天地圖挑戰"],
+  },
+  mapchallengeDay19Complaints: {
+    key: "mapchallengeDay19Complaints",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-19）：靜態 GeoJSON 兩份（2025／2026 期間各一，期間 select 只顯示所選那份），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 19 氣味 Smell" },
+    ...layerName({ zh: "異味陳情網格", alt: "Odor Complaints Grid" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY19_COMPLAINTS_COLOR,
+    icon: MessageSquareWarning,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["epa_pollution_complaints_map"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 19 氣味：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day19_smell（00–05）。環境部公害陳情案件分佈圖（GISEPA_P_06，data.gov.tw 6390）月包／半年包，取污染主項為異味的案件（2025 全年 62,451 件；2026 年 1–6、8、9 月 40,568 件，7 月官方未提供），完全重複列去除；細項對應 6 群（餐飲油煙、露天燃燒、燒香紙錢、工廠作業、畜牧與堆肥、其他或不明）。座標是被陳情對象地址，自適應 H3 網格：res 9（約 0.1 km²）格內 ≥3 個不同被陳情地點才單獨畫，否則併到 res 8（約 0.7 km²）、再併到 res 7（約 5 km²，父格扣掉已畫子格），仍不足不畫（2025 有 2,358 件、2026 有 2,345 件未畫）。每件只落在一個多邊形，不輸出地址、點位、地點數。密度 5 級切點為 2025 格的 q50／q75／q90／q97（31.7／63.3／108／212 件/km²），兩期共用。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。同一地點可重複陳情（最多一處 431 件），件數多不等於最臭；陳情反映有人聞到且願意通報，不是氣味實測。大格代表案件稀疏，不是範圍大。2026 不併入 2025，7 月未涵蓋。",
+    },
+    dataClass: "A",
+    source: [
+      { kind: "geojson", sourceId: "mapchallenge-day19-complaints-2025", url: "./mapchallenge/day19_complaints_2025.geojson" },
+      { kind: "geojson", sourceId: "mapchallenge-day19-complaints-2026", url: "./mapchallenge/day19_complaints_2026.geojson" },
+    ],
+    legend: "mapchallengeDay19Complaints",
+    popup: "mapchallengeDay19Complaints",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "30 天地圖挑戰 Day 19 氣味：民眾向環保單位陳情「聞到異味」的案件，依被陳情對象位置畫成網格。2025 全年 62,451 件，最多的是餐飲油煙 19,228 件，其次露天燃燒 14,047 件、工廠作業 11,899 件；市中心以油煙為主、近郊一圈以露天燃燒為主、中部工業區以工廠作業為主。可切 2025 全年或 2026 年 1–9 月（40,568 件，7 月官方未提供），兩期分開看、不相加；可只看單一類別。顏色＝主因、濃淡＝每 km² 件數。格內不足 3 個不同地點就併到較大的格，所以大格代表案件稀疏；同一地點可重複陳情，件數多不等於最臭。點網格看件數、密度與六類件數。來源：環境部公害陳情案件分佈圖（data.gov.tw 6390，政府資料開放授權條款第 1 版）。",
+    topics: ["氣味", "異味", "空氣污染", "陳情", "餐飲油煙", "露天燃燒", "30 天地圖挑戰"],
+  },
+  mapchallengeDay19Potential: {
+    key: "mapchallengeDay19Potential",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-19）：image source（三張潛勢 PNG，切風向時 updateImage）＋設施點／盛行風箭頭／棄置場址 geojson（useMapchallengeDay19PotentialLayer），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 19 氣味 Smell" },
+    ...layerName({ zh: "設施氣味潛勢＋風", alt: "Odor Potential & Wind" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY19_POTENTIAL_COLOR,
+    icon: Wind,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["teds13_nh3_grid", "landfills", "incinerators", "sewage_treatment_plants", "slaughterhouses", "feed_mills", "era5_wind_2025", "dumping_sites_wr_p_244"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 19 氣味：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day19_smell（00–05）。TWD97 500 m 格（本島）；畜牧以 TEDS 13.0 氨排放（牛、豬、雞、鴨鵝，1 km 格平均攤 4 子格，本島 63,953 t/yr），設施依假設權重（掩埋場 30、公共污水廠 15、焚化廠 10、屠宰場 10、飼料廠 5），以 exp(−d/1.2 km) 擴散、6 km 截斷；有風版依 ERA5 2025 逐時（Copernicus／ECMWF，經 Open-Meteo，0.25° 共 74 點）冬季（1–3、10–12 月）／夏季（6–8 月）16 方位風花，把氣味推往下風（乘「吹往該方向頻率 ×16＋靜風比例」）。4 級＝陸地格前 25%／10%／3%／1%。驗證：不計風版潛勢前 10% 的格子落了 31% 的畜牧與堆肥類陳情，但只有 1.1% 的餐飲油煙類；異味裁罰設施 23% 落在前 10%。棄置場址只供疊看，不進潛勢。PNG 已轉 Web Mercator，四角座標寫在 src/data/mapchallengeDay19Types.ts。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。設施權重為假設值；潛勢是相對排序，不是實測濃度，未計地形與排放時段。離島未涵蓋。公共污水廠座標為地址轉座標。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useMapchallengeDay19PotentialLayer：Mapbox image source（不計風／冬季／夏季三張 PNG，切風向時 updateImage，四角 MAPCHALLENGE_DAY19_IMAGE_CORNERS），raster 插在底圖第一個 symbol 下；設施點、盛行風箭頭、棄置場址三份 geojson（source mapchallenge-day19-facilities／-wind／-dumping）由同一 hook 疊在最上",
+      staticAssets: [
+        "./mapchallenge/day19_potential_iso.png", "./mapchallenge/day19_potential_winter.png", "./mapchallenge/day19_potential_summer.png",
+        "./mapchallenge/day19_odor_facilities.geojson", "./mapchallenge/day19_wind_arrows.geojson", "./mapchallenge/day19_dumping_sites.geojson",
+      ],
+    },
+    legend: "mapchallengeDay19Potential",
+    popup: "mapchallengeDay19Potential",
+    params: { count: 5, kinds: ["slider", "select", "toggle", "toggle", "toggle"] },
+    description: "30 天地圖挑戰 Day 19 氣味：哪裡比較可能聞到設施散出的氣味。以 500 m 格推估畜牧（TEDS 13.0 氨排放）與掩埋場、公共污水廠、焚化廠、屠宰場、飼料廠的氣味潛勢，離設施越遠越淡（1.2 km 衰減、6 km 截斷），分 4 級（陸地格前 25%／10%／3%／1%）。可切不計風、冬季風（1–3、10–12 月）或夏季風（6–8 月），有風版把氣味推往下風；可疊設施點、盛行風箭頭與列管廢棄物棄置場址。驗證：潛勢前 10% 的格子落了 31% 的畜牧與堆肥類陳情，餐飲油煙類只有 1.1%，所以這張圖抓的是畜牧與設施，不是人多的地方。設施權重為假設值，潛勢是相對排序、不是實測濃度；離島未涵蓋。點設施、棄置場址、風箭頭看細節。來源：TEDS 13.0、ERA5（Copernicus／ECMWF，經 Open-Meteo）、各設施來源（掩埋場、焚化廠、公共污水廠、屠宰場、飼料廠）、列管廢棄物棄置場址（WR_P_244），政府資料開放授權條款第 1 版。",
+    topics: ["氣味", "異味", "空氣污染", "畜牧", "掩埋場", "風向", "陳情", "30 天地圖挑戰"],
+  },
+  mapchallengeDay19Penalties: {
+    key: "mapchallengeDay19Penalties",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-19）：靜態 GeoJSON（505 處設施），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 19 氣味 Smell" },
+    ...layerName({ zh: "異味裁罰設施", alt: "Odor Penalties" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY19_PENALTIES_COLOR,
+    icon: Gavel,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["epa_enforcement_penalties"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 19 氣味：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day19_smell（00–05）。環境部環保裁處事件中違反事實欄寫到「異味污染物」的裁罰 848 件，依設施彙總成 505 處（裁罰件數、不同日數、年份範圍、罰鍰合計）。最高超標倍數＝事實欄「檢測值」÷ 其後第一個法定標準值（只認 10／30／50／1000／2000／4000／6000，先剔除管道高度等數字），848 件中 476 件抓得到。個人經營的畜牧場（名稱含養豬場、牧場等且非公司／合作社登記）名稱遮成「畜牧場（名稱不顯示）」（64 處）；不輸出管制編號與事實欄原文。",
+      note: "DISPLAY_ONLY（不入分析倉庫）。事實欄 2017 年起才有、約 6 成空白，848 件是下限；只算事實欄寫到異味污染物的裁罰。未載明倍數不等於未超標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day19-penalties", url: "./mapchallenge/day19_odor_penalties.geojson" },
+    legend: "mapchallengeDay19Penalties",
+    popup: "mapchallengeDay19Penalties",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 19 氣味：官方認定有異味污染而裁罰的設施。2017 年起事實欄寫到「異味污染物」的裁罰 848 件、505 處設施；圓越大裁罰件數越多（1–62 件），顏色是最高超標倍數（≤2、2–5、>5 倍，灰色＝未載明倍數）。可只看有載明倍數或超標 >5 倍的設施。點設施看名稱、縣市、裁罰件數、不同日數、年份與罰鍰合計。事實欄 2017 年起才有、約 6 成空白，848 件是下限；個人經營的畜牧場不顯示名稱。來源：環境部環保裁處（政府資料開放授權條款第 1 版）。",
+    topics: ["氣味", "異味", "空氣污染", "裁罰", "畜牧", "工廠", "30 天地圖挑戰"],
   },
 
   roadCongestion: {
