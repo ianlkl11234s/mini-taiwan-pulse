@@ -102,6 +102,7 @@ import {
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "./ieCoillteTypes";
@@ -1735,6 +1736,42 @@ export const LAYER_PARAMS_SPEC = {
       kind: "select", category: "data", name: "mapchallengeDay17LedShareYear", label: "年份", default: String(MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR),
       options: MAPCHALLENGE_DAY17_LED_YEARS.map((y) => ({ label: `${y} 年`, value: String(y) })),
       out: "mapchallengeDay17LedShareYearIdx", encode: MAPCHALLENGE_DAY17_LED_YEARS.map(String),
+    },
+  ],
+  // 30 天地圖挑戰 Day 19 氣味（模擬面板，公開）：期間 select 換顯示哪一份 geojson（兩期不相加）；類別 select 換上色欄位與 filter。
+  mapchallengeDay19Complaints: [
+    opacitySlider("mapchallengeDay19ComplaintsOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay19ComplaintsPeriod", label: "期間", default: "2025",
+      options: MAPCHALLENGE_DAY19_PERIODS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay19ComplaintsPeriodIdx", encode: MAPCHALLENGE_DAY19_PERIODS.map((o) => o.value),
+    },
+    {
+      kind: "select", category: "data", name: "mapchallengeDay19ComplaintsCategory", label: "類別", default: "all",
+      options: MAPCHALLENGE_DAY19_CATEGORY_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay19ComplaintsCategoryIdx", encode: MAPCHALLENGE_DAY19_CATEGORY_OPTIONS.map((o) => o.value),
+    },
+  ],
+  // 潛勢 raster 用 G-4 影像透明度（同一滑桿也乘在設施點、風箭頭、棄置場址）；三個開關由 hook 讀 0/1。
+  mapchallengeDay19Potential: [
+    { kind: "slider", name: "mapchallengeDay19PotentialOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+    {
+      kind: "select", category: "data", name: "mapchallengeDay19PotentialWind", label: "風向", default: "iso",
+      options: MAPCHALLENGE_DAY19_WINDS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay19PotentialWindIdx", encode: MAPCHALLENGE_DAY19_WINDS.map((o) => o.value),
+    },
+    { kind: "toggle", category: "data", name: "mapchallengeDay19PotentialFacilities", label: "設施點", default: true },
+    { kind: "toggle", category: "data", name: "mapchallengeDay19PotentialArrows", label: "盛行風箭頭", default: true },
+    { kind: "toggle", category: "data", name: "mapchallengeDay19PotentialDumping", label: "廢棄物棄置場址", default: false },
+  ],
+  // 裁罰：半徑依件數（泡泡 B 階，大小滑桿乘在運算式上）；顯示 select 改 filter。
+  mapchallengeDay19Penalties: [
+    opacitySlider("mapchallengeDay19PenaltiesOpacity", 0.85),
+    scaleSlider("mapchallengeDay19PenaltiesScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay19PenaltiesScope", label: "顯示", default: "all",
+      options: MAPCHALLENGE_DAY19_PENALTY_SCOPES.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay19PenaltiesScopeIdx", encode: MAPCHALLENGE_DAY19_PENALTY_SCOPES.map((o) => o.value),
     },
   ],
   freewayTdcsSim: [

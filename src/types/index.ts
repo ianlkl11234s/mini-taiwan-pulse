@@ -455,6 +455,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites" | "mapchallengeDay08Plan1955"
   | "mapchallengeDay09UrbanRural"
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17NightFall" | "mapchallengeDay17LedShare"
+  | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -1034,6 +1035,7 @@ export interface FeatureInfo {
   | "mapchallengeDay08Access" | "mapchallengeDay08Parks" | "mapchallengeDay08Sites"
   | "mapchallengeDay09UrbanRural"
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17LedShare"
+  | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1445,6 +1447,12 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mapchallengeDay17NightFall: boolean;
   /** 30 天地圖挑戰 Day 17 光與暗：縣市路燈 LED 化（22 縣市 2021–2025 LED 用電占比） */
   mapchallengeDay17LedShare: boolean;
+  /** 30 天地圖挑戰 Day 19 氣味（模擬面板，公開）：異味陳情自適應 H3 網格（2025 全年／2026 年 1–9 月，依主因上色） */
+  mapchallengeDay19Complaints: boolean;
+  /** 30 天地圖挑戰 Day 19 氣味：設施氣味潛勢（image source，不計風／冬季／夏季）＋設施點、盛行風箭頭、棄置場址 */
+  mapchallengeDay19Potential: boolean;
+  /** 30 天地圖挑戰 Day 19 氣味：異味裁罰設施（505 處、848 件，半徑依件數、色依最高超標倍數） */
+  mapchallengeDay19Penalties: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */

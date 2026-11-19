@@ -93,6 +93,7 @@
 | BKP-1 | 底線:備份 | P2 | blocked | Supabase「還原到新專案」演練。 | 11-06 決定要做、11-08 健檢「未見完成紀錄」，之前不在任何清單。**會產生費用，要使用者在 Supabase 後台操作**（Restore to new project）。Blocker：owner decision（排時間）。之後 Claude 唯讀核對表數與抽樣筆數，用完刪掉新專案。 | 演練紀錄：花多久、還原到哪個時間點、哪些東西沒還原。 |
 | BKP-2 | 底線:備份 | P3 | ready | pulse-host 依文件在新機器從零重建演練。 | runbook 在 `.gis-agent-system` `projects/2026-10-zeabur-migration/host/README.md` §3，未演練。用一台臨時 Linode 照文件跑到 compose 起得來（不接正式流量），記錄缺漏後刪機。 | 照文件可重建；缺的步驟補回 runbook。 |
 | BKP-3 | 底線:備份 | P2 | ready | `auth.users` 納入 S3 備份。 | 健檢：`auth.users`（會員帳號）、intel、tourism schema 不在 S3 備份範圍。First action：確認 data-collectors `backup_manifest.yaml` 與 `tasks/backup_supabase.py` 的範圍，加 `auth.users`（注意個資：只進私有 bucket）。intel／tourism 一併判斷。 | 每日備份含 `auth.users`，並有一次還原抽查。 |
+| SRCT-1 | 底線:花費 | P2 | ready | 偵測快照（R2 pulse-staging `_detect/snapshots/`）不可無限期保留：改成只長期保存「變更紀錄」（新增、消失、屬性變更，ADR-0024 §3），原檔只暫留到算完差異。 | 站主 2026-11-19 決定：「理論上不能讓他沒有期限，應該要能紀錄像是新增與消失的部分的資料就好了」。現況：每週偵測到內容變動就以 sha256 存一份上游原檔（單檔 ≤50MB、每份資料 ≤8 檔），沒有期限；`_detect` 11-08 約 1.09 GB（ST-2）。11-18 修好下載後成功率約 95%，累積會變快。First action：量 `snapshots/` 目前大小與每週增量；設計保留規則（建議：每個來源只留最新一版原檔供下次比對，差異紀錄永久存 R2＋S3），並和 ST-2 對齊（快照是中間檔，不必補進 S3 正本）。依賴步驟 4 試點與 D 變更紀錄；計畫 `.gis-agent-system/projects/2026-11-18-source-tracking-phase2/PLAN.md`。 | 快照有期限或清理規則且自動執行；新增／消失／屬性變更的差異紀錄長期保存並可查；`_detect` 用量不再無限成長。 |
 
 ## D. 資安與 DB 權限
 

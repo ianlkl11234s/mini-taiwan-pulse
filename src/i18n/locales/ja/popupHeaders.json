@@ -127,5 +127,8 @@
   "popupHeader.mapchallengeDay09UrbanRural": "人が少ない地域に残る施設",
   "popupHeader.mapchallengeDay17DarkSky": "本当の闇：保護区の暗さ順位",
   "popupHeader.mapchallengeDay17DarkRoads": "衛星から光が見えない道路区間",
-  "popupHeader.mapchallengeDay17LedShare": "県市別 街路灯の LED 化"
+  "popupHeader.mapchallengeDay17LedShare": "県市別 街路灯の LED 化",
+  "popupHeader.mapchallengeDay19Complaints": "悪臭苦情メッシュ",
+  "popupHeader.mapchallengeDay19Potential": "施設由来の臭気ポテンシャルと風",
+  "popupHeader.mapchallengeDay19Penalties": "悪臭による処分施設"
 }

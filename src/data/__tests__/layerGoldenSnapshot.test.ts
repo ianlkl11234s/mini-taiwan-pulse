@@ -307,7 +307,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-17: +36 加拿大第 3–8 波（規格驅動，analytics #402）。
     // 2026-11-17: +2 南韓 KRH-1（生態自然圖、垃圾排出規則）。
     // 2026-11-18: +5 縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL，統計）。
-    expect(keys.length).toBe(2015);
+    // 2026-11-19: +3 30 天地圖挑戰 Day 19 氣味（mapchallengeDay19Complaints／Potential／Penalties）。
+    expect(keys.length).toBe(2018);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

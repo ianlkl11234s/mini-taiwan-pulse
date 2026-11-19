@@ -2005,5 +2005,8 @@
   "layer.statsOpenDataCoordDatasets": "座標・ジオメトリ付きオープンデータ件数",
   "layer.statsOpenDataCoordShare": "座標・ジオメトリ付きデータの割合",
   "layer.statsOpenDataSpatialShare": "空間情報を含むデータの割合",
-  "layer.statsOpenDataThemesWithCoords": "座標データのあるテーマ数"
+  "layer.statsOpenDataThemesWithCoords": "座標データのあるテーマ数",
+  "layer.mapchallengeDay19Complaints": "悪臭苦情メッシュ",
+  "layer.mapchallengeDay19Potential": "施設由来の臭気ポテンシャルと風",
+  "layer.mapchallengeDay19Penalties": "悪臭による処分施設"
 }

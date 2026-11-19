@@ -18,21 +18,21 @@
   ]
  },
  "summary": {
-  "layerKeys": 2015,
-  "overlayConfigs": 546,
-  "runtimeSublayers": 1037,
+  "layerKeys": 2018,
+  "overlayConfigs": 549,
+  "runtimeSublayers": 1040,
   "byResolution": {
-   "runtime": 449,
-   "static-scan": 329,
+   "runtime": 451,
+   "static-scan": 330,
    "unresolved": 321,
    "shared-renderer": 916
   },
   "byGeometry": {
-   "point": 629,
+   "point": 631,
    "heatmap": 234,
-   "line": 399,
-   "polygon": 1271,
-   "raster": 76,
+   "line": 400,
+   "polygon": 1272,
+   "raster": 77,
    "label": 63,
    "3d": 35,
    "grid": 16,
@@ -43,17 +43,17 @@
    "無 hook／factory（App 掛載或尚無實作）": 290,
    "Three.js／WebGL CustomLayer": 11
   },
-  "legendEntries": 1763,
+  "legendEntries": 1766,
   "legendTypes": {
-   "square-swatch": 181,
+   "square-swatch": 182,
    "svg-icon": 72,
    "dot-swatch": 333,
    "gradient+dot-swatch": 87,
    "square-swatch+hatch(missing)": 922,
    "gradient+size+dot-swatch": 5,
    "hatch(missing)": 3,
-   "size+dot-swatch": 34,
-   "dot-swatch+square-swatch": 22,
+   "size+dot-swatch": 35,
+   "dot-swatch+square-swatch": 23,
    "text-only": 22,
    "square-swatch+line-swatch+hatch(missing)+svg-icon": 1,
    "gradient+dot-swatch+square-swatch+hatch(missing)": 1,
@@ -76,7 +76,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 807,
+   "ssr": 810,
    "static": 956
   },
   "legendsWithIssues": 159,
@@ -127,7 +127,7 @@
     ],
     "dataDrivenCounted": 45,
     "notSet": 0,
-    "unresolved": 5,
+    "unresolved": 6,
     "decorationExcluded": 160
    },
    "circle-radius@z14": {
@@ -149,18 +149,18 @@
     ],
     "dataDrivenCounted": 45,
     "notSet": 0,
-    "unresolved": 5,
+    "unresolved": 6,
     "decorationExcluded": 160
    },
    "circle-stroke-width@z14": {
-    "n": 382,
+    "n": 383,
     "min": 0.5,
     "p25": 1,
     "median": 1,
     "p75": 1.2,
     "max": 2.2,
     "mostCommon": [
-     "1×271",
+     "1×272",
      "1.2×70",
      "1.4×10",
      "1.5×5",
@@ -175,14 +175,14 @@
     "decorationExcluded": 160
    },
    "circle-opacity": {
-    "n": 378,
+    "n": 379,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
-     "0.85×111",
+     "0.85×112",
      "0.8×83",
      "0.9×53",
      "0.75×45",
@@ -263,7 +263,7 @@
     "decorationExcluded": 30
    },
    "fill-opacity": {
-    "n": 146,
+    "n": 148,
     "min": 0,
     "p25": 0.3,
     "median": 0.5,
@@ -279,7 +279,7 @@
      "0.45×6",
      "0.495×4"
     ],
-    "dataDrivenCounted": 18,
+    "dataDrivenCounted": 20,
     "notSet": 0,
     "unresolved": 0,
     "decorationExcluded": 0
@@ -502,12 +502,12 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 379,
+   "隨底圖切換": 380,
    "資料驅動": 2,
    "固定 #c2410c": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #e5e7eb → 淡 #ffffff": 273,
+   "暗 #e5e7eb → 淡 #ffffff": 274,
    "暗 #0f172a → 淡 #ffffff": 73,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
@@ -544,18 +544,18 @@
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 783,
-   "of": 1037,
+   "sublayersWithDiff": 786,
+   "of": 1040,
    "byProperty": {
-    "circle-stroke-color": 379,
-    "circle-stroke-opacity": 306,
-    "circle-color": 232,
+    "circle-stroke-color": 380,
+    "circle-stroke-opacity": 307,
+    "circle-color": 233,
     "line-color": 145,
     "fill-opacity": 87,
     "heatmap-color": 72,
     "text-color": 64,
     "text-halo-color": 64,
-    "fill-color": 42,
+    "fill-color": 44,
     "line-opacity": 24,
     "circle-opacity": 12,
     "fill-extrusion-color": 3,
@@ -563,11 +563,11 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 285,
+   "circle:categorical": 286,
    "circle:constant": 235,
    "line:constant": 132,
    "heatmap:sequential": 76,
-   "fill:categorical": 73,
+   "fill:categorical": 75,
    "symbol:constant": 64,
    "line:categorical": 62,
    "fill:constant": 37,
@@ -1214,6 +1214,9 @@
   {"id":"mapchallengeDay17DarkSky","members":["mapchallengeDay17DarkSky"],"components":["MapchallengeDay17DarkSkyLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":9,"paintComparable":false},
   {"id":"mapchallengeDay17LedShare","members":["mapchallengeDay17LedShare"],"components":["MapchallengeDay17LedShareLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":5,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":5,"paintComparable":true},
   {"id":"mapchallengeDay17NightFall","members":["mapchallengeDay17NightFall"],"components":["MapchallengeDay17NightFallLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":9,"paintComparable":false},
+  {"id":"mapchallengeDay19Complaints","members":["mapchallengeDay19Complaints"],"components":["MapchallengeDay19ComplaintsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":6,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":6,"paintComparable":true},
+  {"id":"mapchallengeDay19Penalties","members":["mapchallengeDay19Penalties"],"components":["MapchallengeDay19PenaltiesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":7,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","14.838699100999076x14.838699100999076●","24.67739820199815x24.67739820199815●","9.4x9.4●"],"swatchColorCount":4,"paintComparable":true},
+  {"id":"mapchallengeDay19Potential","members":["mapchallengeDay19Potential"],"components":["MapchallengeDay19PotentialLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch+square-swatch","features":{"dot":6,"square":4,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●","12x10"],"swatchColorCount":10,"paintComparable":false},
   {"id":"marineEcologicalMonitoringSites","members":["marineEcologicalMonitoringSites"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"marineMicroplastics","members":["marineMicroplastics"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"marineObservationCwa","members":["marineObservationCwa"],"components":["MarineObservationLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":false},
@@ -3110,6 +3113,9 @@
   "mapchallengeDay17DarkSky": {"label":"真正的黑夜 Where Real Darkness Remains","theme":"30 天地圖挑戰","dataClass":"D","color":"#b73779","legend":"mapchallengeDay17DarkSky","legendType":"gradient","popup":"mapchallengeDay17DarkSky","params":{"opacity":{"name":"mapchallengeDay17DarkSkyOpacity","default":0.7,"min":0.3,"max":1},"controls":2},"hooks":["useMapchallengeDay17DarkSkyLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMapchallengeDay17DarkSkyLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":["non-literal @src/hooks/useMapchallengeDay17DarkSkyLayer.ts"],"fill-opacity":["non-literal @src/hooks/useMapchallengeDay17DarkSkyLayer.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/hooks/useMapchallengeDay17DarkSkyLayer.ts","non-literal @src/map/mapStyleScale.ts"],"line-join":["unresolved:\"round\""],"line-opacity":["non-literal @src/hooks/useMapchallengeDay17DarkSkyLayer.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/hooks/useMapchallengeDay17DarkSkyLayer.ts","non-literal @src/map/mapStyleScale.ts"],"raster-fade-duration":[0],"raster-opacity":["non-literal @src/hooks/useMapchallengeDay17DarkSkyLayer.ts"],"raster-resampling":["unresolved:\"nearest\""],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["line","polygon","raster"],"render":["fill","line","raster"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay17LedShare": {"label":"縣市路燈 LED 化 Streetlight LED Share by County","theme":"30 天地圖挑戰","dataClass":"A","color":"#e3922b","legend":"mapchallengeDay17LedShare","legendType":"square-swatch","popup":"mapchallengeDay17LedShare","params":{"opacity":{"name":"mapchallengeDay17LedShareOpacity","default":0.7,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.85},"colors":{"fill-color":{"kind":"categorical","count":6,"lightDiffers":true}},"themeDiff":["fill-color","fill-opacity"]},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["line-color","line-opacity"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay17NightFall": {"label":"入夜變亮 Lights Come On at Dusk","theme":"30 天地圖挑戰","dataClass":"D","color":"#fcb519","legend":"mapchallengeDay17NightFall","legendType":"gradient","popup":null,"params":{"opacity":{"name":"mapchallengeDay17NightFallOpacity","default":0.7,"min":0.3,"max":1},"controls":1},"hooks":["useMapchallengeDay17NightFallLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMapchallengeDay17NightFallLayer.ts"],"staticValues":{"raster-fade-duration":[0],"raster-opacity":["non-literal @src/hooks/useMapchallengeDay17NightFallLayer.ts"],"raster-resampling":["unresolved:\"nearest\""]},"geometry":["raster"],"render":["raster"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
+  "mapchallengeDay19Complaints": {"label":"異味陳情網格 Odor Complaints Grid","theme":"30 天地圖挑戰","dataClass":"A","color":"#ffa41b","legend":"mapchallengeDay19Complaints","legendType":"square-swatch","popup":"mapchallengeDay19Complaints","params":{"opacity":{"name":"mapchallengeDay19ComplaintsOpacity","default":0.85,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":{"min":0.22,"max":0.92}},"colors":{"fill-color":{"kind":"categorical","count":6,"lightDiffers":true}},"themeDiff":["fill-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":{"min":0.22,"max":0.92}},"colors":{"fill-color":{"kind":"categorical","count":6,"lightDiffers":true}},"themeDiff":["fill-color"]}],"geometry":["polygon"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "mapchallengeDay19Penalties": {"label":"異味裁罰設施 Odor Penalties","theme":"30 天地圖挑戰","dataClass":"A","color":"#fe9929","legend":"mapchallengeDay19Penalties","legendType":"size+dot-swatch","popup":"mapchallengeDay19Penalties","params":{"opacity":{"name":"mapchallengeDay19PenaltiesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay19PenaltiesScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "mapchallengeDay19Potential": {"label":"設施氣味潛勢＋風 Odor Potential & Wind","theme":"30 天地圖挑戰","dataClass":"D","color":"#ec7014","legend":"mapchallengeDay19Potential","legendType":"dot-swatch+square-swatch","popup":"mapchallengeDay19Potential","params":{"opacity":{"name":"mapchallengeDay19PotentialOpacity","default":0.7,"min":0.3,"max":1},"controls":5},"hooks":["useMapchallengeDay19PotentialLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMapchallengeDay19PotentialLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\""],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-join":["unresolved:\"round\""],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"raster-fade-duration":[0],"raster-opacity":["non-literal @src/hooks/useMapchallengeDay19PotentialLayer.ts"],"raster-resampling":["unresolved:\"nearest\""],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["line","point","raster"],"render":["circle","line","raster"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "marineEcologicalMonitoringSites": {"label":"全海域生態系調查點位 Marine Ecosystem Survey Sites","theme":"海洋 Marine","dataClass":"A","color":"#4f46e5","legend":"marineEcologicalMonitoringSites","legendType":"dot-swatch","popup":"marineEcologicalMonitoringSites","params":{"opacity":{"name":"marineEcologicalMonitoringSitesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"marineEcologicalMonitoringSitesScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#4f46e5"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#6c71ff"],"lightDiffers":true,"light":["#4f46e5"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "marineMicroplastics": {"label":"海洋微塑膠調查站 Marine Microplastics Survey","theme":"海洋 Marine","dataClass":"A","color":"#9333ea","legend":"marineMicroplastics","legendType":"dot-swatch","popup":"marineMicroplastics","params":{"opacity":{"name":"marineMicroplasticsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"marineMicroplasticsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":14.143,"z14":16.2},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":5}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":7.857,"z14":9},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"categorical","count":5,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "marineObservationCwa": {"label":"CWA 海洋觀測站 CWA Marine","theme":"水資源 Water","dataClass":"D","color":"#22d3ee","legend":"marineObservationCwa","legendType":"dot-swatch","popup":"marineObservation","params":{"opacity":{"name":"marineObservationCwaOpacity","default":0.9,"min":0.1,"max":1},"controls":1},"hooks":["useMarineObservationLayers"],"siblings":["marineObservationIsohe"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMarineObservationLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-blur":[0.75],"circle-color":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-opacity":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-radius":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

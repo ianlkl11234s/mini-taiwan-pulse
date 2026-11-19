@@ -4,7 +4,7 @@
  * - 設施群聚：每種設施一組色階；標題旁放該色階代表色（第 4 階），切設施時標題、色塊、級距一起換。
  * - 熱區重疊（r7 與臺中彰化 r8）：四類固定色＋大字重疊率。
  */
-import { LEGEND_SWATCH, LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LEGEND_SWATCH, LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, LegendSizeRow, useLegendTheme } from "./legendKit";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { useLocale } from "../../state/localeStore";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
@@ -38,6 +38,15 @@ import {
   MAPCHALLENGE_DAY17_SKY_BREAKS, mapchallengeDay17Gradient, mapchallengeDay17GlowColor, mapchallengeDay17ProtectedLineColor, mapchallengeDay17SkyPos, mapchallengeDay17ZeroColor,
   MAPCHALLENGE_DAY17_LED_NATIONAL, mapchallengeDay17LedColors, mapchallengeDay17LedYearByKey,
 } from "../../data/mapchallengeDay17Types";
+import {
+  MAPCHALLENGE_DAY19_CATEGORIES, MAPCHALLENGE_DAY19_DENS_CUTS, MAPCHALLENGE_DAY19_DENS_OPACITY, MAPCHALLENGE_DAY19_FACILITY_KINDS, MAPCHALLENGE_DAY19_PENALTY_TOTALS,
+  MAPCHALLENGE_DAY19_PERIOD_STATS, MAPCHALLENGE_DAY19_POTENTIAL_CLASSES, mapchallengeDay19CategoryByKey, mapchallengeDay19PenaltyRadius, mapchallengeDay19PeriodByKey,
+  MAPCHALLENGE_DAY19_WINDS, type MapchallengeDay19Category,
+} from "../../data/mapchallengeDay19Types";
+import {
+  MAPCHALLENGE_DAY19_RATIO_NULL_COLOR, mapchallengeDay19CategoryColor, mapchallengeDay19DumpingColor, mapchallengeDay19FacilityColor, mapchallengeDay19RatioColors,
+  mapchallengeDay19WindColor,
+} from "../../data/mapchallengeDay19Style";
 import { RADIUS } from "../../styles/designTokens";
 
 /** i18n key 寫成字面值（localeParity 靠字面值判斷 key 有沒有人用） */
@@ -524,5 +533,93 @@ export function MapchallengeDay17LedShareLegend({ isDark }: { isDark: boolean })
     <LegendNote>{t("legend.mapchallenge.day17.ledNational", { a: (MAPCHALLENGE_DAY17_LED_NATIONAL[2021] * 100).toFixed(1), b: (MAPCHALLENGE_DAY17_LED_NATIONAL[2025] * 100).toFixed(1), y: (MAPCHALLENGE_DAY17_LED_NATIONAL[year] * 100).toFixed(1), year })}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day17.ledNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day17.ledSource")}</LegendNote>
+  </div>;
+}
+
+// ── Day 19 氣味 ───────────────────────────────────────────────
+/** 六類名稱的翻譯 key（順序同 MAPCHALLENGE_DAY19_CATEGORIES；說明框共用） */
+export const MAPCHALLENGE_DAY19_CATEGORY_KEYS: Readonly<Record<MapchallengeDay19Category, "legend.mapchallenge.day19.cat.cooking" | "legend.mapchallenge.day19.cat.burning" | "legend.mapchallenge.day19.cat.incense" | "legend.mapchallenge.day19.cat.industry" | "legend.mapchallenge.day19.cat.farm" | "legend.mapchallenge.day19.cat.other">> = {
+  cooking: "legend.mapchallenge.day19.cat.cooking", burning: "legend.mapchallenge.day19.cat.burning", incense: "legend.mapchallenge.day19.cat.incense",
+  industry: "legend.mapchallenge.day19.cat.industry", farm: "legend.mapchallenge.day19.cat.farm", other: "legend.mapchallenge.day19.cat.other",
+};
+/** 設施五類名稱的翻譯 key（說明框共用） */
+export const MAPCHALLENGE_DAY19_FACILITY_KEYS = {
+  landfill: "legend.mapchallenge.day19.fac.landfill", sewage: "legend.mapchallenge.day19.fac.sewage", incinerator: "legend.mapchallenge.day19.fac.incinerator",
+  slaughter: "legend.mapchallenge.day19.fac.slaughter", feed: "legend.mapchallenge.day19.fac.feed",
+} as const;
+export const MAPCHALLENGE_DAY19_PERIOD_KEYS = { "2025": "legend.mapchallenge.day19.period2025", "2026": "legend.mapchallenge.day19.period2026" } as const;
+const MAPCHALLENGE_DAY19_POTENTIAL_CLASS_KEYS = [
+  "legend.mapchallenge.day19.top25", "legend.mapchallenge.day19.top10", "legend.mapchallenge.day19.top3", "legend.mapchallenge.day19.top1",
+] as const;
+const MAPCHALLENGE_DAY19_WIND_KEYS = { iso: "legend.mapchallenge.day19.windIso", winter: "legend.mapchallenge.day19.windWinter", summer: "legend.mapchallenge.day19.windSummer" } as const;
+
+/** #rrggbb → rgba（圖例濃淡色塊） */
+function day19Alpha(hex: string, a: number): string {
+  const n = Number.parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
+export function MapchallengeDay19ComplaintsLegend({ isDark }: { isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const theme = useLegendTheme();
+  const values = useLayerParams("mapchallengeDay19Complaints");
+  const period = mapchallengeDay19PeriodByKey(paramStr(values, "mapchallengeDay19Complaints", "mapchallengeDay19ComplaintsPeriod"));
+  const category = mapchallengeDay19CategoryByKey(paramStr(values, "mapchallengeDay19Complaints", "mapchallengeDay19ComplaintsCategory"));
+  const stats = MAPCHALLENGE_DAY19_PERIOD_STATS[period];
+  const rampBase = category === "all" ? (isDark ? "#e5e7eb" : "#374151") : mapchallengeDay19CategoryColor(category, isDark);
+  const cuts = MAPCHALLENGE_DAY19_DENS_CUTS.map((c) => formatNumber(Math.round(c)));
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day19.complaintsTitle", { period: t(MAPCHALLENGE_DAY19_PERIOD_KEYS[period]) })} />
+    <LegendNote>{t("legend.mapchallenge.day19.complaintsCases", { n: formatNumber(stats.cases), drawn: formatNumber(stats.drawn) })}</LegendNote>
+    {category === "all"
+      ? <>
+        <LegendNote>{t("legend.mapchallenge.day19.colorIsTop")}</LegendNote>
+        {MAPCHALLENGE_DAY19_CATEGORIES.map((c) => <LegendRow key={c.key} swatch={<SwatchSquare color={mapchallengeDay19CategoryColor(c.key, isDark)} />}>{t(MAPCHALLENGE_DAY19_CATEGORY_KEYS[c.key])}</LegendRow>)}
+      </>
+      : <LegendRow swatch={<SwatchSquare color={mapchallengeDay19CategoryColor(category, isDark)} />}>{t("legend.mapchallenge.day19.onlyCategory", { name: t(MAPCHALLENGE_DAY19_CATEGORY_KEYS[category]) })}</LegendRow>}
+    <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: theme.textMuted }}>{t(category === "all" ? "legend.mapchallenge.day19.densTitle" : "legend.mapchallenge.day19.densTitleCat")}</div>
+    <SwatchSteps colors={MAPCHALLENGE_DAY19_DENS_OPACITY.map((a) => day19Alpha(rampBase, a))} breaks={["0", ...cuts, ""]} />
+    <LegendNote>{t("legend.mapchallenge.day19.gridNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day19.repeatNote")}</LegendNote>
+    {period === "2026" && <LegendNote>{t("legend.mapchallenge.day19.julyNote")}</LegendNote>}
+    <LegendNote>{t("legend.mapchallenge.day19.complaintsSource")}</LegendNote>
+  </div>;
+}
+
+export function MapchallengeDay19PotentialLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  const values = useLayerParams("mapchallengeDay19Potential");
+  const wind = MAPCHALLENGE_DAY19_WINDS.find((w) => w.value === paramStr(values, "mapchallengeDay19Potential", "mapchallengeDay19PotentialWind")) ?? MAPCHALLENGE_DAY19_WINDS[0];
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day19.potentialTitle", { wind: t(MAPCHALLENGE_DAY19_WIND_KEYS[wind.value]) })} />
+    {[...MAPCHALLENGE_DAY19_POTENTIAL_CLASSES].reverse().map((c, i) => <LegendRow key={c.color} swatch={<SwatchSquare color={c.color} opacity={1} />}>
+      {t(MAPCHALLENGE_DAY19_POTENTIAL_CLASS_KEYS[MAPCHALLENGE_DAY19_POTENTIAL_CLASSES.length - 1 - i]!)}
+    </LegendRow>)}
+    <LegendNote>{t("legend.mapchallenge.day19.potentialMethod")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day19.assumedWeight")}</LegendNote>
+    {MAPCHALLENGE_DAY19_FACILITY_KINDS.map((f) => <LegendRow key={f.kind} swatch={<SwatchDot color={mapchallengeDay19FacilityColor(f.kind, isDark)} />}>
+      {t("legend.mapchallenge.day19.facWeight", { name: t(MAPCHALLENGE_DAY19_FACILITY_KEYS[f.kind]), w: f.weight })}
+    </LegendRow>)}
+    {wind.season !== null && <LegendRow swatch={<SwatchLine color={mapchallengeDay19WindColor(isDark)} width={2} />}>{t("legend.mapchallenge.day19.windArrow")}</LegendRow>}
+    <LegendRow swatch={<SwatchDot color={mapchallengeDay19DumpingColor(isDark)} />}>{t("legend.mapchallenge.day19.dumping")}</LegendRow>
+    <LegendNote>{t("legend.mapchallenge.day19.validation")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day19.islands")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day19.potentialSource")}</LegendNote>
+  </div>;
+}
+
+const MAPCHALLENGE_DAY19_RATIO_KEYS = ["legend.mapchallenge.day19.ratioLow", "legend.mapchallenge.day19.ratioMid", "legend.mapchallenge.day19.ratioHigh"] as const;
+
+export function MapchallengeDay19PenaltiesLegend({ isDark }: { isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const colors = mapchallengeDay19RatioColors(isDark);
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day19.penaltiesTitle")} />
+    <LegendNote>{t("legend.mapchallenge.day19.penaltiesSub", { f: formatNumber(MAPCHALLENGE_DAY19_PENALTY_TOTALS.facilities), n: formatNumber(MAPCHALLENGE_DAY19_PENALTY_TOTALS.events) })}</LegendNote>
+    {[2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchDot color={colors[i]!} />}>{t(MAPCHALLENGE_DAY19_RATIO_KEYS[i]!)}</LegendRow>)}
+    <LegendRow swatch={<SwatchDot color={MAPCHALLENGE_DAY19_RATIO_NULL_COLOR} />}>{t("legend.mapchallenge.day19.ratioNull")}</LegendRow>
+    <LegendSizeRow title={t("legend.mapchallenge.day19.sizeTitle")} items={[1, 5, 20].map((n) => ({ r: mapchallengeDay19PenaltyRadius(n), label: String(n) }))} fill={colors[1]} />
+    <LegendNote>{t("legend.mapchallenge.day19.penaltiesNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day19.penaltiesSource")}</LegendNote>
   </div>;
 }
