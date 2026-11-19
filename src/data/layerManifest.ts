@@ -17589,7 +17589,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "pulse_only",
       datasets: [],
-      derivedFromDatasets: ["teds13_nh3_grid", "landfills", "incinerators", "sewage_treatment_plants", "slaughterhouses", "feed_mills", "era5_wind_2025", "dumping_sites_wr_p_244"],
+      derivedFromDatasets: ["teds_grid_emissions", "landfills_national", "incinerator_emissions", "sewage_treatment_plants", "slaughterhouses", "feed_factories", "era5_wind_2025", "dumping_sites_wr_p_244"],
       derivationType: "custom",
       processing: "30 天地圖挑戰 Day 19 氣味：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day19_smell（00–05）。TWD97 500 m 格（本島）；畜牧以 TEDS 13.0 氨排放（牛、豬、雞、鴨鵝，1 km 格平均攤 4 子格，本島 63,953 t/yr），設施依假設權重（掩埋場 30、公共污水廠 15、焚化廠 10、屠宰場 10、飼料廠 5），以 exp(−d/1.2 km) 擴散、6 km 截斷；有風版依 ERA5 2025 逐時（Copernicus／ECMWF，經 Open-Meteo，0.25° 共 74 點）冬季（1–3、10–12 月）／夏季（6–8 月）16 方位風花，把氣味推往下風（乘「吹往該方向頻率 ×16＋靜風比例」）。4 級＝陸地格前 25%／10%／3%／1%。驗證：不計風版潛勢前 10% 的格子落了 31% 的畜牧與堆肥類陳情，但只有 1.1% 的餐飲油煙類；異味裁罰設施 23% 落在前 10%。棄置場址只供疊看，不進潛勢。PNG 已轉 Web Mercator，四角座標寫在 src/data/mapchallengeDay19Types.ts。",
       note: "DISPLAY_ONLY（不入分析倉庫）。設施權重為假設值；潛勢是相對排序，不是實測濃度，未計地形與排放時段。離島未涵蓋。公共污水廠座標為地址轉座標。",
@@ -17620,7 +17620,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "pulse_only",
       datasets: [],
-      derivedFromDatasets: ["epa_enforcement_penalties"],
+      derivedFromDatasets: ["pollution_penalties"],
       derivationType: "custom",
       processing: "30 天地圖挑戰 Day 19 氣味：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day19_smell（00–05）。環境部環保裁處事件中違反事實欄寫到「異味污染物」的裁罰 848 件，依設施彙總成 505 處（裁罰件數、不同日數、年份範圍、罰鍰合計）。最高超標倍數＝事實欄「檢測值」÷ 其後第一個法定標準值（只認 10／30／50／1000／2000／4000／6000，先剔除管道高度等數字），848 件中 476 件抓得到。個人經營的畜牧場（名稱含養豬場、牧場等且非公司／合作社登記）名稱遮成「畜牧場（名稱不顯示）」（64 處）；不輸出管制編號與事實欄原文。",
       note: "DISPLAY_ONLY（不入分析倉庫）。事實欄 2017 年起才有、約 6 成空白，848 件是下限；只算事實欄寫到異味污染物的裁罰。未載明倍數不等於未超標。",
