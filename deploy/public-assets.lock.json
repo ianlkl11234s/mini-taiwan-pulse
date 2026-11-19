@@ -1992,6 +1992,69 @@
    "s3_key": "deploy-assets/mapchallenge/day17_skyglow_2025.png"
   },
   {
+   "path": "public/mapchallenge/day19_complaints_2025.geojson",
+   "bytes": 4894400,
+   "sha256": "3cd396e8fce481394addb67496f3eab73f8747e0547a897b1a1b060ae9e11813",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_complaints_2025.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day19_complaints_2026.geojson",
+   "bytes": 3682920,
+   "sha256": "4fdb8b9d527a0469217e5da8cab9690f2b5ff06bb7d8267b5700c581324c15c6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_complaints_2026.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day19_dumping_sites.geojson",
+   "bytes": 104190,
+   "sha256": "0cb19ad8173c3ccc28baad7cdb11e4fb4c8f653210f12eb728e02810ee3d89b1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_dumping_sites.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day19_odor_facilities.geojson",
+   "bytes": 117127,
+   "sha256": "dfee99e5ebf6595f5bf10a56eb3dd1dccb1a8f1b2234019ec2c5f5c4669b3df6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_odor_facilities.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day19_odor_penalties.geojson",
+   "bytes": 122933,
+   "sha256": "421c0143fac2ae84765e0f8445de71e279e4b585cb127de94b80067927aa1fed",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_odor_penalties.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day19_potential_iso.png",
+   "bytes": 26975,
+   "sha256": "b8f80857da2d38b69d3e3a6acdb3f0142b6abc5a163b374400dd02ac2b1d21df",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_potential_iso.png"
+  },
+  {
+   "path": "public/mapchallenge/day19_potential_summer.png",
+   "bytes": 30234,
+   "sha256": "43ccb3b58822e126b70cd8697f52eca42edd0aca772e36c54d5b834d6476609b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_potential_summer.png"
+  },
+  {
+   "path": "public/mapchallenge/day19_potential_winter.png",
+   "bytes": 35458,
+   "sha256": "3df1f4e8f59a8eb2d18176ee797d3a1baef21d96a8b59efc7bfe7dd962738298",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_potential_winter.png"
+  },
+  {
+   "path": "public/mapchallenge/day19_wind_arrows.geojson",
+   "bytes": 37484,
+   "sha256": "0212f950a8ee12b456f7d9e5fc80c7fdf5451b3174a2870152284eba269eef43",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day19_wind_arrows.geojson"
+  },
+  {
    "path": "public/marine/artificial_reef_areas.geojson",
    "bytes": 65643,
    "sha256": "d16a890d059b1f42b9b34c557998fb5c34e49a495d454ac917bbe6c62d4ef851",
