@@ -2000,5 +2000,10 @@
   "layer.caNsAquaculture": "Nova Scotia Aquaculture Leases (Canada)",
   "layer.caAbattoirs": "Abattoirs (ON, MB) (Canada)",
   "layer.caOdbus": "Business Licences (ODBus) (Canada)",
-  "layer.caTorontoDevApplications": "Toronto Development Applications (Canada)"
+  "layer.caTorontoDevApplications": "Toronto Development Applications (Canada)",
+  "layer.statsOpenDataDatasets": "Open Datasets Published by Each County",
+  "layer.statsOpenDataCoordDatasets": "Open Datasets with Coordinates or Geometry",
+  "layer.statsOpenDataCoordShare": "Share of Open Datasets with Coordinates or Geometry",
+  "layer.statsOpenDataSpatialShare": "Share of Open Datasets with Any Spatial Information",
+  "layer.statsOpenDataThemesWithCoords": "Themes with Coordinate Data"
 }

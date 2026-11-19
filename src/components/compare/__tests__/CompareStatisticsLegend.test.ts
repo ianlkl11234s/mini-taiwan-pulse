@@ -21,6 +21,11 @@ describe("比較模式合成圖例", () => {
     expect(html).toContain("右：");
   });
 
+  it("F009：共用色階時右側 loading／error 另外顯示；分兩排時不重複", () => {
+    expect(render(false)).toContain(`[status@${RIGHT}]`);
+    expect(render(true)).not.toContain("[status@");
+  });
+
   it("色階不同：左右兩排色票並列", () => {
     const html = render(true);
     expect(html).toContain(`[rows@${KEY}]`);

@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   SERIES_DIMENSION_KEYS, TIME_DIMENSION_KEYS, compareArrangement, defaultComparison, periodNote, periodPhrase, pickYearlyPeriods,
-  smallMultipleFill, smallMultiplesPlan, stepColor, toggleComparison,
+  isUncoveredStatus, smallMultipleFill, smallMultiplesPlan, stepColor, toggleComparison,
   type SmallMultipleCandidate,
 } from '../statisticsSmallMultiples';
 import { statisticsRenderRecipe } from '../regionalStatisticsRecipes';
@@ -15,6 +15,13 @@ const c = (releaseId: string, start: string, end: string, dimensions: Record<str
 });
 
 describe('pickYearlyPeriods（年份挑選）', () => {
+  it('F010：2 月底在閏年（02-29）與平年（02-28）視為同跨度，不退到 12 月', () => {
+    const list = [c('2024-02', '2024-02-29', '2024-02-29'), c('2024-12', '2024-12-31', '2024-12-31'), c('2025-02', '2025-02-28', '2025-02-28'), c('2025-12', '2025-12-31', '2025-12-31')];
+    const picked = pickYearlyPeriods(list, list[2]!);
+    expect(picked.map(p => p.candidate.releaseId)).toEqual(['2024-02', '2025-02']);
+    expect(picked.every(p => p.sameSpan)).toBe(true);
+  });
+
   it('每年一期、由舊到新，目前那年用目前期別', () => {
     const list = [c('2023', '2023-01-01', '2023-12-31'), c('2024', '2024-01-01', '2024-12-31'), c('2025', '2025-01-01', '2025-12-31')];
     const picked = pickYearlyPeriods(list, list[1]!);
@@ -176,5 +183,15 @@ describe('smallMultiplesPlan', () => {
     expect(smallMultiplesPlan(key, { selection, releases, release: releases[0]! })).toBeNull();
     const village = 'statsDemographicsVillageShareAge65Plus' as const;
     expect(smallMultiplesPlan(village, { selection: statisticsRecipe(village), releases, release: releases[0]! })).toBeNull();
+  });
+});
+
+describe('F005：未涵蓋（not_applicable）不當缺值', () => {
+  const recipe = { breaks: [1, 2], colors: ['#111', '#222', '#333'] };
+  it('非類別型 not_applicable 畫法同缺值斜線，但標為未涵蓋；一般缺值與數值不是', () => {
+    expect(smallMultipleFill({ status: 'not_applicable', value: null }, recipe).kind).toBe('missing');
+    expect(isUncoveredStatus({ status: 'not_applicable', value: null }, recipe)).toBe(true);
+    expect(isUncoveredStatus({ status: 'missing', value: null }, recipe)).toBe(false);
+    expect(isUncoveredStatus({ status: 'observed', value: 3 }, recipe)).toBe(false);
   });
 });

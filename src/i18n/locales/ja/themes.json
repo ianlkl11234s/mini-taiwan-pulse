@@ -492,5 +492,8 @@
   "theme.竊盜": "窃盗",
   "theme.營業登記": "営業登録",
   "theme.倉儲": "貯蔵",
-  "theme.乾旱": "干ばつ"
+  "theme.乾旱": "干ばつ",
+  "theme.開放資料完整度（Day 18 NULL）": "オープンデータ充実度（Day 18 NULL）",
+  "theme.政府與開放資料 Government & Open Data": "行政・オープンデータ",
+  "theme.開放資料統計 Open Data Statistics": "オープンデータ統計"
 }

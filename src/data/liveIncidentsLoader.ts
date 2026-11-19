@@ -212,15 +212,15 @@ export function fire119CaseProps(c: Fire119Case): Record<string, string | number
 
 /** 依目前時間與時間範圍產生上圖資料（純函式，測試用） */
 export function buildFire119Display(raw: Fire119Raw, nowMs: number, windowMin: number): Fire119Display {
-  const inWindow = raw.cases.filter((c) => inLiveWindow(c, nowMs, windowMin));
+  // 返隊逾淡出時間（fade=0）的案件不論點／區／未上圖都已過期，不計入任何分支與 total
+  const inWindow = raw.cases.filter((c) => inLiveWindow(c, nowMs, windowMin) && returnedFade(c, nowMs) > 0);
   const pointCases: { c: Fire119Case; fade: number }[] = [];
   const districts = new Map<string, Fire119Case[]>();
   const hospitals = new Map<string, { name: string | null; coord: [number, number]; cases: Fire119Case[] }>();
   let unmapped = 0;
   for (const c of inWindow) {
     if (c.coord) {
-      const fade = returnedFade(c, nowMs);
-      if (fade > 0) pointCases.push({ c, fade });
+      pointCases.push({ c, fade: returnedFade(c, nowMs) });
     } else if (c.precision === "district" && c.townCode) {
       const list = districts.get(c.townCode);
       if (list) list.push(c); else districts.set(c.townCode, [c]);

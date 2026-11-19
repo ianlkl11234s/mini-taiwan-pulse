@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { viewLngRanges } from "../lib/viewLngRanges";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -58,7 +59,9 @@ export function padBounds(b: Bounds, pad: number): Bounds {
 export function shardsInView(shards: readonly PmtilesShard[], zoom: number, view: Bounds, minzoom: number, pad = 0.2): PmtilesShard[] {
   if (zoom < minzoom) return [];
   const v = padBounds(view, pad);
-  return shards.filter((s) => v[0] <= s.bbox[2] && v[2] >= s.bbox[0] && v[1] <= s.bbox[3] && v[3] >= s.bbox[1]);
+  // 經度先 wrap 回 [-180, 180]：平移到另一份世界時 getBounds 經度會超出 ±180
+  const lngRanges = viewLngRanges(v[0], v[2]);
+  return shards.filter((s) => v[1] <= s.bbox[3] && v[3] >= s.bbox[1] && lngRanges.some(([w, e]) => w <= s.bbox[2] && e >= s.bbox[0]));
 }
 
 export function useViewportPmtilesShards(mapRef: React.RefObject<MapboxMap | null>, o: ViewportShardOptions, deps: readonly unknown[]) {

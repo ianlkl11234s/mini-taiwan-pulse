@@ -1,4 +1,4 @@
-import { useSyncExternalStore, type CSSProperties } from 'react';
+import { useCallback, useRef, useSyncExternalStore, type CSSProperties } from 'react';
 import { getAgriRecipe, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriStatisticsRecipes';
 import { getSocialRecipe } from '../../data/socialStatisticsRecipes';
 import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSemantics } from '../../data/laborStatisticsRecipes';
@@ -14,7 +14,7 @@ import { layerVisibilityStore } from '../../state/layerVisibilityStore';
 import { LAYER_MANIFEST, type LayerManifestEntry } from '../../data/layerManifest';
 import type { LayerVisibility } from '../../types';
 import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
-import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, type StatisticsLayerKey, type StatisticsRenderKey } from '../../data/regionalStatisticsRecipes';
+import { STATISTICS_RECIPES, STATISTICS_RENDER_KEYS, statisticsBaseKey, statisticsRenderRecipe, type StatisticsLayerKey, type StatisticsRenderKey } from '../../data/regionalStatisticsRecipes';
 import type { StatisticsLevel, StatisticsRecipe } from '../../data/regionalStatisticsLoader';
 import { statisticsColorStops } from '../../data/statisticsColorScale';
 import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
@@ -23,7 +23,7 @@ import { PROPORTIONAL_CIRCLE, proportionalCircleRadius, proportionalLegendValues
 import { statisticsCircleHollow, statisticsPresentationMode } from '../../state/statisticsPresentationStore';
 import { statisticsFillOpacity } from '../../data/statisticsVisuals';
 import { useLayerParams } from '../../state/layerParamsStore';
-import { compareCircleReference, compareDotUnit } from '../../state/compareStatistics';
+import { compareCircleReference, compareDotUnit, statisticsRightStoreKey } from '../../state/compareStatistics';
 import { dataDotUnit, dotTotal } from '../../map/statisticsDots';
 import { CompareStatisticsLegend, type StatisticsLegendPart } from '../compare/CompareStatisticsLegend';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
@@ -73,6 +73,16 @@ function coverageLine(health: NonNullable<ReturnType<typeof useStatisticsSnapsho
 }
 export function useStatisticsSnapshot(key: string) {
   return useSyncExternalStore(cb => regionalStatisticsStore.subscribe(key, cb), () => regionalStatisticsStore.getSnapshot(key));
+}
+/** 圖例計算會讀「別層」或右側 key::R 的資料：訂閱這些 store key，任一份載入／更新就重畫 */
+function useStatisticsStoresTick(keys: readonly string[]) {
+  const version = useRef(0);
+  const joined = keys.join('|');
+  const subscribe = useCallback((callback: () => void) => {
+    const offs = joined.split('|').filter(Boolean).map(key => regionalStatisticsStore.subscribe(key, () => { version.current += 1; callback(); }));
+    return () => offs.forEach(off => off());
+  }, [joined]);
+  return useSyncExternalStore(subscribe, () => version.current);
 }
 function publicLink(value: unknown): string | undefined {
   if (typeof value !== 'string') return;
@@ -262,6 +272,8 @@ export function StatisticsLegendView({ layerKey, storeKey = layerKey, part }: { 
   const rows = dots ? <StatisticsDotLegend layerKey={layerKey} data={state.data} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} />
     : circle ? <StatisticsCircleLegend layerKey={layerKey} data={state.data} level={recipe.level} unit={statisticsUnit(recipe.unit, i18n)} color={recipe.colors[recipe.colors.length - 1]!} isDark={t.isDark} />
     : (binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} />}>{label}</LegendRow>);
+  // 比較合成圖例：右側載入中／失敗要單獨顯示（共用色階時只畫左側 rows，右側狀態不能被吞掉）
+  if (part === 'status') return state.loading || state.error ? <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>{loadState}</div> : null;
   if (part === 'period') return <span>{(state.release ? statisticsDimensionSummary(state.selection?.dimensions, state.release, recipe.dataset_id, i18n) : '') || period}</span>;
   if (part === 'title' || part === 'rows') {
     return <LegendFillOpacityCtx.Provider value={fillOpacity}><div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
@@ -319,6 +331,8 @@ function compactParts(value: number, locale: string): { value: string; compact: 
 /** LG-5 比例圓圖例：三個套疊圓（與地圖同一個半徑公式與參考值）＋「圓面積代表數量」 */
 function StatisticsCircleLegend({ layerKey, data, level, unit, color, isDark }: { layerKey: StatisticsRenderKey; data: GeoJSON.FeatureCollection | null | undefined; level: string; unit: string; color: string; isDark: boolean }) {
   const i18n = useLocale();
+  // 參考值讀右側 key::R、空心／實心讀其他統計層的資料與模式：都要訂閱
+  useStatisticsStoresTick([...STATISTICS_RENDER_KEYS.filter(other => other !== layerKey), statisticsRightStoreKey(layerKey)]);
   if (!data) return null;
   const own = statisticsCircleData(data).reference;
   // 比較中左右期別不同：與兩張地圖共用較大的參考值（同一個圓大小在左右代表同一數量）
@@ -339,6 +353,7 @@ function StatisticsCircleLegend({ layerKey, data, level, unit, color, isDark }: 
 /** 點密度圖例：一個點樣本＋「一點＝N 單位」＋位置隨機、餘數規則（N 與地圖同一支、比較時共用較大者） */
 function StatisticsDotLegend({ layerKey, data, unit, color }: { layerKey: StatisticsRenderKey; data: GeoJSON.FeatureCollection | null | undefined; unit: string; color: string }) {
   const i18n = useLocale();
+  useStatisticsStoresTick([statisticsRightStoreKey(layerKey)]);
   if (!data) return null;
   if (!(dotTotal(data) > 0)) return <span>{i18n.t('statistics.legend.dotNoPositive')}</span>;
   const own = dataDotUnit(data);

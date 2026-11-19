@@ -117,4 +117,19 @@ describe("MainMapConnection render order (P1)", () => {
     expect(imports.length).toBeGreaterThan(0);
     for (const call of imports) expect(call.arguments[1]?.getText()).toMatch(/^\w+ => \w+\.client\.fetchResult\(/);
   });
+
+  it("merging legacy duplicates keeps the visible one when the first is hidden (review 2026-11-18 F002)", async () => {
+    const { deps } = setup(async ids => ({ results: ids.map(metaOf), missing: [] }));
+    const scene = collection([["wh-9:multipolygon", null], ["wh-9:polygon", null]]);
+    scene.items[0]!.visible = false;
+    const outcome = await restoreWarehouseResults(scene, deps);
+    expect(outcome.collection?.items).toEqual([{ resultId: "wh-9", visible: true, groupId: null }]);
+  });
+
+  it("merging legacy duplicates keeps the first when both are hidden or both visible", async () => {
+    const { deps } = setup(async ids => ({ results: ids.map(metaOf), missing: [] }));
+    const hidden = collection([["wh-9:multipolygon", null], ["wh-9:polygon", null]]);
+    hidden.items.forEach(item => { item.visible = false; });
+    expect((await restoreWarehouseResults(hidden, deps)).collection?.items).toEqual([{ resultId: "wh-9", visible: false, groupId: null }]);
+  });
 });

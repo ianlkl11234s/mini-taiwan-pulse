@@ -6,6 +6,7 @@ import { isAccessDenied } from "../lib/layerGates";
 import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
 import { keepLoadingUntilMapIdle, withLoading } from "../lib/loadingRegistry";
 import { supabase } from "../lib/supabase";
+import { viewLngRanges } from "../lib/viewLngRanges";
 import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_ROADS_MIN_ZOOM, IE_COILLTE_SPEC_BY_KEY, normalizeIeCoillte, type IeCoillteKey } from "../data/ieCoillteTypes";
 
 /**
@@ -218,7 +219,9 @@ export function useIeCoillteForestRoadsLayer(mapRef: React.RefObject<MapboxMap |
       }
       const b = map.getBounds();
       if (!b) return;
-      const bounds = { west: b.getWest(), south: b.getSouth(), east: b.getEast(), north: b.getNorth() };
+      // 經度 wrap：平移到另一份世界時 getBounds 超出 ±180，API 的 bbox 要用世界座標
+      const lng = viewLngRanges(b.getWest(), b.getEast())[0]!;
+      const bounds = { west: Math.max(-180, lng[0]), south: b.getSouth(), east: Math.min(180, lng[1]), north: b.getNorth() };
       const k = ieCoillteBoundsKey(snapIeCoillteBounds(bounds));
       if (k === shownKey) {
         controller?.abort();
