@@ -75,7 +75,7 @@ export function mapchallengeDay19CategoryByKey(key: string | undefined): Mapchal
 /** 密度切點（件/km²；2025 格的 q50／q75／q90／q97，兩期共用） */
 export const MAPCHALLENGE_DAY19_DENS_CUTS = [31.7, 63.3, 108, 212] as const;
 /** 5 級填色透明度（× 透明度滑桿 ÷ 預設）：密度越高越實 */
-export const MAPCHALLENGE_DAY19_DENS_OPACITY = [0.3, 0.45, 0.6, 0.78, 0.95] as const;
+export const MAPCHALLENGE_DAY19_DENS_OPACITY = [0.22, 0.38, 0.55, 0.72, 0.92] as const;
 export function mapchallengeDay19DensBin(dens: number): number {
   return MAPCHALLENGE_DAY19_DENS_CUTS.filter((c) => dens >= c).length;
 }
