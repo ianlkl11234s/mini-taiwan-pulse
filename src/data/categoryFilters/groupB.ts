@@ -265,6 +265,8 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       { value: "district_office", zh: "公所" },
       { value: "household_registration", zh: "戶政事務所" },
       { value: "land_office", zh: "地政事務所" },
+      // 台灣圖層延伸 B3（2026-11-20）：戶政事務所轄下辦公據點（7437 的 office_kind=branch，另一份 PMTiles、圖磚沒有 type 欄；overlay 讀這一位元）
+      { value: "household_registration_branch", zh: "戶政辦公據點" },
     ],
   },
   hakkaCulturalZones: {

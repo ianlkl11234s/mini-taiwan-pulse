@@ -3894,7 +3894,7 @@ export const LAYER_PARAMS_SPEC = {
     },
     opacitySlider("highwayDisasterHistoryOpacity", densePointOpacity(16_163)), scaleSlider("highwayDisasterHistoryScale", 1),
   ],
-  // 年度全島崩塌地：只有 4 年（缺年在圖例與說明標示），預設 2024（V2 版）。
+  // 年度全島崩塌地：只有 5 年（缺年在圖例與說明標示），預設 2024（V2 版）。2025 在獨立單年檔，年份索引決定可見的 source。
   landslideAnnual: [
     {
       kind: "select", name: "landslideAnnualYear", label: "年份", default: String(ANNUAL_DEFAULT_YEAR),
@@ -5523,7 +5523,7 @@ export const LAYER_PARAMS_SPEC = {
   towingYards: [opacitySlider("towingYardsOpacity", 0.9), scaleSlider("towingYardsScale", 1)],
   swcOutdoorClassrooms: [opacitySlider("swcOutdoorClassroomsOpacity", 0.9), scaleSlider("swcOutdoorClassroomsScale", 1)],
   swcEcoCheckZones: [opacitySlider("swcEcoCheckZonesOpacity", 0.3)],
-  airportHeightSurfaces: [opacitySlider("airportHeightSurfacesOpacity", 0.3)],
+  airportHeightSurfaces: [opacitySlider("airportHeightSurfacesOpacity", 0.35)],
   landOfficeJurisdiction: [opacitySlider("landOfficeJurisdictionOpacity", 0.25)],
   npSpeciesSites: [
     heatmapPalette("npSpeciesSites"),

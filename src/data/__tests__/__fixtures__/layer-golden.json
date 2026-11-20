@@ -388,6 +388,13 @@
     },
     {
       "layers": [
+        "gov-service-offices-hro-branch-circle",
+        "gov-service-offices-hro-branch-glow"
+      ],
+      "type": "householdRegistrationBranch"
+    },
+    {
+      "layers": [
         "public-libraries-circle",
         "public-libraries-glow"
       ],
@@ -7890,6 +7897,15 @@
         "landslide-annual-outline",
         "landslide-annual-points-circle-point",
         "landslide-annual-points-circle-polygon"
+      ],
+      "type": "landslideAnnual"
+    },
+    {
+      "layers": [
+        "landslide-annual-2025-fill",
+        "landslide-annual-2025-outline",
+        "landslide-annual-2025-points-circle-point",
+        "landslide-annual-2025-points-circle-polygon"
       ],
       "type": "landslideAnnual"
     },
@@ -86083,6 +86099,502 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "landslideAnnual",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "fill-color": "#92400e",
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": "#92400e",
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": "#fdba74",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.4,
+                14,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "#7c2d12",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.4,
+                14,
+                1.2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "landslide_annual"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "landslide-annual-2025",
+      "sourceUrl": "./hazards/landslide_annual_swcb_2025_20261120.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideAnnual",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 7.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#cf774c",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#92400e",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "landslide_annual_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "landslide-annual-2025-points",
+      "sourceUrl": "./hazards/landslide_annual_swcb_2025_20261120_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "highwayDisasterHistory",
       "layers": [
         {
@@ -90517,6 +91029,126 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "govServiceOffices",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "office_kind"
+            ],
+            "branch"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#7e57c2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                8,
+                12,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#7e57c2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                8,
+                12,
+                16
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "office_kind"
+            ],
+            "branch"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "branch",
+                "#8e68d4",
+                "#8e68d4"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "office_kind"
+                ],
+                "branch",
+                "#8e68d4",
+                "#8e68d4"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "household_registration_offices"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "gov-service-offices-hro-branch",
+      "sourceUrl": "./civic_facilities/household_registration_offices_7437.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "namrBuoys",
       "layers": [
         {
@@ -91200,11 +91832,11 @@
                 [
                   "進場面"
                 ],
-                "#b91c1c",
+                "#f87171",
                 [
                   "轉接面"
                 ],
-                "#ea580c",
+                "#fb923c",
                 [
                   "水平面"
                 ],
@@ -91212,27 +91844,27 @@
                 [
                   "圓錐面"
                 ],
-                "#818cf8",
+                "#a5b4fc",
                 [
                   "起落地帶"
                 ],
-                "#16a34a",
+                "#4ade80",
                 [
                   "傾斜面"
                 ],
-                "#a855f7",
+                "#d8b4fe",
                 [
                   "水平銜接面"
                 ],
-                "#14b8a6",
+                "#2dd4bf",
                 [
                   "機場搜索雷達",
                   "助航燈光"
                 ],
-                "#94a3b8",
+                "#cbd5e1",
                 "#94a3b8"
               ],
-              "fill-opacity": 0.3
+              "fill-opacity": 0.5599999999999999
             },
             "light": {
               "fill-color": [
@@ -91244,11 +91876,11 @@
                 [
                   "進場面"
                 ],
-                "#b91c1c",
+                "#f87171",
                 [
                   "轉接面"
                 ],
-                "#ea580c",
+                "#fb923c",
                 [
                   "水平面"
                 ],
@@ -91256,27 +91888,27 @@
                 [
                   "圓錐面"
                 ],
-                "#818cf8",
+                "#a5b4fc",
                 [
                   "起落地帶"
                 ],
-                "#16a34a",
+                "#4ade80",
                 [
                   "傾斜面"
                 ],
-                "#a855f7",
+                "#d8b4fe",
                 [
                   "水平銜接面"
                 ],
-                "#14b8a6",
+                "#2dd4bf",
                 [
                   "機場搜索雷達",
                   "助航燈光"
                 ],
-                "#94a3b8",
+                "#cbd5e1",
                 "#94a3b8"
               ],
-              "fill-opacity": 0.3
+              "fill-opacity": 0.35
             }
           },
           "suffix": "fill",
@@ -91291,7 +91923,7 @@
           "paint": {
             "dark": {
               "line-color": "#e2e8f0",
-              "line-opacity": 0.6,
+              "line-opacity": 0.6499999999999999,
               "line-width": [
                 "interpolate",
                 [
@@ -91316,11 +91948,11 @@
                 [
                   "進場面"
                 ],
-                "#b91c1c",
+                "#f87171",
                 [
                   "轉接面"
                 ],
-                "#ea580c",
+                "#fb923c",
                 [
                   "水平面"
                 ],
@@ -91328,27 +91960,27 @@
                 [
                   "圓錐面"
                 ],
-                "#818cf8",
+                "#a5b4fc",
                 [
                   "起落地帶"
                 ],
-                "#16a34a",
+                "#4ade80",
                 [
                   "傾斜面"
                 ],
-                "#a855f7",
+                "#d8b4fe",
                 [
                   "水平銜接面"
                 ],
-                "#14b8a6",
+                "#2dd4bf",
                 [
                   "機場搜索雷達",
                   "助航燈光"
                 ],
-                "#94a3b8",
+                "#cbd5e1",
                 "#94a3b8"
               ],
-              "line-opacity": 0.6,
+              "line-opacity": 0.6499999999999999,
               "line-width": [
                 "interpolate",
                 [
@@ -91391,11 +92023,11 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "fill-color": "#a16207",
-              "fill-opacity": 0.25
+              "fill-color": "#fde047",
+              "fill-opacity": 0.425
             },
             "light": {
-              "fill-color": "#a16207",
+              "fill-color": "#fde047",
               "fill-opacity": 0.25
             }
           },
@@ -91443,6 +92075,56 @@
             }
           },
           "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "office_title_7620"
+            ],
+            "__none__"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#fde047",
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": "#fde047",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "highlight-fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "office_title_7620"
+            ],
+            "__none__"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#fde047",
+              "line-opacity": 0,
+              "line-width": 2.5
+            },
+            "light": {
+              "line-color": "#a16207",
+              "line-opacity": 0,
+              "line-width": 2.5
+            }
+          },
+          "suffix": "highlight-line",
           "type": "line"
         }
       ],
@@ -119011,13 +119693,13 @@
         ]
       },
       {
-        "label": "透明度 0.30",
+        "label": "透明度 0.35",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.3,
-        "valueText": "0.30"
+        "value": 0.35,
+        "valueText": "0.35"
       }
     ],
     "airports": [
@@ -136747,13 +137429,18 @@
           {
             "label": "地政事務所",
             "value": "land_office"
+          },
+          {
+            "label": "戶政辦公據點",
+            "value": "household_registration_branch"
           }
         ],
         "type": "multiSelect",
         "value": [
           "district_office",
           "household_registration",
-          "land_office"
+          "land_office",
+          "household_registration_branch"
         ]
       },
       {
@@ -154703,6 +155390,10 @@
           {
             "label": "2024（V2 版）",
             "value": "2024"
+          },
+          {
+            "label": "2025（114 年版）",
+            "value": "2025"
           }
         ],
         "type": "select",

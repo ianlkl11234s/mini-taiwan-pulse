@@ -5,6 +5,6 @@
   "legend.landslide.highwayNote": "Reports jumped about tenfold from 2018, probably because the reporting system changed, not because disasters increased; be careful with cross-year comparisons. 2026 runs only through Oct 4 and is an incomplete year; no report does not mean no incident. At low zoom they appear as a heat zone. Highway Bureau, Ministry of Transportation and Communications (data.gov.tw 31020) · Open Government Data License, version 1.0.",
   "legend.landslide.annualRow": "Landslide extent for the selected year",
   "legend.landslide.annualZoom": "Shown only at zoom 10 and above (small polygons are missing at low zoom).",
-  "legend.landslide.annualYears": "Only four years are included: 2017, 2018, 2023 and 2024. 2019–2022 are not included, and 2016 and earlier use a different basis from the Forestry Bureau and are not included.",
+  "legend.landslide.annualYears": "Only five years are included: 2017, 2018, 2023, 2024 and 2025. 2019–2022 are not included, and 2016 and earlier use a different basis from the Forestry Bureau and are not included.",
   "legend.landslide.annualNote": "{zoom} {years} {v2} Agency of Rural Development and Soil and Water Conservation, Ministry of Agriculture (satellite image interpretation) · Open Government Data License, version 1.0."
 }

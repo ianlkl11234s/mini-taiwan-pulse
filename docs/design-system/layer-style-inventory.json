@@ -19,8 +19,8 @@
  },
  "summary": {
   "layerKeys": 2036,
-  "overlayConfigs": 559,
-  "runtimeSublayers": 1063,
+  "overlayConfigs": 562,
+  "runtimeSublayers": 1072,
   "byResolution": {
    "runtime": 460,
    "static-scan": 330,
@@ -109,15 +109,15 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 386,
+    "n": 388,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
     "p75": 5.143,
     "max": 15.3,
     "mostCommon": [
-     "4.5×201",
-     "3×43",
+     "4.5×202",
+     "3×44",
      "5.143×37",
      "6.5×16",
      "6.857×10",
@@ -128,18 +128,18 @@
     "dataDrivenCounted": 45,
     "notSet": 0,
     "unresolved": 6,
-    "decorationExcluded": 167
+    "decorationExcluded": 168
    },
    "circle-radius@z14": {
-    "n": 386,
+    "n": 388,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
     "p75": 6,
     "max": 114.014,
     "mostCommon": [
-     "4.5×203",
-     "3×43",
+     "4.5×204",
+     "3×44",
      "6×42",
      "6.5×21",
      "5×11",
@@ -150,17 +150,17 @@
     "dataDrivenCounted": 45,
     "notSet": 0,
     "unresolved": 6,
-    "decorationExcluded": 167
+    "decorationExcluded": 168
    },
    "circle-stroke-width@z14": {
-    "n": 392,
+    "n": 394,
     "min": 0,
     "p25": 1,
     "median": 1,
     "p75": 1.2,
     "max": 2.2,
     "mostCommon": [
-     "1×274",
+     "1×276",
      "1.2×76",
      "1.4×10",
      "1.5×5",
@@ -172,10 +172,10 @@
     "dataDrivenCounted": 38,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 167
+    "decorationExcluded": 168
    },
    "circle-opacity": {
-    "n": 388,
+    "n": 390,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
@@ -184,8 +184,8 @@
     "mostCommon": [
      "0.85×112",
      "0.8×85",
-     "0.9×58",
-     "0.75×45",
+     "0.9×59",
+     "0.75×46",
      "0.45×15",
      "0.6×13",
      "0.54×7",
@@ -194,10 +194,10 @@
     "dataDrivenCounted": 44,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 167
+    "decorationExcluded": 168
    },
    "line-width@z10": {
-    "n": 170,
+    "n": 171,
     "min": 0.15,
     "p25": 0.733,
     "median": 1,
@@ -216,10 +216,10 @@
     "dataDrivenCounted": 11,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 30
+    "decorationExcluded": 31
    },
    "line-width@z14": {
-    "n": 170,
+    "n": 171,
     "min": 0.15,
     "p25": 1,
     "median": 1,
@@ -231,28 +231,28 @@
      "0.5×25",
      "2×20",
      "3.5×9",
-     "1.2×5",
+     "1.2×6",
      "0.7×4",
      "0.15×3"
     ],
     "dataDrivenCounted": 11,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 30
+    "decorationExcluded": 31
    },
    "line-opacity": {
-    "n": 170,
+    "n": 171,
     "min": 0.04,
     "p25": 0.6,
     "median": 0.8,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
-     "0.6×57",
+     "0.6×56",
      "0.8×39",
-     "0.85×34",
+     "0.85×35",
      "0.75×10",
-     "0.65×8",
+     "0.65×9",
      "0.9×7",
      "1×5",
      "0.55×4"
@@ -260,10 +260,10 @@
     "dataDrivenCounted": 6,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 30
+    "decorationExcluded": 31
    },
    "fill-opacity": {
-    "n": 151,
+    "n": 152,
     "min": 0,
     "p25": 0.3,
     "median": 0.5,
@@ -271,7 +271,7 @@
     "max": 0.85,
     "mostCommon": [
      "0.5×40",
-     "0.3×22",
+     "0.3×21",
      "0.8×18",
      "0×10",
      "0.35×10",
@@ -282,7 +282,7 @@
     "dataDrivenCounted": 20,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 0
+    "decorationExcluded": 1
    },
    "fill-extrusion-opacity": {
     "n": 5,
@@ -300,14 +300,14 @@
     "decorationExcluded": 0
    },
    "heatmap-radius@z14": {
-    "n": 77,
+    "n": 79,
     "min": 20,
     "p25": 20,
     "median": 20,
     "p75": 20,
     "max": 20,
     "mostCommon": [
-     "20×77"
+     "20×79"
     ],
     "dataDrivenCounted": 0,
     "notSet": 0,
@@ -439,6 +439,7 @@
     "mapchallengeDay05SeaViewRuns/line=2.5(資料驅動中點)",
     "mapchallengeDay06Coast/line=2.4(資料驅動中點)",
     "landslideAnnual/outline=0.4",
+    "landslideAnnual/outline=0.4",
     "ooklaFixedTaiwan/line=0.35",
     "ooklaFixedTaiwan/line=0.35",
     "ooklaMobileTaiwan/line=0.35",
@@ -505,25 +506,26 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 388,
+   "隨底圖切換": 390,
    "資料驅動": 2,
    "固定 #c2410c": 1,
    "無描邊（未設或寬 0）": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #e5e7eb → 淡 #ffffff": 276,
+   "暗 #e5e7eb → 淡 #ffffff": 278,
    "暗 #0f172a → 淡 #ffffff": 79,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
    "暗 #e5e7eb → 淡 #475569": 1
   },
   "decorationSublayers": {
-   "count": 197,
+   "count": 200,
    "byType": {
-    "circle": 167,
-    "line": 30
+    "circle": 168,
+    "line": 31,
+    "fill": 1
    },
-   "keys": 172
+   "keys": 173
   },
   "lineDash": [
    "debrisFlowPotential/outline=[4,3]",
@@ -542,21 +544,21 @@
    "waterBasins/line=[2,2]"
   ],
   "lineCapJoin": {
-   "cap=(預設 butt) join=(預設 miter)": 121,
+   "cap=(預設 butt) join=(預設 miter)": 122,
    "cap=round join=round": 41,
    "cap=butt join=miter": 6,
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 798,
-   "of": 1063,
+   "sublayersWithDiff": 807,
+   "of": 1072,
    "byProperty": {
-    "circle-stroke-color": 388,
-    "circle-stroke-opacity": 309,
-    "circle-color": 236,
-    "line-color": 148,
-    "fill-opacity": 87,
-    "heatmap-color": 73,
+    "circle-stroke-color": 390,
+    "circle-stroke-opacity": 311,
+    "circle-color": 237,
+    "line-color": 150,
+    "fill-opacity": 90,
+    "heatmap-color": 75,
     "text-color": 64,
     "text-halo-color": 64,
     "fill-color": 44,
@@ -568,13 +570,13 @@
   },
   "colorEncoding": {
    "circle:categorical": 297,
-   "circle:constant": 240,
-   "line:constant": 135,
-   "heatmap:sequential": 77,
+   "circle:constant": 243,
+   "line:constant": 137,
+   "heatmap:sequential": 79,
    "fill:categorical": 76,
    "symbol:constant": 64,
    "line:categorical": 62,
-   "fill:constant": 39,
+   "fill:constant": 41,
    "fill:sequential-step": 18,
    "fill:sequential": 16,
    "circle:data-driven": 9,
@@ -915,7 +917,7 @@
   {"id":"gibsNightLights","members":["gibsNightLights"],"components":["GibsNightLightsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":5,"paintComparable":false},
   {"id":"gibsSnowCover","members":["gibsSnowCover"],"components":["GibsSnowCoverLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"gradient","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":2,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"globalEvents","members":["globalEvents"],"components":["GlobalEventsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":11,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","11x11●","14x14●","18x18●","8x8●"],"swatchColorCount":7,"paintComparable":false},
-  {"id":"govServiceOffices","members":["govServiceOffices"],"components":["GovServiceOfficeLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":3,"paintComparable":true},
+  {"id":"govServiceOffices","members":["govServiceOffices"],"components":["GovServiceOfficeLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":true},
   {"id":"groundwater","members":["groundwater"],"components":["GroundwaterLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":7,"paintComparable":false},
   {"id":"hakkaCulturalZones","members":["hakkaCulturalZones"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":6,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":6,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"harmReductionAftercare","members":["harmReductionAftercare"],"components":["HarmReductionAftercareLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
@@ -1184,7 +1186,7 @@
   {"id":"krWaterQualityStations","members":["krWaterQualityStations"],"components":["KrDataLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"lakesPondsOsm","members":["lakesPondsOsm"],"components":["LakesPondsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":4,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":4,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"landingStations","members":["landingStations"],"components":["LandingStationLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
-  {"id":"landOfficeJurisdiction","members":["landOfficeJurisdiction"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":1,"paintComparable":true},
+  {"id":"landOfficeJurisdiction","members":["landOfficeJurisdiction"],"components":["LandOfficeJurisdictionLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":1,"paintComparable":true},
   {"id":"landslideAnnual","members":["landslideAnnual"],"components":["LandslideAnnualLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":1,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"landslideDodAreas","members":["landslideDodAreas"],"components":["LandslideDodAreasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":3,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":3,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"landslideDodImpact","members":["landslideDodImpact"],"components":["LandslideDodImpactLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"svg-icon","features":{"dot":0,"square":0,"line":0,"dashed":3,"gradient":0,"hatch":0,"svg":3,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":3,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
@@ -2454,7 +2456,7 @@
   "agriSoilFertility": {"label":"土壤肥力 Soil Fertility（250m）","theme":"農業 Agriculture","dataClass":"D","color":"#00897b","legend":"agriSoilFertility","legendType":"square-swatch","popup":"agriSoilFertility","params":{"opacity":{"name":"agriSoilFertilityOpacity","default":1,"min":0.1,"max":1},"controls":2},"hooks":[],"resolution":"static-scan","scope":"hook","evidence":["src/map/agricultureLayerFactory.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts"],"circle-opacity":["non-literal @src/map/agricultureLayerFactory.ts",0.9],"circle-radius":["non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":[{"kind":"constant"},"non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts"],"fill-opacity":[{"min":0.18,"max":0.42},"non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":[{"kind":"constant"},"non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/agricultureLayerFactory.ts",{"z10":1,"z14":1},{"z10":1,"z14":1},"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","line","point","polygon"],"render":["circle","fill","heatmap","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "agriWholesaleMarket": {"label":"農產批發市場 Wholesale Market","theme":"農業 Agriculture","dataClass":"A","color":"#ffd600","legend":"agriRetail","legendType":"gradient+dot-swatch","popup":"agriWholesaleMarket","params":{"opacity":{"name":"agriWholesaleMarketOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"agriWholesaleMarketScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":6,"values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.9,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd600"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "agriculture": {"label":"農田範圍 FTW Fields（2025）","theme":"農業 Agriculture","dataClass":"D","color":"#2e7d32","legend":null,"legendType":null,"popup":"agricultureField","params":{"opacity":{"name":"agricultureOpacity","default":1,"min":0.1,"max":1},"size":{"name":"agricultureScale","default":1,"min":0.3,"max":3},"lineWidth":{"name":"agricultureOutlineWidth","default":1,"min":0,"max":5},"height":{"name":"agricultureZ","default":0,"min":0,"max":100},"controls":7},"hooks":[],"resolution":"static-scan","scope":"hook","evidence":["src/map/agricultureLayerFactory.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts"],"circle-opacity":["non-literal @src/map/agricultureLayerFactory.ts",0.9],"circle-radius":["non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":[{"kind":"constant"},"non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts"],"fill-opacity":[{"min":0.18,"max":0.42},"non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":[{"kind":"constant"},"non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/agricultureLayerFactory.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/agricultureLayerFactory.ts",{"z10":1,"z14":1},{"z10":1,"z14":1},"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","line","point","polygon"],"render":["circle","fill","heatmap","line"],"ironRules":{"opacity":true,"legend":false,"popup":true}},
-  "airportHeightSurfaces": {"label":"機場周邊限高管制面 Airport Height Restriction Surfaces","theme":"交通 Move","dataClass":"B","color":"#38bdf8","legend":"airportHeightSurfaces","legendType":"square-swatch","popup":"airportHeightSurfaces","params":{"opacity":{"name":"airportHeightSurfacesOpacity","default":0.3,"min":0.1,"max":1},"height":{"name":"airportHeightSurfacesOpacity","default":0.3,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.3},"colors":{"fill-color":{"kind":"categorical","count":8}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.733,"z14":1.4},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "airportHeightSurfaces": {"label":"機場周邊限高管制面 Airport Height Restriction Surfaces","theme":"交通 Move","dataClass":"B","color":"#38bdf8","legend":"airportHeightSurfaces","legendType":"square-swatch","popup":"airportHeightSurfaces","params":{"opacity":{"name":"airportHeightSurfacesOpacity","default":0.35,"min":0.1,"max":1},"height":{"name":"airportHeightSurfacesOpacity","default":0.35,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.56},"colors":{"fill-color":{"kind":"categorical","count":9}},"themeDiff":["fill-opacity"]},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.733,"z14":1.4},"line-opacity":0.65},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "airports": {"label":"機場 Airport","theme":"交通 Move","dataClass":"A","color":"#daa520","legend":null,"legendType":null,"popup":"airport","params":{"opacity":{"name":"airportOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"airportScale","default":1,"min":0.3,"max":3},"height":{"name":"airportPillarHeight","default":0.6,"min":0.2,"max":3},"controls":6},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-2","type":"line","role":"decoration","geometry":"line","render":"line","values":{"line-width":{"z10":30,"z14":30},"line-blur":{"z10":15,"z14":15},"line-opacity":0},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#daa520"]}},"themeDiff":["line-color"]},{"suffix":"glow-1","type":"line","role":"decoration","geometry":"line","render":"line","values":{"line-width":{"z10":10,"z14":10},"line-blur":{"z10":5,"z14":5},"line-opacity":0},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#daa520"]}},"themeDiff":["line-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.3},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#c89520"]}},"themeDiff":["fill-color","fill-opacity"]},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.5,"z14":0.5},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#9ca3af"],"lightDiffers":true,"light":["#374151"]}},"themeDiff":["line-color"]},{"suffix":"point-glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":12.25,"z14":16},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#daa520"]}}},{"suffix":"point-core","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.828,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#daa520"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["line","point","polygon"],"render":["circle","fill","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},
   "aisstreamVessels": {"label":"AISStream 船舶 AISStream Vessels","theme":"全球海事 Global Maritime","dataClass":"D","color":"#22d3ee","legend":"aisstreamVessels","legendType":"dot-swatch","popup":"aisstreamVessel","params":{"opacity":{"name":"aisstreamVesselsOpacity","default":0.9,"min":0,"max":1},"controls":1},"hooks":["useGlobalMaritimeLayers"],"siblings":["gfwVesselPresence"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useGlobalMaritimeLayers.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":[{"kind":"constant"},{"kind":"constant"}],"circle-opacity":[0.9,0.75],"circle-radius":["non-literal @src/hooks/useGlobalMaritimeLayers.ts","non-literal @src/hooks/useGlobalMaritimeLayers.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "allenCoralAtlas": {"label":"珊瑚礁棲地分類 Allen Coral Atlas（私人研究）","theme":"全球環境 Global Environment","dataClass":"D","color":"#ee6c83","legend":"allenCoralAtlas","legendType":"square-swatch","popup":"allenCoralAtlas","params":{"opacity":{"name":"allenCoralAtlasOpacity","default":0.65,"min":0,"max":1},"controls":3},"hooks":["useAllenCoralAtlasLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useAllenCoralAtlasLayer.ts","src/map/lineFillSpec.ts"],"staticValues":{"fill-color":["non-literal @src/hooks/useAllenCoralAtlasLayer.ts","non-literal @src/hooks/useAllenCoralAtlasLayer.ts"],"fill-opacity":["non-literal @src/hooks/useAllenCoralAtlasLayer.ts",0.65,"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"]},"geometry":["polygon"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
@@ -2786,7 +2788,7 @@
   "gibsNightLights": {"label":"衛星夜光 Night Lights（NASA GIBS）","theme":"全球環境 Global Environment","dataClass":"D","color":"#fde68a","legend":"gibsNightLights","legendType":"gradient","popup":null,"params":{"opacity":{"name":"gibsNightLightsOpacity","default":0.7,"min":0.3,"max":1},"controls":2},"hooks":["useGibsNightLightsLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useGibsNightLightsLayer.ts"],"staticValues":{"raster-fade-duration":[0],"raster-opacity":["non-literal @src/hooks/useGibsNightLightsLayer.ts"],"raster-resampling":["unresolved:\"linear\""]},"geometry":["raster"],"render":["raster"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
   "gibsSnowCover": {"label":"衛星雪覆蓋 積雪域（衛星 NDSI）（NASA GIBS）","theme":"環境氣候","dataClass":"D","color":"#7dd3fc","legend":"gibsSnowCover","legendType":"gradient","popup":null,"params":{"opacity":{"name":"gibsSnowCoverOpacity","default":0.7,"min":0.3,"max":1},"controls":2},"hooks":["useGibsSnowCoverLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useGibsSnowCoverLayer.ts"],"staticValues":{"raster-fade-duration":[0],"raster-opacity":["non-literal @src/hooks/useGibsSnowCoverLayer.ts"],"raster-resampling":["unresolved:\"nearest\""]},"geometry":["raster"],"render":["raster"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
   "globalEvents": {"label":"全球重大事件 Global Events","theme":"全球情勢 Global Situation","dataClass":"D","color":"#f97316","legend":"globalEvents","legendType":"size+dot-swatch","popup":"globalEvent","params":{"opacity":{"name":"globalEventsOpacity","default":0.9,"min":0,"max":1},"controls":8},"hooks":["useGlobalEventsLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useGlobalEventsLayer.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":[{"kind":"constant"},{"kind":"constant"},{"kind":"constant"}],"circle-color-transition":["non-literal @src/hooks/useGlobalEventsLayer.ts"],"circle-opacity":[0.5],"circle-radius":[{"z10":2,"z14":2},{"z10":8,"z14":8},{"z10":15,"z14":15}],"circle-radius-transition":["non-literal @src/hooks/useGlobalEventsLayer.ts"],"circle-stroke-color":[{"kind":"categorical"},{"kind":"constant"},"non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-color-transition":["non-literal @src/hooks/useGlobalEventsLayer.ts"],"circle-stroke-opacity":[0,"non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity-transition":["non-literal @src/hooks/useGlobalEventsLayer.ts"],"circle-stroke-width":[{"z10":2.5,"z14":2.5},{"z10":1.5,"z14":1.5},"non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width-transition":["non-literal @src/hooks/useGlobalEventsLayer.ts"],"fill-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"icon-allow-overlap":[1],"icon-color":["non-literal @src/hooks/useGlobalEventsLayer.ts"],"icon-halo-color":[{"kind":"categorical"}],"icon-halo-width":[1.5],"icon-ignore-placement":[1],"icon-image":["non-literal @src/hooks/useGlobalEventsLayer.ts"],"icon-offset":["unresolved:[\"get\",\"icon_offset\"]"],"icon-opacity":[0.9],"icon-padding":[0],"icon-pitch-alignment":["unresolved:\"viewport\""],"icon-rotation-alignment":["unresolved:\"viewport\""],"icon-size":[{"z10":"unresolved:[\"get\",\"icon_scale\"]","z14":"unresolved:[\"get\",\"icon_scale\"]"}],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":[{"kind":"constant"},{"kind":"constant"},"non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":[0.22,0.22,"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":[{"z10":1,"z14":1},{"z10":1,"z14":1},"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-color":[{"kind":"constant"}],"text-field":["unresolved:[\"to-string\",[\"get\",\"point_count\"]]"],"text-font":["unresolved:[\"DIN Pro Bold\",\"Arial Unicode MS Bold\"]"],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["line","point","point/label"],"render":["circle","line","symbol"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
-  "govServiceOffices": {"label":"機關便民據點 Gov Service Office","theme":"基礎建設 Infrastructure","dataClass":"A","color":"#8d6e63","legend":"govServiceOffices","legendType":"dot-swatch","popup":"govServiceOffice","params":{"opacity":{"name":"govServiceOfficesOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"govServiceOfficesScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":13.333,"z14":16},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#8d6e63","#7986cb","#9ccc65"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.9,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#95766b","#7986cb","#9ccc65"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "govServiceOffices": {"label":"機關便民據點 Gov Service Office","theme":"基礎建設 Infrastructure","dataClass":"B","color":"#8d6e63","legend":"govServiceOffices","legendType":"dot-swatch","popup":["govServiceOffice","householdRegistrationBranch"],"params":{"opacity":{"name":"govServiceOfficesOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"govServiceOfficesScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":13.333,"z14":16},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#8d6e63","#7986cb","#9ccc65"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.9,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#95766b","#7986cb","#9ccc65"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":13.333,"z14":16},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#7e57c2"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.9,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#8e68d4"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "groundwater": {"label":"地下水井 Groundwater","theme":"水資源 Water","dataClass":"D","color":"#0ea5e9","legend":"groundwater","legendType":"gradient","popup":"groundwater","params":{"opacity":{"name":"groundwaterOpacity","default":1,"min":0.1,"max":1},"size":{"name":"groundwaterScale","default":1,"min":0.5,"max":3},"controls":2},"hooks":["useGroundwaterLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useGroundwaterLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-blur":[0.9],"circle-color":["non-literal @src/hooks/useGroundwaterLayer.ts","non-literal @src/hooks/useGroundwaterLayer.ts"],"circle-opacity":["non-literal @src/hooks/useGroundwaterLayer.ts","non-literal @src/hooks/useGroundwaterLayer.ts"],"circle-radius":["non-literal @src/hooks/useGroundwaterLayer.ts","non-literal @src/hooks/useGroundwaterLayer.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "groundwaterWells": {"label":"水井點位 Wells","theme":"水資源 Water","dataClass":"D","color":"#64748b","legend":null,"legendType":null,"popup":"groundwater","params":{"opacity":{"name":"groundwaterWellsOpacity","default":1,"min":0.1,"max":1},"size":{"name":"groundwaterWellsScale","default":1,"min":0.5,"max":3},"controls":2},"hooks":["useGroundwaterWellsLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useGroundwaterWellsLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useGroundwaterWellsLayer.ts"],"circle-opacity":["non-literal @src/hooks/useGroundwaterWellsLayer.ts"],"circle-radius":["non-literal @src/hooks/useGroundwaterWellsLayer.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"legend":false,"popup":true}},
   "h3Population": {"label":"人流模擬 Pop. Flow","theme":"人口社經 People","dataClass":"D","color":"#ff6b6b","legend":null,"legendType":null,"popup":"h3Population","params":{"opacity":{"name":"h3Opacity","default":0.6,"min":0.1,"max":1},"size":{"name":"h3ElevationScale","default":1,"min":0.2,"max":4},"height":{"name":"h3ElevationScale","default":1,"min":0.2,"max":4},"controls":5},"hooks":["h3Population"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/map/h3LayerFactory.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":[{"kind":"expression"},{"kind":"expression"}],"fill-extrusion-color":[{"kind":"expression"}],"fill-extrusion-height":["non-literal @src/map/h3LayerFactory.ts"],"fill-extrusion-opacity":["non-literal @src/map/h3LayerFactory.ts"],"fill-extrusion-vertical-gradient":["non-literal @src/map/h3LayerFactory.ts"],"fill-opacity":[0.6,0.6,"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["3d","polygon"],"render":["fill","fill-extrusion"],"ironRules":{"opacity":true,"legend":false,"popup":true}},
@@ -3088,13 +3090,13 @@
   "krWaterLevelStations": {"label":"水位站 Water Level Stations","theme":"水資源","dataClass":"D","color":"#22d3ee","legend":"krWaterLevelStations","legendType":"dot-swatch","popup":"krWaterLevelStations","params":{"opacity":{"name":"krWaterLevelStationsOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"krWaterLevelStationsScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useKrWaterLevelStationsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "krWaterQualityStations": {"label":"水質測站 Water Quality Stations","theme":"水資源","dataClass":"D","color":"#38bdf8","legend":"krWaterQualityStations","legendType":"dot-swatch","popup":"krWaterQualityStations","params":{"opacity":{"name":"krWaterQualityStationsOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"krWaterQualityStationsScale","default":1,"min":0.3,"max":3},"controls":3},"hooks":["useKrWaterQualityStationsLayer"],"siblings":[],"resolution":"unresolved","unresolvedReason":"hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "lakesPondsOsm": {"label":"湖泊 / 埤塘 Lakes & Ponds","theme":"水資源 Water","dataClass":"B","color":"#4fc3f7","legend":"lakesPondsOsm","legendType":"square-swatch","popup":"lakesPondsOsm","params":{"opacity":{"name":"lakesPondsOsmOpacity","default":0.5,"min":0,"max":0.85},"size":{"name":"lakesPondsOsmScale","default":1,"min":0.3,"max":3},"controls":5},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.5},"colors":{"fill-color":{"kind":"categorical","count":4}},"themeDiff":["fill-opacity"]},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":1},"line-opacity":0.8},"colors":{"line-color":{"kind":"categorical","count":4,"lightDiffers":true}},"themeDiff":["line-color"]},{"suffix":"heat-point","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.229,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"heat-polygon","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":5.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.229,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","line","point","polygon"],"render":["circle","fill","heatmap","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
-  "landOfficeJurisdiction": {"label":"地政事務所轄區 Land Office Jurisdictions","theme":"基礎建設 Infrastructure","dataClass":"B","color":"#a16207","legend":"landOfficeJurisdiction","legendType":"square-swatch","popup":"landOfficeJurisdiction","params":{"opacity":{"name":"landOfficeJurisdictionOpacity","default":0.25,"min":0.1,"max":1},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.25},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#a16207"]}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.733,"z14":1.4},"line-opacity":0.55},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true,"light":["#a16207"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "landOfficeJurisdiction": {"label":"地政事務所轄區 Land Office Jurisdictions","theme":"基礎建設 Infrastructure","dataClass":"B","color":"#fde047","legend":"landOfficeJurisdiction","legendType":"square-swatch","popup":"landOfficeJurisdiction","params":{"opacity":{"name":"landOfficeJurisdictionOpacity","default":0.25,"min":0.1,"max":1},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.425},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#fde047"]}},"themeDiff":["fill-opacity"]},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.733,"z14":1.4},"line-opacity":0.55},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true,"light":["#a16207"]}},"themeDiff":["line-color"]},{"suffix":"highlight-fill","type":"fill","role":"decoration","geometry":"polygon","render":"fill","values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#fde047"]}},"themeDiff":["fill-opacity"]},{"suffix":"highlight-line","type":"line","role":"decoration","geometry":"line","render":"line","values":{"line-width":{"z10":2.5,"z14":2.5},"line-opacity":0},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#fde047"],"lightDiffers":true,"light":["#a16207"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "landSubsidenceCumulative": {"label":"累積下陷量等值線 Cumulative Subsidence Contours","theme":"水資源 Water","dataClass":"B","color":"#dc2626","legend":"landSubsidenceCumulative","legendType":"svg-icon","popup":"landSubsidenceCumulative","params":{"opacity":{"name":"landSubsidenceCumulativeOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"cumulative-line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1.6,"z14":2.6},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "landSubsidenceRate": {"label":"平均下陷速率等值線 Subsidence Rate Contours","theme":"水資源 Water","dataClass":"B","color":"#f97316","legend":"landSubsidenceRate","legendType":"svg-icon","popup":"landSubsidenceRate","params":{"opacity":{"name":"landSubsidenceRateOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"rate-line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1.6,"z14":2.6},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "landSubsidenceStations": {"label":"地層下陷監測站 Land Subsidence Monitoring Stations","theme":"水資源 Water","dataClass":"A","color":"#0ea5e9","legend":"landSubsidenceStations","legendType":"dot-swatch","popup":"landSubsidenceStations","params":{"opacity":{"name":"landSubsidenceStationsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"landSubsidenceStationsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":11.057,"z14":12.6},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":4}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":6.143,"z14":7},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"categorical","count":4},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "landUseChangeMonitoring": {"label":"國土利用監測變異點 Land Use Change Monitoring","theme":"底圖 Base Map","dataClass":"B","color":"#ca8a04","legend":"landUseChangeMonitoring","legendType":"square-swatch","popup":"landUseChangeMonitoring","params":{"opacity":{"name":"landUseChangeMonitoringOpacity","default":0.7,"min":0.1,"max":1},"size":{"name":"landUseChangeMonitoringScale","default":1,"min":0.3,"max":3},"controls":4},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"hex","type":"fill","role":"main","geometry":"grid","render":"fill","maxzoom":10,"values":{"fill-opacity":{"min":0,"max":0.595}},"colors":{"fill-color":{"kind":"sequential","count":4}}},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.42},"colors":{"fill-color":{"kind":"categorical","count":5}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.733,"z14":1.4},"line-opacity":1},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true}},"themeDiff":["line-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":13.5,"values":{"circle-radius":{"z10":2,"z14":3.5},"circle-stroke-width":{"z10":0.5,"z14":0.5},"circle-opacity":0.9,"circle-stroke-opacity":0.9},"colors":{"circle-color":{"kind":"categorical","count":5},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["grid","line","point","polygon"],"render":["circle","fill","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "landingStations": {"label":"OSM 海纜登陸站 Landing Station","theme":"全球通訊 Global Communications","dataClass":"A","color":"#ffb74d","legend":"landingStations","legendType":"dot-swatch","popup":"landingStation","params":{"opacity":{"name":"landingOpacity","default":1,"min":0.1,"max":1},"size":{"name":"landingScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":6,"z14":12},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffb74d"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffb74d"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-opacity","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
-  "landslideAnnual": {"label":"年度全島崩塌地 Annual Landslide Inventory","theme":"災害 Hazard","dataClass":"B","color":"#92400e","legend":"landslideAnnual","legendType":"square-swatch","popup":"landslideAnnual","params":{"opacity":{"name":"landslideAnnualOpacity","default":0.55,"min":0.1,"max":1},"size":{"name":"landslideAnnualScale","default":1,"min":0.3,"max":3},"controls":5},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":7,"values":{"fill-opacity":0.55},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#92400e"]}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","minzoom":7,"values":{"line-width":{"z10":0.4,"z14":1.2},"line-opacity":0.85},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#fdba74"],"lightDiffers":true,"light":["#7c2d12"]}},"themeDiff":["line-color"]},{"suffix":"heat-point","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.2,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"heat-polygon","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":7.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.2,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.6,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ec9165"],"lightDiffers":true,"light":["#92400e"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","line","point","polygon"],"render":["circle","fill","heatmap","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "landslideAnnual": {"label":"年度全島崩塌地 Annual Landslide Inventory","theme":"災害 Hazard","dataClass":"B","color":"#92400e","legend":"landslideAnnual","legendType":"square-swatch","popup":"landslideAnnual","params":{"opacity":{"name":"landslideAnnualOpacity","default":0.55,"min":0.1,"max":1},"size":{"name":"landslideAnnualScale","default":1,"min":0.3,"max":3},"controls":5},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":7,"values":{"fill-opacity":0.55},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#92400e"]}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","minzoom":7,"values":{"line-width":{"z10":0.4,"z14":1.2},"line-opacity":0.85},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#fdba74"],"lightDiffers":true,"light":["#7c2d12"]}},"themeDiff":["line-color"]},{"suffix":"heat-point","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.2,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"heat-polygon","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":7.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.2,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.6,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ec9165"],"lightDiffers":true,"light":["#92400e"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":7,"values":{"fill-opacity":0.55},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#92400e"]}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","minzoom":7,"values":{"line-width":{"z10":0.4,"z14":1.2},"line-opacity":0.85},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#fdba74"],"lightDiffers":true,"light":["#7c2d12"]}},"themeDiff":["line-color"]},{"suffix":"heat-point","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.2,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"heat-polygon","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":7.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.2,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#cf774c"],"lightDiffers":true,"light":["#92400e"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","line","point","polygon"],"render":["circle","fill","heatmap","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "landslideDodAreas": {"label":"大規模崩塌潛勢區 Large-scale Landslide Areas","theme":"災害 Hazard","dataClass":"A","color":"#b45309","legend":"landslideDodAreas","legendType":"square-swatch","popup":"landslideDodArea","params":{"opacity":{"name":"landslideDodAreasOpacity","default":0.55,"min":0.1,"max":1},"size":{"name":"landslideDodAreasScale","default":1,"min":0.3,"max":3},"controls":4},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.55},"colors":{"fill-color":{"kind":"categorical","count":4}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.8,"z14":1.4},"line-opacity":0.85},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#fde68a"],"lightDiffers":true,"light":["#7c2d12"]}},"themeDiff":["line-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["line","point","polygon"],"render":["circle","fill","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "landslideDodImpact": {"label":"大規模崩塌影響範圍 Landslide Impact Zones","theme":"災害 Hazard","dataClass":"A","color":"#c2410c","legend":"landslideDodImpact","legendType":"svg-icon","popup":"landslideDodImpact","params":{"opacity":{"name":"landslideDodImpactOpacity","default":0.35,"min":0.1,"max":1},"size":{"name":"landslideDodImpactScale","default":1,"min":0.3,"max":3},"controls":4},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.35},"colors":{"fill-color":{"kind":"categorical","count":4}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.933,"z14":1.6},"line-opacity":0.75,"line-dasharray":[2,2]},"colors":{"line-color":{"kind":"categorical","count":4}}},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["line","point","polygon"],"render":["circle","fill","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "landslideEventCatalog": {"label":"事件型崩塌目錄 Event-based Landslide Inventory","theme":"災害 Hazard","dataClass":"B","color":"#7c3aed","legend":"landslideEventCatalog","legendType":"gradient+dot-swatch","popup":"landslideEventCatalog","params":{"opacity":{"name":"landslideEventCatalogOpacity","default":0.7,"min":0.1,"max":1},"size":{"name":"landslideEventCatalogScale","default":1,"min":0.3,"max":3},"controls":6},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.7},"colors":{"fill-color":{"kind":"categorical","count":4}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.733,"z14":1.4},"line-opacity":1},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true}},"themeDiff":["line-color"]},{"suffix":"heat-point","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":1.5,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"heat-polygon","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":1.5,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle-point","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","line","point","polygon"],"render":["circle","fill","heatmap","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},

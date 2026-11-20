@@ -149,6 +149,12 @@ function AirportHeightSurfacesLegend() {
   return <AtlasLegend layer="airportHeightSurfaces" en="Airport Height Restriction Surfaces" kind="square" subtitle={t("legend.atlas.ahSubtitle")} source={src("caa", ["35876"])} domain="atlasAirportSurface" rows={AIRPORT_SURFACE_OPTIONS} />;
 }
 
+/** 台灣圖層延伸 B3：地政事務所轄區；副標說明點「機關便民據點」的地政事務所點可高亮轄區。 */
+function LandOfficeJurisdictionLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="landOfficeJurisdiction" en="Land Office Jurisdictions" kind="square" subtitle={t("legend.atlas.ljSubtitle")} source={src("nlsc", ["13045"])} rows={single("landOfficeJurisdiction", "legend.atlas.ljZone")} />;
+}
+
 /** 台灣圖層延伸 B3：國家公園物種調查點位；熱區＋園區色；副標註明座標模糊處理。 */
 function NpSpeciesSitesLegend() {
   const { t } = useLocale();
@@ -214,7 +220,7 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   swcOutdoorClassrooms: () => <AtlasLegend layer="swcOutdoorClassrooms" en="SWC Outdoor Classrooms" source={src("swcb", ["108030"])} rows={single("swcOutdoorClassrooms", "legend.atlas.ocPoint")} />,
   swcEcoCheckZones: () => <AtlasLegend layer="swcEcoCheckZones" en="SWC Tier-1 Ecological Check Zones" kind="square" source={src("swcb", ["159097"])} rows={single("swcEcoCheckZones", "legend.atlas.ezZone")} />,
   airportHeightSurfaces: () => <AirportHeightSurfacesLegend />,
-  landOfficeJurisdiction: () => <AtlasLegend layer="landOfficeJurisdiction" en="Land Office Jurisdictions" kind="square" source={src("nlsc", ["13045"])} rows={single("landOfficeJurisdiction", "legend.atlas.ljZone")} />,
+  landOfficeJurisdiction: () => <LandOfficeJurisdictionLegend />,
   npSpeciesSites: () => <NpSpeciesSitesLegend />,
   vehicleInspectionOffices: () => <VehicleInspectionLegend />,
   iOceanFishing: () => <AtlasLegend layer="iOceanFishing" en="iOcean Recreational Fishing Reports" source={src("oca", ["157622"])} domain="atlasFishingType" rows={[...FISHING_TYPE_OPTIONS, { labelKey: "legend.atlas.iofOther", color: ATLAS_OTHER_COLOR }]} dense />,

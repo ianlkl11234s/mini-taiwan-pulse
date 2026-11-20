@@ -349,7 +349,7 @@ import {
 } from "../data/safetyG36Types";
 import { JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS, jpTrafficAccidentFilter } from "../data/jpTrafficAccidentsTypes";
 import {
-  ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
+  ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, annualYearInNewFile, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
 } from "../data/landslideTypes";
 import {
   ANIMAL_STATUS_OPTIONS, ATLAS_LAYER_COLORS, ATLAS_SLOPELAND_DARK, BEACH_LEVEL_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FLOOD_YEARS, FREEWAY_SIGN_GROUP_OPTIONS,
@@ -365,7 +365,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, NP_PARK_OPTIONS, airportSurfaceColorExpr, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, NP_PARK_OPTIONS, airportSurfaceColorExpr, GOV_HR_BRANCH_COLOR, GOV_HR_BRANCH_FILTER_INDEX, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -669,6 +669,36 @@ function publicLifePointOverlay(
     ...labelLayers,
   ] };
 }
+/**
+ * 年度全島崩塌地：2017／2018／2023／2024 在舊的 4 年合併檔，2025（114 年）是獨立單年檔——兩份各一個 config（同 id、不同 sourceId），
+ * 年份 select 決定哪一份可見（隱藏的子圖層不載圖磚，不會白抓 107MB 檔）。filter 兩邊相同（year＝所選年），舊檔沒有 2025、新檔只有 2025。
+ */
+function landslideAnnualOverlays(): OverlayConfig[] {
+  const make = (inNewFile: boolean, sourceId: string, sourceUrl: string, years: string): OverlayConfig => {
+    const layout = (_dark: boolean, p?: Record<string, number>) => ({ visibility: annualYearInNewFile(p?.landslideAnnualYearIdx) === inNewFile ? "visible" : "none" });
+    return {
+      id: "landslideAnnual", sourceUrl, sourceId,
+      pmtiles: { sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
+      attribution: `農業部農村發展及水土保持署 年度全島崩塌地（${years}）· 政府資料開放授權條款第1版`,
+      rebuildOnParamChange: ["fill", "outline"],
+      layers: [
+        { suffix: "fill", type: "fill", minzoom: ANNUAL_MIN_ZOOM, layout, filter: (p) => annualYearFilter(p?.landslideAnnualYearIdx), paint: (_dark, p) => ({
+          "fill-color": LANDSLIDE_LAYER_COLORS.landslideAnnual,
+          "fill-opacity": p?.landslideAnnualOpacity ?? 0.55,
+        }) },
+        { suffix: "outline", type: "line", minzoom: ANNUAL_MIN_ZOOM, layout, filter: (p) => annualYearFilter(p?.landslideAnnualYearIdx), paint: (dark, p) => ({
+          "line-color": dark ? "#fdba74" : "#7c2d12",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.4, 14, 1.2],
+          "line-opacity": Math.min(1, (p?.landslideAnnualOpacity ?? 0.55) + 0.3),
+        }) },
+      ],
+    };
+  };
+  return [
+    make(false, "landslide-annual", "./hazards/landslide_annual_swcb_20261006.pmtiles", "2017／2018／2023／2024"),
+    make(true, "landslide-annual-2025", "./hazards/landslide_annual_swcb_2025_20261120.pmtiles", "2025（114 年）"),
+  ];
+}
 const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("drinkingWaterPoints", "./public_life/drinking_water_points.pmtiles", "drinking-water-points", PUBLIC_LIFE_COLORS.drinkingWaterPoints, { sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, undefined, undefined, { labelMinzoom: 13 }),
   publicLifePointOverlay("publicWasteBaskets", "./public_life/public_waste_baskets.geojson", "public-waste-baskets", PUBLIC_LIFE_COLORS.publicWasteBaskets, undefined, undefined, undefined, { labelMinzoom: 15 }),
@@ -771,25 +801,7 @@ const LANDSLIDE_OVERLAYS: OverlayConfig[] = [
       }) },
     ],
   },
-  {
-    id: "landslideAnnual",
-    sourceUrl: "./hazards/landslide_annual_swcb_20261006.pmtiles",
-    sourceId: "landslide-annual",
-    pmtiles: { sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
-    attribution: "農業部農村發展及水土保持署 年度全島崩塌地（2017／2018／2023／2024）· 政府資料開放授權條款第1版",
-    rebuildOnParamChange: ["fill", "outline"],
-    layers: [
-      { suffix: "fill", type: "fill", minzoom: ANNUAL_MIN_ZOOM, filter: (p) => annualYearFilter(p?.landslideAnnualYearIdx), paint: (_dark, p) => ({
-        "fill-color": LANDSLIDE_LAYER_COLORS.landslideAnnual,
-        "fill-opacity": p?.landslideAnnualOpacity ?? 0.55,
-      }) },
-      { suffix: "outline", type: "line", minzoom: ANNUAL_MIN_ZOOM, filter: (p) => annualYearFilter(p?.landslideAnnualYearIdx), paint: (dark, p) => ({
-        "line-color": dark ? "#fdba74" : "#7c2d12",
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.4, 14, 1.2],
-        "line-opacity": Math.min(1, (p?.landslideAnnualOpacity ?? 0.55) + 0.3),
-      }) },
-    ],
-  },
+  ...landslideAnnualOverlays(),
   publicLifePointOverlay("highwayDisasterHistory", "./hazards/highway_disaster_history.pmtiles", "highway-disaster-history", highwayCategoryColorExpr(), { sourceLayer: "highway_disaster_history", minzoom: 5, maxzoom: 12 }, "交通部公路局 道路（橋梁）歷史災情（data.gov.tw 31020）· 政府資料開放授權條款第1版", undefined, { filter: (p) => highwayDisasterFilter(p?.highwayDisasterHistoryCategoryMask, p?.highwayDisasterHistoryYearMask), dense: { pointsFromZoom: DENSE_FROM.highwayDisasterHistory, intensity: 1 } }),
 ];
 
@@ -12501,6 +12513,37 @@ function mountainMobileOverlay(): OverlayConfig {
     ],
   };
 }
+/**
+ * 戶政事務所轄下辦公據點（戶政司 7437 的 office_kind=branch，119 點）：補進 govServiceOffices（同 id、另一份 PMTiles）。
+ * 主所以站上 GeoJSON 為準，這裡只畫 branch；圖磚沒有 `type` 欄，故不吃一般類別篩選，改讀「戶政辦公據點」那一位元。
+ */
+function govHouseholdBranchOverlay(): OverlayConfig {
+  const bit = 1 << GOV_HR_BRANCH_FILTER_INDEX;
+  const filter = (p?: Record<string, number>): unknown[] => {
+    const mask = p?.govServiceOfficesCatMask;
+    const on = mask === undefined || !Number.isFinite(mask) || (Math.trunc(mask) & bit) !== 0;
+    return ["==", ["get", "office_kind"], on ? "branch" : "__multi_select_none__"];
+  };
+  const radius = (scale: number): unknown => ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale];
+  // 用 match 表達式（與主所／公所同一寫法），暗底提亮的色彩對照才會把這一類算進去，不改變既有三類在淺色底的顯示
+  const branchColor = ["match", ["get", "office_kind"], "branch", GOV_HR_BRANCH_COLOR, GOV_HR_BRANCH_COLOR];
+  return {
+    id: "govServiceOffices", sourceUrl: "./civic_facilities/household_registration_offices_7437.pmtiles", sourceId: "gov-service-offices-hro-branch",
+    pmtiles: { sourceLayer: "household_registration_offices", minzoom: 4, maxzoom: 14 },
+    attribution: `內政部戶政司 戶政事務所與辦公據點（data.gov.tw 7437，地址定位）· ${OGDL_ATTR}`,
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      { suffix: "glow", type: "circle", skipCategoryFilter: true, filter, paint: (_dark, p) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 8 * (p?.govServiceOfficesScale ?? 1), 12, 16 * (p?.govServiceOfficesScale ?? 1)],
+        "circle-blur": 1, "circle-color": GOV_HR_BRANCH_COLOR, "circle-opacity": 0.15,
+      }) },
+      { suffix: "circle", type: "circle", skipCategoryFilter: true, filter, paint: (_dark, p) => ({
+        "circle-radius": radius(p?.govServiceOfficesScale ?? 1), "circle-color": branchColor,
+        "circle-stroke-color": "#3e2723", "circle-stroke-width": 0.5, "circle-opacity": p?.govServiceOfficesOpacity ?? 0.9,
+      }) },
+    ],
+  };
+}
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   ...vegetationForestTypesOverlays(),
   ...iOceanFishingOverlays(),
@@ -12527,6 +12570,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("ecoLabelHotels", "./environment/eco_label_hotels_145035.pmtiles", "eco-label-hotels", matchColorExpr("level", ECO_HOTEL_LEVEL_OPTIONS), { sourceLayer: "eco_label_hotels", minzoom: 4, maxzoom: 14 }, `環境部 環保標章旅館（data.gov.tw 145035、161312）· ${OGDL_ATTR}`, [3, 6]),
   mountainMobileOverlay(),
   // 台灣圖層延伸 B3（2026-11-20）
+  govHouseholdBranchOverlay(),
   publicLifePointOverlay("namrBuoys", "./marine/namr_buoys_v1.pmtiles", "namr-buoys", matchColorExpr("buoy_kind", NAMR_BUOY_KIND_OPTIONS), { sourceLayer: "namr_buoys", minzoom: 4, maxzoom: 14 }, `國家海洋研究院 浮標站位（data.gov.tw 171309、171315）· ${OGDL_ATTR}`, [5, 9]),
   publicLifePointOverlay("towingYards", "./civic_facilities/towing_yards_v1.pmtiles", "towing-yards", ATLAS_LAYER_COLORS.towingYards, { sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 }, `內政部警政署 警察機關車輛違規拖吊保管場（data.gov.tw 7319，地址定位）· ${OGDL_ATTR}`, [4, 8]),
   publicLifePointOverlay("swcOutdoorClassrooms", "./education/swc_outdoor_classrooms_108030.pmtiles", "swc-outdoor-classrooms", ATLAS_LAYER_COLORS.swcOutdoorClassrooms, { sourceLayer: "swc_outdoor_classrooms", minzoom: 4, maxzoom: 14 }, `農業部農村發展及水土保持署 水土保持戶外教室及教學園區（data.gov.tw 108030）· ${OGDL_ATTR}`, [5, 9]),
@@ -12542,14 +12586,25 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     id: "airportHeightSurfaces", sourceUrl: "./coverage/airport_height_surfaces_35876.pmtiles", sourceId: "airport-height-surfaces",
     pmtiles: { sourceLayer: "airport_height_surfaces", minzoom: 4, maxzoom: 14 },
     attribution: `交通部民用航空局 機場周邊禁限建（限高）管制面（data.gov.tw 35876）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
-    layers: polygonLayers("airportHeightSurfaces", airportSurfaceColorExpr(), 0.3),
+    // 暗底填色透明度 ×1.6（對比契約 C-3：淡色面疊暗陸要 ≥ 3；比照山坡地暗底版 ×1.5），淡底維持低透明度
+    layers: polygonLayers("airportHeightSurfaces", airportSurfaceColorExpr(), 0.35).map((l) => (l.suffix === "fill" ? {
+      ...l, paint: (dark: boolean, p?: Record<string, number>) => { const b = l.paint(dark, p); return dark ? { ...b, "fill-opacity": Math.min(1, Number(b["fill-opacity"]) * 1.6) } : b; },
+    } : l)),
   },
   {
     // 地政事務所轄區：區劃面（V-5 不做點／面切換）
     id: "landOfficeJurisdiction", sourceUrl: "./civic_facilities/land_office_jurisdiction_13045.pmtiles", sourceId: "land-office-jurisdiction",
     pmtiles: { sourceLayer: "land_office_jurisdiction", minzoom: 4, maxzoom: 14 },
     attribution: `內政部國土測繪中心 地政事務所轄區（data.gov.tw 13045）、地政司 7620 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
-    layers: polygonLayers("landOfficeJurisdiction", ATLAS_LAYER_COLORS.landOfficeJurisdiction, 0.25),
+    // 亮黃填色（暗底對比契約 C-3）；淡底的外框改深琥珀，亮黃線在淡底圖看不見
+    // 暗底填色透明度 ×1.7（同上，C-3）
+    layers: polygonLayers("landOfficeJurisdiction", ATLAS_LAYER_COLORS.landOfficeJurisdiction, 0.25).map((l) => (l.suffix === "outline" ? {
+      ...l, paint: (dark: boolean, p?: Record<string, number>) => ({ ...l.paint(dark, p), "line-color": dark ? "#e2e8f0" : "#a16207" }),
+    } : { ...l, paint: (dark: boolean, p?: Record<string, number>) => { const b = l.paint(dark, p); return dark ? { ...b, "fill-opacity": Math.min(1, Number(b["fill-opacity"]) * 1.7) } : b; } })).concat([
+      // 點「機關便民據點」的地政事務所點時由 useLandOfficeHighlight 把 filter 換成該所轄區（平時空篩選＝不畫）
+      { suffix: "highlight-fill", type: "fill", filter: ["==", ["get", "office_title_7620"], "__none__"], paint: (dark: boolean) => ({ "fill-color": "#fde047", "fill-opacity": dark ? 0.35 : 0.3 }) },
+      { suffix: "highlight-line", type: "line", filter: ["==", ["get", "office_title_7620"], "__none__"], paint: (dark: boolean) => ({ "line-color": dark ? "#fde047" : "#a16207", "line-width": 2.5, "line-opacity": 1 }) },
+    ] as OverlayConfig["layers"]),
   },
   publicLifePointOverlay("npSpeciesSites", "./environment/np_species_survey_points_sites_73252.pmtiles", "np-species-sites", matchColorExpr("park", NP_PARK_OPTIONS), { sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 }, `內政部國家公園署 國家公園物種調查（data.gov.tw 73252；部分座標經模糊處理）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.npSpeciesSites, intensity: 1 } }),
   publicLifePointOverlay("iOceanSightings", "./marine/iocean_sightings_20260506_gen.pmtiles", "iocean-sightings", matchColorExpr("group_key", IOCEAN_GROUP_OPTIONS), { sourceLayer: "iocean_sightings", minzoom: 4, maxzoom: 14 }, `海洋委員會海洋保育署 iOcean 海洋生物目擊回報（data.gov.tw 157621，公民回報）· ${OGDL_ATTR}`, [3, 6.5]),

@@ -59,5 +59,6 @@
   "legend.atlas.ezZone": "Tier-1 ecological check zone (representative points when zoomed out, extents from zoom 8)",
   "legend.atlas.ahSubtitle": "7 airports covered; Kaohsiung International Airport is not covered (the source has polylines only); other civil airports are not in the source",
   "legend.atlas.ljZone": "Land office jurisdiction (colour has no other meaning)",
-  "legend.atlas.npSubtitle": "144,228 survey sites (covering 1.45 million records); some coordinates are obscured and are not exact positions"
+  "legend.atlas.npSubtitle": "144,228 survey sites (covering 1.45 million records); some coordinates are obscured and are not exact positions",
+  "legend.atlas.ljSubtitle": "110 polygons; select a land office point in \"Government Service Offices\" to highlight its jurisdiction"
 }

@@ -59,5 +59,6 @@
   "legend.atlas.ezZone": "第一級生態檢核區（拉遠為代表點，8 級起畫範圍）",
   "legend.atlas.ahSubtitle": "涵蓋 7 個機場；高雄國際機場來源只有折線，未涵蓋；其他民航機場來源未提供",
   "legend.atlas.ljZone": "地政事務所轄區（顏色無其他意義）",
-  "legend.atlas.npSubtitle": "144,228 個調查點位（涵蓋 145 萬筆紀錄）；部分座標經模糊處理，不是精確位置"
+  "legend.atlas.npSubtitle": "144,228 個調查點位（涵蓋 145 萬筆紀錄）；部分座標經模糊處理，不是精確位置",
+  "legend.atlas.ljSubtitle": "110 面；點「機關便民據點」的地政事務所點可高亮其轄區"
 }

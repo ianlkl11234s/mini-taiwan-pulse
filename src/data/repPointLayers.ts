@@ -77,6 +77,8 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   R({ key: "industrialParkComparison", sourceId: "business-registry-industrial-park-comparison", file: "business_registry/industrial_park_comparison_20260818_points.pmtiles", sourceLayer: "industrial_park_comparison_points", count: 215, def: "point" }),
   // 第三輪（I 軌）：崩塌地、魚塭小而零散預設點；河川面、橋梁輪廓預設面（拉遠時代表點／熱區補位）
   R({ key: "landslideAnnual", sourceId: "landslide-annual", file: "hazards/landslide_annual_swcb_20261006_points.pmtiles", sourceLayer: "landslide_annual_points", count: 143_511, def: "point", thinned: 2, heatIntensity: 0.2 }),
+  // 2025（114 年）獨立單年檔的代表點（同 key 第二筆：單年 42,322 點，同熱區設定；年份 select 切換可見）
+  R({ key: "landslideAnnual", sourceId: "landslide-annual-2025", file: "hazards/landslide_annual_swcb_2025_20261120_points.pmtiles", sourceLayer: "landslide_annual_points", count: 42_322, def: "point", thinned: 2, heatIntensity: 0.2 }),
   R({ key: "aquaculturePonds", sourceId: "aquaculture-ponds", file: "fishery/aquaculture_ponds_osm_points.pmtiles", sourceLayer: "aquaculture_ponds_osm_points", count: 15_241, def: "point", heatIntensity: 0.3 }),
   R({ key: "waterRivers", sourceId: "water-river-polygons", file: "geo/water_river_polygons_points.pmtiles", sourceLayer: "river_polygons_points", count: 13_262, def: "polygon", heatIntensity: 0.3, opacityParam: "waterRiverOpacity" }),
   R({ key: "osmBridgeFootprints", sourceId: "osm-bridge-footprints", file: "network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles", sourceLayer: "osm_bridge_footprints_points", count: 1_505, def: "polygon" }),

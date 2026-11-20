@@ -832,6 +832,10 @@ export function mountainMobileColor(group: unknown): string {
 /** 支線站（里程自支線起點起算） */
 export const ALISHAN_BRANCH_STATIONS: ReadonlySet<string> = new Set(["沼平", "對高岳", "祝山"]);
 // ── 台灣圖層延伸 B3（2026-11-20）──────────────────────────────────────────
+/** 戶政事務所轄下辦公據點（govServiceOffices 的第 4 類；紫，與主所靛藍 #7986cb 分開，且暗底提亮後在淺色底仍達對比） */
+export const GOV_HR_BRANCH_COLOR = "#7e57c2";
+/** govServiceOffices 類別篩選中「戶政辦公據點」的選項位置（0 起算；改順序會錯位，與 categoryFilters/groupB 同序） */
+export const GOV_HR_BRANCH_FILTER_INDEX = 3;
 /** 國海院浮標種類（上游 buoy_kind；英日文 enum.atlasNamrBuoyKind.*） */
 export const NAMR_BUOY_KIND_OPTIONS: readonly AtlasOption[] = [
   { value: "data_buoy", label: "資料浮標", color: "#06b6d4" },
@@ -841,14 +845,14 @@ export const NAMR_BUOY_KIND_OPTIONS: readonly AtlasOption[] = [
 export const NAMR_BUOY_STATUS_LABELS: Readonly<Record<string, string>> = { recent: "近期仍有資料", ended: "已停止" };
 /** 機場限高面（上游 surface_name）。水平面、圓錐面大範圍淡色，進場面深色；雷達與助航燈光是設施面（非限高）併成一列。 */
 export const AIRPORT_SURFACE_OPTIONS: readonly (AtlasOption & { values: readonly string[] })[] = [
-  { value: "進場面", label: "進場面", color: "#b91c1c", values: ["進場面"] },
-  { value: "轉接面", label: "轉接面", color: "#ea580c", values: ["轉接面"] },
+  { value: "進場面", label: "進場面", color: "#f87171", values: ["進場面"] },
+  { value: "轉接面", label: "轉接面", color: "#fb923c", values: ["轉接面"] },
   { value: "水平面", label: "水平面", color: "#38bdf8", values: ["水平面"] },
-  { value: "圓錐面", label: "圓錐面", color: "#818cf8", values: ["圓錐面"] },
-  { value: "起落地帶", label: "起落地帶", color: "#16a34a", values: ["起落地帶"] },
-  { value: "傾斜面", label: "傾斜面", color: "#a855f7", values: ["傾斜面"] },
-  { value: "水平銜接面", label: "水平銜接面", color: "#14b8a6", values: ["水平銜接面"] },
-  { value: "設施", label: "設施面（機場搜索雷達、助航燈光，非限高）", color: "#94a3b8", values: ["機場搜索雷達", "助航燈光"] },
+  { value: "圓錐面", label: "圓錐面", color: "#a5b4fc", values: ["圓錐面"] },
+  { value: "起落地帶", label: "起落地帶", color: "#4ade80", values: ["起落地帶"] },
+  { value: "傾斜面", label: "傾斜面", color: "#d8b4fe", values: ["傾斜面"] },
+  { value: "水平銜接面", label: "水平銜接面", color: "#2dd4bf", values: ["水平銜接面"] },
+  { value: "設施", label: "設施面（機場搜索雷達、助航燈光，非限高）", color: "#cbd5e1", values: ["機場搜索雷達", "助航燈光"] },
 ];
 export function airportSurfaceColorExpr(): unknown[] {
   return ["match", ["get", "surface_name"], ...AIRPORT_SURFACE_OPTIONS.flatMap((o) => [[...o.values], o.color]), ATLAS_OTHER_COLOR];
@@ -886,7 +890,7 @@ export const ECO_HOTEL_LEVEL_OPTIONS: readonly AtlasOption[] = [
   { value: "silver", label: "銀級", color: "#22c55e" },
   { value: "bronze", label: "銅級", color: "#86efac" },
 ];
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部", caa: "交通部民用航空局", npa: "內政部警政署", ris: "內政部戶政司" } as const;
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部", caa: "交通部民用航空局", npa: "內政部警政署" } as const;
 
 export const ATLAS_NOTES = {
   // 台灣圖層延伸 B3（2026-11-20）

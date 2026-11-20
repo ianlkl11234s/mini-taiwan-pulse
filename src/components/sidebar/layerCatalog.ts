@@ -1923,6 +1923,8 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("namrEdnaSurveySites"),
           fromManifest("marineEcologicalMonitoringSites"),
+          // 台灣圖層延伸 B3（2026-11-20）：浮標站位清單，5 座與氣象署資料浮標同址
+          fromManifest("namrBuoys"),
         ],
       },
       {
@@ -1971,8 +1973,6 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("marineObservationCwa"),
           fromManifest("marineObservationIsohe"),
-          // 台灣圖層延伸 B3（2026-11-20）：站位清單，5 座與氣象署資料浮標同址
-          fromManifest("namrBuoys"),
         ],
       },
       {

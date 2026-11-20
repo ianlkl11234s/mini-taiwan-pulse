@@ -15,7 +15,7 @@ import type { FC } from "react";
 import type { FeatureInfo } from "../../types";
 import {
   SubmarineCablePanel, LandingStationPanel, InternetExchangePointPanel, AnfrWirelessSitePanel, OsmCommunicationSitePanel, RipeAtlasProbePanel, OoklaMobileGridPanel, OoklaFixedGridPanel, ConvenienceStorePanel,
-  PostOfficePanel, IPostBoxPanel, CommunityCenterPanel, GovServiceOfficePanel,
+  PostOfficePanel, IPostBoxPanel, CommunityCenterPanel, GovServiceOfficePanel, HouseholdRegistrationBranchPanel,
   PublicLibraryPanel, WelfareCenterPanel, RetailMarketPanel, PublicToiletPanel,
   LighthousePanel, PortPanel, AirportPanel, CctvPanel, EtcGantryPanel,
   ServiceAreaPanel, ServiceAreaPolygonPanel, TaxiStandPanel,
@@ -253,6 +253,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   iPostBox: IPostBoxPanel,
   communityCenter: CommunityCenterPanel,
   govServiceOffice: GovServiceOfficePanel,
+  householdRegistrationBranch: HouseholdRegistrationBranchPanel,
   publicLibrary: PublicLibraryPanel,
   welfareCenter: WelfareCenterPanel,
   animalAdoption: AnimalAdoptionPanel,
@@ -897,6 +898,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   iPostBox: "i郵箱",
   communityCenter: "活動中心",
   govServiceOffice: "機關便民據點",
+  householdRegistrationBranch: "戶政辦公據點",
   publicLibrary: "公共圖書館",
   welfareCenter: "社福中心",
   animalAdoption: "待認領養動物／公立收容所",

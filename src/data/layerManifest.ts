@@ -2317,7 +2317,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 台灣圖層延伸 B3（2026-11-20）──
   namrBuoys: {
-    key: "namrBuoys", country: "TW", section: { theme: "海洋 Marine", group: "海象觀測 Marine Observation" }, ...layerName({ zh: "國海院浮標站位", alt: "NAMR Buoy Stations" }), expandable: true,
+    key: "namrBuoys", country: "TW", section: { theme: "海洋 Marine", group: "調查站網 Survey Sites" }, ...layerName({ zh: "國海院浮標站位", alt: "NAMR Buoy Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.namrBuoys, icon: Anchor,
     upstream: { status: "verified", datasets: [{ datasetId: "namr_buoys", confidence: "HIGH" }], processing: "analytics marine/namr_buoys：國家海洋研究院 data.gov.tw 171309、171315（BIG5 CSV，更新 2026-02-03）資料浮標 8＋加馬輻射錨碇 1 共 9 座；與 CWA／ISOHE 116 站逐站比對，5 座同址", note: "只有站位沒有觀測值；5 座與氣象署資料浮標同址（不併進即時的海象觀測層）；最後資料日期是 2026-02-03 的值。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "namr-buoys", url: "./marine/namr_buoys_v1.pmtiles", sourceLayer: "namr_buoys", minzoom: 4, maxzoom: 14 },
@@ -8194,14 +8194,17 @@ export const LAYER_MANIFEST = {
     icon: Landmark,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }],
+      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }, { datasetId: "household_registration_offices", confidence: "MED" }], processing: "analytics civic_facilities/household_registration_offices 7437：戶政司 368 列＝主所 210＋轄下辦公據點 158；離線 geocode 命中 305（main 186／branch 119），本層只補 branch 119 點（新檔名 household_registration_offices_7437.pmtiles），39 筆待 TGOS 補位未上圖；主所以站上名冊為準", note: "戶政辦公據點位置依地址推定；另 39 處無法定位未上圖。",
     },
-    dataClass: "A",
-    source: { kind: "geojson", sourceId: "gov-service-offices", url: "./civic_facilities/gov_service_offices_national.geojson" },
+    dataClass: "B",
+    source: [
+      { kind: "geojson", sourceId: "gov-service-offices", url: "./civic_facilities/gov_service_offices_national.geojson" },
+      { kind: "pmtiles", sourceId: "gov-service-offices-hro-branch", url: "./civic_facilities/household_registration_offices_7437.pmtiles", sourceLayer: "household_registration_offices", minzoom: 4, maxzoom: 14 },
+    ],
     legend: "govServiceOffices",
-    popup: "govServiceOffice",
+    popup: ["govServiceOffice", "householdRegistrationBranch"],
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
-    description: "各級機關便民服務據點全國 702 處",
+    description: "各級機關便民服務據點全國 702 處，另含戶政事務所轄下辦公據點 119 處（可與主所分開篩選）",
     topics: ["基礎建設", "行政", "公共服務"],
   },
 
@@ -12351,13 +12354,15 @@ export const LAYER_MANIFEST = {
   landslideAnnual: {
     key: "landslideAnnual", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "年度全島崩塌地", alt: "Annual Landslide Inventory" }), expandable: true,
     color: LANDSLIDE_LAYER_COLORS.landslideAnnual, icon: Layers,
-    upstream: { status: "verified", datasets: [{ datasetId: "landslide_annual_swcb", confidence: "HIGH" }], note: "農業部農村發展及水土保持署年度全島崩塌地（衛星影像判釋）；只有 2017、2018、2023、2024 四年共 143,511 面，2019–2022 未納入、2016 以前為林業署另一口徑未納入；2024 為 V2 版（影像 2024-12～2025-05）。107MB PMTiles 走 S3 deploy-assets/hazards/；z<10 切片會遺漏小面，圖層 z10 起顯示。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_annual_swcb", confidence: "HIGH" }, { datasetId: "landslide_annual_swcb_114", confidence: "HIGH" }], note: "農業部農村發展及水土保持署年度全島崩塌地（衛星影像判釋）；2017、2018、2023、2024 四年共 143,511 面在 107MB 合併檔，2025（114 年，data.gov.tw 179093，影像 2025-10～2026-05，42,322 面）是獨立單年檔（landslide_annual_swcb_2025_20261120，不重切合併檔）；2019–2022 未納入、2016 以前為林業署另一口徑未納入；2024 為 V2 版（影像 2024-12～2025-05）。走 S3 deploy-assets/hazards/；z<10 切片會遺漏小面（單年檔 z6 少約 20%）。跨年比較是不同影像期的判釋結果；2025 版沒有縣市欄。" },
     dataClass: "B", source: [
       { kind: "pmtiles", sourceId: "landslide-annual", url: "./hazards/landslide_annual_swcb_20261006.pmtiles", sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
       { kind: "pmtiles", sourceId: "landslide-annual-points", url: "./hazards/landslide_annual_swcb_20261006_points.pmtiles", sourceLayer: "landslide_annual_points", minzoom: 4, maxzoom: 10 },
+      { kind: "pmtiles", sourceId: "landslide-annual-2025", url: "./hazards/landslide_annual_swcb_2025_20261120.pmtiles", sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "landslide-annual-2025-points", url: "./hazards/landslide_annual_swcb_2025_20261120_points.pmtiles", sourceLayer: "landslide_annual_points", minzoom: 4, maxzoom: 10 },
     ],
     legend: "landslideAnnual", popup: "landslideAnnual", params: { count: 5, kinds: ["select", "select", "slider", "palette", "slider"] },
-    description: "年度全島崩塌地範圍（只有 2017、2018、2023、2024 四年；放大到 10 級以上才顯示）",
+    description: "年度全島崩塌地範圍（只有 2017、2018、2023、2024、2025 五年；放大到 10 級以上才顯示）",
     topics: ["災害", "崩塌", "衛星判釋"],
   },
 

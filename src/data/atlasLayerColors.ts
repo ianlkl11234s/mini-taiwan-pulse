@@ -111,7 +111,7 @@ export const ATLAS_LAYER_COLORS = {
   swcOutdoorClassrooms: "#65a30d",
   swcEcoCheckZones: "#4d7c0f",
   airportHeightSurfaces: "#38bdf8",
-  landOfficeJurisdiction: "#a16207",
+  landOfficeJurisdiction: "#fde047",
   npSpeciesSites: "#14b8a6",
 } as const;
 

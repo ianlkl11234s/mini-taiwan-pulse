@@ -60,6 +60,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "jpPopulationMesh1km", "fireIsochrone",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
+  "householdRegistrationBranch", // 戶政辦公據點（B3）：tile 無來源欄，panel 補戶政司出處並自掛 SourceFooter
   // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
   "fireHydrant",
   "trafficAccidents2025",
