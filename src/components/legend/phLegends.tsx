@@ -12,6 +12,7 @@ import {
 import type { PhDataKey, PhRasterKey } from "../../data/phDataKeys";
 import { PH_RASTER_BY_KEY } from "../../data/phWavesLayers";
 import { phDensityColors } from "../../hooks/usePhLayers";
+import { FONT_SIZE } from "../../styles/designTokens";
 import { MICRO_SENSOR_PM25_BANDS } from "../../data/microSensorTypes";
 import { PH_OPENAQ_HIDE_AFTER_DAYS, PH_OPENAQ_MONITOR_RING, PH_OPENAQ_NO_DATA_COLOR, PH_OPENAQ_NOTES, PH_OPENAQ_SOURCE, phOpenaqStatus } from "../../data/openaqLoader";
 import { PH_OPENAQ_STALE_FACTOR } from "../../hooks/usePhOpenaqAirLayer";
@@ -110,30 +111,34 @@ export function PhOpenaqAirLegend() {
   const { locale } = useLocale();
   const pick = (x: L3) => pickL3(x, locale);
   const title = useLayerTitle("phOpenaqAir");
+  const lt = useLegendTheme();
   const st = useSyncExternalStore(phOpenaqStatus.subscribe, phOpenaqStatus.get);
   const sm = st.summary;
-  const status = st.state === "error"
+  // 站數一行：圖例一律顯示（不是 LegendNote，popup 開著時也看得到；LG-9 只收起註記與來源）
+  const shownLine = st.state === "error"
     ? pick({ zh: `讀取失敗（${st.error}），稍後自動重試`, en: `Failed to load (${st.error}); retrying automatically`, ja: `読み込み失敗（${st.error}）、自動で再試行` })
     : st.state === "ready" && sm
       ? pick({
-        zh: `顯示 ${sm.shown} 站（3 小時內 ${sm.fresh}、過舊 ${sm.stale}、無 PM2.5 ${sm.noData}）；近 ${PH_OPENAQ_HIDE_AFTER_DAYS} 天無資料未顯示 ${sm.hidden} 站`,
-        en: `${sm.shown} stations shown (within 3 h ${sm.fresh}, stale ${sm.stale}, no PM2.5 ${sm.noData}); ${sm.hidden} without data in ${PH_OPENAQ_HIDE_AFTER_DAYS} days hidden`,
-        ja: `表示 ${sm.shown} 局（3 時間以内 ${sm.fresh}、古い ${sm.stale}、PM2.5 なし ${sm.noData}）；直近 ${PH_OPENAQ_HIDE_AFTER_DAYS} 日データなし ${sm.hidden} 局は非表示`,
+        zh: `顯示 ${sm.shown} 站；隱藏 ${sm.hidden} 站（近 ${PH_OPENAQ_HIDE_AFTER_DAYS} 天無資料${sm.monitorsHidden > 0 ? `，含 ${sm.monitorsHidden} 個官方站` : ""}）`,
+        en: `${sm.shown} shown; ${sm.hidden} hidden (no data in ${PH_OPENAQ_HIDE_AFTER_DAYS} days${sm.monitorsHidden > 0 ? `, incl. ${sm.monitorsHidden} official` : ""})`,
+        ja: `表示 ${sm.shown} 局；非表示 ${sm.hidden} 局（直近 ${PH_OPENAQ_HIDE_AFTER_DAYS} 日データなし${sm.monitorsHidden > 0 ? `、公式局 ${sm.monitorsHidden} を含む` : ""}）`,
       })
       : pick({ zh: "載入中…", en: "Loading…", ja: "読み込み中…" });
-  const monitorNote = sm && sm.monitorsShown === 0 && sm.monitorsHidden > 0
-    ? pick({ zh: `官方監測站 ${sm.monitorsHidden} 站近 ${PH_OPENAQ_HIDE_AFTER_DAYS} 天無資料，目前未顯示`, en: `${sm.monitorsHidden} official monitors have no data in ${PH_OPENAQ_HIDE_AFTER_DAYS} days and are not shown`, ja: `公式測定局 ${sm.monitorsHidden} 局は直近 ${PH_OPENAQ_HIDE_AFTER_DAYS} 日データなしのため非表示` })
+  const breakdown = st.state === "ready" && sm
+    ? pick({ zh: `3 小時內 ${sm.fresh}、過舊 ${sm.stale}、無 PM2.5 ${sm.noData}`, en: `Within 3 h ${sm.fresh}, stale ${sm.stale}, no PM2.5 ${sm.noData}`, ja: `3 時間以内 ${sm.fresh}、古い ${sm.stale}、PM2.5 なし ${sm.noData}` })
     : null;
+  const line = (text: string) => <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: lt.textDim, lineHeight: 1.4 }}>{text}</div>;
   return <div>
     <LegendTitle zh={title} />
-    <LegendNote>{status}</LegendNote>
+    {line(shownLine)}
+    {breakdown ? <LegendNote>{breakdown}</LegendNote> : null}
     <LegendNote>PM2.5（µg/m³）</LegendNote>
     {MICRO_SENSOR_PM25_BANDS.map((b) => <LegendRow key={b.label} swatch={<SwatchDot color={b.color} />}>{b.label}</LegendRow>)}
     <LegendRow swatch={<SwatchDot color={PH_OPENAQ_NO_DATA_COLOR} />}>{pick({ zh: "無資料（不是 0）", en: "No data (not zero)", ja: "データなし（0 ではない）" })}</LegendRow>
     <LegendRow swatch={<SwatchDot color={MICRO_SENSOR_PM25_BANDS[1]!.color} opacity={0.9 * PH_OPENAQ_STALE_FACTOR} />}>{pick({ zh: "淡色：超過 3 小時未更新", en: "Faded: not updated for 3+ hours", ja: "淡色：3 時間以上未更新" })}</LegendRow>
-    <LegendRow swatch={<SwatchDot color={MICRO_SENSOR_PM25_BANDS[0]!.color} />}>{pick({ zh: "低價感測器（非官方測站）", en: "Low-cost sensor (not an official monitor)", ja: "低価格センサー（公式測定局ではない）" })}</LegendRow>
     <LegendRow swatch={<SwatchDot color={MICRO_SENSOR_PM25_BANDS[0]!.color} stroke={PH_OPENAQ_MONITOR_RING} strokeWidth={2} />}>{pick({ zh: "官方監測站（白框）", en: "Official monitor (white ring)", ja: "公式測定局（白枠）" })}</LegendRow>
-    {monitorNote ? <LegendNote>{monitorNote}</LegendNote> : null}
+    {/* 低價感測器不畫色點（會被誤讀成 0–15 那一級）；改一行說明，popup 開著時也顯示 */}
+    {line(pick({ zh: "多為低價感測器、非官方測站，數值未經校正", en: "Mostly low-cost sensors, not official monitors; readings are uncalibrated", ja: "主に低価格センサーで公式測定局ではなく、値は未校正" }))}
     {PH_OPENAQ_NOTES.map((n, i) => <LegendNote key={i}>{pick(n)}</LegendNote>)}
     <LegendNote>{pick(PH_OPENAQ_SOURCE.shortL3)}</LegendNote>
   </div>;
