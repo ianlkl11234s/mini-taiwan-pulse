@@ -101,6 +101,10 @@ export const ATLAS_LAYER_COLORS = {
   iOceanFishing: "#0ea5e9",
   fireworksSites: "#dc2626",
   vehicleInspectionOffices: "#22d3ee",
+  // 台灣圖層延伸 B2（2026-11-20）
+  forestAlishanRail: "#92400E",
+  mountainMobileImprovement: "#0ea5e9",
+  ecoLabelHotels: "#16a34a",
 } as const;
 
 /** 山坡地暗底版（2026-11-10）：土褐 0.3 疊暗灰陸地只剩泥色，改沙褐、透明度 ×1.5。地圖與圖例共用。 */

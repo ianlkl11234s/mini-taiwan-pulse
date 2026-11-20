@@ -5516,6 +5516,8 @@ export const LAYER_PARAMS_SPEC = {
   traLevelCrossings: [opacitySlider("traLevelCrossingsOpacity", 0.9), scaleSlider("traLevelCrossingsScale", 1)],
   iOceanSightings: [opacitySlider("iOceanSightingsOpacity", 0.9), scaleSlider("iOceanSightingsScale", 1)],
   fireworksSites: [opacitySlider("fireworksSitesOpacity", 0.9), scaleSlider("fireworksSitesScale", 1)],
+  mountainMobileImprovement: [opacitySlider("mountainMobileImprovementOpacity", 0.9), scaleSlider("mountainMobileImprovementScale", 1)],
+  ecoLabelHotels: [opacitySlider("ecoLabelHotelsOpacity", 0.9), scaleSlider("ecoLabelHotelsScale", 1)],
   vehicleInspectionOffices: [
     {
       kind: "select", category: "data", name: "vehicleInspectionOfficesService", label: "轄區業務", default: "car",

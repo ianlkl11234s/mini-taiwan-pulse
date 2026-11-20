@@ -398,6 +398,13 @@
    "s3_key": "deploy-assets/environment/drinking_water_protection_zones.geojson"
   },
   {
+   "path": "public/environment/eco_label_hotels_145035.pmtiles",
+   "bytes": 366011,
+   "sha256": "89050a78b6ba7b84e104d7b8114dc480ae934102937ffd53dd8e2cefb96bbf1f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/eco_label_hotels_145035.pmtiles"
+  },
+  {
    "path": "public/environment/important_wetland_zones.geojson",
    "bytes": 2064235,
    "sha256": "28fd42691f9edc9cf2b118da2fea9d3add2743a61748a89665cea91cf84c0b54",
@@ -867,6 +874,13 @@
    "s3_key": "deploy-assets/flood/uswg_isochrone_3min.pmtiles"
   },
   {
+   "path": "public/forestry/alishan_forest_railway_points_v1.pmtiles",
+   "bytes": 36102,
+   "sha256": "1df209acc6ac327889c86486c459d4873fcb6abc964ddfaa7182ab9df3f8c878",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/forestry/alishan_forest_railway_points_v1.pmtiles"
+  },
+  {
    "path": "public/forestry/canopy_giants_taiwan.geojson",
    "bytes": 1256746,
    "sha256": "2b050b7c7d1ccb0391dd867a9c3398f7d4bafbe2a8f863f5f4d4df03bcc01e4d",
@@ -1203,6 +1217,13 @@
    "sha256": "39be591788e3b08fe1ec39504e054deb3b08622d364a018c053539b9250a0b40",
    "delivery": "r2",
    "s3_key": "deploy-assets/geo/medical_ltc_v2.pmtiles"
+  },
+  {
+   "path": "public/geo/mountain_mobile_improvement_v1.pmtiles",
+   "bytes": 249508,
+   "sha256": "882e5e61c2c1f077ccc914b106c6e884d5edcfd980d1391eb8d9a11a39cbb88c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/mountain_mobile_improvement_v1.pmtiles"
   },
   {
    "path": "public/geo/news_events.geojson",

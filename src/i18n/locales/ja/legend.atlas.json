@@ -47,5 +47,9 @@
   "legend.atlas.vioZone": "管轄区域（色は隣接所站の区別のみ）",
   "legend.atlas.vioUnstated": "記載なし（自動車業務 24 郷鎮）",
   "legend.atlas.vioSubtitle": "ほかに位置不明の 3 か所：金門監理站、彰化監理站、東勢監理分站",
-  "legend.atlas.licenseOgdlOsm3": "政府資料開放授権条項第 1 版；3 か所の位置は © OpenStreetMap contributors（ODbL）"
+  "legend.atlas.licenseOgdlOsm3": "政府資料開放授権条項第 1 版；3 か所の位置は © OpenStreetMap contributors（ODbL）",
+  "legend.atlas.arSubtitle": "27 地点：駅 22、その他 5。支線（沼平・対高岳・祝山）のキロ程は支線起点から",
+  "legend.atlas.mmSubtitle": "157 地点（160533 の 148＋173234 の追加 9）。カバー欄が空白＝不明",
+  "legend.atlas.mmHalo": "カバー範囲のイメージ（半径約 500 m、実測の電波ではありません）",
+  "legend.atlas.ehSubtitle": "283 軒：金 50、銀 94、銅 139。等級は同系色の濃淡"
 }

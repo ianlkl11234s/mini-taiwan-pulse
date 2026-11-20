@@ -1844,6 +1844,13 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        // 台灣圖層延伸 B2（2026-11-20）
+        title: "環保標章旅館 Eco-label Hotels",
+        layers: [
+          fromManifest("ecoLabelHotels"),
+        ],
+      },
+      {
         title: "水質與污水 Water Quality",
         layers: [
           fromManifest("riverRpiStations"),
@@ -2072,6 +2079,13 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "廣播與電波 Broadcast",
         layers: [
           fromManifest("broadcastTransmitters"),
+        ],
+      },
+      {
+        // 台灣圖層延伸 B2（2026-11-20）
+        title: "山區行動通訊 Mountain Mobile",
+        layers: [
+          fromManifest("mountainMobileImprovement"),
         ],
       },
     ],

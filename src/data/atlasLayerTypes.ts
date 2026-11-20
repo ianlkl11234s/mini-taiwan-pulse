@@ -611,6 +611,8 @@ export const G53_SELF_FOOTER_KEYS = [
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
   "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing", "fireworksSites", "vehicleInspectionOffices",
+  // 台灣圖層延伸 B2（2026-11-20）
+  "forestAlishanRail", "mountainMobileImprovement", "ecoLabelHotels",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -791,9 +793,54 @@ export const FIREWORKS_KIND_OPTIONS: readonly AtlasOption[] = [
   { value: "manufacturing", label: "製造場所", color: "#dc2626" },
   { value: "storage", label: "儲存場所", color: "#f97316" },
 ];
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署" } as const;
+// ── 台灣圖層延伸 B2（2026-11-20）──────────────────────────────────────────
+/** 阿里山林業鐵路點位：車站與其他點位（監工區、車庫園區、水山）；上游 category 為中文原值。 */
+export const ALISHAN_RAIL_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "車站", label: "車站", color: "#92400E" },
+  { value: "其他點位", label: "其他點位（監工區、車庫園區、水山）", color: "#e0a458" },
+];
+/** 圖磚 category 值為這三個者歸「其他點位」 */
+export const ALISHAN_RAIL_OTHER_CATEGORIES = ["監工區", "車庫園區", "水山"] as const;
+export function alishanRailColorExpr(): unknown[] {
+  return ["match", ["get", "category"], "車站", ALISHAN_RAIL_KIND_OPTIONS[0]!.color, ALISHAN_RAIL_KIND_OPTIONS[1]!.color];
+}
+export function alishanRailKind(category: unknown): "車站" | "其他點位" {
+  return category === "車站" ? "車站" : "其他點位";
+}
+/** 改善山區行動通訊站點的站點類別（上游 site_group 中文原值；「山峰」併入「山及三角點」） */
+export const MOUNTAIN_MOBILE_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "山徑步道及林道", label: "山徑步道及林道", color: "#0ea5e9" },
+  { value: "道路及鐵路", label: "道路及鐵路", color: "#f59e0b" },
+  { value: "國家森林園區", label: "國家森林園區", color: "#22c55e" },
+  { value: "山莊及山屋", label: "山莊及山屋", color: "#a855f7" },
+  { value: "山及三角點", label: "山及三角點（含山峰）", color: "#ef4444" },
+  { value: "國家森林遊樂園", label: "國家森林遊樂園", color: "#14b8a6" },
+];
+export function mountainMobileColorExpr(): unknown[] {
+  const g = MOUNTAIN_MOBILE_GROUP_OPTIONS;
+  return ["match", ["get", "site_group"], ...g.slice(0, 4).flatMap((o) => [o.value, o.color]), ["山及三角點", "山峰"], g[4]!.color, g[5]!.value, g[5]!.color, ATLAS_OTHER_COLOR];
+}
+/** 「山峰」併入「山及三角點」 */
+export function mountainMobileGroupKey(group: unknown): string {
+  return group === "山峰" ? "山及三角點" : String(group ?? "");
+}
+export function mountainMobileColor(group: unknown): string {
+  return optionColor(MOUNTAIN_MOBILE_GROUP_OPTIONS, mountainMobileGroupKey(group));
+}
+/** 支線站（里程自支線起點起算） */
+export const ALISHAN_BRANCH_STATIONS: ReadonlySet<string> = new Set(["沼平", "對高岳", "祝山"]);
+/** 環保標章旅館等級：金／銀／銅用同色相序列（綠，越深等級越高），不用金屬色 */
+export const ECO_HOTEL_LEVEL_OPTIONS: readonly AtlasOption[] = [
+  { value: "gold", label: "金級", color: "#15803d" },
+  { value: "silver", label: "銀級", color: "#22c55e" },
+  { value: "bronze", label: "銅級", color: "#86efac" },
+];
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部" } as const;
 
 export const ATLAS_NOTES = {
+  forestAlishanRail: "農業部林業及自然保育署林業及文資處的阿里山林業鐵路車站（data.gov.tw 136446，22 站，WGS84）加上阿里山林業鐵路車站 SHP（38128）中沒有車站代號的 5 個點位（奮起湖、阿里山、竹崎監工區，車庫園區，水山），共 27 點。里程與海拔補自 38128：沼平、對高岳、祝山為支線，里程自支線起點起算，不可與本線里程比較；第一分道與第二分道座標相同（來源如此）；水山的性質未查證。",
+  mountainMobileImprovement: "數位發展部改善山區行動通訊站點：以前瞻計畫 109–112 年名單（data.gov.tw 160533，148 點上圖）為主，併入 173234 清單中離 160533 任一點 1 公里以上的 9 點（該 9 點無業者與年度資訊）；2 點座標疑似有誤（落在臺灣海峽）未上圖。名稱含「N 站」者是沿線多個座標之一。光暈只是示意，來源沒有基地台位置與涵蓋半徑，不代表實測訊號範圍；覆蓋旗標空白是未知，不是無訊號。",
+  ecoLabelHotels: "環境部環保標章旅館（data.gov.tw 145035，月更）283 家上圖（來源 286 列：去除重複 1、座標疑誤 2 不上圖）。縣市鄉鎮依地址解析；核發與到期日補自另一份名冊（161312），8 家對不到而留空；到期日已過但來源仍列出者在彈窗註明。等級用同色相深淺表示，不是金屬色。",
   vehicleInspectionOffices: "交通部公路局監理所站名冊（data.gov.tw 14203，115 年 4 月 21 日版）37 所站，來源只有地址：本機離線門牌定位 31 處（門牌 28、路段內插 3），另 3 處依 OpenStreetMap 同名地物補位（連江、澎湖、臺中市監理站）；金門監理站、彰化監理站、東勢監理分站找不到位置，未上圖。轄區面是依名冊的轄區文字把鄉鎮界組起來（86521「監理機關轄區」是同一份文字，不是面圖資），汽車與機車監理各自全國 368 鄉鎮各歸一所站；汽車監理有 24 個鄉鎮（南投埔里等 4、雲林沿海 9 加北港、屏東恆春等 6、高雄新興前金苓雅鹽埕）來源沒寫，畫成灰色「來源未載明」，不推定。轄區顏色只用來區分相鄰所站，沒有其他意義。電話與傳真是機關總機。",
   fireworksSites: "內政部消防署公告的爆竹煙火製造及儲存場所名冊（data.gov.tw 7070，2025-12-04 更新）共 19 處，來源只有地址，以本機離線門牌定位：地圖上 10 處（門牌 7、路段內插 1、鄉鎮 2），另 9 處是沒有路名的鄉間地址，定位不到未上圖（新竹湖口、峨眉，苗栗造橋、苑裡，桃園新屋，雲林斗南，嘉義東石）。位置由地址推估，不是場所邊界。以個人姓名為名的 3 處不顯示名稱，地址與位置都只到鄉鎮（上圖 2 處）。",
   iOceanFishing: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾垂釣回報（data.gov.tw 157622，2026-05-06 版，實際含到 2026-11-03），56,420 筆（2015–2026，2021 年以後占 98%）。公民回報，未經查核。拉遠時（縮放 10 以下）以 0.01° 格網彙總的回報筆數畫熱區，熱區不隨垂釣類型篩選；放大到 10 級起畫每筆回報，依垂釣類型著色。座標落在 118–124°E、20–27°N 以外的 124 筆未上圖。回報沒有姓名或帳號等個資；同行人數欄品質不佳，不顯示。",

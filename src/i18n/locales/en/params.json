@@ -2721,5 +2721,18 @@
   "param.盛行風箭頭": "Prevailing wind arrows",
   "param.廢棄物棄置場址": "Waste dumping sites",
   "param.有載明超標倍數": "Exceedance ratio stated",
-  "param.超標 >5 倍": ">5× the standard"
+  "param.超標 >5 倍": ">5× the standard",
+  "param.點位類別": "Point type",
+  "param.其他點位": "Other points",
+  "param.站點類別": "Site type",
+  "param.等級": "Grade",
+  "param.金級": "Gold",
+  "param.銀級": "Silver",
+  "param.銅級": "Bronze",
+  "param.山徑步道及林道": "Mountain trails and forest roads",
+  "param.道路及鐵路": "Roads and railways",
+  "param.國家森林園區": "National forest parks",
+  "param.山莊及山屋": "Lodges and huts",
+  "param.山及三角點": "Mountains and triangulation points",
+  "param.國家森林遊樂園": "National forest recreation areas"
 }

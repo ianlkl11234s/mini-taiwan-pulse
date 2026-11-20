@@ -2008,5 +2008,7 @@
   "layer.statsOpenDataThemesWithCoords": "座標データのあるテーマ数",
   "layer.mapchallengeDay19Complaints": "悪臭苦情メッシュ",
   "layer.mapchallengeDay19Potential": "施設由来の臭気ポテンシャルと風",
-  "layer.mapchallengeDay19Penalties": "悪臭による処分施設"
+  "layer.mapchallengeDay19Penalties": "悪臭による処分施設",
+  "layer.mountainMobileImprovement": "山間部の携帯通信改善地点",
+  "layer.ecoLabelHotels": "エコラベル認証ホテル"
 }

@@ -2008,5 +2008,7 @@
   "layer.statsOpenDataThemesWithCoords": "Themes with Coordinate Data",
   "layer.mapchallengeDay19Complaints": "Odor Complaints Grid",
   "layer.mapchallengeDay19Potential": "Odor Potential & Wind",
-  "layer.mapchallengeDay19Penalties": "Odor Penalties"
+  "layer.mapchallengeDay19Penalties": "Odor Penalties",
+  "layer.mountainMobileImprovement": "Mountain Mobile Coverage Improvement Sites",
+  "layer.ecoLabelHotels": "Eco-label Hotels"
 }
