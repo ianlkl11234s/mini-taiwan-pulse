@@ -7,8 +7,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   canRetryLinkedSelect, linkedSelectHiddenFor, linkedSelectSnapshot, linkedSelectSpecs, linkedSelectValues, resolveLinkedSelectChange,
-  restoreLinkedSelects, setLinkedSelect, type LinkedSelectTuple,
+  registerLinkedSelectProvider, restoreLinkedSelects, setLinkedSelect, type LinkedSelectTuple,
 } from '../linkedSelect';
+import type { LinkedSelectParamSpec } from '../../data/layerParamsSpec';
 import { buildParamControls, visibleControlSpecs } from '../layerParamsControls';
 import { regionalStatisticsStore } from '../regionalStatisticsStore';
 import { statisticsRecipe } from '../../data/statisticsSelection';
@@ -214,6 +215,30 @@ describe('場景存檔與還原', () => {
     } as never, new Set([KEY]), new Set(), ['dark']);
     expect(old.linked).toEqual({});
     expect(old.skipped).toEqual([]);
+  });
+
+  it('還原：目標指標在目前期別不可選 → 先套期別再重試指標；兩者都套不上才略過', async () => {
+    // 指標 A 有 104、114 學年，B 只有 114；B 在目前期別不適用時列出但 disabled（同統計 provider）
+    const combos = [{ metric: 'A', period: '104' }, { metric: 'A', period: '114' }, { metric: 'B', period: '114' }];
+    const current = { metric: 'A', period: '104' };
+    registerLinkedSelectProvider('testRestore', {
+      snapshot: (_key, spec) => {
+        const field = spec.field as 'metric' | 'period';
+        const values = field === 'metric' ? ['A', 'B'] : combos.filter((c) => c.metric === current.metric).map((c) => c.period);
+        const usable = (v: string) => field === 'period' || combos.some((c) => c.metric === v && c.period === current.period);
+        return { status: 'ready', value: current[field], options: values.map((v) => ({ label: v, value: v, disabled: !usable(v) })) };
+      },
+      set: (_key, spec, value) => { current[spec.field as 'metric' | 'period'] = value; },
+      subscribe: () => () => {},
+    });
+    const spec = (name: string, field: string, dependsOn: string[]) =>
+      ({ kind: 'linkedSelect', name, label: name, provider: 'testRestore', field, dependsOn, default: '', out: null }) as unknown as LinkedSelectParamSpec;
+    const specs = [spec('m', 'metric', []), spec('p', 'period', ['m'])];
+    expect(await restoreLinkedSelects({ k: { m: 'B', p: '114' } }, 1000, () => specs)).toEqual([]);
+    expect(current).toEqual({ metric: 'B', period: '114' });
+    Object.assign(current, { metric: 'A', period: '104' });
+    expect(await restoreLinkedSelects({ k: { m: 'B', p: '104' } }, 1000, () => specs)).toEqual(['k.m：選項已不存在，保留目前選擇']);
+    expect(current).toEqual({ metric: 'A', period: '104' });
   });
 });
 
