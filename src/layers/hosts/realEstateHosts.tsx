@@ -7,6 +7,7 @@
 import { useRealEstateTimeline } from "../../hooks/useRealEstateTimeline";
 import { useRealEstatePointsLayer } from "../../hooks/useRealEstatePointsLayer";
 import { useSelectedFeatureHalo } from "../../hooks/useSelectedFeatureHalo";
+import { useLandOfficeHighlight } from "../../hooks/useLandOfficeHighlight";
 import { usePropertyValueAdminLayer } from "../../hooks/usePropertyValueAdminLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -69,5 +70,12 @@ export const PropertyValueAdminHost: LayerHostComponent = ({ deps }) => {
 export const SelectedFeatureHaloHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useSelectedFeatureHalo");
   useSelectedFeatureHalo(deps.mapRef, deps.featureInfo);
+  return null;
+};
+
+/** 點地政事務所點 → 高亮「地政事務所轄區」對應面（台灣圖層延伸 B3；跨圖層互動，沒有自己的 layer key） */
+export const LandOfficeHighlightHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useLandOfficeHighlight");
+  useLandOfficeHighlight(deps.mapRef, deps.featureInfo);
   return null;
 };

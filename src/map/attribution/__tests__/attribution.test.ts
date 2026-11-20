@@ -50,14 +50,14 @@ describe("圖層來源收集（不漏顯名）", () => {
     const missing: string[] = [];
     for (const config of WITH_ATTRIBUTION) {
       // §3.8 V-5：點／面切換的圖層，只有目前樣式的那個 config 會顯示 → 兩種樣式各試一次；
-      // 以 `${id}ViewIdx` select 切換子圖層的（例：土石流潛勢溪流線／影響範圍／集水區）也逐一試
+      // 以 `${id}ViewIdx` select 切換子圖層的（例：土石流潛勢溪流線／影響範圍／集水區）也逐一試；`${id}YearIdx` 換年份檔的（年度崩塌地 2025 在獨立單年檔）也試
       const collectedFor = (params: Record<string, number>) => {
         const m = stubMap();
         addOverlay(m, config, true, params);
         setOverlayVisible(m, config, true, true, params);
         return collectLayerAttributions(readMapSourceViews(m));
       };
-      const collected = [{}, { [`${config.id}DisplayModeIdx`]: 0 }, { [`${config.id}DisplayModeIdx`]: 1 }, { [`${config.id}ViewIdx`]: 1 }, { [`${config.id}ViewIdx`]: 2 }, { [`${config.id}ViewIdx`]: 3 }, { [`${config.id}ViewIdx`]: 4 }]
+      const collected = [{}, { [`${config.id}DisplayModeIdx`]: 0 }, { [`${config.id}DisplayModeIdx`]: 1 }, { [`${config.id}ViewIdx`]: 1 }, { [`${config.id}ViewIdx`]: 2 }, { [`${config.id}ViewIdx`]: 3 }, { [`${config.id}ViewIdx`]: 4 }, { [`${config.id}YearIdx`]: 4, [`${config.id}DisplayModeIdx`]: 1 }]
         .map(collectedFor).find((c) => c.includes(config.attribution!.trim())) ?? [];
       if (!collected.includes(config.attribution!.trim())) {
         missing.push(`${config.id}: not collected`);

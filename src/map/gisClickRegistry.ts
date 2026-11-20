@@ -128,6 +128,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ipost-boxes-circle", "ipost-boxes-glow"], type: "iPostBox" },
   { layers: ["community-centers-circle", "community-centers-glow"], type: "communityCenter" },
   { layers: ["gov-service-offices-circle", "gov-service-offices-glow"], type: "govServiceOffice" },
+  { layers: ["gov-service-offices-hro-branch-circle", "gov-service-offices-hro-branch-glow"], type: "householdRegistrationBranch" },
   { layers: ["public-libraries-circle", "public-libraries-glow"], type: "publicLibrary" },
   { layers: ["welfare-centers-circle", "welfare-centers-glow"], type: "welfareCenter" },
   { layers: ["animal-adoption-circle", "animal-adoption-glow"], type: "animalAdoption" },
@@ -1029,6 +1030,14 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["forest-alishan-rail-circle", "forest-alishan-rail-glow"], type: "forestAlishanRail" },
   { layers: ["mountain-mobile-improvement-circle", "mountain-mobile-improvement-glow"], type: "mountainMobileImprovement" },
   { layers: ["eco-label-hotels-circle", "eco-label-hotels-glow"], type: "ecoLabelHotels" },
+  // 台灣圖層延伸 B3（2026-11-20）
+  { layers: ["namr-buoys-circle", "namr-buoys-glow"], type: "namrBuoys" },
+  { layers: ["towing-yards-circle", "towing-yards-glow"], type: "towingYards" },
+  { layers: ["swc-outdoor-classrooms-circle", "swc-outdoor-classrooms-glow"], type: "swcOutdoorClassrooms" },
+  { layers: ["swc-eco-check-zones-fill"], type: "swcEcoCheckZones" },
+  { layers: ["airport-height-surfaces-fill", "airport-height-surfaces-outline"], type: "airportHeightSurfaces" },
+  { layers: ["land-office-jurisdiction-fill"], type: "landOfficeJurisdiction" },
+  { layers: ["np-species-sites-circle", "np-species-sites-glow"], type: "npSpeciesSites" },
   { layers: ["forest-treatment-works-circle"], type: "forestryPOI" },
   { layers: ["forest-dam-lakes-circle"], type: "forestryPOI" },
   { layers: ["forest-flat-parks-circle"], type: "forestryPOI" },
@@ -1156,6 +1165,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 崩塌面層：年度崩塌地（多為小面）→ 潛勢區 → 影響範圍（潛勢區多半落在影響範圍內，先命中）；
   //    排在坡度／坡向等全島 fill 之前。
   { layers: ["landslide-annual-fill", "landslide-annual-outline"], type: "landslideAnnual" },
+  { layers: ["landslide-annual-2025-fill", "landslide-annual-2025-outline"], type: "landslideAnnual" },
   { layers: ["landslide-dod-areas-fill", "landslide-dod-areas-outline"], type: "landslideDodArea" },
   { layers: ["landslide-dod-impact-fill", "landslide-dod-impact-outline"], type: "landslideDodImpact" },
   // atlas 批次 2026-10 面層：小面在前，全島村里面（農村社區）最後

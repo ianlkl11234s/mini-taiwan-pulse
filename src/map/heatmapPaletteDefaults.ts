@@ -34,6 +34,7 @@ export const THEME_HEATMAP_PALETTE: Readonly<Record<string, PaletteId>> = {
   農業: "tokyo",
   原民與農村: "tokyo",
   災害: "rocket",
+  自然保育: "batlow", // 台灣圖層延伸 B3（2026-11-20）：國家公園物種調查點位（本主題第一個熱區層）
   民防避難: "YlGnBu",
   消防: "magma",
   執法治安: "BuPu",

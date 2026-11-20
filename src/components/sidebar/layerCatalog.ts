@@ -836,6 +836,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("aviationRestrictedGlow"),
           fromManifest("droneNoFlyZone"),
           fromManifest("droneRestrictedZone"),
+          fromManifest("airportHeightSurfaces"), // 台灣圖層延伸 B3（2026-11-20）：限高管制面（與無人機飛行規則不同）
         ],
       },
       {
@@ -888,6 +889,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
           fromManifest("traLevelCrossings"),
+          fromManifest("towingYards"), // 台灣圖層延伸 B3（2026-11-20）
           fromManifest("cctv"),
           fromManifest("etcGantry"),
           fromManifest("serviceArea"),
@@ -1088,6 +1090,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("iPostBoxes"),
           fromManifest("postMailboxes"),
           fromManifest("govServiceOffices"),
+          fromManifest("landOfficeJurisdiction"), // 台灣圖層延伸 B3（2026-11-20）
           fromManifest("communityCenters"),
           fromManifest("convenienceStores"),
           fromManifest("retailMarkets"),
@@ -1920,6 +1923,8 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("namrEdnaSurveySites"),
           fromManifest("marineEcologicalMonitoringSites"),
+          // 台灣圖層延伸 B3（2026-11-20）：浮標站位清單，5 座與氣象署資料浮標同址
+          fromManifest("namrBuoys"),
         ],
       },
       {
@@ -2293,6 +2298,20 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("forestReserve"),
           fromManifest("forestRecreation"),
+        ],
+      },
+      {
+        // 台灣圖層延伸 B3（2026-11-20）
+        title: "水土保持 Soil & Water Conservation",
+        layers: [
+          fromManifest("swcEcoCheckZones"),
+          fromManifest("swcOutdoorClassrooms"),
+        ],
+      },
+      {
+        title: "物種調查 Species Surveys",
+        layers: [
+          fromManifest("npSpeciesSites"),
         ],
       },
     ],

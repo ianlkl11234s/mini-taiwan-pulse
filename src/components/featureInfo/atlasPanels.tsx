@@ -23,6 +23,7 @@ import {
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
   ALISHAN_RAIL_KIND_OPTIONS, ALISHAN_BRANCH_STATIONS, alishanRailKind, mountainMobileColor, mountainMobileGroupKey, ECO_HOTEL_LEVEL_OPTIONS,
+  NAMR_BUOY_KIND_OPTIONS, AIRPORT_SURFACE_OPTIONS, NP_PARK_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { ToxicPermitsBlock } from "./pollutionPanels";
@@ -1474,6 +1475,121 @@ function EcoLabelHotelPanel({ props }: Props) {
   </>;
 }
 
+/** 台灣圖層延伸 B3 國海院浮標：僅站位；5 座與氣象署資料浮標同址。 */
+function NamrBuoyPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(NAMR_BUOY_KIND_OPTIONS, props.buoy_kind);
+  const ended = props.status === "ended";
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasNamrBuoyKind", props.buoy_kind, str(props.buoy_kind), i18n)} color={color} />
+    <Row field="status" value={enumOf("atlasNamrBuoyStatus", props.status, str(props.status), i18n)} />
+    <Row label={t("popup.atlas.nbFirst")} value={str(props.first_data_date)} mono />
+    <Row label={t("popup.atlas.nbLast")} value={str(props.last_data_date)} mono />
+    {props.overlaps_cwa_station === true ? <Row field="caution" value={t("popup.atlas.nbOverlap")} /> : null}
+    {ended ? <Row field="caution" value={t("popup.atlas.nbEnded")} /> : null}
+    <Row field="caution" value={t("popup.atlas.nbNoValues")} />
+  </>;
+}
+
+/** 台灣圖層延伸 B3 違規拖吊保管場：位置依地址推定；另有 25 筆未定位。 */
+function TowingYardPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.towingYards}>{str(props.name)}</Title>
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.tel)} mono />
+    <Row field="caution" value={t("popup.atlas.tyEstimated")} />
+  </>;
+}
+
+/** 台灣圖層延伸 B3 水保戶外教室：2020 年版管理單位與電話可能過時。 */
+function SwcOutdoorClassroomPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.swcOutdoorClassrooms}>{str(props.name)}</Title>
+    <Row field="description" value={str(props.intro)} />
+    <Row field="openingHours" value={str(props.open_hours)} />
+    <Row field="phone" value={str(props.tel)} mono />
+    <Row field="managingAgency" value={str(props.managing_unit)} />
+    <Row field="address" value={str(props.address_text)} />
+    <Row field="countyDistrict" value={admin(props, i18n)} />
+    <Row field="caution" value={t("popup.atlas.ocOld")} />
+  </>;
+}
+
+/** 台灣圖層延伸 B3 第一級生態檢核區：不是法定分區公告。 */
+function SwcEcoCheckZonePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.swcEcoCheckZones}>{enumOf("atlasEcoZoneName", props.zone_name, str(props.zone_name), i18n)}</Title>
+    <Row field="area" value={fmt(props.area_ha, 1, t("popup.atlas.unitHa"), i18n)} mono />
+    <Row field="countyDistrict" value={admin(props, i18n)} />
+    <Row field="caution" value={t("popup.atlas.ezNotLegal")} />
+  </>;
+}
+
+/** 台灣圖層延伸 B3 機場限高面：面是查詢範圍；高雄與其他機場未涵蓋。 */
+function AirportHeightSurfacePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const name = str(props.surface_name);
+  const option = AIRPORT_SURFACE_OPTIONS.find((o) => o.values.includes(name));
+  const color = option?.color ?? ATLAS_LAYER_COLORS.airportHeightSurfaces;
+  const slope = num(props.slope_ratio);
+  return <>
+    <Title color={color}>{enumOf("atlasAirportName", props.airport, str(props.airport), i18n)}</Title>
+    <Row field="type" value={enumOf("atlasAirportSurface", name, name, i18n)} color={color} />
+    <Row label={t("popup.atlas.ahDetail")} value={str(props.surface_detail)} />
+    <Row label={t("popup.atlas.ahSlope")} value={slope != null ? `1:${slope}` : ""} mono />
+    <Row label={t("popup.atlas.ahStart")} value={fmt(props.start_height_m, 1, "m", i18n)} mono />
+    <Row field="area" value={fmt(props.area_km2, 2, "km²", i18n)} mono />
+    {props.surface_kind === "facility" ? <Row field="caution" value={t("popup.atlas.ahFacility")} /> : null}
+    <Row field="caution" value={t("popup.atlas.ahQuery")} />
+  </>;
+}
+
+/** 台灣圖層延伸 B3 地政事務所轄區：8 面在便民據點找不到對應點。 */
+function LandOfficeJurisdictionPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.landOfficeJurisdiction}>{str(props.office_title_7620) || str(props.agency_short)}</Title>
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.atlas.ljTowns")} value={str(props.jurisdiction_text_7620) || str(props.town_list)} />
+    <Row field="area" value={fmt(props.area_km2, 1, "km²", i18n)} mono />
+    {props.matches_gov_service_offices === false ? <Row field="caution" value={t("popup.atlas.ljNoPoint")} /> : null}
+  </>;
+}
+
+/** 台灣圖層延伸 B3 國家公園物種調查點位：單位是調查點位；座標模糊處理要註明。 */
+function NpSpeciesSitePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(NP_PARK_OPTIONS, props.park);
+  const taxon = str(props.top_taxa_class).split(">").pop() ?? "";
+  const obscured = str(props.coord_obscured);
+  const first = str(props.first_survey);
+  const last = str(props.last_survey);
+  return <>
+    <Title color={color}>{enumOf("atlasNpPark", props.park, str(props.park), i18n)}</Title>
+    <Row label={t("popup.atlas.npRecords")} value={fmt(props.n_records, 0, t("popup.atlas.unitRecords"), i18n)} mono />
+    <Row label={t("popup.atlas.npSpecies")} value={fmt(props.n_species, 0, t("popup.atlas.unitSpecies"), i18n)} mono />
+    <Row label={t("popup.atlas.npClasses")} value={fmt(props.n_taxa_class, 0, "", i18n)} mono />
+    <Row label={t("popup.atlas.npTopTaxon")} value={taxon} />
+    <Row field="surveyDate" value={first && last ? (first === last ? first : `${first} – ${last}`) : first || last} mono />
+    <Row label={t("popup.atlas.npRelease")} value={str(props.releases)} mono />
+    <Row label={t("popup.atlas.npUncertainty")} value={str(props.uncertainty_bucket) || t("popup.atlas.npUncertaintyNone")} mono />
+    {obscured === "all" || obscured === "some" ? <Row field="caution" value={t(obscured === "all" ? "popup.atlas.npObscuredAll" : "popup.atlas.npObscuredSome")} /> : null}
+    <Row field="caution" value={t("popup.atlas.npSiteUnit")} />
+  </>;
+}
+
 /** G53 批 2／3 爆竹煙火場所：位置由地址推估；個人經營不顯示名稱、只到鄉鎮。 */
 function FireworksSitePanel({ props }: Props) {
   const i18n = useLocale();
@@ -1649,6 +1765,13 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   forestAlishanRail: { org: "forestry", dataset: (p) => (Number(p.source_nid) === 38128 ? "38128" : "136446") },
   mountainMobileImprovement: { org: "moda", dataset: (p) => (Number(p.source_nid) === 173234 ? "173234" : "160533") },
   ecoLabelHotels: { org: "moenv", dataset: () => "145035" },
+  namrBuoys: { org: "namr", dataset: (p) => (Number(p.source_nid) === 171315 ? "171315" : "171309") },
+  towingYards: { org: "npa", dataset: () => "7319" },
+  swcOutdoorClassrooms: { org: "swcb", dataset: () => "108030" },
+  swcEcoCheckZones: { org: "swcb", dataset: () => "159097" },
+  airportHeightSurfaces: { org: "caa", dataset: () => "35876" },
+  landOfficeJurisdiction: { org: "nlsc", dataset: () => "13045" },
+  npSpeciesSites: { org: "nps", dataset: () => "73252" },
   vehicleInspectionOffices: { org: "thb", dataset: () => "14203" },
   iOceanFishing: { org: "oca", dataset: () => "157622" },
   iOceanSightings: { org: "oca", dataset: () => "157621" },
@@ -1688,6 +1811,13 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   forestAlishanRail: withG53Footer("forestAlishanRail", AlishanRailPanel),
   mountainMobileImprovement: withG53Footer("mountainMobileImprovement", MountainMobilePanel),
   ecoLabelHotels: withG53Footer("ecoLabelHotels", EcoLabelHotelPanel),
+  namrBuoys: withG53Footer("namrBuoys", NamrBuoyPanel),
+  towingYards: withG53Footer("towingYards", TowingYardPanel),
+  swcOutdoorClassrooms: withG53Footer("swcOutdoorClassrooms", SwcOutdoorClassroomPanel),
+  swcEcoCheckZones: withG53Footer("swcEcoCheckZones", SwcEcoCheckZonePanel),
+  airportHeightSurfaces: withG53Footer("airportHeightSurfaces", AirportHeightSurfacePanel),
+  landOfficeJurisdiction: withG53Footer("landOfficeJurisdiction", LandOfficeJurisdictionPanel),
+  npSpeciesSites: withG53Footer("npSpeciesSites", NpSpeciesSitePanel),
   vehicleInspectionOffices: withG53Footer("vehicleInspectionOffices", VehicleInspectionPanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
@@ -1785,6 +1915,13 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   forestAlishanRail: manifestZh("forestAlishanRail"),
   mountainMobileImprovement: manifestZh("mountainMobileImprovement"),
   ecoLabelHotels: manifestZh("ecoLabelHotels"),
+  namrBuoys: manifestZh("namrBuoys"),
+  towingYards: manifestZh("towingYards"),
+  swcOutdoorClassrooms: manifestZh("swcOutdoorClassrooms"),
+  swcEcoCheckZones: manifestZh("swcEcoCheckZones"),
+  airportHeightSurfaces: manifestZh("airportHeightSurfaces"),
+  landOfficeJurisdiction: manifestZh("landOfficeJurisdiction"),
+  npSpeciesSites: manifestZh("npSpeciesSites"),
   vehicleInspectionOffices: manifestZh("vehicleInspectionOffices"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),

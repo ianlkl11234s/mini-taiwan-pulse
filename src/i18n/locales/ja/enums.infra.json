@@ -8,5 +8,6 @@
   "enum.infraToiletGrade.不合格": "不合格",
   "enum.infraCctvSource.freeway": "国道",
   "enum.infraCctvSource.highway": "省道快速道路",
-  "enum.infraCctvSource.city": "市街地道路"
+  "enum.infraCctvSource.city": "市街地道路",
+  "enum.infraGovOffice.household_registration_branch": "戸政事務所の出張所"
 }

@@ -92,5 +92,12 @@
   "popup.infra.lockerCount_one": "{count} 格",
   "popup.infra.lockerCount_other": "{count} 格",
   "popup.infra.slotCount_one": "{count} 格",
-  "popup.infra.slotCount_other": "{count} 格"
+  "popup.infra.slotCount_other": "{count} 格",
+  "popup.infra.hroPrecisionExact": "OSM 門牌",
+  "popup.infra.hroPrecisionRoad": "同路段內插",
+  "popup.infra.hroPrecisionCached": "地址定位快取",
+  "popup.infra.hroEstimated": "位置依地址推定（{precision}），不是官方座標",
+  "popup.infra.hroType": "戶政辦公據點",
+  "popup.infra.hroOrg": "內政部戶政司",
+  "popup.infra.landJurisdictionHint": "開啟「地政事務所轄區」圖層後，點選此點會高亮該所轄區"
 }
