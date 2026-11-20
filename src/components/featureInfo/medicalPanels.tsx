@@ -23,11 +23,10 @@ const LTC_ABC_LABEL: Record<string, string> = {
   C: "C 巷弄長照站",
 };
 
-const OGDL_TW = "政府資料開放授權條款-第1版（OGDL-Taiwan-1.0）";
 /** tile 無來源欄的兩層，補衛福部官方出處（依 analytics data-catalog aed／long_term_care） */
 const MEDICAL_RAW_SOURCES = {
-  aed: { source_org: "衛生福利部醫事司（AED 急救資訊網，data.gov.tw 12063）", source_url: "https://data.gov.tw/dataset/12063", license: OGDL_TW },
-  ltc: { source_org: "衛生福利部（長照服務資源地理地圖系統，data.gov.tw 88270）", source_url: "https://data.gov.tw/dataset/88270", license: OGDL_TW },
+  aed: { labelKey: "popup.medical.sourceAed", url: "https://data.gov.tw/dataset/12063" },
+  ltc: { labelKey: "popup.medical.sourceLtc", url: "https://data.gov.tw/dataset/88270" },
 } as const;
 
 const str = (v: unknown): string => (v == null ? "" : String(v).trim());
@@ -72,7 +71,7 @@ export function normalizeMedicalPOIProps(props: Record<string, unknown>): Record
 
 export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unknown> }) {
   const props = normalizeMedicalPOIProps(rawProps);
-  const rawSource = props !== rawProps && (props.med_cat === "aed" || props.med_cat === "ltc") ? MEDICAL_RAW_SOURCES[props.med_cat] : null;
+  const rawSrc = props !== rawProps && (props.med_cat === "aed" || props.med_cat === "ltc") ? MEDICAL_RAW_SOURCES[props.med_cat] : null;
   const t = useFeatureTheme();
   const i18n = useLocale();
   const { t: tr } = i18n;
@@ -138,7 +137,7 @@ export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unk
           ) : null}
         </>
       ) : null}
-      <SourceFooter props={rawSource ?? rawProps} />
+      <SourceFooter props={rawSrc ? { source_org: tr(rawSrc.labelKey), source_url: rawSrc.url, license: tr("popup.infra.toiletLicense") } : rawProps} />
     </>
   );
 }

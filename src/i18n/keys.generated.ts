@@ -6428,6 +6428,8 @@ export type GeneratedStaticKey =
   | "popup.medical.placeCategory"
   | "popup.medical.placeType"
   | "popup.medical.severe"
+  | "popup.medical.sourceAed"
+  | "popup.medical.sourceLtc"
   | "popup.medical.specialties"
   | "popup.medical.trend"
   | "popup.medical.waitBed"
