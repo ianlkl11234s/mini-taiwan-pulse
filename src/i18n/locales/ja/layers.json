@@ -2019,5 +2019,9 @@
   "layer.statsSurnameTop1Township": "郷鎮別の最多姓",
   "layer.statsSurnameTop1ShareTownship": "最多姓の戸籍人口に占める割合",
   "layer.statsSurnameShareTownship": "姓別の戸籍人口に占める割合",
-  "layer.statsAbandonedPitsCounty": "現存する放置採掘跡の穴の数"
+  "layer.statsAbandonedPitsCounty": "現存する放置採掘跡の穴の数",
+  "layer.statsHealthNotifiableCasesTownship": "法定感染症の症例数（郷鎮）",
+  "layer.statsHealthNotifiableRatePer100kTownship": "法定感染症の人口 10 万人あたり症例率（郷鎮）",
+  "layer.statsHealthNotifiableCasesCounty": "法定感染症の症例数（県・市）",
+  "layer.statsHealthNotifiableRatePer100kCounty": "法定感染症の人口 10 万人あたり症例率（県・市）"
 }

@@ -2019,5 +2019,9 @@
   "layer.statsSurnameTop1Township": "Most common surname by township",
   "layer.statsSurnameTop1ShareTownship": "Share of registered population with the most common surname",
   "layer.statsSurnameShareTownship": "Surname share of registered population",
-  "layer.statsAbandonedPitsCounty": "Remaining abandoned pits"
+  "layer.statsAbandonedPitsCounty": "Remaining abandoned pits",
+  "layer.statsHealthNotifiableCasesTownship": "Notifiable disease cases (township)",
+  "layer.statsHealthNotifiableRatePer100kTownship": "Notifiable disease rate per 100,000 (township)",
+  "layer.statsHealthNotifiableCasesCounty": "Notifiable disease cases (county)",
+  "layer.statsHealthNotifiableRatePer100kCounty": "Notifiable disease rate per 100,000 (county)"
 }

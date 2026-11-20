@@ -18,20 +18,20 @@
   ]
  },
  "summary": {
-  "layerKeys": 2029,
+  "layerKeys": 2033,
   "overlayConfigs": 551,
   "runtimeSublayers": 1046,
   "byResolution": {
    "runtime": 453,
    "static-scan": 330,
    "unresolved": 321,
-   "shared-renderer": 925
+   "shared-renderer": 929
   },
   "byGeometry": {
    "point": 633,
    "heatmap": 234,
    "line": 400,
-   "polygon": 1281,
+   "polygon": 1285,
    "raster": 77,
    "label": 63,
    "3d": 35,
@@ -43,13 +43,13 @@
    "無 hook／factory（App 掛載或尚無實作）": 290,
    "Three.js／WebGL CustomLayer": 11
   },
-  "legendEntries": 1778,
+  "legendEntries": 1782,
   "legendTypes": {
    "square-swatch": 182,
    "svg-icon": 72,
    "dot-swatch": 336,
    "gradient+dot-swatch": 87,
-   "square-swatch+hatch(missing)": 931,
+   "square-swatch+hatch(missing)": 935,
    "gradient+size+dot-swatch": 5,
    "hatch(missing)": 3,
    "size+dot-swatch": 35,
@@ -77,7 +77,7 @@
   },
   "legendResolution": {
    "ssr": 813,
-   "static": 965
+   "static": 969
   },
   "legendsWithIssues": 159,
   "ironRules": {
@@ -649,7 +649,7 @@
    ],
    "themeDiff": "細縫顏色與透明度、斜線顏色隨底圖切換（F-2／F-3）"
   },
-  "statisticsLayers": 925
+  "statisticsLayers": 929
  },
  "legends": [
   {"id":"accessibleParkFacilities","members":["accessibleParkFacilities"],"components":["AccessibleParkLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":11,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
@@ -1996,6 +1996,10 @@
   {"id":"statsHealthLowBirthWeightRate","members":["statsHealthLowBirthWeightRate"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsHealthMedicalInstitutionBedsPer10000Population","members":["statsHealthMedicalInstitutionBedsPer10000Population"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsHealthMentalOutpatientPer1000","members":["statsHealthMentalOutpatientPer1000"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsHealthNotifiableCasesCounty","members":["statsHealthNotifiableCasesCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsHealthNotifiableCasesTownship","members":["statsHealthNotifiableCasesTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsHealthNotifiableRatePer100kCounty","members":["statsHealthNotifiableRatePer100kCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsHealthNotifiableRatePer100kTownship","members":["statsHealthNotifiableRatePer100kTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsHealthNursingStaffListedAgeSexSum","members":["statsHealthNursingStaffListedAgeSexSum"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsHealthOutpatientVisitRate","members":["statsHealthOutpatientVisitRate"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsHealthPostpartumNursingHomeOpenBeds","members":["statsHealthPostpartumNursingHomeOpenBeds"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":5,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
@@ -3975,6 +3979,10 @@
   "statsHealthLowBirthWeightRate": {"label":"活產新生兒低出生體重率（縣市）","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthLowBirthWeightRate","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthLowBirthWeightRateOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":6,"breaks":5,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsHealthMedicalInstitutionBedsPer10000Population": {"label":"醫療院所每萬人口病床數","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthMedicalInstitutionBedsPer10000Population","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthMedicalInstitutionBedsPer10000PopulationOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsHealthMentalOutpatientPer1000": {"label":"每千人口精神疾病門診件數（縣市）","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthMentalOutpatientPer1000","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthMentalOutpatientPer1000Opacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsHealthNotifiableCasesCounty": {"label":"法定傳染病病例數（縣市）（縣市）","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthNotifiableCasesCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthNotifiableCasesCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsHealthNotifiableCasesTownship": {"label":"法定傳染病病例數（鄉鎮）（鄉鎮）","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthNotifiableCasesTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthNotifiableCasesTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsHealthNotifiableRatePer100kCounty": {"label":"法定傳染病病例率（縣市）（縣市）","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthNotifiableRatePer100kCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthNotifiableRatePer100kCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsHealthNotifiableRatePer100kTownship": {"label":"法定傳染病病例率（鄉鎮）（鄉鎮）","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthNotifiableRatePer100kTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthNotifiableRatePer100kTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsHealthNursingStaffListedAgeSexSum": {"label":"一般護理之家列示護理人員欄位加總","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthNursingStaffListedAgeSexSum","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthNursingStaffListedAgeSexSumOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsHealthOutpatientVisitRate": {"label":"健保平均門診就診率（縣市）","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthOutpatientVisitRate","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthOutpatientVisitRateOpacity","default":0.55,"min":0.1,"max":1},"controls":2},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsHealthPostpartumNursingHomeOpenBeds": {"label":"產後護理之家開放護理床數","theme":"醫療與長照 Health & Care","dataClass":"D","color":"#66c2a4","legend":"statsHealthPostpartumNursingHomeOpenBeds","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsHealthPostpartumNursingHomeOpenBedsOpacity","default":0.55,"min":0.1,"max":1},"controls":7},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
