@@ -68,7 +68,7 @@ describe('statistics presentation derivation', () => {
     // 點密度已露出：推導可用、而且沒被覆寫隱藏的層才可選
     const hidden = new Set(Object.entries(PRESENTATION_OVERRIDES).filter(([, o]) => o.hide?.includes('dots')).map(([key]) => key));
     for (const key of STATISTICS_RENDER_KEYS) expect(statisticsPresentationOptions(key).includes('dots'), key).toBe(dots.includes(key) && !hidden.has(key));
-    expect(dots.filter((key) => !hidden.has(key)).length).toBe(42);
+    expect(dots.filter((key) => !hidden.has(key)).length).toBe(44);
   });
 
   it('sensitive counts (infectious-disease cases, deaths, sexual assault, drug cases) never offer dots; ordinary crime keeps them', () => {
