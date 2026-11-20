@@ -374,10 +374,10 @@ def b1(key, option, digits, notes, **extra):
 
 
 TW_EXT_B1_LAYERS = [
-    b1("statsHealthNotifiableCasesTownship", "鄉鎮・病例數", 0, [CDC_SRC, CDC_SCOPE, CDC_ZERO, CDC_UNALLOC, CDC_ORIGIN, CDC_SCALE], counts=True, qs=(0.5, 0.75, 0.9), status=CDC_NA, location_semantics=CDC_LOC_TOWN),
-    b1("statsHealthNotifiableRatePer100kTownship", "鄉鎮・每十萬人病例率", 1, [CDC_SRC, CDC_SCOPE, CDC_RATE, CDC_ZERO, CDC_SMALL, CDC_UNALLOC, CDC_ORIGIN, CDC_SCALE], qs=(0.25, 0.5, 0.75, 0.9), status=CDC_RATE_STATUS, location_semantics=CDC_LOC_TOWN),
-    b1("statsHealthNotifiableCasesCounty", "縣市・病例數", 0, [CDC_SRC, CDC_SCOPE, CDC_ZERO, CDC_ORIGIN, CDC_ONLY_COUNTY, CDC_COUNTY_ONLY, CDC_SCALE], counts=True, qs=(0.5, 0.75, 0.9), status=CDC_NA, location_semantics=CDC_LOC_COUNTY),
-    b1("statsHealthNotifiableRatePer100kCounty", "縣市・每十萬人病例率", 1, [CDC_SRC, CDC_SCOPE, CDC_RATE, CDC_ZERO, CDC_ORIGIN, CDC_ONLY_COUNTY, CDC_COUNTY_ONLY, CDC_SCALE], qs=(0.25, 0.5, 0.75, 0.9), status=CDC_RATE_STATUS, location_semantics=CDC_LOC_COUNTY),
+    b1("statsHealthNotifiableCasesTownship", "鄉鎮・病例數", 0, [CDC_SRC, CDC_SCOPE, CDC_ZERO, CDC_UNALLOC, CDC_ORIGIN, CDC_SCALE], counts=True, qs=(0.5, 0.75, 0.9), status=CDC_NA, location_semantics=CDC_LOC_TOWN, label="法定傳染病病例數"),
+    b1("statsHealthNotifiableRatePer100kTownship", "鄉鎮・每十萬人病例率", 1, [CDC_SRC, CDC_SCOPE, CDC_RATE, CDC_ZERO, CDC_SMALL, CDC_UNALLOC, CDC_ORIGIN, CDC_SCALE], qs=(0.25, 0.5, 0.75, 0.9), status=CDC_RATE_STATUS, location_semantics=CDC_LOC_TOWN, label="法定傳染病病例率"),
+    b1("statsHealthNotifiableCasesCounty", "縣市・病例數", 0, [CDC_SRC, CDC_SCOPE, CDC_ZERO, CDC_ORIGIN, CDC_ONLY_COUNTY, CDC_COUNTY_ONLY, CDC_SCALE], counts=True, qs=(0.5, 0.75, 0.9), status=CDC_NA, location_semantics=CDC_LOC_COUNTY, label="法定傳染病病例數"),
+    b1("statsHealthNotifiableRatePer100kCounty", "縣市・每十萬人病例率", 1, [CDC_SRC, CDC_SCOPE, CDC_RATE, CDC_ZERO, CDC_ORIGIN, CDC_ONLY_COUNTY, CDC_COUNTY_ONLY, CDC_SCALE], qs=(0.25, 0.5, 0.75, 0.9), status=CDC_RATE_STATUS, location_semantics=CDC_LOC_COUNTY, label="法定傳染病病例率"),
 ]
 TW_EXT_B1_ORIGIN_LABELS = {"all": "全部", "local": "本土", "imported": "境外移入"}
 TW_EXT_B1_DIM_LABELS = {"disease": "疾病別", "origin": "感染來源"}
