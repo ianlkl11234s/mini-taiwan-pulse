@@ -31,7 +31,8 @@ export const PH_OPENAQ_MONITOR_RING = "#ffffff";
 export const PH_OPENAQ_SOURCE = {
   org: "OpenAQ",
   url: "https://explore.openaq.org/",
-  short: "OpenAQ（各站原始提供者署名見 popup）",
+  short: "OpenAQ",
+  shortL3: { zh: "資料：OpenAQ（各站原始提供者與授權見 popup）", en: "Data: OpenAQ (each station's original provider and license in its popup)", ja: "データ：OpenAQ（各局の提供元とライセンスはポップアップ参照）" } as L3,
 } as const;
 
 export interface PhOpenaqStation {

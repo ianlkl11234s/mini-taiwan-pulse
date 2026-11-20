@@ -135,6 +135,6 @@ export function PhOpenaqAirLegend() {
     <LegendRow swatch={<SwatchDot color={MICRO_SENSOR_PM25_BANDS[0]!.color} stroke={PH_OPENAQ_MONITOR_RING} strokeWidth={2} />}>{pick({ zh: "官方監測站（白框）", en: "Official monitor (white ring)", ja: "公式測定局（白枠）" })}</LegendRow>
     {monitorNote ? <LegendNote>{monitorNote}</LegendNote> : null}
     {PH_OPENAQ_NOTES.map((n, i) => <LegendNote key={i}>{pick(n)}</LegendNote>)}
-    <LegendNote>{PH_OPENAQ_SOURCE.short}</LegendNote>
+    <LegendNote>{pick(PH_OPENAQ_SOURCE.shortL3)}</LegendNote>
   </div>;
 }
