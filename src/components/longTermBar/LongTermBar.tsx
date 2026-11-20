@@ -59,6 +59,13 @@ function EventBar({ layerKey, spec, adapter, isDark }: { layerKey: string; spec:
   const heat = longTermUsesHeatmap(g, span);
   const cur = series.periodStatus[a];
   const curText = cur === "missing" ? t("longTerm.bar.noData") : cur === "error" ? t("longTerm.bar.loadFailed") : t("longTerm.bar.count", { count: series.counts[a] ?? 0, n: formatNumber(series.counts[a] ?? 0) });
+  // 完整摘要（含期數）放 title：標頭寬度有限，可見文字放不下時以 … 收尾
+  const summary = [
+    t("longTerm.bar.selected", { range: rangeLabel(layerKey, periods, a, b, g, t, i18n.active) }) + (span > 1 ? t("longTerm.bar.span", { count: span }) : ""),
+    t("longTerm.bar.count", { count: n, n: formatNumber(n) }),
+    missing > 0 ? t("longTerm.bar.missingNote", { count: missing }) : "",
+    failed > 0 ? t("longTerm.bar.failedNote", { count: failed }) : "",
+  ].join(" ");
   const help = allowRange ? t("longTerm.bar.help") : t("longTerm.bar.helpNoRange");
   const failedYears = series.failedYears.map((y) => yearAxisLabel(layerKey, y, t));
 
@@ -86,16 +93,16 @@ function EventBar({ layerKey, spec, adapter, isDark }: { layerKey: string; spec:
         <span style={{ fontSize: FONT_SIZE.md, fontWeight: 600, color: strong, whiteSpace: "nowrap" }}>
           {t("longTerm.bar.countTitle", { layer: name, granularity: granularityText(g, t) })}
         </span>
-        <span role="status" style={{ fontSize: FONT_SIZE.base, color: muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>
+        <span role="status" title={summary} style={{ fontSize: FONT_SIZE.base, color: muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>
           {series.status !== "ready" && series.counts.every((v) => v == null) ? t("longTerm.bar.loading") : st.playing ? (
             <>
-              {t("longTerm.bar.playing", { period: rangeLabel(layerKey, periods, a, a, g, t) })}{"　"}
+              {t("longTerm.bar.playing", { period: rangeLabel(layerKey, periods, a, a, g, t, i18n.active) })}{"　"}
               <span style={{ ...num, color: cur === "error" ? danger : strong }}>{curText}</span>
             </>
           ) : (
             <>
-              <span style={num}>{t("longTerm.bar.selected", { range: rangeLabel(layerKey, periods, a, b, g, t) })}</span>
-              {span > 1 ? t("longTerm.bar.span", { count: span }) : ""}{"　"}
+              <span style={num}>{rangeLabel(layerKey, periods, a, b, g, t, i18n.active)}</span>
+{"　"}
               <span style={{ ...num, color: strong }}>{t("longTerm.bar.count", { count: n, n: formatNumber(n) })}</span>
               {missing > 0 ? t("longTerm.bar.missingNote", { count: missing }) : ""}
               {failed > 0 ? <span style={{ color: danger }}>{t("longTerm.bar.failedNote", { count: failed })}</span> : null}

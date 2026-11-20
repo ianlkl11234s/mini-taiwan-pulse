@@ -118,7 +118,7 @@ export const longTermBarStore = {
   },
   /** 測試用 */
   reset() {
-    stopTimer(); playingKey = null; seq = 0; prevOn = null;
+    stopTimer(); playingKey = null; seq = 0; prevOn = null; trackingPaused = false;
     emit({ selection: {}, playing: false, speed: LONG_TERM_DEFAULT_SPEED, openedAt: {}, pinned: null });
   },
 };
@@ -135,6 +135,7 @@ let prevOn: Set<string> | null = null;
  *   沒記錄過的排在前面（以 manifest 順序），不清手動指定。這樣來回切模式後時間軸不會翻面。
  */
 export function trackOpened(isOn: (key: string) => boolean): void {
+  if (trackingPaused) return;
   const nowOn = new Set(TRACKED.filter(isOn));
   const opened = [...nowOn].filter((k) => !prevOn?.has(k));
   prevOn = nowOn;
@@ -146,10 +147,28 @@ export function trackOpened(isOn: (key: string) => boolean): void {
   emit({ ...state, openedAt, pinned: opened.length === 1 ? null : state.pinned });
 }
 
+const readVisibility = () => trackOpened((k) => !!layerVisibilityStore.getVisibility(k as Parameters<typeof layerVisibilityStore.getVisibility>[0]));
+
+/**
+ * 暫停／恢復「最後打開」追蹤（時間條所在的即時時間軸卸載＝進歷史模式時暫停）。
+ * 歷史模式會先全關、離開時再整包還原；暫停期間凍結比較基準，恢復時延到同一輪的還原寫完之後
+ * （setTimeout 0）才比對，所以來回切模式不會把還原的圖層當成「剛打開」。
+ */
+let trackingPaused = false;
+let resumeTimer: ReturnType<typeof setTimeout> | null = null;
+export function setLongTermTrackingPaused(paused: boolean): void {
+  if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+  if (paused) { trackingPaused = true; return; }
+  resumeTimer = setTimeout(() => {
+    resumeTimer = null;
+    trackingPaused = false;
+    readVisibility();
+  }, 0);
+}
+
 if (typeof window !== "undefined") {
-  const read = () => trackOpened((k) => !!layerVisibilityStore.getVisibility(k as Parameters<typeof layerVisibilityStore.getVisibility>[0]));
-  read();
-  layerVisibilityStore.subscribe(read);
+  readVisibility();
+  layerVisibilityStore.subscribe(readVisibility);
 }
 
 export function useLongTermBarState(): LongTermBarState {

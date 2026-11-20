@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { longTermPeriods, longTermUsesHeatmap, monthPeriodIndex, LONG_TERM_HEATMAP_MIN_MONTHS } from "../../../lib/longTermTime";
 import { LONG_TERM_BAR_ADAPTERS, LONG_TERM_BAR_KEYS, LIVE_TIMELINE_KEYS, hasLongTermBar, isLiveTimelineLayer, longTermSpecOf } from "../../../data/longTermLayers";
 import { LONG_TERM_ADAPTERS } from "../adapters";
-import { longTermBarStore, periodsOf, selectionOf, trackOpened } from "../../../state/longTermBarStore";
+import { longTermBarStore, periodsOf, selectionOf, setLongTermTrackingPaused, trackOpened } from "../../../state/longTermBarStore";
 import { badgeTipText, periodLabel } from "../longTermText";
 import zh from "../../../i18n/locales/zh-TW/longTerm.json";
 
@@ -48,7 +48,8 @@ describe("圖層分類由 manifest 派生", () => {
   it("tooltip 由涵蓋＋粒度產生，台灣附西元", () => {
     const fire = longTermSpecOf("fireEvents")!;
     expect(badgeTipText("fireEvents", fire, t)).toBe("111–113 年（2022–2024）・每月");
-    expect(periodLabel("fireEvents", { start: "2023-04-01", year: 2023, month: 4 }, "month", t)).toBe("112/04");
+    expect(periodLabel("fireEvents", { start: "2023-04-01", year: 2023, month: 4 }, "month", t, "zh-TW")).toBe("112/04");
+    expect(periodLabel("fireEvents", { start: "2023-04-01", year: 2023, month: 4 }, "month", t, "en")).toBe("2023-04");
   });
 });
 
@@ -99,5 +100,24 @@ describe("longTermBarStore", () => {
     s = longTermBarStore.getSnapshot();
     expect(s.openedAt.rainGauge!).toBeGreaterThan(s.openedAt.fireEvents!);
     expect(s.pinned).toBeNull();
+  });
+
+  it("歷史模式期間暫停追蹤：在歷史模式開火災、回來還原雨量，不會翻成即時時間軸", () => {
+    vi.useFakeTimers();
+    const on = new Set<string>(["rainGauge"]);
+    const sync = () => trackOpened((k) => on.has(k));
+    sync();
+    on.add("fireEvents"); sync();
+    longTermBarStore.pin("longTerm");
+    setLongTermTrackingPaused(true);
+    on.clear(); sync();               // 進歷史：全關
+    on.add("fireEvents"); sync();     // 歷史模式裡開火災
+    setLongTermTrackingPaused(false); // 回即時：時間軸重新掛上
+    on.add("rainGauge"); sync();      // 同一輪 App 還原雨量
+    vi.advanceTimersByTime(0);
+    sync();
+    const s = longTermBarStore.getSnapshot();
+    expect(s.openedAt.fireEvents!).toBeGreaterThan(s.openedAt.rainGauge!);
+    expect(s.pinned).toBe("longTerm");
   });
 });

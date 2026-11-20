@@ -114,7 +114,7 @@ export function EventCountChart(props: EventCountChartProps) {
         {periods.map((p, i) => {
           const x = xAt(i) + 1;
           const bwi = Math.max(1, bw - 2);
-          const label = periodLabel(layerKey, p, granularity, t);
+          const label = periodLabel(layerKey, p, granularity, t, i18n.active);
           const st = periodStatus[i];
           if (st === "missing") {
             return <rect key={i} x={x} y={PAD.t} width={bwi} height={ih} fill={`url(#${hatchId})`}><title>{t("longTerm.bar.periodNoData", { period: label })}</title></rect>;

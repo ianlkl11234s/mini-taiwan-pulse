@@ -6,7 +6,7 @@ import { BORDER, COLORS, CONTROL, ELEVATION, FONT_CJK, FONT_SIZE, LAYOUT, LIGHT,
 import { useLayerVisibilityAll } from "../../state/layerVisibilityStore";
 import { useLocale } from "../../state/localeStore";
 import { LIVE_TIMELINE_KEYS, LONG_TERM_BAR_KEYS } from "../../data/longTermLayers";
-import { longTermBarStore, useLongTermBarState } from "../../state/longTermBarStore";
+import { longTermBarStore, setLongTermTrackingPaused, useLongTermBarState } from "../../state/longTermBarStore";
 import { LongTermBar } from "./LongTermBar";
 import { layerDisplayName } from "./longTermText";
 import { LONG_TERM_BAR_RESERVE_VAR } from "./longTermBarLayout";
@@ -83,6 +83,12 @@ export function LongTermTimelineGate({ isDark, leftOffset, children }: { isDark:
   const liveH = useLiveTimelineHeight(!showBar);
   const [barEl, setBarEl] = useState<HTMLDivElement | null>(null);
   useBarReserve(showBar ? barEl : null);
+
+  // 本元件只在桌機即時模式掛著：卸載（進歷史模式）時暫停「最後打開」追蹤，回來再恢復
+  useEffect(() => {
+    setLongTermTrackingPaused(false);
+    return () => setLongTermTrackingPaused(true);
+  }, []);
 
   useEffect(() => {
     if (!showBar && st.playing) longTermBarStore.pause();

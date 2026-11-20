@@ -60,10 +60,13 @@ export function badgeTipText(key: string, spec: LongTermSpec, t: T): string {
 
 const p2 = (n: number | undefined) => String(n ?? 1).padStart(2, "0");
 
-/** 期別短標，例台灣月「112/04」、其他國家「2023-04」。 */
-export function periodLabel(key: string, p: LongTermPeriod | undefined, g: LongTermGranularity, t: T): string {
+/**
+ * 期別短標，例台灣月「112/04」、其他國家「2023-04」。
+ * 短標放不下「民國＋西元」，所以台灣圖層只在中文介面用民國年；英日文介面用西元（年份軸與 tooltip 仍兩者並列）。
+ */
+export function periodLabel(key: string, p: LongTermPeriod | undefined, g: LongTermGranularity, t: T, locale: string): string {
   if (!p) return "";
-  const roc = usesRocYear(key);
+  const roc = usesRocYear(key) && locale === "zh-TW";
   const y = roc ? rocYear(p.year) : p.year;
   const sep = roc ? "/" : "-";
   if (g === "year") return roc ? t("longTerm.period.rocYear", { roc: y, ad: p.year }) : String(p.year);
@@ -77,9 +80,9 @@ export function yearAxisLabel(key: string, adYear: number, t: T): string {
   return usesRocYear(key) ? t("longTerm.period.rocYear", { roc: rocYear(adYear), ad: adYear }) : String(adYear);
 }
 
-export function rangeLabel(key: string, periods: readonly LongTermPeriod[], a: number, b: number, g: LongTermGranularity, t: T): string {
-  const left = periodLabel(key, periods[a], g, t);
-  return a === b ? left : `${left} – ${periodLabel(key, periods[b], g, t)}`;
+export function rangeLabel(key: string, periods: readonly LongTermPeriod[], a: number, b: number, g: LongTermGranularity, t: T, locale: string): string {
+  const left = periodLabel(key, periods[a], g, t, locale);
+  return a === b ? left : `${left} – ${periodLabel(key, periods[b], g, t, locale)}`;
 }
 
 /** 圖層顯示名（依語系）。 */
