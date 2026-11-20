@@ -19,6 +19,36 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       { value: "substation", zh: "監理分站" },
     ],
   },
+  // 台灣圖層延伸 B2（2026-11-20）：值與 atlasLayerTypes 的 ALISHAN／MOUNTAIN／ECO 選項同序
+  forestAlishanRail: {
+    property: "category",
+    label: "點位類別",
+    options: [
+      { value: "車站", zh: "車站" },
+      { value: ["監工區", "車庫園區", "水山"], zh: "其他點位" },
+    ],
+  },
+  mountainMobileImprovement: {
+    property: "site_group",
+    label: "站點類別",
+    options: [
+      { value: "山徑步道及林道", zh: "山徑步道及林道" },
+      { value: "道路及鐵路", zh: "道路及鐵路" },
+      { value: "國家森林園區", zh: "國家森林園區" },
+      { value: "山莊及山屋", zh: "山莊及山屋" },
+      { value: ["山及三角點", "山峰"], zh: "山及三角點" },
+      { value: "國家森林遊樂園", zh: "國家森林遊樂園" },
+    ],
+  },
+  ecoLabelHotels: {
+    property: "level",
+    label: "等級",
+    options: [
+      { value: "gold", zh: "金級" },
+      { value: "silver", zh: "銀級" },
+      { value: "bronze", zh: "銅級" },
+    ],
+  },
   // G53 批 2／3（2026-11-10）：爆竹煙火場所種類（值與 atlasLayerTypes FIREWORKS_KIND_OPTIONS 同序）
   fireworksSites: {
     property: "site_kind",

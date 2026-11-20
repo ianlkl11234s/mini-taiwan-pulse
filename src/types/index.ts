@@ -163,6 +163,8 @@ export type ExpandableLayerKey =
   | "iOceanSightings" // G53 批 2／3（2026-11-10）
   | "iOceanFishing" // G53 批 2／3（2026-11-10）
   | "fireworksSites" // G53 批 2／3（2026-11-10）
+  | "mountainMobileImprovement" // 台灣圖層延伸 B2（2026-11-20）
+  | "ecoLabelHotels" // 台灣圖層延伸 B2（2026-11-20）
   | "vehicleInspectionOffices" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
@@ -964,6 +966,9 @@ export interface FeatureInfo {
     | "iOceanSightings"
     | "iOceanFishing"
     | "fireworksSites"
+    | "forestAlishanRail"
+    | "mountainMobileImprovement"
+    | "ecoLabelHotels"
     | "vehicleInspectionOffices"
     | "postMailboxes"
     | "motorcycleInspectionStations"
@@ -1560,6 +1565,10 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   iOceanFishing: boolean;
   /** G53 批 2／3（2026-11-10）爆竹煙火製造及儲存場所：消防署 7070，名冊 19 處、上圖 10 處 */
   fireworksSites: boolean;
+  /** 台灣圖層延伸 B2（2026-11-20）改善山區行動通訊站點：數位發展部 160533＋173234，157 點 */
+  mountainMobileImprovement: boolean;
+  /** 台灣圖層延伸 B2（2026-11-20）環保標章旅館：環境部 145035，283 家 */
+  ecoLabelHotels: boolean;
   /** G53 批 2／3（2026-11-10）監理所站＋轄區：公路局 14203，34／37 所站上圖，轄區依汽車／機車切換 */
   vehicleInspectionOffices: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */

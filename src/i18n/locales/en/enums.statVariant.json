@@ -280,5 +280,14 @@
   "enum.statVariant.有座標資料集數": "Datasets with coordinates",
   "enum.statVariant.有座標比例": "Share with coordinates",
   "enum.statVariant.有空間資訊比例": "Share with spatial information",
-  "enum.statVariant.有座標主題數": "Themes with coordinates"
+  "enum.statVariant.有座標主題數": "Themes with coordinates",
+  "enum.statVariant.國小＋國中人數": "Primary + junior high students",
+  "enum.statVariant.國小人數": "Primary school students",
+  "enum.statVariant.國中人數": "Junior high students",
+  "enum.statVariant.占國中小學生比（111–114 學年）": "Share of primary + junior high students (AY 111–114)",
+  "enum.statVariant.占國小學生比": "Share of primary students",
+  "enum.statVariant.第一大姓": "Most common surname",
+  "enum.statVariant.第一大姓占戶籍人口比": "Most common surname's share of registered population",
+  "enum.statVariant.選姓占戶籍人口比": "Chosen surname's share of registered population",
+  "enum.statVariant.現存坑洞數": "Remaining pits"
 }

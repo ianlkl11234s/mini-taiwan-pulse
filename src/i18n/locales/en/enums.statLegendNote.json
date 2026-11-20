@@ -262,5 +262,20 @@
   "enum.statLegendNote.空間資訊＝座標、地址或只到行政區；地址與行政區要再定位，不能直接上地圖。": "Spatial information = coordinates, addresses or district only; addresses and districts need geocoding before they can be mapped.",
   "enum.statLegendNote.18 類主題中至少有 1 筆座標級資料的類數（不含未分類）；不受拆檔灌水影響。": "Number of the 18 themes with at least one dataset carrying coordinates (unclassified excluded); not inflated by split files.",
   "enum.statLegendNote.主題沿用目錄既有分類，抽查錯誤約 12%；1–5 筆的小格子對分類很敏感。": "Themes follow the catalogue's existing classification; about 12% were wrong in spot checks, and small cells (1–5 datasets) are sensitive to it.",
-  "enum.statLegendNote.最淺色含 0（本目錄查無，不代表沒有公開）。": "The lightest class includes 0 (none found in this catalogue; not proof that nothing is published)."
+  "enum.statLegendNote.最淺色含 0（本目錄查無，不代表沒有公開）。": "The lightest class includes 0 (none found in this catalogue; not proof that nothing is published).",
+  "enum.statLegendNote.出典：教育部統計處 新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）；政府資料開放授權條款-第1版。": "Source: Department of Statistics, MOE — new-resident children in primary and junior high school by township (data.gov.tw 146649); Open Government Data License v1.",
+  "enum.statLegendNote.依就讀學校所在鄉鎮市區，不是學生住家；108–114 學年，學年度為 8 月 1 日至翌年 7 月 31 日。": "By the township of the school attended, not the student's home; AY 108–114, each school year running 1 Aug to 31 Jul.",
+  "enum.statLegendNote.小鄉鎮學生少，占比與人數的年度波動大。": "Small townships have few students, so counts and shares swing from year to year.",
+  "enum.statLegendNote.113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%，來源未說明原因。": "For AY 113 and 114, Hsinchu City's primary-school township sum is about 4% below the ministry's county table; the source gives no reason.",
+  "enum.statLegendNote.108–110 學年各有 1 所私立實驗學校對不到鄉鎮，合計占比未產。": "In AY 108–110 one private experimental school could not be matched to a township, so the combined share is not produced for those years.",
+  "enum.statLegendNote.不適用（該鄉鎮沒有該學制學生，占比無從計算）": "Not applicable (no students at that school level in the township, so no share can be computed)",
+  "enum.statLegendNote.出典：內政部戶政司 全國各鄉鎮市區前二十大姓人口數按性別分（data.gov.tw 42518）；政府資料開放授權條款-第1版。": "Source: Department of Household Registration, MOI — top 20 surnames by township, by sex (data.gov.tw 42518); Open Government Data License v1.",
+  "enum.statLegendNote.戶籍登記姓氏，不等於族群；2023 年 6 月與 2018 年 6 月兩期；每鄉鎮只公開前 20 姓。": "Surnames as registered, not an ethnic group; two periods (June 2023, June 2018); only the top 20 surnames per township are published.",
+  "enum.statLegendNote.色塊只標前 6 名（共 326 個鄉鎮），其餘姓氏併為灰色「其他姓氏」；點選鄉鎮看姓氏。": "Colours mark only the six most common (326 townships); other surnames are grouped as grey 'Other surnames'; click a township to see the surname.",
+  "enum.statLegendNote.選姓後只顯示該姓；全國前 20 姓取各鄉鎮前二十大名單內合計人口最多者，是下界，不是戶政司官方排名。": "Shows only the chosen surname; the national top 20 are those with the largest combined population within township top-20 lists, a lower bound rather than the ministry's official ranking.",
+  "enum.statLegendNote.未進該鄉鎮前二十大（來源未公開，不是 0）": "Not in the township's top 20 (not published by the source; not zero)",
+  "enum.statLegendNote.出典：經濟部地質調查及礦業管理中心 各縣市現存坑洞數統計（data.gov.tw 29076）；政府資料開放授權條款-第1版。": "Source: Geological Survey and Mining Management Agency, MOEA — remaining pits by county (data.gov.tw 29076); Open Government Data License v1.",
+  "enum.statLegendNote.早期盜濫採土石遺留坑洞；94–113 年（民國年，日曆年區間）；台中、台南、高雄為改制前縣＋市合併值。": "Pits left by early illegal quarrying; ROC years 94–113 (calendar years); Taichung, Tainan and Kaohsiung combine the former county and city.",
+  "enum.statLegendNote.113 年起為專案列管，口徑與 112 年以前不同，不可直接比較增減。": "From ROC year 113 the pits are tracked under a special project; the basis differs from year 112 and earlier, so changes cannot be compared directly.",
+  "enum.statLegendNote.0＝來源填 0（該縣市當年列管坑洞為 0），不是無資料。": "0 = the source lists 0 (no tracked pits in that county that year); it is not missing data."
 }

@@ -28,4 +28,8 @@ export const PRESENTATION_OVERRIDES: Readonly<Record<string, PresentationOverrid
   statsDemographicsTownshipDeathsYtd: { hide: ['dots'] }, // 死亡數（年累計）
   statsMortalityDeathsTownship: { hide: ['dots'] }, // 死因別死亡人數（逐年）
   statsMortalityDeaths5yrTownship: { hide: ['dots'] }, // 死因別死亡人數（5 年合計）
+  // 新住民子女就讀人數（2026-11-20）：依學校所在地統計、不是住家，兒童個資敏感；區內隨機點會被讀成住家位置。
+  statsNrcStudentsTownship: { hide: ['dots'] },
+  statsNrcStudentsElementaryTownship: { hide: ['dots'] },
+  statsNrcStudentsJuniorTownship: { hide: ['dots'] },
 };

@@ -279,3 +279,6 @@ public/world/jp_national_parks_moe_r7_points.pmtiles
 public/world/jp_natural_park_areas_ksj_2015_points.pmtiles
 public/world/jp_wildlife_protection_areas_moe_r7.pmtiles
 public/world/jp_wildlife_protection_areas_moe_r7_points.pmtiles
+public/forestry/alishan_forest_railway_points_v1.pmtiles
+public/geo/mountain_mobile_improvement_v1.pmtiles
+public/environment/eco_label_hotels_145035.pmtiles

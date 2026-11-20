@@ -47,5 +47,9 @@
   "legend.atlas.vioZone": "Jurisdiction (colours only separate neighbouring offices)",
   "legend.atlas.vioUnstated": "Not stated in source (24 townships, car services)",
   "legend.atlas.vioSubtitle": "3 more offices have no position: Kinmen Station, Changhua Station, Dongshi Sub-station",
-  "legend.atlas.licenseOgdlOsm3": "Open Government Data License, version 1.0; 3 positions from © OpenStreetMap contributors (ODbL)"
+  "legend.atlas.licenseOgdlOsm3": "Open Government Data License, version 1.0; 3 positions from © OpenStreetMap contributors (ODbL)",
+  "legend.atlas.arSubtitle": "27 points: 22 stations, 5 other points; branch-line mileage (Zhaoping, Duigaoyue, Zhushan) counts from the branch start",
+  "legend.atlas.mmSubtitle": "157 sites (148 from 160533 plus 9 more from 173234); blank coverage flag = unknown",
+  "legend.atlas.mmHalo": "Illustrative coverage halo (about 500 m radius, not measured signal)",
+  "legend.atlas.ehSubtitle": "283 hotels: 50 gold, 94 silver, 139 bronze; grade shown by shade of one hue"
 }

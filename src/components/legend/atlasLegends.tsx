@@ -14,7 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_PALETTE, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, ALISHAN_RAIL_KIND_OPTIONS, MOUNTAIN_MOBILE_GROUP_OPTIONS, ECO_HOTEL_LEVEL_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_PALETTE, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, LANDSLIDE_EVENT_TYPE_OPTIONS,
   G53_ORGS,
   DEBRIS_RISK_OPTIONS,
@@ -109,6 +109,28 @@ function VehicleInspectionLegend() {
   return <AtlasLegend layer="vehicleInspectionOffices" en="Motor Vehicle Offices & Jurisdictions" subtitle={t("legend.atlas.vioSubtitle")} source={src("thb", ["14203"])} license="legend.atlas.licenseOgdlOsm3" domain="atlasVioKind" rows={rows} />;
 }
 
+/** 台灣圖層延伸 B2：阿里山林鐵點位；副標提醒支線里程不可與本線比較。 */
+function AlishanRailLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="forestAlishanRail" en="Alishan Forest Railway" subtitle={t("legend.atlas.arSubtitle")} source={src("forestry", ["136446", "38128"])} domain="atlasAlishanKind" rows={ALISHAN_RAIL_KIND_OPTIONS} />;
+}
+
+/** 台灣圖層延伸 B2：山區行動通訊改善站點；最後一列說明光暈只是示意。 */
+function MountainMobileLegend() {
+  const { t } = useLocale();
+  const rows: Row[] = [
+    ...MOUNTAIN_MOBILE_GROUP_OPTIONS,
+    { labelKey: "legend.atlas.mmHalo", color: ATLAS_LAYER_COLORS.mountainMobileImprovement, ring: true },
+  ];
+  return <AtlasLegend layer="mountainMobileImprovement" en="Mountain Mobile Coverage Improvement Sites" subtitle={t("legend.atlas.mmSubtitle")} source={src("moda", ["160533", "173234"])} domain="atlasMountainMobileGroup" rows={rows} />;
+}
+
+/** 台灣圖層延伸 B2：環保標章旅館；等級用同色相深淺。 */
+function EcoLabelHotelsLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="ecoLabelHotels" en="Eco-label Hotels" subtitle={t("legend.atlas.ehSubtitle")} source={src("moenv", ["145035", "161312"])} domain="atlasEcoLevel" rows={ECO_HOTEL_LEVEL_OPTIONS} />;
+}
+
 /** G53 批 2／3 爆竹煙火場所：副標「名冊 19 處，地圖上 10 處」。 */
 function FireworksSitesLegend() {
   const { t } = useLocale();
@@ -160,6 +182,9 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   vegetationForestTypes: () => <VegetationForestTypesLegend />,
   iOceanSightings: () => <IOceanSightingsLegend />,
   fireworksSites: () => <FireworksSitesLegend />,
+  forestAlishanRail: () => <AlishanRailLegend />,
+  mountainMobileImprovement: () => <MountainMobileLegend />,
+  ecoLabelHotels: () => <EcoLabelHotelsLegend />,
   vehicleInspectionOffices: () => <VehicleInspectionLegend />,
   iOceanFishing: () => <AtlasLegend layer="iOceanFishing" en="iOcean Recreational Fishing Reports" source={src("oca", ["157622"])} domain="atlasFishingType" rows={[...FISHING_TYPE_OPTIONS, { labelKey: "legend.atlas.iofOther", color: ATLAS_OTHER_COLOR }]} dense />,
   wraDisasterCctv: () => <AtlasLegend layer="wraDisasterCctv" en="WRA Disaster Monitoring Cameras" source={src("wra", ["36687", "41567"])} domain="atlasWraCctvKind" rows={WRA_CCTV_KIND_OPTIONS} />,

@@ -22,6 +22,7 @@ import {
   DEBRIS_RISK_OPTIONS, G53_SELF_FOOTER_KEYS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
   SWC_ZONE_TYPE_OPTIONS,
+  ALISHAN_RAIL_KIND_OPTIONS, ALISHAN_BRANCH_STATIONS, alishanRailKind, mountainMobileColor, mountainMobileGroupKey, ECO_HOTEL_LEVEL_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { ToxicPermitsBlock } from "./pollutionPanels";
@@ -1406,6 +1407,73 @@ function VehicleInspectionPanel({ props }: Props) {
   </>;
 }
 
+/** 台灣圖層延伸 B2 阿里山林鐵：車站與其他點位；支線里程不可與本線比較。 */
+function AlishanRailPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(ALISHAN_RAIL_KIND_OPTIONS, alishanRailKind(props.category));
+  const url = str(props.url);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasAlishanCategory", props.category, str(props.category), i18n)} color={color} />
+    <Row label={t("popup.atlas.arEnglishName")} value={str(props.name_en)} />
+    <Row field="address" value={str(props.address) || admin(props, i18n)} />
+    <Row label={t("popup.atlas.arMileage")} value={str(props.mileage_text)} mono />
+    {ALISHAN_BRANCH_STATIONS.has(str(props.name)) ? <Row field="caution" value={t("popup.atlas.arBranch")} /> : null}
+    <Row label={t("popup.atlas.arElevation")} value={fmt(props.elevation_m, 0, "m", i18n)} mono />
+    {url.startsWith("https://") ? <div style={{ padding: "3px 0", fontSize: FONT_SIZE.sm }}>
+      <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: theme.link }}>{t("popup.atlas.arLink")}</a>
+    </div> : null}
+  </>;
+}
+
+/** 台灣圖層延伸 B2 改善山區行動通訊站點：覆蓋旗標空白＝未知；光暈只是示意。 */
+const isTrue = (v: unknown) => v === true || v === "True" || v === "true";
+const isFalse = (v: unknown) => v === false || v === "False" || v === "false";
+const MOUNTAIN_MOBILE_OPERATORS = [
+  ["cov_cht", "popup.atlas.mmOpCht"], ["cov_fet", "popup.atlas.mmOpFet"], ["cov_twm", "popup.atlas.mmOpTwm"],
+  ["cov_tstar", "popup.atlas.mmOpTstar"], ["cov_apt", "popup.atlas.mmOpApt"],
+] as const;
+function MountainMobilePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = mountainMobileColor(props.site_group);
+  const flags = MOUNTAIN_MOBILE_OPERATORS.map(([key, label]) => ({ v: props[key], label }));
+  const known = flags.some((f) => isTrue(f.v) || isFalse(f.v));
+  const covered = flags.filter((f) => isTrue(f.v)).map((f) => t(f.label)).join(t("popup.common.listSeparator"));
+  const noOperatorInfo = num(props.source_nid) === 173234 || (!str(props.operator) && !str(props.tech) && !known);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.mmGroup")} value={enumOf("atlasMountainMobileGroup", mountainMobileGroupKey(props.site_group), str(props.site_group), i18n)} color={color} />
+    <Row field="address" value={admin(props, i18n)} />
+    <Row label={t("popup.atlas.mmTrail")} value={str(props.trail_name)} />
+    <Row label={t("popup.atlas.mmSign")} value={str(props.sign_location)} />
+    <Row label={t("popup.atlas.mmYear")} value={num(props.year_roc) != null ? displayRocYear(num(props.year_roc)!, i18n) : ""} mono />
+    <Row label={t("popup.atlas.mmOperator")} value={str(props.operator)} />
+    <Row label={t("popup.atlas.mmTech")} value={str(props.tech)} mono />
+    {known ? <Row label={t("popup.atlas.mmCoverage")} value={covered || t("popup.atlas.mmCoverageNone")} /> : null}
+    {noOperatorInfo ? <Row field="caution" value={t("popup.atlas.mmNoOperator")} /> : null}
+    <Row field="caution" value={t("popup.atlas.mmIllustrative")} />
+  </>;
+}
+
+/** 台灣圖層延伸 B2 環保標章旅館：等級、核發與到期日；到期日已過者註明。 */
+function EcoLabelHotelPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(ECO_HOTEL_LEVEL_OPTIONS, props.level);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.ehLevel")} value={enumOf("atlasEcoLevel", props.level, str(props.grade_zh), i18n)} color={color} />
+    <Row field="type" value={enumOf("atlasEcoKind", props.kind, str(props.kind), i18n)} />
+    <Row field="address" value={str(props.address) || admin(props, i18n)} />
+    <Row label={t("popup.atlas.ehSign")} value={str(props.sign_date)} mono />
+    <Row label={t("popup.atlas.ehExpire")} value={str(props.expire_date)} mono />
+    {props.expired_at_fetch === true || props.expired_at_fetch === "True" ? <Row field="caution" value={t("popup.atlas.ehExpired")} /> : null}
+  </>;
+}
+
 /** G53 批 2／3 爆竹煙火場所：位置由地址推估；個人經營不顯示名稱、只到鄉鎮。 */
 function FireworksSitePanel({ props }: Props) {
   const i18n = useLocale();
@@ -1578,6 +1646,9 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   // TEDS 來源是 48201、170705、152688、47244 四筆（圖例全列）；footer 只有一個連結，指 152688——其說明頁寫明全量 zip 由 air.moenv.gov.tw 提供（registry-spec）
   tedsGridEmissions: { org: "moenv", dataset: () => "152688" },
   fireworksSites: { org: "nfa", dataset: () => "7070" },
+  forestAlishanRail: { org: "forestry", dataset: (p) => (Number(p.source_nid) === 38128 ? "38128" : "136446") },
+  mountainMobileImprovement: { org: "moda", dataset: (p) => (Number(p.source_nid) === 173234 ? "173234" : "160533") },
+  ecoLabelHotels: { org: "moenv", dataset: () => "145035" },
   vehicleInspectionOffices: { org: "thb", dataset: () => "14203" },
   iOceanFishing: { org: "oca", dataset: () => "157622" },
   iOceanSightings: { org: "oca", dataset: () => "157621" },
@@ -1614,6 +1685,9 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   iOceanSightings: withG53Footer("iOceanSightings", IOceanSightingPanel),
   iOceanFishing: withG53Footer("iOceanFishing", IOceanFishingPanel),
   fireworksSites: withG53Footer("fireworksSites", FireworksSitePanel),
+  forestAlishanRail: withG53Footer("forestAlishanRail", AlishanRailPanel),
+  mountainMobileImprovement: withG53Footer("mountainMobileImprovement", MountainMobilePanel),
+  ecoLabelHotels: withG53Footer("ecoLabelHotels", EcoLabelHotelPanel),
   vehicleInspectionOffices: withG53Footer("vehicleInspectionOffices", VehicleInspectionPanel),
   pollutionControlZones: withG53Footer("pollutionControlZones", PollutionControlZonePanel),
   tedsGridEmissions: withG53Footer("tedsGridEmissions", TedsGridEmissionsPanel),
@@ -1708,6 +1782,9 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   iOceanSightings: manifestZh("iOceanSightings"),
   iOceanFishing: manifestZh("iOceanFishing"),
   fireworksSites: manifestZh("fireworksSites"),
+  forestAlishanRail: manifestZh("forestAlishanRail"),
+  mountainMobileImprovement: manifestZh("mountainMobileImprovement"),
+  ecoLabelHotels: manifestZh("ecoLabelHotels"),
   vehicleInspectionOffices: manifestZh("vehicleInspectionOffices"),
   pollutionControlZones: manifestZh("pollutionControlZones"),
   tedsGridEmissions: manifestZh("tedsGridEmissions"),

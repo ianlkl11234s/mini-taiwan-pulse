@@ -47,5 +47,9 @@
   "legend.atlas.vioZone": "轄區（顏色只區分相鄰所站）",
   "legend.atlas.vioUnstated": "來源未載明（汽車監理 24 鄉鎮）",
   "legend.atlas.vioSubtitle": "另有 3 所站無座標：金門監理站、彰化監理站、東勢監理分站",
-  "legend.atlas.licenseOgdlOsm3": "政府資料開放授權條款第 1 版；3 處位置補自 © OpenStreetMap contributors（ODbL）"
+  "legend.atlas.licenseOgdlOsm3": "政府資料開放授權條款第 1 版；3 處位置補自 © OpenStreetMap contributors（ODbL）",
+  "legend.atlas.arSubtitle": "27 點：車站 22、其他點位 5；支線（沼平、對高岳、祝山）里程自支線起算",
+  "legend.atlas.mmSubtitle": "157 點（160533 的 148 點＋173234 另 9 點）；覆蓋旗標空白＝未知",
+  "legend.atlas.mmHalo": "示意涵蓋光暈（半徑約 500 m，非實測訊號）",
+  "legend.atlas.ehSubtitle": "283 家：金級 50、銀級 94、銅級 139；等級以同色相深淺表示"
 }

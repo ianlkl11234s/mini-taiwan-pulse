@@ -364,7 +364,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -6688,30 +6688,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 阿里山鐵路（Point，25 個車站；源資料是車站點位非線）──
-  {
-    id: "forestAlishanRail",
-    sourceUrl: "./forestry/wildlife_distribution_3rd_alt.geojson",
-    sourceId: "forest-alishan-rail",
-    rebuildOnParamChange: ["circle"],
-    layers: [
-      {
-        suffix: "circle",
-        type: "circle",
-        paint: (_isDark, params) => {
-          const scale = params?.forestAlishanRailScale ?? 1.2;
-          return {
-            "circle-radius": BASE_RADIUS * 0.8 * scale,
-            "circle-color": FORESTRY_PAINT_COLORS.forestAlishanRail,
-            "circle-stroke-color": "#fff",
-            "circle-stroke-width": 1,
-            "circle-opacity": params?.forestAlishanRailOpacity ?? 0.95,
-          };
-        },
-      },
-    ],
-  },
-
   // ── 步道路標（Point）──
   {
     id: "forestTrailSigns",
@@ -12503,6 +12479,27 @@ function vehicleInspectionOverlays(): OverlayConfig[] {
   ];
 }
 
+/**
+ * 改善山區行動通訊站點：點層＋示意涵蓋光暈。來源沒有基地台位置與涵蓋半徑，光暈半徑是示意的固定 500 m
+ * （非實測訊號範圍，圖例與彈窗皆註明）；光暈不可點、跟類別篩選與透明度滑桿走。
+ */
+function mountainMobileOverlay(): OverlayConfig {
+  const base = publicLifePointOverlay("mountainMobileImprovement", "./geo/mountain_mobile_improvement_v1.pmtiles", "mountain-mobile-improvement", mountainMobileColorExpr(), { sourceLayer: "mountain_mobile_improvement", minzoom: 4, maxzoom: 14 }, `數位發展部 改善山區行動通訊站點（data.gov.tw 160533、173234）· ${OGDL_ATTR}`, [4, 8]);
+  return {
+    ...base,
+    rebuildOnParamChange: [...(base.rebuildOnParamChange ?? []), "coverage"],
+    layers: [
+      { suffix: "coverage", type: "circle", minzoom: 8, paint: (_dark, p) => ({
+        "circle-color": mountainMobileColorExpr(),
+        // 500 m 在 lat≈23.5° 的像素半徑：500·2^z / (78271.5·cos23.5°)；z8 約 1.8 px、z16 約 456 px
+        "circle-radius": ["interpolate", ["exponential", 2], ["zoom"], 8, 1.8, 16, 456],
+        "circle-opacity": 0.14 * ((p?.mountainMobileImprovementOpacity ?? 0.9) / 0.9),
+        "circle-stroke-width": 0,
+      }) },
+      ...base.layers,
+    ],
+  };
+}
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   ...vegetationForestTypesOverlays(),
   ...iOceanFishingOverlays(),
@@ -12524,6 +12521,10 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     layers: polygonLayers("pollutionControlZones", pollutionZoneColorExpr(), 0.6, undefined, (p) => pollutionZoneStatusFilter(p?.pollutionControlZonesStatusMask)),
   },
   publicLifePointOverlay("fireworksSites", "./geo/fireworks_sites_7070_v2.pmtiles", "fireworks-sites", matchColorExpr("site_kind", FIREWORKS_KIND_OPTIONS), { sourceLayer: "fireworks_sites", minzoom: 4, maxzoom: 14 }, `內政部消防署 爆竹煙火製造及儲存場所（data.gov.tw 7070，地址定位）· ${OGDL_ATTR}`, [4, 8]),
+  // 台灣圖層延伸 B2（2026-11-20）
+  publicLifePointOverlay("forestAlishanRail", "./forestry/alishan_forest_railway_points_v1.pmtiles", "forest-alishan-rail", alishanRailColorExpr(), { sourceLayer: "alishan_forest_railway_points", minzoom: 4, maxzoom: 14 }, `農業部林業及自然保育署林業及文資處 阿里山林業鐵路車站（data.gov.tw 136446、38128）· ${OGDL_ATTR}`, [4, 8]),
+  publicLifePointOverlay("ecoLabelHotels", "./environment/eco_label_hotels_145035.pmtiles", "eco-label-hotels", matchColorExpr("level", ECO_HOTEL_LEVEL_OPTIONS), { sourceLayer: "eco_label_hotels", minzoom: 4, maxzoom: 14 }, `環境部 環保標章旅館（data.gov.tw 145035、161312）· ${OGDL_ATTR}`, [3, 6]),
+  mountainMobileOverlay(),
   publicLifePointOverlay("iOceanSightings", "./marine/iocean_sightings_20260506_gen.pmtiles", "iocean-sightings", matchColorExpr("group_key", IOCEAN_GROUP_OPTIONS), { sourceLayer: "iocean_sightings", minzoom: 4, maxzoom: 14 }, `海洋委員會海洋保育署 iOcean 海洋生物目擊回報（data.gov.tw 157621，公民回報）· ${OGDL_ATTR}`, [3, 6.5]),
   publicLifePointOverlay("traLevelCrossings", "./rail/tra_level_crossings_11970.pmtiles", "tra-level-crossings", matchColorExpr("type_key", TRA_CROSSING_TYPE_OPTIONS), { sourceLayer: "tra_level_crossings", minzoom: 6, maxzoom: 14 }, `國營臺灣鐵路公司 平交道（data.gov.tw 11970）· ${OGDL_ATTR}；部分位置 © OpenStreetMap contributors（ODbL）`, [3, 6.5]),
   publicLifePointOverlay("wraDisasterCctv", "./geo/wra_disaster_cctv_20261109.pmtiles", "wra-disaster-cctv", matchColorExpr("kind", WRA_CCTV_KIND_OPTIONS), { sourceLayer: "wra_disaster_cctv", minzoom: 4, maxzoom: 14 }, `經濟部水利署 水情影像監視站（data.gov.tw 36687）、疏濬工區管制站（41567）· ${OGDL_ATTR}`, [3, 6.5]),

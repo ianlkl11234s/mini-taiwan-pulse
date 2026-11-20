@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2018,
+    "keyCount": 2029,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5392,9 +5392,24 @@
     },
     {
       "layers": [
-        "forest-alishan-rail-circle"
+        "forest-alishan-rail-circle",
+        "forest-alishan-rail-glow"
       ],
-      "type": "forestryPOI"
+      "type": "forestAlishanRail"
+    },
+    {
+      "layers": [
+        "mountain-mobile-improvement-circle",
+        "mountain-mobile-improvement-glow"
+      ],
+      "type": "mountainMobileImprovement"
+    },
+    {
+      "layers": [
+        "eco-label-hotels-circle",
+        "eco-label-hotels-glow"
+      ],
+      "type": "ecoLabelHotels"
     },
     {
       "layers": [
@@ -5985,6 +6000,10 @@
         "statsCultureStreetPerformersCounty-circle",
         "statsOpenDataDatasets-circle",
         "statsOpenDataCoordDatasets-circle",
+        "statsNrcStudentsTownship-circle",
+        "statsNrcStudentsElementaryTownship-circle",
+        "statsNrcStudentsJuniorTownship-circle",
+        "statsAbandonedPitsCounty-circle",
         "statsStateLandIdleArea-circle",
         "statsStateLandIdleParcels-circle",
         "statsStateLandArea-circle",
@@ -6690,6 +6709,15 @@
         "statsOpenDataCoordShare-fill",
         "statsOpenDataSpatialShare-fill",
         "statsOpenDataThemesWithCoords-fill",
+        "statsNrcStudentsTownship-fill",
+        "statsNrcStudentsElementaryTownship-fill",
+        "statsNrcStudentsJuniorTownship-fill",
+        "statsNrcShareTotalTownship-fill",
+        "statsNrcShareElementaryTownship-fill",
+        "statsSurnameTop1Township-fill",
+        "statsSurnameTop1ShareTownship-fill",
+        "statsSurnameShareTownship-fill",
+        "statsAbandonedPitsCounty-fill",
         "statsStateLandIdleArea-fill",
         "statsStateLandIdleShare-fill",
         "statsStateLandIdleParcels-fill",
@@ -7544,6 +7572,14 @@
         "statsOpenDataDatasets-suppressed",
         "statsOpenDataCoordDatasets-missing",
         "statsOpenDataCoordDatasets-suppressed",
+        "statsNrcStudentsTownship-missing",
+        "statsNrcStudentsTownship-suppressed",
+        "statsNrcStudentsElementaryTownship-missing",
+        "statsNrcStudentsElementaryTownship-suppressed",
+        "statsNrcStudentsJuniorTownship-missing",
+        "statsNrcStudentsJuniorTownship-suppressed",
+        "statsAbandonedPitsCounty-missing",
+        "statsAbandonedPitsCounty-suppressed",
         "statsStateLandIdleArea-missing",
         "statsStateLandIdleArea-suppressed",
         "statsStateLandIdleParcels-missing",
@@ -49689,44 +49725,6 @@
     {
       "dynamicData": null,
       "filter": null,
-      "id": "forestAlishanRail",
-      "layers": [
-        {
-          "filter": null,
-          "layout": null,
-          "minzoom": null,
-          "paint": {
-            "dark": {
-              "circle-color": "#bc663a",
-              "circle-opacity": 0.9,
-              "circle-radius": 4.5,
-              "circle-stroke-color": "#e5e7eb",
-              "circle-stroke-opacity": 0.45,
-              "circle-stroke-width": 1
-            },
-            "light": {
-              "circle-color": "#bc663a",
-              "circle-opacity": 0.9,
-              "circle-radius": 4.5,
-              "circle-stroke-color": "#ffffff",
-              "circle-stroke-opacity": 0.9,
-              "circle-stroke-width": 1
-            }
-          },
-          "suffix": "circle",
-          "type": "circle"
-        }
-      ],
-      "pmtiles": null,
-      "rebuildOnParamChange": [
-        "circle"
-      ],
-      "sourceId": "forest-alishan-rail",
-      "sourceUrl": "./forestry/wildlife_distribution_3rd_alt.geojson"
-    },
-    {
-      "dynamicData": null,
-      "filter": null,
       "id": "forestTrailSigns",
       "layers": [
         {
@@ -89800,6 +89798,676 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "forestAlishanRail",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "車站",
+                "#92400E",
+                "#e0a458"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.4,
+                5,
+                8.64,
+                12,
+                17.28
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "車站",
+                "#92400E",
+                "#e0a458"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.4,
+                5,
+                8.64,
+                12,
+                17.28
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "車站",
+                "#bc663a",
+                "#e0a458"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "車站",
+                "#bc663a",
+                "#e0a458"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "alishan_forest_railway_points"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "forest-alishan-rail",
+      "sourceUrl": "./forestry/alishan_forest_railway_points_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ecoLabelHotels",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "gold",
+                "#15803d",
+                "silver",
+                "#22c55e",
+                "bronze",
+                "#86efac",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "gold",
+                "#15803d",
+                "silver",
+                "#22c55e",
+                "bronze",
+                "#86efac",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "gold",
+                "#2a8e4b",
+                "silver",
+                "#22c55e",
+                "bronze",
+                "#86efac",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "gold",
+                "#2a8e4b",
+                "silver",
+                "#22c55e",
+                "bronze",
+                "#86efac",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "eco_label_hotels"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "eco-label-hotels",
+      "sourceUrl": "./environment/eco_label_hotels_145035.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mountainMobileImprovement",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.14,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                1.8,
+                16,
+                456
+              ],
+              "circle-stroke-width": 0
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.14,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                1.8,
+                16,
+                456
+              ],
+              "circle-stroke-width": 0
+            }
+          },
+          "suffix": "coverage",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "mountain_mobile_improvement"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "coverage"
+      ],
+      "sourceId": "mountain-mobile-improvement",
+      "sourceUrl": "./geo/mountain_mobile_improvement_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "iOceanSightings",
       "layers": [
         {
@@ -126765,6 +127433,49 @@
         "valueText": "0.80"
       }
     ],
+    "ecoLabelHotels": [
+      {
+        "label": "等級",
+        "options": [
+          {
+            "label": "金級",
+            "value": "gold"
+          },
+          {
+            "label": "銀級",
+            "value": "silver"
+          },
+          {
+            "label": "銅級",
+            "value": "bronze"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "gold",
+          "silver",
+          "bronze"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "ecoNetworkZones": [
       {
         "label": "分區",
@@ -129164,6 +129875,24 @@
       }
     ],
     "forestAlishanRail": [
+      {
+        "label": "點位類別",
+        "options": [
+          {
+            "label": "車站",
+            "value": "車站"
+          },
+          {
+            "label": "其他點位",
+            "value": "監工區"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "車站",
+          "監工區"
+        ]
+      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -155463,6 +156192,64 @@
         "valueText": "1.00"
       }
     ],
+    "mountainMobileImprovement": [
+      {
+        "label": "站點類別",
+        "options": [
+          {
+            "label": "山徑步道及林道",
+            "value": "山徑步道及林道"
+          },
+          {
+            "label": "道路及鐵路",
+            "value": "道路及鐵路"
+          },
+          {
+            "label": "國家森林園區",
+            "value": "國家森林園區"
+          },
+          {
+            "label": "山莊及山屋",
+            "value": "山莊及山屋"
+          },
+          {
+            "label": "山及三角點",
+            "value": "山及三角點"
+          },
+          {
+            "label": "國家森林遊樂園",
+            "value": "國家森林遊樂園"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "山徑步道及林道",
+          "道路及鐵路",
+          "國家森林園區",
+          "山莊及山屋",
+          "山及三角點",
+          "國家森林遊樂園"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "mountainRescueIncidents": [
       {
         "label": "類別",
@@ -166911,6 +167698,40 @@
       },
       {
         "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAbandonedPitsCounty": [
+      {
+        "label": "資料期別",
         "options": [],
         "status": "idle",
         "statusText": "尚未載入",
@@ -207918,6 +208739,286 @@
         "valueText": "0.55"
       }
     ],
+    "statsNrcShareElementaryTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcShareElementaryTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNrcShareTotalTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcShareTotalTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNrcStudentsElementaryTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcStudentsElementaryTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNrcStudentsJuniorTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcStudentsJuniorTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNrcStudentsTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcStudentsTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsOffstreetSmallCarParkingSpacesCount": [
       {
         "label": "口徑",
@@ -211497,6 +212598,123 @@
         ],
         "type": "select",
         "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSurnameShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "第一大姓",
+            "value": "statsSurnameTop1Township"
+          },
+          {
+            "label": "第一大姓占戶籍人口比",
+            "value": "statsSurnameTop1ShareTownship"
+          },
+          {
+            "label": "選姓占戶籍人口比",
+            "value": "statsSurnameShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSurnameShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSurnameTop1ShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "第一大姓",
+            "value": "statsSurnameTop1Township"
+          },
+          {
+            "label": "第一大姓占戶籍人口比",
+            "value": "statsSurnameTop1ShareTownship"
+          },
+          {
+            "label": "選姓占戶籍人口比",
+            "value": "statsSurnameShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSurnameTop1ShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSurnameTop1Township": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "第一大姓",
+            "value": "statsSurnameTop1Township"
+          },
+          {
+            "label": "第一大姓占戶籍人口比",
+            "value": "statsSurnameTop1ShareTownship"
+          },
+          {
+            "label": "選姓占戶籍人口比",
+            "value": "statsSurnameShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSurnameTop1Township"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
       },
       {
         "label": "透明度 0.55",

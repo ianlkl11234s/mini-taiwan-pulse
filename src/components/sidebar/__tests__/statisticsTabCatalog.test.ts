@@ -28,7 +28,7 @@ const IE_KEYS: ReadonlySet<string> = new Set(IE_ENABLED_STATISTICS_KEYS);
 const ELECTION_KEYS: ReadonlySet<string> = new Set(ELECTION_ENABLED_STATISTICS_KEYS);
 
 const EXPECTED_THEME_STRUCTURE = [
-  { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地"] },
+  { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地", "新住民子女就學", "姓氏（戶籍）"] },
   { title: "醫療與長照 Health & Care", groups: ["醫療與長照", "傳染病", "癌症", "癌症篩檢", "出生健康", "疫苗", "醫療利用", "死因統計"] },
   { title: "成癮與減害 Addiction & Harm Reduction", groups: ["疾病（HIV）", "執法（毒品、酒駕、地檢署）", "行為調查（吸菸、檳榔）", "服務據點"] },
   { title: "犯罪與治安 Crime & Safety", groups: ["刑案發生", "詐欺"] },
@@ -44,7 +44,7 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地", "農村再生"] },
   { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收", "水質與污水", "空氣品質", "污染與公害", "環境治理"] },
   { title: "崩塌與水土保持 Landslides & Soil Conservation", groups: ["崩塌", "治山防災工程", "水土保持災害"] },
-  { title: "災害風險 Disaster Risk", groups: ["土石流警戒", "社會脆弱度"] },
+  { title: "災害風險 Disaster Risk", groups: ["土石流警戒", "社會脆弱度", "遺留坑洞"] },
   { title: MARINE_STATISTICS_THEME_TITLE, groups: ["海洋動物擱淺", "海洋廢棄物"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
