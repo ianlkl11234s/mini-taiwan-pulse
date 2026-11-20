@@ -361,6 +361,7 @@ CDC_ONLY_COUNTY = "縣市版另含梅毒、淋病（診斷日）。"
 
 CDC_LOC_TOWN = "病例居住地所在鄉鎮市區（境外移入病例也依居住地）"
 CDC_LOC_COUNTY = "病例居住地所在縣市（境外移入病例也依居住地）"
+CDC_DISC = "疾管署法定傳染病確定病例（地區年齡性別統計表）。月檔只列有病例的列，未列的行政區在該年記為 0 例；改制前舊縣鄉鎮與「其他」的病例未歸屬、不攤分；小數字照來源不遮蔽，人口少的鄉鎮比率年波動大，宜看多年；每十萬人口比率只有 2018 年起（分母為當年年底戶籍人口）；境外移入為感染來源，不是居住地。"
 CDC_NA = {"not_applicable": "不適用（該病當年尚未列為法定傳染病，不是 0）"}
 
 
@@ -369,7 +370,7 @@ CDC_RATE_STATUS = {**CDC_NA, "missing": "無資料（2018、2019 年有 2 個鄉
 
 def b1(key, option, digits, notes, **extra):
     return dict(key=key, group="notifiableCases", group_label="法定傳染病", option_label=option, subgroup="傳染病",
-                visual="health", digits=digits, notes=notes, defaults={"disease": "dengue", "origin": "all"},
+                visual="health", digits=digits, notes=notes, disclosure=CDC_DISC, defaults={"disease": "dengue", "origin": "all"},
                 pool_periods=True, tab_theme="醫療與長照 Health & Care", data_theme="疾病與健康統計 Disease & Health Statistics", **extra)
 
 
@@ -713,7 +714,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "format": {"locale": "zh-TW", "maximumFractionDigits": spec["digits"]},
             "derived": layer["aggregation"] == "ratio",
             "location_semantics": spec.get("location_semantics") or params.get("location_semantics") or TW_EXT_B2_LOCATION[spec["group"]],
-            "disclosure": public_disclosure(key, layer["disclosure"]),
+            "disclosure": public_disclosure(key, spec.get("disclosure") or layer["disclosure"]),
             "publisher": release["publisher"], "license": release["license"],
             "source_landing_url": release["source_landing_url"], "source_download_url": release["source_download_url"],
             "source_title": spec.get("source_title") or f"{release['source_metadata']['dataset_title']}（data.gov.tw {nid}）",
