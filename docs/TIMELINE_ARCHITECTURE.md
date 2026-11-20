@@ -21,7 +21,15 @@
 | 設計稿外：即時／歷史大模式 | 已實作 | `AppMode = "realtime" \| "historical"`（`src/types/index.ts`、`src/App.tsx`）；切換時用 `historicalPeriodSnapshot()`／`restoreTimelineSnapshot()`（`src/hooks/useTimeline.ts`）保存與還原時間軸 |
 | 設計稿外：scoped 回放時鐘 | 已實作 | `src/state/earthquakeReplayClock.ts`（地震回放）、`src/embed/replayClock.ts`（`/embed` 回放） |
 
-設計稿的「不做什麼」（附錄最後一節）至今仍成立：只有一條主時間軸、沒有日曆選擇器、沒有逐層播放速度。
+設計稿的「不做什麼」（附錄最後一節）至今仍成立：只有一條主時間軸、沒有日曆選擇器、沒有逐層播放速度。**例外：「不做 brush」已由長期時間條規範改寫**，見下節。
+
+## 長期時間條（2026-11-20 起）
+
+涵蓋超過 30 天的長期圖層改走 [長期時間條規範](./features/longterm-time/STANDARD.md)，分階段取代「即時／歷史模式」切換；本檔的 timeStore 與即時時間軸（1–7 天視窗）繼續服務 30 天內的即時圖層。
+
+- 每層在 `layerManifest.ts` 寫 `longTerm` 欄位（類別、涵蓋、粒度、資料檔、斷點），時間條與圖層標記由它產生。
+- 一次只顯示一條時間軸：以最後打開的長期或即時圖層為準，另一條縮成按鈕。
+- **原「不做 brush」改為：事件點、大量事件可以拖一段選期間**；每日數值、分期統計、分期快照仍只能點一格。
 
 ## timeStore（外部時間來源）
 
@@ -398,5 +406,5 @@ function computeTimelineRange(
 - ✗ 不做多條獨立時間軸（一條主軸 + 模式切換就夠）
 - ✗ 不做日曆選擇器（用快捷按鈕 + 密度條點擊取代）
 - ✗ 不做逐層獨立播放速度
-- ✗ 不做時間軸上的 brush selection（太複雜，用模式切換取代）
+- ✗ 不做時間軸上的 brush selection（太複雜，用模式切換取代）（2026-11-20 起改寫：事件點、大量事件可拖選，見〈長期時間條〉節）
 - ✗ 不在 Sidebar 中嵌入完整時間軸（空間太窄）
