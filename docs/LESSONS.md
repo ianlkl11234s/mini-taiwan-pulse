@@ -189,6 +189,7 @@
 6. **在 worktree 驗證會靜默 skip 跨 repo 測試**（假綠）。→ [PRINCIPLES「worktree 驗證會靜默 skip 跨 repo 測試」](../.claude/memory/PRINCIPLES.md#worktree-驗證會靜默-skip-跨-repo-測試-p02026-08-20-教訓)
 7. **修資料前先確認寫入端已部署新版**，否則修完又被壞資料蓋回去。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 8. **新增 `public/` 子目錄要三處接線**（upload 腳本、pull 腳本、nginx），漏一處就是容器上 404、本機正常。→ [PRINCIPLES「部署資產三處接線」](../.claude/memory/PRINCIPLES.md#部署資產三處接線2026-06-12林班事件)
+9. **交給站主跑的遠端指令，先確認它用到的檔已在遠端**（`ssh <host> 'ls -l <路徑>'`）；部署腳本用寫死清單打包時，新腳本要確認在清單內。→ [REFLECTIONS 2026-11-18～20 資料來源追蹤](../.claude/memory/REFLECTIONS.md)
 
 ## 9. 工作流程、git 與發布
 

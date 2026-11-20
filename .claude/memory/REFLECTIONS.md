@@ -2373,3 +2373,24 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 ### Memory output
 
 - `BACKLOG.md` TWL-17（#984、#1000）；G53 表與計畫書（gis-agent-system #60）；pulse-data `docs/storage-policy.md`（#98、#102）。
+
+
+## 2026-11-18～20 資料來源追蹤：修訊號、我方基準、collector 收據
+
+### What happened
+
+- 盤點每週偵測（雲端 7 次、VM 5 次全成功），諮詢 Fable 後站主拍板五題（1B 2A 3A 4A 5A）與步驟 5 四題、保留期 A。
+- 上線：pulse-data #126（api_key 輪替誤報、快照下載）、#127（清單改比對 `_detect/baseline/`）、#128（runner）、#129（collector 子狀態）、#131（VM 部署打包修正）；gp #247 mig 558 套正式 DB；collectors #210 部署 pulse-host；R2 舊紀錄金鑰清除（讀回 2,349 處皆 REDACTED）。重發清單：需要更新 0、待確認 200。
+- 站主決定偵測維持雲端 routine＋HiCloud VM（Oracle delegate-box 是美國 IP，仍連不到台灣限定主機）；偵測快照不可無期限，長期只留變更紀錄（SRCT-1）。
+
+### Lessons
+
+- 交給站主跑的 `! ssh` 指令，先 `ls -l` 確認腳本在遠端：清金鑰腳本以為已 scp 其實沒有，第一次執行失敗；VM `deploy.sh` 寫死打包清單也漏了新腳本（#131）。
+- 讀 VM 環境檔、`ssh pulse-host`（Cloudflare 瀏覽器登入）都要站主執行：把多步合成一行交出，dry-run 數字對上再給 `--execute` 那一行。
+- 本機沒有 DB 憑證時，從 pulse-host collector 容器跑唯讀查詢（`BEGIN READ ONLY`）即可驗證 migration 與新欄位。
+- 驗「金鑰已清」要排除遮蔽字樣 `REDACTED`，否則 grep 會誤報仍有金鑰。
+- 站主兩次說「聽不懂、白話說明」：說明現況先用一句比喻＋「要你決定什麼」，技術名詞與表格放後面。
+
+### Memory output
+
+- `docs/PROJECTS.md` 資料來源追蹤列、有期限的事 11-23（#1105）；`BACKLOG.md` SRCT-1（#1108）～4；`docs/LESSONS.md` §8 第 9 條；計畫書 `.gis-agent-system/projects/2026-11-18-source-tracking-phase2/PLAN.md`（#71、#72）。
