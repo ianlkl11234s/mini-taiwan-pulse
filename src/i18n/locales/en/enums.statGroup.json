@@ -93,5 +93,6 @@
   "enum.statGroup.縣市開放資料完整度": "County open-data completeness",
   "enum.statGroup.新住民子女就讀國中小": "New-resident children in primary and junior high school",
   "enum.statGroup.鄉鎮前二十大姓": "Top 20 surnames by township",
-  "enum.statGroup.現存坑洞數（早期盜濫採土石遺留）": "Remaining pits (left by early illegal quarrying)"
+  "enum.statGroup.現存坑洞數（早期盜濫採土石遺留）": "Remaining pits (left by early illegal quarrying)",
+  "enum.statGroup.法定傳染病": "Notifiable diseases"
 }
