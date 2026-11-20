@@ -1579,7 +1579,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   ecoLabelHotels: boolean;
   /** 台灣圖層延伸 B3（2026-11-20）國海院浮標站位：data.gov.tw 171309／171315，9 座 */
   namrBuoys: boolean;
-  /** 台灣圖層延伸 B3 違規拖吊保管場：警政署 7319，63 處上圖（另 25 筆未定位） */
+  /** 台灣圖層延伸 B3 違規拖吊保管場：警政署 7319，72 處上圖（另 16 筆未定位） */
   towingYards: boolean;
   /** 台灣圖層延伸 B3 水保戶外教室：水保署 108030，18 處 */
   swcOutdoorClassrooms: boolean;

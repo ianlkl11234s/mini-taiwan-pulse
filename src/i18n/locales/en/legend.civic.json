@@ -263,5 +263,5 @@
   "legend.civic.gbOsmNations": "England {e} / Scotland {s} / Wales {w} / Northern Ireland {ni}",
   "legend.civic.gbOsmSnapshot": "OpenStreetMap snapshot {date} (volunteer data; completeness varies by area)",
   "legend.civic.gbPfNote": "Post offices include in-store counters (post_partner); courts and libraries are separate layers",
-  "legend.civic.govServiceHroNote": "Household registration branches: 158 branch offices under household registration offices (Department of Household Registration, 7437). Positions are estimated from addresses; 119 are shown and 39 could not be located. Main offices still follow the original agency list."
+  "legend.civic.govServiceHroNote": "Household registration branches: 158 branch offices under household registration offices (Department of Household Registration, 7437). Positions are estimated from addresses; 143 are shown and 15 could not be located. Main offices still follow the original agency list."
 }

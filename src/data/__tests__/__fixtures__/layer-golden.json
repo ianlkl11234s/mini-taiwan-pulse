@@ -91102,7 +91102,7 @@
         "circle"
       ],
       "sourceId": "gov-service-offices-hro-branch",
-      "sourceUrl": "./civic_facilities/household_registration_offices_7437.pmtiles"
+      "sourceUrl": "./civic_facilities/household_registration_offices_7437_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -91446,7 +91446,7 @@
         "circle"
       ],
       "sourceId": "towing-yards",
-      "sourceUrl": "./civic_facilities/towing_yards_v1.pmtiles"
+      "sourceUrl": "./civic_facilities/towing_yards_v2.pmtiles"
     },
     {
       "dynamicData": null,

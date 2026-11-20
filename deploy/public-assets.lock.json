@@ -244,6 +244,13 @@
    "s3_key": "deploy-assets/civic_facilities/household_registration_offices_7437.pmtiles"
   },
   {
+   "path": "public/civic_facilities/household_registration_offices_7437_v2.pmtiles",
+   "bytes": 874299,
+   "sha256": "bff669fbb533d02fdbd41a3beaf1d388951369b5af8c8141f7137c0414672034",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/civic_facilities/household_registration_offices_7437_v2.pmtiles"
+  },
+  {
    "path": "public/civic_facilities/ibox_national.geojson",
    "bytes": 806305,
    "sha256": "0c0dccddc71a8dec9d51353be2439529c10f93b174d8acc4f7bf4f735a81e572",
@@ -277,6 +284,13 @@
    "sha256": "61cd43598a6c7773e54e755c686778464972c8f5f4c2dc984c5480f4fd3e4ce5",
    "delivery": "r2",
    "s3_key": "deploy-assets/civic_facilities/towing_yards_v1.pmtiles"
+  },
+  {
+   "path": "public/civic_facilities/towing_yards_v2.pmtiles",
+   "bytes": 114704,
+   "sha256": "c166f5d68e59f8f5034848489b921316a44a77a5858e41e97f764a98a67b5022",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/civic_facilities/towing_yards_v2.pmtiles"
   },
   {
    "path": "public/civic_facilities/welfare_centers_national.geojson",

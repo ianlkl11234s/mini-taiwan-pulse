@@ -12528,7 +12528,7 @@ function govHouseholdBranchOverlay(): OverlayConfig {
   // 用 match 表達式（與主所／公所同一寫法），暗底提亮的色彩對照才會把這一類算進去，不改變既有三類在淺色底的顯示
   const branchColor = ["match", ["get", "office_kind"], "branch", GOV_HR_BRANCH_COLOR, GOV_HR_BRANCH_COLOR];
   return {
-    id: "govServiceOffices", sourceUrl: "./civic_facilities/household_registration_offices_7437.pmtiles", sourceId: "gov-service-offices-hro-branch",
+    id: "govServiceOffices", sourceUrl: "./civic_facilities/household_registration_offices_7437_v2.pmtiles", sourceId: "gov-service-offices-hro-branch",
     pmtiles: { sourceLayer: "household_registration_offices", minzoom: 4, maxzoom: 14 },
     attribution: `內政部戶政司 戶政事務所與辦公據點（data.gov.tw 7437，地址定位）· ${OGDL_ATTR}`,
     rebuildOnParamChange: ["glow", "circle"],
@@ -12572,7 +12572,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   // 台灣圖層延伸 B3（2026-11-20）
   govHouseholdBranchOverlay(),
   publicLifePointOverlay("namrBuoys", "./marine/namr_buoys_v1.pmtiles", "namr-buoys", matchColorExpr("buoy_kind", NAMR_BUOY_KIND_OPTIONS), { sourceLayer: "namr_buoys", minzoom: 4, maxzoom: 14 }, `國家海洋研究院 浮標站位（data.gov.tw 171309、171315）· ${OGDL_ATTR}`, [5, 9]),
-  publicLifePointOverlay("towingYards", "./civic_facilities/towing_yards_v1.pmtiles", "towing-yards", ATLAS_LAYER_COLORS.towingYards, { sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 }, `內政部警政署 警察機關車輛違規拖吊保管場（data.gov.tw 7319，地址定位）· ${OGDL_ATTR}`, [4, 8]),
+  publicLifePointOverlay("towingYards", "./civic_facilities/towing_yards_v2.pmtiles", "towing-yards", ATLAS_LAYER_COLORS.towingYards, { sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 }, `內政部警政署 警察機關車輛違規拖吊保管場（data.gov.tw 7319，地址定位）· ${OGDL_ATTR}`, [4, 8]),
   publicLifePointOverlay("swcOutdoorClassrooms", "./education/swc_outdoor_classrooms_108030.pmtiles", "swc-outdoor-classrooms", ATLAS_LAYER_COLORS.swcOutdoorClassrooms, { sourceLayer: "swc_outdoor_classrooms", minzoom: 4, maxzoom: 14 }, `農業部農村發展及水土保持署 水土保持戶外教室及教學園區（data.gov.tw 108030）· ${OGDL_ATTR}`, [5, 9]),
   {
     // 一級生態檢核區：面積合計約台灣陸域六成 → 面 z8 起（代表點 companion 由 repPointLayers 產生，拉遠畫點）

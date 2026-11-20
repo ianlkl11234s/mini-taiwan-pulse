@@ -137,7 +137,7 @@ function NamrBuoysLegend() {
   return <AtlasLegend layer="namrBuoys" en="NAMR Buoy Stations" subtitle={t("legend.atlas.nbSubtitle")} source={src("namr", ["171309", "171315"])} domain="atlasNamrBuoyKind" rows={NAMR_BUOY_KIND_OPTIONS} />;
 }
 
-/** 台灣圖層延伸 B3：違規拖吊保管場；副標註明另有 25 筆無法定位、未上圖。 */
+/** 台灣圖層延伸 B3：違規拖吊保管場；副標註明另有 16 筆無法定位、未上圖。 */
 function TowingYardsLegend() {
   const { t } = useLocale();
   return <AtlasLegend layer="towingYards" en="Vehicle Towing Yards" subtitle={t("legend.atlas.tySubtitle")} source={src("npa", ["7319"])} rows={single("towingYards", "legend.atlas.tyPoint")} />;
