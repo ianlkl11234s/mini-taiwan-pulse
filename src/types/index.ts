@@ -476,7 +476,7 @@ export type ExpandableLayerKey =
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey | "krEcologyNaturalness" | "krWasteDisposalRules"
   | "ieAdminBoundaries" | IeDataKey | "ieBathymetry" | "ieCoillteRecreation" | "ieCoillteForestRoads"
-  | "phAdminBoundaries" | "phPopulation" | PhDataKey | PhRasterKey
+  | "phAdminBoundaries" | "phPopulation" | "phOpenaqAir" | PhDataKey | PhRasterKey
   | "vnAdminBoundaries" | "vnPopulation" | VnDataKey | VnRasterKey
   | "cnAdminBoundaries" | "cnPopulation" | "cnPopulationGrid" | CnDataKey | CnRasterKey
   | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid" | CaWaveKey
@@ -1081,7 +1081,7 @@ export interface FeatureInfo {
     // 愛爾蘭第 0 波：行政邊界（LA／ED／SA）
     | "ieAdminBoundaries" | IeDataKey | "ieCoillteRecreation" | "ieCoillteForestRoads"
     // 菲律賓第 0–1 波
-    | "phAdminBoundaries" | "phPopulation" | PhDataKey
+    | "phAdminBoundaries" | "phPopulation" | "phOpenaqAir" | PhDataKey
     // 越南第 0–1 波
     | "vnAdminBoundaries" | "vnPopulation" | VnDataKey
     // 中國第 0–1 波（站主限定；人口網格是 raster，沒有 popup）
@@ -2100,6 +2100,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   caNpriFacilities: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   caWastewaterSystems: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   caEarthquakes: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  phOpenaqAir: boolean;   // 菲律賓即時空品（OpenAQ，RPC get_openaq_latest）
   caEarthquakesLive: boolean;   // 加拿大即時地震（瀏覽器直連 NRCan FDSN，近 30 天）
   caPopulationGrid: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）

@@ -80,7 +80,7 @@ import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStations
 import { KrEcologyNaturalnessPanel, KrWasteDisposalRulesPanel } from "./krEcoWastePanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
-import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhPopulationPanel, makePhPanel } from "./phPanels";
+import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel, makePhPanel } from "./phPanels";
 import { CN_DATA_PANELS, CnAdminBoundariesPanel, CnPopulationPanel } from "./cnPanels";
 import { CN_DATA_SPECS } from "../../data/cnDataLayers";
 import type { CnDataKey } from "../../data/cnDataKeys";
@@ -500,6 +500,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   ...IE_DATA_PANELS,
   phAdminBoundaries: PhAdminBoundariesPanel,
   phPopulation: PhPopulationPanel,
+  phOpenaqAir: PhOpenaqAirPanel,
   ...PH_DATA_PANELS,
   vnAdminBoundaries: VnAdminBoundariesPanel,
   vnPopulation: VnPopulationPanel,
@@ -1209,6 +1210,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   ...IE_HEADER_LABELS,
   phAdminBoundaries: "行政邊界 Administrative Boundaries",
   phPopulation: "人口密度 Population Density",
+  phOpenaqAir: "即時空品 Air Quality（OpenAQ）",
   ...PH_HEADER_LABELS,
   vnAdminBoundaries: "行政邊界 Administrative Boundaries",
   vnPopulation: "人口密度 Population Density",

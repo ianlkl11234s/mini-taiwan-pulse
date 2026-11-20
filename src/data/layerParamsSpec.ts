@@ -2483,6 +2483,7 @@ export const LAYER_PARAMS_SPEC = {
     heatmapPalette("caNpriFacilities"), opacitySlider("caNpriFacilitiesOpacity", densePointOpacity(24_540)), scaleSlider("caNpriFacilitiesScale", 1),
   ],
   caWastewaterSystems: [krMulti("caWastewaterSystemsCatMask", "狀態", CA_OPT_WSER_STATUS), opacitySlider("caWastewaterSystemsOpacity", 0.85), scaleSlider("caWastewaterSystemsScale", 1)],
+  phOpenaqAir: [opacitySlider("phOpenaqAirOpacity", 0.9), scaleSlider("phOpenaqAirScale", 1)],
   caEarthquakesLive: [krMulti("caEarthquakesLiveTypeMask", "事件類型", CA_OPT_QUAKE_LIVE_TYPE), opacitySlider("caEarthquakesLiveOpacity", 0.85), scaleSlider("caEarthquakesLiveScale", 1)],
   caEarthquakes: [krMulti("caEarthquakesCatMask", "規模", CA_OPT_QUAKE_CLASS), heatmapPalette("caEarthquakes"), opacitySlider("caEarthquakesOpacity", densePointOpacity(101_365)), scaleSlider("caEarthquakesScale", 1)],
   caPopulationGrid: [gridPalette("caPopulationGridPalette", "YlOrBr"), opacitySlider("caPopulationGridOpacity", 0.6)],
