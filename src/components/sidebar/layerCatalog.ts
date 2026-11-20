@@ -3513,6 +3513,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "都市樹木", layers: [fromManifest("phTrees")] },
+      { title: "空品", layers: [fromManifest("phOpenaqAir")] },
       { title: "環境污染", layers: [fromManifest("phPollutionSources")] },
     ],
   },

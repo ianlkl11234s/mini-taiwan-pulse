@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2040,
+    "keyCount": 2041,
     "sections": [
       "gisLayers",
       "overlays",
@@ -3389,6 +3389,12 @@
         "ph-waste-facilities-circle"
       ],
       "type": "phWasteFacilities"
+    },
+    {
+      "layers": [
+        "ph-openaq-air-circle"
+      ],
+      "type": "phOpenaqAir"
     },
     {
       "layers": [
@@ -161783,6 +161789,26 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "phOpenaqAir": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "phParking": [

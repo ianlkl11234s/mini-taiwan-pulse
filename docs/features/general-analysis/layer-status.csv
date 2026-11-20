@@ -1421,6 +1421,7 @@ krOilGas,油氣設施與管線 석유·가스 시설,KR,南韓,能源,custom,ver
 ieAdminBoundaries,行政區界 Administrative Boundaries,IE,愛爾蘭,底圖,custom,verified,ie_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"愛爾蘭行政區界（地方政府 31、CSO 選舉分區 3,420、統計小區 18,919；Tailte Éireann 2026／CSO Census 2022）"
 phAdminBoundaries,行政區界 Administrative Boundaries,PH,菲律賓,底圖,custom,verified,ph_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"菲律賓行政區界（區域 18、省 88、市鎮 1,642、barangay 42,048；OCHA／PSA／NAMRIA COD-AB）"
 phPopulation,人口密度 Population Density（2024 Census）,PH,菲律賓,人口社經,custom,verified,ph_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）
+phOpenaqAir,即時空品（低價感測器為主） Air Quality Sensors（OpenAQ）,PH,菲律賓,環境氣候,custom,verified,openaq_ph,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,菲律賓 OpenAQ 空品測站即時 PM2.5（多為低價感測器、非官方測站；每小時更新，過舊與無資料另外標示）
 vnAdminBoundaries,行政區界 Administrative Boundaries,VN,越南,底圖,custom,verified,vn_admin_boundaries,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"越南行政區界（2025-07 新制 34 省；3,321 社只有代碼表、沒有社界；OCHA COD-AB v02）"
 vnPopulation,人口密度 Population Density（2025）,VN,越南,人口社經,custom,verified,vn_population,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,越南 2025 年人口與人口密度（34 省；2011–2025 歷年人口折線）
 cnAdminBoundaries,行政區界 Administrative Boundaries,CN,中國,底圖,custom,verified,cn_admin_boundaries,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國行政區界（省 31、地級 357；OCHA COD-AB，邊界不代表任何立場）

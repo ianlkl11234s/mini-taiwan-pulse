@@ -5416,6 +5416,30 @@ export const LAYER_MANIFEST = {
     description: "菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）",
     topics: ["菲律賓", "人口", "人口密度", "普查", "PSA", "barangay"],
   },
+  phOpenaqAir: {
+    key: "phOpenaqAir",
+    country: "PH", section: { theme: "環境氣候", group: "空品" },
+    ...layerName({ zh: "即時空品（低價感測器為主）", alt: "Air Quality Sensors", qualifier: "OpenAQ" }),
+    expandable: true,
+    color: "#7e57c2", // 同 LASS 微型感測（aqiMicroSensors）
+    icon: Wind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "openaq_ph", confidence: "HIGH" }],
+      processing: "data-collectors collector openaq（pulse-host，每 60 分）→ live.openaq_locations／live.openaq_measurements（gis-platform mig 561，量測留 37 天，S3 openaq/archives/ 永久）→ RPC get_openaq_latest（mig 563，每站一列、48 小時內各參數最新值）；前端隱藏近 30 天無資料的站、量測超過 3 小時標過舊",
+      note: "每站授權不同（CC0 1.0／CC BY 4.0／US Public Domain；部分站 OpenAQ 未提供授權資訊），popup 依每站 attribution_name 署名並註明 via OpenAQ。116 站中 114 站是低價感測器（Clarity、AirGradient），非官方測站；2 個官方站（AirNow、Spartan）2026-02 起停更、目前不顯示",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePhOpenaqAirLayer：Supabase RPC get_openaq_latest（10 分鐘輪詢）→ 自建 GeoJSON source ph-openaq-air＋circle ph-openaq-air-circle（非 OVERLAY_REGISTRY）；快照錨在掛鐘現在、不跟時間軸；popup 走勢 RPC get_openaq_location_series",
+    },
+    legend: "phOpenaqAir",
+    popup: "phOpenaqAir",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "菲律賓 OpenAQ 空品測站即時 PM2.5（多為低價感測器、非官方測站；每小時更新，過舊與無資料另外標示）",
+    topics: ["菲律賓", "空品", "PM2.5", "即時", "OpenAQ", "低價感測器"],
+  },
   // ══════════════════════════════════════════════════════════════
   // 🇻🇳 越南 Vietnam（2026-11-13 第 0–1 波：C001 行政邊界、C023 人口；其餘 10 層由 VN_DATA_MANIFEST_ENTRIES 派生）
   // ══════════════════════════════════════════════════════════════
