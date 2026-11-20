@@ -6425,6 +6425,7 @@ export type GeneratedStaticKey =
   | "popup.medical.nearestHospital"
   | "popup.medical.nhiPharmacy"
   | "popup.medical.openBeds"
+  | "popup.medical.placeCategory"
   | "popup.medical.placeType"
   | "popup.medical.severe"
   | "popup.medical.specialties"

@@ -56,6 +56,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "immigrationOffice", "pollutionPenalty", "youbikeFullness", "groundwater",
   // feature 無來源欄，panel 補有依據的固定出處並自掛 SourceFooter（原本顯示「來源資訊待補」）
   "popCount", "h3Population",
+  // VPB-28：AED／長照 tile 只有官方原始欄位、無來源欄，panel 補衛福部出處並自掛 SourceFooter（其餘醫療層沿用 feature 自帶來源）
+  "medicalPOI",
   "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
   "jpPopulationMesh1km", "fireIsochrone",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter

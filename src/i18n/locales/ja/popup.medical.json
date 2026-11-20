@@ -3,6 +3,7 @@
   "popup.medical.specialties": "診療科",
   "popup.medical.nhiPharmacy": "健保特約薬局",
   "popup.medical.placeType": "設置場所の種類",
+  "popup.medical.placeCategory": "設置場所の区分",
   "popup.medical.aedLocation": "AED の設置位置",
   "popup.medical.emergencyPhone": "緊急連絡先",
   "popup.medical.openBeds": "開設床数",
