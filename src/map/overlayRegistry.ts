@@ -12596,17 +12596,17 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     id: "landOfficeJurisdiction", sourceUrl: "./civic_facilities/land_office_jurisdiction_13045.pmtiles", sourceId: "land-office-jurisdiction",
     pmtiles: { sourceLayer: "land_office_jurisdiction", minzoom: 4, maxzoom: 14 },
     attribution: `內政部國土測繪中心 地政事務所轄區（data.gov.tw 13045）、地政司 7620 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
-    // 亮黃填色（暗底對比契約 C-3）；淡底的外框改深琥珀，亮黃線在淡底圖看不見
-    // 暗底填色透明度 ×1.7（同上，C-3）
+    // 淺灰白填色（暗底對比契約 C-3 要求淡色＋夠高的透明度，白灰比黃色柔和）；淡底的外框改深琥珀
+    // 暗底填色透明度 ×1.6（同上，C-3）
     layers: polygonLayers("landOfficeJurisdiction", ATLAS_LAYER_COLORS.landOfficeJurisdiction, 0.25).map((l) => (l.suffix === "outline" ? {
       ...l, paint: (dark: boolean, p?: Record<string, number>) => ({ ...l.paint(dark, p), "line-color": dark ? "#e2e8f0" : "#a16207" }),
-    } : { ...l, paint: (dark: boolean, p?: Record<string, number>) => { const b = l.paint(dark, p); return dark ? { ...b, "fill-opacity": Math.min(1, Number(b["fill-opacity"]) * 1.7) } : b; } })).concat([
+    } : { ...l, paint: (dark: boolean, p?: Record<string, number>) => { const b = l.paint(dark, p); return dark ? { ...b, "fill-opacity": Math.min(1, Number(b["fill-opacity"]) * 1.6) } : b; } })).concat([
       // 點「機關便民據點」的地政事務所點時由 useLandOfficeHighlight 把 filter 換成該所轄區（平時空篩選＝不畫）
       { suffix: "highlight-fill", type: "fill", filter: ["==", ["get", "office_title_7620"], "__none__"], paint: (dark: boolean) => ({ "fill-color": "#fde047", "fill-opacity": dark ? 0.35 : 0.3 }) },
       { suffix: "highlight-line", type: "line", filter: ["==", ["get", "office_title_7620"], "__none__"], paint: (dark: boolean) => ({ "line-color": dark ? "#fde047" : "#a16207", "line-width": 2.5, "line-opacity": 1 }) },
     ] as OverlayConfig["layers"]),
   },
-  publicLifePointOverlay("npSpeciesSites", "./environment/np_species_survey_points_sites_73252.pmtiles", "np-species-sites", matchColorExpr("park", NP_PARK_OPTIONS), { sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 }, `內政部國家公園署 國家公園物種調查（data.gov.tw 73252；部分座標經模糊處理）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.npSpeciesSites, intensity: 1 } }),
+  publicLifePointOverlay("npSpeciesSites", "./environment/np_species_survey_points_sites_73252.pmtiles", "np-species-sites", matchColorExpr("park", NP_PARK_OPTIONS), { sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 }, `內政部國家公園署 國家公園物種調查（data.gov.tw 73252；部分座標經模糊處理）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.npSpeciesSites, intensity: 0.2 } }),
   publicLifePointOverlay("iOceanSightings", "./marine/iocean_sightings_20260506_gen.pmtiles", "iocean-sightings", matchColorExpr("group_key", IOCEAN_GROUP_OPTIONS), { sourceLayer: "iocean_sightings", minzoom: 4, maxzoom: 14 }, `海洋委員會海洋保育署 iOcean 海洋生物目擊回報（data.gov.tw 157621，公民回報）· ${OGDL_ATTR}`, [3, 6.5]),
   publicLifePointOverlay("traLevelCrossings", "./rail/tra_level_crossings_11970.pmtiles", "tra-level-crossings", matchColorExpr("type_key", TRA_CROSSING_TYPE_OPTIONS), { sourceLayer: "tra_level_crossings", minzoom: 6, maxzoom: 14 }, `國營臺灣鐵路公司 平交道（data.gov.tw 11970）· ${OGDL_ATTR}；部分位置 © OpenStreetMap contributors（ODbL）`, [3, 6.5]),
   publicLifePointOverlay("wraDisasterCctv", "./geo/wra_disaster_cctv_20261109.pmtiles", "wra-disaster-cctv", matchColorExpr("kind", WRA_CCTV_KIND_OPTIONS), { sourceLayer: "wra_disaster_cctv", minzoom: 4, maxzoom: 14 }, `經濟部水利署 水情影像監視站（data.gov.tw 36687）、疏濬工區管制站（41567）· ${OGDL_ATTR}`, [3, 6.5]),

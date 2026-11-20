@@ -130,5 +130,6 @@
   "popupHeader.mapchallengeDay17LedShare": "Streetlight LED Share by County",
   "popupHeader.mapchallengeDay19Complaints": "Odor Complaints Grid",
   "popupHeader.mapchallengeDay19Potential": "Odor Potential & Wind",
-  "popupHeader.mapchallengeDay19Penalties": "Odor Penalties"
+  "popupHeader.mapchallengeDay19Penalties": "Odor Penalties",
+  "popupHeader.householdRegistrationBranch": "Household Registration Office Branches"
 }
