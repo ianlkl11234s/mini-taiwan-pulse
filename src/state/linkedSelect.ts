@@ -214,6 +214,9 @@ function waitUntilSettled(layerKey: string, specs: readonly LinkedSelectParamSpe
 /**
  * 依宣告順序還原連動選單：每個 key 先觸發載入、等選項就緒，再逐列驗證（值必須在當下選項內）後設定；
  * 設定後等下游重算完成才處理下一列。不合法或逾時的值保留目前選擇並回報略過訊息。
+ *
+ * 目標值存在但在目前組合下不可選（例：看網址的人停在 104 學年，分享的「學生異動」只有 114 學年有）
+ * 先延後，等其他列套用完再重試；沒有任何一列再套得上才回報略過。
  */
 export async function restoreLinkedSelects(
   linked: Readonly<Record<string, Readonly<Record<string, string>>>>,
@@ -226,24 +229,39 @@ export async function restoreLinkedSelects(
     const specs = specsOf(layerKey).filter((spec) => spec.persist !== false);
     if (!specs.length) continue;
     for (const id of new Set(specs.map((spec) => spec.provider))) providers.get(id)?.ensure?.(layerKey);
-    for (const spec of specs) {
-      const wanted = values[spec.name];
-      if (wanted === undefined) continue;
-      if (!(await waitUntilSettled(layerKey, specs, timeoutMs))) {
-        skipped.push(`${layerKey}.${spec.name}：選項未能及時載入，保留目前選擇`);
-        continue;
+    let pending = specs.filter((spec) => values[spec.name] !== undefined);
+    while (pending.length) {
+      const deferred: LinkedSelectParamSpec[] = [];
+      let applied = false;
+      for (const spec of pending) {
+        const wanted = values[spec.name]!;
+        if (!(await waitUntilSettled(layerKey, specs, timeoutMs))) {
+          skipped.push(`${layerKey}.${spec.name}：選項未能及時載入，保留目前選擇`);
+          continue;
+        }
+        const snap = linkedSelectSnapshot(layerKey, spec);
+        if (snap.value === wanted) continue;
+        const option = snap.options.find((candidate) => candidate.value === wanted);
+        if (!option) {
+          skipped.push(`${layerKey}.${spec.name}：選項已不存在，保留目前選擇`);
+          continue;
+        }
+        if (option.disabled) {
+          deferred.push(spec);
+          continue;
+        }
+        try {
+          await setLinkedSelect(layerKey, spec, wanted);
+          applied = true;
+        } catch {
+          skipped.push(`${layerKey}.${spec.name}：無法套用，保留目前選擇`);
+        }
       }
-      const snap = linkedSelectSnapshot(layerKey, spec);
-      if (snap.value === wanted) continue;
-      if (!snap.options.some((option) => option.value === wanted && !option.disabled)) {
-        skipped.push(`${layerKey}.${spec.name}：選項已不存在，保留目前選擇`);
-        continue;
+      if (!applied) {
+        for (const spec of deferred) skipped.push(`${layerKey}.${spec.name}：選項已不存在，保留目前選擇`);
+        break;
       }
-      try {
-        await setLinkedSelect(layerKey, spec, wanted);
-      } catch {
-        skipped.push(`${layerKey}.${spec.name}：無法套用，保留目前選擇`);
-      }
+      pending = deferred;
     }
   }
   return skipped;
