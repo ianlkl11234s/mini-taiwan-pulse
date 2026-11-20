@@ -229,6 +229,7 @@ export async function restoreLinkedSelects(
     const specs = specsOf(layerKey).filter((spec) => spec.persist !== false);
     if (!specs.length) continue;
     for (const id of new Set(specs.map((spec) => spec.provider))) providers.get(id)?.ensure?.(layerKey);
+    const gone = (spec: LinkedSelectParamSpec) => `${layerKey}.${spec.name}：選項已不存在，保留目前選擇`;
     let pending = specs.filter((spec) => values[spec.name] !== undefined);
     while (pending.length) {
       const deferred: LinkedSelectParamSpec[] = [];
@@ -242,12 +243,10 @@ export async function restoreLinkedSelects(
         const snap = linkedSelectSnapshot(layerKey, spec);
         if (snap.value === wanted) continue;
         const option = snap.options.find((candidate) => candidate.value === wanted);
-        if (!option) {
-          skipped.push(`${layerKey}.${spec.name}：選項已不存在，保留目前選擇`);
-          continue;
-        }
-        if (option.disabled) {
-          deferred.push(spec);
+        if (!option || option.disabled) {
+          // 存在但目前不可選：先延後，其他列套用後再試
+          if (option) deferred.push(spec);
+          else skipped.push(gone(spec));
           continue;
         }
         try {
@@ -258,7 +257,7 @@ export async function restoreLinkedSelects(
         }
       }
       if (!applied) {
-        for (const spec of deferred) skipped.push(`${layerKey}.${spec.name}：選項已不存在，保留目前選擇`);
+        skipped.push(...deferred.map(gone));
         break;
       }
       pending = deferred;
