@@ -134,7 +134,7 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(group("崩塌與水土保持 Landslides & Soil Conservation", "崩塌")).toEqual(["statsLandslideCountCounty", "statsLandslideAreaCounty"]);
     expect(group("崩塌與水土保持 Landslides & Soil Conservation", "治山防災工程")).toEqual(["statsSlopeWorksCostCounty"]);
     // atlas 批次：同群組成員相鄰、原始數／縣市在前（群組列只在第一個成員渲染）。
-    expect(group("醫療與長照 Health & Care", "傳染病")).toEqual(["statsHealthTbNewCases", "statsHealthTbNewCasesPer100kHrp", "statsHealthTbNewCasesTownship", "statsHealthTbIncidencePer100kTownship", "statsHealthTbDeaths", "statsHealthTbDeathRate"]);
+    expect(group("醫療與長照 Health & Care", "傳染病")).toEqual(["statsHealthTbNewCases", "statsHealthTbNewCasesPer100kHrp", "statsHealthTbNewCasesTownship", "statsHealthTbIncidencePer100kTownship", "statsHealthTbDeaths", "statsHealthTbDeathRate", "statsHealthNotifiableCasesTownship", "statsHealthNotifiableRatePer100kTownship", "statsHealthNotifiableCasesCounty", "statsHealthNotifiableRatePer100kCounty"]);
     expect(group("醫療與長照 Health & Care", "癌症篩檢")).toEqual(["statsHealthBreastScreening2yr", "statsHealthCervicalScreening3yr", "statsHealthColorectalScreening2yr"]);
     expect(group("財稅與消費 Fiscal & Consumption", "地方財政")).toEqual(["statsFiscalLocalRevenue", "statsFiscalLocalExpenditure"]);
     expect(group("人口與教育 Population & Education", "原住民保留地")).toEqual(["statsIndigenousReservedLandParcels", "statsIndigenousReservedLandArea"]);

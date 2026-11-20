@@ -2027,5 +2027,9 @@
   "layer.swcEcoCheckZones": "水土保持工事の第 1 級生態チェック区域",
   "layer.airportHeightSurfaces": "空港周辺の高さ制限面",
   "layer.landOfficeJurisdiction": "地政事務所の管轄",
-  "layer.npSpeciesSites": "国家公園の種調査地点"
+  "layer.npSpeciesSites": "国家公園の種調査地点",
+  "layer.statsHealthNotifiableCasesTownship": "法定感染症の症例数（郷鎮）",
+  "layer.statsHealthNotifiableRatePer100kTownship": "法定感染症の人口 10 万人あたり症例率（郷鎮）",
+  "layer.statsHealthNotifiableCasesCounty": "法定感染症の症例数（県・市）",
+  "layer.statsHealthNotifiableRatePer100kCounty": "法定感染症の人口 10 万人あたり症例率（県・市）"
 }

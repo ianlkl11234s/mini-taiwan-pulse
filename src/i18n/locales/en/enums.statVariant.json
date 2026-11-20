@@ -289,5 +289,7 @@
   "enum.statVariant.第一大姓": "Most common surname",
   "enum.statVariant.第一大姓占戶籍人口比": "Most common surname's share of registered population",
   "enum.statVariant.選姓占戶籍人口比": "Chosen surname's share of registered population",
-  "enum.statVariant.現存坑洞數": "Remaining pits"
+  "enum.statVariant.現存坑洞數": "Remaining pits",
+  "enum.statVariant.病例數": "Cases",
+  "enum.statVariant.每十萬人病例率": "Rate per 100,000"
 }
