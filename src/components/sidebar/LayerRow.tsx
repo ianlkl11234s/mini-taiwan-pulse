@@ -11,6 +11,7 @@ import { localizeLayerName } from "../../i18n/layerText";
 import { LayerToggleSwitch } from "./LayerToggleSwitch";
 import { useRailTheme } from "./railTheme";
 import { compareSideOf, isCompareSupported, useCompareSelector } from "../../state/compareStore";
+import { LongTermBadge } from "../longTermBar/LongTermBadge";
 import "./layerRow.css";
 
 /** 列開關（spec §5.10 列開關）：顏色跟 rail palette，暗／淡自動切換。 */
@@ -23,7 +24,7 @@ export function RailToggle({ on, onChange, label }: { on: boolean; onChange: () 
  * 圖層名稱（layer-panel-unify P2 A）：同一行顯示中文主名＋外文小字＋來源標籤。
  * 空間不夠時只省略外文；中文不縮（比整列還長時才換行）；來源標籤不縮。
  */
-export function LayerNameLine({ name, layerKey }: { name: LayerName; layerKey?: string }) {
+export function LayerNameLine({ name, layerKey, rowActive }: { name: LayerName; layerKey?: string; rowActive?: boolean }) {
   const { DIM, BORDER } = useRailTheme();
   const i18n = useLocale();
   const { active } = i18n;
@@ -44,6 +45,8 @@ export function LayerNameLine({ name, layerKey }: { name: LayerName; layerKey?: 
       {shown.qualifier && (
         <span style={{ flexShrink: 0, alignSelf: "center", padding: "0 4px", border: `1px solid ${BORDER}`, borderRadius: RADIUS.md, fontSize: FONT_SIZE.xs, lineHeight: "13px", color: DIM, whiteSpace: "nowrap" }}>{shown.qualifier}</span>
       )}
+      {/* 長期標記（manifest longTerm）：時鐘 icon＋涵蓋 tooltip */}
+      <LongTermBadge layerKey={layerKey} active={rowActive} />
     </span>
   );
 }
@@ -203,7 +206,7 @@ export const LayerRow = memo(function LayerRow({
   return (
     <ListRow
       ariaLabel={label}
-      label={<LayerNameLine name={name} layerKey={layerKey} />}
+      label={<LayerNameLine name={name} layerKey={layerKey} rowActive={active} />}
       sub={sub}
       meta={active ? <CompareSideTag layerKey={layerKey} /> : undefined}
       icon={<Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />}

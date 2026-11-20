@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { FONT_CJK, FONT_DATA, PANEL_WIDTH } from "./satelliteConsoleTokens";
 import { RADIUS, FONT_SIZE, LAYOUT, ELEVATION, LIGHT } from "../../styles/designTokens";
+import { bottomAboveLongTermBar } from "../longTermBar/longTermBarLayout";
 import { SatelliteConsoleHeader } from "./SatelliteConsoleHeader";
 import { ManeuverAlertSection } from "./ManeuverAlertSection";
 import { CNGroupSection } from "./CNGroupSection";
@@ -70,7 +71,7 @@ export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, se
           position: "fixed",
           left: 64,
           top: LAYOUT.leftDockTop,
-          bottom: 130,
+          bottom: bottomAboveLongTermBar(130),
           width: PANEL_WIDTH,
           background: p.panelBg,
           backdropFilter: "blur(16px)",

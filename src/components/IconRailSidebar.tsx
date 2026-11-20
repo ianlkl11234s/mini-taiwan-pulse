@@ -29,6 +29,7 @@ import { LAYER_PANELS, resolveLayerPanel, type LayerPanelId } from "./sidebar/la
 import { countryStore, useCountry } from "../state/countryStore";
 import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
+import { maxHeightAboveLongTermBar } from "./longTermBar/longTermBarLayout";
 
 // 既有 export 維持原路徑（測試與其他模組從這裡 import）
 export { LAYER_ICONS } from "./sidebar/LayersPanel";
@@ -364,7 +365,7 @@ export function IconRailSidebar({
               left: RAIL_WIDTH + 8,
               top: LAYOUT.leftDockTop,
               width: compactLayers ? MONITOR_SPLIT_DOCK.layersWidth : PANEL_WIDTH,
-              maxHeight: compactLayers ? `${MONITOR_SPLIT_DOCK.layersMaxVh * 100}vh` : "70vh",
+              maxHeight: compactLayers ? `${MONITOR_SPLIT_DOCK.layersMaxVh * 100}vh` : maxHeightAboveLongTermBar("70vh"),
               background: BG_PANEL,
               border: `1px solid ${PANEL_BORDER}`,
               boxShadow: ELEVATION.lg,

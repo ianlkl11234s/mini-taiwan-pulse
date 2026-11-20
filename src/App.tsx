@@ -102,6 +102,7 @@ import { LiveTimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
+import { LongTermTimelineGate } from "./components/longTermBar/LongTermTimelineGate";
 import { StyleSelector, getStyleUrl, MAP_STYLES } from "./components/StyleSelector";
 import { BasemapMenu } from "./components/toolbar/BasemapMenu";
 import { CaptureExitHint } from "./components/toolbar/CaptureExitHint";
@@ -2758,8 +2759,9 @@ export default function App() {
           />
 
 
-          {/* 時間軸：依 mode 切換 realtime / historical */}
+          {/* 時間軸：依 mode 切換 realtime / historical；即時模式下長期時間條與即時時間軸一次只顯示一條（STANDARD.md §2） */}
           {appMode === "realtime" ? (
+            <LongTermTimelineGate isDark={isDarkTheme} leftOffset={sidebarWidth + 16}>
             <LiveTimelineControls
               playing={timeline.playing}
               speed={timeline.speed}
@@ -2779,6 +2781,7 @@ export default function App() {
               onShiftDate={timeline.shiftDate}
               onRangeDaysChange={timeline.setRangeDays}
             />
+            </LongTermTimelineGate>
           ) : (
             <HistoricalTimeline
               year={historicalYear}

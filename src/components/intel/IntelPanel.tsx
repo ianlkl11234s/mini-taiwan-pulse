@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { FONT_CJK, FONT_DATA, alertSeverity, withAlpha, type AlertGroupShort } from "./intelTokens";
 import { getIntelPalette, IntelThemeProvider, neutralFill } from "./intelTheme";
 import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT } from "../../styles/designTokens";
+import { bottomAboveLongTermBar } from "../longTermBar/longTermBarLayout";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
@@ -462,7 +463,8 @@ export function IntelPanel({
         position: "fixed",
         left: 64,
         top: LAYOUT.leftDockTop,
-        bottom: 130,
+        // 長期時間條出現時讓到它上緣（STANDARD.md §2 第 10 條）
+        bottom: bottomAboveLongTermBar(130),
         width: 412,
         background: palette.panelBg,
         backdropFilter: "blur(16px)",
