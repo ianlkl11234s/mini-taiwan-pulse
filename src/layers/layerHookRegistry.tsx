@@ -31,7 +31,7 @@ import type { ManifestKey } from "../data/layerManifest";
 import type { LayerHostComponent } from "./layerHostDeps";
 
 import {
-  RealEstateTimelineHost, RealEstatePointsHost, PropertyValueAdminHost, SelectedFeatureHaloHost,
+  RealEstateTimelineHost, RealEstatePointsHost, PropertyValueAdminHost, SelectedFeatureHaloHost, LandOfficeHighlightHost,
 } from "./hosts/realEstateHosts";
 import {
   ReservoirStatusHost, RainGaugeHost, BridgeRainHost, FloodSensorHost, FloodSensorIsochroneHost,
@@ -157,6 +157,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
 
   // ── 互動裝飾（L781）：跨圖層的點選選取圈，不屬於任何單一 layer ──
   { id: "useSelectedFeatureHalo", keys: [], Host: SelectedFeatureHaloHost },
+  // 台灣圖層延伸 B3：點地政事務所點 → 高亮轄區面（跨 govServiceOffices 與 landOfficeJurisdiction）
+  { id: "useLandOfficeHighlight", keys: [], Host: LandOfficeHighlightHost },
 
   // ── 水資源 / 水利（L784-897）──
   { id: "useReservoirStatusLayer", keys: ["waterReservoirs"], Host: ReservoirStatusHost },

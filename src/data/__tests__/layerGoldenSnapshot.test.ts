@@ -309,8 +309,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-18: +5 縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL，統計）。
     // 2026-11-19: +3 30 天地圖挑戰 Day 19 氣味（mapchallengeDay19Complaints／Potential／Penalties）。
     // 2026-11-20: +2 台灣圖層延伸 B2 點層（mountainMobileImprovement、ecoLabelHotels）、+9 台灣圖層延伸 B2 統計（新住民子女就學 5、前二十大姓 3、現存坑洞數 1）。
+    // 2026-11-20: +7 台灣圖層延伸 B3（namrBuoys、towingYards、swcOutdoorClassrooms、swcEcoCheckZones、airportHeightSurfaces、landOfficeJurisdiction、npSpeciesSites）。
     // 2026-11-20: +4 台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
-    expect(keys.length).toBe(2033);
+    expect(keys.length).toBe(2040);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

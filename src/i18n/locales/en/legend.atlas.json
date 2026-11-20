@@ -51,5 +51,14 @@
   "legend.atlas.arSubtitle": "27 points: 22 stations, 5 other points; branch-line mileage (Zhaoping, Duigaoyue, Zhushan) counts from the branch start",
   "legend.atlas.mmSubtitle": "157 sites (148 from 160533 plus 9 more from 173234); blank coverage flag = unknown",
   "legend.atlas.mmHalo": "Illustrative coverage halo (about 500 m radius, not measured signal)",
-  "legend.atlas.ehSubtitle": "283 hotels: 50 gold, 94 silver, 139 bronze; grade shown by shade of one hue"
+  "legend.atlas.ehSubtitle": "283 hotels: 50 gold, 94 silver, 139 bronze; grade shown by shade of one hue",
+  "legend.atlas.nbSubtitle": "9 stations (positions only, no observation values); 5 are co-located with CWA data buoys",
+  "legend.atlas.tySubtitle": "63 shown (positions estimated from addresses); 25 more could not be located and are not shown",
+  "legend.atlas.tyPoint": "Towing yard",
+  "legend.atlas.ocPoint": "SWC outdoor classroom (2020 edition, 18 sites)",
+  "legend.atlas.ezZone": "Tier-1 ecological check zone (representative points when zoomed out, extents from zoom 8)",
+  "legend.atlas.ahSubtitle": "7 airports covered; Kaohsiung International Airport is not covered (the source has polylines only); other civil airports are not in the source",
+  "legend.atlas.ljZone": "Land office jurisdiction (colour has no other meaning)",
+  "legend.atlas.npSubtitle": "144,228 survey sites (covering 1.45 million records); some coordinates are obscured and are not exact positions",
+  "legend.atlas.ljSubtitle": "110 polygons; select a land office point in \"Government Service Offices\" to highlight its jurisdiction"
 }

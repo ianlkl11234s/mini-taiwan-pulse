@@ -14,7 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, ALISHAN_RAIL_KIND_OPTIONS, MOUNTAIN_MOBILE_GROUP_OPTIONS, ECO_HOTEL_LEVEL_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_PALETTE, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, ALISHAN_RAIL_KIND_OPTIONS, MOUNTAIN_MOBILE_GROUP_OPTIONS, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, AIRPORT_SURFACE_OPTIONS, NP_PARK_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_PALETTE, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, LANDSLIDE_EVENT_TYPE_OPTIONS,
   G53_ORGS,
   DEBRIS_RISK_OPTIONS,
@@ -131,6 +131,36 @@ function EcoLabelHotelsLegend() {
   return <AtlasLegend layer="ecoLabelHotels" en="Eco-label Hotels" subtitle={t("legend.atlas.ehSubtitle")} source={src("moenv", ["145035", "161312"])} domain="atlasEcoLevel" rows={ECO_HOTEL_LEVEL_OPTIONS} />;
 }
 
+/** 台灣圖層延伸 B3：國海院浮標站位（僅站位，5 座與氣象署資料浮標同址）。 */
+function NamrBuoysLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="namrBuoys" en="NAMR Buoy Stations" subtitle={t("legend.atlas.nbSubtitle")} source={src("namr", ["171309", "171315"])} domain="atlasNamrBuoyKind" rows={NAMR_BUOY_KIND_OPTIONS} />;
+}
+
+/** 台灣圖層延伸 B3：違規拖吊保管場；副標註明另有 25 筆無法定位、未上圖。 */
+function TowingYardsLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="towingYards" en="Vehicle Towing Yards" subtitle={t("legend.atlas.tySubtitle")} source={src("npa", ["7319"])} rows={single("towingYards", "legend.atlas.tyPoint")} />;
+}
+
+/** 台灣圖層延伸 B3：機場限高面；副標註明涵蓋 7 個機場、高雄未涵蓋。 */
+function AirportHeightSurfacesLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="airportHeightSurfaces" en="Airport Height Restriction Surfaces" kind="square" subtitle={t("legend.atlas.ahSubtitle")} source={src("caa", ["35876"])} domain="atlasAirportSurface" rows={AIRPORT_SURFACE_OPTIONS} />;
+}
+
+/** 台灣圖層延伸 B3：地政事務所轄區；副標說明點「機關便民據點」的地政事務所點可高亮轄區。 */
+function LandOfficeJurisdictionLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="landOfficeJurisdiction" en="Land Office Jurisdictions" kind="square" subtitle={t("legend.atlas.ljSubtitle")} source={src("nlsc", ["13045"])} rows={single("landOfficeJurisdiction", "legend.atlas.ljZone")} />;
+}
+
+/** 台灣圖層延伸 B3：國家公園物種調查點位；熱區＋園區色；副標註明座標模糊處理。 */
+function NpSpeciesSitesLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="npSpeciesSites" en="National Park Species Survey Sites" subtitle={t("legend.atlas.npSubtitle")} source={src("nps", ["73252"])} domain="atlasNpPark" rows={NP_PARK_OPTIONS} dense />;
+}
+
 /** G53 批 2／3 爆竹煙火場所：副標「名冊 19 處，地圖上 10 處」。 */
 function FireworksSitesLegend() {
   const { t } = useLocale();
@@ -185,6 +215,13 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   forestAlishanRail: () => <AlishanRailLegend />,
   mountainMobileImprovement: () => <MountainMobileLegend />,
   ecoLabelHotels: () => <EcoLabelHotelsLegend />,
+  namrBuoys: () => <NamrBuoysLegend />,
+  towingYards: () => <TowingYardsLegend />,
+  swcOutdoorClassrooms: () => <AtlasLegend layer="swcOutdoorClassrooms" en="SWC Outdoor Classrooms" source={src("swcb", ["108030"])} rows={single("swcOutdoorClassrooms", "legend.atlas.ocPoint")} />,
+  swcEcoCheckZones: () => <AtlasLegend layer="swcEcoCheckZones" en="SWC Tier-1 Ecological Check Zones" kind="square" source={src("swcb", ["159097"])} rows={single("swcEcoCheckZones", "legend.atlas.ezZone")} />,
+  airportHeightSurfaces: () => <AirportHeightSurfacesLegend />,
+  landOfficeJurisdiction: () => <LandOfficeJurisdictionLegend />,
+  npSpeciesSites: () => <NpSpeciesSitesLegend />,
   vehicleInspectionOffices: () => <VehicleInspectionLegend />,
   iOceanFishing: () => <AtlasLegend layer="iOceanFishing" en="iOcean Recreational Fishing Reports" source={src("oca", ["157622"])} domain="atlasFishingType" rows={[...FISHING_TYPE_OPTIONS, { labelKey: "legend.atlas.iofOther", color: ATLAS_OTHER_COLOR }]} dense />,
   wraDisasterCctv: () => <AtlasLegend layer="wraDisasterCctv" en="WRA Disaster Monitoring Cameras" source={src("wra", ["36687", "41567"])} domain="atlasWraCctvKind" rows={WRA_CCTV_KIND_OPTIONS} />,
