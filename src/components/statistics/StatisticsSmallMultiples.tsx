@@ -33,7 +33,7 @@ import { getLaborRecipe } from '../../data/laborStatisticsRecipes';
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
 import { addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
-import { atlasBinaryLegendRows, atlasCategoryRows, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
+import { atlasBinaryLegendRows, atlasCategoryLegendRows, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from '../../data/statisticsFillColor';
 import { statisticsTitle, statisticsUnit } from '../../i18n/statisticsText';
 import { enumLabel } from '../../i18n/dataText';
@@ -127,7 +127,7 @@ function legendModel(baseKey: string, recipe: RenderRecipe, i18n: LocaleSnapshot
   const landslide = getLandslideRecipe(baseKey);
   const atlas = getAtlasRecipe(baseKey);
   const atlasBinary = atlas ? atlasBinaryLegendRows(atlas, recipe.colors)?.map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
-  const atlasCategories = atlas ? atlasCategoryRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
+  const atlasCategories = atlas ? atlasCategoryLegendRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
   const special = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinary ?? atlasCategories;
   const format = social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format;
   return {

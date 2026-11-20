@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2020,
+    "keyCount": 2029,
     "sections": [
       "gisLayers",
       "overlays",
@@ -6000,6 +6000,10 @@
         "statsCultureStreetPerformersCounty-circle",
         "statsOpenDataDatasets-circle",
         "statsOpenDataCoordDatasets-circle",
+        "statsNrcStudentsTownship-circle",
+        "statsNrcStudentsElementaryTownship-circle",
+        "statsNrcStudentsJuniorTownship-circle",
+        "statsAbandonedPitsCounty-circle",
         "statsStateLandIdleArea-circle",
         "statsStateLandIdleParcels-circle",
         "statsStateLandArea-circle",
@@ -6705,6 +6709,15 @@
         "statsOpenDataCoordShare-fill",
         "statsOpenDataSpatialShare-fill",
         "statsOpenDataThemesWithCoords-fill",
+        "statsNrcStudentsTownship-fill",
+        "statsNrcStudentsElementaryTownship-fill",
+        "statsNrcStudentsJuniorTownship-fill",
+        "statsNrcShareTotalTownship-fill",
+        "statsNrcShareElementaryTownship-fill",
+        "statsSurnameTop1Township-fill",
+        "statsSurnameTop1ShareTownship-fill",
+        "statsSurnameShareTownship-fill",
+        "statsAbandonedPitsCounty-fill",
         "statsStateLandIdleArea-fill",
         "statsStateLandIdleShare-fill",
         "statsStateLandIdleParcels-fill",
@@ -7559,6 +7572,14 @@
         "statsOpenDataDatasets-suppressed",
         "statsOpenDataCoordDatasets-missing",
         "statsOpenDataCoordDatasets-suppressed",
+        "statsNrcStudentsTownship-missing",
+        "statsNrcStudentsTownship-suppressed",
+        "statsNrcStudentsElementaryTownship-missing",
+        "statsNrcStudentsElementaryTownship-suppressed",
+        "statsNrcStudentsJuniorTownship-missing",
+        "statsNrcStudentsJuniorTownship-suppressed",
+        "statsAbandonedPitsCounty-missing",
+        "statsAbandonedPitsCounty-suppressed",
         "statsStateLandIdleArea-missing",
         "statsStateLandIdleArea-suppressed",
         "statsStateLandIdleParcels-missing",
@@ -167708,6 +167729,40 @@
         "valueText": "0.55"
       }
     ],
+    "statsAbandonedPitsCounty": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsAdultBetelRateCounty": [
       {
         "label": "資料期別",
@@ -208684,6 +208739,286 @@
         "valueText": "0.55"
       }
     ],
+    "statsNrcShareElementaryTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcShareElementaryTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNrcShareTotalTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcShareTotalTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNrcStudentsElementaryTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcStudentsElementaryTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNrcStudentsJuniorTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcStudentsJuniorTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNrcStudentsTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "國小＋國中人數",
+            "value": "statsNrcStudentsTownship"
+          },
+          {
+            "label": "國小人數",
+            "value": "statsNrcStudentsElementaryTownship"
+          },
+          {
+            "label": "國中人數",
+            "value": "statsNrcStudentsJuniorTownship"
+          },
+          {
+            "label": "占國中小學生比（111–114 學年）",
+            "value": "statsNrcShareTotalTownship"
+          },
+          {
+            "label": "占國小學生比",
+            "value": "statsNrcShareElementaryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNrcStudentsTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsOffstreetSmallCarParkingSpacesCount": [
       {
         "label": "口徑",
@@ -212263,6 +212598,123 @@
         ],
         "type": "select",
         "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSurnameShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "第一大姓",
+            "value": "statsSurnameTop1Township"
+          },
+          {
+            "label": "第一大姓占戶籍人口比",
+            "value": "statsSurnameTop1ShareTownship"
+          },
+          {
+            "label": "選姓占戶籍人口比",
+            "value": "statsSurnameShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSurnameShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSurnameTop1ShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "第一大姓",
+            "value": "statsSurnameTop1Township"
+          },
+          {
+            "label": "第一大姓占戶籍人口比",
+            "value": "statsSurnameTop1ShareTownship"
+          },
+          {
+            "label": "選姓占戶籍人口比",
+            "value": "statsSurnameShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSurnameTop1ShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsSurnameTop1Township": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "第一大姓",
+            "value": "statsSurnameTop1Township"
+          },
+          {
+            "label": "第一大姓占戶籍人口比",
+            "value": "statsSurnameTop1ShareTownship"
+          },
+          {
+            "label": "選姓占戶籍人口比",
+            "value": "statsSurnameShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsSurnameTop1Township"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
       },
       {
         "label": "透明度 0.55",

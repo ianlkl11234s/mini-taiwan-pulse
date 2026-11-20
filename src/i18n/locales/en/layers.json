@@ -2010,5 +2010,14 @@
   "layer.mapchallengeDay19Potential": "Odor Potential & Wind",
   "layer.mapchallengeDay19Penalties": "Odor Penalties",
   "layer.mountainMobileImprovement": "Mountain Mobile Coverage Improvement Sites",
-  "layer.ecoLabelHotels": "Eco-label Hotels"
+  "layer.ecoLabelHotels": "Eco-label Hotels",
+  "layer.statsNrcStudentsTownship": "New-resident children in primary and junior high school (students)",
+  "layer.statsNrcStudentsElementaryTownship": "New-resident children in primary school (students)",
+  "layer.statsNrcStudentsJuniorTownship": "New-resident children in junior high school (students)",
+  "layer.statsNrcShareTotalTownship": "New-resident children as a share of primary and junior high students",
+  "layer.statsNrcShareElementaryTownship": "New-resident children as a share of primary students",
+  "layer.statsSurnameTop1Township": "Most common surname by township",
+  "layer.statsSurnameTop1ShareTownship": "Share of registered population with the most common surname",
+  "layer.statsSurnameShareTownship": "Surname share of registered population",
+  "layer.statsAbandonedPitsCounty": "Remaining abandoned pits"
 }

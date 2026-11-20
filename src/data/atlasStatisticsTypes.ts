@@ -45,6 +45,8 @@ export interface AtlasCategory {
   label: string;
   color?: string;
   key?: string;
+  /** 圖例不畫這一列（類別太多時只列主要幾類；地圖上色與 popup 類別名照舊）。 */
+  legend_hidden?: boolean;
 }
 
 /** 非數值狀態：無資料、不適用（無潛勢溪流、非臨海、無保留地、無此類病床）、來源刪除；都不上數值色。 */

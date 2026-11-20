@@ -2010,5 +2010,14 @@
   "layer.mapchallengeDay19Potential": "施設由来の臭気ポテンシャルと風",
   "layer.mapchallengeDay19Penalties": "悪臭による処分施設",
   "layer.mountainMobileImprovement": "山間部の携帯通信改善地点",
-  "layer.ecoLabelHotels": "エコラベル認証ホテル"
+  "layer.ecoLabelHotels": "エコラベル認証ホテル",
+  "layer.statsNrcStudentsTownship": "新住民の子どもの小中学校在籍者数",
+  "layer.statsNrcStudentsElementaryTownship": "新住民の子どもの小学校在籍者数",
+  "layer.statsNrcStudentsJuniorTownship": "新住民の子どもの中学校在籍者数",
+  "layer.statsNrcShareTotalTownship": "新住民の子どもが小中学生に占める割合",
+  "layer.statsNrcShareElementaryTownship": "新住民の子どもが小学生に占める割合",
+  "layer.statsSurnameTop1Township": "郷鎮別の最多姓",
+  "layer.statsSurnameTop1ShareTownship": "最多姓の戸籍人口に占める割合",
+  "layer.statsSurnameShareTownship": "姓別の戸籍人口に占める割合",
+  "layer.statsAbandonedPitsCounty": "現存する放置採掘跡の穴の数"
 }

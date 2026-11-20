@@ -62,5 +62,6 @@
   "enum.statFrequency.309 個已交付期別": "提供済み309期間",
   "enum.statFrequency.18 個已交付期別": "提供済み18期間",
   "enum.statFrequency.93 個已交付期別": "提供済み93期間",
-  "enum.statFrequency.177 個已交付期別": "177 期分を提供"
+  "enum.statFrequency.177 個已交付期別": "177 期分を提供",
+  "enum.statFrequency.20 個已交付期別": "20 期分を提供済み"
 }

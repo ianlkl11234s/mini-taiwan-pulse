@@ -7,6 +7,8 @@ Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsT
   culture      街頭藝人登記人數（G23；docs/handoff/culture-coin-street-performers-recipes.json，2 recipes）
   financeAccessExt 金融服務可及性延伸（G10 延伸；docs/handoff/finance-access-ext-statistics-recipes.json，10 recipes）
   openData     縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL；docs/handoff/tw-opendata-completeness-recipes.json，5 recipes）
+  twExtB2      台灣圖層延伸 B2 統計（新住民子女就學 5、鄉鎮前二十大姓 3、現存坑洞數 1；
+               docs/topic-research/tw_layer_ext_20261120/b2/r2/b2-recipes.json，9 recipes；各層 tab_theme 併入既有統計主題）
 
 Inputs (taipei-gis-analytics, read-only):
   --root     analytics checkout. The handoff recipes are the trimmed R2 form (release_id／period／dimensions only),
@@ -20,6 +22,8 @@ option is cross-checked against its bundle (dataset／indicator／unit／id／pe
 
 Usage:
   python3 scripts/statistics/build_roadmap_batch2_statistics_recipes.py --root <analytics checkout> [--family culture]
+  （twExtB2 的 handoff 檔在 analytics worktree、bundle 在主 checkout 的 data/processed：用一個 staging root，
+   docs/ 連到 worktree、data/ 連到主 checkout。）
   npx vite-node --script scripts/statistics/build_statistics_recipe_catalogs.ts
 """
 from __future__ import annotations
@@ -288,6 +292,58 @@ OPEN_DATA_LAYERS = [
     od("statsOpenDataThemesWithCoords", "有座標主題數", 0, [OD_THEMES, OD_CLASS], breaks=[5, 9, 13, 16]),
 ]
 
+# ── 台灣圖層延伸 B2（2026-11-20）：新住民子女就學、鄉鎮前二十大姓、現存坑洞數 ──────────
+MOE = "教育部統計處"
+NRC_SRC = f"出典：{MOE} 新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）；政府資料開放授權條款-第1版。"
+NRC_SCOPE = "依就讀學校所在鄉鎮市區，不是學生住家；108–114 學年，學年度為 8 月 1 日至翌年 7 月 31 日。"
+NRC_SMALL = "小鄉鎮學生少，占比與人數的年度波動大。"
+NRC_HSINCHU = "113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%，來源未說明原因。"
+NRC_NA = {"not_applicable": "不適用（該鄉鎮沒有該學制學生，占比無從計算）"}
+SUR_SRC = "出典：內政部戶政司 全國各鄉鎮市區前二十大姓人口數按性別分（data.gov.tw 42518）；政府資料開放授權條款-第1版。"
+SUR_SCOPE = "戶籍登記姓氏，不等於族群；2023 年 6 月與 2018 年 6 月兩期；每鄉鎮只公開前 20 姓。"
+SUR_MISSING = {"missing": "未進該鄉鎮前二十大（來源未公開，不是 0）"}
+PIT_SRC = "出典：經濟部地質調查及礦業管理中心 各縣市現存坑洞數統計（data.gov.tw 29076）；政府資料開放授權條款-第1版。"
+PIT_SCOPE = "早期盜濫採土石遺留坑洞；94–113 年（民國年，日曆年區間）；台中、台南、高雄為改制前縣＋市合併值。"
+PIT_BREAK = "113 年起為專案列管，口徑與 112 年以前不同，不可直接比較增減。"
+PIT_ZERO = "0＝來源填 0（該縣市當年列管坑洞為 0），不是無資料。"
+SURNAME_CATEGORIES = [
+    (1, "陳", "#e45756"), (2, "林", "#4c78a8"), (3, "黃", "#f2a93b"), (4, "張", "#54a24b"),
+    (8, "劉", "#b279a2"), (7, "吳", "#72b7b2"),
+]
+SURNAME_OTHER_COLOR = "#9ca3af"
+
+
+def b2(key, group, group_label, option, sub, digits, notes, **extra):
+    return dict(key=key, group=group, group_label=group_label, option_label=option, subgroup=sub, digits=digits, notes=notes, **extra)
+
+
+TW_EXT_B2_LAYERS = [
+    b2("statsNrcStudentsTownship", "nrcStudents", "新住民子女就讀國中小", "國小＋國中人數", "新住民子女就學", 0, [NRC_SRC, NRC_SCOPE, NRC_SMALL, NRC_HSINCHU],
+       visual="education", theme_dir="education", breaks=[10, 50, 150, 400]),
+    b2("statsNrcStudentsElementaryTownship", "nrcStudents", "新住民子女就讀國中小", "國小人數", "新住民子女就學", 0, [NRC_SRC, NRC_SCOPE, NRC_SMALL, NRC_HSINCHU],
+       visual="education", theme_dir="education", breaks=[10, 50, 150, 400]),
+    b2("statsNrcStudentsJuniorTownship", "nrcStudents", "新住民子女就讀國中小", "國中人數", "新住民子女就學", 0, [NRC_SRC, NRC_SCOPE, NRC_SMALL],
+       visual="education", theme_dir="education", breaks=[5, 20, 60, 150]),
+    b2("statsNrcShareTotalTownship", "nrcStudents", "新住民子女就讀國中小", "占國中小學生比（111–114 學年）", "新住民子女就學", 1, [NRC_SRC, NRC_SCOPE, NRC_SMALL, "108–110 學年各有 1 所私立實驗學校對不到鄉鎮，合計占比未產。"],
+       visual="education", theme_dir="education", status=NRC_NA, breaks=[3, 5, 8, 12]),
+    b2("statsNrcShareElementaryTownship", "nrcStudents", "新住民子女就讀國中小", "占國小學生比", "新住民子女就學", 1, [NRC_SRC, NRC_SCOPE, NRC_SMALL, NRC_HSINCHU],
+       visual="education", theme_dir="education", status=NRC_NA, breaks=[3, 5, 8, 12]),
+    b2("statsSurnameTop1Township", "surname", "鄉鎮前二十大姓", "第一大姓", "姓氏（戶籍）", 0, [SUR_SRC, SUR_SCOPE, "色塊只標前 6 名（共 326 個鄉鎮），其餘姓氏併為灰色「其他姓氏」；點選鄉鎮看姓氏。"],
+       visual="population", theme_dir="demographics",
+       categorical=dict(categories=SURNAME_CATEGORIES, other_color=SURNAME_OTHER_COLOR, other_label="其他姓氏")),
+    b2("statsSurnameTop1ShareTownship", "surname", "鄉鎮前二十大姓", "第一大姓占戶籍人口比", "姓氏（戶籍）", 1, [SUR_SRC, SUR_SCOPE],
+       visual="population", theme_dir="demographics", breaks=[10, 12, 15, 20]),
+    b2("statsSurnameShareTownship", "surname", "鄉鎮前二十大姓", "選姓占戶籍人口比", "姓氏（戶籍）", 1, [SUR_SRC, SUR_SCOPE, "選姓後只顯示該姓；全國前 20 姓取各鄉鎮前二十大名單內合計人口最多者，是下界，不是戶政司官方排名。"],
+       visual="population", theme_dir="demographics", defaults={"surname": "陳"}, status=SUR_MISSING),
+    b2("statsAbandonedPitsCounty", "abandonedPits", "現存坑洞數（早期盜濫採土石遺留）", "現存坑洞數", "遺留坑洞", 0, [PIT_SRC, PIT_SCOPE, PIT_BREAK, PIT_ZERO],
+       visual="environment", theme_dir="environment", tab_theme="災害風險 Disaster Risk", data_theme="災害風險統計", breaks=[1, 5, 30, 150], zero_note=PIT_ZERO),
+]
+TW_EXT_B2_LOCATION = {
+    "nrcStudents": "就讀學校所在鄉鎮市區（不是學生住家）",
+    "surname": "戶籍登記地所在鄉鎮市區（戶籍人口）",
+    "abandonedPits": "坑洞所在縣市（來源表所列縣市；台中、台南、高雄為改制前縣＋市合併值）",
+}
+
 FAMILIES: dict[str, dict] = {
     "financeAccess": {
         "file": "financeAccessStatisticsRecipes",
@@ -325,6 +381,15 @@ FAMILIES: dict[str, dict] = {
         "license": OD_LICENSE,
         "observation_policy": {"observed_zero": "status observed and value 0 (no dataset of that theme in the catalogue for that county; not proof that the county publishes none)", "missing": "not used", "suppressed": "not used"},
         "layers": OPEN_DATA_LAYERS,
+    },
+    "twExtB2": {
+        "file": "twExtB2StatisticsRecipes",
+        "handoff": "docs/topic-research/tw_layer_ext_20261120/b2/r2/b2-recipes.json",
+        "theme_dir": None,  # 各層 theme_dir（教育／人口／環境）
+        "data_theme": "台灣圖層延伸統計 B2",
+        "tab_theme": "人口與教育 Population & Education",
+        "observation_policy": {"observed_zero": "status observed and value 0 (source lists 0)", "missing": "value null; surname not in the township top-20 list; no zero fill", "not_applicable": "value null; no pupils of that school level in the township, so the share is undefined", "suppressed": "not used"},
+        "layers": TW_EXT_B2_LAYERS,
     },
     "culture": {
         "file": "cultureStatisticsRecipes",
@@ -436,7 +501,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
         values: dict[tuple, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
         dim_keys = sorted({k for o in layer["release_options"] for k in o["dimensions"]})
         for option in layer["release_options"]:
-            path = root / "data/processed" / config["theme_dir"] / layer["dataset_id"] / "releases" / f"{option['release_id']}.json"
+            path = root / "data/processed" / spec.get("theme_dir", config["theme_dir"]) / layer["dataset_id"] / "releases" / f"{option['release_id']}.json"
             if path not in cache:
                 cache[path] = json.loads(path.read_text())
             body = cache[path]
@@ -516,7 +581,27 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             if tuple_key != default_tuple:
                 by_dimension[tuple_key] = {"breaks": spec.get("breaks") or make_breaks(source_values or [], counts), "direction": "ascending"}
         binary = spec.get("binary")
-        if binary:
+        categorical = spec.get("categorical")
+        if categorical:
+            # 類別碼圖層（第一大姓）：值域必須是整數碼，類別表要涵蓋全部碼；只有 categories 內列色的碼在圖例畫一列，
+            # 其餘碼灰色且圖例隱藏（popup 仍顯示名稱），圖例最後補一列「其他」（碼 0，不會對到資料）。
+            tables = {json.dumps(cache[root / "data/processed" / spec.get("theme_dir", config["theme_dir"]) / layer["dataset_id"] / "releases" / f"{o['release_id']}.json"]["release"]["provenance"]["processing"]["parameters"]["top1_codes"], sort_keys=True) for o in options}
+            if len(tables) != 1:
+                raise SystemExit(f"{key}: top1 code tables differ between releases")
+            names = {int(k): v for k, v in meta["release"]["provenance"]["processing"]["parameters"]["top1_codes"].items()}
+            observed = {v for period in values.values() for vs in period.values() for v in vs}
+            if not observed <= set(names):
+                raise SystemExit(f"{key}: observed codes {sorted(observed - set(names))} not in code table")
+            listed = {code: (label, color) for code, label, color in categorical["categories"]}
+            for code, (label, _) in listed.items():
+                if names.get(code) != label:
+                    raise SystemExit(f"{key}: code {code} is {names.get(code)} in bundle, recipe says {label}")
+            categories = [{"value": code, "label": label, "color": color} for code, (label, color) in listed.items()]
+            categories += [{"value": code, "label": names[code], "color": categorical["other_color"], "legend_hidden": True}
+                           for code in sorted(names) if code not in listed]
+            categories.append({"value": 0, "label": categorical["other_label"], "color": categorical["other_color"]})
+            breaks = sorted(c["value"] for c in categories)[1:]
+        elif binary:
             # 0／1 旗標：門檻固定 [1]（0 一級、1 一級），值域必須只有 0 與 1，且不帶維度組合門檻。
             observed = {v for period in values.values() for vs in period.values() for v in vs}
             if not observed <= {0, 1} or by_dimension or spec.get("breaks") or len(binary) != 2:
@@ -524,7 +609,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             breaks = [1]
         else:
             breaks = spec.get("default_breaks") or spec.get("breaks") or make_breaks(values[basis_period][default_tuple], counts)
-        for scale in [{"breaks": breaks}, *by_dimension.values()]:
+        for scale in [] if categorical else [{"breaks": breaks}, *by_dimension.values()]:
             b = scale["breaks"]
             if sorted(set(b)) != b or not (len(b) == 1 if binary else 2 <= len(b) <= 4) or b[0] <= 0:
                 raise SystemExit(f"{key}: bad breaks {b}")
@@ -543,7 +628,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "layer_key": key, "enabled": True, "family": name,
             "label": spec.get("label") or layer["label"], "group": spec["group"], "group_label": spec["group_label"],
             "option_label": spec["option_label"], "subgroup": spec["subgroup"],
-            "data_theme": config["data_theme"], "tab_theme": config["tab_theme"], **({"tab_group": spec["tab_group"]} if spec.get("tab_group") else {}),
+            "data_theme": spec.get("data_theme", config["data_theme"]), "tab_theme": spec.get("tab_theme", config["tab_theme"]), **({"tab_group": spec["tab_group"]} if spec.get("tab_group") else {}),
             "visual_theme": spec["visual"],
             "dataset_id": layer["dataset_id"], "indicator_id": layer["indicator_id"], "level": level,
             "boundary_version": layer["boundary_version"], "unit": layer["unit"], "aggregation": meta["indicator"]["aggregation"],
@@ -551,8 +636,9 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "dimensions": dimensions,
             "release_options": options,
             "legend": {
-                "method": "binary" if binary else "fixed_breaks", "breaks": breaks, "direction": "ascending",
+                "method": "categorical" if categorical else "binary" if binary else "fixed_breaks", "breaks": breaks, "direction": "ascending",
                 **({"binary_labels": list(binary)} if binary else {}),
+                **({"categories": categories} if categorical else {}),
                 "scale_note": None, "zero_note": zero_note if zero else None, "display_note": None,
                 "notes": notes,
                 "by_dimension": by_dimension or None, "dimension_notes": None,
@@ -560,7 +646,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "status_labels": {kind: label for kind, label in status_labels.items() if statuses.get(kind)},
             "format": {"locale": "zh-TW", "maximumFractionDigits": spec["digits"]},
             "derived": layer["aggregation"] == "ratio",
-            "location_semantics": params["location_semantics"],
+            "location_semantics": spec.get("location_semantics") or params.get("location_semantics") or TW_EXT_B2_LOCATION[spec["group"]],
             "disclosure": public_disclosure(key, layer["disclosure"]),
             "publisher": release["publisher"], "license": release["license"],
             "source_landing_url": release["source_landing_url"], "source_download_url": release["source_download_url"],
