@@ -283,9 +283,9 @@ public/forestry/alishan_forest_railway_points_v1.pmtiles
 public/geo/mountain_mobile_improvement_v1.pmtiles
 public/environment/eco_label_hotels_145035.pmtiles
 public/marine/namr_buoys_v1.pmtiles
-public/civic_facilities/towing_yards_v1.pmtiles
+public/civic_facilities/towing_yards_v2.pmtiles
 public/civic_facilities/land_office_jurisdiction_13045.pmtiles
-public/civic_facilities/household_registration_offices_7437.pmtiles
+public/civic_facilities/household_registration_offices_7437_v2.pmtiles
 public/education/swc_outdoor_classrooms_108030.pmtiles
 public/hazards/swc_eco_check_zones_159097.pmtiles
 public/hazards/swc_eco_check_zones_159097_points.pmtiles
