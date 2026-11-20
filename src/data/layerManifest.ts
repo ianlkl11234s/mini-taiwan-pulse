@@ -1,4 +1,5 @@
 import type { CountryCode } from "../constants/countries";
+import type { LongTermSpec } from "./layerLongTerm";
 import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
 import { industrialDensitySources } from "./industrialDensityTypes";
 import { getStatisticsVisual } from "./statisticsVisuals";
@@ -392,6 +393,14 @@ interface LayerManifestBase {
   description: string;
   /** 主題標籤（跨主題檢索用，非 sidebar 分區） */
   topics: string[];
+
+  // ── 長期時間 ──
+  /**
+   * 能看長期變化的圖層才寫（涵蓋超過 30 天、隨時間變化有意義）；缺席＝不適用（靜態或即時）。
+   * 類別、涵蓋、粒度、資料檔、能否加總、斷點、細節分層。規範：`docs/features/longterm-time/STANDARD.md`；
+   * 型別與各欄說明見 `layerLongTerm.ts`，檢查見 `__tests__/layerLongTerm.test.ts`。
+   */
+  longTerm?: LongTermSpec;
 }
 
 /**
@@ -2462,6 +2471,19 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["multiSelect", "palette", "slider"] },
     description: "歷史火災點位（需進歷史模式選年／月／日）",
     topics: ["消防", "災害", "歷史"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：get_fire_event_years 快照＝111、112、113 年（各 1.5–1.7 萬筆）；App.tsx FIRE_MAX_YEAR=113
+      coverage: { start: "2022-01-01", end: "2024-12-31" },
+      granularity: "month",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_fire_events_by_year_<rocYear>.json"],
+        note: "每年一檔（get_fire_events_by_year 原樣輸出）；每筆 t＝發生時間（unix 秒）、m＝月",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   fireLatest: {
@@ -10128,6 +10150,20 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["palette", "slider", "toggle"] },
     description: "實價登錄租賃案件 150m 網格中位單價",
     topics: ["房地產", "租賃", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstateRentalPoint: {
@@ -10152,6 +10188,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄租賃交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "租賃", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   realEstateSaleGrid: {
@@ -10179,6 +10229,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄買賣案件 150m 網格中位單價",
     topics: ["房地產", "買賣", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstateSalePoint: {
@@ -10203,6 +10267,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄買賣交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "買賣", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   realEstatePresaleGrid: {
@@ -10230,6 +10308,20 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["palette", "slider", "toggle"] },
     description: "實價登錄預售屋 150m 網格中位單價",
     topics: ["房地產", "預售", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstatePresalePoint: {
@@ -10254,6 +10346,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄預售屋交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "預售", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   propertyValueAdmin: {
@@ -11064,6 +11170,24 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "H3 網格人口數（日間／夜間，可依年份回放）",
     topics: ["人口", "H3", "統計"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：get_h3_demographics_years 快照＝104–113 年 res7 全有、res8 只到 108 年（h3Loader.pickDemographicsYearlyResolution）
+      coverage: { start: "2015-01-01", end: "2024-12-31" },
+      granularity: "year",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r7.json"],
+        note: "每年每解析度一檔（get_h3_demographics_yearly 原樣、全量）",
+      },
+      summable: true,
+      breaks: [],
+      detailTiers: [
+        { from: "2015-01-01", to: "2018-12-31", level: "full", note: "104–107 年有 res8 細網格（約 5.6 萬格）", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2019-01-01", to: "2019-12-31", level: "reduced", note: "108 年 res8 只有 2,636 格，不完整", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2020-01-01", to: "2024-12-31", level: "reduced", note: "109 年起沒有 res8，只有 res7" },
+      ],
+    },
   },
 
   h3Population: {
@@ -11116,6 +11240,24 @@ export const LAYER_MANIFEST = {
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "縣市年度人口指標（出生／死亡／遷徙等，多指標下拉切換）",
     topics: ["人口", "H3", "指標"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：get_h3_demographics_years 快照＝104–113 年 res7 全有、res8 只到 108 年（h3Loader.pickDemographicsYearlyResolution）
+      coverage: { start: "2015-01-01", end: "2024-12-31" },
+      granularity: "year",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r7.json"],
+        note: "每年每解析度一檔（get_h3_demographics_yearly 原樣、全量）",
+      },
+      summable: false, // 多指標混合（含率與平均），保守視為不可加總
+      breaks: [],
+      detailTiers: [
+        { from: "2015-01-01", to: "2018-12-31", level: "full", note: "104–107 年有 res8 細網格（約 5.6 萬格）", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2019-01-01", to: "2019-12-31", level: "reduced", note: "108 年 res8 只有 2,636 格，不完整", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2020-01-01", to: "2024-12-31", level: "reduced", note: "109 年起沒有 res8，只有 res7" },
+      ],
+    },
   },
 
   socioeconomic: {
