@@ -126,5 +126,6 @@
   "enum.statUnit.千韓元": "千ウォン",
   "enum.statUnit.歐元/月": "ユーロ/月",
   "enum.statUnit.件／萬人": "件／人口1万人",
-  "enum.statUnit.類": "テーマ"
+  "enum.statUnit.類": "テーマ",
+  "enum.statUnit.度／戶／月": "kWh／戸／月"
 }

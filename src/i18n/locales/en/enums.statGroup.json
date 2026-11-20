@@ -93,5 +93,11 @@
   "enum.statGroup.縣市開放資料完整度": "County open-data completeness",
   "enum.statGroup.新住民子女就讀國中小": "New-resident children in primary and junior high school",
   "enum.statGroup.鄉鎮前二十大姓": "Top 20 surnames by township",
-  "enum.statGroup.現存坑洞數（早期盜濫採土石遺留）": "Remaining pits (left by early illegal quarrying)"
+  "enum.statGroup.現存坑洞數（早期盜濫採土石遺留）": "Remaining pits (left by early illegal quarrying)",
+  "enum.statGroup.109 年普查常住人口": "2020 census resident population",
+  "enum.statGroup.原住民族別人口": "Indigenous population by tribe",
+  "enum.statGroup.住宅用電（表燈非營業用，年）": "Residential electricity (non-commercial lighting, annual)",
+  "enum.statGroup.公司登記動態（年）": "Company registrations (annual)",
+  "enum.statGroup.未參加全民健保比": "Not enrolled in national health insurance",
+  "enum.statGroup.工商普查（鄉鎮）": "Industry and service census (township)"
 }
