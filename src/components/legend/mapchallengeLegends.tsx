@@ -463,10 +463,11 @@ function Day17SkyClassBar() {
   </div>;
 }
 
-export function MapchallengeDay17DarkSkyLegend({ isDark }: { isDark: boolean }) {
+/** productIdx：embed 由網址 `p.mapchallengeDay17DarkSkyProductIdx` 帶入（embed 沒有參數 store）；主站不傳，讀 store。 */
+export function MapchallengeDay17DarkSkyLegend({ isDark, productIdx }: { isDark: boolean; productIdx?: number }) {
   const { t } = useLocale();
   const values = useLayerParams("mapchallengeDay17DarkSky");
-  const product = MAPCHALLENGE_DAY17_PRODUCTS.find((p) => p.value === paramStr(values, "mapchallengeDay17DarkSky", "mapchallengeDay17DarkSkyProduct")) ?? MAPCHALLENGE_DAY17_PRODUCTS[0];
+  const product = (productIdx != null ? MAPCHALLENGE_DAY17_PRODUCTS[Math.trunc(productIdx)] : MAPCHALLENGE_DAY17_PRODUCTS.find((p) => p.value === paramStr(values, "mapchallengeDay17DarkSky", "mapchallengeDay17DarkSkyProduct"))) ?? MAPCHALLENGE_DAY17_PRODUCTS[0];
   const [a, b, c, d] = MAPCHALLENGE_DAY17_SKY_BREAKS.map((v) => Number(v.toPrecision(2)));
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day17.darkSkyTitle")} />
@@ -586,10 +587,11 @@ export function MapchallengeDay19ComplaintsLegend({ isDark }: { isDark: boolean 
   </div>;
 }
 
-export function MapchallengeDay19PotentialLegend({ isDark }: { isDark: boolean }) {
+/** windIdx：embed 由網址 `p.mapchallengeDay19PotentialWindIdx` 帶入（embed 沒有參數 store）；主站不傳，讀 store。 */
+export function MapchallengeDay19PotentialLegend({ isDark, windIdx }: { isDark: boolean; windIdx?: number }) {
   const { t } = useLocale();
   const values = useLayerParams("mapchallengeDay19Potential");
-  const wind = MAPCHALLENGE_DAY19_WINDS.find((w) => w.value === paramStr(values, "mapchallengeDay19Potential", "mapchallengeDay19PotentialWind")) ?? MAPCHALLENGE_DAY19_WINDS[0];
+  const wind = (windIdx != null ? MAPCHALLENGE_DAY19_WINDS[Math.trunc(windIdx)] : MAPCHALLENGE_DAY19_WINDS.find((w) => w.value === paramStr(values, "mapchallengeDay19Potential", "mapchallengeDay19PotentialWind"))) ?? MAPCHALLENGE_DAY19_WINDS[0];
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day19.potentialTitle", { wind: t(MAPCHALLENGE_DAY19_WIND_KEYS[wind.value]) })} />
     {[...MAPCHALLENGE_DAY19_POTENTIAL_CLASSES].reverse().map((c, i) => <LegendRow key={c.color} swatch={<SwatchSquare color={c.color} opacity={1} />}>

@@ -202,6 +202,12 @@ aws s3 sync public/embed-rail/ "s3://$S3_BUCKET/deploy-assets/embed-rail/" --reg
 embed 另以 `factoryOverlayConfigs.ts` 描述同一份靜態 PMTiles 與樣式，再交給 MapLibre adapter。
 它不查 Supabase；田區為衛星影像 AI 判讀結果，並非法定農地分區。
 
+**影像疊圖（2026-11-20）**：`mapchallengeDay08Plan1955`、`mapchallengeDay17DarkSky`、`mapchallengeDay19Potential`
+在主站是專屬 hook 掛 image source（不在 registry），embed 以 `imageHookLayers.ts` 重述靜態規格：
+網址與樣式常數 import 主站同一份 Types／Style，參數名稱與預設對齊 `mapchallengeHosts.tsx`；只讀 CDN 靜態檔。
+圖例的影像／風向選項在 embed 由 `overlayParams` 帶入（embed 不進參數 store）。
+`mapchallengeDay17NightFall`（依時間軸逐格亮起）不支援。改主站 hook 的樣式時要同步改這份。
+
 **回放層（EM-16，2026-08-09 上線）**：`ships` / `flights` / `rail` 三層 Three.js 回放，
 只在網址真的帶了這些 key + `date=` 時才 `import()` three（純靜態嵌入完全不下載）。
 `busLive` 仍不支援（EM-24）。原「Three.js 圖層不做」的結論已翻案，詳見
