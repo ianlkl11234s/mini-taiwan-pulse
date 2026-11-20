@@ -696,7 +696,7 @@ function landslideAnnualOverlays(): OverlayConfig[] {
   };
   return [
     make(false, "landslide-annual", "./hazards/landslide_annual_swcb_20261006.pmtiles", "2017／2018／2023／2024"),
-    make(true, "landslide-annual-2025", "./hazards/landslide_annual_swcb_2025_20261120.pmtiles", "2025（114 年）"),
+    make(true, "landslide-annual-2025", "./hazards/landslide_annual_swcb_2025_20261120.pmtiles", "2025"),
   ];
 }
 const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
