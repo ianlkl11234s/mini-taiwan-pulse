@@ -92,6 +92,7 @@ const DENSE_FROM = {
   trafficAccidents2025: densePointsFromZoom(321_534, 5),
   jpTrafficAccidents2025: densePointsFromZoom(287_020, 5),
   pollutionPenaltyGeneral: densePointsFromZoom(248_556, 5),
+  npSpeciesSites: densePointsFromZoom(144_228), // 台灣圖層延伸 B3（2026-11-20）
   streetTreesNational: densePointsFromZoom(210_436),
   manufacturingCompanyPoints: densePointsFromZoom(184_944),
   pollutionFacility: densePointsFromZoom(152_246),
@@ -364,7 +365,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, NP_PARK_OPTIONS, airportSurfaceColorExpr, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -12525,6 +12526,32 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("forestAlishanRail", "./forestry/alishan_forest_railway_points_v1.pmtiles", "forest-alishan-rail", alishanRailColorExpr(), { sourceLayer: "alishan_forest_railway_points", minzoom: 4, maxzoom: 14 }, `農業部林業及自然保育署林業及文資處 阿里山林業鐵路車站（data.gov.tw 136446、38128）· ${OGDL_ATTR}`, [4, 8]),
   publicLifePointOverlay("ecoLabelHotels", "./environment/eco_label_hotels_145035.pmtiles", "eco-label-hotels", matchColorExpr("level", ECO_HOTEL_LEVEL_OPTIONS), { sourceLayer: "eco_label_hotels", minzoom: 4, maxzoom: 14 }, `環境部 環保標章旅館（data.gov.tw 145035、161312）· ${OGDL_ATTR}`, [3, 6]),
   mountainMobileOverlay(),
+  // 台灣圖層延伸 B3（2026-11-20）
+  publicLifePointOverlay("namrBuoys", "./marine/namr_buoys_v1.pmtiles", "namr-buoys", matchColorExpr("buoy_kind", NAMR_BUOY_KIND_OPTIONS), { sourceLayer: "namr_buoys", minzoom: 4, maxzoom: 14 }, `國家海洋研究院 浮標站位（data.gov.tw 171309、171315）· ${OGDL_ATTR}`, [5, 9]),
+  publicLifePointOverlay("towingYards", "./civic_facilities/towing_yards_v1.pmtiles", "towing-yards", ATLAS_LAYER_COLORS.towingYards, { sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 }, `內政部警政署 警察機關車輛違規拖吊保管場（data.gov.tw 7319，地址定位）· ${OGDL_ATTR}`, [4, 8]),
+  publicLifePointOverlay("swcOutdoorClassrooms", "./education/swc_outdoor_classrooms_108030.pmtiles", "swc-outdoor-classrooms", ATLAS_LAYER_COLORS.swcOutdoorClassrooms, { sourceLayer: "swc_outdoor_classrooms", minzoom: 4, maxzoom: 14 }, `農業部農村發展及水土保持署 水土保持戶外教室及教學園區（data.gov.tw 108030）· ${OGDL_ATTR}`, [5, 9]),
+  {
+    // 一級生態檢核區：面積合計約台灣陸域六成 → 面 z8 起（代表點 companion 由 repPointLayers 產生，拉遠畫點）
+    id: "swcEcoCheckZones", sourceUrl: "./hazards/swc_eco_check_zones_159097.pmtiles", sourceId: "swc-eco-check-zones",
+    pmtiles: { sourceLayer: "swc_eco_check_zones", minzoom: 5, maxzoom: 14 },
+    attribution: `農業部農村發展及水土保持署 109 年度水土保持工程第一級生態檢核區域（data.gov.tw 159097）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("swcEcoCheckZones", ATLAS_LAYER_COLORS.swcEcoCheckZones, 0.3, 8),
+  },
+  {
+    // 機場限高面：7 機場 95 面、互相重疊；區劃類面（V-5 不做點／面切換）
+    id: "airportHeightSurfaces", sourceUrl: "./coverage/airport_height_surfaces_35876.pmtiles", sourceId: "airport-height-surfaces",
+    pmtiles: { sourceLayer: "airport_height_surfaces", minzoom: 4, maxzoom: 14 },
+    attribution: `交通部民用航空局 機場周邊禁限建（限高）管制面（data.gov.tw 35876）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("airportHeightSurfaces", airportSurfaceColorExpr(), 0.3),
+  },
+  {
+    // 地政事務所轄區：區劃面（V-5 不做點／面切換）
+    id: "landOfficeJurisdiction", sourceUrl: "./civic_facilities/land_office_jurisdiction_13045.pmtiles", sourceId: "land-office-jurisdiction",
+    pmtiles: { sourceLayer: "land_office_jurisdiction", minzoom: 4, maxzoom: 14 },
+    attribution: `內政部國土測繪中心 地政事務所轄區（data.gov.tw 13045）、地政司 7620 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("landOfficeJurisdiction", ATLAS_LAYER_COLORS.landOfficeJurisdiction, 0.25),
+  },
+  publicLifePointOverlay("npSpeciesSites", "./environment/np_species_survey_points_sites_73252.pmtiles", "np-species-sites", matchColorExpr("park", NP_PARK_OPTIONS), { sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 }, `內政部國家公園署 國家公園物種調查（data.gov.tw 73252；部分座標經模糊處理）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.npSpeciesSites, intensity: 1 } }),
   publicLifePointOverlay("iOceanSightings", "./marine/iocean_sightings_20260506_gen.pmtiles", "iocean-sightings", matchColorExpr("group_key", IOCEAN_GROUP_OPTIONS), { sourceLayer: "iocean_sightings", minzoom: 4, maxzoom: 14 }, `海洋委員會海洋保育署 iOcean 海洋生物目擊回報（data.gov.tw 157621，公民回報）· ${OGDL_ATTR}`, [3, 6.5]),
   publicLifePointOverlay("traLevelCrossings", "./rail/tra_level_crossings_11970.pmtiles", "tra-level-crossings", matchColorExpr("type_key", TRA_CROSSING_TYPE_OPTIONS), { sourceLayer: "tra_level_crossings", minzoom: 6, maxzoom: 14 }, `國營臺灣鐵路公司 平交道（data.gov.tw 11970）· ${OGDL_ATTR}；部分位置 © OpenStreetMap contributors（ODbL）`, [3, 6.5]),
   publicLifePointOverlay("wraDisasterCctv", "./geo/wra_disaster_cctv_20261109.pmtiles", "wra-disaster-cctv", matchColorExpr("kind", WRA_CCTV_KIND_OPTIONS), { sourceLayer: "wra_disaster_cctv", minzoom: 4, maxzoom: 14 }, `經濟部水利署 水情影像監視站（data.gov.tw 36687）、疏濬工區管制站（41567）· ${OGDL_ATTR}`, [3, 6.5]),

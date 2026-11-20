@@ -5518,6 +5518,17 @@ export const LAYER_PARAMS_SPEC = {
   fireworksSites: [opacitySlider("fireworksSitesOpacity", 0.9), scaleSlider("fireworksSitesScale", 1)],
   mountainMobileImprovement: [opacitySlider("mountainMobileImprovementOpacity", 0.9), scaleSlider("mountainMobileImprovementScale", 1)],
   ecoLabelHotels: [opacitySlider("ecoLabelHotelsOpacity", 0.9), scaleSlider("ecoLabelHotelsScale", 1)],
+  // 台灣圖層延伸 B3（2026-11-20）
+  namrBuoys: [opacitySlider("namrBuoysOpacity", 0.9), scaleSlider("namrBuoysScale", 1)],
+  towingYards: [opacitySlider("towingYardsOpacity", 0.9), scaleSlider("towingYardsScale", 1)],
+  swcOutdoorClassrooms: [opacitySlider("swcOutdoorClassroomsOpacity", 0.9), scaleSlider("swcOutdoorClassroomsScale", 1)],
+  swcEcoCheckZones: [opacitySlider("swcEcoCheckZonesOpacity", 0.3)],
+  airportHeightSurfaces: [opacitySlider("airportHeightSurfacesOpacity", 0.3)],
+  landOfficeJurisdiction: [opacitySlider("landOfficeJurisdictionOpacity", 0.25)],
+  npSpeciesSites: [
+    heatmapPalette("npSpeciesSites"),
+    opacitySlider("npSpeciesSitesOpacity", densePointOpacity(144_228)), scaleSlider("npSpeciesSitesScale", 1),
+  ],
   vehicleInspectionOffices: [
     {
       kind: "select", category: "data", name: "vehicleInspectionOfficesService", label: "轄區業務", default: "car",

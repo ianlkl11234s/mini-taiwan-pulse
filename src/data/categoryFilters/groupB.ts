@@ -49,6 +49,42 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       { value: "bronze", zh: "銅級" },
     ],
   },
+  // 台灣圖層延伸 B3（2026-11-20）：值與 atlasLayerTypes 的 NAMR／AIRPORT／NP 選項同序
+  namrBuoys: {
+    property: "buoy_kind",
+    label: "浮標種類",
+    options: [
+      { value: "data_buoy", zh: "資料浮標" },
+      { value: "gamma_mooring", zh: "加馬輻射錨碇" },
+    ],
+  },
+  airportHeightSurfaces: [
+    {
+      id: "Surface", property: "surface_name", label: "面別",
+      options: [
+        { value: "進場面", zh: "進場面" }, { value: "轉接面", zh: "轉接面" }, { value: "水平面", zh: "水平面" }, { value: "圓錐面", zh: "圓錐面" },
+        { value: "起落地帶", zh: "起落地帶" }, { value: "傾斜面", zh: "傾斜面" }, { value: "水平銜接面", zh: "水平銜接面" },
+        { value: ["機場搜索雷達", "助航燈光"], zh: "設施面（雷達、助航燈光）" },
+      ],
+    },
+    {
+      id: "Airport", property: "airport", label: "機場",
+      options: [
+        { value: "臺灣桃園國際機場", zh: "臺灣桃園國際機場" }, { value: "臺北松山機場", zh: "臺北松山機場" }, { value: "臺東機場", zh: "臺東機場" },
+        { value: "恆春機場", zh: "恆春機場" }, { value: "金門機場", zh: "金門機場" }, { value: "綠島機場", zh: "綠島機場" }, { value: "蘭嶼機場", zh: "蘭嶼機場" },
+      ],
+    },
+  ],
+  npSpeciesSites: {
+    property: "park",
+    label: "園區",
+    options: [
+      { value: "陽明山國家公園", zh: "陽明山國家公園" }, { value: "臺中都會公園", zh: "臺中都會公園" }, { value: "臺江國家公園", zh: "臺江國家公園" },
+      { value: "壽山國家自然公園", zh: "壽山國家自然公園" }, { value: "澎湖南方四島國家公園", zh: "澎湖南方四島國家公園" }, { value: "玉山國家公園", zh: "玉山國家公園" },
+      { value: "墾丁國家公園", zh: "墾丁國家公園" }, { value: "金門國家公園", zh: "金門國家公園" }, { value: "東沙環礁國家公園", zh: "東沙環礁國家公園" },
+      { value: "雪霸國家公園", zh: "雪霸國家公園" }, { value: "太魯閣國家公園", zh: "太魯閣國家公園" }, { value: "高雄都會公園", zh: "高雄都會公園" },
+    ],
+  },
   // G53 批 2／3（2026-11-10）：爆竹煙火場所種類（值與 atlasLayerTypes FIREWORKS_KIND_OPTIONS 同序）
   fireworksSites: {
     property: "site_kind",

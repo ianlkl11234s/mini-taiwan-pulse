@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2029,
+    "keyCount": 2036,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5410,6 +5410,55 @@
         "eco-label-hotels-glow"
       ],
       "type": "ecoLabelHotels"
+    },
+    {
+      "layers": [
+        "namr-buoys-circle",
+        "namr-buoys-glow"
+      ],
+      "type": "namrBuoys"
+    },
+    {
+      "layers": [
+        "towing-yards-circle",
+        "towing-yards-glow"
+      ],
+      "type": "towingYards"
+    },
+    {
+      "layers": [
+        "swc-outdoor-classrooms-circle",
+        "swc-outdoor-classrooms-glow"
+      ],
+      "type": "swcOutdoorClassrooms"
+    },
+    {
+      "layers": [
+        "swc-eco-check-zones-fill",
+        "swc-eco-check-zones-points-circle-point",
+        "swc-eco-check-zones-points-circle-polygon"
+      ],
+      "type": "swcEcoCheckZones"
+    },
+    {
+      "layers": [
+        "airport-height-surfaces-fill",
+        "airport-height-surfaces-outline"
+      ],
+      "type": "airportHeightSurfaces"
+    },
+    {
+      "layers": [
+        "land-office-jurisdiction-fill"
+      ],
+      "type": "landOfficeJurisdiction"
+    },
+    {
+      "layers": [
+        "np-species-sites-circle",
+        "np-species-sites-glow"
+      ],
+      "type": "npSpeciesSites"
     },
     {
       "layers": [
@@ -90468,6 +90517,1355 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "namrBuoys",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "buoy_kind"
+                ],
+                "data_buoy",
+                "#06b6d4",
+                "gamma_mooring",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "buoy_kind"
+                ],
+                "data_buoy",
+                "#06b6d4",
+                "gamma_mooring",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "buoy_kind"
+                ],
+                "data_buoy",
+                "#06b6d4",
+                "gamma_mooring",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "buoy_kind"
+                ],
+                "data_buoy",
+                "#06b6d4",
+                "gamma_mooring",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "namr_buoys"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "namr-buoys",
+      "sourceUrl": "./marine/namr_buoys_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "towingYards",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#f97316",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#f97316",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#f97316",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#f97316",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "towing_yards"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "towing-yards",
+      "sourceUrl": "./civic_facilities/towing_yards_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcOutdoorClassrooms",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#65a30d",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#65a30d",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2.5,
+                5,
+                9,
+                12,
+                16.2
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#65a30d",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#65a30d",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                5,
+                12,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "swc_outdoor_classrooms"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "swc-outdoor-classrooms",
+      "sourceUrl": "./education/swc_outdoor_classrooms_108030.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcEcoCheckZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "fill-color": "#4d7c0f",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#4d7c0f",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#4d7c0f",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "swc_eco_check_zones"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "swc-eco-check-zones",
+      "sourceUrl": "./hazards/swc_eco_check_zones_159097.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "swcEcoCheckZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#649531",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#4d7c0f",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 8,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#649531",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#4d7c0f",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "swc_eco_check_zones_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "swc-eco-check-zones-points",
+      "sourceUrl": "./hazards/swc_eco_check_zones_159097_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "airportHeightSurfaces",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "surface_name"
+                ],
+                [
+                  "進場面"
+                ],
+                "#b91c1c",
+                [
+                  "轉接面"
+                ],
+                "#ea580c",
+                [
+                  "水平面"
+                ],
+                "#38bdf8",
+                [
+                  "圓錐面"
+                ],
+                "#818cf8",
+                [
+                  "起落地帶"
+                ],
+                "#16a34a",
+                [
+                  "傾斜面"
+                ],
+                "#a855f7",
+                [
+                  "水平銜接面"
+                ],
+                "#14b8a6",
+                [
+                  "機場搜索雷達",
+                  "助航燈光"
+                ],
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "surface_name"
+                ],
+                [
+                  "進場面"
+                ],
+                "#b91c1c",
+                [
+                  "轉接面"
+                ],
+                "#ea580c",
+                [
+                  "水平面"
+                ],
+                "#38bdf8",
+                [
+                  "圓錐面"
+                ],
+                "#818cf8",
+                [
+                  "起落地帶"
+                ],
+                "#16a34a",
+                [
+                  "傾斜面"
+                ],
+                "#a855f7",
+                [
+                  "水平銜接面"
+                ],
+                "#14b8a6",
+                [
+                  "機場搜索雷達",
+                  "助航燈光"
+                ],
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "surface_name"
+                ],
+                [
+                  "進場面"
+                ],
+                "#b91c1c",
+                [
+                  "轉接面"
+                ],
+                "#ea580c",
+                [
+                  "水平面"
+                ],
+                "#38bdf8",
+                [
+                  "圓錐面"
+                ],
+                "#818cf8",
+                [
+                  "起落地帶"
+                ],
+                "#16a34a",
+                [
+                  "傾斜面"
+                ],
+                "#a855f7",
+                [
+                  "水平銜接面"
+                ],
+                "#14b8a6",
+                [
+                  "機場搜索雷達",
+                  "助航燈光"
+                ],
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "airport_height_surfaces"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "airport-height-surfaces",
+      "sourceUrl": "./coverage/airport_height_surfaces_35876.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landOfficeJurisdiction",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#a16207",
+              "fill-opacity": 0.25
+            },
+            "light": {
+              "fill-color": "#a16207",
+              "fill-opacity": 0.25
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#a16207",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "land_office_jurisdiction"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "land-office-jurisdiction",
+      "sourceUrl": "./civic_facilities/land_office_jurisdiction_13045.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "npSpeciesSites",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "park"
+                ],
+                "陽明山國家公園",
+                "#f97316",
+                "臺中都會公園",
+                "#22c55e",
+                "臺江國家公園",
+                "#0ea5e9",
+                "壽山國家自然公園",
+                "#eab308",
+                "澎湖南方四島國家公園",
+                "#06b6d4",
+                "玉山國家公園",
+                "#a855f7",
+                "墾丁國家公園",
+                "#ef4444",
+                "金門國家公園",
+                "#84cc16",
+                "東沙環礁國家公園",
+                "#3b82f6",
+                "雪霸國家公園",
+                "#ec4899",
+                "太魯閣國家公園",
+                "#14b8a6",
+                "高雄都會公園",
+                "#d946ef",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "park"
+                ],
+                "陽明山國家公園",
+                "#f97316",
+                "臺中都會公園",
+                "#22c55e",
+                "臺江國家公園",
+                "#0ea5e9",
+                "壽山國家自然公園",
+                "#eab308",
+                "澎湖南方四島國家公園",
+                "#06b6d4",
+                "玉山國家公園",
+                "#a855f7",
+                "墾丁國家公園",
+                "#ef4444",
+                "金門國家公園",
+                "#84cc16",
+                "東沙環礁國家公園",
+                "#3b82f6",
+                "雪霸國家公園",
+                "#ec4899",
+                "太魯閣國家公園",
+                "#14b8a6",
+                "高雄都會公園",
+                "#d946ef",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "park"
+                ],
+                "陽明山國家公園",
+                "#ffa87b",
+                "臺中都會公園",
+                "#22c55e",
+                "臺江國家公園",
+                "#6ec8ff",
+                "壽山國家自然公園",
+                "#eab308",
+                "澎湖南方四島國家公園",
+                "#06b6d4",
+                "玉山國家公園",
+                "#c390ff",
+                "墾丁國家公園",
+                "#ff847c",
+                "金門國家公園",
+                "#84cc16",
+                "東沙環礁國家公園",
+                "#73a8ff",
+                "雪霸國家公園",
+                "#ff7db6",
+                "太魯閣國家公園",
+                "#14b8a6",
+                "高雄都會公園",
+                "#f29aff",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.6,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "park"
+                ],
+                "陽明山國家公園",
+                "#f97316",
+                "臺中都會公園",
+                "#22c55e",
+                "臺江國家公園",
+                "#0ea5e9",
+                "壽山國家自然公園",
+                "#eab308",
+                "澎湖南方四島國家公園",
+                "#06b6d4",
+                "玉山國家公園",
+                "#a855f7",
+                "墾丁國家公園",
+                "#ef4444",
+                "金門國家公園",
+                "#84cc16",
+                "東沙環礁國家公園",
+                "#3b82f6",
+                "雪霸國家公園",
+                "#ec4899",
+                "太魯閣國家公園",
+                "#14b8a6",
+                "高雄都會公園",
+                "#d946ef",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.6,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "np_species_survey_points"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "heatmap"
+      ],
+      "sourceId": "np-species-sites",
+      "sourceUrl": "./environment/np_species_survey_points_sites_73252.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "iOceanSightings",
       "layers": [
         {
@@ -117518,6 +118916,108 @@
         "step": 2,
         "value": 0,
         "valueText": "0 px"
+      }
+    ],
+    "airportHeightSurfaces": [
+      {
+        "label": "面別",
+        "options": [
+          {
+            "label": "進場面",
+            "value": "進場面"
+          },
+          {
+            "label": "轉接面",
+            "value": "轉接面"
+          },
+          {
+            "label": "水平面",
+            "value": "水平面"
+          },
+          {
+            "label": "圓錐面",
+            "value": "圓錐面"
+          },
+          {
+            "label": "起落地帶",
+            "value": "起落地帶"
+          },
+          {
+            "label": "傾斜面",
+            "value": "傾斜面"
+          },
+          {
+            "label": "水平銜接面",
+            "value": "水平銜接面"
+          },
+          {
+            "label": "設施面（雷達、助航燈光）",
+            "value": "機場搜索雷達"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "進場面",
+          "轉接面",
+          "水平面",
+          "圓錐面",
+          "起落地帶",
+          "傾斜面",
+          "水平銜接面",
+          "機場搜索雷達"
+        ]
+      },
+      {
+        "label": "機場",
+        "options": [
+          {
+            "label": "臺灣桃園國際機場",
+            "value": "臺灣桃園國際機場"
+          },
+          {
+            "label": "臺北松山機場",
+            "value": "臺北松山機場"
+          },
+          {
+            "label": "臺東機場",
+            "value": "臺東機場"
+          },
+          {
+            "label": "恆春機場",
+            "value": "恆春機場"
+          },
+          {
+            "label": "金門機場",
+            "value": "金門機場"
+          },
+          {
+            "label": "綠島機場",
+            "value": "綠島機場"
+          },
+          {
+            "label": "蘭嶼機場",
+            "value": "蘭嶼機場"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "臺灣桃園國際機場",
+          "臺北松山機場",
+          "臺東機場",
+          "恆春機場",
+          "金門機場",
+          "綠島機場",
+          "蘭嶼機場"
+        ]
+      },
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
       }
     ],
     "airports": [
@@ -152619,6 +154119,17 @@
         "value": "point"
       }
     ],
+    "landOfficeJurisdiction": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.25,
+        "valueText": "0.25"
+      }
+    ],
     "landSubsidenceCumulative": [
       {
         "label": "期別",
@@ -156358,6 +157869,44 @@
         "valueText": "1.00"
       }
     ],
+    "namrBuoys": [
+      {
+        "label": "浮標種類",
+        "options": [
+          {
+            "label": "資料浮標",
+            "value": "data_buoy"
+          },
+          {
+            "label": "加馬輻射錨碇",
+            "value": "gamma_mooring"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "data_buoy",
+          "gamma_mooring"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "namrEdnaSurveySites": [
       {
         "label": "透明度 0.85",
@@ -156875,6 +158424,171 @@
         ],
         "type": "select",
         "value": "polygon"
+      }
+    ],
+    "npSpeciesSites": [
+      {
+        "label": "園區",
+        "options": [
+          {
+            "label": "陽明山國家公園",
+            "value": "陽明山國家公園"
+          },
+          {
+            "label": "臺中都會公園",
+            "value": "臺中都會公園"
+          },
+          {
+            "label": "臺江國家公園",
+            "value": "臺江國家公園"
+          },
+          {
+            "label": "壽山國家自然公園",
+            "value": "壽山國家自然公園"
+          },
+          {
+            "label": "澎湖南方四島國家公園",
+            "value": "澎湖南方四島國家公園"
+          },
+          {
+            "label": "玉山國家公園",
+            "value": "玉山國家公園"
+          },
+          {
+            "label": "墾丁國家公園",
+            "value": "墾丁國家公園"
+          },
+          {
+            "label": "金門國家公園",
+            "value": "金門國家公園"
+          },
+          {
+            "label": "東沙環礁國家公園",
+            "value": "東沙環礁國家公園"
+          },
+          {
+            "label": "雪霸國家公園",
+            "value": "雪霸國家公園"
+          },
+          {
+            "label": "太魯閣國家公園",
+            "value": "太魯閣國家公園"
+          },
+          {
+            "label": "高雄都會公園",
+            "value": "高雄都會公園"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "陽明山國家公園",
+          "臺中都會公園",
+          "臺江國家公園",
+          "壽山國家自然公園",
+          "澎湖南方四島國家公園",
+          "玉山國家公園",
+          "墾丁國家公園",
+          "金門國家公園",
+          "東沙環礁國家公園",
+          "雪霸國家公園",
+          "太魯閣國家公園",
+          "高雄都會公園"
+        ]
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "nuclearEpzEvacuation": [
@@ -215173,6 +216887,61 @@
         "valueText": "1.00×"
       }
     ],
+    "swcEcoCheckZones": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "swcOutdoorClassrooms": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "swcSpecialZones": [
       {
         "label": "分類",
@@ -216297,6 +218066,26 @@
         "step": 10,
         "value": 0,
         "valueText": "+0 m"
+      }
+    ],
+    "towingYards": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "townshipBoundary": [

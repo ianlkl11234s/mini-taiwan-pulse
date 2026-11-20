@@ -51,5 +51,13 @@
   "legend.atlas.arSubtitle": "27 地点：駅 22、その他 5。支線（沼平・対高岳・祝山）のキロ程は支線起点から",
   "legend.atlas.mmSubtitle": "157 地点（160533 の 148＋173234 の追加 9）。カバー欄が空白＝不明",
   "legend.atlas.mmHalo": "カバー範囲のイメージ（半径約 500 m、実測の電波ではありません）",
-  "legend.atlas.ehSubtitle": "283 軒：金 50、銀 94、銅 139。等級は同系色の濃淡"
+  "legend.atlas.ehSubtitle": "283 軒：金 50、銀 94、銅 139。等級は同系色の濃淡",
+  "legend.atlas.nbSubtitle": "9 地点（位置のみ、観測値なし）。うち 5 地点は気象署のデータブイと同位置",
+  "legend.atlas.tySubtitle": "63 か所を表示（位置は住所からの推定）。ほかに 25 件は位置を特定できず非表示",
+  "legend.atlas.tyPoint": "レッカー移動保管場",
+  "legend.atlas.ocPoint": "水土保持野外教室（2020 年版、18 か所）",
+  "legend.atlas.ezZone": "第 1 級生態チェック区域（縮小時は代表点、ズーム 8 から範囲を表示）",
+  "legend.atlas.ahSubtitle": "7 空港を収録。高雄国際空港は出典が折れ線のみのため未収録。ほかの民間空港は出典なし",
+  "legend.atlas.ljZone": "地政事務所の管轄（色に他の意味はありません）",
+  "legend.atlas.npSubtitle": "144,228 の調査地点（145 万件の記録を集約）。一部の座標はぼかし処理済みで正確な位置ではありません"
 }

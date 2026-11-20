@@ -51,5 +51,13 @@
   "legend.atlas.arSubtitle": "27 點：車站 22、其他點位 5；支線（沼平、對高岳、祝山）里程自支線起算",
   "legend.atlas.mmSubtitle": "157 點（160533 的 148 點＋173234 另 9 點）；覆蓋旗標空白＝未知",
   "legend.atlas.mmHalo": "示意涵蓋光暈（半徑約 500 m，非實測訊號）",
-  "legend.atlas.ehSubtitle": "283 家：金級 50、銀級 94、銅級 139；等級以同色相深淺表示"
+  "legend.atlas.ehSubtitle": "283 家：金級 50、銀級 94、銅級 139；等級以同色相深淺表示",
+  "legend.atlas.nbSubtitle": "9 座站位（僅站位，無觀測值）；其中 5 座與氣象署資料浮標同址",
+  "legend.atlas.tySubtitle": "63 處上圖（位置依地址推定）；另有 25 筆無法定位、未上圖",
+  "legend.atlas.tyPoint": "拖吊保管場",
+  "legend.atlas.ocPoint": "水土保持戶外教室（2020 年版，共 18 處）",
+  "legend.atlas.ezZone": "第一級生態檢核區（拉遠為代表點，8 級起畫範圍）",
+  "legend.atlas.ahSubtitle": "涵蓋 7 個機場；高雄國際機場來源只有折線，未涵蓋；其他民航機場來源未提供",
+  "legend.atlas.ljZone": "地政事務所轄區（顏色無其他意義）",
+  "legend.atlas.npSubtitle": "144,228 個調查點位（涵蓋 145 萬筆紀錄）；部分座標經模糊處理，不是精確位置"
 }

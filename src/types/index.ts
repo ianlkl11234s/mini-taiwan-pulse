@@ -165,6 +165,7 @@ export type ExpandableLayerKey =
   | "fireworksSites" // G53 批 2／3（2026-11-10）
   | "mountainMobileImprovement" // 台灣圖層延伸 B2（2026-11-20）
   | "ecoLabelHotels" // 台灣圖層延伸 B2（2026-11-20）
+  | "namrBuoys" | "towingYards" | "swcOutdoorClassrooms" | "swcEcoCheckZones" | "airportHeightSurfaces" | "landOfficeJurisdiction" | "npSpeciesSites" // 台灣圖層延伸 B3（2026-11-20）
   | "vehicleInspectionOffices" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
@@ -969,6 +970,13 @@ export interface FeatureInfo {
     | "forestAlishanRail"
     | "mountainMobileImprovement"
     | "ecoLabelHotels"
+    | "namrBuoys"
+    | "towingYards"
+    | "swcOutdoorClassrooms"
+    | "swcEcoCheckZones"
+    | "airportHeightSurfaces"
+    | "landOfficeJurisdiction"
+    | "npSpeciesSites"
     | "vehicleInspectionOffices"
     | "postMailboxes"
     | "motorcycleInspectionStations"
@@ -1569,6 +1577,20 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mountainMobileImprovement: boolean;
   /** 台灣圖層延伸 B2（2026-11-20）環保標章旅館：環境部 145035，283 家 */
   ecoLabelHotels: boolean;
+  /** 台灣圖層延伸 B3（2026-11-20）國海院浮標站位：data.gov.tw 171309／171315，9 座 */
+  namrBuoys: boolean;
+  /** 台灣圖層延伸 B3 違規拖吊保管場：警政署 7319，63 處上圖（另 25 筆未定位） */
+  towingYards: boolean;
+  /** 台灣圖層延伸 B3 水保戶外教室：水保署 108030，18 處 */
+  swcOutdoorClassrooms: boolean;
+  /** 台灣圖層延伸 B3 水保工程第一級生態檢核區：水保署 159097，2,173 面 */
+  swcEcoCheckZones: boolean;
+  /** 台灣圖層延伸 B3 機場周邊限高管制面：民航局 35876，95 面、7 機場 */
+  airportHeightSurfaces: boolean;
+  /** 台灣圖層延伸 B3 地政事務所轄區：測繪中心 13045，110 面 */
+  landOfficeJurisdiction: boolean;
+  /** 台灣圖層延伸 B3 國家公園物種調查點位：國家公園署 73252，144,228 點 */
+  npSpeciesSites: boolean;
   /** G53 批 2／3（2026-11-10）監理所站＋轄區：公路局 14203，34／37 所站上圖，轄區依汽車／機車切換 */
   vehicleInspectionOffices: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */

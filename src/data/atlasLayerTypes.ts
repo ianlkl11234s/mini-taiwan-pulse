@@ -613,6 +613,8 @@ export const G53_SELF_FOOTER_KEYS = [
   "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing", "fireworksSites", "vehicleInspectionOffices",
   // 台灣圖層延伸 B2（2026-11-20）
   "forestAlishanRail", "mountainMobileImprovement", "ecoLabelHotels",
+  // 台灣圖層延伸 B3（2026-11-20）
+  "namrBuoys", "towingYards", "swcOutdoorClassrooms", "swcEcoCheckZones", "airportHeightSurfaces", "landOfficeJurisdiction", "npSpeciesSites",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -829,15 +831,72 @@ export function mountainMobileColor(group: unknown): string {
 }
 /** 支線站（里程自支線起點起算） */
 export const ALISHAN_BRANCH_STATIONS: ReadonlySet<string> = new Set(["沼平", "對高岳", "祝山"]);
+// ── 台灣圖層延伸 B3（2026-11-20）──────────────────────────────────────────
+/** 國海院浮標種類（上游 buoy_kind；英日文 enum.atlasNamrBuoyKind.*） */
+export const NAMR_BUOY_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "data_buoy", label: "資料浮標", color: "#06b6d4" },
+  { value: "gamma_mooring", label: "加馬輻射錨碇", color: "#f59e0b" },
+];
+/** 浮標狀態（上游 status）：ended＝來源最後資料日期已停；英日文 enum.atlasNamrBuoyStatus.* */
+export const NAMR_BUOY_STATUS_LABELS: Readonly<Record<string, string>> = { recent: "近期仍有資料", ended: "已停止" };
+/** 機場限高面（上游 surface_name）。水平面、圓錐面大範圍淡色，進場面深色；雷達與助航燈光是設施面（非限高）併成一列。 */
+export const AIRPORT_SURFACE_OPTIONS: readonly (AtlasOption & { values: readonly string[] })[] = [
+  { value: "進場面", label: "進場面", color: "#b91c1c", values: ["進場面"] },
+  { value: "轉接面", label: "轉接面", color: "#ea580c", values: ["轉接面"] },
+  { value: "水平面", label: "水平面", color: "#38bdf8", values: ["水平面"] },
+  { value: "圓錐面", label: "圓錐面", color: "#818cf8", values: ["圓錐面"] },
+  { value: "起落地帶", label: "起落地帶", color: "#16a34a", values: ["起落地帶"] },
+  { value: "傾斜面", label: "傾斜面", color: "#a855f7", values: ["傾斜面"] },
+  { value: "水平銜接面", label: "水平銜接面", color: "#14b8a6", values: ["水平銜接面"] },
+  { value: "設施", label: "設施面（機場搜索雷達、助航燈光，非限高）", color: "#94a3b8", values: ["機場搜索雷達", "助航燈光"] },
+];
+export function airportSurfaceColorExpr(): unknown[] {
+  return ["match", ["get", "surface_name"], ...AIRPORT_SURFACE_OPTIONS.flatMap((o) => [[...o.values], o.color]), ATLAS_OTHER_COLOR];
+}
+/** 圖磚有面的 7 個機場（高雄國際機場來源只有折線，未涵蓋；其他民航機場來源未提供） */
+export const AIRPORT_NAME_OPTIONS: readonly AtlasOption[] = [
+  { value: "臺灣桃園國際機場", label: "臺灣桃園國際機場", color: "#0ea5e9" },
+  { value: "臺北松山機場", label: "臺北松山機場", color: "#0ea5e9" },
+  { value: "臺東機場", label: "臺東機場", color: "#0ea5e9" },
+  { value: "恆春機場", label: "恆春機場", color: "#0ea5e9" },
+  { value: "金門機場", label: "金門機場", color: "#0ea5e9" },
+  { value: "綠島機場", label: "綠島機場", color: "#0ea5e9" },
+  { value: "蘭嶼機場", label: "蘭嶼機場", color: "#0ea5e9" },
+];
+/** 國家公園園區（上游 park；點位數：陽明山 88,470 最多）。12 色循序序列不適合名目類別，用色相分開的名目色。 */
+export const NP_PARK_OPTIONS: readonly AtlasOption[] = [
+  { value: "陽明山國家公園", label: "陽明山國家公園", color: "#f97316" },
+  { value: "臺中都會公園", label: "臺中都會公園", color: "#22c55e" },
+  { value: "臺江國家公園", label: "臺江國家公園", color: "#0ea5e9" },
+  { value: "壽山國家自然公園", label: "壽山國家自然公園", color: "#eab308" },
+  { value: "澎湖南方四島國家公園", label: "澎湖南方四島國家公園", color: "#06b6d4" },
+  { value: "玉山國家公園", label: "玉山國家公園", color: "#a855f7" },
+  { value: "墾丁國家公園", label: "墾丁國家公園", color: "#ef4444" },
+  { value: "金門國家公園", label: "金門國家公園", color: "#84cc16" },
+  { value: "東沙環礁國家公園", label: "東沙環礁國家公園", color: "#3b82f6" },
+  { value: "雪霸國家公園", label: "雪霸國家公園", color: "#ec4899" },
+  { value: "太魯閣國家公園", label: "太魯閣國家公園", color: "#14b8a6" },
+  { value: "高雄都會公園", label: "高雄都會公園", color: "#d946ef" },
+];
+/** 座標模糊（上游 coord_obscured）：all／some 要在 popup 註明 */
+export const NP_OBSCURED_LABELS: Readonly<Record<string, string>> = { none: "未模糊處理", some: "部分紀錄經模糊處理", all: "全部紀錄經模糊處理" };
 /** 環保標章旅館等級：金／銀／銅用同色相序列（綠，越深等級越高），不用金屬色 */
 export const ECO_HOTEL_LEVEL_OPTIONS: readonly AtlasOption[] = [
   { value: "gold", label: "金級", color: "#15803d" },
   { value: "silver", label: "銀級", color: "#22c55e" },
   { value: "bronze", label: "銅級", color: "#86efac" },
 ];
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部" } as const;
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部", caa: "交通部民用航空局", npa: "內政部警政署", ris: "內政部戶政司" } as const;
 
 export const ATLAS_NOTES = {
+  // 台灣圖層延伸 B3（2026-11-20）
+  namrBuoys: "國家海洋研究院資料浮標 8 座與加馬輻射錨碇 1 座的站位（data.gov.tw 171309、171315；來源更新 2026-02-03），只有站位，沒有觀測值。其中 5 座與氣象署資料浮標同址（東吉嶼、潮境、南灣、鼻頭角、蜜月灣；同一座浮標經氣象署轉發），另 4 座（員貝嶼、大武崙、澎南、萬里桐）不在氣象署站位清單。「最後資料日期」是來源在 2026-02-03 的值，鼻頭角、萬里桐已停止。",
+  towingYards: "警政署公布的警察機關車輛違規拖吊保管場（data.gov.tw 7319，2026-11-20 快照）來源 88 列，依地址以本機離線門牌定位 63 處上圖，另有 25 筆無法定位、未上圖（多為門牌小號、巷內、橋下或「某路口旁」），不補座標。位置依地址推定，不是官方座標；部分場址由民間業者承辦。無法定位的縣市（桃園、新北等）圖例上的數量少於實際場址。",
+  swcOutdoorClassrooms: "農業部農村發展及水土保持署水土保持戶外教室及教學園區 18 處（data.gov.tw 108030，檔案日期 2020-08）。管理單位與電話為 2020 年版，可能已過時；開放時間請以管理單位公告為準。",
+  swcEcoCheckZones: "109 年度水土保持工程第一級生態檢核區域 2,173 面（data.gov.tw 159097，公開版檔案日期 2021-01-20）。面積合計約 221 萬公頃（約台灣陸域六成），不是法定分區公告，也沒有年度或等級欄；拉遠時以代表點呈現，放大到 8 級起畫範圍。88 面落在鄉鎮界外（海域、東沙），縣市鄉鎮留空。",
+  airportHeightSurfaces: "民航局機場周邊禁限建（限高）管制面 95 面（data.gov.tw 35876，KML；更新 2023-04-27），涵蓋桃園、松山、臺東、恆春、金門、綠島、蘭嶼 7 個機場。高雄國際機場來源只有 CAD 折線、沒有面，未涵蓋；其他民航機場來源未提供，也未涵蓋。面是「查詢範圍」，不是公告原圖；來源未標座標系統。各面互相重疊，透明度預設偏低。機場禁止施放有礙飛航安全物體範圍（45701）只有線與點，未上圖；與「無人機紅區／黃區」的飛行規則不同。",
+  landOfficeJurisdiction: "內政部國土測繪中心地政事務所轄區 110 面（data.gov.tw 13045，更新 2026-06-22；13044 為其子集不另用），機關名稱與代碼補自地政司 7620。顏色只用來區分，沒有其他意義。8 面在「機關便民據點」的地政事務所點位找不到對應（高雄仁武、路竹、美濃、楠梓、新興、金門縣地政局、連江縣地政局、基隆市地政事務所）。轄區文字有 7 處與現行鄉鎮名不同。",
+  npSpeciesSites: "內政部國家公園署國家公園及都會公園物種調查（data.gov.tw 73252，111、112 年釋出；更新 2025-12-30）：1,451,504 筆紀錄合併為 144,228 個調查點位（同園區同座標一點），點開看紀錄數與物種數；「已調查到的位置」不等於物種分布範圍。座標不確定度與模糊處理依來源：2,304 點全部紀錄、17 點部分紀錄的座標經模糊處理，不可當精確位置。台灣範圍外 4,776 列（含台江黑面琵鷺遷徙軌跡與疑似誤值）未上圖。調查者與鑑定者姓名不收。",
   forestAlishanRail: "農業部林業及自然保育署林業及文資處的阿里山林業鐵路車站（data.gov.tw 136446，22 站，WGS84）加上阿里山林業鐵路車站 SHP（38128）中沒有車站代號的 5 個點位（奮起湖、阿里山、竹崎監工區，車庫園區，水山），共 27 點。里程與海拔補自 38128：沼平、對高岳、祝山為支線，里程自支線起點起算，不可與本線里程比較；第一分道與第二分道座標相同（來源如此）；水山的性質未查證。",
   mountainMobileImprovement: "數位發展部改善山區行動通訊站點：以前瞻計畫 109–112 年名單（data.gov.tw 160533，148 點上圖）為主，併入 173234 清單中離 160533 任一點 1 公里以上的 9 點（該 9 點無業者與年度資訊）；2 點座標疑似有誤（落在臺灣海峽）未上圖。名稱含「N 站」者是沿線多個座標之一。光暈只是示意，來源沒有基地台位置與涵蓋半徑，不代表實測訊號範圍；覆蓋旗標空白是未知，不是無訊號。",
   ecoLabelHotels: "環境部環保標章旅館（data.gov.tw 145035，月更）283 家上圖（來源 286 列：去除重複 1、座標疑誤 2 不上圖）。縣市鄉鎮依地址解析；核發與到期日補自另一份名冊（161312），8 家對不到而留空；到期日已過但來源仍列出者在彈窗註明。等級用同色相深淺表示，不是金屬色。",

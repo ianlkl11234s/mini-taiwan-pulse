@@ -237,11 +237,25 @@
    "s3_key": "deploy-assets/civic_facilities/gov_service_offices_national.geojson"
   },
   {
+   "path": "public/civic_facilities/household_registration_offices_7437.pmtiles",
+   "bytes": 779952,
+   "sha256": "c184d5c2276d25da44717ef87495650979f7904c30f0417b577fb293826f353f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/civic_facilities/household_registration_offices_7437.pmtiles"
+  },
+  {
    "path": "public/civic_facilities/ibox_national.geojson",
    "bytes": 806305,
    "sha256": "0c0dccddc71a8dec9d51353be2439529c10f93b174d8acc4f7bf4f735a81e572",
    "delivery": "r2",
    "s3_key": "deploy-assets/civic_facilities/ibox_national.geojson"
+  },
+  {
+   "path": "public/civic_facilities/land_office_jurisdiction_13045.pmtiles",
+   "bytes": 5517390,
+   "sha256": "2fa27cc4823e0b5f36a07a10c1ef7ce2dd21f7f9e900b200e439b0c6b75f4a43",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/civic_facilities/land_office_jurisdiction_13045.pmtiles"
   },
   {
    "path": "public/civic_facilities/post_mailboxes_1150428.pmtiles",
@@ -258,11 +272,25 @@
    "s3_key": "deploy-assets/civic_facilities/post_offices_national.geojson"
   },
   {
+   "path": "public/civic_facilities/towing_yards_v1.pmtiles",
+   "bytes": 96299,
+   "sha256": "61cd43598a6c7773e54e755c686778464972c8f5f4c2dc984c5480f4fd3e4ce5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/civic_facilities/towing_yards_v1.pmtiles"
+  },
+  {
    "path": "public/civic_facilities/welfare_centers_national.geojson",
    "bytes": 32222,
    "sha256": "555723bfa670953ff27d7ed3ccbd805aa917d80c6739ce151078b8d7a4d1c61f",
    "delivery": "r2",
    "s3_key": "deploy-assets/civic_facilities/welfare_centers_national.geojson"
+  },
+  {
+   "path": "public/coverage/airport_height_surfaces_35876.pmtiles",
+   "bytes": 278377,
+   "sha256": "dbebd1158bbd13c234f87855611d42ad77d8682323acd7ee27a0bb0d36201fea",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/coverage/airport_height_surfaces_35876.pmtiles"
   },
   {
    "path": "public/coverage/aviation_airspace.pmtiles",
@@ -363,6 +391,13 @@
    "s3_key": "deploy-assets/education/campus_polygon_points.pmtiles"
   },
   {
+   "path": "public/education/swc_outdoor_classrooms_108030.pmtiles",
+   "bytes": 76814,
+   "sha256": "d57d260c07d562afe53ba8f5292c10fdfece4583ed90f8987411b741685ba8d3",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/education/swc_outdoor_classrooms_108030.pmtiles"
+  },
+  {
    "path": "public/energy/battery_swap_stations.geojson",
    "bytes": 223931,
    "sha256": "2551e65d974b169159eca5787caf2440151beba08574c3908cc6b93aebedaf1b",
@@ -431,6 +466,13 @@
    "sha256": "5a3f47e26c66fe2bd5389d2f7e37acd1f662a78b01a1a44f3d2f034f7c1f1657",
    "delivery": "r2",
    "s3_key": "deploy-assets/environment/motorcycle_inspection_stations_20261109.pmtiles"
+  },
+  {
+   "path": "public/environment/np_species_survey_points_sites_73252.pmtiles",
+   "bytes": 17427051,
+   "sha256": "aa8be885380e666814cdc347f9e7ff218908bfb458674a3b52c1feb7eac3db95",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/np_species_survey_points_sites_73252.pmtiles"
   },
   {
    "path": "public/environment/official_noise_monitoring.geojson",
@@ -1740,6 +1782,20 @@
    "s3_key": "deploy-assets/hazards/land_subsidence_stations.geojson"
   },
   {
+   "path": "public/hazards/landslide_annual_swcb_2025_20261120.pmtiles",
+   "bytes": 32250994,
+   "sha256": "528e7105df5898b1e43110a2073d3781f0f340ed06a555c910df6c01c42ca42f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/landslide_annual_swcb_2025_20261120.pmtiles"
+  },
+  {
+   "path": "public/hazards/landslide_annual_swcb_2025_20261120_points.pmtiles",
+   "bytes": 6654489,
+   "sha256": "c124444a95aa8badb38f2685247aa9bbc42e82523985bd77d3e2e3c87ae0bc9f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/landslide_annual_swcb_2025_20261120_points.pmtiles"
+  },
+  {
    "path": "public/hazards/landslide_dod_areas.geojson",
    "bytes": 1864413,
    "sha256": "4ecdee7ac12580b54d3874251c85d7fe0e43ad0c5cabf77f5fb7cb54afa5817e",
@@ -1794,6 +1850,20 @@
    "sha256": "abe05a3b5dea7a0f57d24a56e1f229058fac568132723310f0e69ddd9759b1a8",
    "delivery": "r2",
    "s3_key": "deploy-assets/hazards/seawall_zones.geojson"
+  },
+  {
+   "path": "public/hazards/swc_eco_check_zones_159097.pmtiles",
+   "bytes": 3628166,
+   "sha256": "fac336850ad9466f9fc181bb06dbc1a7b454853c4bcf7e23871e995d302fcc8b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/swc_eco_check_zones_159097.pmtiles"
+  },
+  {
+   "path": "public/hazards/swc_eco_check_zones_159097_points.pmtiles",
+   "bytes": 228950,
+   "sha256": "2f0f899cdf327ac331c56168113fdb4d19655d116531934cd19773805c293e97",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/swc_eco_check_zones_159097_points.pmtiles"
   },
   {
    "path": "public/hazards/swcb_disaster_photo_points_v2.pmtiles",
@@ -2172,6 +2242,13 @@
    "sha256": "6075130f9567d772add745ac45be91ccbcd885cf058e173f5e38bc51d9c618b6",
    "delivery": "r2",
    "s3_key": "deploy-assets/marine/marine_wildlife_areas.geojson"
+  },
+  {
+   "path": "public/marine/namr_buoys_v1.pmtiles",
+   "bytes": 27302,
+   "sha256": "7e3aae2d32cabb21a284325b2f18f74eb262b7b5211c60b51edfa53a9c067103",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/namr_buoys_v1.pmtiles"
   },
   {
    "path": "public/marine/namr_edna_survey_sites.geojson",
