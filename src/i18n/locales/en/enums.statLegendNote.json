@@ -262,5 +262,5 @@
   "enum.statLegendNote.空間資訊＝座標、地址或只到行政區；地址與行政區要再定位，不能直接上地圖。": "Spatial information = coordinates, addresses or district only; addresses and districts need geocoding before they can be mapped.",
   "enum.statLegendNote.18 類主題中至少有 1 筆座標級資料的類數（不含未分類）；不受拆檔灌水影響。": "Number of the 18 themes with at least one dataset carrying coordinates (unclassified excluded); not inflated by split files.",
   "enum.statLegendNote.主題沿用目錄既有分類，抽查錯誤約 12%；1–5 筆的小格子對分類很敏感。": "Themes follow the catalogue's existing classification; about 12% were wrong in spot checks, and small cells (1–5 datasets) are sensitive to it.",
-  "enum.statLegendNote.0 自成最淺一級（本目錄查無，不代表沒有公開）。": "0 is its own lightest class (none found in this catalogue; not proof that nothing is published)."
+  "enum.statLegendNote.最淺色含 0（本目錄查無，不代表沒有公開）。": "The lightest class includes 0 (none found in this catalogue; not proof that nothing is published)."
 }
