@@ -166,6 +166,7 @@ export type ExpandableLayerKey =
   | "mountainMobileImprovement" // 台灣圖層延伸 B2（2026-11-20）
   | "ecoLabelHotels" // 台灣圖層延伸 B2（2026-11-20）
   | "namrBuoys" | "towingYards" | "swcOutdoorClassrooms" | "swcEcoCheckZones" | "airportHeightSurfaces" | "landOfficeJurisdiction" | "npSpeciesSites" // 台灣圖層延伸 B3（2026-11-20）
+  | "hakkaLivingSchools" | "sandGravelPlants" | "countyWelfarePoints" | "evMotorcycleCharging" | "countyStreetlights" // 台灣圖層延伸 B7（2026-11-21）
   | "vehicleInspectionOffices" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
@@ -978,6 +979,11 @@ export interface FeatureInfo {
     | "airportHeightSurfaces"
     | "landOfficeJurisdiction"
     | "npSpeciesSites"
+    | "hakkaLivingSchools"
+    | "sandGravelPlants"
+    | "countyWelfarePoints"
+    | "evMotorcycleCharging"
+    | "countyStreetlights"
     | "vehicleInspectionOffices"
     | "postMailboxes"
     | "motorcycleInspectionStations"
@@ -1595,6 +1601,16 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   landOfficeJurisdiction: boolean;
   /** 台灣圖層延伸 B3 國家公園物種調查點位：國家公園署 73252，144,228 點 */
   npSpeciesSites: boolean;
+  /** 台灣圖層延伸 B7（2026-11-21）客語生活學校：客委會 162475，715 校上圖（另 107 校未定位） */
+  hakkaLivingSchools: boolean;
+  /** 台灣圖層延伸 B7 砂石碎解洗選場：地調礦業中心 32708，243 處上圖（另 85 筆未定位） */
+  sandGravelPlants: boolean;
+  /** 台灣圖層延伸 B7 縣市社福據點（社區照顧關懷據點＋實物銀行）：各縣市名冊 3,691 處 */
+  countyWelfarePoints: boolean;
+  /** 台灣圖層延伸 B7 電動機車充換電站：13 縣市環保局名冊 4,464 處 */
+  evMotorcycleCharging: boolean;
+  /** 台灣圖層延伸 B7 縣市路燈點位：各縣市路燈清冊 951,143 點（部分縣市） */
+  countyStreetlights: boolean;
   /** G53 批 2／3（2026-11-10）監理所站＋轄區：公路局 14203，34／37 所站上圖，轄區依汽車／機車切換 */
   vehicleInspectionOffices: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */

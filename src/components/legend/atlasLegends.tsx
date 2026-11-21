@@ -1,6 +1,6 @@
 // atlas 批次 2026-10 的 26 層圖例（legendKit；色票與地圖 paint 同源，皆 import atlasLayerTypes）。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchHatch, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import {
   ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, ATLAS_SLOPELAND_DARK, ATLAS_NOTES, ATLAS_OTHER_COLOR, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS,
@@ -14,7 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, ALISHAN_RAIL_KIND_OPTIONS, MOUNTAIN_MOBILE_GROUP_OPTIONS, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, AIRPORT_SURFACE_OPTIONS, NP_PARK_OPTIONS, VIO_KIND_OPTIONS, VIO_ZONE_PALETTE, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, ALISHAN_RAIL_KIND_OPTIONS, MOUNTAIN_MOBILE_GROUP_OPTIONS, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, AIRPORT_SURFACE_OPTIONS, NP_PARK_OPTIONS, HAKKA_SCHOOL_KIND_OPTIONS, SAND_GRAVEL_REG_OPTIONS, WELFARE_POINT_KIND_OPTIONS, EV_MOTO_KIND_OPTIONS, STREETLIGHT_LED_OPTIONS, STREETLIGHT_LED_UNKNOWN_COLOR, STREETLIGHT_GRID_STEPS, VIO_KIND_OPTIONS, VIO_ZONE_PALETTE, VEG_DATASET_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   POLLUTION_ZONE_GROUP_OPTIONS, POLLUTION_ZONE_RELEASED_COLOR, LANDSLIDE_EVENT_TYPE_OPTIONS,
   G53_ORGS,
   DEBRIS_RISK_OPTIONS,
@@ -25,6 +25,7 @@ import {
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { CUMULATIVE_STEPS, RATE_STEPS, STATION_TYPE_OPTIONS } from "../../data/landSubsidenceTypes";
 import { useLocale } from "../../state/localeStore";
+import { gridRampFor, useGridPaletteSignature } from "../../state/layerPalette";
 import { enumLabel } from "../../i18n/dataText";
 import { localizeLayerName } from "../../i18n/layerText";
 import { oneOfParam, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
@@ -32,7 +33,7 @@ import type { StaticMessageKey } from "../../i18n/keys";
 
 type Swatch = "dot" | "square" | "line";
 /** 色塊列：`label` 是中文正本（有 `domain` 時以 `value` 查 enums.atlas.json 翻譯）；`labelKey` 是不屬於類別表的專用字。 */
-type Row = { color: string; label?: string; value?: string; labelKey?: StaticMessageKey; /** 空心圈（文化健康站：只到鄉鎮中心） */ ring?: boolean };
+type Row = { color: string; label?: string; /** 這一列自己的色票形狀（預設跟 AtlasLegend 的 kind） */ swatch?: Swatch; /** 缺值斜線（未涵蓋縣市） */ hatch?: boolean; value?: string; labelKey?: StaticMessageKey; /** 空心圈（文化健康站：只到鄉鎮中心） */ ring?: boolean };
 
 function swatchOf(kind: Swatch, color: string): ReactNode {
   if (kind === "square") return <SwatchSquare color={color} />;
@@ -80,7 +81,7 @@ function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, lic
   return <div>
     <LegendTitle zh={heading} en={en} />
     {subtitle ? <LegendNote>{subtitle}</LegendNote> : null}
-    {rows.map((row, index) => <LegendRow key={`${index}-${row.value ?? row.label ?? row.labelKey}`} swatch={row.ring ? <SwatchDot color={row.color} opacity={0.15} stroke={row.color} strokeWidth={2} /> : swatchOf(kind, row.color)}>{labelOf(row)}</LegendRow>)}
+    {rows.map((row, index) => <LegendRow key={`${index}-${row.value ?? row.label ?? row.labelKey}`} swatch={row.hatch ? <SwatchHatch kind="missing" /> : row.ring ? <SwatchDot color={row.color} opacity={0.15} stroke={row.color} strokeWidth={2} /> : swatchOf(row.swatch ?? kind, row.color)}>{labelOf(row)}</LegendRow>)}
     {dense && <DenseHeatmapLegendRow layers={[layer]} />}
     <LegendNote>{license
       ? i18n.t("legend.atlas.noteSourceLicense", { note, source: sourceText, license: i18n.t(license) })
@@ -161,6 +162,53 @@ function NpSpeciesSitesLegend() {
   return <AtlasLegend layer="npSpeciesSites" en="National Park Species Survey Sites" subtitle={t("legend.atlas.npSubtitle")} source={src("nps", ["73252"])} domain="atlasNpPark" rows={NP_PARK_OPTIONS} dense />;
 }
 
+/** 台灣圖層延伸 B7：未涵蓋縣市斜線列（缺值畫法同統計圖層，F-3）。 */
+const UNCOVERED_ROW: Row = { labelKey: "legend.atlas.b7Uncovered", color: ATLAS_OTHER_COLOR, hatch: true, swatch: "square" };
+
+/** 台灣圖層延伸 B7：客語生活學校；副標註明另有 107 筆（校）未定位。 */
+function HakkaLivingSchoolsLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="hakkaLivingSchools" en="Hakka Living Schools" subtitle={t("legend.atlas.hsSubtitle")} source={src("hakka", ["162475"])} domain="atlasHakkaSchoolKind" rows={HAKKA_SCHOOL_KIND_OPTIONS} />;
+}
+
+/** 台灣圖層延伸 B7：砂石碎解洗選場；副標註明另有 85 筆未定位。 */
+function SandGravelPlantsLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="sandGravelPlants" en="Sand & Gravel Processing Plants" subtitle={t("legend.atlas.sgSubtitle")} source={src("gsmb", ["32708"])} domain="atlasSandGravelReg" rows={SAND_GRAVEL_REG_OPTIONS} />;
+}
+
+/** 台灣圖層延伸 B7：縣市社福據點；斜線＝未涵蓋縣市，副標註明另有 373 筆未定位、實物銀行只有 3 縣市。 */
+function CountyWelfarePointsLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="countyWelfarePoints" en="County Welfare Points" subtitle={t("legend.atlas.wpSubtitle")} source={src("countyGov")} domain="atlasWelfarePointKind" rows={[...WELFARE_POINT_KIND_OPTIONS, UNCOVERED_ROW]} />;
+}
+
+/** 台灣圖層延伸 B7：電動機車充換電站（縣市環保局名冊）；副標註明機車專用、另有 205 筆未定位。 */
+function EvMotorcycleChargingLegend() {
+  const { t } = useLocale();
+  return <AtlasLegend layer="evMotorcycleCharging" en="E-scooter Charging & Swap Stations" subtitle={t("legend.atlas.evSubtitle")} source={src("countyEpa")} domain="atlasEvMotoKind" rows={[...EV_MOTO_KIND_OPTIONS, UNCOVERED_ROW]} />;
+}
+
+/** 台灣圖層延伸 B7：縣市路燈；拉遠網格點位數色階（色盤選單）＋逐點 LED 判讀＋斜線；副標寫部分涵蓋範圍。 */
+function CountyStreetlightsLegend() {
+  const { t, formatNumber } = useLocale();
+  const { isDark } = useLegendTheme();
+  useGridPaletteSignature("countyStreetlights");
+  const ramp = gridRampFor("countyStreetlights", isDark, STREETLIGHT_GRID_STEPS.length);
+  const last = STREETLIGHT_GRID_STEPS.length - 1;
+  const gridRows: Row[] = STREETLIGHT_GRID_STEPS.map((min, i) => ({
+    color: ramp[i]!, swatch: "square",
+    label: i === last ? `≥ ${formatNumber(min)}` : `${formatNumber(min)}–${formatNumber(STREETLIGHT_GRID_STEPS[i + 1]! - 1)}`,
+  }));
+  const rows: Row[] = [
+    ...gridRows,
+    ...STREETLIGHT_LED_OPTIONS.map((o): Row => ({ value: o.value, label: o.label, color: o.color })),
+    { labelKey: "legend.atlas.slLedUnknown", color: STREETLIGHT_LED_UNKNOWN_COLOR },
+    UNCOVERED_ROW,
+  ];
+  return <AtlasLegend layer="countyStreetlights" en="County Streetlight Points" subtitle={t("legend.atlas.slSubtitle")} source={src("countyGov")} domain="atlasStreetlightLed" rows={rows} />;
+}
+
 /** G53 批 2／3 爆竹煙火場所：副標「名冊 19 處，地圖上 10 處」。 */
 function FireworksSitesLegend() {
   const { t } = useLocale();
@@ -222,6 +270,11 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   airportHeightSurfaces: () => <AirportHeightSurfacesLegend />,
   landOfficeJurisdiction: () => <LandOfficeJurisdictionLegend />,
   npSpeciesSites: () => <NpSpeciesSitesLegend />,
+  hakkaLivingSchools: () => <HakkaLivingSchoolsLegend />,
+  sandGravelPlants: () => <SandGravelPlantsLegend />,
+  countyWelfarePoints: () => <CountyWelfarePointsLegend />,
+  evMotorcycleCharging: () => <EvMotorcycleChargingLegend />,
+  countyStreetlights: () => <CountyStreetlightsLegend />,
   vehicleInspectionOffices: () => <VehicleInspectionLegend />,
   iOceanFishing: () => <AtlasLegend layer="iOceanFishing" en="iOcean Recreational Fishing Reports" source={src("oca", ["157622"])} domain="atlasFishingType" rows={[...FISHING_TYPE_OPTIONS, { labelKey: "legend.atlas.iofOther", color: ATLAS_OTHER_COLOR }]} dense />,
   wraDisasterCctv: () => <AtlasLegend layer="wraDisasterCctv" en="WRA Disaster Monitoring Cameras" source={src("wra", ["36687", "41567"])} domain="atlasWraCctvKind" rows={WRA_CCTV_KIND_OPTIONS} />,

@@ -85,6 +85,40 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       { value: "雪霸國家公園", zh: "雪霸國家公園" }, { value: "太魯閣國家公園", zh: "太魯閣國家公園" }, { value: "高雄都會公園", zh: "高雄都會公園" },
     ],
   },
+  // 台灣圖層延伸 B7（2026-11-21）：值與 atlasLayerTypes 的 HAKKA／SAND／WELFARE／EV／STREETLIGHT 選項同序
+  hakkaLivingSchools: {
+    property: "school_kind",
+    label: "學制",
+    options: [
+      { value: "國小", zh: "國小" }, { value: "國中", zh: "國中" }, { value: "高中", zh: "高中" },
+      { value: "幼兒園", zh: "幼兒園" }, { value: "其他", zh: "其他" },
+    ],
+  },
+  sandGravelPlants: {
+    property: "registration",
+    label: "登記類別",
+    options: [
+      { value: "工廠登記", zh: "工廠登記" }, { value: "工廠登記＋用地變更同意", zh: "工廠登記＋用地變更同意" },
+      { value: "特定工廠登記", zh: "特定工廠登記" }, { value: "臨時登記補辦申請中", zh: "臨時登記補辦申請中" },
+    ],
+  },
+  countyWelfarePoints: {
+    property: "category",
+    label: "據點類別",
+    options: [{ value: "社區照顧關懷據點", zh: "社區照顧關懷據點" }, { value: "實物銀行", zh: "實物銀行" }],
+  },
+  evMotorcycleCharging: {
+    property: "facility_kind",
+    label: "設施類別",
+    options: [{ value: "充電站", zh: "充電站" }, { value: "換電站", zh: "換電站" }],
+  },
+  // 路燈逐點：圖磚的 led 是字串 "True"／"False"，缺欄＝來源沒有燈具類型欄（不明）；網格與斜線子圖層 skipCategoryFilter
+  countyStreetlights: {
+    property: "led",
+    label: "燈具類型",
+    options: [{ value: ["True", "true"], zh: "LED 燈具" }, { value: ["False", "false"], zh: "非 LED 燈具" }],
+    other: "不明",
+  },
   // G53 批 2／3（2026-11-10）：爆竹煙火場所種類（值與 atlasLayerTypes FIREWORKS_KIND_OPTIONS 同序）
   fireworksSites: {
     property: "site_kind",

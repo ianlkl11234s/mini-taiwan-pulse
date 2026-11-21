@@ -15,6 +15,7 @@ import { resolveCompanyGridScale } from "../data/businessRegistryTypes";
 import { resolveJpAccommodationDensityScale } from "../data/jpTourismTypes";
 import { resolveAssetUrl, fetchResolvedGeojson } from "../data/layerAssetIndex";
 import { polygonFeaturesToInteriorPoints } from "./interiorPoint";
+import { hatchImageData, hatchImageId } from "./mapStyleScale";
 
 /**
  * EM-05：本模組同時服務兩個地圖引擎 —— 主站 mapbox-gl、`/embed` MapLibre。
@@ -41,6 +42,9 @@ export interface OverlayMap {
   setLayoutProperty(id: string, name: string, value: any): void;
   setPaintProperty(id: string, name: string, value: any): void;
   getFilter?(id: string): any;
+  /** fill-pattern 的缺值斜線圖（`map-hatch-*`）要先註冊；兩個引擎的 Map 都有這兩個方法。 */
+  hasImage?(id: string): boolean;
+  addImage?(id: string, image: { width: number; height: number; data: Uint8Array }): void;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -336,6 +340,21 @@ export function geojsonSourceOptions(config: OverlayConfig): {
   };
 }
 
+/**
+ * 缺值斜線（F-3）：paint 用了 `fill-pattern: map-hatch-*` 時，先把暗／淺兩種底圖的圖都備好
+ * （換底圖 style 會清空 image，addOverlay 每次重建都會再走到這裡；已有就略過）。
+ */
+function ensureHatchImages(map: OverlayMap, paint: Record<string, unknown>): void {
+  const pattern = paint["fill-pattern"];
+  if (typeof pattern !== "string" || !pattern.startsWith("map-hatch-") || !map.hasImage || !map.addImage) return;
+  for (const dark of [true, false]) {
+    for (const kind of ["missing", "suppressed"] as const) {
+      const id = hatchImageId(kind, dark);
+      if (!map.hasImage(id)) map.addImage(id, hatchImageData(kind, dark));
+    }
+  }
+}
+
 /** 新增單一 overlay（source + 所有 layers） */
 export function addOverlay(
   map: OverlayMap,
@@ -381,6 +400,7 @@ export function addOverlay(
     if (map.getLayer(id)) continue;
 
     const paint = applyLayerOpacity(config, spec.paint(isDark, params), params);
+    ensureHatchImages(map, paint);
     const filter = resolveFilter(spec, params);
     map.addLayer({
       id,

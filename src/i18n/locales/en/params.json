@@ -2768,5 +2768,20 @@
   "param.太魯閣國家公園": "Taroko National Park",
   "param.高雄都會公園": "Kaohsiung Metropolitan Park",
   "param.戶政辦公據點": "Household registration branches",
-  "param.感染來源": "Source of infection"
+  "param.感染來源": "Source of infection",
+  "param.登記類別": "Registration type",
+  "param.據點類別": "Station category",
+  "param.燈具類型": "Lamp type",
+  "param.高中": "Senior high school",
+  "param.幼兒園": "Kindergarten",
+  "param.工廠登記": "Factory registration",
+  "param.工廠登記＋用地變更同意": "Factory registration + land-use change consent",
+  "param.特定工廠登記": "Specific factory registration",
+  "param.臨時登記補辦申請中": "Temporary registration, supplementary application pending",
+  "param.社區照顧關懷據點": "Community care station",
+  "param.實物銀行": "Food bank (in-kind bank)",
+  "param.充電站": "Charging station",
+  "param.換電站": "Battery swap station",
+  "param.LED 燈具": "LED fixture",
+  "param.非 LED 燈具": "Non-LED fixture"
 }

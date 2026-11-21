@@ -113,6 +113,12 @@ export const ATLAS_LAYER_COLORS = {
   airportHeightSurfaces: "#38bdf8",
   landOfficeJurisdiction: "#e2e8f0",
   npSpeciesSites: "#14b8a6",
+  // 台灣圖層延伸 B7（2026-11-21）
+  hakkaLivingSchools: "#f59e0b",
+  sandGravelPlants: "#a8a29e",
+  countyWelfarePoints: "#ec4899",
+  evMotorcycleCharging: "#22d3ee",
+  countyStreetlights: "#fde047",
 } as const;
 
 /** 山坡地暗底版（2026-11-10）：土褐 0.3 疊暗灰陸地只剩泥色，改沙褐、透明度 ×1.5。地圖與圖例共用。 */

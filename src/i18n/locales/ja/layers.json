@@ -2059,5 +2059,10 @@
   "layer.statsCountyOdNetMigrationRate": "県市間の純転入率",
   "layer.statsCountyOdInMigration": "県市間の転入者数",
   "layer.statsCountyOdOutMigration": "県市間の転出者数",
-  "layer.twCountyMigrationFlows": "県市間の移動フロー"
+  "layer.twCountyMigrationFlows": "県市間の移動フロー",
+  "layer.hakkaLivingSchools": "客家語生活学校",
+  "layer.sandGravelPlants": "砂利碎解・洗浄選別場",
+  "layer.countyWelfarePoints": "県市の福祉拠点（ケア拠点・フードバンク）",
+  "layer.evMotorcycleCharging": "電動バイク充電・交換ステーション（県市環境保護局）",
+  "layer.countyStreetlights": "県市の街路灯地点"
 }

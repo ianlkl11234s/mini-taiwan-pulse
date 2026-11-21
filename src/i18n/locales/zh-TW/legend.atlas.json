@@ -60,5 +60,12 @@
   "legend.atlas.ahSubtitle": "涵蓋 7 個機場；高雄國際機場來源只有折線，未涵蓋；其他民航機場來源未提供",
   "legend.atlas.ljZone": "地政事務所轄區（顏色無其他意義）",
   "legend.atlas.npSubtitle": "144,228 個調查點位（涵蓋 145 萬筆紀錄）；部分座標經模糊處理，不是精確位置",
-  "legend.atlas.ljSubtitle": "110 面；點「機關便民據點」的地政事務所點可高亮其轄區"
+  "legend.atlas.ljSubtitle": "110 面；點「機關便民據點」的地政事務所點可高亮其轄區",
+  "legend.atlas.b7Uncovered": "未涵蓋縣市（無可用的公開名冊）",
+  "legend.atlas.hsSubtitle": "715 校上圖（105–114 年度名單）；另有 107 筆（校）地址無法定位，未上圖",
+  "legend.atlas.sgSubtitle": "243 處上圖；另有 85 筆地址無法定位，未上圖",
+  "legend.atlas.wpSubtitle": "3,691 處上圖（實物銀行僅桃園、高雄、臺北有名冊）；另有 373 筆地址無法定位，未上圖",
+  "legend.atlas.evSubtitle": "機車專用：4,464 處上圖（13 縣市環保局名冊）；另有 205 筆地址無法定位，未上圖",
+  "legend.atlas.slSubtitle": "拉遠：0.01° 方格內的路燈點位數；放大到 12 級起顯示逐點。完整涵蓋：臺北、新北、臺中、新竹市、嘉義市；部分涵蓋：高雄（公園處管養 35 區）、彰化（僅省道）、桃園（僅中壢區公所）",
+  "legend.atlas.slLedUnknown": "燈具類型不明（來源無此欄）"
 }

@@ -615,6 +615,8 @@ export const G53_SELF_FOOTER_KEYS = [
   "forestAlishanRail", "mountainMobileImprovement", "ecoLabelHotels",
   // 台灣圖層延伸 B3（2026-11-20）
   "namrBuoys", "towingYards", "swcOutdoorClassrooms", "swcEcoCheckZones", "airportHeightSurfaces", "landOfficeJurisdiction", "npSpeciesSites",
+  // 台灣圖層延伸 B7（2026-11-21）
+  "hakkaLivingSchools", "sandGravelPlants", "countyWelfarePoints", "evMotorcycleCharging", "countyStreetlights",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -890,9 +892,69 @@ export const ECO_HOTEL_LEVEL_OPTIONS: readonly AtlasOption[] = [
   { value: "silver", label: "銀級", color: "#22c55e" },
   { value: "bronze", label: "銅級", color: "#86efac" },
 ];
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部", caa: "交通部民用航空局", npa: "內政部警政署" } as const;
+// ── 台灣圖層延伸 B7（2026-11-21）──────────────────────────────────────────
+/** 客語生活學校學制（上游 school_kind；英日文 enum.atlasHakkaSchoolKind.*） */
+export const HAKKA_SCHOOL_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "國小", label: "國小", color: "#f59e0b" },
+  { value: "國中", label: "國中", color: "#22c55e" },
+  { value: "高中", label: "高中", color: "#3b82f6" },
+  { value: "幼兒園", label: "幼兒園", color: "#ec4899" },
+  { value: "其他", label: "其他", color: ATLAS_OTHER_COLOR },
+];
+/** 砂石碎解洗選場登記類別（上游 registration；英日文 enum.atlasSandGravelReg.*） */
+export const SAND_GRAVEL_REG_OPTIONS: readonly AtlasOption[] = [
+  { value: "工廠登記", label: "工廠登記", color: "#a8a29e" },
+  { value: "工廠登記＋用地變更同意", label: "工廠登記＋用地變更同意", color: "#d97706" },
+  { value: "特定工廠登記", label: "特定工廠登記", color: "#0ea5e9" },
+  { value: "臨時登記補辦申請中", label: "臨時登記補辦申請中", color: "#ef4444" },
+];
+/** 縣市社福據點類別（上游 category；英日文 enum.atlasWelfarePointKind.*） */
+export const WELFARE_POINT_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "社區照顧關懷據點", label: "社區照顧關懷據點", color: "#ec4899" },
+  { value: "實物銀行", label: "實物銀行", color: "#a3e635" },
+];
+/** 電動機車充電／換電設施（上游 facility_kind；英日文 enum.atlasEvMotoKind.*） */
+export const EV_MOTO_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "充電站", label: "充電站", color: "#22d3ee" },
+  { value: "換電站", label: "換電站", color: "#f59e0b" },
+];
+/**
+ * 縣市路燈逐點 LED 判讀（上游 led；圖磚裡是字串 "True"／"False"，缺欄＝來源沒有燈具類型）。
+ * 這是「點位的燈具類型欄寫 LED」，不是台電契約戶的 LED 用電占比。英日文 enum.atlasStreetlightLed.*
+ */
+export const STREETLIGHT_LED_OPTIONS: readonly (AtlasOption & { values: readonly string[] })[] = [
+  { value: "led", label: "LED 燈具", color: "#38bdf8", values: ["True", "true"] },
+  { value: "nonled", label: "非 LED 燈具", color: "#f59e0b", values: ["False", "false"] },
+];
+export const STREETLIGHT_LED_UNKNOWN_COLOR = "#94a3b8";
+export function streetlightLedColorExpr(): unknown[] {
+  const lower = ["downcase", ["to-string", ["get", "led"]]];
+  return ["match", lower, "true", STREETLIGHT_LED_OPTIONS[0]!.color, "false", STREETLIGHT_LED_OPTIONS[1]!.color, STREETLIGHT_LED_UNKNOWN_COLOR];
+}
+/** 縣市路燈 0.01° 網格點位數級距（下界；7 階，中位數約 99、p90 約 600、最大 2,555）。 */
+export const STREETLIGHT_GRID_STEPS: readonly number[] = [1, 10, 30, 100, 300, 600, 1000];
+/**
+ * 縣市涵蓋表（B7）：未涵蓋縣市在地圖上畫斜線；部分涵蓋縣市不畫斜線，範圍寫在圖例。
+ * 名稱與 base_map/county_boundary.pmtiles 的「名稱」欄一致。
+ * 來源：analytics docs/topic-research/tw_layer_ext_20261120/b7/*_coverage.json（status 非 covered／partial_* 一律當未涵蓋）。
+ */
+export const B7_COUNTY_COVERAGE = {
+  // 社區照顧關懷據點與實物銀行任一有名冊即算涵蓋；實物銀行只有桃園、高雄、臺北
+  countyWelfarePoints: ["嘉義縣", "雲林縣", "基隆市", "新竹市", "苗栗縣", "澎湖縣", "金門縣", "連江縣"],
+  evMotorcycleCharging: ["臺中市", "澎湖縣", "基隆市", "苗栗縣", "南投縣", "嘉義縣", "花蓮縣", "金門縣", "連江縣"],
+  // 部分涵蓋（不畫斜線）：桃園（中壢區公所）、高雄（公園處管養 35 區）、彰化（省道）
+  countyStreetlights: ["臺南市", "基隆市", "新竹縣", "苗栗縣", "南投縣", "雲林縣", "嘉義縣", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"],
+} as const satisfies Record<string, readonly string[]>;
+export type B7CoverageKey = keyof typeof B7_COUNTY_COVERAGE;
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部", caa: "交通部民用航空局", npa: "內政部警政署", gsmb: "經濟部地質調查及礦業管理中心", countyGov: "各縣市政府", countyEpa: "各縣市環保局" } as const;
 
 export const ATLAS_NOTES = {
+  // 台灣圖層延伸 B7（2026-11-21）
+  hakkaLivingSchools: "客家委員會客語生活學校（data.gov.tw 162475；來源 4,766 列為「學校×年度」，105–114 年度逐年名單），校名正規化並依同縣市、同學制、同座標合併後 822 校，715 校依地址定位上圖，另有 107 筆（校）地址無法定位、未上圖（多為只有校名或鄉間門牌），不補座標。位置依地址推定，不是官方座標。附設幼兒園與本校視為不同單位；同校不同寫法已合併，少數可能殘留重複。「名單年度」是該校出現在名單的年度，不等於目前仍參與。與「客家文化重點發展區」（鄉鎮面）是不同資料，可疊合對照。",
+  sandGravelPlants: "經濟部地質調查及礦業管理中心砂石碎解洗選場名冊（data.gov.tw 32708，更新 2026-09-11）來源 328 列，243 處依地址定位上圖，另有 85 筆地址無法定位、未上圖（鄉間「村＋號」門牌多半只能到村），不補座標。位置依地址推定，不是官方座標。來源涵蓋 16 縣市，沒有臺北、基隆、嘉義市、澎湖、金門、連江的場址。登記類別依來源欄位；事業單位名稱為公司或行號，不含個人資料。",
+  countyWelfarePoints: "各縣市政府公開的社會福利場所名冊：社區照顧關懷據點 14 縣市（宜蘭、臺東、花蓮為 109 年度版）、實物銀行只有桃園、高雄、臺北 3 縣市，共 3,691 處上圖（部分來源附座標，其餘依地址定位），另有 373 筆地址無法定位、未上圖，不補座標。斜線縣市＝未涵蓋（嘉義縣、雲林縣的據點名冊下載失敗；基隆、新竹市、苗栗、澎湖、金門、連江沒有公開名冊）；實物銀行在其他縣市同樣沒有資料，不代表沒有實物銀行。各縣市「類型」寫法不一，不做圖例。與「社會福利服務中心」（157 處）是不同機構；不含喘息服務單位與長照機構，不含電話與負責人。",
+  evMotorcycleCharging: "各縣市環保局公開的電動機車充電站與換電站名冊（13 縣市有完整名冊；各縣市更新日 2023-08 至 2026-11，屏東、雲林較舊，臺東為 109 年度版），4,464 處上圖（部分來源附座標，其餘依地址定位），另有 205 筆地址無法定位、未上圖，不補座標。斜線縣市＝未涵蓋：臺中的名冊汽機車混合、沒有車種欄所以不收；澎湖只有地號；基隆、苗栗、南投、嘉義縣、花蓮、金門、連江沒有名冊。新北含社區大樓（非對外開放者在彈窗註明）。與「電動車充電站」（交通部 TDX，汽車為主）、「電動機車換電站」（中油、台電）是不同資料。",
+  countyStreetlights: "各縣市政府公開的路燈點位清冊（data.gov.tw；各縣市更新日不一）共 951,143 個點位（臺北一個點可含多盞燈）。完整涵蓋：臺北、新北、臺中、新竹市、嘉義市。部分涵蓋（不畫斜線）：高雄只有工務局公園處管養的路燈（35 區，缺桃源、那瑪夏、茂林）、彰化只有省道路段、桃園只有中壢區公所清冊。斜線縣市＝未涵蓋（臺南只有電桿圖資不是路燈、嘉義縣下載逾時、其餘縣市目錄查無），不代表沒有路燈。拉遠為 0.01°（約 1 公里）方格的路燈點位數，放大到 12 級起顯示逐點。「LED」依來源的燈具類型欄判讀，新北、嘉義市、彰化沒有這欄（不明），僅供參考；它不是台電路燈契約戶的 LED 用電占比（見「縣市路燈 LED 化」），兩者不可互比。",
   // 台灣圖層延伸 B3（2026-11-20）
   namrBuoys: "國家海洋研究院資料浮標 8 座與加馬輻射錨碇 1 座的站位（data.gov.tw 171309、171315；來源更新 2026-02-03），只有站位，沒有觀測值。其中 5 座與氣象署資料浮標同址（東吉嶼、潮境、南灣、鼻頭角、蜜月灣；同一座浮標經氣象署轉發），另 4 座（員貝嶼、大武崙、澎南、萬里桐）不在氣象署站位清單。「最後資料日期」是來源在 2026-02-03 的值，鼻頭角、萬里桐已停止。",
   towingYards: "警政署公布的警察機關車輛違規拖吊保管場（data.gov.tw 7319，2026-11-20 快照）來源 88 列，依地址以離線門牌定位（63 處）與門牌級 Google 補解（9 處）共 72 處上圖，另有 16 筆無法定位、未上圖（多為門牌小號、巷內、橋下或「某路口旁」），不補座標。位置依地址推定，不是官方座標；部分場址由民間業者承辦。無法定位的縣市（桃園、新北等）圖例上的數量少於實際場址。",
