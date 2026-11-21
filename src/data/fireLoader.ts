@@ -33,13 +33,20 @@ interface RawRow {
 
 const cache = new Map<number, FireEvent[]>();
 
+/** 讀年檔的結果：`error` 非 null＝讀取失敗（和「該年真的沒有資料」的空陣列分開）。 */
+export interface FireYearResult {
+  events: FireEvent[];
+  error: string | null;
+}
+
 /**
- * 依民國年載入火災事件（一年 ~16k 筆）。
+ * 依民國年載入火災事件（一年 ~16k 筆），回傳結果與錯誤。
  * 讀 CDN 靜態快照（public.get_fire_events_by_year 的原樣輸出，每年一檔；111–113 年歷史資料不會再變）。
+ * 失敗不進快取，再呼叫一次就是重試（長期時間條的「重試」用這支）。
  */
-export async function loadFireEventsByYear(year: number): Promise<FireEvent[]> {
+export async function loadFireEventsByYearResult(year: number): Promise<FireYearResult> {
   const cached = cache.get(year);
-  if (cached) return cached;
+  if (cached) return { events: cached, error: null };
 
   const { data, error } = await withLoading(
     `fire-events:${year}`,
@@ -49,7 +56,7 @@ export async function loadFireEventsByYear(year: number): Promise<FireEvent[]> {
 
   if (error) {
     console.warn(`[Fire] year=${year} snapshot error:`, error.message);
-    return [];
+    return { events: [], error: error.message };
   }
 
   const rows = data ?? [];
@@ -69,7 +76,12 @@ export async function loadFireEventsByYear(year: number): Promise<FireEvent[]> {
   }));
   cache.set(year, events);
   console.log(`[Fire] year=${year}: ${events.length} events`);
-  return events;
+  return { events, error: null };
+}
+
+/** 依民國年載入火災事件；讀取失敗回空陣列（歷史模式與最新年度圖層沿用的舊介面）。 */
+export async function loadFireEventsByYear(year: number): Promise<FireEvent[]> {
+  return (await loadFireEventsByYearResult(year)).events;
 }
 
 /** 取可用年份（前端可動態擴展 scrubber 範圍） */

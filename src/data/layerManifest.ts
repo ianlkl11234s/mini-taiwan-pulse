@@ -2471,7 +2471,7 @@ export const LAYER_MANIFEST = {
     legend: "fireEvents",
     popup: "fireEvent",
     params: { count: 3, kinds: ["multiSelect", "palette", "slider"] },
-    description: "歷史火災點位（需進歷史模式選年／月／日）",
+    description: "歷史火災點位（111–113 年）：即時模式用下方長期時間條選期間或逐月播放；歷史模式照舊選年／月／日",
     topics: ["消防", "災害", "歷史"],
     longTerm: {
       kind: "event",
