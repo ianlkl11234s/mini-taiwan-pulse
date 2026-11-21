@@ -22,9 +22,9 @@ const constGetter = (id: string): PhCatGetter => ({ expr: ["to-string", id], js:
 export const VN_WAVES_FETCHED_AT = "2026-11-17";
 const ODBL = "ODbL 1.0";
 const OSM_URL = "https://www.openstreetmap.org/copyright";
-const OSM_SRC = "© OpenStreetMap contributors（ODbL），via Geofabrik vietnam-latest（快照 2026-11-12）";
+const OSM_SRC = l3("© OpenStreetMap contributors（ODbL），via Geofabrik vietnam-latest（快照 2026-11-12）", "© OpenStreetMap contributors (ODbL), via Geofabrik vietnam-latest (snapshot 2026-11-12)", "© OpenStreetMap contributors（ODbL）、Geofabrik vietnam-latest 経由（2026-11-12 のスナップショット）");
 const ODM_URL = "https://vietnam.opendevelopmentmekong.net/";
-const ODM_SRC = (title: string) => `Open Development Vietnam 彙編（NGO），原始機關未載明；${title}`;
+const ODM_SRC = (title: string): L3 => l3(`Open Development Vietnam 彙編（NGO），原始機關未載明；${title}`, `Compiled by Open Development Vietnam (NGO), original agency not stated; ${title}`, `Open Development Vietnam（NGO）の編纂。元の機関は未記載。${title}`);
 
 const PROV: PhField = { prop: "province_name", label: l3("省（34 省新制）", "Province (2025)", "省（2025 新制）") };
 const NAME_EN: PhField = { prop: "name_en", label: l3("英文名", "English name", "英語名"), unlessSameAs: "name" };
@@ -59,10 +59,10 @@ function osmPoints(key: VnDataKey, id: string, file: string, layer: string, minz
 const TIER_BANDS: PhSizeBands = {
   prop: "tier", title: l3("圖示大小：知名度", "Symbol size: prominence", "記号の大きさ：知名度"),
   bands: [
-    { min: 0, radius: 6.5, label: "UNESCO／國家級旅遊區／保護區" },
-    { min: 2, radius: 5, label: "Wikidata 熱門" },
-    { min: 3, radius: 3.5, label: "一般" },
-    { min: 4, radius: 2.5, label: "未命名" },
+    { min: 0, radius: 6.5, label: l3("UNESCO／國家級旅遊區／保護區", "UNESCO / national tourist area / protected area", "UNESCO・国家級観光地区・保護区") },
+    { min: 2, radius: 5, label: l3("Wikidata 熱門", "Popular on Wikidata", "Wikidata 人気") },
+    { min: 3, radius: 3.5, label: l3("一般", "Other", "一般") },
+    { min: 4, radius: 2.5, label: l3("未命名", "Unnamed", "名称なし") },
   ],
 };
 const TIER_MAP: Record<string, L3> = {
@@ -184,7 +184,7 @@ const TOURISM_SPECS: Spec[] = [
       COVER(29),
     ],
     popupNotes: [NEAREST],
-    sourceOrg: "Wikipedia tiếng Việt「Khu du lịch quốc gia」（CC BY-SA 4.0）；座標 vi.wikipedia／Wikidata（CC0）／Nominatim（© OpenStreetMap contributors，ODbL）",
+    sourceOrg: l3("Wikipedia tiếng Việt「Khu du lịch quốc gia」（CC BY-SA 4.0）；座標 vi.wikipedia／Wikidata（CC0）／Nominatim（© OpenStreetMap contributors，ODbL）", "Vietnamese Wikipedia \"Khu du lịch quốc gia\" (CC BY-SA 4.0); coordinates: vi.wikipedia / Wikidata (CC0) / Nominatim (© OpenStreetMap contributors, ODbL)", "ベトナム語版 Wikipedia「Khu du lịch quốc gia」（CC BY-SA 4.0）。座標：vi.wikipedia／Wikidata（CC0）／Nominatim（© OpenStreetMap contributors、ODbL）"),
     sourceUrl: "https://vi.wikipedia.org/wiki/Khu_du_l%E1%BB%8Bch_qu%E1%BB%91c_gia", license: "CC BY-SA 4.0＋CC0＋ODbL", fetchedAt: VN_WAVES_FETCHED_AT,
     loading: loading("國家級旅遊區", "national tourist areas"),
   },
@@ -327,7 +327,7 @@ const W3_SPECS: Spec[] = [
       { prop: "year_dam", label: l3("完工年", "Completed", "完成年"), kind: "year" },
       { prop: "dam_height_m", label: l3("壩高", "Dam height", "堤高"), kind: "num", unit: "m", digits: 0 },
       { prop: "dam_length_m", label: l3("壩長", "Dam length", "堤長"), kind: "num", unit: "m", digits: 0 },
-      { prop: "capacity_mcm", label: l3("蓄水量", "Storage", "貯水量"), kind: "num", unit: "百萬 m³", digits: 1 },
+      { prop: "capacity_mcm", label: l3("蓄水量", "Storage", "貯水量"), kind: "num", unit: l3("百萬 m³", "million m³", "百万 m³"), digits: 1 },
       { prop: "power_mw", label: l3("裝置容量", "Capacity", "設備容量"), kind: "num", unit: "MW", digits: 0 },
       { prop: "area_km2", label: l3("水庫面積", "Reservoir area", "貯水池面積"), kind: "num", unit: "km²", digits: 1 },
       { prop: "quality", label: l3("位置品質（GDW）", "Location quality (GDW)", "位置品質（GDW）"), kind: "code" },
@@ -351,7 +351,7 @@ const W3_SPECS: Spec[] = [
     legendNotes: [l3("線寬依河川級序；名稱多為空", "Line width by stream order; most names are blank", "線幅は河川次数による。名称はほぼ空欄"),
       l3("ODM 彙編，資料年不明；授權未明示（ODM 標 CC BY-SA 4.0）", "Compiled by ODM, data year unknown; licence not stated (ODM lists CC BY-SA 4.0)", "ODM 編集、データ年不明。ライセンス未明示（ODM 表記は CC BY-SA 4.0）")],
     popupNotes: [],
-    sourceOrg: ODM_SRC("River network of Viet Nam"), sourceUrl: ODM_URL, license: "CC BY-SA 4.0（ODM license_id；原始機關未載明）", fetchedAt: VN_WAVES_FETCHED_AT,
+    sourceOrg: ODM_SRC("River network of Viet Nam"), sourceUrl: ODM_URL, license: l3("CC BY-SA 4.0（ODM license_id；原始機關未載明）", "CC BY-SA 4.0 (ODM license_id; original agency not stated)", "CC BY-SA 4.0（ODM の license_id。元の機関は未記載）"), fetchedAt: VN_WAVES_FETCHED_AT,
     loading: loading("河川", "rivers"),
   },
   osmPoints("vnWaterSupply", "vn-water-supply-circle", "vn_water_supply.pmtiles", "water_supply", 8, "#38bdf8", 241, [
@@ -378,7 +378,7 @@ const W3_SPECS: Spec[] = [
     legendNotes: [l3("約 2016–2020 舊資料、說明為機器英譯；等級名稱依英譯意譯", "Old data (about 2016–2020), descriptions machine-translated; level names interpreted from the translation", "2016〜2020 年頃の旧データで説明は機械英訳。等級名は英訳から意訳"),
       l3("授權未明示（ODM 標 CC BY-SA 4.0）", "Licence not stated (ODM lists CC BY-SA 4.0)", "ライセンス未明示（ODM 表記は CC BY-SA 4.0）"), COVER(32)],
     popupNotes: [NEAREST],
-    sourceOrg: ODM_SRC("Landslide points over whole country"), sourceUrl: ODM_URL, license: "CC BY-SA 4.0（ODM license_id；原始機關未載明）", fetchedAt: VN_WAVES_FETCHED_AT,
+    sourceOrg: ODM_SRC("Landslide points over whole country"), sourceUrl: ODM_URL, license: l3("CC BY-SA 4.0（ODM license_id；原始機關未載明）", "CC BY-SA 4.0 (ODM license_id; original agency not stated)", "CC BY-SA 4.0（ODM の license_id。元の機関は未記載）"), fetchedAt: VN_WAVES_FETCHED_AT,
     loading: loading("河岸與海岸侵蝕點", "riverbank and coastal erosion points"),
   },
 ];
@@ -507,7 +507,7 @@ const W6_SPECS: Spec[] = [
       l3("171 區（同名同型別合併）；國家公園 32 個名稱（官方 34）；沿岸與海上者對應海洋保護區", "171 areas (same name and type merged); 32 national-park names (34 official); coastal and marine ones are the marine protected areas", "171 区域（同名同種別を統合）。国立公園は 32 名称（公式 34）。沿岸・海上は海洋保護区に相当"),
     ],
     popupNotes: [],
-    sourceOrg: "Open Development Vietnam 彙編（NGO）；上游 IUCN and UNEP-WCMC, WDPA July 2016（via ADB）", sourceUrl: ODM_URL, license: "非商用（ODM 使用限制；API license_id CC-BY-4.0 不一致，從嚴）", fetchedAt: VN_WAVES_FETCHED_AT,
+    sourceOrg: l3("Open Development Vietnam 彙編（NGO）；上游 IUCN and UNEP-WCMC, WDPA July 2016（via ADB）", "Compiled by Open Development Vietnam (NGO); upstream: IUCN and UNEP-WCMC, WDPA July 2016 (via ADB)", "Open Development Vietnam（NGO）の編纂。上流：IUCN and UNEP-WCMC, WDPA July 2016（ADB 経由）"), sourceUrl: ODM_URL, license: l3("非商用（ODM 使用限制；API license_id CC-BY-4.0 不一致，從嚴）", "Non-commercial (ODM usage restriction; the API license_id CC-BY-4.0 is inconsistent, so the stricter reading applies)", "非商用（ODM の利用制限。API の license_id CC-BY-4.0 と食い違うため厳しい方を採用）"), fetchedAt: VN_WAVES_FETCHED_AT,
     loading: loading("保護區（ODM）", "protected areas (ODM)"),
   },
 ];
@@ -565,7 +565,7 @@ const W7_SPECS: Spec[] = [
       l3("來源 安江省開放資料入口，授權未明示", "Source An Giang open data portal, licence not stated", "出典 An Giang 省オープンデータポータル、ライセンス未明示"),
     ],
     popupNotes: [],
-    sourceOrg: "Sở Nông nghiệp và Môi trường tỉnh An Giang（opendata.angiang.gov.vn）", sourceUrl: "https://opendata.angiang.gov.vn/", license: "授權未明示", fetchedAt: VN_WAVES_FETCHED_AT,
+    sourceOrg: "Sở Nông nghiệp và Môi trường tỉnh An Giang（opendata.angiang.gov.vn）", sourceUrl: "https://opendata.angiang.gov.vn/", license: l3("授權未明示", "License not stated", "ライセンスは明示されていない"), fetchedAt: VN_WAVES_FETCHED_AT,
     loading: loading("安江養殖用地", "An Giang aquaculture"),
   },
   {
@@ -603,7 +603,7 @@ const W7_SPECS: Spec[] = [
       l3("授權未明示（ODM 標 CC BY-SA 4.0）", "Licence not stated (ODM lists CC BY-SA 4.0)", "ライセンス未明示（ODM 表記は CC BY-SA 4.0）"),
     ],
     popupNotes: [],
-    sourceOrg: ODM_SRC("Soil types of Vietnam"), sourceUrl: ODM_URL, license: "CC BY-SA 4.0（ODM 頁面；原始機關未載明）", fetchedAt: VN_WAVES_FETCHED_AT,
+    sourceOrg: ODM_SRC("Soil types of Vietnam"), sourceUrl: ODM_URL, license: l3("CC BY-SA 4.0（ODM 頁面；原始機關未載明）", "CC BY-SA 4.0 (ODM page; original agency not stated)", "CC BY-SA 4.0（ODM のページ。元の機関は未記載）"), fetchedAt: VN_WAVES_FETCHED_AT,
     loading: loading("土壤", "soil"),
   },
   {
@@ -663,7 +663,7 @@ export interface VnRasterSpec {
   steps?: readonly { color: string; label: string }[];
   swatches?: readonly { color: string; label: L3; outline?: boolean }[];
   notes: readonly L3[];
-  sourceShort: string;
+  sourceShort: string | L3;
   loading: string;
 }
 
@@ -707,7 +707,7 @@ export const VN_RASTER_SPECS: readonly VnRasterSpec[] = [
       l3("ODM GeoServer WMS 於 2026-11-17 擷取並轉成圖磚", "Rendered from the ODM GeoServer WMS on 2026-11-17", "ODM GeoServer WMS から 2026-11-17 に取得・タイル化"),
       l3("授權未明示（ODM 標 CC BY-SA 4.0）", "Licence not stated (ODM lists CC BY-SA 4.0)", "ライセンス未明示（ODM 表記は CC BY-SA 4.0）"),
     ],
-    sourceShort: "Open Development Vietnam 彙編（NGO），原始機關未載明；Land slide hazard map in Vietnam（ODM GeoServer WMS，2026-11-17 渲染）", loading: "越南崩塌潛勢載入中",
+    sourceShort: l3("Open Development Vietnam 彙編（NGO），原始機關未載明；Land slide hazard map in Vietnam（ODM GeoServer WMS，2026-11-17 渲染）", "Compiled by Open Development Vietnam (NGO), original agency not stated; Land slide hazard map in Vietnam (ODM GeoServer WMS, rendered 2026-11-17)", "Open Development Vietnam（NGO）の編纂。元の機関は未記載。Land slide hazard map in Vietnam（ODM GeoServer WMS、2026-11-17 描画）"), loading: "越南崩塌潛勢載入中",
   },
   {
     key: "vnWdpca", kind: "owner", file: "vn_wdpca_raster.pmtiles", sourceId: "vn-wdpca-raster", layerId: "vn-wdpca-raster", minzoom: 5, maxzoom: 12, opacity: 0.6,
