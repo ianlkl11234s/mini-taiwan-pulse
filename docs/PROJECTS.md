@@ -47,10 +47,11 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | ~2026-11-20 | 舊 static layer RPC 觀察 7 天後撤除（原期限 11-15；11-16 這輪沒做，改期，不是已完成） | 使用者拍板 | SR-1 |
 | ~2026-11-20 | 動物收容成果收集器確認有新 run（設計低頻，不是故障） | Claude | COL-ANIMAL-1 |
 | 2026-11-21 | VM 自動巡檢 system-patrol 第一次排程（delegate-box crontab 台北 07:45 → herdr `patrol` session，腳本 `~/.local/bin/patrol-cron.sh`、紀錄 `~/.local/state/pulse-patrol/cron.log`）＝第三次校正：(1) 有沒有送進去並跑完、報告 `reports/system-patrol/2026-11-21.md`；(2) 分區表寫入加總（gis-agent-system #76）在真實資料下不再誤報 `status_ok_no_writes`、VM `vm_no_writes` 沒有誤報；(3) Telegram 通知路徑還沒實際觸發過；(4) 結果乾淨就討論開放「直接修」：VM 全域設定 deny `gh pr merge*`，要站主決定是否只對 data-collectors、gis-agent-system 放行。待站主：WHDB-2 舊版本到期規則、3 個慢查詢 queryid 對 RPC（要 postgres 身分）、#211 部署 | Claude＋使用者 | system-patrol |
+| 2026-11-25 | 站主本人把 S3 `migu-gis-data-collector` 的 archive-deep 規則由 270 天改 365 天：跑 `.gis-agent-system/projects/2026-11-20-pulse-gap-fixes/s3-lifecycle-365.sh`（先 check 再 apply），說明 `s3-lifecycle-365.md`；套用後要同步 data-collectors 文件與 pulse-secret-run `s3-lifecycle-add`（寫死 270） | 使用者 | LTT-1 |
 | 2026-11-23 | 資料來源追蹤（ADR-0024）改比對我方基準後第一次週一偵測：03:00 雲端 routine 與 04:30 VM 都成功；新清單「需要更新」只剩基準後真的變的、「待確認」約 200 照列；環境部 api_key 輪替不再觸發、快照成功率 >90%；collector 子狀態出現（mig 558、collectors #210 部署後）；R2 新紀錄不含金鑰原值。計畫 `.gis-agent-system/projects/2026-11-18-source-tracking-phase2/PLAN.md` | Claude | 資料來源追蹤 |
 | 2026-12-10 | S3 用量回看：日報 136 GB、週增 +101% 是含舊版本（`warehouse-archive` 約 56.8 GiB、`r2-mirror` 約 8 GiB）；舊版本 30 天過期後應回到約 95 GiB；`r2-mirror` 用途未查 | Claude | ST-3 |
 | v2.37.0 發版後 | 正式站確認：救援等時圈 `/fire/fire_isochrone_coverage.pmtiles` 200 且圖層有畫面；`world/ie_defibrillators_v2.pmtiles` 200、愛爾蘭 AED 圖層正常；舊衣回收箱快照 `get_waste_disposal_points.json` 公開版回讀為 13,751 筆、業者欄手機 0 筆；越南目視清單（mini `.worktrees/vn-w01/.preview-keep/vn_prod_visual_checklist.md`）；#1036 未在瀏覽器驗過的三項（日本醫療圈 popup、小網格點擊、手機衛星百科卡） 〔結果 2026-11-16：v2.37.0 已發布，匿名唯讀目視 11 項：9 通過、2 部分通過、0 失敗（截圖 `.gis-agent-system/projects/2026-11-13-vis-pack-batch2/shots-v2370/`）。通過：衛星切底圖、日本醫療圈 popup（川口＝「南部」）、小格網點擊（台灣 H3 人口數、日本 1 km）、手機衛星百科卡可開可關、救援等時圈三段都在、愛爾蘭 AED 營運者欄電話格式 0 筆、舊衣回收箱快照 13,751 筆且業者／聯絡欄手機格式 0 筆、菲律賓 4 層＋越南 12 層冒煙、首頁無 4xx；歷史模式高縮放退回粗網格不報錯。部分通過：INTEL 國碼（Gaza 仍顯示 GZ，VPB-17，mini #1056 已合 develop、待發版）、分享網址（只帶 `?c=ie` 開在台灣，查明是刻意設計，只更正 CHANGELOG 說明，VPB-19 關閉）。新問題登記 VPB-17、VPB-18（修正中，部署待同意）、VPB-20～22、VNW-1，VPB-8 補版面；VP-2、VPB-3／7／9／10／14／19 關閉〕 | Claude | REL-NEXT／VPB-8／VPB-18／VPB-22 |
-| v2.37.1 發版後 | 10 個 `_v2` 檔（台灣 7、愛爾蘭 2、英國 1）公開網域 200／206；山崩照片、AED、長照、海巡、觀光三層、愛爾蘭商業估值與活動地點、英國醫療院所畫面正常且說明框不含電話；`?v=1&lng=121&lat=24&z=9&layers=h3Population` 與 popCount 首次載入有網格（mini #1058）、7 層 popup 來源列不再是 pending；Gaza 卡片顯示 PS；develop／master 的 assets 檢查轉綠 〔結果 2026-11-16：v2.37.1 已發布（#1062，master `8f0cdd39`），匿名唯讀目視 A–E 全過（截圖 `.gis-agent-system/projects/2026-11-13-vis-pack-batch2/shots-v2371/`）：10 個 `_v2` 檔公開網域全 206、10 層都改讀 `_v2`、無 4xx／console error；身分證格式與 email 0 筆，手機格式只在官方電話欄（站主決定保留）；`h3Population` 3,993 格、`popCount` 3,970 格首次載入有網格；三個 popup 來源列正常；Gaza Strip 卡片 4 張皆 PS；伊波拉 1 張 CD、約 10 張 CG（舊資料）。develop assets 已綠（#1064），master 在 `8f0cdd39` 上仍紅、下次發版轉綠（CI-10）。PII-1、VPB-17／20／21 關閉；新問題 VPB-28、VPB-29，觀光三層來源列併入 VPB-23〕 | Claude | CI-10／VPB-18／VPB-28 |
+| v2.37.1 發版後 | 10 個 `_v2` 檔（台灣 7、愛爾蘭 2、英國 1）公開網域 200／206；山崩照片、AED、長照、海巡、觀光三層、愛爾蘭商業估值與活動地點、英國醫療院所畫面正常且說明框不含電話；`?v=1&lng=121&lat=24&z=9&layers=h3Population` 與 popCount 首次載入有網格（mini #1058）、7 層 popup 來源列不再是 pending；Gaza 卡片顯示 PS；develop／master 的 assets 檢查轉綠 〔結果 2026-11-16：v2.37.1 已發布（#1062，master `8f0cdd39`），匿名唯讀目視 A–E 全過（截圖 `.gis-agent-system/projects/2026-11-13-vis-pack-batch2/shots-v2371/`）：10 個 `_v2` 檔公開網域全 206、10 層都改讀 `_v2`、無 4xx／console error；身分證格式與 email 0 筆，手機格式只在官方電話欄（站主決定保留）；`h3Population` 3,993 格、`popCount` 3,970 格首次載入有網格；三個 popup 來源列正常；Gaza Strip 卡片 4 張皆 PS；伊波拉 1 張 CD、約 10 張 CG（舊資料）。develop assets 已綠（#1064），master 在 `8f0cdd39` 上仍紅、下次發版轉綠（CI-10）。PII-1、VPB-17／20／21 關閉；新問題 VPB-28、VPB-29，觀光三層來源列併入 VPB-23〕 | Claude | CI-10／VPB-18／VPB-30 |
 | v2.38.0 發版後 | 打 tag／Release；正式站 `main-*.js` 為 2.38.0；lock 新增 16 檔（英國 5、南韓 10、`base_map/road_lines_20261116.pmtiles`）公開網域 200／206；主機重建 coral-private 後站主登入看首爾用途地域、119／警廣（點開路段高亮）；英國 4 層、南韓 10 層目視；master assets 檢查轉綠（CI-10） | Claude＋使用者 | REL-NEXT／FIRE119-1／KRW-6／UKOSM-1 |
 | 2026-11-28 | 選舉投票日：之前每日更新活動地圖；選後匯出最後一版轉站主資料 | Claude＋使用者 | OWD-4 |
 | 2026-11-28 後 | 選後一起做：選舉活動兩張表登記保留期限、清 22 筆已刪除表的備份狀態紀錄（使用者 2026-11-13 同意；動手前先給清單） | Claude＋使用者 | ELEC-RET-1 |
@@ -79,6 +80,18 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 
 ## 進行中與待拍板
 
+### 站主待決（2026-11-21 跨夜任務；每項到對應 BACKLOG ID 回覆）
+
+| 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
+|---|---|---|---|---|---|---|
+| 新版本提示（#1143 樣式） | 🔵 | 北極星:好用 | draft mini #1143 三版樣式預覽（推薦 A 右下卡片） | 站主選樣式；不合併預覽分支 | BACKLOG AG-10 | 2026-11-21 |
+| 地址／地名搜尋 | 🔵 | 北極星:好用 | 研究完成 mini #1135，建議本地索引＋Mapbox 備援 | 站主回 D1（服務）、D2（搜尋框位置 A／B／C） | BACKLOG GUI-3；[`features/address-search/RESEARCH.md`](./features/address-search/RESEARCH.md) | 2026-11-21 |
+| 站上 AI 接分析倉庫 | 🔵 | 北極星:AI | 設計文件 mini #1136 | 站主回 Q1–Q7（BYOK 預設模型 FB-023 併入 Q6） | BACKLOG SAI-1；[`features/site-ai-warehouse/DESIGN.md`](./features/site-ai-warehouse/DESIGN.md) | 2026-11-21 |
+| G-14 維運 vs 產品 | 🔵 | 北極星:開發系統 | 提案已出 | 站主回 Q1–Q4 | BACKLOG G14-1；`../.gis-agent-system/projects/2026-11-20-pulse-gap-fixes/G14-ops-vs-product-PROPOSAL.md` | 2026-11-21 |
+| 英日未入倉盤點 | 🔵 | 北極星:AI | 英 28／90、日 24／106 | 站主同意第一批發包清單 | BACKLOG UKJP-1；`../.gis-agent-system/projects/2026-11-20-pulse-gap-fixes/F-uk-jp-warehouse-gap.md` | 2026-11-21 |
+| 長期時間條 | 🟡 | 北極星:好用 | 1a #1121、1b #1127 已合 develop，待發版（站主 11-20 拍板，標準見 `features/longterm-time/STANDARD.md`） | LTT-1 查證共機架次、全球事件涵蓋期間；發版 | BACKLOG LTT-1；[`features/longterm-time/STANDARD.md`](./features/longterm-time/STANDARD.md) | 2026-11-21 |
+| 缺口修補（gap-fixes） | 🟡 | 北極星:好用 | 2026-11-20 晚～11-21 跨夜任務已回寫（PR 皆已合 develop 待發版） | 見 `../.gis-agent-system/projects/2026-11-20-pulse-gap-fixes/HANDOFF.md` | 同左 | 2026-11-21 |
+
 ### 情報、選舉與會員
 
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
@@ -100,7 +113,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | 圖層配色與可見性 | 🟡 | 北極星:視覺 | 11-10 根因分析後，第一段（#998）、第二段（#1002）隨 v2.36.0 上線；截圖只驗過 4 層 | VIZ-1／VIZ-2 發版後正式站目視；VIZ-3 第三階段（15 面、2 點、約 24 支 hook 寫死暗色、手寫圖例、淡底圖 44 共用色層、約 73 自繪點層）；VIZ-32 點層分類圖例也顯示熱度 Low–High 色條（共用元件、約 62 處），全站設計題待決定 | BACKLOG VIZ-1～VIZ-3 | 2026-11-14 |
-| 視覺化功能設計提案 | 🟡 | 北極星:視覺 | 提案 https://claude.ai/artifact/G7qsxVy7Cy3qA1BfZqNs6y ；11-11 Q-A～Q-G 已拍板（VIZ-4 關閉）；統計比例圓 #1008、多年份並排 #1011、左右比較 P1 #1012、點密度 #1016（42 層；敏感指標 8 層不提供；點大小隨縮放列為設計規範例外，使用者 11-12 決定）隨 v2.36.0 上線（比較模式 P0 試驗 draft #1010 不合併、留作紀錄）；等值帶（含氣溫）使用者 11-11 決定先不做 | VIZ-5／VIZ-6／VIZ-8／VIZ-9 發版後正式站目視；多年份並排後續 VIZ-12～VIZ-17、比較模式後續 VIZ-18～VIZ-26、點密度後續 VIZ-27～VIZ-31；VIZ-7 等值帶暫緩（使用者決定）；VIZ-10 可信度紋理只登記；待使用者：VIZ-11 構想待表態 | BACKLOG VIZ-5～VIZ-31 | 2026-11-12 |
+| 視覺化功能設計提案 | 🟡 | 北極星:視覺 | 提案 https://claude.ai/artifact/G7qsxVy7Cy3qA1BfZqNs6y ；11-11 Q-A～Q-G 已拍板（VIZ-4 關閉）；統計比例圓 #1008、多年份並排 #1011、左右比較 P1 #1012、點密度 #1016（42 層；敏感指標 8 層不提供；點大小隨縮放列為設計規範例外，使用者 11-12 決定）隨 v2.36.0 上線（比較模式 P0 試驗 draft #1010 不合併、留作紀錄）；等值帶（含氣溫）使用者 11-11 決定先不做 | VIZ-5／VIZ-6／VIZ-8／VIZ-9 發版後正式站目視；多年份並排後續 VIZ-12～VIZ-17、比較模式後續 VIZ-18～VIZ-25（VIZ-26 已隨 #1142 完成）、點密度後續 VIZ-27～VIZ-31；VIZ-7 等值帶暫緩（使用者決定）；VIZ-10 可信度紋理只登記；待使用者：VIZ-11 構想待表態 | BACKLOG VIZ-5～VIZ-25、VIZ-27～VIZ-31 | 2026-11-12 |
 
 ### 資料新鮮度、collector 與平台維運
 
@@ -132,7 +145,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 專案 | 狀態 | Tier | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|---|
 | 古地圖（臺灣百年歷史地圖） | 🟡 | 底線:授權 | 11-06 改公開（v2.26.0）；#882 拆成歷史底圖 6 層隨 v2.27.0 上線（85 張，CC BY-NC）；11-12 正式站目視通過（v2.36.1） | 主站 CSP enforcing 時補 gis.sinica.edu.tw；HIST-1 授權信：**使用者 2026-11-08 決定暫不寄，不要再催**（研究成果搬進 git 已於 11-09 完成） | BACKLOG HIST-1；`src/data/historicalMapSinica.ts` | 2026-11-10 |
-| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 圖層隨 v2.32.0（河濱口徑）、Day 8 文章 #957、Day 9 城鄉圖層 #972（下拉切 10 指標，素材 analytics docs/topic-research/mapchallenge_2026_day09_urban_rural/）已合 develop 待發版；所有文章文末有資料來源（#959）；analytics #330 已合 | 發版後正式站目視 Day 8 文章與 Day 9 圖層（圖例、popup、指標切換）；HIST-4 Day 6 正式站重拍；D8-1 分享網址記方案（FE-01 已併入）；GBA-1 | CHANGELOG v2.23.0～v2.32.0；`src/blog/mapChallenge.ts`；`docs/features/blog/article-plan.md` | 2026-11-09 |
+| 30 天地圖挑戰（#30DayMapChallenge） | 🟡 | 內容:挑戰日 | Day 4–6、Day 8 圖層已公開；Day 7、Day 8 獨立站（mapchallenge-mrt／mapchallenge-utopia.itsmigu.com）；部落格總覽頁與 Day 3–7 文章已上線；Day 8 圖層隨 v2.32.0（河濱口徑）、Day 8 文章 #957、Day 9 城鄉圖層 #972（下拉切 10 指標，素材 analytics docs/topic-research/mapchallenge_2026_day09_urban_rural/）已合 develop 待發版；所有文章文末有資料來源（#959）；analytics #330 已合 | 發版後正式站目視 Day 8 文章與 Day 9 圖層（圖例、popup、指標切換）；HIST-4 Day 6 正式站重拍；主站分享網址記方案與步速（#1142 已合 develop 待發版）；GBA-1 | CHANGELOG v2.23.0～v2.32.0；`src/blog/mapChallenge.ts`；`docs/features/blog/article-plan.md` | 2026-11-09 |
 | G27 臺北市局處公務統計 | 🟡 | 北極星:好用 | 部分隨 v2.13.0 上線 | BLOG-V 目視；PDF 獨有表 | candidates/G27；BACKLOG BLOG-V | 2026-10-24 |
 | G32 熱島與高溫曝露 | 🟡 | 北極星:好用 | queued；涼適點、熱傷害排進 TWL-5 第二批 | TWL-5 災害暴露組（使用者說晚點再處理） | candidates/G32；BACKLOG TWL-5 | 2026-10-29 |
 
@@ -173,7 +186,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | 地圖圖層改版 R6 | 🟢 | 北極星:視覺 | 段 1–3 隨 v2.8.0 上線 | R6-V 目視；段 4 R6-4 暫不碰 | [`features/map-layer-restyle/R6-PROPOSAL.md`](./features/map-layer-restyle/R6-PROPOSAL.md) | 2026-10-15 |
 | 地圖基礎 GIS 元件（指北針、量測、右鍵） | 🟢 | 北極星:好用 | #803／#804 隨 v2.21.0；#808 隨 v2.22.0 | GUI-2：手機實機觸控、真實定位、實體雙擊；GUI-3／4 待決 | BACKLOG GUI-2～4 | 2026-11-04 |
 | 地圖可見性整修 | 🟢 | 北極星:視覺 | v2.19.0；#795 隨 v2.20.0 | VIS-3 剩餘目視 | [`design-system/map-layers.md`](./design-system/map-layers.md) §3.8 | 2026-11-01 |
-| 多語系 i18n | 🟢 | 北極星:兼容 | P0–P5 隨 v2.9.0 | P4-C（Agent 依網頁語言回答）、I18N-1 統計說明段落英日文（未開工；南韓圖層英日文逐層驗是另一項，已由 #986 完成） | [`features/i18n/ROADMAP.md`](./features/i18n/ROADMAP.md) | 2026-11-13 |
+| 多語系 i18n | 🟢 | 北極星:兼容 | P0–P5 隨 v2.9.0 | P4-C（Agent 依網頁語言回答）；11-21 統計資料限制、菲越來源、載入狀態列英日文已完成（#1124～#1139，已合 develop 待發版）；剩位置口徑、資料來源面板、手機比較提示（I18N-4～6） | [`features/i18n/ROADMAP.md`](./features/i18n/ROADMAP.md) | 2026-11-21 |
 
 </details>
 
@@ -213,7 +226,7 @@ Tier（與 BACKLOG 相同）：`底線:<資安|授權|資料正確|期限|花費
 | SEO／AEO 實質內容頁 | ⚪ | 內容:部落格 | 11-08 實測 GPTBot 取首頁回 200（舊表寫 403 已不成立；搬 Cloudflare 後需再看 AI Crawl 設定） | SEO-6 等 SEO-5 收錄結果；SEO-4 補 og:image | BACKLOG SEO-4～6 | 2026-11-08 |
 | Intel 面板三個計數不一致 | ⚪ | 北極星:好用 | 已定位：標頭只算新聞、「全部」含警報、AlertSummaryBar 沒套 RANGE | IN-1：統一計數口徑後修 | BACKLOG IN-1 | 2026-10-16 |
 | Monitor 小項（警報序列增量、TRA 格座標、匯率卡、聊天釘選） | ⚪ | 待討論 | 只有定位，未動工（OG-5 已決定維持現狀） | G025、TD-3（匯率卡、聊天釘選已於 11-08 決定不做、關閉） | BACKLOG 同 ID | 2026-11-10 |
-| 分析倉庫收尾小項 | ⚪ | 北極星:AI | — | AG-2、AG-11、RV27-2（layer-status 差約 159 層）、TWL-4、JMA 入倉延後；MCP #27 土壤液化題庫 draft 保留 | BACKLOG I 群 | 2026-10-29 |
+| 分析倉庫收尾小項 | ⚪ | 北極星:AI | — | AG-2、AG-11、RV27-4（layer-status 重產 #1138 已完成，等新倉庫上傳後再重產 L2）、TWL-4、JMA 入倉延後；MCP #27 土壤液化題庫 draft 保留 | BACKLOG I 群 | 2026-10-29 |
 | 靜態 LST 更新 | ⚪ | 底線:資料正確 | 已過 10-01 門檻，可做 | 重跑 LST pipeline | BACKLOG MC-5 | 2026-10-05 |
 | 法國 | ⚪ | 待討論 | 國家選單已有 FR（v2.16.0），圖層只有 ANFR 無線站點；MCP 缺邊界與人口 | 決定要不要開 `france_opendata`；最低門檻：countries 一筆＋admin1 邊界＋人口分母 | `../pulse-data/docs/new-country-onboarding.md` §4 | 2026-11-07 |
 | G30 災情、避難與民防 | ⚪ | 北極星:好用 | 研究完成；避難容量衍生層排在 TWL-5 | B 部分需 collector（TWL-6，可排） | candidates/G30 | 2026-11-08 |
