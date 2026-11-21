@@ -6503,6 +6503,7 @@ export type GeneratedStaticKey =
   | "popup.medical.severe"
   | "popup.medical.sourceAed"
   | "popup.medical.sourceLtc"
+  | "popup.medical.sourceNhi"
   | "popup.medical.specialties"
   | "popup.medical.trend"
   | "popup.medical.waitBed"
