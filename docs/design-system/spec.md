@@ -647,7 +647,7 @@
 | 工具列 | `toolbar`／`--z-toolbar` | 25 | 右上工具列（T2）、手機標頭（M1）、拍攝模式離開提示、載入狀態條（§5.30） |
 | 彈出層 | `popover`／`--z-popover` | 30 | 下拉選單（底圖、帳號、手機「⋯」）、hover tooltip、日本水資源／醫療載入失敗提示（`JpWaterAlert`／`JpMedicalAlert`，在 `LayerHosts` 最後渲染，蓋過選單但在置中視窗之下） |
 | 置中視窗 | `modal`／`--z-modal` | 40 | 說明、分享視窗；同層另有 AI 對話浮層（`ChatPanel`）與手機會員專區（見下方 DOM 順序） |
-| 提示訊息 | `toast`／`--z-toast` | 50 | 保留給不需要蓋過「資料更新中」遮罩的提示；目前無使用者（見特例） |
+| 提示訊息 | `toast`／`--z-toast` | 50 | 不需要蓋過「資料更新中」遮罩的提示：「網站有新版本」提示（`NewVersionNotice`，AG-10）；需要蓋過遮罩的見特例 |
 
 - **時間軸為什麼是 10**：時間軸屬於地圖控制列，不是面板；左側面板或右下 popup 展開時應蓋在時間軸上面，所以刻意比浮動面板低一層。`TimelineControls`／`HistoricalTimeline`／App 手機時間軸條都寫 `Z_INDEX.mapOverlay` 並附註解。
 - **同層靠 DOM 順序，不得寫死數字**：同一層要誰在上面，就調整渲染順序（後渲染者在上），不要改成 21、41 之類的數字壓過鄰居。目前的 modal 層順序（`App.tsx` 最後段）：`ChatPanel` → `MemberPanel` → `InfoModal` → `ShareModal`，維持「說明／分享永遠在對話浮層與會員面板之上、手機會員面板在對話浮層之上」。**不要把這幾個元件往前搬。**
