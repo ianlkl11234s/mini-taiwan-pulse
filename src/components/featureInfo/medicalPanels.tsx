@@ -29,6 +29,14 @@ const MEDICAL_RAW_SOURCES = {
   ltc: { labelKey: "popup.medical.sourceLtc", url: "https://data.gov.tw/dataset/88270" },
 } as const;
 
+/** 健保特約院所（醫院／診所／藥局）：tile 保留官方欄位、無 med_cat；機構類型中文名同 scripts/preprocess/merge_medical_poi.py 的 NHI_LABEL */
+const NHI_LABEL: Record<string, string> = {
+  hospital_medical_center: "醫學中心", hospital_regional: "區域醫院", hospital_district: "地區醫院",
+  clinic: "診所", pharmacy: "藥局", home_nursing: "居家護理所", health_center: "衛生所", rehab_home: "精神復健機構",
+  lab: "醫事檢驗所", speech_therapy: "語言治療所", physical_therapy: "物理治療所", midwifery: "助產所",
+  medical_radiology: "醫事放射所", occupational_therapy: "職能治療所", other_nhi: "其他特約",
+};
+
 const str = (v: unknown): string => (v == null ? "" : String(v).trim());
 
 /**
@@ -66,12 +74,33 @@ export function normalizeMedicalPOIProps(props: Record<string, unknown>): Record
       ...(Number.isFinite(beds) && beds > 0 ? { open_beds: beds } : {}),
     };
   }
+  // 健保特約院所（醫院 geojson、藥局／診所 PMTiles）：有 facility_id＋category，沒有 med_cat
+  if ("facility_id" in props && typeof props.category === "string") {
+    const cat = props.category;
+    const medCat = cat.startsWith("hospital_") ? "hospital" : cat === "clinic" ? "clinic" : cat === "pharmacy" ? "pharmacy" : "other_medical";
+    return {
+      ...props,
+      med_cat: medCat,
+      name: str(props.name),
+      county: str(props.county),
+      address: str(props.address),
+      phone: str(props.phone),
+      category_label: NHI_LABEL[cat] ?? cat,
+      specialties: str(props.specialties),
+    };
+  }
   return props;
 }
 
 export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unknown> }) {
   const props = normalizeMedicalPOIProps(rawProps);
-  const rawSrc = props !== rawProps && (props.med_cat === "aed" || props.med_cat === "ltc") ? MEDICAL_RAW_SOURCES[props.med_cat] : null;
+  const nhiDid = "facility_id" in rawProps ? str(rawProps.source_did).split(",")[0] : "";
+  const rawSrc =
+    props !== rawProps && (props.med_cat === "aed" || props.med_cat === "ltc")
+      ? MEDICAL_RAW_SOURCES[props.med_cat]
+      : props !== rawProps && nhiDid
+        ? { labelKey: "popup.medical.sourceNhi" as const, url: `https://data.gov.tw/dataset/${nhiDid}` }
+        : null;
   const t = useFeatureTheme();
   const i18n = useLocale();
   const { t: tr } = i18n;
