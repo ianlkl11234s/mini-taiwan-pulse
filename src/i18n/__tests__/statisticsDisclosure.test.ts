@@ -13,6 +13,7 @@ const DONE_FAMILIES: string[] = [
   'culture', 'mortality', 'hazard', 'indigenousRural', 'sports', 'marine', 'labor', 'taipeiAgency', 'landslide', 'openData', 'twExtB2', 'agri', 'fiscal', // I18N-1 第 1 批
   'financeAccess', 'financeAccessExt', 'health', 'social', 'comparison', // I18N-1 第 2 批
   'crime', 'stateAssets', // I18N-1 第 3 批
+  'environment', 'addiction', // I18N-1 第 4 批
 ];
 
 const DATA = join(__dirname, '..', '..', 'data');
