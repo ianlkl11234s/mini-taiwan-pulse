@@ -53,7 +53,7 @@
   "legend.atlas.mmHalo": "Illustrative coverage halo (about 500 m radius, not measured signal)",
   "legend.atlas.ehSubtitle": "283 hotels: 50 gold, 94 silver, 139 bronze; grade shown by shade of one hue",
   "legend.atlas.nbSubtitle": "9 stations (positions only, no observation values); 5 are co-located with CWA data buoys",
-  "legend.atlas.tySubtitle": "63 shown (positions estimated from addresses); 25 more could not be located and are not shown",
+  "legend.atlas.tySubtitle": "72 shown (positions estimated from addresses); 16 more could not be located and are not shown",
   "legend.atlas.tyPoint": "Towing yard",
   "legend.atlas.ocPoint": "SWC outdoor classroom (2020 edition, 18 sites)",
   "legend.atlas.ezZone": "Tier-1 ecological check zone (representative points when zoomed out, extents from zoom 8)",

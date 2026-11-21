@@ -2337,10 +2337,10 @@ export const LAYER_MANIFEST = {
   towingYards: {
     key: "towingYards", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "違規拖吊保管場", alt: "Vehicle Towing Yards" }), expandable: true,
     color: ATLAS_LAYER_COLORS.towingYards, icon: Truck,
-    upstream: { status: "verified", datasets: [{ datasetId: "towing_yards", confidence: "MED" }], processing: "analytics transportation/towing_yards 7319：警政署 88 列（2026-11-20 快照），本機離線門牌定位 63 處上圖，25 筆無法定位未上圖；09 開頭手機剔除", note: "位置依地址推定，不是官方座標；另有 25 筆無法定位、未上圖。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "towing-yards", url: "./civic_facilities/towing_yards_v1.pmtiles", sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 },
+    upstream: { status: "verified", datasets: [{ datasetId: "towing_yards", confidence: "MED" }], processing: "analytics transportation/towing_yards 7319：警政署 88 列（2026-11-20 快照），離線門牌定位 63＋Google 門牌級補解 9，共 72 處上圖，16 筆無法定位未上圖；09 開頭手機剔除", note: "位置依地址推定，不是官方座標；另有 16 筆無法定位、未上圖。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "towing-yards", url: "./civic_facilities/towing_yards_v2.pmtiles", sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 },
     legend: "towingYards", popup: "towingYards", params: { count: 2, kinds: ["slider", "slider"] },
-    description: "警察機關車輛違規拖吊保管場 63 處（來源 88 筆，另 25 筆無法定位未上圖；位置依地址推定）。",
+    description: "警察機關車輛違規拖吊保管場 72 處（來源 88 筆，另 16 筆無法定位未上圖；位置依地址推定）。",
     topics: ["交通", "拖吊", "保管場", "違規", "警政署"],
   },
   swcOutdoorClassrooms: {
@@ -8240,17 +8240,17 @@ export const LAYER_MANIFEST = {
     icon: Landmark,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }, { datasetId: "household_registration_offices", confidence: "MED" }], processing: "analytics civic_facilities/household_registration_offices 7437：戶政司 368 列＝主所 210＋轄下辦公據點 158；離線 geocode 命中 305（main 186／branch 119），本層只補 branch 119 點（新檔名 household_registration_offices_7437.pmtiles），39 筆待 TGOS 補位未上圖；主所以站上名冊為準", note: "戶政辦公據點位置依地址推定；另 39 處無法定位未上圖。",
+      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }, { datasetId: "household_registration_offices", confidence: "MED" }], processing: "analytics civic_facilities/household_registration_offices 7437：戶政司 368 列＝主所 210＋轄下辦公據點 158；離線 geocode 305＋Google 門牌級補解 32＝337（main 194／branch 143），本層只補 branch 143 點（新檔名 household_registration_offices_7437_v2.pmtiles），15 筆無法定位未上圖；主所以站上名冊為準", note: "戶政辦公據點位置依地址推定；另 15 處無法定位未上圖。",
     },
     dataClass: "B",
     source: [
       { kind: "geojson", sourceId: "gov-service-offices", url: "./civic_facilities/gov_service_offices_national.geojson" },
-      { kind: "pmtiles", sourceId: "gov-service-offices-hro-branch", url: "./civic_facilities/household_registration_offices_7437.pmtiles", sourceLayer: "household_registration_offices", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "gov-service-offices-hro-branch", url: "./civic_facilities/household_registration_offices_7437_v2.pmtiles", sourceLayer: "household_registration_offices", minzoom: 4, maxzoom: 14 },
     ],
     legend: "govServiceOffices",
     popup: ["govServiceOffice", "householdRegistrationBranch"],
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
-    description: "各級機關便民服務據點全國 702 處，另含戶政事務所轄下辦公據點 119 處（可與主所分開篩選）",
+    description: "各級機關便民服務據點全國 702 處，另含戶政事務所轄下辦公據點 143 處（可與主所分開篩選）",
     topics: ["基礎建設", "行政", "公共服務"],
   },
 

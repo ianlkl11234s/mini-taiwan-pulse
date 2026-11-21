@@ -2027,5 +2027,9 @@
   "layer.swcEcoCheckZones": "SWC Tier-1 Ecological Check Zones",
   "layer.airportHeightSurfaces": "Airport Height Restriction Surfaces",
   "layer.landOfficeJurisdiction": "Land Office Jurisdictions",
-  "layer.npSpeciesSites": "National Park Species Survey Sites"
+  "layer.npSpeciesSites": "National Park Species Survey Sites",
+  "layer.statsHealthNotifiableCasesTownship": "Notifiable disease cases (township)",
+  "layer.statsHealthNotifiableRatePer100kTownship": "Notifiable disease rate per 100,000 (township)",
+  "layer.statsHealthNotifiableCasesCounty": "Notifiable disease cases (county)",
+  "layer.statsHealthNotifiableRatePer100kCounty": "Notifiable disease rate per 100,000 (county)"
 }

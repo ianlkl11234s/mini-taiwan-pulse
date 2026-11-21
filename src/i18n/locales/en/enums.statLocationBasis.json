@@ -43,5 +43,7 @@
   "enum.statLocationBasis.發布機關所屬縣市（縣市政府、所屬機關、鄉鎮市公所）；不是資料涵蓋範圍": "County of the publishing agency (county government, its agencies, township offices); not the area the data covers",
   "enum.statLocationBasis.就讀學校所在鄉鎮市區（不是學生住家）": "Township of the school attended (not the student's home)",
   "enum.statLocationBasis.戶籍登記地所在鄉鎮市區（戶籍人口）": "Township of household registration (registered population)",
-  "enum.statLocationBasis.坑洞所在縣市（來源表所列縣市；台中、台南、高雄為改制前縣＋市合併值）": "County or city where the pit is (as listed in the source; Taichung, Tainan and Kaohsiung combine the former county and city)"
+  "enum.statLocationBasis.坑洞所在縣市（來源表所列縣市；台中、台南、高雄為改制前縣＋市合併值）": "County or city where the pit is (as listed in the source; Taichung, Tainan and Kaohsiung combine the former county and city)",
+  "enum.statLocationBasis.病例居住地所在鄉鎮市區（境外移入病例也依居住地）": "Township of the case's residence (imported cases are also by residence)",
+  "enum.statLocationBasis.病例居住地所在縣市（境外移入病例也依居住地）": "County or city of the case's residence (imported cases are also by residence)"
 }

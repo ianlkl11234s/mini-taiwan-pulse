@@ -217,7 +217,17 @@ export function statisticsLocationBasis(zh: string, i18n: I18nContext): string {
  * 查不到退回中文原文（參考界代碼換成可讀名稱）。
  */
 export function statisticsDisclosure(zh: string, i18n: I18nContext): string {
-  return enumLabel('statDisclosure', zh, humanizeStatisticsText(zh), i18n);
+  const stripBold = (text: string) => text.replace(/\*\*/g, '');
+  if (i18n.active !== 'zh-TW' && i18n.lookup(`enum.statDisclosure.${zh}` as never) == null) warnMissingDisclosure(zh, i18n.active);
+  return stripBold(enumLabel('statDisclosure', zh, humanizeStatisticsText(zh), i18n));
+}
+
+const warnedDisclosures = new Set<string>();
+/** 外文介面缺「資料限制」譯文時退回中文；只在開發模式警告一次，正式站保持安靜。 */
+function warnMissingDisclosure(zh: string, locale: string): void {
+  if (!import.meta.env.DEV || warnedDisclosures.has(zh)) return;
+  warnedDisclosures.add(zh);
+  console.warn(`[i18n] enum.statDisclosure 缺 ${locale} 譯文，退回中文：${zh.slice(0, 40)}…`);
 }
 
 /** 說明文字裡夾帶的邊界代碼換成中文描述（其餘文字不動）。 */

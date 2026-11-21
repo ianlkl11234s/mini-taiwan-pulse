@@ -311,7 +311,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-20: +2 台灣圖層延伸 B2 點層（mountainMobileImprovement、ecoLabelHotels）、+9 台灣圖層延伸 B2 統計（新住民子女就學 5、前二十大姓 3、現存坑洞數 1）。
     // 2026-11-20: +7 台灣圖層延伸 B3（namrBuoys、towingYards、swcOutdoorClassrooms、swcEcoCheckZones、airportHeightSurfaces、landOfficeJurisdiction、npSpeciesSites）。
     // 2026-11-20: +1 菲律賓即時空品 phOpenaqAir（OpenAQ，RPC get_openaq_latest）。
-    expect(keys.length).toBe(2037);
+    // 2026-11-20: +4 台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
+    expect(keys.length).toBe(2041);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

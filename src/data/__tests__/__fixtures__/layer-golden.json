@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2037,
+    "keyCount": 2041,
     "sections": [
       "gisLayers",
       "overlays",
@@ -6771,6 +6771,10 @@
         "statsOpenDataCoordShare-fill",
         "statsOpenDataSpatialShare-fill",
         "statsOpenDataThemesWithCoords-fill",
+        "statsHealthNotifiableCasesTownship-fill",
+        "statsHealthNotifiableRatePer100kTownship-fill",
+        "statsHealthNotifiableCasesCounty-fill",
+        "statsHealthNotifiableRatePer100kCounty-fill",
         "statsNrcStudentsTownship-fill",
         "statsNrcStudentsElementaryTownship-fill",
         "statsNrcStudentsJuniorTownship-fill",
@@ -91098,7 +91102,7 @@
         "circle"
       ],
       "sourceId": "gov-service-offices-hro-branch",
-      "sourceUrl": "./civic_facilities/household_registration_offices_7437.pmtiles"
+      "sourceUrl": "./civic_facilities/household_registration_offices_7437_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -91442,7 +91446,7 @@
         "circle"
       ],
       "sourceId": "towing-yards",
-      "sourceUrl": "./civic_facilities/towing_yards_v1.pmtiles"
+      "sourceUrl": "./civic_facilities/towing_yards_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -203141,6 +203145,178 @@
       }
     ],
     "statsHealthMentalOutpatientPer1000": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNotifiableCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・病例數",
+            "value": "statsHealthNotifiableCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kTownship"
+          },
+          {
+            "label": "縣市・病例數",
+            "value": "statsHealthNotifiableCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthNotifiableCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNotifiableCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・病例數",
+            "value": "statsHealthNotifiableCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kTownship"
+          },
+          {
+            "label": "縣市・病例數",
+            "value": "statsHealthNotifiableCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthNotifiableCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNotifiableRatePer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・病例數",
+            "value": "statsHealthNotifiableCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kTownship"
+          },
+          {
+            "label": "縣市・病例數",
+            "value": "statsHealthNotifiableCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthNotifiableRatePer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsHealthNotifiableRatePer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・病例數",
+            "value": "statsHealthNotifiableCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kTownship"
+          },
+          {
+            "label": "縣市・病例數",
+            "value": "statsHealthNotifiableCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人病例率",
+            "value": "statsHealthNotifiableRatePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsHealthNotifiableRatePer100kTownship"
+      },
       {
         "label": "資料期別",
         "options": [],

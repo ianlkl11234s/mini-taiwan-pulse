@@ -289,5 +289,7 @@
   "enum.statVariant.第一大姓": "最多姓",
   "enum.statVariant.第一大姓占戶籍人口比": "最多姓の戸籍人口に占める割合",
   "enum.statVariant.選姓占戶籍人口比": "選んだ姓の戸籍人口に占める割合",
-  "enum.statVariant.現存坑洞數": "現存する穴の数"
+  "enum.statVariant.現存坑洞數": "現存する穴の数",
+  "enum.statVariant.病例數": "症例数",
+  "enum.statVariant.每十萬人病例率": "10 万人あたり症例率"
 }
