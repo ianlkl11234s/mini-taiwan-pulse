@@ -1592,8 +1592,16 @@ function NpSpeciesSitePanel({ props }: Props) {
 }
 
 /** 縣市＋鄉鎮（上游 county／township 兩欄；英日文依 placeName 轉寫）。 */
-const countyTownship = (p: Record<string, unknown>, i18n: LocaleSnapshot) =>
-  placeName(`${str(p.county)}${str(p.township)}`, i18n);
+const countyTownship = (p: Record<string, unknown>, i18n: LocaleSnapshot) => {
+  const county = str(p.county);
+  const town = str(p.township);
+  if (!town) return placeName(county, i18n);
+  if (i18n.active === "zh-TW") return `${county}${town}`;
+  // 縣市與鄉鎮分欄：鄉鎮用縣市消除同名（例：桃園市桃園區），不可把兩段連寫後整串查
+  const countyText = placeName(county, i18n);
+  const townText = placeTown(county, town, i18n);
+  return i18n.active === "en" ? `${townText}, ${countyText}` : `${countyText}${townText}`;
+};
 
 /** 台灣圖層延伸 B7 客語生活學校：位置依地址推定；名單年度是出現在名單的年度。 */
 function HakkaLivingSchoolPanel({ props }: Props) {

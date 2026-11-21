@@ -2417,8 +2417,8 @@ export const LAYER_MANIFEST = {
     color: ATLAS_LAYER_COLORS.countyWelfarePoints, icon: HeartHandshake,
     upstream: { status: "verified", datasets: [{ datasetId: "county_welfare_points", confidence: "MED" }], processing: "analytics welfare/county_welfare_points：各縣市 data.gov.tw 名冊（據點 14 縣市、實物銀行 3 縣市）3,691 處上圖（來源座標 1,113、離線 2,347、Google 231），373 筆無法定位未上圖；不收電話與負責人", note: "未涵蓋縣市畫斜線；另有 373 筆地址無法定位、未上圖；與社福服務中心（157 處）不同。" },
     dataClass: "B", source: [
-      { kind: "pmtiles", sourceId: "county-welfare-points", url: "./welfare/county_welfare_points_v1.pmtiles", sourceLayer: "county_welfare_points", minzoom: 4, maxzoom: 14 },
       { kind: "pmtiles", sourceId: "county-welfare-points-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "county-welfare-points", url: "./welfare/county_welfare_points_v1.pmtiles", sourceLayer: "county_welfare_points", minzoom: 4, maxzoom: 14 },
     ],
     legend: "countyWelfarePoints", popup: "countyWelfarePoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "各縣市政府公開的社區照顧關懷據點與實物銀行 3,691 處（另 373 筆地址無法定位未上圖）；沒有名冊的縣市畫斜線。不同於社福服務中心。",
@@ -2429,8 +2429,8 @@ export const LAYER_MANIFEST = {
     color: ATLAS_LAYER_COLORS.evMotorcycleCharging, icon: Motorbike,
     upstream: { status: "verified", datasets: [{ datasetId: "ev_motorcycle_charging", confidence: "MED" }], processing: "analytics energy/ev_motorcycle_charging：13 縣市環保局名冊 4,464 處上圖（來源座標 1,950、離線 2,347、Google 167），205 筆無法定位未上圖；桃園經緯度互換已修", note: "未涵蓋縣市畫斜線；另有 205 筆地址無法定位、未上圖；與電動車充電站（TDX，汽車為主）、電動機車換電站（中油／台電）不同。" },
     dataClass: "B", source: [
-      { kind: "pmtiles", sourceId: "ev-motorcycle-charging", url: "./energy/ev_motorcycle_charging_v1.pmtiles", sourceLayer: "ev_motorcycle_charging", minzoom: 4, maxzoom: 14 },
       { kind: "pmtiles", sourceId: "ev-motorcycle-charging-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "ev-motorcycle-charging", url: "./energy/ev_motorcycle_charging_v1.pmtiles", sourceLayer: "ev_motorcycle_charging", minzoom: 4, maxzoom: 14 },
     ],
     legend: "evMotorcycleCharging", popup: "evMotorcycleCharging", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "縣市環保局的電動機車充電站與換電站名冊 4,464 處（13 縣市完整名冊；另 205 筆地址無法定位未上圖），無名冊縣市畫斜線。機車專用，不同於汽車為主的電動車充電站。",
@@ -2441,9 +2441,9 @@ export const LAYER_MANIFEST = {
     color: ATLAS_LAYER_COLORS.countyStreetlights, icon: Lightbulb,
     upstream: { status: "verified", datasets: [{ datasetId: "county_streetlights", confidence: "MED" }], processing: "analytics infrastructure/county_streetlights：各縣市 data.gov.tw 路燈清冊 951,143 點（全為來源座標）；網格檔 0.01° 方格 4,363 格（z4–11）、逐點檔 z12–14；高雄只有公園處管養 35 區、彰化只有省道、桃園只有中壢區公所", note: "未涵蓋縣市畫斜線、部分涵蓋縣市寫在圖例；LED 依燈具類型欄判讀，不是台電契約戶 LED 用電占比（縣市路燈 LED 化）。" },
     dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "county-streetlights-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
       { kind: "pmtiles", sourceId: "county-streetlights-grid", url: "./civic_facilities/county_streetlights_grid_v1.pmtiles", sourceLayer: "county_streetlights_grid", minzoom: 4, maxzoom: 11 },
       { kind: "pmtiles", sourceId: "county-streetlights", url: "./civic_facilities/county_streetlights_v1.pmtiles", sourceLayer: "county_streetlights", minzoom: 12, maxzoom: 14 },
-      { kind: "pmtiles", sourceId: "county-streetlights-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
     ],
     legend: "countyStreetlights", popup: "countyStreetlights", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
     description: "各縣市政府公開的路燈點位清冊 95 萬點（臺北、新北、臺中、新竹市、嘉義市完整；高雄、彰化、桃園部分；其餘縣市畫斜線）。拉遠為 0.01° 方格點位數，放大到 12 級起逐點，可依燈具類型是否為 LED 篩選。",
