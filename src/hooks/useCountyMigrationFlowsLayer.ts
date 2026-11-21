@@ -165,11 +165,12 @@ export function useCountyMigrationFlowsLayer(
     const map = mapRef.current;
     if (!map || !visible) return;
     const onClick = (e: MapMouseEvent) => {
-      const box: [[number, number], [number, number]] = [[e.point.x - 4, e.point.y - 4], [e.point.x + 4, e.point.y + 4]];
-      if (map.getLayer(COUNTY_MIGRATION_LINE_LAYER_ID) && map.queryRenderedFeatures(box, { layers: [COUNTY_MIGRATION_LINE_LAYER_ID] }).length > 0) return;
+      // 端點優先（弧線都從端點出發，先查弧線會把點端點吃掉）
       const seat = map.getLayer(COUNTY_MIGRATION_SEAT_LAYER_ID) ? map.queryRenderedFeatures([[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]], { layers: [COUNTY_MIGRATION_SEAT_LAYER_ID] })[0] : undefined;
       let code = seat ? String(seat.properties?.code ?? "") : "";
       if (!code) {
+        const box: [[number, number], [number, number]] = [[e.point.x - 4, e.point.y - 4], [e.point.x + 4, e.point.y + 4]];
+        if (map.getLayer(COUNTY_MIGRATION_LINE_LAYER_ID) && map.queryRenderedFeatures(box, { layers: [COUNTY_MIGRATION_LINE_LAYER_ID] }).length > 0) return;
         const fills = BASE_FILL_IDS.filter((id) => map.getLayer(id));
         const hit = fills.length ? map.queryRenderedFeatures(e.point, { layers: fills })[0] : undefined;
         code = String(hit?.properties?.area_code ?? "");
