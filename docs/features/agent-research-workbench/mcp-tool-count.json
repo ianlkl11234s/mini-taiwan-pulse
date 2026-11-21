@@ -1,0 +1,7 @@
+{
+  "_generatedBy": "scripts/research/count-mcp-tools.mjs（請勿手改）",
+  "core": 24,
+  "full": 65,
+  "coreSource": "mini-pulse-gis-mcp src/research/toolsets.ts CORE_TOOLS（PULSE_TOOLSET 預設值）",
+  "fullSource": "mini-pulse-gis-mcp src/research/server.test.ts expectedToolNames（PULSE_TOOLSET=full）"
+}
