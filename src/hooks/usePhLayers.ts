@@ -321,7 +321,7 @@ function firstSymbolLayerId(map: MapboxMap): string | undefined {
 
 /** 山體陰影、色別標高、建成面積、樹冠流失：PNG raster PMTiles，比照 useCaHillshadeLayer 插在底圖第一個 symbol 下、地球儀走 pmtilesRasterCustomSource。 */
 export function usePhRasterLayer(mapRef: MapRef, spec: PhRasterSpec, visible: boolean, opacity: number) {
-  const source: SourceSpec = { id: spec.sourceId, file: spec.file, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort, loading: spec.loading, raster: { tileSize: 256 } };
+  const source: SourceSpec = { id: spec.sourceId, file: spec.file, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: phText(spec.sourceShort), loading: spec.loading, raster: { tileSize: 256 } };
   useGbPmtilesLayers(mapRef, source, visible, () => [{
     id: spec.layerId,
     layer: () => ({

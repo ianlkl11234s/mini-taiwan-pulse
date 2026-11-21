@@ -43,7 +43,7 @@ export function PhAdminBoundariesPanel({ props }: P) {
     <Title color={PH_ADMIN_COLOR}>{caText(props.name) || pick({ zh: "行政區", en: "Administrative area", ja: "行政区域" })}</Title>
     <AdminRows props={props} pick={pick} />
     <Row label={pick({ zh: "PSGC 代碼", en: "PSGC code", ja: "PSGC コード" })} value={caText(props.psgc)} mono />
-    <SourceFooter props={{ source_org: PH_ADMIN_SOURCE.org, source_url: PH_ADMIN_SOURCE.url, license: PH_ADMIN_SOURCE.license, fetched_at: PH_FETCHED_AT }} />
+    <SourceFooter props={{ source_org: phText(PH_ADMIN_SOURCE.org, locale), source_url: PH_ADMIN_SOURCE.url, license: phText(PH_ADMIN_SOURCE.license, locale), fetched_at: PH_FETCHED_AT }} />
   </>;
 }
 
@@ -64,7 +64,7 @@ export function PhPopulationPanel({ props }: P) {
     {PH_POP_STATUS[status] ? <Row label={pick({ zh: "人口來源", en: "Population basis", ja: "人口の根拠" })} value={pick(PH_POP_STATUS[status]!)} /> : null}
     {PH_URBAN_CLASS[caText(props.urban_class)] ? <Row label={pick({ zh: "都市／鄉村", en: "Urban / rural", ja: "都市・農村" })} value={pick(PH_URBAN_CLASS[caText(props.urban_class)]!)} /> : null}
     <Row label={pick({ zh: "PSGC 代碼", en: "PSGC code", ja: "PSGC コード" })} value={caText(props.psgc)} mono />
-    <SourceFooter props={{ source_org: PH_POPULATION_SOURCE.org, source_url: PH_POPULATION_SOURCE.url, license: PH_POPULATION_SOURCE.license, fetched_at: PH_FETCHED_AT }} />
+    <SourceFooter props={{ source_org: phText(PH_POPULATION_SOURCE.org, locale), source_url: PH_POPULATION_SOURCE.url, license: phText(PH_POPULATION_SOURCE.license, locale), fetched_at: PH_FETCHED_AT }} />
   </>;
 }
 
@@ -81,7 +81,7 @@ function formatField(f: PhField, props: Record<string, unknown>, locale: string)
   }
   if (f.kind === "num") {
     const s = fmtNum(raw, f.digits ?? 0);
-    return s ? `${s}${f.unit ? ` ${f.unit}` : ""}` : "";
+    return s ? `${s}${f.unit ? ` ${phText(f.unit, locale)}` : ""}` : "";
   }
   const s = caText(raw);
   if (!s) return "";
