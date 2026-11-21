@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RADIUS, FONT_SIZE, COLORS } from "../../styles/designTokens";
 import { medIsochroneColor, medIsochroneLabel, MEDICAL_ISOCHRONE_NOTE } from "../../data/medicalIsochroneTypes";
-import { medicalColorByCat } from "../../data/medicalPOITypes";
+import { medicalColorByCat, NHI_CATEGORY_LABEL } from "../../data/medicalPOITypes";
 import { emergencyHospitalColor, emergencyHospitalLevelOf, EMERGENCY_HOSPITAL_DATA_AS_OF } from "../../data/emergencyHospitalTypes";
 import {
   classifyErCongestion, ER_LEVEL_COLORS, ER_LEVEL_LABELS, ER_CONGESTION_THRESHOLDS,
@@ -28,6 +28,7 @@ const MEDICAL_RAW_SOURCES = {
   aed: { labelKey: "popup.medical.sourceAed", url: "https://data.gov.tw/dataset/12063" },
   ltc: { labelKey: "popup.medical.sourceLtc", url: "https://data.gov.tw/dataset/88270" },
 } as const;
+
 
 const str = (v: unknown): string => (v == null ? "" : String(v).trim());
 
@@ -66,12 +67,33 @@ export function normalizeMedicalPOIProps(props: Record<string, unknown>): Record
       ...(Number.isFinite(beds) && beds > 0 ? { open_beds: beds } : {}),
     };
   }
+  // 健保特約院所（醫院 geojson、藥局／診所 PMTiles）：有 facility_id＋category，沒有 med_cat
+  if ("facility_id" in props && typeof props.category === "string") {
+    const cat = props.category;
+    const medCat = cat.startsWith("hospital_") ? "hospital" : cat === "clinic" ? "clinic" : cat === "pharmacy" ? "pharmacy" : "other_medical";
+    return {
+      ...props,
+      med_cat: medCat,
+      name: str(props.name),
+      county: str(props.county),
+      address: str(props.address),
+      phone: str(props.phone),
+      nhi_category: cat,
+      specialties: str(props.specialties),
+    };
+  }
   return props;
 }
 
 export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unknown> }) {
   const props = normalizeMedicalPOIProps(rawProps);
-  const rawSrc = props !== rawProps && (props.med_cat === "aed" || props.med_cat === "ltc") ? MEDICAL_RAW_SOURCES[props.med_cat] : null;
+  const nhiDid = "facility_id" in rawProps ? str(rawProps.source_did).split(",")[0] : "";
+  const rawSrc =
+    props !== rawProps && (props.med_cat === "aed" || props.med_cat === "ltc")
+      ? MEDICAL_RAW_SOURCES[props.med_cat]
+      : props !== rawProps && nhiDid
+        ? { labelKey: "popup.medical.sourceNhi" as const, url: `https://data.gov.tw/dataset/${nhiDid}` }
+        : null;
   const t = useFeatureTheme();
   const i18n = useLocale();
   const { t: tr } = i18n;
@@ -82,6 +104,7 @@ export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unk
   const address = String(props.address ?? "");
   const phone = String(props.phone ?? "");
   const specialties = String(props.specialties ?? "");
+  const nhiLabel = NHI_CATEGORY_LABEL[String(props.nhi_category)];
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -90,7 +113,7 @@ export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unk
       </div>
       {medCat === "hospital" || medCat === "clinic" || medCat === "other_medical" ? (
         <>
-          <Row field="type" value={String(props.category_label ?? "")} color={color} />
+          <Row field="type" value={nhiLabel ? enumLabel("medicalNhi", String(props.nhi_category), nhiLabel, i18n) : String(props.category_label ?? "")} color={color} />
           <Row field="county" value={placeName(county, i18n)} />
           <Row field="address" value={address} />
           <Row field="phone" value={phone} />

@@ -158,5 +158,12 @@
   "measure.hectare": "ha",
   "layerHint.labelsTitle": "Modern place names can be turned off",
   "layerHint.labelsDetail": "Modern place names are drawn over the old map. You can also turn off \"Show place names\" in the Basemap menu on the top toolbar.",
-  "layerHint.labelsHide": "Hide place names"
+  "layerHint.labelsHide": "Hide place names",
+  "mapUnavailable.webglTitle": "This browser can't display the map",
+  "mapUnavailable.webglBody": "The map needs WebGL 2 to draw, but it is turned off in this browser or not supported by this device.",
+  "mapUnavailable.crashTitle": "The map couldn't start",
+  "mapUnavailable.crashBody": "Something went wrong while starting the page. Try reloading.",
+  "mapUnavailable.browserHint": "Try the latest Chrome, Edge, Firefox or Safari, and make sure hardware acceleration is turned on in the browser settings. You can also read our articles, which don't need the map.",
+  "mapUnavailable.reload": "Reload",
+  "mapUnavailable.blogLink": "Read Pulse Notes"
 }
