@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   SERIES_DIMENSION_KEYS, TIME_DIMENSION_KEYS, compareArrangement, defaultComparison, periodNote, periodPhrase, pickYearlyPeriods,
-  isUncoveredStatus, smallMultipleFill, smallMultiplesPlan, stepColor, toggleComparison,
+  categoryLabelOf, isUncoveredStatus, smallMultipleFill, smallMultiplesPlan, stepColor, toggleComparison,
   type SmallMultipleCandidate,
 } from '../statisticsSmallMultiples';
 import { statisticsRenderRecipe } from '../regionalStatisticsRecipes';
@@ -193,5 +193,15 @@ describe('F005：未涵蓋（not_applicable）不當缺值', () => {
     expect(isUncoveredStatus({ status: 'not_applicable', value: null }, recipe)).toBe(true);
     expect(isUncoveredStatus({ status: 'missing', value: null }, recipe)).toBe(false);
     expect(isUncoveredStatus({ status: 'observed', value: 3 }, recipe)).toBe(false);
+  });
+});
+
+describe('類別型讀數：依數值查完整類別表（#1117 review）', () => {
+  const categories = [{ value: 1, label: '陳' }, { value: 2, label: '李' }, { value: 3, label: '其他姓氏' }];
+  it('圖例隱藏的類別（李）仍讀成李，不是同色的其他姓氏', () => {
+    expect(categoryLabelOf(categories, 2)).toBe('李');
+    expect(categoryLabelOf(categories, '1')).toBe('陳');
+    expect(categoryLabelOf(categories, 99)).toBeUndefined();
+    expect(categoryLabelOf(categories, null)).toBeUndefined();
   });
 });
