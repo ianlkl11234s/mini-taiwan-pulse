@@ -170,10 +170,5 @@
   "updateNotice.title": "新しいバージョンがあります",
   "updateNotice.detail": "再読み込みすると最新版に切り替わる。",
   "updateNotice.reload": "再読み込み",
-  "updateNotice.later": "あとで",
-  "updateNotice.badge": "新しいバージョンがある。クリックで詳細",
-  "updateNotice.previewLabel": "通知スタイルのプレビュー",
-  "updateNotice.styleA": "A 右下カード",
-  "updateNotice.styleB": "B 上部バー",
-  "updateNotice.styleC": "C アイコンバッジ"
+  "updateNotice.later": "あとで"
 }

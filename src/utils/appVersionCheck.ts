@@ -104,15 +104,6 @@ export function startVersionWatcher(opts: VersionWatcherOptions): () => void {
   return stop;
 }
 
-export type UpdateNoticeStyle = "a" | "b" | "c";
-export const DEFAULT_UPDATE_STYLE: UpdateNoticeStyle = "a";
-
-/** `?upd_style=a|b|c`；其他值退回預設。 */
-export function parseUpdateStyle(search: string): UpdateNoticeStyle {
-  const v = new URLSearchParams(search).get("upd_style")?.toLowerCase();
-  return v === "a" || v === "b" || v === "c" ? v : DEFAULT_UPDATE_STYLE;
-}
-
 /** 開發模式模擬「伺服器版本不同」：`?upd_sim=1` 或 localStorage `pulse.updSim=1`。正式站一律 false。 */
 export function isUpdateSimulated(search: string, storage: Pick<Storage, "getItem"> | null, isDev: boolean): boolean {
   if (!isDev) return false;

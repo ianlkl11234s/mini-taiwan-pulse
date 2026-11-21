@@ -3,7 +3,6 @@ import {
   fetchRemoteVersion,
   isDifferentBuild,
   isUpdateSimulated,
-  parseUpdateStyle,
   parseVersionPayload,
   startVersionWatcher,
   type AppVersionInfo,
@@ -120,12 +119,6 @@ describe("startVersionWatcher", () => {
 });
 
 describe("網址參數", () => {
-  it("upd_style 只認 a|b|c", () => {
-    expect(parseUpdateStyle("?upd_style=b")).toBe("b");
-    expect(parseUpdateStyle("?upd_style=C")).toBe("c");
-    expect(parseUpdateStyle("?upd_style=z")).toBe("a");
-    expect(parseUpdateStyle("")).toBe("a");
-  });
   it("模擬只在開發模式生效", () => {
     const storage = { getItem: (k: string) => (k === "pulse.updSim" ? "1" : null) };
     expect(isUpdateSimulated("?upd_sim=1", null, true)).toBe(true);

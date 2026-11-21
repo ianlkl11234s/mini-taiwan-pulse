@@ -170,10 +170,5 @@
   "updateNotice.title": "A new version is available",
   "updateNotice.detail": "Reload to switch to the latest version.",
   "updateNotice.reload": "Reload",
-  "updateNotice.later": "Later",
-  "updateNotice.badge": "New version available. Click for details",
-  "updateNotice.previewLabel": "Notice style preview",
-  "updateNotice.styleA": "A Corner card",
-  "updateNotice.styleB": "B Top bar",
-  "updateNotice.styleC": "C Icon badge"
+  "updateNotice.later": "Later"
 }

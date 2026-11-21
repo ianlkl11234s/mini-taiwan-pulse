@@ -170,10 +170,5 @@
   "updateNotice.title": "網站有新版本",
   "updateNotice.detail": "重新整理後就會換成最新版。",
   "updateNotice.reload": "重新整理",
-  "updateNotice.later": "稍後",
-  "updateNotice.badge": "有新版本，點一下查看",
-  "updateNotice.previewLabel": "提示樣式預覽",
-  "updateNotice.styleA": "A 右下卡片",
-  "updateNotice.styleB": "B 頂部橫條",
-  "updateNotice.styleC": "C 圖示角標"
+  "updateNotice.later": "稍後"
 }
