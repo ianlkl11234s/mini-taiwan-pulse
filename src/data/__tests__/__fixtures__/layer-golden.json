@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2046,
+    "keyCount": 2069,
     "sections": [
       "gisLayers",
       "overlays",
@@ -6073,6 +6073,15 @@
         "statsNrcStudentsElementaryTownship-circle",
         "statsNrcStudentsJuniorTownship-circle",
         "statsAbandonedPitsCounty-circle",
+        "statsCensusResidentPopulationTownship-circle",
+        "statsResidentialKwhTownship-circle",
+        "statsResidentialKwhCounty-circle",
+        "statsCompanyNewCounty-circle",
+        "statsCompanyDissolvedCounty-circle",
+        "statsCompanyExistingCounty-circle",
+        "statsIndustryEstablishmentsTownship-circle",
+        "statsIndustryPersonsEngagedTownship-circle",
+        "statsIndustryProductionValueTownship-circle",
         "statsCountyOdInMigration-circle",
         "statsCountyOdOutMigration-circle",
         "statsStateLandIdleArea-circle",
@@ -6793,6 +6802,29 @@
         "statsSurnameTop1ShareTownship-fill",
         "statsSurnameShareTownship-fill",
         "statsAbandonedPitsCounty-fill",
+        "statsCensusResidentVsRegisteredPctTownship-fill",
+        "statsCensusResidentMinusRegisteredTownship-fill",
+        "statsCensusResidentPopulationTownship-fill",
+        "statsCensusElderlyShareTownship-fill",
+        "statsCensusCollegeShareTownship-fill",
+        "statsCensusMovedFromOtherCountyShareTownship-fill",
+        "statsIndigenousTribeTop1Township-fill",
+        "statsIndigenousTribeTop1ShareTownship-fill",
+        "statsIndigenousTribePopulationTownship-fill",
+        "statsIndigenousTribeShareTownship-fill",
+        "statsResidentialKwhPerCustomerTownship-fill",
+        "statsResidentialKwhTownship-fill",
+        "statsResidentialKwhPerCustomerCounty-fill",
+        "statsResidentialKwhCounty-fill",
+        "statsCompanyDissolvedPer1000County-fill",
+        "statsCompanyNewCounty-fill",
+        "statsCompanyDissolvedCounty-fill",
+        "statsCompanyExistingCounty-fill",
+        "statsNhiUninsuredShareTownship-fill",
+        "statsNhiUninsuredShareCounty-fill",
+        "statsIndustryEstablishmentsTownship-fill",
+        "statsIndustryPersonsEngagedTownship-fill",
+        "statsIndustryProductionValueTownship-fill",
         "statsCountyOdNetMigration-fill",
         "statsCountyOdNetMigrationRate-fill",
         "statsCountyOdInMigration-fill",
@@ -7659,6 +7691,24 @@
         "statsNrcStudentsJuniorTownship-suppressed",
         "statsAbandonedPitsCounty-missing",
         "statsAbandonedPitsCounty-suppressed",
+        "statsCensusResidentPopulationTownship-missing",
+        "statsCensusResidentPopulationTownship-suppressed",
+        "statsResidentialKwhTownship-missing",
+        "statsResidentialKwhTownship-suppressed",
+        "statsResidentialKwhCounty-missing",
+        "statsResidentialKwhCounty-suppressed",
+        "statsCompanyNewCounty-missing",
+        "statsCompanyNewCounty-suppressed",
+        "statsCompanyDissolvedCounty-missing",
+        "statsCompanyDissolvedCounty-suppressed",
+        "statsCompanyExistingCounty-missing",
+        "statsCompanyExistingCounty-suppressed",
+        "statsIndustryEstablishmentsTownship-missing",
+        "statsIndustryEstablishmentsTownship-suppressed",
+        "statsIndustryPersonsEngagedTownship-missing",
+        "statsIndustryPersonsEngagedTownship-suppressed",
+        "statsIndustryProductionValueTownship-missing",
+        "statsIndustryProductionValueTownship-suppressed",
         "statsCountyOdInMigration-missing",
         "statsCountyOdInMigration-suppressed",
         "statsCountyOdOutMigration-missing",
@@ -172721,6 +172771,108 @@
         "valueText": "0.55"
       }
     ],
+    "statsCensusCollegeShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "常住相對戶籍（%）",
+            "value": "statsCensusResidentVsRegisteredPctTownship"
+          },
+          {
+            "label": "常住減戶籍（人）",
+            "value": "statsCensusResidentMinusRegisteredTownship"
+          },
+          {
+            "label": "常住人口",
+            "value": "statsCensusResidentPopulationTownship"
+          },
+          {
+            "label": "65 歲以上占比",
+            "value": "statsCensusElderlyShareTownship"
+          },
+          {
+            "label": "大專以上占比",
+            "value": "statsCensusCollegeShareTownship"
+          },
+          {
+            "label": "5 年前住他縣市占比",
+            "value": "statsCensusMovedFromOtherCountyShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusCollegeShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCensusElderlyShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "常住相對戶籍（%）",
+            "value": "statsCensusResidentVsRegisteredPctTownship"
+          },
+          {
+            "label": "常住減戶籍（人）",
+            "value": "statsCensusResidentMinusRegisteredTownship"
+          },
+          {
+            "label": "常住人口",
+            "value": "statsCensusResidentPopulationTownship"
+          },
+          {
+            "label": "65 歲以上占比",
+            "value": "statsCensusElderlyShareTownship"
+          },
+          {
+            "label": "大專以上占比",
+            "value": "statsCensusCollegeShareTownship"
+          },
+          {
+            "label": "5 年前住他縣市占比",
+            "value": "statsCensusMovedFromOtherCountyShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusElderlyShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsCensusEmployeePayroll": [
       {
         "label": "指標",
@@ -172829,6 +172981,57 @@
         "valueText": "0.55"
       }
     ],
+    "statsCensusMovedFromOtherCountyShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "常住相對戶籍（%）",
+            "value": "statsCensusResidentVsRegisteredPctTownship"
+          },
+          {
+            "label": "常住減戶籍（人）",
+            "value": "statsCensusResidentMinusRegisteredTownship"
+          },
+          {
+            "label": "常住人口",
+            "value": "statsCensusResidentPopulationTownship"
+          },
+          {
+            "label": "65 歲以上占比",
+            "value": "statsCensusElderlyShareTownship"
+          },
+          {
+            "label": "大專以上占比",
+            "value": "statsCensusCollegeShareTownship"
+          },
+          {
+            "label": "5 年前住他縣市占比",
+            "value": "statsCensusMovedFromOtherCountyShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusMovedFromOtherCountyShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsCensusPersonsEngaged": [
       {
         "label": "指標",
@@ -172872,6 +173075,178 @@
         ],
         "type": "select",
         "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCensusResidentMinusRegisteredTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "常住相對戶籍（%）",
+            "value": "statsCensusResidentVsRegisteredPctTownship"
+          },
+          {
+            "label": "常住減戶籍（人）",
+            "value": "statsCensusResidentMinusRegisteredTownship"
+          },
+          {
+            "label": "常住人口",
+            "value": "statsCensusResidentPopulationTownship"
+          },
+          {
+            "label": "65 歲以上占比",
+            "value": "statsCensusElderlyShareTownship"
+          },
+          {
+            "label": "大專以上占比",
+            "value": "statsCensusCollegeShareTownship"
+          },
+          {
+            "label": "5 年前住他縣市占比",
+            "value": "statsCensusMovedFromOtherCountyShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusResidentMinusRegisteredTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCensusResidentPopulationTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "常住相對戶籍（%）",
+            "value": "statsCensusResidentVsRegisteredPctTownship"
+          },
+          {
+            "label": "常住減戶籍（人）",
+            "value": "statsCensusResidentMinusRegisteredTownship"
+          },
+          {
+            "label": "常住人口",
+            "value": "statsCensusResidentPopulationTownship"
+          },
+          {
+            "label": "65 歲以上占比",
+            "value": "statsCensusElderlyShareTownship"
+          },
+          {
+            "label": "大專以上占比",
+            "value": "statsCensusCollegeShareTownship"
+          },
+          {
+            "label": "5 年前住他縣市占比",
+            "value": "statsCensusMovedFromOtherCountyShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusResidentPopulationTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCensusResidentVsRegisteredPctTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "常住相對戶籍（%）",
+            "value": "statsCensusResidentVsRegisteredPctTownship"
+          },
+          {
+            "label": "常住減戶籍（人）",
+            "value": "statsCensusResidentMinusRegisteredTownship"
+          },
+          {
+            "label": "常住人口",
+            "value": "statsCensusResidentPopulationTownship"
+          },
+          {
+            "label": "65 歲以上占比",
+            "value": "statsCensusElderlyShareTownship"
+          },
+          {
+            "label": "大專以上占比",
+            "value": "statsCensusCollegeShareTownship"
+          },
+          {
+            "label": "5 年前住他縣市占比",
+            "value": "statsCensusMovedFromOtherCountyShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCensusResidentVsRegisteredPctTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
       },
       {
         "label": "透明度 0.55",
@@ -173048,6 +173423,223 @@
     "statsCivilAeronauticsSubsidyCounty": [
       {
         "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCompanyDissolvedCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每千家解散撤銷廢止",
+            "value": "statsCompanyDissolvedPer1000County"
+          },
+          {
+            "label": "新設立家數",
+            "value": "statsCompanyNewCounty"
+          },
+          {
+            "label": "解散撤銷廢止家數",
+            "value": "statsCompanyDissolvedCounty"
+          },
+          {
+            "label": "年底現有家數",
+            "value": "statsCompanyExistingCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCompanyDissolvedCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCompanyDissolvedPer1000County": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每千家解散撤銷廢止",
+            "value": "statsCompanyDissolvedPer1000County"
+          },
+          {
+            "label": "新設立家數",
+            "value": "statsCompanyNewCounty"
+          },
+          {
+            "label": "解散撤銷廢止家數",
+            "value": "statsCompanyDissolvedCounty"
+          },
+          {
+            "label": "年底現有家數",
+            "value": "statsCompanyExistingCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCompanyDissolvedPer1000County"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCompanyExistingCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每千家解散撤銷廢止",
+            "value": "statsCompanyDissolvedPer1000County"
+          },
+          {
+            "label": "新設立家數",
+            "value": "statsCompanyNewCounty"
+          },
+          {
+            "label": "解散撤銷廢止家數",
+            "value": "statsCompanyDissolvedCounty"
+          },
+          {
+            "label": "年底現有家數",
+            "value": "statsCompanyExistingCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCompanyExistingCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCompanyNewCounty": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每千家解散撤銷廢止",
+            "value": "statsCompanyDissolvedPer1000County"
+          },
+          {
+            "label": "新設立家數",
+            "value": "statsCompanyNewCounty"
+          },
+          {
+            "label": "解散撤銷廢止家數",
+            "value": "statsCompanyDissolvedCounty"
+          },
+          {
+            "label": "年底現有家數",
+            "value": "statsCompanyExistingCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCompanyNewCounty"
+      },
+      {
+        "label": "資料期別",
         "options": [],
         "status": "idle",
         "statusText": "尚未載入",
@@ -207050,6 +207642,344 @@
         "valueText": "0.55"
       }
     ],
+    "statsIndigenousTribePopulationTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "人數最多的族",
+            "value": "statsIndigenousTribeTop1Township"
+          },
+          {
+            "label": "最多族的占比",
+            "value": "statsIndigenousTribeTop1ShareTownship"
+          },
+          {
+            "label": "各族人數",
+            "value": "statsIndigenousTribePopulationTownship"
+          },
+          {
+            "label": "各族占該鄉鎮原住民比",
+            "value": "statsIndigenousTribeShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndigenousTribePopulationTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndigenousTribeShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "人數最多的族",
+            "value": "statsIndigenousTribeTop1Township"
+          },
+          {
+            "label": "最多族的占比",
+            "value": "statsIndigenousTribeTop1ShareTownship"
+          },
+          {
+            "label": "各族人數",
+            "value": "statsIndigenousTribePopulationTownship"
+          },
+          {
+            "label": "各族占該鄉鎮原住民比",
+            "value": "statsIndigenousTribeShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndigenousTribeShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndigenousTribeTop1ShareTownship": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "人數最多的族",
+            "value": "statsIndigenousTribeTop1Township"
+          },
+          {
+            "label": "最多族的占比",
+            "value": "statsIndigenousTribeTop1ShareTownship"
+          },
+          {
+            "label": "各族人數",
+            "value": "statsIndigenousTribePopulationTownship"
+          },
+          {
+            "label": "各族占該鄉鎮原住民比",
+            "value": "statsIndigenousTribeShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndigenousTribeTop1ShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndigenousTribeTop1Township": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "人數最多的族",
+            "value": "statsIndigenousTribeTop1Township"
+          },
+          {
+            "label": "最多族的占比",
+            "value": "statsIndigenousTribeTop1ShareTownship"
+          },
+          {
+            "label": "各族人數",
+            "value": "statsIndigenousTribePopulationTownship"
+          },
+          {
+            "label": "各族占該鄉鎮原住民比",
+            "value": "statsIndigenousTribeShareTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndigenousTribeTop1Township"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndustryEstablishmentsTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsIndustryEstablishmentsTownship"
+          },
+          {
+            "label": "年底從業員工人數",
+            "value": "statsIndustryPersonsEngagedTownship"
+          },
+          {
+            "label": "生產總額（千元）",
+            "value": "statsIndustryProductionValueTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndustryEstablishmentsTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndustryPersonsEngagedTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsIndustryEstablishmentsTownship"
+          },
+          {
+            "label": "年底從業員工人數",
+            "value": "statsIndustryPersonsEngagedTownship"
+          },
+          {
+            "label": "生產總額（千元）",
+            "value": "statsIndustryProductionValueTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndustryPersonsEngagedTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          },
+          {
+            "label": "點密度",
+            "value": "dots"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsIndustryProductionValueTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsIndustryEstablishmentsTownship"
+          },
+          {
+            "label": "年底從業員工人數",
+            "value": "statsIndustryPersonsEngagedTownship"
+          },
+          {
+            "label": "生產總額（千元）",
+            "value": "statsIndustryProductionValueTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsIndustryProductionValueTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsInternetAddictionServicesCounty": [
       {
         "label": "地理層級／口徑",
@@ -211513,6 +212443,76 @@
         "valueText": "0.55"
       }
     ],
+    "statsNhiUninsuredShareCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・未參加健保比",
+            "value": "statsNhiUninsuredShareTownship"
+          },
+          {
+            "label": "縣市・未參加健保比",
+            "value": "statsNhiUninsuredShareCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNhiUninsuredShareCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsNhiUninsuredShareTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・未參加健保比",
+            "value": "statsNhiUninsuredShareTownship"
+          },
+          {
+            "label": "縣市・未參加健保比",
+            "value": "statsNhiUninsuredShareCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsNhiUninsuredShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsNrcShareElementaryTownship": [
       {
         "label": "口徑",
@@ -213484,6 +214484,208 @@
       }
     ],
     "statsResidentialElectricity": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsResidentialKwhCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・每戶每月用電（度）",
+            "value": "statsResidentialKwhPerCustomerTownship"
+          },
+          {
+            "label": "鄉鎮・全年售電度數",
+            "value": "statsResidentialKwhTownship"
+          },
+          {
+            "label": "縣市・每戶每月用電（度）",
+            "value": "statsResidentialKwhPerCustomerCounty"
+          },
+          {
+            "label": "縣市・全年售電度數",
+            "value": "statsResidentialKwhCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsResidentialKwhCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsResidentialKwhPerCustomerCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・每戶每月用電（度）",
+            "value": "statsResidentialKwhPerCustomerTownship"
+          },
+          {
+            "label": "鄉鎮・全年售電度數",
+            "value": "statsResidentialKwhTownship"
+          },
+          {
+            "label": "縣市・每戶每月用電（度）",
+            "value": "statsResidentialKwhPerCustomerCounty"
+          },
+          {
+            "label": "縣市・全年售電度數",
+            "value": "statsResidentialKwhCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsResidentialKwhPerCustomerCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsResidentialKwhPerCustomerTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・每戶每月用電（度）",
+            "value": "statsResidentialKwhPerCustomerTownship"
+          },
+          {
+            "label": "鄉鎮・全年售電度數",
+            "value": "statsResidentialKwhTownship"
+          },
+          {
+            "label": "縣市・每戶每月用電（度）",
+            "value": "statsResidentialKwhPerCustomerCounty"
+          },
+          {
+            "label": "縣市・全年售電度數",
+            "value": "statsResidentialKwhCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsResidentialKwhPerCustomerTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsResidentialKwhTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・每戶每月用電（度）",
+            "value": "statsResidentialKwhPerCustomerTownship"
+          },
+          {
+            "label": "鄉鎮・全年售電度數",
+            "value": "statsResidentialKwhTownship"
+          },
+          {
+            "label": "縣市・每戶每月用電（度）",
+            "value": "statsResidentialKwhPerCustomerCounty"
+          },
+          {
+            "label": "縣市・全年售電度數",
+            "value": "statsResidentialKwhCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsResidentialKwhTownship"
+      },
       {
         "label": "資料期別",
         "options": [],

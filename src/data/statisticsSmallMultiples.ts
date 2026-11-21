@@ -54,7 +54,7 @@ export const SERIES_DIMENSION_KEYS: ReadonlySet<string> = new Set([
   'denominator', 'employee_scope', 'income_measure', 'survey', 'cause',
   'capacity_field', 'institution_classification', 'institution_type', 'registration_scope',
   '分類', '拍賣類別', '管理區分', '計畫區別', 'build_type', 'industry_code', 'industry_name',
-  '主題', 'surname', 'origin',
+  '主題', 'surname', 'origin', 'tribe',
 ]);
 
 export interface SmallMultipleCandidate {
