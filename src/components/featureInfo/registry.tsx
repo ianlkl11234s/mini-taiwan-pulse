@@ -108,7 +108,7 @@ import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSi
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
 import { CountyMigrationFlowsPanel } from "./countyMigrationPanels";
-import { MapchallengeDay04FacilityPanel, MapchallengeDay19ComplaintsPanel, MapchallengeDay19PotentialPanel, MapchallengeDay19PenaltiesPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
+import { MapchallengeDay04FacilityPanel, MapchallengeDay19ComplaintsPanel, MapchallengeDay19PotentialPanel, MapchallengeDay19PenaltiesPanel, MapchallengeDay21OsmRoadsPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
@@ -704,6 +704,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   mapchallengeDay19Potential: MapchallengeDay19PotentialPanel,
   twCountyMigrationFlows: CountyMigrationFlowsPanel,
   mapchallengeDay19Penalties: MapchallengeDay19PenaltiesPanel,
+  mapchallengeDay21OsmRoads: MapchallengeDay21OsmRoadsPanel,
   transitAccessGrid: TransitAccessGridPanel,
   transitAccessPlayback: TransitAccessPlaybackPanel,
   // Base map
@@ -1401,6 +1402,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   mapchallengeDay19Potential: "設施氣味潛勢＋風",
   twCountyMigrationFlows: "縣市間遷徙流向",
   mapchallengeDay19Penalties: "異味裁罰設施",
+  mapchallengeDay21OsmRoads: "道路畫進 OSM 的年份",
   transitAccessGrid: "網格大眾運輸可及性（情境推演）",
   transitAccessPlayback: "單一起點大眾運輸擴張（情境推演）",
   // Base map

@@ -223,5 +223,16 @@
   "legend.mapchallenge.day19.ratioNull": "未載明倍數",
   "legend.mapchallenge.day19.sizeTitle": "圓大小＝裁罰件數",
   "legend.mapchallenge.day19.penaltiesNote": "只算事實欄寫到「異味污染物」的裁罰；事實欄 2017 年起才有、約 6 成空白，848 件是下限。個人經營的畜牧場不顯示名稱。",
-  "legend.mapchallenge.day19.penaltiesSource": "來源：環境部環保裁處 · 政府資料開放授權條款第 1 版"
+  "legend.mapchallenge.day19.penaltiesSource": "來源：環境部環保裁處 · 政府資料開放授權條款第 1 版",
+  "legend.mapchallenge.day21.title": "道路畫進 OSM 的年份",
+  "legend.mapchallenge.day21.before": "{year} 以前",
+  "legend.mapchallenge.day21.showingUpTo": "目前畫到 {year} 年為止的路",
+  "legend.mapchallenge.day21.showingNew": "目前只畫 {year} 年新增的路",
+  "legend.mapchallenge.day21.colorNote": "顏色＝這段路第一次畫進 OpenStreetMap 的年份；色帶每年一格，新增多的年份顏色變化較大。",
+  "legend.mapchallenge.day21.major": "主幹道路（國道、快速道路、主要幹道）",
+  "legend.mapchallenge.day21.mid": "次要道路（次要幹道、區域道路）",
+  "legend.mapchallenge.day21.local": "一般道路（巷弄、產業道路、服務道路、未標等級）",
+  "legend.mapchallenge.day21.yearNote": "年份是畫進 OSM 的年份，不是道路開通年份；2007 代表 2007 年以前（含）；資料到 2026-07-27。",
+  "legend.mapchallenge.day21.limits": "只看 2026-07-27 仍存在的路（共 {km} km），已刪除的路不顯示；早期（2007–2011）因單線後來拆成雙向會略多算；路線重畫到新位置會被算成新畫。只有雙北＋基隆。",
+  "legend.mapchallenge.day21.source": "來源：© OpenStreetMap contributors（ODbL）；歷史資料經 ohsome API（HeiGIT）"
 }

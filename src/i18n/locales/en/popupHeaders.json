@@ -131,5 +131,6 @@
   "popupHeader.mapchallengeDay19Complaints": "Odor Complaints Grid",
   "popupHeader.mapchallengeDay19Potential": "Odor Potential & Wind",
   "popupHeader.mapchallengeDay19Penalties": "Odor Penalties",
-  "popupHeader.householdRegistrationBranch": "Household Registration Office Branches"
+  "popupHeader.householdRegistrationBranch": "Household Registration Office Branches",
+  "popupHeader.mapchallengeDay21OsmRoads": "When Roads Were Drawn into OSM"
 }

@@ -131,5 +131,6 @@
   "popupHeader.mapchallengeDay19Complaints": "悪臭苦情メッシュ",
   "popupHeader.mapchallengeDay19Potential": "施設由来の臭気ポテンシャルと風",
   "popupHeader.mapchallengeDay19Penalties": "悪臭による処分施設",
-  "popupHeader.householdRegistrationBranch": "戸政事務所の出張所"
+  "popupHeader.householdRegistrationBranch": "戸政事務所の出張所",
+  "popupHeader.mapchallengeDay21OsmRoads": "道路が OSM に描かれた年"
 }

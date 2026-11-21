@@ -2064,5 +2064,6 @@
   "layer.sandGravelPlants": "Sand & Gravel Processing Plants",
   "layer.countyWelfarePoints": "County Welfare Points (Care Stations & Food Banks)",
   "layer.evMotorcycleCharging": "E-scooter Charging & Swap Stations (County EPA Lists)",
-  "layer.countyStreetlights": "County Streetlight Points"
+  "layer.countyStreetlights": "County Streetlight Points",
+  "layer.mapchallengeDay21OsmRoads": "When Roads Were Drawn into OSM"
 }
