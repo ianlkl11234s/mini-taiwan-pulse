@@ -47,7 +47,7 @@ function fc(n: number): GeoJSON.FeatureCollection {
 function mockMap() {
   const setData = vi.fn();
   const map = { getSource: () => ({ setData }) } as unknown as MapboxMap;
-  return { map, setData, lastCount: () => (setData.mock.calls.at(-1)?.[0] as GeoJSON.FeatureCollection | undefined)?.features.length };
+  return { map, setData, lastCount: () => (setData.mock.lastCall?.[0] as GeoJSON.FeatureCollection | undefined)?.features.length };
 }
 
 /** 依網址決定回應；blocked 內的網址一律網路錯誤（同 agent-browser route --abort）。 */

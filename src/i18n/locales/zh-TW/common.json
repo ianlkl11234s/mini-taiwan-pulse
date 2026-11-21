@@ -158,5 +158,12 @@
   "measure.hectare": "公頃",
   "layerHint.labelsTitle": "現代地名可以關掉",
   "layerHint.labelsDetail": "古地圖上會疊著現代地名。也可以到右上工具列「底圖」選單，關閉「顯示地名」。",
-  "layerHint.labelsHide": "關閉地名"
+  "layerHint.labelsHide": "關閉地名",
+  "mapUnavailable.webglTitle": "這個瀏覽器無法顯示地圖",
+  "mapUnavailable.webglBody": "地圖需要 WebGL 2 才能繪製，但這個瀏覽器目前沒有開啟，或裝置不支援。",
+  "mapUnavailable.crashTitle": "地圖無法啟動",
+  "mapUnavailable.crashBody": "啟動畫面時發生錯誤。可以重新整理再試一次。",
+  "mapUnavailable.browserHint": "建議改用最新版的 Chrome、Edge、Firefox 或 Safari，並確認瀏覽器設定裡的「硬體加速」已開啟。也可以先讀不需要地圖的文章。",
+  "mapUnavailable.reload": "重新整理",
+  "mapUnavailable.blogLink": "閱讀 Pulse 筆記"
 }
