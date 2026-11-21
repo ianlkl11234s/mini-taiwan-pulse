@@ -68,7 +68,7 @@ import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../data/ieCoillt
 import { DenseHeatmapLegendRow } from "./legend/legendShared";
 import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS, PH_RASTER_KEYS } from "../data/phDataKeys";
-import { PhAdminBoundariesLegend, PhDataLegend, PhPopulationLegend, PhRasterLegend, PhSpecLegend } from "./legend/phLegends";
+import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationLegend, PhRasterLegend, PhSpecLegend } from "./legend/phLegends";
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
@@ -363,6 +363,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   ...IE_DATA_KEYS.map((key) => ({ id: key, render: () => <IeDataLegend layerKey={key} /> })),
   { id: "phAdminBoundaries", render: () => <PhAdminBoundariesLegend /> },
   { id: "phPopulation", render: () => <PhPopulationLegend /> },
+  { id: "phOpenaqAir", render: () => <PhOpenaqAirLegend /> },
   ...PH_DATA_KEYS.map((key) => ({ id: key, render: () => <PhDataLegend layerKey={key} /> })),
   ...PH_RASTER_KEYS.map((key) => ({ id: key, render: () => <PhRasterLegend layerKey={key} /> })),
   { id: "vnAdminBoundaries", render: () => <VnAdminBoundariesLegend /> },

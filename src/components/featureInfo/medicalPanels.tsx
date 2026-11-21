@@ -8,7 +8,7 @@ import {
 } from "../../data/erCongestionTypes";
 import { fetchErHospital24h } from "../../data/erHospitalLoader";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
-import { Row } from "./shared";
+import { Row, SourceFooter } from "./shared";
 import { DARK_FEATURE, useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { placeName, placeTown } from "../../i18n/placeText";
@@ -23,7 +23,55 @@ const LTC_ABC_LABEL: Record<string, string> = {
   C: "C 巷弄長照站",
 };
 
-export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
+/** tile 無來源欄的兩層，補衛福部官方出處（依 analytics data-catalog aed／long_term_care） */
+const MEDICAL_RAW_SOURCES = {
+  aed: { labelKey: "popup.medical.sourceAed", url: "https://data.gov.tw/dataset/12063" },
+  ltc: { labelKey: "popup.medical.sourceLtc", url: "https://data.gov.tw/dataset/88270" },
+} as const;
+
+const str = (v: unknown): string => (v == null ? "" : String(v).trim());
+
+/**
+ * AED（medical_aed_v2）與長照（medical_ltc_v2）的 PMTiles 保留官方原始欄位（PlaceName、Name…），
+ * 沒有合併腳本產的 med_cat／name 等小寫欄位（長照 269 筆中只有 2 筆有）。這裡依欄位形狀補成 panel 讀的欄位。
+ * 只對應官方欄位；長照的 County／District 是行政區代碼（如 10013），不當名稱顯示，縣市資訊已在地址內。
+ */
+export function normalizeMedicalPOIProps(props: Record<string, unknown>): Record<string, unknown> {
+  if (props.med_cat) return props;
+  if ("AEDID" in props || "PlaceName" in props) {
+    return {
+      ...props,
+      med_cat: "aed",
+      name: str(props.PlaceName),
+      place_type: str(props.PlaceType),
+      place_category: str(props.PlaceCategory),
+      county: str(props.County),
+      district: str(props.District),
+      address: str(props.Address),
+      aed_location: str(props.AEDLocationDesc) || str(props.AEDLocation),
+      phone: str(props.EmergencyPhone),
+    };
+  }
+  if ("ABCType" in props || "OrgCode" in props) {
+    const beds = Number(props.OpenBeds);
+    return {
+      ...props,
+      med_cat: "ltc",
+      name: str(props.Name),
+      abc_type: str(props.ABCType),
+      address: str(props.Address),
+      phone: str(props.Phone),
+      service_items: str(props.ServiceItems),
+      // 非住宿型單位的 OpenBeds 恆為 0（不適用），不顯示成「空床 0」
+      ...(Number.isFinite(beds) && beds > 0 ? { open_beds: beds } : {}),
+    };
+  }
+  return props;
+}
+
+export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unknown> }) {
+  const props = normalizeMedicalPOIProps(rawProps);
+  const rawSrc = props !== rawProps && (props.med_cat === "aed" || props.med_cat === "ltc") ? MEDICAL_RAW_SOURCES[props.med_cat] : null;
   const t = useFeatureTheme();
   const i18n = useLocale();
   const { t: tr } = i18n;
@@ -61,7 +109,8 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
       ) : null}
       {medCat === "aed" ? (
         <>
-          <Row label={tr("popup.medical.placeType")} value={String(props.place_type ?? "")} color={color} />
+          <Row label={tr("popup.medical.placeCategory")} value={String(props.place_category ?? "")} color={color} />
+          <Row label={tr("popup.medical.placeType")} value={String(props.place_type ?? "")} />
           <Row field="county" value={placeName(county, i18n)} />
           <Row field="district" value={placeTown(county, String(props.district ?? ""), i18n)} />
           <Row field="address" value={address} />
@@ -88,6 +137,7 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
           ) : null}
         </>
       ) : null}
+      <SourceFooter props={rawSrc ? { source_org: tr(rawSrc.labelKey), source_url: rawSrc.url, license: tr("popup.infra.toiletLicense") } : rawProps} />
     </>
   );
 }

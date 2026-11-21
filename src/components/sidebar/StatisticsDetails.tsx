@@ -7,7 +7,7 @@ import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictio
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
 import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from '../../data/statisticsFillColor';
 import { atlasBinaryLegendRows, atlasCategoryLegendRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
-import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
+import { demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
@@ -28,7 +28,7 @@ import { dataDotUnit, dotTotal } from '../../map/statisticsDots';
 import { CompareStatisticsLegend, type StatisticsLegendPart } from '../compare/CompareStatisticsLegend';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
 import { enumLabel } from '../../i18n/dataText';
-import { STATISTICS_CATEGORY_CODE_UNIT, boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsLocationBasis, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
+import { STATISTICS_CATEGORY_CODE_UNIT, boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsDisclosure, statisticsLocationBasis, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
 import { unparseableStatisticsReleaseCount } from '../../data/statisticsSelection';
 import { localeStore, useLocale, type LocaleSnapshot } from '../../state/localeStore';
 import type { MessageKey } from '../../i18n/keys';
@@ -154,21 +154,21 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
     {selectionSummary && <p style={factStyle}><strong>{t('statistics.details.selection')}</strong>{selectionSummary}</p>}
     {labor && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(laborLocationSemantics(labor), i18n)}</p>}
     {environment && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(environment.location_semantics, i18n)}</p>}
-    {environment && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(environment.disclosure)}</p>}
+    {environment && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(environment.disclosure, i18n)}</p>}
     {demographics && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(demographics.location_semantics, i18n)}</p>}
     {addiction && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(addiction.location_semantics, i18n)}</p>}
-    {addiction && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(addiction.disclosure)}</p>}
+    {addiction && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(addiction.disclosure, i18n)}</p>}
     {landslide && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(landslide.location_semantics, i18n)}</p>}
-    {landslide && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(landslide.disclosure)}</p>}
+    {landslide && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(landslide.disclosure, i18n)}</p>}
     {atlas && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(atlas.location_semantics, i18n)}</p>}
     {atlasNote && <p style={factStyle}><strong>{t('statistics.details.subIndicatorDirection')}</strong>{atlasNote}</p>}
-    {atlas && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(atlas.disclosure)}</p>}
-    {demographics && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(demographicsDisclosure(demographics))}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
+    {atlas && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(atlas.disclosure, i18n)}</p>}
+    {demographics && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(demographics.disclosure, i18n)}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
     <details><summary>{t('statistics.details.sourceLog')}</summary>
       <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
-        {agri && <span>{humanizeStatisticsText(agri.disclosure ?? agri.boundary_semantics)}</span>}
+        {agri && <span>{(agri.disclosure ? statisticsDisclosure(agri.disclosure, i18n) : humanizeStatisticsText(agri.boundary_semantics))}</span>}
         {agri?.source_statistical_boundary_version && <span>{t('statistics.details.statRefBoundary', { stat: boundaryVersionLabel(agri.source_statistical_boundary_version, i18n), actual: boundaryVersionLabel(agri.boundary_version, i18n) })}</span>}
-        {social?.disclosure && <span>{humanizeStatisticsText(social.disclosure)}</span>}
+        {social?.disclosure && <span>{statisticsDisclosure(social.disclosure, i18n)}</span>}
         {social && <span>{t('statistics.details.refBoundary', { boundary: boundaryVersionLabel(social.boundary_version, i18n), semantics: humanizeStatisticsText(social.boundary_semantics) ?? t('statistics.details.refBoundaryDefault') })}</span>}
         {labor && <span>{t('statistics.details.displayBoundary', { boundary: boundaryVersionLabel(labor.boundary_version, i18n), semantics: humanizeStatisticsText(labor.boundary_semantics) ?? '' })}</span>}
         {environment && <span>{t('statistics.details.sourceDatasetBoundary', { title: environment.source_title ?? t('statistics.notProvided'), publisher: statisticsPublisher(environment.publisher, i18n), boundary: boundaryVersionLabel(environment.boundary_version, i18n) })}</span>}

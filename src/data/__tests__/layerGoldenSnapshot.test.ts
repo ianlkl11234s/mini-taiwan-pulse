@@ -310,8 +310,10 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-19: +3 30 天地圖挑戰 Day 19 氣味（mapchallengeDay19Complaints／Potential／Penalties）。
     // 2026-11-20: +2 台灣圖層延伸 B2 點層（mountainMobileImprovement、ecoLabelHotels）、+9 台灣圖層延伸 B2 統計（新住民子女就學 5、前二十大姓 3、現存坑洞數 1）。
     // 2026-11-20: +7 台灣圖層延伸 B3（namrBuoys、towingYards、swcOutdoorClassrooms、swcEcoCheckZones、airportHeightSurfaces、landOfficeJurisdiction、npSpeciesSites）。
+    // 2026-11-20: +1 菲律賓即時空品 phOpenaqAir（OpenAQ，RPC get_openaq_latest）。
+    // 2026-11-20: +4 台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
     // 2026-11-20: +23 台灣圖層延伸 B4 統計（普查常住人口 6、原住民族別 4、住宅用電 4、公司登記動態 4、未參加健保 2、工商普查鄉鎮 3）。
-    expect(keys.length).toBe(2059);
+    expect(keys.length).toBe(2064);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

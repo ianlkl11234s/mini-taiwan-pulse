@@ -4,6 +4,7 @@ import { phPlantStatusFilter, usePhAdminLayers, usePhDataLayer, usePhPopulationL
 import { PH_SPEC_BY_KEY, phFileSpecs } from "../../data/phDataLayers";
 import { PH_RASTER_BY_KEY } from "../../data/phWavesLayers";
 import type { PhDataKey, PhRasterKey } from "../../data/phDataKeys";
+import { usePhOpenaqAirLayer } from "../../hooks/usePhOpenaqAirLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -130,3 +131,11 @@ export const PhTerrainHillshadeHost = makePhRasterHost("phTerrainHillshade");
 export const PhTerrainReliefHost = makePhRasterHost("phTerrainRelief");
 export const PhBuiltSurfaceHost = makePhRasterHost("phBuiltSurface");
 export const PhForestLossHost = makePhRasterHost("phForestLoss");
+
+/** 即時空品（OpenAQ，RPC get_openaq_latest）：低價感測器為主，10 分鐘輪詢。 */
+export const PhOpenaqAirHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("usePhOpenaqAirLayer");
+  const p = useKeyOverlayParams("phOpenaqAir");
+  usePhOpenaqAirLayer(deps.mapRef, deps.layerVisibility.phOpenaqAir, p.phOpenaqAirOpacity ?? 0.9, p.phOpenaqAirScale ?? 1, deps.isDarkTheme);
+  return null;
+};

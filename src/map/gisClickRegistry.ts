@@ -669,6 +669,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ph-marine-stations-circle"], type: "phMarineStations" },
   { layers: ["ph-wdpca-line", "ph-wdpca-fill"], type: "phWdpca" },
   { layers: ["ph-waste-facilities-circle"], type: "phWasteFacilities" },
+  { layers: ["ph-openaq-air-circle"], type: "phOpenaqAir" },
   { layers: ["ph-pollution-sources-circle"], type: "phPollutionSources" },
   { layers: ["ph-arts-venues-circle"], type: "phArtsVenues" },
   { layers: ["ph-post-offices-circle"], type: "phPostOffices" },

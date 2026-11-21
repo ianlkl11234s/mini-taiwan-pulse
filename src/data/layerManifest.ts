@@ -1,4 +1,5 @@
 import type { CountryCode } from "../constants/countries";
+import type { LongTermSpec } from "./layerLongTerm";
 import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
 import { industrialDensitySources } from "./industrialDensityTypes";
 import { getStatisticsVisual } from "./statisticsVisuals";
@@ -392,6 +393,14 @@ interface LayerManifestBase {
   description: string;
   /** 主題標籤（跨主題檢索用，非 sidebar 分區） */
   topics: string[];
+
+  // ── 長期時間 ──
+  /**
+   * 能看長期變化的圖層才寫（涵蓋超過 30 天、隨時間變化有意義）；缺席＝不適用（靜態或即時）。
+   * 類別、涵蓋、粒度、資料檔、能否加總、斷點、細節分層。規範：`docs/features/longterm-time/STANDARD.md`；
+   * 型別與各欄說明見 `layerLongTerm.ts`，檢查見 `__tests__/layerLongTerm.test.ts`。
+   */
+  longTerm?: LongTermSpec;
 }
 
 /**
@@ -2328,10 +2337,10 @@ export const LAYER_MANIFEST = {
   towingYards: {
     key: "towingYards", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "違規拖吊保管場", alt: "Vehicle Towing Yards" }), expandable: true,
     color: ATLAS_LAYER_COLORS.towingYards, icon: Truck,
-    upstream: { status: "verified", datasets: [{ datasetId: "towing_yards", confidence: "MED" }], processing: "analytics transportation/towing_yards 7319：警政署 88 列（2026-11-20 快照），本機離線門牌定位 63 處上圖，25 筆無法定位未上圖；09 開頭手機剔除", note: "位置依地址推定，不是官方座標；另有 25 筆無法定位、未上圖。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "towing-yards", url: "./civic_facilities/towing_yards_v1.pmtiles", sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 },
+    upstream: { status: "verified", datasets: [{ datasetId: "towing_yards", confidence: "MED" }], processing: "analytics transportation/towing_yards 7319：警政署 88 列（2026-11-20 快照），離線門牌定位 63＋Google 門牌級補解 9，共 72 處上圖，16 筆無法定位未上圖；09 開頭手機剔除", note: "位置依地址推定，不是官方座標；另有 16 筆無法定位、未上圖。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "towing-yards", url: "./civic_facilities/towing_yards_v2.pmtiles", sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 },
     legend: "towingYards", popup: "towingYards", params: { count: 2, kinds: ["slider", "slider"] },
-    description: "警察機關車輛違規拖吊保管場 63 處（來源 88 筆，另 25 筆無法定位未上圖；位置依地址推定）。",
+    description: "警察機關車輛違規拖吊保管場 72 處（來源 88 筆，另 16 筆無法定位未上圖；位置依地址推定）。",
     topics: ["交通", "拖吊", "保管場", "違規", "警政署"],
   },
   swcOutdoorClassrooms: {
@@ -2462,6 +2471,19 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["multiSelect", "palette", "slider"] },
     description: "歷史火災點位（需進歷史模式選年／月／日）",
     topics: ["消防", "災害", "歷史"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：get_fire_event_years 快照＝111、112、113 年（各 1.5–1.7 萬筆）；App.tsx FIRE_MAX_YEAR=113
+      coverage: { start: "2022-01-01", end: "2024-12-31" },
+      granularity: "month",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_fire_events_by_year_<rocYear>.json"],
+        note: "每年一檔（get_fire_events_by_year 原樣輸出）；每筆 t＝發生時間（unix 秒）、m＝月",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   fireLatest: {
@@ -5416,6 +5438,30 @@ export const LAYER_MANIFEST = {
     description: "菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）",
     topics: ["菲律賓", "人口", "人口密度", "普查", "PSA", "barangay"],
   },
+  phOpenaqAir: {
+    key: "phOpenaqAir",
+    country: "PH", section: { theme: "環境氣候", group: "空品" },
+    ...layerName({ zh: "即時空品（低價感測器為主）", alt: "Air Quality Sensors", qualifier: "OpenAQ" }),
+    expandable: true,
+    color: "#7e57c2", // 同 LASS 微型感測（aqiMicroSensors）
+    icon: Wind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "openaq_ph", confidence: "HIGH" }],
+      processing: "data-collectors collector openaq（pulse-host，每 60 分）→ live.openaq_locations／live.openaq_measurements（gis-platform mig 561，量測留 37 天，S3 openaq/archives/ 永久）→ RPC get_openaq_latest（mig 563，每站一列、48 小時內各參數最新值）；前端隱藏近 30 天無資料的站、量測超過 3 小時標過舊",
+      note: "每站授權不同（CC0 1.0／CC BY 4.0／US Public Domain；部分站 OpenAQ 未提供授權資訊），popup 依每站 attribution_name 署名並註明 via OpenAQ。116 站中 114 站是低價感測器（Clarity、AirGradient），非官方測站；2 個官方站（AirNow、Spartan）2026-02 起停更、目前不顯示",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePhOpenaqAirLayer：Supabase RPC get_openaq_latest（10 分鐘輪詢）→ 自建 GeoJSON source ph-openaq-air＋circle ph-openaq-air-circle（非 OVERLAY_REGISTRY）；快照錨在掛鐘現在、不跟時間軸；popup 走勢 RPC get_openaq_location_series",
+    },
+    legend: "phOpenaqAir",
+    popup: "phOpenaqAir",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "菲律賓 OpenAQ 空品測站即時 PM2.5（多為低價感測器、非官方測站；每小時更新，過舊與無資料另外標示）",
+    topics: ["菲律賓", "空品", "PM2.5", "即時", "OpenAQ", "低價感測器"],
+  },
   // ══════════════════════════════════════════════════════════════
   // 🇻🇳 越南 Vietnam（2026-11-13 第 0–1 波：C001 行政邊界、C023 人口；其餘 10 層由 VN_DATA_MANIFEST_ENTRIES 派生）
   // ══════════════════════════════════════════════════════════════
@@ -8194,17 +8240,17 @@ export const LAYER_MANIFEST = {
     icon: Landmark,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }, { datasetId: "household_registration_offices", confidence: "MED" }], processing: "analytics civic_facilities/household_registration_offices 7437：戶政司 368 列＝主所 210＋轄下辦公據點 158；離線 geocode 命中 305（main 186／branch 119），本層只補 branch 119 點（新檔名 household_registration_offices_7437.pmtiles），39 筆待 TGOS 補位未上圖；主所以站上名冊為準", note: "戶政辦公據點位置依地址推定；另 39 處無法定位未上圖。",
+      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }, { datasetId: "household_registration_offices", confidence: "MED" }], processing: "analytics civic_facilities/household_registration_offices 7437：戶政司 368 列＝主所 210＋轄下辦公據點 158；離線 geocode 305＋Google 門牌級補解 32＝337（main 194／branch 143），本層只補 branch 143 點（新檔名 household_registration_offices_7437_v2.pmtiles），15 筆無法定位未上圖；主所以站上名冊為準", note: "戶政辦公據點位置依地址推定；另 15 處無法定位未上圖。",
     },
     dataClass: "B",
     source: [
       { kind: "geojson", sourceId: "gov-service-offices", url: "./civic_facilities/gov_service_offices_national.geojson" },
-      { kind: "pmtiles", sourceId: "gov-service-offices-hro-branch", url: "./civic_facilities/household_registration_offices_7437.pmtiles", sourceLayer: "household_registration_offices", minzoom: 4, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "gov-service-offices-hro-branch", url: "./civic_facilities/household_registration_offices_7437_v2.pmtiles", sourceLayer: "household_registration_offices", minzoom: 4, maxzoom: 14 },
     ],
     legend: "govServiceOffices",
     popup: ["govServiceOffice", "householdRegistrationBranch"],
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
-    description: "各級機關便民服務據點全國 702 處，另含戶政事務所轄下辦公據點 119 處（可與主所分開篩選）",
+    description: "各級機關便民服務據點全國 702 處，另含戶政事務所轄下辦公據點 143 處（可與主所分開篩選）",
     topics: ["基礎建設", "行政", "公共服務"],
   },
 
@@ -10104,6 +10150,20 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["palette", "slider", "toggle"] },
     description: "實價登錄租賃案件 150m 網格中位單價",
     topics: ["房地產", "租賃", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstateRentalPoint: {
@@ -10128,6 +10188,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄租賃交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "租賃", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   realEstateSaleGrid: {
@@ -10155,6 +10229,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄買賣案件 150m 網格中位單價",
     topics: ["房地產", "買賣", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstateSalePoint: {
@@ -10179,6 +10267,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄買賣交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "買賣", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   realEstatePresaleGrid: {
@@ -10206,6 +10308,20 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["palette", "slider", "toggle"] },
     description: "實價登錄預售屋 150m 網格中位單價",
     topics: ["房地產", "預售", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstatePresalePoint: {
@@ -10230,6 +10346,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄預售屋交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "預售", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   propertyValueAdmin: {
@@ -11040,6 +11170,24 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "H3 網格人口數（日間／夜間，可依年份回放）",
     topics: ["人口", "H3", "統計"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：get_h3_demographics_years 快照＝104–113 年 res7 全有、res8 只到 108 年（h3Loader.pickDemographicsYearlyResolution）
+      coverage: { start: "2015-01-01", end: "2024-12-31" },
+      granularity: "year",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r7.json"],
+        note: "每年每解析度一檔（get_h3_demographics_yearly 原樣、全量）",
+      },
+      summable: true,
+      breaks: [],
+      detailTiers: [
+        { from: "2015-01-01", to: "2018-12-31", level: "full", note: "104–107 年有 res8 細網格（約 5.6 萬格）", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2019-01-01", to: "2019-12-31", level: "reduced", note: "108 年 res8 只有 2,636 格，不完整", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2020-01-01", to: "2024-12-31", level: "reduced", note: "109 年起沒有 res8，只有 res7" },
+      ],
+    },
   },
 
   h3Population: {
@@ -11092,6 +11240,24 @@ export const LAYER_MANIFEST = {
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "縣市年度人口指標（出生／死亡／遷徙等，多指標下拉切換）",
     topics: ["人口", "H3", "指標"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：get_h3_demographics_years 快照＝104–113 年 res7 全有、res8 只到 108 年（h3Loader.pickDemographicsYearlyResolution）
+      coverage: { start: "2015-01-01", end: "2024-12-31" },
+      granularity: "year",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r7.json"],
+        note: "每年每解析度一檔（get_h3_demographics_yearly 原樣、全量）",
+      },
+      summable: false, // 多指標混合（含率與平均），保守視為不可加總
+      breaks: [],
+      detailTiers: [
+        { from: "2015-01-01", to: "2018-12-31", level: "full", note: "104–107 年有 res8 細網格（約 5.6 萬格）", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2019-01-01", to: "2019-12-31", level: "reduced", note: "108 年 res8 只有 2,636 格，不完整", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2020-01-01", to: "2024-12-31", level: "reduced", note: "109 年起沒有 res8，只有 res7" },
+      ],
+    },
   },
 
   socioeconomic: {

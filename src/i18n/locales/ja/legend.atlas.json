@@ -53,7 +53,7 @@
   "legend.atlas.mmHalo": "カバー範囲のイメージ（半径約 500 m、実測の電波ではありません）",
   "legend.atlas.ehSubtitle": "283 軒：金 50、銀 94、銅 139。等級は同系色の濃淡",
   "legend.atlas.nbSubtitle": "9 地点（位置のみ、観測値なし）。うち 5 地点は気象署のデータブイと同位置",
-  "legend.atlas.tySubtitle": "63 か所を表示（位置は住所からの推定）。ほかに 25 件は位置を特定できず非表示",
+  "legend.atlas.tySubtitle": "72 か所を表示（位置は住所からの推定）。ほかに 16 件は位置を特定できず非表示",
   "legend.atlas.tyPoint": "レッカー移動保管場",
   "legend.atlas.ocPoint": "水土保持野外教室（2020 年版、18 か所）",
   "legend.atlas.ezZone": "第 1 級生態チェック区域（縮小時は代表点、ズーム 8 から範囲を表示）",

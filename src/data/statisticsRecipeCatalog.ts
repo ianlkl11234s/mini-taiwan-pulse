@@ -119,6 +119,7 @@ export const STATISTICS_RECIPE_CATALOG_SPECS = [
   { family: "taipeiAgency", source: "src/data/taipeiAgencyStatisticsRecipes.json", catalog: "src/data/taipeiAgencyStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: false, periodCount: true },
   { family: "mortality", source: "src/data/mortalityStatisticsRecipes.json", catalog: "src/data/mortalityStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: false, periodCount: true },
   { family: "culture", source: "src/data/cultureStatisticsRecipes.json", catalog: "src/data/cultureStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "twExtB1", source: "src/data/twExtB1StatisticsRecipes.json", catalog: "src/data/twExtB1StatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "twExtB2", source: "src/data/twExtB2StatisticsRecipes.json", catalog: "src/data/twExtB2StatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "twExtB4", source: "src/data/twExtB4StatisticsRecipes.json", catalog: "src/data/twExtB4StatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "openData", source: "src/data/openDataStatisticsRecipes.json", catalog: "src/data/openDataStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },

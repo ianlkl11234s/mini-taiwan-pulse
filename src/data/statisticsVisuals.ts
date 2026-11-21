@@ -12,6 +12,7 @@ import {
   Dumbbell,
   Landmark,
   Microscope,
+  Bug,
   PiggyBank,
   Receipt,
   ShieldAlert,
@@ -279,6 +280,8 @@ const LANDSLIDE_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> = 
  */
 const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> = [
   [/^statsHealthTb/, 'health', Microscope],
+  // 台灣圖層延伸 B1（2026-11-20）：法定傳染病沿用醫療 BuGn，不新增色票。
+  [/^statsHealthNotifiable/, 'health', Bug],
   [/^statsHealthCancer/, 'health', Ribbon],
   [/^statsHealth(?:Breast|Cervical|Colorectal)Screening/, 'health', ClipboardCheck],
   [/^statsHealth(?:LiveBirths|LowBirthWeight|BirthSexRatio)/, 'health', Baby],

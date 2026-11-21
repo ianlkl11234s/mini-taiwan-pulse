@@ -9,6 +9,8 @@ Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsT
   openData     縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL；docs/handoff/tw-opendata-completeness-recipes.json，5 recipes）
   twExtB2      台灣圖層延伸 B2 統計（新住民子女就學 5、鄉鎮前二十大姓 3、現存坑洞數 1；
                docs/topic-research/tw_layer_ext_20261120/b2/r2/b2-recipes.json，9 recipes；各層 tab_theme 併入既有統計主題）
+  twExtB1      台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人，4 recipes，維度 疾病×感染來源；
+               docs/topic-research/tw_layer_ext_20261120/b1/r2/b1-recipes.json；tab_theme 併入「醫療與長照」的「傳染病」）
   twExtB4      台灣圖層延伸 B4 統計（109 年普查常住人口 6、原住民族別 4、住宅用電鄉鎮／縣市 4、公司登記動態 4、未參加健保比 2、
                工商普查鄉鎮 3；docs/topic-research/tw_layer_ext_20261120/b4/r2/b4-recipes.json，23 recipes；tab_theme 併入既有統計主題）
 
@@ -346,6 +348,43 @@ TW_EXT_B2_LOCATION = {
     "abandonedPits": "坑洞所在縣市（來源表所列縣市；台中、台南、高雄為改制前縣＋市合併值）",
 }
 
+# ── 台灣圖層延伸 B1（2026-11-20）：疾管署法定傳染病（鄉鎮 10 病、縣市 12 病）──────────
+CDC_SRC = "出典：衛生福利部疾病管制署 法定傳染病地區年齡性別統計表（data.gov.tw 179290 等 12 檔，月檔）；政府資料開放授權條款-第1版。"
+CDC_SCOPE = "疾管署確定病例，依發病日（梅毒、淋病為診斷日）的年份；病例居住地所在行政區；2026 年未完整，不收。"
+CDC_ZERO = "月檔只列有病例的列，未列的行政區在該年記為 0 例（最淺一級），不是無資料。"
+CDC_SMALL = "小數字照來源不遮蔽；人口少的鄉鎮 1 例就會有很高的每十萬人比率，年度波動大，宜看多年。"
+CDC_UNALLOC = "改制前舊縣鄉鎮與「其他」的病例不歸屬任何鄉鎮、不攤分（10 病 2003–2025 合計 116 例，占比極小）。"
+CDC_ORIGIN = "感染來源分全部、本土、境外移入：境外移入指感染來源，不是居住地。"
+CDC_RATE = "每十萬人比率＝病例數 ÷ 當年年底戶籍人口 × 10 萬，只有 2018 年起。"
+CDC_SCALE = "色階每個疾病各一套（取全部期別非零值的分位數），不同疾病的顏色不可互比。登革熱 2023 年單年爆發（26,706 例），其他年份大多落在較淺的級距。"
+CDC_COUNTY_ONLY = "梅毒、淋病來源只有縣市欄，只在縣市層可選；來源無境外移入欄位，境外移入為 0。"
+CDC_ONLY_COUNTY = "縣市版另含梅毒、淋病（診斷日）。"
+
+
+CDC_LOC_TOWN = "病例居住地所在鄉鎮市區（境外移入病例也依居住地）"
+CDC_LOC_COUNTY = "病例居住地所在縣市（境外移入病例也依居住地）"
+CDC_DISC = "疾管署法定傳染病確定病例（地區年齡性別統計表）。月檔只列有病例的列，未列的行政區在該年記為 0 例；改制前舊縣鄉鎮與「其他」的病例未歸屬、不攤分；小數字照來源不遮蔽，人口少的鄉鎮比率年波動大，宜看多年；每十萬人口比率只有 2018 年起（分母為當年年底戶籍人口）；境外移入為感染來源，不是居住地。"
+CDC_NA = {"not_applicable": "不適用（該病當年尚未列為法定傳染病，不是 0）"}
+
+
+CDC_RATE_STATUS = {**CDC_NA, "missing": "無資料（2018、2019 年有 2 個鄉鎮缺當年戶籍人口分母，比率無從計算；不是 0）"}
+
+
+def b1(key, option, digits, notes, **extra):
+    return dict(key=key, group="notifiableCases", group_label="法定傳染病", option_label=option, subgroup="傳染病",
+                visual="health", digits=digits, notes=notes, disclosure=CDC_DISC, defaults={"disease": "dengue", "origin": "all"},
+                pool_periods=True, tab_theme="醫療與長照 Health & Care", data_theme="疾病與健康統計 Disease & Health Statistics", **extra)
+
+
+TW_EXT_B1_LAYERS = [
+    b1("statsHealthNotifiableCasesTownship", "鄉鎮・病例數", 0, [CDC_SRC, CDC_SCOPE, CDC_ZERO, CDC_UNALLOC, CDC_ORIGIN, CDC_SCALE], counts=True, qs=(0.5, 0.75, 0.9), status=CDC_NA, location_semantics=CDC_LOC_TOWN, label="法定傳染病病例數"),
+    b1("statsHealthNotifiableRatePer100kTownship", "鄉鎮・每十萬人病例率", 1, [CDC_SRC, CDC_SCOPE, CDC_RATE, CDC_ZERO, CDC_SMALL, CDC_UNALLOC, CDC_ORIGIN, CDC_SCALE], qs=(0.25, 0.5, 0.75, 0.9), status=CDC_RATE_STATUS, location_semantics=CDC_LOC_TOWN, label="法定傳染病病例率"),
+    b1("statsHealthNotifiableCasesCounty", "縣市・病例數", 0, [CDC_SRC, CDC_SCOPE, CDC_ZERO, CDC_ORIGIN, CDC_ONLY_COUNTY, CDC_COUNTY_ONLY, CDC_SCALE], counts=True, qs=(0.5, 0.75, 0.9), status=CDC_NA, location_semantics=CDC_LOC_COUNTY, label="法定傳染病病例數"),
+    b1("statsHealthNotifiableRatePer100kCounty", "縣市・每十萬人病例率", 1, [CDC_SRC, CDC_SCOPE, CDC_RATE, CDC_ZERO, CDC_ORIGIN, CDC_ONLY_COUNTY, CDC_COUNTY_ONLY, CDC_SCALE], qs=(0.25, 0.5, 0.75, 0.9), status=CDC_RATE_STATUS, location_semantics=CDC_LOC_COUNTY, label="法定傳染病病例率"),
+]
+TW_EXT_B1_ORIGIN_LABELS = {"all": "全部", "local": "本土", "imported": "境外移入"}
+TW_EXT_B1_DIM_LABELS = {"disease": "疾病別", "origin": "感染來源"}
+
 # ── 台灣圖層延伸 B4（2026-11-20）：普查常住人口、原住民族別、住宅用電、公司登記動態、健保未參加比、工商普查鄉鎮 ──────────
 B4_TAB_POP = "人口與教育 Population & Education"
 B4_TAB_HEALTH = "醫療與長照 Health & Care"
@@ -488,6 +527,16 @@ FAMILIES: dict[str, dict] = {
         "observation_policy": {"observed_zero": "status observed and value 0 (source lists 0)", "missing": "value null; surname not in the township top-20 list; no zero fill", "not_applicable": "value null; no pupils of that school level in the township, so the share is undefined", "suppressed": "not used"},
         "layers": TW_EXT_B2_LAYERS,
     },
+    "twExtB1": {
+        "file": "twExtB1StatisticsRecipes",
+        "handoff": "docs/topic-research/tw_layer_ext_20261120/b1/r2/b1-recipes.json",
+        "theme_dir": "poi",
+        "license": "政府資料開放授權條款-第1版（data.gov.tw）",
+        "data_theme": "疾病與健康統計 Disease & Health Statistics",
+        "tab_theme": "醫療與長照 Health & Care",
+        "observation_policy": {"observed_zero": "status observed and value 0 (the monthly source lists only rows with cases; an unlisted township-year is 0 cases)", "missing": "not used", "not_applicable": "not used", "suppressed": "not used"},
+        "layers": TW_EXT_B1_LAYERS,
+    },
     "twExtB4": {
         "file": "twExtB4StatisticsRecipes",
         "handoff": "docs/topic-research/tw_layer_ext_20261120/b4/r2/b4-recipes.json",
@@ -532,14 +581,14 @@ def quantile(values: list[float], q: float) -> float:
     return ordered[low] + (ordered[high] - ordered[low]) * (position - low)
 
 
-def make_breaks(values: list[float], counts: bool) -> list[float]:
+def make_breaks(values: list[float], counts: bool, qs: tuple | None = None) -> list[float]:
     positive = [v for v in values if v > 0]
     if counts and len(positive) < len(values):
-        raw = [1] + [max(1, round(nice(quantile(positive, q)))) for q in (0.25, 0.5, 0.75)] if positive else [1]
+        raw = [1] + [max(1, round(nice(quantile(positive, q)))) for q in (qs or (0.25, 0.5, 0.75))] if positive else [1]
     elif counts:
-        raw = [max(1, round(nice(quantile(positive, q)))) for q in (0.2, 0.4, 0.6, 0.8)]
+        raw = [max(1, round(nice(quantile(positive, q)))) for q in (qs or (0.2, 0.4, 0.6, 0.8))]
     else:
-        raw = [nice(quantile(positive, q)) for q in (0.2, 0.4, 0.6, 0.8)] if positive else []
+        raw = [nice(quantile(positive, q)) for q in (qs or (0.2, 0.4, 0.6, 0.8))] if positive else []
     breaks: list[float] = []
     for value in raw:
         if value > 0 and (not breaks or value > breaks[-1]):
@@ -672,25 +721,42 @@ def build_family(name: str, config: dict, root: Path) -> dict:
                 if sorted(source_order) != present or source_order[0] != defaults[dim]:
                     raise SystemExit(f"{key}: {spec['dim_order']} order {source_order} does not match {present}")
                 ordered = source_order
+            if name == "twExtB1":
+                # 疾病名取 release 處理參數的 dimension_labels（「登革熱（全部）」去掉括號後綴）；感染來源用固定三值
+                tuple_labels = meta["release"]["provenance"]["processing"]["parameters"]["dimension_labels"]
+                if dim == "disease":
+                    labels = {v: tuple_labels[f"{v}|all"].removesuffix("（全部）") for v in present}
+                    source_order = [k.split("|")[0] for k in tuple_labels if k.endswith("|all")]  # 來源順序＝2021–25 病例量由多到少
+                    ordered = [defaults[dim], *[v for v in source_order if v in present and v != defaults[dim]]]
+                else:
+                    labels = TW_EXT_B1_ORIGIN_LABELS
+                    ordered = [defaults[dim], *[v for v in TW_EXT_B1_ORIGIN_LABELS if v in present and v != defaults[dim]]]
+                if set(present) - set(labels):
+                    raise SystemExit(f"{key}: no label for {sorted(set(present) - set(labels))}")
+                dimensions.append({"key": dim, "label": TW_EXT_B1_DIM_LABELS[dim], "default": defaults[dim], "options": [{"value": v, "label": labels[v]} for v in ordered]})
+                continue
             dimensions.append({"key": dim, "label": spec.get("dim_labels", {}).get(dim, dim), "default": defaults[dim], "options": [{"value": v, "label": v} for v in ordered]})
 
         full = [o for o in options if "partial_period_label" not in o and all(o["dimensions"][d] == defaults[d] for d in dim_keys)]
         default_option = max(full, key=lambda o: (o["period_end"], o["period_start"]))
         basis_period = (default_option["period_end"], default_option["period_start"])
         # fractional：計數但單位是萬筆等小數（不走整數門檻），門檻用比率路徑的分位數
-        counts = layer["aggregation"] == "sum" and not spec.get("fractional")
+        counts = (layer["aggregation"] == "sum" and not spec.get("fractional")) or bool(spec.get("counts"))
         default_tuple = "|".join(defaults[d] for d in dim_keys)
         tuples = sorted({"|".join(o["dimensions"][d] for d in dim_keys) for o in options})
         by_dimension = {}
         for tuple_key in tuples:
             source_values = values[basis_period].get(tuple_key)
+            if spec.get("pool_periods"):
+                # 跨期合併的非零分位數（疾病年際差大：登革熱 2023 單年爆發，只看最新年會讓爆發年全擠在最深級）
+                source_values = [v for period in values.values() for v in period.get(tuple_key, [])]
             if not source_values:
                 for period in sorted(values, reverse=True):
                     if values[period].get(tuple_key):
                         source_values = values[period][tuple_key]
                         break
             if tuple_key != default_tuple:
-                by_dimension[tuple_key] = {"breaks": spec.get("breaks") or make_breaks(source_values or [], counts), "direction": "diverging" if spec.get("diverging") else "ascending"}
+                by_dimension[tuple_key] = {"breaks": spec.get("breaks") or make_breaks(source_values or [], counts, spec.get("qs")), "direction": "diverging" if spec.get("diverging") else "ascending"}
         binary = spec.get("binary")
         categorical = spec.get("categorical")
         if categorical:
@@ -719,7 +785,8 @@ def build_family(name: str, config: dict, root: Path) -> dict:
                 raise SystemExit(f"{key}: binary layer needs 0/1 values only, no dimension scales or breaks; got {sorted(observed)}")
             breaks = [1]
         else:
-            breaks = spec.get("default_breaks") or spec.get("breaks") or make_breaks(values[basis_period][default_tuple], counts)
+            default_values = [v for period in values.values() for v in period.get(default_tuple, [])] if spec.get("pool_periods") else values[basis_period][default_tuple]
+            breaks = spec.get("default_breaks") or spec.get("breaks") or make_breaks(default_values, counts, spec.get("qs"))
         for scale in [] if categorical else [{"breaks": breaks}, *by_dimension.values()]:
             b = scale["breaks"]
             if spec.get("diverging"):
@@ -763,7 +830,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "format": {"locale": "zh-TW", "maximumFractionDigits": spec["digits"]},
             "derived": layer["aggregation"] == "ratio",
             "location_semantics": spec.get("location_semantics") or params.get("location_semantics") or TW_EXT_B2_LOCATION[spec["group"]],
-            "disclosure": public_disclosure(key, layer["disclosure"]),
+            "disclosure": public_disclosure(key, spec.get("disclosure") or layer["disclosure"]),
             "publisher": release["publisher"], "license": release["license"],
             "source_landing_url": release["source_landing_url"], "source_download_url": release["source_download_url"],
             "source_title": spec.get("source_title") or f"{release['source_metadata']['dataset_title']}（data.gov.tw {nid}）",
