@@ -1,0 +1,17 @@
+{
+  "legend.migration.title": "Inter-county migration flows ({year}, household registration)",
+  "legend.migration.defaultRow": "Top {k} flows nationwide + each county's largest outflow",
+  "legend.migration.clickHint": "Click a county (base fill or white dot) to see its top {n} inflows and outflows",
+  "legend.migration.focusIn": "Into {name} (top {n})",
+  "legend.migration.focusOut": "Out of {name} (top {n})",
+  "legend.migration.focusTotals": "Year total: in {inflow}, out {outflow}, net {net} people",
+  "legend.migration.focusClear": "Click the same county again or press Esc to return to the national view",
+  "legend.migration.widthRange": "{from}–{to} people",
+  "legend.migration.widthAbove": "{from} people or more",
+  "legend.migration.seat": "County/city government seat (arc endpoint, approximate)",
+  "legend.migration.hidden": "{shown} flows drawn; {hidden} smaller flows not drawn (flows under {min} people are never drawn)",
+  "legend.migration.direction": "Arcs bend from the origin county towards the destination; A→B and B→A curve to opposite sides",
+  "legend.migration.scope": "Counts only moves of household registration between counties, excluding moves to or from abroad, first registrations and moves within a county; registration is not the same as an actual move. Differs from the 'Population migration (county)' statistics",
+  "legend.migration.base": "Turn on the 'Net inter-county migration' statistics as a base (same data, summed); its year follows this layer",
+  "legend.migration.source": "Ministry of the Interior, migration between municipalities and counties/cities (data.gov.tw 168209), Open Government Data License v1.0"
+}

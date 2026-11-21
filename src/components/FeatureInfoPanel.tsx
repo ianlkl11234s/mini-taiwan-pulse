@@ -243,6 +243,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay17DarkSky", "mapchallengeDay17DarkRoads", "mapchallengeDay17LedShare",
   // 30 天地圖挑戰 Day 19 氣味：panel 自掛公害陳情／潛勢來源／環保裁處出處。
   "mapchallengeDay19Complaints", "mapchallengeDay19Potential", "mapchallengeDay19Penalties",
+  // 縣市間遷徙流向：panel 自掛內政部戶政司來源。
+  "twCountyMigrationFlows",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

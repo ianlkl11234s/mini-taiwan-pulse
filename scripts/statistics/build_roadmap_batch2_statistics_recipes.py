@@ -11,6 +11,10 @@ Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsT
                docs/topic-research/tw_layer_ext_20261120/b2/r2/b2-recipes.json，9 recipes；各層 tab_theme 併入既有統計主題）
   twExtB1      台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人，4 recipes，維度 疾病×感染來源；
                docs/topic-research/tw_layer_ext_20261120/b1/r2/b1-recipes.json；tab_theme 併入「醫療與長照」的「傳染病」）
+  twExtB4      台灣圖層延伸 B4 統計（109 年普查常住人口 6、原住民族別 4、住宅用電鄉鎮／縣市 4、公司登記動態 4、未參加健保比 2、
+               工商普查鄉鎮 3；docs/topic-research/tw_layer_ext_20261120/b4/r2/b4-recipes.json，23 recipes；tab_theme 併入既有統計主題）
+  twExtB5      台灣圖層延伸 B5 縣市間遷徙（由縣市 OD 加總：淨遷入人數／率、遷入、遷出，4 recipes；
+               docs/topic-research/tw_layer_ext_20261120/b5/r2/b5-recipes.json；併入「人口與教育」的「遷徙」；淨遷入用 diverging）
 
 Inputs (taipei-gis-analytics, read-only):
   --root     analytics checkout. The handoff recipes are the trimmed R2 form (release_id／period／dimensions only),
@@ -383,6 +387,126 @@ TW_EXT_B1_LAYERS = [
 TW_EXT_B1_ORIGIN_LABELS = {"all": "全部", "local": "本土", "imported": "境外移入"}
 TW_EXT_B1_DIM_LABELS = {"disease": "疾病別", "origin": "感染來源"}
 
+# ── 台灣圖層延伸 B4（2026-11-20）：普查常住人口、原住民族別、住宅用電、公司登記動態、健保未參加比、工商普查鄉鎮 ──────────
+B4_TAB_POP = "人口與教育 Population & Education"
+B4_TAB_HEALTH = "醫療與長照 Health & Care"
+B4_TAB_ENV = "環境與資源 Environment & Resources"
+B4_TAB_FISCAL = "財稅與消費 Fiscal & Consumption"
+B4_DATA = "台灣圖層延伸統計 B4"
+B4_CENSUS_SRC = "出典：行政院主計總處 109 年人口及住宅普查 各縣市鄉鎮市區別常住人口統計（data.gov.tw 18505 等系列）；戶籍人口取內政部 ODRP014 109 年 10 月底；政府資料開放授權條款-第1版。"
+B4_CENSUS_SCOPE = "普查標準時點 2020-11-08（109 年，10 年一次）；常住人口不含移工。"
+B4_CENSUS_DIFF = "「常住減戶籍」＝常住人口減戶籍人口：戶籍人口取 10 月底，與普查標準時點相差 8 天；負值＝戶籍在此、人住別處，正值＝人住這裡、戶籍不在。0 為分界，不是無資料。"
+B4_CENSUS_RATIO = "占比依普查表分母（大專以上占比的分母為 15 歲以上常住人口）；人口少的鄉鎮占比波動大。"
+B4_TRIBE_SRC = "出典：內政部戶政司 現住原住民人口按性別、身分、原住民族別分（data.gov.tw 77052）；政府資料開放授權條款-第1版。"
+B4_TRIBE_SCOPE = "平地＋山地原住民（戶籍登記）；平埔族群不含；107–114 年每年 12 月，另有 115 年 10 月。「尚未申報」族別者另列、不計入最多族。"
+B4_TRIBE_TOP1 = "色塊只標前 8 族（以最新期各族為最多族的鄉鎮數計；並列第 9 名的賽德克併入其他族），其餘族別併為灰色「其他族」；點選鄉鎮看族別。並列第一或該鄉鎮無原住民時不上色。"
+B4_TRIBE_NA = {"not_applicable": "不適用（該鄉鎮無原住民或並列第一，不上色）"}
+B4_KWH_SRC = "出典：台灣電力公司 鄉鎮市（郵遞區）別用電統計資料（data.gov.tw 14135）；政府資料開放授權條款-第1版。"
+B4_KWH_SCOPE = "只取「表燈非營業用」（以一般住宅為主，不等於住宅）；105–114 年，每年 12 個月加總。用戶數是電表戶數，不是戶籍戶。"
+B4_KWH_GAP = "新竹市、嘉義市台電只分到市，鄉鎮層東／北／香山區、東／西區未涵蓋，縣市層完整。烏坵用戶數不揭露。"
+B4_KWH_29935 = "與縣市「住宅用電（月）」（台電 29935）口徑不同：本層全國約為其 94%，兩者不可混用。"
+B4_KWH_DONG = "東引每戶用電全台最高（約 400 戶、每月 50–80 萬度），來源如此，原因未查。"
+B4_KWH_STATUS = {"missing": "未涵蓋（台電只分到市，不是 0）", "suppressed": "不揭露（用戶數來源不揭露，不是 0）"}
+B4_CO_SRC = "出典：經濟部商業發展署 公司解散、撤銷及廢止家數／新設立家數／現有家數－按縣市分（data.gov.tw 29262、29269、29261）；政府資料開放授權條款-第1版。"
+B4_CO_SCOPE = "按公司登記所在地（總公司），不是營業地或工廠；只含公司，不含商業登記（行號）；2010–2025 年，月檔加總為年；舊縣市已併入現行直轄市。"
+B4_CO_RATE = "每千家解散率＝當年解散撤銷廢止家數 ÷ 年底現有家數 × 1,000；2010、2019 等年份比率明顯跳高，原因未查證，不宜直接讀成倒閉潮。"
+B4_NHI_SRC = "出典：衛生福利部中央健康保險署 全國設籍人口參加健保人數（data.gov.tw 37276）；分母為內政部戶政司同月（113 年 12 月）戶籍人口；政府資料開放授權條款-第1版。"
+B4_NHI_SCOPE = "未參加健保比＝（戶籍人口 − 設籍人口參加健保人數）÷ 戶籍人口。未參加含長期出國停保、在監、失聯等，不等於經濟弱勢，也不是欠費；兩個來源同月相減，不是健保署提供的比率。"
+B4_IND_SRC = "出典：行政院主計總處 110 年工商及服務業普查 各縣市／鄉鎮市區別場所單位經營概況（data.gov.tw 15707 等系列）；政府資料開放授權條款-第1版。"
+B4_IND_SCOPE = "按場所單位所在地；2021 年底（110 年普查）；鄉鎮表沒有行業別。縣市版見「普查」群組。"
+B4_IND_GAP = "桃園市新屋區從業員工數來源與平鎮區重複（疑誤植），標為無資料、差額不歸屬。"
+B4_IND_STATUS = {"missing": "無資料（新屋區來源重複，不是 0）"}
+B4_TRIBE_CATEGORIES = [
+    (1, "阿美族", "#e45756"), (3, "排灣族", "#f2a93b"), (2, "泰雅族", "#4c78a8"), (4, "布農族", "#54a24b"),
+    (8, "賽夏族", "#b279a2"), (7, "鄒族", "#72b7b2"), (12, "太魯閣族", "#ff9da6"), (5, "魯凱族", "#9d755d"),
+]
+B4_TRIBES = ["阿美族", "泰雅族", "排灣族", "布農族", "魯凱族", "卑南族", "鄒族", "賽夏族", "雅美族", "邵族", "噶瑪蘭族", "太魯閣族", "撒奇萊雅族", "賽德克族", "拉阿魯哇族", "卡那卡那富族", "尚未申報"]
+
+
+def b4(key, group, group_label, option, sub, digits, notes, theme_dir, tab_theme, **extra):
+    return dict(key=key, group=group, group_label=group_label, option_label=option, subgroup=sub, digits=digits, notes=notes,
+                theme_dir=theme_dir, tab_theme=tab_theme, data_theme=extra.pop("data_theme", B4_DATA), **extra)
+
+
+def b4_census(key, option, digits, notes, **extra):
+    return b4(key, "censusResident", "109 年普查常住人口", option, "109 年普查常住人口", digits, [B4_CENSUS_SRC, B4_CENSUS_SCOPE, *notes], "demographics", B4_TAB_POP,
+              visual="population", location_semantics="普查常住地所在鄉鎮市區（常住人口，不含移工）", source_title="109 年人口及住宅普查 各縣市鄉鎮市區別常住人口統計（data.gov.tw 18505 等系列）", **extra)
+
+
+def b4_tribe(key, option, digits, notes, **extra):
+    return b4(key, "indigenousTribe", "原住民族別人口", option, "原住民族別", digits, [B4_TRIBE_SRC, B4_TRIBE_SCOPE, *notes], "demographics", B4_TAB_POP,
+              visual="population", location_semantics="戶籍登記地所在鄉鎮市區（戶籍原住民人口）", **extra)
+
+
+def b4_kwh(key, option, digits, notes, **extra):
+    return b4(key, "residentialKwh", "住宅用電（表燈非營業用，年）", option, "住宅用電（年）", digits, [B4_KWH_SRC, B4_KWH_SCOPE, *notes, B4_KWH_29935], "infrastructure", B4_TAB_ENV,
+              tab_group="住宅用電", visual="utilities", annual=True, location_semantics="電表所在郵遞區對到的鄉鎮市區（縣市層為縣市）", **extra)
+
+
+def b4_co(key, option, digits, notes, **extra):
+    return b4(key, "companyDynamics", "公司登記動態（年）", option, "公司登記動態", digits, [B4_CO_SRC, B4_CO_SCOPE, *notes], "socioeconomic", B4_TAB_FISCAL,
+              data_theme="財稅與消費統計 Fiscal & Consumption Statistics", visual="labor", annual=True, location_semantics="公司登記所在縣市（總公司）", **extra)
+
+
+def b4_ind(key, option, digits, notes, **extra):
+    return b4(key, "industryCensusTownship", "工商普查（鄉鎮）", option, "普查（鄉鎮）", digits, [B4_IND_SRC, B4_IND_SCOPE, *notes], "socioeconomic", B4_TAB_FISCAL,
+              data_theme="財稅與消費統計 Fiscal & Consumption Statistics", visual="labor", location_semantics="場所單位所在鄉鎮市區", **extra)
+
+
+TW_EXT_B4_LAYERS = [
+    b4_census("statsCensusResidentVsRegisteredPctTownship", "常住相對戶籍（%）", 1, [B4_CENSUS_DIFF], diverging=True, breaks=[-40, -20, 0, 10, 20]),
+    b4_census("statsCensusResidentMinusRegisteredTownship", "常住減戶籍（人）", 0, [B4_CENSUS_DIFF], diverging=True, breaks=[-10000, -3000, 0, 3000, 10000]),
+    b4_census("statsCensusResidentPopulationTownship", "常住人口", 0, [], breaks=[5000, 15000, 40000, 100000]),
+    b4_census("statsCensusElderlyShareTownship", "65 歲以上占比", 1, [B4_CENSUS_RATIO], breaks=[14, 17, 21, 26]),
+    b4_census("statsCensusCollegeShareTownship", "大專以上占比", 1, [B4_CENSUS_RATIO], breaks=[22, 30, 40, 52]),
+    b4_census("statsCensusMovedFromOtherCountyShareTownship", "5 年前住他縣市占比", 1, [B4_CENSUS_RATIO], breaks=[3, 4.5, 7, 11]),
+    b4_tribe("statsIndigenousTribeTop1Township", "人數最多的族", 0, [B4_TRIBE_TOP1], status=B4_TRIBE_NA,
+             categorical=dict(categories=B4_TRIBE_CATEGORIES, other_color="#9ca3af", other_label="其他族")),
+    b4_tribe("statsIndigenousTribeTop1ShareTownship", "最多族的占比", 1, ["占該鄉鎮原住民人口比；並列第一或無原住民時不上色。"], status=B4_TRIBE_NA, breaks=[35, 45, 60, 80]),
+    b4_tribe("statsIndigenousTribePopulationTownship", "各族人數", 0, ["選族別後只顯示該族人數；多數鄉鎮為個位數，0 自成最淺一級。"], defaults={"tribe": "阿美族"}, dim_values=B4_TRIBES, dim_labels={"tribe": "族別"}, breaks=[10, 50, 300, 1500]),
+    b4_tribe("statsIndigenousTribeShareTownship", "各族占該鄉鎮原住民比", 1, ["選族別後只顯示該族占該鄉鎮原住民人口的比例；小鄉鎮分母小、比例波動大。"], defaults={"tribe": "阿美族"}, dim_values=B4_TRIBES, dim_labels={"tribe": "族別"}, breaks=[1, 5, 15, 40]),
+    b4_kwh("statsResidentialKwhPerCustomerTownship", "鄉鎮・每戶每月用電（度）", 0, [B4_KWH_GAP, B4_KWH_DONG, "平均每戶每月用電＝全年度數 ÷ 12 個月用戶數加總。"], status=B4_KWH_STATUS, breaks=[200, 250, 300, 360], label="住宅用電每戶每月"),
+    b4_kwh("statsResidentialKwhTownship", "鄉鎮・全年售電度數", 0, [B4_KWH_GAP], status=B4_KWH_STATUS, breaks=[20000000, 50000000, 150000000, 400000000], label="住宅用電全年度數"),
+    b4_kwh("statsResidentialKwhPerCustomerCounty", "縣市・每戶每月用電（度）", 0, ["平均每戶每月用電＝全年度數 ÷ 12 個月用戶數加總。"], breaks=[260, 290, 340, 400], label="住宅用電每戶每月"),
+    b4_kwh("statsResidentialKwhCounty", "縣市・全年售電度數", 0, [], breaks=[300000000, 1000000000, 3000000000, 6000000000], label="住宅用電全年度數"),
+    b4_co("statsCompanyDissolvedPer1000County", "每千家解散撤銷廢止", 1, [B4_CO_RATE], breaks=[25, 30, 35, 45]),
+    b4_co("statsCompanyNewCounty", "新設立家數", 0, [], breaks=[100, 500, 2000, 7000]),
+    b4_co("statsCompanyDissolvedCounty", "解散撤銷廢止家數", 0, [], breaks=[60, 250, 1000, 4000]),
+    b4_co("statsCompanyExistingCounty", "年底現有家數", 0, [], breaks=[2000, 6000, 30000, 100000]),
+    b4("statsNhiUninsuredShareTownship", "nhiInsured", "未參加全民健保比", "鄉鎮・未參加健保比", "健保參加", 1, [B4_NHI_SRC, B4_NHI_SCOPE], "poi", B4_TAB_HEALTH,
+       data_theme="疾病與健康統計 Disease & Health Statistics", visual="health", breaks=[2, 2.5, 3.3, 4.5], location_semantics="戶籍登記地所在鄉鎮市區（戶籍人口）", label="未參加健保比"),
+    b4("statsNhiUninsuredShareCounty", "nhiInsured", "未參加全民健保比", "縣市・未參加健保比", "健保參加", 1, [B4_NHI_SRC, B4_NHI_SCOPE], "poi", B4_TAB_HEALTH,
+       data_theme="疾病與健康統計 Disease & Health Statistics", visual="health", breaks=[2.2, 2.7, 3.2, 3.7], location_semantics="戶籍登記地所在縣市（戶籍人口）", label="未參加健保比"),
+    b4_ind("statsIndustryEstablishmentsTownship", "場所單位數", 0, [], breaks=[300, 1000, 4000, 13000]),
+    b4_ind("statsIndustryPersonsEngagedTownship", "年底從業員工人數", 0, [B4_IND_GAP], status=B4_IND_STATUS, breaks=[1000, 5000, 25000, 75000]),
+    b4_ind("statsIndustryProductionValueTownship", "生產總額（千元）", 0, [], breaks=[1000000, 10000000, 100000000, 300000000]),
+]
+
+# ── 台灣圖層延伸 B5（2026-11-21）：縣市間遷徙（由縣市 OD 加總）──────────────────────
+ODM_SRC = "出典：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，月檔加總成年）；政府資料開放授權條款-第1版。"
+ODM_SCOPE = "只算跨縣市的戶籍遷徙：不含遷往或遷自國外、初設戶籍、廢止戶籍、縣市內跨鄉鎮；戶籍登記不等於實際居住移動。"
+ODM_DIFF = "與「人口遷徙（縣市）」層口徑不同（那層含國外遷入遷出與初設戶籍、率用年中人口），兩者數值不會相同，不可混看。"
+ODM_NET = "淨遷入＝遷入－遷出，全國加總為 0；紫＝淨遷入、棕＝淨遷出。"
+ODM_RATE = "淨遷入率＝淨遷入 ÷ 同年 12 月底戶籍人口 × 1000（‰；分母是年底，不是年中）。"
+ODM_FLOWS = "縣市之間的流向弧線見「縣市間遷徙流向」圖層。"
+ODM_DISC = ("內政部各直轄市、縣（市）間遷徙人口數（村里×遷入縣市月檔）加總成縣市 22×22 年度 OD 後取欄合計（遷入）、列合計（遷出）。"
+            "只含跨縣市戶籍遷徙，不含國外、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」層（含國外、初設戶籍、年中人口）口徑不同。"
+            "淨遷入率分母為同年 12 月底戶籍人口。")
+
+
+def b5(key, option, digits, notes, **extra):
+    return dict(key=key, group="countyOdMigration", group_label="縣市間遷徙（不含國外）", option_label=option, subgroup="遷徙",
+                visual="population", digits=digits, notes=[ODM_SRC, ODM_SCOPE, ODM_DIFF, *notes, ODM_FLOWS], disclosure=ODM_DISC,
+                location_semantics="戶籍登記地（遷入縣市／遷出縣市依戶籍登記）", **extra)
+
+
+TW_EXT_B5_LAYERS = [
+    b5("statsCountyOdNetMigration", "淨遷入人數", 0, [ODM_NET], diverging=True, breaks=[-15000, -5000, 0, 5000, 15000]),
+    b5("statsCountyOdNetMigrationRate", "淨遷入率（‰）", 2, [ODM_NET, ODM_RATE], diverging=True, breaks=[-5, -2, 0, 2, 5]),
+    b5("statsCountyOdInMigration", "遷入人數", 0, [], breaks=[5000, 15000, 30000, 60000]),
+    b5("statsCountyOdOutMigration", "遷出人數", 0, [], breaks=[5000, 15000, 30000, 60000]),
+]
+
 FAMILIES: dict[str, dict] = {
     "financeAccess": {
         "file": "financeAccessStatisticsRecipes",
@@ -439,6 +563,24 @@ FAMILIES: dict[str, dict] = {
         "tab_theme": "醫療與長照 Health & Care",
         "observation_policy": {"observed_zero": "status observed and value 0 (the monthly source lists only rows with cases; an unlisted township-year is 0 cases)", "missing": "not used", "not_applicable": "not used", "suppressed": "not used"},
         "layers": TW_EXT_B1_LAYERS,
+    },
+    "twExtB4": {
+        "file": "twExtB4StatisticsRecipes",
+        "handoff": "docs/topic-research/tw_layer_ext_20261120/b4/r2/b4-recipes.json",
+        "theme_dir": None,  # 各層 theme_dir（demographics／infrastructure／socioeconomic／poi）
+        "data_theme": B4_DATA,
+        "tab_theme": B4_TAB_POP,
+        "observation_policy": {"observed_zero": "status observed and value 0 (the source lists 0)", "missing": "value null; area not covered or source gap; no zero fill", "not_applicable": "value null; no indigenous residents or a tie for first, so the top tribe is undefined", "suppressed": "value null; customers not disclosed by the source"},
+        "layers": TW_EXT_B4_LAYERS,
+    },
+    "twExtB5": {
+        "file": "twExtB5StatisticsRecipes",
+        "handoff": "docs/topic-research/tw_layer_ext_20261120/b5/r2/b5-recipes.json",
+        "theme_dir": "demographics",
+        "data_theme": "人口統計 Population Statistics",
+        "tab_theme": "人口與教育 Population & Education",
+        "observation_policy": {"observed_zero": "not used", "missing": "not used", "not_applicable": "not used", "suppressed": "not used"},
+        "layers": TW_EXT_B5_LAYERS,
     },
     "culture": {
         "file": "cultureStatisticsRecipes",
@@ -604,6 +746,11 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             if defaults[dim] not in present:
                 raise SystemExit(f"{key}: default {defaults[dim]} not in {present}")
             ordered = [defaults[dim], *[v for v in present if v != defaults[dim]]]
+            if spec.get("dim_values"):
+                # 維度選項順序由 spec 明定（原住民 16 族依來源欄序，最後「尚未申報」）；必須與 release 內的值完全一致
+                if sorted(spec["dim_values"]) != present:
+                    raise SystemExit(f"{key}: dim_values {spec['dim_values']} does not match {present}")
+                ordered = [defaults[dim], *[v for v in spec["dim_values"] if v != defaults[dim]]]
             if spec.get("dim_order"):
                 # 依 release 處理參數的來源順序（例如行業階層：總計→大類→細類），不用字典序
                 source_order = [row[dim] for row in meta["release"]["provenance"]["processing"]["parameters"][spec["dim_order"]]]
@@ -624,7 +771,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
                     raise SystemExit(f"{key}: no label for {sorted(set(present) - set(labels))}")
                 dimensions.append({"key": dim, "label": TW_EXT_B1_DIM_LABELS[dim], "default": defaults[dim], "options": [{"value": v, "label": labels[v]} for v in ordered]})
                 continue
-            dimensions.append({"key": dim, "label": dim, "default": defaults[dim], "options": [{"value": v, "label": v} for v in ordered]})
+            dimensions.append({"key": dim, "label": spec.get("dim_labels", {}).get(dim, dim), "default": defaults[dim], "options": [{"value": v, "label": v} for v in ordered]})
 
         full = [o for o in options if "partial_period_label" not in o and all(o["dimensions"][d] == defaults[d] for d in dim_keys)]
         default_option = max(full, key=lambda o: (o["period_end"], o["period_start"]))
@@ -645,7 +792,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
                         source_values = values[period][tuple_key]
                         break
             if tuple_key != default_tuple:
-                by_dimension[tuple_key] = {"breaks": spec.get("breaks") or make_breaks(source_values or [], counts, spec.get("qs")), "direction": "ascending"}
+                by_dimension[tuple_key] = {"breaks": spec.get("breaks") or make_breaks(source_values or [], counts, spec.get("qs")), "direction": "diverging" if spec.get("diverging") else "ascending"}
         binary = spec.get("binary")
         categorical = spec.get("categorical")
         if categorical:
@@ -678,6 +825,11 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             breaks = spec.get("default_breaks") or spec.get("breaks") or make_breaks(default_values, counts, spec.get("qs"))
         for scale in [] if categorical else [{"breaks": breaks}, *by_dimension.values()]:
             b = scale["breaks"]
+            if spec.get("diverging"):
+                # 以 0 為界的雙向色階：breaks 必為 [a, b, 0, c, d]（a<b<0<c<d）
+                if len(b) != 5 or b[2] != 0 or sorted(set(b)) != b:
+                    raise SystemExit(f"{key}: diverging breaks must be [a, b, 0, c, d], got {b}")
+                continue
             if sorted(set(b)) != b or not (len(b) == 1 if binary else 2 <= len(b) <= 4) or b[0] <= 0:
                 raise SystemExit(f"{key}: bad breaks {b}")
         zero_note = spec.get("zero_note")
@@ -703,7 +855,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "dimensions": dimensions,
             "release_options": options,
             "legend": {
-                "method": "categorical" if categorical else "binary" if binary else "fixed_breaks", "breaks": breaks, "direction": "ascending",
+                "method": "categorical" if categorical else "binary" if binary else "fixed_breaks", "breaks": breaks, "direction": "diverging" if spec.get("diverging") else "ascending",
                 **({"binary_labels": list(binary)} if binary else {}),
                 **({"categories": categories} if categorical else {}),
                 "scale_note": None, "zero_note": zero_note if zero else None, "display_note": None,

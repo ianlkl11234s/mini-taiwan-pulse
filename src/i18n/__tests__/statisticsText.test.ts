@@ -16,6 +16,8 @@ import { IE_STATISTICS_DOCUMENT } from '../../data/ieStatisticsRecipes';
 import { OPEN_DATA_STATISTICS_DOCUMENT } from '../../data/openDataStatisticsRecipes';
 import { TW_EXT_B1_STATISTICS_DOCUMENT } from '../../data/twExtB1StatisticsRecipes';
 import { TW_EXT_B2_STATISTICS_DOCUMENT } from '../../data/twExtB2StatisticsRecipes';
+import { TW_EXT_B4_STATISTICS_DOCUMENT } from '../../data/twExtB4StatisticsRecipes';
+import { TW_EXT_B5_STATISTICS_DOCUMENT } from '../../data/twExtB5StatisticsRecipes';
 import { statisticsDimensionLabel, statisticsDimensionValueLabel, statisticsLocationBasis } from '../../data/statisticsLabels';
 import { statisticsLicense, statisticsPublisher } from '../agencyText';
 
@@ -153,7 +155,7 @@ describe('死因統計（G20）外文介面不混中文', () => {
 
 // Roadmap 第二批（2026-10-24）：街頭藝人（G23）；國有資產（G16）、金融可及性（G10）同一套檢查。
 const JA_SAME_AS_ZH = new Set(['衛生福利部疾病管制署', '人', '文化部', '面積', '法務部行政執行署', '台', '個']);
-const BATCH2_DOCUMENTS = [["街頭藝人（G23）", CULTURE_STATISTICS_DOCUMENT], ["國有資產（G16）", STATE_ASSETS_STATISTICS_DOCUMENT], ["金融服務可及性（G10）", FINANCE_ACCESS_STATISTICS_DOCUMENT], ["金融服務可及性延伸（G10 延伸）", FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT], ["縣市開放資料完整度（Day 18）", OPEN_DATA_STATISTICS_DOCUMENT], ["台灣圖層延伸 B1（統計）", TW_EXT_B1_STATISTICS_DOCUMENT], ["台灣圖層延伸 B2（統計）", TW_EXT_B2_STATISTICS_DOCUMENT]] as const;
+const BATCH2_DOCUMENTS = [["街頭藝人（G23）", CULTURE_STATISTICS_DOCUMENT], ["國有資產（G16）", STATE_ASSETS_STATISTICS_DOCUMENT], ["金融服務可及性（G10）", FINANCE_ACCESS_STATISTICS_DOCUMENT], ["金融服務可及性延伸（G10 延伸）", FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT], ["縣市開放資料完整度（Day 18）", OPEN_DATA_STATISTICS_DOCUMENT], ["台灣圖層延伸 B1（統計）", TW_EXT_B1_STATISTICS_DOCUMENT], ["台灣圖層延伸 B2（統計）", TW_EXT_B2_STATISTICS_DOCUMENT], ["台灣圖層延伸 B4（統計）", TW_EXT_B4_STATISTICS_DOCUMENT], ["台灣圖層延伸 B5（縣市間遷徙）", TW_EXT_B5_STATISTICS_DOCUMENT]] as const;
 describe.each(BATCH2_DOCUMENTS)('%s 外文介面不混中文', (_name, document) => {
   for (const locale of ['en', 'ja'] as const) {
     const messages: Record<string, string> = {};

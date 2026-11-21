@@ -57,6 +57,7 @@ import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
 import { TransitReachGridHost, TransitReachPlaybackHost } from "./hosts/transitReachHosts";
 import { HistoricalMapSinicaHost } from "./hosts/historicalMapHosts";
+import { CountyMigrationFlowsHost } from "./hosts/countyMigrationHosts";
 import { MapchallengeDay08PlanHost, MapchallengeDay17DarkSkyHost, MapchallengeDay17NightFallHost, MapchallengeDay19PotentialHost } from "./hosts/mapchallengeHosts";
 import { FreewayTdcsSimHost } from "./hosts/freewayTdcsSimHost";
 import { TransitAccessGridHost, TransitAccessPlaybackHost } from "./hosts/transitAccessHosts";
@@ -877,4 +878,6 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useMapchallengeDay17DarkSkyLayer", keys: ["mapchallengeDay17DarkSky"], Host: MapchallengeDay17DarkSkyHost },
   { id: "useMapchallengeDay17NightFallLayer", keys: ["mapchallengeDay17NightFall"], Host: MapchallengeDay17NightFallHost },
   { id: "useMapchallengeDay19PotentialLayer", keys: ["mapchallengeDay19Potential"], Host: MapchallengeDay19PotentialHost },
+  // 台灣圖層延伸 B5：縣市間遷徙流向（geojson 弧線＋端點，年份與統計底色連動）
+  { id: "useCountyMigrationFlowsLayer", keys: ["twCountyMigrationFlows"], Host: CountyMigrationFlowsHost },
 ];
