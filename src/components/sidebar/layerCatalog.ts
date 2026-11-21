@@ -2539,6 +2539,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 19 氣味 Smell",
       layers: [fromManifest("mapchallengeDay19Complaints"), fromManifest("mapchallengeDay19Potential"), fromManifest("mapchallengeDay19Penalties")],
+    }, {
+      title: "Day 21 開放街圖 OSM",
+      layers: [fromManifest("mapchallengeDay21OsmRoads")],
     }],
   },
 

@@ -102,6 +102,7 @@ import {
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN } from "./mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
@@ -1780,6 +1781,17 @@ export const LAYER_PARAMS_SPEC = {
       options: MAPCHALLENGE_DAY19_PENALTY_SCOPES.map((o) => ({ label: o.label, value: o.value })),
       out: "mapchallengeDay19PenaltiesScopeIdx", encode: MAPCHALLENGE_DAY19_PENALTY_SCOPES.map((o) => o.value),
     },
+  ],
+  // 30 天地圖挑戰 Day 21 OSM：年份拉桿＋「只看當年新增」改 filter（overlayRegistry rebuildOnParamKeys）；
+  // 道路等級多選由 CATEGORY_FILTERS 自動補在最前面。不接長期時間條（時間條目前只支援 event 類）。
+  mapchallengeDay21OsmRoads: [
+    opacitySlider("mapchallengeDay21OsmRoadsOpacity", 0.85),
+    {
+      kind: "slider", category: "data", name: "mapchallengeDay21OsmRoadsYear", labelPrefix: "年份", digits: 0,
+      labelByValue: { [String(MAPCHALLENGE_DAY21_YEAR_MIN)]: `${MAPCHALLENGE_DAY21_YEAR_MIN} 以前` },
+      default: MAPCHALLENGE_DAY21_YEAR_MAX, min: MAPCHALLENGE_DAY21_YEAR_MIN, max: MAPCHALLENGE_DAY21_YEAR_MAX, step: 1,
+    },
+    { kind: "toggle", category: "data", name: "mapchallengeDay21OsmRoadsNewOnly", label: "只看當年新增", default: false },
   ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
