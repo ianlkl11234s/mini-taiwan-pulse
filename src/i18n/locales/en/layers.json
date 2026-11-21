@@ -2035,5 +2035,6 @@
   "layer.statsCountyOdNetMigration": "Net inter-county migration (people)",
   "layer.statsCountyOdNetMigrationRate": "Net inter-county migration rate",
   "layer.statsCountyOdInMigration": "Inter-county in-migration (people)",
-  "layer.statsCountyOdOutMigration": "Inter-county out-migration (people)"
+  "layer.statsCountyOdOutMigration": "Inter-county out-migration (people)",
+  "layer.twCountyMigrationFlows": "Inter-county migration flows"
 }

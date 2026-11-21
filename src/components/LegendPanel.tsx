@@ -76,6 +76,7 @@ import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLege
 import { CN_DATA_KEYS, CN_RASTER_KEYS } from "../data/cnDataKeys";
 import { CnAdminBoundariesLegend, CnDataLegend, CnPopulationGridLegend, CnPopulationLegend, CnRasterLegend } from "./legend/cnLegends";
 import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
+import { CountyMigrationFlowsLegend } from "./legend/countyMigrationLegends";
 import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
 import { KrEcologyNaturalnessLegend, KrWasteDisposalRulesLegend } from "./legend/krEcoWasteLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
@@ -318,6 +319,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "mapchallengeDay19Complaints", render: ({ isDark }) => <MapchallengeDay19ComplaintsLegend isDark={isDark} /> },
   { id: "mapchallengeDay19Potential", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay19PotentialLegend isDark={isDark} windIdx={embedded ? (overlayParams.mapchallengeDay19PotentialWindIdx ?? 0) : undefined} /> },
   { id: "mapchallengeDay19Penalties", render: ({ isDark }) => <MapchallengeDay19PenaltiesLegend isDark={isDark} /> },
+  { id: "twCountyMigrationFlows", render: () => <CountyMigrationFlowsLegend /> },
   { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
   { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },
   { id: "bridgeRainThresholds", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeRain")} rows={[{ label: i18n.t("legend.registry.bridgeRainRow1"), color: "#ef4444" }, { label: i18n.t("legend.registry.bridgeRainRow2"), color: "#3b82f6" }, { label: i18n.t("legend.registry.bridgeRainRow3"), color: "#94a3b8" }]} /> },

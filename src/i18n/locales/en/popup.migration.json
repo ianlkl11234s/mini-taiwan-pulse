@@ -1,0 +1,21 @@
+{
+  "popup.migration.flowTitle": "{origin} → {dest}",
+  "popup.migration.seatTitle": "{name} ({year})",
+  "popup.migration.year": "Year",
+  "popup.migration.yearValue": "{year}",
+  "popup.migration.movers": "People who moved",
+  "popup.migration.persons": "{value} people",
+  "popup.migration.bySex": "Male / female",
+  "popup.migration.bySexValue": "Male {male} / female {female}",
+  "popup.migration.reverse": "Reverse ({origin} → {dest})",
+  "popup.migration.pairNet": "Net flow between the two",
+  "popup.migration.pairNetTo": "Net {value} people to {place}",
+  "popup.migration.pairNetZero": "Equal in both directions",
+  "popup.migration.inflow": "In from other counties",
+  "popup.migration.outflow": "Out to other counties",
+  "popup.migration.net": "Net in-migration",
+  "popup.migration.notes": "Notes",
+  "popup.migration.seatHint": "Click this county to see its top 5 inflow and outflow arcs; the dot is the county government seat (approximate)",
+  "popup.migration.scope": "Scope",
+  "popup.migration.scopeText": "Moves of household registration between counties, excluding moves to or from abroad and first registrations"
+}

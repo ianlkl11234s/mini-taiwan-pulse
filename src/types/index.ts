@@ -459,6 +459,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay09UrbanRural"
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17NightFall" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
+  | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -1049,6 +1050,7 @@ export interface FeatureInfo {
   | "mapchallengeDay09UrbanRural"
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
+  | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1464,6 +1466,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mapchallengeDay19Complaints: boolean;
   /** 30 天地圖挑戰 Day 19 氣味：設施氣味潛勢（image source，不計風／冬季／夏季）＋設施點、盛行風箭頭、棄置場址 */
   mapchallengeDay19Potential: boolean;
+  /** 台灣圖層延伸 B5：縣市間遷徙流向（戶籍登記，內政部 168209；2D 二次貝茲弧線，底色 statsCountyOdNetMigration） */
+  twCountyMigrationFlows: boolean;
   /** 30 天地圖挑戰 Day 19 氣味：異味裁罰設施（505 處、848 件，半徑依件數、色依最高超標倍數） */
   mapchallengeDay19Penalties: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */

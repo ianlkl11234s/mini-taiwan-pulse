@@ -1123,6 +1123,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["court-jurisdiction-fill", "court-jurisdiction-line"], type: "courtJurisdiction" },
   // 比例圓（呈現方式）：圓與面同一份 properties，點圓開同一個 popup；圓排在面之前（圓疊在面上，先命中圓）
   // 圓模式把 -fill 關掉，缺值／遮蔽的斜線層仍顯示 → 一併登記，點到才出 popup（popup 標示缺值／遮蔽，不當 0）
+  // 縣市間遷徙流向：弧線與端點疊在統計底色上，必須排在 regionalStatistic 前（first-hit-wins）
+  { layers: ["tw-county-migration-flows-line", "tw-county-migration-flows-seat"], type: "twCountyMigrationFlows" },
   { layers: [...PRESENTATION_KEYS.map(key => `${key}-circle`), ...STATISTICS_RENDER_KEYS.map(key => `${key}-fill`), ...PRESENTATION_KEYS.flatMap(key => [`${key}-missing`, `${key}-suppressed`])], type: "regionalStatistic" },
   { layers: ["theft-taoyuan-circle"], type: "theftTaoyuan" },
   { layers: ["traffic-accident-yearly-circle"], type: "trafficAccidentYearly" },

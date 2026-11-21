@@ -5433,6 +5433,15 @@ export const LAYER_PARAMS_SPEC = {
       out: null,
     },
   ],
+  // 縣市間遷徙流向（台灣圖層延伸 B5）：年份與底色 statsCountyOd* 期別連動（hook 內雙向同步）
+  twCountyMigrationFlows: [
+    {
+      kind: "select", category: "data", name: "twCountyMigrationYear", label: "年份", default: "2025",
+      options: [{ value: "2025", label: "2025 年" }, { value: "2024", label: "2024 年" }],
+      out: "twCountyMigrationYearIdx", encode: ["2025", "2024"],
+    },
+    opacitySlider("twCountyMigrationFlowsOpacity", 0.85),
+  ],
   popCount: [
     gridOpacitySlider("pcOpacity", 0.6),
     gridContrastSlider("pcContrast"),
