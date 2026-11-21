@@ -314,7 +314,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-20: +4 台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
     // 2026-11-20: +23 台灣圖層延伸 B4 統計（普查常住人口 6、原住民族別 4、住宅用電 4、公司登記動態 4、未參加健保 2、工商普查鄉鎮 3）。
     // 2026-11-21: +1 台灣圖層延伸 B5 縣市間遷徙流向（twCountyMigrationFlows）、+4 B5 統計（縣市間淨遷入人數／率、遷入、遷出）。
-    expect(keys.length).toBe(2069);
+    // 2026-11-21: +5 台灣圖層延伸 B7（hakkaLivingSchools、sandGravelPlants、countyWelfarePoints、evMotorcycleCharging、countyStreetlights）。
+    expect(keys.length).toBe(2074);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

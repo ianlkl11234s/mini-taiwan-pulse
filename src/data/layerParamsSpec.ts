@@ -5539,6 +5539,13 @@ export const LAYER_PARAMS_SPEC = {
     heatmapPalette("npSpeciesSites"),
     opacitySlider("npSpeciesSitesOpacity", densePointOpacity(144_228)), scaleSlider("npSpeciesSitesScale", 1),
   ],
+  // 台灣圖層延伸 B7（2026-11-21）
+  hakkaLivingSchools: [opacitySlider("hakkaLivingSchoolsOpacity", 0.9), scaleSlider("hakkaLivingSchoolsScale", 1)],
+  sandGravelPlants: [opacitySlider("sandGravelPlantsOpacity", 0.9), scaleSlider("sandGravelPlantsScale", 1)],
+  countyWelfarePoints: [opacitySlider("countyWelfarePointsOpacity", 0.9), scaleSlider("countyWelfarePointsScale", 1)],
+  evMotorcycleCharging: [opacitySlider("evMotorcycleChargingOpacity", 0.9), scaleSlider("evMotorcycleChargingScale", 1)],
+  // 拉遠網格（z4–11）與逐點（z12 起）共用一個透明度；網格顏色走主題色盤（基礎建設＝cividis）
+  countyStreetlights: [gridPalette("countyStreetlightsPalette", "cividis"), opacitySlider("countyStreetlightsOpacity", 0.8), scaleSlider("countyStreetlightsScale", 1)],
   vehicleInspectionOffices: [
     {
       kind: "select", category: "data", name: "vehicleInspectionOfficesService", label: "轄區業務", default: "car",

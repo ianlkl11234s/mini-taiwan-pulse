@@ -1039,6 +1039,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["airport-height-surfaces-fill", "airport-height-surfaces-outline"], type: "airportHeightSurfaces" },
   { layers: ["land-office-jurisdiction-fill"], type: "landOfficeJurisdiction" },
   { layers: ["np-species-sites-circle", "np-species-sites-glow"], type: "npSpeciesSites" },
+  // 台灣圖層延伸 B7（2026-11-21）：縣市未涵蓋斜線面不可點
+  { layers: ["hakka-living-schools-circle", "hakka-living-schools-glow"], type: "hakkaLivingSchools" },
+  { layers: ["sand-gravel-plants-circle", "sand-gravel-plants-glow"], type: "sandGravelPlants" },
+  { layers: ["county-welfare-points-circle", "county-welfare-points-glow"], type: "countyWelfarePoints" },
+  { layers: ["ev-motorcycle-charging-circle", "ev-motorcycle-charging-glow"], type: "evMotorcycleCharging" },
+  { layers: ["county-streetlights-circle", "county-streetlights-glow"], type: "countyStreetlights" },
   { layers: ["forest-treatment-works-circle"], type: "forestryPOI" },
   { layers: ["forest-dam-lakes-circle"], type: "forestryPOI" },
   { layers: ["forest-flat-parks-circle"], type: "forestryPOI" },

@@ -230,6 +230,20 @@
    "s3_key": "deploy-assets/civic_facilities/community_centers_national.geojson"
   },
   {
+   "path": "public/civic_facilities/county_streetlights_grid_v1.pmtiles",
+   "bytes": 493889,
+   "sha256": "55ee69fd1605e07cdf79ae0ac45e0f3e85bc7d17a6ea18ab4b0b4275eed178ce",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/civic_facilities/county_streetlights_grid_v1.pmtiles"
+  },
+  {
+   "path": "public/civic_facilities/county_streetlights_v1.pmtiles",
+   "bytes": 15507624,
+   "sha256": "f06d4bb9fc3d0ad677729ff61d4e95750d577a24323cd1faefb968122f884acf",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/civic_facilities/county_streetlights_v1.pmtiles"
+  },
+  {
    "path": "public/civic_facilities/gov_service_offices_national.geojson",
    "bytes": 145656,
    "sha256": "a66a88cd844fb98a97680dc5b95a124caa4dc84a7aed78dd986757eef9c8d28a",
@@ -417,6 +431,13 @@
    "sha256": "2551e65d974b169159eca5787caf2440151beba08574c3908cc6b93aebedaf1b",
    "delivery": "r2",
    "s3_key": "deploy-assets/energy/battery_swap_stations.geojson"
+  },
+  {
+   "path": "public/energy/ev_motorcycle_charging_v1.pmtiles",
+   "bytes": 2241414,
+   "sha256": "d3333bbe7ffcf1f3c1661948ab7183161551412f7a29aeacf92e12959a6c3ed6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/energy/ev_motorcycle_charging_v1.pmtiles"
   },
   {
    "path": "public/energy/renewable_permits_national.pmtiles",
@@ -1915,6 +1936,13 @@
    "s3_key": "deploy-assets/indigenous_rural/hakka_cultural_zones.geojson"
   },
   {
+   "path": "public/indigenous_rural/hakka_living_schools_v1.pmtiles",
+   "bytes": 665687,
+   "sha256": "7f5aeefb36c82f0b878850fb2063e6ecbe8f5673d0a5d7a4bd68c098280e89e2",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/indigenous_rural/hakka_living_schools_v1.pmtiles"
+  },
+  {
    "path": "public/indigenous_rural/indigenous_isolation_risk_areas.geojson",
    "bytes": 155736,
    "sha256": "2571dbd5ce9c176529bb467444a7d1bdf2f3179996971c0d8d0c189a35f966b7",
@@ -1962,6 +1990,13 @@
    "sha256": "5745a0606b38777e056a2273f4098469b1133a47e1378a15171337216d9cb8a4",
    "delivery": "r2",
    "s3_key": "deploy-assets/industrial_zone/industrial_park_boundaries_20260818_points.pmtiles"
+  },
+  {
+   "path": "public/industrial_zone/sand_gravel_plants_v1.pmtiles",
+   "bytes": 305409,
+   "sha256": "36a949d80d503551e19371f24640c25a38bdf9c0de669461910452595d65eff9",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/industrial_zone/sand_gravel_plants_v1.pmtiles"
   },
   {
    "path": "public/mapchallenge/day04_clusters_r7.geojson",
@@ -2683,6 +2718,13 @@
    "sha256": "34511cde4fd56b742623c54df7e807c135289c72efd90db1578d18c407423786",
    "delivery": "r2",
    "s3_key": "deploy-assets/welfare/childcare_centers_national.geojson"
+  },
+  {
+   "path": "public/welfare/county_welfare_points_v1.pmtiles",
+   "bytes": 2658275,
+   "sha256": "94b7ae65da11cb2652080460aa9f1e432fbd05bf25f83590915e80002f145117",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/welfare/county_welfare_points_v1.pmtiles"
   },
   {
    "path": "public/welfare/cultural_health_stations.geojson",
