@@ -129,6 +129,7 @@ export function useTwMarineHeatLayer({ mapRef, visible, layerKey, opacity, perio
     const product = TW_MARINE_HEAT_PRODUCTS[layerKey];
     const hide = () => { try { handleRef.current?.setVisible(false); } catch { /* style 轉換中 */ } };
     if (!visible) {
+      ++seqRef.current; // 進行中的請求作廢（關圖層不再被舊請求打開）
       hide();
       pickStates[layerKey] = null;
       setStatus(layerKey, IDLE);
@@ -207,6 +208,7 @@ export function useTwMarineHeatLayer({ mapRef, visible, layerKey, opacity, perio
 
   // unmount
   useEffect(() => () => {
+    ++seqRef.current;
     try { handleRef.current?.remove(); } catch { /* map 可能已銷毀 */ }
     handleRef.current = null;
     urlsRef.current.forEach((u) => URL.revokeObjectURL(u));
