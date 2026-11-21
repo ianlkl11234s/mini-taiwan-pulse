@@ -238,8 +238,8 @@
   },
   {
    "path": "public/civic_facilities/county_streetlights_v1.pmtiles",
-   "bytes": 31188244,
-   "sha256": "d289be41904226242ad3afe8c3b720e43e94a4d728e5ba0075d2f76a637a46c5",
+   "bytes": 15507624,
+   "sha256": "f06d4bb9fc3d0ad677729ff61d4e95750d577a24323cd1faefb968122f884acf",
    "delivery": "r2",
    "s3_key": "deploy-assets/civic_facilities/county_streetlights_v1.pmtiles"
   },
@@ -434,8 +434,8 @@
   },
   {
    "path": "public/energy/ev_motorcycle_charging_v1.pmtiles",
-   "bytes": 2547482,
-   "sha256": "d5529cd55d4dc9f7447dfdf33ce3a2c68869ede1c88a3bff4d5f9bb673a397d4",
+   "bytes": 2241414,
+   "sha256": "d3333bbe7ffcf1f3c1661948ab7183161551412f7a29aeacf92e12959a6c3ed6",
    "delivery": "r2",
    "s3_key": "deploy-assets/energy/ev_motorcycle_charging_v1.pmtiles"
   },
@@ -1937,8 +1937,8 @@
   },
   {
    "path": "public/indigenous_rural/hakka_living_schools_v1.pmtiles",
-   "bytes": 728269,
-   "sha256": "cf6c465f81ba3656d7fd1b21182745a87725147048c32168fd8b4cfae1e6414a",
+   "bytes": 665687,
+   "sha256": "7f5aeefb36c82f0b878850fb2063e6ecbe8f5673d0a5d7a4bd68c098280e89e2",
    "delivery": "r2",
    "s3_key": "deploy-assets/indigenous_rural/hakka_living_schools_v1.pmtiles"
   },
@@ -1993,8 +1993,8 @@
   },
   {
    "path": "public/industrial_zone/sand_gravel_plants_v1.pmtiles",
-   "bytes": 419003,
-   "sha256": "baf0ff84e306404eadb1faa738c43651d86f309379561c2950c94a566e68214c",
+   "bytes": 305409,
+   "sha256": "36a949d80d503551e19371f24640c25a38bdf9c0de669461910452595d65eff9",
    "delivery": "r2",
    "s3_key": "deploy-assets/industrial_zone/sand_gravel_plants_v1.pmtiles"
   },
@@ -2721,8 +2721,8 @@
   },
   {
    "path": "public/welfare/county_welfare_points_v1.pmtiles",
-   "bytes": 2919489,
-   "sha256": "b8924b7a9b6884a58ee48801adc90fe286b18c807799830a62a5d06111015a09",
+   "bytes": 2658275,
+   "sha256": "94b7ae65da11cb2652080460aa9f1e432fbd05bf25f83590915e80002f145117",
    "delivery": "r2",
    "s3_key": "deploy-assets/welfare/county_welfare_points_v1.pmtiles"
   },

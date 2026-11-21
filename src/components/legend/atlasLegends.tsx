@@ -180,7 +180,7 @@ function SandGravelPlantsLegend() {
 /** 台灣圖層延伸 B7：縣市社福據點；斜線＝未涵蓋縣市，副標註明另有 373 筆未定位、實物銀行只有 3 縣市。 */
 function CountyWelfarePointsLegend() {
   const { t } = useLocale();
-  return <AtlasLegend layer="countyWelfarePoints" en="County Welfare Points" subtitle={t("legend.atlas.wpSubtitle")} source={src("countyGov")} domain="atlasWelfarePointKind" rows={[...WELFARE_POINT_KIND_OPTIONS, UNCOVERED_ROW]} />;
+  return <AtlasLegend layer="countyWelfarePoints" en="County Welfare Points" subtitle={`${t("legend.atlas.wpSubtitle")}${t("legend.atlas.wpHatchNote")}`} source={src("countyGov")} domain="atlasWelfarePointKind" rows={[...WELFARE_POINT_KIND_OPTIONS, UNCOVERED_ROW]} />;
 }
 
 /** 台灣圖層延伸 B7：電動機車充換電站（縣市環保局名冊）；副標註明機車專用、另有 205 筆未定位。 */

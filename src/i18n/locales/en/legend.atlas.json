@@ -67,5 +67,6 @@
   "legend.atlas.wpSubtitle": "3,691 shown (food-bank lists exist only for Taoyuan, Kaohsiung and Taipei); 373 more could not be located from their addresses and are not shown",
   "legend.atlas.evSubtitle": "Scooters only: 4,464 shown (13 county EPA lists); 205 more could not be located from their addresses and are not shown",
   "legend.atlas.slSubtitle": "Zoomed out: streetlight points per 0.01° cell; individual points from zoom 12. Full coverage: Taipei, New Taipei, Taichung, Hsinchu City, Chiayi City. Partial: Kaohsiung (35 districts maintained by the Parks Dept.), Changhua (provincial highways only), Taoyuan (Zhongli District office only)",
-  "legend.atlas.slLedUnknown": "Lamp type unknown (not in the source)"
+  "legend.atlas.slLedUnknown": "Lamp type unknown (not in the source)",
+  "legend.atlas.wpHatchNote": "; hatching follows the selected category: with one category selected, hatched counties are those with no list for it."
 }

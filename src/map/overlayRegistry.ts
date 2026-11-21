@@ -12504,7 +12504,7 @@ function countyStreetlightsOverlays(): OverlayConfig[] {
   const id = "countyStreetlights";
   const attribution = `各縣市政府 路燈點位清冊（data.gov.tw；高雄、彰化、桃園為部分涵蓋）· ${OGDL_ATTR}`;
   const opacity = (p?: Record<string, number>) => p?.countyStreetlightsOpacity ?? 0.8;
-  const points = publicLifePointOverlay(id, "./civic_facilities/county_streetlights_v1.pmtiles", "county-streetlights", streetlightLedColorExpr(), { sourceLayer: "county_streetlights", minzoom: 12, maxzoom: 14 }, attribution, [2.5, 5]);
+  const points = publicLifePointOverlay(id, "./civic_facilities/county_streetlights_v1.pmtiles", "county-streetlights", streetlightLedColorExpr(), { sourceLayer: "county_streetlights", minzoom: 12, maxzoom: 14 }, attribution, [1.2, 2.6]);
   return [
     countyUncoveredHatchOverlay(id, "county-streetlights-uncovered", attribution),
     {

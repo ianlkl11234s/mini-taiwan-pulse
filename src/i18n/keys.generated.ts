@@ -581,6 +581,7 @@ export type GeneratedStaticKey =
   | "legend.atlas.vioZone"
   | "legend.atlas.visitorIncomplete"
   | "legend.atlas.waterloggedArea"
+  | "legend.atlas.wpHatchNote"
   | "legend.atlas.wpSubtitle"
   | "legend.civic.accessibleNote"
   | "legend.civic.adoptCat"
