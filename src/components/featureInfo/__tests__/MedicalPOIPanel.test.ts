@@ -18,6 +18,45 @@ const LTC = {
   OpenBeds: 0, CurrentResidents: 0, lng: 120.3592529297, lat: 22.3287982941,
 };
 
+// 欄位形狀取自正式站 medical_pharmacies PMTiles／medical_hospitals.geojson（2026-11-21）
+const PHARMACY = {
+  facility_id: "5901010076", name: "榮星藥局", category: "pharmacy", contract_type: "5", facility_kind: "藥劑生自營", form_type: "02",
+  county: "臺北市", district_code: "63000", address: "臺北市松山區南京東路４段１３３巷５弄１號", phone: "(02)27124696",
+  specialties: "", services: "", source_did: "39284,168341",
+};
+const HOSPITAL = {
+  facility_id: "0101090517", name: "臺北市立聯合醫院", category: "hospital_regional", facility_kind: "綜合醫院",
+  county: "臺北市", address: "臺北市大同區鄭州路１４５號（代表）", phone: "(02)25553000", specialties: "不分科,家醫科,內科", source_did: "39281,168341",
+};
+
+describe("MedicalPOIPanel 健保特約院所（藥局、醫院）", () => {
+  it("藥局：顯示名稱、類型、縣市、地址、電話與健保署來源", () => {
+    const html = render(PHARMACY);
+    expect(html).toContain("榮星藥局");
+    expect(html).toContain("健保特約藥局");
+    expect(html).toContain("臺北市松山區南京東路４段１３３巷５弄１號");
+    expect(html).toContain("(02)27124696");
+    expect(html).not.toContain("醫療據點");
+    expect(html).toContain("中央健康保險署");
+    expect(html).toContain("data.gov.tw/dataset/39284");
+  });
+  it("醫院：顯示名稱、等級、地址、電話、科別", () => {
+    const html = render(HOSPITAL);
+    expect(html).toContain("臺北市立聯合醫院");
+    expect(html).toContain("區域醫院");
+    expect(html).toContain("臺北市大同區鄭州路１４５號（代表）");
+    expect(html).toContain("(02)25553000");
+    expect(html).toContain("不分科,家醫科,內科");
+    expect(html).not.toContain("醫療據點");
+  });
+  it("分類對應：hospital_* → hospital、clinic → clinic、其餘 → other_medical", () => {
+    expect(normalizeMedicalPOIProps(HOSPITAL).med_cat).toBe("hospital");
+    expect(normalizeMedicalPOIProps(PHARMACY).med_cat).toBe("pharmacy");
+    expect(normalizeMedicalPOIProps({ ...PHARMACY, category: "clinic" }).med_cat).toBe("clinic");
+    expect(render({ ...PHARMACY, category: "health_center" })).toContain("衛生所");
+  });
+});
+
 describe("MedicalPOIPanel 官方欄位對應（VPB-28）", () => {
   it("AED：顯示場所名稱、類別、地址、電話，不退成 Medical facility", () => {
     const html = render(AED);
