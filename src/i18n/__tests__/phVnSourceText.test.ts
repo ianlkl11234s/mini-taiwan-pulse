@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PH_ADMIN_SOURCE, PH_DATA_SPECS, PH_POPULATION_SOURCE } from "../../data/phDataLayers";
+import { VN_ADMIN_SOURCE, VN_DATA_SPECS, VN_POPULATION_SOURCE } from "../../data/vnDataLayers";
+import { VN_RASTER_SPECS, VN_WAVE_SPECS } from "../../data/vnWavesLayers";
 import { PH_RASTER_SPECS, PH_WAVE_SPECS } from "../../data/phWavesLayers";
 
 /** 菲律賓、越南圖層的來源、授權、單位、級距標籤：英／日介面不得出現中文（I18N-2，2026-11-21）。 */
@@ -34,6 +36,7 @@ function collect(root: unknown, tag: string): Hit[] {
 describe("菲律賓、越南圖層來源／授權／單位不含中文（en／ja）", () => {
   it.each([
     ["PH", [...PH_DATA_SPECS, ...PH_WAVE_SPECS, ...PH_RASTER_SPECS, PH_ADMIN_SOURCE, PH_POPULATION_SOURCE]],
+    ["VN", [...VN_DATA_SPECS, ...VN_WAVE_SPECS, ...VN_RASTER_SPECS, VN_ADMIN_SOURCE, VN_POPULATION_SOURCE]],
   ] as const)("%s", (tag, specs) => {
     const hits = specs.flatMap((s, i) => collect(s, `${tag}[${(s as { key?: string }).key ?? i}]`));
     expect(hits.slice(0, 20)).toEqual([]);
