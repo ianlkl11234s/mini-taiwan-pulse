@@ -206,7 +206,7 @@ import {
   NuscGammaRadiationPanel, WaterEffluentLivePanel, CemsStackLivePanel, CwaUvDailyPanel,
 } from "./environmentLayerPanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
-import { MarineObservationPanel } from "./marinePanels";
+import { MarineObservationPanel, TwMarineHeatPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
 import {
   HarmReductionHivSelftestPanel, HarmReductionHivTestingPanel, HarmReductionNeedlePanel, HarmReductionPreventionCenterPanel, HarmReductionTreatmentPanel,
@@ -337,6 +337,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   bridgeRainThresholds: BridgeRainPanel,
   riverLevel: RiverLevelPanel,
   marineObservation: MarineObservationPanel,
+  twMarineHeat: TwMarineHeatPanel,
   // groundwater 同時服務動態層（useGroundwaterLayer）與靜態井位 backdrop
   // （groundwaterWells）—— 兩者的 properties 欄位契約完全相同。
   groundwater: GroundwaterPanel,
@@ -977,6 +978,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   bridgeRainThresholds: "一級監控橋梁參考雨量",
   riverLevel: "河川水位站",
   marineObservation: "海洋固定站觀測",
+  twMarineHeat: "海洋熱浪／珊瑚熱壓力",
   groundwater: "地下水井",
   groundwaterWell: "地下水井",
   iotWraRiver: "IoT 河川水位站",

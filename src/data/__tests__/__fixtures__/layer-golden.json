@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2074,
+    "keyCount": 2076,
     "sections": [
       "gisLayers",
       "overlays",
@@ -222887,6 +222887,238 @@
         "valueText": "1.0"
       }
     ],
+    "twCoralBleachingHeatStress": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2026",
+            "value": "2026"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2019",
+            "value": "2019"
+          },
+          {
+            "label": "2018",
+            "value": "2018"
+          },
+          {
+            "label": "2017",
+            "value": "2017"
+          },
+          {
+            "label": "2016",
+            "value": "2016"
+          },
+          {
+            "label": "2015",
+            "value": "2015"
+          },
+          {
+            "label": "2014",
+            "value": "2014"
+          },
+          {
+            "label": "2013",
+            "value": "2013"
+          },
+          {
+            "label": "2012",
+            "value": "2012"
+          },
+          {
+            "label": "2011",
+            "value": "2011"
+          },
+          {
+            "label": "2010",
+            "value": "2010"
+          },
+          {
+            "label": "2009",
+            "value": "2009"
+          },
+          {
+            "label": "2008",
+            "value": "2008"
+          },
+          {
+            "label": "2007",
+            "value": "2007"
+          },
+          {
+            "label": "2006",
+            "value": "2006"
+          },
+          {
+            "label": "2005",
+            "value": "2005"
+          },
+          {
+            "label": "2004",
+            "value": "2004"
+          },
+          {
+            "label": "2003",
+            "value": "2003"
+          }
+        ],
+        "type": "select",
+        "value": "2026"
+      },
+      {
+        "label": "月份",
+        "options": [
+          {
+            "label": "1 月",
+            "value": "01"
+          },
+          {
+            "label": "2 月",
+            "value": "02"
+          },
+          {
+            "label": "3 月",
+            "value": "03"
+          },
+          {
+            "label": "4 月",
+            "value": "04"
+          },
+          {
+            "label": "5 月",
+            "value": "05"
+          },
+          {
+            "label": "6 月",
+            "value": "06"
+          },
+          {
+            "label": "7 月",
+            "value": "07"
+          },
+          {
+            "label": "8 月",
+            "value": "08"
+          },
+          {
+            "label": "9 月",
+            "value": "09"
+          },
+          {
+            "label": "10 月",
+            "value": "10"
+          },
+          {
+            "label": "11 月",
+            "value": "11"
+          },
+          {
+            "label": "12 月",
+            "value": "12"
+          }
+        ],
+        "type": "select",
+        "value": "10"
+      },
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "白化警報等級",
+            "value": "baa"
+          },
+          {
+            "label": "累積熱壓力 DHW",
+            "value": "dhw"
+          }
+        ],
+        "type": "select",
+        "value": "baa"
+      },
+      {
+        "label": "等級",
+        "options": [
+          {
+            "label": "無壓力",
+            "value": "0"
+          },
+          {
+            "label": "觀察",
+            "value": "1"
+          },
+          {
+            "label": "警告",
+            "value": "2"
+          },
+          {
+            "label": "警報 1 級",
+            "value": "3"
+          },
+          {
+            "label": "警報 2 級",
+            "value": "4"
+          },
+          {
+            "label": "警報 3 級",
+            "value": "5"
+          },
+          {
+            "label": "警報 4 級",
+            "value": "6"
+          },
+          {
+            "label": "警報 5 級",
+            "value": "7"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "twCountyMigrationFlows": [
       {
         "label": "年份",
@@ -222911,6 +223143,292 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "twMarineHeatwaves": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2026",
+            "value": "2026"
+          },
+          {
+            "label": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "2024",
+            "value": "2024"
+          },
+          {
+            "label": "2023",
+            "value": "2023"
+          },
+          {
+            "label": "2022",
+            "value": "2022"
+          },
+          {
+            "label": "2021",
+            "value": "2021"
+          },
+          {
+            "label": "2020",
+            "value": "2020"
+          },
+          {
+            "label": "2019",
+            "value": "2019"
+          },
+          {
+            "label": "2018",
+            "value": "2018"
+          },
+          {
+            "label": "2017",
+            "value": "2017"
+          },
+          {
+            "label": "2016",
+            "value": "2016"
+          },
+          {
+            "label": "2015",
+            "value": "2015"
+          },
+          {
+            "label": "2014",
+            "value": "2014"
+          },
+          {
+            "label": "2013",
+            "value": "2013"
+          },
+          {
+            "label": "2012",
+            "value": "2012"
+          },
+          {
+            "label": "2011",
+            "value": "2011"
+          },
+          {
+            "label": "2010",
+            "value": "2010"
+          },
+          {
+            "label": "2009",
+            "value": "2009"
+          },
+          {
+            "label": "2008",
+            "value": "2008"
+          },
+          {
+            "label": "2007",
+            "value": "2007"
+          },
+          {
+            "label": "2006",
+            "value": "2006"
+          },
+          {
+            "label": "2005",
+            "value": "2005"
+          },
+          {
+            "label": "2004",
+            "value": "2004"
+          },
+          {
+            "label": "2003",
+            "value": "2003"
+          },
+          {
+            "label": "2002",
+            "value": "2002"
+          },
+          {
+            "label": "2001",
+            "value": "2001"
+          },
+          {
+            "label": "2000",
+            "value": "2000"
+          },
+          {
+            "label": "1999",
+            "value": "1999"
+          },
+          {
+            "label": "1998",
+            "value": "1998"
+          },
+          {
+            "label": "1997",
+            "value": "1997"
+          },
+          {
+            "label": "1996",
+            "value": "1996"
+          },
+          {
+            "label": "1995",
+            "value": "1995"
+          },
+          {
+            "label": "1994",
+            "value": "1994"
+          },
+          {
+            "label": "1993",
+            "value": "1993"
+          },
+          {
+            "label": "1992",
+            "value": "1992"
+          },
+          {
+            "label": "1991",
+            "value": "1991"
+          },
+          {
+            "label": "1990",
+            "value": "1990"
+          },
+          {
+            "label": "1989",
+            "value": "1989"
+          },
+          {
+            "label": "1988",
+            "value": "1988"
+          },
+          {
+            "label": "1987",
+            "value": "1987"
+          },
+          {
+            "label": "1986",
+            "value": "1986"
+          },
+          {
+            "label": "1985",
+            "value": "1985"
+          },
+          {
+            "label": "1984",
+            "value": "1984"
+          },
+          {
+            "label": "1983",
+            "value": "1983"
+          },
+          {
+            "label": "1982",
+            "value": "1982"
+          }
+        ],
+        "type": "select",
+        "value": "2026"
+      },
+      {
+        "label": "月份",
+        "options": [
+          {
+            "label": "1 月",
+            "value": "01"
+          },
+          {
+            "label": "2 月",
+            "value": "02"
+          },
+          {
+            "label": "3 月",
+            "value": "03"
+          },
+          {
+            "label": "4 月",
+            "value": "04"
+          },
+          {
+            "label": "5 月",
+            "value": "05"
+          },
+          {
+            "label": "6 月",
+            "value": "06"
+          },
+          {
+            "label": "7 月",
+            "value": "07"
+          },
+          {
+            "label": "8 月",
+            "value": "08"
+          },
+          {
+            "label": "9 月",
+            "value": "09"
+          },
+          {
+            "label": "10 月",
+            "value": "10"
+          },
+          {
+            "label": "11 月",
+            "value": "11"
+          },
+          {
+            "label": "12 月",
+            "value": "12"
+          }
+        ],
+        "type": "select",
+        "value": "10"
+      },
+      {
+        "label": "等級",
+        "options": [
+          {
+            "label": "無熱浪",
+            "value": "0"
+          },
+          {
+            "label": "中等 Moderate",
+            "value": "1"
+          },
+          {
+            "label": "強烈 Strong",
+            "value": "2"
+          },
+          {
+            "label": "嚴重 Severe",
+            "value": "3"
+          },
+          {
+            "label": "極端 Extreme",
+            "value": "4"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "twcServiceOffices": [

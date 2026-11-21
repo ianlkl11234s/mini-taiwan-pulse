@@ -41,6 +41,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   ...VN_DATA_KEYS,
   ...CN_DATA_KEYS,
   ...CA_WAVE_KEYS, // 加拿大第 3–8 波：makePhPanel 自掛 SourceFooter
+  "twMarineHeat", // 台灣圖層延伸 B6：海洋熱浪／珊瑚熱壓力 panel 依兩層各自掛 SourceFooter
   ...G53_SELF_FOOTER_KEYS, // G53 批 1：analytics PMTiles 無來源欄，atlasPanels withG53Footer 自掛
   "ieCoillteRecreation", "ieCoillteForestRoads", // 站主限定 Coillte：panel 自掛 SourceFooter（makeIePanel）
   // 2024 投開票所：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter

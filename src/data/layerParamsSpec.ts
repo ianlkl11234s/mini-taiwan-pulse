@@ -13,6 +13,7 @@ import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
 import { GIBS_NIGHT_LIGHTS_PRODUCTS } from "./gibsNightLightsTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 import { LIVE_INCIDENT_WINDOWS } from "./liveIncidentsTypes";
+import { TW_CRW_BAA_LEVELS, TW_CRW_DHW_CLASSES, TW_CRW_VIEWS, TW_MARINE_HEAT_MONTHS, TW_MARINE_HEAT_PRODUCTS, TW_MHW_LEVELS, type TwMarineHeatLayerKey } from "./twMarineHeatTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -759,6 +760,23 @@ export type LayerParamValues = Readonly<Record<string, ParamValue>>;
 // ── 共用建構子：同構家族避免逐層複製字面 ──────────────────────────
 
 /** 「透明度 x.xx」滑桿 —— 宗教／殯葬兩組全部都有，只有 default 不同 */
+/** 台灣圖層延伸 B6：年份＋月份兩個下拉（out＝索引；預設最新一期，該月沒資料時圖例顯示未涵蓋） */
+function twMarineHeatPeriodSelects(key: TwMarineHeatLayerKey): SelectParamSpec[] {
+  const p = TW_MARINE_HEAT_PRODUCTS[key];
+  return [
+    {
+      kind: "select", category: "data", name: `${key}Year`, label: "年份", default: String(p.defaultYear),
+      options: [...p.years].reverse().map((y) => ({ label: String(y), value: String(y) })),
+      out: `${key}YearIdx`, encode: p.years.map(String),
+    },
+    {
+      kind: "select", category: "data", name: `${key}Month`, label: "月份", default: p.defaultMonth,
+      options: TW_MARINE_HEAT_MONTHS.map((m) => ({ label: `${Number(m)} 月`, value: m })),
+      out: `${key}MonthIdx`, encode: [...TW_MARINE_HEAT_MONTHS],
+    },
+  ];
+}
+
 function opacitySlider(name: string, def: number): SliderParamSpec {
   return {
     kind: "slider", name, labelPrefix: "透明度", digits: 2,
@@ -5530,6 +5548,34 @@ export const LAYER_PARAMS_SPEC = {
   ecoLabelHotels: [opacitySlider("ecoLabelHotelsOpacity", 0.9), scaleSlider("ecoLabelHotelsScale", 1)],
   // 台灣圖層延伸 B3（2026-11-20）
   namrBuoys: [opacitySlider("namrBuoysOpacity", 0.9), scaleSlider("namrBuoysScale", 1)],
+  // 台灣圖層延伸 B6（2026-11-21）：月幀 raster；年份／月份下拉選期別（預設最新一期），等級多選只改 raster-color
+  twMarineHeatwaves: [
+    { kind: "slider", name: "twMarineHeatwavesOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+    ...twMarineHeatPeriodSelects("twMarineHeatwaves"),
+    {
+      kind: "multiSelect", name: "twMarineHeatwavesLevel", label: "等級", default: MULTI_SELECT_ALL,
+      options: TW_MHW_LEVELS.map((l) => ({ label: l.zh, value: String(l.value) })), out: "twMarineHeatwavesLevelMask",
+    },
+  ],
+  twCoralBleachingHeatStress: [
+    { kind: "slider", name: "twCoralBleachingHeatStressOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+    ...twMarineHeatPeriodSelects("twCoralBleachingHeatStress"),
+    {
+      kind: "select", category: "data", name: "twCoralBleachingHeatStressView", label: "顯示", default: TW_CRW_VIEWS[0].value,
+      options: TW_CRW_VIEWS.map((v) => ({ label: v.zh, value: v.value })),
+      out: "twCoralBleachingHeatStressViewIdx", encode: TW_CRW_VIEWS.map((v) => v.value),
+    },
+    {
+      kind: "multiSelect", name: "twCoralBleachingHeatStressLevel", label: "等級", default: MULTI_SELECT_ALL,
+      showWhen: { param: "twCoralBleachingHeatStressView", equals: "baa" },
+      options: TW_CRW_BAA_LEVELS.map((l) => ({ label: l.zh, value: String(l.value) })), out: "twCoralBleachingHeatStressLevelMask",
+    },
+    {
+      kind: "multiSelect", name: "twCoralBleachingHeatStressDhw", label: "DHW 級距", default: MULTI_SELECT_ALL,
+      showWhen: { param: "twCoralBleachingHeatStressView", equals: "dhw" },
+      options: TW_CRW_DHW_CLASSES.map((c, i) => ({ label: c.zh, value: String(i) })), out: "twCoralBleachingHeatStressDhwMask",
+    },
+  ],
   towingYards: [opacitySlider("towingYardsOpacity", 0.9), scaleSlider("towingYardsScale", 1)],
   swcOutdoorClassrooms: [opacitySlider("swcOutdoorClassroomsOpacity", 0.9), scaleSlider("swcOutdoorClassroomsScale", 1)],
   swcEcoCheckZones: [opacitySlider("swcEcoCheckZonesOpacity", 0.3)],

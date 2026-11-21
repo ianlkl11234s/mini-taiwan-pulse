@@ -1924,6 +1924,9 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("beachWaterQuality"),
           fromManifest("marineMicroplastics"),
           fromManifest("marinePollutionIncidents"),
+          // 台灣圖層延伸 B6（2026-11-21）：月幀 raster（年份／月份下拉）
+          fromManifest("twMarineHeatwaves"),
+          fromManifest("twCoralBleachingHeatStress"),
         ],
       },
       {

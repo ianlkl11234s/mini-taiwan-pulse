@@ -12,5 +12,18 @@
   "enum.marineMetric.wind_direction_deg": "Wind direction",
   "enum.marineMetric.max_wind_speed": "Maximum wind speed",
   "enum.marineMetric.current_speed": "Current speed",
-  "enum.marineMetric.current_direction_deg": "Current direction"
+  "enum.marineMetric.current_direction_deg": "Current direction",
+  "enum.twMhwLevel.0": "No heatwave",
+  "enum.twMhwLevel.1": "Moderate",
+  "enum.twMhwLevel.2": "Strong",
+  "enum.twMhwLevel.3": "Severe",
+  "enum.twMhwLevel.4": "Extreme",
+  "enum.twCrwBaaLevel.0": "No Stress",
+  "enum.twCrwBaaLevel.1": "Bleaching Watch",
+  "enum.twCrwBaaLevel.2": "Bleaching Warning",
+  "enum.twCrwBaaLevel.3": "Alert Level 1",
+  "enum.twCrwBaaLevel.4": "Alert Level 2",
+  "enum.twCrwBaaLevel.5": "Alert Level 3",
+  "enum.twCrwBaaLevel.6": "Alert Level 4",
+  "enum.twCrwBaaLevel.7": "Alert Level 5"
 }
