@@ -351,6 +351,13 @@ export interface SliderParamSpec extends SharedSlotField, ConditionalField, Casc
    * ⚠️ 仍是純字串、不是函式：只有 `=== 0` 這一個分支點，快照照樣逐位比對。
    */
   zeroLabel?: string;
+  /**
+   * 特定值改印這個字（key 是 `String(value)`，同 toggle／select 的 `labelByValue` 慣例）；查無對應照常印數字。
+   *
+   * 唯一使用者：Day 21 OSM 年份拉桿的 `2007` 要印「2007 以前」（第一年代表 2007 年以前，含）——
+   * 不是 0，`zeroLabel` 表達不了。英日文照 `zeroLabel` 一樣走 `param.<中文>`。
+   */
+  labelByValue?: Record<string, string>;
   /** `toFixed` 位數 */
   digits: number;
   /**
