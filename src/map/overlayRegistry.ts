@@ -365,7 +365,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, NP_PARK_OPTIONS, airportSurfaceColorExpr, HAKKA_SCHOOL_KIND_OPTIONS, SAND_GRAVEL_REG_OPTIONS, WELFARE_POINT_KIND_OPTIONS, EV_MOTO_KIND_OPTIONS, B7_COUNTY_COVERAGE, STREETLIGHT_GRID_STEPS, streetlightLedColorExpr, ATLAS_OTHER_COLOR, type B7CoverageKey, GOV_HR_BRANCH_COLOR, GOV_HR_BRANCH_FILTER_INDEX, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, NP_PARK_OPTIONS, airportSurfaceColorExpr, HAKKA_SCHOOL_KIND_OPTIONS, SAND_GRAVEL_REG_OPTIONS, WELFARE_POINT_KIND_OPTIONS, EV_MOTO_KIND_OPTIONS, B7_COUNTY_COVERAGE, welfareUncoveredCounties, STREETLIGHT_GRID_STEPS, streetlightLedColorExpr, ATLAS_OTHER_COLOR, type B7CoverageKey, GOV_HR_BRANCH_COLOR, GOV_HR_BRANCH_FILTER_INDEX, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -12476,13 +12476,16 @@ function vegetationForestTypesOverlays(): OverlayConfig[] {
  * fill-pattern 的圖由 overlayManager.addOverlay 依 `map-hatch-*` 名稱自動補（兩種底圖都備好）。
  */
 function countyUncoveredHatchOverlay(id: B7CoverageKey, sourceId: string, attribution: string): OverlayConfig {
-  const names = B7_COUNTY_COVERAGE[id];
+  // 社福據點的斜線跟類別篩選走（只勾實物銀行＝沒有實物銀行名冊的縣市）；其餘層固定
+  const byFilter = id === "countyWelfarePoints";
+  const namesOf = (p?: Record<string, number>): readonly string[] => byFilter ? welfareUncoveredCounties(p?.countyWelfarePointsCatMask) : B7_COUNTY_COVERAGE[id];
   return {
     id, sourceUrl: "./base_map/county_boundary.pmtiles", sourceId,
     pmtiles: { sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 }, attribution,
+    ...(byFilter ? { rebuildOnParamChange: ["hatch"] } : {}),
     layers: [{
       suffix: "hatch", type: "fill", minzoom: 4, skipCategoryFilter: true,
-      filter: ["in", ["get", "名稱"], ["literal", [...names]]],
+      filter: (p?: Record<string, number>) => ["in", ["get", "名稱"], ["literal", [...namesOf(p)]]],
       paint: (isDark, p) => ({ "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": Math.min(1, p?.[`${id}Opacity`] ?? 0.9) }),
     }],
   };

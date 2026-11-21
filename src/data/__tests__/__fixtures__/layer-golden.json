@@ -93084,7 +93084,9 @@
         "minzoom": 0,
         "sourceLayer": "county_boundary"
       },
-      "rebuildOnParamChange": [],
+      "rebuildOnParamChange": [
+        "hatch"
+      ],
       "sourceId": "county-welfare-points-uncovered",
       "sourceUrl": "./base_map/county_boundary.pmtiles"
     },

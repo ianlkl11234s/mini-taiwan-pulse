@@ -946,6 +946,22 @@ export const B7_COUNTY_COVERAGE = {
   countyStreetlights: ["臺南市", "基隆市", "新竹縣", "苗栗縣", "南投縣", "雲林縣", "嘉義縣", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"],
 } as const satisfies Record<string, readonly string[]>;
 export type B7CoverageKey = keyof typeof B7_COUNTY_COVERAGE;
+/**
+ * 縣市社福據點的斜線跟類別篩選走（涵蓋表 key＝縣市|類別，status 非 covered 者）：
+ * 只勾據點＝沒有據點名冊的縣市；只勾實物銀行＝沒有實物銀行名冊的縣市（只有桃園、高雄、臺北有）；兩類都勾＝兩類都沒有的縣市。
+ */
+export const B7_WELFARE_UNCOVERED_BY_KIND = {
+  care: ["嘉義縣", "雲林縣", "基隆市", "新竹市", "苗栗縣", "澎湖縣", "金門縣", "連江縣"],
+  foodBank: ["宜蘭縣", "新北市", "基隆市", "新竹市", "新竹縣", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義市", "嘉義縣", "臺中市", "臺南市", "屏東縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"],
+} as const;
+/** 依選取的類別（bit0＝據點、bit1＝實物銀行；未設＝全選）回斜線縣市；全關回空。 */
+export function welfareUncoveredCounties(mask?: number): readonly string[] {
+  const m = mask === undefined || !Number.isFinite(mask) ? 3 : Math.trunc(mask) & 3;
+  if (m === 0) return [];
+  if (m === 1) return B7_WELFARE_UNCOVERED_BY_KIND.care;
+  if (m === 2) return B7_WELFARE_UNCOVERED_BY_KIND.foodBank;
+  return B7_WELFARE_UNCOVERED_BY_KIND.care.filter((c) => (B7_WELFARE_UNCOVERED_BY_KIND.foodBank as readonly string[]).includes(c));
+}
 export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部", caa: "交通部民用航空局", npa: "內政部警政署", gsmb: "經濟部地質調查及礦業管理中心", countyGov: "各縣市政府", countyEpa: "各縣市環保局" } as const;
 
 export const ATLAS_NOTES = {
