@@ -15,5 +15,20 @@
   "enum.emergencyHospitalLevel.heavy": "Advanced",
   "enum.emergencyHospitalLevel.moderate": "Intermediate",
   "enum.emergencyHospitalLevel.general": "General",
-  "enum.emergencyHospitalLevel.unrated": "Grade not stated"
+  "enum.emergencyHospitalLevel.unrated": "Grade not stated",
+  "enum.medicalNhi.hospital_medical_center": "Medical center",
+  "enum.medicalNhi.hospital_regional": "Regional hospital",
+  "enum.medicalNhi.hospital_district": "District hospital",
+  "enum.medicalNhi.clinic": "Clinic",
+  "enum.medicalNhi.pharmacy": "Pharmacy",
+  "enum.medicalNhi.home_nursing": "Home nursing agency",
+  "enum.medicalNhi.health_center": "Public health center",
+  "enum.medicalNhi.rehab_home": "Psychiatric rehabilitation facility",
+  "enum.medicalNhi.lab": "Medical laboratory",
+  "enum.medicalNhi.speech_therapy": "Speech therapy clinic",
+  "enum.medicalNhi.physical_therapy": "Physical therapy clinic",
+  "enum.medicalNhi.midwifery": "Midwifery clinic",
+  "enum.medicalNhi.medical_radiology": "Medical radiology clinic",
+  "enum.medicalNhi.occupational_therapy": "Occupational therapy clinic",
+  "enum.medicalNhi.other_nhi": "Other NHI-contracted"
 }

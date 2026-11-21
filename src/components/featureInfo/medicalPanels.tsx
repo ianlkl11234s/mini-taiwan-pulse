@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RADIUS, FONT_SIZE, COLORS } from "../../styles/designTokens";
 import { medIsochroneColor, medIsochroneLabel, MEDICAL_ISOCHRONE_NOTE } from "../../data/medicalIsochroneTypes";
-import { medicalColorByCat } from "../../data/medicalPOITypes";
+import { medicalColorByCat, NHI_CATEGORY_LABEL } from "../../data/medicalPOITypes";
 import { emergencyHospitalColor, emergencyHospitalLevelOf, EMERGENCY_HOSPITAL_DATA_AS_OF } from "../../data/emergencyHospitalTypes";
 import {
   classifyErCongestion, ER_LEVEL_COLORS, ER_LEVEL_LABELS, ER_CONGESTION_THRESHOLDS,
@@ -29,13 +29,6 @@ const MEDICAL_RAW_SOURCES = {
   ltc: { labelKey: "popup.medical.sourceLtc", url: "https://data.gov.tw/dataset/88270" },
 } as const;
 
-/** 健保特約院所（醫院／診所／藥局）：tile 保留官方欄位、無 med_cat；機構類型中文名同 scripts/preprocess/merge_medical_poi.py 的 NHI_LABEL */
-const NHI_LABEL: Record<string, string> = {
-  hospital_medical_center: "醫學中心", hospital_regional: "區域醫院", hospital_district: "地區醫院",
-  clinic: "診所", pharmacy: "藥局", home_nursing: "居家護理所", health_center: "衛生所", rehab_home: "精神復健機構",
-  lab: "醫事檢驗所", speech_therapy: "語言治療所", physical_therapy: "物理治療所", midwifery: "助產所",
-  medical_radiology: "醫事放射所", occupational_therapy: "職能治療所", other_nhi: "其他特約",
-};
 
 const str = (v: unknown): string => (v == null ? "" : String(v).trim());
 
@@ -85,7 +78,7 @@ export function normalizeMedicalPOIProps(props: Record<string, unknown>): Record
       county: str(props.county),
       address: str(props.address),
       phone: str(props.phone),
-      category_label: NHI_LABEL[cat] ?? cat,
+      nhi_category: cat,
       specialties: str(props.specialties),
     };
   }
@@ -111,6 +104,7 @@ export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unk
   const address = String(props.address ?? "");
   const phone = String(props.phone ?? "");
   const specialties = String(props.specialties ?? "");
+  const nhiLabel = NHI_CATEGORY_LABEL[String(props.nhi_category)];
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -119,7 +113,7 @@ export function MedicalPOIPanel({ props: rawProps }: { props: Record<string, unk
       </div>
       {medCat === "hospital" || medCat === "clinic" || medCat === "other_medical" ? (
         <>
-          <Row field="type" value={String(props.category_label ?? "")} color={color} />
+          <Row field="type" value={nhiLabel ? enumLabel("medicalNhi", String(props.nhi_category), nhiLabel, i18n) : String(props.category_label ?? "")} color={color} />
           <Row field="county" value={placeName(county, i18n)} />
           <Row field="address" value={address} />
           <Row field="phone" value={phone} />

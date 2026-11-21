@@ -53,7 +53,7 @@ describe("MedicalPOIPanel 健保特約院所（藥局、醫院）", () => {
     expect(normalizeMedicalPOIProps(HOSPITAL).med_cat).toBe("hospital");
     expect(normalizeMedicalPOIProps(PHARMACY).med_cat).toBe("pharmacy");
     expect(normalizeMedicalPOIProps({ ...PHARMACY, category: "clinic" }).med_cat).toBe("clinic");
-    expect(normalizeMedicalPOIProps({ ...PHARMACY, category: "health_center" }).category_label).toBe("衛生所");
+    expect(render({ ...PHARMACY, category: "health_center" })).toContain("衛生所");
   });
 });
 
