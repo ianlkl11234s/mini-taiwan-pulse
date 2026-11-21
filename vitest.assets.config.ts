@@ -7,6 +7,7 @@ import { ASSET_TESTS } from "./vitest.shared";
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
+    __APP_BUILD__: JSON.stringify(""),
   },
   test: {
     include: ASSET_TESTS,

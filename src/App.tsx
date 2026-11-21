@@ -141,6 +141,7 @@ import { useLayerVisibilityHint } from "./hooks/useLayerVisibilityHint";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { BOOT_TIMING, setBootAttr, type BootPhase } from "./components/boot/bootSequence";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
+import { NewVersionNotice } from "./components/NewVersionNotice";
 import { MapNavControls } from "./components/MapNavControls";
 import { MapScaleBar } from "./components/MapScaleBar";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
@@ -2273,6 +2274,7 @@ export default function App() {
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {showLoadingScreen && <LoadingScreen phase={bootPhase as Exclude<BootPhase, "gone">} isDarkTheme={isDarkTheme} />}
       <TransientNotice />
+      <NewVersionNotice busy={showLoadingScreen || captureMode || chatOpen || agentActivityVisible || timeline.playing || eqReplayPlaying || historicalPlaying} measure={measure} isDarkTheme={isDarkTheme} isMobile={isMobile} />
       {/* owner-only 私人圖層：已登入非 owner 點鎖層時的提示（未登入則直接導 Google 登入，不走這裡） */}
       {gatedNotice && (
         <div

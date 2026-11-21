@@ -165,5 +165,15 @@
   "mapUnavailable.crashBody": "Something went wrong while starting the page. Try reloading.",
   "mapUnavailable.browserHint": "Try the latest Chrome, Edge, Firefox or Safari, and make sure hardware acceleration is turned on in the browser settings. You can also read our articles, which don't need the map.",
   "mapUnavailable.reload": "Reload",
-  "mapUnavailable.blogLink": "Read Pulse Notes"
+  "mapUnavailable.blogLink": "Read Pulse Notes",
+  "updateNotice.aria": "Site update notice",
+  "updateNotice.title": "A new version is available",
+  "updateNotice.detail": "Reload to switch to the latest version.",
+  "updateNotice.reload": "Reload",
+  "updateNotice.later": "Later",
+  "updateNotice.badge": "New version available. Click for details",
+  "updateNotice.previewLabel": "Notice style preview",
+  "updateNotice.styleA": "A Corner card",
+  "updateNotice.styleB": "B Top bar",
+  "updateNotice.styleC": "C Icon badge"
 }

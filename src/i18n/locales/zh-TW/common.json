@@ -165,5 +165,15 @@
   "mapUnavailable.crashBody": "啟動畫面時發生錯誤。可以重新整理再試一次。",
   "mapUnavailable.browserHint": "建議改用最新版的 Chrome、Edge、Firefox 或 Safari，並確認瀏覽器設定裡的「硬體加速」已開啟。也可以先讀不需要地圖的文章。",
   "mapUnavailable.reload": "重新整理",
-  "mapUnavailable.blogLink": "閱讀 Pulse 筆記"
+  "mapUnavailable.blogLink": "閱讀 Pulse 筆記",
+  "updateNotice.aria": "網站更新提示",
+  "updateNotice.title": "網站有新版本",
+  "updateNotice.detail": "重新整理後就會換成最新版。",
+  "updateNotice.reload": "重新整理",
+  "updateNotice.later": "稍後",
+  "updateNotice.badge": "有新版本，點一下查看",
+  "updateNotice.previewLabel": "提示樣式預覽",
+  "updateNotice.styleA": "A 右下卡片",
+  "updateNotice.styleB": "B 頂部橫條",
+  "updateNotice.styleC": "C 圖示角標"
 }
