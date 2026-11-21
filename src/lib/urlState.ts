@@ -55,8 +55,17 @@ export interface UrlState {
    * （後綴＝統計連動選單的 name 去掉 layerKey，例 `Period`、`DimSex`）。這裡只驗格式；圖層是否支援、值是否還存在由主站套用時驗。
    */
   compare?: UrlCompareState;
-  /** overlayParams 覆寫。**僅 `/embed` 消費**，主站忽略（見 impl §1-1） */
+  /**
+   * overlayParams 覆寫（`p.<overlay out key>=<數字>`；boolean 走 0/1、select 走索引、多選走 bitmask）。
+   * `/embed` 直接當 overlayParams 用；主站由 `lib/urlLayerParams.ts` 對照圖層規格解回控制項的值
+   * （只套用網址裡有開、而且看網址的人有權限的圖層）。同一份共用值（sharedGroup）共用 out key，只寫一次。
+   */
   params?: Record<string, number>;
+  /**
+   * 單地圖時統計層的期別與細項（`sel=<layerKey>:<控制項後綴>=<值>;…`，多層以 `,` 分隔；語法同 `cmpdl=`，選填欄位不升版）。
+   * 比較模式改由 `cmpdl=` 記左側，不重複寫。這裡只驗格式；值是否還存在由主站等選項載入後驗。
+   */
+  selection?: Record<string, Record<string, string>>;
   /** 凍結歷史畫面的日期 YYYY-MM-DD */
   date?: string;
   /** 搭配 date 的小時 0–23（台北時區）。embed 快照是日級，這只影響主站時間軸 */
@@ -333,6 +342,9 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
   const params = parseParams(q);
   if (params) state.params = params;
 
+  const selection = parseCompareSelection(q.get("sel"));
+  if (selection) state.selection = selection;
+
   const date = q.get("date");
   if (date && DATE_RE.test(date) && !Number.isNaN(Date.parse(date))) state.date = date;
 
@@ -407,11 +419,13 @@ export function buildUrl(state: UrlState, base: string): string {
     if (dr) q.set("cmpdr", dr);
   }
   if (state.params) {
-    for (const [k, v] of Object.entries(state.params)) {
+    for (const [k, v] of Object.entries(state.params).sort(([a], [b]) => a.localeCompare(b))) {
       if (NON_SHAREABLE_PARAM_NAMES.has(k)) continue;
       if (Number.isFinite(v)) q.set(`p.${k}`, String(round(v, 4)));
     }
   }
+  const sel = buildCompareSelection(state.selection);
+  if (sel) q.set("sel", sel);
   if (state.date) q.set("date", state.date);
   // 0 時是有效值但等同預設，省略以保持網址精簡
   if (state.hour) q.set("h", String(Math.floor(state.hour)));

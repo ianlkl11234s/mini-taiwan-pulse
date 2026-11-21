@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2069,
+    "keyCount": 2074,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5472,6 +5472,41 @@
         "np-species-sites-glow"
       ],
       "type": "npSpeciesSites"
+    },
+    {
+      "layers": [
+        "hakka-living-schools-circle",
+        "hakka-living-schools-glow"
+      ],
+      "type": "hakkaLivingSchools"
+    },
+    {
+      "layers": [
+        "sand-gravel-plants-circle",
+        "sand-gravel-plants-glow"
+      ],
+      "type": "sandGravelPlants"
+    },
+    {
+      "layers": [
+        "county-welfare-points-circle",
+        "county-welfare-points-glow"
+      ],
+      "type": "countyWelfarePoints"
+    },
+    {
+      "layers": [
+        "ev-motorcycle-charging-circle",
+        "ev-motorcycle-charging-glow"
+      ],
+      "type": "evMotorcycleCharging"
+    },
+    {
+      "layers": [
+        "county-streetlights-circle",
+        "county-streetlights-glow"
+      ],
+      "type": "countyStreetlights"
     },
     {
       "layers": [
@@ -92573,6 +92608,1313 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "hakkaLivingSchools",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_kind"
+                ],
+                "國小",
+                "#f59e0b",
+                "國中",
+                "#22c55e",
+                "高中",
+                "#3b82f6",
+                "幼兒園",
+                "#ec4899",
+                "其他",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_kind"
+                ],
+                "國小",
+                "#f59e0b",
+                "國中",
+                "#22c55e",
+                "高中",
+                "#3b82f6",
+                "幼兒園",
+                "#ec4899",
+                "其他",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_kind"
+                ],
+                "國小",
+                "#f59e0b",
+                "國中",
+                "#22c55e",
+                "高中",
+                "#3b82f6",
+                "幼兒園",
+                "#ec4899",
+                "其他",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "school_kind"
+                ],
+                "國小",
+                "#f59e0b",
+                "國中",
+                "#22c55e",
+                "高中",
+                "#3b82f6",
+                "幼兒園",
+                "#ec4899",
+                "其他",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "hakka_living_schools"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "hakka-living-schools",
+      "sourceUrl": "./indigenous_rural/hakka_living_schools_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "sandGravelPlants",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "registration"
+                ],
+                "工廠登記",
+                "#a8a29e",
+                "工廠登記＋用地變更同意",
+                "#d97706",
+                "特定工廠登記",
+                "#0ea5e9",
+                "臨時登記補辦申請中",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "registration"
+                ],
+                "工廠登記",
+                "#a8a29e",
+                "工廠登記＋用地變更同意",
+                "#d97706",
+                "特定工廠登記",
+                "#0ea5e9",
+                "臨時登記補辦申請中",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "registration"
+                ],
+                "工廠登記",
+                "#a8a29e",
+                "工廠登記＋用地變更同意",
+                "#d97706",
+                "特定工廠登記",
+                "#0ea5e9",
+                "臨時登記補辦申請中",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "registration"
+                ],
+                "工廠登記",
+                "#a8a29e",
+                "工廠登記＋用地變更同意",
+                "#d97706",
+                "特定工廠登記",
+                "#0ea5e9",
+                "臨時登記補辦申請中",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "sand_gravel_plants"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "sand-gravel-plants",
+      "sourceUrl": "./industrial_zone/sand_gravel_plants_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "countyWelfarePoints",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "名稱"
+            ],
+            [
+              "literal",
+              [
+                "嘉義縣",
+                "雲林縣",
+                "基隆市",
+                "新竹市",
+                "苗栗縣",
+                "澎湖縣",
+                "金門縣",
+                "連江縣"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-opacity": 0.9,
+              "fill-pattern": "map-hatch-missing-dark"
+            },
+            "light": {
+              "fill-opacity": 0.9,
+              "fill-pattern": "map-hatch-missing-light"
+            }
+          },
+          "suffix": "hatch",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "county_boundary"
+      },
+      "rebuildOnParamChange": [
+        "hatch"
+      ],
+      "sourceId": "county-welfare-points-uncovered",
+      "sourceUrl": "./base_map/county_boundary.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "countyWelfarePoints",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "社區照顧關懷據點",
+                "#ec4899",
+                "實物銀行",
+                "#a3e635",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "社區照顧關懷據點",
+                "#ec4899",
+                "實物銀行",
+                "#a3e635",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "社區照顧關懷據點",
+                "#ec4899",
+                "實物銀行",
+                "#a3e635",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "社區照顧關懷據點",
+                "#ec4899",
+                "實物銀行",
+                "#a3e635",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "county_welfare_points"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "county-welfare-points",
+      "sourceUrl": "./welfare/county_welfare_points_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "evMotorcycleCharging",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "名稱"
+            ],
+            [
+              "literal",
+              [
+                "臺中市",
+                "澎湖縣",
+                "基隆市",
+                "苗栗縣",
+                "南投縣",
+                "嘉義縣",
+                "花蓮縣",
+                "金門縣",
+                "連江縣"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-opacity": 0.9,
+              "fill-pattern": "map-hatch-missing-dark"
+            },
+            "light": {
+              "fill-opacity": 0.9,
+              "fill-pattern": "map-hatch-missing-light"
+            }
+          },
+          "suffix": "hatch",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "county_boundary"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "ev-motorcycle-charging-uncovered",
+      "sourceUrl": "./base_map/county_boundary.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "evMotorcycleCharging",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_kind"
+                ],
+                "充電站",
+                "#22d3ee",
+                "換電站",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_kind"
+                ],
+                "充電站",
+                "#22d3ee",
+                "換電站",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_kind"
+                ],
+                "充電站",
+                "#22d3ee",
+                "換電站",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_kind"
+                ],
+                "充電站",
+                "#22d3ee",
+                "換電站",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "ev_motorcycle_charging"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "ev-motorcycle-charging",
+      "sourceUrl": "./energy/ev_motorcycle_charging_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "countyStreetlights",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "名稱"
+            ],
+            [
+              "literal",
+              [
+                "臺南市",
+                "基隆市",
+                "新竹縣",
+                "苗栗縣",
+                "南投縣",
+                "雲林縣",
+                "嘉義縣",
+                "屏東縣",
+                "宜蘭縣",
+                "花蓮縣",
+                "臺東縣",
+                "澎湖縣",
+                "金門縣",
+                "連江縣"
+              ]
+            ]
+          ],
+          "layout": null,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-opacity": 0.8,
+              "fill-pattern": "map-hatch-missing-dark"
+            },
+            "light": {
+              "fill-opacity": 0.8,
+              "fill-pattern": "map-hatch-missing-light"
+            }
+          },
+          "suffix": "hatch",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "county_boundary"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "county-streetlights-uncovered",
+      "sourceUrl": "./base_map/county_boundary.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "countyStreetlights",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 12,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "n_lights"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "n_lights"
+                  ],
+                  "#545a6d",
+                  10,
+                  "#6f7073",
+                  30,
+                  "#8a8678",
+                  100,
+                  "#a89d73",
+                  300,
+                  "#c5b568",
+                  600,
+                  "#e3ce53",
+                  1000,
+                  "#fee838"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.8
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "n_lights"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "n_lights"
+                  ],
+                  "#b1a570",
+                  10,
+                  "#968f77",
+                  30,
+                  "#7b7a78",
+                  100,
+                  "#62666f",
+                  300,
+                  "#48526c",
+                  600,
+                  "#273e6e",
+                  1000,
+                  "#002b62"
+                ],
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.8
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 11,
+        "minzoom": 4,
+        "sourceLayer": "county_streetlights_grid"
+      },
+      "rebuildOnParamChange": [],
+      "sourceId": "county-streetlights-grid",
+      "sourceUrl": "./civic_facilities/county_streetlights_grid_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "countyStreetlights",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "led"
+                    ]
+                  ]
+                ],
+                "true",
+                "#38bdf8",
+                "false",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.16,
+                12,
+                4.680000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "led"
+                    ]
+                  ]
+                ],
+                "true",
+                "#38bdf8",
+                "false",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.9,
+                5,
+                2.16,
+                12,
+                4.680000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "led"
+                    ]
+                  ]
+                ],
+                "true",
+                "#38bdf8",
+                "false",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.2,
+                12,
+                2.6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "led"
+                    ]
+                  ]
+                ],
+                "true",
+                "#38bdf8",
+                "false",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                1.2,
+                12,
+                2.6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 12,
+        "sourceLayer": "county_streetlights"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "county-streetlights",
+      "sourceUrl": "./civic_facilities/county_streetlights_v1.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "iOceanSightings",
       "layers": [
         {
@@ -128913,6 +130255,164 @@
         "valueText": "1.0"
       }
     ],
+    "countyStreetlights": [
+      {
+        "label": "燈具類型",
+        "options": [
+          {
+            "label": "LED 燈具",
+            "value": "True"
+          },
+          {
+            "label": "非 LED 燈具",
+            "value": "False"
+          },
+          {
+            "label": "不明",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "True",
+          "False",
+          "__other__"
+        ]
+      },
+      {
+        "defaultValue": "cividis",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "cividis"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "countyWelfarePoints": [
+      {
+        "label": "據點類別",
+        "options": [
+          {
+            "label": "社區照顧關懷據點",
+            "value": "社區照顧關懷據點"
+          },
+          {
+            "label": "實物銀行",
+            "value": "實物銀行"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "社區照顧關懷據點",
+          "實物銀行"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "court": [
       {
         "label": "類別",
@@ -130489,6 +131989,44 @@
         "step": 0.1,
         "value": 0.5,
         "valueText": "0.50"
+      }
+    ],
+    "evMotorcycleCharging": [
+      {
+        "label": "設施類別",
+        "options": [
+          {
+            "label": "充電站",
+            "value": "充電站"
+          },
+          {
+            "label": "換電站",
+            "value": "換電站"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "充電站",
+          "換電站"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "exclusiveFisheryRightAreas": [
@@ -137647,6 +139185,59 @@
         ],
         "type": "select",
         "value": "polygon"
+      }
+    ],
+    "hakkaLivingSchools": [
+      {
+        "label": "學制",
+        "options": [
+          {
+            "label": "國小",
+            "value": "國小"
+          },
+          {
+            "label": "國中",
+            "value": "國中"
+          },
+          {
+            "label": "高中",
+            "value": "高中"
+          },
+          {
+            "label": "幼兒園",
+            "value": "幼兒園"
+          },
+          {
+            "label": "其他",
+            "value": "其他"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "國小",
+          "國中",
+          "高中",
+          "幼兒園",
+          "其他"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "harmReductionAftercare": [
@@ -168099,6 +169690,54 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "sandGravelPlants": [
+      {
+        "label": "登記類別",
+        "options": [
+          {
+            "label": "工廠登記",
+            "value": "工廠登記"
+          },
+          {
+            "label": "工廠登記＋用地變更同意",
+            "value": "工廠登記＋用地變更同意"
+          },
+          {
+            "label": "特定工廠登記",
+            "value": "特定工廠登記"
+          },
+          {
+            "label": "臨時登記補辦申請中",
+            "value": "臨時登記補辦申請中"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "工廠登記",
+          "工廠登記＋用地變更同意",
+          "特定工廠登記",
+          "臨時登記補辦申請中"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "satellitesBeidou": [
