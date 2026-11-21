@@ -5,7 +5,7 @@
 
 ## 0. 一句話結論與文件定位
 
-**一句話**：使用者在 Claude Code（或 Codex）用白話問地理問題，Agent 依 `pulse-conductor` skill 分派，透過本機 MCP `pulse-research`（core 23 個工具）在**本機 DuckDB 唯讀查詢分析倉庫**算出數字，再經雲端 research-gateway 把結果**畫到使用者已登入的 Pulse 地圖分頁**，確認 `shown:true` 之後才用白話回答。
+**一句話**：使用者在 Claude Code（或 Codex）用白話問地理問題，Agent 依 `pulse-conductor` skill 分派，透過本機 MCP `pulse-research`（core 24<!-- gen:mcp-core=24 --> 個工具）在**本機 DuckDB 唯讀查詢分析倉庫**算出數字，再經雲端 research-gateway 把結果**畫到使用者已登入的 Pulse 地圖分頁**，確認 `shown:true` 之後才用白話回答。
 
 本檔只回答「**系統現在怎麼運作**」。其他問題看這裡：
 
@@ -34,7 +34,7 @@ flowchart TB
     end
 
     subgraph MCP["本機 MCP：pulse-research（stdio）"]
-        T["core 23 工具<br/>地圖操作 / 找資料 / 計算 / 上圖 / 發布"]
+        T["core 24 工具<br/>地圖操作 / 找資料 / 計算 / 上圖 / 發布"]
         ENG["WarehouseEngine<br/>DuckDB 唯讀 + spatial"]
         JEV["Jev 相關性評分<br/>（OpenRouter，只在 find_data）"]
         T --> ENG
@@ -131,9 +131,9 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 
 ---
 
-## 3. 工具清單（core 23 個）
+## 3. 工具清單（core 24 個）
 
-以 `src/research/toolsets.ts` 的 `CORE_TOOLS` 為準，共 23 個（`PULSE_TOOLSET=core` 為預設）。MCP `README.md` 寫的「50 tools」是舊的 full 模式數字，已過時；full 模式目前的實際數量**未量測**。
+以 `src/research/toolsets.ts` 的 `CORE_TOOLS` 為準，工具數由 `scripts/research/count-mcp-tools.mjs` 產生（結果存 [mcp-tool-count.json](./mcp-tool-count.json)，`npm run check:entry-docs` 會比對）：**core 24**<!-- gen:mcp-core=24 -->（`CORE_TOOLS`，`PULSE_TOOLSET=core` 為預設，Agent 實際看到的）；**full 65**<!-- gen:mcp-full=65 -->（`PULSE_TOOLSET=full`，含 `pulse_route_request` 等進階工具，數量取自 MCP `server.test.ts` 的 `expectedToolNames`）。兩者口徑不同，不可互換。
 
 | 分組 | 工具 | 一句話 |
 |---|---|---|
@@ -155,6 +155,7 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 | | `pulse_sql` | 沒有現成工具時的唯讀 SELECT／WITH；有 maxRows 上限，回傳 `wh-N` |
 | | `pulse_region_rank` | 縣市／鄉鎮／村里依一個統計指標排名；缺值或保密值不排名、不當 0 |
 | | `pulse_spatial_stats` | 熱點、群聚、集中度：`gi_star` 冷熱點、`lisa` 群聚與離群、`moran_global` 整體群聚、`lq` 區位商數；單位為行政區或 1000／500 m 網格，`scope.countyCode` 限單一縣市（村里必須限縣市）；確定性計算，回答只說「統計上顯著（5% 水準）」（ADR-0022 階段 A，MCP #70） |
+| | `pulse_cross_analysis` | 兩個指標或點密度「一起多嗎」、換尺度還成立嗎：回各尺度相關與結論是否翻轉；被擋時給原因與替代方案 |
 | | `pulse_isochrone` | 「走路／騎車／開車 N 分鐘」用；打自架 Valhalla，結果也是可 join 的 `iso_wh_N` 表 |
 | | `pulse_wh_get_result` | 分頁讀回之前的 `wh-N` 結果，不重算 |
 | 上圖 | `pulse_show_result` | 一步完成匯入、取景、等 ready、讀回；最多 3 個結果；只有 `shown:true` 才能說地圖上有 |
@@ -388,7 +389,7 @@ npm run eval:agent -- --live-map --web --reset-layers \
 
 - Jev 是 OpenRouter 託管的分類模型 `typesafe/jev-1.13`，**不是自己訓練的**（`src/research/jevRouter.ts`）。
 - **現役用途只有一個**：`pulse_find_data` 先用關鍵字、欄位、同義詞、別名、統計指標寬鬆找出候選（候選池放大到 limit 的數倍，避免好資料在評分前就被切掉），再請 Jev 逐筆評相關性，機率 ≥0.7 進 `relevant`，其餘進 `alsoConsider`（不丟棄）。Jev 沒設定、逾時（每筆 8 秒）或全失敗時，自動退回純關鍵字排序並標 `deterministic_only`（`src/warehouse/discovery.ts`）。
-- **路由（`pulse_route_request`）只是影子工具**：把問題分到 10 類能力並給候選工具，自己不執行任何東西；它**不在 core 23 工具內**，只有 full 模式看得到，所以現行 Agent 根本不會用它。路由準確度**未評估**；在 eval 裡當影子判斷和 conductor 比對的計畫尚未做。
+- **路由（`pulse_route_request`）只是影子工具**：把問題分到 10 類能力並給候選工具，自己不執行任何東西；它**不在 core 24 工具內**，只有 full 模式看得到，所以現行 Agent 根本不會用它。路由準確度**未評估**；在 eval 裡當影子判斷和 conductor 比對的計畫尚未做。
 - 舊設計脈絡：[jev-routing-accelerator.md](./jev-routing-accelerator.md)（09-20，當時由已移除的 pulse-gis-analyst 呼叫，已過時）。
 
 ### 8b. 8 月 Qwen3 SFT 圖層路由實驗（已結束）
@@ -457,11 +458,11 @@ repo `mini-pulse-layer-router`（`README.md`）：
 | skills 與配方 | MCP repo `plugins/pulse-analyst/skills/` | ✅ 規則正本 |
 | ADR：倉庫由登記簿清單＋R2 資料包組裝 | `.gis-agent-system/decisions/0023-warehouse-from-registry-packages.md` | ✅ 2026-10-20 採用，P0–P2 完成（結果段） |
 | 倉庫建置與新資料入口 | MCP repo `warehouse/README.md`（組裝模式、新資料入口） | ✅ |
-| MCP 總說明 | MCP repo `README.md` | ⚠️ 「50 tools」與 `pulse_wh_present` 等描述過時 |
+| MCP 總說明 | MCP repo `README.md` | ⚠️ 「50 tools」與 `pulse_wh_present` 等描述過時（2026-11-21：README 的工具數已改為由腳本產生的 core／full 數字） |
 | 端點契約 | [bridge-contract.md](./bridge-contract.md)、[SPEC-prod-connect-p1-p3.md](../general-analysis/SPEC-prod-connect-p1-p3.md) | ✅（Phase B 段為歷史） |
 | 倉庫分級計畫 | [PLAN-warehouse-20260926.md](../general-analysis/PLAN-warehouse-20260926.md) | ✅ 定義有效，進度數字過時 |
 | 圖層可分析總表 | [layer-status-summary.md](../general-analysis/layer-status-summary.md)、[layer-status.csv](../general-analysis/layer-status.csv) | ✅ 自動產生（2026-10-12） |
-| general-analysis 總進度頁 | [STATUS.md](../general-analysis/STATUS.md) | ⚠️ 過時：停在 2026-10-04，沒有查證關卡與之後的輪次 |
+| general-analysis 總進度頁 | [STATUS.md](../general-analysis/STATUS.md) | 已改為入口指標（2026-11-21）；舊進度封存於 `docs/archive/2026-11-21/features/general-analysis/STATUS-20261004.md` |
 | v1 系統導覽 | [pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md) | ⚠️ 歷史（42 工具、pulse-gis-analyst） |
 | Jev 路由設計 | [jev-routing-accelerator.md](./jev-routing-accelerator.md) | ⚠️ 過時：pulse-gis-analyst 已於 ADR-0016 移除 |
 | 本資料夾其他規格與驗收 | [README.md](./README.md) 索引 | 大多為 2026-09 歷史 |
