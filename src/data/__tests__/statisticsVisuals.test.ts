@@ -186,8 +186,9 @@ describe('getStatisticsVisual', () => {
     // 2026-11-18: +5 縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL）。
     // 2026-11-20: +9 台灣圖層延伸 B2（新住民子女就學 5、鄉鎮前二十大姓 3、現存坑洞數 1）。
     // 2026-11-20: +4 台灣圖層延伸 B1（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
-    expect(STATISTICS_KEYS).toHaveLength(917);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(929);
+    // 2026-11-20: +23 台灣圖層延伸 B4（普查常住人口 6、原住民族別 4、住宅用電 4、公司登記動態 4、未參加健保 2、工商普查鄉鎮 3）。
+    expect(STATISTICS_KEYS).toHaveLength(940);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(952);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;
