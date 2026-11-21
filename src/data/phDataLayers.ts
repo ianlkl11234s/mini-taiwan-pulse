@@ -24,7 +24,7 @@ const ODBL = "ODbL 1.0";
 const OSM_COPYRIGHT = "https://www.openstreetmap.org/copyright";
 const OSM_HOT = "© OpenStreetMap contributors（ODbL），via HOT Export Tool／HDX";
 const OSM_OVERTURE = "© OpenStreetMap contributors（ODbL），via Overture Maps Foundation";
-const NO_LICENSE_TEXT = "來源未附授權條文（Geoportal 盤點表 Conditional downloading）；OSM 補缺 ODbL 1.0";
+const NO_LICENSE_TEXT = l3("來源未附授權條文（Geoportal 盤點表 Conditional downloading）；OSM 補缺 ODbL 1.0", "No license text supplied by the source (Geoportal inventory: Conditional downloading); OSM gap-fill under ODbL 1.0", "出典に許諾条文なし（Geoportal 一覧表：Conditional downloading）。OSM 補完は ODbL 1.0");
 
 // ═════════════════════════ 行政邊界、人口（四層級） ═════════════════════════
 
@@ -50,7 +50,7 @@ export function phKigExcludeFilter(level: PhAdminLevel): Expr | null {
 }
 export const PH_ADMIN_COLOR = "#9ca3af";
 export const PH_ADMIN_SOURCE = {
-  org: "OCHA COD-AB Philippines v03（source NAMRIA、PSA），via HDX；NIR 合成與 Sulu 改隸 Region IX 由 taipei-gis-analytics 處理",
+  org: l3("OCHA COD-AB Philippines v03（source NAMRIA、PSA），via HDX；NIR 合成與 Sulu 改隸 Region IX 由 taipei-gis-analytics 處理", "OCHA COD-AB Philippines v03 (sources: NAMRIA, PSA), via HDX; NIR composition and Sulu's reassignment to Region IX handled by taipei-gis-analytics", "OCHA COD-AB Philippines v03（出典：NAMRIA、PSA）、HDX 経由。NIR の合成と Sulu の Region IX への編入は taipei-gis-analytics で処理"),
   url: "https://data.humdata.org/dataset/cod-ab-phl",
   license: "CC BY-IGO 3.0",
   short: "© OCHA／PSA／NAMRIA COD-AB（HDX，CC BY-IGO）",
@@ -67,9 +67,9 @@ export const PH_DENSITY_LABELS = ["<100", "100–300", "300–1,000", "1,000–5
 /** 未涵蓋＝灰（使用者決定：不畫成 0）。 */
 export const PH_NOT_COVERED_COLOR = "#6b7280";
 export const PH_POPULATION_SOURCE = {
-  org: "Philippine Statistics Authority（PSA），2024 Census of Population（OpenSTAT 0231A6DPUP0）；邊界 OCHA COD-AB v03（CC BY-IGO）",
+  org: l3("Philippine Statistics Authority（PSA），2024 Census of Population（OpenSTAT 0231A6DPUP0）；邊界 OCHA COD-AB v03（CC BY-IGO）", "Philippine Statistics Authority (PSA), 2024 Census of Population (OpenSTAT 0231A6DPUP0); boundaries: OCHA COD-AB v03 (CC BY-IGO)", "Philippine Statistics Authority（PSA）、2024 Census of Population（OpenSTAT 0231A6DPUP0）。境界：OCHA COD-AB v03（CC BY-IGO）"),
   url: "https://openstat.psa.gov.ph/PXWeb/pxweb/en/DB/DB__1A__PO_2024/",
-  license: "PSA OpenSTAT 未附授權條文（菲律賓開放資料政策：註明發布機關）",
+  license: l3("PSA OpenSTAT 未附授權條文（菲律賓開放資料政策：註明發布機關）", "PSA OpenSTAT supplies no license text (Philippine open data policy: credit the publishing agency)", "PSA OpenSTAT に許諾条文なし（フィリピンのオープンデータ政策：発行機関を明記）"),
   short: "PSA 2024 Census of Population（OpenSTAT）",
 } as const;
 export const PH_POPULATION_NOTES: readonly L3[] = [
@@ -91,7 +91,7 @@ export const PH_URBAN_CLASS: Record<string, L3> = {
 // ═════════════════════════ 規格驅動 8 層 ═════════════════════════
 
 export interface PhCat { id: string; values: readonly string[]; color: string; label: L3; /** 屬於哪些子圖層；省略＝全部 */ parts?: readonly string[]; /** 依類別的點半徑（px，乘大小滑桿） */ radius?: number }
-export interface PhField { prop: string; label: L3; kind?: "text" | "num" | "code" | "year"; unit?: string; digits?: number; map?: Readonly<Record<string, L3>>; /** 與此欄同值時不顯示（例：name_en 與 name 相同） */ unlessSameAs?: string }
+export interface PhField { prop: string; label: L3; kind?: "text" | "num" | "code" | "year"; unit?: string | L3; digits?: number; map?: Readonly<Record<string, L3>>; /** 與此欄同值時不顯示（例：name_en 與 name 相同） */ unlessSameAs?: string }
 /** label：數值級距寫字串（等寬數字），文字分級寫 L3（隨語系、一般字型）。 */
 export interface PhSizeBands { prop: string; title: L3; bands: readonly { min: number; radius: number; label: string | L3 }[] }
 /** 類別取值：Mapbox 表達式（回傳字串）與同義的 JS 版（popup 配色用）。 */
@@ -358,7 +358,7 @@ const OSM_NOTE = l3("OSM 為志願者繪製，完整度未經官方核對", "OSM
 // `docs/data-catalog/transportation/ph_{bus_stops,urban_rail,expressways}.md`（各 `_manifest.json` provenance 2026-11-14 讀）。
 // 第 1 波常數（PH_FETCHED_AT、OSM_HOT）不動：本波來源是 Geofabrik 快照，取得日不同。
 export const PH_W2_FETCHED_AT = "2026-11-14";
-const OSM_GEOFABRIK = "© OpenStreetMap contributors（ODbL），via Geofabrik（philippines-261113，快照 2026-11-13）";
+const OSM_GEOFABRIK = l3("© OpenStreetMap contributors（ODbL），via Geofabrik（philippines-261113，快照 2026-11-13）", "© OpenStreetMap contributors (ODbL), via Geofabrik (philippines-261113, snapshot 2026-11-13)", "© OpenStreetMap contributors（ODbL）、Geofabrik 経由（philippines-261113、2026-11-13 のスナップショット）");
 
 // ───────────── 公車站 ─────────────
 const BUS_STOP_COLOR = "#34d399";
@@ -424,7 +424,7 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
       l3("卡拉延群島的機場不畫", "Airfield in the Kalayaan Island Group not drawn", "カラヤン諸島の飛行場は描画しない"),
     ],
     popupNotes: [{ text: l3("官方座標為城鎮近似位置，可能偏離機場數公里", "Official coordinates are approximate town locations and may be several km from the airport", "公式座標は町の概略位置で、空港から数 km ずれることがある"), when: (p) => str(p.kind) === "airport" && str(p.source) === "official" }],
-    sourceOrg: "DOTr（機場）、Philippine Ports Authority（港口）via Geoportal Philippines（NAMRIA）WMS；補缺 © OpenStreetMap contributors（ODbL），via HOT／HDX",
+    sourceOrg: l3("DOTr（機場）、Philippine Ports Authority（港口）via Geoportal Philippines（NAMRIA）WMS；補缺 © OpenStreetMap contributors（ODbL），via HOT／HDX", "DOTr (airports), Philippine Ports Authority (ports) via Geoportal Philippines (NAMRIA) WMS; gap-fill: © OpenStreetMap contributors (ODbL), via HOT/HDX", "DOTr（空港）、Philippine Ports Authority（港湾）。Geoportal Philippines（NAMRIA）WMS 経由。補完：© OpenStreetMap contributors（ODbL）、HOT／HDX 経由"),
     sourceUrl: "https://www.geoportal.gov.ph/", license: NO_LICENSE_TEXT, fetchedAt: PH_FETCHED_AT,
     loading: l3("菲律賓機場港口載入中", "Loading Philippines airports and ports", "フィリピンの空港・港を読み込み中"),
   },
@@ -453,7 +453,7 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
       l3("巴士站不在本層；CAR 以外 17 個 region 有點（含渡輪碼頭）；鐵路站只在 3 個 region（NCR、CALABARZON、Bicol），其餘 15 個 region 鐵路站未涵蓋", "Bus stops not included; points in 17 of 18 regions (all but CAR, including ferry terminals); rail stations only in 3 regions (NCR, CALABARZON, Bicol), rail not covered in the other 15", "バス停は含まない。CAR 以外の 17 地方に点がある（フェリーターミナル含む）。鉄道駅は 3 地方（NCR・CALABARZON・Bicol）のみで、ほかの 15 地方は鉄道駅未収録"),
     ],
     popupNotes: [],
-    sourceOrg: "Philippine National Railways via Geoportal Philippines（NAMRIA）WMS；LRT／MRT 車站、渡輪碼頭 © OpenStreetMap contributors（ODbL），via HOT／HDX",
+    sourceOrg: l3("Philippine National Railways via Geoportal Philippines（NAMRIA）WMS；LRT／MRT 車站、渡輪碼頭 © OpenStreetMap contributors（ODbL），via HOT／HDX", "Philippine National Railways via Geoportal Philippines (NAMRIA) WMS; LRT/MRT stations and ferry terminals: © OpenStreetMap contributors (ODbL), via HOT/HDX", "Philippine National Railways。Geoportal Philippines（NAMRIA）WMS 経由。LRT／MRT 駅・フェリー桟橋：© OpenStreetMap contributors（ODbL）、HOT／HDX 経由"),
     sourceUrl: "https://www.geoportal.gov.ph/", license: NO_LICENSE_TEXT, fetchedAt: PH_FETCHED_AT,
     loading: l3("菲律賓車站載入中", "Loading Philippines stations", "フィリピンの駅を読み込み中"),
   },
@@ -512,8 +512,8 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
       l3("GEM 位置約 8 成為近似（approximate）", "About 80% of GEM locations are approximate", "GEM の位置は約 8 割が概略（approximate）"),
     ],
     popupNotes: [{ text: l3("本筆為 TransitionZero 資料，CC BY-NC 4.0（非商業授權）", "This record is TransitionZero data, CC BY-NC 4.0 (non-commercial)", "このレコードは TransitionZero のデータで CC BY-NC 4.0（非商用）"), when: (p) => p.commercial_ok === false || str(p.commercial_ok) === "false" }],
-    sourceOrg: "Global Energy Monitor（CC BY 4.0）；部分光電 © TransitionZero（CC BY-NC 4.0）；Climate TRACE via HDX（CC BY）",
-    sourceUrl: "https://globalenergymonitor.org/projects/", license: "CC BY 4.0（GEM）、CC BY（Climate TRACE）；6 筆 CC BY-NC 4.0（非商業）", fetchedAt: PH_FETCHED_AT,
+    sourceOrg: l3("Global Energy Monitor（CC BY 4.0）；部分光電 © TransitionZero（CC BY-NC 4.0）；Climate TRACE via HDX（CC BY）", "Global Energy Monitor (CC BY 4.0); some solar plants © TransitionZero (CC BY-NC 4.0); Climate TRACE via HDX (CC BY)", "Global Energy Monitor（CC BY 4.0）。一部の太陽光発電所は © TransitionZero（CC BY-NC 4.0）。Climate TRACE（HDX 経由、CC BY）"),
+    sourceUrl: "https://globalenergymonitor.org/projects/", license: l3("CC BY 4.0（GEM）、CC BY（Climate TRACE）；6 筆 CC BY-NC 4.0（非商業）", "CC BY 4.0 (GEM), CC BY (Climate TRACE); 6 records CC BY-NC 4.0 (non-commercial)", "CC BY 4.0（GEM）、CC BY（Climate TRACE）。6 件は CC BY-NC 4.0（非商用）"), fetchedAt: PH_FETCHED_AT,
     loading: l3("菲律賓電廠載入中", "Loading Philippines power plants", "フィリピンの発電所を読み込み中"),
   },
   {
@@ -577,7 +577,7 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     ],
     popupNotes: [{ text: l3("位置為市鎮或省的中心，不是安裝地點", "Location is the municipality or province centre, not the installation site", "位置は市町または州の中心で、設置地点ではない"), when: (p) => ["municipality", "province"].includes(str(p.location_precision)) }],
     sourceOrg: "Department of Energy（Philippines）Open Data API（PV Mainstreaming installations、microgrids）",
-    sourceUrl: "https://www.doe.gov.ph/", license: "DOE 網站頁尾 public domain（無逐資料集條文）", fetchedAt: PH_FETCHED_AT,
+    sourceUrl: "https://www.doe.gov.ph/", license: l3("DOE 網站頁尾 public domain（無逐資料集條文）", "Public domain per the DOE website footer (no per-dataset terms)", "DOE サイトのフッターに public domain の表記（データセット別の条文なし）"), fetchedAt: PH_FETCHED_AT,
     loading: l3("菲律賓太陽能補助點與微電網載入中", "Loading Philippines solar subsidy sites and microgrids", "フィリピンの太陽光補助地点とマイクログリッドを読み込み中"),
   },
   {
