@@ -4,6 +4,7 @@ import { LONG_TERM_BAR_ADAPTERS, LONG_TERM_BAR_KEYS, LIVE_TIMELINE_KEYS, hasLong
 import { LONG_TERM_ADAPTERS } from "../adapters";
 import { longTermBarStore, periodsOf, selectionOf, setLongTermTrackingPaused, trackOpened } from "../../../state/longTermBarStore";
 import { badgeTipText, periodLabel } from "../longTermText";
+import { resolveLongTermView } from "../longTermView";
 import zh from "../../../i18n/locales/zh-TW/longTerm.json";
 
 const t = ((key: string, vars?: Record<string, string | number>) => {
@@ -119,5 +120,19 @@ describe("longTermBarStore", () => {
     const s = longTermBarStore.getSnapshot();
     expect(s.openedAt.fireEvents!).toBeGreaterThan(s.openedAt.rainGauge!);
     expect(s.pinned).toBe("longTerm");
+  });
+
+});
+
+describe("一次一條時間軸", () => {
+  it("以最後打開為準；chip 指定只在 chip 還在時有效", () => {
+    const openedAt = { rainGauge: 1, fireEvents: 2 };
+    expect(resolveLongTermView({ fireEvents: true, rainGauge: true }, { openedAt, pinned: null })).toMatchObject({ barKey: "fireEvents", liveKey: "rainGauge", showBar: true, showChips: true });
+    expect(resolveLongTermView({ fireEvents: true, rainGauge: true }, { openedAt: { fireEvents: 1, rainGauge: 2 }, pinned: null }).showBar).toBe(false);
+    expect(resolveLongTermView({ fireEvents: true, rainGauge: true }, { openedAt, pinned: "live" }).showBar).toBe(false);
+    // 點了即時 chip 後把雨量關掉：沒有 chip 了，回到時間條
+    expect(resolveLongTermView({ fireEvents: true, rainGauge: false }, { openedAt, pinned: "live" })).toMatchObject({ showBar: true, showChips: false });
+    // 只開人口（尚未接時間條）：不顯示時間條
+    expect(resolveLongTermView({ popCount: true }, { openedAt: { popCount: 3 }, pinned: null }).barKey).toBeNull();
   });
 });

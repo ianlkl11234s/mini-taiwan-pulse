@@ -2761,7 +2761,7 @@ export default function App() {
 
           {/* 時間軸：依 mode 切換 realtime / historical；即時模式下長期時間條與即時時間軸一次只顯示一條（STANDARD.md §2） */}
           {appMode === "realtime" ? (
-            <LongTermTimelineGate isDark={isDarkTheme} leftOffset={sidebarWidth + 16}>
+            <LongTermTimelineGate isDark={isDarkTheme} leftOffset={sidebarWidth + 16} rightReserve={splitActive ? `calc(${navColumnRight} + 296px)` : undefined}>
             <LiveTimelineControls
               playing={timeline.playing}
               speed={timeline.speed}

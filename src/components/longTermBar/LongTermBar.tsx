@@ -11,6 +11,7 @@ import { LONG_TERM_HEATMAP_MIN_MONTHS, LONG_TERM_PLAY_SPEEDS, longTermUsesHeatma
 import { longTermBarStore, periodsOf, useLongTermBarState, selectionOf } from "../../state/longTermBarStore";
 import { LONG_TERM_ADAPTERS, type EventSeriesAdapter } from "./adapters";
 import { EventCountChart } from "./EventCountChart";
+import "./longTermBar.css";
 import { granularityText, layerDisplayName, rangeLabel, yearAxisLabel } from "./longTermText";
 
 /** 長條區高度（不含年份標籤）；整條時間條總高 ≤ 150（STANDARD.md §2 第 10 條） */
@@ -70,9 +71,9 @@ function EventBar({ layerKey, spec, adapter, isDark }: { layerKey: string; spec:
   const failedYears = series.failedYears.map((y) => yearAxisLabel(layerKey, y, t));
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: SPACING.xxs, fontFamily: FONT_CJK }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: SPACING.xxs, fontFamily: FONT_CJK, ["--ltb-accent" as string]: accent }}>
       <div style={{ display: "flex", alignItems: "center", gap: SPACING.sm, minHeight: 22 }}>
-        <button type="button" aria-label={st.playing ? t("longTerm.bar.pause") : t("longTerm.bar.play")} title={st.playing ? t("longTerm.bar.pause") : t("longTerm.bar.play")}
+        <button type="button" className="ltb-focus" aria-label={st.playing ? t("longTerm.bar.pause") : t("longTerm.bar.play")} title={st.playing ? t("longTerm.bar.pause") : t("longTerm.bar.play")}
           onClick={() => (st.playing ? longTermBarStore.pause() : longTermBarStore.play(layerKey))}
           style={{ ...btn, width: 24, height: 22, padding: 0, display: "inline-grid", placeItems: "center" }}>
           {st.playing ? <Pause size={12} fill="currentColor" strokeWidth={0} /> : <Play size={12} fill="currentColor" strokeWidth={0} />}
@@ -81,7 +82,7 @@ function EventBar({ layerKey, spec, adapter, isDark }: { layerKey: string; spec:
           {LONG_TERM_PLAY_SPEEDS.map((s) => {
             const on = st.speed === s;
             return (
-              <button key={s} type="button" role="radio" aria-checked={on} title={t("longTerm.bar.speedTitle", { seconds: 1 / s })}
+              <button key={s} type="button" className="ltb-focus" role="radio" aria-checked={on} title={t("longTerm.bar.speedTitle", { seconds: 1 / s })}
                 onClick={() => longTermBarStore.setSpeed(s)}
                 style={{ font: "inherit", ...num, fontSize: FONT_SIZE.sm, border: "none", borderRadius: RADIUS.sm, padding: "1px 5px", cursor: "pointer",
                   background: on ? (isDark ? COLORS.accentFaint : LIGHT.accentFaint) : "transparent", color: on ? accent : muted }}>
@@ -116,14 +117,14 @@ function EventBar({ layerKey, spec, adapter, isDark }: { layerKey: string; spec:
             {t("longTerm.bar.heatmap")}
           </span>
         )}
-        <button type="button" style={{ ...btn, whiteSpace: "nowrap" }} onClick={() => longTermBarStore.selectLatest(layerKey)}>{t("longTerm.bar.latest")}</button>
-        <span title={help} aria-label={help} role="note"
+        <button type="button" className="ltb-focus" style={{ ...btn, whiteSpace: "nowrap" }} onClick={() => longTermBarStore.selectLatest(layerKey)}>{t("longTerm.bar.latest")}</button>
+        <span title={help} aria-label={help} role="note" tabIndex={0} className="ltb-focus"
           style={{ ...btn, cursor: "help", width: 20, height: 20, padding: 0, display: "inline-grid", placeItems: "center", borderRadius: RADIUS.full, color: muted }}>?</span>
       </div>
       {series.failedYears.length > 0 && (
         <div role="alert" style={{ display: "flex", alignItems: "center", gap: SPACING.sm, fontSize: FONT_SIZE.sm, color: danger }}>
           <span>{t("longTerm.bar.failedBanner", { years: failedYears.join(", ") })}</span>
-          <button type="button" style={{ ...btn, fontSize: FONT_SIZE.sm, color: danger }} onClick={adapter.retry}>{t("longTerm.bar.retry")}</button>
+          <button type="button" className="ltb-focus" style={{ ...btn, fontSize: FONT_SIZE.sm, color: danger }} onClick={adapter.retry}>{t("longTerm.bar.retry")}</button>
         </div>
       )}
       <EventCountChart
