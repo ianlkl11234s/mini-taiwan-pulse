@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
+import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsIndicatorNoteParts, demographicsIndicatorNoteText, DEMOGRAPHICS_YTD_NOTE } from '../../data/demographicsStatisticsRecipes';
 import { statisticsDisclosure } from '../../data/statisticsLabels';
 
 /**
@@ -14,6 +15,7 @@ const DONE_FAMILIES: string[] = [
   'financeAccess', 'financeAccessExt', 'health', 'social', 'comparison', // I18N-1 第 2 批
   'crime', 'stateAssets', // I18N-1 第 3 批
   'environment', 'addiction', // I18N-1 第 4 批
+  'demographics', // I18N-1 第 5 批
 ];
 
 const DATA = join(__dirname, '..', '..', 'data');
@@ -56,6 +58,23 @@ describe('統計資料限制（disclosure）英日文', () => {
       expect(untranslatedJa.map((zh) => zh.slice(0, 40))).toEqual([]);
     });
   }
+
+  it('人口統計的指標說明分段（含年初累計句型）都有英日文，且保留 {ytd}', () => {
+    const parts = [...new Set(DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES.flatMap((r) => demographicsIndicatorNoteParts(r)))];
+    expect(parts.length).toBeGreaterThan(10);
+    const missing = parts.filter((zh) => !en[KEY + zh]?.trim() || !ja[KEY + zh]?.trim() || CJK.test(en[KEY + zh]!) || ja[KEY + zh] === zh);
+    expect(missing.map((zh) => zh.slice(0, 30))).toEqual([]);
+    for (const zh of parts.filter((p) => p.includes('{ytd}'))) {
+      expect(en[KEY + zh]).toContain('{ytd}');
+      expect(ja[KEY + zh]).toContain('{ytd}');
+    }
+  });
+
+  it('指標說明依語系組句：年初累計期別換成該語系的期別文字', () => {
+    const ctx = { active: 'en' as const, lookup: (k: string) => (k === 'statisticsSelect.ytdPeriod' ? 'Jan–{end} {year}' : en[k] ?? null) } as never;
+    const text = demographicsIndicatorNoteText([DEMOGRAPHICS_YTD_NOTE], { roc_year: '115', start_month: 1, end_month: 8 }, ctx);
+    expect(text).toBe(en[KEY + DEMOGRAPHICS_YTD_NOTE]!.replace('{ytd}', 'Jan–8 2026'));
+  });
 
   it('外文缺譯文時退回中文並在開發模式警告一次', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
