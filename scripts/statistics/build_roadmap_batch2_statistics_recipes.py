@@ -11,6 +11,8 @@ Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsT
                docs/topic-research/tw_layer_ext_20261120/b2/r2/b2-recipes.json，9 recipes；各層 tab_theme 併入既有統計主題）
   twExtB1      台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人，4 recipes，維度 疾病×感染來源；
                docs/topic-research/tw_layer_ext_20261120/b1/r2/b1-recipes.json；tab_theme 併入「醫療與長照」的「傳染病」）
+  twExtB5      台灣圖層延伸 B5 縣市間遷徙（由縣市 OD 加總：淨遷入人數／率、遷入、遷出，4 recipes；
+               docs/topic-research/tw_layer_ext_20261120/b5/r2/b5-recipes.json；併入「人口與教育」的「遷徙」；淨遷入用 diverging）
 
 Inputs (taipei-gis-analytics, read-only):
   --root     analytics checkout. The handoff recipes are the trimmed R2 form (release_id／period／dimensions only),
@@ -383,6 +385,31 @@ TW_EXT_B1_LAYERS = [
 TW_EXT_B1_ORIGIN_LABELS = {"all": "全部", "local": "本土", "imported": "境外移入"}
 TW_EXT_B1_DIM_LABELS = {"disease": "疾病別", "origin": "感染來源"}
 
+# ── 台灣圖層延伸 B5（2026-11-21）：縣市間遷徙（由縣市 OD 加總）──────────────────────
+ODM_SRC = "出典：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，月檔加總成年）；政府資料開放授權條款-第1版。"
+ODM_SCOPE = "只算跨縣市的戶籍遷徙：不含遷往或遷自國外、初設戶籍、廢止戶籍、縣市內跨鄉鎮；戶籍登記不等於實際居住移動。"
+ODM_DIFF = "與「人口遷徙（縣市）」層口徑不同（那層含國外遷入遷出與初設戶籍、率用年中人口），兩者數值不會相同，不可混看。"
+ODM_NET = "淨遷入＝遷入－遷出，全國加總為 0；紫＝淨遷入、棕＝淨遷出。"
+ODM_RATE = "淨遷入率＝淨遷入 ÷ 同年 12 月底戶籍人口 × 1000（‰；分母是年底，不是年中）。"
+ODM_FLOWS = "縣市之間的流向弧線見「縣市間遷徙流向」圖層。"
+ODM_DISC = ("內政部各直轄市、縣（市）間遷徙人口數（村里×遷入縣市月檔）加總成縣市 22×22 年度 OD 後取欄合計（遷入）、列合計（遷出）。"
+            "只含跨縣市戶籍遷徙，不含國外、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」層（含國外、初設戶籍、年中人口）口徑不同。"
+            "淨遷入率分母為同年 12 月底戶籍人口。")
+
+
+def b5(key, option, digits, notes, **extra):
+    return dict(key=key, group="countyOdMigration", group_label="縣市間遷徙（不含國外）", option_label=option, subgroup="遷徙",
+                visual="population", digits=digits, notes=[ODM_SRC, ODM_SCOPE, ODM_DIFF, *notes, ODM_FLOWS], disclosure=ODM_DISC,
+                location_semantics="戶籍登記地（遷入縣市／遷出縣市依戶籍登記）", **extra)
+
+
+TW_EXT_B5_LAYERS = [
+    b5("statsCountyOdNetMigration", "淨遷入人數", 0, [ODM_NET], direction="diverging", breaks=[-15000, -5000, 0, 5000, 15000]),
+    b5("statsCountyOdNetMigrationRate", "淨遷入率（‰）", 2, [ODM_NET, ODM_RATE], direction="diverging", breaks=[-5, -2, 0, 2, 5]),
+    b5("statsCountyOdInMigration", "遷入人數", 0, [], breaks=[5000, 15000, 30000, 60000]),
+    b5("statsCountyOdOutMigration", "遷出人數", 0, [], breaks=[5000, 15000, 30000, 60000]),
+]
+
 FAMILIES: dict[str, dict] = {
     "financeAccess": {
         "file": "financeAccessStatisticsRecipes",
@@ -439,6 +466,15 @@ FAMILIES: dict[str, dict] = {
         "tab_theme": "醫療與長照 Health & Care",
         "observation_policy": {"observed_zero": "status observed and value 0 (the monthly source lists only rows with cases; an unlisted township-year is 0 cases)", "missing": "not used", "not_applicable": "not used", "suppressed": "not used"},
         "layers": TW_EXT_B1_LAYERS,
+    },
+    "twExtB5": {
+        "file": "twExtB5StatisticsRecipes",
+        "handoff": "docs/topic-research/tw_layer_ext_20261120/b5/r2/b5-recipes.json",
+        "theme_dir": "demographics",
+        "data_theme": "人口統計 Population Statistics",
+        "tab_theme": "人口與教育 Population & Education",
+        "observation_policy": {"observed_zero": "not used", "missing": "not used", "not_applicable": "not used", "suppressed": "not used"},
+        "layers": TW_EXT_B5_LAYERS,
     },
     "culture": {
         "file": "cultureStatisticsRecipes",
@@ -678,6 +714,11 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             breaks = spec.get("default_breaks") or spec.get("breaks") or make_breaks(default_values, counts, spec.get("qs"))
         for scale in [] if categorical else [{"breaks": breaks}, *by_dimension.values()]:
             b = scale["breaks"]
+            if spec.get("direction") == "diverging":
+                # 以 0 為界的雙向（atlasStatisticsTypes：breaks 必為 [a, b, 0, c, d]）
+                if sorted(set(b)) != b or len(b) != 5 or b[2] != 0 or by_dimension:
+                    raise SystemExit(f"{key}: diverging breaks must be [a, b, 0, c, d], got {b}")
+                continue
             if sorted(set(b)) != b or not (len(b) == 1 if binary else 2 <= len(b) <= 4) or b[0] <= 0:
                 raise SystemExit(f"{key}: bad breaks {b}")
         zero_note = spec.get("zero_note")
@@ -703,7 +744,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "dimensions": dimensions,
             "release_options": options,
             "legend": {
-                "method": "categorical" if categorical else "binary" if binary else "fixed_breaks", "breaks": breaks, "direction": "ascending",
+                "method": "categorical" if categorical else "binary" if binary else "fixed_breaks", "breaks": breaks, "direction": spec.get("direction", "ascending"),
                 **({"binary_labels": list(binary)} if binary else {}),
                 **({"categories": categories} if categorical else {}),
                 "scale_note": None, "zero_note": zero_note if zero else None, "display_note": None,

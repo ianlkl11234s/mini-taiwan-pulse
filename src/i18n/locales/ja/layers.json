@@ -2031,5 +2031,9 @@
   "layer.statsHealthNotifiableCasesTownship": "法定感染症の症例数（郷鎮）",
   "layer.statsHealthNotifiableRatePer100kTownship": "法定感染症の人口 10 万人あたり症例率（郷鎮）",
   "layer.statsHealthNotifiableCasesCounty": "法定感染症の症例数（県・市）",
-  "layer.statsHealthNotifiableRatePer100kCounty": "法定感染症の人口 10 万人あたり症例率（県・市）"
+  "layer.statsHealthNotifiableRatePer100kCounty": "法定感染症の人口 10 万人あたり症例率（県・市）",
+  "layer.statsCountyOdNetMigration": "県市間の純転入者数",
+  "layer.statsCountyOdNetMigrationRate": "県市間の純転入率",
+  "layer.statsCountyOdInMigration": "県市間の転入者数",
+  "layer.statsCountyOdOutMigration": "県市間の転出者数"
 }

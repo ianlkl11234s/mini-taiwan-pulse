@@ -291,5 +291,7 @@
   "enum.statVariant.選姓占戶籍人口比": "Chosen surname's share of registered population",
   "enum.statVariant.現存坑洞數": "Remaining pits",
   "enum.statVariant.病例數": "Cases",
-  "enum.statVariant.每十萬人病例率": "Rate per 100,000"
+  "enum.statVariant.每十萬人病例率": "Rate per 100,000",
+  "enum.statVariant.淨遷入人數": "Net in-migration",
+  "enum.statVariant.淨遷入率（‰）": "Net in-migration rate (‰)"
 }

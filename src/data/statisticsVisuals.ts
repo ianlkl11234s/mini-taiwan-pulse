@@ -298,6 +298,8 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   // 台灣圖層延伸 B2（2026-11-20）：新住民子女就學＝教育 Purples、姓氏＝人口 RdPu、遺留坑洞＝環境 BuPu，不新增色票。
   [/^statsNrc/, 'education', Baby],
   [/^statsSurname/, 'population', Users],
+  // 台灣圖層延伸 B5（2026-11-21）：縣市間遷徙（由 OD 加總）＝人口色票，同既有遷徙 icon，不新增色票。
+  [/^statsCountyOd/, 'population', ArrowLeftRight],
   [/^statsAbandonedPits/, 'environment', Mountain],
   // 國有資產 G16（2026-10-24）：同住宅 Oranges，不新增色票；國有地／房地、台糖標的、行政執行拍定分三種 icon。
   [/^statsStateProperty|^statsStateResidential/, 'housing', Building2],

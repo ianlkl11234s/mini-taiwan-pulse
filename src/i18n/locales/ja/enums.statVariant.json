@@ -291,5 +291,7 @@
   "enum.statVariant.選姓占戶籍人口比": "選んだ姓の戸籍人口に占める割合",
   "enum.statVariant.現存坑洞數": "現存する穴の数",
   "enum.statVariant.病例數": "症例数",
-  "enum.statVariant.每十萬人病例率": "10 万人あたり症例率"
+  "enum.statVariant.每十萬人病例率": "10 万人あたり症例率",
+  "enum.statVariant.淨遷入人數": "純転入者数",
+  "enum.statVariant.淨遷入率（‰）": "純転入率（‰）"
 }
