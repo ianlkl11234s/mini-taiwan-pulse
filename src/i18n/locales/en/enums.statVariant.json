@@ -309,5 +309,7 @@
   "enum.statVariant.生產總額（千元）": "Production value (thousand NT$)",
   "enum.statVariant.每戶每月用電（度）": "kWh per customer per month",
   "enum.statVariant.全年售電度數": "Annual kWh sold",
-  "enum.statVariant.未參加健保比": "Share not enrolled"
+  "enum.statVariant.未參加健保比": "Share not enrolled",
+  "enum.statVariant.淨遷入人數": "Net in-migration",
+  "enum.statVariant.淨遷入率（‰）": "Net in-migration rate (‰)"
 }

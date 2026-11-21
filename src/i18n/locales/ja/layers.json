@@ -2054,5 +2054,10 @@
   "layer.statsNhiUninsuredShareCounty": "全民健保未加入の割合（県・市）",
   "layer.statsIndustryEstablishmentsTownship": "工商業センサス：事業所数",
   "layer.statsIndustryPersonsEngagedTownship": "工商業センサス：従業者数",
-  "layer.statsIndustryProductionValueTownship": "工商業センサス：生産額"
+  "layer.statsIndustryProductionValueTownship": "工商業センサス：生産額",
+  "layer.statsCountyOdNetMigration": "県市間の純転入者数",
+  "layer.statsCountyOdNetMigrationRate": "県市間の純転入率",
+  "layer.statsCountyOdInMigration": "県市間の転入者数",
+  "layer.statsCountyOdOutMigration": "県市間の転出者数",
+  "layer.twCountyMigrationFlows": "県市間の移動フロー"
 }

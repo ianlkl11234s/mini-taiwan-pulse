@@ -2054,5 +2054,10 @@
   "layer.statsNhiUninsuredShareCounty": "Share not enrolled in national health insurance (county)",
   "layer.statsIndustryEstablishmentsTownship": "Industry and service census: establishments",
   "layer.statsIndustryPersonsEngagedTownship": "Industry and service census: persons engaged",
-  "layer.statsIndustryProductionValueTownship": "Industry and service census: production value"
+  "layer.statsIndustryProductionValueTownship": "Industry and service census: production value",
+  "layer.statsCountyOdNetMigration": "Net inter-county migration (people)",
+  "layer.statsCountyOdNetMigrationRate": "Net inter-county migration rate",
+  "layer.statsCountyOdInMigration": "Inter-county in-migration (people)",
+  "layer.statsCountyOdOutMigration": "Inter-county out-migration (people)",
+  "layer.twCountyMigrationFlows": "Inter-county migration flows"
 }

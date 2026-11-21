@@ -91,11 +91,11 @@ const environmentKeys = (tabGroup: string) => ENVIRONMENT_ENABLED_STATISTICS_REC
  */
 function buildThemeSpecs(comparisons: readonly ComparisonRecipeLike[], includeEducationMetrics: boolean): StatisticsThemeSpec[] {
   const themes: StatisticsThemeSpec[] = [
-    { title: "人口與教育 Population & Education", groups: [
+    // atlas 同標題群組併入既有群組末尾（例：台灣圖層延伸 B5 縣市間遷徙併入「遷徙」）
+    { title: "人口與教育 Population & Education", groups: mergeGroups([
       ...demographicsGroups(),
       { title: "教育與少子化", keys: [...EDUCATION_PRESENTATION_VIEW_KEYS, ...(includeEducationMetrics ? EDUCATION_METRIC_KEYS : [])] },
-      ...atlasGroups("人口與教育 Population & Education"),
-    ] },
+    ], atlasGroups("人口與教育 Population & Education")) },
     { title: "醫療與長照 Health & Care", groups: [
       { title: "醫療與長照", keys: [
         "statsHealthHospitalCount", "statsHealthHospitalBedTotal", "statsHealthAcuteBedTotal", "statsHealthIcuBedTotal", "statsHealthHospiceBedTotal", "statsHealthHealthProfessionalTotal", "statsHealthWesternPhysicianCount", "statsHealthRegisteredNurseCount", "statsHealthNursingStaffListedAgeSexSum", "statsHealthCareWorkerListedSexSum", "statsHealthGeneralNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenInfantBeds", "statsHealthCareWorkerRegistration", "statsHealthMedicalInstitutionBedsPer10000Population", "statsHealthPracticingMedicalPersonnelPer10000Population",

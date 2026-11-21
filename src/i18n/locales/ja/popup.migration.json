@@ -1,0 +1,21 @@
+{
+  "popup.migration.flowTitle": "{origin} → {dest}",
+  "popup.migration.seatTitle": "{name}（{year} 年）",
+  "popup.migration.year": "年",
+  "popup.migration.yearValue": "{year} 年",
+  "popup.migration.movers": "移動者数",
+  "popup.migration.persons": "{value} 人",
+  "popup.migration.bySex": "男／女",
+  "popup.migration.bySexValue": "男 {male}／女 {female}",
+  "popup.migration.reverse": "逆方向（{origin} → {dest}）",
+  "popup.migration.pairNet": "両県市間の純流動",
+  "popup.migration.pairNetTo": "{place}へ純 {value} 人",
+  "popup.migration.pairNetZero": "両方向とも同数",
+  "popup.migration.inflow": "他県市からの転入",
+  "popup.migration.outflow": "他県市への転出",
+  "popup.migration.net": "純転入",
+  "popup.migration.notes": "説明",
+  "popup.migration.seatHint": "この県市をクリックすると転入・転出上位 5 本の弧線を表示；点は県市政府の所在地（おおよその位置）",
+  "popup.migration.scope": "範囲",
+  "popup.migration.scopeText": "県市をまたぐ戸籍移動で、国外との移動と初回の戸籍登録を含まない"
+}

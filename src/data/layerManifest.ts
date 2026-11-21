@@ -172,6 +172,8 @@ import {
   Mailbox, Motorbike, ScanSearch,
   // G53 批 2／3（2026-11-10）
   RadioTower,
+  // 台灣圖層延伸 B5（2026-11-21）
+  ArrowLeftRight,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -11188,6 +11190,32 @@ export const LAYER_MANIFEST = {
         { from: "2020-01-01", to: "2024-12-31", level: "reduced", note: "109 年起沒有 res8，只有 res7" },
       ],
     },
+  },
+
+  // 台灣圖層延伸 B5 N11（2026-11-21）：縣市間遷徙流向，底色＝統計 statsCountyOdNetMigration（同一份 OD 加總）
+  twCountyMigrationFlows: {
+    key: "twCountyMigrationFlows",
+    country: "TW", section: { theme: "人口社經 People", group: "遷徙流向" },
+    ...layerName({ zh: "縣市間遷徙流向", alt: "Inter-county Migration Flows" }),
+    expandable: true,
+    color: "#22d3ee",
+    icon: ArrowLeftRight,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "county_migration_od", confidence: "HIGH" }],
+      processing: "taipei-gis-analytics pipelines/demographics/county_migration_od（#420）：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，村里×遷入縣市月檔）加總成縣市 22×22 年度 OD（2024、2025 各 462 組）；scripts/preprocess/build-county-migration-od.py 轉成 src/data/countyMigrationOd.json",
+      note: "戶籍登記的跨縣市遷徙，不含國外遷入遷出、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」統計口徑不同。2026 年未滿 12 個月不出。端點為縣市政府所在地（約略座標，只作示意）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCountyMigrationFlowsLayer：OD 檔 src/data/countyMigrationOd.json（約 27 KB，lazy import 隨 dist 出貨，不進 public）；自建 geojson source tw-county-migration-flows（弧線）／tw-county-migration-seats（端點），styledata 時把弧線移到統計底色之上；年份與 statsCountyOd* 底色期別雙向連動",
+    },
+    legend: "twCountyMigrationFlows",
+    popup: "twCountyMigrationFlows",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "縣市之間一年有多少人把戶籍遷過去（內政部，2024、2025 年）。弧線由遷出縣市彎向遷入縣市，越粗人越多；預設畫全國前 30 條，加上每個縣市最大的一條遷出。點縣市（底色面或端點）只看該縣市遷入前 5（青）與遷出前 5（黃），再點一次或按 Esc 取消；未滿 100 人不畫。只算跨縣市的戶籍遷徙，不含國外與初設戶籍，和「人口遷徙（縣市）」統計口徑不同；戶籍登記不等於實際搬家。底色可開「縣市間淨遷入人數」，年份會跟著連動。來源：內政部戶政司（data.gov.tw 168209），政府資料開放授權條款第 1 版。",
+    topics: ["人口", "遷徙", "人口移動", "戶籍", "流向", "OD"],
   },
 
   h3Population: {

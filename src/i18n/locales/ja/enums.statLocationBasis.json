@@ -51,5 +51,6 @@
   "enum.statLocationBasis.電表所在郵遞區對到的鄉鎮市區（縣市層為縣市）": "電力メーターの郵便区が対応する郷鎮市区（県・市レベルは県・市）",
   "enum.statLocationBasis.公司登記所在縣市（總公司）": "会社登記地の県・市（本社）",
   "enum.statLocationBasis.戶籍登記地所在縣市（戶籍人口）": "戸籍登録地の県・市（戸籍人口）",
-  "enum.statLocationBasis.場所單位所在鄉鎮市區": "事業所所在地の郷鎮市区"
+  "enum.statLocationBasis.場所單位所在鄉鎮市區": "事業所所在地の郷鎮市区",
+  "enum.statLocationBasis.戶籍登記地（遷入縣市／遷出縣市依戶籍登記）": "戸籍登録地の県市（転入先・転出元は戸籍登録による）"
 }

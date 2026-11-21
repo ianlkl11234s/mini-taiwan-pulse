@@ -298,6 +298,8 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   // 台灣圖層延伸 B2（2026-11-20）：新住民子女就學＝教育 Purples、姓氏＝人口 RdPu、遺留坑洞＝環境 BuPu，不新增色票。
   [/^statsNrc/, 'education', Baby],
   [/^statsSurname/, 'population', Users],
+  // 台灣圖層延伸 B5（2026-11-21）：縣市間遷徙（由 OD 加總）＝人口色票，同既有遷徙 icon，不新增色票。
+  [/^statsCountyOd/, 'population', ArrowLeftRight],
   [/^statsAbandonedPits/, 'environment', Mountain],
   // 台灣圖層延伸 B4（2026-11-20）：普查常住人口與原住民族別＝人口 RdPu、住宅用電＝公用事業 GnBu、公司登記與工商普查＝工作與所得、
   // 未參加健保＝醫療 BuGn，不新增色票；要排在下方通用的 /^statsCensus/（縣市工商普查，Factory）之前。

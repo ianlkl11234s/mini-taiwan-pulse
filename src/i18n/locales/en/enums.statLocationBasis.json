@@ -51,5 +51,6 @@
   "enum.statLocationBasis.電表所在郵遞區對到的鄉鎮市區（縣市層為縣市）": "Township of the meter's postal zone (county for the county level)",
   "enum.statLocationBasis.公司登記所在縣市（總公司）": "County where the company is registered (head office)",
   "enum.statLocationBasis.戶籍登記地所在縣市（戶籍人口）": "County of household registration (registered population)",
-  "enum.statLocationBasis.場所單位所在鄉鎮市區": "Township where the establishment is located"
+  "enum.statLocationBasis.場所單位所在鄉鎮市區": "Township where the establishment is located",
+  "enum.statLocationBasis.戶籍登記地（遷入縣市／遷出縣市依戶籍登記）": "County or city of household registration (destination and origin by registration)"
 }

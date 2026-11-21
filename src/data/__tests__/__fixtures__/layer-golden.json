@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2064,
+    "keyCount": 2069,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5760,6 +5760,13 @@
     },
     {
       "layers": [
+        "tw-county-migration-flows-line",
+        "tw-county-migration-flows-seat"
+      ],
+      "type": "twCountyMigrationFlows"
+    },
+    {
+      "layers": [
         "statsComparisonAgriculturalFacilityCountyTotalHectare-circle",
         "statsComparisonAirportLandCountyTotalHectare-circle",
         "statsComparisonAquacultureLandCountyTotalHectare-circle",
@@ -6075,6 +6082,8 @@
         "statsIndustryEstablishmentsTownship-circle",
         "statsIndustryPersonsEngagedTownship-circle",
         "statsIndustryProductionValueTownship-circle",
+        "statsCountyOdInMigration-circle",
+        "statsCountyOdOutMigration-circle",
         "statsStateLandIdleArea-circle",
         "statsStateLandIdleParcels-circle",
         "statsStateLandArea-circle",
@@ -6816,6 +6825,10 @@
         "statsIndustryEstablishmentsTownship-fill",
         "statsIndustryPersonsEngagedTownship-fill",
         "statsIndustryProductionValueTownship-fill",
+        "statsCountyOdNetMigration-fill",
+        "statsCountyOdNetMigrationRate-fill",
+        "statsCountyOdInMigration-fill",
+        "statsCountyOdOutMigration-fill",
         "statsStateLandIdleArea-fill",
         "statsStateLandIdleShare-fill",
         "statsStateLandIdleParcels-fill",
@@ -7696,6 +7709,10 @@
         "statsIndustryPersonsEngagedTownship-suppressed",
         "statsIndustryProductionValueTownship-missing",
         "statsIndustryProductionValueTownship-suppressed",
+        "statsCountyOdInMigration-missing",
+        "statsCountyOdInMigration-suppressed",
+        "statsCountyOdOutMigration-missing",
+        "statsCountyOdOutMigration-suppressed",
         "statsStateLandIdleArea-missing",
         "statsStateLandIdleArea-suppressed",
         "statsStateLandIdleParcels-missing",
@@ -183928,6 +183945,208 @@
         "valueText": "0.55"
       }
     ],
+    "statsCountyOdInMigration": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "淨遷入人數",
+            "value": "statsCountyOdNetMigration"
+          },
+          {
+            "label": "淨遷入率（‰）",
+            "value": "statsCountyOdNetMigrationRate"
+          },
+          {
+            "label": "遷入人數",
+            "value": "statsCountyOdInMigration"
+          },
+          {
+            "label": "遷出人數",
+            "value": "statsCountyOdOutMigration"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCountyOdInMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCountyOdNetMigration": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "淨遷入人數",
+            "value": "statsCountyOdNetMigration"
+          },
+          {
+            "label": "淨遷入率（‰）",
+            "value": "statsCountyOdNetMigrationRate"
+          },
+          {
+            "label": "遷入人數",
+            "value": "statsCountyOdInMigration"
+          },
+          {
+            "label": "遷出人數",
+            "value": "statsCountyOdOutMigration"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCountyOdNetMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCountyOdNetMigrationRate": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "淨遷入人數",
+            "value": "statsCountyOdNetMigration"
+          },
+          {
+            "label": "淨遷入率（‰）",
+            "value": "statsCountyOdNetMigrationRate"
+          },
+          {
+            "label": "遷入人數",
+            "value": "statsCountyOdInMigration"
+          },
+          {
+            "label": "遷出人數",
+            "value": "statsCountyOdOutMigration"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCountyOdNetMigrationRate"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCountyOdOutMigration": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "淨遷入人數",
+            "value": "statsCountyOdNetMigration"
+          },
+          {
+            "label": "淨遷入率（‰）",
+            "value": "statsCountyOdNetMigrationRate"
+          },
+          {
+            "label": "遷入人數",
+            "value": "statsCountyOdInMigration"
+          },
+          {
+            "label": "遷出人數",
+            "value": "statsCountyOdOutMigration"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCountyOdOutMigration"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsCreditCardCards": [
       {
         "label": "指標",
@@ -221027,6 +221246,32 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "twCountyMigrationFlows": [
+      {
+        "label": "年份",
+        "options": [
+          {
+            "label": "2025 年",
+            "value": "2025"
+          },
+          {
+            "label": "2024 年",
+            "value": "2024"
+          }
+        ],
+        "type": "select",
+        "value": "2025"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "twcServiceOffices": [

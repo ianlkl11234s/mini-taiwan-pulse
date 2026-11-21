@@ -1,0 +1,17 @@
+{
+  "legend.migration.title": "県市間の移動フロー（{year} 年、戸籍登録）",
+  "legend.migration.defaultRow": "全国上位 {k} 本＋各県市の最大転出",
+  "legend.migration.clickHint": "県市（塗り面または白い点）をクリックすると、その県市の転入・転出上位 {n} 本を表示",
+  "legend.migration.focusIn": "{name}への転入（上位 {n} 本）",
+  "legend.migration.focusOut": "{name}からの転出（上位 {n} 本）",
+  "legend.migration.focusTotals": "年間合計：転入 {inflow} 人、転出 {outflow} 人、純転入 {net} 人",
+  "legend.migration.focusClear": "同じ県市をもう一度クリックするか Esc で全国表示に戻る",
+  "legend.migration.widthRange": "{from}–{to} 人",
+  "legend.migration.widthAbove": "{from} 人以上",
+  "legend.migration.seat": "県市政府の所在地（弧線の端点、おおよその位置）",
+  "legend.migration.hidden": "{shown} 本を表示；ほかに小さな流れ {hidden} 組は非表示（{min} 人未満は描かない）",
+  "legend.migration.direction": "弧線は転出県市から転入県市へ曲がる；A→B と B→A は反対側に分かれる",
+  "legend.migration.scope": "県市をまたぐ戸籍移動のみで、国外との移動、初回の戸籍登録、県市内の移動は含まない。戸籍登録は実際の引っ越しと同じではない。「人口移動（県市）」統計とは集計の範囲が異なる",
+  "legend.migration.base": "統計「県市間の純転入者数」を下地として表示でき（同じデータの合計）、年はこのレイヤーに連動する",
+  "legend.migration.source": "内政部戸政司 直轄市・県（市）間移動人口数（data.gov.tw 168209）、政府資料オープンライセンス第 1 版"
+}
