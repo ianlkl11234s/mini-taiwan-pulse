@@ -40,5 +40,17 @@
   "enum.statLocationBasis.常住地所在的地方政府／選舉分區（2022 年普查）": "Local authority / electoral division of usual residence (2022 Census)",
   "enum.statLocationBasis.家戶常住地所在的地方政府／選舉分區（2022 年普查）": "Local authority / electoral division where the household usually resides (2022 Census)",
   "enum.statLocationBasis.出租住宅所在的郡（RTB 地點，對照到地方政府）": "County where the rented dwelling is located (RTB location, matched to local authorities)",
-  "enum.statLocationBasis.發布機關所屬縣市（縣市政府、所屬機關、鄉鎮市公所）；不是資料涵蓋範圍": "County of the publishing agency (county government, its agencies, township offices); not the area the data covers"
+  "enum.statLocationBasis.發布機關所屬縣市（縣市政府、所屬機關、鄉鎮市公所）；不是資料涵蓋範圍": "County of the publishing agency (county government, its agencies, township offices); not the area the data covers",
+  "enum.statLocationBasis.就讀學校所在鄉鎮市區（不是學生住家）": "Township of the school attended (not the student's home)",
+  "enum.statLocationBasis.戶籍登記地所在鄉鎮市區（戶籍人口）": "Township of household registration (registered population)",
+  "enum.statLocationBasis.坑洞所在縣市（來源表所列縣市；台中、台南、高雄為改制前縣＋市合併值）": "County or city where the pit is (as listed in the source; Taichung, Tainan and Kaohsiung combine the former county and city)",
+  "enum.statLocationBasis.病例居住地所在鄉鎮市區（境外移入病例也依居住地）": "Township of the case's residence (imported cases are also by residence)",
+  "enum.statLocationBasis.病例居住地所在縣市（境外移入病例也依居住地）": "County or city of the case's residence (imported cases are also by residence)",
+  "enum.statLocationBasis.普查常住地所在鄉鎮市區（常住人口，不含移工）": "Township of usual residence in the census (resident population, excluding migrant workers)",
+  "enum.statLocationBasis.戶籍登記地所在鄉鎮市區（戶籍原住民人口）": "Township of household registration (registered indigenous population)",
+  "enum.statLocationBasis.電表所在郵遞區對到的鄉鎮市區（縣市層為縣市）": "Township of the meter's postal zone (county for the county level)",
+  "enum.statLocationBasis.公司登記所在縣市（總公司）": "County where the company is registered (head office)",
+  "enum.statLocationBasis.戶籍登記地所在縣市（戶籍人口）": "County of household registration (registered population)",
+  "enum.statLocationBasis.場所單位所在鄉鎮市區": "Township where the establishment is located",
+  "enum.statLocationBasis.戶籍登記地（遷入縣市／遷出縣市依戶籍登記）": "County or city of household registration (destination and origin by registration)"
 }

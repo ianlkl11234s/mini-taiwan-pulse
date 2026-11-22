@@ -308,7 +308,17 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-17: +2 南韓 KRH-1（生態自然圖、垃圾排出規則）。
     // 2026-11-18: +5 縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL，統計）。
     // 2026-11-19: +3 30 天地圖挑戰 Day 19 氣味（mapchallengeDay19Complaints／Potential／Penalties）。
-    expect(keys.length).toBe(2018);
+    // 2026-11-20: +2 台灣圖層延伸 B2 點層（mountainMobileImprovement、ecoLabelHotels）、+9 台灣圖層延伸 B2 統計（新住民子女就學 5、前二十大姓 3、現存坑洞數 1）。
+    // 2026-11-20: +7 台灣圖層延伸 B3（namrBuoys、towingYards、swcOutdoorClassrooms、swcEcoCheckZones、airportHeightSurfaces、landOfficeJurisdiction、npSpeciesSites）。
+    // 2026-11-20: +1 菲律賓即時空品 phOpenaqAir（OpenAQ，RPC get_openaq_latest）。
+    // 2026-11-20: +4 台灣圖層延伸 B1 統計（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
+    // 2026-11-20: +23 台灣圖層延伸 B4 統計（普查常住人口 6、原住民族別 4、住宅用電 4、公司登記動態 4、未參加健保 2、工商普查鄉鎮 3）。
+    // 2026-11-21: +1 台灣圖層延伸 B5 縣市間遷徙流向（twCountyMigrationFlows）、+4 B5 統計（縣市間淨遷入人數／率、遷入、遷出）。
+    // 2026-11-21: +5 台灣圖層延伸 B7（hakkaLivingSchools、sandGravelPlants、countyWelfarePoints、evMotorcycleCharging、countyStreetlights）。
+    // 2026-11-21: +1 30 天地圖挑戰 Day 21 OSM（mapchallengeDay21OsmRoads）。
+    // 2026-11-21: +2 台灣圖層延伸 B6（twMarineHeatwaves、twCoralBleachingHeatStress）。
+    // 2026-11-22: +3 台灣圖層延伸 B8 R2 即時快照（dengueClusters、navNotices、tideSwellAlerts）。
+    expect(keys.length).toBe(2080);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

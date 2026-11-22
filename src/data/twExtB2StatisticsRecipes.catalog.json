@@ -1,0 +1,1675 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "twExtB2",
+  "generated_from": {
+    "recipes": "b2-recipes.json",
+    "bundles": "taipei-gis-analytics data/processed/None/<dataset_id>/releases/<release_id>.json"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "observed_zero": "status observed and value 0 (source lists 0)",
+    "missing": "value null; surname not in the township top-20 list; no zero fill",
+    "not_applicable": "value null; no pupils of that school level in the township, so the share is undefined",
+    "suppressed": "not used"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsNrcStudentsTownship",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "新住民子女就讀國中小學生數",
+      "group": "nrcStudents",
+      "group_label": "新住民子女就讀國中小",
+      "option_label": "國小＋國中人數",
+      "subgroup": "新住民子女就學",
+      "data_theme": "台灣圖層延伸統計 B2",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "education",
+      "dataset_id": "new_resident_children_township",
+      "indicator_id": "nrc_students_total",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "ay114-nrc_students_total-township-v1-62362126c391",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "ay108-nrc_students_total-township-v1-5aed0228e370",
+          "period_start": "2019-08-01",
+          "period_end": "2020-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay109-nrc_students_total-township-v1-539607e3acc0",
+          "period_start": "2020-08-01",
+          "period_end": "2021-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay110-nrc_students_total-township-v1-0cef08b970c9",
+          "period_start": "2021-08-01",
+          "period_end": "2022-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay111-nrc_students_total-township-v1-da6291b4e68b",
+          "period_start": "2022-08-01",
+          "period_end": "2023-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay112-nrc_students_total-township-v1-d10bc5578546",
+          "period_start": "2023-08-01",
+          "period_end": "2024-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay113-nrc_students_total-township-v1-88335cc96a96",
+          "period_start": "2024-08-01",
+          "period_end": "2025-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay114-nrc_students_total-township-v1-62362126c391",
+          "period_start": "2025-08-01",
+          "period_end": "2026-07-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          10,
+          50,
+          150,
+          400
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：教育部統計處 新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）；政府資料開放授權條款-第1版。",
+          "依就讀學校所在鄉鎮市區，不是學生住家；108–114 學年，學年度為 8 月 1 日至翌年 7 月 31 日。",
+          "小鄉鎮學生少，占比與人數的年度波動大。",
+          "113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%，來源未說明原因。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "school_location_township",
+      "disclosure": "新住民子女＝設籍本國、生父或生母一方為外國人、無國籍人、大陸地區人民或港澳居民者；父母雙方均外國籍不計。依就讀學校所在鄉鎮市區統計，不是學生住家；學年度為 8 月 1 日至翌年 7 月 31 日。小數字不遮蔽（教育部統計處自行公開到鄉鎮）。113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%（東區、北區、香山區合計差 68、67 人），來源未說明原因，照來源收錄。",
+      "publisher": "教育部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/146649",
+      "source_download_url": "https://stats.moe.gov.tw/files/opendata/114son_of_foreign.csv",
+      "source_title": "新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）"
+    },
+    {
+      "layer_key": "statsNrcStudentsElementaryTownship",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "新住民子女就讀國小學生數",
+      "group": "nrcStudents",
+      "group_label": "新住民子女就讀國中小",
+      "option_label": "國小人數",
+      "subgroup": "新住民子女就學",
+      "data_theme": "台灣圖層延伸統計 B2",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "education",
+      "dataset_id": "new_resident_children_township",
+      "indicator_id": "nrc_students_elementary",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "ay114-nrc_students_elementary-township-v1-d3c7f8bf5e01",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "ay108-nrc_students_elementary-township-v1-42d7c36dfb39",
+          "period_start": "2019-08-01",
+          "period_end": "2020-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay109-nrc_students_elementary-township-v1-791a0282c458",
+          "period_start": "2020-08-01",
+          "period_end": "2021-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay110-nrc_students_elementary-township-v1-7024620121fd",
+          "period_start": "2021-08-01",
+          "period_end": "2022-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay111-nrc_students_elementary-township-v1-bc91c9bbde15",
+          "period_start": "2022-08-01",
+          "period_end": "2023-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay112-nrc_students_elementary-township-v1-4000123ff336",
+          "period_start": "2023-08-01",
+          "period_end": "2024-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay113-nrc_students_elementary-township-v1-d8260509d379",
+          "period_start": "2024-08-01",
+          "period_end": "2025-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay114-nrc_students_elementary-township-v1-d3c7f8bf5e01",
+          "period_start": "2025-08-01",
+          "period_end": "2026-07-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          10,
+          50,
+          150,
+          400
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：教育部統計處 新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）；政府資料開放授權條款-第1版。",
+          "依就讀學校所在鄉鎮市區，不是學生住家；108–114 學年，學年度為 8 月 1 日至翌年 7 月 31 日。",
+          "小鄉鎮學生少，占比與人數的年度波動大。",
+          "113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%，來源未說明原因。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "school_location_township",
+      "disclosure": "新住民子女＝設籍本國、生父或生母一方為外國人、無國籍人、大陸地區人民或港澳居民者；父母雙方均外國籍不計。依就讀學校所在鄉鎮市區統計，不是學生住家；學年度為 8 月 1 日至翌年 7 月 31 日。小數字不遮蔽（教育部統計處自行公開到鄉鎮）。113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%（東區、北區、香山區合計差 68、67 人），來源未說明原因，照來源收錄。",
+      "publisher": "教育部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/146649",
+      "source_download_url": "https://stats.moe.gov.tw/files/opendata/114son_of_foreign.csv",
+      "source_title": "新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）"
+    },
+    {
+      "layer_key": "statsNrcStudentsJuniorTownship",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "新住民子女就讀國中學生數",
+      "group": "nrcStudents",
+      "group_label": "新住民子女就讀國中小",
+      "option_label": "國中人數",
+      "subgroup": "新住民子女就學",
+      "data_theme": "台灣圖層延伸統計 B2",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "education",
+      "dataset_id": "new_resident_children_township",
+      "indicator_id": "nrc_students_junior",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "ay114-nrc_students_junior-township-v1-e3db4d28813a",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "ay108-nrc_students_junior-township-v1-6e080d55d633",
+          "period_start": "2019-08-01",
+          "period_end": "2020-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay109-nrc_students_junior-township-v1-d9429a25b30f",
+          "period_start": "2020-08-01",
+          "period_end": "2021-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay110-nrc_students_junior-township-v1-d989a57f8db4",
+          "period_start": "2021-08-01",
+          "period_end": "2022-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay111-nrc_students_junior-township-v1-caea65c016e7",
+          "period_start": "2022-08-01",
+          "period_end": "2023-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay112-nrc_students_junior-township-v1-e90db201d6cb",
+          "period_start": "2023-08-01",
+          "period_end": "2024-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay113-nrc_students_junior-township-v1-a32247500578",
+          "period_start": "2024-08-01",
+          "period_end": "2025-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay114-nrc_students_junior-township-v1-e3db4d28813a",
+          "period_start": "2025-08-01",
+          "period_end": "2026-07-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5,
+          20,
+          60,
+          150
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：教育部統計處 新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）；政府資料開放授權條款-第1版。",
+          "依就讀學校所在鄉鎮市區，不是學生住家；108–114 學年，學年度為 8 月 1 日至翌年 7 月 31 日。",
+          "小鄉鎮學生少，占比與人數的年度波動大。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "school_location_township",
+      "disclosure": "新住民子女＝設籍本國、生父或生母一方為外國人、無國籍人、大陸地區人民或港澳居民者；父母雙方均外國籍不計。依就讀學校所在鄉鎮市區統計，不是學生住家；學年度為 8 月 1 日至翌年 7 月 31 日。小數字不遮蔽（教育部統計處自行公開到鄉鎮）。113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%（東區、北區、香山區合計差 68、67 人），來源未說明原因，照來源收錄。",
+      "publisher": "教育部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/146649",
+      "source_download_url": "https://stats.moe.gov.tw/files/opendata/114son_of_foreign.csv",
+      "source_title": "新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）"
+    },
+    {
+      "layer_key": "statsNrcShareTotalTownship",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "新住民子女占國中小學生比",
+      "group": "nrcStudents",
+      "group_label": "新住民子女就讀國中小",
+      "option_label": "占國中小學生比（111–114 學年）",
+      "subgroup": "新住民子女就學",
+      "data_theme": "台灣圖層延伸統計 B2",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "education",
+      "dataset_id": "new_resident_children_township",
+      "indicator_id": "nrc_share_total",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "ay114-nrc_share_total-township-v1-5f7fcd3549b5",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "ay111-nrc_share_total-township-v1-2bc7b225d726",
+          "period_start": "2022-08-01",
+          "period_end": "2023-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay112-nrc_share_total-township-v1-33f31e7542be",
+          "period_start": "2023-08-01",
+          "period_end": "2024-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay113-nrc_share_total-township-v1-0e30451e97dc",
+          "period_start": "2024-08-01",
+          "period_end": "2025-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay114-nrc_share_total-township-v1-5f7fcd3549b5",
+          "period_start": "2025-08-01",
+          "period_end": "2026-07-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          3,
+          5,
+          8,
+          12
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：教育部統計處 新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）；政府資料開放授權條款-第1版。",
+          "依就讀學校所在鄉鎮市區，不是學生住家；108–114 學年，學年度為 8 月 1 日至翌年 7 月 31 日。",
+          "小鄉鎮學生少，占比與人數的年度波動大。",
+          "108–110 學年各有 1 所私立實驗學校對不到鄉鎮，合計占比未產。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（該鄉鎮沒有該學制學生，占比無從計算）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "就讀學校所在鄉鎮市區（不是學生住家）",
+      "disclosure": "新住民子女＝設籍本國、生父或生母一方為外國人、無國籍人、大陸地區人民或港澳居民者；父母雙方均外國籍不計。依就讀學校所在鄉鎮市區統計，不是學生住家；學年度為 8 月 1 日至翌年 7 月 31 日。小數字不遮蔽（教育部統計處自行公開到鄉鎮）。113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%（東區、北區、香山區合計差 68、67 人），來源未說明原因，照來源收錄。 分母為同鄉鎮同學年學生數：國小取教育部統計處國民小學校別資料（6240）1–6 年級；國中取國民中學校別資料（6239）7–9 年級，該檔沒有鄉鎮欄，以學校代碼對各學年學校名錄的地址取鄉鎮。",
+      "publisher": "教育部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/146649",
+      "source_download_url": "https://stats.moe.gov.tw/files/opendata/114son_of_foreign.csv",
+      "source_title": "新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）"
+    },
+    {
+      "layer_key": "statsNrcShareElementaryTownship",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "新住民子女占國小學生比",
+      "group": "nrcStudents",
+      "group_label": "新住民子女就讀國中小",
+      "option_label": "占國小學生比",
+      "subgroup": "新住民子女就學",
+      "data_theme": "台灣圖層延伸統計 B2",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "education",
+      "dataset_id": "new_resident_children_township",
+      "indicator_id": "nrc_share_elementary",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "ay114-nrc_share_elementary-township-v1-3b035fbd665d",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "ay108-nrc_share_elementary-township-v1-5a1e74609f67",
+          "period_start": "2019-08-01",
+          "period_end": "2020-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay109-nrc_share_elementary-township-v1-95a7f3f6490d",
+          "period_start": "2020-08-01",
+          "period_end": "2021-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay110-nrc_share_elementary-township-v1-a1d09ea35197",
+          "period_start": "2021-08-01",
+          "period_end": "2022-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay111-nrc_share_elementary-township-v1-66326ff2235c",
+          "period_start": "2022-08-01",
+          "period_end": "2023-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay112-nrc_share_elementary-township-v1-fe1e1b6d8eff",
+          "period_start": "2023-08-01",
+          "period_end": "2024-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay113-nrc_share_elementary-township-v1-5aa3b14c8b9e",
+          "period_start": "2024-08-01",
+          "period_end": "2025-07-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ay114-nrc_share_elementary-township-v1-3b035fbd665d",
+          "period_start": "2025-08-01",
+          "period_end": "2026-07-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          3,
+          5,
+          8,
+          12
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：教育部統計處 新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）；政府資料開放授權條款-第1版。",
+          "依就讀學校所在鄉鎮市區，不是學生住家；108–114 學年，學年度為 8 月 1 日至翌年 7 月 31 日。",
+          "小鄉鎮學生少，占比與人數的年度波動大。",
+          "113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%，來源未說明原因。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（該鄉鎮沒有該學制學生，占比無從計算）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "就讀學校所在鄉鎮市區（不是學生住家）",
+      "disclosure": "新住民子女＝設籍本國、生父或生母一方為外國人、無國籍人、大陸地區人民或港澳居民者；父母雙方均外國籍不計。依就讀學校所在鄉鎮市區統計，不是學生住家；學年度為 8 月 1 日至翌年 7 月 31 日。小數字不遮蔽（教育部統計處自行公開到鄉鎮）。113、114 學年新竹市國小鄉鎮加總比教育部縣市表少約 4%（東區、北區、香山區合計差 68、67 人），來源未說明原因，照來源收錄。 分母為同鄉鎮同學年學生數：國小取教育部統計處國民小學校別資料（6240）1–6 年級；國中取國民中學校別資料（6239）7–9 年級，該檔沒有鄉鎮欄，以學校代碼對各學年學校名錄的地址取鄉鎮。",
+      "publisher": "教育部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/146649",
+      "source_download_url": "https://stats.moe.gov.tw/files/opendata/114son_of_foreign.csv",
+      "source_title": "新住民子女就讀國中小學生人數資料－鄉鎮市區別（data.gov.tw 146649）"
+    },
+    {
+      "layer_key": "statsSurnameTop1Township",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "鄉鎮第一大姓",
+      "group": "surname",
+      "group_label": "鄉鎮前二十大姓",
+      "option_label": "第一大姓",
+      "subgroup": "姓氏（戶籍）",
+      "data_theme": "台灣圖層延伸統計 B2",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "population",
+      "dataset_id": "surname_township",
+      "indicator_id": "surname_top1",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "類別碼",
+      "aggregation": "source_defined",
+      "default_release_id": "ym11206-surname_top1-township-v1-f030ff0a37bd",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "ym10706-surname_top1-township-v1-679c22e74b01",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ym11206-surname_top1-township-v1-f030ff0a37bd",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "categorical",
+        "breaks": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "direction": "ascending",
+        "categories": [
+          {
+            "value": 1,
+            "label": "陳",
+            "color": "#e45756"
+          },
+          {
+            "value": 2,
+            "label": "林",
+            "color": "#4c78a8"
+          },
+          {
+            "value": 3,
+            "label": "黃",
+            "color": "#f2a93b"
+          },
+          {
+            "value": 4,
+            "label": "張",
+            "color": "#54a24b"
+          },
+          {
+            "value": 8,
+            "label": "劉",
+            "color": "#b279a2"
+          },
+          {
+            "value": 7,
+            "label": "吳",
+            "color": "#72b7b2"
+          },
+          {
+            "value": 5,
+            "label": "李",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 6,
+            "label": "王",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 9,
+            "label": "蔡",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 10,
+            "label": "楊",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 11,
+            "label": "許",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 12,
+            "label": "謝",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 13,
+            "label": "洪",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 14,
+            "label": "邱",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 15,
+            "label": "廖",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 16,
+            "label": "賴",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 17,
+            "label": "江",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 18,
+            "label": "莊",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 19,
+            "label": "彭",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 20,
+            "label": "簡",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 21,
+            "label": "高",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 22,
+            "label": "潘",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 23,
+            "label": "蕭",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 24,
+            "label": "詹",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 25,
+            "label": "沈",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 26,
+            "label": "柯",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 27,
+            "label": "翁",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 28,
+            "label": "胡",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 29,
+            "label": "余",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 30,
+            "label": "杜",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 31,
+            "label": "全",
+            "color": "#9ca3af",
+            "legend_hidden": true
+          },
+          {
+            "value": 0,
+            "label": "其他姓氏",
+            "color": "#9ca3af"
+          }
+        ],
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部戶政司 全國各鄉鎮市區前二十大姓人口數按性別分（data.gov.tw 42518）；政府資料開放授權條款-第1版。",
+          "戶籍登記姓氏，不等於族群；2023 年 6 月與 2018 年 6 月兩期；每鄉鎮只公開前 20 姓。",
+          "色塊只標前 6 名（共 326 個鄉鎮），其餘姓氏併為灰色「其他姓氏」；點選鄉鎮看姓氏。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "戶籍登記地所在鄉鎮市區（戶籍人口）",
+      "disclosure": "內政部戶政司各鄉鎮市區前二十大姓人口數（男女合計）；排名以男女合計人口為準。姓氏是戶籍登記姓氏，不等於族群；每鄉鎮只公開前 20 姓，其他姓氏人口不在來源內。分母為同月戶籍人口（戶政司村里戶數與人口數逐村里加總）。 並列第一者不存在（368 鄉鎮皆有唯一第一大姓）；第一大姓有 31 種，圖例只標前 6 名，其餘合併為「其他姓氏」，點選鄉鎮可看姓氏。",
+      "publisher": "內政部戶政司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/42518",
+      "source_download_url": "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/54BED408-2A7D-49D2-A247-FC63C156A8BB/resource/55A47BF4-F21F-4429-AC34-03581DA45B02/download",
+      "source_title": "全國各鄉鎮市區前二十大姓人口數按性別分（data.gov.tw 42518）"
+    },
+    {
+      "layer_key": "statsSurnameTop1ShareTownship",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "第一大姓占戶籍人口比",
+      "group": "surname",
+      "group_label": "鄉鎮前二十大姓",
+      "option_label": "第一大姓占戶籍人口比",
+      "subgroup": "姓氏（戶籍）",
+      "data_theme": "台灣圖層延伸統計 B2",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "population",
+      "dataset_id": "surname_township",
+      "indicator_id": "surname_top1_share",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "ym11206-surname_top1_share-township-v1-1a9f49a20c4c",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "ym10706-surname_top1_share-township-v1-b48b65191e00",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {}
+        },
+        {
+          "release_id": "ym11206-surname_top1_share-township-v1-1a9f49a20c4c",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          10,
+          12,
+          15,
+          20
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部戶政司 全國各鄉鎮市區前二十大姓人口數按性別分（data.gov.tw 42518）；政府資料開放授權條款-第1版。",
+          "戶籍登記姓氏，不等於族群；2023 年 6 月與 2018 年 6 月兩期；每鄉鎮只公開前 20 姓。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "戶籍登記地所在鄉鎮市區（戶籍人口）",
+      "disclosure": "內政部戶政司各鄉鎮市區前二十大姓人口數（男女合計）；排名以男女合計人口為準。姓氏是戶籍登記姓氏，不等於族群；每鄉鎮只公開前 20 姓，其他姓氏人口不在來源內。分母為同月戶籍人口（戶政司村里戶數與人口數逐村里加總）。",
+      "publisher": "內政部戶政司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/42518",
+      "source_download_url": "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/54BED408-2A7D-49D2-A247-FC63C156A8BB/resource/55A47BF4-F21F-4429-AC34-03581DA45B02/download",
+      "source_title": "全國各鄉鎮市區前二十大姓人口數按性別分（data.gov.tw 42518）"
+    },
+    {
+      "layer_key": "statsSurnameShareTownship",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "姓氏占戶籍人口比",
+      "group": "surname",
+      "group_label": "鄉鎮前二十大姓",
+      "option_label": "選姓占戶籍人口比",
+      "subgroup": "姓氏（戶籍）",
+      "data_theme": "台灣圖層延伸統計 B2",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "population",
+      "dataset_id": "surname_township",
+      "indicator_id": "surname_share",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+      "dimensions": [
+        {
+          "key": "surname",
+          "label": "surname",
+          "default": "陳",
+          "options": [
+            {
+              "value": "陳",
+              "label": "陳"
+            },
+            {
+              "value": "劉",
+              "label": "劉"
+            },
+            {
+              "value": "吳",
+              "label": "吳"
+            },
+            {
+              "value": "廖",
+              "label": "廖"
+            },
+            {
+              "value": "張",
+              "label": "張"
+            },
+            {
+              "value": "徐",
+              "label": "徐"
+            },
+            {
+              "value": "曾",
+              "label": "曾"
+            },
+            {
+              "value": "李",
+              "label": "李"
+            },
+            {
+              "value": "林",
+              "label": "林"
+            },
+            {
+              "value": "楊",
+              "label": "楊"
+            },
+            {
+              "value": "洪",
+              "label": "洪"
+            },
+            {
+              "value": "王",
+              "label": "王"
+            },
+            {
+              "value": "蔡",
+              "label": "蔡"
+            },
+            {
+              "value": "許",
+              "label": "許"
+            },
+            {
+              "value": "謝",
+              "label": "謝"
+            },
+            {
+              "value": "賴",
+              "label": "賴"
+            },
+            {
+              "value": "邱",
+              "label": "邱"
+            },
+            {
+              "value": "郭",
+              "label": "郭"
+            },
+            {
+              "value": "鄭",
+              "label": "鄭"
+            },
+            {
+              "value": "黃",
+              "label": "黃"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "劉"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "吳"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "廖"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "張"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "徐"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "曾"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "李"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "林"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "楊"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "洪"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "王"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "蔡"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "許"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "謝"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "賴"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "邱"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "郭"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "鄭"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "陳"
+          }
+        },
+        {
+          "release_id": "ym10706-surname_share-township-v1-d765a6f8e82f",
+          "period_start": "2018-06-01",
+          "period_end": "2018-06-30",
+          "dimensions": {
+            "surname": "黃"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "劉"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "吳"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "廖"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "張"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "徐"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "曾"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "李"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "林"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "楊"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "洪"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "王"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "蔡"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "許"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "謝"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "賴"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "邱"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "郭"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "鄭"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "陳"
+          }
+        },
+        {
+          "release_id": "ym11206-surname_share-township-v1-004ac4dba051",
+          "period_start": "2023-06-01",
+          "period_end": "2023-06-30",
+          "dimensions": {
+            "surname": "黃"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          8.4,
+          11,
+          13
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部戶政司 全國各鄉鎮市區前二十大姓人口數按性別分（data.gov.tw 42518）；政府資料開放授權條款-第1版。",
+          "戶籍登記姓氏，不等於族群；2023 年 6 月與 2018 年 6 月兩期；每鄉鎮只公開前 20 姓。",
+          "選姓後只顯示該姓；全國前 20 姓取各鄉鎮前二十大名單內合計人口最多者，是下界，不是戶政司官方排名。"
+        ],
+        "by_dimension": {
+          "劉": {
+            "breaks": [
+              1.8,
+              2.5,
+              3.1,
+              3.9
+            ],
+            "direction": "ascending"
+          },
+          "吳": {
+            "breaks": [
+              2.7,
+              3.3,
+              3.9,
+              4.6
+            ],
+            "direction": "ascending"
+          },
+          "廖": {
+            "breaks": [
+              1.2,
+              1.4,
+              1.8,
+              2.6
+            ],
+            "direction": "ascending"
+          },
+          "張": {
+            "breaks": [
+              3.6,
+              4.5,
+              5.2,
+              6.3
+            ],
+            "direction": "ascending"
+          },
+          "徐": {
+            "breaks": [
+              1.3,
+              1.5,
+              1.9,
+              3.2
+            ],
+            "direction": "ascending"
+          },
+          "曾": {
+            "breaks": [
+              1.2,
+              1.4,
+              1.7,
+              2.2
+            ],
+            "direction": "ascending"
+          },
+          "李": {
+            "breaks": [
+              3.4,
+              4.3,
+              5.1,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "林": {
+            "breaks": [
+              5.7,
+              7.6,
+              8.4,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "楊": {
+            "breaks": [
+              1.8,
+              2.2,
+              2.6,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "洪": {
+            "breaks": [
+              1.4,
+              1.5,
+              1.9,
+              2.4
+            ],
+            "direction": "ascending"
+          },
+          "王": {
+            "breaks": [
+              2.5,
+              3.4,
+              4.1,
+              4.7
+            ],
+            "direction": "ascending"
+          },
+          "蔡": {
+            "breaks": [
+              1.9,
+              2.3,
+              2.9,
+              3.9
+            ],
+            "direction": "ascending"
+          },
+          "許": {
+            "breaks": [
+              1.6,
+              2,
+              2.4,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "謝": {
+            "breaks": [
+              1.4,
+              1.6,
+              1.9,
+              2.2
+            ],
+            "direction": "ascending"
+          },
+          "賴": {
+            "breaks": [
+              1.4,
+              1.7,
+              2.1,
+              2.8
+            ],
+            "direction": "ascending"
+          },
+          "邱": {
+            "breaks": [
+              1.3,
+              1.5,
+              1.9,
+              2.7
+            ],
+            "direction": "ascending"
+          },
+          "郭": {
+            "breaks": [
+              1.3,
+              1.6,
+              1.9,
+              2.5
+            ],
+            "direction": "ascending"
+          },
+          "鄭": {
+            "breaks": [
+              1.4,
+              1.7,
+              2,
+              2.5
+            ],
+            "direction": "ascending"
+          },
+          "黃": {
+            "breaks": [
+              4.3,
+              5.3,
+              5.9,
+              6.9
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未進該鄉鎮前二十大（來源未公開，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "戶籍登記地所在鄉鎮市區（戶籍人口）",
+      "disclosure": "內政部戶政司各鄉鎮市區前二十大姓人口數（男女合計）；排名以男女合計人口為準。姓氏是戶籍登記姓氏，不等於族群；每鄉鎮只公開前 20 姓，其他姓氏人口不在來源內。分母為同月戶籍人口（戶政司村里戶數與人口數逐村里加總）。 選姓後只顯示該姓；該姓未進該鄉鎮前二十大者標為無資料，不是 0。全國前 20 姓取各鄉鎮前二十大名單內合計人口最多者，是下界，不是戶政司官方全國排名。",
+      "publisher": "內政部戶政司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/42518",
+      "source_download_url": "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/54BED408-2A7D-49D2-A247-FC63C156A8BB/resource/55A47BF4-F21F-4429-AC34-03581DA45B02/download",
+      "source_title": "全國各鄉鎮市區前二十大姓人口數按性別分（data.gov.tw 42518）"
+    },
+    {
+      "layer_key": "statsAbandonedPitsCounty",
+      "enabled": true,
+      "family": "twExtB2",
+      "label": "現存坑洞數",
+      "group": "abandonedPits",
+      "group_label": "現存坑洞數（早期盜濫採土石遺留）",
+      "option_label": "現存坑洞數",
+      "subgroup": "遺留坑洞",
+      "data_theme": "災害風險統計",
+      "tab_theme": "災害風險 Disaster Risk",
+      "visual_theme": "hazard",
+      "dataset_id": "abandoned_pits_county",
+      "indicator_id": "abandoned_pits_remaining",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "個",
+      "aggregation": "sum",
+      "default_release_id": "y113-abandoned_pits_remaining-county-v1-e8d3666e993c",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "y100-abandoned_pits_remaining-county-v1-febb0d6a7e0b",
+          "period_start": "2011-01-01",
+          "period_end": "2011-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y101-abandoned_pits_remaining-county-v1-bd4f5e2ac249",
+          "period_start": "2012-01-01",
+          "period_end": "2012-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y102-abandoned_pits_remaining-county-v1-b6995b094462",
+          "period_start": "2013-01-01",
+          "period_end": "2013-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y103-abandoned_pits_remaining-county-v1-b8f12a28c827",
+          "period_start": "2014-01-01",
+          "period_end": "2014-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y104-abandoned_pits_remaining-county-v1-ccc5202c5848",
+          "period_start": "2015-01-01",
+          "period_end": "2015-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y105-abandoned_pits_remaining-county-v1-ca479fe74917",
+          "period_start": "2016-01-01",
+          "period_end": "2016-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y106-abandoned_pits_remaining-county-v1-ba39fdfaba3d",
+          "period_start": "2017-01-01",
+          "period_end": "2017-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y107-abandoned_pits_remaining-county-v1-0d9071822b5f",
+          "period_start": "2018-01-01",
+          "period_end": "2018-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y108-abandoned_pits_remaining-county-v1-3246f42c5345",
+          "period_start": "2019-01-01",
+          "period_end": "2019-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y109-abandoned_pits_remaining-county-v1-d80a12536e53",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y110-abandoned_pits_remaining-county-v1-a616ce18ee72",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y111-abandoned_pits_remaining-county-v1-5c3c63a11965",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y112-abandoned_pits_remaining-county-v1-e8d3666e993c",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y113-abandoned_pits_remaining-county-v1-e8d3666e993c",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y94-abandoned_pits_remaining-county-v1-98cd1cc82d94",
+          "period_start": "2005-01-01",
+          "period_end": "2005-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y95-abandoned_pits_remaining-county-v1-f1fb362370b2",
+          "period_start": "2006-01-01",
+          "period_end": "2006-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y96-abandoned_pits_remaining-county-v1-e560fa7225a0",
+          "period_start": "2007-01-01",
+          "period_end": "2007-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y97-abandoned_pits_remaining-county-v1-4e57150340cd",
+          "period_start": "2008-01-01",
+          "period_end": "2008-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y98-abandoned_pits_remaining-county-v1-87bf0baa2edc",
+          "period_start": "2009-01-01",
+          "period_end": "2009-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y99-abandoned_pits_remaining-county-v1-dab1cc117668",
+          "period_start": "2010-01-01",
+          "period_end": "2010-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          5,
+          30,
+          150
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0＝來源填 0（該縣市當年列管坑洞為 0），不是無資料。",
+        "display_note": null,
+        "notes": [
+          "出典：經濟部地質調查及礦業管理中心 各縣市現存坑洞數統計（data.gov.tw 29076）；政府資料開放授權條款-第1版。",
+          "早期盜濫採土石遺留坑洞；94–113 年（民國年，日曆年區間）；台中、台南、高雄為改制前縣＋市合併值。",
+          "113 年起為專案列管，口徑與 112 年以前不同，不可直接比較增減。",
+          "0＝來源填 0（該縣市當年列管坑洞為 0），不是無資料。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "坑洞所在縣市（來源表所列縣市；台中、台南、高雄為改制前縣＋市合併值）",
+      "disclosure": "經濟部地質調查及礦業管理中心列管之早期盜濫採土石遺留現存坑洞數。113 年起為專案列管，口徑與 112 年以前不同，不可直接比較增減。台中縣、台南縣、高雄縣欄依現行直轄市界線與市欄相加，新北市欄即原台北縣；年度基準日來源未說明。來源無總計列，未對帳；0 為來源填 0（該縣市當年列管坑洞為 0），不是無資料。",
+      "publisher": "經濟部地質調查及礦業管理中心",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/29076",
+      "source_download_url": "https://www.gsmma.gov.tw/uploads/17500431884891IFLOyDQ.csv",
+      "source_title": "各縣市現存坑洞數統計(113年起為專案列管)（data.gov.tw 29076）"
+    }
+  ],
+  "catalog_generated_from": "twExtB2StatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}

@@ -92,5 +92,12 @@
   "popup.infra.lockerCount_one": "{count} locker",
   "popup.infra.lockerCount_other": "{count} lockers",
   "popup.infra.slotCount_one": "{count} bay",
-  "popup.infra.slotCount_other": "{count} bays"
+  "popup.infra.slotCount_other": "{count} bays",
+  "popup.infra.hroPrecisionExact": "OSM house number",
+  "popup.infra.hroPrecisionRoad": "interpolated along the road",
+  "popup.infra.hroPrecisionCached": "cached geocode",
+  "popup.infra.hroEstimated": "Position estimated from the address ({precision}), not an official coordinate",
+  "popup.infra.hroType": "Household registration office branch",
+  "popup.infra.hroOrg": "Department of Household Registration, Ministry of the Interior",
+  "popup.infra.landJurisdictionHint": "Turn on the \"Land Office Jurisdictions\" layer and select this point to highlight its jurisdiction"
 }

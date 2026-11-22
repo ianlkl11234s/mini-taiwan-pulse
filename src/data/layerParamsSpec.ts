@@ -1,4 +1,5 @@
 import { HISTORICAL_MAP_GROUPS, historicalMapEraOptionZh } from './historicalMapSinica';
+import { NAV_KINDS, NAV_KIND_IDS, NAV_LIFETIME_DEFAULT_IDS, NAV_LIFETIME_IDS, NAV_LIFETIME_OPTION_LABEL, TIDE_KINDS, TIDE_KIND_LABEL } from "./twLiveTypes";
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
@@ -13,6 +14,7 @@ import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
 import { GIBS_NIGHT_LIGHTS_PRODUCTS } from "./gibsNightLightsTypes";
 import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 import { LIVE_INCIDENT_WINDOWS } from "./liveIncidentsTypes";
+import { TW_CRW_BAA_LEVELS, TW_CRW_DHW_CLASSES, TW_CRW_VIEWS, TW_MARINE_HEAT_MONTHS, TW_MARINE_HEAT_PRODUCTS, TW_MHW_LEVELS, type TwMarineHeatLayerKey } from "./twMarineHeatTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -102,6 +104,7 @@ import {
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN } from "./mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
@@ -351,6 +354,13 @@ export interface SliderParamSpec extends SharedSlotField, ConditionalField, Casc
    * ⚠️ 仍是純字串、不是函式：只有 `=== 0` 這一個分支點，快照照樣逐位比對。
    */
   zeroLabel?: string;
+  /**
+   * 特定值改印這個字（key 是 `String(value)`，同 toggle／select 的 `labelByValue` 慣例）；查無對應照常印數字。
+   *
+   * 唯一使用者：Day 21 OSM 年份拉桿的 `2007` 要印「2007 以前」（第一年代表 2007 年以前，含）——
+   * 不是 0，`zeroLabel` 表達不了。英日文照 `zeroLabel` 一樣走 `param.<中文>`。
+   */
+  labelByValue?: Record<string, string>;
   /** `toFixed` 位數 */
   digits: number;
   /**
@@ -759,6 +769,23 @@ export type LayerParamValues = Readonly<Record<string, ParamValue>>;
 // ── 共用建構子：同構家族避免逐層複製字面 ──────────────────────────
 
 /** 「透明度 x.xx」滑桿 —— 宗教／殯葬兩組全部都有，只有 default 不同 */
+/** 台灣圖層延伸 B6：年份＋月份兩個下拉（out＝索引；預設最新一期，該月沒資料時圖例顯示未涵蓋） */
+function twMarineHeatPeriodSelects(key: TwMarineHeatLayerKey): SelectParamSpec[] {
+  const p = TW_MARINE_HEAT_PRODUCTS[key];
+  return [
+    {
+      kind: "select", category: "data", name: `${key}Year`, label: "年份", default: String(p.defaultYear),
+      options: [...p.years].reverse().map((y) => ({ label: String(y), value: String(y) })),
+      out: `${key}YearIdx`, encode: p.years.map(String),
+    },
+    {
+      kind: "select", category: "data", name: `${key}Month`, label: "月份", default: p.defaultMonth,
+      options: TW_MARINE_HEAT_MONTHS.map((m) => ({ label: `${Number(m)} 月`, value: m })),
+      out: `${key}MonthIdx`, encode: [...TW_MARINE_HEAT_MONTHS],
+    },
+  ];
+}
+
 function opacitySlider(name: string, def: number): SliderParamSpec {
   return {
     kind: "slider", name, labelPrefix: "透明度", digits: 2,
@@ -1774,6 +1801,17 @@ export const LAYER_PARAMS_SPEC = {
       out: "mapchallengeDay19PenaltiesScopeIdx", encode: MAPCHALLENGE_DAY19_PENALTY_SCOPES.map((o) => o.value),
     },
   ],
+  // 30 天地圖挑戰 Day 21 OSM：年份拉桿＋「只看當年新增」改 filter（overlayRegistry rebuildOnParamKeys）；
+  // 道路等級多選由 CATEGORY_FILTERS 自動補在最前面。不接長期時間條（時間條目前只支援 event 類）。
+  mapchallengeDay21OsmRoads: [
+    opacitySlider("mapchallengeDay21OsmRoadsOpacity", 0.85),
+    {
+      kind: "slider", category: "data", name: "mapchallengeDay21OsmRoadsYear", labelPrefix: "年份", digits: 0,
+      labelByValue: { [String(MAPCHALLENGE_DAY21_YEAR_MIN)]: `${MAPCHALLENGE_DAY21_YEAR_MIN} 以前` },
+      default: MAPCHALLENGE_DAY21_YEAR_MAX, min: MAPCHALLENGE_DAY21_YEAR_MIN, max: MAPCHALLENGE_DAY21_YEAR_MAX, step: 1,
+    },
+    { kind: "toggle", category: "data", name: "mapchallengeDay21OsmRoadsNewOnly", label: "只看當年新增", default: false },
+  ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {
@@ -2483,6 +2521,7 @@ export const LAYER_PARAMS_SPEC = {
     heatmapPalette("caNpriFacilities"), opacitySlider("caNpriFacilitiesOpacity", densePointOpacity(24_540)), scaleSlider("caNpriFacilitiesScale", 1),
   ],
   caWastewaterSystems: [krMulti("caWastewaterSystemsCatMask", "狀態", CA_OPT_WSER_STATUS), opacitySlider("caWastewaterSystemsOpacity", 0.85), scaleSlider("caWastewaterSystemsScale", 1)],
+  phOpenaqAir: [opacitySlider("phOpenaqAirOpacity", 0.9), scaleSlider("phOpenaqAirScale", 1)],
   caEarthquakesLive: [krMulti("caEarthquakesLiveTypeMask", "事件類型", CA_OPT_QUAKE_LIVE_TYPE), opacitySlider("caEarthquakesLiveOpacity", 0.85), scaleSlider("caEarthquakesLiveScale", 1)],
   caEarthquakes: [krMulti("caEarthquakesCatMask", "規模", CA_OPT_QUAKE_CLASS), heatmapPalette("caEarthquakes"), opacitySlider("caEarthquakesOpacity", densePointOpacity(101_365)), scaleSlider("caEarthquakesScale", 1)],
   caPopulationGrid: [gridPalette("caPopulationGridPalette", "YlOrBr"), opacitySlider("caPopulationGridOpacity", 0.6)],
@@ -3894,7 +3933,7 @@ export const LAYER_PARAMS_SPEC = {
     },
     opacitySlider("highwayDisasterHistoryOpacity", densePointOpacity(16_163)), scaleSlider("highwayDisasterHistoryScale", 1),
   ],
-  // 年度全島崩塌地：只有 4 年（缺年在圖例與說明標示），預設 2024（V2 版）。
+  // 年度全島崩塌地：只有 5 年（缺年在圖例與說明標示），預設 2024（V2 版）。2025 在獨立單年檔，年份索引決定可見的 source。
   landslideAnnual: [
     {
       kind: "select", name: "landslideAnnualYear", label: "年份", default: String(ANNUAL_DEFAULT_YEAR),
@@ -5388,6 +5427,32 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("pbsRoadEventsLiveScale", 1),
     { kind: "select", name: "pbsRoadEventsLiveWindow", label: "時間範圍", default: "180", category: "data", options: LIVE_INCIDENT_WINDOWS.map((o) => ({ ...o })), out: null },
   ],
+  // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照三層；篩選 id／標籤 SSOT 在 data/twLiveSnapshots.ts
+  dengueClusters: [
+    opacitySlider("dengueClustersOpacity", 0.9),
+    scaleSlider("dengueClustersScale", 1),
+  ],
+  navNotices: [
+    opacitySlider("navNoticesOpacity", 0.9),
+    scaleSlider("navNoticesScale", 1),
+    {
+      kind: "multiSelect", name: "navNoticesKind", label: "類型", default: MULTI_SELECT_ALL, category: "data",
+      options: NAV_KIND_IDS.map((value, i) => ({ label: NAV_KINDS[i]!, value })), out: "navNoticesKindMask",
+    },
+    {
+      // 永久類預設不勾（站主 2026-11-22）
+      kind: "multiSelect", name: "navNoticesLifetime", label: "期限", default: serializeMultiSelectValues([...NAV_LIFETIME_DEFAULT_IDS]), category: "data",
+      options: NAV_LIFETIME_IDS.map((value) => ({ label: NAV_LIFETIME_OPTION_LABEL[value]!, value })), out: "navNoticesLifetimeMask",
+    },
+  ],
+  tideSwellAlerts: [
+    opacitySlider("tideSwellAlertsOpacity", 0.95),
+    scaleSlider("tideSwellAlertsScale", 1),
+    {
+      kind: "multiSelect", name: "tideSwellAlertsKind", label: "監測", default: MULTI_SELECT_ALL, category: "data",
+      options: TIDE_KINDS.map((value) => ({ label: TIDE_KIND_LABEL[value], value })), out: "tideSwellAlertsKindMask",
+    },
+  ],
   newsEvents: [
     opacitySlider("newsEventsOpacity", 1),
     {
@@ -5431,6 +5496,15 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ label: "Day", value: "day" }, { label: "Night", value: "night" }],
       out: null,
     },
+  ],
+  // 縣市間遷徙流向（台灣圖層延伸 B5）：年份與底色 statsCountyOd* 期別連動（hook 內雙向同步）
+  twCountyMigrationFlows: [
+    {
+      kind: "select", category: "data", name: "twCountyMigrationYear", label: "年份", default: "2025",
+      options: [{ value: "2025", label: "2025 年" }, { value: "2024", label: "2024 年" }],
+      out: "twCountyMigrationYearIdx", encode: ["2025", "2024"],
+    },
+    opacitySlider("twCountyMigrationFlowsOpacity", 0.85),
   ],
   popCount: [
     gridOpacitySlider("pcOpacity", 0.6),
@@ -5516,6 +5590,54 @@ export const LAYER_PARAMS_SPEC = {
   traLevelCrossings: [opacitySlider("traLevelCrossingsOpacity", 0.9), scaleSlider("traLevelCrossingsScale", 1)],
   iOceanSightings: [opacitySlider("iOceanSightingsOpacity", 0.9), scaleSlider("iOceanSightingsScale", 1)],
   fireworksSites: [opacitySlider("fireworksSitesOpacity", 0.9), scaleSlider("fireworksSitesScale", 1)],
+  mountainMobileImprovement: [opacitySlider("mountainMobileImprovementOpacity", 0.9), scaleSlider("mountainMobileImprovementScale", 1)],
+  ecoLabelHotels: [opacitySlider("ecoLabelHotelsOpacity", 0.9), scaleSlider("ecoLabelHotelsScale", 1)],
+  // 台灣圖層延伸 B3（2026-11-20）
+  namrBuoys: [opacitySlider("namrBuoysOpacity", 0.9), scaleSlider("namrBuoysScale", 1)],
+  // 台灣圖層延伸 B6（2026-11-21）：月幀 raster；年份／月份下拉選期別（預設最新一期），等級多選只改 raster-color
+  twMarineHeatwaves: [
+    { kind: "slider", name: "twMarineHeatwavesOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+    ...twMarineHeatPeriodSelects("twMarineHeatwaves"),
+    {
+      kind: "multiSelect", name: "twMarineHeatwavesLevel", label: "等級", default: MULTI_SELECT_ALL,
+      options: TW_MHW_LEVELS.map((l) => ({ label: l.zh, value: String(l.value) })), out: "twMarineHeatwavesLevelMask",
+    },
+  ],
+  twCoralBleachingHeatStress: [
+    { kind: "slider", name: "twCoralBleachingHeatStressOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
+    ...twMarineHeatPeriodSelects("twCoralBleachingHeatStress"),
+    {
+      kind: "select", category: "data", name: "twCoralBleachingHeatStressView", label: "顯示", default: TW_CRW_VIEWS[0].value,
+      options: TW_CRW_VIEWS.map((v) => ({ label: v.zh, value: v.value })),
+      out: "twCoralBleachingHeatStressViewIdx", encode: TW_CRW_VIEWS.map((v) => v.value),
+    },
+    {
+      kind: "multiSelect", name: "twCoralBleachingHeatStressLevel", label: "等級", default: MULTI_SELECT_ALL,
+      showWhen: { param: "twCoralBleachingHeatStressView", equals: "baa" },
+      options: TW_CRW_BAA_LEVELS.map((l) => ({ label: l.zh, value: String(l.value) })), out: "twCoralBleachingHeatStressLevelMask",
+    },
+    {
+      kind: "multiSelect", name: "twCoralBleachingHeatStressDhw", label: "DHW 級距", default: MULTI_SELECT_ALL,
+      showWhen: { param: "twCoralBleachingHeatStressView", equals: "dhw" },
+      options: TW_CRW_DHW_CLASSES.map((c, i) => ({ label: c.zh, value: String(i) })), out: "twCoralBleachingHeatStressDhwMask",
+    },
+  ],
+  towingYards: [opacitySlider("towingYardsOpacity", 0.9), scaleSlider("towingYardsScale", 1)],
+  swcOutdoorClassrooms: [opacitySlider("swcOutdoorClassroomsOpacity", 0.9), scaleSlider("swcOutdoorClassroomsScale", 1)],
+  swcEcoCheckZones: [opacitySlider("swcEcoCheckZonesOpacity", 0.3)],
+  airportHeightSurfaces: [opacitySlider("airportHeightSurfacesOpacity", 0.35)],
+  landOfficeJurisdiction: [opacitySlider("landOfficeJurisdictionOpacity", 0.25)],
+  npSpeciesSites: [
+    heatmapPalette("npSpeciesSites"),
+    opacitySlider("npSpeciesSitesOpacity", densePointOpacity(144_228)), scaleSlider("npSpeciesSitesScale", 1),
+  ],
+  // 台灣圖層延伸 B7（2026-11-21）
+  hakkaLivingSchools: [opacitySlider("hakkaLivingSchoolsOpacity", 0.9), scaleSlider("hakkaLivingSchoolsScale", 1)],
+  sandGravelPlants: [opacitySlider("sandGravelPlantsOpacity", 0.9), scaleSlider("sandGravelPlantsScale", 1)],
+  countyWelfarePoints: [opacitySlider("countyWelfarePointsOpacity", 0.9), scaleSlider("countyWelfarePointsScale", 1)],
+  evMotorcycleCharging: [opacitySlider("evMotorcycleChargingOpacity", 0.9), scaleSlider("evMotorcycleChargingScale", 1)],
+  // 拉遠網格（z4–11）與逐點（z12 起）共用一個透明度；網格顏色走主題色盤（基礎建設＝cividis）
+  countyStreetlights: [gridPalette("countyStreetlightsPalette", "cividis"), opacitySlider("countyStreetlightsOpacity", 0.8), scaleSlider("countyStreetlightsScale", 1)],
   vehicleInspectionOffices: [
     {
       kind: "select", category: "data", name: "vehicleInspectionOfficesService", label: "轄區業務", default: "car",

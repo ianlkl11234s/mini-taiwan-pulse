@@ -19,6 +19,106 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       { value: "substation", zh: "監理分站" },
     ],
   },
+  // 台灣圖層延伸 B2（2026-11-20）：值與 atlasLayerTypes 的 ALISHAN／MOUNTAIN／ECO 選項同序
+  forestAlishanRail: {
+    property: "category",
+    label: "點位類別",
+    options: [
+      { value: "車站", zh: "車站" },
+      { value: ["監工區", "車庫園區", "水山"], zh: "其他點位" },
+    ],
+  },
+  mountainMobileImprovement: {
+    property: "site_group",
+    label: "站點類別",
+    options: [
+      { value: "山徑步道及林道", zh: "山徑步道及林道" },
+      { value: "道路及鐵路", zh: "道路及鐵路" },
+      { value: "國家森林園區", zh: "國家森林園區" },
+      { value: "山莊及山屋", zh: "山莊及山屋" },
+      { value: ["山及三角點", "山峰"], zh: "山及三角點" },
+      { value: "國家森林遊樂園", zh: "國家森林遊樂園" },
+    ],
+  },
+  ecoLabelHotels: {
+    property: "level",
+    label: "等級",
+    options: [
+      { value: "gold", zh: "金級" },
+      { value: "silver", zh: "銀級" },
+      { value: "bronze", zh: "銅級" },
+    ],
+  },
+  // 台灣圖層延伸 B3（2026-11-20）：值與 atlasLayerTypes 的 NAMR／AIRPORT／NP 選項同序
+  namrBuoys: {
+    property: "buoy_kind",
+    label: "浮標種類",
+    options: [
+      { value: "data_buoy", zh: "資料浮標" },
+      { value: "gamma_mooring", zh: "加馬輻射錨碇" },
+    ],
+  },
+  airportHeightSurfaces: [
+    {
+      id: "Surface", property: "surface_name", label: "面別",
+      options: [
+        { value: "進場面", zh: "進場面" }, { value: "轉接面", zh: "轉接面" }, { value: "水平面", zh: "水平面" }, { value: "圓錐面", zh: "圓錐面" },
+        { value: "起落地帶", zh: "起落地帶" }, { value: "傾斜面", zh: "傾斜面" }, { value: "水平銜接面", zh: "水平銜接面" },
+        { value: ["機場搜索雷達", "助航燈光"], zh: "設施面（雷達、助航燈光）" },
+      ],
+    },
+    {
+      id: "Airport", property: "airport", label: "機場",
+      options: [
+        { value: "臺灣桃園國際機場", zh: "臺灣桃園國際機場" }, { value: "臺北松山機場", zh: "臺北松山機場" }, { value: "臺東機場", zh: "臺東機場" },
+        { value: "恆春機場", zh: "恆春機場" }, { value: "金門機場", zh: "金門機場" }, { value: "綠島機場", zh: "綠島機場" }, { value: "蘭嶼機場", zh: "蘭嶼機場" },
+      ],
+    },
+  ],
+  npSpeciesSites: {
+    property: "park",
+    label: "園區",
+    options: [
+      { value: "陽明山國家公園", zh: "陽明山國家公園" }, { value: "臺中都會公園", zh: "臺中都會公園" }, { value: "臺江國家公園", zh: "臺江國家公園" },
+      { value: "壽山國家自然公園", zh: "壽山國家自然公園" }, { value: "澎湖南方四島國家公園", zh: "澎湖南方四島國家公園" }, { value: "玉山國家公園", zh: "玉山國家公園" },
+      { value: "墾丁國家公園", zh: "墾丁國家公園" }, { value: "金門國家公園", zh: "金門國家公園" }, { value: "東沙環礁國家公園", zh: "東沙環礁國家公園" },
+      { value: "雪霸國家公園", zh: "雪霸國家公園" }, { value: "太魯閣國家公園", zh: "太魯閣國家公園" }, { value: "高雄都會公園", zh: "高雄都會公園" },
+    ],
+  },
+  // 台灣圖層延伸 B7（2026-11-21）：值與 atlasLayerTypes 的 HAKKA／SAND／WELFARE／EV／STREETLIGHT 選項同序
+  hakkaLivingSchools: {
+    property: "school_kind",
+    label: "學制",
+    options: [
+      { value: "國小", zh: "國小" }, { value: "國中", zh: "國中" }, { value: "高中", zh: "高中" },
+      { value: "幼兒園", zh: "幼兒園" }, { value: "其他", zh: "其他" },
+    ],
+  },
+  sandGravelPlants: {
+    property: "registration",
+    label: "登記類別",
+    options: [
+      { value: "工廠登記", zh: "工廠登記" }, { value: "工廠登記＋用地變更同意", zh: "工廠登記＋用地變更同意" },
+      { value: "特定工廠登記", zh: "特定工廠登記" }, { value: "臨時登記補辦申請中", zh: "臨時登記補辦申請中" },
+    ],
+  },
+  countyWelfarePoints: {
+    property: "category",
+    label: "據點類別",
+    options: [{ value: "社區照顧關懷據點", zh: "社區照顧關懷據點" }, { value: "實物銀行", zh: "實物銀行" }],
+  },
+  evMotorcycleCharging: {
+    property: "facility_kind",
+    label: "設施類別",
+    options: [{ value: "充電站", zh: "充電站" }, { value: "換電站", zh: "換電站" }],
+  },
+  // 路燈逐點：圖磚的 led 是字串 "True"／"False"，缺欄＝來源沒有燈具類型欄（不明）；網格與斜線子圖層 skipCategoryFilter
+  countyStreetlights: {
+    property: "led",
+    label: "燈具類型",
+    options: [{ value: ["True", "true"], zh: "LED 燈具" }, { value: ["False", "false"], zh: "非 LED 燈具" }],
+    other: "不明",
+  },
   // G53 批 2／3（2026-11-10）：爆竹煙火場所種類（值與 atlasLayerTypes FIREWORKS_KIND_OPTIONS 同序）
   fireworksSites: {
     property: "site_kind",
@@ -199,6 +299,8 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       { value: "district_office", zh: "公所" },
       { value: "household_registration", zh: "戶政事務所" },
       { value: "land_office", zh: "地政事務所" },
+      // 台灣圖層延伸 B3（2026-11-20）：戶政事務所轄下辦公據點（7437 的 office_kind=branch，另一份 PMTiles、圖磚沒有 type 欄；overlay 讀這一位元）
+      { value: "household_registration_branch", zh: "戶政辦公據點" },
     ],
   },
   hakkaCulturalZones: {

@@ -44,5 +44,14 @@
   "popup.marine.gbMpaArea": "面積",
   "popup.marine.gbMpaStatus": "狀態",
   "popup.marine.gbMpaNav": "不可用於航行",
-  "popup.marine.hourlyAggregate": "7 天曲線為每小時平均；風向、波向、流向取該小時最後一筆。"
+  "popup.marine.hourlyAggregate": "7 天曲線為每小時平均；風向、波向、流向取該小時最後一筆。",
+  "popup.marine.heatNoData": "無資料",
+  "popup.marine.heatPeriod": "月份",
+  "popup.marine.heatMhwLevel": "海洋熱浪等級",
+  "popup.marine.heatSst": "月平均海溫",
+  "popup.marine.heatSstAnomaly": "海溫距平",
+  "popup.marine.heatMhwNote": "0.25° 網格的月平均值，不是單點觀測。",
+  "popup.marine.heatBaa": "白化警報（當月最高）",
+  "popup.marine.heatDhw": "DHW（當月最高）",
+  "popup.marine.heatCrwNote": "5 km 衛星海溫熱壓力，不代表現地珊瑚一定白化。"
 }

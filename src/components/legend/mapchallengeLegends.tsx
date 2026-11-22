@@ -5,7 +5,13 @@
  * - 熱區重疊（r7 與臺中彰化 r8）：四類固定色＋大字重疊率。
  */
 import { LEGEND_SWATCH, LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, LegendSizeRow, useLegendTheme } from "./legendKit";
-import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
+import { normalizeColor } from "../../map/colorContrast";
+import { liftedColorMap } from "../../map/darkContrast";
+import { paramBool, paramNum, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
+import {
+  MAPCHALLENGE_DAY21_TOTAL_KM, MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN, MAPCHALLENGE_DAY21_YEARS, mapchallengeDay21YearAt, mapchallengeDay21YearColor,
+} from "../../data/mapchallengeDay21Types";
+import { MAPCHALLENGE_DAY21_WIDTH } from "../../data/mapchallengeDay21Style";
 import { useLocale } from "../../state/localeStore";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
 import {
@@ -463,10 +469,11 @@ function Day17SkyClassBar() {
   </div>;
 }
 
-export function MapchallengeDay17DarkSkyLegend({ isDark }: { isDark: boolean }) {
+/** productIdx：embed 由網址 `p.mapchallengeDay17DarkSkyProductIdx` 帶入（embed 沒有參數 store）；主站不傳，讀 store。 */
+export function MapchallengeDay17DarkSkyLegend({ isDark, productIdx }: { isDark: boolean; productIdx?: number }) {
   const { t } = useLocale();
   const values = useLayerParams("mapchallengeDay17DarkSky");
-  const product = MAPCHALLENGE_DAY17_PRODUCTS.find((p) => p.value === paramStr(values, "mapchallengeDay17DarkSky", "mapchallengeDay17DarkSkyProduct")) ?? MAPCHALLENGE_DAY17_PRODUCTS[0];
+  const product = (productIdx != null ? MAPCHALLENGE_DAY17_PRODUCTS[Math.trunc(productIdx)] : MAPCHALLENGE_DAY17_PRODUCTS.find((p) => p.value === paramStr(values, "mapchallengeDay17DarkSky", "mapchallengeDay17DarkSkyProduct"))) ?? MAPCHALLENGE_DAY17_PRODUCTS[0];
   const [a, b, c, d] = MAPCHALLENGE_DAY17_SKY_BREAKS.map((v) => Number(v.toPrecision(2)));
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day17.darkSkyTitle")} />
@@ -586,10 +593,11 @@ export function MapchallengeDay19ComplaintsLegend({ isDark }: { isDark: boolean 
   </div>;
 }
 
-export function MapchallengeDay19PotentialLegend({ isDark }: { isDark: boolean }) {
+/** windIdx：embed 由網址 `p.mapchallengeDay19PotentialWindIdx` 帶入（embed 沒有參數 store）；主站不傳，讀 store。 */
+export function MapchallengeDay19PotentialLegend({ isDark, windIdx }: { isDark: boolean; windIdx?: number }) {
   const { t } = useLocale();
   const values = useLayerParams("mapchallengeDay19Potential");
-  const wind = MAPCHALLENGE_DAY19_WINDS.find((w) => w.value === paramStr(values, "mapchallengeDay19Potential", "mapchallengeDay19PotentialWind")) ?? MAPCHALLENGE_DAY19_WINDS[0];
+  const wind = (windIdx != null ? MAPCHALLENGE_DAY19_WINDS[Math.trunc(windIdx)] : MAPCHALLENGE_DAY19_WINDS.find((w) => w.value === paramStr(values, "mapchallengeDay19Potential", "mapchallengeDay19PotentialWind"))) ?? MAPCHALLENGE_DAY19_WINDS[0];
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day19.potentialTitle", { wind: t(MAPCHALLENGE_DAY19_WIND_KEYS[wind.value]) })} />
     {[...MAPCHALLENGE_DAY19_POTENTIAL_CLASSES].reverse().map((c, i) => <LegendRow key={c.color} swatch={<SwatchSquare color={c.color} opacity={1} />}>
@@ -621,5 +629,40 @@ export function MapchallengeDay19PenaltiesLegend({ isDark }: { isDark: boolean }
     <LegendSizeRow title={t("legend.mapchallenge.day19.sizeTitle")} items={[1, 5, 20].map((n) => ({ r: mapchallengeDay19PenaltyRadius(n), label: String(n) }))} fill={colors[1]} />
     <LegendNote>{t("legend.mapchallenge.day19.penaltiesNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day19.penaltiesSource")}</LegendNote>
+  </div>;
+}
+
+// ── Day 21 OSM ────────────────────────────────────────────────
+/** 道路等級三級的翻譯 key（說明框共用） */
+export const MAPCHALLENGE_DAY21_CLASS_KEYS = {
+  major: "legend.mapchallenge.day21.major", mid: "legend.mapchallenge.day21.mid", local: "legend.mapchallenge.day21.local",
+} as const;
+
+/** 線寬三級的示意色：取色帶中段（2011 紫），暗底與地圖同樣提亮 */
+const MAPCHALLENGE_DAY21_WIDTH_SWATCH_YEAR = 2011;
+
+export function MapchallengeDay21OsmRoadsLegend({ isDark }: { isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const theme = useLegendTheme();
+  // 暗底依 C-4 提亮過的年份色（和地圖同一份對照）；直接查表，色帶格子不是 SwatchLine，不會自動套
+  const liftMap = liftedColorMap("mapchallengeDay21OsmRoads", isDark);
+  const lift = (c: string) => liftMap.get(normalizeColor(c)) ?? c;
+  const values = useLayerParams("mapchallengeDay21OsmRoads");
+  const year = mapchallengeDay21YearAt(paramNum(values, "mapchallengeDay21OsmRoads", "mapchallengeDay21OsmRoadsYear"));
+  const newOnly = paramBool(values, "mapchallengeDay21OsmRoads", "mapchallengeDay21OsmRoadsNewOnly");
+  const yearText = year === MAPCHALLENGE_DAY21_YEAR_MIN ? t("legend.mapchallenge.day21.before", { year }) : String(year);
+  // 色帶每年一格；拉桿以後（或只看當年時的其他年）的格子換成中性色，表示目前沒畫
+  const colors = MAPCHALLENGE_DAY21_YEARS.map((y) => ((newOnly ? y === year : y <= year) ? lift(mapchallengeDay21YearColor(y)) : theme.border));
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day21.title")} />
+    <LegendNote>{t(newOnly ? "legend.mapchallenge.day21.showingNew" : "legend.mapchallenge.day21.showingUpTo", { year: yearText })}</LegendNote>
+    <SwatchSteps colors={colors} breaks={[t("legend.mapchallenge.day21.before", { year: MAPCHALLENGE_DAY21_YEAR_MIN }), String(MAPCHALLENGE_DAY21_YEAR_MAX)]} />
+    <LegendNote>{t("legend.mapchallenge.day21.colorNote")}</LegendNote>
+    {(["major", "mid", "local"] as const).map((c) => <LegendRow key={c} swatch={<SwatchLine color={lift(mapchallengeDay21YearColor(MAPCHALLENGE_DAY21_WIDTH_SWATCH_YEAR))} width={MAPCHALLENGE_DAY21_WIDTH[c][1]} />}>
+      {t(MAPCHALLENGE_DAY21_CLASS_KEYS[c])}
+    </LegendRow>)}
+    <LegendNote>{t("legend.mapchallenge.day21.yearNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day21.limits", { km: formatNumber(MAPCHALLENGE_DAY21_TOTAL_KM) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day21.source")}</LegendNote>
   </div>;
 }

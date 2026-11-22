@@ -163,6 +163,10 @@ export type ExpandableLayerKey =
   | "iOceanSightings" // G53 批 2／3（2026-11-10）
   | "iOceanFishing" // G53 批 2／3（2026-11-10）
   | "fireworksSites" // G53 批 2／3（2026-11-10）
+  | "mountainMobileImprovement" // 台灣圖層延伸 B2（2026-11-20）
+  | "ecoLabelHotels" // 台灣圖層延伸 B2（2026-11-20）
+  | "namrBuoys" | "towingYards" | "swcOutdoorClassrooms" | "swcEcoCheckZones" | "airportHeightSurfaces" | "landOfficeJurisdiction" | "npSpeciesSites" // 台灣圖層延伸 B3（2026-11-20）
+  | "hakkaLivingSchools" | "sandGravelPlants" | "countyWelfarePoints" | "evMotorcycleCharging" | "countyStreetlights" // 台灣圖層延伸 B7（2026-11-21）
   | "vehicleInspectionOffices" // G53 批 2／3（2026-11-10）
   | "landUseChangeMonitoring" // G53 批 1（2026-11-09）
   | "debrisFlowPotential" // G53 批 1（2026-11-09）
@@ -178,6 +182,8 @@ export type ExpandableLayerKey =
   | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
   // 即時 119 案件／警廣即時路況（owner-only RPC，mig 555）
   | "fire119Live" | "pbsRoadEventsLive"
+  // 台灣圖層延伸 B8：R2 即時快照（登革熱聚集區、航船布告、大潮與長浪警戒）
+  | "dengueClusters" | "navNotices" | "tideSwellAlerts"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -456,6 +462,8 @@ export type ExpandableLayerKey =
   | "mapchallengeDay09UrbanRural"
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17NightFall" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
+  | "mapchallengeDay21OsmRoads"
+  | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -473,7 +481,7 @@ export type ExpandableLayerKey =
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey | "krEcologyNaturalness" | "krWasteDisposalRules"
   | "ieAdminBoundaries" | IeDataKey | "ieBathymetry" | "ieCoillteRecreation" | "ieCoillteForestRoads"
-  | "phAdminBoundaries" | "phPopulation" | PhDataKey | PhRasterKey
+  | "phAdminBoundaries" | "phPopulation" | "phOpenaqAir" | PhDataKey | PhRasterKey
   | "vnAdminBoundaries" | "vnPopulation" | VnDataKey | VnRasterKey
   | "cnAdminBoundaries" | "cnPopulation" | "cnPopulationGrid" | CnDataKey | CnRasterKey
   | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid" | CaWaveKey
@@ -844,7 +852,7 @@ export interface RealEstateTooltipInfo {
 
 export interface FeatureInfo {
   layerType: "regionalStatistic" | "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaMobileGrid" | "ooklaFixedGrid" | "school" | "convenienceStore"
-    | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
+    | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice" | "householdRegistrationBranch"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
     | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
@@ -857,6 +865,7 @@ export interface FeatureInfo {
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
     | "fire119Live" | "pbsRoadEventsLive"
+    | "dengueCluster" | "navNotice" | "tideSwellAlert"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute" | "railRoutes"
@@ -911,7 +920,7 @@ export interface FeatureInfo {
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "bridgeRainThresholds" | "riverLevel" | "groundwater" | "groundwaterWell"
-    | "marineObservation"
+    | "marineObservation" | "twMarineHeat"
     | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm" | "waterFloodExtreme"
     // 水資源面 / 線 5 層（W2 popup 補強，layerType = layer key 同名）
     | "waterBasins" | "waterRivers" | "waterLevees" | "waterCanals"
@@ -964,6 +973,21 @@ export interface FeatureInfo {
     | "iOceanSightings"
     | "iOceanFishing"
     | "fireworksSites"
+    | "forestAlishanRail"
+    | "mountainMobileImprovement"
+    | "ecoLabelHotels"
+    | "namrBuoys"
+    | "towingYards"
+    | "swcOutdoorClassrooms"
+    | "swcEcoCheckZones"
+    | "airportHeightSurfaces"
+    | "landOfficeJurisdiction"
+    | "npSpeciesSites"
+    | "hakkaLivingSchools"
+    | "sandGravelPlants"
+    | "countyWelfarePoints"
+    | "evMotorcycleCharging"
+    | "countyStreetlights"
     | "vehicleInspectionOffices"
     | "postMailboxes"
     | "motorcycleInspectionStations"
@@ -1036,6 +1060,8 @@ export interface FeatureInfo {
   | "mapchallengeDay09UrbanRural"
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
+  | "mapchallengeDay21OsmRoads"
+  | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1068,7 +1094,7 @@ export interface FeatureInfo {
     // 愛爾蘭第 0 波：行政邊界（LA／ED／SA）
     | "ieAdminBoundaries" | IeDataKey | "ieCoillteRecreation" | "ieCoillteForestRoads"
     // 菲律賓第 0–1 波
-    | "phAdminBoundaries" | "phPopulation" | PhDataKey
+    | "phAdminBoundaries" | "phPopulation" | "phOpenaqAir" | PhDataKey
     // 越南第 0–1 波
     | "vnAdminBoundaries" | "vnPopulation" | VnDataKey
     // 中國第 0–1 波（站主限定；人口網格是 raster，沒有 popup）
@@ -1360,6 +1386,12 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   fire119Live: boolean;
   /** 警廣即時路況（owner-only RPC get_pbs_road_events_live；mig 555） */
   pbsRoadEventsLive: boolean;
+  /** 台灣圖層延伸 B8：疾管署近兩週本土登革熱聚集區（R2 live/tw/dengue_cluster） */
+  dengueClusters: boolean;
+  /** 台灣圖層延伸 B8：航港局航船布告（R2 live/tw/nav_notices） */
+  navNotices: boolean;
+  /** 台灣圖層延伸 B8：氣象署大潮與長浪警戒（R2 live/tw/cwa_tide_swell_alerts） */
+  tideSwellAlerts: boolean;
   /** 2024 投開票所（CDN 靜態快照 /static-rpc/polling_stations_2024.json；來源表 gis-platform mig 495） */
   pollingStations2024: boolean;
   /** 2026 縣市議員選舉區（CDN 靜態快照 /static-rpc/get_council_districts_2026.json；來源 gis-platform mig 496） */
@@ -1451,8 +1483,12 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mapchallengeDay19Complaints: boolean;
   /** 30 天地圖挑戰 Day 19 氣味：設施氣味潛勢（image source，不計風／冬季／夏季）＋設施點、盛行風箭頭、棄置場址 */
   mapchallengeDay19Potential: boolean;
+  /** 台灣圖層延伸 B5：縣市間遷徙流向（戶籍登記，內政部 168209；2D 二次貝茲弧線，底色 statsCountyOdNetMigration） */
+  twCountyMigrationFlows: boolean;
   /** 30 天地圖挑戰 Day 19 氣味：異味裁罰設施（505 處、848 件，半徑依件數、色依最高超標倍數） */
   mapchallengeDay19Penalties: boolean;
+  /** 30 天地圖挑戰 Day 21 OSM（模擬面板，公開）：雙北＋基隆道路畫進 OpenStreetMap 的年份（PMTiles，色＝年份、寬＝道路等級） */
+  mapchallengeDay21OsmRoads: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */
@@ -1461,7 +1497,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   earthquakeReplay: boolean;
   /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */
   mountainRescueIncidents: boolean;
-  /** 崩塌：大規模崩塌潛勢區／影響範圍（111–115 年版）、省道歷史災情 16,163 點、年度全島崩塌地（4 年） */
+  /** 崩塌：大規模崩塌潛勢區／影響範圍（111–115 年版）、省道歷史災情 16,163 點、年度全島崩塌地（5 年） */
   landslideDodAreas: boolean;
   landslideDodImpact: boolean;
   highwayDisasterHistory: boolean;
@@ -1560,6 +1596,34 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   iOceanFishing: boolean;
   /** G53 批 2／3（2026-11-10）爆竹煙火製造及儲存場所：消防署 7070，名冊 19 處、上圖 10 處 */
   fireworksSites: boolean;
+  /** 台灣圖層延伸 B2（2026-11-20）改善山區行動通訊站點：數位發展部 160533＋173234，157 點 */
+  mountainMobileImprovement: boolean;
+  /** 台灣圖層延伸 B2（2026-11-20）環保標章旅館：環境部 145035，283 家 */
+  ecoLabelHotels: boolean;
+  /** 台灣圖層延伸 B3（2026-11-20）國海院浮標站位：data.gov.tw 171309／171315，9 座 */
+  namrBuoys: boolean;
+  /** 台灣圖層延伸 B3 違規拖吊保管場：警政署 7319，72 處上圖（另 16 筆未定位） */
+  towingYards: boolean;
+  /** 台灣圖層延伸 B3 水保戶外教室：水保署 108030，18 處 */
+  swcOutdoorClassrooms: boolean;
+  /** 台灣圖層延伸 B3 水保工程第一級生態檢核區：水保署 159097，2,173 面 */
+  swcEcoCheckZones: boolean;
+  /** 台灣圖層延伸 B3 機場周邊限高管制面：民航局 35876，95 面、7 機場 */
+  airportHeightSurfaces: boolean;
+  /** 台灣圖層延伸 B3 地政事務所轄區：測繪中心 13045，110 面 */
+  landOfficeJurisdiction: boolean;
+  /** 台灣圖層延伸 B3 國家公園物種調查點位：國家公園署 73252，144,228 點 */
+  npSpeciesSites: boolean;
+  /** 台灣圖層延伸 B7（2026-11-21）客語生活學校：客委會 162475，715 校上圖（另 107 校未定位） */
+  hakkaLivingSchools: boolean;
+  /** 台灣圖層延伸 B7 砂石碎解洗選場：地調礦業中心 32708，243 處上圖（另 85 筆未定位） */
+  sandGravelPlants: boolean;
+  /** 台灣圖層延伸 B7 縣市社福據點（社區照顧關懷據點＋實物銀行）：各縣市名冊 3,691 處 */
+  countyWelfarePoints: boolean;
+  /** 台灣圖層延伸 B7 電動機車充換電站：13 縣市環保局名冊 4,464 處 */
+  evMotorcycleCharging: boolean;
+  /** 台灣圖層延伸 B7 縣市路燈點位：各縣市路燈清冊 951,143 點（部分縣市） */
+  countyStreetlights: boolean;
   /** G53 批 2／3（2026-11-10）監理所站＋轄區：公路局 14203，34／37 所站上圖，轄區依汽車／機車切換 */
   vehicleInspectionOffices: boolean;
   /** G53 批 1（2026-11-09）國土利用監測變異點：國土管理署 168030，z4–9 六角格、z10 起點與面 */
@@ -1640,6 +1704,10 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   marineObservationCwa: boolean;
   /** ISOHE 港區海氣象站；與 CWA 固定式海洋觀測網路維持獨立。 */
   marineObservationIsohe: boolean;
+  /** 台灣圖層延伸 B6：海洋熱浪月分級（ODB 0.25°，1982 起） */
+  twMarineHeatwaves: boolean;
+  /** 台灣圖層延伸 B6：珊瑚白化熱壓力（NOAA CRW 5 km 月最大值，2003 起） */
+  twCoralBleachingHeatStress: boolean;
   iotWraRiver: boolean;
   iotWraStructure: boolean;
   lakesPondsOsm: boolean;        // 湖泊/埤塘/池塘（OSM natural=water，52,314 面，預設濾掉與魚塭重疊者）
@@ -2069,6 +2137,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   caNpriFacilities: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   caWastewaterSystems: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   caEarthquakes: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  phOpenaqAir: boolean;   // 菲律賓即時空品（OpenAQ，RPC get_openaq_latest）
   caEarthquakesLive: boolean;   // 加拿大即時地震（瀏覽器直連 NRCan FDSN，近 30 天）
   caPopulationGrid: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）

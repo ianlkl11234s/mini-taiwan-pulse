@@ -54,7 +54,7 @@ export const SERIES_DIMENSION_KEYS: ReadonlySet<string> = new Set([
   'denominator', 'employee_scope', 'income_measure', 'survey', 'cause',
   'capacity_field', 'institution_classification', 'institution_type', 'registration_scope',
   '分類', '拍賣類別', '管理區分', '計畫區別', 'build_type', 'industry_code', 'industry_name',
-  '主題',
+  '主題', 'surname', 'origin', 'tribe',
 ]);
 
 export interface SmallMultipleCandidate {
@@ -284,6 +284,17 @@ export function smallMultipleFill(
   if (status === 'suppressed') return { kind: 'suppressed' };
   if (recipe.categories?.length && status === 'not_applicable') return { kind: 'notApplicable', color: STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR };
   return { kind: 'missing' };
+}
+
+/**
+ * 類別型讀數的類別名：依觀測數值查「完整類別表」，不用圖例顏色反查
+ * （圖例會把 `legend_hidden` 類別併成一列「其他」，同色反查會把李／王／蔡等都讀成其他姓氏）。
+ * 查不到回 undefined，由呼叫端退回原值。
+ */
+export function categoryLabelOf(categories: ReadonlyArray<{ value: number; label: string }>, value: unknown): string | undefined {
+  if (value === null || value === undefined) return undefined;
+  const number = Number(value);
+  return categories.find(category => category.value === number)?.label;
 }
 
 /**

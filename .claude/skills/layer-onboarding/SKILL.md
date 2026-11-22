@@ -189,6 +189,8 @@ npm run dev
 
 **給使用者驗收的本機站**：worktree 停在最新 `origin/develop`，`npx vite --strictPort --host 127.0.0.1 --port <空 port>`（不歸 gis-up 管，只殺自己的 PID，禁 `pkill -f vite`）。每層截國家全覽縮放＋放大各一張；agent-browser 參數與不 curl vite 模組等坑見 analytics `pulse-layer-release/references/pitfalls.md` 2026-11-06 段。
 
+**長期時間（2026-11-20 起）**：先判斷這層的資料是否涵蓋超過 30 天、且隨時間變化有意義——否（靜態或 30 天內即時）就不寫 `longTerm`；是就依 [長期時間條規範 §1](../../../docs/features/longterm-time/STANDARD.md) 歸成五類之一，填 manifest `longTerm`，並照 [§3 檢查清單](../../../docs/features/longterm-time/STANDARD.md#3-新圖層的檢查清單layer-onboarding-引用此節) 逐項打勾（`src/data/__tests__/layerLongTerm.test.ts` 要綠）。
+
 **常見驗收失敗**：
 - TS2739 → `LayerVisibility` 加了 key 但 `layerManifest.ts` 沒補 entry
 - layerConsistency「沒有 manifest entry」→ 同上（別塞 `HANDWRITTEN_LAYER_COLORS` 繞過）

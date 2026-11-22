@@ -2373,3 +2373,45 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 ### Memory output
 
 - `BACKLOG.md` TWL-17（#984、#1000）；G53 表與計畫書（gis-agent-system #60）；pulse-data `docs/storage-policy.md`（#98、#102）。
+
+
+## 2026-11-18～20 資料來源追蹤：修訊號、我方基準、collector 收據
+
+### What happened
+
+- 盤點每週偵測（雲端 7 次、VM 5 次全成功），諮詢 Fable 後站主拍板五題（1B 2A 3A 4A 5A）與步驟 5 四題、保留期 A。
+- 上線：pulse-data #126（api_key 輪替誤報、快照下載）、#127（清單改比對 `_detect/baseline/`）、#128（runner）、#129（collector 子狀態）、#131（VM 部署打包修正）；gp #247 mig 558 套正式 DB；collectors #210 部署 pulse-host；R2 舊紀錄金鑰清除（讀回 2,349 處皆 REDACTED）。重發清單：需要更新 0、待確認 200。
+- 站主決定偵測維持雲端 routine＋HiCloud VM（Oracle delegate-box 是美國 IP，仍連不到台灣限定主機）；偵測快照不可無期限，長期只留變更紀錄（SRCT-1）。
+
+### Lessons
+
+- 交給站主跑的 `! ssh` 指令，先 `ls -l` 確認腳本在遠端：清金鑰腳本以為已 scp 其實沒有，第一次執行失敗；VM `deploy.sh` 寫死打包清單也漏了新腳本（#131）。
+- 讀 VM 環境檔、`ssh pulse-host`（Cloudflare 瀏覽器登入）都要站主執行：把多步合成一行交出，dry-run 數字對上再給 `--execute` 那一行。
+- 本機沒有 DB 憑證時，從 pulse-host collector 容器跑唯讀查詢（`BEGIN READ ONLY`）即可驗證 migration 與新欄位。
+- 驗「金鑰已清」要排除遮蔽字樣 `REDACTED`，否則 grep 會誤報仍有金鑰。
+- 站主兩次說「聽不懂、白話說明」：說明現況先用一句比喻＋「要你決定什麼」，技術名詞與表格放後面。
+
+### Memory output
+
+- `docs/PROJECTS.md` 資料來源追蹤列、有期限的事 11-23（#1105）；`BACKLOG.md` SRCT-1（#1108）～4；`docs/LESSONS.md` §8 第 9 條；計畫書 `.gis-agent-system/projects/2026-11-18-source-tracking-phase2/PLAN.md`（#71、#72）。
+
+## 2026-11-22 30 天地圖挑戰 Day 21 OSM（雙北＋基隆道路畫進 OSM 的年份）
+
+### What happened
+
+- 研究 OSM 道路何時畫上：本機 PBF 有最後修改時間與版本，但 osm_road_drive 抽取時丟掉了；完整歷史改用 ohsome API。
+- 依「位置」判年份（每年 1/1 快照、15 m 內 ≥60% 樣點），不用 way ID 首見時間；裁到三縣市後核對，2014 年後與快照總長差 ±2%，2007–2011 多算 10–24%（單線後拆雙向）。
+- map-atelier 動畫：A–E 五種發光選項 → 站主選 C 餘燼冷卻、冷卻加快、依新增量分配每年秒數、固定鏡頭（拉遠版看過不採用）、加配樂與音效，tag `osm-growth-v1`。
+- Pulse 圖層 mini #1147（＋analytics #429、pulse-data #146）已合 develop；pulse-secret-run 新增 `deploy-asset-put`（站主同意）上傳 PMTiles，再 `site-sync` 補到 R2。
+
+### Lessons
+
+- ohsome `/elements/geometry` 與 `/elements/centroid` 對我們回 403，`/elementsFullHistory/geometry` 可用，用 validFrom／validTo 自己重建快照即可。
+- 核對逐年長度時兩邊要裁到同一行政界，否則 tile 外溢會看起來差 20%。
+- CI assets 只驗 `deploy/asset-test-files.txt` 上的檔：新 PMTiles 上傳 S3＋同步 R2 後要把路徑加進清單，CI 才真的有驗。
+- 站主改主意（D→C）時，用 SendMessage 改派同一個 worker，先把理解的兩點講清楚再算，避免重算。
+
+### Memory output
+
+- `docs/PROJECTS.md` 30 天挑戰列與最後盤點；`BACKLOG.md` LTT-2。
+

@@ -15,6 +15,9 @@ import { useGroundwaterWellsLayer } from "../../hooks/useGroundwaterWellsLayer";
 import { useGroundwaterLayer } from "../../hooks/useGroundwaterLayer";
 import { useIotWraRiverLayer } from "../../hooks/useIotWraRiverLayer";
 import { useIotWraStructureLayer } from "../../hooks/useIotWraStructureLayer";
+import { useTwMarineHeatLayer } from "../../hooks/useTwMarineHeatLayer";
+import { twCrwBaaRasterColor, twCrwDhwRasterColor, twMarineHeatPeriod, twMhwRasterColor } from "../../data/twMarineHeatTypes";
+import { useMemo } from "react";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { paramBool, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 import { RASTER } from "../../map/mapStyleScale";
@@ -236,5 +239,43 @@ export const IotWraStructureHost: LayerHostComponent = ({ deps }) => {
     !!(p.iotWraStructureErosion ?? 1),
     !!(p.iotWraStructureDust ?? 1),
   );
+  return null;
+};
+
+/** 台灣圖層延伸 B6：海洋熱浪月分級（ODB，0.25° 網格；年份／月份下拉選期別，不跟時間軸） */
+export const TwMarineHeatwavesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useTwMarineHeatLayer:twMarineHeatwaves");
+  const p = useKeyOverlayParams("twMarineHeatwaves");
+  const mask = p.twMarineHeatwavesLevelMask;
+  const color = useMemo(() => twMhwRasterColor(mask), [mask]);
+  useTwMarineHeatLayer({
+    mapRef: deps.mapRef,
+    visible: deps.layerVisibility.twMarineHeatwaves,
+    layerKey: "twMarineHeatwaves",
+    opacity: p.twMarineHeatwavesOpacity ?? RASTER.opacity,
+    period: twMarineHeatPeriod("twMarineHeatwaves", p.twMarineHeatwavesYearIdx, p.twMarineHeatwavesMonthIdx),
+    channel: "r",
+    color,
+  });
+  return null;
+};
+
+/** 台灣圖層延伸 B6：珊瑚白化熱壓力（NOAA CRW 5 km 月最大值；同一張幀切換白化警報（G）／DHW（R）） */
+export const TwCoralBleachingHeatStressHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useTwMarineHeatLayer:twCoralBleachingHeatStress");
+  const p = useKeyOverlayParams("twCoralBleachingHeatStress");
+  const dhw = p.twCoralBleachingHeatStressViewIdx === 1;
+  const baaMask = p.twCoralBleachingHeatStressLevelMask;
+  const dhwMask = p.twCoralBleachingHeatStressDhwMask;
+  const color = useMemo(() => (dhw ? twCrwDhwRasterColor(dhwMask) : twCrwBaaRasterColor(baaMask)), [dhw, dhwMask, baaMask]);
+  useTwMarineHeatLayer({
+    mapRef: deps.mapRef,
+    visible: deps.layerVisibility.twCoralBleachingHeatStress,
+    layerKey: "twCoralBleachingHeatStress",
+    opacity: p.twCoralBleachingHeatStressOpacity ?? RASTER.opacity,
+    period: twMarineHeatPeriod("twCoralBleachingHeatStress", p.twCoralBleachingHeatStressYearIdx, p.twCoralBleachingHeatStressMonthIdx),
+    channel: dhw ? "r" : "g",
+    color,
+  });
   return null;
 };

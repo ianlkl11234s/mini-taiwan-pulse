@@ -836,6 +836,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("aviationRestrictedGlow"),
           fromManifest("droneNoFlyZone"),
           fromManifest("droneRestrictedZone"),
+          fromManifest("airportHeightSurfaces"), // 台灣圖層延伸 B3（2026-11-20）：限高管制面（與無人機飛行規則不同）
         ],
       },
       {
@@ -888,6 +889,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
           fromManifest("traLevelCrossings"),
+          fromManifest("towingYards"), // 台灣圖層延伸 B3（2026-11-20）
           fromManifest("cctv"),
           fromManifest("etcGantry"),
           fromManifest("serviceArea"),
@@ -919,6 +921,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "客家 Hakka",
         layers: [
           fromManifest("hakkaCulturalZones"),
+          fromManifest("hakkaLivingSchools"), // 台灣圖層延伸 B7（2026-11-21）：疊在客家文化重點發展區上
         ],
       },
       {
@@ -953,6 +956,10 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("socioeconomic"),
           fromManifest("spatialEconomy"),
         ],
+      },
+      {
+        title: "遷徙流向",
+        layers: [fromManifest("twCountyMigrationFlows")],
       },
     ],
   },
@@ -1088,6 +1095,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("iPostBoxes"),
           fromManifest("postMailboxes"),
           fromManifest("govServiceOffices"),
+          fromManifest("landOfficeJurisdiction"), // 台灣圖層延伸 B3（2026-11-20）
           fromManifest("communityCenters"),
           fromManifest("convenienceStores"),
           fromManifest("retailMarkets"),
@@ -1103,6 +1111,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("publicLifeOsmCoverage"),
           fromManifest("accessibleParkFacilities"),
           fromManifest("vehicleInspectionOffices"),
+          fromManifest("countyStreetlights"), // 台灣圖層延伸 B7（2026-11-21）
         ],
       },
       {
@@ -1169,6 +1178,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("renewablePermitsNational"),
           fromManifest("evChargingStations"),
           fromManifest("batterySwapStations"),
+          fromManifest("evMotorcycleCharging"), // 台灣圖層延伸 B7（2026-11-21）：縣市環保局機車充換電名冊
         ],
       },
       {
@@ -1311,6 +1321,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("welfareGovOffices"),
           // 與 welfareGovOffices 零重疊（上游已排除 T0103 社福服務中心），可同時開
           fromManifest("welfareCenters"),
+          fromManifest("countyWelfarePoints"), // 台灣圖層延伸 B7（2026-11-21）：縣市關懷據點／實物銀行，與社福中心不同
           fromManifest("welfareMentalHealth"),
           fromManifest("welfareSocialWorkOrgs"),
         ],
@@ -1584,6 +1595,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "即時 Emergency",
         layers: [
           fromManifest("erHospital"),
+          fromManifest("dengueClusters"), // 台灣圖層延伸 B8（2026-11-22）：R2 每日快照
         ],
       },
       {
@@ -1844,6 +1856,13 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        // 台灣圖層延伸 B2（2026-11-20）
+        title: "環保標章旅館 Eco-label Hotels",
+        layers: [
+          fromManifest("ecoLabelHotels"),
+        ],
+      },
+      {
         title: "水質與污水 Water Quality",
         layers: [
           fromManifest("riverRpiStations"),
@@ -1906,6 +1925,9 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("beachWaterQuality"),
           fromManifest("marineMicroplastics"),
           fromManifest("marinePollutionIncidents"),
+          // 台灣圖層延伸 B6（2026-11-21）：月幀 raster（年份／月份下拉）
+          fromManifest("twMarineHeatwaves"),
+          fromManifest("twCoralBleachingHeatStress"),
         ],
       },
       {
@@ -1913,6 +1935,15 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("namrEdnaSurveySites"),
           fromManifest("marineEcologicalMonitoringSites"),
+          // 台灣圖層延伸 B3（2026-11-20）：浮標站位清單，5 座與氣象署資料浮標同址
+          fromManifest("namrBuoys"),
+        ],
+      },
+      {
+        // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照，可疊 AIS 船舶
+        title: "航行安全 Navigation Safety",
+        layers: [
+          fromManifest("navNotices"),
         ],
       },
       {
@@ -1961,6 +1992,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("marineObservationCwa"),
           fromManifest("marineObservationIsohe"),
+          fromManifest("tideSwellAlerts"), // 台灣圖層延伸 B8（2026-11-22）：與 CWA 測站同址，疊著看觀測值
         ],
       },
       {
@@ -1968,6 +2000,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("waterBasins"),
           fromManifest("waterRivers"),
+          fromManifest("sandGravelPlants"), // 台灣圖層延伸 B7（2026-11-21）：河川旁砂石場，疊河川對照
           fromManifest("waterLevees"),
           fromManifest("waterCanals"),
           fromManifest("waterProtectionZones"),
@@ -2072,6 +2105,13 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "廣播與電波 Broadcast",
         layers: [
           fromManifest("broadcastTransmitters"),
+        ],
+      },
+      {
+        // 台灣圖層延伸 B2（2026-11-20）
+        title: "山區行動通訊 Mountain Mobile",
+        layers: [
+          fromManifest("mountainMobileImprovement"),
         ],
       },
     ],
@@ -2279,6 +2319,20 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("forestReserve"),
           fromManifest("forestRecreation"),
+        ],
+      },
+      {
+        // 台灣圖層延伸 B3（2026-11-20）
+        title: "水土保持 Soil & Water Conservation",
+        layers: [
+          fromManifest("swcEcoCheckZones"),
+          fromManifest("swcOutdoorClassrooms"),
+        ],
+      },
+      {
+        title: "物種調查 Species Surveys",
+        layers: [
+          fromManifest("npSpeciesSites"),
         ],
       },
     ],
@@ -2497,6 +2551,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 19 氣味 Smell",
       layers: [fromManifest("mapchallengeDay19Complaints"), fromManifest("mapchallengeDay19Potential"), fromManifest("mapchallengeDay19Penalties")],
+    }, {
+      title: "Day 21 開放街圖 OSM",
+      layers: [fromManifest("mapchallengeDay21OsmRoads")],
     }],
   },
 
@@ -3480,6 +3537,7 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "都市樹木", layers: [fromManifest("phTrees")] },
+      { title: "空品", layers: [fromManifest("phOpenaqAir")] },
       { title: "環境污染", layers: [fromManifest("phPollutionSources")] },
     ],
   },

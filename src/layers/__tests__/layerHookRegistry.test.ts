@@ -207,7 +207,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   // 海域保護與漁業 G08：7 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
   "natureReserves", "wildlifeProtectedAreas", "openFishingLocations", "coastalAreaExtents", "artificialReefCenters", "protectedReefCenters", "setNetFishingAreas", "marineWildlifeAreas", "marineEcologicalMonitoringSites",
   // G37（2026-10-31）：atlas overlay，無 hook
-  "exclusiveFisheryRightAreas", "toxicChemicalFacilities", "majorOccupationalAccidents", "renewablePermitsNational", "importantWetlands", "importantWetlandZones", "water1944Taipei", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses", "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites", "mapchallengeDay09UrbanRural", "mapchallengeDay17DarkRoads", "mapchallengeDay17LedShare", "mapchallengeDay19Complaints", "mapchallengeDay19Penalties", "waterRecreationRestrictedAreas", "batterySwapStations",
+  "exclusiveFisheryRightAreas", "toxicChemicalFacilities", "majorOccupationalAccidents", "renewablePermitsNational", "importantWetlands", "importantWetlandZones", "water1944Taipei", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses", "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites", "mapchallengeDay09UrbanRural", "mapchallengeDay17DarkRoads", "mapchallengeDay17LedShare", "mapchallengeDay19Complaints", "mapchallengeDay19Penalties", "mapchallengeDay21OsmRoads", "waterRecreationRestrictedAreas", "batterySwapStations",
   // 地層下陷＋海堤 G19：4 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles；測站 popup 的 RPC 不是 layer hook。
   "landSubsidenceStations", "landSubsidenceCumulative", "landSubsidenceRate", "seawallZones",
   "motorcycleInspectionStations", // G53 批 1（2026-11-09）：atlas overlay，無 hook
@@ -228,6 +228,9 @@ const NO_HOOK_LEDGER = new Set<string>([
   "iOceanSightings", // G53 批 2／3（2026-11-10）：atlas overlay，無 hook
   "iOceanFishing", // G53 批 2／3（2026-11-10）：atlas overlay，無 hook
   "fireworksSites", // G53 批 2／3（2026-11-10）：atlas overlay，無 hook
+  "mountainMobileImprovement", "ecoLabelHotels", // 台灣圖層延伸 B2（2026-11-20）：atlas overlay，無 hook
+  "namrBuoys", "towingYards", "swcOutdoorClassrooms", "swcEcoCheckZones", "airportHeightSurfaces", "landOfficeJurisdiction", "npSpeciesSites", // 台灣圖層延伸 B3（2026-11-20）：atlas overlay，無 hook
+  "hakkaLivingSchools", "sandGravelPlants", "countyWelfarePoints", "evMotorcycleCharging", "countyStreetlights", // 台灣圖層延伸 B7（2026-11-21）：atlas overlay，無 hook
   "vehicleInspectionOffices", // G53 批 2／3（2026-11-10）：atlas overlay，無 hook
   // 文化幣藝文消費點 G23：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。
   "cultureCoinVenues",

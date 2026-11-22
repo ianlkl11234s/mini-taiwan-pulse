@@ -33,6 +33,7 @@ import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmRedu
 import { DisasterResourceSitesLegend, FiringNoticeAreasLegend, NuclearEpzEvacuationLegend, TrafficAccidents2025Legend, TsunamiSirensLegend } from "./legend/g36SafetyLegends";
 import { JpTrafficAccidents2025Legend } from "./legend/jpSafetyLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
+import { TwCoralBleachingHeatStressLegend, TwMarineHeatwavesLegend } from "./legend/twMarineHeatLegends";
 import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaRiskFloodLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
 import { JmaAutumnLeavesLegend, JmaLightningLegend, JmaRainySeasonLegend, JmaSakuraLegend, JmaSnowcapLegend, JmaWbgtLegend } from "./legend/jmaPointLegends";
 import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
@@ -41,12 +42,13 @@ import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, 
 import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLegend, AquacultureLegend, AquacultureWaterSatelliteMoaLegend, AquacultureWaterUnionLegend, CoralReefDistributionLegend, GfwDarkVesselsLegend, GfwFishingEffortLegend, GfwHourlyGridLegend, GfwHourlyTracksLegend, GfwVesselPresenceLegend, IsobathLegend, MarineObservationLegend, MaritimeBoundaryLegend, PlaActivityLegend, ShipsLegend, VesselWatchLegend, WorldTrashDebrisLegend } from "./legend/maritimeLegends";
 import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/transitReachLegends";
 import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
-import { MapchallengeFacilityLegend, MapchallengeDay19ComplaintsLegend, MapchallengeDay19PotentialLegend, MapchallengeDay19PenaltiesLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
+import { MapchallengeFacilityLegend, MapchallengeDay19ComplaintsLegend, MapchallengeDay19PotentialLegend, MapchallengeDay19PenaltiesLegend, MapchallengeDay21OsmRoadsLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { CouncilDistrictsLegend, ElectionEventsLegend, PollingStationsLegend } from "./legend/politicsLegends";
 import { Fire119LiveLegend, PbsRoadEventsLiveLegend } from "./legend/liveIncidentsLegends";
+import { DengueClustersLegend, NavNoticesLegend, TideSwellAlertsLegend } from "./legend/twLiveLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
 import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalErosionRiskLegend, GbFloodDefenceAssetsLegend, GbHydroStationsLegend, GbRiversLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { GbArtsVenuesLegend, GbCulturalFacilitiesLegend, GbVisitorExperienceLegend } from "./legend/gbCultureLegends";
@@ -68,7 +70,7 @@ import { IE_COILLTE_FOREST_ROADS, IE_COILLTE_RECREATION } from "../data/ieCoillt
 import { DenseHeatmapLegendRow } from "./legend/legendShared";
 import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS, PH_RASTER_KEYS } from "../data/phDataKeys";
-import { PhAdminBoundariesLegend, PhDataLegend, PhPopulationLegend, PhRasterLegend, PhSpecLegend } from "./legend/phLegends";
+import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationLegend, PhRasterLegend, PhSpecLegend } from "./legend/phLegends";
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
@@ -76,6 +78,7 @@ import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLege
 import { CN_DATA_KEYS, CN_RASTER_KEYS } from "../data/cnDataKeys";
 import { CnAdminBoundariesLegend, CnDataLegend, CnPopulationGridLegend, CnPopulationLegend, CnRasterLegend } from "./legend/cnLegends";
 import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
+import { CountyMigrationFlowsLegend } from "./legend/countyMigrationLegends";
 import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
 import { KrEcologyNaturalnessLegend, KrWasteDisposalRulesLegend } from "./legend/krEcoWasteLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
@@ -311,13 +314,15 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "mapchallengeDay08Sites", render: ({ isDark }) => <MapchallengeDay08SitesLegend isDark={isDark} /> },
   { id: "mapchallengeDay08Plan1955", render: () => <MapchallengeDay08Plan1955Legend /> },
   { id: "mapchallengeDay09UrbanRural", render: () => <MapchallengeDay09UrbanRuralLegend /> },
-  { id: "mapchallengeDay17DarkSky", render: ({ isDark }) => <MapchallengeDay17DarkSkyLegend isDark={isDark} /> },
+  { id: "mapchallengeDay17DarkSky", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay17DarkSkyLegend isDark={isDark} productIdx={embedded ? (overlayParams.mapchallengeDay17DarkSkyProductIdx ?? 0) : undefined} /> },
   { id: "mapchallengeDay17DarkRoads", render: ({ isDark }) => <MapchallengeDay17DarkRoadsLegend isDark={isDark} /> },
   { id: "mapchallengeDay17NightFall", render: () => <MapchallengeDay17NightFallLegend /> },
   { id: "mapchallengeDay17LedShare", render: ({ isDark }) => <MapchallengeDay17LedShareLegend isDark={isDark} /> },
   { id: "mapchallengeDay19Complaints", render: ({ isDark }) => <MapchallengeDay19ComplaintsLegend isDark={isDark} /> },
-  { id: "mapchallengeDay19Potential", render: ({ isDark }) => <MapchallengeDay19PotentialLegend isDark={isDark} /> },
+  { id: "mapchallengeDay19Potential", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay19PotentialLegend isDark={isDark} windIdx={embedded ? (overlayParams.mapchallengeDay19PotentialWindIdx ?? 0) : undefined} /> },
   { id: "mapchallengeDay19Penalties", render: ({ isDark }) => <MapchallengeDay19PenaltiesLegend isDark={isDark} /> },
+  { id: "mapchallengeDay21OsmRoads", render: ({ isDark }) => <MapchallengeDay21OsmRoadsLegend isDark={isDark} /> },
+  { id: "twCountyMigrationFlows", render: () => <CountyMigrationFlowsLegend /> },
   { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
   { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },
   { id: "bridgeRainThresholds", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeRain")} rows={[{ label: i18n.t("legend.registry.bridgeRainRow1"), color: "#ef4444" }, { label: i18n.t("legend.registry.bridgeRainRow2"), color: "#3b82f6" }, { label: i18n.t("legend.registry.bridgeRainRow3"), color: "#94a3b8" }]} /> },
@@ -363,6 +368,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   ...IE_DATA_KEYS.map((key) => ({ id: key, render: () => <IeDataLegend layerKey={key} /> })),
   { id: "phAdminBoundaries", render: () => <PhAdminBoundariesLegend /> },
   { id: "phPopulation", render: () => <PhPopulationLegend /> },
+  { id: "phOpenaqAir", render: () => <PhOpenaqAirLegend /> },
   ...PH_DATA_KEYS.map((key) => ({ id: key, render: () => <PhDataLegend layerKey={key} /> })),
   ...PH_RASTER_KEYS.map((key) => ({ id: key, render: () => <PhRasterLegend layerKey={key} /> })),
   { id: "vnAdminBoundaries", render: () => <VnAdminBoundariesLegend /> },
@@ -496,6 +502,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jmaRiskInund", render: () => <JmaImageryLegend layerKey="jmaRiskInund" /> },
   { id: "jmaUvIndex", render: () => <JmaImageryLegend layerKey="jmaUvIndex" /> },
   { id: "jmaSst", render: () => <JmaImageryLegend layerKey="jmaSst" /> },
+  { id: "twMarineHeatwaves", render: () => <TwMarineHeatwavesLegend /> },
+  { id: "twCoralBleachingHeatStress", render: () => <TwCoralBleachingHeatStressLegend /> },
   { id: "jmaSeaIce", render: () => <JmaImageryLegend layerKey="jmaSeaIce" /> },
   { id: "jmaHimawari", render: () => <JmaImageryLegend layerKey="jmaHimawari" /> },
   { id: "jmaAnaSnowFirst", render: () => <JmaImageryLegend layerKey="jmaAnaSnowFirst" /> },
@@ -545,6 +553,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "electionEvents2026", render: () => <ElectionEventsLegend /> },
   { id: "fire119Live", render: () => <Fire119LiveLegend /> },
   { id: "pbsRoadEventsLive", render: () => <PbsRoadEventsLiveLegend /> },
+  // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照
+  { id: "dengueClusters", render: () => <DengueClustersLegend /> },
+  { id: "navNotices", render: () => <NavNoticesLegend /> },
+  { id: "tideSwellAlerts", render: () => <TideSwellAlertsLegend /> },
   { id: "pollingStations2024", render: () => <PollingStationsLegend /> },
   { id: "councilDistricts2026", render: () => <CouncilDistrictsLegend /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },

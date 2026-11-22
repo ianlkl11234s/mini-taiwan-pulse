@@ -41,6 +41,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   ...VN_DATA_KEYS,
   ...CN_DATA_KEYS,
   ...CA_WAVE_KEYS, // 加拿大第 3–8 波：makePhPanel 自掛 SourceFooter
+  "twMarineHeat", // 台灣圖層延伸 B6：海洋熱浪／珊瑚熱壓力 panel 依兩層各自掛 SourceFooter
   ...G53_SELF_FOOTER_KEYS, // G53 批 1：analytics PMTiles 無來源欄，atlasPanels withG53Footer 自掛
   "ieCoillteRecreation", "ieCoillteForestRoads", // 站主限定 Coillte：panel 自掛 SourceFooter（makeIePanel）
   // 2024 投開票所：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
@@ -49,6 +50,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "councilDistricts2026",
   // 即時 119 案件／警廣即時路況（站主限定）：RPC feature 無來源欄，panel 自掛 SourceFooter
   "fire119Live", "pbsRoadEventsLive",
+  // 台灣圖層延伸 B8：R2 即時快照三層，panel 自掛 SourceFooter（來源機關＋data.gov.tw／CWA 開放資料頁）
+  "dengueCluster", "navNotice", "tideSwellAlert",
   // 2026 選舉活動（站主限定）：RPC feature 只有逐場來源連結，panel 補圖層層級的來源說明並自掛 SourceFooter
   "electionEvents2026",
   "chatHighlight",
@@ -56,10 +59,13 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "immigrationOffice", "pollutionPenalty", "youbikeFullness", "groundwater",
   // feature 無來源欄，panel 補有依據的固定出處並自掛 SourceFooter（原本顯示「來源資訊待補」）
   "popCount", "h3Population",
+  // VPB-28：AED／長照 tile 只有官方原始欄位、無來源欄，panel 補衛福部出處並自掛 SourceFooter（其餘醫療層沿用 feature 自帶來源）
+  "medicalPOI",
   "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
   "jpPopulationMesh1km", "fireIsochrone",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
+  "householdRegistrationBranch", // 戶政辦公據點（B3）：tile 無來源欄，panel 補戶政司出處並自掛 SourceFooter
   // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
   "fireHydrant",
   "trafficAccidents2025",
@@ -137,6 +143,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "caWastewaterSystems",
   "caEarthquakes",
   "caEarthquakesLive",
+  "phOpenaqAir",
   "caPopulationGrid",
   "gbSmallAreaBoundaries",
   "gbMaritimeLimits",
@@ -238,7 +245,9 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 30 天地圖挑戰 Day 17 光與暗：panel 自掛 NASA Black Marble／OSM／保護區來源。
   "mapchallengeDay17DarkSky", "mapchallengeDay17DarkRoads", "mapchallengeDay17LedShare",
   // 30 天地圖挑戰 Day 19 氣味：panel 自掛公害陳情／潛勢來源／環保裁處出處。
-  "mapchallengeDay19Complaints", "mapchallengeDay19Potential", "mapchallengeDay19Penalties",
+  "mapchallengeDay19Complaints", "mapchallengeDay19Potential", "mapchallengeDay19Penalties", "mapchallengeDay21OsmRoads",
+  // 縣市間遷徙流向：panel 自掛內政部戶政司來源。
+  "twCountyMigrationFlows",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

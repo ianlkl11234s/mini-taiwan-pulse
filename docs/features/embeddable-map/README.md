@@ -52,12 +52,14 @@
 | `layers` | 逗號分隔的 layer key | ✅ | ✅ |
 | `style` | 主站底圖 id（7 種）。embed 用它推明暗 | ✅ | ✅ |
 | `date` / `h` | 凍結日期（YYYY-MM-DD）+ 小時 0–23 | ✅ | ✅（需有快照） |
-| `p.<key>` | overlayParams 覆寫 | ❌ | ✅ |
+| `p.<key>` | overlayParams 覆寫（key＝overlay out key，值為編碼數字） | ✅（2026-11-21 起） | ✅ |
+| `sel` | 單地圖統計層期別／細項（語法同 `cmpdl`） | ✅ | — |
 | `theme` | `dark`\|`light`（style 未給時的回退） | — | ✅ |
 | `rsys` | 鐵路只顯示哪幾個營運者／線路（見下節代碼表） | — | ✅ |
 
-**主站不支援 `p.*` 是刻意的**：主站有 sidebar，URL override 會與使用者拉 slider 打架
-（`useTransportParams` 3028 行、數百個 hardcode `useState`，無法注入初始值）。
+**主站 `p.*`（D8-1，2026-11-21）**：參數已全數進 `layerParamsStore`（AR-22），主站開頁時把 `p.*` 解回控制項的值一次寫入、之後以使用者操作為準。
+對照邏輯在 `src/lib/urlLayerParams.ts`：只寫開著、可公開圖層與預設不同的值；共用值（sharedGroup）共用 out key 只寫一次；
+只套用網址裡有開、看網址的人沒上鎖的圖層。`out: null` 的參數（色盤、第二通道 select、資料篩選多選）不分享；select 以索引編碼，選項順序改了舊連結會錯位（embed 同）。
 
 ## 文章端相機事件
 
@@ -201,6 +203,12 @@ aws s3 sync public/embed-rail/ "s3://$S3_BUCKET/deploy-assets/embed-rail/" --reg
 **Factory 例外**：`agriculture`（FTW Fields 2025）在主站由 Mapbox 專用 factory 建立，
 embed 另以 `factoryOverlayConfigs.ts` 描述同一份靜態 PMTiles 與樣式，再交給 MapLibre adapter。
 它不查 Supabase；田區為衛星影像 AI 判讀結果，並非法定農地分區。
+
+**影像疊圖（2026-11-20）**：`mapchallengeDay08Plan1955`、`mapchallengeDay17DarkSky`、`mapchallengeDay19Potential`
+在主站是專屬 hook 掛 image source（不在 registry），embed 以 `imageHookLayers.ts` 重述靜態規格：
+網址與樣式常數 import 主站同一份 Types／Style，參數名稱與預設對齊 `mapchallengeHosts.tsx`；只讀 CDN 靜態檔。
+圖例的影像／風向選項在 embed 由 `overlayParams` 帶入（embed 不進參數 store）。
+`mapchallengeDay17NightFall`（依時間軸逐格亮起）不支援。改主站 hook 的樣式時要同步改這份。
 
 **回放層（EM-16，2026-08-09 上線）**：`ships` / `flights` / `rail` 三層 Three.js 回放，
 只在網址真的帶了這些 key + `date=` 時才 `import()` three（純靜態嵌入完全不下載）。

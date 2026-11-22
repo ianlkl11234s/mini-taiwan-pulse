@@ -28,8 +28,8 @@ const IE_KEYS: ReadonlySet<string> = new Set(IE_ENABLED_STATISTICS_KEYS);
 const ELECTION_KEYS: ReadonlySet<string> = new Set(ELECTION_ENABLED_STATISTICS_KEYS);
 
 const EXPECTED_THEME_STRUCTURE = [
-  { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地"] },
-  { title: "醫療與長照 Health & Care", groups: ["醫療與長照", "傳染病", "癌症", "癌症篩檢", "出生健康", "疫苗", "醫療利用", "死因統計"] },
+  { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地", "新住民子女就學", "姓氏（戶籍）", "109 年普查常住人口", "原住民族別"] },
+  { title: "醫療與長照 Health & Care", groups: ["醫療與長照", "傳染病", "癌症", "癌症篩檢", "出生健康", "疫苗", "醫療利用", "死因統計", "健保參加"] },
   { title: "成癮與減害 Addiction & Harm Reduction", groups: ["疾病（HIV）", "執法（毒品、酒駕、地檢署）", "行為調查（吸菸、檳榔）", "服務據點"] },
   { title: "犯罪與治安 Crime & Safety", groups: ["刑案發生", "詐欺"] },
   { title: "體育運動 Sports", groups: ["體育經費", "運動參與"] },
@@ -37,14 +37,14 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "政府與開放資料 Government & Open Data", groups: ["開放資料完整度（Day 18 NULL）"] },
   { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查", "臺北市 12 區（月）"] },
   { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值", "臺北市 12 區（月）", "國有資產", "國營事業資產", "行政執行拍賣"] },
-  { title: "財稅與消費 Fiscal & Consumption", groups: ["地方財政", "所得", "營業與消費", "普查", "金融", "金融服務可及性"] },
+  { title: "財稅與消費 Fiscal & Consumption", groups: ["地方財政", "所得", "營業與消費", "普查", "金融", "公司登記動態", "普查（鄉鎮）", "金融服務可及性"] },
   { title: "公共運輸 Public Transport", groups: ["建置量", "使用與營運", "自行車（臺北市，民國 110 年）", "航空運輸", "運輸補助"] },
   { title: "道路與車輛 Roads & Vehicles", groups: ["車輛登記存量", "道路安全與監測", "駕照與停車"] },
   { title: "交通用地 Transport Land", groups: ["交通用地"] },
   { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地", "農村再生"] },
   { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收", "水質與污水", "空氣品質", "污染與公害", "環境治理"] },
   { title: "崩塌與水土保持 Landslides & Soil Conservation", groups: ["崩塌", "治山防災工程", "水土保持災害"] },
-  { title: "災害風險 Disaster Risk", groups: ["土石流警戒", "社會脆弱度"] },
+  { title: "災害風險 Disaster Risk", groups: ["土石流警戒", "社會脆弱度", "遺留坑洞"] },
   { title: MARINE_STATISTICS_THEME_TITLE, groups: ["海洋動物擱淺", "海洋廢棄物"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
@@ -134,7 +134,7 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(group("崩塌與水土保持 Landslides & Soil Conservation", "崩塌")).toEqual(["statsLandslideCountCounty", "statsLandslideAreaCounty"]);
     expect(group("崩塌與水土保持 Landslides & Soil Conservation", "治山防災工程")).toEqual(["statsSlopeWorksCostCounty"]);
     // atlas 批次：同群組成員相鄰、原始數／縣市在前（群組列只在第一個成員渲染）。
-    expect(group("醫療與長照 Health & Care", "傳染病")).toEqual(["statsHealthTbNewCases", "statsHealthTbNewCasesPer100kHrp", "statsHealthTbNewCasesTownship", "statsHealthTbIncidencePer100kTownship", "statsHealthTbDeaths", "statsHealthTbDeathRate"]);
+    expect(group("醫療與長照 Health & Care", "傳染病")).toEqual(["statsHealthTbNewCases", "statsHealthTbNewCasesPer100kHrp", "statsHealthTbNewCasesTownship", "statsHealthTbIncidencePer100kTownship", "statsHealthTbDeaths", "statsHealthTbDeathRate", "statsHealthNotifiableCasesTownship", "statsHealthNotifiableRatePer100kTownship", "statsHealthNotifiableCasesCounty", "statsHealthNotifiableRatePer100kCounty"]);
     expect(group("醫療與長照 Health & Care", "癌症篩檢")).toEqual(["statsHealthBreastScreening2yr", "statsHealthCervicalScreening3yr", "statsHealthColorectalScreening2yr"]);
     expect(group("財稅與消費 Fiscal & Consumption", "地方財政")).toEqual(["statsFiscalLocalRevenue", "statsFiscalLocalExpenditure"]);
     expect(group("人口與教育 Population & Education", "原住民保留地")).toEqual(["statsIndigenousReservedLandParcels", "statsIndigenousReservedLandArea"]);

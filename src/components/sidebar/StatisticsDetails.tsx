@@ -6,8 +6,8 @@ import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environm
 import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
 import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from '../../data/statisticsFillColor';
-import { atlasBinaryLegendRows, atlasCategoryRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
-import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
+import { atlasBinaryLegendRows, atlasCategoryLegendRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
+import { demographicsIndicatorNoteParts, demographicsIndicatorNoteText, demographicsYtdParts, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
@@ -28,7 +28,7 @@ import { dataDotUnit, dotTotal } from '../../map/statisticsDots';
 import { CompareStatisticsLegend, type StatisticsLegendPart } from '../compare/CompareStatisticsLegend';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
 import { enumLabel } from '../../i18n/dataText';
-import { STATISTICS_CATEGORY_CODE_UNIT, boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsLocationBasis, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
+import { STATISTICS_CATEGORY_CODE_UNIT, boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsDisclosure, statisticsLocationBasis, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
 import { unparseableStatisticsReleaseCount } from '../../data/statisticsSelection';
 import { localeStore, useLocale, type LocaleSnapshot } from '../../state/localeStore';
 import type { MessageKey } from '../../i18n/keys';
@@ -141,7 +141,7 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
   const landslide = getLandslideRecipe(activeBaseKey);
   const atlas = getAtlasRecipe(activeBaseKey);
   const atlasNote = atlas ? atlasDimensionNote(activeBaseKey, state.selection?.dimensions) : undefined;
-  const demographicsNote = demographics ? demographicsIndicatorNote(demographics) : undefined;
+  const demographicsNote = demographics ? demographicsIndicatorNoteText(demographicsIndicatorNoteParts(demographics), demographicsYtdParts(demographics), i18n) : undefined;
   const selectedLaborMetric = getLaborStatisticsPresentationMetric(layerKey, state.selection?.indicatorId);
   const selectionSummary = statisticsDimensionSummary(state.selection?.dimensions, selectedRelease, recipe.dataset_id, i18n);
     const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
@@ -154,21 +154,21 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
     {selectionSummary && <p style={factStyle}><strong>{t('statistics.details.selection')}</strong>{selectionSummary}</p>}
     {labor && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(laborLocationSemantics(labor), i18n)}</p>}
     {environment && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(environment.location_semantics, i18n)}</p>}
-    {environment && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(environment.disclosure)}</p>}
+    {environment && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(environment.disclosure, i18n)}</p>}
     {demographics && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(demographics.location_semantics, i18n)}</p>}
     {addiction && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(addiction.location_semantics, i18n)}</p>}
-    {addiction && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(addiction.disclosure)}</p>}
+    {addiction && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(addiction.disclosure, i18n)}</p>}
     {landslide && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(landslide.location_semantics, i18n)}</p>}
-    {landslide && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(landslide.disclosure)}</p>}
+    {landslide && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(landslide.disclosure, i18n)}</p>}
     {atlas && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(atlas.location_semantics, i18n)}</p>}
     {atlasNote && <p style={factStyle}><strong>{t('statistics.details.subIndicatorDirection')}</strong>{atlasNote}</p>}
-    {atlas && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(atlas.disclosure)}</p>}
-    {demographics && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(demographicsDisclosure(demographics))}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
+    {atlas && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(atlas.disclosure, i18n)}</p>}
+    {demographics && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{statisticsDisclosure(demographics.disclosure, i18n)}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
     <details><summary>{t('statistics.details.sourceLog')}</summary>
       <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
-        {agri && <span>{humanizeStatisticsText(agri.disclosure ?? agri.boundary_semantics)}</span>}
+        {agri && <span>{(agri.disclosure ? statisticsDisclosure(agri.disclosure, i18n) : humanizeStatisticsText(agri.boundary_semantics))}</span>}
         {agri?.source_statistical_boundary_version && <span>{t('statistics.details.statRefBoundary', { stat: boundaryVersionLabel(agri.source_statistical_boundary_version, i18n), actual: boundaryVersionLabel(agri.boundary_version, i18n) })}</span>}
-        {social?.disclosure && <span>{humanizeStatisticsText(social.disclosure)}</span>}
+        {social?.disclosure && <span>{statisticsDisclosure(social.disclosure, i18n)}</span>}
         {social && <span>{t('statistics.details.refBoundary', { boundary: boundaryVersionLabel(social.boundary_version, i18n), semantics: humanizeStatisticsText(social.boundary_semantics) ?? t('statistics.details.refBoundaryDefault') })}</span>}
         {labor && <span>{t('statistics.details.displayBoundary', { boundary: boundaryVersionLabel(labor.boundary_version, i18n), semantics: humanizeStatisticsText(labor.boundary_semantics) ?? '' })}</span>}
         {environment && <span>{t('statistics.details.sourceDatasetBoundary', { title: environment.source_title ?? t('statistics.notProvided'), publisher: statisticsPublisher(environment.publisher, i18n), boundary: boundaryVersionLabel(environment.boundary_version, i18n) })}</span>}
@@ -256,7 +256,7 @@ export function StatisticsLegendView({ layerKey, storeKey = layerKey, part }: { 
   // 二元圖例（自來水不合格：有／無；金融服務欠缺鄉鎮：名單內／外）不是連續色階，不顯示「淺 → 深」通用說明。
   const atlasBinaryRows = atlas ? atlasBinaryLegendRows(atlas, recipe.colors)?.map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
   // 類別型（最高黨）：每類一列、用類別名（不顯示門檻區間與「淺 → 深」）。
-  const atlasCategoryLegend = atlas ? atlasCategoryRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
+  const atlasCategoryLegend = atlas ? atlasCategoryLegendRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
   const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows ?? atlasCategoryLegend;
   // 呈現方式＝比例圓：色階列換成三圓套疊；點密度：換成「一點＝N」（圖例只負責顯示，切換在圖層控制區）；缺值斜線等狀態列照舊
   const presentation = statisticsPresentationMode(layerKey);

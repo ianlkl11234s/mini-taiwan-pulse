@@ -68,3 +68,22 @@ export function medicalColorByCat(medCat: string): string {
   }
   return "#9e9e9e";
 }
+
+/** 健保特約院所 category → 中文機構類型（同 scripts/preprocess/merge_medical_poi.py 的 NHI_LABEL；外文走 enum.medicalNhi.<category>） */
+export const NHI_CATEGORY_LABEL: Record<string, string> = {
+  "hospital_medical_center": "醫學中心",
+  "hospital_regional": "區域醫院",
+  "hospital_district": "地區醫院",
+  "clinic": "診所",
+  "pharmacy": "藥局",
+  "home_nursing": "居家護理所",
+  "health_center": "衛生所",
+  "rehab_home": "精神復健機構",
+  "lab": "醫事檢驗所",
+  "speech_therapy": "語言治療所",
+  "physical_therapy": "物理治療所",
+  "midwifery": "助產所",
+  "medical_radiology": "醫事放射所",
+  "occupational_therapy": "職能治療所",
+  "other_nhi": "其他特約"
+};

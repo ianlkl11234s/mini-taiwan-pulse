@@ -184,8 +184,12 @@ describe('getStatisticsVisual', () => {
     // 2026-11-07: +29 愛爾蘭統計（地方政府、選舉分區：2022 普查人口 6、年齡 6、家戶與住宅 8、教育與勞動 8；RTB 租金 1）。
     // 2026-11-09: +4 南韓每萬人比率（火災 2021–2023、交通事故 2025 × 道級／市郡區，KRSTAT-1）。
     // 2026-11-18: +5 縣市開放資料完整度（30 天地圖挑戰 Day 18 NULL）。
-    expect(STATISTICS_KEYS).toHaveLength(904);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(916);
+    // 2026-11-20: +9 台灣圖層延伸 B2（新住民子女就學 5、鄉鎮前二十大姓 3、現存坑洞數 1）。
+    // 2026-11-20: +4 台灣圖層延伸 B1（法定傳染病鄉鎮／縣市 × 病例數／每十萬人）。
+    // 2026-11-20: +23 台灣圖層延伸 B4（普查常住人口 6、原住民族別 4、住宅用電 4、公司登記動態 4、未參加健保 2、工商普查鄉鎮 3）。
+    // 2026-11-21: +4 台灣圖層延伸 B5（縣市間遷徙：淨遷入人數／率、遷入、遷出）。
+    expect(STATISTICS_KEYS).toHaveLength(944);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(956);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

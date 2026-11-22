@@ -15,7 +15,7 @@ import { Check, MapPinned, X } from 'lucide-react';
 import { loadRegionalStatistics, type StatisticsRecipe } from '../../data/regionalStatisticsLoader';
 import { statisticsBaseKey, statisticsRenderRecipe, type StatisticsRenderKey } from '../../data/regionalStatisticsRecipes';
 import {
-  compareArrangement, defaultComparison, periodNote, isUncoveredStatus, smallMultipleFill, smallMultiplesPlan, toggleComparison, SMALL_MULTIPLES_MAX,
+  categoryLabelOf, compareArrangement, defaultComparison, periodNote, isUncoveredStatus, smallMultipleFill, smallMultiplesPlan, toggleComparison, SMALL_MULTIPLES_MAX,
   type PeriodPhrase, type SmallMultiplesPlan,
 } from '../../data/statisticsSmallMultiples';
 import type { PreparedBoundary, PreparedShape } from '../../map/smallMultiplesGeometry';
@@ -33,7 +33,7 @@ import { getLaborRecipe } from '../../data/laborStatisticsRecipes';
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
 import { addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
-import { atlasBinaryLegendRows, atlasCategoryRows, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
+import { atlasBinaryLegendRows, atlasCategoryLegendRows, atlasCategoryRows, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from '../../data/statisticsFillColor';
 import { statisticsTitle, statisticsUnit } from '../../i18n/statisticsText';
 import { enumLabel } from '../../i18n/dataText';
@@ -114,6 +114,8 @@ interface LegendModel {
   rows: { color: string; label: string }[];
   special: boolean;
   categorical: boolean;
+  /** 完整類別表（含圖例隱藏的類別），讀數依數值查名稱 */
+  categoryRows: { value: number; label: string }[];
   /** recipe 自己的非數值狀態列（未涵蓋／缺值／遮蔽）；有的話取代通用「缺值」說明（同主圖例） */
   statusRows: { kind: string; hatch: 'missing' | 'suppressed'; label: string; solid?: boolean }[];
 }
@@ -127,7 +129,7 @@ function legendModel(baseKey: string, recipe: RenderRecipe, i18n: LocaleSnapshot
   const landslide = getLandslideRecipe(baseKey);
   const atlas = getAtlasRecipe(baseKey);
   const atlasBinary = atlas ? atlasBinaryLegendRows(atlas, recipe.colors)?.map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
-  const atlasCategories = atlas ? atlasCategoryRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
+  const atlasCategories = atlas ? atlasCategoryLegendRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
   const special = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinary ?? atlasCategories;
   const format = social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format;
   return {
@@ -135,6 +137,7 @@ function legendModel(baseKey: string, recipe: RenderRecipe, i18n: LocaleSnapshot
     rows: special ?? statisticsLegendRows(recipe, format, i18n),
     special: Boolean(special),
     categorical: Boolean('categories' in recipe && recipe.categories?.length),
+    categoryRows: (atlas ? atlasCategoryRows(atlas) : null)?.map(row => ({ value: row.value, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? [],
     statusRows: addiction ? addictionStatusLegendRows(addiction)
       : atlas ? atlasStatusLegendRows(atlas).map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) }))
       : landslide?.status_labels.missing ? [{ kind: 'missing', hatch: 'missing' as const, label: i18n.t('statistics.legend.hatchLabel', { label: landslide.status_labels.missing }) }]
@@ -479,7 +482,7 @@ function valueState(props: GeoJSON.GeoJsonProperties | undefined, recipe: Render
   if (fill.kind === 'suppressed') return { kind: 'suppressed' };
   if (fill.kind === 'missing') return isUncoveredStatus(props, recipe) ? { kind: 'notApplicable' } : { kind: 'missing' };
   if (fill.kind === 'notApplicable') return { kind: 'notApplicable' };
-  if (legend.categorical) return { kind: 'category', label: legend.rows.find(row => row.color === fill.color)?.label ?? String(props?.value) };
+  if (legend.categorical) return { kind: 'category', label: categoryLabelOf(legend.categoryRows, props?.value) ?? legend.rows.find(row => row.color === fill.color)?.label ?? String(props?.value) };
   return { kind: 'value', value: Number(props?.value) };
 }
 

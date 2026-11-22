@@ -15,5 +15,20 @@
   "enum.emergencyHospitalLevel.heavy": "重度級",
   "enum.emergencyHospitalLevel.moderate": "中度級",
   "enum.emergencyHospitalLevel.general": "一般級",
-  "enum.emergencyHospitalLevel.unrated": "等級未記載"
+  "enum.emergencyHospitalLevel.unrated": "等級未記載",
+  "enum.medicalNhi.hospital_medical_center": "医学センター",
+  "enum.medicalNhi.hospital_regional": "地域病院",
+  "enum.medicalNhi.hospital_district": "地区病院",
+  "enum.medicalNhi.clinic": "診療所",
+  "enum.medicalNhi.pharmacy": "薬局",
+  "enum.medicalNhi.home_nursing": "訪問看護ステーション",
+  "enum.medicalNhi.health_center": "衛生所（保健所）",
+  "enum.medicalNhi.rehab_home": "精神リハビリ施設",
+  "enum.medicalNhi.lab": "臨床検査所",
+  "enum.medicalNhi.speech_therapy": "言語療法所",
+  "enum.medicalNhi.physical_therapy": "理学療法所",
+  "enum.medicalNhi.midwifery": "助産所",
+  "enum.medicalNhi.medical_radiology": "放射線検査所",
+  "enum.medicalNhi.occupational_therapy": "作業療法所",
+  "enum.medicalNhi.other_nhi": "その他の特約機関"
 }

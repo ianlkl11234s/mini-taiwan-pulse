@@ -1,4 +1,5 @@
 import type { CountryCode } from "../constants/countries";
+import type { LongTermSpec } from "./layerLongTerm";
 import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
 import { industrialDensitySources } from "./industrialDensityTypes";
 import { getStatisticsVisual } from "./statisticsVisuals";
@@ -171,6 +172,8 @@ import {
   Mailbox, Motorbike, ScanSearch,
   // G53 批 2／3（2026-11-10）
   RadioTower,
+  // 台灣圖層延伸 B5（2026-11-21）
+  ArrowLeftRight,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -222,6 +225,7 @@ import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY21_COLOR } from "./mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY19_COMPLAINTS_COLOR, MAPCHALLENGE_DAY19_PENALTIES_COLOR, MAPCHALLENGE_DAY19_POTENTIAL_COLOR } from "./mapchallengeDay19Types";
 
 /**
@@ -392,6 +396,14 @@ interface LayerManifestBase {
   description: string;
   /** 主題標籤（跨主題檢索用，非 sidebar 分區） */
   topics: string[];
+
+  // ── 長期時間 ──
+  /**
+   * 能看長期變化的圖層才寫（涵蓋超過 30 天、隨時間變化有意義）；缺席＝不適用（靜態或即時）。
+   * 類別、涵蓋、粒度、資料檔、能否加總、斷點、細節分層。規範：`docs/features/longterm-time/STANDARD.md`；
+   * 型別與各欄說明見 `layerLongTerm.ts`，檢查見 `__tests__/layerLongTerm.test.ts`。
+   */
+  longTerm?: LongTermSpec;
 }
 
 /**
@@ -643,6 +655,14 @@ const COMPARISON_MANIFEST_ENTRIES = Object.fromEntries(COMPARISON_ENABLED_RECIPE
 type JpFacilityManifestKey = typeof JP_MEDICAL_CATEGORIES[number]["key"];
 type JpCareManifestKey = typeof JP_MEDICAL_CARE_GROUPS[number]["key"];
 type JpAreaManifestKey = typeof JP_MEDICAL_AREA_LEVELS[number]["key"];
+
+/** 台灣圖層延伸 B6：年拼圖發布包的檔案清單（幀清單＋每年拼圖＋每年數值檔），給 custom source 的 staticAssets */
+function twMarineHeatAssets(prefix: string, first: number, last: number): string[] {
+  const dir = `./marine/${prefix}`;
+  const out = [`${dir}/${prefix}_frames_v1.json`];
+  for (let y = first; y <= last; y++) out.push(`${dir}/${prefix}_${y}_v1.png`, `${dir}/${prefix}_values_${y}_v1.json`);
+  return out;
+}
 
 const JP_MEDICAL_SOURCE = { kind: "custom" as const, note: "useJpMedicalLayers 依 current.json 載入不可變 PMTiles；點位封存檔為 z0-14 且未抽樣", staticAssets: ["./jp-medical/current.json"] };
 
@@ -2297,6 +2317,194 @@ export const LAYER_MANIFEST = {
     description: "消防署名冊的爆竹煙火製造與儲存場所（19 處中 10 處可定位）。",
     topics: ["消防", "爆竹煙火", "危險物品", "公共安全", "消防署"],
   },
+  mountainMobileImprovement: {
+    key: "mountainMobileImprovement", country: "TW", section: { theme: "通訊 Telecom", group: "山區行動通訊 Mountain Mobile" }, ...layerName({ zh: "改善山區行動通訊站點", alt: "Mountain Mobile Coverage Improvement Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.mountainMobileImprovement, icon: Signal,
+    upstream: { status: "verified", datasets: [{ datasetId: "mountain_mobile_improvement", confidence: "HIGH" }], processing: "analytics infrastructure/mountain_mobile_improvement v1：數位發展部 data.gov.tw 160533（前瞻計畫 109–112 年，148 點）＋173234 對不到 160533（距離 ≥ 1 km）的 9 點，共 157 點；2 點座標疑誤（浸水營古道東段）不上圖", note: "覆蓋旗標空白＝未知，不是無訊號；來源無基地台位置與涵蓋半徑，光暈僅示意。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "mountain-mobile-improvement", url: "./geo/mountain_mobile_improvement_v1.pmtiles", sourceLayer: "mountain_mobile_improvement", minzoom: 4, maxzoom: 14 },
+    legend: "mountainMobileImprovement", popup: "mountainMobileImprovement", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "數位發展部列管的山區行動通訊改善站點 157 處（步道林道、山莊山屋、森林園區等），含主辦業者、通訊技術與五家業者覆蓋旗標。",
+    topics: ["通訊", "山區", "行動通訊", "登山", "步道", "數位發展部"],
+  },
+  ecoLabelHotels: {
+    key: "ecoLabelHotels", country: "TW", section: { theme: "環境氣候 Environment", group: "環保標章旅館 Eco-label Hotels" }, ...layerName({ zh: "環保標章旅館", alt: "Eco-label Hotels" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.ecoLabelHotels, icon: BedDouble,
+    upstream: { status: "verified", datasets: [{ datasetId: "eco_label_hotels", confidence: "HIGH" }], processing: "analytics environment/eco_label_hotels 145035：環境部環保標章旅館 286 列 → 去重 1、座標疑誤 2 不上圖 → 283 家；縣市鄉鎮依地址解析；核發與到期日補自 161312（8 家對不到留空）", note: "等級金／銀／銅；電話、統編不收。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "eco-label-hotels", url: "./environment/eco_label_hotels_145035.pmtiles", sourceLayer: "eco_label_hotels", minzoom: 4, maxzoom: 14 },
+    legend: "ecoLabelHotels", popup: "ecoLabelHotels", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "環境部環保標章旅館 283 家（金級 50、銀級 94、銅級 139），含等級、核發與到期日。",
+    topics: ["環保標章", "旅館", "旅宿", "住宿", "永續", "環境部"],
+  },
+  // ── 台灣圖層延伸 B3（2026-11-20）──
+  namrBuoys: {
+    key: "namrBuoys", country: "TW", section: { theme: "海洋 Marine", group: "調查站網 Survey Sites" }, ...layerName({ zh: "國海院浮標站位", alt: "NAMR Buoy Stations" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.namrBuoys, icon: Anchor,
+    upstream: { status: "verified", datasets: [{ datasetId: "namr_buoys", confidence: "HIGH" }], processing: "analytics marine/namr_buoys：國家海洋研究院 data.gov.tw 171309、171315（BIG5 CSV，更新 2026-02-03）資料浮標 8＋加馬輻射錨碇 1 共 9 座；與 CWA／ISOHE 116 站逐站比對，5 座同址", note: "只有站位沒有觀測值；5 座與氣象署資料浮標同址（不併進即時的海象觀測層）；最後資料日期是 2026-02-03 的值。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "namr-buoys", url: "./marine/namr_buoys_v1.pmtiles", sourceLayer: "namr_buoys", minzoom: 4, maxzoom: 14 },
+    legend: "namrBuoys", popup: "namrBuoys", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "國家海洋研究院 9 座浮標站位（資料浮標 8、加馬輻射錨碇 1；僅站位，無觀測值），其中 5 座與氣象署資料浮標同址。",
+    topics: ["海洋", "浮標", "海象", "觀測站", "國家海洋研究院"],
+  },
+  // ── 台灣圖層延伸 B6（2026-11-21）：月幀 raster，每年一張拼圖（12 格）＋年度數值檔；期別用年份／月份下拉 ──
+  twMarineHeatwaves: {
+    key: "twMarineHeatwaves", country: "TW", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海洋熱浪月分級", alt: "Marine Heatwaves" }), expandable: true,
+    color: "#ff8c1a", icon: Thermometer,
+    upstream: { status: "verified", datasets: [{ datasetId: "marine.odb_marine_heatwave_monthly", confidence: "HIGH" }], processing: "analytics marine/odb_marine_heatwave_monthly：ODB Ocean APIverse /api/mhw（0.25°、115–126°E／18–28°N）1982-01～2026-10 每月 1,760 格（海洋 1,382）→ 每月一幀 LA PNG（L＝熱浪等級 0–4）→ pack_year_atlas 每年一張拼圖＋數值檔", note: "Hobday et al. 2018 四級；陸地以海溫為空判定（API 陸地等級回 0，不可當無熱浪）；太平島不在範圍；授權未標示（ODB 開放 API 免費使用）。" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useTwMarineHeatLayer：讀 odb_mhw_frames_v1.json → 當年拼圖裁出當月格（canvas）→ image source＋raster layer（tw-marine-heat-twMarineHeatwaves-src／-layer，raster-color 依 L 上色）；popup 由 useMapInteraction 呼叫 pickTwMarineHeatCell 查年度數值檔 —— 非 OVERLAY_REGISTRY", staticAssets: twMarineHeatAssets("odb_mhw", 1982, 2026) },
+    legend: "twMarineHeatwaves", popup: "twMarineHeat", params: { count: 4, kinds: ["slider", "select", "select", "multiSelect"] },
+    description: "國科會海洋學門資料庫（ODB）海洋熱浪月分級（0.25° 網格、月平均，1982-01～2026-10）：無熱浪、中等、強烈、嚴重、極端。",
+    topics: ["海洋", "海洋熱浪", "海溫", "氣候變遷", "網格", "時序"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：odb_mhw_frames_v1.json period_first 1982-01／period_last 2026-10（538 幀，2026-11-21 實測 API 最新到 2026-10）
+      coverage: { start: "1982-01-01", end: "2026-10-31" },
+      granularity: "month",
+      data: {
+        form: "periodFiles",
+        files: ["./marine/odb_mhw/odb_mhw_<year>_v1.png", "./marine/odb_mhw/odb_mhw_values_<year>_v1.json"],
+        note: "每年一張拼圖（12 個月格，1 月左上逐列往右）＋每年一個數值檔；幀清單 odb_mhw_frames_v1.json 記各月在哪一格",
+      },
+      summable: false, // 等級
+      breaks: [],
+    },
+  },
+  twCoralBleachingHeatStress: {
+    key: "twCoralBleachingHeatStress", country: "TW", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "珊瑚白化熱壓力", alt: "Coral Bleaching Heat Stress" }), expandable: true,
+    color: "#f472b6", icon: Waves,
+    upstream: { status: "verified", datasets: [{ datasetId: "marine.coral_bleaching_heat_stress", confidence: "HIGH" }], processing: "analytics marine/coral_bleaching_heat_stress：NOAA CRW v3.1 月合成 dhw-max＋baa5-max（5 km）2003-01～2026-10 裁切 115.30–122.25°E／20.40–25.55°N → 只畫 NOAA 台灣虛擬站範圍（Northern Taiwan、Southern Taiwan、Dongsha，礁格外推 20 km）→ 每月一幀 RGBA（R＝DHW×10、G＝警報 0–7）→ 每年一張拼圖＋數值檔", note: "衛星海溫熱壓力，不等於現地珊瑚一定白化；監測範圍不是礁體本身；金門、馬祖、太平島未涵蓋；1985–2002 年因授權限制未收。" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useTwMarineHeatLayer：讀 crw_heat_stress_frames_v1.json → 當年拼圖裁出當月格 → image source＋raster layer（tw-marine-heat-twCoralBleachingHeatStress-src／-layer），raster-color-mix 選 G（警報）或 R（DHW）；popup 由 pickTwMarineHeatCell 查年度數值檔 —— 非 OVERLAY_REGISTRY", staticAssets: twMarineHeatAssets("crw_heat_stress", 2003, 2026) },
+    legend: "twCoralBleachingHeatStress", popup: "twMarineHeat", params: { count: 5, kinds: ["slider", "select", "select", "select", "multiSelect"] },
+    description: "NOAA Coral Reef Watch 珊瑚白化熱壓力月最大值（5 km，2003-01～2026-10）：白化警報 8 級或累積熱壓力 DHW，只畫 NOAA 珊瑚礁監測範圍。",
+    topics: ["海洋", "珊瑚礁", "珊瑚白化", "海溫", "氣候變遷", "網格", "時序"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：crw_heat_stress_frames_v1.json period_first 2003-01／period_last 2026-10（286 幀；1985–2002 因 OSTIA 授權不收）
+      coverage: { start: "2003-01-01", end: "2026-10-31" },
+      granularity: "month",
+      data: {
+        form: "periodFiles",
+        files: ["./marine/crw_heat_stress/crw_heat_stress_<year>_v1.png", "./marine/crw_heat_stress/crw_heat_stress_values_<year>_v1.json"],
+        note: "每年一張拼圖（12 個月格）＋每年一個數值檔（只含監測範圍內 1,420 格）；幀清單 crw_heat_stress_frames_v1.json 記各月在哪一格",
+      },
+      summable: false, // 月最大值與等級
+      breaks: [],
+    },
+  },
+  towingYards: {
+    key: "towingYards", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "違規拖吊保管場", alt: "Vehicle Towing Yards" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.towingYards, icon: Truck,
+    upstream: { status: "verified", datasets: [{ datasetId: "towing_yards", confidence: "MED" }], processing: "analytics transportation/towing_yards 7319：警政署 88 列（2026-11-20 快照），離線門牌定位 63＋Google 門牌級補解 9，共 72 處上圖，16 筆無法定位未上圖；09 開頭手機剔除", note: "位置依地址推定，不是官方座標；另有 16 筆無法定位、未上圖。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "towing-yards", url: "./civic_facilities/towing_yards_v2.pmtiles", sourceLayer: "towing_yards", minzoom: 4, maxzoom: 14 },
+    legend: "towingYards", popup: "towingYards", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "警察機關車輛違規拖吊保管場 72 處（來源 88 筆，另 16 筆無法定位未上圖；位置依地址推定）。",
+    topics: ["交通", "拖吊", "保管場", "違規", "警政署"],
+  },
+  swcOutdoorClassrooms: {
+    key: "swcOutdoorClassrooms", country: "TW", section: { theme: "自然保育 Conservation", group: "水土保持 Soil & Water Conservation" }, ...layerName({ zh: "水土保持戶外教室", alt: "SWC Outdoor Classrooms" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.swcOutdoorClassrooms, icon: School,
+    upstream: { status: "verified", datasets: [{ datasetId: "swc_outdoor_classrooms", confidence: "HIGH" }], processing: "analytics education/swc_outdoor_classrooms 108030：水保署 SHP（檔案日期 2020-08）18 處；DBF 截斷字不補", note: "管理單位與電話為 2020 年版，可能已過時。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "swc-outdoor-classrooms", url: "./education/swc_outdoor_classrooms_108030.pmtiles", sourceLayer: "swc_outdoor_classrooms", minzoom: 4, maxzoom: 14 },
+    legend: "swcOutdoorClassrooms", popup: "swcOutdoorClassrooms", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "水保署水土保持戶外教室及教學園區 18 處（2020 年版，含管理單位與開放時間）。",
+    topics: ["水土保持", "戶外教室", "環境教育", "水保署"],
+  },
+  swcEcoCheckZones: {
+    key: "swcEcoCheckZones", country: "TW", section: { theme: "自然保育 Conservation", group: "水土保持 Soil & Water Conservation" }, ...layerName({ zh: "水保工程第一級生態檢核區", alt: "SWC Tier-1 Ecological Check Zones" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.swcEcoCheckZones, icon: TreeDeciduous,
+    upstream: { status: "verified", datasets: [{ datasetId: "swc_eco_check_zones", confidence: "HIGH" }], processing: "analytics hazards/swc_eco_check_zones 159097：水保署 109 年度 SHP（檔案日期 2021-01-20）2,173 面；TM2-121° 轉 WGS84，8 面 make_valid；代表點檔 _points（z4–10）供點／面切換", note: "不是法定分區公告，無年度或等級欄；面積合計約台灣陸域六成，拉遠用代表點、8 級起畫面。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "swc-eco-check-zones", url: "./hazards/swc_eco_check_zones_159097.pmtiles", sourceLayer: "swc_eco_check_zones", minzoom: 5, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "swc-eco-check-zones-points", url: "./hazards/swc_eco_check_zones_159097_points.pmtiles", sourceLayer: "swc_eco_check_zones_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "swcEcoCheckZones", popup: "swcEcoCheckZones", params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "109 年度水土保持工程第一級生態檢核區域 2,173 面（拉遠為代表點，8 級起畫範圍；非法定分區）。",
+    topics: ["水土保持", "生態檢核", "水保署", "山坡地"],
+  },
+  airportHeightSurfaces: {
+    key: "airportHeightSurfaces", country: "TW", section: { theme: "交通 Move", group: "樞紐節點" }, ...layerName({ zh: "機場周邊限高管制面", alt: "Airport Height Restriction Surfaces" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.airportHeightSurfaces, icon: PlaneTakeoff,
+    upstream: { status: "verified", datasets: [{ datasetId: "airport_height_surfaces", confidence: "MED" }], processing: "analytics aviation_drone/airport_height_surfaces 35876：民航局 KML 95 面（桃園 34、松山 15、臺東 14、恆春 11、金門 11、綠島 5、蘭嶼 5）；高雄國際機場只有 CAD 折線未涵蓋；45701 只有線與點不上圖", note: "面是查詢範圍不是公告原圖；高雄與其他民航機場未涵蓋；與無人機紅區／黃區的飛行規則不同。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "airport-height-surfaces", url: "./coverage/airport_height_surfaces_35876.pmtiles", sourceLayer: "airport_height_surfaces", minzoom: 4, maxzoom: 14 },
+    legend: "airportHeightSurfaces", popup: "airportHeightSurfaces", params: { count: 3, kinds: ["multiSelect", "multiSelect", "slider"] },
+    description: "民航局機場周邊禁限建（限高）管制面 95 面，涵蓋 7 個機場，依面別分色；高雄國際機場來源只有折線，未涵蓋。",
+    topics: ["交通", "航空", "機場", "限高", "禁限建", "民航局"],
+  },
+  landOfficeJurisdiction: {
+    key: "landOfficeJurisdiction", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "郵政與便民 Postal & Services" }, ...layerName({ zh: "地政事務所轄區", alt: "Land Office Jurisdictions" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.landOfficeJurisdiction, icon: MapPinned,
+    upstream: { status: "verified", datasets: [{ datasetId: "land_office_jurisdiction", confidence: "HIGH" }], processing: "analytics civic_facilities/land_office_jurisdiction 13045：測繪中心 110 面（13044 為子集）；機關名稱與代碼補自地政司 7620；agency_code 對應 govServiceOffices 地政點 org_code（102 面可對）", note: "8 面在機關便民據點的地政點找不到對應；轄區文字有 7 處與現行鄉鎮名不同。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "land-office-jurisdiction", url: "./civic_facilities/land_office_jurisdiction_13045.pmtiles", sourceLayer: "land_office_jurisdiction", minzoom: 4, maxzoom: 14 },
+    legend: "landOfficeJurisdiction", popup: "landOfficeJurisdiction", params: { count: 1, kinds: ["slider"] },
+    description: "內政部國土測繪中心地政事務所轄區 110 面（含機關名稱與轄區鄉鎮）。",
+    topics: ["地政", "地政事務所", "轄區", "行政區", "國土測繪中心"],
+  },
+  npSpeciesSites: {
+    key: "npSpeciesSites", country: "TW", section: { theme: "自然保育 Conservation", group: "物種調查 Species Surveys" }, ...layerName({ zh: "國家公園物種調查點位", alt: "National Park Species Survey Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.npSpeciesSites, icon: PawPrint,
+    upstream: { status: "verified", datasets: [{ datasetId: "np_species_survey_points", confidence: "MED" }], processing: "analytics environment/np_species_survey_points 73252：國家公園署 24 個 CSV（111、112 年）1,451,504 筆紀錄合併為 144,228 個調查點位；台灣框外 4,776 列不上圖；人名欄與備註不收", note: "單位是調查點位不是逐筆紀錄；2,304 點座標經模糊處理；PMTiles 逐點完整，拉遠為熱區。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "np-species-sites", url: "./environment/np_species_survey_points_sites_73252.pmtiles", sourceLayer: "np_species_survey_points", minzoom: 4, maxzoom: 14 },
+    legend: "npSpeciesSites", popup: "npSpeciesSites", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
+    description: "國家公園與都會公園物種調查點位 144,228 個（涵蓋 145 萬筆紀錄；拉遠為熱區，部分座標經模糊處理）。",
+    topics: ["自然保育", "物種調查", "國家公園", "生物多樣性", "國家公園署"],
+  },
+  // ── 台灣圖層延伸 B7（2026-11-21）──
+  hakkaLivingSchools: {
+    key: "hakkaLivingSchools", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "客家 Hakka" }, ...layerName({ zh: "客語生活學校", alt: "Hakka Living Schools" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.hakkaLivingSchools, icon: School,
+    upstream: { status: "verified", datasets: [{ datasetId: "hakka_living_schools", confidence: "MED" }], processing: "analytics demographics/hakka_living_schools 162475：客委會 4,766 列（學校×年度，105–114 年度）正規化校名後合併為 822 校，依地址定位（離線 671＋Google 44）715 校上圖，107 校無法定位未上圖", note: "位置依地址推定，不是官方座標；另有 107 筆（校）地址無法定位、未上圖。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "hakka-living-schools", url: "./indigenous_rural/hakka_living_schools_v1.pmtiles", sourceLayer: "hakka_living_schools", minzoom: 4, maxzoom: 14 },
+    legend: "hakkaLivingSchools", popup: "hakkaLivingSchools", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "客委會客語生活學校 715 校（105–114 年度名單；另 107 校地址無法定位未上圖），可依學制篩選並疊在客家文化重點發展區上。",
+    topics: ["客家", "客語", "學校", "客語生活學校", "客委會"],
+  },
+  sandGravelPlants: {
+    key: "sandGravelPlants", country: "TW", section: { theme: "水資源 Water", group: "面 / 線" }, ...layerName({ zh: "砂石碎解洗選場", alt: "Sand & Gravel Processing Plants" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.sandGravelPlants, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "sand_gravel_plants", confidence: "MED" }], processing: "analytics industrial_zone/sand_gravel_plants 32708：地調礦業中心名冊 328 列，依地址定位（離線 213＋Google 30）243 處上圖，85 筆無法定位未上圖", note: "位置依地址推定，不是官方座標；另有 85 筆地址無法定位、未上圖；來源無臺北、基隆、嘉義市、澎湖、金門、連江。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "sand-gravel-plants", url: "./industrial_zone/sand_gravel_plants_v1.pmtiles", sourceLayer: "sand_gravel_plants", minzoom: 4, maxzoom: 14 },
+    legend: "sandGravelPlants", popup: "sandGravelPlants", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "地調礦業中心砂石碎解洗選場 243 處（來源 328 筆，另 85 筆地址無法定位未上圖），依登記類別分色，可疊河川對照。",
+    topics: ["砂石", "碎解洗選場", "礦業", "河川", "地質調查及礦業管理中心"],
+  },
+  countyWelfarePoints: {
+    key: "countyWelfarePoints", country: "TW", section: { theme: "社福長照 Welfare", group: "公部門與民間" }, ...layerName({ zh: "縣市社福據點（關懷據點・實物銀行）", alt: "County Welfare Points (Care Stations & Food Banks)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.countyWelfarePoints, icon: HeartHandshake,
+    upstream: { status: "verified", datasets: [{ datasetId: "county_welfare_points", confidence: "MED" }], processing: "analytics welfare/county_welfare_points：各縣市 data.gov.tw 名冊（據點 14 縣市、實物銀行 3 縣市）3,691 處上圖（來源座標 1,113、離線 2,347、Google 231），373 筆無法定位未上圖；不收電話與負責人", note: "未涵蓋縣市畫斜線；另有 373 筆地址無法定位、未上圖；與社福服務中心（157 處）不同。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "county-welfare-points-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "county-welfare-points", url: "./welfare/county_welfare_points_v1.pmtiles", sourceLayer: "county_welfare_points", minzoom: 4, maxzoom: 14 },
+    ],
+    legend: "countyWelfarePoints", popup: "countyWelfarePoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "各縣市政府公開的社區照顧關懷據點與實物銀行 3,691 處（另 373 筆地址無法定位未上圖）；沒有名冊的縣市畫斜線。不同於社福服務中心。",
+    topics: ["社福", "社區照顧關懷據點", "實物銀行", "長照", "縣市政府"],
+  },
+  evMotorcycleCharging: {
+    key: "evMotorcycleCharging", country: "TW", section: { theme: "能源 Energy", group: "再生能源" }, ...layerName({ zh: "電動機車充換電站（縣市環保局）", alt: "E-scooter Charging & Swap Stations (County EPA Lists)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.evMotorcycleCharging, icon: Motorbike,
+    upstream: { status: "verified", datasets: [{ datasetId: "ev_motorcycle_charging", confidence: "MED" }], processing: "analytics energy/ev_motorcycle_charging：13 縣市環保局名冊 4,464 處上圖（來源座標 1,950、離線 2,347、Google 167），205 筆無法定位未上圖；桃園經緯度互換已修", note: "未涵蓋縣市畫斜線；另有 205 筆地址無法定位、未上圖；與電動車充電站（TDX，汽車為主）、電動機車換電站（中油／台電）不同。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "ev-motorcycle-charging-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "ev-motorcycle-charging", url: "./energy/ev_motorcycle_charging_v1.pmtiles", sourceLayer: "ev_motorcycle_charging", minzoom: 4, maxzoom: 14 },
+    ],
+    legend: "evMotorcycleCharging", popup: "evMotorcycleCharging", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "縣市環保局的電動機車充電站與換電站名冊 4,464 處（13 縣市完整名冊；另 205 筆地址無法定位未上圖），無名冊縣市畫斜線。機車專用，不同於汽車為主的電動車充電站。",
+    topics: ["能源", "電動機車", "充電站", "換電站", "環保局", "縣市政府"],
+  },
+  countyStreetlights: {
+    key: "countyStreetlights", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "縣市路燈點位", alt: "County Streetlight Points" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.countyStreetlights, icon: Lightbulb,
+    upstream: { status: "verified", datasets: [{ datasetId: "county_streetlights", confidence: "MED" }], processing: "analytics infrastructure/county_streetlights：各縣市 data.gov.tw 路燈清冊 951,143 點（全為來源座標）；網格檔 0.01° 方格 4,363 格（z4–11）、逐點檔 z12–14；高雄只有公園處管養 35 區、彰化只有省道、桃園只有中壢區公所", note: "未涵蓋縣市畫斜線、部分涵蓋縣市寫在圖例；LED 依燈具類型欄判讀，不是台電契約戶 LED 用電占比（縣市路燈 LED 化）。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "county-streetlights-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "county-streetlights-grid", url: "./civic_facilities/county_streetlights_grid_v1.pmtiles", sourceLayer: "county_streetlights_grid", minzoom: 4, maxzoom: 11 },
+      { kind: "pmtiles", sourceId: "county-streetlights", url: "./civic_facilities/county_streetlights_v1.pmtiles", sourceLayer: "county_streetlights", minzoom: 12, maxzoom: 14 },
+    ],
+    legend: "countyStreetlights", popup: "countyStreetlights", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
+    description: "各縣市政府公開的路燈點位清冊 95 萬點（臺北、新北、臺中、新竹市、嘉義市完整；高雄、彰化、桃園部分；其餘縣市畫斜線）。拉遠為 0.01° 方格點位數，放大到 12 級起逐點，可依燈具類型是否為 LED 篩選。",
+    topics: ["路燈", "照明", "LED", "基礎建設", "縣市政府"],
+  },
   fireHydrants: {
     key: "fireHydrants",
     country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" },
@@ -2375,8 +2583,21 @@ export const LAYER_MANIFEST = {
     legend: "fireEvents",
     popup: "fireEvent",
     params: { count: 3, kinds: ["multiSelect", "palette", "slider"] },
-    description: "歷史火災點位（需進歷史模式選年／月／日）",
+    description: "歷史火災點位（111–113 年）：即時模式用下方長期時間條選期間或逐月播放；歷史模式照舊選年／月／日",
     topics: ["消防", "災害", "歷史"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：get_fire_event_years 快照＝111、112、113 年（各 1.5–1.7 萬筆）；App.tsx FIRE_MAX_YEAR=113
+      coverage: { start: "2022-01-01", end: "2024-12-31" },
+      granularity: "month",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_fire_events_by_year_<rocYear>.json"],
+        note: "每年一檔（get_fire_events_by_year 原樣輸出）；每筆 t＝發生時間（unix 秒）、m＝月",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   fireLatest: {
@@ -5331,6 +5552,30 @@ export const LAYER_MANIFEST = {
     description: "菲律賓 2024 普查人口與人口密度（區域、省、市鎮、barangay 四層級；未涵蓋畫灰）",
     topics: ["菲律賓", "人口", "人口密度", "普查", "PSA", "barangay"],
   },
+  phOpenaqAir: {
+    key: "phOpenaqAir",
+    country: "PH", section: { theme: "環境氣候", group: "空品" },
+    ...layerName({ zh: "即時空品（低價感測器為主）", alt: "Air Quality Sensors", qualifier: "OpenAQ" }),
+    expandable: true,
+    color: "#7e57c2", // 同 LASS 微型感測（aqiMicroSensors）
+    icon: Wind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "openaq_ph", confidence: "HIGH" }],
+      processing: "data-collectors collector openaq（pulse-host，每 60 分）→ live.openaq_locations／live.openaq_measurements（gis-platform mig 561，量測留 37 天，S3 openaq/archives/ 永久）→ RPC get_openaq_latest（mig 563，每站一列、48 小時內各參數最新值）；前端隱藏近 30 天無資料的站、量測超過 3 小時標過舊",
+      note: "每站授權不同（CC0 1.0／CC BY 4.0／US Public Domain；部分站 OpenAQ 未提供授權資訊），popup 依每站 attribution_name 署名並註明 via OpenAQ。116 站中 114 站是低價感測器（Clarity、AirGradient），非官方測站；2 個官方站（AirNow、Spartan）2026-02 起停更、目前不顯示",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePhOpenaqAirLayer：Supabase RPC get_openaq_latest（10 分鐘輪詢）→ 自建 GeoJSON source ph-openaq-air＋circle ph-openaq-air-circle（非 OVERLAY_REGISTRY）；快照錨在掛鐘現在、不跟時間軸；popup 走勢 RPC get_openaq_location_series",
+    },
+    legend: "phOpenaqAir",
+    popup: "phOpenaqAir",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "菲律賓 OpenAQ 空品測站即時 PM2.5（多為低價感測器、非官方測站；每小時更新，過舊與無資料另外標示）",
+    topics: ["菲律賓", "空品", "PM2.5", "即時", "OpenAQ", "低價感測器"],
+  },
   // ══════════════════════════════════════════════════════════════
   // 🇻🇳 越南 Vietnam（2026-11-13 第 0–1 波：C001 行政邊界、C023 人口；其餘 10 層由 VN_DATA_MANIFEST_ENTRIES 派生）
   // ══════════════════════════════════════════════════════════════
@@ -8109,14 +8354,17 @@ export const LAYER_MANIFEST = {
     icon: Landmark,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }],
+      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }, { datasetId: "household_registration_offices", confidence: "MED" }], processing: "analytics civic_facilities/household_registration_offices 7437：戶政司 368 列＝主所 210＋轄下辦公據點 158；離線 geocode 305＋Google 門牌級補解 32＝337（main 194／branch 143），本層只補 branch 143 點（新檔名 household_registration_offices_7437_v2.pmtiles），15 筆無法定位未上圖；主所以站上名冊為準", note: "戶政辦公據點位置依地址推定；另 15 處無法定位未上圖。",
     },
-    dataClass: "A",
-    source: { kind: "geojson", sourceId: "gov-service-offices", url: "./civic_facilities/gov_service_offices_national.geojson" },
+    dataClass: "B",
+    source: [
+      { kind: "geojson", sourceId: "gov-service-offices", url: "./civic_facilities/gov_service_offices_national.geojson" },
+      { kind: "pmtiles", sourceId: "gov-service-offices-hro-branch", url: "./civic_facilities/household_registration_offices_7437_v2.pmtiles", sourceLayer: "household_registration_offices", minzoom: 4, maxzoom: 14 },
+    ],
     legend: "govServiceOffices",
-    popup: "govServiceOffice",
+    popup: ["govServiceOffice", "householdRegistrationBranch"],
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
-    description: "各級機關便民服務據點全國 702 處",
+    description: "各級機關便民服務據點全國 702 處，另含戶政事務所轄下辦公據點 143 處（可與主所分開篩選）",
     topics: ["基礎建設", "行政", "公共服務"],
   },
 
@@ -9915,25 +10163,21 @@ export const LAYER_MANIFEST = {
     country: "TW", section: { theme: "林業 Forestry", group: "線" },
     ...layerName({ zh: "阿里山鐵路", alt: "Alishan Rail" }),
     expandable: true,
-    color: "#92400E",
+    color: ATLAS_LAYER_COLORS.forestAlishanRail,
     icon: TrainFront,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "wildlife_distribution_3rd_alt", confidence: "HIGH" }],
+      datasets: [{ datasetId: "alishan_forest_railway_points", confidence: "HIGH" }],
+      processing: "analytics transportation/alishan_forest_railway_points v1：林鐵及文資處 data.gov.tw 136446（22 站，WGS84）＋38128 SHP 中無車站代號的 5 點，共 27 點；里程、海拔補自 38128",
+      note: "取代舊來源（datasetId 誤掛 wildlife_distribution_3rd_alt 的 38128 25 點）；沼平、對高岳、祝山為支線，里程不可與本線比較。",
     },
-    dataClass: "A",
-    // ⚠️ 檔名與 datasetId 都是 wildlife_distribution_3rd_alt（與圖層標題不符），
-    //    且渲染成 circle 走 forestryPOI —— 照現況登記，上游對應待另案釐清
-    source: {
-      kind: "geojson",
-      sourceId: "forest-alishan-rail",
-      url: "./forestry/wildlife_distribution_3rd_alt.geojson",
-    },
-    legend: "forestCompartments",
-    popup: "forestryPOI",
-    params: { count: 2, kinds: ["slider", "slider"] },
-    description: "阿里山林業鐵路相關點位（資料檔為 wildlife_distribution_3rd_alt，上游對應待釐清）",
-    topics: ["林業", "鐵道", "文化資產"],
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "forest-alishan-rail", url: "./forestry/alishan_forest_railway_points_v1.pmtiles", sourceLayer: "alishan_forest_railway_points", minzoom: 4, maxzoom: 14 },
+    legend: "forestAlishanRail",
+    popup: "forestAlishanRail",
+    params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "阿里山林業鐵路車站 22 站與監工區、車庫園區、水山（共 27 點），含里程、海拔與站介紹連結。",
+    topics: ["林業", "鐵道", "文化資產", "阿里山"],
   },
 
   hikingTrails: {
@@ -10020,6 +10264,20 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["palette", "slider", "toggle"] },
     description: "實價登錄租賃案件 150m 網格中位單價",
     topics: ["房地產", "租賃", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstateRentalPoint: {
@@ -10044,6 +10302,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄租賃交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "租賃", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   realEstateSaleGrid: {
@@ -10071,6 +10343,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄買賣案件 150m 網格中位單價",
     topics: ["房地產", "買賣", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstateSalePoint: {
@@ -10095,6 +10381,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄買賣交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "買賣", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   realEstatePresaleGrid: {
@@ -10122,6 +10422,20 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["palette", "slider", "toggle"] },
     description: "實價登錄預售屋 150m 網格中位單價",
     topics: ["房地產", "預售", "網格"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "quarter",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_grid.pmtiles",
+        timeField: "period",
+        note: "單一 PMTiles，period＝季（2024Q3…；ALL＝全期彙總，不是一期）",
+      },
+      summable: false, // 中位單價
+      breaks: [],
+    },
   },
 
   realEstatePresalePoint: {
@@ -10146,6 +10460,20 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄預售屋交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "預售", "交易點"],
+    longTerm: {
+      kind: "event",
+      // 涵蓋：src/lib/realEstateTime.ts RANGE_START／RANGE_END（2024Q3–2026Q1，RE_PERIODS 7 季）
+      coverage: { start: "2024-07-01", end: "2026-03-31" },
+      granularity: "day",
+      data: {
+        form: "singleFile",
+        file: "./coverage/real_estate_points_buffer.bin",
+        timeField: "trade_ts",
+        note: "三種交易型別共用一份 buffer；tradeTsRel＝trade_ts − RANGE_START（float32）",
+      },
+      summable: true,
+      breaks: [],
+    },
   },
 
   propertyValueAdmin: {
@@ -10956,6 +11284,50 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "H3 網格人口數（日間／夜間，可依年份回放）",
     topics: ["人口", "H3", "統計"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：get_h3_demographics_years 快照＝104–113 年 res7 全有、res8 只到 108 年（h3Loader.pickDemographicsYearlyResolution）
+      coverage: { start: "2015-01-01", end: "2024-12-31" },
+      granularity: "year",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r7.json"],
+        note: "每年每解析度一檔（get_h3_demographics_yearly 原樣、全量）",
+      },
+      summable: true,
+      breaks: [],
+      detailTiers: [
+        { from: "2015-01-01", to: "2018-12-31", level: "full", note: "104–107 年有 res8 細網格（約 5.6 萬格）", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2019-01-01", to: "2019-12-31", level: "reduced", note: "108 年 res8 只有 2,636 格，不完整", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2020-01-01", to: "2024-12-31", level: "reduced", note: "109 年起沒有 res8，只有 res7" },
+      ],
+    },
+  },
+
+  // 台灣圖層延伸 B5 N11（2026-11-21）：縣市間遷徙流向，底色＝統計 statsCountyOdNetMigration（同一份 OD 加總）
+  twCountyMigrationFlows: {
+    key: "twCountyMigrationFlows",
+    country: "TW", section: { theme: "人口社經 People", group: "遷徙流向" },
+    ...layerName({ zh: "縣市間遷徙流向", alt: "Inter-county Migration Flows" }),
+    expandable: true,
+    color: "#22d3ee",
+    icon: ArrowLeftRight,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "county_migration_od", confidence: "HIGH" }],
+      processing: "taipei-gis-analytics pipelines/demographics/county_migration_od（#420）：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，村里×遷入縣市月檔）加總成縣市 22×22 年度 OD（2024、2025 各 462 組）；scripts/preprocess/build-county-migration-od.py 轉成 src/data/countyMigrationOd.json",
+      note: "戶籍登記的跨縣市遷徙，不含國外遷入遷出、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」統計口徑不同。2026 年未滿 12 個月不出。端點為縣市政府所在地（約略座標，只作示意）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCountyMigrationFlowsLayer：OD 檔 src/data/countyMigrationOd.json（約 27 KB，lazy import 隨 dist 出貨，不進 public）；自建 geojson source tw-county-migration-flows（弧線）／tw-county-migration-seats（端點），styledata 時把弧線移到統計底色之上；年份與 statsCountyOd* 底色期別雙向連動",
+    },
+    legend: "twCountyMigrationFlows",
+    popup: "twCountyMigrationFlows",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "縣市之間一年有多少人把戶籍遷過去（內政部，2024、2025 年）。弧線由遷出縣市彎向遷入縣市，越粗人越多；預設畫全國前 30 條，加上每個縣市最大的一條遷出。點縣市（底色面或端點）只看該縣市遷入前 5（青）與遷出前 5（黃），再點一次或按 Esc 取消；未滿 100 人不畫。只算跨縣市的戶籍遷徙，不含國外與初設戶籍，和「人口遷徙（縣市）」統計口徑不同；戶籍登記不等於實際搬家。底色可開「縣市間淨遷入人數」，年份會跟著連動。來源：內政部戶政司（data.gov.tw 168209），政府資料開放授權條款第 1 版。",
+    topics: ["人口", "遷徙", "人口移動", "戶籍", "流向", "OD"],
   },
 
   h3Population: {
@@ -11008,6 +11380,24 @@ export const LAYER_MANIFEST = {
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "縣市年度人口指標（出生／死亡／遷徙等，多指標下拉切換）",
     topics: ["人口", "H3", "指標"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：get_h3_demographics_years 快照＝104–113 年 res7 全有、res8 只到 108 年（h3Loader.pickDemographicsYearlyResolution）
+      coverage: { start: "2015-01-01", end: "2024-12-31" },
+      granularity: "year",
+      data: {
+        form: "periodFiles",
+        files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r7.json"],
+        note: "每年每解析度一檔（get_h3_demographics_yearly 原樣、全量）",
+      },
+      summable: false, // 多指標混合（含率與平均），保守視為不可加總
+      breaks: [],
+      detailTiers: [
+        { from: "2015-01-01", to: "2018-12-31", level: "full", note: "104–107 年有 res8 細網格（約 5.6 萬格）", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2019-01-01", to: "2019-12-31", level: "reduced", note: "108 年 res8 只有 2,636 格，不完整", files: ["/static-rpc/get_h3_demographics_yearly_<rocYear>_r8.json"] },
+        { from: "2020-01-01", to: "2024-12-31", level: "reduced", note: "109 年起沒有 res8，只有 res7" },
+      ],
+    },
   },
 
   socioeconomic: {
@@ -12270,13 +12660,15 @@ export const LAYER_MANIFEST = {
   landslideAnnual: {
     key: "landslideAnnual", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "年度全島崩塌地", alt: "Annual Landslide Inventory" }), expandable: true,
     color: LANDSLIDE_LAYER_COLORS.landslideAnnual, icon: Layers,
-    upstream: { status: "verified", datasets: [{ datasetId: "landslide_annual_swcb", confidence: "HIGH" }], note: "農業部農村發展及水土保持署年度全島崩塌地（衛星影像判釋）；只有 2017、2018、2023、2024 四年共 143,511 面，2019–2022 未納入、2016 以前為林業署另一口徑未納入；2024 為 V2 版（影像 2024-12～2025-05）。107MB PMTiles 走 S3 deploy-assets/hazards/；z<10 切片會遺漏小面，圖層 z10 起顯示。" },
+    upstream: { status: "verified", datasets: [{ datasetId: "landslide_annual_swcb", confidence: "HIGH" }, { datasetId: "landslide_annual_swcb_114", confidence: "HIGH" }], note: "農業部農村發展及水土保持署年度全島崩塌地（衛星影像判釋）；2017、2018、2023、2024 四年共 143,511 面在 107MB 合併檔，2025（114 年，data.gov.tw 179093，影像 2025-10～2026-05，42,322 面）是獨立單年檔（landslide_annual_swcb_2025_20261120，不重切合併檔）；2019–2022 未納入、2016 以前為林業署另一口徑未納入；2024 為 V2 版（影像 2024-12～2025-05）。走 S3 deploy-assets/hazards/；z<10 切片會遺漏小面（單年檔 z6 少約 20%）。跨年比較是不同影像期的判釋結果；2025 版沒有縣市欄。" },
     dataClass: "B", source: [
       { kind: "pmtiles", sourceId: "landslide-annual", url: "./hazards/landslide_annual_swcb_20261006.pmtiles", sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
       { kind: "pmtiles", sourceId: "landslide-annual-points", url: "./hazards/landslide_annual_swcb_20261006_points.pmtiles", sourceLayer: "landslide_annual_points", minzoom: 4, maxzoom: 10 },
+      { kind: "pmtiles", sourceId: "landslide-annual-2025", url: "./hazards/landslide_annual_swcb_2025_20261120.pmtiles", sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "landslide-annual-2025-points", url: "./hazards/landslide_annual_swcb_2025_20261120_points.pmtiles", sourceLayer: "landslide_annual_points", minzoom: 4, maxzoom: 10 },
     ],
     legend: "landslideAnnual", popup: "landslideAnnual", params: { count: 5, kinds: ["select", "select", "slider", "palette", "slider"] },
-    description: "年度全島崩塌地範圍（只有 2017、2018、2023、2024 四年；放大到 10 級以上才顯示）",
+    description: "年度全島崩塌地範圍（只有 2017、2018、2023、2024、2025 五年；放大到 10 級以上才顯示）",
     topics: ["災害", "崩塌", "衛星判釋"],
   },
 
@@ -17633,6 +18025,31 @@ export const LAYER_MANIFEST = {
     description: "30 天地圖挑戰 Day 19 氣味：官方認定有異味污染而裁罰的設施。2017 年起事實欄寫到「異味污染物」的裁罰 848 件、505 處設施；圓越大裁罰件數越多（1–62 件），顏色是最高超標倍數（≤2、2–5、>5 倍，灰色＝未載明倍數）。可只看有載明倍數或超標 >5 倍的設施。點設施看名稱、縣市、裁罰件數、不同日數、年份與罰鍰合計。事實欄 2017 年起才有、約 6 成空白，848 件是下限；個人經營的畜牧場不顯示名稱。來源：環境部環保裁處（政府資料開放授權條款第 1 版）。",
     topics: ["氣味", "異味", "空氣污染", "裁罰", "畜牧", "工廠", "30 天地圖挑戰"],
   },
+  mapchallengeDay21OsmRoads: {
+    key: "mapchallengeDay21OsmRoads",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-21）：靜態 PMTiles，不在 GATED_LAYERS。年份由圖層自己的拉桿控制，
+    // 不接長期時間條（時間條目前只支援 event 類；待支援 periodSnapshot 後再接），所以不寫 longTerm。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 21 開放街圖 OSM" },
+    ...layerName({ zh: "道路畫進 OSM 的年份", alt: "When Roads Were Drawn into OSM" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY21_COLOR,
+    icon: Spline,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["osm_full_history_ohsome", "osm_taiwan_roads_260905"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 21 OSM：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day21_osm_road_growth（01–04）。ohsome API（HeiGIT）OpenStreetMap 完整歷史（2007-10-08～2026-07-27），臺北市、新北市、基隆市現況道路（motorway～service，不含停車場通道與車道）切成 ≤100 m 小段，每 10 m 取樣點；每年 1 月 1 日快照若 ≥60% 樣點在當時道路 15 m 內就算已存在，最早出現的快照 Y 年 → 年份 Y−1（2008-01-01 就有 → 2007＝2007 年以前，含；終點才出現 → 2026）。highway 由 Geofabrik 2026-06-22 快照補、路名先查 2026-09-05 再查 06-22 快照；同 way／同年／同等級的相連小段合併後切 PMTiles（z8–14；主幹與次要 z8 起、一般道路 z10 起、service 與其他 z12 起）。共 178,996 小段、約 13,670 km。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day21_osm）。年份＝畫進 OSM 的年份，不是道路開通年份。依位置判定：已刪除的路不顯示；路線重畫到新位置會被算成新畫；高架疊在舊平面道路上會繼承舊年份。早期（2007–2011）因單線後來拆成雙向，各年累計長度多算約 10–24%，2014 年以後差距在 ±2% 以內。",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "mapchallenge-day21-osm-roads", url: "./mapchallenge/day21_osm_road_years.pmtiles", sourceLayer: "day21_osm_road_years", minzoom: 8, maxzoom: 14 },
+    legend: "mapchallengeDay21OsmRoads",
+    popup: "mapchallengeDay21OsmRoads",
+    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "toggle"] },
+    description: "30 天地圖挑戰 Day 21 OSM：雙北＋基隆的每段道路是哪一年第一次畫進 OpenStreetMap。顏色＝年份，深藍是 2007 年以前、越往紫紅橘黃越新；線寬分主幹、次要、一般道路三級。新增最多的是 2011 年（1,748 km）、2013 年（1,622 km）與 2010 年（1,420 km），2018 年起每年只剩 71–345 km。可用年份拉桿看到某年為止的路網，或只看當年新增的路；可依道路等級篩選。年份是畫進 OSM 的年份，不是道路開通年份；2007 代表 2007 年以前；資料到 2026-07-27；早期（2007–2011）因單線後來拆成雙向會略多算；已刪除的路不顯示；路線重畫到新位置會被算成新畫。點路段看年份、道路等級、路名與 OSM 連結。來源：© OpenStreetMap contributors（ODbL），歷史經 ohsome API（HeiGIT）。",
+    topics: ["OpenStreetMap", "OSM", "道路", "路網", "編輯史", "雙北", "基隆", "30 天地圖挑戰"],
+  },
 
   roadCongestion: {
     key: "roadCongestion",
@@ -17708,6 +18125,71 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "站主限定。警廣即時路況（每分鐘重抓）：事故黃、其他灰，已排除變灰。",
     topics: ["交通", "即時", "警廣", "事故", "OWNER_ONLY"],
+  },
+
+  // ── 台灣圖層延伸 B8（2026-11-22）：R2 即時快照（collector 寫 live/tw/…，前端定期重抓，不經 Supabase）──
+  dengueClusters: {
+    key: "dengueClusters",
+    country: "TW", section: { theme: "醫療 Medical", group: "即時 Emergency" },
+    ...layerName({ zh: "登革熱聚集區", alt: "Dengue Clusters" }),
+    expandable: true,
+    color: "#ef4444",
+    icon: Biohazard,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "poi.dengue_cluster_daily", confidence: "HIGH" }],
+      processing: "data-collectors external/tw_live_snapshots_vm（HiCloud VM，每日 15:13）：疾管署 od.cdc.gov.tw/eic/DengueCluster/ 22 縣市檔＋_all（data.gov.tw 179291）→ 正規化、_all 與縣市聯集比對 → R2 live/tw/dengue_cluster/latest.geojson＋status.json；S3 cdc_dengue_cluster/archives/ 是唯一歷史（來源只給近兩週）。",
+      note: "一級發布區面（村里內的小區），不是病例住址；非流行季整天 0 筆屬正常。來源說明寫病例數 ≥2，但歷史快照有 1 例的，照實顯示。",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "useDengueClusterLayer（hooks/useTwLiveSnapshotLayer.ts）：開著時每 30 分鐘重抓 R2 live/tw/dengue_cluster/latest.geojson → geojson source＋fill／line，z12 以前另畫中心空心圈（面太小）。無靜態檔要部署。" },
+    legend: "dengueClusters",
+    popup: "dengueCluster",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "疾管署近兩週本土登革熱病例聚集區（每日更新）：一級發布區面、紅色外框；沒有聚集區時圖例會寫明。",
+    topics: ["醫療", "傳染病", "登革熱", "即時", "疾管署"],
+  },
+  navNotices: {
+    key: "navNotices",
+    country: "TW", section: { theme: "海洋 Marine", group: "航行安全 Navigation Safety" },
+    ...layerName({ zh: "航船布告", alt: "Navigational Notices" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Anchor,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "marine.motcmpb_nav_notices", confidence: "HIGH" }],
+      processing: "data-collectors external/tw_live_snapshots_vm（HiCloud VM，每小時 :27）：航港局 aton.motcmpb.gov.tw 航船布告（data.gov.tw 179037）→ 合併重複列、時段兩欄對調修正、Circle／Sector 依中心與半徑推算成面、info 遮蔽電話與承辦人姓名 → R2 live/tw/nav_notices/latest.geojson＋status.json（內容變才重寫）；S3 motcmpb_nav_notices/archives/。",
+      note: "來源只列有效中的布告，前端仍依 start_at／end_at 再濾一次；約 700 則沒有幾何不上圖。「永久」類常是多年前未下架的公告，預設不顯示（站主 2026-11-22）。射擊公告與 firingNoticeAreas（海軍／海巡歷史公告）主題重疊、來源不同。",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "useNavNoticesLayer（hooks/useTwLiveSnapshotLayer.ts）：開著時每 10 分鐘重抓 R2 live/tw/nav_notices/latest.geojson（約 6 MB，gzip 0.5 MB）→ 一個 geojson source，fill／outline／line／circle 依 geometry-type 分層、依類型上色，類型與期限篩選走 setFilter。無靜態檔要部署。" },
+    legend: "navNotices",
+    popup: "navNotice",
+    params: { count: 4, kinds: ["slider", "slider", "multiSelect", "multiSelect"] },
+    description: "交通部航港局航船布告（有效期間內）：礙航、射擊、航標、離岸風場施工四類，點、線、面依公告範圍；可疊 AIS 船舶一起看。",
+    topics: ["海洋", "航行安全", "航船布告", "射擊", "離岸風電", "即時"],
+  },
+  tideSwellAlerts: {
+    key: "tideSwellAlerts",
+    country: "TW", section: { theme: "水資源 Water", group: "海象觀測 Marine Observation" },
+    ...layerName({ zh: "大潮與長浪警戒", alt: "Tide & Swell Alerts" }),
+    expandable: true,
+    color: "#38bdf8",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "marine.cwa_tide_swell_alerts", confidence: "HIGH" }],
+      processing: "data-collectors cwa_marine_alerts（pulse-host，每小時 :56）：氣象署 O-B0069-001 大潮監測 20 點＋O-B0070-001 長浪監測 20 浮標（公開 S3）→ 依 O-B0076 站表定位（地區名監測點以最大潮高比對 O-B0075 選站）→ R2 live/tw/cwa_tide_swell_alerts/latest.geojson＋status.json；S3 cwa_marine_alerts/archives/。",
+      note: "每點是過去 8 小時視窗的警戒狀態；警戒字串依檔內說明與實測（暴潮警戒）分 0／1／2 級，沒看過的字串等級留空（灰）。點位與 CWA 海洋觀測站同址，可疊 marineObservationCwa 看觀測值；臺北港浮標座標取自已停更的 O-B0079 站表。",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "useTideSwellAlertsLayer（hooks/useTwLiveSnapshotLayer.ts）：開著時每 10 分鐘重抓 R2 live/tw/cwa_tide_swell_alerts/latest.geojson → geojson source＋circle（色＝警戒等級），等級 ≥1 另一層外環脈動（requestAnimationFrame；prefers-reduced-motion 靜態）。無靜態檔要部署。" },
+    legend: "tideSwellAlerts",
+    popup: "tideSwellAlert",
+    params: { count: 3, kinds: ["slider", "slider", "multiSelect"] },
+    description: "氣象署大潮與長浪監測 40 點（每小時）：顏色是警戒等級，有警戒時點會脈動；位置與 CWA 海洋觀測站相同。",
+    topics: ["水資源", "海洋", "大潮", "暴潮", "長浪", "警戒", "即時", "CWA"],
   },
 
   // ── 停車 Parking ───────────────────────────────────────────────────

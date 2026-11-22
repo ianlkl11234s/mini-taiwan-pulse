@@ -262,5 +262,6 @@
   "legend.civic.gbOsmTileZoom": "ズーム {z} 以上で表示",
   "legend.civic.gbOsmNations": "イングランド {e}／スコットランド {s}／ウェールズ {w}／北アイルランド {ni}",
   "legend.civic.gbOsmSnapshot": "OpenStreetMap スナップショット {date}（ボランティアデータ、網羅度は地域差あり）",
-  "legend.civic.gbPfNote": "郵便局は店舗内窓口（post_partner）を含む。裁判所・図書館は別レイヤー"
+  "legend.civic.gbPfNote": "郵便局は店舗内窓口（post_partner）を含む。裁判所・図書館は別レイヤー",
+  "legend.civic.govServiceHroNote": "戸政事務所の出張所：戸政司 7437 の戸政事務所傘下の事務室・事務所 158 か所。位置は住所からの推定で、143 か所を表示し、15 か所は位置を特定できず非表示です。本所は従来の機関名簿のままです。"
 }

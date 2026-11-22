@@ -1,0 +1,313 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "twExtB5",
+  "generated_from": {
+    "recipes": "b5-recipes.json",
+    "bundles": "taipei-gis-analytics data/processed/demographics/<dataset_id>/releases/<release_id>.json"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "observed_zero": "not used",
+    "missing": "not used",
+    "not_applicable": "not used",
+    "suppressed": "not used"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsCountyOdNetMigration",
+      "enabled": true,
+      "family": "twExtB5",
+      "label": "縣市間淨遷入人數",
+      "group": "countyOdMigration",
+      "group_label": "縣市間遷徙（不含國外）",
+      "option_label": "淨遷入人數",
+      "subgroup": "遷徙",
+      "data_theme": "人口統計 Population Statistics",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "population",
+      "dataset_id": "county_net_migration_od",
+      "indicator_id": "od_net_migration",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "y2025-od_net_migration-county-v1-e7832505e44a",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "y2024-od_net_migration-county-v1-1174054df07d",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y2025-od_net_migration-county-v1-e7832505e44a",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          -15000,
+          -5000,
+          0,
+          5000,
+          15000
+        ],
+        "direction": "diverging",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，月檔加總成年）；政府資料開放授權條款-第1版。",
+          "只算跨縣市的戶籍遷徙：不含遷往或遷自國外、初設戶籍、廢止戶籍、縣市內跨鄉鎮；戶籍登記不等於實際居住移動。",
+          "與「人口遷徙（縣市）」層口徑不同（那層含國外遷入遷出與初設戶籍、率用年中人口），兩者數值不會相同，不可混看。",
+          "淨遷入＝遷入－遷出，全國加總為 0；紫＝淨遷入、棕＝淨遷出。",
+          "縣市之間的流向弧線見「縣市間遷徙流向」圖層。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "戶籍登記地（遷入縣市／遷出縣市依戶籍登記）",
+      "disclosure": "內政部各直轄市、縣（市）間遷徙人口數（村里×遷入縣市月檔）加總成縣市 22×22 年度 OD 後取欄合計（遷入）、列合計（遷出）。只含跨縣市戶籍遷徙，不含國外、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」層（含國外、初設戶籍、年中人口）口徑不同。淨遷入率分母為同年 12 月底戶籍人口。",
+      "publisher": "內政部戶政司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/168209",
+      "source_download_url": "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/B754A8B7-728E-4A35-9590-05CDACE3F673/resource/28396A77-FB8C-4480-9FF1-73FF3345BC77/download",
+      "source_title": "各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209）"
+    },
+    {
+      "layer_key": "statsCountyOdNetMigrationRate",
+      "enabled": true,
+      "family": "twExtB5",
+      "label": "縣市間淨遷入率",
+      "group": "countyOdMigration",
+      "group_label": "縣市間遷徙（不含國外）",
+      "option_label": "淨遷入率（‰）",
+      "subgroup": "遷徙",
+      "data_theme": "人口統計 Population Statistics",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "population",
+      "dataset_id": "county_net_migration_od",
+      "indicator_id": "od_net_migration_rate",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "‰",
+      "aggregation": "ratio",
+      "default_release_id": "y2025-od_net_migration_rate-county-v1-8d98306a3965",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "y2024-od_net_migration_rate-county-v1-375a88c888af",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y2025-od_net_migration_rate-county-v1-8d98306a3965",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          -5,
+          -2,
+          0,
+          2,
+          5
+        ],
+        "direction": "diverging",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，月檔加總成年）；政府資料開放授權條款-第1版。",
+          "只算跨縣市的戶籍遷徙：不含遷往或遷自國外、初設戶籍、廢止戶籍、縣市內跨鄉鎮；戶籍登記不等於實際居住移動。",
+          "與「人口遷徙（縣市）」層口徑不同（那層含國外遷入遷出與初設戶籍、率用年中人口），兩者數值不會相同，不可混看。",
+          "淨遷入＝遷入－遷出，全國加總為 0；紫＝淨遷入、棕＝淨遷出。",
+          "淨遷入率＝淨遷入 ÷ 同年 12 月底戶籍人口 × 1000（‰；分母是年底，不是年中）。",
+          "縣市之間的流向弧線見「縣市間遷徙流向」圖層。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "derived": true,
+      "location_semantics": "戶籍登記地（遷入縣市／遷出縣市依戶籍登記）",
+      "disclosure": "內政部各直轄市、縣（市）間遷徙人口數（村里×遷入縣市月檔）加總成縣市 22×22 年度 OD 後取欄合計（遷入）、列合計（遷出）。只含跨縣市戶籍遷徙，不含國外、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」層（含國外、初設戶籍、年中人口）口徑不同。淨遷入率分母為同年 12 月底戶籍人口。",
+      "publisher": "內政部戶政司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/168209",
+      "source_download_url": "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/B754A8B7-728E-4A35-9590-05CDACE3F673/resource/28396A77-FB8C-4480-9FF1-73FF3345BC77/download",
+      "source_title": "各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209）"
+    },
+    {
+      "layer_key": "statsCountyOdInMigration",
+      "enabled": true,
+      "family": "twExtB5",
+      "label": "縣市間遷入人數",
+      "group": "countyOdMigration",
+      "group_label": "縣市間遷徙（不含國外）",
+      "option_label": "遷入人數",
+      "subgroup": "遷徙",
+      "data_theme": "人口統計 Population Statistics",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "population",
+      "dataset_id": "county_net_migration_od",
+      "indicator_id": "od_in_migration",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "y2025-od_in_migration-county-v1-0331a161f372",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "y2024-od_in_migration-county-v1-3c25207e12fe",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y2025-od_in_migration-county-v1-0331a161f372",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5000,
+          15000,
+          30000,
+          60000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，月檔加總成年）；政府資料開放授權條款-第1版。",
+          "只算跨縣市的戶籍遷徙：不含遷往或遷自國外、初設戶籍、廢止戶籍、縣市內跨鄉鎮；戶籍登記不等於實際居住移動。",
+          "與「人口遷徙（縣市）」層口徑不同（那層含國外遷入遷出與初設戶籍、率用年中人口），兩者數值不會相同，不可混看。",
+          "縣市之間的流向弧線見「縣市間遷徙流向」圖層。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "戶籍登記地（遷入縣市／遷出縣市依戶籍登記）",
+      "disclosure": "內政部各直轄市、縣（市）間遷徙人口數（村里×遷入縣市月檔）加總成縣市 22×22 年度 OD 後取欄合計（遷入）、列合計（遷出）。只含跨縣市戶籍遷徙，不含國外、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」層（含國外、初設戶籍、年中人口）口徑不同。淨遷入率分母為同年 12 月底戶籍人口。",
+      "publisher": "內政部戶政司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/168209",
+      "source_download_url": "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/B754A8B7-728E-4A35-9590-05CDACE3F673/resource/28396A77-FB8C-4480-9FF1-73FF3345BC77/download",
+      "source_title": "各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209）"
+    },
+    {
+      "layer_key": "statsCountyOdOutMigration",
+      "enabled": true,
+      "family": "twExtB5",
+      "label": "縣市間遷出人數",
+      "group": "countyOdMigration",
+      "group_label": "縣市間遷徙（不含國外）",
+      "option_label": "遷出人數",
+      "subgroup": "遷徙",
+      "data_theme": "人口統計 Population Statistics",
+      "tab_theme": "人口與教育 Population & Education",
+      "visual_theme": "population",
+      "dataset_id": "county_net_migration_od",
+      "indicator_id": "od_out_migration",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "y2025-od_out_migration-county-v1-5336828a3e07",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "y2024-od_out_migration-county-v1-aba0cb6ffe8e",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "y2025-od_out_migration-county-v1-5336828a3e07",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5000,
+          15000,
+          30000,
+          60000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，月檔加總成年）；政府資料開放授權條款-第1版。",
+          "只算跨縣市的戶籍遷徙：不含遷往或遷自國外、初設戶籍、廢止戶籍、縣市內跨鄉鎮；戶籍登記不等於實際居住移動。",
+          "與「人口遷徙（縣市）」層口徑不同（那層含國外遷入遷出與初設戶籍、率用年中人口），兩者數值不會相同，不可混看。",
+          "縣市之間的流向弧線見「縣市間遷徙流向」圖層。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "戶籍登記地（遷入縣市／遷出縣市依戶籍登記）",
+      "disclosure": "內政部各直轄市、縣（市）間遷徙人口數（村里×遷入縣市月檔）加總成縣市 22×22 年度 OD 後取欄合計（遷入）、列合計（遷出）。只含跨縣市戶籍遷徙，不含國外、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」層（含國外、初設戶籍、年中人口）口徑不同。淨遷入率分母為同年 12 月底戶籍人口。",
+      "publisher": "內政部戶政司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/168209",
+      "source_download_url": "https://opdadm.moi.gov.tw/api/v1/no-auth/resource/api/dataset/B754A8B7-728E-4A35-9590-05CDACE3F673/resource/28396A77-FB8C-4480-9FF1-73FF3345BC77/download",
+      "source_title": "各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209）"
+    }
+  ],
+  "catalog_generated_from": "twExtB5StatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}

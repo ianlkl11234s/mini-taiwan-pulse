@@ -31,17 +31,19 @@ import type { ManifestKey } from "../data/layerManifest";
 import type { LayerHostComponent } from "./layerHostDeps";
 
 import {
-  RealEstateTimelineHost, RealEstatePointsHost, PropertyValueAdminHost, SelectedFeatureHaloHost,
+  RealEstateTimelineHost, RealEstatePointsHost, PropertyValueAdminHost, SelectedFeatureHaloHost, LandOfficeHighlightHost,
 } from "./hosts/realEstateHosts";
 import {
   ReservoirStatusHost, RainGaugeHost, BridgeRainHost, FloodSensorHost, FloodSensorIsochroneHost,
   TaipeiSewerHost, TaipeiEvacuateHost, TaipeiPumbHost, PrecipRasterHost,
   RiverLevelHost, MarineObservationHost, GroundwaterWellsHost, GroundwaterHost,
+  TwMarineHeatwavesHost, TwCoralBleachingHeatStressHost,
   IotWraRiverHost, IotWraStructureHost,
 } from "./hosts/waterHosts";
 import { NewsEventsHost, NewsTimelineHost } from "./hosts/newsHosts";
 import { CouncilDistrictsHost, ElectionEventsHost, PollingStationsHost } from "./hosts/politicsHosts";
 import { Fire119LiveHost, PbsRoadEventsLiveHost } from "./hosts/liveIncidentsHosts";
+import { DengueClustersHost, NavNoticesHost, TideSwellAlertsHost } from "./hosts/twLiveHosts";
 import {
   EnergyPoiHost, FossilFuelHost, LivestockHost, A1AccidentRealtimeHost,
   SubstationDiamondIconHost, OsmPowerLinesGlowHost, PowerPolesHost,
@@ -57,6 +59,7 @@ import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
 import { TransitReachGridHost, TransitReachPlaybackHost } from "./hosts/transitReachHosts";
 import { HistoricalMapSinicaHost } from "./hosts/historicalMapHosts";
+import { CountyMigrationFlowsHost } from "./hosts/countyMigrationHosts";
 import { MapchallengeDay08PlanHost, MapchallengeDay17DarkSkyHost, MapchallengeDay17NightFallHost, MapchallengeDay19PotentialHost } from "./hosts/mapchallengeHosts";
 import { FreewayTdcsSimHost } from "./hosts/freewayTdcsSimHost";
 import { TransitAccessGridHost, TransitAccessPlaybackHost } from "./hosts/transitAccessHosts";
@@ -112,7 +115,7 @@ import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPop
 import { IeAdminHost, IeMaritimeBoundariesHost, IePlaceNamesHost, IeGaeltachtHost, IeActivityLocationsHost, IeParksHost, IeGraveyardsHost, IeBathymetryHost, IeCommercialValuationsHost, IeStateAssetsHost, IeHydrometricStationsHost, IeWaterMonitoringHost, IeRiverWaterBodiesHost, IeLakeWaterBodiesHost, IeArterialDrainageHost, IeRiverFloodExtentsHost, IeCoastalErosionHost, IeBathingWatersHost, IeMarineSurveyStationsHost, IeSeabedSurveyCoverageHost, IeProtectedMarineSitesHost, IeOffshoreRenewablesHost, IeTransitStopsHost, IeDublinbikesStationsHost, IeRoadRailNetworkHost, IeRoadMarkersHost, IeTrafficCountersHost, IeAirportsPortsHost, IeNationalParksHost, IeWildAtlanticWayHost, IeProtectedSitesHost, IeNationalTrailsHost, IeStreetTreesHost, IeRadiationStationsHost, IeLandslideEventsHost, IeLandslideExtentsHost, IeRadonRiskHost, IePowerPlantsHost, IePowerLinesHost, IeSubstationsHost, IeWindFarmsHost, IeEvChargingHost, IeFuelStationsHost, IeSchoolsHost, IeSchoolPlanningAreasHost, IeChildcareServicesHost, IeHeritageSitesHost, IeMuseumsHost, IeArtsVenuesHost, IePublicFacilitiesHost, IeReligiousSitesHost, IeHealthFacilitiesHost, IeCareHomesHost, IeFireStationsHost, IeGardaStationsHost, IeCourtsHost, IeIndustrialFacilitiesHost, IeSoilsHost, IePeatSoilsHost, IeAquacultureHost, IeZoningHost, IePlanningApplicationsHost, IeNoiseMapsHost, IeRecyclingPointsHost, IeWasteFacilitiesHost, IePrtrFacilitiesHost, IeCoillteRecreationHost, IeCoillteForestRoadsHost, IeDefibrillatorsHost, IePrisonsHost, IeProposedNhaHost, IeFloodZonesHost, IeGroundwaterFloodingHost, IePeatExtractionBogsHost } from "./hosts/irelandHosts";
 import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnMajorRoadsHost, VnPowerPlantsHost, VnRenewablesHost, VnPowerGridHost, VnFuelStationsHost, VnOilGasHost, VnEnvisoftStationsHost, VnAngiangDemoHost,
   VnTourAttractionsHost, VnTourNatureHost, VnTourServicesHost, VnNationalTouristAreasHost, VnPlaceNamesHost, VnBicycleRentalHost, VnBridgesHost, VnParkingHost, VnGlideEventsHost, VnDamsHost, VnRiversHost, VnWaterSupplyHost, VnWaterStructuresHost, VnRiverbankErosionHost, VnSchoolsHost, VnSchoolCampusesHost, VnKindergartensHost, VnHealthFacilitiesHost, VnPoliceHost, VnCourtsPrisonsHost, VnPostalServicesHost, VnPublicAmenitiesHost, VnFinancialServicesHost, VnPlacesOfWorshipHost, VnParksHost, VnProtectedAreasOdmHost, VnAngiangAquacultureHost, VnFieldBoundariesHost, VnSoilHost, VnFarmTracksHost, VnCoalMinesHost, VnTerrainHillshadeHost, VnTerrainReliefHost, VnLandslideSusceptibilityHost, VnWdpcaHost } from "./hosts/vietnamHosts";
-import { PhAdminHost, PhPopulationHost, PhTransportHubsHost, PhStationsHost, PhMajorRoadsHost, PhPowerPlantsHost, PhPowerGridHost, PhRenewablesHost, PhFuelStationsHost, PhPipelinesHost, PhBusStopsHost, PhUrbanRailHost, PhExpresswaysHost,
+import { PhAdminHost, PhPopulationHost, PhOpenaqAirHost, PhTransportHubsHost, PhStationsHost, PhMajorRoadsHost, PhPowerPlantsHost, PhPowerGridHost, PhRenewablesHost, PhFuelStationsHost, PhPipelinesHost, PhBusStopsHost, PhUrbanRailHost, PhExpresswaysHost,
   PhTouristAttractionsHost, PhCoastIslandsHost, PhNatureSpotsHost, PhTourismServicesHost, PhTourismDevelopmentAreasHost, PhPlaceNamesHost, PhPovertyHost, PhEarthquakesHost, PhNoahFlood100yrHost, PhNoahLandslideHost, PhWaterPermitsHost, PhLakesHost, PhDamsHost, PhBridgesHost, PhParkingHost, PhKmPostsHost, PhEcozonesHost, PhReclamationHost, PhSchoolsHost, PhSchoolCampusesHost, PhHealthFacilitiesHost, PhFireStationsHost, PhNcrSafeOpenSpacesHost, PhPoliceStationsHost, PhJailsHost, PhTreesHost, PhTrailsHost, PhKbaHost, PhWetlandsHost, PhForestryProgramsHost, PhCoastalResourcesHost, PhMarineStationsHost, PhWdpcaHost, PhWasteFacilitiesHost, PhPollutionSourcesHost, PhArtsVenuesHost, PhPostOfficesHost, PhPublicFacilitiesHost, PhFinancialServicesHost, PhPlacesOfWorshipHost, PhSportsVenuesHost, PhParksHost, PhCemeteriesHost, PhFishPortsHost, PhAquacultureHost, PhTerrainHillshadeHost, PhTerrainReliefHost, PhBuiltSurfaceHost, PhForestLossHost } from "./hosts/philippinesHosts";
 import { CnAdminHost, CnPopulationHost, CnPopulationGridHost, CnBusStopsHost, CnTransportHubsHost, CnMajorRoadsHost, CnPowerPlantsHost, CnPowerGridHost, CnPipelinesHost,
   CnEezHost, CnPlaceNamesHost, CnEthnicAutonomyHost, CnDamsHost, CnRiversHost, CnActiveFaultsHost, CnNatureReservesHost, CnWdpaHost, CnBridgesTunnelsHost, CnSchoolsHost, CnMedicalHost, CnNuclearPlantsHost, CnTerrainHost, CnAquacultureHost, CnSoilHost,
@@ -157,6 +160,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
 
   // ── 互動裝飾（L781）：跨圖層的點選選取圈，不屬於任何單一 layer ──
   { id: "useSelectedFeatureHalo", keys: [], Host: SelectedFeatureHaloHost },
+  // 台灣圖層延伸 B3：點地政事務所點 → 高亮轄區面（跨 govServiceOffices 與 landOfficeJurisdiction）
+  { id: "useLandOfficeHighlight", keys: [], Host: LandOfficeHighlightHost },
 
   // ── 水資源 / 水利（L784-897）──
   { id: "useReservoirStatusLayer", keys: ["waterReservoirs"], Host: ReservoirStatusHost },
@@ -174,6 +179,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
     keys: ["marineObservationCwa", "marineObservationIsohe"],
     Host: MarineObservationHost,
   },
+  { id: "useTwMarineHeatLayer:twMarineHeatwaves", keys: ["twMarineHeatwaves"], Host: TwMarineHeatwavesHost },
+  { id: "useTwMarineHeatLayer:twCoralBleachingHeatStress", keys: ["twCoralBleachingHeatStress"], Host: TwCoralBleachingHeatStressHost },
   { id: "useGroundwaterWellsLayer", keys: ["groundwaterWells"], Host: GroundwaterWellsHost },
   { id: "useGroundwaterLayer", keys: ["groundwater"], Host: GroundwaterHost },
   { id: "useIotWraRiverLayer", keys: ["iotWraRiver"], Host: IotWraRiverHost },
@@ -568,6 +575,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "usePhWdpcaLayer", keys: ["phWdpca"], Host: PhWdpcaHost },
   { id: "usePhWasteFacilitiesLayer", keys: ["phWasteFacilities"], Host: PhWasteFacilitiesHost },
   { id: "usePhPollutionSourcesLayer", keys: ["phPollutionSources"], Host: PhPollutionSourcesHost },
+  { id: "usePhOpenaqAirLayer", keys: ["phOpenaqAir"], Host: PhOpenaqAirHost },
   { id: "usePhArtsVenuesLayer", keys: ["phArtsVenues"], Host: PhArtsVenuesHost },
   { id: "usePhPostOfficesLayer", keys: ["phPostOffices"], Host: PhPostOfficesHost },
   { id: "usePhPublicFacilitiesLayer", keys: ["phPublicFacilities"], Host: PhPublicFacilitiesHost },
@@ -868,10 +876,16 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   // 即時 119 案件／警廣即時路況（owner-only RPC mig 555；當下快照，每分鐘重抓，不接時間軸）
   { id: "useFire119LiveLayer", keys: ["fire119Live"], Host: Fire119LiveHost },
   { id: "usePbsRoadEventsLiveLayer", keys: ["pbsRoadEventsLive"], Host: PbsRoadEventsLiveHost },
+  // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照
+  { id: "useDengueClusterLayer", keys: ["dengueClusters"], Host: DengueClustersHost },
+  { id: "useNavNoticesLayer", keys: ["navNotices"], Host: NavNoticesHost },
+  { id: "useTideSwellAlertsLayer", keys: ["tideSwellAlerts"], Host: TideSwellAlertsHost },
   // 30 天地圖挑戰 Day 8：1955 中和鄉都市計畫圖（單張 image source）
   { id: "useMapchallengeDay08PlanLayer", keys: ["mapchallengeDay08Plan1955"], Host: MapchallengeDay08PlanHost },
   // 30 天地圖挑戰 Day 17 光與暗：真正的黑夜（image source＋保護區面）、入夜變亮（canvas source，timeStore 訂閱）
   { id: "useMapchallengeDay17DarkSkyLayer", keys: ["mapchallengeDay17DarkSky"], Host: MapchallengeDay17DarkSkyHost },
   { id: "useMapchallengeDay17NightFallLayer", keys: ["mapchallengeDay17NightFall"], Host: MapchallengeDay17NightFallHost },
   { id: "useMapchallengeDay19PotentialLayer", keys: ["mapchallengeDay19Potential"], Host: MapchallengeDay19PotentialHost },
+  // 台灣圖層延伸 B5：縣市間遷徙流向（geojson 弧線＋端點，年份與統計底色連動）
+  { id: "useCountyMigrationFlowsLayer", keys: ["twCountyMigrationFlows"], Host: CountyMigrationFlowsHost },
 ];

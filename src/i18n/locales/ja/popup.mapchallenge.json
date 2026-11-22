@@ -205,5 +205,13 @@
   "popup.mapchallenge.day19.dir12": "西",
   "popup.mapchallenge.day19.dir13": "西北西",
   "popup.mapchallenge.day19.dir14": "北西",
-  "popup.mapchallenge.day19.dir15": "北北西"
+  "popup.mapchallenge.day19.dir15": "北北西",
+  "popup.mapchallenge.day21.unnamed": "（OSM に道路名なし）",
+  "popup.mapchallenge.day21.year": "OSM に描かれた年",
+  "popup.mapchallenge.day21.class": "道路等級",
+  "popup.mapchallenge.day21.noClass": "等級なし",
+  "popup.mapchallenge.day21.length": "この区間の長さ",
+  "popup.mapchallenge.day21.meters": "{n} m",
+  "popup.mapchallenge.day21.note": "注記",
+  "popup.mapchallenge.day21.yearNote": "年は OSM に描かれた年であり、道路の開通年ではない。"
 }

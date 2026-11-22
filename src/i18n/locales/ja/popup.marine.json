@@ -44,5 +44,14 @@
   "popup.marine.gbMpaArea": "面積",
   "popup.marine.gbMpaStatus": "状態",
   "popup.marine.gbMpaNav": "航海には使用できません",
-  "popup.marine.hourlyAggregate": "7 日間の曲線は 1 時間平均です。風向・波向・流向は各時間の最後の値です。"
+  "popup.marine.hourlyAggregate": "7 日間の曲線は 1 時間平均です。風向・波向・流向は各時間の最後の値です。",
+  "popup.marine.heatNoData": "データなし",
+  "popup.marine.heatPeriod": "月",
+  "popup.marine.heatMhwLevel": "海洋熱波レベル",
+  "popup.marine.heatSst": "月平均海面水温",
+  "popup.marine.heatSstAnomaly": "海面水温偏差",
+  "popup.marine.heatMhwNote": "0.25° 格子の月平均値であり、地点観測ではない。",
+  "popup.marine.heatBaa": "白化警報（月最大）",
+  "popup.marine.heatDhw": "DHW（月最大）",
+  "popup.marine.heatCrwNote": "5 km 衛星による高水温ストレスであり、現地のサンゴが必ず白化しているとは限らない。"
 }

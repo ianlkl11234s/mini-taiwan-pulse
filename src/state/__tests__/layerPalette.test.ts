@@ -113,7 +113,8 @@ describe("R7 顏色解析器", () => {
     // 2026-11-16 +7 菲律賓第 3–9 波：取水許可、學校、醫療院所、公共設施、金融據點、宗教場所、運動場館
     // 2026-11-13 +1 中國第 1 波：公交站（站主限定）
     // 2026-11-16 +2 中國第 5 波：學校、醫療（站主限定）
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(141);
+    // 2026-11-20 +1 台灣圖層延伸 B3：國家公園物種調查點位（自然保育主題第一個熱區層）
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(142);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

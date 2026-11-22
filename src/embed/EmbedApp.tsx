@@ -22,6 +22,7 @@ import { registerPmtilesProtocolOnce, maplibrePmtilesSource } from "./maplibreAd
 import { EMBED_CDN_LAYERS, EMBED_CDN_LAYER_FILTER, fetchCdnLayer } from "./dynamicCdnLayers";
 import { SNAPSHOT_LAYERS, fetchSnapshot } from "./snapshotLayers";
 import { isReplayLayer } from "./replayLayers";
+import { imageHookLayerSpec } from "./imageHookLayers";
 import { replayClock, formatReplayClock } from "./replayClock";
 import { buildPopupHtml, POPUP_CSS, POPUP_CSS_LIGHT } from "./embedPopup";
 import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
@@ -122,7 +123,10 @@ export function EmbedApp() {
   // 自動彙整，embed 關掉了那個控制項（見下方 `attributionControl: false`），
   // 所以這裡自行收集去重，補進右下角那條寫死的 bar。
   const layerAttributions = useRef(
-    [...new Set(configsFor(layerKeys).map((c) => c.attribution).filter(Boolean))] as string[],
+    [...new Set([
+      ...configsFor(layerKeys).map((c) => c.attribution),
+      ...layerKeys.map((k) => imageHookLayerSpec(k, isDark, params)?.attribution),
+    ].filter(Boolean))] as string[],
   ).current;
 
   useEffect(() => {
@@ -224,6 +228,25 @@ export function EmbedApp() {
               layerIdToKey.set(layer.id, key);
             }
           });
+        }
+      }
+
+      // 影像疊圖（Day 8／17／19）：主站是專屬 hook 掛 image source，這裡照靜態規格自己掛。
+      // 影像插在底圖第一個 symbol 下（不蓋地名），向量疊最上；網址轉絕對路徑，避免 worker 內相對路徑解析錯。
+      const firstSymbol = map.getStyle()?.layers?.find((layer) => layer.type === "symbol")?.id;
+      const abs = (u: string) => new URL(u, window.location.href).href;
+      for (const key of layerKeys) {
+        const spec = imageHookLayerSpec(key, isDark, params);
+        if (!spec || map.getSource(spec.image.sourceId)) continue;
+        map.addSource(spec.image.sourceId, { type: "image", url: abs(spec.image.url), coordinates: spec.image.corners });
+        map.addLayer(spec.image.layer, firstSymbol);
+        for (const g of spec.geojson) {
+          if (!map.getSource(g.sourceId)) map.addSource(g.sourceId, { type: "geojson", data: abs(g.url) });
+        }
+        for (const layer of spec.vectorLayers) {
+          if (map.getLayer(layer.id)) continue;
+          map.addLayer(layer);
+          layerIdToKey.set(layer.id, key);
         }
       }
 

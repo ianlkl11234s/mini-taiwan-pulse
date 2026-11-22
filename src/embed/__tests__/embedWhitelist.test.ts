@@ -19,6 +19,9 @@ import { EMBED_ALLOWED, EMBED_ALLOWED_CONFIGS, buildEmbedVisibility, configsFor 
 import { EMBED_FACTORY_OVERLAY_CONFIGS } from "../factoryOverlayConfigs";
 import type { LayerVisibility } from "../../types";
 import { ownerAsset } from "../../test/ownerAssets";
+import { IMAGE_HOOK_KEYS, imageHookLayerSpec, isImageHookLayer } from "../imageHookLayers";
+import { MAPCHALLENGE_DAY19_POTENTIAL_WINTER_URL } from "../../data/mapchallengeDay19Types";
+import { MAPCHALLENGE_DAY17_GROUND_URL } from "../../data/mapchallengeDay17Types";
 
 describe("EMBED_ALLOWED 白名單", () => {
   it("🔒 沒有任何 gated 圖層", () => {
@@ -99,6 +102,8 @@ describe("EMBED_ALLOWED 白名單", () => {
       ...SNAPSHOT_KEYS,
       // EM-16：回放圖層不在 registry（主站是 Three.js CustomLayer 畫的）
       ...REPLAY_KEYS,
+      // 影像疊圖（Day 8／17／19）不在 registry（主站是專屬 hook 掛 image source）
+      ...IMAGE_HOOK_KEYS,
     ]);
     expect([...EMBED_ALLOWED].sort()).toEqual([...expected].sort());
   });
@@ -255,5 +260,45 @@ describe("replaySnapshotUrl（EM-16）", () => {
       .map((k) => REPLAY_LAYERS[k]!.snapshotDir)
       .filter((dir) => !new RegExp(`^\\s*${dir}\\)`, "m").test(script));
     expect(missing, `匯出腳本沒有對應 case：${missing.join(", ")}`).toEqual([]);
+  });
+});
+
+describe("影像疊圖圖層（Day 8／17／19）", () => {
+  it("每個 key 都在白名單、在 LAYER_COLORS，且不是 gated／HOLD", () => {
+    for (const k of IMAGE_HOOK_KEYS) {
+      expect(EMBED_ALLOWED.has(k), k).toBe(true);
+      expect(k in LAYER_COLORS, k).toBe(true);
+      expect(GATED_LAYERS.has(k) || RELEASE_HOLD_LAYERS.has(k), k).toBe(false);
+      expect(buildEmbedVisibility([k])[k], k).toBe(true);
+    }
+  });
+
+  it("依時間軸畫的「入夜變亮」不收（embed 沒有時間軸）", () => {
+    expect(isImageHookLayer("mapchallengeDay17NightFall")).toBe(false);
+    expect(EMBED_ALLOWED.has("mapchallengeDay17NightFall")).toBe(false);
+  });
+
+  it("只讀主站同一份靜態檔，影像與網址參數對齊主站 host", () => {
+    const urls = IMAGE_HOOK_KEYS.flatMap((k) => {
+      const s = imageHookLayerSpec(k, true)!;
+      return [s.image.url, ...s.geojson.map((g) => g.url)];
+    });
+    for (const u of urls) expect(u, u).toMatch(/^\.\/mapchallenge\/[\w.-]+\.(png|jpg|geojson)$/);
+    expect(imageHookLayerSpec("mapchallengeDay19Potential", true, { mapchallengeDay19PotentialWindIdx: 1 })!.image.url)
+      .toBe(MAPCHALLENGE_DAY19_POTENTIAL_WINTER_URL);
+    expect(imageHookLayerSpec("mapchallengeDay17DarkSky", true, { mapchallengeDay17DarkSkyProductIdx: 1 })!.image.url)
+      .toBe(MAPCHALLENGE_DAY17_GROUND_URL);
+  });
+
+  it("Day 19：不計風時不畫風箭頭；棄置場址預設關、設施預設開", () => {
+    const vis = (p: Record<string, number>) => Object.fromEntries(
+      imageHookLayerSpec("mapchallengeDay19Potential", true, p)!.vectorLayers.map((l) => [l.id, l.layout.visibility]),
+    );
+    expect(vis({})).toEqual({
+      "mapchallenge-day19-dumping-circle": "none",
+      "mapchallenge-day19-wind-line": "none",
+      "mapchallenge-day19-facilities-circle": "visible",
+    });
+    expect(vis({ mapchallengeDay19PotentialWindIdx: 2 })["mapchallenge-day19-wind-line"]).toBe("visible");
   });
 });

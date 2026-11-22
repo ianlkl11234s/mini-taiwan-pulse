@@ -60,7 +60,8 @@ if (!catalogRaw) {
   process.exit(1);
 }
 const catalog = Array.isArray(catalogRaw) ? catalogRaw : catalogRaw.datasets ?? [];
-const catalogSource = `catalog.json ${new Date(statSync(resolve(warehouseDir, "catalog.json")).mtime).toISOString().slice(0, 10)}`;
+// PULSE_WAREHOUSE_VERSION：catalog.json 若是從特定倉庫版本（例如 R2 latest）匯出，標上版本，避免只看檔案日期誤以為是當天資料。
+const catalogSource = `catalog.json ${new Date(statSync(resolve(warehouseDir, "catalog.json")).mtime).toISOString().slice(0, 10)}${process.env.PULSE_WAREHOUSE_VERSION ? `，倉庫 ${process.env.PULSE_WAREHOUSE_VERSION}` : ""}`;
 const extras = readJson(resolve(warehouseDir, "warehouse-extras.json"), { countyCoverage: {}, statsDatasets: {} });
 const overrides = readJson(resolve(docsDir, "layer-status-overrides.json"), {});
 const aliases = readJson(resolve(docsDir, "layer-dataset-aliases.json"), { byUpstream: {}, byLayer: {} });

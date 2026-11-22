@@ -20,10 +20,19 @@ const propGetter = (prop: string): PhCatGetter => ({ expr: ["to-string", ["coale
 export const PH_WAVES_FETCHED_AT = "2026-11-16";
 const ODBL = "ODbL 1.0";
 const OSM_URL = "https://www.openstreetmap.org/copyright";
-const OSM_1115 = "© OpenStreetMap contributors（ODbL），via Geofabrik（philippines-261115，快照 2026-11-15）";
+const OSM_1115 = l3("© OpenStreetMap contributors（ODbL），via Geofabrik（philippines-261115，快照 2026-11-15）", "© OpenStreetMap contributors (ODbL), via Geofabrik (philippines-261115, snapshot 2026-11-15)", "© OpenStreetMap contributors（ODbL）、Geofabrik 経由（philippines-261115、2026-11-15 のスナップショット）");
 const GEOPORTAL_URL = "https://www.geoportal.gov.ph/";
-const CONDITIONAL = "Geoportal 盤點表：Conditional downloading（WMS GetFeatureInfo 取得）";
-const MO008 = "PSA／機關公開資料，依 MO 008 s.2022 視同署名";
+const CONDITIONAL = l3("Geoportal 盤點表：Conditional downloading（WMS GetFeatureInfo 取得）", "Geoportal inventory: Conditional downloading (obtained via WMS GetFeatureInfo)", "Geoportal 一覧表：Conditional downloading（WMS GetFeatureInfo で取得）");
+const MO008 = l3("PSA／機關公開資料，依 MO 008 s.2022 視同署名", "PSA / agency open data; attribution deemed sufficient under MO 008 s.2022", "PSA／機関の公開データ。MO 008 s.2022 により出典表示で足りるとみなす");
+/** 來源字串拼接：各語系各接各的（英／日介面不混中文） */
+const j3 = (...parts: (string | L3)[]): L3 => ({
+  zh: parts.map((p) => (typeof p === "string" ? p : p.zh)).join(""),
+  en: parts.map((p) => (typeof p === "string" ? p : p.en)).join(""),
+  ja: parts.map((p) => (typeof p === "string" ? p : p.ja)).join(""),
+});
+const SEP = l3("；", "; ", "。");
+const GAP_FILL = l3("；補缺 ", "; gap-fill: ", "。補完：");
+const COND_OSM = j3(CONDITIONAL, l3("；OSM ", "; OSM ", "。OSM "), ODBL);
 const OSM_NOTE = l3("OpenStreetMap（ODbL）；非官方名冊，標註不全處不代表沒有", "OpenStreetMap (ODbL); not an official register — gaps do not mean absence", "OpenStreetMap（ODbL）。公式名簿ではなく、未登録は「ない」という意味ではない");
 const BARMM_SPARSE = l3("BARMM：OSM 稀疏（每 10 萬人筆數不到全國中位數 1/3）", "BARMM: sparse in OSM (fewer than a third of the national median per 100,000 people)", "BARMM：OSM が疎（10 万人あたり件数が全国中央値の 1/3 未満）");
 const PARTIAL = l3("部分：Geoportal 查詢所得，完整性未驗證", "Partial: obtained by Geoportal queries; completeness not verified", "部分的：Geoportal の照会で取得、網羅性は未確認");
@@ -84,7 +93,7 @@ const TOURISM_FIELDS = (cats: readonly PhCat[]): PhField[] => [
   PROV, REGION,
 ];
 const TOURISM_POPUP_NOTES = [{ text: l3("近似位置：DOT 清單多筆共用同一市鎮中心座標，不是景點實際位置", "Approximate: several DOT entries share one town-centre coordinate; not the exact site", "概略位置：DOT 一覧の複数項目が同じ市町中心の座標を共有し、実際の場所ではない"), when: (p: Record<string, unknown>) => str(p.coord_quality) === "dot_approximate" }];
-const TOURISM_SOURCE = "© OpenStreetMap contributors（ODbL，Geofabrik 2026-11-15）；DOT 景點清單 via Geoportal（Conditional）；UNESCO（CC BY-SA 4.0）；Wikidata（CC0）";
+const TOURISM_SOURCE = l3("© OpenStreetMap contributors（ODbL，Geofabrik 2026-11-15）；DOT 景點清單 via Geoportal（Conditional）；UNESCO（CC BY-SA 4.0）；Wikidata（CC0）", "© OpenStreetMap contributors (ODbL, Geofabrik 2026-11-15); DOT attraction list via Geoportal (Conditional); UNESCO (CC BY-SA 4.0); Wikidata (CC0)", "© OpenStreetMap contributors（ODbL、Geofabrik 2026-11-15）。DOT の観光地リスト（Geoportal 経由、Conditional）。UNESCO（CC BY-SA 4.0）。Wikidata（CC0）");
 const TOURISM_LICENSE = "ODbL 1.0（OSM）＋CC BY-SA 4.0（UNESCO）＋CC0（Wikidata）；DOT Geoportal Conditional downloading";
 
 const ATTRACTION_CATS: readonly PhCat[] = [
@@ -180,7 +189,7 @@ const TOURISM_SPECS: PhLayerSpec[] = [
       l3("Cuyo、Agutaya、Magsaysay、Cagayancillo 與 BARMM Special Geographic Area 8 市鎮（共 12 個）不在任何 TDA：空白＝不在計畫內，不是缺資料；Clark、Subic 自由港未另畫", "Cuyo, Agutaya, Magsaysay, Cagayancillo and the 8 BARMM Special Geographic Area municipalities (12 in all) are in no TDA: blank = outside the plan, not missing data; Clark and Subic freeports not drawn separately", "Cuyo・Agutaya・Magsaysay・Cagayancillo と BARMM 特別地理区域の 8 市町（計 12）はどの TDA にも属さない。空白＝計画外でデータ欠落ではない。Clark・Subic 自由港は別途描画しない"),
     ],
     popupNotes: [],
-    sourceOrg: "Department of Tourism，National Tourism Development Plan 2023–2028（Table 22 人工轉錄）；邊界 OCHA COD-AB（CC BY-IGO）", sourceUrl: "https://tourism.gov.ph/", license: "政府規劃文件，授權未明示", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: l3("Department of Tourism，National Tourism Development Plan 2023–2028（Table 22 人工轉錄）；邊界 OCHA COD-AB（CC BY-IGO）", "Department of Tourism, National Tourism Development Plan 2023–2028 (Table 22, manually transcribed); boundaries: OCHA COD-AB (CC BY-IGO)", "Department of Tourism、National Tourism Development Plan 2023–2028（Table 22 を手作業で転記）。境界：OCHA COD-AB（CC BY-IGO）"), sourceUrl: "https://tourism.gov.ph/", license: l3("政府規劃文件，授權未明示", "Government planning document; license not stated", "政府の計画文書で、ライセンスは明示されていない"), fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("觀光發展區", "tourism development areas"),
   },
 ];
@@ -232,7 +241,7 @@ const W2_SPECS: PhLayerSpec[] = [
       l3("只畫點，名稱在彈窗（地圖上不畫文字標籤）；不收行政區（見行政邊界層）、建物與道路", "Points only, names in the popup (no text labels on the map); administrative units (see boundaries), buildings and roads not included", "点のみで名称はポップアップ（地図上に文字ラベルなし）。行政区域（境界レイヤー参照）・建物・道路は含まない"),
     ],
     popupNotes: [{ text: l3("人口為 GeoNames 收錄值，不是普查", "Population is the GeoNames value, not a census", "人口は GeoNames の値で国勢調査ではない"), when: (p) => Number(p.population) > 0 }],
-    sourceOrg: "GeoNames（PH.zip，2026-11-16 下載）", sourceUrl: "https://www.geonames.org/", license: "CC BY 4.0", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: l3("GeoNames（PH.zip，2026-11-16 下載）", "GeoNames (PH.zip, downloaded 2026-11-16)", "GeoNames（PH.zip、2026-11-16 ダウンロード）"), sourceUrl: "https://www.geonames.org/", license: "CC BY 4.0", fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("地名", "place names"),
   },
   {
@@ -261,7 +270,7 @@ const W2_SPECS: PhLayerSpec[] = [
       { text: l3("估計精度低（變異係數 ≥20%）", "Low precision (coefficient of variation ≥20%)", "推定精度が低い（変動係数 20% 以上）"), when: (p) => Number(p.cv_2023) >= 20 },
       { text: l3("PSA 只有分省前的 Maguindanao，與另一半省同值", "PSA has only the pre-split Maguindanao; same value as the other half", "PSA は分割前の Maguindanao のみで、もう一方と同じ値"), when: (p) => str(p.psa_label) === "Maguindanao" },
     ],
-    sourceOrg: "Philippine Statistics Authority（OpenSTAT 0041F3DF02A）；邊界 OCHA COD-AB（CC BY-IGO）", sourceUrl: "https://openstat.psa.gov.ph/", license: MO008, fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: l3("Philippine Statistics Authority（OpenSTAT 0041F3DF02A）；邊界 OCHA COD-AB（CC BY-IGO）", "Philippine Statistics Authority (OpenSTAT 0041F3DF02A); boundaries: OCHA COD-AB (CC BY-IGO)", "Philippine Statistics Authority（OpenSTAT 0041F3DF02A）。境界：OCHA COD-AB（CC BY-IGO）"), sourceUrl: "https://openstat.psa.gov.ph/", license: MO008, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("貧窮率", "poverty incidence"),
   },
 ];
@@ -298,7 +307,7 @@ const LANDSLIDE_CATS: readonly PhCat[] = [
   cat("3", "#dc2626", "高（不宜居住）", "High (not suitable for settlement)", "高（居住に不適）"),
   cat("4", "#9ca3af", "其他（來源未說明）", "Other (not defined by the source)", "その他（出典に説明なし）"),
 ];
-const NOAH_SOURCE = "UP Resilience Institute Project NOAH 危害圖（Hugging Face 鏡像 PMTiles，附 NOAH_License.pdf）；本站只依緯度切北中南三檔，未改幾何";
+const NOAH_SOURCE = l3("UP Resilience Institute Project NOAH 危害圖（Hugging Face 鏡像 PMTiles，附 NOAH_License.pdf）；本站只依緯度切北中南三檔，未改幾何", "UP Resilience Institute Project NOAH hazard maps (Hugging Face mirror, PMTiles, with NOAH_License.pdf); this site only splits them by latitude into north/central/south files, geometry unchanged", "UP Resilience Institute Project NOAH ハザードマップ（Hugging Face ミラーの PMTiles、NOAH_License.pdf 付き）。本サイトは緯度で北・中・南の 3 ファイルに分割しただけで、ジオメトリは変更していない");
 const NOAH_NOTES: readonly L3[] = [
   l3("來源原檔低縮放會省略密集小面（drop-densest），放大才完整", "The source file drops dense small polygons at low zoom; zoom in for full detail", "出典ファイルは低ズームで密集した小さな面を省略。拡大すると完全に表示"),
   l3("UP NOAH（Hugging Face 鏡像）；官方 NOAH Studio 目前無法逐處比對", "UP NOAH (Hugging Face mirror); not yet cross-checked against NOAH Studio", "UP NOAH（Hugging Face ミラー）。公式 NOAH Studio との照合は未実施"),
@@ -319,7 +328,7 @@ const DAM_FIELDS: PhField[] = [
   { prop: "year_dam", label: l3("完工年", "Year completed", "完成年"), kind: "year" },
   { prop: "dam_hgt_m", label: l3("壩高", "Dam height", "堤高"), kind: "num", unit: "m" },
   { prop: "dam_len_m", label: l3("壩長", "Dam length", "堤頂長"), kind: "num", unit: "m" },
-  { prop: "cap_mcm", label: l3("蓄水量", "Capacity", "貯水容量"), kind: "num", unit: "百萬 m³", digits: 1 },
+  { prop: "cap_mcm", label: l3("蓄水量", "Capacity", "貯水容量"), kind: "num", unit: l3("百萬 m³", "million m³", "百万 m³"), digits: 1 },
   { prop: "area_skm", label: l3("水面面積", "Reservoir area", "湛水面積"), kind: "num", unit: "km²", digits: 2 },
   { prop: "main_use", label: l3("主要用途", "Main use", "主な用途"), kind: "code" },
   { prop: "quality", label: l3("位置品質（GDW）", "Location quality (GDW)", "位置の品質（GDW）"), kind: "code" },
@@ -344,7 +353,7 @@ const W3_SPECS: PhLayerSpec[] = [
       l3("靜態快照，不隨時間軸變動", "Static snapshot; not linked to the timeline", "静的スナップショットで、タイムラインとは連動しない"),
     ],
     popupNotes: [{ text: l3("海域（不屬任何 region）", "Offshore (no region)", "海域（地方に属さない）"), when: (p) => !str(p.region_name) }],
-    sourceOrg: "PHIVOLCS 地震月報（Earthquake Information）", sourceUrl: "https://earthquake.phivolcs.dost.gov.ph/", license: MO008, fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: l3("PHIVOLCS 地震月報（Earthquake Information）", "PHIVOLCS monthly earthquake reports (Earthquake Information)", "PHIVOLCS 地震月報（Earthquake Information）"), sourceUrl: "https://earthquake.phivolcs.dost.gov.ph/", license: MO008, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("地震", "earthquakes"),
   },
   {
@@ -471,7 +480,7 @@ const W4_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [l3("DPWH 國道橋梁清冊（2021）8,410 座；狀況為 DPWH 評等；z8 起顯示", "DPWH national-road bridge inventory (2021), 8,410 bridges; condition is the DPWH rating; shown from z8", "DPWH 国道橋梁台帳（2021）8,410 橋。状態は DPWH の評価。z8 から表示")],
     popupNotes: [],
-    sourceOrg: DPWH, sourceUrl: GEOPORTAL_URL, license: "Geoportal 盤點表：No restriction", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: DPWH, sourceUrl: GEOPORTAL_URL, license: l3("Geoportal 盤點表：No restriction", "Geoportal inventory: No restriction", "Geoportal 一覧表：No restriction"), fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("橋梁", "bridges"),
   },
   {
@@ -503,7 +512,7 @@ const W4_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [l3("DPWH 國道里程牌 31,017 支；km 為自馬尼拉 Rizal Park 起算；z10 起顯示", "31,017 DPWH national-road kilometre posts; km measured from Rizal Park, Manila; shown from z10", "DPWH 国道キロポスト 31,017 本。キロ程はマニラ Rizal Park 起点。z10 から表示")],
     popupNotes: [],
-    sourceOrg: DPWH, sourceUrl: GEOPORTAL_URL, license: "未列於 Geoportal 盤點表（同機關國道橋梁為 No restriction）", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: DPWH, sourceUrl: GEOPORTAL_URL, license: l3("未列於 Geoportal 盤點表（同機關國道橋梁為 No restriction）", "Not listed in the Geoportal inventory (the same agency's national-road bridges are No restriction)", "Geoportal 一覧表に記載なし（同機関の国道橋梁は No restriction）"), fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("國道里程牌", "kilometre posts"),
   },
   {
@@ -608,7 +617,7 @@ const W5_SPECS: PhLayerSpec[] = [
     fields: [NAME_EN, SOURCE_FIELD({ bfp: l3("BFP 名冊", "BFP register", "BFP 名簿"), osm: OSM_SRC }), OPERATOR, PROV, REGION],
     legendNotes: [l3("BFP 消防站 1,316＋OSM 補缺 742", "1,316 BFP fire stations + 742 OSM gap-fill", "BFP 消防署 1,316＋OSM 補完 742")],
     popupNotes: [],
-    sourceOrg: "Bureau of Fire Protection via Geoportal Philippines（NAMRIA）WMS；補缺 " + OSM_1115, sourceUrl: GEOPORTAL_URL, license: `${CONDITIONAL}；OSM ${ODBL}`, fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: j3("Bureau of Fire Protection via Geoportal Philippines (NAMRIA) WMS", GAP_FILL, OSM_1115), sourceUrl: GEOPORTAL_URL, license: COND_OSM, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("消防站", "fire stations"),
   },
   {
@@ -642,7 +651,7 @@ const W5_SPECS: PhLayerSpec[] = [
     legendNotes: [l3("NCR 為 MMDA 2003 地標 191 處，其他地區只有 OSM 2,438 處；PNP 全國駐所沒有公開座標", "NCR: 191 MMDA 2003 landmarks; elsewhere only 2,438 OSM points; PNP has no public nationwide station coordinates", "NCR は MMDA 2003 年ランドマーク 191 か所、他地域は OSM 2,438 か所のみ。PNP の全国拠点座標は非公開"),
       l3("MMDA 2003 地標有 9 處在 NCR 外，照原座標", "9 MMDA 2003 landmarks lie outside NCR and are kept at their source coordinates", "MMDA 2003 年ランドマークのうち 9 か所は NCR 外で、原座標のまま")],
     popupNotes: [],
-    sourceOrg: "MMDA（2003 地標）via Geoportal Philippines WMS；" + OSM_1115, sourceUrl: GEOPORTAL_URL, license: `${CONDITIONAL}；OSM ${ODBL}`, fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: j3(l3("MMDA（2003 地標）via Geoportal Philippines WMS", "MMDA (2003 landmarks) via Geoportal Philippines WMS", "MMDA（2003 年のランドマーク）、Geoportal Philippines WMS 経由"), SEP, OSM_1115), sourceUrl: GEOPORTAL_URL, license: COND_OSM, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("警察據點", "police stations"),
   },
   {
@@ -658,7 +667,7 @@ const W5_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [l3("BJMP 監所 462 處（2020）＋OSM 96 處（含 BuCor 監獄）", "462 BJMP jails (2020) + 96 OSM (incl. BuCor prisons)", "BJMP 拘置所 462（2020）＋OSM 96（BuCor 刑務所を含む）")],
     popupNotes: [],
-    sourceOrg: "Bureau of Jail Management and Penology via Geoportal Philippines WMS；" + OSM_1115, sourceUrl: GEOPORTAL_URL, license: `${CONDITIONAL}；OSM ${ODBL}`, fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: j3("Bureau of Jail Management and Penology via Geoportal Philippines WMS", SEP, OSM_1115), sourceUrl: GEOPORTAL_URL, license: COND_OSM, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("監所", "jails"),
   },
 ];
@@ -740,7 +749,7 @@ const W6_SPECS: PhLayerSpec[] = [
     legendNotes: [l3("Key Biodiversity Areas 310 處：已認定 120＋提案 190；空心框，NCR 沒有 KBA（實況，不是缺資料）", "310 Key Biodiversity Areas: 120 recognised + 190 proposed; outlines only; NCR has no KBA (actual, not missing data)", "生物多様性重要地域 310：認定 120＋提案 190。枠のみ。NCR に KBA はない（実態でデータ欠落ではない）"),
       l3("卡拉延群島 1 處與國界外 4 處不畫", "1 in the Kalayaan Island Group and 4 outside the national boundary not drawn", "カラヤン諸島の 1 件と国境外の 4 件は描かない")],
     popupNotes: [],
-    sourceOrg: "Key Biodiversity Areas Partnership／DENR-BMB Philippine KBA 資料集", sourceUrl: "https://www.keybiodiversityareas.org/", license: "CC BY", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: l3("Key Biodiversity Areas Partnership／DENR-BMB Philippine KBA 資料集", "Key Biodiversity Areas Partnership / DENR-BMB Philippine KBA dataset", "Key Biodiversity Areas Partnership／DENR-BMB Philippine KBA データセット"), sourceUrl: "https://www.keybiodiversityareas.org/", license: "CC BY", fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("生物多樣性重要地域", "key biodiversity areas"),
   },
   {
@@ -764,7 +773,7 @@ const W6_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [l3("BMB 內陸濕地 384 面＋OSM 濕地 8,293 面（含紅樹林）", "384 BMB inland wetlands + 8,293 OSM wetlands (incl. mangroves)", "BMB 内陸湿地 384 面＋OSM 湿地 8,293 面（マングローブ含む）"), PARTIAL, OSM_NOTE],
     popupNotes: [{ text: l3("「No Data」為 BMB 原表未填", "'No Data' means blank in the BMB table", "「No Data」は BMB の原表で未記入"), when: (p) => str(p.source) === "bmb" }],
-    sourceOrg: "DENR Biodiversity Management Bureau via Geoportal Philippines WMS；" + OSM_1115, sourceUrl: GEOPORTAL_URL, license: `${CONDITIONAL}；OSM ${ODBL}`, fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: j3("DENR Biodiversity Management Bureau via Geoportal Philippines WMS", SEP, OSM_1115), sourceUrl: GEOPORTAL_URL, license: COND_OSM, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("濕地", "wetlands"),
   },
   {
@@ -820,7 +829,7 @@ const POLLUTION_CATS: readonly PhCat[] = [
 ];
 const CO2E_BANDS: PhSizeBands = {
   prop: "co2e_20yr_t", title: l3("推估排放（CO₂e 20 年，噸）", "Estimated emissions (CO₂e, 20-yr, t)", "推計排出量（CO₂e 20 年、t）"),
-  bands: [{ min: 0, radius: 3, label: "<1 萬" }, { min: 10000, radius: 5, label: "1–10 萬" }, { min: 100000, radius: 8, label: "10–100 萬" }, { min: 1000000, radius: 11, label: "≥100 萬" }],
+  bands: [{ min: 0, radius: 3, label: l3("<1 萬", "<10k", "<1 万") }, { min: 10000, radius: 5, label: l3("1–10 萬", "10k–100k", "1–10 万") }, { min: 100000, radius: 8, label: l3("10–100 萬", "100k–1M", "10–100 万") }, { min: 1000000, radius: 11, label: l3("≥100 萬", "≥1M", "≥100 万") }],
 };
 
 const W7_SPECS: PhLayerSpec[] = [
@@ -836,7 +845,7 @@ const W7_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [l3("NAMRIA 2020 海岸資源圖：紅樹林 69、海草海藻 67、珊瑚 59 個面（依省聚合；17/18 region）", "NAMRIA 2020 coastal resource map: 69 mangrove, 67 seagrass/seaweed and 59 coral polygons (aggregated by province; 17 of 18 regions)", "NAMRIA 2020 沿岸資源図：マングローブ 69・海草海藻 67・サンゴ 59 面（州単位で集約、18 地方中 17）")],
     popupNotes: [],
-    sourceOrg: "NAMRIA via Geoportal Philippines WMS（2020 全國版）", sourceUrl: GEOPORTAL_URL, license: MO008, fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: l3("NAMRIA via Geoportal Philippines WMS（2020 全國版）", "NAMRIA via Geoportal Philippines WMS (2020 national edition)", "NAMRIA。Geoportal Philippines WMS 経由（2020 年全国版）"), sourceUrl: GEOPORTAL_URL, license: MO008, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("海岸資源", "coastal resources"),
   },
   {
@@ -857,7 +866,7 @@ const W7_SPECS: PhLayerSpec[] = [
     legendNotes: [l3("NAMRIA 燈浮標 617、燈塔 609、一級潮位站 62、二級 20；觀測員姓名已排除", "NAMRIA: 617 lighted buoys, 609 lighthouses, 62 primary and 20 secondary tide stations; observer names removed", "NAMRIA：灯浮標 617・灯台 609・一級験潮所 62・二級 20。観測員名は除外"),
       l3("潮位站、燈浮標 Open；燈塔 Conditional downloading", "Tide stations and buoys: Open; lighthouses: Conditional downloading", "験潮所・灯浮標は Open、灯台は Conditional downloading")],
     popupNotes: [],
-    sourceOrg: "NAMRIA via Geoportal Philippines WMS", sourceUrl: GEOPORTAL_URL, license: "潮位站、燈浮標 Open（MO 008）；燈塔 Conditional downloading", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: "NAMRIA via Geoportal Philippines WMS", sourceUrl: GEOPORTAL_URL, license: l3("潮位站、燈浮標 Open（MO 008）；燈塔 Conditional downloading", "Tide gauges and light buoys: Open (MO 008); lighthouses: Conditional downloading", "検潮所・灯浮標は Open（MO 008）。灯台は Conditional downloading"), fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("潮位站與航標", "tide stations and navigation aids"),
   },
   {
@@ -886,7 +895,7 @@ const W7_SPECS: PhLayerSpec[] = [
       l3("DENR-BMB 官方保護區圖層查詢未收斂，暫以 WDPA 當主層", "The official DENR-BMB protected-area layer did not converge; WDPA is used as the main layer for now", "DENR-BMB の公式保護区レイヤーは照会が収束せず、当面 WDPA を主レイヤーとする"),
     ],
     popupNotes: [],
-    sourceOrg: "UNEP-WCMC and IUCN, Protected Planet：WDPA／WD-OECM（菲律賓）", sourceUrl: "https://www.protectedplanet.net/country/PHL", license: "WDPA Terms of Use（非商用）", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: l3("UNEP-WCMC and IUCN, Protected Planet：WDPA／WD-OECM（菲律賓）", "UNEP-WCMC and IUCN, Protected Planet: WDPA/WD-OECM (Philippines)", "UNEP-WCMC and IUCN, Protected Planet：WDPA／WD-OECM（フィリピン）"), sourceUrl: "https://www.protectedplanet.net/country/PHL", license: l3("WDPA Terms of Use（非商用）", "WDPA Terms of Use (non-commercial)", "WDPA Terms of Use（非商用）"), fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("保護區", "protected areas"),
   },
   {
@@ -902,7 +911,7 @@ const W7_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [l3("DENR 衛生掩埋場 23 處（Geoportal 舊表，全國實際遠多於此；沒有名稱欄）＋OSM 掩埋場 181、轉運站 51", "23 DENR sanitary landfills (old Geoportal table — far fewer than actually exist; no name field) + 181 OSM landfills and 51 transfer stations", "DENR 衛生埋立地 23（Geoportal の旧表で実数はさらに多い。名称欄なし）＋OSM 埋立地 181・中継施設 51"), OSM_NOTE],
     popupNotes: [],
-    sourceOrg: "DENR Environmental Management Bureau via Geoportal Philippines WMS；" + OSM_1115, sourceUrl: GEOPORTAL_URL, license: `${CONDITIONAL}；OSM ${ODBL}`, fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: j3("DENR Environmental Management Bureau via Geoportal Philippines WMS", SEP, OSM_1115), sourceUrl: GEOPORTAL_URL, license: COND_OSM, fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("廢棄物設施", "waste facilities"),
   },
   {
@@ -921,7 +930,7 @@ const W7_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [l3("Climate TRACE 2025 推估排放源 85 處（製造業 75、礦業 10；15/18 region），不是官方許可名冊；EMB 許可名冊沒有公開座標", "85 Climate TRACE 2025 modelled emission sources (75 manufacturing, 10 mining; 15 of 18 regions); not an official permit register — EMB permits have no public coordinates", "Climate TRACE 2025 推計排出源 85（製造業 75・鉱業 10、18 地方中 15）。公式の許可名簿ではない（EMB の許可名簿は座標非公開）")],
     popupNotes: [],
-    sourceOrg: "Climate TRACE（2025 資料集）", sourceUrl: "https://climatetrace.org/", license: "CC BY 4.0", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: l3("Climate TRACE（2025 資料集）", "Climate TRACE (2025 dataset)", "Climate TRACE（2025 年データセット）"), sourceUrl: "https://climatetrace.org/", license: "CC BY 4.0", fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("排放源", "emission sources"),
   },
 ];
@@ -1023,7 +1032,7 @@ const W9_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [l3("DA 漁港 47 處（營運 39、興建中 8；16/18 region）", "47 DA fish ports (39 operational, 8 under construction; 16 of 18 regions)", "DA 漁港 47（稼働 39・建設中 8、18 地方中 16）")],
     popupNotes: [],
-    sourceOrg: "Department of Agriculture via Geoportal Philippines WMS", sourceUrl: GEOPORTAL_URL, license: "Geoportal 盤點表：No restriction", fetchedAt: PH_WAVES_FETCHED_AT,
+    sourceOrg: "Department of Agriculture via Geoportal Philippines WMS", sourceUrl: GEOPORTAL_URL, license: l3("Geoportal 盤點表：No restriction", "Geoportal inventory: No restriction", "Geoportal 一覧表：No restriction"), fetchedAt: PH_WAVES_FETCHED_AT,
     loading: loading("漁港", "fish ports"),
   },
   {
@@ -1057,7 +1066,7 @@ export interface PhRasterSpec {
   /** 圖例色帶（由上游 color-relief ramp 抄錄）；省略＝無色階（山體陰影） */
   steps?: readonly { color: string; label: string }[];
   notes: readonly L3[];
-  sourceShort: string;
+  sourceShort: string | L3;
   loading: string;
 }
 const FOREST_LOSS_COLOR = (y: number) => {
@@ -1086,7 +1095,7 @@ export const PH_RASTER_SPECS: readonly PhRasterSpec[] = [
     steps: [{ color: "#ffeda0", label: "1%" }, { color: "#feb24c", label: "10%" }, { color: "#fd8d3c", label: "30%" }, { color: "#f03b20", label: "60%" }, { color: "#bd0026", label: "100%" }],
     notes: [l3("建成面積比例（100 m 格）；<1% 透明", "Built-up share of each 100 m cell; <1% transparent", "建築面積の割合（100 m 格子）。1% 未満は透明"),
       l3("JRC GHSL 2025 推估，衛星分類，不是建物普查", "JRC GHSL 2025 estimate from satellite classification, not a building census", "JRC GHSL 2025 推計（衛星分類）で、建物調査ではない")],
-    sourceShort: "© European Commission JRC，GHS-BUILT-S E2025 R2023A（HDX 菲律賓裁切，CC BY 4.0）", loading: "菲律賓建成面積載入中",
+    sourceShort: l3("© European Commission JRC，GHS-BUILT-S E2025 R2023A（HDX 菲律賓裁切，CC BY 4.0）", "© European Commission JRC, GHS-BUILT-S E2025 R2023A (Philippines clip via HDX, CC BY 4.0)", "© European Commission JRC、GHS-BUILT-S E2025 R2023A（HDX のフィリピン切り出し、CC BY 4.0）"), loading: "菲律賓建成面積載入中",
   },
   {
     key: "phForestLoss", file: "ph_forest_loss.pmtiles", sourceId: "ph-forest-loss", layerId: "ph-forest-loss-raster", minzoom: 5, maxzoom: 12, opacity: 0.85,

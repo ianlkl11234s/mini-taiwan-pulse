@@ -77,6 +77,8 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   R({ key: "industrialParkComparison", sourceId: "business-registry-industrial-park-comparison", file: "business_registry/industrial_park_comparison_20260818_points.pmtiles", sourceLayer: "industrial_park_comparison_points", count: 215, def: "point" }),
   // 第三輪（I 軌）：崩塌地、魚塭小而零散預設點；河川面、橋梁輪廓預設面（拉遠時代表點／熱區補位）
   R({ key: "landslideAnnual", sourceId: "landslide-annual", file: "hazards/landslide_annual_swcb_20261006_points.pmtiles", sourceLayer: "landslide_annual_points", count: 143_511, def: "point", thinned: 2, heatIntensity: 0.2 }),
+  // 2025（114 年）獨立單年檔的代表點（同 key 第二筆：單年 42,322 點，各縮放都逐點完整、沒有抽稀，所以不設 thinned；年份 select 切換可見）
+  R({ key: "landslideAnnual", sourceId: "landslide-annual-2025", file: "hazards/landslide_annual_swcb_2025_20261120_points.pmtiles", sourceLayer: "landslide_annual_points", count: 42_322, def: "point", heatIntensity: 0.4 }),
   R({ key: "aquaculturePonds", sourceId: "aquaculture-ponds", file: "fishery/aquaculture_ponds_osm_points.pmtiles", sourceLayer: "aquaculture_ponds_osm_points", count: 15_241, def: "point", heatIntensity: 0.3 }),
   R({ key: "waterRivers", sourceId: "water-river-polygons", file: "geo/water_river_polygons_points.pmtiles", sourceLayer: "river_polygons_points", count: 13_262, def: "polygon", heatIntensity: 0.3, opacityParam: "waterRiverOpacity" }),
   R({ key: "osmBridgeFootprints", sourceId: "osm-bridge-footprints", file: "network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles", sourceLayer: "osm_bridge_footprints_points", count: 1_505, def: "polygon" }),
@@ -88,6 +90,8 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   R({ key: "pollutionControlZones", sourceId: "pollution-control-zones", file: "environment/pollution_control_zones_202611_points.pmtiles", sourceLayer: "pollution_control_zones_points", count: 7803, def: "point", maxzoom: 12 }),
   // G53 批 2／3（2026-11-10）：事件型崩塌 4.4 萬小面 → 預設點、拉遠熱區；代表點檔 z4–12 未抽稀
   R({ key: "landslideEventCatalog", sourceId: "landslide-event-catalog", file: "hazards/landslide_event_catalog_093_114_points.pmtiles", sourceLayer: "landslide_event_catalog_points", count: 43_779, def: "point", maxzoom: 12, heatIntensity: 1.5 }),
+  // 台灣圖層延伸 B3（2026-11-20）：一級生態檢核區面積合計約台灣陸域六成 → 拉遠代表點、面 z8 起；預設面
+  R({ key: "swcEcoCheckZones", sourceId: "swc-eco-check-zones", file: "hazards/swc_eco_check_zones_159097_points.pmtiles", sourceLayer: "swc_eco_check_zones_points", count: 2_173, def: "polygon" }),
   // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──
   G({ key: "importantWetlands", sourceId: "important-wetlands", count: 89, def: "point" }),
   G({ key: "importantWetlandZones", sourceId: "important-wetland-zones", count: 578, def: "polygon" }),

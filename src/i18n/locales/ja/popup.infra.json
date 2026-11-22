@@ -92,5 +92,12 @@
   "popup.infra.lockerCount_one": "{count}口",
   "popup.infra.lockerCount_other": "{count}口",
   "popup.infra.slotCount_one": "{count}台分",
-  "popup.infra.slotCount_other": "{count}台分"
+  "popup.infra.slotCount_other": "{count}台分",
+  "popup.infra.hroPrecisionExact": "OSM の番地",
+  "popup.infra.hroPrecisionRoad": "道路沿いの補間",
+  "popup.infra.hroPrecisionCached": "住所照合のキャッシュ",
+  "popup.infra.hroEstimated": "位置は住所からの推定（{precision}）で、公式座標ではありません",
+  "popup.infra.hroType": "戸政事務所の出張所",
+  "popup.infra.hroOrg": "内政部戸政司",
+  "popup.infra.landJurisdictionHint": "「地政事務所の管轄」レイヤーを表示してこの点を選択すると、管轄範囲がハイライトされます"
 }

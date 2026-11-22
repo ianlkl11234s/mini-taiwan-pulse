@@ -611,6 +611,12 @@ export const G53_SELF_FOOTER_KEYS = [
   "motorcycleInspectionStations", "antivenomHospitals", "freewayHundredMeterStakes",
   // G53 批 2／3（2026-11-10）
   "broadcastTransmitters", "tedsGridEmissions", "pollutionControlZones", "landslideEventCatalog", "wraDisasterCctv", "traLevelCrossings", "vegetationForestTypes", "iOceanSightings", "iOceanFishing", "fireworksSites", "vehicleInspectionOffices",
+  // 台灣圖層延伸 B2（2026-11-20）
+  "forestAlishanRail", "mountainMobileImprovement", "ecoLabelHotels",
+  // 台灣圖層延伸 B3（2026-11-20）
+  "namrBuoys", "towingYards", "swcOutdoorClassrooms", "swcEcoCheckZones", "airportHeightSurfaces", "landOfficeJurisdiction", "npSpeciesSites",
+  // 台灣圖層延伸 B7（2026-11-21）
+  "hakkaLivingSchools", "sandGravelPlants", "countyWelfarePoints", "evMotorcycleCharging", "countyStreetlights",
 ] as const;
 // ── 台灣圖層待辦池第二＋三批 G53 批 2／3（2026-11-10）──────────────────────
 /** 廣播發射站與電波監測站（上游 kind；英日文 enum.atlasBroadcastKind.*）。 */
@@ -791,9 +797,191 @@ export const FIREWORKS_KIND_OPTIONS: readonly AtlasOption[] = [
   { value: "manufacturing", label: "製造場所", color: "#dc2626" },
   { value: "storage", label: "儲存場所", color: "#f97316" },
 ];
-export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署" } as const;
+// ── 台灣圖層延伸 B2（2026-11-20）──────────────────────────────────────────
+/** 阿里山林業鐵路點位：車站與其他點位（監工區、車庫園區、水山）；上游 category 為中文原值。 */
+export const ALISHAN_RAIL_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "車站", label: "車站", color: "#92400E" },
+  { value: "其他點位", label: "其他點位（監工區、車庫園區、水山）", color: "#e0a458" },
+];
+/** 圖磚 category 值為這三個者歸「其他點位」 */
+export const ALISHAN_RAIL_OTHER_CATEGORIES = ["監工區", "車庫園區", "水山"] as const;
+export function alishanRailColorExpr(): unknown[] {
+  return ["match", ["get", "category"], "車站", ALISHAN_RAIL_KIND_OPTIONS[0]!.color, ALISHAN_RAIL_KIND_OPTIONS[1]!.color];
+}
+export function alishanRailKind(category: unknown): "車站" | "其他點位" {
+  return category === "車站" ? "車站" : "其他點位";
+}
+/** 改善山區行動通訊站點的站點類別（上游 site_group 中文原值；「山峰」併入「山及三角點」） */
+export const MOUNTAIN_MOBILE_GROUP_OPTIONS: readonly AtlasOption[] = [
+  { value: "山徑步道及林道", label: "山徑步道及林道", color: "#0ea5e9" },
+  { value: "道路及鐵路", label: "道路及鐵路", color: "#f59e0b" },
+  { value: "國家森林園區", label: "國家森林園區", color: "#22c55e" },
+  { value: "山莊及山屋", label: "山莊及山屋", color: "#a855f7" },
+  { value: "山及三角點", label: "山及三角點（含山峰）", color: "#ef4444" },
+  { value: "國家森林遊樂園", label: "國家森林遊樂園", color: "#14b8a6" },
+];
+export function mountainMobileColorExpr(): unknown[] {
+  const g = MOUNTAIN_MOBILE_GROUP_OPTIONS;
+  return ["match", ["get", "site_group"], ...g.slice(0, 4).flatMap((o) => [o.value, o.color]), ["山及三角點", "山峰"], g[4]!.color, g[5]!.value, g[5]!.color, ATLAS_OTHER_COLOR];
+}
+/** 「山峰」併入「山及三角點」 */
+export function mountainMobileGroupKey(group: unknown): string {
+  return group === "山峰" ? "山及三角點" : String(group ?? "");
+}
+export function mountainMobileColor(group: unknown): string {
+  return optionColor(MOUNTAIN_MOBILE_GROUP_OPTIONS, mountainMobileGroupKey(group));
+}
+/** 支線站（里程自支線起點起算） */
+export const ALISHAN_BRANCH_STATIONS: ReadonlySet<string> = new Set(["沼平", "對高岳", "祝山"]);
+// ── 台灣圖層延伸 B3（2026-11-20）──────────────────────────────────────────
+/** 戶政事務所轄下辦公據點（govServiceOffices 的第 4 類；紫，與主所靛藍 #7986cb 分開，且暗底提亮後在淺色底仍達對比） */
+export const GOV_HR_BRANCH_COLOR = "#7e57c2";
+/** govServiceOffices 類別篩選中「戶政辦公據點」的選項位置（0 起算；改順序會錯位，與 categoryFilters/groupB 同序） */
+export const GOV_HR_BRANCH_FILTER_INDEX = 3;
+/** 國海院浮標種類（上游 buoy_kind；英日文 enum.atlasNamrBuoyKind.*） */
+export const NAMR_BUOY_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "data_buoy", label: "資料浮標", color: "#06b6d4" },
+  { value: "gamma_mooring", label: "加馬輻射錨碇", color: "#f59e0b" },
+];
+/** 浮標狀態（上游 status）：ended＝來源最後資料日期已停；英日文 enum.atlasNamrBuoyStatus.* */
+export const NAMR_BUOY_STATUS_LABELS: Readonly<Record<string, string>> = { recent: "近期仍有資料", ended: "已停止" };
+/** 機場限高面（上游 surface_name）。水平面、圓錐面大範圍淡色，進場面深色；雷達與助航燈光是設施面（非限高）併成一列。 */
+export const AIRPORT_SURFACE_OPTIONS: readonly (AtlasOption & { values: readonly string[] })[] = [
+  { value: "進場面", label: "進場面", color: "#f87171", values: ["進場面"] },
+  { value: "轉接面", label: "轉接面", color: "#fb923c", values: ["轉接面"] },
+  { value: "水平面", label: "水平面", color: "#38bdf8", values: ["水平面"] },
+  { value: "圓錐面", label: "圓錐面", color: "#a5b4fc", values: ["圓錐面"] },
+  { value: "起落地帶", label: "起落地帶", color: "#4ade80", values: ["起落地帶"] },
+  { value: "傾斜面", label: "傾斜面", color: "#d8b4fe", values: ["傾斜面"] },
+  { value: "水平銜接面", label: "水平銜接面", color: "#2dd4bf", values: ["水平銜接面"] },
+  { value: "設施", label: "設施面（機場搜索雷達、助航燈光，非限高）", color: "#cbd5e1", values: ["機場搜索雷達", "助航燈光"] },
+];
+export function airportSurfaceColorExpr(): unknown[] {
+  return ["match", ["get", "surface_name"], ...AIRPORT_SURFACE_OPTIONS.flatMap((o) => [[...o.values], o.color]), ATLAS_OTHER_COLOR];
+}
+/** 圖磚有面的 7 個機場（高雄國際機場來源只有折線，未涵蓋；其他民航機場來源未提供） */
+export const AIRPORT_NAME_OPTIONS: readonly AtlasOption[] = [
+  { value: "臺灣桃園國際機場", label: "臺灣桃園國際機場", color: "#0ea5e9" },
+  { value: "臺北松山機場", label: "臺北松山機場", color: "#0ea5e9" },
+  { value: "臺東機場", label: "臺東機場", color: "#0ea5e9" },
+  { value: "恆春機場", label: "恆春機場", color: "#0ea5e9" },
+  { value: "金門機場", label: "金門機場", color: "#0ea5e9" },
+  { value: "綠島機場", label: "綠島機場", color: "#0ea5e9" },
+  { value: "蘭嶼機場", label: "蘭嶼機場", color: "#0ea5e9" },
+];
+/** 國家公園園區（上游 park；點位數：陽明山 88,470 最多）。12 色循序序列不適合名目類別，用色相分開的名目色。 */
+export const NP_PARK_OPTIONS: readonly AtlasOption[] = [
+  { value: "陽明山國家公園", label: "陽明山國家公園", color: "#f97316" },
+  { value: "臺中都會公園", label: "臺中都會公園", color: "#22c55e" },
+  { value: "臺江國家公園", label: "臺江國家公園", color: "#0ea5e9" },
+  { value: "壽山國家自然公園", label: "壽山國家自然公園", color: "#eab308" },
+  { value: "澎湖南方四島國家公園", label: "澎湖南方四島國家公園", color: "#06b6d4" },
+  { value: "玉山國家公園", label: "玉山國家公園", color: "#a855f7" },
+  { value: "墾丁國家公園", label: "墾丁國家公園", color: "#ef4444" },
+  { value: "金門國家公園", label: "金門國家公園", color: "#84cc16" },
+  { value: "東沙環礁國家公園", label: "東沙環礁國家公園", color: "#3b82f6" },
+  { value: "雪霸國家公園", label: "雪霸國家公園", color: "#ec4899" },
+  { value: "太魯閣國家公園", label: "太魯閣國家公園", color: "#14b8a6" },
+  { value: "高雄都會公園", label: "高雄都會公園", color: "#d946ef" },
+];
+/** 座標模糊（上游 coord_obscured）：all／some 要在 popup 註明 */
+export const NP_OBSCURED_LABELS: Readonly<Record<string, string>> = { none: "未模糊處理", some: "部分紀錄經模糊處理", all: "全部紀錄經模糊處理" };
+/** 環保標章旅館等級：金／銀／銅用同色相序列（綠，越深等級越高），不用金屬色 */
+export const ECO_HOTEL_LEVEL_OPTIONS: readonly AtlasOption[] = [
+  { value: "gold", label: "金級", color: "#15803d" },
+  { value: "silver", label: "銀級", color: "#22c55e" },
+  { value: "bronze", label: "銅級", color: "#86efac" },
+];
+// ── 台灣圖層延伸 B7（2026-11-21）──────────────────────────────────────────
+/** 客語生活學校學制（上游 school_kind；英日文 enum.atlasHakkaSchoolKind.*） */
+export const HAKKA_SCHOOL_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "國小", label: "國小", color: "#f59e0b" },
+  { value: "國中", label: "國中", color: "#22c55e" },
+  { value: "高中", label: "高中", color: "#3b82f6" },
+  { value: "幼兒園", label: "幼兒園", color: "#ec4899" },
+  { value: "其他", label: "其他", color: ATLAS_OTHER_COLOR },
+];
+/** 砂石碎解洗選場登記類別（上游 registration；英日文 enum.atlasSandGravelReg.*） */
+export const SAND_GRAVEL_REG_OPTIONS: readonly AtlasOption[] = [
+  { value: "工廠登記", label: "工廠登記", color: "#a8a29e" },
+  { value: "工廠登記＋用地變更同意", label: "工廠登記＋用地變更同意", color: "#d97706" },
+  { value: "特定工廠登記", label: "特定工廠登記", color: "#0ea5e9" },
+  { value: "臨時登記補辦申請中", label: "臨時登記補辦申請中", color: "#ef4444" },
+];
+/** 縣市社福據點類別（上游 category；英日文 enum.atlasWelfarePointKind.*） */
+export const WELFARE_POINT_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "社區照顧關懷據點", label: "社區照顧關懷據點", color: "#ec4899" },
+  { value: "實物銀行", label: "實物銀行", color: "#a3e635" },
+];
+/** 電動機車充電／換電設施（上游 facility_kind；英日文 enum.atlasEvMotoKind.*） */
+export const EV_MOTO_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "充電站", label: "充電站", color: "#22d3ee" },
+  { value: "換電站", label: "換電站", color: "#f59e0b" },
+];
+/**
+ * 縣市路燈逐點 LED 判讀（上游 led；圖磚裡是字串 "True"／"False"，缺欄＝來源沒有燈具類型）。
+ * 這是「點位的燈具類型欄寫 LED」，不是台電契約戶的 LED 用電占比。英日文 enum.atlasStreetlightLed.*
+ */
+export const STREETLIGHT_LED_OPTIONS: readonly (AtlasOption & { values: readonly string[] })[] = [
+  { value: "led", label: "LED 燈具", color: "#38bdf8", values: ["True", "true"] },
+  { value: "nonled", label: "非 LED 燈具", color: "#f59e0b", values: ["False", "false"] },
+];
+export const STREETLIGHT_LED_UNKNOWN_COLOR = "#94a3b8";
+export function streetlightLedColorExpr(): unknown[] {
+  const lower = ["downcase", ["to-string", ["get", "led"]]];
+  return ["match", lower, "true", STREETLIGHT_LED_OPTIONS[0]!.color, "false", STREETLIGHT_LED_OPTIONS[1]!.color, STREETLIGHT_LED_UNKNOWN_COLOR];
+}
+/** 縣市路燈 0.01° 網格點位數級距（下界；7 階，中位數約 99、p90 約 600、最大 2,555）。 */
+export const STREETLIGHT_GRID_STEPS: readonly number[] = [1, 10, 30, 100, 300, 600, 1000];
+/**
+ * 縣市涵蓋表（B7）：未涵蓋縣市在地圖上畫斜線；部分涵蓋縣市不畫斜線，範圍寫在圖例。
+ * 名稱與 base_map/county_boundary.pmtiles 的「名稱」欄一致。
+ * 來源：analytics docs/topic-research/tw_layer_ext_20261120/b7/*_coverage.json（status 非 covered／partial_* 一律當未涵蓋）。
+ */
+export const B7_COUNTY_COVERAGE = {
+  // 社區照顧關懷據點與實物銀行任一有名冊即算涵蓋；實物銀行只有桃園、高雄、臺北
+  countyWelfarePoints: ["嘉義縣", "雲林縣", "基隆市", "新竹市", "苗栗縣", "澎湖縣", "金門縣", "連江縣"],
+  evMotorcycleCharging: ["臺中市", "澎湖縣", "基隆市", "苗栗縣", "南投縣", "嘉義縣", "花蓮縣", "金門縣", "連江縣"],
+  // 部分涵蓋（不畫斜線）：桃園（中壢區公所）、高雄（公園處管養 35 區）、彰化（省道）
+  countyStreetlights: ["臺南市", "基隆市", "新竹縣", "苗栗縣", "南投縣", "雲林縣", "嘉義縣", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"],
+} as const satisfies Record<string, readonly string[]>;
+export type B7CoverageKey = keyof typeof B7_COUNTY_COVERAGE;
+/**
+ * 縣市社福據點的斜線跟類別篩選走（涵蓋表 key＝縣市|類別，status 非 covered 者）：
+ * 只勾據點＝沒有據點名冊的縣市；只勾實物銀行＝沒有實物銀行名冊的縣市（只有桃園、高雄、臺北有）；兩類都勾＝兩類都沒有的縣市。
+ */
+export const B7_WELFARE_UNCOVERED_BY_KIND = {
+  care: ["嘉義縣", "雲林縣", "基隆市", "新竹市", "苗栗縣", "澎湖縣", "金門縣", "連江縣"],
+  foodBank: ["宜蘭縣", "新北市", "基隆市", "新竹市", "新竹縣", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義市", "嘉義縣", "臺中市", "臺南市", "屏東縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"],
+} as const;
+/** 依選取的類別（bit0＝據點、bit1＝實物銀行；未設＝全選）回斜線縣市；全關回空。 */
+export function welfareUncoveredCounties(mask?: number): readonly string[] {
+  const m = mask === undefined || !Number.isFinite(mask) ? 3 : Math.trunc(mask) & 3;
+  if (m === 0) return [];
+  if (m === 1) return B7_WELFARE_UNCOVERED_BY_KIND.care;
+  if (m === 2) return B7_WELFARE_UNCOVERED_BY_KIND.foodBank;
+  return B7_WELFARE_UNCOVERED_BY_KIND.care.filter((c) => (B7_WELFARE_UNCOVERED_BY_KIND.foodBank as readonly string[]).includes(c));
+}
+export const G53_ORGS = { cdc: "衛生福利部疾病管制署", nlma: "內政部國土管理署", ncc: "國家通訊傳播委員會", tra: "國營臺灣鐵路股份有限公司", nfa: "內政部消防署", moda: "數位發展部", caa: "交通部民用航空局", npa: "內政部警政署", gsmb: "經濟部地質調查及礦業管理中心", countyGov: "各縣市政府", countyEpa: "各縣市環保局" } as const;
 
 export const ATLAS_NOTES = {
+  // 台灣圖層延伸 B7（2026-11-21）
+  hakkaLivingSchools: "客家委員會客語生活學校（data.gov.tw 162475；來源 4,766 列為「學校×年度」，105–114 年度逐年名單），校名正規化並依同縣市、同學制、同座標合併後 822 校，715 校依地址定位上圖，另有 107 筆（校）地址無法定位、未上圖（多為只有校名或鄉間門牌），不補座標。位置依地址推定，不是官方座標。附設幼兒園與本校視為不同單位；同校不同寫法已合併，少數可能殘留重複。「名單年度」是該校出現在名單的年度，不等於目前仍參與。與「客家文化重點發展區」（鄉鎮面）是不同資料，可疊合對照。",
+  sandGravelPlants: "經濟部地質調查及礦業管理中心砂石碎解洗選場名冊（data.gov.tw 32708，更新 2026-09-11）來源 328 列，243 處依地址定位上圖，另有 85 筆地址無法定位、未上圖（鄉間「村＋號」門牌多半只能到村），不補座標。位置依地址推定，不是官方座標。來源涵蓋 16 縣市，沒有臺北、基隆、嘉義市、澎湖、金門、連江的場址。登記類別依來源欄位；事業單位名稱為公司或行號，不含個人資料。",
+  countyWelfarePoints: "各縣市政府公開的社會福利場所名冊：社區照顧關懷據點 14 縣市（宜蘭、臺東、花蓮為 109 年度版）、實物銀行只有桃園、高雄、臺北 3 縣市，共 3,691 處上圖（部分來源附座標，其餘依地址定位），另有 373 筆地址無法定位、未上圖，不補座標。斜線縣市＝未涵蓋（嘉義縣、雲林縣的據點名冊下載失敗；基隆、新竹市、苗栗、澎湖、金門、連江沒有公開名冊）；實物銀行在其他縣市同樣沒有資料，不代表沒有實物銀行。各縣市「類型」寫法不一，不做圖例。與「社會福利服務中心」（157 處）是不同機構；不含喘息服務單位與長照機構，不含電話與負責人。",
+  evMotorcycleCharging: "各縣市環保局公開的電動機車充電站與換電站名冊（13 縣市有完整名冊；各縣市更新日 2023-08 至 2026-11，屏東、雲林較舊，臺東為 109 年度版），4,464 處上圖（部分來源附座標，其餘依地址定位），另有 205 筆地址無法定位、未上圖，不補座標。斜線縣市＝未涵蓋：臺中的名冊汽機車混合、沒有車種欄所以不收；澎湖只有地號；基隆、苗栗、南投、嘉義縣、花蓮、金門、連江沒有名冊。新北含社區大樓（非對外開放者在彈窗註明）。與「電動車充電站」（交通部 TDX，汽車為主）、「電動機車換電站」（中油、台電）是不同資料。",
+  countyStreetlights: "各縣市政府公開的路燈點位清冊（data.gov.tw；各縣市更新日不一）共 951,143 個點位（臺北一個點可含多盞燈）。完整涵蓋：臺北、新北、臺中、新竹市、嘉義市。部分涵蓋（不畫斜線）：高雄只有工務局公園處管養的路燈（35 區，缺桃源、那瑪夏、茂林）、彰化只有省道路段、桃園只有中壢區公所清冊。斜線縣市＝未涵蓋（臺南只有電桿圖資不是路燈、嘉義縣下載逾時、其餘縣市目錄查無），不代表沒有路燈。拉遠為 0.01°（約 1 公里）方格的路燈點位數，放大到 12 級起顯示逐點。「LED」依來源的燈具類型欄判讀，新北、嘉義市、彰化沒有這欄（不明），僅供參考；它不是台電路燈契約戶的 LED 用電占比（見「縣市路燈 LED 化」），兩者不可互比。",
+  // 台灣圖層延伸 B3（2026-11-20）
+  namrBuoys: "國家海洋研究院資料浮標 8 座與加馬輻射錨碇 1 座的站位（data.gov.tw 171309、171315；來源更新 2026-02-03），只有站位，沒有觀測值。其中 5 座與氣象署資料浮標同址（東吉嶼、潮境、南灣、鼻頭角、蜜月灣；同一座浮標經氣象署轉發），另 4 座（員貝嶼、大武崙、澎南、萬里桐）不在氣象署站位清單。「最後資料日期」是來源在 2026-02-03 的值，鼻頭角、萬里桐已停止。",
+  towingYards: "警政署公布的警察機關車輛違規拖吊保管場（data.gov.tw 7319，2026-11-20 快照）來源 88 列，依地址以離線門牌定位（63 處）與門牌級 Google 補解（9 處）共 72 處上圖，另有 16 筆無法定位、未上圖（多為門牌小號、巷內、橋下或「某路口旁」），不補座標。位置依地址推定，不是官方座標；部分場址由民間業者承辦。無法定位的縣市（桃園、新北等）圖例上的數量少於實際場址。",
+  swcOutdoorClassrooms: "農業部農村發展及水土保持署水土保持戶外教室及教學園區 18 處（data.gov.tw 108030，檔案日期 2020-08）。管理單位與電話為 2020 年版，可能已過時；開放時間請以管理單位公告為準。",
+  swcEcoCheckZones: "109 年度水土保持工程第一級生態檢核區域 2,173 面（data.gov.tw 159097，公開版檔案日期 2021-01-20）。面積合計約 221 萬公頃（約台灣陸域六成），不是法定分區公告，也沒有年度或等級欄；拉遠時以代表點呈現，放大到 8 級起畫範圍。88 面落在鄉鎮界外（海域、東沙），縣市鄉鎮留空。",
+  airportHeightSurfaces: "民航局機場周邊禁限建（限高）管制面 95 面（data.gov.tw 35876，KML；更新 2023-04-27），涵蓋桃園、松山、臺東、恆春、金門、綠島、蘭嶼 7 個機場。高雄國際機場來源只有 CAD 折線、沒有面，未涵蓋；其他民航機場來源未提供，也未涵蓋。面是「查詢範圍」，不是公告原圖；來源未標座標系統。各面互相重疊，透明度預設偏低。機場禁止施放有礙飛航安全物體範圍（45701）只有線與點，未上圖；與「無人機紅區／黃區」的飛行規則不同。",
+  landOfficeJurisdiction: "內政部國土測繪中心地政事務所轄區 110 面（data.gov.tw 13045，更新 2026-06-22；13044 為其子集不另用），機關名稱與代碼補自地政司 7620。顏色只用來區分，沒有其他意義。8 面在「機關便民據點」的地政事務所點位找不到對應（高雄仁武、路竹、美濃、楠梓、新興、金門縣地政局、連江縣地政局、基隆市地政事務所）。轄區文字有 7 處與現行鄉鎮名不同。",
+  npSpeciesSites: "內政部國家公園署國家公園及都會公園物種調查（data.gov.tw 73252，111、112 年釋出；更新 2025-12-30）：1,451,504 筆紀錄合併為 144,228 個調查點位（同園區同座標一點），點開看紀錄數與物種數；「已調查到的位置」不等於物種分布範圍。座標不確定度與模糊處理依來源：2,304 點全部紀錄、17 點部分紀錄的座標經模糊處理，不可當精確位置。台灣範圍外 4,776 列（含台江黑面琵鷺遷徙軌跡與疑似誤值）未上圖。調查者與鑑定者姓名不收。",
+  forestAlishanRail: "農業部林業及自然保育署林業及文資處的阿里山林業鐵路車站（data.gov.tw 136446，22 站，WGS84）加上阿里山林業鐵路車站 SHP（38128）中沒有車站代號的 5 個點位（奮起湖、阿里山、竹崎監工區，車庫園區，水山），共 27 點。里程與海拔補自 38128：沼平、對高岳、祝山為支線，里程自支線起點起算，不可與本線里程比較；第一分道與第二分道座標相同（來源如此）；水山的性質未查證。",
+  mountainMobileImprovement: "數位發展部改善山區行動通訊站點：以前瞻計畫 109–112 年名單（data.gov.tw 160533，148 點上圖）為主，併入 173234 清單中離 160533 任一點 1 公里以上的 9 點（該 9 點無業者與年度資訊）；2 點座標疑似有誤（落在臺灣海峽）未上圖。名稱含「N 站」者是沿線多個座標之一。光暈只是示意，來源沒有基地台位置與涵蓋半徑，不代表實測訊號範圍；覆蓋旗標空白是未知，不是無訊號。",
+  ecoLabelHotels: "環境部環保標章旅館（data.gov.tw 145035，月更）283 家上圖（來源 286 列：去除重複 1、座標疑誤 2 不上圖）。縣市鄉鎮依地址解析；核發與到期日補自另一份名冊（161312），8 家對不到而留空；到期日已過但來源仍列出者在彈窗註明。等級用同色相深淺表示，不是金屬色。",
   vehicleInspectionOffices: "交通部公路局監理所站名冊（data.gov.tw 14203，115 年 4 月 21 日版）37 所站，來源只有地址：本機離線門牌定位 31 處（門牌 28、路段內插 3），另 3 處依 OpenStreetMap 同名地物補位（連江、澎湖、臺中市監理站）；金門監理站、彰化監理站、東勢監理分站找不到位置，未上圖。轄區面是依名冊的轄區文字把鄉鎮界組起來（86521「監理機關轄區」是同一份文字，不是面圖資），汽車與機車監理各自全國 368 鄉鎮各歸一所站；汽車監理有 24 個鄉鎮（南投埔里等 4、雲林沿海 9 加北港、屏東恆春等 6、高雄新興前金苓雅鹽埕）來源沒寫，畫成灰色「來源未載明」，不推定。轄區顏色只用來區分相鄰所站，沒有其他意義。電話與傳真是機關總機。",
   fireworksSites: "內政部消防署公告的爆竹煙火製造及儲存場所名冊（data.gov.tw 7070，2025-12-04 更新）共 19 處，來源只有地址，以本機離線門牌定位：地圖上 10 處（門牌 7、路段內插 1、鄉鎮 2），另 9 處是沒有路名的鄉間地址，定位不到未上圖（新竹湖口、峨眉，苗栗造橋、苑裡，桃園新屋，雲林斗南，嘉義東石）。位置由地址推估，不是場所邊界。以個人姓名為名的 3 處不顯示名稱，地址與位置都只到鄉鎮（上圖 2 處）。",
   iOceanFishing: "海洋委員會海洋保育署 iOcean 海洋保育網的民眾垂釣回報（data.gov.tw 157622，2026-05-06 版，實際含到 2026-11-03），56,420 筆（2015–2026，2021 年以後占 98%）。公民回報，未經查核。拉遠時（縮放 10 以下）以 0.01° 格網彙總的回報筆數畫熱區，熱區不隨垂釣類型篩選；放大到 10 級起畫每筆回報，依垂釣類型著色。座標落在 118–124°E、20–27°N 以外的 124 筆未上圖。回報沒有姓名或帳號等個資；同行人數欄品質不佳，不顯示。",

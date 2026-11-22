@@ -1,0 +1,12 @@
+{
+  "legend.marineHeat.loading": "Loading {period}…",
+  "legend.marineHeat.shownPeriod": "Month shown",
+  "legend.marineHeat.uncoveredPeriod": "No data for {period} (not covered)",
+  "legend.marineHeat.error": "Failed to load: {message}",
+  "legend.marineHeat.uncovered": "Not covered (missing ocean cell)",
+  "legend.marineHeat.mhwNote": "0.25° grid, monthly mean SST anomaly, classified after Hobday et al. 2018; extent 115–126°E, 18–28°N (Taiping Island not covered); land is not drawn. Change year and month in the settings panel. Source: Ocean Data Bank, National Science and Technology Council, Taiwan (doi:10.5281/zenodo.7512112)",
+  "legend.marineHeat.baaTitle": "Bleaching alert level (monthly maximum)",
+  "legend.marineHeat.dhwTitle": "Degree Heating Weeks (°C-weeks, monthly maximum)",
+  "legend.marineHeat.crwMaskNote": "Drawn only within NOAA reef monitoring areas (reef cells plus about 20 km), not the reefs themselves; Kinmen, Matsu and Taiping Island are not covered.",
+  "legend.marineHeat.crwNote": "Satellite heat stress; it does not mean corals on site are necessarily bleached. From 2003; 1985–2002 is not included because of licensing limits. Source: NOAA Coral Reef Watch v3.1 monthly composites (5 km)"
+}

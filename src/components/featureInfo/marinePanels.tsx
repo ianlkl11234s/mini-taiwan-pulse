@@ -3,7 +3,7 @@ import { fetchMarineObservationHistory } from "../../data/marineObservationLoade
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
-import { Row, formatTaiwanMinute } from "./shared";
+import { Row, SourceFooter, formatTaiwanMinute } from "./shared";
 import { localeStore, useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import type { MessageKey } from "../../i18n/keys";
@@ -510,5 +510,62 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
         </div>
       )}
     </>
+  );
+}
+
+// ── 台灣圖層延伸 B6：海洋熱浪月分級／珊瑚白化熱壓力（raster 點擊查年度數值檔）──
+/**
+ * 兩層共用 layerType `twMarineHeat`（同 rasterProbe 的理由：兩層可能同開，一次點擊兩個讀數都給）。
+ * props：`mhw`／`crw` 由 useTwMarineHeatLayer 的 pickTwMarineHeatCells 產生；陸地與範圍外不會開 popup。
+ * 海洋格有海溫但沒有熱浪等級 → 顯示「無資料」，不當成 0 級。
+ */
+interface TwMhwPick { period: string; level: number | null; levelZh: string | null; sst: number | null; sstAnomaly: number | null }
+interface TwCrwPick { period: string; dhw: number | null; baa: number | null; baaZh: string | null }
+
+const TW_MHW_SOURCE = {
+  source_org: "Ocean Data Bank (ODB), National Science and Technology Council, Taiwan",
+  source_url: "https://eco.odb.ntu.edu.tw/pub/MHW",
+  license: "Not specified (ODB open APIs are free to use)",
+};
+const TW_CRW_SOURCE = {
+  source_org: "NOAA Coral Reef Watch",
+  source_url: "https://coralreefwatch.noaa.gov/product/5km/",
+  license: "Available without restriction; credit NOAA Coral Reef Watch",
+};
+
+function signed(v: number, digits: number): string {
+  return `${v > 0 ? "+" : ""}${v.toFixed(digits)}`;
+}
+
+export function TwMarineHeatPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const i18n = useLocale();
+  const tr = i18n.t;
+  const mhw = props.mhw as TwMhwPick | null | undefined;
+  const crw = props.crw as TwCrwPick | null | undefined;
+  const none = tr("popup.marine.heatNoData");
+  const note = { fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, marginBottom: 6 } as const;
+  return (
+    <div>
+      {mhw && (
+        <>
+          <Row label={tr("popup.marine.heatPeriod")} value={mhw.period} />
+          <Row label={tr("popup.marine.heatMhwLevel")} value={mhw.levelZh ? enumLabel("twMhwLevel", String(mhw.level), mhw.levelZh, i18n) : none} />
+          <Row label={tr("popup.marine.heatSst")} value={mhw.sst === null ? none : `${mhw.sst.toFixed(2)} °C`} />
+          <Row label={tr("popup.marine.heatSstAnomaly")} value={mhw.sstAnomaly === null ? none : `${signed(mhw.sstAnomaly, 2)} °C`} />
+          <div style={note}>{tr("popup.marine.heatMhwNote")}</div>
+          <SourceFooter props={TW_MHW_SOURCE} />
+        </>
+      )}
+      {crw && (
+        <>
+          <Row label={tr("popup.marine.heatPeriod")} value={crw.period} />
+          <Row label={tr("popup.marine.heatBaa")} value={crw.baaZh ? enumLabel("twCrwBaaLevel", String(crw.baa), crw.baaZh, i18n) : none} />
+          <Row label={tr("popup.marine.heatDhw")} value={crw.dhw === null ? none : `${crw.dhw.toFixed(2)} °C-weeks`} />
+          <div style={note}>{tr("popup.marine.heatCrwNote")}</div>
+          <SourceFooter props={TW_CRW_SOURCE} />
+        </>
+      )}
+    </div>
   );
 }

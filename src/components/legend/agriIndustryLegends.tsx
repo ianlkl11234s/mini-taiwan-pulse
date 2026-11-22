@@ -100,7 +100,6 @@ const FORESTRY_LEGEND_ROWS: { key: keyof LayerVisibility; color: string; label: 
   { key: "forestWildlife", color: FORESTRY_PAINT_COLORS.forestWildlife, label: "野生動物分布 Wildlife", shape: "circle" },
   { key: "forestDamLakes", color: FORESTRY_PAINT_COLORS.forestDamLakes, label: "堰塞湖 Dam Lakes", shape: "circle" },
   { key: "forestFlatParks", color: FORESTRY_PAINT_COLORS.forestFlatParks, label: "平地森林 Flat Parks", shape: "circle" },
-  { key: "forestAlishanRail", color: FORESTRY_PAINT_COLORS.forestAlishanRail, label: "阿里山鐵路 Alishan Rail (車站)", shape: "circle" },
   { key: "mountainHuts", color: MOUNTAIN_HUT_TYPES[0]!.color, label: "山屋・高山營地 Mountain Huts", shape: "circle" },
   { key: "hikingTrails", color: HIKING_TRAIL_PAINT_COLORS.A_forest, label: "全台步道 Hiking Trails", shape: "line" },
 ];

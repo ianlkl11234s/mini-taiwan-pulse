@@ -4,6 +4,7 @@
 import { useSatellitesLayer } from "../../hooks/useSatellitesLayer";
 import { useRoadEventsLayer } from "../../hooks/useRoadEventsLayer";
 import { useFireEventsLayer } from "../../hooks/useFireEventsLayer";
+import { useFireEventsLongTermLayer } from "../../hooks/useFireEventsLongTermLayer";
 import { useFireLatestLayer } from "../../hooks/useFireLatestLayer";
 import { useWasteCleaningSquadLayer } from "../../hooks/useWasteCleaningSquadLayer";
 import { useFreewayLayer } from "../../hooks/useFreewayLayer";
@@ -11,7 +12,7 @@ import { useRoadCongestionLayer } from "../../hooks/useRoadCongestionLayer";
 import { useFuneralDensityLayer } from "../../hooks/useFuneralDensityLayer";
 import { useTemperatureGridLayer } from "../../hooks/useTemperatureGridLayer";
 import { resolveTemperatureGridDisplay } from "../../map/temperatureGridLayerFactory";
-import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
+import { bumpHostRender, type LayerHostComponent, type LayerHostDeps } from "../layerHostDeps";
 import { paramBool, paramNum, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 
 /**
@@ -66,23 +67,46 @@ export const RoadEventsHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 火災歷史事件（僅在 historical mode + toggle 開啟時實際 fetch） */
+/**
+ * 火災歷史事件：一次只掛一個驅動（長期時間條 1b，2026-11-20）。
+ * - 歷史模式：沿用 useFireEventsLayer，由歷史時間軸的年／月／日驅動（第 3 階段拿掉開關前維持原行為）。
+ * - 即時模式：useFireEventsLongTermLayer，由長期時間條（longTermBarStore）驅動。
+ * 兩者寫同一個 source；依模式換元件，舊驅動先卸載、新驅動再掛上，不會兩套同時寫。
+ */
 export const FireEventsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useFireEventsLayer");
-  const p = useKeyOverlayParams("fireEvents");
-  useFireEventsLayer(
-    deps.mapRef,
-    deps.appMode === "historical" && deps.layerVisibility.fireEvents,
-    deps.historicalYear,
-    deps.historicalMonth,
-    deps.historicalDay,
-    deps.historicalGranularity,
-    deps.isDarkTheme,
-    p.fireEventsOpacity ?? 1,
-    p.fireEventsCatMask,
-  );
-  return null;
+  // ⚠️ 不可把 deps 整包當子元件 prop：layerVisibility 是追蹤式視圖，成為 prop 會被 React dev 列舉成「訂閱全部 key」
+  //（見 LayerHost.tsx HostSlot）。開關在 Host 本身讀，子元件只拿需要的欄位。
+  const visible = deps.layerVisibility.fireEvents;
+  return deps.appMode === "historical"
+    ? (
+      <FireEventsHistoricalDriver
+        mapRef={deps.mapRef} visible={visible} isDarkTheme={deps.isDarkTheme}
+        year={deps.historicalYear} month={deps.historicalMonth} day={deps.historicalDay} granularity={deps.historicalGranularity}
+      />
+    )
+    : <FireEventsLongTermDriver mapRef={deps.mapRef} visible={visible} isDarkTheme={deps.isDarkTheme} />;
 };
+
+interface FireDriverProps {
+  mapRef: LayerHostDeps["mapRef"];
+  visible: boolean;
+  isDarkTheme: boolean;
+}
+
+function FireEventsHistoricalDriver({ mapRef, visible, isDarkTheme, year, month, day, granularity }: FireDriverProps & {
+  year: number; month: number; day: number; granularity: LayerHostDeps["historicalGranularity"];
+}) {
+  const p = useKeyOverlayParams("fireEvents");
+  useFireEventsLayer(mapRef, visible, year, month, day, granularity, isDarkTheme, p.fireEventsOpacity ?? 1, p.fireEventsCatMask);
+  return null;
+}
+
+function FireEventsLongTermDriver({ mapRef, visible, isDarkTheme }: FireDriverProps) {
+  const p = useKeyOverlayParams("fireEvents");
+  useFireEventsLongTermLayer(mapRef, visible, isDarkTheme, p.fireEventsOpacity ?? 1, p.fireEventsCatMask);
+  return null;
+}
 
 /** 火災最新年度（任何模式可見，不需歷史時間軸） */
 export const FireLatestHost: LayerHostComponent = ({ deps }) => {

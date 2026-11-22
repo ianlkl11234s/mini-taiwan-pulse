@@ -35,7 +35,7 @@ export function fireEventsPointStroke(isDark: boolean, opacity: number) {
   };
 }
 
-function ensureLayer(map: MapboxMap, isDark: boolean) {
+export function ensureLayer(map: MapboxMap, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, {
       type: "geojson",
@@ -76,7 +76,7 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
   }
 }
 
-function setData(map: MapboxMap, events: FireEvent[]) {
+export function setData(map: MapboxMap, events: FireEvent[]) {
   const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
   if (!src) return;
   const fc: GeoJSON.FeatureCollection<GeoJSON.Point> = {
@@ -108,7 +108,7 @@ export function fireEventsSparse(granularity: HistoricalGranularity): boolean {
   return granularity !== "year";
 }
 
-function setVisible(map: MapboxMap, visible: boolean, sparse = false) {
+export function setVisible(map: MapboxMap, visible: boolean, sparse = false) {
   if (map.getLayer(HEATMAP_LAYER_ID)) map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", visible && !sparse ? "visible" : "none");
   if (!map.getLayer(LAYER_ID)) return;
   map.setLayerZoomRange(LAYER_ID, sparse ? 0 : POINTS_FROM_ZOOM, 24);
@@ -123,7 +123,7 @@ function applyCategoryFilter(map: MapboxMap, catMask?: number) {
   }
 }
 
-function updateOpacity(map: MapboxMap, isDark: boolean, opacity: number, catMask?: number) {
+export function updateOpacity(map: MapboxMap, isDark: boolean, opacity: number, catMask?: number) {
   applyHeatmapStyle(map, HEATMAP_LAYER_ID, "fireEvents", isDark, opacity / OPACITY_DEFAULT);
   applyCategoryFilter(map, catMask);
   if (!map.getLayer(LAYER_ID)) return;

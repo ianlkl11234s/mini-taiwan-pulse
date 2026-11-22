@@ -124,8 +124,7 @@ export const FORESTRY_PAINT_COLORS = {
   "forestEducationCenters": "#0EA5E9",
   "forestWildlife": "#A855F7",
   "forestDamLakes": "#06B6D4",
-  "forestFlatParks": "#A3E635",
-  "forestAlishanRail": "#92400E"
+  "forestFlatParks": "#A3E635"
 } as const;
 
 export const HIKING_TRAIL_PAINT_COLORS = {

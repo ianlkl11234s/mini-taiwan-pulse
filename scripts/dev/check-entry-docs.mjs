@@ -4,9 +4,10 @@
 // 零相依（只用 node 內建），CI 的 entry-docs job 不跑 npm ci 也能執行。
 //
 // 用法：node scripts/dev/check-entry-docs.mjs [--today YYYY-MM-DD] [--root <repo>]
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, normalize, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkDocNumbers, LAYER_STATUS_CSV, LAYER_STATUS_SUMMARY, TOOL_COUNT_PATH, TOOL_COUNT_REQUIRED_IN } from "./check-doc-numbers.mjs";
 
 export const PROJECTS_PATH = "docs/PROJECTS.md";
 export const BACKLOG_PATH = ".claude/memory/BACKLOG.md";
@@ -263,6 +264,23 @@ export function checkEntryDocs({ projects, backlog, today, fileExists = () => tr
   return problems;
 }
 
+/** 文件數字檢查的輸入：docs/ 底下（不含 archive）所有 .md 與 README.md，加上產生檔。 */
+function loadDocNumberInputs(root) {
+  const readIf = (p) => (existsSync(join(root, p)) ? readFileSync(join(root, p), "utf8") : null);
+  const docs = {};
+  const walk = (dir) => {
+    for (const e of readdirSync(join(root, dir), { withFileTypes: true })) {
+      const rel = `${dir}/${e.name}`;
+      if (e.isDirectory()) { if (e.name !== "archive" && e.name !== "node_modules") walk(rel); }
+      else if (e.name.endsWith(".md")) docs[rel] = readFileSync(join(root, rel), "utf8");
+    }
+  };
+  if (existsSync(join(root, "docs"))) walk("docs");
+  for (const p of TOOL_COUNT_REQUIRED_IN) if (!(p in docs)) { const t = readIf(p); if (t != null) docs[p] = t; }
+  const tc = readIf(TOOL_COUNT_PATH);
+  return { layerStatusSummary: readIf(LAYER_STATUS_SUMMARY), layerStatusCsv: readIf(LAYER_STATUS_CSV), toolCount: tc ? JSON.parse(tc) : null, docs };
+}
+
 function main() {
   const args = process.argv.slice(2);
   const opt = (k) => {
@@ -279,6 +297,7 @@ function main() {
     today,
     fileExists: (p) => existsSync(join(root, p)),
   });
+  problems.push(...checkDocNumbers(loadDocNumberInputs(root)));
   const errors = problems.filter((p) => p.level === "error");
   const warnings = problems.filter((p) => p.level === "warning");
   const gha = Boolean(process.env.GITHUB_ACTIONS);

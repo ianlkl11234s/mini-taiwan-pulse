@@ -8,5 +8,6 @@
   "enum.infraToiletGrade.不合格": "Fail",
   "enum.infraCctvSource.freeway": "National freeway",
   "enum.infraCctvSource.highway": "Provincial expressway",
-  "enum.infraCctvSource.city": "City road"
+  "enum.infraCctvSource.city": "City road",
+  "enum.infraGovOffice.household_registration_branch": "Household registration office branch"
 }

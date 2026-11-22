@@ -14,6 +14,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Rewind, Play, Pause, RotateCcw, X } from "lucide-react";
 import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, Z_INDEX, LAYOUT, SURFACE } from "../styles/designTokens";
+import { bottomAboveLongTermBar } from "./longTermBar/longTermBarLayout";
 import { fetchReplayEvents } from "../data/earthquakeReplayLoader";
 import { eventTier, type EarthquakeReplayEvent } from "../data/earthquakeReplayTypes";
 import { earthquakeReplayClock } from "../state/earthquakeReplayClock";
@@ -95,7 +96,7 @@ export function EarthquakeReplayPanel({
         position: "fixed",
         left: 64,
         top: LAYOUT.leftDockTop,
-        bottom: 130,
+        bottom: bottomAboveLongTermBar(130),
         width: PANEL_WIDTH,
         background: SURFACE.strong,
         backdropFilter: "blur(16px)",

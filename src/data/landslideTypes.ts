@@ -90,15 +90,25 @@ export function highwayCategoryColor(value: unknown): string {
 
 // ── 年度全島崩塌地（農水署；107MB PMTiles，source-layer landslide_annual）──
 
-/** 只有這 4 年；2019–2022 未納入、2016 以前為林業署另一口徑未納入。預設 2024（V2 版）。 */
-export const ANNUAL_YEARS = [2017, 2018, 2023, 2024] as const;
+/**
+ * 只有這 5 年；2019–2022 未納入、2016 以前為林業署另一口徑未納入。預設 2024（V2 版）。
+ * 順序＝select 的 encode 索引，新年份只能加在最後。2025（114 年，B3 2026-11-20）是獨立的單年檔（`ANNUAL_NEW_FILE_YEARS`），不併進 107MB 合併檔。
+ */
+export const ANNUAL_YEARS = [2017, 2018, 2023, 2024, 2025] as const;
 export const ANNUAL_DEFAULT_YEAR = 2024;
-export const ANNUAL_YEAR_OPTIONS = ANNUAL_YEARS.map((year) => ({ value: String(year), label: year === 2024 ? "2024（V2 版）" : String(year) }));
+export const ANNUAL_YEAR_OPTIONS = ANNUAL_YEARS.map((year) => ({ value: String(year), label: year === 2024 ? "2024（V2 版）" : year === 2025 ? "2025（114 年版）" : String(year) }));
+/** 在獨立單年檔（landslide_annual_swcb_<年>_<日期>.pmtiles）的年份；其餘年份在舊的 4 年合併檔 */
+export const ANNUAL_NEW_FILE_YEARS: readonly number[] = [2025];
+/** 年份索引（landslideAnnualYearIdx）落在獨立單年檔？ */
+export function annualYearInNewFile(idx: number | undefined): boolean {
+  const year = ANNUAL_YEARS[idx ?? ANNUAL_YEARS.indexOf(ANNUAL_DEFAULT_YEAR)] ?? ANNUAL_DEFAULT_YEAR;
+  return ANNUAL_NEW_FILE_YEARS.includes(year);
+}
 /** z6–z9 切片會遺漏小面（z6 少約 20%），z10 起 143,511 面完整 → 圖層 z<10 不顯示。 */
 export const ANNUAL_MIN_ZOOM = 7;
 /** 缺值哨兵：min_dtm = -32767 表示 DTM 無值。 */
 export const ANNUAL_DTM_NODATA = -32767;
-export const ANNUAL_MISSING_YEARS_NOTE = "只有 2017、2018、2023、2024 四年：2019–2022 未納入，2016 以前為林業署另一口徑未納入。";
+export const ANNUAL_MISSING_YEARS_NOTE = "只有 2017、2018、2023、2024、2025 五年：2019–2022 未納入，2016 以前為林業署另一口徑未納入。";
 export const ANNUAL_V2_NOTE = "2024 為 V2 版（影像 2024-12～2025-05），與縣市統計的 2024 數字不一致。";
 export const ANNUAL_ZOOM_NOTE = "放大到 10 級以上才顯示（低縮放會遺漏小面）。";
 

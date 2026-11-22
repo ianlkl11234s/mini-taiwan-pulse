@@ -6,7 +6,7 @@ import { statisticsLicense, statisticsPublisher } from '../../i18n/agencyText';
 import { statisticsTitle, statisticsUnit } from '../../i18n/statisticsText';
 import type { LocaleSnapshot } from "../../state/localeStore";
 import { boundaryVersionLabel, humanizeStatisticsText, statisticsAvailabilityLabel, statisticsDisclosure, statisticsLocationBasis, statisticsPeriodLabel } from '../../data/statisticsLabels';
-import { demographicsYtdText, type DemographicsYtdParts } from '../../data/demographicsStatisticsRecipes';
+import { demographicsIndicatorNoteText, demographicsYtdText, type DemographicsYtdParts } from '../../data/demographicsStatisticsRecipes';
 import { atlasCategoryLabel } from '../../data/atlasStatisticsRecipes';
 import { useCompareState } from '../../state/compareStore';
 
@@ -39,6 +39,16 @@ function inputValue(value: unknown, i18n: LocaleSnapshot): string {
   return String(value ?? t('popup.common.noData'));
 }
 
+
+/** 資料限制：人口統計 loader 另附原句（disclosure_base）與指標說明分段，外文逐段查譯文；其餘家族整句查譯文 */
+function disclosureText(props: Record<string, unknown>, i18n: LocaleSnapshot): string {
+  if (typeof props.disclosure_base !== 'string') return statisticsDisclosure(String(props.disclosure), i18n);
+  let ytd = props.period_ytd;
+  if (typeof ytd === 'string') { try { ytd = JSON.parse(ytd); } catch { ytd = undefined; } }
+  const parts = typeof props.disclosure_note_parts === 'string' && props.disclosure_note_parts ? props.disclosure_note_parts.split('\n') : [];
+  const note = demographicsIndicatorNoteText(parts, ytd && typeof ytd === 'object' ? ytd as DemographicsYtdParts : undefined, i18n);
+  return [statisticsDisclosure(props.disclosure_base, i18n), note].filter(Boolean).join(' ');
+}
 
 /** 期別：人口統計 loader 附結構化期別（period_ytd／period_start／period_end）讓外文依語系組句；其餘照 period_label */
 function periodText(props: Record<string, unknown>, i18n: LocaleSnapshot): string {
@@ -93,7 +103,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {props.missing_reason != null && <Row label={t('popup.regionalStatistics.missingReason')} value={String(props.missing_reason)} />}
     <Row label={t('popup.regionalStatistics.period')} value={periodText(props, i18n)} />
     {props.location_semantics != null && <Row label={t('popup.regionalStatistics.locationBasis')} value={statisticsLocationBasis(String(props.location_semantics), i18n)} />}
-    {props.disclosure != null && <Row field="dataLimits" value={statisticsDisclosure(String(props.disclosure), i18n)} />}
+    {props.disclosure != null && <Row field="dataLimits" value={disclosureText(props, i18n)} />}
     {props.comparison_formula != null && <Row label={t('popup.regionalStatistics.formula')} value={complement ? t('popup.regionalStatistics.complementFormula') : String(props.comparison_formula)} />}
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={inputLabel(key)} value={inputValue(value, i18n)} />)}
     {props.interpretation != null && <Row label={t('popup.regionalStatistics.interpretation')} value={complement ? t('popup.regionalStatistics.complementInterpretation') : String(props.interpretation)} />}

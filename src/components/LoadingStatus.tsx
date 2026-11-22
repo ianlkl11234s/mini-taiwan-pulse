@@ -6,6 +6,7 @@ import {
   HIDDEN_LOADING_STATUS,
   type LoadingStatusView,
 } from "../lib/loadingStatusController";
+import { localizeLoadingLabel } from "../lib/loadingLabel";
 import "./loadingStatus.css";
 
 /**
@@ -36,7 +37,11 @@ export function LoadingStatus({
   useEffect(() => {
     const controller = createLoadingStatusController({ onChange: setView });
     controllerRef.current = controller;
-    const unsubscribe = loadingRegistry.subscribeEvents(controller.handle);
+    // 任務名稱在這裡依當下語系翻譯（呼叫端註冊的是中文名稱），controller 只管節奏
+    const unsubscribe = loadingRegistry.subscribeEvents((event) => {
+      const i18n = localeStore.getSnapshot();
+      controller.handle({ ...event, label: localizeLoadingLabel(event.id, event.label, i18n) });
+    });
     return () => {
       unsubscribe();
       controller.dispose();

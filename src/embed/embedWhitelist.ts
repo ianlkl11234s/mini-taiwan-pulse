@@ -17,6 +17,7 @@ import { EMBED_CDN_LAYERS } from "./dynamicCdnLayers";
 import { SNAPSHOT_KEYS } from "./snapshotLayers";
 import { REPLAY_KEYS } from "./replayLayers";
 import { EMBED_FACTORY_OVERLAY_CONFIGS } from "./factoryOverlayConfigs";
+import { IMAGE_HOOK_KEYS } from "./imageHookLayers";
 import type { OverlayConfig, LayerVisibility } from "../types";
 
 /**
@@ -45,6 +46,9 @@ export const EMBED_ALLOWED: ReadonlySet<string> = new Set([
   // EM-16：回放圖層（Three.js CustomLayer + 回放時鐘）。同樣**需帶 `date=`**，
   // 資料來自 gzip 快照，一樣不碰 Supabase —— 派生方式比照 SNAPSHOT_KEYS。
   ...REPLAY_KEYS,
+  // 影像疊圖（30 天地圖挑戰 Day 8／17／19）：主站是專屬 hook 掛 image source，
+  // embed 照 imageHookLayers 的靜態規格自己 addSource/addLayer；只讀 CDN 靜態檔。
+  ...IMAGE_HOOK_KEYS.filter((k) => !GATED_LAYERS.has(k) && !RELEASE_HOLD_LAYERS.has(k)),
 ]);
 
 /** 全 false 的 LayerVisibility，再把指定的 key 打開。 */
@@ -54,6 +58,7 @@ export function buildEmbedVisibility(keys: readonly (keyof LayerVisibility)[] = 
   for (const config of EMBED_FACTORY_OVERLAY_CONFIGS) out[config.id] = false;
   for (const k of SNAPSHOT_KEYS) out[k] = false;
   for (const k of REPLAY_KEYS) out[k] = false;
+  for (const k of IMAGE_HOOK_KEYS) out[k] = false;
   for (const k of keys) {
     if (EMBED_ALLOWED.has(k)) out[k] = true;
   }

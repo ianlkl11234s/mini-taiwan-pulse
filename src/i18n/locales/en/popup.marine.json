@@ -44,5 +44,14 @@
   "popup.marine.gbMpaArea": "Area",
   "popup.marine.gbMpaStatus": "Status",
   "popup.marine.gbMpaNav": "Not to be used for navigation",
-  "popup.marine.hourlyAggregate": "7-day curve shows hourly means; wind, wave and current directions use the last reading of each hour."
+  "popup.marine.hourlyAggregate": "7-day curve shows hourly means; wind, wave and current directions use the last reading of each hour.",
+  "popup.marine.heatNoData": "No data",
+  "popup.marine.heatPeriod": "Month",
+  "popup.marine.heatMhwLevel": "Marine heatwave level",
+  "popup.marine.heatSst": "Monthly mean SST",
+  "popup.marine.heatSstAnomaly": "SST anomaly",
+  "popup.marine.heatMhwNote": "Monthly mean for a 0.25° grid cell, not a point observation.",
+  "popup.marine.heatBaa": "Bleaching alert (monthly max)",
+  "popup.marine.heatDhw": "DHW (monthly max)",
+  "popup.marine.heatCrwNote": "5 km satellite heat stress; corals on site are not necessarily bleached."
 }

@@ -4,7 +4,7 @@
 // 加入 P3–P6：builder 加 handoff → 重產 catalog → 下方 KEYS 補 key → 群組規格補一列（未列的指標自動一指標一群組）。
 import catalogJson from "./demographicsStatisticsRecipes.catalog.json";
 import type { StatisticsLevel, StatisticsRelease } from "./regionalStatisticsLoader";
-import { humanizeStatisticsText } from "./statisticsLabels";
+import { humanizeStatisticsText, statisticsDisclosure } from "./statisticsLabels";
 import { displayRocYear } from "../i18n/dataText";
 import type { I18nContext } from "../i18n/layerText";
 
@@ -212,15 +212,29 @@ export function demographicsYtdLabel(recipe: Partial<Pick<DemographicsRecipe, "r
   return parts ? demographicsYtdText(parts, i18n) : undefined;
 }
 
-export function demographicsIndicatorNote(recipe: NoteSource): string | undefined {
-  const ytd = demographicsYtdLabel(recipe);
-  const notes = [
+/** 年初累計說明句型；{ytd} 在顯示時換成期別（外文用譯文表，期別依語系組句）。 */
+export const DEMOGRAPHICS_YTD_NOTE = "年初累計（{ytd}），不是全年，不可與年度值比較或加總。";
+
+/** 指標說明分段（句型原文，年初累計句保留 {ytd}）：外文逐段查 `enum.statDisclosure`。 */
+export function demographicsIndicatorNoteParts(recipe: NoteSource): string[] {
+  return [
     INDICATOR_NOTES[recipe.indicator_id.replace(/_ytd$/, "")],
     recipe.dataset_id ? DATASET_NOTES[recipe.dataset_id] : undefined,
-    ytd ? `年初累計（${ytd}），不是全年，不可與年度值比較或加總。` : undefined,
+    demographicsYtdParts(recipe) ? DEMOGRAPHICS_YTD_NOTE : undefined,
     recipe.level === "village" ? DEMOGRAPHICS_VILLAGE_NOTE : undefined,
-  ].filter(Boolean);
+  ].filter((part): part is string => Boolean(part));
+}
+
+export function demographicsIndicatorNote(recipe: NoteSource): string | undefined {
+  const ytd = demographicsYtdLabel(recipe);
+  const notes = demographicsIndicatorNoteParts(recipe).map((part) => part.replace("{ytd}", ytd ?? ""));
   return notes.length ? notes.join(" ") : undefined;
+}
+
+/** 指標說明依語系組句：每段查譯文表（缺譯文退回中文），年初累計期別依語系組。 */
+export function demographicsIndicatorNoteText(parts: readonly string[], ytd: DemographicsYtdParts | undefined, i18n: I18nContext): string | undefined {
+  const text = parts.map((part) => statisticsDisclosure(part, i18n).replace("{ytd}", ytd ? demographicsYtdText(ytd, i18n) : "")).join(" ");
+  return text || undefined;
 }
 
 /** 顯示名稱：年初累計改標「…（115 年 1–8 月累計）」，不用「YTD」縮寫。 */

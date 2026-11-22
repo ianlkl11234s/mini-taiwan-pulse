@@ -12,5 +12,18 @@
   "enum.marineMetric.wind_direction_deg": "風向",
   "enum.marineMetric.max_wind_speed": "最大風速",
   "enum.marineMetric.current_speed": "流速",
-  "enum.marineMetric.current_direction_deg": "流向"
+  "enum.marineMetric.current_direction_deg": "流向",
+  "enum.twMhwLevel.0": "海洋熱波なし",
+  "enum.twMhwLevel.1": "中程度",
+  "enum.twMhwLevel.2": "強い",
+  "enum.twMhwLevel.3": "深刻",
+  "enum.twMhwLevel.4": "極端",
+  "enum.twCrwBaaLevel.0": "ストレスなし",
+  "enum.twCrwBaaLevel.1": "白化注意",
+  "enum.twCrwBaaLevel.2": "白化警告",
+  "enum.twCrwBaaLevel.3": "警報レベル 1",
+  "enum.twCrwBaaLevel.4": "警報レベル 2",
+  "enum.twCrwBaaLevel.5": "警報レベル 3",
+  "enum.twCrwBaaLevel.6": "警報レベル 4",
+  "enum.twCrwBaaLevel.7": "警報レベル 5"
 }

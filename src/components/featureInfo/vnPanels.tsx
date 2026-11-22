@@ -7,7 +7,7 @@ import { useLocale } from "../../state/localeStore";
 import { caText } from "../../data/caInfraTypes";
 import { makePhPanel } from "./phPanels";
 import {
-  VN_ADMIN_COLOR, VN_ADMIN_SOURCE, VN_DATA_SPECS, VN_FETCHED_AT, VN_POP_YEARS, VN_POPULATION_SOURCE, pickL3, vnMoreSpec, type L3,
+  VN_ADMIN_COLOR, VN_ADMIN_SOURCE, VN_DATA_SPECS, VN_FETCHED_AT, VN_POP_YEARS, VN_POPULATION_SOURCE, phText, pickL3, vnMoreSpec, type L3,
 } from "../../data/vnDataLayers";
 import type { VnDataKey } from "../../data/vnDataKeys";
 
@@ -33,7 +33,7 @@ export function VnAdminBoundariesPanel({ props }: P) {
     <Row label={pick({ zh: "併入的舊省", en: "Former provinces merged", ja: "統合された旧省" })} value={caText(props.old_provinces)} />
     <Row label={pick({ zh: "面積", en: "Area", ja: "面積" })} value={area ? `${area} km²` : ""} />
     <Row label={pick({ zh: "省代碼（NSO）", en: "Province code (NSO)", ja: "省コード（NSO）" })} value={caText(props.province_code)} mono />
-    <SourceFooter props={{ source_org: VN_ADMIN_SOURCE.org, source_url: VN_ADMIN_SOURCE.url, license: VN_ADMIN_SOURCE.license, fetched_at: VN_FETCHED_AT }} />
+    <SourceFooter props={{ source_org: phText(VN_ADMIN_SOURCE.org, locale), source_url: VN_ADMIN_SOURCE.url, license: phText(VN_ADMIN_SOURCE.license, locale), fetched_at: VN_FETCHED_AT }} />
   </>;
 }
 
@@ -52,7 +52,7 @@ export function VnPopulationPanel({ props }: P) {
     <Row label={pick({ zh: "人口密度", en: "Density", ja: "人口密度" })} value={density ? `${density} ${pick({ zh: "人／km²", en: "people/km²", ja: "人／km²" })}` : noData} />
     {points.length > 1 ? <TrendChart points={points} color="#f59e0b" leftPad={62} unit={pick({ zh: "人口（2011–2025）", en: "Population (2011–2025)", ja: "人口（2011–2025）" })} /> : null}
     <Row label={pick({ zh: "歷年說明", en: "History note", ja: "経年の注記" })} value={caText(props.history_note)} />
-    <SourceFooter props={{ source_org: VN_POPULATION_SOURCE.org, source_url: VN_POPULATION_SOURCE.url, license: VN_POPULATION_SOURCE.license, fetched_at: VN_FETCHED_AT }} />
+    <SourceFooter props={{ source_org: phText(VN_POPULATION_SOURCE.org, locale), source_url: VN_POPULATION_SOURCE.url, license: phText(VN_POPULATION_SOURCE.license, locale), fetched_at: VN_FETCHED_AT }} />
   </>;
 }
 

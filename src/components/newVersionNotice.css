@@ -1,0 +1,72 @@
+/* 「網站有新版本」提示（AG-10，站主看圖選樣式）。層級 --z-toast：不需要蓋過「資料更新中」遮罩（spec 層級章節）。 */
+.upd {
+  --upd-surface: var(--surface-strong);
+  --upd-border: var(--border-panel);
+  --upd-strong: var(--text-strong);
+  --upd-muted: var(--text-muted);
+  --upd-elevation: var(--elevation-lg);
+  --upd-control-bg: var(--control-bg);
+  --upd-control-bg-hover: var(--control-bg-hover);
+  --upd-control-border: var(--control-border);
+  --upd-accent: var(--accent);
+  --upd-accent-faint: var(--accent-faint);
+  position: fixed;
+  z-index: var(--z-toast);
+  box-sizing: border-box;
+  color: var(--upd-strong);
+  font: var(--font-md)/1.5 var(--font-cjk);
+}
+.upd--light {
+  --upd-surface: var(--light-surface-strong);
+  --upd-border: var(--light-border);
+  --upd-strong: var(--light-text-strong);
+  --upd-muted: var(--light-text-muted);
+  --upd-elevation: var(--light-elevation-lg);
+  --upd-control-bg: var(--light-control-bg);
+  --upd-control-bg-hover: var(--light-control-bg-hover);
+  --upd-control-border: var(--light-control-border);
+  --upd-accent: var(--light-accent);
+  --upd-accent-faint: var(--light-accent-faint);
+}
+.upd__card {
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(300px, calc(100vw - 32px));
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--upd-border);
+  border-radius: var(--radius-xl);
+  background: var(--upd-surface);
+  box-shadow: var(--upd-elevation);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.upd__head { display: flex; align-items: center; gap: var(--space-sm); }
+.upd__icon { flex: none; color: var(--upd-accent); }
+.upd__title { margin: 0; font-weight: var(--font-weight-semibold); }
+.upd__detail { margin: 2px 0 0; color: var(--upd-muted); font-size: var(--font-base); }
+.upd__actions { display: flex; gap: var(--space-sm); margin-top: var(--space-md); }
+.upd__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--upd-control-border);
+  border-radius: var(--radius-md);
+  background: var(--upd-control-bg);
+  color: var(--upd-strong);
+  font: 500 var(--font-base)/1 var(--font-cjk);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.upd__btn:hover { background: var(--upd-control-bg-hover); }
+.upd__btn:focus-visible { outline: 2px solid var(--upd-accent); outline-offset: 2px; }
+.upd__btn--primary { border-color: var(--upd-accent); background: var(--upd-accent-faint); color: var(--upd-accent); font-weight: var(--font-weight-semibold); }
+.upd__btn--primary:hover { background: var(--upd-accent-faint); }
+
+/* A 右下卡片：讓開右下導航控制柱與比例尺 */
+.upd--a { right: 64px; bottom: 104px; animation: upd-rise 0.22s ease-out; }
+.upd--a.upd--mobile { right: 12px; left: 12px; bottom: 136px; display: flex; justify-content: center; }
+
+@keyframes upd-rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .upd--a { animation: none; } }

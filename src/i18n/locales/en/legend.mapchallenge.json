@@ -223,5 +223,16 @@
   "legend.mapchallenge.day19.ratioNull": "Ratio not stated",
   "legend.mapchallenge.day19.sizeTitle": "Circle size = number of penalties",
   "legend.mapchallenge.day19.penaltiesNote": "Only penalties whose facts mention odor pollutants; the facts field exists from 2017 and is about 60% blank, so 848 is a lower bound. Individually run livestock farms are not named.",
-  "legend.mapchallenge.day19.penaltiesSource": "Source: Ministry of Environment enforcement penalties · Open Government Data License v1.0"
+  "legend.mapchallenge.day19.penaltiesSource": "Source: Ministry of Environment enforcement penalties · Open Government Data License v1.0",
+  "legend.mapchallenge.day21.title": "When Roads Were Drawn into OSM",
+  "legend.mapchallenge.day21.before": "{year} or earlier",
+  "legend.mapchallenge.day21.showingUpTo": "Showing roads drawn up to {year}",
+  "legend.mapchallenge.day21.showingNew": "Showing only roads added in {year}",
+  "legend.mapchallenge.day21.colorNote": "Colour = the year this road segment was first drawn in OpenStreetMap; one cell per year, years with more new roads span more of the ramp.",
+  "legend.mapchallenge.day21.major": "Major roads (motorways, expressways, primary roads)",
+  "legend.mapchallenge.day21.mid": "Secondary roads (secondary, tertiary)",
+  "legend.mapchallenge.day21.local": "Local roads (residential, unclassified, service, untagged)",
+  "legend.mapchallenge.day21.yearNote": "The year is when the road was drawn into OSM, not when it opened; 2007 means 2007 or earlier; data to 2026-07-27.",
+  "legend.mapchallenge.day21.limits": "Only roads that still exist on 2026-07-27 ({km} km); deleted roads are not shown. Early years (2007–2011) are slightly overcounted because single lines were later split into two carriageways; a road redrawn at a new position counts as newly drawn. Taipei, New Taipei and Keelung only.",
+  "legend.mapchallenge.day21.source": "Source: © OpenStreetMap contributors (ODbL); history via the ohsome API (HeiGIT)"
 }

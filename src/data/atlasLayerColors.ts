@@ -101,6 +101,24 @@ export const ATLAS_LAYER_COLORS = {
   iOceanFishing: "#0ea5e9",
   fireworksSites: "#dc2626",
   vehicleInspectionOffices: "#22d3ee",
+  // 台灣圖層延伸 B2（2026-11-20）
+  forestAlishanRail: "#92400E",
+  mountainMobileImprovement: "#0ea5e9",
+  ecoLabelHotels: "#16a34a",
+  // 台灣圖層延伸 B3（2026-11-20）
+  namrBuoys: "#06b6d4",
+  towingYards: "#f97316",
+  swcOutdoorClassrooms: "#65a30d",
+  swcEcoCheckZones: "#4d7c0f",
+  airportHeightSurfaces: "#38bdf8",
+  landOfficeJurisdiction: "#e2e8f0",
+  npSpeciesSites: "#14b8a6",
+  // 台灣圖層延伸 B7（2026-11-21）
+  hakkaLivingSchools: "#f59e0b",
+  sandGravelPlants: "#a8a29e",
+  countyWelfarePoints: "#ec4899",
+  evMotorcycleCharging: "#22d3ee",
+  countyStreetlights: "#fde047",
 } as const;
 
 /** 山坡地暗底版（2026-11-10）：土褐 0.3 疊暗灰陸地只剩泥色，改沙褐、透明度 ×1.5。地圖與圖例共用。 */

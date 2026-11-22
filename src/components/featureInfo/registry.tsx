@@ -15,7 +15,7 @@ import type { FC } from "react";
 import type { FeatureInfo } from "../../types";
 import {
   SubmarineCablePanel, LandingStationPanel, InternetExchangePointPanel, AnfrWirelessSitePanel, OsmCommunicationSitePanel, RipeAtlasProbePanel, OoklaMobileGridPanel, OoklaFixedGridPanel, ConvenienceStorePanel,
-  PostOfficePanel, IPostBoxPanel, CommunityCenterPanel, GovServiceOfficePanel,
+  PostOfficePanel, IPostBoxPanel, CommunityCenterPanel, GovServiceOfficePanel, HouseholdRegistrationBranchPanel,
   PublicLibraryPanel, WelfareCenterPanel, RetailMarketPanel, PublicToiletPanel,
   LighthousePanel, PortPanel, AirportPanel, CctvPanel, EtcGantryPanel,
   ServiceAreaPanel, ServiceAreaPolygonPanel, TaxiStandPanel,
@@ -80,7 +80,7 @@ import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStations
 import { KrEcologyNaturalnessPanel, KrWasteDisposalRulesPanel } from "./krEcoWastePanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { IE_DATA_PANELS, IeAdminBoundariesPanel, makeIePanel } from "./iePanels";
-import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhPopulationPanel, makePhPanel } from "./phPanels";
+import { PH_DATA_PANELS, PhAdminBoundariesPanel, PhOpenaqAirPanel, PhPopulationPanel, makePhPanel } from "./phPanels";
 import { CN_DATA_PANELS, CnAdminBoundariesPanel, CnPopulationPanel } from "./cnPanels";
 import { CN_DATA_SPECS } from "../../data/cnDataLayers";
 import type { CnDataKey } from "../../data/cnDataKeys";
@@ -107,7 +107,8 @@ import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
-import { MapchallengeDay04FacilityPanel, MapchallengeDay19ComplaintsPanel, MapchallengeDay19PotentialPanel, MapchallengeDay19PenaltiesPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
+import { CountyMigrationFlowsPanel } from "./countyMigrationPanels";
+import { MapchallengeDay04FacilityPanel, MapchallengeDay19ComplaintsPanel, MapchallengeDay19PotentialPanel, MapchallengeDay19PenaltiesPanel, MapchallengeDay21OsmRoadsPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
@@ -131,6 +132,7 @@ import {
 } from "./businessRegistryPanels";
 import { CouncilDistrictPanel, ElectionEventPanel, PollingStationPanel } from "./politicsPanels";
 import { Fire119LivePanel, PbsRoadEventsLivePanel } from "./liveIncidentsPanels";
+import { DengueClusterPanel, NavNoticePanel, TideSwellAlertPanel } from "./twLivePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
@@ -205,7 +207,7 @@ import {
   NuscGammaRadiationPanel, WaterEffluentLivePanel, CemsStackLivePanel, CwaUvDailyPanel,
 } from "./environmentLayerPanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
-import { MarineObservationPanel } from "./marinePanels";
+import { MarineObservationPanel, TwMarineHeatPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
 import {
   HarmReductionHivSelftestPanel, HarmReductionHivTestingPanel, HarmReductionNeedlePanel, HarmReductionPreventionCenterPanel, HarmReductionTreatmentPanel,
@@ -253,6 +255,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   iPostBox: IPostBoxPanel,
   communityCenter: CommunityCenterPanel,
   govServiceOffice: GovServiceOfficePanel,
+  householdRegistrationBranch: HouseholdRegistrationBranchPanel,
   publicLibrary: PublicLibraryPanel,
   welfareCenter: WelfareCenterPanel,
   animalAdoption: AnimalAdoptionPanel,
@@ -305,6 +308,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   electionEvents2026: ElectionEventPanel,
   fire119Live: Fire119LivePanel,
   pbsRoadEventsLive: PbsRoadEventsLivePanel,
+  dengueCluster: DengueClusterPanel,
+  navNotice: NavNoticePanel,
+  tideSwellAlert: TideSwellAlertPanel,
   pollingStations2024: PollingStationPanel,
   councilDistricts2026: CouncilDistrictPanel,
   disasterAlert: DisasterAlertPanel,
@@ -335,6 +341,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   bridgeRainThresholds: BridgeRainPanel,
   riverLevel: RiverLevelPanel,
   marineObservation: MarineObservationPanel,
+  twMarineHeat: TwMarineHeatPanel,
   // groundwater 同時服務動態層（useGroundwaterLayer）與靜態井位 backdrop
   // （groundwaterWells）—— 兩者的 properties 欄位契約完全相同。
   groundwater: GroundwaterPanel,
@@ -499,6 +506,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   ...IE_DATA_PANELS,
   phAdminBoundaries: PhAdminBoundariesPanel,
   phPopulation: PhPopulationPanel,
+  phOpenaqAir: PhOpenaqAirPanel,
   ...PH_DATA_PANELS,
   vnAdminBoundaries: VnAdminBoundariesPanel,
   vnPopulation: VnPopulationPanel,
@@ -699,7 +707,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   mapchallengeDay17LedShare: MapchallengeDay17LedSharePanel,
   mapchallengeDay19Complaints: MapchallengeDay19ComplaintsPanel,
   mapchallengeDay19Potential: MapchallengeDay19PotentialPanel,
+  twCountyMigrationFlows: CountyMigrationFlowsPanel,
   mapchallengeDay19Penalties: MapchallengeDay19PenaltiesPanel,
+  mapchallengeDay21OsmRoads: MapchallengeDay21OsmRoadsPanel,
   transitAccessGrid: TransitAccessGridPanel,
   transitAccessPlayback: TransitAccessPlaybackPanel,
   // Base map
@@ -897,6 +907,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   iPostBox: "i郵箱",
   communityCenter: "活動中心",
   govServiceOffice: "機關便民據點",
+  householdRegistrationBranch: "戶政辦公據點",
   publicLibrary: "公共圖書館",
   welfareCenter: "社福中心",
   animalAdoption: "待認領養動物／公立收容所",
@@ -947,6 +958,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   electionEvents2026: "2026 選舉活動",
   fire119Live: "即時 119 案件",
   pbsRoadEventsLive: "警廣即時路況",
+  dengueCluster: "登革熱聚集區",
+  navNotice: "航船布告",
+  tideSwellAlert: "大潮與長浪警戒",
   pollingStations2024: "2024 投開票所",
   councilDistricts2026: "2026 議員選區",
   disasterAlert: "災害示警",
@@ -972,6 +986,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   bridgeRainThresholds: "一級監控橋梁參考雨量",
   riverLevel: "河川水位站",
   marineObservation: "海洋固定站觀測",
+  twMarineHeat: "海洋熱浪／珊瑚熱壓力",
   groundwater: "地下水井",
   groundwaterWell: "地下水井",
   iotWraRiver: "IoT 河川水位站",
@@ -1207,6 +1222,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   ...IE_HEADER_LABELS,
   phAdminBoundaries: "行政邊界 Administrative Boundaries",
   phPopulation: "人口密度 Population Density",
+  phOpenaqAir: "即時空品 Air Quality（OpenAQ）",
   ...PH_HEADER_LABELS,
   vnAdminBoundaries: "行政邊界 Administrative Boundaries",
   vnPopulation: "人口密度 Population Density",
@@ -1393,7 +1409,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   mapchallengeDay17LedShare: "縣市路燈 LED 化",
   mapchallengeDay19Complaints: "異味陳情網格",
   mapchallengeDay19Potential: "設施氣味潛勢＋風",
+  twCountyMigrationFlows: "縣市間遷徙流向",
   mapchallengeDay19Penalties: "異味裁罰設施",
+  mapchallengeDay21OsmRoads: "道路畫進 OSM 的年份",
   transitAccessGrid: "網格大眾運輸可及性（情境推演）",
   transitAccessPlayback: "單一起點大眾運輸擴張（情境推演）",
   // Base map

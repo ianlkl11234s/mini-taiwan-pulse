@@ -11,6 +11,7 @@ import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
 import { ixpRegionColor, anfrOperatorColor, ripeAtlasNodeColor } from "../../data/telecomTypes";
 import { OOKLA_GRID_META } from "../../data/telecomTypes";
 import { portClassColor } from "../../data/transportHubTypes";
+import { GOV_HR_BRANCH_COLOR } from "../../data/atlasLayerTypes";
 
 /** 超商品牌對應色 */
 const BRAND_COLORS: Record<string, string> = {
@@ -374,6 +375,36 @@ export function GovServiceOfficePanel({ props }: { props: Record<string, unknown
       <Row field="type" value={enumLabel("infraGovOffice", type, info.label, i18n)} color={info.color} />
       <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row label={tr("popup.infra.jurisdiction")} value={String(props.jurisdiction ?? "")} />
+      {type === "land_office" ? <Row field="caution" value={tr("popup.infra.landJurisdictionHint")} /> : null}
+    </>
+  );
+}
+
+/** 戶政事務所轄下辦公據點（B3，戶政司 7437）：位置依地址推定，點開看定位精度。 */
+export function HouseholdRegistrationBranchPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
+  const precision = String(props.geocode_precision ?? "");
+  const precisionLabel = precision === "exact" ? tr("popup.infra.hroPrecisionExact") : precision === "interpolated" ? tr("popup.infra.hroPrecisionRoad") : precision === "cached" ? tr("popup.infra.hroPrecisionCached") : "";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: GOV_HR_BRANCH_COLOR, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{String(props.name ?? "")}</div>
+      </div>
+      <Row field="type" value={tr("popup.infra.hroType")} color={GOV_HR_BRANCH_COLOR} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.tel ?? "")} mono />
+      <Row field="openingHours" value={String(props.hours ?? "").replace(/\r?\n/g, " ")} />
+      <Row field="website" value={String(props.website ?? "")} mono />
+      <Row field="caution" value={tr("popup.infra.hroEstimated", { precision: precisionLabel })} />
+      <SourceFooter props={{
+        source_org: tr("popup.infra.hroOrg"),
+        source_url: "https://data.gov.tw/dataset/7437",
+        license: tr("popup.environmentLayer.licenseGov"),
+      }} />
     </>
   );
 }

@@ -3,6 +3,7 @@ import { BOUNDARY_GRAY, categoricalColor, mapSeamColor } from "../../map/mapStyl
 import { COURT_TIER_COLOR_KEYS, POLICE_ISO_OVERLAP_COLORS, POLICE_TIER_COLOR_KEYS, PROSECUTOR_TIER_COLOR_KEYS, tierColorIndex } from "../../map/justiceTierColors";
 import { usePaletteRamp } from "../../state/layerPalette";
 import { THEMED_PAINT_COLORS, GOV_SERVICE_PAINT_COLORS } from "../../map/layerPaintColors";
+import { GOV_HR_BRANCH_COLOR } from "../../data/atlasLayerTypes";
 import { JpMedicalStatus } from "../JpMedicalStatus";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS } from "../../data/jpMedicalTypes";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
@@ -93,6 +94,8 @@ export function GovServiceOfficeLegend() {
     { code: "district_office", color: GOV_SERVICE_PAINT_COLORS.district_office, label: "公所 District Office" },
     { code: "household_registration", color: GOV_SERVICE_PAINT_COLORS.household_registration, label: "戶政事務所 Household Reg." },
     { code: "land_office", color: GOV_SERVICE_PAINT_COLORS.land_office, label: "地政事務所 Land Office" },
+    // 台灣圖層延伸 B3（2026-11-20）：戶政司 7437 轄下辦公據點 143 處（另 15 處無法定位未上圖）
+    { code: "household_registration_branch", color: GOV_HR_BRANCH_COLOR, label: "戶政辦公據點 HR Branch" },
   ];
   return (
     <div>
@@ -100,6 +103,7 @@ export function GovServiceOfficeLegend() {
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <LegendRow key={it.label} swatch={<SwatchDot color={it.color} />}>{enumLabel("infraGovOffice", it.code, it.label, i18n)}</LegendRow>)}
       </div>
+      <LegendNote>{i18n.t("legend.civic.govServiceHroNote")}</LegendNote>
     </div>
   );
 }
