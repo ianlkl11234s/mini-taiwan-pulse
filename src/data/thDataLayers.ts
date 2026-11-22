@@ -11,6 +11,7 @@
 import type { ThDataKey } from "./thDataKeys";
 import { TH_WAVE_SPECS } from "./thWavesLayers";
 import { TH_WAVE5_SPECS } from "./thWaves5Layers";
+import { TH_WAVE8_SPECS } from "./thWaves8Layers";
 import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhSizeBands } from "./phDataLayers";
 
 export type { L3 } from "./phDataLayers";
@@ -494,6 +495,6 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
 ];
 
 // 第 2–4 波（2026-11-22）：規格在 thWavesLayers.ts
-export const TH_DATA_SPECS: readonly ThLayerSpec[] = [...TH_W1_SPECS, ...TH_WAVE_SPECS, ...TH_WAVE5_SPECS];
+export const TH_DATA_SPECS: readonly ThLayerSpec[] = [...TH_W1_SPECS, ...TH_WAVE_SPECS, ...TH_WAVE5_SPECS, ...TH_WAVE8_SPECS];
 
 export const TH_SPEC_BY_KEY: Readonly<Record<ThDataKey, ThLayerSpec>> = Object.fromEntries(TH_DATA_SPECS.map((s) => [s.key, s])) as Record<ThDataKey, ThLayerSpec>;

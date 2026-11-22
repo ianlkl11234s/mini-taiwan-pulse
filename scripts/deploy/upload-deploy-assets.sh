@@ -757,6 +757,20 @@ for f in \
   public/world/th_banks.pmtiles \
   public/world/th_places_of_worship.pmtiles \
   public/world/th_post_offices.pmtiles \
+  public/world/th_air_quality_stations.pmtiles \
+  public/world/th_weather_stations.pmtiles \
+  public/world/th_marine_habitats.pmtiles \
+  public/world/th_marine_protected_areas.pmtiles \
+  public/world/th_sea_level_stations.pmtiles \
+  public/world/th_coastal_change.pmtiles \
+  public/world/th_sports_venues.pmtiles \
+  public/world/th_parks.pmtiles \
+  public/world/th_factories.pmtiles \
+  public/world/th_farm_markets.pmtiles \
+  public/world/th_soils_ph.pmtiles \
+  public/world/th_soils_soc.pmtiles \
+  public/world/th_crops.pmtiles \
+  public/world/th_veterinary.pmtiles \
   public/world/vn_transport_hubs_odm.pmtiles \
   public/world/vn_transport_hubs_osm.pmtiles \
   public/world/vn_major_roads_v2.pmtiles \

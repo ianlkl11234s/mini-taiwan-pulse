@@ -2116,5 +2116,19 @@
   "layer.thAccommodation": "宿泊施設・座標ありのみ（タイ）",
   "layer.thBanks": "銀行と ATM・補完（タイ）",
   "layer.thPlacesOfWorship": "宗教施設（MOC 名簿＋Overture／OSM 補完、タイ）",
-  "layer.thPostOffices": "郵便局・補完（タイ）"
+  "layer.thPostOffices": "郵便局・補完（タイ）",
+  "layer.thAirQualityStations": "大気観測局の位置・観測値なし（タイ）",
+  "layer.thWeatherStations": "気象観測局の位置・観測値なし（タイ）",
+  "layer.thMarineHabitats": "海洋生息地：サンゴ・海草・マングローブ（タイ）",
+  "layer.thMarineProtectedAreas": "海洋保護区・2010 年データ（タイ）",
+  "layer.thSeaLevelStations": "潮位観測所の位置・観測値なし（タイ）",
+  "layer.thCoastalChange": "海岸線変化：侵食と堆積（タイ）",
+  "layer.thSportsVenues": "スポーツ施設・Overture 補完（タイ）",
+  "layer.thParks": "公園・Overture 補完（タイ）",
+  "layer.thFactories": "工場・DIW 座標ありのみ（タイ）",
+  "layer.thFarmMarkets": "農協・ファーマーズマーケット・Overture 補完（タイ）",
+  "layer.thSoilPh": "土壌 pH・約 1 km（タイ）",
+  "layer.thSoilOrganicCarbon": "土壌有機炭素・約 1 km（タイ）",
+  "layer.thCrops": "主要作物の範囲・一般化（タイ）",
+  "layer.thVeterinary": "獣医（タイ）"
 }

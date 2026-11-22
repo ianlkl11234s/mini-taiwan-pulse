@@ -7,6 +7,7 @@
 import type { ThRasterKey } from "./thDataKeys";
 import type { ThLayerSpec } from "./thDataLayers";
 import type { L3, PhCat, PhCatGetter, PhField, PhNote, PhPart } from "./phDataLayers";
+import { TH_SOIL_RASTER_SPECS } from "./thWaves8Layers";
 
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
 const str = (v: unknown) => (v == null ? "" : String(v));
@@ -38,6 +39,7 @@ export interface ThRasterSpec {
 }
 const TERRAIN_SOURCE = "© DLR／Airbus，Copernicus DEM GLO-90（ESA／EU，AWS Open Data）";
 export const TH_RASTER_SPECS: readonly ThRasterSpec[] = [
+  ...TH_SOIL_RASTER_SPECS,
   {
     key: "thTerrainHillshade", file: "th_terrain_hillshade.pmtiles", sourceId: "th-terrain-hillshade", layerId: "th-terrain-hillshade-raster", minzoom: 5, maxzoom: 10, opacity: 0.5,
     notes: [

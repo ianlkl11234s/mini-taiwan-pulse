@@ -2116,5 +2116,19 @@
   "layer.thAccommodation": "Accommodation, Records with Coordinates Only (Thailand)",
   "layer.thBanks": "Banks & ATMs, Gap-fill (Thailand)",
   "layer.thPlacesOfWorship": "Places of Worship: MOC Register + Overture/OSM Gap-fill (Thailand)",
-  "layer.thPostOffices": "Post Offices, Gap-fill (Thailand)"
+  "layer.thPostOffices": "Post Offices, Gap-fill (Thailand)",
+  "layer.thAirQualityStations": "Air Quality Station Locations, No Readings (Thailand)",
+  "layer.thWeatherStations": "Weather Station Locations, No Readings (Thailand)",
+  "layer.thMarineHabitats": "Marine Habitats: Coral, Seagrass, Mangrove (Thailand)",
+  "layer.thMarineProtectedAreas": "Marine Protected Areas, 2010 Data (Thailand)",
+  "layer.thSeaLevelStations": "Tide-gauge Station Locations, No Readings (Thailand)",
+  "layer.thCoastalChange": "Coastline Change: Erosion & Accretion (Thailand)",
+  "layer.thSportsVenues": "Sports Venues, Overture Gap-fill (Thailand)",
+  "layer.thParks": "Parks, Overture Gap-fill (Thailand)",
+  "layer.thFactories": "Factories, DIW Records with Coordinates Only (Thailand)",
+  "layer.thFarmMarkets": "Farm Co-ops & Farmers' Markets, Overture Gap-fill (Thailand)",
+  "layer.thSoilPh": "Soil pH, about 1 km (Thailand)",
+  "layer.thSoilOrganicCarbon": "Soil Organic Carbon, about 1 km (Thailand)",
+  "layer.thCrops": "Major Crop Extents, Generalized (Thailand)",
+  "layer.thVeterinary": "Veterinary Clinics (Thailand)"
 }

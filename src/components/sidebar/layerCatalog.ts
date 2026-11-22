@@ -476,6 +476,11 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "文化",
     "基礎建設",
     "宗教",
+    // 第 8–9 波（2026-11-23）
+    "環境氣候",
+    "海洋",
+    "運動休閒",
+    "農業",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -3710,7 +3715,10 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "工商登記",
     country: "TH",
     defaultCollapsed: true,
-    groups: [{ title: "產業園區", layers: [fromManifest("thEec")] }],
+    groups: [
+      { title: "產業園區", layers: [fromManifest("thEec")] },
+      { title: "工廠", layers: [fromManifest("thFactories")] },
+    ],
   },
   {
     title: "災害",
@@ -3816,6 +3824,47 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "點位", layers: [fromManifest("thPlacesOfWorship")] },
+    ],
+  },
+  // 第 8–9 波（2026-11-23）
+  {
+    title: "環境氣候",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "空品", layers: [fromManifest("thAirQualityStations")] },
+      { title: "氣象", layers: [fromManifest("thWeatherStations")] },
+    ],
+  },
+  {
+    title: "海洋",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "棲地", layers: [fromManifest("thMarineHabitats")] },
+      { title: "保護區", layers: [fromManifest("thMarineProtectedAreas")] },
+      { title: "潮位", layers: [fromManifest("thSeaLevelStations")] },
+      { title: "海岸", layers: [fromManifest("thCoastalChange")] },
+    ],
+  },
+  {
+    title: "運動休閒",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("thSportsVenues")] },
+      { title: "公園", layers: [fromManifest("thParks")] },
+    ],
+  },
+  {
+    title: "農業",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "作物", layers: [fromManifest("thCrops")] },
+      { title: "土壤", layers: [fromManifest("thSoilPh"), fromManifest("thSoilOrganicCarbon")] },
+      { title: "市集", layers: [fromManifest("thFarmMarkets")] },
+      { title: "獸醫", layers: [fromManifest("thVeterinary")] },
     ],
   },
 
@@ -4490,6 +4539,11 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "文化": "publicLife",
     "基礎建設": "publicLife",
     "宗教": "publicLife",
+    // 第 8–9 波（2026-11-23）
+    "環境氣候": "environment",
+    "海洋": "environment",
+    "運動休閒": "publicLife",
+    "農業": "environment",
   },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
@@ -4808,6 +4862,10 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "文化": { zh: "文化", sub: "Culture" },
     "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
     "宗教": { zh: "宗教", sub: "Religion" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "海洋": { zh: "海洋", sub: "Marine" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "農業": { zh: "農業", sub: "Agriculture" },
   },
   CN: {
     // 中國主題副標用英文（比照菲律賓）

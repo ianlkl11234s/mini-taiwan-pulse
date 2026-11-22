@@ -98,3 +98,19 @@ export const ThAccommodationHost = W("thAccommodation");
 export const ThBanksHost = W("thBanks");
 export const ThPlacesOfWorshipHost = W("thPlacesOfWorship");
 export const ThPostOfficesHost = W("thPostOffices");
+
+// ── 第 8–9 波（2026-11-23）：規格在 thWaves8Layers.ts
+export const ThAirQualityStationsHost = W("thAirQualityStations");
+export const ThWeatherStationsHost = W("thWeatherStations");
+export const ThMarineHabitatsHost = W("thMarineHabitats");
+export const ThMarineProtectedAreasHost = W("thMarineProtectedAreas");
+export const ThSeaLevelStationsHost = W("thSeaLevelStations");
+export const ThCoastalChangeHost = W("thCoastalChange");
+export const ThSportsVenuesHost = W("thSportsVenues");
+export const ThParksHost = W("thParks");
+export const ThFactoriesHost = W("thFactories");
+export const ThFarmMarketsHost = W("thFarmMarkets");
+export const ThCropsHost = W("thCrops");
+export const ThVeterinaryHost = W("thVeterinary");
+export const ThSoilPhHost = makeThRasterHost("thSoilPh");
+export const ThSoilOrganicCarbonHost = makeThRasterHost("thSoilOrganicCarbon");

@@ -398,5 +398,12 @@
   "theme.文化設施": "Cultural Facilities",
   "theme.文化資產": "Heritage",
   "theme.林地": "Forest Land",
-  "theme.長者住宿": "Elderly Housing"
+  "theme.長者住宿": "Elderly Housing",
+  "theme.作物": "Crops",
+  "theme.工廠": "Factories",
+  "theme.市集": "Markets",
+  "theme.棲地": "Habitats",
+  "theme.海岸": "Coast",
+  "theme.潮位": "Tide Gauges",
+  "theme.獸醫": "Veterinary"
 }

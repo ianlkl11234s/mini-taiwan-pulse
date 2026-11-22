@@ -117,7 +117,8 @@ describe("R7 顏色解析器", () => {
     // 2026-11-22 +1 泰國第 1 波：加油站
     // 2026-11-22 +1 泰國第 3 波：道路事故
     // 2026-11-22 +6 泰國第 5–7 波：學校、幼兒班、醫療、宗教場所、住宿、銀行
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(150);
+    // 2026-11-23 +2 泰國第 9 波：運動場地、工廠
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(152);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

@@ -1248,6 +1248,30 @@ const TH_DATA_ENTRY_META: Record<ThDataKey, { theme: string; group: string; zh: 
     description: "泰國宗教場所：MOC 12,262（宗教別由名稱推導）＋OSM 補缺 26,657＋Overture 補缺 70,441；Overture／OSM 為補缺，非官方寺院名冊", processing: "MOC religious_place（religion_guess 名稱推導）＋OSM＋Overture（religion taxonomy）；PMTiles moc_official z7、osm_hot z8、overture z9（-r1）", note: "MOC CC BY／ODbL／CDLA；DRA 清真寺名冊被擋" },
   thPostOffices: { theme: "基礎建設", group: "郵政與便民", zh: "郵局（補缺）", alt: "Post Offices (Gap-fill)", icon: Mail, dataset: "th_post_offices", topics: ["泰國", "基礎建設", "郵局", "Overture", "OSM"],
     description: "泰國郵局 Overture 2,116＋OSM 758（可能含代辦所）", processing: "Overture＋OSM post_office；PMTiles overture、osm z6–14（-r1）", note: "CDLA／ODbL；MDES 官方 CSV 境外不通" },
+  thAirQualityStations: { theme: "環境氣候", group: "空品", zh: "空氣品質測站位置（無觀測值）", alt: "Air Quality Station Locations (No Readings)", icon: Wind, dataset: "th_air_quality_stations", topics: ["泰國", "環境", "空氣品質", "測站", "Air4Thai", "PCD"],
+    description: "泰國空氣品質測站位置 267 處（Air4Thai 180＋GISTDA PCD 87）；只有位置、沒有任何觀測值，移動站 8 個座標會變", processing: "Air4Thai 站清單與 GISTDA station_pcd → 4326；77 府空間判定；PMTiles air4thai z4、gistda_station_pcd z5（-r1）；不輸出即時值", note: "授權未明示；只有站位，不是即時資料" },
+  thWeatherStations: { theme: "環境氣候", group: "氣象", zh: "氣象測站位置（無觀測值）", alt: "Weather Station Locations (No Readings)", icon: Cloud, dataset: "th_weather_stations", topics: ["泰國", "氣象", "測站", "NOAA", "GISTDA"],
+    description: "泰國氣象測站位置 294 處（NOAA ISD 170＋GISTDA 124）；只有位置、沒有任何觀測值", processing: "NOAA ISD 清單（停在 2025-08）與 GISTDA station_tmd → 4326；PMTiles noaa_isd、gistda_station_tmd z4–14；TMD API 完全未使用", note: "NOAA 公開／GISTDA 授權未明示；TMD 官方站未涵蓋" },
+  thMarineHabitats: { theme: "海洋", group: "棲地", zh: "海洋棲地（珊瑚、海草、紅樹林）", alt: "Marine Habitats (Coral, Seagrass, Mangrove)", icon: Waves, dataset: "th_marine_habitats", topics: ["泰國", "海洋", "珊瑚", "海草", "紅樹林", "GISTDA"],
+    description: "泰國珊瑚礁 392（13 府）、海草床 130（12 府）、紅樹林 1,969（23 府）面；年份不詳，不能稱全國完整", processing: "GISTDA Hosted 海洋棲地面 → 4326；PMTiles coral、seagrass、mangrove z5–13", note: "授權未明示；年份不詳；DMCR CSV、PCD 海水水質未涵蓋；不畫海域主張線" },
+  thMarineProtectedAreas: { theme: "海洋", group: "保護區", zh: "海洋保護區（2010 年資料，較舊）", alt: "Marine Protected Areas (2010 data, outdated)", icon: Landmark, dataset: "th_marine_protected_areas", topics: ["泰國", "海洋", "保護區", "2010", "GISTDA"],
+    description: "泰國海洋保護區 154 塊（2010 版，資料較舊；只涵蓋 9 個沿海府）", processing: "GISTDA Hosted 海洋保護區 → 4326；PMTiles protected_marine z5–12", note: "授權未明示；STALE（2010）；不畫海域主張線" },
+  thSeaLevelStations: { theme: "海洋", group: "潮位", zh: "潮位站位置（無觀測值）", alt: "Tide-gauge Station Locations (No Readings)", icon: Anchor, dataset: "th_sea_level_stations", topics: ["泰國", "海洋", "潮位", "海平面", "DMR"],
+    description: "泰國 DMR 潮位站位置 7 處；只有位置、沒有潮位值；東岸 2 站座標品質低（位置僅示意）", processing: "DMR 潮位站清單（排除測試站）→ 4326；PMTiles stations z4–14；潮位時序本輪不取", note: "CC BY（版本未標）；兩站座標互不一致 36／16 km" },
+  thCoastalChange: { theme: "海洋", group: "海岸", zh: "海岸線變遷（侵淤）", alt: "Coastline Change (Erosion & Accretion)", icon: Waves, dataset: "th_coastal_change", topics: ["泰國", "海洋", "海岸", "侵蝕", "淤積", "DMR"],
+    description: "泰國海岸線變遷 460 段（淤積 212、穩定 156、中度侵蝕 63、嚴重侵蝕 29；7 個沿海府；彙編年 2013–2023 各段不同）", processing: "DMR 海岸線段 → 4326；PMTiles coastal_change z5–14", note: "CC BY（版本未標）；各段彙編年不同；不畫海域主張線" },
+  thSportsVenues: { theme: "運動休閒", group: "點位", zh: "運動場地（Overture 補缺）", alt: "Sports Venues (Overture Gap-fill)", icon: Flag, dataset: "th_sports_venues", topics: ["泰國", "運動", "體育場", "游泳池", "高爾夫", "Overture"],
+    description: "泰國運動場地 11,377 處（Overture 補缺，空心；體育場、游泳池、足球場、球場、高爾夫；一般運動休閒預設關；低縮放熱區）", processing: "Overture places 運動類 → venue_group；PMTiles venues z7、general z9（-r1）", note: "CDLA-Permissive-2.0；DPE 官方名冊非商用未取" },
+  thParks: { theme: "運動休閒", group: "公園", zh: "公園（Overture 補缺）", alt: "Parks (Overture Gap-fill)", icon: Trees, dataset: "th_parks", topics: ["泰國", "公園", "遊戲場", "植物園", "Overture"],
+    description: "泰國公園 7,495 處（Overture 補缺，空心；只有點、無面積）", processing: "Overture places 公園類 → 4326；PMTiles parks z7、other z8（-r1）", note: "CDLA-Permissive-2.0；BMA 綠地名冊未取" },
+  thFactories: { theme: "工商登記", group: "工廠", zh: "工廠（DIW，僅含有座標者）", alt: "Factories (DIW, Records with Coordinates Only)", icon: Factory, dataset: "th_factories", topics: ["泰國", "工業", "工廠", "DIW"],
+    description: "泰國工廠 21,320 筆有座標（營運中 7,769＋已註銷等 13,551；全名冊 116,050 筆）；預設只顯示營運中；負責人與地址不輸出", processing: "DIW 工廠名冊（2,321 頁分頁掃描）→ 有座標者 4326；status_class 分類；個人稱謂名稱遮蔽；PMTiles operating z6、inactive z9（-r1）", note: "Open Data Common；營運中 3,695 筆無座標未 geocode" },
+  thFarmMarkets: { theme: "農業", group: "市集", zh: "農會與農夫市集（Overture 補缺）", alt: "Farm Co-ops & Farmers' Markets (Overture Gap-fill)", icon: Store, dataset: "th_farm_markets", topics: ["泰國", "農業", "農會", "農夫市集", "Overture"],
+    description: "泰國農會與農夫市集 2,137 處（Overture 補缺，空心）", processing: "Overture places 農業合作社、農夫市集 → 4326；PMTiles farm_markets z6（-r1）", note: "CDLA-Permissive-2.0；DOAE 社區企業名冊含個人欄未取" },
+  thCrops: { theme: "農業", group: "作物", zh: "主要作物範圍（一般化，稻、木薯、玉米、甘蔗、橡膠、油棕）", alt: "Major Crop Extents (Generalized)", icon: Sprout, dataset: "th_crops", topics: ["泰國", "農業", "作物", "稻米", "橡膠", "油棕", "GISTDA"],
+    description: "泰國六種作物範圍（稻 43.5 萬塊、木薯 17.9 萬、玉米、甘蔗、橡膠、油棕）；一般化低解析版，不可用於面積計算", processing: "GISTDA Hosted 作物面 → 稻等簡化 0.003°（約 330 m）丟棄 <1.2 km² 碎片；橡膠、油棕 0.001°；PMTiles rice、cassava、maize、sugarcane z6、rubber、palm z9", note: "授權未明示；單檔 145.9 MB；單位未標；疑為行政區聚合多邊形" },
+  thVeterinary: { theme: "農業", group: "獸醫", zh: "獸醫與動物診所（Overture＋GISTDA）", alt: "Veterinary Clinics (Overture + GISTDA)", icon: Stethoscope, dataset: "th_veterinary", topics: ["泰國", "農業", "獸醫", "動物診所", "Overture", "GISTDA"],
+    description: "泰國獸醫 3,642 處（Overture 補缺 3,350＋GISTDA 292；商用 POI，不分公私立）", processing: "Overture veterinarian＋GISTDA 獸醫圖層 → 4326；PMTiles overture、gistda z6–14（-r1）", note: "CDLA／GISTDA 授權未明示；官方獸醫名冊無" },
 };
 const TH_DATA_MANIFEST_ENTRIES = Object.fromEntries(TH_DATA_SPECS.map((spec) => {
   const m = TH_DATA_ENTRY_META[spec.key];
@@ -1278,6 +1302,10 @@ const TH_RASTER_META: Record<string, { theme: string; group: string; zh: string;
     description: "泰國山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域，DSM）", processing: "Copernicus DEM GLO-90 → gdaldem hillshade → 泰國陸域遮罩 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；28.1 MB 走 deploy-assets；DSM 含樹冠與建物；GLO-30 待主機搬遷；沒有 feature 屬性與 popup" },
   thTerrainRelief: { theme: "底圖", group: "地形", zh: "色別標高", alt: "Elevation Tint", icon: Mountain, dataset: "th_terrain", topics: ["泰國", "底圖", "地形", "標高", "Copernicus DEM"],
     description: "泰國色別標高（0–2,565 m 色帶，≤0 m 與海面、鄰國透明）", processing: "Copernicus DEM GLO-90 → gdaldem color-relief（≤0 m 透明）→ 泰國陸域遮罩 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；DSM；沒有 feature 屬性與 popup" },
+  thSoilPh: { theme: "農業", group: "土壤", zh: "土壤酸鹼值 pH（約 1 km）", alt: "Soil pH (about 1 km)", icon: Sprout, dataset: "th_soils", topics: ["泰國", "農業", "土壤", "pH", "SoilGrids"],
+    description: "泰國表土 pH（SoilGrids 2.0 模型預測，約 1 km；4.0–8.5 色階，0 值透明；最大 z7）", processing: "SoilGrids WCS phh2o_0-5cm → 泰國陸域遮罩 → gdaldem color-relief → PNG raster PMTiles z4–7", note: "CC BY 4.0（推定）；模型預測，非實測，非 LDD 土壤分類" },
+  thSoilOrganicCarbon: { theme: "農業", group: "土壤", zh: "土壤有機碳（約 1 km）", alt: "Soil Organic Carbon (about 1 km)", icon: Sprout, dataset: "th_soils", topics: ["泰國", "農業", "土壤", "有機碳", "SoilGrids"],
+    description: "泰國表土有機碳（SoilGrids 2.0 模型預測，約 1 km；0–80 g/kg 色階；最大 z7）", processing: "SoilGrids WCS soc_0-5cm → 泰國陸域遮罩 → gdaldem color-relief → PNG raster PMTiles z4–7", note: "CC BY 4.0（推定）；模型預測，非實測" },
 };
 const TH_RASTER_MANIFEST_ENTRIES = Object.fromEntries(TH_RASTER_SPECS.map((spec) => {
   const m = TH_RASTER_META[spec.key]!;

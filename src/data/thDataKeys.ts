@@ -12,9 +12,12 @@ export const TH_DATA_KEYS = [
   "thSchools", "thKindergartens", "thElderlyHousing", "thHealthFacilities", "thPoliceStations", "thJailsCourts",
   "thNatureSpots", "thNationalReservedForests", "thNationalParks", "thRamsarSites", "thForestParks",
   "thMuseumsLibraries", "thArtsEvents", "thHistoricSites", "thExperiences", "thAccommodation", "thBanks", "thPlacesOfWorship", "thPostOffices",
+  // 第 8–9 波（2026-11-23）
+  "thAirQualityStations", "thWeatherStations", "thMarineHabitats", "thMarineProtectedAreas", "thSeaLevelStations", "thCoastalChange",
+  "thSportsVenues", "thParks", "thFactories", "thFarmMarkets", "thCrops", "thVeterinary",
 ] as const;
 export type ThDataKey = (typeof TH_DATA_KEYS)[number];
 
 /** 泰國 raster（PNG PMTiles，無 feature 屬性與 popup）：山體陰影、色別標高（Copernicus DEM GLO-90）。 */
-export const TH_RASTER_KEYS = ["thTerrainHillshade", "thTerrainRelief"] as const;
+export const TH_RASTER_KEYS = ["thTerrainHillshade", "thTerrainRelief", "thSoilPh", "thSoilOrganicCarbon"] as const;
 export type ThRasterKey = (typeof TH_RASTER_KEYS)[number];
