@@ -2,7 +2,7 @@
 //
 //   1. layer-status-summary.md 的「圖層總數」必須等於 layer-status.csv 的資料列數（同一次產生才會相等）。
 //   2. 文件中的 MCP 工具數寫成 `24<!-- gen:mcp-core=24 -->`／`65<!-- gen:mcp-full=65 -->`，
-//      標記值必須等於 mcp-tool-count.json（scripts/research/count-mcp-tools.mjs 產生）；標記前緊鄰的數字也要一致。
+//      標記值必須等於 mcp-tool-count.json（scripts/research/count-mcp-tools.mjs 產生）；標記前緊鄰的數字也要一致（數字後可隔 Markdown 強調符號，如 `**core 24**<!-- … -->`）。
 //      ARCHITECTURE.md 至少要有 core 標記，避免有人改回手寫數字。
 // 重產：npm run research:layer-status（需 PULSE_WAREHOUSE_DIR 等，見腳本檔頭）／node scripts/research/count-mcp-tools.mjs。
 
@@ -13,7 +13,7 @@ export const TOOL_COUNT_REQUIRED_IN = ["docs/features/agent-research-workbench/A
 
 export const NUMBER_RULES = { layerCount: "layer-count", toolCount: "tool-count", toolMarker: "tool-marker" };
 
-const MARKER = /(\d+)?[ \t]*<!--\s*gen:mcp-(core|full)=(\d+)\s*-->/g;
+const MARKER = /(?:(\d+)[*_`~]*)?[ \t]*<!--\s*gen:mcp-(core|full)=(\d+)\s*-->/g;
 
 /** 資料列數（不含表頭）；欄位可含雙引號與換行。 */
 export function csvRowCount(text) {

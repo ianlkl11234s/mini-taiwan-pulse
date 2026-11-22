@@ -202,16 +202,17 @@ export function buildParamControls(
         const value = typeof v === "number" ? v : s.default;
         // 0 有「關掉」語意的滑桿印字不印數（`全台顯示 關`）；
         // `displayScale` 是「印之前先乘一個倍率」（極小數的軌道球半徑），只動 label。
+        const byValue = s.labelByValue?.[String(value)];
         const shown = s.zeroLabel !== undefined && value === 0
           ? s.zeroLabel
-          : (s.displayScale === undefined ? value : value * s.displayScale).toFixed(s.digits);
+          : byValue ?? (s.displayScale === undefined ? value : value * s.displayScale).toFixed(s.digits);
         if (i18n && i18n.active !== "zh-TW") {
           // 先拆出結尾運算符號（`高度 +`）再翻名稱，不拿整串當 key
           const op = TRAILING_OPERATOR.exec(s.labelPrefix);
           const name = paramText((op ? op[1]! : s.labelPrefix).trim(), i18n, { layerKey: key, name: s.name });
           const prefix = op ? `${name} ${op[2]}` : name;
           const suffix = tx(s.labelSuffix ?? "");
-          const shownText = s.zeroLabel !== undefined && value === 0 ? tx(s.zeroLabel) : shown;
+          const shownText = s.zeroLabel !== undefined && value === 0 ? tx(s.zeroLabel) : byValue !== undefined ? tx(byValue) : shown;
           return {
             label: `${prefix}${s.labelSep ?? " "}${shownText}${suffix}`,
             ...splitSliderLabel(prefix, shownText, suffix),

@@ -2065,6 +2065,7 @@
   "layer.countyWelfarePoints": "County Welfare Points (Care Stations & Food Banks)",
   "layer.evMotorcycleCharging": "E-scooter Charging & Swap Stations (County EPA Lists)",
   "layer.countyStreetlights": "County Streetlight Points",
+  "layer.mapchallengeDay21OsmRoads": "When Roads Were Drawn into OSM",
   "layer.twMarineHeatwaves": "Marine Heatwaves",
   "layer.twCoralBleachingHeatStress": "Coral Bleaching Heat Stress"
 }

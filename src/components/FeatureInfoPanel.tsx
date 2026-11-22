@@ -243,7 +243,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 30 天地圖挑戰 Day 17 光與暗：panel 自掛 NASA Black Marble／OSM／保護區來源。
   "mapchallengeDay17DarkSky", "mapchallengeDay17DarkRoads", "mapchallengeDay17LedShare",
   // 30 天地圖挑戰 Day 19 氣味：panel 自掛公害陳情／潛勢來源／環保裁處出處。
-  "mapchallengeDay19Complaints", "mapchallengeDay19Potential", "mapchallengeDay19Penalties",
+  "mapchallengeDay19Complaints", "mapchallengeDay19Potential", "mapchallengeDay19Penalties", "mapchallengeDay21OsmRoads",
   // 縣市間遷徙流向：panel 自掛內政部戶政司來源。
   "twCountyMigrationFlows",
   "transitAccessGrid",

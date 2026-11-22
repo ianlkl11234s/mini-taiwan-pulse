@@ -1,4 +1,5 @@
 import type { CategoryFilterDef } from "../categoryFilters";
+import { MAPCHALLENGE_DAY21_MAJOR, MAPCHALLENGE_DAY21_MID } from "../mapchallengeDay21Types";
 
 /** 電廠燃料（powerPlants／powerGenerationUnit）：legend 9 列；原值含中英文與變體，同色者合成一個選項 */
 const POWER_FUEL: CategoryFilterDef = {
@@ -144,5 +145,15 @@ export const CATEGORY_FILTERS_F: Record<string, CategoryFilterDef | readonly Cat
       { value: "機車竊盜", zh: "機車竊盜" },
       { value: "自行車竊盜", zh: "自行車竊盜" },
     ],
+  },
+  // 30 天地圖挑戰 Day 21 OSM：道路等級三級（圖例三種線寬）；「一般道路」＝其餘 highway 與未標等級
+  mapchallengeDay21OsmRoads: {
+    property: "highway",
+    label: "道路等級",
+    options: [
+      { value: MAPCHALLENGE_DAY21_MAJOR, zh: "主幹道路" },
+      { value: MAPCHALLENGE_DAY21_MID, zh: "次要道路" },
+    ],
+    other: "一般道路（含未標等級）",
   },
 };

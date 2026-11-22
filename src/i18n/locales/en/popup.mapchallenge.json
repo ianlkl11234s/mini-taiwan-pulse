@@ -205,5 +205,13 @@
   "popup.mapchallenge.day19.dir12": "W",
   "popup.mapchallenge.day19.dir13": "WNW",
   "popup.mapchallenge.day19.dir14": "NW",
-  "popup.mapchallenge.day19.dir15": "NNW"
+  "popup.mapchallenge.day19.dir15": "NNW",
+  "popup.mapchallenge.day21.unnamed": "(no name in OSM)",
+  "popup.mapchallenge.day21.year": "Drawn into OSM",
+  "popup.mapchallenge.day21.class": "Road class",
+  "popup.mapchallenge.day21.noClass": "Untagged",
+  "popup.mapchallenge.day21.length": "Segment length",
+  "popup.mapchallenge.day21.meters": "{n} m",
+  "popup.mapchallenge.day21.note": "Note",
+  "popup.mapchallenge.day21.yearNote": "The year is when the road was drawn into OSM, not when it opened."
 }

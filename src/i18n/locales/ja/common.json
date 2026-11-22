@@ -170,5 +170,16 @@
   "updateNotice.title": "新しいバージョンがあります",
   "updateNotice.detail": "再読み込みすると最新版に切り替わる。",
   "updateNotice.reload": "再読み込み",
-  "updateNotice.later": "あとで"
+  "updateNotice.later": "あとで",
+  "placeSearch.placeholder": "地点・レイヤーを検索（⌘K）",
+  "placeSearch.places": "地点",
+  "placeSearch.layers": "レイヤー",
+  "placeSearch.noPlaces": "該当する地点はない",
+  "placeSearch.noLayers": "該当するレイヤーはない",
+  "placeSearch.loading": "地点索引を読み込み中…",
+  "placeSearch.loadFailed": "地点索引を読み込めなかった。しばらくしてから再試行のこと",
+  "placeSearch.loadingLabel": "地点検索索引",
+  "placeSearch.kind.county": "県・市",
+  "placeSearch.kind.town": "郷鎮市区",
+  "placeSearch.kind.village": "村里"
 }

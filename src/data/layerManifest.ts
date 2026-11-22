@@ -225,6 +225,7 @@ import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY21_COLOR } from "./mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY19_COMPLAINTS_COLOR, MAPCHALLENGE_DAY19_PENALTIES_COLOR, MAPCHALLENGE_DAY19_POTENTIAL_COLOR } from "./mapchallengeDay19Types";
 
 /**
@@ -18023,6 +18024,31 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "30 天地圖挑戰 Day 19 氣味：官方認定有異味污染而裁罰的設施。2017 年起事實欄寫到「異味污染物」的裁罰 848 件、505 處設施；圓越大裁罰件數越多（1–62 件），顏色是最高超標倍數（≤2、2–5、>5 倍，灰色＝未載明倍數）。可只看有載明倍數或超標 >5 倍的設施。點設施看名稱、縣市、裁罰件數、不同日數、年份與罰鍰合計。事實欄 2017 年起才有、約 6 成空白，848 件是下限；個人經營的畜牧場不顯示名稱。來源：環境部環保裁處（政府資料開放授權條款第 1 版）。",
     topics: ["氣味", "異味", "空氣污染", "裁罰", "畜牧", "工廠", "30 天地圖挑戰"],
+  },
+  mapchallengeDay21OsmRoads: {
+    key: "mapchallengeDay21OsmRoads",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-21）：靜態 PMTiles，不在 GATED_LAYERS。年份由圖層自己的拉桿控制，
+    // 不接長期時間條（時間條目前只支援 event 類；待支援 periodSnapshot 後再接），所以不寫 longTerm。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 21 開放街圖 OSM" },
+    ...layerName({ zh: "道路畫進 OSM 的年份", alt: "When Roads Were Drawn into OSM" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY21_COLOR,
+    icon: Spline,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["osm_full_history_ohsome", "osm_taiwan_roads_260905"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 21 OSM：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day21_osm_road_growth（01–04）。ohsome API（HeiGIT）OpenStreetMap 完整歷史（2007-10-08～2026-07-27），臺北市、新北市、基隆市現況道路（motorway～service，不含停車場通道與車道）切成 ≤100 m 小段，每 10 m 取樣點；每年 1 月 1 日快照若 ≥60% 樣點在當時道路 15 m 內就算已存在，最早出現的快照 Y 年 → 年份 Y−1（2008-01-01 就有 → 2007＝2007 年以前，含；終點才出現 → 2026）。highway 由 Geofabrik 2026-06-22 快照補、路名先查 2026-09-05 再查 06-22 快照；同 way／同年／同等級的相連小段合併後切 PMTiles（z8–14；主幹與次要 z8 起、一般道路 z10 起、service 與其他 z12 起）。共 178,996 小段、約 13,670 km。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day21_osm）。年份＝畫進 OSM 的年份，不是道路開通年份。依位置判定：已刪除的路不顯示；路線重畫到新位置會被算成新畫；高架疊在舊平面道路上會繼承舊年份。早期（2007–2011）因單線後來拆成雙向，各年累計長度多算約 10–24%，2014 年以後差距在 ±2% 以內。",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "mapchallenge-day21-osm-roads", url: "./mapchallenge/day21_osm_road_years.pmtiles", sourceLayer: "day21_osm_road_years", minzoom: 8, maxzoom: 14 },
+    legend: "mapchallengeDay21OsmRoads",
+    popup: "mapchallengeDay21OsmRoads",
+    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "toggle"] },
+    description: "30 天地圖挑戰 Day 21 OSM：雙北＋基隆的每段道路是哪一年第一次畫進 OpenStreetMap。顏色＝年份，深藍是 2007 年以前、越往紫紅橘黃越新；線寬分主幹、次要、一般道路三級。新增最多的是 2011 年（1,748 km）、2013 年（1,622 km）與 2010 年（1,420 km），2018 年起每年只剩 71–345 km。可用年份拉桿看到某年為止的路網，或只看當年新增的路；可依道路等級篩選。年份是畫進 OSM 的年份，不是道路開通年份；2007 代表 2007 年以前；資料到 2026-07-27；早期（2007–2011）因單線後來拆成雙向會略多算；已刪除的路不顯示；路線重畫到新位置會被算成新畫。點路段看年份、道路等級、路名與 OSM 連結。來源：© OpenStreetMap contributors（ODbL），歷史經 ohsome API（HeiGIT）。",
+    topics: ["OpenStreetMap", "OSM", "道路", "路網", "編輯史", "雙北", "基隆", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

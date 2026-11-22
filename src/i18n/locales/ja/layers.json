@@ -2065,6 +2065,7 @@
   "layer.countyWelfarePoints": "県市の福祉拠点（ケア拠点・フードバンク）",
   "layer.evMotorcycleCharging": "電動バイク充電・交換ステーション（県市環境保護局）",
   "layer.countyStreetlights": "県市の街路灯地点",
+  "layer.mapchallengeDay21OsmRoads": "道路が OSM に描かれた年",
   "layer.twMarineHeatwaves": "海洋熱波（月別レベル）",
   "layer.twCoralBleachingHeatStress": "サンゴ白化の高水温ストレス"
 }

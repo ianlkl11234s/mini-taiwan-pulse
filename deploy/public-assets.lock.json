@@ -2195,6 +2195,13 @@
    "s3_key": "deploy-assets/mapchallenge/day19_wind_arrows.geojson"
   },
   {
+   "path": "public/mapchallenge/day21_osm_road_years.pmtiles",
+   "bytes": 10316021,
+   "sha256": "38781b99cf9d61412b66596a84d7ae5cd8b59a6b4867fd448f445025b711b31f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day21_osm_road_years.pmtiles"
+  },
+  {
    "path": "public/marine/artificial_reef_areas.geojson",
    "bytes": 65643,
    "sha256": "d16a890d059b1f42b9b34c557998fb5c34e49a495d454ac917bbe6c62d4ef851",
