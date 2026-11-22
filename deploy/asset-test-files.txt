@@ -283,6 +283,12 @@ public/forestry/alishan_forest_railway_points_v1.pmtiles
 public/geo/mountain_mobile_improvement_v1.pmtiles
 public/environment/eco_label_hotels_145035.pmtiles
 public/marine/namr_buoys_v1.pmtiles
+public/marine/crw_heat_stress/crw_heat_stress_2026_v1.png
+public/marine/crw_heat_stress/crw_heat_stress_frames_v1.json
+public/marine/crw_heat_stress/crw_heat_stress_values_2026_v1.json
+public/marine/odb_mhw/odb_mhw_2026_v1.png
+public/marine/odb_mhw/odb_mhw_frames_v1.json
+public/marine/odb_mhw/odb_mhw_values_2026_v1.json
 public/civic_facilities/towing_yards_v2.pmtiles
 public/civic_facilities/land_office_jurisdiction_13045.pmtiles
 public/civic_facilities/household_registration_offices_7437_v2.pmtiles

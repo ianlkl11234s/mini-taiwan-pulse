@@ -827,6 +827,8 @@ describe("public 資料檔 lock（CI-4）", () => {
   const R2_FIRST = new Set(workerList("DATA_THEN_DIST"));
   const R2_ONLY = new Set(workerList("DATA_ONLY"));
   const R2_FILES = new Set([...(workerSource.match(/const LOCKED_DATA_FILES = \[([^\]]*)\]/)?.[1] ?? "").matchAll(/'([^']+)'/g)].map((m) => m[1] as string));
+  const R2_DIRS = [...(workerSource.match(/const LOCKED_DATA_DIRS = \[([^\]]*)\]/)?.[1] ?? "").matchAll(/'([^']+)'/g)].map((m) => m[1] as string);
+  const lockedR2File = (p: string) => R2_FILES.has(p) || R2_DIRS.some((d) => p.startsWith(d));
   // -z：不讓 git 把中文檔名轉成帶引號的八進位跳脫（CI 的 core.quotepath 預設開啟）
   const tracked = execSync("git ls-files -z public", { encoding: "utf8" }).split("\0").filter(Boolean);
   const keepRes = publicAssetsLock.keep_patterns.map((p) => {
@@ -873,8 +875,8 @@ describe("public 資料檔 lock（CI-4）", () => {
       const rel = e.path.slice("public/".length);
       const seg = rel.split("/")[0] as string;
       // worker.js 的靜態副檔名規則（.png／.jpg…）在目錄路由之前、一律走 dist：這類資料檔要列進 LOCKED_DATA_FILES
-      if (/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/i.test(rel) && !R2_FILES.has(`/${rel}`)) broken.push(`${rel}：靜態副檔名會被 worker.js 截走走 dist，要列進 LOCKED_DATA_FILES`);
-      if (!R2_FIRST.has(seg) && !R2_ONLY.has(seg) && !R2_FILES.has(`/${rel}`)) broken.push(`${rel}：worker.js 不會從 R2 讀 /${seg}/`);
+      if (/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/i.test(rel) && !lockedR2File(`/${rel}`)) broken.push(`${rel}：靜態副檔名會被 worker.js 截走走 dist，要列進 LOCKED_DATA_FILES`);
+      if (!R2_FIRST.has(seg) && !R2_ONLY.has(seg) && !lockedR2File(`/${rel}`)) broken.push(`${rel}：worker.js 不會從 R2 讀 /${seg}/`);
       if (e.s3_key === "deploy-assets/rail.tar.gz") continue;
       const mirror = `deploy-assets/${rel}`;
       const flatH3 = seg === "h3" && e.s3_key === `deploy-assets/${rel.split("/").pop()}`;

@@ -33,6 +33,7 @@ import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmRedu
 import { DisasterResourceSitesLegend, FiringNoticeAreasLegend, NuclearEpzEvacuationLegend, TrafficAccidents2025Legend, TsunamiSirensLegend } from "./legend/g36SafetyLegends";
 import { JpTrafficAccidents2025Legend } from "./legend/jpSafetyLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
+import { TwCoralBleachingHeatStressLegend, TwMarineHeatwavesLegend } from "./legend/twMarineHeatLegends";
 import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaRiskFloodLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
 import { JmaAutumnLeavesLegend, JmaLightningLegend, JmaRainySeasonLegend, JmaSakuraLegend, JmaSnowcapLegend, JmaWbgtLegend } from "./legend/jmaPointLegends";
 import { HighwayDisasterHistoryLegend, LandslideAnnualLegend, LandslideDodAreasLegend, LandslideDodImpactLegend } from "./legend/landslideLegends";
@@ -500,6 +501,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jmaRiskInund", render: () => <JmaImageryLegend layerKey="jmaRiskInund" /> },
   { id: "jmaUvIndex", render: () => <JmaImageryLegend layerKey="jmaUvIndex" /> },
   { id: "jmaSst", render: () => <JmaImageryLegend layerKey="jmaSst" /> },
+  { id: "twMarineHeatwaves", render: () => <TwMarineHeatwavesLegend /> },
+  { id: "twCoralBleachingHeatStress", render: () => <TwCoralBleachingHeatStressLegend /> },
   { id: "jmaSeaIce", render: () => <JmaImageryLegend layerKey="jmaSeaIce" /> },
   { id: "jmaHimawari", render: () => <JmaImageryLegend layerKey="jmaHimawari" /> },
   { id: "jmaAnaSnowFirst", render: () => <JmaImageryLegend layerKey="jmaAnaSnowFirst" /> },

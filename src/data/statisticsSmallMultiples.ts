@@ -287,6 +287,17 @@ export function smallMultipleFill(
 }
 
 /**
+ * 類別型讀數的類別名：依觀測數值查「完整類別表」，不用圖例顏色反查
+ * （圖例會把 `legend_hidden` 類別併成一列「其他」，同色反查會把李／王／蔡等都讀成其他姓氏）。
+ * 查不到回 undefined，由呼叫端退回原值。
+ */
+export function categoryLabelOf(categories: ReadonlyArray<{ value: number; label: string }>, value: unknown): string | undefined {
+  if (value === null || value === undefined) return undefined;
+  const number = Number(value);
+  return categories.find(category => category.value === number)?.label;
+}
+
+/**
  * 非類別型的 `not_applicable`（例：GB 租金蘇格蘭／北愛未涵蓋）畫法同缺值斜線，但語意是「未涵蓋」≠缺值（POLICIES A1）：
  * 圖例與讀數要用 recipe 的狀態標籤，缺值計數也不能把它算進去。
  */

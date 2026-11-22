@@ -2237,6 +2237,349 @@
    "s3_key": "deploy-assets/marine/coastal_area_extents_points.pmtiles"
   },
   {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2003_v1.png",
+   "bytes": 26789,
+   "sha256": "f2871e4a5b721adc792b50c043969808ad538e67ee1f7b28bf6e8f5f7d4e7f4e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2003_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2004_v1.png",
+   "bytes": 26217,
+   "sha256": "598562bb1f029c98fc0c73fbcafdd8f95fb01782c032d5ad6d525b726d7b4086",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2004_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2005_v1.png",
+   "bytes": 24529,
+   "sha256": "7aeb8d2c252966beeb489b91d3785f355cb07157e5c3fa0fd946ee6c9468184a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2005_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2006_v1.png",
+   "bytes": 27881,
+   "sha256": "83496c0f76d69c1ea2ed1c12dfc527587cba98c9af497947a1f3a27ba1e43c14",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2006_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2007_v1.png",
+   "bytes": 30587,
+   "sha256": "39b8f6c35f8e43efe1304e051a0f435448b906c5d5105af758c46e15e847063b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2007_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2008_v1.png",
+   "bytes": 22471,
+   "sha256": "c4182ad9339acfc95d2648a714bc188ba53832e4ad695df96949ad039397a852",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2008_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2009_v1.png",
+   "bytes": 26981,
+   "sha256": "216fb4bce0114adcdaf428b9c809efabeff6450c0bdd730cea80651fcf3cf775",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2009_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2010_v1.png",
+   "bytes": 30866,
+   "sha256": "fe52c02053c7127787d3a573b82ce3b71c84dddc9c0fcc4a4016e83f6b8e12ad",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2010_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2011_v1.png",
+   "bytes": 25585,
+   "sha256": "46e26b849131be73d624de1cc262045e1f66fb737f74b48d3f8cb8a3d6ec1ac7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2011_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2012_v1.png",
+   "bytes": 23709,
+   "sha256": "cb5e2d2db9cbf9386cd485eb620543b69d00dd7432b456eeffcb44dfb8bca2e0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2012_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2013_v1.png",
+   "bytes": 31727,
+   "sha256": "e0083069caa9df33784f1a13e8edde07688ce15f03984f2cae61f8e85babda2d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2013_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2014_v1.png",
+   "bytes": 34643,
+   "sha256": "1f84b52b844049cf07ff1896d11843b872688bf4cc562aafcf0230e3535ea4a1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2014_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2015_v1.png",
+   "bytes": 28050,
+   "sha256": "6623d72de1067a14fc100e443630f8509b0615a5400d41ed4982692bde6ac6c4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2015_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2016_v1.png",
+   "bytes": 34314,
+   "sha256": "ce3aa48cf60a2813aaf0b0838552a0901db19863207b735aa5657cb6993ac5e1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2016_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2017_v1.png",
+   "bytes": 35947,
+   "sha256": "83a14bff183b7371518d8aab9a6041a71b281a0c1deb43b46b97cf5610100977",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2017_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2018_v1.png",
+   "bytes": 31400,
+   "sha256": "ebbe3dce1b9fb76a09dd2086605c1177a5ea6879548834a8c38a29b016fce37f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2018_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2019_v1.png",
+   "bytes": 31258,
+   "sha256": "7643364d2baafb48cb83f890eea2aaf9675d4c7a70704c5920e80559128f1224",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2019_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2020_v1.png",
+   "bytes": 37469,
+   "sha256": "9b7c77a4a0ece27e38551dc15b1d7f605c033c0c50d9355db336a3e5693319ed",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2020_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2021_v1.png",
+   "bytes": 34049,
+   "sha256": "7e8499c5a1818d410c128f80353d6325bd338065af6d367267ae217b700178fc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2021_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2022_v1.png",
+   "bytes": 35383,
+   "sha256": "dccbd030adece1415b66e08428976cbf4738642d96cba1cb660bc9991f4a173f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2022_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2023_v1.png",
+   "bytes": 33883,
+   "sha256": "679de7b39252eee865f77a0b71f0437333d0db3449b42d151d90c8e49aaa3f6d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2023_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2024_v1.png",
+   "bytes": 38077,
+   "sha256": "5cfa362d336006409ee7680aa78e4f6cbbfc8389d0174d95e5905fdf9fdf56ba",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2024_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2025_v1.png",
+   "bytes": 34196,
+   "sha256": "81f7427629a22693738abbf7dee64ec435bfd145690e35092e3cb6d64076f12e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2025_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_2026_v1.png",
+   "bytes": 28400,
+   "sha256": "141598993d866c2fc40c92eb0a50eca237d4daf785c9c55bd916aea0fc7b3906",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_2026_v1.png"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_frames_v1.json",
+   "bytes": 177009,
+   "sha256": "b32d56abda5fa601889e36ff7e187c1877bf04e3b49a35eac6f972db48798ee4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_frames_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2003_v1.json",
+   "bytes": 122298,
+   "sha256": "3f0254d7d360c5d463b4e5017e72fdda5db745d5aba8d4384603295e263ee6ac",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2003_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2004_v1.json",
+   "bytes": 122853,
+   "sha256": "eed47239790b1fb969fe441becc6d299cbc47bdb4fc7bdaa124c871ffb49ae28",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2004_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2005_v1.json",
+   "bytes": 121512,
+   "sha256": "4f1f4d01d2d242ca336326dc0a854fa7d0f67288833c245c28d64940620d5ae7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2005_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2006_v1.json",
+   "bytes": 123509,
+   "sha256": "9abe8bd7d411e55bdc4741e56a20424e221bfca6889057936efe27e377e118a8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2006_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2007_v1.json",
+   "bytes": 124365,
+   "sha256": "7b4ebd006c24bd293f458e3e9a755870f9adcd4c10ea99940dc50061ef1f90f2",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2007_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2008_v1.json",
+   "bytes": 120555,
+   "sha256": "118207f705baa316b83351e5f3f308ee965194f2a595a34d62f89ee5f75d8929",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2008_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2009_v1.json",
+   "bytes": 122497,
+   "sha256": "232968f02ca256c0de81eda75a8c1b4f54271b4bab364faccdf57534843c285a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2009_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2010_v1.json",
+   "bytes": 124591,
+   "sha256": "099ac7fc8eec90ea868ef0704cd8dbdb0bb897dbae330eeecf6be2e457264815",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2010_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2011_v1.json",
+   "bytes": 122411,
+   "sha256": "49ed366708d2dce5ef91a5c87273a208e50e04cb64c57bf1b99d7c9d4a5b6dd5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2011_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2012_v1.json",
+   "bytes": 121436,
+   "sha256": "d622326089f211190f4043848465eb365b6ac284f7dd89284c6dc7a65b3ea522",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2012_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2013_v1.json",
+   "bytes": 125024,
+   "sha256": "e22a0dbb5513baa74066d2fff4d59a55375edbaeca88140ba34f5c034aae07f3",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2013_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2014_v1.json",
+   "bytes": 125783,
+   "sha256": "fc0107c908718247847d4a3070d7eaa2cd3fa5e9d73659f7bc5aea56d1b82e22",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2014_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2015_v1.json",
+   "bytes": 122816,
+   "sha256": "ddc041b5062b9d1f16f9df5b175f0038641e5e4717ffdd628320bd4b0d03250e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2015_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2016_v1.json",
+   "bytes": 125667,
+   "sha256": "2ff937921d73bcf6e611430f650b4816da20b1d15e933f6520756da79aeead72",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2016_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2017_v1.json",
+   "bytes": 126314,
+   "sha256": "2f1a501d18a6acda6b3ad92240312524d0d61c79caf309c68cafdbf59455eef6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2017_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2018_v1.json",
+   "bytes": 125334,
+   "sha256": "878e035e3605f7dbff5826db1f30910aa4e76ed29ef0313243818e2f029ed6f0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2018_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2019_v1.json",
+   "bytes": 124652,
+   "sha256": "b4f24fb11daedb23d3a02531fec27e8a0f957b157776a2fad364a2aee5c59556",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2019_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2020_v1.json",
+   "bytes": 128443,
+   "sha256": "7a2a04344d2e92dd8923a431ada381c89cac363b611442d971759779cc9c7404",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2020_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2021_v1.json",
+   "bytes": 126054,
+   "sha256": "9dc1f4eacd5c30f246db2fdb88f9181ad5c6724535f31cbb94fd1e66592810b5",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2021_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2022_v1.json",
+   "bytes": 127444,
+   "sha256": "8d82c71c13d78dc48247ab8a273c3a1ec1563085f6b3641df42da57e0a6ee068",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2022_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2023_v1.json",
+   "bytes": 125860,
+   "sha256": "024d317b5970d5757cba3feffd050b9509bc61c504c8732f86430c711a4d646b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2023_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2024_v1.json",
+   "bytes": 130803,
+   "sha256": "b181cbc50dd1014ad24d9830b5b725ef1e6cf150f49f7d1d2af28e7d3bc782ae",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2024_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2025_v1.json",
+   "bytes": 126651,
+   "sha256": "69a0dffb1229c369acbd329d3c0cae5cf65bcc81911951e58c4c08399728c883",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2025_v1.json"
+  },
+  {
+   "path": "public/marine/crw_heat_stress/crw_heat_stress_values_2026_v1.json",
+   "bytes": 104740,
+   "sha256": "1d40d1ece81badf773e8c1dd4202fdf91bd7fe8c8197794c9607e90d26812d1c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/crw_heat_stress/crw_heat_stress_values_2026_v1.json"
+  },
+  {
    "path": "public/marine/exclusive_fishery_right_areas.geojson",
    "bytes": 331319,
    "sha256": "c3cd1ab209c311316fc8a5839b82075ef2c0bd7e331a1093b8433e2f9d5c3146",
@@ -2319,6 +2662,643 @@
    "sha256": "993de68de7bebc77c81480dbd633362d1827ee8a0762dc31e44f2284909d03e4",
    "delivery": "r2",
    "s3_key": "deploy-assets/marine/nature_reserves.geojson"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1982_v1.png",
+   "bytes": 5373,
+   "sha256": "4987ed3a6ca3de33b664096c87ee5c979f60f36a5d5a9e211e2b05a53524ea28",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1982_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1983_v1.png",
+   "bytes": 6564,
+   "sha256": "26a412375b1078921785074a69a5859072b591d528f76a1cbca753e388053e34",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1983_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1984_v1.png",
+   "bytes": 5292,
+   "sha256": "c2d68dde515bcbad242f8162bb28d53853107c7122615dc2e9cb349cde7e6942",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1984_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1985_v1.png",
+   "bytes": 5488,
+   "sha256": "a8034c31e32ca718834957d45817406332d8f629725066edba224c0f3a0a5021",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1985_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1986_v1.png",
+   "bytes": 5199,
+   "sha256": "e286c67b50acac70627b6a49ec215298c33d308f980fc3419a224c89727ad3f4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1986_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1987_v1.png",
+   "bytes": 5992,
+   "sha256": "fab060a65c0ea9001735fa72966ce095af6922503c4521443754fbfee0f583b0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1987_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1988_v1.png",
+   "bytes": 6602,
+   "sha256": "916def29c59733327b3fcd43362d94caeb79b00fce90f2e5ee3e542e5ee54b44",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1988_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1989_v1.png",
+   "bytes": 5393,
+   "sha256": "02c9be92cec352d5d9a63e85ceaf6a3951552ed8638f9b49ba6c9a2a7eb07e63",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1989_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1990_v1.png",
+   "bytes": 5312,
+   "sha256": "d6ff7ccad5822a7ceedaff266a5fac773701d38889e05c851c02028e4504756d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1990_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1991_v1.png",
+   "bytes": 5614,
+   "sha256": "929bfdb92101baded07e3e21b4b54f18d562d5a430b44895f94c149462b08f1d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1991_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1992_v1.png",
+   "bytes": 5627,
+   "sha256": "d2a221095d0268563b6e1737049340d6b10aaa28730edaccacc732fa15e2bbf3",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1992_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1993_v1.png",
+   "bytes": 5583,
+   "sha256": "5bf3de2ff20241cec6ff740ec46fa08abaf7dfa420a929b9042c9f39b19508d8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1993_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1994_v1.png",
+   "bytes": 6080,
+   "sha256": "f4d2f125297750a6ede2028f31b624fd1cbdda33cafee2b76240899e9dbd68ba",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1994_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1995_v1.png",
+   "bytes": 5466,
+   "sha256": "2adf0e40423550f45f33844a1d790a00be647b0d3e1c5d1f95c1a820894b7770",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1995_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1996_v1.png",
+   "bytes": 5920,
+   "sha256": "9e559a869b1121bca20a8f7ed918b91954a4484f53e0211a613f30d27d3aa6a0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1996_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1997_v1.png",
+   "bytes": 5786,
+   "sha256": "8cb8014b1cb065fb53b0205da3b61284f6fd8e425e090d141501b2b94eb33634",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1997_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1998_v1.png",
+   "bytes": 7816,
+   "sha256": "3500e367f18ad49541c1c8a4326be83a26152d309aa77bc5f06a3a0a2a0f9985",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1998_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_1999_v1.png",
+   "bytes": 6586,
+   "sha256": "a87d4ae0f455633f8f5916bd83465e55e72ebf88037ff62d73461682971569b0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_1999_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2000_v1.png",
+   "bytes": 6853,
+   "sha256": "20c60c1c7fd82a41ace41a74e4da8e73bc45a1ca9dab936a204e5cdfc5ce9fb0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2000_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2001_v1.png",
+   "bytes": 7109,
+   "sha256": "3f2421422bb48ba653fa6377e80b4d7b6263f2c1d1275e785041b1d7688a7a6f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2001_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2002_v1.png",
+   "bytes": 6801,
+   "sha256": "7fb161498dac87899208e22e78061be13c642fab1d9ed590adb1bc8ea0ec186c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2002_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2003_v1.png",
+   "bytes": 5895,
+   "sha256": "e3b447f864badbbe31927d2b3a38ad03ba31ee927c08a0cb599cfe739cec4718",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2003_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2004_v1.png",
+   "bytes": 5975,
+   "sha256": "0432b00b35bf9f6e68c1b66aae66a1c5916669374dae88eaf8d6629c136a7123",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2004_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2005_v1.png",
+   "bytes": 6106,
+   "sha256": "e167fc7081cd69aa0eb56213c427709d03aecbed796cae444c291d5e7fdd2df1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2005_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2006_v1.png",
+   "bytes": 6956,
+   "sha256": "763a377cd87351e397f08a3bfbc3e3ba70df89deb7a600de72887a4f0d6dcf57",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2006_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2007_v1.png",
+   "bytes": 6659,
+   "sha256": "3bd698ac63619e19e58074490dfb86df97d7fa135ca7d55cb826e30e87606eae",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2007_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2008_v1.png",
+   "bytes": 6533,
+   "sha256": "1fd168cfb62e06c90b522c7f8b4cf6d544e3aff639d16a18d2e52b97db9867d7",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2008_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2009_v1.png",
+   "bytes": 6253,
+   "sha256": "380f626d4424d0f80159d5303f1cb3259111a5b5bf933fcf7a2a68aa65996801",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2009_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2010_v1.png",
+   "bytes": 6597,
+   "sha256": "d3a9bd4153cd8f9f3f81c5ce228e5101a174570202fce1e4f92a85a40fcc66e0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2010_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2011_v1.png",
+   "bytes": 6096,
+   "sha256": "d7af801c22266241941963c09bf4e83108c05de9461a4ee6543ce51ee1ccb5de",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2011_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2012_v1.png",
+   "bytes": 6650,
+   "sha256": "0dc14f58c1baace5c5d10351c9c0fadca1b9c28a7a70f0a080e12cde8721dcbf",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2012_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2013_v1.png",
+   "bytes": 6919,
+   "sha256": "72c14eb3cf97971a0b725a8fe6f048c0a101526ccd7ac7f54cffbcccc9669c78",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2013_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2014_v1.png",
+   "bytes": 6709,
+   "sha256": "ef1ab1eb1d40aeab893b515e97501c5bd838ef3ac7f880191958b86eefbde620",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2014_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2015_v1.png",
+   "bytes": 6912,
+   "sha256": "6e9d9455a25f110fbe6cfaf9e759e3c6f31dfca7c12d1fe7e3aaebe1e3893c72",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2015_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2016_v1.png",
+   "bytes": 8110,
+   "sha256": "d786063513dd006fa5344044ecd721138bfc6f50b63373d1b9681ff2df0b0c2b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2016_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2017_v1.png",
+   "bytes": 7740,
+   "sha256": "0d94dd7c9494130334e06ed7359c6ca8cf153c9a3da7866957c64850e8a9232b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2017_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2018_v1.png",
+   "bytes": 7220,
+   "sha256": "c057910e9c59112dd28c363ab32dea9a1122a010efb8ae4c8e0724ed41111d62",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2018_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2019_v1.png",
+   "bytes": 7442,
+   "sha256": "0a343ae9662df93666d60d87350e90577b91484e4fc52ba22f57f1b46ec6c031",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2019_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2020_v1.png",
+   "bytes": 8109,
+   "sha256": "dc6fbdf7340ce2b32f018be84841a6945a0532a260e4bfd7ef6f9098ce6c2d54",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2020_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2021_v1.png",
+   "bytes": 7977,
+   "sha256": "e1a86a90cc5b67b8fcc57283b20fb7ccbd056bed687acd78e6cd97521a7bf609",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2021_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2022_v1.png",
+   "bytes": 8310,
+   "sha256": "da70477c91eb552b8ee4d20991f5612f723b488b2197ee4fd5e4561d7cdf0252",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2022_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2023_v1.png",
+   "bytes": 7795,
+   "sha256": "6503116db9f699d305aab00f55e57942c6833faba7dc39fb9b88a0432025f54d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2023_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2024_v1.png",
+   "bytes": 8991,
+   "sha256": "88163a5df8417be90d8832c392a7597526cefda52ca015a6c7e2e991017cb463",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2024_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2025_v1.png",
+   "bytes": 7905,
+   "sha256": "f5255cbb0ffddb5ee4b0c12b10326a61db66ca32eafc353aaa2e0f4fb50fd25c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2025_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_2026_v1.png",
+   "bytes": 8053,
+   "sha256": "94152ef48da3b05b082223e90aa2720338b6a5c7ce932dd5862ad38af40897ed",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_2026_v1.png"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_frames_v1.json",
+   "bytes": 314388,
+   "sha256": "7934788e8aacdd9ca587b7818904900fd854f55a68e8113aa4dc43573bf8ac19",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_frames_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1982_v1.json",
+   "bytes": 310634,
+   "sha256": "3b3a22c311f4abf98a44a49c56af470862ea4774999691cd8e13f6c7b7776b22",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1982_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1983_v1.json",
+   "bytes": 303959,
+   "sha256": "ec2b00e81b4ed4182547dddc446199dabe47d63f3445b56a350176f7e50ff36f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1983_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1984_v1.json",
+   "bytes": 309675,
+   "sha256": "4cfdf141e61a9f1cd0de65fa65c3962ed3ad1aaf185f1870856cefa89d61513e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1984_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1985_v1.json",
+   "bytes": 309833,
+   "sha256": "466a6c0e81de66e283c8ecc07974fe3320345cc4dc0def144f9774f380c02d92",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1985_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1986_v1.json",
+   "bytes": 312527,
+   "sha256": "33db65ab9fc8d199ee71af647083720dcd73b9545eded7e7421f7034a14d4407",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1986_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1987_v1.json",
+   "bytes": 305906,
+   "sha256": "162021e9617fd64874e3797c651601aa7d2734859dcf1b39a9de70ec38ca1ebf",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1987_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1988_v1.json",
+   "bytes": 303185,
+   "sha256": "d841e217683bb1f813cc87ad94912ca0874d225ada09f49b1fd2ced126f4df52",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1988_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1989_v1.json",
+   "bytes": 309650,
+   "sha256": "b32e84a8254c48b054e2147c604c769e02eaeef69e271289a07372d248826e32",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1989_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1990_v1.json",
+   "bytes": 311696,
+   "sha256": "b09ea9a5ffebec57c90d5084c5e971f1c6ebe376d76ed7fb3ca2a3fb84ba2fcd",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1990_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1991_v1.json",
+   "bytes": 308025,
+   "sha256": "ca5e70fe986be61a68424a22957318fc8e869929988cc91cc3a6e0a3d8f2c49d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1991_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1992_v1.json",
+   "bytes": 309359,
+   "sha256": "a3562165e44fd1ead4ce20da7fc5de90ec878a2399a77b0bd9bf9689c3445638",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1992_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1993_v1.json",
+   "bytes": 308046,
+   "sha256": "401ce098d22fe7a802176a98bd387dd89b363754bef5764e98ab54f37104cabc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1993_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1994_v1.json",
+   "bytes": 306507,
+   "sha256": "604c67ff1a2a3c646390bdba714544ca5a78bc29b5a8d4572800aa1cc8054c2b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1994_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1995_v1.json",
+   "bytes": 307689,
+   "sha256": "8ee7c08f69c7bf0127baa42d6d306a523f9c4507ad17cba98088ac91c0424c73",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1995_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1996_v1.json",
+   "bytes": 305908,
+   "sha256": "805f0de5780913e13a16b0efa6d63fd6775b9a8aea86aceb80e053ad3ab5ac0b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1996_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1997_v1.json",
+   "bytes": 305691,
+   "sha256": "d15c831ab67f1fc3d9dd788bf355e20b7fa91c33227298144969ad5a05883cfe",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1997_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1998_v1.json",
+   "bytes": 298557,
+   "sha256": "4f0fea0289009c5e402688b80c12f54b10d23a653523167bff82dffc0dd8e258",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1998_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_1999_v1.json",
+   "bytes": 302499,
+   "sha256": "2f85962849638ebe86bfb5c72f51e9cd40f928e58d11adc4800d18a527bec127",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_1999_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2000_v1.json",
+   "bytes": 302869,
+   "sha256": "2af12d7019535986a981889cb32db2da73cb32b9f7cbd4c3097e7495addf162c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2000_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2001_v1.json",
+   "bytes": 300661,
+   "sha256": "ab5a415880cf3276a65ad3e004f0262bbad92270ba9ac741b6ce48e406082ce2",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2001_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2002_v1.json",
+   "bytes": 300936,
+   "sha256": "e821045da9cf33035c6ddbf40f466974d28bd85849ae99f4d075455439cf3c15",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2002_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2003_v1.json",
+   "bytes": 304246,
+   "sha256": "b8deecba1fe1933d65431f593a301c50d0ced5b6e8cd73bab45d859c0b389b4a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2003_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2004_v1.json",
+   "bytes": 306108,
+   "sha256": "d73ad2c2e2651dbdfbebcde3b85d35b1d3386c9616888d75b3777538ff9f695b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2004_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2005_v1.json",
+   "bytes": 304738,
+   "sha256": "27cb58c1afee48f4676ba948a52b1926049a1aa91fcba851fe9bb5aad8c8fc04",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2005_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2006_v1.json",
+   "bytes": 300606,
+   "sha256": "8e3578d181e29a226af113d9c29d40984ae9f3c9e4dc2cda8eb2206f2e09b3c1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2006_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2007_v1.json",
+   "bytes": 302772,
+   "sha256": "b5e4bbf3a85a0d1a29fa434b5875b8c673eb0e6934364e16df98047c3bcb611f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2007_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2008_v1.json",
+   "bytes": 303528,
+   "sha256": "f250cbb4e6aaa1ba3a27b1b79bbf8e5cb84cac733960d4ee7a67ca4e65144827",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2008_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2009_v1.json",
+   "bytes": 306090,
+   "sha256": "924ddd582e58b68100e9b7a4fdb2e9f9299ed0473600379bacfd04d09833f2b1",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2009_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2010_v1.json",
+   "bytes": 301931,
+   "sha256": "ccb1764e1235e28219746dfefa74f44ad9d7b712e1d3b612cc2127d867d51177",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2010_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2011_v1.json",
+   "bytes": 305674,
+   "sha256": "c86598cceb324ce832566f44970d139af4dfe33f23347393565a61434c635d62",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2011_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2012_v1.json",
+   "bytes": 304812,
+   "sha256": "b514a6b586eaff9cb5050ae68a86c9343694b032a738994a6121ff40efb1577d",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2012_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2013_v1.json",
+   "bytes": 302112,
+   "sha256": "40b3f86b3ff00d3864cb7de9c1fea788fd3c7a040503c25b79257206abbda5db",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2013_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2014_v1.json",
+   "bytes": 303242,
+   "sha256": "b06a207ce8e661f647cea72e23f5b4f66c459f9c9754e9f8a6f68e244c3c0ecd",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2014_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2015_v1.json",
+   "bytes": 302459,
+   "sha256": "e55c88f076c62b7b21b2a06bdafaec6e6dcbd49ccfe392a82b8d5ce2766f6dd8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2015_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2016_v1.json",
+   "bytes": 299339,
+   "sha256": "e9827098d8a1915c8eb1322f07393c900f96112ea2d2bc1140c2471609eed71f",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2016_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2017_v1.json",
+   "bytes": 299174,
+   "sha256": "2f20edaf9549ccfff822c8b7a342746a629bd4563ca25a1a9f4f48d3c92c3eaf",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2017_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2018_v1.json",
+   "bytes": 302013,
+   "sha256": "7abfe26caa42d733406d2011787b1acc9a5d8e1b1dbd8dc06e88e36d0961c530",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2018_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2019_v1.json",
+   "bytes": 299990,
+   "sha256": "2f5a4645341a1536e2365bfa8f4f5d3a8c7eefa6e8382c0804ceee1fcfc3fada",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2019_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2020_v1.json",
+   "bytes": 298839,
+   "sha256": "acf086f48e808d4d2e101c03c1a0a8d812a6387b9be81340bb64bab4276c8144",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2020_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2021_v1.json",
+   "bytes": 298956,
+   "sha256": "0bd2037d93b9409b3dd4c39b08a7ef88b6e192f1ba7f8807ec5a57974de1e611",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2021_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2022_v1.json",
+   "bytes": 298849,
+   "sha256": "17f0fbf540157c05c8bca66202bd67c10a3156b49233df50b7522c2c598bfc44",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2022_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2023_v1.json",
+   "bytes": 299599,
+   "sha256": "4dc7897564bd20f93c4c8d4b0f9ebae4dcc14056b6625d46e79dc55683e340cc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2023_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2024_v1.json",
+   "bytes": 298154,
+   "sha256": "40e4e48d0981c6330f9eba7d44cad63cb2289fbf4b19b944ba32590d9e52af53",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2024_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2025_v1.json",
+   "bytes": 299759,
+   "sha256": "736771f375a854b618a178ee01d151c94e709077cb46855446dac2364d52e798",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2025_v1.json"
+  },
+  {
+   "path": "public/marine/odb_mhw/odb_mhw_values_2026_v1.json",
+   "bytes": 248395,
+   "sha256": "a95ad5038c53658d6a3d2379feb628dd1b18acdf30d699f45cd39a87fe502512",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/marine/odb_mhw/odb_mhw_values_2026_v1.json"
   },
   {
    "path": "public/marine/open_fishing_locations.geojson",

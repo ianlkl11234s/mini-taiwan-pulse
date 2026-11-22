@@ -656,6 +656,14 @@ type JpFacilityManifestKey = typeof JP_MEDICAL_CATEGORIES[number]["key"];
 type JpCareManifestKey = typeof JP_MEDICAL_CARE_GROUPS[number]["key"];
 type JpAreaManifestKey = typeof JP_MEDICAL_AREA_LEVELS[number]["key"];
 
+/** 台灣圖層延伸 B6：年拼圖發布包的檔案清單（幀清單＋每年拼圖＋每年數值檔），給 custom source 的 staticAssets */
+function twMarineHeatAssets(prefix: string, first: number, last: number): string[] {
+  const dir = `./marine/${prefix}`;
+  const out = [`${dir}/${prefix}_frames_v1.json`];
+  for (let y = first; y <= last; y++) out.push(`${dir}/${prefix}_${y}_v1.png`, `${dir}/${prefix}_values_${y}_v1.json`);
+  return out;
+}
+
 const JP_MEDICAL_SOURCE = { kind: "custom" as const, note: "useJpMedicalLayers 依 current.json 載入不可變 PMTiles；點位封存檔為 z0-14 且未抽樣", staticAssets: ["./jp-medical/current.json"] };
 
 function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, icon: LucideIcon): LayerManifestEntry {
@@ -2336,6 +2344,53 @@ export const LAYER_MANIFEST = {
     legend: "namrBuoys", popup: "namrBuoys", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "國家海洋研究院 9 座浮標站位（資料浮標 8、加馬輻射錨碇 1；僅站位，無觀測值），其中 5 座與氣象署資料浮標同址。",
     topics: ["海洋", "浮標", "海象", "觀測站", "國家海洋研究院"],
+  },
+  // ── 台灣圖層延伸 B6（2026-11-21）：月幀 raster，每年一張拼圖（12 格）＋年度數值檔；期別用年份／月份下拉 ──
+  twMarineHeatwaves: {
+    key: "twMarineHeatwaves", country: "TW", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海洋熱浪月分級", alt: "Marine Heatwaves" }), expandable: true,
+    color: "#ff8c1a", icon: Thermometer,
+    upstream: { status: "verified", datasets: [{ datasetId: "marine.odb_marine_heatwave_monthly", confidence: "HIGH" }], processing: "analytics marine/odb_marine_heatwave_monthly：ODB Ocean APIverse /api/mhw（0.25°、115–126°E／18–28°N）1982-01～2026-10 每月 1,760 格（海洋 1,382）→ 每月一幀 LA PNG（L＝熱浪等級 0–4）→ pack_year_atlas 每年一張拼圖＋數值檔", note: "Hobday et al. 2018 四級；陸地以海溫為空判定（API 陸地等級回 0，不可當無熱浪）；太平島不在範圍；授權未標示（ODB 開放 API 免費使用）。" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useTwMarineHeatLayer：讀 odb_mhw_frames_v1.json → 當年拼圖裁出當月格（canvas）→ image source＋raster layer（tw-marine-heat-twMarineHeatwaves-src／-layer，raster-color 依 L 上色）；popup 由 useMapInteraction 呼叫 pickTwMarineHeatCell 查年度數值檔 —— 非 OVERLAY_REGISTRY", staticAssets: twMarineHeatAssets("odb_mhw", 1982, 2026) },
+    legend: "twMarineHeatwaves", popup: "twMarineHeat", params: { count: 4, kinds: ["slider", "select", "select", "multiSelect"] },
+    description: "國科會海洋學門資料庫（ODB）海洋熱浪月分級（0.25° 網格、月平均，1982-01～2026-10）：無熱浪、中等、強烈、嚴重、極端。",
+    topics: ["海洋", "海洋熱浪", "海溫", "氣候變遷", "網格", "時序"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：odb_mhw_frames_v1.json period_first 1982-01／period_last 2026-10（538 幀，2026-11-21 實測 API 最新到 2026-10）
+      coverage: { start: "1982-01-01", end: "2026-10-31" },
+      granularity: "month",
+      data: {
+        form: "periodFiles",
+        files: ["./marine/odb_mhw/odb_mhw_<year>_v1.png", "./marine/odb_mhw/odb_mhw_values_<year>_v1.json"],
+        note: "每年一張拼圖（12 個月格，1 月左上逐列往右）＋每年一個數值檔；幀清單 odb_mhw_frames_v1.json 記各月在哪一格",
+      },
+      summable: false, // 等級
+      breaks: [],
+    },
+  },
+  twCoralBleachingHeatStress: {
+    key: "twCoralBleachingHeatStress", country: "TW", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "珊瑚白化熱壓力", alt: "Coral Bleaching Heat Stress" }), expandable: true,
+    color: "#f472b6", icon: Waves,
+    upstream: { status: "verified", datasets: [{ datasetId: "marine.coral_bleaching_heat_stress", confidence: "HIGH" }], processing: "analytics marine/coral_bleaching_heat_stress：NOAA CRW v3.1 月合成 dhw-max＋baa5-max（5 km）2003-01～2026-10 裁切 115.30–122.25°E／20.40–25.55°N → 只畫 NOAA 台灣虛擬站範圍（Northern Taiwan、Southern Taiwan、Dongsha，礁格外推 20 km）→ 每月一幀 RGBA（R＝DHW×10、G＝警報 0–7）→ 每年一張拼圖＋數值檔", note: "衛星海溫熱壓力，不等於現地珊瑚一定白化；監測範圍不是礁體本身；金門、馬祖、太平島未涵蓋；1985–2002 年因授權限制未收。" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useTwMarineHeatLayer：讀 crw_heat_stress_frames_v1.json → 當年拼圖裁出當月格 → image source＋raster layer（tw-marine-heat-twCoralBleachingHeatStress-src／-layer），raster-color-mix 選 G（警報）或 R（DHW）；popup 由 pickTwMarineHeatCell 查年度數值檔 —— 非 OVERLAY_REGISTRY", staticAssets: twMarineHeatAssets("crw_heat_stress", 2003, 2026) },
+    legend: "twCoralBleachingHeatStress", popup: "twMarineHeat", params: { count: 5, kinds: ["slider", "select", "select", "select", "multiSelect"] },
+    description: "NOAA Coral Reef Watch 珊瑚白化熱壓力月最大值（5 km，2003-01～2026-10）：白化警報 8 級或累積熱壓力 DHW，只畫 NOAA 珊瑚礁監測範圍。",
+    topics: ["海洋", "珊瑚礁", "珊瑚白化", "海溫", "氣候變遷", "網格", "時序"],
+    longTerm: {
+      kind: "periodSnapshot",
+      // 涵蓋：crw_heat_stress_frames_v1.json period_first 2003-01／period_last 2026-10（286 幀；1985–2002 因 OSTIA 授權不收）
+      coverage: { start: "2003-01-01", end: "2026-10-31" },
+      granularity: "month",
+      data: {
+        form: "periodFiles",
+        files: ["./marine/crw_heat_stress/crw_heat_stress_<year>_v1.png", "./marine/crw_heat_stress/crw_heat_stress_values_<year>_v1.json"],
+        note: "每年一張拼圖（12 個月格）＋每年一個數值檔（只含監測範圍內 1,420 格）；幀清單 crw_heat_stress_frames_v1.json 記各月在哪一格",
+      },
+      summable: false, // 月最大值與等級
+      breaks: [],
+    },
   },
   towingYards: {
     key: "towingYards", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "違規拖吊保管場", alt: "Vehicle Towing Yards" }), expandable: true,
