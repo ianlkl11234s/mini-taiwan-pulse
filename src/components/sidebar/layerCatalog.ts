@@ -455,6 +455,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "自然保育",
     "農業",
   ],
+  TH: [
+    // 泰國（2026-11-22 第 0 波：只有國家選項，主題待圖層規格；title 沿用台灣主題中文短名）
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -4284,6 +4287,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
+  TH: {}, // 泰國第 0 波：尚無主題（2026-11-22）
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
     "底圖": "baseline",
@@ -4582,6 +4586,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口": { zh: "人口", sub: "Population" },
     "社經": { zh: "社經", sub: "Socio-economic" },
   },
+  TH: {}, // 泰國第 0 波：尚無主題（2026-11-22）
   CN: {
     // 中國主題副標用英文（比照菲律賓）
     "底圖": { zh: "底圖", sub: "Base Map" },
