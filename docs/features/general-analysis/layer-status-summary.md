@@ -4,16 +4,16 @@
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 > L2 欄來自倉庫 catalog（`catalog.json 2026-11-21，倉庫 20261119T011401Z`）；入倉狀態欄來自 pulse-data 登記簿（ADR-0023 成員清單 SSOT），兩者口徑不同時以入倉狀態為準。
 
-- 圖層總數：**2074**；L1 可操作：**2074/2074**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**1572/2074**（75.8%）
+- 圖層總數：**2076**；L1 可操作：**2076/2076**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**1572/2076**（75.7%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：30
-- 只有舊瀏覽器 reader：6；尚不可分析：461
+- 只有舊瀏覽器 reader：6；尚不可分析：463
 
 ## 各國入倉狀態（AG-14；以 pulse-data 登記簿為準）
 
 | 國別 | 圖層數 | warehouse | statistics | no_upstream | display_only | missing | 入倉率 |
 |---|---|---|---|---|---|---|---|
-| TW | 1382 | 497 | 704 | 6 | 3 | 172 | 86.9% |
+| TW | 1384 | 499 | 704 | 6 | 3 | 172 | 86.9% |
 | JP | 106 | 24 | 0 | 5 | 1 | 76 | 22.6% |
 | FR | 1 | 0 | 0 | 0 | 0 | 1 | 0.0% |
 | GB | 90 | 6 | 22 | 0 | 0 | 62 | 31.1% |
@@ -26,7 +26,7 @@
 | WORLD | 24 | 5 | 0 | 1 | 0 | 18 | 20.8% |
 | SIM | 29 | 0 | 0 | 0 | 8 | 21 | 0.0% |
 
-- 合計：入倉 1632/2074（warehouse 800、statistics 832）；DISPLAY_ONLY 54；外部圖磚等無上游 12；未入倉（在只減不增基準）376
+- 合計：入倉 1634/2076（warehouse 802、statistics 832）；DISPLAY_ONLY 54；外部圖磚等無上游 12；未入倉（在只減不增基準）376
 - `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
 - WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
@@ -34,7 +34,7 @@
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 640 | 389 | 87 | 4 | 5 | 151 | 4 |
+| 臺灣圖層 | 642 | 389 | 87 | 4 | 5 | 153 | 4 |
 | 日本 | 106 | 16 | 0 | 2 | 0 | 87 | 1 |
 | 法國 | 1 | 0 | 0 | 0 | 0 | 1 | 0 |
 | 英國 | 68 | 6 | 0 | 0 | 0 | 62 | 0 |
@@ -52,7 +52,7 @@
 
 | 原因 | 圖層數 |
 |---|---|
-| dataset_not_in_warehouse | 292 |
+| dataset_not_in_warehouse | 294 |
 | upstream_catalog_missing | 79 |
 | unfiltered_shared_table | 30 |
 | derived_layer | 17 |
