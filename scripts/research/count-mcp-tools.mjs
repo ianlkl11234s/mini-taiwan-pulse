@@ -21,7 +21,9 @@ export function toolNamesIn(text, marker) {
   const start = text.indexOf(marker);
   if (start < 0) throw new Error(`找不到 ${marker}`);
   const open = text.indexOf("[", start);
-  const close = text.indexOf("];", open) >= 0 ? text.indexOf("];", open) : text.indexOf("] as const", open);
+  // 取最早的結尾：`] as const;` 之後同檔案的其他 `];` 陣列不可算進來
+  const ends = ["];", "] as const"].map(end => text.indexOf(end, open)).filter(i => i >= 0);
+  const close = ends.length ? Math.min(...ends) : -1;
   if (open < 0 || close < 0) throw new Error(`${marker} 不是陣列`);
   return [...text.slice(open, close).matchAll(/"(pulse_[a-z0-9_]+)"/g)].map(m => m[1]);
 }
