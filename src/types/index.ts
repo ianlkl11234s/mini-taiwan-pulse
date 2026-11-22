@@ -3,7 +3,7 @@ import type { KrDataKey } from '../data/krDataKeys';
 import type { IeDataKey } from '../data/ieDataKeys';
 import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
 import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
-import type { ThDataKey } from '../data/thDataKeys';
+import type { ThDataKey, ThRasterKey } from '../data/thDataKeys';
 import type { CnDataKey, CnRasterKey } from '../data/cnDataKeys';
 import type { CaWaveKey } from '../data/caWavesKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
@@ -485,7 +485,7 @@ export type ExpandableLayerKey =
   | "ieAdminBoundaries" | IeDataKey | "ieBathymetry" | "ieCoillteRecreation" | "ieCoillteForestRoads"
   | "phAdminBoundaries" | "phPopulation" | "phOpenaqAir" | PhDataKey | PhRasterKey
   | "vnAdminBoundaries" | "vnPopulation" | VnDataKey | VnRasterKey
-  | "thAdminBoundaries" | "thPopulation" | ThDataKey
+  | "thAdminBoundaries" | "thPopulation" | ThDataKey | ThRasterKey
   | "cnAdminBoundaries" | "cnPopulation" | "cnPopulationGrid" | CnDataKey | CnRasterKey
   | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid" | CaWaveKey
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
@@ -1156,7 +1156,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;

@@ -45,7 +45,8 @@ import { PH_WAVE_ENTRY_META } from "./phWavesMeta";
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
 import { TH_DATA_SPECS } from "./thDataLayers";
-import type { ThDataKey } from "./thDataKeys";
+import { TH_RASTER_SPECS } from "./thWavesLayers";
+import type { ThDataKey, ThRasterKey } from "./thDataKeys";
 import type { VnDataKey } from "./vnDataKeys";
 import { VN_RASTER_META, VN_WAVE_ENTRY_META } from "./vnWavesMeta";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
@@ -1183,11 +1184,37 @@ const TH_DATA_ENTRY_META: Record<ThDataKey, { theme: string; group: string; zh: 
     description: "泰國加油站 14,838 處（Overture 補缺，非官方；PTT、Bangchak、Shell、Esso、Caltex、PT、Susco 分色）", processing: "Overture places taxonomy gas_station／fueling_station（confidence ≥0.5、泰國面內）→ 品牌正規化；PMTiles fuel z5–14", note: "CDLA-Permissive-2.0；筆數為登記數、可能含歇業" },
   thPipelines: { theme: "能源", group: "管線與儲槽", zh: "儲槽與管線", alt: "Storage Tanks & Pipelines", icon: Spline, dataset: "th_pipelines", topics: ["泰國", "能源", "儲槽", "管線", "LNG", "油氣", "GEM", "OSM"],
     description: "泰國儲槽 1,377、氣櫃 81、LNG 接收站 6（GEM）、管線 176 段；依內容物分油氣、水、污水、其他、未標示（預設只顯示油氣與 LNG）", processing: "Overture base/infrastructure storage_tank／gasometer／pipeline → 4326；GEM GGIT／GOIT 泰國列與 LNG Terminals；依 substance／content 分 content_group；PMTiles facilities、pipelines z5–14", note: "ODbL 1.0／CC BY 4.0（逐筆）；多數未標示內容物，不是油氣管線全圖；GEM 管線為示意路徑" },
+  thPlaceNames: { theme: "底圖", group: "地名", zh: "聚落地名", alt: "Place Names", icon: MapPin, dataset: "th_place_names", topics: ["泰國", "底圖", "地名", "聚落", "村", "OSM"],
+    description: "泰國 OSM 聚落地名 32,514 筆（城市 37、鎮 1,041、村 18,280、小聚落 4,211…；依等級逐級出現，低縮放只有城市）", processing: "HOT／HDX OSM 泰國 place 圖層 → 代表點；依 place 設 per-feature minzoom（city z4、town z6、village z8、hamlet z10）；77 府空間判定；PMTiles places z4–14（-r1）", note: "ODbL 1.0；OSM 聚落名稱，非官方村里名冊；三角點未涵蓋" },
+  thElectionConstituencies: { theme: "人口社經", group: "選區", zh: "國會選區", alt: "Electoral Constituencies", icon: Landmark, dataset: "th_election_constituencies", topics: ["泰國", "選舉", "選區", "國會", "ECT"],
+    description: "泰國國會小選區邊界兩版（2023 年 400 區、2026 年 400 區；預設 2026）；沒有得票與投票所", processing: "Thai-ECT-election-map（MIT，第三方鏡像；底層 กกต. 選區公告）→ 4326；77 府空間判定；PMTiles constituency_2566、constituency_2569 z4–12", note: "MIT（第三方鏡像），上游 ECT 條款未明示；得票、投票所未涵蓋" },
+  thHighlandVillages: { theme: "人口社經", group: "高地村", zh: "高地村", alt: "Highland Villages", icon: Tent, dataset: "th_highland_villages", topics: ["泰國", "人口", "高地", "族群", "村", "HRDI"],
+    description: "泰國高地村 4,212 點（HRDI；族群、人口、戶數、所在保護林；只涵蓋 21 個高地府）", processing: "HRDI 高地村調查（UTM 座標轉 4326；zone 推定）→ 77 府空間判定；族群前 7 名分色；PMTiles villages z5–14（-r1）", note: "授權未明示；調查年未標；只涵蓋 21/77 府" },
+  thProvinceSocioeconomic: { theme: "人口社經", group: "府級社經", zh: "府級社經（Gini 與收入變動）", alt: "Province Socio-economics (Gini & Income Change)", icon: Gauge, dataset: "th_province_socioeconomic", topics: ["泰國", "社經", "Gini", "所得", "貧窮", "NSO"],
+    description: "泰國 77 府 Gini 係數（2013–2023）與收入變動（2011–2025；來源未附定義）；圖例兩指標二選一，預設 Gini", processing: "NSO 府級表接 COD-AB 府面（NSO 表 3 個府名拼字更正）→ PMTiles province z3–10", note: "Creative Commons Attributions（版本未見）；只有府級；收入變動來源未附定義" },
+  thFootbridges: { theme: "交通", group: "道路設施", zh: "人行天橋", alt: "Pedestrian Footbridges", icon: Footprints, dataset: "th_footbridges", topics: ["泰國", "交通", "人行天橋", "DOH"],
+    description: "泰國國道上的人行天橋 2,147 座（DOH；76/77 府；鋼筋混凝土 2,055、全鋼 92）", processing: "DOH 人行天橋 API → 4326；77 府空間判定；PMTiles footbridges z6–14（-r1）", note: "授權未明示；人行天橋，不是公路橋（DRR 公路橋境外連不上）" },
+  thRailCrossings: { theme: "交通", group: "道路設施", zh: "國道與鐵路交會處", alt: "Highway–Railway Crossings", icon: AlertTriangle, dataset: "th_rail_crossings", topics: ["泰國", "交通", "平交道", "鐵路", "DOH"],
+    description: "泰國國道與鐵路交會處 290 處（同平面 171、立體 119；45/77 府）", processing: "DOH 國道鐵路交會處 API → 4326；PMTiles rail_crossings z6–14（-r1）", note: "授權未明示；只含國道交會處，非全國平交道" },
+  thRoadAccidents: { theme: "交通", group: "交通事故", zh: "道路交通事故（2025）", alt: "Road Traffic Accidents (2025)", icon: Car, dataset: "th_road_accidents", topics: ["泰國", "交通", "事故", "死亡", "GISTDA"],
+    description: "泰國 2025-01-01～12-12 道路事故 23,543 件（依死傷分 4 級；低縮放為熱區；不含個人可識別欄位）", processing: "GISTDA Hosted 事故點（來源 DOH／DRR／高速公路局）→ 4326；severity 依死亡、重傷、輕傷分級；PMTiles accidents z6–14（-r1）", note: "授權未明示；非全年；非 A1／A2 分級；169 筆無座標、3 筆在境外已排除" },
+  thEec: { theme: "工商登記", group: "產業園區", zh: "東部經濟走廊 EEC", alt: "Eastern Economic Corridor (EEC)", icon: Factory, dataset: "th_eec", topics: ["泰國", "工業", "EEC", "經濟走廊", "GISTDA"],
+    description: "泰國東部經濟走廊 EEC 3 府（Chon Buri、Rayong、Chachoengsao）邊界與 290 個鄉面；只涵蓋 3/77 府", processing: "GISTDA Hosted EEC 鄉面 → 4326；3 府邊界取 COD-AB 府面合併；PMTiles eec_tambon z6–13、eec_boundary z4–12", note: "授權未明示（鄉）／CC BY-IGO（邊界）；統計欄名被截斷、語意未驗，不顯示；SEZ 未涵蓋" },
+  thFloodHistory: { theme: "災害", group: "淹水", zh: "歷史淹水範圍（2005–2012）", alt: "Historical Flood Extent (2005–2012)", icon: Waves, dataset: "th_flood_history", topics: ["泰國", "災害", "淹水", "歷史", "GISTDA"],
+    description: "泰國 2005–2012 歷史淹水範圍 118,727 面（依淹水頻率 1–7 年分級；只涵蓋 16/77 府）", processing: "GISTDA Hosted 歷史淹水面（衛星判釋、一般化）→ 4326；77 府空間判定；PMTiles flood z6–12", note: "授權未明示；只涵蓋 16 府；頻率與逐年旗標加總不一致，popup 並列" },
+  thBasins: { theme: "水資源", group: "流域", zh: "流域（DWR 25 主流域）", alt: "River Basins (DWR 25 Main Basins)", icon: Droplets, dataset: "th_basins", topics: ["泰國", "水資源", "流域", "DWR"],
+    description: "泰國 DWR 25 主流域與 254 子流域（主流域各色、子流域邊界）；河線與水體面未涵蓋", processing: "NGIS DWR 流域面 → 4326；PMTiles main_basin z3–9、sub_basin z5–12", note: "授權未明示；DWR 25 流域與 ONWR 22 流域不同" },
+  thIrrigationProjects: { theme: "水資源", group: "灌溉", zh: "灌溉專案", alt: "Irrigation Projects", icon: Droplet, dataset: "th_irrigation_projects", topics: ["泰國", "水資源", "灌溉", "水庫", "RID"],
+    description: "泰國 RID 灌溉專案 796 處（水庫 409、堰 143、水門 88、抽水站 33…；設施類型由名稱推導；71/77 府）", processing: "NGIS RID 灌溉專案點 → 4326；依專案名稱推導 facility_type；PMTiles projects z5–14（-r1）", note: "授權未明示；設施類型為推導；專案面積單位來源未標" },
+  thLandslideSafePoints: { theme: "災害", group: "避難場所", zh: "坍方臨時安全點", alt: "Landslide Temporary Safe Points", icon: House, dataset: "th_landslide_safe_points", topics: ["泰國", "災害", "坍方", "避難", "DMR"],
+    description: "泰國 DMR 坍方臨時安全點 8,286 處（46/77 府）；崩塌潛勢面圖無可用幾何，未涵蓋", processing: "DMR 安全點 CSV（UTM 座標轉 4326）→ 77 府空間判定；PMTiles safe_points z6–14（-r1）", note: "Creative Commons Attributions（版本未標）；潛勢面圖未涵蓋" },
+  thLandfills: { theme: "廢棄物", group: "垃圾場址", zh: "垃圾場址與處理設施", alt: "Landfills & Waste Facilities", icon: Trash2, dataset: "th_landfills", topics: ["泰國", "廢棄物", "垃圾場", "掩埋場", "焚化爐", "PCD", "GISTDA"],
+    description: "泰國垃圾場址調查 3,129 處（開放傾倒場 2,893…）與 PCD 設施 2,609 處（兩份調查分開、不可相加；調查年約 2010–2014）", processing: "GISTDA Hosted 垃圾場址調查與 PCD 設施清單 → 4326；site_type 正規化；PMTiles landfill_survey、pcd_facilities z5–14（-r1）", note: "授權未明示；PCD 2566 新版連線失敗未納入；進場廢棄物量單位來源未標" },
 };
 const TH_DATA_MANIFEST_ENTRIES = Object.fromEntries(TH_DATA_SPECS.map((spec) => {
   const m = TH_DATA_ENTRY_META[spec.key];
   const hasPoint = spec.parts.some((x) => x.geom === "point");
-  const layers = spec.parts.map((x) => `${x.sourceLayer}`).join("／");
+  const layers = [...new Set(spec.parts.map((x) => x.sourceLayer))].join("／");
   const kinds = ["multiSelect", ...(spec.statusDefault ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
   return [spec.key, {
     key: spec.key,
@@ -1206,6 +1233,33 @@ const TH_DATA_MANIFEST_ENTRIES = Object.fromEntries(TH_DATA_SPECS.map((spec) => 
     topics: m.topics,
   }];
 })) as Record<ThDataKey, LayerManifestEntry>;
+
+/** 泰國 raster 2 層（2026-11-22 第 2 波）：PNG PMTiles，無 feature 屬性與 popup（同 phTerrain）。 */
+const TH_RASTER_META: Record<string, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  thTerrainHillshade: { theme: "底圖", group: "地形", zh: "山體陰影", alt: "Hillshade", icon: Mountain, dataset: "th_terrain", topics: ["泰國", "底圖", "地形", "陰影", "Copernicus DEM"],
+    description: "泰國山體陰影（Copernicus DEM GLO-90，約 90 m；只保留陸域，DSM）", processing: "Copernicus DEM GLO-90 → gdaldem hillshade → 泰國陸域遮罩 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；28.1 MB 走 deploy-assets；DSM 含樹冠與建物；GLO-30 待主機搬遷；沒有 feature 屬性與 popup" },
+  thTerrainRelief: { theme: "底圖", group: "地形", zh: "色別標高", alt: "Elevation Tint", icon: Mountain, dataset: "th_terrain", topics: ["泰國", "底圖", "地形", "標高", "Copernicus DEM"],
+    description: "泰國色別標高（0–2,565 m 色帶，≤0 m 與海面、鄰國透明）", processing: "Copernicus DEM GLO-90 → gdaldem color-relief（≤0 m 透明）→ 泰國陸域遮罩 → PNG raster PMTiles z5–10", note: "Copernicus DEM（免費、要署名）；DSM；沒有 feature 屬性與 popup" },
+};
+const TH_RASTER_MANIFEST_ENTRIES = Object.fromEntries(TH_RASTER_SPECS.map((spec) => {
+  const m = TH_RASTER_META[spec.key]!;
+  return [spec.key, {
+    key: spec.key,
+    country: "TH", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.steps?.[spec.steps.length - 1]?.color ?? "#9ca3af",
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `useThRasterLayer 自建 mapbox-pmtiles raster source（pmtilesRasterCustomSource）；minzoom=${spec.minzoom} maxzoom=${spec.maxzoom}，插在底圖第一個 symbol 下`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<ThRasterKey, LayerManifestEntry>;
 
 /** 越南 raster 4 層（2026-11-17 第 2、3、6 波）：PNG PMTiles，無 feature 屬性與 popup（同 caHillshade）。WDPCA 站主限定（OWNER_ONLY，圖磚走私有 owner-data）。 */
 const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec) => {
@@ -1363,6 +1417,7 @@ export const LAYER_MANIFEST = {
   ...PH_RASTER_MANIFEST_ENTRIES,
   ...VN_DATA_MANIFEST_ENTRIES,
   ...TH_DATA_MANIFEST_ENTRIES,
+  ...TH_RASTER_MANIFEST_ENTRIES,
   ...VN_RASTER_MANIFEST_ENTRIES,
   ...CA_WAVE_MANIFEST_ENTRIES,
   ...CN_DATA_MANIFEST_ENTRIES,

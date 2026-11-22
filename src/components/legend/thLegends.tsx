@@ -1,5 +1,5 @@
 // 泰國圖例（2026-11-22 第 0–1 波）：行政邊界、人口密度、規格驅動 8 層（重用菲律賓 PhSpecLegend）。SSOT：data/thDataLayers.ts。
-import { LegendNote, LegendRow, LegendTitle, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
@@ -7,7 +7,8 @@ import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import {
   TH_ADMIN_NOTES, TH_ADMIN_SOURCE, TH_DENSITY_LABELS, TH_NOT_COVERED_COLOR, TH_POPULATION_NOTES, TH_POPULATION_SOURCE, TH_SPEC_BY_KEY, phText, pickL3,
 } from "../../data/thDataLayers";
-import type { ThDataKey } from "../../data/thDataKeys";
+import type { ThDataKey, ThRasterKey } from "../../data/thDataKeys";
+import { TH_RASTER_BY_KEY } from "../../data/thWavesLayers";
 import { thDensityColors } from "../../hooks/useThLayers";
 import { PhSpecLegend } from "./phLegends";
 
@@ -51,4 +52,19 @@ export function ThPopulationLegend() {
 /** 規格驅動 8 層。 */
 export function ThDataLegend({ layerKey }: { layerKey: ThDataKey }) {
   return <PhSpecLegend spec={TH_SPEC_BY_KEY[layerKey]} />;
+}
+
+/** Raster 2 層：山體陰影畫明暗漸層，色別標高照色帶分段。 */
+export function ThRasterLegend({ layerKey }: { layerKey: ThRasterKey }) {
+  const { locale } = useLocale();
+  const spec = TH_RASTER_BY_KEY[layerKey];
+  const title = useLayerTitle(layerKey);
+  return <div>
+    <LegendTitle zh={title} />
+    {spec.steps
+      ? <SwatchSteps colors={spec.steps.map((x) => x.color)} breaks={spec.steps.map((x) => x.label)} />
+      : <SwatchGradient gradient="linear-gradient(90deg, #000000, #ffffff)" labels={[pickL3({ zh: "背光坡", en: "Shaded", ja: "陰" }, locale), pickL3({ zh: "向光坡", en: "Lit", ja: "陽" }, locale)]} />}
+    {spec.notes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
+    <LegendNote>{phText(spec.sourceShort, locale)}</LegendNote>
+  </div>;
 }

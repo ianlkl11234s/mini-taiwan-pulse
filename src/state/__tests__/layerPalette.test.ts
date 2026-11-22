@@ -115,7 +115,8 @@ describe("R7 顏色解析器", () => {
     // 2026-11-16 +2 中國第 5 波：學校、醫療（站主限定）
     // 2026-11-20 +1 台灣圖層延伸 B3：國家公園物種調查點位（自然保育主題第一個熱區層）
     // 2026-11-22 +1 泰國第 1 波：加油站
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(143);
+    // 2026-11-22 +1 泰國第 3 波：道路事故
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(144);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

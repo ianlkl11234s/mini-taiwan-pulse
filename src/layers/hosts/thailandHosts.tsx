@@ -1,10 +1,11 @@
 // 泰國 Layer Host（2026-11-22 第 0–1 波）。比照 hosts/vietnamHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
 
 import { usePhDataLayer } from "../../hooks/usePhLayers";
-import { useThAdminLayers, useThPopulationLayers } from "../../hooks/useThLayers";
+import { useThAdminLayers, useThPopulationLayers, useThRasterLayer } from "../../hooks/useThLayers";
+import { TH_RASTER_BY_KEY } from "../../data/thWavesLayers";
 import { selectedMultiSelectValues } from "../../data/multiSelectMapbox";
 import { TH_SPEC_BY_KEY, TH_STATUS_IDS, thStatusFilter } from "../../data/thDataLayers";
-import type { ThDataKey } from "../../data/thDataKeys";
+import type { ThDataKey, ThRasterKey } from "../../data/thDataKeys";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -47,3 +48,32 @@ export const ThPowerGridHost = makeThDataHost("thPowerGrid", 0.85);
 export const ThRenewablesHost = makeThDataHost("thRenewables", 0.85);
 export const ThFuelStationsHost = makeThDataHost("thFuelStations", 0.8);
 export const ThPipelinesHost = makeThDataHost("thPipelines", 0.85);
+
+// ── 第 2–4 波（2026-11-22）：規格在 thWavesLayers.ts，預設透明度取 spec.opacity
+const W = (key: ThDataKey) => makeThDataHost(key, TH_SPEC_BY_KEY[key].opacity ?? 0.85);
+export const ThPlaceNamesHost = W("thPlaceNames");
+export const ThElectionConstituenciesHost = W("thElectionConstituencies");
+export const ThHighlandVillagesHost = W("thHighlandVillages");
+export const ThProvinceSocioeconomicHost = W("thProvinceSocioeconomic");
+export const ThFootbridgesHost = W("thFootbridges");
+export const ThRailCrossingsHost = W("thRailCrossings");
+export const ThRoadAccidentsHost = W("thRoadAccidents");
+export const ThEecHost = W("thEec");
+export const ThFloodHistoryHost = W("thFloodHistory");
+export const ThBasinsHost = W("thBasins");
+export const ThIrrigationProjectsHost = W("thIrrigationProjects");
+export const ThLandslideSafePointsHost = W("thLandslideSafePoints");
+export const ThLandfillsHost = W("thLandfills");
+
+function makeThRasterHost(key: ThRasterKey): LayerHostComponent {
+  const spec = TH_RASTER_BY_KEY[key];
+  const ThRasterHost: LayerHostComponent = ({ deps }) => {
+    bumpHostRender(`useTh${key.slice(2)}Layer`);
+    const p = useKeyOverlayParams(key);
+    useThRasterLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? spec.opacity);
+    return null;
+  };
+  return ThRasterHost;
+}
+export const ThTerrainHillshadeHost = makeThRasterHost("thTerrainHillshade");
+export const ThTerrainReliefHost = makeThRasterHost("thTerrainRelief");

@@ -2082,5 +2082,20 @@
   "layer.thPowerGrid": "送電線・変電所（タイ）",
   "layer.thRenewables": "風力・太陽光発電（タイ）",
   "layer.thFuelStations": "ガソリンスタンド（タイ）",
-  "layer.thPipelines": "貯蔵タンク・パイプライン（タイ）"
+  "layer.thPipelines": "貯蔵タンク・パイプライン（タイ）",
+  "layer.thTerrainHillshade": "陰影起伏（タイ）",
+  "layer.thTerrainRelief": "段彩標高（タイ）",
+  "layer.thPlaceNames": "集落地名（タイ）",
+  "layer.thElectionConstituencies": "国会選挙区（タイ）",
+  "layer.thHighlandVillages": "高地村（タイ）",
+  "layer.thProvinceSocioeconomic": "県別社会経済：ジニ係数と所得変動（タイ）",
+  "layer.thFootbridges": "歩道橋（タイ）",
+  "layer.thRailCrossings": "国道と鉄道の交差（タイ）",
+  "layer.thRoadAccidents": "道路交通事故 2025（タイ）",
+  "layer.thEec": "東部経済回廊 EEC（タイ）",
+  "layer.thFloodHistory": "過去の浸水範囲 2005–2012（タイ）",
+  "layer.thBasins": "流域・DWR 25 主流域（タイ）",
+  "layer.thIrrigationProjects": "灌漑プロジェクト（タイ）",
+  "layer.thLandslideSafePoints": "土砂災害一時避難場所（タイ）",
+  "layer.thLandfills": "廃棄物処分場・処理施設（タイ）"
 }

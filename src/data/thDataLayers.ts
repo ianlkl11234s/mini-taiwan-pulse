@@ -9,6 +9,7 @@
  * Overture 來源（電網、儲槽管線、加油站）寫「Overture 補缺（非官方）」；OSM 層署名 © OpenStreetMap contributors（ODbL）。
  */
 import type { ThDataKey } from "./thDataKeys";
+import { TH_WAVE_SPECS } from "./thWavesLayers";
 import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhSizeBands } from "./phDataLayers";
 
 export type { L3 } from "./phDataLayers";
@@ -92,6 +93,8 @@ export const TH_POP_STATUS: Record<string, L3> = {
 export interface ThLayerSpec extends PhLayerSpec<ThDataKey> {
   /** 狀態多選（GEM 電廠）；沒有 status 欄的點（DEDE、OSM）不受影響。預設值見 `statusDefault` */
   statusDefault?: readonly string[];
+  /** 類別多選的預設選取（類別 id）；省略＝全選。選區兩版、儲槽管線、府級社經兩指標用 */
+  defaultCats?: readonly string[];
 }
 
 const str = (v: unknown) => (v == null ? "" : String(v));
@@ -228,10 +231,8 @@ const PIPE_CATS: readonly PhCat[] = [
   { id: "other", values: ["other"], color: "#a78bfa", label: l3("其他", "Other", "その他") },
   { id: "unknown", values: ["unknown"], color: "#94a3b8", label: l3("未標示內容物", "Contents not tagged", "内容物の記載なし") },
 ];
-/** 圖層預設只開油氣與 LNG 接收站；「未標示」可自行打開（主 agent 2026-11-22）。 */
-export const TH_PIPELINES_DEFAULT_CATS = ["oil_gas", "lng_terminal"] as const;
 
-export const TH_DATA_SPECS: readonly ThLayerSpec[] = [
+const TH_W1_SPECS: readonly ThLayerSpec[] = [
   {
     key: "thTransportHubs", file: "th_transport_hubs.pmtiles", sourceId: "th-transport-hubs", srcMinzoom: 4, srcMaxzoom: 14, color: AIRPORT_COLOR, count: 706,
     parts: [{ id: "th-hubs-circle", sourceLayer: "hubs", geom: "point", minzoom: 4, cat: hubsCat, filter: HUB_NAMED_FILTER }],
@@ -460,6 +461,8 @@ export const TH_DATA_SPECS: readonly ThLayerSpec[] = [
       { id: "th-pipeline-facilities-circle", sourceLayer: "facilities", geom: "point", minzoom: 5, cat: pipeFacilityCat, small: true },
     ],
     cats: PIPE_CATS,
+    /** 預設只顯示油氣與 LNG 接收站；「未標示」可自行打開（主 agent 2026-11-22） */
+    defaultCats: ["oil_gas", "lng_terminal"],
     title: { props: ["name", "name_en"], fallback: l3("儲槽、管線", "Storage tank / pipeline", "貯蔵タンク・パイプライン"),
       fallbackBy: { prop: "kind", map: { storage_tank: l3("儲槽", "Storage tank", "貯蔵タンク"), gasometer: l3("氣櫃", "Gasometer", "ガスホルダー"), lng_terminal: l3("LNG 接收站", "LNG terminal", "LNG 受入基地"), pipeline: l3("管線", "Pipeline", "パイプライン") } } },
     fields: [
@@ -488,5 +491,8 @@ export const TH_DATA_SPECS: readonly ThLayerSpec[] = [
     loading: l3("泰國儲槽與管線載入中", "Loading Thailand tanks and pipelines", "タイの貯蔵タンクとパイプラインを読み込み中"),
   },
 ];
+
+// 第 2–4 波（2026-11-22）：規格在 thWavesLayers.ts
+export const TH_DATA_SPECS: readonly ThLayerSpec[] = [...TH_W1_SPECS, ...TH_WAVE_SPECS];
 
 export const TH_SPEC_BY_KEY: Readonly<Record<ThDataKey, ThLayerSpec>> = Object.fromEntries(TH_DATA_SPECS.map((s) => [s.key, s])) as Record<ThDataKey, ThLayerSpec>;

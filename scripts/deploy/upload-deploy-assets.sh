@@ -723,6 +723,21 @@ for f in \
   public/world/th_renewables.pmtiles \
   public/world/th_fuel_stations.pmtiles \
   public/world/th_pipelines.pmtiles \
+  public/world/th_terrain_hillshade.pmtiles \
+  public/world/th_terrain_relief.pmtiles \
+  public/world/th_place_names.pmtiles \
+  public/world/th_election_constituencies.pmtiles \
+  public/world/th_highland_villages.pmtiles \
+  public/world/th_province_socioeconomic.pmtiles \
+  public/world/th_footbridges.pmtiles \
+  public/world/th_rail_crossings.pmtiles \
+  public/world/th_road_accidents.pmtiles \
+  public/world/th_eec.pmtiles \
+  public/world/th_flood_history.pmtiles \
+  public/world/th_basins.pmtiles \
+  public/world/th_irrigation_projects.pmtiles \
+  public/world/th_landslide_safe_points.pmtiles \
+  public/world/th_landfills.pmtiles \
   public/world/vn_transport_hubs_odm.pmtiles \
   public/world/vn_transport_hubs_osm.pmtiles \
   public/world/vn_major_roads_v2.pmtiles \

@@ -72,8 +72,8 @@ import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS, PH_RASTER_KEYS } from "../data/phDataKeys";
 import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationLegend, PhRasterLegend, PhSpecLegend } from "./legend/phLegends";
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
-import { TH_DATA_KEYS } from "../data/thDataKeys";
-import { ThAdminBoundariesLegend, ThDataLegend, ThPopulationLegend } from "./legend/thLegends";
+import { TH_DATA_KEYS, TH_RASTER_KEYS } from "../data/thDataKeys";
+import { ThAdminBoundariesLegend, ThDataLegend, ThPopulationLegend, ThRasterLegend } from "./legend/thLegends";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
@@ -381,6 +381,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "thAdminBoundaries", render: () => <ThAdminBoundariesLegend /> },
   { id: "thPopulation", render: () => <ThPopulationLegend /> },
   ...TH_DATA_KEYS.map((key) => ({ id: key, render: () => <ThDataLegend layerKey={key} /> })),
+  ...TH_RASTER_KEYS.map((key) => ({ id: key, render: () => <ThRasterLegend layerKey={key} /> })),
   ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
   // 加拿大第 3–8 波（2026-11-17）：規格驅動 36 層，重用菲律賓 PhSpecLegend
   ...CA_WAVE_KEYS.map((key) => ({ id: key, render: () => <PhSpecLegend spec={CA_WAVE_SPEC_BY_KEY[key]} /> })),

@@ -461,6 +461,11 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "人口社經",
     "交通",
     "能源",
+    // 第 2–4 波（2026-11-22）
+    "工商登記",
+    "災害",
+    "水資源",
+    "廢棄物",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -3648,13 +3653,22 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "底圖",
     country: "TH",
     defaultCollapsed: true,
-    groups: [{ title: "行政邊界", layers: [fromManifest("thAdminBoundaries")] }],
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("thAdminBoundaries")] },
+      { title: "地形", layers: [fromManifest("thTerrainHillshade"), fromManifest("thTerrainRelief")] },
+      { title: "地名", layers: [fromManifest("thPlaceNames")] },
+    ],
   },
   {
     title: "人口社經",
     country: "TH",
     defaultCollapsed: true,
-    groups: [{ title: "人口分布", layers: [fromManifest("thPopulation")] }],
+    groups: [
+      { title: "人口分布", layers: [fromManifest("thPopulation")] },
+      { title: "府級社經", layers: [fromManifest("thProvinceSocioeconomic")] },
+      { title: "高地村", layers: [fromManifest("thHighlandVillages")] },
+      { title: "選區", layers: [fromManifest("thElectionConstituencies")] },
+    ],
   },
   {
     title: "交通",
@@ -3664,6 +3678,8 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "場站", layers: [fromManifest("thStations")] },
       { title: "樞紐節點", layers: [fromManifest("thTransportHubs")] },
       { title: "路網", layers: [fromManifest("thMajorRoads")] },
+      { title: "道路設施", layers: [fromManifest("thFootbridges"), fromManifest("thRailCrossings")] },
+      { title: "交通事故", layers: [fromManifest("thRoadAccidents")] },
     ],
   },
   {
@@ -3678,6 +3694,37 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "石化 · 加油站", layers: [fromManifest("thFuelStations")] },
       { title: "管線與儲槽", layers: [fromManifest("thPipelines")] },
     ],
+  },
+  // 第 2–4 波（2026-11-22）
+  {
+    title: "工商登記",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [{ title: "產業園區", layers: [fromManifest("thEec")] }],
+  },
+  {
+    title: "災害",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "淹水", layers: [fromManifest("thFloodHistory")] },
+      { title: "避難場所", layers: [fromManifest("thLandslideSafePoints")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "流域", layers: [fromManifest("thBasins")] },
+      { title: "灌溉", layers: [fromManifest("thIrrigationProjects")] },
+    ],
+  },
+  {
+    title: "廢棄物",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [{ title: "垃圾場址", layers: [fromManifest("thLandfills")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -4336,6 +4383,11 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口社經": "city",
     "交通": "city",
     "能源": "environment",
+    // 第 2–4 波（2026-11-22）：大分類同台灣、越南對應主題
+    "工商登記": "city",
+    "災害": "safety",
+    "水資源": "environment",
+    "廢棄物": "environment",
   },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
@@ -4641,6 +4693,10 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口社經": { zh: "人口社經", sub: "People" },
     "交通": { zh: "交通", sub: "Transport" },
     "能源": { zh: "能源", sub: "Energy" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "災害": { zh: "災害", sub: "Hazard" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "廢棄物": { zh: "廢棄物", sub: "Waste" },
   },
   CN: {
     // 中國主題副標用英文（比照菲律賓）

@@ -3,8 +3,9 @@ import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpe
 import { BOUNDARY_GRAY, MAP_SEAM } from "../map/mapStyleScale";
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
-import { TH_ADMIN_COLOR, TH_ADMIN_LEVELS, TH_DENSITY_BREAKS, TH_NOT_COVERED_COLOR, TH_POP_LEVELS, type ThAdminLevel, type ThPopLevel } from "../data/thDataLayers";
+import { phText, TH_ADMIN_COLOR, TH_ADMIN_LEVELS, TH_DENSITY_BREAKS, TH_NOT_COVERED_COLOR, TH_POP_LEVELS, type ThAdminLevel, type ThPopLevel } from "../data/thDataLayers";
 import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import type { ThRasterSpec } from "../data/thWavesLayers";
 
 /**
  * 泰國第 0–1 波（2026-11-22）：行政邊界（國界／府／amphoe／tambon 四層級 select）與人口（府／amphoe 兩層級 select）。靜態 PMTiles、不訂閱時間。
@@ -123,4 +124,24 @@ export function useThPopulationLayers(mapRef: MapRef, visible: boolean, opacity:
   const level: ThPopLevel = TH_POP_LEVELS[levelIdx ?? -1]?.value ?? "province";
   usePopLevel(mapRef, 0, visible && level === "province", opacity, isDark);
   usePopLevel(mapRef, 1, visible && level === "amphoe", opacity, isDark);
+}
+
+// ═════════════════════════ Raster 2 層（2026-11-22 第 2 波） ═════════════════════════
+
+function firstSymbolLayerId(map: MapboxMap): string | undefined {
+  try { return map.getStyle()?.layers?.find((layer) => layer.type === "symbol")?.id; } catch { return undefined; }
+}
+
+/** 山體陰影、色別標高：PNG raster PMTiles，比照 usePhRasterLayer 插在底圖第一個 symbol 下、地球儀走 pmtilesRasterCustomSource。 */
+export function useThRasterLayer(mapRef: MapRef, spec: ThRasterSpec, visible: boolean, opacity: number) {
+  const source: SourceSpec = { id: spec.sourceId, file: spec.file, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: phText(spec.sourceShort), loading: spec.loading, raster: { tileSize: 256 } };
+  useGbPmtilesLayers(mapRef, source, visible, () => [{
+    id: spec.layerId,
+    layer: () => ({
+      id: spec.layerId, type: "raster", source: source.id, minzoom: spec.minzoom,
+      layout: { visibility: "none" }, paint: { "raster-opacity": clamp01(opacity), "raster-fade-duration": 0 },
+    } as unknown as AnyLayer),
+    update: (map) => map.setPaintProperty(spec.layerId, "raster-opacity", clamp01(opacity)),
+    before: firstSymbolLayerId,
+  }], [spec.key, opacity]);
 }

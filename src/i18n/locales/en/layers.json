@@ -2082,5 +2082,20 @@
   "layer.thPowerGrid": "Power Lines & Substations (Thailand)",
   "layer.thRenewables": "Wind & Solar (Thailand)",
   "layer.thFuelStations": "Fuel Stations (Thailand)",
-  "layer.thPipelines": "Storage Tanks & Pipelines (Thailand)"
+  "layer.thPipelines": "Storage Tanks & Pipelines (Thailand)",
+  "layer.thTerrainHillshade": "Hillshade (Thailand)",
+  "layer.thTerrainRelief": "Elevation Tint (Thailand)",
+  "layer.thPlaceNames": "Place Names (Thailand)",
+  "layer.thElectionConstituencies": "Electoral Constituencies (Thailand)",
+  "layer.thHighlandVillages": "Highland Villages (Thailand)",
+  "layer.thProvinceSocioeconomic": "Province Socio-economics: Gini & Income Change (Thailand)",
+  "layer.thFootbridges": "Pedestrian Footbridges (Thailand)",
+  "layer.thRailCrossings": "Highway–Railway Crossings (Thailand)",
+  "layer.thRoadAccidents": "Road Traffic Accidents, 2025 (Thailand)",
+  "layer.thEec": "Eastern Economic Corridor, EEC (Thailand)",
+  "layer.thFloodHistory": "Historical Flood Extent, 2005–2012 (Thailand)",
+  "layer.thBasins": "River Basins, DWR 25 Main Basins (Thailand)",
+  "layer.thIrrigationProjects": "Irrigation Projects (Thailand)",
+  "layer.thLandslideSafePoints": "Landslide Temporary Safe Points (Thailand)",
+  "layer.thLandfills": "Landfills & Waste Facilities (Thailand)"
 }
