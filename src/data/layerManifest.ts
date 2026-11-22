@@ -44,6 +44,8 @@ import type { PhDataKey } from "./phDataKeys";
 import { PH_WAVE_ENTRY_META } from "./phWavesMeta";
 import { PH_RASTER_SPECS } from "./phWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
+import { TH_DATA_SPECS } from "./thDataLayers";
+import type { ThDataKey } from "./thDataKeys";
 import type { VnDataKey } from "./vnDataKeys";
 import { VN_RASTER_META, VN_WAVE_ENTRY_META } from "./vnWavesMeta";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
@@ -1163,6 +1165,48 @@ const VN_DATA_MANIFEST_ENTRIES = Object.fromEntries(VN_DATA_SPECS.map((spec) => 
   }];
 })) as Record<VnDataKey, LayerManifestEntry>;
 
+/** 泰國第 1 波規格驅動 8 層（規格 SSOT 在 thDataLayers.ts；畫法重用 usePhDataLayer；主題與群組比照菲律賓、越南）。 */
+const TH_DATA_ENTRY_META: Record<ThDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  thTransportHubs: { theme: "交通", group: "樞紐節點", zh: "機場、港口與渡輪碼頭", alt: "Airports, Ports & Ferry Terminals", icon: Plane, dataset: "th_transport_hubs", topics: ["泰國", "交通", "機場", "港口", "渡輪碼頭", "NGIS", "GISTDA", "OSM"],
+    description: "泰國機場 144（NGIS L14、GISTDA Hosted，授權未明示；預設不顯示 51 筆無名機場）＋港口 38、渡輪碼頭 524（OpenStreetMap 補缺）", processing: "NGIS L14 與 GISTDA Airport 合併（座標距離配對）→ 4326；機場分類由名稱推定；HOT／HDX OSM 港口、渡輪碼頭補缺；77 府空間判定；PMTiles hubs z4–14", note: "機場授權未明示；港口與碼頭 ODbL；旅客數欄單位來源未標；無名機場前端預設濾掉" },
+  thStations: { theme: "交通", group: "場站", zh: "鐵路、渡輪車站與公車站", alt: "Rail, Ferry & Bus Stops", icon: TrainFront, dataset: "th_stations", topics: ["泰國", "交通", "車站", "鐵路", "BTS", "MRT", "SRT", "渡輪", "公車", "Namtang"],
+    description: "泰國鐵路與渡輪站 533（輕軌 BTS＋SRT 紅線、MRT、國鐵 SRT、渡輪碼頭）＋公車站 16,600（z9 起顯示）；OTP Namtang GTFS", processing: "OTP Namtang 全國 GTFS 靜態檔 stops → 依路線類型分 kind；Pakse（寮）站排除；77 府空間判定；PMTiles stations、bus_stops z4–14", note: "CC BY 4.0 僅見 Transitland 轉述；鐵路、渡輪站涵蓋 40/77 府；agency_name 不輸出" },
+  thMajorRoads: { theme: "交通", group: "路網", zh: "國道與鐵道", alt: "Highways & Railways", icon: Route, dataset: "th_major_roads", topics: ["泰國", "交通", "道路", "國道", "高速公路", "鐵道", "DOH", "NGIS"],
+    description: "泰國 DOH 國道 3,083 段（高速公路、國道、區域／府／縣級連結）＋鐵道 643 段（NGIS L02008）；授權未明示", processing: "DOH 路線中心線 BE 2568 → 4326；依 hierarchy 分 road_class；NGIS 鐵路中心線；線中點空間判定 77 府；PMTiles roads、rail z4–13", note: "授權未明示；只含 DOH 國道（無鄉道 DRR）；鐵道只有 47/77 府有線段、版本 BE 2554" },
+  thPowerPlants: { theme: "能源", group: "電力 · 廠", zh: "電廠", alt: "Power Plants", icon: Factory, dataset: "th_power_plants", topics: ["泰國", "能源", "電廠", "發電", "太陽能", "水力", "DEDE", "GEM", "OSM"],
+    description: "泰國電廠 1,367 處（DEDE 再生能源 1,076＋GEM 火力 91＋OSM 補缺 200；GEM 預設只顯示運轉中＋興建中；51 筆個人名義已遮蔽）", processing: "NGIS DEDE RE_Powerplant → 4326（個人名義記錄級遮蔽）；GEM Coal／Oil & Gas Plant Tracker 濾泰國；Overture 電廠補缺只取距官方點 >1.5 km；PMTiles plants z3–14", note: "逐筆授權：DEDE 未明示／GEM CC BY 4.0／OSM ODbL；EGAT 大水電靠 GEM／OSM；太陽能含屋頂型" },
+  thPowerGrid: { theme: "能源", group: "電力 · 電網", zh: "輸電線與變電所", alt: "Power Lines & Substations", icon: Zap, dataset: "th_power_grid", topics: ["泰國", "能源", "電網", "輸電線", "變電所", "OSM", "Overture"],
+    description: "泰國輸電線 1,524 段（依電壓分級）＋變電所 776 處（OpenStreetMap via Overture，非官方）", processing: "Overture base/infrastructure power_line／substation → 4326；依 voltage 最大值分 kv_class；PMTiles lines、substations z4–14", note: "ODbL 1.0；OSM 覆蓋不均，非官方電網圖" },
+  thRenewables: { theme: "能源", group: "再生能源", zh: "風電與太陽能", alt: "Wind & Solar", icon: Sun, dataset: "th_renewables", topics: ["泰國", "能源", "再生能源", "風電", "太陽能", "地熱", "DEDE", "OSM"],
+    description: "泰國風場 27、太陽能 562、地熱 1（DEDE，授權未明示）＋OSM 風機機組點 546（z9 起）；太陽能含屋頂型", processing: "NGIS DEDE RE_Powerplant type_code 1／6／8 與 Wind／Solar 子層對帳 → 4326；Overture generator（wind）補風機；PMTiles renewables z4–14", note: "DEDE 授權未明示、OSM ODbL；沒有點的府是未涵蓋，不是沒有" },
+  thFuelStations: { theme: "能源", group: "石化 · 加油站", zh: "加油站", alt: "Fuel Stations", icon: Fuel, dataset: "th_fuel_stations", topics: ["泰國", "能源", "加油站", "Overture", "PTT", "Bangchak", "Shell"],
+    description: "泰國加油站 14,838 處（Overture 補缺，非官方；PTT、Bangchak、Shell、Esso、Caltex、PT、Susco 分色）", processing: "Overture places taxonomy gas_station／fueling_station（confidence ≥0.5、泰國面內）→ 品牌正規化；PMTiles fuel z5–14", note: "CDLA-Permissive-2.0；筆數為登記數、可能含歇業" },
+  thPipelines: { theme: "能源", group: "管線與儲槽", zh: "儲槽與管線", alt: "Storage Tanks & Pipelines", icon: Spline, dataset: "th_pipelines", topics: ["泰國", "能源", "儲槽", "管線", "LNG", "油氣", "GEM", "OSM"],
+    description: "泰國儲槽 1,377、氣櫃 81、LNG 接收站 6（GEM）、管線 176 段；依內容物分油氣、水、污水、其他、未標示（預設只顯示油氣與 LNG）", processing: "Overture base/infrastructure storage_tank／gasometer／pipeline → 4326；GEM GGIT／GOIT 泰國列與 LNG Terminals；依 substance／content 分 content_group；PMTiles facilities、pipelines z5–14", note: "ODbL 1.0／CC BY 4.0（逐筆）；多數未標示內容物，不是油氣管線全圖；GEM 管線為示意路徑" },
+};
+const TH_DATA_MANIFEST_ENTRIES = Object.fromEntries(TH_DATA_SPECS.map((spec) => {
+  const m = TH_DATA_ENTRY_META[spec.key];
+  const hasPoint = spec.parts.some((x) => x.geom === "point");
+  const layers = spec.parts.map((x) => `${x.sourceLayer}`).join("／");
+  const kinds = ["multiSelect", ...(spec.statusDefault ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), "slider", ...(hasPoint ? ["slider"] : [])] as ("multiSelect" | "palette" | "slider")[];
+  return [spec.key, {
+    key: spec.key,
+    country: "TH", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `usePhDataLayer（泰國規格）自建 mapbox-pmtiles source；source-layer=${layers}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: kinds.length, kinds },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<ThDataKey, LayerManifestEntry>;
+
 /** 越南 raster 4 層（2026-11-17 第 2、3、6 波）：PNG PMTiles，無 feature 屬性與 popup（同 caHillshade）。WDPCA 站主限定（OWNER_ONLY，圖磚走私有 owner-data）。 */
 const VN_RASTER_MANIFEST_ENTRIES = Object.fromEntries(VN_RASTER_SPECS.map((spec) => {
   const m = VN_RASTER_META[spec.key];
@@ -1318,6 +1362,7 @@ export const LAYER_MANIFEST = {
   ...PH_DATA_MANIFEST_ENTRIES,
   ...PH_RASTER_MANIFEST_ENTRIES,
   ...VN_DATA_MANIFEST_ENTRIES,
+  ...TH_DATA_MANIFEST_ENTRIES,
   ...VN_RASTER_MANIFEST_ENTRIES,
   ...CA_WAVE_MANIFEST_ENTRIES,
   ...CN_DATA_MANIFEST_ENTRIES,
@@ -5629,6 +5674,59 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "越南 2025 年人口與人口密度（34 省；2011–2025 歷年人口折線）",
     topics: ["越南", "人口", "人口密度", "NSO", "34 省"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  // 🇹🇭 泰國 Thailand（2026-11-22 第 0–1 波：C001 行政邊界、C023 人口；其餘 8 層由 TH_DATA_MANIFEST_ENTRIES 派生）
+  // ══════════════════════════════════════════════════════════════
+  thAdminBoundaries: {
+    key: "thAdminBoundaries",
+    country: "TH", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "th_admin_boundaries", confidence: "HIGH" }],
+      processing: "OCHA COD-AB Thailand v01（HDX；來源 Royal Thai Survey Department）國界 1、府 77、amphoe／khet 928、tambon／khwaeng 7,425 → 4326；PMTiles country z2–8／province z3–10／amphoe z6–11／tambon z9–13；曼谷 khwaeng 169（官方 180，版本落後）",
+      note: "CC BY-IGO 3.0；不畫海域主張線；邊界依 OCHA 資料（含泰柬邊界段），不代表任何立場",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useThAdminLayers 自建 mapbox-pmtiles source；source-layer=country／province／amphoe／tambon（select 擇一）",
+      staticAssets: ["./world/th_admin_boundaries.pmtiles"],
+    },
+    legend: "thAdminBoundaries",
+    popup: "thAdminBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "泰國行政區界（國界、府 77、縣 928、區 7,425；OCHA COD-AB，泰文＋英文名）",
+    topics: ["泰國", "行政區", "邊界", "府", "amphoe", "tambon", "COD-AB"],
+  },
+  thPopulation: {
+    key: "thPopulation",
+    country: "TH", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口密度", alt: "Population Density", qualifier: "2025 登記" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "th_population", confidence: "HIGH" }],
+      processing: "NSO catalogapi OS_0405_01_0005_01（DOPA 戶籍登記，2021–2025）依 COD-AB pcode 接府（77）與 amphoe（928）面 → 人口密度（人／km²）；PMTiles province z3–10／amphoe z6–13",
+      note: "Creative Commons Attributions（版本號未見）；戶籍人口不是普查實住人口；tambon 沒有人口；未涵蓋畫灰，不是 0",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useThPopulationLayers 自建 mapbox-pmtiles source；source-layer=province／amphoe（select 擇一）",
+      staticAssets: ["./world/th_population.pmtiles"],
+    },
+    legend: "thPopulation",
+    popup: "thPopulation",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "泰國 2025 年戶籍人口與人口密度（府、amphoe 兩層級；2021–2025 五年人口見 popup）",
+    topics: ["泰國", "人口", "人口密度", "戶籍", "DOPA", "NSO"],
   },
   // ══════════════════════════════════════════════════════════════
   // 🇨🇳 中國 China（2026-11-13 第 0–1 波，站主限定：C001 行政邊界、C023 人口＋人口網格；其餘 6 層由 CN_DATA_MANIFEST_ENTRIES 派生）

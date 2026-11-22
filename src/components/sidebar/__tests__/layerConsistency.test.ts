@@ -627,8 +627,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("phAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("VN")].sort()).toEqual(["vnAdminBoundaries", "vnAngiangAquaculture", "vnAngiangDemo", "vnBicycleRental", "vnBridges", "vnCoalMines", "vnCourtsPrisons", "vnDams", "vnEnvisoftStations", "vnFarmTracks", "vnFieldBoundaries", "vnFinancialServices", "vnFuelStations", "vnGlideEvents", "vnHealthFacilities", "vnKindergartens", "vnLandslideSusceptibility", "vnMajorRoads", "vnNationalTouristAreas", "vnOilGas", "vnParking", "vnParks", "vnPlaceNames", "vnPlacesOfWorship", "vnPolice", "vnPopulation", "vnPostalServices", "vnPowerGrid", "vnPowerPlants", "vnProtectedAreasOdm", "vnPublicAmenities", "vnRenewables", "vnRiverbankErosion", "vnRivers", "vnSchoolCampuses", "vnSchools", "vnSoil", "vnStations", "vnTerrainHillshade", "vnTerrainRelief", "vnTourAttractions", "vnTourNature", "vnTourServices", "vnTransportHubs", "vnWaterStructures", "vnWaterSupply", "vnWdpca"]);
     expect(tw.has("vnAdminBoundaries")).toBe(false);
-    // 泰國第 0 波只有國家選項，尚無圖層（之後波次補）
-    expect([...countryLayerKeys("TH")]).toEqual([]);
+    expect([...countryLayerKeys("TH")].sort()).toEqual(["thAdminBoundaries", "thFuelStations", "thMajorRoads", "thPipelines", "thPopulation", "thPowerGrid", "thPowerPlants", "thRenewables", "thStations", "thTransportHubs"]);
+    expect(tw.has("thAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("CN")].sort()).toEqual(["cnActiveFaults", "cnAdminBoundaries", "cnAquaculture", "cnBridgesTunnels", "cnBusStops", "cnDams", "cnEez", "cnEthnicAutonomy", "cnMajorRoads", "cnMedical", "cnNatureReserves", "cnNuclearPlants", "cnPipelines", "cnPlaceNames", "cnPopulation", "cnPopulationGrid", "cnPowerGrid", "cnPowerPlants", "cnRivers", "cnSchools", "cnSoil", "cnTerrain", "cnTransportHubs", "cnWdpa"]);
     expect(tw.has("cnAdminBoundaries")).toBe(false);
   });

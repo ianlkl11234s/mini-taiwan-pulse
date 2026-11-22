@@ -1,0 +1,49 @@
+// 泰國 Layer Host（2026-11-22 第 0–1 波）。比照 hosts/vietnamHosts.tsx：一個 key 一個 Host；規格驅動層重用 usePhDataLayer。
+
+import { usePhDataLayer } from "../../hooks/usePhLayers";
+import { useThAdminLayers, useThPopulationLayers } from "../../hooks/useThLayers";
+import { selectedMultiSelectValues } from "../../data/multiSelectMapbox";
+import { TH_SPEC_BY_KEY, TH_STATUS_IDS, thStatusFilter } from "../../data/thDataLayers";
+import type { ThDataKey } from "../../data/thDataKeys";
+import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
+import { useKeyOverlayParams } from "../layerParamsAccess";
+
+/** 行政邊界：國界、府、amphoe、tambon 四層級（同一個 PMTiles，select 切換）。 */
+export const ThAdminHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useThAdminLayers");
+  const p = useKeyOverlayParams("thAdminBoundaries");
+  useThAdminLayers(deps.mapRef, deps.layerVisibility.thAdminBoundaries, p.thAdminBoundariesOpacity ?? 0.85, p.thAdminBoundariesLevelIdx, deps.isDarkTheme);
+  return null;
+};
+
+/** 人口（DOPA 戶籍登記）：府、amphoe 兩層級人口密度，未涵蓋畫灰。 */
+export const ThPopulationHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useThPopulationLayers");
+  const p = useKeyOverlayParams("thPopulation");
+  useThPopulationLayers(deps.mapRef, deps.layerVisibility.thPopulation, p.thPopulationOpacity ?? 0.7, p.thPopulationLevelIdx, deps.isDarkTheme);
+  return null;
+};
+
+/** 規格驅動 8 層（規格見 data/thDataLayers.ts）；電廠另有狀態多選。 */
+function makeThDataHost(key: ThDataKey, fallbackOpacity: number): LayerHostComponent {
+  const spec = TH_SPEC_BY_KEY[key];
+  const hookId = `useTh${key.slice(2)}Layer`;
+  const ThDataHost: LayerHostComponent = ({ deps }) => {
+    bumpHostRender(hookId);
+    const p = useKeyOverlayParams(key);
+    const statusMask = p[`${key}StatusMask`];
+    const status = statusMask === undefined || !Number.isFinite(statusMask) ? undefined : selectedMultiSelectValues(statusMask, TH_STATUS_IDS);
+    usePhDataLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? fallbackOpacity, p[`${key}Scale`] ?? 1, deps.isDarkTheme, p[`${key}CategoryMask`], thStatusFilter(spec, status));
+    return null;
+  };
+  return ThDataHost;
+}
+
+export const ThTransportHubsHost = makeThDataHost("thTransportHubs", 0.85);
+export const ThStationsHost = makeThDataHost("thStations", 0.85);
+export const ThMajorRoadsHost = makeThDataHost("thMajorRoads", 0.85);
+export const ThPowerPlantsHost = makeThDataHost("thPowerPlants", 0.85);
+export const ThPowerGridHost = makeThDataHost("thPowerGrid", 0.85);
+export const ThRenewablesHost = makeThDataHost("thRenewables", 0.85);
+export const ThFuelStationsHost = makeThDataHost("thFuelStations", 0.8);
+export const ThPipelinesHost = makeThDataHost("thPipelines", 0.85);

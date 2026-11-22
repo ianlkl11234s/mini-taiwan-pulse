@@ -2072,5 +2072,15 @@
   "layer.navNotices": "航行警報（航船布告）",
   "layer.tideSwellAlerts": "大潮・うねり警戒",
   "layer.mapchallengeDay23TasteTerms": "店名に含まれる小吃の語",
-  "layer.mapchallengeDay23TasteVariants": "同じ料理、異なる表記"
+  "layer.mapchallengeDay23TasteVariants": "同じ料理、異なる表記",
+  "layer.thAdminBoundaries": "行政区域界（タイ）",
+  "layer.thPopulation": "人口密度（タイ、2025 年住民登録）",
+  "layer.thTransportHubs": "空港・港・フェリーターミナル（タイ）",
+  "layer.thStations": "鉄道・フェリー・バス停（タイ）",
+  "layer.thMajorRoads": "国道・鉄道（タイ）",
+  "layer.thPowerPlants": "発電所（タイ）",
+  "layer.thPowerGrid": "送電線・変電所（タイ）",
+  "layer.thRenewables": "風力・太陽光発電（タイ）",
+  "layer.thFuelStations": "ガソリンスタンド（タイ）",
+  "layer.thPipelines": "貯蔵タンク・パイプライン（タイ）"
 }

@@ -713,6 +713,16 @@ for f in \
   public/world/vn_admin_boundaries.pmtiles \
   public/world/vn_population.pmtiles \
   public/world/vn_stations_v2.pmtiles \
+  public/world/th_admin_boundaries.pmtiles \
+  public/world/th_population.pmtiles \
+  public/world/th_transport_hubs.pmtiles \
+  public/world/th_stations.pmtiles \
+  public/world/th_major_roads.pmtiles \
+  public/world/th_power_plants.pmtiles \
+  public/world/th_power_grid.pmtiles \
+  public/world/th_renewables.pmtiles \
+  public/world/th_fuel_stations.pmtiles \
+  public/world/th_pipelines.pmtiles \
   public/world/vn_transport_hubs_odm.pmtiles \
   public/world/vn_transport_hubs_osm.pmtiles \
   public/world/vn_major_roads_v2.pmtiles \

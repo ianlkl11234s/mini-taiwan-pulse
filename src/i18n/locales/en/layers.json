@@ -2072,5 +2072,15 @@
   "layer.navNotices": "Navigational Notices",
   "layer.tideSwellAlerts": "Tide & Swell Alerts",
   "layer.mapchallengeDay23TasteTerms": "Snack Words in Shop Names",
-  "layer.mapchallengeDay23TasteVariants": "Same Dish, Different Characters"
+  "layer.mapchallengeDay23TasteVariants": "Same Dish, Different Characters",
+  "layer.thAdminBoundaries": "Administrative Boundaries (Thailand)",
+  "layer.thPopulation": "Population Density (Thailand, 2025 Registered)",
+  "layer.thTransportHubs": "Airports, Ports & Ferry Terminals (Thailand)",
+  "layer.thStations": "Rail, Ferry & Bus Stops (Thailand)",
+  "layer.thMajorRoads": "Highways & Railways (Thailand)",
+  "layer.thPowerPlants": "Power Plants (Thailand)",
+  "layer.thPowerGrid": "Power Lines & Substations (Thailand)",
+  "layer.thRenewables": "Wind & Solar (Thailand)",
+  "layer.thFuelStations": "Fuel Stations (Thailand)",
+  "layer.thPipelines": "Storage Tanks & Pipelines (Thailand)"
 }

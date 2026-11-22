@@ -456,7 +456,11 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "農業",
   ],
   TH: [
-    // 泰國（2026-11-22 第 0 波：只有國家選項，主題待圖層規格；title 沿用台灣主題中文短名）
+    // 泰國（2026-11-22 第 0–1 波：行政界、人口、交通、能源；title 沿用台灣主題中文短名，比照菲律賓、越南）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -3638,6 +3642,45 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇹🇭 泰國（2026-11-22 第 0–1 波：行政邊界、人口、交通、能源；群組比照菲律賓同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [{ title: "行政邊界", layers: [fromManifest("thAdminBoundaries")] }],
+  },
+  {
+    title: "人口社經",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("thPopulation")] }],
+  },
+  {
+    title: "交通",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("thStations")] },
+      { title: "樞紐節點", layers: [fromManifest("thTransportHubs")] },
+      { title: "路網", layers: [fromManifest("thMajorRoads")] },
+    ],
+  },
+  {
+    // 圖層名「儲槽與管線」，不叫「油氣管線」（來源不完整，多數未標示內容物）
+    title: "能源",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("thPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("thPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("thRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("thFuelStations")] },
+      { title: "管線與儲槽", layers: [fromManifest("thPipelines")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇻🇳 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源、環境監測站、安江示範；群組比照菲律賓）
   // ───────────────────────────────────────────────────────────────
   {
@@ -4287,7 +4330,13 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
-  TH: {}, // 泰國第 0 波：尚無主題（2026-11-22）
+  TH: {
+    // 泰國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓、越南）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+  },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
     "底圖": "baseline",
@@ -4586,7 +4635,13 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口": { zh: "人口", sub: "Population" },
     "社經": { zh: "社經", sub: "Socio-economic" },
   },
-  TH: {}, // 泰國第 0 波：尚無主題（2026-11-22）
+  TH: {
+    // 泰國主題副標用英文（比照菲律賓、越南）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+  },
   CN: {
     // 中國主題副標用英文（比照菲律賓）
     "底圖": { zh: "底圖", sub: "Base Map" },
