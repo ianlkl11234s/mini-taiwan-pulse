@@ -105,6 +105,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN } from "./mapchallengeDay21Types";
+import { MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
@@ -1811,6 +1812,25 @@ export const LAYER_PARAMS_SPEC = {
       default: MAPCHALLENGE_DAY21_YEAR_MAX, min: MAPCHALLENGE_DAY21_YEAR_MIN, max: MAPCHALLENGE_DAY21_YEAR_MAX, step: 1,
     },
     { kind: "toggle", category: "data", name: "mapchallengeDay21OsmRoadsNewOnly", label: "只看當年新增", default: false },
+  ],
+  // 30 天地圖挑戰 Day 23 味覺：家數圓（泡泡 B 階，大小滑桿乘在運算式上）；選單改 filter（overlayRegistry rebuildOnParamKeys）。
+  mapchallengeDay23TasteTerms: [
+    opacitySlider("mapchallengeDay23TasteTermsOpacity", 0.85),
+    scaleSlider("mapchallengeDay23TasteTermsScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay23TasteTermsTerm", label: "店名用詞", default: MAPCHALLENGE_DAY23_TERMS[0].value,
+      options: MAPCHALLENGE_DAY23_TERMS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay23TasteTermsTermIdx", encode: MAPCHALLENGE_DAY23_TERMS.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay23TasteVariants: [
+    opacitySlider("mapchallengeDay23TasteVariantsOpacity", 0.85),
+    scaleSlider("mapchallengeDay23TasteVariantsScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay23TasteVariantsGroup", label: "寫法組", default: MAPCHALLENGE_DAY23_VARIANT_GROUPS[0].value,
+      options: MAPCHALLENGE_DAY23_VARIANT_GROUPS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay23TasteVariantsGroupIdx", encode: MAPCHALLENGE_DAY23_VARIANT_GROUPS.map((o) => o.value),
+    },
   ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),

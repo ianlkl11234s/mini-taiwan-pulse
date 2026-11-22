@@ -51,6 +51,11 @@ type GisLayerEntry = { layers: string[]; type: FeatureInfo["layerType"] };
  * GIS_LAYERS 的陣列字面已約 1,000 筆，再多一筆物件字面 tsc 會報 TS2590（union type too complex，2026-11-21 Day 21 實測）。
  * 新增的條目先宣告成具名常數（型別已定，不再增加字面 union），再在 GIS_LAYERS 對應位置展開。
  */
+/** 30 天地圖挑戰 Day 23 味覺：兩級格網（res 6／7）的家數圓；光暈不可點 */
+const MAPCHALLENGE_DAY23_CLICK_LAYERS: GisLayerEntry[] = [
+  { layers: ["mapchallenge-day23-taste-terms-circle-r6", "mapchallenge-day23-taste-terms-circle-r7"], type: "mapchallengeDay23TasteTerms" },
+  { layers: ["mapchallenge-day23-taste-variants-circle-r6", "mapchallenge-day23-taste-variants-circle-r7"], type: "mapchallengeDay23TasteVariants" },
+];
 const MAPCHALLENGE_DAY21_CLICK_LAYERS: GisLayerEntry[] = [
   { layers: ["mapchallenge-day21-osm-roads-line"], type: "mapchallengeDay21OsmRoads" },
 ];
@@ -64,6 +69,8 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["mapchallenge-day06-coast-circle", "mapchallenge-day06-coast-line"], type: "mapchallengeDay06Coast" },
   // 👃 30 天地圖挑戰 Day 19 氣味：裁罰設施泡泡、潛勢層的設施點／棄置場址（hook 自建）與盛行風箭頭在陣列開頭；陳情網格面見下方面層段
   { layers: ["mapchallenge-day19-penalties-circle"], type: "mapchallengeDay19Penalties" },
+  // 🍜 30 天地圖挑戰 Day 23 味覺：六角格家數圓（小目標，放前段）
+  ...MAPCHALLENGE_DAY23_CLICK_LAYERS,
   { layers: ["mapchallenge-day19-facilities-circle", "mapchallenge-day19-dumping-circle", "mapchallenge-day19-wind-line"], type: "mapchallengeDay19Potential" },
   { layers: ["harm-reduction-prevention-centers-circle", "harm-reduction-prevention-centers-glow"], type: "harmReductionPreventionCenters" },
   { layers: ["harm-reduction-needle-circle", "harm-reduction-needle-glow"], type: "harmReductionNeedle" },

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2080,
+    "keyCount": 2082,
     "sections": [
       "gisLayers",
       "overlays",
@@ -33,6 +33,20 @@
         "mapchallenge-day19-penalties-circle"
       ],
       "type": "mapchallengeDay19Penalties"
+    },
+    {
+      "layers": [
+        "mapchallenge-day23-taste-terms-circle-r6",
+        "mapchallenge-day23-taste-terms-circle-r7"
+      ],
+      "type": "mapchallengeDay23TasteTerms"
+    },
+    {
+      "layers": [
+        "mapchallenge-day23-taste-variants-circle-r6",
+        "mapchallenge-day23-taste-variants-circle-r7"
+      ],
+      "type": "mapchallengeDay23TasteVariants"
     },
     {
       "layers": [
@@ -119686,6 +119700,1110 @@
       ],
       "sourceId": "mapchallenge-day21-osm-roads",
       "sourceUrl": "./mapchallenge/day21_osm_road_years.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay23TasteTerms",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "beefSoup"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              6
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 9,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "term"
+                ],
+                "beefSoup",
+                "#ff6b5e",
+                "kongRou",
+                "#d9905a",
+                "turkeyRice",
+                "#ffd166",
+                "fanTang",
+                "#7fd6c2",
+                "yiMian",
+                "#f4a259",
+                "eel",
+                "#c9a0ff",
+                "rouZaoFan",
+                "#ff8fab",
+                "banTiao",
+                "#8ecae6",
+                "rouYuan",
+                "#b8e986",
+                "wanGuo",
+                "#f1e3c0",
+                "urn",
+                "#e07a5f",
+                "liveFish",
+                "#64aaff",
+                "#ff6b5e"
+              ],
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "term"
+                ],
+                "beefSoup",
+                "#db4a40",
+                "kongRou",
+                "#ae6932",
+                "turkeyRice",
+                "#987300",
+                "fanTang",
+                "#2b8775",
+                "yiMian",
+                "#b46712",
+                "eel",
+                "#8e66bf",
+                "rouZaoFan",
+                "#c15775",
+                "banTiao",
+                "#3281a1",
+                "rouYuan",
+                "#59841e",
+                "wanGuo",
+                "#8e7533",
+                "urn",
+                "#c05d43",
+                "liveFish",
+                "#357bcc",
+                "#db4a40"
+              ],
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r6",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "beefSoup"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              6
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "maxzoom": 9,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "term"
+                ],
+                "beefSoup",
+                "#ff6b5e",
+                "kongRou",
+                "#d9905a",
+                "turkeyRice",
+                "#ffd166",
+                "fanTang",
+                "#7fd6c2",
+                "yiMian",
+                "#f4a259",
+                "eel",
+                "#c9a0ff",
+                "rouZaoFan",
+                "#ff8fab",
+                "banTiao",
+                "#8ecae6",
+                "rouYuan",
+                "#b8e986",
+                "wanGuo",
+                "#f1e3c0",
+                "urn",
+                "#e07a5f",
+                "liveFish",
+                "#64aaff",
+                "#ff6b5e"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "term"
+                ],
+                "beefSoup",
+                "#db4a40",
+                "kongRou",
+                "#ae6932",
+                "turkeyRice",
+                "#987300",
+                "fanTang",
+                "#2b8775",
+                "yiMian",
+                "#b46712",
+                "eel",
+                "#8e66bf",
+                "rouZaoFan",
+                "#c15775",
+                "banTiao",
+                "#3281a1",
+                "rouYuan",
+                "#59841e",
+                "wanGuo",
+                "#8e7533",
+                "urn",
+                "#c05d43",
+                "liveFish",
+                "#357bcc",
+                "#db4a40"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r6",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "beefSoup"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": null,
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "term"
+                ],
+                "beefSoup",
+                "#ff6b5e",
+                "kongRou",
+                "#d9905a",
+                "turkeyRice",
+                "#ffd166",
+                "fanTang",
+                "#7fd6c2",
+                "yiMian",
+                "#f4a259",
+                "eel",
+                "#c9a0ff",
+                "rouZaoFan",
+                "#ff8fab",
+                "banTiao",
+                "#8ecae6",
+                "rouYuan",
+                "#b8e986",
+                "wanGuo",
+                "#f1e3c0",
+                "urn",
+                "#e07a5f",
+                "liveFish",
+                "#64aaff",
+                "#ff6b5e"
+              ],
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "term"
+                ],
+                "beefSoup",
+                "#db4a40",
+                "kongRou",
+                "#ae6932",
+                "turkeyRice",
+                "#987300",
+                "fanTang",
+                "#2b8775",
+                "yiMian",
+                "#b46712",
+                "eel",
+                "#8e66bf",
+                "rouZaoFan",
+                "#c15775",
+                "banTiao",
+                "#3281a1",
+                "rouYuan",
+                "#59841e",
+                "wanGuo",
+                "#8e7533",
+                "urn",
+                "#c05d43",
+                "liveFish",
+                "#357bcc",
+                "#db4a40"
+              ],
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r7",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "beefSoup"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "term"
+                ],
+                "beefSoup",
+                "#ff6b5e",
+                "kongRou",
+                "#d9905a",
+                "turkeyRice",
+                "#ffd166",
+                "fanTang",
+                "#7fd6c2",
+                "yiMian",
+                "#f4a259",
+                "eel",
+                "#c9a0ff",
+                "rouZaoFan",
+                "#ff8fab",
+                "banTiao",
+                "#8ecae6",
+                "rouYuan",
+                "#b8e986",
+                "wanGuo",
+                "#f1e3c0",
+                "urn",
+                "#e07a5f",
+                "liveFish",
+                "#64aaff",
+                "#ff6b5e"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "term"
+                ],
+                "beefSoup",
+                "#db4a40",
+                "kongRou",
+                "#ae6932",
+                "turkeyRice",
+                "#987300",
+                "fanTang",
+                "#2b8775",
+                "yiMian",
+                "#b46712",
+                "eel",
+                "#8e66bf",
+                "rouZaoFan",
+                "#c15775",
+                "banTiao",
+                "#3281a1",
+                "rouYuan",
+                "#59841e",
+                "wanGuo",
+                "#8e7533",
+                "urn",
+                "#c05d43",
+                "liveFish",
+                "#357bcc",
+                "#db4a40"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r7",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow-r6",
+        "circle-r6",
+        "glow-r7",
+        "circle-r7"
+      ],
+      "sourceId": "mapchallenge-day23-taste-terms",
+      "sourceUrl": "./mapchallenge/day23_taste_terms.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay23TasteVariants",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "group"
+              ],
+              "rice"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              6
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 9,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "w"
+                  ],
+                  0
+                ],
+                1,
+                "#7fd6c2",
+                2,
+                "#ff8fab",
+                "#64aaff"
+              ],
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "w"
+                  ],
+                  0
+                ],
+                1,
+                "#2b8775",
+                2,
+                "#c15775",
+                "#357bcc"
+              ],
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r6",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "group"
+              ],
+              "rice"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              6
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "maxzoom": 9,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "w"
+                  ],
+                  0
+                ],
+                1,
+                "#7fd6c2",
+                2,
+                "#ff8fab",
+                "#64aaff"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "w"
+                  ],
+                  0
+                ],
+                1,
+                "#2b8775",
+                2,
+                "#c15775",
+                "#357bcc"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r6",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "group"
+              ],
+              "rice"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": null,
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "w"
+                  ],
+                  0
+                ],
+                1,
+                "#7fd6c2",
+                2,
+                "#ff8fab",
+                "#64aaff"
+              ],
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "w"
+                  ],
+                  0
+                ],
+                1,
+                "#2b8775",
+                2,
+                "#c15775",
+                "#357bcc"
+              ],
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r7",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "group"
+              ],
+              "rice"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "w"
+                  ],
+                  0
+                ],
+                1,
+                "#7fd6c2",
+                2,
+                "#ff8fab",
+                "#64aaff"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "w"
+                  ],
+                  0
+                ],
+                1,
+                "#2b8775",
+                2,
+                "#c15775",
+                "#357bcc"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r7",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow-r6",
+        "circle-r6",
+        "glow-r7",
+        "circle-r7"
+      ],
+      "sourceId": "mapchallenge-day23-taste-variants",
+      "sourceUrl": "./mapchallenge/day23_taste_variants.geojson"
     }
   ],
   "params": {
@@ -159717,6 +160835,120 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay23TasteTerms": [
+      {
+        "label": "店名用詞",
+        "options": [
+          {
+            "label": "牛肉湯",
+            "value": "beefSoup"
+          },
+          {
+            "label": "爌肉",
+            "value": "kongRou"
+          },
+          {
+            "label": "火雞肉飯",
+            "value": "turkeyRice"
+          },
+          {
+            "label": "飯湯",
+            "value": "fanTang"
+          },
+          {
+            "label": "意麵",
+            "value": "yiMian"
+          },
+          {
+            "label": "鱔魚",
+            "value": "eel"
+          },
+          {
+            "label": "肉燥飯",
+            "value": "rouZaoFan"
+          },
+          {
+            "label": "粄條／板條",
+            "value": "banTiao"
+          },
+          {
+            "label": "肉圓",
+            "value": "rouYuan"
+          },
+          {
+            "label": "碗粿",
+            "value": "wanGuo"
+          },
+          {
+            "label": "甕（甕缸雞類）",
+            "value": "urn"
+          },
+          {
+            "label": "活魚",
+            "value": "liveFish"
+          }
+        ],
+        "type": "select",
+        "value": "beefSoup"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay23TasteVariants": [
+      {
+        "label": "寫法組",
+        "options": [
+          {
+            "label": "魯肉飯／滷肉飯／肉燥飯",
+            "value": "rice"
+          },
+          {
+            "label": "粄條／板條",
+            "value": "banTiao"
+          },
+          {
+            "label": "爌肉／焢肉／控肉",
+            "value": "kongRou"
+          }
+        ],
+        "type": "select",
+        "value": "rice"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "marineEcologicalMonitoringSites": [

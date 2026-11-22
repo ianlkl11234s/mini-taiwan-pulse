@@ -52,6 +52,9 @@ export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
   mapchallengeDay17DarkRoads: /^glow-/,
   // 30 天地圖挑戰 Day 6 祠廟「同名原址」外圈（資料編碼：14 處今天仍有同名寺廟，2026-11-06 使用者要求；map-layers.md §3.1 P-6 例外）
   mapchallengeDay06Temples1921: /^same-mark$/,
+  // 30 天地圖挑戰 Day 23 味覺「發光圓點」（靜態圓光暈；站主 2026-11-22 指定，map-layers.md §3.1 P-6 例外）：光暈跟著家數圓放大，是同一筆資料的呈現
+  mapchallengeDay23TasteTerms: /^glow-/,
+  mapchallengeDay23TasteVariants: /^glow-/,
   // 2026 選舉活動「位置精度外環」：代表點（聚落／鄉鎮市區／縣市）外圈＝資料品質編碼，陣營色描邊、粗細依精度（2026-11-08 使用者核准設計稿 A＋B 版）
   electionEvents2026: /^precision$/,
 };

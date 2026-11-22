@@ -59,6 +59,14 @@ import {
   mapchallengeDay19CategoryColor, mapchallengeDay19DensOpacityExpr, mapchallengeDay19PenaltyRadiusExpr, mapchallengeDay19RatioColorExpr, mapchallengeDay19TopColorExpr,
 } from "../data/mapchallengeDay19Style";
 import { MAPCHALLENGE_DAY21_ATTRIBUTION, MAPCHALLENGE_DAY21_ROADS_SOURCE_LAYER, MAPCHALLENGE_DAY21_ROADS_URL, mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
+import {
+  MAPCHALLENGE_DAY23_ATTRIBUTION, MAPCHALLENGE_DAY23_GLOW, MAPCHALLENGE_DAY23_RES, MAPCHALLENGE_DAY23_SWITCH_ZOOM, MAPCHALLENGE_DAY23_TERMS_URL, MAPCHALLENGE_DAY23_VARIANTS_URL,
+  mapchallengeDay23GroupAt, mapchallengeDay23TermAt,
+} from "../data/mapchallengeDay23Types";
+import {
+  mapchallengeDay23GlowOpacity, mapchallengeDay23RadiusExpr, mapchallengeDay23SortKeyExpr, mapchallengeDay23TermColorExpr, mapchallengeDay23TermFilter,
+  mapchallengeDay23VariantColorExpr, mapchallengeDay23VariantFilter,
+} from "../data/mapchallengeDay23Style";
 import { mapchallengeDay21ColorExpr, mapchallengeDay21SortKeyExpr, mapchallengeDay21WidthExpr, mapchallengeDay21YearFilter } from "../data/mapchallengeDay21Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
@@ -13405,6 +13413,59 @@ OVERLAY_REGISTRY.push({
       "line-opacity": p?.mapchallengeDay21OsmRoadsOpacity ?? 0.85,
     }),
   }],
+});
+
+// ── 30 天地圖挑戰 Day 23 味覺（模擬面板，公開，2026-11-22）：店名含某詞的登記餐飲店家數，H3 六角格彙總、點在格心（POINT_TIERS B）。
+// 兩級格網同一檔：res 6 畫到 z9（不含）、res 7 從 z9 起；每級一個光暈＋一個家數圓。半徑 k×√n × 大小滑桿（面積正比於家數）。
+// 選單（詞／寫法組）改 filter → rebuild。光暈是站主指定的「發光圓點」（POINT_SPEC_EXEMPT，map-layers §3.1 P-6 例外），不可點。
+const mapchallengeDay23Zoom = (res: number) => (res === MAPCHALLENGE_DAY23_RES[0] ? { maxzoom: MAPCHALLENGE_DAY23_SWITCH_ZOOM } : { minzoom: MAPCHALLENGE_DAY23_SWITCH_ZOOM });
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay23TasteTerms", sourceUrl: MAPCHALLENGE_DAY23_TERMS_URL, sourceId: "mapchallenge-day23-taste-terms",
+  attribution: MAPCHALLENGE_DAY23_ATTRIBUTION,
+  rebuildOnParamChange: MAPCHALLENGE_DAY23_RES.flatMap((res) => [`glow-r${res}`, `circle-r${res}`]), rebuildOnParamKeys: ["mapchallengeDay23TasteTermsTermIdx"],
+  layers: MAPCHALLENGE_DAY23_RES.flatMap((res): OverlayLayerSpec[] => [{
+    suffix: `glow-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+    filter: (p) => mapchallengeDay23TermFilter(mapchallengeDay23TermAt(p?.mapchallengeDay23TasteTermsTermIdx), res),
+    paint: (isDark, p) => ({
+      "circle-color": mapchallengeDay23TermColorExpr(isDark),
+      "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteTermsScale ?? 1, MAPCHALLENGE_DAY23_GLOW.radiusFactor),
+      "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
+      "circle-opacity": mapchallengeDay23GlowOpacity(isDark, p?.mapchallengeDay23TasteTermsOpacity ?? 0.85),
+    }),
+  }, {
+    suffix: `circle-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+    layout: { "circle-sort-key": mapchallengeDay23SortKeyExpr() },
+    filter: (p) => mapchallengeDay23TermFilter(mapchallengeDay23TermAt(p?.mapchallengeDay23TasteTermsTermIdx), res),
+    paint: (isDark, p) => ({
+      "circle-color": mapchallengeDay23TermColorExpr(isDark),
+      "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteTermsScale ?? 1),
+      "circle-opacity": p?.mapchallengeDay23TasteTermsOpacity ?? 0.85,
+    }),
+  }]),
+});
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay23TasteVariants", sourceUrl: MAPCHALLENGE_DAY23_VARIANTS_URL, sourceId: "mapchallenge-day23-taste-variants",
+  attribution: MAPCHALLENGE_DAY23_ATTRIBUTION,
+  rebuildOnParamChange: MAPCHALLENGE_DAY23_RES.flatMap((res) => [`glow-r${res}`, `circle-r${res}`]), rebuildOnParamKeys: ["mapchallengeDay23TasteVariantsGroupIdx"],
+  layers: MAPCHALLENGE_DAY23_RES.flatMap((res): OverlayLayerSpec[] => [{
+    suffix: `glow-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+    filter: (p) => mapchallengeDay23VariantFilter(mapchallengeDay23GroupAt(p?.mapchallengeDay23TasteVariantsGroupIdx), res),
+    paint: (isDark, p) => ({
+      "circle-color": mapchallengeDay23VariantColorExpr(mapchallengeDay23GroupAt(p?.mapchallengeDay23TasteVariantsGroupIdx), isDark),
+      "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteVariantsScale ?? 1, MAPCHALLENGE_DAY23_GLOW.radiusFactor),
+      "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
+      "circle-opacity": mapchallengeDay23GlowOpacity(isDark, p?.mapchallengeDay23TasteVariantsOpacity ?? 0.85),
+    }),
+  }, {
+    suffix: `circle-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+    layout: { "circle-sort-key": mapchallengeDay23SortKeyExpr() },
+    filter: (p) => mapchallengeDay23VariantFilter(mapchallengeDay23GroupAt(p?.mapchallengeDay23TasteVariantsGroupIdx), res),
+    paint: (isDark, p) => ({
+      "circle-color": mapchallengeDay23VariantColorExpr(mapchallengeDay23GroupAt(p?.mapchallengeDay23TasteVariantsGroupIdx), isDark),
+      "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteVariantsScale ?? 1),
+      "circle-opacity": p?.mapchallengeDay23TasteVariantsOpacity ?? 0.85,
+    }),
+  }]),
 });
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，

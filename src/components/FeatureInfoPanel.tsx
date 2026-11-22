@@ -246,6 +246,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay17DarkSky", "mapchallengeDay17DarkRoads", "mapchallengeDay17LedShare",
   // 30 天地圖挑戰 Day 19 氣味：panel 自掛公害陳情／潛勢來源／環保裁處出處。
   "mapchallengeDay19Complaints", "mapchallengeDay19Potential", "mapchallengeDay19Penalties", "mapchallengeDay21OsmRoads",
+  // 30 天地圖挑戰 Day 23 味覺：panel 自掛財政部稅籍登記來源。
+  "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteVariants",
   // 縣市間遷徙流向：panel 自掛內政部戶政司來源。
   "twCountyMigrationFlows",
   "transitAccessGrid",

@@ -2070,5 +2070,7 @@
   "layer.twCoralBleachingHeatStress": "サンゴ白化の高水温ストレス",
   "layer.dengueClusters": "デング熱集積区",
   "layer.navNotices": "航行警報（航船布告）",
-  "layer.tideSwellAlerts": "大潮・うねり警戒"
+  "layer.tideSwellAlerts": "大潮・うねり警戒",
+  "layer.mapchallengeDay23TasteTerms": "店名に含まれる小吃の語",
+  "layer.mapchallengeDay23TasteVariants": "同じ料理、異なる表記"
 }

@@ -306,3 +306,5 @@ public/energy/ev_motorcycle_charging_v1.pmtiles
 public/civic_facilities/county_streetlights_v1.pmtiles
 public/civic_facilities/county_streetlights_grid_v1.pmtiles
 public/mapchallenge/day21_osm_road_years.pmtiles
+public/mapchallenge/day23_taste_terms.geojson
+public/mapchallenge/day23_taste_variants.geojson

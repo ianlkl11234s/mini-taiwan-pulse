@@ -213,5 +213,13 @@
   "popup.mapchallenge.day21.length": "Segment length",
   "popup.mapchallenge.day21.meters": "{n} m",
   "popup.mapchallenge.day21.note": "Note",
-  "popup.mapchallenge.day21.yearNote": "The year is when the road was drawn into OSM, not when it opened."
+  "popup.mapchallenge.day21.yearNote": "The year is when the road was drawn into OSM, not when it opened.",
+  "popup.mapchallenge.day23.count": "Shops with this word in the name",
+  "popup.mapchallenge.day23.countValue": "{n}",
+  "popup.mapchallenge.day23.cell": "Grid",
+  "popup.mapchallenge.day23.cellValue": "H3 hexagon, about {km2} km²",
+  "popup.mapchallenge.day23.date": "Data date",
+  "popup.mapchallenge.day23.note": "Scope",
+  "popup.mapchallenge.day23.position": "Position",
+  "popup.mapchallenge.day23.positionNote": "The circle is the hexagon centre, not a shop location."
 }

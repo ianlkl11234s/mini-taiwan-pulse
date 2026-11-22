@@ -213,5 +213,13 @@
   "popup.mapchallenge.day21.length": "這一段長",
   "popup.mapchallenge.day21.meters": "{n} m",
   "popup.mapchallenge.day21.note": "說明",
-  "popup.mapchallenge.day21.yearNote": "年份＝畫進 OSM 的年份，不是道路開通年份。"
+  "popup.mapchallenge.day21.yearNote": "年份＝畫進 OSM 的年份，不是道路開通年份。",
+  "popup.mapchallenge.day23.count": "店名含此詞的家數",
+  "popup.mapchallenge.day23.countValue": "{n} 家",
+  "popup.mapchallenge.day23.cell": "格網",
+  "popup.mapchallenge.day23.cellValue": "H3 六角格，約 {km2} 平方公里",
+  "popup.mapchallenge.day23.date": "資料日期",
+  "popup.mapchallenge.day23.note": "口徑",
+  "popup.mapchallenge.day23.position": "位置",
+  "popup.mapchallenge.day23.positionNote": "圓點是六角格中心，不是店家位置。"
 }

@@ -226,6 +226,7 @@ import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_COLOR } from "./mapchallengeDay21Types";
+import { MAPCHALLENGE_DAY23_TERMS_COLOR, MAPCHALLENGE_DAY23_VARIANTS_COLOR } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_COMPLAINTS_COLOR, MAPCHALLENGE_DAY19_PENALTIES_COLOR, MAPCHALLENGE_DAY19_POTENTIAL_COLOR } from "./mapchallengeDay19Types";
 
 /**
@@ -18049,6 +18050,54 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["multiSelect", "slider", "slider", "toggle"] },
     description: "30 天地圖挑戰 Day 21 OSM：雙北＋基隆的每段道路是哪一年第一次畫進 OpenStreetMap。顏色＝年份，深藍是 2007 年以前、越往紫紅橘黃越新；線寬分主幹、次要、一般道路三級。新增最多的是 2011 年（1,748 km）、2013 年（1,622 km）與 2010 年（1,420 km），2018 年起每年只剩 71–345 km。可用年份拉桿看到某年為止的路網，或只看當年新增的路；可依道路等級篩選。年份是畫進 OSM 的年份，不是道路開通年份；2007 代表 2007 年以前；資料到 2026-07-27；早期（2007–2011）因單線後來拆成雙向會略多算；已刪除的路不顯示；路線重畫到新位置會被算成新畫。點路段看年份、道路等級、路名與 OSM 連結。來源：© OpenStreetMap contributors（ODbL），歷史經 ohsome API（HeiGIT）。",
     topics: ["OpenStreetMap", "OSM", "道路", "路網", "編輯史", "雙北", "基隆", "30 天地圖挑戰"],
+  },
+  mapchallengeDay23TasteTerms: {
+    key: "mapchallengeDay23TasteTerms",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-22）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "小吃店名分布", alt: "Snack Words in Shop Names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_TERMS_COLOR,
+    icon: UtensilsCrossed,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["tax_registry"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（01–03）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家，其中 179,672 家有座標；用店名關鍵字分類後彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。12 個詞：牛肉湯、爌肉、火雞肉飯、飯湯、意麵（排除店名含「鍋燒」者）、鱔魚、肉燥飯、粄條／板條（兩種寫法合計）、肉圓、碗粿、甕（甕缸雞類）、活魚。不設最低家數。輸出只有詞、家數、格網級別與格 id。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste）。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是六角格中心，不是店家位置；稅籍表含獨資行號地址，公開檔不含店名、地址、統編與單店座標。約 0.9% 的店沒有座標，不在圖上。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-terms", url: "./mapchallenge/day23_taste_terms.geojson" },
+    legend: "mapchallengeDay23TasteTerms",
+    popup: "mapchallengeDay23TasteTerms",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：登記餐飲店的店名裡含某個小吃詞的家數。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選 12 個詞：牛肉湯、爌肉、火雞肉飯、飯湯、意麵、鱔魚、肉燥飯、粄條／板條、肉圓、碗粿、甕（甕缸雞類）、活魚；每個詞一個顏色。圓面積正比於該格家數，只有 1–2 家也照畫；縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
+    topics: ["味覺", "小吃", "店名", "餐飲", "稅籍登記", "30 天地圖挑戰"],
+  },
+  mapchallengeDay23TasteVariants: {
+    key: "mapchallengeDay23TasteVariants",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-22）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "同物異字", alt: "Same Dish, Different Characters" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_VARIANTS_COLOR,
+    icon: Languages,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["tax_registry"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（01–03）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家，其中 179,672 家有座標；用店名關鍵字分類後彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。三組寫法：魯肉飯／滷肉飯／肉燥飯、粄條／板條（粿條全台只有 1 家，不列）、爌肉／焢肉／控肉。同組內各寫法各自比對、不互斥（店名同時含兩種寫法會各算一次）。每個（組 × 寫法 × 格）一點，並帶同格同組各寫法的家數。不設最低家數。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste）。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是六角格中心，不是店家位置；同一格有多種寫法時圓點疊在同一個格心。公開檔不含店名、地址、統編與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-variants", url: "./mapchallenge/day23_taste_variants.geojson" },
+    legend: "mapchallengeDay23TasteVariants",
+    popup: "mapchallengeDay23TasteVariants",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：同一種食物在登記餐飲店店名裡的不同寫法。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選三組：魯肉飯／滷肉飯／肉燥飯、粄條／板條、爌肉／焢肉／控肉；同組內每種寫法一個顏色、同時顯示，圓面積正比於該格用這種寫法的家數，只有 1–2 家也照畫。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該格各寫法的家數與資料日期。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。店名同時含兩種寫法會各算一次；圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
+    topics: ["味覺", "小吃", "店名", "用字", "寫法", "餐飲", "稅籍登記", "30 天地圖挑戰"],
   },
 
   roadCongestion: {
