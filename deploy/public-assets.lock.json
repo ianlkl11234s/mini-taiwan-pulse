@@ -6459,8 +6459,8 @@
   },
   {
    "path": "public/world/th_fuel_stations.pmtiles",
-   "bytes": 8335622,
-   "sha256": "09d473a695553fb4ae409b67a80d229deeef0e4af1869222cee5c7bfb8d7563d",
+   "bytes": 16759572,
+   "sha256": "bb17f9b741b71ba63d4aa0a3a2128837a0c9363dc19cda9ba52aaf50d9ebc2ba",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_fuel_stations.pmtiles"
   },
@@ -6473,8 +6473,8 @@
   },
   {
    "path": "public/world/th_pipelines.pmtiles",
-   "bytes": 1789120,
-   "sha256": "b72920446cb07dea6d45f2202e825405f0782c51947b1721a61f4fda869c5122",
+   "bytes": 2219827,
+   "sha256": "b9c50ae4d9532d7b55bc2fa3bc9d5d642a8cb71fa44117412e34566ae7a6d17d",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_pipelines.pmtiles"
   },
@@ -6487,22 +6487,22 @@
   },
   {
    "path": "public/world/th_power_grid.pmtiles",
-   "bytes": 7484789,
-   "sha256": "1bcd4c9211e5c44ceba4b050ee2acfd5fc9302f4fb6fda99dc4bf6f906f2af1c",
+   "bytes": 7846966,
+   "sha256": "3cbf0959161d4bedbe64ae7f301498add0c30ac285eee48c97417b4dfa9bb7f6",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_power_grid.pmtiles"
   },
   {
    "path": "public/world/th_power_plants.pmtiles",
-   "bytes": 1842363,
-   "sha256": "a06d955b0c7a036a94bb86b163b08fec4329bd36f881cd57ef95d878c41857b8",
+   "bytes": 2707557,
+   "sha256": "d12346a6885371c5562afc40aa57026372974d71e56dabdaf82285d97bb37e02",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_power_plants.pmtiles"
   },
   {
    "path": "public/world/th_renewables.pmtiles",
-   "bytes": 944587,
-   "sha256": "e9e09a6c31068c7fe97b504598cf4178c11b0935388287dbc7489cc40f229223",
+   "bytes": 1404238,
+   "sha256": "caad58325e938c55a03d272f9f68c66ad2951fda7ed196ae623d25b3ff7c4777",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_renewables.pmtiles"
   },
@@ -6515,8 +6515,8 @@
   },
   {
    "path": "public/world/th_transport_hubs.pmtiles",
-   "bytes": 540251,
-   "sha256": "f067b9c40120a1526c688d738077308cb9fdde37b51095c0306009f8b1a1331f",
+   "bytes": 807655,
+   "sha256": "78d2672eac7ccc4599132e1ec2bbcf3d0c01dfdee70df542e64256ff5fa9bd0c",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_transport_hubs.pmtiles"
   },
