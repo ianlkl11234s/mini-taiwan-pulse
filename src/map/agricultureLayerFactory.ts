@@ -650,6 +650,18 @@ export function ensureAgriPOILayers(map: MapboxMap, isDarkTheme = true): void {
 }
 
 let agriPOIHydrated = false;
+/** 抓到的 POI（換底圖後 source 是新建的空殼，用它補回，不重抓）。 */
+let agriPOIData: GeoJSON.FeatureCollection | null = null;
+/** 已餵過資料的 source 實例；換底圖後 getSource 回新實例，不在集合內就補餵。 */
+const agriPOIFedSources = new WeakSet<object>();
+
+function feedAgriPOI(map: MapboxMap): void {
+  const src = map.getSource(POI_SOURCE_ID);
+  if (!agriPOIData || !src || !("setData" in src) || agriPOIFedSources.has(src)) return;
+  (src as any).setData(agriPOIData);
+  agriPOIFedSources.add(src);
+}
+
 export function updateAgriPOILayer(
   map: MapboxMap,
   visible: boolean,
@@ -664,16 +676,17 @@ export function updateAgriPOILayer(
     fetch(`${BASE}/agriculture_pois.geojson`)
       .then((r) => r.json() as Promise<GeoJSON.FeatureCollection>)
       .then((json) => {
-        const src = map.getSource(POI_SOURCE_ID);
-        if (src && "setData" in src) {
-          (src as any).setData(json);
-        }
+        agriPOIData = json;
+        feedAgriPOI(map);
       })
       .catch((e) => {
         agriPOIHydrated = false;
         console.warn("[agri-pois] hydrate failed:", e);
       })
       .finally(() => loadingRegistry.end(taskId));
+  } else if (visible) {
+    // 已抓過：換底圖重建的空 source 在這裡補回
+    feedAgriPOI(map);
   }
   map.setLayoutProperty(POI_CIRCLE_ID, "visibility", visible ? "visible" : "none");
   map.setFilter(POI_CIRCLE_ID, (hookCategoryFilter("agriPOI", params.catMask === undefined ? undefined : { agriPOICatMask: params.catMask }) ?? null) as any);
