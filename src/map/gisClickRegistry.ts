@@ -913,7 +913,6 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照（層 id 見 hooks/useTwLiveSnapshotLayer.ts）
   { layers: ["tw-dengue-cluster-fill", "tw-dengue-cluster-center"], type: "dengueCluster" },
   { layers: ["tw-nav-notices-point", "tw-nav-notices-line"], type: "navNotice" },
-  { layers: ["tw-tide-swell-alerts-point"], type: "tideSwellAlert" },
   { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
   { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
   { layers: ["aqi-micro-circle"], type: "microSensor" },
@@ -927,6 +926,8 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },
   { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
   { layers: [...MARINE_OBSERVATION_CLICK_LAYERS], type: "marineObservation" },
+  // 大潮與長浪警戒（B8）與 CWA 測站同址：兩層都開時讓測站 popup（觀測值）優先，圖例已寫「疊 CWA 海洋觀測看觀測值」；只開本層時照常點得到
+  { layers: ["tw-tide-swell-alerts-point"], type: "tideSwellAlert" },
   { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
   { layers: ["bridge-rain-circle"], type: "bridgeRainThresholds" },
   { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },

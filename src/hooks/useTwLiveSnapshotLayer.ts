@@ -3,6 +3,8 @@ import type { CircleLayer, ExpressionSpecification, FillLayer, FilterSpecificati
 import { useMapReadyTick } from "./useMapReadyTick";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { wallClock } from "../state/timeStore";
+import { localeStore } from "../state/localeStore";
+import { showTransientNotice } from "../components/TransientNotice";
 import { FILL_OPACITY, LINE_WIDTH, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import {
   DENGUE_COLOR,
@@ -140,6 +142,16 @@ export function useDengueClusterLayer(mapRef: MapRef, visible: boolean, opts: { 
     if (!map || !visible || !map.getLayer(DENGUE_LAYERS.fill)) return;
     dengueStyle(map, opacity, scale, isDark);
   }, [mapRef, mapTick, visible, snap, opacity, scale, isDark]);
+
+  // 沒有聚集區＝地圖上不會有任何東西：圖例預設收合，另外跳一次提示（比照 GFW 層的「無資料」提示），
+  // 每次打開圖層最多一次，避免使用者以為圖層壞了（V-1）
+  const emptyNotifiedRef = useRef(false);
+  useEffect(() => {
+    if (!visible) { emptyNotifiedRef.current = false; return; }
+    if (!snap || snap.fc.features.length > 0 || emptyNotifiedRef.current) return;
+    emptyNotifiedRef.current = true;
+    showTransientNotice(localeStore.getSnapshot().t("legend.twLive.dengue.emptyNotice", { date: dengueSnapshotDate(snap.status) ?? "—" }));
+  }, [visible, snap]);
 }
 
 // ── 航船布告 ──────────────────────────────────────────────────────

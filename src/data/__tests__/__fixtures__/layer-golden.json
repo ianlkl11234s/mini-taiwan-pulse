@@ -4788,12 +4788,6 @@
     },
     {
       "layers": [
-        "tw-tide-swell-alerts-point"
-      ],
-      "type": "tideSwellAlert"
-    },
-    {
-      "layers": [
         "roadEvents-fill",
         "roadEvents-line",
         "roadEvents-point"
@@ -4878,6 +4872,12 @@
         "marine-observation-isohe-circle"
       ],
       "type": "marineObservation"
+    },
+    {
+      "layers": [
+        "tw-tide-swell-alerts-point"
+      ],
+      "type": "tideSwellAlert"
     },
     {
       "layers": [

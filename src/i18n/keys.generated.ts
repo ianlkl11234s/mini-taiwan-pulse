@@ -2483,6 +2483,7 @@ export type GeneratedStaticKey =
   | "legend.twLive.dengue.center"
   | "legend.twLive.dengue.count"
   | "legend.twLive.dengue.empty"
+  | "legend.twLive.dengue.emptyNotice"
   | "legend.twLive.dengue.note"
   | "legend.twLive.nav.count"
   | "legend.twLive.nav.note"

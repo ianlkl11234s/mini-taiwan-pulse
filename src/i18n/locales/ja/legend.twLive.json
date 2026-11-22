@@ -13,7 +13,7 @@
   "legend.twLive.nav.shapeArea": "面＝公告範囲（円・扇形は中心と半径から推定）",
   "legend.twLive.nav.shapeLine": "破線＝航路またはケーブルの範囲",
   "legend.twLive.nav.permanentNote": "「永久」は既定で非表示：多くは数年前から取り下げられていない公告。必要なら設定で表示する。",
-  "legend.twLive.nav.count": "表示中 {count} 件。座標のない {unlocated} 件は地図に出ていない",
+  "legend.twLive.nav.count": "有効な公告 {count} 件（同じ範囲の再発表は1つの図形にまとめて表示）。座標のない {unlocated} 件は地図に出ていない",
   "legend.twLive.nav.note": "航港局が毎時更新し、有効期間内の公告のみ描画する。AIS 船舶と重ねて見られる。",
   "legend.twLive.tideLevel.0": "警戒未満",
   "legend.twLive.tideLevel.1": "潮位注意／うねり警戒（点滅）",
@@ -24,5 +24,6 @@
   "legend.twLive.tide.alerts": "現在 {count} 地点で警戒中",
   "legend.twLive.tide.noAlerts": "現在、警戒はない",
   "legend.twLive.dataTime": "データ時刻",
-  "legend.twLive.tide.note": "気象署が毎時更新し、状態は過去8時間の判定である。地点は気象署の海洋観測所と同じで、観測値は「CWA 海洋観測」と重ねて見る。"
+  "legend.twLive.tide.note": "気象署が毎時更新し、状態は過去8時間の判定である。地点は気象署の海洋観測所と同じで、観測値は「CWA 海洋観測」と重ねて見る。",
+  "legend.twLive.dengue.emptyNotice": "デング熱集積区：直近2週間に国内感染の集積区はない（データ日付 {date}）"
 }

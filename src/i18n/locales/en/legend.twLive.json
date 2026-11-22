@@ -13,7 +13,7 @@
   "legend.twLive.nav.shapeArea": "Area = notice zone (circles and sectors derived from center and radius)",
   "legend.twLive.nav.shapeLine": "Dashed line = route or cable corridor",
   "legend.twLive.nav.permanentNote": "Permanent notices are hidden by default: most are old notices never withdrawn. Turn them on in settings if needed.",
-  "legend.twLive.nav.count": "{count} shown; {unlocated} notices without coordinates are not mapped",
+  "legend.twLive.nav.count": "{count} notices in effect (repeat notices for the same area are drawn as one shape); {unlocated} without coordinates are not mapped",
   "legend.twLive.nav.note": "Updated hourly by the Maritime and Port Bureau; only notices in effect are drawn. Can be overlaid with AIS vessels.",
   "legend.twLive.tideLevel.0": "Below warning",
   "legend.twLive.tideLevel.1": "Tide watch / swell warning (pulsing)",
@@ -24,5 +24,6 @@
   "legend.twLive.tide.alerts": "{count} sites on alert now",
   "legend.twLive.tide.noAlerts": "No alerts now",
   "legend.twLive.dataTime": "Data time",
-  "legend.twLive.tide.note": "Updated hourly by CWA; status covers the past 8 hours. Points sit at CWA marine stations, so overlay the CWA marine observation layer for readings."
+  "legend.twLive.tide.note": "Updated hourly by CWA; status covers the past 8 hours. Points sit at CWA marine stations, so overlay the CWA marine observation layer for readings.",
+  "legend.twLive.dengue.emptyNotice": "Dengue clusters: no local clusters in the past two weeks (data date {date})"
 }
