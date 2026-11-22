@@ -67,8 +67,8 @@ export const TH_RASTER_BY_KEY = Object.fromEntries(TH_RASTER_SPECS.map((s) => [s
 const PLACE_CATS: readonly PhCat[] = [
   { id: "city", values: ["city"], color: "#f472b6", radius: 5.5, label: l3("城市（city）", "City", "市（city）") },
   { id: "town", values: ["town"], color: "#fbbf24", radius: 4, label: l3("鎮（town）", "Town", "町（town）") },
-  { id: "village", values: ["village"], color: "#e5e7eb", radius: 3, label: l3("村（village）", "Village", "村（village）") },
-  { id: "hamlet", values: ["hamlet"], color: "#94a3b8", radius: 2.5, label: l3("小聚落（hamlet）", "Hamlet", "集落（hamlet）") },
+  { id: "village", values: ["village"], color: "#e5e7eb", radius: 2.3, label: l3("村（village）", "Village", "村（village）") },
+  { id: "hamlet", values: ["hamlet"], color: "#94a3b8", radius: 1.8, label: l3("小聚落（hamlet）", "Hamlet", "集落（hamlet）") },
 ];
 // 高地村（C020）：族群前 7 名各色，其餘併「其他」
 const ETHNIC_CATS: readonly PhCat[] = [
@@ -333,7 +333,7 @@ export const TH_WAVE_SPECS: readonly ThLayerSpec[] = [
     key: "thRoadAccidents", file: "th_road_accidents.pmtiles", sourceId: "th-road-accidents", srcMinzoom: 6, srcMaxzoom: 14, color: "#ef4444", count: 23_543,
     parts: [point("th-road-accidents-circle", "accidents", 6, propGetter("severity"), { small: true })],
     cats: ACCIDENT_CATS,
-    heat: { intensity: 1 },
+    heat: { intensity: 0.8 },
     title: { props: ["route_th"], fallback: l3("交通事故", "Traffic accident", "交通事故") },
     fields: [
       { prop: "date", label: l3("日期", "Date", "日付"), kind: "code" },
@@ -483,8 +483,8 @@ export const TH_WAVE_SPECS: readonly ThLayerSpec[] = [
   {
     key: "thLandfills", file: "th_landfills.pmtiles", sourceId: "th-landfills", srcMinzoom: 5, srcMaxzoom: 14, color: "#ef4444", count: 5_738,
     parts: [
-      point("th-landfill-survey-circle", "landfill_survey", 5, siteType, { small: true }),
-      point("th-landfill-pcd-circle", "pcd_facilities", 5, constGetter("pcd"), { small: true, hollow: { label: l3("空心：PCD 設施", "Hollow: PCD facility", "中抜き：PCD 施設") } }),
+      point("th-landfill-survey-circle", "landfill_survey", 6, siteType, { small: true }),
+      point("th-landfill-pcd-circle", "pcd_facilities", 7, constGetter("pcd"), { small: true, hollow: { label: l3("空心：PCD 設施", "Hollow: PCD facility", "中抜き：PCD 施設") } }),
     ],
     cats: LANDFILL_CATS,
     title: { props: ["name_th", "location_th"], fallback: l3("垃圾場址", "Waste site", "廃棄物処分場") },
@@ -505,7 +505,7 @@ export const TH_WAVE_SPECS: readonly ThLayerSpec[] = [
     ],
     legendNotes: [
       l3("兩份調查分開畫、不可相加：垃圾場址調查 3,129 處（實心）、PCD 設施 2,609 處（空心）；調查年約 2010–2014", "Two surveys drawn separately and not additive: 3,129 landfill-survey sites (solid) and 2,609 PCD facilities (hollow); survey years about 2010–2014", "2 つの調査は別々に描画し合算しない：処分場調査 3,129（塗り）・PCD 施設 2,609（中抜き）。調査年は 2010–2014 年頃"),
-      l3("涵蓋 76/77 府；PCD 2566 年新版連線失敗，未涵蓋", "76/77 provinces covered; the newer PCD 2566 list could not be fetched, not covered", "76/77 県。PCD 2566 年版は取得に失敗し未収録"),
+      l3("調查從 z6、PCD 設施從 z7 起顯示（低縮放兩者合計 5,700 點會糊成一片）；涵蓋 76/77 府；PCD 2566 年新版連線失敗，未涵蓋", "Survey shown from z6, PCD facilities from z7 (5,700 points would blur at lower zooms); 76/77 provinces covered; the newer PCD 2566 list could not be fetched, not covered", "調査は z6、PCD 施設は z7 以上で表示（低ズームでは 5,700 点が潰れる）。76/77 県。PCD 2566 年版は取得に失敗し未収録"),
     ],
     popupNotes: [NEAREST_NOTE],
     sourceOrg: l3("GISTDA Hosted（垃圾場址調查）與 กรมควบคุมมลพิษ（Pollution Control Department，PCD）設施（授權未明示，存取 2026-11-22）", "GISTDA Hosted (landfill survey) and Pollution Control Department (PCD) facilities (license not stated, accessed 2026-11-22)", "GISTDA Hosted（処分場調査）と Pollution Control Department（PCD）施設（ライセンス未明示、2026-11-22 取得）"),
