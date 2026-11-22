@@ -2415,3 +2415,20 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - `docs/PROJECTS.md` 30 天挑戰列與最後盤點；`BACKLOG.md` LTT-2。
 
+## 2026-11-20～22 台灣圖層延伸 B1–B8、v2.43.0
+
+### What happened
+
+- 照計畫逐批上線：B1–B8 共 9 個 mini PR，analytics、pulse-data、data-collectors 各自 PR；倉庫上線 20261122T033431Z（B6）；B8 三個即時收集器部署 pulse-host 與 HiCloud VM；站主拍板後發 v2.43.0（#1159）。
+- 夜市、N17 不做；N09 SEGIS、B9 TCCIP 卡在帳號或請求碼。
+
+### Lessons
+
+- 倉庫建表只看最後一個副檔名：入倉長表用 Parquet，`.csv.gz` 會被判 UNSUPPORTED_FORMAT、0 列；`publish_package --dry-run` 不建表，發包前要本機實際建一次。
+- `collector-deploy.sh` 給短 SHA 時，腳本裡 `git ls-remote | awk exit` 觸發 pipefail SIGPIPE，exit 141、沒有輸出、容器不換版；一律給 40 碼完整 SHA，部署後查容器內 GIT_COMMIT_SHA。
+- 看 site-sync 結果要連「S3 缺檔」那行一起看：只看「待上傳 0」會把「S3 根本沒有」誤判成「已同步」。
+- 收集器的警戒字串不要用猜的：上線第一天雲林就出現 Metadata 沒列的「暴潮警戒」；監測點對潮位站用「最大潮高＝某站同時段逐時最大值」比對，兩個時段都唯一吻合才採用。
+
+### Memory output
+
+- `docs/PROJECTS.md` 有期限的事兩列、最後盤點；`BACKLOG.md` TWL-18；`STATUS.md` v2.43.0 已發布。
