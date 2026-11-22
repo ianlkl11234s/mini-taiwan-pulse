@@ -213,5 +213,13 @@
   "popup.mapchallenge.day21.length": "この区間の長さ",
   "popup.mapchallenge.day21.meters": "{n} m",
   "popup.mapchallenge.day21.note": "注記",
-  "popup.mapchallenge.day21.yearNote": "年は OSM に描かれた年であり、道路の開通年ではない。"
+  "popup.mapchallenge.day21.yearNote": "年は OSM に描かれた年であり、道路の開通年ではない。",
+  "popup.mapchallenge.day23.count": "店名にこの語を含む店数",
+  "popup.mapchallenge.day23.countValue": "{n} 店",
+  "popup.mapchallenge.day23.cell": "グリッド",
+  "popup.mapchallenge.day23.cellValue": "H3 六角形セル、約 {km2} km²",
+  "popup.mapchallenge.day23.date": "データ日付",
+  "popup.mapchallenge.day23.note": "集計範囲",
+  "popup.mapchallenge.day23.position": "位置",
+  "popup.mapchallenge.day23.positionNote": "円は六角形セルの中心であり、店の位置ではない。"
 }

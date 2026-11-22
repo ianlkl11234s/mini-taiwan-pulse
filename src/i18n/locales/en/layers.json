@@ -2070,5 +2070,7 @@
   "layer.twCoralBleachingHeatStress": "Coral Bleaching Heat Stress",
   "layer.dengueClusters": "Dengue Clusters",
   "layer.navNotices": "Navigational Notices",
-  "layer.tideSwellAlerts": "Tide & Swell Alerts"
+  "layer.tideSwellAlerts": "Tide & Swell Alerts",
+  "layer.mapchallengeDay23TasteTerms": "Snack Words in Shop Names",
+  "layer.mapchallengeDay23TasteVariants": "Same Dish, Different Characters"
 }

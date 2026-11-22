@@ -132,5 +132,7 @@
   "popupHeader.mapchallengeDay19Potential": "施設由来の臭気ポテンシャルと風",
   "popupHeader.mapchallengeDay19Penalties": "悪臭による処分施設",
   "popupHeader.householdRegistrationBranch": "戸政事務所の出張所",
-  "popupHeader.mapchallengeDay21OsmRoads": "道路が OSM に描かれた年"
+  "popupHeader.mapchallengeDay21OsmRoads": "道路が OSM に描かれた年",
+  "popupHeader.mapchallengeDay23TasteTerms": "店名に含まれる小吃の語",
+  "popupHeader.mapchallengeDay23TasteVariants": "同じ料理、異なる表記"
 }

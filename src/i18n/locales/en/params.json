@@ -2825,5 +2825,21 @@
   "param.有期限": "Time-limited",
   "param.永久": "Permanent",
   "param.大潮監測": "Spring tide monitoring",
-  "param.長浪監測": "Swell monitoring"
+  "param.長浪監測": "Swell monitoring",
+  "param.店名用詞": "Word in shop name",
+  "param.寫法組": "Spelling group",
+  "param.牛肉湯": "牛肉湯 (beef soup)",
+  "param.爌肉": "爌肉 (braised pork belly)",
+  "param.火雞肉飯": "火雞肉飯 (turkey rice)",
+  "param.飯湯": "飯湯 (rice in soup)",
+  "param.意麵": "意麵 (yi mian noodles)",
+  "param.鱔魚": "鱔魚 (eel)",
+  "param.肉燥飯": "肉燥飯 (minced pork rice)",
+  "param.粄條／板條": "粄條／板條 (Hakka flat rice noodles)",
+  "param.肉圓": "肉圓 (ba-wan, stuffed starch dumpling)",
+  "param.碗粿": "碗粿 (savory rice pudding)",
+  "param.甕（甕缸雞類）": "甕 (urn, as in urn-roasted chicken)",
+  "param.活魚": "活魚 (live fish)",
+  "param.魯肉飯／滷肉飯／肉燥飯": "魯肉飯／滷肉飯／肉燥飯 (braised or minced pork over rice)",
+  "param.爌肉／焢肉／控肉": "爌肉／焢肉／控肉 (braised pork belly)"
 }

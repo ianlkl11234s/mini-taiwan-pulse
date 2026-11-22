@@ -463,6 +463,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17NightFall" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
   | "mapchallengeDay21OsmRoads"
+  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants"
   | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
@@ -1061,6 +1062,7 @@ export interface FeatureInfo {
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
   | "mapchallengeDay21OsmRoads"
+  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants"
   | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
@@ -1489,6 +1491,10 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mapchallengeDay19Penalties: boolean;
   /** 30 天地圖挑戰 Day 21 OSM（模擬面板，公開）：雙北＋基隆道路畫進 OpenStreetMap 的年份（PMTiles，色＝年份、寬＝道路等級） */
   mapchallengeDay21OsmRoads: boolean;
+  /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：店名含某小吃詞的登記餐飲店家數（H3 六角格彙總，選單選詞，半徑依家數） */
+  mapchallengeDay23TasteTerms: boolean;
+  /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：同物異字三組的店名寫法分布（H3 六角格彙總，色＝寫法，半徑依家數） */
+  mapchallengeDay23TasteVariants: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */
