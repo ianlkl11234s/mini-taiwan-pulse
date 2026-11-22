@@ -461,7 +461,6 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("tat", ["tat"], "#f59e0b", "住宿（TAT 官方名冊，僅含有座標者，9,309）", "Accommodation (TAT official register, only records with coordinates, 9,309)", "宿泊（TAT 公式名簿、座標ありのみ、9,309）", { parts: ["th-accommodation-tat-circle"] }),
       cat("osm", ["osm"], "#fbbf24", "住宿（OSM 補缺，空心，17,108）", "Accommodation (OSM gap-fill, hollow, 17,108)", "宿泊（OSM 補完、中抜き、17,108）", { parts: ["th-accommodation-osm-circle"] }),
     ],
-    heat: { intensity: 2.5 },
     title: { props: ["name_th", "name_en", "name"], fallback: l3("住宿", "Accommodation", "宿泊施設"), fallbackBy: REDACTED_TITLE },
     fields: [
       ...NAME_FIELDS,
@@ -479,7 +478,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
     ],
     legendNotes: [
       l3("只含有座標者：TAT 名冊 9,309（約 1/3 有座標，17,919 列無座標未 geocode；Open Data Common）＋OSM 補缺 17,108（空心）；聯絡資訊全不輸出", "Only records with coordinates: 9,309 TAT register rows (about one third have coordinates; 17,919 rows without coordinates were not geocoded; Open Data Common) + 17,108 OSM gap-fill (hollow); no contact details output", "座標のあるもののみ：TAT 名簿 9,309（約 1/3 が座標あり、座標なし 17,919 行は未ジオコード、Open Data Common）＋OSM 補完 17,108（中抜き）。連絡先は出力しない"),
-      l3("依規模分級出現：5 星或 ≥300 房的大型旅館 z4 起、4 星或 ≥150 房 z5、3 星或 ≥60 房 z6，其餘 TAT z7、OSM z8；低縮放同時有熱區", "Shown by tier: 5-star or ≥300-room hotels from z4, 4-star or ≥150 rooms z5, 3-star or ≥60 rooms z6, the rest TAT z7 / OSM z8; heat is also drawn at low zoom", "規模別に表示：5 つ星または 300 室以上は z4 以上、4 つ星または 150 室以上は z5、3 つ星または 60 室以上は z6、他は TAT z7・OSM z8。低ズームではヒートも表示"),
+      l3("依規模分級出現：5 星或 ≥300 房的大型旅館 z4 起、4 星或 ≥150 房 z5、3 星或 ≥60 房 z6，其餘 TAT z7、OSM z8；低縮放直接畫分級點、不用熱區", "Shown by tier: 5-star or ≥300-room hotels from z4, 4-star or ≥150 rooms z5, 3-star or ≥60 rooms z6, the rest TAT z7 / OSM z8; points are drawn directly at low zoom, no heat", "規模別に表示：5 つ星または 300 室以上は z4 以上、4 つ星または 150 室以上は z5、3 つ星または 60 室以上は z6、他は TAT z7・OSM z8。低ズームでは分級した点を直接表示（ヒートなし）"),
       l3("Overture hotel／resort（6 萬＋）不取；官方與 OSM 不去重", "Overture hotels/resorts (60,000+) not used; official and OSM points not de-duplicated", "Overture の hotel／resort（6 万超）は不使用。公式と OSM は重複排除なし"),
     ],
     popupNotes: [REDACT_NOTE, NEAREST_NOTE],
