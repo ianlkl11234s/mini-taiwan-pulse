@@ -176,7 +176,7 @@ export const TH_WAVE_SPECS: readonly ThLayerSpec[] = [
     key: "thPlaceNames", file: "th_place_names.pmtiles", sourceId: "th-place-names", srcMinzoom: 4, srcMaxzoom: 14, color: "#e5e7eb", count: 32_514,
     parts: [point("th-place-names-circle", "places", 4, propGetter("place"))],
     cats: PLACE_CATS, otherColor: "#64748b", otherLabel: l3("其他（未分類、街區、島等）", "Other (unclassified, neighbourhood, island…)", "その他（未分類・街区・島など）"),
-    title: { props: ["name_th", "name", "name_en"], fallback: l3("地名", "Place name", "地名") },
+    title: { props: ["name_th", "name", "name_en"], fallback: l3("地名", "Place name", "地名"), fallbackBy: { prop: "name_redacted", map: { true: l3("（個人名義，已遮蔽）", "(personal name, redacted)", "（個人名義、秘匿）") } } },
     fields: [
       { prop: "name_en", label: l3("英文名稱", "English name", "英語名"), unlessSameAs: "name_th" },
       { prop: "name_latin", label: l3("拉丁字母拼寫", "Latin name", "ラテン文字表記") },

@@ -6452,8 +6452,8 @@
   },
   {
    "path": "public/world/th_accommodation.pmtiles",
-   "bytes": 14949223,
-   "sha256": "f6eb938ae8d39846e0811e0f436d7be92d4fbc5a7122b72937edec8a2ec0b3e6",
+   "bytes": 14947520,
+   "sha256": "03576d875618665373756ea4d6717692ac006f1066aa70dad8292bbcf08f61d4",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_accommodation.pmtiles"
   },
@@ -6473,8 +6473,8 @@
   },
   {
    "path": "public/world/th_arts_events.pmtiles",
-   "bytes": 1952264,
-   "sha256": "fcdfbfa904eed920eebfa6d34127e0e516dfa018887f51ac62d9b11ac16ac743",
+   "bytes": 1951901,
+   "sha256": "5a099d216f949b6614b3fcc26e1d4faa0a2920e438de0e757b92ad82e30514d9",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_arts_events.pmtiles"
   },
@@ -6529,22 +6529,22 @@
   },
   {
    "path": "public/world/th_experiences.pmtiles",
-   "bytes": 2452918,
-   "sha256": "e2f4dd43da0116678f5a94c168e7ecc4d04d3f9303dbd698b7244d5d22fa9455",
+   "bytes": 2452758,
+   "sha256": "56a4a7aeae2e0f128b6c9c21794471397be1cb8b4eb8945ee3ab0a9fd09b47e0",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_experiences.pmtiles"
   },
   {
    "path": "public/world/th_factories.pmtiles",
-   "bytes": 17535772,
-   "sha256": "183806b558d86a05e0885ede2ad3cdb389819d651e47ba9adaf7c433453af39a",
+   "bytes": 17534005,
+   "sha256": "5431f6dee76db48e9d011cad8dd4f8bdf41415c02e078a1dee51f6398e1d9ba7",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_factories.pmtiles"
   },
   {
    "path": "public/world/th_farm_markets.pmtiles",
-   "bytes": 3616619,
-   "sha256": "2946e56b3be9c3c9cf0ae3c970d8998563baf58015e9427ad8ef75fb4b66713f",
+   "bytes": 3615029,
+   "sha256": "2e71e358b4fccb9fc985437504ddb05bf4e7ab34c6bd9d733a08f0d3e0b93dbe",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_farm_markets.pmtiles"
   },
@@ -6571,15 +6571,15 @@
   },
   {
    "path": "public/world/th_fuel_stations.pmtiles",
-   "bytes": 14657204,
-   "sha256": "bfe6d46b531f1aeb5d76dd49ccb66c299dac01e6bbe67555c89c93429cd21ea2",
+   "bytes": 14655942,
+   "sha256": "8405124a438f1bc84805a389e041f27266850695c2944740d72337a45850bdf3",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_fuel_stations.pmtiles"
   },
   {
    "path": "public/world/th_health_facilities.pmtiles",
-   "bytes": 7655844,
-   "sha256": "f9c8e39d72051530d0513daeba2fe06ddeff96ab6c8335946cca813e283dd896",
+   "bytes": 7654956,
+   "sha256": "3a9d215a11e41f990f763c2981cd0beafe66c5716324f1c03d563a1f0750baf6",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_health_facilities.pmtiles"
   },
@@ -6613,15 +6613,15 @@
   },
   {
    "path": "public/world/th_kindergartens.pmtiles",
-   "bytes": 30477529,
-   "sha256": "2f9af2f5016d79b8eb2062f429158a44586a15175ef26082c16da6d512c0caaa",
+   "bytes": 30475006,
+   "sha256": "0a3075ee4f2a616135488eef4e6886d98242a4d523905496eaaff20268923d51",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_kindergartens.pmtiles"
   },
   {
    "path": "public/world/th_landfills.pmtiles",
-   "bytes": 12039195,
-   "sha256": "f45298dcd6f286213a8e649683c924627c1e1f45a05becd6f69dad7c1e2c6d65",
+   "bytes": 12034023,
+   "sha256": "ede800df1963e005698d165258466a31fb8298a9d88ffe221db7d8a0004181b5",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_landfills.pmtiles"
   },
@@ -6655,15 +6655,15 @@
   },
   {
    "path": "public/world/th_museums_libraries.pmtiles",
-   "bytes": 2619007,
-   "sha256": "1776f0cf78e07ffca400e93b5b72f25eda8a24306ca63285c148aa3f912391fa",
+   "bytes": 2618987,
+   "sha256": "4324a7126733256a0317921531656f7355108090d9193540a2018cfdfd499457",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_museums_libraries.pmtiles"
   },
   {
    "path": "public/world/th_national_parks.pmtiles",
-   "bytes": 3448260,
-   "sha256": "56eb8851a7e2ce9bdff5e3e99752f52760a83e4ed981f5fae34e08dbf6b157ba",
+   "bytes": 3447275,
+   "sha256": "a17d4c1be1b93ecfbc073a273d6d82a904b435b9d4162add7dcf8dbbe9055b9b",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_national_parks.pmtiles"
   },
@@ -6676,15 +6676,15 @@
   },
   {
    "path": "public/world/th_nature_spots.pmtiles",
-   "bytes": 8827284,
-   "sha256": "e31c61a873ba5a13ed014ca61e8f5ded4306389a21b5b7308b5d9f0376094ea8",
+   "bytes": 8826817,
+   "sha256": "1a2ef51611350e79e6e9f0c56f6cd5aff8850e4a31e3b18e2e11abf8c3efff96",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_nature_spots.pmtiles"
   },
   {
    "path": "public/world/th_parks.pmtiles",
-   "bytes": 7896801,
-   "sha256": "b7f4a6c2a5076e4d719ae5259f8e5568fe606c7515d4f20c4261001206af5f93",
+   "bytes": 7896061,
+   "sha256": "f17a66e5a405a220cebb230155c81fcfc176090a4d3469ca52d391184ed0a780",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_parks.pmtiles"
   },
@@ -6697,22 +6697,22 @@
   },
   {
    "path": "public/world/th_place_names.pmtiles",
-   "bytes": 19768802,
-   "sha256": "4bb5ac08d5d21e32aa6f11acdc4712f378d5cd8bd1bd75e5521931e636a172af",
+   "bytes": 19768717,
+   "sha256": "fdd66ac3d482ce803035e9a3ef26adc508c9dadf567b1c4cd7ea01164914a7ef",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_place_names.pmtiles"
   },
   {
    "path": "public/world/th_places_of_worship.pmtiles",
-   "bytes": 66951442,
-   "sha256": "8748b7917b851c31d83e0fd0150909258f79ff1d93f2e356205f2db090dbafe2",
+   "bytes": 66951473,
+   "sha256": "3b0dc7636ce21811ad71300f5bac8e6ca6a1ebe6859bc2ca9cdfd4af922c0004",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_places_of_worship.pmtiles"
   },
   {
    "path": "public/world/th_police_stations.pmtiles",
-   "bytes": 6618129,
-   "sha256": "63c76d66b33272b8aba1a31191b5836d94e825ddf8913e483338feac4289d3fb",
+   "bytes": 6617999,
+   "sha256": "30b22262774c6d726cdcf1d51dbb0780f17567e4c8daa609a93a3873cfa76f85",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_police_stations.pmtiles"
   },
@@ -6781,8 +6781,8 @@
   },
   {
    "path": "public/world/th_schools.pmtiles",
-   "bytes": 46577542,
-   "sha256": "6a562e7111c7eb87ee6534f24a5d62e3f9170722338b3991049c69552e73f0ee",
+   "bytes": 46577276,
+   "sha256": "4a1246fc24ddb4de25e7880aabb88765dc6fd90459672d69e65836c1be9ab1b4",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_schools.pmtiles"
   },
@@ -6809,8 +6809,8 @@
   },
   {
    "path": "public/world/th_sports_venues.pmtiles",
-   "bytes": 10825047,
-   "sha256": "966be0d0a173405529d560b1875fb3c84d15de86991b9d6b8efb76964caf6093",
+   "bytes": 10821830,
+   "sha256": "b2129310b1298ff76f017fdb10c51da56f5d31a3d4679f5c14b2b77e9fb46933",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_sports_venues.pmtiles"
   },
@@ -6844,8 +6844,8 @@
   },
   {
    "path": "public/world/th_veterinary.pmtiles",
-   "bytes": 3974947,
-   "sha256": "60360d45c96bb39ae8bfaf8a1cfc39edf14653ca2bea63aef4953174b15081ef",
+   "bytes": 3974230,
+   "sha256": "7d7cbf9c9cfb7838006307b346a4693b9b9ab6af4ca4bae89f52637a6a43bb19",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_veterinary.pmtiles"
   },

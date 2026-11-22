@@ -171,7 +171,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("police_other", ["other"], "#94a3b8", "其他警察單位（589／967）", "Other police units (589 / 967)", "その他の警察組織（589／967）", { radius: 3 }),
     ],
     defaultCats: ["station"],
-    title: { props: ["name_th", "name", "name_en"], fallback: l3("警察據點", "Police unit", "警察施設") },
+    title: { props: ["name_th", "name", "name_en"], fallback: l3("警察據點", "Police unit", "警察施設"), fallbackBy: REDACTED_TITLE },
     fields: [
       ...NAME_FIELDS,
       { prop: "unit_kind", label: l3("單位類型", "Unit kind", "組織種別"), map: { station: l3("警察局", "Station", "警察署"), post: l3("派出所、哨所", "Post", "派出所"), other: l3("其他", "Other", "その他") } },
@@ -275,7 +275,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("park", ["park"], "#15803d", "國家公園（126）", "National park (126)", "国立公園（126）", { parts: ["th-parks-fill", "th-parks-line"] }),
       cat("sanctuary", ["sanctuary"], "#ca8a04", "野生動物保護區（58）", "Wildlife sanctuary (58)", "野生生物保護区（58）", { parts: ["th-sanctuary-fill", "th-sanctuary-line"] }),
     ],
-    title: { props: ["name_th", "name_en"], fallback: l3("國家公園、保護區", "National park / sanctuary", "国立公園・保護区") },
+    title: { props: ["name_th", "name_en"], fallback: l3("國家公園、保護區", "National park / sanctuary", "国立公園・保護区"), fallbackBy: REDACTED_TITLE },
     fields: [
       { prop: "name_en", label: l3("英文名稱", "English name", "英語名") },
       { prop: "type_th", label: l3("類型（泰文原文）", "Type (Thai)", "種別（タイ語）") },
@@ -340,7 +340,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("osm_museum", ["osm_museum"], "#e879f9", "博物館（OSM 補缺，空心，606）", "Museum (OSM gap-fill, hollow, 606)", "博物館（OSM 補完、中抜き、606）", { parts: ["th-osm-museums-circle"], radius: 3.5 }),
       cat("osm_library", ["osm_library"], "#38bdf8", "圖書館（OSM 補缺，空心，306）", "Library (OSM gap-fill, hollow, 306)", "図書館（OSM 補完、中抜き、306）", { parts: ["th-osm-libraries-circle"], radius: 3.5 }),
     ],
-    title: { props: ["name_th", "name", "name_en"], fallback: l3("博物館、圖書館", "Museum / library", "博物館・図書館") },
+    title: { props: ["name_th", "name", "name_en"], fallback: l3("博物館、圖書館", "Museum / library", "博物館・図書館"), fallbackBy: REDACTED_TITLE },
     fields: [
       ...NAME_FIELDS,
       { prop: "kind", label: l3("類型", "Kind", "種別"), map: { museum: l3("博物館", "Museum", "博物館"), library: l3("圖書館", "Library", "図書館") } },

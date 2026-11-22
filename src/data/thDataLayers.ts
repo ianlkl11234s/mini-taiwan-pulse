@@ -434,7 +434,7 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
     otherColor: "#94a3b8",
     otherLabel: l3("其他／未知品牌", "Other / unknown brand", "その他・不明なブランド"),
     heat: { intensity: 1.4 },
-    title: { props: ["name"], fallback: l3("加油站", "Fuel station", "ガソリンスタンド") },
+    title: { props: ["name"], fallback: l3("加油站", "Fuel station", "ガソリンスタンド"), fallbackBy: { prop: "name_redacted", map: { true: l3("（個人名義，已遮蔽）", "(personal name, redacted)", "（個人名義、秘匿）") } } },
     fields: [
       { prop: "brand_group", label: l3("品牌（歸類）", "Brand (grouped)", "ブランド（分類）"), map: { other: l3("其他品牌", "Other brand", "その他のブランド"), unknown: l3("未知", "Unknown", "不明") } },
       { prop: "brand", label: l3("品牌（Overture 原文）", "Brand (Overture)", "ブランド（Overture 原文）") },
