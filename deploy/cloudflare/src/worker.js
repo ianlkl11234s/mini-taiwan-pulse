@@ -37,6 +37,8 @@ const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urb
   'finance', 'energy', 'mapchallenge', 'statistics', 'state_assets', 'statistics-accessibility'];
 // CI-4：移出 git 的資料檔裡，落在特殊路由的少數檔（.png 副檔名規則、根目錄）也先讀 R2 再退 dist
 const LOCKED_DATA_FILES = ['/base_map/hillshade.png', '/station_pillars.json', '/mapchallenge/day08_plan1955.jpg', '/mapchallenge/day17_skyglow_2025.png', '/mapchallenge/day17_ground_radiance_2025.png', '/mapchallenge/day19_potential_iso.png', '/mapchallenge/day19_potential_winter.png', '/mapchallenge/day19_potential_summer.png'];
+// 同上，但以目錄計：整個目錄都是 lock 資料檔、檔數多（台灣圖層延伸 B6 月幀年拼圖 .png 共 69 張），不逐檔列
+const LOCKED_DATA_DIRS = ['/marine/odb_mhw/', '/marine/crw_heat_stress/'];
 // 純 /data（非 ^~），值為固定 Cache-Control，null = map
 const DATA_ONLY = { water_resources: null, agriculture: null, business_registry: CC_1Y, industrial_zone: CC_1Y, sports: null, education: null, 'static-rpc': null, medical: null, base_map: null, fire: null, police_justice: null, road: null, rail: null, 'embed-snapshots': CC_1Y, 'embed-rail': CC_1Y };
 // ^~ 前綴：不受 L893 副檔名正則影響
@@ -198,7 +200,7 @@ export default {
 
     // ookla（L277）：CI-4 起與其他 /geo/ 檔相同，先 R2 再 dist（內容由 deploy/public-assets.lock.json 的 sha256 把關）
 
-    if (LOCKED_DATA_FILES.includes(path)) {
+    if (LOCKED_DATA_FILES.includes(path) || LOCKED_DATA_DIRS.some((d) => path.startsWith(d))) {
       const r2 = await fromR2(req, path, ccMap(path));
       if (r2) return r2;
       const r = await asset(env, req, path);

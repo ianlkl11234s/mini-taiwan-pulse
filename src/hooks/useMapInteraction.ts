@@ -24,6 +24,7 @@ import { layerParamRefs } from "../state/layerParamRefs";
 import { reservoirFeatureProps } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
+import { pickTwMarineHeatCells } from "./useTwMarineHeatLayer";
 import { sessionTracker } from "../lib/sessionTracker";
 import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, needsGfwGridDetailHydration } from "../data/gfwHourlyDetailLoader";
 import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
@@ -582,6 +583,15 @@ export function useMapInteraction(
           if (picked) {
             setFeatureInfo({ layerType: "transitAccessPlayback", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
             sessionTracker.log("feature_click", { layerType: "transitAccessPlayback" });
+            found = true;
+          }
+        }
+        // 海洋熱浪／珊瑚白化熱壓力（月幀 raster，不能 queryRenderedFeatures）：查目前顯示月份的年度數值檔
+        if (!found && (vis?.twMarineHeatwaves || vis?.twCoralBleachingHeatStress)) {
+          const picked = pickTwMarineHeatCells(e.lngLat.lng, e.lngLat.lat);
+          if (picked) {
+            setFeatureInfo({ layerType: "twMarineHeat", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
+            sessionTracker.log("feature_click", { layerType: "twMarineHeat" });
             found = true;
           }
         }
