@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2074,
+    "keyCount": 2075,
     "sections": [
       "gisLayers",
       "overlays",
@@ -8628,6 +8628,12 @@
         "mapchallenge-day17-dark-road-segments-line"
       ],
       "type": "mapchallengeDay17DarkRoads"
+    },
+    {
+      "layers": [
+        "mapchallenge-day21-osm-roads-line"
+      ],
+      "type": "mapchallengeDay21OsmRoads"
     },
     {
       "layers": [
@@ -119362,6 +119368,298 @@
       ],
       "sourceId": "mapchallenge-day19-penalties",
       "sourceUrl": "./mapchallenge/day19_odor_penalties.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay21OsmRoads",
+      "layers": [
+        {
+          "filter": [
+            "<=",
+            [
+              "to-number",
+              [
+                "get",
+                "year"
+              ],
+              0
+            ],
+            2026
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "match",
+              [
+                "get",
+                "highway"
+              ],
+              [
+                "motorway",
+                "motorway_link",
+                "trunk",
+                "trunk_link",
+                "primary",
+                "primary_link"
+              ],
+              2,
+              [
+                "secondary",
+                "secondary_link",
+                "tertiary",
+                "tertiary_link"
+              ],
+              1,
+              0
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  0
+                ],
+                2007,
+                "#5382f6",
+                2008,
+                "#6b8eff",
+                2009,
+                "#8ca4ff",
+                2010,
+                "#6c75f1",
+                2011,
+                "#9a86ff",
+                2012,
+                "#9f69d6",
+                2013,
+                "#cb70c8",
+                2014,
+                "#d0598b",
+                2015,
+                "#fd707d",
+                2016,
+                "#ff8579",
+                2017,
+                "#e14b30",
+                2018,
+                "#eb5b30",
+                2019,
+                "#f06c33",
+                2020,
+                "#f67f37",
+                2021,
+                "#fc913a",
+                2022,
+                "#ffa041",
+                2023,
+                "#ffae4b",
+                2024,
+                "#ffbb55",
+                2025,
+                "#ffc65e",
+                2026,
+                "#ffd166",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "match",
+                  [
+                    "get",
+                    "highway"
+                  ],
+                  [
+                    "motorway",
+                    "motorway_link",
+                    "trunk",
+                    "trunk_link",
+                    "primary",
+                    "primary_link"
+                  ],
+                  2,
+                  [
+                    "secondary",
+                    "secondary_link",
+                    "tertiary",
+                    "tertiary_link"
+                  ],
+                  1,
+                  0.5
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "highway"
+                  ],
+                  [
+                    "motorway",
+                    "motorway_link",
+                    "trunk",
+                    "trunk_link",
+                    "primary",
+                    "primary_link"
+                  ],
+                  3.5,
+                  [
+                    "secondary",
+                    "secondary_link",
+                    "tertiary",
+                    "tertiary_link"
+                  ],
+                  2,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "year"
+                  ],
+                  0
+                ],
+                2007,
+                "#2c55c4",
+                2008,
+                "#324dc0",
+                2009,
+                "#3846bc",
+                2010,
+                "#403eb6",
+                2011,
+                "#5235a7",
+                2012,
+                "#662d96",
+                2013,
+                "#7e277d",
+                2014,
+                "#9a265d",
+                2015,
+                "#b32a41",
+                2016,
+                "#cc3c37",
+                2017,
+                "#e14b30",
+                2018,
+                "#eb5b30",
+                2019,
+                "#f06c33",
+                2020,
+                "#f67f37",
+                2021,
+                "#fc913a",
+                2022,
+                "#ffa041",
+                2023,
+                "#ffae4b",
+                2024,
+                "#ffbb55",
+                2025,
+                "#ffc65e",
+                2026,
+                "#ffd166",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "match",
+                  [
+                    "get",
+                    "highway"
+                  ],
+                  [
+                    "motorway",
+                    "motorway_link",
+                    "trunk",
+                    "trunk_link",
+                    "primary",
+                    "primary_link"
+                  ],
+                  2,
+                  [
+                    "secondary",
+                    "secondary_link",
+                    "tertiary",
+                    "tertiary_link"
+                  ],
+                  1,
+                  0.5
+                ],
+                14,
+                [
+                  "match",
+                  [
+                    "get",
+                    "highway"
+                  ],
+                  [
+                    "motorway",
+                    "motorway_link",
+                    "trunk",
+                    "trunk_link",
+                    "primary",
+                    "primary_link"
+                  ],
+                  3.5,
+                  [
+                    "secondary",
+                    "secondary_link",
+                    "tertiary",
+                    "tertiary_link"
+                  ],
+                  2,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 8,
+        "sourceLayer": "day21_osm_road_years"
+      },
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "mapchallenge-day21-osm-roads",
+      "sourceUrl": "./mapchallenge/day21_osm_road_years.pmtiles"
     }
   ],
   "params": {
@@ -159325,6 +159623,54 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay21OsmRoads": [
+      {
+        "label": "道路等級",
+        "options": [
+          {
+            "label": "主幹道路",
+            "value": "motorway"
+          },
+          {
+            "label": "次要道路",
+            "value": "secondary"
+          },
+          {
+            "label": "一般道路（含未標等級）",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "secondary",
+          "__other__"
+        ]
+      },
+      {
+        "label": "年份 2026",
+        "max": 2026,
+        "min": 2007,
+        "name": "年份",
+        "step": 1,
+        "value": 2026,
+        "valueText": "2026"
+      },
+      {
+        "label": "只看當年新增",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "marineEcologicalMonitoringSites": [

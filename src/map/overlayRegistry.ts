@@ -58,6 +58,8 @@ import {
 import {
   mapchallengeDay19CategoryColor, mapchallengeDay19DensOpacityExpr, mapchallengeDay19PenaltyRadiusExpr, mapchallengeDay19RatioColorExpr, mapchallengeDay19TopColorExpr,
 } from "../data/mapchallengeDay19Style";
+import { MAPCHALLENGE_DAY21_ATTRIBUTION, MAPCHALLENGE_DAY21_ROADS_SOURCE_LAYER, MAPCHALLENGE_DAY21_ROADS_URL, mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
+import { mapchallengeDay21ColorExpr, mapchallengeDay21SortKeyExpr, mapchallengeDay21WidthExpr, mapchallengeDay21YearFilter } from "../data/mapchallengeDay21Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withDarkContrast } from "./darkContrast";
@@ -13381,6 +13383,26 @@ OVERLAY_REGISTRY.push({
       "circle-color": mapchallengeDay19RatioColorExpr(isDark),
       "circle-radius": mapchallengeDay19PenaltyRadiusExpr(p?.mapchallengeDay19PenaltiesScale ?? 1),
       "circle-opacity": p?.mapchallengeDay19PenaltiesOpacity ?? 0.85,
+    }),
+  }],
+});
+
+// ── 30 天地圖挑戰 Day 21 OSM「道路畫進 OSM 的年份」（模擬面板，公開，2026-11-21）：雙北＋基隆 PMTiles。
+// 色＝year（20 色 match，定案動畫色帶）；寬依道路等級三級（資料編碼，LINE_TIERS keep）；粗線在上。
+// 年份拉桿／只看當年新增改 filter（隱藏的路不能被點到）；道路等級多選由 CATEGORY_FILTERS 併入。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay21OsmRoads", sourceUrl: MAPCHALLENGE_DAY21_ROADS_URL, sourceId: "mapchallenge-day21-osm-roads",
+  pmtiles: { sourceLayer: MAPCHALLENGE_DAY21_ROADS_SOURCE_LAYER, minzoom: 8, maxzoom: 14 },
+  attribution: MAPCHALLENGE_DAY21_ATTRIBUTION,
+  rebuildOnParamChange: ["line"], rebuildOnParamKeys: ["mapchallengeDay21OsmRoadsYear", "mapchallengeDay21OsmRoadsNewOnly"],
+  layers: [{
+    suffix: "line", type: "line",
+    layout: { "line-cap": "round", "line-join": "round", "line-sort-key": mapchallengeDay21SortKeyExpr() },
+    filter: (p) => mapchallengeDay21YearFilter(mapchallengeDay21YearAt(p?.mapchallengeDay21OsmRoadsYear), (p?.mapchallengeDay21OsmRoadsNewOnly ?? 0) !== 0),
+    paint: (_isDark, p) => ({
+      "line-color": mapchallengeDay21ColorExpr(),
+      "line-width": mapchallengeDay21WidthExpr(),
+      "line-opacity": p?.mapchallengeDay21OsmRoadsOpacity ?? 0.85,
     }),
   }],
 });

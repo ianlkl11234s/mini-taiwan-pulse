@@ -2783,5 +2783,9 @@
   "param.充電站": "Charging station",
   "param.換電站": "Battery swap station",
   "param.LED 燈具": "LED fixture",
-  "param.非 LED 燈具": "Non-LED fixture"
+  "param.非 LED 燈具": "Non-LED fixture",
+  "param.只看當年新增": "Only roads added that year",
+  "param.主幹道路": "Major roads",
+  "param.2007 以前": "2007 or earlier",
+  "param.一般道路（含未標等級）": "Local roads (incl. untagged)"
 }

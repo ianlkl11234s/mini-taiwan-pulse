@@ -2064,5 +2064,6 @@
   "layer.sandGravelPlants": "砂利碎解・洗浄選別場",
   "layer.countyWelfarePoints": "県市の福祉拠点（ケア拠点・フードバンク）",
   "layer.evMotorcycleCharging": "電動バイク充電・交換ステーション（県市環境保護局）",
-  "layer.countyStreetlights": "県市の街路灯地点"
+  "layer.countyStreetlights": "県市の街路灯地点",
+  "layer.mapchallengeDay21OsmRoads": "道路が OSM に描かれた年"
 }

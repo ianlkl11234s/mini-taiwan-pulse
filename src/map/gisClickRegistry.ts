@@ -46,8 +46,17 @@ import { GFW_V4_TRACK_CLICK_LAYERS } from "../hooks/useGfwV4TracksLayer";
 import { GFW_FISHING_EFFORT_CLICK_LAYERS } from "../hooks/useGfwFishingEffortLayer";
 import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLayer";
 
+type GisLayerEntry = { layers: string[]; type: FeatureInfo["layerType"] };
+/**
+ * GIS_LAYERS 的陣列字面已約 1,000 筆，再多一筆物件字面 tsc 會報 TS2590（union type too complex，2026-11-21 Day 21 實測）。
+ * 新增的條目先宣告成具名常數（型別已定，不再增加字面 union），再在 GIS_LAYERS 對應位置展開。
+ */
+const MAPCHALLENGE_DAY21_CLICK_LAYERS: GisLayerEntry[] = [
+  { layers: ["mapchallenge-day21-osm-roads-line"], type: "mapchallengeDay21OsmRoads" },
+];
+
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
-export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+export const GIS_LAYERS: GisLayerEntry[] = [
   // 🏯 30 天地圖挑戰 Day 6 復古點與線（燈塔歷史／今日點、祠廟、今日地名、海岸線）：小目標，
   //    放在所有大面積面層（溫度網格、校地等）之前，兩層同開時才點得到（review F007）
   { layers: ["mapchallenge-day06-lighthouses-circle", "mapchallenge-day06-lighthouses-today-circle"], type: "mapchallengeDay06Lighthouses" },
@@ -1294,6 +1303,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌙 30 天地圖挑戰 Day 17 光與暗（模擬面板）：連續暗路段（帶名次與起訖）在上、路段在下；保護區面見下方面層段
   { layers: ["mapchallenge-day17-dark-road-runs-line"], type: "mapchallengeDay17DarkRoads" },
   { layers: ["mapchallenge-day17-dark-road-segments-line"], type: "mapchallengeDay17DarkRoads" },
+  // 🛣️ 30 天地圖挑戰 Day 21 OSM：道路線（和 Day 17 路段同一段，在點層之後）
+  ...MAPCHALLENGE_DAY21_CLICK_LAYERS,
   // 🏯 30 天地圖挑戰 Day 6 復古：町界面放大面積段（面會吞點擊）；點與線 entry 在陣列開頭（review F007）
   { layers: ["mapchallenge-day06-taipei-1932-fill"], type: "mapchallengeDay06Taipei1932" },
   // 🌳 30 天地圖挑戰 Day 8 烏托邦：選址面（小）在上、步行分鐘統計區面（鋪滿中永和）在下
