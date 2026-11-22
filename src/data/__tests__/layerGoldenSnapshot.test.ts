@@ -321,7 +321,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-22: +2 30 天地圖挑戰 Day 23 味覺（mapchallengeDay23TasteTerms、mapchallengeDay23TasteVariants）。
     // 2026-11-22: +10 泰國第 0–1 波（行政區界、人口密度、機場港口渡輪、車站與公車站、國道鐵道、電廠、電網、風電太陽能、加油站、儲槽與管線）。
     // 2026-11-22: +15 泰國第 2–4 波（山體陰影、色別標高、地名、選區、高地村、府級社經、人行天橋、平交道、事故、EEC、歷史淹水、流域、灌溉、坍方安全點、垃圾場址）。
-    expect(keys.length).toBe(2107);
+    // 2026-11-22: +19 泰國第 5–7 波（學校、幼兒班、長者住宿、醫療、警察、監所法院、自然景點、保留林、國家公園、拉姆薩、森林公園、博物館圖書館、藝文、古蹟、體驗、住宿、銀行、宗教、郵局）。
+    expect(keys.length).toBe(2126);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

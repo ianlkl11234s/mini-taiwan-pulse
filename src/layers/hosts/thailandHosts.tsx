@@ -77,3 +77,24 @@ function makeThRasterHost(key: ThRasterKey): LayerHostComponent {
 }
 export const ThTerrainHillshadeHost = makeThRasterHost("thTerrainHillshade");
 export const ThTerrainReliefHost = makeThRasterHost("thTerrainRelief");
+
+// ── 第 5–7 波（2026-11-22）：規格在 thWaves5Layers.ts
+export const ThSchoolsHost = W("thSchools");
+export const ThKindergartensHost = W("thKindergartens");
+export const ThElderlyHousingHost = W("thElderlyHousing");
+export const ThHealthFacilitiesHost = W("thHealthFacilities");
+export const ThPoliceStationsHost = W("thPoliceStations");
+export const ThJailsCourtsHost = W("thJailsCourts");
+export const ThNatureSpotsHost = W("thNatureSpots");
+export const ThNationalReservedForestsHost = W("thNationalReservedForests");
+export const ThNationalParksHost = W("thNationalParks");
+export const ThRamsarSitesHost = W("thRamsarSites");
+export const ThForestParksHost = W("thForestParks");
+export const ThMuseumsLibrariesHost = W("thMuseumsLibraries");
+export const ThArtsEventsHost = W("thArtsEvents");
+export const ThHistoricSitesHost = W("thHistoricSites");
+export const ThExperiencesHost = W("thExperiences");
+export const ThAccommodationHost = W("thAccommodation");
+export const ThBanksHost = W("thBanks");
+export const ThPlacesOfWorshipHost = W("thPlacesOfWorship");
+export const ThPostOfficesHost = W("thPostOffices");

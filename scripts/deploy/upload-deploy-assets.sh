@@ -738,6 +738,25 @@ for f in \
   public/world/th_irrigation_projects.pmtiles \
   public/world/th_landslide_safe_points.pmtiles \
   public/world/th_landfills.pmtiles \
+  public/world/th_schools.pmtiles \
+  public/world/th_kindergartens.pmtiles \
+  public/world/th_elderly_housing.pmtiles \
+  public/world/th_health_facilities.pmtiles \
+  public/world/th_police_stations.pmtiles \
+  public/world/th_jails_courts.pmtiles \
+  public/world/th_nature_spots.pmtiles \
+  public/world/th_national_reserved_forests.pmtiles \
+  public/world/th_national_parks.pmtiles \
+  public/world/th_ramsar_sites.pmtiles \
+  public/world/th_forest_parks.pmtiles \
+  public/world/th_museums_libraries.pmtiles \
+  public/world/th_arts_events.pmtiles \
+  public/world/th_historic_sites.pmtiles \
+  public/world/th_experiences.pmtiles \
+  public/world/th_accommodation.pmtiles \
+  public/world/th_banks.pmtiles \
+  public/world/th_places_of_worship.pmtiles \
+  public/world/th_post_offices.pmtiles \
   public/world/vn_transport_hubs_odm.pmtiles \
   public/world/vn_transport_hubs_osm.pmtiles \
   public/world/vn_major_roads_v2.pmtiles \

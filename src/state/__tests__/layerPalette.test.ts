@@ -116,7 +116,8 @@ describe("R7 顏色解析器", () => {
     // 2026-11-20 +1 台灣圖層延伸 B3：國家公園物種調查點位（自然保育主題第一個熱區層）
     // 2026-11-22 +1 泰國第 1 波：加油站
     // 2026-11-22 +1 泰國第 3 波：道路事故
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(144);
+    // 2026-11-22 +6 泰國第 5–7 波：學校、幼兒班、醫療、宗教場所、住宿、銀行
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(150);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

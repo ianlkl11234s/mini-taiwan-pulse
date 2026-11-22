@@ -466,6 +466,16 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "災害",
     "水資源",
     "廢棄物",
+    // 第 5–7 波（2026-11-22）
+    "教育",
+    "社福長照",
+    "醫療",
+    "執法治安",
+    "觀光",
+    "自然保育",
+    "文化",
+    "基礎建設",
+    "宗教",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -3726,6 +3736,88 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "垃圾場址", layers: [fromManifest("thLandfills")] }],
   },
+  // 第 5–7 波（2026-11-22）
+  {
+    title: "教育",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校", layers: [fromManifest("thSchools")] },
+      { title: "幼兒教育", layers: [fromManifest("thKindergartens")] },
+    ],
+  },
+  {
+    title: "社福長照",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "長者住宿", layers: [fromManifest("thElderlyHousing")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("thHealthFacilities")] },
+    ],
+  },
+  {
+    title: "執法治安",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "警政", layers: [fromManifest("thPoliceStations")] },
+      { title: "司法矯正", layers: [fromManifest("thJailsCourts")] },
+    ],
+  },
+  {
+    title: "觀光",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・自然", layers: [fromManifest("thNatureSpots")] },
+      { title: "玩・體驗", layers: [fromManifest("thExperiences")] },
+      { title: "住・食", layers: [fromManifest("thAccommodation")] },
+    ],
+  },
+  {
+    title: "自然保育",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "保護區", layers: [fromManifest("thNationalParks")] },
+      { title: "林地", layers: [fromManifest("thNationalReservedForests"), fromManifest("thForestParks")] },
+      { title: "濕地", layers: [fromManifest("thRamsarSites")] },
+    ],
+  },
+  {
+    title: "文化",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "文化設施", layers: [fromManifest("thMuseumsLibraries")] },
+      { title: "藝文活動", layers: [fromManifest("thArtsEvents")] },
+      { title: "文化資產", layers: [fromManifest("thHistoricSites")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "金融據點", layers: [fromManifest("thBanks")] },
+      { title: "郵政與便民", layers: [fromManifest("thPostOffices")] },
+    ],
+  },
+  {
+    title: "宗教",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("thPlacesOfWorship")] },
+    ],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🇻🇳 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源、環境監測站、安江示範；群組比照菲律賓）
@@ -4388,6 +4480,16 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "災害": "safety",
     "水資源": "environment",
     "廢棄物": "environment",
+    // 第 5–7 波（2026-11-22）
+    "教育": "publicLife",
+    "社福長照": "publicLife",
+    "醫療": "safety",
+    "執法治安": "safety",
+    "觀光": "publicLife",
+    "自然保育": "environment",
+    "文化": "publicLife",
+    "基礎建設": "publicLife",
+    "宗教": "publicLife",
   },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
@@ -4697,6 +4799,15 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "災害": { zh: "災害", sub: "Hazard" },
     "水資源": { zh: "水資源", sub: "Water" },
     "廢棄物": { zh: "廢棄物", sub: "Waste" },
+    "教育": { zh: "教育", sub: "Education" },
+    "社福長照": { zh: "社福長照", sub: "Welfare" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
+    "自然保育": { zh: "自然保育", sub: "Conservation" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "宗教": { zh: "宗教", sub: "Religion" },
   },
   CN: {
     // 中國主題副標用英文（比照菲律賓）

@@ -8,6 +8,10 @@ export const TH_DATA_KEYS = [
   "thPlaceNames", "thElectionConstituencies", "thHighlandVillages", "thProvinceSocioeconomic",
   "thFootbridges", "thRailCrossings", "thRoadAccidents",
   "thEec", "thFloodHistory", "thBasins", "thIrrigationProjects", "thLandslideSafePoints", "thLandfills",
+  // 第 5–7 波（2026-11-22）
+  "thSchools", "thKindergartens", "thElderlyHousing", "thHealthFacilities", "thPoliceStations", "thJailsCourts",
+  "thNatureSpots", "thNationalReservedForests", "thNationalParks", "thRamsarSites", "thForestParks",
+  "thMuseumsLibraries", "thArtsEvents", "thHistoricSites", "thExperiences", "thAccommodation", "thBanks", "thPlacesOfWorship", "thPostOffices",
 ] as const;
 export type ThDataKey = (typeof TH_DATA_KEYS)[number];
 
