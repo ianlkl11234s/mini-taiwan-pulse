@@ -11,6 +11,7 @@ import { getAtlasRecipe, atlasRecipeReleaseOptions } from "../data/atlasStatisti
 import { statisticsRecipe } from "../data/statisticsSelection";
 import { regionalStatisticsStore } from "../state/regionalStatisticsStore";
 import { layerParamsStore } from "../state/layerParamsStore";
+import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -74,8 +75,22 @@ function releaseIdForYear(key: string, year: string): string | null {
   return atlasRecipeReleaseOptions(recipe).find((option) => option.period_start.startsWith(`${year}-`))?.release_id ?? null;
 }
 
-/** 流向層年份 → 開著的底色層期別。 */
+/** 把目前年份／選取縣市的資料寫進（可能剛因換底圖重建的）兩個 source，並更新檢視 store。 */
+function applyData(map: MapboxMap, doc: CountyMigrationDocument, year: string, focus: string | null) {
+  const rows = doc.years[year] ?? [];
+  const valid = focus && COUNTY_SEATS[focus] ? focus : null;
+  const flows = valid ? focusCountyFlows(rows, valid) : defaultCountyFlows(rows);
+  (map.getSource(SOURCE_ID) as GeoJSONSource | undefined)?.setData(countyFlowsGeoJSON(flows, rows, year));
+  (map.getSource(SEAT_SOURCE_ID) as GeoJSONSource | undefined)?.setData(countySeatsGeoJSON(rows, year, valid));
+  countyMigrationViewStore.set({
+    year, focus: valid, shown: flows.length, hidden: hiddenFlowCount(rows, flows.length, valid),
+    totals: valid ? countyMigrationTotals(rows, valid) : null, loaded: true,
+  });
+}
+
+/** 流向層年份 → 開著的底色層期別（底色層沒開就不碰：登記選擇不代表可見，載入由統計模組依可見性管）。 */
 function pushYearToBase(key: string, year: string) {
+  if (!layerVisibilityStore.getVisibility(key as Parameters<typeof layerVisibilityStore.getVisibility>[0])) return;
   const target = releaseIdForYear(key, year);
   const snapshot = regionalStatisticsStore.getSnapshot(key);
   if (!target || !snapshot.selection || snapshot.selection.releaseId === target) return;
@@ -93,8 +108,8 @@ export function useCountyMigrationFlowsLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
   const [doc, setDoc] = useState<CountyMigrationDocument | null>(null);
   const [focus, setFocus] = useState<string | null>(null);
-  const latest = useRef({ opacity, isDarkTheme, year });
-  latest.current = { opacity, isDarkTheme, year };
+  const latest = useRef({ opacity, isDarkTheme, year, doc, focus });
+  latest.current = { opacity, isDarkTheme, year, doc, focus };
 
   useEffect(() => {
     if (!visible || doc) return;
@@ -129,6 +144,9 @@ export function useCountyMigrationFlowsLayer(
       }
       for (const id of OWN_LAYERS) map.setLayoutProperty(id, "visibility", "visible");
       keepAboveBase(map);
+      // 換底圖後 source 是新建的空殼；資料 effect 不會因 style.load 重跑，這裡直接補回
+      const { doc: loaded, year: y, focus: f } = latest.current;
+      if (loaded) applyData(map, loaded, y, f);
     };
     const onStyleData = () => keepAboveBase(map);
     mount();
@@ -141,15 +159,7 @@ export function useCountyMigrationFlowsLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible || !doc) return;
-    const rows = doc.years[year] ?? [];
-    const valid = focus && COUNTY_SEATS[focus] ? focus : null;
-    const flows = valid ? focusCountyFlows(rows, valid) : defaultCountyFlows(rows);
-    (map.getSource(SOURCE_ID) as GeoJSONSource | undefined)?.setData(countyFlowsGeoJSON(flows, rows, year));
-    (map.getSource(SEAT_SOURCE_ID) as GeoJSONSource | undefined)?.setData(countySeatsGeoJSON(rows, year, valid));
-    countyMigrationViewStore.set({
-      year, focus: valid, shown: flows.length, hidden: hiddenFlowCount(rows, flows.length, valid),
-      totals: valid ? countyMigrationTotals(rows, valid) : null, loaded: true,
-    });
+    applyData(map, doc, year, focus);
   }, [mapRef, visible, doc, year, focus, mapTick]);
 
   // 透明度／明暗
@@ -189,6 +199,13 @@ export function useCountyMigrationFlowsLayer(
     if (!visible) return;
     for (const key of COUNTY_MIGRATION_BASE_KEYS) pushYearToBase(key, year);
   }, [visible, year]);
+
+  // 底色層之後才打開 → 補同步（打開前不載入）
+  useEffect(() => {
+    if (!visible) return;
+    const unsubscribes = COUNTY_MIGRATION_BASE_KEYS.map((key) => layerVisibilityStore.subscribeKey(key, () => pushYearToBase(key, latest.current.year)));
+    return () => { for (const unsubscribe of unsubscribes) unsubscribe(); };
+  }, [visible]);
 
   // 底色換期別 → 流向層年份；底色第一次登記（還原舊選擇）時以流向層為準。
   useEffect(() => {
