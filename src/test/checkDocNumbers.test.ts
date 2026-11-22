@@ -41,6 +41,12 @@ describe("checkDocNumbers: MCP tool count markers", () => {
   it("fails when the visible number was edited but the marker was not", () => {
     expect(checkDocNumbers({ toolCount, docs: docs("core 50<!-- gen:mcp-core=24 -->") })[0]?.rule).toBe("tool-count");
   });
+  it("checks numbers inside Markdown emphasis (Codex N4)", () => {
+    expect(checkDocNumbers({ toolCount, docs: docs("**core 24**<!-- gen:mcp-core=24 -->；**full 65**<!-- gen:mcp-full=65 -->") })).toEqual([]);
+    const problems = checkDocNumbers({ toolCount, docs: docs("**core 999**<!-- gen:mcp-core=24 -->") });
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toMatchObject({ rule: "tool-count", line: 1 });
+  });
   it("requires ARCHITECTURE to keep a core marker", () => {
     expect(REQUIRED).toContain(ARCH);
     expect(checkDocNumbers({ toolCount, docs: docs("core 24 個工具（手寫）") })[0]?.rule).toBe("tool-marker");
@@ -52,6 +58,12 @@ describe("countTools", () => {
     const toolsets = 'export const CORE_TOOLS = [\n  "pulse_a", "pulse_b",\n  "pulse_c",\n] as const;';
     const test = 'const expectedToolNames = [\n  "pulse_a", "pulse_b",\n  "pulse_c", "pulse_d",\n];\n';
     expect(countTools(toolsets, test)).toEqual({ core: 3, full: 4 });
+  });
+  it("stops at the first array terminator so later arrays do not leak in (Codex N3)", () => {
+    const toolsets = 'export const CORE_TOOLS = ["pulse_a"] as const; const other = ["pulse_b"];';
+    expect(countTools(toolsets, 'const expectedToolNames = ["pulse_a"];\n')).toEqual({ core: 1, full: 1 });
+    const overlapping = 'export const CORE_TOOLS = ["pulse_a"] as const; const other = ["pulse_a"];';
+    expect(countTools(overlapping, 'const expectedToolNames = ["pulse_a"];\n').core).toBe(1);
   });
   it("rejects duplicate names", () => {
     expect(() => countTools('export const CORE_TOOLS = ["pulse_a", "pulse_a"] as const;', 'const expectedToolNames = ["pulse_a"];\n')).toThrow();
