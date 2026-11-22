@@ -153,7 +153,7 @@ const STATION_CATS: readonly PhCat[] = [
   { id: "rail_metro", values: ["rail_metro"], color: "#a78bfa", radius: 4, parts: ["th-stations-circle"], label: l3("地鐵（MRT）", "Metro (MRT)", "地下鉄（MRT）") },
   { id: "rail_srt", values: ["rail_srt"], color: "#ef4444", radius: 4.5, parts: ["th-stations-circle"], label: l3("國鐵（SRT）", "State Railway (SRT)", "国鉄（SRT）") },
   { id: "ferry", values: ["ferry"], color: "#38bdf8", radius: 4, parts: ["th-stations-circle"], label: l3("渡輪碼頭", "Ferry pier", "フェリー乗り場") },
-  { id: "bus_stop", values: ["bus_stop"], color: "#94a3b8", radius: 2.5, parts: ["th-bus-stops-circle"], label: l3("公車站（z9 起顯示）", "Bus stop (shown from z9)", "バス停（z9 以上で表示）") },
+  { id: "bus_stop", values: ["bus_stop"], color: "#94a3b8", radius: 2.5, parts: ["th-bus-stops-circle"], label: l3("公車站（z11 起顯示）", "Bus stop (shown from z11)", "バス停（z11 以上で表示）") },
   { id: "bus_unknown", values: ["unknown"], color: "#64748b", radius: 2.5, parts: ["th-bus-stops-circle"], label: l3("公車站（無班次資料）", "Bus stop (no service data)", "バス停（運行データなし）") },
 ];
 
@@ -266,8 +266,8 @@ export const TH_DATA_SPECS: readonly ThLayerSpec[] = [
     key: "thStations", file: "th_stations.pmtiles", sourceId: "th-stations", srcMinzoom: 4, srcMaxzoom: 14, color: "#f59e0b", count: 17_133,
     parts: [
       { id: "th-stations-circle", sourceLayer: "stations", geom: "point", minzoom: 4, cat: propGetter("kind") },
-      // 公車站 16,600 點：z9 起、小點，低縮放不畫（避免糊成一片；比照菲律賓場站的縮放分級）
-      { id: "th-bus-stops-circle", sourceLayer: "bus_stops", geom: "point", minzoom: 9, cat: propGetter("kind"), small: true },
+      // 公車站 16,600 點：z11 起、小點（z10 的曼谷已密成一片），低縮放不畫（避免糊成一片；比照菲律賓場站的縮放分級）
+      { id: "th-bus-stops-circle", sourceLayer: "bus_stops", geom: "point", minzoom: 11, cat: propGetter("kind"), small: true },
     ],
     cats: STATION_CATS,
     title: { props: ["name_th", "name_en"], fallback: l3("車站、碼頭、公車站", "Station / pier / bus stop", "駅・桟橋・バス停") },
@@ -282,7 +282,7 @@ export const TH_DATA_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("Namtang 全國 GTFS（OTP，2026 年班表）：鐵路、渡輪站 533、公車站 16,600（z9 起顯示）", "Namtang national GTFS (OTP, 2026 timetable): 533 rail and ferry stations, 16,600 bus stops (from z9)", "Namtang 全国 GTFS（OTP、2026 年ダイヤ）：鉄道・フェリー 533、バス停 16,600（z9 以上で表示）"),
+      l3("Namtang 全國 GTFS（OTP，2026 年班表）：鐵路、渡輪站 533、公車站 16,600（z11 起顯示）", "Namtang national GTFS (OTP, 2026 timetable): 533 rail and ferry stations, 16,600 bus stops (from z11)", "Namtang 全国 GTFS（OTP、2026 年ダイヤ）：鉄道・フェリー 533、バス停 16,600（z11 以上で表示）"),
       l3("鐵路、渡輪站涵蓋 40/77 府；其他府顯示未涵蓋，不是沒有車站", "Rail and ferry stations cover 40/77 provinces; other provinces are not covered, not empty", "鉄道・フェリーは 40/77 県。他の県は未収録で、駅がないという意味ではない"),
       l3("Pakse（寮國）站已排除；無班次資料的公車站另色標示", "Pakse (Laos) station excluded; bus stops without service data shown in another color", "Pakse（ラオス）の駅は除外。運行データのないバス停は別色で表示"),
       l3("本層 CC BY 4.0 僅見 Transitland 轉述（OTP 原文未讀到）", "CC BY 4.0 here is only per Transitland's restatement (OTP's original text not found)", "CC BY 4.0 は Transitland の転記のみ確認（OTP 原文は未確認）"),
@@ -430,7 +430,7 @@ export const TH_DATA_SPECS: readonly ThLayerSpec[] = [
     cats: FUEL_CATS,
     otherColor: "#94a3b8",
     otherLabel: l3("其他／未知品牌", "Other / unknown brand", "その他・不明なブランド"),
-    heat: { intensity: 0.6 },
+    heat: { intensity: 1.4 },
     title: { props: ["name"], fallback: l3("加油站", "Fuel station", "ガソリンスタンド") },
     fields: [
       { prop: "brand_group", label: l3("品牌（歸類）", "Brand (grouped)", "ブランド（分類）"), map: { other: l3("其他品牌", "Other brand", "その他のブランド"), unknown: l3("未知", "Unknown", "不明") } },
