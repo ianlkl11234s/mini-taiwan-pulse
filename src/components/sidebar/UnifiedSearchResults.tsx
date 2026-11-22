@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Layers, MapPin, TrainFront, type LucideIcon } from "lucide-react";
+import { House, Layers, MapPin, Signpost, TrainFront, type LucideIcon } from "lucide-react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
 import { useLocale } from "../../state/localeStore";
 import { searchLayers, type LayerSearchResult } from "../../lib/layerSearch";
 import { searchPlaces, type PlaceSearchHit, type PlaceSearchIndex } from "../../lib/placeSearch";
 import { loadPlaceSearchIndex } from "../../data/placeSearchIndexLoader";
+import { useAddressSearch } from "../../hooks/useAddressSearch";
+import type { AddressHit } from "../../lib/addressSearch";
+import { AddressAttribution } from "./AddressAttribution";
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { useRailTheme } from "./railTheme";
 
@@ -36,7 +39,15 @@ interface UnifiedSearchResultsProps {
   onPickLayer: (layer: LayerSearchResult) => void;
 }
 
-/** Locations 面板：有輸入時顯示「地點」（本地索引）與「圖層」兩區，地點在前，各最多 8 筆。 */
+/** 門牌命中 → 選取目標（沿用地點選取的飛行與標記） */
+function addressToPlace(hit: AddressHit): PlaceSearchHit {
+  return { label: hit.label, kind: hit.kind, parent: `${hit.county}${hit.town}`, center: hit.center, ...(hit.bbox ? { bbox: hit.bbox } : {}), score: 3 };
+}
+
+/**
+ * Locations 面板：有輸入時顯示「地點」與「圖層」兩區，地點在前，各最多 8 筆。
+ * 輸入像門牌時，「地點」區先列門牌（第二階段，懶載入縣市＋區分片；站主登入另查站主版），底下附來源署名。
+ */
 export function UnifiedSearchResults({ query, indexState, lockedKeys, onPickPlace, onPickLayer }: UnifiedSearchResultsProps) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -44,16 +55,36 @@ export function UnifiedSearchResults({ query, indexState, lockedKeys, onPickPlac
     () => (indexState.status === "ready" ? searchPlaces(indexState.index, query, LIMIT) : []),
     [indexState, query],
   );
+  const address = useAddressSearch(query, indexState.status === "ready" ? indexState.index : null);
+  const addressHits = address.status === "ready" ? address.hits : [];
   const layers = useMemo(
     () => searchLayers(query, { limit: LIMIT, ...(lockedKeys ? { lockedKeys } : {}) }),
     [query, lockedKeys],
   );
   return (
     <div data-testid="unified-search-results">
-      <SectionTitle icon={MapPin} title={t("placeSearch.places")} count={indexState.status === "ready" ? places.length : null} />
+      <SectionTitle icon={MapPin} title={t("placeSearch.places")} count={indexState.status === "ready" ? places.length + addressHits.length : null} />
       {indexState.status === "loading" && <EmptyLine text={t("placeSearch.loading")} />}
       {indexState.status === "error" && <EmptyLine text={t("placeSearch.loadFailed")} role="alert" />}
-      {indexState.status === "ready" && places.length === 0 && <EmptyLine text={t("placeSearch.noPlaces")} />}
+      {address.status === "loading" && <EmptyLine text={t("addressSearch.searching")} />}
+      {address.status === "error" && <EmptyLine text={t("addressSearch.loadFailed")} role="alert" />}
+      {address.status === "ready" && address.ownerFailed && <EmptyLine text={t("addressSearch.ownerFailed")} role="alert" />}
+      {address.status === "ready" && addressHits.length === 0 && <EmptyLine text={t("addressSearch.noAddress")} />}
+      {addressHits.map((hit) => (
+        <ResultRow
+          key={`addr:${hit.source}:${hit.label}`}
+          icon={hit.kind === "road" ? Signpost : House}
+          name={hit.label}
+          subtitle={[
+            t(hit.kind === "road" ? "addressSearch.kind.road" : "addressSearch.kind.address"),
+            hit.source === "owner"
+              ? `${t("addressSearch.ownerOnly")} · ${t(hit.ownerTag === "t" ? "addressSearch.owner.tgos" : "addressSearch.owner.registry")}`
+              : hit.source === "osm" ? "OpenStreetMap" : t("addressSearch.source.gov"),
+          ].join(" · ")}
+          onClick={() => onPickPlace(addressToPlace(hit))}
+        />
+      ))}
+      {indexState.status === "ready" && places.length === 0 && addressHits.length === 0 && address.status === "idle" && <EmptyLine text={t("placeSearch.noPlaces")} />}
       {places.map((place) => (
         <ResultRow
           key={`${place.kind}:${place.parent}:${place.label}`}
@@ -63,6 +94,9 @@ export function UnifiedSearchResults({ query, indexState, lockedKeys, onPickPlac
           onClick={() => onPickPlace(place)}
         />
       ))}
+      {address.status === "ready" && addressHits.length > 0 && (
+        <AddressAttribution manifest={address.manifest} countyCodes={[...new Set(addressHits.filter((h) => h.source !== "owner").map((h) => h.countyCode))]} />
+      )}
       <SectionTitle icon={Layers} title={t("placeSearch.layers")} count={layers.length} />
       {layers.length === 0 && <EmptyLine text={t("placeSearch.noLayers")} />}
       {layers.map((layer) => (

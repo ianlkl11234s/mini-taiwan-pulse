@@ -5,6 +5,8 @@
  */
 
 export type PlaceKind = "county" | "town" | "village" | "station";
+/** 選取目標還包含門牌搜尋（第二階段，src/lib/addressSearch.ts）的門牌與路段 */
+export type PlaceHitKind = PlaceKind | "address" | "road";
 
 /** 索引列：[名稱, 類別, 上層, lng, lat, w?, s?, e?, n?]（行政區才有 bbox） */
 export type PlaceIndexRow = [string, PlaceKind, string, number, number, number?, number?, number?, number?];
@@ -17,7 +19,7 @@ export interface PlaceIndexFile {
 export interface PlaceSearchHit {
   /** 顯示名（車站補「站」字） */
   label: string;
-  kind: PlaceKind;
+  kind: PlaceHitKind;
   /** 縣市／縣市＋鄉鎮，或車站系統名（台鐵、高鐵、台北捷運…） */
   parent: string;
   center: [number, number];
@@ -25,8 +27,10 @@ export interface PlaceSearchHit {
   score: number;
 }
 
+export type LocalPlaceHit = PlaceSearchHit & { kind: PlaceKind };
+
 interface IndexedPlace {
-  hit: Omit<PlaceSearchHit, "score">;
+  hit: Omit<LocalPlaceHit, "score">;
   keys: string[];
   rank: number;
 }
@@ -82,7 +86,7 @@ function matchScore(keys: readonly string[], query: string): number {
   return best;
 }
 
-export function searchPlaces(index: PlaceSearchIndex, query: string, limit = 8): PlaceSearchHit[] {
+export function searchPlaces(index: PlaceSearchIndex, query: string, limit = 8): LocalPlaceHit[] {
   const q = normalizePlaceQuery(query);
   if (!q) return [];
   const scored: { place: IndexedPlace; score: number; order: number }[] = [];
