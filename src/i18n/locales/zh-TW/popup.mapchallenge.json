@@ -205,5 +205,13 @@
   "popup.mapchallenge.day19.dir12": "西",
   "popup.mapchallenge.day19.dir13": "西北西",
   "popup.mapchallenge.day19.dir14": "西北",
-  "popup.mapchallenge.day19.dir15": "北北西"
+  "popup.mapchallenge.day19.dir15": "北北西",
+  "popup.mapchallenge.day21.unnamed": "（OSM 未標路名）",
+  "popup.mapchallenge.day21.year": "畫進 OSM",
+  "popup.mapchallenge.day21.class": "道路等級",
+  "popup.mapchallenge.day21.noClass": "未標等級",
+  "popup.mapchallenge.day21.length": "這一段長",
+  "popup.mapchallenge.day21.meters": "{n} m",
+  "popup.mapchallenge.day21.note": "說明",
+  "popup.mapchallenge.day21.yearNote": "年份＝畫進 OSM 的年份，不是道路開通年份。"
 }

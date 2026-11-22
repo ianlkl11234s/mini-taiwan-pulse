@@ -20,6 +20,9 @@ import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLocationPresets } from "../lib/locationSearch";
+import type { PlaceSearchHit } from "../lib/placeSearch";
+import type { LayerSearchResult } from "../lib/layerSearch";
+import { UnifiedSearchResults, usePlaceSearchIndex } from "./sidebar/UnifiedSearchResults";
 import { DataSourcePanel } from "./sidebar/DataSourcePanel";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 // 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
@@ -29,6 +32,7 @@ import { LAYER_PANELS, resolveLayerPanel, type LayerPanelId } from "./sidebar/la
 import { countryStore, useCountry } from "../state/countryStore";
 import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
+import { maxHeightAboveLongTermBar } from "./longTermBar/longTermBarLayout";
 
 // 既有 export 維持原路徑（測試與其他模組從這裡 import）
 export { LAYER_ICONS } from "./sidebar/LayersPanel";
@@ -86,6 +90,8 @@ interface IconRailSidebarProps {
   agentAvailable?: boolean;
   agentActive?: boolean;
   onAgentToggle?: () => void;
+  /** Locations 搜尋選到地點（飛過去＋暫時標記）；null＝移除標記（再搜尋或關閉面板時） */
+  onPlacePick?: (place: PlaceSearchHit | null) => void;
 }
 
 
@@ -112,6 +118,7 @@ export function IconRailSidebar({
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
   agentAvailable, agentActive, onAgentToggle,
+  onPlacePick,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = railPalette(isDarkTheme);
@@ -191,6 +198,48 @@ export function IconRailSidebar({
   };
 
   const closePanel = () => setActivePanel(null);
+
+  // 地點搜尋（D2=A）：⌘K／Ctrl+K 開 Locations（走 togglePanel 的互斥路徑），Esc 收合。
+  // 選到地點時面板收合但標記保留；之後再輸入搜尋字、或不經選取就關閉面板，才移除標記。
+  const placePickClosingRef = useRef(false);
+  const prevActivePanelRef = useRef(activePanel);
+  useEffect(() => {
+    const prev = prevActivePanelRef.current;
+    prevActivePanelRef.current = activePanel;
+    if (prev !== "locations" || activePanel === "locations") return;
+    if (placePickClosingRef.current) placePickClosingRef.current = false;
+    else onPlacePick?.(null);
+  }, [activePanel, onPlacePick]);
+  useEffect(() => {
+    if (locationSearch.trim()) onPlacePick?.(null);
+  }, [locationSearch, onPlacePick]);
+  const togglePanelRef = useRef(togglePanel);
+  togglePanelRef.current = togglePanel;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        if (activePanel !== "locations") togglePanelRef.current("locations");
+        else document.getElementById(LOCATION_SEARCH_INPUT_ID)?.focus();
+      } else if (e.key === "Escape" && activePanel === "locations") {
+        setLocationSearch("");
+        setActivePanel(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [activePanel]);
+  const handlePickPlace = (place: PlaceSearchHit) => {
+    placePickClosingRef.current = true;
+    onPlacePick?.(place);
+    setLocationSearch("");
+    setActivePanel(null);
+  };
+  const handlePickLayer = (layer: LayerSearchResult) => {
+    onBulkSetVisibility?.([layer.key], true);
+    setLocationSearch("");
+    setActivePanel(null);
+  };
 
   const getCount = (key: keyof LayerVisibility): number | undefined => {
     switch (key) {
@@ -364,7 +413,7 @@ export function IconRailSidebar({
               left: RAIL_WIDTH + 8,
               top: LAYOUT.leftDockTop,
               width: compactLayers ? MONITOR_SPLIT_DOCK.layersWidth : PANEL_WIDTH,
-              maxHeight: compactLayers ? `${MONITOR_SPLIT_DOCK.layersMaxVh * 100}vh` : "70vh",
+              maxHeight: compactLayers ? `${MONITOR_SPLIT_DOCK.layersMaxVh * 100}vh` : maxHeightAboveLongTermBar("70vh"),
               background: BG_PANEL,
               border: `1px solid ${PANEL_BORDER}`,
               boxShadow: ELEVATION.lg,
@@ -429,6 +478,9 @@ export function IconRailSidebar({
                 currentLocationId={currentLocationId}
                 onLocationJump={onLocationJump}
                 onClose={closePanel}
+                lockedKeys={lockedKeys}
+                onPickPlace={handlePickPlace}
+                onPickLayer={handlePickLayer}
               />
             )}
             {activePanel === "datasource" && (
@@ -571,7 +623,12 @@ interface LocationsPanelProps {
   currentLocationId?: string;
   onLocationJump: (presetId: string) => void;
   onClose: () => void;
+  lockedKeys?: ReadonlySet<string>;
+  onPickPlace: (place: PlaceSearchHit) => void;
+  onPickLayer: (layer: LayerSearchResult) => void;
 }
+
+const LOCATION_SEARCH_INPUT_ID = "rail-location-search";
 
 /** 可收合的 section */
 function CollapsibleSection({
@@ -621,8 +678,13 @@ function CollapsibleSection({
 function LocationsPanel({
   search, onSearchChange, overviewPresets, cityPresets,
   currentLocationId, onLocationJump, onClose,
+  lockedKeys, onPickPlace, onPickLayer,
 }: LocationsPanelProps) {
   const { DIM, SEARCH_BG, TEXT_STRONG, BORDER } = useRailTheme();
+  const { t } = useLocale();
+  // 面板第一次展開才下載地點索引（懶載入）
+  const indexState = usePlaceSearchIndex();
+  const searching = search.trim().length > 0;
   return (
     <>
       <RailPanelHeader title="Locations" onClose={onClose} />
@@ -641,10 +703,13 @@ function LocationsPanel({
         >
           <Search size={13} color={DIM} style={{ flexShrink: 0 }} />
           <input
-            type="text"
+            id={LOCATION_SEARCH_INPUT_ID}
+            type="search"
+            autoFocus
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search locations..."
+            placeholder={t("placeSearch.placeholder")}
+            aria-label={t("placeSearch.placeholder")}
             style={{
               flex: 1,
               background: "transparent",
@@ -663,6 +728,18 @@ function LocationsPanel({
         className="layer-sidebar-scroll"
         style={{ flex: 1, overflowY: "auto", padding: "0 0 8px" }}
       >
+        {searching && (
+          <UnifiedSearchResults
+            query={search}
+            indexState={indexState}
+            lockedKeys={lockedKeys}
+            onPickPlace={onPickPlace}
+            onPickLayer={onPickLayer}
+          />
+        )}
+        {searching && (overviewPresets.length > 0 || cityPresets.length > 0) && (
+          <div style={{ height: 1, background: BORDER, margin: "6px 12px" }} />
+        )}
         {/* Overview */}
         <CollapsibleSection title="OVERVIEW" count={overviewPresets.length} defaultOpen={true}>
           {overviewPresets.map((p) => (

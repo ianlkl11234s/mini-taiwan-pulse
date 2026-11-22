@@ -309,5 +309,7 @@
   "enum.statVariant.生產總額（千元）": "生産額（千元）",
   "enum.statVariant.每戶每月用電（度）": "1 戸あたり月間使用量",
   "enum.statVariant.全年售電度數": "年間販売電力量",
-  "enum.statVariant.未參加健保比": "未加入の割合"
+  "enum.statVariant.未參加健保比": "未加入の割合",
+  "enum.statVariant.淨遷入人數": "純転入者数",
+  "enum.statVariant.淨遷入率（‰）": "純転入率（‰）"
 }

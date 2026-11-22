@@ -32,7 +32,7 @@ export function PhAdminBoundariesLegend() {
     <LegendTitle zh={title} />
     <LegendRow swatch={<SwatchLine color={BOUNDARY_GRAY[t.isDark ? "dark" : "light"]} />}>{pickL3({ zh: "行政區界（區域、省、市鎮、村里擇一）", en: "Boundary (region / province / city-municipality / barangay)", ja: "行政区域界（地方・州・市町・バランガイから選択）" }, locale)}</LegendRow>
     {PH_ADMIN_NOTES.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{PH_ADMIN_SOURCE.short}</LegendNote>
+    <LegendNote>{phText(PH_ADMIN_SOURCE.short, locale)}</LegendNote>
   </div>;
 }
 
@@ -47,7 +47,7 @@ export function PhPopulationLegend() {
     {PH_DENSITY_LABELS.map((label, i) => <LegendRow key={label} swatch={<SwatchSquare color={colors[i]!} />}>{label}</LegendRow>)}
     <LegendRow swatch={<SwatchSquare color={PH_NOT_COVERED_COLOR} />}>{pickL3({ zh: "未涵蓋（不是 0）", en: "Not covered (not zero)", ja: "未収録（0 ではない）" }, locale)}</LegendRow>
     {PH_POPULATION_NOTES.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{PH_POPULATION_SOURCE.short}</LegendNote>
+    <LegendNote>{phText(PH_POPULATION_SOURCE.short, locale)}</LegendNote>
   </div>;
 }
 
@@ -99,7 +99,7 @@ export function PhRasterLegend({ layerKey }: { layerKey: PhRasterKey }) {
       ? <SwatchSteps colors={spec.steps.map((x) => x.color)} breaks={spec.steps.map((x) => x.label)} />
       : <SwatchGradient gradient="linear-gradient(90deg, #000000, #ffffff)" labels={[pickL3({ zh: "背光坡", en: "Shaded", ja: "陰" }, locale), pickL3({ zh: "向光坡", en: "Lit", ja: "陽" }, locale)]} />}
     {spec.notes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{spec.sourceShort}</LegendNote>
+    <LegendNote>{phText(spec.sourceShort, locale)}</LegendNote>
   </div>;
 }
 

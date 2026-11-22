@@ -100,5 +100,6 @@
   "enum.statGroup.住宅用電（表燈非營業用，年）": "Residential electricity (non-commercial lighting, annual)",
   "enum.statGroup.公司登記動態（年）": "Company registrations (annual)",
   "enum.statGroup.未參加全民健保比": "Not enrolled in national health insurance",
-  "enum.statGroup.工商普查（鄉鎮）": "Industry and service census (township)"
+  "enum.statGroup.工商普查（鄉鎮）": "Industry and service census (township)",
+  "enum.statGroup.縣市間遷徙（不含國外）": "Inter-county migration (excluding abroad)"
 }

@@ -7,7 +7,7 @@ import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictio
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
 import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from '../../data/statisticsFillColor';
 import { atlasBinaryLegendRows, atlasCategoryLegendRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
-import { demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
+import { demographicsIndicatorNoteParts, demographicsIndicatorNoteText, demographicsYtdParts, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
@@ -141,7 +141,7 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
   const landslide = getLandslideRecipe(activeBaseKey);
   const atlas = getAtlasRecipe(activeBaseKey);
   const atlasNote = atlas ? atlasDimensionNote(activeBaseKey, state.selection?.dimensions) : undefined;
-  const demographicsNote = demographics ? demographicsIndicatorNote(demographics) : undefined;
+  const demographicsNote = demographics ? demographicsIndicatorNoteText(demographicsIndicatorNoteParts(demographics), demographicsYtdParts(demographics), i18n) : undefined;
   const selectedLaborMetric = getLaborStatisticsPresentationMetric(layerKey, state.selection?.indicatorId);
   const selectionSummary = statisticsDimensionSummary(state.selection?.dimensions, selectedRelease, recipe.dataset_id, i18n);
     const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };

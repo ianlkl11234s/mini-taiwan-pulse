@@ -172,6 +172,8 @@ import {
   Mailbox, Motorbike, ScanSearch,
   // G53 批 2／3（2026-11-10）
   RadioTower,
+  // 台灣圖層延伸 B5（2026-11-21）
+  ArrowLeftRight,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -223,6 +225,7 @@ import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
+import { MAPCHALLENGE_DAY21_COLOR } from "./mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY19_COMPLAINTS_COLOR, MAPCHALLENGE_DAY19_PENALTIES_COLOR, MAPCHALLENGE_DAY19_POTENTIAL_COLOR } from "./mapchallengeDay19Types";
 
 /**
@@ -2391,6 +2394,62 @@ export const LAYER_MANIFEST = {
     description: "國家公園與都會公園物種調查點位 144,228 個（涵蓋 145 萬筆紀錄；拉遠為熱區，部分座標經模糊處理）。",
     topics: ["自然保育", "物種調查", "國家公園", "生物多樣性", "國家公園署"],
   },
+  // ── 台灣圖層延伸 B7（2026-11-21）──
+  hakkaLivingSchools: {
+    key: "hakkaLivingSchools", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "客家 Hakka" }, ...layerName({ zh: "客語生活學校", alt: "Hakka Living Schools" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.hakkaLivingSchools, icon: School,
+    upstream: { status: "verified", datasets: [{ datasetId: "hakka_living_schools", confidence: "MED" }], processing: "analytics demographics/hakka_living_schools 162475：客委會 4,766 列（學校×年度，105–114 年度）正規化校名後合併為 822 校，依地址定位（離線 671＋Google 44）715 校上圖，107 校無法定位未上圖", note: "位置依地址推定，不是官方座標；另有 107 筆（校）地址無法定位、未上圖。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "hakka-living-schools", url: "./indigenous_rural/hakka_living_schools_v1.pmtiles", sourceLayer: "hakka_living_schools", minzoom: 4, maxzoom: 14 },
+    legend: "hakkaLivingSchools", popup: "hakkaLivingSchools", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "客委會客語生活學校 715 校（105–114 年度名單；另 107 校地址無法定位未上圖），可依學制篩選並疊在客家文化重點發展區上。",
+    topics: ["客家", "客語", "學校", "客語生活學校", "客委會"],
+  },
+  sandGravelPlants: {
+    key: "sandGravelPlants", country: "TW", section: { theme: "水資源 Water", group: "面 / 線" }, ...layerName({ zh: "砂石碎解洗選場", alt: "Sand & Gravel Processing Plants" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.sandGravelPlants, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "sand_gravel_plants", confidence: "MED" }], processing: "analytics industrial_zone/sand_gravel_plants 32708：地調礦業中心名冊 328 列，依地址定位（離線 213＋Google 30）243 處上圖，85 筆無法定位未上圖", note: "位置依地址推定，不是官方座標；另有 85 筆地址無法定位、未上圖；來源無臺北、基隆、嘉義市、澎湖、金門、連江。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "sand-gravel-plants", url: "./industrial_zone/sand_gravel_plants_v1.pmtiles", sourceLayer: "sand_gravel_plants", minzoom: 4, maxzoom: 14 },
+    legend: "sandGravelPlants", popup: "sandGravelPlants", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "地調礦業中心砂石碎解洗選場 243 處（來源 328 筆，另 85 筆地址無法定位未上圖），依登記類別分色，可疊河川對照。",
+    topics: ["砂石", "碎解洗選場", "礦業", "河川", "地質調查及礦業管理中心"],
+  },
+  countyWelfarePoints: {
+    key: "countyWelfarePoints", country: "TW", section: { theme: "社福長照 Welfare", group: "公部門與民間" }, ...layerName({ zh: "縣市社福據點（關懷據點・實物銀行）", alt: "County Welfare Points (Care Stations & Food Banks)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.countyWelfarePoints, icon: HeartHandshake,
+    upstream: { status: "verified", datasets: [{ datasetId: "county_welfare_points", confidence: "MED" }], processing: "analytics welfare/county_welfare_points：各縣市 data.gov.tw 名冊（據點 14 縣市、實物銀行 3 縣市）3,691 處上圖（來源座標 1,113、離線 2,347、Google 231），373 筆無法定位未上圖；不收電話與負責人", note: "未涵蓋縣市畫斜線；另有 373 筆地址無法定位、未上圖；與社福服務中心（157 處）不同。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "county-welfare-points-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "county-welfare-points", url: "./welfare/county_welfare_points_v1.pmtiles", sourceLayer: "county_welfare_points", minzoom: 4, maxzoom: 14 },
+    ],
+    legend: "countyWelfarePoints", popup: "countyWelfarePoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "各縣市政府公開的社區照顧關懷據點與實物銀行 3,691 處（另 373 筆地址無法定位未上圖）；沒有名冊的縣市畫斜線。不同於社福服務中心。",
+    topics: ["社福", "社區照顧關懷據點", "實物銀行", "長照", "縣市政府"],
+  },
+  evMotorcycleCharging: {
+    key: "evMotorcycleCharging", country: "TW", section: { theme: "能源 Energy", group: "再生能源" }, ...layerName({ zh: "電動機車充換電站（縣市環保局）", alt: "E-scooter Charging & Swap Stations (County EPA Lists)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.evMotorcycleCharging, icon: Motorbike,
+    upstream: { status: "verified", datasets: [{ datasetId: "ev_motorcycle_charging", confidence: "MED" }], processing: "analytics energy/ev_motorcycle_charging：13 縣市環保局名冊 4,464 處上圖（來源座標 1,950、離線 2,347、Google 167），205 筆無法定位未上圖；桃園經緯度互換已修", note: "未涵蓋縣市畫斜線；另有 205 筆地址無法定位、未上圖；與電動車充電站（TDX，汽車為主）、電動機車換電站（中油／台電）不同。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "ev-motorcycle-charging-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "ev-motorcycle-charging", url: "./energy/ev_motorcycle_charging_v1.pmtiles", sourceLayer: "ev_motorcycle_charging", minzoom: 4, maxzoom: 14 },
+    ],
+    legend: "evMotorcycleCharging", popup: "evMotorcycleCharging", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "縣市環保局的電動機車充電站與換電站名冊 4,464 處（13 縣市完整名冊；另 205 筆地址無法定位未上圖），無名冊縣市畫斜線。機車專用，不同於汽車為主的電動車充電站。",
+    topics: ["能源", "電動機車", "充電站", "換電站", "環保局", "縣市政府"],
+  },
+  countyStreetlights: {
+    key: "countyStreetlights", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共生活 Public Life" }, ...layerName({ zh: "縣市路燈點位", alt: "County Streetlight Points" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.countyStreetlights, icon: Lightbulb,
+    upstream: { status: "verified", datasets: [{ datasetId: "county_streetlights", confidence: "MED" }], processing: "analytics infrastructure/county_streetlights：各縣市 data.gov.tw 路燈清冊 951,143 點（全為來源座標）；網格檔 0.01° 方格 4,363 格（z4–11）、逐點檔 z12–14；高雄只有公園處管養 35 區、彰化只有省道、桃園只有中壢區公所", note: "未涵蓋縣市畫斜線、部分涵蓋縣市寫在圖例；LED 依燈具類型欄判讀，不是台電契約戶 LED 用電占比（縣市路燈 LED 化）。" },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "county-streetlights-uncovered", url: "./base_map/county_boundary.pmtiles", sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+      { kind: "pmtiles", sourceId: "county-streetlights-grid", url: "./civic_facilities/county_streetlights_grid_v1.pmtiles", sourceLayer: "county_streetlights_grid", minzoom: 4, maxzoom: 11 },
+      { kind: "pmtiles", sourceId: "county-streetlights", url: "./civic_facilities/county_streetlights_v1.pmtiles", sourceLayer: "county_streetlights", minzoom: 12, maxzoom: 14 },
+    ],
+    legend: "countyStreetlights", popup: "countyStreetlights", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
+    description: "各縣市政府公開的路燈點位清冊 95 萬點（臺北、新北、臺中、新竹市、嘉義市完整；高雄、彰化、桃園部分；其餘縣市畫斜線）。拉遠為 0.01° 方格點位數，放大到 12 級起逐點，可依燈具類型是否為 LED 篩選。",
+    topics: ["路燈", "照明", "LED", "基礎建設", "縣市政府"],
+  },
   fireHydrants: {
     key: "fireHydrants",
     country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" },
@@ -2469,7 +2528,7 @@ export const LAYER_MANIFEST = {
     legend: "fireEvents",
     popup: "fireEvent",
     params: { count: 3, kinds: ["multiSelect", "palette", "slider"] },
-    description: "歷史火災點位（需進歷史模式選年／月／日）",
+    description: "歷史火災點位（111–113 年）：即時模式用下方長期時間條選期間或逐月播放；歷史模式照舊選年／月／日",
     topics: ["消防", "災害", "歷史"],
     longTerm: {
       kind: "event",
@@ -11190,6 +11249,32 @@ export const LAYER_MANIFEST = {
     },
   },
 
+  // 台灣圖層延伸 B5 N11（2026-11-21）：縣市間遷徙流向，底色＝統計 statsCountyOdNetMigration（同一份 OD 加總）
+  twCountyMigrationFlows: {
+    key: "twCountyMigrationFlows",
+    country: "TW", section: { theme: "人口社經 People", group: "遷徙流向" },
+    ...layerName({ zh: "縣市間遷徙流向", alt: "Inter-county Migration Flows" }),
+    expandable: true,
+    color: "#22d3ee",
+    icon: ArrowLeftRight,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "county_migration_od", confidence: "HIGH" }],
+      processing: "taipei-gis-analytics pipelines/demographics/county_migration_od（#420）：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，村里×遷入縣市月檔）加總成縣市 22×22 年度 OD（2024、2025 各 462 組）；scripts/preprocess/build-county-migration-od.py 轉成 src/data/countyMigrationOd.json",
+      note: "戶籍登記的跨縣市遷徙，不含國外遷入遷出、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」統計口徑不同。2026 年未滿 12 個月不出。端點為縣市政府所在地（約略座標，只作示意）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCountyMigrationFlowsLayer：OD 檔 src/data/countyMigrationOd.json（約 27 KB，lazy import 隨 dist 出貨，不進 public）；自建 geojson source tw-county-migration-flows（弧線）／tw-county-migration-seats（端點），styledata 時把弧線移到統計底色之上；年份與 statsCountyOd* 底色期別雙向連動",
+    },
+    legend: "twCountyMigrationFlows",
+    popup: "twCountyMigrationFlows",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "縣市之間一年有多少人把戶籍遷過去（內政部，2024、2025 年）。弧線由遷出縣市彎向遷入縣市，越粗人越多；預設畫全國前 30 條，加上每個縣市最大的一條遷出。點縣市（底色面或端點）只看該縣市遷入前 5（青）與遷出前 5（黃），再點一次或按 Esc 取消；未滿 100 人不畫。只算跨縣市的戶籍遷徙，不含國外與初設戶籍，和「人口遷徙（縣市）」統計口徑不同；戶籍登記不等於實際搬家。底色可開「縣市間淨遷入人數」，年份會跟著連動。來源：內政部戶政司（data.gov.tw 168209），政府資料開放授權條款第 1 版。",
+    topics: ["人口", "遷徙", "人口移動", "戶籍", "流向", "OD"],
+  },
+
   h3Population: {
     key: "h3Population",
     country: "TW", section: { theme: "人口社經 People", group: "人口分布" },
@@ -17884,6 +17969,31 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "30 天地圖挑戰 Day 19 氣味：官方認定有異味污染而裁罰的設施。2017 年起事實欄寫到「異味污染物」的裁罰 848 件、505 處設施；圓越大裁罰件數越多（1–62 件），顏色是最高超標倍數（≤2、2–5、>5 倍，灰色＝未載明倍數）。可只看有載明倍數或超標 >5 倍的設施。點設施看名稱、縣市、裁罰件數、不同日數、年份與罰鍰合計。事實欄 2017 年起才有、約 6 成空白，848 件是下限；個人經營的畜牧場不顯示名稱。來源：環境部環保裁處（政府資料開放授權條款第 1 版）。",
     topics: ["氣味", "異味", "空氣污染", "裁罰", "畜牧", "工廠", "30 天地圖挑戰"],
+  },
+  mapchallengeDay21OsmRoads: {
+    key: "mapchallengeDay21OsmRoads",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-21）：靜態 PMTiles，不在 GATED_LAYERS。年份由圖層自己的拉桿控制，
+    // 不接長期時間條（時間條目前只支援 event 類；待支援 periodSnapshot 後再接），所以不寫 longTerm。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 21 開放街圖 OSM" },
+    ...layerName({ zh: "道路畫進 OSM 的年份", alt: "When Roads Were Drawn into OSM" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY21_COLOR,
+    icon: Spline,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["osm_full_history_ohsome", "osm_taiwan_roads_260905"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 21 OSM：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day21_osm_road_growth（01–04）。ohsome API（HeiGIT）OpenStreetMap 完整歷史（2007-10-08～2026-07-27），臺北市、新北市、基隆市現況道路（motorway～service，不含停車場通道與車道）切成 ≤100 m 小段，每 10 m 取樣點；每年 1 月 1 日快照若 ≥60% 樣點在當時道路 15 m 內就算已存在，最早出現的快照 Y 年 → 年份 Y−1（2008-01-01 就有 → 2007＝2007 年以前，含；終點才出現 → 2026）。highway 由 Geofabrik 2026-06-22 快照補、路名先查 2026-09-05 再查 06-22 快照；同 way／同年／同等級的相連小段合併後切 PMTiles（z8–14；主幹與次要 z8 起、一般道路 z10 起、service 與其他 z12 起）。共 178,996 小段、約 13,670 km。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day21_osm）。年份＝畫進 OSM 的年份，不是道路開通年份。依位置判定：已刪除的路不顯示；路線重畫到新位置會被算成新畫；高架疊在舊平面道路上會繼承舊年份。早期（2007–2011）因單線後來拆成雙向，各年累計長度多算約 10–24%，2014 年以後差距在 ±2% 以內。",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "mapchallenge-day21-osm-roads", url: "./mapchallenge/day21_osm_road_years.pmtiles", sourceLayer: "day21_osm_road_years", minzoom: 8, maxzoom: 14 },
+    legend: "mapchallengeDay21OsmRoads",
+    popup: "mapchallengeDay21OsmRoads",
+    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "toggle"] },
+    description: "30 天地圖挑戰 Day 21 OSM：雙北＋基隆的每段道路是哪一年第一次畫進 OpenStreetMap。顏色＝年份，深藍是 2007 年以前、越往紫紅橘黃越新；線寬分主幹、次要、一般道路三級。新增最多的是 2011 年（1,748 km）、2013 年（1,622 km）與 2010 年（1,420 km），2018 年起每年只剩 71–345 km。可用年份拉桿看到某年為止的路網，或只看當年新增的路；可依道路等級篩選。年份是畫進 OSM 的年份，不是道路開通年份；2007 代表 2007 年以前；資料到 2026-07-27；早期（2007–2011）因單線後來拆成雙向會略多算；已刪除的路不顯示；路線重畫到新位置會被算成新畫。點路段看年份、道路等級、路名與 OSM 連結。來源：© OpenStreetMap contributors（ODbL），歷史經 ohsome API（HeiGIT）。",
+    topics: ["OpenStreetMap", "OSM", "道路", "路網", "編輯史", "雙北", "基隆", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

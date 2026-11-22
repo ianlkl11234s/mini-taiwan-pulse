@@ -293,3 +293,10 @@ public/hazards/landslide_annual_swcb_2025_20261120.pmtiles
 public/hazards/landslide_annual_swcb_2025_20261120_points.pmtiles
 public/coverage/airport_height_surfaces_35876.pmtiles
 public/environment/np_species_survey_points_sites_73252.pmtiles
+public/indigenous_rural/hakka_living_schools_v1.pmtiles
+public/industrial_zone/sand_gravel_plants_v1.pmtiles
+public/welfare/county_welfare_points_v1.pmtiles
+public/energy/ev_motorcycle_charging_v1.pmtiles
+public/civic_facilities/county_streetlights_v1.pmtiles
+public/civic_facilities/county_streetlights_grid_v1.pmtiles
+public/mapchallenge/day21_osm_road_years.pmtiles

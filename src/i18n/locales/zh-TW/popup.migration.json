@@ -1,0 +1,21 @@
+{
+  "popup.migration.flowTitle": "{origin} → {dest}",
+  "popup.migration.seatTitle": "{name}（{year} 年）",
+  "popup.migration.year": "年份",
+  "popup.migration.yearValue": "{year} 年",
+  "popup.migration.movers": "遷徙人數",
+  "popup.migration.persons": "{value} 人",
+  "popup.migration.bySex": "男／女",
+  "popup.migration.bySexValue": "男 {male}／女 {female}",
+  "popup.migration.reverse": "反方向（{origin} → {dest}）",
+  "popup.migration.pairNet": "兩縣市間淨流向",
+  "popup.migration.pairNetTo": "淨流向{place} {value} 人",
+  "popup.migration.pairNetZero": "兩方向人數相同",
+  "popup.migration.inflow": "由他縣市遷入",
+  "popup.migration.outflow": "遷出到他縣市",
+  "popup.migration.net": "淨遷入",
+  "popup.migration.notes": "說明",
+  "popup.migration.seatHint": "點此縣市看遷入、遷出各前 5 條弧線；端點為縣市政府所在地（約略位置）",
+  "popup.migration.scope": "口徑",
+  "popup.migration.scopeText": "戶籍登記的跨縣市遷徙，不含國外遷入遷出與初設戶籍"
+}

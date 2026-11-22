@@ -89,7 +89,7 @@
 1. **有 manifest 且能自動入倉就算可分析**；地圖看得到不等於分析可用，受限的標 `DISPLAY_ONLY`／HOLD 並寫解鎖條件。→ 根目錄 `CLAUDE.md` §5b、[PLAN-warehouse](./features/general-analysis/PLAN-warehouse-20260926.md#倉庫契約c)
 2. **題庫標準答案要先用唯讀 SQL 驗算並存檔**；Agent 和題庫答案不同時兩邊都驗，修根因，不放寬檢查。→ [PRINCIPLES「題庫答案必須用查詢驗證過」](../.claude/memory/PRINCIPLES.md#題庫答案必須用查詢驗證過agent-的分數不能拿未驗證的答案判2026-10-02)
 3. **擴充分析能力的方法：先量測 → 失敗分類 → 一輪只改一類 → 每項補回歸題**（Agent v2 從 6 題到 26/26）。→ [REFLECTIONS 2026-10-02～03 Pulse Agent v2](../.claude/memory/REFLECTIONS.md)
-4. **驗收一定要有「接真地圖」那一輪**；倉庫工具分數高不代表使用者體驗好，相機動了也不代表結果已顯示（要 `shown:true` 或 browser readback）。→ [INCIDENTS「2026-10-02 Agent 回歸測試第一次接真地圖」](../.claude/memory/INCIDENTS.md#2026-10-02-agent-回歸測試第一次接真地圖四個潛藏-bug-一次現形)、[general-analysis STATUS](./features/general-analysis/STATUS.md#指標)
+4. **驗收一定要有「接真地圖」那一輪**；倉庫工具分數高不代表使用者體驗好，相機動了也不代表結果已顯示（要 `shown:true` 或 browser readback）。→ [INCIDENTS「2026-10-02 Agent 回歸測試第一次接真地圖」](../.claude/memory/INCIDENTS.md#2026-10-02-agent-回歸測試第一次接真地圖四個潛藏-bug-一次現形)、[general-analysis STATUS（2026-10-04 封存版）](./archive/2026-11-21/features/general-analysis/STATUS-20261004.md#指標)
 5. **要規則穩定生效，寫進 MCP server 指示**，不要只改 SKILL.md；Agent 有時根本不載 skill。鐵則要寫成能從工具紀錄檢查的條件，不寫「畫面要有動靜」這種無法驗的描述。→ MCP repo `src/research/server.ts`；[REFLECTIONS 2026-10-02～03](../.claude/memory/REFLECTIONS.md)
 6. **Jev 只做候選分類**，schema、權限、資料健康與執行一律由 deterministic code 決定。→ [jev-routing-accelerator](./features/agent-research-workbench/jev-routing-accelerator.md)
 7. **倉庫資料有已知坑，回答時要提醒**：再生能源許可一列是一筆地號不是一座電廠；A1 事故一列是一個當事人；北北基市區公車要用另一張站牌表；WRA 河道線沒有河名。→ [DATA_SCOPE](../.claude/memory/DATA_SCOPE.md)（部分）；完整清單目前在 MCP repo 題庫與個人 memory，待整理成 repo 內文件

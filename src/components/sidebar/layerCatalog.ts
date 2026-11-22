@@ -921,6 +921,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "客家 Hakka",
         layers: [
           fromManifest("hakkaCulturalZones"),
+          fromManifest("hakkaLivingSchools"), // 台灣圖層延伸 B7（2026-11-21）：疊在客家文化重點發展區上
         ],
       },
       {
@@ -955,6 +956,10 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("socioeconomic"),
           fromManifest("spatialEconomy"),
         ],
+      },
+      {
+        title: "遷徙流向",
+        layers: [fromManifest("twCountyMigrationFlows")],
       },
     ],
   },
@@ -1106,6 +1111,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("publicLifeOsmCoverage"),
           fromManifest("accessibleParkFacilities"),
           fromManifest("vehicleInspectionOffices"),
+          fromManifest("countyStreetlights"), // 台灣圖層延伸 B7（2026-11-21）
         ],
       },
       {
@@ -1172,6 +1178,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("renewablePermitsNational"),
           fromManifest("evChargingStations"),
           fromManifest("batterySwapStations"),
+          fromManifest("evMotorcycleCharging"), // 台灣圖層延伸 B7（2026-11-21）：縣市環保局機車充換電名冊
         ],
       },
       {
@@ -1314,6 +1321,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("welfareGovOffices"),
           // 與 welfareGovOffices 零重疊（上游已排除 T0103 社福服務中心），可同時開
           fromManifest("welfareCenters"),
+          fromManifest("countyWelfarePoints"), // 台灣圖層延伸 B7（2026-11-21）：縣市關懷據點／實物銀行，與社福中心不同
           fromManifest("welfareMentalHealth"),
           fromManifest("welfareSocialWorkOrgs"),
         ],
@@ -1980,6 +1988,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("waterBasins"),
           fromManifest("waterRivers"),
+          fromManifest("sandGravelPlants"), // 台灣圖層延伸 B7（2026-11-21）：河川旁砂石場，疊河川對照
           fromManifest("waterLevees"),
           fromManifest("waterCanals"),
           fromManifest("waterProtectionZones"),
@@ -2530,6 +2539,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 19 氣味 Smell",
       layers: [fromManifest("mapchallengeDay19Complaints"), fromManifest("mapchallengeDay19Potential"), fromManifest("mapchallengeDay19Penalties")],
+    }, {
+      title: "Day 21 開放街圖 OSM",
+      layers: [fromManifest("mapchallengeDay21OsmRoads")],
     }],
   },
 

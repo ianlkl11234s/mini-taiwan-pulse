@@ -13,7 +13,7 @@ import { VN_WAVE_SPECS } from "./vnWavesLayers";
 import type { L3, PhCat, PhCatGetter, PhField, PhLayerSpec, PhNote, PhPart, PhSizeBands } from "./phDataLayers";
 
 export type { L3 } from "./phDataLayers";
-export { pickL3 } from "./phDataLayers";
+export { pickL3, phText } from "./phDataLayers";
 
 type Expr = unknown[];
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
@@ -36,10 +36,10 @@ export const VN_BOUNDARY_NOTE = l3("邊界依 OCHA 資料，不代表任何立�
 
 export const VN_ADMIN_COLOR = "#9ca3af";
 export const VN_ADMIN_SOURCE = {
-  org: "OCHA COD-AB Viet Nam v02（CC BY-IGO），via HDX；社代碼 Cục Thống kê（NSO）Danh mục đơn vị hành chính（授權未明示）；Hoàng Sa／Trường Sa 幾何由 taipei-gis-analytics 移除",
+  org: l3("OCHA COD-AB Viet Nam v02（CC BY-IGO），via HDX；社代碼 Cục Thống kê（NSO）Danh mục đơn vị hành chính（授權未明示）；Hoàng Sa／Trường Sa 幾何由 taipei-gis-analytics 移除", "OCHA COD-AB Viet Nam v02 (CC BY-IGO), via HDX; commune codes: Cục Thống kê (NSO) Danh mục đơn vị hành chính (license not stated); Hoàng Sa / Trường Sa geometry removed by taipei-gis-analytics", "OCHA COD-AB Viet Nam v02（CC BY-IGO）、HDX 経由。社コード：Cục Thống kê（NSO）Danh mục đơn vị hành chính（ライセンスは明示されていない）。Hoàng Sa／Trường Sa のジオメトリは taipei-gis-analytics で除去"),
   url: "https://data.humdata.org/dataset/cod-ab-vnm",
-  license: "CC BY-IGO 3.0（面）；NSO 代碼表授權未明示",
-  short: "© OCHA COD-AB Viet Nam v02（HDX，CC BY-IGO）；Cục Thống kê（NSO）授權未明示",
+  license: l3("CC BY-IGO 3.0（面）；NSO 代碼表授權未明示", "CC BY-IGO 3.0 (polygons); NSO code table license not stated", "CC BY-IGO 3.0（ポリゴン）。NSO コード表のライセンスは明示されていない"),
+  short: l3("© OCHA COD-AB Viet Nam v02（HDX，CC BY-IGO）；Cục Thống kê（NSO）授權未明示", "© OCHA COD-AB Viet Nam v02 (HDX, CC BY-IGO); Cục Thống kê (NSO) license not stated", "© OCHA COD-AB Viet Nam v02（HDX、CC BY-IGO）。Cục Thống kê（NSO）のライセンスは明示されていない"),
 } as const;
 export const VN_ADMIN_NOTES: readonly L3[] = [
   l3("2025-07 新制 34 省（6 個中央直轄市＋28 省；NSO 列 9 個 Thành phố Trung ương），縣級已取消", "34 provinces under the July 2025 reform (NSO lists 9 centrally-run cities); the district level was abolished", "2025 年 7 月新制の 34 省（NSO は中央直轄市 9 を列挙）。県級は廃止"),
@@ -54,10 +54,10 @@ export const VN_DENSITY_LABELS = ["<100", "100–300", "300–600", "600–1,500
 export const VN_NOT_COVERED_COLOR = "#6b7280";
 export const VN_POP_YEARS = [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025] as const;
 export const VN_POPULATION_SOURCE = {
-  org: "Nguồn: Cục Thống kê（NSO）PL.V02.01（2025，34 省）、V02.01（2011–2024 舊 63 省加總）；邊界 OCHA COD-AB Viet Nam v02（CC BY-IGO）",
+  org: l3("Nguồn: Cục Thống kê（NSO）PL.V02.01（2025，34 省）、V02.01（2011–2024 舊 63 省加總）；邊界 OCHA COD-AB Viet Nam v02（CC BY-IGO）", "Nguồn: Cục Thống kê (NSO) PL.V02.01 (2025, 34 provinces), V02.01 (2011–2024, summed from the former 63 provinces); boundaries: OCHA COD-AB Viet Nam v02 (CC BY-IGO)", "Nguồn: Cục Thống kê（NSO）PL.V02.01（2025、34 省）、V02.01（2011–2024、旧 63 省の合算）。境界：OCHA COD-AB Viet Nam v02（CC BY-IGO）"),
   url: "https://www.nso.gov.vn/",
-  license: "Cục Thống kê（NSO）授權未明示",
-  short: "Nguồn: Cục Thống kê（NSO），授權未明示",
+  license: l3("Cục Thống kê（NSO）授權未明示", "Cục Thống kê (NSO), license not stated", "Cục Thống kê（NSO）、ライセンスは明示されていない"),
+  short: l3("Nguồn: Cục Thống kê（NSO），授權未明示", "Nguồn: Cục Thống kê (NSO), license not stated", "Nguồn: Cục Thống kê（NSO）、ライセンスは明示されていない"),
 } as const;
 export const VN_POPULATION_NOTES: readonly L3[] = [
   l3("2025 年平均人口；密度為 NSO 公布值", "2025 average population; density as published by NSO", "2025 年平均人口。密度は NSO 公表値"),
@@ -75,9 +75,9 @@ export interface VnMoreFile {
   srcMaxzoom: number;
   parts: readonly PhPart[];
   sourceValue: string;
-  sourceOrg: string;
+  sourceOrg: string | L3;
   sourceUrl: string;
-  license: string;
+  license: string | L3;
 }
 export interface VnLayerSpec extends PhLayerSpec<VnDataKey> {
   more?: VnMoreFile;
@@ -280,8 +280,8 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       { text: l3("ODM 資料為 2019／2021 年版，可能已過時", "ODM data dates from 2019/2021 and may be outdated", "ODM のデータは 2019／2021 年版で古い可能性がある"), when: (p) => str(p.source) === "odm" },
       NEAREST_NOTE,
     ],
-    sourceOrg: "Open Development Vietnam（ODV）彙編，原始機關未載明（CC BY-SA 4.0，copyright To be determined）",
-    sourceUrl: "https://vietnam.opendevelopmentmekong.net/", license: "CC BY-SA 4.0（ODM 標示；copyright 未定，授權未明示）", fetchedAt: VN_FETCHED_AT,
+    sourceOrg: l3("Open Development Vietnam（ODV）彙編，原始機關未載明（CC BY-SA 4.0，copyright To be determined）", "Compiled by Open Development Vietnam (ODV), original agency not stated (CC BY-SA 4.0, copyright To be determined)", "Open Development Vietnam（ODV）の編纂。元の機関は未記載（CC BY-SA 4.0、copyright To be determined）"),
+    sourceUrl: "https://vietnam.opendevelopmentmekong.net/", license: l3("CC BY-SA 4.0（ODM 標示；copyright 未定，授權未明示）", "CC BY-SA 4.0 (as labeled by ODM; copyright undetermined, license not stated)", "CC BY-SA 4.0（ODM の表示。copyright 未定で、ライセンスは明示されていない）"), fetchedAt: VN_FETCHED_AT,
     loading: l3("越南機場港口載入中", "Loading Vietnam airports and ports", "ベトナムの空港・港を読み込み中"),
   },
   {
@@ -360,8 +360,8 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       { text: l3("本筆為 TransitionZero 資料，CC BY-NC 4.0（非商用授權）", "This record is TransitionZero data, CC BY-NC 4.0 (non-commercial)", "このレコードは TransitionZero のデータで CC BY-NC 4.0（非商用）"), when: (p) => p.commercial_ok === false || str(p.commercial_ok) === "false" },
       OFFSHORE_NOTE, NEAREST_NOTE,
     ],
-    sourceOrg: "Global Energy Monitor（Wind、Solar trackers，CC BY 4.0）；solar_tz © TransitionZero Solar Asset Mapper via GEM（CC BY-NC 4.0，非商用）",
-    sourceUrl: GEM_URL, license: "CC BY 4.0（GEM）；TransitionZero 1,017 筆 CC BY-NC 4.0（非商用）", fetchedAt: VN_FETCHED_AT,
+    sourceOrg: l3("Global Energy Monitor（Wind、Solar trackers，CC BY 4.0）；solar_tz © TransitionZero Solar Asset Mapper via GEM（CC BY-NC 4.0，非商用）", "Global Energy Monitor (Wind, Solar trackers, CC BY 4.0); solar_tz © TransitionZero Solar Asset Mapper via GEM (CC BY-NC 4.0, non-commercial)", "Global Energy Monitor（Wind、Solar trackers、CC BY 4.0）。solar_tz は © TransitionZero Solar Asset Mapper（GEM 経由、CC BY-NC 4.0、非商用）"),
+    sourceUrl: GEM_URL, license: l3("CC BY 4.0（GEM）；TransitionZero 1,017 筆 CC BY-NC 4.0（非商用）", "CC BY 4.0 (GEM); TransitionZero's 1,017 records CC BY-NC 4.0 (non-commercial)", "CC BY 4.0（GEM）。TransitionZero の 1,017 件は CC BY-NC 4.0（非商用）"), fetchedAt: VN_FETCHED_AT,
     loading: l3("越南再生能源載入中", "Loading Vietnam renewables", "ベトナムの再生可能エネルギーを読み込み中"),
   },
   {
@@ -476,7 +476,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       COVERAGE_NOTE(33),
     ],
     popupNotes: [NEAREST_NOTE],
-    sourceOrg: "envisoft.gov.vn（越南環境自動監測系統）", sourceUrl: "https://envisoft.gov.vn/", license: "授權未明示", fetchedAt: VN_FETCHED_AT,
+    sourceOrg: l3("envisoft.gov.vn（越南環境自動監測系統）", "envisoft.gov.vn (Vietnam automatic environmental monitoring system)", "envisoft.gov.vn（ベトナム環境自動モニタリングシステム）"), sourceUrl: "https://envisoft.gov.vn/", license: l3("授權未明示", "License not stated", "ライセンスは明示されていない"), fetchedAt: VN_FETCHED_AT,
     loading: l3("越南環境監測站載入中", "Loading Vietnam environmental monitoring stations", "ベトナムの環境モニタリング局を読み込み中"),
   },
   {
@@ -506,7 +506,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       l3("來源 安江省開放資料入口，授權未明示", "Source An Giang open data portal, licence not stated", "出典 An Giang 省オープンデータポータル、ライセンス未明示"),
     ],
     popupNotes: [{ text: VN_ANGIANG_NOTE }],
-    sourceOrg: "Cổng dữ liệu mở tỉnh An Giang（opendata.angiang.gov.vn）Dữ liệu GIS", sourceUrl: "https://opendata.angiang.gov.vn/", license: "授權未明示", fetchedAt: VN_FETCHED_AT,
+    sourceOrg: "Cổng dữ liệu mở tỉnh An Giang（opendata.angiang.gov.vn）Dữ liệu GIS", sourceUrl: "https://opendata.angiang.gov.vn/", license: l3("授權未明示", "License not stated", "ライセンスは明示されていない"), fetchedAt: VN_FETCHED_AT,
     loading: l3("越南安江示範載入中", "Loading Vietnam An Giang demo", "ベトナム An Giang デモを読み込み中"),
   },
   // 觀光波與第 2–7 波（2026-11-17）：規格在 vnWavesLayers.ts

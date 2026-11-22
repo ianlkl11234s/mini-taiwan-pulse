@@ -13,8 +13,9 @@ import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
 import { resolvePropertyValueScale } from "../data/propertyValueTypes";
 import { resolveCompanyGridScale } from "../data/businessRegistryTypes";
 import { resolveJpAccommodationDensityScale } from "../data/jpTourismTypes";
-import { resolveAssetUrl, fetchResolvedGeojson } from "../data/layerAssetIndex";
+import { resolveAssetUrl, fetchResolvedGeojson, type ResolvedAsset } from "../data/layerAssetIndex";
 import { polygonFeaturesToInteriorPoints } from "./interiorPoint";
+import { hatchImageData, hatchImageId } from "./mapStyleScale";
 
 /**
  * EM-05：本模組同時服務兩個地圖引擎 —— 主站 mapbox-gl、`/embed` MapLibre。
@@ -41,6 +42,9 @@ export interface OverlayMap {
   setLayoutProperty(id: string, name: string, value: any): void;
   setPaintProperty(id: string, name: string, value: any): void;
   getFilter?(id: string): any;
+  /** fill-pattern 的缺值斜線圖（`map-hatch-*`）要先註冊；兩個引擎的 Map 都有這兩個方法。 */
+  hasImage?(id: string): boolean;
+  addImage?(id: string, image: { width: number; height: number; data: Uint8Array }): void;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -336,6 +340,21 @@ export function geojsonSourceOptions(config: OverlayConfig): {
   };
 }
 
+/**
+ * 缺值斜線（F-3）：paint 用了 `fill-pattern: map-hatch-*` 時，先把暗／淺兩種底圖的圖都備好
+ * （換底圖 style 會清空 image，addOverlay 每次重建都會再走到這裡；已有就略過）。
+ */
+function ensureHatchImages(map: OverlayMap, paint: Record<string, unknown>): void {
+  const pattern = paint["fill-pattern"];
+  if (typeof pattern !== "string" || !pattern.startsWith("map-hatch-") || !map.hasImage || !map.addImage) return;
+  for (const dark of [true, false]) {
+    for (const kind of ["missing", "suppressed"] as const) {
+      const id = hatchImageId(kind, dark);
+      if (!map.hasImage(id)) map.addImage(id, hatchImageData(kind, dark));
+    }
+  }
+}
+
 /** 新增單一 overlay（source + 所有 layers） */
 export function addOverlay(
   map: OverlayMap,
@@ -381,6 +400,7 @@ export function addOverlay(
     if (map.getLayer(id)) continue;
 
     const paint = applyLayerOpacity(config, spec.paint(isDark, params), params);
+    ensureHatchImages(map, paint);
     const filter = resolveFilter(spec, params);
     map.addLayer({
       id,
@@ -719,12 +739,40 @@ export function polygonFeaturesToCentroids(data: GeoJSON.FeatureCollection): Geo
 }
 
 /**
+ * 版本化資產（R2 `layers/v1`）與部署時版本互為備援（VPB-11）：
+ * - 主來源是 CDN → 失敗改抓部署時版本
+ * - 主來源是部署時版本 → 失敗時若索引已就緒，改抓 CDN
+ * 每次 hydrate 兩邊各最多試一次，不會互相無限重試。
+ */
+function alternateAsset(config: OverlayConfig, resolved: ResolvedAsset): ResolvedAsset | null {
+  if (resolved.source === "cdn") return { url: config.sourceUrl, source: "fallback", reason: "CDN 版本載入失敗" };
+  if (resolved.source === "fallback") {
+    const now = resolveAssetUrl(config.sourceUrl);
+    return now.source === "cdn" ? now : null;
+  }
+  return null;
+}
+
+async function fetchOverlayGeojson(config: OverlayConfig, resolved: ResolvedAsset): Promise<GeoJSON.FeatureCollection> {
+  try {
+    return await fetchResolvedGeojson(resolved);
+  } catch (primaryError) {
+    const alternate = alternateAsset(config, resolved);
+    if (!alternate) throw primaryError;
+    console.warn(`[overlay] ${config.sourceId} ${resolved.source === "cdn" ? "CDN 版本" : "部署時版本"}載入失敗，改抓${alternate.source === "cdn" ? " CDN 版本" : "部署時版本"}：`, primaryError);
+    return await fetchResolvedGeojson(alternate);
+  }
+}
+
+/**
  * 若 config 是靜態 GeoJSON 且尚未 hydrate → fetch sourceUrl + setData。
  * dynamicData / pmtiles 配置直接 no-op（pmtiles 由 Mapbox 自動 lazy load tile，
  * dynamicData 由各自 loader 負責）。
  *
  * 設計：
- * - 失敗時清掉 set 讓下次 toggle 可重試，並以 loadingRegistry 失敗結束（右上顯示載入失敗）
+ * - 主來源失敗先改抓另一邊（fetchOverlayGeojson）；兩邊都失敗才清掉 set 讓下次 toggle 可重試，
+ *   並以 loadingRegistry 失敗結束（右上顯示載入失敗）
+ * - 部署時版本失敗仍保留 fallback 標記：索引就緒時 refreshFallbackHydratedOverlay 會改抓 CDN
  * - URL 經 layerAssetIndex resolver：已遷移圖層走 CDN 並驗 sha256（≤5 MB）
  * - 先標記 hydrated 防同一 toggle 內重複觸發 race
  */
@@ -750,7 +798,7 @@ export async function hydrateOverlayIfNeeded(
   loadingRegistry.start(taskId, label);
   let failed = false;
   try {
-    const raw = await fetchResolvedGeojson(resolved);
+    const raw = await fetchOverlayGeojson(config, resolved);
     const json = config.geojsonTransform === "centroid"
       ? polygonFeaturesToCentroids(raw)
       : config.geojsonTransform === "interior"
@@ -764,10 +812,8 @@ export async function hydrateOverlayIfNeeded(
     }
   } catch (e) {
     failed = true;
-    if (hydrateGeneration.get(config.sourceId) === generation) {
-      hydratedSources.delete(config.sourceId);
-      fallbackHydratedSources.delete(config.sourceId);
-    }
+    // fallback 標記不清：索引稍後就緒時仍要改抓 CDN（否則部署版失敗後圖層永遠空白）
+    if (hydrateGeneration.get(config.sourceId) === generation) hydratedSources.delete(config.sourceId);
     console.warn(`[overlay] hydrate ${config.sourceId} failed:`, e);
   } finally {
     // 以失敗結束 → 右上載入狀態條顯示「載入失敗 · 圖層名」，不再靜默空圖

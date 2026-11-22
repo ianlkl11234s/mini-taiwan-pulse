@@ -60,5 +60,13 @@
   "legend.atlas.ahSubtitle": "7 airports covered; Kaohsiung International Airport is not covered (the source has polylines only); other civil airports are not in the source",
   "legend.atlas.ljZone": "Land office jurisdiction (colour has no other meaning)",
   "legend.atlas.npSubtitle": "144,228 survey sites (covering 1.45 million records); some coordinates are obscured and are not exact positions",
-  "legend.atlas.ljSubtitle": "110 polygons; select a land office point in \"Government Service Offices\" to highlight its jurisdiction"
+  "legend.atlas.ljSubtitle": "110 polygons; select a land office point in \"Government Service Offices\" to highlight its jurisdiction",
+  "legend.atlas.b7Uncovered": "Counties not covered (no usable public list)",
+  "legend.atlas.hsSubtitle": "715 schools shown (lists for ROC years 105–114); 107 more could not be located from their addresses and are not shown",
+  "legend.atlas.sgSubtitle": "243 plants shown; 85 more could not be located from their addresses and are not shown",
+  "legend.atlas.wpSubtitle": "3,691 shown (food-bank lists exist only for Taoyuan, Kaohsiung and Taipei); 373 more could not be located from their addresses and are not shown",
+  "legend.atlas.evSubtitle": "Scooters only: 4,464 shown (13 county EPA lists); 205 more could not be located from their addresses and are not shown",
+  "legend.atlas.slSubtitle": "Zoomed out: streetlight points per 0.01° cell; individual points from zoom 12. Full coverage: Taipei, New Taipei, Taichung, Hsinchu City, Chiayi City. Partial: Kaohsiung (35 districts maintained by the Parks Dept.), Changhua (provincial highways only), Taoyuan (Zhongli District office only)",
+  "legend.atlas.slLedUnknown": "Lamp type unknown (not in the source)",
+  "legend.atlas.wpHatchNote": "; hatching follows the selected category: with one category selected, hatched counties are those with no list for it."
 }

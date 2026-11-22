@@ -52,12 +52,14 @@
 | `layers` | 逗號分隔的 layer key | ✅ | ✅ |
 | `style` | 主站底圖 id（7 種）。embed 用它推明暗 | ✅ | ✅ |
 | `date` / `h` | 凍結日期（YYYY-MM-DD）+ 小時 0–23 | ✅ | ✅（需有快照） |
-| `p.<key>` | overlayParams 覆寫 | ❌ | ✅ |
+| `p.<key>` | overlayParams 覆寫（key＝overlay out key，值為編碼數字） | ✅（2026-11-21 起） | ✅ |
+| `sel` | 單地圖統計層期別／細項（語法同 `cmpdl`） | ✅ | — |
 | `theme` | `dark`\|`light`（style 未給時的回退） | — | ✅ |
 | `rsys` | 鐵路只顯示哪幾個營運者／線路（見下節代碼表） | — | ✅ |
 
-**主站不支援 `p.*` 是刻意的**：主站有 sidebar，URL override 會與使用者拉 slider 打架
-（`useTransportParams` 3028 行、數百個 hardcode `useState`，無法注入初始值）。
+**主站 `p.*`（D8-1，2026-11-21）**：參數已全數進 `layerParamsStore`（AR-22），主站開頁時把 `p.*` 解回控制項的值一次寫入、之後以使用者操作為準。
+對照邏輯在 `src/lib/urlLayerParams.ts`：只寫開著、可公開圖層與預設不同的值；共用值（sharedGroup）共用 out key 只寫一次；
+只套用網址裡有開、看網址的人沒上鎖的圖層。`out: null` 的參數（色盤、第二通道 select、資料篩選多選）不分享；select 以索引編碼，選項順序改了舊連結會錯位（embed 同）。
 
 ## 文章端相機事件
 

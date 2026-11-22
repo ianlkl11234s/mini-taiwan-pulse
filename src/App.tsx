@@ -89,6 +89,8 @@ import { LocationJump } from "./components/AirportSelector";
 import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
+import { showPlaceSearchResult } from "./map/placeSearchMarker";
+import type { PlaceSearchHit } from "./lib/placeSearch";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./components/intel/monitor/monitorSplitLayout";
@@ -102,6 +104,7 @@ import { LiveTimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
+import { LongTermTimelineGate } from "./components/longTermBar/LongTermTimelineGate";
 import { StyleSelector, getStyleUrl, MAP_STYLES } from "./components/StyleSelector";
 import { BasemapMenu } from "./components/toolbar/BasemapMenu";
 import { CaptureExitHint } from "./components/toolbar/CaptureExitHint";
@@ -129,9 +132,11 @@ import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
 import { compareStore, isCompareSupported, useCompareSelector } from "./state/compareStore";
-import { compareSelectionsForUrl, restoreCompareSelections } from "./state/compareStatistics";
+import { compareSelectionsForUrl, restoreSelectionsAfterLoad, singleSelectionsForUrl } from "./state/compareStatistics";
+import { layerParamsForUrl, resolveUrlLayerParams } from "./lib/urlLayerParams";
+import { statisticsDefaultOpacity } from "./data/statisticsVisuals";
 import { regionalStatisticsStore } from "./state/regionalStatisticsStore";
-import { STATISTICS_RENDER_KEYS } from "./data/regionalStatisticsRecipes";
+import { STATISTICS_RENDER_KEYS, isStatisticsRenderLayer } from "./data/regionalStatisticsRecipes";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingStatus } from "./components/LoadingStatus";
 import { CountryViewportHint } from "./components/CountryViewportHint";
@@ -140,6 +145,7 @@ import { useLayerVisibilityHint } from "./hooks/useLayerVisibilityHint";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { BOOT_TIMING, setBootAttr, type BootPhase } from "./components/boot/bootSequence";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
+import { NewVersionNotice } from "./components/NewVersionNotice";
 import { MapNavControls } from "./components/MapNavControls";
 import { MapScaleBar } from "./components/MapScaleBar";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
@@ -535,8 +541,26 @@ export default function App() {
   // 只訂開關：拖把手（split 每幀變）不重繪 App
   const compareEnabled = useCompareSelector((state) => state.enabled);
   const compareActive = compareEnabled && !isMobile;
+  /**
+   * 手機退回單地圖時寄放的比較狀態（VIZ-26）：網址照樣寫回 cmp*，只是不渲染右側；
+   * 回到桌機寬度時還原成比較畫面。store 在手機維持關閉，右側相關的讀取端不必各自判斷手機。
+   */
+  const mobileCompareRef = useRef<UrlState["compare"]>(undefined);
   useEffect(() => {
-    if (isMobile && compareStore.getSnapshot().enabled) compareStore.setEnabled(false);
+    if (isMobile && compareStore.getSnapshot().enabled) {
+      mobileCompareRef.current = compareStateFromStoreRef.current();
+      compareStore.setEnabled(false);
+      return;
+    }
+    const stashed = mobileCompareRef.current;
+    if (isMobile || !stashed) return;
+    mobileCompareRef.current = undefined;
+    compareStore.hydrate({
+      enabled: true,
+      ...(stashed.split !== undefined ? { split: stashed.split } : {}),
+      sides: Object.fromEntries([...(stashed.left ?? []).map((key) => [key, "left"] as const), ...(stashed.right ?? []).map((key) => [key, "right"] as const)]),
+    });
+    if (stashed.leftSelection || stashed.rightSelection) void restoreSelectionsAfterLoad(stashed.leftSelection, stashed.rightSelection);
   }, [isMobile]);
   const [chatOpen, setChatOpen] = useState(false);
   /** Agent 活動卡（右上）是否在畫面上：出現時隱藏視野提示（§5.42） */
@@ -1952,6 +1976,14 @@ export default function App() {
     }
   }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
 
+  // 側欄地點搜尋：飛過去＋暫時標記；null＝移除標記（再搜尋或關閉 Locations 面板）
+  const placeMarkerCleanupRef = useRef<(() => void) | null>(null);
+  const handlePlacePick = useCallback((place: PlaceSearchHit | null) => {
+    placeMarkerCleanupRef.current?.();
+    placeMarkerCleanupRef.current = null;
+    if (place && mapRef.current) placeMarkerCleanupRef.current = showPlaceSearchResult(mapRef.current, place, isDarkThemeRef.current);
+  }, []);
+
   // EM-03 深連結：套用網址指定的圖層與日期。**只跑一次**（deps 空陣列）——
   // 相機走 preset 那條路，這裡只處理 setter 型的狀態。
   // 走 handleBulkSetVisibility 而非直接 setLayerVisibility，是為了沿用其 gated 攔截與 session 記錄。
@@ -1959,13 +1991,26 @@ export default function App() {
   useEffect(() => {
     if (urlStateAppliedRef.current) return;
     urlStateAppliedRef.current = true;
-    const { layers, date, hour, statisticsMode: urlStatisticsMode, presentation, compare: urlCompare } = urlStateRef.current;
+    const { layers, date, hour, statisticsMode: urlStatisticsMode, presentation, compare: urlCompare, params: urlParams, selection: urlSelection } = urlStateRef.current;
     // 呈現方式（pm=）先套，圖層開啟時第一次畫就是比例圓
     applyPresentationUrlEntries(presentation);
-    // 比較模式（cmp=）：桌機還原開關、把手、側別；手機不提供，退回單地圖並提示（Q3 (b)）
+    // 圖層參數（p.*，D8-1）：只套網址裡有開、目前沒上鎖的圖層（parseLayers 已濾掉站主限定與 HOLD；
+    // 動態上鎖的再由 lockedKeys 擋），在開圖層前寫入，第一次畫就是分享者的設定
+    const allowedParamKeys = (layers ?? []).filter((key) => !lockedKeysRef.current.has(key));
+    const allowedKeySet = new Set<string>(allowedParamKeys);
+    /** 期別／細項同一道門：只還原網址裡有開、目前沒上鎖的圖層（否則 ensure 會替沒開的層抓資料） */
+    const allowedSelection = (selection: Record<string, Record<string, string>> | undefined) => {
+      const kept = selection && Object.fromEntries(Object.entries(selection).filter(([key]) => allowedKeySet.has(key)));
+      return kept && Object.keys(kept).length ? kept : undefined;
+    };
+    layerParamsStore.setManyDirect(resolveUrlLayerParams(urlParams, allowedParamKeys, layerParamsStore.getAll()));
+    // 比較模式（cmp=）：桌機還原開關、把手、側別；手機不提供，退回單地圖並提示（Q3 (b)），
+    // 比較參數寄放起來照樣寫回網址（VIZ-26），轉給桌機開仍是比較畫面
     if (urlCompare) {
-      if (isMobile) showTransientNotice(t("compare.mobileFallback"));
-      else compareStore.hydrate({
+      if (isMobile) {
+        mobileCompareRef.current = urlCompare;
+        showTransientNotice(t("compare.mobileFallback"));
+      } else compareStore.hydrate({
         enabled: true,
         ...(urlCompare.split !== undefined ? { split: urlCompare.split } : {}),
         sides: Object.fromEntries([...(urlCompare.left ?? []).map((key) => [key, "left"] as const), ...(urlCompare.right ?? []).map((key) => [key, "right"] as const)]),
@@ -1979,10 +2024,20 @@ export default function App() {
     }
     if (layers?.length) handleBulkSetVisibility(layers, true);
     // 左右期別與細項等選項載入後逐列驗證再套用（不存在的值保留目前選擇）
-    if (urlCompare && !isMobile && (urlCompare.leftSelection || urlCompare.rightSelection)) {
-      void restoreCompareSelections(urlCompare.leftSelection, urlCompare.rightSelection).then((skipped) => {
+    const compareLeft = allowedSelection(urlCompare?.leftSelection);
+    const compareRight = allowedSelection(urlCompare?.rightSelection);
+    if (urlCompare && !isMobile && (compareLeft || compareRight)) {
+      void restoreSelectionsAfterLoad(compareLeft, compareRight).then((skipped) => {
         if (skipped.length) console.warn("[compare] 分享網址的期別／細項略過：", skipped);
       });
+    } else {
+      // 單地圖（含手機退回單地圖：左側期別就是單地圖的期別）
+      const allowed = urlCompare ? compareLeft : allowedSelection(urlSelection);
+      if (allowed) {
+        void restoreSelectionsAfterLoad(allowed).then((skipped) => {
+          if (skipped.length) console.warn("[share] 分享網址的期別／細項略過：", skipped);
+        });
+      }
     }
     if (date) {
       // 先切換 timeline 的日期視窗，再寫 hh:00。若直接呼叫舊視窗的 seek，
@@ -2006,10 +2061,35 @@ export default function App() {
   //    有頻率保護（Safari 特別嚴），會直接拋錯或忽略。
   // 3. **不寫進任何 React state** —— 只改網址列，不觸發 re-render，故成本趨近於零、
   //    不產生任何網路請求（Mapbox map load 只在 Map 初始化時計費，與此無關）。
-  /** 分享網址的比較狀態（只記非預設；比較關閉或手機＝不寫） */
+  /** 分享網址可帶出的圖層：站主限定、HOLD、動態上鎖（public.gated_layers）的參數與期別一律不寫 */
+  const shareableKey = (key: string) => !GATED_LAYERS.has(key as keyof LayerVisibility)
+    && !RELEASE_HOLD_LAYERS.has(key as keyof LayerVisibility)
+    && !layerGates?.has(key)
+    && !lockedKeysRef.current.has(key as keyof LayerVisibility);
+  /**
+   * 分享網址的比較狀態（只記非預設；比較關閉＝不寫）。手機退回單地圖時寫回寄放的狀態：
+   * 側別只留仍開著的圖層，左側期別取單地圖目前的值（使用者可能在手機上改過）。
+   */
   const compareUrlState = (): UrlState["compare"] => {
+    if (!isMobile) return compareStateFromStore();
+    const stashed = mobileCompareRef.current;
+    if (!stashed) return undefined;
+    const visible = (key: string) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility]);
+    const left = stashed.left?.filter(visible);
+    const right = stashed.right?.filter(visible);
+    const leftSelection = singleSelectionsForUrl(shareableKey);
+    const rightSelection = stashed.rightSelection && Object.fromEntries(Object.entries(stashed.rightSelection).filter(([key]) => visible(key)));
+    return {
+      ...(stashed.split !== undefined ? { split: stashed.split } : {}),
+      ...(left?.length ? { left } : {}),
+      ...(right?.length ? { right } : {}),
+      ...(leftSelection ? { leftSelection } : {}),
+      ...(rightSelection && Object.keys(rightSelection).length ? { rightSelection } : {}),
+    };
+  };
+  const compareStateFromStore = (): UrlState["compare"] => {
     const snapshot = compareStore.getSnapshot();
-    if (!snapshot.enabled || isMobile) return undefined;
+    if (!snapshot.enabled) return undefined;
     const sides = Object.entries(snapshot.sides);
     const visible = (key: string) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility]);
     const left = sides.filter(([key, side]) => side === "left" && visible(key)).map(([key]) => key);
@@ -2023,6 +2103,8 @@ export default function App() {
       ...(selections.right ? { rightSelection: selections.right } : {}),
     };
   };
+  const compareStateFromStoreRef = useRef(compareStateFromStore);
+  compareStateFromStoreRef.current = compareStateFromStore;
   const syncUrlRef = useRef<() => void>(() => {});
   syncUrlRef.current = () => {
     if (privateViewRef.current) return;
@@ -2049,6 +2131,10 @@ export default function App() {
     const isPastDay = cur.date !== today;
     const date = isPastDay ? cur.date : undefined;
     const hour = isPastDay && Number.isFinite(cur.hour) ? cur.hour % 24 : undefined;
+    const compare = compareUrlState();
+    // 圖層參數（p.*）：只寫開著、可公開圖層與預設不同的值；統計透明度的預設隨底圖（暗 0.75／淡 0.55）
+    const params = layerParamsForUrl(keys.filter(shareableKey), layerParamsStore.getAll(), (key, spec) =>
+      isStatisticsRenderLayer(key) && spec.name === `${key}Opacity` ? statisticsDefaultOpacity(isDarkTheme) : undefined);
     const next = buildUrl(
       {
         camera: {
@@ -2060,7 +2146,10 @@ export default function App() {
         layers: keys,
         statisticsMode: statisticsDisplayMode,
         presentation: presentationUrlEntries((key) => Boolean(layerVisibilityRef.current[key as keyof LayerVisibility])),
-        compare: compareUrlState(),
+        compare,
+        params,
+        // 比較模式的左側期別已在 cmpdl，不重複寫
+        selection: compare ? undefined : singleSelectionsForUrl(shareableKey),
         style: mapStyleId,
         date,
         hour,
@@ -2080,16 +2169,18 @@ export default function App() {
     const onMoveEnd = () => syncUrlRef.current();
     map.on("moveend", onMoveEnd);
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
-    // 呈現方式（pm=）在 layerParamsStore：切換、或被「同時一層比例圓」自動改回時也要更新網址
-    const offParams = layerParamsStore.subscribe(() => syncUrlRef.current());
-    // 比較模式：開關、把手、側別，以及比較中統計層的左右期別／細項（只在比較開著時訂）。
-    // 停 250ms 才寫網址：拖把手每幀都變，逐幀 replaceState 會撞到 Safari 的次數上限
+    // 停 250ms 才寫網址：拖把手、拖滑桿每幀都變，逐幀 replaceState 會撞到 Safari 的次數上限
     let timer: ReturnType<typeof setTimeout> | undefined;
     const scheduleSync = () => { clearTimeout(timer); timer = setTimeout(() => syncUrlRef.current(), 250); };
+    // 圖層參數（p.*）與呈現方式（pm=）在 layerParamsStore：拖滑桿、切換、或被「同時一層比例圓」自動改回時也要更新網址
+    const offParams = layerParamsStore.subscribe(scheduleSync);
+    // 比較模式：開關、把手、側別，以及比較中統計層的左右期別／細項（只在比較開著時訂）。
     const offCompare = compareStore.subscribe(scheduleSync);
-    const offStatistics = compareEnabled
-      ? STATISTICS_RENDER_KEYS.flatMap((key) => [regionalStatisticsStore.subscribe(key, scheduleSync), regionalStatisticsStore.subscribe(`${key}::R`, scheduleSync)])
-      : [];
+    // 單地圖也要訂開著的統計層（sel=）；右側 `::R` 只在比較開著時訂
+    const offStatistics = STATISTICS_RENDER_KEYS.flatMap((key) => [
+      ...(compareEnabled || layerVisibility[key as keyof LayerVisibility] ? [regionalStatisticsStore.subscribe(key, scheduleSync)] : []),
+      ...(compareEnabled ? [regionalStatisticsStore.subscribe(`${key}::R`, scheduleSync)] : []),
+    ]);
     return () => { map.off("moveend", onMoveEnd); offParams(); offCompare(); offStatistics.forEach((off) => off()); clearTimeout(timer); };
   }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country, compareEnabled]);
 
@@ -2272,6 +2363,7 @@ export default function App() {
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {showLoadingScreen && <LoadingScreen phase={bootPhase as Exclude<BootPhase, "gone">} isDarkTheme={isDarkTheme} />}
       <TransientNotice />
+      <NewVersionNotice busy={showLoadingScreen || captureMode || chatOpen || agentActivityVisible || timeline.playing || eqReplayPlaying || historicalPlaying} measure={measure} isDarkTheme={isDarkTheme} isMobile={isMobile} />
       {/* owner-only 私人圖層：已登入非 owner 點鎖層時的提示（未登入則直接導 Google 登入，不走這裡） */}
       {gatedNotice && (
         <div
@@ -2661,6 +2753,7 @@ export default function App() {
 
               currentLocationId={selectedAirport}
               onLocationJump={handleLocationJump}
+              onPlacePick={handlePlacePick}
               onWidthChange={handleSidebarWidthChange}
               dataRegistry={dataRegistry}
               selectedDate={timeline.selectedDate}
@@ -2758,8 +2851,9 @@ export default function App() {
           />
 
 
-          {/* 時間軸：依 mode 切換 realtime / historical */}
+          {/* 時間軸：依 mode 切換 realtime / historical；即時模式下長期時間條與即時時間軸一次只顯示一條（STANDARD.md §2） */}
           {appMode === "realtime" ? (
+            <LongTermTimelineGate isDark={isDarkTheme} leftOffset={sidebarWidth + 16} rightReserve={splitActive ? `calc(${navColumnRight} + 296px)` : undefined}>
             <LiveTimelineControls
               playing={timeline.playing}
               speed={timeline.speed}
@@ -2779,6 +2873,7 @@ export default function App() {
               onShiftDate={timeline.shiftDate}
               onRangeDaysChange={timeline.setRangeDays}
             />
+            </LongTermTimelineGate>
           ) : (
             <HistoricalTimeline
               year={historicalYear}

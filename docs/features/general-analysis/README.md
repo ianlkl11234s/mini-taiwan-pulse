@@ -1,6 +1,6 @@
 # AI Agent 資料查詢與分析倉庫入口
 
-> **最新進度與「如何開始」一律看 [`STATUS.md`](./STATUS.md)。** 下方文件是各主題的權威細節。
+> **如何開始看 [`STATUS.md`](./STATUS.md)（入口指標）；最新進度看 `.gis-agent-system/roadmap/status/ai-mcp.md`。** 下方文件是各主題的權威細節。
 
 第三輪紀錄：[`PLAN-round3-20260927.md`](./PLAN-round3-20260927.md)（覆蓋度、問題庫、視覺化、收尾）；題目清單見 [`question-bank-backlog-20260927.md`](../../archive/2026-11-09/features/general-analysis/question-bank-backlog-20260927.md)。
 

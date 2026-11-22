@@ -223,5 +223,16 @@
   "legend.mapchallenge.day19.ratioNull": "倍率の記載なし",
   "legend.mapchallenge.day19.sizeTitle": "円の大きさ＝処分件数",
   "legend.mapchallenge.day19.penaltiesNote": "事実欄に「悪臭汚染物質」とある処分のみ。事実欄は 2017 年以降で約 6 割が空欄のため 848 件は下限。個人経営の畜産場は名称非表示。",
-  "legend.mapchallenge.day19.penaltiesSource": "出典：環境部 環境保護処分 · 政府資料開放授權條款第 1 版"
+  "legend.mapchallenge.day19.penaltiesSource": "出典：環境部 環境保護処分 · 政府資料開放授權條款第 1 版",
+  "legend.mapchallenge.day21.title": "道路が OSM に描かれた年",
+  "legend.mapchallenge.day21.before": "{year} 年以前",
+  "legend.mapchallenge.day21.showingUpTo": "{year} 年までに描かれた道路を表示",
+  "legend.mapchallenge.day21.showingNew": "{year} 年に追加された道路のみ表示",
+  "legend.mapchallenge.day21.colorNote": "色＝その道路区間が初めて OpenStreetMap に描かれた年である。色帯は 1 年 1 マスで、追加の多い年ほど色の変化が大きい。",
+  "legend.mapchallenge.day21.major": "幹線道路（高速道路・快速道路・主要幹線）",
+  "legend.mapchallenge.day21.mid": "準幹線道路（二次・三次幹線）",
+  "legend.mapchallenge.day21.local": "一般道路（生活道路・未分類・サービス道路・等級なし）",
+  "legend.mapchallenge.day21.yearNote": "年は OSM に描かれた年であり、道路の開通年ではない。2007 は 2007 年以前（含む）を表す。データは 2026-07-27 まで。",
+  "legend.mapchallenge.day21.limits": "2026-07-27 時点で存在する道路のみ（計 {km} km）で、削除された道路は表示しない。初期（2007–2011）は 1 本の線が後に上下線 2 本に分けられたため、やや多めに数えられる。別の位置に描き直された道路は新たに描かれたものとして数える。台北市・新北市・基隆市のみ。",
+  "legend.mapchallenge.day21.source": "出典：© OpenStreetMap contributors（ODbL）、履歴は ohsome API（HeiGIT）経由"
 }

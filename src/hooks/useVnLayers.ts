@@ -4,7 +4,7 @@ import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpe
 import { BOUNDARY_GRAY, LABEL, MAP_SEAM, labelHaloPaint } from "../map/mapStyleScale";
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
-import { VN_ADMIN_COLOR, VN_DENSITY_BREAKS, VN_NOT_COVERED_COLOR } from "../data/vnDataLayers";
+import { VN_ADMIN_COLOR, VN_DENSITY_BREAKS, VN_NOT_COVERED_COLOR, phText } from "../data/vnDataLayers";
 import { useGbPmtilesLayers, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
 import type { VnRasterSpec } from "../data/vnWavesLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -174,7 +174,7 @@ function firstSymbolLayerId(map: MapboxMap): string | undefined {
 export function useVnRasterLayer(mapRef: MapRef, spec: VnRasterSpec, visible: boolean, opacity: number, priv?: PrivatePmtilesSource | null) {
   const owner = spec.kind === "owner";
   const source: SourceSpec = {
-    id: spec.sourceId, file: spec.file, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: spec.sourceShort, loading: spec.loading,
+    id: spec.sourceId, file: spec.file, minzoom: spec.minzoom, maxzoom: spec.maxzoom, attribution: phText(spec.sourceShort), loading: spec.loading,
     raster: { tileSize: 256 }, ...(owner && priv ? { private: priv } : {}),
   };
   useGbPmtilesLayers(mapRef, source, visible && (!owner || !!priv), () => [{

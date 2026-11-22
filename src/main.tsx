@@ -8,21 +8,33 @@ import App from "./App";
 import { setBootAttr } from "./components/boot/bootSequence";
 import { localeStore } from "./state/localeStore";
 import { loadLayerAssetIndex } from "./data/layerAssetIndex";
+import { MapErrorBoundary, MapUnavailableNotice, hasWebGL2 } from "./components/boot/MapUnavailableNotice";
 
 // i18n：讀 URL ?lang／偏好／瀏覽器語言，並寫入 <html lang>（驅動 CSS :lang() 字型堆疊）
 localeStore.init();
 
-// 靜態圖層資產索引（ADR-0024 §4）：開站載入一次，之後 resolver 同步查表。失敗時遷移清單內的圖層退回部署時版本。
-void loadLayerAssetIndex();
-
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root element not found");
 
-// 開站畫面期間主畫面元件先藏在邊界外，地圖好了再彈入（design-system §5.33）
-setBootAttr("wait");
+// 沒有 WebGL2 時不建地圖，直接顯示說明（OPS-1：原本整頁空白）；也不設開站等待狀態
+if (!hasWebGL2()) {
+  createRoot(rootEl).render(
+    <StrictMode>
+      <MapUnavailableNotice reason="webgl" />
+    </StrictMode>,
+  );
+} else {
+  // 靜態圖層資產索引（ADR-0024 §4）：開站載入一次，之後 resolver 同步查表。失敗時遷移清單內的圖層退回部署時版本。
+  void loadLayerAssetIndex();
 
-createRoot(rootEl).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+  // 開站畫面期間主畫面元件先藏在邊界外，地圖好了再彈入（design-system §5.33）
+  setBootAttr("wait");
+
+  createRoot(rootEl).render(
+    <StrictMode>
+      <MapErrorBoundary>
+        <App />
+      </MapErrorBoundary>
+    </StrictMode>,
+  );
+}

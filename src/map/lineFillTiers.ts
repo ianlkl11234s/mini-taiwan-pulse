@@ -131,6 +131,7 @@ export const LINE_TIERS: Readonly<Record<string, LineTierSpec>> = {
   "mapchallengeDay05SeaView/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 5 海景路段（寬依運具＋判定）
   "mapchallengeDay05SeaViewRuns/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 5 最長連續海景（寬依名次）
   "mapchallengeDay17DarkRoads/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 17 衛星看不到光的路段（寬依等級／名次；連續暗路段 11 名後透明只當點擊範圍）
+  "mapchallengeDay21OsmRoads/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 21 OSM 道路畫進的年份（寬依道路等級三級＝資料編碼）
   "mapchallengeDay06Coast/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 6 臺南海岸線三代（L-1 強調值，最舊一代 ×1.4，mapchallengeDay06CoastWidthExpr）
   "mapchallengeDay06Lighthouses/link": { width: "standard", opacity: "standard" }, // 30 天地圖挑戰 Day 6 今昔連線（虛線）
   "maritimeBoundary/line": { width: "standard", opacity: "reference" }, // 領海界線 Maritime Boundary
@@ -231,6 +232,7 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-small-areas-low-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區 z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-ni-sdz-low-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
+  "twCountyMigrationFlows/tw-county-migration-flows-line": {"width": "keep", "opacity": "standard"}, // 線寬＝人數 4 級（資料驅動） · src/hooks/useCountyMigrationFlowsLayer.ts
   "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/hooks/useGbMaritimeLimitsLayer.ts
   "gbMaritimeLimits/gb-maritime-limits-dashed": {"width": "keep", "opacity": "standard"}, // L-2 [4,3]：大陸棚、四地分區 · src/hooks/useGbMaritimeLimitsLayer.ts
   "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/hooks/useGbMaritimeLimitsLayer.ts

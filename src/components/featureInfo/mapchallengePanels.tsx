@@ -37,6 +37,9 @@ import {
 import { MAPCHALLENGE_DAY19_CATEGORY_KEYS, MAPCHALLENGE_DAY19_FACILITY_KEYS, MAPCHALLENGE_DAY19_PERIOD_KEYS } from "../legend/mapchallengeLegends";
 import { FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
+import { MAPCHALLENGE_DAY21_YEAR_MIN, mapchallengeDay21ClassOf, mapchallengeDay21YearColor } from "../../data/mapchallengeDay21Types";
+import { MAPCHALLENGE_DAY21_CLASS_KEYS } from "../legend/mapchallengeLegends";
+import { LinkRow } from "./atlasPanels";
 import { Row, SourceFooter, Title } from "./shared";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 
@@ -560,5 +563,23 @@ export function MapchallengeDay19PenaltiesPanel({ props }: Props) {
     {Number.isFinite(money) && <Row label={t("popup.mapchallenge.day19.money")} value={t("popup.mapchallenge.day19.moneyValue", { n: formatNumber(money) })} mono />}
     <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.penaltiesNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day19.penaltiesSource") }} />
+  </div>;
+}
+
+// ── Day 21 OSM ────────────────────────────────────────────────
+export function MapchallengeDay21OsmRoadsPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const year = num(props.year);
+  const hw = str(props.highway);
+  const osmId = str(props.osm_id);
+  const yearText = year === MAPCHALLENGE_DAY21_YEAR_MIN ? t("legend.mapchallenge.day21.before", { year }) : String(year);
+  return <div>
+    <Title color={mapchallengeDay21YearColor(year)}>{str(props.name) || t("popup.mapchallenge.day21.unnamed")}</Title>
+    <Row label={t("popup.mapchallenge.day21.year")} value={yearText} mono />
+    <Row label={t("popup.mapchallenge.day21.class")} value={hw ? `${t(MAPCHALLENGE_DAY21_CLASS_KEYS[mapchallengeDay21ClassOf(hw)])}（${hw}）` : t("popup.mapchallenge.day21.noClass")} />
+    {Number.isFinite(num(props.len_m)) && <Row label={t("popup.mapchallenge.day21.length")} value={t("popup.mapchallenge.day21.meters", { n: formatNumber(num(props.len_m)) })} mono />}
+    {/^(way|node|relation)\/\d+$/.test(osmId) && <LinkRow label="OSM" url={`https://www.openstreetmap.org/${osmId}`} />}
+    <Row label={t("popup.mapchallenge.day21.note")} value={t("popup.mapchallenge.day21.yearNote")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day21.source") }} />
   </div>;
 }

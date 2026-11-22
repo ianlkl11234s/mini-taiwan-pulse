@@ -34,6 +34,7 @@ export function collectParamTexts(): ParamTextInventory {
         add((op ? op[1]! : s.labelPrefix).trim(), where);
         add(s.labelSuffix, where);
         add(s.zeroLabel, where);
+        Object.values(s.labelByValue ?? {}).forEach((v) => add(v, where));
         continue;
       }
       add(s.label, where);

@@ -192,6 +192,46 @@ export function compareSelectionsForUrl(): { left?: Record<string, Record<string
   return { ...(Object.keys(left).length ? { left } : {}), ...(Object.keys(right).length ? { right } : {}) };
 }
 
+/**
+ * 單地圖分享網址（`sel=`）：開著的統計層目前的期別／細項，語法同比較模式左側（`cmpdl=`）。
+ * 一律記（看網址的人 localStorage 可能記著別的期別）；`include` 讓呼叫端排除站主限定等不可公開的圖層。
+ */
+export function singleSelectionsForUrl(include: (key: string) => boolean = () => true): Record<string, Record<string, string>> | undefined {
+  const out: Record<string, Record<string, string>> = {};
+  const visibility = layerVisibilityStore.getAll() as unknown as Record<string, boolean>;
+  for (const key of STATISTICS_RENDER_KEYS) {
+    if (!visibility[key] || !include(key)) continue;
+    const values = compareSelectionValues(key, "left");
+    if (Object.keys(values).length) out[key] = values;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** 等圖層自己的第一次載入完成（有資料或錯誤）。開頁時圖層與還原同時起跑，太早觸發 ensure 會重設 selection、清掉載入中的資料。 */
+function waitForFirstLoad(key: string, timeoutMs: number): Promise<void> {
+  const done = () => { const state = regionalStatisticsStore.getSnapshot(key); return !state.loading && (state.data !== null || state.error !== null); };
+  if (done()) return Promise.resolve();
+  return new Promise((resolve) => {
+    const finish = () => { off(); clearTimeout(timer); resolve(); };
+    const off = regionalStatisticsStore.subscribe(key, () => { if (done()) finish(); });
+    const timer = setTimeout(finish, timeoutMs);
+  });
+}
+
+/**
+ * 開頁時的分享網址還原（單地圖 `sel=`、比較模式 `cmpdl=`／`cmpdr=`）：等各層第一次載入完再逐列驗證套用。
+ * 直接呼叫 `restoreCompareSelections` 會在圖層還沒載入時就觸發 ensure，selection 被重設、選項還是空的，期別全部被當成「已不存在」。
+ */
+export async function restoreSelectionsAfterLoad(
+  left: Readonly<Record<string, Readonly<Record<string, string>>>> | undefined,
+  right?: Readonly<Record<string, Readonly<Record<string, string>>>>,
+  timeoutMs = 20_000,
+): Promise<string[]> {
+  const keys = [...new Set([...Object.keys(left ?? {}), ...Object.keys(right ?? {})])].filter(isStatisticsRenderLayer);
+  await Promise.all(keys.map((key) => waitForFirstLoad(key, timeoutMs)));
+  return restoreCompareSelections(left, right);
+}
+
 function bySpecName(key: string, values: Readonly<Record<string, string>>, specs: LinkedSelectParamSpec[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const spec of specs) {

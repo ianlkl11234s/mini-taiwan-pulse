@@ -13,6 +13,8 @@ Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsT
                docs/topic-research/tw_layer_ext_20261120/b1/r2/b1-recipes.json；tab_theme 併入「醫療與長照」的「傳染病」）
   twExtB4      台灣圖層延伸 B4 統計（109 年普查常住人口 6、原住民族別 4、住宅用電鄉鎮／縣市 4、公司登記動態 4、未參加健保比 2、
                工商普查鄉鎮 3；docs/topic-research/tw_layer_ext_20261120/b4/r2/b4-recipes.json，23 recipes；tab_theme 併入既有統計主題）
+  twExtB5      台灣圖層延伸 B5 縣市間遷徙（由縣市 OD 加總：淨遷入人數／率、遷入、遷出，4 recipes；
+               docs/topic-research/tw_layer_ext_20261120/b5/r2/b5-recipes.json；併入「人口與教育」的「遷徙」；淨遷入用 diverging）
 
 Inputs (taipei-gis-analytics, read-only):
   --root     analytics checkout. The handoff recipes are the trimmed R2 form (release_id／period／dimensions only),
@@ -480,6 +482,31 @@ TW_EXT_B4_LAYERS = [
     b4_ind("statsIndustryProductionValueTownship", "生產總額（千元）", 0, [], breaks=[1000000, 10000000, 100000000, 300000000]),
 ]
 
+# ── 台灣圖層延伸 B5（2026-11-21）：縣市間遷徙（由縣市 OD 加總）──────────────────────
+ODM_SRC = "出典：內政部 各直轄市、縣（市）間遷徙人口數按性別分（data.gov.tw 168209，月檔加總成年）；政府資料開放授權條款-第1版。"
+ODM_SCOPE = "只算跨縣市的戶籍遷徙：不含遷往或遷自國外、初設戶籍、廢止戶籍、縣市內跨鄉鎮；戶籍登記不等於實際居住移動。"
+ODM_DIFF = "與「人口遷徙（縣市）」層口徑不同（那層含國外遷入遷出與初設戶籍、率用年中人口），兩者數值不會相同，不可混看。"
+ODM_NET = "淨遷入＝遷入－遷出，全國加總為 0；紫＝淨遷入、棕＝淨遷出。"
+ODM_RATE = "淨遷入率＝淨遷入 ÷ 同年 12 月底戶籍人口 × 1000（‰；分母是年底，不是年中）。"
+ODM_FLOWS = "縣市之間的流向弧線見「縣市間遷徙流向」圖層。"
+ODM_DISC = ("內政部各直轄市、縣（市）間遷徙人口數（村里×遷入縣市月檔）加總成縣市 22×22 年度 OD 後取欄合計（遷入）、列合計（遷出）。"
+            "只含跨縣市戶籍遷徙，不含國外、初設戶籍、縣市內跨鄉鎮；與「人口遷徙（縣市）」層（含國外、初設戶籍、年中人口）口徑不同。"
+            "淨遷入率分母為同年 12 月底戶籍人口。")
+
+
+def b5(key, option, digits, notes, **extra):
+    return dict(key=key, group="countyOdMigration", group_label="縣市間遷徙（不含國外）", option_label=option, subgroup="遷徙",
+                visual="population", digits=digits, notes=[ODM_SRC, ODM_SCOPE, ODM_DIFF, *notes, ODM_FLOWS], disclosure=ODM_DISC,
+                location_semantics="戶籍登記地（遷入縣市／遷出縣市依戶籍登記）", **extra)
+
+
+TW_EXT_B5_LAYERS = [
+    b5("statsCountyOdNetMigration", "淨遷入人數", 0, [ODM_NET], diverging=True, breaks=[-15000, -5000, 0, 5000, 15000]),
+    b5("statsCountyOdNetMigrationRate", "淨遷入率（‰）", 2, [ODM_NET, ODM_RATE], diverging=True, breaks=[-5, -2, 0, 2, 5]),
+    b5("statsCountyOdInMigration", "遷入人數", 0, [], breaks=[5000, 15000, 30000, 60000]),
+    b5("statsCountyOdOutMigration", "遷出人數", 0, [], breaks=[5000, 15000, 30000, 60000]),
+]
+
 FAMILIES: dict[str, dict] = {
     "financeAccess": {
         "file": "financeAccessStatisticsRecipes",
@@ -545,6 +572,15 @@ FAMILIES: dict[str, dict] = {
         "tab_theme": B4_TAB_POP,
         "observation_policy": {"observed_zero": "status observed and value 0 (the source lists 0)", "missing": "value null; area not covered or source gap; no zero fill", "not_applicable": "value null; no indigenous residents or a tie for first, so the top tribe is undefined", "suppressed": "value null; customers not disclosed by the source"},
         "layers": TW_EXT_B4_LAYERS,
+    },
+    "twExtB5": {
+        "file": "twExtB5StatisticsRecipes",
+        "handoff": "docs/topic-research/tw_layer_ext_20261120/b5/r2/b5-recipes.json",
+        "theme_dir": "demographics",
+        "data_theme": "人口統計 Population Statistics",
+        "tab_theme": "人口與教育 Population & Education",
+        "observation_policy": {"observed_zero": "not used", "missing": "not used", "not_applicable": "not used", "suppressed": "not used"},
+        "layers": TW_EXT_B5_LAYERS,
     },
     "culture": {
         "file": "cultureStatisticsRecipes",

@@ -14,6 +14,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FONT_CJK, FONT_DATA, PANEL_WIDTH } from "./satelliteConsoleTokens";
 import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT, LIGHT } from "../../styles/designTokens";
+import { maxHeightAboveLongTermBar } from "../longTermBar/longTermBarLayout";
 import { useIntelTheme } from "../intel/intelTheme";
 import { PanelHeader } from "../sidebar/PanelHeader";
 import { SubGroupLabel } from "../sidebar/ThemeBanner";
@@ -96,7 +97,7 @@ export function SatelliteDetailCard({ norad, docked = true, onClose }: Props) {
         width: 380,
         // 扣掉左緣偏移：窄螢幕（390px）卡片不會從右側溢出
         maxWidth: `calc(100vw - ${cardLeft}px - 8px)`,
-        maxHeight: "calc(100vh - 112px)",
+        maxHeight: maxHeightAboveLongTermBar("calc(100vh - 112px)"),
         background: p.panelBg,
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
