@@ -3,17 +3,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const fetchOwnerJson = vi.fn();
 vi.mock("../../lib/ownerData", () => ({ fetchOwnerJson: (...args: unknown[]) => fetchOwnerJson(...args) }));
 vi.mock("../ownerDataAssets", () => ({
-  OWNER_DATA_ASSETS: { "address-owner-63000": { filename: "address-owner-63000.json", size: 10, sha256: "x".repeat(64) } },
+  OWNER_DATA_ASSETS: { "address-owner-63000": { filename: "address_owner_63000.json", size: 10, sha256: "x".repeat(64) } },
 }));
 
-import {
-  addressIndexBase, clearOwnerAddressCache, DEFAULT_ADDRESS_INDEX_BASE, loadAddressManifest, loadOwnerAddressCounty,
-  ownerAddressAsset, resetAddressIndexCache,
-} from "../addressIndexLoader";
+import { addressIndexBase, DEFAULT_ADDRESS_INDEX_BASE, loadAddressManifest, resetAddressIndexCache } from "../addressIndexLoader";
+import { clearOwnerAddressCache, loadOwnerAddressCounty, ownerAddressAsset } from "../addressOwnerLoader";
 
 afterEach(() => {
   fetchOwnerJson.mockReset();
   resetAddressIndexCache();
+  clearOwnerAddressCache();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
 });

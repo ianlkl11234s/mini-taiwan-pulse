@@ -6,9 +6,8 @@ import {
   buildAddressGazetteer, looksLikeAddress, resolveShardTargets, searchShard,
   type AddressGazetteer, type AddressHit, type AddressManifest,
 } from "../lib/addressSearch";
-import {
-  clearOwnerAddressCache, loadAddressManifest, loadAddressRoads, loadAddressShard, loadOwnerAddressCounty,
-} from "../data/addressIndexLoader";
+import { loadAddressManifest, loadAddressRoads, loadAddressShard } from "../data/addressIndexLoader";
+import { clearOwnerAddressCache, loadOwnerAddressCounty } from "../data/addressOwnerLoader";
 
 export type AddressSearchState =
   | { status: "idle" }

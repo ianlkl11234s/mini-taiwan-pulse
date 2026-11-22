@@ -23,7 +23,9 @@ export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hoo
   // 站主限定 PMTiles 的通用存取（2026-11-14，首爾用途地域首用）
   "src/hooks/useOwnerPmtilesAccess.ts",
   // 中國第 0–1 波（2026-11-13）：全部站主限定，圖磚只走私人 owner-data
-  "src/hooks/useCnLayers.ts"];
+  "src/hooks/useCnLayers.ts",
+  // 門牌搜尋站主版（2026-11-22，地址搜尋第二階段）：公開分片在 addressIndexLoader.ts，這支只讀私人 owner-data
+  "src/data/addressOwnerLoader.ts"];
 /** 不套 owner-only-no-external-source 的檔與理由（ownerOnlyScope.test.js 逐字釘住，新增要改測試並在 PR 說明）。 */
 export const OWNER_ONLY_EXEMPT = {
   "src/data/layerManifest.ts": "全站圖層登記簿，不是 owner-only 專屬檔",
