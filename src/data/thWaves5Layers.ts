@@ -197,7 +197,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("courthouse", ["courthouse"], "#a78bfa", "法院（Overture 補缺，空心，291）", "Courthouse (Overture gap-fill, hollow, 291)", "裁判所（Overture 補完、中抜き、291）", { parts: ["th-courthouses-circle"], radius: 4.5 }),
     ],
     title: { props: ["name_th", "name"], fallback: l3("監所、法院", "Prison / courthouse", "刑事施設・裁判所") },
-    fields: [{ prop: "name_en", label: l3("英文名稱", "English name", "英語名") }, { prop: "address_th", label: l3("機關地址（泰文，DOC）", "Agency address (Thai, DOC)", "機関住所（タイ語、DOC）") }, { prop: "postcode", label: l3("郵遞區號", "Postcode", "郵便番号"), kind: "code" }, ...OVERTURE_FIELDS.filter((f) => ["locality", "confidence", "datasets"].includes(f.prop)), ...PROVINCE_FIELDS],
+    fields: [{ prop: "name_en", label: l3("英文名稱", "English name", "英語名") }, { prop: "postcode", label: l3("郵遞區號", "Postcode", "郵便番号"), kind: "code" }, ...OVERTURE_FIELDS.filter((f) => ["locality", "confidence", "datasets"].includes(f.prop)), ...PROVINCE_FIELDS],
     legendNotes: [
       l3("DOC 監所 142 處（2021 版，STALE，授權未明示）；法院為 Overture 補缺 291（非 COJ 官方名冊）", "142 DOC prisons (2021 edition, stale, license not stated); courthouses are 291 Overture gap-fill (not the official COJ register)", "DOC 刑事施設 142（2021 年版、古い、ライセンス未明示）。裁判所は Overture 補完 291（COJ 公式名簿ではない）"),
       l3("COJ 277 名單無座標、檢察署未做", "COJ's 277-court list has no coordinates; prosecution offices not done", "COJ の 277 件の一覧は座標なし、検察庁は未対応"),

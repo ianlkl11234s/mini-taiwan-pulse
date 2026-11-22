@@ -439,7 +439,6 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
       { prop: "brand_group", label: l3("品牌（歸類）", "Brand (grouped)", "ブランド（分類）"), map: { other: l3("其他品牌", "Other brand", "その他のブランド"), unknown: l3("未知", "Unknown", "不明") } },
       { prop: "brand", label: l3("品牌（Overture 原文）", "Brand (Overture)", "ブランド（Overture 原文）") },
       { prop: "category", label: l3("類別", "Category", "カテゴリ"), map: { gas_station: l3("加油站", "Gas station", "ガソリンスタンド"), fueling_station: l3("加注站", "Fueling station", "給油所") } },
-      { prop: "address", label: l3("地址", "Address", "住所") },
       { prop: "locality", label: l3("地區", "Locality", "地域") },
       { prop: "operating_status", label: l3("營業狀態", "Operating status", "営業状況"), map: { open: l3("營業中", "Open", "営業中"), temporarily_closed: l3("暫停營業", "Temporarily closed", "一時休業") } },
       { prop: "confidence", label: l3("Overture 信心值", "Overture confidence", "Overture 信頼度"), kind: "num", digits: 2 },
