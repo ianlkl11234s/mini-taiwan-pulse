@@ -170,5 +170,16 @@
   "updateNotice.title": "網站有新版本",
   "updateNotice.detail": "重新整理後就會換成最新版。",
   "updateNotice.reload": "重新整理",
-  "updateNotice.later": "稍後"
+  "updateNotice.later": "稍後",
+  "placeSearch.placeholder": "搜尋地點或圖層（⌘K）",
+  "placeSearch.places": "地點",
+  "placeSearch.layers": "圖層",
+  "placeSearch.noPlaces": "沒有符合的地點",
+  "placeSearch.noLayers": "沒有符合的圖層",
+  "placeSearch.loading": "載入地點索引…",
+  "placeSearch.loadFailed": "地點索引載入失敗，請稍後再試",
+  "placeSearch.loadingLabel": "地點搜尋索引",
+  "placeSearch.kind.county": "縣市",
+  "placeSearch.kind.town": "鄉鎮市區",
+  "placeSearch.kind.village": "村里"
 }
