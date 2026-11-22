@@ -1352,7 +1352,7 @@ jpWaterFloodHazard,洪水浸水想定（最大規模）,JP,日本,災害,custom,
 jpReligionGsi,宗教設施 宗教施設（国土地理院）,JP,日本,宗教,custom,verified,jp_religion_gsi,,ds_world_jp_religion_gsi,POINT,2026-08-23,unknown,yes,spatial,warehouse,warehouse,official,,,,,,"国土地理院寺院／神社地圖記號 167,037 點（96.7% 無名稱）"
 jpReligionOsm,宗教設施 宗教施設（OpenStreetMap）,JP,日本,宗教,custom,verified,jp_religion_osm,,ds_world_jp_religion_osm,POINT,2026-08-23,unknown,yes,spatial,warehouse,warehouse,official,,,,,,"OpenStreetMap 日本宗教設施 71,040 點（唯一含基督教；ODbL）"
 jpReligionWikidata,宗教設施 宗教施設（Wikidata）,JP,日本,宗教,custom,verified,jp_religion_wikidata,,ds_world_jp_religion_wikidata,POINT,2026-08-23,unknown,yes,spatial,warehouse,warehouse,official,,,,,,"Wikidata 日本宗教設施 37,154 點（99.9% 有名稱；QID 可追溯）"
-jpAdminPrefecture,都道府縣界 都道府県境,JP,日本,底圖,custom,catalog_missing,,,,,,,yes,none,,missing,,,override: snapshot_candidate: 日本都道府県界 PMTiles（47 筆），純行政邊界，是縣市級空間聚合分析的基礎底圖。,,,snapshot_candidate: 日本都道府県界 PMTiles（47 筆），純行政邊界，是縣市級空間聚合分析的基礎底圖。,日本都道府県界（47 筆）
+jpAdminPrefecture,都道府縣界 都道府県境,JP,日本,底圖,custom,catalog_missing,,,,,,,yes,none,,warehouse,,,override: snapshot_candidate: 日本都道府県界 PMTiles（47 筆），純行政邊界，是縣市級空間聚合分析的基礎底圖。,,,snapshot_candidate: 日本都道府県界 PMTiles（47 筆），純行政邊界，是縣市級空間聚合分析的基礎底圖。,日本都道府県界（47 筆）
 jpAdminBoundaries,市區町村界 市区町村境,JP,日本,底圖,custom,catalog_missing,,,,,,,yes,none,,warehouse,,,"override: snapshot_candidate: 日本市区町村界 PMTiles（1,905 筆），鄉鎮級行政邊界，可作跨圖層行政區聚合的 join key。",,,"snapshot_candidate: 日本市区町村界 PMTiles（1,905 筆），鄉鎮級行政邊界，可作跨圖層行政區聚合的 join key。","日本市区町村界（1,905 筆）"
 jpStations,車站 駅,JP,日本,交通,custom,catalog_missing,,,,,,,yes,none,,warehouse,,,"override: snapshot_candidate: 日本車站靜態 GeoJSON（9,046 點，含路線／營運者／運量 2022-2024），高價值設施點，適合做交通可及性分析。",,,"snapshot_candidate: 日本車站靜態 GeoJSON（9,046 點，含路線／營運者／運量 2022-2024），高價值設施點，適合做交通可及性分析。","日本車站（9,046 點，含路線／營運者／運量）"
 jpAirports,機場 空港,JP,日本,交通,custom,catalog_missing,,,,,,,yes,none,,warehouse,,,override: snapshot_candidate: 日本機場靜態 GeoJSON（108 面，含空港種別／供用狀態／跑道規格），設施類資料，可做機場服務範圍分析。,,,snapshot_candidate: 日本機場靜態 GeoJSON（108 面，含空港種別／供用狀態／跑道規格），設施類資料，可做機場服務範圍分析。,日本機場（108 面，含空港種別／跑道規格）
@@ -1377,10 +1377,10 @@ transitAccessGrid,網格大眾運輸可及性（推估・情境推演）,SIM,模
 transitAccessPlayback,單一起點大眾運輸擴張（推估・情境推演）,SIM,模擬,雙北大眾運輸可及性,custom,catalog_missing,,,,,,,yes,none,,missing,,,upstream_catalog_missing,,,,情境推演；從雙北 8 個起點之一出發，播放 0–4 小時內搭大眾運輸＋步行可到範圍逐步擴張（H3 res9 網格，前 2 小時每 15 分一階、之後每 30 分），可切時段、分位數（P5 運氣好／P50 一般／P95 運氣差）與公車表定／GPS 實際行駛版；比較模式顯示 GPS
 bridgeRainThresholds,一級監控橋梁參考雨量,TW,臺灣圖層,交通 Move,custom,verified,rain_gauge_stations,,ds_water_resources_rain_gauge_stations,POINT,2026-05-19,19 counties,yes,spatial,warehouse,warehouse,unknown,,,,,,10 座公路局一級監控橋梁的參考雨量試點；表版次待覆核，缺測與未覆核條件顯示未知，位置為 OSM 同名候選。
 jpPoliceFacilities,警察設施 警察施設,JP,日本,執法治安,custom,verified,jp_police_facilities,,ds_world_jp_police_facilities,POINT,2026-09-07,unknown,yes,spatial,warehouse,warehouse,official,,,,,,日本核心警察設施：本部、警察署、交番、駐在所；年度靜態名冊
-jpTrafficAccidents2025,人身交通事故 人身事故（2025）,JP,日本,執法治安,pmtiles,verified,jp_traffic_accidents_2025,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"警察庁 2025 年本票（2025 年計入統計）全日本人身交通事故 28.7 萬件（死亡 2,495 件、負傷 28.5 萬件），可依事故內容與事故類型篩選；物損事故未納入"
-jpEvacuationSites,避難場所 指定緊急避難場所・指定避難所,JP,日本,災害,custom,verified,jp_evacuation_sites,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本指定緊急避難場所（11.6 萬）與指定避難所（8.3 萬），可依災害種別或福祉避難所篩選；資料可能非最新
-jpPublicOffices,役所與公民館 市町村役場・公民館,JP,日本,基礎建設,custom,verified,jp_public_offices,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本市區町村役場、支所、公立公民館與集會施設（2022-04 基準）；集會施設佔 62%，預設隱藏
-jpBusStops,公車站 バス停,JP,日本,交通,custom,verified,jp_bus_stops,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本全國公車站（2022 年度版，27.9 萬站），依民營／社區／公營路線分色
+jpTrafficAccidents2025,人身交通事故 人身事故（2025）,JP,日本,執法治安,pmtiles,verified,jp_traffic_accidents_2025,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,"警察庁 2025 年本票（2025 年計入統計）全日本人身交通事故 28.7 萬件（死亡 2,495 件、負傷 28.5 萬件），可依事故內容與事故類型篩選；物損事故未納入"
+jpEvacuationSites,避難場所 指定緊急避難場所・指定避難所,JP,日本,災害,custom,verified,jp_evacuation_sites,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,日本指定緊急避難場所（11.6 萬）與指定避難所（8.3 萬），可依災害種別或福祉避難所篩選；資料可能非最新
+jpPublicOffices,役所與公民館 市町村役場・公民館,JP,日本,基礎建設,custom,verified,jp_public_offices,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,日本市區町村役場、支所、公立公民館與集會施設（2022-04 基準）；集會施設佔 62%，預設隱藏
+jpBusStops,公車站 バス停,JP,日本,交通,custom,verified,jp_bus_stops,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,日本全國公車站（2022 年度版，27.9 萬站），依民營／社區／公營路線分色
 jpLandslideWarningAreas,土砂災害警戒區域 土砂災害警戒区域（令和7年度）,JP,日本,災害,custom,verified,jp_landslide_warning_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本土砂災害警戒區域（黃）與特別警戒區域（紅；在黃區之內），可依區域種別、現象篩選；概略位置、非法定圖書
 jpInlandFloodAreas,內水浸水想定區域 雨水出水（内水）浸水想定区域（想定最大規模）,JP,日本,災害,custom,verified,jp_inland_flood_areas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本內水（雨水出水）浸水想定區域，浸水深 8 級；只涵蓋 28 個市町村、想定最大規模降雨；無資料不代表無風險
 jpZoningUseDistricts,用途地域 用途地域（令和6年度）,JP,日本,底圖,custom,verified,jp_zoning_use_districts,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本都市計畫用途地域 13 類（住居系、商業系、工業系），含容積率與建蔽率；概略位置、僅供參考，無用途地域與未涵蓋的市町村見圖例
@@ -1393,7 +1393,7 @@ jpWelfareDisability,障礙福祉設施 障害者福祉施設（令和5年度）,
 jpWelfareChild,兒童福祉設施 児童福祉施設（令和5年度）,JP,日本,社福長照,custom,verified,jp_welfare_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本保育所、兒童發展支援中心、兒童館、兒童養護設施等兒童福祉設施（令和5年度）；自治體未提供的類別會缺漏
 jpMajorRoads,主要道路 国道・都道府県道（2024年度）,JP,日本,交通,custom,verified,jp_major_roads,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本國道、都道府縣道與高速道路中心線（2024-09 時點），依道路等級分色分線寬；不含市町村道
 jpMunicipalRoads,市町村道 市区町村道等（2024年度）,JP,日本,交通,custom,verified,jp_municipal_roads,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本市町村道等道路中心線（2024-09 時點），放大到 z12 才顯示；國道與都道府縣道請開「主要道路」
-jpExpressways,高速道路 高速道路（2025）,JP,日本,交通,custom,verified,jp_expressways,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,日本高速道路網（含首都高等都市高速與國道汽車專用道）2025 年現況，依路線種別分色、暫定供用淡色；IC／JCT 點放大後顯示
+jpExpressways,高速道路 高速道路（2025）,JP,日本,交通,custom,verified,jp_expressways,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,日本高速道路網（含首都高等都市高速與國道汽車專用道）2025 年現況，依路線種別分色、暫定供用淡色；IC／JCT 點放大後顯示
 jpGsiHillshade,陰影起伏圖 陰影起伏図（地理院タイル）,JP,日本,底圖,custom,catalog_missing,,,,,,,yes,none,,no_upstream,,,upstream_catalog_missing,,,,國土地理院陰影起伏圖（全日本灰階地形陰影背景）；外部官方圖磚
 jpGsiRelief,色別標高圖 色別標高図（地理院タイル）,JP,日本,底圖,custom,catalog_missing,,,,,,,yes,none,,no_upstream,,,upstream_catalog_missing,,,,國土地理院色別標高圖（依標高上色的全日本地形背景）；顏色非精確標高值，外部官方圖磚
 jpSchools,學校 学校,JP,日本,教育,custom,catalog_missing,,,,,,,yes,none,,warehouse,,,"override: snapshot_candidate: 日本全国学校一覧 PMTiles（56,807 點，含校名／所在地／学校分類／設置者），大型教育設施點資料，適合可及性與涵蓋率分析。",,,"snapshot_candidate: 日本全国学校一覧 PMTiles（56,807 點，含校名／所在地／学校分類／設置者），大型教育設施點資料，適合可及性與涵蓋率分析。","日本學校（56,807 點，学校分類 13 類分色）"
@@ -1494,19 +1494,19 @@ gbSportsFacilities,運動場地 Sports Facilities,GB,英國,底圖,custom,verifi
 gbGolfCourses,高爾夫球場 Golf Courses,GB,英國,底圖,custom,verified,gb_greenspace,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭、蘇格蘭、威爾斯的高爾夫球場範圍（OS Open Greenspace）
 gbCemeteries,墓園與宗教場地 Cemeteries and Religious Grounds,GB,英國,底圖,custom,verified,gb_greenspace,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭、蘇格蘭、威爾斯的墓園與教堂院地等宗教場地範圍（OS Open Greenspace）
 gbRivers,河川 Rivers,GB,英國,水資源,custom,verified,gb_rivers,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國河網：大不列顛河川、感潮河段、運河（OS Open Rivers）與北愛河段 Strahler 級數（DAERA）
-gbHydroStations,水文測站 Hydrometric Stations,GB,英國,水資源,custom,verified,gb_hydro_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭（Environment Agency）與蘇格蘭（SEPA）的水位、雨量、流量測站位置（不含即時讀數）
+gbHydroStations,水文測站 Hydrometric Stations,GB,英國,水資源,custom,verified,gb_hydro_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英格蘭（Environment Agency）與蘇格蘭（SEPA）的水位、雨量、流量測站位置（不含即時讀數）
 gbFloodDefenceAssets,防洪設施 Flood Defences,GB,英國,水資源,custom,verified,gb_flood_defences,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭、威爾斯的堤防、防洪牆、閘門與天然高地，以及蘇格蘭海岸人工防護（EA／NRW／Dynamic Coast）
 gbCoastalErosionRisk,海岸侵蝕風險 Coastal Erosion Risk,GB,英國,災害,custom,verified,gb_coastal_erosion,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國海岸侵蝕預估範圍（英格蘭、威爾斯至 2105，蘇格蘭至 2100）與北愛海岸侵蝕高階風險等級；四地方法不同
 gbBathingWaters,浴場水質 Bathing Waters,GB,英國,海洋,custom,verified,gb_bathing_waters,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國指定浴場（海水、河川、湖泊）位置與水質分級（EA／NRW／SEPA／DAERA）
-gbTransportHubs,交通樞紐 Transport Hubs,GB,英國,交通,custom,verified,gb_transport_hubs,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國鐵路車站、機場、渡輪碼頭與北愛巴士轉運站（NaPTAN／Translink），鐵路站附 ORR 年進出站人次
-gbStationUsage,車站年進出人次 Station Usage,GB,英國,交通,custom,verified,gb_transport_hubs,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,大不列顛國鐵車站 2024-25 年進出站人次（ORR），依人次分 5 級
+gbTransportHubs,交通樞紐 Transport Hubs,GB,英國,交通,custom,verified,gb_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國鐵路車站、機場、渡輪碼頭與北愛巴士轉運站（NaPTAN／Translink），鐵路站附 ORR 年進出站人次
+gbStationUsage,車站年進出人次 Station Usage,GB,英國,交通,custom,verified,gb_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,大不列顛國鐵車站 2024-25 年進出站人次（ORR），依人次分 5 級
 gbLondonRailLines,倫敦軌道路線 London Rail Lines,GB,英國,交通,custom,verified,gb_london_rail,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦地鐵、Overground、DLR、Elizabeth line 與電車路線（TfL），依運具分色
 gbLondonStations,倫敦軌道車站 London Rail Stations,GB,英國,交通,custom,verified,gb_london_rail,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦地鐵、Overground、DLR、Elizabeth line 與電車車站（TfL），標示轉乘站
 gbLondonBikePoints,倫敦公共自行車 Santander Cycles,GB,英國,交通,custom,verified,gb_london_bikepoints,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 Santander Cycles 公共自行車站點與樁數（TfL BikePoint，不含即時空位）
 gbLondonJamCams,倫敦道路攝影機 TfL JamCams,GB,英國,交通,custom,verified,gb_london_jamcams,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 TfL 道路攝影機位置與鏡頭朝向，彈窗可外連即時影像
 gbLondonChargingZones,倫敦收費與低排放區 London Charging Zones,GB,英國,交通,custom,verified,gb_london_charging_zones,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦塞車費區（Congestion Charge）與超低排放區／低排放區（ULEZ／LEZ，同一邊界）範圍
 gbMajorRoads,主要路網 Major Roads,GB,英國,交通,custom,verified,gb_major_roads,,ds_transportation_gb_major_roads,LINESTRING,2026-11-13,unknown,yes,spatial,warehouse,warehouse,google_geocode,,,,,,英國高速公路、A 級與 B 級道路（大不列顛高速與 A 級為 DfT 主要道路資料庫；北愛全部與大不列顛 B 級為 OpenStreetMap 2026-11-13）
-gbTrafficCountsAadf,年平均日交通量 Traffic Counts (AADF),GB,英國,交通,custom,verified,gb_traffic_counts_aadf,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,大不列顛 2025 年道路交通計數點的年平均日交通量（DfT AADF），依車輛數分 5 級，可只看當年實測或估算點；北愛未涵蓋
+gbTrafficCountsAadf,年平均日交通量 Traffic Counts (AADF),GB,英國,交通,custom,verified,gb_traffic_counts_aadf,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,大不列顛 2025 年道路交通計數點的年平均日交通量（DfT AADF），依車輛數分 5 級，可只看當年實測或估算點；北愛未涵蓋
 gbBridgesTunnels,橋梁與隧道 Road Bridges & Tunnels（OSM）,GB,英國,交通,custom,verified,gb_bridges_tunnels,,ds_transportation_gb_bridges_tunnels,LINESTRING,2026-11-13,unknown,yes,spatial,warehouse,warehouse,unknown,,,,,,英國主要道路（高速、A 級、B 級）上的橋梁與隧道路段（OpenStreetMap 2026-11-13），線寬依道路等級
 gbRoadFacilities,道路設施 Road Facilities,GB,英國,交通,custom,verified,gb_road_facilities,,ds_transportation_gb_road_facilities,POINT,2026-11-13,unknown,yes,spatial,warehouse,warehouse,address_geocode,,,,,,英國高速公路服務區、休息區、收費站（OpenStreetMap）與英格蘭智慧高速公路緊急停車區（National Highways）
 gbPublicFacilities,公共設施 Public Facilities（OSM）,GB,英國,基礎建設,custom,verified,gb_public_facilities,,ds_civic_facilities_gb_public_facilities,POINT,2026-11-13,unknown,yes,spatial,warehouse,warehouse,address_geocode,,,,,,英國郵局、公共廁所、市場與社區活動中心（OpenStreetMap 2026-11-13，志願者資料，完整度依地區而異）
@@ -1518,29 +1518,29 @@ gbForestRecreation,森林遊憩設施 Forest Recreation,GB,英國,林業,custom,
 gbTrails,步道 Trails,GB,英國,林業,custom,verified,gb_trails,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國國家步道（英格蘭、威爾斯、威爾斯海岸步道）與英格蘭、蘇格蘭、威爾斯公有林步道
 gbOpenAccessLand,開放進入地 Open Access Land,GB,英國,林業,custom,verified,gb_open_access_land,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭與威爾斯依 CRoW 法可徒步自由進入的開放鄉野、登記共有地與自願提供地
 gbTreeProtection,樹木保護 Tree Protection,GB,英國,環境氣候,custom,verified,gb_tree_protection,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭樹木保護令（TPO）範圍與受保護樹木（僅試辦機關），以及英格蘭、蘇格蘭、威爾斯古老林地
-gbPowerPlants,電廠 Power Stations,GB,英國,能源,custom,verified,gb_power_plants,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國運轉中電廠：依燃料別分色、依裝置容量分 4 級大小（DUKES 2026）
-gbRenewables,再生能源專案 Renewable Energy Projects,GB,英國,能源,custom,verified,gb_renewables,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國再生能源與儲能專案（太陽光電、風電、儲能、生質、水力等），可切換運轉中、核准、審查中、未推進、除役
+gbPowerPlants,電廠 Power Stations,GB,英國,能源,custom,verified,gb_power_plants,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國運轉中電廠：依燃料別分色、依裝置容量分 4 級大小（DUKES 2026）
+gbRenewables,再生能源專案 Renewable Energy Projects,GB,英國,能源,custom,verified,gb_renewables,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國再生能源與儲能專案（太陽光電、風電、儲能、生質、水力等），可切換運轉中、核准、審查中、未推進、除役
 gbPowerLines,輸配電線 Power Lines,GB,英國,能源,custom,verified,gb_power_grid,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國輸配電線（OpenStreetMap）：依電壓分色分粗細，地下與海底高壓電纜畫虛線
 gbSubstations,變電所 Substations,GB,英國,能源,custom,verified,gb_power_grid,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國變電所（OpenStreetMap）：依電壓分色分大小
-gbFuelStations,加油站 Fuel Stations,GB,英國,能源,custom,verified,gb_fuel_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國加油站（OpenStreetMap）：品牌、營業時間與有標記的油品
+gbFuelStations,加油站 Fuel Stations,GB,英國,能源,custom,verified,gb_fuel_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國加油站（OpenStreetMap）：品牌、營業時間與有標記的油品
 gbOilGasFields,離岸油氣田 Offshore Oil & Gas Fields,GB,英國,能源,custom,verified,gb_oil_gas_fields,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國大陸棚離岸油田、氣田、凝結油田範圍，生產中與已停產分深淺
-gbSchools,學校 Schools,GB,英國,教育,custom,verified,gb_schools,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國學校：依學段分色（幼兒、小學、中學、一貫制、繼續教育、大學、特殊學校、學生轉介單位）
-gbHealthFacilities,醫療院所 Health Facilities,GB,英國,醫療,custom,verified,gb_health_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國醫院、GP 診所、藥局（英格蘭、蘇格蘭、威爾斯；GP 診所與藥局拉遠時以熱區顯示、縮放 10 級起畫點）
-gbCareHomes,照護之家 Care Homes,GB,英國,社福長照,custom,verified,gb_care_services,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國住宿型照護機構（護理照護之家、照護之家；英格蘭、蘇格蘭）
-gbCareServices,長照服務 Care Services,GB,英國,社福長照,custom,verified,gb_care_services,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國社區長照服務（居家照顧、支持性住宅、Shared Lives、其他社區服務；英格蘭、蘇格蘭）
-gbFireStations,消防站 Fire Stations,GB,英國,消防,custom,verified,gb_fire_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國消防站：英格蘭為 MHCLG 官方清單，蘇格蘭、威爾斯、北愛為 OSM 補缺（空心）
-gbCourts,法院 Courts & Tribunals,GB,英國,執法治安,custom,verified,gb_courts,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英格蘭與威爾斯法院與審裁處：刑事法院、郡法院／家事法院、治安法院、審裁處、其他司法服務據點
-gbCulturalFacilities,"文化設施 Museums, Galleries & Libraries",GB,英國,文化,custom,verified,gb_cultural_facilities,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國博物館、美術館／畫廊、圖書館（北愛公共圖書館為官方名錄，其餘為 OSM 補缺）
+gbSchools,學校 Schools,GB,英國,教育,custom,verified,gb_schools,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國學校：依學段分色（幼兒、小學、中學、一貫制、繼續教育、大學、特殊學校、學生轉介單位）
+gbHealthFacilities,醫療院所 Health Facilities,GB,英國,醫療,custom,verified,gb_health_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國醫院、GP 診所、藥局（英格蘭、蘇格蘭、威爾斯；GP 診所與藥局拉遠時以熱區顯示、縮放 10 級起畫點）
+gbCareHomes,照護之家 Care Homes,GB,英國,社福長照,custom,verified,gb_care_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國住宿型照護機構（護理照護之家、照護之家；英格蘭、蘇格蘭）
+gbCareServices,長照服務 Care Services,GB,英國,社福長照,custom,verified,gb_care_services,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國社區長照服務（居家照顧、支持性住宅、Shared Lives、其他社區服務；英格蘭、蘇格蘭）
+gbFireStations,消防站 Fire Stations,GB,英國,消防,custom,verified,gb_fire_stations,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國消防站：英格蘭為 MHCLG 官方清單，蘇格蘭、威爾斯、北愛為 OSM 補缺（空心）
+gbCourts,法院 Courts & Tribunals,GB,英國,執法治安,custom,verified,gb_courts,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英格蘭與威爾斯法院與審裁處：刑事法院、郡法院／家事法院、治安法院、審裁處、其他司法服務據點
+gbCulturalFacilities,"文化設施 Museums, Galleries & Libraries",GB,英國,文化,custom,verified,gb_cultural_facilities,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國博物館、美術館／畫廊、圖書館（北愛公共圖書館為官方名錄，其餘為 OSM 補缺）
 gbArtsVenues,藝文場館 Arts Venues,GB,英國,文化,custom,verified,gb_arts_venues,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國劇院、電影院、藝術中心、音樂廳（OSM）
-gbVisitorExperience,觀光體驗 Visitor Attractions,GB,英國,觀光,custom,verified,gb_visitor_experience,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國景點、遊客中心、動物園、主題樂園、水族館（OSM）
+gbVisitorExperience,觀光體驗 Visitor Attractions,GB,英國,觀光,custom,verified,gb_visitor_experience,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國景點、遊客中心、動物園、主題樂園、水族館（OSM）
 gbTerrainHillshade,山體陰影 Hillshade（OS Terrain 50）,GB,英國,底圖,custom,verified,gb_terrain50_relief,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國山體陰影（OS Terrain 50，大不列顛；灰階地形起伏背景，北愛未涵蓋）
 gbTerrainRelief,色別標高 Elevation Tint（OS Terrain 50）,GB,英國,底圖,custom,verified,gb_terrain50_relief,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國色別標高（OS Terrain 50，大不列顛；依標高上色的地形背景，顏色非精確標高，北愛未涵蓋）
 gbSurplusLand,公有地標售 Surplus Public Land,GB,英國,房地產,custom,verified,gb_surplus_land,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國公部門列為 surplus 的待處分不動產（依標售進度：尚未上市／洽談中／上市標售中）
 gbGroundStability,地質災害易發性 Ground Stability（GeoSure）,GB,英國,災害,custom,verified,gb_geosure_hex,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國六種自然地質災害易發性（山崩、脹縮土、可壓縮地層、可塌陷沉積物、流沙、可溶岩；5 km 六角格，低／中／顯著；北愛未涵蓋）
-gbLandslide,山崩紀錄 Landslide Records（NLD）,GB,英國,災害,custom,verified,gb_landslides,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國國家山崩資料庫的山崩調查紀錄點（BGS 已複核位置實心、未複核空心；北愛未涵蓋）
+gbLandslide,山崩紀錄 Landslide Records（NLD）,GB,英國,災害,custom,verified,gb_landslides,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國國家山崩資料庫的山崩調查紀錄點（BGS 已複核位置實心、未複核空心；北愛未涵蓋）
 gbRadon,氡氣指示圖 Radon Atlas,GB,英國,災害,custom,verified,gb_radon_atlas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國氡氣指示圖：每 1 km 方格內住宅超過氡行動水平的估計比例（6 級，指示性）
 gbRadiation,環境輻射 Gamma Dose Rate（RREMS）,GB,英國,環境氣候,custom,verified,gb_gamma_dose,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國環境加馬劑量率固定監測站 83 站（2026 年 8 月平均 µGy/h；背景輻射，差異主要來自地質與天氣）
-gbEarthquakes,地震目錄 Earthquake Catalogue（BGS）,GB,英國,災害,custom,verified,gb_earthquakes,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國地震目錄：儀器記錄 1970–2024 與歷史地震 1382–1969（點大小依規模；含海上事件；資料截至 2024-09-02）
+gbEarthquakes,地震目錄 Earthquake Catalogue（BGS）,GB,英國,災害,custom,verified,gb_earthquakes,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,英國地震目錄：儀器記錄 1970–2024 與歷史地震 1382–1969（點大小依規模；含海上事件；資料截至 2024-09-02）
 gbPlanningConstraints,規劃限制區 Planning Constraints,GB,英國,底圖,custom,verified,gb_planning_constraints,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國規劃限制區：保育區（英格蘭、蘇格蘭、威爾斯）、Article 4 指令區與綠帶（僅英格蘭），可用選單切換類別；北愛未涵蓋
 gbBrownfield,棕地登記冊 Brownfield Land Register,GB,英國,底圖,custom,verified,gb_brownfield,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"英格蘭各地方規劃機關公告、適合住宅開發的已開發土地（棕地）30,303 處，依規劃許可狀態區分；蘇格蘭、威爾斯、北愛無此制度"
 gbRecyclingCentres,回收點 Recycling Points（OSM）,GB,英國,廢棄物,custom,verified,gb_recycling_points,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,英國回收中心（家戶回收中心 HWRC）與回收桶・回收點，全部來自 OpenStreetMap 志願者資料，完整度依地區而異

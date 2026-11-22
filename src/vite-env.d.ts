@@ -2,6 +2,8 @@
 
 /** package.json 的 version，由 vite.config.ts define 注入（見 docs/RELEASING.md）。 */
 declare const __APP_VERSION__: string;
+/** 建置識別碼（commit SHA 前 12 碼，可能是空字串），與 /version.json 同值（AG-10）。 */
+declare const __APP_BUILD__: string;
 
 interface ImportMetaEnv {
   readonly VITE_MAPBOX_TOKEN: string;

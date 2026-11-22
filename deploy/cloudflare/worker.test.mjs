@@ -145,6 +145,20 @@ for (const p of ['/geo/ookla_tw_z14.pmtiles', '/world/a.pmtiles', '/finance/a.pm
   });
 }
 
+test('/version.json 從 dist 回、no-cache，不轉 ORIGIN', async () => {
+  const { res, toOrigin } = await route('/version.json', { dist: { '/version.json': '{"version":"1.0.0","build":"abc"}' } });
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('cache-control'), 'no-cache');
+  assert.equal(res.headers.get('content-type'), 'application/json');
+  assert.equal(toOrigin, false);
+});
+
+test('/version.json 不存在回 404（不落到 SPA index.html）', async () => {
+  const { res, toOrigin } = await route('/version.json', { dist: { '/index.html': '<html></html>' } });
+  assert.equal(res.status, 404);
+  assert.equal(toOrigin, false);
+});
+
 test('/api 仍轉 ORIGIN', async () => {
   const { res, toOrigin } = await route('/api/research/v1/health');
   assert.equal(toOrigin, true);
