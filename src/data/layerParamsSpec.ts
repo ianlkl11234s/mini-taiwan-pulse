@@ -1,5 +1,5 @@
 import { HISTORICAL_MAP_GROUPS, historicalMapEraOptionZh } from './historicalMapSinica';
-import { NAV_KINDS, NAV_KIND_IDS, NAV_LIFETIME_BY_ID, NAV_LIFETIME_DEFAULT_IDS, NAV_LIFETIME_IDS, TIDE_KINDS, TIDE_KIND_LABEL } from "./twLiveTypes";
+import { NAV_KINDS, NAV_KIND_IDS, NAV_LIFETIME_DEFAULT_IDS, NAV_LIFETIME_IDS, NAV_LIFETIME_OPTION_LABEL, TIDE_KINDS, TIDE_KIND_LABEL } from "./twLiveTypes";
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
@@ -5442,7 +5442,7 @@ export const LAYER_PARAMS_SPEC = {
     {
       // 永久類預設不勾（站主 2026-11-22）
       kind: "multiSelect", name: "navNoticesLifetime", label: "期限", default: serializeMultiSelectValues([...NAV_LIFETIME_DEFAULT_IDS]), category: "data",
-      options: NAV_LIFETIME_IDS.map((value) => ({ label: NAV_LIFETIME_BY_ID[value]!, value })), out: "navNoticesLifetimeMask",
+      options: NAV_LIFETIME_IDS.map((value) => ({ label: NAV_LIFETIME_OPTION_LABEL[value]!, value })), out: "navNoticesLifetimeMask",
     },
   ],
   tideSwellAlerts: [

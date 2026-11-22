@@ -2815,5 +2815,15 @@
   "param.9 月": "Sep",
   "param.10 月": "Oct",
   "param.11 月": "Nov",
-  "param.12 月": "Dec"
+  "param.12 月": "Dec",
+  "param.期限": "Duration",
+  "param.監測": "Monitoring",
+  "param.礙航公告": "Navigational obstruction",
+  "param.射擊公告": "Firing exercise",
+  "param.航標公告": "Aids to navigation",
+  "param.離岸風場施工公告": "Offshore wind farm works",
+  "param.有期限": "Time-limited",
+  "param.永久": "Permanent",
+  "param.大潮監測": "Spring tide monitoring",
+  "param.長浪監測": "Swell monitoring"
 }

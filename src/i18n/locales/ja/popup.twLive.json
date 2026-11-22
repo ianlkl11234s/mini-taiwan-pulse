@@ -38,5 +38,7 @@
   "popup.twLive.tide.window": "判定期間",
   "popup.twLive.tide.station": "対応観測所",
   "popup.twLive.tide.match": "位置の決め方",
-  "popup.twLive.tide.source": "交通部中央気象署 {dataset}"
+  "popup.twLive.tide.source": "交通部中央気象署 {dataset}",
+  "popup.twLive.nav.sameArea": "同じ範囲",
+  "popup.twLive.nav.sameAreaValue": "ほかに有効な公告 {count} 件（{codes}）。最新の1件を表示"
 }

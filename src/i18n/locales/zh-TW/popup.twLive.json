@@ -38,5 +38,7 @@
   "popup.twLive.tide.window": "判定期間",
   "popup.twLive.tide.station": "對應測站",
   "popup.twLive.tide.match": "定位方式",
-  "popup.twLive.tide.source": "交通部中央氣象署 {dataset}"
+  "popup.twLive.tide.source": "交通部中央氣象署 {dataset}",
+  "popup.twLive.nav.sameArea": "同範圍",
+  "popup.twLive.nav.sameAreaValue": "另有 {count} 則有效公告（{codes}）；顯示最新發布的一則"
 }

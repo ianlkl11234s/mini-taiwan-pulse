@@ -16,6 +16,7 @@ import {
   dengueSnapshotDate,
   fetchTwLiveSnapshot,
   navActiveFeatures,
+  navDedupe,
   setTwLiveSummary,
   type TwLiveKey,
   type TwLiveSnapshot,
@@ -169,7 +170,8 @@ function navFilter(kinds: readonly string[], lifetimes: readonly string[], geom:
 
 function navStyle(map: MapboxMap, opacity: number, scale: number, isDark: boolean) {
   const o = clamp01(opacity);
-  map.setPaintProperty(NAV_LAYERS.fill, "fill-opacity", FILL_OPACITY.background * o);
+  // 全國視角大片射擊區彼此交疊：低縮放淡填、放大後回到背景面透明度
+  map.setPaintProperty(NAV_LAYERS.fill, "fill-opacity", ["interpolate", ["linear"], ["zoom"], 7, FILL_OPACITY.background * 0.4 * o, 10, FILL_OPACITY.background * o]);
   map.setPaintProperty(NAV_LAYERS.outline, "line-opacity", 0.85 * o);
   map.setPaintProperty(NAV_LAYERS.line, "line-opacity", 0.9 * o);
   map.setPaintProperty(NAV_LAYERS.point, "circle-radius", pointRadius("S", scale));
@@ -194,7 +196,7 @@ export function useNavNoticesLayer(
   useApply(mapRef, mapTick, visible, [snap, nowTick], (map) => {
     const active = snap ? navActiveFeatures(snap.fc, wallClock.getWallNow()) : [];
     const first = !map.getSource(NAV_SRC);
-    setSource(map, NAV_SRC, { type: "FeatureCollection", features: active });
+    setSource(map, NAV_SRC, { type: "FeatureCollection", features: navDedupe(active) });
     const s = styleRef.current;
     if (!map.getLayer(NAV_LAYERS.fill)) {
       map.addLayer({ id: NAV_LAYERS.fill, type: "fill", source: NAV_SRC, filter: navFilter(s.kinds, s.lifetimes, "Polygon"), paint: { "fill-color": navColor, "fill-opacity": FILL_OPACITY.background } } as FillLayer);
@@ -241,7 +243,7 @@ const TIDE_SRC = "tw-tide-swell-alerts-src";
 export const TIDE_LAYERS = { pulse: "tw-tide-swell-alerts-pulse", point: "tw-tide-swell-alerts-point" } as const;
 const TIDE_IDS = Object.values(TIDE_LAYERS);
 const PULSE_CYCLE_MS = 2000;
-const PULSE_PEAK_OPACITY = 0.6;
+const PULSE_PEAK_OPACITY = 0.9;
 
 const tideColor = [
   "match", ["coalesce", ["get", "alert_level"], -1],
@@ -286,7 +288,7 @@ export function useTideSwellAlertsLayer(
     if (!map.getLayer(TIDE_LAYERS.pulse)) {
       map.addLayer({
         id: TIDE_LAYERS.pulse, type: "circle", source: TIDE_SRC, filter: tidePulseFilter(s.kinds),
-        paint: { "circle-radius": pointRadius("M", 1) * 1.5, "circle-color": "transparent", "circle-stroke-color": tideColor, "circle-stroke-width": 2, "circle-stroke-opacity": PULSE_PEAK_OPACITY },
+        paint: { "circle-radius": pointRadius("M", 1) * 1.5, "circle-color": "transparent", "circle-stroke-color": tideColor, "circle-stroke-width": 3, "circle-stroke-opacity": PULSE_PEAK_OPACITY },
       } as CircleLayer);
     }
     if (!map.getLayer(TIDE_LAYERS.point)) {

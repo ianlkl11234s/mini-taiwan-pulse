@@ -38,5 +38,7 @@
   "popup.twLive.tide.window": "Assessment window",
   "popup.twLive.tide.station": "Matched station",
   "popup.twLive.tide.match": "Location method",
-  "popup.twLive.tide.source": "Central Weather Administration {dataset}"
+  "popup.twLive.tide.source": "Central Weather Administration {dataset}",
+  "popup.twLive.nav.sameArea": "Same area",
+  "popup.twLive.nav.sameAreaValue": "{count} other notices in effect ({codes}); showing the latest"
 }

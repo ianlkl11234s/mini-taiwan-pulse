@@ -9,6 +9,7 @@ import {
   TIDE_LEVEL_COLOR, TIDE_UNKNOWN_COLOR, type NavKind,
 } from "../../data/twLiveTypes";
 import { navWindows } from "../../data/twLiveSnapshots";
+import { placeName } from "../../i18n/placeText";
 
 const str = (v: unknown): string => (typeof v === "string" && v !== "null" ? v : "");
 
@@ -42,16 +43,18 @@ function ymd(v: unknown): string {
 }
 
 export function DengueClusterPanel({ props }: { props: Record<string, unknown> }) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
   const cases = numOrNull(props.case_count);
   return (
     <>
       <Title color={DENGUE_COLOR}>{t("popup.twLive.dengue.title")}</Title>
-      <Row field="countyDistrict" value={[str(props.county), str(props.town), str(props.village)].filter(Boolean).join(" ")} />
+      <Row field="countyDistrict" value={[placeName(`${str(props.county)}${str(props.town)}`, i18n), str(props.village)].filter(Boolean).join(" ")} />
       <Row label={t("popup.twLive.dengue.cases")} value={cases == null ? "" : t("popup.twLive.dengue.casesValue", { count: cases })} mono />
       <Row label={t("popup.twLive.dengue.released")} value={ymd(props.snapshot_date)} mono />
       <Row label={t("popup.twLive.dengue.code")} value={str(props.code1)} mono />
-      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs }}>{t("popup.twLive.dengue.note")}</div>
+      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: theme.textMuted }}>{t("popup.twLive.dengue.note")}</div>
       <SourceFooter props={{ source_org: t("popup.twLive.dengue.source"), source_url: "https://data.gov.tw/dataset/179291", fetched_at: str(props.retrieved_at) }} />
     </>
   );
@@ -83,6 +86,9 @@ export function NavNoticePanel({ props }: { props: Record<string, unknown> }) {
           value={windows.slice(0, 3).map((w) => `${formatTaiwanMinute(w.from)}–${formatTaiwanMinute(w.to)}`).join("、") + (windows.length > 3 ? t("popup.twLive.nav.moreWindows", { count: windows.length - 3 }) : "")}
           mono
         />
+      )}
+      {(numOrNull(props.dup_count) ?? 1) > 1 && (
+        <Row label={t("popup.twLive.nav.sameArea")} value={t("popup.twLive.nav.sameAreaValue", { count: (numOrNull(props.dup_count) ?? 1) - 1, codes: str(props.dup_codes) })} />
       )}
       <Row label={t("popup.twLive.nav.dept")} value={str(props.dept)} />
       <Row label={t("popup.twLive.nav.code")} value={[str(props.notice_code), str(props.shape_name)].filter(Boolean).join(" · ")} mono />

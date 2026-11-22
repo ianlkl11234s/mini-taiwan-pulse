@@ -160729,7 +160729,7 @@
         "label": "期限",
         "options": [
           {
-            "label": "非永久",
+            "label": "有期限",
             "value": "temporary"
           },
           {

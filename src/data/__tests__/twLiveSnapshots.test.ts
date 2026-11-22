@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dengueCenters, dengueSnapshotDate, navActiveFeatures, navWindows, twLiveUrl } from "../twLiveSnapshots";
+import { dengueCenters, dengueSnapshotDate, navActiveFeatures, navDedupe, navWindows, twLiveUrl } from "../twLiveSnapshots";
 import { NAV_KIND_BY_ID, NAV_KIND_IDS, NAV_KINDS, NAV_LIFETIME_DEFAULT_IDS } from "../twLiveTypes";
 
 const pt = (props: Record<string, unknown>): GeoJSON.Feature => ({ type: "Feature", geometry: { type: "Point", coordinates: [120, 23] }, properties: props });
@@ -41,5 +41,15 @@ describe("twLiveSnapshots（B8）", () => {
   it("windows 壞掉回空陣列", () => {
     expect(navWindows("not json")).toEqual([]);
     expect(navWindows('[{"from":"a","to":"b"}]')).toHaveLength(1);
+  });
+
+  it("同類型同幾何的布告合成一筆，保留最新發布並記筆數", () => {
+    const sq = { type: "Polygon", coordinates: [[[120, 23], [121, 23], [121, 24], [120, 23]]] } as GeoJSON.Polygon;
+    const poly = (code: string, issued: string, kind = "射擊公告"): GeoJSON.Feature => ({ type: "Feature", geometry: sq, properties: { notice_code: code, issued_at: issued, notice_kind: kind, lifetime: "非永久" } });
+    const out = navDedupe([poly("A", "2026-01-01"), poly("B", "2026-03-01"), poly("C", "2026-02-01"), poly("D", "2026-01-01", "礙航公告")]);
+    expect(out).toHaveLength(2);
+    const firing = out.find((f) => f.properties?.notice_kind === "射擊公告")!;
+    expect(firing.properties).toMatchObject({ notice_code: "B", dup_count: 3, dup_codes: "C、A" });
+    expect(out.find((f) => f.properties?.notice_kind === "礙航公告")!.properties?.dup_count).toBeUndefined();
   });
 });

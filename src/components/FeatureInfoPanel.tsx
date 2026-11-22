@@ -50,6 +50,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "councilDistricts2026",
   // 即時 119 案件／警廣即時路況（站主限定）：RPC feature 無來源欄，panel 自掛 SourceFooter
   "fire119Live", "pbsRoadEventsLive",
+  // 台灣圖層延伸 B8：R2 即時快照三層，panel 自掛 SourceFooter（來源機關＋data.gov.tw／CWA 開放資料頁）
+  "dengueCluster", "navNotice", "tideSwellAlert",
   // 2026 選舉活動（站主限定）：RPC feature 只有逐場來源連結，panel 補圖層層級的來源說明並自掛 SourceFooter
   "electionEvents2026",
   "chatHighlight",

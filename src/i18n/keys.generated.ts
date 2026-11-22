@@ -7680,6 +7680,8 @@ export type GeneratedStaticKey =
   | "popup.twLive.nav.moreWindows"
   | "popup.twLive.nav.noEnd"
   | "popup.twLive.nav.pdf"
+  | "popup.twLive.nav.sameArea"
+  | "popup.twLive.nav.sameAreaValue"
   | "popup.twLive.nav.shape"
   | "popup.twLive.nav.source"
   | "popup.twLive.nav.start"

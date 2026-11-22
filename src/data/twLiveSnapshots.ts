@@ -123,6 +123,31 @@ export function navActiveFeatures(fc: GeoJSON.FeatureCollection, nowMs: number):
   });
 }
 
+/**
+ * 同類型、同期限、同幾何的布告合成一筆（來源常把同一靶區逐月重發，射擊面最多 39 則疊同一塊，
+ * 疊色會糊成實心）。保留最新發布（issued_at）的屬性，另記 dup_count（含自己）與 dup_codes（其餘公告編號，最多 5 個）。
+ * 只影響呈現；筆數摘要仍用合併前的數字。
+ */
+export function navDedupe(features: GeoJSON.Feature[]): GeoJSON.Feature[] {
+  const groups = new Map<string, GeoJSON.Feature[]>();
+  for (const f of features) {
+    const p = f.properties ?? {};
+    const k = `${String(p.notice_kind)}|${String(p.lifetime)}|${JSON.stringify(f.geometry)}`;
+    const g = groups.get(k);
+    if (g) g.push(f);
+    else groups.set(k, [f]);
+  }
+  const out: GeoJSON.Feature[] = [];
+  for (const g of groups.values()) {
+    if (g.length === 1) { out.push(g[0]!); continue; }
+    const sorted = [...g].sort((a, b) => String(b.properties?.issued_at ?? "").localeCompare(String(a.properties?.issued_at ?? "")));
+    const head = sorted[0]!;
+    const others = [...new Set(sorted.slice(1).map((f) => String(f.properties?.notice_code ?? "")).filter(Boolean))];
+    out.push({ ...head, properties: { ...head.properties, dup_count: g.length, dup_codes: others.slice(0, 5).join("、") } });
+  }
+  return out;
+}
+
 /** windows 欄是 JSON 字串 [{from,to}]，壞掉回空陣列 */
 export function navWindows(v: unknown): { from: string | null; to: string | null }[] {
   if (typeof v !== "string" || !v) return [];

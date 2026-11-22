@@ -23,6 +23,8 @@ export const NAV_KIND_BY_ID: Record<string, NavKind> = Object.fromEntries(NAV_KI
 export const NAV_LIFETIMES = ["非永久", "永久"] as const;
 export const NAV_LIFETIME_IDS = ["temporary", "permanent"] as const;
 export const NAV_LIFETIME_BY_ID: Record<string, string> = { temporary: "非永久", permanent: "永久" };
+/** 篩選選項顯示名（與圖例一致；來源值「非永久」不直接給人看） */
+export const NAV_LIFETIME_OPTION_LABEL: Record<string, string> = { temporary: "有期限", permanent: "永久" };
 export const NAV_LIFETIME_DEFAULT_IDS: readonly string[] = ["temporary"];
 
 
