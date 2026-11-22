@@ -182,6 +182,8 @@ export type ExpandableLayerKey =
   | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
   // 即時 119 案件／警廣即時路況（owner-only RPC，mig 555）
   | "fire119Live" | "pbsRoadEventsLive"
+  // 台灣圖層延伸 B8：R2 即時快照（登革熱聚集區、航船布告、大潮與長浪警戒）
+  | "dengueClusters" | "navNotices" | "tideSwellAlerts"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -863,6 +865,7 @@ export interface FeatureInfo {
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
     | "fire119Live" | "pbsRoadEventsLive"
+    | "dengueCluster" | "navNotice" | "tideSwellAlert"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute" | "railRoutes"
@@ -1383,6 +1386,12 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   fire119Live: boolean;
   /** 警廣即時路況（owner-only RPC get_pbs_road_events_live；mig 555） */
   pbsRoadEventsLive: boolean;
+  /** 台灣圖層延伸 B8：疾管署近兩週本土登革熱聚集區（R2 live/tw/dengue_cluster） */
+  dengueClusters: boolean;
+  /** 台灣圖層延伸 B8：航港局航船布告（R2 live/tw/nav_notices） */
+  navNotices: boolean;
+  /** 台灣圖層延伸 B8：氣象署大潮與長浪警戒（R2 live/tw/cwa_tide_swell_alerts） */
+  tideSwellAlerts: boolean;
   /** 2024 投開票所（CDN 靜態快照 /static-rpc/polling_stations_2024.json；來源表 gis-platform mig 495） */
   pollingStations2024: boolean;
   /** 2026 縣市議員選舉區（CDN 靜態快照 /static-rpc/get_council_districts_2026.json；來源 gis-platform mig 496） */

@@ -2067,5 +2067,8 @@
   "layer.countyStreetlights": "County Streetlight Points",
   "layer.mapchallengeDay21OsmRoads": "When Roads Were Drawn into OSM",
   "layer.twMarineHeatwaves": "Marine Heatwaves",
-  "layer.twCoralBleachingHeatStress": "Coral Bleaching Heat Stress"
+  "layer.twCoralBleachingHeatStress": "Coral Bleaching Heat Stress",
+  "layer.dengueClusters": "Dengue Clusters",
+  "layer.navNotices": "Navigational Notices",
+  "layer.tideSwellAlerts": "Tide & Swell Alerts"
 }

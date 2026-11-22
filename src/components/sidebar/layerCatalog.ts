@@ -1595,6 +1595,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "即時 Emergency",
         layers: [
           fromManifest("erHospital"),
+          fromManifest("dengueClusters"), // 台灣圖層延伸 B8（2026-11-22）：R2 每日快照
         ],
       },
       {
@@ -1939,6 +1940,13 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照，可疊 AIS 船舶
+        title: "航行安全 Navigation Safety",
+        layers: [
+          fromManifest("navNotices"),
+        ],
+      },
+      {
         title: "海域保護與漁業 Protected Areas & Fisheries",
         layers: [
           fromManifest("coastalAreaExtents"),
@@ -1984,6 +1992,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("marineObservationCwa"),
           fromManifest("marineObservationIsohe"),
+          fromManifest("tideSwellAlerts"), // 台灣圖層延伸 B8（2026-11-22）：與 CWA 測站同址，疊著看觀測值
         ],
       },
       {

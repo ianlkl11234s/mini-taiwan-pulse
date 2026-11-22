@@ -1,4 +1,5 @@
 import { HISTORICAL_MAP_GROUPS, historicalMapEraOptionZh } from './historicalMapSinica';
+import { NAV_KINDS, NAV_KIND_IDS, NAV_LIFETIME_BY_ID, NAV_LIFETIME_DEFAULT_IDS, NAV_LIFETIME_IDS, TIDE_KINDS, TIDE_KIND_LABEL } from "./twLiveTypes";
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
@@ -5425,6 +5426,32 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("pbsRoadEventsLiveOpacity", 0.9),
     scaleSlider("pbsRoadEventsLiveScale", 1),
     { kind: "select", name: "pbsRoadEventsLiveWindow", label: "時間範圍", default: "180", category: "data", options: LIVE_INCIDENT_WINDOWS.map((o) => ({ ...o })), out: null },
+  ],
+  // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照三層；篩選 id／標籤 SSOT 在 data/twLiveSnapshots.ts
+  dengueClusters: [
+    opacitySlider("dengueClustersOpacity", 0.9),
+    scaleSlider("dengueClustersScale", 1),
+  ],
+  navNotices: [
+    opacitySlider("navNoticesOpacity", 0.9),
+    scaleSlider("navNoticesScale", 1),
+    {
+      kind: "multiSelect", name: "navNoticesKind", label: "類型", default: MULTI_SELECT_ALL, category: "data",
+      options: NAV_KIND_IDS.map((value, i) => ({ label: NAV_KINDS[i]!, value })), out: "navNoticesKindMask",
+    },
+    {
+      // 永久類預設不勾（站主 2026-11-22）
+      kind: "multiSelect", name: "navNoticesLifetime", label: "期限", default: serializeMultiSelectValues([...NAV_LIFETIME_DEFAULT_IDS]), category: "data",
+      options: NAV_LIFETIME_IDS.map((value) => ({ label: NAV_LIFETIME_BY_ID[value]!, value })), out: "navNoticesLifetimeMask",
+    },
+  ],
+  tideSwellAlerts: [
+    opacitySlider("tideSwellAlertsOpacity", 0.95),
+    scaleSlider("tideSwellAlertsScale", 1),
+    {
+      kind: "multiSelect", name: "tideSwellAlertsKind", label: "監測", default: MULTI_SELECT_ALL, category: "data",
+      options: TIDE_KINDS.map((value) => ({ label: TIDE_KIND_LABEL[value], value })), out: "tideSwellAlertsKindMask",
+    },
   ],
   newsEvents: [
     opacitySlider("newsEventsOpacity", 1),
