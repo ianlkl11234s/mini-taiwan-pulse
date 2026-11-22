@@ -89,6 +89,8 @@ import { LocationJump } from "./components/AirportSelector";
 import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
+import { showPlaceSearchResult } from "./map/placeSearchMarker";
+import type { PlaceSearchHit } from "./lib/placeSearch";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./components/intel/monitor/monitorSplitLayout";
@@ -1974,6 +1976,14 @@ export default function App() {
     }
   }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
 
+  // 側欄地點搜尋：飛過去＋暫時標記；null＝移除標記（再搜尋或關閉 Locations 面板）
+  const placeMarkerCleanupRef = useRef<(() => void) | null>(null);
+  const handlePlacePick = useCallback((place: PlaceSearchHit | null) => {
+    placeMarkerCleanupRef.current?.();
+    placeMarkerCleanupRef.current = null;
+    if (place && mapRef.current) placeMarkerCleanupRef.current = showPlaceSearchResult(mapRef.current, place, isDarkThemeRef.current);
+  }, []);
+
   // EM-03 深連結：套用網址指定的圖層與日期。**只跑一次**（deps 空陣列）——
   // 相機走 preset 那條路，這裡只處理 setter 型的狀態。
   // 走 handleBulkSetVisibility 而非直接 setLayerVisibility，是為了沿用其 gated 攔截與 session 記錄。
@@ -2743,6 +2753,7 @@ export default function App() {
 
               currentLocationId={selectedAirport}
               onLocationJump={handleLocationJump}
+              onPlacePick={handlePlacePick}
               onWidthChange={handleSidebarWidthChange}
               dataRegistry={dataRegistry}
               selectedDate={timeline.selectedDate}

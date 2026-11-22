@@ -170,5 +170,16 @@
   "updateNotice.title": "A new version is available",
   "updateNotice.detail": "Reload to switch to the latest version.",
   "updateNotice.reload": "Reload",
-  "updateNotice.later": "Later"
+  "updateNotice.later": "Later",
+  "placeSearch.placeholder": "Search places or layers (⌘K)",
+  "placeSearch.places": "Places",
+  "placeSearch.layers": "Layers",
+  "placeSearch.noPlaces": "No matching places",
+  "placeSearch.noLayers": "No matching layers",
+  "placeSearch.loading": "Loading place index…",
+  "placeSearch.loadFailed": "Could not load the place index. Please try again later.",
+  "placeSearch.loadingLabel": "Place search index",
+  "placeSearch.kind.county": "County/city",
+  "placeSearch.kind.town": "Township/district",
+  "placeSearch.kind.village": "Village"
 }
