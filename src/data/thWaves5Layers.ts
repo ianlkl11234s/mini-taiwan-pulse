@@ -59,7 +59,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("other_level", ["other", ""], "#94a3b8", "OBEC 其他、未分級", "OBEC other / unclassified", "OBEC その他・区分なし", { parts: ["th-schools-obec-circle"] }),
       cat("other_dept", ["other_dept"], "#f59e0b", "非 OBEC 學校（GISTDA，11,802）", "Non-OBEC schools (GISTDA, 11,802)", "非 OBEC 学校（GISTDA、11,802）", { parts: ["th-schools-other-circle"] }),
     ],
-    heat: { intensity: 1 },
+    heat: { intensity: 5 },
     title: { props: ["name_th"], fallback: l3("學校", "School", "学校"), fallbackBy: REDACTED_TITLE },
     fields: [
       { prop: "school_type_th", label: l3("主管單位（泰文原文）", "Authority (Thai)", "所管（タイ語）") },
@@ -89,7 +89,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("attached", ["attached"], "#f472b6", "學校附設幼兒班（OBEC，26,418）", "Kindergarten class attached to a school (OBEC, 26,418)", "学校併設の幼児クラス（OBEC、26,418）", { parts: ["th-kindergartens-obec-circle"] }),
       cat("overture", ["overture"], "#fb7185", "幼兒園、托育（Overture 補缺，空心，4,985）", "Preschool / day care (Overture gap-fill, hollow, 4,985)", "幼稚園・保育（Overture 補完、中抜き、4,985）", { parts: ["th-kindergartens-overture-circle"] }),
     ],
-    heat: { intensity: 1 },
+    heat: { intensity: 5 },
     title: { props: ["name_th", "name"], fallback: l3("幼兒班、幼兒園", "Kindergarten", "幼稚園"), fallbackBy: REDACTED_TITLE },
     fields: [
       { prop: "class_min", label: l3("開設最低班（อ.1／อ.2／อ.3）", "Lowest class (อ.1/อ.2/อ.3)", "最低クラス（อ.1／อ.2／อ.3）") },
@@ -138,7 +138,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("osm_pharmacy", ["osm_pharmacy"], "#22c55e", "藥局（OSM 補缺，空心）", "Pharmacy (OSM gap-fill, hollow)", "薬局（OSM 補完、中抜き）", { parts: ["th-health-osm-circle"], radius: 3 }),
       cat("osm_other", ["osm_other"], "#94a3b8", "其他（OSM 補缺，空心）", "Other (OSM gap-fill, hollow)", "その他（OSM 補完、中抜き）", { parts: ["th-health-osm-circle"], radius: 3 }),
     ],
-    heat: { intensity: 1 },
+    heat: { intensity: 2 },
     title: { props: ["name_th", "name", "name_en"], fallback: l3("醫療院所", "Health facility", "医療機関"), fallbackBy: REDACTED_TITLE },
     fields: [
       ...NAME_FIELDS,
@@ -461,7 +461,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("tat", ["tat"], "#f59e0b", "住宿（TAT 官方名冊，僅含有座標者，9,309）", "Accommodation (TAT official register, only records with coordinates, 9,309)", "宿泊（TAT 公式名簿、座標ありのみ、9,309）", { parts: ["th-accommodation-tat-circle"] }),
       cat("osm", ["osm"], "#fbbf24", "住宿（OSM 補缺，空心，17,108）", "Accommodation (OSM gap-fill, hollow, 17,108)", "宿泊（OSM 補完、中抜き、17,108）", { parts: ["th-accommodation-osm-circle"] }),
     ],
-    heat: { intensity: 1 },
+    heat: { intensity: 2.5 },
     title: { props: ["name_th", "name_en", "name"], fallback: l3("住宿", "Accommodation", "宿泊施設"), fallbackBy: REDACTED_TITLE },
     fields: [
       ...NAME_FIELDS,
@@ -501,7 +501,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("atm", ["atm"], "#22c55e", "ATM（OSM 補缺，空心，3,371；z8 起，完整度不均）", "ATM (OSM gap-fill, hollow, 3,371; from z8, uneven completeness)", "ATM（OSM 補完、中抜き、3,371、z8 以上、網羅性は不均一）", { parts: ["th-atms-osm-circle"] }),
     ],
     defaultCats: ["bank_overture", "bank_osm"],
-    heat: { intensity: 1 },
+    heat: { intensity: 2.5 },
     title: { props: ["name_th", "name", "name_en"], fallback: l3("銀行、ATM", "Bank / ATM", "銀行・ATM") },
     fields: [
       ...NAME_FIELDS,
@@ -539,7 +539,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       cat("overture", ["overture"], "#fde68a", "Overture 補缺宗教場所（空心，70,441；z9 起）", "Overture gap-fill places of worship (hollow, 70,441; from z9)", "Overture 補完の宗教施設（中抜き、70,441、z9 以上）", { parts: ["th-worship-overture-circle"] }),
     ],
     defaultCats: ["buddhist", "muslim", "christian", "chinese_shrine", "worship_other"],
-    heat: { intensity: 1 },
+    heat: { intensity: 4 },
     title: { props: ["name_th", "name", "name_en"], fallback: l3("宗教場所", "Place of worship", "宗教施設"), fallbackBy: REDACTED_TITLE },
     fields: [
       ...NAME_FIELDS,
