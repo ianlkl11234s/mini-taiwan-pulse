@@ -910,6 +910,9 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   // 即時 119：點與徽章（鄉鎮面量是大面積 fill，放面層段）；警廣點
   { layers: ["fire119-live-point", "fire119-live-badge"], type: "fire119Live" },
   { layers: ["pbs-road-events-live-point"], type: "pbsRoadEventsLive" },
+  // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照（層 id 見 hooks/useTwLiveSnapshotLayer.ts）
+  { layers: ["tw-dengue-cluster-fill", "tw-dengue-cluster-center"], type: "dengueCluster" },
+  { layers: ["tw-nav-notices-point", "tw-nav-notices-line"], type: "navNotice" },
   { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
   { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
   { layers: ["aqi-micro-circle"], type: "microSensor" },
@@ -923,6 +926,8 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },
   { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
   { layers: [...MARINE_OBSERVATION_CLICK_LAYERS], type: "marineObservation" },
+  // 大潮與長浪警戒（B8）與 CWA 測站同址：兩層都開時讓測站 popup（觀測值）優先，圖例已寫「疊 CWA 海洋觀測看觀測值」；只開本層時照常點得到
+  { layers: ["tw-tide-swell-alerts-point"], type: "tideSwellAlert" },
   { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
   { layers: ["bridge-rain-circle"], type: "bridgeRainThresholds" },
   { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
@@ -1327,6 +1332,8 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   // 南韓人口 H3 格：覆蓋全國的面，排在南韓點線 entry 之前會搶走設施點擊 → 放面層段
   { layers: ["kr-population-h3-fill"], type: "krPopulationH3" },
   { layers: ["kr-school-districts-fill"], type: "krSchoolDistricts" },
+  // 航船布告的面（射擊區、施工區可達數十公里）：放面層段，避免吞掉海上測站與船點的點擊（B8）
+  { layers: ["tw-nav-notices-fill"], type: "navNotice" },
   // 🏞️ 國家公園：大面積面層，排在道路、站點與 POI 之前會讓園區內的點擊先命中公園 → 放大面積面層段。
   { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
   // 原民／族語方言／客家文化重點發展區：鄉鎮級大面積面，排在點層之前會吞掉鄉鎮內所有點擊 → 放面層段

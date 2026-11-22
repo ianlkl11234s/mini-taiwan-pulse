@@ -43,6 +43,7 @@ import {
 import { NewsEventsHost, NewsTimelineHost } from "./hosts/newsHosts";
 import { CouncilDistrictsHost, ElectionEventsHost, PollingStationsHost } from "./hosts/politicsHosts";
 import { Fire119LiveHost, PbsRoadEventsLiveHost } from "./hosts/liveIncidentsHosts";
+import { DengueClustersHost, NavNoticesHost, TideSwellAlertsHost } from "./hosts/twLiveHosts";
 import {
   EnergyPoiHost, FossilFuelHost, LivestockHost, A1AccidentRealtimeHost,
   SubstationDiamondIconHost, OsmPowerLinesGlowHost, PowerPolesHost,
@@ -875,6 +876,10 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   // 即時 119 案件／警廣即時路況（owner-only RPC mig 555；當下快照，每分鐘重抓，不接時間軸）
   { id: "useFire119LiveLayer", keys: ["fire119Live"], Host: Fire119LiveHost },
   { id: "usePbsRoadEventsLiveLayer", keys: ["pbsRoadEventsLive"], Host: PbsRoadEventsLiveHost },
+  // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照
+  { id: "useDengueClusterLayer", keys: ["dengueClusters"], Host: DengueClustersHost },
+  { id: "useNavNoticesLayer", keys: ["navNotices"], Host: NavNoticesHost },
+  { id: "useTideSwellAlertsLayer", keys: ["tideSwellAlerts"], Host: TideSwellAlertsHost },
   // 30 天地圖挑戰 Day 8：1955 中和鄉都市計畫圖（單張 image source）
   { id: "useMapchallengeDay08PlanLayer", keys: ["mapchallengeDay08Plan1955"], Host: MapchallengeDay08PlanHost },
   // 30 天地圖挑戰 Day 17 光與暗：真正的黑夜（image source＋保護區面）、入夜變亮（canvas source，timeStore 訂閱）

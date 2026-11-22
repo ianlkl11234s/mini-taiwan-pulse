@@ -48,6 +48,7 @@ import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, Fr
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { CouncilDistrictsLegend, ElectionEventsLegend, PollingStationsLegend } from "./legend/politicsLegends";
 import { Fire119LiveLegend, PbsRoadEventsLiveLegend } from "./legend/liveIncidentsLegends";
+import { DengueClustersLegend, NavNoticesLegend, TideSwellAlertsLegend } from "./legend/twLiveLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
 import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalErosionRiskLegend, GbFloodDefenceAssetsLegend, GbHydroStationsLegend, GbRiversLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { GbArtsVenuesLegend, GbCulturalFacilitiesLegend, GbVisitorExperienceLegend } from "./legend/gbCultureLegends";
@@ -552,6 +553,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "electionEvents2026", render: () => <ElectionEventsLegend /> },
   { id: "fire119Live", render: () => <Fire119LiveLegend /> },
   { id: "pbsRoadEventsLive", render: () => <PbsRoadEventsLiveLegend /> },
+  // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照
+  { id: "dengueClusters", render: () => <DengueClustersLegend /> },
+  { id: "navNotices", render: () => <NavNoticesLegend /> },
+  { id: "tideSwellAlerts", render: () => <TideSwellAlertsLegend /> },
   { id: "pollingStations2024", render: () => <PollingStationsLegend /> },
   { id: "councilDistricts2026", render: () => <CouncilDistrictsLegend /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },

@@ -2067,5 +2067,8 @@
   "layer.countyStreetlights": "県市の街路灯地点",
   "layer.mapchallengeDay21OsmRoads": "道路が OSM に描かれた年",
   "layer.twMarineHeatwaves": "海洋熱波（月別レベル）",
-  "layer.twCoralBleachingHeatStress": "サンゴ白化の高水温ストレス"
+  "layer.twCoralBleachingHeatStress": "サンゴ白化の高水温ストレス",
+  "layer.dengueClusters": "デング熱集積区",
+  "layer.navNotices": "航行警報（航船布告）",
+  "layer.tideSwellAlerts": "大潮・うねり警戒"
 }

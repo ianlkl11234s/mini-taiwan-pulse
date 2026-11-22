@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2077,
+    "keyCount": 2080,
     "sections": [
       "gisLayers",
       "overlays",
@@ -4774,6 +4774,20 @@
     },
     {
       "layers": [
+        "tw-dengue-cluster-fill",
+        "tw-dengue-cluster-center"
+      ],
+      "type": "dengueCluster"
+    },
+    {
+      "layers": [
+        "tw-nav-notices-point",
+        "tw-nav-notices-line"
+      ],
+      "type": "navNotice"
+    },
+    {
+      "layers": [
         "roadEvents-fill",
         "roadEvents-line",
         "roadEvents-point"
@@ -4858,6 +4872,12 @@
         "marine-observation-isohe-circle"
       ],
       "type": "marineObservation"
+    },
+    {
+      "layers": [
+        "tw-tide-swell-alerts-point"
+      ],
+      "type": "tideSwellAlert"
     },
     {
       "layers": [
@@ -8709,6 +8729,12 @@
         "kr-school-districts-point-circle"
       ],
       "type": "krSchoolDistricts"
+    },
+    {
+      "layers": [
+        "tw-nav-notices-fill"
+      ],
+      "type": "navNotice"
     },
     {
       "layers": [
@@ -131116,6 +131142,26 @@
         "value": "streams"
       }
     ],
+    "dengueClusters": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "dioxinStations": [
       {
         "label": "透明度 0.90",
@@ -160648,6 +160694,71 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "navNotices": [
+      {
+        "label": "類型",
+        "options": [
+          {
+            "label": "礙航公告",
+            "value": "obstruction"
+          },
+          {
+            "label": "射擊公告",
+            "value": "firing"
+          },
+          {
+            "label": "航標公告",
+            "value": "aton"
+          },
+          {
+            "label": "離岸風場施工公告",
+            "value": "windfarm"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "obstruction",
+          "firing",
+          "aton",
+          "windfarm"
+        ]
+      },
+      {
+        "label": "期限",
+        "options": [
+          {
+            "label": "有期限",
+            "value": "temporary"
+          },
+          {
+            "label": "永久",
+            "value": "permanent"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "temporary"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "newsEvents": [
@@ -221718,6 +221829,44 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tideSwellAlerts": [
+      {
+        "label": "監測",
+        "options": [
+          {
+            "label": "大潮監測",
+            "value": "spring"
+          },
+          {
+            "label": "長浪監測",
+            "value": "swell"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "spring",
+          "swell"
+        ]
+      },
+      {
+        "label": "透明度 0.95",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.95,
+        "valueText": "0.95"
       },
       {
         "label": "大小 1.0",
