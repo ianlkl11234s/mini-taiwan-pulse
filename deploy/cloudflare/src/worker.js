@@ -162,6 +162,11 @@ export default {
       const r = (path.endsWith('/') ? null : await asset(env, req, path)) || (await asset(env, req, '/lab/index.html'));
       return r ? withHeaders(r, { 'Cache-Control': 'no-store', ...SEC, 'Referrer-Policy': 'no-referrer', 'Content-Security-Policy': CSP_LAB }, { status: 200 }) : notFound();
     }
+    // AG-10：建置版本檔，前端每 12 分鐘與回到前景時比對；一律 no-cache，發版後舊分頁才看得到新版本
+    if (path === '/version.json') {
+      const r = await asset(env, req, path);
+      return r ? withHeaders(r, { 'Cache-Control': 'no-cache', ...SEC, 'Content-Type': 'application/json' }) : notFound({ 'Cache-Control': 'no-cache' });
+    }
     if (path.startsWith('/assets/')) {
       const r = await asset(env, req, path);
       return r ? withHeaders(r, { 'Cache-Control': CC_1Y, ...SEC }) : notFound();

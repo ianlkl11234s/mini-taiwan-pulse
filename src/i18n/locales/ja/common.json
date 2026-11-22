@@ -165,5 +165,10 @@
   "mapUnavailable.crashBody": "画面の起動中にエラーが発生しました。再読み込みしてください。",
   "mapUnavailable.browserHint": "最新版の Chrome、Edge、Firefox、Safari を使い、ブラウザ設定の「ハードウェアアクセラレーション」が有効か確認してください。地図を使わない記事も読めます。",
   "mapUnavailable.reload": "再読み込み",
-  "mapUnavailable.blogLink": "Pulse ノートを読む"
+  "mapUnavailable.blogLink": "Pulse ノートを読む",
+  "updateNotice.aria": "サイト更新のお知らせ",
+  "updateNotice.title": "新しいバージョンがあります",
+  "updateNotice.detail": "再読み込みすると最新版に切り替わる。",
+  "updateNotice.reload": "再読み込み",
+  "updateNotice.later": "あとで"
 }

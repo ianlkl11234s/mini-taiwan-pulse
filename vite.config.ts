@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+import { execSync } from "node:child_process";
 import { createReadStream, existsSync } from "node:fs";
 import { readFile, rm, stat } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
@@ -18,6 +19,32 @@ import {
 // build 後把「只給腳本/文件用、不需上線」的大型靜態檔從 dist 移除。
 // 這些檔放在 public/ 只是被 preprocess/deploy 腳本當輸入或輸出，
 // 不該隨 app 一起部署（避免線上體積暴增）。
+/**
+ * 建置識別碼（AG-10「網站有新版本」）：commit SHA 前 12 碼，config 載入時只算一次，
+ * `__APP_BUILD__` 與 dist/version.json 共用同一個值。拿不到 SHA 時留空，前端退回只比版號（不用時間戳，避免每次建置都不同）。
+ */
+function resolveBuildId(): string {
+  const fromCi = process.env.GITHUB_SHA?.trim();
+  if (fromCi) return fromCi.slice(0, 12);
+  try {
+    return execSync("git rev-parse --short=12 HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+  } catch {
+    return "";
+  }
+}
+const APP_BUILD_ID = resolveBuildId();
+
+/** 建置時輸出 /version.json（Worker 以 no-cache 供檔，見 deploy/cloudflare/src/worker.js）。 */
+function emitVersionJson(): Plugin {
+  return {
+    name: "emit-version-json",
+    apply: "build",
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ version: packageJson.version, build: APP_BUILD_ID }) + "\n" });
+    },
+  };
+}
+
 function stripBuildAssets(relPaths: string[]): Plugin {
   return {
     name: "strip-build-assets",
@@ -1251,9 +1278,11 @@ export default defineConfig({
   // 版號唯一來源是 package.json（見 docs/RELEASING.md）；「資訊 → 關於」顯示。
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
+    __APP_BUILD__: JSON.stringify(APP_BUILD_ID),
   },
   plugins: [
     react(),
+    emitVersionJson(),
     serveLockedPublicAssetsFromR2(),
     serveCardPage(),
     serveLocalResearchAssets(),
