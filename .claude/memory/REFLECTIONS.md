@@ -2394,3 +2394,24 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 ### Memory output
 
 - `docs/PROJECTS.md` 資料來源追蹤列、有期限的事 11-23（#1105）；`BACKLOG.md` SRCT-1（#1108）～4；`docs/LESSONS.md` §8 第 9 條；計畫書 `.gis-agent-system/projects/2026-11-18-source-tracking-phase2/PLAN.md`（#71、#72）。
+
+## 2026-11-22 30 天地圖挑戰 Day 21 OSM（雙北＋基隆道路畫進 OSM 的年份）
+
+### What happened
+
+- 研究 OSM 道路何時畫上：本機 PBF 有最後修改時間與版本，但 osm_road_drive 抽取時丟掉了；完整歷史改用 ohsome API。
+- 依「位置」判年份（每年 1/1 快照、15 m 內 ≥60% 樣點），不用 way ID 首見時間；裁到三縣市後核對，2014 年後與快照總長差 ±2%，2007–2011 多算 10–24%（單線後拆雙向）。
+- map-atelier 動畫：A–E 五種發光選項 → 站主選 C 餘燼冷卻、冷卻加快、依新增量分配每年秒數、固定鏡頭（拉遠版看過不採用）、加配樂與音效，tag `osm-growth-v1`。
+- Pulse 圖層 mini #1147（＋analytics #429、pulse-data #146）已合 develop；pulse-secret-run 新增 `deploy-asset-put`（站主同意）上傳 PMTiles，再 `site-sync` 補到 R2。
+
+### Lessons
+
+- ohsome `/elements/geometry` 與 `/elements/centroid` 對我們回 403，`/elementsFullHistory/geometry` 可用，用 validFrom／validTo 自己重建快照即可。
+- 核對逐年長度時兩邊要裁到同一行政界，否則 tile 外溢會看起來差 20%。
+- CI assets 只驗 `deploy/asset-test-files.txt` 上的檔：新 PMTiles 上傳 S3＋同步 R2 後要把路徑加進清單，CI 才真的有驗。
+- 站主改主意（D→C）時，用 SendMessage 改派同一個 worker，先把理解的兩點講清楚再算，避免重算。
+
+### Memory output
+
+- `docs/PROJECTS.md` 30 天挑戰列與最後盤點；`BACKLOG.md` LTT-2。
+
