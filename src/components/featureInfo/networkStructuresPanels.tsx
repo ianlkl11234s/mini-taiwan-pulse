@@ -227,6 +227,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
           <Row label={t("popup.networkStructures.dirDate")} value={text(props.line_source_date_or_snapshot)} />
           <Row label={t("popup.networkStructures.dirLicense")} value={text(props.line_source_license_label)} />
           {props.selected_osm_way_shared != null && <>
+            <Row label={t("popup.networkStructures.sameWayCount")} value={text(props.selected_osm_way_record_count)} />
             <Row label={t("popup.networkStructures.sharedSource")} value={props.selected_osm_way_shared ? t("popup.networkStructures.sharedYes") : t("popup.networkStructures.sharedNo")} />
             {!!props.representative_way_only && <Row label={t("popup.networkStructures.multiLineSameDir")} value={t("popup.networkStructures.representativeWayOnly")} />}
           </>}
@@ -235,6 +236,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
         {!isLine && props.ordinary_route_trial_outcome != null && <Row label={t("popup.networkStructures.ordinaryTrial")} value={text(props.ordinary_route_trial_outcome)} />}
         {!isLine && props.supplemental_direction_available != null && <Row label={t("popup.networkStructures.supplementalDir")} value={props.supplemental_direction_available === true || props.supplemental_direction_available === "true" ? t("popup.networkStructures.supplementalYes") : t("popup.common.none")} />}
         {!isLine && props.selected_osm_way_shared != null && <>
+          <Row label={t("popup.networkStructures.sameWayCount")} value={text(props.selected_osm_way_record_count)} />
           <Row label={t("popup.networkStructures.sharedSource")} value={props.selected_osm_way_shared ? t("popup.networkStructures.sharedYes") : t("popup.networkStructures.sharedNo")} />
         </>}
         {isOffset && <>

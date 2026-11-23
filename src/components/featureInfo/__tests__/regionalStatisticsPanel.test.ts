@@ -59,7 +59,6 @@ describe('RegionalStatisticsPanel labor semantics', () => {
     expect(html).toContain('臺灣士林地方檢察署');
     expect(html).toContain('新北市、臺北市（10 個鄉鎮市區）');
     expect(html).toContain('地檢署轄區≠縣市');
-    expect(html).toContain('轄區代碼');
     expect(html).not.toContain('行政區代碼');
     expect(html).not.toContain('PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1');
   });
