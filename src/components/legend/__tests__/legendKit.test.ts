@@ -11,6 +11,7 @@ import { localeStore } from "../../../state/localeStore";
 import type { LayerVisibility } from "../../../types";
 import { hatchImageData } from "../../../map/mapStyleScale";
 import { MEDICAL_POI_TYPES, MEDICAL_POI_PAINT_COLORS, medicalPoiColor } from "../../../data/medicalPOITypes";
+import { LAYER_SOURCE_INFO, resolveSourceText } from "../../../data/layerSourceInfo";
 
 describe("legendKit", () => {
   it("LG-11：標題中文在前、英文小字在後，不轉大寫", () => {
@@ -120,6 +121,23 @@ describe("LegendPanel 收斂 ratchet", () => {
     for (const item of MEDICAL_POI_TYPES) {
       expect(medicalPoiColor(item.id, true)).toBe(MEDICAL_POI_PAINT_COLORS[item.id].dark);
       expect(medicalPoiColor(item.id, false)).toBe(MEDICAL_POI_PAINT_COLORS[item.id].light);
+    }
+  });
+
+  it("使用限制（4-1 a）：有 restrictions 的圖層，圖例顯示共用短標、全文在 title", () => {
+    const i18n = localeStore.getSnapshot();
+    const keys = Object.keys(LAYER_SOURCE_INFO).filter((k) => LAYER_SOURCE_INFO[k]!.restrictions?.length);
+    expect(keys.length).toBeGreaterThan(0);
+    for (const key of keys) {
+      const entry = LEGEND_REGISTRY.find((e) => legendKeys(e.id).includes(key as keyof LayerVisibility));
+      expect(entry, key).toBeDefined();
+      const visibility = { [key]: true } as unknown as LayerVisibility;
+      const html = renderToStaticMarkup(createElement(Fragment, null, entry!.render({ visibility, overlayParams: encodeParamsToOverlay(layerParamsStore.getAll()), isDark: true, i18n })));
+      for (const r of LAYER_SOURCE_INFO[key]!.restrictions!) {
+        expect(html, key).toContain(i18n.t(`legend.restriction.${r.kind}` as never));
+        const full = resolveSourceText(r.text, i18n).slice(0, 12).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+        expect(html, key).toContain(full);
+      }
     }
   });
 });
