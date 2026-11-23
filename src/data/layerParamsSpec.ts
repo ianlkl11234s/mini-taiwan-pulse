@@ -714,7 +714,7 @@ const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
     "指標", "品項 全部", "類別", "年份", "定位精度", "位置精度", "狀態", "類型", "型別", "介質", "縣市", "最低嚴重度",
     "登記", "方向 全部", "航線範圍 全部", "品質", "營業狀態", "服務型態", "共同登記 ≥", "行業中類", "資本額分位",
     "設立年下限", "設立年上限", "製造業", "上市櫃", "有商標", "地址不一致", "聚焦行業中類", "回溯", "主題", "研究區域",
-    "分類", "過去", "時間範圍", "拖尾", "其他", "跨國關聯線（非移動軌跡）", "包含 AI 初判／待判斷", "僅顯示臺灣相關（直接／間接）",
+    "分類", "過去", "時間範圍", "拖尾", "其他", "關聯線（非移動或因果）", "包含 AI 初判／待判斷", "僅顯示臺灣相關（直接／間接）",
     "漁船", "貨輪", "客輪", "運搬船", "未知", "承載類型", "比對狀態", "交通類別", "交通模式", "權重",
     "顯示受影響村里（先點選一座橋；再點村里看目的地視角）", "顯示替代路線（代表性起訖對）", "關渡＋淡江同時中斷", "設施類型",
     "資料源", "即時水位", "預測水位 (12-19h)", "累計流量", "閘門", "堤防安全", "河床沖刷", "揚塵", "信心", "確認", "漁電共生",
@@ -2191,7 +2191,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [
       { label: "最近範圍", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
     ], out: "globalEventsViewIdx", encode: ["recent7d", "timeline"] },
-    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: false },
+    { kind: "toggle", name: "globalEventsRelations", label: "關聯線（非移動或因果）", default: true },
     { kind: "toggle", name: "globalEventsIncludeAI", label: "包含 AI 初判／待判斷", default: true },
     { kind: "toggle", name: "globalEventsTaiwanOnly", label: "僅顯示臺灣相關（直接／間接）", default: false },
   ],

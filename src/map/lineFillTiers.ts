@@ -194,6 +194,7 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gfwHourlyGrid/gfw-hourly-grid-pmtiles-preload-outline": {"width": "keep", "opacity": "keep"}, // src/hooks/useGfwHourlyGridLayer.ts
   "gfwHourlyTracks/gfw-hourly-tracks-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useGfwHourlyTracksLayer.ts
   "globalEvents/global-events-relations-line": {"width": "thin", "opacity": "keep"}, // src/hooks/useGlobalEventsLayer.ts
+  "globalEvents/global-events-story-links-line": {"width": "thin", "opacity": "keep"}, // 可能同一件事虛線 · src/hooks/useGlobalEventsLayer.ts
   "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
   "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
   "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/hooks/useGbAdminLayers.ts
