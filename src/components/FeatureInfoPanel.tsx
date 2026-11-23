@@ -18,7 +18,8 @@ import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { PANEL_REGISTRY, HEADER_LABELS } from "./featureInfo/registry";
 import { WaterReservoirContextPanel } from "./featureInfo/waterPanels";
 import { DARK_FEATURE, LIGHT_FEATURE, FeatureThemeProvider } from "./featureInfo/featureTheme";
-import { SourceFooter } from "./featureInfo/shared";
+import { SourceFooter, SourceFooterModeProvider } from "./featureInfo/shared";
+import { popupSourceMode } from "../data/layerSourceInfo";
 import { THEMES } from "./sidebar/layerCatalog";
 import { LAYER_MANIFEST, type LayerManifestEntry } from "../data/layerManifest";
 import { useLocale } from "../state/localeStore";
@@ -371,7 +372,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
 
   // content 為 null（BASELINE_NO_PANEL：無對應 panel，只顯示 header）時不掛 footer——
   // 目標是「PANEL_REGISTRY 會渲染的 panel 都有 footer」，不是空白內容也硬掛一行待補。
-  const showCentralFooter = content != null && !isReservoirContextView && !FOOTER_SELF_MANAGED_LAYER_TYPES.has(feature.layerType);
+  // 來源列模式（spec §5.2）：圖層側已有機關＋授權的不顯示；逐筆不同的留一行精簡來源；圖層側補不到的沿用一行來源。
+  const sourceMode = popupSourceMode(feature.layerType);
+  const showCentralFooter = sourceMode !== "none" && content != null && !isReservoirContextView && !FOOTER_SELF_MANAGED_LAYER_TYPES.has(feature.layerType);
 
   // CCTV 內嵌即時影像需要較大空間，只加寬此類 popup（影像框 width:100% 會跟著放大）
   const isCctv = feature.layerType === "cctv";
@@ -426,8 +429,10 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
       </div>
 
       <div style={{ overflowY: "auto", minHeight: 0, flex: 1 }}>
-        {content}
-        {showCentralFooter && <SourceFooter props={feature.properties} />}
+        <SourceFooterModeProvider value={sourceMode}>
+          {content}
+          {showCentralFooter && <SourceFooter props={feature.properties} />}
+        </SourceFooterModeProvider>
       </div>
     </div>
     </FeatureThemeProvider>
