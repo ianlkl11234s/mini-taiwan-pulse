@@ -38,9 +38,9 @@ const POPUP_SOURCE_PENDING = new Set<string>([
   "nuclearEpzEvacuation", "officialBridgesHsinchu", "officialBridgesNewTaipei", "parkingOffstreet", "parkingOnstreet", "powerPlant",
   "propertyValueAdmin", "prosecutorsOffice", "regionalStatistic", "regulatedFacilities", "regulatedFacilityDensityGrid", "ripeAtlasProbe",
   "slopeVector", "socioeconomic", "spatialEconomy", "speedCamera", "speedZoneSegment", "tainanBridgeInspections", "taipeiEvacuate",
-  "taipeiPumb", "taipeiSewer", "theftTaoyuan", "trafficAccidentYearly", "tsunamiSirens", "twMarineHeat", "waterDetentionBasin",
-  "welfareChildServices", "welfareChildcare", "welfareDisability", "welfareElderlyHomes", "welfareGovOffices", "welfareLtcInstitutions",
-  "welfareMentalHealth", "welfareNursingHomes", "welfareSocialWorkOrgs", "womenChildWarning",
+  "taipeiPumb", "taipeiSewer", "theftTaoyuan", "trafficAccidentYearly", "tsunamiSirens", "waterDetentionBasin", "welfareChildServices",
+  "welfareChildcare", "welfareDisability", "welfareElderlyHomes", "welfareGovOffices", "welfareLtcInstitutions", "welfareMentalHealth",
+  "welfareNursingHomes", "welfareSocialWorkOrgs", "womenChildWarning",
 ]);
 
 /** popup 原本就沒有授權的來源（研究推估、即時快照、站內模擬等）：圖層側顯示「授權未明示」。 */
@@ -55,8 +55,8 @@ const LICENSE_UNSTATED = new Set<string>([
   "phTerrainRelief", "pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile", "popCount", "powerPoles",
   "ripeAtlasProbes", "satellitesBeidou", "satellitesFrance", "satellitesGaofen", "satellitesGermany", "satellitesIndia",
   "satellitesIsrael", "satellitesItaly", "satellitesJapan", "satellitesJilin", "satellitesKorea", "satellitesRussia", "satellitesShiyan",
-  "satellitesTJS", "satellitesTaiwan", "satellitesUSA", "satellitesYaogan", "taipeiPumb", "transitAccessPlayback",
-  "twCoralBleachingHeatStress", "twMarineHeatwaves", "vnTerrainHillshade", "vnTerrainRelief", "youbikeFullness",
+  "satellitesTJS", "satellitesTaiwan", "satellitesUSA", "satellitesYaogan", "taipeiPumb", "transitAccessPlayback", "vnTerrainHillshade",
+  "vnTerrainRelief", "youbikeFullness",
 ]);
 
 const LOCALES = join(__dirname, "..", "..", "i18n", "locales");
