@@ -105,7 +105,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN } from "./mapchallengeDay21Types";
-import { MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_PLACES, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_INTL, mapchallengeDay23IntlOptionLabel, MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_PLACES, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
@@ -1852,6 +1852,16 @@ export const LAYER_PARAMS_SPEC = {
       out: "mapchallengeDay23TasteForeignGroupIdx", encode: MAPCHALLENGE_DAY23_FOREIGN.map((o) => o.value),
     },
   ],
+  // 第三批：南韓／英國／日本，同一套規格（選單標籤＝原文（中文說明））
+  ...Object.fromEntries(MAPCHALLENGE_DAY23_INTL.map((c) => [c.key, [
+    opacitySlider(`${c.key}Opacity`, 0.85),
+    scaleSlider(`${c.key}Scale`, 1),
+    {
+      kind: "select" as const, category: "data" as const, name: `${c.key}Term`, label: "店名用詞", default: c.terms[0].value,
+      options: c.terms.map((o) => ({ label: mapchallengeDay23IntlOptionLabel(o), value: o.value })),
+      out: `${c.key}TermIdx`, encode: c.terms.map((o) => o.value),
+    },
+  ]])),
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

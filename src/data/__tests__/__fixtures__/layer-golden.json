@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 2143,
+    "keyCount": 2146,
     "sections": [
       "gisLayers",
       "overlays",
@@ -61,6 +61,27 @@
         "mapchallenge-day23-taste-foreign-circle-r7"
       ],
       "type": "mapchallengeDay23TasteForeign"
+    },
+    {
+      "layers": [
+        "mapchallenge-day23-taste-kr-circle-r6",
+        "mapchallenge-day23-taste-kr-circle-r7"
+      ],
+      "type": "mapchallengeDay23TasteKr"
+    },
+    {
+      "layers": [
+        "mapchallenge-day23-taste-gb-circle-r5",
+        "mapchallenge-day23-taste-gb-circle-r7"
+      ],
+      "type": "mapchallengeDay23TasteGb"
+    },
+    {
+      "layers": [
+        "mapchallenge-day23-taste-jp-circle-r5",
+        "mapchallenge-day23-taste-jp-circle-r7"
+      ],
+      "type": "mapchallengeDay23TasteJp"
     },
     {
       "layers": [
@@ -122399,6 +122420,1110 @@
       ],
       "sourceId": "mapchallenge-day23-taste-foreign",
       "sourceUrl": "./mapchallenge/day23_taste_foreign.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay23TasteKr",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "dwaejiGukbap"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              6
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 9,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                4.620000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                4.620000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r6",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "dwaejiGukbap"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              6
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "maxzoom": 9,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                2.2,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                2.2,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r6",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "dwaejiGukbap"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": null,
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r7",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "dwaejiGukbap"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r7",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow-r6",
+        "circle-r6",
+        "glow-r7",
+        "circle-r7"
+      ],
+      "sourceId": "mapchallenge-day23-taste-kr",
+      "sourceUrl": "./mapchallenge/day23_taste_terms_kr.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay23TasteGb",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "fisheries"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              5
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 8,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                4.620000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                4.620000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r5",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "fisheries"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              5
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "maxzoom": 8,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                2.2,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                2.2,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r5",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "fisheries"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": null,
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r7",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "fisheries"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r7",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow-r5",
+        "circle-r5",
+        "glow-r7",
+        "circle-r7"
+      ],
+      "sourceId": "mapchallenge-day23-taste-gb",
+      "sourceUrl": "./mapchallenge/day23_taste_terms_gb.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay23TasteJp",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "udon"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              5
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 8,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                2.52,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                2.52,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r5",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "udon"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              5
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "maxzoom": 8,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                1.2,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                1.2,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r5",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "udon"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": null,
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.7,
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.272,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 0.7,
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.136,
+              "circle-radius": [
+                "*",
+                6.300000000000001,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-r7",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "term"
+              ],
+              "udon"
+            ],
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "res"
+                ],
+                0
+              ],
+              7
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              0,
+              [
+                "to-number",
+                [
+                  "get",
+                  "n"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff6b5e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#e5e7eb",
+              "circle-stroke-opacity": 0.45,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#db4a40",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "*",
+                3,
+                [
+                  "sqrt",
+                  [
+                    "max",
+                    1,
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "n"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-r7",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow-r5",
+        "circle-r5",
+        "glow-r7",
+        "circle-r7"
+      ],
+      "sourceId": "mapchallenge-day23-taste-jp",
+      "sourceUrl": "./mapchallenge/day23_taste_terms_jp.geojson"
     }
   ],
   "params": {
@@ -162495,6 +163620,195 @@
         ],
         "type": "select",
         "value": "vietnam"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay23TasteGb": [
+      {
+        "label": "店名用詞",
+        "options": [
+          {
+            "label": "fisheries（炸魚薯條店（約克夏叫法））",
+            "value": "fisheries"
+          },
+          {
+            "label": "chippy（炸魚薯條店（口語））",
+            "value": "chippy"
+          },
+          {
+            "label": "fish bar（炸魚薯條店）",
+            "value": "fishBar"
+          },
+          {
+            "label": "balti（巴蒂咖哩）",
+            "value": "balti"
+          },
+          {
+            "label": "pasty（康瓦爾餡餅）",
+            "value": "pasty"
+          },
+          {
+            "label": "cob（麵包捲（東密德蘭叫法））",
+            "value": "cob"
+          },
+          {
+            "label": "butty（三明治（西北英格蘭叫法））",
+            "value": "butty"
+          },
+          {
+            "label": "pie & mash（派與薯泥）",
+            "value": "pieMash"
+          },
+          {
+            "label": "jerk（牙買加烤肉）",
+            "value": "jerk"
+          }
+        ],
+        "type": "select",
+        "value": "fisheries"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay23TasteJp": [
+      {
+        "label": "店名用詞",
+        "options": [
+          {
+            "label": "うどん（烏龍麵）",
+            "value": "udon"
+          },
+          {
+            "label": "お好み焼（御好燒（大阪燒／廣島燒））",
+            "value": "okonomiyaki"
+          },
+          {
+            "label": "たこ焼（章魚燒）",
+            "value": "takoyaki"
+          },
+          {
+            "label": "そば（蕎麥麵）",
+            "value": "soba"
+          },
+          {
+            "label": "牛たん（牛舌）",
+            "value": "gyutan"
+          },
+          {
+            "label": "ジンギスカン（成吉思汗烤羊肉）",
+            "value": "jingisukan"
+          },
+          {
+            "label": "もつ鍋（牛腸鍋）",
+            "value": "motsunabe"
+          },
+          {
+            "label": "もんじゃ（文字燒）",
+            "value": "monja"
+          }
+        ],
+        "type": "select",
+        "value": "udon"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay23TasteKr": [
+      {
+        "label": "店名用詞",
+        "options": [
+          {
+            "label": "돼지국밥（豬肉湯飯）",
+            "value": "dwaejiGukbap"
+          },
+          {
+            "label": "밀면（小麥冷麵）",
+            "value": "milmyeon"
+          },
+          {
+            "label": "막국수（蕎麥拌麵）",
+            "value": "makguksu"
+          },
+          {
+            "label": "닭갈비（辣炒雞排）",
+            "value": "dakgalbi"
+          },
+          {
+            "label": "흑돼지（黑豬肉）",
+            "value": "heukdwaeji"
+          },
+          {
+            "label": "막창（烤大腸頭）",
+            "value": "makchang"
+          },
+          {
+            "label": "대게（松葉蟹）",
+            "value": "daege"
+          },
+          {
+            "label": "충무김밥（忠武紫菜飯捲）",
+            "value": "chungmuGimbap"
+          },
+          {
+            "label": "물회（生魚片冷湯）",
+            "value": "mulhoe"
+          },
+          {
+            "label": "고기국수（豬肉湯麵）",
+            "value": "gogiGuksu"
+          }
+        ],
+        "type": "select",
+        "value": "dwaejiGukbap"
       },
       {
         "label": "透明度 0.85",

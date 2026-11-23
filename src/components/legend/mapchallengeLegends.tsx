@@ -18,6 +18,8 @@ import {
   MAPCHALLENGE_DAY23_ARC, MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_FOREIGN_DOMINANT, MAPCHALLENGE_DAY23_ORIGIN, MAPCHALLENGE_DAY23_PLACES,
   mapchallengeDay23ArcWidth, mapchallengeDay23ForeignById, mapchallengeDay23PlaceById,
   type MapchallengeDay23ForeignId, type MapchallengeDay23PlaceId, type MapchallengeDay23TermId,
+  MAPCHALLENGE_DAY23_CELL_KM2, mapchallengeDay23IntlByKey, mapchallengeDay23IntlTermById,
+  type MapchallengeDay23IntlCountry, type MapchallengeDay23IntlKey, type MapchallengeDay23IntlTerm,
 } from "../../data/mapchallengeDay23Types";
 import { useLocale } from "../../state/localeStore";
 import type { StaticMessageKey } from "../../i18n/keys";
@@ -778,5 +780,60 @@ export function MapchallengeDay23TasteForeignLegend({ isDark }: { isDark: boolea
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.foreignScope")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+  </div>;
+}
+
+// ── Day 23 味覺第三批：南韓／英國／日本（一個元件，依國別設定表） ──
+type IntlCc = MapchallengeDay23IntlCountry["cc"];
+/** 各國文案 key（字面值，供 i18n key 檢查） */
+export const MAPCHALLENGE_DAY23_INTL_KEYS: Readonly<Record<"title" | "where" | "limits" | "base" | "source", Readonly<Record<IntlCc, StaticMessageKey>>>> = {
+  title: { kr: "legend.mapchallenge.day23.intl.title.kr", gb: "legend.mapchallenge.day23.intl.title.gb", jp: "legend.mapchallenge.day23.intl.title.jp" },
+  where: { kr: "legend.mapchallenge.day23.intl.where.kr", gb: "legend.mapchallenge.day23.intl.where.gb", jp: "legend.mapchallenge.day23.intl.where.jp" },
+  limits: { kr: "legend.mapchallenge.day23.intl.limits.kr", gb: "legend.mapchallenge.day23.intl.limits.gb", jp: "legend.mapchallenge.day23.intl.limits.jp" },
+  base: { kr: "legend.mapchallenge.day23.intl.base.kr", gb: "legend.mapchallenge.day23.intl.base.gb", jp: "legend.mapchallenge.day23.intl.base.jp" },
+  source: { kr: "legend.mapchallenge.day23.intl.source.kr", gb: "legend.mapchallenge.day23.intl.source.gb", jp: "legend.mapchallenge.day23.intl.source.jp" },
+};
+/** 各詞的說明（中文說明／英日譯文）key；日文介面下日本詞的說明與原文相同 */
+const MAPCHALLENGE_DAY23_INTL_TERM_KEYS: Readonly<Record<IntlCc, Readonly<Record<string, StaticMessageKey>>>> = {
+  kr: {  },
+  gb: { fisheries: "legend.mapchallenge.day23.intl.term.gb.fisheries", chippy: "legend.mapchallenge.day23.intl.term.gb.chippy", fishBar: "legend.mapchallenge.day23.intl.term.gb.fishBar", balti: "legend.mapchallenge.day23.intl.term.gb.balti", pasty: "legend.mapchallenge.day23.intl.term.gb.pasty", cob: "legend.mapchallenge.day23.intl.term.gb.cob", butty: "legend.mapchallenge.day23.intl.term.gb.butty", pieMash: "legend.mapchallenge.day23.intl.term.gb.pieMash", jerk: "legend.mapchallenge.day23.intl.term.gb.jerk" },
+  jp: { udon: "legend.mapchallenge.day23.intl.term.jp.udon", okonomiyaki: "legend.mapchallenge.day23.intl.term.jp.okonomiyaki", takoyaki: "legend.mapchallenge.day23.intl.term.jp.takoyaki", soba: "legend.mapchallenge.day23.intl.term.jp.soba", gyutan: "legend.mapchallenge.day23.intl.term.jp.gyutan", jingisukan: "legend.mapchallenge.day23.intl.term.jp.jingisukan", motsunabe: "legend.mapchallenge.day23.intl.term.jp.motsunabe", monja: "legend.mapchallenge.day23.intl.term.jp.monja" },
+};
+const MAPCHALLENGE_DAY23_INTL_SIZE_STEPS = [1, 10, 50] as const;
+const MAPCHALLENGE_DAY23_INTL_SIZE_STEPS_HIGH = [1, 5, 20] as const;
+/** 詞的顯示名：原文（說明）；說明與原文相同時只顯示原文 */
+export function useMapchallengeDay23IntlTermName(): (country: MapchallengeDay23IntlCountry, term: MapchallengeDay23IntlTerm) => string {
+  const { t } = useLocale();
+  return (country, term) => {
+    const key = MAPCHALLENGE_DAY23_INTL_TERM_KEYS[country.cc][term.value];
+    const gloss = key ? t(key) : term.zh;
+    return gloss === term.label ? term.label : t("legend.mapchallenge.day23.intl.termName", { label: term.label, gloss });
+  };
+}
+
+export function MapchallengeDay23TasteIntlLegend({ layerKey, isDark }: { layerKey: MapchallengeDay23IntlKey; isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const termName = useMapchallengeDay23IntlTermName();
+  const values = useLayerParams(layerKey);
+  const country = mapchallengeDay23IntlByKey(layerKey);
+  if (!country) return null;
+  const term = mapchallengeDay23IntlTermById(country, paramStr(values, layerKey, `${layerKey}Term`)) ?? country.terms[0];
+  const color = mapchallengeDay23TermColor(term, isDark);
+  const [low, high] = country.res;
+  return <div>
+    <LegendTitle zh={t(MAPCHALLENGE_DAY23_INTL_KEYS.title[country.cc])} />
+    <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.where[country.cc])}</LegendNote>
+    <LegendRow swatch={<SwatchDot color={color} />}>
+      {t("legend.mapchallenge.day23.intl.termRow", { term: termName(country, term), n: formatNumber(term.stores), m: formatNumber(term.mapped) })}
+    </LegendRow>
+    <LegendNote>{t("legend.mapchallenge.day23.sizeTitle")}</LegendNote>
+    <LegendSizeRow title={t("legend.mapchallenge.day23.intl.sizeLow", { km2: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[low] ?? 0) })} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, 1, term.k), label: String(n) }))} fill={color} />
+    <LegendSizeRow title={t("legend.mapchallenge.day23.intl.sizeHigh", { z: country.switchZoom, km2: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[high] ?? 0) })} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS_HIGH.map((n) => ({ r: mapchallengeDay23Radius(n, 1, term.kHigh), label: String(n) }))} fill={color} />
+    <LegendNote>{t("legend.mapchallenge.day23.intl.sizeNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.intl.gridNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.intl.scope")}</LegendNote>
+    <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.limits[country.cc])}</LegendNote>
+    <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.base[country.cc], { n: formatNumber(country.baseStores), xy: formatNumber(country.baseWithXy), date: country.dataDate })}</LegendNote>
+    <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.source[country.cc])}</LegendNote>
   </div>;
 }

@@ -3056,5 +3056,22 @@
   "param.獸醫（Overture 補缺，空心，3,350）": "Veterinarian (Overture gap-fill, hollow, 3,350)",
   "param.軍用機場（依名稱判定，補名 3 處）": "Military airfield (judged from the name, 3 matched)",
   "param.直升機場（補名 1 處）": "Heliport (1 matched)",
-  "param.機場（性質未標）": "Airport (type not stated)"
+  "param.機場（性質未標）": "Airport (type not stated)",
+  "param.fisheries（炸魚薯條店（約克夏叫法））": "fisheries (fish and chip shop, Yorkshire usage)",
+  "param.chippy（炸魚薯條店（口語））": "chippy (fish and chip shop, colloquial)",
+  "param.fish bar（炸魚薯條店）": "fish bar (fish and chip shop)",
+  "param.balti（巴蒂咖哩）": "balti (balti curry)",
+  "param.pasty（康瓦爾餡餅）": "pasty (Cornish pasty)",
+  "param.cob（麵包捲（東密德蘭叫法））": "cob (bread roll, East Midlands usage)",
+  "param.butty（三明治（西北英格蘭叫法））": "butty (sandwich, North West England usage)",
+  "param.pie & mash（派與薯泥）": "pie & mash (pie and mash)",
+  "param.jerk（牙買加烤肉）": "jerk (Jamaican jerk)",
+  "param.うどん（烏龍麵）": "うどん (udon noodles)",
+  "param.お好み焼（御好燒（大阪燒／廣島燒））": "お好み焼 (savoury pancake)",
+  "param.たこ焼（章魚燒）": "たこ焼 (octopus balls)",
+  "param.そば（蕎麥麵）": "そば (buckwheat noodles)",
+  "param.牛たん（牛舌）": "牛たん (beef tongue)",
+  "param.ジンギスカン（成吉思汗烤羊肉）": "ジンギスカン (grilled mutton)",
+  "param.もつ鍋（牛腸鍋）": "もつ鍋 (offal hot pot)",
+  "param.もんじゃ（文字燒）": "もんじゃ (monjayaki)"
 }

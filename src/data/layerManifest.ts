@@ -229,7 +229,7 @@ import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_COLOR } from "./mapchallengeDay21Types";
-import { MAPCHALLENGE_DAY23_FOREIGN_COLOR, MAPCHALLENGE_DAY23_PLACES_COLOR, MAPCHALLENGE_DAY23_TERMS_COLOR, MAPCHALLENGE_DAY23_VARIANTS_COLOR } from "./mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_FOREIGN_COLOR, MAPCHALLENGE_DAY23_INTL_COLOR, MAPCHALLENGE_DAY23_PLACES_COLOR, MAPCHALLENGE_DAY23_TERMS_COLOR, MAPCHALLENGE_DAY23_VARIANTS_COLOR } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_COMPLAINTS_COLOR, MAPCHALLENGE_DAY19_PENALTIES_COLOR, MAPCHALLENGE_DAY19_POTENTIAL_COLOR } from "./mapchallengeDay19Types";
 
 /**
@@ -18393,6 +18393,78 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "30 天地圖挑戰 Day 23 味覺：登記餐飲店的店名裡含外來料理用詞的家數。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選九組：越南、泰、印尼、雲南／滇緬、日、韓、港、義、美；每組有一串比對用詞（例：越南＝越南、越式、河粉、越娘、西貢、河內），店名含任一個就算，圖例與說明框會列出該組全部用詞。「美」這組約八成是店名含「漢堡」的店，「港」這組約一半是含「燒臘」的店。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的組整體畫得比較小，不同組之間不能用圓的大小互比。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該組、該格家數與資料日期。只計店名含這些用詞的登記餐飲店；攤販與店名沒寫的不在內；不代表店主國籍，也不代表口味偏好。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
     topics: ["味覺", "外來料理", "異國料理", "店名", "餐飲", "稅籍登記", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay23TasteKr: {
+    key: "mapchallengeDay23TasteKr",
+    // 30 天地圖挑戰 Day 23 第三批（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。資料只涵蓋南韓，開圖層不自動移動鏡頭；範圍登記在 layerCoverage.ts，視野提示卡給「前往」按鈕。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "南韓店名裡的味道", alt: "Tastes in Korean restaurant names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_INTL_COLOR,
+    icon: UtensilsCrossed,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第三批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste/intl/kr（規格 docs/topic-research/mapchallenge_2026_day23_taste/intl/layer-spec.md）。來源：小商工人市場振興公團（소상공인시장진흥공단）「상가(상권)정보」，公共資料入口 data.go.kr（https://www.data.go.kr/data/15083033/fileData.do），基準日 2026-09-30（每季更新）；授權原文「이용허락범위 제한 없음」（利用許可範圍：無限制，2026-11-22 讀自該資料頁）。母體是業種大分類「음식」（餐飲，含咖啡店、酒館、員工餐廳）815,570 家，店名與座標皆 100%。店名含某個詞就算（），彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。不設最低家數。輸出只有詞代碼、家數、格網級別與格 id。限制：只計店名含該詞的店，不代表口味偏好；分母含咖啡店與酒館；2026 年起光州與全南合併，行政區是 16 個市道。出處標示：資料：小商工人市場振興公團「商街（商圈）資訊」（2026-09-30），公共資料入口 data.go.kr；授權「이용허락범위 제한 없음」（利用許可範圍：無限制）。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste_kr）。只計店名含該詞的店；不代表口味偏好。分母含咖啡店與酒館；2026 年起光州與全南合併，行政區是 16 個市道。三國來源性質不同，家數不可跨國比較；各詞、大格與小格的圓半徑係數都不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。圓點是六角格中心，不是店家位置；公開檔不含店名、地址與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-kr", url: "./mapchallenge/day23_taste_terms_kr.geojson" },
+    legend: "mapchallengeDay23TasteKr",
+    popup: "mapchallengeDay23TasteKr",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：南韓的店名裡含某個料理詞的店家數。資料只涵蓋南韓，要把地圖移到南韓才看得到圓點。資料是小商工人市場振興公團「商街（商圈）資訊」（基準日 2026-09-30）業種大分類「음식」（餐飲，含咖啡店、酒館、員工餐廳）的 815,570 家，彙總到 H3 六角格、畫在格心。選單可選：。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的詞整體畫得比較小，大格與小格的比例也不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的店；不代表口味偏好。分母含咖啡店與酒館；2026 年起光州與全南合併，行政區是 16 個市道。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：資料：小商工人市場振興公團「商街（商圈）資訊」（2026-09-30），公共資料入口 data.go.kr；授權「이용허락범위 제한 없음」（利用許可範圍：無限制）。",
+    topics: ["味覺", "店名", "餐飲", "南韓", "韓國", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay23TasteGb: {
+    key: "mapchallengeDay23TasteGb",
+    // 30 天地圖挑戰 Day 23 第三批（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。資料只涵蓋英國，開圖層不自動移動鏡頭；範圍登記在 layerCoverage.ts，視野提示卡給「前往」按鈕。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "英國店名裡的味道", alt: "Tastes in UK food business names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_INTL_COLOR,
+    icon: UtensilsCrossed,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第三批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste/intl/gb（規格 docs/topic-research/mapchallenge_2026_day23_taste/intl/layer-spec.md）。來源：Food Standards Agency（英國食品標準局）Food Hygiene Rating Scheme（FHRS；蘇格蘭為 FHIS）開放資料 API（https://ratings.food.gov.uk/open-data；API https://api.ratings.food.gov.uk/），API 擷取日 2026-11-22（最新評級日 2026-11-20；來源每日更新）；授權原文「Use of proprietary food hygiene ratings information and services is subject to the terms of the Open Government Licence (OGL).」（2026-11-23 讀自 https://ratings.food.gov.uk/terms-and-conditions）。母體是業態 Restaurant/Cafe/Canteen、Takeaway/sandwich shop、Pub/bar/nightclub 共 254,817 家，店名 100%，226,649 家有座標（88.9%）。資產檔另含 oatcake（17 家），不放進選單、不畫。店名含某個詞就算（fisheries（炸魚薯條店（約克夏叫法））、chippy（炸魚薯條店（口語））、fish bar（炸魚薯條店）、balti（巴蒂咖哩）、pasty（康瓦爾餡餅）、cob（麵包捲（東密德蘭叫法））、butty（三明治（西北英格蘭叫法））、pie & mash（派與薯泥）、jerk（牙買加烤肉）），彙總到 H3 六角格（res 5 約 253 km²、res 7 約 5.2 km²），點放在格心。不設最低家數。輸出只有詞代碼、家數、格網級別與格 id。限制：只計店名含該詞的店，不代表口味偏好；約 11% 的店 API 沒給座標，不在地圖上；分母含酒館。出處標示：Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste_gb）。只計店名含該詞的店；不代表口味偏好。約 11% 的店 API 沒給座標，不在地圖上；分母含酒館。三國來源性質不同，家數不可跨國比較；各詞、大格與小格的圓半徑係數都不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。圓點是六角格中心，不是店家位置；公開檔不含店名、地址與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-gb", url: "./mapchallenge/day23_taste_terms_gb.geojson" },
+    legend: "mapchallengeDay23TasteGb",
+    popup: "mapchallengeDay23TasteGb",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：英國的店名裡含某個料理詞的店家數。資料只涵蓋英國，要把地圖移到英國才看得到圓點。資料是英國食品標準局 Food Hygiene Rating Scheme 開放資料（API 擷取日 2026-11-22）業態為 Restaurant/Cafe/Canteen、Takeaway/sandwich shop、Pub/bar/nightclub 的 254,817 家，其中 226,649 家有座標，彙總到 H3 六角格、畫在格心。選單可選：fisheries（炸魚薯條店（約克夏叫法））、chippy（炸魚薯條店（口語））、fish bar（炸魚薯條店）、balti（巴蒂咖哩）、pasty（康瓦爾餡餅）、cob（麵包捲（東密德蘭叫法））、butty（三明治（西北英格蘭叫法））、pie & mash（派與薯泥）、jerk（牙買加烤肉）。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的詞整體畫得比較小，大格與小格的比例也不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。縮小時每格約 253 平方公里，放大到 8 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的店；不代表口味偏好。約 11% 的店 API 沒給座標，不在地圖上；分母含酒館。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
+    topics: ["味覺", "店名", "餐飲", "英國", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay23TasteJp: {
+    key: "mapchallengeDay23TasteJp",
+    // 30 天地圖挑戰 Day 23 第三批（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。資料只涵蓋日本，開圖層不自動移動鏡頭；範圍登記在 layerCoverage.ts，視野提示卡給「前往」按鈕。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "日本店名裡的味道（OSM）", alt: "Tastes in Japanese restaurant names (OSM)" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_INTL_COLOR,
+    icon: UtensilsCrossed,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第三批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste/intl/jp（規格 docs/topic-research/mapchallenge_2026_day23_taste/intl/layer-spec.md）。來源：OpenStreetMap（經 Overpass API，https://overpass-api.de/api/interpreter；https://www.openstreetmap.org/copyright），Overpass 擷取日 2026-11-22；授權原文「The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.」；© OpenStreetMap contributors（ODbL）。母體是 amenity＝restaurant／fast_food／cafe／food_court／pub／bar、落在 47 都道府縣內的 204,709 處，95% 有店名。店名含某個詞就算（うどん（烏龍麵）、お好み焼（御好燒（大阪燒／廣島燒））、たこ焼（章魚燒）、そば（蕎麥麵）、牛たん（牛舌）、ジンギスカン（成吉思汗烤羊肉）、もつ鍋（牛腸鍋）、もんじゃ（文字燒）），彙總到 H3 六角格（res 5 約 253 km²、res 7 約 5.2 km²），點放在格心。不設最低家數。輸出只有詞代碼、家數、格網級別與格 id。限制：只計店名含該詞的店，不代表口味偏好；OSM 為志願者繪製，非全國名冊，都會區與觀光地收錄較完整，數字不宜與其他國家並列。出處標示：© OpenStreetMap contributors（ODbL）。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste_jp）。只計店名含該詞的店；不代表口味偏好。OSM 為志願者繪製，非全國名冊，都會區與觀光地收錄較完整，數字不宜與其他國家並列。三國來源性質不同，家數不可跨國比較；各詞、大格與小格的圓半徑係數都不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。圓點是六角格中心，不是店家位置；公開檔不含店名、地址與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-jp", url: "./mapchallenge/day23_taste_terms_jp.geojson" },
+    legend: "mapchallengeDay23TasteJp",
+    popup: "mapchallengeDay23TasteJp",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：日本的店名裡含某個料理詞的店家數。資料只涵蓋日本，要把地圖移到日本才看得到圓點。資料是 OpenStreetMap（Overpass 擷取日 2026-11-22）amenity＝restaurant／fast_food／cafe／food_court／pub／bar、落在 47 都道府縣內的 204,709 處，彙總到 H3 六角格、畫在格心。選單可選：うどん（烏龍麵）、お好み焼（御好燒（大阪燒／廣島燒））、たこ焼（章魚燒）、そば（蕎麥麵）、牛たん（牛舌）、ジンギスカン（成吉思汗烤羊肉）、もつ鍋（牛腸鍋）、もんじゃ（文字燒）。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的詞整體畫得比較小，大格與小格的比例也不同，不同詞、不同國家、不同縮放之間不能用圓的大小互比。縮小時每格約 253 平方公里，放大到 8 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的店；不代表口味偏好。OSM 為志願者繪製，非全國名冊，都會區與觀光地收錄較完整，數字不宜與其他國家並列。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：© OpenStreetMap contributors（ODbL）。",
+    topics: ["味覺", "店名", "餐飲", "日本", "OpenStreetMap", "OSM", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

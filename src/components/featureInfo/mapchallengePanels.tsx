@@ -42,9 +42,11 @@ import { MAPCHALLENGE_DAY21_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import {
   MAPCHALLENGE_DAY23_CELL_KM2, MAPCHALLENGE_DAY23_DATA_DATE, mapchallengeDay23GroupById, mapchallengeDay23TermById, mapchallengeDay23TermColor,
   MAPCHALLENGE_DAY23_FOREIGN_DOMINANT, mapchallengeDay23ForeignById, mapchallengeDay23PlaceById,
+  mapchallengeDay23IntlByKey, mapchallengeDay23IntlTermById, type MapchallengeDay23IntlKey,
 } from "../../data/mapchallengeDay23Types";
 import {
   MAPCHALLENGE_DAY23_FOREIGN_KEYS, MAPCHALLENGE_DAY23_GROUP_KEYS, MAPCHALLENGE_DAY23_HOME_KEYS, MAPCHALLENGE_DAY23_SIGN_KEYS, MAPCHALLENGE_DAY23_TERM_KEYS,
+  MAPCHALLENGE_DAY23_INTL_KEYS, useMapchallengeDay23IntlTermName,
 } from "../legend/mapchallengeLegends";
 import { LinkRow } from "./atlasPanels";
 import { Row, SourceFooter, Title } from "./shared";
@@ -657,3 +659,26 @@ export function MapchallengeDay23TasteForeignPanel({ props }: Props) {
     <MapchallengeDay23Footer props={props} scope={t("legend.mapchallenge.day23.foreignScope")} />
   </div>;
 }
+
+// ── Day 23 味覺第三批：南韓／英國／日本（共用一個說明框；資料日期、口徑、來源依國別） ──
+function MapchallengeDay23TasteIntlPanel({ props, layerKey }: Props & { layerKey: MapchallengeDay23IntlKey }) {
+  const { t, formatNumber } = useLocale();
+  const termName = useMapchallengeDay23IntlTermName();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const country = mapchallengeDay23IntlByKey(layerKey);
+  const term = country && mapchallengeDay23IntlTermById(country, props.term);
+  if (!country || !term) return null;
+  const km2 = MAPCHALLENGE_DAY23_CELL_KM2[num(props.res)];
+  return <div>
+    <Title color={mapchallengeDay23TermColor(term, isDark)}>{termName(country, term)}</Title>
+    <Row label={t("popup.mapchallenge.day23.count")} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(num(props.n)) })} mono />
+    {km2 !== undefined && <Row label={t("popup.mapchallenge.day23.cell")} value={t("popup.mapchallenge.day23.cellValue", { km2: formatNumber(km2) })} />}
+    <Row label={t("popup.mapchallenge.day23.date")} value={country.dataDate} mono />
+    <Row label={t("popup.mapchallenge.day23.note")} value={t("legend.mapchallenge.day23.intl.scope")} />
+    <Row label={t("popup.mapchallenge.day23.position")} value={t("popup.mapchallenge.day23.positionNote")} />
+    <SourceFooter props={{ source: t(MAPCHALLENGE_DAY23_INTL_KEYS.source[country.cc]) }} />
+  </div>;
+}
+export const MapchallengeDay23TasteKrPanel = ({ props }: Props) => <MapchallengeDay23TasteIntlPanel props={props} layerKey="mapchallengeDay23TasteKr" />;
+export const MapchallengeDay23TasteGbPanel = ({ props }: Props) => <MapchallengeDay23TasteIntlPanel props={props} layerKey="mapchallengeDay23TasteGb" />;
+export const MapchallengeDay23TasteJpPanel = ({ props }: Props) => <MapchallengeDay23TasteIntlPanel props={props} layerKey="mapchallengeDay23TasteJp" />;

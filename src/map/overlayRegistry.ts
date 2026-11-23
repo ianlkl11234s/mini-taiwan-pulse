@@ -61,7 +61,7 @@ import {
 import { MAPCHALLENGE_DAY21_ATTRIBUTION, MAPCHALLENGE_DAY21_ROADS_SOURCE_LAYER, MAPCHALLENGE_DAY21_ROADS_URL, mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
 import {
   MAPCHALLENGE_DAY23_ATTRIBUTION, MAPCHALLENGE_DAY23_GLOW, MAPCHALLENGE_DAY23_RES, MAPCHALLENGE_DAY23_SWITCH_ZOOM, MAPCHALLENGE_DAY23_TERMS_URL, MAPCHALLENGE_DAY23_VARIANTS_URL,
-  MAPCHALLENGE_DAY23_FOREIGN_URL, MAPCHALLENGE_DAY23_ORIGIN, MAPCHALLENGE_DAY23_PLACES_URL,
+  MAPCHALLENGE_DAY23_FOREIGN_URL, MAPCHALLENGE_DAY23_INTL, MAPCHALLENGE_DAY23_ORIGIN, MAPCHALLENGE_DAY23_PLACES_URL, mapchallengeDay23IntlTermAt,
   mapchallengeDay23ForeignAt, mapchallengeDay23GroupAt, mapchallengeDay23PlaceAt, mapchallengeDay23TermAt, mapchallengeDay23TermColor,
 } from "../data/mapchallengeDay23Types";
 import {
@@ -13549,6 +13549,40 @@ OVERLAY_REGISTRY.push({
     },
   }]),
 });
+// 第三批（2026-11-23）南韓／英國／日本「店名料理詞」：同圖層 1 的做法，一張國別設定表（MAPCHALLENGE_DAY23_INTL）產三個 config。
+// 各國的格網級別與切換縮放不同（南韓 6／7 z9；英日 5／7 z8）；半徑係數依詞與格網級別（k＝大格、kHigh＝小格；家數多的詞縮小）。
+for (const country of MAPCHALLENGE_DAY23_INTL) {
+  const [low] = country.res;
+  const zoomOf = (res: number) => (res === low ? { maxzoom: country.switchZoom } : { minzoom: country.switchZoom });
+  const termOf = (p?: Record<string, number>) => mapchallengeDay23IntlTermAt(country, p?.[`${country.key}TermIdx`]);
+  const kOf = (p: Record<string, number> | undefined, res: number) => (res === low ? termOf(p).k : termOf(p).kHigh);
+  const scaleOf = (p?: Record<string, number>) => p?.[`${country.key}Scale`] ?? 1;
+  const opacityOf = (p?: Record<string, number>) => p?.[`${country.key}Opacity`] ?? 0.85;
+  OVERLAY_REGISTRY.push({
+    id: country.key, sourceUrl: country.url, sourceId: country.sourceId,
+    attribution: country.attribution,
+    rebuildOnParamChange: country.res.flatMap((res) => [`glow-r${res}`, `circle-r${res}`]), rebuildOnParamKeys: [`${country.key}TermIdx`],
+    layers: country.res.flatMap((res): OverlayLayerSpec[] => [{
+      suffix: `glow-r${res}`, type: "circle", ...zoomOf(res),
+      filter: (p) => mapchallengeDay23TermFilter(termOf(p), res),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay23TermColor(termOf(p), isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(scaleOf(p), MAPCHALLENGE_DAY23_GLOW.radiusFactor, kOf(p, res)),
+        "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
+        "circle-opacity": mapchallengeDay23GlowOpacity(isDark, opacityOf(p)),
+      }),
+    }, {
+      suffix: `circle-r${res}`, type: "circle", ...zoomOf(res),
+      layout: { "circle-sort-key": mapchallengeDay23SortKeyExpr() },
+      filter: (p) => mapchallengeDay23TermFilter(termOf(p), res),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay23TermColor(termOf(p), isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(scaleOf(p), 1, kOf(p, res)),
+        "circle-opacity": opacityOf(p),
+      }),
+    }]),
+  });
+}
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
