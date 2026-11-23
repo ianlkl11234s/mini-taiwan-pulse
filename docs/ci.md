@@ -114,6 +114,13 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監�
 - 監測腳本的單元測試在 `npm run check:monitor`（含 `notify-schedule-failure/test-decide.sh`）。
 - **限制**：GitHub 排程常延遲或略過（sync-rotating 實測 99 小時只跑 17 次），「多久內收到通知」沒有保證；要準時就把同一支腳本搬到 pulse-host cron。
 
+## 10. 開站下載量報告（B1 P0，2026-11-24）
+
+- `scripts/perf/measure-first-load.mjs`：讀 `dist/index.html`，量「入口 script＋全部 modulepreload＋stylesheet」逐檔的原始／gzip(level 9)／brotli(q11) 大小。**不能只量 `main-*.js`**：manifest 在 `statisticsText-*.js`，由 modulepreload 一起抓。
+- CI：build job 在 `check:build` 後跑 `npm run size:entry`，表格寫進 job summary，與 `scripts/perf/first-load-baseline.json` 比較。**只報告、不設門檻**（`continue-on-error`，不會讓 CI 紅）；增加約 15 秒。
+- 本機：`npm run build && npm run size:entry`；要各來源模組占比，改用 `npx vite build --sourcemap` 後加 `--modules`（CI 不開 sourcemap，所以不含這段；翻譯 JSON 沒有 sourcemap 對照，量不到）。可加 `--json out.json` 存檔。
+- 基準（2026-11-24，develop acde2416d，單位為十進位 MB）：30 檔、原始 15.03MB、gzip 3.47MB、brotli 2.63MB；main 3.73MB／1.04MB gzip。刻意優化後用 `node scripts/perf/measure-first-load.mjs --json scripts/perf/first-load-baseline.json` 更新基準。設計見 GIS `.gis-agent-system` 的 B1-DESIGN。
+
 ## 出處
 
 - GitHub Actions：workflow 被 paths 跳過時 required check 會停在 pending — https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks

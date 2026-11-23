@@ -151,6 +151,10 @@ jobs:
       - run: npm ci
       - name: TypeScript build (tsc -b + vite build)
         run: npm run check:build
+      # B1 P0：開站 JS／CSS 下載量，只寫進 job summary，不設門檻、不會讓 CI 失敗（docs/ci.md §10）
+      - name: First-load size report (report only)
+        continue-on-error: true
+        run: npm run size:entry
 
   # 主套件不讀 public/ 資料檔（CI-4）：只檢查存在／大小／sha256 的測試改查 deploy/public-assets.lock.json，
   # 讀內容的資產測試另由 assets job 跑（vitest.shared.ts）。所以 checkout 跳過 public/ 資料，只留網站素材
