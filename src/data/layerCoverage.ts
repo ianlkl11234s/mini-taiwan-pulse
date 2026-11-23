@@ -50,6 +50,11 @@ export const COVERAGE_AREAS = {
   thEec: { label: { zh: "泰國東部經濟走廊（3 府）", en: "Eastern Economic Corridor, Thailand (3 provinces)", ja: "タイ東部経済回廊（3 県）" }, bbox: [100.6, 12.5, 102.0, 14.0] },
   // 30 天地圖挑戰 Day 6 西南海岸線三代：高雄北端到雲林口湖（資料 22.77–23.66°N）
   swCoast: { label: { zh: "臺灣西南沿海", en: "Southwest coast of Taiwan", ja: "台湾南西部沿岸" }, bbox: [119.95, 22.74, 120.42, 23.70] },
+  // 30 天地圖挑戰 Day 23 味覺第三批：資料涵蓋整個國家（day23_taste_terms_{kr,gb,jp}.geojson 外框取整，2026-11-23）。
+  // 這三層掛在模擬面板（台灣視角下開），所以登記整國外框，讓提示卡給「前往」按鈕。
+  day23Korea: { label: { zh: "南韓", en: "South Korea", ja: "韓国" }, bbox: [126.0, 33.1, 131.1, 38.7] },
+  day23Uk: { label: { zh: "英國", en: "United Kingdom", ja: "イギリス" }, bbox: [-7.9, 49.9, 1.9, 60.3] },
+  day23Japan: { label: { zh: "日本", en: "Japan", ja: "日本" }, bbox: [122.8, 24.1, 145.4, 45.6] },
 } as const satisfies Record<string, CoverageArea>;
 
 export type CoverageAreaId = keyof typeof COVERAGE_AREAS;
@@ -122,6 +127,9 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   mapchallengeDay08Parks: "zhongheYonghe",
   mapchallengeDay08Sites: "zhongheYonghe",
   mapchallengeDay08Plan1955: "zhongheYonghe",
+  mapchallengeDay23TasteKr: "day23Korea",
+  mapchallengeDay23TasteGb: "day23Uk",
+  mapchallengeDay23TasteJp: "day23Japan",
   tainanRoadTunnels: "tainan",
   vnAngiangDemo: "anGiang",
   vnAngiangAquaculture: "anGiang",

@@ -196,7 +196,7 @@ export const MAPCHALLENGE_DAY23_FOREIGN_DOMINANT: Partial<Record<MapchallengeDay
  * - k＝低縮放（大格）的半徑係數＝目標最大半徑／√（低縮放單格最多家數），夾在 1–3；目標依全國視角的格距定：南韓 18、英國 15、日本 12 px。
  *   kHigh＝高縮放（小格）的半徑係數＝18／√（高縮放單格最多家數），夾在 1.5–3。家數多的詞整體縮小，所以不同詞、不同國家、不同縮放之間不能用圓的大小互比。
  * - label＝店名裡比對的原文（各語系都不翻）；zh＝中文說明（英日另有譯文）。英國資產檔另含 oatcake（17 家），站主決定不放進選單，前端不列、不畫。
- * - camera＝規格的全國視角（開圖層不自動飛；圖層名稱帶國名）。
+ * - 開圖層不自動飛；資料範圍登記在 layerCoverage.ts（視野提示卡會給「前往南韓／英國／日本」按鈕），圖層名稱帶國名。
  * - attribution＝規格的「出處標示寫法」逐字。三國來源性質不同（南韓、英國是官方名冊，日本是 OSM），家數不可跨國比較。
  */
 export interface MapchallengeDay23IntlTerm { value: string; label: string; zh: string; dark: string; light: string; stores: number; mapped: number; k: number; kHigh: number }
@@ -204,13 +204,13 @@ export type MapchallengeDay23IntlKey = "mapchallengeDay23TasteKr" | "mapchalleng
 export interface MapchallengeDay23IntlCountry {
   key: MapchallengeDay23IntlKey; cc: "kr" | "gb" | "jp"; url: string; sourceId: string; attribution: string;
   dataDate: string; baseStores: number; baseWithXy: number; res: readonly [number, number]; switchZoom: number;
-  camera: { center: readonly [number, number]; zoom: number }; terms: readonly [MapchallengeDay23IntlTerm, ...MapchallengeDay23IntlTerm[]];
+  terms: readonly [MapchallengeDay23IntlTerm, ...MapchallengeDay23IntlTerm[]];
 }
 export const MAPCHALLENGE_DAY23_INTL: readonly MapchallengeDay23IntlCountry[] = [
   {
     key: "mapchallengeDay23TasteKr", cc: "kr", url: "./mapchallenge/day23_taste_terms_kr.geojson", sourceId: "mapchallenge-day23-taste-kr",
     attribution: "資料：小商工人市場振興公團「商街（商圈）資訊」（2026-09-30），公共資料入口 data.go.kr",
-    dataDate: "2026-09-30", baseStores: 815570, baseWithXy: 815570, res: [6, 7], switchZoom: 9, camera: { center: [127.8, 36.0], zoom: 6.2 },
+    dataDate: "2026-09-30", baseStores: 815570, baseWithXy: 815570, res: [6, 7], switchZoom: 9,
     terms: [
       { value: "dwaejiGukbap", label: "돼지국밥", zh: "豬肉湯飯", dark: "#ff6b5e", light: "#db4a40", stores: 2022, mapped: 2022, k: 2.2, kHigh: 3 },
       { value: "milmyeon", label: "밀면", zh: "小麥冷麵", dark: "#ffd166", light: "#987300", stores: 1071, mapped: 1071, k: 2.4, kHigh: 3 },
@@ -227,7 +227,7 @@ export const MAPCHALLENGE_DAY23_INTL: readonly MapchallengeDay23IntlCountry[] = 
   {
     key: "mapchallengeDay23TasteGb", cc: "gb", url: "./mapchallenge/day23_taste_terms_gb.geojson", sourceId: "mapchallenge-day23-taste-gb",
     attribution: "Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
-    dataDate: "2026-11-22", baseStores: 254817, baseWithXy: 226649, res: [5, 7], switchZoom: 8, camera: { center: [-3.4, 54.6], zoom: 4.9 },
+    dataDate: "2026-11-22", baseStores: 254817, baseWithXy: 226649, res: [5, 7], switchZoom: 8,
     terms: [
       { value: "fisheries", label: "fisheries", zh: "炸魚薯條店（約克夏叫法）", dark: "#ff6b5e", light: "#db4a40", stores: 484, mapped: 442, k: 2.2, kHigh: 3 },
       { value: "chippy", label: "chippy", zh: "炸魚薯條店（口語）", dark: "#ffd166", light: "#987300", stores: 1008, mapped: 978, k: 2.3, kHigh: 3 },
@@ -243,7 +243,7 @@ export const MAPCHALLENGE_DAY23_INTL: readonly MapchallengeDay23IntlCountry[] = 
   {
     key: "mapchallengeDay23TasteJp", cc: "jp", url: "./mapchallenge/day23_taste_terms_jp.geojson", sourceId: "mapchallenge-day23-taste-jp",
     attribution: "© OpenStreetMap contributors（ODbL）",
-    dataDate: "2026-11-22", baseStores: 204709, baseWithXy: 204709, res: [5, 7], switchZoom: 8, camera: { center: [135.0, 35.5], zoom: 4.2 },
+    dataDate: "2026-11-22", baseStores: 204709, baseWithXy: 204709, res: [5, 7], switchZoom: 8,
     terms: [
       { value: "udon", label: "うどん", zh: "烏龍麵", dark: "#ff6b5e", light: "#db4a40", stores: 1727, mapped: 1727, k: 1.2, kHigh: 3 },
       { value: "okonomiyaki", label: "お好み焼", zh: "御好燒（大阪燒／廣島燒）", dark: "#ffd166", light: "#987300", stores: 925, mapped: 925, k: 1.1, kHigh: 3 },
