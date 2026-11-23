@@ -482,6 +482,17 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "運動休閒",
     "農業",
   ],
+  ID: [
+    // 印尼（2026-11-23 第 0–4 波；title 沿用台灣主題中文短名，比照泰國）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+    "災害",
+    "水資源",
+    "自然保育",
+    "觀光",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -3869,6 +3880,88 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇮🇩 印尼（2026-11-23 第 0–4 波：行政邊界、地形、地名、人口、IDM、交通、能源、災害、水資源、保育林、景點；群組比照泰國）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("idAdminBoundaries")] },
+      { title: "地形", layers: [fromManifest("idTerrainHillshade"), fromManifest("idTerrainRelief")] },
+      { title: "地名", layers: [fromManifest("idPlaceNames")] },
+      { title: "外圍小島", layers: [fromManifest("idOuterIslands")] },
+    ],
+  },
+  {
+    title: "人口社經",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "人口分布", layers: [fromManifest("idPopulation")] },
+      { title: "農村發展", layers: [fromManifest("idRuralDevelopment")] },
+    ],
+  },
+  {
+    title: "交通",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("idStations")] },
+      { title: "樞紐節點", layers: [fromManifest("idTransportHubs")] },
+      { title: "路網", layers: [fromManifest("idRailLines")] },
+      { title: "橋梁", layers: [fromManifest("idBridges")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("idPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("idPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("idRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("idFuelStations")] },
+    ],
+  },
+  {
+    title: "災害",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "斷層", layers: [fromManifest("idFaults")] },
+      { title: "InaRISK 危害指數", layers: [fromManifest("idInariskLandslide"), fromManifest("idInariskFlood"), fromManifest("idInariskMulti")] },
+      { title: "水文氣象災害", layers: [fromManifest("idDibiHydromet")] },
+      { title: "地層下陷", layers: [fromManifest("idSubsidence")] },
+      { title: "山域搜救", layers: [fromManifest("idMountainRescue")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "水利設施", layers: [fromManifest("idWaterFacilities")] },
+      { title: "流域", layers: [fromManifest("idWatersheds")] },
+    ],
+  },
+  {
+    title: "自然保育",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [{ title: "保護與保育林", layers: [fromManifest("idConservationForest")] }],
+  },
+  {
+    title: "觀光",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・自然", layers: [fromManifest("idNatureSpots")] },
+      { title: "營地與山屋", layers: [fromManifest("idCamps")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇻🇳 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源、環境監測站、安江示範；群組比照菲律賓）
   // ───────────────────────────────────────────────────────────────
   {
@@ -4547,6 +4640,17 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "運動休閒": "publicLife",
     "農業": "environment",
   },
+  ID: {
+    // 印尼主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照泰國）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+    "災害": "safety",
+    "水資源": "environment",
+    "自然保育": "environment",
+    "觀光": "publicLife",
+  },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
     "底圖": "baseline",
@@ -4868,6 +4972,17 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "海洋": { zh: "海洋", sub: "Marine" },
     "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
     "農業": { zh: "農業", sub: "Agriculture" },
+  },
+  ID: {
+    // 印尼主題副標用英文（比照泰國）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+    "災害": { zh: "災害", sub: "Hazard" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "自然保育": { zh: "自然保育", sub: "Conservation" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
   },
   CN: {
     // 中國主題副標用英文（比照菲律賓）

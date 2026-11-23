@@ -119,7 +119,8 @@ describe("R7 顏色解析器", () => {
     // 2026-11-22 +6 泰國第 5–7 波：學校、幼兒班、醫療、宗教場所、住宿、銀行
     // 2026-11-23 +2 泰國第 9 波：運動場地、工廠
     // 2026-11-23 -1 泰國住宿改 per-feature minzoom 分級、不用熱區
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(151);
+    // 2026-11-24 +2 印尼第 3、2 波：橋梁、地名（≥1 萬點）
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(153);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

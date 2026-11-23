@@ -326,7 +326,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-23: +1 英國列車重播（gbRailReplay，站主限定測試圖層）。
     // 2026-11-23: +2 30 天地圖挑戰 Day 23 味覺第二批（mapchallengeDay23TastePlaces、mapchallengeDay23TasteForeign）。
     // 2026-11-23: +3 30 天地圖挑戰 Day 23 味覺第三批（mapchallengeDay23TasteKr、mapchallengeDay23TasteGb、mapchallengeDay23TasteJp）。
-    expect(keys.length).toBe(2146);
+    // 2026-11-24: +27 印尼第 0–4 波（行政區界、人口密度、農村發展指數、鐵道站、鐵道線、機場港口、電廠、電網、風光與太陽能潛力、加油站、BIG 地名、外圍小島、斷層、山域搜救、DIBI、橋梁、水壩堰閘、流域、雅加達沉降、景點、保育林、營地、山體陰影、色別標高、InaRISK 崩塌／淹水／多災種）。
+    expect(keys.length).toBe(2173);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

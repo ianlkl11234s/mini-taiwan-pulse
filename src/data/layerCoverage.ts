@@ -48,6 +48,8 @@ export const COVERAGE_AREAS = {
   thCentralPlain: { label: { zh: "泰國中部平原（16 府）", en: "Central Thailand (16 provinces)", ja: "タイ中部平野（16 県）" }, bbox: [99.4, 12.6, 102.9, 14.8] },
   // th_eec.pmtiles header bounds 100.646–101.992E、12.506–13.977N 取整（EEC 3 府：Chon Buri、Rayong、Chachoengsao）
   thEec: { label: { zh: "泰國東部經濟走廊（3 府）", en: "Eastern Economic Corridor, Thailand (3 provinces)", ja: "タイ東部経済回廊（3 県）" }, bbox: [100.6, 12.5, 102.0, 14.0] },
+  // id_subsidence.pmtiles 雅加達 5 縣市觀測點（2023–2025；106.7–106.95E、-6.4–-6.1N 取整）：全國只有雅加達有資料
+  jakarta: { label: { zh: "雅加達", en: "Jakarta", ja: "ジャカルタ" }, bbox: [106.65, -6.45, 107.0, -6.05] },
   // 30 天地圖挑戰 Day 6 西南海岸線三代：高雄北端到雲林口湖（資料 22.77–23.66°N）
   swCoast: { label: { zh: "臺灣西南沿海", en: "Southwest coast of Taiwan", ja: "台湾南西部沿岸" }, bbox: [119.95, 22.74, 120.42, 23.70] },
   // 30 天地圖挑戰 Day 23 味覺第三批：資料涵蓋整個國家（day23_taste_terms_{kr,gb,jp}.geojson 外框取整，2026-11-23）。
@@ -133,6 +135,7 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   tainanRoadTunnels: "tainan",
   vnAngiangDemo: "anGiang",
   vnAngiangAquaculture: "anGiang",
+  idSubsidence: "jakarta",
   thFloodHistory: "thCentralPlain",
   thEec: "thEec",
   caTorontoKsi: "toronto",

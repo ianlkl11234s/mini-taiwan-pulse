@@ -406,5 +406,15 @@
   "theme.海岸": "Coast",
   "theme.潮位": "Tide Gauges",
   "theme.獸醫": "Veterinary",
-  "theme.列車重播": "Rail Replay"
+  "theme.列車重播": "Rail Replay",
+  "theme.InaRISK 危害指數": "InaRISK Hazard Indices",
+  "theme.保護與保育林": "Protection & Conservation Forest",
+  "theme.地層下陷": "Land Subsidence",
+  "theme.外圍小島": "Outer Small Islands",
+  "theme.山域搜救": "Mountain Search & Rescue",
+  "theme.斷層": "Faults",
+  "theme.橋梁": "Bridges",
+  "theme.水文氣象災害": "Hydrometeorological Disasters",
+  "theme.農村發展": "Rural Development",
+  "theme.營地與山屋": "Campsites & Huts"
 }

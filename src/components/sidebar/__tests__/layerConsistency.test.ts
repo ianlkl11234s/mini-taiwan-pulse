@@ -264,6 +264,8 @@ const NO_POPUP_LEDGER = new Set([
   "phTerrainHillshade", "phTerrainRelief", "phBuiltSurface", "phForestLoss",
   // 泰國 raster（2026-11-22）：山體陰影、色別標高（PNG PMTiles，無 feature 屬性）
   "thTerrainHillshade", "thTerrainRelief", "thSoilPh", "thSoilOrganicCarbon",
+  // 印尼 raster（2026-11-23）：山體陰影、色別標高、InaRISK 崩塌／淹水／多災種（PNG PMTiles，無 feature 屬性；DISPLAY_ONLY）
+  "idTerrainHillshade", "idTerrainRelief", "idInariskLandslide", "idInariskFlood", "idInariskMulti",
   // 越南第 2、3、6 波：Copernicus DEM 山體陰影／色別標高、崩塌潛勢、WDPCA 保護區（站主限定）（raster，無 feature 屬性；2026-11-17）
   "vnTerrainHillshade", "vnTerrainRelief", "vnLandslideSusceptibility", "vnWdpca",
   "cnPopulationGrid", // 中國人口網格：已上色 raster，沒有 feature 屬性
@@ -631,6 +633,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("vnAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("TH")].sort()).toEqual(["thAccommodation", "thAdminBoundaries", "thAirQualityStations", "thArtsEvents", "thBanks", "thBasins", "thCoastalChange", "thCrops", "thEec", "thElderlyHousing", "thElectionConstituencies", "thExperiences", "thFactories", "thFarmMarkets", "thFloodHistory", "thFootbridges", "thForestParks", "thFuelStations", "thHealthFacilities", "thHighlandVillages", "thHistoricSites", "thIrrigationProjects", "thJailsCourts", "thKindergartens", "thLandfills", "thLandslideSafePoints", "thMajorRoads", "thMarineHabitats", "thMarineProtectedAreas", "thMuseumsLibraries", "thNationalParks", "thNationalReservedForests", "thNatureSpots", "thParks", "thPipelines", "thPlaceNames", "thPlacesOfWorship", "thPoliceStations", "thPopulation", "thPostOffices", "thPowerGrid", "thPowerPlants", "thProvinceSocioeconomic", "thRailCrossings", "thRamsarSites", "thRenewables", "thRoadAccidents", "thSchools", "thSeaLevelStations", "thSoilOrganicCarbon", "thSoilPh", "thSportsVenues", "thStations", "thTerrainHillshade", "thTerrainRelief", "thTransportHubs", "thVeterinary", "thWeatherStations"]);
     expect(tw.has("thAdminBoundaries")).toBe(false);
+    expect([...countryLayerKeys("ID")].sort()).toEqual(["idAdminBoundaries", "idBridges", "idCamps", "idConservationForest", "idDibiHydromet", "idFaults", "idFuelStations", "idInariskFlood", "idInariskLandslide", "idInariskMulti", "idMountainRescue", "idNatureSpots", "idOuterIslands", "idPlaceNames", "idPopulation", "idPowerGrid", "idPowerPlants", "idRailLines", "idRenewables", "idRuralDevelopment", "idStations", "idSubsidence", "idTerrainHillshade", "idTerrainRelief", "idTransportHubs", "idWaterFacilities", "idWatersheds"]);
+    expect(tw.has("idAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("CN")].sort()).toEqual(["cnActiveFaults", "cnAdminBoundaries", "cnAquaculture", "cnBridgesTunnels", "cnBusStops", "cnDams", "cnEez", "cnEthnicAutonomy", "cnMajorRoads", "cnMedical", "cnNatureReserves", "cnNuclearPlants", "cnPipelines", "cnPlaceNames", "cnPopulation", "cnPopulationGrid", "cnPowerGrid", "cnPowerPlants", "cnRivers", "cnSchools", "cnSoil", "cnTerrain", "cnTransportHubs", "cnWdpa"]);
     expect(tw.has("cnAdminBoundaries")).toBe(false);
   });

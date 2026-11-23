@@ -4,8 +4,10 @@
 // 字串值是原文；{ key } 是既有 i18n key；{ "zh-TW", en, ja } 是三語各自的原文。
 // 型別與解析在 ./layerSourceInfo.ts。
 import type { LayerSourceInfo, SourceText } from "./layerSourceInfo";
+import { ID_SOURCE_INFO } from "./idDataLayers";
 
 export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = {
+  ...ID_SOURCE_INFO,
   a1AccidentRealtime: { org: "內政部警政署（NPA）", license: "政府資料開放授權 OGDL-Taiwan-1.0", url: "https://data.gov.tw/dataset/12197", from: "catalog" },
   accessibleParkFacilities: { org: "OpenStreetMap contributors", license: "ODbL 1.0", url: "https://www.openstreetmap.org/copyright", attribution: ["© OpenStreetMap contributors"], from: "legend" },
   activeFaults: { org: "中央氣象署（CWA）、經濟部地質調查及礦業管理中心（GSMMA）", license: "政府資料開放授權 OGDL-Taiwan-1.0", url: "https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/E-A0073-001", from: "catalog" },
