@@ -31,8 +31,8 @@ export interface LayerSourceInfo {
   asOf?: SourceText;
   /** 每筆都一樣的資料說明（從 popup／圖例搬來的固定備註、方法說明、涵蓋限制） */
   notes?: SourceText[];
-  /** 本列出處：popup 原有常數或資料目錄 md */
-  from: "popup" | "catalog";
+  /** 本列出處：popup 原有常數、圖例原有機關＋授權，或資料目錄 md */
+  from: "popup" | "legend" | "catalog";
 }
 
 interface TextContext {
