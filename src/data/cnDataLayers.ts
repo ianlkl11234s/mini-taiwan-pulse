@@ -338,7 +338,6 @@ const WDPA_CATS: readonly PhCat[] = [
   { id: "scenic_area", values: ["scenic_area"], color: "#a855f7", label: l3("風景名勝區", "Scenic area", "風景名勝区") },
   { id: "other", values: ["other"], color: "#94a3b8", label: l3("其他保護區", "Other protected area", "その他の保護地域") },
 ];
-const WDPA_NC_NOTE = l3("WDPA 使用條款：禁止商業使用（含衍生品）", "WDPA terms: no commercial use (including derived works)", "WDPA 利用規約：商用禁止（派生物を含む）");
 
 // ───────────── 長橋與長隧道（C015） ─────────────
 const STRUCT_CATS: readonly PhCat[] = [
@@ -555,9 +554,8 @@ const CN_W25_SPECS: readonly CnLayerSpec[] = [
     legendNotes: [
       l3("WDPA 公開版中國 149 處（面 106、只有中心點者 43）；28/31 省", "149 sites in the public WDPA for China (106 polygons, 43 centre points only); 28 of 31 provinces", "WDPA 公開版の中国 149 か所（面 106・中心点のみ 43）。31 省中 28 省"),
       l3("中國國家級、省級保護區多不在公開版（國家級自然保護區見另一層）；公開版沒有中國海洋保護區面", "Most national and provincial reserves are not in the public WDPA (see the national nature reserves layer); no Chinese marine protected area polygons in the public release", "国家級・省級保護区の多くは公開版にない（国家級自然保護区は別レイヤー）。公開版に中国の海洋保護区の面はない"),
-      WDPA_NC_NOTE,
     ],
-    popupNotes: [{ text: WDPA_NC_NOTE }],
+    popupNotes: [],
     sourceOrg: "UNEP-WCMC and IUCN, Protected Planet：World Database on Protected Areas（Nov 2026）", sourceUrl: "https://www.protectedplanet.net/",
     license: "WDPA Terms of Use（非商用，含衍生品）", fetchedAt: CN_W25_FETCHED_AT,
     loading: l3("中國保護區（WDPA）載入中", "Loading China protected areas (WDPA)", "中国の保護地域（WDPA）を読み込み中"),

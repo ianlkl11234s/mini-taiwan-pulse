@@ -377,7 +377,7 @@ export function DataSourceCard({
     const showSource = Boolean(tableInfo) && !catalogComplete;
     const credits = (tableInfo?.attribution ?? []).map(text).filter(Boolean);
     const asOf = tableInfo?.asOf ? text(tableInfo.asOf) : "";
-    const restrictions = (tableInfo?.restrictions ?? []).map((r) => text(r.text)).filter(Boolean);
+    const restrictions = [...new Set((tableInfo?.restrictions ?? []).map((r) => text(r.text)).filter(Boolean))];
     const extra = [
       asOf ? { k: t("dataSources.fact.asOf"), v: asOf, mono: true } : null,
       ...restrictions.map((restriction) => ({ k: t("dataSources.fact.restriction"), v: restriction })),

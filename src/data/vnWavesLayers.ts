@@ -498,7 +498,6 @@ const W6_SPECS: Spec[] = [
       { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 },
     ],
     legendNotes: [
-      l3("非商用（ODM 頁面使用限制）；上游 WDPA 2016（經 ADB）", "Non-commercial (ODM usage restriction); upstream WDPA 2016 (via ADB)", "非商用（ODM の利用制限）。上流は WDPA 2016（ADB 経由）"),
       l3("171 區（同名同型別合併）；國家公園 32 個名稱（官方 34）；沿岸與海上者對應海洋保護區", "171 areas (same name and type merged); 32 national-park names (34 official); coastal and marine ones are the marine protected areas", "171 区域（同名同種別を統合）。国立公園は 32 名称（公式 34）。沿岸・海上は海洋保護区に相当"),
     ],
     popupNotes: [],
@@ -703,8 +702,7 @@ export const VN_RASTER_SPECS: readonly VnRasterSpec[] = [
     key: "vnWdpca", kind: "owner", file: "vn_wdpca_raster.pmtiles", sourceId: "vn-wdpca-raster", layerId: "vn-wdpca-raster", minzoom: 5, maxzoom: 12, opacity: 0.6,
     swatches: VN_WDPCA_RASTER_SWATCHES,
     notes: [
-      l3("站主限定；WDPCA 條款禁止再散布與可下載的地圖，只以圖片顯示（無屬性、無彈窗）", "Owner only; WDPCA terms forbid redistribution and downloadable maps, so it is shown as an image only (no attributes or popup)", "サイト管理者限定。WDPCA 規約で再配布とダウンロード可能な地図が禁止のため画像のみ表示（属性・ポップアップなし）"),
-      l3("非商用；188 面＋Ramsar 點 3（畫半徑 1.5 km 圓）", "Non-commercial; 188 polygons + 3 Ramsar points (drawn as 1.5 km circles)", "非商用。188 面＋ラムサール点 3（半径 1.5 km の円）"),
+      l3("188 面＋Ramsar 點 3（畫半徑 1.5 km 圓）", "188 polygons + 3 Ramsar points (drawn as 1.5 km circles)", "188 面＋ラムサール点 3（半径 1.5 km の円）"),
     ],
     sourceShort: "UNEP-WCMC and IUCN (2026), Protected Planet: The World Database on Protected and Conserved Areas (WDPCA), www.protectedplanet.net", loading: "越南保護區（WDPCA）載入中",
   },

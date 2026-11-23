@@ -1,5 +1,5 @@
 // 越南圖例（2026-11-13 第 0–1 波）：行政邊界、人口密度、規格驅動 10 層（重用菲律賓 PhSpecLegend）。SSOT：data/vnDataLayers.ts。
-import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
@@ -62,5 +62,6 @@ export function VnRasterLegend({ layerKey }: { layerKey: VnRasterKey }) {
         ? spec.swatches.map((x) => <LegendRow key={x.color} swatch={<SwatchSquare color={x.color} outline={x.outline} />}>{pickL3(x.label, locale)}</LegendRow>)
         : <SwatchGradient gradient="linear-gradient(90deg, #000000, #ffffff)" labels={[pickL3({ zh: "背光坡", en: "Shaded", ja: "陰" }, locale), pickL3({ zh: "向光坡", en: "Lit", ja: "陽" }, locale)]} />}
     {spec.notes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
+    <LegendRestrictions layers={[layerKey]} />
   </div>;
 }

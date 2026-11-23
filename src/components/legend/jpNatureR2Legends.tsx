@@ -2,7 +2,7 @@
  * 日本第二輪（2026-11-06）四層圖例：自然公園地域 2015、国立公園（環境省）、国指定鳥獣保護区、人口集中地区 DID。
  * 色、類別、級距全部讀 `data/jpNatureR2Types.ts`；i18n key 寫成字面值（localeParity 靠字面值判斷 key 有沒有人用）。
  */
-import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { useLocale } from "../../state/localeStore";
 import {
@@ -38,7 +38,7 @@ export function JpNaturalParkAreas2015Legend() {
     {JP_NATURAL_PARK_LEVELS.map((l) => <LegendRow key={l.value} swatch={<SwatchSquare color={l.color} />}>{t(JP_NATURAL_PARK_LEVEL_KEYS[l.value])}</LegendRow>)}
     <LegendNote>{t("legend.jpNature.parkAreasScope")}</LegendNote>
     <LegendNote>{t("legend.jpNature.parkAreasAccuracy")}</LegendNote>
-    <LegendNote>{t("legend.jpNature.okayama")}</LegendNote>
+    <LegendRestrictions layers={["jpNaturalParkAreas2015"]} />
   </div>;
 }
 
