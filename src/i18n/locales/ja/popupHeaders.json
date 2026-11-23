@@ -136,5 +136,8 @@
   "popupHeader.mapchallengeDay23TasteTerms": "店名に含まれる小吃の語",
   "popupHeader.mapchallengeDay23TasteVariants": "同じ料理、異なる表記",
   "popupHeader.mapchallengeDay23TastePlaces": "店名に含まれる地名",
-  "popupHeader.mapchallengeDay23TasteForeign": "店名に含まれる外来料理の語"
+  "popupHeader.mapchallengeDay23TasteForeign": "店名に含まれる外来料理の語",
+  "popupHeader.mapchallengeDay23TasteKr": "韓国の店名にみる味",
+  "popupHeader.mapchallengeDay23TasteGb": "イギリスの店名にみる味",
+  "popupHeader.mapchallengeDay23TasteJp": "店名にみる日本の味（OSM）"
 }

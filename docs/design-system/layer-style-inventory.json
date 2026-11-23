@@ -18,17 +18,17 @@
   ]
  },
  "summary": {
-  "layerKeys": 2143,
-  "overlayConfigs": 576,
-  "runtimeSublayers": 1106,
+  "layerKeys": 2146,
+  "overlayConfigs": 579,
+  "runtimeSublayers": 1118,
   "byResolution": {
-   "runtime": 470,
+   "runtime": 473,
    "static-scan": 338,
    "unresolved": 379,
    "shared-renderer": 956
   },
   "byGeometry": {
-   "point": 655,
+   "point": 658,
    "heatmap": 237,
    "line": 412,
    "polygon": 1323,
@@ -43,7 +43,7 @@
    "無 hook／factory（App 掛載或尚無實作）": 346,
    "Three.js／WebGL CustomLayer": 11
   },
-  "legendEntries": 1892,
+  "legendEntries": 1895,
   "legendTypes": {
    "square-swatch": 198,
    "svg-icon": 77,
@@ -54,7 +54,7 @@
    "square-swatch+hatch(missing)": 962,
    "gradient+size+dot-swatch": 5,
    "hatch(missing)": 3,
-   "size+dot-swatch": 40,
+   "size+dot-swatch": 43,
    "dot-swatch+square-swatch": 23,
    "text-only": 25,
    "square-swatch+line-swatch+hatch(missing)+svg-icon": 1,
@@ -77,7 +77,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 895,
+   "ssr": 898,
    "static": 997
   },
   "legendsWithIssues": 162,
@@ -128,8 +128,8 @@
     ],
     "dataDrivenCounted": 45,
     "notSet": 0,
-    "unresolved": 14,
-    "decorationExcluded": 181
+    "unresolved": 20,
+    "decorationExcluded": 187
    },
    "circle-radius@z14": {
     "n": 394,
@@ -150,18 +150,18 @@
     ],
     "dataDrivenCounted": 45,
     "notSet": 0,
-    "unresolved": 14,
-    "decorationExcluded": 181
+    "unresolved": 20,
+    "decorationExcluded": 187
    },
    "circle-stroke-width@z14": {
-    "n": 408,
+    "n": 414,
     "min": 0,
     "p25": 1,
     "median": 1,
     "p75": 1.2,
     "max": 2.2,
     "mostCommon": [
-     "1×284",
+     "1×290",
      "1.2×81",
      "1.4×10",
      "1.5×5",
@@ -173,17 +173,17 @@
     "dataDrivenCounted": 38,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 181
+    "decorationExcluded": 187
    },
    "circle-opacity": {
-    "n": 404,
+    "n": 410,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
-     "0.85×120",
+     "0.85×126",
      "0.8×86",
      "0.9×63",
      "0.75×46",
@@ -195,7 +195,7 @@
     "dataDrivenCounted": 44,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 181
+    "decorationExcluded": 187
    },
    "line-width@z10": {
     "n": 172,
@@ -512,13 +512,13 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 404,
+   "隨底圖切換": 410,
    "資料驅動": 2,
    "固定 #c2410c": 1,
    "無描邊（未設或寬 0）": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #e5e7eb → 淡 #ffffff": 286,
+   "暗 #e5e7eb → 淡 #ffffff": 292,
    "暗 #0f172a → 淡 #ffffff": 84,
    "暗 #f8fafc → 淡 #0f172a": 1,
    "暗 #ffffff → 淡 #1a1a2e": 1,
@@ -526,13 +526,13 @@
    "暗 #e5e7eb → 淡 #475569": 1
   },
   "decorationSublayers": {
-   "count": 213,
+   "count": 219,
    "byType": {
-    "circle": 181,
+    "circle": 187,
     "line": 31,
     "fill": 1
    },
-   "keys": 182
+   "keys": 185
   },
   "lineDash": [
    "debrisFlowPotential/outline=[4,3]",
@@ -557,20 +557,20 @@
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 836,
-   "of": 1106,
+   "sublayersWithDiff": 848,
+   "of": 1118,
    "byProperty": {
-    "circle-stroke-color": 404,
-    "circle-stroke-opacity": 319,
-    "circle-color": 253,
+    "circle-stroke-color": 410,
+    "circle-stroke-opacity": 325,
+    "circle-color": 265,
     "line-color": 153,
     "fill-opacity": 90,
     "heatmap-color": 75,
     "text-color": 64,
     "text-halo-color": 64,
     "fill-color": 45,
+    "circle-opacity": 26,
     "line-opacity": 26,
-    "circle-opacity": 20,
     "fill-pattern": 3,
     "fill-extrusion-color": 3,
     "circle-stroke-width": 1
@@ -578,7 +578,7 @@
   },
   "colorEncoding": {
    "circle:categorical": 315,
-   "circle:constant": 252,
+   "circle:constant": 264,
    "line:constant": 139,
    "heatmap:sequential": 79,
    "fill:categorical": 77,
@@ -1243,6 +1243,9 @@
   {"id":"mapchallengeDay19Potential","members":["mapchallengeDay19Potential"],"components":["MapchallengeDay19PotentialLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch+square-swatch","features":{"dot":6,"square":4,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●","12x10"],"swatchColorCount":10,"paintComparable":false},
   {"id":"mapchallengeDay21OsmRoads","members":["mapchallengeDay21OsmRoads"],"components":["MapchallengeDay21OsmRoadsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"svg-icon","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":3,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":1,"paintComparable":true},
   {"id":"mapchallengeDay23TasteForeign","members":["mapchallengeDay23TasteForeign"],"components":["MapchallengeDay23TasteForeignLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","18.973665961010276x18.973665961010276●","6x6●"],"swatchColorCount":1,"paintComparable":true},
+  {"id":"mapchallengeDay23TasteGb","members":["mapchallengeDay23TasteGb"],"components":["MapchallengeDay23TasteIntlLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","16.443843832875576x16.443843832875576●","5.2x5.2●"],"swatchColorCount":1,"paintComparable":true},
+  {"id":"mapchallengeDay23TasteJp","members":["mapchallengeDay23TasteJp"],"components":["MapchallengeDay23TasteIntlLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","11.384199576606166x11.384199576606166●","25.455844122715714x25.455844122715714●","3.6x3.6●"],"swatchColorCount":1,"paintComparable":true},
+  {"id":"mapchallengeDay23TasteKr","members":["mapchallengeDay23TasteKr"],"components":["MapchallengeDay23TasteIntlLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","13.914021704740872x13.914021704740872●","4.4x4.4●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"mapchallengeDay23TastePlaces","members":["mapchallengeDay23TastePlaces"],"components":["MapchallengeDay23TastePlacesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch+svg-icon","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":1,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10.392304845413264x10.392304845413264●","10x10●","16.970562748477143x16.970562748477143●","6x6●"],"swatchColorCount":2,"paintComparable":true},
   {"id":"mapchallengeDay23TasteTerms","members":["mapchallengeDay23TasteTerms"],"components":["MapchallengeDay23TasteTermsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","13.416407864998739x13.416407864998739●","26.832815729997478x26.832815729997478●","6x6●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"mapchallengeDay23TasteVariants","members":["mapchallengeDay23TasteVariants"],"components":["MapchallengeDay23TasteVariantsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","13.416407864998739x13.416407864998739●","26.832815729997478x26.832815729997478●","6x6●"],"swatchColorCount":3,"paintComparable":true},
@@ -3267,6 +3270,9 @@
   "mapchallengeDay19Potential": {"label":"設施氣味潛勢＋風 Odor Potential & Wind","theme":"30 天地圖挑戰","dataClass":"D","color":"#ec7014","legend":"mapchallengeDay19Potential","legendType":"dot-swatch+square-swatch","popup":"mapchallengeDay19Potential","params":{"opacity":{"name":"mapchallengeDay19PotentialOpacity","default":0.7,"min":0.3,"max":1},"controls":5},"hooks":["useMapchallengeDay19PotentialLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMapchallengeDay19PotentialLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\""],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-join":["unresolved:\"round\""],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"raster-fade-duration":[0],"raster-opacity":["non-literal @src/hooks/useMapchallengeDay19PotentialLayer.ts"],"raster-resampling":["unresolved:\"nearest\""],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["line","point","raster"],"render":["circle","line","raster"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay21OsmRoads": {"label":"道路畫進 OSM 的年份 When Roads Were Drawn into OSM","theme":"30 天地圖挑戰","dataClass":"B","color":"#9a265d","legend":"mapchallengeDay21OsmRoads","legendType":"svg-icon","popup":"mapchallengeDay21OsmRoads","params":{"opacity":{"name":"mapchallengeDay21OsmRoadsOpacity","default":0.85,"min":0.1,"max":1},"controls":4},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":{"min":0.5,"max":2},"z14":{"min":1,"max":3.5}},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":21,"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay23TasteForeign": {"label":"外來料理店名 Foreign Cuisine Words in Shop Names","theme":"30 天地圖挑戰","dataClass":"A","color":"#64aaff","legend":"mapchallengeDay23TasteForeign","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteForeign","params":{"opacity":{"name":"mapchallengeDay23TasteForeignOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteForeignScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#64aaff"],"lightDiffers":true,"light":["#357bcc"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#64aaff"],"lightDiffers":true,"light":["#357bcc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#64aaff"],"lightDiffers":true,"light":["#357bcc"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#64aaff"],"lightDiffers":true,"light":["#357bcc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "mapchallengeDay23TasteGb": {"label":"英國店名裡的味道 Tastes in UK food business names","theme":"30 天地圖挑戰","dataClass":"A","color":"#ff6b5e","legend":"mapchallengeDay23TasteGb","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteGb","params":{"opacity":{"name":"mapchallengeDay23TasteGbOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteGbScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow-r5","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":8,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r5","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":8,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":8,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":8,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "mapchallengeDay23TasteJp": {"label":"日本店名裡的味道（OSM） Tastes in Japanese restaurant names (OSM)","theme":"30 天地圖挑戰","dataClass":"A","color":"#ff6b5e","legend":"mapchallengeDay23TasteJp","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteJp","params":{"opacity":{"name":"mapchallengeDay23TasteJpOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteJpScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow-r5","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":8,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r5","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":8,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":8,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":8,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "mapchallengeDay23TasteKr": {"label":"南韓店名裡的味道 Tastes in Korean restaurant names","theme":"30 天地圖挑戰","dataClass":"A","color":"#ff6b5e","legend":"mapchallengeDay23TasteKr","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteKr","params":{"opacity":{"name":"mapchallengeDay23TasteKrOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteKrScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ff6b5e"],"lightDiffers":true,"light":["#db4a40"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "mapchallengeDay23TastePlaces": {"label":"店名裡的地名 Place Names in Shop Names","theme":"30 天地圖挑戰","dataClass":"A","color":"#ffd166","legend":"mapchallengeDay23TastePlaces","legendType":"size+dot-swatch+svg-icon","popup":"mapchallengeDay23TastePlaces","params":{"opacity":{"name":"mapchallengeDay23TastePlacesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TastePlacesScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"arc-r6","type":"line","role":"main","geometry":"line","render":"line","maxzoom":9,"values":{"line-width":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"line-opacity":0.34,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]}},"themeDiff":["line-color","line-opacity"]},{"suffix":"arc-r7","type":"line","role":"main","geometry":"line","render":"line","minzoom":9,"values":{"line-width":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"line-opacity":0.34,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]}},"themeDiff":["line-color","line-opacity"]},{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"origin","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":7,"z14":7},"circle-stroke-width":{"z10":2,"z14":2},"circle-opacity":0,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":0,"dark":[]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#1a1a2e"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["line","point"],"render":["circle","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "mapchallengeDay23TasteTerms": {"label":"小吃店名分布 Snack Words in Shop Names","theme":"30 天地圖挑戰","dataClass":"A","color":"#ff6b5e","legend":"mapchallengeDay23TasteTerms","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteTerms","params":{"opacity":{"name":"mapchallengeDay23TasteTermsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteTermsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"categorical","count":12,"lightDiffers":true}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":12,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"categorical","count":12,"lightDiffers":true}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":12,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "mapchallengeDay23TasteVariants": {"label":"同物異字 Same Dish, Different Characters","theme":"30 天地圖挑戰","dataClass":"A","color":"#7fd6c2","legend":"mapchallengeDay23TasteVariants","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteVariants","params":{"opacity":{"name":"mapchallengeDay23TasteVariantsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteVariantsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#7fd6c2","#ff8fab","#64aaff"],"lightDiffers":true,"light":["#2b8775","#c15775","#357bcc"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#7fd6c2","#ff8fab","#64aaff"],"lightDiffers":true,"light":["#2b8775","#c15775","#357bcc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#7fd6c2","#ff8fab","#64aaff"],"lightDiffers":true,"light":["#2b8775","#c15775","#357bcc"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#7fd6c2","#ff8fab","#64aaff"],"lightDiffers":true,"light":["#2b8775","#c15775","#357bcc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},

@@ -4785,6 +4785,27 @@
    "s3_key": "deploy-assets/mapchallenge/day23_taste_terms.geojson"
   },
   {
+   "path": "public/mapchallenge/day23_taste_terms_gb.geojson",
+   "bytes": 729947,
+   "sha256": "208f1993b87182d4197ab61c818ffea2bc1d6de4e0058e7a898bed8e0a9cc410",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day23_taste_terms_gb.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day23_taste_terms_jp.geojson",
+   "bytes": 819458,
+   "sha256": "2b032cbfb1b5a6f4d8cbe834650d56fc62d5b6641922003d153845a3fd3d0e2e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day23_taste_terms_jp.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day23_taste_terms_kr.geojson",
+   "bytes": 1501602,
+   "sha256": "ed7e6c3315c5636a2ade6811960103a3cadca2cfef57c2cdd8bc849203cb101e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day23_taste_terms_kr.geojson"
+  },
+  {
    "path": "public/mapchallenge/day23_taste_terms_v2.geojson",
    "bytes": 430290,
    "sha256": "cef352129545e48ddbedf24c20f5a92823420c2218408865c97243bff2e92a0c",

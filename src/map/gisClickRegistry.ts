@@ -58,6 +58,10 @@ const MAPCHALLENGE_DAY23_CLICK_LAYERS: GisLayerEntry[] = [
   // 店名裡的地名：只有家數圓可點（弧線與原產地空心圈不可點）
   { layers: ["mapchallenge-day23-taste-places-circle-r6", "mapchallenge-day23-taste-places-circle-r7"], type: "mapchallengeDay23TastePlaces" },
   { layers: ["mapchallenge-day23-taste-foreign-circle-r6", "mapchallenge-day23-taste-foreign-circle-r7"], type: "mapchallengeDay23TasteForeign" },
+  // 第三批：南韓 res 6／7、英國與日本 res 5／7
+  { layers: ["mapchallenge-day23-taste-kr-circle-r6", "mapchallenge-day23-taste-kr-circle-r7"], type: "mapchallengeDay23TasteKr" },
+  { layers: ["mapchallenge-day23-taste-gb-circle-r5", "mapchallenge-day23-taste-gb-circle-r7"], type: "mapchallengeDay23TasteGb" },
+  { layers: ["mapchallenge-day23-taste-jp-circle-r5", "mapchallenge-day23-taste-jp-circle-r7"], type: "mapchallengeDay23TasteJp" },
 ];
 const MAPCHALLENGE_DAY21_CLICK_LAYERS: GisLayerEntry[] = [
   { layers: ["mapchallenge-day21-osm-roads-line"], type: "mapchallengeDay21OsmRoads" },

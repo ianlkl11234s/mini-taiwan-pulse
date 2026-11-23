@@ -33,7 +33,7 @@ export const MAPCHALLENGE_DAY23_FOREIGN_COLOR = "#64aaff"; // 越南
 /** 格網兩級：低縮放 res 6（約 36 km²），z ≥ SWITCH_ZOOM 換 res 7（約 5.2 km²） */
 export const MAPCHALLENGE_DAY23_SWITCH_ZOOM = 9;
 export const MAPCHALLENGE_DAY23_RES = [6, 7] as const;
-export const MAPCHALLENGE_DAY23_CELL_KM2: Readonly<Record<number, number>> = { 6: 36, 7: 5.2 };
+export const MAPCHALLENGE_DAY23_CELL_KM2: Readonly<Record<number, number>> = { 5: 253, 6: 36, 7: 5.2 };
 
 /**
  * 圖層 1 的 24 個詞（順序＝選單順序；選單以序號編碼進分享連結，新詞只能接在後面、不可插隊）。
@@ -188,3 +188,83 @@ export const MAPCHALLENGE_DAY23_FOREIGN_DOMINANT: Partial<Record<MapchallengeDay
   america: { word: "漢堡", hits: 1226 },
   hongKong: { word: "燒臘", hits: 702 },
 };
+
+/**
+ * 第三批（2026-11-23）：南韓、英國、日本的「店名料理詞」三層，做法同圖層 1（選單選詞、格心發光圓點、兩級格網）。
+ * 規格正本：taipei-gis-analytics docs/topic-research/mapchallenge_2026_day23_taste/intl/layer-spec.md；家數取自同批 day23_layer_stats_<cc>.json。
+ * - res／switchZoom：南韓 res 6 → z9 起 res 7（同台灣）；英國、日本 res 5（約 253 km²）→ z8 起 res 7。
+ * - k＝半徑係數 18／√（低縮放單格最多家數），夾在 1.2–3：家數多的詞整體縮小，所以不同詞、不同國家之間不能用圓的大小互比。
+ * - label＝店名裡比對的原文（各語系都不翻）；zh＝中文說明（英日另有譯文）。英國資產檔另含 oatcake（17 家），站主決定不放進選單，前端不列、不畫。
+ * - camera＝規格的全國視角（開圖層不自動飛；圖層名稱帶國名）。
+ * - attribution＝規格的「出處標示寫法」逐字。三國來源性質不同（南韓、英國是官方名冊，日本是 OSM），家數不可跨國比較。
+ */
+export interface MapchallengeDay23IntlTerm { value: string; label: string; zh: string; dark: string; light: string; stores: number; mapped: number; k: number }
+export type MapchallengeDay23IntlKey = "mapchallengeDay23TasteKr" | "mapchallengeDay23TasteGb" | "mapchallengeDay23TasteJp";
+export interface MapchallengeDay23IntlCountry {
+  key: MapchallengeDay23IntlKey; cc: "kr" | "gb" | "jp"; url: string; sourceId: string; attribution: string;
+  dataDate: string; baseStores: number; baseWithXy: number; res: readonly [number, number]; switchZoom: number;
+  camera: { center: readonly [number, number]; zoom: number }; terms: readonly [MapchallengeDay23IntlTerm, ...MapchallengeDay23IntlTerm[]];
+}
+export const MAPCHALLENGE_DAY23_INTL: readonly MapchallengeDay23IntlCountry[] = [
+  {
+    key: "mapchallengeDay23TasteKr", cc: "kr", url: "./mapchallenge/day23_taste_terms_kr.geojson", sourceId: "mapchallenge-day23-taste-kr",
+    attribution: "資料：小商工人市場振興公團「商街（商圈）資訊」（2026-09-30），公共資料入口 data.go.kr",
+    dataDate: "2026-09-30", baseStores: 815570, baseWithXy: 815570, res: [6, 7], switchZoom: 9, camera: { center: [127.8, 36.0], zoom: 6.2 },
+    terms: [
+      { value: "dwaejiGukbap", label: "돼지국밥", zh: "豬肉湯飯", dark: "#ff6b5e", light: "#db4a40", stores: 2022, mapped: 2022, k: 2.2 },
+      { value: "milmyeon", label: "밀면", zh: "小麥冷麵", dark: "#ffd166", light: "#987300", stores: 1071, mapped: 1071, k: 2.4 },
+      { value: "makguksu", label: "막국수", zh: "蕎麥拌麵", dark: "#7fd6c2", light: "#2b8775", stores: 1561, mapped: 1561, k: 2.9 },
+      { value: "dakgalbi", label: "닭갈비", zh: "辣炒雞排", dark: "#c9a0ff", light: "#8e66bf", stores: 2853, mapped: 2853, k: 1.7 },
+      { value: "heukdwaeji", label: "흑돼지", zh: "黑豬肉", dark: "#f4a259", light: "#b46712", stores: 526, mapped: 526, k: 3 },
+      { value: "makchang", label: "막창", zh: "烤大腸頭", dark: "#8ecae6", light: "#3281a1", stores: 3078, mapped: 3078, k: 1.5 },
+      { value: "daege", label: "대게", zh: "松葉蟹", dark: "#b8e986", light: "#59841e", stores: 628, mapped: 628, k: 2.1 },
+      { value: "chungmuGimbap", label: "충무김밥", zh: "忠武紫菜飯捲", dark: "#ff8fab", light: "#c15775", stores: 272, mapped: 272, k: 3 },
+      { value: "mulhoe", label: "물회", zh: "生魚片冷湯", dark: "#f1e3c0", light: "#8e7533", stores: 500, mapped: 500, k: 3 },
+      { value: "gogiGuksu", label: "고기국수", zh: "豬肉湯麵", dark: "#64aaff", light: "#357bcc", stores: 80, mapped: 80, k: 3 },
+    ],
+  },
+  {
+    key: "mapchallengeDay23TasteGb", cc: "gb", url: "./mapchallenge/day23_taste_terms_gb.geojson", sourceId: "mapchallenge-day23-taste-gb",
+    attribution: "Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
+    dataDate: "2026-11-22", baseStores: 254817, baseWithXy: 226649, res: [5, 7], switchZoom: 8, camera: { center: [-3.4, 54.6], zoom: 4.9 },
+    terms: [
+      { value: "fisheries", label: "fisheries", zh: "炸魚薯條店（約克夏叫法）", dark: "#ff6b5e", light: "#db4a40", stores: 484, mapped: 442, k: 2.6 },
+      { value: "chippy", label: "chippy", zh: "炸魚薯條店（口語）", dark: "#ffd166", light: "#987300", stores: 1008, mapped: 978, k: 2.7 },
+      { value: "fishBar", label: "fish bar", zh: "炸魚薯條店", dark: "#7fd6c2", light: "#2b8775", stores: 2322, mapped: 2266, k: 2.1 },
+      { value: "balti", label: "balti", zh: "巴蒂咖哩", dark: "#c9a0ff", light: "#8e66bf", stores: 392, mapped: 386, k: 3 },
+      { value: "pasty", label: "pasty", zh: "康瓦爾餡餅", dark: "#f4a259", light: "#b46712", stores: 70, mapped: 61, k: 3 },
+      { value: "cob", label: "cob", zh: "麵包捲（東密德蘭叫法）", dark: "#8ecae6", light: "#3281a1", stores: 44, mapped: 40, k: 3 },
+      { value: "butty", label: "butty", zh: "三明治（西北英格蘭叫法）", dark: "#b8e986", light: "#59841e", stores: 107, mapped: 105, k: 3 },
+      { value: "pieMash", label: "pie & mash", zh: "派與薯泥", dark: "#ff8fab", light: "#c15775", stores: 50, mapped: 48, k: 3 },
+      { value: "jerk", label: "jerk", zh: "牙買加烤肉", dark: "#f1e3c0", light: "#8e7533", stores: 149, mapped: 128, k: 3 },
+    ],
+  },
+  {
+    key: "mapchallengeDay23TasteJp", cc: "jp", url: "./mapchallenge/day23_taste_terms_jp.geojson", sourceId: "mapchallenge-day23-taste-jp",
+    attribution: "© OpenStreetMap contributors（ODbL）",
+    dataDate: "2026-11-22", baseStores: 204709, baseWithXy: 204709, res: [5, 7], switchZoom: 8, camera: { center: [135.0, 35.5], zoom: 4.2 },
+    terms: [
+      { value: "udon", label: "うどん", zh: "烏龍麵", dark: "#ff6b5e", light: "#db4a40", stores: 1727, mapped: 1727, k: 1.8 },
+      { value: "okonomiyaki", label: "お好み焼", zh: "御好燒（大阪燒／廣島燒）", dark: "#ffd166", light: "#987300", stores: 925, mapped: 925, k: 1.7 },
+      { value: "takoyaki", label: "たこ焼", zh: "章魚燒", dark: "#7fd6c2", light: "#2b8775", stores: 339, mapped: 339, k: 2.2 },
+      { value: "soba", label: "そば", zh: "蕎麥麵", dark: "#c9a0ff", light: "#8e66bf", stores: 2895, mapped: 2895, k: 1.3 },
+      { value: "gyutan", label: "牛たん", zh: "牛舌", dark: "#f4a259", light: "#b46712", stores: 120, mapped: 120, k: 2.7 },
+      { value: "jingisukan", label: "ジンギスカン", zh: "成吉思汗烤羊肉", dark: "#8ecae6", light: "#3281a1", stores: 68, mapped: 68, k: 3 },
+      { value: "motsunabe", label: "もつ鍋", zh: "牛腸鍋", dark: "#b8e986", light: "#59841e", stores: 92, mapped: 92, k: 3 },
+      { value: "monja", label: "もんじゃ", zh: "文字燒", dark: "#ff8fab", light: "#c15775", stores: 126, mapped: 126, k: 3 },
+    ],
+  },
+];
+export function mapchallengeDay23IntlByKey(key: string): MapchallengeDay23IntlCountry | undefined {
+  return MAPCHALLENGE_DAY23_INTL.find((c) => c.key === key);
+}
+export function mapchallengeDay23IntlTermAt(country: MapchallengeDay23IntlCountry, idx: number | undefined): MapchallengeDay23IntlTerm {
+  return country.terms[Math.trunc(idx ?? 0)] ?? country.terms[0];
+}
+export function mapchallengeDay23IntlTermById(country: MapchallengeDay23IntlCountry, id: unknown): MapchallengeDay23IntlTerm | undefined {
+  return country.terms.find((t) => t.value === id);
+}
+/** 選單與目錄用的中文標籤：原文（中文說明） */
+export const mapchallengeDay23IntlOptionLabel = (t: MapchallengeDay23IntlTerm): string => `${t.label}（${t.zh}）`;
+/** 代表色（sidebar）：各國第一個詞 */
+export const MAPCHALLENGE_DAY23_INTL_COLOR = "#ff6b5e";

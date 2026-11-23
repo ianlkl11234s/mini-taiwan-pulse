@@ -2133,5 +2133,8 @@
   "layer.thSoilOrganicCarbon": "Soil Organic Carbon, about 1 km (Thailand)",
   "layer.thCrops": "Major Crop Extents, Generalized (Thailand)",
   "layer.thVeterinary": "Veterinary Clinics (Thailand)",
-  "layer.gbRailReplay": "Rail Replay"
+  "layer.gbRailReplay": "Rail Replay",
+  "layer.mapchallengeDay23TasteKr": "Tastes in Korean restaurant names",
+  "layer.mapchallengeDay23TasteGb": "Tastes in UK food business names",
+  "layer.mapchallengeDay23TasteJp": "Tastes in Japanese restaurant names (OSM)"
 }

@@ -8,7 +8,7 @@
  */
 import {
   MAPCHALLENGE_DAY23_ARC, MAPCHALLENGE_DAY23_GLOW, MAPCHALLENGE_DAY23_RADIUS_K, MAPCHALLENGE_DAY23_TERMS, mapchallengeDay23TermColor,
-  type MapchallengeDay23Foreign, type MapchallengeDay23Place, type MapchallengeDay23Term, type MapchallengeDay23VariantGroup,
+  type MapchallengeDay23Foreign, type MapchallengeDay23Place, type MapchallengeDay23VariantGroup,
 } from "./mapchallengeDay23Types";
 
 const N = ["max", 1, ["to-number", ["get", "n"], 1]];
@@ -27,7 +27,7 @@ export function mapchallengeDay23TermColorExpr(isDark: boolean): unknown[] {
   return ["match", ["get", "term"], ...MAPCHALLENGE_DAY23_TERMS.flatMap((t) => [t.value, mapchallengeDay23TermColor(t, isDark)]), fallback];
 }
 
-export function mapchallengeDay23TermFilter(term: MapchallengeDay23Term, res: number): unknown[] {
+export function mapchallengeDay23TermFilter(term: { value: string }, res: number): unknown[] {
   return ["all", ["==", ["get", "term"], term.value], ["==", ["to-number", ["get", "res"], 0], res]];
 }
 
