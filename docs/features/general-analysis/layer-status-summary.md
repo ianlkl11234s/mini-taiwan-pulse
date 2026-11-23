@@ -22,12 +22,12 @@
 | IE | 103 | 70 | 29 | 0 | 3 | 1 | 96.1% |
 | PH | 63 | 55 | 0 | 0 | 8 | 0 | 87.3% |
 | VN | 47 | 43 | 0 | 0 | 4 | 0 | 91.5% |
-| TH | 58 | 0 | 0 | 0 | 0 | 58 | 0.0% |
+| TH | 58 | 54 | 0 | 0 | 4 | 0 | 93.1% |
 | CN | 24 | 0 | 0 | 0 | 24 | 0 | 0.0% |
 | WORLD | 24 | 5 | 0 | 1 | 0 | 18 | 20.8% |
 | SIM | 32 | 0 | 0 | 0 | 11 | 21 | 0.0% |
 
-- 合計：入倉 1634/2140（warehouse 802、statistics 832）；DISPLAY_ONLY 60；外部圖磚等無上游 12；未入倉（在只減不增基準）434
+- 合計：入倉 1688/2140（warehouse 856、statistics 832）；DISPLAY_ONLY 64；外部圖磚等無上游 12；未入倉（在只減不增基準）376
 - `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
 - WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
