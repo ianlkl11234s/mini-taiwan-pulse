@@ -4,10 +4,10 @@
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 > L2 欄來自倉庫 catalog（`catalog.json 2026-11-21，倉庫 20261119T011401Z`）；入倉狀態欄來自 pulse-data 登記簿（ADR-0023 成員清單 SSOT），兩者口徑不同時以入倉狀態為準。
 
-- 圖層總數：**2140**；L1 可操作：**2140/2140**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**1572/2140**（73.5%）
+- 圖層總數：**2141**；L1 可操作：**2141/2141**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**1572/2141**（73.4%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：30
-- 只有舊瀏覽器 reader：6；尚不可分析：524
+- 只有舊瀏覽器 reader：6；尚不可分析：525
 
 ## 各國入倉狀態（AG-14；以 pulse-data 登記簿為準）
 
@@ -16,7 +16,7 @@
 | TW | 1387 | 499 | 704 | 6 | 6 | 172 | 86.7% |
 | JP | 106 | 24 | 0 | 5 | 1 | 76 | 22.6% |
 | FR | 1 | 0 | 0 | 0 | 0 | 1 | 0.0% |
-| GB | 90 | 6 | 22 | 0 | 0 | 62 | 31.1% |
+| GB | 91 | 6 | 22 | 0 | 1 | 62 | 30.8% |
 | KR | 120 | 64 | 53 | 0 | 3 | 0 | 97.5% |
 | CA | 85 | 36 | 24 | 0 | 0 | 25 | 70.6% |
 | IE | 103 | 70 | 29 | 0 | 3 | 1 | 96.1% |
@@ -27,7 +27,7 @@
 | WORLD | 24 | 5 | 0 | 1 | 0 | 18 | 20.8% |
 | SIM | 32 | 0 | 0 | 0 | 11 | 21 | 0.0% |
 
-- 合計：入倉 1688/2140（warehouse 856、statistics 832）；DISPLAY_ONLY 64；外部圖磚等無上游 12；未入倉（在只減不增基準）376
+- 合計：入倉 1688/2141（warehouse 856、statistics 832）；DISPLAY_ONLY 65；外部圖磚等無上游 12；未入倉（在只減不增基準）376
 - `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
 - WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
@@ -38,7 +38,7 @@
 | 臺灣圖層 | 645 | 389 | 87 | 4 | 5 | 156 | 4 |
 | 日本 | 106 | 16 | 0 | 2 | 0 | 87 | 1 |
 | 法國 | 1 | 0 | 0 | 0 | 0 | 1 | 0 |
-| 英國 | 68 | 6 | 0 | 0 | 0 | 62 | 0 |
+| 英國 | 69 | 6 | 0 | 0 | 0 | 63 | 0 |
 | 南韓 | 67 | 64 | 0 | 0 | 0 | 3 | 0 |
 | 加拿大 | 61 | 36 | 0 | 0 | 0 | 25 | 0 |
 | 愛爾蘭 | 74 | 70 | 0 | 0 | 0 | 4 | 0 |
@@ -55,7 +55,7 @@
 | 原因 | 圖層數 |
 |---|---|
 | dataset_not_in_warehouse | 355 |
-| upstream_catalog_missing | 79 |
+| upstream_catalog_missing | 80 |
 | unfiltered_shared_table | 30 |
 | derived_layer | 17 |
 | warehouse_SKIPPED_FORMAT | 15 |

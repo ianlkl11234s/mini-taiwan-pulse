@@ -2612,6 +2612,8 @@ export const LAYER_PARAMS_SPEC = {
   gbStationUsage: [opacitySlider("gbStationUsageOpacity", densePointOpacity(2_638)), scaleSlider("gbStationUsageScale", 1)],
   gbLondonRailLines: [opacitySlider("gbLondonRailLinesOpacity", 0.85), categoryMultiSelect("gbLondonRailLines", [{ label: "地鐵", value: "tube" }, { label: "Overground 地上鐵", value: "overground" }, { label: "Elizabeth line", value: "elizabeth-line" }, { label: "DLR 輕軌", value: "dlr" }, { label: "電車", value: "tram" }])],
   gbLondonStations: [opacitySlider("gbLondonStationsOpacity", 0.85), scaleSlider("gbLondonStationsScale", 1)],
+  // 英國列車重播（本機預覽）：透明度作用於列車點、箭頭、路網與選取路徑；大小只影響列車
+  gbRailReplay: [opacitySlider("gbRailReplayOpacity", 0.9), scaleSlider("gbRailReplayScale", 1)],
   gbLondonBikePoints: [opacitySlider("gbLondonBikePointsOpacity", 0.85), scaleSlider("gbLondonBikePointsScale", 1)],
   gbLondonJamCams: [opacitySlider("gbLondonJamCamsOpacity", 0.85), scaleSlider("gbLondonJamCamsScale", 1)],
   gbLondonChargingZones: [opacitySlider("gbLondonChargingZonesOpacity", 0.7)],

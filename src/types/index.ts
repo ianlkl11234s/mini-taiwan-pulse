@@ -494,6 +494,7 @@ export type ExpandableLayerKey =
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbMajorRoads" | "gbTrafficCountsAadf"
   | "gbBridgesTunnels" | "gbRoadFacilities" | "gbPublicFacilities" | "gbPlacesOfWorship"
+  | "gbRailReplay"
   | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
   | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
@@ -1117,6 +1118,8 @@ export interface FeatureInfo {
     | "gbMajorRoads" | "gbTrafficCountsAadf"
     // 英國第 13 波 OSM：橋梁與隧道、道路設施、公共設施、宗教場所
     | "gbBridgesTunnels" | "gbRoadFacilities" | "gbPublicFacilities" | "gbPlacesOfWorship"
+    // 英國列車重播（本機預覽，Darwin 前一日）
+    | "gbRailReplay"
     // 英國第 11 波：規劃限制區、棕地、回收點、廢棄物許可、污染排放（蘇格蘭）、噪音
     | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
     // 英國第 12 波：公司登記、製造業、殯葬、養殖、土壤母質
@@ -2188,6 +2191,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   gbBridgesTunnels: boolean;    // 英國主要道路橋梁與隧道路段（OSM 2026-11-13，29,493 段）
   gbRoadFacilities: boolean;    // 英國道路設施：服務區、休息區、收費站（OSM）＋緊急停車區（National Highways，僅英格蘭），1,757 點
   gbPublicFacilities: boolean;  // 英國公共設施：郵局、公廁、市場、社區活動中心（OSM 2026-11-13，41,333 點）
+  gbRailReplay: boolean;        // 英國列車重播（倫敦與東南部，Darwin 前一日 2026-11-21，本機預覽）
   gbPlacesOfWorship: boolean;   // 英國宗教場所（OSM place_of_worship 依 religion 分 8 類，42,113 點）
   gbTrafficCountsAadf: boolean; // 英國 AADF 交通計數點（DfT 2025，22,334 點）
   gbPlanningConstraints: boolean; // 英國規劃限制區（保育區／Article 4／綠帶，18,727 面）

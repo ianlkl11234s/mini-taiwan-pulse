@@ -4195,6 +4195,8 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "場站", layers: [fromManifest("gbLondonStations"), fromManifest("gbStationUsage"), fromManifest("gbLondonBikePoints")] },
       { title: "路網", layers: [fromManifest("gbMajorRoads"), fromManifest("gbBridgesTunnels"), fromManifest("gbRoadFacilities"), fromManifest("gbTrafficCountsAadf"), fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
       { title: "樞紐節點", layers: [fromManifest("gbTransportHubs")] },
+      // 英國列車重播（本機預覽）：前一日 Darwin 實際／預估時刻，不是即時，所以不叫「即時運具」
+      { title: "列車重播", layers: [fromManifest("gbRailReplay")] },
       { title: "收費與低排放區", layers: [fromManifest("gbLondonChargingZones")] },
     ],
   },

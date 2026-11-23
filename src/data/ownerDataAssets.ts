@@ -68,6 +68,8 @@ export const OWNER_DATA_ASSETS = {
   "address-owner-10008": { filename: "address_owner_10008.json", size: 673881, sha256: "4591447539de0337093f7414eba5eb11c8cabd6e7be3f36ccf52152dab65c619" },
   "address-owner-10020": { filename: "address_owner_10020.json", size: 336498, sha256: "d76b571a902af120d934302ed57944108c191c6c9ad35bf957685146514474c9" },
   "address-owner-09007": { filename: "address_owner_09007.json", size: 29983, sha256: "bcdc8485e07c25db730dde6d7a08e9bf8eb4cf19c0e29353be8f0f421153a46a" },
+  "gb-rail-replay-geometry": { filename: "gb_rail_replay_geometry_20261121.json.gz", size: 907575, sha256: "32c62ec2d5e1fd5b6eee862717dec229ad9453299f41de241bb023f8d4dd26e3" },
+  "gb-rail-replay-trips-20261121": { filename: "gb_rail_replay_trips_20261121.json.gz", size: 2743026, sha256: "34aaf353dd9c107f41bb2fc69e9ccb5c41cfac2d428ae35059e5d270f956d41b" },
 } as const;
 
 export type OwnerDataAssetName = keyof typeof OWNER_DATA_ASSETS;

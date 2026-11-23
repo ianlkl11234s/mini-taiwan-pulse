@@ -2130,5 +2130,6 @@
   "layer.thSoilPh": "土壌 pH・約 1 km（タイ）",
   "layer.thSoilOrganicCarbon": "土壌有機炭素・約 1 km（タイ）",
   "layer.thCrops": "主要作物の範囲・一般化（タイ）",
-  "layer.thVeterinary": "獣医（タイ）"
+  "layer.thVeterinary": "獣医（タイ）",
+  "layer.gbRailReplay": "列車リプレイ"
 }

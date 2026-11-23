@@ -1560,6 +1560,7 @@ gbTransportHubs,交通樞紐 Transport Hubs,GB,英國,交通,custom,verified,gb_
 gbStationUsage,車站年進出人次 Station Usage,GB,英國,交通,custom,verified,gb_transport_hubs,,,,,,yes,none,,warehouse,,,dataset_not_in_warehouse,,,,大不列顛國鐵車站 2024-25 年進出站人次（ORR），依人次分 5 級
 gbLondonRailLines,倫敦軌道路線 London Rail Lines,GB,英國,交通,custom,verified,gb_london_rail,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦地鐵、Overground、DLR、Elizabeth line 與電車路線（TfL），依運具分色
 gbLondonStations,倫敦軌道車站 London Rail Stations,GB,英國,交通,custom,verified,gb_london_rail,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦地鐵、Overground、DLR、Elizabeth line 與電車車站（TfL），標示轉乘站
+gbRailReplay,列車重播 Rail Replay（2026-11-21）,GB,英國,交通,custom,catalog_missing,,,,,,,yes,none,,display_only,,,upstream_catalog_missing,,,,倫敦與東南部火車前一日重播：依 Darwin 實際或預估時刻沿鐵軌移動，依誤點分級上色（非即時）
 gbLondonBikePoints,倫敦公共自行車 Santander Cycles,GB,英國,交通,custom,verified,gb_london_bikepoints,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 Santander Cycles 公共自行車站點與樁數（TfL BikePoint，不含即時空位）
 gbLondonJamCams,倫敦道路攝影機 TfL JamCams,GB,英國,交通,custom,verified,gb_london_jamcams,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦 TfL 道路攝影機位置與鏡頭朝向，彈窗可外連即時影像
 gbLondonChargingZones,倫敦收費與低排放區 London Charging Zones,GB,英國,交通,custom,verified,gb_london_charging_zones,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,倫敦塞車費區（Congestion Charge）與超低排放區／低排放區（ULEZ／LEZ，同一邊界）範圍
