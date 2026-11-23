@@ -6,7 +6,7 @@
  */
 
 import { useLocale } from "../../state/localeStore";
-import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
+import { createContext, useContext, useState, type CSSProperties, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT, LIGHT, RADIUS } from "../../styles/designTokens";
 import { MAP_SEAM, MISSING_HATCH, MOVING_POINT, POINT_STROKE, basemapLandColor } from "../../map/mapStyleScale";
 import { compositeHex, normalizeColor, parseColor } from "../../map/colorContrast";
@@ -150,10 +150,12 @@ const RESTRICTION_KEYS: Record<RestrictionKind, "legend.restriction.nonCommercia
 
 /**
  * 使用限制短標（2026-11-23 站主決定 4-1 a）：全文在圖層「說明・來源」的使用限制欄，
- * 圖例只放「⚠ 不可商用」這類短標；滑鼠停留（title）看全文。同種限制多層只列一次。
+ * 圖例只放「⚠ 不可商用」這類短標；點短標在下方展開全文（觸控也能看），滑鼠停留另有 title。同種限制多層只列一次。
  */
 export function LegendRestrictions({ layers }: { layers: readonly string[] }) {
   const i18n = useLocale();
+  const t = useLegendTheme();
+  const [open, setOpen] = useState(false);
   const byKind = new Map<RestrictionKind, string[]>();
   for (const layer of layers) {
     for (const r of getLayerRestrictions(layer)) {
@@ -164,12 +166,16 @@ export function LegendRestrictions({ layers }: { layers: readonly string[] }) {
     }
   }
   if (byKind.size === 0) return null;
+  const fullTexts = [...new Set([...byKind.values()].flat())];
   return <LegendNote>
     {[...byKind.entries()].map(([kind, texts], i) => (
-      <span key={kind} title={texts.join("\n")} aria-label={`${i18n.t(RESTRICTION_KEYS[kind])}：${texts.join("；")}`} style={{ marginRight: i < byKind.size - 1 ? 8 : 0, whiteSpace: "nowrap", cursor: "help" }}>
+      <button key={kind} type="button" aria-expanded={open} title={texts.join("\n")}
+        onClick={(event) => { event.stopPropagation(); setOpen((value) => !value); }}
+        style={{ marginRight: i < byKind.size - 1 ? 8 : 0, padding: 0, border: 0, background: "transparent", color: "inherit", font: "inherit", whiteSpace: "nowrap", cursor: "pointer", textDecoration: "underline dotted", textUnderlineOffset: 2 }}>
         {i18n.t(RESTRICTION_KEYS[kind])}
-      </span>
+      </button>
     ))}
+    {open && fullTexts.map((text) => <div key={text} style={{ marginTop: 2, color: t.textMuted }}>{text}</div>)}
   </LegendNote>;
 }
 

@@ -124,7 +124,7 @@ describe("LegendPanel 收斂 ratchet", () => {
     }
   });
 
-  it("使用限制（4-1 a）：有 restrictions 的圖層，圖例顯示共用短標、全文在 title", () => {
+  it("使用限制（4-1 a）：有 restrictions 的圖層，圖例顯示共用短標（可點開全文）、全文在 title", () => {
     const i18n = localeStore.getSnapshot();
     const keys = Object.keys(LAYER_SOURCE_INFO).filter((k) => LAYER_SOURCE_INFO[k]!.restrictions?.length);
     expect(keys.length).toBeGreaterThan(0);
@@ -133,6 +133,7 @@ describe("LegendPanel 收斂 ratchet", () => {
       expect(entry, key).toBeDefined();
       const visibility = { [key]: true } as unknown as LayerVisibility;
       const html = renderToStaticMarkup(createElement(Fragment, null, entry!.render({ visibility, overlayParams: encodeParamsToOverlay(layerParamsStore.getAll()), isDark: true, i18n })));
+      expect(html, key).toContain('aria-expanded="false"');
       for (const r of LAYER_SOURCE_INFO[key]!.restrictions!) {
         expect(html, key).toContain(i18n.t(`legend.restriction.${r.kind}` as never));
         const full = resolveSourceText(r.text, i18n).slice(0, 12).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
