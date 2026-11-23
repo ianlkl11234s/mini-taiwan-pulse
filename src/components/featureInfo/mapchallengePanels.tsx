@@ -41,8 +41,11 @@ import { MAPCHALLENGE_DAY21_YEAR_MIN, mapchallengeDay21ClassOf, mapchallengeDay2
 import { MAPCHALLENGE_DAY21_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import {
   MAPCHALLENGE_DAY23_CELL_KM2, MAPCHALLENGE_DAY23_DATA_DATE, mapchallengeDay23GroupById, mapchallengeDay23TermById, mapchallengeDay23TermColor,
+  MAPCHALLENGE_DAY23_FOREIGN_DOMINANT, mapchallengeDay23ForeignById, mapchallengeDay23PlaceById,
 } from "../../data/mapchallengeDay23Types";
-import { MAPCHALLENGE_DAY23_GROUP_KEYS, MAPCHALLENGE_DAY23_TERM_KEYS } from "../legend/mapchallengeLegends";
+import {
+  MAPCHALLENGE_DAY23_FOREIGN_KEYS, MAPCHALLENGE_DAY23_GROUP_KEYS, MAPCHALLENGE_DAY23_HOME_KEYS, MAPCHALLENGE_DAY23_SIGN_KEYS, MAPCHALLENGE_DAY23_TERM_KEYS,
+} from "../legend/mapchallengeLegends";
 import { LinkRow } from "./atlasPanels";
 import { Row, SourceFooter, Title } from "./shared";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
@@ -589,14 +592,14 @@ export function MapchallengeDay21OsmRoadsPanel({ props }: Props) {
 }
 
 // ── Day 23 味覺 ────────────────────────────────────────────────
-/** 兩層共用的後半段：格網大小、資料日期、口徑說明、來源（只有彙總家數，沒有店名） */
-function MapchallengeDay23Footer({ props }: Props) {
+/** 四層共用的後半段：格網大小、資料日期、口徑說明、來源（只有彙總家數，沒有店名）。scope＝口徑句（預設小吃詞那一句） */
+function MapchallengeDay23Footer({ props, scope }: Props & { scope?: string }) {
   const { t, formatNumber } = useLocale();
   const km2 = MAPCHALLENGE_DAY23_CELL_KM2[num(props.res)];
   return <>
     {km2 !== undefined && <Row label={t("popup.mapchallenge.day23.cell")} value={t("popup.mapchallenge.day23.cellValue", { km2: formatNumber(km2) })} />}
     <Row label={t("popup.mapchallenge.day23.date")} value={MAPCHALLENGE_DAY23_DATA_DATE} mono />
-    <Row label={t("popup.mapchallenge.day23.note")} value={t("legend.mapchallenge.day23.scope")} />
+    <Row label={t("popup.mapchallenge.day23.note")} value={scope ?? t("legend.mapchallenge.day23.scope")} />
     <Row label={t("popup.mapchallenge.day23.position")} value={t("popup.mapchallenge.day23.positionNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day23.source") }} />
   </>;
@@ -627,5 +630,35 @@ export function MapchallengeDay23TasteVariantsPanel({ props }: Props) {
       return <Row key={w.label} label={w.label} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(Number.isFinite(n) ? n : 0) })} color={mapchallengeDay23TermColor(w, isDark)} mono />;
     })}
     <MapchallengeDay23Footer props={props} />
+  </div>;
+}
+
+export function MapchallengeDay23TastePlacesPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const place = mapchallengeDay23PlaceById(props.sign);
+  if (!place) return null;
+  const home = t(MAPCHALLENGE_DAY23_HOME_KEYS[place.value]);
+  return <div>
+    <Title color={mapchallengeDay23TermColor(place, isDark)}>{t(MAPCHALLENGE_DAY23_SIGN_KEYS[place.value])}</Title>
+    <Row label={t("popup.mapchallenge.day23.placeCount")} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(num(props.n)) })} mono />
+    <Row label={t("popup.mapchallenge.day23.placeRange")} value={t("popup.mapchallenge.day23.placeRangeValue", { home, out: formatNumber(place.outside), n: formatNumber(place.stores) })} />
+    <Row label={t("popup.mapchallenge.day23.arc")} value={t("legend.mapchallenge.day23.arcNote")} />
+    <MapchallengeDay23Footer props={props} scope={t("legend.mapchallenge.day23.placesScope")} />
+  </div>;
+}
+
+export function MapchallengeDay23TasteForeignPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const group = mapchallengeDay23ForeignById(props.group);
+  if (!group) return null;
+  const dominant = MAPCHALLENGE_DAY23_FOREIGN_DOMINANT[group.value];
+  return <div>
+    <Title color={mapchallengeDay23TermColor(group, isDark)}>{t(MAPCHALLENGE_DAY23_FOREIGN_KEYS[group.value])}</Title>
+    <Row label={t("popup.mapchallenge.day23.foreignCount")} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(num(props.n)) })} mono />
+    <Row label={t("popup.mapchallenge.day23.words")} value={group.words.join("、")} />
+    {dominant && <Row label={t("popup.mapchallenge.day23.dominant")} value={t("legend.mapchallenge.day23.foreignDominant", { word: dominant.word, hits: formatNumber(dominant.hits), n: formatNumber(group.stores), pct: Math.round((dominant.hits / group.stores) * 100) })} />}
+    <MapchallengeDay23Footer props={props} scope={t("legend.mapchallenge.day23.foreignScope")} />
   </div>;
 }

@@ -18,19 +18,19 @@
   ]
  },
  "summary": {
-  "layerKeys": 2141,
-  "overlayConfigs": 574,
-  "runtimeSublayers": 1095,
+  "layerKeys": 2143,
+  "overlayConfigs": 576,
+  "runtimeSublayers": 1106,
   "byResolution": {
-   "runtime": 468,
+   "runtime": 470,
    "static-scan": 338,
    "unresolved": 379,
    "shared-renderer": 956
   },
   "byGeometry": {
-   "point": 653,
+   "point": 655,
    "heatmap": 237,
-   "line": 411,
+   "line": 412,
    "polygon": 1323,
    "raster": 81,
    "label": 63,
@@ -43,7 +43,7 @@
    "無 hook／factory（App 掛載或尚無實作）": 346,
    "Three.js／WebGL CustomLayer": 11
   },
-  "legendEntries": 1890,
+  "legendEntries": 1892,
   "legendTypes": {
    "square-swatch": 198,
    "svg-icon": 77,
@@ -54,13 +54,14 @@
    "square-swatch+hatch(missing)": 962,
    "gradient+size+dot-swatch": 5,
    "hatch(missing)": 3,
-   "size+dot-swatch": 39,
+   "size+dot-swatch": 40,
    "dot-swatch+square-swatch": 23,
    "text-only": 25,
    "square-swatch+line-swatch+hatch(missing)+svg-icon": 1,
    "gradient+dot-swatch+square-swatch+hatch(missing)": 1,
    "dot-swatch+svg-icon": 13,
    "gradient": 29,
+   "size+dot-swatch+svg-icon": 1,
    "square-swatch+svg-icon": 7,
    "size+dot-swatch+square-swatch": 1,
    "gradient+dot-swatch+svg-icon": 1,
@@ -76,7 +77,7 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 893,
+   "ssr": 895,
    "static": 997
   },
   "legendsWithIssues": 162,
@@ -109,7 +110,7 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 393,
+    "n": 394,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
@@ -127,11 +128,11 @@
     ],
     "dataDrivenCounted": 45,
     "notSet": 0,
-    "unresolved": 10,
-    "decorationExcluded": 177
+    "unresolved": 14,
+    "decorationExcluded": 181
    },
    "circle-radius@z14": {
-    "n": 393,
+    "n": 394,
     "min": 2.6,
     "p25": 4.5,
     "median": 4.5,
@@ -144,23 +145,23 @@
      "6.5×23",
      "8×12",
      "5×11",
-     "7×7",
+     "7×8",
      "3.45×7"
     ],
     "dataDrivenCounted": 45,
     "notSet": 0,
-    "unresolved": 10,
-    "decorationExcluded": 177
+    "unresolved": 14,
+    "decorationExcluded": 181
    },
    "circle-stroke-width@z14": {
-    "n": 403,
+    "n": 408,
     "min": 0,
     "p25": 1,
     "median": 1,
     "p75": 1.2,
     "max": 2.2,
     "mostCommon": [
-     "1×280",
+     "1×284",
      "1.2×81",
      "1.4×10",
      "1.5×5",
@@ -172,17 +173,17 @@
     "dataDrivenCounted": 38,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 177
+    "decorationExcluded": 181
    },
    "circle-opacity": {
-    "n": 399,
+    "n": 404,
     "min": 0,
     "p25": 0.75,
     "median": 0.8,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
-     "0.85×116",
+     "0.85×120",
      "0.8×86",
      "0.9×63",
      "0.75×46",
@@ -194,7 +195,7 @@
     "dataDrivenCounted": 44,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 177
+    "decorationExcluded": 181
    },
    "line-width@z10": {
     "n": 172,
@@ -215,7 +216,7 @@
     ],
     "dataDrivenCounted": 12,
     "notSet": 0,
-    "unresolved": 0,
+    "unresolved": 2,
     "decorationExcluded": 31
    },
    "line-width@z14": {
@@ -237,11 +238,11 @@
     ],
     "dataDrivenCounted": 12,
     "notSet": 0,
-    "unresolved": 0,
+    "unresolved": 2,
     "decorationExcluded": 31
    },
    "line-opacity": {
-    "n": 172,
+    "n": 174,
     "min": 0.04,
     "p25": 0.6,
     "median": 0.8,
@@ -432,7 +433,8 @@
     "electionEvents2026/precision=0.09(資料驅動中點)",
     "stationsMetro/metro-pt-fill=0.08",
     "stationsTRA/tra-pt-fill=0.08",
-    "mapchallengeDay06Temples1921/same-mark=0"
+    "mapchallengeDay06Temples1921/same-mark=0",
+    "mapchallengeDay23TastePlaces/origin=0"
    ],
    "line-width@z10": [
     "provincialRoadEmergencyBays/line=3",
@@ -477,6 +479,8 @@
     "policeIsoSubstation/line=0.15"
    ],
    "line-opacity": [
+    "mapchallengeDay23TastePlaces/arc-r6=0.34",
+    "mapchallengeDay23TastePlaces/arc-r7=0.34",
     "policeIsoCityDept/line=0.04(資料驅動中點)",
     "policeIsoPrecinct/line=0.04(資料驅動中點)",
     "policeIsoSubstation/line=0.04(資料驅動中點)"
@@ -508,26 +512,27 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 399,
+   "隨底圖切換": 404,
    "資料驅動": 2,
    "固定 #c2410c": 1,
    "無描邊（未設或寬 0）": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #e5e7eb → 淡 #ffffff": 282,
+   "暗 #e5e7eb → 淡 #ffffff": 286,
    "暗 #0f172a → 淡 #ffffff": 84,
    "暗 #f8fafc → 淡 #0f172a": 1,
+   "暗 #ffffff → 淡 #1a1a2e": 1,
    "暗 #0d1117 → 淡 #ffffff": 1,
    "暗 #e5e7eb → 淡 #475569": 1
   },
   "decorationSublayers": {
-   "count": 209,
+   "count": 213,
    "byType": {
-    "circle": 177,
+    "circle": 181,
     "line": 31,
     "fill": 1
    },
-   "keys": 180
+   "keys": 182
   },
   "lineDash": [
    "debrisFlowPotential/outline=[4,3]",
@@ -547,25 +552,25 @@
   ],
   "lineCapJoin": {
    "cap=(預設 butt) join=(預設 miter)": 122,
-   "cap=round join=round": 42,
+   "cap=round join=round": 44,
    "cap=butt join=miter": 6,
    "cap=(預設 butt) join=round": 2
   },
   "themeDiff": {
-   "sublayersWithDiff": 825,
-   "of": 1095,
+   "sublayersWithDiff": 836,
+   "of": 1106,
    "byProperty": {
-    "circle-stroke-color": 399,
-    "circle-stroke-opacity": 315,
-    "circle-color": 245,
-    "line-color": 151,
+    "circle-stroke-color": 404,
+    "circle-stroke-opacity": 319,
+    "circle-color": 253,
+    "line-color": 153,
     "fill-opacity": 90,
     "heatmap-color": 75,
     "text-color": 64,
     "text-halo-color": 64,
     "fill-color": 45,
-    "line-opacity": 24,
-    "circle-opacity": 16,
+    "line-opacity": 26,
+    "circle-opacity": 20,
     "fill-pattern": 3,
     "fill-extrusion-color": 3,
     "circle-stroke-width": 1
@@ -573,8 +578,8 @@
   },
   "colorEncoding": {
    "circle:categorical": 315,
-   "circle:constant": 243,
-   "line:constant": 137,
+   "circle:constant": 252,
+   "line:constant": 139,
    "heatmap:sequential": 79,
    "fill:categorical": 77,
    "symbol:constant": 64,
@@ -1237,6 +1242,8 @@
   {"id":"mapchallengeDay19Penalties","members":["mapchallengeDay19Penalties"],"components":["MapchallengeDay19PenaltiesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":7,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","14.838699100999076x14.838699100999076●","24.67739820199815x24.67739820199815●","9.4x9.4●"],"swatchColorCount":4,"paintComparable":true},
   {"id":"mapchallengeDay19Potential","members":["mapchallengeDay19Potential"],"components":["MapchallengeDay19PotentialLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch+square-swatch","features":{"dot":6,"square":4,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●","12x10"],"swatchColorCount":10,"paintComparable":false},
   {"id":"mapchallengeDay21OsmRoads","members":["mapchallengeDay21OsmRoads"],"components":["MapchallengeDay21OsmRoadsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"svg-icon","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":3,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":1,"paintComparable":true},
+  {"id":"mapchallengeDay23TasteForeign","members":["mapchallengeDay23TasteForeign"],"components":["MapchallengeDay23TasteForeignLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","18.973665961010276x18.973665961010276●","6x6●"],"swatchColorCount":1,"paintComparable":true},
+  {"id":"mapchallengeDay23TastePlaces","members":["mapchallengeDay23TastePlaces"],"components":["MapchallengeDay23TastePlacesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch+svg-icon","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":1,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10.392304845413264x10.392304845413264●","10x10●","16.970562748477143x16.970562748477143●","6x6●"],"swatchColorCount":2,"paintComparable":true},
   {"id":"mapchallengeDay23TasteTerms","members":["mapchallengeDay23TasteTerms"],"components":["MapchallengeDay23TasteTermsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","13.416407864998739x13.416407864998739●","26.832815729997478x26.832815729997478●","6x6●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"mapchallengeDay23TasteVariants","members":["mapchallengeDay23TasteVariants"],"components":["MapchallengeDay23TasteVariantsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","13.416407864998739x13.416407864998739●","26.832815729997478x26.832815729997478●","6x6●"],"swatchColorCount":3,"paintComparable":true},
   {"id":"marineEcologicalMonitoringSites","members":["marineEcologicalMonitoringSites"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
@@ -3259,6 +3266,8 @@
   "mapchallengeDay19Penalties": {"label":"異味裁罰設施 Odor Penalties","theme":"30 天地圖挑戰","dataClass":"A","color":"#fe9929","legend":"mapchallengeDay19Penalties","legendType":"size+dot-swatch","popup":"mapchallengeDay19Penalties","params":{"opacity":{"name":"mapchallengeDay19PenaltiesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay19PenaltiesScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "mapchallengeDay19Potential": {"label":"設施氣味潛勢＋風 Odor Potential & Wind","theme":"30 天地圖挑戰","dataClass":"D","color":"#ec7014","legend":"mapchallengeDay19Potential","legendType":"dot-swatch+square-swatch","popup":"mapchallengeDay19Potential","params":{"opacity":{"name":"mapchallengeDay19PotentialOpacity","default":0.7,"min":0.3,"max":1},"controls":5},"hooks":["useMapchallengeDay19PotentialLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMapchallengeDay19PotentialLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\""],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-join":["unresolved:\"round\""],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"raster-fade-duration":[0],"raster-opacity":["non-literal @src/hooks/useMapchallengeDay19PotentialLayer.ts"],"raster-resampling":["unresolved:\"nearest\""],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["line","point","raster"],"render":["circle","line","raster"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay21OsmRoads": {"label":"道路畫進 OSM 的年份 When Roads Were Drawn into OSM","theme":"30 天地圖挑戰","dataClass":"B","color":"#9a265d","legend":"mapchallengeDay21OsmRoads","legendType":"svg-icon","popup":"mapchallengeDay21OsmRoads","params":{"opacity":{"name":"mapchallengeDay21OsmRoadsOpacity","default":0.85,"min":0.1,"max":1},"controls":4},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":{"min":0.5,"max":2},"z14":{"min":1,"max":3.5}},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":21,"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "mapchallengeDay23TasteForeign": {"label":"外來料理店名 Foreign Cuisine Words in Shop Names","theme":"30 天地圖挑戰","dataClass":"A","color":"#64aaff","legend":"mapchallengeDay23TasteForeign","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteForeign","params":{"opacity":{"name":"mapchallengeDay23TasteForeignOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteForeignScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#64aaff"],"lightDiffers":true,"light":["#357bcc"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#64aaff"],"lightDiffers":true,"light":["#357bcc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#64aaff"],"lightDiffers":true,"light":["#357bcc"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#64aaff"],"lightDiffers":true,"light":["#357bcc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "mapchallengeDay23TastePlaces": {"label":"店名裡的地名 Place Names in Shop Names","theme":"30 天地圖挑戰","dataClass":"A","color":"#ffd166","legend":"mapchallengeDay23TastePlaces","legendType":"size+dot-swatch+svg-icon","popup":"mapchallengeDay23TastePlaces","params":{"opacity":{"name":"mapchallengeDay23TastePlacesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TastePlacesScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"arc-r6","type":"line","role":"main","geometry":"line","render":"line","maxzoom":9,"values":{"line-width":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"line-opacity":0.34,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]}},"themeDiff":["line-color","line-opacity"]},{"suffix":"arc-r7","type":"line","role":"main","geometry":"line","render":"line","minzoom":9,"values":{"line-width":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"line-opacity":0.34,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]}},"themeDiff":["line-color","line-opacity"]},{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ffd166"],"lightDiffers":true,"light":["#987300"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"origin","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":7,"z14":7},"circle-stroke-width":{"z10":2,"z14":2},"circle-opacity":0,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":0,"dark":[]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#ffffff"],"lightDiffers":true,"light":["#1a1a2e"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["line","point"],"render":["circle","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "mapchallengeDay23TasteTerms": {"label":"小吃店名分布 Snack Words in Shop Names","theme":"30 天地圖挑戰","dataClass":"A","color":"#ff6b5e","legend":"mapchallengeDay23TasteTerms","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteTerms","params":{"opacity":{"name":"mapchallengeDay23TasteTermsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteTermsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"categorical","count":12,"lightDiffers":true}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":12,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"categorical","count":12,"lightDiffers":true}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":12,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "mapchallengeDay23TasteVariants": {"label":"同物異字 Same Dish, Different Characters","theme":"30 天地圖挑戰","dataClass":"A","color":"#7fd6c2","legend":"mapchallengeDay23TasteVariants","legendType":"size+dot-swatch","popup":"mapchallengeDay23TasteVariants","params":{"opacity":{"name":"mapchallengeDay23TasteVariantsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"mapchallengeDay23TasteVariantsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-r6","type":"circle","role":"decoration","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#7fd6c2","#ff8fab","#64aaff"],"lightDiffers":true,"light":["#2b8775","#c15775","#357bcc"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r6","type":"circle","role":"main","geometry":"point","render":"circle","maxzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#7fd6c2","#ff8fab","#64aaff"],"lightDiffers":true,"light":["#2b8775","#c15775","#357bcc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]},{"suffix":"glow-r7","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-opacity":0.272,"circle-blur":0.7},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#7fd6c2","#ff8fab","#64aaff"],"lightDiffers":true,"light":["#2b8775","#c15775","#357bcc"]}},"themeDiff":["circle-color","circle-opacity"]},{"suffix":"circle-r7","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":9,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"n\"]","z14":"unresolved:[\"get\",\"n\"]"},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.45},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#7fd6c2","#ff8fab","#64aaff"],"lightDiffers":true,"light":["#2b8775","#c15775","#357bcc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#e5e7eb"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "marineEcologicalMonitoringSites": {"label":"全海域生態系調查點位 Marine Ecosystem Survey Sites","theme":"海洋 Marine","dataClass":"A","color":"#4f46e5","legend":"marineEcologicalMonitoringSites","legendType":"dot-swatch","popup":"marineEcologicalMonitoringSites","params":{"opacity":{"name":"marineEcologicalMonitoringSitesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"marineEcologicalMonitoringSitesScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#4f46e5"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#6c71ff"],"lightDiffers":true,"light":["#4f46e5"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},

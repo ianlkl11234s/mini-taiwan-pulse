@@ -4,10 +4,10 @@
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 > L2 欄來自倉庫 catalog（`catalog.json 2026-11-21，倉庫 20261119T011401Z`）；入倉狀態欄來自 pulse-data 登記簿（ADR-0023 成員清單 SSOT），兩者口徑不同時以入倉狀態為準。
 
-- 圖層總數：**2141**；L1 可操作：**2141/2141**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**1572/2141**（73.4%）
+- 圖層總數：**2143**；L1 可操作：**2143/2143**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**1572/2143**（73.4%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：30
-- 只有舊瀏覽器 reader：6；尚不可分析：525
+- 只有舊瀏覽器 reader：6；尚不可分析：527
 
 ## 各國入倉狀態（AG-14；以 pulse-data 登記簿為準）
 
@@ -25,9 +25,9 @@
 | TH | 58 | 54 | 0 | 0 | 4 | 0 | 93.1% |
 | CN | 24 | 0 | 0 | 0 | 24 | 0 | 0.0% |
 | WORLD | 24 | 5 | 0 | 1 | 0 | 18 | 20.8% |
-| SIM | 32 | 0 | 0 | 0 | 11 | 21 | 0.0% |
+| SIM | 34 | 0 | 0 | 0 | 13 | 21 | 0.0% |
 
-- 合計：入倉 1688/2141（warehouse 856、statistics 832）；DISPLAY_ONLY 65；外部圖磚等無上游 12；未入倉（在只減不增基準）376
+- 合計：入倉 1688/2143（warehouse 856、statistics 832）；DISPLAY_ONLY 67；外部圖磚等無上游 12；未入倉（在只減不增基準）376
 - `warehouse`：登記條目有 warehouse 區塊；`statistics`：dataset 在 stats_observations；`no_upstream`：registry/_no_upstream.yaml；`display_only`：registry/_display_only.yaml（附解鎖條件）；`missing`：registry/_warehouse_baseline.yaml（AG-13 基準）
 - WORLD＝跨國圖層，SIM＝模擬面板圖層。國別取 manifest `country`（未寫＝TW）。
 
@@ -48,7 +48,7 @@
 | 中國 | 24 | 0 | 0 | 0 | 0 | 24 | 0 |
 | 統計 | 870 | 0 | 822 | 3 | 0 | 45 | 0 |
 | 世界 | 24 | 5 | 0 | 0 | 1 | 18 | 0 |
-| 模擬 | 32 | 0 | 0 | 0 | 0 | 32 | 0 |
+| 模擬 | 34 | 0 | 0 | 0 | 0 | 34 | 0 |
 
 ## 尚不可分析的原因
 
@@ -57,7 +57,7 @@
 | dataset_not_in_warehouse | 355 |
 | upstream_catalog_missing | 80 |
 | unfiltered_shared_table | 30 |
-| derived_layer | 17 |
+| derived_layer | 19 |
 | warehouse_SKIPPED_FORMAT | 15 |
 | warehouse_SKIPPED_DISPLAY_ONLY | 8 |
 | warehouse_FAILED | 7 |

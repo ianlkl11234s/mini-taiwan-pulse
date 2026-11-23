@@ -464,7 +464,7 @@ export type ExpandableLayerKey =
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17NightFall" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
   | "mapchallengeDay21OsmRoads"
-  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants"
+  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants" | "mapchallengeDay23TastePlaces" | "mapchallengeDay23TasteForeign"
   | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
@@ -1065,7 +1065,7 @@ export interface FeatureInfo {
   | "mapchallengeDay17DarkSky" | "mapchallengeDay17DarkRoads" | "mapchallengeDay17LedShare"
   | "mapchallengeDay19Complaints" | "mapchallengeDay19Potential" | "mapchallengeDay19Penalties"
   | "mapchallengeDay21OsmRoads"
-  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants"
+  | "mapchallengeDay23TasteTerms" | "mapchallengeDay23TasteVariants" | "mapchallengeDay23TastePlaces" | "mapchallengeDay23TasteForeign"
   | "twCountyMigrationFlows"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
@@ -1502,6 +1502,10 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   mapchallengeDay23TasteTerms: boolean;
   /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：同物異字三組的店名寫法分布（H3 六角格彙總，色＝寫法，半徑依家數） */
   mapchallengeDay23TasteVariants: boolean;
+  /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：店名同時含地名與品項、且登記在原產縣市以外的餐飲店（H3 六角格彙總家數＋原產地空心圈＋弧線） */
+  mapchallengeDay23TastePlaces: boolean;
+  /** 30 天地圖挑戰 Day 23 味覺（模擬面板，公開）：店名含外來料理用詞的登記餐飲店家數（九組擇一，H3 六角格彙總） */
+  mapchallengeDay23TasteForeign: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */

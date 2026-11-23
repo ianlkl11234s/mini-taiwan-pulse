@@ -324,7 +324,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-22: +19 泰國第 5–7 波（學校、幼兒班、長者住宿、醫療、警察、監所法院、自然景點、保留林、國家公園、拉姆薩、森林公園、博物館圖書館、藝文、古蹟、體驗、住宿、銀行、宗教、郵局）。
     // 2026-11-23: +14 泰國第 8–9 波（空品、氣象、海洋棲地、海洋保護區、潮位站、海岸變遷、運動、公園、工廠、農會市集、土壤 pH、有機碳、作物、獸醫）。
     // 2026-11-23: +1 英國列車重播（gbRailReplay，站主限定測試圖層）。
-    expect(keys.length).toBe(2141);
+    // 2026-11-23: +2 30 天地圖挑戰 Day 23 味覺第二批（mapchallengeDay23TastePlaces、mapchallengeDay23TasteForeign）。
+    expect(keys.length).toBe(2143);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
