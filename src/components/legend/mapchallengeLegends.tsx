@@ -624,15 +624,18 @@ export function MapchallengeDay19PotentialLegend({ isDark, windIdx }: { isDark: 
 
 const MAPCHALLENGE_DAY19_RATIO_KEYS = ["legend.mapchallenge.day19.ratioLow", "legend.mapchallenge.day19.ratioMid", "legend.mapchallenge.day19.ratioHigh"] as const;
 
-export function MapchallengeDay19PenaltiesLegend({ isDark }: { isDark: boolean }) {
+/** scale：embed 由網址 `p.mapchallengeDay19PenaltiesScale` 帶入；主站不傳，讀大小滑桿（圖例圓要和地圖同尺寸，map-layers LG-5）。 */
+export function MapchallengeDay19PenaltiesLegend({ isDark, scale }: { isDark: boolean; scale?: number }) {
   const { t, formatNumber } = useLocale();
+  const values = useLayerParams("mapchallengeDay19Penalties");
+  const sizeScale = scale ?? paramNum(values, "mapchallengeDay19Penalties", "mapchallengeDay19PenaltiesScale");
   const colors = mapchallengeDay19RatioColors(isDark);
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day19.penaltiesTitle")} />
     <LegendNote>{t("legend.mapchallenge.day19.penaltiesSub", { f: formatNumber(MAPCHALLENGE_DAY19_PENALTY_TOTALS.facilities), n: formatNumber(MAPCHALLENGE_DAY19_PENALTY_TOTALS.events) })}</LegendNote>
     {[2, 1, 0].map((i) => <LegendRow key={i} swatch={<SwatchDot color={colors[i]!} />}>{t(MAPCHALLENGE_DAY19_RATIO_KEYS[i]!)}</LegendRow>)}
     <LegendRow swatch={<SwatchDot color={MAPCHALLENGE_DAY19_RATIO_NULL_COLOR} />}>{t("legend.mapchallenge.day19.ratioNull")}</LegendRow>
-    <LegendSizeRow title={t("legend.mapchallenge.day19.sizeTitle")} items={[1, 5, 20].map((n) => ({ r: mapchallengeDay19PenaltyRadius(n), label: String(n) }))} fill={colors[1]} />
+    <LegendSizeRow title={t("legend.mapchallenge.day19.sizeTitle")} items={[1, 5, 20].map((n) => ({ r: mapchallengeDay19PenaltyRadius(n, sizeScale), label: String(n) }))} fill={colors[1]} />
     <LegendNote>{t("legend.mapchallenge.day19.penaltiesNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day19.penaltiesSource")}</LegendNote>
   </div>;
@@ -647,15 +650,16 @@ export const MAPCHALLENGE_DAY21_CLASS_KEYS = {
 /** 線寬三級的示意色：取色帶中段（2011 紫），暗底與地圖同樣提亮 */
 const MAPCHALLENGE_DAY21_WIDTH_SWATCH_YEAR = 2011;
 
-export function MapchallengeDay21OsmRoadsLegend({ isDark }: { isDark: boolean }) {
+/** year／newOnly：embed 由網址 `p.mapchallengeDay21OsmRoadsYear`／`NewOnly`（0/1）帶入；主站不傳，讀 store。 */
+export function MapchallengeDay21OsmRoadsLegend({ isDark, year: yearProp, newOnly: newOnlyProp }: { isDark: boolean; year?: number; newOnly?: boolean }) {
   const { t, formatNumber } = useLocale();
   const theme = useLegendTheme();
   // 暗底依 C-4 提亮過的年份色（和地圖同一份對照）；直接查表，色帶格子不是 SwatchLine，不會自動套
   const liftMap = liftedColorMap("mapchallengeDay21OsmRoads", isDark);
   const lift = (c: string) => liftMap.get(normalizeColor(c)) ?? c;
   const values = useLayerParams("mapchallengeDay21OsmRoads");
-  const year = mapchallengeDay21YearAt(paramNum(values, "mapchallengeDay21OsmRoads", "mapchallengeDay21OsmRoadsYear"));
-  const newOnly = paramBool(values, "mapchallengeDay21OsmRoads", "mapchallengeDay21OsmRoadsNewOnly");
+  const year = mapchallengeDay21YearAt(yearProp ?? paramNum(values, "mapchallengeDay21OsmRoads", "mapchallengeDay21OsmRoadsYear"));
+  const newOnly = newOnlyProp ?? paramBool(values, "mapchallengeDay21OsmRoads", "mapchallengeDay21OsmRoadsNewOnly");
   const yearText = year === MAPCHALLENGE_DAY21_YEAR_MIN ? t("legend.mapchallenge.day21.before", { year }) : String(year);
   // 色帶每年一格；拉桿以後（或只看當年時的其他年）的格子換成中性色，表示目前沒畫
   const colors = MAPCHALLENGE_DAY21_YEARS.map((y) => ((newOnly ? y === year : y <= year) ? lift(mapchallengeDay21YearColor(y)) : theme.border));
@@ -693,10 +697,12 @@ const MAPCHALLENGE_DAY23_TERM_NOTE_KEYS: Partial<Record<MapchallengeDay23TermId,
 };
 const MAPCHALLENGE_DAY23_SIZE_STEPS = [1, 5, 20] as const;
 
-export function MapchallengeDay23TasteTermsLegend({ isDark }: { isDark: boolean }) {
+/** termIdx／scale：embed 由網址帶入（embed 沒有參數 store）；主站不傳，讀 store。圖例圓要和地圖同尺寸（LG-5）。 */
+export function MapchallengeDay23TasteTermsLegend({ isDark, termIdx, scale }: { isDark: boolean; termIdx?: number; scale?: number }) {
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TasteTerms");
-  const term = mapchallengeDay23TermById(paramStr(values, "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteTermsTerm")) ?? MAPCHALLENGE_DAY23_TERMS[0];
+  const term = (termIdx != null ? MAPCHALLENGE_DAY23_TERMS[Math.trunc(termIdx)] : mapchallengeDay23TermById(paramStr(values, "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteTermsTerm"))) ?? MAPCHALLENGE_DAY23_TERMS[0];
+  const sizeScale = scale ?? paramNum(values, "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteTermsScale");
   const color = mapchallengeDay23TermColor(term, isDark);
   const note = MAPCHALLENGE_DAY23_TERM_NOTE_KEYS[term.value];
   return <div>
@@ -705,7 +711,7 @@ export function MapchallengeDay23TasteTermsLegend({ isDark }: { isDark: boolean 
       {t("legend.mapchallenge.day23.termRow", { term: t(MAPCHALLENGE_DAY23_TERM_KEYS[term.value]), n: formatNumber(term.stores), m: formatNumber(term.mapped) })}
     </LegendRow>
     {note && <LegendNote>{t(note)}</LegendNote>}
-    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n), label: String(n) }))} fill={color} />
+    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, sizeScale), label: String(n) }))} fill={color} />
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.scope")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
@@ -713,17 +719,18 @@ export function MapchallengeDay23TasteTermsLegend({ isDark }: { isDark: boolean 
   </div>;
 }
 
-export function MapchallengeDay23TasteVariantsLegend({ isDark }: { isDark: boolean }) {
+export function MapchallengeDay23TasteVariantsLegend({ isDark, groupIdx, scale }: { isDark: boolean; groupIdx?: number; scale?: number }) {
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TasteVariants");
-  const group = mapchallengeDay23GroupById(paramStr(values, "mapchallengeDay23TasteVariants", "mapchallengeDay23TasteVariantsGroup")) ?? MAPCHALLENGE_DAY23_VARIANT_GROUPS[0];
+  const group = (groupIdx != null ? MAPCHALLENGE_DAY23_VARIANT_GROUPS[Math.trunc(groupIdx)] : mapchallengeDay23GroupById(paramStr(values, "mapchallengeDay23TasteVariants", "mapchallengeDay23TasteVariantsGroup"))) ?? MAPCHALLENGE_DAY23_VARIANT_GROUPS[0];
+  const sizeScale = scale ?? paramNum(values, "mapchallengeDay23TasteVariants", "mapchallengeDay23TasteVariantsScale");
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day23.variantsTitle")} />
     <LegendNote>{t(MAPCHALLENGE_DAY23_GROUP_KEYS[group.value])}</LegendNote>
     {group.words.map((w) => <LegendRow key={w.label} swatch={<SwatchDot color={mapchallengeDay23TermColor(w, isDark)} />}>
       {t("legend.mapchallenge.day23.wordRow", { word: w.label, n: formatNumber(w.stores), m: formatNumber(w.mapped) })}
     </LegendRow>)}
-    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n), label: String(n) }))} fill={mapchallengeDay23TermColor(group.words[0], isDark)} />
+    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, sizeScale), label: String(n) }))} fill={mapchallengeDay23TermColor(group.words[0], isDark)} />
     <LegendNote>{t("legend.mapchallenge.day23.variantsNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.scope")}</LegendNote>
