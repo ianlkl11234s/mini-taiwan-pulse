@@ -84277,7 +84277,7 @@
         "circle"
       ],
       "sourceId": "harm-reduction-dui-crashes",
-      "sourceUrl": "./harm_reduction/dui_crash_points.pmtiles"
+      "sourceUrl": "./harm_reduction/dui_crash_points_lt.pmtiles"
     },
     {
       "dynamicData": null,
@@ -93062,7 +93062,7 @@
         "heatmap"
       ],
       "sourceId": "np-species-sites",
-      "sourceUrl": "./environment/np_species_survey_points_sites_73252.pmtiles"
+      "sourceUrl": "./environment/np_species_survey_points_sites_73252_lt.pmtiles"
     },
     {
       "dynamicData": null,
@@ -101427,7 +101427,7 @@
         "circle"
       ],
       "sourceId": "swcb-disaster-photo-points",
-      "sourceUrl": "./hazards/swcb_disaster_photo_points_v2.pmtiles"
+      "sourceUrl": "./hazards/swcb_disaster_photo_points_v2_lt.pmtiles"
     },
     {
       "dynamicData": null,
@@ -112364,7 +112364,7 @@
         "circle"
       ],
       "sourceId": "atm-sites-fisc",
-      "sourceUrl": "./finance/atm_sites_fisc.pmtiles"
+      "sourceUrl": "./finance/atm_sites_fisc_lt.pmtiles"
     },
     {
       "dynamicData": null,

@@ -59,7 +59,7 @@ function pointPaint(key: string, fallbackOpacity: number, color: unknown, isDark
 // ─────────────────────────── 學校 ───────────────────────────
 
 const SCHOOLS_SOURCE: SourceSpec = {
-  id: "gb-schools", file: "gb_schools.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_SCHOOLS_ATTRIBUTION, loading: "英國學校載入中",
+  id: "gb-schools", file: "gb_schools_lt.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_SCHOOLS_ATTRIBUTION, loading: "英國學校載入中",
 };
 const schoolColor = (): Expr => matchColor("category", GB_SCHOOL_CATEGORIES.map((c) => [c.value, c.color] as const), GB_CIVIC_FALLBACK_COLOR);
 
@@ -135,7 +135,7 @@ export function useGbHealthFacilitiesLayer(mapRef: MapRef, visible: boolean, opa
 // ─────────────────────────── 照護（同檔兩層） ───────────────────────────
 
 const CARE_SOURCE: SourceSpec = {
-  id: "gb-care-services", file: "gb_care_services.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_CARE_CQC_ATTRIBUTION, loading: "英國照護服務載入中",
+  id: "gb-care-services", file: "gb_care_services_lt.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_CARE_CQC_ATTRIBUTION, loading: "英國照護服務載入中",
 };
 const careColor = (): Expr => matchColor("care_kind", GB_CARE_KINDS.map((k) => [k.value, k.color] as const), GB_CIVIC_FALLBACK_COLOR);
 

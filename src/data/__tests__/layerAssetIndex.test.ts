@@ -17,7 +17,7 @@ import { addOverlay, hydrateOverlayIfNeeded, resetOverlayHydration, swapPmtilesS
 import type { OverlayConfig } from "../../types";
 
 const GEOJSON_KEY = "./police_justice/immigration_offices/immigration_offices_20260626.geojson";
-const PMTILES_KEY = "./harm_reduction/dui_crash_points.pmtiles";
+const PMTILES_KEY = "./harm_reduction/dui_crash_points_lt.pmtiles";
 const BASE = DEFAULT_LAYER_ASSET_BASE;
 
 const sha = (text: string) => createHash("sha256").update(text).digest("hex");

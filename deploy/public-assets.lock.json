@@ -3072,6 +3072,13 @@
    "s3_key": "deploy-assets/environment/np_species_survey_points_sites_73252.pmtiles"
   },
   {
+   "path": "public/environment/np_species_survey_points_sites_73252_lt.pmtiles",
+   "bytes": 7717834,
+   "sha256": "9e1ba4acd9ecab0e637b5202d0bbff2cc8b0137f916b636bba5ef0293356ef13",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/environment/np_species_survey_points_sites_73252_lt.pmtiles"
+  },
+  {
    "path": "public/environment/official_noise_monitoring.geojson",
    "bytes": 367694,
    "sha256": "8f88b0192d0a874ee0a42da322c0ba1390ae69b40e5b90345fbe00b3088ff162",
@@ -3364,6 +3371,13 @@
    "sha256": "9e0d106d32493fe2c587d52c12fa97f27a64083f423046e9143d82d79cd02241",
    "delivery": "r2",
    "s3_key": "deploy-assets/finance/atm_sites_fisc.pmtiles"
+  },
+  {
+   "path": "public/finance/atm_sites_fisc_lt.pmtiles",
+   "bytes": 4857296,
+   "sha256": "6c97127f31bd85c0ef01368e55fe8af8d1624f549d9e3ef84161d797af48d547",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/finance/atm_sites_fisc_lt.pmtiles"
   },
   {
    "path": "public/finance/financial_branches_fisc.geojson",
@@ -4267,6 +4281,13 @@
    "s3_key": "deploy-assets/harm_reduction/dui_crash_points.pmtiles"
   },
   {
+   "path": "public/harm_reduction/dui_crash_points_lt.pmtiles",
+   "bytes": 6575724,
+   "sha256": "e38b99d5e6452ca44b82e42d375538f43e780d7528bb610aabec109245894fb0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/harm_reduction/dui_crash_points_lt.pmtiles"
+  },
+  {
    "path": "public/harm_reduction/hiv_selftest_outlets.geojson",
    "bytes": 546768,
    "sha256": "2af5492b0464cf80895ba07b022f8cef7f90c65219e4fccf2e80eff6888f33c8",
@@ -4468,6 +4489,13 @@
    "sha256": "650c6a669b7cdd5916fc211e2ed87b633618545d10119b622655f19ffbeb20e4",
    "delivery": "r2",
    "s3_key": "deploy-assets/hazards/swcb_disaster_photo_points_v2.pmtiles"
+  },
+  {
+   "path": "public/hazards/swcb_disaster_photo_points_v2_lt.pmtiles",
+   "bytes": 7184779,
+   "sha256": "1186124835f7075c426b5765d4165d08f87f8780e22f578b44b85c687846ce4c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/hazards/swcb_disaster_photo_points_v2_lt.pmtiles"
   },
   {
    "path": "public/hazards/taipei_waterlogging_history.geojson",
@@ -6766,6 +6794,13 @@
    "s3_key": "deploy-assets/world/gb_brownfield.pmtiles"
   },
   {
+   "path": "public/world/gb_brownfield_lt.pmtiles",
+   "bytes": 11245749,
+   "sha256": "707b170ab3d1d70b18bf5369cc45e1a7b4234ed7cf048d5e711cd9d1995c768c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_brownfield_lt.pmtiles"
+  },
+  {
    "path": "public/world/gb_built_up_areas_points.pmtiles",
    "bytes": 2091664,
    "sha256": "e35061df6cf20d8042909264cdfb098550c17eca9aab957282727896bca197a2",
@@ -6778,6 +6813,13 @@
    "sha256": "10b0381c0f29e8e94fba0632f91081972847a974008723712fff09524224080e",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_care_services.pmtiles"
+  },
+  {
+   "path": "public/world/gb_care_services_lt.pmtiles",
+   "bytes": 8972426,
+   "sha256": "490aea4ba0d97f432c3ea7c775d8e020fcd9d0cbca43ba0a64bef03e53da4b7b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_care_services_lt.pmtiles"
   },
   {
    "path": "public/world/gb_coastal_erosion_points.pmtiles",
@@ -6883,6 +6925,13 @@
    "sha256": "9aa2fc3a3574fbcf3b64408b8c497ddfd7ad44b26383b4befbccbf594bd755cd",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_greenspace_points.pmtiles"
+  },
+  {
+   "path": "public/world/gb_greenspace_points_lt.pmtiles",
+   "bytes": 7589065,
+   "sha256": "7351503af4c17c801cd7fd22dd870c26ce7f80fc02d71b20c2366b6bdbdae6de",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_greenspace_points_lt.pmtiles"
   },
   {
    "path": "public/world/gb_health_facilities_v2.pmtiles",
@@ -7100,6 +7149,13 @@
    "sha256": "6269721af697150831e050eee2ec87b82dafba201e327b9244617fbb3d0fc665",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/gb_schools.pmtiles"
+  },
+  {
+   "path": "public/world/gb_schools_lt.pmtiles",
+   "bytes": 9086688,
+   "sha256": "b5065ed78c76d5f0a49791bd6e82da431627e1959bac4b9988cf734f4e5fe360",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/gb_schools_lt.pmtiles"
   },
   {
    "path": "public/world/gb_soil_parent_material.pmtiles",
@@ -7949,6 +8005,13 @@
    "s3_key": "deploy-assets/world/jp_schools.pmtiles"
   },
   {
+   "path": "public/world/jp_schools_lt.pmtiles",
+   "bytes": 6675415,
+   "sha256": "d28e1d0a84fd135a3cfd414183b0ce28876fe1c9d44829168af4b3e17a3788de",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/jp_schools_lt.pmtiles"
+  },
+  {
    "path": "public/world/jp_stations.geojson",
    "bytes": 7590867,
    "sha256": "42620b145c30624706f4091237d74d96fc72db181061fd1372baa65b387bd275",
@@ -8229,6 +8292,13 @@
    "s3_key": "deploy-assets/world/kr_emergency_bells.pmtiles"
   },
   {
+   "path": "public/world/kr_emergency_bells_lt.pmtiles",
+   "bytes": 21914234,
+   "sha256": "c5bc2690aaa8513b59947794d64d9309002c5e702ee88029dd8e48894055a821",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_emergency_bells_lt.pmtiles"
+  },
+  {
    "path": "public/world/kr_festivals.pmtiles",
    "bytes": 2177519,
    "sha256": "7ec729ed19ea9897db53d947fe2b9e597b283d6ed13dec7d960dd012314f6049",
@@ -8311,6 +8381,13 @@
    "sha256": "fe02cdc2025afaf3b0377d8691454cdbd4b0ddbd250db62282230e8785b16fc4",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_lodging.pmtiles"
+  },
+  {
+   "path": "public/world/kr_lodging_lt.pmtiles",
+   "bytes": 11756418,
+   "sha256": "a47e8b843ad503e1241ceea099cd0af23ed3d819f0891ee681f24790bbb4aacc",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_lodging_lt.pmtiles"
   },
   {
    "path": "public/world/kr_marine_env_sites.pmtiles",
@@ -8514,6 +8591,13 @@
    "sha256": "095d27c08eb3d8b976b7f72cd92b92d24b08798d81120bba28cfd438543e04b2",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/kr_senior_centers.pmtiles"
+  },
+  {
+   "path": "public/world/kr_senior_centers_lt.pmtiles",
+   "bytes": 17842173,
+   "sha256": "0ed901c0ea289dc84383ccbeba28c0625c491d34c9177a0469c9c4997e1aa04e",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/kr_senior_centers_lt.pmtiles"
   },
   {
    "path": "public/world/kr_seoul_subway_congestion.pmtiles",

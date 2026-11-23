@@ -41,7 +41,7 @@ public/environment/important_wetland_zones.geojson
 public/environment/important_wetlands.geojson
 public/environment/incinerator_emissions.geojson
 public/environment/motorcycle_inspection_stations_20261109.pmtiles
-public/environment/np_species_survey_points_sites_73252.pmtiles
+public/environment/np_species_survey_points_sites_73252_lt.pmtiles
 public/environment/official_noise_monitoring.geojson
 public/environment/pm25_manual_stations.geojson
 public/environment/pollution_control_zones_202611.pmtiles
@@ -56,7 +56,7 @@ public/environment/teds_grid_emissions_teds13.pmtiles
 public/environment/teds_grid_emissions_teds13_5km.pmtiles
 public/environment/teds_point_source_facilities_teds13.pmtiles
 public/environment/water_quality_stations.geojson
-public/finance/atm_sites_fisc.pmtiles
+public/finance/atm_sites_fisc_lt.pmtiles
 public/finance/financial_branches_fisc.geojson
 public/finance/insurance_institutions.geojson
 public/finance/post_office_fx_cash_counters.geojson
@@ -154,7 +154,7 @@ public/harm_reduction/anti_drug_pharmacies.geojson
 public/harm_reduction/condom_outlets.geojson
 public/harm_reduction/drug_prevention_centers.geojson
 public/harm_reduction/drug_treatment_facilities.geojson
-public/harm_reduction/dui_crash_points.pmtiles
+public/harm_reduction/dui_crash_points_lt.pmtiles
 public/harm_reduction/hiv_selftest_outlets.geojson
 public/harm_reduction/hiv_testing_sites.geojson
 public/harm_reduction/internet_addiction_services.geojson
@@ -183,7 +183,7 @@ public/hazards/nuclear_epz_evacuation.geojson
 public/hazards/seawall_zones.geojson
 public/hazards/swc_eco_check_zones_159097.pmtiles
 public/hazards/swc_eco_check_zones_159097_points.pmtiles
-public/hazards/swcb_disaster_photo_points_v2.pmtiles
+public/hazards/swcb_disaster_photo_points_v2_lt.pmtiles
 public/hazards/taipei_waterlogging_history.geojson
 public/hazards/toxic_chemical_facilities.pmtiles
 public/hazards/tsunami_sirens.geojson
