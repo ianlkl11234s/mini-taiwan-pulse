@@ -150,6 +150,7 @@ import { MapNavControls } from "./components/MapNavControls";
 import { MapScaleBar } from "./components/MapScaleBar";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
 import { MapContextMenu } from "./components/MapContextMenu";
+import { useMeasureFloatPlacement } from "./components/measureFloatPlacement";
 import { MeasureToolbar } from "./components/MeasureToolbar";
 import { createMeasureController } from "./map/measureController";
 import { formatMeasureArea, formatMeasureDistance } from "./map/measureMath";
@@ -2246,6 +2247,11 @@ export default function App() {
     topBarObserverRef.current = observer;
     write();
   }, []);
+  // 桌機浮動量測條（§5.44）的擺放：量測中才啟用，直接改 DOM 位置
+  const measureFloatRef = useRef<HTMLDivElement | null>(null);
+  const measureSlotRef = useRef<HTMLDivElement | null>(null);
+  const measuring = useSyncExternalStore(measure.subscribe, () => measure.getSnapshot().active, () => measure.getSnapshot().active);
+  useMeasureFloatPlacement(measureFloatRef, measureSlotRef, measuring && !isMobile && !captureMode);
   // 視野提示（§5.42）：手機、拍攝模式、AI 對話框或 Agent 活動卡開著時停用；私人畫面判斷時讀 ref
   const viewportHint = useViewportCountry({
     map: mapPrepared ? mapRef.current : null,
@@ -2750,20 +2756,22 @@ export default function App() {
           {/* Energy MVP: 供電燈號 HUD 已搬 monitor 面板（v1.5 TODO），
               hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
 
-          {/* 浮動量測條（§5.44 C1）：品牌列下方、地圖上方置中，不參與品牌列排版；沒有量測時不渲染。
-              三欄格線：右欄最少保留右上卡片（視野提示 300＋右 16、popup 280＋右 58、AI 對話框 380）的寬度，
-              夠寬時置中，太窄時往左讓，再窄則量測條自己折行（文字不收成 icon） */}
+          {/* 浮動量測條（§5.44 C1）：品牌列下方、地圖上方，不參與品牌列排版；沒有量測時不渲染。
+              容器＝地圖可用區（左＝側欄右緣、右＝右上元件共用 right，split 時已扣 dock），量測條的實際位置由
+              useMeasureFloatPlacement 依右上卡片（提示卡、popup、AI 對話框、珊瑚警示…）的實際外框算：
+              放得下就置中，放不下就排到卡片下方維持單行，連全寬都放不下才折行 */}
           <div
+            ref={measureFloatRef}
             className="measure-float"
             style={{
               top: `calc(var(--top-bar-bottom, 55px) + ${SPACING.sm}px)`,
               left: sidebarWidth + 16,
               right: topRightOffset,
-              gridTemplateColumns: `minmax(0, 1fr) auto minmax(${chatOpen ? 400 : (privateUiFeatureInfo || viewportHint.target || layerHint.rows.length > 0 || historicalLabelTip || compareTip) ? 330 : 0}px, 1fr)`,
-              transition: "left 0.2s ease",
             }}
           >
-            <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="desktop" />
+            <div ref={measureSlotRef} className="measure-float__slot">
+              <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="desktop" />
+            </div>
           </div>
 
           {/* Icon Rail + Sliding Panel Sidebar */}
@@ -3528,7 +3536,8 @@ export default function App() {
           // popup 優先保留自身高度，圖例吃剩下的空間（圖例 flexShrink 較大，先縮）；
           // AQI 切換器、黃砂面板是 flexShrink:0 的固定高度兄弟，同時開啟時 popup 可縮（minHeight:0）並自行捲動，
           // 不再用固定扣 36px 的 maxHeight（合計高度超出 dock 會往上蓋住工具列）
-          <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 1, minHeight: 0, maxHeight: "100%", overflowY: "auto" }}>
+          // data-measure-avoid：浮動量測條依此避開 popup 的實際寬度（CCTV 460）
+          <div data-measure-avoid="" style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 1, minHeight: 0, maxHeight: "100%", overflowY: "auto" }}>
             <FeatureInfoPanel
               feature={privateUiFeatureInfo}
               onClose={() => setFeatureInfo(null)}

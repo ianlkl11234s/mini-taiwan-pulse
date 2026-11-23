@@ -322,7 +322,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
       };
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} data-measure-avoid="">
       {/* Header */}
       <div
         style={{

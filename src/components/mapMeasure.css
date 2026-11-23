@@ -238,17 +238,24 @@
   display: none;
 }
 
-/* 桌機浮動量測條（App.tsx .measure-float）：品牌列下方置中的三欄格線，top／left／right／欄寬由 App inline 決定
-   （top 讀 --top-bar-bottom，品牌列換行時跟著往下）。容器不吃點擊，只有量測條本身可點。
-   放不下時量測條自己折成兩行，文字完整不收成 icon（2026-11-23 根治版）。 */
+/* 桌機浮動量測條（App.tsx .measure-float）：容器＝地圖可用區（top／left／right 由 App inline，top 讀 --top-bar-bottom），
+   高 0、不吃點擊；量測條放在 .measure-float__slot，left／top 由 measureFloatPlacement.ts 依右上卡片實際外框算
+   （放得下置中、放不下排到卡片下方維持單行，連全寬都放不下才加 --wrap 折行；2026-11-23 根治版）。 */
 .measure-float {
   position: absolute;
   z-index: var(--z-toolbar);
-  display: grid;
+  height: 0;
   pointer-events: none;
 }
-.measure-float > .measure-bar {
-  grid-column: 2;
+.measure-float__slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max-content;
+  visibility: hidden;
+}
+.measure-float__slot--wrap { width: auto; }
+.measure-float__slot--wrap > .measure-bar {
   flex-wrap: wrap;
   justify-content: center;
   height: auto;
