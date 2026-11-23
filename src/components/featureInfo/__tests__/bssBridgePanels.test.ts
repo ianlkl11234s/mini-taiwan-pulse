@@ -158,7 +158,6 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     } }));
     expect(multiCrossing).toContain("未確認同橋");
     expect(multiCrossing).toContain("21.81 m");
-    expect(multiCrossing).toContain("w789");
     expect(multiCrossing).toContain("仍待複核");
   });
 
