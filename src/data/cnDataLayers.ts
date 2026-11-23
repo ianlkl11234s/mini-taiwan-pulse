@@ -487,7 +487,6 @@ const CN_W25_SPECS: readonly CnLayerSpec[] = [
     legendNotes: [
       l3("HydroRIVERS 模型河網 51,444 段（流量等級 2–5，平均流量 ≥10 m³/s）；31/31 省", "HydroRIVERS modelled network, 51,444 reaches (flow orders 2–5, mean discharge ≥10 m³/s); 31 of 31 provinces", "HydroRIVERS モデル河川網 51,444 区間（流量等級 2–5、平均流量 ≥10 m³/s）。31 省すべて"),
       l3("由 15 秒 DEM 推導，沒有河名；平原區河道位置可能偏移，流量是模型值", "Derived from a 15-arc-second DEM, no names; channel positions may be off in plains, discharge is modelled", "15 秒 DEM から推定、名称なし。平野部では位置がずれることがあり、流量はモデル値"),
-      l3("HydroSHEDS 授權：只可放在衍生作品中散布，不可單獨轉發原始資料", "HydroSHEDS licence: may be distributed only within derived works, not as stand-alone data", "HydroSHEDS ライセンス：派生物に組み込んだ形でのみ配布可、単体での再配布は不可"),
     ],
     popupNotes: [],
     sourceOrg: "HydroRIVERS v1.0（Lehner & Grill 2013），www.hydrosheds.org", sourceUrl: "https://www.hydrosheds.org/products/hydrorivers",
@@ -825,7 +824,7 @@ export const CN_DATA_SPECS: readonly CnLayerSpec[] = [
     legendNotes: [
       l3("GEM 31,700 座（運轉中：太陽能 13,052、風電 5,581、煤 1,217、生質 1,078、水力 1,006、燃氣 240、燃油 105、核能 17、地熱 1）；預設只顯示運轉中與興建中", "31,700 GEM plants (operating: solar 13,052, wind 5,581, coal 1,217, bioenergy 1,078, hydro 1,006, gas 240, oil 105, nuclear 17, geothermal 1); operating and under construction shown by default", "GEM 31,700 か所（運転中：太陽光 13,052・風力 5,581・石炭 1,217・バイオ 1,078・水力 1,006・ガス 240・石油 105・原子力 17・地熱 1）。既定は運転中と建設中のみ"),
       l3("再生能源（C090）是同一層的子集，用「範圍」切換，不另成一層", "Renewables (C090) are a subset of this layer, switched with 'scope', not a separate layer", "再生可能エネルギー（C090）はこの層の部分集合で「範囲」で切り替える"),
-      l3("63 筆 TransitionZero 光電為 CC BY-NC 4.0（非商用），彈窗逐筆標示；約 77% 位置為概略", "63 TransitionZero solar records are CC BY-NC 4.0 (non-commercial), shown per record; about 77% of locations are approximate", "TransitionZero の太陽光 63 件は CC BY-NC 4.0（非商用）でレコードごとに表示。位置の約 77% は概略"),
+      l3("約 77% 位置為概略", "About 77% of locations are approximate", "位置の約 77% は概略"),
       CN_SIMPLIFIED_NOTE,
     ],
     popupNotes: [

@@ -96,5 +96,6 @@
   "dataSources.block.layerSource": "レイヤーの出典",
   "dataSources.noteWithLabel": "{label}：{text}",
   "dataSources.fact.attribution": "クレジット",
-  "dataSources.fact.asOf": "データ時点"
+  "dataSources.fact.asOf": "データ時点",
+  "dataSources.fact.restriction": "利用制限"
 }

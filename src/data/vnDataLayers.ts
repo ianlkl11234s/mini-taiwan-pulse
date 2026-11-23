@@ -350,7 +350,6 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       { prop: "opening_hours", label: l3("營業時間（OSM 原文）", "Opening hours (OSM tag)", "営業時間（OSM 原文）"), kind: "code" }],
     legendNotes: [
       l3("GEM 風電與太陽能 842 處（預設只顯示運轉中與興建中；規劃中 492 處在「狀態」篩選）", "842 GEM wind and solar projects (operating and under construction by default; 492 planned in the status filter)", "GEM 風力・太陽光 842 か所（既定は運転中と建設中。計画中 492 は「状態」で表示）"),
-      l3("TransitionZero 光電 1,017 處為 CC BY-NC 4.0（非商用授權），彈窗逐筆標示", "1,017 TransitionZero solar records are CC BY-NC 4.0 (non-commercial); licence shown per record in the popup", "TransitionZero の太陽光 1,017 件は CC BY-NC 4.0（非商用）。ポップアップでレコードごとに表示"),
       l3("GEM 風光位置約 85% 為近似；電動車充電站 376 處為 OSM 補缺", "About 85% of GEM wind/solar locations are approximate; 376 EV charging stations from OSM", "GEM 風力・太陽光の位置は約 85% が概略。EV 充電スタンド 376 か所は OSM 補完"),
       COVERAGE_NOTE(33),
     ],

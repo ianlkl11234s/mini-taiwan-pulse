@@ -96,5 +96,6 @@
   "dataSources.block.layerSource": "Layer source",
   "dataSources.noteWithLabel": "{label}: {text}",
   "dataSources.fact.attribution": "Attribution",
-  "dataSources.fact.asOf": "Data as of"
+  "dataSources.fact.asOf": "Data as of",
+  "dataSources.fact.restriction": "Usage restriction"
 }

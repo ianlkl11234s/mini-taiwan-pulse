@@ -96,5 +96,6 @@
   "dataSources.block.layerSource": "圖層來源",
   "dataSources.noteWithLabel": "{label}：{text}",
   "dataSources.fact.attribution": "署名",
-  "dataSources.fact.asOf": "資料時點"
+  "dataSources.fact.asOf": "資料時點",
+  "dataSources.fact.restriction": "使用限制"
 }

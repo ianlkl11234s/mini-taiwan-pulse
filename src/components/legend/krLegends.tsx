@@ -1,6 +1,6 @@
 // 南韓第 1 波（國土基礎）圖例：交通 6 層＋能源 7 層。色票與署名 SSOT 在 data/krInfraTypes.ts。
 // OSM 補缺的層一律分開標「OSM 補缺」並署名 © OpenStreetMap contributors；沒涵蓋的地區寫「未涵蓋」。
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
@@ -224,6 +224,7 @@ export function KrDataLegend({ layerKey }: { layerKey: KrDataKey }) {
     </> : spec.cats ? spec.cats.map((c) => <LegendRow key={c.id} swatch={swatch(spec, c.color)}>{pickL3(c.label, locale)}</LegendRow>) : <LegendRow swatch={swatch(spec, spec.color)}>{title}</LegendRow>}
     {spec.cats && spec.otherLabel ? <LegendRow swatch={swatch(spec, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
+    <LegendRestrictions layers={[spec.key]} />
     {spec.heat ? <DenseHeatmapLegendRow layers={[layerKey]} /> : null}
   </div>;
 }

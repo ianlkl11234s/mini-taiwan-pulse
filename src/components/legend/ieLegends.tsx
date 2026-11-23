@@ -1,6 +1,6 @@
 // 愛爾蘭圖例：第 0 波行政邊界（SSOT data/ieAdminTypes.ts）、第 1 波規格驅動 6 層與海床地形（SSOT data/ieDataLayers.ts）。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
@@ -55,6 +55,7 @@ export function IeSpecLegend({ layerKey, spec, children }: { layerKey: string; s
     {spec.cats && spec.otherLabel ? <LegendRow swatch={swatch(spec, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
     {children}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
+    <LegendRestrictions layers={[layerKey]} />
   </div>;
 }
 

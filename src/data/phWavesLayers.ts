@@ -888,7 +888,6 @@ const W7_SPECS: PhLayerSpec[] = [
     ],
     legendNotes: [
       l3("WDPA 菲律賓 302 處（保護區 260＋OECM 42；18/18 region）；國界外與卡拉延 6 處不畫", "302 WDPA sites in the Philippines (260 protected areas + 42 OECMs; 18 of 18 regions); 6 outside the national boundary or in Kalayaan not drawn", "WDPA フィリピン 302 件（保護区 260＋OECM 42、18 地方すべて）。国境外とカラヤンの 6 件は描かない"),
-      l3("非商用授權（UNEP-WCMC／IUCN Terms of Use）：只供顯示，不提供原始檔、不進分析倉庫", "Non-commercial licence (UNEP-WCMC / IUCN Terms of Use): display only; no raw download and not in the analysis warehouse", "非商用ライセンス（UNEP-WCMC／IUCN 利用規約）：表示のみ。元データの提供・分析倉庫への登録はしない"),
       l3("DENR-BMB 官方保護區圖層查詢未收斂，暫以 WDPA 當主層", "The official DENR-BMB protected-area layer did not converge; WDPA is used as the main layer for now", "DENR-BMB の公式保護区レイヤーは照会が収束せず、当面 WDPA を主レイヤーとする"),
     ],
     popupNotes: [],

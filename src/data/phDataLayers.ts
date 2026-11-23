@@ -508,7 +508,6 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     ],
     legendNotes: [
       l3("GEM 1,038 座＋Climate TRACE 補缺 13 座；預設只顯示運轉中與興建中，規劃、擱置、取消、退役在「狀態」篩選", "1,038 GEM plants plus 13 Climate TRACE gap-fill plants; operating and under-construction shown by default, planned, shelved, cancelled and retired available in the status filter", "GEM 1,038 か所＋Climate TRACE 補完 13 か所。既定は運転中と建設中のみ、計画・保留・中止・廃止は「状態」で表示"),
-      l3("6 個 TransitionZero 光電機組為 CC BY-NC 4.0（非商業授權），彈窗逐筆標示", "6 TransitionZero solar records are CC BY-NC 4.0 (non-commercial); licence shown per record in the popup", "TransitionZero の太陽光 6 件は CC BY-NC 4.0（非商用）。ポップアップでレコードごとに表示"),
       l3("GEM 位置約 8 成為近似（approximate）", "About 80% of GEM locations are approximate", "GEM の位置は約 8 割が概略（approximate）"),
     ],
     popupNotes: [{ text: l3("本筆為 TransitionZero 資料，CC BY-NC 4.0（非商業授權）", "This record is TransitionZero data, CC BY-NC 4.0 (non-commercial)", "このレコードは TransitionZero のデータで CC BY-NC 4.0（非商用）"), when: (p) => p.commercial_ok === false || str(p.commercial_ok) === "false" }],

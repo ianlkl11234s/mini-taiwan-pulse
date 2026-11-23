@@ -1,6 +1,6 @@
 // 菲律賓圖例（2026-11-13 第 0–1 波）：行政邊界、人口密度（未涵蓋＝灰）、規格驅動 8 層。SSOT：data/phDataLayers.ts。
 import { useSyncExternalStore, type ReactNode } from "react";
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, SwatchSteps, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
@@ -82,6 +82,7 @@ export function PhSpecLegend({ spec, extraParts = [] }: { spec: PhLayerSpec<stri
     {hollow ? <LegendRow swatch={<SwatchDot color={spec.color} opacity={0} stroke={spec.color} strokeWidth={1.5} />}>{pickL3(hollow.label, locale)}</LegendRow> : null}
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
+    <LegendRestrictions layers={[spec.key]} />
   </div>;
 }
 

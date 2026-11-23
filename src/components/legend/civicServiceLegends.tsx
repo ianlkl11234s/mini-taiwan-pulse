@@ -15,7 +15,7 @@ import { JP_ZONING_CLASSES, JP_ZONING_FEATURE_COUNT } from "../../data/jpZoningU
 import { JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR } from "../../data/jpNationalForestTypes";
 import { JP_WELFARE_LAYER_MAJOR, jpWelfareCategoriesOf, jpWelfareGroupsOf, type JpWelfareLayerKey } from "../../data/jpWelfareFacilityTypes";
 import { JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_STEPS } from "../../data/jpInlandFloodTypes";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendColorMapper, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendColorMapper, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
 import { MEDICAL_POI_TYPES, medicalPoiColor } from "../../data/medicalPOITypes";
@@ -1082,7 +1082,7 @@ export function JpWelfareFacilitiesLegend({ layerKey }: { layerKey: JpWelfareLay
     </LegendRow>)}
     <LegendNote>{i18n.t("legend.civic.jpWelfareMissing")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpWelfareAccuracy")}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.jpWelfareLicense")}</LegendNote>
+    <LegendRestrictions layers={[layerKey]} />
     <LegendNote>{i18n.t("legend.civic.jpWelfareStale")}</LegendNote>
     <DenseHeatmapLegendRow layers={[layerKey]} />
   </div>;

@@ -1,6 +1,6 @@
 // 中國圖例（2026-11-13 第 0–1 波、11-16 第 2–5 波，站主限定）：行政邊界、人口密度（未涵蓋＝灰）、人口網格（模型值）、規格驅動 6 層。SSOT：data/cnDataLayers.ts。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
@@ -82,6 +82,7 @@ export function CnDataLegend({ layerKey }: { layerKey: CnDataKey }) {
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.minZoomNote ? <LegendNote>{pickL3(spec.minZoomNote, locale)}</LegendNote> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
+    <LegendRestrictions layers={[spec.key]} />
   </div>;
 }
 

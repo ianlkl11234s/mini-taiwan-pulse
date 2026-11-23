@@ -24,6 +24,15 @@ export type SourceText =
   | { key: MessageKey; vars?: Record<string, SourceText> }
   | { "zh-TW": SourceText; en: SourceText; ja: SourceText };
 
+/** 使用限制種類；圖例短標文字在 `legend.restriction.<kind>`。 */
+export type RestrictionKind = "nonCommercial" | "noDerivatives" | "ownerOnly" | "noRedistribution" | "commercialConditions";
+
+export interface LayerRestriction {
+  kind: RestrictionKind;
+  /** 限制全文（含條款名稱、適用範圍） */
+  text: SourceText;
+}
+
 export interface LayerSourceInfo {
   /** 機關／署名（政府資料必標機關；OSM 為 ODbL 署名） */
   org: SourceText;
@@ -37,8 +46,10 @@ export interface LayerSourceInfo {
   asOf?: SourceText;
   /** 來源要求照原文標示的署名（OGL「Contains … licensed under …」、国土数値情報「出典：…を加工して作成」、© 版權行）；多來源時逐條列出 */
   attribution?: SourceText[];
-  /** 每筆都一樣的資料說明（從 popup／圖例搬來的固定備註、方法說明、涵蓋限制） */
+  /** 每筆都一樣的資料說明（從 popup／圖例搬來的固定備註、方法說明、涵蓋限制、資料時效） */
   notes?: SourceText[];
+  /** 使用限制（不可商用、不可改作等）：全文放這裡，圖例只顯示 `RESTRICTION_KINDS` 的短標 */
+  restrictions?: LayerRestriction[];
   /** 本列出處：popup 原有常數、圖例原有機關＋授權，或資料目錄 md */
   from: "popup" | "legend" | "catalog";
 }
@@ -85,6 +96,11 @@ export function getLayerSourceInfo(layerKey: string): LayerSourceInfo | null {
 /** 圖層說明（每筆都一樣的備註、方法說明、資料時點）：來源表的 notes＋popup 搬來的固定列＋外國規格層的 popupNotes。 */
 export function getLayerNotes(layerKey: string): readonly SourceText[] {
   return [...(LAYER_SOURCE_INFO[layerKey]?.notes ?? []), ...(LAYER_NOTES_DATA[layerKey] ?? []), ...(SPEC_NOTES.get(layerKey) ?? [])];
+}
+
+/** 圖層的使用限制（沒有回傳空陣列）。 */
+export function getLayerRestrictions(layerKey: string): readonly LayerRestriction[] {
+  return LAYER_SOURCE_INFO[layerKey]?.restrictions ?? [];
 }
 
 /** 越南依來源欄切換署名的層（規格有 `more`：部分 feature 屬另一個來源）。 */

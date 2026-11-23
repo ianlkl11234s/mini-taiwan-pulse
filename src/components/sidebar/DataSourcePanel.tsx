@@ -377,11 +377,13 @@ export function DataSourceCard({
     const showSource = Boolean(tableInfo) && !catalogComplete;
     const credits = (tableInfo?.attribution ?? []).map(text).filter(Boolean);
     const asOf = tableInfo?.asOf ? text(tableInfo.asOf) : "";
+    const restrictions = (tableInfo?.restrictions ?? []).map((r) => text(r.text)).filter(Boolean);
     const extra = [
       asOf ? { k: t("dataSources.fact.asOf"), v: asOf, mono: true } : null,
+      ...restrictions.map((restriction) => ({ k: t("dataSources.fact.restriction"), v: restriction })),
       ...credits.map((credit) => ({ k: t("dataSources.fact.attribution"), v: credit })),
     ];
-    if (!showSource && notes.length === 0 && credits.length === 0) return null;
+    if (!showSource && notes.length === 0 && credits.length === 0 && restrictions.length === 0) return null;
     if (!tableInfo || !showSource) return { title: null, desc: notes.length ? notes.join(" ") : null, facts: facts(...extra) };
     const org = text(tableInfo.org);
     const license = tableInfo.license == null ? "" : text(tableInfo.license);

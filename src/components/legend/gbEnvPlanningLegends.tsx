@@ -1,9 +1,9 @@
 // 英國第 11 波環境與規劃 6 層圖例（2026-10-29）。色票與署名 SSOT 在 data/gbEnvPlanningTypes.ts。
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, LegendRestrictions } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_BROWNFIELD_COLOR, GB_BROWNFIELD_STATUSES, GB_CONSERVATION_BY_NATION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_YEAR, GB_ENV_FALLBACK_COLOR,
+  GB_BROWNFIELD_COLOR, GB_BROWNFIELD_STATUSES, GB_CONSERVATION_BY_NATION, GB_EA_POLLUTION_COUNTS, GB_ENV_FALLBACK_COLOR,
   GB_ENV_HOLLOW_STROKE, GB_NOISE_BANDS, GB_NOISE_SOURCE_COUNTS, GB_PLANNING_CONSTRAINTS,
   GB_POLLUTION_COLOR, GB_POLLUTION_COUNTS, GB_POLLUTION_YEAR, GB_RECYCLING_BY_NATION,
   GB_RECYCLING_CENTRE_MINZOOM, GB_RECYCLING_CONTAINER_MINZOOM, GB_RECYCLING_KINDS, GB_RECYCLING_OSM_TIME, GB_WASTE_AUTHORITIES,
@@ -135,7 +135,7 @@ export function GbPollutionInventoryEnglandLegend() {
     <LegendRow swatch={<SwatchDot color={GB_POLLUTION_COLOR} />}>{i18n.t("legend.environment.gbEaReleased", { n: n(GB_EA_POLLUTION_COUNTS.released) })}</LegendRow>
     <LegendRow swatch={<SwatchDot color="transparent" stroke={GB_POLLUTION_COLOR} strokeWidth={GB_ENV_HOLLOW_STROKE} />}>{i18n.t("legend.environment.gbEaNone", { n: n(GB_EA_POLLUTION_COUNTS.none) })}</LegendRow>
     <LegendNote>{i18n.t("legend.environment.gbEaEngland", { n: n(GB_EA_POLLUTION_COUNTS.total) })}</LegendNote>
-    <LegendNote>{i18n.t("legend.environment.gbEaLicence", { year: GB_EA_POLLUTION_YEAR })}</LegendNote>
+    <LegendRestrictions layers={["gbPollutionInventoryEngland"]} />
     <LegendNote>{i18n.t("legend.environment.gbEaPostcodeCentroid", { n: n(GB_EA_POLLUTION_COUNTS.postcodeCentroid) })}</LegendNote>
   </div>;
 }
