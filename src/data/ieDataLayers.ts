@@ -313,7 +313,7 @@ const DENOMINATION: Record<string, L3> = {
 // ───────────── 第 6 波：能源 ─────────────
 export const IE_W6_FETCHED_AT = "2026-11-08";
 const OSM_ATTR_IE = "© OpenStreetMap contributors (ODbL 1.0)";
-const OSM_NOTE = l3("來源 OpenStreetMap（官方無開放 GIS），完整度依志工貢獻；2026-11-05 Geofabrik 快照", "Source: OpenStreetMap (no open official GIS); completeness depends on contributors; Geofabrik snapshot 2026-11-05", "出典 OpenStreetMap（公式の公開 GIS なし）。網羅性はボランティア次第。Geofabrik 2026-11-05 時点");
+const OSM_NOTE = l3("官方無開放 GIS，以 OSM 呈現；完整度依志工貢獻", "No open official GIS, so OSM is used; completeness depends on contributors", "公式の公開 GIS がないため OSM を使用。網羅性はボランティア次第");
 const PLANT_CATS: readonly KrCat[] = [
   { id: "tailte_major", values: ["tailte_major"], color: "#ef4444", label: l3("主要電廠（Tailte 250k）", "Major power station (Tailte 250k)", "主要発電所（Tailte 250k）") },
   { id: "prtr_power", values: ["prtr_power"], color: "#f59e0b", label: l3("其他發電廠（PRTR 燃燒設施）", "Other power plant (PRTR combustion)", "その他の発電所（PRTR 燃焼施設）") },
@@ -358,7 +358,7 @@ const VOLTAGE_FIELD: IeField = { prop: "voltage_class", label: l3("電壓等級"
 // ───────────── 第 7b 波：醫療照護、消防警政、司法 ─────────────
 export const IE_W7B_FETCHED_AT = "2026-11-08";
 const NOMINATIM_ORG = "© OpenStreetMap contributors (ODbL 1.0), geocoded with OSM Nominatim";
-const GEOCODE_NOTE = l3("座標由 OpenStreetMap Nominatim 依地址推定，精度不一（© OpenStreetMap contributors）", "Coordinates estimated from addresses with OpenStreetMap Nominatim; precision varies (© OpenStreetMap contributors)", "座標は OpenStreetMap Nominatim で住所から推定したもので精度にばらつきがある（© OpenStreetMap contributors）");
+const GEOCODE_NOTE = l3("座標由 Nominatim 依地址推定，精度不一", "Coordinates estimated from addresses with Nominatim; precision varies", "座標は Nominatim で住所から推定したもので精度にばらつきがある");
 const GEOCODE_POPUP = l3("位置為地址推估", "Location estimated from address", "位置は住所からの推定");
 /** 地理編碼精度（由 Nominatim 回應判定，不由查詢層級判定）；官方座標另列一類。顏色由準到粗：藍、綠、青、黃、橙。 */
 const PRECISION_CATS: readonly KrCat[] = [
@@ -745,7 +745,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "county", label: l3("郡", "County", "県") }, LA],
     legendNotes: [l3("土地開發署（LDA）國有資產資料庫：在不動產登記署（PRA）登記為國家機關、地方政府或國營事業所有的 folio；不是待標售名單", "Land Development Agency State Assets Database: folios registered with the Property Registration Authority to state bodies, local authorities or state companies; not a list of land for sale", "土地開発庁（LDA）国有資産データベース：不動産登記庁（PRA）に国・自治体・国営企業の所有として登記された筆。売却予定地の一覧ではない"),
                   l3("2023 年第 3 季版，之後未更新；folio 為當時登記查詢結果、不保證現況。未在 PRA 登記的國有地未涵蓋", "Q3 2023 edition, not updated since; folios reflect the registry search at that time. State land not registered with the PRA is not covered", "2023年第3四半期版で以後未更新。筆は当時の登記照会の結果で現況は保証されない。PRA 未登記の国有地は未収録"),
-                  l3("folio 邊界源自 PRA 資料、另受 PRA 版權註記（授權待確認）。拉遠為代表點熱區，面在 z8 起出現", "Folio boundaries derive from PRA data and carry a PRA copyright notice (licence to be confirmed). Heatmap of representative points when zoomed out; polygons from z8", "筆界は PRA データ由来で PRA の著作権表示あり（ライセンス確認中）。縮小時は代表点のヒートマップ、面は z8 から")],
+                  l3("拉遠為代表點熱區，面在 z8 起出現", "Heatmap of representative points when zoomed out; polygons from z8", "縮小時は代表点のヒートマップ、面は z8 から")],
     popupNotes: [l3("2023 Q3 登記狀態，不保證現況", "Registry status as of Q3 2023; may have changed", "2023年第3四半期時点の登記状況で現況は保証されない")],
     sourceOrg: "Land Development Agency, State Assets Database (PRA State Assets, Q3 2023); folio boundaries © Property Registration Authority", sourceUrl: "https://opendata-lda-ie.hub.arcgis.com/datasets/lda-ie::pra-state-assets", license: "CC BY 4.0 (folio boundaries © PRA; licence to be confirmed)", fetchedAt: IE_W2_FETCHED_AT,
     loading: l3("愛爾蘭國有登記土地載入中", "Loading Ireland state-owned land", "アイルランドの国有登記地を読み込み中"),
@@ -1257,7 +1257,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "ac_fast_kw", label: l3("交流快充（kW）", "AC fast (kW)", "交流急速（kW）"), kind: "code" },
              { prop: "ac_socket_kw", label: l3("交流插座（kW）", "AC socket (kW)", "交流コンセント（kW）"), kind: "code" },
              { prop: "open_hours", label: l3("開放時間", "Open hours", "利用時間") }, { prop: "county", label: l3("郡", "County", "県") }],
-    legendNotes: [l3("ESB ecars 公共充電站 440 處（充電樁 520），2024-12 快照；北愛 151 處已剔除", "440 ESB ecars public charging sites (520 chargers), December 2024 snapshot; 151 Northern Ireland sites removed", "ESB ecars の公共充電スポット440か所（充電器520）、2024年12月時点。北アイルランドの151か所は除外"),
+    legendNotes: [l3("ESB ecars 公共充電站 440 處（充電樁 520）；北愛 151 處已剔除", "440 ESB ecars public charging sites (520 chargers); 151 Northern Ireland sites removed", "ESB ecars の公共充電スポット440か所（充電器520）。北アイルランドの151か所は除外"),
                   l3("只有 ESB 網路；Tesla、Ionity、Circle K 等其他營運商未涵蓋；不含即時可用狀態與價格。功率欄「150(2), 50」＝150 kW 2 支＋50 kW 1 支", "ESB network only; Tesla, Ionity, Circle K and other operators not covered; no live availability or prices. Power fields like “150(2), 50” mean two 150 kW plus one 50 kW", "ESB のネットワークのみ。Tesla・Ionity・Circle K などは未収録。リアルタイムの空き状況と料金は含まない。出力欄「150(2), 50」は 150 kW 2本＋50 kW 1本")],
     popupNotes: [l3("2024-12 快照", "December 2024 snapshot", "2024年12月時点")],
     sourceOrg: "ESB ecars, EV Public Charging Network", sourceUrl: DGI("esb-ev-public-charging-network"), license: CC_BY, fetchedAt: IE_W6_FETCHED_AT,
@@ -1295,8 +1295,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "roll_number", label: l3("學校代碼（Roll No.）", "Roll number", "学校番号（Roll No.）"), kind: "code" },
              { prop: "county", label: l3("郡", "County", "県") }, LA],
     legendNotes: [l3("教育部 2026 名冊 3,927 校：國小 3,062、中學 720、特殊學校 145（缺座標 11 校未畫）；在學人數合計 972,874", "Department of Education 2026 list: 3,927 schools — 3,062 primary, 720 post-primary, 145 special (11 without coordinates not shown); 972,874 pupils enrolled", "教育省2026年名簿の3,927校（小学校3,062・中等学校720・特別支援学校145。座標のない11校は未表示）、在籍者計972,874人"),
-                  l3("大專 223 點來自 OpenStreetMap（教育部名冊沒有大專）：大學與校區 85、學院／繼續教育／職訓 138，非官方名冊、完整度未驗", "223 higher/further education points from OpenStreetMap (the Department's list has no third level): 85 universities & campuses, 138 colleges / further education / training centres — not an official list, completeness unverified", "高等教育223地点は OpenStreetMap 由来（教育省名簿に高等教育なし）：大学・キャンパス85、カレッジ・継続教育・職業訓練138。公式名簿ではなく網羅性は未検証"),
-                  l3("教育部名冊來源頁未標示授權（授權待確認）；大專點 © OpenStreetMap contributors（ODbL）", "Licence not stated on the Department's source page (to be confirmed); higher-education points © OpenStreetMap contributors (ODbL)", "教育省名簿の出典ページにライセンス表示なし（確認中）。高等教育の点は © OpenStreetMap contributors（ODbL）")],
+                  l3("大專 223 點來自 OpenStreetMap（教育部名冊沒有大專）：大學與校區 85、學院／繼續教育／職訓 138，非官方名冊、完整度未驗", "223 higher/further education points from OpenStreetMap (the Department's list has no third level): 85 universities & campuses, 138 colleges / further education / training centres — not an official list, completeness unverified", "高等教育223地点は OpenStreetMap 由来（教育省名簿に高等教育なし）：大学・キャンパス85、カレッジ・継続教育・職業訓練138。公式名簿ではなく網羅性は未検証")],
     popupNotes: [],
     sourceOrg: "Department of Education, Statistics Unit — Schools Map 2026 (licence not stated); © OpenStreetMap contributors (ODbL 1.0)", sourceUrl: "https://www.arcgis.com/home/item.html?id=e71d0ca28fc54513b9a169dac2ebc28d", license: `${LICENSE_PENDING}＋ODbL 1.0`, fetchedAt: IE_W7A_FETCHED_AT,
     loading: l3("愛爾蘭學校載入中", "Loading Ireland schools", "アイルランドの学校を読み込み中"),
@@ -1333,7 +1332,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              LA],
     legendNotes: [l3("Pobal 早期教保（ELC）服務點 5,071（私人 3,895、社區 1,176；缺座標 4 未畫），含托兒所、學前班與課後照顧", "Pobal early learning and care (ELC) services: 5,071 (3,895 private, 1,176 community; 4 without coordinates not shown), incl. crèches, pre-schools and after-school care", "Pobal の幼児教育・保育（ELC）サービス5,071か所（民間3,895・コミュニティ1,176。座標のない4件は未表示）。託児所・就学前・放課後ケアを含む"),
                   l3("約三分之一是個人經營（名稱為個人姓名），名稱不顯示；ECCE／NCS／CCSP 旗標 Pobal 未附說明，語意為推定、未經官方確認", "About a third are sole operators whose service name is a personal name; those names are withheld. The ECCE / NCS / CCSP flags have no published definition (meaning assumed, unconfirmed)", "約3分の1は個人経営（名称が個人名）のため名称を表示しない。ECCE・NCS・CCSP の旗は Pobal に説明がなく、意味は推定（未確認）"),
-                  l3("來源頁未標示授權（授權待確認）；補習班沒有官方名冊，未收", "Licence not stated on the source page (to be confirmed); grind schools have no official register and are not included", "出典ページにライセンス表示なし（確認中）。学習塾は公式名簿がなく未収録")],
+                  l3("補習班沒有官方名冊，未收", "Grind schools have no official register and are not included", "学習塾は公式名簿がなく未収録")],
     popupNotes: [],
     sourceOrg: "Pobal — Childcare Facilities (early learning and care services), PobalMaps (licence not stated)", sourceUrl: "https://www.arcgis.com/home/item.html?id=15b1106eb7594289824617f838215442", license: LICENSE_PENDING, fetchedAt: IE_W7A_FETCHED_AT,
     loading: l3("愛爾蘭早期教保服務點載入中", "Loading Ireland early learning and care services", "アイルランドの幼児教育・保育サービスを読み込み中"),
@@ -1399,8 +1398,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "fee", label: l3("收費", "Fee", "有料"), map: { yes: l3("是", "Yes", "はい"), no: l3("否", "No", "いいえ") } },
              LA],
     legendNotes: [l3("議會名冊 428 處：圖書館 11 個地方政府、社區中心 5 個、公廁 3 個（都柏林三議會）；其餘以 OpenStreetMap 補 2,652 處（同類議會點 150 m 內不重收），OSM 完整度未驗", "428 from council lists: libraries from 11 local authorities, community centres from 5, public toilets from 3 (Dublin councils); 2,652 more from OpenStreetMap (skipped within 150 m of a council point of the same type), completeness unverified", "議会名簿の428か所：図書館は11自治体、コミュニティセンターは5自治体、公衆トイレは3自治体（ダブリンの議会）。ほかに OpenStreetMap から2,652か所（同種の議会の点から150 m 以内は除外）、網羅性は未検証"),
-                  l3("非公開公廁（OSM access=private／customers）不收；Wexford 圖書館名冊下載失效未收；郵局、超商、飲水點無官方開放來源", "Private toilets (OSM access=private / customers) excluded; Wexford's library list link is dead; post offices, shops and drinking fountains have no official open source", "非公開のトイレ（OSM access=private／customers）は除外。Wexford の図書館名簿はリンク切れで未収録。郵便局・コンビニ・水飲み場は公式の公開データなし"),
-                  l3("議會名冊 CC BY 4.0（South Dublin 社區中心 CC0）；OSM 點 © OpenStreetMap contributors（ODbL）", "Council lists CC BY 4.0 (South Dublin community centres CC0); OSM points © OpenStreetMap contributors (ODbL)", "議会名簿は CC BY 4.0（South Dublin のコミュニティセンターは CC0）。OSM の点は © OpenStreetMap contributors（ODbL）")],
+                  l3("非公開公廁（OSM access=private／customers）不收；Wexford 圖書館名冊下載失效未收；郵局、超商、飲水點無官方開放來源", "Private toilets (OSM access=private / customers) excluded; Wexford's library list link is dead; post offices, shops and drinking fountains have no official open source", "非公開のトイレ（OSM access=private／customers）は除外。Wexford の図書館名簿はリンク切れで未収録。郵便局・コンビニ・水飲み場は公式の公開データなし")],
     popupNotes: [],
     sourceOrg: "11 Irish local authorities (libraries, community centres, public toilets; data.gov.ie); © OpenStreetMap contributors (ODbL 1.0)", sourceUrl: DGI("dublin-city-libraries"), license: `${CC_BY}＋ODbL 1.0`, fetchedAt: IE_W8_FETCHED_AT,
     loading: l3("愛爾蘭公共設施載入中", "Loading Ireland public facilities", "アイルランドの公共施設を読み込み中"),
@@ -1434,7 +1432,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "operator", label: l3("營運者", "Operator", "運営者") }, { prop: "operator_type", label: l3("營運類型（OSM 原文）", "Operator type (OSM tag)", "運営形態（OSM 原文）"), kind: "code" },
              { prop: "emergency", label: l3("急診（OSM 標註）", "Emergency department (OSM tag)", "救急（OSM 記載）"), map: YES_NO },
              { prop: "speciality", label: l3("專科（OSM 原文）", "Speciality (OSM tag)", "専門（OSM 原文）"), kind: "code" }, LA],
-    legendNotes: [l3("來源 OpenStreetMap（HSE 醫院、診所、GP、藥局名冊在 data.gov.ie 已下架），完整度依志工貢獻；2026-11-05 Geofabrik 快照", "Source: OpenStreetMap (the HSE hospital, clinic, GP and pharmacy registers were withdrawn from data.gov.ie); completeness depends on contributors; Geofabrik snapshot 2026-11-05", "出典 OpenStreetMap（HSE の病院・診療所・GP・薬局名簿は data.gov.ie から削除済み）。網羅性はボランティア次第。Geofabrik 2026-11-05 時点"),
+    legendNotes: [l3("HSE 醫院、診所、GP、藥局名冊已下架，改以 OSM 呈現；完整度依志工貢獻", "The HSE hospital, clinic, GP and pharmacy registers were withdrawn, so OSM is used; completeness depends on contributors", "HSE の病院・診療所・GP・薬局名簿は削除済みのため OSM を使用。網羅性はボランティア次第"),
                   l3("amenity=hospital／clinic／doctors／dentist／pharmacy 的點與面（面取代表點，面內重複點已合併），共 3,482 處；北愛已剔除", "amenity=hospital/clinic/doctors/dentist/pharmacy nodes and areas (areas at a representative point, duplicate nodes merged), 3,482 in total; Northern Ireland removed", "amenity=hospital／clinic／doctors／dentist／pharmacy の点と面（面は代表点、重複点は統合）、計3,482か所。北アイルランドは除外"),
                   l3("護理之家等照護機構另見「HIQA 老人照護機構」；AED 不收（NAS 登記不公開）", "Nursing homes are in the separate HIQA care homes layer; defibrillators not included (NAS register not public)", "介護施設は「HIQA 高齢者介護施設」レイヤーを参照。AED は含まない（NAS の登録は非公開）")],
     popupNotes: [],
@@ -1453,7 +1451,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "registration_no", label: l3("HIQA 登記號", "HIQA registration no.", "HIQA 登録番号"), kind: "code" },
              { prop: "registered", label: l3("登記日", "Registered", "登録日"), kind: "code" }, { prop: "expires", label: l3("登記到期", "Registration expires", "登録期限"), kind: "code" },
              PRECISION_FIELD, LA],
-    legendNotes: [l3("HIQA 老人照護指定機構名冊 547 家（2026-11-08 下載）；授權待確認（HIQA 頁面未標示授權）", "HIQA register of designated centres for older persons, 547 centres (downloaded 2026-11-08); licence to be confirmed (not stated on the HIQA page)", "HIQA 高齢者向け指定施設名簿547か所（2026-11-08 取得）。ライセンス確認中（HIQA のページに記載なし）"),
+    legendNotes: [l3("HIQA 老人照護指定機構 547 家", "547 HIQA designated centres for older persons", "HIQA 高齢者向け指定施設547か所"),
                   GEOCODE_NOTE,
                   l3("上圖 535 家（命中 OSM 同名設施 200、門牌 45、街道 127、城鎮 163）；另 12 家查無結果、未上圖（無只到郡級者）", "535 mapped (matched OSM facility 200, house number 45, street 127, town 163); 12 more could not be located and are not mapped (none resolved only to county level)", "地図化535か所（OSM 同名施設 200、番地 45、通り 127、町 163）。ほか12か所は位置が特定できず未表示（県レベルのみのものはなし）"),
                   l3("負責人姓名、電話等個資欄位不收；身障機構 1,821 家只有郡別，未上圖", "Person-in-charge names, phone numbers and other personal fields are excluded; 1,821 disability centres have only a county and are not mapped", "管理者の氏名・電話などの個人情報は収録しない。障害者施設1,821か所は県のみで地図化していない")],
@@ -1751,8 +1749,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     fields: [
              { prop: "hectares", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 0 }, LA],
     legendNotes: [l3("環境保護署（EPA）登錄的 Bord na Móna 持照泥炭開採沼地 162 面、約 7.9 萬公頃（9 張 IPC 執照，分布 13 個地方政府）", "162 Bord na Móna bogs licensed for peat extraction, about 79,000 ha, as held by the EPA (9 IPC licences, 13 local authorities)", "環境保護庁（EPA）登録の Bord na Móna 泥炭採掘許可湿原162面・約7.9万 ha（IPC 許可9件・13自治体）"),
-                  l3("是執照範圍，不代表現況仍在開採（Bord na Móna 2021 年起停止泥炭開採、轉為復育）；工場代碼來源未附對照表", "Licensed extents, not current extraction (Bord na Móna ended peat harvesting in 2021 and moved to rehabilitation); the works code has no lookup in the source", "許可範囲で現在の採掘を示すものではない（Bord na Móna は2021年に泥炭採掘を終了し再生へ）。事業所コードの対照表は出典になし"),
-                  l3("授權未標示（EPA GeoServer），照常上線並標來源", "Licence not stated (EPA GeoServer); shown with source attribution", "ライセンス記載なし（EPA GeoServer）。出典を明記して表示")],
+                  l3("是執照範圍，不代表現況仍在開採（Bord na Móna 2021 年起停止泥炭開採、轉為復育）；工場代碼來源未附對照表", "Licensed extents, not current extraction (Bord na Móna ended peat harvesting in 2021 and moved to rehabilitation); the works code has no lookup in the source", "許可範囲で現在の採掘を示すものではない（Bord na Móna は2021年に泥炭採掘を終了し再生へ）。事業所コードの対照表は出典になし")],
     popupNotes: [l3("執照範圍，非現況", "Licensed extent, not current state", "許可範囲で現況ではない")],
     sourceOrg: "Environmental Protection Agency (EPA), Licensed Peat Extraction Installation Boundary (Bord na Móna)", sourceUrl: "https://gis.epa.ie/EPAMaps/", license: "授權未標示（EPA GeoServer）", fetchedAt: IE_W11_FETCHED_AT,
     loading: l3("愛爾蘭泥炭開採沼地載入中", "Loading Ireland peat extraction bogs", "アイルランドの泥炭採掘湿原を読み込み中"),

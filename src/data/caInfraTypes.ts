@@ -131,7 +131,7 @@ export const CA_AIRPORTS_SOURCE: CaSource = {
 export const CA_AIRPORTS_NOTES: readonly L3[] = [
   l3("拉遠只顯示大中型機場與港口，z7 起補上小型機場、直升機場、水上飛機基地、綜合港與遊艇港", "Zoomed out, only large/medium airports and ports are shown; smaller types appear from zoom 7", "広域表示では大・中規模空港と港湾のみ。ズーム 7 から小規模空港などを追加"),
   l3("機場 13/13 省／地區；港口 12/13（Yukon 未涵蓋）", "Airports 13/13; ports 12/13 (Yukon not covered)", "空港 13/13、港湾 12/13（ユーコン準州は対象外）"),
-  l3("港口 197 筆來自美國 NGA World Port Index（授權頁未讀到）", "197 ports come from the US NGA World Port Index (licence page not available)", "港湾 197 件は米 NGA World Port Index 由来（ライセンス頁未確認）"),
+  l3("港口 197 筆來自美國 NGA World Port Index", "197 ports come from the US NGA World Port Index", "港湾 197 件は米 NGA World Port Index 由来"),
 ];
 export const CA_AIRPORT_POPUP: CaPopupSpec = {
   title: { props: ["name"], fallback: l3("機場", "Airport", "空港") },

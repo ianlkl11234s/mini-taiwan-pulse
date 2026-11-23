@@ -1685,7 +1685,6 @@ export type GeneratedStaticKey =
   | "legend.jpNature.level.1"
   | "legend.jpNature.level.2"
   | "legend.jpNature.level.3"
-  | "legend.jpNature.moeLicense"
   | "legend.jpNature.nationalParksScope"
   | "legend.jpNature.nationalParksTitle"
   | "legend.jpNature.okayama"

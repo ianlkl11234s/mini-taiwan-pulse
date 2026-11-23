@@ -45,18 +45,18 @@ const POPUP_SOURCE_PENDING = new Set<string>([
 
 /** popup 原本就沒有授權的來源（研究推估、即時快照、站內模擬等）：圖層側顯示「授權未明示」。 */
 const LICENSE_UNSTATED = new Set<string>([
-  "busCrowdingSim", "dengueClusters", "electionEvents2026", "fire119Live", "fireIsochrone", "freewayTdcsSim", "gbOilGasFields",
-  "h3Population", "harmReductionCondomOutlets", "harmReductionTreatment", "iotWraRiver", "jpMedicalAreasPrimary",
-  "jpMedicalAreasSecondary", "jpMedicalAreasTertiary", "mapchallengeDay04Facility", "mapchallengeDay04Overlap",
-  "mapchallengeDay04Population", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns",
-  "mapchallengeDay08Access", "mapchallengeDay08Parks", "mapchallengeDay08Sites", "mapchallengeDay09UrbanRural",
-  "mapchallengeDay17DarkRoads", "mapchallengeDay17DarkSky", "mapchallengeDay17LedShare", "mapchallengeDay19Complaints",
-  "mapchallengeDay19Penalties", "mapchallengeDay19Potential", "mapchallengeDay21OsmRoads", "nationalParks", "navNotices",
-  "pbsRoadEventsLive", "phTerrainHillshade", "phTerrainRelief", "pollutionPenaltyCritical", "pollutionPenaltyGeneral",
-  "pollutionPenaltyMobile", "popCount", "powerPoles", "ripeAtlasProbes", "satellitesBeidou", "satellitesFrance", "satellitesGaofen",
-  "satellitesGermany", "satellitesIndia", "satellitesIsrael", "satellitesItaly", "satellitesJapan", "satellitesJilin", "satellitesKorea",
-  "satellitesRussia", "satellitesShiyan", "satellitesTJS", "satellitesTaiwan", "satellitesUSA", "satellitesYaogan", "taipeiPumb",
-  "transitAccessPlayback", "twCoralBleachingHeatStress", "twMarineHeatwaves", "vnTerrainHillshade", "vnTerrainRelief", "youbikeFullness",
+  "busCrowdingSim", "dengueClusters", "electionEvents2026", "fire119Live", "fireIsochrone", "freewayTdcsSim", "h3Population",
+  "harmReductionCondomOutlets", "harmReductionTreatment", "iotWraRiver", "jpMedicalAreasPrimary", "jpMedicalAreasSecondary",
+  "jpMedicalAreasTertiary", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04Population",
+  "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "mapchallengeDay08Access",
+  "mapchallengeDay08Parks", "mapchallengeDay08Sites", "mapchallengeDay09UrbanRural", "mapchallengeDay17DarkRoads",
+  "mapchallengeDay17DarkSky", "mapchallengeDay17LedShare", "mapchallengeDay19Complaints", "mapchallengeDay19Penalties",
+  "mapchallengeDay19Potential", "mapchallengeDay21OsmRoads", "nationalParks", "navNotices", "pbsRoadEventsLive", "phTerrainHillshade",
+  "phTerrainRelief", "pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile", "popCount", "powerPoles",
+  "ripeAtlasProbes", "satellitesBeidou", "satellitesFrance", "satellitesGaofen", "satellitesGermany", "satellitesIndia",
+  "satellitesIsrael", "satellitesItaly", "satellitesJapan", "satellitesJilin", "satellitesKorea", "satellitesRussia", "satellitesShiyan",
+  "satellitesTJS", "satellitesTaiwan", "satellitesUSA", "satellitesYaogan", "taipeiPumb", "transitAccessPlayback",
+  "twCoralBleachingHeatStress", "twMarineHeatwaves", "vnTerrainHillshade", "vnTerrainRelief", "youbikeFullness",
 ]);
 
 const LOCALES = join(__dirname, "..", "..", "i18n", "locales");

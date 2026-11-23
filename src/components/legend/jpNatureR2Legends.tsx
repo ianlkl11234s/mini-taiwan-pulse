@@ -48,7 +48,6 @@ export function JpNationalParksMoeLegend() {
     <LegendTitle zh={t("legend.jpNature.nationalParksTitle")} />
     {JP_NATIONAL_PARK_ZONES.map((z) => <LegendRow key={z.value} swatch={<SwatchSquare color={z.color} />}>{t(JP_NATIONAL_PARK_ZONE_KEYS[z.value])}</LegendRow>)}
     <LegendNote>{t("legend.jpNature.nationalParksScope")}</LegendNote>
-    <LegendNote>{t("legend.jpNature.moeLicense")}</LegendNote>
   </div>;
 }
 
@@ -58,7 +57,6 @@ export function JpWildlifeProtectionMoeLegend() {
     <LegendTitle zh={t("legend.jpNature.wildlifeTitle")} />
     {JP_WILDLIFE_CATEGORIES.map((c) => <LegendRow key={c.value} swatch={<SwatchSquare color={c.color} />}>{t(JP_WILDLIFE_CATEGORY_KEYS[c.value])}</LegendRow>)}
     <LegendNote>{t("legend.jpNature.wildlifeScope")}</LegendNote>
-    <LegendNote>{t("legend.jpNature.moeLicense")}</LegendNote>
   </div>;
 }
 

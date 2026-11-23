@@ -557,7 +557,6 @@ const W7_SPECS: Spec[] = [
     legendNotes: [
       l3("只涵蓋安江省（原堅江範圍），其他 33 省未涵蓋", "Covers An Giang only (former Kiên Giang area); the other 33 provinces are not covered", "An Giang 省（旧 Kiên Giang の範囲）のみ。他の 33 省は未収録"),
       l3("只標位置與分區類別；面積、產量等數值不顯示", "Location and zone type only; area, output and other figures are not shown", "位置と区分のみ。面積・生産量などの数値は表示しない"),
-      l3("來源 安江省開放資料入口，授權未明示", "Source An Giang open data portal, licence not stated", "出典 An Giang 省オープンデータポータル、ライセンス未明示"),
     ],
     popupNotes: [],
     sourceOrg: "Sở Nông nghiệp và Môi trường tỉnh An Giang（opendata.angiang.gov.vn）", sourceUrl: "https://opendata.angiang.gov.vn/", license: l3("授權未明示", "License not stated", "ライセンスは明示されていない"), fetchedAt: VN_WAVES_FETCHED_AT,

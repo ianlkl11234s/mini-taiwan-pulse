@@ -116,6 +116,5 @@ export function GbOilGasFieldsLegend() {
     <LegendRow swatch={<SwatchSquare color={GB_FIELD_TYPES[0]!.color} stroke={GB_FIELD_TYPES[0]!.color} opacity={0.9 * GB_FIELD_INACTIVE_FACTOR} />}>{i18n.t("legend.energy.gbFieldInactive")}</LegendRow>
     <LegendNote>{i18n.t("legend.energy.gbFieldScope")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbFieldHold")}</LegendNote>
-    <LegendNote>{i18n.t("legend.energy.gbNstaLicense")}</LegendNote>
   </div>;
 }
