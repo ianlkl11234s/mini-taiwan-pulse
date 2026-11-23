@@ -112,7 +112,6 @@ export function JmaWarningsPanel({ props }: PanelProps) {
     </>}
     <PopupDetails summary={tr("popup.common.notesAndLimits")}>
       <Row label={tr("popup.jma.mapping")} value={tr("popup.jma.mappingNote")} />
-      <Row field="updated" value={tr("popup.jma.warningUpdated")} />
     </PopupDetails>
     <Footer />
   </>;
