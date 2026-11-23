@@ -31,6 +31,16 @@
 - 一次只顯示一條時間軸：以最後打開的長期或即時圖層為準，另一條縮成按鈕。
 - **原「不做 brush」改為：事件點、大量事件可以拖一段選期間**；每日數值、分期統計、分期快照仍只能點一格。
 
+## 日期換算地基：zonedTime（2026-11-23 起）
+
+站內時間本身是 unix 秒／毫秒，與時區無關；時區只出現在「日期換算與顯示」。這一層的唯一地基是 `src/lib/zonedTime.ts`（純函式，以 IANA 時區名稱為參數，預設 `DEFAULT_TIME_ZONE = "Asia/Taipei"`）：
+
+- `zonedParts`、`zonedDateKey`、`zonedMidnightMs`、`zonedDayRangeMs`、`zonedSecondsOfDay`、`zonedOffsetMinutes`。
+- 英、愛、加、法有日光節約時間，一天可能 23 或 25 小時，所以只能用時區名稱算，不能用固定位移。
+- 1980–2040 內位移固定的時區（台北、東京、馬尼拉…）走快速路徑，不碰 Intl，適合每幀呼叫。
+- 既有台北 helper（`taipeiDay.ts`、`timeStore` 的 `toDateKey`、`taipeiParts`、`newsFreshness` 的 `taipeiDayKey`、`cardStyle` 的 `taipeiDate*`、`useTimeline` 的 `dayStartUnix`／`dayEndUnix`）都是它的薄包裝，簽名與輸出不變。
+- **新程式碼不得再寫固定 +8／`+08:00` 算日界**；要換時區就傳時區名稱。各國預設時區在 `constants/countries.ts` 的 `timeZone`（目前尚未接任何使用端）。
+
 ## timeStore（外部時間來源）
 
 動態圖層的時間來源是 `src/state/timeStore.ts` 的 `timeStore`，不是 React state。

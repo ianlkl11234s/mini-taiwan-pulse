@@ -15,6 +15,22 @@ describe("countries", () => {
     expect(isCountryCode("jp")).toBe(false);
   });
 
+  it("每國 timeZone 都是合法 IANA 名稱，CA 列出多時區", () => {
+    const supported = typeof Intl.supportedValuesOf === "function" ? new Set(Intl.supportedValuesOf("timeZone")) : null;
+    const valid = (tz: string) => {
+      if (supported?.has(tz)) return true;
+      try { new Intl.DateTimeFormat("en", { timeZone: tz }); return true; } catch { return false; }
+    };
+    for (const country of COUNTRIES) {
+      expect(valid(country.timeZone), `${country.code} ${country.timeZone}`).toBe(true);
+      for (const tz of country.timeZones ?? []) expect(valid(tz), `${country.code} ${tz}`).toBe(true);
+      if (country.timeZones) expect(country.timeZones).toContain(country.timeZone);
+    }
+    const byCode = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.timeZone]));
+    expect(byCode).toMatchObject({ TW: "Asia/Taipei", JP: "Asia/Tokyo", KR: "Asia/Seoul", GB: "Europe/London", IE: "Europe/Dublin", FR: "Europe/Paris", PH: "Asia/Manila", VN: "Asia/Ho_Chi_Minh", TH: "Asia/Bangkok", CN: "Asia/Shanghai", CA: "America/Toronto" });
+    expect(COUNTRIES.find((c) => c.code === "CA")!.timeZones).toHaveLength(6);
+  });
+
   it.each([
     ["台北", 121.53, 25.05, "TW"],
     ["金門", 118.3, 24.45, "TW"],

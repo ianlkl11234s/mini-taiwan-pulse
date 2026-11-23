@@ -13,14 +13,13 @@
  */
 
 import { createDateNotifier } from "./dateNotifier";
+import { DEFAULT_TIME_ZONE, zonedDateKey } from "../lib/zonedTime";
 
 type Listener<T> = (v: T) => void;
 
 function toDateKey(unixSec: number): string {
-  // 與專案其餘處一致：sv-SE locale = YYYY-MM-DD，Asia/Taipei
-  return new Date(unixSec * 1000).toLocaleDateString("sv-SE", {
-    timeZone: "Asia/Taipei",
-  });
+  // YYYY-MM-DD，Asia/Taipei（委派 zonedTime）
+  return zonedDateKey(unixSec * 1000, DEFAULT_TIME_ZONE);
 }
 
 let currentTime = Date.now() / 1000;
