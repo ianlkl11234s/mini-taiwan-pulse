@@ -23,7 +23,7 @@ import { LAYER_ICONS } from "./layerIcons";
 import { railPalette, RailThemeContext } from "./railTheme";
 import { THEMES, LAYER_COLORS, layerDisplayName, themeKey, themeName, type ThemeRef } from "./layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
-import { getLayerSourceInfo, resolveSourceText } from "../../data/layerSourceInfo";
+import { getLayerNotes, getLayerSourceInfo, resolveSourceText } from "../../data/layerSourceInfo";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
 import { searchLayers } from "../../lib/layerSearch";
 import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsIndicatorLabel, statisticsSourceLevelLabel, type StatisticsDataSourceDefinition } from "../../data/statisticsDataSources";
@@ -371,32 +371,32 @@ export function DataSourceCard({
   const tableInfo = statisticsSource ? null : getLayerSourceInfo(layerKey);
   const catalogComplete = entries.some((e) => e.providerAgency && e.license);
   const tableBlock: SourceBlock | null = useMemo(() => {
-    if (!tableInfo) return null;
     const text = (v: Parameters<typeof resolveSourceText>[0]) => resolveSourceText(v, i18n);
-    const showSource = !catalogComplete;
-    const notes = (tableInfo.notes ?? []).map(text).filter(Boolean);
+    const notes = getLayerNotes(layerKey).map(text).filter(Boolean);
+    const showSource = Boolean(tableInfo) && !catalogComplete;
     if (!showSource && notes.length === 0) return null;
+    if (!tableInfo || !showSource) return { title: null, desc: notes.join(" "), facts: facts() };
     const org = text(tableInfo.org);
     const license = tableInfo.license == null ? "" : text(tableInfo.license);
     const localize = tableInfo.from === "catalog";
     const link = tableInfo.url || tableInfo.attributionUrl;
     return {
-      title: showSource ? t("dataSources.block.layerSource") : null,
+      title: t("dataSources.block.layerSource"),
       desc: notes.length ? notes.join(" ") : null,
-      facts: showSource ? facts(
+      facts: facts(
         org ? { k: t("dataSources.fact.provider"), v: localize ? catalogAgency(org, i18n) : org } : null,
         { k: t("dataSources.fact.license"), v: license ? (localize ? catalogLicense(license, i18n) : licenseDisplay(license, i18n)) : t("dataSources.licenseUnstated") },
         tableInfo.asOf ? { k: t("dataSources.fact.period"), v: text(tableInfo.asOf), mono: true } : null,
         link ? { k: t("dataSources.fact.api"), v: <a href={link} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{link}</a> } : null,
-      ) : facts(),
+      ),
     };
-  }, [tableInfo, catalogComplete, p, i18n]);
+  }, [layerKey, tableInfo, catalogComplete, p, i18n]);
 
   const blocks: SourceBlock[] = [
     ...(statisticsBlock ? [statisticsBlock] : []),
     ...(tableBlock ? [tableBlock] : []),
     // 來源表已補上機關／授權時，「尚無 catalog 條目」這行不再顯示
-    ...baseBlocks.filter((b) => !(tableBlock?.title && b.title == null && b.facts.length === 0)),
+    ...baseBlocks.filter((b) => !(tableBlock?.title && b.title == null && b.facts.length === 0 && b.desc === t("dataSources.noCatalogEntry"))),
   ];
 
   // 統計來源描述的是同一批上游資料集，不另加 1；只有沒有其他上游紀錄時才以其 datasetIds 計數。

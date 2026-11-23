@@ -1,4 +1,4 @@
-import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../../data/coralReefTypes";
+import { CORAL_REEF_COLOR } from "../../data/coralReefTypes";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { Row } from "./shared";
@@ -53,6 +53,5 @@ export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
       <Row label={tr("popup.coralReef.sourceVerification")} value={text_(props.source_verification)} />
       <Row label={tr("popup.coralReef.sourceLayer")} value={text_(props.source_layer_name)} />
     </details>
-    <Row field="attribution" value={CORAL_REEF_ATTRIBUTION} />
   </>;
 }

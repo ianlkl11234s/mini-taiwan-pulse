@@ -118,7 +118,6 @@ export function OsmBridgeCarrierPanel({ props }: { props: Record<string, unknown
     <Row label={t("popup.networkStructures.waterway")} value={text(props.waterway)} />
     <Row label={t("popup.networkStructures.bridgeTag")} value={text(props.bridge)} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="caution" value={t("popup.networkStructures.carrierCaution")} />
     <SourceRows props={props} />
   </>;
 }
@@ -130,7 +129,6 @@ export function OsmBridgeFootprintPanel({ props }: { props: Record<string, unkno
   return <>
     <Title color={NETWORK_STRUCTURES_COLORS.footprint}>{text(props.name, t("popup.networkStructures.footprintTitle"))}</Title>
     <GeometryRow role={props.geometry_role} />
-    <Row field="caution" value={t("popup.networkStructures.footprintCaution")} />
     <SourceRows props={props} />
   </>;
 }
@@ -319,7 +317,6 @@ export function BridgeComparisonNewTaipeiPanel({ props }: { props: Record<string
     <Row label={t("popup.networkStructures.reasons")} value={jsonList(props.match_reasons, i18n)} />
     <Row label={t("popup.networkStructures.matchConfidence")} value={numberText(props.match_confidence, "", scoreMissing)} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="caution" value={t("popup.networkStructures.cmpCaution")} />
     <SourceRows props={props} />
   </>;
 }
@@ -339,7 +336,6 @@ export function TainanBridgeInspectionsPanel({ props }: { props: Record<string, 
     <Row label={t("popup.networkStructures.totalLength")} value={numberText(props.bridge_total_length_m, " m")} />
     <Row label={t("popup.networkStructures.clearWidth")} value={numberText(props.bridge_clear_width_m, " m")} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="dataLimits" value={t("popup.networkStructures.tnLimits")} />
     <SourceRows props={props} />
   </>;
 }
@@ -354,7 +350,6 @@ export function OfficialBridgeHsinchuPanel({ props }: { props: Record<string, un
     <Row field="route" value={text(props.route)} />
     <Row label={t("popup.networkStructures.registeredLength")} value={numberText(props.official_length_m, " m")} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="dataLimits" value={t("popup.networkStructures.hcLimits")} />
     <SourceRows props={props} />
   </>;
 }
@@ -372,7 +367,6 @@ export function TaipeiRoadTunnelPanel({ props }: { props: Record<string, unknown
     <Row label={t("popup.networkStructures.directionDetail")} value={numberText(props.direction_count, t("popup.networkStructures.unitRecord"))} />
     <Row label={t("popup.networkStructures.directionalLengthSum")} value={numberText(props.directional_length_sum_m, " m")} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="dataLimits" value={t("popup.networkStructures.tpLimits")} />
     <SourceRows props={props} />
   </>;
 }
@@ -390,7 +384,6 @@ export function TainanRoadTunnelPanel({ props }: { props: Record<string, unknown
     <Row label={t("popup.networkStructures.registeredWidth")} value={numberText(props.official_width_m, " m")} />
     <Row label={t("popup.networkStructures.laneCount")} value={numberText(props.lane_count)} />
     <GeometryRow role={props.geometry_role} />
-    <Row label={t("popup.networkStructures.crsLimit")} value={t("popup.networkStructures.crsLimitValue")} />
     <SourceRows props={props} />
   </>;
 }
@@ -405,7 +398,6 @@ export function ChanghuaTrafficSignalPanel({ props }: { props: Record<string, un
     <Row label={t("popup.networkStructures.responsibleAuthority")} value={text(props.responsible_authority)} />
     <Row label={t("popup.networkStructures.district")} value={placeTown("", text(props.district), i18n)} />
     <GeometryRow role={props.geometry_role} />
-    <Row field="dataLimits" value={t("popup.networkStructures.chLimits")} />
     <SourceRows props={props} />
   </>;
 }

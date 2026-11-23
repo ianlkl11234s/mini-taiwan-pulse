@@ -93,5 +93,6 @@
   "dataSources.contract.demographics": "只接受 {count} 個已交付 exact release selector；缺值以斜線表示、不補 0；PARTIAL 期別保留覆蓋狀態。",
   "dataSources.contract.registered": "regionalStatisticsRecipes 的既有載入契約；release selector 只解析既有公開期別。",
   "dataSources.licenseUnstated": "授權未明示",
-  "dataSources.block.layerSource": "圖層來源"
+  "dataSources.block.layerSource": "圖層來源",
+  "dataSources.noteWithLabel": "{label}：{text}"
 }

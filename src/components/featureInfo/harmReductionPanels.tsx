@@ -171,12 +171,10 @@ export function HarmReductionInternetAddictionPanel({ props }: Props) {
 }
 
 export function HarmReductionAftercarePanel({ props }: Props) {
-  const t = useFeatureTheme();
   const { t: tr } = useLocale();
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionAftercare}>{str(props.name) || tr("popup.harmReduction.aftercareTitle")}</Title>
     <Row label={tr("popup.harmReduction.unit")} value={str(props.office_type_label)} />
-    <Row field="dataVersion" value={tr("popup.harmReduction.aftercareVersion")} color={t.warn} />
     <CommonRows props={props} />
   </>;
 }
@@ -198,7 +196,6 @@ export function HarmReductionAntiDrugPharmacyPanel({ props }: Props) {
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies}>{str(props.name) || tr("popup.harmReduction.pharmacyTitle")}</Title>
     <Row label={tr("popup.harmReduction.program")} value={str(props.program)} />
-    <Row field="coverageScope" value={tr("popup.harmReduction.pharmacyScope")} />
     <CommonRows props={props} />
   </>;
 }
@@ -213,20 +210,17 @@ export function HarmReductionCondomOutletPanel({ props }: Props) {
     <Row field="type" value={coded("harmReductionCondomOutlet", props.outlet_type, str(props.outlet_type_label), i18n)} color={color} />
     <Row label={tr("popup.harmReduction.itemNote")} value={str(props.item_note)} />
     {props.item_confirmed === false && <Row label={tr("popup.harmReduction.item")} value={tr("popup.harmReduction.itemUnconfirmed")} color={t.warn} />}
-    <Row field="coverageScope" value={tr("popup.harmReduction.condomScope")} />
     <CommonRows props={props} />
   </>;
 }
 
 export function HarmReductionTherapeuticCommunityPanel({ props }: Props) {
-  const t = useFeatureTheme();
   const { t: tr } = useLocale();
   return <>
     <Title color={HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities}>{str(props.name) || tr("popup.harmReduction.communityTitle")}</Title>
     <Row label={tr("popup.harmReduction.serviceModes")} value={str(props.service_modes)} />
     <Row label={tr("popup.harmReduction.program")} value={str(props.programs)} />
     <Row label={tr("popup.harmReduction.therapeuticCommunity")} value={yesNo(props.is_therapeutic_community, tr)} />
-    <Row label={tr("popup.harmReduction.locationNote")} value={tr("popup.harmReduction.locationNoteValue")} color={t.warn} />
     <CommonRows props={props} />
   </>;
 }

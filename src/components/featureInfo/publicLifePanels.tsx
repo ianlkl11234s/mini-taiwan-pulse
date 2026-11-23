@@ -135,7 +135,6 @@ export function DisasterShelterPanel({ props }: Props) {
   const { t: tr } = i18n;
   return <>
     <PanelHeader title={text(props.name) || tr("popup.publicLife.unnamedShelter")} color={PUBLIC_LIFE_COLORS.disasterShelters} />
-    <Row field="dataRole" value={tr("popup.publicLife.shelterRole")} color={PUBLIC_LIFE_COLORS.disasterShelters} />
     <Row field="countyTownship" value={placeName(text(props.county_town), i18n)} />
     <Row field="address" value={text(props.address)} />
     <Row label={tr("popup.publicLife.shelterCapacity")} value={text(props.capacity)} />

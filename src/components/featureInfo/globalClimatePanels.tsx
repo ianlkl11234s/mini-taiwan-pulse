@@ -164,7 +164,6 @@ export function TyphoonAgencyForecastPanel({ props }: { props: Record<string, un
       )}
       <Row label={i18n.t("popup.globalClimate.typValidAt")} value={fmtTime(props.valid_ts, i18n)} />
       <Row field="name" value={matched ?? i18n.t("popup.globalClimate.typUnmatched")} />
-      <Row field="description" value={i18n.t("popup.globalClimate.typAgencyNote")} />
       <Row field="attribution" value={enumLabel("typhoonAgencyOrg", "ncdr", TYPHOON_AGENCY_ORG, i18n)} />
     </div>
   );
@@ -178,7 +177,6 @@ export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown
     <div>
       <Row label={t("popup.globalClimate.region")} value={String(props.region ?? "—")} />
       <Row label={t("popup.globalClimate.dataset")} value="Outerview（CC-BY-4.0）" />
-      <Row field="description" value={t("popup.globalClimate.trashNote")} />
     </div>
   );
 }

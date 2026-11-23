@@ -193,7 +193,6 @@ export function PbsRoadEventsLivePanel({ props }: { props: Record<string, unknow
   return (
     <>
       <Title color={color}>{roadtype || enumLabel("pbsCategory", cat, PBS_CATEGORY_LABEL[cat], i18n)}</Title>
-      <Row label={t("popup.liveIncidents.precision")} value={t("popup.liveIncidents.pbsPrecision")} />
       <Row label={t("popup.liveIncidents.happened")} value={formatTaiwanMinute(msIso(props.happened_ms))} mono />
       <Row label={t("popup.liveIncidents.status")} value={enumLabel("pbsStatus", status, PBS_STATUS_LABEL[status], i18n)} />
       <Row label={t("popup.liveIncidents.area")} value={typeof props.area === "string" ? props.area : ""} />

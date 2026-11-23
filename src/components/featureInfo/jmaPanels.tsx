@@ -74,7 +74,6 @@ export function JmaAmedasPanel({ props }: PanelProps) {
     <PopupDetails summary={tr("popup.jma.detailsStation")}>
       <Row label={tr("popup.jma.stationNameEn")} value={text(props.station_name_en)} />
       <Row field="elevation" value={measure_(props.alt_m, "m", 0)} />
-      <Row field="description" value={tr("popup.jma.amedasNote")} />
     </PopupDetails>
     <Footer />
   </>;
@@ -136,7 +135,6 @@ export function JmaQuakesPanel({ props }: PanelProps) {
     <Row label={tr("popup.jma.reportTime")} value={formatJst(props.report_time) || tr("popup.common.none")} mono />
     <PopupDetails summary={tr("popup.jma.detailsQuake")}>
       {byPref && <Row label={tr("popup.jma.intensityByPref")} value={byPref.length > 400 ? `${byPref.slice(0, 400)}…` : byPref} />}
-      <Row field="description" value={tr("popup.jma.quakeNote")} />
     </PopupDetails>
     <Footer />
   </>;

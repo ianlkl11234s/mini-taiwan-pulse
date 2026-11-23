@@ -10,7 +10,7 @@
 import type { MessageKey } from "../i18n/keys";
 import type { Locale } from "../i18n/locales";
 import { LAYER_MANIFEST } from "./layerManifest";
-import { LAYER_SOURCE_INFO_DATA } from "./layerSourceInfo.data";
+import { LAYER_NOTES_DATA, LAYER_SOURCE_INFO_DATA } from "./layerSourceInfo.data";
 import { PH_DATA_SPECS } from "./phDataLayers";
 import { CA_WAVE_SPECS } from "./caWavesLayers";
 import { VN_DATA_SPECS } from "./vnDataLayers";
@@ -77,10 +77,12 @@ const SPEC_NOTES: ReadonlyMap<string, SourceText[]> = (() => {
 })();
 
 export function getLayerSourceInfo(layerKey: string): LayerSourceInfo | null {
-  const info = LAYER_SOURCE_INFO[layerKey];
-  if (!info) return null;
-  const specNotes = SPEC_NOTES.get(layerKey);
-  return specNotes ? { ...info, notes: [...(info.notes ?? []), ...specNotes] } : info;
+  return LAYER_SOURCE_INFO[layerKey] ?? null;
+}
+
+/** 圖層說明（每筆都一樣的備註、方法說明、資料時點）：來源表的 notes＋popup 搬來的固定列＋外國規格層的 popupNotes。 */
+export function getLayerNotes(layerKey: string): readonly SourceText[] {
+  return [...(LAYER_SOURCE_INFO[layerKey]?.notes ?? []), ...(LAYER_NOTES_DATA[layerKey] ?? []), ...(SPEC_NOTES.get(layerKey) ?? [])];
 }
 
 /** 越南依來源欄切換署名的層（規格有 `more`：部分 feature 屬另一個來源）。 */

@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { layerNotesZh } from "./layerNotesText";
 import { JpBusStopsPanel, JpEvacuationSitesPanel, JpInlandFloodAreasPanel, JpLandslideWarningAreasPanel, JpNationalForestsPanel, JpPublicOfficesPanel, JpZoningUseDistrictsPanel } from "../japanPanels";
 
 describe("日本第一波 popup 資料語意", () => {
@@ -12,8 +13,8 @@ describe("日本第一波 popup 資料語意", () => {
     expect(html).toContain("洪水");
     expect(html).toContain("津波");
     expect(html).not.toContain("地震");
-    expect(html).toContain("不可相加");
-    expect(html).toContain("請向市町村確認");
+    expect(layerNotesZh("jpEvacuationSites")).toContain("不可相加"); // 固定說明已搬到圖層「說明・來源」
+    expect(layerNotesZh("jpEvacuationSites")).toContain("請向市町村確認");
     expect(html).toContain("2026-10-19");
     expect(html).not.toContain(">null<");
   });
@@ -36,7 +37,7 @@ describe("日本第一波 popup 資料語意", () => {
     expect(html).toContain("東京都");
     expect(html).toContain("テストバス");
     expect(html).toContain("社區巴士");
-    expect(html).toContain("高速バス");
+    expect(layerNotesZh("jpBusStops")).toContain("高速バス"); // 固定說明已搬到圖層「說明・來源」
   });
 
   it("土砂災害警戒區域：概略位置與紅黃巢狀警語；有 license_note 才顯示授權限制", () => {
@@ -47,8 +48,8 @@ describe("日本第一波 popup 資料語意", () => {
     expect(plain).toContain("特別警戒區域");
     expect(plain).toContain("土石流");
     expect(plain).toContain("京都府");
-    expect(plain).toContain("非法定圖書");
-    expect(plain).toContain("不可相加");
+    expect(layerNotesZh("jpLandslideWarningAreas")).toContain("非法定圖書"); // 固定說明已搬到圖層「說明・來源」
+    expect(layerNotesZh("jpLandslideWarningAreas")).toContain("不可相加");
     expect(plain).toContain("土砂災害警戒区域データ");
     expect(plain).not.toContain("授權限制");
     expect(render({ license_note: "商用利用不可" })).toContain("商用利用不可");
@@ -67,8 +68,8 @@ describe("日本第一波 popup 資料語意", () => {
     expect(html).toContain("大牟田市");
     expect(html).toContain("1–3 m");
     expect(html).toContain("想定最大規模降雨");
-    expect(html).toContain("28 個市町村");
-    expect(html).toContain("無資料不代表");
+    expect(layerNotesZh("jpInlandFloodAreas")).toContain("28 個市町村"); // 固定說明已搬到圖層「說明・來源」
+    expect(layerNotesZh("jpInlandFloodAreas")).toContain("無資料不代表");
     expect(html).toContain("雨水出水");
   });
 
@@ -80,7 +81,7 @@ describe("日本第一波 popup 資料語意", () => {
     expect(empty).toContain("商業地域");
     expect(empty).toContain(">未記載<");
     expect(empty).not.toContain(">0%<");
-    expect(empty).toContain("僅供參考");
+    expect(layerNotesZh("jpZoningUseDistricts")).toContain("僅供參考"); // 固定說明已搬到圖層「說明・來源」
     const full = render({ far_pct: 500, bcr_pct: 80 });
     expect(full).toContain("500%");
     expect(full).toContain("80%");
@@ -99,7 +100,7 @@ describe("日本第一波 popup 資料語意", () => {
     expect(html).toContain("土砂崩壊防備保安林（見込み地）");
     expect(html).toContain("27%");
     expect(html).toContain("265.2 ha");
-    expect(html).toContain("民有林不在內");
+    expect(layerNotesZh("jpNationalForests")).toContain("民有林不在內"); // 固定說明已搬到圖層「說明・來源」
     expect(html).toContain("不代表不是保護林");
     expect(html).toContain("国有林GISデータ");
   });

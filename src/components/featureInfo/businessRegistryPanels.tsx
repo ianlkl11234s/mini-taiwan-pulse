@@ -224,7 +224,6 @@ export function CompanyAgeStructurePanel({ props }: { props: Record<string, unkn
       return <Row key={field} label={label} value={count === null || known === null || known === 0 ? missing(i18n) : t("popup.businessRegistry.companyWithShare", { count, n: i18n.formatNumber(count), pct: (count / known * 100).toFixed(1) })} />;
     })}
     <Row label={t("popup.businessRegistry.missingInvalidYear")} value={t("popup.businessRegistry.pairSep", { a: validCount(props.age_missing) ?? missing(i18n), b: validCount(props.age_invalid) ?? missing(i18n) })} />
-    <Row field="snapshot" value={t("popup.businessRegistry.ageNote")} />
   </>;
 }
 

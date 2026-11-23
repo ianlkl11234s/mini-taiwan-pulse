@@ -272,7 +272,6 @@ export function RiverRpiSegmentsPanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.flowDirection")} value={direction === "verified" ? "" : (RIVER_RPI_DIRECTION_LABELS[direction] == null ? t("popup.environmentLayer.unverified") : dirLabel(direction, RIVER_RPI_DIRECTION_LABELS[direction]!))} />
     <Row label={t("popup.environmentLayer.toReview")} value={notes.join(t("popup.common.semicolon"))} />
     <PopupDetails summary={t("popup.environmentLayer.methodAndLimits")}>
-      <Row field="method" value={t("popup.environmentLayer.methodText")} />
       <Row label={t("popup.environmentLayer.riverMatch")} value={method == null ? "" : `${enumLabel("envRpiAssign", methodKey, method, i18n)}${distance == null ? "" : t("popup.environmentLayer.assignDistance", { value: fmt(i18n, distance, 0) })}`} />
       <Row label={t("popup.environmentLayer.flowDirection")} value={direction === "verified" ? dirLabel("verified", RIVER_RPI_DIRECTION_LABELS.verified ?? "") : ""} />
       <Row label={t("popup.environmentLayer.downstream")} value={rpiDownstreamNote(i18n, props)} />

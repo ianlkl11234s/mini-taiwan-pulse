@@ -305,6 +305,7 @@ export type GeneratedStaticKey =
   | "dataSources.loadingLabel.values"
   | "dataSources.lockedTitle"
   | "dataSources.noCatalogEntry"
+  | "dataSources.noteWithLabel"
   | "dataSources.numerator"
   | "dataSources.periodCount"
   | "dataSources.periodNone"

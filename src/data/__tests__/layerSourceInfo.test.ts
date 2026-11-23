@@ -2,8 +2,10 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PANEL_REGISTRY } from "../../components/featureInfo/registry";
+import { LAYER_MANIFEST } from "../layerManifest";
+import { LAYER_NOTES_DATA } from "../layerSourceInfo.data";
 import type { MessageKey } from "../../i18n/keys";
-import { LAYER_SOURCE_INFO, POPUP_PER_FEATURE_SOURCE, popupSourceMode, resolveSourceText, type SourceText } from "../layerSourceInfo";
+import { getLayerNotes, LAYER_SOURCE_INFO, POPUP_PER_FEATURE_SOURCE, popupSourceMode, resolveSourceText, type SourceText } from "../layerSourceInfo";
 
 /**
  * 站主 2026-11-23：來源與資料說明放圖層的「說明・來源」，popup 只放使用者需要的資料。
@@ -115,5 +117,17 @@ describe("圖層來源表（popup 來源移到圖層側）", () => {
     const noLicense = Object.entries(LAYER_SOURCE_INFO).filter(([, info]) => info.license == null).map(([key]) => key);
     expect(noLicense.filter((key) => !LICENSE_UNSTATED.has(key))).toEqual([]);
     expect([...LICENSE_UNSTATED].filter((key) => LAYER_SOURCE_INFO[key]?.license != null)).toEqual([]);
+  });
+
+  it("從 popup 搬來的固定說明：圖層存在、每句都解析得出字、引用的 i18n key 都存在", () => {
+    const bad: string[] = [];
+    for (const key of Object.keys(LAYER_NOTES_DATA)) {
+      if (!(key in LAYER_MANIFEST)) bad.push(`${key}: 不是 manifest 圖層`);
+      for (const note of getLayerNotes(key)) {
+        for (const ref of keysIn(note)) if (!(ref in ZH)) bad.push(`${key}: 缺 i18n key ${ref}`);
+        if (!resolveSourceText(note, { active: "zh-TW", lookup }).trim()) bad.push(`${key}: 說明解析為空`);
+      }
+    }
+    expect(bad).toEqual([]);
   });
 });
