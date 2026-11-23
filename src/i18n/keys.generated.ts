@@ -2018,6 +2018,8 @@ export type GeneratedStaticKey =
   | "legend.mapchallenge.day23.intl.limits.jp"
   | "legend.mapchallenge.day23.intl.limits.kr"
   | "legend.mapchallenge.day23.intl.scope"
+  | "legend.mapchallenge.day23.intl.sizeHigh"
+  | "legend.mapchallenge.day23.intl.sizeLow"
   | "legend.mapchallenge.day23.intl.sizeNote"
   | "legend.mapchallenge.day23.intl.source.gb"
   | "legend.mapchallenge.day23.intl.source.jp"

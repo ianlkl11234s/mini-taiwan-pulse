@@ -343,8 +343,8 @@
   "legend.mapchallenge.day23.intl.term.jp.monja": "文字燒",
   "legend.mapchallenge.day23.intl.termName": "{label}（{gloss}）",
   "legend.mapchallenge.day23.intl.termRow": "店名含「{term}」的店 {n} 家（其中 {m} 家有座標、畫在圖上）",
-  "legend.mapchallenge.day23.intl.sizeNote": "家數多的詞整體畫得比較小（各詞的圓大小比例不同），不同詞、不同國家之間不能用圓的大小互比。",
-  "legend.mapchallenge.day23.intl.gridNote": "圓點畫在六角格中心，不是店家位置。縮小時每格約 {low} 平方公里，放大到 {z} 級以上換成約 {high} 平方公里的小格；只有 1–2 家的格子也照畫。",
+  "legend.mapchallenge.day23.intl.sizeNote": "家數多的詞整體畫得比較小（各詞、大格與小格的圓大小比例都不同），不同詞、不同國家、不同縮放之間不能用圓的大小互比。",
+  "legend.mapchallenge.day23.intl.gridNote": "圓點畫在六角格中心，不是店家位置；只有 1–2 家的格子也照畫。",
   "legend.mapchallenge.day23.intl.scope": "只計店名含該詞的店；不代表口味偏好。",
   "legend.mapchallenge.day23.intl.where.kr": "資料只涵蓋南韓；要把地圖移到南韓才看得到圓點。",
   "legend.mapchallenge.day23.intl.where.gb": "資料只涵蓋英國；要把地圖移到英國才看得到圓點。",
@@ -357,5 +357,7 @@
   "legend.mapchallenge.day23.intl.base.jp": "母體：OSM 的 amenity＝restaurant／fast_food／cafe／food_court／pub／bar，落在 47 都道府縣內 {n} 處（95% 有店名）；Overpass 擷取日 {date}。不顯示店名與地址。",
   "legend.mapchallenge.day23.intl.source.kr": "資料：小商工人市場振興公團「商街（商圈）資訊」（2026-09-30），公共資料入口 data.go.kr · 授權：「이용허락범위 제한 없음」（利用許可範圍：無限制）",
   "legend.mapchallenge.day23.intl.source.gb": "Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
-  "legend.mapchallenge.day23.intl.source.jp": "© OpenStreetMap contributors（ODbL）· 經 Overpass API 取得"
+  "legend.mapchallenge.day23.intl.source.jp": "© OpenStreetMap contributors（ODbL）· 經 Overpass API 取得",
+  "legend.mapchallenge.day23.intl.sizeLow": "縮小時（每格約 {km2} 平方公里）",
+  "legend.mapchallenge.day23.intl.sizeHigh": "放大到 {z} 級以上（每格約 {km2} 平方公里）"
 }

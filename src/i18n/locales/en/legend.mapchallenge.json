@@ -343,8 +343,8 @@
   "legend.mapchallenge.day23.intl.term.jp.monja": "monjayaki",
   "legend.mapchallenge.day23.intl.termName": "{label} ({gloss})",
   "legend.mapchallenge.day23.intl.termRow": "Shops whose name contains “{term}”: {n} (of which {m} have coordinates and are drawn)",
-  "legend.mapchallenge.day23.intl.sizeNote": "Words with many shops are drawn smaller overall (each word has its own size ratio), so circle sizes cannot be compared between words or between countries.",
-  "legend.mapchallenge.day23.intl.gridNote": "Dots sit at hexagon centres, not at shop locations. Zoomed out, each cell is about {low} km²; from zoom {z} it switches to cells of about {high} km². Cells with only 1–2 shops are drawn too.",
+  "legend.mapchallenge.day23.intl.sizeNote": "Words with many shops are drawn smaller overall (each word, and the large and small cells, have their own size ratio), so circle sizes cannot be compared between words, countries or zoom levels.",
+  "legend.mapchallenge.day23.intl.gridNote": "Dots sit at hexagon centres, not at shop locations. Cells with only 1–2 shops are drawn too.",
   "legend.mapchallenge.day23.intl.scope": "Only shops whose name contains the word are counted; this does not indicate taste preference.",
   "legend.mapchallenge.day23.intl.where.kr": "Data covers South Korea only; move the map to South Korea to see the dots.",
   "legend.mapchallenge.day23.intl.where.gb": "Data covers the United Kingdom only; move the map to the UK to see the dots.",
@@ -357,5 +357,7 @@
   "legend.mapchallenge.day23.intl.base.jp": "Base: {n} OSM features with amenity = restaurant / fast_food / cafe / food_court / pub / bar inside the 47 prefectures (95% have a name); Overpass retrieved {date}. Shop names and addresses are not shown.",
   "legend.mapchallenge.day23.intl.source.kr": "Data: 소상공인시장진흥공단 (Small Enterprise and Market Service), “상가(상권)정보” (2026-09-30), public data portal data.go.kr · Licence: “이용허락범위 제한 없음” (scope of permitted use: no restriction)",
   "legend.mapchallenge.day23.intl.source.gb": "Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
-  "legend.mapchallenge.day23.intl.source.jp": "© OpenStreetMap contributors (ODbL) · retrieved via the Overpass API"
+  "legend.mapchallenge.day23.intl.source.jp": "© OpenStreetMap contributors (ODbL) · retrieved via the Overpass API",
+  "legend.mapchallenge.day23.intl.sizeLow": "Zoomed out (cells of about {km2} km²)",
+  "legend.mapchallenge.day23.intl.sizeHigh": "From zoom {z} (cells of about {km2} km²)"
 }

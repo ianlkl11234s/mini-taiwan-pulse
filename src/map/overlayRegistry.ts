@@ -13550,11 +13550,12 @@ OVERLAY_REGISTRY.push({
   }]),
 });
 // 第三批（2026-11-23）南韓／英國／日本「店名料理詞」：同圖層 1 的做法，一張國別設定表（MAPCHALLENGE_DAY23_INTL）產三個 config。
-// 各國的格網級別與切換縮放不同（南韓 6／7 z9；英日 5／7 z8）；半徑係數 k 依詞（家數多的詞縮小）。
+// 各國的格網級別與切換縮放不同（南韓 6／7 z9；英日 5／7 z8）；半徑係數依詞與格網級別（k＝大格、kHigh＝小格；家數多的詞縮小）。
 for (const country of MAPCHALLENGE_DAY23_INTL) {
   const [low] = country.res;
   const zoomOf = (res: number) => (res === low ? { maxzoom: country.switchZoom } : { minzoom: country.switchZoom });
   const termOf = (p?: Record<string, number>) => mapchallengeDay23IntlTermAt(country, p?.[`${country.key}TermIdx`]);
+  const kOf = (p: Record<string, number> | undefined, res: number) => (res === low ? termOf(p).k : termOf(p).kHigh);
   const scaleOf = (p?: Record<string, number>) => p?.[`${country.key}Scale`] ?? 1;
   const opacityOf = (p?: Record<string, number>) => p?.[`${country.key}Opacity`] ?? 0.85;
   OVERLAY_REGISTRY.push({
@@ -13566,7 +13567,7 @@ for (const country of MAPCHALLENGE_DAY23_INTL) {
       filter: (p) => mapchallengeDay23TermFilter(termOf(p), res),
       paint: (isDark, p) => ({
         "circle-color": mapchallengeDay23TermColor(termOf(p), isDark),
-        "circle-radius": mapchallengeDay23RadiusExpr(scaleOf(p), MAPCHALLENGE_DAY23_GLOW.radiusFactor, termOf(p).k),
+        "circle-radius": mapchallengeDay23RadiusExpr(scaleOf(p), MAPCHALLENGE_DAY23_GLOW.radiusFactor, kOf(p, res)),
         "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
         "circle-opacity": mapchallengeDay23GlowOpacity(isDark, opacityOf(p)),
       }),
@@ -13576,7 +13577,7 @@ for (const country of MAPCHALLENGE_DAY23_INTL) {
       filter: (p) => mapchallengeDay23TermFilter(termOf(p), res),
       paint: (isDark, p) => ({
         "circle-color": mapchallengeDay23TermColor(termOf(p), isDark),
-        "circle-radius": mapchallengeDay23RadiusExpr(scaleOf(p), 1, termOf(p).k),
+        "circle-radius": mapchallengeDay23RadiusExpr(scaleOf(p), 1, kOf(p, res)),
         "circle-opacity": opacityOf(p),
       }),
     }]),

@@ -833,6 +833,7 @@ const MAPCHALLENGE_DAY23_INTL_TERM_KEYS: Readonly<Record<IntlCc, Readonly<Record
   jp: { udon: "legend.mapchallenge.day23.intl.term.jp.udon", okonomiyaki: "legend.mapchallenge.day23.intl.term.jp.okonomiyaki", takoyaki: "legend.mapchallenge.day23.intl.term.jp.takoyaki", soba: "legend.mapchallenge.day23.intl.term.jp.soba", gyutan: "legend.mapchallenge.day23.intl.term.jp.gyutan", jingisukan: "legend.mapchallenge.day23.intl.term.jp.jingisukan", motsunabe: "legend.mapchallenge.day23.intl.term.jp.motsunabe", monja: "legend.mapchallenge.day23.intl.term.jp.monja" },
 };
 const MAPCHALLENGE_DAY23_INTL_SIZE_STEPS = [1, 10, 50] as const;
+const MAPCHALLENGE_DAY23_INTL_SIZE_STEPS_HIGH = [1, 5, 20] as const;
 /** 詞的顯示名：原文（說明）；說明與原文相同時只顯示原文 */
 export function useMapchallengeDay23IntlTermName(): (country: MapchallengeDay23IntlCountry, term: MapchallengeDay23IntlTerm) => string {
   const { t } = useLocale();
@@ -858,9 +859,11 @@ export function MapchallengeDay23TasteIntlLegend({ layerKey, isDark }: { layerKe
     <LegendRow swatch={<SwatchDot color={color} />}>
       {t("legend.mapchallenge.day23.intl.termRow", { term: termName(country, term), n: formatNumber(term.stores), m: formatNumber(term.mapped) })}
     </LegendRow>
-    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, 1, term.k), label: String(n) }))} fill={color} />
+    <LegendNote>{t("legend.mapchallenge.day23.sizeTitle")}</LegendNote>
+    <LegendSizeRow title={t("legend.mapchallenge.day23.intl.sizeLow", { km2: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[low] ?? 0) })} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, 1, term.k), label: String(n) }))} fill={color} />
+    <LegendSizeRow title={t("legend.mapchallenge.day23.intl.sizeHigh", { z: country.switchZoom, km2: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[high] ?? 0) })} items={MAPCHALLENGE_DAY23_INTL_SIZE_STEPS_HIGH.map((n) => ({ r: mapchallengeDay23Radius(n, 1, term.kHigh), label: String(n) }))} fill={color} />
     <LegendNote>{t("legend.mapchallenge.day23.intl.sizeNote")}</LegendNote>
-    <LegendNote>{t("legend.mapchallenge.day23.intl.gridNote", { low: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[low] ?? 0), high: formatNumber(MAPCHALLENGE_DAY23_CELL_KM2[high] ?? 0), z: country.switchZoom })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.intl.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.intl.scope")}</LegendNote>
     <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.limits[country.cc])}</LegendNote>
     <LegendNote>{t(MAPCHALLENGE_DAY23_INTL_KEYS.base[country.cc], { n: formatNumber(country.baseStores), xy: formatNumber(country.baseWithXy), date: country.dataDate })}</LegendNote>

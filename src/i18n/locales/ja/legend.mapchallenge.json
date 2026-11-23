@@ -343,8 +343,8 @@
   "legend.mapchallenge.day23.intl.term.jp.monja": "もんじゃ",
   "legend.mapchallenge.day23.intl.termName": "{label}（{gloss}）",
   "legend.mapchallenge.day23.intl.termRow": "店名に「{term}」を含む店は {n} 軒である（うち {m} 軒は座標があり、図に描いている）。",
-  "legend.mapchallenge.day23.intl.sizeNote": "店の多い語は全体に小さく描いている（語ごとに円の倍率が異なる）。語どうし、国どうしで円の大きさを比べることはできない。",
-  "legend.mapchallenge.day23.intl.gridNote": "点は六角形セルの中心であり、店の位置ではない。縮小時は 1 セル約 {low} km²、ズーム {z} 以上では約 {high} km² の小さいセルに切り替わる。1〜2 軒しかないセルも描いている。",
+  "legend.mapchallenge.day23.intl.sizeNote": "店の多い語は全体に小さく描いている（語ごと、大きいセルと小さいセルで円の倍率が異なる）。語どうし、国どうし、ズームどうしで円の大きさを比べることはできない。",
+  "legend.mapchallenge.day23.intl.gridNote": "点は六角形セルの中心であり、店の位置ではない。1〜2 軒しかないセルも描いている。",
   "legend.mapchallenge.day23.intl.scope": "店名にその語を含む店だけを数えている。味の好みを示すものではない。",
   "legend.mapchallenge.day23.intl.where.kr": "データは韓国のみである。点を見るには地図を韓国へ移動する。",
   "legend.mapchallenge.day23.intl.where.gb": "データはイギリスのみである。点を見るには地図をイギリスへ移動する。",
@@ -357,5 +357,7 @@
   "legend.mapchallenge.day23.intl.base.jp": "母数：OSM の amenity＝restaurant／fast_food／cafe／food_court／pub／bar で、47 都道府県内の {n} か所（95% に店名がある）。Overpass 取得日 {date}。店名と住所は表示しない。",
   "legend.mapchallenge.day23.intl.source.kr": "データ：小商工人市場振興公団（소상공인시장진흥공단）「상가(상권)정보」（2026-09-30）、公共データポータル data.go.kr · ライセンス：「이용허락범위 제한 없음」（利用許諾範囲：制限なし）",
   "legend.mapchallenge.day23.intl.source.gb": "Contains Food Standards Agency data (Food Hygiene Rating Scheme), licensed under the Open Government Licence v3.0. © Crown copyright",
-  "legend.mapchallenge.day23.intl.source.jp": "© OpenStreetMap contributors（ODbL）· Overpass API 経由で取得"
+  "legend.mapchallenge.day23.intl.source.jp": "© OpenStreetMap contributors（ODbL）· Overpass API 経由で取得",
+  "legend.mapchallenge.day23.intl.sizeLow": "縮小時（1 セル約 {km2} km²）",
+  "legend.mapchallenge.day23.intl.sizeHigh": "ズーム {z} 以上（1 セル約 {km2} km²）"
 }
