@@ -165,8 +165,8 @@ const FLOOD_PERIOD_CODE: Record<string, L3> = {
 export const IE_W3B_FETCHED_AT = "2026-11-08";
 export const IE_W5_FETCHED_AT = "2026-11-08";
 export const IE_W7A_FETCHED_AT = "2026-11-08";
-/** 來源頁未標示授權：依 2026-10-09 政策照常上線，圖例標「授權待確認」。 */
-const LICENSE_PENDING = "未標示（授權待確認）";
+/** 來源頁未標示授權：依 2026-10-09 政策照常上線，標「授權未明示」。 */
+const LICENSE_PENDING = "授權未明示";
 /** EPA 年度浴場水質分級（Bathing Water Quality Regulations 2008，前 4 季採樣）：沿用歐盟浴場分級慣例的藍、綠、黃、紅。 */
 const BATHING_CATS: readonly KrCat[] = [
   { id: "excellent", values: ["excellent"], color: "#38bdf8", label: l3("極佳 Excellent", "Excellent", "極めて良好（Excellent）") },
@@ -834,7 +834,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     legendNotes: [l3("OPW 全國指示性河川淹水模擬（NIFM）：現況與兩種未來氣候情境（中端 MRFS、高端 HEFS）× 20／100／1000 年一遇，共 9 組，在圖層設定切換（預設現況・100 年一遇）", "OPW National Indicative Fluvial Mapping: current and two future scenarios (mid-range MRFS, high-end HEFS) × 1-in-20/100/1000 year, 9 sets switchable in layer settings (default: current, 1-in-100)", "OPW 全国指示的河川浸水図（NIFM）：現況と将来2シナリオ（中位 MRFS・高位 HEFS）× 20／100／1000年確率の9組をレイヤー設定で切替（既定：現況・100年確率）"),
                   l3("指示性模擬，不是個別地塊的淹水判定；只含河川淹水，不含海岸、地下水與地表逕流淹水", "Indicative modelling, not a property-level flood assessment; fluvial only (excludes coastal, groundwater and pluvial flooding)", "指示的なシミュレーションで個別地点の判定ではない。河川氾濫のみ（沿岸・地下水・内水は含まない）"),
                   l3("拉遠時圖磚會省略最小的淹水面（只影響顯示）", "Smallest flood polygons are omitted in zoomed-out tiles (display only)", "縮小時のタイルでは最小の浸水面を省略（表示のみ）")],
-    popupNotes: [l3("CC BY-NC-ND・非商業使用；OPW 指示性模擬，非地塊判定", "CC BY-NC-ND · non-commercial; OPW indicative modelling, not property-level", "CC BY-NC-ND・非商用。OPW の指示的シミュレーションで地点判定ではない")],
+    popupNotes: [l3("OPW 指示性模擬，非地塊判定", "OPW indicative modelling, not property-level", "OPW の指示的シミュレーションで地点判定ではない")],
     sourceOrg: "Office of Public Works (OPW), National Indicative Fluvial Mapping (NIFM)", sourceUrl: DGI("nifm-river-flood-extents-current-scenario"), license: CC_BY_NC_ND, fetchedAt: IE_W3A_FETCHED_AT,
     loading: l3("愛爾蘭河川淹水範圍載入中", "Loading Ireland river flood extents", "アイルランドの河川浸水範囲を読み込み中"),
   },
@@ -849,7 +849,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "region", label: l3("ICPSS 分區", "ICPSS region", "ICPSS 区域") }, { prop: "pub_date", label: l3("發布", "Published", "公表") }],
     legendNotes: [l3("OPW 愛爾蘭海岸防護策略研究（ICPSS 2010–2014）：2050 侵蝕線 1,220 段（現況情境推估）、侵蝕速率線 73,036 段（約 72% 為 0）", "OPW Irish Coastal Protection Strategy Study (ICPSS 2010–2014): 2050 erosion line 1,220 segments (current scenario) and erosion rate line 73,036 segments (about 72% are 0)", "OPW アイルランド海岸防護戦略調査（ICPSS 2010–2014）：2050年侵食線1,220区間（現況シナリオ）・侵食速度線73,036区間（約72%が0）"),
                   l3("官方說明：評估未排除既有海岸防護結構的影響", "Per the OPW: the assessment does not exclude the effect of existing coastal defences", "OPW の説明：既存の海岸防護施設の影響は除外されていない")],
-    popupNotes: [l3("CC BY-NC-ND・非商業使用；ICPSS 2010–2014 推估", "CC BY-NC-ND · non-commercial; ICPSS 2010–2014 estimate", "CC BY-NC-ND・非商用。ICPSS 2010–2014 の推計")],
+    popupNotes: [l3("ICPSS 2010–2014 推估", "ICPSS 2010–2014 estimate", "ICPSS 2010–2014 の推計")],
     sourceOrg: "Office of Public Works (OPW), Irish Coastal Protection Strategy Study (ICPSS 2010–2014)", sourceUrl: DGI("icpss-2010-2014-erosion-rate-line"), license: CC_BY_NC_ND, fetchedAt: IE_W3A_FETCHED_AT,
     loading: l3("愛爾蘭海岸侵蝕載入中", "Loading Ireland coastal erosion", "アイルランドの海岸侵食を読み込み中"),
   },  // ───────────── 第 4 波：交通（場站、路網、樞紐節點） ─────────────
@@ -1452,7 +1452,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
                   GEOCODE_NOTE,
                   l3("上圖 535 家（命中 OSM 同名設施 200、門牌 45、街道 127、城鎮 163）；另 12 家查無結果、未上圖（無只到郡級者）", "535 mapped (matched OSM facility 200, house number 45, street 127, town 163); 12 more could not be located and are not mapped (none resolved only to county level)", "地図化535か所（OSM 同名施設 200、番地 45、通り 127、町 163）。ほか12か所は位置が特定できず未表示（県レベルのみのものはなし）"),
                   l3("負責人姓名、電話等個資欄位不收；身障機構 1,821 家只有郡別，未上圖", "Person-in-charge names, phone numbers and other personal fields are excluded; 1,821 disability centres have only a county and are not mapped", "管理者の氏名・電話などの個人情報は収録しない。障害者施設1,821か所は県のみで地図化していない")],
-    popupNotes: [GEOCODE_POPUP, l3("授權待確認", "Licence to be confirmed", "ライセンス確認中")],
+    popupNotes: [GEOCODE_POPUP],
     sourceOrg: `Health Information and Quality Authority (HIQA), Register of Designated Centres — Older Persons (licence not stated); ${NOMINATIM_ORG}`, sourceUrl: "https://www.hiqa.ie/areas-we-work/older-persons-services", license: `${LICENSE_PENDING}＋ODbL 1.0`, fetchedAt: IE_W7B_FETCHED_AT,
     loading: l3("愛爾蘭老人照護機構載入中", "Loading Ireland care homes", "アイルランドの高齢者介護施設を読み込み中"),
   },
@@ -1732,7 +1732,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     legendNotes: [l3("GSI 地下水淹水圖 1:20,000：高／中／低機率（年機率 10%／1%／0.1%，現況氣候）、歷史最大範圍、2015/16 冬季地表水淹水，在圖層設定切換（預設歷史最大）", "GSI groundwater flood maps 1:20,000: high / medium / low probability (10% / 1% / 0.1% AEP, present-day climate), maximum historic extent, and winter 2015/16 surface water flooding, switchable in layer settings (default: historic)", "GSI 地下水浸水図 1:20,000：高・中・低確率（年超過確率10%／1%／0.1%、現況気候）、過去最大範囲、2015/16年冬の地表水浸水をレイヤー設定で切替（既定：過去最大）"),
                   l3("只涵蓋 GSI 判定可能有地下水淹水的喀斯特低地（西部、中部為主），不是全國；河川淹水見「河川淹水範圍」圖層。2015/16 地表水 1 面位於北愛已捨去", "Covers only karst lowlands where GSI found groundwater flooding (mainly west and midlands), not the whole country; for river flooding see the River Flood Extents layer. One 2015/16 surface water polygon in Northern Ireland removed", "GSI が地下水浸水の可能性を認めたカルスト低地（西部・中部中心）のみで全国ではない。河川氾濫は「河川浸水範囲」レイヤー。2015/16 地表水の北アイルランド1面は除外"),
                   l3("GSI 要求搭配使用說明（GSI Guidance Notes）判讀；拉遠時圖磚會省略最小的面（只影響顯示）", "GSI requires use with its Guidance Notes; smallest polygons are omitted in zoomed-out tiles (display only)", "GSI のガイダンスノートと併せて利用すること。縮小時のタイルでは最小の面を省略（表示のみ）")],
-    popupNotes: [l3("CC BY-NC-ND・非商業使用；GSI 指示性地圖，非地塊判定", "CC BY-NC-ND · non-commercial; GSI indicative map, not property-level", "CC BY-NC-ND・非商用。GSI の指示的な地図で地点判定ではない")],
+    popupNotes: [l3("GSI 指示性地圖，非地塊判定", "GSI indicative map, not property-level", "GSI の指示的な地図で地点判定ではない")],
     sourceOrg: "Contains Irish Public Sector Data (Geological Survey Ireland) licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0) International Licence", sourceUrl: DGI("historic-groundwater-flood-map-120000-ireland-roi-itm"), license: CC_BY_NC_ND, fetchedAt: IE_W11_FETCHED_AT,
     loading: l3("愛爾蘭地下水淹水圖載入中", "Loading Ireland groundwater flood maps", "アイルランドの地下水浸水図を読み込み中"),
   },

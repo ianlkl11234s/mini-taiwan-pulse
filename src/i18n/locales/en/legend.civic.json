@@ -150,7 +150,6 @@
   "legend.civic.jpEvacTitle": "Evacuation sites",
   "legend.civic.jpEvacLegal": "The two types have different legal meanings; do not add them together",
   "legend.civic.jpEvacFilterNote": "Hazard filters show emergency evacuation sites only; welfare shelters are a subset of designated shelters",
-  "legend.civic.jpEvacStale": "Registered voluntarily by municipalities; may be outdated or incomplete. Please confirm with the municipality.",
   "legend.civic.jpOfficeTitle": "Municipal offices & public halls",
   "legend.civic.jpOfficeBasis": "Data as of 2022-04 (79,532 points); later mergers and closures are not reflected",
   "legend.civic.jpOfficeHidden": "Assembly facilities (49,488, 62%) are hidden by default; enable them with the facility class setting",

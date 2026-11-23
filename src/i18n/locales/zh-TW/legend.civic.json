@@ -150,7 +150,6 @@
   "legend.civic.jpEvacTitle": "避難場所",
   "legend.civic.jpEvacLegal": "兩種場所的法定意義不同，不可相加",
   "legend.civic.jpEvacFilterNote": "篩選災害種別時只顯示指定緊急避難場所；福祉避難所只含指定避難所",
-  "legend.civic.jpEvacStale": "資料由市町村自願登錄，可能非最新或未登載，請向市町村確認",
   "legend.civic.jpOfficeTitle": "役所與公民館",
   "legend.civic.jpOfficeBasis": "資料基準：2022-04（79,532 點）；之後的合併、閉館未反映",
   "legend.civic.jpOfficeHidden": "集會施設（49,488 處，佔 62%）預設隱藏，可用「設施分類」打開",

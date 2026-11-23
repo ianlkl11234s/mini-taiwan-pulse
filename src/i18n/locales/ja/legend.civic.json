@@ -150,7 +150,6 @@
   "legend.civic.jpEvacTitle": "避難場所",
   "legend.civic.jpEvacLegal": "2種別は法的な位置付けが異なるため合算できません",
   "legend.civic.jpEvacFilterNote": "災害種別の絞り込みは指定緊急避難場所のみ、福祉避難所は指定避難所のみが対象です",
-  "legend.civic.jpEvacStale": "市町村の任意登録のため、最新でない・未登載の場合があります。市町村にご確認ください",
   "legend.civic.jpOfficeTitle": "市町村役場・公民館",
   "legend.civic.jpOfficeBasis": "2022年4月時点（79,532点）。その後の統廃合・閉館は反映されていません",
   "legend.civic.jpOfficeHidden": "集会施設（49,488件、62%）は標準で非表示です。施設分類の設定で表示できます",

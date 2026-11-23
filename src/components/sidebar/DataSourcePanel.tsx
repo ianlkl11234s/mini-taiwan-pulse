@@ -343,14 +343,28 @@ export function DataSourceCard({
       tooltip: upstreamIds.join("、") || null,
     };
     if (entries.length > 0) {
+      // 圖層來源表已列機關／授權（目錄缺欄）時，目錄卡只留標題與摘要，事實列不再重複；
+      // 摘要裡已在圖層備註出現的句子不重複；目錄更新日與來源表資料時點相同時不重複。
+      const table = statisticsSource ? null : getLayerSourceInfo(layerKey);
+      const tableShowsSource = Boolean(table) && !entries.some((e) => e.providerAgency && e.license);
+      const noteTexts = getLayerNotes(layerKey).map((v) => resolveSourceText(v, i18n));
+      const tableAsOf = table?.asOf ? resolveSourceText(table.asOf, i18n) : "";
+      const dedupeSummary = (summary: string | null) => {
+        if (!summary) return null;
+        const kept = (summary.match(/[^。；;]+[。；;]?/g) ?? []).filter((part) => {
+          const core = part.replace(/[。；;\s]+$/, "").trim();
+          return core && !noteTexts.some((note) => note.includes(core));
+        });
+        return kept.join("").trim() || null;
+      };
       const entryBlocks: SourceBlock[] = entries.map((e) => ({
         title: e.title ?? t("dataSources.block.upstreamDataset"),
-        desc: e.summary,
-        facts: facts(
+        desc: dedupeSummary(e.summary),
+        facts: tableShowsSource ? [] : facts(
           e.providerAgency ? { k: t("dataSources.fact.provider"), v: catalogAgency(e.providerAgency, i18n) } : null,
           e.lifecycle ? { k: t("dataSources.fact.frequency"), v: `${enumLabel("dataSourceLifecycle", e.lifecycle, LIFECYCLE_LABEL[e.lifecycle] ?? e.lifecycle, i18n)}${e.updateFrequency ? ` · ${e.updateFrequency}` : ""}` } : null,
           e.license ? { k: t("dataSources.fact.license"), v: catalogLicense(e.license, i18n) } : null,
-          e.lastUpdated ? { k: t("dataSources.fact.updated"), v: e.lastUpdated, mono: true } : null,
+          e.lastUpdated && e.lastUpdated !== tableAsOf ? { k: t("dataSources.fact.updated"), v: e.lastUpdated, mono: true } : null,
           e.sourceUrl ? { k: t("dataSources.fact.api"), v: <a href={e.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{e.sourceUrl}</a> } : null,
         ),
         tooltip: [e.datasetId, e.catalogMdPath].filter(Boolean).join(" · ") || null,
@@ -365,7 +379,7 @@ export function DataSourceCard({
     if (status === "pulse_only") return [lineageBlock];
     if (statisticsSource) return [];
     return [{ title: null, desc: t("dataSources.noCatalogEntry"), facts: facts() }];
-  }, [entries, status, ref, upstreamIds, statisticsSource, p, i18n]);
+  }, [entries, status, ref, upstreamIds, statisticsSource, layerKey, p, i18n]);
 
   // 圖層來源表（src/data/layerSourceInfo.ts）：資料目錄沒有機關＋授權（沒條目、缺欄、載入中或載入失敗）時補用；
   // 固定備註（notes）一律顯示。
@@ -373,7 +387,7 @@ export function DataSourceCard({
   const catalogComplete = entries.some((e) => e.providerAgency && e.license);
   const tableBlock: SourceBlock | null = useMemo(() => {
     const text = (v: Parameters<typeof resolveSourceText>[0]) => resolveSourceText(v, i18n);
-    const notes = getLayerNotes(layerKey).map(text).filter(Boolean);
+    const notes = [...new Set(getLayerNotes(layerKey).map(text).filter(Boolean))];
     const showSource = Boolean(tableInfo) && !catalogComplete;
     const credits = (tableInfo?.attribution ?? []).map(text).filter(Boolean);
     const asOf = tableInfo?.asOf ? text(tableInfo.asOf) : "";

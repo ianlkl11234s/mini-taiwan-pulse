@@ -721,7 +721,6 @@ export type GeneratedStaticKey =
   | "legend.civic.jpBusTitle"
   | "legend.civic.jpEvacFilterNote"
   | "legend.civic.jpEvacLegal"
-  | "legend.civic.jpEvacStale"
   | "legend.civic.jpEvacTitle"
   | "legend.civic.jpForestBlank"
   | "legend.civic.jpForestMerged"

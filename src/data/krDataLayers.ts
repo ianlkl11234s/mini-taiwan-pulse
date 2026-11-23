@@ -802,7 +802,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
              { prop: "GOSI", label: l3("告示", "Official notice", "告示") }, { prop: "REMARK", label: l3("備註", "Remarks", "備考") },
              ],
     legendNotes: [                  l3("1,372 處：國家 65、一般 771、都市尖端 53、農工 483（同一園區可能分成多筆）", "1,372 areas: national 65, general 771, urban high-tech 53, agro-industrial 483 (one complex may span several records)", "1,372か所：国家65・一般771・都市先端53・農工483（1団地が複数件に分かれる場合あり）")],
-    popupNotes: [l3("KOGL 4：非商用、未改作", "KOGL 4: non-commercial, unmodified", "KOGL 4：非商用・改変なし")],
+    popupNotes: [],
     sourceOrg: "국토교통부 산업단지 경계도면 (공공데이터포털)", sourceUrl: DG("15152766"), license: KOGL4_LICENSE, fetchedAt: KR_W9_FETCHED_AT,
     loading: l3("南韓產業園區載入中", "Loading South Korea industrial complexes", "韓国の産業団地を読み込み中"),
   },
