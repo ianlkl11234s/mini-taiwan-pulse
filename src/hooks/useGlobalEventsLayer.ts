@@ -270,7 +270,8 @@ export function useGlobalEventsLayer(
       map.setPaintProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "line-opacity", hookLineOpacity("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
         selected ? ["case", touchesSelected, safeOpacity * 0.95, safeOpacity * 0.06] : safeOpacity * 0.35,
         ["case", ["==", ["get", "event_id"], ""], 0.95, 0.35]));
-      // 寬度保持常數：Mapbox 虛線遇到依資料變化的 line-width 會整條不畫（2026-11-23 瀏覽器實測），只用透明度區分。
+      map.setPaintProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "line-width", hookLineWidth("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
+        selected ? ["case", touchesSelected, 2.5, 1.5] : 1.5, ["case", ["==", ["get", "event_id"], ""], 2.5, 1.5]));
     }
     if (map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) {
       map.setLayoutProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "visibility", relationsRef.current ? "visible" : "none");
