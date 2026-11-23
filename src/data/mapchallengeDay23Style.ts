@@ -7,14 +7,14 @@
  * - 光暈：同半徑 ×2.1 的模糊圓（靜態光暈例外，map-layers §3.1 P-6；站主 2026-11-22 指定「發光圓點」）。
  */
 import {
-  MAPCHALLENGE_DAY23_GLOW, MAPCHALLENGE_DAY23_RADIUS_K, MAPCHALLENGE_DAY23_TERMS, mapchallengeDay23TermColor,
-  type MapchallengeDay23Term, type MapchallengeDay23VariantGroup,
+  MAPCHALLENGE_DAY23_ARC, MAPCHALLENGE_DAY23_GLOW, MAPCHALLENGE_DAY23_RADIUS_K, MAPCHALLENGE_DAY23_TERMS, mapchallengeDay23TermColor,
+  type MapchallengeDay23Foreign, type MapchallengeDay23Place, type MapchallengeDay23Term, type MapchallengeDay23VariantGroup,
 } from "./mapchallengeDay23Types";
 
 const N = ["max", 1, ["to-number", ["get", "n"], 1]];
 
-export function mapchallengeDay23RadiusExpr(scale: number, factor = 1): unknown[] {
-  return ["*", MAPCHALLENGE_DAY23_RADIUS_K * scale * factor, ["sqrt", N]];
+export function mapchallengeDay23RadiusExpr(scale: number, factor = 1, k: number = MAPCHALLENGE_DAY23_RADIUS_K): unknown[] {
+  return ["*", k * scale * factor, ["sqrt", N]];
 }
 
 /** 大圓畫在下面，小圓不被蓋住 */
@@ -44,4 +44,26 @@ export function mapchallengeDay23VariantFilter(group: MapchallengeDay23VariantGr
 /** 光暈透明度：設計值 × 圖層透明度滑桿，淡底減半（同 Day 17 光暈） */
 export function mapchallengeDay23GlowOpacity(isDark: boolean, opacity: number): number {
   return MAPCHALLENGE_DAY23_GLOW.opacity * (isDark ? 1 : 0.5) * opacity;
+}
+
+/**
+ * 店名裡的地名：同一個檔有三種 feature（kind＝cell 格心點／origin 原產地點／arc 弧線）。
+ * circle 圖層會在 LineString 的每個頂點畫圓，所以每個子圖層的 filter 都要帶 kind。
+ */
+export function mapchallengeDay23PlaceFilter(place: MapchallengeDay23Place, kind: "cell" | "arc", res: number): unknown[] {
+  return ["all", ["==", ["get", "kind"], kind], ["==", ["get", "sign"], place.value], ["==", ["to-number", ["get", "res"], 0], res]];
+}
+export function mapchallengeDay23OriginFilter(place: MapchallengeDay23Place): unknown[] {
+  return ["all", ["==", ["get", "kind"], "origin"], ["==", ["get", "sign"], place.value]];
+}
+/** 弧線寬＝(base＋perStore×該格家數)×大小滑桿 */
+export function mapchallengeDay23ArcWidthExpr(scale: number): unknown[] {
+  return ["*", scale, ["+", MAPCHALLENGE_DAY23_ARC.base, ["*", MAPCHALLENGE_DAY23_ARC.perStore, N]]];
+}
+export function mapchallengeDay23ArcOpacity(isDark: boolean, opacity: number): number {
+  return (isDark ? MAPCHALLENGE_DAY23_ARC.opacityDark : MAPCHALLENGE_DAY23_ARC.opacityLight) * opacity;
+}
+
+export function mapchallengeDay23ForeignFilter(group: MapchallengeDay23Foreign, res: number): unknown[] {
+  return ["all", ["==", ["get", "group"], group.value], ["==", ["to-number", ["get", "res"], 0], res]];
 }

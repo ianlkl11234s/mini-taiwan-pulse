@@ -221,5 +221,12 @@
   "popup.mapchallenge.day23.date": "データ日付",
   "popup.mapchallenge.day23.note": "集計範囲",
   "popup.mapchallenge.day23.position": "位置",
-  "popup.mapchallenge.day23.positionNote": "円は六角形セルの中心であり、店の位置ではない。"
+  "popup.mapchallenge.day23.positionNote": "円は六角形セルの中心であり、店の位置ではない。",
+  "popup.mapchallenge.day23.placeCount": "このセルでこの看板を掲げる店数",
+  "popup.mapchallenge.day23.placeRange": "対象",
+  "popup.mapchallenge.day23.placeRangeValue": "{home}以外に登記された店だけを数える（全国 {n} 店中 {out} 店）",
+  "popup.mapchallenge.day23.arc": "弧線",
+  "popup.mapchallenge.day23.foreignCount": "店名にこのグループの語を含む店数",
+  "popup.mapchallenge.day23.words": "照合する語",
+  "popup.mapchallenge.day23.dominant": "割合"
 }

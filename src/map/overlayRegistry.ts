@@ -61,11 +61,13 @@ import {
 import { MAPCHALLENGE_DAY21_ATTRIBUTION, MAPCHALLENGE_DAY21_ROADS_SOURCE_LAYER, MAPCHALLENGE_DAY21_ROADS_URL, mapchallengeDay21YearAt } from "../data/mapchallengeDay21Types";
 import {
   MAPCHALLENGE_DAY23_ATTRIBUTION, MAPCHALLENGE_DAY23_GLOW, MAPCHALLENGE_DAY23_RES, MAPCHALLENGE_DAY23_SWITCH_ZOOM, MAPCHALLENGE_DAY23_TERMS_URL, MAPCHALLENGE_DAY23_VARIANTS_URL,
-  mapchallengeDay23GroupAt, mapchallengeDay23TermAt,
+  MAPCHALLENGE_DAY23_FOREIGN_URL, MAPCHALLENGE_DAY23_ORIGIN, MAPCHALLENGE_DAY23_PLACES_URL,
+  mapchallengeDay23ForeignAt, mapchallengeDay23GroupAt, mapchallengeDay23PlaceAt, mapchallengeDay23TermAt, mapchallengeDay23TermColor,
 } from "../data/mapchallengeDay23Types";
 import {
   mapchallengeDay23GlowOpacity, mapchallengeDay23RadiusExpr, mapchallengeDay23SortKeyExpr, mapchallengeDay23TermColorExpr, mapchallengeDay23TermFilter,
   mapchallengeDay23VariantColorExpr, mapchallengeDay23VariantFilter,
+  mapchallengeDay23ArcOpacity, mapchallengeDay23ArcWidthExpr, mapchallengeDay23ForeignFilter, mapchallengeDay23OriginFilter, mapchallengeDay23PlaceFilter,
 } from "../data/mapchallengeDay23Style";
 import { mapchallengeDay21ColorExpr, mapchallengeDay21SortKeyExpr, mapchallengeDay21WidthExpr, mapchallengeDay21YearFilter } from "../data/mapchallengeDay21Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
@@ -13465,6 +13467,86 @@ OVERLAY_REGISTRY.push({
       "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteVariantsScale ?? 1),
       "circle-opacity": p?.mapchallengeDay23TasteVariantsOpacity ?? 0.85,
     }),
+  }]),
+});
+// 第二批（2026-11-23）「店名裡的地名」：同一檔三種 feature（kind）。弧線（原產地 → 格心，線寬依該格家數）在最下、家數圓與光暈在中、原產地空心圈在最上。
+// circle 子圖層的 filter 一律帶 kind（否則會在弧線每個頂點畫圓）。弧線與空心圈不可點。空心圈是站主指定的呈現（POINT_SPEC_EXEMPT origin）。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay23TastePlaces", sourceUrl: MAPCHALLENGE_DAY23_PLACES_URL, sourceId: "mapchallenge-day23-taste-places",
+  attribution: MAPCHALLENGE_DAY23_ATTRIBUTION,
+  rebuildOnParamChange: [...MAPCHALLENGE_DAY23_RES.flatMap((res) => [`arc-r${res}`, `glow-r${res}`, `circle-r${res}`]), "origin"], rebuildOnParamKeys: ["mapchallengeDay23TastePlacesSignIdx"],
+  layers: [
+    ...MAPCHALLENGE_DAY23_RES.map((res): OverlayLayerSpec => ({
+      suffix: `arc-r${res}`, type: "line", ...mapchallengeDay23Zoom(res),
+      layout: { "line-cap": "round", "line-join": "round" },
+      filter: (p) => mapchallengeDay23PlaceFilter(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), "arc", res),
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay23TermColor(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), isDark),
+        "line-width": mapchallengeDay23ArcWidthExpr(p?.mapchallengeDay23TastePlacesScale ?? 1),
+        "line-opacity": mapchallengeDay23ArcOpacity(isDark, p?.mapchallengeDay23TastePlacesOpacity ?? 0.85),
+      }),
+    })),
+    ...MAPCHALLENGE_DAY23_RES.flatMap((res): OverlayLayerSpec[] => [{
+      suffix: `glow-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+      filter: (p) => mapchallengeDay23PlaceFilter(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), "cell", res),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay23TermColor(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TastePlacesScale ?? 1, MAPCHALLENGE_DAY23_GLOW.radiusFactor),
+        "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
+        "circle-opacity": mapchallengeDay23GlowOpacity(isDark, p?.mapchallengeDay23TastePlacesOpacity ?? 0.85),
+      }),
+    }, {
+      suffix: `circle-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+      layout: { "circle-sort-key": mapchallengeDay23SortKeyExpr() },
+      filter: (p) => mapchallengeDay23PlaceFilter(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), "cell", res),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay23TermColor(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx), isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TastePlacesScale ?? 1),
+        "circle-opacity": p?.mapchallengeDay23TastePlacesOpacity ?? 0.85,
+      }),
+    }]),
+    {
+      suffix: "origin", type: "circle",
+      filter: (p) => mapchallengeDay23OriginFilter(mapchallengeDay23PlaceAt(p?.mapchallengeDay23TastePlacesSignIdx)),
+      paint: (isDark, p) => ({
+        "circle-color": "rgba(0,0,0,0)", "circle-opacity": 0,
+        "circle-radius": MAPCHALLENGE_DAY23_ORIGIN.radius * (p?.mapchallengeDay23TastePlacesScale ?? 1),
+        "circle-stroke-color": isDark ? MAPCHALLENGE_DAY23_ORIGIN.dark : MAPCHALLENGE_DAY23_ORIGIN.light,
+        "circle-stroke-width": MAPCHALLENGE_DAY23_ORIGIN.strokeWidth,
+        "circle-stroke-opacity": p?.mapchallengeDay23TastePlacesOpacity ?? 0.85,
+      }),
+    },
+  ],
+});
+// 第二批「外來料理店名」：九組擇一（filter），色＝該組的色，半徑係數 k 依組（家數多的組縮小）。
+OVERLAY_REGISTRY.push({
+  id: "mapchallengeDay23TasteForeign", sourceUrl: MAPCHALLENGE_DAY23_FOREIGN_URL, sourceId: "mapchallenge-day23-taste-foreign",
+  attribution: MAPCHALLENGE_DAY23_ATTRIBUTION,
+  rebuildOnParamChange: MAPCHALLENGE_DAY23_RES.flatMap((res) => [`glow-r${res}`, `circle-r${res}`]), rebuildOnParamKeys: ["mapchallengeDay23TasteForeignGroupIdx"],
+  layers: MAPCHALLENGE_DAY23_RES.flatMap((res): OverlayLayerSpec[] => [{
+    suffix: `glow-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+    filter: (p) => mapchallengeDay23ForeignFilter(mapchallengeDay23ForeignAt(p?.mapchallengeDay23TasteForeignGroupIdx), res),
+    paint: (isDark, p) => {
+      const g = mapchallengeDay23ForeignAt(p?.mapchallengeDay23TasteForeignGroupIdx);
+      return {
+        "circle-color": mapchallengeDay23TermColor(g, isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteForeignScale ?? 1, MAPCHALLENGE_DAY23_GLOW.radiusFactor, g.k),
+        "circle-blur": MAPCHALLENGE_DAY23_GLOW.blur,
+        "circle-opacity": mapchallengeDay23GlowOpacity(isDark, p?.mapchallengeDay23TasteForeignOpacity ?? 0.85),
+      };
+    },
+  }, {
+    suffix: `circle-r${res}`, type: "circle", ...mapchallengeDay23Zoom(res),
+    layout: { "circle-sort-key": mapchallengeDay23SortKeyExpr() },
+    filter: (p) => mapchallengeDay23ForeignFilter(mapchallengeDay23ForeignAt(p?.mapchallengeDay23TasteForeignGroupIdx), res),
+    paint: (isDark, p) => {
+      const g = mapchallengeDay23ForeignAt(p?.mapchallengeDay23TasteForeignGroupIdx);
+      return {
+        "circle-color": mapchallengeDay23TermColor(g, isDark),
+        "circle-radius": mapchallengeDay23RadiusExpr(p?.mapchallengeDay23TasteForeignScale ?? 1, 1, g.k),
+        "circle-opacity": p?.mapchallengeDay23TasteForeignOpacity ?? 0.85,
+      };
+    },
   }]),
 });
 

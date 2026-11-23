@@ -55,6 +55,9 @@ type GisLayerEntry = { layers: string[]; type: FeatureInfo["layerType"] };
 const MAPCHALLENGE_DAY23_CLICK_LAYERS: GisLayerEntry[] = [
   { layers: ["mapchallenge-day23-taste-terms-circle-r6", "mapchallenge-day23-taste-terms-circle-r7"], type: "mapchallengeDay23TasteTerms" },
   { layers: ["mapchallenge-day23-taste-variants-circle-r6", "mapchallenge-day23-taste-variants-circle-r7"], type: "mapchallengeDay23TasteVariants" },
+  // 店名裡的地名：只有家數圓可點（弧線與原產地空心圈不可點）
+  { layers: ["mapchallenge-day23-taste-places-circle-r6", "mapchallenge-day23-taste-places-circle-r7"], type: "mapchallengeDay23TastePlaces" },
+  { layers: ["mapchallenge-day23-taste-foreign-circle-r6", "mapchallenge-day23-taste-foreign-circle-r7"], type: "mapchallengeDay23TasteForeign" },
 ];
 const MAPCHALLENGE_DAY21_CLICK_LAYERS: GisLayerEntry[] = [
   { layers: ["mapchallenge-day21-osm-roads-line"], type: "mapchallengeDay21OsmRoads" },

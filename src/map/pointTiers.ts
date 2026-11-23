@@ -60,6 +60,8 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   jmaQuakes: "B", // 半徑＝規模 · 日本地震 地震情報
   mapchallengeDay23TasteTerms: "B", // 30 天地圖挑戰 Day 23 小吃店名分布（半徑依六角格家數＝泡泡）
   mapchallengeDay23TasteVariants: "B", // 30 天地圖挑戰 Day 23 同物異字（半徑依六角格家數＝泡泡）
+  mapchallengeDay23TastePlaces: "B", // 30 天地圖挑戰 Day 23 店名裡的地名（半徑依六角格家數＝泡泡）
+  mapchallengeDay23TasteForeign: "B", // 30 天地圖挑戰 Day 23 外來料理店名（半徑依六角格家數＝泡泡）
   mapchallengeDay19Penalties: "B", // 30 天地圖挑戰 Day 19 異味裁罰設施（505 處，半徑依裁罰件數＝泡泡）
   antiCorruptionOffice: "B", // 廉政署 AAC
   coastGuardStation: "B", // 海巡 Coast Guard

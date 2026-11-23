@@ -55,6 +55,9 @@ export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
   // 30 天地圖挑戰 Day 23 味覺「發光圓點」（靜態圓光暈；站主 2026-11-22 指定，map-layers.md §3.1 P-6 例外）：光暈跟著家數圓放大，是同一筆資料的呈現
   mapchallengeDay23TasteTerms: /^glow-/,
   mapchallengeDay23TasteVariants: /^glow-/,
+  mapchallengeDay23TasteForeign: /^glow-/,
+  // Day 23「店名裡的地名」另有原產地空心圈（origin：只有描邊、沒有填色，站主 2026-11-23 指定「一個空心白圈」；不套標準描邊）
+  mapchallengeDay23TastePlaces: /^(?:glow-|origin$)/,
   // 2026 選舉活動「位置精度外環」：代表點（聚落／鄉鎮市區／縣市）外圈＝資料品質編碼，陣營色描邊、粗細依精度（2026-11-08 使用者核准設計稿 A＋B 版）
   electionEvents2026: /^precision$/,
 };
