@@ -511,7 +511,7 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
   });
 
   // 2026-11-23：細格（z=10）只在圖磚縮放 ≥3；縮放分界靠 layer minzoom／maxzoom（filter 內的 zoom 不隨地圖縮放重算）。
-  it("global 格網：-lo 層與一般層縮放區間互補，選「細」時低縮放退回 z=8", () => {
+  it("global 格網：-lo 層與一般層縮放區間互補（分界 2.5），選「細」時低縮放退回 z=8", () => {
     for (const [id, sourceId, paramKey] of [
       ["ooklaMobilePerformance", "ookla-mobile-global", "ooklaMobileGridZoom"],
       ["ooklaFixedPerformance", "ookla-fixed-global", "ooklaFixedGridZoom"],
@@ -521,8 +521,8 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
       const by = (suffix: string) => config.layers.find((l) => l.suffix === suffix)!;
       const filterOf = (suffix: string, grid: number) => (by(suffix).filter as (p: Record<string, number>) => unknown)({ [paramKey]: grid });
       for (const [lo, hi] of [["fill-lo", "fill"], ["line-lo", "line"]] as const) {
-        expect(by(lo).maxzoom).toBe(3);
-        expect(by(hi).minzoom).toBe(3);
+        expect(by(lo).maxzoom).toBe(2.5);
+        expect(by(hi).minzoom).toBe(2.5);
         expect(by(lo).minzoom).toBeUndefined();
         expect(by(hi).maxzoom).toBeUndefined();
         expect(filterOf(lo, 10)).toEqual(["==", ["get", "z"], 8]);   // zoom<3 選細 → 中格

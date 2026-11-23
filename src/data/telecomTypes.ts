@@ -104,9 +104,10 @@ export const OOKLA_GLOBAL_ZOOMS = [
 
 /**
  * 細格網（z=10）只存在於 PMTiles 圖磚縮放 ≥ 3（_t3 檔，build-static-pmtiles-pf4.py 的 OOKLA_FINE_MINZOOM）；
- * 地圖縮放低於此值時選「細」要退回中格網（z=8）。
+ * 地圖縮放低於此值時選「細」要退回中格網（z=8）。分界取 2.5 而非 3：實測圖磚縮放在地圖縮放 2.5 就進位到 3，
+ * 且 layer 縮放區間遇到進位後的圖磚會雙雙不畫；分界設 3 會在 2.5–3 之間整片空白。
  */
-export const OOKLA_FINE_MIN_MAP_ZOOM = 3;
+export const OOKLA_FINE_MIN_MAP_ZOOM = 2.5;
 const OOKLA_FINE_GRID = 10;
 const OOKLA_FALLBACK_GRID = 8;
 
