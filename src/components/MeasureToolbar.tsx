@@ -90,11 +90,12 @@ export function MeasureToolbar({ controller, isDarkTheme, variant, style }: Prop
         type="button"
         className="measure-bar__btn measure-bar__btn--primary"
         title={t("measure.done")}
+        aria-label={t("measure.done")}
         disabled={!canFinish}
         onClick={() => controller.finish()}
       >
         <Check size={13} />
-        {t("measure.done")}
+        <span className="measure-bar__btn-label">{t("measure.done")}</span>
       </button>
     </div>
   );

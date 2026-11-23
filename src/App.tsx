@@ -2634,7 +2634,7 @@ export default function App() {
             </div>
 
             {/* 量測工具列（§5.44 C1）：品牌與右上工具列之間置中；沒有量測時不渲染 */}
-            <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", justifyContent: "center" }}>
+            <div className="measure-slot" style={{ flex: "1 1 auto", display: "flex", justifyContent: "center" }}>
               <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="desktop" />
             </div>
 

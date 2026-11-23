@@ -238,6 +238,22 @@
   display: none;
 }
 
+/* 桌機品牌列中間的量測槽（App.tsx）：槽寬不由工具列撐開（inline-size containment），
+   英日文工具列較寬時改為逐段收成 icon，不把右上工具列擠到第二行、疊住提示卡與 popup（2026-11-23）。
+   量測中槽最少留 280px，再窄才讓工具列照舊換行。 */
+.measure-slot { min-width: 0; container-type: inline-size; }
+.measure-slot:has(.measure-bar) { min-width: 280px; }
+@container (max-width: 400px) {
+  .measure-bar--desktop .measure-bar__icon { display: none; }
+}
+@container (max-width: 395px) {
+  .measure-bar--desktop .measure-bar__seg button span { display: none; }
+}
+@container (max-width: 330px) {
+  .measure-bar--desktop .measure-bar__btn-label { display: none; }
+  .measure-bar--desktop .measure-bar__btn--primary { padding: 0 7px; }
+}
+
 /* ── 地圖上的標籤（DOM Marker） ── */
 .measure-label {
   display: flex;
