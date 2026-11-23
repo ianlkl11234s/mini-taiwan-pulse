@@ -10,6 +10,10 @@ export const GLOBAL_EVENT_CATEGORIES = [
   { value: "other", label: "其他", color: "#94a3b8" },
 ] as const;
 
+/** 同一則報導的多國地點（實線）與「可能同一件事」（虛線）；兩者都不代表移動或因果。 */
+export const GLOBAL_EVENT_RELATION_COLOR = "#94a3b8";
+export const GLOBAL_EVENT_STORY_LINK_COLOR = "#fbbf24";
+
 export const GLOBAL_EVENT_SEVERITIES = [
   { value: 0, label: "一般", radius: 4 },
   { value: 1, label: "關注", radius: 5.5 },

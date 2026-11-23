@@ -130,7 +130,7 @@ describe("buildParamControls", () => {
     const category = byLabel<SelectConfig>("globalEvents", "分類");
     const severity = byLabel<SelectConfig>("globalEvents", "最低嚴重度");
     const days = byLabel<SelectConfig>("globalEvents", "過去");
-    const relations = byLabel<ToggleConfig>("globalEvents", "跨國關聯線");
+    const relations = byLabel<ToggleConfig>("globalEvents", "關聯線");
     const taiwanOnly = byLabel<ToggleConfig>("globalEvents", "僅顯示臺灣相關");
     expect(taiwanOnly.value).toBe(false);
     taiwanOnly.onChange(true);
@@ -140,7 +140,7 @@ describe("buildParamControls", () => {
       .toEqual(["all", "disaster", "accident", "health", "crime", "traffic", "policy", "other"]);
     expect(severity).toMatchObject({ label: "最低嚴重度", value: "3" });
     expect(days).toMatchObject({ label: "過去", value: "1" });
-    expect(relations).toMatchObject({ label: "跨國關聯線（非移動軌跡）", value: false });
+    expect(relations).toMatchObject({ label: "關聯線（非移動或因果）", value: true });
 
     category.onChange("policy");
     severity.onChange("2");

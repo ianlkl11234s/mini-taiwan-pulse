@@ -24,6 +24,8 @@
   "popup.globalClimate.categorySeverity": "分類／嚴重度",
   "popup.globalClimate.taiwanImpact": "臺灣影響",
   "popup.globalClimate.reason": "判斷理由",
+  "popup.globalClimate.storyLinks": "可能相關報導",
+  "popup.globalClimate.storyLinksValue": "{n} 則（地圖上加亮，不同地點以虛線連起；不代表因果）",
   "popup.globalClimate.locationSemantics": "落點語意",
   "popup.globalClimate.collectedAt": "來源收集時間",
   "popup.globalClimate.locationSource": "位置來源",

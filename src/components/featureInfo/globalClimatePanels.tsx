@@ -250,6 +250,8 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
       <Row label={i18n.t("popup.globalClimate.categorySeverity")} value={`${globalEventCategoryText(props.category, i18n)} · ${globalEventSeverityText(props.severity, i18n)}`} />
       <Row label={i18n.t("popup.globalClimate.taiwanImpact")} value={String(props.taiwan_impact_zh_tw ?? "—")} />
       <Row label={i18n.t("popup.globalClimate.reason")} value={String(props.reason_zh_tw ?? "—")} />
+      {Number(props.story_link_count) > 0 ? <Row label={i18n.t("popup.globalClimate.storyLinks")}
+        value={i18n.t("popup.globalClimate.storyLinksValue", { n: Number(props.story_link_count) })} /> : null}
       <Row field="place" value={placeParts.length > 0 ? placeParts.join(" · ") : "—"} />
       <Row label={i18n.t("popup.globalClimate.locationSemantics")} value={globalEventLocationLabel(props, i18n.t)} />
       {/* Candidate valid_from carries observed_at; formal valid_from is not a collection time. */}

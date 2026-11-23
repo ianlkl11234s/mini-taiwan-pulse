@@ -12,14 +12,14 @@ import {
   type GlobalEventRecord,
 } from "../data/globalEventsLoader";
 import {
-  GLOBAL_EVENT_CATEGORY_COLOR_EXPR,
+  GLOBAL_EVENT_CATEGORY_COLOR_EXPR, GLOBAL_EVENT_STORY_LINK_COLOR,
 } from "../data/globalEventsTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { hookLineLayout, hookLineOpacity, hookLinePaint, hookLineWidth } from "../map/lineFillSpec";
-import { GLOBAL_EVENT_ICON_RADIUS, filterGlobalEvents, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
+import { GLOBAL_EVENT_ICON_RADIUS, filterGlobalEvents, globalEventRelations, globalEventStoryLinks, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
 import { startThrottledRaf } from "../utils/throttledRaf";
 import { badgeLabelLayout, labelHaloPaint } from "../map/mapStyleScale";
@@ -29,7 +29,10 @@ export const GLOBAL_EVENTS_LAYER_ID = "global-events-current-circle";
 export const GLOBAL_EVENTS_PULSE_LAYER_ID = "global-events-current-pulse";
 export const GLOBAL_EVENTS_RELATIONS_LAYER_ID = "global-events-relations-line";
 export const GLOBAL_EVENTS_CLUSTER_LAYER_ID = "global-events-clusters-circle";
+/** 「可能同一件事」虛線：不同報導標題相近（不代表移動、因果或先後）。 */
+export const GLOBAL_EVENTS_STORY_LINKS_LAYER_ID = "global-events-story-links-line";
 const RELATIONS_SOURCE_ID = "global-events-relations";
+const STORY_LINKS_SOURCE_ID = "global-events-story-links";
 const CONNECTORS_SOURCE_ID = "global-events-connectors";
 const CLUSTERS_SOURCE_ID = "global-events-clusters";
 const CONNECTORS_LAYER_ID = "global-events-connectors-line";
@@ -108,13 +111,20 @@ function ensurePointImage(map: MapboxMap): void {
 
 function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
   ensurePointImage(map);
-  for (const id of [RELATIONS_SOURCE_ID, CONNECTORS_SOURCE_ID, CLUSTERS_SOURCE_ID]) {
+  for (const id of [RELATIONS_SOURCE_ID, STORY_LINKS_SOURCE_ID, CONNECTORS_SOURCE_ID, CLUSTERS_SOURCE_ID]) {
     if (!map.getSource(id)) map.addSource(id, { type: "geojson", data: EMPTY });
   }
   if (!map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) map.addLayer({
     id: GLOBAL_EVENTS_RELATIONS_LAYER_ID, type: "line", source: RELATIONS_SOURCE_ID,
     layout: hookLineLayout("globalEvents", GLOBAL_EVENTS_RELATIONS_LAYER_ID),
     paint: hookLinePaint("globalEvents", GLOBAL_EVENTS_RELATIONS_LAYER_ID, { "line-color": "#94a3b8", "line-width": 1, "line-opacity": 0.22 }, { "line-color": "#94a3b8", "line-width": 1, "line-opacity": 0.22 }),
+  });
+  if (!map.getLayer(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID)) map.addLayer({
+    id: GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, type: "line", source: STORY_LINKS_SOURCE_ID,
+    layout: hookLineLayout("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID),
+    paint: hookLinePaint("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
+      { "line-color": GLOBAL_EVENT_STORY_LINK_COLOR, "line-width": 1.5, "line-opacity": 0.35, "line-dasharray": [2, 2] },
+      { "line-color": GLOBAL_EVENT_STORY_LINK_COLOR, "line-width": 1.5, "line-opacity": 0.35, "line-dasharray": [2, 2] }),
   });
   if (!map.getLayer(CONNECTORS_LAYER_ID)) map.addLayer({
     // Keep legacy IDs, but render only the actual shared location, never an offset line endpoint.
@@ -192,7 +202,7 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
 function setLayerVisibility(map: MapboxMap, visible: boolean): void {
   const value = visible ? "visible" : "none";
   for (const id of [GLOBAL_EVENTS_LAYER_ID, GLOBAL_EVENTS_PULSE_LAYER_ID, GLOBAL_EVENTS_RELATIONS_LAYER_ID,
-    CONNECTORS_LAYER_ID, GLOBAL_EVENTS_CLUSTER_LAYER_ID, CLUSTER_LABEL_LAYER_ID]) {
+    GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, CONNECTORS_LAYER_ID, GLOBAL_EVENTS_CLUSTER_LAYER_ID, CLUSTER_LABEL_LAYER_ID]) {
     if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", value);
   }
 }
@@ -235,6 +245,8 @@ export function useGlobalEventsLayer(
   const selectedRef = useRef(selectedEventId);
   selectedRef.current = selectedEventId;
   const displayedRowsRef = useRef<GlobalEventPoint[]>([]);
+  /** eventId → 可能同一件事的其他 eventId；feed() 每次重算，applyPaint 讀它做點選加亮。 */
+  const storyNeighboursRef = useRef(new Map<string, Set<string>>());
   const expandedGroupsRef = useRef(new Set<string>());
   opacityRef.current = opacity;
   themeRef.current = isDarkTheme;
@@ -242,11 +254,24 @@ export function useGlobalEventsLayer(
   const applyPaint = useCallback((map: MapboxMap) => {
     const safeOpacity = Math.max(0, Math.min(1, opacityRef.current));
     const selected = selectedRef.current ?? "";
+    // 點選後：自己與「可能同一件事」的事件加亮，其餘變淡；沒選時一律原樣。
+    const related = selected && relationsRef.current ? [...(storyNeighboursRef.current.get(selected) ?? [])] : [];
+    const isRelated = ["in", ["get", "event_id"], ["literal", related]];
     if (map.getLayer(GLOBAL_EVENTS_LAYER_ID)) {
-      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-opacity", safeOpacity);
-      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-width", ["case", ["==", ["get", "event_id"], selected], 3, 1.5]);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-opacity", selected && related.length
+        ? ["case", ["any", ["==", ["get", "event_id"], selected], isRelated], safeOpacity, safeOpacity * 0.3] : safeOpacity);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-width", ["case", ["==", ["get", "event_id"], selected], 3, isRelated, 2.5, 1.5]);
       map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-color", ["case", ["==", ["get", "event_id"], selected], "#facc15",
-        ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"]);
+        isRelated, "#fbbf24", ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"]);
+    }
+    if (map.getLayer(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID)) {
+      const touchesSelected = ["any", ["==", ["get", "event_id"], selected], ["==", ["get", "related_event_id"], selected]];
+      map.setLayoutProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "visibility", relationsRef.current ? "visible" : "none");
+      map.setPaintProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "line-opacity", hookLineOpacity("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
+        selected ? ["case", touchesSelected, safeOpacity * 0.95, safeOpacity * 0.06] : safeOpacity * 0.35,
+        ["case", ["==", ["get", "event_id"], ""], 0.95, 0.35]));
+      map.setPaintProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "line-width", hookLineWidth("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
+        selected ? ["case", touchesSelected, 2.5, 1.5] : 1.5, ["case", ["==", ["get", "event_id"], ""], 2.5, 1.5]));
     }
     if (map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) {
       map.setLayoutProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "visibility", relationsRef.current ? "visible" : "none");
@@ -323,14 +348,21 @@ export function useGlobalEventsLayer(
       displayedRowsRef.current = [...events];
       const layout = layoutGlobalEventPoints(events, expandedGroupsRef.current);
       const collection = layout.points;
+      const story = globalEventStoryLinks(events);
+      storyNeighboursRef.current = story.neighbours;
       for (const feature of collection.features) {
-        if (feature.properties) feature.properties.transition_kind = transitions.get(String(feature.properties.event_id)) ?? null;
+        if (!feature.properties) continue;
+        const eventId = String(feature.properties.event_id);
+        feature.properties.transition_kind = transitions.get(eventId) ?? null;
+        feature.properties.story_link_count = story.neighbours.get(eventId)?.size ?? 0;
       }
       const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
       source?.setData(collection);
       (map.getSource(CONNECTORS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.anchors);
       (map.getSource(CLUSTERS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.clusters);
       (map.getSource(RELATIONS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(globalEventRelations(events));
+      (map.getSource(STORY_LINKS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(story.lines);
+      applyPaint(map);
       startPulse(map, transitions);
     };
 

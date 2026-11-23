@@ -157,6 +157,94 @@ export function globalEventRelations(rows: readonly GlobalEventPoint[]): GeoJSON
   return { type: "FeatureCollection", features };
 }
 
+/** Thresholds measured on 2026-11-16..23 candidates (4,207 mapped events): 0.5 kept mostly
+ * follow-ups/rewrites of one story; templated quake titles were the main false link. */
+export const GLOBAL_EVENT_STORY_LINK = {
+  maxHours: 48,
+  sameCountryMin: 0.5,
+  crossCountryMin: 0.6,
+  /** Bigrams shared by more events than this carry no story identity (常見詞、套版字). */
+  maxBigramEvents: 60,
+} as const;
+
+function titleBigrams(title: string): Set<string> {
+  const han = title.replace(/[^㐀-鿿]/g, "");
+  const grams = new Set<string>();
+  for (let i = 0; i < han.length - 1; i++) grams.add(han.slice(i, i + 2));
+  return grams;
+}
+
+function jaccard(a: ReadonlySet<string>, b: ReadonlySet<string>): number {
+  if (a.size === 0 || b.size === 0) return 0;
+  let shared = 0;
+  for (const gram of a) if (b.has(gram)) shared++;
+  return shared / (a.size + b.size - shared);
+}
+
+export interface GlobalEventStoryLinks {
+  /** eventId → eventIds that are possibly the same story (symmetric). */
+  neighbours: Map<string, Set<string>>;
+  lines: GeoJSON.FeatureCollection<GeoJSON.LineString>;
+}
+
+/**
+ * "Possibly the same story" between different displayed events: similar zh titles within
+ * 48 hours of source observation. Never merges events, never moves points; a link only says
+ * two reports may describe one happening (not movement, cause or order). Computed on the
+ * currently visible rows only, so filters bound it. Events at one shared coordinate get no
+ * line (zero length) but still count as neighbours for selection highlight.
+ */
+export function globalEventStoryLinks(rows: readonly GlobalEventPoint[]): GlobalEventStoryLinks {
+  interface Story { eventId: string; title: string; grams: Set<string>; time: number; countries: Set<string>; points: GlobalEventPoint[] }
+  const stories = new Map<string, Story>();
+  for (const row of rows) {
+    const time = Date.parse(row.validFrom ?? "");
+    let story = stories.get(row.eventId);
+    if (!story) {
+      story = { eventId: row.eventId, title: row.titleZhTw, grams: titleBigrams(row.titleZhTw), time, countries: new Set(), points: [] };
+      stories.set(row.eventId, story);
+    }
+    if (row.countryCode) story.countries.add(`${row.countryCodeScheme ?? "published"}:${row.countryCode}`);
+    story.points.push(row);
+  }
+  const list = [...stories.values()].filter((story) => Number.isFinite(story.time) && story.grams.size > 0);
+  const index = new Map<string, number[]>();
+  list.forEach((story, i) => { for (const gram of story.grams) { const ids = index.get(gram) ?? []; ids.push(i); index.set(gram, ids); } });
+  const pairs = new Set<string>();
+  for (const ids of index.values()) {
+    if (ids.length < 2 || ids.length > GLOBAL_EVENT_STORY_LINK.maxBigramEvents) continue;
+    for (let x = 0; x < ids.length; x++) for (let y = x + 1; y < ids.length; y++) pairs.add(`${ids[x]}:${ids[y]}`);
+  }
+  const neighbours = new Map<string, Set<string>>();
+  const features: GeoJSON.Feature<GeoJSON.LineString>[] = [];
+  for (const pair of pairs) {
+    const [i, j] = pair.split(":").map(Number);
+    const a = list[i!]!;
+    const b = list[j!]!;
+    if (Math.abs(a.time - b.time) > GLOBAL_EVENT_STORY_LINK.maxHours * 3_600_000) continue;
+    const sharesCountry = [...a.countries].some((country) => b.countries.has(country));
+    const similarity = jaccard(a.grams, b.grams);
+    if (sharesCountry ? similarity < GLOBAL_EVENT_STORY_LINK.sameCountryMin : similarity < GLOBAL_EVENT_STORY_LINK.crossCountryMin) continue;
+    // Templated quake headlines ("XX 附近發生規模 N 地震") look alike across unrelated places.
+    if (!sharesCountry && a.title.includes("地震") && b.title.includes("地震")) continue;
+    for (const [from, to] of [[a, b], [b, a]] as const) {
+      const set = neighbours.get(from.eventId) ?? new Set<string>();
+      set.add(to.eventId); neighbours.set(from.eventId, set);
+    }
+    let best: { distance: number; from: GlobalEventPoint; to: GlobalEventPoint } | null = null;
+    for (const from of a.points) for (const to of b.points) {
+      const deltaLng = to.coordinates[0] - from.coordinates[0];
+      const dx = deltaLng - 360 * Math.round(deltaLng / 360);
+      const distance = dx ** 2 + (to.coordinates[1] - from.coordinates[1]) ** 2;
+      if (!best || distance < best.distance) best = { distance, from, to };
+    }
+    if (best && best.distance > 0) features.push({ type: "Feature",
+      geometry: { type: "LineString", coordinates: globalEventAssociationArc(best.from.coordinates, best.to.coordinates) },
+      properties: { event_id: a.eventId, related_event_id: b.eventId, relation_kind: "same_story", similarity: Math.round(similarity * 100) / 100 } });
+  }
+  return { neighbours, lines: { type: "FeatureCollection", features } };
+}
+
 /** Age uses source observation for candidates and event validFrom for published
  * records. Availability is a separate upper bound; reassessment never renews age.
  * Missing dates and severity remain unknown, never silently become zero. */

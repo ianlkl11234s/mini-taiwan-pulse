@@ -143155,9 +143155,9 @@
         "value": "recent7d"
       },
       {
-        "label": "跨國關聯線（非移動軌跡）",
+        "label": "關聯線（非移動或因果）",
         "type": "toggle",
-        "value": false
+        "value": true
       },
       {
         "label": "包含 AI 初判／待判斷",
