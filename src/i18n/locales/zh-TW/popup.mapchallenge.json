@@ -218,7 +218,6 @@
   "popup.mapchallenge.day23.countValue": "{n} 家",
   "popup.mapchallenge.day23.cell": "格網",
   "popup.mapchallenge.day23.cellValue": "H3 六角格，約 {km2} 平方公里",
-  "popup.mapchallenge.day23.date": "資料日期",
   "popup.mapchallenge.day23.note": "口徑",
   "popup.mapchallenge.day23.position": "位置",
   "popup.mapchallenge.day23.positionNote": "圓點是六角格中心，不是店家位置。",
