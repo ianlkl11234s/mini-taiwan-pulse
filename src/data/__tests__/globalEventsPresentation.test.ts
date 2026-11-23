@@ -241,7 +241,7 @@ describe("Global Events possibly-same-story links", () => {
       { ...story("a", "歐盟官員訪問基輔", "UP", [30, 50]), entities: [{ kind: "person", name: "Kaja Kallas" }, { kind: "org", name: "European Commission" }] },
       { ...story("b", "布魯塞爾討論制裁方案", "BE", [4, 50]), entities: [{ kind: "person", name: "Kaja Kallas" }] },
     ]);
-    expect(withEntities.entityLinks.get("a")?.get("b")).toEqual(["kaja kallas"]);
+    expect(withEntities.entityLinks.get("a")?.get("b")).toEqual(["Kaja Kallas"]);
     expect(withEntities.neighbours.get("b")).toEqual(new Set(["a"]));
     expect(withEntities.related.size).toBe(0);
     const without = globalEventStoryLinks([story("a", "歐盟官員訪問基輔", "UP", [30, 50]), story("b", "布魯塞爾討論制裁方案", "BE", [4, 50])]);

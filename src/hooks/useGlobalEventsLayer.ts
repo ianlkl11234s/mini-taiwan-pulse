@@ -259,6 +259,9 @@ export function useGlobalEventsLayer(
   /** eventId → 可能同一件事的其他 eventId；feed() 每次重算，applyPaint 讀它做點選加亮。 */
   const storyNeighboursRef = useRef(new Map<string, Set<string>>());
   const expandedGroupsRef = useRef(new Set<string>());
+  /** 同一批事件只算一次「可能同一件事」（7 天全量約 0.7 秒）；展開群聚、pulse 轉場不重算。 */
+  const storyCacheRef = useRef<{ key: string; story: ReturnType<typeof globalEventStoryLinks> } | null>(null);
+  const fedFeaturesRef = useRef<Map<string, { properties: Record<string, unknown>; coords: [number, number] }>>(new Map());
   opacityRef.current = opacity;
   themeRef.current = isDarkTheme;
 
@@ -364,8 +367,11 @@ export function useGlobalEventsLayer(
       displayedRowsRef.current = [...events];
       const layout = layoutGlobalEventPoints(events, expandedGroupsRef.current);
       const collection = layout.points;
-      const story = globalEventStoryLinks(events);
+      const storyKey = events.map((event) => `${event.eventId}@${event.versionId}`).join("|");
+      if (storyCacheRef.current?.key !== storyKey) storyCacheRef.current = { key: storyKey, story: globalEventStoryLinks(events) };
+      const story = storyCacheRef.current.story;
       storyNeighboursRef.current = story.neighbours;
+      const fed = new Map<string, { properties: Record<string, unknown>; coords: [number, number] }>();
       for (const feature of collection.features) {
         if (!feature.properties) continue;
         const eventId = String(feature.properties.event_id);
@@ -378,7 +384,9 @@ export function useGlobalEventsLayer(
         feature.properties.entity_link_count = entities?.size ?? 0;
         feature.properties.entity_names = JSON.stringify([...new Set([...(entities?.values() ?? [])].flat())].slice(0, 6));
         feature.properties.label_short = globalEventShortLabel(String(feature.properties.title_zh_tw ?? ""));
+        if (feature.geometry.type === "Point") fed.set(eventId, { properties: feature.properties, coords: feature.geometry.coordinates as [number, number] });
       }
+      fedFeaturesRef.current = fed;
       const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
       source?.setData(collection);
       (map.getSource(CONNECTORS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.anchors);
@@ -541,6 +549,7 @@ export function useGlobalEventsLayer(
       map.easeTo({ center: point.coordinates, duration: prefersReducedMotion() ? 0 : 500 });
       feed(displayedRowsRef.current);
     });
+    globalEventsViewStore.setFeatureLookup((eventId) => fedFeaturesRef.current.get(eventId) ?? null);
 
     let refreshTimer: ReturnType<typeof setInterval> | undefined;
     if (view === "recent7d") {
@@ -567,6 +576,7 @@ export function useGlobalEventsLayer(
       map.off("click", onClick);
       clearInterval(refreshTimer);
       globalEventsViewStore.setSelectHandler(null);
+      globalEventsViewStore.setFeatureLookup(null);
       // 圖層關閉／unmount：清空共用 store，避免 IntelPanel 之後重新開啟時
       // 先閃一下上一輪的殘留 entries／status。
       globalEventsViewStore.set({ entries: [], status: "idle", message: null, windowLabel: "最近七天", noiseHidden: 0 });

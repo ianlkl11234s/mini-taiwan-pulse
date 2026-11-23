@@ -254,6 +254,8 @@ export interface GlobalEventStoryLinks {
  * coordinate get no line (zero length) but still count as related for highlight and the list.
  */
 export function globalEventStoryLinks(rows: readonly GlobalEventPoint[]): GlobalEventStoryLinks {
+  /** 比對用小寫，顯示用第一次看到的原名。 */
+  const entityDisplay = new Map<string, string>();
   const L = GLOBAL_EVENT_STORY_LINK;
   interface Story {
     eventId: string; title: string; grams: Set<string>; summary: Set<string>; names: Set<string>;
@@ -272,7 +274,11 @@ export function globalEventStoryLinks(rows: readonly GlobalEventPoint[]): Global
       story = { eventId: row.eventId, title: row.titleZhTw, grams: hanBigrams(row.titleZhTw), summary: hanBigrams(row.summaryZhTw ?? ""),
         names: headlineNames(row.sourceHeadline, placeWords), category: row.category, time, countries: new Set(), points: [],
         quake: QUAKE.test(`${row.titleZhTw} ${row.sourceHeadline ?? ""}`), magnitudes: new Set(`${row.titleZhTw} ${row.sourceHeadline ?? ""}`.match(MAGNITUDE) ?? []),
-        entities: new Set((row.entities ?? []).map((entity) => `${entity.kind}:${entity.name.trim().toLowerCase()}`).filter((key) => key.length > 7)) };
+        entities: new Set((row.entities ?? []).filter((entity) => entity.name.trim().length >= 2).map((entity) => {
+          const key = `${entity.kind}:${entity.name.trim().toLowerCase()}`;
+          if (!entityDisplay.has(key)) entityDisplay.set(key, entity.name.trim());
+          return key;
+        })) };
       stories.set(row.eventId, story);
     }
     if (row.countryCode) story.countries.add(`${row.countryCodeScheme ?? "published"}:${row.countryCode}`);
@@ -325,7 +331,7 @@ export function globalEventStoryLinks(rows: readonly GlobalEventPoint[]): Global
     if (sharedEntities.length > 0) {
       for (const [from, to] of [[a, b], [b, a]] as const) {
         const map = entityLinks.get(from.eventId) ?? new Map<string, string[]>();
-        map.set(to.eventId, sharedEntities.map((key) => key.slice(key.indexOf(":") + 1))); entityLinks.set(from.eventId, map);
+        map.set(to.eventId, sharedEntities.map((key) => entityDisplay.get(key) ?? key.slice(key.indexOf(":") + 1))); entityLinks.set(from.eventId, map);
         link(from, to);
       }
     }

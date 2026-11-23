@@ -626,7 +626,8 @@ function GlobalEventsStatus() {
   let latest = -Infinity;
   const noiseHidden = view.noiseHidden ?? 0;
   for (const entry of view.entries) {
-    if (noiseHidden > 0 && entry.decision === "drop_noise") continue;
+    // 藏起來的雜訊只從「地圖上」扣掉；未定位的雜訊本來就只在 INTEL 列表，照算。
+    if (noiseHidden > 0 && entry.decision === "drop_noise" && entry.coordinates && !entry.mapSuppressed) continue;
     (entry.coordinates && !entry.mapSuppressed ? mapped : unlocated).add(entry.eventId);
     const available = Date.parse(entry.availableAt ?? entry.publishedAt ?? "");
     if (Number.isFinite(available) && available > latest) latest = available;

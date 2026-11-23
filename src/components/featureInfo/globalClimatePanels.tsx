@@ -246,7 +246,7 @@ function GlobalEventStoryList({ props }: { props: Record<string, unknown> }) {
   const links = parseStoryLinks(props.story_links);
   const select = (id: string) => {
     const entry = globalEventsViewStore.getSnapshot().entries.find((item) => item.eventId === id);
-    if (entry) globalEventsViewStore.select(entry);
+    if (entry) globalEventsViewStore.focusFromPopup(entry);
   };
   return (
     <div style={{ marginTop: 8, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
