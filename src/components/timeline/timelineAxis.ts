@@ -6,6 +6,7 @@
  */
 
 import { localeStore, type LocaleSnapshot } from "../../state/localeStore";
+import { DEFAULT_TIME_ZONE, zonedParts } from "../../lib/zonedTime";
 
 export const TAIPEI_OFFSET_SECONDS = 8 * 3600;
 const HOUR = 3600;
@@ -31,14 +32,8 @@ const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 /** 台北時間的 [月, 日, 時, 分, 星期] */
 export function taipeiParts(t: number): { month: number; day: number; hour: number; minute: number; weekday: number } {
-  const d = new Date((t + TAIPEI_OFFSET_SECONDS) * 1000);
-  return {
-    month: d.getUTCMonth() + 1,
-    day: d.getUTCDate(),
-    hour: d.getUTCHours(),
-    minute: d.getUTCMinutes(),
-    weekday: d.getUTCDay(),
-  };
+  const p = zonedParts(t * 1000, DEFAULT_TIME_ZONE);
+  return { month: p.month, day: p.day, hour: p.hour, minute: p.minute, weekday: p.weekday };
 }
 
 const pad2 = (n: number) => String(n).padStart(2, "0");

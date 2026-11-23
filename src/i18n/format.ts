@@ -5,6 +5,7 @@
  * 只給「顯示用」；日期 key（taipeiDay.ts、`sv-SE` ISO 字串）不要改用這裡。
  */
 import { LOCALES, type Locale } from "./locales";
+import { DEFAULT_TIME_ZONE } from "../lib/zonedTime";
 
 const cache = new Map<string, Intl.NumberFormat | Intl.DateTimeFormat>();
 
@@ -22,7 +23,7 @@ function dateFormat(locale: Locale, options: Intl.DateTimeFormatOptions): Intl.D
   const key = `d|${locale}|${JSON.stringify(options)}`;
   let fmt = cache.get(key) as Intl.DateTimeFormat | undefined;
   if (!fmt) {
-    fmt = new Intl.DateTimeFormat(LOCALES[locale].intl, { timeZone: "Asia/Taipei", ...options });
+    fmt = new Intl.DateTimeFormat(LOCALES[locale].intl, { timeZone: DEFAULT_TIME_ZONE, ...options });
     cache.set(key, fmt);
   }
   return fmt;
