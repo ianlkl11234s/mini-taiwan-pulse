@@ -3,6 +3,17 @@
 > 每一輪拍板了什麼、哪個 PR 做的。規格細節以 [`spec.md`](./spec.md)、[`map-layers.md`](./map-layers.md) 為準；數值以程式（見 [`README.md`](./README.md)「程式裡的唯一來源」）與活的元件頁為準。
 > 設計稿都在 `docs/features/ui-consistency-audit-20260927/`（UI）與 `docs/features/map-layer-restyle/`（地圖）。
 
+## 2026-11-23
+
+### 來源移到圖層「說明・來源」— spec §5.2、§5.3、§5.22、§5.32、§6.4
+
+| 項目 | 內容 |
+|---|---|
+| 站主決定 | 資料來源與資料說明放圖層「說明・來源」；popup、圖例只放使用者需要的資料 |
+| popup | F2 兩行 footer 改為依 `popupSourceMode` 的 none／compact／full 單行；不顯示 Tier、抓取時間；每筆都一樣的備註、資料時點列搬到圖層側 |
+| 圖例 | 圖層側已有來源的拿掉機關、授權、代號、資料日期列 |
+| 資料來源卡 | 目錄缺欄時補用 `layerSourceInfo` 來源表；代號、md 路徑只放 `title` 提示；授權未標示寫「授權未明示」 |
+
 ## 2026-11-03
 
 ### 游標座標、右鍵選單與量測 — spec §5.44、§5.18、§5.43

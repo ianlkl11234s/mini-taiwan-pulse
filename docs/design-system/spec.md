@@ -347,7 +347,8 @@
 ### 5.2 停靠 popup（B 版「細線緊湊」）
 
 - **用途**：點地圖圖徵／Agent 分析結果後的資訊面板。**全部停靠右下**，不用 `mapboxgl.Popup` 錨定、無尖角；點擊處另畫選取圈（§5.4）。
-- **結構**：eyebrow「主題 · 圖層」→ Title（色點＋名稱）→ Row 列表 → SourceFooter（§5.3）。
+- **結構**：eyebrow「主題 · 圖層」→ Title（色點＋名稱）→ Row 列表 →（必要時）一行來源（§5.3）。
+- **只放這一筆的資料**（2026-11-23 站主決定）：資料來源、授權、每筆都一樣的備註／方法說明／資料時點放在圖層「說明・來源」（§5.22，`src/data/layerSourceInfo.ts`），popup 不重複。逐筆不同的時間（觀測時間、發生時間）、隨 feature 變的警語、只對部分 feature 成立的條件備註留在 popup。
 - **容器**：寬 280px（CCTV 460px）、`maxWidth 92vw`、`maxHeight 80vh`；底 `SURFACE.strong`、`backdrop-filter: blur(14px)`、框 `rgba(100,170,255,0.25)`（淡 `LIGHT.border`）、`RADIUS.xl`、padding `12px 14px`、`FONT_CJK`；右上關閉鈕 `<X size={14}/>`。
 - **Eyebrow**：9px `textDim`、letterSpacing 1.2、下距 6；文字「主題中文名 · 圖層名」（例「宗教 · 寺廟」），對不到主題時只顯示圖層名；中文、不轉大寫。
 - **Title**：13px bold `textStrong`；前置 9px 分類色點（`RADIUS.full`、`flexShrink 0`）、gap 6；底線 `1px palette.border`、paddingBottom 5、marginBottom 4。
@@ -367,16 +368,17 @@
 - **授權**：只接授權允許網頁直接引用影像的來源；禁止 hotlink 或需轉存授權的來源（例 Traffic Scotland、TrafficWatchNI）不接，先查條款。
 - **實作**：`src/components/CctvStreamView.tsx`（cleanup 只在元素真的離開畫面才清 src，`releaseMediaIfDetached`，避免 StrictMode 雙掛載清掉影像）、`src/components/featureInfo/ukPanels.tsx` `GbLondonJamCamsPanel`。
 
-### 5.3 來源 footer（F2）
+### 5.3 popup 來源列（2026-11-23 改版，取代 F2 兩行 footer）
 
-- **結構**：上緣 `1px borderSoft`、marginTop 10、paddingTop 8、9px `textDim`。
-  - 第一行：`機關 · Tier N · 原始下載頁 ↗`（任一項缺就省略，不留孤立「·」；連結色 `palette.link`）。
-  - 第二行：`授權 · 抓取於 …`，`FONT_DATA`（§4.2 例外）。
-  - `_provenance`／`provenance` 超過 1 筆時 `<details>` 收合「溯源 N 筆」。
-  - 無 `source_org` 也無 `source_url`：整段只顯示「資料來源 · 來源資訊待補」，`warn` 色（暗 `#ff9800`／淡 `#c2410c`）。
-- **掛載**：`FeatureInfoPanel` 在內容後統一掛一次；**排除清單** `FOOTER_SELF_MANAGED_LAYER_TYPES`：`chatHighlight`（非資料圖層）、`publicToilet`／`disasterShelters`／`nationalParks`（panel 端補來源常數）、`networkStructuresPanels.tsx` 全部 9 個 panel（`source_name` schema 不同）；水庫 context 彙整視圖不掛；`analysisResult` 自帶「暫時分析結果 · 非完整來源圖層」footer。
-- **禁止**：panel 內再自己畫「來源機關」「原始資料 ↗」造成重複；沒有來源時整段省略。
-- **實作**：`src/components/featureInfo/shared.tsx` `SourceFooter`、`FeatureInfoPanel.tsx`。
+- **原則**：來源與授權在圖層「說明・來源」（§5.22）。popup 依 `popupSourceMode(layerType)`（`src/data/layerSourceInfo.ts`）決定：
+  - `none`：用到這個 popup 的圖層在圖層側都已有機關＋授權（來源表 `LAYER_SOURCE_INFO` 或資料目錄）→ popup 不放來源。
+  - `compact`：逐筆來源不同（`POPUP_PER_FEATURE_SOURCE`：依來源欄切換機關、多源 provenance、逐案資料集、郵遞區號定位等）→ 一行「機關 · 資料來源 ↗」。
+  - `full`：圖層側還補不到（測試 `POPUP_SOURCE_PENDING` 明列）→ 一行「機關 · 授權 · 資料來源 ↗」；無機關也無連結時顯示「資料來源 · 來源資訊待補」，`warn` 色。
+- **結構**：上緣 `1px borderSoft`、marginTop 10、paddingTop 8、9px `textDim`，單行；不顯示 Tier、不顯示抓取時間。`_provenance`／`provenance` 超過 1 筆時 `<details>` 收合「溯源 N 筆」（不帶 Tier）。
+- **掛載**：`FeatureInfoPanel` 統一掛一次，以 `SourceFooterModeProvider` 傳模式；panel 自掛的 `SourceFooter` 也讀同一模式。popup 以外（衛星詳細卡、元件頁）維持舊兩行版（`legacy`）。
+- **授權署名**：政府資料必標機關、資料名稱、授權條款（與連結）；OSM 標 ODbL 署名。popup 拿掉來源前，圖層側必須已能顯示機關＋授權（＋原本有的連結），`src/data/__tests__/layerSourceInfo.test.ts` 檢查。來源未標授權時圖層側寫「授權未明示」。
+- **禁止**：panel 內另畫「來源機關」「原始資料 ↗」列；把每筆都一樣的備註、資料時點留在 popup。
+- **實作**：`src/components/featureInfo/shared.tsx` `SourceFooter`、`FeatureInfoPanel.tsx`、`src/data/layerSourceInfo.ts`。
 
 ### 5.4 選取圈（R2 呼吸脈衝）
 
@@ -594,6 +596,7 @@
 - **列**：共用圖層列（§5.5 圖層列，2026-10-03 起）：圖層 icon＋中文名，英文名小字 `textDim`；沒有開關，狀態圖示（✓ 已接上 `statusLive`／⚙ 派生 `statusDerived`／? 待補 `statusWarn`）放在開關那格；鎖頭圖示表示受限。L2 群組標題用共用 `SubGroupLabel`。
 - **展開**：點列在列下方展開上游資料卡，同時只展開一筆（`aria-expanded`）；卡內 Fact 列標籤 10px `muted` 寬 44、值 `textStrong`，代碼類值 `FONT_DATA`；連結 `link` 色。
 - **暗／淡**：`DARK_DS`／`LIGHT_DS`（皆取 token）。
+- **來源表補位**（2026-11-23）：資料目錄沒有機關＋授權時，卡內加「圖層來源」區塊（機關、授權或「授權未明示」、資料時點、連結），資料取 `src/data/layerSourceInfo.ts`；從 popup 搬來的固定說明（`LAYER_NOTES_DATA`、外國規格層 `popupNotes`）一律顯示在卡內。資料集代號、md 路徑不顯示，只放在標題 `title` 提示。
 - **禁止**：顯示 `datasetId` 當標題（§6.3）。2026-10-03 B 段已修掉 2 處 fallback：沒有 catalog 標題時卡片標題改「上游資料集」／「已比對的上游資料集」，代號移到「資料集」事實列（`FONT_DATA`），比對信心印「高／中／低」。
 - **實作**：`src/components/sidebar/DataSourcePanel.tsx`、`IconRailSidebar.tsx`（rail 入口）。
 
@@ -762,7 +765,7 @@
 
 2026-09-28 拍板（`map-layers.md` §4.2，LG-1–LG-12）。新圖例一律用 `src/components/legend/legendKit.tsx`，不再手寫色票尺寸。
 
-- **結構**：`LegendTitle`（標題）→ `LegendRow`（色票＋標籤）→ `LegendNote`（註記、方法、來源）。組間距 10、列間距 2–4、色票與文字間 6。
+- **結構**：`LegendTitle`（標題）→ `LegendRow`（色票＋標籤）→ `LegendNote`（註記、方法）。機關、授權、data.gov.tw 代號、資料日期放圖層「說明・來源」（§5.22），圖例只留色階、符號、單位、縮放提示與涵蓋限制（2026-11-23）。組間距 10、列間距 2–4、色票與文字間 6。
 - **標題**（LG-11）：`<LegendTitle zh="醫療據點" en="Medical" />`：中文 10px 600 `textStrong`，英文 9px `textDim`、不轉大寫，中文在前。不要再寫「MEDICAL 醫療據點」或「污染嚴重度 SEVERITY」。
 - **色票**：`SwatchDot` 10px 圓＋1px 底圖色描邊（LG-1）、`SwatchSquare` 12×10 圓角 2（LG-2，`outline` 為框線面）、`SwatchLine` 20px 線段含虛線（LG-4）、`SwatchSteps` 分級列＋分界數字（LG-3）、`SwatchGradient` 漸層條（LG-8）、`SwatchHatch` 缺值單向細斜線／遮蔽交叉斜線（LG-7）、`SwatchArrow` 14px 方向箭頭（LG-6，與地圖 SDF 箭頭同形狀，R6 段 3 移動物件平面模式）。
 - **色票參數**（R4 補）：`SwatchDot` 可帶 `stroke`／`strokeWidth`（地圖描邊是資料編碼時照畫，例：設施狀態框）與 `glow`（即時光暈）；`SwatchSquare`、`SwatchGradient` 可帶 `stroke`（面外框，分級面／網格用 `mapSeamColor(isDark)`，與 R3a 地圖細縫同源）；`SwatchLine` 可帶 `opacity`。
@@ -1173,7 +1176,8 @@
 | 上游資料已對上目錄 | 已接上 | `statusLive` |
 | Pulse 自行計算／衍生 | 派生 | `statusDerived` |
 | 目錄尚缺 | 待補 | `statusWarn` |
-| popup 無來源 | 資料來源 · 來源資訊待補 | `warn` |
+| popup 無來源（圖層側也補不到，§5.3 `full`） | 資料來源 · 來源資訊待補 | `warn` |
+| 來源未標授權 | 授權未明示 | `textMuted` |
 | 載入中 | 載入中…（走 loadingRegistry） | `textMuted` |
 | 缺值 | —（不寫 0） | `textDim` |
 | 模擬結果的資料性質 | 推估（圖層名限定詞）；可信度三級見 §5.40 S-2 | — |
