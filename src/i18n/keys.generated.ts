@@ -17,7 +17,6 @@ export type GeneratedStaticKey =
   | "addressSearch.noAddress"
   | "addressSearch.owner.registry"
   | "addressSearch.owner.tgos"
-  | "addressSearch.ownerFailed"
   | "addressSearch.ownerOnly"
   | "addressSearch.searching"
   | "addressSearch.source.gov"

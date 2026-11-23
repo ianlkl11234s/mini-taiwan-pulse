@@ -12,7 +12,7 @@ import { clearOwnerAddressCache, loadOwnerAddressCounty } from "../data/addressO
 export type AddressSearchState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "ready"; hits: AddressHit[]; manifest: AddressManifest; ownerFailed: boolean }
+  | { status: "ready"; hits: AddressHit[]; manifest: AddressManifest}
   | { status: "error" };
 
 const LIMIT = 8;
@@ -28,14 +28,13 @@ const LOADING_LABEL = {
 
 export async function runAddressSearch(
   query: string, g: AddressGazetteer, isOwner: boolean, label: (k: "manifest" | "roads" | "shard" | "owner") => string,
-): Promise<{ hits: AddressHit[]; manifest: AddressManifest; ownerFailed: boolean }> {
+): Promise<{ hits: AddressHit[]; manifest: AddressManifest}> {
   const manifest = await loadAddressManifest(label("manifest"));
   const scale = manifest.coord_scale;
   const codeByKey = new Map<string, string>();
   for (const [code, c] of Object.entries(manifest.counties)) codeByKey.set([...g.counties].find(([, name]) => name === c.name)?.[0] ?? c.name, code);
   let resolved = resolveShardTargets(g, query, codeByKey, null, MAX_SHARDS);
   if (resolved.needsRoads) resolved = resolveShardTargets(g, query, codeByKey, await loadAddressRoads(manifest, label("roads")), MAX_SHARDS);
-  let ownerFailed = false;
   const perTarget = await Promise.all(resolved.targets.map(async ({ countyCode, townKey, parsed }) => {
     const county = manifest.counties[countyCode];
     const countyKey = [...g.counties].find(([, name]) => name === county?.name)?.[0];
@@ -46,24 +45,20 @@ export async function runAddressSearch(
       ? searchShard({ countyCode, county: county.name, town, source: county.source.kind, shard }, parsed, scale, LIMIT)
       : [];
     if (isOwner) {
-      try {
-        const owner = await loadOwnerAddressCounty(countyCode, label("owner"));
-        const ownerShard = owner?.get(town);
-        if (ownerShard) {
-          const seen = new Set(hits.map((h) => h.label));
-          for (const h of searchShard({ countyCode, county: county.name, town, source: "owner", shard: ownerShard }, parsed, scale, LIMIT)) {
-            if (!seen.has(h.label)) hits.push(h);
-          }
+      // 站主版讀不到時 loader 回 null：安靜退回只查公開版
+      const ownerShard = (await loadOwnerAddressCounty(countyCode, label("owner")))?.get(town);
+      if (ownerShard) {
+        const seen = new Set(hits.map((h) => h.label));
+        for (const h of searchShard({ countyCode, county: county.name, town, source: "owner", shard: ownerShard }, parsed, scale, LIMIT)) {
+          if (!seen.has(h.label)) hits.push(h);
         }
-      } catch {
-        ownerFailed = true;
       }
     }
     return hits;
   }));
   // 完整門牌命中優先於路段與「以此開頭」的建議
   const hits = perTarget.flat().sort((a, b) => Number(b.kind === "address") - Number(a.kind === "address"));
-  return { hits: hits.slice(0, LIMIT), manifest, ownerFailed };
+  return { hits: hits.slice(0, LIMIT), manifest };
 }
 
 /** Locations 搜尋：輸入像門牌時才查門牌分片（懶載入）；站主登入時另查站主版。 */

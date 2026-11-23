@@ -110,6 +110,14 @@ test('短效指標檔：R2 有就從 R2 回', async () => {
   assert.equal(toOrigin, false);
 });
 
+test('門牌搜尋分片只讀 R2：/address-index/v1/t/63000-1.json', async () => {
+  const p = '/address-index/v1/t/63000-1.json';
+  const { res, toOrigin } = await route(p, { r2: { [p]: '{}' } });
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('x-pulse-src'), 'r2');
+  assert.equal(toOrigin, false);
+});
+
 test('短效指標檔：R2 沒有就讀 dist（/public_life/manifest.json）', async () => {
   const { res, toOrigin } = await route('/public_life/manifest.json', { dist: { '/public_life/manifest.json': '{}' } });
   assert.equal(res.status, 200);
@@ -123,7 +131,7 @@ test('短效指標檔：R2、dist 都沒有回 404，不轉 ORIGIN', async () =>
   assert.equal(toOrigin, false);
 });
 
-for (const p of ['/medical/x.pmtiles', '/network_structures/a.pmtiles', '/jp-medical/releases/a.json', '/flight-trails/releases/a.bin']) {
+for (const p of ['/medical/x.pmtiles', '/address-index/v1/t/63000-1.json', '/network_structures/a.pmtiles', '/jp-medical/releases/a.json', '/flight-trails/releases/a.bin']) {
   test(`R2 沒有的檔回 404 並標 r2-miss，不轉 ORIGIN：${p}`, async () => {
     const { res, toOrigin } = await route(p);
     assert.equal(res.status, 404);

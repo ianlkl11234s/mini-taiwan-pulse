@@ -68,7 +68,6 @@ export function UnifiedSearchResults({ query, indexState, lockedKeys, onPickPlac
       {indexState.status === "error" && <EmptyLine text={t("placeSearch.loadFailed")} role="alert" />}
       {address.status === "loading" && <EmptyLine text={t("addressSearch.searching")} />}
       {address.status === "error" && <EmptyLine text={t("addressSearch.loadFailed")} role="alert" />}
-      {address.status === "ready" && address.ownerFailed && <EmptyLine text={t("addressSearch.ownerFailed")} role="alert" />}
       {address.status === "ready" && addressHits.length === 0 && <EmptyLine text={t("addressSearch.noAddress")} />}
       {addressHits.map((hit) => (
         <ResultRow

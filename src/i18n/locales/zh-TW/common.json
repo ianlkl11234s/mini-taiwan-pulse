@@ -184,7 +184,6 @@
   "placeSearch.kind.village": "村里",
   "addressSearch.searching": "查詢門牌…",
   "addressSearch.loadFailed": "門牌索引載入失敗，請稍後再試",
-  "addressSearch.ownerFailed": "站主門牌載入失敗，只顯示公開門牌",
   "addressSearch.noAddress": "沒有符合的門牌",
   "addressSearch.kind.address": "門牌",
   "addressSearch.kind.road": "路段範圍",

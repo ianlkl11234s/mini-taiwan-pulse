@@ -184,7 +184,6 @@
   "placeSearch.kind.village": "村里",
   "addressSearch.searching": "住所を検索中…",
   "addressSearch.loadFailed": "住所索引を読み込めなかった。しばらくしてから再試行のこと",
-  "addressSearch.ownerFailed": "管理者限定の住所を読み込めなかったため、公開住所のみ表示する",
   "addressSearch.noAddress": "該当する住所はない",
   "addressSearch.kind.address": "住所",
   "addressSearch.kind.road": "道路の範囲",

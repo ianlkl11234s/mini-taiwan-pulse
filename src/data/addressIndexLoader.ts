@@ -7,15 +7,14 @@ import {
  * 門牌搜尋索引（地址搜尋第二階段）懶載入。
  *
  * - 公開分片：`<base>/manifest.json`、`roads.json`、`t/<縣市碼>-<n>.json`（建置腳本：tw-address-geocoder
- *   `pipelines/20_build_address_search_index.py`）。base 由 `VITE_ADDRESS_INDEX_BASE` 指定，本機預覽
- *   指到本機靜態目錄；未設定時用正式 CDN 路徑。分片不進 public/、lock 或 deploy-assets。
+ *   `pipelines/20_build_address_search_index.py`）。檔案放 `public/address-index/v1/`（不進 git），
+ *   登記在 deploy/public-assets.lock.json、上傳 S3 deploy-assets/address-index/v1/，正式站由 Worker 從 R2 供應；
+ *   本機 dev 讀 public/，路徑與其他 lock 資產一樣用 BASE_URL 相對路徑。
  * - 站主版在 addressOwnerLoader.ts（owner-only 守門範圍，不讀 env、不寫外部網址）。
  * - 每個請求都走 loadingRegistry；失敗清掉快取讓下次重試，呼叫端要顯示錯誤，不可當成「查無」。
  */
-export const DEFAULT_ADDRESS_INDEX_BASE = "https://data.itsmigu.com/address-index/v1";
-
 export function addressIndexBase(): string {
-  return String(import.meta.env.VITE_ADDRESS_INDEX_BASE || DEFAULT_ADDRESS_INDEX_BASE).replace(/\/+$/, "");
+  return `${String(import.meta.env.BASE_URL ?? "/").replace(/\/+$/, "")}/address-index/v1`;
 }
 
 const cache = new Map<string, Promise<unknown>>();

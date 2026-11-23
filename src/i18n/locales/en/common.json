@@ -184,7 +184,6 @@
   "placeSearch.kind.village": "Village",
   "addressSearch.searching": "Searching addresses…",
   "addressSearch.loadFailed": "Could not load the address index. Please try again later.",
-  "addressSearch.ownerFailed": "Could not load owner-only addresses; showing public addresses only.",
   "addressSearch.noAddress": "No matching addresses",
   "addressSearch.kind.address": "Address",
   "addressSearch.kind.road": "Road extent",

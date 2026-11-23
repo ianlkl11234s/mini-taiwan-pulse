@@ -18,8 +18,6 @@ interface ImportMetaEnv {
   readonly VITE_SIM_BUNDLE_BASE?: string;
   /** 本機測試身分（僅 DEV 生效）；需搭配 loopback gateway 的 PULSE_RESEARCH_TEST_IDENTITY=1 */
   readonly VITE_RESEARCH_TEST_IDENTITY?: string;
-  /** 門牌搜尋公開分片 base（預設 https://data.itsmigu.com/address-index/v1），本機預覽指到本機靜態目錄 */
-  readonly VITE_ADDRESS_INDEX_BASE?: string;
 }
 
 interface ImportMeta {
