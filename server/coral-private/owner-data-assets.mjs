@@ -61,4 +61,49 @@ export const OWNER_DATA_ASSETS = Object.freeze({
   "cn-schools": Object.freeze({ filename: "cn_schools.pmtiles", size: 3433795, sha256: "421ac3dc74e883d79d4e04318c051c8ac9aabd940d2cc8867d1703fa022a5dc4" }),
   "cn-medical": Object.freeze({ filename: "cn_medical.pmtiles", size: 1213713, sha256: "744992366fc9cc157d8bb4698df36953546711907b1e425a58a20b848621924b" }),
   "cn-nuclear-plants": Object.freeze({ filename: "cn_nuclear_plants.pmtiles", size: 70028, sha256: "dc9a5f17b1135e9e2257c8cac003896c63028e57e3eae7bedd78a0f6963fb96a" }),
+  // ── 門牌搜尋站主版（地址搜尋第二階段，2026-11-22 建置；TGOS＋稅籍／公司非內插門牌，只含公開版沒有的鍵）──
+  // 臺北市 10,501 鍵
+  "address-owner-63000": Object.freeze({ filename: "address_owner_63000.json", size: 441947, sha256: "44f7b78da1a21c474293dbcce0c55e660651237e04a2012f489dbcfe63c361fb" }),
+  // 新北市 14,590 鍵
+  "address-owner-65000": Object.freeze({ filename: "address_owner_65000.json", size: 627454, sha256: "6e061025db4edacf8eb2bb9385c6ef51a95ce9fc10a1846e72da75833ba57d16" }),
+  // 桃園市 8,643 鍵
+  "address-owner-68000": Object.freeze({ filename: "address_owner_68000.json", size: 382853, sha256: "9508519434e62106ba8ce445820484a69474a6929013d6ce3df3591edf6c49f3" }),
+  // 臺中市 23,098 鍵
+  "address-owner-66000": Object.freeze({ filename: "address_owner_66000.json", size: 974860, sha256: "ca28bd1fe55d4f45e61e571c49e90364b479e783793c5f39784cc61138c15440" }),
+  // 臺南市 22,582 鍵
+  "address-owner-67000": Object.freeze({ filename: "address_owner_67000.json", size: 901893, sha256: "5609d6c3ff6458fc024863b64ada53de1b6822dd85a4d7019501a4fc854ebe96" }),
+  // 高雄市 15,360 鍵
+  "address-owner-64000": Object.freeze({ filename: "address_owner_64000.json", size: 671374, sha256: "bc6c5cc1b2971756076a594d2a9cb02af6f2cf84136fb90447b5a7d4b87e9651" }),
+  // 新竹市 2,058 鍵
+  "address-owner-10018": Object.freeze({ filename: "address_owner_10018.json", size: 87571, sha256: "68b99d6cfbe317c861fd9c0a27205d0144417a23456068879377991d7f52bb6d" }),
+  // 新竹縣 2,640 鍵
+  "address-owner-10004": Object.freeze({ filename: "address_owner_10004.json", size: 114316, sha256: "fb5ec1dcc5868bbb514971f1d049f13c4910bd239440283e883ddaf48c197c4e" }),
+  // 苗栗縣 5,971 鍵
+  "address-owner-10005": Object.freeze({ filename: "address_owner_10005.json", size: 244855, sha256: "dd054f63a4445175652090036b597535ccc0e7642fae07537e47f0f30cbbd4d9" }),
+  // 彰化縣 19,972 鍵
+  "address-owner-10007": Object.freeze({ filename: "address_owner_10007.json", size: 852279, sha256: "85d76b6ffeb6a6437eedd826a33f89271e63fc8f5c452f50864ace8e49b9b445" }),
+  // 雲林縣 6,515 鍵
+  "address-owner-10009": Object.freeze({ filename: "address_owner_10009.json", size: 276988, sha256: "977343cbee33bd2a9616b06052175674a5d46cd26867f045eab697211c6a9fbb" }),
+  // 嘉義縣 8,936 鍵
+  "address-owner-10010": Object.freeze({ filename: "address_owner_10010.json", size: 356414, sha256: "dd888fc8db3bbf2be8d7d330ed20bc2f1d07a0905d0cde9c77b94b8a4b2420d8" }),
+  // 屏東縣 7,366 鍵
+  "address-owner-10013": Object.freeze({ filename: "address_owner_10013.json", size: 320688, sha256: "18db8df107972d43fbc10ab015f71763c5d569321514cfe0ef04f517892eaaad" }),
+  // 臺東縣 2,507 鍵
+  "address-owner-10014": Object.freeze({ filename: "address_owner_10014.json", size: 101243, sha256: "4e5fa14efe6a3ae7a49941649a7b6f7613465585c50fe5e678a56d9c61e00cb7" }),
+  // 花蓮縣 2,469 鍵
+  "address-owner-10015": Object.freeze({ filename: "address_owner_10015.json", size: 109837, sha256: "93f318e4947cb5d7dd5cf75bdfcb4cada7392163ac5997b4916ffa657eb5be40" }),
+  // 金門縣 2,894 鍵
+  "address-owner-09020": Object.freeze({ filename: "address_owner_09020.json", size: 110258, sha256: "6b7648a4c2d508d485fc9193ffcc9d4168c674d4f7a98c792c379986b62d3eca" }),
+  // 澎湖縣 2,815 鍵
+  "address-owner-10016": Object.freeze({ filename: "address_owner_10016.json", size: 103047, sha256: "fff47234de31793601d8dea575938f41d2c7ef5f807ab849554c5c0fef993c7f" }),
+  // 基隆市 1,894 鍵
+  "address-owner-10017": Object.freeze({ filename: "address_owner_10017.json", size: 85506, sha256: "543929d7cf5d710d4c84e634e763130689bbf5fd2aa45c351ea6521d881870cd" }),
+  // 宜蘭縣 20,862 鍵
+  "address-owner-10002": Object.freeze({ filename: "address_owner_10002.json", size: 759971, sha256: "134c73b2d20a03de2ee348742ed9b0af0239befab53450e3fee2f62adcd10b4f" }),
+  // 南投縣 17,813 鍵
+  "address-owner-10008": Object.freeze({ filename: "address_owner_10008.json", size: 673881, sha256: "4591447539de0337093f7414eba5eb11c8cabd6e7be3f36ccf52152dab65c619" }),
+  // 嘉義市 9,516 鍵
+  "address-owner-10020": Object.freeze({ filename: "address_owner_10020.json", size: 336498, sha256: "d76b571a902af120d934302ed57944108c191c6c9ad35bf957685146514474c9" }),
+  // 連江縣 905 鍵
+  "address-owner-09007": Object.freeze({ filename: "address_owner_09007.json", size: 29983, sha256: "bcdc8485e07c25db730dde6d7a08e9bf8eb4cf19c0e29353be8f0f421153a46a" }),
 });
