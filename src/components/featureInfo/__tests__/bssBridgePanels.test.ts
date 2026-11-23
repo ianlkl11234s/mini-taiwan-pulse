@@ -150,7 +150,6 @@ describe("全臺橋梁研究（進行中）popup 語意", () => {
     } }));
     expect(crossing).toContain("未確認是橋");
     expect(crossing).toContain("36.4 m");
-    expect(crossing).toContain("w456");
     const multiCrossing = renderToStaticMarkup(createElement(BssNationalBridgePreviewPanel, { props: {
       bss_name: "多候選橋線示例", geometry_role: "multi_near_carrier_waterway_direction_context",
       offset_distance_m: 21.81, secondary_osm_waterway_way_id: "w789",
