@@ -446,7 +446,7 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     ],
     legendNotes: [
       l3("GEM：LNG 接收站 33（提案 20、取消 8；1 筆取消案上游座標錯誤，不畫）、煤炭碼頭 5、管線 12；預設顯示運轉中、興建中、提案，擱置與取消在「狀態」篩選", "GEM: 33 LNG terminals (20 proposed, 8 cancelled; 1 cancelled with a wrong upstream coordinate is not drawn), 5 coal terminals, 12 pipelines; operating, under construction and proposed shown by default, shelved and cancelled in the status filter", "GEM：LNG 基地 33（提案 20・中止 8。中止 1 件は上流座標の誤りで描画しない）、石炭ターミナル 5、パイプライン 12。既定は運転中・建設中・提案、保留と中止は「状態」で表示"),
-      l3("OSM：煉油廠 2、油氣儲槽 75、天然氣管線 65（ODbL）", "OSM: 2 refineries, 75 oil/gas storage tanks, 65 gas pipelines (ODbL)", "OSM：製油所 2・石油ガス貯蔵タンク 75・ガスパイプライン 65（ODbL）"),
+      l3("OSM：煉油廠 2、油氣儲槽 75、天然氣管線 65", "OSM: 2 refineries, 75 oil/gas storage tanks, 65 gas pipelines", "OSM：製油所 2・石油ガス貯蔵タンク 75・ガスパイプライン 65"),
       COVERAGE_NOTE(18),
     ],
     popupNotes: [OFFSHORE_NOTE, NEAREST_NOTE],

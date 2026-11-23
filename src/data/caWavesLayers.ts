@@ -137,7 +137,7 @@ const W3: CaWaveSpec[] = [
     fields: [ZONE_FIELD, { prop: "pol_type", label: l3("類型", "Type", "種別") }, { prop: "line_type", label: l3("界線類型", "Line type", "境界線の種別") },
       { prop: "territory1", label: l3("主權方 1", "Territory 1", "主権者 1") }, { prop: "territory2", label: l3("主權方 2", "Territory 2", "主権者 2") },
       { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²" }, { prop: "source1", label: l3("依據", "Source", "根拠") }, { prop: "doc_date", label: l3("文件日期", "Document date", "文書日付") }],
-    legendNotes: [l3("來源：VLIZ Marine Regions，非加拿大官方界線（CHS 官方檔未開放）", "Source: VLIZ Marine Regions, not official Canadian boundaries (CHS files not open)", "出典：VLIZ Marine Regions。カナダ公式の境界ではない（CHS 公式データは非公開）"),
+    legendNotes: [l3("非加拿大官方界線（CHS 官方檔未開放）", "Not official Canadian boundaries (CHS files not open)", "カナダ公式の境界ではない（CHS 公式データは非公開）"),
       l3("國家級海域，不依省區計", "National maritime zones, not counted by province", "国レベルの海域で州別には数えない")],
     popupNotes: [],
     sourceOrg: l3("Flanders Marine Institute (2023), Maritime Boundaries Geodatabase v12（EEZ、界線）／v4（12、24 浬），marineregions.org",
