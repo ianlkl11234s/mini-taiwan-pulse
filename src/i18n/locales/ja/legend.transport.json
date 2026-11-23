@@ -25,7 +25,7 @@
   "legend.transport.shuttleQuiet": "閑散",
   "legend.transport.shuttleTrunk": "幹線",
   "legend.transport.portsTitle": "港湾の分類",
-  "legend.transport.portsNote": "色は元データの port_class に従います。欠損値は既存のどの分類にも含めません",
+  "legend.transport.portsNote": "色は元データの港湾区分に従います。欠損値は既存のどの分類にも含めません",
   "legend.transport.osmTitle": "OSM道路",
   "legend.transport.osmMotorway": "高速道路",
   "legend.transport.osmTrunk": "快速道路",

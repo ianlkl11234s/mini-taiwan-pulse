@@ -34,7 +34,6 @@ export function AllenCoralAtlasPanel({ props }: { props: Record<string, unknown>
     <Row field="sourceYear" value={text(props.source_year, na)} />
     <Row label={tr("popup.allenCoral.resolution")} value={props.nominal_resolution_m == null ? na : `${text(props.nominal_resolution_m, na)} m`} />
     <Row label={tr("popup.allenCoral.geometryRole")} value={text(props.geometry_role, na)} />
-    <Row label="Feature ID" value={text(props.feature_id, na)} />
     <div style={{ marginTop: 7, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45 }}>{tr("popup.allenCoral.warning")}</div>
     <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45 }}>{tr("popup.allenCoral.areaNote", { date: ALLEN_CORAL_ACQUIRED_AT.slice(0, 10) })}</div>
     <Row field="attribution" value={tr("popup.allenCoral.attribution")} />

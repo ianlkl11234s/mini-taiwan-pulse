@@ -68,7 +68,6 @@ export function HotSpringZonesPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color="#880e4f">{String(props.name ?? tr("popup.tourism.hotSpringZone"))}</Title>
-      <Row field="number" value={props.zone_no == null ? "" : String(props.zone_no)} />
       <Row field="area" value={Number.isFinite(area) && area > 0 ? `${formatNumber(area)} m²` : ""} />
       <Row field="remarks" value={String(props.remark ?? "")} />
     </>
@@ -268,7 +267,6 @@ export function RestaurantsPanel({ props }: { props: Record<string, unknown> }) 
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="businessHours" value={String(props.service_time ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
-      <Row label={tr("popup.tourism.cuisineCode")} value={String(props.cuisine_class ?? "")} />
     </>
   );
 }

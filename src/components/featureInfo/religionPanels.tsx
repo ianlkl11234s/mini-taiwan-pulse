@@ -200,7 +200,6 @@ function JpReligionPanel({
           {tr("popup.religion.mapSymbolNote")}
         </div>
       ) : null}
-      {id ? <Row label={source === "wikidata" ? "Wikidata" : "ID"} value={id} /> : null}
       {source === "wikidata" && /^Q\d+$/.test(id) ? (
         <a
           href={`https://www.wikidata.org/wiki/${id}`}

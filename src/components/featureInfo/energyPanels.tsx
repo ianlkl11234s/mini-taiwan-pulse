@@ -333,7 +333,6 @@ export function OsmSubstationPanel({ props }: { props: Record<string, unknown> }
       <Row label="OSM type" value={String(props.substation_type ?? "—")} />
       <Row field="voltage" value={fmtVoltageKv(String(props.voltage ?? ""))} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
-      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -363,7 +362,6 @@ export function OsmPowerLinePanel({ props }: { props: Record<string, unknown> })
       <Row label={t("popup.energy.frequency")} value={String(props.frequency ?? "—")} />
       <Row field="location" value={String(props.location ?? "—")} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
-      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -372,12 +370,10 @@ export function OsmPowerTowerPanel({ props }: { props: Record<string, unknown> }
   const { t } = useLocale();
   return (
     <div>
-      <Row field="number" value={String(props.ref ?? "—")} />
       <Row field="voltage" value={fmtVoltageKv(String(props.voltage ?? ""))} />
       <Row label={t("popup.energy.material")} value={String(props.material ?? "—")} />
       <Row label={t("popup.energy.design")} value={String(props.design ?? "—")} />
       <Row field="operatorOrg" value={String(props.operator ?? "—")} />
-      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -402,7 +398,6 @@ export function OsmWindTurbinePanel({ props }: { props: Record<string, unknown> 
       <Row label={t("popup.energy.manufacturer")} value={String(props.manufacturer || "—")} />
       <Row label={t("popup.energy.model")} value={String(props.model || "—")} />
       <Row field="operatorOrg" value={String(props.operator || "—")} />
-      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -417,7 +412,6 @@ export function OsmSolarFarmPanel({ props }: { props: Record<string, unknown> })
       <Row field="area" value={fmtM(props.area_m2, "m²")} />
       <Row label={t("popup.energy.method")} value={String(props.plant_method || "—")} />
       <Row field="operatorOrg" value={String(props.operator || "—")} />
-      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }
@@ -433,7 +427,6 @@ export function OsmPowerPlantStaticPanel({ props }: { props: Record<string, unkn
       <Row label={t("popup.energy.generator")} value={String(props.generator_source || "—")} />
       <Row field="installedCapacity" value={fmtMW(props.capacity_mw)} />
       <Row field="operatorOrg" value={String(props.operator || "—")} />
-      <Row field="osmId" value={String(props.osm_id ?? "")} />
     </div>
   );
 }

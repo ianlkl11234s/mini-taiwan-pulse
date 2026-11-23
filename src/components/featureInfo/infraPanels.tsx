@@ -64,7 +64,6 @@ export function SubmarineCablePanel({ props }: { props: Record<string, unknown> 
       <Row field="status" value={String(props.status ?? "")} />
       <Row field="operator" value={String(props.operator ?? "")} />
       <Row label={tr("popup.infra.owner")} value={String(props.owner ?? "")} />
-      <Row label={tr("popup.infra.osmIdent")} value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
       <Row label={tr("popup.infra.lineQuality")} value={String(props.geometry_source ?? "")} />
       <Row field="coverageLimit" value={tr("popup.infra.cableCoverage")} />
       <Row field="license" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
@@ -92,7 +91,6 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
       <Row field="status" value={String(props.status ?? "")} />
       <Row label={tr("popup.infra.cableCount")} value={String(props.cable_count ?? "")} />
       <Row label={tr("popup.infra.cableNames")} value={String(props.cable_names ?? "")} />
-      <Row label={tr("popup.infra.osmIdent")} value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
       <Row field="coverageLimit" value={tr("popup.infra.landingCoverage")} />
       <Row field="license" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
@@ -138,7 +136,6 @@ export function AnfrWirelessSitePanel({ props }: { props: Record<string, unknown
       <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: anfrOperatorColor(primary) }} />
       <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{tr("popup.infra.anfrTitle")}</div>
     </div>
-    <Row label="SUP ID" value={String(props.sup_id ?? "")} />
     <Row label={tr("popup.infra.anfrOperator")} value={operators.join(" · ")} color={anfrOperatorColor(primary)} />
     <Row label={tr("popup.infra.anfrTechSystem")} value={`${String((props.technologies as string[] | undefined)?.join(" · ") ?? "")} · ${String((props.systems as string[] | undefined)?.join(" · ") ?? "")}`} />
     <Row field="status" value={String((props.statuses as string[] | undefined)?.join(" · ") ?? "")} />
@@ -172,7 +169,6 @@ export function OsmCommunicationSitePanel({ props }: { props: Record<string, unk
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>
       {tr("popup.infra.osmCommSubtitle")}
     </div>
-    <Row field="osmId" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
     <Row label={tr("popup.infra.osmCommNameOperator")} value={[props.name, props.operator].filter(Boolean).map(String).join(" · ")} />
     <Row label={tr("popup.infra.osmCommTypes")} value={kinds.join(" · ")} />
     <Row label={tr("popup.infra.osmCommSiteKind")} value={`${String(props.site_kind ?? "general")} · ${String(props.relevance ?? "")}`} />
@@ -622,7 +618,6 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       <Row field="source" value={source ? enumLabel("infraCctvSource", source, info.label, i18n) : ""} color={info.color} />
       <Row field="direction" value={String(props.RoadDirection ?? "")} />
-      <Row label="ID" value={String(props.CCTVID ?? "")} />
       {streamUrl || imageUrl ? (
         <CctvStreamView
           key={cctvKey}

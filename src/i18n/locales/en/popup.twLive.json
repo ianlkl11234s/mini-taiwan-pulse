@@ -3,7 +3,6 @@
   "popup.twLive.dengue.cases": "Cases",
   "popup.twLive.dengue.casesValue": "{count}",
   "popup.twLive.dengue.released": "Data date",
-  "popup.twLive.dengue.code": "Release area code",
   "popup.twLive.dengue.note": "Local case cluster in the past two weeks; not a case address.",
   "popup.twLive.dengue.source": "Taiwan CDC",
   "popup.twLive.nav.lifetime": "Duration",

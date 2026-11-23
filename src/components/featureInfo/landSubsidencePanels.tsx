@@ -192,7 +192,6 @@ function ContourPanel({ props, layer }: Props & { layer: "landSubsidenceCumulati
     <Row field="county" value={county(props.county, i18n)} />
     <Row label={t("popup.atlas.lsPeriod")} value={periodText} />
     <Row label={t("popup.atlas.lsLatestLabel")} value={props.is_latest === true ? t("popup.atlas.lsLatestYes") : t("popup.atlas.lsLatestNo")} />
-    <Row field="code" value={str(props.fname)} mono />
     {props.sign_corrected === true && <Row field="remarks" value={t("popup.atlas.lsSignCorrected")} />}
     <Row field="caution" value={t("popup.atlas.lsNegativeMeans")} />
   </>;
@@ -216,7 +215,6 @@ export function SeawallZonePanel({ props }: Props) {
   return <>
     <Title color={ATLAS_LAYER_COLORS.seawallZones}>{str(props.name) || t("popup.atlas.lsSeawallTitle")}</Title>
     <Row label={t("popup.atlas.lsShore")} value={str(props.shore_name)} />
-    <Row label={t("popup.atlas.lsShoreNo")} value={str(props.shore_no)} mono />
     <Row field="managingAgency" value={enumLabel("atlasWraBranch", orgLabel, orgLabel, i18n)} />
     {org && org !== orgLabel && <Row label={t("popup.atlas.lsOrgRaw")} value={org} />}
     <Row label={t("popup.atlas.lsBuilt")} value="2024-06-12" mono />

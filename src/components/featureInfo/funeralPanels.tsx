@@ -125,7 +125,6 @@ export function CemeteryOsmPanel({ props }: { props: Record<string, unknown> }) 
       <Title color={FUNERAL_LAYER_COLORS.cemeteryOsm}>{name || t("popup.funeral.unnamedCemetery")}</Title>
       {area != null ? <Row field="area" value={t("popup.funeral.hectare", { value: area.toFixed(2) })} /> : null}
       <Row label={t("popup.funeral.osmTag")} value={str(props.landuse) || str(props.amenity)} />
-      <Row field="osmId" value={str(props.osm_id)} />
       {name ? null : <Note>{t("popup.funeral.osmNoName")}</Note>}
       <Note>{t("popup.funeral.osmNote", { note: CEMETERY_OSM_ODBL_NOTE })}</Note>
     </>
@@ -150,7 +149,6 @@ export function CemeteryZoningPanel({ props }: { props: Record<string, unknown> 
       <Row label={t("popup.funeral.zoningGroup")} value={!zone ? t("popup.common.unclassified") : classValue ? enumLabel("funeralZoningClass", classValue, cemeteryZoningClassLabel(zone), i18n) : zone} color={color} />
       {area != null ? <Row field="area" value={t("popup.funeral.hectare", { value: area.toFixed(2) })} /> : null}
       <Row field="county" value={placeName(str(props.county), i18n)} />
-      <Row label={t("popup.funeral.zoningId")} value={str(props.zoning_id)} />
       <Note>{t("popup.funeral.zoningNote1")}<b>{t("popup.funeral.zoningNoteBold")}</b>{t("popup.funeral.zoningNote2")}</Note>
     </>
   );

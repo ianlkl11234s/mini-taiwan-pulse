@@ -198,7 +198,6 @@ export function SeaWaterQualityStationsPanel({ props }: PanelProps) {
       <Row field="classification" value={t("popup.environmentLayer.seaClassNote")} />
       <Row field="updated" value={t("popup.environmentLayer.seaUpdated")} />
       <Row label={t("popup.environmentLayer.sampleCount")} value={timesSince(i18n, props.n_samples, props.first_sample_date)} />
-      <Row field="stationNo" value={text(props.station_id)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcSea"), source_url: "https://data.gov.tw/dataset/155934", license: licenseText(i18n) }} />
   </>;
@@ -394,7 +393,6 @@ export function NuscGammaRadiationPanel({ props }: PanelProps) {
       <Row label={t("popup.environmentLayer.background")} value={t("popup.environmentLayer.nuscBackground")} />
       <Row field="updated" value={t("popup.environmentLayer.nuscUpdated")} />
       <Row label={t("popup.environmentLayer.distinction")} value={t("popup.environmentLayer.nuscDistinction")} />
-      <Row label={t("popup.environmentLayer.stationCode")} value={text(props.station_id)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcNusc"), source_url: "https://data.gov.tw/dataset/119233", license: licenseText(i18n), fetched_at: formatTaiwanTime(text(props.updated_at) || null) }} />
   </>;
@@ -451,7 +449,6 @@ export function WaterEffluentLivePanel({ props }: PanelProps) {
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.judge")} value={t("popup.environmentLayer.effluentJudge")} />
       <Row field="updated" value={t("popup.environmentLayer.effluentUpdated")} />
-      <Row label={t("popup.environmentLayer.controlNo")} value={text(props.cno)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcEffluent"), source_url: "https://data.gov.tw/dataset/35105", license: licenseText(i18n) }} />
   </>;
@@ -498,7 +495,6 @@ export function CemsStackLivePanel({ props }: PanelProps) {
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.judge")} value={t("popup.environmentLayer.cemsJudge")} />
       <Row label={t("popup.common.coordinates")} value={t("popup.environmentLayer.cemsCoords")} />
-      <Row label={t("popup.environmentLayer.controlNo")} value={text(props.cno)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcCems"), source_url: "https://data.gov.tw/dataset/31968", license: licenseText(i18n) }} />
   </>;
@@ -521,7 +517,6 @@ export function CwaUvDailyPanel({ props }: PanelProps) {
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.dataLabel")} value={t("popup.environmentLayer.uvText")} />
       <Row field="updated" value={t("popup.environmentLayer.uvUpdated")} />
-      <Row field="stationNo" value={text(props.station_id)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcUv"), source_url: "https://data.gov.tw/dataset/9039", license: licenseText(i18n), fetched_at: formatTaiwanTime(text(props.collected_at) || null) }} />
   </>;

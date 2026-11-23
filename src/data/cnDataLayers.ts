@@ -388,7 +388,6 @@ const CN_W25_SPECS: readonly CnLayerSpec[] = [
       { prop: "name", label: l3("名稱（Marine Regions）", "Name (Marine Regions)", "名称（Marine Regions）") },
       { prop: "pol_type", label: l3("類型", "Type", "種別"), kind: "code" },
       { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 0 },
-      { prop: "mrgid", label: l3("MRGID", "MRGID", "MRGID"), kind: "code" },
     ],
     legendNotes: [
       l3("不含南海重疊主張區，也不畫九段線", "South China Sea overlapping claim areas are not included, and the nine-dash line is not drawn", "南シナ海の重複主張区域は含まず、九段線も描かない"),
@@ -410,7 +409,6 @@ const CN_W25_SPECS: readonly CnLayerSpec[] = [
     fields: [
       { prop: "name", label: l3("名稱（GeoNames）", "Name (GeoNames)", "名称（GeoNames）") },
       { prop: "kind", label: l3("類別", "Category", "分類"), map: catMap(PLACE_CATS) },
-      { prop: "feature_code", label: l3("GeoNames 代碼", "GeoNames feature code", "GeoNames コード"), kind: "code" },
       { prop: "population", label: l3("人口（GeoNames）", "Population (GeoNames)", "人口（GeoNames）"), kind: "num" },
       PROVINCE_FIELD,
     ],
@@ -432,7 +430,6 @@ const CN_W25_SPECS: readonly CnLayerSpec[] = [
       { prop: "name_en", label: l3("英文名", "English name", "英語名") },
       { prop: "kind", label: l3("層級", "Level", "階層"), map: catMap(ETHNIC_CATS) },
       { prop: "ethnic_groups", label: l3("自治民族", "Autonomous ethnic groups", "自治民族") },
-      { prop: "code", label: l3("民政部代碼", "MCA code", "民政部コード"), kind: "code" },
       PROVINCE_FIELD,
     ],
     legendNotes: [

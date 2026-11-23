@@ -73,10 +73,8 @@ export function CaAdminBoundariesPanel({ props }: P) {
     {bilingual ? <Row label={pick({ zh: "英／法名", en: "English / French", ja: "英語・仏語名" })} value={bilingual} /> : null}
     {level !== "pr" && caText(props.province) ? <Row label={pick({ zh: "省／地區", en: "Province / territory", ja: "州・準州" })} value={caText(props.province)} /> : null}
     {level === "csd" && caText(props.cd_name) ? <Row label={pick({ zh: "所屬普查區", en: "Census division", ja: "所属センサス区" })} value={caText(props.cd_name)} /> : null}
-    {caText(props.cd_type) || caText(props.csd_type) ? <Row label={pick({ zh: "類型代碼", en: "Type code", ja: "種別コード" })} value={caText(props.cd_type) || caText(props.csd_type)} mono /> : null}
     <Row label={pick({ zh: "2021 人口", en: "Population 2021", ja: "2021 年人口" })} value={pop || pick(CA_NO_DATA)} />
     {area ? <Row label={pick({ zh: "陸地面積", en: "Land area", ja: "陸地面積" })} value={`${area} km²`} /> : null}
-    {caText(props.dguid) ? <Row label="DGUID" value={caText(props.dguid)} mono /> : null}
     <Footer source={CA_ADMIN_SOURCE} />
   </>;
 }

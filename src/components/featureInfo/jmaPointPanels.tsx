@@ -46,7 +46,6 @@ export function JmaWbgtPanel({ props }: PanelProps) {
     <Row field="observedAt" value={formatJst(props.observed_at) || tr("popup.common.none")} mono />
     <PopupDetails summary={tr("popup.common.notesAndLimits")}>
       <Row field="description" value={tr("popup.jmaTime.wbgtNote")} />
-      <Row field="stationNo" value={text(props.station_id)} mono />
     </PopupDetails>
     <SourceFooter props={{ source_org: tr("popup.jmaTime.footerEnv"), source_url: ENV_WBGT_SOURCE_URL, license: ENV_WBGT_LICENSE, fetched_at: formatJst(props.observed_at) }} />
   </>;
@@ -104,7 +103,6 @@ function JmaPhenologyPanel({ props, layerKey }: { props: Record<string, unknown>
     {text(props.alt_species) && <Row label={tr("popup.jmaTime.altSpecies")} value={text(props.alt_species)} />}
     <PopupDetails summary={tr("popup.common.notesAndLimits")}>
       <Row field="description" value={tr("popup.jmaTime.phenologyNote")} />
-      <Row field="stationNo" value={text(props.station_no)} mono />
     </PopupDetails>
     <JmaFooter fetchedAt={props.as_of} />
   </>;

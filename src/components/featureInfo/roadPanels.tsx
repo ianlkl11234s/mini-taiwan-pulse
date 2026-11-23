@@ -15,7 +15,6 @@ type I18n = Pick<LocaleSnapshot, "t">;
 export function RoadCongestionPanel({ props }: { props: Record<string, unknown> }) {
   const { t: tr } = useLocale();
   const level = Number(props.level ?? 0);
-  const sectionId = String(props.section_id ?? props.section_uid ?? "");
   const color = ROAD_CONGESTION_COLORS[level] ?? ROAD_CONGESTION_COLORS[0]!;
   const label = ROAD_CONGESTION_LABELS[level] ?? ROAD_CONGESTION_LABELS[0]!;
 
@@ -33,7 +32,6 @@ export function RoadCongestionPanel({ props }: { props: Record<string, unknown> 
           {label}
         </div>
       </div>
-      {sectionId && <Row label={tr("popup.road.sectionCode")} value={sectionId} />}
       <Row label={tr("popup.road.congestionLevel")} value={level > 0 ? `${level}（${label}）` : tr("popup.common.noData")} />
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         {tr("popup.road.congestionNote")}

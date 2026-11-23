@@ -1,5 +1,4 @@
 {
-  "popup.hazard.caseId": "Case ID",
   "popup.hazard.year": "Year",
   "popup.hazard.mountainArea": "Mountain area",
   "popup.hazard.entryPoint": "Trailhead",
@@ -67,7 +66,6 @@
   "popup.hazard.gbLastYear": "Last known year",
   "popup.hazard.gbRecordNote": "One point = one survey record, not the landslide extent",
   "popup.hazard.gbRadonTitle": "Indicative radon atlas",
-  "popup.hazard.gbGridTile": "Grid square",
   "popup.hazard.gbRadonBand": "Share of homes above the Action Level",
   "popup.hazard.gbRadonClassValue": "Class {c} ({band})",
   "popup.hazard.gbRadonNote": "Each square takes the highest potential within it and is indicative only; a site-specific answer needs a UKHSA report",

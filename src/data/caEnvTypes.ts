@@ -39,8 +39,6 @@ export const CA_CLIMATE_POPUP: CaPopupSpec = {
   title: { props: ["name"], fallback: l3("氣象站", "Climate station", "気象観測所") },
   fields: [
     { prop: "status", label: l3("狀態", "Status", "状態"), map: Object.fromEntries(CA_CLIMATE_STATUSES.map((c) => [c.id, c.label])) },
-    { prop: "climate_id", label: l3("氣候站代碼", "Climate ID", "Climate ID"), kind: "code" },
-    { prop: "wmo_id", label: l3("WMO 代碼", "WMO ID", "WMO 番号"), kind: "code" },
     { prop: "elevation_m", label: l3("海拔", "Elevation", "標高"), kind: "num", unit: "m", digits: 1 },
     { prop: "first_date", label: l3("最早資料日", "First data", "観測開始"), kind: "code" },
     { prop: "last_date", label: l3("最後資料日", "Last data", "最終データ"), kind: "code" },
@@ -61,7 +59,6 @@ export const CA_AQHI_POPUP: CaPopupSpec = {
   title: { props: ["name_en", "name_fr"], fallback: l3("AQHI 地點", "AQHI location", "AQHI 地点") },
   fields: [
     { prop: "name_fr", label: l3("法文名", "French name", "フランス語名") },
-    { prop: "uid", label: l3("地點代碼", "Location ID", "地点コード"), kind: "code" },
     { prop: "zone_name_en", label: l3("ECCC 區域", "ECCC region", "ECCC 地域") },
     PROVINCE,
   ],
@@ -108,9 +105,7 @@ export const CA_NPRI_POPUP: CaPopupSpec = {
     { prop: "company", label: l3("公司", "Company", "会社") },
     { prop: "sector_group", label: l3("產業群", "Sector group", "業種グループ"), map: Object.fromEntries(CA_NPRI_GROUPS.map((c) => [c.id, c.label])) },
     { prop: "sector_en", label: l3("關鍵產業別", "Key industrial sector", "主要産業分類") },
-    { prop: "naics", label: l3("NAICS", "NAICS", "NAICS"), kind: "code" },
     { prop: "last_report_year", label: l3("最近申報年", "Last reported", "最終報告年"), kind: "code" },
-    { prop: "npri_id", label: l3("NPRI 編號", "NPRI ID", "NPRI ID"), kind: "code" },
     { prop: "city", label: l3("城市", "City", "市町村") },
     PROVINCE,
   ],
@@ -228,7 +223,6 @@ export const CA_QUAKE_LIVE_POPUP: CaPopupSpec = {
     { prop: "magnitude", label: l3("規模", "Magnitude", "マグニチュード"), kind: "num", digits: 1 },
     { prop: "mag_type", label: l3("規模型別", "Magnitude type", "マグニチュード種別"), kind: "code" },
     { prop: "depth_km", label: l3("深度", "Depth", "深さ"), kind: "num", unit: "km", digits: 1 },
-    { prop: "event_id", label: l3("事件代碼", "Event ID", "イベント ID"), kind: "code" },
   ],
   notes: [l3("地名為 NRCan 原文（英文段）；初報可能修訂", "Place name as published by NRCan (English part); preliminary solutions may be revised", "地名は NRCan 原文（英語部分）。速報値は修正されることがある"), CA_QUAKE_LIVE_DISCLAIMER],
 };
@@ -269,7 +263,6 @@ export const CA_POP_GRID_POPUP: CaPopupSpec = {
     { prop: "pop", label: l3("2020 推估人口", "Population 2020 (estimate)", "2020 年推計人口"), kind: "num" },
     { prop: "density", label: l3("人口密度", "Density", "人口密度"), kind: "num", unit: "/km²", digits: 1 },
     { prop: "area_km2", label: l3("格面積", "Cell area", "セル面積"), kind: "num", unit: "km²", digits: 1 },
-    { prop: "h3", label: l3("H3 格", "H3 cell", "H3 セル"), kind: "code" },
   ],
   notes: [l3("GHSL 2020 模型推估，非普查實數", "GHSL 2020 model estimate, not a census count", "GHSL 2020 モデル推計（国勢調査の実数ではない）")],
 };

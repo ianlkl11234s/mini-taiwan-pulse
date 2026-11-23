@@ -262,6 +262,6 @@
   "legend.civic.gbOsmTileZoom": "縮放 {z} 起顯示",
   "legend.civic.gbOsmNations": "英格蘭 {e}／蘇格蘭 {s}／威爾斯 {w}／北愛爾蘭 {ni}",
   "legend.civic.gbOsmSnapshot": "OpenStreetMap 快照 {date}（志願者資料，完整度依地區而異）",
-  "legend.civic.gbPfNote": "郵局含店內代辦櫃台（post_partner）；法院見「法院」、圖書館見「文化設施」",
+  "legend.civic.gbPfNote": "郵局含店內代辦櫃台；法院見「法院」、圖書館見「文化設施」",
   "legend.civic.govServiceHroNote": "戶政辦公據點：戶政司 7437 的戶政事務所轄下辦公室、辦公處 158 處，位置依地址推定，143 處上圖，另 15 處無法定位未上圖；主所仍以原機關名冊為準。"
 }

@@ -7,7 +7,7 @@
   "legend.culture.accPerCellMin": "≥ {n}軒／セル",
   "legend.culture.accDensityNote": "地図化できる canonical 宿泊施設25,459件のみ集計。OSM カバレッジは重ねず、ジオメトリのない502件はセルに含みません。",
   "legend.culture.sportsTitle": "スポーツ施設の分類",
-  "legend.culture.sportsNoteSize": "大きさ＝面積（area_sqm の対数。欠損時は固定サイズ）",
+  "legend.culture.sportsNoteSize": "大きさ＝面積（対数。欠損時は固定サイズ）",
   "legend.culture.sportsNoteLayers": "5区分に所属：学校／その他公共／民営／スポーツ公園／国民運動センター（個別に切替）",
   "legend.culture.sportsNoteClosed": "⚠️「非公開」の施設は半透明で淡く表示",
   "legend.culture.culFacTitle": "文化施設",
