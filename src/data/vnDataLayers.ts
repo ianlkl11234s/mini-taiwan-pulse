@@ -466,7 +466,6 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
     fields: [
       { prop: "station_type", label: l3("類型", "Type", "種別"), map: ENVISOFT_TYPE_MAP },
       { prop: "address", label: l3("地址", "Address", "住所") },
-      { prop: "station_type_code", label: l3("類型代碼（站名後綴）", "Type code (name suffix)", "種別コード（局名の接尾辞）"), kind: "code" },
       PROVINCE_FIELD,
     ],
     legendNotes: [
@@ -496,9 +495,6 @@ export const VN_DATA_SPECS: readonly VnLayerSpec[] = [
       { prop: "investor", label: l3("投資者", "Investor", "投資者") },
       { prop: "plan_period", label: l3("規劃期程", "Plan period", "計画期間") },
       { prop: "address", label: l3("地址（舊行政區）", "Address (former units)", "住所（旧行政区）") },
-      { prop: "site_id", label: l3("居民點代碼", "Site ID", "居住地コード"), kind: "code" },
-      { prop: "old_district_code", label: l3("舊縣代碼", "Former district code", "旧県コード"), kind: "code" },
-      { prop: "old_commune_code", label: l3("舊社代碼（不換算新社）", "Former commune code (not converted)", "旧社コード（新社に換算しない）"), kind: "code" },
     ],
     legendNotes: [
       VN_ANGIANG_NOTE,

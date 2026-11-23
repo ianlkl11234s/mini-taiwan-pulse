@@ -87,7 +87,6 @@ const TOURISM_FIELDS = (cats: readonly PhCat[]): PhField[] => [
   { prop: "whc_name_vi", label: l3("世界遺產（越南文）", "World Heritage site (Vietnamese)", "世界遺産（ベトナム語）") },
   { prop: "whc_inscribed", label: l3("登錄年", "Inscribed", "登録年"), kind: "year" },
   { prop: "sources", label: l3("資料來源", "Sources", "出典"), kind: "code" },
-  { prop: "wd_qid", label: l3("Wikidata", "Wikidata", "Wikidata"), kind: "code" },
   PROV,
 ];
 const TOURISM_SRC = "© OpenStreetMap contributors（ODbL，Geofabrik 2026-11-12）；UNESCO World Heritage Centre whc001（CC BY-SA 4.0）；Wikidata（CC0）";
@@ -173,8 +172,6 @@ const TOURISM_SPECS: Spec[] = [
       { prop: "province_listed", label: l3("清單所列省", "Province in the list", "一覧の省") },
       { prop: "macro_region", label: l3("區域", "Region", "地域") },
       { prop: "coord_source", label: l3("座標來源", "Coordinate source", "座標の出典"), map: { "vi.wikipedia": l3("越南文維基百科", "Vietnamese Wikipedia", "ベトナム語版ウィキペディア"), wikidata_p625: l3("Wikidata P625", "Wikidata P625", "Wikidata P625"), nominatim: l3("Nominatim（OSM）", "Nominatim (OSM)", "Nominatim（OSM）") } },
-      { prop: "kdlqg_id", label: l3("清單編號", "List ID", "一覧番号"), kind: "code" },
-      { prop: "wd_qid", label: l3("Wikidata", "Wikidata", "Wikidata"), kind: "code" },
       PROV,
     ],
     legendNotes: [
@@ -291,7 +288,6 @@ const W3_SPECS: Spec[] = [
     cats: GLIDE_CATS, otherColor: "#cbd5e1", otherLabel: l3("其他（OT）", "Other (OT)", "その他（OT）"),
     title: { props: ["location", "glidenumber"], fallback: l3("災害事件", "Disaster event", "災害イベント") },
     fields: [
-      { prop: "glidenumber", label: l3("GLIDE 編號", "GLIDE number", "GLIDE 番号"), kind: "code" },
       CATEGORY(GLIDE_CATS),
       { prop: "year", label: l3("年份", "Year", "年"), kind: "year" },
       { prop: "location", label: l3("地點（原文）", "Location (as published)", "場所（原文）") },
@@ -344,7 +340,6 @@ const W3_SPECS: Spec[] = [
       lineWidth: { 1: [0.8, 1.5], 2: [1, 2], 3: [1.3, 2.5], 4: [1.6, 3], 5: [2, 3.5], 6: [2.5, 4] } }],
     cats: RIVER_CATS, title: { props: ["name", "code"], fallback: l3("河川", "River", "河川") },
     fields: [
-      { prop: "code", label: l3("代碼", "Code", "コード"), kind: "code" },
       { prop: "order", label: l3("河川級序", "Stream order", "河川次数"), kind: "num" },
       { prop: "length_km", label: l3("長度", "Length", "長さ"), kind: "num", unit: "km", digits: 1 },
     ],
@@ -595,7 +590,6 @@ const W7_SPECS: Spec[] = [
     cats: SOIL_CATS, title: { props: ["soil_type_vi"], fallback: l3("土壤", "Soil", "土壌") },
     fields: [
       { prop: "fao_group", label: l3("FAO 大類", "FAO major group", "FAO 大分類"), map: catMap(SOIL_CATS) },
-      { prop: "dom_soil", label: l3("主要土壤（FAO 代碼）", "Dominant soil (FAO code)", "主な土壌（FAO コード）"), kind: "code" },
       { prop: "fao_soil", label: l3("土壤單元（FAO 原文）", "Soil unit (FAO)", "土壌単位（FAO 原文）"), kind: "code" },
     ],
     legendNotes: [
