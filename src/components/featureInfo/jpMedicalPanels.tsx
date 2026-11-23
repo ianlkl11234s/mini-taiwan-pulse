@@ -19,7 +19,6 @@ export function JpMedicalFacilitiesPanel({ props }: { props: Record<string, unkn
     <Row field="address" value={text(props.address, na)} />
     <Row field="snapshotDate" value={date(props.snapshot_date, na)} />
     <Row field="source" value={t("popup.jpMedical.sourceNavii")} />
-    <Row field="sourceId" value={text(props.source_id, na)} />
   </>;
 }
 
@@ -93,7 +92,6 @@ export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> 
     <Row label={t("popup.jpMedical.geometryGrain")} value={t("popup.jpMedical.geometryGrainText")} />
     <details style={{ marginTop: 8, color: theme.textStrong }}><summary>{t("popup.jpMedical.sourceFields")}</summary>
       {Object.entries(props).filter(([key]) => /^A38[abc]_/.test(key)).map(([key, value]) => <Row key={key} label={key} value={text(value, na)} />)}
-      <Row label="Feature ID" value={text(props.feature_id, na)} />
     </details>
     {/* KSJ A38 頁未載明授權（pulse-data registry jp_medical_areas license: 未載明）→ 不放 license */}
     <SourceFooter props={{ source_org: t("popup.jpMedical.sourceAreas"), source_url: JP_MEDICAL_AREAS_SOURCE_URL }} />

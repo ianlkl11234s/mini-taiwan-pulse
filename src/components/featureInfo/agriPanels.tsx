@@ -92,9 +92,6 @@ export function AgriLeisureFarmZonesPanel({ props }: { props: Record<string, unk
   const i18n = useLocale();
   const tr = i18n.t;
   const name = String(props["休區名"] ?? props["LANAME"] ?? "");
-  const keyCode = String(props["KeyCode"] ?? "");
-  const aa45 = String(props["AA45"] ?? "");
-  const aa46 = String(props["AA46"] ?? "");
   const areaHa = typeof props.area_ha === "number" ? (props.area_ha as number).toFixed(2) : String(props.area_ha ?? "");
   return (
     <>
@@ -104,9 +101,6 @@ export function AgriLeisureFarmZonesPanel({ props }: { props: Record<string, unk
           {name || tr("popup.agri.leisureDefault")}
         </div>
       </div>
-      <Row field="code" value={keyCode} />
-      <Row label={tr("popup.agri.countyCode")} value={aa45} />
-      <Row label={tr("popup.agri.townshipCode")} value={aa46} />
       <Row field="area" value={areaHa ? tr("popup.agri.hectares", { value: areaHa }) : ""} />
     </>
   );

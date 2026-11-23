@@ -108,7 +108,6 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={inputLabel(key)} value={inputValue(value, i18n)} />)}
     {props.interpretation != null && <Row label={t('popup.regionalStatistics.interpretation')} value={complement ? t('popup.regionalStatistics.complementInterpretation') : String(props.interpretation)} />}
     {props.time_caveat != null && <Row label={t('popup.regionalStatistics.timeBasis')} value={String(props.time_caveat)} />}
-    <Row label={prosecutorDistrict ? t('popup.regionalStatistics.prosecutorCode') : t('popup.regionalStatistics.districtCode')} value={String(props.area_code ?? '—')} />
     <Row label={t('popup.regionalStatistics.refBoundary')} value={props.boundary_version == null ? '—' : boundaryVersionLabel(props.boundary_version, i18n)} />
     {props.boundary_semantics != null && <Row label={t('popup.regionalStatistics.boundaryRole')} value={humanizeStatisticsText(String(props.boundary_semantics))} />}
     {props.source_statistical_boundary_version != null && <Row label={t('popup.regionalStatistics.statRefVersion')} value={boundaryVersionLabel(props.source_statistical_boundary_version, i18n)} />}
@@ -116,7 +115,6 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {props.coverage_status != null && <Row label={t('popup.regionalStatistics.coverageStatus')} value={String(props.coverage_status)} />}
     {props.coverage_numerator != null && props.coverage_denominator != null && <Row label={t('popup.regionalStatistics.coverageCount')} value={`${String(props.coverage_numerator)}／${String(props.coverage_denominator)}`} />}
     {props.method_version != null && <Row label={t('popup.regionalStatistics.methodVersion')} value={String(props.method_version)} />}
-    {props.raw_sha256 != null && <Row label={t('popup.regionalStatistics.rawSha')} value={String(props.raw_sha256)} />}
     {typeof props.attribution === 'string' && <Row label={t('popup.regionalStatistics.attribution')} value={props.attribution} />}
     {/* 來源卡：feature 帶 R2 來源紀錄的 publisher／license／source_url，機關與授權依語系翻（查不到退回原文）；
         FeatureInfoPanel 把 regionalStatistic 列為 FOOTER_SELF_MANAGED，不再疊中央「來源資訊待補」。 */}

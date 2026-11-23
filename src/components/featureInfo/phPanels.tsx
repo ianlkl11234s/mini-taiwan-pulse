@@ -42,7 +42,6 @@ export function PhAdminBoundariesPanel({ props }: P) {
   return <>
     <Title color={PH_ADMIN_COLOR}>{caText(props.name) || pick({ zh: "行政區", en: "Administrative area", ja: "行政区域" })}</Title>
     <AdminRows props={props} pick={pick} />
-    <Row label={pick({ zh: "PSGC 代碼", en: "PSGC code", ja: "PSGC コード" })} value={caText(props.psgc)} mono />
     <SourceFooter props={{ source_org: phText(PH_ADMIN_SOURCE.org, locale), source_url: PH_ADMIN_SOURCE.url, license: phText(PH_ADMIN_SOURCE.license, locale), fetched_at: PH_FETCHED_AT }} />
   </>;
 }
@@ -63,7 +62,6 @@ export function PhPopulationPanel({ props }: P) {
     <Row label={pick({ zh: "人口密度", en: "Density", ja: "人口密度" })} value={density ? `${density} ${pick({ zh: "人／km²", en: "people/km²", ja: "人／km²" })}` : noData} />
     {PH_POP_STATUS[status] ? <Row label={pick({ zh: "人口來源", en: "Population basis", ja: "人口の根拠" })} value={pick(PH_POP_STATUS[status]!)} /> : null}
     {PH_URBAN_CLASS[caText(props.urban_class)] ? <Row label={pick({ zh: "都市／鄉村", en: "Urban / rural", ja: "都市・農村" })} value={pick(PH_URBAN_CLASS[caText(props.urban_class)]!)} /> : null}
-    <Row label={pick({ zh: "PSGC 代碼", en: "PSGC code", ja: "PSGC コード" })} value={caText(props.psgc)} mono />
     <SourceFooter props={{ source_org: phText(PH_POPULATION_SOURCE.org, locale), source_url: PH_POPULATION_SOURCE.url, license: phText(PH_POPULATION_SOURCE.license, locale), fetched_at: PH_FETCHED_AT }} />
   </>;
 }

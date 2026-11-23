@@ -67,13 +67,11 @@ export function ArtsEventsPanel({ props }: { props: Record<string, unknown> }) {
   const ongoing = startDate !== "" && startDate <= cultureTodayStr();
   const statusLabel = ongoing ? t("popup.culture.ongoing") : t("popup.culture.upcoming");
   const statusColor = ongoing ? ARTS_EVENT_ONGOING_COLOR : ARTS_EVENT_UPCOMING_COLOR;
-  const category = String(props.category ?? "");
   const dateRange = startDate && endDate ? `${startDate} ~ ${endDate}` : startDate || endDate;
   return (
     <>
       <Title color={statusColor}>{String(props.title ?? t("popup.culture.eventFallback"))}</Title>
       <Row field="status" value={statusLabel} color={statusColor} />
-      <Row label={t("popup.culture.categoryCode")} value={category} />
       <Row field="date" value={dateRange} />
       <Row label={t("popup.culture.showTime")} value={String(props.show_time ?? "")} />
       <Row field="place" value={String(props.location_name ?? "")} />

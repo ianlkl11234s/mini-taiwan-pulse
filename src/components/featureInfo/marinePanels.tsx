@@ -418,7 +418,6 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
         <div style={{ color: t.textStrong, fontSize: FONT_SIZE.lg, fontWeight: 700, lineHeight: 1.25 }}>{name}</div>
         <span style={{ marginLeft: "auto", color: network.color, fontSize: FONT_SIZE.xs, fontWeight: 700 }}>{network.label}</span>
       </div>
-      <Row label={tr("popup.marine.stationCode")} value={sourceStationId || stationUid} color={t.textDim} />
       <Row label={tr("popup.marine.sourceNetwork")} value={sourceNetwork || network.label.toLowerCase()} color={network.color} />
       <Row label={tr("popup.marine.originOrg")} value={field(props, "originOrg", "origin_org")} />
       <Row label={tr("popup.marine.distributionOrg")} value={field(props, "distributionOrg", "distribution_org")} />

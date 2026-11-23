@@ -247,7 +247,6 @@ export function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) 
           {String(props.fault_name ?? "Unknown Fault")}
         </div>
       </div>
-      <Row field="number" value={String(props.fault_id ?? "")} />
       <Row label={tr("popup.event.fullName")} value={String(props.name ?? "")} />
     </>
   );

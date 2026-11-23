@@ -72,7 +72,6 @@ export function EarthquakeGlobalPanel({ props }: { props: Record<string, unknown
       />
       <Row label={i18n.t("popup.globalClimate.occurredTime")} value={fmtTime(props.observed_ts, i18n)} />
       <Row field="age" value={fmtAge(props.observed_ts, i18n)} />
-      <Row label="USGS ID" value={String(props.event_id ?? "—")} />
     </div>
   );
 }
@@ -106,7 +105,6 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
           props.name_local ? ` (${String(props.name_local)})` : ""
         }`}
       />
-      <Row field="number" value={String(props.storm_id ?? "—")} />
       <Row
         field="type"
         value={i18n.t(isFcst ? "popup.globalClimate.typhoonForecast" : "popup.globalClimate.typhoonObserved")}
@@ -179,7 +177,6 @@ export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown
   return (
     <div>
       <Row label={t("popup.globalClimate.region")} value={String(props.region ?? "—")} />
-      <Row label="ID" value={String(props.id ?? "—")} />
       <Row label={t("popup.globalClimate.dataset")} value="Outerview（CC-BY-4.0）" />
       <Row field="description" value={t("popup.globalClimate.trashNote")} />
     </div>
@@ -353,7 +350,6 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
       {typeof props.dominant_observed_at === "string" && <Row label={tr("popup.globalClimate.dominantHour")} value={fmtMaritimeUtcTime(props.dominant_observed_at, i18n)} />}
       <Row label={tr("popup.globalClimate.vesselsInCell")} value={Number.isFinite(expectedCount) ? tr("popup.globalClimate.shipCount", { count: expectedCount }) : "—"} />
       <Row label={tr("popup.globalClimate.gridCenter")} value={`${props.center_lon ?? props.grid_lon ?? "—"}, ${props.center_lat ?? props.grid_lat ?? "—"}`} />
-      {typeof props.cell_id === "string" && <Row field="gridId" value={props.cell_id} />}
       <Row label={tr("popup.globalClimate.geomSemantics")} value={tr(props.geometry_semantics === "globally_aligned_0_1_degree_cell" ? "popup.globalClimate.geomLocalAgg" : "popup.globalClimate.geomCenter")} />
       {props.geometry_semantics === "inferred_0_01_degree_footprint" && <Row label={tr("popup.globalClimate.geomExtent")} value={tr("popup.globalClimate.extentInferred")} />}
       {props.geometry_semantics === "globally_aligned_0_1_degree_cell" && <Row label={tr("popup.globalClimate.geomExtent")} value={tr("popup.globalClimate.extentAligned")} />}

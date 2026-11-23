@@ -99,7 +99,6 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>PM2.5 µg/m³</span>
       </div>
       {/* 標題被站名佔走時，device_id 改用一列補回，避免資訊遺失 */}
-      {siteName && <Row label={tr("popup.air.deviceId")} value={String(props.deviceId ?? "")} />}
       <Row field="source" value={String(props.source ?? "")} />
       <Row label={tr("popup.air.device")} value={String(props.app ?? "")} />
       <Row label={tr("popup.air.area")} value={String(props.area ?? "")} />

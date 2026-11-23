@@ -166,7 +166,6 @@ function RuralCommunityPanel({ props }: Props) {
     <Title color={color}>{admin(props, i18n) || t("popup.atlas.villageTitle")}</Title>
     <Row field="type" value={enumOf("atlasRural", props.community_type, props.community_type, i18n)} color={color} />
     <Row field="area" value={fmt(props.area_ha, 1, t("popup.atlas.unitHectares"), i18n)} />
-    <Row label={t("popup.atlas.villageCode")} value={`${str(props.id)}${props.villcode_in_current_boundary === false ? t("popup.atlas.notInCurrentBoundary") : ""}`} mono />
     <DataDate props={props} />
   </>;
 }
@@ -197,7 +196,6 @@ function FreewaySignPanel({ props }: Props) {
   return <>
     <Title color={color}>{`${str(props.route_name)} ${fmt(props.stake_km, 3, "K", i18n)}`.trim()}</Title>
     <Row field="category" value={str(props.sign_code_label) || t("popup.atlas.codeNameMissing")} color={color} />
-    <Row field="code" value={str(props.sign_code)} mono />
     <Row label={t("popup.atlas.signFace")} value={str(props.face_value)} />
     <Row field="direction" value={str(props.direction_note)} />
     <Row field="county" value={placeName(str(props.county), i18n)} />
@@ -392,7 +390,6 @@ function PollutionPanel({ props }: Props) {
     <Row field="location" value={str(props.site_description)} />
     <Row label={t("popup.atlas.reportingAgency")} value={str(props.reporting_agency)} />
     <Row label={t("popup.atlas.responsibleSea")} value={props.outside_tw_responsibility === true ? t("popup.atlas.outsideResponsibleSea") : ""} />
-    <Row field="number" value={str(props.id)} mono />
     <Precision props={props} flagged={props.coord_status === "out_of_bbox"} />
   </>;
 }
@@ -403,7 +400,6 @@ function EdnaPanel({ props }: Props) {
   return <>
     <Title color={ATLAS_LAYER_COLORS.namrEdnaSurveySites}>{str(props.name)}</Title>
     <Row field="region" value={[str(props.region_major), str(props.region_minor)].filter(Boolean).join(t("popup.atlas.dot"))} />
-    <Row field="code" value={str(props.region_code)} mono />
     <Precision props={props} />
   </>;
 }
@@ -434,7 +430,6 @@ function TriangulationPanel({ props }: Props) {
     <Row field="level" value={enumOf("atlasTriangulation", props.grade, props.grade_label, i18n)} color={color} />
     <Row field="elevation" value={fmt(props.elevation_m, 2, t("popup.atlas.unitMeters"), i18n)} />
     <Row label={t("popup.atlas.mapSheet")} value={str(props.map_sheet)} />
-    <Row label={t("popup.atlas.markNo")} value={str(props.mark_no)} mono />
     <Row label={t("popup.atlas.markMaterial")} value={str(props.mark_material)} />
     <Precision props={props} />
   </>;
@@ -878,7 +873,6 @@ function StateTenderPanel({ props }: Props) {
   return <>
     <Title color={color}>{t("popup.atlas.tenderTitle", { kind, district })}</Title>
     <Row field="type" value={kind} color={color} />
-    <Row label={t("popup.atlas.tenderBidNo")} value={str(props.bid_no)} />
     <Row label={t("popup.atlas.tenderBidDate")} value={str(props.bid_date)} mono />
     <Row label={t("popup.atlas.tenderBranch")} value={str(props.branch_office)} />
     <Row label={t("popup.atlas.tenderParcel")} value={str(props.parcel_text)} />
@@ -1012,7 +1006,6 @@ function DebrisFlowPotentialPanel({ props }: Props) {
     <Row field="length" value={fmt(props.length_km, 2, "km", i18n)} mono />
     <Row label={t("popup.atlas.dfCatchmentArea")} value={fmt(props.catchment_ha ?? props.area_ha, 2, t("popup.atlas.unitHectares"), i18n)} mono />
     <Row label={t("popup.atlas.dfStreamType")} value={str(props.stream_type)} />
-    <Row label={t("popup.atlas.dfOldNo")} value={str(props.dbno_old)} mono />
   </>;
 }
 
@@ -1152,7 +1145,6 @@ function ToxicChemicalPanel({ props }: Props) {
   const { t } = i18n;
   return <>
     <Title color={ATLAS_LAYER_COLORS.toxicChemicalFacilities}>{str(props.name)}</Title>
-    <Row label={t("popup.atlas.toxicEmsNo")} value={str(props.ems_no)} mono />
     <Row field="address" value={str(props.address)} />
     <Row field="county" value={placeName(str(props.city), i18n)} />
     <Precision props={props} flagged={props.qa_flag === "large_shift"} />
@@ -1249,7 +1241,6 @@ function Water1944Panel({ props }: Props) {
     <Title color={color}>{statusText}</Title>
     <Row label={t("popup.atlas.w1944Town")} value={str(props.town) || "—"} />
     <Row field="area" value={area == null ? "—" : fmt(area / 10_000, 2, t("popup.atlas.unitHectares"), i18n)} />
-    <Row label={t("popup.atlas.w1944Source")} value={str(props.src_id) || "—"} mono />
     <Row field="caution" value={t("popup.atlas.w1944Caution")} />
   </>;
 }
@@ -1358,7 +1349,6 @@ function PollutionControlZonePanel({ props }: Props) {
     <Row label={t("popup.atlas.pczAnnoDate")} value={str(props.anno_date)} mono />
     <Row label={t(active ? "popup.atlas.pczStatusDate" : "popup.atlas.pczReleaseDate")} value={str(props.status_date)} mono />
     <Row field="area" value={fmt(props.area_m2, 0, "m²", i18n)} mono />
-    <Row label={t("popup.atlas.pczSiteId")} value={str(props.site_id)} mono />
   </>;
 }
 
