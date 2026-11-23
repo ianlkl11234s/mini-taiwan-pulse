@@ -67,9 +67,19 @@ export const TH_ADMIN_NOTES: readonly L3[] = [
   TH_BOUNDARY_NOTE,
 ];
 
-/** 人口密度（人／km²）6 級斷點（沿用菲律賓）；amphoe 密度中位數 123.8。 */
-export const TH_DENSITY_BREAKS = [100, 300, 1000, 5000, 20000] as const;
-export const TH_DENSITY_LABELS = ["<100", "100–300", "300–1,000", "1,000–5,000", "5,000–20,000", "≥20,000"] as const;
+/**
+ * 人口密度（人／km²，`density_latest` 2025）6 級斷點：府、amphoe 各自取泰國實際分布的六分位（1/6、1/3、1/2、2/3、5/6）再取整到好讀的界線
+ * （2026-11-23 站主選定；沿用菲律賓級距時除曼谷外各府幾乎同色）。府 77 個：六分位 77／87／122／150／215、最大 3,451（曼谷）；
+ * amphoe 928 個：六分位 61／99／124／160／273、最大 14,360。與其他國家級距不同，不可直接比色。
+ */
+export const TH_DENSITY_BREAKS_BY_LEVEL = {
+  province: [80, 90, 120, 150, 210],
+  amphoe: [60, 100, 125, 160, 270],
+} as const;
+export const TH_DENSITY_LABELS_BY_LEVEL = {
+  province: ["<80", "80–90", "90–120", "120–150", "150–210", "≥210"],
+  amphoe: ["<60", "60–100", "100–125", "125–160", "160–270", "≥270"],
+} as const;
 /** 未涵蓋＝灰（不畫成 0）。 */
 export const TH_NOT_COVERED_COLOR = "#6b7280";
 export const TH_POP_YEARS = [2021, 2022, 2023, 2024, 2025] as const;
@@ -82,6 +92,7 @@ export const TH_POPULATION_SOURCE = {
 export const TH_POPULATION_NOTES: readonly L3[] = [
   l3("戶籍人口（DOPA 登記），不是普查實住人口；顯示 2025，另附 2021–2025", "Registered population (DOPA civil registration), not census residents; 2025 shown, 2021–2025 in the popup", "住民登録人口（DOPA）で、国勢調査の居住人口ではない。2025 年を表示、ポップアップに 2021–2025"),
   l3("密度＝人口 ÷ 面積；灰色＝未涵蓋（不是 0）", "Density = population ÷ area; grey = not covered (not zero)", "密度＝人口 ÷ 面積。灰色＝未収録（0 ではない）"),
+  l3("級距依泰國分布（府、縣各自取六分位），與其他國家不可直接比色", "Classes follow Thailand's own distribution (sextiles for provinces and districts separately); colors cannot be compared directly with other countries", "区分はタイ国内の分布による（県・郡それぞれ 6 分位）。他国と色を直接比較しないこと"),
   l3("府層 z3–10、縣層 z6–13；人口最細到 amphoe（tambon 沒有）", "Province level z3–10, district level z6–13; finest population level is amphoe (none for tambon)", "県レベル z3–10、郡レベル z6–13。人口は amphoe まで（tambon はない）"),
   TH_BOUNDARY_NOTE,
 ];
@@ -138,16 +149,32 @@ const OSM_HOLLOW = { when: ["==", ["get", "source"], "osm"] as Expr, js: (p: Rec
 
 // ───────────── 機場、港口、渡輪碼頭（C014） ─────────────
 const AIRPORT_COLOR = "#f472b6";
+/** 機場分類：比對補名的點依 facility_type（military、heliport）分，其餘依 ap_class；性質未標（ap_class unnamed 且無 facility_type）歸 airport_unlabeled。 */
 const hubsCat: PhCatGetter = {
-  expr: ["case", ["==", ["get", "kind"], "airport"], ["to-string", ["coalesce", ["get", "ap_class"], "airport"]], ["to-string", ["coalesce", ["get", "kind"], ""]]],
-  js: (p) => (str(p.kind) === "airport" ? str(p.ap_class) || "airport" : str(p.kind)),
+  expr: ["case", ["!=", ["get", "kind"], "airport"], ["to-string", ["coalesce", ["get", "kind"], ""]],
+    ["==", ["get", "facility_type"], "military"], "military", ["==", ["get", "facility_type"], "heliport"], "heliport",
+    ["==", ["get", "ap_class"], "unnamed"], "airport_unlabeled", ["to-string", ["coalesce", ["get", "ap_class"], "airport"]]],
+  js: (p) => {
+    if (str(p.kind) !== "airport") return str(p.kind);
+    if (str(p.facility_type) === "military") return "military";
+    if (str(p.facility_type) === "heliport") return "heliport";
+    const c = str(p.ap_class);
+    return c === "unnamed" ? "airport_unlabeled" : c || "airport";
+  },
 };
-/** 預設不顯示無名機場（GISTDA 51 筆沒有任何名稱、性質未驗；主 agent 2026-11-22 決定）。 */
-const HUB_NAMED_FILTER: Expr = ["any", ["!=", ["get", "kind"], "airport"], ["has", "name_th"], ["has", "name_en"], ["has", "name_osm"]];
+/**
+ * 預設不顯示：仍無名的機場（GISTDA 51 筆原無名稱，2026-11-23 比對補名 10 筆，仍無名 41 筆），以及比對品質 approx 的 2 筆
+ * （Lampang、Mae Hong Son：與既有同名機場是同一座，顯示會重複）；主 agent 2026-11-22／23 決定。
+ */
+const HUB_NAMED_FILTER: Expr = ["any", ["!=", ["get", "kind"], "airport"],
+  ["all", ["!=", ["get", "match_quality"], "approx"], ["any", ["has", "name_th"], ["has", "name_en"], ["has", "name_osm"]]]];
 const HUB_CATS: readonly PhCat[] = [
   { id: "intl", values: ["international"], color: AIRPORT_COLOR, radius: 6.5, label: l3("國際機場（推定）", "International airport (inferred)", "国際空港（推定）") },
   { id: "airport", values: ["airport"], color: AIRPORT_COLOR, radius: 5, label: l3("機場（推定）", "Airport (inferred)", "空港（推定）") },
   { id: "airfield", values: ["airfield"], color: AIRPORT_COLOR, radius: 3.5, label: l3("簡易機場、飛行場（推定）", "Airfield (inferred)", "飛行場（推定）") },
+  { id: "military", values: ["military"], color: "#a78bfa", radius: 4, label: l3("軍用機場（依名稱判定，補名 3 處）", "Military airfield (judged from the name, 3 matched)", "軍用飛行場（名称から判定、補名 3 件）") },
+  { id: "heliport", values: ["heliport"], color: "#fb923c", radius: 3.5, label: l3("直升機場（補名 1 處）", "Heliport (1 matched)", "ヘリポート（補名 1 件）") },
+  { id: "airport_unlabeled", values: ["airport_unlabeled"], color: AIRPORT_COLOR, radius: 3.5, label: l3("機場（性質未標）", "Airport (type not stated)", "空港（種別未記載）") },
   { id: "port", values: ["port"], color: "#38bdf8", radius: 4.5, label: l3("港口（OSM 補缺）", "Port (OSM gap-fill)", "港（OSM 補完）") },
   { id: "ferry", values: ["ferry_terminal"], color: "#2dd4bf", radius: 3, label: l3("渡輪碼頭（OSM 補缺）", "Ferry terminal (OSM gap-fill)", "フェリーターミナル（OSM 補完）") },
 ];
@@ -245,6 +272,9 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
       { prop: "name_en", label: l3("英文名稱", "English name", "英語名"), unlessSameAs: "name_th" },
       { prop: "kind", label: l3("類型", "Type", "種別"), map: { airport: l3("機場", "Airport", "空港"), port: l3("港口", "Port", "港"), ferry_terminal: l3("渡輪碼頭", "Ferry terminal", "フェリーターミナル") } },
       { prop: "ap_class", label: l3("機場分類（由名稱推定）", "Airport class (inferred from name)", "空港分類（名称から推定）"), map: { international: l3("國際機場", "International", "国際空港"), airport: l3("機場", "Airport", "空港"), airfield: l3("簡易機場、飛行場", "Airfield", "飛行場") } },
+      { prop: "facility_type", label: l3("設施性質（補名來源標示）", "Facility type (as labeled by the naming source)", "施設の性質（補名元の表示）"), map: { airport: l3("機場", "Airport", "空港"), military: l3("軍用（依名稱判定）", "Military (judged from the name)", "軍用（名称から判定）"), heliport: l3("直升機場", "Heliport", "ヘリポート"), airstrip: l3("簡易機場", "Airstrip", "小規模飛行場"), closed: l3("已關閉", "Closed", "閉鎖") } },
+      { prop: "name_source", label: l3("名稱來源（比對補名）", "Name source (coordinate matching)", "名称の出典（座標照合）"), map: { ourairports: l3("OurAirports", "OurAirports", "OurAirports"), osm: l3("OSM", "OSM", "OSM"), overture: l3("Overture", "Overture", "Overture"), ngis: l3("NGIS", "NGIS", "NGIS") } },
+      { prop: "match_distance_m", label: l3("比對距離", "Match distance", "照合距離"), kind: "num", unit: "m" },
       { prop: "iata", label: l3("IATA", "IATA", "IATA"), kind: "code" },
       { prop: "icao", label: l3("ICAO", "ICAO", "ICAO"), kind: "code" },
       { prop: "operator", label: l3("營運者", "Operator", "事業者") },
@@ -256,7 +286,7 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
     ],
     legendNotes: [
       l3("機場 144 處（NGIS L14、GISTDA Hosted，授權未明示）；港口 38、渡輪碼頭 524（OSM 補缺，ODbL）", "144 airports (NGIS L14, GISTDA Hosted, license not stated); 38 ports and 524 ferry terminals (OSM gap-fill, ODbL)", "空港 144（NGIS L14・GISTDA Hosted、ライセンス未明示）、港 38・フェリーターミナル 524（OSM 補完、ODbL）"),
-      l3("預設不顯示無名機場（51 筆沒有任何名稱、性質未驗）；機場分類由名稱推定", "Unnamed airports (51 records with no name, nature unverified) are hidden; airport class is inferred from names", "名称のない空港（51 件、性質未確認）は既定で非表示。空港分類は名称から推定"),
+      l3("原無名的 51 筆機場點以公開來源座標比對補名 10 筆（顯示 8 筆；2 筆為鄰近比對、與既有同名機場重複，不顯示）；另有 43 筆名稱未能確認或重複，未顯示；機場分類由名稱推定，軍用依名稱判定", "Of the 51 originally unnamed airport points, 10 were named by coordinate matching against public sources (8 shown; 2 are neighbouring matches that duplicate an existing airport and are hidden); a further 43 whose names could not be confirmed or are duplicates are not shown; airport class is inferred from names, military is judged from the name", "名称のなかった 51 件の空港点のうち 10 件を公開出典との座標照合で補名（8 件を表示、2 件は近傍照合で既存の同名空港と重複するため非表示）。名称を確認できない・重複する 43 件は非表示。空港分類は名称から推定、軍用は名称から判定"),
       l3("機場旅客數欄單位來源未標；機場涵蓋 54/77 府、港口與碼頭 39 府", "Passenger unit not stated by the source; airports cover 54/77 provinces, ports and terminals 39", "旅客数の単位は出典に記載なし。空港は 54/77 県、港・桟橋は 39 県"),
       COVERAGE_NOTE(64),
     ],

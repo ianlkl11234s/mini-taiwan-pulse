@@ -3022,5 +3022,8 @@
   "param.橡膠（7,255，z9 起）": "Rubber (7,255, from z9)",
   "param.油棕（4,080，z9 起）": "Oil palm (4,080, from z9)",
   "param.獸醫、動物診所（GISTDA，292，16 府）": "Veterinary / animal clinic (GISTDA, 292, 16 provinces)",
-  "param.獸醫（Overture 補缺，空心，3,350）": "Veterinarian (Overture gap-fill, hollow, 3,350)"
+  "param.獸醫（Overture 補缺，空心，3,350）": "Veterinarian (Overture gap-fill, hollow, 3,350)",
+  "param.軍用機場（依名稱判定，補名 3 處）": "Military airfield (judged from the name, 3 matched)",
+  "param.直升機場（補名 1 處）": "Heliport (1 matched)",
+  "param.機場（性質未標）": "Airport (type not stated)"
 }

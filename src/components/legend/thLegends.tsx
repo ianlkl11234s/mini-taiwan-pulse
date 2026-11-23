@@ -5,7 +5,7 @@ import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import {
-  TH_ADMIN_NOTES, TH_ADMIN_SOURCE, TH_DENSITY_LABELS, TH_NOT_COVERED_COLOR, TH_POPULATION_NOTES, TH_POPULATION_SOURCE, TH_SPEC_BY_KEY, phText, pickL3,
+  TH_ADMIN_NOTES, TH_ADMIN_SOURCE, TH_DENSITY_LABELS_BY_LEVEL, TH_NOT_COVERED_COLOR, TH_POPULATION_NOTES, TH_POPULATION_SOURCE, TH_SPEC_BY_KEY, phText, pickL3,
 } from "../../data/thDataLayers";
 import type { ThDataKey, ThRasterKey } from "../../data/thDataKeys";
 import { TH_RASTER_BY_KEY } from "../../data/thWavesLayers";
@@ -42,7 +42,10 @@ export function ThPopulationLegend() {
   return <div>
     <LegendTitle zh={title} />
     <LegendNote>{pickL3({ zh: "人口密度（人／km²，戶籍人口）", en: "Population density (people/km², registered)", ja: "人口密度（人／km²、住民登録人口）" }, locale)}</LegendNote>
-    {TH_DENSITY_LABELS.map((label, i) => <LegendRow key={label} swatch={<SwatchSquare color={colors[i]!} />}>{label}</LegendRow>)}
+    {(["province", "amphoe"] as const).map((lv) => <div key={lv}>
+      <LegendNote>{pickL3(lv === "province" ? { zh: "府層級（77）", en: "Province level (77)", ja: "県レベル（77）" } : { zh: "縣層級（amphoe，928）", en: "District level (amphoe, 928)", ja: "郡レベル（amphoe、928）" }, locale)}</LegendNote>
+      {TH_DENSITY_LABELS_BY_LEVEL[lv].map((label, i) => <LegendRow key={label} swatch={<SwatchSquare color={colors[i]!} />}>{label}</LegendRow>)}
+    </div>)}
     <LegendRow swatch={<SwatchSquare color={TH_NOT_COVERED_COLOR} />}>{pickL3({ zh: "未涵蓋（不是 0）", en: "Not covered (not zero)", ja: "未収録（0 ではない）" }, locale)}</LegendRow>
     {TH_POPULATION_NOTES.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
     <LegendNote>{pickL3(TH_POPULATION_SOURCE.short, locale)}</LegendNote>

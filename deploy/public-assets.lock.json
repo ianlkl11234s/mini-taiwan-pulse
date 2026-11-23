@@ -6837,8 +6837,8 @@
   },
   {
    "path": "public/world/th_transport_hubs.pmtiles",
-   "bytes": 807655,
-   "sha256": "78d2672eac7ccc4599132e1ec2bbcf3d0c01dfdee70df542e64256ff5fa9bd0c",
+   "bytes": 820628,
+   "sha256": "06fadf5a8014d96215ff773e6351a53b722c0604ddf14c29d22e3da181aa58f8",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/th_transport_hubs.pmtiles"
   },

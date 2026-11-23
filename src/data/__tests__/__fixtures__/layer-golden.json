@@ -226620,6 +226620,18 @@
             "value": "airfield"
           },
           {
+            "label": "軍用機場（依名稱判定，補名 3 處）",
+            "value": "military"
+          },
+          {
+            "label": "直升機場（補名 1 處）",
+            "value": "heliport"
+          },
+          {
+            "label": "機場（性質未標）",
+            "value": "airport_unlabeled"
+          },
+          {
             "label": "港口（OSM 補缺）",
             "value": "port"
           },
@@ -226633,6 +226645,9 @@
           "intl",
           "airport",
           "airfield",
+          "military",
+          "heliport",
+          "airport_unlabeled",
           "port",
           "ferry"
         ]

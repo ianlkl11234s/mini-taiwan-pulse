@@ -3,7 +3,7 @@ import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpe
 import { BOUNDARY_GRAY, MAP_SEAM } from "../map/mapStyleScale";
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
-import { phText, TH_ADMIN_COLOR, TH_ADMIN_LEVELS, TH_DENSITY_BREAKS, TH_NOT_COVERED_COLOR, TH_POP_LEVELS, type ThAdminLevel, type ThPopLevel } from "../data/thDataLayers";
+import { phText, TH_ADMIN_COLOR, TH_ADMIN_LEVELS, TH_DENSITY_BREAKS_BY_LEVEL, TH_NOT_COVERED_COLOR, TH_POP_LEVELS, type ThAdminLevel, type ThPopLevel } from "../data/thDataLayers";
 import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 import type { ThRasterSpec } from "../data/thWavesLayers";
 
@@ -83,13 +83,13 @@ const POP_SOURCES = TH_POP_LEVELS.map((lv) => levelSource("th-population", "th_p
 
 /** 6 級密度色（色盤庫 YlOrBr 暗／淡版重新取樣；圖例共用）。 */
 export function thDensityColors(isDark: boolean): string[] {
-  return resampleRamp(paletteRamp("YlOrBr", isDark)!, TH_DENSITY_BREAKS.length + 1);
+  return resampleRamp(paletteRamp("YlOrBr", isDark)!, TH_DENSITY_BREAKS_BY_LEVEL.province.length + 1);
 }
 /** 未涵蓋（`not_covered` 或沒有密度欄）→ 灰；其餘依密度 step。 */
-export function thDensityColorExpr(isDark: boolean): Expr {
+export function thDensityColorExpr(isDark: boolean, level: ThPopLevel = "province"): Expr {
   const colors = thDensityColors(isDark);
   const step: unknown[] = ["step", ["to-number", ["get", "density_latest"], 0], colors[0]];
-  TH_DENSITY_BREAKS.forEach((b, i) => step.push(b, colors[i + 1]));
+  TH_DENSITY_BREAKS_BY_LEVEL[level].forEach((b, i) => step.push(b, colors[i + 1]));
   return ["case", ["any", ["==", ["get", "pop_status"], "not_covered"], ["!", ["has", "density_latest"]]], TH_NOT_COVERED_COLOR, step];
 }
 
@@ -97,8 +97,8 @@ function usePopLevel(mapRef: MapRef, i: number, visible: boolean, opacity: numbe
   const level = TH_POP_LEVELS[i]!;
   const ids = TH_POP_LAYER_IDS[level.value];
   const def = opacityDefault(TH_POP_KEY, 0.7);
-  const fillPaint = () => hookFillPaint(TH_POP_KEY, ids.fill, { "fill-color": thDensityColorExpr(isDark), "fill-opacity": clamp01(opacity) },
-    { "fill-color": thDensityColorExpr(isDark), "fill-opacity": def }, isDark);
+  const fillPaint = () => hookFillPaint(TH_POP_KEY, ids.fill, { "fill-color": thDensityColorExpr(isDark, level.value), "fill-opacity": clamp01(opacity) },
+    { "fill-color": thDensityColorExpr(isDark, level.value), "fill-opacity": def }, isDark);
   // 面之間的細縫（同級相鄰面不糊成一片）；底圖色、細線
   const seam = MAP_SEAM[isDark ? "dark" : "light"];
   const linePaint = () => hookLinePaint(TH_POP_KEY, ids.line, { "line-color": seam, "line-width": 0.5, "line-opacity": clamp01(opacity) },
