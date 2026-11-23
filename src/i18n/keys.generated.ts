@@ -6607,7 +6607,6 @@ export type GeneratedStaticKey =
   | "popup.mapchallenge.day23.cellValue"
   | "popup.mapchallenge.day23.count"
   | "popup.mapchallenge.day23.countValue"
-  | "popup.mapchallenge.day23.date"
   | "popup.mapchallenge.day23.dominant"
   | "popup.mapchallenge.day23.foreignCount"
   | "popup.mapchallenge.day23.note"
