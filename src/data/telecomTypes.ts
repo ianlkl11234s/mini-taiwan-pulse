@@ -103,6 +103,28 @@ export const OOKLA_GLOBAL_ZOOMS = [
 ] as const;
 
 /**
+ * 細格網（z=10）只存在於 PMTiles 圖磚縮放 ≥ 3（_t3 檔，build-static-pmtiles-pf4.py 的 OOKLA_FINE_MINZOOM）；
+ * 地圖縮放低於此值時選「細」要退回中格網（z=8）。
+ */
+export const OOKLA_FINE_MIN_MAP_ZOOM = 3;
+const OOKLA_FINE_GRID = 10;
+const OOKLA_FALLBACK_GRID = 8;
+
+/**
+ * 全球層 `z` 屬性 filter。filter 內的 ["zoom"] 只在圖磚解析時以圖磚縮放評估、不隨地圖縮放重算，
+ * 所以縮放分界用 layer 的 minzoom／maxzoom 切（低縮放 layer `lowZoom=true`、其餘 `false`），這裡只決定 z 值：
+ * 低縮放 layer 把「細」換成中格網；一般 layer 與選粗／中時一律照使用者選的值。
+ */
+export function ooklaGridFilter(
+  svc: "mobile" | "fixed",
+  params: Record<string, number> | undefined,
+  lowZoom: boolean,
+): ["==", ["get", "z"], number] {
+  const selected = params?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6;
+  return ["==", ["get", "z"], lowZoom && selected === OOKLA_FINE_GRID ? OOKLA_FALLBACK_GRID : selected];
+}
+
+/**
  * 樣本數驅動的透明度：z16 原生格大量是個位數測試，一次測速不該與數萬次
  * 在圖面上等權。乘在 opacity 上，不改色階本身。
  */

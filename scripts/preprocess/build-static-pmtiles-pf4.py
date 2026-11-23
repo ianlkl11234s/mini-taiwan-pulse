@@ -28,22 +28,31 @@ OOKLA_ATTRIBUTION = (
     "Speedtest® by Ookla® Global Fixed and Mobile Network Performance Maps · CC BY-NC-SA 4.0"
 )
 
+# 細格網（z=10）只從圖磚縮放 3 起放進圖磚（粗 6、中 8 維持 0–6）：縮放 0–2 的單磚由 2.07MB／1.61MB
+# 降到 ~0.3MB；不丟格、不簡化幾何。網站端在地圖縮放 <3 時選「細」自動退回中格網（overlayRegistry）。
+OOKLA_FINE_MINZOOM = 3
+OOKLA_DESC = "Ookla global grid; z=6/8 at tile zoom 0-6, z=10 at tile zoom 3-6"
+
 # minzoom 依既有圖層的顯示下限：Ookla 全球層無 minzoom（全球視角）→ Z0；
 # 格網是對齊 web mercator tile 的矩形（最細 z10 cell），z6 切片 overzoom 無損 → z6。
 # 清運點 layer minzoom 6 → Z6；日本宗教 OSM 比照同主題 GSI PMTiles 的 Z4–z14。
 TARGETS: dict[str, dict] = {
     "ookla_mobile": {
         "src": "public/geo/ookla_mobile_global.geojson",
-        "out": f"public/geo/ookla_mobile_global_{VERSION}.pmtiles",
+        "out": f"public/geo/ookla_mobile_global_{VERSION}_t3.pmtiles",
         "layer": "ookla",
-        "args": ["-Z0", "-z6", "-b", "0", "--no-tiny-polygon-reduction", "-A", OOKLA_ATTRIBUTION],
+        "args": ["-Z0", "-z6", "-b", "0", "--no-tiny-polygon-reduction", "-A", OOKLA_ATTRIBUTION,
+                 "-n", "ookla_mobile_global", "-N", OOKLA_DESC],
+        "fine_minzoom": OOKLA_FINE_MINZOOM,
         "coord_tol": 1e-4,
     },
     "ookla_fixed": {
         "src": "public/geo/ookla_fixed_global.geojson",
-        "out": f"public/geo/ookla_fixed_global_{VERSION}.pmtiles",
+        "out": f"public/geo/ookla_fixed_global_{VERSION}_t3.pmtiles",
         "layer": "ookla",
-        "args": ["-Z0", "-z6", "-b", "0", "--no-tiny-polygon-reduction", "-A", OOKLA_ATTRIBUTION],
+        "args": ["-Z0", "-z6", "-b", "0", "--no-tiny-polygon-reduction", "-A", OOKLA_ATTRIBUTION,
+                 "-n", "ookla_fixed_global", "-N", OOKLA_DESC],
+        "fine_minzoom": OOKLA_FINE_MINZOOM,
         "coord_tol": 1e-4,
     },
     "waste_stops": {
@@ -69,9 +78,20 @@ def build(name: str, cfg: dict) -> None:
     # 以 repo 相對路徑 + cwd=ROOT 呼叫：tippecanoe 會把 -o／輸入路徑寫進 PMTiles metadata
     # （name／description／generator_options），絕對路徑會洩漏工作站路徑且讓產物不可重現（F187）。
     src, out = cfg["src"], cfg["out"]
-    cmd = ["tippecanoe", "-o", str(out), "-l", cfg["layer"], *cfg["args"], *COMMON, str(src)]
+    fine = cfg.get("fine_minzoom")
+    if fine is None:
+        cmd = ["tippecanoe", "-o", str(out), "-l", cfg["layer"], *cfg["args"], *COMMON, str(src)]
+        stdin = None
+    else:
+        # z=10 的格寫入 tippecanoe.minzoom；經 stdin 餵入（輸入路徑不進 metadata，同 F187）
+        doc = json.loads((ROOT / src).read_text("utf-8"))
+        for feat in doc["features"]:
+            if (feat.get("properties") or {}).get("z") == 10:
+                feat["tippecanoe"] = {"minzoom": fine}
+        cmd = ["tippecanoe", "-o", str(out), "-l", cfg["layer"], *cfg["args"], *COMMON]
+        stdin = json.dumps(doc, ensure_ascii=False)
     print(f"[{name}] {' '.join(cmd[1:])}")
-    subprocess.run(cmd, check=True, cwd=ROOT)
+    subprocess.run(cmd, check=True, cwd=ROOT, input=stdin, text=stdin is not None)
     subprocess.run(["pmtiles", "verify", str(out)], check=True, cwd=ROOT)
 
 

@@ -220,7 +220,7 @@ import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFi
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
-  OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
+  OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr, OOKLA_FINE_MIN_MAP_ZOOM, ooklaGridFilter,
 } from "../data/telecomTypes";
 import { RAIL_ROUTES_URL, RAIL_ROUTES_SOURCE_ID, RAIL_ROUTES_FALLBACK_COLOR, railRoutesSystemFilter } from "../data/railRoutesTypes";
 import { FOREST_RESERVE_PMTILES_URL, FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
@@ -2889,23 +2889,46 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 2026-09-30 PF-4：整包 GeoJSON（19–23 MB）改 PMTiles（scripts/preprocess/build-static-pmtiles-pf4.py，
   // 每個 zoom 全量、不抽稀；格網對齊 mercator tile，z6 切片 overzoom 無損）。
   // 透明度另乘 OOKLA_TESTS_ALPHA_EXPR：整季只有 1 次測試的格不該和數萬次的等權。
+  // 2026-11-23 瘦身：細格（z=10）只從圖磚縮放 3 起放進檔案（_t3），所以選「細」時地圖縮放 < 3 退回中格（z=8）。
   ...(([
-    { svc: "mobile", key: "ooklaMobilePerformance", sourceUrl: "./geo/ookla_mobile_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
-    { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
+    { svc: "mobile", key: "ooklaMobilePerformance", sourceUrl: "./geo/ookla_mobile_global_20260930_t3.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
+    { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global_20260930_t3.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
   ] as const).map(({ svc, key, sourceUrl, pmtiles }) => ({
     id: key,
     sourceUrl,
     sourceId: `ookla-${svc}-global`,
     pmtiles,
     attribution: OOKLA_GRID_META.attribution,
-    rebuildOnParamChange: ["fill", "line"],
+    rebuildOnParamChange: ["fill", "line", "fill-lo", "line-lo"],
     layers: [
+      // 縮放 < OOKLA_FINE_MIN_MAP_ZOOM 的 -lo 層畫「退回後」的格網；其餘縮放畫使用者選的格網。
+      // 兩組 layer 的縮放區間互補不重疊（見 ooklaGridFilter 註解，不用 filter 內的 zoom）。
+      {
+        suffix: "fill-lo",
+        type: "fill",
+        maxzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, true),
+        paint: (_isDark: boolean, params?: Record<string, number>) => ({
+          "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
+          "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.65) * 0.88, OOKLA_TESTS_ALPHA_EXPR],
+        }),
+      },
+      {
+        suffix: "line-lo",
+        type: "line",
+        maxzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, true),
+        paint: (isDark: boolean, params?: Record<string, number>) => ({
+          "line-color": THEMED_PAINT_COLORS.ooklaGlobalOutline[isDark ? "dark" : "light"],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
+          "line-opacity": params?.[`${key}Opacity`] ?? 0.65,
+        }),
+      },
       {
         suffix: "fill",
         type: "fill",
-        filter: (p?: Record<string, number>) => [
-          "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
-        ],
+        minzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, false),
         paint: (_isDark: boolean, params?: Record<string, number>) => ({
           "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
           "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.65) * 0.88, OOKLA_TESTS_ALPHA_EXPR],
@@ -2914,9 +2937,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line",
         type: "line",
-        filter: (p?: Record<string, number>) => [
-          "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
-        ],
+        minzoom: OOKLA_FINE_MIN_MAP_ZOOM,
+        filter: (p?: Record<string, number>) => ooklaGridFilter(svc, p, false),
         paint: (isDark: boolean, params?: Record<string, number>) => ({
           "line-color": THEMED_PAINT_COLORS.ooklaGlobalOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
