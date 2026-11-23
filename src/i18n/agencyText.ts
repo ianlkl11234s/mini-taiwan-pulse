@@ -92,8 +92,8 @@ function classifyLicense(zh: string): { category: LicenseCategory; version?: str
   const sa = /^CC-?BY-?SA-?(\d\.\d)$/i.exec(text);
   if (sa) return { category: "ccBySa", version: sa[1] };
   if (/^ODbL(?:-?1\.0)?(?:（OpenDatabaseLicense）)?$/i.test(text)) return { category: "odbl" };
-  if (/^(?:unknown|unspecified|未標示)$/i.test(text)) return { category: "unspecified" };
-  if (/^unverified$/i.test(text)) return { category: "unverified" };
+  if (/^(?:unknown|unspecified|未標示|未表示|未明示|授權未明示)$/i.test(text)) return { category: "unspecified" };
+  if (/^(?:unverified|未確認|授權未確認)$/i.test(text)) return { category: "unverified" };
   return null;
 }
 
@@ -102,8 +102,10 @@ function classifyLicense(zh: string): { category: LicenseCategory; version?: str
  * 純英文縮寫（OGDL-Taiwan-1.0、ODbL 1.0）也會換成可讀的全名，日文介面才看得懂。
  */
 export function catalogLicense(zh: string, { active, lookup }: I18nContext): string {
-  if (active === "zh-TW") return zh;
   const hit = classifyLicense(zh);
+  // 未標示／未確認一律用中性字樣「授權未明示」（站主政策：授權空白照常上線、註明未明示）
+  if (hit && (hit.category === "unspecified" || hit.category === "unverified")) return lookup("dataSources.licenseUnstated") ?? zh;
+  if (active === "zh-TW") return zh;
   if (!hit) return zh;
   const label = lookup(`enum.license.${hit.category}`);
   if (!label) return zh;
@@ -121,4 +123,11 @@ export function statisticsLicense(zh: string, i18n: I18nContext): string {
     if (text) return text.replace("{id}", page[1]!);
   }
   return catalogLicense(zh, i18n);
+}
+
+/** 圖層來源表／popup 搬來的授權原文：只把「未標示／未確認」換成「授權未明示」，其餘原樣（多已是該語系的原文）。 */
+export function licenseDisplay(raw: string, { lookup }: I18nContext): string {
+  const hit = classifyLicense(raw);
+  if (hit && (hit.category === "unspecified" || hit.category === "unverified")) return lookup("dataSources.licenseUnstated") ?? raw;
+  return raw;
 }

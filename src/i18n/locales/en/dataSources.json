@@ -93,5 +93,7 @@
   "dataSources.contract.atlas": "Accepts only the {count} delivered exact release selectors{dimension}; values keep the source value and are not recalculated. {status}",
   "dataSources.contract.atlasDimension": "; dimensions: {list}",
   "dataSources.contract.demographics": "Accepts only the {count} delivered exact release selectors; missing values are shown as a slash and not filled with 0; PARTIAL periods keep their coverage status.",
-  "dataSources.contract.registered": "Existing loading contract of regionalStatisticsRecipes; release selectors only resolve existing published periods."
+  "dataSources.contract.registered": "Existing loading contract of regionalStatisticsRecipes; release selectors only resolve existing published periods.",
+  "dataSources.licenseUnstated": "License not stated",
+  "dataSources.block.layerSource": "Layer source"
 }
