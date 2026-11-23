@@ -260,6 +260,8 @@ export type GeneratedStaticKey =
   | "dataSources.empty"
   | "dataSources.eyebrow"
   | "dataSources.fact.api"
+  | "dataSources.fact.asOf"
+  | "dataSources.fact.attribution"
   | "dataSources.fact.derivedFrom"
   | "dataSources.fact.formula"
   | "dataSources.fact.frequency"

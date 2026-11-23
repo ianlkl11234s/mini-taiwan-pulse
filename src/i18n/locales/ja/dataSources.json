@@ -94,5 +94,7 @@
   "dataSources.contract.registered": "regionalStatisticsRecipes の既存の読み込み契約です。release selector は公開済みの期間のみ解決します。",
   "dataSources.licenseUnstated": "ライセンス未明示",
   "dataSources.block.layerSource": "レイヤーの出典",
-  "dataSources.noteWithLabel": "{label}：{text}"
+  "dataSources.noteWithLabel": "{label}：{text}",
+  "dataSources.fact.attribution": "クレジット",
+  "dataSources.fact.asOf": "データ時点"
 }

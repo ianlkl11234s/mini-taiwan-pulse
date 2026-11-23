@@ -35,6 +35,8 @@ export interface LayerSourceInfo {
   attributionUrl?: string;
   /** 固定的資料時點／版本（每筆都一樣的那種，逐筆時間留在 popup） */
   asOf?: SourceText;
+  /** 來源要求照原文標示的署名（OGL「Contains … licensed under …」、国土数値情報「出典：…を加工して作成」、© 版權行）；多來源時逐條列出 */
+  attribution?: SourceText[];
   /** 每筆都一樣的資料說明（從 popup／圖例搬來的固定備註、方法說明、涵蓋限制） */
   notes?: SourceText[];
   /** 本列出處：popup 原有常數、圖例原有機關＋授權，或資料目錄 md */

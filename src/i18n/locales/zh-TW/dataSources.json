@@ -94,5 +94,7 @@
   "dataSources.contract.registered": "regionalStatisticsRecipes 的既有載入契約；release selector 只解析既有公開期別。",
   "dataSources.licenseUnstated": "授權未明示",
   "dataSources.block.layerSource": "圖層來源",
-  "dataSources.noteWithLabel": "{label}：{text}"
+  "dataSources.noteWithLabel": "{label}：{text}",
+  "dataSources.fact.attribution": "署名",
+  "dataSources.fact.asOf": "資料時點"
 }

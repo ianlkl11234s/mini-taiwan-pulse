@@ -94,5 +94,7 @@
   "dataSources.contract.registered": "Existing loading contract of regionalStatisticsRecipes; release selectors only resolve existing published periods.",
   "dataSources.licenseUnstated": "License not stated",
   "dataSources.block.layerSource": "Layer source",
-  "dataSources.noteWithLabel": "{label}: {text}"
+  "dataSources.noteWithLabel": "{label}: {text}",
+  "dataSources.fact.attribution": "Attribution",
+  "dataSources.fact.asOf": "Data as of"
 }

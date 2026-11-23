@@ -374,8 +374,14 @@ export function DataSourceCard({
     const text = (v: Parameters<typeof resolveSourceText>[0]) => resolveSourceText(v, i18n);
     const notes = getLayerNotes(layerKey).map(text).filter(Boolean);
     const showSource = Boolean(tableInfo) && !catalogComplete;
-    if (!showSource && notes.length === 0) return null;
-    if (!tableInfo || !showSource) return { title: null, desc: notes.join(" "), facts: facts() };
+    const credits = (tableInfo?.attribution ?? []).map(text).filter(Boolean);
+    const asOf = tableInfo?.asOf ? text(tableInfo.asOf) : "";
+    const extra = [
+      asOf ? { k: t("dataSources.fact.asOf"), v: asOf, mono: true } : null,
+      ...credits.map((credit) => ({ k: t("dataSources.fact.attribution"), v: credit })),
+    ];
+    if (!showSource && notes.length === 0 && credits.length === 0) return null;
+    if (!tableInfo || !showSource) return { title: null, desc: notes.length ? notes.join(" ") : null, facts: facts(...extra) };
     const org = text(tableInfo.org);
     const license = tableInfo.license == null ? "" : text(tableInfo.license);
     const localize = tableInfo.from === "catalog";
@@ -386,7 +392,7 @@ export function DataSourceCard({
       facts: facts(
         org ? { k: t("dataSources.fact.provider"), v: localize ? catalogAgency(org, i18n) : org } : null,
         { k: t("dataSources.fact.license"), v: license ? (localize ? catalogLicense(license, i18n) : licenseDisplay(license, i18n)) : t("dataSources.licenseUnstated") },
-        tableInfo.asOf ? { k: t("dataSources.fact.period"), v: text(tableInfo.asOf), mono: true } : null,
+        ...extra,
         link ? { k: t("dataSources.fact.api"), v: <a href={link} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{link}</a> } : null,
       ),
     };
