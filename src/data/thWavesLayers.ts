@@ -218,7 +218,6 @@ export const TH_WAVE_SPECS: readonly ThLayerSpec[] = [
     ],
     legendNotes: [
       l3("兩版選區（2023、2026）可在類別篩選切換，預設只顯示 2026；只有邊界，得票、投票所未涵蓋", "Two editions (2023, 2026) switchable in the category filter, 2026 only by default; boundaries only — votes and polling stations not covered", "2 版（2023・2026）をカテゴリ絞り込みで切替（既定は 2026 のみ）。境界のみで、得票・投票所は未収録"),
-      l3("第三方彙整（Thai-ECT-election-map，MIT 授權；底層 กกต. 選區公告，上游條款未明示）", "Third-party compilation (Thai-ECT-election-map, MIT; underlying ECT announcements, upstream terms not stated)", "第三者による集成（Thai-ECT-election-map、MIT。基の กกต. 公示は上流条件が未明示）"),
     ],
     popupNotes: [],
     sourceOrg: l3("Thai-ECT-election-map by Kittapat Ratanaphupha（MIT，第三方彙整）；底層 กกต. 選區公告（上游條款未明示）", "Thai-ECT-election-map by Kittapat Ratanaphupha (MIT, third-party compilation); underlying ECT constituency announcements (upstream terms not stated)", "Thai-ECT-election-map by Kittapat Ratanaphupha（MIT、第三者集成）。基の กกต. 選挙区公示（上流条件は未明示）"),
@@ -249,7 +248,7 @@ export const TH_WAVE_SPECS: readonly ThLayerSpec[] = [
     ],
     legendNotes: [
       l3("HRDI 高地村 4,212 點，只涵蓋 21 個高地府；沒點的 56 府是未涵蓋，不代表沒有高地村", "4,212 HRDI highland villages in 21 highland provinces only; the other 56 provinces are not covered, not empty", "HRDI 高地村 4,212 件、高地 21 県のみ。残り 56 県は未収録で、高地村がないという意味ではない"),
-      l3("族群前 7 名各色（กะเหรี่ยง 1,899、ไทยพื้นราบ 689、ลาหู่ 360…）；調查年未標；人口欄授權未明示", "Top 7 groups colored (Karen 1,899, Lowland Thai 689, Lahu 360…); survey year not stated; population fields license not stated", "民族上位 7 つを色分け（カレン 1,899・平地タイ 689・ラフ 360…）。調査年は不明。人口欄はライセンス未明示"),
+      l3("族群前 7 名各色（กะเหรี่ยง 1,899、ไทยพื้นราบ 689、ลาหู่ 360…）；調查年未標", "Top 7 groups colored (Karen 1,899, Lowland Thai 689, Lahu 360…); survey year not stated", "民族上位 7 つを色分け（カレン 1,899・平地タイ 689・ラフ 360…）。調査年は不明"),
     ],
     popupNotes: [NEAREST_NOTE],
     sourceOrg: l3("Highland Research and Development Institute（HRDI）高地村調查（授權未明示，存取 2026-11-22）", "Highland Research and Development Institute (HRDI) highland village survey (license not stated, accessed 2026-11-22)", "Highland Research and Development Institute（HRDI）高地村調査（ライセンス未明示、2026-11-22 取得）"),

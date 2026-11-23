@@ -285,7 +285,7 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("機場 144 處（NGIS L14、GISTDA Hosted，授權未明示）；港口 38、渡輪碼頭 524（OSM 補缺，ODbL）", "144 airports (NGIS L14, GISTDA Hosted, license not stated); 38 ports and 524 ferry terminals (OSM gap-fill, ODbL)", "空港 144（NGIS L14・GISTDA Hosted、ライセンス未明示）、港 38・フェリーターミナル 524（OSM 補完、ODbL）"),
+      l3("機場 144 處（NGIS L14、GISTDA Hosted）；港口 38、渡輪碼頭 524（OSM 補缺）", "144 airports (NGIS L14, GISTDA Hosted); 38 ports and 524 ferry terminals (OSM gap-fill)", "空港 144（NGIS L14・GISTDA Hosted）、港 38・フェリーターミナル 524（OSM 補完）"),
       l3("原無名的 51 筆機場點以公開來源座標比對補名 10 筆（顯示 8 筆；2 筆為鄰近比對、與既有同名機場重複，不顯示）；另有 43 筆名稱未能確認或重複，未顯示；機場分類由名稱推定，軍用依名稱判定", "Of the 51 originally unnamed airport points, 10 were named by coordinate matching against public sources (8 shown; 2 are neighbouring matches that duplicate an existing airport and are hidden); a further 43 whose names could not be confirmed or are duplicates are not shown; airport class is inferred from names, military is judged from the name", "名称のなかった 51 件の空港点のうち 10 件を公開出典との座標照合で補名（8 件を表示、2 件は近傍照合で既存の同名空港と重複するため非表示）。名称を確認できない・重複する 43 件は非表示。空港分類は名称から推定、軍用は名称から判定"),
       l3("機場旅客數欄單位來源未標；機場涵蓋 54/77 府、港口與碼頭 39 府", "Passenger unit not stated by the source; airports cover 54/77 provinces, ports and terminals 39", "旅客数の単位は出典に記載なし。空港は 54/77 県、港・桟橋は 39 県"),
       COVERAGE_NOTE(64),
@@ -318,7 +318,6 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
       l3("Namtang 全國 GTFS（OTP，2026 年班表）：鐵路、渡輪站 533、公車站 16,600（z11 起顯示）", "Namtang national GTFS (OTP, 2026 timetable): 533 rail and ferry stations, 16,600 bus stops (from z11)", "Namtang 全国 GTFS（OTP、2026 年ダイヤ）：鉄道・フェリー 533、バス停 16,600（z11 以上で表示）"),
       l3("鐵路、渡輪站涵蓋 40/77 府；其他府顯示未涵蓋，不是沒有車站", "Rail and ferry stations cover 40/77 provinces; other provinces are not covered, not empty", "鉄道・フェリーは 40/77 県。他の県は未収録で、駅がないという意味ではない"),
       l3("Pakse（寮國）站已排除；無班次資料的公車站另色標示", "Pakse (Laos) station excluded; bus stops without service data shown in another color", "Pakse（ラオス）の駅は除外。運行データのないバス停は別色で表示"),
-      l3("本層 CC BY 4.0 僅見 Transitland 轉述（OTP 原文未讀到）", "CC BY 4.0 here is only per Transitland's restatement (OTP's original text not found)", "CC BY 4.0 は Transitland の転記のみ確認（OTP 原文は未確認）"),
     ],
     popupNotes: [{ text: l3("無班次資料", "No service data", "運行データなし"), when: (p) => str(p.kind) === "unknown" }, NEAREST_NOTE],
     sourceOrg: "Office of Transport and Traffic Policy and Planning（OTP）Namtang GTFS",
@@ -349,7 +348,7 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("道路：DOH 路線中心線 BE 2568（2025）3,083 段；鐵道：NGIS L02008 643 段；兩者授權未明示", "Roads: DOH route centerlines BE 2568 (2025), 3,083 sections; railways: NGIS L02008, 643 sections; license not stated for both", "道路：DOH 路線中心線 BE 2568（2025）3,083 区間。鉄道：NGIS L02008 643 区間。いずれもライセンス未明示"),
+      l3("道路：DOH 路線中心線 BE 2568（2025）3,083 段；鐵道：NGIS L02008 643 段", "Roads: DOH route centerlines BE 2568 (2025), 3,083 sections; railways: NGIS L02008, 643 sections", "道路：DOH 路線中心線 BE 2568（2025）3,083 区間。鉄道：NGIS L02008 643 区間"),
       l3("只含 DOH 國道（無鄉道 DRR）；道路府數 77/77，鐵道只有 47/77 府有線段", "DOH national highways only (no rural roads); roads in 77/77 provinces, railways only in 47/77", "DOH 国道のみ（農道 DRR なし）。道路は 77/77 県、鉄道は 47/77 県のみ"),
       l3("鐵道來源版本 BE 2554（2011），與現況路網不完全一致", "Railway source edition BE 2554 (2011); not identical to the current network", "鉄道の出典は BE 2554（2011）版で、現況の路線網と完全には一致しない"),
     ],
@@ -386,7 +385,7 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("DEDE 再生能源電廠 1,076（授權未明示）＋GEM 火力 91（CC BY 4.0）＋OSM 補缺 200（空心，非官方）；預設只顯示 GEM 運轉中與興建中，DEDE／OSM 無狀態欄一律顯示", "1,076 DEDE renewable plants (license not stated) + 91 GEM fossil plants (CC BY 4.0) + 200 OSM gap-fill (hollow, unofficial); GEM shows operating and under construction by default, DEDE/OSM have no status and always show", "DEDE 再エネ発電所 1,076（ライセンス未明示）＋GEM 火力 91（CC BY 4.0）＋OSM 補完 200（中抜き、非公式）。既定は GEM の運転中・建設中のみ。DEDE／OSM は状態欄がなく常に表示"),
+      l3("DEDE 再生能源電廠 1,076＋GEM 火力 91＋OSM 補缺 200（空心，非官方）；預設只顯示 GEM 運轉中與興建中，DEDE／OSM 無狀態欄一律顯示", "1,076 DEDE renewable plants + 91 GEM fossil plants + 200 OSM gap-fill (hollow, unofficial); GEM shows operating and under construction by default, DEDE/OSM have no status and always show", "DEDE 再エネ発電所 1,076＋GEM 火力 91＋OSM 補完 200（中抜き、非公式）。既定は GEM の運転中・建設中のみ。DEDE／OSM は状態欄がなく常に表示"),
       l3("51 筆個人名義的 DEDE 電廠已遮蔽名稱；EGAT 大型水電主要靠 GEM／OSM（DEDE 大水力僅 6 座）", "51 DEDE plants under personal names have the name redacted; large EGAT hydro mostly comes from GEM/OSM (DEDE has only 6 large hydro)", "個人名義の DEDE 発電所 51 件は名称を秘匿。EGAT の大規模水力は主に GEM／OSM（DEDE の大水力は 6 件のみ）"),
       l3("容量級距：圓圈大小；太陽能含屋頂型", "Capacity bands shown as circle size; solar includes rooftop", "容量区分は円の大きさ。太陽光は屋根置きを含む"),
       COVERAGE_NOTE(75),
@@ -448,7 +447,7 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("DEDE 風場 27、太陽能 562、地熱 1（授權未明示）＋OSM 風機機組點 546（空心，z9 起）", "27 DEDE wind farms, 562 solar plants, 1 geothermal (license not stated) + 546 OSM turbine points (hollow, from z9)", "DEDE ウィンドファーム 27・太陽光 562・地熱 1（ライセンス未明示）＋OSM 風車ユニット 546（中抜き、z9 以上）"),
+      l3("DEDE 風場 27、太陽能 562、地熱 1＋OSM 風機機組點 546（空心，z9 起）", "27 DEDE wind farms, 562 solar plants, 1 geothermal + 546 OSM turbine points (hollow, from z9)", "DEDE ウィンドファーム 27・太陽光 562・地熱 1＋OSM 風車ユニット 546（中抜き、z9 以上）"),
       l3("太陽能含屋頂型、無法分地面；風場點與風機點尺度不同，不要合計", "Solar includes rooftop and cannot be split from ground-mounted; wind-farm and turbine points differ in scale, do not add them", "太陽光は屋根置きを含み地上設置と区別できない。風場点と風車点は尺度が異なり、合算しない"),
       l3("涵蓋 64/77 府；沒有點的府是未涵蓋，不是沒有", "64 of 77 provinces covered; provinces without points are not covered, not empty", "77 県中 64 県。点のない県は未収録で、存在しないという意味ではない"),
     ],

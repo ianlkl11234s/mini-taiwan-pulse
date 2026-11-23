@@ -12,7 +12,7 @@ import { LINE_WIDTH, POINT_RADIUS, TRANSFER_STATION, transferRingColor } from ".
 import { useLocale } from "../../state/localeStore";
 import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
 import {
-  GB_RAIL_ATTRIBUTION_KEYS, GB_RAIL_COLOR, GB_RAIL_DELAY_TIERS, GB_RAIL_SELECTED_COLOR, GB_RAIL_TRACK_COLOR, formatLondonHHMM, gbRailReplayTime,
+  GB_RAIL_COLOR, GB_RAIL_DELAY_TIERS, GB_RAIL_SELECTED_COLOR, GB_RAIL_TRACK_COLOR, formatLondonHHMM, gbRailReplayTime,
   type GbRailReplayData,
 } from "../../data/gbRailReplay";
 import { GB_RAIL_REPLAY_DATE, getGbRailReplayData, loadGbRailReplay } from "../../data/gbRailReplayLoader";
@@ -209,6 +209,5 @@ export function GbRailReplayLegend() {
     <LegendNote>{i18n.t("legend.transport.gbRailCoverage")}</LegendNote>
     {data ? <LegendNote>{i18n.t("legend.transport.gbRailSourcePct", { a: pct(data.sourcePct.a), e: pct(data.sourcePct.e) })}</LegendNote> : null}
     <LegendNote>{i18n.t("legend.transport.gbRailTimeMap")}</LegendNote>
-    {GB_RAIL_ATTRIBUTION_KEYS.map((k) => <LegendNote key={k} style={{ overflowWrap: "anywhere" }}>{i18n.t(k)}</LegendNote>)}
   </div>;
 }
