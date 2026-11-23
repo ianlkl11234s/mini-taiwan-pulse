@@ -207,6 +207,7 @@ export function MapchallengeDay06CoastPanel({ props }: Props) {
     <Title color={mapchallengeDay06EraColor(era, isDark)}>{t("popup.mapchallenge.day06.coastTitle", { era: t(MAPCHALLENGE_DAY06_ERA_KEYS[era]) })}</Title>
     <Row label={t("popup.mapchallenge.day06.source")} value={t("popup.mapchallenge.day06.coastSource", { id: era === 1 ? 242 : era === 2 ? 244 : 243 })} />
     <Row label={t("popup.mapchallenge.day06.dCoast")} value={t("popup.mapchallenge.day06.km", { n: formatNumber(num(props.d_km)) })} mono />
+    <Row label={t("popup.mapchallenge.day06.note")} value={t("popup.mapchallenge.day06.coastNote")} />
     <Day06Footer />
   </div>;
 }

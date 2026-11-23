@@ -21,7 +21,6 @@ export function CountyMigrationFlowsPanel({ props }: { props: Record<string, unk
       <Row label={t("popup.migration.outflow")} value={t("popup.migration.persons", { value: num(props.outflow) })} />
       <Row label={t("popup.migration.net")} value={t("popup.migration.persons", { value: signed(Number(props.net ?? 0)) })} />
       <Row label={t("popup.migration.notes")} value={t("popup.migration.seatHint")} />
-      <Row label={t("popup.migration.scope")} value={t("popup.migration.scopeText")} />
       {footer}
     </>;
   }
