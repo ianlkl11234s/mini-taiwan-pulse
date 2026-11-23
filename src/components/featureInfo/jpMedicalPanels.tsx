@@ -69,9 +69,7 @@ function jpMedicalAreaSummary(props: Record<string, unknown>) {
 const JP_MEDICAL_AREAS_SOURCE_URL = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A38-v2_0.html";
 
 export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> }) {
-  const theme = useFeatureTheme();
   const { t, formatNumber } = useLocale();
-  const na = t("popup.common.notProvided");
   const area = jpMedicalAreaSummary(props);
   const count = (key: string) => {
     const raw = area?.s(key) ?? "";
@@ -90,9 +88,6 @@ export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> 
     <Row label={t("popup.jpMedical.dataStatus")} value={t("popup.jpMedical.staleValue")} color="#f59e0b" />
     <Row label={t("popup.jpMedical.purpose")} value={t("popup.jpMedical.purposeText")} />
     <Row label={t("popup.jpMedical.geometryGrain")} value={t("popup.jpMedical.geometryGrainText")} />
-    <details style={{ marginTop: 8, color: theme.textStrong }}><summary>{t("popup.jpMedical.sourceFields")}</summary>
-      {Object.entries(props).filter(([key]) => /^A38[abc]_/.test(key)).map(([key, value]) => <Row key={key} label={key} value={text(value, na)} />)}
-    </details>
     {/* KSJ A38 頁未載明授權（pulse-data registry jp_medical_areas license: 未載明）→ 不放 license */}
     <SourceFooter props={{ source_org: t("popup.jpMedical.sourceAreas"), source_url: JP_MEDICAL_AREAS_SOURCE_URL }} />
   </>;

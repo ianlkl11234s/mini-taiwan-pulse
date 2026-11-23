@@ -7,7 +7,7 @@
   "legend.culture.accPerCellMin": "≥ {n} 間／格",
   "legend.culture.accDensityNote": "只計 25,459 筆可繪 canonical 旅宿；不叠加 OSM coverage，502 筆無 geometry 未入格。",
   "legend.culture.sportsTitle": "運動場館分類",
-  "legend.culture.sportsNoteSize": "大小 = 面積（area_sqm log；缺值退化固定大小）",
+  "legend.culture.sportsNoteSize": "大小 = 面積（取對數；缺值退化固定大小）",
   "legend.culture.sportsNoteLayers": "隸屬 5 類：學校 / 其他公共 / 民營 / 運動公園 / 國民運動中心（各自 toggle）",
   "legend.culture.sportsNoteClosed": "⚠️「不對外」場館半透明淡化",
   "legend.culture.culFacTitle": "文化設施",

@@ -446,18 +446,6 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
     ? props.apparent_fishing_hours : null;
   const components = typeof props.component_count === "number" && Number.isInteger(props.component_count) && props.component_count >= 1
     ? props.component_count : null;
-  let facets: Record<string, unknown>[] = [];
-  let facetCount: number | null = null;
-  if (typeof props.aggregation_facets_json === "string") {
-    try {
-      const parsed: unknown = JSON.parse(props.aggregation_facets_json);
-      facets = Array.isArray(parsed) && parsed.every((item) => item !== null && typeof item === "object" && !Array.isArray(item))
-        ? parsed as Record<string, unknown>[] : [];
-      facetCount = facets.length > 0 ? facets.length : null;
-    } catch {
-      facetCount = null;
-    }
-  }
   const unavailable = (value: unknown): string => value == null || value === "" ? tr("popup.common.notProvided") : String(value);
   const attributionHref = typeof props.attribution_href === "string" && props.attribution_href ? props.attribution_href : null;
   return (
@@ -465,15 +453,6 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
       <Row label={tr("popup.globalClimate.selectedUtcDay")} value={unavailable(props.selected_utc_date ?? props.date)} />
       <Row label={tr("popup.globalClimate.fishingActivity")} value={hours != null ? `${i18n.formatNumber(hours, { maximumFractionDigits: 2 })} ${unavailable(props.unit)}` : tr("popup.common.notProvided")} />
       <Row label={tr("popup.globalClimate.components")} value={components != null ? i18n.formatNumber(components) : tr("popup.common.notProvided")} />
-      {facetCount != null && <Row label="Aggregation facets" value={tr("popup.globalClimate.facetsValue", { count: facetCount })} />}
-      {facets.length > 0 && (
-        <details style={{ marginTop: 7, color: t.textDim }}>
-          <summary style={{ cursor: "pointer", fontSize: 10 }}>{tr("popup.globalClimate.viewFacets")}</summary>
-          <pre style={{ maxHeight: 180, overflow: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 9, lineHeight: 1.35 }}>
-            {JSON.stringify(facets, null, 2)}
-          </pre>
-        </details>
-      )}
       <Row field="dataVersion" value={unavailable(props.dataset_version ?? props.resolved_dataset_version)} />
       <Row label={tr("popup.globalClimate.metric")} value={unavailable(props.metric_semantics ?? props.metric)} />
       <Row label={tr("popup.globalClimate.latestDate")} value={unavailable(props.latest_available_date)} />

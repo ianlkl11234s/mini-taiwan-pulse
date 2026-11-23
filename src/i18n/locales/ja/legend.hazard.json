@@ -121,7 +121,7 @@
   "legend.hazard.erSevere": "深刻 > {n}",
   "legend.hazard.erNoData": "データなし",
   "legend.hazard.erIcu": "⚪ 白枠＝集中治療室（ICU）待ちあり",
-  "legend.hazard.erCalib": "区分は wait_general_cnt の37日分の履歴で校正",
+  "legend.hazard.erCalib": "区分は37日分の待機人数の履歴で校正",
   "legend.hazard.typGale": "強風域（15 m/s、台湾気象署）",
   "legend.hazard.typStorm": "暴風域（25 m/s、台湾気象署）",
   "legend.hazard.typProb70": "70% 確率円（予報点、破線）",

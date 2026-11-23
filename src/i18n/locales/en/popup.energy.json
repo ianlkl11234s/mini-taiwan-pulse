@@ -113,7 +113,6 @@
   "popup.energy.gbCableSubsea": "Subsea cable",
   "popup.energy.gbCableUnderground": "Underground cable",
   "popup.energy.gbOverhead": "Overhead line",
-  "popup.energy.gbRef": "Reference",
   "popup.energy.gbOperator": "Operator",
   "popup.energy.gbLength": "Length",
   "popup.energy.gbKm": "{value} km",

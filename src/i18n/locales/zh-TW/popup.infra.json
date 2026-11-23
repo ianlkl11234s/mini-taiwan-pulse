@@ -1,6 +1,5 @@
 {
   "popup.infra.owner": "所有者",
-  "popup.infra.osmIdent": "OSM 識別",
   "popup.infra.lineQuality": "線位品質",
   "popup.infra.cableRole": "OSM crowd 通訊海纜概覽",
   "popup.infra.cableCoverage": "群眾標註且不完整；非工程級精確路由",

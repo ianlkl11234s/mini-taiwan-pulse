@@ -105,7 +105,7 @@
   "legend.energy.spBiogas": "バイオガス発電 2",
   "legend.energy.spHydropower": "水力発電 1",
   "legend.energy.reserveTitle": "予備率信号",
-  "legend.energy.reserveNoteBars": "● 4 地域の電力消費柱（Layer 3）：高さ ∝ consumption_mw",
+  "legend.energy.reserveNoteBars": "● 4 地域の電力消費柱（Layer 3）：高さ ∝ 電力消費量（MW）",
   "legend.energy.reserveNoteColor": "● 柱の色＝全国の信号（共通の 1 つの値）",
   "legend.energy.gbFuelGas": "ガス",
   "legend.energy.gbFuelNuclear": "原子力",
