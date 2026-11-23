@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ALL_PRESETS } from "../../map/cameraPresets";
 import { COUNTRIES, countryDef, countryForPoint, countryForViewer, isCountryCode, visibleCountries } from "../countries";
-import { GENERATED_PATH, findCountriesSource, readGenerated, renderCountriesModule } from "./countriesCodegen";
+import { GENERATED_PATH, readGenerated } from "./countriesCodegen";
 
 const ROOT = join(__dirname, "..", "..", "..");
 
@@ -17,11 +17,6 @@ describe("countries.generated.ts（正本：pulse-data countries/countries.json�
     expect(Array.isArray(JSON.parse(payload))).toBe(true);
   });
 
-  // 本機有 pulse-data（PULSE_DATA_ROOT 或隔壁 checkout）才比對；CI 讀不到私有 repo，守門在 pulse-data CI。
-  const source = findCountriesSource(ROOT);
-  it.skipIf(!source)("產生檔是最新的（改了正本請跑 PULSE_DATA_ROOT=<pulse-data> npx tsx scripts/countries/gen-countries.ts）", () => {
-    expect(text).toBe(renderCountriesModule(readFileSync(source!, "utf8")));
-  });
 
   it("TW 鏡頭等於 cameraPresets 的「全台總覽」", () => {
     const overview = ALL_PRESETS.find((preset) => preset.id === "overview")!;
