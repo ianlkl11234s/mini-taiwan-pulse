@@ -1308,7 +1308,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "special", label: l3("特殊學校", "Special", "特別支援学校"), kind: "num" },
              { prop: "enrolments", label: l3("區內在學人數（2026）", "Enrolments in area (2026)", "区内の在籍者数（2026）"), kind: "num", unit: "人" },
              { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 }, LA],
-    legendNotes: [l3("教育部規劃學校供給用的 314 個學校規劃區（2011 年版，對齊 Census Small Area），不分學段", "The Department of Education's 314 school planning areas used to plan school provision (2011 version, aligned to Census Small Areas); not split by school level", "教育省が学校整備の計画に使う314の学校計画区（2011年版、国勢調査 Small Area に整合）。学校段階で分けていない"),
+    legendNotes: [l3("教育部規劃學校供給用的 314 個學校規劃區（對齊 Census Small Area），不分學段", "The Department of Education's 314 school planning areas used to plan school provision (aligned to Census Small Areas); not split by school level", "教育省が学校整備の計画に使う314の学校計画区（国勢調査 Small Area に整合）。学校段階で分けていない"),
                   l3("不是入學學區：家長可申請任何學校，跨區就讀很常見", "Not a catchment area: parents may apply to any school, and cross-area enrolment is common", "通学区域ではない。保護者はどの学校にも出願でき、区をまたぐ通学は多い"),
                   l3("區內校數與在學人數依教育部 2026 名冊的規劃區欄彙總", "School counts and enrolments are summed from the planning-area field of the Department's 2026 school list", "区内の学校数と在籍者数は教育省2026年名簿の計画区欄から集計")],
     popupNotes: [l3("規劃區不是學區", "A planning area is not a catchment", "計画区は通学区域ではない")],

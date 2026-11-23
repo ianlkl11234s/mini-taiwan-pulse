@@ -19,7 +19,7 @@ import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendC
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
 import { MEDICAL_POI_TYPES, medicalPoiColor } from "../../data/medicalPOITypes";
-import { EMERGENCY_HOSPITAL_LEVELS, EMERGENCY_HOSPITAL_DATA_AS_OF } from "../../data/emergencyHospitalTypes";
+import { EMERGENCY_HOSPITAL_LEVELS } from "../../data/emergencyHospitalTypes";
 import { ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS } from "../../data/publicLifePalette";
 import { JP_SCHOOL_TYPES } from "../../data/jpSchoolTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../../data/animalWelfarePointsTypes";
@@ -557,7 +557,7 @@ export function EmergencyHospitalLegend({ isDark = true }: { isDark?: boolean })
       </div>
       <LegendNote style={{ marginTop: 4 }}>
         {i18n.t("legend.civic.emergencyHospitalNote1")}<br />
-        {i18n.t("legend.civic.emergencyHospitalNote2", { asOf: EMERGENCY_HOSPITAL_DATA_AS_OF })}
+        {i18n.t("legend.civic.emergencyHospitalNote2")}
       </LegendNote>
     </div>
   );
