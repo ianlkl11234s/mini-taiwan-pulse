@@ -1,5 +1,33 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { COUNTRIES, countryForPoint, countryForViewer, isCountryCode, visibleCountries } from "../countries";
+import { ALL_PRESETS } from "../../map/cameraPresets";
+import { COUNTRIES, countryDef, countryForPoint, countryForViewer, isCountryCode, visibleCountries } from "../countries";
+import { GENERATED_PATH, findCountriesSource, readGenerated, renderCountriesModule } from "./countriesCodegen";
+
+const ROOT = join(__dirname, "..", "..", "..");
+
+describe("countries.generated.ts（正本：pulse-data countries/countries.json）", () => {
+  const text = readFileSync(join(ROOT, GENERATED_PATH), "utf8");
+
+  it("產生檔沒被手改：標記間 JSON 的雜湊等於檔頭 payload-sha256", () => {
+    const { payload, payloadSha, computedSha } = readGenerated(text);
+    expect(payloadSha, "檔頭缺 payload-sha256").toBeDefined();
+    expect(computedSha, "countries.generated.ts 被手改了：改 pulse-data 正本後重跑 scripts/countries/gen-countries.ts").toBe(payloadSha);
+    expect(Array.isArray(JSON.parse(payload))).toBe(true);
+  });
+
+  // 本機有 pulse-data（PULSE_DATA_ROOT 或隔壁 checkout）才比對；CI 讀不到私有 repo，守門在 pulse-data CI。
+  const source = findCountriesSource(ROOT);
+  it.skipIf(!source)("產生檔是最新的（改了正本請跑 PULSE_DATA_ROOT=<pulse-data> npx tsx scripts/countries/gen-countries.ts）", () => {
+    expect(text).toBe(renderCountriesModule(readFileSync(source!, "utf8")));
+  });
+
+  it("TW 鏡頭等於 cameraPresets 的「全台總覽」", () => {
+    const overview = ALL_PRESETS.find((preset) => preset.id === "overview")!;
+    expect(countryDef("TW").camera).toEqual({ center: overview.center, zoom: overview.zoom, pitch: overview.pitch, bearing: overview.bearing });
+  });
+});
 
 describe("countries", () => {
   it("國碼與 chip 一致、bbox 都是合法矩形", () => {
