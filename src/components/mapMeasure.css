@@ -238,20 +238,23 @@
   display: none;
 }
 
-/* 桌機品牌列中間的量測槽（App.tsx）：槽寬不由工具列撐開（inline-size containment），
-   英日文工具列較寬時改為逐段收成 icon，不把右上工具列擠到第二行、疊住提示卡與 popup（2026-11-23）。
-   量測中槽最少留 280px，再窄才讓工具列照舊換行。 */
-.measure-slot { min-width: 0; container-type: inline-size; }
-.measure-slot:has(.measure-bar) { min-width: 280px; }
-@container (max-width: 400px) {
-  .measure-bar--desktop .measure-bar__icon { display: none; }
+/* 桌機浮動量測條（App.tsx .measure-float）：品牌列下方置中的三欄格線，top／left／right／欄寬由 App inline 決定
+   （top 讀 --top-bar-bottom，品牌列換行時跟著往下）。容器不吃點擊，只有量測條本身可點。
+   放不下時量測條自己折成兩行，文字完整不收成 icon（2026-11-23 根治版）。 */
+.measure-float {
+  position: absolute;
+  z-index: var(--z-toolbar);
+  display: grid;
+  pointer-events: none;
 }
-@container (max-width: 395px) {
-  .measure-bar--desktop .measure-bar__seg button span { display: none; }
-}
-@container (max-width: 330px) {
-  .measure-bar--desktop .measure-bar__btn-label { display: none; }
-  .measure-bar--desktop .measure-bar__btn--primary { padding: 0 7px; }
+.measure-float > .measure-bar {
+  grid-column: 2;
+  flex-wrap: wrap;
+  justify-content: center;
+  height: auto;
+  min-height: 36px;
+  row-gap: var(--space-xs);
+  padding-block: var(--space-xs);
 }
 
 /* ── 地圖上的標籤（DOM Marker） ── */

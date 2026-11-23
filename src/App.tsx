@@ -2219,6 +2219,33 @@ export default function App() {
   const topRightOffset = splitActive
     ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
     : isMobile ? "10px" : "16px";
+  // 桌機品牌列（§5.1）換行時右上浮動元件跟著往下讓：量右上工具列底邊超出品牌欄底邊多少，寫進
+  // <html> 的 --top-bar-shift（單行時是 0，各元件位置與原本相同）；--top-bar-bottom 是整列底邊，給浮動量測條（§5.44）用。
+  // 用 offsetTop／offsetHeight（開場動畫的 transform 不影響），列卸載（手機、拍攝模式）時移除變數。
+  const topBarObserverRef = useRef<ResizeObserver | null>(null);
+  const topBarRef = useCallback((row: HTMLDivElement | null) => {
+    topBarObserverRef.current?.disconnect();
+    topBarObserverRef.current = null;
+    const root = document.documentElement;
+    const title = row?.querySelector<HTMLElement>('[data-boot-part="title"]');
+    const toolbar = row?.querySelector<HTMLElement>('[data-boot-part="toolbar"]');
+    if (!row || !title || !toolbar || typeof ResizeObserver === "undefined") {
+      root.style.removeProperty("--top-bar-shift");
+      root.style.removeProperty("--top-bar-bottom");
+      return;
+    }
+    const write = () => {
+      const shift = Math.max(0, Math.round(toolbar.offsetTop + toolbar.offsetHeight - (title.offsetTop + title.offsetHeight)));
+      root.style.setProperty("--top-bar-shift", `${shift}px`);
+      root.style.setProperty("--top-bar-bottom", `${row.offsetTop + row.offsetHeight}px`);
+    };
+    const observer = new ResizeObserver(write);
+    observer.observe(row);
+    observer.observe(toolbar);
+    observer.observe(title);
+    topBarObserverRef.current = observer;
+    write();
+  }, []);
   // 視野提示（§5.42）：手機、拍攝模式、AI 對話框或 Agent 活動卡開著時停用；私人畫面判斷時讀 ref
   const viewportHint = useViewportCountry({
     map: mapPrepared ? mapRef.current : null,
@@ -2573,8 +2600,9 @@ export default function App() {
       {/* ── 一般模式 UI ── */}
       {!captureMode && !isMobile && (
         <>
-          {/* Row 1: 品牌（左）+ 工具列（右）— 同一列，垂直置中對齊 */}
+          {/* Row 1: 品牌（左）+ 工具列（右）— 同一列，垂直置中對齊；實際底邊由 topBarRef 量給右上浮動元件 */}
           <div
+            ref={topBarRef}
             style={{
               position: "absolute",
               top: 16,
@@ -2631,11 +2659,6 @@ export default function App() {
                   color: isDarkTheme ? COLORS.accent : LIGHT.accent,
                 }}
               />
-            </div>
-
-            {/* 量測工具列（§5.44 C1）：品牌與右上工具列之間置中；沒有量測時不渲染 */}
-            <div className="measure-slot" style={{ flex: "1 1 auto", display: "flex", justifyContent: "center" }}>
-              <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="desktop" />
             </div>
 
             <div
@@ -2726,6 +2749,22 @@ export default function App() {
 
           {/* Energy MVP: 供電燈號 HUD 已搬 monitor 面板（v1.5 TODO），
               hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
+
+          {/* 浮動量測條（§5.44 C1）：品牌列下方、地圖上方置中，不參與品牌列排版；沒有量測時不渲染。
+              三欄格線：右欄最少保留右上卡片（視野提示 300＋右 16、popup 280＋右 58、AI 對話框 380）的寬度，
+              夠寬時置中，太窄時往左讓，再窄則量測條自己折行（文字不收成 icon） */}
+          <div
+            className="measure-float"
+            style={{
+              top: `calc(var(--top-bar-bottom, 55px) + ${SPACING.sm}px)`,
+              left: sidebarWidth + 16,
+              right: topRightOffset,
+              gridTemplateColumns: `minmax(0, 1fr) auto minmax(${chatOpen ? 400 : (privateUiFeatureInfo || viewportHint.target || layerHint.rows.length > 0 || historicalLabelTip || compareTip) ? 330 : 0}px, 1fr)`,
+              transition: "left 0.2s ease",
+            }}
+          >
+            <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="desktop" />
+          </div>
 
           {/* Icon Rail + Sliding Panel Sidebar */}
           <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: Z_INDEX.floatingPanel, pointerEvents: "none" }}>
@@ -3469,7 +3508,8 @@ export default function App() {
       <div
         style={{
           position: "absolute",
-          top: isMobile ? 52 : LAYOUT.rightDockTop,
+          // 桌機品牌列換行時跟著往下讓（--top-bar-shift，單行為 0）
+          top: isMobile ? 52 : `calc(${LAYOUT.rightDockTop}px + var(--top-bar-shift, 0px))`,
           // 與左下時間軸共用底邊偏移（LAYOUT.mapBottomInset），兩者底邊對齊
           // 手機英日文版權列折成兩行時，依實際高度（--attrib-bar-h）＋手機 sheet 高度往上讓；一行時仍是 mapBottomInset
           bottom: `max(${LAYOUT.mapBottomInset}px, calc(var(--mobile-sheet-inset, 0px) + var(--attrib-bar-h, 0px) + ${SPACING.sm}px))`,
@@ -3551,7 +3591,7 @@ export default function App() {
         <LoadingStatus
           hidden={captureMode}
           isDarkTheme={isDarkTheme}
-          top={isMobile ? 52 : 60}
+          top={isMobile ? 52 : "calc(60px + var(--top-bar-shift, 0px))"}
           playing={timeline.playing || eqReplayPlaying || historicalPlaying}
           rightOffset={topRightOffset}
         />
