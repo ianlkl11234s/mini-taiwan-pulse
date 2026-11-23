@@ -114,7 +114,12 @@ describe("R7 顏色解析器", () => {
     // 2026-11-13 +1 中國第 1 波：公交站（站主限定）
     // 2026-11-16 +2 中國第 5 波：學校、醫療（站主限定）
     // 2026-11-20 +1 台灣圖層延伸 B3：國家公園物種調查點位（自然保育主題第一個熱區層）
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(142);
+    // 2026-11-22 +1 泰國第 1 波：加油站
+    // 2026-11-22 +1 泰國第 3 波：道路事故
+    // 2026-11-22 +6 泰國第 5–7 波：學校、幼兒班、醫療、宗教場所、住宿、銀行
+    // 2026-11-23 +2 泰國第 9 波：運動場地、工廠
+    // 2026-11-23 -1 泰國住宿改 per-feature minzoom 分級、不用熱區
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(151);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

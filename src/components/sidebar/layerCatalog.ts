@@ -455,6 +455,33 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "自然保育",
     "農業",
   ],
+  TH: [
+    // 泰國（2026-11-22 第 0–1 波：行政界、人口、交通、能源；title 沿用台灣主題中文短名，比照菲律賓、越南）
+    "底圖",
+    "人口社經",
+    "交通",
+    "能源",
+    // 第 2–4 波（2026-11-22）
+    "工商登記",
+    "災害",
+    "水資源",
+    "廢棄物",
+    // 第 5–7 波（2026-11-22）
+    "教育",
+    "社福長照",
+    "醫療",
+    "執法治安",
+    "觀光",
+    "自然保育",
+    "文化",
+    "基礎建設",
+    "宗教",
+    // 第 8–9 波（2026-11-23）
+    "環境氣候",
+    "海洋",
+    "運動休閒",
+    "農業",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -3635,6 +3662,213 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇹🇭 泰國（2026-11-22 第 0–1 波：行政邊界、人口、交通、能源；群組比照菲律賓同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("thAdminBoundaries")] },
+      { title: "地形", layers: [fromManifest("thTerrainHillshade"), fromManifest("thTerrainRelief")] },
+      { title: "地名", layers: [fromManifest("thPlaceNames")] },
+    ],
+  },
+  {
+    title: "人口社經",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "人口分布", layers: [fromManifest("thPopulation")] },
+      { title: "府級社經", layers: [fromManifest("thProvinceSocioeconomic")] },
+      { title: "高地村", layers: [fromManifest("thHighlandVillages")] },
+      { title: "選區", layers: [fromManifest("thElectionConstituencies")] },
+    ],
+  },
+  {
+    title: "交通",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("thStations")] },
+      { title: "樞紐節點", layers: [fromManifest("thTransportHubs")] },
+      { title: "路網", layers: [fromManifest("thMajorRoads")] },
+      { title: "道路設施", layers: [fromManifest("thFootbridges"), fromManifest("thRailCrossings")] },
+      { title: "交通事故", layers: [fromManifest("thRoadAccidents")] },
+    ],
+  },
+  {
+    // 圖層名「儲槽與管線」，不叫「油氣管線」（來源不完整，多數未標示內容物）
+    title: "能源",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("thPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("thPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("thRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("thFuelStations")] },
+      { title: "管線與儲槽", layers: [fromManifest("thPipelines")] },
+    ],
+  },
+  // 第 2–4 波（2026-11-22）
+  {
+    title: "工商登記",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "產業園區", layers: [fromManifest("thEec")] },
+      { title: "工廠", layers: [fromManifest("thFactories")] },
+    ],
+  },
+  {
+    title: "災害",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "淹水", layers: [fromManifest("thFloodHistory")] },
+      { title: "避難場所", layers: [fromManifest("thLandslideSafePoints")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "流域", layers: [fromManifest("thBasins")] },
+      { title: "灌溉", layers: [fromManifest("thIrrigationProjects")] },
+    ],
+  },
+  {
+    title: "廢棄物",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [{ title: "垃圾場址", layers: [fromManifest("thLandfills")] }],
+  },
+  // 第 5–7 波（2026-11-22）
+  {
+    title: "教育",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校", layers: [fromManifest("thSchools")] },
+      { title: "幼兒教育", layers: [fromManifest("thKindergartens")] },
+    ],
+  },
+  {
+    title: "社福長照",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "長者住宿", layers: [fromManifest("thElderlyHousing")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("thHealthFacilities")] },
+    ],
+  },
+  {
+    title: "執法治安",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "警政", layers: [fromManifest("thPoliceStations")] },
+      { title: "司法矯正", layers: [fromManifest("thJailsCourts")] },
+    ],
+  },
+  {
+    title: "觀光",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "玩・自然", layers: [fromManifest("thNatureSpots")] },
+      { title: "玩・體驗", layers: [fromManifest("thExperiences")] },
+      { title: "住・食", layers: [fromManifest("thAccommodation")] },
+    ],
+  },
+  {
+    title: "自然保育",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "保護區", layers: [fromManifest("thNationalParks")] },
+      { title: "林地", layers: [fromManifest("thNationalReservedForests"), fromManifest("thForestParks")] },
+      { title: "濕地", layers: [fromManifest("thRamsarSites")] },
+    ],
+  },
+  {
+    title: "文化",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "文化設施", layers: [fromManifest("thMuseumsLibraries")] },
+      { title: "藝文活動", layers: [fromManifest("thArtsEvents")] },
+      { title: "文化資產", layers: [fromManifest("thHistoricSites")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "金融據點", layers: [fromManifest("thBanks")] },
+      { title: "郵政與便民", layers: [fromManifest("thPostOffices")] },
+    ],
+  },
+  {
+    title: "宗教",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("thPlacesOfWorship")] },
+    ],
+  },
+  // 第 8–9 波（2026-11-23）
+  {
+    title: "環境氣候",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "空品", layers: [fromManifest("thAirQualityStations")] },
+      { title: "氣象", layers: [fromManifest("thWeatherStations")] },
+    ],
+  },
+  {
+    title: "海洋",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "棲地", layers: [fromManifest("thMarineHabitats")] },
+      { title: "保護區", layers: [fromManifest("thMarineProtectedAreas")] },
+      { title: "潮位", layers: [fromManifest("thSeaLevelStations")] },
+      { title: "海岸", layers: [fromManifest("thCoastalChange")] },
+    ],
+  },
+  {
+    title: "運動休閒",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("thSportsVenues")] },
+      { title: "公園", layers: [fromManifest("thParks")] },
+    ],
+  },
+  {
+    title: "農業",
+    country: "TH",
+    defaultCollapsed: true,
+    groups: [
+      { title: "作物", layers: [fromManifest("thCrops")] },
+      { title: "土壤", layers: [fromManifest("thSoilPh"), fromManifest("thSoilOrganicCarbon")] },
+      { title: "市集", layers: [fromManifest("thFarmMarkets")] },
+      { title: "獸醫", layers: [fromManifest("thVeterinary")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇻🇳 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通、能源、環境監測站、安江示範；群組比照菲律賓）
   // ───────────────────────────────────────────────────────────────
   {
@@ -4284,6 +4518,33 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
+  TH: {
+    // 泰國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓、越南）。
+    "底圖": "baseline",
+    "人口社經": "city",
+    "交通": "city",
+    "能源": "environment",
+    // 第 2–4 波（2026-11-22）：大分類同台灣、越南對應主題
+    "工商登記": "city",
+    "災害": "safety",
+    "水資源": "environment",
+    "廢棄物": "environment",
+    // 第 5–7 波（2026-11-22）
+    "教育": "publicLife",
+    "社福長照": "publicLife",
+    "醫療": "safety",
+    "執法治安": "safety",
+    "觀光": "publicLife",
+    "自然保育": "environment",
+    "文化": "publicLife",
+    "基礎建設": "publicLife",
+    "宗教": "publicLife",
+    // 第 8–9 波（2026-11-23）
+    "環境氣候": "environment",
+    "海洋": "environment",
+    "運動休閒": "publicLife",
+    "農業": "environment",
+  },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
     "底圖": "baseline",
@@ -4581,6 +4842,30 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
     "人口": { zh: "人口", sub: "Population" },
     "社經": { zh: "社經", sub: "Socio-economic" },
+  },
+  TH: {
+    // 泰國主題副標用英文（比照菲律賓、越南）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "災害": { zh: "災害", sub: "Hazard" },
+    "水資源": { zh: "水資源", sub: "Water" },
+    "廢棄物": { zh: "廢棄物", sub: "Waste" },
+    "教育": { zh: "教育", sub: "Education" },
+    "社福長照": { zh: "社福長照", sub: "Welfare" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
+    "自然保育": { zh: "自然保育", sub: "Conservation" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "宗教": { zh: "宗教", sub: "Religion" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "海洋": { zh: "海洋", sub: "Marine" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "農業": { zh: "農業", sub: "Agriculture" },
   },
   CN: {
     // 中國主題副標用英文（比照菲律賓）
