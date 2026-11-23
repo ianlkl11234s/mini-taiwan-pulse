@@ -201,7 +201,6 @@
   "popup.atlas.lsSeawallTitle": "Seawall",
   "popup.atlas.lsShore": "Coastal section",
   "popup.atlas.lsOrgRaw": "Name in source",
-  "popup.atlas.lsBuilt": "Source compiled",
   "popup.atlas.coinCoordSource": "Source coordinates",
   "popup.atlas.coinCoordGeocoded": "Source coordinates were (0,0); placed from the address ({precision})",
   "popup.atlas.coinCountyMismatch": "Source coordinates fall in another county; the location may be wrong (not corrected)",

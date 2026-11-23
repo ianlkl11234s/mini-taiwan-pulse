@@ -44,7 +44,6 @@
   "popup.infra.ooklaDevicesLine": "{tests} · {devices}（{method}）",
   "popup.infra.ooklaLowSample": "⚠️ 樣本極少",
   "popup.infra.ooklaGridLevel": "格級",
-  "popup.infra.ooklaPeriod": "期間",
   "popup.infra.ooklaSampleBias": "樣本偏差",
   "popup.infra.ooklaScaleZ6": "全球 z6 格（約 500 km）",
   "popup.infra.ooklaScaleZ10": "全球 z10 格（約 78 km）",

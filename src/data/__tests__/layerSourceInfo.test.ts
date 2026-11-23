@@ -38,11 +38,11 @@ const POPUP_SOURCE_PENDING = new Set<string>([
   "materialRecyclingPoints", "medicalIsochrone", "newsEvent", "nuclearEpzEvacuation", "officialBridgesHsinchu", "officialBridgesNewTaipei",
   "osmBridgeCarriers", "osmBridgeFootprints", "osmExpressway", "osmPowerPlantStatic", "osmSolarFarm", "parkingOffstreet",
   "parkingOnstreet", "playgrounds", "powerPlant", "propertyValueAdmin", "prosecutorsOffice", "publicLifeOsmCoverage", "publicWasteBaskets",
-  "railRoutes", "regionalStatistic", "regulatedFacilities", "regulatedFacilityDensityGrid", "ripeAtlasProbe", "slopeVector",
-  "socioeconomic", "spatialEconomy", "speedCamera", "speedZoneSegment", "tainanBridgeInspections", "taipeiEvacuate", "taipeiPumb",
-  "taipeiSewer", "theftTaoyuan", "trafficAccidentYearly", "transitAccessGrid", "tsunamiSirens", "twMarineHeat", "visitorCentres",
-  "waterDetentionBasin", "welfareChildServices", "welfareChildcare", "welfareDisability", "welfareElderlyHomes", "welfareGovOffices",
-  "welfareLtcInstitutions", "welfareMentalHealth", "welfareNursingHomes", "welfareSocialWorkOrgs", "womenChildWarning",
+  "regionalStatistic", "regulatedFacilities", "regulatedFacilityDensityGrid", "ripeAtlasProbe", "slopeVector", "socioeconomic",
+  "spatialEconomy", "speedCamera", "speedZoneSegment", "tainanBridgeInspections", "taipeiEvacuate", "taipeiPumb", "taipeiSewer",
+  "theftTaoyuan", "trafficAccidentYearly", "transitAccessGrid", "tsunamiSirens", "twMarineHeat", "visitorCentres", "waterDetentionBasin",
+  "welfareChildServices", "welfareChildcare", "welfareDisability", "welfareElderlyHomes", "welfareGovOffices", "welfareLtcInstitutions",
+  "welfareMentalHealth", "welfareNursingHomes", "welfareSocialWorkOrgs", "womenChildWarning",
 ]);
 
 /** popup 原本就沒有授權的來源（研究推估、即時快照、站內模擬等）：圖層側顯示「授權未明示」。 */

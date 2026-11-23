@@ -243,7 +243,6 @@ function OoklaGridPanel({ props, service }: { props: Record<string, unknown>; se
       })}${thin ? ` ${tr("popup.infra.ooklaLowSample")}` : ""}`}
     />
     <Row label={tr("popup.infra.ooklaGridLevel")} value={ooklaGridScale(props, tr)} />
-    <Row label={tr("popup.infra.ooklaPeriod")} value={OOKLA_GRID_META.period} />
     <Row field="limits" value={OOKLA_GRID_META.coverageCaveat} />
     <Row label={tr("popup.infra.ooklaSampleBias")} value={OOKLA_GRID_META.sampleBias} />
     <Row field="sourceLicense" value={OOKLA_GRID_META.attribution} />
