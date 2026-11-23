@@ -69,7 +69,15 @@ export function PhPopulationPanel({ props }: P) {
 /** 上游的空值字樣（GFI 的 'nan'、'None'、NAMRIA 的 '..'）一律當空值，不顯示。 */
 const EMPTY_TOKENS = new Set(["nan", "NaN", "None", "null", "..", "…"]);
 
+/** 資料端把含個人稱謂／聯絡方式的欄位清空並標 `<欄>_redacted`（owner_th 標 owner_redacted）：顯示遮蔽字樣，不留空白。 */
+const REDACTED_TEXT = { zh: "（個人名義，已遮蔽）", en: "(personal name, redacted)", ja: "（個人名義、秘匿）" } as const;
+function isRedactedField(f: PhField, props: Record<string, unknown>): boolean {
+  const flag = f.prop === "owner_th" ? props.owner_redacted : props[`${f.prop}_redacted`];
+  return (flag === true || flag === "true") && !caText(props[f.prop]);
+}
+
 function formatField(f: PhField, props: Record<string, unknown>, locale: string): string {
+  if (isRedactedField(f, props)) return locale === "en" ? REDACTED_TEXT.en : locale === "ja" ? REDACTED_TEXT.ja : REDACTED_TEXT.zh;
   const raw = EMPTY_TOKENS.has(caText(props[f.prop])) ? "" : props[f.prop];
   if (f.unlessSameAs && caText(raw) === caText(props[f.unlessSameAs])) return "";
   if (f.kind === "year") {

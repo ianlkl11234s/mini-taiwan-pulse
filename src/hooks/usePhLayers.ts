@@ -260,7 +260,7 @@ export function usePhDataLayer(mapRef: MapRef, spec: PhLayerSpec<string>, visibl
       const pointsFrom = spec.heat && part.geom === "point" ? densePointsFromZoom(spec.count, part.minzoom) : part.minzoom;
       if (spec.heat && part.geom === "point") {
         builds.push(gbHeatmapBuild({
-          id: phHeatmapId(spec), key: spec.key, sourceId: source.id, sourceLayer: part.sourceLayer, maxzoom: heatmapMaxzoom(pointsFrom), filter,
+          id: spec.parts.filter((x) => x.geom === "point").length > 1 ? `${part.id.replace(/-circle$/, "")}-heatmap` : phHeatmapId(spec), key: spec.key, sourceId: source.id, sourceLayer: part.sourceLayer, maxzoom: heatmapMaxzoom(pointsFrom), filter,
           isDark, opacityScale: clamp01(opacity) / def, intensity: spec.heat.intensity,
         }));
       }
