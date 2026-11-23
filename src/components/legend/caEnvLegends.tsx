@@ -25,10 +25,11 @@ const SUB = (text: string): ReactNode => <LegendTitle zh={text} style={{ marginT
 function Cats({ cats, pick }: { cats: readonly CaCat[]; pick: (t: L3) => string }) {
   return <>{cats.map((c) => <LegendRow key={c.id} swatch={<SwatchDot color={c.color} />}>{pick(c.label)}</LegendRow>)}</>;
 }
-function Notes({ notes, source, pick }: { notes: readonly L3[]; source: CaSource; pick: (t: L3) => string }) {
+/** 說明列；來源與授權在圖層「說明・來源」（layerSourceInfo），只有圖層側還沒有的（`keepSource`）才在圖例列來源。 */
+function Notes({ notes, source, pick, keepSource = false }: { notes: readonly L3[]; source: CaSource; pick: (t: L3) => string; keepSource?: boolean }) {
   return <>
     {notes.map((n, i) => <LegendNote key={i}>{pick(n)}</LegendNote>)}
-    <LegendNote>{source.shortL3 ? pick(source.shortL3) : source.short}</LegendNote>
+    {keepSource ? <LegendNote>{source.shortL3 ? pick(source.shortL3) : source.short}</LegendNote> : null}
   </>;
 }
 

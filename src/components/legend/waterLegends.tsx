@@ -518,7 +518,7 @@ export function RiverRpiStationsLegend() {
       <NoiseLegendTitle>{i18n.t("legend.water.rpiTitle")}</NoiseLegendTitle>
       <NoiseLegendRows rows={RIVER_RPI_CLASSES.map((row) => ({ color: row.color, label: enumLabel("envRpiClass", row.value, row.label, i18n) }))} dot />
       <LegendRow swatch={<SwatchDot color="transparent" stroke={RIVER_RPI_NO_DATA_COLOR} strokeWidth={2} />}>{i18n.t("legend.water.rpiNoData")}</LegendRow>
-      <NoiseLegendNote source={i18n.t("legend.water.rpiSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.water.rpiNote")}
       </NoiseLegendNote>
     </div>
@@ -532,7 +532,7 @@ export function WaterQualityStationsLegend() {
       <NoiseLegendTitle>{layerTitle("waterQualityStations", i18n)}</NoiseLegendTitle>
       <NoiseLegendRows rows={WATER_QUALITY_STATION_TYPES.map((row) => ({ color: row.color, label: enumLabel("envWaterStationType", row.value, row.label, i18n) }))} dot />
       <LegendRow swatch={<SwatchDot color="transparent" stroke={WATER_QUALITY_STATION_TYPES[0].color} strokeWidth={2} />}>{i18n.t("legend.water.wqHollow")}</LegendRow>
-      <NoiseLegendNote source={i18n.t("legend.water.wqSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.water.wqNote")}
       </NoiseLegendNote>
     </div>
@@ -546,7 +546,7 @@ export function SewageTreatmentPlantsLegend() {
       <NoiseLegendTitle>{layerTitle("sewageTreatmentPlants", i18n)}</NoiseLegendTitle>
       <LegendRow swatch={<SwatchDot color={ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants} />}>{i18n.t("legend.water.sewageExact")}</LegendRow>
       <LegendRow swatch={<SwatchDot color={ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants} opacity={0.35} stroke={ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants} strokeWidth={2} />}>{i18n.t("legend.water.sewageUncertain")}</LegendRow>
-      <NoiseLegendNote source={i18n.t("legend.water.sewageSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.water.sewageNote")}
       </NoiseLegendNote>
     </div>
@@ -561,7 +561,7 @@ export function DrinkingWaterProtectionZonesLegend() {
       <NoiseLegendTitle>{i18n.t("legend.water.dzTitle")}</NoiseLegendTitle>
       <LegendRow swatch={<SwatchSquare color={DRINKING_WATER_ZONE_TYPES[0].color} />}>{zoneLabel(0)}</LegendRow>
       <LegendRow swatch={<SwatchLine color={DRINKING_WATER_ZONE_TYPES[1].color} dash={[2, 2]} />}>{i18n.t("legend.water.dzDashed", { label: zoneLabel(1) })}</LegendRow>
-      <NoiseLegendNote source={i18n.t("legend.water.dzSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.water.dzNote")}
       </NoiseLegendNote>
     </div>

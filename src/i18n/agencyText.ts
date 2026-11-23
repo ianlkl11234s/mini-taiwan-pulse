@@ -67,6 +67,9 @@ export function statisticsPublisher(zh: string, i18n: I18nContext): string {
 /** 資料來源總覽的機關（Supabase data_catalog.provider_agency） */
 export const catalogAgency = agencyName;
 
+/** 授權未標示／未確認時的中性字樣（站主政策：授權空白照常上線，註明「授權未明示」） */
+const LICENSE_UNSTATED_ZH = "授權未明示";
+
 type LicenseCategory = "ogdl" | "ccBy" | "ccBySa" | "odbl" | "unspecified" | "unverified";
 
 const OGDL_CORE = "(?:政府資料開放授權條款|政府資料開放授權|OGDL-Taiwan-1\\.0)";
@@ -104,7 +107,7 @@ function classifyLicense(zh: string): { category: LicenseCategory; version?: str
 export function catalogLicense(zh: string, { active, lookup }: I18nContext): string {
   const hit = classifyLicense(zh);
   // 未標示／未確認一律用中性字樣「授權未明示」（站主政策：授權空白照常上線、註明未明示）
-  if (hit && (hit.category === "unspecified" || hit.category === "unverified")) return lookup("dataSources.licenseUnstated") ?? zh;
+  if (hit && (hit.category === "unspecified" || hit.category === "unverified")) return active === "zh-TW" ? LICENSE_UNSTATED_ZH : lookup("enum.license.unspecified") ?? zh;
   if (active === "zh-TW") return zh;
   if (!hit) return zh;
   const label = lookup(`enum.license.${hit.category}`);
@@ -126,8 +129,7 @@ export function statisticsLicense(zh: string, i18n: I18nContext): string {
 }
 
 /** 圖層來源表／popup 搬來的授權原文：只把「未標示／未確認」換成「授權未明示」，其餘原樣（多已是該語系的原文）。 */
-export function licenseDisplay(raw: string, { lookup }: I18nContext): string {
+export function licenseDisplay(raw: string, i18n: I18nContext): string {
   const hit = classifyLicense(raw);
-  if (hit && (hit.category === "unspecified" || hit.category === "unverified")) return lookup("dataSources.licenseUnstated") ?? raw;
-  return raw;
+  return hit && (hit.category === "unspecified" || hit.category === "unverified") ? catalogLicense(raw, i18n) : raw;
 }

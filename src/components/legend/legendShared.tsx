@@ -117,12 +117,7 @@ export function NoiseLegendRows({ rows, outline = false, dot = false }: {
   );
 }
 
-export function NoiseLegendNote({ children, source }: { children: React.ReactNode; source?: string }) {
-  const i18n = useLocale();
-  return (
-    <>
-      <LegendNote style={{ marginTop: 5, lineHeight: 1.45 }}>{children}</LegendNote>
-      {source && <LegendNote style={{ lineHeight: 1.35 }}>{i18n.t("legend.common.sourceLicense", { source })}</LegendNote>}
-    </>
-  );
+/** 圖例說明（涵蓋範圍／讀圖限制）。來源與授權在圖層「說明・來源」，不放圖例（spec §5.3）。 */
+export function NoiseLegendNote({ children }: { children: React.ReactNode }) {
+  return <LegendNote style={{ marginTop: 5, lineHeight: 1.45 }}>{children}</LegendNote>;
 }

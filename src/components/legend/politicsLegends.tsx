@@ -138,7 +138,6 @@ export function ElectionEventsLegend() {
       {loadedAt && !Number.isNaN(loadedAt.getTime()) && (
         <LegendNote>{t("legend.politics.updated", { time: formatDateTime(loadedAt, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) })}</LegendNote>
       )}
-      <LegendNote>{t("legend.politics.source")}</LegendNote>
     </div>
   );
 }
@@ -200,7 +199,6 @@ export function PollingStationsLegend() {
           : t("legend.politics.polling.unmapped")}
       </LegendNote>
       <LegendNote>{t("legend.politics.polling.year")}</LegendNote>
-      <LegendNote>{t("legend.politics.polling.source")}</LegendNote>
     </div>
   );
 }

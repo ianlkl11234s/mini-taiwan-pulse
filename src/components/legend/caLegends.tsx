@@ -30,10 +30,11 @@ const SUB = (text: string): ReactNode => <LegendTitle zh={text} style={{ marginT
 function Cats({ cats, pick, line }: { cats: readonly CaCat[]; pick: (t: L3) => string; line?: number }) {
   return <>{cats.map((c) => <LegendRow key={c.id} swatch={line ? <SwatchLine color={c.color} width={line} /> : <SwatchDot color={c.color} />}>{pick(c.label)}</LegendRow>)}</>;
 }
-function Notes({ notes, source, pick }: { notes: readonly L3[]; source: CaSource; pick: (t: L3) => string }) {
+/** 說明列；來源與授權在圖層「說明・來源」（layerSourceInfo），只有圖層側還沒有的（`keepSource`）才在圖例列來源。 */
+function Notes({ notes, source, pick, keepSource = false }: { notes: readonly L3[]; source: CaSource; pick: (t: L3) => string; keepSource?: boolean }) {
   return <>
     {notes.map((n, i) => <LegendNote key={i}>{pick(n)}</LegendNote>)}
-    <LegendNote>{source.shortL3 ? pick(source.shortL3) : source.short}</LegendNote>
+    {keepSource ? <LegendNote>{source.shortL3 ? pick(source.shortL3) : source.short}</LegendNote> : null}
   </>;
 }
 
@@ -223,6 +224,6 @@ export function CaHillshadeLegend() {
   return <div>
     <LegendTitle zh={pick({ zh: `${title}（MRDEM-30，240 m）`, en: `${title} (MRDEM-30, 240 m)`, ja: `${title}（MRDEM-30、240 m）` })} />
     <SwatchGradient gradient="linear-gradient(90deg, #000000, #ffffff)" labels={[pick({ zh: "背光坡", en: "Shaded", ja: "陰" }), pick({ zh: "向光坡", en: "Lit", ja: "陽" })]} />
-    <Notes notes={CA_HILLSHADE_NOTES} source={CA_HILLSHADE_SOURCE} pick={pick} />
+    <Notes notes={CA_HILLSHADE_NOTES} source={CA_HILLSHADE_SOURCE} pick={pick} keepSource />
   </div>;
 }

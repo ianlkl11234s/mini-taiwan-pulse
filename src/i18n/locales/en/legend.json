@@ -9,7 +9,6 @@
   "legend.common.noData": "No data",
   "legend.common.densityZoomOut": "Density shown when zoomed out",
   "legend.common.flatArrow": "Zoom in (z ≥ {zoom}) to show direction of travel with arrows",
-  "legend.common.sourceLicense": "Source / license: {source}",
   "legend.rail.routesNote": "Metro lines use their official colors. Route geometry only; for train positions see the \"Trains\" layer. Xinyi Line eastern extension geometry © OpenStreetMap contributors (ODbL)",
   "legend.rail.metroTitle": "Metro stations",
   "legend.rail.transfer": "Transfer station",
