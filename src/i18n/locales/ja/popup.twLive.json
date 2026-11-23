@@ -3,7 +3,6 @@
   "popup.twLive.dengue.cases": "患者数",
   "popup.twLive.dengue.casesValue": "{count} 例",
   "popup.twLive.dengue.released": "データ日付",
-  "popup.twLive.dengue.code": "発表区コード",
   "popup.twLive.dengue.note": "直近2週間の国内感染集積範囲であり、患者の住所ではない。",
   "popup.twLive.dengue.source": "衛生福利部疾病管制署",
   "popup.twLive.nav.lifetime": "期限",

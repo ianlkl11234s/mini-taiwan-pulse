@@ -367,7 +367,6 @@ export function PollingStationPanel({ props }: { props: Record<string, unknown> 
       <Row field="address" value={str(props.address)} />
       <Row field="countyDistrict" value={place} />
       <Row field="village" value={str(props.village)} />
-      <Row label={t("popup.politics.polling.stationNo")} value={str(props.station_no)} mono />
       <Row label={t("popup.politics.polling.precision")} value={precision ? t(POLLING_PRECISION_KEY[precision]) : ""} />
       <Row label={t("popup.politics.polling.electors")} value={electors === null ? "" : formatNumber(electors)} mono />
       <Row

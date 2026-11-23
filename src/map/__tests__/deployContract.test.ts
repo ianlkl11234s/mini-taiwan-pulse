@@ -286,6 +286,9 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "PRIVATE_OWNER_ONLY: kr_seoul_zoning.pmtiles",
   // 越南 WDPCA 保護區 raster（條款禁再散布；站主 2026-11-17 W6-1 選 A＋B）：只走 owner-data 私人 Range sidecar
   "PRIVATE_OWNER_ONLY: vn_wdpca_raster.pmtiles",
+  // 英國列車重播測試圖層（站主 2026-11-23 決定站主限定，只有 2026-11-21 一天）：只走 owner-data 私人 Range sidecar（gzip JSON）
+  "PRIVATE_OWNER_ONLY: gb_rail_replay_geometry_20261121.json.gz",
+  "PRIVATE_OWNER_ONLY: gb_rail_replay_trips_20261121.json.gz",
   // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，只走 owner-authenticated Range sidecar
   // （私人 S3 private-research/bus-crowding/，scripts/deploy/upload-bus-crowding-private.mjs 手動上傳）。
   ...Object.values(BUS_CROWDING_SIM_ASSETS).map((a) => `PRIVATE_OWNER_ONLY: ${a.filename}`),

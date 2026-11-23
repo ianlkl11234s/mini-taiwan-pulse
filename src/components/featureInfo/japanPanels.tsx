@@ -93,7 +93,6 @@ export function JpTourismPanel({ props }: { props: Record<string, unknown> }) {
       <Row field="status" value={status || t("popup.common.notProvided")} />
       <Row label="geometry precision" value={precision || t("popup.japan.sourceUnlabeled")} />
       <Row label="coverage" value={str(props.coverage_scope)} />
-      <Row label="filter_layer_id" value={str(props.filter_layer_id)} />
       <Row label={t("popup.japan.displayCategory")} value={str(props.facility_category)} />
       <Row field="type" value={str(props.facility_type) || str(props.registered_type) || str(props.park_class_name) || str(props.legal_class_label) || str(props.protection_class) || str(props.category)} />
       <Row label={t("popup.japan.addressLocation")} value={str(props.address) || str(props.location_ja) || str(props.prefecture)} />
@@ -113,7 +112,6 @@ export function JpAccommodationDensityPanel({ props }: { props: Record<string, u
       <Row field="gridScale" value={Number.isFinite(gridSize) ? `${formatNumber(gridSize)} m` : ""} />
       <Row label={t("popup.japan.lodgingInCell")} value={Number.isFinite(count) ? t("popup.japan.lodgingCount", { count: formatNumber(count) }) : ""} />
       <Row label={t("popup.japan.perKm2")} value={Number.isFinite(density) ? formatNumber(density, { maximumFractionDigits: 1 }) : ""} />
-      <Row field="gridId" value={str(props.grid_id)} />
       <Row label={t("popup.japan.countContract")} value={t("popup.japan.countContractValue")} />
     </>
   );
@@ -159,7 +157,6 @@ export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
     <Row field="coverageScope" value={str(props.coverage)} />
     <Row label={t("popup.japan.sourceOperator")} value={str(props.operator) ? t("popup.japan.sourceOperatorValue", { value: str(props.operator) }) : ""} />
     <Row field="capacity" value={str(props.capacity)} />
-    <Row label={t("popup.japan.sourceIdentity")} value={str(props.source_id) ? t("popup.japan.sourceIdentityValue", { value: str(props.source_id) }) : ""} />
     <Row label={t("popup.japan.selectionIdentity")} value={str(props.selection_identity)} />
     <Row field="dataLimits" value={caveat} />
     {isQualityRegistry && <Row field="dataLimits" value={t("popup.japan.qualityRegistryNote")} />}
@@ -199,7 +196,6 @@ export function JpAdminPrefecturePanel({ props }: { props: Record<string, unknow
   return (
     <>
       <Title color={ADMIN_COLOR.prefecture}>{str(props.pref_name) || t("popup.japan.prefecture")}</Title>
-      <Row label={t("popup.japan.prefectureCode")} value={str(props.pref_code)} />
     </>
   );
 }
@@ -214,7 +210,6 @@ export function JpAdminBoundariesPanel({ props }: { props: Record<string, unknow
       <Row label={t("popup.japan.gun")} value={str(props.county_name)} />
       <Row label={t("popup.japan.municipality")} value={str(props.city_name)} />
       <Row label={t("popup.japan.wardLabel")} value={str(props.ward_name)} />
-      <Row label={t("popup.japan.adminCode")} value={str(props.admin_code)} />
     </>
   );
 }

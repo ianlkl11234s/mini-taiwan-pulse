@@ -1,7 +1,6 @@
 {
   "popup.coralReef.title": "珊瑚礁の過去の分布",
   "popup.coralReef.reefName": "礁名",
-  "popup.coralReef.featureId": "Feature ID",
   "popup.coralReef.observedYear": "観測年",
   "popup.coralReef.sourceArea": "元フィーチャー全体の面積",
   "popup.coralReef.geometryStatus": "ジオメトリの状態",
@@ -11,7 +10,6 @@
   "popup.coralReef.sourceDetails": "出典の詳細項目",
   "popup.coralReef.originalCompiler": "原データの編纂者",
   "popup.coralReef.distributor": "実際の配布元",
-  "popup.coralReef.metadataId": "Metadata ID",
   "popup.coralReef.startDate": "開始日",
   "popup.coralReef.endDate": "終了日",
   "popup.coralReef.dateType": "日付の種類",

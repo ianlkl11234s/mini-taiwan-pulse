@@ -121,7 +121,7 @@
   "legend.hazard.erSevere": "嚴重 > {n}",
   "legend.hazard.erNoData": "無資料",
   "legend.hazard.erIcu": "⚪ 白框 = 有加護病房 (ICU) 等待",
-  "legend.hazard.erCalib": "分級依 wait_general_cnt 37 天 history 校準",
+  "legend.hazard.erCalib": "分級依 37 天等待人數歷史校準",
   "legend.hazard.typGale": "7 級風暴風圈（15 m/s，氣象署）",
   "legend.hazard.typStorm": "10 級風暴風圈（25 m/s，氣象署）",
   "legend.hazard.typProb70": "70% 機率圈（預報點，虛線）",

@@ -17,8 +17,6 @@
   "popup.agri.hectares": "{value} ha",
   "popup.agri.organicMatter": "有機物 OM",
   "popup.agri.zeroNote": "※ 0は未測定を表します（ほとんどのグリッドはpH／OMのみ測定）",
-  "popup.agri.countyCode": "県市コード",
-  "popup.agri.townshipCode": "郷鎮コード",
   "popup.agri.suitability": "栽培適性",
   "popup.agri.cropEn": "作物（英語名）",
   "popup.agri.plan": "計画",

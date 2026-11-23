@@ -32,7 +32,8 @@ describe("layerCoverage", () => {
     for (const key of Object.keys(LAYER_COVERAGE)) expect(LAYER_MANIFEST, key).toHaveProperty(key);
     for (const [id, { bbox: [w, s, e, n] }] of Object.entries(COVERAGE_AREAS)) {
       expect(w < e && s < n, id).toBe(true);
-      expect(e - w < 3 && n - s < 3, `${id} 範圍太大，不像局部資料`).toBe(true);
+      // 泰國中部平原（歷史淹水 16 府）寬 3.5°，仍是 77 府中的局部，放寬到 4°（2026-11-23）
+      expect(e - w < 4 && n - s < 4, `${id} 範圍太大，不像局部資料`).toBe(true);
     }
   });
 });

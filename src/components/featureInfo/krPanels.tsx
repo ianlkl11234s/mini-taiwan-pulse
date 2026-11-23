@@ -34,16 +34,12 @@ export function KrAdminBoundariesPanel({ props }: { props: Record<string, unknow
   const level = text(props.level) as keyof typeof LEVEL_KEYS;
   const sido = [text(props.sido_name), text(props.sido_name_en)].filter(Boolean).join(" · ");
   const name = level === "emd" ? text(props.emd_name) : level === "sgg" ? text(props.sgg_name) : text(props.sido_name);
-  const code = level === "emd" ? text(props.emd_code) : level === "sgg" ? text(props.sgg_code) : text(props.sido_code);
-  const kostat = level === "emd" ? text(props.emd_code_kostat) : level === "sgg" ? text(props.sgg_code_kostat) : text(props.sido_code_kostat);
   return <>
     <Title color={KR_ADMIN_COLOR}>{name || t("popup.baseMap.krAdmin")}</Title>
     {level in LEVEL_KEYS ? <Row label={t("popup.baseMap.krLevel")} value={t(LEVEL_KEYS[level])} /> : null}
     {level === "sido" && text(props.sido_name_en) ? <Row label={t("popup.baseMap.krNameEnglish")} value={text(props.sido_name_en)} /> : null}
     {level !== "sido" ? <Row label={t("popup.baseMap.krSido")} value={sido} /> : null}
     {level === "emd" ? <Row label={t("popup.baseMap.krSgg")} value={[text(props.sgg_name), text(props.sgg_code)].filter(Boolean).join(" · ")} /> : null}
-    <Row label={t("popup.baseMap.krMoisCode")} value={code} />
-    {kostat ? <Row label={t("popup.baseMap.krKostatCode")} value={kostat} /> : null}
     <Row label={t("popup.baseMap.gbDataVersion")} value={KR_ADMIN_VERSION} />
     <SourceFooter props={{ source_org: KR_ADMIN_ATTRIBUTION, source_url: KR_ADMIN_SOURCE_URL, license: KR_ADMIN_LICENSE, fetched_at: KR_ADMIN_FETCHED_AT }} />
   </>;
@@ -78,8 +74,6 @@ export function KrBusStopsPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
   return <>
     <Title color={KR_BUS_STOPS_COLOR}>{krText(props.name) || t("popup.transport.krBusTitle")}</Title>
-    <Row label={t("popup.transport.krStopId")} value={krText(props.stop_id)} mono />
-    <Row label={t("popup.transport.krMobileId")} value={krText(props.mobile_id)} mono />
     <Row label={t("popup.transport.krBisCity")} value={[krText(props.city_name), krText(props.bis)].filter(Boolean).join(" · ")} />
     <Row label={t("popup.transport.krLocation")} value={place(props)} />
     <Row label={t("popup.transport.krCollected")} value={krText(props.collected)} mono />
@@ -129,7 +123,6 @@ export function KrPortsPanel({ props }: { props: Record<string, unknown> }) {
   return <>
     <Title color={KR_PORT}>{krText(props.name) || t("popup.transport.krPortTitle")}</Title>
     <Row label={t("popup.transport.krNameEn")} value={krText(props.name_en)} />
-    <Row label={t("popup.transport.krEncNo")} value={krText(props.enc_no)} mono />
     <Row label={t("popup.transport.krArea")} value={area != null ? t("popup.transport.krKm2", { value: area.toLocaleString(undefined, { maximumFractionDigits: 1 }) }) : ""} />
     <Row label={t("popup.transport.krLocation")} value={place(props)} />
     <Row label={t("popup.baseMap.gbDataVersion")} value={krText(props.updated)} mono />

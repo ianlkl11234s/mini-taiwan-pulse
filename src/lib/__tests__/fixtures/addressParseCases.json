@@ -1,0 +1,244 @@
+{
+ "parse": [
+  {
+   "input": "臺北市中正區重慶南路一段122號",
+   "normalized": "台北市中正區重慶南路1段122號",
+   "county": "台北市",
+   "town": "中正區",
+   "road": "重慶南路1段",
+   "rest": "122號",
+   "complete": true
+  },
+  {
+   "input": "台北市中正區重慶南路1段122號3樓",
+   "normalized": "台北市中正區重慶南路1段122號3樓",
+   "county": "台北市",
+   "town": "中正區",
+   "road": "重慶南路1段",
+   "rest": "122號",
+   "complete": true
+  },
+  {
+   "input": "臺北市中正區重慶南路１段１２２號",
+   "normalized": "台北市中正區重慶南路1段122號",
+   "county": "台北市",
+   "town": "中正區",
+   "road": "重慶南路1段",
+   "rest": "122號",
+   "complete": true
+  },
+  {
+   "input": "100臺北市中正區重慶南路一段122號之1",
+   "normalized": "100台北市中正區重慶南路1段122號之1",
+   "county": "台北市",
+   "town": "中正區",
+   "road": "重慶南路1段",
+   "rest": "122號",
+   "complete": true
+  },
+  {
+   "input": "台北中正區重慶南路一段122號",
+   "normalized": "台北中正區重慶南路1段122號",
+   "county": "台北市",
+   "town": "中正區",
+   "road": "重慶南路1段",
+   "rest": "122號",
+   "complete": true
+  },
+  {
+   "input": "新北市板橋區中山路一段161號",
+   "normalized": "新北市板橋區中山路1段161號",
+   "county": "新北市",
+   "town": "板橋區",
+   "road": "中山路1段",
+   "rest": "161號",
+   "complete": true
+  },
+  {
+   "input": "新北市板橋區縣民大道二段7號",
+   "normalized": "新北市板橋區縣民大道2段7號",
+   "county": "新北市",
+   "town": "板橋區",
+   "road": "縣民大道2段",
+   "rest": "7號",
+   "complete": true
+  },
+  {
+   "input": "臺中市西屯區臺灣大道三段99號",
+   "normalized": "台中市西屯區台灣大道3段99號",
+   "county": "台中市",
+   "town": "西屯區",
+   "road": "台灣大道3段",
+   "rest": "99號",
+   "complete": true
+  },
+  {
+   "input": "高雄市苓雅區四維三路2號",
+   "normalized": "高雄市苓雅區四維三路2號",
+   "county": "高雄市",
+   "town": "苓雅區",
+   "road": "四維三路",
+   "rest": "2號",
+   "complete": true
+  },
+  {
+   "input": "宜蘭縣宜蘭市縣政北路1號",
+   "normalized": "宜蘭縣宜蘭市縣政北路1號",
+   "county": "宜蘭縣",
+   "town": "宜蘭市",
+   "road": "縣政北路",
+   "rest": "1號",
+   "complete": true
+  },
+  {
+   "input": "宜蘭縣羅東鎮中正北路28-1號",
+   "normalized": "宜蘭縣羅東鎮中正北路28之1號",
+   "county": "宜蘭縣",
+   "town": "羅東鎮",
+   "road": "中正北路",
+   "rest": "28之1號",
+   "complete": true
+  },
+  {
+   "input": "新北市三重區三民路二段正隆巷46弄1號",
+   "normalized": "新北市三重區三民路2段正隆巷46弄1號",
+   "county": "新北市",
+   "town": "三重區",
+   "road": "三民路2段",
+   "rest": "正隆巷46弄1號",
+   "complete": true
+  },
+  {
+   "input": "金門縣金城鎮民權路32號",
+   "normalized": "金門縣金城鎮民權路32號",
+   "county": "金門縣",
+   "town": "金城鎮",
+   "road": "民權路",
+   "rest": "32號",
+   "complete": true
+  },
+  {
+   "input": "重慶南路一段",
+   "normalized": "重慶南路1段",
+   "county": null,
+   "town": null,
+   "road": "重慶南路1段",
+   "rest": "",
+   "complete": false
+  },
+  {
+   "input": "重慶南路一段12",
+   "normalized": "重慶南路1段12",
+   "county": null,
+   "town": null,
+   "road": "重慶南路1段",
+   "rest": "12",
+   "complete": false
+  },
+  {
+   "input": "台北市大安區",
+   "normalized": "台北市大安區",
+   "county": "台北市",
+   "town": "大安區",
+   "road": "",
+   "rest": "",
+   "complete": false
+  },
+  {
+   "input": "中正區重慶南路一段122號",
+   "normalized": "中正區重慶南路1段122號",
+   "county": null,
+   "town": null,
+   "road": "中正區重慶南路1段",
+   "rest": "122號",
+   "complete": true
+  },
+  {
+   "input": "嘉義市嘉義市中山路199號",
+   "normalized": "嘉義市嘉義市中山路199號",
+   "county": "嘉義市",
+   "town": null,
+   "road": "中山路",
+   "rest": "199號",
+   "complete": true
+  },
+  {
+   "input": "臺中市大里區大里路100號",
+   "normalized": "台中市大里區大里路100號",
+   "county": "台中市",
+   "town": "大里區",
+   "road": "大里路",
+   "rest": "100號",
+   "complete": true
+  },
+  {
+   "input": "臺北市中山區北安路518巷14弄18、20號",
+   "normalized": "台北市中山區北安路518巷14弄18、20號",
+   "county": "台北市",
+   "town": "中山區",
+   "road": "北安路",
+   "rest": "518巷14弄18號",
+   "complete": true
+  },
+  {
+   "input": "臺北市松山區敦化北路340-9號(松山機場內 )",
+   "normalized": "台北市松山區敦化北路340之9號(松山機場內)",
+   "county": "台北市",
+   "town": "松山區",
+   "road": "敦化北路",
+   "rest": "340之9號",
+   "complete": true
+  },
+  {
+   "input": "臺北市松山區民權東路三段124之1、2號",
+   "normalized": "台北市松山區民權東路3段124之1、2號",
+   "county": "台北市",
+   "town": "松山區",
+   "road": "民權東路3段",
+   "rest": "124之1號",
+   "complete": true
+  }
+ ],
+ "house_number": [
+  {
+   "input": "９７之３號",
+   "key": "97之3號"
+  },
+  {
+   "input": "９７號之１",
+   "key": "97號"
+  },
+  {
+   "input": "１號二樓",
+   "key": "1號"
+  },
+  {
+   "input": "４號地下室",
+   "key": "4號"
+  },
+  {
+   "input": "臨１１２之４號",
+   "key": "112之4號"
+  },
+  {
+   "input": "１３９I-二樓",
+   "key": null
+  },
+  {
+   "input": "２之３之２號",
+   "key": "2之3之2號"
+  },
+  {
+   "input": "15",
+   "key": "15號"
+  },
+  {
+   "input": "005號",
+   "key": "5號"
+  },
+  {
+   "input": "十二號",
+   "key": "12號"
+  }
+ ]
+}

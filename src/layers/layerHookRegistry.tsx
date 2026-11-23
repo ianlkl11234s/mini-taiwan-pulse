@@ -113,6 +113,7 @@ import { KrEcologyNaturalnessHost, KrWasteDisposalRulesHost, KrAdminHost, KrWate
 import { GbBridgesTunnelsHost, GbPlacesOfWorshipHost, GbPublicFacilitiesHost, GbRoadFacilitiesHost } from "./hosts/ukHosts";
 import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost, CaClimateStationsHost, CaAqhiStationsHost, CaRadiationStationsHost, CaNpriFacilitiesHost, CaWastewaterSystemsHost, CaEarthquakesHost, CaEarthquakesLiveHost, CaPopulationGridHost, CaMaritimeZonesHost, CaPermafrostHost, CaDamsHost, CaRecyclingDepotsHost, CaFloodMapInventoryHost, CaAbFloodHazardHost, CaGlaciersHost, CaRiversLakesHost, CaProtectedAreasHost, CaCriticalHabitatHost, CaMarineConservationHost, CaTideStationsHost, CaEcozonesHost, CaForestManagementHost, CaBridgesTunnelsHost, CaFerryRoutesHost, CaTorontoKsiHost, CaLodeHealthHost, CaLodeSchoolsHost, CaLodeSportsHost, CaBcChildcareHost, CaLodeCultureHost, CaCbsaOfficesHost, CaParksCanadaAccommodationHost, CaCourtsCorrectionsHost, CaTorontoTheftFromVehicleHost, CaWildfirePointsHost, CaBroadbandHexHost, CaMinesHost, CaGrainElevatorsHost, CaDroughtMonitorHost, CaSoilLandscapesHost, CaNsAquacultureHost, CaAbattoirsHost, CaOdbusHost, CaTorontoDevApplicationsHost } from "./hosts/canadaHosts";
 import { IeAdminHost, IeMaritimeBoundariesHost, IePlaceNamesHost, IeGaeltachtHost, IeActivityLocationsHost, IeParksHost, IeGraveyardsHost, IeBathymetryHost, IeCommercialValuationsHost, IeStateAssetsHost, IeHydrometricStationsHost, IeWaterMonitoringHost, IeRiverWaterBodiesHost, IeLakeWaterBodiesHost, IeArterialDrainageHost, IeRiverFloodExtentsHost, IeCoastalErosionHost, IeBathingWatersHost, IeMarineSurveyStationsHost, IeSeabedSurveyCoverageHost, IeProtectedMarineSitesHost, IeOffshoreRenewablesHost, IeTransitStopsHost, IeDublinbikesStationsHost, IeRoadRailNetworkHost, IeRoadMarkersHost, IeTrafficCountersHost, IeAirportsPortsHost, IeNationalParksHost, IeWildAtlanticWayHost, IeProtectedSitesHost, IeNationalTrailsHost, IeStreetTreesHost, IeRadiationStationsHost, IeLandslideEventsHost, IeLandslideExtentsHost, IeRadonRiskHost, IePowerPlantsHost, IePowerLinesHost, IeSubstationsHost, IeWindFarmsHost, IeEvChargingHost, IeFuelStationsHost, IeSchoolsHost, IeSchoolPlanningAreasHost, IeChildcareServicesHost, IeHeritageSitesHost, IeMuseumsHost, IeArtsVenuesHost, IePublicFacilitiesHost, IeReligiousSitesHost, IeHealthFacilitiesHost, IeCareHomesHost, IeFireStationsHost, IeGardaStationsHost, IeCourtsHost, IeIndustrialFacilitiesHost, IeSoilsHost, IePeatSoilsHost, IeAquacultureHost, IeZoningHost, IePlanningApplicationsHost, IeNoiseMapsHost, IeRecyclingPointsHost, IeWasteFacilitiesHost, IePrtrFacilitiesHost, IeCoillteRecreationHost, IeCoillteForestRoadsHost, IeDefibrillatorsHost, IePrisonsHost, IeProposedNhaHost, IeFloodZonesHost, IeGroundwaterFloodingHost, IePeatExtractionBogsHost } from "./hosts/irelandHosts";
+import { ThAdminHost, ThPopulationHost, ThTransportHubsHost, ThStationsHost, ThMajorRoadsHost, ThPowerPlantsHost, ThPowerGridHost, ThRenewablesHost, ThFuelStationsHost, ThPipelinesHost, ThPlaceNamesHost, ThElectionConstituenciesHost, ThHighlandVillagesHost, ThProvinceSocioeconomicHost, ThFootbridgesHost, ThRailCrossingsHost, ThRoadAccidentsHost, ThEecHost, ThFloodHistoryHost, ThBasinsHost, ThIrrigationProjectsHost, ThLandslideSafePointsHost, ThLandfillsHost, ThTerrainHillshadeHost, ThTerrainReliefHost, ThSchoolsHost, ThKindergartensHost, ThElderlyHousingHost, ThHealthFacilitiesHost, ThPoliceStationsHost, ThJailsCourtsHost, ThNatureSpotsHost, ThNationalReservedForestsHost, ThNationalParksHost, ThRamsarSitesHost, ThForestParksHost, ThMuseumsLibrariesHost, ThArtsEventsHost, ThHistoricSitesHost, ThExperiencesHost, ThAccommodationHost, ThBanksHost, ThPlacesOfWorshipHost, ThPostOfficesHost, ThAirQualityStationsHost, ThWeatherStationsHost, ThMarineHabitatsHost, ThMarineProtectedAreasHost, ThSeaLevelStationsHost, ThCoastalChangeHost, ThSportsVenuesHost, ThParksHost, ThFactoriesHost, ThFarmMarketsHost, ThCropsHost, ThVeterinaryHost, ThSoilPhHost, ThSoilOrganicCarbonHost } from "./hosts/thailandHosts";
 import { VnAdminHost, VnPopulationHost, VnStationsHost, VnTransportHubsHost, VnMajorRoadsHost, VnPowerPlantsHost, VnRenewablesHost, VnPowerGridHost, VnFuelStationsHost, VnOilGasHost, VnEnvisoftStationsHost, VnAngiangDemoHost,
   VnTourAttractionsHost, VnTourNatureHost, VnTourServicesHost, VnNationalTouristAreasHost, VnPlaceNamesHost, VnBicycleRentalHost, VnBridgesHost, VnParkingHost, VnGlideEventsHost, VnDamsHost, VnRiversHost, VnWaterSupplyHost, VnWaterStructuresHost, VnRiverbankErosionHost, VnSchoolsHost, VnSchoolCampusesHost, VnKindergartensHost, VnHealthFacilitiesHost, VnPoliceHost, VnCourtsPrisonsHost, VnPostalServicesHost, VnPublicAmenitiesHost, VnFinancialServicesHost, VnPlacesOfWorshipHost, VnParksHost, VnProtectedAreasOdmHost, VnAngiangAquacultureHost, VnFieldBoundariesHost, VnSoilHost, VnFarmTracksHost, VnCoalMinesHost, VnTerrainHillshadeHost, VnTerrainReliefHost, VnLandslideSusceptibilityHost, VnWdpcaHost } from "./hosts/vietnamHosts";
 import { PhAdminHost, PhPopulationHost, PhOpenaqAirHost, PhTransportHubsHost, PhStationsHost, PhMajorRoadsHost, PhPowerPlantsHost, PhPowerGridHost, PhRenewablesHost, PhFuelStationsHost, PhPipelinesHost, PhBusStopsHost, PhUrbanRailHost, PhExpresswaysHost,
@@ -120,7 +121,7 @@ import { PhAdminHost, PhPopulationHost, PhOpenaqAirHost, PhTransportHubsHost, Ph
 import { CnAdminHost, CnPopulationHost, CnPopulationGridHost, CnBusStopsHost, CnTransportHubsHost, CnMajorRoadsHost, CnPowerPlantsHost, CnPowerGridHost, CnPipelinesHost,
   CnEezHost, CnPlaceNamesHost, CnEthnicAutonomyHost, CnDamsHost, CnRiversHost, CnActiveFaultsHost, CnNatureReservesHost, CnWdpaHost, CnBridgesTunnelsHost, CnSchoolsHost, CnMedicalHost, CnNuclearPlantsHost, CnTerrainHost, CnAquacultureHost, CnSoilHost,
 } from "./hosts/chinaHosts";
-import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
+import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbRailReplayHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -486,6 +487,68 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "usePhRenewablesLayer", keys: ["phRenewables"], Host: PhRenewablesHost },
   { id: "usePhFuelStationsLayer", keys: ["phFuelStations"], Host: PhFuelStationsHost },
   { id: "usePhPipelinesLayer", keys: ["phPipelines"], Host: PhPipelinesHost },
+  // 泰國（2026-11-22 第 0–1 波：行政邊界、人口、交通 3 層、能源 5 層）
+  { id: "useThAdminLayers", keys: ["thAdminBoundaries"], Host: ThAdminHost },
+  { id: "useThPopulationLayers", keys: ["thPopulation"], Host: ThPopulationHost },
+  { id: "useThTransportHubsLayer", keys: ["thTransportHubs"], Host: ThTransportHubsHost },
+  { id: "useThStationsLayer", keys: ["thStations"], Host: ThStationsHost },
+  { id: "useThMajorRoadsLayer", keys: ["thMajorRoads"], Host: ThMajorRoadsHost },
+  { id: "useThPowerPlantsLayer", keys: ["thPowerPlants"], Host: ThPowerPlantsHost },
+  { id: "useThPowerGridLayer", keys: ["thPowerGrid"], Host: ThPowerGridHost },
+  { id: "useThRenewablesLayer", keys: ["thRenewables"], Host: ThRenewablesHost },
+  { id: "useThFuelStationsLayer", keys: ["thFuelStations"], Host: ThFuelStationsHost },
+  { id: "useThPipelinesLayer", keys: ["thPipelines"], Host: ThPipelinesHost },
+  // 泰國第 2–4 波（2026-11-22）
+  { id: "useThPlaceNamesLayer", keys: ["thPlaceNames"], Host: ThPlaceNamesHost },
+  { id: "useThElectionConstituenciesLayer", keys: ["thElectionConstituencies"], Host: ThElectionConstituenciesHost },
+  { id: "useThHighlandVillagesLayer", keys: ["thHighlandVillages"], Host: ThHighlandVillagesHost },
+  { id: "useThProvinceSocioeconomicLayer", keys: ["thProvinceSocioeconomic"], Host: ThProvinceSocioeconomicHost },
+  { id: "useThFootbridgesLayer", keys: ["thFootbridges"], Host: ThFootbridgesHost },
+  { id: "useThRailCrossingsLayer", keys: ["thRailCrossings"], Host: ThRailCrossingsHost },
+  { id: "useThRoadAccidentsLayer", keys: ["thRoadAccidents"], Host: ThRoadAccidentsHost },
+  { id: "useThEecLayer", keys: ["thEec"], Host: ThEecHost },
+  { id: "useThFloodHistoryLayer", keys: ["thFloodHistory"], Host: ThFloodHistoryHost },
+  { id: "useThBasinsLayer", keys: ["thBasins"], Host: ThBasinsHost },
+  { id: "useThIrrigationProjectsLayer", keys: ["thIrrigationProjects"], Host: ThIrrigationProjectsHost },
+  { id: "useThLandslideSafePointsLayer", keys: ["thLandslideSafePoints"], Host: ThLandslideSafePointsHost },
+  { id: "useThLandfillsLayer", keys: ["thLandfills"], Host: ThLandfillsHost },
+  { id: "useThTerrainHillshadeLayer", keys: ["thTerrainHillshade"], Host: ThTerrainHillshadeHost },
+  { id: "useThTerrainReliefLayer", keys: ["thTerrainRelief"], Host: ThTerrainReliefHost },
+  // 泰國第 5–7 波（2026-11-22）
+  { id: "useThSchoolsLayer", keys: ["thSchools"], Host: ThSchoolsHost },
+  { id: "useThKindergartensLayer", keys: ["thKindergartens"], Host: ThKindergartensHost },
+  { id: "useThElderlyHousingLayer", keys: ["thElderlyHousing"], Host: ThElderlyHousingHost },
+  { id: "useThHealthFacilitiesLayer", keys: ["thHealthFacilities"], Host: ThHealthFacilitiesHost },
+  { id: "useThPoliceStationsLayer", keys: ["thPoliceStations"], Host: ThPoliceStationsHost },
+  { id: "useThJailsCourtsLayer", keys: ["thJailsCourts"], Host: ThJailsCourtsHost },
+  { id: "useThNatureSpotsLayer", keys: ["thNatureSpots"], Host: ThNatureSpotsHost },
+  { id: "useThNationalReservedForestsLayer", keys: ["thNationalReservedForests"], Host: ThNationalReservedForestsHost },
+  { id: "useThNationalParksLayer", keys: ["thNationalParks"], Host: ThNationalParksHost },
+  { id: "useThRamsarSitesLayer", keys: ["thRamsarSites"], Host: ThRamsarSitesHost },
+  { id: "useThForestParksLayer", keys: ["thForestParks"], Host: ThForestParksHost },
+  { id: "useThMuseumsLibrariesLayer", keys: ["thMuseumsLibraries"], Host: ThMuseumsLibrariesHost },
+  { id: "useThArtsEventsLayer", keys: ["thArtsEvents"], Host: ThArtsEventsHost },
+  { id: "useThHistoricSitesLayer", keys: ["thHistoricSites"], Host: ThHistoricSitesHost },
+  { id: "useThExperiencesLayer", keys: ["thExperiences"], Host: ThExperiencesHost },
+  { id: "useThAccommodationLayer", keys: ["thAccommodation"], Host: ThAccommodationHost },
+  { id: "useThBanksLayer", keys: ["thBanks"], Host: ThBanksHost },
+  { id: "useThPlacesOfWorshipLayer", keys: ["thPlacesOfWorship"], Host: ThPlacesOfWorshipHost },
+  { id: "useThPostOfficesLayer", keys: ["thPostOffices"], Host: ThPostOfficesHost },
+  // 泰國第 8–9 波（2026-11-23）
+  { id: "useThAirQualityStationsLayer", keys: ["thAirQualityStations"], Host: ThAirQualityStationsHost },
+  { id: "useThWeatherStationsLayer", keys: ["thWeatherStations"], Host: ThWeatherStationsHost },
+  { id: "useThMarineHabitatsLayer", keys: ["thMarineHabitats"], Host: ThMarineHabitatsHost },
+  { id: "useThMarineProtectedAreasLayer", keys: ["thMarineProtectedAreas"], Host: ThMarineProtectedAreasHost },
+  { id: "useThSeaLevelStationsLayer", keys: ["thSeaLevelStations"], Host: ThSeaLevelStationsHost },
+  { id: "useThCoastalChangeLayer", keys: ["thCoastalChange"], Host: ThCoastalChangeHost },
+  { id: "useThSportsVenuesLayer", keys: ["thSportsVenues"], Host: ThSportsVenuesHost },
+  { id: "useThParksLayer", keys: ["thParks"], Host: ThParksHost },
+  { id: "useThFactoriesLayer", keys: ["thFactories"], Host: ThFactoriesHost },
+  { id: "useThFarmMarketsLayer", keys: ["thFarmMarkets"], Host: ThFarmMarketsHost },
+  { id: "useThCropsLayer", keys: ["thCrops"], Host: ThCropsHost },
+  { id: "useThVeterinaryLayer", keys: ["thVeterinary"], Host: ThVeterinaryHost },
+  { id: "useThSoilPhLayer", keys: ["thSoilPh"], Host: ThSoilPhHost },
+  { id: "useThSoilOrganicCarbonLayer", keys: ["thSoilOrganicCarbon"], Host: ThSoilOrganicCarbonHost },
   // 越南（2026-11-13 第 0–1 波：行政邊界、人口、交通 3 層、能源 5 層、環境監測站、安江示範）
   { id: "useVnAdminLayers", keys: ["vnAdminBoundaries"], Host: VnAdminHost },
   { id: "useVnPopulationLayers", keys: ["vnPopulation"], Host: VnPopulationHost },
@@ -690,6 +753,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbTransportHubsLayer", keys: ["gbTransportHubs", "gbStationUsage"], Host: GbTransportHubsHost },
   { id: "useGbLondonRailLayers", keys: ["gbLondonRailLines", "gbLondonStations"], Host: GbLondonRailHost },
   { id: "useGbLondonBikePointsLayer", keys: ["gbLondonBikePoints"], Host: GbLondonBikePointsHost },
+  { id: "useGbRailReplayLayer", keys: ["gbRailReplay"], Host: GbRailReplayHost },
   { id: "useGbLondonJamCamsLayer", keys: ["gbLondonJamCams"], Host: GbLondonJamCamsHost },
   { id: "useGbLondonChargingZonesLayer", keys: ["gbLondonChargingZones"], Host: GbLondonChargingZonesHost },
   // 英國第 12 波（公司登記、製造業、殯葬、養殖、土壤母質）

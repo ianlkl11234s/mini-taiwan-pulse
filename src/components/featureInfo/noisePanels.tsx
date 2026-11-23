@@ -47,7 +47,6 @@ function SourceRows({ props }: PanelProps) {
   // 來源機關與原始資料頁由 FeatureInfoPanel 統一掛的 SourceFooter 顯示，這裡只留 footer 沒有的欄位
   return (
     <>
-      <Row field="sourceId" value={text(props.source_dataset_id, t("popup.common.notProvided"))} />
       <Row label={t("popup.noise.sourceUpdated")} value={text(props.source_updated_at, t("popup.common.notProvided"))} />
       <Row field="license" value={text(props.source_license, t("popup.common.notProvided"))} />
     </>
@@ -103,7 +102,6 @@ export function OfficialNoiseMonitoringPanel({ props }: PanelProps) {
   return (
     <div>
       <Row field="station" value={text(props.station_name)} />
-      <Row label={t("popup.noise.stationId")} value={text(props.station_id)} />
       <Row field="county" value={placeName(text(props.county), i18n)} />
       <Row field="address" value={text(props.address)} />
       <Row label={t("popup.noise.stationType")} value={text(props.station_type)} />
@@ -119,7 +117,6 @@ export function OfficialNoiseMonitoringPanel({ props }: PanelProps) {
       <Row label={t("popup.noise.freshness")} value={enumLabel("noiseFreshness", freshness, FRESHNESS_LABELS[freshness] ?? freshness, i18n)} />
       <Row label={t("popup.noise.sinceNow")} value={freshnessDays == null ? t("popup.noise.noVerified") : t("popup.noise.daysAgo", { days: freshnessDays })} />
       <Row label={t("popup.noise.spatialPrecision")} value={precisionLabel(text(props.spatial_precision, "unknown"))} />
-      <Row field="sourceId" value={text(props.source_dataset_id)} />
       <Row label={t("popup.noise.sourceUpdated")} value={text(props.source_updated_at)} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
         {t("popup.noise.monitoringNote")}
@@ -138,7 +135,6 @@ export function NoiseCaptureGridPanel({ props }: PanelProps) {
   const gpsAccuracy = number(props.gps_accuracy_p50);
   return (
     <div>
-      <Row label={t("popup.noise.gridId")} value={text(props.grid_id)} />
       <Row label={t("popup.noise.laeqSample")} value={db(props.laeq_energy_db)} />
       <Row label={t("popup.noise.typicalTrack")} value={db(props.typical_track_laeq_db)} />
       <Row label="LA50" value={db(props.la50_db)} />
@@ -207,7 +203,6 @@ export function AviationNoiseZonesPanel({ props }: PanelProps) {
   return (
     <div>
       <Row field="village" value={`${placeName(text(props.county), i18n)} ${placeTown(String(props.county ?? ""), text(props.town), i18n)} ${text(props.village)}`} />
-      <Row label={t("popup.noise.villageCode")} value={text(props.village_code)} />
       <Row label={t("popup.noise.displayLevel")} value={t("popup.noise.levelN", { level: text(props.display_zone_level) })} />
       <Row label={t("popup.noise.allLevels")} value={text(props.zone_levels)} />
       <Row label={t("popup.noise.membershipCount")} value={count(props.membership_count, t("popup.noise.unitRecord"))} />
@@ -247,7 +242,6 @@ export function NoiseEnforcementEventsPanel({ props }: PanelProps) {
       <Row field="severityReason" value={text(props.severity_reason)} />
       <Row field="positionAccuracy" value={precisionLabel(precision)} />
       <Row label={t("popup.noise.documentNo")} value={text(props.document_no)} />
-      <Row field="eventId" value={text(props.event_id)} />
       <Row label={t("popup.noise.dataKind")} value={text(props.source_kind)} />
       <div style={{ marginTop: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.45 }}>
         {t("popup.noise.enforcementNote")}
