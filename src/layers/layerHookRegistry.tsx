@@ -121,7 +121,7 @@ import { PhAdminHost, PhPopulationHost, PhOpenaqAirHost, PhTransportHubsHost, Ph
 import { CnAdminHost, CnPopulationHost, CnPopulationGridHost, CnBusStopsHost, CnTransportHubsHost, CnMajorRoadsHost, CnPowerPlantsHost, CnPowerGridHost, CnPipelinesHost,
   CnEezHost, CnPlaceNamesHost, CnEthnicAutonomyHost, CnDamsHost, CnRiversHost, CnActiveFaultsHost, CnNatureReservesHost, CnWdpaHost, CnBridgesTunnelsHost, CnSchoolsHost, CnMedicalHost, CnNuclearPlantsHost, CnTerrainHost, CnAquacultureHost, CnSoilHost,
 } from "./hosts/chinaHosts";
-import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
+import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbRailReplayHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -753,6 +753,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbTransportHubsLayer", keys: ["gbTransportHubs", "gbStationUsage"], Host: GbTransportHubsHost },
   { id: "useGbLondonRailLayers", keys: ["gbLondonRailLines", "gbLondonStations"], Host: GbLondonRailHost },
   { id: "useGbLondonBikePointsLayer", keys: ["gbLondonBikePoints"], Host: GbLondonBikePointsHost },
+  { id: "useGbRailReplayLayer", keys: ["gbRailReplay"], Host: GbRailReplayHost },
   { id: "useGbLondonJamCamsLayer", keys: ["gbLondonJamCams"], Host: GbLondonJamCamsHost },
   { id: "useGbLondonChargingZonesLayer", keys: ["gbLondonChargingZones"], Host: GbLondonChargingZonesHost },
   // 英國第 12 波（公司登記、製造業、殯葬、養殖、土壤母質）

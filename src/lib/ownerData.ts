@@ -12,6 +12,7 @@ import {
  * - 依契約大小分段 Range（每段 ≤ 8 MiB），只接受 206；長度不符就中止，不合成資料。
  * - 註冊 loadingRegistry（taskId／label 由呼叫端給，沿用原本 RPC 的 id，圖層列轉圈不變）。
  * - 結果寫進 ownerDataStatus，圖例可顯示「讀取失敗（原因）」；401／403 不算失敗（非站主本來就讀不到）。
+ * - 檔名以 `.gz` 結尾＝gzip 壓縮的 JSON：sidecar 原樣回位元組，這裡用 DecompressionStream 解壓後再解析。
  */
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
@@ -67,6 +68,10 @@ export async function readOwnerJson<T>(
     const chunk = new Uint8Array(await response.arrayBuffer());
     if (chunk.length !== end - start + 1) throw new Error("長度不符");
     bytes.set(chunk, start);
+  }
+  if (OWNER_DATA_ASSETS[asset].filename.endsWith(".gz")) {
+    const text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    return JSON.parse(text) as T;
   }
   return JSON.parse(new TextDecoder("utf-8").decode(bytes)) as T;
 }

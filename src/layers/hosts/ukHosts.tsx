@@ -2,6 +2,7 @@
 
 import { useGbAdminLayers } from "../../hooks/useGbAdminLayers";
 import { useGbMaritimeLimitsLayer } from "../../hooks/useGbMaritimeLimitsLayer";
+import { useGbRailReplayLayer } from "../../hooks/useGbRailReplayLayer";
 import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
 import { gbDisplayModeFromIdx, useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbMajorRoadsLayer, useGbStationUsageLayer, useGbTrafficCountsAadfLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
@@ -126,6 +127,14 @@ export const GbLondonRailHost: LayerHostComponent = ({ deps }) => {
   const stations = useKeyOverlayParams("gbLondonStations");
   useGbLondonRailLinesLayer(deps.mapRef, deps.layerVisibility.gbLondonRailLines, lines.gbLondonRailLinesOpacity ?? 0.85, lines.gbLondonRailLinesCategoryMask, deps.isDarkTheme);
   useGbLondonStationsLayer(deps.mapRef, deps.layerVisibility.gbLondonStations, stations.gbLondonStationsOpacity ?? 0.85, stations.gbLondonStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國列車重播（倫敦與東南部，Darwin 前一日；本機預覽）：時間內插的平面移動點。 */
+export const GbRailReplayHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRailReplayLayer");
+  const p = useKeyOverlayParams("gbRailReplay");
+  useGbRailReplayLayer(deps.mapRef, deps.layerVisibility.gbRailReplay, p.gbRailReplayOpacity ?? 0.9, p.gbRailReplayScale ?? 1, deps.isDarkTheme);
   return null;
 };
 

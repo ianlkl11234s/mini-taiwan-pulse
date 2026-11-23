@@ -165,6 +165,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbStationUsage",
   "gbLondonRailLines",
   "gbLondonStations",
+  "gbRailReplay",
   "gbLondonBikePoints",
   "gbLondonJamCams",
   "gbLondonChargingZones",

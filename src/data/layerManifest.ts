@@ -7023,6 +7023,34 @@ export const LAYER_MANIFEST = {
     topics: ["英國", "倫敦", "地鐵站", "車站", "交通"],
   },
 
+  // 🇬🇧 英國列車重播（2026-11-23 站主限定測試圖層；資料只有 2026-11-21 一天，走 owner-data 私人檔、不進 git／公開 CDN）：
+  // Darwin 前一日（2026-11-21，週六）實際／預估時刻，沿 OSM 鐵軌內插；倫敦與東南部。非即時，自成「列車重播」群組。
+  gbRailReplay: {
+    key: "gbRailReplay",
+    country: "GB", section: { theme: "交通", group: "列車重播" },
+    ...layerName({ zh: "列車重播", alt: "Rail Replay", qualifier: "2026-11-21" }),
+    expandable: true,
+    color: "#64aaff",
+    icon: TrainFront,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/uk_rail_darwin/10_build_replay.py：Darwin Push Port 27 份每小時快照合併，每點取實際→預估→工作時刻；範圍內 10,885 班（排除巴士、渡輪、空車與非客運）；鐵軌對位 OSM 2026-05-31，2,287 條路段（直線 fallback 3 條）",
+      note: "站主限定測試圖層（OWNER_ONLY），只有 2026-11-21 一天。列車時刻 National Rail Enquiries／Darwin（Rail Data Marketplace 授權條款，正式上線前須再確認再散布）；鐵軌 © OpenStreetMap contributors ODbL；車站座標 NaPTAN OGL v3；部分計時點座標 YA_Tiploc_List CC BY-SA 4.0。僅倫敦與東南部（bbox 50.80–51.70N、1.00W–1.35E），其他地區未涵蓋",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbRailReplayLayer 自建 GeoJSON source（鐵軌線、選取路徑、列車點與尾巴）；資料 Owner-only same-origin Range API /api/private-research/owner-data/{gb-rail-replay-geometry,gb-rail-replay-trips-20261121}（coral-private sidecar 驗站主 JWT；gzip JSON 前端解壓）；不公開轉供；timeStore 每幀 tick 內插",
+      staticAssets: ["PRIVATE_OWNER_ONLY: gb_rail_replay_geometry_20261121.json.gz", "PRIVATE_OWNER_ONLY: gb_rail_replay_trips_20261121.json.gz"],
+    },
+    legend: "gbRailReplay",
+    popup: "gbRailReplay",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "倫敦與東南部火車前一日重播：依 Darwin 實際或預估時刻沿鐵軌移動，依誤點分級上色（非即時）",
+    topics: ["英國", "倫敦", "鐵路", "火車", "列車", "誤點", "重播", "交通", "OWNER_ONLY"],
+  },
+
   gbLondonBikePoints: {
     key: "gbLondonBikePoints",
     country: "GB", section: { theme: "交通", group: "場站" },
