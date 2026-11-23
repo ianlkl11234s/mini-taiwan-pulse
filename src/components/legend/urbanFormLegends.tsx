@@ -1,9 +1,8 @@
 // Legend sub-components (urbanFormLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
 import { BOUNDARY_GRAY, LINE_DASH, LINE_WIDTH, mapSeamColor } from "../../map/mapStyleScale";
-import { KR_ADMIN_ATTRIBUTION_SHORT, KR_ADMIN_VERSION } from "../../data/krAdminTypes";
-import { GB_LAD_ATTRIBUTION, GB_LAD_VERSION, GB_SMALL_AREA_TYPES } from "../../data/gbAdminTypes";
-import { GB_MARITIME_ATTRIBUTION, GB_MARITIME_LIMIT_TYPES, GB_MARITIME_SOURCE_DATE, gbMaritimeLimitColor, type GbMaritimeLimitKind } from "../../data/gbMaritimeLimitTypes";
-import { GB_BUILT_UP_COLOR, GB_BUILT_UP_VERSION, GB_GREENSPACE_CATEGORIES, GB_GREENSPACE_VERSION, GB_OS_ATTRIBUTION, type GbGreenspaceFunctionId, type GbGreenspaceKey } from "../../data/gbOpenSpaceTypes";
+import { GB_SMALL_AREA_TYPES } from "../../data/gbAdminTypes";
+import { GB_MARITIME_LIMIT_TYPES, gbMaritimeLimitColor, type GbMaritimeLimitKind } from "../../data/gbMaritimeLimitTypes";
+import { GB_BUILT_UP_COLOR, GB_GREENSPACE_CATEGORIES, type GbGreenspaceFunctionId, type GbGreenspaceKey } from "../../data/gbOpenSpaceTypes";
 import { usePaletteRamp } from "../../state/layerPalette";
 import { THEMED_PAINT_COLORS } from "../../map/layerPaintColors";
 import { jpHeightCatalogStore } from "../../map/jpHeightLifecycle";
@@ -18,11 +17,11 @@ import { jpPopulationMeshMode, jpPopulationMeshBuckets, JP_POPULATION_MESH_MASK,
 import { STREET_TREE_SPECIES, STREET_TREE_OTHER_COLOR, STREET_TREE_DIAMETER_BANDS, STREET_TREE_HEIGHT_BANDS } from "../../data/streetTreeColors";
 import { PROTECTED_TREE_AGE_BANDS, PROTECTED_TREE_CITIES, RIVERSIDE_TREE_SPECIES, RIVERSIDE_TREE_OTHER_COLOR, TAIPEI_PARK_CATEGORIES, URBAN_MISSING_COLOR, STREET_TREE_3EPOCH_TRAJ, CANOPY_HEIGHT_RAMP, STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES } from "../../data/urbanOpenSpaceTypes";
 import { CANOPY_GIANT_DIST_BANDS } from "../../data/canopyGiantsTypes";
-import { BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION, BUILDING_NIGHT_LEGEND } from "../../data/buildingsGbaTypes";
+import { BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDING_NIGHT_LEGEND } from "../../data/buildingsGbaTypes";
 import { JP_BUILDING_HEIGHT_BANDS, JP_CANOPY_HEIGHT_RAMP } from "../../data/jpHeightTypes";
 import { BUILDING_VALUE_BANDS, BUILDING_VALUE_NON_MARKET_COLOR, resolvePropertyValueScale, formatWanTwd, resolvePropertyValueGridMode, PROPERTY_VALUE_PER_CAPITA_BANDS, PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR, PROPERTY_VALUE_PER_CAPITA_MIN_POP } from "../../data/propertyValueTypes";
 import { PROPERTY_VALUE_ADMIN_COLORS, PROPERTY_VALUE_ADMIN_LEVELS, PROPERTY_VALUE_ADMIN_MISSING_COLOR, formatPropertyValueTwd, resolvePropertyValueAdminLevel } from "../../data/propertyValueAdminTypes";
-import { URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META } from "../../data/urbanFormGridTypes";
+import { URBAN_FORM_GRID_MODES } from "../../data/urbanFormGridTypes";
 import { URBAN_ZONING_CATEGORIES } from "../../data/urbanZoningTypes";
 import { NON_URBAN_ZONING_CODES } from "../../data/nonUrbanZoningTypes";
 import { DenseHeatmapLegendRow, FireCatRows, UrbanDotRow } from "./legendShared";
@@ -313,9 +312,6 @@ export function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
           {i18n.t("legend.urban.valueNote")}
         </LegendNote>
       )}
-      <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
-        {modeIdx === 4 ? i18n.t("legend.urban.propertyValueAttribution") : BUILDINGS_GBA_ATTRIBUTION}
-      </LegendNote>
     </div>
   );
 }
@@ -400,9 +396,6 @@ export function PropertyValueGridLegend({ scaleIdx = 0, modeIdx = 0, extruded = 
           {i18n.t("legend.urban.gridExtrudedNote", { floor: moneyWan(scale.heightFloorWan, i18n), max: moneyWan(scale.heightMaxWan, i18n) })}
         </LegendNote>
       )}
-      <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
-        {i18n.t("legend.urban.propertyValueAttribution")}
-      </LegendNote>
     </div>
   );
 }
@@ -423,12 +416,6 @@ export function UrbanFormGridLegend({ modeIdx = 5 }: { modeIdx?: number }) {
       </div>
       <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
         {i18n.t("legend.urban.urbanFormNote")}
-      </LegendNote>
-      <LegendNote style={{ marginTop: 4, lineHeight: 1.4 }}>
-        {URBAN_FORM_GRID_ATTRIBUTION_GBA}
-      </LegendNote>
-      <LegendNote style={{ lineHeight: 1.4 }}>
-        {URBAN_FORM_GRID_ATTRIBUTION_META}
       </LegendNote>
     </div>
   );
@@ -487,9 +474,6 @@ export function CanopyHeightLegend() {
       <LegendNote style={{ marginTop: 2, lineHeight: 1.4 }}>
         {i18n.t("legend.urban.canopyRes")}
       </LegendNote>
-      <LegendNote style={{ marginTop: 2, lineHeight: 1.4 }}>
-        © Meta & WRI · Tolan et al. 2024 · CC-BY 4.0
-      </LegendNote>
     </div>
   );
 }
@@ -546,7 +530,6 @@ export function JpCanopyHeightLegend() {
       <LegendNote style={{ marginTop: 2, lineHeight: 1.4 }}>
         {i18n.t("legend.urban.jpCanopyNote")}
       </LegendNote>
-      <LegendNote style={{ marginTop: 2, lineHeight: 1.4 }}>{i18n.t("legend.urban.jpCanopyDate")}</LegendNote>
       <JpHeightCoverageNote kind="canopy" />
     </div>
   );
@@ -665,7 +648,6 @@ export function JpGsiHillshadeLegend() {
   return <div>
     <LegendTitle zh={i18n.t("legend.urban.jpGsiHillshadeTitle")} />
     <LegendNote>{i18n.t("legend.urban.jpGsiHillshadeNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.urban.jpGsiSource")}</LegendNote>
   </div>;
 }
 
@@ -676,7 +658,6 @@ export function JpGsiReliefLegend() {
     <LegendTitle zh={i18n.t("legend.urban.jpGsiReliefTitle")} />
     <LegendNote>{i18n.t("legend.urban.jpGsiReliefNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.jpGsiReliefSea")}</LegendNote>
-    <LegendNote>{i18n.t("legend.urban.jpGsiSource")}</LegendNote>
   </div>;
 }
 
@@ -687,8 +668,6 @@ export function HistoricalMapLegend({ groupKey, eraIdx }: { groupKey: Historical
   const era = historicalMapEraByIdx(group, eraIdx);
   return <div>
     <LegendTitle zh={historicalMapEraTitle(era, i18n.active)} />
-    <LegendNote>{i18n.t("legend.urban.historicalMapSource")}</LegendNote>
-    <LegendNote>{i18n.t("legend.urban.historicalMapLicense")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.historicalMapOffset")}</LegendNote>
   </div>;
 }
@@ -701,8 +680,6 @@ export function GbAdminBoundariesLegend() {
     <LegendTitle zh={i18n.t("legend.urban.gbLadTitle")} />
     <LegendRow swatch={<SwatchLine color={BOUNDARY_GRAY[t.isDark ? "dark" : "light"]} />}>{i18n.t("legend.urban.gbLadRow")}</LegendRow>
     <LegendNote>{i18n.t("legend.urban.gbCoverage")}</LegendNote>
-    <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: GB_LAD_VERSION })}</LegendNote>
-    <LegendNote>{GB_LAD_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -727,7 +704,6 @@ export function GbSmallAreaBoundariesLegend() {
     <LegendNote>{i18n.t("legend.urban.gbSmallAreaNotComparable")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbSmallAreaZoom")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbCoverage")}</LegendNote>
-    {[...new Set(GB_SMALL_AREA_TYPES.map((type) => type.attribution))].map((text) => <LegendNote key={text}>{text}</LegendNote>)}
   </div>;
 }
 
@@ -757,8 +733,6 @@ export function GbMaritimeLimitsLegend() {
     <LegendNote>{i18n.t("legend.urban.gbMaritimeClosingZoom")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbMaritimeCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbMaritimeIllustrative")}</LegendNote>
-    <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: `UKHO ${GB_MARITIME_SOURCE_DATE}` })}</LegendNote>
-    <LegendNote>{GB_MARITIME_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -769,8 +743,6 @@ export function GbBuiltUpAreasLegend() {
     <LegendTitle zh={i18n.t("legend.urban.gbBuiltUpTitle")} />
     <LegendRow swatch={<SwatchSquare color={GB_BUILT_UP_COLOR} />}>{i18n.t("legend.urban.gbBuiltUpRow")}</LegendRow>
     <LegendNote>{i18n.t("legend.urban.gbNiNotCovered")}</LegendNote>
-    <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: GB_BUILT_UP_VERSION })}</LegendNote>
-    <LegendNote>{GB_OS_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -801,8 +773,6 @@ export function GbGreenspaceLegend({ layerKey }: { layerKey: GbGreenspaceKey }) 
     {layerKey === "gbCemeteries" ? <LegendNote>{i18n.t("legend.urban.gbReligiousNote")}</LegendNote> : null}
     <LegendNote>{i18n.t(layerKey === "gbGolfCourses" ? "legend.urban.gbGolfZoom" : "legend.urban.gbGreenspaceZoom", { zoom: cfg.minzoom })}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbNiNotCovered")}</LegendNote>
-    <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: GB_GREENSPACE_VERSION })}</LegendNote>
-    <LegendNote>{GB_OS_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -815,7 +785,5 @@ export function KrAdminBoundariesLegend() {
     <LegendRow swatch={<SwatchLine color={BOUNDARY_GRAY[t.isDark ? "dark" : "light"]} />}>{i18n.t("legend.urban.krAdminRow")}</LegendRow>
     <LegendNote>{i18n.t("legend.urban.krCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.krEmdZoom")}</LegendNote>
-    <LegendNote>{i18n.t("legend.urban.krDataVersion", { version: KR_ADMIN_VERSION })}</LegendNote>
-    <LegendNote>{KR_ADMIN_ATTRIBUTION_SHORT}</LegendNote>
   </div>;
 }

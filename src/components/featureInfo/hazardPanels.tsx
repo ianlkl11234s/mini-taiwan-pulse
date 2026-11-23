@@ -249,7 +249,6 @@ export function EarthquakeReplayTownPanel({ props }: { props: Record<string, unk
         value={iv != null ? intensityLabel(iv) : "—"}
         color={iv != null ? intensityColor(iv) : undefined}
       />
-      <Row field="source" value={tr("popup.hazard.townSource")} />
     </div>
   );
 }

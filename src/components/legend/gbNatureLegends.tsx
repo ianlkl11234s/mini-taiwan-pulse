@@ -4,10 +4,10 @@ import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_ACCESS_TYPES, GB_DESIGNATIONS, GB_LANDSCAPE_FILL_FACTOR, GB_MPA_SOURCES, GB_MPA_TYPES, GB_NATIONAL_TRAIL_COLOR,
-  GB_OPEN_ACCESS_SOURCES, GB_PROTECTED_SOURCES, GB_RECREATION_CATEGORIES, GB_RECREATION_SOURCES, GB_RECREATION_UNCLASSIFIED_COLOR,
-  GB_TPO_TREE_ORGS, GB_TPO_ZONE_ORGS, GB_TRAIL_CATEGORIES, GB_TRAIL_SOURCES, GB_TRAIL_UNCLASSIFIED_COLOR, GB_TREE_CATEGORIES,
-  GB_TREE_SOURCES, GB_WOODLAND_FC_ATTRIBUTION, GB_WOODLAND_GROUPS, GB_WOODLAND_NI_ATTRIBUTION, GB_WOODLAND_NI_COLOR,
+  GB_ACCESS_TYPES, GB_DESIGNATIONS, GB_LANDSCAPE_FILL_FACTOR, GB_MPA_TYPES, GB_NATIONAL_TRAIL_COLOR,
+  GB_RECREATION_CATEGORIES, GB_RECREATION_UNCLASSIFIED_COLOR,
+  GB_TPO_TREE_ORGS, GB_TPO_ZONE_ORGS, GB_TRAIL_CATEGORIES, GB_TRAIL_UNCLASSIFIED_COLOR, GB_TREE_CATEGORIES,
+  GB_WOODLAND_GROUPS, GB_WOODLAND_NI_COLOR,
   type GbAccessType, type GbDesignation, type GbDesignationGroup, type GbMpaType, type GbRecreationCategory, type GbTrailCategory,
   type GbTreeCategory, type GbWoodlandGroup,
 } from "../../data/gbNatureTypes";
@@ -20,9 +20,6 @@ type I18n = ReturnType<typeof useLocale>;
 function layerTitle(key: string, i18n: I18n): string {
   const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[key]?.name;
   return name ? localizeLayerName(key, name, i18n).primary : key;
-}
-function Attributions({ items }: { items: readonly string[] }) {
-  return <>{items.map((a) => <LegendNote key={a}>{a}</LegendNote>)}</>;
 }
 
 export const GB_DESIGNATION_KEYS: Record<GbDesignation, MessageKey> = {
@@ -52,7 +49,6 @@ export function GbProtectedAreasLegend() {
     <LegendNote>{i18n.t("legend.environment.gbPaNiNoPark")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPaScotlandNsa")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPaZoom")}</LegendNote>
-    <Attributions items={Object.values(GB_PROTECTED_SOURCES)} />
   </div>;
 }
 
@@ -70,7 +66,6 @@ export function GbMarineProtectedAreasLegend() {
     <LegendNote>{i18n.t("legend.maritime.gbMpaHpma")}</LegendNote>
     <LegendNote>{i18n.t("legend.maritime.gbMpaSacSpa")}</LegendNote>
     <LegendNote>{i18n.t("legend.maritime.gbMpaNav")}</LegendNote>
-    <Attributions items={Object.values(GB_MPA_SOURCES).map((s) => s.attribution)} />
   </div>;
 }
 
@@ -90,7 +85,6 @@ export function GbWoodlandLegend() {
     <LegendNote>{i18n.t("legend.environment.gbWoodNiNote")}</LegendNote>
     <DenseHeatmapLegendRow layers={["gbWoodland"]} />
     <LegendNote>{i18n.t("legend.environment.gbWoodZoom")}</LegendNote>
-    <Attributions items={[GB_WOODLAND_FC_ATTRIBUTION, GB_WOODLAND_NI_ATTRIBUTION]} />
   </div>;
 }
 
@@ -109,7 +103,6 @@ export function GbForestRecreationLegend() {
     <LegendNote>{i18n.t("legend.environment.gbRecNotCovered")}</LegendNote>
     <DenseHeatmapLegendRow layers={["gbForestRecreation"]} />
     <LegendNote>{i18n.t("legend.environment.gbRecZoom")}</LegendNote>
-    <Attributions items={Object.values(GB_RECREATION_SOURCES).map((s) => s.attribution)} />
   </div>;
 }
 
@@ -129,7 +122,6 @@ export function GbTrailsLegend() {
     <LegendRow swatch={<SwatchLine color={GB_TRAIL_UNCLASSIFIED_COLOR} width={LINE_WIDTH.standard[1]} />}>{i18n.t("legend.environment.gbTrailUnclassified")}</LegendRow>
     <LegendNote>{i18n.t("legend.environment.gbTrailNi")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbTrailScotland")}</LegendNote>
-    <Attributions items={Object.values(GB_TRAIL_SOURCES).map((s) => s.attribution)} />
   </div>;
 }
 
@@ -148,7 +140,6 @@ export function GbOpenAccessLandLegend() {
     <LegendNote>{i18n.t("legend.environment.gbOaNi")}</LegendNote>
     <DenseHeatmapLegendRow layers={["gbOpenAccessLand"]} />
     <LegendNote>{i18n.t("legend.environment.gbOaZoom")}</LegendNote>
-    <Attributions items={Object.values(GB_OPEN_ACCESS_SOURCES).map((s) => s.attribution)} />
   </div>;
 }
 
@@ -170,6 +161,5 @@ export function GbTreeProtectionLegend() {
     <LegendNote>{i18n.t("legend.environment.gbTreeAncientCoverage")}</LegendNote>
     <DenseHeatmapLegendRow layers={["gbTreeProtection"]} />
     <LegendNote>{i18n.t("legend.environment.gbTreeZoom")}</LegendNote>
-    <Attributions items={Object.values(GB_TREE_SOURCES).map((s) => s.attribution)} />
   </div>;
 }

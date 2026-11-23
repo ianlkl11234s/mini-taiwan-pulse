@@ -76,7 +76,6 @@
   "legend.hazard.soilNotInvestigated": "未調査（公式に明示。低ポテンシャルとは異なる）",
   "legend.hazard.soilNoData": "データなし（出典に区分がない。塗りつぶさず、未調査にも含めない）",
   "legend.hazard.soilNote": "高・中・低は公式の総合区分であり、実測値ではありません。個別の敷地については予備的な評価用であり、工学的な安全判定ではありません。",
-  "legend.hazard.soilRights": "出典：経済部地質調査鉱業管理センター。サイト管理者の研究用に限定、再利用条件は未確認（RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）。",
   "legend.hazard.weakClayTitle": "軟弱粘土層の厚さ",
   "legend.hazard.weakSandTitle": "軟弱砂質土層の厚さ",
   "legend.hazard.weakBand1": "0–5 m・5–10 m区間（m）",
@@ -129,7 +128,7 @@
   "legend.hazard.typAgencyIssued": "{label} 発表",
   "legend.hazard.typAgencyNone": "この時刻の予報なし",
   "legend.hazard.typAgencyEmpty": "この時刻にはどの機関の予報もありません。",
-  "legend.hazard.typAgencyNote": "各機関とも選択時刻での最新版のみ描画。発表時刻は台湾時間。出典：台湾 国家災害防救科技センター（NCDR）。",
+  "legend.hazard.typAgencyNote": "各機関とも選択時刻での最新版のみ描画。発表時刻は台湾時間。",
   "legend.hazard.gbSuscLow": "低",
   "legend.hazard.gbSuscModerate": "中",
   "legend.hazard.gbSuscSignificant": "顕著",
@@ -154,6 +153,5 @@
   "legend.hazard.gbQuakeUnknown": "マグニチュード不明の {n} 件は最小の点で表示",
   "legend.hazard.gbQuakeMinor": "M2 未満の計器観測はズーム {zoom} 以上で表示",
   "legend.hazard.gbQuakeOffshore": "海域の地震 {n} 件を含む（いずれの地域にも属さない）",
-  "legend.hazard.gbQuakeDataEnd": "{date} までのデータ（BGS GeoIndex）",
   "legend.hazard.disasterResourceNote": "消防署救災資源データベース 5,568 か所のうち座標のある 5,379 か所；保管機関の種類は名称のキーワードによる大まかな分類。多くの品目は数量 0 で登録されているため、ポップアップには数量 0 超の品目のみ表示"
 }

@@ -19,8 +19,7 @@ export function JpTrafficAccidents2025Legend() {
     <DenseHeatmapLegendRow layers={["jpTrafficAccidents2025"]} />
     <LegendNote>
       {i18n.t("legend.jpSafety.accidentsPeriod", { total: i18n.formatNumber(JP_TRAFFIC_ACCIDENT_TOTAL) })}<br />
-      {i18n.t("legend.jpSafety.accidentsScope")}<br />
-      {i18n.t("legend.jpSafety.accidentsSource")}
+      {i18n.t("legend.jpSafety.accidentsScope")}
     </LegendNote>
   </div>;
 }

@@ -107,7 +107,8 @@ export function makePhPanel(spec: PhLayerSpec<string>): FC<P> {
     return <>
       <Title color={cat?.color ?? spec.otherColor ?? spec.color}>{title || pickL3(spec.title.fallback, locale)}</Title>
       {spec.fields.map((f) => <Row key={f.prop} label={pickL3(f.label, locale)} value={formatField(f, props, locale)} mono={f.kind === "code"} />)}
-      {spec.popupNotes.filter((n) => !n.when || n.when(props)).map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n.text, locale)} />)}
+      {/* 每筆都一樣的備註在圖層「說明・來源」（layerSourceInfo）；popup 只留對這筆成立的條件備註 */}
+      {spec.popupNotes.filter((n) => n.when?.(props)).map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n.text, locale)} />)}
       <SourceFooter props={{ source_org: phText(spec.sourceOrg, locale), source_url: spec.sourceUrl, license: phText(spec.license, locale), fetched_at: spec.fetchedAt }} />
     </>;
   };

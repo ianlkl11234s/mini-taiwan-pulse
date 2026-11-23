@@ -44,7 +44,6 @@
   "popup.infra.ooklaDevicesLine": "{tests} · {devices}（{method}）",
   "popup.infra.ooklaLowSample": "⚠️ サンプルが極めて少ない",
   "popup.infra.ooklaGridLevel": "グリッド階層",
-  "popup.infra.ooklaPeriod": "期間",
   "popup.infra.ooklaSampleBias": "サンプルの偏り",
   "popup.infra.ooklaScaleZ6": "全球 z6 グリッド（約500km）",
   "popup.infra.ooklaScaleZ10": "全球 z10 グリッド（約78km）",

@@ -76,7 +76,6 @@
   "legend.hazard.soilNotInvestigated": "Not surveyed (officially stated; not the same as low potential)",
   "legend.hazard.soilNoData": "No data (category missing in the source; not filled, not counted as not surveyed)",
   "legend.hazard.soilNote": "High/medium/low are official composite classes, not measured values; for individual sites they are for preliminary assessment only and are not an engineering safety determination.",
-  "legend.hazard.soilRights": "Source: Geological Survey and Mining Management Agency, Ministry of Economic Affairs. Site owner's research only; reuse terms unconfirmed (RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED).",
   "legend.hazard.weakClayTitle": "Weak-layer clay thickness",
   "legend.hazard.weakSandTitle": "Weak-layer sand thickness",
   "legend.hazard.weakBand1": "0–5 and 5–10 m bands (m)",
@@ -129,7 +128,7 @@
   "legend.hazard.typAgencyIssued": "issued {label}",
   "legend.hazard.typAgencyNone": "no forecast at this time",
   "legend.hazard.typAgencyEmpty": "No agency forecast at this point in time.",
-  "legend.hazard.typAgencyNote": "Only each agency's latest version at the selected time is drawn; issue times are Taiwan time. Source: NCDR (National Science and Technology Center for Disaster Reduction).",
+  "legend.hazard.typAgencyNote": "Only each agency's latest version at the selected time is drawn; issue times are Taiwan time.",
   "legend.hazard.gbSuscLow": "Low",
   "legend.hazard.gbSuscModerate": "Moderate",
   "legend.hazard.gbSuscSignificant": "Significant",
@@ -154,6 +153,5 @@
   "legend.hazard.gbQuakeUnknown": "{n} events with unknown magnitude are drawn at the smallest size",
   "legend.hazard.gbQuakeMinor": "Instrumental events below magnitude 2 are shown from zoom {zoom}",
   "legend.hazard.gbQuakeOffshore": "Includes {n} offshore events (not assigned to any nation)",
-  "legend.hazard.gbQuakeDataEnd": "Data up to {date} (BGS GeoIndex)",
   "legend.hazard.disasterResourceNote": "5,379 of 5,568 sites in the NFA disaster resource database have coordinates; holder type is a rough keyword classification of the site name. Most items are recorded with quantity 0, so popups list only items above 0"
 }

@@ -3,10 +3,9 @@
 import { LegendNote, LegendRow, LegendTitle, SwatchDot } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_ARTS_KINDS, GB_CULTURAL_KINDS, GB_CULTURAL_OSM_STROKE_WIDTH, GB_CULTURAL_SOURCE_COUNTS, GB_LIBRARIES_NI_ATTRIBUTION, GB_VISITOR_KINDS,
+  GB_ARTS_KINDS, GB_CULTURAL_KINDS, GB_CULTURAL_OSM_STROKE_WIDTH, GB_CULTURAL_SOURCE_COUNTS, GB_VISITOR_KINDS,
   type GbArtsKind, type GbCulturalKind, type GbVisitorKind,
 } from "../../data/gbCultureTypes";
-import { GB_OSM_ATTRIBUTION } from "../../data/gbCivicTypes";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
 import type { MessageKey } from "../../i18n/keys";
@@ -41,8 +40,6 @@ export function GbCulturalFacilitiesLegend() {
     <LegendNote>{i18n.t("legend.culture.gbCulturalNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbGalleryNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbZoom5")}</LegendNote>
-    <LegendNote>{GB_LIBRARIES_NI_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -55,7 +52,6 @@ export function GbArtsVenuesLegend() {
     <LegendNote>{i18n.t("legend.culture.gbArtsNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbOsmOnly")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbZoom5")}</LegendNote>
-    <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -68,6 +64,5 @@ export function GbVisitorExperienceLegend() {
     <LegendNote>{i18n.t("legend.culture.gbVisitorNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbOsmOnly")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbZoom5")}</LegendNote>
-    <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }

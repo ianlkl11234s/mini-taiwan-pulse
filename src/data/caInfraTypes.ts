@@ -89,7 +89,6 @@ export const CA_TRANSIT_SOURCE: CaSource = {
 };
 export const CA_TRANSIT_NOTES: readonly L3[] = [
   l3("135 個 GTFS feed 的站點；不同機構共站會重複", "Stops from 135 GTFS feeds; stops shared by several agencies are repeated", "135 の GTFS フィードの停留所。複数事業者の共用停留所は重複する"),
-  l3("授權依各機構（多數未明示）", "Licence varies by agency (mostly unstated)", "ライセンスは事業者ごと（多くは明示なし）"),
   l3("Nunavut 未涵蓋", "Nunavut not covered", "ヌナブト準州は対象外"),
   l3("z12 起顯示單站，之下為密度熱區（格網計數；類別篩選只作用於單站）", "Individual stops from zoom 12; density heatmap (grid counts) below; the type filter applies to individual stops only", "ズーム 12 から個別表示、それ以下は密度ヒートマップ（格子集計。種別フィルタは個別表示のみ）"),
 ];
@@ -131,7 +130,7 @@ export const CA_AIRPORTS_SOURCE: CaSource = {
 export const CA_AIRPORTS_NOTES: readonly L3[] = [
   l3("拉遠只顯示大中型機場與港口，z7 起補上小型機場、直升機場、水上飛機基地、綜合港與遊艇港", "Zoomed out, only large/medium airports and ports are shown; smaller types appear from zoom 7", "広域表示では大・中規模空港と港湾のみ。ズーム 7 から小規模空港などを追加"),
   l3("機場 13/13 省／地區；港口 12/13（Yukon 未涵蓋）", "Airports 13/13; ports 12/13 (Yukon not covered)", "空港 13/13、港湾 12/13（ユーコン準州は対象外）"),
-  l3("港口 197 筆來自美國 NGA World Port Index（授權頁未讀到）", "197 ports come from the US NGA World Port Index (licence page not available)", "港湾 197 件は米 NGA World Port Index 由来（ライセンス頁未確認）"),
+  l3("港口 197 筆來自美國 NGA World Port Index", "197 ports come from the US NGA World Port Index", "港湾 197 件は米 NGA World Port Index 由来"),
 ];
 export const CA_AIRPORT_POPUP: CaPopupSpec = {
   title: { props: ["name"], fallback: l3("機場", "Airport", "空港") },
@@ -461,7 +460,6 @@ export const CA_FED_SOURCE: CaSource = {
   short: CA_STATCAN_SOURCE_NOTE,
 };
 export const CA_FED_NOTES: readonly L3[] = [
-  l3("2025 大選起改用 2023 代表令 343 區（本層未更新）", "From the 2025 election the 2023 Representation Order (343 districts) applies; this layer is not updated", "2025 年総選挙からは 2023 年代表令（343 区）。本レイヤーは未更新"),
   l3("涵蓋 13/13 省／地區；z6 以下另畫代表點；選區名見點選資訊", "Coverage 13/13; representative points below zoom 6; click for district names", "13/13 州・準州を収録。ズーム 6 未満は代表点。選挙区名はクリックで表示"),
 ];
 export const CA_FED_POPUP: CaPopupSpec = {

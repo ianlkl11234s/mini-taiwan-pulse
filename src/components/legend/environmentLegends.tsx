@@ -3,7 +3,7 @@ import { useSyncExternalStore } from "react";
 import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, useLegendTheme } from "./legendKit";
 import {
   CEMS_STATUSES, CWA_UV_LEVELS, DIOXIN_STATION_STOPS, ENV_ALERT_COLOR, ENV_STALE_COLOR, INCINERATOR_NOX_STOPS,
-  NUSC_GAMMA_HIGH_USVH, NUSC_GAMMA_STOPS, OSM_ODBL_ATTRIBUTION, PM25_MANUAL_STOPS, RIVER_RPI_CLASSES, RIVER_RPI_NO_DATA_COLOR, RIVER_RPI_SEGMENT_MODES,
+  NUSC_GAMMA_HIGH_USVH, NUSC_GAMMA_STOPS, PM25_MANUAL_STOPS, RIVER_RPI_CLASSES, RIVER_RPI_NO_DATA_COLOR, RIVER_RPI_SEGMENT_MODES,
   SEA_WATER_CLASSES, WATER_EFFLUENT_STATUSES, envCssGradient, type EnvGradientStop,
 } from "../../data/environmentLayerTypes";
 import { getEnvLiveStatus, subscribeEnvLiveStatus, type EnvLiveKey } from "../../data/environmentLiveLoaders";
@@ -77,7 +77,7 @@ export function RiverRpiSegmentsLegend() {
     {RIVER_RPI_CLASSES.map((row) => <LegendRow key={row.value} swatch={<SwatchLine color={row.color} width={3} />}>{enumLabel("envRpiClass", row.value, row.label, i18n)}</LegendRow>)}
     <LegendRow swatch={<SwatchLine color={RIVER_RPI_NO_DATA_COLOR} width={3} />}>{i18n.t("legend.environment.rpiSegNoSample")}</LegendRow>
     <LegendRow swatch={<SwatchLine color={RIVER_RPI_CLASSES[0].color} width={3} dash={[2, 2]} />}>{i18n.t("legend.environment.rpiSegTidal")}</LegendRow>
-    <LegendNote>{i18n.t("legend.environment.rpiSegNote", { attribution: OSM_ODBL_ATTRIBUTION })}</LegendNote>
+    <LegendNote>{i18n.t("legend.environment.rpiSegNote")}</LegendNote>
   </div>;
 }
 

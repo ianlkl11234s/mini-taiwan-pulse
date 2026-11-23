@@ -106,7 +106,7 @@ export const TH_WAVE8_SPECS: readonly ThLayerSpec[] = [
     ],
     legendNotes: [
       NO_VALUE_NOTE,
-      l3("Air4Thai（PCD）180 站（74/77 府）＋GISTDA PCD 站 87（56/77 府），授權未明示；移動站 8 個座標會變，以空心標示", "180 Air4Thai (PCD) stations (74/77 provinces) + 87 GISTDA PCD stations (56/77), license not stated; the 8 mobile stations change position and are hollow", "Air4Thai（PCD）180 局（74/77 県）＋GISTDA PCD 局 87（56/77 県）、ライセンス未明示。移動局 8 は位置が変わるため中抜き"),
+      l3("Air4Thai（PCD）180 站（74/77 府）＋GISTDA PCD 站 87（56/77 府）；移動站 8 個座標會變，以空心標示", "180 Air4Thai (PCD) stations (74/77 provinces) + 87 GISTDA PCD stations (56/77); the 8 mobile stations change position and are hollow", "Air4Thai（PCD）180 局（74/77 県）＋GISTDA PCD 局 87（56/77 県）。移動局 8 は位置が変わるため中抜き"),
     ],
     popupNotes: [{ text: NO_VALUE_NOTE, when: () => true }, NEAREST_NOTE],
     sourceOrg: l3("Air4Thai（กรมควบคุมมลพิษ，PCD）測站清單；GISTDA Hosted station_pcd（授權未明示，存取 2026-11-23）", "Air4Thai (Pollution Control Department, PCD) station list; GISTDA Hosted station_pcd (license not stated, accessed 2026-11-23)", "Air4Thai（汚染管理局 PCD）観測局一覧、GISTDA Hosted station_pcd（ライセンス未明示、2026-11-23 取得）"),
@@ -186,7 +186,7 @@ export const TH_WAVE8_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("2010 年版（資料較舊，STALE）：只涵蓋 9 個沿海府；現況保護區範圍可能已改變", "2010 edition (outdated, stale): only 9 coastal provinces covered; current protected-area extents may have changed", "2010 年版（古いデータ）：沿岸 9 県のみ。現在の保護区の範囲は変わっている可能性"),
+      l3("只涵蓋 9 個沿海府", "Only 9 coastal provinces covered", "沿岸 9 県のみ"),
       l3("不畫任何海域主張線；虛線外框＝保護區邊界", "No maritime claim lines drawn; the dashed outline is the protected-area boundary", "海域の主張線は描画しない。破線の外枠＝保護区の境界"),
     ],
     popupNotes: [{ text: l3("2010 年版，資料較舊", "2010 edition, outdated data", "2010 年版で、データが古い"), when: () => true }, NEAREST_NOTE],
@@ -359,7 +359,7 @@ export const TH_WAVE8_SPECS: readonly ThLayerSpec[] = [
     legendNotes: [
       l3("一般化的低解析版，不可用於面積計算：稻、木薯、玉米、甘蔗簡化約 330 m 並丟棄 <1.2 km² 碎片；橡膠、油棕簡化約 100 m", "Generalized low-resolution version, not for area calculation: rice, cassava, maize and sugarcane simplified to about 330 m with fragments <1.2 km² dropped; rubber and oil palm simplified to about 100 m", "一般化した低解像度版で、面積計算には使えない：稲・キャッサバ・トウモロコシ・サトウキビは約 330 m に簡略化し 1.2 km² 未満の断片を除去。ゴム・アブラヤシは約 100 m"),
       l3("疑為依行政區聚合的多邊形；稻、木薯等屬性（rai、產量、單位產量）單位來源未標；稻等 z6 起、橡膠與油棕 z9 起", "Possibly polygons aggregated by administrative unit; the attribute units (rai, production, yield) are not stated; rice etc. from z6, rubber and oil palm from z9", "行政区単位で集計されたポリゴンの可能性。属性（rai・生産量・単収）の単位は出典に記載なし。稲など z6 以上、ゴム・アブラヤシ z9 以上"),
-      l3("覆蓋 69／75／65／44／55／41 府（稻／木薯／玉米／甘蔗／橡膠／油棕）；其他府是未涵蓋；授權未明示", "Provinces covered: 69 / 75 / 65 / 44 / 55 / 41 (rice / cassava / maize / sugarcane / rubber / oil palm); the rest are not covered; license not stated", "対象県数：69／75／65／44／55／41（稲／キャッサバ／トウモロコシ／サトウキビ／ゴム／アブラヤシ）。他は未収録。ライセンス未明示"),
+      l3("覆蓋 69／75／65／44／55／41 府（稻／木薯／玉米／甘蔗／橡膠／油棕）；其他府是未涵蓋", "Provinces covered: 69 / 75 / 65 / 44 / 55 / 41 (rice / cassava / maize / sugarcane / rubber / oil palm); the rest are not covered", "対象県数：69／75／65／44／55／41（稲／キャッサバ／トウモロコシ／サトウキビ／ゴム／アブラヤシ）。他は未収録"),
     ],
     popupNotes: [{ text: l3("一般化的低解析範圍，不可用於面積計算", "Generalized low-resolution extent, not for area calculation", "一般化した低解像度の範囲で、面積計算には使えない"), when: () => true }],
     sourceOrg: l3("GISTDA Hosted 作物範圍（稻、木薯、玉米、甘蔗、橡膠、油棕；授權未明示，存取 2026-11-23）；本站簡化為低解析版", "GISTDA Hosted crop extents (rice, cassava, maize, sugarcane, rubber, oil palm; license not stated, accessed 2026-11-23); simplified here to a low-resolution version", "GISTDA Hosted 作物範囲（稲・キャッサバ・トウモロコシ・サトウキビ・ゴム・アブラヤシ、ライセンス未明示、2026-11-23 取得）。本サイトで低解像度に簡略化"),
@@ -381,7 +381,7 @@ export const TH_WAVE8_SPECS: readonly ThLayerSpec[] = [
       ...OVERTURE_FIELDS.filter((f) => f.prop !== "category"), ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("商業 POI、不分公私立：Overture 補缺 3,350（77/77 府）＋GISTDA 292（16/77 府，授權未明示）；官方獸醫名冊無", "Commercial POIs, public and private not distinguished: 3,350 Overture gap-fill (77/77 provinces) + 292 GISTDA (16/77, license not stated); no official veterinary register", "商用 POI で公私の区別なし：Overture 補完 3,350（77/77 県）＋GISTDA 292（16/77 県、ライセンス未明示）。公式の獣医名簿なし"),
+      l3("商業 POI、不分公私立：Overture 補缺 3,350（77/77 府）＋GISTDA 292（16/77 府）；官方獸醫名冊無", "Commercial POIs, public and private not distinguished: 3,350 Overture gap-fill (77/77 provinces) + 292 GISTDA (16/77); no official veterinary register", "商用 POI で公私の区別なし：Overture 補完 3,350（77/77 県）＋GISTDA 292（16/77 県）。公式の獣医名簿なし"),
       OVERTURE_NOTE,
     ],
     popupNotes: [REDACT_NOTE, NEAREST_NOTE],

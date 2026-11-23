@@ -277,7 +277,6 @@ function Day08Footer({ historical = false }: { historical?: boolean }) {
 function Day08ParksFooter() {
   const { t } = useLocale();
   return <>
-    <Row label={t("popup.mapchallenge.day08.caveatLabel")} value={t("legend.mapchallenge.day08.caveat")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day08.parksSource") }} />
   </>;
 }
@@ -464,7 +463,6 @@ export function MapchallengeDay17LedSharePanel({ props }: Props) {
     <Row label={t("popup.mapchallenge.day17.ledShare", { year })} value={has(share) ? `${(num(share) * 100).toFixed(1)}%` : t("popup.mapchallenge.day17.ledNoData")} mono />
     <Row label={t("popup.mapchallenge.day17.ledKwh")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_kwh_${year}`]), b: fmt(props[`total_kwh_${year}`]), unit: "kWh" })} mono />
     <Row label={t("popup.mapchallenge.day17.ledAccounts")} value={t("popup.mapchallenge.day17.ledOfTotal", { a: fmt(props[`led_count_${year}`]), b: fmt(props[`total_${year}`]), unit: t("popup.mapchallenge.day17.ledAcctUnit") })} mono />
-    <Row label={t("popup.mapchallenge.day17.note")} value={t("popup.mapchallenge.day17.ledNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day17.ledSource") }} />
   </div>;
 }
@@ -511,7 +509,6 @@ export function MapchallengeDay19ComplaintsPanel({ props }: Props) {
         <span style={{ color: theme.textStrong, textAlign: "right", fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{formatNumber(c.n)}</span>
       </div>)}
     </div>
-    <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.complaintsNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day19.complaintsSource") }} />
   </div>;
 }
@@ -568,7 +565,6 @@ export function MapchallengeDay19PenaltiesPanel({ props }: Props) {
     {Number.isFinite(y0) && <Row label={t("popup.mapchallenge.day19.years")} value={y0 === y1 || !Number.isFinite(y1) ? String(y0) : `${y0}–${y1}`} mono />}
     <Row label={t("popup.mapchallenge.day19.maxRatio")} value={hasRatio ? t("popup.mapchallenge.day19.ratioValue", { n: formatNumber(ratio) }) : t("popup.mapchallenge.day19.ratioNull")} mono={hasRatio} />
     {Number.isFinite(money) && <Row label={t("popup.mapchallenge.day19.money")} value={t("popup.mapchallenge.day19.moneyValue", { n: formatNumber(money) })} mono />}
-    <Row label={t("popup.mapchallenge.day19.note")} value={t("popup.mapchallenge.day19.penaltiesNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day19.penaltiesSource") }} />
   </div>;
 }
@@ -586,7 +582,6 @@ export function MapchallengeDay21OsmRoadsPanel({ props }: Props) {
     <Row label={t("popup.mapchallenge.day21.class")} value={hw ? `${t(MAPCHALLENGE_DAY21_CLASS_KEYS[mapchallengeDay21ClassOf(hw)])}（${hw}）` : t("popup.mapchallenge.day21.noClass")} />
     {Number.isFinite(num(props.len_m)) && <Row label={t("popup.mapchallenge.day21.length")} value={t("popup.mapchallenge.day21.meters", { n: formatNumber(num(props.len_m)) })} mono />}
     {/^(way|node|relation)\/\d+$/.test(osmId) && <LinkRow label="OSM" url={`https://www.openstreetmap.org/${osmId}`} />}
-    <Row label={t("popup.mapchallenge.day21.note")} value={t("popup.mapchallenge.day21.yearNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day21.source") }} />
   </div>;
 }

@@ -291,7 +291,6 @@ export function SoilLiquefactionPotentialLegend() {
     <LegendRow swatch={<SwatchHatch />}>{i18n.t("legend.hazard.soilNotInvestigated")}</LegendRow>
     <LegendRow swatch={<SwatchSquare color={t.border} outline />}>{i18n.t("legend.hazard.soilNoData")}</LegendRow>
     <LegendNote>{i18n.t("legend.hazard.soilNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.hazard.soilRights")}</LegendNote>
   </div>;
 }
 
@@ -312,7 +311,6 @@ export function WeakSoilLegend({ type }: { type: 'clay' | 'sand' }) {
     <LegendRow swatch={<SwatchSquare color={t.border} outline />}>{zeroBefore}<LegendNum>0 m</LegendNum>{zeroAfter}</LegendRow>
     <LegendRow swatch={<SwatchHatch />}>{i18n.t("legend.hazard.weakMissing")}</LegendRow>
     <LegendNote>{i18n.t("legend.hazard.weakNote", { threshold: WEAK_SOIL_SPT_THRESHOLD[type], zoom: WEAK_SOIL_MIN_ZOOM })}</LegendNote>
-    <LegendNote>{i18n.t("legend.hazard.soilRights")}</LegendNote>
   </div>;
 }
 
@@ -322,7 +320,6 @@ export function LiquefactionMonitoringLegend() {
     <LegendTitle zh={localizeLayerName("liquefactionMonitoringSites", LAYER_MANIFEST.liquefactionMonitoringSites.name, i18n).primary} en="Liquefaction Monitoring" />
     <LegendRow swatch={<SwatchDot color={LIQUEFACTION_SITE_COLOR} />}>{i18n.t("legend.hazard.monitorRow")}</LegendRow>
     <LegendNote>{i18n.t("legend.hazard.monitorNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.hazard.soilRights")}</LegendNote>
   </div>;
 }
 

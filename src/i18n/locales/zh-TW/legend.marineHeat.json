@@ -4,9 +4,9 @@
   "legend.marineHeat.uncoveredPeriod": "{period} 沒有資料（未涵蓋）",
   "legend.marineHeat.error": "載入失敗：{message}",
   "legend.marineHeat.uncovered": "未涵蓋（海洋格缺值）",
-  "legend.marineHeat.mhwNote": "0.25° 網格、月平均海溫距平，依 Hobday et al. 2018 分級；範圍 115–126°E、18–28°N（太平島未涵蓋）；陸地不畫。年份、月份在設定面板切換。出處：Ocean Data Bank, National Science and Technology Council, Taiwan（doi:10.5281/zenodo.7512112）",
+  "legend.marineHeat.mhwNote": "0.25° 網格、月平均海溫距平，依 Hobday et al. 2018 分級；範圍 115–126°E、18–28°N（太平島未涵蓋）；陸地不畫。年份、月份在設定面板切換。",
   "legend.marineHeat.baaTitle": "白化警報等級（當月最高）",
   "legend.marineHeat.dhwTitle": "累積熱壓力 DHW（°C-weeks，當月最高）",
   "legend.marineHeat.crwMaskNote": "只畫 NOAA 珊瑚礁監測範圍（礁區外推約 20 km），不是礁體本身；金門、馬祖、太平島未涵蓋。",
-  "legend.marineHeat.crwNote": "衛星海溫熱壓力，不代表現地珊瑚一定白化。2003 年起；1985–2002 年因授權限制沒有收。出處：NOAA Coral Reef Watch v3.1 月合成（5 km）"
+  "legend.marineHeat.crwNote": "衛星海溫熱壓力，不代表現地珊瑚一定白化。2003 年起；1985–2002 年因授權限制沒有收。"
 }

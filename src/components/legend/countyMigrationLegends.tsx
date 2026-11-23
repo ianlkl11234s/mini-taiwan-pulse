@@ -34,6 +34,5 @@ export function CountyMigrationFlowsLegend() {
     <LegendNote>{t("legend.migration.direction")}</LegendNote>
     <LegendNote>{t("legend.migration.scope")}</LegendNote>
     <LegendNote>{t("legend.migration.base")}</LegendNote>
-    <LegendNote>{t("legend.migration.source")}</LegendNote>
   </div>;
 }

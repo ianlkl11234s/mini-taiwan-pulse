@@ -1,8 +1,8 @@
 // 南韓 KRH-1 圖例：生態自然圖（C117）、生活垃圾排出規則（C086）。文案與色票 SSOT 在 data/krEcoWasteTypes.ts。
-import { LegendNote, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRestrictions, LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { pickL3 } from "../../data/krDataLayers";
-import { KR_ECO_ATTRIBUTION, krEcoGrades, KR_ECO_TEXT, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_LICENSE, KR_WASTE_TEXT } from "../../data/krEcoWasteTypes";
+import { krEcoGrades, KR_ECO_TEXT, KR_WASTE_ATTRIBUTION, KR_WASTE_COLOR, KR_WASTE_LICENSE, KR_WASTE_TEXT } from "../../data/krEcoWasteTypes";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
 
@@ -21,9 +21,8 @@ export function KrEcologyNaturalnessLegend() {
     {krEcoGrades(t.isDark).map((g) => <LegendRow key={g.value} swatch={<SwatchSquare color={g.color} />}>{pickL3(g.label, locale)}</LegendRow>)}
     <LegendNote>{pickL3(KR_ECO_TEXT.legendBlank, locale)}</LegendNote>
     <LegendNote>{pickL3(KR_ECO_TEXT.legendNine, locale)}</LegendNote>
-    <LegendNote>{pickL3(KR_ECO_TEXT.legendKogl, locale)}</LegendNote>
     <LegendNote>{pickL3(KR_ECO_TEXT.legendZoom, locale)}</LegendNote>
-    <LegendNote>{KR_ECO_ATTRIBUTION}</LegendNote>
+    <LegendRestrictions layers={["krEcologyNaturalness"]} />
   </div>;
 }
 

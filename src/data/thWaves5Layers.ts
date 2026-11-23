@@ -73,7 +73,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("OBEC 2563 學年名冊 29,641 校（座標只有 3 位小數，約 100 m）＋GISTDA 非 OBEC 學校 11,802（授權未明示）", "29,641 OBEC schools (BE 2563 register; coordinates to 3 decimals, ~100 m) + 11,802 non-OBEC schools from GISTDA (license not stated)", "OBEC 2563 年度名簿 29,641 校（座標は小数 3 桁、約 100 m）＋GISTDA 非 OBEC 学校 11,802（ライセンス未明示）"),
+      l3("OBEC 2563 學年名冊 29,641 校（座標只有 3 位小數，約 100 m）＋GISTDA 非 OBEC 學校 11,802", "29,641 OBEC schools (BE 2563 register; coordinates to 3 decimals, ~100 m) + 11,802 non-OBEC schools from GISTDA ", "OBEC 2563 年度名簿 29,641 校（座標は小数 3 桁、約 100 m）＋GISTDA 非 OBEC 学校 11,802"),
       ZOOM_NOTE(7, "OBEC z7、非 OBEC z8"),
       l3("大專學生數、補習班未涵蓋；電話、網站、地址不輸出", "University enrolment and cram schools not covered; no phone, website or address output", "大学の学生数・塾は未収録。電話・Web・住所は出力しない"),
     ],
@@ -152,7 +152,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("GISTDA 醫療 POI 6,734（授權未明示，無等級欄、類型由名稱推導）＋OSM 補缺 6,747（空心）；兩來源不去重，可能重複計", "6,734 GISTDA health POIs (license not stated; no tier column, kind inferred from name) + 6,747 OSM gap-fill (hollow); the two sources are not de-duplicated, so points may repeat", "GISTDA 医療 POI 6,734（ライセンス未明示、等級欄なし・種別は名称から推定）＋OSM 補完 6,747（中抜き）。両者は重複排除しておらず重複あり"),
+      l3("GISTDA 醫療 POI 6,734（無等級欄、類型由名稱推導）＋OSM 補缺 6,747（空心）；兩來源不去重，可能重複計", "6,734 GISTDA health POIs (no tier column, kind inferred from name) + 6,747 OSM gap-fill (hollow); the two sources are not de-duplicated, so points may repeat", "GISTDA 医療 POI 6,734（等級欄なし・種別は名称から推定）＋OSM 補完 6,747（中抜き）。両者は重複排除しておらず重複あり"),
       ZOOM_NOTE(6, "兩來源皆 z6"),
       l3("官方 hcode 名冊未取；รพ.สต. 在 OSM 缺漏；OSM 完整度不均", "Official hcode register not obtained; sub-district health centres are missing in OSM; OSM completeness uneven", "公式 hcode 名簿は未取得。OSM では รพ.สต. が欠落。OSM の網羅性は不均一"),
     ],
@@ -180,7 +180,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       ...OVERTURE_FIELDS.filter((f) => f.prop !== "category"), ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("GISTDA 警察據點 1,399（22/77 府，授權未明示）＋Overture 補缺 3,308（77/77 府，空心）；預設只顯示警察局（station），其餘在類別篩選", "1,399 GISTDA police units (22/77 provinces, license not stated) + 3,308 Overture gap-fill (77/77, hollow); stations only by default, others in the category filter", "GISTDA 警察施設 1,399（22/77 県、ライセンス未明示）＋Overture 補完 3,308（77/77 県、中抜き）。既定は警察署のみ、他はカテゴリ絞り込み"),
+      l3("GISTDA 警察據點 1,399（22/77 府）＋Overture 補缺 3,308（77/77 府，空心）；預設只顯示警察局（station），其餘在類別篩選", "1,399 GISTDA police units (22/77 provinces) + 3,308 Overture gap-fill (77/77, hollow); stations only by default, others in the category filter", "GISTDA 警察施設 1,399（22/77 県）＋Overture 補完 3,308（77/77 県、中抜き）。既定は警察署のみ、他はカテゴリ絞り込み"),
       l3("RTP 全國名冊未涵蓋；兩來源不去重", "The RTP national register is not covered; the two sources are not de-duplicated", "RTP 全国名簿は未収録。両者は重複排除していない"),
       OVERTURE_NOTE,
     ],
@@ -199,7 +199,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
     title: { props: ["name_th", "name"], fallback: l3("監所、法院", "Prison / courthouse", "刑事施設・裁判所") },
     fields: [{ prop: "name_en", label: l3("英文名稱", "English name", "英語名") }, { prop: "postcode", label: l3("郵遞區號", "Postcode", "郵便番号"), kind: "code" }, ...OVERTURE_FIELDS.filter((f) => ["locality", "confidence", "datasets"].includes(f.prop)), ...PROVINCE_FIELDS],
     legendNotes: [
-      l3("DOC 監所 142 處（2021 版，STALE，授權未明示）；法院為 Overture 補缺 291（非 COJ 官方名冊）", "142 DOC prisons (2021 edition, stale, license not stated); courthouses are 291 Overture gap-fill (not the official COJ register)", "DOC 刑事施設 142（2021 年版、古い、ライセンス未明示）。裁判所は Overture 補完 291（COJ 公式名簿ではない）"),
+      l3("DOC 監所 142 處；法院為 Overture 補缺 291（非 COJ 官方名冊）", "142 DOC prisons; courthouses are 291 Overture gap-fill (not the official COJ register)", "DOC 刑事施設 142。裁判所は Overture 補完 291（COJ 公式名簿ではない）"),
       l3("COJ 277 名單無座標、檢察署未做", "COJ's 277-court list has no coordinates; prosecution offices not done", "COJ の 277 件の一覧は座標なし、検察庁は未対応"),
       OVERTURE_NOTE,
     ],
@@ -238,7 +238,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("MOC 自然景點 573（官方，CC BY 版本未標）實心；OSM 景點、觀景點與 Overture 瀑布、洞穴、海灘（空心）為補缺，海灘預設不開（z9 起）", "573 MOC natural attractions (official, CC BY version not stated) solid; OSM attractions/viewpoints and Overture waterfalls/caves/beaches are hollow gap-fill; beaches off by default (from z9)", "MOC 自然観光地 573（公式、CC BY バージョン不明）は塗り。OSM の観光地・展望地と Overture の滝・洞窟・ビーチは中抜きの補完で、ビーチは既定で非表示（z9 以上）"),
+      l3("MOC 自然景點 573（官方）實心；OSM 景點、觀景點與 Overture 瀑布、洞穴、海灘（空心）為補缺，海灘預設不開（z9 起）", "573 MOC natural attractions solid; OSM attractions/viewpoints and Overture waterfalls/caves/beaches are hollow gap-fill; beaches off by default (from z9)", "MOC 自然観光地 573は塗り。OSM の観光地・展望地と Overture の滝・洞窟・ビーチは中抜きの補完で、ビーチは既定で非表示（z9 以上）"),
       l3("TAT 官方景點需登入，未取；OSM 與 Overture 完整度不均、不去重", "The TAT official list needs a login and was not obtained; OSM and Overture completeness uneven and not de-duplicated", "TAT 公式一覧はログイン必須で未取得。OSM・Overture の網羅性は不均一で重複排除なし"),
     ],
     popupNotes: [REDACT_NOTE, NEAREST_NOTE],
@@ -352,7 +352,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("MOC 博物館 503、圖書館 319（已去除 319 筆完全重複列；官方，CC BY 版本未標）實心＋OSM 補缺 博物館 606、圖書館 306（空心）", "503 MOC museums and 319 libraries (319 exact duplicate rows removed; official, CC BY version not stated) solid + 606 OSM museums and 306 libraries (hollow gap-fill)", "MOC 博物館 503・図書館 319（完全重複行 319 を除去、公式、CC BY バージョン不明）は塗り＋OSM 補完 博物館 606・図書館 306（中抜き）"),
+      l3("MOC 博物館 503、圖書館 319（已去除 319 筆完全重複列；官方）實心＋OSM 補缺 博物館 606、圖書館 306（空心）", "503 MOC museums and 319 libraries (319 exact duplicate rows removed) solid + 606 OSM museums and 306 libraries (hollow gap-fill)", "MOC 博物館 503・図書館 319（完全重複行 319 を除去）は塗り＋OSM 補完 博物館 606・図書館 306（中抜き）"),
       l3("FAD 國立館所、SAC 私人館（無座標）未涵蓋；官方與 OSM 不去重", "FAD national museums and SAC private museums (no coordinates) not covered; official and OSM points are not de-duplicated", "FAD 国立館・SAC 私立館（座標なし）は未収録。公式と OSM は重複排除なし"),
       OSM_NOTE,
     ],
@@ -414,7 +414,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("MOC 古蹟 1,855＋歷史公園 9（官方，CC BY 版本未標）實心；OSM 歷史遺跡 4,442（空心，已排除路旁祠與界石，z8 起）", "1,855 MOC historic sites + 9 historical parks (official, CC BY version not stated) solid; 4,442 OSM historic features (hollow, roadside shrines and boundary stones excluded, from z8)", "MOC 史跡 1,855＋歴史公園 9（公式、CC BY バージョン不明）は塗り。OSM 歴史的遺構 4,442（中抜き、路傍の祠・境界石を除外、z8 以上）"),
+      l3("MOC 古蹟 1,855＋歷史公園 9（官方）實心；OSM 歷史遺跡 4,442（空心，已排除路旁祠與界石，z8 起）", "1,855 MOC historic sites + 9 historical parks solid; 4,442 OSM historic features (hollow, roadside shrines and boundary stones excluded, from z8)", "MOC 史跡 1,855＋歴史公園 9は塗り。OSM 歴史的遺構 4,442（中抜き、路傍の祠・境界石を除外、z8 以上）"),
       l3("FAD 名冊未取（MOC 古蹟 1,855，盤點估 2,470）", "FAD register not obtained (MOC has 1,855 sites vs an estimated 2,470)", "FAD 名簿は未取得（MOC 史跡 1,855、見積 2,470）"),
       OSM_NOTE,
     ],

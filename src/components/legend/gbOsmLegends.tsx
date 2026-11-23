@@ -4,8 +4,7 @@ import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, useLegendThe
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_BRIDGES_TUNNELS_BY_NATION, GB_BRIDGES_TUNNELS_TILE_ZOOM, GB_NH_ATTRIBUTION, GB_NH_OGL_V3, GB_OSM13_ATTRIBUTION, GB_OSM13_ODBL,
-  GB_OSM13_SNAPSHOT, GB_PLACES_OF_WORSHIP_BY_NATION, GB_PLACES_OF_WORSHIP_TILE_ZOOM, GB_PUBLIC_FACILITIES_BY_NATION,
+  GB_BRIDGES_TUNNELS_BY_NATION, GB_BRIDGES_TUNNELS_TILE_ZOOM, GB_PLACES_OF_WORSHIP_BY_NATION, GB_PLACES_OF_WORSHIP_TILE_ZOOM, GB_PUBLIC_FACILITIES_BY_NATION,
   GB_PUBLIC_FACILITIES_TILE_ZOOM, GB_PUBLIC_FACILITY_KINDS, GB_ROAD_FACILITIES_BY_NATION, GB_ROAD_FACILITY_KINDS, GB_STRUCTURES,
   GB_WORSHIP_KINDS, gbOsmKindColor, type GbPublicFacilityKind, type GbRoadFacilityKind, type GbStructure, type GbWorshipKind,
 } from "../../data/gbOsmTypes";
@@ -24,7 +23,6 @@ function nationArgs(i18n: I18n, by: Nations) {
   const n = (v: number) => i18n.formatNumber(v);
   return { e: n(by.England), s: n(by.Scotland), w: n(by.Wales), ni: n(by["Northern Ireland"]) };
 }
-const OSM_LINE = `${GB_OSM13_ATTRIBUTION} (${GB_OSM13_ODBL})`;
 
 export const GB_STRUCTURE_KEYS: Record<GbStructure, MessageKey> = {
   bridge: "legend.transport.gbBtBridge", tunnel: "legend.transport.gbBtTunnel",
@@ -58,8 +56,6 @@ export function GbBridgesTunnelsLegend() {
     <LegendNote>{i18n.t("legend.transport.gbBtSegmentNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbOsmNations", nationArgs(i18n, GB_BRIDGES_TUNNELS_BY_NATION))}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbOsmTileZoom", { z: GB_BRIDGES_TUNNELS_TILE_ZOOM.minzoom })}</LegendNote>
-    <LegendNote>{i18n.t("legend.transport.gbOsmSnapshot", { date: GB_OSM13_SNAPSHOT })}</LegendNote>
-    <LegendNote>{OSM_LINE}</LegendNote>
   </div>;
 }
 
@@ -76,10 +72,7 @@ export function GbRoadFacilitiesLegend() {
     ))}
     <LegendNote>{i18n.t("legend.transport.gbRfEmergencyCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbRfEmergencyPoint")}</LegendNote>
-    <LegendNote>{i18n.t("legend.transport.gbRfOsmNote", { date: GB_OSM13_SNAPSHOT })}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbOsmNations", nationArgs(i18n, GB_ROAD_FACILITIES_BY_NATION))}</LegendNote>
-    <LegendNote>{OSM_LINE}</LegendNote>
-    <LegendNote>{`${GB_NH_ATTRIBUTION} (${GB_NH_OGL_V3})`}</LegendNote>
   </div>;
 }
 
@@ -99,8 +92,6 @@ export function GbPublicFacilitiesLegend() {
     <LegendNote>{i18n.t("legend.civic.gbOsmTileZoom", { z: GB_PUBLIC_FACILITIES_TILE_ZOOM.minzoom })}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbPfNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbOsmNations", nationArgs(i18n, GB_PUBLIC_FACILITIES_BY_NATION))}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.gbOsmSnapshot", { date: GB_OSM13_SNAPSHOT })}</LegendNote>
-    <LegendNote>{OSM_LINE}</LegendNote>
   </div>;
 }
 
@@ -119,7 +110,5 @@ export function GbPlacesOfWorshipLegend() {
     <LegendNote>{i18n.t("legend.civic.gbOsmPointsZoom10")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbOsmTileZoom", { z: GB_PLACES_OF_WORSHIP_TILE_ZOOM.minzoom })}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbOsmNations", nationArgs(i18n, GB_PLACES_OF_WORSHIP_BY_NATION))}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.gbOsmSnapshot", { date: GB_OSM13_SNAPSHOT })}</LegendNote>
-    <LegendNote>{OSM_LINE}</LegendNote>
   </div>;
 }

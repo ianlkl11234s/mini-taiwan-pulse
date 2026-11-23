@@ -4,9 +4,9 @@
   "legend.marineHeat.uncoveredPeriod": "{period} のデータはない（対象外）",
   "legend.marineHeat.error": "読み込みに失敗：{message}",
   "legend.marineHeat.uncovered": "対象外（海洋格子の欠測）",
-  "legend.marineHeat.mhwNote": "0.25° 格子、月平均海面水温偏差、Hobday et al. 2018 による区分である。範囲は 115–126°E、18–28°N（太平島は対象外）。陸地は描画しない。年・月は設定パネルで切り替える。出典：Ocean Data Bank, National Science and Technology Council, Taiwan（doi:10.5281/zenodo.7512112）",
+  "legend.marineHeat.mhwNote": "0.25° 格子、月平均海面水温偏差、Hobday et al. 2018 による区分である。範囲は 115–126°E、18–28°N（太平島は対象外）。陸地は描画しない。年・月は設定パネルで切り替える。",
   "legend.marineHeat.baaTitle": "白化警報レベル（月最大）",
   "legend.marineHeat.dhwTitle": "積算高水温指数 DHW（°C-weeks、月最大）",
   "legend.marineHeat.crwMaskNote": "NOAA のサンゴ礁監視範囲（礁域から約 20 km 外側まで）のみ描画しており、礁そのものではない。金門・馬祖・太平島は対象外である。",
-  "legend.marineHeat.crwNote": "衛星による高水温ストレスであり、現地のサンゴが必ず白化しているとは限らない。2003 年以降のみで、1985–2002 年はライセンスの制約により収録していない。出典：NOAA Coral Reef Watch v3.1 月合成（5 km）"
+  "legend.marineHeat.crwNote": "衛星による高水温ストレスであり、現地のサンゴが必ず白化しているとは限らない。2003 年以降のみで、1985–2002 年はライセンスの制約により収録していない。"
 }

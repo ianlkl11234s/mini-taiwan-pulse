@@ -44,7 +44,6 @@
   "legend.mapchallenge.day05.scope.all": "不限距離",
   "legend.mapchallenge.day05.scope.d200": "離海 ≤200 m",
   "legend.mapchallenge.day05.scope.d100": "離海 ≤100 m",
-  "legend.mapchallenge.day06.license": "歷史圖層引用：中央研究院，《臺灣歷史文化地圖系統》第一版，（台北，中央研究院，2003年9月）；授權 CC BY-NC-SA 3.0 臺灣版。本層為衍生資料（TWD67 轉 WGS84、與今日資料比對），依同條款釋出、不得商業使用。",
   "legend.mapchallenge.day06.source": "今日資料：OpenStreetMap 海岸線（ODbL，2026-11-06 擷取）；內政部地名資料（2026-10-12）、村里界（2026-06-26）；內政部全國宗教資訊系統寺廟（2026-08-01 擷取）；Pulse 燈塔圖層、中央氣象署測站清單（未另查更新日期）",
   "legend.mapchallenge.day06.coastTitle": "西南海岸線三代",
   "legend.mapchallenge.day06.era1": "17–18 世紀",

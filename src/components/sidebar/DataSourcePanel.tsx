@@ -14,7 +14,7 @@ import { Search, Lock, ChevronDown, ChevronRight } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
-import { catalogAgency, catalogLicense, statisticsLicense, statisticsPublisher } from "../../i18n/agencyText";
+import { catalogAgency, catalogLicense, licenseDisplay, statisticsLicense, statisticsPublisher } from "../../i18n/agencyText";
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { statisticsTitle, statisticsUnit, statisticsFrequency } from "../../i18n/statisticsText";
 import { LayerNameLine, ListRow } from "./LayerRow";
@@ -24,6 +24,7 @@ import { LAYER_ICONS } from "./layerIcons";
 import { railPalette, RailThemeContext } from "./railTheme";
 import { THEMES, LAYER_COLORS, layerDisplayName, themeKey, themeName, type ThemeRef } from "./layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
+import { getLayerNotes, getLayerSourceInfo, resolveSourceText } from "../../data/layerSourceInfo";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
 import { searchLayers } from "../../lib/layerSearch";
 import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsIndicatorLabel, statisticsSourceLevelLabel, type StatisticsDataSourceDefinition } from "../../data/statisticsDataSources";
@@ -217,7 +218,8 @@ function c2Style(p: DsPalette, primary: boolean, disabled?: boolean): React.CSSP
 
 // ── 上游資料卡（列內展開）──
 
-interface SourceBlock { title: string | null; desc?: string | null; facts: { k: string; v: ReactNode; mono?: boolean }[]; docPath?: string | null }
+/** `tooltip`：資料集代號、目錄檔路徑這類內部識別碼不顯示在畫面上，只放標題 tooltip（spec §6.3）。 */
+interface SourceBlock { title: string | null; desc?: string | null; facts: { k: string; v: ReactNode; mono?: boolean }[]; tooltip?: string | null }
 
 /** 資料來源暗／淡色票；圖層展開區的「說明・來源」也用這一份。 */
 export const dataSourcePalette = (isDarkTheme: boolean): DsPalette => (isDarkTheme ? DARK_DS : LIGHT_DS);
@@ -293,7 +295,6 @@ export function DataSourceCard({
         { k: t("dataSources.fact.frequency"), v: text.period },
         statisticsSource.license ? { k: t("dataSources.fact.license"), v: statisticsLicense(statisticsSource.license, i18n) } : null,
         { k: t("dataSources.fact.unit"), v: `${text.unit} · ${text.level}` },
-        statisticsSource.datasetIds.length ? { k: t("dataSources.fact.dataset"), v: statisticsSource.datasetIds.join(", "), mono: true } : null,
         statisticsSource.sourceUrl ? { k: t("dataSources.fact.api"), v: <a href={statisticsSource.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{statisticsSource.sourceUrl}</a> } : null,
         artifactLoading ? { k: t("dataSources.fact.source"), v: t("dataSources.readingSource") } : null,
         artifactError ? { k: t("dataSources.fact.source"), v: t("dataSources.sourceNotLoaded", { error: artifactError }) } : null,
@@ -312,7 +313,7 @@ export function DataSourceCard({
                 const url = comparisonInputUrl(input.source_landing_url);
                 return (
                   <div key={`${String(input.dataset_id ?? input.source_dataset_id ?? idx)}-${idx}`} style={{ paddingTop: idx ? 4 : 0, borderTop: idx ? `1px solid ${p.border}` : undefined }}>
-                    <div>{input.publisher == null ? t("dataSources.unspecifiedPublisher") : statisticsPublisher(String(input.publisher), i18n)} · {String(input.dataset_id ?? input.source_dataset_id ?? t("dataSources.unspecifiedDataset"))}</div>
+                    <div title={String(input.dataset_id ?? input.source_dataset_id ?? "")}>{input.publisher == null ? t("dataSources.unspecifiedPublisher") : statisticsPublisher(String(input.publisher), i18n)}</div>
                     <div style={{ color: p.muted, marginTop: 2 }}>
                       {t("dataSources.upstreamPeriod", {
                         period: typeof input.period_start === "string" && typeof input.period_end === "string" ? t("dataSources.range", { start: input.period_start, end: input.period_end }) : String(input.period ?? input.period_label ?? unspecified),
@@ -327,7 +328,7 @@ export function DataSourceCard({
           ),
         } : null,
       ),
-      docPath: null,
+      tooltip: statisticsSource.datasetIds.join(", ") || null,
     };
   }, [statisticsSource, artifactSource, artifactRelease, artifactLoading, artifactError, status, p, layerKey, i18n]);
 
@@ -337,45 +338,95 @@ export function DataSourceCard({
       desc: ref?.processing ?? null,
       facts: facts(
         { k: t("dataSources.fact.type"), v: ref?.derivationType ?? "custom" },
-        ref?.derivedFromLayers?.length ? { k: t("dataSources.fact.derivedFrom"), v: ref.derivedFromLayers.join("、") } : null,
-        upstreamIds.length ? { k: t("dataSources.fact.upstream"), v: upstreamIds.join("、") } : null,
+        ref?.derivedFromLayers?.length ? { k: t("dataSources.fact.derivedFrom"), v: ref.derivedFromLayers.map((key) => layerDisplayName(key as keyof LayerVisibility)).join("、") } : null,
       ),
-      docPath: null,
+      tooltip: upstreamIds.join("、") || null,
     };
     if (entries.length > 0) {
+      // 圖層來源表已列機關／授權（目錄缺欄）時，目錄卡只留標題與摘要，事實列不再重複；
+      // 摘要裡已在圖層備註出現的句子不重複；目錄更新日與來源表資料時點相同時不重複。
+      const table = statisticsSource ? null : getLayerSourceInfo(layerKey);
+      const tableShowsSource = Boolean(table) && !entries.some((e) => e.providerAgency && e.license);
+      const noteTexts = getLayerNotes(layerKey).map((v) => resolveSourceText(v, i18n));
+      const tableAsOf = table?.asOf ? resolveSourceText(table.asOf, i18n) : "";
+      const dedupeSummary = (summary: string | null) => {
+        if (!summary) return null;
+        const kept = (summary.match(/[^。；;]+[。；;]?/g) ?? []).filter((part) => {
+          const core = part.replace(/[。；;\s]+$/, "").trim();
+          return core && !noteTexts.some((note) => note.includes(core));
+        });
+        return kept.join("").trim() || null;
+      };
       const entryBlocks: SourceBlock[] = entries.map((e) => ({
         title: e.title ?? t("dataSources.block.upstreamDataset"),
-        desc: e.summary,
-        facts: facts(
-          e.title ? null : { k: t("dataSources.fact.dataset"), v: e.datasetId, mono: true },
+        desc: dedupeSummary(e.summary),
+        facts: tableShowsSource ? [] : facts(
           e.providerAgency ? { k: t("dataSources.fact.provider"), v: catalogAgency(e.providerAgency, i18n) } : null,
           e.lifecycle ? { k: t("dataSources.fact.frequency"), v: `${enumLabel("dataSourceLifecycle", e.lifecycle, LIFECYCLE_LABEL[e.lifecycle] ?? e.lifecycle, i18n)}${e.updateFrequency ? ` · ${e.updateFrequency}` : ""}` } : null,
           e.license ? { k: t("dataSources.fact.license"), v: catalogLicense(e.license, i18n) } : null,
-          e.lastUpdated ? { k: t("dataSources.fact.updated"), v: e.lastUpdated, mono: true } : null,
+          e.lastUpdated && e.lastUpdated !== tableAsOf ? { k: t("dataSources.fact.updated"), v: e.lastUpdated, mono: true } : null,
           e.sourceUrl ? { k: t("dataSources.fact.api"), v: <a href={e.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{e.sourceUrl}</a> } : null,
         ),
-        docPath: e.catalogMdPath,
+        tooltip: [e.datasetId, e.catalogMdPath].filter(Boolean).join(" · ") || null,
       }));
       // 派生圖層即使 catalog 有條目，也要保留派生脈絡（舊 modal 兩者並列）。
       return status === "pulse_only" && (ref?.derivedFromLayers || ref?.derivedFromDatasets) ? [lineageBlock, ...entryBlocks] : entryBlocks;
     }
     if (status === "verified") {
       // 卡片標題不印資料集代號（spec §6.3）；代號改放「資料集」事實列，與統計來源卡同一寫法。
-      return ref.datasets.map((d) => ({ title: t("dataSources.block.matchedDataset"), desc: t("dataSources.confidence", { value: enumLabel("dataSourceConfidence", d.confidence, CONFIDENCE_LABEL[d.confidence] ?? d.confidence, i18n) }), facts: facts({ k: t("dataSources.fact.dataset"), v: d.datasetId, mono: true }), docPath: null }));
+      return ref.datasets.map((d) => ({ title: t("dataSources.block.matchedDataset"), desc: t("dataSources.confidence", { value: enumLabel("dataSourceConfidence", d.confidence, CONFIDENCE_LABEL[d.confidence] ?? d.confidence, i18n) }), facts: facts(), tooltip: d.datasetId }));
     }
     if (status === "pulse_only") return [lineageBlock];
     if (statisticsSource) return [];
-    return [{ title: null, desc: t("dataSources.noCatalogEntry"), facts: facts(), docPath: null }];
-  }, [entries, status, ref, upstreamIds, statisticsSource, p, i18n]);
+    return [{ title: null, desc: t("dataSources.noCatalogEntry"), facts: facts() }];
+  }, [entries, status, ref, upstreamIds, statisticsSource, layerKey, p, i18n]);
 
-  const blocks: SourceBlock[] = statisticsBlock ? [statisticsBlock, ...baseBlocks] : baseBlocks;
+  // 圖層來源表（src/data/layerSourceInfo.ts）：資料目錄沒有機關＋授權（沒條目、缺欄、載入中或載入失敗）時補用；
+  // 固定備註（notes）一律顯示。
+  const tableInfo = statisticsSource ? null : getLayerSourceInfo(layerKey);
+  const catalogComplete = entries.some((e) => e.providerAgency && e.license);
+  const tableBlock: SourceBlock | null = useMemo(() => {
+    const text = (v: Parameters<typeof resolveSourceText>[0]) => resolveSourceText(v, i18n);
+    const notes = [...new Set(getLayerNotes(layerKey).map(text).filter(Boolean))];
+    const showSource = Boolean(tableInfo) && !catalogComplete;
+    const credits = (tableInfo?.attribution ?? []).map(text).filter(Boolean);
+    const asOf = tableInfo?.asOf ? text(tableInfo.asOf) : "";
+    const restrictions = [...new Set((tableInfo?.restrictions ?? []).map((r) => text(r.text)).filter(Boolean))];
+    const extra = [
+      asOf ? { k: t("dataSources.fact.asOf"), v: asOf, mono: true } : null,
+      ...restrictions.map((restriction) => ({ k: t("dataSources.fact.restriction"), v: restriction })),
+      ...credits.map((credit) => ({ k: t("dataSources.fact.attribution"), v: credit })),
+    ];
+    if (!showSource && notes.length === 0 && credits.length === 0 && restrictions.length === 0) return null;
+    if (!tableInfo || !showSource) return { title: null, desc: notes.length ? notes.join(" ") : null, facts: facts(...extra) };
+    const org = text(tableInfo.org);
+    const license = tableInfo.license == null ? "" : text(tableInfo.license);
+    const localize = tableInfo.from === "catalog";
+    const link = tableInfo.url || tableInfo.attributionUrl;
+    return {
+      title: t("dataSources.block.layerSource"),
+      desc: notes.length ? notes.join(" ") : null,
+      facts: facts(
+        org ? { k: t("dataSources.fact.provider"), v: localize ? catalogAgency(org, i18n) : org } : null,
+        { k: t("dataSources.fact.license"), v: license ? (localize ? catalogLicense(license, i18n) : licenseDisplay(license, i18n)) : t("dataSources.licenseUnstated") },
+        ...extra,
+        link ? { k: t("dataSources.fact.api"), v: <a href={link} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{link}</a> } : null,
+      ),
+    };
+  }, [layerKey, tableInfo, catalogComplete, p, i18n]);
+
+  const blocks: SourceBlock[] = [
+    ...(statisticsBlock ? [statisticsBlock] : []),
+    ...(tableBlock ? [tableBlock] : []),
+    // 來源表已補上機關／授權時，「尚無 catalog 條目」這行不再顯示
+    ...baseBlocks.filter((b) => !(tableBlock?.title && b.title == null && b.facts.length === 0 && b.desc === t("dataSources.noCatalogEntry"))),
+  ];
 
   // 統計來源描述的是同一批上游資料集，不另加 1；只有沒有其他上游紀錄時才以其 datasetIds 計數。
   const upstreamCount = (entries.length > 0 ? entries.length
     : status === "verified" ? ref.datasets.length
     : status === "pulse_only" ? Math.max(upstreamIds.length, 1)
     : 0) || (statisticsSource?.datasetIds.length ?? 0);
-  const docPath = blocks.find((b) => b.docPath)?.docPath ?? null;
 
   return (
     <div style={{ margin: "2px 4px 6px 14px", padding: "6px 0 6px 10px", borderLeft: `1px solid ${p.borderMid}`, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -387,13 +438,13 @@ export function DataSourceCard({
       {error && <div style={{ color: p.statusWarn, fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}>{t("dataSources.catalogError", { error: String(error) })}</div>}
       {blocks.map((block, i) => (
         <div key={`${block.title ?? "x"}-${i}`} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {block.title && <div style={{ fontSize: FONT_SIZE.md, fontWeight: 700, color: p.text, fontFamily: FONT_CJK }}>{block.title}</div>}
+          {block.title && <div title={block.tooltip ?? undefined} style={{ fontSize: FONT_SIZE.md, fontWeight: 700, color: p.text, fontFamily: FONT_CJK }}>{block.title}</div>}
           {block.desc && <div style={{ fontSize: 10.5, color: p.muted, lineHeight: 1.5, fontFamily: FONT_CJK }}>{block.desc}</div>}
           {block.facts.map((f) => <FactRow key={f.k} p={p} k={f.k} mono={f.mono}>{f.v}</FactRow>)}
         </div>
       ))}
-      {(!hideActivate || docPath) && <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
-        {!hideActivate && <button
+      {!hideActivate && <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
+        <button
           type="button"
           disabled={locked}
           onClick={() => { if (!locked) onActivateLayer?.(layerKey); }}
@@ -401,17 +452,7 @@ export function DataSourceCard({
           style={c2Style(p, true, locked)}
         >
           {locked && <Lock size={11} />}{t("dataSources.activate")}
-        </button>}
-        {docPath && (
-          <button
-            type="button"
-            disabled
-            title={docPath}
-            style={{ ...c2Style(p, false, true), fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, height: "auto", minHeight: 22, whiteSpace: "normal", wordBreak: "break-all", textAlign: "left", flex: 1, minWidth: 0 }}
-          >
-            {docPath}
-          </button>
-        )}
+        </button>
       </div>}
     </div>
   );

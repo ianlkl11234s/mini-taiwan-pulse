@@ -42,11 +42,27 @@ export interface DataCatalogSummary {
   usedByPulseLayers: string[];
 }
 
+/**
+ * 資料目錄 md 的摘要會夾帶內部工作標記（波次、C 編號、LIC／BACKLOG 代號、TODO、待確認、markdown 粗體）。
+ * 給使用者看的卡片只留一般敘述：含內部標記的括號整段拿掉，仍含標記的句子整句拿掉，`**` 去除。
+ */
+const INTERNAL_MARK = /第\s*[0-9０-９一二三四五六七八九十]+[a-z]?\s*波|\b[Ww]aves?\s*\d|\bLIC-\d+|\bC1\d\d\b|TODO|待確認|\b(?!GLO-|DEM-|EPSG-|ISO-|UTF-|COVID-)[A-Z][A-Z0-9]{1,7}-\d{1,3}\b(?![.\d-])/;
+export const CATALOG_INTERNAL_MARK = INTERNAL_MARK;
+
+export function cleanCatalogText(text: string | null): string | null {
+  if (!text) return text;
+  let out = text.replace(/\*\*/g, "");
+  out = out.replace(/[（(][^（）()]*[）)]/g, (part) => (INTERNAL_MARK.test(part) ? "" : part));
+  const sentences = out.match(/[^。；;！？!?]+[。；;！？!?]?|[。；;！？!?]/g) ?? [];
+  out = sentences.filter((sentence) => !INTERNAL_MARK.test(sentence)).join("").replace(/^[\s。；;，,：:]+/, "").trim();
+  return out || null;
+}
+
 function mapEntry(row: Record<string, unknown>): DataCatalogEntry {
   return {
     datasetId: String(row.dataset_id ?? ""),
-    title: (row.title as string | null) ?? null,
-    summary: (row.summary as string | null) ?? null,
+    title: cleanCatalogText((row.title as string | null) ?? null),
+    summary: cleanCatalogText((row.summary as string | null) ?? null),
     providerAgency: (row.provider_agency as string | null) ?? null,
     sourceUrl: (row.source_url as string | null) ?? null,
     sourceDatasetId: (row.source_dataset_id as string | null) ?? null,
@@ -124,7 +140,7 @@ export async function fetchDataCatalogByTheme(theme?: string): Promise<DataCatal
     datasetId: String(row.dataset_id ?? ""),
     theme: String(row.theme ?? ""),
     subtopic: (row.subtopic as string | null) ?? null,
-    title: (row.title as string | null) ?? null,
+    title: cleanCatalogText((row.title as string | null) ?? null),
     providerAgency: (row.provider_agency as string | null) ?? null,
     lifecycle: (row.lifecycle as string | null) ?? null,
     usedByPulseLayers: Array.isArray(row.used_by_pulse_layers)

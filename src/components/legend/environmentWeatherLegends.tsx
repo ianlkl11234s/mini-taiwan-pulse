@@ -16,7 +16,7 @@ import { WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX, 
 import { useClimateFrameStatus, type ClimateFrameStatusKey } from "../../state/climateFrameStore";
 import { LIGHTNING_TYPE_COLORS } from "../../data/lightningLoader";
 import { SEVERITY_BANDS, POLLUTION_MEDIUM_COLORS, POLLUTION_MEDIUM_LABELS, PENALTY_MEDIA, PENALTY_SEVERITY_COLORS, PENALTY_SEVERITY_LABELS, type PollutionMedium, type PollutionPenaltySeverity } from "../../data/pollutionTypes";
-import { OFFICIAL_NOISE_FRESHNESS, OFFICIAL_NOISE_COLOR_EXPR, NOISE_CONTROL_ZONE_META, AVIATION_NOISE_ZONE_META, SOUND_CAMERA_PRECISION_META, NOISE_CAPTURE_ATTRIBUTION } from "../../data/noiseTypes";
+import { OFFICIAL_NOISE_FRESHNESS, OFFICIAL_NOISE_COLOR_EXPR, NOISE_CONTROL_ZONE_META, AVIATION_NOISE_ZONE_META, SOUND_CAMERA_PRECISION_META } from "../../data/noiseTypes";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { localizeLayerName } from "../../i18n/layerText";
@@ -536,7 +536,7 @@ export function OfficialNoiseMonitoringLegend() {
           <LegendRow key={key} swatch={<SwatchDot color={key === "unavailable" ? "transparent" : `linear-gradient(90deg,${OFFICIAL_NOISE_COLOR_EXPR.filter((v) => typeof v === "string" && v.startsWith("#")).join(",")})`} opacity={key === "historical" ? 0.45 : 0.9} stroke={key === "unavailable" ? row.color : undefined} />}>{enumLabel("noiseFreshness", key, row.label, i18n)}</LegendRow>
         ))}
       </div>
-      <NoiseLegendNote source={i18n.t("legend.environment.noiseOfficialSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.environment.noiseOfficialNote")}
       </NoiseLegendNote>
     </div>
@@ -560,7 +560,7 @@ export function NoiseCaptureGridLegend() {
       <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: "#f59e0b", fontWeight: 700 }}>
         {i18n.t("legend.environment.provisional")}
       </div>
-      <NoiseLegendNote source={NOISE_CAPTURE_ATTRIBUTION}>
+      <NoiseLegendNote>
         {i18n.t("legend.environment.noiseCaptureNote")}
       </NoiseLegendNote>
     </div>
@@ -573,7 +573,7 @@ export function NoiseControlZonesLegend() {
     <div>
       <NoiseLegendTitle>{i18n.t("legend.environment.noiseControlTitle")}</NoiseLegendTitle>
       <NoiseLegendRows rows={Object.entries(NOISE_CONTROL_ZONE_META).map(([code, row]) => ({ color: row.color, label: enumLabel("noiseZoneClass", code, row.label, i18n) }))} />
-      <NoiseLegendNote source={i18n.t("legend.environment.noiseControlSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.environment.noiseControlNote")}
       </NoiseLegendNote>
     </div>
@@ -586,7 +586,7 @@ export function AviationNoiseZonesLegend() {
     <div>
       <NoiseLegendTitle>{layerTitle("aviationNoiseZones", i18n)}</NoiseLegendTitle>
       <NoiseLegendRows rows={Object.entries(AVIATION_NOISE_ZONE_META).map(([code, row]) => ({ color: row.color, label: enumLabel("aviationNoiseZone", code, row.label, i18n) }))} />
-      <NoiseLegendNote source={i18n.t("legend.environment.aviationSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.environment.aviationNote")}
       </NoiseLegendNote>
     </div>
@@ -605,7 +605,7 @@ export function NoiseEnforcementEventsLegend() {
       <NoiseLegendTitle>{i18n.t("legend.environment.enforceTitle")}</NoiseLegendTitle>
       <NoiseLegendRows rows={rows} dot />
       <DenseHeatmapLegendRow layers={["noiseEnforcementEvents"]} />
-      <NoiseLegendNote source={i18n.t("legend.environment.enforceSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.environment.enforceNote")}
       </NoiseLegendNote>
     </div>
@@ -619,7 +619,7 @@ export function SoundCameraLocationsLegend() {
     <div>
       <NoiseLegendTitle>{i18n.t("legend.environment.cameraTitle")}</NoiseLegendTitle>
       <NoiseLegendRows rows={cameraRows} dot />
-      <NoiseLegendNote source={i18n.t("legend.environment.cameraSource")}>
+      <NoiseLegendNote>
         {i18n.t("legend.environment.cameraNote")}
       </NoiseLegendNote>
     </div>

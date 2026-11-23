@@ -1,11 +1,11 @@
 // 愛爾蘭圖例：第 0 波行政邊界（SSOT data/ieAdminTypes.ts）、第 1 波規格驅動 6 層與海床地形（SSOT data/ieDataLayers.ts）。
 import type { ReactNode } from "react";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme, LegendRestrictions } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
-import { IE_ADMIN_NOTES, IE_ADMIN_SOURCE, pickL3 } from "../../data/ieAdminTypes";
+import { IE_ADMIN_NOTES, pickL3 } from "../../data/ieAdminTypes";
 import { IE_BATHYMETRY, IE_SPEC_BY_KEY, type IeLayerSpec } from "../../data/ieDataLayers";
 import type { IeDataKey } from "../../data/ieDataKeys";
 import { krRampColors } from "../../data/krDataLayers";
@@ -19,7 +19,6 @@ export function IeAdminBoundariesLegend() {
     <LegendTitle zh={title} />
     <LegendRow swatch={<SwatchLine color={BOUNDARY_GRAY[t.isDark ? "dark" : "light"]} />}>{pickL3({ zh: "行政區界（地方政府、選舉分區、統計小區）", en: "Boundary (local authority / electoral division / small area)", ja: "行政区域界（自治体・選挙区・スモールエリア）" }, i18n.locale)}</LegendRow>
     {IE_ADMIN_NOTES.map((n, i) => <LegendNote key={i}>{pickL3(n, i18n.locale)}</LegendNote>)}
-    <LegendNote>{IE_ADMIN_SOURCE.short}</LegendNote>
   </div>;
 }
 
@@ -56,7 +55,7 @@ export function IeSpecLegend({ layerKey, spec, children }: { layerKey: string; s
     {spec.cats && spec.otherLabel ? <LegendRow swatch={swatch(spec, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
     {children}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
+    <LegendRestrictions layers={[layerKey]} />
   </div>;
 }
 
@@ -71,6 +70,5 @@ export function IeBathymetryLegend() {
     <SwatchGradient gradient={gradient} labels={["0 m", "200 m", "5,000 m"]} />
     <LegendNote>{pickL3({ zh: "色階非等距：0、20、50、100、200、500、1,000、2,000、3,000、5,000 m", en: "Non-linear ramp: 0, 20, 50, 100, 200, 500, 1,000, 2,000, 3,000, 5,000 m", ja: "非等間隔の段彩：0・20・50・100・200・500・1,000・2,000・3,000・5,000 m" }, locale)}</LegendNote>
     {IE_BATHYMETRY.notes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{IE_BATHYMETRY.sourceOrg}（{IE_BATHYMETRY.license}）</LegendNote>
   </div>;
 }

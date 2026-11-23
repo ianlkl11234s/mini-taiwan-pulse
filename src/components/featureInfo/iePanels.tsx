@@ -70,7 +70,6 @@ export function makeIePanel(spec: IePanelSpec): FC<P> {
     return <>
       <Title color={catColor(spec, props)}>{title}</Title>
       {spec.fields.map((f) => <Row key={f.prop} label={pickL3(f.label, locale)} value={formatField(f, props, locale, fmt)} mono={f.kind === "code"} />)}
-      {spec.popupNotes.map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n, locale)} />)}
       <SourceFooter props={{ source_org: spec.sourceOrg, source_url: spec.sourceUrl, license: spec.license, fetched_at: spec.fetchedAt }} />
     </>;
   };

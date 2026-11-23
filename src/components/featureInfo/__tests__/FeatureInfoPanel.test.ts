@@ -17,7 +17,7 @@ function renderPanel(feature: FeatureInfo) {
 }
 
 describe("FeatureInfoPanel", () => {
-  it("一般已註冊圖層：eyebrow 顯示「群組 · 圖層名」，內容後掛中央 SourceFooter", () => {
+  it("逐筆來源不同的圖層：eyebrow 顯示「群組 · 圖層名」，內容後掛一行精簡來源（不放 Tier）", () => {
     const html = renderPanel({
       layerType: "religionTemples",
       properties: {
@@ -33,8 +33,18 @@ describe("FeatureInfoPanel", () => {
     expect(html).toContain("宗教 · 寺廟");
     expect(html).toContain("測試宮廟");
     expect(html).toContain("內政部民政司");
-    expect(html).toContain("原始下載頁");
+    expect(html).toContain("https://example.test/temple.zip");
+    expect(html).not.toContain("Tier 2");
     expect(html).not.toContain("來源資訊待補");
+  });
+
+  it("圖層側已有機關＋授權的圖層：popup 不掛來源列", () => {
+    const html = renderPanel({
+      layerType: "jpEvacuationSites",
+      properties: { name: "テスト避難所" },
+    } as FeatureInfo);
+    expect(html).toContain("テスト避難所");
+    expect(html).not.toContain("fi-footer");
   });
 
   it("chatHighlight（AI 助手標記）：不掛任何 SourceFooter", () => {

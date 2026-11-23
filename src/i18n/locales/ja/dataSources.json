@@ -30,7 +30,6 @@
   "dataSources.fact.frequency": "更新頻度",
   "dataSources.fact.license": "ライセンス",
   "dataSources.fact.unit": "単位",
-  "dataSources.fact.dataset": "データセット",
   "dataSources.fact.api": "API",
   "dataSources.fact.source": "出典",
   "dataSources.fact.period": "期間",
@@ -52,7 +51,6 @@
   "dataSources.ratioText": "分子：{numerator} · 分母：{denominator}",
   "dataSources.unspecified": "未記載",
   "dataSources.unspecifiedPublisher": "提供機関の記載なし",
-  "dataSources.unspecifiedDataset": "データセットの記載なし",
   "dataSources.upstreamPeriod": "期間：{period} · ライセンス：{license}",
   "dataSources.periodCount": "公開済み {count} 期間",
   "dataSources.periodNone": "期間の記載なし",
@@ -93,5 +91,11 @@
   "dataSources.contract.atlas": "納品済みの exact release selector {count} 件のみ受け付けます{dimension}。値は出典の値のまま保持し、再計算しません。{status}",
   "dataSources.contract.atlasDimension": "。次元：{list}",
   "dataSources.contract.demographics": "納品済みの exact release selector {count} 件のみ受け付けます。欠損値は斜線で示し、0 で補いません。PARTIAL の期間はカバー状況を保持します。",
-  "dataSources.contract.registered": "regionalStatisticsRecipes の既存の読み込み契約です。release selector は公開済みの期間のみ解決します。"
+  "dataSources.contract.registered": "regionalStatisticsRecipes の既存の読み込み契約です。release selector は公開済みの期間のみ解決します。",
+  "dataSources.licenseUnstated": "ライセンス未明示",
+  "dataSources.block.layerSource": "レイヤーの出典",
+  "dataSources.noteWithLabel": "{label}：{text}",
+  "dataSources.fact.attribution": "クレジット",
+  "dataSources.fact.asOf": "データ時点",
+  "dataSources.fact.restriction": "利用制限"
 }
