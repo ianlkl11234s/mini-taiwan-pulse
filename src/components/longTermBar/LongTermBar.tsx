@@ -123,8 +123,9 @@ function EventBar({ layerKey, spec, adapter, isDark }: { layerKey: string; spec:
       </div>
       {series.failedYears.length > 0 && (
         <div role="alert" style={{ display: "flex", alignItems: "center", gap: SPACING.sm, fontSize: FONT_SIZE.sm, color: danger }}>
-          <span>{t("longTerm.bar.failedBanner", { years: failedYears.join(", ") })}</span>
-          <button type="button" className="ltb-focus" style={{ ...btn, fontSize: FONT_SIZE.sm, color: danger }} onClick={adapter.retry}>{t("longTerm.bar.retry")}</button>
+          <span style={{ flex: "1 1 auto", minWidth: 0 }}>{t("longTerm.bar.failedBanner", { years: failedYears.join(", ") })}</span>
+          {/* 說明文字換行，按鈕不被擠窄（日文「再試行」曾被擠成兩行） */}
+          <button type="button" className="ltb-focus" style={{ ...btn, fontSize: FONT_SIZE.sm, color: danger, flexShrink: 0, whiteSpace: "nowrap" }} onClick={adapter.retry}>{t("longTerm.bar.retry")}</button>
         </div>
       )}
       <EventCountChart

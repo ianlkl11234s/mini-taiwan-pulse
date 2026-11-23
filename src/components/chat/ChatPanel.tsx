@@ -305,7 +305,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
         color: c.textBody,
       }
     : {
-        position: "fixed", top: 88, right: 14, width: 380,
+        position: "fixed", top: "calc(88px + var(--top-bar-shift, 0px))", right: 14, width: 380,
         height: compact ? "min(45vh, 520px)" : "min(55vh, 640px)",
         opacity: compact ? 0.96 : 1,
         transition: "height 200ms ease, opacity 200ms ease",
@@ -322,7 +322,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
       };
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} data-measure-avoid="">
       {/* Header */}
       <div
         style={{
