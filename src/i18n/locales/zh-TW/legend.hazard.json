@@ -76,7 +76,6 @@
   "legend.hazard.soilNotInvestigated": "未調查（官方明示；不等於低潛勢）",
   "legend.hazard.soilNoData": "無資料（來源缺類別；不填色，不算未調查）",
   "legend.hazard.soilNote": "高／中／低是官方綜合類別，不是量測值；個別基地僅供初步評估，不構成工程安全判定。",
-  "legend.hazard.soilRights": "來源：經濟部地質調查及礦業管理中心；站主限定研究，重利用條款待確認（RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）。",
   "legend.hazard.weakClayTitle": "弱層黏土厚度",
   "legend.hazard.weakSandTitle": "弱層砂土厚度",
   "legend.hazard.weakBand1": "0–5、5–10 m 段（m）",
@@ -129,7 +128,7 @@
   "legend.hazard.typAgencyIssued": "發佈 {label}",
   "legend.hazard.typAgencyNone": "此時無預報",
   "legend.hazard.typAgencyEmpty": "此時間點沒有任何機構的預報。",
-  "legend.hazard.typAgencyNote": "每家只畫當時最新一版；發佈時間為台灣時間。出典：國家災害防救科技中心（NCDR）。",
+  "legend.hazard.typAgencyNote": "每家只畫當時最新一版；發佈時間為台灣時間。",
   "legend.hazard.gbSuscLow": "低",
   "legend.hazard.gbSuscModerate": "中",
   "legend.hazard.gbSuscSignificant": "顯著",
@@ -154,6 +153,5 @@
   "legend.hazard.gbQuakeUnknown": "規模未知 {n} 筆，以最小點表示",
   "legend.hazard.gbQuakeMinor": "規模 <2 的儀器記錄放大到 z{zoom} 以上才顯示",
   "legend.hazard.gbQuakeOffshore": "含海上事件 {n} 筆（不屬任一地區）",
-  "legend.hazard.gbQuakeDataEnd": "資料截至 {date}（BGS GeoIndex）",
   "legend.hazard.disasterResourceNote": "消防署救災資源資料庫 5,568 處中有座標的 5,379 處；保管單位類型依名稱關鍵字粗分。多數品項數量登錄為 0，popup 只列數量大於 0 的品項"
 }

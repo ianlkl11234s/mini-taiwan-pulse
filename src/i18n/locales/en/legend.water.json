@@ -22,7 +22,7 @@
   "legend.water.measureScour": "Depth m",
   "legend.water.measureDust": "PM10 / wind speed / temperature and humidity",
   "legend.water.canalOther": "No irrigation demand / Yilan",
-  "legend.water.lakesNote": "Features overlapping the fish pond layer (39.1%) are filtered out | OSM ODbL",
+  "legend.water.lakesNote": "Features overlapping the fish pond layer (39.1%) are filtered out",
   "legend.water.deltaSub": "Water level change today Δ (vs start of day)",
   "legend.water.deltaFall": "{value} fall",
   "legend.water.deltaRise": "{value} rise",

@@ -31,7 +31,7 @@ export function JmaLightningLegend() {
         {i18n.t("legend.jmaTime.lightningCovered")}
         {status.latestAt && <><br />{i18n.t("legend.jmaTime.lightningLastRecord")} <LegendNum>{formatJst(status.latestAt)}</LegendNum></>}
       </div>}
-    <LegendNote>{i18n.t("legend.jmaTime.lightningNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jmaTime.lightningNote")}</LegendNote>
   </div>;
 }
 
@@ -42,7 +42,7 @@ export function JmaWbgtLegend() {
     {[...ENV_WBGT_LEVELS].reverse().map((l) => <LegendRow key={l.value} swatch={<SwatchDot color={l.color} />}>{enumLabel("envWbgtLevel", l.value, l.label, i18n)}</LegendRow>)}
     <Hollow label={i18n.t("legend.jmaTime.wbgtNoValue")} />
     <LiveStatus layerKey="jmaWbgt" drawnUnit="legend.jmaTime.unitStation" />
-    <LegendNote>{i18n.t("legend.jmaTime.wbgtNote")}{i18n.t("legend.jmaTime.wbgtAttribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jmaTime.wbgtNote")}</LegendNote>
   </div>;
 }
 
@@ -59,7 +59,7 @@ export function JmaSnowcapLegend() {
     <Hollow label={i18n.t("legend.jmaTime.snowcapNotYet")} color={JMA_POINT_HOLLOW_COLOR} />
     <Hollow label={i18n.t("legend.jmaTime.notYetLate")} color={JMA_POINT_HOLLOW_COLOR} width={3} />
     <LiveStatus layerKey="jmaSnowcap" timeLabel={i18n.t("legend.jmaTime.asOfDate")} drawnUnit="legend.jmaTime.unitMountain" />
-    <LegendNote>{i18n.t("legend.jmaTime.seasonalLabelNote")}{i18n.t("legend.jmaTime.snowcapNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jmaTime.seasonalLabelNote")}{i18n.t("legend.jmaTime.snowcapNote")}</LegendNote>
   </div>;
 }
 
@@ -77,7 +77,7 @@ function PhenologyLegend({ layerKey }: { layerKey: JmaPhenologyLayerKey }) {
     <Hollow label={i18n.t("legend.jmaTime.phenologyNotYet")} color={JMA_POINT_LAYER_COLORS[layerKey]} />
     <Hollow label={i18n.t("legend.jmaTime.notYetLate")} color={JMA_POINT_LAYER_COLORS[layerKey]} width={3} />
     <LiveStatus layerKey={layerKey} timeLabel={i18n.t("legend.jmaTime.asOfDate")} drawnUnit="legend.jmaTime.unitPhenologyPoint" />
-    <LegendNote>{i18n.t("legend.jmaTime.seasonalLabelNote")}{i18n.t("legend.jmaTime.phenologyNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jmaTime.seasonalLabelNote")}{i18n.t("legend.jmaTime.phenologyNote")}</LegendNote>
   </div>;
 }
 
@@ -95,6 +95,6 @@ export function JmaRainySeasonLegend() {
     <LegendTitle zh={i18n.t("legend.jmaTime.rainyTitle")} en="梅雨" />
     {JMA_RAINY_PHASES.map((ph) => <LegendRow key={ph.value} swatch={<SwatchSquare color={ph.color} />}>{enumLabel("jmaRainyPhase", ph.value, ph.label, i18n)}</LegendRow>)}
     <LiveStatus layerKey="jmaRainySeason" timeLabel={i18n.t("legend.jmaTime.asOfDate")} drawnUnit="legend.jmaTime.unitRegion" />
-    <LegendNote>{i18n.t("legend.jmaTime.rainyNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jmaTime.rainyNote")}</LegendNote>
   </div>;
 }

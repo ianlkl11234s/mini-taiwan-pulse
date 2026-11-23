@@ -7,7 +7,6 @@
   "legend.agri.forestryTitle": "Forestry",
   "legend.agri.trailSources": "Trail sources",
   "legend.agri.hutFacilityType": "Facility type",
-  "legend.agri.hutOsmNote": "Includes OSM sources © OpenStreetMap contributors (ODbL)",
   "legend.agri.reserveTypes": "Protection forest types",
   "legend.agri.manufacturingTitle": "Registered manufacturing companies",
   "legend.agri.companyOverview": "Overview: company density (companies per km²) · {palette}",

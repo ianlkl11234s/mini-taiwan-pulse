@@ -3,12 +3,11 @@ import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare } from "./l
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_STATUSES, GB_CONSERVATION_BY_NATION, GB_EA_POLLUTION_ATTRIBUTION,
-  GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_YEAR, GB_ENV_FALLBACK_COLOR,
-  GB_ENV_HOLLOW_STROKE, GB_NOISE_ATTRIBUTION, GB_NOISE_BANDS, GB_NOISE_SOURCE_COUNTS, GB_PLANNING_ATTRIBUTION, GB_PLANNING_CONSTRAINTS,
-  GB_POLLUTION_ATTRIBUTION, GB_POLLUTION_COLOR, GB_POLLUTION_COUNTS, GB_POLLUTION_YEAR, GB_RECYCLING_ATTRIBUTION, GB_RECYCLING_BY_NATION,
+  GB_BROWNFIELD_COLOR, GB_BROWNFIELD_STATUSES, GB_CONSERVATION_BY_NATION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_YEAR, GB_ENV_FALLBACK_COLOR,
+  GB_ENV_HOLLOW_STROKE, GB_NOISE_BANDS, GB_NOISE_SOURCE_COUNTS, GB_PLANNING_CONSTRAINTS,
+  GB_POLLUTION_COLOR, GB_POLLUTION_COUNTS, GB_POLLUTION_YEAR, GB_RECYCLING_BY_NATION,
   GB_RECYCLING_CENTRE_MINZOOM, GB_RECYCLING_CONTAINER_MINZOOM, GB_RECYCLING_KINDS, GB_RECYCLING_OSM_TIME, GB_WASTE_AUTHORITIES,
-  GB_WASTE_PERMITS_ATTRIBUTION, GB_WASTE_PERMITS_COLOR, type GbBrownfieldStatus, type GbPlanningConstraint, type GbRecyclingKind,
+  GB_WASTE_PERMITS_COLOR, type GbBrownfieldStatus, type GbPlanningConstraint, type GbRecyclingKind,
 } from "../../data/gbEnvPlanningTypes";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
@@ -55,7 +54,6 @@ export function GbPlanningConstraintsLegend() {
     <LegendNote>{i18n.t("legend.environment.gbPlanConservationNations", { e: n(GB_CONSERVATION_BY_NATION.England), s: n(GB_CONSERVATION_BY_NATION.Scotland), w: n(GB_CONSERVATION_BY_NATION.Wales) })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPlanEnglandOnly")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPlanCoverage")}</LegendNote>
-    <LegendNote>{GB_PLANNING_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -75,7 +73,6 @@ export function GbBrownfieldLegend() {
     <DenseHeatmapLegendRow layers={["gbBrownfield"]} />
     <LegendNote>{i18n.t("legend.environment.gbBfNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbBfCoverage")}</LegendNote>
-    <LegendNote>{GB_BROWNFIELD_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -96,7 +93,6 @@ export function GbRecyclingCentresLegend() {
     <LegendNote>{i18n.t("legend.environment.gbRecOsm")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbRecCoverage", { e: n(GB_RECYCLING_BY_NATION.England), s: n(GB_RECYCLING_BY_NATION.Scotland), w: n(GB_RECYCLING_BY_NATION.Wales), ni: n(GB_RECYCLING_BY_NATION["Northern Ireland"]) })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbRecTime", { time: GB_RECYCLING_OSM_TIME })}</LegendNote>
-    <LegendNote>{GB_RECYCLING_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -112,10 +108,7 @@ export function GbWastePermitsLegend() {
     </LegendRow>
     <LegendNote>{i18n.t("legend.environment.gbWasteAuthorities", { ea: ea!, sepa: sepa!, niea: niea! })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbWasteWales")}</LegendNote>
-    <LegendNote>{i18n.t("legend.environment.gbWasteNi")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbWastePersonal")}</LegendNote>
-    <LegendNote>{i18n.t("legend.environment.gbWasteEaLicence")}</LegendNote>
-    <LegendNote>{GB_WASTE_PERMITS_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -130,7 +123,6 @@ export function GbPollutionInventoryLegend() {
     <LegendNote>{i18n.t("legend.environment.gbPolScotland", { year: GB_POLLUTION_YEAR, n: n(GB_POLLUTION_COUNTS.total) })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPolEngland")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPolUncovered")}</LegendNote>
-    <LegendNote>{GB_POLLUTION_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -145,7 +137,6 @@ export function GbPollutionInventoryEnglandLegend() {
     <LegendNote>{i18n.t("legend.environment.gbEaEngland", { n: n(GB_EA_POLLUTION_COUNTS.total) })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbEaLicence", { year: GB_EA_POLLUTION_YEAR })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbEaPostcodeCentroid", { n: n(GB_EA_POLLUTION_COUNTS.postcodeCentroid) })}</LegendNote>
-    <LegendNote>{GB_EA_POLLUTION_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -161,6 +152,5 @@ export function GbNoiseLegend() {
     <LegendNote>{i18n.t("legend.environment.gbNoiseNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbNoiseCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbNoiseRounds")}</LegendNote>
-    <LegendNote>{GB_NOISE_ATTRIBUTION}</LegendNote>
   </div>;
 }

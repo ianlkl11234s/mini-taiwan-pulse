@@ -2,10 +2,9 @@
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, useLegendTheme } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_OS_TERRAIN_ATTRIBUTION, GB_SURPLUS_ATTRIBUTION, GB_SURPLUS_COLOR, GB_SURPLUS_STATUSES, GB_SURPLUS_STROKE_WIDTH,
+  GB_SURPLUS_COLOR, GB_SURPLUS_STATUSES, GB_SURPLUS_STROKE_WIDTH,
   GB_TERRAIN_RELIEF_STOPS, type GbSurplusStatus,
 } from "../../data/gbLandTypes";
-import { GB_ONSPD_ATTRIBUTION } from "../../data/gbCivicTypes";
 import { mapSeamColor } from "../../map/mapStyleScale";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
@@ -25,7 +24,6 @@ export function GbTerrainHillshadeLegend() {
     <LegendNote>{i18n.t("legend.urban.gbHillshadeNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbTerrainCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbTerrainResolution")}</LegendNote>
-    <LegendNote>{GB_OS_TERRAIN_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -46,7 +44,6 @@ export function GbTerrainReliefLegend() {
     <LegendNote>{i18n.t("legend.urban.gbReliefNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbTerrainCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbTerrainResolution")}</LegendNote>
-    <LegendNote>{GB_OS_TERRAIN_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -68,7 +65,5 @@ export function GbSurplusLandLegend() {
     ))}
     <LegendNote>{i18n.t("legend.urban.gbSurplusScope")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbSurplusCoverage")}</LegendNote>
-    <LegendNote>{GB_SURPLUS_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_ONSPD_ATTRIBUTION.join(" · ")}</LegendNote>
   </div>;
 }

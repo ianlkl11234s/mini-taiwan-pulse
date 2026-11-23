@@ -3,9 +3,8 @@ import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSqu
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_GAMMA_ATTRIBUTION, GB_GAMMA_CLASSES, GB_GAMMA_COUNT, GB_GAMMA_MISSING_STROKE, GB_GAMMA_UNIT, GB_GEO_HAZARDS, GB_GEOSURE_ATTRIBUTION,
-  GB_LANDSLIDE_ATTRIBUTION, GB_LANDSLIDE_CHECKED, GB_LANDSLIDE_COLOR, GB_LANDSLIDE_HOLLOW_STROKE, GB_QUAKE_ATTRIBUTION, GB_QUAKE_COLOR,
-  GB_QUAKE_COUNTS, GB_QUAKE_DATA_END, GB_QUAKE_MAG_BANDS, GB_QUAKE_MINOR_MINZOOM, GB_QUAKE_YEARS, GB_RADON_ATTRIBUTION, GB_RADON_CLASSES,
+  GB_GAMMA_CLASSES, GB_GAMMA_COUNT, GB_GAMMA_MISSING_STROKE, GB_GAMMA_UNIT, GB_GEO_HAZARDS, GB_LANDSLIDE_CHECKED, GB_LANDSLIDE_COLOR, GB_LANDSLIDE_HOLLOW_STROKE, GB_QUAKE_COLOR,
+  GB_QUAKE_COUNTS, GB_QUAKE_MAG_BANDS, GB_QUAKE_MINOR_MINZOOM, GB_QUAKE_YEARS, GB_RADON_CLASSES,
   GB_SUSCEPTIBILITY, gbRadonColors, type GbGeoHazard, type GbSusceptibility,
 } from "../../data/gbHazardTypes";
 import { gbQuakeRadiusPx } from "../../hooks/useGbHazardLayers";
@@ -37,7 +36,6 @@ export function GbGroundStabilityLegend() {
     <LegendNote>{i18n.t("legend.hazard.gbGeoSureNotLiquefaction")}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbGeoSureNotice")}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbCoverageGb3")}</LegendNote>
-    <LegendNote>{GB_GEOSURE_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -51,8 +49,6 @@ export function GbLandslideLegend() {
     <DenseHeatmapLegendRow layers={["gbLandslide"]} />
     <LegendNote>{i18n.t("legend.hazard.gbLandslideNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbLandslideCoverage")}</LegendNote>
-    <LegendNote>{i18n.t("legend.hazard.gbLandslideLicense")}</LegendNote>
-    <LegendNote>{GB_LANDSLIDE_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -70,7 +66,6 @@ export function GbRadonLegend() {
     ))}
     <LegendNote>{i18n.t("legend.hazard.gbRadonMeaning")}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbCoverageUk4")}</LegendNote>
-    <LegendNote>{GB_RADON_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -88,7 +83,6 @@ export function GbRadiationLegend() {
     <LegendRow swatch={<SwatchDot color="transparent" stroke={GB_GAMMA_MISSING_STROKE} strokeWidth={1.5} />}>{i18n.t("legend.hazard.gbNoData")}</LegendRow>
     <LegendNote>{i18n.t("legend.hazard.gbGammaNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbGammaScope", { n: i18n.formatNumber(GB_GAMMA_COUNT) })}</LegendNote>
-    <LegendNote>{GB_GAMMA_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -111,7 +105,5 @@ export function GbEarthquakesLegend() {
     <LegendNote>{i18n.t("legend.hazard.gbQuakeUnknown", { n: i18n.formatNumber(GB_QUAKE_COUNTS.unknownMagnitude) })}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbQuakeMinor", { zoom: GB_QUAKE_MINOR_MINZOOM })}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbQuakeOffshore", { n: i18n.formatNumber(GB_QUAKE_COUNTS.offshore) })}</LegendNote>
-    <LegendNote>{i18n.t("legend.hazard.gbQuakeDataEnd", { date: GB_QUAKE_DATA_END })}</LegendNote>
-    <LegendNote>{GB_QUAKE_ATTRIBUTION}</LegendNote>
   </div>;
 }

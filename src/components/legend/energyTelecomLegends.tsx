@@ -148,8 +148,7 @@ export function OoklaPerformanceGridLegend({ isDark = true, paletteIdx, taiwanOn
       </div>)}
     </div>
     <LegendNote style={{ marginTop: 5, lineHeight: 1.35 }}>
-      {i18n.t("legend.energy.ooklaNote1")}<br />
-      {i18n.t("legend.energy.ooklaNote2")}
+      {i18n.t("legend.energy.ooklaNote1")}
     </LegendNote>
   </div>;
 }
@@ -269,7 +268,6 @@ export function PowerPolesLegend() {
         </div>
       ))}
       <LegendNote style={{ marginTop: 6, lineHeight: 1.35 }}>
-        {i18n.t("legend.energy.polesNoteSource")}<br />
         {i18n.t("legend.energy.polesNoteZoom")}<br />
         {i18n.t("legend.energy.polesNoteIslands")}
       </LegendNote>

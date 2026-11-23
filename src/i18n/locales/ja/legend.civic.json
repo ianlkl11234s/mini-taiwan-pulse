@@ -151,7 +151,6 @@
   "legend.civic.jpEvacLegal": "2種別は法的な位置付けが異なるため合算できません",
   "legend.civic.jpEvacFilterNote": "災害種別の絞り込みは指定緊急避難場所のみ、福祉避難所は指定避難所のみが対象です",
   "legend.civic.jpEvacStale": "市町村の任意登録のため、最新でない・未登載の場合があります。市町村にご確認ください",
-  "legend.civic.jpEvacDate": "ファイル時点：2026-10-19（199,346点）",
   "legend.civic.jpOfficeTitle": "市町村役場・公民館",
   "legend.civic.jpOfficeBasis": "2022年4月時点（79,532点）。その後の統廃合・閉館は反映されていません",
   "legend.civic.jpOfficeHidden": "集会施設（49,488件、62%）は標準で非表示です。施設分類の設定で表示できます",
@@ -261,7 +260,6 @@
   "legend.civic.gbOsmPointsZoom10": "ズーム 10 以上で個別地点、それ未満はヒートマップ",
   "legend.civic.gbOsmTileZoom": "ズーム {z} 以上で表示",
   "legend.civic.gbOsmNations": "イングランド {e}／スコットランド {s}／ウェールズ {w}／北アイルランド {ni}",
-  "legend.civic.gbOsmSnapshot": "OpenStreetMap スナップショット {date}（ボランティアデータ、網羅度は地域差あり）",
   "legend.civic.gbPfNote": "郵便局は店舗内窓口を含む。裁判所・図書館は別レイヤー",
   "legend.civic.govServiceHroNote": "戸政事務所の出張所：戸政司 7437 の戸政事務所傘下の事務室・事務所 158 か所。位置は住所からの推定で、143 か所を表示し、15 か所は位置を特定できず非表示です。本所は従来の機関名簿のままです。"
 }

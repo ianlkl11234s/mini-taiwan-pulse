@@ -12,6 +12,5 @@
   "legend.migration.hidden": "畫出 {shown} 條；另有 {hidden} 組較小流向未畫（未滿 {min} 人一律不畫）",
   "legend.migration.direction": "弧線由遷出縣市彎向遷入縣市；A→B 與 B→A 分在兩側",
   "legend.migration.scope": "只算跨縣市的戶籍遷徙，不含國外遷入遷出、初設戶籍與縣市內跨鄉鎮；戶籍登記不等於實際搬家。與「人口遷徙（縣市）」統計口徑不同",
-  "legend.migration.base": "底色可開統計「縣市間淨遷入人數」（同一份資料加總），年份會跟著連動",
-  "legend.migration.source": "內政部戶政司 各直轄市、縣（市）間遷徙人口數（data.gov.tw 168209），政府資料開放授權條款第 1 版"
+  "legend.migration.base": "底色可開統計「縣市間淨遷入人數」（同一份資料加總），年份會跟著連動"
 }

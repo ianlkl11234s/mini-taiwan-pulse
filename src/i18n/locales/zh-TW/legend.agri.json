@@ -7,7 +7,6 @@
   "legend.agri.forestryTitle": "林業",
   "legend.agri.trailSources": "步道來源 source",
   "legend.agri.hutFacilityType": "設施類型 facility_type",
-  "legend.agri.hutOsmNote": "含 OSM 來源 © OpenStreetMap contributors（ODbL）",
   "legend.agri.reserveTypes": "保安林種類",
   "legend.agri.manufacturingTitle": "製造業公司登記",
   "legend.agri.companyOverview": "概覽：公司密度（家／km²）· {palette}",

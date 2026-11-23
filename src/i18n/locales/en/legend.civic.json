@@ -151,7 +151,6 @@
   "legend.civic.jpEvacLegal": "The two types have different legal meanings; do not add them together",
   "legend.civic.jpEvacFilterNote": "Hazard filters show emergency evacuation sites only; welfare shelters are a subset of designated shelters",
   "legend.civic.jpEvacStale": "Registered voluntarily by municipalities; may be outdated or incomplete. Please confirm with the municipality.",
-  "legend.civic.jpEvacDate": "File dated 2026-10-19 (199,346 points)",
   "legend.civic.jpOfficeTitle": "Municipal offices & public halls",
   "legend.civic.jpOfficeBasis": "Data as of 2022-04 (79,532 points); later mergers and closures are not reflected",
   "legend.civic.jpOfficeHidden": "Assembly facilities (49,488, 62%) are hidden by default; enable them with the facility class setting",
@@ -261,7 +260,6 @@
   "legend.civic.gbOsmPointsZoom10": "Individual points from zoom 10; heatmap below",
   "legend.civic.gbOsmTileZoom": "Shown from zoom {z}",
   "legend.civic.gbOsmNations": "England {e} / Scotland {s} / Wales {w} / Northern Ireland {ni}",
-  "legend.civic.gbOsmSnapshot": "OpenStreetMap snapshot {date} (volunteer data; completeness varies by area)",
   "legend.civic.gbPfNote": "Post offices include in-store counters; courts and libraries are separate layers",
   "legend.civic.govServiceHroNote": "Household registration branches: 158 branch offices under household registration offices (Department of Household Registration, 7437). Positions are estimated from addresses; 143 are shown and 15 could not be located. Main offices still follow the original agency list."
 }

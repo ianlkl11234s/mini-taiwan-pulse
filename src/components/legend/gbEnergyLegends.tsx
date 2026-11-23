@@ -4,7 +4,7 @@ import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLin
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   GB_CAPACITY_BANDS, GB_CONSTRUCTION_STROKE, GB_FIELD_INACTIVE_FACTOR, GB_FIELD_TYPES, GB_FUEL_GROUPS, GB_FUEL_STATION_COLOR,
-  GB_NSTA_ATTRIBUTION, GB_OSM_ATTRIBUTION, GB_POWER_PLANTS_ATTRIBUTION, GB_RENEWABLES_ATTRIBUTION, GB_STATUS_COUNTS, GB_TECH_GROUPS,
+  GB_STATUS_COUNTS, GB_TECH_GROUPS,
   GB_VOLTAGE_CLASSES, GB_ENERGY_FALLBACK_COLOR, type GbFieldType, type GbFuelGroup, type GbStatusGroup, type GbTechGroup, type GbVoltageClass,
 } from "../../data/gbEnergyTypes";
 import { LINE_DASH } from "../../map/mapStyleScale";
@@ -33,7 +33,6 @@ export function GbPowerPlantsLegend() {
     <LegendSizeRow fill={GB_ENERGY_FALLBACK_COLOR} title={i18n.t("legend.energy.gbCapacityTitle")} items={GB_CAPACITY_BANDS.map((b) => ({ r: b.radius, label: b.label }))} />
     <LegendNote>{i18n.t("legend.energy.gbPlantsNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbPlantsOverlap")}</LegendNote>
-    <LegendNote>{GB_POWER_PLANTS_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -60,7 +59,6 @@ export function GbRenewablesLegend() {
       operational: i18n.formatNumber(GB_STATUS_COUNTS.operational), construction: i18n.formatNumber(GB_STATUS_COUNTS.construction),
     })}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbRenewNote")}</LegendNote>
-    <LegendNote>{GB_RENEWABLES_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -80,7 +78,6 @@ export function GbPowerLinesLegend() {
     <LegendNote>{i18n.t("legend.energy.gbLinesZoom")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbGridOsmNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbGridHold")}</LegendNote>
-    <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -92,7 +89,6 @@ export function GbSubstationsLegend() {
     {GB_VOLTAGE_CLASSES.map((v) => <LegendRow key={v.value} swatch={<SwatchDot color={v.color} opacity={v.opacity} />}>{i18n.t(GB_VOLTAGE_KEYS[v.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.energy.gbSubstationsZoom")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbGridOsmNote")}</LegendNote>
-    <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -104,7 +100,6 @@ export function GbFuelStationsLegend() {
     <LegendRow swatch={<SwatchDot color={GB_FUEL_STATION_COLOR} />}>{i18n.t("legend.energy.gbFuelStation")}</LegendRow>
     <LegendNote>{i18n.t("legend.energy.gbFuelStationNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbFuelStationZoom")}</LegendNote>
-    <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -122,6 +117,5 @@ export function GbOilGasFieldsLegend() {
     <LegendNote>{i18n.t("legend.energy.gbFieldScope")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbFieldHold")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbNstaLicense")}</LegendNote>
-    <LegendNote>{GB_NSTA_ATTRIBUTION}</LegendNote>
   </div>;
 }

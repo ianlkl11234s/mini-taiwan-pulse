@@ -7,7 +7,6 @@
   "legend.agri.forestryTitle": "林業",
   "legend.agri.trailSources": "登山道の出典",
   "legend.agri.hutFacilityType": "施設の種類",
-  "legend.agri.hutOsmNote": "OSM 由来のデータを含む © OpenStreetMap contributors（ODbL）",
   "legend.agri.reserveTypes": "保安林の種類",
   "legend.agri.manufacturingTitle": "製造業の会社登記",
   "legend.agri.companyOverview": "概観：会社密度（社／km²）· {palette}",

@@ -44,7 +44,6 @@
   "legend.mapchallenge.day05.scope.all": "Any distance",
   "legend.mapchallenge.day05.scope.d200": "Within 200 m of sea",
   "legend.mapchallenge.day05.scope.d100": "Within 100 m of sea",
-  "legend.mapchallenge.day06.license": "Historical layers cited from: 中央研究院，《臺灣歷史文化地圖系統》第一版，（台北，中央研究院，2003年9月） (Academia Sinica, Taiwan History and Culture in Atlas, 1st ed., Sept 2003); licensed CC BY-NC-SA 3.0 Taiwan. This layer is derived data (TWD67 → WGS84, compared with present-day data) under the same terms; non-commercial.",
   "legend.mapchallenge.day06.source": "Present-day data: OpenStreetMap coastline (ODbL, retrieved 2026-11-06); MOI place names (2026-10-12) and village boundaries (2026-06-26); MOI national religion registry temples (retrieved 2026-08-01); Pulse lighthouse layer and CWA station list (update date not checked)",
   "legend.mapchallenge.day06.coastTitle": "Southwest coastlines, three eras",
   "legend.mapchallenge.day06.era1": "17th–18th century",

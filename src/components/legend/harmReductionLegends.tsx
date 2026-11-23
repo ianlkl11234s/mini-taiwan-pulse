@@ -55,7 +55,6 @@ export function HarmReductionPreventionCentersLegend() {
   return <div>
     <LegendTitle zh={localizeLayerName("harmReductionPreventionCenters", LAYER_MANIFEST.harmReductionPreventionCenters.name, i18n).primary} en="Drug Abuse Prevention Centers" />
     <LegendRow swatch={<SwatchDot color={HARM_REDUCTION_COLORS.harmReductionPreventionCenters} />}>{i18n.t("legend.harmReduction.preventionRow")}</LegendRow>
-    <LegendNote>{i18n.t("legend.harmReduction.preventionNote")}</LegendNote>
   </div>;
 }
 

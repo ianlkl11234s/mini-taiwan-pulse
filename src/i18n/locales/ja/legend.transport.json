@@ -72,7 +72,6 @@
   "legend.transport.aviDanger": "DANGER 危険区域（2）",
   "legend.transport.aviUlz": "ULZ 超軽量機活動区域（20）",
   "legend.transport.aviCircuit": "CIRCUIT 場周経路（1）",
-  "legend.transport.aviNote1": "● 出典：民用航空局 eAIP AIRAC 01-26（2026-03-19）",
   "legend.transport.aviNote2": "● 有人航空機に適用（民用航空法 §43）。🛸 ドローンの規則とは異なります",
   "legend.transport.aviNote3": "● ポリゴンをクリックすると下限・上限高度を表示",
   "legend.transport.droneTitle": "ドローン空域",
@@ -146,7 +145,6 @@
   "legend.transport.gbRoadA": "A 級道路",
   "legend.transport.gbRoadB": "B 級道路（2026-11-13 追加、OSM）",
   "legend.transport.gbRoadsSourceMrdb": "公式：グレートブリテンの高速道路と A 級は DfT 主要道路データベースの計測地点間を結ぶ概略の直線区間で、拡大すると実際の道路と一致しない。B 級は OSM の実際の線形",
-  "legend.transport.gbRoadsSourceOsm": "OSM：北アイルランド全体とグレートブリテンの B 級道路（OpenStreetMap 2026-11-13 スナップショット、実際の線形）",
   "legend.transport.gbRoadsBZoom": "B 級道路はズーム 8 以上で表示",
   "legend.transport.gbAadfTitleNote": "2025 年 年平均日交通量（自動車、台／日）",
   "legend.transport.gbAadfLt5k": "5,000 未満",
@@ -186,12 +184,10 @@
   "legend.transport.gbBtWidthNote": "線幅は道路等級別：高速道路は太く、A 級は中、B 級は細い",
   "legend.transport.gbBtSegmentNote": "主要道路（高速・A・B 級）のみ。1 件＝OSM の 1 区間で、橋 1 本ではない",
   "legend.transport.gbOsmNations": "イングランド {e}／スコットランド {s}／ウェールズ {w}／北アイルランド {ni}",
-  "legend.transport.gbOsmSnapshot": "OpenStreetMap スナップショット {date}（ボランティアデータ、網羅度は地域差あり）",
   "legend.transport.gbRfServices": "サービスエリア（{n}）",
   "legend.transport.gbRfRestArea": "休憩所（{n}）",
   "legend.transport.gbRfTollBooth": "料金所（{n}）",
   "legend.transport.gbRfEmergencyArea": "緊急駐車帯（{n}、イングランドのみ）",
   "legend.transport.gbRfEmergencyCoverage": "緊急駐車帯はイングランドのみ（National Highways のスマート高速道路）。スコットランド・ウェールズ・北アイルランドは対象外（0 ではない）",
-  "legend.transport.gbRfEmergencyPoint": "緊急駐車帯は区間の中点で表示",
-  "legend.transport.gbRfOsmNote": "サービスエリア・休憩所・料金所：OpenStreetMap スナップショット {date}（4 地域とも OSM）"
+  "legend.transport.gbRfEmergencyPoint": "緊急駐車帯は区間の中点で表示"
 }

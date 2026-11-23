@@ -6,8 +6,7 @@ import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchSquare, useLegendT
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { useLocale } from "../../state/localeStore";
 import {
-  JP_NATURAL_PARK_LEVELS, JP_NATURAL_PARK_AREAS_ATTRIBUTION, JP_NATIONAL_PARK_ZONES, JP_NATIONAL_PARKS_MOE_ATTRIBUTION,
-  JP_WILDLIFE_CATEGORIES, JP_WILDLIFE_MOE_ATTRIBUTION, JP_DID_DEFAULT_YEAR, JP_DID_DENSITY_LABELS, JP_DID_COUNTS, JP_DID_YEARS,
+  JP_NATURAL_PARK_LEVELS, JP_NATIONAL_PARK_ZONES, JP_WILDLIFE_CATEGORIES, JP_DID_DEFAULT_YEAR, JP_DID_DENSITY_LABELS, JP_DID_COUNTS, JP_DID_YEARS,
   jpDidAttribution, jpDidRamp,
 } from "../../data/jpNatureR2Types";
 
@@ -40,7 +39,6 @@ export function JpNaturalParkAreas2015Legend() {
     <LegendNote>{t("legend.jpNature.parkAreasScope")}</LegendNote>
     <LegendNote>{t("legend.jpNature.parkAreasAccuracy")}</LegendNote>
     <LegendNote>{t("legend.jpNature.okayama")}</LegendNote>
-    <LegendNote>{JP_NATURAL_PARK_AREAS_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -51,7 +49,6 @@ export function JpNationalParksMoeLegend() {
     {JP_NATIONAL_PARK_ZONES.map((z) => <LegendRow key={z.value} swatch={<SwatchSquare color={z.color} />}>{t(JP_NATIONAL_PARK_ZONE_KEYS[z.value])}</LegendRow>)}
     <LegendNote>{t("legend.jpNature.nationalParksScope")}</LegendNote>
     <LegendNote>{t("legend.jpNature.moeLicense")}</LegendNote>
-    <LegendNote>{JP_NATIONAL_PARKS_MOE_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -62,7 +59,6 @@ export function JpWildlifeProtectionMoeLegend() {
     {JP_WILDLIFE_CATEGORIES.map((c) => <LegendRow key={c.value} swatch={<SwatchSquare color={c.color} />}>{t(JP_WILDLIFE_CATEGORY_KEYS[c.value])}</LegendRow>)}
     <LegendNote>{t("legend.jpNature.wildlifeScope")}</LegendNote>
     <LegendNote>{t("legend.jpNature.moeLicense")}</LegendNote>
-    <LegendNote>{JP_WILDLIFE_MOE_ATTRIBUTION}</LegendNote>
   </div>;
 }
 

@@ -22,7 +22,7 @@
   "legend.water.measureScour": "深さ m",
   "legend.water.measureDust": "PM10 / 風速 / 温湿度",
   "legend.water.canalOther": "引水需要なし／宜蘭",
-  "legend.water.lakesNote": "養殖池レイヤーと重なるもの（39.1%）は除外｜OSM ODbL",
+  "legend.water.lakesNote": "養殖池レイヤーと重なるもの（39.1%）は除外",
   "legend.water.deltaSub": "当日の水位変化 Δ（当日の開始時点との差）",
   "legend.water.deltaFall": "{value} 低下",
   "legend.water.deltaRise": "{value} 上昇",

@@ -4,10 +4,8 @@ import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLin
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_BIKEPOINT_COLOR, GB_CHARGING_ZONES, GB_HUB_TYPES, GB_HUBS_ATTRIBUTION, GB_JAMCAM_COLOR, GB_JAMCAM_OFFLINE_COLOR, GB_LONDON_RAIL_MODES,
-  GB_LONDON_STATION_COLOR, GB_STATION_USAGE_BUCKETS, GB_STATION_USAGE_NO_DATA_COLOR, GB_TFL_ATTRIBUTIONS,
-  GB_AADF_BUCKETS, GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, GB_ROAD_CLASSES, GB_ROADS_OSM_ATTRIBUTION, GB_ROADS_ODBL,
-  type GbChargingZone, type GbHubType, type GbLondonRailMode, type GbRoadClass,
+  GB_BIKEPOINT_COLOR, GB_CHARGING_ZONES, GB_HUB_TYPES, GB_JAMCAM_COLOR, GB_JAMCAM_OFFLINE_COLOR, GB_LONDON_RAIL_MODES,
+  GB_LONDON_STATION_COLOR, GB_STATION_USAGE_BUCKETS, GB_STATION_USAGE_NO_DATA_COLOR, GB_AADF_BUCKETS, GB_ROAD_CLASSES, type GbChargingZone, type GbHubType, type GbLondonRailMode, type GbRoadClass,
 } from "../../data/gbTransportTypes";
 import { LINE_WIDTH, POINT_RADIUS, TRANSFER_STATION, transferRingColor } from "../../map/mapStyleScale";
 import { useLocale } from "../../state/localeStore";
@@ -24,7 +22,6 @@ function TflNotes() {
   const i18n = useLocale();
   return <>
     <LegendNote>{i18n.t("legend.transport.gbTflNotCovered")}</LegendNote>
-    {GB_TFL_ATTRIBUTIONS.map((a) => <LegendNote key={a}>{a}</LegendNote>)}
   </>;
 }
 
@@ -45,7 +42,6 @@ export function GbTransportHubsLegend() {
       items={[{ r: POINT_RADIUS.S, label: i18n.t("popup.transport.gbFerryLanding") }, { r: POINT_RADIUS.M, label: i18n.t("popup.transport.gbFerryTerminal") }]}
     />
     <LegendNote>{i18n.t("legend.transport.gbHubsNiNotCovered")}</LegendNote>
-    <LegendNote>{GB_HUBS_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -64,7 +60,6 @@ export function GbStationUsageLegend() {
     <LegendRow swatch={<SwatchDot color="transparent" stroke={GB_STATION_USAGE_NO_DATA_COLOR} strokeWidth={1.5} />}>{i18n.t("legend.transport.gbUsageNoData")}</LegendRow>
     <LegendNote>{i18n.t("legend.transport.gbUsageNi")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbUsageOverlap")}</LegendNote>
-    <LegendNote>{GB_HUBS_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -148,10 +143,7 @@ export function GbMajorRoadsLegend() {
     {GB_ROAD_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchLine color={c.color} width={c.widthPx?.[1] ?? LINE_WIDTH[c.width][1]} />}>{i18n.t(ROAD_CLASS_KEYS[c.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.transport.gbRoadsBAdded")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbRoadsSourceMrdb")}</LegendNote>
-    <LegendNote>{i18n.t("legend.transport.gbRoadsSourceOsm")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbRoadsBZoom")}</LegendNote>
-    <LegendNote>{GB_DFT_ROAD_TRAFFIC_ATTRIBUTION}</LegendNote>
-    <LegendNote>{`${GB_ROADS_OSM_ATTRIBUTION} (${GB_ROADS_ODBL})`}</LegendNote>
   </div>;
 }
 
@@ -172,6 +164,5 @@ export function GbTrafficCountsAadfLegend() {
     <LegendNote>{i18n.t("legend.transport.gbAadfEstimatedNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbAadfMinorNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbAadfNi")}</LegendNote>
-    <LegendNote>{GB_DFT_ROAD_TRAFFIC_ATTRIBUTION}</LegendNote>
   </div>;
 }

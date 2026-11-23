@@ -22,7 +22,7 @@
   "legend.water.measureScour": "深度 m",
   "legend.water.measureDust": "PM10 / 風速 / 溫濕度",
   "legend.water.canalOther": "不具引灌需求/宜蘭 Other",
-  "legend.water.lakesNote": "已濾掉與魚塭圖層重疊者（39.1%）｜OSM ODbL",
+  "legend.water.lakesNote": "已濾掉與魚塭圖層重疊者（39.1%）",
   "legend.water.deltaSub": "當日水位變化 Δ（vs 當日起始）",
   "legend.water.deltaFall": "{value} 下降",
   "legend.water.deltaRise": "{value} 上升",

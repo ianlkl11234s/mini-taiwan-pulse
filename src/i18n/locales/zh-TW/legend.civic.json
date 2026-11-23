@@ -151,7 +151,6 @@
   "legend.civic.jpEvacLegal": "兩種場所的法定意義不同，不可相加",
   "legend.civic.jpEvacFilterNote": "篩選災害種別時只顯示指定緊急避難場所；福祉避難所只含指定避難所",
   "legend.civic.jpEvacStale": "資料由市町村自願登錄，可能非最新或未登載，請向市町村確認",
-  "legend.civic.jpEvacDate": "檔案時點：2026-10-19（199,346 點）",
   "legend.civic.jpOfficeTitle": "役所與公民館",
   "legend.civic.jpOfficeBasis": "資料基準：2022-04（79,532 點）；之後的合併、閉館未反映",
   "legend.civic.jpOfficeHidden": "集會施設（49,488 處，佔 62%）預設隱藏，可用「設施分類」打開",
@@ -261,7 +260,6 @@
   "legend.civic.gbOsmPointsZoom10": "縮放 10 起畫個別點位，之下為熱區",
   "legend.civic.gbOsmTileZoom": "縮放 {z} 起顯示",
   "legend.civic.gbOsmNations": "英格蘭 {e}／蘇格蘭 {s}／威爾斯 {w}／北愛爾蘭 {ni}",
-  "legend.civic.gbOsmSnapshot": "OpenStreetMap 快照 {date}（志願者資料，完整度依地區而異）",
   "legend.civic.gbPfNote": "郵局含店內代辦櫃台；法院見「法院」、圖書館見「文化設施」",
   "legend.civic.govServiceHroNote": "戶政辦公據點：戶政司 7437 的戶政事務所轄下辦公室、辦公處 158 處，位置依地址推定，143 處上圖，另 15 處無法定位未上圖；主所仍以原機關名冊為準。"
 }

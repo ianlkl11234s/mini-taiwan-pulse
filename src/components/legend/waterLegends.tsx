@@ -14,11 +14,10 @@ import type { LayerName } from "../../data/layerManifest";
 import type { MessageKey } from "../../i18n/keys";
 import { LINE_WIDTH } from "../../map/mapStyleScale";
 import {
-  GB_BATHING_CLASSES, GB_BATHING_DESIGNATED_COUNT, GB_BATHING_NO_CLASS_STROKE, GB_BATHING_SOURCES, GB_EROSION_RISKS, GB_EROSION_SOURCES,
-  GB_EROSION_ZONES, GB_FLOOD_DEFENCE_CLASSES, GB_FLOOD_DEFENCE_DC_ATTRIBUTION, GB_FLOOD_DEFENCE_EA_ATTRIBUTION, GB_FLOOD_DEFENCE_NATURAL_FACTOR,
-  GB_FLOOD_DEFENCE_NRW_ATTRIBUTION, GB_HYDRO_EA_ATTRIBUTION, GB_HYDRO_KINDS, GB_HYDRO_SEPA_ATTRIBUTION, GB_HYDRO_UNTAGGED_COLOR,
-  GB_RIVERS_CANAL_COLOR, GB_RIVERS_COLOR, GB_RIVERS_COLOR_LIGHT, GB_RIVERS_FADED_FACTOR, GB_RIVERS_NI_ATTRIBUTION, GB_RIVERS_OS_ATTRIBUTION,
-  GB_RIVER_FORMS, GB_RIVER_STRAHLER_BANDS, type GbBathingClass, type GbFloodDefenceClass, type GbHydroKind, type GbNation, type GbRiverForm,
+  GB_BATHING_CLASSES, GB_BATHING_DESIGNATED_COUNT, GB_BATHING_NO_CLASS_STROKE, GB_EROSION_RISKS, GB_EROSION_SOURCES,
+  GB_EROSION_ZONES, GB_FLOOD_DEFENCE_CLASSES, GB_FLOOD_DEFENCE_NATURAL_FACTOR,
+  GB_HYDRO_KINDS, GB_HYDRO_UNTAGGED_COLOR,
+  GB_RIVERS_CANAL_COLOR, GB_RIVERS_COLOR, GB_RIVERS_COLOR_LIGHT, GB_RIVERS_FADED_FACTOR, GB_RIVER_FORMS, GB_RIVER_STRAHLER_BANDS, type GbBathingClass, type GbFloodDefenceClass, type GbHydroKind, type GbNation, type GbRiverForm,
 } from "../../data/gbWaterTypes";
 import { ClimateGradientBar, DenseHeatmapLegendRow, FireCatRows, NoiseLegendNote, NoiseLegendRows, NoiseLegendTitle } from "./legendShared";
 
@@ -595,8 +594,6 @@ export function GbRiversLegend() {
       </LegendRow>
     ))}
     <LegendNote>{i18n.t("legend.water.gbRiversZoom")}</LegendNote>
-    <LegendNote>{GB_RIVERS_OS_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_RIVERS_NI_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -614,8 +611,6 @@ export function GbHydroStationsLegend() {
     <LegendRow swatch={<SwatchDot color="transparent" stroke={GB_HYDRO_KINDS[0]!.color} strokeWidth={1.5} />}>{i18n.t("legend.water.gbHydroGridPrecision")}</LegendRow>
     <LegendNote>{i18n.t("legend.water.gbHydroCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbHydroNoReadings")}</LegendNote>
-    <LegendNote>{GB_HYDRO_EA_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_HYDRO_SEPA_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -638,9 +633,6 @@ export function GbFloodDefenceAssetsLegend() {
     <LegendNote>{i18n.t("legend.water.gbFloodScotland")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbFloodNi")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbDynamicCoastNote")}</LegendNote>
-    <LegendNote>{GB_FLOOD_DEFENCE_EA_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_FLOOD_DEFENCE_NRW_ATTRIBUTION}</LegendNote>
-    <LegendNote>{GB_FLOOD_DEFENCE_DC_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
@@ -674,7 +666,6 @@ export function GbCoastalErosionRiskLegend() {
     <LegendNote>{i18n.t("legend.water.gbErosionNotComparable")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbErosionPeriodNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbDynamicCoastNote")}</LegendNote>
-    {(Object.keys(GB_EROSION_SOURCES) as GbNation[]).map((n) => <LegendNote key={n}>{GB_EROSION_SOURCES[n].attribution}</LegendNote>)}
   </div>;
 }
 
@@ -692,6 +683,5 @@ export function GbBathingWatersLegend() {
     <LegendRow swatch={<SwatchDot color="transparent" stroke={GB_BATHING_NO_CLASS_STROKE} strokeWidth={1.5} />}>{i18n.t("legend.water.gbBathingNoClass")}</LegendRow>
     <LegendNote>{i18n.t("legend.water.gbBathingYear")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbBathingDesignated", { count: GB_BATHING_DESIGNATED_COUNT })}</LegendNote>
-    {Object.values(GB_BATHING_SOURCES).map((src) => <LegendNote key={src.attribution}>{src.attribution}</LegendNote>)}
   </div>;
 }

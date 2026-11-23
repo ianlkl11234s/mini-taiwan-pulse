@@ -44,7 +44,6 @@
   "legend.mapchallenge.day05.scope.all": "距離を問わない",
   "legend.mapchallenge.day05.scope.d200": "海から 200 m 以内",
   "legend.mapchallenge.day05.scope.d100": "海から 100 m 以内",
-  "legend.mapchallenge.day06.license": "歴史レイヤーの出典：中央研究院，《臺灣歷史文化地圖系統》第一版，（台北，中央研究院，2003年9月）（中央研究院『台湾歴史文化地図システム』第1版、2003年9月）；CC BY-NC-SA 3.0 台湾版。本レイヤーは派生データ（TWD67→WGS84、現在のデータと照合）で、同条件・非営利で公開。",
   "legend.mapchallenge.day06.source": "現在のデータ：OpenStreetMap 海岸線（ODbL、2026-11-06 取得）；内政部地名資料（2026-10-12）・村里界（2026-06-26）；内政部全国宗教情報システム寺廟（2026-08-01 取得）；Pulse 灯台レイヤー・中央気象署観測所一覧（更新日未確認）",
   "legend.mapchallenge.day06.coastTitle": "南西部の海岸線 三時代",
   "legend.mapchallenge.day06.era1": "17〜18 世紀",

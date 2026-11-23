@@ -99,7 +99,7 @@ export function JmaAmedasLegend() {
     {mode.snowGaugeOnly && <LegendNote>{i18n.t("legend.jma.snowGaugeOnly")}</LegendNote>}
     <LiveStatus layerKey="jmaAmedas" />
     <HistoryNote layerKey="jmaAmedas" note="legend.jmaTime.historyHourly" />
-    <LegendNote>{i18n.t("legend.jma.amedasNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jma.amedasNote")}</LegendNote>
   </div>;
 }
 
@@ -139,7 +139,7 @@ export function JmaWarningsLegend() {
     {names.length > 0 && <div style={{ marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
       {i18n.t("legend.jma.unmappedAreas", { names: names.slice(0, 12).join(i18n.t("legend.jma.listSep")) + (names.length > 12 ? i18n.t("legend.jma.andMore", { count: names.length }) : "") })}
     </div>}
-    <LegendNote>{i18n.t("legend.jma.warningsNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jma.warningsNote")}</LegendNote>
   </div>;
 }
 
@@ -152,7 +152,7 @@ export function JmaQuakesLegend() {
     <LiveStatus layerKey="jmaQuakes" timeLabel={i18n.t("legend.jma.timeLatestIssued")} drawnUnit="legend.jma.unitQuake" noCoordLabel={i18n.t("legend.jma.noCoordNoEpicenter")} />
     <HistoryNote layerKey="jmaQuakes" note="legend.jmaTime.quakesHistory" />
     <HistoryNote layerKey="jmaQuakes" note="legend.jmaTime.quakesIncomplete" onlyIncomplete />
-    <LegendNote>{i18n.t("legend.jma.quakesNote")}{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jma.quakesNote")}</LegendNote>
   </div>;
 }
 
@@ -162,7 +162,7 @@ export function JmaVolcanoesLegend() {
     <LegendTitle zh={i18n.t("legend.jma.volcanoTitle")} en="火山" />
     {JMA_VOLCANO_LEVELS.map((row) => <LegendRow key={row.value} swatch={<SwatchDot color={row.color} />}>{enumLabel("jmaVolcanoLevel", row.value, row.label, i18n)}</LegendRow>)}
     <LiveStatus layerKey="jmaVolcanoes" timeLabel={i18n.t("legend.jma.timeLatestIssued")} drawnUnit="legend.jma.unitVolcano" />
-    <LegendNote>{i18n.t("legend.jmaTime.volcanoSnapshot")}{i18n.t("legend.jma.attribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jmaTime.volcanoSnapshot")}</LegendNote>
   </div>;
 }
 
@@ -261,7 +261,7 @@ export function JmaImageryLegend({ layerKey }: { layerKey: JmaImageryLayerKey })
     {/* 灰階雲圖沒有缺測等級（0、255 都是有效灰階），地圖上不會出現未涵蓋灰 */}
     {!gray && <LegendRow swatch={<SwatchSquare color={JMA_IMAGERY_UNCOVERED_COLOR} />}>{i18n.t("legend.jma.imageryUncovered")}</LegendRow>}
     <ImageryStatus product={productId} />
-    <LegendNote>{i18n.t(IMAGERY_NOTES[layerKey])}{spec.count ? i18n.t("legend.jma.anaCoverageNote") : ""}{i18n.t("legend.jma.imageryAttribution")}</LegendNote>
+    <LegendNote>{i18n.t(IMAGERY_NOTES[layerKey])}{spec.count ? i18n.t("legend.jma.anaCoverageNote") : ""}</LegendNote>
   </div>;
 }
 
@@ -316,7 +316,7 @@ export function JmaRiskFloodLegend() {
     {[...JMA_FLOOD_LEVELS].reverse().map((lv) => <LegendRow key={lv.value} swatch={<SwatchLine color={lv.color} width={3} />}>{i18n.t(FLOOD_LEVEL_KEYS[lv.value]!)}</LegendRow>)}
     <LegendRow swatch={<SwatchLine color={JMA_FLOOD_OTHER_COLOR} width={3} />}>{i18n.t("legend.jma.floodOther")}</LegendRow>
     {line}
-    <LegendNote>{i18n.t("legend.jma.floodNote")}{i18n.t("legend.jma.imageryAttribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jma.floodNote")}</LegendNote>
   </div>;
 }
 
@@ -325,6 +325,6 @@ export function JmaKosaLegend() {
   const i18n = useLocale();
   return <div>
     <LegendTitle zh={layerTitle("jmaKosa", i18n)} />
-    <LegendNote>{i18n.t("legend.jma.kosaNote")}{i18n.t("legend.jma.kosaAttribution")}</LegendNote>
+    <LegendNote>{i18n.t("legend.jma.kosaNote")}</LegendNote>
   </div>;
 }

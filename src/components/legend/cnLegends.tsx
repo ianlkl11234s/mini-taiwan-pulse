@@ -7,10 +7,10 @@ import { localizeLayerName } from "../../i18n/layerText";
 import { useLocale } from "../../state/localeStore";
 import { BOUNDARY_GRAY, LINE_WIDTH } from "../../map/mapStyleScale";
 import {
-  CN_ADMIN_NOTES, CN_ADMIN_SOURCE, CN_DENSITY_LABELS, CN_GRID_LEGEND, CN_GRID_NOTES, CN_GRID_SOURCE, CN_NOT_COVERED_COLOR, CN_POPULATION_NOTES,
-  CN_POPULATION_SOURCE, CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY, pickL3, type CnLayerSpec,
+  CN_ADMIN_NOTES, CN_DENSITY_LABELS, CN_GRID_LEGEND, CN_GRID_NOTES, CN_NOT_COVERED_COLOR, CN_POPULATION_NOTES,
+  CN_RASTER_SPEC_BY_KEY, CN_SPEC_BY_KEY, pickL3, type CnLayerSpec,
 } from "../../data/cnDataLayers";
-import { phText, type PhCat } from "../../data/phDataLayers";
+import { type PhCat } from "../../data/phDataLayers";
 import type { CnDataKey, CnRasterKey } from "../../data/cnDataKeys";
 import { cnDensityColors } from "../../hooks/useCnLayers";
 
@@ -28,7 +28,6 @@ export function CnAdminBoundariesLegend() {
     <LegendTitle zh={title} />
     <LegendRow swatch={<SwatchLine color={BOUNDARY_GRAY[t.isDark ? "dark" : "light"]} />}>{pickL3({ zh: "行政區界（省級、地級擇一）", en: "Boundary (province or prefecture level)", ja: "行政区域界（省級・地級から選択）" }, locale)}</LegendRow>
     {CN_ADMIN_NOTES.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{CN_ADMIN_SOURCE.short}</LegendNote>
   </div>;
 }
 
@@ -43,7 +42,6 @@ export function CnPopulationLegend() {
     {CN_DENSITY_LABELS.map((label, i) => <LegendRow key={label} swatch={<SwatchSquare color={colors[i]!} />}>{label}</LegendRow>)}
     <LegendRow swatch={<SwatchSquare color={CN_NOT_COVERED_COLOR} />}>{pickL3({ zh: "未涵蓋（不是 0）", en: "Not covered (not zero)", ja: "未収録（0 ではない）" }, locale)}</LegendRow>
     {CN_POPULATION_NOTES.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{CN_POPULATION_SOURCE.short}</LegendNote>
   </div>;
 }
 
@@ -55,7 +53,6 @@ export function CnPopulationGridLegend() {
     <LegendNote>{pickL3({ zh: "人口密度（GHS-POP 2025 模型值，人／km²）", en: "Population density (GHS-POP 2025 model values, people/km²)", ja: "人口密度（GHS-POP 2025 モデル値、人／km²）" }, locale)}</LegendNote>
     {CN_GRID_LEGEND.map((c) => <LegendRow key={c.label} swatch={<SwatchSquare color={c.color} />}>{c.label}</LegendRow>)}
     {CN_GRID_NOTES.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{CN_GRID_SOURCE.org}（{CN_GRID_SOURCE.license}）</LegendNote>
   </div>;
 }
 
@@ -85,7 +82,6 @@ export function CnDataLegend({ layerKey }: { layerKey: CnDataKey }) {
     {ring ? <LegendRow swatch={<SwatchDot color={spec.color} stroke="#ffffff" strokeWidth={2} />}>{pickL3(ring.label, locale)}</LegendRow> : null}
     {spec.minZoomNote ? <LegendNote>{pickL3(spec.minZoomNote, locale)}</LegendNote> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{phText(spec.sourceOrg, locale)}（{phText(spec.license, locale)}）</LegendNote>
   </div>;
 }
 
@@ -99,6 +95,5 @@ export function CnRasterLegend({ layerKey }: { layerKey: CnRasterKey }) {
     <LegendNote>{pickL3(spec.legendTitle, locale)}</LegendNote>
     {spec.legend.map((c) => <LegendRow key={c.label.en} swatch={<SwatchSquare color={c.color} />}>{pickL3(c.label, locale)}</LegendRow>)}
     {spec.notes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
-    <LegendNote>{phText(spec.sourceOrg, locale)}（{phText(spec.license, locale)}）</LegendNote>
   </div>;
 }

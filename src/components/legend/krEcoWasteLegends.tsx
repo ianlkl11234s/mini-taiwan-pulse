@@ -21,7 +21,6 @@ export function KrEcologyNaturalnessLegend() {
     {krEcoGrades(t.isDark).map((g) => <LegendRow key={g.value} swatch={<SwatchSquare color={g.color} />}>{pickL3(g.label, locale)}</LegendRow>)}
     <LegendNote>{pickL3(KR_ECO_TEXT.legendBlank, locale)}</LegendNote>
     <LegendNote>{pickL3(KR_ECO_TEXT.legendNine, locale)}</LegendNote>
-    <LegendNote>{pickL3(KR_ECO_TEXT.legendKogl, locale)}</LegendNote>
     <LegendNote>{pickL3(KR_ECO_TEXT.legendZoom, locale)}</LegendNote>
     <LegendNote>{KR_ECO_ATTRIBUTION}</LegendNote>
   </div>;

@@ -72,7 +72,6 @@
   "legend.transport.aviDanger": "DANGER danger area (2)",
   "legend.transport.aviUlz": "ULZ ultralight activity zone (20)",
   "legend.transport.aviCircuit": "CIRCUIT traffic circuit (1)",
-  "legend.transport.aviNote1": "● Source: Civil Aeronautics Administration eAIP AIRAC 01-26 (2026-03-19)",
   "legend.transport.aviNote2": "● Applies to crewed aircraft (Civil Aeronautics Act §43); differs from the 🛸 drone rules",
   "legend.transport.aviNote3": "● Click a polygon to see its floor/ceiling altitudes",
   "legend.transport.droneTitle": "Drone airspace",
@@ -146,7 +145,6 @@
   "legend.transport.gbRoadA": "A road",
   "legend.transport.gbRoadB": "B road (added 2026-11-13, OSM)",
   "legend.transport.gbRoadsSourceMrdb": "Official: Great Britain motorways and A roads come from the DfT Major Roads Database as generalised straight segments between count points, not aligned with the actual road when zoomed in; B roads follow the actual OSM alignment",
-  "legend.transport.gbRoadsSourceOsm": "OSM: all of Northern Ireland and Great Britain B roads (OpenStreetMap snapshot 2026-11-13, actual alignment)",
   "legend.transport.gbRoadsBZoom": "B roads appear from zoom 8",
   "legend.transport.gbAadfTitleNote": "2025 annual average daily motor vehicles (vehicles/day)",
   "legend.transport.gbAadfLt5k": "Under 5,000",
@@ -186,12 +184,10 @@
   "legend.transport.gbBtWidthNote": "Line width by road class: motorway thick, A road medium, B road thin",
   "legend.transport.gbBtSegmentNote": "Major roads only (motorway, A, B); one record = one OSM way segment, not one bridge",
   "legend.transport.gbOsmNations": "England {e} / Scotland {s} / Wales {w} / Northern Ireland {ni}",
-  "legend.transport.gbOsmSnapshot": "OpenStreetMap snapshot {date} (volunteer data; completeness varies by area)",
   "legend.transport.gbRfServices": "Services ({n})",
   "legend.transport.gbRfRestArea": "Rest area ({n})",
   "legend.transport.gbRfTollBooth": "Toll booth ({n})",
   "legend.transport.gbRfEmergencyArea": "Emergency area ({n}, England only)",
   "legend.transport.gbRfEmergencyCoverage": "Emergency areas cover England only (National Highways smart motorways); Scotland, Wales and Northern Ireland: not covered (not zero)",
-  "legend.transport.gbRfEmergencyPoint": "Emergency areas are shown at the segment midpoint",
-  "legend.transport.gbRfOsmNote": "Services, rest areas and toll booths: OpenStreetMap snapshot {date} (OSM in all four nations)"
+  "legend.transport.gbRfEmergencyPoint": "Emergency areas are shown at the segment midpoint"
 }
