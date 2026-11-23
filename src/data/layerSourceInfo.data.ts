@@ -604,6 +604,8 @@ export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = {
   mapchallengeDay21OsmRoads: { org: { key: "legend.mapchallenge.day21.source" }, from: "popup" },
   mapchallengeDay23TasteTerms: { org: { "zh-TW": "財政部財政資訊中心（全國營業稅籍登記資料）", en: "Fiscal Information Agency, Ministry of Finance (business tax registration)", ja: "財政部財政資訊センター（営業税籍登記データ）" }, license: { key: "popup.environmentLayer.licenseGov" }, from: "legend" },
   mapchallengeDay23TasteVariants: { org: { "zh-TW": "財政部財政資訊中心（全國營業稅籍登記資料）", en: "Fiscal Information Agency, Ministry of Finance (business tax registration)", ja: "財政部財政資訊センター（営業税籍登記データ）" }, license: { key: "popup.environmentLayer.licenseGov" }, from: "legend" },
+  mapchallengeDay23TastePlaces: { org: { "zh-TW": "財政部財政資訊中心（全國營業稅籍登記資料）", en: "Fiscal Information Agency, Ministry of Finance (business tax registration)", ja: "財政部財政資訊センター（営業税籍登記データ）" }, license: { key: "popup.environmentLayer.licenseGov" }, from: "legend" },
+  mapchallengeDay23TasteForeign: { org: { "zh-TW": "財政部財政資訊中心（全國營業稅籍登記資料）", en: "Fiscal Information Agency, Ministry of Finance (business tax registration)", ja: "財政部財政資訊センター（営業税籍登記データ）" }, license: { key: "popup.environmentLayer.licenseGov" }, from: "legend" },
   marineEcologicalMonitoringSites: { org: { "zh-TW": "國家海洋研究院", en: { key: "enum.atlasOrg.namr" }, ja: { key: "enum.atlasOrg.namr" } }, license: { key: "popup.environmentLayer.licenseGov" }, url: "https://data.gov.tw/dataset/171350", asOf: "2025-07-21", from: "legend" },
   marineMicroplastics: { org: "海洋委員會海洋保育署", license: "政府資料開放授權條款-第1版", url: "https://data.gov.tw/dataset/172480", from: "catalog" },
   marinePollutionIncidents: { org: "海洋委員會海洋保育署", license: "政府資料開放授權條款-第1版", url: "https://data.gov.tw/dataset/157580", from: "catalog" },

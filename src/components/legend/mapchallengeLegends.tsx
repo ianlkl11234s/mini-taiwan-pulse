@@ -757,7 +757,6 @@ export function MapchallengeDay23TastePlacesLegend({ isDark }: { isDark: boolean
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.placesScope")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
-    <LegendNote>{t("legend.mapchallenge.day23.source")}</LegendNote>
   </div>;
 }
 
@@ -779,6 +778,5 @@ export function MapchallengeDay23TasteForeignLegend({ isDark }: { isDark: boolea
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.foreignScope")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
-    <LegendNote>{t("legend.mapchallenge.day23.source")}</LegendNote>
   </div>;
 }
