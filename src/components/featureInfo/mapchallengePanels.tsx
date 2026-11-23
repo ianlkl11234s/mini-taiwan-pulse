@@ -40,7 +40,7 @@ import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, M
 import { MAPCHALLENGE_DAY21_YEAR_MIN, mapchallengeDay21ClassOf, mapchallengeDay21YearColor } from "../../data/mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY21_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import {
-  MAPCHALLENGE_DAY23_CELL_KM2, MAPCHALLENGE_DAY23_DATA_DATE, mapchallengeDay23GroupById, mapchallengeDay23TermById, mapchallengeDay23TermColor,
+  MAPCHALLENGE_DAY23_CELL_KM2, mapchallengeDay23GroupById, mapchallengeDay23TermById, mapchallengeDay23TermColor,
   MAPCHALLENGE_DAY23_FOREIGN_DOMINANT, mapchallengeDay23ForeignById, mapchallengeDay23PlaceById,
   mapchallengeDay23IntlByKey, mapchallengeDay23IntlTermById, type MapchallengeDay23IntlKey,
 } from "../../data/mapchallengeDay23Types";
@@ -595,7 +595,6 @@ function MapchallengeDay23Footer({ props, scope }: Props & { scope?: string }) {
   const km2 = MAPCHALLENGE_DAY23_CELL_KM2[num(props.res)];
   return <>
     {km2 !== undefined && <Row label={t("popup.mapchallenge.day23.cell")} value={t("popup.mapchallenge.day23.cellValue", { km2: formatNumber(km2) })} />}
-    <Row label={t("popup.mapchallenge.day23.date")} value={MAPCHALLENGE_DAY23_DATA_DATE} mono />
     <Row label={t("popup.mapchallenge.day23.note")} value={scope ?? t("legend.mapchallenge.day23.scope")} />
     <Row label={t("popup.mapchallenge.day23.position")} value={t("popup.mapchallenge.day23.positionNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day23.source") }} />
@@ -660,7 +659,7 @@ export function MapchallengeDay23TasteForeignPanel({ props }: Props) {
   </div>;
 }
 
-// ── Day 23 味覺第三批：南韓／英國／日本（共用一個說明框；資料日期、口徑、來源依國別） ──
+// ── Day 23 味覺第三批：南韓／英國／日本（共用一個說明框；口徑依國別） ──
 function MapchallengeDay23TasteIntlPanel({ props, layerKey }: Props & { layerKey: MapchallengeDay23IntlKey }) {
   const { t, formatNumber } = useLocale();
   const termName = useMapchallengeDay23IntlTermName();
@@ -673,7 +672,6 @@ function MapchallengeDay23TasteIntlPanel({ props, layerKey }: Props & { layerKey
     <Title color={mapchallengeDay23TermColor(term, isDark)}>{termName(country, term)}</Title>
     <Row label={t("popup.mapchallenge.day23.count")} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(num(props.n)) })} mono />
     {km2 !== undefined && <Row label={t("popup.mapchallenge.day23.cell")} value={t("popup.mapchallenge.day23.cellValue", { km2: formatNumber(km2) })} />}
-    <Row label={t("popup.mapchallenge.day23.date")} value={country.dataDate} mono />
     <Row label={t("popup.mapchallenge.day23.note")} value={t("legend.mapchallenge.day23.intl.scope")} />
     <Row label={t("popup.mapchallenge.day23.position")} value={t("popup.mapchallenge.day23.positionNote")} />
     <SourceFooter props={{ source: t(MAPCHALLENGE_DAY23_INTL_KEYS.source[country.cc]) }} />

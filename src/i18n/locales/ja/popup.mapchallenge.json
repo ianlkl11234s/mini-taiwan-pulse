@@ -218,7 +218,6 @@
   "popup.mapchallenge.day23.countValue": "{n} 店",
   "popup.mapchallenge.day23.cell": "グリッド",
   "popup.mapchallenge.day23.cellValue": "H3 六角形セル、約 {km2} km²",
-  "popup.mapchallenge.day23.date": "データ日付",
   "popup.mapchallenge.day23.note": "集計範囲",
   "popup.mapchallenge.day23.position": "位置",
   "popup.mapchallenge.day23.positionNote": "円は六角形セルの中心であり、店の位置ではない。",
