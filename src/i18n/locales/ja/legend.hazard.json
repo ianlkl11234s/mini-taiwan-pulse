@@ -106,7 +106,7 @@
   "legend.hazard.globalUpdated": "版の更新",
   "legend.hazard.globalNote": "点は出典が裏付ける出来事の地点か、都市・国の代表中心です。代表点は正確な発生座標ではありません（詳細はポップアップを参照）。同じ位置の別の出来事は並べて表示し、数字の点はクリックで展開できます。弧は国をまたぐ出来事の関連のみを示し、移動方向や時間順序はありません。",
   "legend.hazard.globalLineAssoc": "実線＝同じ報道で言及された別の国",
-  "legend.hazard.globalLineStory": "破線＝見出しが近く、同じ出来事の別報道かもしれないもの。出来事を選ぶと関連報道を強調します。線は移動や因果を示しません。",
+  "legend.hazard.globalLineStory": "破線＝見出しや要約が近く、同じ出来事の別報道かもしれないもの（控えめな判定で漏れあり）。出来事を選ぶと関連報道を強調し、ポップアップに一覧表示します。線は移動や因果を示しません。",
   "legend.hazard.globalStatus": "地図上 {mapped} 件、位置不明 {unlocated} 件は INTEL 一覧のみ",
   "legend.hazard.globalLatest": "最新データ受信 {time}（約 {hours} 時間前）",
   "legend.hazard.nuclearTitle": "放射線量",
@@ -157,5 +157,6 @@
   "legend.hazard.gbQuakeUnknown": "マグニチュード不明の {n} 件は最小の点で表示",
   "legend.hazard.gbQuakeMinor": "M2 未満の計器観測はズーム {zoom} 以上で表示",
   "legend.hazard.gbQuakeOffshore": "海域の地震 {n} 件を含む（いずれの地域にも属さない）",
-  "legend.hazard.disasterResourceNote": "消防署救災資源データベース 5,568 か所のうち座標のある 5,379 か所；保管機関の種類は名称のキーワードによる大まかな分類。多くの品目は数量 0 で登録されているため、ポップアップには数量 0 超の品目のみ表示"
+  "legend.hazard.disasterResourceNote": "消防署救災資源データベース 5,568 か所のうち座標のある 5,379 か所；保管機関の種類は名称のキーワードによる大まかな分類。多くの品目は数量 0 で登録されているため、ポップアップには数量 0 超の品目のみ表示",
+  "legend.hazard.globalNoiseHidden": "AIがノイズと判定した報道 {n} 件を地図で非表示（レイヤー設定で表示可）"
 }

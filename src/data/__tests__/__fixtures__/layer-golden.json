@@ -143170,6 +143170,11 @@
         "value": false
       },
       {
+        "label": "包含 AI 判為雜訊的報導",
+        "type": "toggle",
+        "value": false
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0,

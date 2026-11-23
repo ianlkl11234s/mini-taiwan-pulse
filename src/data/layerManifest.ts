@@ -3045,7 +3045,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "globalEvents",
     popup: "globalEvent",
-    params: { count: 8, kinds: ["slider", "select", "select", "select", "select", "toggle", "toggle", "toggle"] },
+    params: { count: 9, kinds: ["slider", "select", "select", "select", "select", "toggle", "toggle", "toggle", "toggle"] },
     description: "全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡",
     topics: ["世界", "重要事件", "情報"],
   },

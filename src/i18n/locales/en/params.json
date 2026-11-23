@@ -407,6 +407,7 @@
   "param.關聯線（非移動或因果）": "Related-event links (not movement or cause)",
   "param.包含 AI 初判／待判斷": "Include AI preliminary / pending",
   "param.僅顯示臺灣相關（直接／間接）": "Taiwan-related only (direct / indirect)",
+  "param.包含 AI 判為雜訊的報導": "Include reports AI marked as noise",
   "param.拖尾": "Trail",
   "param.30 分鐘": "30 minutes",
   "param.2 小時": "2 hours",
