@@ -797,6 +797,32 @@ for f in \
   public/world/id_terrain_relief.pmtiles \
   public/world/id_transport_hubs.pmtiles \
   public/world/id_water_facilities.pmtiles \
+  public/world/id_accommodation.pmtiles \
+  public/world/id_aquaculture.pmtiles \
+  public/world/id_banks.pmtiles \
+  public/world/id_cemeteries.pmtiles \
+  public/world/id_comm_towers.pmtiles \
+  public/world/id_cultural_facilities.pmtiles \
+  public/world/id_experiences.pmtiles \
+  public/world/id_factories.pmtiles \
+  public/world/id_farmland.pmtiles \
+  public/world/id_fire_stations.pmtiles \
+  public/world/id_health_facilities.pmtiles \
+  public/world/id_heritage_sites.pmtiles \
+  public/world/id_ikn.pmtiles \
+  public/world/id_immigration_offices.pmtiles \
+  public/world/id_markets.pmtiles \
+  public/world/id_parks.pmtiles \
+  public/world/id_places_of_worship.pmtiles \
+  public/world/id_police_stations.pmtiles \
+  public/world/id_post_offices.pmtiles \
+  public/world/id_prisons_courts.pmtiles \
+  public/world/id_schools.pmtiles \
+  public/world/id_special_economic_zones.pmtiles \
+  public/world/id_sports_venues.pmtiles \
+  public/world/id_transjakarta.pmtiles \
+  public/world/id_veterinary.pmtiles \
+  public/world/id_weather_stations.pmtiles \
   public/world/id_watersheds.pmtiles \
   public/world/vn_transport_hubs_odm.pmtiles \
   public/world/vn_transport_hubs_osm.pmtiles \
