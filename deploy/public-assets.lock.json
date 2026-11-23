@@ -4764,11 +4764,32 @@
    "s3_key": "deploy-assets/mapchallenge/day21_osm_road_years.pmtiles"
   },
   {
+   "path": "public/mapchallenge/day23_taste_foreign.geojson",
+   "bytes": 664434,
+   "sha256": "7579fa09c822c011b4fc952e69ad4349699a1633295de8a9a7f58925a8956fd4",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day23_taste_foreign.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day23_taste_places.geojson",
+   "bytes": 465818,
+   "sha256": "4e00313e26302eb8d0776939f6324e18dd053ad55f68e46e41e1d01fbcfa3e28",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day23_taste_places.geojson"
+  },
+  {
    "path": "public/mapchallenge/day23_taste_terms.geojson",
    "bytes": 292198,
    "sha256": "71d7bb3c12d7b93ddcf6e22f268a05ace0619a2fc41c33db891ce31b90ec6f6a",
    "delivery": "r2",
    "s3_key": "deploy-assets/mapchallenge/day23_taste_terms.geojson"
+  },
+  {
+   "path": "public/mapchallenge/day23_taste_terms_v2.geojson",
+   "bytes": 430290,
+   "sha256": "cef352129545e48ddbedf24c20f5a92823420c2218408865c97243bff2e92a0c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/mapchallenge/day23_taste_terms_v2.geojson"
   },
   {
    "path": "public/mapchallenge/day23_taste_variants.geojson",

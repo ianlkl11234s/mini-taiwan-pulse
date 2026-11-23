@@ -221,5 +221,12 @@
   "popup.mapchallenge.day23.date": "Data date",
   "popup.mapchallenge.day23.note": "Scope",
   "popup.mapchallenge.day23.position": "Position",
-  "popup.mapchallenge.day23.positionNote": "The circle is the hexagon centre, not a shop location."
+  "popup.mapchallenge.day23.positionNote": "The circle is the hexagon centre, not a shop location.",
+  "popup.mapchallenge.day23.placeCount": "Shops with this sign in the cell",
+  "popup.mapchallenge.day23.placeRange": "Coverage",
+  "popup.mapchallenge.day23.placeRangeValue": "Only shops registered outside {home} ({out} of {n} nationwide)",
+  "popup.mapchallenge.day23.arc": "Arcs",
+  "popup.mapchallenge.day23.foreignCount": "Shops whose name contains this group’s words",
+  "popup.mapchallenge.day23.words": "Words matched",
+  "popup.mapchallenge.day23.dominant": "Share"
 }

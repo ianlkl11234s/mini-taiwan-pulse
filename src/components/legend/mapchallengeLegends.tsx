@@ -15,7 +15,9 @@ import { MAPCHALLENGE_DAY21_WIDTH } from "../../data/mapchallengeDay21Style";
 import {
   MAPCHALLENGE_DAY23_BASE_STORES, MAPCHALLENGE_DAY23_DATA_DATE, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS,
   mapchallengeDay23GroupById, mapchallengeDay23Radius, mapchallengeDay23TermById, mapchallengeDay23TermColor,
-  type MapchallengeDay23TermId,
+  MAPCHALLENGE_DAY23_ARC, MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_FOREIGN_DOMINANT, MAPCHALLENGE_DAY23_ORIGIN, MAPCHALLENGE_DAY23_PLACES,
+  mapchallengeDay23ArcWidth, mapchallengeDay23ForeignById, mapchallengeDay23PlaceById,
+  type MapchallengeDay23ForeignId, type MapchallengeDay23PlaceId, type MapchallengeDay23TermId,
 } from "../../data/mapchallengeDay23Types";
 import { useLocale } from "../../state/localeStore";
 import type { StaticMessageKey } from "../../i18n/keys";
@@ -645,7 +647,7 @@ export function MapchallengeDay21OsmRoadsLegend({ isDark }: { isDark: boolean })
 }
 
 // ── Day 23 味覺 ────────────────────────────────────────────────
-/** 12 個詞的翻譯 key（說明框共用） */
+/** 24 個詞的翻譯 key（說明框共用） */
 export const MAPCHALLENGE_DAY23_TERM_KEYS: Readonly<Record<MapchallengeDay23TermId, StaticMessageKey>> = {
   beefSoup: "legend.mapchallenge.day23.term.beefSoup", kongRou: "legend.mapchallenge.day23.term.kongRou",
   turkeyRice: "legend.mapchallenge.day23.term.turkeyRice", fanTang: "legend.mapchallenge.day23.term.fanTang",
@@ -653,15 +655,49 @@ export const MAPCHALLENGE_DAY23_TERM_KEYS: Readonly<Record<MapchallengeDay23Term
   rouZaoFan: "legend.mapchallenge.day23.term.rouZaoFan", banTiao: "legend.mapchallenge.day23.term.banTiao",
   rouYuan: "legend.mapchallenge.day23.term.rouYuan", wanGuo: "legend.mapchallenge.day23.term.wanGuo",
   urn: "legend.mapchallenge.day23.term.urn", liveFish: "legend.mapchallenge.day23.term.liveFish",
+  miGan: "legend.mapchallenge.day23.term.miGan", mungBeanSoup: "legend.mapchallenge.day23.term.mungBeanSoup",
+  waiShengMian: "legend.mapchallenge.day23.term.waiShengMian", xianChao: "legend.mapchallenge.day23.term.xianChao",
+  daMian: "legend.mapchallenge.day23.term.daMian", shrimp: "legend.mapchallenge.day23.term.shrimp",
+  milkfishCongee: "legend.mapchallenge.day23.term.milkfishCongee", qieZaiMian: "legend.mapchallenge.day23.term.qieZaiMian",
+  springRoll: "legend.mapchallenge.day23.term.springRoll", saltedChicken: "legend.mapchallenge.day23.term.saltedChicken",
+  stew: "legend.mapchallenge.day23.term.stew", bianShi: "legend.mapchallenge.day23.term.bianShi",
 };
 /** 同物異字三組的翻譯 key（說明框共用） */
 export const MAPCHALLENGE_DAY23_GROUP_KEYS = {
   rice: "legend.mapchallenge.day23.group.rice", banTiao: "legend.mapchallenge.day23.group.banTiao", kongRou: "legend.mapchallenge.day23.group.kongRou",
 } as const;
-/** 有額外比對規則的詞（意麵排除鍋燒、粄條與板條合計） */
+/** 有額外比對規則的詞（意麵排除鍋燒、粄條與板條合計、塩水雞與鹽水雞合計） */
 const MAPCHALLENGE_DAY23_TERM_NOTE_KEYS: Partial<Record<MapchallengeDay23TermId, StaticMessageKey>> = {
   yiMian: "legend.mapchallenge.day23.termNote.yiMian", banTiao: "legend.mapchallenge.day23.termNote.banTiao",
+  saltedChicken: "legend.mapchallenge.day23.termNote.saltedChicken",
 };
+/** 店名裡的地名：招牌名、比對規則、原產縣市的翻譯 key（說明框共用） */
+export const MAPCHALLENGE_DAY23_SIGN_KEYS: Readonly<Record<MapchallengeDay23PlaceId, StaticMessageKey>> = {
+  chishang: "legend.mapchallenge.day23.sign.chishang", chiayi: "legend.mapchallenge.day23.sign.chiayi",
+  tainan: "legend.mapchallenge.day23.sign.tainan", gangshan: "legend.mapchallenge.day23.sign.gangshan",
+  changhua: "legend.mapchallenge.day23.sign.changhua", dongshiBudai: "legend.mapchallenge.day23.sign.dongshiBudai",
+  beigang: "legend.mapchallenge.day23.sign.beigang", meinong: "legend.mapchallenge.day23.sign.meinong",
+};
+const MAPCHALLENGE_DAY23_SIGN_RULE_KEYS: Readonly<Record<MapchallengeDay23PlaceId, StaticMessageKey>> = {
+  chishang: "legend.mapchallenge.day23.signRule.chishang", chiayi: "legend.mapchallenge.day23.signRule.chiayi",
+  tainan: "legend.mapchallenge.day23.signRule.tainan", gangshan: "legend.mapchallenge.day23.signRule.gangshan",
+  changhua: "legend.mapchallenge.day23.signRule.changhua", dongshiBudai: "legend.mapchallenge.day23.signRule.dongshiBudai",
+  beigang: "legend.mapchallenge.day23.signRule.beigang", meinong: "legend.mapchallenge.day23.signRule.meinong",
+};
+export const MAPCHALLENGE_DAY23_HOME_KEYS: Readonly<Record<MapchallengeDay23PlaceId, StaticMessageKey>> = {
+  chishang: "legend.mapchallenge.day23.home.chishang", chiayi: "legend.mapchallenge.day23.home.chiayi",
+  tainan: "legend.mapchallenge.day23.home.tainan", gangshan: "legend.mapchallenge.day23.home.gangshan",
+  changhua: "legend.mapchallenge.day23.home.changhua", dongshiBudai: "legend.mapchallenge.day23.home.dongshiBudai",
+  beigang: "legend.mapchallenge.day23.home.beigang", meinong: "legend.mapchallenge.day23.home.meinong",
+};
+/** 外來料理九組的翻譯 key（說明框共用） */
+export const MAPCHALLENGE_DAY23_FOREIGN_KEYS: Readonly<Record<MapchallengeDay23ForeignId, StaticMessageKey>> = {
+  vietnam: "legend.mapchallenge.day23.foreign.vietnam", thai: "legend.mapchallenge.day23.foreign.thai", indonesia: "legend.mapchallenge.day23.foreign.indonesia",
+  yunnan: "legend.mapchallenge.day23.foreign.yunnan", japan: "legend.mapchallenge.day23.foreign.japan", korea: "legend.mapchallenge.day23.foreign.korea",
+  hongKong: "legend.mapchallenge.day23.foreign.hongKong", italy: "legend.mapchallenge.day23.foreign.italy", america: "legend.mapchallenge.day23.foreign.america",
+};
+const MAPCHALLENGE_DAY23_PLACE_SIZE_STEPS = [1, 3, 8] as const;
+const MAPCHALLENGE_DAY23_FOREIGN_SIZE_STEPS = [1, 10, 50] as const;
 const MAPCHALLENGE_DAY23_SIZE_STEPS = [1, 5, 20] as const;
 
 export function MapchallengeDay23TasteTermsLegend({ isDark }: { isDark: boolean }) {
@@ -698,5 +734,51 @@ export function MapchallengeDay23TasteVariantsLegend({ isDark }: { isDark: boole
     <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.scope")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+  </div>;
+}
+
+export function MapchallengeDay23TastePlacesLegend({ isDark }: { isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const values = useLayerParams("mapchallengeDay23TastePlaces");
+  const place = mapchallengeDay23PlaceById(paramStr(values, "mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesSign")) ?? MAPCHALLENGE_DAY23_PLACES[0];
+  const color = mapchallengeDay23TermColor(place, isDark);
+  const home = t(MAPCHALLENGE_DAY23_HOME_KEYS[place.value]);
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day23.placesTitle")} />
+    <LegendNote>{t("legend.mapchallenge.day23.placeRow", { sign: t(MAPCHALLENGE_DAY23_SIGN_KEYS[place.value]), n: formatNumber(place.stores), out: formatNumber(place.outside), home, m: formatNumber(place.mapped) })}</LegendNote>
+    <LegendNote>{t(MAPCHALLENGE_DAY23_SIGN_RULE_KEYS[place.value])}</LegendNote>
+    <LegendRow swatch={<SwatchDot color="transparent" opacity={1} stroke={isDark ? MAPCHALLENGE_DAY23_ORIGIN.dark : MAPCHALLENGE_DAY23_ORIGIN.light} strokeWidth={MAPCHALLENGE_DAY23_ORIGIN.strokeWidth} />}>
+      {t("legend.mapchallenge.day23.originRow")}
+    </LegendRow>
+    <LegendRow swatch={<SwatchDot color={color} />}>{t("legend.mapchallenge.day23.dotRow", { home })}</LegendRow>
+    <LegendRow swatch={<SwatchLine color={color} width={mapchallengeDay23ArcWidth(4)} opacity={isDark ? MAPCHALLENGE_DAY23_ARC.opacityDark + 0.3 : MAPCHALLENGE_DAY23_ARC.opacityLight + 0.3} />}>{t("legend.mapchallenge.day23.arcRow")}</LegendRow>
+    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_PLACE_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n), label: String(n) }))} fill={color} />
+    <LegendNote>{t("legend.mapchallenge.day23.arcNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.placesScope")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.source")}</LegendNote>
+  </div>;
+}
+
+export function MapchallengeDay23TasteForeignLegend({ isDark }: { isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const values = useLayerParams("mapchallengeDay23TasteForeign");
+  const group = mapchallengeDay23ForeignById(paramStr(values, "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignGroup")) ?? MAPCHALLENGE_DAY23_FOREIGN[0];
+  const color = mapchallengeDay23TermColor(group, isDark);
+  const dominant = MAPCHALLENGE_DAY23_FOREIGN_DOMINANT[group.value];
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day23.foreignTitle")} />
+    <LegendRow swatch={<SwatchDot color={color} />}>
+      {t("legend.mapchallenge.day23.foreignRow", { group: t(MAPCHALLENGE_DAY23_FOREIGN_KEYS[group.value]), n: formatNumber(group.stores), m: formatNumber(group.mapped) })}
+    </LegendRow>
+    <LegendNote>{t("legend.mapchallenge.day23.foreignWords", { words: group.words.join("、") })}</LegendNote>
+    {dominant && <LegendNote>{t("legend.mapchallenge.day23.foreignDominant", { word: dominant.word, hits: formatNumber(dominant.hits), n: formatNumber(group.stores), pct: Math.round((dominant.hits / group.stores) * 100) })}</LegendNote>}
+    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_FOREIGN_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n, 1, group.k), label: String(n) }))} fill={color} />
+    <LegendNote>{t("legend.mapchallenge.day23.foreignSizeNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.foreignScope")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.source")}</LegendNote>
   </div>;
 }

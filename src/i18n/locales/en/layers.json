@@ -2073,6 +2073,8 @@
   "layer.tideSwellAlerts": "Tide & Swell Alerts",
   "layer.mapchallengeDay23TasteTerms": "Snack Words in Shop Names",
   "layer.mapchallengeDay23TasteVariants": "Same Dish, Different Characters",
+  "layer.mapchallengeDay23TastePlaces": "Place Names in Shop Names",
+  "layer.mapchallengeDay23TasteForeign": "Foreign Cuisine Words in Shop Names",
   "layer.thAdminBoundaries": "Administrative Boundaries (Thailand)",
   "layer.thPopulation": "Population Density (Thailand, 2025 Registered)",
   "layer.thTransportHubs": "Airports, Ports & Ferry Terminals (Thailand)",

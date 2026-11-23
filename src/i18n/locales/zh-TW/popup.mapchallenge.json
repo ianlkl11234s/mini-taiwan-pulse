@@ -221,5 +221,12 @@
   "popup.mapchallenge.day23.date": "資料日期",
   "popup.mapchallenge.day23.note": "口徑",
   "popup.mapchallenge.day23.position": "位置",
-  "popup.mapchallenge.day23.positionNote": "圓點是六角格中心，不是店家位置。"
+  "popup.mapchallenge.day23.positionNote": "圓點是六角格中心，不是店家位置。",
+  "popup.mapchallenge.day23.placeCount": "這一格掛此招牌的家數",
+  "popup.mapchallenge.day23.placeRange": "範圍",
+  "popup.mapchallenge.day23.placeRangeValue": "只計登記在{home}以外的店（全台 {n} 家中的 {out} 家）",
+  "popup.mapchallenge.day23.arc": "弧線",
+  "popup.mapchallenge.day23.foreignCount": "店名含這組用詞的家數",
+  "popup.mapchallenge.day23.words": "比對的詞",
+  "popup.mapchallenge.day23.dominant": "占比"
 }

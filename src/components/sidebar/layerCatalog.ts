@@ -2583,7 +2583,7 @@ const THEME_CATALOG: ThemeDef[] = [
       layers: [fromManifest("mapchallengeDay21OsmRoads")],
     }, {
       title: "Day 23 味覺 Taste",
-      layers: [fromManifest("mapchallengeDay23TasteTerms"), fromManifest("mapchallengeDay23TasteVariants")],
+      layers: [fromManifest("mapchallengeDay23TasteTerms"), fromManifest("mapchallengeDay23TasteVariants"), fromManifest("mapchallengeDay23TastePlaces"), fromManifest("mapchallengeDay23TasteForeign")],
     }],
   },
 

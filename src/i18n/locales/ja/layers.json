@@ -2073,6 +2073,8 @@
   "layer.tideSwellAlerts": "大潮・うねり警戒",
   "layer.mapchallengeDay23TasteTerms": "店名に含まれる小吃の語",
   "layer.mapchallengeDay23TasteVariants": "同じ料理、異なる表記",
+  "layer.mapchallengeDay23TastePlaces": "店名に含まれる地名",
+  "layer.mapchallengeDay23TasteForeign": "店名に含まれる外来料理の語",
   "layer.thAdminBoundaries": "行政区域界（タイ）",
   "layer.thPopulation": "人口密度（タイ、2025 年住民登録）",
   "layer.thTransportHubs": "空港・港・フェリーターミナル（タイ）",

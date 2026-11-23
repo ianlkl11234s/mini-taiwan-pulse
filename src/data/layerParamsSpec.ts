@@ -105,7 +105,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { MAPCHALLENGE_DAY17_LED_DEFAULT_YEAR, MAPCHALLENGE_DAY17_LED_YEARS, MAPCHALLENGE_DAY17_PRODUCTS, MAPCHALLENGE_DAY17_ROAD_SCOPES } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN } from "./mapchallengeDay21Types";
-import { MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_FOREIGN, MAPCHALLENGE_DAY23_PLACES, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_CATEGORY_OPTIONS, MAPCHALLENGE_DAY19_PENALTY_SCOPES, MAPCHALLENGE_DAY19_PERIODS, MAPCHALLENGE_DAY19_WINDS } from "./mapchallengeDay19Types";
 import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
@@ -1832,6 +1832,24 @@ export const LAYER_PARAMS_SPEC = {
       kind: "select", category: "data", name: "mapchallengeDay23TasteVariantsGroup", label: "寫法組", default: MAPCHALLENGE_DAY23_VARIANT_GROUPS[0].value,
       options: MAPCHALLENGE_DAY23_VARIANT_GROUPS.map((o) => ({ label: o.label, value: o.value })),
       out: "mapchallengeDay23TasteVariantsGroupIdx", encode: MAPCHALLENGE_DAY23_VARIANT_GROUPS.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay23TastePlaces: [
+    opacitySlider("mapchallengeDay23TastePlacesOpacity", 0.85),
+    scaleSlider("mapchallengeDay23TastePlacesScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay23TastePlacesSign", label: "店名招牌", default: MAPCHALLENGE_DAY23_PLACES[0].value,
+      options: MAPCHALLENGE_DAY23_PLACES.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay23TastePlacesSignIdx", encode: MAPCHALLENGE_DAY23_PLACES.map((o) => o.value),
+    },
+  ],
+  mapchallengeDay23TasteForeign: [
+    opacitySlider("mapchallengeDay23TasteForeignOpacity", 0.85),
+    scaleSlider("mapchallengeDay23TasteForeignScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay23TasteForeignGroup", label: "料理組", default: MAPCHALLENGE_DAY23_FOREIGN[0].value,
+      options: MAPCHALLENGE_DAY23_FOREIGN.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay23TasteForeignGroupIdx", encode: MAPCHALLENGE_DAY23_FOREIGN.map((o) => o.value),
     },
   ],
   freewayTdcsSim: [

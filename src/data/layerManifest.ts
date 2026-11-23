@@ -229,7 +229,7 @@ import { MAPCHALLENGE_DAY08_COLOR } from "./mapchallengeDay08Types";
 import { MAPCHALLENGE_DAY09_COLOR } from "./mapchallengeDay09Types";
 import { MAPCHALLENGE_DAY17_DARK_SKY_COLOR, MAPCHALLENGE_DAY17_LED_COLOR, MAPCHALLENGE_DAY17_NIGHT_FALL_COLOR, MAPCHALLENGE_DAY17_ROADS_COLOR } from "./mapchallengeDay17Types";
 import { MAPCHALLENGE_DAY21_COLOR } from "./mapchallengeDay21Types";
-import { MAPCHALLENGE_DAY23_TERMS_COLOR, MAPCHALLENGE_DAY23_VARIANTS_COLOR } from "./mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_FOREIGN_COLOR, MAPCHALLENGE_DAY23_PLACES_COLOR, MAPCHALLENGE_DAY23_TERMS_COLOR, MAPCHALLENGE_DAY23_VARIANTS_COLOR } from "./mapchallengeDay23Types";
 import { MAPCHALLENGE_DAY19_COMPLAINTS_COLOR, MAPCHALLENGE_DAY19_PENALTIES_COLOR, MAPCHALLENGE_DAY19_POTENTIAL_COLOR } from "./mapchallengeDay19Types";
 
 /**
@@ -18311,15 +18311,15 @@ export const LAYER_MANIFEST = {
       datasets: [],
       derivedFromDatasets: ["tax_registry"],
       derivationType: "custom",
-      processing: "30 天地圖挑戰 Day 23 味覺：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（01–03）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家，其中 179,672 家有座標；用店名關鍵字分類後彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。12 個詞：牛肉湯、爌肉、火雞肉飯、飯湯、意麵（排除店名含「鍋燒」者）、鱔魚、肉燥飯、粄條／板條（兩種寫法合計）、肉圓、碗粿、甕（甕缸雞類）、活魚。不設最低家數。輸出只有詞、家數、格網級別與格 id。",
+      processing: "30 天地圖挑戰 Day 23 味覺：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（01–03、04、10）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家，其中 179,672 家有座標；用店名關鍵字分類後彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。24 個詞。第一批 12 個：牛肉湯、爌肉、火雞肉飯、飯湯、意麵（排除店名含「鍋燒」者）、鱔魚、肉燥飯、粄條／板條（兩種寫法合計）、肉圓、碗粿、甕（甕缸雞類）、活魚。第二批 12 個（由店名片段的縣市集中倍數自動找出、再人工挑選，無排除規則）：米干、綠豆湯、外省麵、現炒、大麵、蝦仁、虱目魚粥、切仔麵、春捲、塩水雞／鹽水雞（兩種寫法合計）、燉品、扁食。不設最低家數。輸出只有詞、家數、格網級別與格 id。",
       note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste）。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是六角格中心，不是店家位置；稅籍表含獨資行號地址，公開檔不含店名、地址、統編與單店座標。約 0.9% 的店沒有座標，不在圖上。",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-terms", url: "./mapchallenge/day23_taste_terms.geojson" },
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-terms", url: "./mapchallenge/day23_taste_terms_v2.geojson" },
     legend: "mapchallengeDay23TasteTerms",
     popup: "mapchallengeDay23TasteTerms",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
-    description: "30 天地圖挑戰 Day 23 味覺：登記餐飲店的店名裡含某個小吃詞的家數。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選 12 個詞：牛肉湯、爌肉、火雞肉飯、飯湯、意麵、鱔魚、肉燥飯、粄條／板條、肉圓、碗粿、甕（甕缸雞類）、活魚；每個詞一個顏色。圓面積正比於該格家數，只有 1–2 家也照畫；縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
+    description: "30 天地圖挑戰 Day 23 味覺：登記餐飲店的店名裡含某個小吃詞的家數。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選 24 個詞：牛肉湯、爌肉、火雞肉飯、飯湯、意麵、鱔魚、肉燥飯、粄條／板條、肉圓、碗粿、甕（甕缸雞類）、活魚、米干、綠豆湯、外省麵、現炒、大麵、蝦仁、虱目魚粥、切仔麵、春捲、塩水雞／鹽水雞、燉品、扁食；每個詞一個顏色。圓面積正比於該格家數，只有 1–2 家也照畫；縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該詞、該格家數與資料日期。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
     topics: ["味覺", "小吃", "店名", "餐飲", "稅籍登記", "30 天地圖挑戰"],
   },
   mapchallengeDay23TasteVariants: {
@@ -18345,6 +18345,54 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "30 天地圖挑戰 Day 23 味覺：同一種食物在登記餐飲店店名裡的不同寫法。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選三組：魯肉飯／滷肉飯／肉燥飯、粄條／板條、爌肉／焢肉／控肉；同組內每種寫法一個顏色、同時顯示，圓面積正比於該格用這種寫法的家數，只有 1–2 家也照畫。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該格各寫法的家數與資料日期。只計店名含該詞的登記餐飲店；攤販與店名未寫品項者不在內；不代表口味偏好。店名同時含兩種寫法會各算一次；圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
     topics: ["味覺", "小吃", "店名", "用字", "寫法", "餐飲", "稅籍登記", "30 天地圖挑戰"],
+  },
+  mapchallengeDay23TastePlaces: {
+    key: "mapchallengeDay23TastePlaces",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數＋原產地代表點＋弧線，無店名／地址／單店座標），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "店名裡的地名", alt: "Place Names in Shop Names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_PLACES_COLOR,
+    icon: Signpost,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["tax_registry"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第二批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（04、10）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家；店名同時含地名與品項的店算一個招牌，共 8 個：池上＋飯包／便當、嘉義＋雞肉飯、臺南（含「台南」）＋虱目魚、岡山＋羊肉、彰化＋肉圓、東石／布袋＋蚵、北港＋任何品項、美濃＋粄條（含「板條」）。只留登記縣市在原產縣市以外的店（原產縣市依序為臺東縣、嘉義市與嘉義縣、臺南市、高雄市、彰化縣、嘉義市與嘉義縣、雲林縣、高雄市），彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心；另輸出每個招牌的原產地代表點，以及原產地到每個格心的二次貝茲弧線（帶該格家數）。不設最低家數。輸出只有招牌 id、家數、格網級別與格 id。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste）。只計店名同時含地名與品項、且登記在原產縣市以外的登記餐飲店；攤販不在內。弧線只是把店名裡的地名和店的所在格連起來，不代表人或貨的移動；店名寫地名不代表店主或食材來自該地。圓點是六角格中心，不是店家位置；公開檔不含店名、地址、統編與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-places", url: "./mapchallenge/day23_taste_places.geojson" },
+    legend: "mapchallengeDay23TastePlaces",
+    popup: "mapchallengeDay23TastePlaces",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：店名裡掛著地名的登記餐飲店開在哪裡。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家。選單可選 8 個招牌：池上＋飯包／便當、嘉義＋雞肉飯、臺南＋虱目魚、岡山＋羊肉、彰化＋肉圓、東石／布袋＋蚵、北港＋任何品項、美濃＋粄條；店名要同時含地名與品項才算（北港不限品項）。圖上只畫登記在原產縣市以外的店，彙總到 H3 六角格、畫在格心：一個空心圈標出店名裡那個地名的位置，發光圓點是外縣市有這個招牌的格子（圓面積正比於該格家數，只有 1–2 家也照畫），弧線把地名和每個格子連起來、線越粗該格家數越多。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看招牌、該格家數與資料日期。弧線只是把店名裡的地名和店的所在格連起來，不代表人或貨的移動。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
+    topics: ["味覺", "小吃", "店名", "地名", "招牌", "餐飲", "稅籍登記", "30 天地圖挑戰"],
+  },
+  mapchallengeDay23TasteForeign: {
+    key: "mapchallengeDay23TasteForeign",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-23）：靜態 GeoJSON（六角格彙總家數，無店名／地址／單店座標），不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 23 味覺 Taste" },
+    ...layerName({ zh: "外來料理店名", alt: "Foreign Cuisine Words in Shop Names" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY23_FOREIGN_COLOR,
+    icon: Milestone,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["tax_registry"],
+      derivationType: "custom",
+      processing: "30 天地圖挑戰 Day 23 味覺第二批：taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day23_taste（04、10）。財政部稅籍登記 2026-08-16 快照，篩營業中且主要行業（行業代號第一碼）以 56 開頭（餐飲業）共 181,255 家；店名含某組任一用詞就算該組（同一家在同一組只算一次，可同時屬於多組），九組用詞：越南（越南、越式、河粉、越娘、西貢、河內）、泰（泰式、泰國、打拋、泰味、曼谷、清邁、月亮蝦）、印尼（印尼、爪哇、峇里、巴東）、雲南／滇緬（雲南、滇、米干、緬甸、擺夷、傣）、日（拉麵、壽司、丼、居酒屋、日式、日本料理、燒鳥、串燒、壽喜、天婦羅、烏龍麵、蕎麥）、韓（韓式、韓國、石鍋拌飯、泡菜鍋、韓食、首爾、釜山）、港（港式、茶餐廳、燒臘、香港、廣東粥、飲茶）、義（義式、義大利、披薩、比薩、義麵）、美（美式、漢堡、熱狗）。彙總到 H3 六角格（res 6 約 36 km²、res 7 約 5.2 km²），點放在格心。不設最低家數。輸出只有組 id、家數、格網級別與格 id。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day23_taste）。只計店名含這些用詞的登記餐飲店；攤販與店名沒寫的不在內。用詞是人工挑的，會漏收也會誤收；「美」1,485 家中 1,226 家（83%）店名含「漢堡」，「港」1,342 家中 702 家（52%）含「燒臘」。不代表店主國籍，也不代表口味偏好。各組圓的半徑係數不同，不同組之間不能用圓的大小互比。圓點是六角格中心，不是店家位置；公開檔不含店名、地址、統編與單店座標。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day23-taste-foreign", url: "./mapchallenge/day23_taste_foreign.geojson" },
+    legend: "mapchallengeDay23TasteForeign",
+    popup: "mapchallengeDay23TasteForeign",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "30 天地圖挑戰 Day 23 味覺：登記餐飲店的店名裡含外來料理用詞的家數。資料是財政部稅籍登記（2026-08-16）營業中、主要行業為餐飲業的 181,255 家，彙總到 H3 六角格、畫在格心。選單可選九組：越南、泰、印尼、雲南／滇緬、日、韓、港、義、美；每組有一串比對用詞（例：越南＝越南、越式、河粉、越娘、西貢、河內），店名含任一個就算，圖例與說明框會列出該組全部用詞。「美」這組約八成是店名含「漢堡」的店，「港」這組約一半是含「燒臘」的店。圓面積正比於該格家數，只有 1–2 家也照畫；家數多的組整體畫得比較小，不同組之間不能用圓的大小互比。縮小時每格約 36 平方公里，放大到 9 級以上換成約 5.2 平方公里的小格。點圓點看該組、該格家數與資料日期。只計店名含這些用詞的登記餐飲店；攤販與店名沒寫的不在內；不代表店主國籍，也不代表口味偏好。圓點是格子中心，不是店家位置，不顯示店名與地址。來源：財政部財政資訊中心全國營業（稅籍）登記資料（政府資料開放授權條款第 1 版）。",
+    topics: ["味覺", "外來料理", "異國料理", "店名", "餐飲", "稅籍登記", "30 天地圖挑戰"],
   },
 
   roadCongestion: {
