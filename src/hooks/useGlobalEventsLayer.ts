@@ -123,8 +123,8 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
     id: GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, type: "line", source: STORY_LINKS_SOURCE_ID,
     layout: hookLineLayout("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID),
     paint: hookLinePaint("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
-      { "line-color": GLOBAL_EVENT_STORY_LINK_COLOR, "line-width": 1, "line-opacity": 0.35, "line-dasharray": [2, 2] },
-      { "line-color": GLOBAL_EVENT_STORY_LINK_COLOR, "line-width": 1, "line-opacity": 0.35, "line-dasharray": [2, 2] }),
+      { "line-color": GLOBAL_EVENT_STORY_LINK_COLOR, "line-width": 1.5, "line-opacity": 0.35, "line-dasharray": [2, 2] },
+      { "line-color": GLOBAL_EVENT_STORY_LINK_COLOR, "line-width": 1.5, "line-opacity": 0.35, "line-dasharray": [2, 2] }),
   });
   if (!map.getLayer(CONNECTORS_LAYER_ID)) map.addLayer({
     // Keep legacy IDs, but render only the actual shared location, never an offset line endpoint.
@@ -270,8 +270,7 @@ export function useGlobalEventsLayer(
       map.setPaintProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "line-opacity", hookLineOpacity("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
         selected ? ["case", touchesSelected, safeOpacity * 0.95, safeOpacity * 0.06] : safeOpacity * 0.35,
         ["case", ["==", ["get", "event_id"], ""], 0.95, 0.35]));
-      map.setPaintProperty(GLOBAL_EVENTS_STORY_LINKS_LAYER_ID, "line-width", hookLineWidth("globalEvents", GLOBAL_EVENTS_STORY_LINKS_LAYER_ID,
-        selected ? ["case", touchesSelected, 2.5, 1] : 1, ["case", ["==", ["get", "event_id"], ""], 2.5, 1]));
+      // 寬度保持常數：Mapbox 虛線遇到依資料變化的 line-width 會整條不畫（2026-11-23 瀏覽器實測），只用透明度區分。
     }
     if (map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) {
       map.setLayoutProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "visibility", relationsRef.current ? "visible" : "none");

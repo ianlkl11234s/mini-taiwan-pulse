@@ -25,7 +25,7 @@
   "popup.globalClimate.taiwanImpact": "Impact on Taiwan",
   "popup.globalClimate.reason": "Rationale",
   "popup.globalClimate.storyLinks": "Possibly related reports",
-  "popup.globalClimate.storyLinksValue": "{n} (dashed lines on the map; not cause)",
+  "popup.globalClimate.storyLinksValue": "{n} (highlighted on the map, dashed lines between different places; not cause)",
   "popup.globalClimate.locationSemantics": "Location meaning",
   "popup.globalClimate.collectedAt": "Source collected at",
   "popup.globalClimate.locationSource": "Location source",
