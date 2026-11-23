@@ -16,18 +16,22 @@
  *
  * Taipei 全年 +08:00 無 DST，用固定 24h 毫秒步進即可在「本地零時」之間逐日位移，
  * 不必逐一呼叫 Intl API 找日界。
+ *
+ * 日期換算已委派給 `zonedTime.ts`（IANA 時區地基；新程式碼不得再寫固定 +8）。
  */
+
+import { DEFAULT_TIME_ZONE, zonedDateKey, zonedMidnightMs } from "./zonedTime";
 
 export const MS_PER_DAY = 86_400_000;
 
 /** 某個 unix ms timestamp 對應的台北曆日 YYYY-MM-DD */
 export function taipeiDateKeyFromMs(ms: number): string {
-  return new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+  return zonedDateKey(ms, DEFAULT_TIME_ZONE);
 }
 
 /** 台北曆日 YYYY-MM-DD 的當地零時，換算成 unix ms */
 export function taipeiMidnightMs(dateKey: string): number {
-  return Date.parse(`${dateKey}T00:00:00+08:00`);
+  return zonedMidnightMs(dateKey, DEFAULT_TIME_ZONE);
 }
 
 /**

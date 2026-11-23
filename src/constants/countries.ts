@@ -27,6 +27,10 @@ export interface CountryDef {
   chip: string;
   /** 國名的 i18n 鍵（`country.TW` …） */
   labelKey: `country.${CountryCode}`;
+  /** 預設／主要時區（IANA 名稱；尚未接任何使用端，2026-11-23 多時區時間軸第一步） */
+  timeZone: string;
+  /** 跨時區國家的時區清單（例：CA）；單一時區國家省略 */
+  timeZones?: readonly string[];
   camera: CountryCamera;
   bboxes: readonly CountryBbox[];
   /** 站主限定國家（2026-11-13 中國）：非站主的國家選單、圖層面板國家清單不列；網址或鏡頭落在這國時退回台灣（`countryStore`）。 */
@@ -80,6 +84,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "TW",
     chip: "TW",
     labelKey: "country.TW",
+    timeZone: "Asia/Taipei",
     camera: TAIWAN_CAMERA,
     bboxes: [
       [119.9, 21.8, 122.1, 25.4],   // 台灣本島（含蘭嶼、綠島、龜山島）
@@ -98,6 +103,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "JP",
     chip: "JP",
     labelKey: "country.JP",
+    timeZone: "Asia/Tokyo",
     camera: JAPAN_CAMERA,
     bboxes: [
       [128.5, 30.9, 132.1, 34.0],   // 九州
@@ -113,6 +119,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "FR",
     chip: "FR",
     labelKey: "country.FR",
+    timeZone: "Europe/Paris",
     camera: FRANCE_CAMERA,
     bboxes: [
       [-4.8, 46.3, 6.0, 48.9],      // 西部、中部（布列塔尼～勃艮第；東緣 6.0 避開日內瓦）
@@ -139,6 +146,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "GB",
     chip: "GB",
     labelKey: "country.GB",
+    timeZone: "Europe/London",
     camera: UK_CAMERA,
     // 邊界依 ONS LAD May 2026（361 區）四地外框切矩形（2026-10-29）。刻意排除：愛爾蘭共和國、
     // 曼島（Crown dependency，不在 LAD 內）、海峽群島（緯度 < 49.85）、法國北岸（加萊、布洛涅）。
@@ -168,6 +176,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "KR",
     chip: "KR",
     labelKey: "country.KR",
+    timeZone: "Asia/Seoul",
     camera: KOREA_CAMERA,
     // 邊界依 admdongkor ver20261001（시·도 16）外框 124.61–131.87E、33.11–38.62N 切矩形（2026-10-31）。
     // 刻意排除：北韓（軍事分界線以北：開城、海州、甕津半島）、對馬（屬 JP，與 JP 矩形只共用 34.75N 一條邊）。
@@ -198,6 +207,8 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "CA",
     chip: "CA",
     labelKey: "country.CA",
+    timeZone: "America/Toronto",
+    timeZones: ["America/St_Johns", "America/Halifax", "America/Toronto", "America/Winnipeg", "America/Edmonton", "America/Vancouver"],
     camera: CANADA_CAMERA,
     // 2026-11-04 加拿大第 0 波：以 49°N 與五大湖—聖羅倫斯河界為主幹切矩形。刻意排除：阿拉斯加（-141° 以西、
     // panhandle）、美國邊境城市（Seattle、Bellingham、Detroit、Buffalo、Watertown、Plattsburgh、Houlton）、
@@ -227,6 +238,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "IE",
     chip: "IE",
     labelKey: "country.IE",
+    timeZone: "Europe/Dublin",
     camera: IRELAND_CAMERA,
     // 2026-11-07 愛爾蘭第 0 波：外框依 Tailte Local Authorities 2026（-10.66–-5.99E、51.42–55.39N）。
     // 與 GB 北愛矩形互斥（只共用邊、不重疊，countries.test 守）；依緯度帶切，東緣停在該帶北愛矩形的西緣。
@@ -249,6 +261,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "PH",
     chip: "PH",
     labelKey: "country.PH",
+    timeZone: "Asia/Manila",
     camera: PHILIPPINES_CAMERA,
     // 2026-11-13 菲律賓第 0–1 波：外框 116.6–126.9E、4.3–21.2N（不含卡拉延群島）。外框南緣框到沙巴東北角（Sandakan），
     // 不能只用一個框：依 OCHA COD-AB v03 的 42,048 個 barangay 代表點切矩形（卡拉延以外全中），沙巴、蘇拉威西北端、
@@ -271,6 +284,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "VN",
     chip: "VN",
     labelKey: "country.VN",
+    timeZone: "Asia/Ho_Chi_Minh",
     camera: VIETNAM_CAMERA,
     // 2026-11-13 越南第 0–1 波：34 省面（OCHA COD-AB v02）外框 102.14–109.47E、8.41–23.39N。外框會框到海南西半（三亞）、
     // 東興、河口、永珍、金邊，不能只用一個框：以 0.1° 格網貪婪切矩形（覆蓋越南面、懲罰 Natural Earth 的中寮柬泰陸地，
@@ -299,6 +313,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "TH",
     chip: "TH",
     labelKey: "country.TH",
+    timeZone: "Asia/Bangkok",
     camera: THAILAND_CAMERA,
     // 2026-11-22 泰國第 0 波：本土外框 97.35–105.64E、5.6–20.46N。外框內有寮國（永珍、沙灣拿吉）、柬埔寨（金邊、暹粒、波貝）、
     // 馬來西亞（哥打巴魯、亞羅士打）、緬甸（大其力、妙瓦底、土瓦）的陸地，不能只用一個框：用 Natural Earth 10m 國界面以 0.05° 格網
@@ -365,6 +380,7 @@ export const COUNTRIES: readonly CountryDef[] = [
     code: "CN",
     chip: "CN",
     labelKey: "country.CN",
+    timeZone: "Asia/Shanghai",
     camera: CHINA_CAMERA,
     ownerOnly: true,
     // 2026-11-13 中國第 0–1 波（站主限定）：51 個矩形由 analytics pipelines/base_map/cn/admin_boundaries/08_country_boxes.py 產生，

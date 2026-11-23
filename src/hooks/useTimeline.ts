@@ -1,25 +1,22 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { TimeMode } from "../types";
 import { timeStore } from "../state/timeStore";
+import { DEFAULT_TIME_ZONE, zonedDateKey, zonedDayRangeMs, zonedMidnightMs, zonedParts } from "../lib/zonedTime";
 
 /** 從 Date 提取台灣時區的日期 [year, month(0-based), day] */
 export function taiwanDateParts(d: Date): [number, number, number] {
-  const s = d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-  const [y, m, day] = s.split("-").map(Number);
-  return [y!, m! - 1, day!];
+  const p = zonedParts(d.getTime(), DEFAULT_TIME_ZONE);
+  return [p.year, p.month - 1, p.day];
 }
 
 /** 將 Date 轉為台灣時區當天 00:00:00 的 unix timestamp */
 export function dayStartUnix(d: Date): number {
-  const [y, m, day] = taiwanDateParts(d);
-  // Taiwan midnight = UTC midnight - 8h
-  return Date.UTC(y, m, day, 0, 0, 0) / 1000 - 8 * 3600;
+  return zonedMidnightMs(zonedDateKey(d.getTime(), DEFAULT_TIME_ZONE), DEFAULT_TIME_ZONE) / 1000;
 }
 
 /** 將 Date 轉為台灣時區當天 23:59:59 的 unix timestamp */
 export function dayEndUnix(d: Date): number {
-  const [y, m, day] = taiwanDateParts(d);
-  return Date.UTC(y, m, day, 23, 59, 59) / 1000 - 8 * 3600;
+  return zonedDayRangeMs(zonedDateKey(d.getTime(), DEFAULT_TIME_ZONE), DEFAULT_TIME_ZONE)[1] / 1000 - 1;
 }
 
 export interface TimelineModeSnapshot {
@@ -82,8 +79,8 @@ export function historicalPeriodSnapshot(
       ? Date.UTC(adYear, safeMonth, 1) - taipeiOffsetMs
       : Date.UTC(adYear, safeMonth - 1, safeDay + 1) - taipeiOffsetMs;
   const cursorMs = nextBoundaryMs - 1;
-  const dateKey = new Date(cursorMs).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-  const windowStartMs = new Date(`${dateKey}T00:00:00+08:00`).getTime();
+  const dateKey = zonedDateKey(cursorMs, DEFAULT_TIME_ZONE);
+  const windowStartMs = zonedMidnightMs(dateKey, DEFAULT_TIME_ZONE);
   return {
     cursorTime: cursorMs / 1000,
     dateKey,
@@ -100,7 +97,7 @@ function addDays(d: Date, n: number): Date {
 function windowDateKeysFor(selectedDate: Date, rangeDays: number): string[] {
   const keys: string[] = [];
   for (let i = 0; i < rangeDays; i++) {
-    keys.push(addDays(selectedDate, i).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
+    keys.push(zonedDateKey(addDays(selectedDate, i).getTime(), DEFAULT_TIME_ZONE));
   }
   return keys;
 }
@@ -194,8 +191,8 @@ export function useTimeline({
   void _dataEndTime; // 保留 interface 相容，實際用 dataStartTime 初始化
   // 預設選定日期 = 台灣時間的今天（不依賴資料範圍，避免不同資料源日期不一致）
   const [selectedDate, setSelectedDateRaw] = useState<Date>(() => {
-    const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-    return new Date(todayStr + "T00:00:00+08:00");
+    const todayStr = zonedDateKey(Date.now(), DEFAULT_TIME_ZONE);
+    return new Date(zonedMidnightMs(todayStr, DEFAULT_TIME_ZONE));
   });
   const [rangeDays, setRangeDays] = useState<number>(1);
   // rangeDays 同步進 timeStore — 給 time-aware loader 訂閱 prefetch 視窗

@@ -7,6 +7,7 @@
 import { categoricalFor, nullHatchFor, rampFor, VIZ_SPEC } from "../research/vizSpec";
 import type { VizNumberKind } from "../research/vizFormat";
 import type { CardAreaMap, CardPayloadV1, CardValueKind } from "./cardPayload";
+import { DEFAULT_TIME_ZONE, zonedDateKey, zonedParts } from "../lib/zonedTime";
 
 export const CARD_THEME = "dark" as const;
 const FALLBACK_RAMP = "viridis";
@@ -67,14 +68,14 @@ export function taipeiDate(iso: string | null | undefined): string | null {
   if (!iso) return null;
   const time = Date.parse(iso);
   if (Number.isNaN(time)) return null;
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(time));
+  return zonedDateKey(time, DEFAULT_TIME_ZONE);
 }
 
 export function taipeiDateTime(iso: string | null | undefined): string | null {
   const date = taipeiDate(iso);
   if (!date || !iso) return null;
-  const time = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(Date.parse(iso)));
-  return `${date} ${time}`;
+  const p = zonedParts(Date.parse(iso), DEFAULT_TIME_ZONE);
+  return `${date} ${String(p.hour).padStart(2, "0")}:${String(p.minute).padStart(2, "0")}`;
 }
 
 // ── 界線 ────────────────────────────────────────────────────────────────────
