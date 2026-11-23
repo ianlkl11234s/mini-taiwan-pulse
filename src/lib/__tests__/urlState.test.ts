@@ -497,6 +497,12 @@ describe("country（c=，國家主體）", () => {
     expect(parseUrlState(url.slice(1)).country).toBe("JP");
   });
 
+  it("c=th（泰國，第 0 波尚無圖層）round-trip", () => {
+    const url = buildUrl({ country: "TH" }, "/");
+    expect(url).toBe("/?v=1&c=th");
+    expect(parseUrlState(url.slice(1)).country).toBe("TH");
+  });
+
   it("c= 與 layers= 一起 round-trip（日本、法國、台灣；主題身分改為 (country, title) 後不變）", () => {
     for (const [country, layers, expected] of [
       ["JP", ["jpStations", "jpGsiRelief"], "/?v=1&layers=jpStations%2CjpGsiRelief&c=jp"],

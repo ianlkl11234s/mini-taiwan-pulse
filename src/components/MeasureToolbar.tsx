@@ -1,6 +1,6 @@
 /**
  * 量測工具列（design-system spec §5.44，C1）：距離／面積切換、總數、刪上一點、清除、完成。
- * 位置由 App 給 style（桌機上方置中、手機時間軸列下方）；沒有量測時不渲染。
+ * 位置由 App 決定（桌機：品牌列下方浮動置中的 .measure-float；手機：時間軸列下方）；沒有量測時不渲染。
  */
 import { useSyncExternalStore, type CSSProperties } from "react";
 import { Check, Pentagon, Ruler, Trash2, Undo2 } from "lucide-react";
@@ -90,6 +90,7 @@ export function MeasureToolbar({ controller, isDarkTheme, variant, style }: Prop
         type="button"
         className="measure-bar__btn measure-bar__btn--primary"
         title={t("measure.done")}
+        aria-label={t("measure.done")}
         disabled={!canFinish}
         onClick={() => controller.finish()}
       >

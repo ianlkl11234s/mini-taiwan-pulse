@@ -1,5 +1,6 @@
 // 英國第 4 波交通圖例（2026-10-29）：樞紐、站客流、倫敦軌道線／站、單車站、JamCams、收費區；第 10 波：主要路網、AADF 計數點。
 // 色票與署名 SSOT 在 data/gbTransportTypes.ts；TfL 四層＋車站一律附三句署名與「倫敦限定」。
+import { useEffect, useState } from "react";
 import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -9,6 +10,12 @@ import {
 } from "../../data/gbTransportTypes";
 import { LINE_WIDTH, POINT_RADIUS, TRANSFER_STATION, transferRingColor } from "../../map/mapStyleScale";
 import { useLocale } from "../../state/localeStore";
+import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
+import {
+  GB_RAIL_ATTRIBUTION_KEYS, GB_RAIL_COLOR, GB_RAIL_DELAY_TIERS, GB_RAIL_SELECTED_COLOR, GB_RAIL_TRACK_COLOR, formatLondonHHMM, gbRailReplayTime,
+  type GbRailReplayData,
+} from "../../data/gbRailReplay";
+import { GB_RAIL_REPLAY_DATE, getGbRailReplayData, loadGbRailReplay } from "../../data/gbRailReplayLoader";
 import { localizeLayerName } from "../../i18n/layerText";
 import type { MessageKey } from "../../i18n/keys";
 
@@ -164,5 +171,44 @@ export function GbTrafficCountsAadfLegend() {
     <LegendNote>{i18n.t("legend.transport.gbAadfEstimatedNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbAadfMinorNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbAadfNi")}</LegendNote>
+  </div>;
+}
+
+/** 英國列車重播（本機預覽）：誤點分級（無欄位時單色）、停站／行駛、路網、選取路徑；重播日與涵蓋、時間來源比例、目前英國時刻、SCHEMA §6 署名。 */
+export function GbRailReplayLegend() {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const [data, setData] = useState<GbRailReplayData | null>(() => getGbRailReplayData());
+  useEffect(() => {
+    if (data) return;
+    let alive = true;
+    loadGbRailReplay().then((d) => { if (alive) setData(d); }).catch(() => {});
+    return () => { alive = false; };
+  }, [data]);
+  const now = useTimeStoreTime(1000);
+  const theme = t.isDark ? "dark" : "light";
+  const replayT = gbRailReplayTime(now, data?.serviceDate ?? GB_RAIL_REPLAY_DATE);
+  const pct = (v: number) => Math.round(v).toString();
+  const DELAY_KEYS: Record<string, MessageKey> = {
+    onTime: "legend.transport.gbRailOnTime", minor: "legend.transport.gbRailMinor", moderate: "legend.transport.gbRailModerate",
+    severe: "legend.transport.gbRailSevere", noData: "legend.transport.gbRailNoData",
+  };
+  return <div>
+    <LegendTitle zh={layerTitle("gbRailReplay", i18n)} en="Rail Replay" />
+    <LegendNote>{i18n.t("legend.transport.gbRailNow", { time: formatLondonHHMM(replayT) })}</LegendNote>
+    {data?.hasDelay !== false ? <>
+      <LegendNote>{i18n.t("legend.transport.gbRailDelayTitle")}</LegendNote>
+      {GB_RAIL_DELAY_TIERS.map((d) => <LegendRow key={d.tier} swatch={<SwatchDot color={d.color} />}>{i18n.t(DELAY_KEYS[d.tier]!)}</LegendRow>)}
+    </> : null}
+    <LegendRow swatch={<SwatchLine color={data?.hasDelay ? GB_RAIL_DELAY_TIERS[0]!.color : GB_RAIL_COLOR} width={3} />}>{i18n.t("legend.transport.gbRailMoving")}</LegendRow>
+    <LegendRow swatch={<SwatchDot color={data?.hasDelay ? GB_RAIL_DELAY_TIERS[0]!.color : GB_RAIL_COLOR} />}>{i18n.t("legend.transport.gbRailDwelling")}</LegendRow>
+    <LegendRow swatch={<SwatchLine color={GB_RAIL_TRACK_COLOR[theme]} width={LINE_WIDTH.thin[1]} opacity={0.6} />}>{i18n.t("legend.transport.gbRailTrack")}</LegendRow>
+    <LegendRow swatch={<SwatchLine color={GB_RAIL_SELECTED_COLOR[theme]} width={LINE_WIDTH.emphasis[1]} />}>{i18n.t("legend.transport.gbRailSelected")}</LegendRow>
+    <LegendNote>{i18n.t("legend.transport.gbRailReplayNote", { date: data?.serviceDate ?? GB_RAIL_REPLAY_DATE })}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbRailTestLayer")}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbRailCoverage")}</LegendNote>
+    {data ? <LegendNote>{i18n.t("legend.transport.gbRailSourcePct", { a: pct(data.sourcePct.a), e: pct(data.sourcePct.e) })}</LegendNote> : null}
+    <LegendNote>{i18n.t("legend.transport.gbRailTimeMap")}</LegendNote>
+    {GB_RAIL_ATTRIBUTION_KEYS.map((k) => <LegendNote key={k} style={{ overflowWrap: "anywhere" }}>{i18n.t(k)}</LegendNote>)}
   </div>;
 }

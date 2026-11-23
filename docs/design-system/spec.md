@@ -1,4 +1,4 @@
-最後更新：2026-11-03（新增 §5.43 地圖導航控制 N-1；§5.17 T2 例外）；2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
+最後更新：2026-11-23（§5.44 量測條改浮在品牌列下方；右上浮動元件依品牌列換行高度 `--top-bar-shift` 往下讓）；2026-11-03（新增 §5.43 地圖導航控制 N-1；§5.17 T2 例外）；2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
 
 # Mini Taiwan Pulse — Design System
 
@@ -604,8 +604,10 @@
 
 - **結構**：圖例面板頂端整列按鈕：chevron（展開 `ChevronDown`／收合 `ChevronRight`，12px）＋「圖例」。
 - **尺寸**：padding `6px 10px`、gap 6、10px `FONT_CJK`、透明底。
-- **高度上限**：右下停靠區（popup＋圖例）上緣封頂在 `LAYOUT.rightDockTop`（60；手機 52；不跟左側面板的 leftDockTop 一起往下，避免短視窗圖例更擠），不得往上頂出工具列。popup 優先保留自身高度（最多到停靠區高度減 36px，留給圖例標題列）；圖例吃剩下的空間，標題列固定、內容在面板內捲動。
+- **高度上限**：右下停靠區（popup＋圖例）上緣封頂在 `LAYOUT.rightDockTop ＋ --top-bar-shift`（60；手機 52；不跟左側面板的 leftDockTop 一起往下，避免短視窗圖例更擠），不得往上頂出工具列。popup 優先保留自身高度（最多到停靠區高度減 36px，留給圖例標題列）；圖例吃剩下的空間，標題列固定、內容在面板內捲動。
 - **禁止**：英文「LEGEND」、大寫。
+- **品牌列換行讓位（右上浮動元件，2026-11-23）**：桌機品牌列（品牌＋右上工具列）是 flex-wrap 的一列，窄寬度或長語系時右上工具列會掉到第二行。`App.tsx` 用 ResizeObserver 量右上工具列底邊超出品牌欄底邊多少，寫進 `<html>` 的 `--top-bar-shift`（單行時 0），整列底邊寫 `--top-bar-bottom`；以下右上元件的 `top` 一律寫 `calc(原值 ＋ var(--top-bar-shift, 0px))`：右下停靠區上緣（60）、載入狀態條（60，§5.30）、視野提示卡（88，§5.42）、AI 對話框（88）、Agent 面板鈕（68）、Agent 活動卡（100）、Monitor split dock（56）。單行時位置與原本完全相同；手機與拍攝模式不渲染品牌列，變數移除。新增掛在右上、`top` 依工具列決定的浮動元件也要加這個變數，不得寫死數字。
+- **版權列讓位**：右下停靠區 `bottom` ＝ `max(LAYOUT.mapBottomInset, 手機 sheet 高度 ＋ 版權列實際高度 ＋ SPACING.sm)`；英日文窄螢幕版權列折成兩行時圖例自動上移，一行時位置不變（`AttributionBar` 用 ResizeObserver 把高度寫進 `--attrib-bar-h`）。
 - **實作**：`src/components/LegendPanel.tsx`、`App.tsx` 右下停靠區。
 
 ### 5.24 左下時間軸（TC3 收合＋展開；展開＝TC1 單列）
@@ -1017,7 +1019,7 @@
 ### 5.42 視野提示卡（2026-10-28 國家主體化）
 
 - **用途**：地圖視野停在「目前國家主體以外」的國家時，在右上提示可以切換國家；**只提示，不自動切換**。
-- **位置**：桌機 `top 88px`、`right 16px`（載入狀態條 §5.30 之下）；Monitor split 時沿用載入狀態條的 `right`（讓到 dock 左邊）。層級 `Z_INDEX.toolbar`（`--z-toolbar`）。**手機不顯示**（第一版不做）。
+- **位置**：桌機 `top 88px ＋ --top-bar-shift`、`right 16px`（載入狀態條 §5.30 之下；品牌列換行時跟著往下讓，單行時就是 88px，見 §5.23「品牌列換行讓位」）；Monitor split 時沿用載入狀態條的 `right`（讓到 dock 左邊）。層級 `Z_INDEX.toolbar`（`--z-toolbar`）。**手機不顯示**（第一版不做）。
 - **外觀**：寬依內容、最寬 300px（2026-10-31 由 280 放寬，容納圖層列）；底 `SURFACE.strong`＋1px `BORDER.panel`＋`RADIUS.xl`＋`ELEVATION.lg`＋`blur(12px)`，padding `8px 12px`（淡色用 `--light-*`）。第一行＝國碼 chip（§5.41 `CountryChip`，`chipOutline(textMuted)`）＋標題 12px 600；第二行說明 11px `textMuted`；按鈕列＝C2 主要按鈕「切換到〇〇」＋C2 一般按鈕「保持〇〇」（§5.7）。`role="status"`、`aria-live="polite"`。
 - **文案**：標題「目前視野在{他國}」；說明「圖層面板仍是{目前國家}的圖層」；按鈕「切換到{他國}」「保持{目前國家}」。
 - **節奏**（`src/hooks/useViewportCountry.ts`）：
@@ -1102,7 +1104,7 @@
 #### 量測（C1）
 
 - **入口**：右鍵選單兩項（第一點＝右鍵位置）、控制柱尺規鈕（開始距離量測，§5.43）。
-- **工具列**：桌機放在品牌列（§5.18）中間的彈性欄位，水平置中於品牌字標與右上工具列之間（同一個 flex 列，不會重疊；空間不足時隨品牌列換行）；手機在時間軸列下方 12px、左 12、右 54（讓過導航鈕），距離／面積只顯示 icon。高 36、`SURFACE.strong`、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`、`blur(12px)`。內容：`Ruler` 13px accent → 距離／面積分段（§5.8，選中 accent-faint 底＋accent 600 字，`aria-pressed`）→ 分隔線 → 總數（`FONT_DATA` 12px 600 `textStrong`、min-width 76 靠右）→ 分隔線 → 刪上一點（`Undo2`）、清除（`Trash2`）、完成（C2 主要按鈕、`Check`）。按鈕高 26（§5.7）。`role="toolbar"`。拍攝模式隱藏工具列，量測線保留。
+- **工具列**：桌機浮在地圖上方、品牌列（§5.18）正下方 8px（`top: --top-bar-bottom ＋ SPACING.sm`），**不參與品牌列排版**（2026-11-23 根治：原本放品牌列中間，英日文會把右上工具列擠到第二行蓋住右側卡片）。容器 `.measure-float` ＝地圖可用區（左＝側欄寬＋16、右＝右上元件共用的 `right`，Monitor split 時已扣掉 dock），量測條位置由 `src/components/measureFloatPlacement.ts` 依要避開的卡片實際外框計算（`.country-hint`、`.loading-status`、`.research-activity` 與標 `data-measure-avoid` 的 popup〔含 CCTV 460 寬〕、AI 對話框、珊瑚警示）：(1) 品牌列下方那一列避開卡片後放得下單行 → 盡量置中（擠時往左讓，與卡片留 12px）；(2) 放不下 → 往下排到擋住它的卡片下方，仍單行、文字完整；(3) 連地圖可用區全寬都放不下單行才折行。文字一律完整顯示，不收成 icon。新增會疊在地圖上方的卡片要加 `data-measure-avoid`；容器 `pointer-events: none`。手機在時間軸列下方 12px、左 12、右 54（讓過導航鈕），距離／面積只顯示 icon。高 36、`SURFACE.strong`、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`、`blur(12px)`。內容：`Ruler` 13px accent → 距離／面積分段（§5.8，選中 accent-faint 底＋accent 600 字，`aria-pressed`）→ 分隔線 → 總數（`FONT_DATA` 12px 600 `textStrong`、min-width 76 靠右）→ 分隔線 → 刪上一點（`Undo2`）、清除（`Trash2`）、完成（C2 主要按鈕、`Check`）。按鈕高 26（§5.7）。`role="toolbar"`。拍攝模式隱藏工具列，量測線保留。
 - **互動**：單擊加點；雙擊或 Enter 完成；Backspace 刪上一點；繪製中按 Esc 取消（清除並離開；完成後的結果不受 Esc 影響，避免關視窗的 Esc 一併清掉）；距離至少 2 點、面積 3 點才算完成，不足時完成＝取消。繪製中在地圖容器的 capture 階段攔截 click／dblclick（先於 mapbox），所以圖層 popup 點擊不觸發；同時停用雙擊縮放，離開時還原（原本開著才開回）。拖曳、滾輪縮放照常；拖曳後放開不算點。游標改十字。完成後保留線、標籤與工具列（總數），直到按清除、按尺規鈕或開新量測；完成後地圖點擊恢復正常。切換距離／面積清除已畫的點並重新繪製。「清除」＝清除並離開。手機：點地圖加點、按「完成」結束。拍攝模式暫停加點與快捷鍵。
 - **繪製**：GeoJSON source `measure-tool`＋4 支 layer（面 accent 12%、線 accent 2px、預覽段 1.5px 虛線 5／4、頂點半徑 5 白底 accent 2px 框）；暗 `COLORS.accent`、淡 `LIGHT.accent`。切底圖在 `style.load` 重掛；每次加點 `moveLayer` 到最上層。
 - **標籤**（DOM Marker，`pointer-events: none`）：距離模式每段中點上方 14px 標該段長度（`SURFACE.strong` 底、1px `BORDER.panel`、`RADIUS.md`、`FONT_DATA` 10px）；總長在最後一點上方 24px（11px 600 `textStrong`、accent 框）；面積模式在頂點平均位置標面積（同總長樣式），下方一行「周長 x km」。繪製中游標右下 hint「雙擊完成 · Backspace 刪點」（10px `textMuted`，手機不顯示）。

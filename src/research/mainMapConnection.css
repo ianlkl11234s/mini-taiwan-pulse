@@ -1,5 +1,5 @@
 /* Colors, type and controls come from src/styles/tokens.css (C2 buttons, H2 header). */
-.main-map-agent { position: fixed; right: 16px; top: 68px; z-index: var(--z-floating-panel); font: var(--font-lg)/1.5 var(--font-cjk); color: var(--agent-text); }
+.main-map-agent { position: fixed; right: 16px; top: calc(68px + var(--top-bar-shift, 0px)); z-index: var(--z-floating-panel); font: var(--font-lg)/1.5 var(--font-cjk); color: var(--agent-text); }
 .main-map-agent button { color: inherit; background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); padding: 6px 10px; cursor: pointer; }
 .main-map-agent-toggle { float: right; }
 .main-map-agent-panel { clear: both; margin-top: 40px; width: min(360px, calc(100vw - 32px)); max-height: calc(100dvh - 130px); overflow: auto; padding: 16px; background: var(--surface-strong); border: 1px solid var(--border-panel); border-radius: var(--radius-xl); box-shadow: var(--elevation-lg); }

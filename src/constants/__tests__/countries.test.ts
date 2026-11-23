@@ -306,4 +306,73 @@ describe("countries", () => {
   ] as const)("%s 不判為越南", (_name, lng, lat, expected) => {
     expect(countryForPoint(lng, lat)).toBe(expected);
   });
+
+  // 泰國（2026-11-22 第 0 波）：外框內有寮國、柬埔寨、馬來西亞、緬甸陸地，靠多矩形排除
+  it.each([
+    ["曼谷", 100.5018, 13.7563],
+    ["清邁", 98.9853, 18.7883],
+    ["合艾", 100.4747, 7.0086],
+    ["普吉", 98.3923, 7.8804],
+    ["烏汶", 104.86, 15.24],
+    ["湄賽（對岸大其力）", 99.8776, 20.4279],
+    ["湄索（對岸妙瓦底）", 98.57, 16.72],
+    ["廊開", 102.74, 17.88],
+    ["孫谷洛（對岸哥打巴魯一帶）", 101.97, 6.03],
+    ["勿洞", 101.07, 5.77],
+    ["達叻", 102.52, 12.24],
+    ["龜島", 99.84, 10.1],
+  ] as const)("%s 判泰國", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).toBe("TH");
+  });
+
+  it.each([
+    ["永珍（寮國）", 102.6, 17.97],
+    ["沙灣拿吉（寮國）", 104.75, 16.56],
+    ["金邊（柬埔寨）", 104.9282, 11.5564],
+    ["暹粒（柬埔寨）", 103.86, 13.36],
+    ["波貝（柬埔寨）", 102.56, 13.66],
+    ["哥打巴魯（馬來西亞）", 102.24, 6.13],
+    ["亞羅士打（馬來西亞）", 100.37, 6.12],
+    ["大其力（緬甸）", 99.89, 20.448],
+    ["妙瓦底（緬甸）", 98.5, 16.69],
+    ["土瓦（緬甸）", 98.2, 14.08],
+    ["龍坡邦（寮國）", 102.1347, 19.8856],
+  ] as const)("%s 不判為泰國", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).not.toBe("TH");
+  });
+
+  // FRONTEND_SPEC §1 城市樣本：5 個貼界城市（距界 0.4–1.7 km）＋亞羅士打（43 km，6–7°N 帶內）原本誤判，靠多矩形切邊
+  it.each([
+    ["Vientiane（寮，距界 0.83 km）", 102.6, 17.9667],
+    ["Savannakhet（寮，距界 1.65 km）", 104.75, 16.55],
+    ["Poipet（柬，距界 0.49 km）", 102.56, 13.656],
+    ["Tachileik（緬，距界 0.38 km）", 99.8756, 20.4478],
+    ["Myawaddy（緬，距界 0.59 km）", 98.51, 16.69],
+    ["Alor Setar（馬，距界 43 km）", 100.369, 6.121],
+    ["Siem Reap（柬）", 103.8591, 13.3671],
+    ["Phnom Penh（柬）", 104.9282, 11.5564],
+    ["Kota Bharu（馬）", 102.2386, 6.1254],
+    ["Dawei（緬）", 98.2, 14.08],
+  ] as const)("%s 不判為泰國（FRONTEND_SPEC 樣本）", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).not.toBe("TH");
+  });
+
+  it.each([
+    ["Bangkok", 100.5018, 13.7563], ["Chiang Mai", 98.9853, 18.7883], ["Hat Yai", 100.4747, 7.0086], ["Phuket", 98.3923, 7.8804],
+    ["Nong Khai", 102.7421, 17.8782], ["Mae Sai", 99.8761, 20.4272], ["Mukdahan", 104.723, 16.5419], ["Betong", 101.0728, 5.7737],
+    ["Ko Samui", 100.016, 9.512], ["Aranyaprathet", 102.5, 13.69],
+  ] as const)("%s 判泰國（FRONTEND_SPEC 樣本）", (_name, lng, lat) => {
+    expect(countryForPoint(lng, lat)).toBe("TH");
+  });
+
+  it("泰國矩形不與其他國家矩形重疊（只可共用邊）", () => {
+    const th = COUNTRIES.find((c) => c.code === "TH")!.bboxes;
+    for (const other of COUNTRIES.filter((c) => c.code !== "TH")) {
+      for (const [w1, s1, e1, n1] of th) {
+        for (const [w2, s2, e2, n2] of other.bboxes) {
+          expect(w1 < e2 && w2 < e1 && s1 < n2 && s2 < n1, `TH ${[w1, s1, e1, n1]} × ${other.code} ${[w2, s2, e2, n2]}`).toBe(false);
+        }
+      }
+    }
+  });
 });
