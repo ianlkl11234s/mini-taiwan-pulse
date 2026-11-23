@@ -11,6 +11,12 @@ import type { MessageKey } from "../i18n/keys";
 import type { Locale } from "../i18n/locales";
 import { LAYER_MANIFEST } from "./layerManifest";
 import { LAYER_SOURCE_INFO_DATA } from "./layerSourceInfo.data";
+import { PH_DATA_SPECS } from "./phDataLayers";
+import { CA_WAVE_SPECS } from "./caWavesLayers";
+import { VN_DATA_SPECS } from "./vnDataLayers";
+import { CN_DATA_SPECS } from "./cnDataLayers";
+import { KR_DATA_SPECS } from "./krDataLayers";
+import { IE_DATA_SPECS } from "./ieDataLayers";
 
 /** 原文字串、既有 i18n key（可帶變數），或三語各自的原文。 */
 export type SourceText =
@@ -53,9 +59,32 @@ export function resolveSourceText(text: SourceText, ctx: TextContext): string {
 
 export const LAYER_SOURCE_INFO: Readonly<Record<string, LayerSourceInfo>> = LAYER_SOURCE_INFO_DATA;
 
+type L3 = { zh: string; en: string; ja: string };
+const fromL3 = (text: L3): SourceText => ({ "zh-TW": text.zh, en: text.en, ja: text.ja });
+
+/**
+ * 外國規格層（菲、加、越、中、韓、愛）的 `popupNotes`：每筆都一樣的備註搬到圖層側；
+ * 有 `when` 條件（只對部分 feature 成立）的留在 popup。
+ */
+const SPEC_NOTES: ReadonlyMap<string, SourceText[]> = (() => {
+  const map = new Map<string, SourceText[]>();
+  const add = (key: string, notes: SourceText[]) => { if (notes.length) map.set(key, notes); };
+  for (const spec of [...PH_DATA_SPECS, ...CA_WAVE_SPECS, ...VN_DATA_SPECS, ...CN_DATA_SPECS]) {
+    add(spec.key, spec.popupNotes.filter((note) => !note.when).map((note) => fromL3(note.text)));
+  }
+  for (const spec of [...KR_DATA_SPECS, ...IE_DATA_SPECS]) add(spec.key, spec.popupNotes.map(fromL3));
+  return map;
+})();
+
 export function getLayerSourceInfo(layerKey: string): LayerSourceInfo | null {
-  return LAYER_SOURCE_INFO[layerKey] ?? null;
+  const info = LAYER_SOURCE_INFO[layerKey];
+  if (!info) return null;
+  const specNotes = SPEC_NOTES.get(layerKey);
+  return specNotes ? { ...info, notes: [...(info.notes ?? []), ...specNotes] } : info;
 }
+
+/** 越南依來源欄切換署名的層（規格有 `more`：部分 feature 屬另一個來源）。 */
+const VN_SOURCE_SWITCH = VN_DATA_SPECS.filter((spec) => "more" in spec && spec.more).map((spec) => spec.key);
 
 /**
  * 圖層側是否已涵蓋 popup 原本的來源資訊：有機關，且有授權——
@@ -87,6 +116,8 @@ export const POPUP_PER_FEATURE_SOURCE = new Set<string>([
   "gbForestRecreation", "gbOpenAccessLand", "gbTreeProtection", "gbTrails", "gbArtsVenues", "gbCulturalFacilities", "gbVisitorExperience",
   "gbCareHomes", "gbCareServices", "gbCourts", "gbFireStations", "gbHealthFacilities", "gbSchools",
   "gbPlanningConstraints", "gbAquaculture", "gbWastePermits", "gbNoise",
+  // 越南：依來源欄切換署名
+  ...VN_SOURCE_SWITCH,
 ]);
 
 const POPUP_TO_LAYER_KEYS: ReadonlyMap<string, string[]> = (() => {

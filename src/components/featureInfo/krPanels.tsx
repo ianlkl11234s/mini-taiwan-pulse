@@ -380,7 +380,6 @@ function makePanel(spec: KrLayerSpec): FC<{ props: Record<string, unknown> }> {
         const value = measuredNone && f.kind === "measure" ? pickL3(KR_UNMEASURED, locale) : formatField(f, props, locale, fmt);
         return <Row key={f.prop} label={pickL3(f.label, locale)} value={value} mono={f.kind === "code"} />;
       })}
-      {spec.popupNotes.map((n, i) => <Row key={i} label={locale === "en" ? "Note" : locale === "ja" ? "備考" : "備註"} value={pickL3(n, locale)} />)}
       <SourceFooter props={{ source_org: spec.sourceOrg, source_url: spec.sourceUrl, license: spec.license, fetched_at: spec.fetchedAt }} />
     </>;
   };
