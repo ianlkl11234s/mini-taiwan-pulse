@@ -157,5 +157,6 @@
   "legend.hazard.gbQuakeUnknown": "マグニチュード不明の {n} 件は最小の点で表示",
   "legend.hazard.gbQuakeMinor": "M2 未満の計器観測はズーム {zoom} 以上で表示",
   "legend.hazard.gbQuakeOffshore": "海域の地震 {n} 件を含む（いずれの地域にも属さない）",
-  "legend.hazard.disasterResourceNote": "消防署救災資源データベース 5,568 か所のうち座標のある 5,379 か所；保管機関の種類は名称のキーワードによる大まかな分類。多くの品目は数量 0 で登録されているため、ポップアップには数量 0 超の品目のみ表示"
+  "legend.hazard.disasterResourceNote": "消防署救災資源データベース 5,568 か所のうち座標のある 5,379 か所；保管機関の種類は名称のキーワードによる大まかな分類。多くの品目は数量 0 で登録されているため、ポップアップには数量 0 超の品目のみ表示",
+  "legend.hazard.globalNoiseHidden": "AIがノイズと判定した報道 {n} 件を地図で非表示（レイヤー設定で表示可）"
 }

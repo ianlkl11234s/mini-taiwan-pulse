@@ -187,4 +187,65 @@ describe("Global Events possibly-same-story links", () => {
     ]);
     expect(links.neighbours.size).toBe(0);
   });
+
+  // 以下樣本取自 2026-11-16～23 實際候選（人工判讀為同一件事換句話說／不同事件）。
+  it("links rewordings with similar AI summaries even when titles differ", () => {
+    const links = globalEventStoryLinks([
+      { ...story("a", "巴士墜入烏塔拉坎德邦深淵，8死26傷", "IN", [79, 30]), summaryZhTw: "印度北阿肯德邦一輛巴士墜入百米深谷，造成8人死亡、26人受傷，救援持續進行。" },
+      { ...story("b", "印度北阿肯德邦巴士墜谷，8死26傷", "IN", [78, 30.5]), summaryZhTw: "印度北阿肯德邦巴士墜入深谷，造成8人死亡、26人受傷，救援人員持續搜救。" },
+    ]);
+    expect(links.related.get("a")?.map((item) => item.eventId)).toEqual(["b"]);
+  });
+
+  it("links same-country, same-category reports that share proper names from the source headline", () => {
+    const links = globalEventStoryLinks([
+      { ...story("a", "川普稱科技中斷為個別事件，籲美民放鬆", "US", [-77, 38]), category: "policy",
+        sourceHeadline: "\"These are individual events\": Trump tells Americans to \"relax\" | WJBO" },
+      { ...story("b", "特朗普駁斥科技與銀行中斷係網絡攻擊", "US", [-100, 40], "2026-11-22T14:00:00Z"), category: "policy",
+        sourceHeadline: "\"These are individual events\": Trump tells Americans to \"relax\" amid outages" },
+    ]);
+    expect(links.neighbours.get("a")).toEqual(new Set(["b"]));
+    expect(links.lines.features).toHaveLength(1);
+  });
+
+  it("media-name suffixes and different categories do not count as shared names", () => {
+    const links = globalEventStoryLinks([
+      { ...story("a", "加州聖安德烈斯斷層附近報告地震", "US", [-120, 36]), category: "disaster", sourceHeadline: "CA Earthquake Reported Near San Andreas Fault | News Radio 570 WWNC" },
+      { ...story("b", "白宮稱無網路攻擊證據", "US", [-77, 38]), category: "policy", sourceHeadline: "White House Says No Evidence Of Cyberattack | News Radio 570 WWNC" },
+    ]);
+    expect(links.neighbours.size).toBe(0);
+  });
+
+  it("quakes in one country with different magnitudes are different events", () => {
+    const links = globalEventStoryLinks([
+      { ...story("a", "日本西南發生5.7級強震，當局籲民眾保持警戒", "JA", [131, 32]), summaryZhTw: "日本西南部發生規模地震，當局呼籲民眾保持警戒並注意餘震。" },
+      { ...story("b", "日本立山附近發生規模5.2地震", "JA", [137, 36.5]), summaryZhTw: "日本立山附近發生規模地震，當局呼籲民眾保持警戒並注意餘震。" },
+    ]);
+    expect(links.neighbours.size).toBe(0);
+  });
+
+  it("draws at most a few lines per event but lists and highlights every related report", () => {
+    const rows = Array.from({ length: 8 }, (_, i) => story(`e${i}`, "印尼工廠大火釀3死36失蹤", "ID", [100 + i, -5]));
+    const links = globalEventStoryLinks(rows);
+    expect(links.related.get("e0")).toHaveLength(7);
+    expect(links.neighbours.get("e0")?.size).toBe(7);
+    expect(links.lines.features.length).toBeLessThan(28);
+    for (const id of rows.map((row) => row.eventId)) {
+      const drawn = links.lines.features.filter((f) => f.properties?.event_id === id || f.properties?.related_event_id === id).length;
+      expect(drawn).toBeGreaterThan(0);
+    }
+  });
+
+  it("shared people / organizations link only when the upstream field exists (sample data)", () => {
+    const withEntities = globalEventStoryLinks([
+      { ...story("a", "歐盟官員訪問基輔", "UP", [30, 50]), entities: [{ kind: "person", name: "Kaja Kallas" }, { kind: "org", name: "European Commission" }] },
+      { ...story("b", "布魯塞爾討論制裁方案", "BE", [4, 50]), entities: [{ kind: "person", name: "Kaja Kallas" }] },
+    ]);
+    expect(withEntities.entityLinks.get("a")?.get("b")).toEqual(["kaja kallas"]);
+    expect(withEntities.neighbours.get("b")).toEqual(new Set(["a"]));
+    expect(withEntities.related.size).toBe(0);
+    const without = globalEventStoryLinks([story("a", "歐盟官員訪問基輔", "UP", [30, 50]), story("b", "布魯塞爾討論制裁方案", "BE", [4, 50])]);
+    expect(without.entityLinks.size).toBe(0);
+    expect(without.neighbours.size).toBe(0);
+  });
 });

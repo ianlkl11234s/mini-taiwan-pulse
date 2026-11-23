@@ -97,6 +97,7 @@ export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
     p.globalEventsMinSeverity ?? 3,
     (p.globalEventsTaiwanOnly ?? 0) === 1,
     deps.isDarkTheme,
+    (p.globalEventsShowNoise ?? 0) === 1,
   );
   return null;
 };

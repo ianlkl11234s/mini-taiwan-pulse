@@ -157,5 +157,6 @@
   "legend.hazard.gbQuakeUnknown": "規模未知 {n} 筆，以最小點表示",
   "legend.hazard.gbQuakeMinor": "規模 <2 的儀器記錄放大到 z{zoom} 以上才顯示",
   "legend.hazard.gbQuakeOffshore": "含海上事件 {n} 筆（不屬任一地區）",
-  "legend.hazard.disasterResourceNote": "消防署救災資源資料庫 5,568 處中有座標的 5,379 處；保管單位類型依名稱關鍵字粗分。多數品項數量登錄為 0，popup 只列數量大於 0 的品項"
+  "legend.hazard.disasterResourceNote": "消防署救災資源資料庫 5,568 處中有座標的 5,379 處；保管單位類型依名稱關鍵字粗分。多數品項數量登錄為 0，popup 只列數量大於 0 的品項",
+  "legend.hazard.globalNoiseHidden": "地圖已隱藏 AI 判為雜訊的報導 {n} 件（圖層設定可打開）"
 }

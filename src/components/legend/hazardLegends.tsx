@@ -624,7 +624,9 @@ function GlobalEventsStatus() {
   const mapped = new Set<string>();
   const unlocated = new Set<string>();
   let latest = -Infinity;
+  const noiseHidden = view.noiseHidden ?? 0;
   for (const entry of view.entries) {
+    if (noiseHidden > 0 && entry.decision === "drop_noise") continue;
     (entry.coordinates && !entry.mapSuppressed ? mapped : unlocated).add(entry.eventId);
     const available = Date.parse(entry.availableAt ?? entry.publishedAt ?? "");
     if (Number.isFinite(available) && available > latest) latest = available;
@@ -638,6 +640,7 @@ function GlobalEventsStatus() {
         time: i18n.formatDateTime(new Date(latest), { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }),
         hours: Math.max(0, Math.round((Date.now() - latest) / 3_600_000)),
       })}</> : null}
+      {noiseHidden > 0 ? <><br />{i18n.t("legend.hazard.globalNoiseHidden", { n: noiseHidden })}</> : null}
       {view.message ? <><br />{view.message}</> : null}
     </LegendNote>
   );

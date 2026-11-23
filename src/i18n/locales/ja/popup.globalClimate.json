@@ -25,7 +25,7 @@
   "popup.globalClimate.taiwanImpact": "台湾への影響",
   "popup.globalClimate.reason": "判断理由",
   "popup.globalClimate.storyLinks": "関連の可能性がある報道",
-  "popup.globalClimate.storyLinksValue": "{n} 件（地図上で強調、別の場所は破線で結ぶ；因果ではない）",
+  "popup.globalClimate.storyLinksValue": "同じ出来事の可能性がある別報道 {n} 件（地図上で強調、別の場所は破線で結ぶ；因果ではない）",
   "popup.globalClimate.locationSemantics": "位置の意味",
   "popup.globalClimate.collectedAt": "出典の収集時刻",
   "popup.globalClimate.locationSource": "位置情報の出典",
@@ -129,5 +129,8 @@
   "popup.globalClimate.typLeadValue": "+{h} 時間",
   "popup.globalClimate.typValidAt": "予報対象時刻",
   "popup.globalClimate.typUnmatched": "台風と対応付けできず（名称なし）",
-  "popup.globalClimate.typAgencyNote": "台湾 NCDR がまとめた各機関の予報。各機関 24 時間ごとに 1 点で、各機関の元の予報より粗く、進路の比較用です。"
+  "popup.globalClimate.typAgencyNote": "台湾 NCDR がまとめた各機関の予報。各機関 24 時間ごとに 1 点で、各機関の元の予報より粗く、進路の比較用です。",
+  "popup.globalClimate.storyLinksMore": "ほか {n} 件（地図上で強調）",
+  "popup.globalClimate.entityLinks": "共通の人物・組織",
+  "popup.globalClimate.entityLinksValue": "同じ人物・組織に触れた報道 {n} 件：{names}"
 }

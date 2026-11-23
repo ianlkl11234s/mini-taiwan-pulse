@@ -157,5 +157,6 @@
   "legend.hazard.gbQuakeUnknown": "{n} events with unknown magnitude are drawn at the smallest size",
   "legend.hazard.gbQuakeMinor": "Instrumental events below magnitude 2 are shown from zoom {zoom}",
   "legend.hazard.gbQuakeOffshore": "Includes {n} offshore events (not assigned to any nation)",
-  "legend.hazard.disasterResourceNote": "5,379 of 5,568 sites in the NFA disaster resource database have coordinates; holder type is a rough keyword classification of the site name. Most items are recorded with quantity 0, so popups list only items above 0"
+  "legend.hazard.disasterResourceNote": "5,379 of 5,568 sites in the NFA disaster resource database have coordinates; holder type is a rough keyword classification of the site name. Most items are recorded with quantity 0, so popups list only items above 0",
+  "legend.hazard.globalNoiseHidden": "{n} reports AI marked as noise are hidden on the map (can be shown in layer settings)"
 }

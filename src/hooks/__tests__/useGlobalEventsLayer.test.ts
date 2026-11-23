@@ -449,7 +449,7 @@ describe("useGlobalEventsLayer timeline", () => {
 
     harness.reset(); // 模擬 effect cleanup（圖層關閉或元件 unmount）
 
-    expect(globalEventsViewStore.getSnapshot()).toEqual({ entries: [], status: "idle", message: null, windowLabel: "最近七天" });
+    expect(globalEventsViewStore.getSnapshot()).toEqual({ entries: [], status: "idle", message: null, windowLabel: "最近七天", noiseHidden: 0 });
   });
 
   it("跨日 scrub 連續三次 window 變化只發一次 load（250ms trailing debounce）", async () => {
