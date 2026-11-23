@@ -199,7 +199,7 @@ export const TH_WAVE5_SPECS: readonly ThLayerSpec[] = [
     title: { props: ["name_th", "name"], fallback: l3("監所、法院", "Prison / courthouse", "刑事施設・裁判所") },
     fields: [{ prop: "name_en", label: l3("英文名稱", "English name", "英語名") }, { prop: "postcode", label: l3("郵遞區號", "Postcode", "郵便番号"), kind: "code" }, ...OVERTURE_FIELDS.filter((f) => ["locality", "confidence", "datasets"].includes(f.prop)), ...PROVINCE_FIELDS],
     legendNotes: [
-      l3("DOC 監所 142 處（2021 版，STALE）；法院為 Overture 補缺 291（非 COJ 官方名冊）", "142 DOC prisons (2021 edition, stale); courthouses are 291 Overture gap-fill (not the official COJ register)", "DOC 刑事施設 142（2021 年版、古い）。裁判所は Overture 補完 291（COJ 公式名簿ではない）"),
+      l3("DOC 監所 142 處；法院為 Overture 補缺 291（非 COJ 官方名冊）", "142 DOC prisons; courthouses are 291 Overture gap-fill (not the official COJ register)", "DOC 刑事施設 142。裁判所は Overture 補完 291（COJ 公式名簿ではない）"),
       l3("COJ 277 名單無座標、檢察署未做", "COJ's 277-court list has no coordinates; prosecution offices not done", "COJ の 277 件の一覧は座標なし、検察庁は未対応"),
       OVERTURE_NOTE,
     ],

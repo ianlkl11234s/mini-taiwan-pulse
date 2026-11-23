@@ -896,7 +896,6 @@ export function JpEvacuationSitesLegend() {
     {JP_EVACUATION_SITE_TYPES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpEvacSite", c.value, c.label, i18n)}</LegendRow>)}
     <LegendNote>{i18n.t("legend.civic.jpEvacLegal")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpEvacFilterNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.jpEvacStale")}</LegendNote>
     <DenseHeatmapLegendRow layers={["jpEvacuationSites"]} />
   </div>;
 }
@@ -1083,7 +1082,7 @@ export function JpWelfareFacilitiesLegend({ layerKey }: { layerKey: JpWelfareLay
     <LegendNote>{i18n.t("legend.civic.jpWelfareMissing")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpWelfareAccuracy")}</LegendNote>
     <LegendRestrictions layers={[layerKey]} />
-    <LegendNote>{i18n.t("legend.civic.jpWelfareStale")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpWelfareMasked")}</LegendNote>
     <DenseHeatmapLegendRow layers={[layerKey]} />
   </div>;
 }

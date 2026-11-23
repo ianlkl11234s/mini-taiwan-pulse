@@ -460,7 +460,6 @@ export const CA_FED_SOURCE: CaSource = {
   short: CA_STATCAN_SOURCE_NOTE,
 };
 export const CA_FED_NOTES: readonly L3[] = [
-  l3("2025 大選起改用 2023 代表令 343 區（本層未更新）", "From the 2025 election the 2023 Representation Order (343 districts) applies; this layer is not updated", "2025 年総選挙からは 2023 年代表令（343 区）。本レイヤーは未更新"),
   l3("涵蓋 13/13 省／地區；z6 以下另畫代表點；選區名見點選資訊", "Coverage 13/13; representative points below zoom 6; click for district names", "13/13 州・準州を収録。ズーム 6 未満は代表点。選挙区名はクリックで表示"),
 ];
 export const CA_FED_POPUP: CaPopupSpec = {

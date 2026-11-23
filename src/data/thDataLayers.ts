@@ -63,7 +63,6 @@ export const TH_ADMIN_SOURCE = {
 } as const;
 export const TH_ADMIN_NOTES: readonly L3[] = [
   l3("國界 1、府 77、縣（amphoe／khet）928、區（tambon／khwaeng）7,425；一次只顯示一個層級", "1 country, 77 provinces, 928 districts (amphoe / khet), 7,425 sub-districts (tambon / khwaeng); one level at a time", "国境 1・県 77・郡（amphoe／khet）928・区（tambon／khwaeng）7,425。一度に 1 階層のみ表示"),
-  l3("曼谷 khwaeng 標註：版本落後（本層 169，官方現行 180）", "Bangkok khwaeng note: outdated edition (this layer 169, official 180)", "バンコクの khwaeng：版が古い（本レイヤー 169、公式現行 180）"),
   TH_BOUNDARY_NOTE,
 ];
 
@@ -350,7 +349,6 @@ const TH_W1_SPECS: readonly ThLayerSpec[] = [
     legendNotes: [
       l3("道路：DOH 路線中心線 BE 2568（2025）3,083 段；鐵道：NGIS L02008 643 段", "Roads: DOH route centerlines BE 2568 (2025), 3,083 sections; railways: NGIS L02008, 643 sections", "道路：DOH 路線中心線 BE 2568（2025）3,083 区間。鉄道：NGIS L02008 643 区間"),
       l3("只含 DOH 國道（無鄉道 DRR）；道路府數 77/77，鐵道只有 47/77 府有線段", "DOH national highways only (no rural roads); roads in 77/77 provinces, railways only in 47/77", "DOH 国道のみ（農道 DRR なし）。道路は 77/77 県、鉄道は 47/77 県のみ"),
-      l3("鐵道來源版本 BE 2554（2011），與現況路網不完全一致", "Railway source edition BE 2554 (2011); not identical to the current network", "鉄道の出典は BE 2554（2011）版で、現況の路線網と完全には一致しない"),
     ],
     popupNotes: [],
     sourceOrg: l3("กรมทางหลวง（Department of Highways）路線中心線 BE 2568（授權未明示）；鐵道 NGIS L02008（MOT／SRT，授權未明示）", "Department of Highways (DOH) route centerlines BE 2568 (license not stated); railways NGIS L02008 (MOT/SRT, license not stated)", "Department of Highways（DOH）路線中心線 BE 2568（ライセンス未明示）。鉄道 NGIS L02008（MOT／SRT、ライセンス未明示）"),

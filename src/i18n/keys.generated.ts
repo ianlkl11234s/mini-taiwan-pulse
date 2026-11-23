@@ -758,6 +758,7 @@ export type GeneratedStaticKey =
   | "legend.civic.jpWelfareChildTitle"
   | "legend.civic.jpWelfareDisabilityTitle"
   | "legend.civic.jpWelfareLicense"
+  | "legend.civic.jpWelfareMasked"
   | "legend.civic.jpWelfareMissing"
   | "legend.civic.jpWelfareStale"
   | "legend.civic.jpZoningDisclaimer"

@@ -186,7 +186,7 @@ export const TH_WAVE8_SPECS: readonly ThLayerSpec[] = [
       ...PROVINCE_FIELDS,
     ],
     legendNotes: [
-      l3("2010 年版（資料較舊，STALE）：只涵蓋 9 個沿海府；現況保護區範圍可能已改變", "2010 edition (outdated, stale): only 9 coastal provinces covered; current protected-area extents may have changed", "2010 年版（古いデータ）：沿岸 9 県のみ。現在の保護区の範囲は変わっている可能性"),
+      l3("只涵蓋 9 個沿海府", "Only 9 coastal provinces covered", "沿岸 9 県のみ"),
       l3("不畫任何海域主張線；虛線外框＝保護區邊界", "No maritime claim lines drawn; the dashed outline is the protected-area boundary", "海域の主張線は描画しない。破線の外枠＝保護区の境界"),
     ],
     popupNotes: [{ text: l3("2010 年版，資料較舊", "2010 edition, outdated data", "2010 年版で、データが古い"), when: () => true }, NEAREST_NOTE],
