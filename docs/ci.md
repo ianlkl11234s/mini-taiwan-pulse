@@ -15,7 +15,7 @@ CI 只回答一個問題：**這次合併會不會讓 develop 壞掉**。由此�
 ## 2. 結構
 
 ```
-entry-docs（PROJECTS ↔ BACKLOG 一致性；不看 changes，永遠跑）
+entry-docs（PROJECTS ↔ BACKLOG 一致性＋已發布 CHANGELOG 段落凍結；不看 changes，永遠跑）
 changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監測腳本測試 → 入倉守門 → lock 外引用；sparse-checkout 跳過 public/）
           ├─ build（tsc -b ＋ vite build）
           ├─ test ×4 片（vitest --shard；sparse-checkout 只取 public/ 的網站素材）
@@ -24,7 +24,7 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監�
 ```
 
 - **四個 job 平行跑**，牆鐘時間等於最慢的那一個。每個 job 自己付 checkout 與 `npm ci` 的成本，`npm ci` 有 setup-node 的 npm 快取，約 5 秒。
-- **檢查的順序以 package.json 的 `check` 為準**：entry-docs → lint → inventory → coral → worker → monitor → warehouse-gate → asset-refs → build → test → assets，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
+- **檢查的順序以 package.json 的 `check` 為準**：entry-docs → changelog → lint → inventory → coral → worker → monitor → warehouse-gate → asset-refs → build → test → assets，快的放前面，本機可以早點失敗。ci.yml 由上而下出現的 `npm run check:*` 必須是同一順序，`src/test/ciCheckParity.test.ts` 會檢查。
 - **`ci-ok`** 用 `if: always()` 接住所有 job，只要有任何一個不是 success 或 skipped 就紅。之後如果要設 required status check，只設這一個。
 - **每個 job 都有 `timeout-minutes`**。沒設的話，卡住會跑滿 6 小時。
 
@@ -55,7 +55,7 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監�
 
 **2026-11-08 使用者決定**：本機只跑快速、和改動相關的檢查，全套交給 CI，不再兩邊各跑一次。
 
-- **commit 前**：`npm run verify`，依序跑 `tsc -b`、lint、樣式盤點，再用 `vitest run --changed origin/develop` 只跑和改動相關的測試。
+- **commit 前**：`npm run verify`，依序跑 `tsc -b`、lint、樣式盤點、已發布 CHANGELOG 段落檢查（要有 `origin/master`），再用 `vitest run --changed origin/develop` 只跑和改動相關的測試。
 - **改到 manifest 時**：PostToolUse hook（`.claude/hooks/manifest-guard.sh`）會立刻跑三道 manifest 守門測試。
 - **合併前**：等 PR 的 CI 綠。
 - **CI 紅燈時**：在本機單跑紅燈的檔，或用 `npm run check` 重現，不要盲目重推。
@@ -97,6 +97,9 @@ changes ──┬─ quick（lint → 樣式盤點 → coral → worker → 監�
 - 要讓新圖層一上線就有資料：先手動觸發 `sync_only`，等它跑完再發版。
 
 ## 9. 守門與排程監測（2026-11-10）
+
+**PR 時（entry-docs job）**
+- `check:changelog`（DEV-7）：`origin/master` 已有的 CHANGELOG 版本段落（`## vX.Y.Z — …` 到下一個 `## `）在本分支必須逐字相同；`## [Unreleased]`、版本總覽表、master 還沒有的新版本段落不受限，所以發版與 hotfix PR（base=master）不會被擋。master 有、本分支沒有的段落（hotfix 還沒合回 develop）只出 warning。job 先 `git fetch --depth=1` master；fetch 失敗或讀不到 master 直接紅，不略過。違規時把多出的條目搬回 Unreleased。
 
 **PR 時（quick job）**
 - `check:warehouse-gate`（AG-13）：`docs/features/general-analysis/layer-status.csv` 的 `warehouse_status=missing`（沒入倉也沒標 DISPLAY_ONLY）只准比 PR base 少。pulse-data 是私有 repo，CI 讀不到登記簿，所以比 mini 內由登記簿產生、且 `layerStatusCoverage.test.ts` 強制與 manifest 同步的 CSV。只動文件的 PR 不會改到 CSV。
