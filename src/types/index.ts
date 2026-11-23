@@ -3,6 +3,7 @@ import type { KrDataKey } from '../data/krDataKeys';
 import type { IeDataKey } from '../data/ieDataKeys';
 import type { PhDataKey, PhRasterKey } from '../data/phDataKeys';
 import type { VnDataKey, VnRasterKey } from '../data/vnDataKeys';
+import type { ThDataKey, ThRasterKey } from '../data/thDataKeys';
 import type { CnDataKey, CnRasterKey } from '../data/cnDataKeys';
 import type { CaWaveKey } from '../data/caWavesKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
@@ -484,6 +485,7 @@ export type ExpandableLayerKey =
   | "ieAdminBoundaries" | IeDataKey | "ieBathymetry" | "ieCoillteRecreation" | "ieCoillteForestRoads"
   | "phAdminBoundaries" | "phPopulation" | "phOpenaqAir" | PhDataKey | PhRasterKey
   | "vnAdminBoundaries" | "vnPopulation" | VnDataKey | VnRasterKey
+  | "thAdminBoundaries" | "thPopulation" | ThDataKey | ThRasterKey
   | "cnAdminBoundaries" | "cnPopulation" | "cnPopulationGrid" | CnDataKey | CnRasterKey
   | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid" | CaWaveKey
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
@@ -1099,6 +1101,8 @@ export interface FeatureInfo {
     | "phAdminBoundaries" | "phPopulation" | "phOpenaqAir" | PhDataKey
     // 越南第 0–1 波
     | "vnAdminBoundaries" | "vnPopulation" | VnDataKey
+    // 泰國第 0–1 波
+    | "thAdminBoundaries" | "thPopulation" | ThDataKey
     // 中國第 0–1 波（站主限定；人口網格是 raster，沒有 popup）
     | "cnAdminBoundaries" | "cnPopulation" | CnDataKey
     // 南韓第 1 波：交通 6 層、能源 7 個 key
@@ -1152,7 +1156,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKey | PhRasterKey | VnDataKey | VnRasterKey | ThDataKey | ThRasterKey | CnDataKey | CnRasterKey | CaWaveKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -2115,6 +2119,8 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   phAdminBoundaries: boolean;   // 菲律賓行政邊界（PMTiles polygon，region 18／province 88／municipality 1,642／barangay 42,048；2026-11-13 第 0 波）
   phPopulation: boolean;   // 菲律賓人口（2024 普查，四層級人口密度；其餘 8 層走 PhDataKey）
   vnAdminBoundaries: boolean;   // 越南行政邊界（PMTiles polygon，2025-07 新制 34 省；2026-11-13 第 0 波）
+  thAdminBoundaries: boolean;   // 泰國行政邊界（PMTiles polygon，國界／府 77／amphoe 928／tambon 7,425；2026-11-22 第 0 波）
+  thPopulation: boolean;   // 泰國人口（DOPA 戶籍登記，府／amphoe 人口密度；其餘 8 層走 ThDataKey）
   vnPopulation: boolean;   // 越南人口（NSO 2025，34 省人口密度；其餘 10 層走 VnDataKey）
   cnAdminBoundaries: boolean;   // 中國行政邊界（站主限定私人 PMTiles，省 31／地級 357；2026-11-13 第 0 波）
   cnPopulation: boolean;   // 中國人口（省 2020 普查、地級 GHS 模型值；站主限定）

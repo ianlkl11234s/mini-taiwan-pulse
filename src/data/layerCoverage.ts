@@ -44,6 +44,10 @@ export const COVERAGE_AREAS = {
   tainan: { label: { zh: "臺南市", en: "Tainan City", ja: "台南市" }, bbox: [120.03, 22.88, 120.66, 23.42] },
   // 30 天地圖挑戰 Day 8 烏托邦：新北市中和區＋永和區（資料與 1955 計畫圖 121.464–121.536°E、24.964–25.024°N）
   zhongheYonghe: { label: { zh: "中和與永和", en: "Zhonghe & Yonghe", ja: "中和・永和" }, bbox: [121.455, 24.955, 121.545, 25.03] },
+  // th_flood_history.pmtiles header bounds 99.456–102.877E、12.652–14.753N 取整（2026-11-23 泰國第 4 波；只涵蓋 16 府）
+  thCentralPlain: { label: { zh: "泰國中部平原（16 府）", en: "Central Thailand (16 provinces)", ja: "タイ中部平野（16 県）" }, bbox: [99.4, 12.6, 102.9, 14.8] },
+  // th_eec.pmtiles header bounds 100.646–101.992E、12.506–13.977N 取整（EEC 3 府：Chon Buri、Rayong、Chachoengsao）
+  thEec: { label: { zh: "泰國東部經濟走廊（3 府）", en: "Eastern Economic Corridor, Thailand (3 provinces)", ja: "タイ東部経済回廊（3 県）" }, bbox: [100.6, 12.5, 102.0, 14.0] },
   // 30 天地圖挑戰 Day 6 西南海岸線三代：高雄北端到雲林口湖（資料 22.77–23.66°N）
   swCoast: { label: { zh: "臺灣西南沿海", en: "Southwest coast of Taiwan", ja: "台湾南西部沿岸" }, bbox: [119.95, 22.74, 120.42, 23.70] },
 } as const satisfies Record<string, CoverageArea>;
@@ -121,6 +125,8 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   tainanRoadTunnels: "tainan",
   vnAngiangDemo: "anGiang",
   vnAngiangAquaculture: "anGiang",
+  thFloodHistory: "thCentralPlain",
+  thEec: "thEec",
   caTorontoKsi: "toronto",
   caTorontoTheftFromVehicle: "toronto",
   caTorontoDevApplications: "toronto",
