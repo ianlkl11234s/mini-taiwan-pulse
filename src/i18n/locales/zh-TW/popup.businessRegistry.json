@@ -29,7 +29,6 @@
   "popup.businessRegistry.recordsInCell": "格內筆數",
   "popup.businessRegistry.density": "密度",
   "popup.businessRegistry.snapshotGrain": "快照與粒度",
-  "popup.businessRegistry.snapshotGrainValue": "{snapshot}；{grain}。",
   "popup.businessRegistry.densityPerKm2": "{value} {unit}／km²",
   "popup.businessRegistry.selectedCategory": "選取分類",
   "popup.businessRegistry.noneSelected": "未選分類",

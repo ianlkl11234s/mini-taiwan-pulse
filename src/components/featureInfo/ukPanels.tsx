@@ -72,7 +72,7 @@ import {
 import {
   GB_BGS_OGL, GB_DESNZ_OGL_V3, GB_GAMMA_ATTRIBUTION, GB_GAMMA_COLOR, GB_GAMMA_UNIT, GB_GAMMA_URL, GB_GEOSURE_ATTRIBUTION, GB_GEOSURE_COLOR,
   GB_GEOSURE_URL, GB_HAZARD_FETCHED_AT, GB_LANDSLIDE_ATTRIBUTION, GB_LANDSLIDE_COLOR, GB_LANDSLIDE_URL, GB_QUAKE_ATTRIBUTION, GB_QUAKE_COLOR,
-  GB_QUAKE_DATA_END, GB_QUAKE_URL, GB_RADON_ATTRIBUTION, GB_RADON_COLOR, GB_RADON_URL, gbGammaColor, gbGeoHazard, gbRadonClass, gbSusceptibility,
+  GB_QUAKE_URL, GB_RADON_ATTRIBUTION, GB_RADON_COLOR, GB_RADON_URL, gbGammaColor, gbGeoHazard, gbRadonClass, gbSusceptibility,
 } from "../../data/gbHazardTypes";
 import { GB_GEO_HAZARD_KEYS, GB_SUSCEPTIBILITY_KEYS } from "../legend/gbHazardLegends";
 import {
@@ -1418,7 +1418,6 @@ export function GbEarthquakesPanel({ props }: { props: Record<string, unknown> }
     {historical ? <Row label={t("popup.hazard.gbQuakeIntensity")} value={text(props.intensity)} /> : null}
     {historical ? <Row label={t("popup.hazard.gbLocality")} value={text(props.locality)} /> : null}
     <Row label={t("popup.hazard.gbQuakeSetting")} value={place} />
-    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbQuakeDataEnd", { date: GB_QUAKE_DATA_END })} />
     <SourceFooter props={{ source_org: GB_QUAKE_ATTRIBUTION, source_url: GB_QUAKE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
   </>;
 }

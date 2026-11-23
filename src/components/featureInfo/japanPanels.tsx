@@ -407,7 +407,6 @@ export function JpEvacuationSitesPanel({ props }: { props: Record<string, unknow
     <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
     <Row label={t("popup.japan.evacMunicipality")} value={policeText(props.municipality) || na} />
     <Row field="address" value={policeText(props.address) || na} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_EVACUATION_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_EVACUATION_ATTRIBUTION, source_url: JP_EVACUATION_SOURCE_URL, license: JP_EVACUATION_LICENSE, fetched_at: JP_EVACUATION_DATA_AS_OF }} />
   </>;
 }
@@ -423,7 +422,6 @@ export function JpPublicOfficesPanel({ props }: { props: Record<string, unknown>
     <Row label={t("popup.japan.officeClass")} value={cls ? enumLabel("jpPublicOfficeClass", cls.value, cls.label, i18n) : na} />
     <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
     <Row field="address" value={policeText(props.address) || na} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_PUBLIC_OFFICE_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_PUBLIC_OFFICE_ATTRIBUTION, source_url: JP_PUBLIC_OFFICE_SOURCE_URL, license: JP_PUBLIC_OFFICE_LICENSE, fetched_at: JP_PUBLIC_OFFICE_DATA_AS_OF }} />
   </>;
 }
@@ -454,7 +452,6 @@ export function JpLandslideWarningAreasPanel({ props }: { props: Record<string, 
     <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
     <Row field="address" value={policeText(props.address) || na} />
     {licenseNote ? <Row label={t("popup.japan.landslideLicense")} value={enumLabel("jpLandslideLicenseNote", licenseNote, licenseNote, i18n)} /> : null}
-    <Row label={t("popup.japan.dataAsOf")} value={JP_LANDSLIDE_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_LANDSLIDE_ATTRIBUTION, source_url: JP_LANDSLIDE_SOURCE_URL, license: JP_LANDSLIDE_LICENSE, fetched_at: JP_LANDSLIDE_DATA_AS_OF }} />
   </>;
 }
@@ -470,7 +467,6 @@ export function JpInlandFloodAreasPanel({ props }: { props: Record<string, unkno
     <Row label={t("popup.japan.inlandFloodDepth")} value={depth ? enumLabel("jpInlandFloodDepth", depth.value, depth.label, i18n) : na} />
     <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
     <Row label={t("popup.japan.inlandFloodScenario")} value={t("popup.japan.inlandFloodScenarioValue")} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_INLAND_FLOOD_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_INLAND_FLOOD_ATTRIBUTION, source_url: JP_INLAND_FLOOD_SOURCE_URL, license: JP_INLAND_FLOOD_LICENSE, fetched_at: JP_INLAND_FLOOD_DATA_AS_OF }} />
   </>;
 }
@@ -493,7 +489,6 @@ export function JpZoningUseDistrictsPanel({ props }: { props: Record<string, unk
     <Row label={t("popup.japan.zoningBcr")} value={pct(props.bcr_pct)} />
     <Row label={t("popup.japan.zoningMunicipality")} value={policeText(props.municipality) || na} />
     <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_ZONING_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_ZONING_ATTRIBUTION, source_url: JP_ZONING_SOURCE_URL, license: JP_ZONING_LICENSE, fetched_at: JP_ZONING_DATA_AS_OF }} />
   </>;
 }
@@ -529,7 +524,6 @@ export function JpNationalForestsPanel({ props }: { props: Record<string, unknow
     <Row label={t("popup.japan.forestSpecies")} value={policeText(props.main_species) || na} />
     <Row label={t("popup.japan.forestPlanted")} value={planted !== "" && !Number.isNaN(Number(planted)) ? `${Math.round(Number(planted) * 100)}%` : na} />
     <Row label={t("popup.japan.forestArea")} value={area !== "" && !Number.isNaN(Number(area)) ? `${Number(area).toFixed(1)} ha` : na} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_FOREST_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_FOREST_ATTRIBUTION, source_url: JP_FOREST_SOURCE_URL, license: JP_FOREST_LICENSE, fetched_at: JP_FOREST_DATA_AS_OF }} />
   </>;
 }
@@ -555,7 +549,6 @@ function JpWelfarePanel({ props, layerKey }: { props: Record<string, unknown>; l
     <Row field="address" value={policeText(props.address) || na} />
     <Row label={t("popup.japan.welfareAccuracy")} value={accLabel ? enumLabel("jpWelfareAccuracy", acc, accLabel, i18n) : na} />
     {licenseNote && <Row label={t("popup.japan.welfareLicense")} value={licenseNote} />}
-    <Row label={t("popup.japan.dataAsOf")} value={JP_WELFARE_DATA_AS_OF} />
     <Row label={t("popup.japan.notes")} value={t("popup.japan.welfareNote")} />
     <SourceFooter props={{ source_org: JP_WELFARE_ATTRIBUTION, source_url: JP_WELFARE_SOURCE_URL, license: JP_WELFARE_LICENSE, fetched_at: JP_WELFARE_DATA_AS_OF }} />
   </>;
@@ -584,7 +577,6 @@ export function JpMajorRoadsPanel({ props }: { props: Record<string, unknown> })
     <Row label={t("popup.japan.roadWidth")} value={JP_ROAD_WIDTH_CLASSES[width] ?? na} />
     <Row label={t("popup.japan.roadToll")} value={toll} />
     <Row label={t("popup.japan.roadState")} value={JP_ROAD_STATES[state] ?? na} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_ROAD_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_ROAD_ATTRIBUTION, source_url: JP_ROAD_SOURCE_URL, license: JP_ROAD_LICENSE, fetched_at: JP_ROAD_DATA_AS_OF }} />
   </>;
 }
@@ -601,7 +593,6 @@ export function JpMunicipalRoadsPanel({ props }: { props: Record<string, unknown
     <Row label={t("popup.japan.roadWidth")} value={JP_ROAD_WIDTH_CLASSES[width] ?? na} />
     <Row label={t("popup.japan.roadToll")} value={toll} />
     <Row label={t("popup.japan.roadState")} value={JP_ROAD_STATES[state] ?? na} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_ROAD_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_ROAD_ATTRIBUTION, source_url: JP_ROAD_SOURCE_URL, license: JP_ROAD_LICENSE, fetched_at: JP_ROAD_DATA_AS_OF }} />
   </>;
 }
@@ -623,7 +614,6 @@ export function JpExpresswaysPanel({ props }: { props: Record<string, unknown> }
       <Row label={t("popup.japan.expresswayRoutes")} value={policeText(props.route_names) || na} />
       <Row label={t("popup.japan.expresswayOpened")} value={opened || na} />
       {saPa && <Row label={t("popup.japan.notes")} value={t("popup.japan.expresswaySaPa")} />}
-      <Row label={t("popup.japan.dataAsOf")} value={JP_EXPRESSWAY_DATA_AS_OF} />
       <Row label={t("popup.japan.notes")} value={t("popup.japan.expresswayJunctionNote")} />
       {footer}
     </>;
@@ -639,7 +629,6 @@ export function JpExpresswaysPanel({ props }: { props: Record<string, unknown> }
     <Row label={t("popup.japan.expresswayStatus")} value={status ? enumLabel("jpExpresswayStatus", statusValue, status.label, i18n) : na} />
     <Row label={t("popup.japan.expresswayLanes")} value={lanes !== "" && !Number.isNaN(Number(lanes)) ? String(Number(lanes)) : t("popup.japan.zoningUnrecorded")} />
     <Row label={t("popup.japan.expresswayOpened")} value={opened || na} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_EXPRESSWAY_DATA_AS_OF} />
     {footer}
   </>;
 }
@@ -658,7 +647,6 @@ export function JpBusStopsPanel({ props }: { props: Record<string, unknown> }) {
     <Row label={t("popup.japan.busClass")} value={cls ? enumLabel("jpBusClass", cls.value, cls.label, i18n) : na} />
     <Row label={t("popup.japan.busRouteCount")} value={routeCount || na} />
     <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
-    <Row label={t("popup.japan.dataAsOf")} value={JP_BUS_STOP_DATA_AS_OF} />
     <SourceFooter props={{ source_org: JP_BUS_STOP_ATTRIBUTION, source_url: JP_BUS_STOP_SOURCE_URL, license: JP_BUS_STOP_LICENSE, fetched_at: JP_BUS_STOP_DATA_AS_OF }} />
   </>;
 }
