@@ -3,6 +3,10 @@
 > 每一輪拍板了什麼、哪個 PR 做的。規格細節以 [`spec.md`](./spec.md)、[`map-layers.md`](./map-layers.md) 為準；數值以程式（見 [`README.md`](./README.md)「程式裡的唯一來源」）與活的元件頁為準。
 > 設計稿都在 `docs/features/ui-consistency-audit-20260927/`（UI）與 `docs/features/map-layer-restyle/`（地圖）。
 
+## 2026-11-23
+
+- 右下停靠區（圖例）底邊改依版權列實際高度往上讓：手機英日文版權列折成兩行時不再被圖例蓋住（spec §5.23）。
+
 ## 2026-11-03
 
 ### 游標座標、右鍵選單與量測 — spec §5.44、§5.18、§5.43

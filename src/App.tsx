@@ -18,7 +18,7 @@ import { BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, BRIDGE_RESILIENCE_PRIVATE_LAYER_
 import { BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_PRIVATE_LAYER_KEYS, BSS_BRIDGE_SELECTION_CLEAR_EVENT, isBssBridgePrivateLayer } from "./data/bssBridgeTypes";
 import { isSoilLiquefactionPrivateLayer, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT } from "./data/soilLiquefactionTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SURFACE, Z_INDEX } from "./styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SPACING, SURFACE, Z_INDEX } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -3471,7 +3471,8 @@ export default function App() {
           position: "absolute",
           top: isMobile ? 52 : LAYOUT.rightDockTop,
           // 與左下時間軸共用底邊偏移（LAYOUT.mapBottomInset），兩者底邊對齊
-          bottom: LAYOUT.mapBottomInset,
+          // 手機英日文版權列折成兩行時，依實際高度（--attrib-bar-h）＋手機 sheet 高度往上讓；一行時仍是 mapBottomInset
+          bottom: `max(${LAYOUT.mapBottomInset}px, calc(var(--mobile-sheet-inset, 0px) + var(--attrib-bar-h, 0px) + ${SPACING.sm}px))`,
           // 桌機有導航控制柱（§5.43）時整欄再往左讓 42（控制柱 30 ＋ 間距 12）
           right: navColumnVisible ? `calc(${navColumnRight} + 42px)` : navColumnRight,
           zIndex: Z_INDEX.floatingPanel,

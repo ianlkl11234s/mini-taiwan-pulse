@@ -603,6 +603,7 @@
 - **尺寸**：padding `6px 10px`、gap 6、10px `FONT_CJK`、透明底。
 - **高度上限**：右下停靠區（popup＋圖例）上緣封頂在 `LAYOUT.rightDockTop`（60；手機 52；不跟左側面板的 leftDockTop 一起往下，避免短視窗圖例更擠），不得往上頂出工具列。popup 優先保留自身高度（最多到停靠區高度減 36px，留給圖例標題列）；圖例吃剩下的空間，標題列固定、內容在面板內捲動。
 - **禁止**：英文「LEGEND」、大寫。
+- **版權列讓位**：右下停靠區 `bottom` ＝ `max(LAYOUT.mapBottomInset, 手機 sheet 高度 ＋ 版權列實際高度 ＋ SPACING.sm)`；英日文窄螢幕版權列折成兩行時圖例自動上移，一行時位置不變（`AttributionBar` 用 ResizeObserver 把高度寫進 `--attrib-bar-h`）。
 - **實作**：`src/components/LegendPanel.tsx`、`App.tsx` 右下停靠區。
 
 ### 5.24 左下時間軸（TC3 收合＋展開；展開＝TC1 單列）

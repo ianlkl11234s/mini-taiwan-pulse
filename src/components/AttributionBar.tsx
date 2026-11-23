@@ -110,6 +110,22 @@ export function AttributionBar({ map, host, isDark }: AttributionBarProps) {
     };
   }, [open]);
 
+  // 版權列實際高度（英日文窄螢幕會折成兩行）寫進 --attrib-bar-h，右下停靠區（App.tsx）讀它往上讓位；
+  // 一行時 ＋間距仍小於 LAYOUT.mapBottomInset，位置不變。
+  useEffect(() => {
+    const corner = host?.parentElement;
+    if (!corner) return;
+    const root = document.documentElement;
+    const write = () => root.style.setProperty("--attrib-bar-h", `${corner.offsetHeight}px`);
+    write();
+    const ro = new ResizeObserver(write);
+    ro.observe(corner);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--attrib-bar-h");
+    };
+  }, [host]);
+
   if (!host) return null;
   const theme = isDark ? "pulse-attrib--dark" : "pulse-attrib--light";
   const label = t("attribution.sources");
