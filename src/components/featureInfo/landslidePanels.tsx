@@ -41,7 +41,6 @@ export function LandslideDodAreaPanel({ props }: Props) {
     <Row label={t("popup.landslide.accessRoad")} value={str(props.road_name)} />
     <Row field="basin" value={[props.basin, props.sub_basin].map(str).filter(Boolean).join("／")} />
     <Row field="area" value={fmt(props.geom_area_ha, 2, t("popup.landslide.unitHectare"), i18n)} />
-    <Row field="number" value={str(props.lslno)} mono />
     <Row field="authority" value={str(props.authority)} />
   </>;
 }

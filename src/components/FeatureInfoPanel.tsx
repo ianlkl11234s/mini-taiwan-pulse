@@ -7,6 +7,7 @@ import { KR_DATA_KEYS } from "../data/krDataKeys";
 import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS } from "../data/phDataKeys";
 import { VN_DATA_KEYS } from "../data/vnDataKeys";
+import { TH_DATA_KEYS } from "../data/thDataKeys";
 import { CN_DATA_KEYS } from "../data/cnDataKeys";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { G53_SELF_FOOTER_KEYS } from "../data/atlasLayerTypes";
@@ -39,6 +40,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   ...IE_DATA_KEYS,
   ...PH_DATA_KEYS,
   ...VN_DATA_KEYS,
+  ...TH_DATA_KEYS,
   ...CN_DATA_KEYS,
   ...CA_WAVE_KEYS, // 加拿大第 3–8 波：makePhPanel 自掛 SourceFooter
   "twMarineHeat", // 台灣圖層延伸 B6：海洋熱浪／珊瑚熱壓力 panel 依兩層各自掛 SourceFooter
@@ -119,6 +121,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "phPopulation",
   "vnAdminBoundaries",
   "vnPopulation",
+  "thAdminBoundaries",
+  "thPopulation",
   "cnAdminBoundaries",
   "cnPopulation",
   "caTransitStops",
@@ -161,6 +165,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbStationUsage",
   "gbLondonRailLines",
   "gbLondonStations",
+  "gbRailReplay",
   "gbLondonBikePoints",
   "gbLondonJamCams",
   "gbLondonChargingZones",
@@ -246,6 +251,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay17DarkSky", "mapchallengeDay17DarkRoads", "mapchallengeDay17LedShare",
   // 30 天地圖挑戰 Day 19 氣味：panel 自掛公害陳情／潛勢來源／環保裁處出處。
   "mapchallengeDay19Complaints", "mapchallengeDay19Potential", "mapchallengeDay19Penalties", "mapchallengeDay21OsmRoads",
+  // 30 天地圖挑戰 Day 23 味覺：panel 自掛財政部稅籍登記來源。
+  "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteVariants",
   // 縣市間遷徙流向：panel 自掛內政部戶政司來源。
   "twCountyMigrationFlows",
   "transitAccessGrid",

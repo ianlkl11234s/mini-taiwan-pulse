@@ -32,7 +32,6 @@ export function VnAdminBoundariesPanel({ props }: P) {
     <Row label={pick({ zh: "新制社數", en: "Communes (2025)", ja: "社の数（2025 新制）" })} value={fmtNum(props.communes)} />
     <Row label={pick({ zh: "併入的舊省", en: "Former provinces merged", ja: "統合された旧省" })} value={caText(props.old_provinces)} />
     <Row label={pick({ zh: "面積", en: "Area", ja: "面積" })} value={area ? `${area} km²` : ""} />
-    <Row label={pick({ zh: "省代碼（NSO）", en: "Province code (NSO)", ja: "省コード（NSO）" })} value={caText(props.province_code)} mono />
     <SourceFooter props={{ source_org: phText(VN_ADMIN_SOURCE.org, locale), source_url: VN_ADMIN_SOURCE.url, license: phText(VN_ADMIN_SOURCE.license, locale), fetched_at: VN_FETCHED_AT }} />
   </>;
 }

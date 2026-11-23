@@ -18,7 +18,6 @@
   "popup.marine.observed": "観測 {time}",
   "popup.marine.trendSelected": "トレンド選択中",
   "popup.marine.trendView": "24 時間のトレンドを見る",
-  "popup.marine.stationCode": "観測所コード",
   "popup.marine.sourceNetwork": "データ元ネットワーク",
   "popup.marine.originOrg": "観測・管理",
   "popup.marine.distributionOrg": "データ配信",

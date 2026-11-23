@@ -12,7 +12,13 @@ import {
   MAPCHALLENGE_DAY21_TOTAL_KM, MAPCHALLENGE_DAY21_YEAR_MAX, MAPCHALLENGE_DAY21_YEAR_MIN, MAPCHALLENGE_DAY21_YEARS, mapchallengeDay21YearAt, mapchallengeDay21YearColor,
 } from "../../data/mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY21_WIDTH } from "../../data/mapchallengeDay21Style";
+import {
+  MAPCHALLENGE_DAY23_BASE_STORES, MAPCHALLENGE_DAY23_DATA_DATE, MAPCHALLENGE_DAY23_TERMS, MAPCHALLENGE_DAY23_VARIANT_GROUPS,
+  mapchallengeDay23GroupById, mapchallengeDay23Radius, mapchallengeDay23TermById, mapchallengeDay23TermColor,
+  type MapchallengeDay23TermId,
+} from "../../data/mapchallengeDay23Types";
 import { useLocale } from "../../state/localeStore";
+import type { StaticMessageKey } from "../../i18n/keys";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
 import {
   MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_PD_LABELS, MAPCHALLENGE_DAY04_TC_CH_OVERLAP,
@@ -664,5 +670,64 @@ export function MapchallengeDay21OsmRoadsLegend({ isDark }: { isDark: boolean })
     <LegendNote>{t("legend.mapchallenge.day21.yearNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day21.limits", { km: formatNumber(MAPCHALLENGE_DAY21_TOTAL_KM) })}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.day21.source")}</LegendNote>
+  </div>;
+}
+
+// ── Day 23 味覺 ────────────────────────────────────────────────
+/** 12 個詞的翻譯 key（說明框共用） */
+export const MAPCHALLENGE_DAY23_TERM_KEYS: Readonly<Record<MapchallengeDay23TermId, StaticMessageKey>> = {
+  beefSoup: "legend.mapchallenge.day23.term.beefSoup", kongRou: "legend.mapchallenge.day23.term.kongRou",
+  turkeyRice: "legend.mapchallenge.day23.term.turkeyRice", fanTang: "legend.mapchallenge.day23.term.fanTang",
+  yiMian: "legend.mapchallenge.day23.term.yiMian", eel: "legend.mapchallenge.day23.term.eel",
+  rouZaoFan: "legend.mapchallenge.day23.term.rouZaoFan", banTiao: "legend.mapchallenge.day23.term.banTiao",
+  rouYuan: "legend.mapchallenge.day23.term.rouYuan", wanGuo: "legend.mapchallenge.day23.term.wanGuo",
+  urn: "legend.mapchallenge.day23.term.urn", liveFish: "legend.mapchallenge.day23.term.liveFish",
+};
+/** 同物異字三組的翻譯 key（說明框共用） */
+export const MAPCHALLENGE_DAY23_GROUP_KEYS = {
+  rice: "legend.mapchallenge.day23.group.rice", banTiao: "legend.mapchallenge.day23.group.banTiao", kongRou: "legend.mapchallenge.day23.group.kongRou",
+} as const;
+/** 有額外比對規則的詞（意麵排除鍋燒、粄條與板條合計） */
+const MAPCHALLENGE_DAY23_TERM_NOTE_KEYS: Partial<Record<MapchallengeDay23TermId, StaticMessageKey>> = {
+  yiMian: "legend.mapchallenge.day23.termNote.yiMian", banTiao: "legend.mapchallenge.day23.termNote.banTiao",
+};
+const MAPCHALLENGE_DAY23_SIZE_STEPS = [1, 5, 20] as const;
+
+export function MapchallengeDay23TasteTermsLegend({ isDark }: { isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const values = useLayerParams("mapchallengeDay23TasteTerms");
+  const term = mapchallengeDay23TermById(paramStr(values, "mapchallengeDay23TasteTerms", "mapchallengeDay23TasteTermsTerm")) ?? MAPCHALLENGE_DAY23_TERMS[0];
+  const color = mapchallengeDay23TermColor(term, isDark);
+  const note = MAPCHALLENGE_DAY23_TERM_NOTE_KEYS[term.value];
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day23.termsTitle")} />
+    <LegendRow swatch={<SwatchDot color={color} />}>
+      {t("legend.mapchallenge.day23.termRow", { term: t(MAPCHALLENGE_DAY23_TERM_KEYS[term.value]), n: formatNumber(term.stores), m: formatNumber(term.mapped) })}
+    </LegendRow>
+    {note && <LegendNote>{t(note)}</LegendNote>}
+    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n), label: String(n) }))} fill={color} />
+    <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.scope")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.source")}</LegendNote>
+  </div>;
+}
+
+export function MapchallengeDay23TasteVariantsLegend({ isDark }: { isDark: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const values = useLayerParams("mapchallengeDay23TasteVariants");
+  const group = mapchallengeDay23GroupById(paramStr(values, "mapchallengeDay23TasteVariants", "mapchallengeDay23TasteVariantsGroup")) ?? MAPCHALLENGE_DAY23_VARIANT_GROUPS[0];
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day23.variantsTitle")} />
+    <LegendNote>{t(MAPCHALLENGE_DAY23_GROUP_KEYS[group.value])}</LegendNote>
+    {group.words.map((w) => <LegendRow key={w.label} swatch={<SwatchDot color={mapchallengeDay23TermColor(w, isDark)} />}>
+      {t("legend.mapchallenge.day23.wordRow", { word: w.label, n: formatNumber(w.stores), m: formatNumber(w.mapped) })}
+    </LegendRow>)}
+    <LegendSizeRow title={t("legend.mapchallenge.day23.sizeTitle")} items={MAPCHALLENGE_DAY23_SIZE_STEPS.map((n) => ({ r: mapchallengeDay23Radius(n), label: String(n) }))} fill={mapchallengeDay23TermColor(group.words[0], isDark)} />
+    <LegendNote>{t("legend.mapchallenge.day23.variantsNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.gridNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.scope")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.base", { date: MAPCHALLENGE_DAY23_DATA_DATE, n: formatNumber(MAPCHALLENGE_DAY23_BASE_STORES) })}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day23.source")}</LegendNote>
   </div>;
 }

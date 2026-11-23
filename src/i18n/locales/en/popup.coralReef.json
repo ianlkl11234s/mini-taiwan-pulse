@@ -1,7 +1,6 @@
 {
   "popup.coralReef.title": "Historical coral reefs",
   "popup.coralReef.reefName": "Reef name",
-  "popup.coralReef.featureId": "Feature ID",
   "popup.coralReef.observedYear": "Observation year",
   "popup.coralReef.sourceArea": "Full source feature area",
   "popup.coralReef.geometryStatus": "Geometry status",
@@ -11,7 +10,6 @@
   "popup.coralReef.sourceDetails": "Source details",
   "popup.coralReef.originalCompiler": "Original compiler",
   "popup.coralReef.distributor": "Distributed by",
-  "popup.coralReef.metadataId": "Metadata ID",
   "popup.coralReef.startDate": "Start date",
   "popup.coralReef.endDate": "End date",
   "popup.coralReef.dateType": "Date type",

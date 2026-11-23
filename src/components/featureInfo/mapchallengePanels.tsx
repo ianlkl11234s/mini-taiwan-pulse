@@ -39,6 +39,10 @@ import { FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { MAPCHALLENGE_DAY08_SCENARIO_KEYS, MAPCHALLENGE_DAY08_SITE_CLASS_KEYS, MAPCHALLENGE_DAY08_SPEED_KEYS, MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import { MAPCHALLENGE_DAY21_YEAR_MIN, mapchallengeDay21ClassOf, mapchallengeDay21YearColor } from "../../data/mapchallengeDay21Types";
 import { MAPCHALLENGE_DAY21_CLASS_KEYS } from "../legend/mapchallengeLegends";
+import {
+  MAPCHALLENGE_DAY23_CELL_KM2, MAPCHALLENGE_DAY23_DATA_DATE, mapchallengeDay23GroupById, mapchallengeDay23TermById, mapchallengeDay23TermColor,
+} from "../../data/mapchallengeDay23Types";
+import { MAPCHALLENGE_DAY23_GROUP_KEYS, MAPCHALLENGE_DAY23_TERM_KEYS } from "../legend/mapchallengeLegends";
 import { LinkRow } from "./atlasPanels";
 import { Row, SourceFooter, Title } from "./shared";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
@@ -581,5 +585,47 @@ export function MapchallengeDay21OsmRoadsPanel({ props }: Props) {
     {/^(way|node|relation)\/\d+$/.test(osmId) && <LinkRow label="OSM" url={`https://www.openstreetmap.org/${osmId}`} />}
     <Row label={t("popup.mapchallenge.day21.note")} value={t("popup.mapchallenge.day21.yearNote")} />
     <SourceFooter props={{ source: t("legend.mapchallenge.day21.source") }} />
+  </div>;
+}
+
+// ── Day 23 味覺 ────────────────────────────────────────────────
+/** 兩層共用的後半段：格網大小、資料日期、口徑說明、來源（只有彙總家數，沒有店名） */
+function MapchallengeDay23Footer({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const km2 = MAPCHALLENGE_DAY23_CELL_KM2[num(props.res)];
+  return <>
+    {km2 !== undefined && <Row label={t("popup.mapchallenge.day23.cell")} value={t("popup.mapchallenge.day23.cellValue", { km2: formatNumber(km2) })} />}
+    <Row label={t("popup.mapchallenge.day23.date")} value={MAPCHALLENGE_DAY23_DATA_DATE} mono />
+    <Row label={t("popup.mapchallenge.day23.note")} value={t("legend.mapchallenge.day23.scope")} />
+    <Row label={t("popup.mapchallenge.day23.position")} value={t("popup.mapchallenge.day23.positionNote")} />
+    <SourceFooter props={{ source: t("legend.mapchallenge.day23.source") }} />
+  </>;
+}
+
+export function MapchallengeDay23TasteTermsPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const term = mapchallengeDay23TermById(props.term);
+  if (!term) return null;
+  return <div>
+    <Title color={mapchallengeDay23TermColor(term, isDark)}>{t(MAPCHALLENGE_DAY23_TERM_KEYS[term.value])}</Title>
+    <Row label={t("popup.mapchallenge.day23.count")} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(num(props.n)) })} mono />
+    <MapchallengeDay23Footer props={props} />
+  </div>;
+}
+
+export function MapchallengeDay23TasteVariantsPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const group = mapchallengeDay23GroupById(props.group);
+  if (!group) return null;
+  const clicked = group.words[num(props.w)] ?? group.words[0];
+  return <div>
+    <Title color={mapchallengeDay23TermColor(clicked, isDark)}>{t(MAPCHALLENGE_DAY23_GROUP_KEYS[group.value])}</Title>
+    {group.words.map((w, i) => {
+      const n = num(props[`c${i}`]);
+      return <Row key={w.label} label={w.label} value={t("popup.mapchallenge.day23.countValue", { n: formatNumber(Number.isFinite(n) ? n : 0) })} color={mapchallengeDay23TermColor(w, isDark)} mono />;
+    })}
+    <MapchallengeDay23Footer props={props} />
   </div>;
 }

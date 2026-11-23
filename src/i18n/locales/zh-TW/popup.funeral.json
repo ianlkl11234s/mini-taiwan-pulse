@@ -20,7 +20,6 @@
   "popup.funeral.osmNote": "ⓘ OpenStreetMap 群眾標註，{note}",
   "popup.funeral.zoningFallback": "墓葬類用地",
   "popup.funeral.zoningGroup": "分區群組",
-  "popup.funeral.zoningId": "分區編號",
   "popup.funeral.zoningNote1": "ⓘ 都市計畫",
   "popup.funeral.zoningNoteBold": "法定劃設",
   "popup.funeral.zoningNote2": "（非實際使用範圍），目前僅臺北市與新北市有此資料",

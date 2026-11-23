@@ -71,6 +71,7 @@ import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutio
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
 import { GbBridgesTunnelsPanel, GbPlacesOfWorshipPanel, GbPublicFacilitiesPanel, GbRoadFacilitiesPanel } from "./ukPanels";
+import { GbRailReplayPanel } from "./gbRailReplayPanel";
 import { KR_DATA_SPECS } from "../../data/krDataLayers";
 import type { KrDataKey } from "../../data/krDataKeys";
 
@@ -87,6 +88,9 @@ import type { CnDataKey } from "../../data/cnDataKeys";
 import { PH_DATA_SPECS } from "../../data/phDataLayers";
 import type { PhDataKey } from "../../data/phDataKeys";
 import { VN_DATA_PANELS, VnAdminBoundariesPanel, VnPopulationPanel } from "./vnPanels";
+import { TH_DATA_PANELS, ThAdminBoundariesPanel, ThPopulationPanel } from "./thPanels";
+import { TH_DATA_SPECS } from "../../data/thDataLayers";
+import type { ThDataKey } from "../../data/thDataKeys";
 import { VN_DATA_SPECS } from "../../data/vnDataLayers";
 import { CA_WAVE_SPECS } from "../../data/caWavesLayers";
 import type { CaWaveKey } from "../../data/caWavesKeys";
@@ -100,6 +104,7 @@ const PH_HEADER_LABELS = Object.fromEntries(PH_DATA_SPECS.map((s) => [s.key, `${
 /** 加拿大第 3–8 波（2026-11-17）：規格驅動，popup 重用 makePhPanel（自掛 SourceFooter）。 */
 const CA_WAVE_PANELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, makePhPanel(s)])) as Record<CaWaveKey, ReturnType<typeof makePhPanel>>;
 const CA_WAVE_HEADER_LABELS = Object.fromEntries(CA_WAVE_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<CaWaveKey, string>;
+const TH_HEADER_LABELS = Object.fromEntries(TH_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<ThDataKey, string>;
 const VN_HEADER_LABELS = Object.fromEntries(VN_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh} ${s.title.fallback.en}`])) as Record<VnDataKey, string>;
 import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
@@ -108,7 +113,7 @@ import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSi
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
 import { CountyMigrationFlowsPanel } from "./countyMigrationPanels";
-import { MapchallengeDay04FacilityPanel, MapchallengeDay19ComplaintsPanel, MapchallengeDay19PotentialPanel, MapchallengeDay19PenaltiesPanel, MapchallengeDay21OsmRoadsPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
+import { MapchallengeDay04FacilityPanel, MapchallengeDay19ComplaintsPanel, MapchallengeDay19PotentialPanel, MapchallengeDay19PenaltiesPanel, MapchallengeDay21OsmRoadsPanel, MapchallengeDay23TasteTermsPanel, MapchallengeDay23TasteVariantsPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel, MapchallengeDay08AccessPanel, MapchallengeDay08ParksPanel, MapchallengeDay08SitesPanel, MapchallengeDay09UrbanRuralPanel, MapchallengeDay17DarkRoadsPanel, MapchallengeDay17DarkSkyPanel, MapchallengeDay17LedSharePanel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
@@ -511,6 +516,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   vnAdminBoundaries: VnAdminBoundariesPanel,
   vnPopulation: VnPopulationPanel,
   ...VN_DATA_PANELS,
+  thAdminBoundaries: ThAdminBoundariesPanel,
+  thPopulation: ThPopulationPanel,
+  ...TH_DATA_PANELS,
   ...CA_WAVE_PANELS,
   cnAdminBoundaries: CnAdminBoundariesPanel,
   cnPopulation: CnPopulationPanel,
@@ -556,6 +564,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbStationUsage: GbStationUsagePanel,
   gbLondonRailLines: GbLondonRailLinesPanel,
   gbLondonStations: GbLondonStationsPanel,
+  gbRailReplay: GbRailReplayPanel,
   gbLondonBikePoints: GbLondonBikePointsPanel,
   gbLondonJamCams: GbLondonJamCamsPanel,
   gbLondonChargingZones: GbLondonChargingZonesPanel,
@@ -710,6 +719,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   twCountyMigrationFlows: CountyMigrationFlowsPanel,
   mapchallengeDay19Penalties: MapchallengeDay19PenaltiesPanel,
   mapchallengeDay21OsmRoads: MapchallengeDay21OsmRoadsPanel,
+  mapchallengeDay23TasteTerms: MapchallengeDay23TasteTermsPanel,
+  mapchallengeDay23TasteVariants: MapchallengeDay23TasteVariantsPanel,
   transitAccessGrid: TransitAccessGridPanel,
   transitAccessPlayback: TransitAccessPlaybackPanel,
   // Base map
@@ -1227,6 +1238,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   vnAdminBoundaries: "行政邊界 Administrative Boundaries",
   vnPopulation: "人口密度 Population Density",
   ...VN_HEADER_LABELS,
+  thAdminBoundaries: "行政邊界 Administrative Boundaries",
+  thPopulation: "人口密度 Population Density",
+  ...TH_HEADER_LABELS,
   ...CA_WAVE_HEADER_LABELS,
   cnAdminBoundaries: "行政邊界 Administrative Boundaries",
   cnPopulation: "人口密度 Population Density",
@@ -1272,6 +1286,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbStationUsage: "車站年進出人次 Station Usage",
   gbLondonRailLines: "倫敦軌道路線 London Rail Lines",
   gbLondonStations: "倫敦軌道車站 London Rail Stations",
+  gbRailReplay: "列車重播 Rail Replay",
   gbLondonBikePoints: "倫敦公共自行車 Santander Cycles",
   gbLondonJamCams: "倫敦道路攝影機 TfL JamCams",
   gbLondonChargingZones: "倫敦收費與低排放區 Charging Zones",
@@ -1412,6 +1427,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   twCountyMigrationFlows: "縣市間遷徙流向",
   mapchallengeDay19Penalties: "異味裁罰設施",
   mapchallengeDay21OsmRoads: "道路畫進 OSM 的年份",
+  mapchallengeDay23TasteTerms: "小吃店名分布",
+  mapchallengeDay23TasteVariants: "同物異字",
   transitAccessGrid: "網格大眾運輸可及性（情境推演）",
   transitAccessPlayback: "單一起點大眾運輸擴張（情境推演）",
   // Base map

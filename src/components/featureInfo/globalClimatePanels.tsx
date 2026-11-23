@@ -72,7 +72,6 @@ export function EarthquakeGlobalPanel({ props }: { props: Record<string, unknown
       />
       <Row label={i18n.t("popup.globalClimate.occurredTime")} value={fmtTime(props.observed_ts, i18n)} />
       <Row field="age" value={fmtAge(props.observed_ts, i18n)} />
-      <Row label="USGS ID" value={String(props.event_id ?? "—")} />
     </div>
   );
 }
@@ -106,7 +105,6 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
           props.name_local ? ` (${String(props.name_local)})` : ""
         }`}
       />
-      <Row field="number" value={String(props.storm_id ?? "—")} />
       <Row
         field="type"
         value={i18n.t(isFcst ? "popup.globalClimate.typhoonForecast" : "popup.globalClimate.typhoonObserved")}
@@ -179,7 +177,6 @@ export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown
   return (
     <div>
       <Row label={t("popup.globalClimate.region")} value={String(props.region ?? "—")} />
-      <Row label="ID" value={String(props.id ?? "—")} />
       <Row label={t("popup.globalClimate.dataset")} value="Outerview（CC-BY-4.0）" />
       <Row field="description" value={t("popup.globalClimate.trashNote")} />
     </div>
@@ -353,7 +350,6 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
       {typeof props.dominant_observed_at === "string" && <Row label={tr("popup.globalClimate.dominantHour")} value={fmtMaritimeUtcTime(props.dominant_observed_at, i18n)} />}
       <Row label={tr("popup.globalClimate.vesselsInCell")} value={Number.isFinite(expectedCount) ? tr("popup.globalClimate.shipCount", { count: expectedCount }) : "—"} />
       <Row label={tr("popup.globalClimate.gridCenter")} value={`${props.center_lon ?? props.grid_lon ?? "—"}, ${props.center_lat ?? props.grid_lat ?? "—"}`} />
-      {typeof props.cell_id === "string" && <Row field="gridId" value={props.cell_id} />}
       <Row label={tr("popup.globalClimate.geomSemantics")} value={tr(props.geometry_semantics === "globally_aligned_0_1_degree_cell" ? "popup.globalClimate.geomLocalAgg" : "popup.globalClimate.geomCenter")} />
       {props.geometry_semantics === "inferred_0_01_degree_footprint" && <Row label={tr("popup.globalClimate.geomExtent")} value={tr("popup.globalClimate.extentInferred")} />}
       {props.geometry_semantics === "globally_aligned_0_1_degree_cell" && <Row label={tr("popup.globalClimate.geomExtent")} value={tr("popup.globalClimate.extentAligned")} />}
@@ -450,18 +446,6 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
     ? props.apparent_fishing_hours : null;
   const components = typeof props.component_count === "number" && Number.isInteger(props.component_count) && props.component_count >= 1
     ? props.component_count : null;
-  let facets: Record<string, unknown>[] = [];
-  let facetCount: number | null = null;
-  if (typeof props.aggregation_facets_json === "string") {
-    try {
-      const parsed: unknown = JSON.parse(props.aggregation_facets_json);
-      facets = Array.isArray(parsed) && parsed.every((item) => item !== null && typeof item === "object" && !Array.isArray(item))
-        ? parsed as Record<string, unknown>[] : [];
-      facetCount = facets.length > 0 ? facets.length : null;
-    } catch {
-      facetCount = null;
-    }
-  }
   const unavailable = (value: unknown): string => value == null || value === "" ? tr("popup.common.notProvided") : String(value);
   const attributionHref = typeof props.attribution_href === "string" && props.attribution_href ? props.attribution_href : null;
   return (
@@ -469,15 +453,6 @@ export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown
       <Row label={tr("popup.globalClimate.selectedUtcDay")} value={unavailable(props.selected_utc_date ?? props.date)} />
       <Row label={tr("popup.globalClimate.fishingActivity")} value={hours != null ? `${i18n.formatNumber(hours, { maximumFractionDigits: 2 })} ${unavailable(props.unit)}` : tr("popup.common.notProvided")} />
       <Row label={tr("popup.globalClimate.components")} value={components != null ? i18n.formatNumber(components) : tr("popup.common.notProvided")} />
-      {facetCount != null && <Row label="Aggregation facets" value={tr("popup.globalClimate.facetsValue", { count: facetCount })} />}
-      {facets.length > 0 && (
-        <details style={{ marginTop: 7, color: t.textDim }}>
-          <summary style={{ cursor: "pointer", fontSize: 10 }}>{tr("popup.globalClimate.viewFacets")}</summary>
-          <pre style={{ maxHeight: 180, overflow: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 9, lineHeight: 1.35 }}>
-            {JSON.stringify(facets, null, 2)}
-          </pre>
-        </details>
-      )}
       <Row field="dataVersion" value={unavailable(props.dataset_version ?? props.resolved_dataset_version)} />
       <Row label={tr("popup.globalClimate.metric")} value={unavailable(props.metric_semantics ?? props.metric)} />
       <Row label={tr("popup.globalClimate.latestDate")} value={unavailable(props.latest_available_date)} />

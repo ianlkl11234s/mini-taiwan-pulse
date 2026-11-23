@@ -48,7 +48,6 @@
   "popup.politics.claimant.unknown": "約 {n} 人",
   "popup.politics.sourceLink": "來源 {index}",
   "popup.politics.polling.fallbackTitle": "投開票所",
-  "popup.politics.polling.stationNo": "投開票所編號",
   "popup.politics.polling.precision": "定位方式",
   "popup.politics.polling.precision.poi_name": "名稱比對",
   "popup.politics.polling.precision.address_door": "門牌",

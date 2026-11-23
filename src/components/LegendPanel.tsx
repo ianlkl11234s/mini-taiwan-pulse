@@ -42,7 +42,7 @@ import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, 
 import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLegend, AquacultureLegend, AquacultureWaterSatelliteMoaLegend, AquacultureWaterUnionLegend, CoralReefDistributionLegend, GfwDarkVesselsLegend, GfwFishingEffortLegend, GfwHourlyGridLegend, GfwHourlyTracksLegend, GfwVesselPresenceLegend, IsobathLegend, MarineObservationLegend, MaritimeBoundaryLegend, PlaActivityLegend, ShipsLegend, VesselWatchLegend, WorldTrashDebrisLegend } from "./legend/maritimeLegends";
 import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/transitReachLegends";
 import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
-import { MapchallengeFacilityLegend, MapchallengeDay19ComplaintsLegend, MapchallengeDay19PotentialLegend, MapchallengeDay19PenaltiesLegend, MapchallengeDay21OsmRoadsLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
+import { MapchallengeFacilityLegend, MapchallengeDay19ComplaintsLegend, MapchallengeDay19PotentialLegend, MapchallengeDay19PenaltiesLegend, MapchallengeDay21OsmRoadsLegend, MapchallengeDay23TasteTermsLegend, MapchallengeDay23TasteVariantsLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend, MapchallengeDay08AccessLegend, MapchallengeDay08ParksLegend, MapchallengeDay08Plan1955Legend, MapchallengeDay08SitesLegend, MapchallengeDay09UrbanRuralLegend, MapchallengeDay17DarkRoadsLegend, MapchallengeDay17DarkSkyLegend, MapchallengeDay17NightFallLegend, MapchallengeDay17LedShareLegend } from "./legend/mapchallengeLegends";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
@@ -60,7 +60,7 @@ import { GbEarthquakesLegend, GbGroundStabilityLegend, GbLandslideLegend, GbRadi
 import { GbCareHomesLegend, GbCareServicesLegend, GbCourtsLegend, GbFireStationsLegend, GbHealthFacilitiesLegend, GbSchoolsLegend } from "./legend/gbCivicLegends";
 import { GbFuelStationsLegend, GbOilGasFieldsLegend, GbPowerLinesLegend, GbPowerPlantsLegend, GbRenewablesLegend, GbSubstationsLegend } from "./legend/gbEnergyLegends";
 import { GbForestRecreationLegend, GbMarineProtectedAreasLegend, GbOpenAccessLandLegend, GbProtectedAreasLegend, GbTrailsLegend, GbTreeProtectionLegend, GbWoodlandLegend } from "./legend/gbNatureLegends";
-import { GbLondonBikePointsLegend, GbLondonChargingZonesLegend, GbLondonJamCamsLegend, GbLondonRailLinesLegend, GbLondonStationsLegend, GbMajorRoadsLegend, GbStationUsageLegend, GbTrafficCountsAadfLegend, GbTransportHubsLegend } from "./legend/gbTransportLegends";
+import { GbLondonBikePointsLegend, GbLondonChargingZonesLegend, GbLondonJamCamsLegend, GbLondonRailLinesLegend, GbLondonStationsLegend, GbMajorRoadsLegend, GbRailReplayLegend, GbStationUsageLegend, GbTrafficCountsAadfLegend, GbTransportHubsLegend } from "./legend/gbTransportLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
 import { KrDataLegend, KrAirportsLegend, KrBusStopsLegend, KrFuelStationsLegend, KrNationalRoadsLegend, KrOilGasLegend, KrPortsLegend, KrPowerLinesLegend, KrPowerPlantsLegend, KrPowerTowersLegend, KrRailLinesLegend, KrRailStationsLegend, KrRenewablesLegend, KrSubstationsLegend } from "./legend/krLegends";
@@ -72,6 +72,8 @@ import { IE_DATA_KEYS } from "../data/ieDataKeys";
 import { PH_DATA_KEYS, PH_RASTER_KEYS } from "../data/phDataKeys";
 import { PhAdminBoundariesLegend, PhDataLegend, PhOpenaqAirLegend, PhPopulationLegend, PhRasterLegend, PhSpecLegend } from "./legend/phLegends";
 import { VN_DATA_KEYS, VN_RASTER_KEYS } from "../data/vnDataKeys";
+import { TH_DATA_KEYS, TH_RASTER_KEYS } from "../data/thDataKeys";
+import { ThAdminBoundariesLegend, ThDataLegend, ThPopulationLegend, ThRasterLegend } from "./legend/thLegends";
 import { CA_WAVE_KEYS } from "../data/caWavesKeys";
 import { CA_WAVE_SPEC_BY_KEY } from "../data/caWavesLayers";
 import { VnAdminBoundariesLegend, VnDataLegend, VnPopulationLegend, VnRasterLegend } from "./legend/vnLegends";
@@ -322,6 +324,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "mapchallengeDay19Potential", render: ({ isDark, overlayParams, embedded }) => <MapchallengeDay19PotentialLegend isDark={isDark} windIdx={embedded ? (overlayParams.mapchallengeDay19PotentialWindIdx ?? 0) : undefined} /> },
   { id: "mapchallengeDay19Penalties", render: ({ isDark }) => <MapchallengeDay19PenaltiesLegend isDark={isDark} /> },
   { id: "mapchallengeDay21OsmRoads", render: ({ isDark }) => <MapchallengeDay21OsmRoadsLegend isDark={isDark} /> },
+  { id: "mapchallengeDay23TasteTerms", render: ({ isDark }) => <MapchallengeDay23TasteTermsLegend isDark={isDark} /> },
+  { id: "mapchallengeDay23TasteVariants", render: ({ isDark }) => <MapchallengeDay23TasteVariantsLegend isDark={isDark} /> },
   { id: "twCountyMigrationFlows", render: () => <CountyMigrationFlowsLegend /> },
   { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
   { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },
@@ -374,6 +378,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "vnAdminBoundaries", render: () => <VnAdminBoundariesLegend /> },
   { id: "vnPopulation", render: () => <VnPopulationLegend /> },
   ...VN_DATA_KEYS.map((key) => ({ id: key, render: () => <VnDataLegend layerKey={key} /> })),
+  { id: "thAdminBoundaries", render: () => <ThAdminBoundariesLegend /> },
+  { id: "thPopulation", render: () => <ThPopulationLegend /> },
+  ...TH_DATA_KEYS.map((key) => ({ id: key, render: () => <ThDataLegend layerKey={key} /> })),
+  ...TH_RASTER_KEYS.map((key) => ({ id: key, render: () => <ThRasterLegend layerKey={key} /> })),
   ...VN_RASTER_KEYS.map((key) => ({ id: key, render: () => <VnRasterLegend layerKey={key} /> })),
   // 加拿大第 3–8 波（2026-11-17）：規格驅動 36 層，重用菲律賓 PhSpecLegend
   ...CA_WAVE_KEYS.map((key) => ({ id: key, render: () => <PhSpecLegend spec={CA_WAVE_SPEC_BY_KEY[key]} /> })),
@@ -433,6 +441,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gbTransportHubs", render: () => <GbTransportHubsLegend /> },
   { id: "gbStationUsage", render: () => <GbStationUsageLegend /> },
   { id: "gbLondonRailLines", render: () => <GbLondonRailLinesLegend /> },
+  { id: "gbRailReplay", render: () => <GbRailReplayLegend /> },
   { id: "gbLondonStations", render: () => <GbLondonStationsLegend /> },
   { id: "gbLondonBikePoints", render: () => <GbLondonBikePointsLegend /> },
   { id: "gbLondonJamCams", render: () => <GbLondonJamCamsLegend /> },

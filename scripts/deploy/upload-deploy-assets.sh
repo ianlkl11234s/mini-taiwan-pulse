@@ -713,6 +713,64 @@ for f in \
   public/world/vn_admin_boundaries.pmtiles \
   public/world/vn_population.pmtiles \
   public/world/vn_stations_v2.pmtiles \
+  public/world/th_admin_boundaries.pmtiles \
+  public/world/th_population.pmtiles \
+  public/world/th_transport_hubs.pmtiles \
+  public/world/th_stations.pmtiles \
+  public/world/th_major_roads.pmtiles \
+  public/world/th_power_plants.pmtiles \
+  public/world/th_power_grid.pmtiles \
+  public/world/th_renewables.pmtiles \
+  public/world/th_fuel_stations.pmtiles \
+  public/world/th_pipelines.pmtiles \
+  public/world/th_terrain_hillshade.pmtiles \
+  public/world/th_terrain_relief.pmtiles \
+  public/world/th_place_names.pmtiles \
+  public/world/th_election_constituencies.pmtiles \
+  public/world/th_highland_villages.pmtiles \
+  public/world/th_province_socioeconomic.pmtiles \
+  public/world/th_footbridges.pmtiles \
+  public/world/th_rail_crossings.pmtiles \
+  public/world/th_road_accidents.pmtiles \
+  public/world/th_eec.pmtiles \
+  public/world/th_flood_history.pmtiles \
+  public/world/th_basins.pmtiles \
+  public/world/th_irrigation_projects.pmtiles \
+  public/world/th_landslide_safe_points.pmtiles \
+  public/world/th_landfills.pmtiles \
+  public/world/th_schools.pmtiles \
+  public/world/th_kindergartens.pmtiles \
+  public/world/th_elderly_housing.pmtiles \
+  public/world/th_health_facilities.pmtiles \
+  public/world/th_police_stations.pmtiles \
+  public/world/th_jails_courts.pmtiles \
+  public/world/th_nature_spots.pmtiles \
+  public/world/th_national_reserved_forests.pmtiles \
+  public/world/th_national_parks.pmtiles \
+  public/world/th_ramsar_sites.pmtiles \
+  public/world/th_forest_parks.pmtiles \
+  public/world/th_museums_libraries.pmtiles \
+  public/world/th_arts_events.pmtiles \
+  public/world/th_historic_sites.pmtiles \
+  public/world/th_experiences.pmtiles \
+  public/world/th_accommodation.pmtiles \
+  public/world/th_banks.pmtiles \
+  public/world/th_places_of_worship.pmtiles \
+  public/world/th_post_offices.pmtiles \
+  public/world/th_air_quality_stations.pmtiles \
+  public/world/th_weather_stations.pmtiles \
+  public/world/th_marine_habitats.pmtiles \
+  public/world/th_marine_protected_areas.pmtiles \
+  public/world/th_sea_level_stations.pmtiles \
+  public/world/th_coastal_change.pmtiles \
+  public/world/th_sports_venues.pmtiles \
+  public/world/th_parks.pmtiles \
+  public/world/th_factories.pmtiles \
+  public/world/th_farm_markets.pmtiles \
+  public/world/th_soils_ph.pmtiles \
+  public/world/th_soils_soc.pmtiles \
+  public/world/th_crops.pmtiles \
+  public/world/th_veterinary.pmtiles \
   public/world/vn_transport_hubs_odm.pmtiles \
   public/world/vn_transport_hubs_osm.pmtiles \
   public/world/vn_major_roads_v2.pmtiles \

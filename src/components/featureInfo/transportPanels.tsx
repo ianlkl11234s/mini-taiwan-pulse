@@ -133,7 +133,6 @@ export function RailStationPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       <Row field="system" value={info ? enumLabel("railSystem", systemId, info.name, i18n) : systemId} color={accentColor} />
       {lineName && <Row field="route" value={isTransfer ? i18n.t("popup.transport.transferStation", { line: lineLabel }) : lineLabel} color={accentColor} />}
-      <Row label={i18n.t("popup.transport.stationCode")} value={String(props.station_id ?? "")} />
     </>
   );
 }

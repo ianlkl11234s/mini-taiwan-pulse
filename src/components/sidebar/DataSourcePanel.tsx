@@ -10,7 +10,7 @@
  */
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { humanizeStatisticsText } from "../../data/statisticsLabels";
-import { Search, Lock } from "lucide-react";
+import { Search, Lock, ChevronDown, ChevronRight } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
@@ -18,6 +18,7 @@ import { catalogAgency, catalogLicense, statisticsLicense, statisticsPublisher }
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { statisticsTitle, statisticsUnit, statisticsFrequency } from "../../i18n/statisticsText";
 import { LayerNameLine, ListRow } from "./LayerRow";
+import { AddressSourcesList } from "./AddressAttribution";
 import { SubGroupLabel } from "./ThemeBanner";
 import { LAYER_ICONS } from "./layerIcons";
 import { railPalette, RailThemeContext } from "./railTheme";
@@ -473,6 +474,7 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [expandedKey, setExpandedKey] = useState<keyof LayerVisibility | null>(null);
+  const [addressSourcesOpen, setAddressSourcesOpen] = useState(false);
 
   const toggleExpand = (key: keyof LayerVisibility) => setExpandedKey((cur) => (cur === key ? null : key));
 
@@ -601,6 +603,21 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
               ))}
             </div>
           ))
+        )}
+        {!q && (
+          <div>
+            <SubGroupLabel>{t("addressSearch.attribution.panelTitle")}</SubGroupLabel>
+            <button
+              type="button"
+              aria-expanded={addressSourcesOpen}
+              onClick={() => setAddressSourcesOpen((v) => !v)}
+              style={{ display: "flex", alignItems: "center", gap: 4, width: "100%", padding: "4px 12px", border: "none", background: "transparent", cursor: "pointer", textAlign: "left", color: p.textDefault, fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}
+            >
+              {addressSourcesOpen ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
+              {t("addressSearch.attribution.panelToggle")}
+            </button>
+            {addressSourcesOpen && <AddressSourcesList />}
+          </div>
         )}
       </div>
     </RailThemeContext.Provider>

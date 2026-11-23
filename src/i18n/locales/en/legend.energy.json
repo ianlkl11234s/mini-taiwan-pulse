@@ -105,7 +105,7 @@
   "legend.energy.spBiogas": "Biogas power 2",
   "legend.energy.spHydropower": "Hydropower 1",
   "legend.energy.reserveTitle": "Operating reserve signal",
-  "legend.energy.reserveNoteBars": "● 4-region consumption columns (Layer 3): height ∝ consumption_mw",
+  "legend.energy.reserveNoteBars": "● 4-region consumption columns (Layer 3): height ∝ electricity consumption (MW)",
   "legend.energy.reserveNoteColor": "● Column color = national signal (one shared value)",
   "legend.energy.gbFuelGas": "Gas",
   "legend.energy.gbFuelNuclear": "Nuclear",

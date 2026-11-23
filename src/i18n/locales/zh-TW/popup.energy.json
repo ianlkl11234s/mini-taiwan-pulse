@@ -113,7 +113,6 @@
   "popup.energy.gbCableSubsea": "海底電纜",
   "popup.energy.gbCableUnderground": "地下電纜",
   "popup.energy.gbOverhead": "架空線",
-  "popup.energy.gbRef": "編號",
   "popup.energy.gbOperator": "營運者",
   "popup.energy.gbLength": "線長",
   "popup.energy.gbKm": "{value} km",

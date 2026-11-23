@@ -18,7 +18,6 @@
   "popup.marine.observed": "Observed {time}",
   "popup.marine.trendSelected": "Trend selected",
   "popup.marine.trendView": "View 24h trend",
-  "popup.marine.stationCode": "Station code",
   "popup.marine.sourceNetwork": "Source network",
   "popup.marine.originOrg": "Sensing / management",
   "popup.marine.distributionOrg": "Data distribution",

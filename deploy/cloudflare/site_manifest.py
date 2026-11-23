@@ -100,6 +100,8 @@ NGINX_DATA = {
     # CI-4：worker.js DATA_THEN_DIST 新增的目錄（nginx.conf 同步加 location）
     "finance": ("fallback", False), "energy": ("fallback", False), "mapchallenge": ("fallback", False),
     "statistics": ("fallback", False), "state_assets": ("fallback", False),
+    # 門牌搜尋公開分片：worker.js DATA_ONLY（只讀 R2）
+    "address-index": ("data", False),
 }
 ROOT_JSON = {"/aviation_data.json", "/ship_data.json", "/temperature_grid.json"}
 STATIC_EXT_RE = re.compile(r"\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$", re.I)
