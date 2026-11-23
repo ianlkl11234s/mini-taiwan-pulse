@@ -26,7 +26,8 @@ describe("manifest dataTimeZone", () => {
       if (tz === undefined) continue;
       try {
         new Intl.DateTimeFormat("en-US", { timeZone: tz });
-        if (tz.trim() === "") bad.push(`${k}: (空字串)`);
+        // Intl 也接受 "+08:00"、"EST"：固定位移與縮寫不算 IANA 名稱（DST 會算錯），一律擋
+        if (tz !== "UTC" && !tz.includes("/")) bad.push(`${k}: ${tz}`);
       } catch {
         bad.push(`${k}: ${tz}`);
       }

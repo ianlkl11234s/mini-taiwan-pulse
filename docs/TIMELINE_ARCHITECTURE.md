@@ -45,7 +45,7 @@
 
 時間軸一律顯示台北時間；但「一天」怎麼切，由每個圖層的資料自己決定。台北 11/23 等於倫敦 11/22 16:00 到 11/23 16:00（夏令時間 15:00–15:00），拿台北日期去抓英國按當地日存的每日檔，會差 8 小時（夏令 7 小時）。
 
-- **宣告**：`layerManifest.ts` 的 entry 選填 `dataTimeZone`（IANA 名稱，例 `Europe/London`、`Asia/Tokyo`）。**沒寫＝`Asia/Taipei`**，所以台灣圖層行為不變；不要寫多餘的 `Asia/Taipei`（測試會擋）。
+- **宣告**：`layerManifest.ts` 的 entry 選填 `dataTimeZone`（IANA 名稱，例 `Europe/London`、`Asia/Tokyo`）。**沒寫＝`Asia/Taipei`**，所以台灣圖層行為不變。台灣圖層不寫（測試會擋多餘的 `Asia/Taipei`）；外國圖層若上游按台北日切（例 `jmaLightning` 的 `get_lightning_day`），要明寫 `Asia/Taipei`，免得之後被誤改成當地時區。只接受 IANA 名稱或 `UTC`，不接受 `+08:00`、`EST` 這類固定位移或縮寫。
 - **取資料**：`src/lib/layerDataTime.ts`
   - `dataDateKeyFor(layerKey, unixSec)`：時間軸那一刻在資料時區的當地日期。
   - `dataDayRangeSecFor(layerKey, dateKey)`：當地曆日的 `[start, end)`（DST 當天 23／25 小時）。
