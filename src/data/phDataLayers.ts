@@ -636,7 +636,6 @@ export const PH_DATA_SPECS: readonly PhLayerSpec[] = [
     title: { props: ["name", "name_en"], fallback: l3("公車站", "Bus stop", "バス停") },
     fields: [
       { prop: "name_en", label: l3("英文名", "English name", "英語名") },
-      { prop: "ref", label: l3("站牌編號（OSM）", "Stop ref (OSM)", "停留所番号（OSM）"), kind: "code" },
       { prop: "network", label: l3("路網（OSM）", "Network (OSM)", "路線網（OSM）") },
       { prop: "operator", label: l3("營運者（OSM）", "Operator (OSM)", "事業者（OSM）") },
       { prop: "public_transport", label: l3("站點類型（OSM 原文）", "Stop type (OSM tag)", "停留所の種別（OSM 原文）"), kind: "code" },

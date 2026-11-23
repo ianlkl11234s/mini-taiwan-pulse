@@ -29,7 +29,6 @@ function AdminRows({ props, pick }: { props: Record<string, unknown>; pick: (t: 
     <Row label={pick({ zh: "簡體原名", en: "Name (simplified)", ja: "簡体字名" })} value={caText(props.name_zh) !== placeName(props) ? caText(props.name_zh) : ""} />
     <Row label={pick({ zh: "英文名", en: "English name", ja: "英語名" })} value={caText(props.name_en)} />
     {level === "prefecture" ? <Row label={pick({ zh: "所屬省", en: "Province", ja: "所属省" })} value={caText(props.province_name)} /> : null}
-    <Row label={pick({ zh: "行政區劃代碼", en: "Division code", ja: "行政区画コード" })} value={caText(props.code) || caText(props.province_code)} mono />
   </>;
 }
 

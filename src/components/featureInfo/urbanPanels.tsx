@@ -202,7 +202,6 @@ export function StreetTrees3epochPanel({ props }: { props: Record<string, unknow
       <Row label="2022→2024" value={epochLabel(props.status_2224)} />
       <Row label="2024→2026" value={epochLabel(props.status_2426)} />
       <Row field="roadSection" value={roadValue} />
-      <Row label="TreeID" value={String(props.tree_id ?? "")} />
       <Row field="dbh" value={numUnit(props.dbh_cm, "cm", formatNumber)} />
       <Row field="treeHeight" value={numUnit(props.height_m, "m", formatNumber)} />
       <Row label={t("popup.urban.parkTree")} value={isPark} />
@@ -260,7 +259,6 @@ export function TreePitsTaipeiPanel({ props }: { props: Record<string, unknown> 
       <Row field="type" value={pitType} color={typeColor} />
       <Row field="district" value={String(props.district ?? "")} />
       <Row field="area" value={Number.isFinite(area) ? `${area.toFixed(2)} m²` : ""} />
-      <Row field="number" value={String(props.pit_id ?? "")} />
     </>
   );
 }
@@ -384,7 +382,6 @@ export function PropertyValueAdminPanel({ props }: { props: Record<string, unkno
       <Row label={t("popup.urban.totalMarketValue")} value={formatPropertyValueTwd(value)} color="#ec7014" />
       <Row label={t("popup.urban.valuedBuildings")} value={numUnit(props.n_buildings, t("popup.urban.unitBuilding"), formatNumber)} />
       <Row label={t("popup.urban.totalFloorArea")} value={numUnit(props.gfa_m2, "m²", formatNumber)} />
-      <Row label={t("popup.urban.adminCode")} value={String(props.admin_code ?? "")} />
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         {t("popup.urban.adminNote")}
       </div>
@@ -419,7 +416,6 @@ export function PropertyValueGridPanel({ props }: { props: Record<string, unknow
       <Row label={t("popup.urban.buildingCount")} value={numUnit(props.n_bld, t("popup.urban.unitBuilding"), formatNumber)} />
       <Row label={t("popup.urban.totalFloorArea")} value={numUnit(props.gfa, "m²", formatNumber)} />
       <Row label={t("popup.urban.mainPriceSource")} value={enumLabel("propertyPriceSource", String(props.ps_dom ?? ""), priceSourceLabel(props.ps_dom), i18n)} />
-      <Row label={t("popup.urban.gridId")} value={String(props.grid_id ?? "")} />
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         {t("popup.urban.gridNote", { scale: scale.shortLabel })}
       </div>
@@ -483,7 +479,6 @@ export function NonUrbanZoningPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color={color}>{title}</Title>
-      <Row field="code" value={code} color={color} />
       <Row field="county" value={placeName(zoneText(props.county), i18n)} />
       {town ? <Row field="township" value={placeTown(zoneText(props.county), town, i18n)} /> : null}
       {/* zone_category（agricultural / slope_conservation…）是英文粗分類，跟 zone_name 資訊重複
@@ -506,7 +501,6 @@ export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) 
       <Title color={color}>{title}</Title>
       <Row field="classification" value={categoryLabel} color={color} />
       <Row label={t("popup.urban.shortName")} value={zoneText(props.zone_short)} />
-      <Row field="code" value={zoneText(props.zone_code)} />
       <Row field="city" value={placeName(zoneText(props.city), i18n)} />
       <Row label={t("popup.urban.planLevel")} value={zoneText(props.plan_level)} />
     </>

@@ -48,7 +48,6 @@
   "popup.politics.claimant.unknown": "About {n}",
   "popup.politics.sourceLink": "Source {index}",
   "popup.politics.polling.fallbackTitle": "Polling station",
-  "popup.politics.polling.stationNo": "Station no.",
   "popup.politics.polling.precision": "Location method",
   "popup.politics.polling.precision.poi_name": "Name match",
   "popup.politics.polling.precision.address_door": "Street address",

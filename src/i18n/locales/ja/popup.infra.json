@@ -1,6 +1,5 @@
 {
   "popup.infra.owner": "所有者",
-  "popup.infra.osmIdent": "OSM 識別子",
   "popup.infra.lineQuality": "線位置の品質",
   "popup.infra.cableRole": "OSMクラウドソーシングによる通信海底ケーブル概況",
   "popup.infra.cableCoverage": "クラウドソーシングによる不完全なデータ。工学的精度のルートではない",

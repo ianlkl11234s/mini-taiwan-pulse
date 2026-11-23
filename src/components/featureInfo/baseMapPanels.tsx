@@ -30,12 +30,10 @@ export function CountyBoundaryPanel({ props }: { props: Record<string, unknown> 
   const i18n = useLocale();
   const { t: tr } = i18n;
   const name = String(props["名稱"] ?? "");
-  const code = String(props["行政區域代碼"] ?? "");
   const scale = String(props["比例尺分母"] ?? "");
   return (
     <div>
       <Row field="county" value={placeName(name, i18n)} />
-      <Row label={tr("popup.baseMap.adminCode")} value={code} />
       <Row label={tr("popup.baseMap.sourceScale")} value={scale ? `1:${scale}` : ""} />
       <Row field="source" value={tr("popup.baseMap.nlsc")} />
     </div>
@@ -54,7 +52,6 @@ export function TownshipBoundaryPanel({ props }: { props: Record<string, unknown
       <Row label={tr("popup.baseMap.township")} value={placeTown(county, town, i18n, id)} />
       <Row field="county" value={placeName(county, i18n)} />
       <Row field="englishShort" value={eng} />
-      <Row label="TOWNID" value={id} />
       <Row field="source" value={tr("popup.baseMap.nlsc")} />
     </div>
   );
@@ -67,7 +64,6 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
   const town = String(props.TOWNNAME ?? "");
   const vill = String(props.VILLNAME ?? "");
   const eng = String(props.VILLENG ?? "");
-  const code = String(props.VILLCODE ?? "");
   const note = String(props.NOTE ?? "");
   return (
     <div>
@@ -75,7 +71,6 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
       <Row label={tr("popup.baseMap.township")} value={placeTown(county, town, i18n)} />
       <Row field="county" value={placeName(county, i18n)} />
       <Row field="englishShort" value={eng} />
-      <Row label="VILLCODE" value={code} />
       <Row field="remarks" value={note} />
       <Row field="source" value={tr("popup.baseMap.nlscShort")} />
     </div>
@@ -99,7 +94,6 @@ export function MaritimeBoundaryPanel({ props }: { props: Record<string, unknown
       <Row field="type" value={kind} color={meta?.color} />
       <Row field="region" value={region} />
       {isPoint && <Row label={tr("popup.baseMap.basepointName")} value={String(props.name ?? "")} />}
-      {isPoint && <Row label={tr("popup.baseMap.basepointId")} value={String(props.base_point_id ?? "")} />}
       {isPoint && <Row label={tr("popup.baseMap.basepointType")} value={String(props.type ?? "")} />}
       <Row label={tr("popup.baseMap.legalMeaning")} value={meta?.meaning ?? ""} />
       <Row field="source" value={MARITIME_BOUNDARY_SOURCE_NOTE} />
@@ -198,7 +192,6 @@ export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> })
   const i18n = useLocale();
   const { t: tr } = i18n;
   const name = String(props.name ?? "");
-  const ref = String(props.ref ?? "");
   const highway = String(props.highway ?? "");
   const oneway = props.oneway;
   const maxspeed = String(props.maxspeed ?? "");
@@ -209,7 +202,6 @@ export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> })
   return (
     <div>
       <Row field="name" value={name} />
-      <Row field="number" value={ref} />
       <Row field="level" value={highway ? enumLabel("baseMapHighway", highway, HIGHWAY_LABEL[highway] ?? highway, i18n) : ""} />
       <Row label={tr("popup.baseMap.oneway")} value={oneway ? tr("popup.common.yes") : ""} />
       <Row field="speedLimit" value={maxspeed} />

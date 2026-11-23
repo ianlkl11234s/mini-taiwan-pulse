@@ -25,7 +25,7 @@
   "legend.transport.shuttleQuiet": "Low-use",
   "legend.transport.shuttleTrunk": "Main route",
   "legend.transport.portsTitle": "Port class",
-  "legend.transport.portsNote": "Colors follow the source port_class; missing values are not treated as any existing class",
+  "legend.transport.portsNote": "Colors follow the source port classification; missing values are not treated as any existing class",
   "legend.transport.osmTitle": "Roads (OSM)",
   "legend.transport.osmMotorway": "Motorway",
   "legend.transport.osmTrunk": "Trunk road",

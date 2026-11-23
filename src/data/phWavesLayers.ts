@@ -89,7 +89,6 @@ const TOURISM_FIELDS = (cats: readonly PhCat[]): PhField[] => [
   { prop: "whc_inscribed", label: l3("登錄年", "Inscribed", "登録年"), kind: "year" },
   { prop: "coord_quality", label: l3("座標", "Coordinates", "座標"), map: COORD_QUALITY },
   { prop: "sources", label: l3("資料來源", "Sources", "出典"), kind: "code" },
-  { prop: "wd_qid", label: l3("Wikidata", "Wikidata", "Wikidata"), kind: "code" },
   PROV, REGION,
 ];
 const TOURISM_POPUP_NOTES = [{ text: l3("近似位置：DOT 清單多筆共用同一市鎮中心座標，不是景點實際位置", "Approximate: several DOT entries share one town-centre coordinate; not the exact site", "概略位置：DOT 一覧の複数項目が同じ市町中心の座標を共有し、実際の場所ではない"), when: (p: Record<string, unknown>) => str(p.coord_quality) === "dot_approximate" }];
@@ -176,7 +175,6 @@ const TOURISM_SPECS: PhLayerSpec[] = [
     cats: TDA_CATS,
     title: { props: ["cluster_name", "tda_code"], fallback: l3("觀光發展區", "Tourism development area", "観光開発地域") },
     fields: [
-      { prop: "tda_code", label: l3("TDA 代碼", "TDA code", "TDA コード"), kind: "code" },
       { prop: "cluster_name", label: l3("觀光群", "Cluster", "観光クラスター") },
       { prop: "macro_area", label: l3("大區", "Macro area", "大区分"), map: catMap(TDA_CATS) },
       { prop: "lgus_listed", label: l3("計畫列出的地方政府", "LGUs listed", "計画に記載の自治体") },
@@ -539,7 +537,6 @@ const W4_SPECS: PhLayerSpec[] = [
     title: { props: ["name", "location"], fallback: l3("填海造地", "Reclamation project", "埋立事業") },
     fields: [
       { prop: "proponent", label: l3("申請者", "Proponent", "事業者") },
-      { prop: "status_code", label: l3("PRA 狀態代碼（原文，意義未查到）", "PRA status code (as listed; meaning not documented)", "PRA 状態コード（原文、意味は未確認）"), kind: "code" },
       { prop: "area_ha", label: l3("面積", "Area", "面積"), kind: "num", unit: "ha", digits: 1 },
       { prop: "location", label: l3("地點", "Location", "所在地") },
       PROV,

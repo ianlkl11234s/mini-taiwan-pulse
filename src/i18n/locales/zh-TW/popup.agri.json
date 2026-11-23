@@ -17,8 +17,6 @@
   "popup.agri.hectares": "{value} 公頃",
   "popup.agri.organicMatter": "有機質 OM",
   "popup.agri.zeroNote": "※ 0 值表示該項未測（多數網格只測 pH / OM）",
-  "popup.agri.countyCode": "縣市碼",
-  "popup.agri.townshipCode": "鄉鎮碼",
   "popup.agri.suitability": "適栽性",
   "popup.agri.cropEn": "作物 EN",
   "popup.agri.plan": "計畫",

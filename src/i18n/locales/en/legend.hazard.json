@@ -121,7 +121,7 @@
   "legend.hazard.erSevere": "Severe > {n}",
   "legend.hazard.erNoData": "No data",
   "legend.hazard.erIcu": "⚪ White outline = patients waiting for an ICU bed",
-  "legend.hazard.erCalib": "Levels calibrated on 37 days of wait_general_cnt history",
+  "legend.hazard.erCalib": "Levels calibrated on 37 days of waiting-patient history",
   "legend.hazard.typGale": "Gale-force wind area (15 m/s, CWA)",
   "legend.hazard.typStorm": "Storm-force wind area (25 m/s, CWA)",
   "legend.hazard.typProb70": "70% probability circle (forecast points, dashed)",

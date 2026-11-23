@@ -105,7 +105,7 @@
   "legend.energy.spBiogas": "沼氣發電 2",
   "legend.energy.spHydropower": "水力發電 1",
   "legend.energy.reserveTitle": "備轉燈號",
-  "legend.energy.reserveNoteBars": "● 4 區用電柱（Layer 3）柱高 ∝ consumption_mw",
+  "legend.energy.reserveNoteBars": "● 4 區用電柱（Layer 3）柱高 ∝ 用電量（MW）",
   "legend.energy.reserveNoteColor": "● 柱色 = 全國燈號（共用一個值）",
   "legend.energy.gbFuelGas": "燃氣",
   "legend.energy.gbFuelNuclear": "核能",
