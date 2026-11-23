@@ -18,7 +18,7 @@ import { BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, BRIDGE_RESILIENCE_PRIVATE_LAYER_
 import { BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_PRIVATE_LAYER_KEYS, BSS_BRIDGE_SELECTION_CLEAR_EVENT, isBssBridgePrivateLayer } from "./data/bssBridgeTypes";
 import { isSoilLiquefactionPrivateLayer, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT } from "./data/soilLiquefactionTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SURFACE, Z_INDEX } from "./styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SPACING, SURFACE, Z_INDEX } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -150,6 +150,7 @@ import { MapNavControls } from "./components/MapNavControls";
 import { MapScaleBar } from "./components/MapScaleBar";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
 import { MapContextMenu } from "./components/MapContextMenu";
+import { useMeasureFloatPlacement } from "./components/measureFloatPlacement";
 import { MeasureToolbar } from "./components/MeasureToolbar";
 import { createMeasureController } from "./map/measureController";
 import { formatMeasureArea, formatMeasureDistance } from "./map/measureMath";
@@ -2219,6 +2220,38 @@ export default function App() {
   const topRightOffset = splitActive
     ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
     : isMobile ? "10px" : "16px";
+  // 桌機品牌列（§5.1）換行時右上浮動元件跟著往下讓：量右上工具列底邊超出品牌欄底邊多少，寫進
+  // <html> 的 --top-bar-shift（單行時是 0，各元件位置與原本相同）；--top-bar-bottom 是整列底邊，給浮動量測條（§5.44）用。
+  // 用 offsetTop／offsetHeight（開場動畫的 transform 不影響），列卸載（手機、拍攝模式）時移除變數。
+  const topBarObserverRef = useRef<ResizeObserver | null>(null);
+  const topBarRef = useCallback((row: HTMLDivElement | null) => {
+    topBarObserverRef.current?.disconnect();
+    topBarObserverRef.current = null;
+    const root = document.documentElement;
+    const title = row?.querySelector<HTMLElement>('[data-boot-part="title"]');
+    const toolbar = row?.querySelector<HTMLElement>('[data-boot-part="toolbar"]');
+    if (!row || !title || !toolbar || typeof ResizeObserver === "undefined") {
+      root.style.removeProperty("--top-bar-shift");
+      root.style.removeProperty("--top-bar-bottom");
+      return;
+    }
+    const write = () => {
+      const shift = Math.max(0, Math.round(toolbar.offsetTop + toolbar.offsetHeight - (title.offsetTop + title.offsetHeight)));
+      root.style.setProperty("--top-bar-shift", `${shift}px`);
+      root.style.setProperty("--top-bar-bottom", `${row.offsetTop + row.offsetHeight}px`);
+    };
+    const observer = new ResizeObserver(write);
+    observer.observe(row);
+    observer.observe(toolbar);
+    observer.observe(title);
+    topBarObserverRef.current = observer;
+    write();
+  }, []);
+  // 桌機浮動量測條（§5.44）的擺放：量測中才啟用，直接改 DOM 位置
+  const measureFloatRef = useRef<HTMLDivElement | null>(null);
+  const measureSlotRef = useRef<HTMLDivElement | null>(null);
+  const measuring = useSyncExternalStore(measure.subscribe, () => measure.getSnapshot().active, () => measure.getSnapshot().active);
+  useMeasureFloatPlacement(measureFloatRef, measureSlotRef, measuring && !isMobile && !captureMode);
   // 視野提示（§5.42）：手機、拍攝模式、AI 對話框或 Agent 活動卡開著時停用；私人畫面判斷時讀 ref
   const viewportHint = useViewportCountry({
     map: mapPrepared ? mapRef.current : null,
@@ -2573,8 +2606,9 @@ export default function App() {
       {/* ── 一般模式 UI ── */}
       {!captureMode && !isMobile && (
         <>
-          {/* Row 1: 品牌（左）+ 工具列（右）— 同一列，垂直置中對齊 */}
+          {/* Row 1: 品牌（左）+ 工具列（右）— 同一列，垂直置中對齊；實際底邊由 topBarRef 量給右上浮動元件 */}
           <div
+            ref={topBarRef}
             style={{
               position: "absolute",
               top: 16,
@@ -2631,11 +2665,6 @@ export default function App() {
                   color: isDarkTheme ? COLORS.accent : LIGHT.accent,
                 }}
               />
-            </div>
-
-            {/* 量測工具列（§5.44 C1）：品牌與右上工具列之間置中；沒有量測時不渲染 */}
-            <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", justifyContent: "center" }}>
-              <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="desktop" />
             </div>
 
             <div
@@ -2726,6 +2755,24 @@ export default function App() {
 
           {/* Energy MVP: 供電燈號 HUD 已搬 monitor 面板（v1.5 TODO），
               hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
+
+          {/* 浮動量測條（§5.44 C1）：品牌列下方、地圖上方，不參與品牌列排版；沒有量測時不渲染。
+              容器＝地圖可用區（左＝側欄右緣、右＝右上元件共用 right，split 時已扣 dock），量測條的實際位置由
+              useMeasureFloatPlacement 依右上卡片（提示卡、popup、AI 對話框、珊瑚警示…）的實際外框算：
+              放得下就置中，放不下就排到卡片下方維持單行，連全寬都放不下才折行 */}
+          <div
+            ref={measureFloatRef}
+            className="measure-float"
+            style={{
+              top: `calc(var(--top-bar-bottom, 55px) + ${SPACING.sm}px)`,
+              left: sidebarWidth + 16,
+              right: topRightOffset,
+            }}
+          >
+            <div ref={measureSlotRef} className="measure-float__slot">
+              <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="desktop" />
+            </div>
+          </div>
 
           {/* Icon Rail + Sliding Panel Sidebar */}
           <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: Z_INDEX.floatingPanel, pointerEvents: "none" }}>
@@ -3469,9 +3516,11 @@ export default function App() {
       <div
         style={{
           position: "absolute",
-          top: isMobile ? 52 : LAYOUT.rightDockTop,
+          // 桌機品牌列換行時跟著往下讓（--top-bar-shift，單行為 0）
+          top: isMobile ? 52 : `calc(${LAYOUT.rightDockTop}px + var(--top-bar-shift, 0px))`,
           // 與左下時間軸共用底邊偏移（LAYOUT.mapBottomInset），兩者底邊對齊
-          bottom: LAYOUT.mapBottomInset,
+          // 手機英日文版權列折成兩行時，依實際高度（--attrib-bar-h）＋手機 sheet 高度往上讓；一行時仍是 mapBottomInset
+          bottom: `max(${LAYOUT.mapBottomInset}px, calc(var(--mobile-sheet-inset, 0px) + var(--attrib-bar-h, 0px) + ${SPACING.sm}px))`,
           // 桌機有導航控制柱（§5.43）時整欄再往左讓 42（控制柱 30 ＋ 間距 12）
           right: navColumnVisible ? `calc(${navColumnRight} + 42px)` : navColumnRight,
           zIndex: Z_INDEX.floatingPanel,
@@ -3487,7 +3536,8 @@ export default function App() {
           // popup 優先保留自身高度，圖例吃剩下的空間（圖例 flexShrink 較大，先縮）；
           // AQI 切換器、黃砂面板是 flexShrink:0 的固定高度兄弟，同時開啟時 popup 可縮（minHeight:0）並自行捲動，
           // 不再用固定扣 36px 的 maxHeight（合計高度超出 dock 會往上蓋住工具列）
-          <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 1, minHeight: 0, maxHeight: "100%", overflowY: "auto" }}>
+          // data-measure-avoid：浮動量測條依此避開 popup 的實際寬度（CCTV 460）
+          <div data-measure-avoid="" style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 1, minHeight: 0, maxHeight: "100%", overflowY: "auto" }}>
             <FeatureInfoPanel
               feature={privateUiFeatureInfo}
               onClose={() => setFeatureInfo(null)}
@@ -3550,7 +3600,7 @@ export default function App() {
         <LoadingStatus
           hidden={captureMode}
           isDarkTheme={isDarkTheme}
-          top={isMobile ? 52 : 60}
+          top={isMobile ? 52 : "calc(60px + var(--top-bar-shift, 0px))"}
           playing={timeline.playing || eqReplayPlaying || historicalPlaying}
           rightOffset={topRightOffset}
         />

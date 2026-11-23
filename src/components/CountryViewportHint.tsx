@@ -53,7 +53,7 @@ export function CountryViewportHint({
   labelsTip = null,
   compareTip = null,
   isDarkTheme = true,
-  top = 88,
+  top = "calc(88px + var(--top-bar-shift, 0px))",
   rightOffset = "16px",
 }: {
   target: CountryCode | null;
@@ -64,7 +64,8 @@ export function CountryViewportHint({
   labelsTip?: LabelsTipSection | null;
   compareTip?: CompareTipSection | null;
   isDarkTheme?: boolean;
-  top?: number;
+  /** px 或 CSS 長度；預設 88px＋--top-bar-shift（品牌列換行時往下讓） */
+  top?: number | string;
   rightOffset?: string;
 }) {
   const i18n = useLocale();

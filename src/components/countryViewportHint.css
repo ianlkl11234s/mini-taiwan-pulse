@@ -49,14 +49,18 @@
 .country-hint__btn {
   display: inline-flex;
   align-items: center;
-  height: 26px;
-  padding: 0 10px;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: 26px;
+  padding: 4px 10px;
   border: 1px solid var(--ch-control-border);
   border-radius: var(--radius-md);
   background: var(--ch-control-bg);
   color: var(--ch-strong);
-  font: 500 var(--font-base)/1 var(--font-cjk);
-  white-space: nowrap;
+  font: 500 var(--font-base)/1.25 var(--font-cjk);
+  text-align: left;
+  /* 長字（英日文、長地區名）在按鈕內換行，不撐破卡片 */
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 .country-hint__btn:hover { background: var(--ch-control-bg-hover); }
@@ -67,13 +71,15 @@
 .country-hint__section + .country-hint__section { margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--ch-border); }
 .country-hint__icon { flex: none; color: var(--ch-muted); }
 .country-hint__rows { margin: 6px 0 0; padding: 0; list-style: none; }
-.country-hint__row { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-top: 1px solid var(--ch-soft); }
-.country-hint__row-text { flex: 1; min-width: 0; }
+/* 按鈕放不下時整顆換到文字下方，不擠文字欄（2026-11-23：英文長圖層名＋長地區名把左欄擠成一字一行） */
+.country-hint__row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 5px 0; border-top: 1px solid var(--ch-soft); }
+/* basis 用 auto：卡片寬是 max-content，固定 basis 會讓中日文短列也被迫換行 */
+.country-hint__row-text { flex: 1 1 auto; min-width: 0; }
 .country-hint__name { display: block; font-size: var(--font-base); color: var(--ch-strong); }
 .country-hint__why { display: block; font-size: var(--font-sm); color: var(--ch-muted); }
 .country-hint__z { font-family: var(--font-data); }
 .country-hint__more { margin: 0; padding-top: 4px; font-size: var(--font-sm); color: var(--ch-dim); }
 /* C2 小尺寸（同 .lpc-btn：22px／10px） */
-.country-hint__btn--sm { flex: none; gap: 4px; height: 22px; padding: 0 8px; font-size: var(--font-sm); }
+.country-hint__btn--sm { flex: none; gap: 4px; min-height: 22px; padding: 3px 8px; font-size: var(--font-sm); }
 @keyframes country-hint-enter { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .country-hint { animation: none; } }
