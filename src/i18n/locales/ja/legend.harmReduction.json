@@ -7,7 +7,7 @@
   "legend.harmReduction.hivTestingNote": "{precision}出典：衛生福利部疾病管制署の匿名検査機関（2026-09-22）、衛生局・衛生所（2026-07-22）、指定医療機関・薬局（2026-07-15）。衛生福利部のLGBTQ+ヘルスセンター（2026-06-12）。",
   "legend.harmReduction.preventionRow": "各県市の薬物乱用防止センター",
   "legend.harmReduction.alcoholRow": "アルコール依存治療の指定・費用補助・飲酒運転者の依存評価の機関",
-  "legend.harmReduction.alcoholNote": "1つの機関が複数の役割を持つことがあります。絞り込みでは、チェックした項目のいずれかに該当すれば表示します。{precision}出典：衛生福利部心理健康司の名簿（2026-08-07）。",
+  "legend.harmReduction.alcoholNote": "1つの機関が複数の役割を持つことがあります。絞り込みでは、チェックした項目のいずれかに該当すれば表示します。{precision}",
   "legend.harmReduction.prepRow": "公費または自費のPrEPを提供する病院・診療所",
   "legend.harmReduction.prepNote": "{precision}",
   "legend.harmReduction.internetNote": "機関の種類は名称に基づく分類で、公式の区分ではありません。出典に連江県は含まれません。{precision}出典：衛生福利部の県市別ネット依存治療サービス資源表（2026-07-28）。",

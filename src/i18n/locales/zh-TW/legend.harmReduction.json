@@ -7,7 +7,7 @@
   "legend.harmReduction.hivTestingNote": "{precision}衛生福利部疾病管制署匿名篩檢院所（2026-09-22）、衛生局所（2026-07-22）、指定醫事機構與藥局（2026-07-15）；衛生福利部多元性別健康中心（2026-06-12）。",
   "legend.harmReduction.preventionRow": "各縣市毒品危害防制中心",
   "legend.harmReduction.alcoholRow": "酒癮治療指定／費用補助／酒駕酒癮評估機構",
-  "legend.harmReduction.alcoholNote": "一機構可具多種身分，篩選時符合任一勾選項目即顯示。{precision}衛生福利部心理健康司名單（2026-08-07）。",
+  "legend.harmReduction.alcoholNote": "一機構可具多種身分，篩選時符合任一勾選項目即顯示。{precision}",
   "legend.harmReduction.prepRow": "提供公費或自費 PrEP 的醫院診所",
   "legend.harmReduction.prepNote": "{precision}",
   "legend.harmReduction.internetNote": "機構類型依名稱歸類，非官方分類；來源不含連江縣。{precision}衛生福利部各縣市網路成癮治療服務資源表（2026-07-28）。",

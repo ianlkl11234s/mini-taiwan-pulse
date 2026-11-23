@@ -159,9 +159,8 @@ const FLOOD_SCENARIO_CODE: Record<string, L3> = {
 const FLOOD_PERIOD_CODE: Record<string, L3> = {
   "0020": l3("20 年一遇", "1-in-20 year", "20年確率"), "0100": l3("100 年一遇", "1-in-100 year", "100年確率"), "1000": l3("1000 年一遇", "1-in-1000 year", "1000年確率"),
 };
-const NC_ND_NOTE = (org: string) => l3(`CC BY-NC-ND 4.0・非商業使用；© ${org}。原樣上圖、未改作（不合併、不裁切、不改屬性）`,
-  `CC BY-NC-ND 4.0 · non-commercial use; © ${org}. Shown unaltered (not merged, clipped or re-classified)`,
-  `CC BY-NC-ND 4.0・非商用；© ${org}。改変せず原データのまま表示（統合・切り抜き・属性変更なし）`);
+/** 授權（CC BY-NC-ND 4.0）與署名在圖層「說明・來源」；圖例只說明「原樣上圖」。 */
+const ND_NOTE = l3("原樣上圖、未改作（不合併、不裁切、不改屬性）", "Shown unaltered (not merged, clipped or re-classified)", "改変せず原データのまま表示（統合・切り抜き・属性変更なし）");
 
 // ───────────── 第 3b 波：海洋 ─────────────
 export const IE_W3B_FETCHED_AT = "2026-11-08";
@@ -833,7 +832,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     fields: [{ prop: "c", label: l3("情境", "Scenario", "シナリオ"), map: FLOOD_SCENARIO_CODE },
              { prop: "pppp", label: l3("重現期", "Return period", "再現期間"), map: FLOOD_PERIOD_CODE },
              ],
-    legendNotes: [NC_ND_NOTE("OPW"),
+    legendNotes: [ND_NOTE,
                   l3("OPW 全國指示性河川淹水模擬（NIFM）：現況與兩種未來氣候情境（中端 MRFS、高端 HEFS）× 20／100／1000 年一遇，共 9 組，在圖層設定切換（預設現況・100 年一遇）", "OPW National Indicative Fluvial Mapping: current and two future scenarios (mid-range MRFS, high-end HEFS) × 1-in-20/100/1000 year, 9 sets switchable in layer settings (default: current, 1-in-100)", "OPW 全国指示的河川浸水図（NIFM）：現況と将来2シナリオ（中位 MRFS・高位 HEFS）× 20／100／1000年確率の9組をレイヤー設定で切替（既定：現況・100年確率）"),
                   l3("指示性模擬，不是個別地塊的淹水判定；只含河川淹水，不含海岸、地下水與地表逕流淹水", "Indicative modelling, not a property-level flood assessment; fluvial only (excludes coastal, groundwater and pluvial flooding)", "指示的なシミュレーションで個別地点の判定ではない。河川氾濫のみ（沿岸・地下水・内水は含まない）"),
                   l3("拉遠時圖磚會省略最小的淹水面（只影響顯示）", "Smallest flood polygons are omitted in zoomed-out tiles (display only)", "縮小時のタイルでは最小の浸水面を省略（表示のみ）")],
@@ -850,7 +849,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
     fields: [{ prop: "typecode", label: l3("線別", "Line", "線種"), map: Object.fromEntries(EROSION_CATS.map((c) => [c.id, c.label])) },
              { prop: "eros_rate", label: l3("侵蝕速率", "Erosion rate", "侵食速度"), kind: "num", unit: "m／年", digits: 3 },
              { prop: "region", label: l3("ICPSS 分區", "ICPSS region", "ICPSS 区域") }, { prop: "pub_date", label: l3("發布", "Published", "公表") }],
-    legendNotes: [NC_ND_NOTE("OPW"),
+    legendNotes: [ND_NOTE,
                   l3("OPW 愛爾蘭海岸防護策略研究（ICPSS 2010–2014）：2050 侵蝕線 1,220 段（現況情境推估）、侵蝕速率線 73,036 段（約 72% 為 0）", "OPW Irish Coastal Protection Strategy Study (ICPSS 2010–2014): 2050 erosion line 1,220 segments (current scenario) and erosion rate line 73,036 segments (about 72% are 0)", "OPW アイルランド海岸防護戦略調査（ICPSS 2010–2014）：2050年侵食線1,220区間（現況シナリオ）・侵食速度線73,036区間（約72%が0）"),
                   l3("官方說明：評估未排除既有海岸防護結構的影響", "Per the OPW: the assessment does not exclude the effect of existing coastal defences", "OPW の説明：既存の海岸防護施設の影響は除外されていない")],
     popupNotes: [l3("CC BY-NC-ND・非商業使用；ICPSS 2010–2014 推估", "CC BY-NC-ND · non-commercial; ICPSS 2010–2014 estimate", "CC BY-NC-ND・非商用。ICPSS 2010–2014 の推計")],
@@ -1735,7 +1734,7 @@ export const IE_DATA_SPECS: readonly IeLayerSpec[] = [
              { prop: "SOURCE", label: l3("判釋依據", "Mapping source", "判読の根拠") },
              { prop: "AREA_M2", label: l3("面積", "Area", "面積"), kind: "num", unit: "m²", digits: 0 },
              ],
-    legendNotes: [l3("CC BY-NC-ND 4.0・非商業使用；Contains Irish Public Sector Data (Geological Survey Ireland)。原樣上圖、未改作（不合併、不裁切、不改屬性）", "CC BY-NC-ND 4.0 · non-commercial use; Contains Irish Public Sector Data (Geological Survey Ireland). Shown unaltered (not merged, clipped or re-classified)", "CC BY-NC-ND 4.0・非商用。Contains Irish Public Sector Data (Geological Survey Ireland)。改変せず原データのまま表示"),
+    legendNotes: [ND_NOTE,
                   l3("GSI 地下水淹水圖 1:20,000：高／中／低機率（年機率 10%／1%／0.1%，現況氣候）、歷史最大範圍、2015/16 冬季地表水淹水，在圖層設定切換（預設歷史最大）", "GSI groundwater flood maps 1:20,000: high / medium / low probability (10% / 1% / 0.1% AEP, present-day climate), maximum historic extent, and winter 2015/16 surface water flooding, switchable in layer settings (default: historic)", "GSI 地下水浸水図 1:20,000：高・中・低確率（年超過確率10%／1%／0.1%、現況気候）、過去最大範囲、2015/16年冬の地表水浸水をレイヤー設定で切替（既定：過去最大）"),
                   l3("只涵蓋 GSI 判定可能有地下水淹水的喀斯特低地（西部、中部為主），不是全國；河川淹水見「河川淹水範圍」圖層。2015/16 地表水 1 面位於北愛已捨去", "Covers only karst lowlands where GSI found groundwater flooding (mainly west and midlands), not the whole country; for river flooding see the River Flood Extents layer. One 2015/16 surface water polygon in Northern Ireland removed", "GSI が地下水浸水の可能性を認めたカルスト低地（西部・中部中心）のみで全国ではない。河川氾濫は「河川浸水範囲」レイヤー。2015/16 地表水の北アイルランド1面は除外"),
                   l3("GSI 要求搭配使用說明（GSI Guidance Notes）判讀；拉遠時圖磚會省略最小的面（只影響顯示）", "GSI requires use with its Guidance Notes; smallest polygons are omitted in zoomed-out tiles (display only)", "GSI のガイダンスノートと併せて利用すること。縮小時のタイルでは最小の面を省略（表示のみ）")],

@@ -7,7 +7,7 @@
   "legend.harmReduction.hivTestingNote": "{precision} Sources: Taiwan CDC (Ministry of Health and Welfare) anonymous testing facilities (2026-09-22), health bureaus and centers (2026-07-22), designated medical facilities and pharmacies (2026-07-15); Ministry of Health and Welfare LGBTQ+ health centers (2026-06-12).",
   "legend.harmReduction.preventionRow": "Drug abuse prevention centers in each county/city",
   "legend.harmReduction.alcoholRow": "Designated alcohol-treatment, subsidy and DUI-assessment facilities",
-  "legend.harmReduction.alcoholNote": "One facility can hold several roles; when filtering, it is shown if it matches any checked item. {precision} Source: Department of Mental and Oral Health, Ministry of Health and Welfare list (2026-08-07).",
+  "legend.harmReduction.alcoholNote": "One facility can hold several roles; when filtering, it is shown if it matches any checked item. {precision}",
   "legend.harmReduction.prepRow": "Hospitals and clinics offering publicly funded or self-paid PrEP",
   "legend.harmReduction.prepNote": "{precision}",
   "legend.harmReduction.internetNote": "Institution types are grouped by name, not an official classification; the source does not include Lienchiang County. {precision} Source: Ministry of Health and Welfare internet addiction treatment resource tables by county/city (2026-07-28).",
