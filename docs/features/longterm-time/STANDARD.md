@@ -107,4 +107,5 @@
 ## 4. 登記現況
 
 已登記哪些圖層以 `layerManifest.ts` 的 `longTerm` 為準（`grep -n "longTerm: {" src/data/layerManifest.ts`），不在本文件另列清單，涵蓋的查證來源寫在各筆註解。
-1a（2026-11-20）登記了火災歷史、人口數、人口指標與房地產 6 層；共機活動區 `plaActivity`（形狀表最早日期未查證）與全球重大事件 `globalEvents`（涵蓋未查證）待查證後補登記。
+1a（2026-11-20）登記了火災歷史、人口數、人口指標與房地產 6 層；共機活動區 `plaActivity`（形狀表最早日期未查證）待查證後補登記。
+全球重大事件 `globalEvents`（2026-11-23 查證）：候選表自 2026-09-02 起有資料、依 ADR-0026 保留 180 天；公開 RPC 一次最多 31 天、每頁 200 件，7 天就有約 1.2 萬列、29 MB，無法直接拿來畫長期時間條。缺的是「事件點、依月切」的期別檔（每月一檔，只留 id、時間、座標、分類、嚴重度、短標題，估每月 1–2 MB gzip 前），由 data-collectors 或 export 腳本每日增量產生、S3 正本＋R2 發布；有了期別檔再填 manifest `longTerm` 與 adapter。在那之前不登記（`layerLongTerm.test.ts` 要求宣告的檔案有部署路徑）。
