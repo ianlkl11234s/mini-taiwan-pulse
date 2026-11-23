@@ -377,6 +377,17 @@ describe("countryWiring：加一國的接點", () => {
     expect(gaps.filter((g) => g.item === 6).length).toBe(ctx.levelRegistries.length);
   });
 
-  // 9. countries.ts 的 timeZone 欄位在 PR #1181，該 PR 合併前 CountryDef 沒有這個欄位。
-  it.todo("9. 每國都有 timeZone（等 PR #1181 合併後改成實測）");
+  it("9. 每國都有合法的 timeZone（timeZones 若有，須包含 timeZone）", () => {
+    const valid = (tz: string) => {
+      try { new Intl.DateTimeFormat("en", { timeZone: tz }); return true; } catch { return false; }
+    };
+    const gaps = COUNTRIES.flatMap((country) => {
+      const out: string[] = [];
+      if (!country.timeZone || !valid(country.timeZone)) out.push(`國碼 ${country.code} 缺少合法的 timeZone（src/constants/countries.ts:COUNTRIES）`);
+      for (const tz of country.timeZones ?? []) if (!valid(tz)) out.push(`國碼 ${country.code} 的 timeZones 含不合法的 ${tz}（src/constants/countries.ts:COUNTRIES）`);
+      if (country.timeZones && !country.timeZones.includes(country.timeZone)) out.push(`國碼 ${country.code} 的 timeZones 沒有包含 timeZone（src/constants/countries.ts:COUNTRIES）`);
+      return out;
+    });
+    expect(gaps).toEqual([]);
+  });
 });
