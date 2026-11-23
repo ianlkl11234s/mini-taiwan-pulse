@@ -2130,5 +2130,6 @@
   "layer.thSoilPh": "Soil pH, about 1 km (Thailand)",
   "layer.thSoilOrganicCarbon": "Soil Organic Carbon, about 1 km (Thailand)",
   "layer.thCrops": "Major Crop Extents, Generalized (Thailand)",
-  "layer.thVeterinary": "Veterinary Clinics (Thailand)"
+  "layer.thVeterinary": "Veterinary Clinics (Thailand)",
+  "layer.gbRailReplay": "Rail Replay"
 }

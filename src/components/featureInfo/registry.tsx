@@ -71,6 +71,7 @@ import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutio
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
 import { GbBridgesTunnelsPanel, GbPlacesOfWorshipPanel, GbPublicFacilitiesPanel, GbRoadFacilitiesPanel } from "./ukPanels";
+import { GbRailReplayPanel } from "./gbRailReplayPanel";
 import { KR_DATA_SPECS } from "../../data/krDataLayers";
 import type { KrDataKey } from "../../data/krDataKeys";
 
@@ -563,6 +564,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbStationUsage: GbStationUsagePanel,
   gbLondonRailLines: GbLondonRailLinesPanel,
   gbLondonStations: GbLondonStationsPanel,
+  gbRailReplay: GbRailReplayPanel,
   gbLondonBikePoints: GbLondonBikePointsPanel,
   gbLondonJamCams: GbLondonJamCamsPanel,
   gbLondonChargingZones: GbLondonChargingZonesPanel,
@@ -1284,6 +1286,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbStationUsage: "車站年進出人次 Station Usage",
   gbLondonRailLines: "倫敦軌道路線 London Rail Lines",
   gbLondonStations: "倫敦軌道車站 London Rail Stations",
+  gbRailReplay: "列車重播 Rail Replay",
   gbLondonBikePoints: "倫敦公共自行車 Santander Cycles",
   gbLondonJamCams: "倫敦道路攝影機 TfL JamCams",
   gbLondonChargingZones: "倫敦收費與低排放區 Charging Zones",

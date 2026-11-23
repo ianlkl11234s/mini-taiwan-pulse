@@ -374,6 +374,7 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["gb-tpo-circle"], type: "gbTreeProtection" },
   { layers: ["gb-forest-recreation-circle", "gb-forest-recreation-signage-circle"], type: "gbForestRecreation" },
   { layers: ["gb-trails-national-line", "gb-trails-forest-line"], type: "gbTrails" },
+  { layers: ["gb-rail-replay-trains-circle"], type: "gbRailReplay" },
   { layers: ["gb-london-stations-circle"], type: "gbLondonStations" },
   { layers: ["gb-london-jamcams-circle"], type: "gbLondonJamCams" },
   { layers: ["gb-london-bikepoints-circle"], type: "gbLondonBikePoints" },
