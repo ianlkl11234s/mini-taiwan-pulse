@@ -8,6 +8,15 @@ export const ID_DATA_KEYS = [
   "idBridges", "idWaterFacilities", "idWatersheds", "idSubsidence",
   // 第 4 波（2026-11-23）
   "idNatureSpots", "idConservationForest", "idCamps",
+  // 第 5 波（2026-11-24）：教育、醫療、消防、警政、監所法院、移民
+  "idSchools", "idHealthFacilities", "idFireStations", "idPoliceStations", "idPrisonsCourts", "idImmigrationOffices",
+  // 第 6 波（2026-11-24）
+  "idTransjakarta", "idSpecialEconomicZones", "idIkn", "idPostOffices", "idMarkets", "idBanks", "idCulturalFacilities", "idHeritageSites",
+  "idCommTowers", "idPlacesOfWorship", "idExperiences", "idAccommodation",
+  // 第 7 波（2026-11-24）
+  "idWeatherStations",
+  // 第 8–9 波（2026-11-24）
+  "idFactories", "idSportsVenues", "idParks", "idCemeteries", "idAquaculture", "idFarmland", "idVeterinary",
 ] as const;
 export type IdDataKey = (typeof ID_DATA_KEYS)[number];
 

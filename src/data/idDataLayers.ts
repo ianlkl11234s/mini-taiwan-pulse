@@ -9,6 +9,7 @@
 import type { L3 } from "./phDataLayers";
 import type { IdDataKey } from "./idDataKeys";
 import type { LayerSourceInfo } from "./layerSourceInfo";
+import { ID_WAVE5_SPECS } from "./idWaves5Layers";
 import { ID_FETCHED_AT, ID_RASTER_SPECS, ID_WAVE_SPECS, type IdLayerSpec } from "./idWavesLayers";
 
 export type { L3 } from "./phDataLayers";
@@ -101,7 +102,7 @@ export const ID_RURAL_NOTES: readonly L3[] = [
 
 // ═════════════════════════ 規格驅動 19 層 ═════════════════════════
 
-export const ID_DATA_SPECS: readonly IdLayerSpec[] = ID_WAVE_SPECS;
+export const ID_DATA_SPECS: readonly IdLayerSpec[] = [...ID_WAVE_SPECS, ...ID_WAVE5_SPECS];
 export const ID_SPEC_BY_KEY: Readonly<Record<IdDataKey, IdLayerSpec>> = Object.fromEntries(ID_DATA_SPECS.map((s) => [s.key, s])) as Record<IdDataKey, IdLayerSpec>;
 
 // ═════════════════════════ 圖層來源表（「說明・來源」） ═════════════════════════

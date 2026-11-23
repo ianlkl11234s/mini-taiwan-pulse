@@ -15,30 +15,30 @@ export interface IdLayerSpec extends PhLayerSpec<IdDataKey> {
   sourceNotes?: readonly L3[];
 }
 
-const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
-const str = (v: unknown) => (v == null ? "" : String(v));
-const propGetter = (prop: string): PhCatGetter => ({ expr: ["to-string", ["coalesce", ["get", prop], ""]], js: (p) => str(p[prop]) });
-const constGetter = (v: string): PhCatGetter => ({ expr: ["literal", v], js: () => v });
+export const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
+export const str = (v: unknown) => (v == null ? "" : String(v));
+export const propGetter = (prop: string): PhCatGetter => ({ expr: ["to-string", ["coalesce", ["get", prop], ""]], js: (p) => str(p[prop]) });
+export const constGetter = (v: string): PhCatGetter => ({ expr: ["literal", v], js: () => v });
 export const ID_FETCHED_AT = "2026-11-23";
-const UNSTATED = l3("授權未明示", "License not stated", "ライセンスは明示されていない");
-const ODBL = "ODbL 1.0";
-const OSM_HOT = l3("© OpenStreetMap contributors（ODbL），via HOT Export Tool／HDX（非官方）", "© OpenStreetMap contributors (ODbL), via HOT Export Tool / HDX (unofficial)", "© OpenStreetMap contributors（ODbL）、HOT Export Tool／HDX 経由（非公式）");
-const OSM_URL = "https://data.humdata.org/organization/hot";
-const BNPB_URL = "https://inarisk.bnpb.go.id/";
+export const UNSTATED = l3("授權未明示", "License not stated", "ライセンスは明示されていない");
+export const ODBL = "ODbL 1.0";
+export const OSM_HOT = l3("© OpenStreetMap contributors（ODbL），via HOT Export Tool／HDX（非官方）", "© OpenStreetMap contributors (ODbL), via HOT Export Tool / HDX (unofficial)", "© OpenStreetMap contributors（ODbL）、HOT Export Tool／HDX 経由（非公式）");
+export const OSM_URL = "https://data.humdata.org/organization/hot";
+export const BNPB_URL = "https://inarisk.bnpb.go.id/";
 const BIG_URL = "https://tanahair.indonesia.go.id/";
-const OVERTURE_URL = "https://overturemaps.org/";
-const PT = ["==", ["geometry-type"], "Point"] as unknown[];
-const POLY = ["==", ["geometry-type"], "Polygon"] as unknown[];
+export const OVERTURE_URL = "https://overturemaps.org/";
+export const PT = ["==", ["geometry-type"], "Point"] as unknown[];
+export const POLY = ["==", ["geometry-type"], "Polygon"] as unknown[];
 
-const KAB_FIELDS: readonly PhField[] = [
+export const KAB_FIELDS: readonly PhField[] = [
   { prop: "kabkota_name", label: l3("縣市", "Regency / city", "県・市") },
   { prop: "province_name", label: l3("省", "Province", "州") },
 ];
-const cat = (id: string, values: readonly string[], color: string, zh: string, en: string, ja: string, extra: Partial<PhCat> = {}): PhCat =>
+export const cat = (id: string, values: readonly string[], color: string, zh: string, en: string, ja: string, extra: Partial<PhCat> = {}): PhCat =>
   ({ id, values, color, label: l3(zh, en, ja), ...extra });
-const point = (id: string, sourceLayer: string, minzoom: number, c: PhCatGetter, extra: Partial<PhPart> = {}): PhPart => ({ id, sourceLayer, geom: "point", minzoom, cat: c, ...extra });
-const NEAREST: PhNote = { text: l3("點落在縣市界外（岸邊、離島），縣市取最近者", "Point lies outside regency polygons (shore, islands); nearest used", "点が県市境の外（海岸・離島）にあり、最寄りを採用"), when: (p) => str(p.admin_method) === "nearest" };
-const REDACT_TITLE = { prop: "name_redacted", map: { true: l3("（個人名義，已遮蔽）", "(personal name, redacted)", "（個人名義、秘匿）") } } as const;
+export const point = (id: string, sourceLayer: string, minzoom: number, c: PhCatGetter, extra: Partial<PhPart> = {}): PhPart => ({ id, sourceLayer, geom: "point", minzoom, cat: c, ...extra });
+export const NEAREST: PhNote = { text: l3("點落在縣市界外（岸邊、離島），縣市取最近者", "Point lies outside regency polygons (shore, islands); nearest used", "点が県市境の外（海岸・離島）にあり、最寄りを採用"), when: (p) => str(p.admin_method) === "nearest" };
+export const REDACT_TITLE = { prop: "name_redacted", map: { true: l3("（個人名義，已遮蔽）", "(personal name, redacted)", "（個人名義、秘匿）") } } as const;
 
 // ═════════════════════════ 地形與 InaRISK raster ═════════════════════════
 
@@ -196,7 +196,7 @@ const dibiGetter: PhCatGetter = {
   js: (p) => { const n = Number(p.total_basa ?? 0); return n >= 201 ? "d4" : n >= 51 ? "d3" : n >= 11 ? "d2" : n >= 1 ? "d1" : "d0"; },
 };
 const DIBI_CATS: readonly PhCat[] = [
-  ...DIBI_IDS.map((id, i) => cat(id, [id], DIBI_COLORS[i]!, `欄位一 ${DIBI_LABELS[i]}`, `Field 1: ${DIBI_LABELS_EN[i]}`, `欄 1：${DIBI_LABELS_EN[i]}`, { parts: ["id-dibi-fill"] })),
+  ...DIBI_IDS.map((id, i) => cat(id, [id], DIBI_COLORS[i]!, `total_basa ${DIBI_LABELS[i]}`, `total_basa: ${DIBI_LABELS_EN[i]}`, `total_basa：${DIBI_LABELS_EN[i]}`, { parts: ["id-dibi-fill"] })),
   cat("seam", ["seam"], "#374151", "縣市界", "Regency / city boundary", "県市境", { parts: ["id-dibi-line"] }),
 ];
 
@@ -516,16 +516,16 @@ export const ID_WAVE_SPECS: readonly IdLayerSpec[] = [
     cats: DIBI_CATS,
     title: { props: ["kabkota_name"], fallback: l3("縣市", "Regency / city", "県・市") },
     fields: [
-      { prop: "total_basa", label: l3("紀錄次數（欄位一，語意待查）", "Recorded count (field 1, meaning to be confirmed)", "記録件数（欄 1、意味は要確認）"), kind: "num" },
-      { prop: "total_ba_1", label: l3("紀錄次數（欄位二，語意待查）", "Recorded count (field 2, meaning to be confirmed)", "記録件数（欄 2、意味は要確認）"), kind: "num" },
-      { prop: "total_keri", label: l3("紀錄次數（欄位三，語意待查）", "Recorded count (field 3, meaning to be confirmed)", "記録件数（欄 3、意味は要確認）"), kind: "num" },
+      { prop: "total_basa", label: l3("total_basa", "total_basa", "total_basa"), kind: "num" },
+      { prop: "total_ba_1", label: l3("total_ba_1", "total_ba_1", "total_ba_1"), kind: "num" },
+      { prop: "total_keri", label: l3("total_keri", "total_keri", "total_keri"), kind: "num" },
       { prop: "period", label: l3("期間", "Period", "期間") },
       { prop: "province_name", label: l3("省", "Province", "州") },
     ],
     legendNotes: [
-      l3("DIBI 水文氣象災害 2015–2024（DISPLAY_ONLY）：顏色依欄位一；約 80% 縣市為 0，無法區分無紀錄與未登錄；不做排名或風險比較", "DIBI hydrometeorological disasters 2015–2024 (DISPLAY_ONLY): colour follows field 1; ~80% of regencies are 0 and cannot be told apart from unregistered; no ranking or risk comparison", "DIBI 水文気象災害 2015–2024（表示専用 DISPLAY_ONLY）：色は欄 1。約 80% の県市が 0 で、記録なしと未登録を区別できない。順位付け・リスク比較はしない"),
+      l3("DIBI 水文氣象災害 2015–2024（DISPLAY_ONLY）：顏色依 total_basa（來源未說明欄位意義）；約 80% 縣市為 0，無法區分無紀錄與未登錄；不做排名或風險比較", "DIBI hydrometeorological disasters 2015–2024 (DISPLAY_ONLY): colour follows total_basa (the source does not explain the field); ~80% of regencies are 0 and cannot be told apart from unregistered; no ranking or risk comparison", "DIBI 水文気象災害 2015–2024（表示専用 DISPLAY_ONLY）：色は total_basa（出典は欄の意味を説明していない）。約 80% の県市が 0 で、記録なしと未登録を区別できない。順位付け・リスク比較はしない"),
     ],
-    popupNotes: [], sourceOrg: l3("BNPB DIBI 水文氣象 2015–2024，存取 2026-11-23", "BNPB DIBI hydrometeorological 2015–2024, accessed 2026-11-23", "BNPB DIBI 水文気象 2015–2024、2026-11-23 取得"),
+    popupNotes: [{ text: l3("來源未說明欄位意義（三個欄位為來源原始欄名，數值是紀錄次數）", "The source does not explain what these fields mean (original field names; values are recorded counts)", "出典は欄の意味を説明していない（出典の元の欄名で、値は記録件数）"), when: () => true }], sourceOrg: l3("BNPB DIBI 水文氣象 2015–2024，存取 2026-11-23", "BNPB DIBI hydrometeorological 2015–2024, accessed 2026-11-23", "BNPB DIBI 水文気象 2015–2024、2026-11-23 取得"),
     sourceUrl: "https://dibi.bnpb.go.id/", license: UNSTATED, fetchedAt: ID_FETCHED_AT,
     sourceNotes: [l3("DISPLAY_ONLY：0 值佔 80%、欄位語意未說明，不做排名、風險比較", "DISPLAY_ONLY: 80% zeros and undocumented field meaning; no ranking or risk comparison", "表示専用（DISPLAY_ONLY）：0 が 80% で欄の意味も不明。順位付け・リスク比較はしない")],
     loading: l3("印尼水文氣象災害載入中", "Loading Indonesia hydrometeorological disasters", "インドネシアの水文気象災害を読み込み中"),

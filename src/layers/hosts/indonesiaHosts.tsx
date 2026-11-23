@@ -65,6 +65,34 @@ export const IdNatureSpotsHost = makeIdDataHost("idNatureSpots");
 export const IdConservationForestHost = makeIdDataHost("idConservationForest");
 export const IdCampsHost = makeIdDataHost("idCamps");
 
+// 第 5–9 波（2026-11-24）
+export const IdSchoolsHost = makeIdDataHost("idSchools");
+export const IdHealthFacilitiesHost = makeIdDataHost("idHealthFacilities");
+export const IdFireStationsHost = makeIdDataHost("idFireStations");
+export const IdPoliceStationsHost = makeIdDataHost("idPoliceStations");
+export const IdPrisonsCourtsHost = makeIdDataHost("idPrisonsCourts");
+export const IdImmigrationOfficesHost = makeIdDataHost("idImmigrationOffices");
+export const IdTransjakartaHost = makeIdDataHost("idTransjakarta");
+export const IdSpecialEconomicZonesHost = makeIdDataHost("idSpecialEconomicZones");
+export const IdIknHost = makeIdDataHost("idIkn");
+export const IdPostOfficesHost = makeIdDataHost("idPostOffices");
+export const IdMarketsHost = makeIdDataHost("idMarkets");
+export const IdBanksHost = makeIdDataHost("idBanks");
+export const IdCulturalFacilitiesHost = makeIdDataHost("idCulturalFacilities");
+export const IdHeritageSitesHost = makeIdDataHost("idHeritageSites");
+export const IdCommTowersHost = makeIdDataHost("idCommTowers");
+export const IdPlacesOfWorshipHost = makeIdDataHost("idPlacesOfWorship");
+export const IdExperiencesHost = makeIdDataHost("idExperiences");
+export const IdAccommodationHost = makeIdDataHost("idAccommodation");
+export const IdWeatherStationsHost = makeIdDataHost("idWeatherStations");
+export const IdFactoriesHost = makeIdDataHost("idFactories");
+export const IdSportsVenuesHost = makeIdDataHost("idSportsVenues");
+export const IdParksHost = makeIdDataHost("idParks");
+export const IdCemeteriesHost = makeIdDataHost("idCemeteries");
+export const IdAquacultureHost = makeIdDataHost("idAquaculture");
+export const IdFarmlandHost = makeIdDataHost("idFarmland");
+export const IdVeterinaryHost = makeIdDataHost("idVeterinary");
+
 function makeIdRasterHost(key: IdRasterKey): LayerHostComponent {
   const spec = ID_RASTER_BY_KEY[key];
   const IdRasterHost: LayerHostComponent = ({ deps }) => {

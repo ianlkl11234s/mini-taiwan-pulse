@@ -492,6 +492,17 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "水資源",
     "自然保育",
     "觀光",
+    // 第 5–9 波（2026-11-24）
+    "教育",
+    "醫療",
+    "執法治安",
+    "工商登記",
+    "基礎建設",
+    "文化",
+    "宗教",
+    "環境氣候",
+    "運動休閒",
+    "農業",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -3891,6 +3902,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "地形", layers: [fromManifest("idTerrainHillshade"), fromManifest("idTerrainRelief")] },
       { title: "地名", layers: [fromManifest("idPlaceNames")] },
       { title: "外圍小島", layers: [fromManifest("idOuterIslands")] },
+      { title: "新首都 IKN", layers: [fromManifest("idIkn")] },
     ],
   },
   {
@@ -3911,6 +3923,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "樞紐節點", layers: [fromManifest("idTransportHubs")] },
       { title: "路網", layers: [fromManifest("idRailLines")] },
       { title: "橋梁", layers: [fromManifest("idBridges")] },
+      { title: "公車", layers: [fromManifest("idTransjakarta")] },
     ],
   },
   {
@@ -3958,6 +3971,101 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "玩・自然", layers: [fromManifest("idNatureSpots")] },
       { title: "營地與山屋", layers: [fromManifest("idCamps")] },
+      { title: "體驗", layers: [fromManifest("idExperiences")] },
+      { title: "住宿", layers: [fromManifest("idAccommodation")] },
+    ],
+  },
+
+  {
+    title: "教育",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "學校", layers: [fromManifest("idSchools")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("idHealthFacilities")] },
+    ],
+  },
+  {
+    title: "執法治安",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "警政", layers: [fromManifest("idPoliceStations")] },
+      { title: "消防", layers: [fromManifest("idFireStations")] },
+      { title: "監所與法院", layers: [fromManifest("idPrisonsCourts")] },
+      { title: "移民署", layers: [fromManifest("idImmigrationOffices")] },
+    ],
+  },
+  {
+    title: "工商登記",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "經濟特區", layers: [fromManifest("idSpecialEconomicZones")] },
+      { title: "工廠", layers: [fromManifest("idFactories")] },
+      { title: "市場", layers: [fromManifest("idMarkets")] },
+    ],
+  },
+  {
+    title: "基礎建設",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "郵局", layers: [fromManifest("idPostOffices")] },
+      { title: "金融據點", layers: [fromManifest("idBanks")] },
+      { title: "通訊塔", layers: [fromManifest("idCommTowers")] },
+      { title: "墓區", layers: [fromManifest("idCemeteries")] },
+    ],
+  },
+  {
+    title: "文化",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "文化設施", layers: [fromManifest("idCulturalFacilities")] },
+      { title: "古蹟與紀念地", layers: [fromManifest("idHeritageSites")] },
+    ],
+  },
+  {
+    title: "宗教",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("idPlacesOfWorship")] },
+    ],
+  },
+  {
+    title: "環境氣候",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "氣象站", layers: [fromManifest("idWeatherStations")] },
+    ],
+  },
+  {
+    title: "運動休閒",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("idSportsVenues")] },
+      { title: "公園", layers: [fromManifest("idParks")] },
+    ],
+  },
+  {
+    title: "農業",
+    country: "ID",
+    defaultCollapsed: true,
+    groups: [
+      { title: "農地", layers: [fromManifest("idFarmland")] },
+      { title: "養殖", layers: [fromManifest("idAquaculture")] },
+      { title: "獸醫", layers: [fromManifest("idVeterinary")] },
     ],
   },
 
@@ -4650,6 +4758,16 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "水資源": "environment",
     "自然保育": "environment",
     "觀光": "publicLife",
+    "教育": "publicLife",
+    "醫療": "safety",
+    "執法治安": "safety",
+    "工商登記": "city",
+    "基礎建設": "publicLife",
+    "文化": "publicLife",
+    "宗教": "publicLife",
+    "環境氣候": "environment",
+    "運動休閒": "publicLife",
+    "農業": "environment",
   },
   CN: {
     // 中國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照菲律賓）。
@@ -4983,6 +5101,16 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "水資源": { zh: "水資源", sub: "Water" },
     "自然保育": { zh: "自然保育", sub: "Conservation" },
     "觀光": { zh: "觀光", sub: "Tourism" },
+    "教育": { zh: "教育", sub: "Education" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "基礎建設": { zh: "基礎建設", sub: "Infrastructure" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "宗教": { zh: "宗教", sub: "Religion" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "運動休閒": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "農業": { zh: "農業", sub: "Agriculture" },
   },
   CN: {
     // 中國主題副標用英文（比照菲律賓）
