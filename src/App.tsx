@@ -132,6 +132,7 @@ import { BookOpen, Bot, Box, Camera, CircleHelp, Columns2, MessageSquare, Share2
 import { CompareMapView } from "./map/CompareMapView";
 import { CompareDivider } from "./components/compare/CompareDivider";
 import { compareStore, isCompareSupported, useCompareSelector } from "./state/compareStore";
+import { restoreMobileCompare } from "./utils/mobileCompareRestore";
 import { compareSelectionsForUrl, restoreSelectionsAfterLoad, singleSelectionsForUrl } from "./state/compareStatistics";
 import { layerParamsForUrl, resolveUrlLayerParams } from "./lib/urlLayerParams";
 import { statisticsDefaultOpacity } from "./data/statisticsVisuals";
@@ -552,9 +553,11 @@ export default function App() {
       compareStore.setEnabled(false);
       return;
     }
-    const stashed = mobileCompareRef.current;
-    if (isMobile || !stashed) return;
+    const stashedRaw = mobileCompareRef.current;
+    if (isMobile || !stashedRaw) return;
     mobileCompareRef.current = undefined;
+    // 左側期別以手機單地圖目前的選擇為準（不蓋掉使用者在手機上的改動）；此時單地圖選擇還沒被比較模式接管
+    const stashed = restoreMobileCompare(stashedRaw, singleSelectionsForUrl((key) => !lockedKeysRef.current.has(key as keyof LayerVisibility)));
     compareStore.hydrate({
       enabled: true,
       ...(stashed.split !== undefined ? { split: stashed.split } : {}),
