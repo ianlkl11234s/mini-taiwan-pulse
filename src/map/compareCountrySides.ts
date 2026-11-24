@@ -11,6 +11,7 @@
  * 判斷只讀 manifest。
  */
 import { LAYER_MANIFEST, type LayerCountry } from "../data/layerManifest";
+import { layerIndexRow } from "../data/layerIndex";
 import type { CountryCode } from "../constants/countries";
 
 /** 右國圖層但只能畫在主地圖的原因 */
@@ -21,7 +22,8 @@ const THREE_KEYS: ReadonlySet<string> = new Set(["jpHistoricalFlightTrails"]);
 
 /** 圖層的國家主體（orphan key 或查不到回 undefined） */
 export function layerCountryOf(key: string): LayerCountry | undefined {
-  return (LAYER_MANIFEST as Record<string, { country?: LayerCountry } | undefined>)[key]?.country;
+  // 國家包（B1 P5a）沒載入前 manifest 沒有這筆：國家改讀索引
+  return (LAYER_MANIFEST as Record<string, { country?: LayerCountry } | undefined>)[key]?.country ?? layerIndexRow(key)?.country;
 }
 
 /** 右國圖層為什麼只能畫在左圖；不是右國圖層、或可以畫在右圖回 null */

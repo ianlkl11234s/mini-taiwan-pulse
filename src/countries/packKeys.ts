@@ -6,11 +6,15 @@
  */
 
 import type { CnLayerKey } from "./cn/keys";
+import type { GbLayerKey } from "./gb/keys";
 export type PackLayerKey =
   | never
-  | CnLayerKey;
+  | CnLayerKey
+  | GbLayerKey;
 
 import type { CnPopupType } from "./cn/popupTypes";
+import type { GbPopupType } from "./gb/popupTypes";
 export type PackPopupType =
   | never
-  | CnPopupType;
+  | CnPopupType
+  | GbPopupType;

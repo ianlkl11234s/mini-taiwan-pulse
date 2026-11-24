@@ -197,7 +197,7 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "globalEvents/global-events-story-links-line": {"width": "standard", "opacity": "keep"}, // 可能同一件事虛線 · src/hooks/useGlobalEventsLayer.ts
   "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
   "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
-  "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/hooks/useGbAdminLayers.ts
+  "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/countries/gb/useGbAdminLayers.ts
   "krAdminBoundaries/kr-admin-sido-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：시·도比照縣市 · src/hooks/useKrAdminLayers.ts
   "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/hooks/useKrAdminLayers.ts
   "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/hooks/useKrAdminLayers.ts
@@ -229,32 +229,32 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "caIndigenousLands/ca-indigenous-lands-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 原住民土地面外框（F-2）· src/hooks/useCaAreaLayers.ts
   "caDeprivation/ca-cimd-seam": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2 gradedSeamPaint）· src/hooks/useCaAreaLayers.ts
   "caRents/ca-rents-seam": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2 gradedSeamPaint）· src/hooks/useCaAreaLayers.ts
-  "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useGbAdminLayers.ts
-  "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
-  "gbSmallAreaBoundaries/gb-small-areas-low-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區 z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
-  "gbSmallAreaBoundaries/gb-ni-sdz-low-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/countries/gb/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/countries/gb/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-small-areas-low-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區 z5–7 低縮放段 · src/countries/gb/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-ni-sdz-low-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ z5–7 低縮放段 · src/countries/gb/useGbAdminLayers.ts
   "twCountyMigrationFlows/tw-county-migration-flows-line": {"width": "keep", "opacity": "standard"}, // 線寬＝人數 4 級（資料驅動） · src/hooks/useCountyMigrationFlowsLayer.ts
-  "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/hooks/useGbMaritimeLimitsLayer.ts
-  "gbMaritimeLimits/gb-maritime-limits-dashed": {"width": "keep", "opacity": "standard"}, // L-2 [4,3]：大陸棚、四地分區 · src/hooks/useGbMaritimeLimitsLayer.ts
-  "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/hooks/useGbMaritimeLimitsLayer.ts
-  "gbRivers/gb-rivers-line": {"width": "keep", "opacity": "keep"}, // 寬依 form／北愛 Strahler（L-1 三階）、湖中連接段淡化 · src/hooks/useGbWaterLayers.ts
-  "gbFloodDefenceAssets/gb-flood-defences-line": {"width": "standard", "opacity": "keep"}, // 透明度：天然高地淡化（資料編碼）· src/hooks/useGbWaterLayers.ts
-  "gbFloodDefenceAssets/gb-flood-defences-z5-6-line": {"width": "standard", "opacity": "keep"}, // z5–6 小檔 · src/hooks/useGbWaterLayers.ts
-  "gbCoastalErosionRisk/gb-coastal-erosion-outline": {"width": "keep", "opacity": "keep"}, // 侵蝕帶外框（低縮放加寬，寬度逐縮放）· src/hooks/useGbWaterLayers.ts
-  "gbCoastalErosionRisk/gb-coastal-erosion-ni-line": {"width": "emphasis", "opacity": "standard"}, // 北愛 2019 風險等級線 · src/hooks/useGbWaterLayers.ts
-  "gbLondonRailLines/gb-london-rail-lines-line": {"width": "standard", "opacity": "standard"}, // 依 mode 5 色 · src/hooks/useGbTransportLayers.ts
-  "gbProtectedAreas/gb-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 保護區外框（依類別色）· src/hooks/useGbNatureLayers.ts
-  "gbMarineProtectedAreas/gb-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/hooks/useGbNatureLayers.ts
-  "gbTrails/gb-trails-national-line": {"width": "emphasis", "opacity": "standard"}, // 國家步道（粗線，比照 hikingTrails）· src/hooks/useGbNatureLayers.ts
-  "gbPowerLines/gb-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓 5 級（比照 osmPowerLines）· src/hooks/useGbEnergyLayers.ts
-  "gbPowerLines/gb-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/hooks/useGbEnergyLayers.ts
-  "gbOilGasFields/gb-oil-gas-fields-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣田外框（依類型色）· src/hooks/useGbEnergyLayers.ts
-  "gbTrails/gb-trails-forest-line": {"width": "standard", "opacity": "standard"}, // 公有林步道依 category 分色 · src/hooks/useGbNatureLayers.ts
-  "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/hooks/useGbTransportLayers.ts
-  "gbPlanningConstraints/gb-planning-constraints-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 規劃限制區外框（依類別色）· src/hooks/useGbEnvPlanningLayers.ts
-  "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/hooks/useGbTransportLayers.ts
-  "gbBridgesTunnels/gb-bridges-tunnels-bridge-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class（同主要路網 L-5）· src/hooks/useGbOsmLayers.ts
-  "gbBridgesTunnels/gb-bridges-tunnels-tunnel-line": {"width": "keep", "opacity": "standard"}, // 隧道虛線，寬依 road_class · src/hooks/useGbOsmLayers.ts
+  "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/countries/gb/useGbMaritimeLimitsLayer.ts
+  "gbMaritimeLimits/gb-maritime-limits-dashed": {"width": "keep", "opacity": "standard"}, // L-2 [4,3]：大陸棚、四地分區 · src/countries/gb/useGbMaritimeLimitsLayer.ts
+  "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/countries/gb/useGbMaritimeLimitsLayer.ts
+  "gbRivers/gb-rivers-line": {"width": "keep", "opacity": "keep"}, // 寬依 form／北愛 Strahler（L-1 三階）、湖中連接段淡化 · src/countries/gb/useGbWaterLayers.ts
+  "gbFloodDefenceAssets/gb-flood-defences-line": {"width": "standard", "opacity": "keep"}, // 透明度：天然高地淡化（資料編碼）· src/countries/gb/useGbWaterLayers.ts
+  "gbFloodDefenceAssets/gb-flood-defences-z5-6-line": {"width": "standard", "opacity": "keep"}, // z5–6 小檔 · src/countries/gb/useGbWaterLayers.ts
+  "gbCoastalErosionRisk/gb-coastal-erosion-outline": {"width": "keep", "opacity": "keep"}, // 侵蝕帶外框（低縮放加寬，寬度逐縮放）· src/countries/gb/useGbWaterLayers.ts
+  "gbCoastalErosionRisk/gb-coastal-erosion-ni-line": {"width": "emphasis", "opacity": "standard"}, // 北愛 2019 風險等級線 · src/countries/gb/useGbWaterLayers.ts
+  "gbLondonRailLines/gb-london-rail-lines-line": {"width": "standard", "opacity": "standard"}, // 依 mode 5 色 · src/countries/gb/useGbTransportLayers.ts
+  "gbProtectedAreas/gb-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 保護區外框（依類別色）· src/countries/gb/useGbNatureLayers.ts
+  "gbMarineProtectedAreas/gb-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/countries/gb/useGbNatureLayers.ts
+  "gbTrails/gb-trails-national-line": {"width": "emphasis", "opacity": "standard"}, // 國家步道（粗線，比照 hikingTrails）· src/countries/gb/useGbNatureLayers.ts
+  "gbPowerLines/gb-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓 5 級（比照 osmPowerLines）· src/countries/gb/useGbEnergyLayers.ts
+  "gbPowerLines/gb-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/countries/gb/useGbEnergyLayers.ts
+  "gbOilGasFields/gb-oil-gas-fields-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣田外框（依類型色）· src/countries/gb/useGbEnergyLayers.ts
+  "gbTrails/gb-trails-forest-line": {"width": "standard", "opacity": "standard"}, // 公有林步道依 category 分色 · src/countries/gb/useGbNatureLayers.ts
+  "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/countries/gb/useGbTransportLayers.ts
+  "gbPlanningConstraints/gb-planning-constraints-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 規劃限制區外框（依類別色）· src/countries/gb/useGbEnvPlanningLayers.ts
+  "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/countries/gb/useGbTransportLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-bridge-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class（同主要路網 L-5）· src/countries/gb/useGbOsmLayers.ts
+  "gbBridgesTunnels/gb-bridges-tunnels-tunnel-line": {"width": "keep", "opacity": "standard"}, // 隧道虛線，寬依 road_class · src/countries/gb/useGbOsmLayers.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
   "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
   "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
@@ -421,27 +421,27 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "caPopulationGrid/ca-population-grid-r5-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r5）· src/hooks/useCaEnvLayers.ts
   "caPopulationGrid/ca-population-grid-r6-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r6）· src/hooks/useCaEnvLayers.ts
   "caPopulationGrid/ca-population-grid-r7-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r7）· src/hooks/useCaEnvLayers.ts
-  "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbGolfCourses/gb-greenspace-golf-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
-  "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/hooks/useGbWaterLayers.ts
-  "gbPlanningConstraints/gb-planning-constraints-fill": "keep", // 透明度：綠帶淡化（資料編碼）· src/hooks/useGbEnvPlanningLayers.ts
-  "gbSoilParentMaterial/gb-soil-parent-material-fill": "graded", // 土層深度 5 級（bilbao 序列色）· src/hooks/useGbBusinessAgriLayers.ts
-  "gbSoilParentMaterial/gb-soil-parent-material-na": "coverage", // 未分類＝缺值斜線（F-3）· src/hooks/useGbBusinessAgriLayers.ts
-  "gbNoise/gb-noise-fill": "graded", // Lden 五帶（台灣 NoiseCapture dB 色階）· src/hooks/useGbEnvPlanningLayers.ts
-  "gbGroundStability/gb-geosure-fill": "graded", // GeoSure 易發性三級（比照土壤液化潛勢）· src/hooks/useGbHazardLayers.ts
-  "gbRadon/gb-radon-fill": "grid", // 氡氣 1 km 方格 6 級（網格色盤）· src/hooks/useGbHazardLayers.ts
-  "gbProtectedAreas/gb-protected-areas-fill": "keep", // 透明度：景觀類淡化（資料編碼）· src/hooks/useGbNatureLayers.ts
-  "gbMarineProtectedAreas/gb-marine-protected-areas-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbWoodland/gb-woodland-fill": "graded", // 林型分類面（類別色，非覆蓋範圍）· src/hooks/useGbNatureLayers.ts
-  "gbOpenAccessLand/gb-open-access-land-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbOpenAccessLand/gb-open-access-land-z5-fill": "coverage", // z5–6 小檔 · src/hooks/useGbNatureLayers.ts
-  "gbTreeProtection/gb-ancient-woodland-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbOilGasFields/gb-oil-gas-fields-fill": "keep", // 透明度：生產中深、其他淡化（資料編碼）· src/hooks/useGbEnergyLayers.ts
-  "gbTreeProtection/gb-tpo-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbLondonChargingZones/gb-london-charging-zones-fill": "coverage", // src/hooks/useGbTransportLayers.ts
+  "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbGolfCourses/gb-greenspace-golf-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/countries/gb/useGbOpenSpaceLayers.ts
+  "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/countries/gb/useGbWaterLayers.ts
+  "gbPlanningConstraints/gb-planning-constraints-fill": "keep", // 透明度：綠帶淡化（資料編碼）· src/countries/gb/useGbEnvPlanningLayers.ts
+  "gbSoilParentMaterial/gb-soil-parent-material-fill": "graded", // 土層深度 5 級（bilbao 序列色）· src/countries/gb/useGbBusinessAgriLayers.ts
+  "gbSoilParentMaterial/gb-soil-parent-material-na": "coverage", // 未分類＝缺值斜線（F-3）· src/countries/gb/useGbBusinessAgriLayers.ts
+  "gbNoise/gb-noise-fill": "graded", // Lden 五帶（台灣 NoiseCapture dB 色階）· src/countries/gb/useGbEnvPlanningLayers.ts
+  "gbGroundStability/gb-geosure-fill": "graded", // GeoSure 易發性三級（比照土壤液化潛勢）· src/countries/gb/useGbHazardLayers.ts
+  "gbRadon/gb-radon-fill": "grid", // 氡氣 1 km 方格 6 級（網格色盤）· src/countries/gb/useGbHazardLayers.ts
+  "gbProtectedAreas/gb-protected-areas-fill": "keep", // 透明度：景觀類淡化（資料編碼）· src/countries/gb/useGbNatureLayers.ts
+  "gbMarineProtectedAreas/gb-marine-protected-areas-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
+  "gbWoodland/gb-woodland-fill": "graded", // 林型分類面（類別色，非覆蓋範圍）· src/countries/gb/useGbNatureLayers.ts
+  "gbOpenAccessLand/gb-open-access-land-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
+  "gbOpenAccessLand/gb-open-access-land-z5-fill": "coverage", // z5–6 小檔 · src/countries/gb/useGbNatureLayers.ts
+  "gbTreeProtection/gb-ancient-woodland-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
+  "gbOilGasFields/gb-oil-gas-fields-fill": "keep", // 透明度：生產中深、其他淡化（資料編碼）· src/countries/gb/useGbEnergyLayers.ts
+  "gbTreeProtection/gb-tpo-fill": "coverage", // src/countries/gb/useGbNatureLayers.ts
+  "gbLondonChargingZones/gb-london-charging-zones-fill": "coverage", // src/countries/gb/useGbTransportLayers.ts
   "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/hooks/useJpInlandFloodAreasLayer.ts
   "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/hooks/useJpLandslideWarningAreasLayer.ts
   "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/hooks/useJpTourismLayers.ts
