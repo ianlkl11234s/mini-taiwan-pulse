@@ -229,7 +229,9 @@ function headlineNames(headline: string | null | undefined, placeWords: Readonly
   return names;
 }
 
-const MAGNITUDE = /\d\.\d/g;
+// 小數規模（5.7）與有「規模／震級／M」前綴或「級」後綴的整數規模（規模5、6級）；數值正規化，5 與 5.0 視為相同。
+const MAGNITUDE = /(?<![\d.])\d{1,2}\.\d+|(?<=(?:規模|震級|magnitude|\bM)\s*)\d{1,2}(?![\d.])|(?<![\d.])\d{1,2}(?![\d.])(?=\s*級)/gi;
+const magnitudesOf = (text: string) => new Set((text.match(MAGNITUDE) ?? []).map((m) => String(Number(m))));
 const QUAKE = /地震|強震|earthquake|quake/i;
 
 export interface GlobalEventRelatedReport { eventId: string; title: string; score: number }
@@ -273,7 +275,7 @@ export function globalEventStoryLinks(rows: readonly GlobalEventPoint[]): Global
     if (!story) {
       story = { eventId: row.eventId, title: row.titleZhTw, grams: hanBigrams(row.titleZhTw), summary: hanBigrams(row.summaryZhTw ?? ""),
         names: headlineNames(row.sourceHeadline, placeWords), category: row.category, time, countries: new Set(), points: [],
-        quake: QUAKE.test(`${row.titleZhTw} ${row.sourceHeadline ?? ""}`), magnitudes: new Set(`${row.titleZhTw} ${row.sourceHeadline ?? ""}`.match(MAGNITUDE) ?? []),
+        quake: QUAKE.test(`${row.titleZhTw} ${row.sourceHeadline ?? ""}`), magnitudes: magnitudesOf(`${row.titleZhTw} ${row.sourceHeadline ?? ""}`),
         entities: new Set((row.entities ?? []).filter((entity) => entity.name.trim().length >= 2).map((entity) => {
           const key = `${entity.kind}:${entity.name.trim().toLowerCase()}`;
           if (!entityDisplay.has(key)) entityDisplay.set(key, entity.name.trim());
@@ -400,4 +402,37 @@ export function filterGlobalEvents<T extends GlobalEventRecord>(
       && (!taiwanOnly || row.taiwanRelationship === "direct" || row.taiwanRelationship === "indirect")
       && (minSeverity === 0 || (row.severity !== null && row.severity >= minSeverity));
   });
+}
+
+/** 圖例狀態列的件數與最新收到時間。
+ * 「未定位」只指沒有座標（coordinates === null）；生命週期已撤回／取代而藏起的事件（mapSuppressed）
+ * 有座標，不算缺資料，兩邊都不計。藏起來的雜訊只從地圖件數扣掉（與 hook 的 noiseHidden 同口徑：有座標且未藏起者）。 */
+export function summarizeGlobalEventCounts(
+  entries: readonly GlobalEventRecord[], noiseHidden: number,
+): { mapped: number; unlocated: number; latest: number } {
+  const mapped = new Set<string>();
+  const unlocated = new Set<string>();
+  let latest = -Infinity;
+  for (const entry of entries) {
+    if (!entry.coordinates) unlocated.add(entry.eventId);
+    else if (!entry.mapSuppressed && !(noiseHidden > 0 && entry.decision === "drop_noise")) mapped.add(entry.eventId);
+    const available = Date.parse(entry.availableAt ?? entry.publishedAt ?? "");
+    if (Number.isFinite(available) && available > latest) latest = available;
+  }
+  for (const id of mapped) unlocated.delete(id);
+  return { mapped: mapped.size, unlocated: unlocated.size, latest };
+}
+
+/** 事件有多個地點時，導覽（飛過去、展開群組）與 popup／選取標記必須解析到同一個地點：
+ * 一律取第一個 Point feature，不讓後面的覆蓋。 */
+export function firstPointFeatureByEvent<P extends { event_id?: unknown }>(
+  features: readonly GeoJSON.Feature<GeoJSON.Geometry, P | null>[],
+): Map<string, { properties: P; coords: [number, number] }> {
+  const out = new Map<string, { properties: P; coords: [number, number] }>();
+  for (const feature of features) {
+    if (!feature.properties || feature.geometry.type !== "Point") continue;
+    const eventId = String(feature.properties.event_id);
+    if (!out.has(eventId)) out.set(eventId, { properties: feature.properties, coords: feature.geometry.coordinates as [number, number] });
+  }
+  return out;
 }
