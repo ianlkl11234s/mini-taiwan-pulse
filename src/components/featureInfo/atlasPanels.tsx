@@ -1763,7 +1763,7 @@ function FreewayFaunaPanel({ props }: Props) {
   const latin = str(props.species_latin);
   const blurred = str(props.location_precision) === "grid_1km";
   const level = str(props.protected_status);
-  const levelText = level === "I" || level === "II" || level === "III" ? t(`popup.atlas.fwyProt${level}`) : level;
+  const levelText = level === "I" ? t("popup.atlas.fwyProtI") : level === "II" ? t("popup.atlas.fwyProtII") : level === "III" ? t("popup.atlas.fwyProtIII") : level;
   const colocated = num(props._colocated_n);
   return <>
     <Title color={color}>{str(props.species_zh) || latin || t("popup.atlas.fwyFaunaTitle")}</Title>
