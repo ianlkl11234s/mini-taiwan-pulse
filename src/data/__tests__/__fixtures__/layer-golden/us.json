@@ -8,6 +8,26 @@
       ],
       "type": "usAdminBoundaries"
     },
+    "usFuelStations": {
+      "layers": [
+        "us-fuel-stations-circle"
+      ],
+      "type": "usFuelStations"
+    },
+    "usHighways": {
+      "layers": [
+        "us-highways-line"
+      ],
+      "type": "usHighways"
+    },
+    "usOilGas": {
+      "layers": [
+        "us-oil-gas-facilities-circle",
+        "us-oil-gas-wells-circle",
+        "us-oil-gas-pipelines-line"
+      ],
+      "type": "usOilGas"
+    },
     "usPopulation": {
       "layers": [
         "us-population-tract-fill",
@@ -15,6 +35,44 @@
         "us-population-state-fill"
       ],
       "type": "usPopulation"
+    },
+    "usPowerGrid": {
+      "layers": [
+        "us-power-lines-line"
+      ],
+      "type": "usPowerGrid"
+    },
+    "usPowerPlants": {
+      "layers": [
+        "us-power-plants-circle"
+      ],
+      "type": "usPowerPlants"
+    },
+    "usRailLines": {
+      "layers": [
+        "us-rail-lines-line"
+      ],
+      "type": "usRailLines"
+    },
+    "usRenewables": {
+      "layers": [
+        "us-wind-turbines-circle",
+        "us-solar-circle",
+        "us-solar-fill"
+      ],
+      "type": "usRenewables"
+    },
+    "usStations": {
+      "layers": [
+        "us-stations-circle"
+      ],
+      "type": "usStations"
+    },
+    "usTransportHubs": {
+      "layers": [
+        "us-hubs-circle"
+      ],
+      "type": "usTransportHubs"
     }
   },
   "overlays": {},
@@ -95,13 +153,13 @@
         ]
       },
       {
-        "label": "透明度 0.85",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",

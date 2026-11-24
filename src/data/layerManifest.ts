@@ -1509,7 +1509,7 @@ const US_DATA_ENTRY_META: Record<UsDataKey, { theme: string; group: string; zh: 
   usOilGas: { theme: "能源", group: "石化 · 油氣", zh: "油氣設施與管線", alt: "Oil & Gas Infrastructure", icon: Flame, dataset: "us_oil_gas", topics: ["美國", "能源", "煉油廠", "天然氣", "管線", "外海", "BOEM", "HIFLD"],
     description: "美國煉油廠 132、天然氣處理廠 478、LNG 站 8、外海平台 1,303、外海井 56,495、管線 49,166 段", processing: "HIFLD 存檔（EIA 層）＋BOEM／BSEE MMC_Layers 0–2；外海標 offshore 保留；PMTiles facilities z3–10／wells z6–10／pipelines z3–11", note: "逐列：HIFLD 存檔 CC BY 4.0／BOEM 聯邦作品；陸域油氣井（州職權）未做" },
   usFuelStations: { theme: "能源", group: "加油站", zh: "加油站", alt: "Gas Stations", icon: Fuel, dataset: "us_fuel_stations", topics: ["美國", "能源", "加油站", "Overture"],
-    description: "美國加油站（Overture Places，非官方；z6 起）", processing: "Overture places gas_station／fueling_station／truck_gas_station；郡面空間判定；PMTiles stations z6–12", note: "CDLA-Permissive-2.0；非官方" },
+    description: "美國加油站 170,712 處（Overture Places，非官方；z6 起）", processing: "Overture places gas_station／fueling_station／truck_gas_station；郡面空間判定；PMTiles stations z6–12", note: "CDLA-Permissive-2.0；非官方" },
 };
 const US_DATA_MANIFEST_ENTRIES = Object.fromEntries(US_DATA_SPECS.map((spec) => {
   const m = US_DATA_ENTRY_META[spec.key];

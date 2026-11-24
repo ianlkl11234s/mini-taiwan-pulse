@@ -93,7 +93,7 @@ export const US_POPULATION_NOTES: readonly L3[] = [
 
 const CAPACITY_BANDS: PhSizeBands = {
   prop: "capacity_mw", title: l3("裝置容量（MW）", "Capacity (MW)", "設備容量（MW）"),
-  bands: [{ min: 0, radius: 2.5, label: "<50" }, { min: 50, radius: 4, label: "50–300" }, { min: 300, radius: 6.5, label: "300–1,500" }, { min: 1500, radius: 9.5, label: "≥1,500" }],
+  bands: [{ min: 0, radius: 1.5, label: "<50" }, { min: 50, radius: 3, label: "50–300" }, { min: 300, radius: 5.5, label: "300–1,500" }, { min: 1500, radius: 8.5, label: "≥1,500" }],
 };
 const FUEL_LABELS: Record<string, L3> = {
   gas: l3("天然氣", "Natural gas", "天然ガス"), coal: l3("燃煤", "Coal", "石炭"), nuclear: l3("核能", "Nuclear", "原子力"), oil: l3("石油", "Petroleum", "石油"),
@@ -271,7 +271,7 @@ export const US_DATA_SPECS: readonly UsLayerSpec[] = [
     loading: loading("美國輸電網載入中", "Loading U.S. transmission lines", "米国の送電網を読み込み中"),
   },
   {
-    key: "usRenewables", file: "us_renewables.pmtiles", sourceId: "us-renewables", srcMinzoom: 3, srcMaxzoom: 13, color: "#F2E085", count: 84_260, heat: { intensity: 0.6 },
+    key: "usRenewables", file: "us_renewables.pmtiles", sourceId: "us-renewables", srcMinzoom: 3, srcMaxzoom: 13, color: "#F2E085", count: 84_260, heat: { intensity: 3 },
     parts: [
       { id: "us-solar-fill", sourceLayer: "solar", geom: "fill", minzoom: 8, cat: constGetter("solar"), fillOpacity: 0.6 },
       point("us-solar-circle", "solar_points", 3, constGetter("solar")),
@@ -430,7 +430,7 @@ export const US_DATA_SPECS: readonly UsLayerSpec[] = [
     license: US_LICENSE_PD, fetchedAt: US_FETCHED_AT, loading: loading("美國國家公路系統載入中", "Loading U.S. National Highway System", "米国の国家道路網を読み込み中"),
   },
   {
-    key: "usFuelStations", file: "us_fuel_stations.pmtiles", sourceId: "us-fuel-stations", srcMinzoom: 6, srcMaxzoom: 12, color: "#F2622E", count: 0,
+    key: "usFuelStations", file: "us_fuel_stations.pmtiles", sourceId: "us-fuel-stations", srcMinzoom: 6, srcMaxzoom: 12, color: "#F2622E", count: 170_712,
     parts: [point("us-fuel-stations-circle", "stations", 6, propGetter("brand_group"), { small: true })],
     cats: BRAND_CATS, otherColor: "#94a3b8", otherLabel: l3("其他品牌、未標品牌", "Other / unbranded", "その他・ブランド不明"),
     title: { props: ["name", "brand"], fallback: l3("加油站", "Gas station", "ガソリンスタンド") },

@@ -9944,6 +9944,13 @@
    "s3_key": "deploy-assets/world/us_admin_boundaries.pmtiles"
   },
   {
+   "path": "public/world/us_fuel_stations.pmtiles",
+   "bytes": 37855662,
+   "sha256": "251e22734d0f33c4fd518d3a1f43374b1ffe517d57fbc481f1a8b03e909e7ff6",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_fuel_stations.pmtiles"
+  },
+  {
    "path": "public/world/us_highways.pmtiles",
    "bytes": 96704971,
    "sha256": "0ea5e7cfec6e33cc8817ccca2d1906a8e46b95a410b13ef8ae9874d823f7add8",
