@@ -264,6 +264,11 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   const hiddenBasemapLabelLayerIdsRef = useRef(new Set<string>());
   const overlayParamsRef = useRef(overlayParams);
   const jpHeightLifecycleRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
+  /**
+   * 已跑過 style.load 的 addAllOverlays 的地圖（國家包晚到的 overlay 補建用）。不能用 mapRef：
+   * mapRef 要等 "load" 才設，國家包若在 style.load 與 load 之間填進 registry，兩邊都會漏掉。
+   */
+  const overlayMapRef = useRef<mapboxgl.Map | null>(null);
 
   // 撤權（登出／失去站主權限，review F088）：registry GeoJSON overlay 中被撤權的 source 資料清空。
   // source／layer 殼保留（addAllOverlays 建立、feed 靠 getSource 找它；layer 由 visible=false 隱藏）。
@@ -283,7 +288,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         const map = mapRef.current;
         if (map) clearOverlaySourcesForKeys(map, added, revoked);
       }));
-      const map = mapRef.current;
+      const map = overlayMapRef.current;
       if (!map) return;
       const vis = leftMapVisibility(layerVisibilityStore.getAll());
       try {
@@ -381,6 +386,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         { deferJpHeightSources: true },
       );
       jpHeightLifecycle.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
+      overlayMapRef.current = map;
 
       // 索引已 ready 時 addAllOverlays 本身就拿到 CDN，下面的 swap 是 no-op
       offLayerAssetIndexReady?.();
@@ -511,6 +517,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       if (jpHeightLifecycleRef.current === jpHeightLifecycle) jpHeightLifecycleRef.current = null;
       map.remove();
       mapRef.current = null;
+      overlayMapRef.current = null;
       readyRef.current = false;
     };
   }, []);
