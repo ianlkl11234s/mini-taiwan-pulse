@@ -449,7 +449,15 @@ function moveNamed(): void {
     for (const n of mv.names) NAMED_MOVES.set(`${abs}#${n}`, join(PACK_ABS, mv.to));
     const sf = parse(abs);
     const decls = topDecls(sf);
-    const nodes = mv.names.map((n) => { const d = decls.get(n); if (!d) throw new Error(`${mv.file} 沒有 ${n}`); return d; });
+    // 重跑：已搬走的名稱略過（目標檔已有就算搬過）；兩邊都沒有才是設定錯
+    const toText = existsSync(join(PACK_ABS, mv.to)) ? readFileSync(join(PACK_ABS, mv.to), "utf8") : "";
+    const names = mv.names.filter((n) => {
+      if (decls.get(n)) return true;
+      if (new RegExp(`\\b(function|const|class)\\s+${n}\\b`).test(toText)) return false;
+      throw new Error(`${mv.file} 沒有 ${n}`);
+    });
+    if (!names.length) continue;
+    const nodes = names.map((n) => decls.get(n)!);
     const toFile = join(PACK_ABS, mv.to);
     const sec = section(mv.to, "", "record", "", []);
     for (const d of nodes) {
