@@ -5523,6 +5523,12 @@ export const LAYER_PARAMS_SPEC = {
   councilDistricts2026: [
     opacitySlider("councilDistricts2026Opacity", 0.9),
   ],
+  // 設施研究 M（站主限定）：「參考資料」開關不進 paint（out: null），由 host 讀取後決定要不要載入第二支檔
+  siteStudyM: [
+    opacitySlider("siteStudyMOpacity", 0.85),
+    scaleSlider("siteStudyMScale", 1),
+    { kind: "toggle", name: "siteStudyMOverlays", label: "參考資料", default: false, out: null, category: "data" },
+  ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
   electionEvents2026: [

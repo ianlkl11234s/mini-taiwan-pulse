@@ -25,6 +25,7 @@ import { paramDefault } from "../data/layerParamsSpec";
 import { FIRE_HYDRANT_CAT_COLOR, fireStationColorMatch } from "../data/fireTypes";
 import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenarioUrl } from "../data/floodScenarios";
 import { withPointSpec } from "./pointSpec";
+import { SITE_STUDY_M_NEUTRAL } from "../data/siteStudyMTypes";
 import {
   MAPCHALLENGE_DAY05_RUNS_URL, MAPCHALLENGE_DAY05_RUN_SORT_KEY, MAPCHALLENGE_DAY05_SEGMENTS_URL, MAPCHALLENGE_DAY05_SORT_KEY, MAPCHALLENGE_DAY05_TIERS,
   mapchallengeDay05KindFilter, mapchallengeDay05RunColorExpr, mapchallengeDay05ScopeAt, mapchallengeDay05TierColorExpr,
@@ -76,7 +77,7 @@ import { withDarkContrast } from "./darkContrast";
 import { withLineFillSpec } from "./lineFillSpec";
 import { withRepPoints } from "./repPointOverlays";
 import { COURT_TIER_COLOR_KEYS, POLICE_ISO_OVERLAP_BREAKS, POLICE_ISO_OVERLAP_COLORS, POLICE_TIER_COLOR_KEYS, PROSECUTOR_TIER_COLOR_KEYS } from "./justiceTierColors";
-import { categoricalColor, categoricalNeutral, BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, pointRadius, LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale, hatchImageId } from "./mapStyleScale";
+import { categoricalColor, categoricalNeutral, BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, pointRadius, LINE_WIDTH, lineWidthExpr, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale, hatchImageId } from "./mapStyleScale";
 
 /** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(211_530, 12);
@@ -921,6 +922,24 @@ function metroPointLayers(prefix: string): OverlayConfig["layers"] {
 }
 
 // ── 🐷 畜牧 Livestock helpers ──
+// ── 設施研究 M（站主限定）：樣式只讀 feature 的 color 與 _part，不寫任何類別值 ──
+const SITE_STUDY_M_COLOR = ["to-color", ["get", "color"], SITE_STUDY_M_NEUTRAL] as unknown as string;
+const SITE_STUDY_M_REP_MAXZOOM = 11;
+const SITE_STUDY_M_OPACITY_DEFAULT = 0.85;
+/** 主資料／參考資料兩級透明度（乘透明度滑桿相對預設值的比例） */
+function siteStudyMOpacity(p: Record<string, number> | undefined, main: number, reference: number): number {
+  const k = (p?.siteStudyMOpacity ?? SITE_STUDY_M_OPACITY_DEFAULT) / SITE_STUDY_M_OPACITY_DEFAULT;
+  return ["case", ["==", ["get", "_part"], "overlays"], Math.min(1, reference * k), Math.min(1, main * k)] as unknown as number;
+}
+function siteStudyMCirclePaint(isDark: boolean, p: Record<string, number> | undefined) {
+  const op = p?.siteStudyMOpacity ?? SITE_STUDY_M_OPACITY_DEFAULT;
+  return {
+    "circle-radius": pointRadius("M", p?.siteStudyMScale ?? 1),
+    "circle-color": SITE_STUDY_M_COLOR,
+    "circle-opacity": siteStudyMOpacity(p, SITE_STUDY_M_OPACITY_DEFAULT, 0.45),
+    ...pointStrokePaint(isDark, op / SITE_STUDY_M_OPACITY_DEFAULT),
+  };
+}
 const FARM_SOURCE = "./geo/_empty.geojson"; // dynamicData：資料由 useLivestockLayers 讀 owner-data 私人檔後 setData
 
 // 飼養場圓圈大小：per-species 總隻數 log 尺標（各層獨立 domain + 兩端 clamp）。
@@ -5269,6 +5288,51 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   livestockFarmOverlay("livestockFarmGoose", "鵝", ["==", ["get", "主畜種"], "鵝"]),
   livestockFarmOverlay("livestockFarmSheep", "羊", ["==", ["get", "主畜種"], "羊"]),
   livestockFarmOverlay("livestockFarmOther", "其他", ["!", ["in", ["get", "主畜種"], ["literal", ["豬", "雞", "牛", "鴨", "鵝", "羊"]]]]),
+  // 設施研究 M（站主限定）：資料由 useSiteStudyMLayer 讀站主私人檔（owner-data 家族）後 setData。
+  // 顏色讀 feature 的 color（類別與色票都在檔內，這裡不寫類別值）；參考資料（_part＝overlays）畫得比主資料淡。
+  // 面在全國縮放下小到看不見：z11 以下另畫代表點（hook 產生的 _rep 點）。透明度依 _part 分兩級＝資料編碼（FILL_TIERS keep）。
+  {
+    id: "siteStudyM",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "site-study-m",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (_isDark, p) => ({
+          "fill-color": SITE_STUDY_M_COLOR,
+          "fill-opacity": siteStudyMOpacity(p, 0.5, 0.2),
+        }),
+      },
+      {
+        // 面外框與線狀資料共用（no-fill-outline-color：外框一律獨立 line 子圖層）
+        suffix: "outline",
+        type: "line",
+        filter: ["!=", ["geometry-type"], "Point"],
+        paint: (_isDark, p) => ({
+          "line-color": SITE_STUDY_M_COLOR,
+          "line-width": lineWidthExpr("standard"),
+          "line-opacity": siteStudyMOpacity(p, 1, 0.55),
+        }),
+      },
+      {
+        // 面的代表點：只在面還看不清楚的縮放顯示
+        suffix: "rep",
+        type: "circle",
+        maxzoom: SITE_STUDY_M_REP_MAXZOOM,
+        filter: ["all", ["==", ["geometry-type"], "Point"], ["==", ["coalesce", ["get", "_rep"], 0], 1]],
+        paint: (isDark, p) => siteStudyMCirclePaint(isDark, p),
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: ["all", ["==", ["geometry-type"], "Point"], ["!=", ["coalesce", ["get", "_rep"], 0], 1]],
+        paint: (isDark, p) => siteStudyMCirclePaint(isDark, p),
+      },
+    ],
+  },
   // 屠宰場：依「種類」首字分家畜(豬牛羊)/家禽(雞鴨鵝)
   {
     id: "livestockSlaughter",

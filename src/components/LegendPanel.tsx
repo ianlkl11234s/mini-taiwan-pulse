@@ -52,6 +52,7 @@ import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/t
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpMunicipalRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { CouncilDistrictsLegend, ElectionEventsLegend, PollingStationsLegend } from "./legend/politicsLegends";
+import { SiteStudyMLegend } from "./legend/siteStudyLegends";
 import { Fire119LiveLegend, PbsRoadEventsLiveLegend } from "./legend/liveIncidentsLegends";
 import { DengueClustersLegend, NavNoticesLegend, TideSwellAlertsLegend } from "./legend/twLiveLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
@@ -577,6 +578,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "ports", render: () => <PortsLegend /> },
   { id: "newsEvents", render: ({ isDark }) => <NewsEventsLegend  isDark={isDark} /> },
   { id: "electionEvents2026", render: () => <ElectionEventsLegend /> },
+  { id: "siteStudyM", render: () => <SiteStudyMLegend /> },
   { id: "fire119Live", render: () => <Fire119LiveLegend /> },
   { id: "pbsRoadEventsLive", render: () => <PbsRoadEventsLiveLegend /> },
   // 台灣圖層延伸 B8（2026-11-22）：R2 即時快照

@@ -182,6 +182,7 @@ export type ExpandableLayerKey =
   | "firingNoticeAreas"
   // 🗳 政治 Politics：2026 選舉活動（owner-only RPC）
   | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
+  | "siteStudyM" // 設施研究 M（站主限定，owner-data 私人檔）
   // 即時 119 案件／警廣即時路況（owner-only RPC，mig 555）
   | "fire119Live" | "pbsRoadEventsLive"
   // 台灣圖層延伸 B8：R2 即時快照（登革熱聚集區、航船布告、大潮與長浪警戒）
@@ -871,6 +872,7 @@ export interface FeatureInfo {
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
+    | "siteStudyM"
     | "fire119Live" | "pbsRoadEventsLive"
     | "dengueCluster" | "navNotice" | "tideSwellAlert"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
@@ -1397,6 +1399,7 @@ export interface LayerVisibility extends Record<KrDataKey | IeDataKey | PhDataKe
   newsEvents: boolean;
   /** 2026 地方選舉活動（owner-only RPC get_election_events_2026；研究原型） */
   electionEvents2026: boolean;
+  siteStudyM: boolean;            // 設施研究 M（站主限定研究資料）
   /** 即時 119 案件（owner-only RPC get_fire119_live；mig 555） */
   fire119Live: boolean;
   /** 警廣即時路況（owner-only RPC get_pbs_road_events_live；mig 555） */

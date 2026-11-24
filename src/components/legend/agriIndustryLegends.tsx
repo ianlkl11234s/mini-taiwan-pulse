@@ -41,7 +41,8 @@ const CROP_KIND_ITEMS = [
 ];
 
 /** 站主私人檔讀取失敗時在圖例寫原因（圖面維持空的，不合成資料）；其餘狀態不顯示。 */
-function OwnerDataFailure({ asset, i18n }: { asset: OwnerDataAssetName; i18n: I18n }) {
+/** 站主私人檔讀取失敗時的一行提示（owner-data 家族共用；401／403 不顯示） */
+export function OwnerDataFailure({ asset, i18n }: { asset: OwnerDataAssetName; i18n: I18n }) {
   const get = () => ownerDataStatus.get(asset);
   const st = useSyncExternalStore(ownerDataStatus.subscribe, get, get);
   if (st.state !== "error") return null;

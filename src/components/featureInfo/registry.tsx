@@ -141,6 +141,7 @@ import {
   IndustrialParkComparisonPanel,
 } from "./businessRegistryPanels";
 import { CouncilDistrictPanel, ElectionEventPanel, PollingStationPanel } from "./politicsPanels";
+import { SiteStudyMPanel } from "./siteStudyPanels";
 import { Fire119LivePanel, PbsRoadEventsLivePanel } from "./liveIncidentsPanels";
 import { DengueClusterPanel, NavNoticePanel, TideSwellAlertPanel } from "./twLivePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
@@ -316,6 +317,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   activeFault: ActiveFaultPanel,
   newsEvent: NewsEventPanel,
   electionEvents2026: ElectionEventPanel,
+  siteStudyM: SiteStudyMPanel,
   fire119Live: Fire119LivePanel,
   pbsRoadEventsLive: PbsRoadEventsLivePanel,
   dengueCluster: DengueClusterPanel,
@@ -981,6 +983,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   activeFault: "活動斷層",
   newsEvent: "新聞事件",
   electionEvents2026: "2026 選舉活動",
+  siteStudyM: "設施研究 M",
   fire119Live: "即時 119 案件",
   pbsRoadEventsLive: "警廣即時路況",
   dengueCluster: "登革熱聚集區",

@@ -183,6 +183,7 @@ export const LAYER_SOURCE_INFO_DATA: Record<string, LayerSourceInfo> = {
   eduSchoolUniversity: { org: "教育部統計處「各級學校地理資訊及地區別統計查詢系統」，113 學年度學校名錄（含經緯度）", license: "⚠️ 未確認", url: "https://stats.moe.gov.tw/EduGis/", from: "catalog" },
   eduUniversityStudents: { org: "教育部統計處", license: "OGDL-Taiwan-1.0", url: "https://stats.moe.gov.tw/files/opendata/student.csv", from: "catalog" },
   electionEvents2026: { org: { key: "popup.politics.layerSource" }, from: "popup" },
+  siteStudyM: { org: { key: "popup.siteStudy.layerSource" }, from: "popup" },
   emergencyHospitals: { org: "各縣市衛生局 / 消防局+ 衛福部公告 PDF", license: "OGDL-Taiwan-1.0 / 政府資料開放授權條款", url: "https://data.gov.tw/dataset/{id}", from: "catalog" },
   etcGantry: { org: "交通部高速公路局", license: "政府資料開放授權條款 1.0（OGDL-Taiwan-1.0）", url: "https://data.gov.tw/dataset/21165", from: "catalog" },
   evChargingStations: { org: "多源彙整", license: "OGDL-Taiwan-1.0 / 各縣市開放資料規範", url: "https://tdx.transportdata.tw/api/basic/v1/Bus/.../EV/Station", from: "catalog" },
