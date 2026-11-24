@@ -97,3 +97,15 @@ describe("popup 內容", () => {
     expect(info.notes?.length).toBeGreaterThan(0);
   });
 });
+
+describe("小面低縮放可見度（2026-11-24 驗收項目 6）", () => {
+  it.each(["idSportsVenues", "idParks", "idCemeteries", "idAquaculture"])("%s 低縮放有同色光暈，圖例說明", (key) => {
+    const spec = ID_DATA_SPECS.find((s) => s.key === key)!;
+    const fill = spec.parts.find((p) => p.geom === "fill")!;
+    expect(fill.lowZoomHalo?.maxzoom).toBeGreaterThan(fill.minzoom);
+    expect(spec.legendNotes.some((n) => n.zh.includes("光暈"))).toBe(true);
+  });
+  it("農地（大面）不加光暈", () => {
+    expect(ID_DATA_SPECS.find((s) => s.key === "idFarmland")!.parts[0]!.lowZoomHalo).toBeUndefined();
+  });
+});

@@ -50,19 +50,26 @@ const OSM = { org: OSM_HOT, url: OSM_URL, license: ODBL, reg: OSM_REG };
 const OVT = { org: OVT_ORG, url: OVERTURE_URL, license: CDLA as string | L3, reg: OVT_REG };
 const OSM_AREA = { org: OSM_OVT, url: OVERTURE_URL, license: ODBL as string | L3, reg: OSM_REG };
 
-/** 面層樣板（運動場、公園、墓區、養殖池、農地）：fill 單部分，kind 分色。 */
-function areas(o: Omit<PoiOpts, "heat" | "small" | "getter"> & { fillOpacity?: number }): IdLayerSpec {
+/**
+ * 面層樣板（運動場、公園、墓區、養殖池、農地）：fill 單部分，kind 分色。
+ * `haloBelow`：小面（中位數只有數十公尺見方）在低縮放只剩次像素，該縮放以下加同色模糊外框光暈標出位置
+ * （共用 PhPart.lowZoomHalo，同 KEK、加拿大養殖租約）；不抽稀、不丟 feature、不改圖磚。
+ */
+function areas(o: Omit<PoiOpts, "heat" | "small" | "getter"> & { fillOpacity?: number; haloBelow?: number }): IdLayerSpec {
   const km = kindMap(o.cats);
   return {
     key: o.key, file: o.file, sourceId: o.id, srcMinzoom: o.minzoom, srcMaxzoom: o.maxzoom ?? 14, color: o.color, count: o.count, opacity: o.opacity ?? 0.6,
-    parts: [{ id: o.pid, sourceLayer: o.layer, geom: "fill", minzoom: o.minzoom, cat: propGetter("kind"), ...(o.fillOpacity ? { fillOpacity: o.fillOpacity } : {}) }],
+    parts: [{ id: o.pid, sourceLayer: o.layer, geom: "fill", minzoom: o.minzoom, cat: propGetter("kind"), ...(o.fillOpacity ? { fillOpacity: o.fillOpacity } : {}), ...(o.haloBelow ? { lowZoomHalo: { maxzoom: o.haloBelow } } : {}) }],
     cats: o.cats,
     title: { props: o.nameProps ?? TITLE_PROPS, fallback: o.fallback, fallbackBy: { prop: "kind", map: km } },
     fields: [...((o.nameProps ?? TITLE_PROPS).includes("name_en") ? nameFields : []), { prop: "kind", label: l3("類別", "Type", "種別"), map: km }, AREA_FIELD, ...KAB_FIELDS],
-    legendNotes: o.legend, popupNotes: [NEAREST], sourceNotes: [o.reg],
+    legendNotes: o.haloBelow ? [...o.legend, haloNote(o.haloBelow)] : o.legend, popupNotes: [NEAREST], sourceNotes: [o.reg],
     sourceOrg: o.org, sourceUrl: o.url, license: o.license, fetchedAt: F, loading: o.loadingText,
   };
 }
+const haloNote = (z: number) => l3(`面積小，z${z} 以下以同色光暈標出位置，放大後畫實際範圍`, `Small areas: below z${z} a soft halo of the same colour marks where they are; zoom in for the actual shape`, `面積が小さいため z${z} 未満は同色のぼかし枠で位置を示し、拡大すると実際の範囲を表示`);
+/** 小面光暈畫到哪個縮放（不含）：公園、運動場、墓區中位數約 0.001 km²（約 30 m 見方），z13 起才有幾個像素 */
+const SMALL_AREA_HALO_BELOW = 13;
 const mono = (id: string, color: string, zh: string, en: string, ja: string, radius = 3.5): PhCat[] => [cat(id, [id], color, zh, en, ja, { radius })];
 
 // ─────────── 分類 ───────────
@@ -162,7 +169,8 @@ const IKN_CATS: PhCat[] = [
 const IKN_LAYER_MAP = { delineasi: l3("IKN 範圍", "IKN extent", "IKN 範囲"), rdtr: l3("RDTR 詳細規劃範圍", "RDTR detailed plan area", "RDTR 詳細計画区域"), bwp: l3("BWP 分區", "BWP sub-area", "BWP 区画"), bwp_utara: l3("BWP 北部都會區", "BWP northern urban area", "BWP 北部都市区") };
 const fill = (id: string, layer: string, cat: PhCatGetter, minzoom: number, fillOpacity: number): PhPart => ({ id, sourceLayer: layer, geom: "fill", minzoom, cat, fillOpacity });
 const FACT_CAT = mono("works", "#a78bfa", "工廠、工場（OSM）", "Factory / works (OSM)", "工場（OSM）", 3);
-const CEM_CATS: PhCat[] = [cat("cemetery", ["cemetery", "grave_yard"], "#94a3b8", "墓區範圍（8,052；無個別墓位）", "Cemetery area (8,052; no individual graves)", "墓地の範囲（8,052。個別の墓は含まない）")];
+// 原 #94a3b8 在深色底圖對比不足（2026-11-24 驗收）→ 提亮
+const CEM_CATS: PhCat[] = [cat("cemetery", ["cemetery", "grave_yard"], "#cbd5e1", "墓區範圍（8,052；無個別墓位）", "Cemetery area (8,052; no individual graves)", "墓地の範囲（8,052。個別の墓は含まない）")];
 const CEM_MAP = { cemetery: l3("墓地", "Cemetery", "墓地"), grave_yard: l3("教堂墓地", "Graveyard", "教会墓地") };
 const PARK_CATS: PhCat[] = [cat("park", ["park"], "#22c55e", "公園（9,241）", "Park (9,241)", "公園（9,241）")];
 const AQUA_CATS: PhCat[] = [cat("aquaculture", ["aquaculture"], "#2dd4bf", "養殖池（4,642）", "Aquaculture pond (4,642)", "養殖池（4,642）")];
@@ -287,16 +295,16 @@ export const ID_WAVE5_SPECS: readonly IdLayerSpec[] = [
   // ───────── 第 8–9 波 ─────────
   poi({ key: "idFactories", file: "id_factories.pmtiles", id: "id-factories", pid: "id-factories-circle", layer: "points", minzoom: 6, color: "#a78bfa", count: 3_048, cats: FACT_CAT,
     fallback: l3("工廠、工場", "Factory or works", "工場"), legend: [l3("OSM（非官方），不等於工業登記名冊；3,048 處", "OSM (unofficial), not an industrial register; 3,048 sites", "OSM（非公式）。工業登録名簿ではない。3,048 件")], ...OSM, loadingText: loading("印尼工廠", "Indonesia factories", "インドネシアの工場"), getter: constGetter("works") }),
-  areas({ key: "idSportsVenues", file: "id_sports_venues.pmtiles", id: "id-sports", pid: "id-sports-fill", layer: "areas", minzoom: 8, color: "#34d399", count: 18_785, cats: SPORT_CATS,
+  areas({ haloBelow: SMALL_AREA_HALO_BELOW, key: "idSportsVenues", file: "id_sports_venues.pmtiles", id: "id-sports", pid: "id-sports-fill", layer: "areas", minzoom: 8, color: "#34d399", count: 18_785, cats: SPORT_CATS,
     fallback: l3("運動場地", "Sports venue", "運動施設"), legend: [l3("OSM 面（簡化約 10 m）；放大至 z8 才顯示；非官方", "OSM polygons (simplified ~10 m); shown from z8; unofficial", "OSM の面（約 10 m に簡略化）。z8 以上で表示。非公式")], ...OSM_AREA, loadingText: loading("印尼運動場地", "Indonesia sports venues", "インドネシアの運動施設") }),
-  areas({ key: "idParks", file: "id_parks.pmtiles", id: "id-parks", pid: "id-parks-fill", layer: "areas", minzoom: 7, color: "#22c55e", count: 9_241, cats: PARK_CATS,
+  areas({ haloBelow: SMALL_AREA_HALO_BELOW, key: "idParks", file: "id_parks.pmtiles", id: "id-parks", pid: "id-parks-fill", layer: "areas", minzoom: 7, color: "#22c55e", count: 9_241, cats: PARK_CATS,
     fallback: l3("公園", "Park", "公園"), legend: [l3("OSM 面（非官方）；放大至 z7 才顯示", "OSM polygons (unofficial); shown from z7", "OSM の面（非公式）。z7 以上で表示")], ...OSM_AREA, loadingText: loading("印尼公園", "Indonesia parks", "インドネシアの公園") }),
   {
-    ...areas({ key: "idCemeteries", file: "id_cemeteries.pmtiles", id: "id-cemeteries", pid: "id-cemeteries-fill", layer: "areas", minzoom: 8, color: "#94a3b8", count: 8_052, cats: CEM_CATS, opacity: 0.55,
+    ...areas({ haloBelow: SMALL_AREA_HALO_BELOW, key: "idCemeteries", file: "id_cemeteries.pmtiles", id: "id-cemeteries", pid: "id-cemeteries-fill", layer: "areas", minzoom: 8, color: "#cbd5e1", count: 8_052, cats: CEM_CATS, opacity: 0.55,
       fallback: l3("墓區", "Cemetery", "墓地"), legend: [l3("只有墓區範圍，無個別墓位；OSM（非官方）；放大至 z8 才顯示", "Cemetery areas only, no individual graves; OSM (unofficial); shown from z8", "墓地の範囲のみで個別の墓はない。OSM（非公式）。z8 以上で表示")], ...OSM_AREA, loadingText: loading("印尼墓區", "Indonesia cemeteries", "インドネシアの墓地") }),
     fields: [...nameFields, { prop: "kind", label: l3("類別", "Type", "種別"), map: CEM_MAP }, AREA_FIELD, ...KAB_FIELDS],
   },
-  areas({ nameProps: ["name", "name_en"], key: "idAquaculture", file: "id_aquaculture.pmtiles", id: "id-aquaculture", pid: "id-aquaculture-fill", layer: "areas", minzoom: 6, color: "#2dd4bf", count: 4_642, cats: AQUA_CATS,
+  areas({ haloBelow: 12, nameProps: ["name", "name_en"], key: "idAquaculture", file: "id_aquaculture.pmtiles", id: "id-aquaculture", pid: "id-aquaculture-fill", layer: "areas", minzoom: 6, color: "#2dd4bf", count: 4_642, cats: AQUA_CATS,
     fallback: l3("養殖池", "Aquaculture pond", "養殖池"), legend: [l3("OSM 面（非官方）；4,642 處", "OSM polygons (unofficial); 4,642 sites", "OSM の面（非公式）。4,642 件")], ...OSM_AREA, loadingText: loading("印尼養殖池", "Indonesia aquaculture ponds", "インドネシアの養殖池") }),
   areas({ key: "idFarmland", file: "id_farmland.pmtiles", id: "id-farmland", pid: "id-farmland-fill", layer: "areas", minzoom: 8, color: "#a3e635", count: 95_084, cats: FARM_CATS, opacity: 0.5,
     fallback: l3("農地", "Farmland", "農地"), legend: [l3("OSM 登記的農地，涵蓋不均，非農地普查；放大至 z8 才顯示", "Farmland registered in OSM, uneven coverage, not an agricultural census; shown from z8", "OSM に登録された農地。網羅性にばらつきがあり、農地センサスではない。z8 以上で表示")], ...OSM_AREA, loadingText: loading("印尼農地", "Indonesia farmland", "インドネシアの農地") }),
