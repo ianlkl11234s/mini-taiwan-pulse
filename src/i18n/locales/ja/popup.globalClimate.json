@@ -32,6 +32,7 @@
   "popup.globalClimate.locationSemantics": "位置の意味",
   "popup.globalClimate.collectedAt": "出典の収集時刻",
   "popup.globalClimate.locationSource": "位置情報の出典",
+  "popup.globalClimate.reportSources": "報道元",
   "popup.globalClimate.loc.mention": "ニュースで言及された地理上のおおよその位置。正確な発生地は未確認",
   "popup.globalClimate.loc.headline": "見出しで言及された国・都市のおおよその位置。正確な発生地は未確認",
   "popup.globalClimate.loc.related": "ニュースに関連する国・都市のおおよその位置。正確な発生地は未確認",

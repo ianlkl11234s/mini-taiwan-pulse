@@ -5753,6 +5753,7 @@ export type GeneratedStaticKey =
   | "popup.globalClimate.positionTime"
   | "popup.globalClimate.reason"
   | "popup.globalClimate.region"
+  | "popup.globalClimate.reportSources"
   | "popup.globalClimate.sameCoordVessels"
   | "popup.globalClimate.sarGeom"
   | "popup.globalClimate.sarUnmatched"
