@@ -19,7 +19,8 @@ const BNPB_ORG = (what: string) => l3(`BNPB（原資料 ${what}），存取 2026
 const loading = (zh: string, en: string, ja: string) => l3(`${zh}載入中`, `Loading ${en}`, `${ja}を読み込み中`);
 const nameFields: readonly PhField[] = [{ prop: "name_en", label: l3("英文名稱", "English name", "英語名"), unlessSameAs: "name" }];
 const kindMap = (cats: readonly PhCat[]) => Object.fromEntries(cats.flatMap((c) => c.values.map((v) => [v, plain(c.label)])));
-const AREA_FIELD: PhField = { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 3 };
+/** 面積：kind area 依大小換 km²／公頃／m²，0 當缺值不顯示（原本 digits 3 讓小公園、球場顯示成「0 km²」） */
+const AREA_FIELD: PhField = { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "area" };
 const TITLE_PROPS = ["name", "name_en", "name_id"] as const;
 
 interface PoiOpts {
@@ -275,7 +276,8 @@ export const ID_WAVE5_SPECS: readonly IdLayerSpec[] = [
     extra: {
       title: { props: ["name"], fallback: l3("氣象站", "Weather station", "気象観測所") },
       fields: [
-        { prop: "station_type", label: l3("類型", "Type", "種別") },
+        // 縮寫 ARG／AWS／AAWS 補上白話（與圖例同名）；其他類型照原值
+        { prop: "station_type", label: l3("類型", "Type", "種別"), map: kindMap(WEATHER_CATS) },
         { prop: "status", label: l3("狀態", "Status", "状態"), map: { operasional: l3("營運中", "Operational", "運用中") } },
         { prop: "elevation_m", label: l3("海拔", "Elevation", "標高"), kind: "num", unit: "m", digits: 0 },
         { prop: "installed", label: l3("安裝日期", "Installed", "設置日") },

@@ -35,8 +35,12 @@ export const KAB_FIELDS: readonly PhField[] = [
   { prop: "province_name", label: l3("省", "Province", "州") },
 ];
 /** popup 類別欄用：去掉圖例標籤尾端的筆數括號（例：「公園（9,241）」→「公園」）。 */
+/**
+ * 圖例標籤 → popup 類別名：去掉結尾放筆數或來源的括號（「消防站（OSM，425）」「獸醫院（Overture，763）」「學校（52,856）」→ 消防站／獸醫院／學校）。
+ * 括號內有數字、或以 OSM／Overture 開頭才去掉；「站（station）」這類說明保留。popup 只放這一筆的類別，筆數與來源在圖例／說明・來源。
+ */
 export const plain = (t: L3): L3 => {
-  const cut = (x: string) => x.replace(/\s*[（(][~約]?[\d,]+[^）)]*[）)]$/, "");
+  const cut = (x: string) => x.replace(/\s*[（(](?:[^（()）]*\d[^（()）]*|\s*(?:OSM|Overture)[^（()）]*)[）)]$/, "");
   return { zh: cut(t.zh), en: cut(t.en), ja: cut(t.ja) };
 };
 export const cat = (id: string, values: readonly string[], color: string, zh: string, en: string, ja: string, extra: Partial<PhCat> = {}): PhCat =>
@@ -144,7 +148,7 @@ const FUEL_FIELD_MAP = Object.fromEntries(Object.entries({
   oil: l3("石油", "Oil", "石油"), diesel: l3("柴油", "Diesel", "ディーゼル"), hydro: l3("水力", "Hydro", "水力"), geothermal: l3("地熱", "Geothermal", "地熱"),
   biomass: l3("生質能", "Biomass", "バイオマス"), biogas: l3("沼氣", "Biogas", "バイオガス"), waste: l3("廢棄物發電", "Waste-to-energy", "廃棄物発電"),
 }));
-const PLANT_SOURCE_MAP = { gppd: l3("WRI GPPD 2021 版（STALE）", "WRI GPPD 2021 edition (STALE)", "WRI GPPD 2021 年版（STALE）"), osm: l3("OSM 補缺（非官方）", "OSM gap-fill (unofficial)", "OSM 補完（非公式）") };
+const PLANT_SOURCE_MAP = { gppd: l3("WRI GPPD（2021 年版，之後未更新）", "WRI GPPD (2021 edition, not updated since)", "WRI GPPD（2021 年版、以後更新なし）"), osm: l3("OSM 補缺（非官方）", "OSM gap-fill (unofficial)", "OSM 補完（非公式）") };
 const OSM_HOLLOW = { when: ["==", ["get", "source"], "osm"] as unknown[], js: (p: Record<string, unknown>) => str(p.source) === "osm", label: l3("空心：OSM 補缺（非官方）", "Hollow: OSM gap-fill (unofficial)", "中抜き：OSM 補完（非公式）") };
 
 // 電網：依最大電壓分級
@@ -360,10 +364,11 @@ export const ID_WAVE_SPECS: readonly IdLayerSpec[] = [
       l3("GPPD 2021 版 178＋OSM 補缺 381（空心，非官方）；無容量值者用中等點、不補 0", "178 from GPPD (2021 edition) + 381 OSM gap-fill (hollow, unofficial); plants without capacity use a mid-size dot, not zero", "GPPD 2021 年版 178＋OSM 補完 381（中抜き、非公式）。容量不明は中サイズの点（0 にしない）"),
       l3("容量級距：圓圈大小", "Capacity bands shown as circle size", "容量区分は円の大きさ"),
     ],
-    popupNotes: [{ text: l3("GPPD 2021 版（STALE）", "GPPD 2021 edition (STALE)", "GPPD 2021 年版（STALE）"), when: (p) => p.stale === true || str(p.stale) === "true" }, NEAREST],
+    // 「資料來源」列已逐筆寫明 GPPD 2021 年版，不再另掛同義備註（原本兩列重複且露出英文 STALE）
+    popupNotes: [NEAREST],
     sourceOrg: l3("World Resources Institute Global Power Plant Database v1.3.0（2021）；© OpenStreetMap contributors（ODbL），via Overture", "World Resources Institute Global Power Plant Database v1.3.0 (2021); © OpenStreetMap contributors (ODbL), via Overture", "World Resources Institute Global Power Plant Database v1.3.0（2021）。© OpenStreetMap contributors（ODbL）、Overture 経由"),
     sourceUrl: "https://datasets.wri.org/dataset/globalpowerplantdatabase", license: l3("逐列：GPPD CC BY 4.0／OSM ODbL 1.0", "Per record: GPPD CC BY 4.0 / OSM ODbL 1.0", "レコード別：GPPD CC BY 4.0／OSM ODbL 1.0"), fetchedAt: ID_FETCHED_AT,
-    sourceNotes: [l3("GPPD 為 2021 版（STALE）；GEM 追蹤器需填表單，未使用", "GPPD is the 2021 edition (STALE); the GEM tracker needs a form and was not used", "GPPD は 2021 年版（STALE）。GEM トラッカーはフォーム入力が必要で未使用")],
+    sourceNotes: [l3("GPPD 為 2021 年版，之後未更新；GEM 追蹤器需填表單，未使用", "GPPD is the 2021 edition and has not been updated since; the GEM tracker needs a form and was not used", "GPPD は 2021 年版で以後更新なし。GEM トラッカーはフォーム入力が必要で未使用")],
     loading: l3("印尼電廠載入中", "Loading Indonesia power plants", "インドネシアの発電所を読み込み中"),
   },
   {
@@ -465,9 +470,10 @@ export const ID_WAVE_SPECS: readonly IdLayerSpec[] = [
     cats: [cat("island", ["island"], "#38bdf8", "外圍小島（Keppres 6/2017，只畫島點）", "Outer small island (Keppres 6/2017; island points only)", "外縁小島（Keppres 6/2017、島の点のみ）", { radius: 4.5 })],
     title: { props: ["name"], fallback: l3("外圍小島", "Outer small island", "外縁小島") },
     fields: [
-      { prop: "kabkota_big", label: l3("所屬縣（BIG 屬性）", "Regency (BIG attribute)", "所属県（BIG 属性）") },
-      { prop: "province_big", label: l3("所屬省（BIG 屬性）", "Province (BIG attribute)", "所属州（BIG 属性）") },
-      { prop: "remark", label: l3("備註（有無居民，原文）", "Remark (inhabited or not, original)", "備考（居住の有無、原文）") },
+      // BIG 屬性值帶行政代碼前綴（「.01  Cilacap」「33 Jawa Tengah」）：顯示時去掉；資料端也該清（見 PR 說明）
+      { prop: "kabkota_big", label: l3("所屬縣（BIG 登記）", "Regency (BIG record)", "所属県（BIG 登録）"), stripCodePrefix: true },
+      { prop: "province_big", label: l3("所屬省（BIG 登記）", "Province (BIG record)", "所属州（BIG 登録）"), stripCodePrefix: true },
+      { prop: "remark", label: l3("備註（印尼文原文）", "Remark (Indonesian original)", "備考（インドネシア語原文）") },
     ],
     legendNotes: [l3("只畫島點，不畫任何海上主張線；111 處", "Island points only, no maritime claim lines; 111 islands", "島の点のみで海上の主張線は描かない。111 島")],
     popupNotes: [], sourceOrg: l3("Badan Informasi Geospasial（BIG）PPKT 外圍小島 2024，存取 2026-11-23", "Badan Informasi Geospasial (BIG), PPKT outer small islands 2024, accessed 2026-11-23", "Badan Informasi Geospasial（BIG）PPKT 外縁小島 2024、2026-11-23 取得"),
@@ -619,14 +625,16 @@ export const ID_WAVE_SPECS: readonly IdLayerSpec[] = [
     title: { props: [], fallback: l3("保護與保育林分區", "Protection / conservation forest zone", "保護林・保全林区分") },
     fields: [
       { prop: "function_en", label: l3("功能分區", "Function", "機能区分"), map: FOREST_FN_MAP },
-      { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 },
+      // 來源的 kh_shapekm 有約四成是 0（缺值）：kind area 把 0 當缺值不顯示；資料端改由幾何重算（見 PR 說明）
+      { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "area" },
       ...KAB_FIELDS,
     ],
-    popupNotes: [{ text: l3("舊版資料（STALE）", "Legacy data (STALE)", "旧版データ（STALE）"), when: (p) => p.stale === true || str(p.stale) === "true" }, NEAREST],
-    legendNotes: [l3("舊版（STALE）：只有保護、保育類，無生產林；z7 以下只畫外框", "Legacy (STALE): protection and conservation classes only, no production forest; outlines only below z7", "旧版（STALE）：保護・保全区分のみで生産林なし。z7 未満は外枠のみ")],
+    // 每筆都是舊版資料（stale 全為 true）→ 只寫在圖例與說明・來源，popup 不重複
+    popupNotes: [NEAREST],
+    legendNotes: [l3("舊版資料（年份未標，之後未更新）：只有保護、保育類，無生產林；z7 以下只畫外框", "Legacy data (year not stated, not updated): protection and conservation classes only, no production forest; outlines only below z7", "旧版データ（年不明・更新なし）：保護・保全区分のみで生産林なし。z7 未満は外枠のみ")],
     sourceOrg: l3("BNPB（原資料 WRI／Global Forest Watch 舊版），存取 2026-11-23", "BNPB (original data WRI / Global Forest Watch, legacy), accessed 2026-11-23", "BNPB（原データ WRI／Global Forest Watch 旧版）、2026-11-23 取得"),
     sourceUrl: "https://data.globalforestwatch.org/", license: UNSTATED, fetchedAt: ID_FETCHED_AT,
-    sourceNotes: [l3("舊版資料（年份未標，STALE）；服務描述稱限 Kalimantan，實測涵蓋 38/38 省，以實測為準", "Legacy data (year not stated, STALE); the service description says Kalimantan only but 38/38 provinces were measured", "旧版データ（年不明、STALE）。サービス説明は Kalimantan 限定だが実測では 38/38 州")],
+    sourceNotes: [l3("舊版資料（年份未標，之後未更新）；服務描述稱限 Kalimantan，實測涵蓋 38/38 省，以實測為準", "Legacy data (year not stated, not updated); the service description says Kalimantan only but 38/38 provinces were measured", "旧版データ（年不明・更新なし）。サービス説明は Kalimantan 限定だが実測では 38/38 州")],
     loading: l3("印尼保育林載入中", "Loading Indonesia conservation forest", "インドネシアの保全林を読み込み中"),
   },
   {

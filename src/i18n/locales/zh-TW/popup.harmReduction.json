@@ -58,7 +58,6 @@
   "popup.harmReduction.mainCause": "主要肇因",
   "popup.harmReduction.duiBasis": "酒駕判定",
   "popup.harmReduction.duiParties": "酒駕當事者",
-  "popup.harmReduction.policeCoords": "警方事故紀錄座標",
   "popup.harmReduction.persons_one": "{count} 人",
   "popup.harmReduction.persons_other": "{count} 人",
   "popup.harmReduction.deaths_one": "死亡 {count}",

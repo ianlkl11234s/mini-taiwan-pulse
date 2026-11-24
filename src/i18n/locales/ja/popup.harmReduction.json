@@ -58,7 +58,6 @@
   "popup.harmReduction.mainCause": "主な原因",
   "popup.harmReduction.duiBasis": "飲酒運転の判定",
   "popup.harmReduction.duiParties": "飲酒運転の当事者",
-  "popup.harmReduction.policeCoords": "警察の事故記録の座標",
   "popup.harmReduction.persons_one": "{count}人",
   "popup.harmReduction.persons_other": "{count}人",
   "popup.harmReduction.deaths_one": "死亡 {count}",

@@ -5870,7 +5870,6 @@ export type GeneratedStaticKey =
   | "popup.harmReduction.persons"
   | "popup.harmReduction.pharmacyScope"
   | "popup.harmReduction.pharmacyTitle"
-  | "popup.harmReduction.policeCoords"
   | "popup.harmReduction.prepFunding"
   | "popup.harmReduction.prepTitle"
   | "popup.harmReduction.preventionTitle"
