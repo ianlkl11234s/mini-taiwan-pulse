@@ -746,11 +746,12 @@ export function MapchallengeDay23TasteVariantsLegend({ isDark, groupIdx, scale }
   </div>;
 }
 
-export function MapchallengeDay23TastePlacesLegend({ isDark }: { isDark: boolean }) {
+/** scale：embed 由網址帶入；主站不傳，讀大小滑桿（LG-5）。 */
+export function MapchallengeDay23TastePlacesLegend({ isDark, scale }: { isDark: boolean; scale?: number }) {
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TastePlaces");
   const place = mapchallengeDay23PlaceById(paramStr(values, "mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesSign")) ?? MAPCHALLENGE_DAY23_PLACES[0];
-  const sizeScale = paramNum(values, "mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesScale");
+  const sizeScale = scale ?? paramNum(values, "mapchallengeDay23TastePlaces", "mapchallengeDay23TastePlacesScale");
   const color = mapchallengeDay23TermColor(place, isDark);
   const home = t(MAPCHALLENGE_DAY23_HOME_KEYS[place.value]);
   return <div>
@@ -770,11 +771,11 @@ export function MapchallengeDay23TastePlacesLegend({ isDark }: { isDark: boolean
   </div>;
 }
 
-export function MapchallengeDay23TasteForeignLegend({ isDark }: { isDark: boolean }) {
+export function MapchallengeDay23TasteForeignLegend({ isDark, scale }: { isDark: boolean; scale?: number }) {
   const { t, formatNumber } = useLocale();
   const values = useLayerParams("mapchallengeDay23TasteForeign");
   const group = mapchallengeDay23ForeignById(paramStr(values, "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignGroup")) ?? MAPCHALLENGE_DAY23_FOREIGN[0];
-  const sizeScale = paramNum(values, "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignScale");
+  const sizeScale = scale ?? paramNum(values, "mapchallengeDay23TasteForeign", "mapchallengeDay23TasteForeignScale");
   const color = mapchallengeDay23TermColor(group, isDark);
   const dominant = MAPCHALLENGE_DAY23_FOREIGN_DOMINANT[group.value];
   return <div>

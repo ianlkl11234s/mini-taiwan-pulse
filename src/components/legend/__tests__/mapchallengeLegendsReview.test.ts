@@ -46,6 +46,12 @@ describe("K3 大小圖例跟著大小滑桿縮放（map-layers LG-5）", () => {
     const html = renderToStaticMarkup(createElement(MapchallengeDay23TasteForeignLegend, { isDark: true }));
     expect(html).toContain(w(mapchallengeDay23Radius(50, 2, MAPCHALLENGE_DAY23_FOREIGN[0]!.k)));
   });
+  it("Day 23 地名／外來料理：embed 傳入 scale 優先", () => {
+    const a = renderToStaticMarkup(createElement(MapchallengeDay23TastePlacesLegend, { isDark: true, scale: 1.5 }));
+    expect(a).toContain(w(mapchallengeDay23Radius(8, 1.5)));
+    const b = renderToStaticMarkup(createElement(MapchallengeDay23TasteForeignLegend, { isDark: true, scale: 1.5 }));
+    expect(b).toContain(w(mapchallengeDay23Radius(50, 1.5, MAPCHALLENGE_DAY23_FOREIGN[0]!.k)));
+  });
   it("Day 19 裁罰（同類問題）", () => {
     layerParamsStore.setParam("mapchallengeDay19Penalties", "mapchallengeDay19PenaltiesScale", 2);
     const html = renderToStaticMarkup(createElement(MapchallengeDay19PenaltiesLegend, { isDark: true }));
