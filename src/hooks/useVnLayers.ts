@@ -5,7 +5,7 @@ import { BOUNDARY_GRAY, LABEL, MAP_SEAM, labelHaloPaint } from "../map/mapStyleS
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { VN_ADMIN_COLOR, VN_DENSITY_BREAKS, VN_NOT_COVERED_COLOR, phText } from "../data/vnDataLayers";
-import { useGbPmtilesLayers, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
+import { useGbPmtilesLayers, type PrivatePmtilesSource, type SourceSpec } from "./intlPmtilesLayers";
 import type { VnRasterSpec } from "../data/vnWavesLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
 

@@ -8,7 +8,7 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
-import { repPointSpecFor, useGbRepPointLayers, type GbDisplayMode } from "./useGbWaterLayers";
+import { repPointSpecFor, useGbRepPointLayers, type GbDisplayMode } from "./intlPmtilesLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-national-forests";

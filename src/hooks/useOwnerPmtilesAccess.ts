@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabase";
 import { cachedAccessProbe, isDefinitiveAccessStatus } from "../lib/accessProbeCache";
 import { withLoading } from "../lib/loadingRegistry";
 import { OWNER_DATA_ENDPOINT, type OwnerDataAssetName } from "../data/ownerDataAssets";
-import type { PrivatePmtilesSource } from "./useGbWaterLayers";
+import type { PrivatePmtilesSource } from "./intlPmtilesLayers";
 
 /**
  * 站主限定 PMTiles（owner-data 家族）的存取判斷：同源 `/api/private-research/owner-data/<asset>`，

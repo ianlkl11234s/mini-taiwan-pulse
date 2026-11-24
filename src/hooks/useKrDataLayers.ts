@@ -4,7 +4,7 @@ import { LINE_WIDTH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStro
 import { paramDefault } from "../data/layerParamsSpec";
 import { KR_CONGESTION_BREAKS, krRampColors, krSpecCatFilter, type KrLayerSpec } from "../data/krDataLayers";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
-import { gbHeatmapBuild, repPointSpecFor, useGbPmtilesLayers, useGbRepPointLayers, type GbRepPointsSpec, type LayerBuild, type PrivatePmtilesSource, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, repPointSpecFor, useGbPmtilesLayers, useGbRepPointLayers, type GbRepPointsSpec, type LayerBuild, type PrivatePmtilesSource, type SourceSpec } from "./intlPmtilesLayers";
 import { repPointLayer, repPointModeFromIdx } from "../data/repPointLayers";
 
 /**

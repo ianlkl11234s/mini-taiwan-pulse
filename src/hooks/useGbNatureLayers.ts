@@ -12,9 +12,7 @@ import {
 } from "../data/gbNatureTypes";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
 import { heatmapMaxzoom } from "../map/mapStyleScale";
-import {
-  GB_THINNED_POINTS_WEIGHT_TO_Z12, gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec,
-} from "./useGbWaterLayers";
+import { GB_THINNED_POINTS_WEIGHT_TO_Z12, gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./intlPmtilesLayers";
 
 /**
  * 英國第 5 波自然與林業 7 層：保護區、海洋保護區（面）、林地（面）、森林遊憩（點）、步道（線）、開放進入地（面）、
