@@ -259,6 +259,8 @@ export function useGlobalEventsLayer(
   /** eventId → 可能同一件事的其他 eventId；feed() 每次重算，applyPaint 讀它做點選加亮。 */
   const storyNeighboursRef = useRef(new Map<string, Set<string>>());
   const expandedGroupsRef = useRef(new Set<string>());
+  /** 精簡 RPC 在伺服器端藏掉的雜訊候選數（走舊 RPC 時為 0，雜訊在前端過濾並自己計數）。 */
+  const serverNoiseRef = useRef(0);
   /** 同一批事件只算一次「可能同一件事」（7 天全量約 0.7 秒）；展開群聚、pulse 轉場不重算。 */
   const storyCacheRef = useRef<{ key: string; story: ReturnType<typeof globalEventStoryLinks> } | null>(null);
   const fedFeaturesRef = useRef<Map<string, { properties: Record<string, unknown>; coords: [number, number] }>>(new Map());
@@ -407,7 +409,7 @@ export function useGlobalEventsLayer(
       const located = entries.filter((entry): entry is GlobalEventPoint => entry.coordinates !== null && !entry.mapSuppressed);
       // 站主 11-23（D4）：地圖預設不畫 AI 判為雜訊的報導；INTEL 列表不受影響（它讀自己的 feed store）。
       const events = showNoise ? located : located.filter((entry) => entry.decision !== "drop_noise");
-      const noiseHidden = new Set(located.filter((entry) => entry.decision === "drop_noise").map((entry) => entry.eventId)).size;
+      const noiseHidden = new Set(located.filter((entry) => entry.decision === "drop_noise").map((entry) => entry.eventId)).size + serverNoiseRef.current;
       if (showNoise ? globalEventsViewStore.getSnapshot().noiseHidden !== 0 : globalEventsViewStore.getSnapshot().noiseHidden !== noiseHidden) {
         globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), noiseHidden: showNoise ? 0 : noiseHidden });
       }
@@ -469,7 +471,15 @@ export function useGlobalEventsLayer(
       }
       Promise.allSettled([
         current ? fetchGlobalEventsCurrent() : fetchGlobalEventsWindow(bounds.start, bounds.end),
-        includeAI ? fetchGlobalEventCandidatesWindow(bounds.start, bounds.end, candidateAbort.signal) : Promise.resolve({ rows: [], totalCandidates: 0, partial: false, continuation: null }),
+        includeAI ? fetchGlobalEventCandidatesWindow(bounds.start, bounds.end, candidateAbort.signal, {
+          includeNoise: showNoise,
+          // 7 天約 3,400 件分 7 頁：每頁回來就更新圖例狀態列，讓使用者看得到進度。
+          onProgress: ({ loadedCandidates, totalCandidates }) => {
+            if (cancelled || request !== requestRef.current || totalCandidates <= loadedCandidates) return;
+            globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), status: "loading",
+              message: `AI 初判載入中 ${loadedCandidates.toLocaleString()}/${totalCandidates.toLocaleString()} 件…` });
+          },
+        }) : Promise.resolve({ rows: [], totalCandidates: 0, partial: false, continuation: null, noiseCandidates: null }),
       ]).then(([published, candidates]) => {
         if (cancelled || request !== requestRef.current) return;
         const errors = [published, candidates].filter((result) => result.status === "rejected");
@@ -487,6 +497,7 @@ export function useGlobalEventsLayer(
         }
         // 候選（AI 初判）獨立失敗時保留舊 candidatesRef，不用空陣列覆蓋。
         candidatesRef.current = candidates.status === "fulfilled" ? candidates.value.rows : candidatesRef.current;
+        if (candidates.status === "fulfilled") serverNoiseRef.current = showNoise ? 0 : candidates.value.noiseCandidates ?? 0;
         globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), status, message });
         acceptRows(published.value, `${bounds.start}/${bounds.end}`, transitionFromTime);
       });
