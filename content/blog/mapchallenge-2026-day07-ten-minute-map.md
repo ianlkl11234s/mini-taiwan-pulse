@@ -1,5 +1,5 @@
 ---
-title: 離捷運越近房價越貴嗎？用 AI 十分鐘做臺北高雄房價地圖
+title: Day 7 - 離捷運越近房價越貴嗎？用 AI 十分鐘做臺北高雄房價地圖
 description: 30 天地圖挑戰 Day 7：讓 AI 直接操作 Pulse 地圖，比較臺北、高雄房價與捷運站距離。臺北 300 公尺內每坪中位數 83.0 萬、1,200 公尺外 56.8 萬，高雄看不出關係。全程 11 分 39 秒。
 slug: mapchallenge-2026-day07-ten-minute-map
 topic: making

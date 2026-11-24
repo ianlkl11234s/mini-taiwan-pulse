@@ -220,24 +220,106 @@ export function parseGlobalEventCandidate(row: JsonObject): GlobalEventCandidate
   };
 }
 
-export interface GlobalEventCandidateWindow { rows: GlobalEventCandidate[]; totalCandidates: number; partial: boolean; continuation: { afterCandidateId: string; loadedPages: number; loadedRows: number; loadedCandidates: number } | null }
+export interface GlobalEventCandidateWindow {
+  rows: GlobalEventCandidate[]; totalCandidates: number; partial: boolean;
+  continuation: { afterCandidateId: string; loadedPages: number; loadedRows: number; loadedCandidates: number } | null;
+  /** 地圖用精簡 RPC（567）在伺服器端藏掉的雜訊候選數；走舊 RPC 時為 null（雜訊照舊在前端過濾）。 */
+  noiseCandidates?: number | null;
+}
+export interface GlobalEventCandidateWindowOptions {
+  includeNoise?: boolean;
+  onProgress?: (progress: { loadedCandidates: number; totalCandidates: number }) => void;
+}
 const CANDIDATE_PAGE_SIZE = 200;
 const CANDIDATE_PAGE_BUDGET = 5;
 // The RPC limits candidates per page; each candidate expands to one row per observation × place,
 // so pages legitimately carry more rows than candidates. Budgets and guards count candidates.
 const CANDIDATE_BUDGET = CANDIDATE_PAGE_SIZE * CANDIDATE_PAGE_BUDGET;
-async function fetchGlobalEventCandidatesWindowUncached(cacheKey: string, signal?: AbortSignal): Promise<GlobalEventCandidateWindow> {
+// 地圖用精簡 RPC（gis-platform 567）：每頁 500 件約 0.1 秒、0.75 MB；7 天不含雜訊約 3,400 件＝7 頁。
+// 31 天視窗也要能載完，預算放到 40 頁（2 萬件）。
+const MAP_PAGE_SIZE = 500;
+const MAP_PAGE_BUDGET = 40;
+const MAP_RPC = "get_global_event_candidates_map_window";
+/** 567 還沒套用時，PostgREST 回「找不到函式」：這次瀏覽改走舊 RPC，不再重試。 */
+let mapRpcUnavailable = false;
+/** 測試用：重設探測結果（unavailable=true 模擬 567 未套用，直接走舊 RPC）。 */
+export function resetGlobalEventMapRpcProbe(unavailable = false): void { mapRpcUnavailable = unavailable; }
+function isMissingFunction(error: { code?: string; message?: string } | null): boolean {
+  return !!error && error.code === "PGRST202";
+}
+function abortIfNeeded(signal?: AbortSignal): void {
+  if (signal?.aborted) throw signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
+}
+
+/** 把 567 的「每版本一物件＋places 陣列」攤回舊 RPC 的每地點一列，沿用 parseGlobalEventCandidate。 */
+export function expandGlobalEventMapRow(version: JsonObject): JsonObject[] {
+  const { places, version_id: versionId, ...rest } = version;
+  const base: JsonObject = { ...rest, observation_sha256: versionId, display_from: rest.available_at,
+    research_status: rest.research_status ?? "ai_assessed" };
+  const list = Array.isArray(places) ? places.filter((place): place is JsonObject => !!place && typeof place === "object" && !Array.isArray(place)) : [];
+  if (!list.length) return [{ ...base, place_key: "unknown", location_kind: "unknown", geometry: null }];
+  return list.map((place) => ({
+    ...base, place_key: place.k ?? "unknown", name: place.n ?? null, country_code: place.cc ?? null,
+    country_code_scheme: place.s ?? null, location_kind: place.lk ?? "unknown", source_kind: place.sk ?? null,
+    evidence_url: place.u ?? null,
+    geometry: Array.isArray(place.xy) && place.xy.length === 2 ? { type: "Point", coordinates: place.xy } : null,
+  }));
+}
+
+async function fetchMapWindow(windowStart: string, windowEnd: string, cacheKey: string, options: GlobalEventCandidateWindowOptions, signal?: AbortSignal): Promise<GlobalEventCandidateWindow | null> {
+  const rows: GlobalEventCandidate[] = [];
+  let after: string | null = null;
+  let totalCandidates = 0;
+  let noiseCandidates = 0;
+  let loadedPages = 0;
+  let loadedCandidates = 0;
+  for (;;) {
+    abortIfNeeded(signal);
+    const query = supabase.rpc(MAP_RPC, { p_window_start: windowStart, p_window_end: windowEnd, p_limit_candidates: MAP_PAGE_SIZE,
+      p_after_candidate_id: after, p_include_noise: options.includeNoise === true });
+    const { data, error } = await withLoading(`global-events:candidates-map:${cacheKey}:${after ?? "first"}`, "全球情勢 AI 初判", signal ? query.abortSignal(signal) : query);
+    if (error && loadedPages === 0 && isMissingFunction(error)) { mapRpcUnavailable = true; return null; }
+    if (error) throw new Error(`Supabase ${MAP_RPC}: ${error.message}`);
+    if (!data || typeof data !== "object" || Array.isArray(data) || (data as JsonObject).format !== "map-v1" || !Array.isArray((data as JsonObject).rows)) {
+      throw new Error("Global Events map candidate envelope is invalid");
+    }
+    const envelope = data as JsonObject;
+    const page = envelope.rows as JsonObject[];
+    const pageCandidates = new Set(page.map((row) => String(row.candidate_id ?? ""))).size;
+    if (pageCandidates > MAP_PAGE_SIZE) throw new Error("Global Events candidate page exceeds configured candidate limit");
+    rows.push(...page.flatMap(expandGlobalEventMapRow).map(parseGlobalEventCandidate));
+    loadedPages += 1;
+    loadedCandidates += pageCandidates;
+    totalCandidates = Math.max(totalCandidates, Number(envelope.total_candidates ?? 0));
+    noiseCandidates = Math.max(noiseCandidates, Number(envelope.noise_candidates ?? 0));
+    options.onProgress?.({ loadedCandidates, totalCandidates });
+    if (envelope.has_more !== true) return { rows, totalCandidates, partial: false, continuation: null, noiseCandidates };
+    const next = nullableString(envelope.next_after_candidate_id);
+    if (!next || (after !== null && next <= after)) throw new Error("Global Events candidate pagination did not advance");
+    abortIfNeeded(signal);
+    if (loadedPages >= MAP_PAGE_BUDGET) return { rows, totalCandidates, partial: true, noiseCandidates,
+      continuation: { afterCandidateId: next, loadedPages, loadedRows: rows.length, loadedCandidates } };
+    after = next;
+  }
+}
+
+async function fetchGlobalEventCandidatesWindowUncached(cacheKey: string, signal?: AbortSignal, options: GlobalEventCandidateWindowOptions = {}): Promise<GlobalEventCandidateWindow> {
   if (!supabaseConfigured) throw new Error("Global Events Supabase is not configured");
   const [windowStart, requestedEnd] = cacheKey.split("|");
   const windowEnd = new Date(Math.min(Date.parse(requestedEnd ?? ""), Date.now())).toISOString();
   if (!windowStart || Date.parse(windowStart) >= Date.parse(windowEnd)) return { rows: [], totalCandidates: 0, partial: false, continuation: null };
+  if (!mapRpcUnavailable) {
+    const lean = await fetchMapWindow(windowStart, windowEnd, cacheKey, options, signal);
+    if (lean) return lean;
+  }
+  // 退回現行行為（567 未套用）：舊 RPC、每頁 200 件、5 頁預算；雜訊照舊在前端過濾。
   const rows: GlobalEventCandidate[] = [];
   let after: string | null = null;
   let totalCandidates = 0;
   let loadedPages = 0;
   let loadedCandidates = 0;
   for (;;) {
-    if (signal?.aborted) throw signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
+    abortIfNeeded(signal);
     const query = supabase.rpc("get_global_event_candidates_window", { p_window_start: windowStart, p_window_end: windowEnd, p_limit_candidates: CANDIDATE_PAGE_SIZE, p_after_candidate_id: after });
     const { data, error } = await withLoading(`global-events:candidates:${cacheKey}:${after ?? "first"}`, "全球情勢 AI 初判", signal ? query.abortSignal(signal) : query);
     if (error) throw new Error(`Supabase get_global_event_candidates_window: ${error.message}`);
@@ -252,20 +334,23 @@ async function fetchGlobalEventCandidatesWindowUncached(cacheKey: string, signal
     loadedPages += 1;
     loadedCandidates += pageCandidates;
     totalCandidates = Math.max(totalCandidates, Number(envelope.total_candidates ?? 0));
-    if (envelope.has_more !== true) return { rows, totalCandidates, partial: false, continuation: null };
+    options.onProgress?.({ loadedCandidates, totalCandidates });
+    if (envelope.has_more !== true) return { rows, totalCandidates, partial: false, continuation: null, noiseCandidates: null };
     const next = nullableString(envelope.next_after_candidate_id);
     if (!next || (after !== null && next <= after)) throw new Error("Global Events candidate pagination did not advance");
-    if (signal?.aborted) throw signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
-    if (loadedPages >= CANDIDATE_PAGE_BUDGET || loadedCandidates >= CANDIDATE_BUDGET) return { rows, totalCandidates, partial: true, continuation: { afterCandidateId: next, loadedPages, loadedRows: rows.length, loadedCandidates } };
+    abortIfNeeded(signal);
+    if (loadedPages >= CANDIDATE_PAGE_BUDGET || loadedCandidates >= CANDIDATE_BUDGET) return { rows, totalCandidates, partial: true, noiseCandidates: null, continuation: { afterCandidateId: next, loadedPages, loadedRows: rows.length, loadedCandidates } };
     after = next;
   }
 }
-const candidateWindowCached = cachedByKey(fetchGlobalEventCandidatesWindowUncached, 5 * 60_000, 8);
-export function fetchGlobalEventCandidatesWindow(start: string, end: string, signal?: AbortSignal): Promise<GlobalEventCandidateWindow> {
+const candidateWindowCached = cachedByKey((key: string) => {
+  const [start, end, noise] = key.split("|");
+  return fetchGlobalEventCandidatesWindowUncached(`${start}|${end}`, undefined, { includeNoise: noise === "1" });
+}, 5 * 60_000, 8);
+export function fetchGlobalEventCandidatesWindow(start: string, end: string, signal?: AbortSignal, options: GlobalEventCandidateWindowOptions = {}): Promise<GlobalEventCandidateWindow> {
   const key = `${start}|${end}`;
-  return signal ? fetchGlobalEventCandidatesWindowUncached(key, signal) : candidateWindowCached(key);
+  return signal ? fetchGlobalEventCandidatesWindowUncached(key, signal, options) : candidateWindowCached(`${key}|${options.includeNoise ? 1 : 0}`);
 }
-
 export function selectGlobalSituationEntries(
   published: readonly GlobalEventRecord[], candidates: readonly GlobalEventCandidate[], asOfSeconds: number,
 ): GlobalSituationEntry[] {
