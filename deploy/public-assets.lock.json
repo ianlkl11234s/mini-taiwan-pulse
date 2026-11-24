@@ -9959,8 +9959,8 @@
   },
   {
    "path": "public/world/us_oil_gas.pmtiles",
-   "bytes": 19812084,
-   "sha256": "85a3363ef912e982160c1b83853f3b04545a02c585684456bdaea07720fa0130",
+   "bytes": 19804327,
+   "sha256": "e9e45547333d99e2bb02589e7753bc15b6a79a37d5d365da1ca2c0eb4c828a87",
    "delivery": "r2",
    "s3_key": "deploy-assets/world/us_oil_gas.pmtiles"
   },
