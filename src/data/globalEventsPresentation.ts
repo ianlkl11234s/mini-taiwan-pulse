@@ -175,7 +175,7 @@ export const GLOBAL_EVENT_STORY_LINK = {
   nameWeak: 2,
   nameWeakTitleMin: 0.2,
   /** Bigrams shared by more events than this carry no story identity (常見詞、套版字). */
-  maxBigramEvents: 60,
+  maxBigramEvents: 60, maxSummaryGramEvents: 20,
   /** 每件最多畫幾條虛線（大型事件會有上百則報導，全部畫會糊成一片；清單與加亮仍包含全部） */
   maxLinesPerEvent: 3,
   /** 共同人物／組織：同一個名字出現在超過這麼多件就不算（大人物會黏住幾百件） */
@@ -298,16 +298,21 @@ export function globalEventStoryLinks(rows: readonly GlobalEventPoint[]): Global
     if (ids.length < 2 || ids.length > L.maxBigramEvents) continue;
     for (let x = 0; x < ids.length; x++) for (let y = x + 1; y < ids.length; y++) addPair(ids[x]!, ids[y]!);
   }
-  // 同國：依時間排序的 48 小時滑動視窗。
-  const byCountry = new Map<string, number[]>();
-  list.forEach((story, i) => { for (const country of story.countries) { const ids = byCountry.get(country) ?? []; ids.push(i); byCountry.set(country, ids); } });
-  for (const ids of byCountry.values()) {
-    ids.sort((x, y) => list[x]!.time - list[y]!.time);
-    for (let x = 0; x < ids.length; x++) for (let y = x + 1; y < ids.length; y++) {
-      if (list[ids[y]!]!.time - list[ids[x]!]!.time > L.maxHours * 3_600_000) break;
-      addPair(ids[x]!, ids[y]!);
+  // 同國：不再兩兩比對 48 小時內的所有報導（7 天約 3,400 件時是數十萬對、主執行緒卡 1–2 秒），
+  // 改用「摘要雙字詞」與「專有名詞」倒排索引找候選對；摘要相近或共同名詞≥2 的兩則一定共享其中一些詞，
+  // 只略過出現在太多報導裡的常見詞。同國、48 小時、同類等條件仍在下面逐對判斷。
+  const addIndexed = (keysOf: (story: Story) => Iterable<string>, maxEvents: number) => {
+    const inverted = new Map<string, number[]>();
+    list.forEach((story, i) => { for (const key of keysOf(story)) { const ids = inverted.get(key) ?? []; ids.push(i); inverted.set(key, ids); } });
+    for (const ids of inverted.values()) {
+      if (ids.length < 2 || ids.length > maxEvents) continue;
+      for (let x = 0; x < ids.length; x++) for (let y = x + 1; y < ids.length; y++) {
+        if (Math.abs(list[ids[x]!]!.time - list[ids[y]!]!.time) <= L.maxHours * 3_600_000) addPair(ids[x]!, ids[y]!);
+      }
     }
-  }
+  };
+  addIndexed((story) => story.summary, L.maxSummaryGramEvents);
+  addIndexed((story) => story.names, L.maxBigramEvents);
   // 共同人物／組織：名字出現在 2～maxEntityEvents 件之間才算。
   const entityIndex = new Map<string, number[]>();
   list.forEach((story, i) => { for (const key of story.entities) { const ids = entityIndex.get(key) ?? []; ids.push(i); entityIndex.set(key, ids); } });
