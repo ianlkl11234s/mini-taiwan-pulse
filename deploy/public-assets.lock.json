@@ -3802,11 +3802,25 @@
    "s3_key": "deploy-assets/geo/fireworks_sites_7070_v2.pmtiles"
   },
   {
+   "path": "public/geo/freeway_eco_friendly_facilities_20261124.pmtiles",
+   "bytes": 30056,
+   "sha256": "ef024a7f8cbc5abdac69810ffc40cdf491a86452dd95e3949e2ff82fdd22551b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/freeway_eco_friendly_facilities_20261124.pmtiles"
+  },
+  {
    "path": "public/geo/freeway_eco_sensitive_sections.geojson",
    "bytes": 1014416,
    "sha256": "00e68a9e825831267c36e5b500c06fb160964898336066dc1ef4946f1ecfdff4",
    "delivery": "r2",
    "s3_key": "deploy-assets/geo/freeway_eco_sensitive_sections.geojson"
+  },
+  {
+   "path": "public/geo/freeway_eco_survey_flora_20261124.pmtiles",
+   "bytes": 3771182,
+   "sha256": "33c72f80b3e88931733470824855df07070701d8c8e9e6b0f19e0df742fbc88a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/freeway_eco_survey_flora_20261124.pmtiles"
   },
   {
    "path": "public/geo/freeway_hundred_meter_stakes_95016.pmtiles",
@@ -3821,6 +3835,27 @@
    "sha256": "f59e25f609e0b6aedc107fc16a19e3edba5c3c6f00e8ee732757f7ca9be1fdbe",
    "delivery": "r2",
    "s3_key": "deploy-assets/geo/freeway_interchanges.geojson"
+  },
+  {
+   "path": "public/geo/freeway_roadkill_records_20261124.pmtiles",
+   "bytes": 12529941,
+   "sha256": "36529c602e60072849d66e1257f4edf42ab18f236643f1801dc517a8b2910dc3",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/freeway_roadkill_records_20261124.pmtiles"
+  },
+  {
+   "path": "public/geo/freeway_roadside_devices_20261124.pmtiles",
+   "bytes": 2248230,
+   "sha256": "674be034346e20e2feefaa5631fb4c4306cc7b48b7c6c55228cf35be02798b90",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/freeway_roadside_devices_20261124.pmtiles"
+  },
+  {
+   "path": "public/geo/freeway_special_sections_20261124.pmtiles",
+   "bytes": 284999,
+   "sha256": "86f9d58c7af2738504961d00a531b87d2e1b04cd59f2a3cfd67eea002ed6fc2a",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/geo/freeway_special_sections_20261124.pmtiles"
   },
   {
    "path": "public/geo/freeway_traffic_signs_v2.pmtiles",

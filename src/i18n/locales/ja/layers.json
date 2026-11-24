@@ -2189,5 +2189,10 @@
   "layer.idAquaculture": "養殖池（インドネシア）",
   "layer.idFarmland": "農地・OSM 由来（インドネシア）",
   "layer.idVeterinary": "動物病院（インドネシア）",
-  "layer.idIkn": "新首都 IKN の範囲・計画（インドネシア）"
+  "layer.idIkn": "新首都 IKN の範囲・計画（インドネシア）",
+  "layer.freewaySpecialSections": "国道の特殊区間（トンネル・路肩開放・登坂車線）",
+  "layer.freewayRoadsideDevices": "国道の路側設備",
+  "layer.freewayRoadkill": "国道のロードキル記録",
+  "layer.freewayEcoFacilities": "国道の生態配慮施設（動物用通路など）",
+  "layer.freewayEcoSurveyFlora": "国道の植物生態調査"
 }

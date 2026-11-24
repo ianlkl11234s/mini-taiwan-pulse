@@ -68,5 +68,8 @@
   "legend.atlas.evSubtitle": "機車專用：4,464 處上圖（13 縣市環保局名冊）；另有 205 筆地址無法定位，未上圖",
   "legend.atlas.slSubtitle": "拉遠：0.01° 方格內的路燈點位數；放大到 12 級起顯示逐點。完整涵蓋：臺北、新北、臺中、新竹市、嘉義市；部分涵蓋：高雄（公園處管養 35 區）、彰化（僅省道）、桃園（僅中壢區公所）",
   "legend.atlas.slLedUnknown": "燈具類型不明（來源無此欄）",
-  "legend.atlas.wpHatchNote": "；斜線依所選類別顯示：只勾一類時，斜線是沒有該類別名冊的縣市。"
+  "legend.atlas.wpHatchNote": "；斜線依所選類別顯示：只勾一類時，斜線是沒有該類別名冊的縣市。",
+  "legend.atlas.fwyOpenShoulder": "開放路肩（不含 24 筆無法定位的路段）",
+  "legend.atlas.fwyRoadsideSubtitle": "預設只顯示資訊可變標誌，車輛偵測器可在類別篩選勾選（資料日 2026-11-24）",
+  "legend.atlas.fwyFloraRow": "植物調查紀錄"
 }

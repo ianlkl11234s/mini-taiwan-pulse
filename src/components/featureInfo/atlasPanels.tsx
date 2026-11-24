@@ -25,6 +25,7 @@ import {
   ALISHAN_RAIL_KIND_OPTIONS, ALISHAN_BRANCH_STATIONS, alishanRailKind, mountainMobileColor, mountainMobileGroupKey, ECO_HOTEL_LEVEL_OPTIONS,
   NAMR_BUOY_KIND_OPTIONS, AIRPORT_SURFACE_OPTIONS, NP_PARK_OPTIONS,
   HAKKA_SCHOOL_KIND_OPTIONS, SAND_GRAVEL_REG_OPTIONS, WELFARE_POINT_KIND_OPTIONS, EV_MOTO_KIND_OPTIONS, STREETLIGHT_LED_OPTIONS, STREETLIGHT_LED_UNKNOWN_COLOR,
+  FREEWAY_SPECIAL_KIND_OPTIONS, FREEWAY_ROADSIDE_KIND_OPTIONS, FREEWAY_ROADKILL_GROUP_OPTIONS, FREEWAY_ECO_FACILITY_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { ToxicPermitsBlock } from "./pollutionPanels";
@@ -1643,6 +1644,117 @@ function CountyStreetlightPanel({ props }: Props) {
   </>;
 }
 
+/** 國道里程樁位置（里程 + 方向）；缺值不顯示。 */
+const fwyMile = (p: Record<string, unknown>, i18n: LocaleSnapshot): string => {
+  const text = str(p.mile_text);
+  if (text) return text;
+  const start = fmt(p.start_km, 1, "", i18n);
+  const end = fmt(p.end_km, 1, "", i18n);
+  return start && end ? `${start}–${end} km` : start ? `${start} km` : "";
+};
+
+/** 國道靜態批（2026-11-24）特殊路段：位置由里程換算；開放路肩另有時段、速限、路肩型式、車種限制。 */
+function FreewaySpecialSectionPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(FREEWAY_SPECIAL_KIND_OPTIONS, props.kind);
+  const kindText = enumOf("atlasFreewaySpecialKind", props.kind, props.kind_label, i18n);
+  return <>
+    <Title color={color}>{[str(props.road), str(props.name) || kindText].filter(Boolean).join(" ")}</Title>
+    <Row field="type" value={kindText} color={color} />
+    <Row field="route" value={str(props.road)} />
+    <Row field="direction" value={str(props.direction_raw) || str(props.direction)} />
+    <Row label={t("popup.atlas.fwyMileage")} value={fwyMile(props, i18n)} mono />
+    <Row field="length" value={fmt(props.length_m_geom, 0, "m", i18n)} mono />
+    <Row label={t("popup.atlas.fwyTunnelLength")} value={fmt(props.tunnel_length_m, 0, "m", i18n)} mono />
+    <Row label={t("popup.atlas.fwyOpenWindow")} value={str(props.time_window)} />
+    <Row field="speedLimit" value={str(props.speed_limit_text) || fmt(props.speed_limit_kmh, 0, "km/h", i18n)} />
+    <Row label={t("popup.atlas.fwyShoulderType")} value={str(props.shoulder_type)} />
+    <Row label={t("popup.atlas.fwyVehicleLimit")} value={str(props.vehicle_limit)} />
+    <Row field="caution" value={t("popup.atlas.fwyMileNote")} />
+  </>;
+}
+
+/** 國道靜態批（2026-11-24）路邊設備：只有位置，不含即時訊息；資料日固定。 */
+function FreewayRoadsideDevicePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(FREEWAY_ROADSIDE_KIND_OPTIONS, props.kind);
+  const kindText = enumOf("atlasFreewayRoadsideKind", props.kind, str(props.kind), i18n);
+  const section = [str(props.section_start), str(props.section_end)].filter(Boolean).join(" → ");
+  return <>
+    <Title color={color}>{str(props.device_id) || kindText}</Title>
+    <Row field="type" value={kindText} color={color} />
+    <Row field="route" value={str(props.road_name)} />
+    <Row field="direction" value={str(props.direction)} />
+    <Row field="roadSection" value={section} />
+    <Row label={t("popup.atlas.fwyMileage")} value={str(props.mile_text)} mono />
+    <Row label={t("popup.atlas.fwyLaneCount")} value={fmt(props.lane_count, 0, "", i18n)} mono />
+    <Row label={t("popup.atlas.fwyLinkCount")} value={fmt(props.link_count, 0, "", i18n)} mono />
+    <Row field="caution" value={t("popup.atlas.fwyDeviceNote")} />
+  </>;
+}
+
+/** 國道靜態批（2026-11-24）路殺紀錄：位置為里程樁內插，不是實際路殺位置；里程 0 可能是缺值佔位。 */
+function FreewayRoadkillPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(FREEWAY_ROADKILL_GROUP_OPTIONS, props.species_group);
+  const group = enumOf("atlasFreewayRoadkillGroup", props.species_group, str(props.species_group), i18n);
+  const guess = str(props.species_guess);
+  const raw = str(props.species_raw);
+  const km = fmt(props.km, 1, "km", i18n);
+  const where = [str(props.road), km, str(props.direction_raw) ? `（${str(props.direction_raw)}）` : ""].filter(Boolean).join(" ");
+  return <>
+    <Title color={color}>{raw || group}</Title>
+    <Row field="type" value={group} color={color} />
+    <Row label={t("popup.atlas.fwySpeciesGuess")} value={guess && guess !== raw ? guess : ""} />
+    <Row field="date" value={str(props.obs_date)} mono />
+    <Row label={t("popup.atlas.fwyMileage")} value={where} mono />
+    <Row label={t("popup.atlas.fwyWorkType")} value={str(props.work_type)} />
+    <Row label={t("popup.atlas.fwySectionOffice")} value={str(props.section_office)} />
+    {props.km_zero_flag === true ? <Row field="caution" value={t("popup.atlas.fwyKmZero")} /> : null}
+    <Row field="caution" value={t("popup.atlas.fwyMileNote")} />
+  </>;
+}
+
+/** 國道靜態批（2026-11-24）生態友善設施：區間類設施的點為區間中點。 */
+function FreewayEcoFacilityPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(FREEWAY_ECO_FACILITY_OPTIONS, props.facility_type);
+  const typeText = enumOf("atlasFreewayEcoFacilityType", props.facility_type, str(props.facility_type), i18n);
+  const length = fmt(props.length_m, 0, "m", i18n);
+  return <>
+    <Title color={color}>{str(props.structure) || typeText}</Title>
+    <Row field="type" value={typeText} color={color} />
+    <Row field="route" value={str(props.road)} />
+    <Row label={t("popup.atlas.fwyMileage")} value={fwyMile(props, i18n)} mono />
+    <Row field="length" value={length} mono />
+    <Row label={t("popup.atlas.fwySectionOffice")} value={str(props.section_office)} />
+    {props.geom_basis === "range_midpoint" ? <Row field="caution" value={t("popup.atlas.fwyMidpointNote", { length: length || "—" })} /> : null}
+    <Row field="caution" value={t("popup.atlas.fwyMileNote")} />
+  </>;
+}
+
+/** 國道靜態批（2026-11-24）植物生態調查：樣區座標；只收植物。 */
+function FreewayFloraPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const latin = str(props.species_latin);
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.freewayEcoSurveyFlora}>{str(props.species_zh) || latin || t("popup.atlas.fwyFloraTitle")}</Title>
+    <Row label={t("popup.atlas.fwyLatinName")} value={str(props.species_zh) ? latin : ""} />
+    <Row field="surveyDate" value={str(props.survey_date)} mono />
+    <Row field="method" value={str(props.method)} />
+    <Row field="countyTownship" value={placeName(`${str(props.county)}${str(props.town)}`, i18n)} />
+    <Row field="route" value={str(props.road_key)} />
+    <Row label={t("popup.atlas.fwySurveyOrg")} value={str(props.survey_org)} />
+    <Row field="remarks" value={str(props.note)} />
+    <Row field="caution" value={t("popup.atlas.fwyFloraNote")} />
+  </>;
+}
+
 /** G53 批 2／3 爆竹煙火場所：位置由地址推估；個人經營不顯示名稱、只到鄉鎮。 */
 function FireworksSitePanel({ props }: Props) {
   const i18n = useLocale();
@@ -1843,6 +1955,12 @@ const G53_SOURCES: Record<G53Key, { org: keyof typeof ATLAS_ORGS; dataset: (prop
   motorcycleInspectionStations: { org: "moenv", dataset: () => "6352" },
   antivenomHospitals: { org: "cdc", dataset: () => "24468" },
   freewayHundredMeterStakes: { org: "freeway", dataset: () => "95016" },
+  // 國道靜態批（2026-11-24）：特殊路段、路邊設備依種類指向各自資料集
+  freewaySpecialSections: { org: "freeway", dataset: (p) => (p.kind === "tunnel" ? "95069" : p.kind === "climbing_lane" ? "31035" : "31038") },
+  freewayRoadsideDevices: { org: "freeway", dataset: (p) => (p.kind === "vd" ? "37661" : "37667") },
+  freewayRoadkill: { org: "freeway", dataset: () => "31291" },
+  freewayEcoFacilities: { org: "freeway", dataset: () => "31292" },
+  freewayEcoSurveyFlora: { org: "freeway", dataset: () => "31289" },
 };
 
 function withG53Footer(key: G53Key, Panel: FC<Props>): FC<Props> {
@@ -1888,6 +2006,11 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   slopelandSwcAct: withG53Footer("slopelandSwcAct", SlopelandSwcActPanel),
   swcSpecialZones: withG53Footer("swcSpecialZones", SwcSpecialZonePanel),
   freewayHundredMeterStakes: withG53Footer("freewayHundredMeterStakes", FreewayStakePanel),
+  freewaySpecialSections: withG53Footer("freewaySpecialSections", FreewaySpecialSectionPanel),
+  freewayRoadsideDevices: withG53Footer("freewayRoadsideDevices", FreewayRoadsideDevicePanel),
+  freewayRoadkill: withG53Footer("freewayRoadkill", FreewayRoadkillPanel),
+  freewayEcoFacilities: withG53Footer("freewayEcoFacilities", FreewayEcoFacilityPanel),
+  freewayEcoSurveyFlora: withG53Footer("freewayEcoSurveyFlora", FreewayFloraPanel),
   antivenomHospitals: withG53Footer("antivenomHospitals", AntivenomHospitalPanel),
   postMailboxes: withG53Footer("postMailboxes", PostMailboxPanel),
   motorcycleInspectionStations: withG53Footer("motorcycleInspectionStations", MotorcycleInspectionPanel),
@@ -1965,6 +2088,11 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   slopelandSwcAct: manifestZh("slopelandSwcAct"),
   swcSpecialZones: manifestZh("swcSpecialZones"),
   freewayHundredMeterStakes: manifestZh("freewayHundredMeterStakes"),
+  freewaySpecialSections: manifestZh("freewaySpecialSections"),
+  freewayRoadsideDevices: manifestZh("freewayRoadsideDevices"),
+  freewayRoadkill: manifestZh("freewayRoadkill"),
+  freewayEcoFacilities: manifestZh("freewayEcoFacilities"),
+  freewayEcoSurveyFlora: manifestZh("freewayEcoSurveyFlora"),
   antivenomHospitals: manifestZh("antivenomHospitals"),
   landslideEventCatalog: manifestZh("landslideEventCatalog"),
   wraDisasterCctv: manifestZh("wraDisasterCctv"),

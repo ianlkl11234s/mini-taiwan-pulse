@@ -76,7 +76,7 @@ import { withDarkContrast } from "./darkContrast";
 import { withLineFillSpec } from "./lineFillSpec";
 import { withRepPoints } from "./repPointOverlays";
 import { COURT_TIER_COLOR_KEYS, POLICE_ISO_OVERLAP_BREAKS, POLICE_ISO_OVERLAP_COLORS, POLICE_TIER_COLOR_KEYS, PROSECUTOR_TIER_COLOR_KEYS } from "./justiceTierColors";
-import { categoricalColor, categoricalNeutral, BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, pointRadius, LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale, hatchImageId } from "./mapStyleScale";
+import { categoricalColor, categoricalNeutral, BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, pointRadius, LINE_WIDTH, lineWidthExpr, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale, hatchImageId } from "./mapStyleScale";
 
 /** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(211_530, 12);
@@ -129,6 +129,9 @@ const DENSE_FROM = {
   freewayTrafficSigns: densePointsFromZoom(51_405, 7),
   // G53 批 1（2026-11-09）：國道百公尺樁 PMTiles z5 起
   freewayHundredMeterStakes: densePointsFromZoom(10_082, 5),
+  // 國道靜態批（2026-11-24）：圖磚 z11 起帶全欄位，路殺 10.7 萬點依 P-4 規則 z12 起畫點
+  freewayRoadkill: densePointsFromZoom(107_156, 11),
+  freewayEcoSurveyFlora: densePointsFromZoom(30_746, 11),
   // G53 批 2／3（2026-11-10）：TEDS 點源工廠 15,996 家（顯示模式「點源工廠」）
   tedsGridEmissions: densePointsFromZoom(15_996, 4),
   placeNames: densePointsFromZoom(36_431, 7),
@@ -377,7 +380,7 @@ import {
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
-  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, NP_PARK_OPTIONS, airportSurfaceColorExpr, HAKKA_SCHOOL_KIND_OPTIONS, SAND_GRAVEL_REG_OPTIONS, WELFARE_POINT_KIND_OPTIONS, EV_MOTO_KIND_OPTIONS, B7_COUNTY_COVERAGE, welfareUncoveredCounties, STREETLIGHT_GRID_STEPS, streetlightLedColorExpr, ATLAS_OTHER_COLOR, type B7CoverageKey, GOV_HR_BRANCH_COLOR, GOV_HR_BRANCH_FILTER_INDEX, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
+  MAILBOX_SERVICE_OPTIONS, BROADCAST_KIND_OPTIONS, WRA_CCTV_KIND_OPTIONS, TRA_CROSSING_TYPE_OPTIONS, IOCEAN_GROUP_OPTIONS, FISHING_TYPE_OPTIONS, FIREWORKS_KIND_OPTIONS, alishanRailColorExpr, mountainMobileColorExpr, ECO_HOTEL_LEVEL_OPTIONS, NAMR_BUOY_KIND_OPTIONS, NP_PARK_OPTIONS, airportSurfaceColorExpr, FREEWAY_SPECIAL_KIND_OPTIONS, FREEWAY_ROADSIDE_KIND_OPTIONS, FREEWAY_ROADKILL_GROUP_OPTIONS, FREEWAY_ECO_FACILITY_OPTIONS, HAKKA_SCHOOL_KIND_OPTIONS, SAND_GRAVEL_REG_OPTIONS, WELFARE_POINT_KIND_OPTIONS, EV_MOTO_KIND_OPTIONS, B7_COUNTY_COVERAGE, welfareUncoveredCounties, STREETLIGHT_GRID_STEPS, streetlightLedColorExpr, ATLAS_OTHER_COLOR, type B7CoverageKey, GOV_HR_BRANCH_COLOR, GOV_HR_BRANCH_FILTER_INDEX, VIO_KIND_OPTIONS, VIO_ZONE_OPTIONS, VEG_CLASS_OPTIONS, FOREST_TYPE_OPTIONS, vegClassFilter, TEDS_VIEW_OPTIONS, TEDS_POLLUTANT_OPTIONS, TEDS_DENSITY_STEPS,
   pollutionZoneColorExpr, pollutionZoneStatusFilter, landslideEventColorExpr, landslideEventFilter,
   DEBRIS_RISK_OPTIONS,
   LAND_CHANGE_CLASS_OPTIONS, LAND_CHANGE_YEARS,
@@ -12727,6 +12730,26 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     layers: polygonLayers("swcSpecialZones", matchColorExpr("zone_type", SWC_ZONE_TYPE_OPTIONS), 0.45),
   },
   publicLifePointOverlay("freewayHundredMeterStakes", "./geo/freeway_hundred_meter_stakes_95016.pmtiles", "freeway-hundred-meter-stakes", ATLAS_LAYER_COLORS.freewayHundredMeterStakes, { sourceLayer: "freeway_hundred_meter_stakes", minzoom: 5, maxzoom: 14 }, `交通部高速公路局 國道百公尺里程樁（data.gov.tw 95016）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.freewayHundredMeterStakes, intensity: 1 } }),
+  // 國道靜態批（2026-11-24）：高公局特殊路段、路邊設備、路殺、生態友善設施、植物調查
+  {
+    id: "freewaySpecialSections", sourceUrl: "./geo/freeway_special_sections_20261124.pmtiles", sourceId: "freeway-special-sections",
+    pmtiles: { sourceLayer: "freeway_special_sections", minzoom: 5, maxzoom: 14 },
+    attribution: `交通部高速公路局 國道開放路肩、爬坡道、隧道（data.gov.tw 31038、31035、95069；位置由里程換算）· ${OGDL_ATTR}`, rebuildOnParamChange: ["line"],
+    layers: [
+      { suffix: "line", type: "line", minzoom: 5, filter: (p) => atlasMultiSelectFilter("kind", FREEWAY_SPECIAL_KIND_OPTIONS, p?.freewaySpecialSectionsKindMask), layout: { "line-cap": "round", "line-join": "round" }, paint: (_dark, p) => {
+        const scale = p?.freewaySpecialSectionsScale ?? 1;
+        return {
+          "line-color": matchColorExpr("kind", FREEWAY_SPECIAL_KIND_OPTIONS),
+          "line-width": lineWidthExpr("emphasis", scale),
+          "line-opacity": p?.freewaySpecialSectionsOpacity ?? 0.9,
+        };
+      } },
+    ],
+  },
+  publicLifePointOverlay("freewayRoadsideDevices", "./geo/freeway_roadside_devices_20261124.pmtiles", "freeway-roadside-devices", matchColorExpr("kind", FREEWAY_ROADSIDE_KIND_OPTIONS), { sourceLayer: "freeway_roadside_devices", minzoom: 5, maxzoom: 14 }, `交通部高速公路局 國道資訊可變標誌、車輛偵測器位置（data.gov.tw 37667、37661；資料日 2026-11-24）· ${OGDL_ATTR}`, [1.5, 5], { filter: (p) => atlasMultiSelectFilter("kind", FREEWAY_ROADSIDE_KIND_OPTIONS, p?.freewayRoadsideDevicesKindMask) }),
+  publicLifePointOverlay("freewayRoadkill", "./geo/freeway_roadkill_records_20261124.pmtiles", "freeway-roadkill", matchColorExpr("species_group", FREEWAY_ROADKILL_GROUP_OPTIONS), { sourceLayer: "freeway_roadkill_records", minzoom: 5, maxzoom: 14 }, `交通部高速公路局 國道路殺動物紀錄（data.gov.tw 31291；位置由里程換算，精度約 0.1 km）· ${OGDL_ATTR}`, [1.5, 4], { dense: { pointsFromZoom: DENSE_FROM.freewayRoadkill, intensity: 0.5 }, filter: (p) => atlasMultiSelectFilter("species_group", FREEWAY_ROADKILL_GROUP_OPTIONS, p?.freewayRoadkillGroupMask) }),
+  publicLifePointOverlay("freewayEcoFacilities", "./geo/freeway_eco_friendly_facilities_20261124.pmtiles", "freeway-eco-facilities", matchColorExpr("facility_type", FREEWAY_ECO_FACILITY_OPTIONS), { sourceLayer: "freeway_eco_friendly_facilities", minzoom: 5, maxzoom: 14 }, `交通部高速公路局 國道生態友善設施（data.gov.tw 31292；位置由里程換算）· ${OGDL_ATTR}`, [4, 8], { filter: (p) => atlasMultiSelectFilter("facility_type", FREEWAY_ECO_FACILITY_OPTIONS, p?.freewayEcoFacilitiesTypeMask) }),
+  publicLifePointOverlay("freewayEcoSurveyFlora", "./geo/freeway_eco_survey_flora_20261124.pmtiles", "freeway-eco-survey-flora", ATLAS_LAYER_COLORS.freewayEcoSurveyFlora, { sourceLayer: "freeway_eco_survey_flora", minzoom: 5, maxzoom: 14 }, `交通部高速公路局 國道植物生態調查（data.gov.tw 31289）· ${OGDL_ATTR}`, [1.5, 4], { dense: { pointsFromZoom: DENSE_FROM.freewayEcoSurveyFlora, intensity: 0.5 } }),
   publicLifePointOverlay("antivenomHospitals", "./geo/antivenom_reserve_hospitals_20241230.pmtiles", "antivenom-hospitals", ATLAS_LAYER_COLORS.antivenomHospitals, { sourceLayer: "antivenom_reserve_hospitals", minzoom: 4, maxzoom: 14 }, `衛生福利部疾病管制署 抗蛇毒血清儲備醫療院所（data.gov.tw 24468）· ${OGDL_ATTR}`, [3.5, 7], { filter: (p) => antivenomSerumFilter(p?.antivenomHospitalsSerumMask) }),
   publicLifePointOverlay("postMailboxes", "./civic_facilities/post_mailboxes_1150428.pmtiles", "post-mailboxes", matchColorExpr("service", MAILBOX_SERVICE_OPTIONS), { sourceLayer: "post_mailboxes", minzoom: 4, maxzoom: 14 }, `中華郵政 郵筒（data.gov.tw 178399）、特色郵筒（52781）· ${OGDL_ATTR}`, [2.5, 6]),
   publicLifePointOverlay("motorcycleInspectionStations", "./environment/motorcycle_inspection_stations_20261109.pmtiles", "motorcycle-inspection-stations", ATLAS_LAYER_COLORS.motorcycleInspectionStations, { sourceLayer: "motorcycle_inspection_stations", minzoom: 4, maxzoom: 14 }, `環境部 機車排氣定期檢驗站（data.gov.tw 6352）· ${OGDL_ATTR}`, [2.5, 6]),
