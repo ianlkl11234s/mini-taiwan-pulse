@@ -64,7 +64,7 @@ export interface VersionWatcherOptions {
 
 /**
  * 背景檢查：每 `intervalMs` 一次（分頁在背景時跳過），分頁回到前景時再檢查（至少隔 `minRecheckMs`）。
- * 偵測到不同版本後呼叫 onUpdate 並停止輪詢。回傳停止函式。
+ * 偵測到不同版本後呼叫 onUpdate；同一版只通知一次，但輪詢不停——使用者略過 B 版後若又發了 C 版，仍會再通知。回傳停止函式。
  */
 export function startVersionWatcher(opts: VersionWatcherOptions): () => void {
   const doc = opts.doc ?? document;
@@ -73,6 +73,7 @@ export function startVersionWatcher(opts: VersionWatcherOptions): () => void {
   let lastCheck = now();
   let stopped = false;
   let inFlight = false;
+  let notifiedKey: string | null = null;
 
   const check = async () => {
     if (stopped || inFlight) return;
@@ -80,8 +81,8 @@ export function startVersionWatcher(opts: VersionWatcherOptions): () => void {
     lastCheck = now();
     try {
       const remote = await opts.fetchVersion();
-      if (!stopped && remote && isDifferentBuild(opts.local, remote)) {
-        stop();
+      if (!stopped && remote && isDifferentBuild(opts.local, remote) && versionKey(remote) !== notifiedKey) {
+        notifiedKey = versionKey(remote);
         opts.onUpdate(remote);
       }
     } finally {

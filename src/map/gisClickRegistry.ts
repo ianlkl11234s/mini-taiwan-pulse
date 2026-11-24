@@ -15,7 +15,7 @@ import { repPointClickLayerIds } from './repPointOverlays';
  *   下方迴圈由上往下 `queryRenderedFeatures`，第一個命中就 break。
  *   細節豐富的小目標排前、大面積面層刻意排末（校地面 / 等時圈 / 溫度網格…）。
  *   **重排 = 靜默改掉「點下去命中哪一層」**，沒有型別能擋 → 由黃金快照的
- *   `gisLayers` section 逐位元凍結（`src/data/__tests__/__fixtures__/layer-golden.json`）。
+ *   `gisLayers` section 逐位元凍結（`src/data/__tests__/__fixtures__/layer-golden/`）。
  *
  * ── 為什麼**不**從 manifest 派生（2026-08-12 拍板改案）─────────────
  *   Phase 3 原規劃「由 manifest 的 `popup` ＋ 新增的 `clickPriority` 欄位派生本表」。

@@ -1,0 +1,1478 @@
+{
+  "count": 4,
+  "gisLayers": {
+    "broadcastTransmitters": {
+      "layers": [
+        "broadcast-transmitters-circle",
+        "broadcast-transmitters-glow"
+      ],
+      "type": "broadcastTransmitters"
+    },
+    "mountainMobileImprovement": {
+      "layers": [
+        "mountain-mobile-improvement-circle",
+        "mountain-mobile-improvement-glow"
+      ],
+      "type": "mountainMobileImprovement"
+    }
+  },
+  "overlays": {
+    "broadcastTransmitters": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "broadcastTransmitters",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "fm",
+                "#7c3aed",
+                "am",
+                "#f59e0b",
+                "monitoring",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "fm",
+                "#7c3aed",
+                "am",
+                "#f59e0b",
+                "monitoring",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                11.700000000000001
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "fm",
+                "#8f5bff",
+                "am",
+                "#f59e0b",
+                "monitoring",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "fm",
+                "#8f5bff",
+                "am",
+                "#f59e0b",
+                "monitoring",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6.5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "broadcast_transmitters"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "broadcast-transmitters",
+      "sourceUrl": "./geo/broadcast_transmitters_1150703.pmtiles"
+    },
+    "mountainMobileImprovement": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mountainMobileImprovement",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.14,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                1.8,
+                16,
+                456
+              ],
+              "circle-stroke-width": 0
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.14,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                1.8,
+                16,
+                456
+              ],
+              "circle-stroke-width": 0
+            }
+          },
+          "suffix": "coverage",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_group"
+                ],
+                "山徑步道及林道",
+                "#0ea5e9",
+                "道路及鐵路",
+                "#f59e0b",
+                "國家森林園區",
+                "#22c55e",
+                "山莊及山屋",
+                "#a855f7",
+                [
+                  "山及三角點",
+                  "山峰"
+                ],
+                "#ef4444",
+                "國家森林遊樂園",
+                "#14b8a6",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 4,
+        "sourceLayer": "mountain_mobile_improvement"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "coverage"
+      ],
+      "sourceId": "mountain-mobile-improvement",
+      "sourceUrl": "./geo/mountain_mobile_improvement_v1.pmtiles"
+    },
+    "ooklaFixedTaiwan": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaFixedTaiwan",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "fixed"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-tw-z14-fixed",
+      "sourceUrl": "./geo/ookla_tw_z14.pmtiles"
+    },
+    "ooklaFixedTaiwan#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaFixedTaiwan",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 16,
+        "minzoom": 15,
+        "sourceLayer": "fixed"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-tw-z16-fixed",
+      "sourceUrl": "./geo/ookla_tw_z16.pmtiles"
+    },
+    "ooklaMobileTaiwan": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaMobileTaiwan",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "mobile"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-tw-z14-mobile",
+      "sourceUrl": "./geo/ookla_tw_z14.pmtiles"
+    },
+    "ooklaMobileTaiwan#2": {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaMobileTaiwan",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 16,
+        "minzoom": 15,
+        "sourceLayer": "mobile"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-tw-z16-mobile",
+      "sourceUrl": "./geo/ookla_tw_z16.pmtiles"
+    }
+  },
+  "params": {
+    "broadcastTransmitters": [
+      {
+        "label": "種類",
+        "options": [
+          {
+            "label": "FM 廣播",
+            "value": "fm"
+          },
+          {
+            "label": "AM 廣播",
+            "value": "am"
+          },
+          {
+            "label": "電波監測站",
+            "value": "monitoring"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "fm",
+          "am",
+          "monitoring"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mountainMobileImprovement": [
+      {
+        "label": "站點類別",
+        "options": [
+          {
+            "label": "山徑步道及林道",
+            "value": "山徑步道及林道"
+          },
+          {
+            "label": "道路及鐵路",
+            "value": "道路及鐵路"
+          },
+          {
+            "label": "國家森林園區",
+            "value": "國家森林園區"
+          },
+          {
+            "label": "山莊及山屋",
+            "value": "山莊及山屋"
+          },
+          {
+            "label": "山及三角點",
+            "value": "山及三角點"
+          },
+          {
+            "label": "國家森林遊樂園",
+            "value": "國家森林遊樂園"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "山徑步道及林道",
+          "道路及鐵路",
+          "國家森林園區",
+          "山莊及山屋",
+          "山及三角點",
+          "國家森林遊樂園"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "ooklaFixedTaiwan": [
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "柔和 RdYlBu",
+            "value": "soft"
+          },
+          {
+            "label": "高對比",
+            "value": "vivid"
+          }
+        ],
+        "type": "select",
+        "value": "soft"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      }
+    ],
+    "ooklaMobileTaiwan": [
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "柔和 RdYlBu",
+            "value": "soft"
+          },
+          {
+            "label": "高對比",
+            "value": "vivid"
+          }
+        ],
+        "type": "select",
+        "value": "soft"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      }
+    ]
+  }
+}

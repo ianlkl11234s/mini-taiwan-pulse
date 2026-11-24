@@ -1,0 +1,272 @@
+{
+  "count": 5,
+  "gisLayers": {},
+  "overlays": {},
+  "params": {
+    "statsOpenDataCoordDatasets": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "資料集數",
+            "value": "statsOpenDataDatasets"
+          },
+          {
+            "label": "有座標資料集數",
+            "value": "statsOpenDataCoordDatasets"
+          },
+          {
+            "label": "有座標比例",
+            "value": "statsOpenDataCoordShare"
+          },
+          {
+            "label": "有空間資訊比例",
+            "value": "statsOpenDataSpatialShare"
+          },
+          {
+            "label": "有座標主題數",
+            "value": "statsOpenDataThemesWithCoords"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsOpenDataCoordDatasets"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsOpenDataCoordShare": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "資料集數",
+            "value": "statsOpenDataDatasets"
+          },
+          {
+            "label": "有座標資料集數",
+            "value": "statsOpenDataCoordDatasets"
+          },
+          {
+            "label": "有座標比例",
+            "value": "statsOpenDataCoordShare"
+          },
+          {
+            "label": "有空間資訊比例",
+            "value": "statsOpenDataSpatialShare"
+          },
+          {
+            "label": "有座標主題數",
+            "value": "statsOpenDataThemesWithCoords"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsOpenDataCoordShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsOpenDataDatasets": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "資料集數",
+            "value": "statsOpenDataDatasets"
+          },
+          {
+            "label": "有座標資料集數",
+            "value": "statsOpenDataCoordDatasets"
+          },
+          {
+            "label": "有座標比例",
+            "value": "statsOpenDataCoordShare"
+          },
+          {
+            "label": "有空間資訊比例",
+            "value": "statsOpenDataSpatialShare"
+          },
+          {
+            "label": "有座標主題數",
+            "value": "statsOpenDataThemesWithCoords"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsOpenDataDatasets"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "呈現方式",
+        "options": [
+          {
+            "label": "面量圖",
+            "value": "choropleth"
+          },
+          {
+            "label": "比例圓",
+            "value": "circle"
+          }
+        ],
+        "type": "select",
+        "value": "choropleth"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsOpenDataSpatialShare": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "資料集數",
+            "value": "statsOpenDataDatasets"
+          },
+          {
+            "label": "有座標資料集數",
+            "value": "statsOpenDataCoordDatasets"
+          },
+          {
+            "label": "有座標比例",
+            "value": "statsOpenDataCoordShare"
+          },
+          {
+            "label": "有空間資訊比例",
+            "value": "statsOpenDataSpatialShare"
+          },
+          {
+            "label": "有座標主題數",
+            "value": "statsOpenDataThemesWithCoords"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsOpenDataSpatialShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsOpenDataThemesWithCoords": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "資料集數",
+            "value": "statsOpenDataDatasets"
+          },
+          {
+            "label": "有座標資料集數",
+            "value": "statsOpenDataCoordDatasets"
+          },
+          {
+            "label": "有座標比例",
+            "value": "statsOpenDataCoordShare"
+          },
+          {
+            "label": "有空間資訊比例",
+            "value": "statsOpenDataSpatialShare"
+          },
+          {
+            "label": "有座標主題數",
+            "value": "statsOpenDataThemesWithCoords"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsOpenDataThemesWithCoords"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ]
+  }
+}

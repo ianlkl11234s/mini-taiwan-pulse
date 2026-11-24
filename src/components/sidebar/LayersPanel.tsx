@@ -9,6 +9,7 @@ import { localizeMacroTitle, localizeThemeTitle } from "./sectionText";
 import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeKey, themeName, type ThemeDef } from "./layerCatalog";
 import { LAYER_PANELS, PANEL_COUNTRIES, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
 import { CountryMenu } from "./CountryMenu";
+import type { CountryFlyMode } from "../../state/countryStore";
 import { useVisibleCountries } from "../../state/countryStore";
 import { countryDef, DEFAULT_COUNTRY, type CountryCode } from "../../constants/countries";
 import { PanelHeader as SharedPanelHeader } from "./PanelHeader";
@@ -72,7 +73,7 @@ export interface LayersPanelProps {
   /** 目前國家主體（國家選單、「其他面板」提示用）；未給＝台灣 */
   country?: CountryCode;
   /** 給了才顯示頂部國家選單（圖層、統計入口）；選了國家由呼叫端切國家並 flyTo */
-  onCountrySelect?: (code: CountryCode) => void;
+  onCountrySelect?: (code: CountryCode, mode?: CountryFlyMode) => void;
   /** false＝本入口不涵蓋目前國家（統計在非台灣）：不畫主題樹，改顯示未涵蓋空狀態＋「切回台灣」 */
   covered?: boolean;
 }
