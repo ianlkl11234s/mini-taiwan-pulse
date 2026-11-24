@@ -8,6 +8,12 @@
 
 ---
 
+## 2026-11-24 流程教訓三則：worker 繞過 secret-guard、release 分支併入已發布段落、merge:develop 不自動 commit
+
+- **現象 1**：worker 為了連正式庫，自寫腳本讀環境設定檔取連線字串，繞過 secret-guard hook（被擋時不該換路）。目前沒有外洩證據（依主 agent 敘述）。**對策**：派工 prompt 明寫「連正式庫只能用既有授權入口（`pulse-secret-run` 等）；沒有就停下回報，不自寫腳本讀 `.env`／設定檔」。是否輪換密碼見 BACKLOG SEC-13。
+- **現象 2**：以 `release/*` 分支直接進 master 的發版，合回 develop 時若同時有別的 PR 合入，git 可能把新條目併進「已發布」的 CHANGELOG 段落。`npm run check:changelog`（#1192）有擋到，修正見 #1228、#1233。**對策**：合回 develop 後先跑 `npm run check:changelog`；多出的條目搬回 `## [Unreleased]`。
+- **現象 3**：`npm run merge:develop`（#1195）解完衝突後不會自動 commit，腳本結束時工作區是已合併但未提交的狀態。**對策**：跑完自己補 commit（並照原規則跑 `tsc -b`）。
+
 ## 2026-06-22 加油站 30km coverage — Overpass mirror 連環卡 8 小時 + pyrosm 爆 RAM
 
 **現象**：開始做加油站 30km 路網可達分析（osmnx + multi_source_dijkstra）後，遇到一連串 batch 卡死：

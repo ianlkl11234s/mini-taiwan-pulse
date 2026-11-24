@@ -202,6 +202,9 @@
 7. **「沒有」的證據先驗量測手段看不看得到**：Resource Timing 只留 250 筆、lazy chunk、本機 `grep` 是會吞輸出的 shell function（否定結論用 `/usr/bin/grep` 或 `rg` 複驗）。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 8. **migration 取號前 `git fetch` 看 origin 最大號**。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 9. **派工前先查 BACKLOG 項目是否其實已完成**（`git log -S`、PR 搜尋）；worker 卡住或斷線時先存 WIP commit 再用 SendMessage 接續；和平行 session 分工時發版只由一方發。→ [REFLECTIONS 2026-11-09～10 多國跨夜](../.claude/memory/REFLECTIONS.md)
+10. **派工 prompt 明寫「連正式庫只能用既有授權入口，沒有就停下回報」**：worker 自寫腳本讀環境設定檔取連線字串＝繞過 secret-guard。→ [INCIDENTS 2026-11-24](../.claude/memory/INCIDENTS.md)
+11. **release 分支直接進 master 的發版，合回 develop 後跑 `npm run check:changelog`**：同時合入的 PR 條目可能被 git 併進已發布段落，要搬回 Unreleased。→ [INCIDENTS 2026-11-24](../.claude/memory/INCIDENTS.md)
+12. **`npm run merge:develop` 解完衝突後不會自動 commit**，要自己補 commit 再跑 `tsc -b`。→ [INCIDENTS 2026-11-24](../.claude/memory/INCIDENTS.md)
 
 ## 10. 過時文件索引（2026-10-16）
 
