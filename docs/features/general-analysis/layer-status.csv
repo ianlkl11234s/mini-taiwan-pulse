@@ -1570,6 +1570,17 @@ vnPopulation,人口密度 Population Density（2025）,VN,越南,人口社經,cu
 cnAdminBoundaries,行政區界 Administrative Boundaries,CN,中國,底圖,custom,verified,cn_admin_boundaries,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國行政區界（省 31、地級 357；OCHA COD-AB，邊界不代表任何立場）
 cnPopulation,人口密度 Population Density（2020 Census／GHS 2025）,CN,中國,人口社經,custom,verified,cn_population,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國人口密度（省級 2020 普查、地級 GHS 2025 模型值；未涵蓋畫灰）
 cnPopulationGrid,人口網格 Population Grid（GHS-POP 2025）,CN,中國,人口社經,custom,verified,cn_population,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,中國人口網格（GHS-POP 2025 模型值，約 1 km；7 級人口密度）
+usAdminBoundaries,行政區界 Administrative Boundaries,US,美國,底圖,custom,verified,us_admin_boundaries,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國行政區界（51 州、3,144 郡；Census CB 2025）"
+usPopulation,人口密度 Population Density（ACS 2020–2024）,US,美國,人口社經,custom,verified,us_population,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,美國人口與人口密度（ACS 2020–2024 5 年估計；州、郡、普查區三層級）
+usStations,大眾運輸站 Transit Stops,US,美國,交通,custom,verified,us_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國大眾運輸站 582,087 處（BTS National Transit Map 各業者 GTFS 彙整＋Amtrak 1,022 站；公車站 z9 起）"
+usTransportHubs,機場與港口 Airports & Ports,US,美國,交通,custom,verified,us_transport_hubs,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國營運中航空設施 18,947 處（FAA NASR；商業客運 505）＋USACE 主要港口 145"
+usRailLines,鐵路網 Rail Network,US,美國,交通,custom,verified,us_rail_lines,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國鐵路網 235,645 段（FRA North American Rail Network；幹線、支線、調車場、停駛線）"
+usHighways,國家公路系統 National Highway System,US,美國,交通,custom,verified,us_highways,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國國家公路系統 482,407 段（FHWA NHS 2025-08 版；州際公路、快速道路、主要幹道；含 AADT）"
+usPowerPlants,電廠 Power Plants,US,美國,能源,custom,verified,us_power_plants,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國運轉中電廠 14,325 座（EIA-860 2025；依最大容量能源分色、容量分級大小）"
+usPowerGrid,輸電網 Transmission Lines,US,美國,能源,custom,verified,us_power_grid,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國輸電線 94,339 段（HIFLD 存檔 2025-08；依電壓分色）"
+usRenewables,風機與大型太陽能 Wind Turbines & Utility Solar,US,美國,能源,custom,verified,us_renewables,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國風機 77,649 座（USWTDB v9.1）＋大型地面型太陽能 6,611 處（USPVDB v4.0，z8 起畫範圍）"
+usOilGas,油氣設施與管線 Oil & Gas Infrastructure,US,美國,能源,custom,verified,us_oil_gas,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,"美國煉油廠 132、天然氣處理廠 478、LNG 站 8、外海平台 1,303、外海井 56,495、管線 49,166 段"
+usFuelStations,加油站 Gas Stations,US,美國,能源,custom,verified,us_fuel_stations,,,,,,yes,none,,missing,,,dataset_not_in_warehouse,,,,美國加油站（Overture Places，非官方；z6 起）
 ieBathymetry,海床地形 Bathymetry（INFOMAR）,IE,愛爾蘭,底圖,custom,verified,ie_bathymetry,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"愛爾蘭海床地形（INFOMAR 測深，約 300 m；0–4,832 m 深度色階＋陰影）"
 ieCoillteRecreation,國有林遊憩點與森林入口 Coillte Recreation Sites & Forest Entrances（Coillte）,IE,愛爾蘭,林業,supabase,verified,ie_coillte_recreation,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。愛爾蘭國營林業公司 Coillte 遊憩點 153 處與森林入口 12,888 處；授權限私人研究，不公開"
 ieCoillteForestRoads,國有林林道與遊憩步道 Coillte Forest Roads & Recreation Trails（Coillte）,IE,愛爾蘭,林業,supabase,verified,ie_coillte_forest_roads,,,,,,yes,none,,display_only,,,dataset_not_in_warehouse,,,,"站主限定。愛爾蘭 Coillte 國有林林道 15,877 條與遊憩步道 1,199 條；授權限私人研究，不公開"

@@ -93,7 +93,7 @@ for (const key of MANIFEST_KEYS) {
 }
 const PANEL_LABEL = { statistics: "統計", world: "世界", simulation: "模擬" };
 /** 「圖層」入口依國家主體分欄（2026-10-28 國家主體化；舊「日本」入口併入圖層入口的日本）。 */
-const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國", GB: "英國", KR: "南韓", CA: "加拿大", IE: "愛爾蘭", PH: "菲律賓", VN: "越南", TH: "泰國", ID: "印尼", CN: "中國" };
+const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國", GB: "英國", KR: "南韓", CA: "加拿大", IE: "愛爾蘭", PH: "菲律賓", VN: "越南", TH: "泰國", ID: "印尼", CN: "中國", US: "美國" };
 /** 國別順序取自 COUNTRIES（pulse-data 國家清單正本的產生檔），之後是跨國與模擬。 */
 const COUNTRY_ORDER = [...COUNTRIES.map(country => country.code), "WORLD", "SIM"];
 function panelLabel(target) {

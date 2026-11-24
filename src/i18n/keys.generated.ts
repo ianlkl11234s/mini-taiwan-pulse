@@ -269,6 +269,7 @@ export type GeneratedStaticKey =
   | "country.PH"
   | "country.TH"
   | "country.TW"
+  | "country.US"
   | "country.VN"
   | "country.menuAria"
   | "country.pin"

@@ -702,6 +702,8 @@
     "idRuralDevelopment",
     "idPopulation",
     "idAdminBoundaries",
+    "usPopulation",
+    "usAdminBoundaries",
     "vnPopulation",
     "vnAdminBoundaries",
     "cnTransportHubs",

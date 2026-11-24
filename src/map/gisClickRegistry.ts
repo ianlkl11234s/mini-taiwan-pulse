@@ -877,6 +877,18 @@ export const GIS_LAYERS: GisLayerEntry[] = [
   { layers: ["id-rural-kabkota-fill", "id-rural-province-fill"], type: "idRuralDevelopment" },
   { layers: ["id-population-kabkota-fill", "id-population-province-fill"], type: "idPopulation" },
   { layers: ["id-admin-kabkota-fill", "id-admin-province-fill", "id-admin-country-fill"], type: "idAdminBoundaries" },
+  // 美國（2026-11-25 第 0–1 波）：點、線在前，面（人口、行政界）最後
+  { layers: ["us-stations-circle"], type: "usStations" },
+  { layers: ["us-hubs-circle"], type: "usTransportHubs" },
+  { layers: ["us-power-plants-circle"], type: "usPowerPlants" },
+  { layers: ["us-oil-gas-facilities-circle", "us-oil-gas-wells-circle", "us-oil-gas-pipelines-line"], type: "usOilGas" },
+  { layers: ["us-wind-turbines-circle", "us-solar-circle", "us-solar-fill"], type: "usRenewables" },
+  { layers: ["us-fuel-stations-circle"], type: "usFuelStations" },
+  { layers: ["us-rail-lines-line"], type: "usRailLines" },
+  { layers: ["us-highways-line"], type: "usHighways" },
+  { layers: ["us-power-lines-line"], type: "usPowerGrid" },
+  { layers: ["us-population-tract-fill", "us-population-county-fill", "us-population-state-fill"], type: "usPopulation" },
+  { layers: ["us-admin-county-fill", "us-admin-state-fill"], type: "usAdminBoundaries" },
   { layers: ["vn-population-province-fill"], type: "vnPopulation" },
   { layers: ["vn-admin-province-fill"], type: "vnAdminBoundaries" },
   // 中國（2026-11-13 第 0–1 波，站主限定）：點、線在前，人口面、行政界最後；人口網格是 raster，不可點

@@ -9937,6 +9937,76 @@
    "s3_key": "deploy-assets/world/trash_debris.geojson"
   },
   {
+   "path": "public/world/us_admin_boundaries.pmtiles",
+   "bytes": 43357272,
+   "sha256": "ea33a7ef68b93e98a05f6077a46442ed79f1b81134457695ca3bf5832ea4bd18",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_admin_boundaries.pmtiles"
+  },
+  {
+   "path": "public/world/us_highways.pmtiles",
+   "bytes": 96704971,
+   "sha256": "0ea5e7cfec6e33cc8817ccca2d1906a8e46b95a410b13ef8ae9874d823f7add8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_highways.pmtiles"
+  },
+  {
+   "path": "public/world/us_oil_gas.pmtiles",
+   "bytes": 19812084,
+   "sha256": "85a3363ef912e982160c1b83853f3b04545a02c585684456bdaea07720fa0130",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_oil_gas.pmtiles"
+  },
+  {
+   "path": "public/world/us_population.pmtiles",
+   "bytes": 145578923,
+   "sha256": "6ce4e3d7594dc14e70c5c921e1d89680338d2f6affc83bc6ac4876b4c74996c8",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_population.pmtiles"
+  },
+  {
+   "path": "public/world/us_power_grid.pmtiles",
+   "bytes": 42894936,
+   "sha256": "675b3cfa478e0ed85966ef43a9d0714f600574fbff800f0a20054d8589f4f88c",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_power_grid.pmtiles"
+  },
+  {
+   "path": "public/world/us_power_plants.pmtiles",
+   "bytes": 7776079,
+   "sha256": "c0a41584cc395795ed1222f701f1765b8a9c635cb1486586a63a4929f8e0b177",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_power_plants.pmtiles"
+  },
+  {
+   "path": "public/world/us_rail_lines.pmtiles",
+   "bytes": 53800426,
+   "sha256": "23556cc716eff3ccdd7233f195c04e6240783a9ecaf2c750ae745bbd0a5f540b",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_rail_lines.pmtiles"
+  },
+  {
+   "path": "public/world/us_renewables.pmtiles",
+   "bytes": 21306737,
+   "sha256": "5c7913fa16e505ad9fa4592037fc3771a14f517abf41a70dccc7e0889200fdcf",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_renewables.pmtiles"
+  },
+  {
+   "path": "public/world/us_stations.pmtiles",
+   "bytes": 37772067,
+   "sha256": "1a9409c42bfb20b7da288b553a0927842823f7becdbc6361d9f7da3f9e793ceb",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_stations.pmtiles"
+  },
+  {
+   "path": "public/world/us_transport_hubs.pmtiles",
+   "bytes": 9452349,
+   "sha256": "9f84a4f6cdf1e88690fb73e7b0d40ab0d993d888047edc0df5b344784aa16ab0",
+   "delivery": "r2",
+   "s3_key": "deploy-assets/world/us_transport_hubs.pmtiles"
+  },
+  {
    "path": "public/world/vn_admin_boundaries.pmtiles",
    "bytes": 1951548,
    "sha256": "b9ef5d6f3421615b4a5b80ad5ebd912d39a3ab366ecc57a434a4a19a3772d59a",
